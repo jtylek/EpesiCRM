@@ -20,6 +20,8 @@ class Base_MainModuleIndicatorInit_0 extends ModuleInit {
 	public static function requires() {
 		return array(
 			array('name'=>'Base/Box', 'version'=>0),
+			array('name'=>'Base/Admin', 'version'=>0),
+			array('name'=>'Libs/QuickForm', 'version'=>0),
 			array('name'=>'Base/Theme', 'version'=>0));
 	}
 	

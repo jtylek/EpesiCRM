@@ -37,6 +37,8 @@ class Setup extends Module {
 		$form->setDefaults(array (
 			'default_module' => Variable::get('default_module'), 
 			'anonymous_setup' => Variable::get('anonymous_setup')));
+//		print('='.Base_AclCommon::change_privileges('admin', array(Base_AclCommon::sa_group_id())).'=');
+		
 
 		//install module header
 		$form->addElement('header', 'install_module_header', 'Module administration');

@@ -52,7 +52,6 @@ class Base_AclCommon {
 	 */
 	public static function change_privileges($user, $groups_new) {
 		
-		
 		$uid = self::get_acl_user_id($user);
 		if($uid === false) {
 			print(Base_LangCommon::ts('Base/Acl','invalid user'));
@@ -189,8 +188,6 @@ class Base_AclCommon {
 	}
 	
 	public static function add_user($username) {
-		
-		
 		//check if user is in acl
 		$aro_id = Acl::$gacl->get_object_id('Users', $username, 'ARO');
 		//delete object and all refs, if exists

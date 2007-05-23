@@ -760,7 +760,7 @@ class ModuleManager {
 		foreach($arr as $k=>$v)
 			DB::Execute('UPDATE modules SET priority=%d WHERE name=%s',array($k,$v));
 		
-		print ($module_to_uninstall . " module uninstalled! You can safely remove file: modules/" . $module_to_uninstall . '.php<br>');
+		print ($module_to_uninstall . " module uninstalled! You can safely remove module directory.<br>");
 		return true;
 	}
 	

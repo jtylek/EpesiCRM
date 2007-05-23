@@ -23,14 +23,15 @@ class Variable {
 		self::load();
 		if(!array_key_exists($name,self::$variables))
 			throw new Exception('No such variable in database('.var_export(self::$variables,true).'): ' . $name);
-		return self::$variables[$name];
+		return unserialize(self::$variables[$name]);
 	}
 
 	
 	public static function set($name, $value) {
 		self::load();
+		$value = serialize($value);
 		if(!array_key_exists($name,self::$variables)) {
-	    		self::$variables[$name] = $value;
+			self::$variables[$name] = $value;
 			return DB::Execute("INSERT INTO variables(name,value) VALUES(%s,%s)",array($name,$value));
 		} else {
 			self::$variables[$name] = $value;
