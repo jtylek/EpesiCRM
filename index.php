@@ -6,6 +6,7 @@
  * and gets output of default module.
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
+ * @licence TL
  * @version 1.0
  * @package tcms-base
  */

@@ -1,4 +1,10 @@
 <?php
+/*
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @version 1.0
+ * @copyright Copyright &copy; 2007, Telaxus LLC
+ * @licence TL
+ */
 /**
  * Check access to working directories
  */
@@ -22,11 +28,6 @@ function write_config($host,$user,$pass,$dbname,$engine) {
  * Config file
  * 
  * This file contains database configuration.
- * 
- * @author Paul Bukowski <pbukowski@telaxus.com>
- * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 1.0
- * @package tcms-base
  */
  defined("_VALID_ACCESS") || die("Direct access forbidden");
  

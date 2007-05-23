@@ -5,10 +5,11 @@
  * This file defines abstract class Module whose provides basic modules functionality.
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
+ * @licence TL
  * @version 1.0
  * @package tcms-base
  */
-DEFINED("_VALID_ACCESS") || die('Direct access forbidden');
+defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 abstract class ModuleInstall {
 	/**

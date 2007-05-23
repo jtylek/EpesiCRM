@@ -5,7 +5,9 @@
  * Maintain history array.
  * 
  * @author Paul Bukowski <pbukowski@telaxus.com>
- * @version 0.1
+ * @version 1.0
+ * @copyright Copyright &copy; 2007, Telaxus LLC
+ * @licence TL
  * @package tcms-base
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');

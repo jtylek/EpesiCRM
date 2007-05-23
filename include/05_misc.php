@@ -6,6 +6,7 @@
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
  * @package tcms-base
+ * @licence TL
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

@@ -1,3 +1,9 @@
+/*
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @version 1.0
+ * @copyright Copyright &copy; 2007, Telaxus LLC
+ * @licence TL
+ */
 var loaded_csses="";
 function load_css(file) {
 	if (loaded_csses.indexOf(file)!=-1) return false;
@@ -21,9 +27,7 @@ function load_js(file) {
 	fileref=document.createElement("script")
 	fileref.setAttribute("type", "text/javascript");
 	fileref.setAttribute("src", file);
-	//fileref.src = file;
 	document.getElementsByTagName("head").item(0).appendChild(fileref);
-	//document.body.appendChild(fileref);
 	loaded_jss += file+" ";
 	return true;
 };
