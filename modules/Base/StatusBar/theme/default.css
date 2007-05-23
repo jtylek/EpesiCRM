@@ -1,0 +1,15 @@
+#statusbar_border {
+	text-align: center; 
+	border: 1px solid black; 
+	background-color: #ebebeb;
+	width: 100%;
+	height: 30px;
+}
+
+#statusbar_error_message {
+	background-color: red;
+}
+
+#statusbar_warning_message {
+	background-color: #992222;
+}

@@ -1,0 +1,41 @@
+
+table.Base_User_Login span.error {
+	color: red;
+}
+
+table.Base_User_Login input {
+	color: black;
+	border: 1px solid black;
+}
+table.Base_User_Login input.submit {
+	color: black;
+	border: 1px solid black;
+	width: 70%;
+}
+table.Base_User_Login .label {
+	font-weight: bold;
+}
+
+table.Base_User_Login td.header_tail {
+	color: black;
+	font-size: 120%;
+	border-bottom: 2px solid blue;
+	text-align: left;
+	padding-left: 0.5em;
+	padding-bottom: 2px;
+}
+
+table.Base_User_Login td.header_tail span.header {
+	color: black;
+	padding: 0.3em 0.5em 0.3em 0.5em;
+	margin: 2px;
+	font-size: 70%;
+	text-align: left;
+	font-weight: bold;
+	letter-spacing: 0.4em;
+	background: #BBBBEF;
+	border-top: 1px solid blue;
+	border-right: 1px solid blue;
+	border-bottom: none;
+	border-left: 1px solid blue;
+}

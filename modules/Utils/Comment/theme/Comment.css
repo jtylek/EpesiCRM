@@ -1,0 +1,39 @@
+#comment td.contents {
+	padding: 4px;
+	vertical-align: top;
+	height: 60px;
+	text-align: left;
+    border-left: 1px solid black;
+    border-top: 1px solid black;
+    border-right: 1px solid black;
+    border-bottom: 1px solid black;
+}
+
+#comment td.user {
+	padding: 4px;
+	width: 100px;
+	vertical-align: top;
+	font-weight: bold;
+    background-color: #bbb;
+    border-left: 1px solid black;
+    border-bottom: 1px solid black;
+    border-top: 1px solid black;
+}
+
+#comment td.date {
+	padding: 2px;
+    background-color: #bbb;
+    border-left: 1px solid black;
+    border-top: 1px solid black;
+}
+
+
+#comment td.action {
+	padding: 2px;
+	width: 200px;
+	white-space: nowrap;
+    background-color: #bbb;
+	text-align: right;
+    border-top: 1px solid black;
+    border-right: 1px solid black;
+}

@@ -1,0 +1,33 @@
+<?php
+/**
+ * AclInit class.
+ * 
+ * This class provides initialization data for Backup module.
+ * 
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2006, Telaxus LLC
+ * @version 0.9
+ * @package tcms-base-extra
+ */
+defined("_VALID_ACCESS") || die('Direct access forbidden');
+
+/**
+ * This class provides initialization data for Backup module.
+ * @package tcms-base-extra
+ * @subpackage backup
+ */
+class Base_BackupInit_0 extends ModuleInit {	
+	public static function requires() {
+		return array(
+				array('name'=>'Libs/QuickForm','version'=>0), 
+				array('name'=>'Base/Lang', 'version'=>0),
+				array('name'=>'Base/Admin', 'version'=>0),
+				array('name'=>'Base/Acl', 'version'=>0),
+				array('name'=>'Utils/GenericBrowser', 'version'=>0));
+	}
+	
+	public static function provides() {
+		return array();
+	}	
+}
+?>

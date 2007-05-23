@@ -1,0 +1,13 @@
+#browser {
+    border: 1px solid #000;
+    background-color: #ddd;	
+}
+
+#browser th {
+    background-color: #bbb;
+    text-align: center;
+}
+
+#browser td {
+    background-color: #fff;
+}

@@ -1,0 +1,20 @@
+#quickform .header {
+	white-space: nowrap;
+	background-color: #CCCCCC;
+	text-align: left;
+	vertical-align: top; 
+}
+
+#quickform .label {
+	text-align: right;
+	vertical-align: top;
+}
+
+#quickform .element {
+	text-align: right;
+	vertical-align: top;
+}
+
+#quickform .error {
+	color: #ff0000;
+}

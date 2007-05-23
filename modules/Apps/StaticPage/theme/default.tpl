@@ -1,0 +1,2 @@
+{$title}<hr>
+{$content}

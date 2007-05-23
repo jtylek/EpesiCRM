@@ -1,0 +1,48 @@
+.utils_tree_root {
+	
+}
+
+.utils_tree_submenu {
+	margin: 1px 1px 1px 15px;
+	padding: 1px 1px 1px 5px;
+	display: block;
+	visibility: visible;
+	position: relative;
+	white-space: nowrap;
+}
+
+.utils_tree_expand_all {
+	display: block;
+	background: white;
+	border: 1px solid black;
+}
+.utils_tree_node {
+	padding: 0px;
+	margin: 0px;	
+}
+.utils_tree_opener_active_open {
+	white-space: pre;
+	vertical-align: center;
+	content: url(Utils_Tree__opener_active_open.gif);	
+}
+.utils_tree_opener_active_closed {
+	white-space: pre;
+	vertical-align: center;
+	content: url(Utils_Tree__opener_active_closed.gif);	
+}
+
+.utils_tree_opener_inactive {
+	white-space: pre;
+	vertical-align: center;
+	content: url(Utils_Tree__opener_inactive.gif);	
+}
+
+.utils_tree_node {
+	padding: 0px;
+	margin: 0px;	
+}
+.utils_tree_node_selected {
+	font-weight: bold;
+	padding: 0px;
+	margin: 0px;	
+}

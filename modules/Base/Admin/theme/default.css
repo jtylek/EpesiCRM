@@ -1,0 +1,11 @@
+
+table.Base_Admin .label {
+}
+
+table.Base_Admin .header {
+	color: black;
+	font-size: 120%;
+	border-bottom: 2px solid black;
+	text-align: center;
+	padding-bottom: 2px;
+}
