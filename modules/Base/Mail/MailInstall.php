@@ -25,7 +25,7 @@ class Base_MailInstall extends ModuleInstall {
 		if($ret) $ret = Variable::set('mail_user','');
 		if($ret) $ret = Variable::set('mail_password','');
 		if($ret) $ret = Variable::set('mail_host','smtp.example.com:25');
-		if($ret) $ret = Variable::set('mail_auth','0');
+		if($ret) $ret = Variable::set('mail_auth',false);
 		
 		return $ret;
 	}

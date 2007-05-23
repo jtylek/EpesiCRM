@@ -46,7 +46,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 			}
 		$form->addElement('select','lang_code',$this->lang->t('Default language'), $langs);
 		
-		$form->addElement('select','allow_lang_change',$this->lang->t('Allow users to change language'), array(1=>$this->lang->ht('Yes'), 0=>$this->lang->ht('No')));
+		$form->addElement('checkbox','allow_lang_change',$this->lang->t('Allow users to change language'));
 		
 		$form->setDefaults(array('lang_code'=>Variable::get('default_lang'),'allow_lang_change'=>Variable::get('allow_lang_change')));
 		

@@ -90,13 +90,13 @@ class Base_AclCommon {
 	 */
 	public static function i_am_sa($cache=false) {
 		static $ret;
-		if(!isset($ret) || !$cache) $ret = (Variable::get('anonymous_setup')=='1' || Acl::check('Administration','Main'));
+		if(!isset($ret) || !$cache) $ret = (Variable::get('anonymous_setup') || Acl::check('Administration','Main'));
 		return $ret;
 	}
 	
 	public static function i_am_admin($cache=false) {
 		static $ret;
-		if(!isset($ret) || !$cache) $ret = (Variable::get('anonymous_setup')=='1' || Acl::check('Administration','Modules'));
+		if(!isset($ret) || !$cache) $ret = (Variable::get('anonymous_setup') || Acl::check('Administration','Modules'));
 		return $ret;
 	}
 

@@ -20,7 +20,7 @@ class Base_Lang_AdministratorInstall extends ModuleInstall {
 	}
 	
 	public static function install() {
-		return Variable::set('allow_lang_change','1');
+		return Variable::set('allow_lang_change',true);
 	}
 	
 	public static function uninstall() {

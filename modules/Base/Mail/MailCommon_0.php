@@ -21,10 +21,7 @@ class Base_MailCommon extends Base_AdminModuleCommon {
 		$mailer->WordWrap = 75;
 		$mailer->Username = Variable::get('mail_user');
 		$mailer->Password = Variable::get('mail_password');
-		if(Variable::get('mail_auth')=='1')
-			$mailer->SMTPAuth = true;
-		else
-			$mailer->SMTPAuth = false;
+		$mailer->SMTPAuth = Variable::get('mail_auth');
 		
 		if(is_array($to))
 			foreach($to as $m)

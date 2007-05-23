@@ -59,10 +59,10 @@ class Base_Mail extends Module implements Base_AdminInterface {
 			$form->addElement('text','mail_host', $lang->t('SMTP host address'));
 			$form->addRule('mail_host', $lang->t('Field required'),'required');
 			
-			$form->addElement('select','mail_auth', $lang->t('SMTP authorization'),array($lang->ht('No'), $lang->ht('Yes')),'onChange="'.$form->get_submit_form_js(false).'"');
+			$form->addElement('checkbox','mail_auth', $lang->t('SMTP authorization'),'','onChange="'.$form->get_submit_form_js(false).'"');
 			
 			$auth = $form->getElement('mail_auth')->getValue();
-			if($auth[0]=='1') {
+			if($auth) {
 				$form->addElement('text','mail_user', $lang->t('Login'));					
 				$form->addElement('password','mail_password', $lang->t('Password'));
 			}
@@ -90,7 +90,7 @@ class Base_Mail extends Module implements Base_AdminInterface {
 			
 			$auth = $data['mail_auth'];
 			Variable::set('mail_auth', $auth);
-			if($auth=='1') {
+			if($auth) {
 				Variable::set('mail_user', $data['mail_user']);
 				Variable::set('mail_password', $data['mail_password']);
 			}

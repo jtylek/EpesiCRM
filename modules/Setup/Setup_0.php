@@ -19,7 +19,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Setup extends Module {
 
 	public function body_access() {
-		return (Variable::get('anonymous_setup')=='1' || Acl::check('Administration','Main'));
+		return (Variable::get('anonymous_setup') || Acl::check('Administration','Main'));
 	}
 	
 	public function body($arg) {
@@ -68,9 +68,7 @@ class Setup extends Module {
 				
 		$form->addElement('header', 'anonymous_header', 'Other (dengerous, don\'t change if you are newbie)');
 //		$form->addElement('header', 'anonymous_warning', 'If you don\'t have any authorization module installed don\'t turn it off!');
-		$anonymous_setup[] = & HTML_QuickForm :: createElement('radio', null, null, 'yes', '1');
-		$anonymous_setup[] = & HTML_QuickForm :: createElement('radio', null, null, 'no', '0');
-		$form->addGroup($anonymous_setup, 'anonymous_setup', 'Anonymous setup', ' ');
+		$form->addElement('checkbox','anonymous_setup', 'Anonymous setup');
 
 		//default module		
 //		$form->addElement('header', 'default_warning', 'Only some modules can be default! If invalid module is set, you cannot');
@@ -114,8 +112,7 @@ class Setup extends Module {
 		if ($default_module !== false)
 			Variable::set('default_module', $default_module);
 
-		if ($anonymous_setup !== false)
-			Variable::set('anonymous_setup', intval($anonymous_setup));
+		Variable::set('anonymous_setup', $anonymous_setup);
 				
 		foreach ($installed as $name => $new_version) {
 			$old_version = ModuleManager::is_installed($name);

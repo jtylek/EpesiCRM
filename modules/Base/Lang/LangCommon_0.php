@@ -82,7 +82,7 @@ class Base_LangCommon {
 //				$lang_code = $_SESSION['lang'];
 //			else
 //				$lang_code = Variable::get('default_lang');
-			if (ModuleManager::is_installed('Base/User/Settings')==-1 || ModuleManager::is_installed('Base/Lang/Administrator')==-1 || (ModuleManager::is_installed('Base/Lang/Administrator')!=-1 && Variable::get('allow_lang_change')!='1')) return Variable::get('default_lang');
+			if (ModuleManager::is_installed('Base/User/Settings')==-1 || ModuleManager::is_installed('Base/Lang/Administrator')==-1 || (ModuleManager::is_installed('Base/Lang/Administrator')!=-1 && !Variable::get('allow_lang_change'))) return Variable::get('default_lang');
 			$lang_code = Base_User_SettingsCommon::get_user_settings('Base_Lang_Administrator','language');
 		}
 		return $lang_code;

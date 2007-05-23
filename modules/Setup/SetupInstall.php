@@ -22,7 +22,7 @@ class SetupInstall extends ModuleInstall {
 	}
 	
 	public static function install() {		
-		$ret = Variable::set('anonymous_setup','1');
+		$ret = Variable::set('anonymous_setup',true);
 		if($ret === false) {
 			print('Invalid SQL query - Setup module (populating variables)');
 			return false;

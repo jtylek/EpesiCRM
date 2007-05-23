@@ -37,7 +37,7 @@ class BaseInstall extends ModuleInstall {
 			return false;
 		}
 		
-		if(!Variable::set('anonymous_setup','0')) return false;
+		if(!Variable::set('anonymous_setup',false)) return false;
 		if(!Variable::set('default_module','Base_Box')) return false;
 			
 		return true;

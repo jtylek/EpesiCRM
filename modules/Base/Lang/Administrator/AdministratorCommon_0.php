@@ -7,7 +7,7 @@ class Base_Lang_AdministratorCommon extends Base_AdminModuleCommon {
 	}
 
 	public static function user_settings(){
-		if(Variable::get('allow_lang_change')!='1') return null;
+		if(!Variable::get('allow_lang_change')) return null;
 		$ls_langs = scandir('data/Base/Lang');
 		$langs = array();
 		foreach ($ls_langs as $entry)
