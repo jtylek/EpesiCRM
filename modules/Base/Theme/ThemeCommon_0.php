@@ -44,10 +44,10 @@ class Base_ThemeCommon {
 		return $themes_dir.$theme.'/';
 	}
 
-	public static function get_template_file($filename) {
-		$f = self::get_template_dir().$filename;
+	public static function get_template_file($modulename,$filename) {
+		$f = self::get_template_dir().$modulename.'__'.$filename;
 		if(!is_readable($f)) {
-			$f = 'data/Base/Theme/templates/default/'.$filename;
+			$f = 'data/Base/Theme/templates/default/'.$modulename.'__'.$filename;
 			if(!is_readable($f))
 				return false;
 		}
