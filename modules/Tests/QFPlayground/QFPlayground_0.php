@@ -26,6 +26,7 @@ class Tests_QFPlayground extends Module {
 		$form->addElement('header', null, $this->lang->t('Date test'));
 		$ls1 = $form->addElement('multiselect', 'ls1', 'LS1', array(10=>'A',1=>'B',2=>'C',3=>'D'), array('size'=>8,'style'=>'width:100px;'));
 //		$ls1->freeze();
+		// this is very important comment so I can test some crap
 		$form->setDefaults(array('ls1'=>1));
 		$ele = $form->addElement('datepicker', 'dp1', 'DP1', array('format'=>'%d/%m/%y'));
 		$ele = $form->addElement('datepicker', 'dp2', 'DP2', array('format'=>'%d/%m..%Y'));
