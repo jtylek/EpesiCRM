@@ -157,6 +157,9 @@ class Apps_Gallery extends Module {
 		);
 		$tree->sort();
 		
+		if($last_submited != 0)
+			$tree->setClosed(false);
+		
 		$form->addElement('text', 'new', 'New Folder:');
 		$form->addElement('submit', 'submit_button', $lang->t('Create',true));
 		

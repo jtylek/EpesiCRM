@@ -5,7 +5,7 @@
 .utils_tree_submenu {
 	margin: 1px 1px 1px 15px;
 	padding: 1px 1px 1px 5px;
-	display: block;
+	display: none;
 	visibility: visible;
 	position: relative;
 	white-space: nowrap;

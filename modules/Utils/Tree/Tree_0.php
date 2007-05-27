@@ -83,7 +83,7 @@ class Utils_Tree extends Module {
 			foreach( $t as $k => $v ) {
 				$ret .= '<div class=utils_tree_node onmouseover=\'utils_tree_hl(this)\' onmouseout=\'utils_tree_rg(this)\'><table><tr>';
 				if(count($v['sub']) > 0) {
-					$ret .= '<td id=utils_tree_opener_'.$this->_id.'_'.($this->_sub).' class=utils_tree_opener_active_open onclick="tree_node_visibility_toggle(\''.$this->_id.'_'.($this->_sub).'\')"><img id=utils_tree_opener_img_'.$this->_id.'_'.($this->_sub).' src=modules/Utils/Tree/theme/opener_active_open.gif></td>';
+					$ret .= '<td id=utils_tree_opener_'.$this->_id.'_'.($this->_sub).' class=utils_tree_opener_active_closed onclick="tree_node_visibility_toggle(\''.$this->_id.'_'.($this->_sub).'\')"><img id=utils_tree_opener_img_'.$this->_id.'_'.($this->_sub).' src=modules/Utils/Tree/theme/opener_active_closed.gif></td>';
 				} else {
 					$ret .= '<td class=utils_tree_opener_inactive><img src=modules/Utils/Tree/theme/opener_inactive.gif></td>';
 				}
@@ -113,7 +113,7 @@ class Utils_Tree extends Module {
 		foreach( $t as $k => $v ) {
 			$ret .= '<div id=utils_tree_node_'.$this->_id.' class=utils_tree_node onmouseover=\'utils_tree_hl(this)\' onmouseout=\'utils_tree_rg(this)\'><table><tr>';
 			if(count($v['sub']) > 0) {
-				$ret .= '<td id=utils_tree_opener_'.$this->_id.'_'.($this->_sub).' class=utils_tree_opener_active_open onclick="tree_node_visibility_toggle(\''.$this->_id.'_'.($this->_sub).'\')"><img id=utils_tree_opener_img_'.$this->_id.'_'.($this->_sub).' src=modules/Utils/Tree/theme/opener_active_open.gif></td>';
+				$ret .= '<td id=utils_tree_opener_'.$this->_id.'_'.($this->_sub).' class=utils_tree_opener_active_closed onclick="tree_node_visibility_toggle(\''.$this->_id.'_'.($this->_sub).'\')"><img id=utils_tree_opener_img_'.$this->_id.'_'.($this->_sub).' src=modules/Utils/Tree/theme/opener_active_closed.gif></td>';
 			} else {
 				$ret .= '<td class=utils_tree_opener_inactive><img src=modules/Utils/Tree/theme/opener_inactive.gif></td>';
 			}
@@ -137,14 +137,15 @@ class Utils_Tree extends Module {
 	
 	public function toHtml() {
 		$s = $this->print_structure($this->_structure);
-		$h = '<div class=utils_tree_expand_all id=tree_expand_all_'.$this->_id.' onclick="tree_toggle_expand_all('.$this->_id.','.$this->_sub.')">Collapse All</div> ';
-		
+		$expand_all = '<div class=utils_tree_expand_all id=tree_expand_all_'.$this->_id.' onclick="utils_tree_expand_all('.$this->_id.','.$this->_sub.')">Expand All</div> ';
+		$collapse_all = '<div class=utils_tree_expand_all id=tree_expand_all_'.$this->_id.' onclick="utils_tree_collapse_all('.$this->_id.','.$this->_sub.')">Collapse All</div> ';
 		$theme = & $this->init_module('Base/Theme');
-		$theme->assign('collapse_all', $h);
+		$theme->assign('collapse_all', $collapse_all);
+		$theme->assign('expand_all', $expand_all);
 		$theme->assign('tree', $s);
 		
-		if( $this->_closed == true ) {
-			eval_js('wait_while_null("utils_tree_node_'.$this->_id.'", "tree_toggle_expand_all('.$this->_id.','.$this->_sub.')");');
+		if( $this->_closed == false ) {
+			eval_js('wait_while_null("utils_tree_'.$this->_id.'_'.eval($this->_sub - 1).'", "utils_tree_expand_all('.$this->_id.','.$this->_sub.')");');
 		}
 		
 		return $theme->toHtml();
