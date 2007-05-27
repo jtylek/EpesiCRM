@@ -11,7 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Apps_GalleryInstall extends ModuleInstall {
 	public static function install() {
-		Base_ThemeCommon::install_default_theme('Utils/Path');
+		Base_ThemeCommon::install_default_theme('Apps/Gallery');
 		$ret = DB::CreateTable('gallery_shared_media',"user_id I, media C(255) NOTNULL");
 		if($ret === false) {
 			print('Invalid SQL query - Gallery module install');
@@ -21,6 +21,7 @@ class Apps_GalleryInstall extends ModuleInstall {
 	}
 	
 	public static function uninstall() {
+		DB::DropTable('gallery_shared_media');
 		return true;
 	}
 }

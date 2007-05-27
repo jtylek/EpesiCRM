@@ -44,8 +44,7 @@ class Base_ThemeCommon {
 		return $themes_dir.$theme.'/';
 	}
 
-	public static function get_template_file($modulename,$filename) {
-		$filename = str_replace("/", "_", $modulename).'__'.str_replace("/", "_", $filename);
+	public static function get_template_file($filename) {
 		$f = self::get_template_dir().$filename;
 		if(!is_readable($f)) {
 			$f = 'data/Base/Theme/templates/default/'.$filename;
@@ -59,9 +58,11 @@ class Base_ThemeCommon {
 		if(!isset($module_name)) 
 			trigger_error('Invalid argument for load_css, no module was specified.',E_USER_ERROR);
 		
-		$css = self::get_template_file($module_name,$css_name.'.css');
+		$module_name = str_replace("/", "_", $module_name).'__'.str_replace("/", "_", $css_name);
+
+		$css = self::get_template_file($module_name.'.css');
 		if(!$css) {
-			if($trig_error) trigger_error('Invalid css specified: '.$module_name.'__'.$css_name.'.css',E_USER_ERROR);
+			if($trig_error) trigger_error('Invalid css specified: '.$module_name.'.css',E_USER_ERROR);
 			return false;
 		} else {
 			load_css($css);

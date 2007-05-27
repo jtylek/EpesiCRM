@@ -77,20 +77,21 @@ class Utils_Tree extends Module {
 	
 	public function print_structure_r($t = array(), $level = 0) {
 		if(count($t) > 0) {
-			$ret = '<div class=utils_tree_submenu id=tree_'.$this->_id.'_'.$this->_sub.'>';
+			$ret = '<div class=utils_tree_submenu id=utils_tree_'.$this->_id.'_'.$this->_sub.'>';
 			$this->_sub++;
 			foreach( $t as $k => $v ) {
-				$ret .= '<table><tr>';
+				$ret .= '<div class=utils_tree_node onmouseover=\'utils_tree_hl(this)\' onmouseout=\'utils_tree_rg(this)\'><table><tr>';
 				if(count($v['sub']) > 0) {
-					$ret .= '<td id=utils_tree_opener_'.$this->_id.'_'.($this->_sub).' class=utils_tree_opener_active_open onclick="tree_node_visibility_toggle(\''.$this->_id.'_'.($this->_sub).'\')"><img src=modules/Utils/Tree/theme/opener_active_open.gif></td>';
+					$ret .= '<td id=utils_tree_opener_'.$this->_id.'_'.($this->_sub).' class=utils_tree_opener_active_open onclick="tree_node_visibility_toggle(\''.$this->_id.'_'.($this->_sub).'\')"><img id=utils_tree_opener_img_'.$this->_id.'_'.($this->_sub).' src=modules/Utils/Tree/theme/opener_active_open.gif></td>';
 				} else {
 					$ret .= '<td class=utils_tree_opener_inactive><img src=modules/Utils/Tree/theme/opener_inactive.gif></td>';
 				}
 				if($v['selected'] == 1) {
-					$ret .= "<td class=utils_tree_node_selected>".$v['name']."</td></tr></table>";
+					$ret .= "<td width=100% class=utils_tree_node_content_selected>".$v['name']."</td>";
 				} else {
-					$ret .= "<td class=utils_tree_node>".$v['name']."</td></tr></table>";
+					$ret .= "<td width=100% class=utils_tree_node_content>".$v['name']."</td>";
 				}
+				$ret .= "</tr></table></div>";
 				if(is_array($v['sub'])) {
 					$ret .= $this->print_structure_r($v['sub'], $level + 1);
 				}
@@ -102,19 +103,25 @@ class Utils_Tree extends Module {
 	}
 		
 	public function print_structure($t = array(), $level = 0) {
+		eval_js(
+			'utils_tree_hl = function( i ) { i.style.background = "white"; i.style.padding = "0px"; i.style.border = "1px solid black"; };'.
+			'utils_tree_rg = function( i ) { i.style.background = "transparent"; i.style.padding = "1px"; i.style.border = "none"; };'
+		);
+		$this->_sub = 0;
 		$ret = '<div class=utils_tree_root>';
 		foreach( $t as $k => $v ) {
-			$ret .= '<table class=utils_tree_node cellspacing=0><tr>';
+			$ret .= '<div class=utils_tree_node onmouseover=\'utils_tree_hl(this)\' onmouseout=\'utils_tree_rg(this)\'><table><tr>';
 			if(count($v['sub']) > 0) {
-				$ret .= '<td id=utils_tree_opener_'.$this->_id.'_'.($this->_sub).' class=utils_tree_opener_active_open onclick="tree_node_visibility_toggle(\''.$this->_id.'_'.($this->_sub).'\')"><img src=modules/Utils/Tree/theme/opener_active_open.gif></td>';
+				$ret .= '<td id=utils_tree_opener_'.$this->_id.'_'.($this->_sub).' class=utils_tree_opener_active_open onclick="tree_node_visibility_toggle(\''.$this->_id.'_'.($this->_sub).'\')"><img id=utils_tree_opener_img_'.$this->_id.'_'.($this->_sub).' src=modules/Utils/Tree/theme/opener_active_open.gif></td>';
 			} else {
 				$ret .= '<td class=utils_tree_opener_inactive><img src=modules/Utils/Tree/theme/opener_inactive.gif></td>';
 			}
 			if($v['selected'] == 1) {
-				$ret .= "<td class=utils_tree_node_selected>".$v['name']."</td></tr></table>";
+				$ret .= "<td width=100% class=utils_tree_node_content_selected>".$v['name']."</td>";
 			} else {
-				$ret .= "<td class=utils_tree_node>".$v['name']."</td></tr></table>";
+				$ret .= "<td width=100% class=utils_tree_node_content>".$v['name']."</td>";
 			}
+			$ret .= "</tr></table></div>";
 			if(is_array($v['sub'])) {
 				$ret .= $this->print_structure_r($v['sub'], $level + 1);
 			}
@@ -124,23 +131,26 @@ class Utils_Tree extends Module {
 	}
 	public function toHtml() {
 		$s = $this->print_structure($this->_structure);
-		$h = '<span class=utils_tree_expand_all id=tree_expand_all_'.$this->_id.' onclick="tree_toggle_expand_all('.$this->_id.','.$this->_sub.')">Collapse All</span> ';
+		$h = '<div class=utils_tree_expand_all id=tree_expand_all_'.$this->_id.' onclick="tree_toggle_expand_all('.$this->_id.','.$this->_sub.')">Collapse All</div> ';
 		
 		$theme = & $this->init_module('Base/Theme');
-		$theme->assign('tree', $h.'<br><div align=left>'.$s.'</div>');
+		$theme->assign('collapse_all', $h);
+		$theme->assign('tree', $s);
 		
 		return $theme->toHtml();
 	}
 	
 
 	public function body( $dir ) {
-		if(isset($dir))
-			print $this->_structure = $dir;
+		//if(isset($dir))
+		//	$this->_structure = $dir;
 		
+		$s = $this->print_structure($this->_structure);
 		$h = '<span class=tree_expand_all id=tree_expand_all_'.$this->_id.' onclick="tree_toggle_expand_all('.$this->_id.','.$this->_sub.')">Collapse All</span> ';
 		
 		$theme = & $this->init_module('Base/Theme');
-		$theme->assign('tree', $h.'<br><div align=left>'.$s.'</div>');
+		$theme->assign('collapse_all', $h);
+		$theme->assign('tree', $s);
 		
 		$theme->display();
 	}

@@ -46,24 +46,41 @@ class Setup extends Module {
 		//show uninstalled & installed modules
 		$module_dirs = ModuleManager::list_modules();
 		$subgroups = array();
+		$structure = array();
+		$def = array();
 		foreach($module_dirs as $entry=>$versions) {
 				$installed = ModuleManager::is_installed($entry);
 				$versions[-1]='not installed';
 				ksort($versions);
 				$tab = '';
 				$path = explode('_',$entry);
+				$c = & $structure;
 				for($i=0;$i<count($path)-1;$i++){
+					if(!key_exists($path[$i], $c)) {
+						$c[$path[$i]] = array();
+						$c[$path[$i]]['name'] = $path[$i];
+						$c[$path[$i]]['sub'] = array();
+					}
+					$c = & $c[$path[$i]]['sub'];
 					if ($subgroups[$i] == $path[$i]) {
 						$tab .= '*&nbsp;&nbsp;';
 						continue;
 					}
 					$subgroups[$i] = $path[$i];
-					$form->addElement('static', 'group_header', '<div align=left>'.$tab.$path[$i].'</div>');
+					//$form->addElement('static', 'group_header', '<div align=left>'.$tab.$path[$i].'</div>');
 					$tab .= '*&nbsp;&nbsp;';
 				}
 				$subgroups[count($path)-1] = $path[count($path)-1];
-				$form->addElement('select', 'installed['.$entry.']', '<div align=left>'.$tab.$path[count($path)-1].'</div>', $versions);
-				$form->setDefaults(array('installed['.$entry.']'=>$installed));
+					$ele = $form->createElement('select', 'installed['.$entry.']', $path[count($path)-1], $versions);
+					$ele->setValue($installed);
+					$c[$path[count($path)-1]] = array();
+					$c[$path[count($path)-1]]['name'] = '<table width=100%><tr><td width=100% align=left>'.$path[count($path)-1].'</td><td align=right>' . $ele->toHtml() . '</td></tr></table>';
+					
+					//$c[$path[count($path)-1]]['name'] = $path[count($path)-1] ;
+					$c[$path[count($path)-1]]['sub'] = array();
+				array_push($def, array('installed['.$entry.']'=>$installed));
+		
+		
 		}
 				
 		$form->addElement('header', 'anonymous_header', 'Other (dengerous, don\'t change if you are newbie)');
@@ -77,11 +94,17 @@ class Setup extends Module {
 			$av_modules[$name] = $name;
 		$form->addElement('select','default_module','Default module to display',$av_modules);
 		
-
+		$tree = $this->init_module('Utils/Tree');
+		
+		$tree->set_structure($structure);
+		$form->addElement('html', '</tr><tr><td colspan=2>'.$tree->toHtml().'</td></tr>');
+		//print $tree->toHtml();
 		//control buttons
 		$ok_b = HTML_QuickForm::createElement('submit', 'submit_button', 'OK');
 		$cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', 'Cancel', $this->create_back_href());
 		$form->addGroup(array($ok_b, $cancel_b));
+		
+		$form->setDefaults($def);
 		
 		//validation or display
 		if ($form->validate()) {

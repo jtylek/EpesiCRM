@@ -18,7 +18,10 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  */
 class SetupInit_0 extends ModuleInit {
 	public static function requires() {
-		return array (array('name'=>'Libs/QuickForm','version'=>0));
+		return array (
+			array('name'=>'Libs/QuickForm','version'=>0),
+			array('name'=>'Utils/Tree','version'=>0)
+		);
 	}
 	
 	public static function provides() {
