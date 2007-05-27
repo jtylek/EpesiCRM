@@ -14,6 +14,7 @@ class Utils_Tree extends Module {
 	private $_sub = 0;
 	private $_selected;
 	private $_structure;
+	private $_closed = true;
 	
 	public function construct() {
 		$this->_id = Utils_Tree::$_counter;
@@ -110,7 +111,7 @@ class Utils_Tree extends Module {
 		$this->_sub = 0;
 		$ret = '<div class=utils_tree_root>';
 		foreach( $t as $k => $v ) {
-			$ret .= '<div class=utils_tree_node onmouseover=\'utils_tree_hl(this)\' onmouseout=\'utils_tree_rg(this)\'><table><tr>';
+			$ret .= '<div id=utils_tree_node_'.$this->_id.' class=utils_tree_node onmouseover=\'utils_tree_hl(this)\' onmouseout=\'utils_tree_rg(this)\'><table><tr>';
 			if(count($v['sub']) > 0) {
 				$ret .= '<td id=utils_tree_opener_'.$this->_id.'_'.($this->_sub).' class=utils_tree_opener_active_open onclick="tree_node_visibility_toggle(\''.$this->_id.'_'.($this->_sub).'\')"><img id=utils_tree_opener_img_'.$this->_id.'_'.($this->_sub).' src=modules/Utils/Tree/theme/opener_active_open.gif></td>';
 			} else {
@@ -129,6 +130,11 @@ class Utils_Tree extends Module {
 		$ret .= "</div>";
 		return $ret;
 	}
+	
+	public function setClosed($cl = true) {
+		$this->closed = $cl;
+	}
+	
 	public function toHtml() {
 		$s = $this->print_structure($this->_structure);
 		$h = '<div class=utils_tree_expand_all id=tree_expand_all_'.$this->_id.' onclick="tree_toggle_expand_all('.$this->_id.','.$this->_sub.')">Collapse All</div> ';
@@ -136,6 +142,10 @@ class Utils_Tree extends Module {
 		$theme = & $this->init_module('Base/Theme');
 		$theme->assign('collapse_all', $h);
 		$theme->assign('tree', $s);
+		
+		if( $this->_closed == true ) {
+			eval_js('wait_while_null("utils_tree_node_'.$this->_id.'", "tree_toggle_expand_all('.$this->_id.','.$this->_sub.')");');
+		}
 		
 		return $theme->toHtml();
 	}
@@ -151,6 +161,10 @@ class Utils_Tree extends Module {
 		$theme = & $this->init_module('Base/Theme');
 		$theme->assign('collapse_all', $h);
 		$theme->assign('tree', $s);
+	
+		if($this->_closed == true ) {
+			eval_js('wait_while_null("utils_tree_node_'.$this->_id.'", "tree_toggle_expand_all('.$this->_id.','.$this->_sub.')");');
+		}
 		
 		$theme->display();
 	}
