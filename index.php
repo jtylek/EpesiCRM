@@ -18,7 +18,7 @@ if(!file_exists('data/config.php')) {
 	exit();
 }
 
-//if(file_exists('setup.php'))
+//if( file_exists('setup.php') )
 //	die('Please delete setup.php file');
 
 /**
