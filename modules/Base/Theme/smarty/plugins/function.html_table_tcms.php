@@ -60,6 +60,7 @@ function smarty_function_html_table_tcms($params, &$smarty)
     $hdir = 'right';
     $inner = 'cols';
     $caption = '';
+    $height = '200px';
 
     if (!isset($params['loop'])) {
         $smarty->trigger_error("html_table: missing 'loop' parameter");
@@ -105,6 +106,7 @@ function smarty_function_html_table_tcms($params, &$smarty)
             case 'hdir':
             case 'vdir':
             case 'inner':
+            case 'height':
             case 'caption':
                 $$_key = (string)$_value;
                 break;
@@ -126,7 +128,8 @@ function smarty_function_html_table_tcms($params, &$smarty)
         }
     }
 
-    $output = "<table $table_attr>\n";
+    $output = '<span rel="scrolled_table">';
+    $output .= "<table $table_attr>\n";
 
     if (!empty($caption)) {
         $output .= '<caption>' . $caption . "</caption>\n";
@@ -143,6 +146,10 @@ function smarty_function_html_table_tcms($params, &$smarty)
         }
         $output .= "</tr></thead>\n";
     }
+
+    $output .= "</table>\n";
+    $output .= '<div style="overflow: auto; overflow-x:hidden; height: '.$height.';">'."\n";
+    $output .= "<table $table_attr>\n";
 
     $output .= "<tbody>\n";
     for ($r=0; $r<$rows; $r++) {
@@ -165,7 +172,10 @@ function smarty_function_html_table_tcms($params, &$smarty)
         $output .= "</tr>\n";
     }
     $output .= "</tbody>\n";
-    $output .= "</table>\n";
+    $output .= "</table>\n</div>\n</span>\n";
+    
+    load_js('modules/Base/Theme/smarty/plugins/function.html_table_tcms.js');
+    eval_js('wait_while_null(\'scrolled_table_fix_cols\',\'scrolled_table_fix_cols()\')');
     
     return $output;
 }
