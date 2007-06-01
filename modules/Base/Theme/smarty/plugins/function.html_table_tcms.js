@@ -10,12 +10,70 @@ getWidth = function(someObject){
 	return w;
 }
 
+showTip = function(tip, style, my_event) {
+	var div_tip = 'div_tip_' + style;
+	var tooltip_text = 'tooltip_text_' + style;
+	document.getElementById(div_tip).style.top = 0;
+	document.getElementById(div_tip).style.left = 0;
+	document.getElementById(tooltip_text).innerHTML = tip;
+	offWidth = document.getElementById(div_tip).offsetWidth;
+	offHeight = document.getElementById(div_tip).offsetHeight;
+
+	var curPosx = ((my_event.x) ? parseInt(my_event.x) : parseInt(my_event.clientX));
+	var curPosy = ((my_event.y) ? parseInt(my_event.y) : parseInt(my_event.clientY));
+
+	if(document.body.scrollLeft + curPosx + 20 + offWidth < document.body.clientWidth - 5) {
+		var pos = document.body.scrollLeft + curPosx + 20;
+		document.getElementById(div_tip).style.left = pos + 'px';
+	} else {
+		var pos = document.body.scrollLeft + curPosx - (offWidth) - 10;
+		document.getElementById(div_tip).style.left = pos + 'px';//document.getElementById('ev').style.width;
+	}
+
+	var ch = (document.documentElement.clientHeight < document.body.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight)
+	var scrollTop = (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop);
+	if(navigator.appName.indexOf('Explorer') != -1 ) {
+		scrollTop = document.documentElement.scrollTop;
+	}
+
+	if(curPosy + 20 + offHeight < ch - 5) {
+		var pos = scrollTop + curPosy + 20;
+		document.getElementById(div_tip).style.top = pos + "px";
+	} else {
+		var pos = scrollTop + curPosy - (offHeight) - 10;
+		document.getElementById(div_tip).style.top = pos + "px";
+	}
+
+	document.getElementById(div_tip).style.visibility = 'visible';
+}
+
+hideTip = function(style) {
+	document.getElementById('div_tip_'+style).style.visibility = 'hidden';
+} 
+
+var div_tip = document.createElement('div');
+div_tip.id = 'div_tip_scrolled_table';
+div_tip.style.position = 'absolute';
+div_tip.style.visibility = 'hidden';
+document.body.appendChild(div_tip);
+
+var span_tip_text = document.createElement('span');
+span_tip_text.id = 'tooltip_text_scrolled_table';
+document.body.appendChild(span_tip_text);
+
 scrolled_table_fix_cell = function(cell, width) {
 	cell.style.width = width;
 	var div = document.createElement('div');
 	div.innerHTML = cell.innerHTML;
 	div.style.overflow = 'hidden';
 	div.style.textOverflow = 'clip';
+//	div.class = "scrolled_table_header";
+	div.onmousemove = function(e) {
+		showTip(this.innerHTML,'scrolled_table',e);
+	}
+	div.onmouseout = function(e) {
+		hideTip('scrolled_table');
+	}
 	div.style.width = width;
 	cell.innerHTML = '';
 	cell.appendChild(div);
