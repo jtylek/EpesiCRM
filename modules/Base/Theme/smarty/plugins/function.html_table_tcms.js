@@ -12,10 +12,10 @@ getWidth = function(someObject){
 
 showTip = function(tip, style, my_event) {
 	var div_tip = 'div_tip_' + style;
-	var tooltip_text = 'tooltip_text_' + style;
+	
 	document.getElementById(div_tip).style.top = 0;
 	document.getElementById(div_tip).style.left = 0;
-	document.getElementById(tooltip_text).innerHTML = tip;
+	document.getElementById(div_tip).innerHTML = tip;
 	offWidth = document.getElementById(div_tip).offsetWidth;
 	offHeight = document.getElementById(div_tip).offsetHeight;
 
