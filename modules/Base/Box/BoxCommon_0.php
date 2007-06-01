@@ -9,7 +9,7 @@ class Base_BoxCommon{
 			return;
 		}
 		$containers = parse_ini_file($ini,true);
-		return $containers['Logged']['main'];
+		return $containers['main']['module'];
 	}
 }
 

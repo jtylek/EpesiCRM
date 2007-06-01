@@ -20,6 +20,7 @@ class Base_BoxInit_0 extends ModuleInit {
 	public static function requires() {
 		return array (
 			array('name'=>'Base/Lang', 'version'=>0),
+			array('name'=>'Base/Acl', 'version'=>0),
 			array('name'=>'Base/Theme/Administrator', 'version'=>0)
 		);
 	}
