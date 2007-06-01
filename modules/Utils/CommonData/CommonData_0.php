@@ -24,8 +24,9 @@ class Utils_CommonData extends Module {
 		}
 		$f = $this->init_module('Libs/QuickForm',null,'name_for_array');
 		$f->addElement('header', null, $this->lang->t('Create New Common Data Array'));
-		$f->addElement('text', 'name', 'Name');
+		$f->addElement('text', 'name', 'Name',array('maxlength'=>32));
 		$f->addRule('name', $this->lang->t('This field is required'), 'required');
+		$f->addRule('name', $this->lang->t('Max length of this field is 32 chars'), 'maxlength', 32);
 		$action_button[] = &HTML_QuickForm::createElement('submit', 'submit', 'Submit');
 		$action_button[] = &HTML_QuickForm::createElement('button', 'cancel', 'Back',$this->create_back_href());
 		$f->addGroup($action_button, 'action_button', '', ' ');
@@ -68,10 +69,11 @@ class Utils_CommonData extends Module {
 		$this->display_module($gb);
 		$f = $this->init_module('Libs/QuickForm',null,'new_field');
 		$f->addElement('header', null, $this->lang->t('Add values to the array'));
-		$f->addElement('text', 'key', 'Key');
-		$f->addElement('text', 'value', 'Value');
+		$f->addElement('text', 'key', $this->lang->t('Key'),array('maxlength'=>64));
+		$f->addElement('text', 'value', $this->lang->t('Value'));
 		$f->addRule('value', $this->lang->t('This field is required'), 'required');
 		$f->addRule('key', $this->lang->t('This field is required'), 'required');
+		$f->addRule('key', $this->lang->t('Max length of this field is 64 chars'), 'maxlength', 64);
 		$f->setDefaults(array('key'=>'','value'=>''));
 		$action_button[] = &HTML_QuickForm::createElement('submit', 'submit', 'Add value');
 		$action_button[] = &HTML_QuickForm::createElement('button', 'cancel', 'Back',$this->create_back_href());
@@ -94,10 +96,11 @@ class Utils_CommonData extends Module {
 		print('Array: <b>'.$name.'</b>');
 		$f = $this->init_module('Libs/QuickForm',null,'new_field');
 		$f->addElement('header', null, $this->lang->t('Edit value of the array'));
-		$f->addElement('text', 'key', 'Key');
-		$f->addElement('text', 'value', 'Value');
+		$f->addElement('text', 'key', $this->lang->t('Key'),array('maxlength'=>64));
+		$f->addElement('text', 'value', $this->lang->t('Value'));
 		$f->addRule('value', $this->lang->t('This field is required'), 'required');
 		$f->addRule('key', $this->lang->t('This field is required'), 'required');
+		$f->addRule('key', $this->lang->t('Max length of this field is 64 chars'), 'maxlength', 64);
 		$f->setDefaults(array('key'=>$key,'value'=>$value));
 		$action_button[] = &HTML_QuickForm::createElement('submit', 'submit', 'Save changes');
 		$action_button[] = &HTML_QuickForm::createElement('button', 'cancel', 'Back',$this->create_back_href());
