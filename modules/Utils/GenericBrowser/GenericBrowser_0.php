@@ -452,8 +452,8 @@ class Utils_GenericBrowser extends Module {
 		$headers = array();
 		if ($this->en_actions) {
 			$actions_position = Base_User_SettingsCommon::get_user_settings('Utils/GenericBrowser','actions_position');
-			if ($actions_position=='Left')	$headers[-1] = array('label'=>$this->lang->t('Actions'),'attrs'=>'width="0%"'); 
-			else		$headers[count($this->columns)] = array('label'=>$this->lang->t('Actions'),'attrs'=>'width="0%"');
+			if ($actions_position=='Left')	$headers[-1] = array('label'=>$this->lang->t('Actions'),'attrs'=>'style="width: 0%"'); 
+			else		$headers[count($this->columns)] = array('label'=>$this->lang->t('Actions'),'attrs'=>'style="width: 0%"');
 		}
 
 		if(Base_AclCommon::i_am_sa() && Base_MaintenanceModeCommon::get_mode()) {
@@ -499,7 +499,7 @@ class Utils_GenericBrowser extends Module {
 			$headers[$col_pos[$i]['pos']]['label'] .= isset($v['order'])?'<a '.$this->create_unique_href(array('change_order'=>$v['name'])).'>'.$v['name'].'</a>':$v['name'];
 			//if ($v['search']) $headers[$col_pos[$i]['pos']] .= $form_array['search__'.$v['search']]['label'].$form_array['search__'.$v['search']]['html'];
 			if (!Base_User_SettingsCommon::get_user_settings('Utils/GenericBrowser','adv_history') && $v['name']==$order[0]['column']) $headers[$col_pos[$i]['pos']]['label'] .= ' '.$order[0]['direction']; 
-			$headers[$col_pos[$i]['pos']]['attrs'] = 'width="'.intval(100*$v['width']/$all_width).'%"';
+			$headers[$col_pos[$i]['pos']]['attrs'] = 'style="width: '.intval(100*$v['width']/$all_width).'%"';
 			$i++;
 		}
 		ksort($headers);
