@@ -91,6 +91,7 @@ scrolled_table_fix_scrollbar = function() {
 
 			if(diff_width>0) {
 				var trs = tbody.getElementsByTagName('tr');
+				if(typeof trs=='undefined') continue;
 				var firstcols = trs[0].getElementsByTagName('td');
 				firstcols[firstcols.length-1].style.width = (parseInt(firstcols[firstcols.length-1].style.width)-diff_width+2)+'px';
 			}
@@ -111,6 +112,7 @@ scrolled_table_fix_headers = function() {
 			
 			var headers = theader.getElementsByTagName('th');
 			var trs = tbody.getElementsByTagName('tr');
+			if(typeof trs=='undefined') continue;
 			var firstcols = trs[0].getElementsByTagName('td');
 
 			for (var j = 0; j < headers.length; j++) {
@@ -133,6 +135,7 @@ scrolled_table_fix_cols = function() {
 			
 			var headers = theader.getElementsByTagName('th');
 			var trs = tbody.getElementsByTagName('tr');
+			if(typeof trs=='undefined') continue;
 			var firstcols = trs[0].getElementsByTagName('td');
 
 			var header_size = new Array();
