@@ -98,9 +98,9 @@ function eval_js ($u = false) {
 function eval_js_once ($u = false) {
 	global $base;
 	$session = &$base->get_session();
-	if(is_string($u) && !array_key_exists($u,$session['evaled_jses'])) {
+	if(is_string($u) && !array_key_exists($u,$session['__evaled_jses__'])) {
 		$base->js($u);
-		$session['evaled_jses'][$u]=1;
+		$session['__evaled_jses__'][$u]=1;
 	}
 }
 

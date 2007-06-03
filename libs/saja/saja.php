@@ -230,7 +230,7 @@ class saja {
 				if($i) $inner .= ',';
 				if($property)
 					$inner .= "'+saja.Get('$id','$property')+'";
-				else if($arg)
+				else if($arg!=='')
 					$inner .= "'+saja.Get($arg)+'";
 				else
 					$inner .= "'+saja.Get($id)+'";

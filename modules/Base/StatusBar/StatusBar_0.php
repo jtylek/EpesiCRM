@@ -28,9 +28,7 @@ class Base_StatusBar extends Module {
 	}
 	
 	private function load_js() {
-		$loaded = & $this->get_module_variable('loaded_js', false);
-		if(!$loaded) {
-			eval_js('var statusbar_message_t=\'\';
+		eval_js_once('var statusbar_message_t=\'\';
 				statusbar_message=function(text){statusbar_message_t=text;};
 				statusbar_fade=function(){wait_while_null(\'document.getElementById(\\\'statusbar\\\')\',\'Effect.Fade(\\\'statusbar\\\', {duration:1.0})\');};				
 				updateSajaIndicatorFunction=function(){
@@ -53,8 +51,6 @@ class Base_StatusBar extends Module {
 					};
 				};
 				wait_while_null(\'Effect\',\'updateSajaIndicatorFunction()\')');
-			$loaded=true;
-		}
 	}
 }
 ?>

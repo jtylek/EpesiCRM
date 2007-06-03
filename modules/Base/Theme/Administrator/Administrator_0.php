@@ -43,17 +43,20 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 		
 		if($form->validate()) {
 			$form->process(array(& $this, 'submit_admin'));
-			if($this->parent->get_type()=='Base_Admin')
+/*			if($this->parent->get_type()=='Base_Admin')
 			    $this->parent->reset();
 			else
-			    location(array());
+			    location(array());*/
 		} else
 			$form->display();
 	}
 	
 	public function submit_admin($data) {
 		Variable::set('default_theme',$data['theme']);
-		Base_StatusBarCommon::message('Theme changed');
+		Base_StatusBarCommon::message('Theme changed - reloading page');
+		print('<form id="base_theme_admin_refresh" method="post"><input type="hidden" value="1" name="refresh"></form>');
+		eval_js('setTimeout(\'document.getElementById(\\\'base_theme_admin_refresh\\\').submit()\',\'4000\')');
+//		eval_js('setTimeout(\'document.location=\\\'index.php?refresh=1\\\'\',\'4000\')');
 		return true;
 	}
 	
