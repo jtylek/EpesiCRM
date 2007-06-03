@@ -108,12 +108,12 @@ scrolled_table_fix_headers = function() {
 			var theader = table[0].getElementsByTagName('thead')[0];
 			var tbody = table[1].getElementsByTagName('tbody')[0];
 			
-			table[0].style.width = getWidth(table[1]);
-			
 			var headers = theader.getElementsByTagName('th');
 			var trs = tbody.getElementsByTagName('tr');
 			if(typeof(trs[0])=='undefined') continue;
 			var firstcols = trs[0].getElementsByTagName('td');
+
+			table[0].style.width = getWidth(table[1]);
 
 			for (var j = 0; j < headers.length; j++) {
 				var w=getWidth(firstcols[j]);
