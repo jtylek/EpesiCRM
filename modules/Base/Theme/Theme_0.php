@@ -26,6 +26,7 @@ require_once(SMARTY_DIR.'Smarty.class.php');
 class Base_Theme extends Module {
 	private static $theme;
 	private static $themes_dir = 'data/Base/Theme/templates/';
+	public $links = array();
 	private $smarty = null;
 	private $lang;
 	
@@ -57,6 +58,8 @@ class Base_Theme extends Module {
 	}
 
 	public function display($user_template) {
+		$this->smarty->assign('__link', $this->links);
+		
 		$module_name = $this->parent->get_type();
 		if(isset($user_template)) 
 			$module_name .= '__'.$user_template;
@@ -97,25 +100,20 @@ class Base_Theme extends Module {
 	}
 	
 	public function parse_links($key, $val, $flat=true) {
-		if ($flat && !is_array($val)) if (preg_match('/(<[Aa][^>]*>)(.*)<\/[Aa]>/',$val,$match)) {
-			$this->smarty->assign($key.'__open', $match[1]);
-			$this->smarty->assign($key.'__close', '</a>');
-			return $val;
+		if (!is_array($val)) { 
+			if (preg_match('/.*(<[Aa][^>]*>)(.*?)<\/[Aa]>/',$val,$match)) {
+				return array(	'open' => $match[1],
+								'text' => $match[2],
+								'close' => '</a>');
+			}
+		} else {
+			foreach ($val as $k=>$v)
+				return array($k => $this->parse_links($k, $v, false));
 		}
-		foreach ($val as $k=>$v) {
-			if (!is_array($v)) {
-				if (preg_match('/(<[Aa][^>]*>)(.*)(<\/[Aa]>)/',$v,$match)){
-					$val[$k.'__open'] = $match[1];
-					$val[$k.'__close'] = '</a>';
-				}
-			} else
-				$val[$k] = $this->parse_links($k, $v, false);
-		}
-		return $val;
 	}
 	
 	public function assign($name, $val) {
-//		$val = $this->parse_links($name, $val);
+		$this->links[$name] = $this->parse_links($name, $val);
 		return $this->smarty->assign($name, $val);
 	}
 	
