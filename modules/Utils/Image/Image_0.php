@@ -55,8 +55,7 @@ class Utils_Image extends Module {
 	}
 	
 	public function display() {
-		print '<img width="'.$this->width.'" height="'.$this->height.'" src="'.$this->img.'">';
-		
+		print $this->toHtml();
 	}
 	
 	public function create_thumb($attr = null) {
