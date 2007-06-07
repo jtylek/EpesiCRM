@@ -3,12 +3,12 @@
 class Tests_Comment extends Module{
 	public function body(){
 		print('This is an example comment page.');
-		$com = & $this->init_module('Utils/Comment');
+		$com = & $this->init_module('Utils/Comment','test');
 		$com -> set_moderator(true);
 		$com -> set_per_page(3);
 		$com -> reply_on_comment_page(false);
 		$com -> tree_structure(true);
-		$this -> display_module($com,'mkey');
+		$this -> display_module($com);
 		//------------------------------ print out src
 		print('<hr><b>Install</b><br>');
 		$this->pack_module('Utils/CatFile','modules/Tests/Comment/CommentInstall.php');
