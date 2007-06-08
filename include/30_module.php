@@ -312,7 +312,7 @@ abstract class Module {
 	 * @param array variables to pass along with href
 	 * @return string
 	 */
-	public final function create_unique_href(array $variables = array (),$fast=false,$indicator=null) {
+	public final function create_unique_href(array $variables = array (),$fast=true,$indicator=null) {
 		$uvars = array();
 		if($fast)
 			$uvars['__fast_process__'] = $this->get_path();
@@ -320,7 +320,7 @@ abstract class Module {
 			$uvars[$this->create_unique_key($a)] = $b;
 		return $this->create_href($uvars,$indicator);
 	}
-	public final function create_unique_href_js(array $variables = array (),$fast=false,$indicator=null) {
+	public final function create_unique_href_js(array $variables = array (),$fast=true,$indicator=null) {
 		$uvars = array();
 		if($fast)
 			$uvars['__fast_process__'] = $this->get_path();
@@ -328,7 +328,7 @@ abstract class Module {
 			$uvars[$this->create_unique_key($a)] = $b;
 		return $this->create_href_js($uvars,$indicator);
 	}
-	public final function create_confirm_unique_href($confirm,array $variables = array (),$fast=false,$indicator=null) {
+	public final function create_confirm_unique_href($confirm,array $variables = array (),$fast=true,$indicator=null) {
 		$uvars = array();
 		if($fast)
 			$uvars['__fast_process__'] = $this->get_path();
@@ -524,8 +524,8 @@ abstract class Module {
 		$base->content[$mod_name]['name'] = $path; 
 		$base->content[$mod_name]['module'] = & $m;
 
-		if(!isset($_REQUEST['__fast_process__']) || strpos($path,$_REQUEST['__fast_process__'])===0
-			 || strpos($_REQUEST['__fast_process__'],$path)===0) {
+		if(!isset($_REQUEST['__fast_process__']) || strpos($path,$_REQUEST['__fast_process__'])===0 
+			|| strpos($_REQUEST['__fast_process__'],$path)===0 || $this->get_module_variable('__force_process__',false)) {
 			if(!is_array($args)) $args = array($args);
 			
 			ob_start();
@@ -538,14 +538,17 @@ abstract class Module {
 		
 			if(MODULE_TIMES)
 				$base->content[$mod_name]['time'] = microtime(true)-$time;
-		} else {
-			$m->set_reload(false);
 		}
 		print('<span id="'.$mod_name.'_content"></span>');		
 			
 		return true;		
 	}
-
+	
+	public final function force_process() {
+		$this->set_module_variable('__force_process__',true);
+		if($this->parent) $this->parent->force_process();
+	}
+		
 	/**
 	 * Creates instance of module given as first parameter as a child of the module that has called this function. 
 	 * Also, this function will call newly created module's method, which name is passed as second parameter.

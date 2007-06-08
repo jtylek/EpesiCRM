@@ -159,14 +159,13 @@ class Base extends saja {
 		$reloaded = array();
 		$instances_qty = array();
 		foreach ($this->content as $k => $v) {
-			$reload = $v['module']->get_reload();
-			
-			if($reload===false) {
+			if(!isset($v['value'])) {
 				if(DEBUG)
 					$debug .= 'Skipping '.$v['name'].' module<hr>';
 				continue;
 			}
 			
+			$reload = $v['module']->get_reload();			
 			$sum = md5($v['value']);
 			
 			$parent=substr($k,0,strrpos($k,'_')); 

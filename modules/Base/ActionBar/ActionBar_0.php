@@ -5,6 +5,10 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_ActionBar extends Module {
 
+	public function construct() {
+		$this->force_process();
+	}
+	
 	public function body($arg) {
 		$icons = Base_ActionBarCommon::get_icons();
 		$l = & $this->pack_module('Base/Lang');

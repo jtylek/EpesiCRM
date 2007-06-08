@@ -19,7 +19,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Libs_QuickForm extends Module {
 	private $qf;
 	
-	public function construct($indicator = null,$fast=false, $action = '', $target = '', $on_submit = null) {
+	public function construct($indicator = null,$fast=true, $action = '', $target = '', $on_submit = null) {
 		$form_name = $this->parent->get_unique_id();
 		if($target=='' && $action!='')
 			$target = '_blank';
@@ -42,14 +42,14 @@ class Libs_QuickForm extends Module {
 		return $return;
 	}
 	
-	public function get_submit_form_js($submited=true, $indicator=null, $fast=false) {
+	public function get_submit_form_js($submited=true, $indicator=null, $fast=true) {
 		if (!is_object($this->qf))
 			throw new Exception("QuickFrom object doesn't exists");
 		$form_name = $this->qf->getAttribute('name');
 		return $this->get_submit_form_js_by_name($form_name,$submited,$indicator,$fast); 
 	}
 	
-	private function get_submit_form_js_by_name($form_name, $submited, $indicator, $fast=false) {
+	private function get_submit_form_js_by_name($form_name, $submited, $indicator, $fast=true) {
 		global $base; 
 		if(!isset($indicator)) $indicator='processing...';
 		if($fast)
