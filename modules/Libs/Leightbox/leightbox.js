@@ -157,15 +157,10 @@ var leightboxes = Array();
 // Add in markup necessary to make this work. Basically two divs:
 // Overlay holds the shadow
 // Lightbox is the centered square that the content is put into.
-function addLeightboxMarkup() {
-
-	bod 				= document.getElementsByTagName('body')[0];
-
-	overlay 			= document.createElement('div');
-	overlay.id			= 'overlay';
-
-	bod.appendChild(overlay);
-}
+bod 				= document.getElementsByTagName('body')[0];
+overlay 			= document.createElement('div');
+overlay.id			= 'overlay';
+bod.appendChild(overlay);
 
 function updateLbList() {
 	lbox = document.getElementsByClassName('lbOn');
