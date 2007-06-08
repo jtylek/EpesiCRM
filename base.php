@@ -93,12 +93,8 @@ class Base extends saja {
 		if(MODULE_TIMES)
 		    $this->content['main']['time'] = microtime(true)-$time;
 	}
-	
-	public function fast_process($cl_id, $url, $history_call) {
-	
-	}
-	
-	private function init_process($cl_id, $url, $history_call) {
+
+	public function process($cl_id, $url, $history_call) {
 		$this->client_id = $cl_id;
 		
 		ob_start(array('ErrorHandler','handle_fatal'));
@@ -109,24 +105,17 @@ class Base extends saja {
 		    History::set_id($history_call);
 		
 		$this->load_modules();
-	}
-	
-	public function process($cl_id, $url, $history_call) {
-		$this->init_process($cl_id, $url, $history_call);
-	
-		if(DEBUG || MODULE_TIMES || SQL_TIMES)
-			$debug = '';
-		
+
 		$url = str_replace('&amp;','&',$url);
 		
 		if($url) {
 			parse_str($url, $_POST);
 			$_GET = $_REQUEST = $_POST;
 		}
-		
+
 		$session = & $this->get_session();
 		$tmp_session = & $this->get_tmp_session();
-
+	
 		$this->go($this->get_default_module());
 		
 		//on exit call methods...
@@ -140,13 +129,17 @@ class Base extends saja {
 			//clean up
 			foreach($this->content as $k=>$v)
 				unset($this->content[$k]);
+			//unset($_REQUEST['__fast_process__']);
 //			unset($this->jses);
 			$this->load_modules();
 	
 			//go
 			return $this->process($this->client_id,$loc);
 		}
-		
+
+		if(DEBUG || MODULE_TIMES || SQL_TIMES)
+			$debug = '';
+						
 		//clean up old modules
 		foreach($tmp_session['__mod_md5__'] as $k=>$v)
 			if(!array_key_exists($k, $this->content))
@@ -166,10 +159,18 @@ class Base extends saja {
 		$reloaded = array();
 		$instances_qty = array();
 		foreach ($this->content as $k => $v) {
+			$reload = $v['module']->get_reload();
+			
+			if($reload===false) {
+				if(DEBUG)
+					$debug .= 'Skipping '.$v['name'].' module<hr>';
+				continue;
+			}
+			
 			$sum = md5($v['value']);
 			
 			$parent=substr($k,0,strrpos($k,'_')); 
-			$reload = $v['module']->get_reload();
+			
 			
 			$xx = strrchr($v['name'],'/');
 			$name = explode('|',$xx);

@@ -24,7 +24,7 @@ class Setup extends Module {
 	
 	public function body($arg) {
 		global $base;
-		
+
 		if($this->is_back() && $this->parent) {
 			$this->parent->reset();
 			return;

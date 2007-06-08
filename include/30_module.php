@@ -62,7 +62,6 @@ abstract class Module {
 	private $path;
 	private $reload = null;
 	private $count_childs = 0;
-	private $unique_id;
 	
 	/**
 	 * This function is called when module is send to client after it has been repainted.
@@ -313,20 +312,26 @@ abstract class Module {
 	 * @param array variables to pass along with href
 	 * @return string
 	 */
-	public final function create_unique_href(array $variables = array (),$indicator=null) {
+	public final function create_unique_href(array $variables = array (),$fast=false,$indicator=null) {
 		$uvars = array();
+		if($fast)
+			$uvars['__fast_process__'] = $this->get_path();
 		foreach ($variables as $a => $b)
 			$uvars[$this->create_unique_key($a)] = $b;
 		return $this->create_href($uvars,$indicator);
 	}
-	public final function create_unique_href_js(array $variables = array (),$indicator=null) {
+	public final function create_unique_href_js(array $variables = array (),$fast=false,$indicator=null) {
 		$uvars = array();
+		if($fast)
+			$uvars['__fast_process__'] = $this->get_path();
 		foreach ($variables as $a => $b)
 			$uvars[$this->create_unique_key($a)] = $b;
 		return $this->create_href_js($uvars,$indicator);
 	}
-	public final function create_confirm_unique_href($confirm,array $variables = array (),$indicator=null) {
+	public final function create_confirm_unique_href($confirm,array $variables = array (),$fast=false,$indicator=null) {
 		$uvars = array();
+		if($fast)
+			$uvars['__fast_process__'] = $this->get_path();
 		foreach ($variables as $a => $b)
 			$uvars[$this->create_unique_key($a)] = $b;
 		return $this->create_confirm_href($confirm, $uvars,$indicator);
@@ -367,14 +372,14 @@ abstract class Module {
 	 * @param mixed function
 	 * @return string
 	 */
-	public final function create_callback_href($func,$args,$indicator=null) {
+	public final function create_callback_href($func,$args,$fast=true,$indicator=null) {
 		$name = 'callback_'.md5(serialize(array($func,$args)));
-		return $this->create_callback_href_with_id($name,$func,$args,$indicator);
+		return $this->create_callback_href_with_id($name,$func,$args,$fast,$indicator);
 	}
 
-	public final function create_confirm_callback_href($confirm, $func, $args, $indicator=null) {
+	public final function create_confirm_callback_href($confirm, $func, $args, $fast=true,$indicator=null) {
 		$name = 'callback_'.md5(serialize(array($func,$args)));
-		return $this->create_confirm_callback_href_with_id($name, $confirm, $func,$args,$indicator);
+		return $this->create_confirm_callback_href_with_id($name, $confirm, $func,$args,$fast,$indicator);
 	}
 
 	private final function call_callback_href_function($name,$func,$args) {
@@ -397,14 +402,14 @@ abstract class Module {
 	 * @param mixed function
 	 * @return string 
 	 */
-	public final function create_callback_href_with_id($name, $func, $args, $indicator) {
+	public final function create_callback_href_with_id($name, $func, $args, $fast=true,$indicator) {
 		$this->call_callback_href_function($name,$func,$args);
-		return $this->create_unique_href(array($name=>1),$indicator);
+		return $this->create_unique_href(array($name=>1),$fast,$indicator);
 	}
 	
-	public final function create_confirm_callback_href_with_id($name, $confirm, $func, $args, $indicator) {
+	public final function create_confirm_callback_href_with_id($name, $confirm, $func, $args, $fast=true,$indicator) {
 		$this->call_callback_href_function($name,$func,$args);
-		return $this->create_confirm_unique_href($confirm,array($name=>1),$indicator);
+		return $this->create_confirm_unique_href($confirm,array($name=>1),$fast,$indicator);
 	}
 	
 	/**
@@ -414,7 +419,7 @@ abstract class Module {
 	 * @return string string that should be placed inside html <pre><a></pre> tag. See create_href for example.
 	 */
 	public final function create_back_href() {
-		return $this->create_unique_href(array('back'=>1));
+		return $this->create_unique_href(array('back'=>1),true);
 	}
 
 	/**
@@ -422,7 +427,7 @@ abstract class Module {
 	 * Use is_back to control when this method was called.
 	 */
 	public final function set_back_location() {
-		location(array($this->create_unique_key('back')=>1));
+		location(array($this->create_unique_key('back')=>1,'__fast_process__'=>$this->get_path()));
 	}
 	
 	/**
@@ -467,7 +472,7 @@ abstract class Module {
 
 		if(method_exists($m,'construct'))
 			call_user_func_array(array($m,'construct'),$args);
-
+		
 		return $m;
 	}
 	
@@ -515,28 +520,29 @@ abstract class Module {
 		if(MODULE_TIMES)
 			$time = microtime(true);
 		//define key in array so it is before its children
-		$base->content[$mod_name]['name'] = $m->get_path();
+		$path = $m->get_path();
+		$base->content[$mod_name]['name'] = $path; 
 		$base->content[$mod_name]['module'] = & $m;
-		
-		if(!is_array($args)) $args = array($args);
+
+		if(!isset($_REQUEST['__fast_process__']) || strpos($path,$_REQUEST['__fast_process__'])===0
+			 || strpos($_REQUEST['__fast_process__'],$path)===0) {
+			if(!is_array($args)) $args = array($args);
 			
-		ob_start();
-		call_user_func_array(array($m,$function_name),$args);
-		if(STRIP_HTML)
-			$base->content[$mod_name]['value'] = strip_html(ob_get_contents());
-		else
-			$base->content[$mod_name]['value'] = ob_get_contents();
-		ob_end_clean();
+			ob_start();
+			call_user_func_array(array($m,$function_name),$args);
+			if(STRIP_HTML)
+				$base->content[$mod_name]['value'] = strip_html(ob_get_contents());
+			else
+				$base->content[$mod_name]['value'] = ob_get_contents();
+			ob_end_clean();
 		
-		if(MODULE_TIMES)
-			$base->content[$mod_name]['time'] = microtime(true)-$time;
-
-		//don't send empty div
-		if($base->content[$mod_name]['value']=="")
-			unset($base->content[$mod_name]);
-		else
-			print('<span id="'.$mod_name.'_content"></span>');		
-
+			if(MODULE_TIMES)
+				$base->content[$mod_name]['time'] = microtime(true)-$time;
+		} else {
+			$m->set_reload(false);
+		}
+		print('<span id="'.$mod_name.'_content"></span>');		
+			
 		return true;		
 	}
 
