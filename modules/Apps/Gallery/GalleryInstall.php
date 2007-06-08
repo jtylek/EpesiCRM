@@ -24,6 +24,14 @@ class Apps_GalleryInstall extends ModuleInstall {
 		DB::DropTable('gallery_shared_media');
 		return true;
 	}
+
+	public static function info() {
+		return array('Author'=>'<a href="mailto:kslawinski@telaxus.com">Kuba Slawinski</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'Licence'=>'TL', 'Description'=>'Simple gallery module');
+	}
+	
+	public static function simple_setup() {
+		return true;
+	}
 }
 
 ?>

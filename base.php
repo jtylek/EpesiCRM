@@ -94,7 +94,11 @@ class Base extends saja {
 		    $this->content['main']['time'] = microtime(true)-$time;
 	}
 	
-	public function process($cl_id, $url, $history_call) {
+	public function fast_process($cl_id, $url, $history_call) {
+	
+	}
+	
+	private function init_process($cl_id, $url, $history_call) {
 		$this->client_id = $cl_id;
 		
 		ob_start(array('ErrorHandler','handle_fatal'));
@@ -105,6 +109,10 @@ class Base extends saja {
 		    History::set_id($history_call);
 		
 		$this->load_modules();
+	}
+	
+	public function process($cl_id, $url, $history_call) {
+		$this->init_process($cl_id, $url, $history_call);
 	
 		if(DEBUG || MODULE_TIMES || SQL_TIMES)
 			$debug = '';
@@ -117,6 +125,7 @@ class Base extends saja {
 		}
 		
 		$session = & $this->get_session();
+		$tmp_session = & $this->get_tmp_session();
 
 		$this->go($this->get_default_module());
 		
@@ -139,9 +148,9 @@ class Base extends saja {
 		}
 		
 		//clean up old modules
-		foreach($session['__mod_md5__'] as $k=>$v)
+		foreach($tmp_session['__mod_md5__'] as $k=>$v)
 			if(!array_key_exists($k, $this->content))
-				unset($session['__mod_md5__'][$k]);
+				unset($tmp_session['__mod_md5__'][$k]);
 		
 		foreach($session['__module_vars__'] as $k=>$v) {
 			$xx = strrchr($k,'/');
@@ -171,12 +180,12 @@ class Base extends saja {
 			else 
 				$qty = $instances_qty[$name] = count($this->modules_instances[$name]);
 			
-			if ((!isset($reload) && (!isset ($session['__mod_md5__'][$k]) || $session['__mod_md5__'][$k] != $sum)) || $reload == true || $reloaded[$parent] || $qty!=$session['instances_qty'][$name]) {
+			if ((!isset($reload) && (!isset ($tmp_session['__mod_md5__'][$k]) || $tmp_session['__mod_md5__'][$k] != $sum)) || $reload == true || $reloaded[$parent] || $qty!=$session['instances_qty'][$name]) {
 				if(DEBUG){
-					$debug .= 'Reloading '.$v['name'].':&nbsp;&nbsp;&nbsp;&nbsp;parent='.$parent.',&nbsp;&nbsp;&nbsp;&nbsp;triggered='.(($reload==true)?'force':'auto').',&nbsp;&nbsp;cmp='.((!isset($session['__old__'][$k]))?'old_null':(strcmp($v['value'],$session['__old__'][$k]))) .'&nbsp;&nbsp;&nbsp;&nbsp;old md5='.$session['__mod_md5__'][$k].',&nbsp;&nbsp;&nbsp;&nbsp;new md5='.$sum.'<br><pre>'.htmlspecialchars($v['value']).'</pre><hr><pre>'.htmlspecialchars($session['__old__'][$k]).'</pre><hr>';
+					$debug .= 'Reloading '.$v['name'].':&nbsp;&nbsp;&nbsp;&nbsp;parent='.$parent.',&nbsp;&nbsp;&nbsp;&nbsp;triggered='.(($reload==true)?'force':'auto').',&nbsp;&nbsp;cmp='.((!isset($tmp_session['__old__'][$k]))?'old_null':(strcmp($v['value'],$tmp_session['__old__'][$k]))) .'&nbsp;&nbsp;&nbsp;&nbsp;old md5='.$tmp_session['__mod_md5__'][$k].',&nbsp;&nbsp;&nbsp;&nbsp;new md5='.$sum.'<br><pre>'.htmlspecialchars($v['value']).'</pre><hr><pre>'.htmlspecialchars($tmp_session['__old__'][$k]).'</pre><hr>';
 					if(@include_once('tools/Diff.php')) {
 						include_once 'tools/Text/Diff/Renderer/inline.php';
-						$xxx = new Text_Diff(explode("\n",$session['__old__'][$k]),explode("\n",$v['value']));
+						$xxx = new Text_Diff(explode("\n",$tmp_session['__old__'][$k]),explode("\n",$v['value']));
 						$renderer = &new Text_Diff_Renderer_inline();
 						$debug .= '<pre>'.$renderer->render($xxx).'</pre><hr>';
 					}
@@ -185,11 +194,11 @@ class Base extends saja {
 					$debug .= 'Time of loading module <b>'.$v['name'].'</b>: <i>'.$v['time'].'</i><hr>';
 					
 				$this->text($v['value'], $k . '_content');
-				$session['__mod_md5__'][$k] = $sum;
+				$tmp_session['__mod_md5__'][$k] = $sum;
 				$reloaded[$v['name']] = true;
 				if(method_exists($v['module'],'reloaded')) $v['module']->reloaded();
 				if(DEBUG)
-					$session['__old__'][$k] = $v['value'];
+					$tmp_session['__old__'][$k] = $v['value'];
 			} else
 				$this->content[$k] = false;
 		}
@@ -234,7 +243,11 @@ class Base extends saja {
 	}
 	
 	public function & get_session() {
-		return $_SESSION['cl'.$this->client_id];
+		return $_SESSION['cl'.$this->client_id]['stable'];
+	}
+
+	public function & get_tmp_session() {
+		return $_SESSION['cl'.$this->client_id]['tmp'];
 	}
 }
 

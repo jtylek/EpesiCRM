@@ -32,13 +32,16 @@ class Setup extends Module {
 		
 		//create default module form
 		$form = & $this->init_module('Libs/QuickForm','Processing modules');
-
+		
 		//set defaults
 		$form->setDefaults(array (
 			'default_module' => Variable::get('default_module'), 
+			'simple' => Variable::get('simple_setup'),
 			'anonymous_setup' => Variable::get('anonymous_setup')));
 //		print('='.Base_AclCommon::change_privileges('admin', array(Base_AclCommon::sa_group_id())).'=');
 		
+		$form->addElement('checkbox','simple','Simple setup','',array('onChange'=>$form->get_submit_form_js(false)));
+		$simple = $form->exportValue('simple');
 
 		//install module header
 		$form->addElement('header', 'install_module_header', 'Module administration');
@@ -50,6 +53,22 @@ class Setup extends Module {
 		$def = array();
 		foreach($module_dirs as $entry=>$versions) {
 				$installed = ModuleManager::is_installed($entry);
+
+				$module_install_class = $entry.'Install';
+				$simple_module = call_user_func(array($module_install_class,'simple_setup'));
+				if($simple && !$simple_module) continue;
+
+
+				$module_info = call_user_func(array($module_install_class,'info'));
+				if($module_info) {
+					$info = ' (<a rel="'.$entry.'" class="lbOn">info</a>)';
+					$iii = '<div id="'.$entry.'" class="leightbox"><h1>'.str_replace('_','/',$entry).'</h1><table>';
+					foreach($module_info as $k=>$v)
+						$iii .= '<tr><td>'.$k.'</td><td>'.$v.'</td></tr>';
+					$iii .= '</table><a class="lbAction" rel="deactivate">Close</a></div>';
+					print($iii);
+				} else $info = '';
+
 				$versions[-1]='not installed';
 				ksort($versions);
 				$tab = '';
@@ -74,7 +93,7 @@ class Setup extends Module {
 					$ele = $form->createElement('select', 'installed['.$entry.']', $path[count($path)-1], $versions);
 					$ele->setValue($installed);
 					$c[$path[count($path)-1]] = array();
-					$c[$path[count($path)-1]]['name'] = '<table width=100%><tr><td width=100% align=left>'.$path[count($path)-1].'</td><td align=right>' . $ele->toHtml() . '</td></tr></table>';
+					$c[$path[count($path)-1]]['name'] = '<table width=100%><tr><td width=100% align=left>'.$path[count($path)-1].$info.'</td><td align=right>' . $ele->toHtml() . '</td></tr></table>';
 					
 					//$c[$path[count($path)-1]]['name'] = $path[count($path)-1] ;
 					$c[$path[count($path)-1]]['sub'] = array();
@@ -89,16 +108,16 @@ class Setup extends Module {
 		$form->addElement('html', '</tr><tr><td colspan=2>'.$tree->toHtml().'</td></tr>');
 		
 		
-		$form->addElement('header', 'anonymous_header', 'Other (dengerous, don\'t change if you are newbie)');
-//		$form->addElement('header', 'anonymous_warning', 'If you don\'t have any authorization module installed don\'t turn it off!');
-		$form->addElement('checkbox','anonymous_setup', 'Anonymous setup');
+		if(!$simple) {
+			$form->addElement('header', 'anonymous_header', 'Other (dengerous, don\'t change if you are newbie)');
+			$form->addElement('checkbox','anonymous_setup', 'Anonymous setup');
 
 		//default module		
-//		$form->addElement('header', 'default_warning', 'Only some modules can be default! If invalid module is set, you cannot');
-		$av_modules=array();
-		foreach($base->modules as $name=>$obj)
-			$av_modules[$name] = $name;
-		$form->addElement('select','default_module','Default module to display',$av_modules);
+			$av_modules=array();
+			foreach($base->modules as $name=>$obj)
+				$av_modules[$name] = $name;
+			$form->addElement('select','default_module','Default module to display',$av_modules);
+		}
 		
 		
 		//print $tree->toHtml();
@@ -110,7 +129,7 @@ class Setup extends Module {
 		$form->setDefaults($def);
 		
 		//validation or display
-		if ($form->validate()) {
+		if ($form->exportValue('submited') && $form->validate()) {
 			if($form->process(array (
 				& $this,
 				'validate'
@@ -125,6 +144,7 @@ class Setup extends Module {
 		global $base;
 		
 		$default_module = false;
+		$simple = false;
 		$installed = array ();
 		$install = array ();
 		$uninstall = array();
@@ -135,10 +155,12 @@ class Setup extends Module {
 		foreach ($data as $k => $v)
 			${ $k } = $v;
 
-		if ($default_module !== false)
-			Variable::set('default_module', $default_module);
-
-		Variable::set('anonymous_setup', $anonymous_setup);
+		if (!$simple) {
+			if($default_module!==false)
+				Variable::set('default_module', $default_module);
+			Variable::set('anonymous_setup', $anonymous_setup);
+		}
+		Variable::set('simple_setup', $simple);
 				
 		foreach ($installed as $name => $new_version) {
 			$old_version = ModuleManager::is_installed($name);

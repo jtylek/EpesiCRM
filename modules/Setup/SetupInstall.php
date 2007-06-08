@@ -27,12 +27,18 @@ class SetupInstall extends ModuleInstall {
 			print('Invalid SQL query - Setup module (populating variables)');
 			return false;
 		}
+		$ret = Variable::set('simple_setup',true);
+		if($ret === false) {
+			print('Invalid SQL query - Setup module (populating variables)');
+			return false;
+		}
 
 		return true;
 	}
 
 	public static function uninstall() {
 		return Variable::delete('anonymous_setup');
+		return Variable::delete('simple_setup');
 	}
 }
 ?>

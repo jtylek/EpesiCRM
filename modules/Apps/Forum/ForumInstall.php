@@ -43,6 +43,14 @@ class Apps_ForumInstall extends ModuleInstall {
 		Base_ThemeCommon::uninstall_default_theme('Apps/Forum');
 		return $ret;
 	}
+
+	public static function info() {
+		return array('Author'=>'<a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'Licence'=>'TL', 'Description'=>'Simple forum');
+	}
+	
+	public static function simple_setup() {
+		return true;
+	}
 	
 }
 

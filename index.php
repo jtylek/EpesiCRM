@@ -41,8 +41,7 @@ if(SECURE_HTTP)
 if($_REQUEST['refresh'] && isset($_SESSION['num_of_clients'])) {
 	$client_id = $_SESSION['num_of_clients']-1;
 	if($client_id<0) $client_id=4;
-	unset($_SESSION['cl'.$client_id]['__mod_md5__']);
-	unset($_SESSION['cl'.$client_id]['__evaled_jses__']);
+	unset($_SESSION['cl'.$client_id]['tmp']);
 } else {
 	$client_id = isset($_SESSION['num_of_clients'])?$_SESSION['num_of_clients']:0;
 	$client_id_next = $client_id+1;

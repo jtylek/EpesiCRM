@@ -46,6 +46,15 @@ class BaseInstall extends ModuleInstall {
 	public static function uninstall() {
 		return true;
 	}
+	
+	public static function info() {
+		return array('Author'=>'<a href="mailto:pbukowski@telaxus.com">Paul Bukowski</a> and <a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'Licence'=>'TL', 'Description'=>'Base EPESI modules pack');
+	}
+	
+	public static function simple_setup() {
+		return true;
+	}
+
 }
 
 ?>
