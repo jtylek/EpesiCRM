@@ -52,6 +52,7 @@ super_hideAllNow = function() {
 		}
 	}
 }
+
 var frameId = 0;
 var frameObj = new Array();
 function cmAllocFrame (lvl) {
@@ -184,11 +185,11 @@ CustomMenubar = function(id, _layout) {
 	
 	this.addSplit = function( ) {
 		if(layout[this.id] == 'vertical' || this.depth != 0) {
-			menu_string[this.id] += '<tr><td class=splitter><hr class=custom_split></td></tr>';
+			menu_string[this.id] += '<tr><td class=splitter></td></tr>'; /*<hr class=custom_split>*/
 		} else {
 			if(this.depth == 0 ) {
 				if(this.init == 0) {
-					menu_string[this.id] += '<td>|</td>';
+					menu_string[this.id] += '<td class="separator">|</td>';
 					this.init = 0;
 				} else {
 					this.init = 0;
@@ -208,7 +209,7 @@ CustomMenubar = function(id, _layout) {
 		} else {
 			if(this.depth == 0 ) {
 				if(this.init == 0) {
-					menu_string[this.id] += '<td>|</td>';
+					menu_string[this.id] += '<td class="separator">|</td>';
 					this.init = 0;
 				} else {
 					this.init = 0;
@@ -260,7 +261,7 @@ CustomMenubar = function(id, _layout) {
 		} else {
 			if(this.depth == 0 ) {
 				if(this.init == 0) {
-					menu_string[this.id] += '<td>|</td>';
+					menu_string[this.id] += '<td class="separator">|</td>';
 					this.init = 0;
 				} else {
 					this.init = 0;
