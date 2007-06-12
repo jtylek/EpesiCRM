@@ -12,11 +12,11 @@ class Utils_Tooltip extends Module {
 		}
 	}
 
-	public function show( $text, $tip, $style ) {
+	public function show( $text, $tip, $style = 'default' ) {
 		return $this->open_tag( $tip, $style ).$text.$this->close_tag();
 	}
 
-	public function open_tag( $tip, $style ) {
+	public function open_tag( $tip, $style = 'default' ) {
 		return '<span '.$this->open_tag_attrs($tip, $style).'>';	
 	}
 
@@ -24,26 +24,20 @@ class Utils_Tooltip extends Module {
 		return '</span>';
 	}
 
-	public function open_tag_attrs( $tip, $style=null ) {
+	public function open_tag_attrs( $tip, $style = 'default' ) {
 		load_js('modules/Utils/Tooltip/js/Tooltip.js');
 
-		if(!isset($style))
-			$style_id='__default__';
 
-		if(!isset($this->styles[$style])) {
-			$style_id=$style;
-			print "<div id=div_tip_".$style_id." style='position: absolute; visibility: hidden;'>";
-			$theme = $this->pack_module('Base/Theme');
-			$theme->assign('tip', '<span id="tooltip_text_'.$style_id.'"></span>');
-			if(!isset($style)) {
-				$theme->display();
-			} else {
+		if(Utils_Tooltip::$styles[$style] != 1) {
+			print "<div id=div_tip_".$style." style='position: absolute; visibility: hidden;'>";
+			$theme = $this->init_module('Base/Theme');
+			$theme->assign('tip', '<span id="tooltip_text_'.$style.'"></span>');
 				$theme->display($style);
-			}
 			print "</div>";
+			Utils_Tooltip::$styles[$style_id] = 1;
 		}
 		
-		return ' onMouseMove="showTip(\''.htmlspecialchars($tip).'\', \''.$style_id.'\' , event)" onMouseOut="hideTip(\''.$style_id.'\')"';
+		return ' onMouseMove="showTip(\''.htmlspecialchars($tip).'\', \''.$style.'\' , event)" onMouseOut="hideTip(\''.$style.'\')"';
 	}
 
 }
