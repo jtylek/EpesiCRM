@@ -116,6 +116,25 @@ leightbox.prototype = {
 	},
 	
 	displayLeightbox: function(display){
+	
+		if(navigator.appName.indexOf('Explorer') != -1 ) {
+			$('overlay').style.position = 'absolute';
+			$(this.content).style.position = 'absolute';
+				var ch = (document.documentElement.clientHeight < document.body.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight)
+				var scrollTop = (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop);
+				if(navigator.appName.indexOf('Explorer') != -1 ) {
+					scrollTop = document.documentElement.scrollTop;
+				}
+				var height = (ch / 4);
+			$('overlay').className = 'overlay_ie';
+			$(this.content).className = 'leightbox_ie';
+			$('overlay').style.height = ch + 'px';
+			$(this.content).style.height = height + 'px';
+		} else {
+			$('overlay').style.position = 'fixed';
+			$(this.content).style.position = 'fixed';
+		}
+		
 		$('overlay').style.display = display;
 		$(this.content).style.display = display;
 		if(display != 'none') this.actions();		
@@ -146,24 +165,22 @@ leightbox.prototype = {
 
 /*-----------------------------------------------------------------------------------------------*/
 
+// Onload, make all links that need to trigger a lightbox active
+function initialize(){
+	addLeightboxMarkup();
+	getBrowserInfo();
+}
+
 var leightboxes = Array();
 
 // Add in markup necessary to make this work. Basically two divs:
 // Overlay holds the shadow
 // Lightbox is the centered square that the content is put into.
-function addLeightboxMarkup() {
-
-	bod 				= document.getElementsByTagName('body')[0];
-
-	overlay 			= document.createElement('div');
-	overlay.style.display = 'none';
-	overlay.id			= 'overlay';
-
-	bod.appendChild(overlay);
-}
-
-addLeightboxMarkup();
-getBrowserInfo();
+bod 				= document.getElementsByTagName('body')[0];
+overlay 			= document.createElement('div');
+overlay.id			= 'overlay';
+overlay.className	= 'overlay';
+bod.appendChild(overlay);
 
 function updateLbList() {
 	lbox = document.getElementsByClassName('lbOn');
