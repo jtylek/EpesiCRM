@@ -1,10 +1,8 @@
 <?php
 /**
- * TabbedBrowser class.
+ * BookmarkBrowser class.
  * 
- * This class facilitates grouping page content in different tabs.
- * 
- * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @author Kuba Slawinski <kslawinski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
  * @package tcms-utils
