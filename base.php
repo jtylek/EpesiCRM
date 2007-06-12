@@ -31,12 +31,11 @@ class Base extends saja {
 	private $client_id;
 	private $jses;
 	public $modules;
-	public $modules_instances;
+	public $root;
 	
 	private function load_modules() {
 
 		$this->modules = array ();
-		$this->modules_instances = array();
 
 		$installed_modules = ModuleManager::get_load_priority_array();
 		if ($installed_modules) {
@@ -57,8 +56,11 @@ class Base extends saja {
 		}
 	}
 
-	public function js($str) {
-		if($str!=='') $this->jses[] = strip_js($str);
+	public function js($js) {
+		if(STRIP_OUTPUT)
+			$this->jses[] = strip_js($js);
+		else
+			$this->jses[] = $js;
 	}
 	
 	private function & get_default_module() {
@@ -66,9 +68,9 @@ class Base extends saja {
 		
 		try {
 			$default_module = Variable::get('default_module');
-			$m = & ModuleManager :: new_instance($default_module);
+			$m = & ModuleManager :: new_instance($default_module,null,'0');
 		} catch (Exception $e) {
-			$m = & ModuleManager :: new_instance('Setup');
+			$m = & ModuleManager :: new_instance('Setup',null,'0');
 		}
 		$ret = trim(ob_get_contents());
 		if(strlen($ret)>0 || $m==null) trigger_error($ret,E_USER_ERROR);
@@ -78,8 +80,9 @@ class Base extends saja {
 
 	private function go(& $m) {
 		//define key so it's first in array
-		$this->content['main']['name'] = $m->get_path();
-		$this->content['main']['module'] = & $m;
+		$path = $m->get_path();
+		$this->content[$path]['span'] = 'main_content';
+		$this->content[$path]['module'] = & $m;
 		if(MODULE_TIMES)
 		    $time = microtime(true);
 		//go
@@ -88,10 +91,18 @@ class Base extends saja {
 			print ('You don\'t have permission to access default module! It\'s probably wrong configuration.');
 		} else
 			$m->body();
-		$this->content['main']['value'] = ob_get_contents();
+		$this->content[$path]['value'] = ob_get_contents();
 		ob_end_clean();
 		if(MODULE_TIMES)
-		    $this->content['main']['time'] = microtime(true)-$time;
+		    $this->content[$path]['time'] = microtime(true)-$time;
+	}
+	
+	public function debug($msg) {
+		if(DEBUG) {
+			static $msgs = '';
+			if($msg) $msgs .= $msg;
+			return $msgs;
+		}
 	}
 
 	public function process($cl_id, $url, $history_call) {
@@ -116,7 +127,8 @@ class Base extends saja {
 		$session = & $this->get_session();
 		$tmp_session = & $this->get_tmp_session();
 	
-		$this->go($this->get_default_module());
+		$this->root = & $this->get_default_module();
+		$this->go($this->root);
 		
 		//on exit call methods...
 		$ret = on_exit();
@@ -137,80 +149,74 @@ class Base extends saja {
 			return $this->process($this->client_id,$loc);
 		}
 
-		if(DEBUG || MODULE_TIMES || SQL_TIMES)
+		if(DEBUG || MODULE_TIMES || SQL_TIMES) {
 			$debug = '';
+		}
 						
 		//clean up old modules
-		foreach($tmp_session['__mod_md5__'] as $k=>$v)
-			if(!array_key_exists($k, $this->content))
-				unset($tmp_session['__mod_md5__'][$k]);
-		
-		foreach($session['__module_vars__'] as $k=>$v) {
-			$xx = strrchr($k,'/');
-			$xx = explode('|',$xx);
-			$inst = $xx[1];
-			$name = $xx[2];
-			$type = substr($xx[0], 1);
-			$mod = ModuleManager::get_instance($type,$inst);
-			if(!$mod || $mod->get_name()!=$name)
+		$to_cleanup = array_keys($tmp_session['__module_content__']);
+		foreach($to_cleanup as $k) {
+			$mod = ModuleManager::get_instance($k);
+/*		
+			if(is_object($mod)) {
+				if($mod->fast_processed())
+					$debug .= 'skipped2 '.$k.': '.print_r($mod,true).'<br>';
+				else
+					$debug .= 'OK '.$k.': '.$mod->get_path().'<br>';
+			} elseif($mod===null)
+				$debug .= 'skipped '.$k.': '.print_r($mod,true).'<br>';
+			else*/
+			if($mod === null) {
+				if(DEBUG)
+					$debug .= 'Clearing mod vars & force process '.$k.'<br>';
 				unset($session['__module_vars__'][$k]);
+				unset($tmp_session['__module_content__'][$k]);
+			}
 		}
 		
 		$reloaded = array();
-		$instances_qty = array();
 		foreach ($this->content as $k => $v) {
-			if(!isset($v['value'])) {
-				if(DEBUG)
-					$debug .= 'Skipping '.$v['name'].' module<hr>';
-				continue;
-			}
-			
 			$reload = $v['module']->get_reload();			
-			$sum = md5($v['value']);
+			$parent = $v['module']->get_parent_path();
 			
-			$parent=substr($k,0,strrpos($k,'_')); 
-			
-			
-			$xx = strrchr($v['name'],'/');
-			$name = explode('|',$xx);
-			$name = substr($name[0], 1);
-			
-			if(isset($instances_qty[$name]))
-				$qty = $instances_qty[$name];
-			else 
-				$qty = $instances_qty[$name] = count($this->modules_instances[$name]);
-			
-			if ((!isset($reload) && (!isset ($tmp_session['__mod_md5__'][$k]) || $tmp_session['__mod_md5__'][$k] != $sum)) || $reload == true || $reloaded[$parent] || $qty!=$session['instances_qty'][$name]) {
+			if ((!isset($reload) && (!isset ($tmp_session['__module_content__'][$k])
+				 || $tmp_session['__module_content__'][$k]['value'] !== $v['value'] //content differs
+				 || $tmp_session['__module_content__'][$k]['js'] !== $v['js']))
+				 || $reload == true || $reloaded[$parent]) { //force reload or parent reloaded
 				if(DEBUG){
-					$debug .= 'Reloading '.$v['name'].':&nbsp;&nbsp;&nbsp;&nbsp;parent='.$parent.',&nbsp;&nbsp;&nbsp;&nbsp;triggered='.(($reload==true)?'force':'auto').',&nbsp;&nbsp;cmp='.((!isset($tmp_session['__old__'][$k]))?'old_null':(strcmp($v['value'],$tmp_session['__old__'][$k]))) .'&nbsp;&nbsp;&nbsp;&nbsp;old md5='.$tmp_session['__mod_md5__'][$k].',&nbsp;&nbsp;&nbsp;&nbsp;new md5='.$sum.'<br><pre>'.htmlspecialchars($v['value']).'</pre><hr><pre>'.htmlspecialchars($tmp_session['__old__'][$k]).'</pre><hr>';
+					$debug .= 'Reloading '.$k.':&nbsp;&nbsp;&nbsp;&nbsp;parent='.$v['module']->get_parent_path().';&nbsp;&nbsp;&nbsp;&nbsp;span='.$v['span'].',&nbsp;&nbsp;&nbsp;&nbsp;triggered='.(($reload==true)?'force':'auto').',&nbsp;&nbsp;cmp='.((!isset($tmp_session['__old__'][$k]))?'old_null':(strcmp($v['value'],$tmp_session['__old__'][$k]))) .'&nbsp;&nbsp;&nbsp;&nbsp;<pre>'.htmlspecialchars($v['value']).'</pre><hr><pre>'.htmlspecialchars($tmp_session['__module_content__'][$k]).'</pre><hr>';
 					if(@include_once('tools/Diff.php')) {
 						include_once 'tools/Text/Diff/Renderer/inline.php';
-						$xxx = new Text_Diff(explode("\n",$tmp_session['__old__'][$k]),explode("\n",$v['value']));
+						$xxx = new Text_Diff(explode("\n",$tmp_session['__module_content__'][$k]['value']),explode("\n",$v['value']));
 						$renderer = &new Text_Diff_Renderer_inline();
 						$debug .= '<pre>'.$renderer->render($xxx).'</pre><hr>';
 					}
 				}
 				if(MODULE_TIMES)
 					$debug .= 'Time of loading module <b>'.$v['name'].'</b>: <i>'.$v['time'].'</i><hr>';
-					
-				$this->text($v['value'], $k . '_content');
-				$tmp_session['__mod_md5__'][$k] = $sum;
-				$reloaded[$v['name']] = true;
+				
+				$this->text($v['value'], $v['span']);
+				$this->jses[] = join(";",$v['js']);
+				$tmp_session['__module_content__'][$k]['value'] = $v['value'];
+				$tmp_session['__module_content__'][$k]['js'] = $v['js'];				
+				$tmp_session['__module_content__'][$k]['parent'] = $parent;				
+				$reloaded[$k] = true;
 				if(method_exists($v['module'],'reloaded')) $v['module']->reloaded();
-				if(DEBUG)
-					$tmp_session['__old__'][$k] = $v['value'];
-			} else
-				$this->content[$k] = false;
+			}// else
+				//$this->content[$k] = false;
 		}
-		if(DEBUG)
-			foreach($instances_qty as $name=>$v)
-				$debug .= $name.' : old='.$session['instances_qty'][$name].' new='.$v.'<hr>';
 		
-		$session['instances_qty'] = $instances_qty;
-		
+		foreach($tmp_session['__module_content__'] as $k=>$v)
+			if(!array_key_exists($k,$this->content) && $reloaded[$v['parent']]) {
+				$this->text($v['value'], $v['span']);
+				$this->jses[] = join(";",$v['js']);	
+				$reloaded[$k] = true;
+			}
+	
 		if(DEBUG) {
 			$debug .= 'vars '.$this->client_id.': '.var_export($session['__module_vars__'],true).'<br>';
 			$debug .= 'user='.Acl::get_user().'<br>';
+			$debug .= $this->debug();
 		}
 		
 		if(SQL_TIMES) {

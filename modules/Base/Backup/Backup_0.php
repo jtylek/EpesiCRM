@@ -26,7 +26,7 @@ class Base_Backup extends Module {
 		$this->lang = & $this->pack_module('Base/Lang');
 		
 		print('<h1>'.$this->lang->t('Available backups').'</h1>');
-		$gb = $this->init_module('Utils/GenericBrowser');
+		$gb = $this->init_module('Utils/GenericBrowser',null,'backup');
 		$gb->set_table_columns(array($this->lang->t('Name'), $this->lang->t('Version'), $this->lang->t('Date'), $this->lang->t('Actions')));
 		$backups_list = ModuleManager::list_backups();
 		$backups = array();

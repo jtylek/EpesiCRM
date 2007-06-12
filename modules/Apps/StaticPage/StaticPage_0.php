@@ -110,7 +110,7 @@ class Apps_StaticPage extends Module {
 			return;
 		}
 		
-		$gb = & $this->init_module('Utils/GenericBrowser','apps_staticpage_pages');
+		$gb = & $this->init_module('Utils/GenericBrowser',null,'apps_staticpage_pages');
 		$ret = $gb->query_order_limit('SELECT path,title FROM apps_staticpage_pages','SELECT count(*) FROM apps_staticpage_pages');
 		$gb->set_table_columns(array(
 			array('name'=>$this->lang->t('Path'), 'width'=>30,'order'=>'path'),

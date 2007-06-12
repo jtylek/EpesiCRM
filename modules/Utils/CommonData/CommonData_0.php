@@ -51,7 +51,7 @@ class Utils_CommonData extends Module {
 			return;
 		}
 
-		$gb = &$this->init_module('Utils/GenericBrowser','edit');
+		$gb = &$this->init_module('Utils/GenericBrowser',null,'edit');
 		$gb->set_table_columns(array(	array('name'=>'Key','width'=>20, 'order'=>'akey'),
 										array('name'=>'Value','width'=>20, 'order'=>'value')));
 		
@@ -115,7 +115,7 @@ class Utils_CommonData extends Module {
 	}
 
 	public function browse(){
-		$gb = & $this->init_module('Utils/GenericBrowser','browse');
+		$gb = & $this->init_module('Utils/GenericBrowser',null,'browse');
 		$gb->set_table_columns(array(	array('name'=>$this->lang->t('Name'), 'width'=>20),
 										array('name'=>$this->lang->t('Records amount'), 'width'=>20),
 										));

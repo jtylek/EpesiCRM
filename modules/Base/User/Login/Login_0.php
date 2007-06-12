@@ -19,17 +19,21 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_User_Login extends Module {
 	protected $lang;
 	
+	public function construct() {
+		$this->fast_process();
+	}
+	
 	public function body($arg) {
 		$this->lang = $this->pack_module('Base/Lang');
 
 		//if logged
 		if(Acl::is_user()) {
-			if($_REQUEST['logout']) {
+			if($this->get_unique_href_variable('logout')) {
 				Acl::set_user();
 				Base_UserCommon::set_my_user_id();
 				location(array());
 			} else {
-				print($this->lang->t('Logged as %s.',Acl::get_user()).' <a '.$this->create_href(array('logout'=>1)).'>'.$this->lang->t('Logout').'</a>');
+				print($this->lang->t('Logged as %s.',Acl::get_user()).' <a '.$this->create_unique_href(array('logout'=>1)).'>'.$this->lang->t('Logout').'</a>');
 			}
 			return;	
 		}

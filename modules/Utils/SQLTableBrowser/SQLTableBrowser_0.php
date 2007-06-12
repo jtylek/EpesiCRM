@@ -9,10 +9,11 @@ class Utils_SQLTableBrowser extends Module {
 	private $default_order;
 	private $search;
 
-	public function construct($name){
-		if (!$name)
+	public function construct(){
+		$name = $this->get_instance_id();
+		if (is_numeric($name))
 			trigger_error('SQLTableBrowser did not receive name for instance in module '.$this->get_parent_type().'.<br>Use $this->init_module(\'Utils/SQLTableBrowser\',\'instance name here\');',E_USER_ERROR);
-		$this->gb = & $this->init_module('Utils/GenericBrowser',$name);
+		$this->gb = & $this->init_module('Utils/GenericBrowser',null,$name);
 	}
 	
 	public function set_table_properties($arg){

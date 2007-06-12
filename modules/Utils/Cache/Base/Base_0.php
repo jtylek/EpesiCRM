@@ -29,13 +29,14 @@ abstract class Utils_Cache_Base extends Module {
 	
 	public function construct($options, $interval=60) {
 		$this->interval = $interval;
-		$this->id = md5($this->parent->get_unique_id().serialize($options));
+		$this->id = md5($this->parent->get_path().serialize($options));
 	}
 	
 	private function start_cache() {
+		$session = & $GLOBALS['base']->get_sesion();
 		$this->modules_instances = $base->modules_instances;
 		$this->modules_contents = $base->content;
-		$this->parent_vars = $session['__module_vars__'][$this->parent->get_unique_id()];
+		$this->parent_vars = $session['__module_vars__'][$this->parent->get_path()];
 
 		ob_start();
 	}
@@ -107,11 +108,11 @@ abstract class Utils_Cache_Base extends Module {
 		//children vars
 		foreach($diff as $k=>$v)
 			foreach($v as $x=>$y) {
-				$id = $y->get_unique_id();
+				$id = $y->get_path();
 				$ret['vars'][$id] = $session['__module_vars__'][$id];
 			}
 		//parent vars
-		$id = $this->parent->get_unique_id();
+		$id = $this->parent->get_path();
 		foreach($session['__module_vars__'][$id] as $k=>$v) {
 			if(!array_key_exists($k,$this->parent_vars) || 
 				(array_key_exists($k,$this->parent_vars) && $this->parent_vars[$k]!=$v))

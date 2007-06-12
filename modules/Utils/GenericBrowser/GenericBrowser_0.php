@@ -37,12 +37,9 @@ class Utils_GenericBrowser extends Module {
 	private $en_actions = false;
 	private $cur_row = -1;
 	
-	public function construct($name=false) {
-		if (!$name) {
-			trigger_error('GenericBrowser did not receive name for instance in module '.$this->get_parent_type().'.<br>Use $this->init_module(\'Utils/GenericBrowser\',\'instance name here\');',E_USER_ERROR);
-			return;
-		}
-		$this->set_name($name);
+	public function construct() {
+		if (is_numeric($this->get_instance_id()))
+			trigger_error('GenericBrowser did not receive string name for instance in module '.$this->get_parent_type().'.<br>Use $this->init_module(\'Utils/GenericBrowser\',\'instance name here\');',E_USER_ERROR);
 	}
 	
 	public function set_table_columns($arg){
@@ -337,7 +334,6 @@ class Utils_GenericBrowser extends Module {
 		$theme = & $this->init_module('Base/Theme');
 		$per_page = $this->get_module_variable('per_page');
 		$order = $this->get_module_variable('order');
-		if (!$this->get_name()) return;
 		
 		$ch_adv_search = $this->get_unique_href_variable('adv_search');
 		if (isset($ch_adv_search)) {
@@ -400,7 +396,7 @@ class Utils_GenericBrowser extends Module {
 		}
 		
 		// maintance mode -> action
-		$md5_id = md5($this->get_unique_id());
+		$md5_id = md5($this->get_path());
 		if($this->isset_unique_href_variable('action'))
 			switch($this->get_unique_href_variable('action')) {
 				case 'reset_order':

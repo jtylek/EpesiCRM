@@ -19,7 +19,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_MainModuleIndicator extends Module {
 
 	public function body($arg) {
-		$box_module = ModuleManager::get_instance('Base_Box');
+		$box_module = ModuleManager::get_instance('/Base_Box|0');
 		if($box_module)
 			$active_module = $box_module->get_main_module();
 		if($active_module && is_callable(array($active_module,'caption'))) {

@@ -23,6 +23,10 @@ class Base_Lang extends Module {
 	private $parent_module;
 	private $lang_code;
 	
+	public function construct() {
+		$this->fast_process();
+	}
+	
 	public function body($arg) {
 		global $translations;
 		$this->parent_module = $this->get_parent_type();
@@ -35,16 +39,14 @@ class Base_Lang extends Module {
 		
 		if(!Acl::check('Administration','Modules')) return;
 	
-		$original = $_REQUEST['trans_original'];
-		$name = $_REQUEST['lang_module_parent'];
+		$original = $this->get_module_variable_or_unique_href_variable('original');
 		
-		if(!isset($original) || $name!=$this->get_parent_path()) return;
+		if(!isset($original)) return;
 		$trans = $translations[$this->parent_module][$original];
 		
 		$form = & $this->init_module('Libs/QuickForm');
 		$form->addElement('header', null, $original);
 		$form->addElement('hidden', 'trans_original', $original);
-		$form->addElement('hidden', 'lang_module_parent', $name);
 		$form->addElement('text','trans_text','Translation');
 		$form->setDefaults(array('trans_text'=>$trans));
 		
@@ -68,6 +70,9 @@ class Base_Lang extends Module {
 		$prev = $translations[$this->parent_module][$orig];
 		
 		$translations[$this->parent_module][$orig] = $trans;
+		
+		$this->unset_module_variable('original');
+		
 		if(!Base_LangCommon::save()) {
 			print('Unable to save translation file. Check http server user privileges for directory "data/translations" and files inside.');
 			$translations[$this->parent_module][$orig] = $prev;
@@ -142,7 +147,7 @@ class Base_Lang extends Module {
 		if(!isset($trans) || $trans=='') $trans = $original;
 		$trans = vsprintf($trans,$arg);
 		if(Acl::check('Administration','Modules') && !$hidden && Base_MaintenanceModeCommon::get_mode())
-			$trans = $trans.'<a '.$this->create_href(array('trans_original'=>$original, 'lang_module_parent'=>$this->get_parent_path())).'>[*]</a>';
+			$trans = $trans.'<a '.$this->create_unique_href(array('original'=>$original)).'>[*]</a>';
 		return $trans;
 	}
 }

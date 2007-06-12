@@ -56,6 +56,11 @@ class Base_Menu extends Module {
 	private static $tmp_menu;
 	private $duplicate = false;
 	
+	public function construct() {
+		$this->fast_process();
+	}
+	
+	
 	public static function add_default_menu(& $m, $name) {
 		foreach($m as $k=>$arr) {
 			if(array_key_exists('__submenu__', $arr)) 
@@ -210,12 +215,12 @@ class Base_Menu extends Module {
 		
 		// preparing quick menu
 		$current_module_menu = array();
-		$box_module = ModuleManager::get_instance('Base_Box');
+		$box_module = ModuleManager::get_instance('/Base_Box|0');
 		if($box_module)
 			$active_module = $box_module->get_main_module();
 		if($active_module) {
 			$first_child = true;				
-			$current_module_menu = call_user_func(array($active_module->get_name(),'quick_menu'));
+			$current_module_menu = call_user_func(array($active_module->get_type().'Common','quick_menu'));
 			if(is_array($current_module_menu)) {
 				self::add_unique_keys($current_module_menu,$active_module);
 			} else {
@@ -225,13 +230,12 @@ class Base_Menu extends Module {
 		
 			// preparing children quick menu
 			$current_module_children_menu = array();
-			foreach($base->modules_instances as $k=>$mod)
-				foreach($mod as $v){
-					if ($v->get_parent_path() == $active_module->get_path()){
-						if(method_exists($k, 'quick_menu')) {
-							$module_menu = call_user_func(array($k,'quick_menu'));
+			$children = $active_module->get_children();
+			foreach($children as $k=>$mod)
+					if(method_exists($mod->get_type().'Common', 'quick_menu')) {
+							$module_menu = call_user_func(array($mod->get_type().'Common','quick_menu'));
 							if(!is_array($module_menu)) continue;
-							self::add_unique_keys($module_menu,$v);
+							self::add_unique_keys($module_menu,$mod);
 							if (empty($current_module_menu)) {
 								$current_module_menu = array($lang->ht('Main')=>array());
 							} else {
@@ -241,9 +245,7 @@ class Base_Menu extends Module {
 							}
 							$current_module_children_menu = array_merge($current_module_children_menu,$module_menu);
 							$current_module_children_menu['__submenu__'] = 1;
-						}
 					}
-				}
 			// filling quick menu with children menu
 			reset($current_module_menu);
 			if (!empty($current_module_menu)) $current_module_menu[key($current_module_menu)] = array_merge($current_module_menu[key($current_module_menu)],$current_module_children_menu);

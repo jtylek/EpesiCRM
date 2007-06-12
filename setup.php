@@ -84,7 +84,7 @@ define("SECURE_HTTP",1);
 /*
  * If you have got good server, but poor connection, turn it on.
  */
-define("STRIP_HTML",0);
+define("STRIP_OUTPUT",0);
 ?>');
 	fclose($c);
 	chmod('data/config.php',0444);

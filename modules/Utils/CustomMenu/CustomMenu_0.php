@@ -20,7 +20,7 @@ class Utils_CustomMenu extends Module {
 		$edit = $this->get_module_variable_or_unique_href_variable('edit');
 		if(isset($edit)) return $this->edit($edit);
 		
-		$gb = & $this->init_module('Utils/GenericBrowser','custommenu');
+		$gb = & $this->init_module('Utils/GenericBrowser',null,'custommenu');
 		$ret = $gb->query_order_limit('SELECT path FROM utils_custommenu_entry WHERE id=\''.md5($this->mid).'\'','SELECT count(*) FROM utils_custommenu_entry WHERE id=\''.md5($this->mid).'\'');
 		$gb->set_table_columns(array(
 			array('name'=>$this->lang->t('Menu entry path'), 'width'=>70,'order'=>'path'),

@@ -19,12 +19,12 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Libs_QuickForm extends Module {
 	private $qf;
 	
-	public function construct($indicator = null,$fast=true, $action = '', $target = '', $on_submit = null) {
-		$form_name = $this->parent->get_unique_id();
+	public function construct($indicator = null, $action = '', $target = '', $on_submit = null) {
+		$form_name = $this->parent->get_path();
 		if($target=='' && $action!='')
 			$target = '_blank';
 		if(!isset($on_submit))
-			$on_submit = $this->get_submit_form_js_by_name($form_name,true,$indicator,$fast)."return false;";
+			$on_submit = $this->get_submit_form_js_by_name($form_name,true,$indicator)."return false;";
 		$this->qf = new HTML_QuickForm($form_name, 'post', $action, $target, array('onSubmit'=>$on_submit), true);
 		$this->qf->addElement('hidden', 'submited', 0);
 		Base_ThemeCommon::load_css('Libs_QuickForm');
@@ -49,14 +49,12 @@ class Libs_QuickForm extends Module {
 		return $this->get_submit_form_js_by_name($form_name,$submited,$indicator,$fast); 
 	}
 	
-	private function get_submit_form_js_by_name($form_name, $submited, $indicator, $fast=true) {
+	private function get_submit_form_js_by_name($form_name, $submited, $indicator) {
 		global $base; 
 		if(!isset($indicator)) $indicator='processing...';
-		if($fast)
-			$fast = "+'&".str_replace('&amp;','&',http_build_query(array('__fast_process__'=>$this->get_parent_path())))."'";
-		else
-			$fast = '';
-	 	$s = $base->run("process(".$base->get_client_id().",serialize_form('".addslashes($form_name)."')".$fast.")");
+        $fast = "+'&".str_replace('&amp;','&',http_build_query(array('__action_module__'=>$this->get_parent_path())))."'"; 
+        $s = $base->run("process(".$base->get_client_id().",serialize_form('".addslashes($form_name)."')".$fast.")"); 
+//	 	$s = $base->run("process(".$base->get_client_id().",serialize_form('".addslashes($form_name)."'))");
 		$s = Libs_QuickFormCommon::get_on_submit_actions().'saja.updateIndicatorText(\''.addslashes($indicator).'\');'.$s;
 		if($submited)	 	
 	 		return "document.getElementById('".addslashes($form_name)."').submited.value=1;".$s."document.getElementById('".addslashes($form_name)."').submited.value=0;";

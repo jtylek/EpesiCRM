@@ -401,7 +401,7 @@ class Apps_Gallery extends Module {
 		if($this->isset_module_variable('data'))
 			return $this->process_data();
 		
-		$form = & $this->init_module('Libs/QuickForm', array($this->lang->t('Uploading file...',true),'modules/Apps/Gallery/upload.php','upload_iframe',''),'file_chooser');
+		$form = & $this->init_module('Libs/QuickForm', array($this->lang->ht('Uploading file...'),'modules/Apps/Gallery/upload.php','upload_iframe',''),'file_chooser');
 		$form->addElement('header', 'upload', 'Import an image to your gallery');
 		
 		$form->addElement('hidden', 'root', $this->root.$this->user);

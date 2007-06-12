@@ -28,7 +28,7 @@ class Base_Mail_ContactUs extends Module {
 		}
 		
 		$body = HTML_QuickForm::createElement('textarea', 'body',null,array('id'=>'contact_us'));
-		eval_js('focus_by_id(\'contact_us\')');
+		$this->js('focus_by_id(\'contact_us\')');
 		
 		$body->setCols(50);
 		$body->setRows(15);

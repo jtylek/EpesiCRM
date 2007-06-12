@@ -9,6 +9,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class ModuleManager {
 	static $not_loaded_modules = null;
+	static $loaded_modules = array();
 
 	/**
 	 * Include file with module initialization class.
@@ -780,7 +781,7 @@ class ModuleManager {
 	}
 
 	/**
-	 * Creates new module instance and puts it inside module instances table.
+	 * Creates new module instance.
 	 * 
 	 * Do not use directly.
 	 * Use pack_module instead.
@@ -789,25 +790,24 @@ class ModuleManager {
 	 * @return object newly created module object
 	 * @throws exception 'module not loaded' if the module is not registered 
 	 */
-	public static final function & new_instance($mod) {
+	public static final function & new_instance($mod,$parent,$name) {
 		global $base;
 		if (!array_key_exists($mod, $base->modules))
 			throw new Exception('module not loaded');
 		if(self::$not_loaded_modules===null) 
 			self::$not_loaded_modules = self::get_load_priority_array();
-		if(!array_key_exists($mod, $base->modules_instances)) {
+		if(!array_key_exists($mod, self::$loaded_modules)) {
 			foreach(self::$not_loaded_modules as $i=>$v) {
 				$version = $v['version'];
 				$module = $v['name'];
 				if(ModuleManager :: include_main($module, $version))
 					ModuleManager :: create_virtual_classes($module, $version);
 				unset(self::$not_loaded_modules[$i]);
+				self::$loaded_modules[$module] = true;
 				if($module==$mod) break;
 			}
 		}
-		$m = new $base->modules[$mod]['name']($mod);
-		//$m = $base->modules[$mod][0]->new_instance();
-		$base->modules_instances[$mod][] = & $m;
+		$m = new $base->modules[$mod]['name']($mod,$parent,$name);
 		return $m;
 	}
 
@@ -818,13 +818,24 @@ class ModuleManager {
 	 * @param integer instance id
 	 * @return bool false if module instance was not found, requested module object otherwise
 	 */
-	public static final function & get_instance($mod, $instance = 0) {
+	public static final function & get_instance($path) {
 		global $base;
-		if (!array_key_exists($mod, $base->modules))
-			return false;
-		if (!array_key_exists($instance, $base->modules_instances[$mod]))
-			return false;
-		return $base->modules_instances[$mod][$instance];
+		
+		$xx = explode('/',$path);
+		$curr = & $base->root;
+		if($curr->get_node_id() != $xx[1]) return false;
+		if(count($xx)>2) {
+			$curr = & $curr->get_child($xx[2]);
+			if(!$curr) return $curr;
+			for($i=2; $i<count($xx)-1; $i++) {
+				if($curr->get_node_id() == $xx[$i]) {
+					$curr = & $curr->get_child($xx[$i+1]);
+				} else
+					return false;
+				if(!$curr) return $curr;
+			}
+		}
+		return $curr;
 	}
 
 	/**
