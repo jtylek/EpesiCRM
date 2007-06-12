@@ -34,6 +34,14 @@
 .utils_tree_node {
 	padding: 1px;
 	margin: 0px;
+	border: none;
+	background-color: transparent;
+}
+.utils_tree_node_hover {
+	padding: 0px;
+	margin: 0px;
+	border: 1px solid #444444;
+	background-color: #eeeeee;
 }
 .utils_tree_node_content {
 	padding: 0px;

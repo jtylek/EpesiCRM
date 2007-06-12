@@ -104,10 +104,6 @@ class Utils_Tree extends Module {
 	}
 		
 	public function print_structure($t = array(), $level = 0) {
-		eval_js(
-			'utils_tree_hl = function( i ) { i.style.background = "white"; i.style.padding = "0px"; i.style.border = "1px solid black"; };'.
-			'utils_tree_rg = function( i ) { i.style.background = "transparent"; i.style.padding = "1px"; i.style.border = "none"; };'
-		);
 		$this->_sub = 0;
 		$ret = '<div class=utils_tree_root>';
 		foreach( $t as $k => $v ) {
