@@ -115,10 +115,13 @@ if($_REQUEST['refresh'] && isset($_SESSION['num_of_clients'])) {
 			unFocus.History.addHistory(id);
 		}
 		
-		window.location = '#1';
 		unFocus.History.addEventListener('historyChange',history_call);
-		<?php print $saja->run("process($client_id,'',0)"); ?>
 		
+		if(window.location.hash!='#1')
+			window.location = '#1';
+		else
+			<?php print $saja->run("process($client_id,'',0)"); ?>
+			
 		-->
 		</script>
 	</body>

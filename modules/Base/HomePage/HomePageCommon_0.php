@@ -23,7 +23,10 @@ class Base_HomePageCommon {
 		$uid = Base_UserCommon::get_user_id(Acl::get_user());
 		$session = & $base->get_session();
 		$ret = DB::Execute('SELECT url FROM home_page WHERE user_login_id=%d',$uid);
-		if(!($row = $ret->FetchRow())) return false;
+		if(!($row = $ret->FetchRow())) {
+			$_REQUEST['box_main_module'] = Base_BoxCommon::get_main_module_name();
+			return;
+		}
 		parse_str($row[0], $session['__module_vars__']);
 		location(array());
 	}
@@ -55,16 +58,20 @@ if($_REQUEST['Base_HomePage_load']) {
 	Base_StatusBarCommon::message($lang->t('Home page saved'));
 }
 
-/*
-$session = $base->get_session();
+
+$session = & $base->get_session();
 if(Acl::is_user()) {
-	if(!$session['base_homepage_logged']) Base_HomePageCommon::load(); 
-	$session['base_homepage_logged'] = true;
+	if(!$session['base_homepage_logged']) {
+		Base_HomePageCommon::load();
+		$session['base_homepage_logged'] = true;
+	}
 } else {
-	if($session['base_homepage_logged']) $_REQUEST['box_main_module'] = Base_BoxCommon::get_main_module_name();
-	$session['base_homepage_logged'] = false;
+	if($session['base_homepage_logged']) {
+		$_REQUEST['box_main_module'] = Base_BoxCommon::get_main_module_name();
+		$session['base_homepage_logged'] = false;
+	}
 }
-*/
+
 Base_ActionBarCommon::add_icon('home','Home page',Module::create_href(array('Base_HomePage_load'=>'1')));
 
 ?>
