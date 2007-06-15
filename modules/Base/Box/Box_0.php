@@ -35,7 +35,9 @@ class Base_Box extends Module {
 		$containers = array();
 		$containers['main'] = array(); //so 'main' is first in array
 		
+		$name = 0;
 		foreach($ini_file as $tag=>$opts) {
+			$name++; 
 			if(($logged && $opts['display']=='anonymous') || (!$logged && $opts['display']=='logged')) {
 				continue;
 			}
@@ -43,6 +45,7 @@ class Base_Box extends Module {
 				eval('$containers[\''.$tag.'\'][\'arguments\']='.$opts['arguments'].';');
 			$containers[$tag]['module'] = $opts['module'];
 			$containers[$tag]['function'] = $opts['function'];
+			$containers[$tag]['name'] = 'b'.$name;
 		}
 		
 //		if($logged) $containers = $ini_file['Logged'];
@@ -66,11 +69,11 @@ class Base_Box extends Module {
 				if(Base_AclCommon::i_am_sa()) print($lang->t("Please install %s module or choose another theme!",$v['module'])."<br><a ".$this->create_href(array('box_main_module'=>'Setup')).">".$lang->t('Manage modules').'</a><br><a '.$this->create_href(array('box_main_module'=>'Base/Theme/Administrator')).'>'.$lang->t("Choose another theme").'</a>');
 			} else {
 				if(isset($v['function']))
-					$this->modules[$k] = call_user_func(array($this,'pack_module'),$v['module'],$v['arguments'],$v['function']);
+					$this->modules[$k] = call_user_func(array($this,'pack_module'),$v['module'],$v['arguments'],$v['function'],null,$v['name']);
 				elseif($v['arguments'])
-					$this->modules[$k] = call_user_func(array($this,'pack_module'),$v['module'],$v['arguments']);
+					$this->modules[$k] = call_user_func(array($this,'pack_module'),$v['module'],$v['arguments'],'body',null,$v['name']);
 				else
-					$this->modules[$k] = call_user_func(array($this,'pack_module'),$v['module']);
+					$this->modules[$k] = call_user_func(array($this,'pack_module'),$v['module'],null,'body',null,$v['name']);
 			}
 			$theme->assign($k,ob_get_contents());
 			ob_end_clean();

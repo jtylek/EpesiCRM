@@ -115,14 +115,14 @@ class Base extends saja {
 		elseif($history_call)
 		    History::set_id($history_call);
 		
-		$this->load_modules();
-
 		$url = str_replace('&amp;','&',$url);
 		
 		if($url) {
 			parse_str($url, $_POST);
-			$_GET = $_REQUEST = $_POST;
+			$_GET = $_REQUEST = & $_POST;
 		}
+
+		$this->load_modules();
 
 		$session = & $this->get_session();
 		$tmp_session = & $this->get_tmp_session();
@@ -134,14 +134,18 @@ class Base extends saja {
 		$ret = on_exit();
 		foreach($ret as $k)
 			call_user_func($k);
-			
+		
 		//go somewhere else?
 		$loc = location();
 		if($loc!=false) {
+			if(isset($_REQUEST['__action_module__'])) {
+				$xxx = array('__action_module__'=>$_REQUEST['__action_module__']);
+				$loc .= '&'.http_build_query($xxx);
+			}
+
 			//clean up
 			foreach($this->content as $k=>$v)
 				unset($this->content[$k]);
-			//unset($_REQUEST['__fast_process__']);
 //			unset($this->jses);
 			$this->load_modules();
 	
@@ -168,7 +172,7 @@ class Base extends saja {
 			else*/
 			if($mod === null) {
 				if(DEBUG)
-					$debug .= 'Clearing mod vars & force process '.$k.'<br>';
+					$debug .= 'Clearing mod vars & module content '.$k.'<br>';
 				unset($session['__module_vars__'][$k]);
 				unset($tmp_session['__module_content__'][$k]);
 			}
@@ -202,12 +206,13 @@ class Base extends saja {
 				$tmp_session['__module_content__'][$k]['parent'] = $parent;				
 				$reloaded[$k] = true;
 				if(method_exists($v['module'],'reloaded')) $v['module']->reloaded();
-			}// else
-				//$this->content[$k] = false;
+			}
 		}
 		
 		foreach($tmp_session['__module_content__'] as $k=>$v)
 			if(!array_key_exists($k,$this->content) && $reloaded[$v['parent']]) {
+				if(DEBUG)
+					$debug .= 'Reloading missing '.$k.'<hr>';
 				$this->text($v['value'], $v['span']);
 				$this->jses[] = join(";",$v['js']);	
 				$reloaded[$k] = true;
@@ -216,6 +221,7 @@ class Base extends saja {
 		if(DEBUG) {
 			$debug .= 'vars '.$this->client_id.': '.var_export($session['__module_vars__'],true).'<br>';
 			$debug .= 'user='.Acl::get_user().'<br>';
+			$debug .= 'action module='.$_REQUEST['__action_module__'].'<br>';
 			$debug .= $this->debug();
 		}
 		

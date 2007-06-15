@@ -37,11 +37,16 @@ class Base_Lang extends Module {
 			include_once($this->get_data_dir().$this->lang_code.'.php');
 		}
 		
-		if(!Acl::check('Administration','Modules')) return;
+		if(!Acl::check('Administration','Modules') || !Base_MaintenanceModeCommon::get_mode()) return;
 	
 		$original = $this->get_module_variable_or_unique_href_variable('original');
 		
 		if(!isset($original)) return;
+		if($this->is_back()) {
+			$this->unset_module_variable('original');
+			return;
+		}
+			
 		$trans = $translations[$this->parent_module][$original];
 		
 		$form = & $this->init_module('Libs/QuickForm');

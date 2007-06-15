@@ -18,7 +18,10 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  */
 class Base_HomePageInit_0 extends ModuleInit {
 	public static function requires() {
-		return array(array('name'=>'Base/Box','version'=>0), array('name'=>'Base/Lang', 'version'=>0));
+		return array(array('name'=>'Base/Box','version'=>0), 
+			array('name'=>'Base/Lang', 'version'=>0),
+			array('name'=>'Base/ActionBar', 'version'=>0)
+			);
 	}
 	
 	public static function provides() {

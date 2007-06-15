@@ -11,7 +11,6 @@
 <table id="bar" width="100%" cellspacing="10"><tr>
 <td class="entry"><center>{$login}</center></td>
 <td class="entry"><center>{$actionbar}</center></td>
-<td class="entry"><center>{$homepage}</center></td>
 </tr></table>
 {if $main neq ""}
 <div id="content">

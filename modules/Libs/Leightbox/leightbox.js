@@ -165,22 +165,25 @@ leightbox.prototype = {
 
 /*-----------------------------------------------------------------------------------------------*/
 
-// Onload, make all links that need to trigger a lightbox active
-function initialize(){
-	addLeightboxMarkup();
-	getBrowserInfo();
-}
-
 var leightboxes = Array();
 
 // Add in markup necessary to make this work. Basically two divs:
 // Overlay holds the shadow
 // Lightbox is the centered square that the content is put into.
-bod 				= document.getElementsByTagName('body')[0];
-overlay 			= document.createElement('div');
-overlay.id			= 'overlay';
-overlay.className	= 'overlay';
-bod.appendChild(overlay);
+function addLeightboxMarkup() {
+
+	bod 				= document.getElementsByTagName('body')[0];
+
+	overlay 			= document.createElement('div');
+	overlay.style.display = 'none';
+	overlay.id			= 'overlay';
+	overlay.className	= 'overlay';
+
+	bod.appendChild(overlay);
+}
+
+addLeightboxMarkup();
+getBrowserInfo();
 
 function updateLbList() {
 	lbox = document.getElementsByClassName('lbOn');
