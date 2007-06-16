@@ -11,8 +11,18 @@ class Base_ActionBarCommon {
 	}
 	
 	public static function add_icon($type, $text, $action) {
-		if($type!='home' && $type!='calendar' && $type!='loupe' && $type!='folder' && $type!='new' && $type!='edit' && $type!='view' && $type!='add'
-			&& $type!='delete' && $type!='save' && $type!='settings' && $type!='back') trigger_error('Invalid action '.$type,E_USER_ERROR);
+		if($type!='home' &&
+		   $type!='calendar' &&
+		   $type!='search' &&
+		   $type!='folder' &&
+		   $type!='new' &&
+		   $type!='edit' &&
+		   $type!='view' &&
+		   $type!='add' &&
+		   $type!='delete' &&
+		   $type!='save' &&
+		   $type!='settings' &&
+		   $type!='back') trigger_error('Invalid action '.$type,E_USER_ERROR);
 
 		self::$icons[] = array('icon'=>$type,'label'=>$text,'action_open'=>'<a '.$action.'>','action_close'=>'</a>');
 	}
