@@ -22,6 +22,7 @@ class Base_ActionBarCommon {
 		   $type!='delete' &&
 		   $type!='save' &&
 		   $type!='settings' &&
+		   $type!='print' &&
 		   $type!='back') trigger_error('Invalid action '.$type,E_USER_ERROR);
 
 		self::$icons[] = array('icon'=>$type,'label'=>$text,'action_open'=>'<a '.$action.'>','action_close'=>'</a>');
