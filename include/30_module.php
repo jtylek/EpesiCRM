@@ -95,20 +95,6 @@ abstract class Module {
 		$this->children_count_display = 0;
 	}
 	
-	/**
-	 * Sets parent for this module. 
-	 * Use when you place module inside other module to identify it. 
-	 * Note that pack_module function calls it automatically.
-	 * 
-	 * Use only if you are certain of what you are doing.
-	 *
-	 * @param object module object
-	 */
-	public final function set_parent(& $parent) {
-		$this->parent = & $parent;
-		$this->path = null;
-	}
-	
 	public final function register_child($ch) {
 		$type = $ch->get_type();
 		$instance = $ch->get_instance_id();
