@@ -47,7 +47,14 @@ class Setup extends Module {
 		$form->addElement('header', 'install_module_header', 'Module administration');
 
 		//show uninstalled & installed modules
-		$module_dirs = ModuleManager::list_modules();
+		$ret = DB::Execute('SELECT * FROM available_modules');
+		while ($row = $ret->FetchRow()) {
+			$module_dirs[$row['name']][$row['vkey']] = $row['version'];
+			ModuleManager::include_install($row['name']);
+		}
+		if (empty($module_dirs))
+			$module_dirs = $this->parse_modules_folder();			
+			
 		$subgroups = array();
 		$structure = array();
 		$def = array();
@@ -118,13 +125,13 @@ class Setup extends Module {
 				$av_modules[$name] = $name;
 			$form->addElement('select','default_module','Default module to display',$av_modules);
 		}
-		
-		
+				
 		//print $tree->toHtml();
 		//control buttons
 		$ok_b = HTML_QuickForm::createElement('submit', 'submit_button', 'OK');
 		$cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', 'Cancel', $this->create_back_href());
-		$form->addGroup(array($ok_b, $cancel_b));
+		$parse_b = HTML_QuickForm::createElement('button', 'parse_button', 'Check for available modules', $this->create_confirm_callback_href('Parsing for additional modules may take up to several minutes, do you wish to continue?',array($this,'parse_modules_folder')));
+		$form->addGroup(array($parse_b,$ok_b, $cancel_b));
 		
 		$form->setDefaults($def);
 		
@@ -139,7 +146,15 @@ class Setup extends Module {
 			}
 		} else $form->display();
 	}
-
+	
+	public function parse_modules_folder(){
+			DB::Execute('TRUNCATE TABLE available_modules');
+			$module_dirs = ModuleManager::list_modules();
+			foreach($module_dirs as $name => $v)
+				foreach($v as $ver => $u) 
+					DB::Execute('INSERT INTO available_modules VALUES(%s, %d, %s)',array($name,$ver,$u));
+	}
+	
 	public function validate($data) {
 		global $base;
 		

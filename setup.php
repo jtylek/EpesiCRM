@@ -108,7 +108,7 @@ $form->addElement('select', 'newdb', 'Create new database',array(1=>'Yes', 0=>'N
 $form->addRule('newdb', 'Field required', 'required');
 
 $form->setDefaults(array('host'=>'localhost','engine'=>'mysqlt','db'=>'epesi'));
-$form->addElement('submit', 'submit', 'OK');
+$form->addElement('submit', 'submit', 'OK', array('onclick'=>'alert("Setup will now check for available modules, this operation may take several minutes and will be triggered automatically only once. Click ok to proceed.");'));
 
 if ($form->validate()) {
 	$engine = $form->exportValue('engine');

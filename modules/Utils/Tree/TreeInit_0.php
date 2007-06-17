@@ -11,9 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_TreeInit_0 extends ModuleInit {
 	public static function requires() {
-		return array(
-			array('name'=>'Base/Theme','version'=>0)
-		);
+		return array();
 	}
 	
 	public static function provides() {

@@ -29,9 +29,12 @@ class Base_Theme extends Module {
 	public $links = array();
 	private $smarty = null;
 	private $lang;
+	private static $root = null;
 	
 	public function construct() {
 		$this->smarty = new Smarty();
+		
+		if (!Base_Theme::$root) Base_Theme::$root = & $this; 
 		
 		if(!isset(self::$theme)) {
 			self::$theme = Variable::get('default_theme');
@@ -93,6 +96,32 @@ class Base_Theme extends Module {
 			$this->smarty->template_dir = self::$themes_dir.self::$theme;
 			$this->smarty->compile_id = self::$theme;
 		}
+		
+		if (Base_Theme::$root === $this) {
+			$this->precache_images($this->smarty->template_dir);
+			//if (self::$theme !== 'default') $this->precache_images(self::$themes_dir.'default');
+			// uncomment the line above to enable precaching of images from default theme
+			Base_Theme::$root = null;
+		}
+		
+	}
+	
+	private function precache_images($dir) {
+		$content = scandir($dir);
+		foreach ($content as $name){
+			if ($name == '.' || $name == '..') continue;
+			$file_name = $dir.'/'.$name;
+			$ext = strtolower(substr(strrchr($file_name,'.'),1));
+			if (is_dir($file_name)) {
+				$this->precache_images($file_name);
+			} else {
+				if ($ext === 'jpg' ||
+					$ext === 'jpeg' ||
+					$ext === 'gif' ||
+					$ext === 'png')
+					print('<img style="display:none;" src="'.$file_name.'" />');
+			}
+		}
 	}
 	
 	public function & get_smarty() {
@@ -101,11 +130,37 @@ class Base_Theme extends Module {
 	
 	public function parse_links($key, $val, $flat=true) {
 		if (!is_array($val)) { 
-			if (preg_match('/.*(<[Aa][^>]*>)(.*?)<\/[Aa]>/',$val,$match)) {
-				return array(	'open' => $match[1],
-								'text' => $match[2],
-								'close' => '</a>');
-			}
+			$i=0;
+			$count=0;
+			$open="";
+			$text="";
+			$close="";
+			$len = strlen($val);
+			if ($val{0}==='<') 
+				while ($i<$len) {
+					if ($val{$i}==='<') {
+						if ($val{$i+1}==='a') {
+							if ($count===0) {
+								while ($val{$i}!=='>') {
+									$open .= $val{$i};
+									$i++;
+								}
+								$open .= '>';
+							} else $text .= $val{$i};
+							$count++;
+						} else if (substr($val,$i+1,3)==='/a>') {
+							$count--;
+							if ($count===0) {
+								$close = '</a>';
+								return array(	'open' => $open,
+												'text' => $text,
+												'close' => '</a>');
+							} else $text .= $val{$i};
+						} else $text .= $val{$i};
+					} else $text .= $val{$i};
+					$i++;
+				}
+			return array();
 		} else {
 			foreach ($val as $k=>$v)
 				return array($k => $this->parse_links($k, $v, false));

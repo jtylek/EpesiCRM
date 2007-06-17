@@ -22,6 +22,9 @@ class SetupInstall extends ModuleInstall {
 	}
 	
 	public static function install() {		
+		$ret = DB::CreateTable('available_modules','name C(128), vkey I NOTNULL, version C(64) NOTNULL',array('constraints'=>', PRIMARY KEY(name, vkey)'));
+		if($ret===false)
+			die('Invalid SQL query - Setup module (modules table)');
 		$ret = Variable::set('anonymous_setup',true);
 		if($ret === false) {
 			print('Invalid SQL query - Setup module (populating variables)');
@@ -37,7 +40,7 @@ class SetupInstall extends ModuleInstall {
 	}
 
 	public static function uninstall() {
-		return Variable::delete('anonymous_setup');
+		return (Variable::delete('anonymous_setup') && Variable::delete('simple_setup'));
 		return Variable::delete('simple_setup');
 	}
 }

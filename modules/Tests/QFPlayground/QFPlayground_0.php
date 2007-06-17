@@ -25,8 +25,9 @@ class Tests_QFPlayground extends Module {
 		$form = & $this->init_module('Libs/QuickForm');
 		$form->addElement('header', null, $this->lang->t('Date test'));
 		$ls1 = $form->addElement('multiselect', 'ls1', 'LS1', array(10=>'A',1=>'B',2=>'C',3=>'D'), array('size'=>8,'style'=>'width:100px;'));
-//		$ls1->freeze();
-		$form->setDefaults(array('ls1'=>1));
+		//$ls1->freeze();
+		// this is very important comment so I can test some crap
+		$form->setDefaults(array('ls1'=>10));
 		$ele = $form->addElement('datepicker', 'dp1', 'DP1', array('format'=>'%d/%m/%y'));
 		$ele = $form->addElement('datepicker', 'dp2', 'DP2', array('format'=>'%d/%m..%Y'));
 		$ele = $form->addElement('datepicker', 'dp3', 'DP3', array('format'=>'%y.%m.%d'));
@@ -35,10 +36,10 @@ class Tests_QFPlayground extends Module {
 		
 		$form->addElement('header', null, $this->lang->t('Login test'));
 		$form->addElement('text', 'username', $this->lang->t('Username'),array('id'=>'username'));
-			$form->addRule('username', $this->lang->t('Field required'), 'required');
+//			$form->addRule('username', $this->lang->t('Field required'), 'required');
 			
 		$form->addElement('password', 'password', $this->lang->t('Password'));
-		$form->addRule('password', $this->lang->t('Field required'), 'required');
+//			$form->addRule('password', $this->lang->t('Field required'), 'required');
 		$form->addElement('submit', 'submit_button', $this->lang->ht('Login'), array('class'=>'submit'));
 		if($form->validate()) {
 			$eVs = $form->exportValues();

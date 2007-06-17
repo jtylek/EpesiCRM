@@ -17,7 +17,7 @@ class Apps_Gallery extends Module {
 		$this->lang = $this->pack_module('Base/Lang');
 		$this->root = $this->get_data_dir();
 		//print Base_UserCommon::get_my_user_id()." - id<br>";
-		//print (Base_AclCommon::i_am_user() ? 'i am user' : 'i am not a user')." - am i user<br>";
+		//print Base_AclCommon::i_am_user()." - am i user<br>";
 		//print Base_UserCommon::get_user_login(Base_UserCommon::get_my_user_id())." - login<br>";
 		if(Base_AclCommon::i_am_user()) {
 			$this->user = Base_UserCommon::get_my_user_id();
@@ -449,7 +449,7 @@ class Apps_Gallery extends Module {
 		
 		
 		
-		$form->addElement('html', '</tr><tr><td colspan=2>'.$tree->toHtml().'</td></tr>');
+		$form->addElement('html', $tree->toHtml());
 		
 		
 		$form->addElement('static',null,null,'<iframe frameborder="0" id="upload_iframe", name="upload_iframe" src="" scrolling="No" height="0" width="0"></iframe>');

@@ -25,7 +25,6 @@ utils_gallery_load_image = function(image) {
 utils_gallery_set_speed = function() {
 	speed = document.getElementById('utils_gallery_speed').value;
 }
-
 utils_gallery_load_image_in_slideshow_f = function(image) {
 	if(preview.complete) {
 		if( document.getElementById('gallery_slideshow_image') ) {
@@ -76,7 +75,7 @@ utils_gallery_auto_stop = function(image) {
 utils_gallery_show = function( image ) {
 	clearTimeout(slideshow);
 	//deb.innerHTML += image;
-	document.getElementById('gallery_slideshow_image').src = 'modules/Utils/Gallery/theme/loader.gif';
+	
 	if(image > 0 ) {
 		document.getElementById('gallery_slideshow_prev').innerHTML = '<a class=utils_gallery_picture_link href="javascript:void(0)" onclick=utils_gallery_show('+eval(parseInt(image)-1)+')>&lt; Prev</a>';
 	} else {
