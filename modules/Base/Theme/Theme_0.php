@@ -124,6 +124,11 @@ class Base_Theme extends Module {
 		}
 	}
 	
+	public function get_theme_path() {
+		$module_name = $this->parent->get_type();
+		return self::$themes_dir.'/'.self::$theme.'/'.$module_name.'__';
+	}
+	
 	public function & get_smarty() {
 		return $this->smarty;
 	}
