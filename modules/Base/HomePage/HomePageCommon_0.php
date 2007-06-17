@@ -21,6 +21,8 @@ class Base_HomePageCommon {
 		global $base;
 		if(!Acl::is_user()) return;
 		$uid = Base_UserCommon::get_user_id(Acl::get_user());
+		if($uid == '')
+			return;
 		$session = & $base->get_session();
 		$ret = DB::Execute('SELECT url FROM home_page WHERE user_login_id=%d',$uid);
 		if(!($row = $ret->FetchRow())) {
