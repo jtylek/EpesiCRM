@@ -75,6 +75,11 @@ class Utils_TabbedBrowser extends Module {
 		$this->tabs[$caption]['args'] = $args;
 	}
 	
+	public function switch_tab($i) {
+		if(!isset($i)) $i = count($this->tabs)-1;
+		$this->set_module_variable('page',$i);
+	}
+	
 	public function set_default_tab($i) {
 		if($this->isset_module_variable('page')) return;
 		if(!isset($i)) $i = count($this->tabs)-1;
