@@ -606,7 +606,7 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 
    /**
     * We check the options and return only the values that _could_ have been
-    * selected. We also return a scalar value if select is not "multiple"
+    * selected. We also return a scalar value if select is not "multiple".
     */
     function exportValue(&$submitValues, $assoc = false)
     {
