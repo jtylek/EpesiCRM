@@ -116,6 +116,8 @@ td.splitter {
 	padding: 0px;
 	vertical-align: top;
 	z-index: 1000;
+	height: 1px;
+	background-color: black;	
 }
 hr.custom_split {
 	text-align: center;
