@@ -27,7 +27,7 @@ class Utils_Image extends Module {
 	private $theme;
 	
 	public function construct() {
-		$this->theme = & $this->init_module('Bae/Theme');
+		$this->theme = & $this->init_module('Base/Theme');
 	}
 	
 	public function load($img, array $attr = null) {
@@ -184,7 +184,7 @@ class Utils_Image extends Module {
 		$this->display_thumb();
 	}
 	
-	
+	// ATTRIBUTES --------------------------------------------
 	public function get_attributes() {
 		return getimagesize($this->img);
 	}
