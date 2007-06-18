@@ -20,7 +20,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_MenuInit_0 extends ModuleInit {
 	public static function requires() {
 		return array(
-//			array('name'=>'Base/Menu/QuickAccess','version'=>0), 
+			array('name'=>'Base/Menu/QuickAccess','version'=>0), 
 			array('name'=>'Base/Box','version'=>0), 
 			array('name'=>'Base/Lang','version'=>0), 
 			array('name'=>'Base/Theme','version'=>0),

@@ -24,12 +24,17 @@ class Utils_Image extends Module {
 	private $left_caption = '';
 	private $right_caption = '';
 	private $max_dim = 100;
+	private $theme;
+	
+	public function construct() {
+		$this->theme = & $this->init_module('Bae/Theme');
+	}
 	
 	public function load($img, array $attr = null) {
 		// parse attributes
 		if(!is_file($img)) {
 			//print $img." -- no file<br>";
-			$this->img = "modules/Utils/Image/theme/error_image_not_found.gif";
+			$this->img = $this->theme->get_theme_path().'error_image_not_found.gif';
 			//print $this->img." -- error file<br>";
 		} else {
 			$this->img = $img;
@@ -155,39 +160,32 @@ class Utils_Image extends Module {
 		load_js("modules/Utils/Image/js/image.js");
 	}
 	
+	// THUMB ---------------------------------------------------
 	public function display_thumb($attr = null) {
-		
-		print $this->left_caption.'<img id="img_'.$this->img_id.'" src="modules/Utils/Image/theme/loader.gif">'.$this->right_caption;
-		
+		print $this->left_caption.'<img id="img_'.$this->img_id.'" src="'.$this->theme->get_theme_path().'loader.gif">'.$this->right_caption;
 		$this->create_thumb($attr);
-		
 		eval_js('wait_while_null( "load_thumb", "load_thumb(\''.$this->get_data_dir().$this->thumb.'\', '.$this->img_id.')" );');
-	}
-	
-	public function toHtml() {
-		return '<img width="'.$this->width.'" height="'.$this->height.'" src="'.$this->img.'">';
 	}
 	
 	public function thumb_toHtml($attr = null) {
 		$this->create_thumb($attr);
 		eval_js('wait_while_null( "load_thumb", "load_thumb(\''.$this->get_data_dir().$this->thumb.'\', '.$this->img_id.')" );');
 
-		$ret = $this->left_caption.'<img id="img_'.$this->img_id.'" src="modules/Utils/Image/theme/loader.gif">'.$this->right_caption;
+		$ret = $this->left_caption.'<img id="img_'.$this->img_id.'" src="'.$this->theme->get_theme_path().'loader.gif">'.$this->right_caption;
 		return $ret;
 	}
-	public function get_thumb_address( $path, $size ) {
-		$img_path = explode('/', str_replace("..", "UP", $path));
-		$img_file = array_pop($img_path);
-		if($img_path) {
-			$ret = join('/', $img_path) . '/' . $size . '_' . $img_file;
-		} else {
-			$ret = $this->max_dim . '_' . $img_file;
-		}
-		return $this->get_data_dir().$ret;
+	
+	// REGULAR ------------------------------------------------
+	public function toHtml() {
+		return '<img width="'.$this->width.'" height="'.$this->height.'" src="'.$this->img.'">';
+	}
+	public function display() {
+		print '<img width="'.$this->width.'" height="'.$this->height.'" src="'.$this->img.'">';
 	}
 	
+	// DEFAULT -----------------------------------------------
 	public function body($arg) {
-		
+		$this->display_thumb();
 	}
 	
 	
@@ -197,6 +195,17 @@ class Utils_Image extends Module {
 	
 	public function get_thumb_attributes() {
 		return array($this->thumb_width, $this->thumb_height, $this->type);
+	}
+	
+	public function get_thumb_address( $path, $size ) {
+		$img_path = explode('/', str_replace("..", "UP", $path));
+		$img_file = array_pop($img_path);
+		if($img_path) {
+			$ret = join('/', $img_path) . '/' . $size . '_' . $img_file;
+		} else {
+			$ret = $this->max_dim . '_' . $img_file;
+		}
+		return $this->get_data_dir().$ret;
 	}
 }
 ?>

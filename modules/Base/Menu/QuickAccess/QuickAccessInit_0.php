@@ -22,7 +22,6 @@ class Base_Menu_QuickAccessInit_0 extends ModuleInit {
 	public static function requires() {
 		return array(array('name'=>'Base/Lang','version'=>0),
 				array('name'=>'Libs/QuickForm','version'=>0), 
-				array('name'=>'Base/Menu','version'=>0), 
 				array('name'=>'Base/Acl','version'=>0));
 	}
 	
