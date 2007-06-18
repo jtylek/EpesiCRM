@@ -49,6 +49,7 @@ class Setup extends Module {
 
 		//show uninstalled & installed modules
 		$ret = DB::Execute('SELECT * FROM available_modules');
+		$module_dirs = array();
 		while ($row = $ret->FetchRow()) {
 			if (ModuleManager::exists($row['name'],$row['vkey'])) {
 				$module_dirs[$row['name']][$row['vkey']] = $row['version'];
@@ -158,6 +159,7 @@ class Setup extends Module {
 			foreach($module_dirs as $name => $v)
 				foreach($v as $ver => $u) 
 					DB::Execute('INSERT INTO available_modules VALUES(%s, %d, %s)',array($name,$ver,$u));
+			return $module_dirs;
 	}
 	
 	public function validate($data) {
