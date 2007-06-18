@@ -66,14 +66,14 @@ class Base_User_Settings extends Module {
 		foreach($info as $v){
 			if ($v['select']){
 				$select = array(); 
-				foreach($v['select'] as $x) $select[$x] = $this->lang->ht($x);
+				foreach($v['select'] as $k=>$x) $select[$k] = $this->lang->ht($x);
 				$f -> addElement('select',$module.'::'.$v['name'],$this->lang->t($v['label']),$select);
 			}
 			if ($v['radio']){
 				$radio = array();
 				$label = $this->lang->t($v['label']);
-				foreach($v['radio'] as $x) {
-					$f -> addElement('select',$module.'::'.$v['name'],$label,$this->lang->ht($x));
+				foreach($v['radio'] as $k=>$x) {
+					$f -> addElement('radio',$module.'::'.$v['name'],$label,$this->lang->ht($x),$k);
 					$label = '';
 				}
 			}
@@ -84,6 +84,7 @@ class Base_User_Settings extends Module {
 	}
 	
 	private function set_user_preferences($info,$values,$module){
+		print_r($values);
 		foreach($info as $v){
 			Base_User_SettingsCommon::save_user_settings($module,$v['name'],$values[$module.'::'.$v['name']]);
 		}
