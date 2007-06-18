@@ -64,10 +64,18 @@ class Base_User_Settings extends Module {
 	
 	private function add_module_settings_to_form($info, &$f, $module){
 		foreach($info as $v){
-			if ($v['values']){
-				$values = array(); 
-				foreach($v['values'] as $x) $values[$x] = $this->lang->ht($x);
-				$f -> addElement('select',$module.'::'.$v['name'],$this->lang->t($v['label']),$values);
+			if ($v['select']){
+				$select = array(); 
+				foreach($v['select'] as $x) $select[$x] = $this->lang->ht($x);
+				$f -> addElement('select',$module.'::'.$v['name'],$this->lang->t($v['label']),$select);
+			}
+			if ($v['radio']){
+				$radio = array();
+				$label = $this->lang->t($v['label']);
+				foreach($v['radio'] as $x) {
+					$f -> addElement('select',$module.'::'.$v['name'],$label,$this->lang->ht($x));
+					$label = '';
+				}
 			}
 			if ($v['bool'])
 				$f -> addElement('checkbox',$module.'::'.$v['name'],$this->lang->t($v['label']));
@@ -101,7 +109,6 @@ class Base_User_Settings extends Module {
 		$links = array();
 		foreach($modules as $caption=>$arg)
 			$links[$arg['module_name']]= '<a '.$this->create_href($arg['action']).'>'.$this->lang->t($caption).'</a>';
-		$renderer = & new HTML_QuickForm_Renderer_TCMSArraySmarty();
 		$theme =  & $this->pack_module('Base/Theme');
 		$theme->assign('header', $this->lang->t('User Settings'));
 		$theme->assign('links', $links);
