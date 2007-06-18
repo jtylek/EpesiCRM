@@ -32,11 +32,12 @@ class Base_ActionBar extends Module {
 		usort($icons, array($this,'sort'));
 		
 		//remove duplicates
-		for($i=1, $j=0; $i<count($icons); $i++) {
-			if($icons[$i]!=$icons[$j])
+		$ic = count($icons);
+		for($k=1, $j=0; $k<$ic; $k++) {
+			if($icons[$k]!=$icons[$j])
 				$j++;
 			else
-				unset($icons[$i]);
+				unset($icons[$k]);
 		}
 		
 		//display
