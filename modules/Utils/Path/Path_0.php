@@ -40,7 +40,7 @@ class Utils_Path extends Module {
 	
 	public function add_node( $title, $children = null ) {
 		$this->list[$this->_sub] = array();
-		$this->list[$this->_sub]['item'] = ' &gt; <span class=path_link id=\'path_link_'.$this->_id.'_'.$this->_sub.'\' onmouseover="show_path_children(\''.$this->_id.'_'.$this->_sub.'\')"  onmouseout="hide_path_children(\''.$this->_id.'_'.$this->_sub.'\')">' . ($title) . '</span>';
+		$this->list[$this->_sub]['item'] = '<span class=path_link id=\'path_link_'.$this->_id.'_'.$this->_sub.'\' onmouseover="show_path_children(\''.$this->_id.'_'.$this->_sub.'\')"  onmouseout="hide_path_children(\''.$this->_id.'_'.$this->_sub.'\')">' . ($title) . '</span>';
 		if( is_array($children) ) {
 			$this->list[$this->_sub]['children'] = array();
 			$this->list[$this->_sub]['children_open'] = '<div class=path_submenu id=\'path_'.$this->_id.'_'.$this->_sub.'\' onmouseover="show_path_children(\''.$this->_id.'_'.$this->_sub.'\')" onmouseout="hide_path_children(\''.$this->_id.'_'.$this->_sub.'\')">';

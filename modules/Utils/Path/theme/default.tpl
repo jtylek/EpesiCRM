@@ -7,7 +7,7 @@
 	{$root.children_close}
 {/if}
 {foreach from=$list item=element}
-	&gt;{$element.item}
+	<span> &gt; </span>{$element.item}
 	{if $element.children_num > 0}
 		{$element.children_open}
 		{foreach from=$element.children item=child}
