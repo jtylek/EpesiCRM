@@ -92,18 +92,5 @@ class Base_Menu_QuickAccess extends Module {
 		}
 	}
 	
-	public static function quick_access_menu() {
-		if (!Base_AclCommon::i_am_user()) return array();
-		$ret = DB::Execute('SELECT * FROM quick_access WHERE user_login_id = %d ORDER BY label',Base_UserCommon::get_my_user_id());
-		$qa_menu = array('__submenu__'=>1);
-		while ($row = $ret->FetchRow()){
-			$menu_entry = null;
-			parse_str($row['link'],$menu_entry);
-			$qa_menu[$row['label']] = $menu_entry; 
-		} 
-		if ($qa_menu == array('__submenu__'=>1)) return array();
-		return array('Quick Access'=>$qa_menu);
-	}
-	
 }
 ?>

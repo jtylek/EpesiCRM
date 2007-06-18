@@ -207,7 +207,7 @@ class Base_Menu extends Module {
 		
 		// preparing quick access menu
 		if (array_key_exists('Base_Menu_QuickAccess',$base->modules)){
-			$qaccess_menu = call_user_func(array('Base_Menu_QuickAccess','quick_access_menu'));
+			$qaccess_menu = Base_Menu_QuickAccessCommon::quick_access_menu();
 			if(is_array($qaccess_menu)) {
 				self::add_default_menu($qaccess_menu, 'Base_Menu_QuickAccess');
 			} else $qaccess_menu = array();
