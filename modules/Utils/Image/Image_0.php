@@ -60,10 +60,6 @@ class Utils_Image extends Module {
 		//print $this->type." -- type<br>";
 	}
 	
-	public function display() {
-		print $this->toHtml();
-	}
-	
 	public function create_thumb($attr = null) {
 		if( $attr ) {
 			$this->max_dim = $attr;
