@@ -50,8 +50,12 @@ class Setup extends Module {
 		//show uninstalled & installed modules
 		$ret = DB::Execute('SELECT * FROM available_modules');
 		while ($row = $ret->FetchRow()) {
-			$module_dirs[$row['name']][$row['vkey']] = $row['version'];
-			ModuleManager::include_install($row['name']);
+			if (ModuleManager::exists($row['name'],$row['vkey'])) {
+				$module_dirs[$row['name']][$row['vkey']] = $row['version'];
+				ModuleManager::include_install($row['name']);
+			} else {
+				DB::Execute('DELETE FROM available_modules WHERE name=%s and vkey=%d',array($row['name'],$row['vkey']));	
+			}
 		}
 		if (empty($module_dirs))
 			$module_dirs = $this->parse_modules_folder();			
