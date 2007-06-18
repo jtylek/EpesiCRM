@@ -25,7 +25,7 @@ class Base_Lang_AdministratorCommon extends Base_AdminModuleCommon {
 				$langs[$lang] = $lang;
 			}
 		return array('Language'=>array(
-			array('name'=>'language','label'=>'Language you want to use','values'=>$langs,'default'=>Variable::get('default_lang'))
+			array('name'=>'language','label'=>'Language you want to use','select'=>$langs,'default'=>Variable::get('default_lang'))
 			));
 	}
 	
