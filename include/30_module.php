@@ -481,9 +481,27 @@ abstract class Module {
 	 * @param module child module
 	 * @param string function to call (get output from), if user has enought privileges.
 	 * @param mixed variables
-	 * @return mixed if access denied returns false, else child module object
+	 * @return mixed if access denied returns false, else true
 	 */
 	public final function display_module(& $m, $args, $function_name = 'body') {
+		$ret = $this->get_html_of_module($m,$args,$function_name);
+		if($ret===false) return false;
+		print($ret);
+		return true;
+	}
+	
+	/**
+	 * Call method of the module passed as first parameter, 
+	 * which name is passed as second parameter.
+	 * You can pass additional arguments as next parameters. 
+	 * Attention: do not pass the result of this function by one module to another module.
+	 * 
+	 * @param module child module
+	 * @param string function to call (get output from), if user has enought privileges.
+	 * @param mixed variables
+	 * @return mixed if access denied returns false, else string
+	 */
+	public final function get_html_of_module(& $m, $args, $function_name = 'body') {
 		global $base;
 		
 		$this_path = $this->get_path();
@@ -534,12 +552,12 @@ abstract class Module {
 		}
 		if(MODULE_TIMES)
 			$base->content[$path]['time'] = microtime(true)-$time;
-		print('<span id="'.$base->content[$path]['span'].'"></span>');		
+					
 		$this->children_count_display++;	
 		
 		$m->mark_displayed();
 		
-		return true;		
+		return '<span id="'.$base->content[$path]['span'].'"></span>';		
 	}
 	
 	public final function displayed() {
