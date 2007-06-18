@@ -38,7 +38,7 @@ class Base_User_SettingsCommon {
 		$module = str_replace('/','_',$module);
 		if (Base_AclCommon::i_am_user())
 			$val = DB::GetOne('SELECT value FROM base_user_settings WHERE user_login_id=%d AND module=%s AND variable=%s',array(Base_UserCommon::get_my_user_id(),$module,$name));
-		if (!isset($val)) {
+		if ($val===false) {
 			if(method_exists($module.'Common', 'user_settings')) {
 				$menu = call_user_func(array($module.'Common','user_settings'));
 				if(is_array($menu))
