@@ -371,14 +371,14 @@ abstract class Module {
 	 * @param mixed function
 	 * @return string
 	 */
-	public final function create_callback_href($func,$args,$fast=true,$indicator=null) {
+	public final function create_callback_href($func,$args,$indicator=null) {
 		$name = 'callback_'.md5(serialize(array($func,$args)));
-		return $this->create_callback_href_with_id($name,$func,$args,$fast,$indicator);
+		return $this->create_callback_href_with_id($name,$func,$args,$indicator);
 	}
 
-	public final function create_confirm_callback_href($confirm, $func, $args, $fast=true,$indicator=null) {
+	public final function create_confirm_callback_href($confirm, $func, $args,$indicator=null) {
 		$name = 'callback_'.md5(serialize(array($func,$args)));
-		return $this->create_confirm_callback_href_with_id($name, $confirm, $func,$args,$fast,$indicator);
+		return $this->create_confirm_callback_href_with_id($name, $confirm, $func,$args,$indicator);
 	}
 
 	private final function call_callback_href_function($name,$func,$args) {
@@ -401,14 +401,14 @@ abstract class Module {
 	 * @param mixed function
 	 * @return string 
 	 */
-	public final function create_callback_href_with_id($name, $func, $args, $fast=true,$indicator) {
+	public final function create_callback_href_with_id($name, $func, $args,$indicator) {
 		$this->call_callback_href_function($name,$func,$args);
-		return $this->create_unique_href(array($name=>1),$fast,$indicator);
+		return $this->create_unique_href(array($name=>1),$indicator);
 	}
 	
-	public final function create_confirm_callback_href_with_id($name, $confirm, $func, $args, $fast=true,$indicator) {
+	public final function create_confirm_callback_href_with_id($name, $confirm, $func, $args, $indicator) {
 		$this->call_callback_href_function($name,$func,$args);
-		return $this->create_confirm_unique_href($confirm,array($name=>1),$fast,$indicator);
+		return $this->create_confirm_unique_href($confirm,array($name=>1),$indicator);
 	}
 	
 	/**
