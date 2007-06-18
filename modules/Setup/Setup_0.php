@@ -58,8 +58,10 @@ class Setup extends Module {
 				DB::Execute('DELETE FROM available_modules WHERE name=%s and vkey=%d',array($row['name'],$row['vkey']));	
 			}
 		}
-		if (empty($module_dirs))
-			$module_dirs = $this->parse_modules_folder();			
+		if (empty($module_dirs)) {
+			$module_dirs = ModuleManager::list_modules(); 
+			$this->cache_available_modules($module_dirs);
+		}			
 			
 		$subgroups = array();
 		$structure = array();
@@ -136,7 +138,7 @@ class Setup extends Module {
 		//control buttons
 		$ok_b = HTML_QuickForm::createElement('submit', 'submit_button', 'OK');
 		$cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', 'Cancel', $this->create_back_href());
-		$parse_b = HTML_QuickForm::createElement('button', 'parse_button', 'Check for available modules', $this->create_confirm_callback_href('Parsing for additional modules may take up to several minutes, do you wish to continue?',array($this,'parse_modules_folder')));
+		$parse_b = HTML_QuickForm::createElement('button', 'parse_button', 'Check for available modules', $this->create_confirm_callback_href('Parsing for additional modules may take up to several minutes, do you wish to continue?',array('Setup','parse_modules_folder')));
 		$form->addGroup(array($parse_b,$ok_b, $cancel_b));
 		
 		$form->setDefaults($def);
@@ -153,13 +155,18 @@ class Setup extends Module {
 		} else $form->display();
 	}
 	
-	public function parse_modules_folder(){
-			DB::Execute('TRUNCATE TABLE available_modules');
+	public static function parse_modules_folder() {
 			$module_dirs = ModuleManager::list_modules();
+			self::cache_available_modules($module_dirs);
+			location(array());
+			return false;
+	}
+
+	public static function cache_available_modules($module_dirs){
+			DB::Execute('TRUNCATE TABLE available_modules');
 			foreach($module_dirs as $name => $v)
 				foreach($v as $ver => $u) 
 					DB::Execute('INSERT INTO available_modules VALUES(%s, %d, %s)',array($name,$ver,$u));
-			return $module_dirs;
 	}
 	
 	public function validate($data) {
