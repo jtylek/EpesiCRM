@@ -10,7 +10,7 @@
 
 class Apps_GalleryCommon {
 	public static function menu() {
-		return array('Apps'=>array('__submenu__'=>1,'Gallery'=>array()));
+		return array('Gallery'=>array());
 	}
 }
 ?>
