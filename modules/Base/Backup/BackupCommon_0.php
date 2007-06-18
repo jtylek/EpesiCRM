@@ -24,7 +24,7 @@ class Base_BackupCommon {
 	
 
 	public static function admin_caption() {
-		return "Manage backups";
+		return "Backups";
 	}
 }
 

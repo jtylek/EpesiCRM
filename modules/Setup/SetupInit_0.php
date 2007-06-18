@@ -29,9 +29,5 @@ class SetupInit_0 extends ModuleInit {
 	public static function provides() {
 		return array();
 	}
-	
-	public static function backup() {
-		return array();
-	}
 }
 ?>

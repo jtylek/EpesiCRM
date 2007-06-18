@@ -28,7 +28,10 @@ class Base_Backup extends Module {
 		
 		print('<h1>'.$this->lang->t('Available backups').'</h1>');
 		$gb = $this->init_module('Utils/GenericBrowser',null,'backup');
-		$gb->set_table_columns(array($this->lang->t('Name'), $this->lang->t('Version'), $this->lang->t('Date'), $this->lang->t('Actions')));
+		$gb->set_table_columns(array(
+			array('name'=>$this->lang->t('Name')), 
+			array('name'=>$this->lang->t('Version')), 
+			array('name'=>$this->lang->t('Date'))));
 		$backups_list = ModuleManager::list_backups();
 		$backups = array();
 		foreach($backups_list as $b) {
@@ -48,7 +51,7 @@ class Base_Backup extends Module {
 		$form = & $this->init_module('Libs/QuickForm');
 		$mods = array();
 		foreach($base->modules as $m=>$v) {
-			if ($v['name']!=$m || !is_callable(array($m.'Init','backup'))) continue;
+			if ($v['name']!=$m || !is_callable(array($m.'Init_'.$v['version'],'backup'))) continue;
 			$mods[] = $m;
 		}
 		asort($mods);

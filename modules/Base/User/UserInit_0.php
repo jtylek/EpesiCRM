@@ -27,7 +27,7 @@ class Base_UserInit_0 extends ModuleInit {
 		return array();
 	}
 
-	public static function backup($v) {
+	public static function backup() {
 		return array('user_login');
 	}
 }
