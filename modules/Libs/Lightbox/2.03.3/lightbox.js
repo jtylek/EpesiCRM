@@ -3,6 +3,7 @@
 //	Lightbox v2.03.3
 //	by Lokesh Dhakar - http://www.huddletogether.com
 //	5/21/06
+//  Adopted for epesi by Paul Bukowski <pbukowski@telaxus.com>
 //
 //	For more information on this script, visit:
 //	http://huddletogether.com/projects/lightbox2/

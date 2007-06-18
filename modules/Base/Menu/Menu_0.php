@@ -21,7 +21,7 @@
  * - __split__ - line to split menu entries
  * - __icon__ - url to icon
  * - __description__ - description
- * - __url__ - open url instead of automatic generated tcms link... probably usable only with external sites.
+ * - __url__ - open url instead of automatic generated epesi link... probably usable only with external sites.
  * - __target__ - for example you can pass '_blank' to open link in new window... usable only with __url__
  * - __module__ - module to pack as main module
  * - __function__ - function to call
@@ -37,16 +37,17 @@
  *  										'Label 3'=>array('variable3'=>'value4'),
  *  										'__submenu__'=>1));
  * 
- * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @author Paul Bukowski <pbukowski@telaxus.com> and Kuba Slawinski <kslawinski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @package tcms-base-extra
+ * @version 1.0
+ * @licence SPL
+ * @package epesi-base-extra
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
  * Provides layout to Menu module.
- * @package tcms-base-extra
+ * @package epesi-base-extra
  * @subpackage menu
  */
 class Base_Menu extends Module {

@@ -1,4 +1,10 @@
 <?php
+/*
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @version 1.0
+ * @copyright Copyright &copy; 2007, Telaxus LLC
+ * @licence SPL
+ */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Apps_StaticPage extends Module {
@@ -40,12 +46,20 @@ class Apps_StaticPage extends Module {
 	}
 	
 	private function edit($path) {
+		if($this->get_unique_href_variable('delete')) {
+			$id = DB::GetOne('SELECT id FROM apps_staticpage_pages WHERE path=%s',$path);
+			$this->delete($id);
+			$this->unset_module_variable('view');
+			$this->unset_module_variable('edit');
+			Base_StatusBarCommon::message($this->lang->t('Page deleted'));
+			return;
+		}
+				
 		if($this->is_back()) {
 			$this->unset_module_variable('edit');
 			location(array());
 			return;
 		}
-		
 		
 		$f = &$this->init_module('Libs/QuickForm');
 
@@ -71,25 +85,36 @@ class Apps_StaticPage extends Module {
 		$save_b = & HTML_QuickForm::createElement('submit', null, $this->lang->ht('Save'));
 		$back_b = & HTML_QuickForm::createElement('button', null, $this->lang->ht('Cancel'), $this->create_back_href());
 		$f->addGroup(array($save_b,$back_b),'submit_button');
+
+		if($path)
+			$menu = &$this->init_module('Utils/CustomMenu',array('staticpage:'.$page['id']));			
 		
 		if($f->validate()) {
 			$ret = $f->exportValues();
-			if($page)
+			if($page) {
 				DB::Execute('UPDATE apps_staticpage_pages SET path=%s, title=%s, content=%s WHERE id=%d',array($ret['path'],$ret['title'],$ret['content'],$page['id']));
-			else
+				$menu->save($ret['path']);
+				if($this->isset_module_variable('view'))
+					$this->set_module_variable('view',$ret['path']);
+			} else
 				DB::Execute('INSERT INTO apps_staticpage_pages(path,title,content) VALUES (%s, %s, %s)',array($ret['path'],$ret['title'],$ret['content']));
+			
 			$this->unset_module_variable('edit');
 			Base_StatusBarCommon::message($this->lang->t('Page saved'));
 			location(array());
 			return;
 		}
 		$f->display();
-		
-		$this->pack_module('Utils/CustomMenu',array('staticpage:'.$path, $path));
+
+		if($path)
+			$this->display_module($menu);
+
+		Base_ActionBarCommon::add_icon('delete','Delete page',$this->create_unique_href(array('delete'=>true)));
 	}
 	
-	public function delete($path) {
-		DB::Execute('DELETE FROM apps_staticpage_pages WHERE path=%s',$path);
+	public function delete($id) {
+		Utils_CustomMenuCommon::delete('staticpage:'.$id);
+		DB::Execute('DELETE FROM apps_staticpage_pages WHERE id=%d',$id);
 		location(array());
 	}
 	
@@ -111,7 +136,7 @@ class Apps_StaticPage extends Module {
 		}
 		
 		$gb = & $this->init_module('Utils/GenericBrowser',null,'apps_staticpage_pages');
-		$ret = $gb->query_order_limit('SELECT path,title FROM apps_staticpage_pages','SELECT count(*) FROM apps_staticpage_pages');
+		$ret = $gb->query_order_limit('SELECT id,path,title FROM apps_staticpage_pages','SELECT count(*) FROM apps_staticpage_pages');
 		$gb->set_table_columns(array(
 			array('name'=>$this->lang->t('Path'), 'width'=>30,'order'=>'path'),
 			array('name'=>$this->lang->t('Title'), 'width'=>50,'order'=>'title'),
@@ -121,7 +146,7 @@ class Apps_StaticPage extends Module {
 			$r->add_data($row['path'],$row['title']);
 			$r->add_action($this->create_unique_href(array('edit'=>$row['path'])),'Edit');
 			$r->add_action($this->create_unique_href(array('view'=>$row['path'])),'View');
-			$r->add_action($this->create_confirm_callback_href($this->lang->t('Are you sure?'),array($this,'delete'),$row['path']),'Delete');
+			$r->add_action($this->create_confirm_callback_href($this->lang->t('Are you sure?'),array($this,'delete'),$row['id']),'Delete');
 		}
 		$this->display_module($gb);
 		

@@ -1,20 +1,13 @@
 <?php
 /**
- * WizardTest class.
- * 
  * @author Kuba Slawinski <kslawinski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @package tcms-utils
+ * @version 1.0
+ * @licence SPL
+ * @package epesi-tests
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class provides functions for presenting data in a table (suports sorting 
- * by different columns and splitting results -- showing 10 rows per page).
- * @package tcms-utils
- * @subpackage generic-browse
- */
 class Tests_Menu extends Module {
 
 	public function body( $arg ) {

@@ -1,4 +1,15 @@
 <?php
+/**
+ * Theme class.
+ * 
+ * Provides module templating.
+ * 
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2006, Telaxus LLC
+ * @version 0.9
+ * @licence SPL
+ * @package epesi-base-extra
+ */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_ThemeCommon {

@@ -6,14 +6,15 @@
  * 
  * @author Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @package tcms-base-extra
+ * @version 1.0
+ * @licence SPL
+ * @package epesi-base-extra
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
  * This class provides initialization data for QuickAccess module.
- * @package tcms-base-extra
+ * @package epesi-base-extra
  * @subpackage menu-quick-access
  */
 
@@ -29,6 +30,10 @@ class Base_Menu_QuickAccessInstall extends ModuleInstall {
 	
 	public static function uninstall() {
 		return DB::DropTable('quick_access');;
+	}
+	
+	public static function version() {
+		return array('1.0.0');
 	}
 }
 

@@ -1,4 +1,11 @@
 <?php
+/**
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @copyright Copyright &copy; 2006, Telaxus LLC
+ * @version 0.9
+ * @package apps-forum
+ * @licence SPL
+ */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Apps_Forum extends Module {

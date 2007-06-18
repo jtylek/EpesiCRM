@@ -6,14 +6,15 @@
  * 
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @package tcms-utils
+ * @version 1.0
+ * @licence SPL
+ * @package epesi-utils
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
  * This class provides initialization data for CatFile module.
- * @package tcms-utils
+ * @package epesi-utils
  * @subpackage catfile
  */
 class Utils_CatFileInstall extends ModuleInstall {
@@ -23,6 +24,10 @@ class Utils_CatFileInstall extends ModuleInstall {
 	
 	public static function uninstall() {
 		return true;
+	}
+	
+	public static function version() {
+		return array('1.0.0');
 	}
 }
 

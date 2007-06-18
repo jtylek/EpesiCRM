@@ -1,4 +1,11 @@
 <?php
+/**
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @copyright Copyright &copy; 2006, Telaxus LLC
+ * @version 1.0
+ * @licence SPL
+ * @package epesi-utils
+ */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_CommentInstall extends ModuleInstall{
@@ -23,6 +30,10 @@ class Utils_CommentInstall extends ModuleInstall{
 		Base_ThemeCommon::uninstall_default_theme('Utils/Comment');
 		return DB::DropTable('comment_report')
 			&& DB::DropTable('comment');
+	}
+	
+	public static function version() {
+		return array('1.0.0');
 	}
 } 
 ?>

@@ -1,13 +1,10 @@
 <?php
 /**
- * WizardTest class.
- * 
- * This class provides initialization data for Wizard module.
- * 
- * @author Kuba Slawinski <kslawinski@telaxus.com>
- * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @package tcms-utils
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2007, Telaxus LLC
+ * @version 1.0
+ * @licence SPL
+ * @package epesi-tests
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

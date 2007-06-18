@@ -6,14 +6,15 @@
  * 
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @package tcms-base-extra
+ * @version 1.0
+ * @licence SPL
+ * @package epesi-base-extra
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
  * This class provides initialization data for MainModuleIndicator module.
- * @package tcms-base-extra
+ * @package epesi-base-extra
  * @subpackage MainModuleIndicator
  */
 class Base_MainModuleIndicatorInstall extends ModuleInstall {
@@ -34,7 +35,7 @@ class Base_MainModuleIndicatorInstall extends ModuleInstall {
 	}
 	
 	public static function version() {
-		return array('1.0');
+		return array('1.0.0');
 	}
 }
 

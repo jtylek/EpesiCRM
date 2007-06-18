@@ -6,9 +6,9 @@
  * and gets output of default module.
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
- * @licence TL
+ * @licence SPL
  * @version 1.0
- * @package tcms-base
+ * @package epesi-base
  */
 if(version_compare(phpversion(), '5.0.0')==-1)
 	die("You are running an old version of PHP, php5 required.");

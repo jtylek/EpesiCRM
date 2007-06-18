@@ -1,4 +1,10 @@
 <?php
+/*
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @version 1.0
+ * @copyright Copyright &copy; 2007, Telaxus LLC
+ * @licence SPL
+ */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Apps_StaticPageInstall extends ModuleInstall {
@@ -32,6 +38,10 @@ class Apps_StaticPageInstall extends ModuleInstall {
 	
 	public static function simple_setup() {
 		return true;
+	}
+	
+	public static function version() {
+		return array('0.8.5');
 	}
 }
 

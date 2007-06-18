@@ -7,7 +7,8 @@
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
- * @package tcms-utils
+ * @licence SPL
+ * @package epesi-utils
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -29,7 +30,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  * See InventoryInit class' source for database table creation examples.
  * Note you should use InnoDB engine for editable tables. 
  * 
- * @package tcms-utils
+ * @package epesi-utils
  * @subpackage dirty-read
  */
 class Utils_DirtyRead extends Module {

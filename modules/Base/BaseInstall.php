@@ -7,12 +7,13 @@
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
- * @package tcms-base-extra
+ * @licence SPL
+ * @package epesi-base-extra
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
- * @package tcms-base-extra
+ * @package epesi-base-extra
  * @subpackage base-installer
  */
 class BaseInstall extends ModuleInstall {
@@ -53,6 +54,10 @@ class BaseInstall extends ModuleInstall {
 	
 	public static function simple_setup() {
 		return true;
+	}
+	
+	public static function version() {
+		return array('0.9.9');
 	}
 
 }

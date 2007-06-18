@@ -6,14 +6,15 @@
  * 
  * @author Arkadiusz Bisaga <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @package tcms-base-extra
+ * @version 1.0
+ * @licence SPL
+ * @package epesi-base-extra
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
  * QuickAccess class.
- * @package tcms-base-extra
+ * @package epesi-base-extra
  * @subpackage menu-quick-access
  */
 class Base_Menu_QuickAccess extends Module {

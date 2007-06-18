@@ -5,9 +5,9 @@
  * This file defines abstract class Module whose provides basic modules functionality.
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
- * @licence TL
+ * @licence SPL
  * @version 1.0
- * @package tcms-base
+ * @package epesi-base
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -27,7 +27,7 @@ abstract class ModuleInstall {
 
 /**
  * This class provides interface for module setup.
- * @package tcms-base
+ * @package epesi-base
  * @subpackage module
  */
 abstract class ModuleInit {
@@ -50,8 +50,8 @@ abstract class ModuleInit {
 }
 
 /**
- * This class provides some basic functionality for every tcms module.
- * @package tcms-base
+ * This class provides some basic functionality for every epesi module.
+ * @package epesi-base
  * @subpackage module
  */
 abstract class Module {

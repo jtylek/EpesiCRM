@@ -7,6 +7,9 @@ Adapted By: Simon de Haan
 Website: http://blog.eight.nl
 Date: 21/2/2006
 
+Adapted for epesy by: Paul Bukowski
+Date: 01/06/2007
+
 Inspired by the lightbox implementation found at http://www.huddletogether.com/projects/lightbox/
 And the lightbox gone wild by ParticleTree at http://particletree.com/features/lightbox-gone-wild/
 

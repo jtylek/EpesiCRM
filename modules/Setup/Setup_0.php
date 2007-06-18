@@ -4,16 +4,17 @@
  * 
  * This file contains setup module.
  * 
- * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @author Paul Bukowski <pbukowski@telaxus.com> and Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
- * @package tcms-base
+ * @licence SPL
+ * @package epesi-base
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
  * This class provides for administration of modules.
- * @package tcms-base
+ * @package epesi-base
  * @subpackage setup
  */
 class Setup extends Module {

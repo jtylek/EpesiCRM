@@ -6,15 +6,16 @@
  * 
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @package tcms-utils
+ * @version 0.1
+ * @licence SPL
+ * @package epesi-utils
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
  * Displays file content
  * 
- * @package tcms-utils
+ * @package epesi-utils
  * @subpackage Cache
  */
 class Utils_Cache extends Module {

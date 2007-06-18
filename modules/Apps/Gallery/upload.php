@@ -1,4 +1,12 @@
 <?php
+/**
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2006, Telaxus LLC
+ * @version 1.0
+ * @package apps-gallery
+ * @licence SPL
+ */
+ 
 //print_r($_REQUEST);
 //print_r($_FILES);
 

@@ -4,14 +4,15 @@
  * 
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @package tcms-libs
+ * @version 1.0
+ * @licence SPL
+ * @package epesi-libs
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
  * This class provides initialization data for DirtyRead module.
- * @package tcms-libs
+ * @package epesi-libs
  * @subpackage fpdf
  */
 class Libs_FPDFInstall extends ModuleInstall {

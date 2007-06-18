@@ -4,10 +4,11 @@
  * 
  * Provides module templating.
  * 
- * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @author Paul Bukowski <pbukowski@telaxus.com> and Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
- * @package tcms-base-extra
+ * @licence SPL
+ * @package epesi-base-extra
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -20,7 +21,7 @@ require_once(SMARTY_DIR.'Smarty.class.php');
 
 /**
  * Provides module templating.
- * @package tcms-base-extra
+ * @package epesi-base-extra
  * @subpackage theme
  */
 class Base_Theme extends Module {

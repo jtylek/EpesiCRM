@@ -2,7 +2,7 @@
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @version 1.0
  * @copyright Copyright &copy; 2007, Telaxus LLC
- * @licence TL
+ * @licence SPL
  */
 var loaded_csses="";
 function load_css(file) {

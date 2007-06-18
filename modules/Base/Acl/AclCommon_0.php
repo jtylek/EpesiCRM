@@ -6,14 +6,15 @@
  * 
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @package tcms-base-extra
+ * @version 1.0
+ * @package epesi-base-extra
+ * @licence SPL
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
  * This class provides functions for administrating the ACL.
- * @package tcms-base-extra
+ * @package epesi-base-extra
  * @subpackage acl
  */
 class Base_AclCommon {

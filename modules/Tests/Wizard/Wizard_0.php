@@ -2,17 +2,18 @@
 /**
  * WizardTest class.
  * 
- * @author Kuba Slawinski <kslawinski@telaxus.com>
- * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @package tcms-utils
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2007, Telaxus LLC
+ * @version 1.0
+ * @licence SPL
+ * @package epesi-tests
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
  * This class provides functions for presenting data in a table (suports sorting 
  * by different columns and splitting results -- showing 10 rows per page).
- * @package tcms-utils
+ * @package epesi-utils
  * @subpackage generic-browse
  */
 class Tests_Wizard extends Module {

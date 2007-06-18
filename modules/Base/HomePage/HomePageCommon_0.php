@@ -7,13 +7,14 @@
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
- * @package tcms-base-extra
+ * @licence SPL
+ * @package epesi-base-extra
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
  * This class provides saving any page as homepage for each user.
- * @package tcms-base-extra
+ * @package epesi-base-extra
  * @subpackage homepage
  */
 class Base_HomePageCommon {
@@ -57,7 +58,7 @@ if($_REQUEST['Base_HomePage_load']) {
 } elseif($_REQUEST['Base_HomePage_save']) {
 	Base_HomePageCommon::save();
 	unset($_REQUEST['box_main_module']);
-	Base_StatusBarCommon::message($lang->t('Home page saved'));
+	Base_StatusBarCommon::message(Base_LangCommon::ts('Home page saved'));
 }
 
 

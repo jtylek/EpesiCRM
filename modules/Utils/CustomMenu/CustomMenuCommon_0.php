@@ -1,21 +1,21 @@
 <?php
+/**
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2006, Telaxus LLC
+ * @version 1.0
+ * @licence SPL
+ * @package epesi-utils
+ */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_CustomMenuCommon {
-	public static function add_entry($id,$path,$module,$function,$arguments) {
-		return DB::Execute('INSERT INTO utils_custommenu_entry(id,path,module,function,arguments) VALUES(%s, %s, %s, %s, %s)',array(md5($id),$path,$module,$function,serialize($arguments)));
+	public static function delete($id) {
+		$p = md5($id);
+		return DB::Execute('DELETE FROM utils_custommenu_entry WHERE page_id=%s',$p) && DB::Execute('DELETE FROM utils_custommenu_page WHERE id=%s',$p);
 	}
 
-	public static function del_entry($path) {
-		return DB::Execute('DELETE FROM utils_custommenu_entry WHERE path=%s',$path);
-	}
-
-	public static function del_entries_by_id($id) {
-		return DB::Execute('DELETE FROM utils_custommenu_entry WHERE id=%s',md5($id));
-	}
-	
 	public static function menu() {
-		$ret = DB::Execute('SELECT path,module,function,arguments FROM utils_custommenu_entry');
+		$ret = DB::Execute('SELECT path,module,function,arguments FROM utils_custommenu_page LEFT JOIN utils_custommenu_entry ON page_id=id');
 		$menu = array();
 		while($row=$ret->FetchRow()) {
 			$path = explode('/',$row['path']);

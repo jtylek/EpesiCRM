@@ -1,20 +1,17 @@
 <?php
 /**
- * CatFile class.
- * 
- * Displays file content (default: 'TODO').
- * 
  * @author Paul Bukowski <pbukowski@telaxus.com>
- * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @package tcms-tests
+ * @copyright Copyright &copy; 2007, Telaxus LLC
+ * @version 1.0
+ * @licence SPL
+ * @package epesi-tests
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
  * Displays file content (default: 'TODO').
  * 
- * @package tcms-tests
+ * @package epesi-tests
  * @subpackage fpdf
  */
 class Tests_FPDF extends Module {

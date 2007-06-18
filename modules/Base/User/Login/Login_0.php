@@ -6,14 +6,15 @@
  * 
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @package tcms-base-extra
+ * @version 1.0
+ * @licence SPL
+ * @package epesi-base-extra
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
  * This class provides for basic login functionality, saves passwords to database and enables password recvery.
- * @package tcms-base-extra
+ * @package epesi-base-extra
  * @subpackage user-login
  */
 class Base_User_Login extends Module {

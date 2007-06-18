@@ -1,4 +1,15 @@
 <?php
+/**
+ * ActionBar
+ * 
+ * This class provides action bar component.
+ * 
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2007, Telaxus LLC
+ * @version 1.0
+ * @package epesi-base-extra
+ * @licence SPL
+ */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_ActionBarInit_0 extends ModuleInit {

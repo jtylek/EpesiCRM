@@ -1,21 +1,13 @@
 <?php
 /**
- * Test class.
- * 
- * This class is just my first module, test only.
- * 
- * @author Paul Bukowski <pbukowski@telaxus.com>
- * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0
- * @package tcms-tests
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @copyright Copyright &copy; 2007, Telaxus LLC
+ * @version 1.0
+ * @licence SPL
+ * @package epesi-tests
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class is just my first module, test only.
- * @package tcms-tests
- * @subpackage generic-browser
- */
 class Tests_GenericBrowser extends Module {
 	
 	public function body($arg) {

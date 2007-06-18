@@ -6,8 +6,8 @@
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
- * @licence TL
- * @package tcms-base
+ * @licence SPL
+ * @package epesi-base
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -19,7 +19,7 @@ require_once('adodb/adodb.inc.php');
 
 /**
  * This class maintains database connection.
- * @package tcms-base
+ * @package epesi-base
  * @subpackage database
  */
 class DB {

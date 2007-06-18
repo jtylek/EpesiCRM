@@ -1,4 +1,13 @@
 <?php
+/**
+ * MaintenanceMode_AdministratorComon class.
+ * 
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2006, Telaxus LLC
+ * @version 1.0
+ * @licence SPL
+ * @package epesi-base-extra
+ */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_MaintenanceMode_AdministratorCommon extends Base_AdminModuleCommon {

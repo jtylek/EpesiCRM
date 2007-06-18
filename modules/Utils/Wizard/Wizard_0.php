@@ -2,10 +2,11 @@
 /**
  * Wizard class.
  * 
- * @author Kuba Slawinski <kslawinski@telaxus.com>
+ * @author Paul Bukowski <pbukowski@telaxus.com> and Kuba Slawinski <kslawinski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
- * @package tcms-utils
+ * @licence SPL
+ * @package epesi-utils
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -13,7 +14,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  * This is a wizard creator helper wizard.
  * Enjoy.
  * 
- * @package tcms-utils
+ * @package epesi-utils
  * @subpackage generic-browse
  */
 

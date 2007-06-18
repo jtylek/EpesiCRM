@@ -4,10 +4,11 @@
  * 
  * This class provides translations manipulation.
  * 
- * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @author Paul Bukowski <pbukowski@telaxus.com> and Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @package tcms-base-extra
+ * @version 1.0
+ * @licence SPL
+ * @package epesi-base-extra
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -16,7 +17,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  * Translation files are kept in 'modules/Lang/translations'. 
  * Http server user should have write access to those files.
  * 
- * @package tcms-base-extra
+ * @package epesi-base-extra
  * @subpackage lang
  */
 class Base_Lang extends Module {

@@ -1,13 +1,12 @@
 <?php
 /**
- * Base_ImageInstall class.
- * 
  * @author Kuba Slawinski <kslawinski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
- * @package tcms-utils
+ * @package apps-gallery
+ * @licence SPL
  */
-defined("_VALID_ACCESS") || die('Direct access forbidden');
+ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Apps_GalleryInstall extends ModuleInstall {
 	public static function install() {
@@ -31,6 +30,10 @@ class Apps_GalleryInstall extends ModuleInstall {
 	
 	public static function simple_setup() {
 		return true;
+	}
+	
+	public static function version() {
+		return array('0.8.6');
 	}
 }
 

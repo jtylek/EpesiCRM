@@ -6,15 +6,16 @@
  * 
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @package tcms-base-extra
+ * @version 1.0
+ * @licence SPL
+ * @package epesi-base-extra
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
  * This class provides basic container for other modules, with smarty as template engine.
  * 
- * @package tcms-base-extra
+ * @package epesi-base-extra
  * @subpackage box
  */
 class Base_Box extends Module {

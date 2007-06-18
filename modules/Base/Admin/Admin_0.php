@@ -6,8 +6,9 @@
  * 
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @package tcms-base-extra
+ * @version 1.0
+ * @licence SPL
+ * @package epesi-base-extra
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -16,7 +17,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  * functions inside your module.
  * You can extend AdminModule for default access privileges.
  * 
- * @package tcms-base-extra
+ * @package epesi-base-extra
  * @subpackage admin
  */
 class Base_Admin extends Module {
@@ -104,7 +105,7 @@ if(!interface_exists('Base_AdminInterface')) {
 /**
  * Interface which you must implement if you would like to have module administration entry.
  * 
- * @package tcms-base-extra
+ * @package epesi-base-extra
  * @subpackage admin
  */
 	interface Base_AdminInterface {

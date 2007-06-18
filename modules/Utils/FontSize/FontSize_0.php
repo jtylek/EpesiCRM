@@ -5,16 +5,12 @@
  * @author Kuba Slawinski <kslawinski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
- * @package tcms-utils
+ * @licence SPL
+ * @package epesi-utils
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class provides functions for presenting data in a table (suports sorting 
- * by different columns and splitting results -- showing 10 rows per page).
- * @package tcms-utils
- * @subpackage generic-browse
- */
+
 class Utils_FontSize extends Module {
 	
 	public function body($arg) {

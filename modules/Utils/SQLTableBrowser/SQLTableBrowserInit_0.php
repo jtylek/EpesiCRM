@@ -1,4 +1,11 @@
 <?php
+/**
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @copyright Copyright &copy; 2006, Telaxus LLC
+ * @version 0.8
+ * @licence SPL
+ * @package epesi-utils
+ */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_SQLTableBrowserInit_0 extends ModuleInit {

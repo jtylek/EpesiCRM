@@ -6,14 +6,15 @@
  * 
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @package tcms-base
+ * @version 1.0
+ * @licence SPL
+ * @package epesi-base
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
  * This class initializes setup module.
- * @package tcms-base
+ * @package epesi-base
  * @subpackage setup
  */
 class SetupInit_0 extends ModuleInit {

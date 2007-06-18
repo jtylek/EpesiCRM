@@ -7,13 +7,14 @@
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
- * @package tcms-utils
+ * @licence SPL
+ * @package epesi-utils
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
  * This class facilitates grouping page content in different tabs.
- * @package tcms-utils
+ * @package epesi-utils
  * @subpackage tabbed-browser
  */
 class Utils_TabbedBrowser extends Module {

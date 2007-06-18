@@ -6,14 +6,15 @@
  * 
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @package tcms-base-extra
+ * @version 1.0
+ * @licence SPL
+ * @package epesi-base-extra
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
  * This class provides initialization data for Mail module.
- * @package tcms-base-extra
+ * @package epesi-base-extra
  * @subpackage mail
  */
 class Base_MailInstall extends ModuleInstall {
@@ -41,6 +42,10 @@ class Base_MailInstall extends ModuleInstall {
 		if($ret) $ret = Variable::delete('mail_auth');
 		
 		return $ret;
+	}
+	
+	public static function version() {
+		return array('1.0.0');
 	}
 }
 

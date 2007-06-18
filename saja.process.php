@@ -21,20 +21,24 @@ if($session_id && $session_id != session_id())
 	session_id($session_id);
 session_start();
 
+$delimiter = ($_ENV['OS']=='Windows_NT')?';':':';
+ini_set('include_path','libs'.$delimiter.ini_get('include_path'));
+require_once "saja/saja.php";
+
 //validate this request
-if(!is_array($_SESSION['SAJA_PROCESS']['REQUESTS']))
-	exit('Saja not initialized');
+if(!is_array($_SESSION['SAJA_PROCESS']['REQUESTS'])) {
+		$s = new saja(true);
+		$s->js('alert(\'Invalid session (Saja not initialized).\')');
+		$s->redirect();
+		echo $s->send();
+		exit();
+}
 if(!in_array($request_id, array_keys($_SESSION['SAJA_PROCESS']['REQUESTS'])))
 	exit('Invalid Request: '.$request_id);
 
 //get function name and process file
 $proc_file = $_SESSION['SAJA_PROCESS']['REQUESTS'][$request_id]['PROCESS_FILE'];
 $function = $_SESSION['SAJA_PROCESS']['REQUESTS'][$request_id]['FUNCTION'];
-
-$delimiter = ($_ENV['OS']=='Windows_NT')?';':':';
-ini_set('include_path','libs'.$delimiter.ini_get('include_path'));
-require_once "saja/saja.php";
-
 
 //load the class extension containing the user functions
 if($proc_file=='base.php') {

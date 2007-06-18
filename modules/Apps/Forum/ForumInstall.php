@@ -1,4 +1,11 @@
 <?php
+/**
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @copyright Copyright &copy; 2006, Telaxus LLC
+ * @version 0.9
+ * @package apps-forum
+ * @licence SPL
+ */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Apps_ForumInstall extends ModuleInstall {
@@ -52,6 +59,9 @@ class Apps_ForumInstall extends ModuleInstall {
 		return true;
 	}
 	
+	public static function version() {
+		return array('0.9.9');
+	}
 }
 
 ?>

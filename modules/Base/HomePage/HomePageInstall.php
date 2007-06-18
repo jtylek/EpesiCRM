@@ -7,13 +7,14 @@
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
- * @package tcms-base-extra
+ * @licence SPL
+ * @package epesi-base-extra
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
  * This class provides initialization data for HomePage module.
- * @package tcms-base-extra
+ * @package epesi-base-extra
  * @subpackage homepage
  */
 class Base_HomePageInstall extends ModuleInstall {
@@ -28,6 +29,10 @@ class Base_HomePageInstall extends ModuleInstall {
 	
 	public static function uninstall() {
 		return DB::DropTable('home_page');
+	}
+	
+	public static function version() {
+		return array('0.8.9');
 	}
 }
 

@@ -1,19 +1,16 @@
 <?php
 /**
- * TestInstall class.
- * 
- * This class provides initialization data for Test module.
- * 
- * @author Paul Bukowski <pbukowski@telaxus.com>
- * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @package tcms-tests
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @copyright Copyright &copy; 2007, Telaxus LLC
+ * @version 1.0
+ * @licence SPL
+ * @package epesi-tests
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
  * This class provides initialization data for Test module.
- * @package tcms-tests
+ * @package epesi-tests
  * @subpackage generic-browser
  */
 

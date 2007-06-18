@@ -6,8 +6,8 @@
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
- * @package tcms-base
- * @licence TL
+ * @package epesi-base
+ * @licence SPL
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

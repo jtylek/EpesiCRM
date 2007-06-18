@@ -1,21 +1,13 @@
 <?php
 /**
- * TabbedBrowserInit_0 class.
- * 
- * This class provides initialization data for TabbedBrowser module.
- * 
- * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @author Kuba Slawinski <kslawinski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @package tcms-utils
+ * @version 1.0
+ * @licence SPL
+ * @package epesi-utils
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class provides initialization data for TabbedBrowser module.
- * @package tcms-utils
- * @subpackage tabbed-browser
- */
 class Utils_BookmarkBrowserInit_0 extends ModuleInit {
 
 	public static function requires() {

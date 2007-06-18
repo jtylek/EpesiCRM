@@ -6,8 +6,9 @@
  * 
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @package tcms-base-extra
+ * @version 1.0
+ * @licence SPL
+ * @package epesi-base-extra
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -16,7 +17,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  * Translation files are kept in 'modules/Lang/translations'. 
  * Http server user should have write access to those files.
  * 
- * @package tcms-base-extra
+ * @package epesi-base-extra
  * @subpackage lang
  */
 class Base_LangCommon {
@@ -64,7 +65,7 @@ class Base_LangCommon {
 		if(!$f)	return false;
 		
 		fwrite($f, "<?php\n");
-		fwrite($f, "/**\n * Translation file.\n * @package tcms-translations\n * @subpackage $lang\n */\n");
+		fwrite($f, "/**\n * Translation file.\n * @package epesi-translations\n * @subpackage $lang\n */\n");
 		fwrite($f, 'global $translations;'."\n");
 		foreach($translations as $p=>$xxx) 
 			foreach($xxx as $k=>$v)

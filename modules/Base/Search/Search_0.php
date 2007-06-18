@@ -7,13 +7,14 @@
  * @author Arkadiusz Bisaga <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
- * @package tcms-base-extra
+ * @licence SPL
+ * @package epesi-base-extra
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
  * Provides for search functionality in a module. 
- * @package tcms-base-extra
+ * @package epesi-base-extra
  * @subpackage search
  */
 class Base_Search extends Module {
@@ -21,12 +22,12 @@ class Base_Search extends Module {
 	
 	public function body() {
 		global $base;
-		
+	
 		$qs_keyword = $_REQUEST['quick_search'];
 				
-		$this->lang = $this->pack_module('Base/Lang');
+		$this->lang = & $this->pack_module('Base/Lang');
 		
-		$form = $this->init_module('Libs/QuickForm');
+		$form = & $this->init_module('Libs/QuickForm');
 		$theme =  & $this->pack_module('Base/Theme');
 		
 		$modules_with_search = array();
@@ -43,7 +44,7 @@ class Base_Search extends Module {
 		$form->addElement('header', 'quick_search_header', $this->lang->t('Quick search'));
 		$form->addElement('text', 'quick_search',  $this->lang->ht('Keyword'), array('id'=>'quick_search_text'));
 		$form->addRule('quick_search', $this->lang->t('Field required'), 'required');
-		$form->addElement('submit', 'quick_search_submit',  $this->lang->ht('Search'), array('class'=>'submit','onclick'=>'getElementById(\''.$form->getAttribute('name').'\').elements[\'advanced_search\'].value=0;'));
+		$form->addElement('submit', 'quick_search_submit',  $this->lang->ht('Search'), array('class'=>'submit','onclick'=>'var elem=getElementById(\''.$form->getAttribute('name').'\').elements[\'advanced_search\'];if(elem)elem.value=0;'));
 
 		if (!empty($modules_with_adv_search)) {
 			$modules_with_adv_search[0] = '('.$this->lang->ht('Select module').')'; 
@@ -51,10 +52,10 @@ class Base_Search extends Module {
 			$form->addElement('static', 'advanced_search_header', $this->lang->t('Advanced search'));
 			$adv = true;
 			$form->addElement('select', 'advanced_search', 'Module:', $modules_with_adv_search, array('onChange'=>$form->get_submit_form_js(false),'id'=>'advanced_search_select'));
+			$advanced_search = $form->exportValue('advanced_search');
 		}
 		
 		$defaults = array();
-		$advanced_search = $form->exportValue('advanced_search');
 
 		$defaults['quick_search']=$qs_keyword;
 		if (!$qs_keyword) {
@@ -106,6 +107,7 @@ class Base_Search extends Module {
 			$this->pack_module($advanced_search,null,'advanced_search');
 			$this->set_module_variable('advanced_search',$advanced_search);
 		}
+		
 	}
 	
 /*	

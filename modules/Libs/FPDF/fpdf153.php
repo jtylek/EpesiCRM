@@ -2,11 +2,10 @@
 /**
 * FPDF
 * Date:     2004-12-31
-* Modifications by Paul Bukowski (pbukowski@telaxus.com). Do not send bug reports to author.
-* 
 * @package FPDF
 * @version 1.53
 * @author Olivier PLATHEY
+* Modifications by Paul Bukowski (pbukowski@telaxus.com). Do not send bug reports to author.
 * @link http://www.fpdf.org homesite
 * @license Freeware You may use, modify and redistribute this software as you wish.
 */
