@@ -54,7 +54,11 @@ class Utils_GenericBrowser extends Module {
 			print('Invalid argument for table_columns, aborting.<br>');
 			return;
 		}
-		$this->columns = $arg;
+		if (!is_array($arg[0])) {
+			$this->columns = array();
+			foreach($arg as $v)
+				$this->columns[] = array('name'=>$v);
+		} else $this->columns = $arg;
 		$this->columns_qty = count($arg);
 	}
 
@@ -519,10 +523,7 @@ class Utils_GenericBrowser extends Module {
 				if (!empty($this->actions[$i])) {
 					$ac_theme = &$this->pack_module('Base/Theme');
 					$ac_theme->assign('actions',$this->actions[$i]);
-					ob_start();
-					$ac_theme->display('Actions');
-					$col[$column_no]['label'] = ob_get_contents();
-					ob_end_clean();
+					$col[$column_no]['label'] = $this->get_html_of_module($ac_theme,null,'display');
 				} else $col[$column_no]['label'] = '&nbsp;';
 				$col[$column_no]['attrs'] = 'nowrap="nowrap"';
 			}
@@ -577,7 +578,7 @@ class Utils_GenericBrowser extends Module {
 		if($this->rows_qty!=0)
 			return $this->lang->t('Records %d to %d of %d',$this->get_module_variable('offset')+1,($this->get_module_variable('offset')+$this->get_module_variable('per_page')>$this->rows_qty)?$this->rows_qty:$this->get_module_variable('offset')+$this->get_module_variable('per_page'),$this->rows_qty);
 		else 
-		if (!isset($this->rows_qty))
+		if (isset($this->rows_qty))
 			return $this->lang->t('No records found');
 		else 
 			return '';

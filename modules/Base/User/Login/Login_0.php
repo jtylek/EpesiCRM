@@ -71,11 +71,8 @@ class Base_User_Login extends Module {
 			
 			location(array());
 		} else {
-			$renderer = & new HTML_QuickForm_Renderer_TCMSArraySmarty();
-			$form->accept($renderer);
 			$theme =  & $this->pack_module('Base/Theme');
-			$theme->assign('form_name', $form->getAttribute('name'));
-			$theme->assign('form_data', $renderer->toArray());
+			$theme->assign_form('form', $form);
 			$theme->display();
 
 			eval_js("focus_by_id('username')");

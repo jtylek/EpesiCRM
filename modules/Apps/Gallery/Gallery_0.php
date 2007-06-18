@@ -164,28 +164,13 @@ class Apps_Gallery extends Module {
 		$form->addElement('text', 'new', 'New Folder:');
 		$form->addElement('submit', 'submit_button', $lang->t('Create',true));
 		
-		if($form->getSubmitValue('submited') && $last_submited == 0) {
-			if($form->validate()) {
-				if($form->process(array(&$this, 'submit_mk_folder'))) {
-					$this->mk_folder(12);
-				}
-			} else {
-				$renderer = & new HTML_QuickForm_Renderer_TCMSArraySmarty();
-				$form->accept($renderer);
-				$theme =  & $this->pack_module('Base/Theme');
-				$theme->assign('type', 'mk_folder');
-				$theme->assign('form_name', $form->getAttribute('name'));
-				$theme->assign('form_data', $renderer->toArray());
-				$theme->assign('tree', $tree->toHtml());
-				$theme->display();
-			}
+		if($form->getSubmitValue('submited') && $last_submited == 0 && $form->validate()) {
+			if($form->process(array(&$this, 'submit_mk_folder')))
+				$this->mk_folder(12);
 		} else {	
-			$renderer = & new HTML_QuickForm_Renderer_TCMSArraySmarty();
-			$form->accept($renderer);
 			$theme =  & $this->pack_module('Base/Theme');
 			$theme->assign('type', 'mk_folder');
-			$theme->assign('form_name', $form->getAttribute('name'));
-			$theme->assign('form_data', $renderer->toArray());
+			$theme->assign_form('form', $form);
 			$theme->assign('tree', $tree->toHtml());
 			$theme->display();
 		}
@@ -248,29 +233,15 @@ class Apps_Gallery extends Module {
 		
 		$form->addElement('submit', 'submit_button', $lang->t('Remove',true));
 		
-		if($form->getSubmitValue('submited') && $last_submited == 0) {
-			if($form->validate()) {
-				$this->set_module_variable('action', 'show');
-				if($form->process(array(&$this, 'submit_rm_folder'))) {
-					$this->rm_folder(12);
-				}
-			} else {
-				$renderer = & new HTML_QuickForm_Renderer_TCMSArraySmarty();
-				$form->accept($renderer);
-				$theme =  & $this->pack_module('Base/Theme');
-				$theme->assign('type', 'rm_folder');
-				$theme->assign('form_name', $form->getAttribute('name'));
-				$theme->assign('form_data', $renderer->toArray());
-				$theme->assign('tree', $tree->toHtml());
-				$theme->display();
+		if($form->getSubmitValue('submited') && $last_submited == 0 && $form->validate()) {
+			$this->set_module_variable('action', 'show');
+			if($form->process(array(&$this, 'submit_rm_folder'))) {
+				$this->rm_folder(12);
 			}
-		} else {	
-			$renderer = & new HTML_QuickForm_Renderer_TCMSArraySmarty();
-			$form->accept($renderer);
+		} else {
 			$theme =  & $this->pack_module('Base/Theme');
 			$theme->assign('type', 'rm_folder');
-			$theme->assign('form_name', $form->getAttribute('name'));
-			$theme->assign('form_data', $renderer->toArray());
+			$theme->assign_form('form', $form);
 			$theme->assign('tree', $tree->toHtml());
 			$theme->display();
 		}
@@ -347,31 +318,17 @@ class Apps_Gallery extends Module {
 		
 		
 		$form->addElement('submit', 'submit_button', $lang->t('Share selected',true));
-		if($form->getSubmitValue('submited') && $last_submited == 0) {
-			if($form->validate()) {
-				$this->set_module_variable('action', 'show');
-				if($form->process(array(&$this, 'submit_share_folders'))) {
-					$this->share_folders(13);
-				}
-			} else {
-				$renderer = & new HTML_QuickForm_Renderer_TCMSArraySmarty();
-				$form->accept($renderer);
-				$theme =  & $this->pack_module('Base/Theme');
-				$theme->assign('type', 'share');
-				$theme->assign('form_name', $form->getAttribute('name'));
-				$theme->assign('form_data', $renderer->toArray());
-				$theme->assign('tree', $tree->toHtml());
-				$theme->display();
+		if($form->getSubmitValue('submited') && $last_submited == 0 && $form->validate()) {
+			$this->set_module_variable('action', 'show');
+			if($form->process(array(&$this, 'submit_share_folders'))) {
+				$this->share_folders(13);
 			}
-		} else {	
-				$renderer = & new HTML_QuickForm_Renderer_TCMSArraySmarty();
-				$form->accept($renderer);
-				$theme =  & $this->pack_module('Base/Theme');
-				$theme->assign('type', 'share');
-				$theme->assign('form_name', $form->getAttribute('name'));
-				$theme->assign('form_data', $renderer->toArray());
-				$theme->assign('tree', $tree->toHtml());
-				$theme->display();
+		} else {
+			$theme =  & $this->pack_module('Base/Theme');
+			$theme->assign('type', 'share');
+			$theme->assign_form('form', $form);
+			$theme->assign('tree', $tree->toHtml());
+			$theme->display();
 		}
 	}
 	

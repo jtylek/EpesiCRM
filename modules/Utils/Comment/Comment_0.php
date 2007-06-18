@@ -64,10 +64,7 @@ class Utils_Comment extends Module{
 					$this->unset_module_variable('answer');
 					$answer = -1;
 				}
-				$renderer = & new HTML_QuickForm_Renderer_TCMSArraySmarty();
-				$form -> accept($renderer);
-				$theme->assign('form_name', $form->getAttribute('name'));
-				$theme->assign('form_data', $renderer->toArray());
+				$theme->assign_form('form', $form);
 			} else {
 				$theme->assign('reply_button','<a '.$this->create_unique_href(array('action'=>'post_reply')).'>'.$this->lang->t('Reply'),'</a>');
 			}
@@ -208,10 +205,7 @@ class Utils_Comment extends Module{
 		$form -> addElement('textarea','comment_page_reply',$this->lang->t('Message'),array('rows'=>4,'cols'=>40,'onBlur'=>'document.getElementsByName(\'comment_content\')[0].value = document.getElementsByName(\'comment_page_reply\')[0].value.replace(/\n/g,\'<br>\');'));
 		$form -> addElement('submit','submit_comment','Submit');
 		$form -> addElement('button','cancel_comment','Cancel',$this->create_back_href());
-		$renderer = & new HTML_QuickForm_Renderer_TCMSArraySmarty();
-		$form -> accept($renderer);
-		$theme->assign('form_name', $form->getAttribute('name'));
-		$theme->assign('form_data', $renderer->toArray());
+		$theme->assign_form('form', $form);
 		if ($form->validate() && Base_AclCommon::i_am_user() && $this->reply){
 			$this->add_post($form->exportValue('comment_content'),$answer);
 			$this->unset_module_variable('answer');

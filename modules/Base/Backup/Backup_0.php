@@ -25,8 +25,10 @@ class Base_Backup extends Module {
 	public function admin() {
 		global $base;
 		$this->lang = & $this->pack_module('Base/Lang');
+		$theme = & $this->pack_module('Base/Theme');
 		
 		print('<h1>'.$this->lang->t('Available backups').'</h1>');
+		$theme->assign('available_backups',$this->lang->t('Available backups'));
 		$gb = $this->init_module('Utils/GenericBrowser',null,'backup');
 		$gb->set_table_columns(array(
 			array('name'=>$this->lang->t('Name')), 
@@ -43,10 +45,10 @@ class Base_Backup extends Module {
 			}
 			$gb_row->add_data($b['name'], $b['version'], date("r",$b['date']));
 		}
-		$this->display_module($gb);
+//		$this->display_module($gb);
+		$theme->assign('backups_table',$this->get_html_of_module($gb));
 		
-		
-		
+		$theme->assign('create_backup',$this->lang->t('Create backup'));
 		print('<h1>'.$this->lang->t('Create backup').'</h1>');
 		$form = & $this->init_module('Libs/QuickForm');
 		$mods = array();
@@ -73,13 +75,17 @@ class Base_Backup extends Module {
 			$form->addElement('checkbox', 'backup['.$entry.']', '<div align=left>'.$tab.$path[count($path)-1].'</div>');
 		}
 		
-		$form->addElement('submit', 'submit_button', $this->lang->ht('Create backup'));
+		$form->addElement('submit', 'create_backup', $this->lang->ht('Create backup'));
 		
 		if($form->validate()) {
 			if($form->process(array($this,'submit_backup')))
 				location(array());
-		} else
+		} else {
+			$theme->assign_form('form',$form);
 			$form->display();
+		}
+		print('<hr>');
+		$theme->display();
 	}
 	
 	public function submit_backup($data) {

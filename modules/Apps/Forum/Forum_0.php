@@ -115,10 +115,7 @@ class Apps_Forum extends Module {
 		$form -> addElement('textarea','post',$this->lang->t('First post'),array('rows'=>4,'cols'=>40,'onBlur'=>'document.getElementsByName(\'post_content\')[0].value = document.getElementsByName(\'post\')[0].value.replace(/\n/g,\'<br>\');'));
 		$form -> addElement('submit','submit','Submit');
 		$form -> addElement('button','cancel','Cancel',$this->create_back_href());
-		$renderer = & new HTML_QuickForm_Renderer_TCMSArraySmarty();
-		$form -> accept($renderer);
-		$theme->assign('form_name', $form->getAttribute('name'));
-		$theme->assign('form_data', $renderer->toArray());
+		$theme->assign_form('form', $form);
 		$theme->assign('board_name','<a '.$this->create_unique_href(array('action'=>'view_board','board'=>$board)).'>'.DB::GetOne('SELECT name FROM apps_forum_board WHERE id = %d',$board).'</a>');
 		$theme->assign('forum_boards','<a '.$this->create_unique_href(array('action'=>'__NONE__')).'>'.$this->lang->t('Forum Boards').'</a>');
 		if ($form->validate() && Base_AclCommon::i_am_user()){

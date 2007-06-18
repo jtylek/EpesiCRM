@@ -67,12 +67,8 @@ class Base_Search extends Module {
 		
 		$form->setDefaults($defaults);
 		
-		$renderer = & new HTML_QuickForm_Renderer_TCMSArraySmarty();
-		
-		$form->accept($renderer);
-		$theme->assign('form_name', $form->getAttribute('name'));
+		$theme->assign_form('form', $form);
 		$theme->assign('form_mini', 'no');
-		$theme->assign('form_data', $renderer->toArray());
 		$theme->display('Search');
 		
 		if (($form->validate() || $qs_keyword) && !$advanced_search) {
@@ -122,12 +118,9 @@ class Base_Search extends Module {
 		$form->addElement('text', 'quick_search', $this->lang->t('Quick search'));
 		$form->addElement('submit', 'quick_search_submit', $this->lang->ht('Search'), array('class'=>'mini_submit'));
 		
-		$renderer = & new HTML_QuickForm_Renderer_TCMSArraySmarty();
-		$form->accept($renderer);
 		$theme =  & $this->pack_module('Base/Theme');
-		$theme->assign('form_name', $form->getAttribute('name'));
+		$theme->assign_form('form', $form);
 		$theme->assign('form_mini', 'yes');
-		$theme->assign('form_data', $renderer->toArray());
 		$theme->display('Search');
 		
 		if($form->validate()) {

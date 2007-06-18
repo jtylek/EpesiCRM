@@ -64,7 +64,6 @@ class Base_Admin extends Module {
 		$links = array();
 		foreach($mod_ok as $caption=>$name)
 			$links[$name]= '<a '.$this->create_unique_href(array('href'=>$name)).'>'.$lang->t($caption).'</a>';
-		$renderer = & new HTML_QuickForm_Renderer_TCMSArraySmarty();
 		$theme =  & $this->pack_module('Base/Theme');
 		$theme->assign('header', $lang->t('Modules settings'));
 		$theme->assign('links', $links);
