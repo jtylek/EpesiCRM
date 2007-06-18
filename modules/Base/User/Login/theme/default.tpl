@@ -1,4 +1,9 @@
-
+{if $is_logged_in}
+	{$logged_as}
+	{$__link.logout.open}
+	{$__link.logout.text}
+	{$__link.logout.close}
+{else}
 	{$form_data.javascript}
 
 	<form {$form_data.attributes}> 
@@ -32,4 +37,4 @@
 			<tr><td colspan=2>{$form_data.submit_button.html}</td></tr>
 		</table>
 	</form>
-	
+{/if}

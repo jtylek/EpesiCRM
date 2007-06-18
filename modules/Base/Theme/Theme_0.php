@@ -145,7 +145,8 @@ class Base_Theme extends Module {
 	}
 	
 	public function parse_links($key, $val, $flat=true) {
-		if (!is_array($val)) { 
+		if (!is_array($val)) {
+			$val = trim($val); 
 			$i=0;
 			$count=0;
 			$open="";

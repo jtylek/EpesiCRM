@@ -84,7 +84,7 @@ class Setup extends Module {
 
 				$versions[-1]='not installed';
 				ksort($versions);
-				$tab = '';
+
 				$path = explode('_',$entry);
 				$c = & $structure;
 				for($i=0;$i<count($path)-1;$i++){
@@ -94,22 +94,12 @@ class Setup extends Module {
 						$c[$path[$i]]['sub'] = array();
 					}
 					$c = & $c[$path[$i]]['sub'];
-					if ($subgroups[$i] == $path[$i]) {
-						$tab .= '*&nbsp;&nbsp;';
-						continue;
-					}
-					$subgroups[$i] = $path[$i];
-					//$form->addElement('static', 'group_header', '<div align=left>'.$tab.$path[$i].'</div>');
-					$tab .= '*&nbsp;&nbsp;';
 				}
-				$subgroups[count($path)-1] = $path[count($path)-1];
-					$ele = $form->createElement('select', 'installed['.$entry.']', $path[count($path)-1], $versions);
-					$ele->setValue($installed);
-					$c[$path[count($path)-1]] = array();
-					$c[$path[count($path)-1]]['name'] = '<table width=100%><tr><td width=100% align=left>'.$path[count($path)-1].$info.'</td><td align=right>' . $ele->toHtml() . '</td></tr></table>';
-					
-					//$c[$path[count($path)-1]]['name'] = $path[count($path)-1] ;
-					$c[$path[count($path)-1]]['sub'] = array();
+				$ele = $form->createElement('select', 'installed['.$entry.']', $path[count($path)-1], $versions);
+				$ele->setValue($installed);
+				$c[$path[count($path)-1]] = array();
+				$c[$path[count($path)-1]]['name'] = '<table width=100%><tr><td width=100% align=left>'.$path[count($path)-1].$info.'</td><td align=right>' . $ele->toHtml() . '</td></tr></table>';
+				$c[$path[count($path)-1]]['sub'] = array();
 				array_push($def, array('installed['.$entry.']'=>$installed));
 		
 		
@@ -118,11 +108,11 @@ class Setup extends Module {
 		$tree = $this->init_module('Utils/Tree');
 		
 		$tree->set_structure($structure);
-		$form->addElement('html', '</tr><tr><td colspan=2>'.$tree->toHtml().'</td></tr>');
+		$form->addElement('html', '<tr><td colspan=2>'.$tree->toHtml().'</td></tr>');
 		
 		
 		if(!$simple) {
-			$form->addElement('header', 'anonymous_header', 'Other (dengerous, don\'t change if you are newbie)');
+			$form->addElement('header', 'anonymous_header', 'Other (dangerous, don\'t change if you are newbie)');
 			$form->addElement('checkbox','anonymous_setup', 'Anonymous setup');
 
 		//default module		

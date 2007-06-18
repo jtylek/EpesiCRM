@@ -31,14 +31,15 @@ class Apps_Forum extends Module {
 		$ret = DB::Execute('SELECT id, name, descr FROM apps_forum_board');
 		$boards = array();
 		while ($row = $ret->FetchRow()) $boards[] = array(	'descr' => $row['descr'],
-															'label' => '<a '.$this->create_href(array('action'=>'view_board','board'=>$row['id'])).'>'.$row['name'].'</a>'
+															'label' => '<a '.$this->create_href(array('action'=>'view_board','board'=>$row['id'])).'>'.$row['name'].'</a>',
+															'delete' => '<a '.$this->create_unique_href(array('action'=>'delete_thread','board'=>$row['id'])).'>'.$this->lang->t('Delete').'</a>'
 															);
 		
 		$theme = $this->pack_module('Base/Theme');
 		$theme -> assign('forum_boards',$this->lang->t('Forum Boards'));
 		$theme -> assign('boards',$boards);
 		if (Base_AclCommon::i_am_admin()) $theme -> assign('add_board','<a '.$this->create_unique_href(array('action'=>'add_board')).'>'.$this->lang->t('Create new board').'</a>');
-		$theme -> display('Boards');		
+		$theme -> display('Boards');
 	}
 	
 	public function add_board(){
@@ -77,7 +78,8 @@ class Apps_Forum extends Module {
 				array(	'topic' => '<a '.$this->create_href(array('action'=>'view_thread','thread'=>$row['id'])).'>'.$row['topic'].'</a>',
 						'posted_on' =>  $this->lang->t('Posted on %s',$last_post['date']),
 						'posted_by' =>  $this->lang->t('Posted by %s',$last_post['user']),
-						'post_count' => $this->lang->t('Posts %d',$post_count?$post_count:'0')
+						'post_count' => $this->lang->t('Posts %d',$post_count?$post_count:'0'),
+						'delete' => '<a '.$this->create_unique_href(array('action'=>'delete_thread','thread'=>$row['id'])).'>'.$this->lang->t('Delete').'</a>'
 				);
 		}
 		krsort($threads);

@@ -27,7 +27,6 @@ class Base_Backup extends Module {
 		$this->lang = & $this->pack_module('Base/Lang');
 		$theme = & $this->pack_module('Base/Theme');
 		
-		print('<h1>'.$this->lang->t('Available backups').'</h1>');
 		$theme->assign('available_backups',$this->lang->t('Available backups'));
 		$gb = $this->init_module('Utils/GenericBrowser',null,'backup');
 		$gb->set_table_columns(array(
@@ -45,11 +44,9 @@ class Base_Backup extends Module {
 			}
 			$gb_row->add_data($b['name'], $b['version'], date("r",$b['date']));
 		}
-//		$this->display_module($gb);
 		$theme->assign('backups_table',$this->get_html_of_module($gb));
 		
 		$theme->assign('create_backup',$this->lang->t('Create backup'));
-		print('<h1>'.$this->lang->t('Create backup').'</h1>');
 		$form = & $this->init_module('Libs/QuickForm');
 		$mods = array();
 		foreach($base->modules as $m=>$v) {
@@ -58,33 +55,36 @@ class Base_Backup extends Module {
 		}
 		asort($mods);
 			
-		$subgroups = array();
+		$structure = array();
 		foreach($mods as $entry) {
 			$tab = '';
 			$path = explode('_',$entry);
+			$c = & $structure;
 			for($i=0;$i<count($path)-1;$i++){
-				if ($subgroups[$i] == $path[$i]) {
-					$tab .= '*&nbsp;&nbsp;';
-					continue;
+				if(!key_exists($path[$i], $c)) {
+					$c[$path[$i]] = array();
+					$c[$path[$i]]['name'] = $path[$i];
+					$c[$path[$i]]['sub'] = array();
 				}
-				$subgroups[$i] = $path[$i];
-				$form->addElement('static', 'group_header', '<div align=left>'.$tab.$path[$i].'</div>');
-				$tab .= '*&nbsp;&nbsp;';
+				$c = & $c[$path[$i]]['sub'];
 			}
-			$subgroups[count($path)-1] = $path[count($path)-1];
-			$form->addElement('checkbox', 'backup['.$entry.']', '<div align=left>'.$tab.$path[count($path)-1].'</div>');
+			$ele = $form->createElement('checkbox', 'backup['.$entry.']', $path[count($path)-1]);
+			$c[$path[count($path)-1]] = array();
+			$c[$path[count($path)-1]]['name'] = '<table width=100%><tr><td width=100% align=left>'.$path[count($path)-1].'</td><td align=right>' . $ele->toHtml() . '</td></tr></table>';
+			$c[$path[count($path)-1]]['sub'] = array();
 		}
+
+		$tree = $this->init_module('Utils/Tree');		
+		$tree->set_structure($structure);
+		$theme->assign('tree',$tree->toHtml());
 		
-		$form->addElement('submit', 'create_backup', $this->lang->ht('Create backup'));
-		
+		$form->addElement('submit', 'create_backup', $this->lang->ht('Create backup'));		
 		if($form->validate()) {
 			if($form->process(array($this,'submit_backup')))
 				location(array());
 		} else {
 			$theme->assign_form('form',$form);
-			$form->display();
 		}
-		print('<hr>');
 		$theme->display();
 	}
 	
@@ -99,7 +99,7 @@ class Base_Backup extends Module {
 	}
 	
 	public static function delete_backup($b) {
-		recursive_rmdir('backup/'.$b['name'].'-'.$b['version'].'-'.$b['date']);
+		recursive_rmdir('backup/'.$b['name'].'__'.$b['version'].'__'.$b['date']);
 		location(array());
 	}
 	

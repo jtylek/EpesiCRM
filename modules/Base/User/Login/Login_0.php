@@ -27,14 +27,19 @@ class Base_User_Login extends Module {
 	public function body($arg) {
 		$this->lang = $this->pack_module('Base/Lang');
 
+		$theme =  & $this->pack_module('Base/Theme');
+		
 		//if logged
+		$theme->assign('is_logged_in', Acl::is_user());
 		if(Acl::is_user()) {
 			if($this->get_unique_href_variable('logout')) {
 				Acl::set_user();
 				Base_UserCommon::set_my_user_id();
 				location(array());
 			} else {
-				print($this->lang->t('Logged as %s.',Acl::get_user()).' <a '.$this->create_unique_href(array('logout'=>1)).'>'.$this->lang->t('Logout').'</a>');
+				$theme->assign('logged_as', $this->lang->t('Logged as %s.',Acl::get_user()));
+				$theme->assign('logout', '<a '.$this->create_unique_href(array('logout'=>1)).'>'.$this->lang->t('Logout').'</a>');
+				$theme->display();
 			}
 			return;	
 		}
@@ -71,7 +76,6 @@ class Base_User_Login extends Module {
 			
 			location(array());
 		} else {
-			$theme =  & $this->pack_module('Base/Theme');
 			$theme->assign_form('form', $form);
 			$theme->display();
 

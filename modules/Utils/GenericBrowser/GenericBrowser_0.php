@@ -521,7 +521,7 @@ class Utils_GenericBrowser extends Module {
 				if ($actions_position=='Left') $column_no = -1;
 				else $column_no = count($this->columns);
 				if (!empty($this->actions[$i])) {
-					$ac_theme = &$this->pack_module('Base/Theme');
+					$ac_theme = &$this->init_module('Base/Theme');
 					$ac_theme->assign('actions',$this->actions[$i]);
 					$col[$column_no]['label'] = $this->get_html_of_module($ac_theme,null,'display');
 				} else $col[$column_no]['label'] = '&nbsp;';

@@ -557,7 +557,7 @@ class ModuleManager {
 		}
 		
 		if(is_numeric($date))
-			$pkg_name = $module.'-'.$version.'-'.$date;
+			$pkg_name = $module.'__'.$version.'__'.$date;
 		else {
 			print('Invalid restore timestamp.');
 			return false;
@@ -630,7 +630,7 @@ class ModuleManager {
 		if(!is_dir('backup') || !is_writable('backup'))
 			return false;
 			
-		$pkg_name = $module.'-'.$installed_version.'-'.time();
+		$pkg_name = $module.'__'.$installed_version.'__'.time();
 		
 		mkdir('backup/'.$pkg_name);
 		
@@ -677,12 +677,12 @@ class ModuleManager {
 	
 	public static final function list_backups() {
 		$backup_ls = scandir('backup');
-		$backups = array();
+		$backup = array();
 		foreach($backup_ls as $b) {
-			if(!ereg('([^-]+)-([0-9]+)-([0-9]+)',$b,$reqs)) continue;
-			$backups[] = array('name'=>$reqs[1],'version'=>$reqs[2],'date'=>$reqs[3]);
+			if(!ereg('([^-]+)__([0-9]+)__([0-9]+)',$b,$reqs)) continue;
+			$backup[] = array('name'=>$reqs[1],'version'=>$reqs[2],'date'=>$reqs[3]);
 		}
-		return $backups;
+		return $backup;
 	}
 
 	/**
