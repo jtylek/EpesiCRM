@@ -150,7 +150,7 @@ class Apps_Gallery extends Module {
 		$tmp_t = & $form->createElement('radio', 'target', '/', 'My Gallery', '/');
 		$tmp_t->setChecked(1);
 		$tree->set_structure( array(
-			'My Gallery' => array(
+			array(
 				'name'=> $tmp_t->toHtml(),
 				'selected'=>0,
 				'sub'=>$structure
@@ -407,7 +407,7 @@ class Apps_Gallery extends Module {
 		
 		
 		
-		$form->addElement('html', $tree->toHtml());
+		$form->addElement('html', '</tr><tr><td colspan=2>'.$tree->toHtml().'</td></tr><tr>');
 		
 		
 		$form->addElement('static',null,null,'<iframe frameborder="0" id="upload_iframe", name="upload_iframe" src="" scrolling="No" height="0" width="0"></iframe>');
