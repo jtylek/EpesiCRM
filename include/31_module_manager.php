@@ -676,7 +676,7 @@ class ModuleManager {
 	}
 	
 	public static final function list_backups() {
-		$backup_ls = scandir('/backup'); // do not delete / before backup - this causes apache to crash on windows platrom!
+		$backup_ls = scandir('backup');
 		$backups = array();
 		foreach($backup_ls as $b) {
 			if(!ereg('([^-]+)-([0-9]+)-([0-9]+)',$b,$reqs)) continue;
