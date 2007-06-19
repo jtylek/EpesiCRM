@@ -28,7 +28,7 @@ require_once "saja/saja.php";
 //validate this request
 if(!is_array($_SESSION['SAJA_PROCESS']['REQUESTS'])) {
 		$s = new saja(true);
-		$s->js('alert(\'Invalid session (Saja not initialized).\')');
+		$s->js('alert(\'Session expired.\')');
 		$s->redirect();
 		echo $s->send();
 		exit();

@@ -221,7 +221,7 @@ class Base extends saja {
 			}
 	
 		if(DEBUG) {
-			$debug .= 'vars '.$this->client_id.': '.var_export($session['__module_vars__'],true).'<br>';
+			$debug .= 'vars '.$this->client_id.': '.print_r($session['__module_vars__'],true).'<br>';
 			$debug .= 'user='.Acl::get_user().'<br>';
 			$debug .= 'action module='.$_REQUEST['__action_module__'].'<br>';
 			$debug .= $this->debug();

@@ -57,11 +57,6 @@ class Base_Menu extends Module {
 	private static $tmp_menu;
 	private $duplicate = false;
 	
-	public function construct() {
-		$this->set_fast_process();
-	}
-	
-	
 	public static function add_default_menu(& $m, $name) {
 		foreach($m as $k=>$arr) {
 			if(array_key_exists('__submenu__', $arr)) 

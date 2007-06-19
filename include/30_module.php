@@ -182,9 +182,10 @@ abstract class Module {
 	 */
 	public final function & get_module_variable($name, $default) {
 		$session = & $GLOBALS['base']->get_session();
+		$path = $this->get_path();
 		if(isset($default) && !$this->isset_module_variable($name))
-			$session['__module_vars__'][$this->get_path()][$name] = & $default;
-		return $session['__module_vars__'][$this->get_path()][$name];
+			$session['__module_vars__'][$path][$name] = & $default;
+		return $session['__module_vars__'][$path][$name];
 	}
 	
 	/**
@@ -373,25 +374,30 @@ abstract class Module {
 	 * @return string
 	 */
 	public final function create_callback_href($func,$args,$indicator=null) {
-		$name = 'callback_'.md5(serialize(array($func,$args)));
+		$name = md5(serialize(array($func,$args)));
 		return $this->create_callback_href_with_id($name,$func,$args,$indicator);
 	}
 
 	public final function create_confirm_callback_href($confirm, $func, $args,$indicator=null) {
-		$name = 'callback_'.md5(serialize(array($func,$args)));
+		$name = md5(serialize(array($func,$args)));
 		return $this->create_confirm_callback_href_with_id($name, $confirm, $func,$args,$indicator);
 	}
 
-	private final function call_callback_href_function($name,$func,$args) {
-		$ret = $this->get_module_variable_or_unique_href_variable($name);
-		if($ret=='1') {
-			if(!is_array($args)) $args = array($args);
-			if(!is_callable($func))
-				trigger_error(print_r($func,true)." not callable",E_USER_ERROR);
-			$r = call_user_func_array($func,$args);
-			if(!$r) $this->unset_module_variable($name);
-		}	
-	}
+	private final function set_callback($name,$func,$args) {
+		if(!is_string($func)) { 
+			if(is_array($func) && count($func)==2 && is_string($func[1]) && 
+				(is_string($func[0]) || $func[0] instanceof Module)) {
+					if(!is_callable($func))
+						trigger_error('Callback not callable',E_USER_ERROR);
+					if(!is_string($func[0])) $func[0]=null; 
+			} else
+				trigger_error('Invalid callback function', E_USER_ERROR);
+		}
+		if(!is_array($args)) $args = array($args);
+		$callbacks = & $this->get_module_variable('__callbacks__',array());
+		$callbacks[$name] = array('func'=>$func,'args'=>$args);
+	} 
+	
 	/**
 	 * Creates link similar to links created with create_href.
 	 * 
@@ -403,12 +409,14 @@ abstract class Module {
 	 * @return string 
 	 */
 	public final function create_callback_href_with_id($name, $func, $args,$indicator) {
-		$this->call_callback_href_function($name,$func,$args);
+		$name = 'callback_'.$name;
+		$this->set_callback($name,$func,$args);
 		return $this->create_unique_href(array($name=>1),$indicator);
 	}
 	
 	public final function create_confirm_callback_href_with_id($name, $confirm, $func, $args, $indicator) {
-		$this->call_callback_href_function($name,$func,$args);
+		$name = 'callback_'.$name;
+		$this->set_callback($name,$func,$args);
 		return $this->create_confirm_unique_href($confirm,array($name=>1),$indicator);
 	}
 	
@@ -436,7 +444,12 @@ abstract class Module {
 	 * @return bool true if back link was used, false otherwise
 	 */
 	public final function is_back() {
-		return ($this->get_unique_href_variable('back')=='1');
+		if($this->get_unique_href_variable('back')=='1') {
+			$rkey = $this->create_unique_key('back');
+			unset($_REQUEST[$rkey]);
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -540,7 +553,26 @@ abstract class Module {
 			if(!is_array($args)) $args = array($args);
 			
 			ob_start();
-			call_user_func_array(array($m,$function_name),$args);
+	
+			$callbacks = array_reverse($m->get_module_variable('__callbacks__'),true);
+			$skip_display = false;
+			foreach($callbacks as $name=>$c) {
+				$ret = $m->get_module_variable_or_unique_href_variable($name);
+				if($ret=='1') {
+					$func = $c['func'];
+					if(is_array($func) && $func[0]===null) $func[0] = & $m;
+					$r = call_user_func_array($func,$c['args']);
+					if($r) {
+						$skip_display = true;
+						break;
+					} else
+						$m->unset_module_variable($name);
+				}	
+			}
+			
+			if(!$skip_display)
+				call_user_func_array(array($m,$function_name),$args);
+			
 			if(STRIP_OUTPUT)
 				$base->content[$path]['value'] = strip_html(ob_get_contents());
 			else

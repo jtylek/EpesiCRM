@@ -19,10 +19,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  */
 class Setup extends Module {
 
-	public function body_access() {
-		return (Variable::get('anonymous_setup') || Acl::check('Administration','Main'));
-	}
-	
 	public function body($arg) {
 		global $base;
 
@@ -156,7 +152,7 @@ class Setup extends Module {
 
 	public static function parse_modules_folder_refresh(){
 		self::parse_modules_folder();
-		location(array());
+		//location(array());
 		return false;
 	}
 	
