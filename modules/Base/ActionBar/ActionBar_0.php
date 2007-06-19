@@ -35,10 +35,12 @@ class Base_ActionBar extends Module {
 		$ic = count($icons);
 		for($k=1, $j=0; $k<$ic; $k++) {
 			if($icons[$k]!=$icons[$j])
-				$j++;
+				do{$j++;}while(!isset($icons[$j]));
 			else
 				unset($icons[$k]);
 		}
+		
+		//print_r($icons);
 		
 		//display
 		$th = & $this->pack_module('Base/Theme');
