@@ -58,7 +58,7 @@ class Base_Menu extends Module {
 	private $duplicate = false;
 	
 	public function construct() {
-		$this->fast_process();
+		$this->set_fast_process();
 	}
 	
 	

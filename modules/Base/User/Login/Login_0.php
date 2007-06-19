@@ -21,7 +21,7 @@ class Base_User_Login extends Module {
 	protected $lang;
 	
 	public function construct() {
-		$this->fast_process();
+		$this->set_fast_process();
 	}
 	
 	public function body($arg) {

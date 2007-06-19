@@ -163,7 +163,7 @@ class Base extends saja {
 			$mod = ModuleManager::get_instance($k);
 /*		
 			if(is_object($mod)) {
-				if($mod->fast_processed())
+				if($mod->is_fast_process())
 					$debug .= 'skipped2 '.$k.': '.print_r($mod,true).'<br>';
 				else
 					$debug .= 'OK '.$k.': '.$mod->get_path().'<br>';
@@ -199,7 +199,8 @@ class Base extends saja {
 				if(MODULE_TIMES)
 					$debug .= 'Time of loading module <b>'.$v['name'].'</b>: <i>'.$v['time'].'</i><hr>';
 				
-				$this->text($v['value'], $v['span']);
+				if(isset($v['span']))
+					$this->text($v['value'], $v['span']);
 				$this->jses[] = join(";",$v['js']);
 				$tmp_session['__module_content__'][$k]['value'] = $v['value'];
 				$tmp_session['__module_content__'][$k]['js'] = $v['js'];				
@@ -213,7 +214,8 @@ class Base extends saja {
 			if(!array_key_exists($k,$this->content) && $reloaded[$v['parent']]) {
 				if(DEBUG)
 					$debug .= 'Reloading missing '.$k.'<hr>';
-				$this->text($v['value'], $v['span']);
+				if(isset($v['span']))
+					$this->text($v['value'], $v['span']);
 				$this->jses[] = join(";",$v['js']);	
 				$reloaded[$k] = true;
 			}

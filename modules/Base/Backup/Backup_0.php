@@ -37,7 +37,7 @@ class Base_Backup extends Module {
 		$backups = array();
 		foreach($backups_list as $b) {
 			$gb_row = $gb->get_new_row();
-			$gb_row->add_action($this->create_callback_href(array('Base_Backup','delete_backup'), $b),'Delete');
+			$gb_row->add_action($this->create_callback_href(array('Base_Backup','delete_backup'), array($b)),'Delete');
 			if($b['version']==ModuleManager::is_installed($b['name'])) { 
 				$gb_row->add_action($this->create_callback_href(array('Base_Backup','restore_backup'), array($b, true)),'Restore');
 				$gb_row->add_action($this->create_callback_href(array('Base_Backup','restore_backup'), array($b, false)),'Append data');

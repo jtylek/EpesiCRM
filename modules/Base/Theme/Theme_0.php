@@ -35,6 +35,8 @@ class Base_Theme extends Module {
 	public function construct() {
 		$this->smarty = new Smarty();
 		
+		$this->set_inline_display();
+		
 		if (!Base_Theme::$root) Base_Theme::$root = & $this; 
 		
 		if(!isset(self::$theme)) {

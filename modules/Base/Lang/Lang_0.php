@@ -25,7 +25,7 @@ class Base_Lang extends Module {
 	private $lang_code;
 	
 	public function construct() {
-		$this->fast_process();
+		$this->set_fast_process();
 	}
 	
 	public function body($arg) {

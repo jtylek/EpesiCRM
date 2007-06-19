@@ -65,6 +65,7 @@ abstract class Module {
 	private $path;
 	private $reload = null;
 	private $fast_process = false;
+	private $inline_display = false;
 	private $displayed = false;
 	
 	/**
@@ -528,13 +529,14 @@ abstract class Module {
 		if(MODULE_TIMES)
 			$time = microtime(true);
 		//define key in array so it is before its children
-		$path = $m->get_path(); 
-		$base->content[$path]['span'] = $this_path.'|'.$this->children_count_display.'content';
+		$path = $m->get_path();
+		if(!$m->is_inline_display()) 
+			$base->content[$path]['span'] = $this_path.'|'.$this->children_count_display.'content';
 		$base->content[$path]['module'] = & $m;
 		
 		$tmp_session = & $base->get_tmp_session();
 
-		if(!$m->fast_processed() || strpos($_REQUEST['__action_module__'],$path)===0 || !isset($tmp_session['__module_content__'][$path])) {
+		if(!$m->is_fast_process() || strpos($_REQUEST['__action_module__'],$path)===0 || !isset($tmp_session['__module_content__'][$path])) {
 			if(!is_array($args)) $args = array($args);
 			
 			ob_start();
@@ -557,7 +559,8 @@ abstract class Module {
 		
 		$m->mark_displayed();
 		
-		return '<span id="'.$base->content[$path]['span'].'"></span>';		
+		if($m->is_inline_display()) return $base->content[$path]['value'];
+		return '<span id="'.$base->content[$path]['span'].'"></span>';
 	}
 	
 	public final function displayed() {
@@ -568,12 +571,20 @@ abstract class Module {
 		$this->displayed=true;
 	}
 	
-	public final function fast_processed() {
+	public final function is_fast_process() {
 		return $this->fast_process;
 	}
 	
-	public final function fast_process() {
+	public final function set_fast_process() {
 		$this->fast_process = true;
+	}
+	
+	public final function is_inline_display() {
+		return $this->inline_display;
+	}
+	
+	public final function set_inline_display() {
+		$this->inline_display = true;
 	}
 
 	/**
