@@ -25,7 +25,7 @@ class Base_User_SettingsCommon {
 			}
 		}
 //		return array('My settings'=>array_merge(array('__submenu__'=>1),$modules));
-		return array('My settings'=>array_merge(array('__submenu__'=>1,'Control panel'=>array('__weight__'=>-10,'module'=>'__NONE__'),'__split__'=>1),$modules));
+		return array('My settings'=>array_merge(array('__weight__'=>10,'__submenu__'=>1,'Control panel'=>array('__weight__'=>-10,'module'=>'__NONE__'),'__split__'=>1),$modules));
 	}
 	
 	public static function get_user_settings($module,$name){
