@@ -98,10 +98,7 @@ class Utils_Tree extends Module {
 		$ret .= "</div>";
 		return $ret;
 	}
-			
-	public function open_node() {
-		$this->_closed = false;
-	}
+	
 	public function open_all() {
 		$this->_closed = false;
 	}
