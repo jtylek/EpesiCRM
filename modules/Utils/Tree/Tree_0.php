@@ -16,6 +16,7 @@ class Utils_Tree extends Module {
 	private $_selected;
 	private $_structure;
 	private $_closed = true;
+	private $_opened_paths = array();
 	
 	public function construct() {
 		$this->_id = Utils_Tree::$_counter;
@@ -23,37 +24,6 @@ class Utils_Tree extends Module {
 		load_js("modules/Utils/Tree/js/tree.js");
 	}
 	
-	function getDirsRecursive($p_dirpath, $pattern = '0') { 
-		$r_ret = array("/"=>"/");
-		$stack = array();
-		array_push($stack, "");
-		while(count($stack) > 0) {
-			//print_r($stack); print "<br>";
-			$curr = array_pop($stack);
-			//print "curr: ".$p_dirpath.$curr."<br>";
-			if( $handle = opendir($p_dirpath."/".$curr) ) { 
-				while(false !== ($file = readdir($handle))) { 
-					if($file != "." && $file != "..") { 
-						if ( is_dir($p_dirpath."/".$curr."/".$file) ){
-							if($pattern != '0') {
-								if(preg_match($pattern, $file)) {
-									//array_push($r_ret, $curr."/".$file."/"); 
-									$r_ret[$file] = $curr."/".$file."/";
-									array_push($stack, $curr."/".$file); 
-								}
-							} else  {
-								//array_push($r_ret, $curr."/".$file."/"); 
-								$r_ret[$file] = $curr."/".$file."/";
-								array_push($stack, $curr."/".$file); 
-							}
-						} 
-					} 
-				} 
-				closedir($handle);
-			}
-		}
-		return $r_ret;
-	}
 	public function set_structure($s) {
 		$this->_structure = $s;
 	}
@@ -77,25 +47,26 @@ class Utils_Tree extends Module {
 		}
 	}
 	
-	public function print_structure_r($t = array(), $level = 0) {
+	public function print_structure_r($t = array(), $level = 0, $path = '') {
 		if(count($t) > 0) {
 			$ret = '<div class=utils_tree_submenu id=utils_tree_'.$this->_id.'_'.$this->_sub.'>';
 			$this->_sub++;
 			foreach( $t as $k => $v ) {
 				$ret .= '<div class=utils_tree_node onmouseover=\'utils_tree_hl(this)\' onmouseout=\'utils_tree_rg(this)\'><table><tr>';
-				if(count($v['sub']) > 0) {
-					$ret .= '<td id=utils_tree_opener_'.$this->_id.'_'.($this->_sub).' class=utils_tree_opener_active_closed onclick="tree_node_visibility_toggle(\''.$this->_id.'_'.($this->_sub).'\')"><img id=utils_tree_opener_img_'.$this->_id.'_'.($this->_sub).' src=modules/Utils/Tree/theme/opener_active_closed.gif></td>';
-				} else {
+				if(count($v['sub']) > 0)
+					$ret .= '<td id=utils_tree_opener_'.$this->_id.'_'.($this->_sub).' class=utils_tree_opener_active_closed onclick="tree_node_visibility_toggle('.$this->_id.', '.($this->_sub).')"><img id=utils_tree_opener_img_'.$this->_id.'_'.($this->_sub).' src=modules/Utils/Tree/theme/opener_active_closed.gif></td>';
+				else
 					$ret .= '<td class=utils_tree_opener_inactive><img src=modules/Utils/Tree/theme/opener_inactive.gif></td>';
-				}
-				if($v['selected'] == 1) {
+				if($v['selected'] == 1)
 					$ret .= "<td width=100% class=utils_tree_node_content_selected>".$v['name']."</td>";
-				} else {
+				else
 					$ret .= "<td width=100% class=utils_tree_node_content>".$v['name']."</td>";
-				}
+				if($v['opened'] == 1)
+					array_push($this->_opened_paths, $path);
+					
 				$ret .= "</tr></table></div>";
 				if(is_array($v['sub'])) {
-					$ret .= $this->print_structure_r($v['sub'], $level + 1);
+					$ret .= $this->print_structure_r($v['sub'], $level + 1, $path.'_'.$this->_sub);
 				}
 			}
 			$ret .= "</div>";
@@ -110,7 +81,7 @@ class Utils_Tree extends Module {
 		foreach( $t as $k => $v ) {
 			$ret .= '<div id=utils_tree_node_'.$this->_id.' class=utils_tree_node onmouseover=\'utils_tree_hl(this)\' onmouseout=\'utils_tree_rg(this)\'><table><tr>';
 			if(count($v['sub']) > 0) {
-				$ret .= '<td id=utils_tree_opener_'.$this->_id.'_'.($this->_sub).' class=utils_tree_opener_active_closed onclick="tree_node_visibility_toggle(\''.$this->_id.'_'.($this->_sub).'\')"><img id=utils_tree_opener_img_'.$this->_id.'_'.($this->_sub).' src=modules/Utils/Tree/theme/opener_active_closed.gif></td>';
+				$ret .= '<td id=utils_tree_opener_'.$this->_id.'_'.($this->_sub).' class=utils_tree_opener_active_closed onclick="tree_node_visibility_toggle('.$this->_id.', '.($this->_sub).')"><img id=utils_tree_opener_img_'.$this->_id.'_'.($this->_sub).' src=modules/Utils/Tree/theme/opener_active_closed.gif></td>';
 			} else {
 				$ret .= '<td class=utils_tree_opener_inactive><img src=modules/Utils/Tree/theme/opener_inactive.gif></td>';
 			}
@@ -121,15 +92,18 @@ class Utils_Tree extends Module {
 			}
 			$ret .= "</tr></table></div>";
 			if(is_array($v['sub'])) {
-				$ret .= $this->print_structure_r($v['sub'], $level + 1);
+				$ret .= $this->print_structure_r($v['sub'], $level + 1, $this->_sub);
 			}
 		}
 		$ret .= "</div>";
 		return $ret;
 	}
-	
-	public function setClosed($cl = true) {
-		$this->closed = $cl;
+			
+	public function open_node() {
+		$this->_closed = false;
+	}
+	public function open_all() {
+		$this->_closed = false;
 	}
 	
 	public function toHtml() {
@@ -141,8 +115,17 @@ class Utils_Tree extends Module {
 		$theme->assign('expand_all', $expand_all);
 		$theme->assign('tree', $s);
 		
+		eval_js('wait_while_null("utils_tree_reset", "utils_tree_reset('.$this->_id.')");');
+		foreach($this->_opened_paths as $path) {
+			$path = explode('_', $path);
+			$path = '['.join(', ', $path).']';
+			print $path.'<br>';
+			eval_js('wait_while_null("utils_tree_open", "utils_tree_open('.$this->_id.', '.$path.')");');
+		}
+		
 		if( $this->_closed == false ) {
-			eval_js('wait_while_null("utils_tree_'.$this->_id.'_'.eval($this->_sub - 1).'", "utils_tree_expand_all('.$this->_id.','.$this->_sub.')");');
+			eval_js('wait_while_null("utils_tree_expand_all", "utils_tree_expand_all('.$this->_id.','.$this->_sub.')");');
+			//eval_js('utils_tree_expand_all('.$this->_id.','.$this->_sub.');');
 		}
 		
 		return $theme->toHtml();
@@ -150,20 +133,6 @@ class Utils_Tree extends Module {
 	
 
 	public function body( $dir ) {
-		//if(isset($dir))
-		//	$this->_structure = $dir;
-		
-		$s = $this->print_structure($this->_structure);
-		$h = '<span class=tree_expand_all id=tree_expand_all_'.$this->_id.' onclick="tree_toggle_expand_all('.$this->_id.','.$this->_sub.')">Collapse All</span> ';
-		
-		$theme = & $this->init_module('Base/Theme');
-		$theme->assign('collapse_all', $h);
-		$theme->assign('tree', $s);
-	
-		if($this->_closed == true ) {
-			eval_js('wait_while_null("utils_tree_node_'.$this->_id.'", "tree_toggle_expand_all('.$this->_id.','.$this->_sub.')");');
-		}
-		
-		$theme->display();
+		print $this->toHtml();
 	}
 }
