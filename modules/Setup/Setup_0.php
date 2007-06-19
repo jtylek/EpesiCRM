@@ -41,11 +41,14 @@ class Setup extends Module {
 			'anonymous_setup' => Variable::get('anonymous_setup')));
 //		print('='.Base_AclCommon::change_privileges('admin', array(Base_AclCommon::sa_group_id())).'=');
 		
-		$form->addElement('checkbox','simple','Simple setup','',array('onChange'=>$form->get_submit_form_js(false)));
+		$form->addElement('header', 'install_module_header', 'Module administration');
+		//$form->addElement('checkbox','simple','Simple setup','',array('onChange'=>$form->get_submit_form_js(false)));
+		$form->addElement('select','simple','Setup type',array(1=>'Simple',0=>'Advanced'),array('onChange'=>$form->get_submit_form_js(false)));
 		$simple = $form->exportValue('simple');
 
+
 		//install module header
-		$form->addElement('header', 'install_module_header', 'Module administration');
+		$form->addElement('header', 'install_module_info', 'Please select modules to be installed/uninstalled.<br>For module details please click on "info"');
 
 		//show uninstalled & installed modules
 		$ret = DB::Execute('SELECT * FROM available_modules');
