@@ -12,7 +12,7 @@ class Tests_SQLTableBrowser_Companies extends Module {
 	private $lang;
 
 	public function body($arg) {
-		$this->lang = $this->pack_module('Base/Lang');
+		$this->lang = & $this->pack_module('Base/Lang');
 		$gb = & $this->init_module('Utils/SQLTableBrowser','browse_sql');
 		$gb->set_table_format(array(	array('label'=>$this->lang->t('Id'), 'width'=>20,'column'=>'id','order'=>1,'search'=>1),
 										array('label'=>$this->lang->t('Name'), 'width'=>20,'column'=>'name','order'=>1),

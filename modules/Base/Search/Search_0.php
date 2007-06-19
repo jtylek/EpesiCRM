@@ -112,7 +112,7 @@ class Base_Search extends Module {
 	}
 	*/
 	public function mini() {
-		$this->lang = $this->pack_module('Base/Lang');
+		$this->lang = & $this->pack_module('Base/Lang');
 		$form = & $this->init_module('Libs/QuickForm');
 		
 		$form->addElement('text', 'quick_search', $this->lang->t('Quick search'));

@@ -12,13 +12,13 @@ class Utils_CommonData extends Module {
 	private $lang;
 
 	public function admin() {
-		$this->lang = $this->pack_module('Base/Lang');
+		$this->lang = & $this->pack_module('Base/Lang');
 		$action = $this->get_module_variable_or_unique_href_variable('action','browse');
 		$this->$action();
 	}
 
 	public function admin_array($name) {
-		$this->lang = $this->pack_module('Base/Lang');
+		$this->lang = & $this->pack_module('Base/Lang');
 		$this->set_module_variable('edit_name',$name);
 		$action = $this->get_module_variable_or_unique_href_variable('action','edit');
 		$this->$action();
@@ -29,7 +29,7 @@ class Utils_CommonData extends Module {
 			$this->set_module_variable('action','browse');
 			location(array());	
 		}
-		$f = $this->init_module('Libs/QuickForm',null,'name_for_array');
+		$f = & $this->init_module('Libs/QuickForm',null,'name_for_array');
 		$f->addElement('header', null, $this->lang->t('Create New Common Data Array'));
 		$f->addElement('text', 'name', 'Name',array('maxlength'=>32));
 		$f->addRule('name', $this->lang->t('This field is required'), 'required');
@@ -74,7 +74,7 @@ class Utils_CommonData extends Module {
 			$gb_row->add_action($this->create_confirm_callback_href($this->lang->t('Delete entry').'  '.$k.'=>'.$v.'?',array('Utils_CommonData','remove_field_refresh'), array($name, $k)),'Delete');
 		}
 		$this->display_module($gb);
-		$f = $this->init_module('Libs/QuickForm',null,'new_field');
+		$f = & $this->init_module('Libs/QuickForm',null,'new_field');
 		$f->addElement('header', null, $this->lang->t('Add values to the array'));
 		$f->addElement('text', 'key', $this->lang->t('Key'),array('maxlength'=>64));
 		$f->addElement('text', 'value', $this->lang->t('Value'));
@@ -101,7 +101,7 @@ class Utils_CommonData extends Module {
 		$key = $this->get_module_variable_or_unique_href_variable('field_id');
 		$value = $this->get_module_variable_or_unique_href_variable('field_value');
 		print('Array: <b>'.$name.'</b>');
-		$f = $this->init_module('Libs/QuickForm',null,'new_field');
+		$f = & $this->init_module('Libs/QuickForm',null,'new_field');
 		$f->addElement('header', null, $this->lang->t('Edit value of the array'));
 		$f->addElement('text', 'key', $this->lang->t('Key'),array('maxlength'=>64));
 		$f->addElement('text', 'value', $this->lang->t('Value'));

@@ -21,7 +21,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 	
 	public function admin() {
 		global $translations;
-		$this->lang = $this->pack_module('Base/Lang');
+		$this->lang = & $this->pack_module('Base/Lang');
 
 		if($this->is_back()) {
 			if($this->isset_module_variable('module') && $this->isset_module_variable('original')) {

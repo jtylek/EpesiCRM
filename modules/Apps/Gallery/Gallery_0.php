@@ -15,7 +15,7 @@ class Apps_Gallery extends Module {
 	private $lang;
 	
 	private function init() {
-		$this->lang = $this->pack_module('Base/Lang');
+		$this->lang = & $this->pack_module('Base/Lang');
 		$this->root = $this->get_data_dir();
 		//print Base_UserCommon::get_my_user_id()." - id<br>";
 		//print Base_AclCommon::i_am_user()." - am i user<br>";
@@ -116,7 +116,7 @@ class Apps_Gallery extends Module {
 		$dirs = $this->getDirsRecursive($this->root.$this->user, "/^[^\.].*$/");
 		ksort($dirs);
 		$form = & $this->init_module('Libs/QuickForm');
-		$lang = $this->pack_module('Base/Lang');
+		$lang = & $this->pack_module('Base/Lang');
 		
 		$form->addElement('header', 'mk_folder', $lang->t('Add Folder to Your Gallery'));
 		
@@ -189,7 +189,7 @@ class Apps_Gallery extends Module {
 		$dirs = $this->getDirsRecursive($this->root.$this->user, "/^[^\.].*$/");
 		ksort($dirs);
 		$form = & $this->init_module('Libs/QuickForm');
-		$lang = $this->pack_module('Base/Lang');
+		$lang = & $this->pack_module('Base/Lang');
 		$form->addElement('header', 'rm_folder', $lang->t('Remove Folder from Your Gallery'));
 		
 		$dir_listing = $this->getDirsRecursive($this->root.$this->user);
@@ -264,7 +264,7 @@ class Apps_Gallery extends Module {
 	}
 	public function share_folders($last_submited = 0) {
 		$form = & $this->init_module('Libs/QuickForm');
-		$lang = $this->pack_module('Base/Lang');
+		$lang = & $this->pack_module('Base/Lang');
 		
 		$form->addElement('header', 'share', $lang->t('Select folders You want to share with others.'));
 		
@@ -351,7 +351,7 @@ class Apps_Gallery extends Module {
 		$dirs = $this->getDirsRecursive($this->root.$this->user, "/^[^\.].*$/");
 		$dir = $this->get_module_variable_or_unique_href_variable('dir', "");
 		$user = $this->get_module_variable_or_unique_href_variable('user', $this->user);
-		$this->lang = $this->pack_module('Base/Lang');
+		$this->lang = & $this->pack_module('Base/Lang');
 
 		if($_REQUEST['menu_click']) {
 			$this->unset_module_variable('data');

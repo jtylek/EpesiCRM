@@ -176,7 +176,7 @@ class Base_Menu extends Module {
 	
 	public function body($arg) {
 		global $base;
-		$lang = $this->pack_module('Base/Lang');
+		$lang = & $this->pack_module('Base/Lang');
 		
 		// preparing modules menu and tools menu
 		$modules_menu = array();
@@ -275,7 +275,7 @@ class Base_Menu extends Module {
 		$menu = array_merge($menu,$home_menu);
 
 		// preparing menu string
-		$menu_mod = $this->init_module("Utils/Menu", "horizontal");
+		$menu_mod = & $this->init_module("Utils/Menu", "horizontal");
 		self::build_menu($menu_mod,$menu);
 //		self::$menu_module = $this->get_path();		
 				

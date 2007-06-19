@@ -25,7 +25,7 @@ class Base_ModuleManager extends Module {
 			$this->parent->reset();
 			return;
 		}
-		$this->lang = $this->pack_module('Base/Lang');
+		$this->lang = & $this->pack_module('Base/Lang');
 		if(!$this->isset_module_variable('ok')) {
 			$ret = self::unwritable_modules();
 			if(!empty($ret)) {

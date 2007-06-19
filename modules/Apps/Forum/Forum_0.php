@@ -35,7 +35,7 @@ class Apps_Forum extends Module {
 															'delete' => '<a '.$this->create_confirm_unique_href($this->lang->ht('Are you sure you want to delete this board?'),array('action'=>'delete_board','board'=>$row['id'])).'>'.$this->lang->t('Delete').'</a>'
 															);
 		
-		$theme = $this->pack_module('Base/Theme');
+		$theme = & $this->pack_module('Base/Theme');
 		$theme -> assign('forum_boards',$this->lang->t('Forum Boards'));
 		$theme -> assign('boards',$boards);
 		if (Base_AclCommon::i_am_admin()) {
@@ -49,7 +49,7 @@ class Apps_Forum extends Module {
 			$this->unset_module_variable('action');
 			location(array());
 		}
-		$form = $this->init_module('Libs/QuickForm',$this->lang->t('Creating new board...',true),'add_board');
+		$form = & $this->init_module('Libs/QuickForm',$this->lang->t('Creating new board...',true),'add_board');
 		$form -> addElement('header',null,$this->lang->t('Create new board'));
 		$form -> addElement('text','name',$this->lang->t('Name'));
 		$form -> addRule('name', $this->lang->t('Field required'), 'required');
@@ -94,7 +94,7 @@ class Apps_Forum extends Module {
 		$threads = array();
 
 		while ($row = $ret->FetchRow()){
-			$comment = $this->init_module('Utils/Comment','apps_forum_'.$this->key.'_'.$row['id']);
+			$comment = & $this->init_module('Utils/Comment','apps_forum_'.$this->key.'_'.$row['id']);
 			$posts = $comment->fetch_posts();
 			$post_count = count($posts);
 			$last_post = $posts[$post_count-1];
@@ -102,14 +102,15 @@ class Apps_Forum extends Module {
 				array(	'topic' => '<a '.$this->create_href(array('action'=>'view_thread','thread'=>$row['id'])).'>'.$row['topic'].'</a>',
 						'posted_on' =>  $this->lang->t('Posted on %s',$last_post['date']),
 						'posted_by' =>  $this->lang->t('Posted by %s',$last_post['user']),
-						'post_count' => $this->lang->t('Posts %d',$post_count?$post_count:'0'),
+						'post_count' => $post_count?$post_count:'0',
 						'delete' => '<a '.$this->create_confirm_unique_href($this->lang->ht('Are you sure you want to delete this thread?'),array('action'=>'delete_thread','thread'=>$row['id'])).'>'.$this->lang->t('Delete').'</a>'
 				);
 		}
 		krsort($threads);
 		
-		$theme = $this->pack_module('Base/Theme');
+		$theme = & $this->pack_module('Base/Theme');
 		$theme -> assign('latest_post',$this->lang->t('Latest post'));
+		$theme -> assign('posts_count',$this->lang->t('Posts'));
 		$theme -> assign('threads',$threads);
 		$theme -> assign('board_name',DB::GetOne('SELECT name FROM apps_forum_board WHERE id = %d',$board));
 		$theme -> assign('forum_boards','<a '.$this->create_unique_href(array('action'=>'__NONE__')).'>'.$this->lang->t('Forum Boards').'</a>');
@@ -133,7 +134,7 @@ class Apps_Forum extends Module {
 			location(array());
 		}
 
-		$form = $this -> init_module('Libs/QuickForm');
+		$form = & $this->init_module('Libs/QuickForm');
 		$theme = & $this->init_module('Base/Theme');
 
 		$form -> addElement('hidden','post_content','none');
@@ -148,7 +149,7 @@ class Apps_Forum extends Module {
 		if ($form->validate() && Base_AclCommon::i_am_user()){
 			DB::Execute('INSERT INTO apps_forum_thread (topic, apps_forum_board_id) VALUES (%s,%d)',array($form->exportValue('topic'),$board));
 			$id = DB::GetOne('SELECT id FROM apps_forum_thread WHERE topic=%s AND apps_forum_board_id=%d',array($form->exportValue('topic'),$board));
-			$comment = $this->init_module('Utils/Comment','apps_forum_'.$this->key.'_'.$id);
+			$comment = & $this->init_module('Utils/Comment','apps_forum_'.$this->key.'_'.$id);
 			$comment->add_post($form->exportValue('post_content'));
 			$this->set_module_variable('action','view_board');
 			location(array());
@@ -162,7 +163,7 @@ class Apps_Forum extends Module {
 		$board_name = DB::GetOne('SELECT name FROM apps_forum_board WHERE id = %d',$board);
 		if ($_REQUEST['thread']) $thread = $_REQUEST['thread'];
 		$this->set_module_variable('thread',$thread);
-		$comment = $this->init_module('Utils/Comment','apps_forum_'.$this->key.'_'.$thread);
+		$comment = & $this->init_module('Utils/Comment','apps_forum_'.$this->key.'_'.$thread);
 		
 		$comment->set_moderator(Base_AclCommon::i_am_admin());
 		$comment->set_per_page(20);

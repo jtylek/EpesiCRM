@@ -341,7 +341,7 @@ class Utils_GenericBrowser extends Module {
 			return;
 		}
 		$this->set_module_variable('first_display','done');
-		if (!$this->lang) $this->lang = $this->pack_module('Base/Lang');
+		if (!$this->lang) $this->lang = & $this->pack_module('Base/Lang');
 		$theme = & $this->init_module('Base/Theme');
 		$per_page = $this->get_module_variable('per_page');
 		$order = $this->get_module_variable('order');
@@ -356,7 +356,7 @@ class Utils_GenericBrowser extends Module {
 		$search = $this->get_module_variable('search');
 
 		$renderer =& new HTML_QuickForm_Renderer_TCMSArraySmarty();
-		$form = $this->init_module('Libs/QuickForm');
+		$form = & $this->init_module('Libs/QuickForm');
 		if(isset($this->rows_qty)) {
 			$form->addElement('select','per_page',$this->lang->t('Number of rows per page'), array(5=>5,10=>10,25=>25,50=>50,100=>100), 'onChange="'.$form->get_submit_form_js(false).'"');
 			$form->setDefaults(array('per_page'=>$per_page));

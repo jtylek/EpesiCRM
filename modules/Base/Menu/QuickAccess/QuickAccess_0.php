@@ -22,9 +22,9 @@ class Base_Menu_QuickAccess extends Module {
 	
 	public function body() {
 		global $base;
-		$this->lang = $this->pack_module('Base/Lang');
+		$this->lang = & $this->pack_module('Base/Lang');
 		
-		$form = $this->init_module('Libs/QuickForm',$this->lang->ht('Saving settings'),'quick_access');
+		$form = & $this->init_module('Libs/QuickForm',$this->lang->ht('Saving settings'),'quick_access');
 		
 		if (!Base_AclCommon::i_am_user()) {
 			print($this->lang->t('First log in to the system.'));

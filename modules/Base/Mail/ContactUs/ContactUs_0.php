@@ -17,7 +17,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_Mail_ContactUs extends Module {
 
 	public function body($arg) {
-		$this->lang = $this->pack_module('Base/Lang');
+		$this->lang = & $this->pack_module('Base/Lang');
 		
 		$form = & $this->init_module('Libs/QuickForm','Sending message');
 		$form->addElement('header', null, $this->lang->t('Contact us'));

@@ -12,7 +12,7 @@ class Tests_SQLTableBrowser_People extends Module {
 	private $lang;
 
 	public function body($arg) {
-		$this->lang = $this->pack_module('Base/Lang');
+		$this->lang = & $this->pack_module('Base/Lang');
 
 		if ($_REQUEST['module']) {
 			$m = &$this->pack_module($_REQUEST['module']);

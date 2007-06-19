@@ -37,7 +37,7 @@ class Utils_Tooltip extends Module {
 
 		if(Utils_Tooltip::$styles[$style] != 1) {
 			print "<div id=div_tip_".$style." style='position: absolute; visibility: hidden;'>";
-			$theme = $this->init_module('Base/Theme');
+			$theme = & $this->init_module('Base/Theme');
 			$theme->assign('tip', '<span id="tooltip_text_'.$style.'"></span>');
 				$theme->display($style);
 			print "</div>";

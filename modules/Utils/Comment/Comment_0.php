@@ -23,7 +23,7 @@ class Utils_Comment extends Module{
 	public function construct($key) {
 		if(isset($key)) $this->key = $key;
 		else trigger_error('Key not given to comment module, aborting',E_USER_ERROR);
-		$this->lang = $this->pack_module('Base/Lang');
+		$this->lang = & $this->pack_module('Base/Lang');
 	}
 	
 	public function body($key){		
@@ -33,7 +33,7 @@ class Utils_Comment extends Module{
 			return;
 		}
 		
-		$form = $this -> init_module('Libs/QuickForm');
+		$form = & $this->init_module('Libs/QuickForm');
 		$theme = & $this->init_module('Base/Theme');
 
 		if ($this->tree_structure) {
@@ -200,7 +200,7 @@ class Utils_Comment extends Module{
 			location(array());
 		}
 
-		$form = $this -> init_module('Libs/QuickForm');
+		$form = & $this->init_module('Libs/QuickForm');
 		$theme = & $this->init_module('Base/Theme');
 
 		if ($this->tree_structure) {

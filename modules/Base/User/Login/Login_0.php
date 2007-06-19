@@ -25,7 +25,7 @@ class Base_User_Login extends Module {
 	}
 	
 	public function body($arg) {
-		$this->lang = $this->pack_module('Base/Lang');
+		$this->lang = & $this->pack_module('Base/Lang');
 
 		$theme =  & $this->pack_module('Base/Theme');
 		

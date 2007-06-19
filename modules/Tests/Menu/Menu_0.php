@@ -64,7 +64,7 @@ class Tests_Menu extends Module {
 		$menu->add_link("aaa");
 		$this->display_module( $menu );
 		
-		$menu2 = $this->init_module("Utils/Menu", "horizontal");
+		$menu2 = & $this->init_module("Utils/Menu", "horizontal");
 		$menu2->add_link("bbb");
 		$menu2->add_link("bbb");
 		$menu2->begin_submenu("s");

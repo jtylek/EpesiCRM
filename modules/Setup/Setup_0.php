@@ -105,7 +105,7 @@ class Setup extends Module {
 		
 		}
 
-		$tree = $this->init_module('Utils/Tree');
+		$tree = & $this->init_module('Utils/Tree');
 		$tree->set_structure($structure);
 		if ($simple) $tree->setClosed(false);
 		$form->addElement('html', '<tr><td colspan=2>'.$tree->toHtml().'</td></tr>');

@@ -17,7 +17,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Tests_FPDF extends Module {
 	
 	public function body() {
-		$pdf = $this->init_module('Libs/FPDF');
+		$pdf = & $this->init_module('Libs/FPDF');
 		$pdf->fpdf->AddPage();
 		$pdf->fpdf->SetFont('Arial','B',16);
 		$pdf->fpdf->SetFillColor(255,255,255);

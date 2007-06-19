@@ -96,7 +96,7 @@ class Base_Lang extends Module {
 	 * 
 	 * Example
 	 * <pre>
-	 * $lang = $this->pack_module('Lang');
+	 * $lang = & $this->pack_module('Lang');
 	 * ...
 	 * print($lang->t('some text and %s',$some_string));
 	 * </pre>
@@ -123,7 +123,7 @@ class Base_Lang extends Module {
 	 * 
 	 * Example
 	 * <pre>
-	 * $lang = $this->pack_module('Lang');
+	 * $lang = & $this->pack_module('Lang');
 	 * ...
 	 * print($lang->t('some text and %s',$some_string));
 	 * </pre>

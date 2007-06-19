@@ -10,7 +10,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Apps_StaticPage extends Module {
 
 	public function body($path) {
-		if(!$this->lang) $this->lang = $this->pack_module('Base/Lang');
+		if(!$this->lang) $this->lang = & $this->pack_module('Base/Lang');
 
 		if(!isset($path))
 			$path = $this->get_module_variable_or_unique_href_variable('view');
@@ -119,7 +119,7 @@ class Apps_StaticPage extends Module {
 	}
 	
 	public function admin() {
-		$this->lang = $this->pack_module('Base/Lang');
+		$this->lang = & $this->pack_module('Base/Lang');
 		
 		$edit = $this->get_module_variable_or_unique_href_variable('edit');
 		if(isset($edit)) return $this->edit($edit);

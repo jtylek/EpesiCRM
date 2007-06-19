@@ -28,7 +28,7 @@ class Base_Backup extends Module {
 		$theme = & $this->pack_module('Base/Theme');
 		
 		$theme->assign('available_backups',$this->lang->t('Available backups'));
-		$gb = $this->init_module('Utils/GenericBrowser',null,'backup');
+		$gb = & $this->init_module('Utils/GenericBrowser',null,'backup');
 		$gb->set_table_columns(array(
 			array('name'=>$this->lang->t('Name')), 
 			array('name'=>$this->lang->t('Version')), 
@@ -74,7 +74,7 @@ class Base_Backup extends Module {
 			$c[$path[count($path)-1]]['sub'] = array();
 		}
 
-		$tree = $this->init_module('Utils/Tree');		
+		$tree = & $this->init_module('Utils/Tree');		
 		$tree->set_structure($structure);
 		$theme->assign('tree',$tree->toHtml());
 		
