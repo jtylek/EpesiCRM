@@ -349,6 +349,8 @@ class Apps_Gallery extends Module {
 	
 	public function upload_image($last_submited = 0) {
 		$dirs = $this->getDirsRecursive($this->root.$this->user, "/^[^\.].*$/");
+		$dir = $this->get_module_variable_or_unique_href_variable('dir', "");
+		$user = $this->get_module_variable_or_unique_href_variable('user', $this->user);
 		$this->lang = $this->pack_module('Base/Lang');
 
 		if($_REQUEST['menu_click']) {
@@ -379,9 +381,15 @@ class Apps_Gallery extends Module {
 					if($d != "" ) {
 						if( !is_array($c[$d]) ) {
 							$tmp = & $form->createElement('radio', 'target', $up, $d, $up.'/');
+							$opened = 0;
+							if($up == $dir) {
+								$opened = 1;
+								$tmp->setChecked(1);
+							}
 							$c[$d] = array(
 								'name' => $tmp->toHtml(),
-								'selected' => 0,
+								'selected' => $opened,
+								'opened' => $opened,
 								'sub' => array()
 							);
 						}
@@ -395,7 +403,8 @@ class Apps_Gallery extends Module {
 		
 		$tree = & $this->init_module('Utils/Tree');
 		$tmp_t = & $form->createElement('radio', 'target', '', 'My Gallery', '/');
-		$tmp_t->setChecked(1);
+		if($dir == '')
+			$tmp_t->setChecked(1);
 		$tree->set_structure( array(
 			'My Gallery' => array(
 				'name'=> $tmp_t->toHtml(),
