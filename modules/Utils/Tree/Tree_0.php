@@ -119,7 +119,6 @@ class Utils_Tree extends Module {
 		foreach($this->_opened_paths as $path) {
 			$path = explode('_', $path);
 			$path = '['.join(', ', $path).']';
-			print $path.'<br>';
 			eval_js('wait_while_null("utils_tree_open", "utils_tree_open('.$this->_id.', '.$path.')");');
 		}
 		
