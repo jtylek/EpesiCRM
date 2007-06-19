@@ -517,6 +517,7 @@ class Apps_Gallery extends Module {
 								);
 								if($up == $dir) {
 									$c[$d]['selected'] = 1;
+									$c[$d]['opened'] = 1;
 								}
 							}
 							$c = & $c[$d]['sub'];
@@ -534,6 +535,7 @@ class Apps_Gallery extends Module {
 				'sub' => $structure
 			)));
 			$tree->sort();
+			//$tree->open_all();
 			
 			$other = & $this->init_module('Utils/Tree');
 			$structure = array();
