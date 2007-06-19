@@ -158,8 +158,6 @@ class Apps_Gallery extends Module {
 		);
 		$tree->sort();
 		
-		if($last_submited != 0)
-			$tree->setClosed(false);
 		
 		$form->addElement('text', 'new', 'New Folder:');
 		$form->addElement('submit', 'submit_button', $lang->t('Create',true));
@@ -186,6 +184,8 @@ class Apps_Gallery extends Module {
 	}
 	
 	public function rm_folder($last_submited = 0) {
+		$dir = $this->get_module_variable_or_unique_href_variable('dir', "");
+		$user = $this->get_module_variable_or_unique_href_variable('user', $this->user);
 		$dirs = $this->getDirsRecursive($this->root.$this->user, "/^[^\.].*$/");
 		ksort($dirs);
 		$form = & $this->init_module('Libs/QuickForm');
@@ -205,9 +205,15 @@ class Apps_Gallery extends Module {
 					if($d != "" ) {
 						if( !is_array($c[$d]) ) {
 							$tmp = & $form->createElement('radio', 'target', $up, $d, $up.'/');
+							$opened = 0;
+							if($up == $dir) {
+								$opened = 1;
+								$tmp->setChecked(1);
+							}
 							$c[$d] = array(
 								'name' => $tmp->toHtml(),
-								'selected' => 0,
+								'selected' => $opened,
+								'opened' => $opened,
 								'sub' => array()
 							);
 						}
