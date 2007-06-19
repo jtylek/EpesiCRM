@@ -426,16 +426,16 @@ abstract class Module {
 	 * 
 	 * @return string string that should be placed inside html <pre><a></pre> tag. See create_href for example.
 	 */
-	public final function create_back_href() {
-		return $this->create_unique_href(array('back'=>1));
+	public final function create_back_href($i=1) {
+		return $this->create_unique_href(array('back'=>$i));
 	}
 
 	/**
 	 * Sets reload location to previous page display.
 	 * Use is_back to control when this method was called.
 	 */
-	public final function set_back_location() {
-		location(array($this->create_unique_key('back')=>1,'__action_module__'=>$this->get_path()));
+	public final function set_back_location($i=1) {
+		location(array($this->create_unique_key('back')=>$i,'__action_module__'=>$this->get_path()));
 	}
 	
 	/**
@@ -444,9 +444,12 @@ abstract class Module {
 	 * @return bool true if back link was used, false otherwise
 	 */
 	public final function is_back() {
-		if($this->get_unique_href_variable('back')=='1') {
-			$rkey = $this->create_unique_key('back');
-			unset($_REQUEST[$rkey]);
+		$rkey = $this->create_unique_key('back');
+		if(isset($_REQUEST[$rkey])) {
+			$i = intval($_REQUEST[$rkey]);
+			if($i<=0) return false;
+			$i--;
+			$_REQUEST[$rkey] = $i;
 			return true;
 		}
 		return false;
@@ -481,8 +484,11 @@ abstract class Module {
 
 		if($args!==null && !is_array($args)) $args = array($args);
 
-		if(method_exists($m,'construct'))
+		if(method_exists($m,'construct')) {
+			ob_start();
 			call_user_func_array(array($m,'construct'),$args);
+			ob_end_clean();
+		}
 		
 		return $m;
 	}

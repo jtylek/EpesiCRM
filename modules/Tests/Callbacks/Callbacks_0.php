@@ -25,7 +25,8 @@ class Tests_Callbacks extends Module {
 		
 		print('instead2<hr>');
 		
-		print('<a '.$this->create_back_href().'>Back</a>');
+		print('<a '.$this->create_back_href().'>Back</a> :: ');
+		print('<a '.$this->create_back_href(2).'>Back twice</a>');
 		
 		return true;
 	}
