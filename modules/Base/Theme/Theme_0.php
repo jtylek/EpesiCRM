@@ -30,14 +30,14 @@ class Base_Theme extends Module {
 	public $links = array();
 	private $smarty = null;
 	private $lang;
-	private static $root = null;
+//	private static $root = null;
 	
 	public function construct() {
 		$this->smarty = new Smarty();
 		
 		$this->set_inline_display();
 		
-		if (!Base_Theme::$root) Base_Theme::$root = & $this; 
+//		if (!Base_Theme::$root) Base_Theme::$root = & $this; 
 		
 		if(!isset(self::$theme)) {
 			self::$theme = Variable::get('default_theme');
@@ -100,13 +100,13 @@ class Base_Theme extends Module {
 			$this->smarty->compile_id = self::$theme;
 		}
 		
-		if (Base_Theme::$root === $this) {
+/*		if (Base_Theme::$root === $this) {
 			$this->precache_images($this->smarty->template_dir);
 			//if (self::$theme !== 'default') $this->precache_images(self::$themes_dir.'default');
 			// uncomment the line above to enable precaching of images from default theme
 			Base_Theme::$root = null;
 		}
-		
+*/		
 	}
 
 	public function assign_form($name, & $form){ 
