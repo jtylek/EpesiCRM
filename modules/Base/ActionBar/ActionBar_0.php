@@ -33,9 +33,9 @@ class Base_ActionBar extends Module {
 		
 		//remove duplicates
 		$ic = count($icons);
-		for($k=1, $j=0; $k<$ic; $k++) {
+		for($k=1, $j=0; $k<$ic && $j<$ic; $k++) {
 			if($icons[$k]!=$icons[$j])
-				do{$j++;}while(!isset($icons[$j]));
+				do{$j++;}while($j<$ic && !isset($icons[$j]));
 			else
 				unset($icons[$k]);
 		}
