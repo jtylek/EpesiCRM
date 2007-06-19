@@ -84,11 +84,10 @@ class Base_Menu_QuickAccess extends Module {
 			if (substr($k,0,2)=='__') continue;
 			if (array_key_exists('__submenu__',$v)) $this->check_for_links($form,$prefix.$k.': ',$v,$defaults);
 			else {
-				$form -> addElement('checkbox',http_build_query($v).'#qa_sep#'.str_replace(' ','_',$prefix.$k),'<div align=left>'.$this->lang->t($prefix.$k).'</div>');
+				$http_query = http_build_query($v,'','&');
+				$form -> addElement('checkbox',$http_query.'#qa_sep#'.str_replace(' ','_',$prefix.$k),'<div align=left>'.$this->lang->t($prefix.$k).'</div>');
 				$ret = DB::Execute('SELECT * FROM quick_access WHERE user_login_id = %d AND label = %s',array(Base_UserCommon::get_my_user_id(),$prefix.$k))->FetchRow();
-				if ($ret) $defaults[http_build_query($v).'#qa_sep#'.str_replace(' ','_',$prefix.$k)] = 1; 
-				//print('<hr>Under '.$prefix.$k.' is:<br>');
-				//print(http_build_query($v));
+				if ($ret) $defaults[$http_query.'#qa_sep#'.str_replace(' ','_',$prefix.$k)] = 1; 
 			}
 		}
 	}

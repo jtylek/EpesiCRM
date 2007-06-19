@@ -459,7 +459,7 @@ class Utils_GenericBrowser extends Module {
 		$headers = array();
 		if ($this->en_actions) {
 			$actions_position = Base_User_SettingsCommon::get_user_settings('Utils/GenericBrowser','actions_position');
-			if ($actions_position=='Left')	$headers[-1] = array('label'=>$this->lang->t('Actions'),'attrs'=>'style="width: 0%"'); 
+			if ($actions_position==0)	$headers[-1] = array('label'=>$this->lang->t('Actions'),'attrs'=>'style="width: 0%"'); 
 			else		$headers[count($this->columns)] = array('label'=>$this->lang->t('Actions'),'attrs'=>'style="width: 0%"');
 		}
 
@@ -518,7 +518,7 @@ class Utils_GenericBrowser extends Module {
 		foreach($this->rows as $i=>$r) {
 			$col = array();
 			if ($this->en_actions) {
-				if ($actions_position=='Left') $column_no = -1;
+				if ($actions_position==0) $column_no = -1;
 				else $column_no = count($this->columns);
 				if (!empty($this->actions[$i])) {
 					$ac_theme = &$this->init_module('Base/Theme');

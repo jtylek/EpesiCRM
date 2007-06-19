@@ -30,14 +30,6 @@ class Apps_ForumInstall extends ModuleInstall {
 			print('Unable to create table apps_forum_thread.<br>');
 			return false;
 		}
-		$ret &= DB::CreateTable('apps_forum_mod','
-			user_login_id I4 NOTNULL,
-			apps_forum_board_id I4 NOTNULL',
-			array('constraints'=>', FOREIGN KEY (apps_forum_board_id) REFERENCES apps_forum_board(id), FOREIGN KEY (user_login_id) REFERENCES user_login(id)'));
-		if(!$ret){
-			print('Unable to create table apps_forum_mod.<br>');
-			return false;
-		}
 		Base_ThemeCommon::install_default_theme('Apps/Forum');
 		return $ret;
 	}
@@ -46,7 +38,6 @@ class Apps_ForumInstall extends ModuleInstall {
 		$ret = true;
 		$ret &= DB::DropTable('apps_forum_board');
 		$ret &= DB::DropTable('apps_forum_thread');
-		$ret &= DB::DropTable('apps_forum_mod');
 		Base_ThemeCommon::uninstall_default_theme('Apps/Forum');
 		return $ret;
 	}

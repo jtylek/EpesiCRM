@@ -66,7 +66,7 @@ class Utils_Comment extends Module{
 				}
 				$theme->assign_form('form', $form);
 			} else {
-				$theme->assign('reply_button','<a '.$this->create_unique_href(array('action'=>'post_reply')).'>'.$this->lang->t('Reply'),'</a>');
+				Base_ActionBarCommon::add_icon('add','Reply',$this->create_unique_href(array('action'=>'post_reply')));
 			}
 
 		$recordSet = DB::Execute('SELECT COUNT(*) FROM comment WHERE topic=%s AND parent <= -1 ORDER BY created_on',$this->key)->FetchRow();
@@ -128,16 +128,27 @@ class Utils_Comment extends Module{
 		$theme -> display('Comment');
 	}
 	
-	public function delete_post($delete){
-		if (!$delete || !$this->mod)
-			trigger_error('Invalid action: delete post('.$delete.','.$this->mod.').');
-		DB::Execute('DELETE FROM comment WHERE id=%d',$delete);
-		DB::Execute('DELETE FROM comment_report WHERE id=%d',$delete);
-		$recSet = DB::Execute('SELECT id FROM comment WHERE parent=%d',$delete);
-		while($row=$recSet->FetchRow()) $this->delete_post($row['id']);
+	public static function delete_post_refresh($delete){
+		self::delete_post($delete);
 		location(array());
 	}
 	
+	public static function delete_post($delete){
+		if (!$delete)
+			trigger_error('Invalid action: delete post('.$delete.').');
+		DB::Execute('DELETE FROM comment WHERE id=%d',$delete);
+		DB::Execute('DELETE FROM comment_report WHERE id=%d',$delete);
+		$recSet = DB::Execute('SELECT id FROM comment WHERE parent=%d',$delete);
+		while($row=$recSet->FetchRow()) self::delete_post($row['id']);
+	}
+	
+	public static function delete_posts_by_topic($delete){
+		if (!$delete)
+			trigger_error('Invalid action: delete post('.$delete.').');
+		$ret = DB::Execute('SELECT id FROM comment WHERE topic=%s',$delete);
+		while ($row=$ret->FetchRow()) self::delete_post($row['id']);
+	}
+
 	public function fetch_posts(){
 		$recordSet = DB::Execute('SELECT c.id, c.text, ul.login, c.created_on FROM comment AS c LEFT JOIN user_login AS ul ON (c.user_login_id = ul.id) WHERE topic=%s AND parent <= -1 ORDER BY created_on',array($this->key));
 		$comments = array();
@@ -152,7 +163,7 @@ class Utils_Comment extends Module{
 		$row['text'] = str_replace('&#010;','<br>',$row['text']);
 		if (Base_AclCommon::i_am_user()) {
 			if ($this->mod) {
-				$delete = '<a '.$this->create_confirm_callback_href($this->lang->ht('Are you sure you want to delete this post?'),array($this,'delete_post'),$row['id']).'>'.$this->lang->t('Delete').'</a>';
+				$delete = '<a '.$this->create_confirm_callback_href($this->lang->ht('Are you sure you want to delete this post?'),array($this,'delete_post_refresh'),$row['id']).'>'.$this->lang->t('Delete').'</a>';
 				$rep_count = DB::GetOne('SELECT COUNT(*) FROM comment_report WHERE id=%d',$row['id']);
 				if (!$rep_count) $report = '';
 				else $report = $this->lang->t('Reported %d time(s)',$rep_count);

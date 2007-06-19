@@ -32,13 +32,15 @@ class Apps_Forum extends Module {
 		$boards = array();
 		while ($row = $ret->FetchRow()) $boards[] = array(	'descr' => $row['descr'],
 															'label' => '<a '.$this->create_href(array('action'=>'view_board','board'=>$row['id'])).'>'.$row['name'].'</a>',
-															'delete' => '<a '.$this->create_unique_href(array('action'=>'delete_thread','board'=>$row['id'])).'>'.$this->lang->t('Delete').'</a>'
+															'delete' => '<a '.$this->create_confirm_unique_href($this->lang->ht('Are you sure you want to delete this board?'),array('action'=>'delete_board','board'=>$row['id'])).'>'.$this->lang->t('Delete').'</a>'
 															);
 		
 		$theme = $this->pack_module('Base/Theme');
 		$theme -> assign('forum_boards',$this->lang->t('Forum Boards'));
 		$theme -> assign('boards',$boards);
-		if (Base_AclCommon::i_am_admin()) $theme -> assign('add_board','<a '.$this->create_unique_href(array('action'=>'add_board')).'>'.$this->lang->t('Create new board').'</a>');
+		if (Base_AclCommon::i_am_admin()) {
+			Base_ActionBarCommon::add_icon('add',$this->lang->ht('New board'),$this->create_unique_href(array('action'=>'add_board')));
+		}
 		$theme -> display('Boards');
 	}
 	
@@ -62,6 +64,28 @@ class Apps_Forum extends Module {
 		} else $form->display();
 	}
 	
+	public function delete_board(){
+		$board = $this->get_unique_href_variable('board'); 
+		if ($board) {
+			$ret = DB::Execute('SELECT id FROM apps_forum_thread WHERE apps_forum_board_id=%d',$board);
+			while ($row = $ret->FetchRow())
+				$this->delete_thread($row['id']);
+			DB::Execute('DELETE FROM apps_forum_board WHERE id=%d',$board);
+		}
+		$this->set_module_variable('action','__NONE__');
+		location(array());
+	}
+	
+	public function delete_thread($thread=null){
+		if (!$thread) $thread = $this->get_unique_href_variable('thread'); 
+		if ($thread){
+			DB::Execute('DELETE FROM apps_forum_thread WHERE id=%d',$thread);
+			Utils_Comment::delete_posts_by_topic('apps_forum_'.$this->key.'_'.$thread);
+		}
+		$this->set_module_variable('action','view_board');
+		location(array());
+	}
+
 	public function view_board(){
 		$board = $this->get_module_variable('board');
 		if ($_REQUEST['board']) $board = $_REQUEST['board'];
@@ -79,7 +103,7 @@ class Apps_Forum extends Module {
 						'posted_on' =>  $this->lang->t('Posted on %s',$last_post['date']),
 						'posted_by' =>  $this->lang->t('Posted by %s',$last_post['user']),
 						'post_count' => $this->lang->t('Posts %d',$post_count?$post_count:'0'),
-						'delete' => '<a '.$this->create_unique_href(array('action'=>'delete_thread','thread'=>$row['id'])).'>'.$this->lang->t('Delete').'</a>'
+						'delete' => '<a '.$this->create_confirm_unique_href($this->lang->ht('Are you sure you want to delete this thread?'),array('action'=>'delete_thread','thread'=>$row['id'])).'>'.$this->lang->t('Delete').'</a>'
 				);
 		}
 		krsort($threads);
@@ -89,8 +113,9 @@ class Apps_Forum extends Module {
 		$theme -> assign('threads',$threads);
 		$theme -> assign('board_name',DB::GetOne('SELECT name FROM apps_forum_board WHERE id = %d',$board));
 		$theme -> assign('forum_boards','<a '.$this->create_unique_href(array('action'=>'__NONE__')).'>'.$this->lang->t('Forum Boards').'</a>');
-		$theme -> assign('new_thread','<a '.$this->create_unique_href(array('action'=>'new_thread','board'=>$board)).'>'.$this->lang->t('Create new thread').'</a>');
-		$theme -> display('Threads');		
+		Base_ActionBarCommon::add_icon('back',$this->lang->ht('Boards'),$this->create_unique_href(array('action'=>'__NONE__')));
+		Base_ActionBarCommon::add_icon('add',$this->lang->ht('New thread'),$this->create_unique_href(array('action'=>'new_thread','board'=>$board)));
+		$theme -> display('Threads');
 	}
 
 	public function new_thread(){
@@ -134,6 +159,7 @@ class Apps_Forum extends Module {
 	public function view_thread(){
 		$thread = $this->get_module_variable('thread');
 		$board = $this->get_module_variable('board');
+		$board_name = DB::GetOne('SELECT name FROM apps_forum_board WHERE id = %d',$board);
 		if ($_REQUEST['thread']) $thread = $_REQUEST['thread'];
 		$this->set_module_variable('thread',$thread);
 		$comment = $this->init_module('Utils/Comment','apps_forum_'.$this->key.'_'.$thread);
@@ -142,6 +168,8 @@ class Apps_Forum extends Module {
 		$comment->set_per_page(20);
 		$comment->reply_on_comment_page(false);
 		$comment->tree_structure(false);
+
+		Base_ActionBarCommon::add_icon('back',$board_name,$this->create_unique_href(array('action'=>'view_board','board'=>$board)));
 
 		ob_start();
 		$this -> display_module($comment);	
@@ -153,7 +181,7 @@ class Apps_Forum extends Module {
 		$theme -> assign('posts',$posts);
 		$theme -> assign('topic',DB::GetOne('SELECT topic FROM apps_forum_thread WHERE id = %d',$thread));
 		$theme -> assign('forum_boards','<a '.$this->create_unique_href(array('action'=>'__NONE__')).'>'.$this->lang->t('Forum Boards').'</a>');
-		$theme -> assign('board_name','<a '.$this->create_unique_href(array('action'=>'view_board','board'=>$board)).'>'.DB::GetOne('SELECT name FROM apps_forum_board WHERE id = %d',$board).'</a>');
+		$theme -> assign('board_name','<a '.$this->create_unique_href(array('action'=>'view_board','board'=>$board)).'>'.$board_name.'</a>');
 		$theme -> display('View_Thread');
 	}
 }

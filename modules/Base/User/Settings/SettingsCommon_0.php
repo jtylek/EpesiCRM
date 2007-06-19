@@ -11,7 +11,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_User_SettingsCommon {
-	public static function tool_menu(){
+	public static function menu(){
 		if (!Base_AclCommon::i_am_user()) return array();
 		global $base;
 		$modules = array(); 
