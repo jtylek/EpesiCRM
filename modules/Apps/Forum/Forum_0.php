@@ -97,7 +97,7 @@ class Apps_Forum extends Module {
 
 		$theme -> assign('posts',$posts);
 		$theme -> assign('topic',DB::GetOne('SELECT topic FROM apps_forum_thread WHERE id = %d',$thread));
-		$theme -> assign('forum_boards','<a '.$this->create_unique_href(array('action'=>'__NONE__')).'>'.$this->lang->t('Forum Boards').'</a>'); // TODO: need some way to get back to forum boards
+		$theme -> assign('forum_boards','<a '.$this->create_back_href(2).'>'.$this->lang->t('Forum Boards').'</a>'); // TODO: need some way to get back to forum boards
 		$theme -> assign('board_name','<a '.$this->create_back_href().'>'.$board_name.'</a>');
 		$theme -> display('View_Thread');
 		return true;
@@ -153,7 +153,7 @@ class Apps_Forum extends Module {
 		$form -> addElement('button','cancel','Cancel',$this->create_back_href());
 		$theme->assign_form('form', $form);
 		$theme->assign('board_name','<a '.$this->create_back_href().'>'.DB::GetOne('SELECT name FROM apps_forum_board WHERE id = %d',$board).'</a>');
-		$theme->assign('forum_boards','<a '.$this->create_unique_href(array('action'=>'__NONE__')).'>'.$this->lang->t('Forum Boards').'</a>'); // TODO: Again, way to get back 2 times
+		$theme->assign('forum_boards','<a '.$this->create_back_href(2).'>'.$this->lang->t('Forum Boards').'</a>'); // TODO: Again, way to get back 2 times
 		if ($form->validate() && Base_AclCommon::i_am_user()){
 			DB::Execute('INSERT INTO apps_forum_thread (topic, apps_forum_board_id) VALUES (%s,%d)',array($form->exportValue('topic'),$board));
 			$id = DB::GetOne('SELECT id FROM apps_forum_thread WHERE topic=%s AND apps_forum_board_id=%d',array($form->exportValue('topic'),$board));
