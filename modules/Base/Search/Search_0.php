@@ -27,7 +27,7 @@ class Base_Search extends Module {
 				
 		$this->lang = & $this->pack_module('Base/Lang');
 		
-		$form = & $this->init_module('Libs/QuickForm');
+		$form = & $this->init_module('Libs/QuickForm',$this->lang->ht('Searching'));
 		$theme =  & $this->pack_module('Base/Theme');
 		
 		$modules_with_search = array();
@@ -113,7 +113,7 @@ class Base_Search extends Module {
 	*/
 	public function mini() {
 		$this->lang = & $this->pack_module('Base/Lang');
-		$form = & $this->init_module('Libs/QuickForm');
+		$form = & $this->init_module('Libs/QuickForm',$this->lang->ht('Searching'));
 		
 		$form->addElement('text', 'quick_search', $this->lang->t('Quick search'));
 		$form->addElement('submit', 'quick_search_submit', $this->lang->ht('Search'), array('class'=>'mini_submit'));

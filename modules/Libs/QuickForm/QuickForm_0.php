@@ -31,6 +31,17 @@ class Libs_QuickForm extends Module {
 		$this->qf->display($arg);
 	}
 	
+	public function validate_with_message($success='', $failure=''){
+		$ret = $this->qf->validate();
+		if ($this->qf->isSubmitted()) {
+			if ($ret)
+				Base_StatusBarCommon::message($success);
+			else
+				Base_StatusBarCommon::message($failure,'warning');
+		}
+		return $ret;
+	}
+	
 	public function & __call($func_name, $args) {
 		if (is_object($this->qf))
 			$return = & call_user_func_array(array(&$this->qf, $func_name), $args);

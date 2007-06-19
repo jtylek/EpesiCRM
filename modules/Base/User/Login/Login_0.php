@@ -54,7 +54,7 @@ class Base_User_Login extends Module {
 		}
 		
 		//else just login form
-		$form = & $this->init_module('Libs/QuickForm');
+		$form = & $this->init_module('Libs/QuickForm',$this->lang->ht('Logging in'));
 		$form->addElement('header', 'login_header', $this->lang->t('Login'));
 		$form->addElement('text', 'username', $this->lang->t('Username'),array('id'=>'username'));
 		$form->addElement('password', 'password', $this->lang->t('Password'));
@@ -88,7 +88,7 @@ class Base_User_Login extends Module {
 	}
 	
 	public function recover_pass() {
-		$form = & $this->init_module('Libs/QuickForm');
+		$form = & $this->init_module('Libs/QuickForm',$this->lang->ht('Processing request'));
 		
 		$form->addElement('header', null, $this->lang->t('Recover password'));
 		$form->addElement('hidden', $this->create_unique_key('mail_recover_pass'), '1');

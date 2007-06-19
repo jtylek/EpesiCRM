@@ -6,10 +6,10 @@
 	height: 30px;
 }
 
-#statusbar_error_message {
+#Base_StatusBar__error_message {
 	background-color: red;
 }
 
-#statusbar_warning_message {
-	background-color: #992222;
+#Base_StatusBar__warning_message {
+	background-color: #EE5555;
 }

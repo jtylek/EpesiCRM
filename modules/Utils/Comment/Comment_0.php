@@ -33,7 +33,7 @@ class Utils_Comment extends Module{
 			return;
 		}
 		
-		$form = & $this->init_module('Libs/QuickForm');
+		$form = & $this->init_module('Libs/QuickForm',$this->lang->ht('Posting reply'));
 		$theme = & $this->init_module('Base/Theme');
 
 		if ($this->tree_structure) {
@@ -200,7 +200,7 @@ class Utils_Comment extends Module{
 			location(array());
 		}
 
-		$form = & $this->init_module('Libs/QuickForm');
+		$form = & $this->init_module('Libs/QuickForm',$this->lang->ht('Posting reply'));
 		$theme = & $this->init_module('Base/Theme');
 
 		if ($this->tree_structure) {

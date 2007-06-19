@@ -111,6 +111,7 @@ class Apps_Forum extends Module {
 		$theme = & $this->pack_module('Base/Theme');
 		$theme -> assign('latest_post',$this->lang->t('Latest post'));
 		$theme -> assign('posts_count',$this->lang->t('Posts'));
+		$theme -> assign('topic',$this->lang->t('Topic'));
 		$theme -> assign('threads',$threads);
 		$theme -> assign('board_name',DB::GetOne('SELECT name FROM apps_forum_board WHERE id = %d',$board));
 		$theme -> assign('forum_boards','<a '.$this->create_unique_href(array('action'=>'__NONE__')).'>'.$this->lang->t('Forum Boards').'</a>');
@@ -134,7 +135,7 @@ class Apps_Forum extends Module {
 			location(array());
 		}
 
-		$form = & $this->init_module('Libs/QuickForm');
+		$form = & $this->init_module('Libs/QuickForm',$this->lang->ht('Creating new thread'));
 		$theme = & $this->init_module('Base/Theme');
 
 		$form -> addElement('hidden','post_content','none');

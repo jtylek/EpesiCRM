@@ -18,9 +18,9 @@ class Base_StatusBarCommon {
 	public static $messages = array();
 	public static function message($text,$type) {
 		if($type=='error')
-			self::$messages[] = '<div id="statusbar_error_message">'.$text.'</div>';
+			self::$messages[] = '<div id="Base_StatusBar__error_message">'.$text.'</div>';
 		elseif($type=='warning')
-			self::$messages[] = '<div id="statusbar_warning_message">'.$text.'</div>';
+			self::$messages[] = '<div id="Base_StatusBar__warning_message">'.$text.'</div>';
 		else
 			self::$messages[] = $text;
 	}

@@ -24,7 +24,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 			return;
 		}
 
-		$form = & $this->init_module('Libs/QuickForm',$this->lang->t('Saving settings,true'));
+		$form = & $this->init_module('Libs/QuickForm',$this->lang->t('Saving settings'));
 		
 		//pass
 		$form->addElement('header', null, $this->lang->t('Change password (leave empty if you prefer your current password)'));
@@ -48,7 +48,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 		
 		$form->addElement('submit', 'submit_button', $this->lang->ht('OK'));
 		
-		if($form->validate()) {
+		if($form->validate_with_message('Settings saved','Problem encountered')) {
 			if($form->process(array(&$this, 'submit_user_preferences'))){
 				Base_StatusBarCommon::message($this->lang->t('Setting saved'));
 				location(array('box_main_module'=>'Base_User_Settings'));
@@ -68,7 +68,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 		
 		$user_id = Base_UserCommon::get_user_id(Acl::get_user());
 		if($user_id===false) {
-			print($this->lang->t('No such user! Your account have been deleted after you logged in...'));
+			print($this->lang->t('No such user! Your account has been deleted after you logged in...'));
 			return false;
 		}
 		
@@ -115,7 +115,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 	}
 	
 	public function edit_user_form($edit_id) {
-		$form = & $this->init_module('Libs/QuickForm');
+		$form = & $this->init_module('Libs/QuickForm',$this->lang->ht(($edit_id>=0)?'Applying changes':'Creating new user'));
 		
 		//create new user
 		$form->addElement('header', null, $this->lang->t((($edit_id>=0)?'Edit user':'Create new user')));
