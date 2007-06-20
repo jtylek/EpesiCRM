@@ -336,7 +336,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
 
 	    	$this->_prepareValue($element);
             $html = $this->_prepareTemplate($element->getName(), $element->getLabel(), $required, $error);
-            $this->_groupElements[] = str_replace('{element}', $element->toHtml(), $html);
+            $this->_groupElements[] = str_replace(array('{element}','{element_style}'), array($element->toHtml(),$element->getType()), $html);
 
         } else {
             $this->_groupElements[] = $element->toHtml();
