@@ -53,6 +53,7 @@ div.Base_StatusBar {
 .Base_StatusBar {
 	position: absolute;
   	top: expression( ignoreMe = (document.documentElement.scrollTop + document.body.clientHeight/4) + 'px' );
+  	width: 100%;
 }
 
 .Base_StatusBar__overlay {

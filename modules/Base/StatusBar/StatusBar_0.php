@@ -74,7 +74,6 @@ class Base_StatusBar extends Module {
 							'Base_StatusBar__overlay.style.display=\'block\';' .
 						'}else{' .
 							'if(statusbar_message_t!=\'\') {' .
-							'alert("asfa");'.
 								't=document.getElementById(\'statusbar_text\');' .
 								'if(t)t.innerHTML=statusbar_message_t;' .
 								'statusbar_message(\'\');' .
