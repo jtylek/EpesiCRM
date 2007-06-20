@@ -1,0 +1,59 @@
+.Base_StatusBar__error_message {
+	background-color: red;
+}
+
+.Base_StatusBar__warning_message {
+	background-color: #EE5555;
+}
+
+.Base_StatusBar {
+	font-family: "Tahoma" "Verdana" "Vera-Sans" "DejaVu-Sans";
+	font-size: 11px;
+	font-weight: bold;
+    color: #669933;
+	text-align: center; 
+	border: 1px solid #669933;
+	background-color: #F5FCED;
+	z-index: 2001;
+	position: absolute;
+	width: 25%;
+}
+
+.Base_StatusBar td.image {
+	text-align: center;
+	vertical-align: center;
+	width: 46px;
+	height: 34px;
+}
+
+.Base_StatusBar td.text {
+	text-align: center;
+	vertical-align: center;
+	width: 200px;
+	height: 34px;
+}
+
+.Base_StatusBar {
+	/* Netscape 4, IE 4.x-5.0/Win and other lesser browsers will use this */
+  	position: absolute;
+	left: 40%; top: 30%;
+  	/* all */
+	/*visibility: hidden;*/
+	text-align: center;
+	vertical-align: center;
+}
+
+.Base_StatusBar {
+	/* used by Opera 5+, Netscape6+/Mozilla, Konqueror, Safari, OmniWeb 4.5+, iCab, ICEbrowser */
+  	position: fixed;
+}
+
+<!--[if gte IE 5.5]>
+<![if lt IE 7]>
+.Base_StatusBar {
+	position: absolute;
+  	top: expression( ignoreMe = (document.documentElement.scrollTop + document.body.clientHeight/4) + 'px' );
+}
+<![endif]>
+<![endif]-->
+

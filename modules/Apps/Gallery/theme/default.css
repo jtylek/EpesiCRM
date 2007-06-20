@@ -1,0 +1,100 @@
+table#Apps_Gallery {
+	width: 950px;
+}
+
+table#Apps_Gallery td.images {
+	vertical-align: top;
+	padding: 4px 4px 4px 4px;
+}
+
+table#Apps_Gallery .path {
+	background-image: url("images/background-30px-2.png");
+	background-repeat: repeat-x;
+	height: 30px;
+	border-top: 1px solid #CCCCCC;
+	border-left: 1px solid #CCCCCC;
+	border-right: 1px solid #CCCCCC;
+	text-align: center;
+	vertical-align: center;
+	border-bottom: 4px solid #CCCCCC;
+}
+
+table#Apps_Gallery .dirs {
+	text-align: center;
+	vertical-align: top;
+	border-bottom: 4px solid #CCCCCC;	
+}
+
+table#Apps_Gallery .tree {
+	width: 20%;
+	vertical-align: top;
+	border-right: 1px solid #CCCCCC;
+	padding: 5px 15px 5px 5px;
+}
+
+table#Apps_Gallery a.gallery_path_link {
+	text-align: left;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+table#Apps_Gallery a.gallery_path_link:hover {
+}
+
+table#Apps_Gallery a.gallery_path_child_link {
+	text-align: left;
+	display: block;
+	text-decoration: none;
+	padding: 2px 5px 3px 5px;
+}
+
+table#Apps_Gallery a.gallery_path_child_link:hover {
+	text-decoration: underline;
+}
+
+/* Form */
+
+table#Apps_Gallery__form span.error {
+	color: red;
+}
+
+table#Apps_Gallery__form input {
+	font-size: 11px;
+	border: 1px solid #CCCCCC;
+}
+
+table#Apps_Gallery__form input.submit {
+	border: 1px solid #CCCCCC;
+	width: 70%;
+}
+
+table#Apps_Gallery__form .label {
+	font-weight: bold;
+}
+
+table#Apps_Gallery__form td.header_tail {
+	text-align: left;
+}
+
+table#Apps_Gallery__form td.header_tail span.header {
+	text-align: center;
+	font-weight: bold;
+	background: #F0F0F0;
+	background-image: url("images/button-background-2.png");
+	background-repeat: repeat-x;	
+	border: 1px solid #CCCCCC;
+	padding: 4px 5px 3px 5px;
+}
+
+table#Apps_Gallery__form td.button input {
+	color: #4C4C4C;
+	border: 0px;
+	width: 100px;
+	height: 20px;
+	background-image: url("images/button.png");
+	font-size: 11px;
+}
+
+table#Apps_Gallery__form td.button input:hover {
+	background-image: url("images/button-hover.png");
+}

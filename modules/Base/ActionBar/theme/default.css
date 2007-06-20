@@ -1,0 +1,76 @@
+ul#Base_ActionBar {
+	text-align: left;
+	font-size: 11px;
+	list-style-type: none;
+}
+
+ul#Base_ActionBar li {
+	display: inline;
+	padding-right: 5px;
+}
+
+ul#Base_ActionBar li a {
+	background-color: #F0F0F0;
+	color: #4C4C4C;
+	position: relative;	bottom: -19px; left: -34px; _bottom: -25px;
+	background-repeat: no-repeat;
+	background-position: center 5px;
+    border-top: 1px solid #F0F0F0;
+    border-left: 1px solid #F0F0F0;
+    border-right: 1px solid #B3B3B3;
+    border-bottom: 1px solid #B3B3B3;
+}
+
+ul#Base_ActionBar li a:hover {
+	background-repeat: no-repeat;
+	background-position: center 5px;
+	background-color: #F0F0F0;
+	color: #993333;
+    border-top: 1px solid #B3B3B3;
+    border-left: 1px solid #B3B3B3;
+    border-right: 1px solid #F0F0F0;
+    border-bottom: 1px solid #F0F0F0;
+}
+
+ul#Base_ActionBar li.home     a { background-image: url("images/icons/icon-home.png");     }
+ul#Base_ActionBar li.edit     a { background-image: url("images/icons/icon-edit.png");     }
+ul#Base_ActionBar li.add      a { background-image: url("images/icons/icon-add.png");      }
+ul#Base_ActionBar li.new      a { background-image: url("images/icons/icon-add.png");      }
+ul#Base_ActionBar li.delete   a { background-image: url("images/icons/icon-delete.png");   }
+ul#Base_ActionBar li.back     a { background-image: url("images/icons/icon-back.png");     }
+ul#Base_ActionBar li.search   a { background-image: url("images/icons/icon-search.png");   }
+ul#Base_ActionBar li.print    a { background-image: url("images/icons/icon-print.png");    }
+ul#Base_ActionBar li.folder   a { background-image: url("images/icons/icon-folder.png");   }
+ul#Base_ActionBar li.calendar a { background-image: url("images/icons/icon-calendar.png"); }
+ul#Base_ActionBar li.view     a { background-image: url("images/icons/icon-view.png");     }
+ul#Base_ActionBar li.save     a { background-image: url("images/icons/icon-save.png");     }
+ul#Base_ActionBar li.settings a { background-image: url("images/icons/icon-settings.png"); }
+
+ul#Base_ActionBar li.home     a:hover { background-image: url("images/icons/icon-home-hover.png");     }
+ul#Base_ActionBar li.edit     a:hover { background-image: url("images/icons/icon-edit-hover.png");     }
+ul#Base_ActionBar li.add      a:hover { background-image: url("images/icons/icon-add-hover.png");      }
+ul#Base_ActionBar li.new      a:hover { background-image: url("images/icons/icon-add-hover.png");      }
+ul#Base_ActionBar li.delete   a:hover { background-image: url("images/icons/icon-delete-hover.png");   }
+ul#Base_ActionBar li.back     a:hover { background-image: url("images/icons/icon-back-hover.png");     }
+ul#Base_ActionBar li.search   a:hover { background-image: url("images/icons/icon-search-hover.png");   }
+ul#Base_ActionBar li.print    a:hover { background-image: url("images/icons/icon-print-hover.png");    }
+ul#Base_ActionBar li.folder   a:hover { background-image: url("images/icons/icon-folder-hover.png");   }
+ul#Base_ActionBar li.calendar a:hover { background-image: url("images/icons/icon-calendar-hover.png"); }
+ul#Base_ActionBar li.view     a:hover { background-image: url("images/icons/icon-view-hover.png");     }
+ul#Base_ActionBar li.save     a:hover { background-image: url("images/icons/icon-save-hover.png");     }
+ul#Base_ActionBar li.settings a:hover { background-image: url("images/icons/icon-settings-hover.png"); }
+
+ul#Base_ActionBar li a {
+	background-color: #FFFFFF;
+	padding: 3px 4px;
+	color: #336699;
+	margin-right: 0px;
+	text-decoration: none;
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 40px;
+}
+
+ul#Base_ActionBar a:hover {
+	background: #FFFFFF;
+}

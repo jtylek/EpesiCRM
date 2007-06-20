@@ -1,0 +1,80 @@
+{if !$logged}
+<center>
+<table id="Base_Box__login" cellspacing="0" cellpadding="0" border="0">
+	<tr><td class="status"><center>{$status}</center></td></tr>
+	<tr><td class="entry">{$login}</td></tr>
+	<tr><td class="starting"><a href="http://www.epesi.org"><img src="data/Base/Theme/templates/epesi/images/epesi-powered.png" border="0"></a></td></tr>
+</table>
+</center>
+{else}
+
+<center>
+
+<table id="Base_Box__logged" cellspacing="0" cellpadding="0" border="0">
+	<tr>
+		<td colspan="3" style="height: 20px; border-bottom: 4px solid #CCCCCC;">
+			<table cellspacing="0" cellpadding="0" border="0">
+				<tr>
+					<td style="width: 691px; height: 20px; text-align: left;">{$menu}</td>
+					<td class="module_name">Module name</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+	<tr>
+		<td class="top-bar" colspan="3">
+			<div id="menu">
+			<table width="978" cellspacing="0" cellpadding="0" border="0">
+				<tr>
+					<td class="logo"><a href="#"><img border="0" src="data/Base/Theme/templates/epesi/images/logo-small.png" width="193" height="68"></a></td>
+					<td>
+						<table cellspacing="0" cellpadding="0" border="0">
+							<tr>
+								<td class="icons" rowspan="2">
+									{$actionbar}
+								</td>
+								<td class="login">{$login}</td>
+								<!--<td class="login">{$__link.login.open}{$__link.login.label}&nbsp;<img src="data/Base/Theme/templates/epesi/images/icon-logout.png">{$__link.login.close}</td>-->
+							</tr>
+							<tr>
+								<td class="search"><center>{$search}</center></td>
+								<!-- <td class="entry"><center>{$homepage}</center></td> -->
+							</tr>
+						</table>
+					</td>	
+				</tr>
+			</table>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="3">
+			{if $main neq ""}
+			<div id="content">
+			<table width="100%" height="100%" cellspacing="0" cellpadding="0" border="0">
+				<tr>
+					<td style="padding: 4px 4px 4px 4px; vertical-align: top;">
+						<center>{$main}</center>
+					</td>
+				</tr>
+			</table>
+			</div>
+			{/if}
+		</td>
+	</tr>
+	<tr>
+		<td class="footer" style="width: 100px; vertical-align: center; text-align: left; padding-left: 4px;">version 1.0</td>
+		<td class="footer" style="width: 778px;">Copyright &copy; 2007 &bull; <a href="http://sourceforge.net/projects/epesi/">epesi framework</a> &bull; Application developed by <a href="http://www.telaxus.com">Telaxus LLC</a><a href="http://www.epesi.org"></td>
+		<td class="footer" style="width: 100px; vertical-align: center; text-align: right; padding-right: 2px; padding-top: 2px;"><a href="http://www.epesi.org"><img src="data/Base/Theme/templates/epesi/images/epesi-powered.png" border="0"></a></td>
+	</tr>	
+</table>
+</center>
+{php}
+	load_js('data/Base/Theme/templates/epesi/Base_Box__default.js');
+	eval_js('wait_while_null("base_box__set_content_height", "base_box__set_content_height(\'content\')");');
+	eval_js('wait_while_null("correctPNG", "correctPNG()");');
+{/php}
+{/if}
+<!-- <img src="data/Base/Theme/templates/epesi/images/epesi-powered.png"> -->
+
+{$status}

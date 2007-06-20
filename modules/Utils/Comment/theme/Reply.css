@@ -1,0 +1,18 @@
+table#Utils_Comment__Reply {
+	width: 950px;
+}
+
+table#Utils_Comment__Reply td.post_label {
+	width: 100px;
+	padding-top: 5px;
+}
+
+table#Utils_Comment__Reply td.post_input {
+	width: 850px;
+	padding-top: 5px;
+}
+
+table#Utils_Comment__Reply td.post_input textarea {
+	width: 850px;
+	height: 200px;
+}

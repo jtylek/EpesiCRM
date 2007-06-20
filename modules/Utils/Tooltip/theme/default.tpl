@@ -1,0 +1,1 @@
+<div id="Utils_Tooltip">{$tip}</div>

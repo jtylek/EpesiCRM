@@ -1,0 +1,42 @@
+table#Base_Search__Results {
+	width: 970px;
+}
+
+table#Base_Search__Results .label {
+}
+
+table#Base_Search__Results .header {
+	color: #4C4C4C;
+	background-color: #E5E5E5;
+	background-image: url("images/button-background-2.png");
+	background-repeat: repeat-x;
+	font-weight: bold;
+	height: 20px;
+	border: 1px solid #B3B3B3;
+	text-align: center;
+	vertical-align: center;
+}
+
+table#Base_Search__Results a {
+	color: #4C4C4C;
+}
+
+table#Base_Search__Results a:hover {
+	color: #336699;
+}
+
+table#Base_Search__Results td.link {
+	border-left: 1px solid #B3B3B3;
+	border-right: 1px solid #B3B3B3;
+	border-bottom: 1px solid #B3B3B3;
+	background-color: #FFFFFF;
+	padding-left: 20px;
+	padding-right: 20px;
+	height: 20px;
+	vertical-align: center;
+	text-align: left;	
+}
+
+table#Base_Search__Results td.link:hover {
+	background-color: #F0F0F0;
+}

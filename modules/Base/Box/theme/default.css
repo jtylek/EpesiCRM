@@ -1,0 +1,143 @@
+body {
+	padding: 0px 0px 0px 0px;
+	margin: 10px 10px 10px 10px;
+	font-family: "Tahoma" "Verdana" "Vera-Sans" "DejaVu-Sans";
+	font-size: 11px;	
+}
+
+table {
+	font-size: 11px;
+}
+
+a {
+	color: #336699;
+	text-decoration: none;
+}
+
+a:hover {
+	color: #993333;
+}
+
+table#Base_Box__login div#menu td.icons a {
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+table#Base_Box__login {
+	width: 980px;
+	height: 578px;
+	text-align: center;
+	border: 1px solid #B3B3B3;	
+}
+
+table#Base_Box__logged {
+	width: 978px;
+	text-align: center;
+	border: 1px solid #B3B3B3;
+	background-color: #F0F0F0;
+	color: #4C4C4C;	
+}
+
+table#Base_Box__login td.status {
+	height: 68px;
+	background-color: #F0F0F0;
+	text-align: center;
+}
+
+table#Base_Box__login td.entry {
+	background-color: #F0F0F0;
+	font-size: 11px;
+	text-align: center;
+	height: 440px;
+	color: #4C4C4C;		
+}
+
+table#Base_Box__login td.starting {
+	background-color: #F0F0F0;
+	height: 70px;
+	color: #4C4C4C;
+	vertical-align: top;
+}
+
+table#Base_Box__logged div#content {
+	font-size: 11px;
+	/*vertical-align: center;*/
+	text-align: center;
+    overflow: hidden;
+    overflow-y: auto;
+}
+
+table#Base_Box__logged td.login a:hover {
+	color: #993333;
+}
+
+table#Base_Box__logged td.top-bar {
+	height: 78px;
+	background-image: url("images/top-bar.png");
+	background-repeat: no-repeat;
+}
+
+table#Base_Box__logged td.logo {
+	text-align: left;
+	vertical-align: top;
+	width: 199px;
+	padding-left: 5px;
+	padding-top: 5px;	
+}
+
+table#Base_Box__logged td.footer {
+	color: #777777;
+	font-size: 10px;	
+	text-align: center;
+	height: 20px;
+	vertical-align: center;
+	border-top: 4px solid #CCCCCC;
+}
+
+table#Base_Box__logged td.footer a {
+	text-decoration: none;
+	color: #777777;
+	font-weight: bold;
+}
+
+table#Base_Box__logged td.footer a:hover {
+	color: #336699;
+}
+
+table#Base_Box__logged td.login {
+	width: 290px;
+	height: 44px;
+	font-size: 11px;
+	text-align: center;
+	vertical-align: center;
+}
+
+table#Base_Box__logged td.login a {
+	color: #336699;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+table#Base_Box__logged td.module_name {
+	width: 286px;
+	height: 20px;
+	background-image: url("images/button-background-2.png");
+	background-repeat: repeat-x;
+	font-weight: bold;
+	text-align: center;
+	border-left: 1px solid #B3B3B3;
+	font-size: 11px;
+	color: #4C4C4C;
+}
+
+table#Base_Box__logged td.search {
+	width: 290px;
+	height: 34px;
+	text-align: center;
+	vertical-align: top;
+}
+
+table#Base_Box__logged td.icons {
+	width: 484px;
+	height: 78px;
+}

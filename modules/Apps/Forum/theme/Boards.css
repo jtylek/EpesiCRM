@@ -1,0 +1,20 @@
+table#Apps_Forum__Boards hr {
+	color: #CCCCCC;
+}
+
+table#Apps_Forum__Boards {
+	width: 950px;
+}
+
+table#Apps_Forum__Boards td.header {
+	color: #4C4C4C;
+	background-image: url("images/background-30px-2.png");
+	background-repeat: repeat-x;
+	font-weight: bold;
+	height: 30px;
+	border: 1px solid #CCCCCC;
+	text-align: center;
+	vertical-align: center;
+
+	border-bottom: 4px solid #CCCCCC;	
+}

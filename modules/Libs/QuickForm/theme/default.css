@@ -1,0 +1,54 @@
+#quickform .header {
+	white-space: nowrap;
+	/*background-color: #B3B3B3;*/
+	text-align: center;
+	vertical-align: top;
+	font-weight: bold;
+	color: #4C4C4C;
+	background-image: url("images/button-background-2.png");
+	height: 20px;
+	border: 1px solid #CCCCCC;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+#quickform .label {
+	text-align: right;
+	vertical-align: top;
+	font-weight: normal;
+	background-color: #F0F0F0;
+}
+
+#quickform .element {
+	text-align: right;
+	vertical-align: top;
+	font-weight: normal;
+}
+
+#quickform .error {
+	color: #FF0000;
+	font-weight: normal;
+}
+
+#quickform select {
+	font-weight: normal;
+	font-size: 11px;
+}
+
+#quickform input {
+	font-weight: normal;
+	font-size: 11px;
+}
+
+#quickform input[type="submit"], input[name="submit_comment"], input[name="submit"], input[type="button"], input[type="file"] {
+	color: #4C4C4C;
+	border: 0px;
+	width: 100px;
+	height: 20px;
+	background-image: url("images/button.png");
+	font-size: 11px;
+}
+
+#quickform input[type="submit"]:hover, input[name="submit_comment"]:hover, input[name="submit"]:hover, input[type="button"]:hover, input[type="file"]:hover {
+	background-image: url("images/button-hover.png");
+}

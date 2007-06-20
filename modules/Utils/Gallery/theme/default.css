@@ -1,0 +1,37 @@
+table#Utils_Gallery a.utils_gallery_picture_link {
+	text-decoration: none;
+	font-weight: bold;
+	padding: 4px;
+	margin: 2px;
+}
+
+table#Utils_Gallery a.utils_gallery_picture_link:hover {
+	border: 1px solid #CCCCCC;
+	background: #FF0000;
+	padding: 3px;
+}
+
+table#Utils_Gallery .utils_gallery_item {
+	border: 1px solid #CCCCCC;
+	padding: 5px;
+	margin: 10px;
+	vertical-align: bottom;
+}
+
+table#Utils_Gallery .utils_gallery_preview {
+	padding: 5px;
+	margin: 10px;
+}
+
+table#Utils_Gallery .utils_gallery_prewiev_list {
+	border-top: 1px dashed #CCCCCC;
+	margin-top: 15px;
+	width: 600px;
+	height: 200px;
+	overflow: auto;
+	vertical-align: bottom;
+}
+
+table#Utils_Gallery .utils_gallery_prewiev_list_item {
+	vertical-align: bottom;
+}

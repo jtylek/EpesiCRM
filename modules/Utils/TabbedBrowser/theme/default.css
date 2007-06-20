@@ -1,0 +1,45 @@
+ul#Utils_TabbedBrowser {
+	text-align: left;
+	margin: 1em 0 1em 0;
+	font-weight: bold;
+	font-size: 11px;
+	border-bottom: 4px solid #CCCCCC;
+	list-style-type: none;
+	padding: 3px 20px 3px 20px;
+	background-color: #F0F0F0;
+}
+
+ul#Utils_TabbedBrowser li {
+	display: inline;
+}
+
+ul#Utils_TabbedBrowser li.selected {
+	border-bottom: 4px solid #F0F0F0;
+	background-color: #F0F0F0;
+}
+
+ul#Utils_TabbedBrowser li.selected a {
+	background-color: #F0F0F0;
+	color: #4C4C4C;
+	top: 4px;
+	padding-top: 4px;
+	background-color: #F0F0F0;
+	background-image: url("images/button-background-2.png");
+	background-repeat: repeat-x;
+}
+
+ul#Utils_TabbedBrowser li a {
+	padding: 3px 4px;
+	border: 1px solid #B3B3B3;
+	background-color: #CCCCCC;
+	color: #336699;
+	margin-right: 0px;
+	text-decoration: none;
+	border-bottom: none;
+	padding-left: 30px;
+	padding-right: 30px;
+}
+
+ul#Utils_TabbedBrowser a:hover {
+	background: #FFFFFF;
+}

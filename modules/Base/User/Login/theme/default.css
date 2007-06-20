@@ -1,0 +1,95 @@
+table#Base_User_Login {
+	color: #4C4C4C;
+	width: 400px;
+	height: 410px;
+	background-image: url("images/login-background.png");
+	background-repeat: no-repeat;
+	font-size: 11px;
+}
+
+table#Base_User_Login a {
+	color: #777777;
+	font-size: 11px;
+}
+
+table#Base_User_Login span.error {
+	color: red;
+	text-align: center;
+	font-size: 11px;
+}
+
+table#Base_User_Login td.error {
+	height: 20px;
+}
+
+table#Base_User_Login input {
+	color: #4C4C4C;
+	border: 1px solid #B3B3B3;
+	width: 160px;
+}
+
+table#Base_User_Login input.submit {
+	color: #4C4C4C;
+	border: 0px solid #B3B3B3;
+	width: 100px;
+	height: 20px;
+	background-image: url("images/button.png");
+	vertical-align: center;
+}
+
+table#Base_User_Login input.submit:hover {
+	background-image: url("images/button-hover.png");
+}
+
+table#Base_User_Login td.label {
+	font-weight: normal;
+	width: 150px;
+	height: 30px;
+	font-size: 11px;
+}
+
+table#Base_User_Login td.input {
+	font-weight: normal;
+	width: 250px;
+	height: 30px;
+}
+
+table#Base_User_Login td.input input {
+	font-size: 11px;
+}
+
+table#Base_User_Login td.submit_button {
+	text-align: center;
+	height: 35px;
+}
+
+table#Base_User_Login td.submit_button input {
+	font-size: 11px;
+}
+
+table#Base_User_Login td.header_tail {
+	color: #4C4C4C;
+	padding: 6px 6px 0px 6px;
+}
+
+table#Base_User_Login td.header_tail {
+	width: 400px;
+	height: 205px;
+}
+
+table#Base_User_Login td.footer {
+	color: #777777;
+	font-size: 10px;	
+	text-align: center;
+	height: 45px;
+	vertical-align: top;
+}
+
+table#Base_User_Login td.footer a {
+	font-weight: bold;
+}
+
+table#Base_User_Login td.recover_password {
+	text-align: center;
+	height: 25px;
+}
