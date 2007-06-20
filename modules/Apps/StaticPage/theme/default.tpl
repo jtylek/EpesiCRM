@@ -1,2 +1,0 @@
-{$title}<hr>
-{$content}
