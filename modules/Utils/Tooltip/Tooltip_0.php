@@ -41,7 +41,7 @@ class Utils_Tooltip extends Module {
 			$theme->assign('tip', '<span id="tooltip_text_'.$style.'"></span>');
 				$theme->display($style);
 			print "</div>";
-			Utils_Tooltip::$styles[$style_id] = 1;
+			Utils_Tooltip::$styles[$style] = 1;
 		}
 		
 		return ' onMouseMove="showTip(\''.htmlspecialchars($tip).'\', \''.$style.'\' , event)" onMouseOut="hideTip(\''.$style.'\')"';

@@ -121,8 +121,6 @@ leightbox.prototype = {
 	displayLeightbox: function(display){
 	
 		if(navigator.appName.indexOf('Explorer') != -1 ) {
-			$('overlay').style.position = 'absolute';
-			$(this.content).style.position = 'absolute';
 				var ch = (document.documentElement.clientHeight < document.body.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight)
 				var scrollTop = (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop);
 				if(navigator.appName.indexOf('Explorer') != -1 ) {
@@ -133,11 +131,7 @@ leightbox.prototype = {
 			$(this.content).className = 'leightbox_ie';
 			$('overlay').style.height = ch + 'px';
 			$(this.content).style.height = height + 'px';
-		} else {
-			$('overlay').style.position = 'fixed';
-			$(this.content).style.position = 'fixed';
 		}
-		
 		$('overlay').style.display = display;
 		$(this.content).style.display = display;
 		if(display != 'none') this.actions();		
@@ -178,6 +172,7 @@ function addLeightboxMarkup() {
 	bod 				= document.getElementsByTagName('body')[0];
 
 	overlay 			= document.createElement('div');
+	
 	overlay.style.display = 'none';
 	overlay.id			= 'overlay';
 	overlay.className	= 'overlay';

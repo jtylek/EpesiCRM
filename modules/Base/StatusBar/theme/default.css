@@ -1,10 +1,24 @@
-#statusbar_border {
+.Base_StatusBar {
 	text-align: center; 
 	border: 1px solid black; 
 	background-color: #ebebeb;
 	z-index: 1001;
 	width: 100%;
 	height: 30px;
+	display: none;
+	top: 25%;
+	left: 25%;
+}
+.Base_StatusBar_ie {
+	text-align: center; 
+	border: 1px solid black; 
+	background-color: #ebebeb;
+	z-index: 1001;
+	width: 100%;
+	height: 30px;
+	display: none;
+	top: expression( ( ignoreMe = (document.documentElement.scrollTop + document.documentElement.clientHeight/4) ) + 'px' );
+	left: 25%;
 }
 
 #Base_StatusBar__error_message {
@@ -15,7 +29,7 @@
 	background-color: #EE5555;
 }
 
-.statusbar_overlay{
+.Base_StatusBar__overlay {
 	display: none;
 	position: absolute;
 	top: 0;
@@ -23,13 +37,13 @@
 	width: 100%;
 	height: 100%;
 	z-index: 1000;
-	background-color: #333;
-	-moz-opacity: 0.1;
-	opacity: .10;
-	filter: alpha(opacity=10);
+	background-color: #600;
+	-moz-opacity: 0.5;
+	opacity: .50;
+	filter: alpha(opacity=50);
 }
 
-.statusbar_overlay_ie {
+.Base_StatusBar__overlay_ie {
 	display: none;
 	position: absolute;
 	top: expression( ( ignoreMe_over = document.documentElement.scrollTop ) + 'px' );
@@ -37,8 +51,8 @@
 	width: 100%;
 	height: 100%;
 	z-index: 1000;
-	background-color: #333;
-	-moz-opacity: 0.1;
-	opacity: .10;
-	filter: alpha(opacity=10);
+	background-color: #600;
+	-moz-opacity: 0.5;
+	opacity: .50;
+	filter: alpha(opacity=50);
 }
