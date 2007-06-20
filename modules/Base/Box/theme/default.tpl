@@ -3,7 +3,7 @@
 <table id="Base_Box__login" cellspacing="0" cellpadding="0" border="0">
 	<tr><td class="status"><center>{$status}</center></td></tr>
 	<tr><td class="entry">{$login}</td></tr>
-	<tr><td class="starting"><a href="http://www.epesi.org"><img src="data/Base/Theme/templates/epesi/images/epesi-powered.png" border="0"></a></td></tr>
+	<tr><td class="starting"><a href="http://www.epesi.org"><img src="modules/Base/Theme/images/epesi-powered.png" border="0"></a></td></tr>
 </table>
 </center>
 {else}
@@ -26,7 +26,7 @@
 			<div id="menu">
 			<table width="978" cellspacing="0" cellpadding="0" border="0">
 				<tr>
-					<td class="logo"><a href="#"><img border="0" src="data/Base/Theme/templates/epesi/images/logo-small.png" width="193" height="68"></a></td>
+					<td class="logo"><a href="#"><img border="0" src="images/logo-small.png" width="193" height="68"></a></td>
 					<td>
 						<table cellspacing="0" cellpadding="0" border="0">
 							<tr>
@@ -34,7 +34,6 @@
 									{$actionbar}
 								</td>
 								<td class="login">{$login}</td>
-								<!--<td class="login">{$__link.login.open}{$__link.login.label}&nbsp;<img src="data/Base/Theme/templates/epesi/images/icon-logout.png">{$__link.login.close}</td>-->
 							</tr>
 							<tr>
 								<td class="search"><center>{$search}</center></td>
@@ -65,7 +64,7 @@
 	<tr>
 		<td class="footer" style="width: 100px; vertical-align: center; text-align: left; padding-left: 4px;">version 1.0</td>
 		<td class="footer" style="width: 778px;">Copyright &copy; 2007 &bull; <a href="http://sourceforge.net/projects/epesi/">epesi framework</a> &bull; Application developed by <a href="http://www.telaxus.com">Telaxus LLC</a><a href="http://www.epesi.org"></td>
-		<td class="footer" style="width: 100px; vertical-align: center; text-align: right; padding-right: 2px; padding-top: 2px;"><a href="http://www.epesi.org"><img src="data/Base/Theme/templates/epesi/images/epesi-powered.png" border="0"></a></td>
+		<td class="footer" style="width: 100px; vertical-align: center; text-align: right; padding-right: 2px; padding-top: 2px;"><a href="http://www.epesi.org"><img src="images/epesi-powered.png" border="0"></a></td>
 	</tr>	
 </table>
 </center>
@@ -75,6 +74,5 @@
 	eval_js('wait_while_null("correctPNG", "correctPNG()");');
 {/php}
 {/if}
-<!-- <img src="data/Base/Theme/templates/epesi/images/epesi-powered.png"> -->
 
 {$status}
