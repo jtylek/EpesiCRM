@@ -47,7 +47,7 @@ class Base_StatusBar extends Module {
 						'Base_StatusBar__overlay.style.position = \'fixed\';' .
 						'Base_StatusBar__overlay.className = \'Base_StatusBar__overlay\';' .
 					'};' .
-				'};' .
+				'};' .	
 				
 				'statusbar_fade=function(){'.
 					'statusbar_prepare();' .
