@@ -38,22 +38,18 @@ class Base_StatusBar extends Module {
 					'Base_StatusBar__overlay = document.createElement(\'div\');' .
 					'Base_StatusBar__overlay.id = \'Base_StatusBar__overlay\';' .
 					'document.body.appendChild(Base_StatusBar__overlay);'.
+					'statbar.className = \'Base_StatusBar\';' .
+					'Base_StatusBar__overlay.className = \'Base_StatusBar__overlay\';' .
 					'if(navigator.appName.indexOf(\'Explorer\') != -1 ) {' .
-						'statbar.className = \'Base_StatusBar_ie\';' .
-						'Base_StatusBar__overlay.className = \'Base_StatusBar__overlay_ie\';' .
 						'Base_StatusBar__overlay.style.height = (document.documentElement.clientHeight < document.body.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight) + \'px\';' .
-					'} else {' .
-						'statbar.className = \'Base_StatusBar\';' .
-						'Base_StatusBar__overlay.style.position = \'fixed\';' .
-						'Base_StatusBar__overlay.className = \'Base_StatusBar__overlay\';' .
-					'};' .
+					'}' .
 				'};' .	
 				
 				'statusbar_fade=function(){'.
 					'statusbar_prepare();' .
 					'statbar.style.display=\'block\';' .
 					'Base_StatusBar__overlay.style.display=\'block\';' .
-					'wait_while_null(\'document.getElementById(\\\'Base_StatusBar\\\')\',\'Effect.Fade(\\\'Base_StatusBar\\\', {duration:0.3});Effect.Fade(\\\'Base_StatusBar__overlay\\\', {duration:0.3});\');'.
+					'wait_while_null(\'document.getElementById(\\\'Base_StatusBar\\\')\',\'Effect.Fade(\\\'Base_StatusBar\\\', {duration:1.0});Effect.Fade(\\\'Base_StatusBar__overlay\\\', {duration:1.0});\');'.
 					
 				'};' .				
 				
@@ -68,15 +64,7 @@ class Base_StatusBar extends Module {
 					'if(! document.getElementById(\'Base_StatusBar__overlay\')) {'.
 					'	document.body.appendChild(Base_StatusBar__overlay);'.
 					'}'.
-					'if(navigator.appName.indexOf(\'Explorer\') != -1 ) {' .
-						'statbar.className = \'Base_StatusBar_ie\';' .
-						'Base_StatusBar__overlay.className = \'Base_StatusBar__overlay_ie\';' .
-						'Base_StatusBar__overlay.style.height = (document.documentElement.clientHeight < document.body.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight) + \'px\';' .
-					'} else {' .
-						'statbar.className = \'Base_StatusBar\';' .
-						'Base_StatusBar__overlay.style.position = \'fixed\';' .
-						'Base_StatusBar__overlay.className = \'Base_StatusBar__overlay\';' .
-					'};' .
+					'statusbar_prepare();' .
 					'saja.updateIndicator=function(){' .
 						'Base_StatusBar__overlay = document.getElementById(\'Base_StatusBar__overlay\');' .
 						'statbar = document.getElementById(\'Base_StatusBar\');' .
@@ -86,6 +74,7 @@ class Base_StatusBar extends Module {
 							'Base_StatusBar__overlay.style.display=\'block\';' .
 						'}else{' .
 							'if(statusbar_message_t!=\'\') {' .
+							'alert("asfa");'.
 								't=document.getElementById(\'statusbar_text\');' .
 								'if(t)t.innerHTML=statusbar_message_t;' .
 								'statusbar_message(\'\');' .

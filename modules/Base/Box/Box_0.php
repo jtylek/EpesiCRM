@@ -83,6 +83,10 @@ class Base_Box extends Module {
 		
 		//main output
 		$theme->display();
+		load_js('modules/Base/Box/js/Box.js');
+		eval_js('wait_while_null("base_box__set_content_height", "base_box__set_content_height(\'content\')");');
+	
+		
 	}
 	
 	public function get_main_module() {
