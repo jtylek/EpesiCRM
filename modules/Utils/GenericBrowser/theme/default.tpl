@@ -27,7 +27,7 @@
 {html_table_tcms table_attr='id="Utils_GenericBrowser" cellspacing="0" cellpadding="0"' loop=$data cols=$cols}
 
 {php}
-	load_js('data/Base/Theme/templates/epesi/Utils_GenericBrowser__default.js');
+	load_js('data/Base/Theme/templates/default/Utils_GenericBrowser__default.js');
 	eval_js('wait_while_null("utils_genericbrowser__scrolling_table_fix_cols", "utils_genericbrowser__scrolling_table_fix_cols(\'content\')");');
 {/php}
 

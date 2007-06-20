@@ -20,10 +20,15 @@
 			if (relAttribute == 'scrolling_table') {
 				var table = spans[i].getElementsByTagName('table');
 				var theader = table[0].getElementsByTagName('thead')[0];
+				var tbody = table[1].getElementsByTagName('tbody')[0];
+								
 				var headers = theader.getElementsByTagName('th');
+				var trs = tbody.getElementsByTagName('tr');
+				if(typeof(trs[0])=='undefined') continue;
+				var firstcols = trs[0].getElementsByTagName('td');
 	
 				for (var j = 0; j < headers.length; j++) {
-					var w = getWidth(headers[j]) - 14;
+					var w = getWidth(firstcols[j]) - 7;
 					utils_genericbrowser__fix_cell(headers[j], w);
 				}
 				table[0].style.width = getWidth(table[1]) + 'px';
