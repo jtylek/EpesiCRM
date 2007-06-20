@@ -26,7 +26,7 @@ class Base_ActionBar extends Module {
 
 		//translate
 		foreach($icons as &$i)
-			$i['label'] = $l->t($i['label']);
+			$i['label'] = $l->ht($i['label']);
 		
 		//sort
 		usort($icons, array($this,'sort'));

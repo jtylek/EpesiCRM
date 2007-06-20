@@ -365,20 +365,20 @@ class Utils_GenericBrowser extends Module {
 		if(!$this->is_adv_search_on()) {
 			foreach($this->columns as $k=>$v)
 				if ($v['search']) {
-					$form->addElement('text','search',$this->lang->t('Keyword'), array('onfocus'=>'if (this.value=="'.$this->lang->t('search keyword').'") this.value="";','onblur'=>'if (this.value=="") this.value="'.$this->lang->t('search keyword').'";'));
-					$form->setDefaults(array('search'=>$search['__keyword__']?$search['__keyword__']:$this->lang->t('search keyword',true)));
+					$form->addElement('text','search',$this->lang->ht('Keyword'), array('onfocus'=>'if (this.value=="'.$this->lang->ht('search keyword').'") this.value="";','onblur'=>'if (this.value=="") this.value="'.$this->lang->ht('search keyword').'";'));
+					$form->setDefaults(array('search'=>$search['__keyword__']?$search['__keyword__']:$this->lang->ht('search keyword')));
 					$search_on=true;
 					break;
 				}
 		} else {
 			foreach($this->columns as $k=>$v)
 				if ($v['search']) {
-					$form->addElement('text','search__'.$v['search'],'',array('onfocus'=>'if (this.value=="'.$this->lang->t('search keyword').'") this.value="";','onblur'=>'if (this.value=="") this.value="'.$this->lang->t('search keyword').'";'));
+					$form->addElement('text','search__'.$v['search'],'',array('onfocus'=>'if (this.value=="'.$this->lang->ht('search keyword').'") this.value="";','onblur'=>'if (this.value=="") this.value="'.$this->lang->ht('search keyword').'";'));
 					$form->setDefaults(array('search__'.$v['search']=>$search[$v['search']]?$search[$v['search']]:$this->lang->ht('search keyword')));
 					$search_on=true;
 				}
 		}
-		if ($search_on) $form->addElement('submit','submit_search',$this->lang->t('Search'));
+		if ($search_on) $form->addElement('submit','submit_search',$this->lang->ht('Search'));
 		$form->accept($renderer);
 		$form_array = $renderer->toArray();
 		$theme->assign('form_data', $form_array);
@@ -392,13 +392,13 @@ class Utils_GenericBrowser extends Module {
 			$search = array();
 			foreach ($values as $k=>$v){
 				if ($k=='search') {  
-					if ($v!=$this->lang->t('search keyword'))
+					if ($v!=$this->lang->ht('search keyword'))
 						$search['__keyword__'] = $v;
 					break;
 				}  
 				if (substr($k,0,8)=='search__') {
 					$val = substr($k,8);
-					if ($v!=$this->lang->t('search keyword') && $v!='') $search[$val] = $v;
+					if ($v!=$this->lang->ht('search keyword') && $v!='') $search[$val] = $v;
 				}
 			}
 			$this->set_module_variable('per_page',$form->exportValue('per_page'));
