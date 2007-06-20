@@ -21,7 +21,7 @@ class Apps_GalleryInstall extends ModuleInstall {
 	
 	public static function uninstall() {
 		Base_ThemeCommon::uninstall_default_theme('Apps/Gallery');
-		return true;
+		return DB::DropTable('gallery_shared_media');
 	}
 
 	public static function info() {
