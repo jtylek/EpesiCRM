@@ -21,7 +21,8 @@ class Base_User_Login extends Module {
 	protected $lang;
 	
 	public function construct() {
-		$this->set_fast_process();
+		if(!Base_MaintenanceModeCommon::get_changed())
+			$this->set_fast_process();
 	}
 	
 	public function body($arg) {

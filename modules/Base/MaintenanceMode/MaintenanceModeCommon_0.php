@@ -21,10 +21,18 @@ class Base_MaintenanceModeCommon {
 	public static function set_mode($x) {
 		if(is_bool($x))
 			$_SESSION['maintenance_mode']=$x;
+		$_SESSION['maintenance_mode_changed']=2;
 	}
 	
 	public static function get_mode() {
 		return $_SESSION['maintenance_mode'];
 	}
+	
+	public static function get_changed() {
+		return ($_SESSION['maintenance_mode_changed']>0)?true:false;
+	}
 }
+
+if($_SESSION['maintenance_mode_changed']>0)
+	$_SESSION['maintenance_mode_changed']--;
 ?>
