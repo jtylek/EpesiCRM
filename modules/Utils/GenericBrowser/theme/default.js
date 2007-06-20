@@ -21,7 +21,14 @@
 				var table = spans[i].getElementsByTagName('table');
 				var theader = table[0].getElementsByTagName('thead')[0];
 				var tbody = table[1].getElementsByTagName('tbody')[0];
-								
+				
+				
+				if( navigator.appName.indexOf("Opera") != -1 && table[0].offsetWidth < 0.9*document.getElementById('content').offsetWidth ) {
+					var www = 0.9*document.getElementById('content').offsetWidth;
+					//alert("Opera and slim: "+ table[0].offsetWidth+' < '+www);
+					return;
+				}
+				
 				var headers = theader.getElementsByTagName('th');
 				var trs = tbody.getElementsByTagName('tr');
 				if(typeof(trs[0])=='undefined') continue;
