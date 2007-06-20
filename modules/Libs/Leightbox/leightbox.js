@@ -127,10 +127,10 @@ leightbox.prototype = {
 					scrollTop = document.documentElement.scrollTop;
 				}
 				var height = (ch / 4);
-			$('overlay').style.height = ch + 'px';
+			$('leightbox_overlay').style.height = ch + 'px';
 			$(this.content).style.height = height + 'px';
 		}
-		$('overlay').style.display = display;
+		$('leightbox_overlay').style.display = display;
 		$(this.content).style.display = display;
 		if(display != 'none') this.actions();		
 	},
@@ -169,13 +169,13 @@ function addLeightboxMarkup() {
 
 	bod 				= document.getElementsByTagName('body')[0];
 
-	overlay 			= document.createElement('div');
+	leightbox_overlay 			= document.createElement('div');
 	
-	overlay.style.display = 'none';
-	overlay.id			= 'overlay';
-	overlay.className	= 'overlay';
+	leightbox_overlay.style.display = 'none';
+	leightbox_overlay.id			= 'leightbox_overlay';
+	leightbox_overlay.className	= 'leightbox_overlay';
 
-	bod.appendChild(overlay);
+	bod.appendChild(leightbox_overlay);
 }
 
 addLeightboxMarkup();
