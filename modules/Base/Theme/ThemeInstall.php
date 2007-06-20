@@ -24,6 +24,7 @@ class Base_ThemeInstall extends ModuleInstall {
 		mkdir('data/Base/Theme/compiled');
 		mkdir('data/Base/Theme/cache');
 		mkdir('data/Base/Theme/config');
+		self::install_default_theme_common_files('data/Base/Theme/templates/default/images');
 		return Variable::set('default_theme','default');
 	}
 	
@@ -33,6 +34,19 @@ class Base_ThemeInstall extends ModuleInstall {
 	
 	public static function version() {
 		return array('1.0.0');
+	}
+	
+	public static function install_default_theme_common_files($dir) {
+		mkdir($dir);
+		$content = scandir($dir);
+		foreach ($content as $name){
+			if ($name == '.' || $name == '..') continue;
+			$path = $dir.'/'.$name;
+			if (is_dir($path))
+				self::install_default_theme_common_files($path.'/');
+			else
+				copy($path,$path);
+		}
 	}
 }
 
