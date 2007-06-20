@@ -1,0 +1,81 @@
+table#Utils_GenericBrowser {
+    border-left: 1px solid #CCCCCC;
+    background-color: #FFFFFF;
+}
+
+table#Utils_GenericBrowser th {
+    background-color: #E5E5E5;
+    background-image: url("images/background-30px-2.png");
+    background-repeat: repeat-x;
+    text-align: center;
+    padding-left: 3px;
+    padding-right: 3px;
+    height: 30px;
+    border-top: 1px solid #CCCCCC;
+    border-right: 1px solid #CCCCCC;
+    border-bottom: 1px solid #CCCCCC;
+}
+
+table#Utils_GenericBrowser tbody {
+	overflow: auto;
+}
+
+table#Utils_GenericBrowser tr {
+	background-color: #FFFFFF;
+}
+
+table#Utils_GenericBrowser tr:hover {
+	background-color: #F0F0F0;
+}
+
+table#Utils_GenericBrowser td {
+    text-align: left;
+    border-right: 1px solid #CCCCCC;
+    border-bottom: 1px solid #CCCCCC;
+    height: 16px;
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+/* Navigation */
+
+table#Utils_GenericBrowser__navigation {
+	text-align: center;
+}
+
+table#Utils_GenericBrowser__navigation .first, .prev, .next, .last {
+	width: 50px;
+	text-align: center;
+	font-weight: bold;
+	vertical-align: center;
+}
+
+table#Utils_GenericBrowser__navigation .next, .last {
+	text-align: right;
+}
+
+table#Utils_GenericBrowser__navigation .first, .prev {
+	text-align: left;
+}
+
+table#Utils_GenericBrowser__navigation .arrow {
+	width: 20px;
+	vertical-align: center;
+}
+
+table#Utils_GenericBrowser__navigation .summary {
+	width: 200px;
+	height: 20px;
+	text-align: center;
+}
+
+table#Utils_GenericBrowser__navigation .per_page {
+	width: 245px;
+	height: 20px;
+	text-align: right;
+}
+
+table#Utils_GenericBrowser__navigation .per_page select {
+	font-size: 11px;
+}
+
