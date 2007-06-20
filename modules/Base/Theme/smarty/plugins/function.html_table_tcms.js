@@ -68,7 +68,6 @@
 		var div = document.createElement('div');
 		div.innerHTML = cell.innerHTML;
 		div.style.overflow = 'hidden';
-		div.style.whiteSpace = 'nowrap';
 		div.style.textOverflow = 'clip';
 	//	div.class = "scrolling_table_header";
 		div.onmousemove = function(e) {
@@ -98,7 +97,7 @@
 					var firstcols = trs[0].getElementsByTagName('td');
 					firstcols[firstcols.length-1].style.width = (parseInt(firstcols[firstcols.length-1].style.width)-diff_width+2)+'px';
 				}
-				table[0].style.width = table[1].offsetWidth + 'px';
+				//table[0].style.width = table[1].offsetWidth + 'px';
 			}
 		}
 	}
@@ -124,7 +123,7 @@
 				}
 				
 				
-				table[0].style.width = table[1].offsetWidth + 'px';
+				//table[0].style.width = table[1].offsetWidth + 'px';
 			}
 		}
 		setTimeout("scrolling_table_fix_scrollbar()",10);
@@ -139,7 +138,9 @@
 				var theader = table[0].getElementsByTagName('thead')[0];
 				var tbody = table[1].getElementsByTagName('tbody')[0];
 				
-				
+				table[1].style.width = '90%';
+				table[0].style.width = table[1].offsetWidth + 'px';
+								
 				var headers = theader.getElementsByTagName('th');
 				var trs = tbody.getElementsByTagName('tr');
 				if(typeof(trs[0])=='undefined') continue;
@@ -152,8 +153,7 @@
 				for(var j=0; j<headers.length; j++)
 					firstcols[j].style.width = header_size[j]+'px';
 				
-				
-				table[0].style.width = table[1].offsetWidth + 'px';
+				//table[0].style.width = table[1].offsetWidth + 'px';
 			}
 		}
 		setTimeout("scrolling_table_fix_headers()",10);
