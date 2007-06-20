@@ -53,7 +53,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
     * @access   private
     */
     var $_elementTemplate = 
-        "\n\t<tr>\n\t\t<td class=\"element\"><!-- BEGIN required --><span style=\"color: #ff0000\">*</span><!-- END required -->{label}</td>\n\t\t<td class=\"element\"><div class=\"error\" id=\"{error_id}\"></div>\t{element}</td>\n\t</tr>";
+        "\n\t<tr>\n\t\t<td class=\"element\"><!-- BEGIN required --><span style=\"color: #ff0000\">*</span><!-- END required -->{label}</td>\n\t\t<td class=\"{element_style}\"><div class=\"error\" id=\"{error_id}\"></div>\t{element}</td>\n\t</tr>";
 
    /**
     * Form template string
@@ -322,7 +322,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
         if (!$this->_inGroup) {
 	    	$this->_prepareValue($element);
             $html = $this->_prepareTemplate($element->getName(), $element->getLabel(), $required, $error);
-            $this->_html .= str_replace('{element}', $element->toHtml(), $html);
+            $this->_html .= str_replace(array('{element}','{element_style}'), array($element->toHtml(),'element_'.$element->getType()), $html);
 
         } elseif (!empty($this->_groupElementTemplate)) {
             $html = str_replace('{label}', $element->getLabel(), $this->_groupElementTemplate);
