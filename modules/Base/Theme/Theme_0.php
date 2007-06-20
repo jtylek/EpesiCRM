@@ -181,13 +181,20 @@ class Base_Theme extends Module {
 				}
 			return array();
 		} else {
-			foreach ($val as $k=>$v)
-				return array($k => $this->parse_links($k, $v, false));
+			$result = array();
+			foreach ($val as $k=>$v) {
+				$result[$k] = $this->parse_links($k, $v, false);
+			}
+			return $result;
 		}
 	}
 	
 	public function assign($name, $val) {
-		$this->links[$name] = $this->parse_links($name, $val);
+		$new_links = $this->parse_links($name, $val);
+/*		$this->links[$name] = array_merge($this->links[$name],$new_links);
+		print_r($val);
+		print('<hr>');*/
+		$this->links[$name] = $new_links;
 		return $this->smarty->assign($name, $val);
 	}
 	
