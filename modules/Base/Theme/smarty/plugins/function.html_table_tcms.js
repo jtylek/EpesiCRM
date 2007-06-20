@@ -1,12 +1,5 @@
 	getWidth = function(someObject){
-		var w;
-		if(document.defaultView &&
-			document.defaultView.getComputedStyle) {
-			w=document.defaultView.getComputedStyle(someObject ,'').getPropertyValue('width');
-		}else if(someObject.offsetWidth){
-			w=someObject.offsetWidth-2;
-		}
-		if(typeof w=="string") w=parseInt(w);
+		var w = someObject.offsetWidth;
 		return w;
 	}
 	
@@ -69,6 +62,7 @@
 		div.innerHTML = cell.innerHTML;
 		div.style.overflow = 'hidden';
 		div.style.textOverflow = 'clip';
+		div.style.whiteSpace = 'nowrap';
 	//	div.class = "scrolling_table_header";
 		div.onmousemove = function(e) {
 			showTip(this.innerHTML,'scrolling_table',e);
@@ -82,7 +76,7 @@
 	}
 	
 	scrolling_table_fix_scrollbar = function() {
-		var spans = document.getElementsByTagName('span');
+		var spans = document.getElementsByTagName('div');
 		for (var i = 0; i < spans.length; i++) {
 			var relAttribute = String(spans[i].getAttribute('rel'));
 			if (relAttribute == 'scrolling_table') {
@@ -97,13 +91,13 @@
 					var firstcols = trs[0].getElementsByTagName('td');
 					firstcols[firstcols.length-1].style.width = (parseInt(firstcols[firstcols.length-1].style.width)-diff_width+2)+'px';
 				}
-				//table[0].style.width = table[1].offsetWidth + 'px';
+				table[0].style.width = table[1].offsetWidth + 'px';
 			}
 		}
 	}
 	
 	scrolling_table_fix_headers = function() {
-		var spans = document.getElementsByTagName('span');
+		var spans = document.getElementsByTagName('div');
 		for (var i = 0; i < spans.length; i++) {
 			var relAttribute = String(spans[i].getAttribute('rel'));
 			if (relAttribute == 'scrolling_table') {
@@ -122,24 +116,23 @@
 					scrolling_table_fix_cell(headers[j],w+'px');
 				}
 				
-				
 				//table[0].style.width = table[1].offsetWidth + 'px';
 			}
 		}
-		setTimeout("scrolling_table_fix_scrollbar()",10);
+		//setTimeout("scrolling_table_fix_scrollbar()",10);
+		
+		libs_theme__scrolling_table_fix_cols_lock = 0;
 	}
 	
+	libs_theme__scrolling_table_fix_cols_lock = 1;
 	libs_theme__scrolling_table_fix_cols = function() {
-		var spans = document.getElementsByTagName('span');
+		var spans = document.getElementsByTagName('div');
 		for (var i = 0; i < spans.length; i++) {
 			var relAttribute = String(spans[i].getAttribute('rel'));
 			if (relAttribute == 'scrolling_table') {
 				var table = spans[i].getElementsByTagName('table');
 				var theader = table[0].getElementsByTagName('thead')[0];
 				var tbody = table[1].getElementsByTagName('tbody')[0];
-				
-				table[1].style.width = '90%';
-				table[0].style.width = table[1].offsetWidth + 'px';
 								
 				var headers = theader.getElementsByTagName('th');
 				var trs = tbody.getElementsByTagName('tr');
@@ -150,11 +143,11 @@
 				for (var j = 0; j < headers.length; j++)
 					header_size[j] = getWidth(headers[j]);
 	
-				for(var j=0; j<headers.length; j++)
+				for(var j=0; j<headers.length; j++) {
 					firstcols[j].style.width = header_size[j]+'px';
-				
-				//table[0].style.width = table[1].offsetWidth + 'px';
+				}
+				//table[0].style.width = getWidth(table[1]) + 'px';
 			}
 		}
-		setTimeout("scrolling_table_fix_headers()",10);
+		scrolling_table_fix_headers();
 	}

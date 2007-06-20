@@ -128,7 +128,7 @@ function smarty_function_html_table_tcms($params, &$smarty)
         }
     }
 
-    $output = '<span align=left style="text-align: left" rel="scrolling_table">';
+    $output = '<div align=left style="text-align: left" rel="scrolling_table">';
     $output .= "<table $table_attr>\n";
 
     if (!empty($caption)) {
@@ -172,7 +172,7 @@ function smarty_function_html_table_tcms($params, &$smarty)
         $output .= "</tr>\n";
     }
     $output .= "</tbody>\n";
-    $output .= "</table>\n</div>\n</span>\n";
+    $output .= "</table>\n</div>\n</div>\n";
     
     load_js('modules/Base/Theme/smarty/plugins/function.html_table_tcms.js');
     eval_js('wait_while_null(\'libs_theme__scrolling_table_fix_cols\',\'libs_theme__scrolling_table_fix_cols()\')');
