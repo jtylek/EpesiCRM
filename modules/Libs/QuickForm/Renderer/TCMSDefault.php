@@ -53,7 +53,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
     * @access   private
     */
     var $_elementTemplate = 
-        "\n\t<tr>\n\t\t<td class=\"element\"><!-- BEGIN required --><span style=\"color: #ff0000\">*</span><!-- END required -->{label}</td>\n\t\t<td class=\"{element_style}\"><div class=\"error\" id=\"{error_id}\"></div>\t{element}</td>\n\t</tr>";
+        "\n\t<tr>\n\t\t<td class=\"element\"><!-- BEGIN required --><span style=\"color: #ff0000\">*</span><!-- END required -->{label}</td>\n\t\t<td class=\"{element_style}\"><span class=\"error\" id=\"{error_id}\"></span>\t{element}</td>\n\t</tr>";
 
    /**
     * Form template string
