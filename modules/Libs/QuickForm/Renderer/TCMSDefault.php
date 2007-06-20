@@ -413,7 +413,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
         if (!empty($this->_groupWrap)) {
             $html = str_replace('{content}', $html, $this->_groupWrap);
         }
-        $this->_html   .= str_replace('{element}', $html, $this->_groupTemplate);
+        $this->_html   .= str_replace(array('{element}','{element_style}'), array($html,$this->getType()), $this->_groupTemplate);
         $this->_inGroup = false;
     } // end func finishGroup
 
