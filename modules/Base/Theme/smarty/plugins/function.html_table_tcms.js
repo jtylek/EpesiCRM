@@ -4,6 +4,9 @@
 	}
 	
 	showTip = function(tip, style, my_event) {
+		if(! my_event) {
+			my_event = event;
+		}
 		var div_tip = 'div_tip_' + style;
 		
 		document.getElementById(div_tip).style.top = 0;
