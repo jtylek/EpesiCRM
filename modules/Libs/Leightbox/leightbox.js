@@ -121,19 +121,14 @@ leightbox.prototype = {
 	displayLeightbox: function(display){
 	
 		if(navigator.appName.indexOf('Explorer') != -1 ) {
-				var ch = (document.documentElement.clientHeight < document.body.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight)
+				var ch = (document.documentElement.clientHeight < document.body.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight);
 				var scrollTop = (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop);
 				if(navigator.appName.indexOf('Explorer') != -1 ) {
 					scrollTop = document.documentElement.scrollTop;
 				}
 				var height = (ch / 4);
-			$('overlay').className = 'overlay_ie';
-			$(this.content).className = 'leightbox_ie';
 			$('overlay').style.height = ch + 'px';
 			$(this.content).style.height = height + 'px';
-		} else {
-			$('overlay').className = 'overlay';
-			$(this.content).className = 'leightbox';
 		}
 		$('overlay').style.display = display;
 		$(this.content).style.display = display;
