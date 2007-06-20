@@ -601,7 +601,7 @@ class Apps_Gallery extends Module {
 			$tb->set_tab($this->lang->t('Upload'), array($this, 'upload_image'));
 			$tb->set_tab($this->lang->t('Manage Folders'), array($this, 'menu_manage'));
 		}
-		$this->display_module($tb);
+		$tb->body();
 		$tb->tag();
 	}
 	
@@ -611,7 +611,7 @@ class Apps_Gallery extends Module {
 		$tb->set_tab($this->lang->t('Add folder'),array($this, 'mk_folder'));
 		$tb->set_tab($this->lang->t('Remove folder'),array($this, 'rm_folder'));
 		$tb->set_tab($this->lang->t('Share folders'),array($this, 'share_folders'));
-		$this->display_module($tb);
+		$tb->body();
 		$tb->tag();
 	}
 	
