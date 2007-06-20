@@ -32,46 +32,19 @@ class Base_StatusBar extends Module {
 	private function load_js() {
 		eval_js_once('var statusbar_message_t=\'\';' .
 				'statusbar_message=function(text){statusbar_message_t=text;};' .
-
-				'statusbar_prepare=function(){'.
-					'document.body.removeChild(Base_StatusBar__overlay);'.
-					'Base_StatusBar__overlay = document.createElement(\'div\');' .
-					'Base_StatusBar__overlay.id = \'Base_StatusBar__overlay\';' .
-					'document.body.appendChild(Base_StatusBar__overlay);'.
-					'statbar.className = \'Base_StatusBar\';' .
-					'Base_StatusBar__overlay.className = \'Base_StatusBar__overlay\';' .
-					'if(navigator.appName.indexOf(\'Explorer\') != -1 ) {' .
-						'Base_StatusBar__overlay.style.height = (document.documentElement.clientHeight < document.body.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight) + \'px\';' .
-					'}' .
-				'};' .	
-				
 				'statusbar_fade=function(){'.
-					'statusbar_prepare();' .
-					'statbar.style.display=\'block\';' .
-					'Base_StatusBar__overlay.style.display=\'block\';' .
-					'wait_while_null(\'document.getElementById(\\\'Base_StatusBar\\\')\',\'Effect.Fade(\\\'Base_StatusBar\\\', {duration:1.0});Effect.Fade(\\\'Base_StatusBar__overlay\\\', {duration:1.0});\');'.
-					
+					'wait_while_null(\'document.getElementById(\\\'Base_StatusBar\\\')\',\'Effect.Fade(\\\'Base_StatusBar\\\', {duration:1.0})\');'.
 				'};' .				
-				
 				'updateSajaIndicatorFunction=function(){' .
 					'saja.indicator=\'statusbar_text\';' .
 					'document.getElementById(\'sajaStatus\').style.visibility=\'hidden\';' .
 					'statbar = document.getElementById(\'Base_StatusBar\');' .
-					'statbar.onclick = statusbar_fade;' .
+					'statbar.onclick = Function("if(!saja.procOn)statusbar_fade();");' .
 					'statbar.style.display=\'none\';' .
-					'Base_StatusBar__overlay = document.createElement(\'div\');' .
-					'Base_StatusBar__overlay.id = \'Base_StatusBar__overlay\';' .
-					'if(! document.getElementById(\'Base_StatusBar__overlay\')) {'.
-					'	document.body.appendChild(Base_StatusBar__overlay);'.
-					'}'.
-					'statusbar_prepare();' .
 					'saja.updateIndicator=function(){' .
-						'Base_StatusBar__overlay = document.getElementById(\'Base_StatusBar__overlay\');' .
 						'statbar = document.getElementById(\'Base_StatusBar\');' .
 						'if(saja.procOn){' .
-							'statusbar_prepare();' .
 							'statbar.style.display=\'block\';' .
-							'Base_StatusBar__overlay.style.display=\'block\';' .
 						'}else{' .
 							'if(statusbar_message_t!=\'\') {' .
 								't=document.getElementById(\'statusbar_text\');' .

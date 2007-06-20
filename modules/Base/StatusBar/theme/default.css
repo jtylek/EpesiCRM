@@ -1,67 +1,17 @@
-.Base_StatusBar__error_message {
-	background-color: red;
-}
-
-.Base_StatusBar__warning_message {
-	background-color: #EE5555;
-}
-
-.Base_StatusBar__overlay {
-	display: none;
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	z-index: 2000;
-	background-color: #006;
-	-moz-opacity: 0.5;
-	opacity: .50;
-}
-
-.Base_StatusBar {
-	font-family: "Tahoma" "Verdana" "Vera-Sans" "DejaVu-Sans";
-	font-size: 11px;
-	font-weight: bold;
-    color: #669933;
+#Base_StatusBar__border {
 	text-align: center; 
-	border: 1px solid black;
-	background-color: #F5FCED;
-	z-index: 2001;
-	position: absolute;
-	width: 50%;
-}
-
-
-div.Base_StatusBar {
-	/* Netscape 4, IE 4.x-5.0/Win and other lesser browsers will use this */
-  	position: absolute;
-	left: 25%; top: 30%;
-  	/* all */
-	/*visibility: hidden;*/
-	text-align: center;
-	vertical-align: center;
-}
-
-div.Base_StatusBar {
-	/* used by Opera 5+, Netscape6+/Mozilla, Konqueror, Safari, OmniWeb 4.5+, iCab, ICEbrowser */
-  	position: fixed;
-}
-
-<!--[if gte IE 5.5]>
-<![if lt IE 7]>
-.Base_StatusBar {
-	position: absolute;
-  	top: expression( ignoreMe = (document.documentElement.scrollTop + document.body.clientHeight/4) + 'px' );
+	border: 1px solid black; 
+	background-color: #ebebeb;
+	z-index: 1000;
+	width: 100%;
+	height: 30px;
   	width: 100%;
 }
 
-.Base_StatusBar__overlay {
-	filter: alpha(opacity=50);
-	position: absolute;
-	height: expression( ignore_height = (document.documentElement.clientHeight < document.body.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight) + 'px' );
-	top: expression( ( ignoreMe_over = document.documentElement.scrollTop ) + 'px' );
+#Base_StatusBar__error_message {
+	background-color: red;
 }
-<![endif]>
-<![endif]-->
 
+#Base_StatusBar__warning_message {
+	background-color: #EE5555;
+}
