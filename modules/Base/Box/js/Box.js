@@ -8,7 +8,7 @@
 	}
 
 	base_box__set_content_height = function(content) {
-		if( document.getElementById(content) ) {
+		if( document.getElementById(content) && document.documentElement.clientHeight > document.body.clientHeight ) {
 			var prev = -19;
 			var ch = (document.documentElement.clientHeight < document.body.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight)
 			var tmp = 0;
