@@ -41,20 +41,21 @@
 	font-size: 11px;
 }
 
-#quickform input[type="submit"], input[name="submit_comment"], input[name="submit"], input[type="button"], input[type="file"] {
+#quickform .element_submit input {
 	color: #4C4C4C;
-	/*border: 0px;*/
-	/*width: 100px;*/
-	border: 1px solid #B3B3B3;
+	border: 0px;
+	width: 100px;
+	/*border: 1px solid #B3B3B3;*/
 	height: 20px;
 	text-align: center;
 	vertical-align: center;
-	padding-left: 20px;
-	padding-right: 20px;	
-	background-image: url("images/button-background-2.png");
+	/*padding-left: 20px;
+	padding-right: 20px;*/
+	/*background-image: url("images/button-background-2.png");*/
+	background-image: url("images/button.png");
 	font-size: 11px;
 }
 
-#quickform input[type="submit"]:hover, input[name="submit_comment"]:hover, input[name="submit"]:hover, input[type="button"]:hover, input[type="file"]:hover {
+#quickform .element_submit input:hover {
 	background-image: url("images/button-hover.png");
 }
