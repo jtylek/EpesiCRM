@@ -106,10 +106,10 @@ class Apps_StaticPage extends Module {
 		}
 		$f->display();
 
-		if($path)
+		if($path) {
 			$this->display_module($menu);
-
-		Base_ActionBarCommon::add_icon('delete','Delete page',$this->create_unique_href(array('delete'=>true)));
+			Base_ActionBarCommon::add_icon('delete','Delete page',$this->create_unique_href(array('delete'=>true)));
+		}
 	}
 	
 	public function delete($id) {
