@@ -33,7 +33,7 @@ class Base_StatusBar extends Module {
 		eval_js_once('var statusbar_message_t=\'\';' .
 				'statusbar_message=function(text){statusbar_message_t=text;};' .
 				'statusbar_fade=function(){'.
-					'wait_while_null(\'document.getElementById(\\\'Base_StatusBar\\\')\',\'Effect.Fade(\\\'Base_StatusBar\\\', {duration:0.5})\');'.
+					'wait_while_null(\'document.getElementById(\\\'Base_StatusBar\\\')\',\'$(\\\'Base_StatusBar\\\').style.display=\\\'none\\\';\');'.
 				'};' .				
 				'updateSajaIndicatorFunction=function(){' .
 					'saja.indicator=\'statusbar_text\';' .
