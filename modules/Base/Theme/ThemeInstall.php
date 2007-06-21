@@ -24,7 +24,7 @@ class Base_ThemeInstall extends ModuleInstall {
 		mkdir('data/Base/Theme/compiled');
 		mkdir('data/Base/Theme/cache');
 		mkdir('data/Base/Theme/config');
-		//self::install_default_theme_common_files('modules/Base/Theme/','images');
+		self::install_default_theme_common_files('modules/Base/Theme/','images');
 		return Variable::set('default_theme','default');
 	}
 	
@@ -37,15 +37,21 @@ class Base_ThemeInstall extends ModuleInstall {
 	}
 	
 	public static function install_default_theme_common_files($dir,$f) {
-		mkdir('data/Base/Theme/templates/default/'.$f);
-		$content = scandir($dir.$f);
-		foreach ($content as $name){
-			if ($name == '.' || $name == '..') continue;
-			$path = $dir.$f.'/'.$name;
-			if (is_dir($path))
-				self::install_default_theme_common_files($dir,$f.'/'.$name);
-			else
-				copy($path,'data/Base/Theme/templates/default/'.$f.'/'.$name);
+		if(class_exists('ZipArchive')) {
+			$zip = new ZipArchive;
+			if ($zip->open($dir.$f.'.zip') === TRUE)
+    			$zip->extractTo('data/Base/Theme/templates/default/');
+		} else {
+			mkdir('data/Base/Theme/templates/default/'.$f);
+			$content = scandir($dir.$f);
+			foreach ($content as $name){
+				if ($name == '.' || $name == '..') continue;
+				$path = $dir.$f.'/'.$name;
+				if (is_dir($path))
+					self::install_default_theme_common_files($dir,$f.'/'.$name);
+				else
+					copy($path,'data/Base/Theme/templates/default/'.$f.'/'.$name);
+			}
 		}
 	}
 }

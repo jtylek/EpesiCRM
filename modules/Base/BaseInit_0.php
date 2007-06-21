@@ -27,6 +27,7 @@ class BaseInit_0 extends ModuleInit {
 		    array('name'=>'Base/Mail/ContactUs','version'=>0),
 		    array('name'=>'Base/MaintenanceMode/Administrator','version'=>0),
 		    array('name'=>'Base/Menu/QuickAccess','version'=>0),
+		    array('name'=>'Base/MainModuleIndicator','version'=>0),
 		    array('name'=>'Base/Menu','version'=>0),
 		    array('name'=>'Base/StatusBar','version'=>0),
 		    array('name'=>'Base/Search','version'=>0),
