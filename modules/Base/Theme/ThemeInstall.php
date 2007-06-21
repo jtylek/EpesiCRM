@@ -24,7 +24,7 @@ class Base_ThemeInstall extends ModuleInstall {
 		mkdir('data/Base/Theme/compiled');
 		mkdir('data/Base/Theme/cache');
 		mkdir('data/Base/Theme/config');
-		self::install_default_theme_common_files('modules/Base/Theme/','images');
+		//self::install_default_theme_common_files('modules/Base/Theme/','images');
 		return Variable::set('default_theme','default');
 	}
 	

@@ -70,7 +70,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		$gb = &$this->init_module('Utils/GenericBrowser',null,'lang_translations');
 		$gb->set_table_columns(array(
 				array('name'=>$this->lang->t('Module'),'width'=>30,'search'=>'modules'),
-				array('name'=>$this->lang->t('Original'),'width'=>35, 'order_eregi'=>'^<[^>]+>([^<]*)<[^>]+>$','search'=>'original'),
+				array('name'=>$this->lang->t('Original'), 'order_eregi'=>'^<[^>]+>([^<]*)<[^>]+>$','search'=>'original'),
 				array('name'=>$this->lang->t('Translated'),'search'=>'translated')));
 		//$limit = $gb->get_limit(count($data));
 		$id = 0;
