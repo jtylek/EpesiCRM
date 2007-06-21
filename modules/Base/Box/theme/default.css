@@ -18,6 +18,10 @@ a:hover {
 	color: #993333;
 }
 
+input, textarea, select {
+	border: 1px solid #B3B3B3;
+}
+
 table#Base_Box__login div#menu td.icons a {
 	text-decoration: none;
 	white-space: nowrap;
