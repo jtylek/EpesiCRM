@@ -179,7 +179,7 @@ class Utils_Gallery extends Module {
 				$image->load("./".$dir."/".$img); 
 							
 				$preview = array();
-				$preview['open_link'] = '<a  href="'.$dir.'/'.$img.'" target="_blank">';
+				$preview['open_link'] = '<a  href="'.$dir.'/'.$img.'" title="asfasf" rel="lightbox">';
 				$preview['img'] = $image->thumb_toHtml(350);
 			
 				$preview['name'] = $img;
@@ -225,6 +225,8 @@ class Utils_Gallery extends Module {
 				return $theme->toHtml();
 			}
 		}
+		eval_js('wait_while_null(\'initLightbox\',\'initLightbox()\')');
+		eval_js('wait_while_null(\'initLightbox\',\'setTimeout("initLightbox()", 200)\')');
 		
 	}
 	

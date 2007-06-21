@@ -1,7 +1,7 @@
 {if $style=='preview'}
 	<table id="Utils_Gallery" cellspacing="2">
 		<tr>
-			<td>
+			<td align=center>
 					{$preview.open_link}
 					<div class="utils_gallery_preview">
 						{$preview.img}<br>
@@ -13,7 +13,7 @@
 		
 		{* buttons *}
 		<tr>
-			<td>
+			<td align=center>
 				{foreach from=$buttons key=k item=v}
 					{$v}
 				{/foreach}
