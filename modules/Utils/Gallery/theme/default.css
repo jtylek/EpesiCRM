@@ -1,29 +1,33 @@
-table#Utils_Gallery a.utils_gallery_picture_link {
+div.utils_gallery__conteiner {
+    overflow: hidden;
+    overflow-y: auto;
+}
+table.Utils_Gallery a.utils_gallery_picture_link {
 	text-decoration: none;
 	font-weight: bold;
 	padding: 4px;
 	margin: 2px;
 }
 
-table#Utils_Gallery a.utils_gallery_picture_link:hover {
+table.Utils_Gallery a.utils_gallery_picture_link:hover {
 	border: 1px solid #CCCCCC;
 	background: #dedeff;
 	padding: 3px;
 }
 
-table#Utils_Gallery .utils_gallery_item {
+table.Utils_Gallery .utils_gallery_item {
 	border: 1px solid #CCCCCC;
 	padding: 5px;
 	margin: 10px;
 	vertical-align: bottom;
 }
 
-table#Utils_Gallery .utils_gallery_preview {
+table.Utils_Gallery .utils_gallery_preview {
 	padding: 5px;
 	margin: 10px;
 }
 
-table#Utils_Gallery .utils_gallery_prewiev_list {
+table.Utils_Gallery .utils_gallery_prewiev_list {
 	border-top: 1px dashed #CCCCCC;
 	margin-top: 15px;
 	width: 600px;
@@ -32,6 +36,6 @@ table#Utils_Gallery .utils_gallery_prewiev_list {
 	vertical-align: bottom;
 }
 
-table#Utils_Gallery .utils_gallery_prewiev_list_item {
+table.Utils_Gallery .utils_gallery_prewiev_list_item {
 	vertical-align: bottom;
 }

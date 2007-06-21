@@ -62,7 +62,8 @@ class Utils_Path extends Module {
 	public function toHtml() {
 		$this->prepare();
 		$theme = & $this->init_module('Base/Theme');
-		$str = '<div id=path_conteiner_'.$this->_id.'>'.$this->_string.'</div>';
+		$str = '<div id="path_conteiner_'.$this->_id.'">'.$this->_string.'</div>';
+		$theme->assign('id', 'path_conteiner_'.$this->_id);
 		$theme->assign('root', $this->root);
 		$theme->assign('list', $this->list);
 		
@@ -71,13 +72,6 @@ class Utils_Path extends Module {
 	}
 	
 	public function body() {
-		$this->prepare();
-		$theme = & $this->init_module('Base/Theme');
-		$str = '<div id=path_conteiner_'.$this->_id.'>'.$this->_string.'</div>';
-		$theme->assign('root', $this->root);
-		$theme->assign('list', $this->list);
-		
-		eval_js('wait_while_null( "utils_path_writeOut", "utils_path_writeOut('.$this->_id.')" );');
-		$theme->display();
+		print $this->toHtml();
 	}
 }

@@ -31,7 +31,9 @@ show_path_children = function( id ) {
 	}
 	if( is_IE ) {
 		var t = document.getElementById('utils_path_mask');
-		t.style.display = 'none';
+		if( t ) {
+			t.style.display = 'none';
+		}
 	}
 	opened[id] = 'path_'+id;
 	clearTimeout(hide_to[id]);
@@ -70,7 +72,9 @@ hide_path_children_f = function( id ) {
 		node.style.visibility = "hidden";
 		if( is_IE ) {
 			var t = document.getElementById('utils_path_mask');
-			t.style.display = 'none';
+			if( t ) {
+				t.style.display = 'none';
+			}
 		}
 	}
 }

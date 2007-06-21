@@ -66,6 +66,7 @@ class Utils_Gallery extends Module {
 	}
 	
 	public function toHtml(  ) {
+		load_js('modules/Utils/Gallery/js/gallery.js');
 		$dir = $this->path;
 		$img = $this->get_unique_href_variable('img', '');
 		$slideshow = $this->get_unique_href_variable('slideshow', 'no');
@@ -100,7 +101,6 @@ class Utils_Gallery extends Module {
 			
 			// SLIDESHOW
 			if( $slideshow == 'yes' ) {
-				load_js('modules/Utils/Gallery/js/gallery.js');
 				print "<div id=gal_deb></div>";
 				$ret = '';
 				$image = & $this->init_module('Utils/Image');
@@ -237,6 +237,9 @@ class Utils_Gallery extends Module {
 			}
 		}
 		
+	}
+	public function expand() {
+		eval_js('wait_while_null("utils_gallery__set_content_height", "utils_gallery__set_content_height(\'utils_gallery__conteiner\')");');
 	}
 	
 	public function body( $dir ) {

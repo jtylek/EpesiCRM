@@ -1,3 +1,4 @@
+<div id="{$id}">
 {$root.item}
 {if $root.children_num > 0}
 	{$root.children_open}
@@ -16,3 +17,4 @@
 		{$element.children_close}
 	{/if}
 {/foreach}
+</div>
