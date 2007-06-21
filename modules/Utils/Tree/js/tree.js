@@ -52,7 +52,7 @@
 			tree_node_visibility_show(id, path[i]);
 		}
 	}
-	/*
+	
 	utils_tree_hl = function( i ) { 
 		//i.style.background = "white"; i.style.padding = "0px"; i.style.border = "1px solid black"; 
 		i.className = 'utils_tree_node_hover';
@@ -61,5 +61,5 @@
 		//i.style.background = "transparent"; i.style.padding = "1px"; i.style.border = "none"; 
 		i.className = 'utils_tree_node';
 	};
-	*/
+	
 			
