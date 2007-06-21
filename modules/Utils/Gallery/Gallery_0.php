@@ -181,7 +181,7 @@ class Utils_Gallery extends Module {
 				$thumb = $image->create_thumb(650, 450);
 				$preview = array();
 				$tag = md5(date("HMs"));
-				$preview['open_link'] = '<a href="'.$thumb.'" rel="lightbox['.$tag.']">';
+				$preview['open_link'] = '<a href="'.$thumb.'" rel="lyteshow['.$tag.']">';
 				$preview['img'] = $image->thumb_toHtml(350);
 			
 				$preview['name'] = $img;
@@ -213,7 +213,7 @@ class Utils_Gallery extends Module {
 							$next_img = $images[$i+1];
 					} else {
 						$thumb = $image->create_thumb(650, 450);
-						$current_part .= '<a href="'.$thumb.'" rel="lightbox['.$tag.']">XXX</a>';
+						$current_part .= '<a href="'.$thumb.'" rel="lyteshow['.$tag.']">XXX</a>';
 					}
 				}
 				$buttons = array();
@@ -232,7 +232,6 @@ class Utils_Gallery extends Module {
 				$theme->assign('next_list', $next_list);
 				$theme->assign('buttons', $buttons);
 				$theme->assign('preview', $preview);
-				eval_js('wait_while_null("myLightbox && document.getElementById(\'utils_gallery__conteiner\')", "myLightbox.updateImageList();");');
 				return $theme->toHtml();
 			}
 		}

@@ -11,7 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_GalleryInit_0 extends ModuleInit {
 	public static function requires() {
 		return array(
-			array('name'=>'Libs/Leightbox', 'version'=>0),
+			array('name'=>'Libs/Lytebox', 'version'=>0),
 			array('name'=>'Utils/Image', 'version'=>0)
 		);
 	}
