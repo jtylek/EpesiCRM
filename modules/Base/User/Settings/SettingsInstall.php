@@ -37,6 +37,11 @@ class Base_User_SettingsInstall extends ModuleInstall {
 		Base_ThemeCommon::uninstall_default_theme('Base/User/Settings');
 		return $ret;
 	}
+
+	public static function version() {
+		return array("1.0");
+	}
+
 }
 
 ?>

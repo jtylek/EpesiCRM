@@ -30,5 +30,10 @@ class Base_UserInstall extends ModuleInstall {
 	public static function uninstall() {
 		return DB::DropTable('user_login');
 	}
+	
+	public static function version() {
+		return array("1.0");
+	}
+	
 }
 ?>

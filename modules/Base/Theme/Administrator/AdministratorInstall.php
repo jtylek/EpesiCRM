@@ -23,6 +23,10 @@ class Base_Theme_AdministratorInstall extends ModuleInstall {
 	public static function uninstall() {
 		return true;
 	}
+
+	public static function version() {
+		return array("1.0");
+	}
 }
 
 ?>
