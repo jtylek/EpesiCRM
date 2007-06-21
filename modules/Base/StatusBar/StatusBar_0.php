@@ -33,21 +33,21 @@ class Base_StatusBar extends Module {
 		eval_js_once('var statusbar_message_t=\'\';' .
 				'statusbar_message=function(text){statusbar_message_t=text;};' .
 				'statusbar_fade=function(){'.
-					'wait_while_null(\'document.getElementById(\\\'Base_StatusBar\\\')\',\'$(\\\'Base_StatusBar\\\').style.display=\\\'none\\\';\');'.
+					'wait_while_null(\'$(\\\'Base_StatusBar\\\')\',\'$(\\\'Base_StatusBar\\\').style.display=\\\'none\\\';\');'.
 				'};' .				
 				'updateSajaIndicatorFunction=function(){' .
 					'saja.indicator=\'statusbar_text\';' .
-					'document.getElementById(\'sajaStatus\').style.visibility=\'hidden\';' .
-					'statbar = document.getElementById(\'Base_StatusBar\');' .
+					'$(\'sajaStatus\').style.visibility=\'hidden\';' .
+					'statbar = $(\'Base_StatusBar\');' .
 					'statbar.onclick = Function("if(!saja.procOn)statusbar_fade();");' .
 					'statbar.style.display=\'none\';' .
 					'saja.updateIndicator=function(){' .
-						'statbar = document.getElementById(\'Base_StatusBar\');' .
+						'statbar = $(\'Base_StatusBar\');' .
 						'if(saja.procOn){' .
 							'statbar.style.display=\'block\';' .
 						'}else{' .
 							'if(statusbar_message_t!=\'\') {' .
-								't=document.getElementById(\'statusbar_text\');' .
+								't=$(\'statusbar_text\');' .
 								'if(t)t.innerHTML=statusbar_message_t;' .
 								'statusbar_message(\'\');' .
 								'setTimeout(\'statusbar_fade()\',3000);' .

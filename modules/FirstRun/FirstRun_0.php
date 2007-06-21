@@ -68,7 +68,7 @@ class FirstRun extends Module {
 		////////////////////////////////////////////////////////////
 		$f = & $wizard->begin_page('setup_warning');
 		$f->addElement('header', null, $this->lang->t('Warning'));
-		$f->addElement('header', null, "Setup will now check for available modules and proceed with base install,<br> this operation may take several minutes<br> and will be triggered automatically only once.<br> Click ok to proceed.");
+		$f->addElement('header', null, "Setup will now check for available modules and proceed with base install,<br> this operation may take several minutes<br> and will be triggered automatically only once.<br> Click next to proceed.");
 		$wizard->end_page();
 
 		/////////////////////////////////////////
