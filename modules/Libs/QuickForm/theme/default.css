@@ -45,21 +45,33 @@
 	border: 1px solid #B3B3B3;
 }
 
-#quickform .element_submit input {
+#quickform .element_submit input, .element_button input {
 	color: #4C4C4C;
-	border: 0px;
-	width: 100px;
-	/*border: 1px solid #B3B3B3;*/
+	font-size: 11px;
 	height: 20px;
 	text-align: center;
 	vertical-align: center;
-	/*padding-left: 20px;
-	padding-right: 20px;*/
-	/*background-image: url("images/button-background-2.png");*/
-	background-image: url("images/button.png");
-	font-size: 11px;
+
+	/* 100px width */
+	/*border: 0px;
+	width: 100px;
+	background-image: url("images/button.png");*/
+
+	/* Xpx width */
+	border: 1px solid #B3B3B3;
+	padding-left: 20px;
+	padding-right: 20px;
+	background-image: url("images/button-background-2.png");
 }
 
-#quickform .element_submit input:hover {
+/* 100px width */
+
+/*#quickform .element_submit input:hover, .element_button input:hover {
 	background-image: url("images/button-hover.png");
+}*/
+
+/* Xpx width */
+
+#quickform .element_submit input:hover, .element_button input:hover {
+	background-image: url("images/button-background-2-hover.png");
 }
