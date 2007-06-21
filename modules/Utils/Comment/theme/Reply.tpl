@@ -7,7 +7,7 @@
 	</tr>
 	<tr>
 		<td></td>
-		<td style="text-align: left; padding-top: 5px;">{$form_data.submit_comment.html}&nbsp;{$form_data.cancel_comment.html}</td>
+		<td class="submit" style="text-align: left; padding-top: 5px;">{$form_data.submit_comment.html}&nbsp;{$form_data.cancel_comment.html}</td>
 	</tr>	
 </table>
 

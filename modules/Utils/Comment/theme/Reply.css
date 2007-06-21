@@ -16,3 +16,22 @@ table#Utils_Comment__Reply td.post_input textarea {
 	width: 850px;
 	height: 200px;
 }
+
+table#Utils_Comment__Reply input {
+	font-size: 11px;
+}
+
+table#Utils_Comment__Reply select {
+	font-size: 11px;
+}
+
+table#Utils_Comment__Reply td.submit input {
+	color: #4C4C4C;
+	border: 0px;
+	width: 100px;
+	height: 20px;
+	text-align: center;
+	vertical-align: center;
+	background-image: url("images/button.png");
+	font-size: 11px;
+}
