@@ -89,7 +89,7 @@ function load_js($u = false) {
  * @param string
  */
 function load_js_inline($u = false) {
-	eval_js( file_get_contents("modules/Utils/Tree/js/tree.js") );
+	eval_js( file_get_contents($u) );
 }
 /**
  * Add js block to eval. If no argument is specified return saved jses.
