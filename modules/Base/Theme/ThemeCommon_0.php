@@ -17,13 +17,10 @@ class Base_ThemeCommon {
 		$directory = 'modules/'.str_replace('_','/',$mod_name).'/'.$theme_dir;
 		$mod_name = str_replace('/','_',$mod_name);
 		$data_dir = 'data/Base/Theme/templates/default/';
-
 		$content = scandir($directory);
 		foreach ($content as $name){
 			if($name == '.' || $name == '..' || ereg('^[\.~]',$name)) continue;
 			recursive_copy($directory.'/'.$name,$data_dir.$mod_name.'__'.$name);
-//			if (!is_dir($directory.'/'.$name))
-//				copy($directory.'/'.$name,$data_dir.$mod_name.'__'.$name);
 		}
 	}
 	

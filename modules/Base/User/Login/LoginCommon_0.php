@@ -65,11 +65,7 @@ Your password is: %s
 
 For security reasons it is recommened that you login immediately and change your password.
 
-This e-mail was automatically generated and you do not need to respond to it.
-If you have any questions please e-mail us at admin@contractors.net or call our office at 610-642-9505.
-
-Sincerely,
-Staff at Certified Contractors Network"),$url,$username,$pass);
+This e-mail was automatically generated and you do not need to respond to it."),$url,$username,$pass);
 		
 		return Base_MailCommon::send($mail, $subject, $body);
 	}

@@ -29,6 +29,7 @@ class Base_ThemeInstall extends ModuleInstall {
 	}
 	
 	public static function uninstall() {
+		recursive_rmdir('data/Base/Theme/templates/default/images');
 		return Variable::delete('default_theme');
 	}
 	
