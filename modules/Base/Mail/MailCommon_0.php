@@ -19,6 +19,10 @@ class Base_MailCommon extends Base_AdminModuleCommon {
 	public static function admin_caption() {
 		return 'Mail server settings';
 	}
+	
+	public static function admin_access() {
+		return Base_AclCommon::i_am_sa();
+	}
 
 	public static function send($to,$subject,$body,$from_addr, $from_name) {
 		$mailer = new PHPMailer();
