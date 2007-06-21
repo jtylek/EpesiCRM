@@ -106,13 +106,15 @@ class Apps_Gallery extends Module {
 	}
 	
 	public function submit_mk_folder($data) {
-		print "Created folder: ".$data['target'] . $data['new'];
+		//print "Created folder: ".$data['target'] . $data['new'];
 		mkdir($this->root.$this->user.$data['target'] . $data['new']);
 		unset($data);
 		return true;
 	}
 
 	public function mk_folder( $last_submited = 0 ) {
+		$dir = $this->get_module_variable_or_unique_href_variable('dir', "");
+		$user = $this->get_module_variable_or_unique_href_variable('user', $this->user);
 		$dirs = $this->getDirsRecursive($this->root.$this->user, "/^[^\.].*$/");
 		ksort($dirs);
 		$form = & $this->init_module('Libs/QuickForm');
@@ -133,9 +135,16 @@ class Apps_Gallery extends Module {
 					if($d != "" ) {
 						if( !is_array($c[$d]) ) {
 							$tmp = & $form->createElement('radio', 'target', $up, $d, $up.'/');
+							$opened = 0;
+							if($up == $dir) {
+								$opened = 1;
+								$tmp->setChecked(1);
+							}
 							$c[$d] = array(
 								'name' => $tmp->toHtml(),
-								'selected' => 0,
+								'selected' => $opened,
+								'visible' => $opened,
+								'opened' => $opened,
 								'sub' => array()
 							);
 						}
@@ -148,11 +157,17 @@ class Apps_Gallery extends Module {
 		
 		$tree = & $this->init_module('Utils/Tree', $this->root.$this->user);
 		$tmp_t = & $form->createElement('radio', 'target', '/', 'My Gallery', '/');
-		$tmp_t->setChecked(1);
+		$opened = 0;
+		if($dir == '') {
+			$tmp_t->setChecked(1);
+			$opened = 1;
+		}
 		$tree->set_structure( array(
-			array(
+			'My Gallery' => array(
 				'name'=> $tmp_t->toHtml(),
-				'selected'=>0,
+				'selected' => $opened,
+				'visible' => $opened,
+				'opened' => $opened,
 				'sub'=>$structure
 			))
 		);
@@ -213,6 +228,7 @@ class Apps_Gallery extends Module {
 							$c[$d] = array(
 								'name' => $tmp->toHtml(),
 								'selected' => $opened,
+								'visible' => $opened,
 								'opened' => $opened,
 								'sub' => array()
 							);
@@ -226,11 +242,17 @@ class Apps_Gallery extends Module {
 		
 		$tree = & $this->init_module('Utils/Tree', $this->root.$this->user);
 		$tmp_t = & $form->createElement('radio', 'target', '', 'My Gallery', '/');
-		$tmp_t->setChecked(1);
+		$opened = 0;
+		if($dir == '') {
+			$tmp_t->setChecked(1);
+			$opened = 1;
+		}
 		$tree->set_structure( array(
 			'My Gallery' => array(
 				'name'=> $tmp_t->toHtml(),
-				'selected'=>0,
+				'selected' => $opened,
+				'visible' => $opened,
+				'opened' => $opened,
 				'sub'=>$structure
 			))
 		);
@@ -255,20 +277,22 @@ class Apps_Gallery extends Module {
 	
 	///////////////////////////////////////////////////////////////////////////
 	public function submit_share_folders($data) {
-		print "<span align=left>Sharing folders:<br>";
+		//print "<span align=left>Sharing folders:<br>";
 		DB::Execute('delete from gallery_shared_media where user_id = %s', array($this->user));
 		unset($data['submited']);
 		unset($data['submit_button']);
 		//print Base_UserCommon::get_user_login(Base_UserCommon::get_my_user_id()) ." <br>";
 		foreach( $data as $dir => $sel) {
 			//print $this->user_name.": ". $dir ." <br>";
-			print $dir . " <br>";
+			//print $dir . " <br>";
 			DB::Execute('insert into gallery_shared_media values(%s, %s)', array($this->user, $dir));
 		}
-		print "</span>";
+		//print "</span>";
 		return true;
 	}
 	public function share_folders($last_submited = 0) {
+		$dir = $this->get_module_variable_or_unique_href_variable('dir', "");
+		$user = $this->get_module_variable_or_unique_href_variable('user', $this->user);
 		$form = & $this->init_module('Libs/QuickForm');
 		$lang = & $this->pack_module('Base/Lang');
 		
@@ -293,12 +317,16 @@ class Apps_Gallery extends Module {
 					if($d != "" ) {
 						if( !is_array($c[$d]) ) {
 							$tmp = & $form->createElement('checkbox', $up, $up, $d);
-							if(array_key_exists(str_replace(" ", "_", $up), $shared))
+							$opened = 0;
+							if(array_key_exists(str_replace(" ", "_", $up), $shared)) {
 								$tmp->setChecked(1);
+								$opened = 1;
+							}
 								//print $up." -- ".$shared[$up]."<br>";
 							$c[$d] = array(
 								'name' => $tmp->toHtml(),
-								'selected' => 0,
+								'selected' => $opened,
+								'visible' => $opened,
 								'sub' => array()
 							);
 						}
@@ -311,12 +339,16 @@ class Apps_Gallery extends Module {
 		
 		$tree = & $this->init_module('Utils/Tree', $this->root.$this->user);
 		$tmp_t = & $form->createElement('checkbox', '/', 'My Gallery', 'My Gallery');
-		if(array_key_exists('/', $shared))
+		$opened = 0;
+		if(array_key_exists('/', $shared)) {
 			$tmp_t->setChecked(1);
+			$opened = 1;
+		}
 		$tree->set_structure( array(
 			'My Gallery' => array(
 				'name'=> $tmp_t->toHtml(),
-				'selected'=>0,
+				'selected' => $opened,
+				'visible' => $opened,
 				'sub'=>$structure
 			))
 		);
@@ -395,6 +427,7 @@ class Apps_Gallery extends Module {
 							$c[$d] = array(
 								'name' => $tmp->toHtml(),
 								'selected' => $opened,
+								'visible' => $opened,
 								'opened' => $opened,
 								'sub' => array()
 							);
@@ -409,12 +442,17 @@ class Apps_Gallery extends Module {
 		
 		$tree = & $this->init_module('Utils/Tree');
 		$tmp_t = & $form->createElement('radio', 'target', '', 'My Gallery', '/');
-		if($dir == '')
+		$opened = 0;
+		if($dir == '') {
 			$tmp_t->setChecked(1);
+			$opened = 1;
+		}
 		$tree->set_structure( array(
 			'My Gallery' => array(
 				'name'=> $tmp_t->toHtml(),
-				'selected'=>0,
+				'selected' => $opened,
+				'visible' => $opened,
+				'opened' => $opened,
 				'sub'=>$structure
 			))
 		);
@@ -532,7 +570,7 @@ class Apps_Gallery extends Module {
 								);
 								if($up == $dir) {
 									$c[$d]['selected'] = 1;
-									$c[$d]['opened'] = 1;
+									$c[$d]['visible'] = 1;
 								}
 							}
 							$c = & $c[$d]['sub'];
