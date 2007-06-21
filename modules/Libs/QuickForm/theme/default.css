@@ -41,6 +41,10 @@
 	font-size: 11px;
 }
 
+#quickform .element_checkbox input {
+	border: 1px solid #B3B3B3;
+}
+
 #quickform .element_submit input {
 	color: #4C4C4C;
 	border: 0px;
