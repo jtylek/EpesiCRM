@@ -7,20 +7,22 @@
 		</tr>
 		<tr>
 			<td colspan="2" class="dirs" align="center">		
-				<table align="center" style="color: #B3B3B3;"><tr>
+				<table align="center" style="color: #B3B3B3;">
 				{assign var="counter" value=1}
 				{foreach from=$dirs key=k item=v}
-					{if $counter == 6}
-						<td>{$v}</td>
-						</tr>
-						<tr>
-						{assign var="counter" value=1}
+					{if $counter % 6 == 1}
+						<tr><td>{$v}</td>
+					{elseif  $counter % 6 == 0}
+						<td>|</td><td>{$v}</td></tr>
 					{else}
-						<td>{$v}&nbsp;|</td>
-						{assign var="counter" value=$counter+1}
+						<td>|</td><td>{$v}</td>
 					{/if}
+					{assign var="counter" value=$counter+1}
 				{/foreach}
-				</tr></table>
+				{if $counter % 6 > 0}
+					</tr>
+				{/if}
+				</table>
 			</td>
 		</tr>
 		<tr>

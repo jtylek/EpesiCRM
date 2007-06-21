@@ -380,7 +380,7 @@ class Apps_Gallery extends Module {
 		print 'Successfully uploaded "' . $data['uploaded_file'] . '" to "' . $data['target'] . '".<br>';
 		$image = & $this->init_module('Utils/Image');
 		$image->load($data['root'].$data['target'].$data['uploaded_file']);
-		$image->create_thumb(600);
+		$image->create_thumb(650, 450);
 		$image->display_thumb(120);
 		unset($data);
 		return true;
