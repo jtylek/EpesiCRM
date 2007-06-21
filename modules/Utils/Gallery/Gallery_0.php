@@ -232,7 +232,7 @@ class Utils_Gallery extends Module {
 				$theme->assign('next_list', $next_list);
 				$theme->assign('buttons', $buttons);
 				$theme->assign('preview', $preview);
-				
+				eval_js('wait_while_null("myLightbox && document.getElementById(\'utils_gallery__conteiner\')", "myLightbox.updateImageList();");');
 				return $theme->toHtml();
 			}
 		}
