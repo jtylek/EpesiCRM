@@ -12,6 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_ImageInit_0 extends ModuleInit {
 	public static function requires() {
+		if(!function_exists('imagecreatefromjpeg')) return array(array('name'=>'php5-gd','version'=>0));
 		return array();
 	}
 	
