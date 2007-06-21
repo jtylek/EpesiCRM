@@ -5,7 +5,9 @@
 	vertical-align: top;
 	font-weight: bold;
 	color: #4C4C4C;
+	background-color: #F0F0F0;
 	background-image: url("images/button-background-2.png");
+	background-repeat: repeat-x;
 	height: 20px;
 	border: 1px solid #CCCCCC;
 	padding-left: 5px;
