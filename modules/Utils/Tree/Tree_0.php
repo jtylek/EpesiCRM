@@ -22,6 +22,14 @@ class Utils_Tree extends Module {
 		$this->_id = Utils_Tree::$_counter;
 		Utils_Tree::$_counter++;
 		load_js("modules/Utils/Tree/js/tree.js");
+		eval_js(
+		'	utils_tree_hl = function( i ) { 
+				i.className = \'utils_tree_node_hover\';
+			}
+			utils_tree_rg = function( i ) { 
+				i.className = \'utils_tree_node\';
+			};'
+		);
 	}
 	
 	public function set_structure($s) {
