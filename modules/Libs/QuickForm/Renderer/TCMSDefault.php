@@ -337,9 +337,10 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
 	    	$this->_prepareValue($element);
             $html = $this->_prepareTemplate($element->getName(), $element->getLabel(), $required, $error);
             $this->_groupElements[] = str_replace(array('{element}','{element_style}'), array($element->toHtml(),$element->getType()), $html);
-
+            if (!$this->_groupType) $this->_groupType = $element->getType();
         } else {
             $this->_groupElements[] = $element->toHtml();
+            if (!$this->_groupType) $this->_groupType = $element->getType();
         }
     } // end func renderElement
    
@@ -385,6 +386,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
         $this->_groupElementTemplate = empty($this->_groupTemplates[$name])? '': $this->_groupTemplates[$name];
         $this->_groupWrap            = empty($this->_groupWraps[$name])? '': $this->_groupWraps[$name];
         $this->_groupElements        = array();
+        $this->_groupType            = null;
         $this->_inGroup              = true;
     } // end func startGroup
 
@@ -413,7 +415,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
         if (!empty($this->_groupWrap)) {
             $html = str_replace('{content}', $html, $this->_groupWrap);
         }
-        $this->_html   .= str_replace('{element}',$html, $this->_groupTemplate);
+        $this->_html   .= str_replace(array('{element}','{element_style}'),array($html,'element_'.$this->_groupType), $this->_groupTemplate);
         $this->_inGroup = false;
     } // end func finishGroup
 
