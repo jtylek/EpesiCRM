@@ -129,9 +129,14 @@ leightbox.prototype = {
 				var height = (ch / 4);
 			$('leightbox_overlay').style.height = ch + 'px';
 			$(this.content).style.height = height + 'px';
+		} else {
+			body = document.getElementsByTagName('body')[0];
+			body.appendChild( $(this.content) );
 		}
 		$('leightbox_overlay').style.display = display;
 		$(this.content).style.display = display;
+		
+		//$(this.content).setParent(  );
 		if(display != 'none') this.actions();		
 	},
 	
@@ -173,7 +178,7 @@ function addLeightboxMarkup() {
 	
 	leightbox_overlay.style.display = 'none';
 	leightbox_overlay.id			= 'leightbox_overlay';
-	leightbox_overlay.className	= 'leightbox_overlay';
+	leightbox_overlay.className		= 'leightbox_overlay';
 
 	bod.appendChild(leightbox_overlay);
 }
