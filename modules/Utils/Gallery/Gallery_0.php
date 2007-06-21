@@ -212,7 +212,7 @@ class Utils_Gallery extends Module {
 							$next_img = $images[$i+1];
 					} else {
 						$thumb = $image->create_thumb(650, 450);
-						$current_part .= '<a href="'.$thumb.'" rel="lightbox[]">'.$image->thumb_toHtml(650, 450).'</a>';
+						$current_part .= '<a href="'.$thumb.'" rel="lightbox[]">XXX</a>';
 					}
 				}
 				
