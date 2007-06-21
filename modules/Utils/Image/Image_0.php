@@ -47,6 +47,9 @@ class Utils_Image extends Module {
 		$this->max_dim = 100;
 		$this->thumb = '';
 		
+		$fony = array();
+		list($this->width, $this->height, $this->type, $fony) = getimagesize($this->img);
+		
 		if( $attr ) {
 			if( isset($attr['thumb_size']) && is_numeric($attr['thumb_size']) )
 				$this->max_dim = $attr['thumb_size'];
@@ -54,16 +57,23 @@ class Utils_Image extends Module {
 				$this->left_caption = htmlspecialchars( $attr['left_caption'] );
 			if( isset($attr['right_caption']) )
 				$this->right_caption = htmlspecialchars( $attr['right_caption'] );
+			
+			if( isset($attr['thumb_size_x']) )
+				$this->max_dim = $attr_x;
+			if( isset($attr['thumb_size_y']) && $this->width < $this->height )
+				$this->max_dim = $attr_y;
 		}
 		
-		list($this->width, $this->height, $this->type, $attr) = getimagesize($this->img);
+		
 		//print $this->type." -- type<br>";
 	}
 	
-	public function create_thumb($attr = null) {
-		if( $attr ) {
-			$this->max_dim = $attr;
-		}
+	public function create_thumb($attr_x = null, $attr_y = null) {
+		if( is_int($attr_x) )
+			$this->max_dim = $attr_x;
+		if( is_int($attr_y) && $this->width < $this->height )
+			$this->max_dim = $attr_y;
+			
 		if($this->height > $this->max_dim || $this->width > $this->max_dim) {
 			if($this->height < $this->width) {
 				$this->thumb_width = $this->max_dim;
@@ -154,6 +164,7 @@ class Utils_Image extends Module {
 			}
        	}
 		load_js("modules/Utils/Image/js/image.js");
+		return $this->get_data_dir().$this->thumb;
 	}
 	
 	// THUMB ---------------------------------------------------
@@ -193,7 +204,9 @@ class Utils_Image extends Module {
 		return array($this->thumb_width, $this->thumb_height, $this->type);
 	}
 	
-	public function get_thumb_address( $path, $size ) {
+	public function get_thumb_path( $size, $path = '' ) {
+		if($path === '') 
+			$path = $this->img;
 		$img_path = explode('/', str_replace("..", "UP", $path));
 		$img_file = array_pop($img_path);
 		if($img_path) {

@@ -177,12 +177,13 @@ class Utils_Gallery extends Module {
 				$images = $this->getListing("./".$dir, "/(\.png$)|(\.jpeg$)|(\.jpg$)|(\.gif$)/");
 				
 				$image->load("./".$dir."/".$img); 
-							
+				
+				$thumb = $image->create_thumb(650, 450);
 				$preview = array();
-				$preview['open_link'] = '<a  href="'.$dir.'/'.$img.'" title="asfasf" rel="lightbox">';
+				$preview['open_link'] = '<a href="'.$thumb.'" rel="lightbox">';
 				$preview['img'] = $image->thumb_toHtml(350);
 			
-				$preview['name'] = $img;
+				$preview['name'] = $img.' '.$thumb;
 				$preview['close_link'] = "</a>";
 				
 				$prev_img = '';
@@ -225,8 +226,6 @@ class Utils_Gallery extends Module {
 				return $theme->toHtml();
 			}
 		}
-		eval_js('wait_while_null(\'initLightbox\',\'initLightbox()\')');
-		eval_js('wait_while_null(\'initLightbox\',\'setTimeout("initLightbox()", 200)\')');
 		
 	}
 	
