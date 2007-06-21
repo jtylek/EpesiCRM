@@ -61,8 +61,10 @@ class Utils_Tree extends Module {
 					$ret .= "<td width=100% class=utils_tree_node_content_selected>".$v['name']."</td>";
 				else
 					$ret .= "<td width=100% class=utils_tree_node_content>".$v['name']."</td>";
-				if($v['opened'] == 1)
+				if($v['visible'] == 1)
 					array_push($this->_opened_paths, $path);
+				if($v['opened'] == 1 && is_array($v['sub']))
+					array_push($this->_opened_paths, $path.'_'.$this->_sub);
 					
 				$ret .= "</tr></table></div>";
 				if(is_array($v['sub'])) {
@@ -80,16 +82,21 @@ class Utils_Tree extends Module {
 		$ret = '<div class=utils_tree_root>';
 		foreach( $t as $k => $v ) {
 			$ret .= '<div id=utils_tree_node_'.$this->_id.' class=utils_tree_node onmouseover=\'utils_tree_hl(this)\' onmouseout=\'utils_tree_rg(this)\'><table><tr>';
-			if(count($v['sub']) > 0) {
+			if(count($v['sub']) > 0)
 				$ret .= '<td id=utils_tree_opener_'.$this->_id.'_'.($this->_sub).' class=utils_tree_opener_active_closed onclick="tree_node_visibility_toggle('.$this->_id.', '.($this->_sub).')"><img id=utils_tree_opener_img_'.$this->_id.'_'.($this->_sub).' src=modules/Utils/Tree/theme/opener_active_closed.gif></td>';
-			} else {
+			else
 				$ret .= '<td class=utils_tree_opener_inactive><img src=modules/Utils/Tree/theme/opener_inactive.gif></td>';
-			}
-			if($v['selected'] == 1) {
+			
+			if($v['selected'] == 1)
 				$ret .= "<td width=100% class=utils_tree_node_content_selected>".$v['name']."</td>";
-			} else {
+			else
 				$ret .= "<td width=100% class=utils_tree_node_content>".$v['name']."</td>";
-			}
+			
+			if($v['visible'] == 1)
+				array_push($this->_opened_paths, $path);
+			if($v['opened'] == 1 && is_array($v['sub']))
+				array_push($this->_opened_paths, $path.'_'.$this->_sub);
+					
 			$ret .= "</tr></table></div>";
 			if(is_array($v['sub'])) {
 				$ret .= $this->print_structure_r($v['sub'], $level + 1, $this->_sub);
