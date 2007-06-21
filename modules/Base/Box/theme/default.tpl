@@ -16,7 +16,7 @@
 			<table cellspacing="0" cellpadding="0" border="0">
 				<tr>
 					<td style="width: 691px; height: 20px; text-align: left;">{$menu}</td>
-					<td class="module_name">{$moduleindicator}</td>
+					<td class="module_name">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</td>
 				</tr>
 			</table>
 		</td>
