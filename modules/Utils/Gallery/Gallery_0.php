@@ -183,7 +183,7 @@ class Utils_Gallery extends Module {
 				$preview['open_link'] = '<a href="'.$thumb.'" rel="lightbox">';
 				$preview['img'] = $image->thumb_toHtml(350);
 			
-				$preview['name'] = $img.' '.$thumb;
+				$preview['name'] = $img;
 				$preview['close_link'] = "</a>";
 				
 				$prev_img = '';
@@ -211,7 +211,7 @@ class Utils_Gallery extends Module {
 				$buttons = array();
 				if($prev_img != '') 	$buttons[] = '<a class=utils_gallery_picture_link '.$this->create_unique_href(array('img'=>$prev_img)).'>&lt; Prevoius</a> ';
 				else					$buttons[] = '&lt; Prevoius';
-				$buttons[] = '<a class=utils_gallery_picture_link '.$this->create_unique_href(array('img'=>$img, 'slideshow'=>'yes')).'>Slideshow</a>';
+				//$buttons[] = '<a class=utils_gallery_picture_link '.$this->create_unique_href(array('img'=>$img, 'slideshow'=>'yes')).'>Slideshow</a>';
 				$buttons[] = '<a class=utils_gallery_picture_link href="'.$dir.'/'.$img.'" target="_blank">Download</a>';
 				$buttons[] = "<a class=utils_gallery_picture_link ".$this->create_unique_href(array('img'=>'')).">Close preview</a>";
 				if($next_img != '') 	$buttons[] = '<a class=utils_gallery_picture_link '.$this->create_unique_href(array('img'=>$next_img)).'>Next &gt;</a>';
