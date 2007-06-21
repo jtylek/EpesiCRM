@@ -40,8 +40,6 @@ class Utils_Image extends Module {
 			$this->img = $img;
 		}
 		
-		$this->img_id = Utils_Image::$img_counter;
-		Utils_Image::$img_counter++;
 		$this->left_caption = '';
 		$this->right_caption = '';
 		$this->max_dim = 100;
@@ -69,6 +67,8 @@ class Utils_Image extends Module {
 	}
 	
 	public function create_thumb($attr_x = null, $attr_y = null) {
+		$this->img_id = Utils_Image::$img_counter;
+		Utils_Image::$img_counter++;
 		if( is_int($attr_x) )
 			$this->max_dim = $attr_x;
 		if( is_int($attr_y) && $this->width < $this->height )
@@ -168,19 +168,20 @@ class Utils_Image extends Module {
 	}
 	
 	// THUMB ---------------------------------------------------
-	public function display_thumb($attr = null) {
-		print $this->left_caption.'<img id="img_'.$this->img_id.'" src="'.$this->theme->get_theme_path().'loader.gif">'.$this->right_caption;
-		$this->create_thumb($attr);
-		eval_js('wait_while_null( "load_thumb", "load_thumb(\''.$this->get_data_dir().$this->thumb.'\', '.$this->img_id.')" );');
-	}
-	
-	public function thumb_toHtml($attr = null) {
-		$this->create_thumb($attr);
+	public function thumb_toHtml($attr_x = null, $attr_y = null) {
+		$this->img_id = Utils_Image::$img_counter;
+		Utils_Image::$img_counter++;
+		$this->create_thumb($attr_x, $attr_y);
 		eval_js('wait_while_null( "load_thumb", "load_thumb(\''.$this->get_data_dir().$this->thumb.'\', '.$this->img_id.')" );');
 
 		$ret = $this->left_caption.'<img id="img_'.$this->img_id.'" src="'.$this->theme->get_theme_path().'loader.gif">'.$this->right_caption;
 		return $ret;
 	}
+	
+	public function display_thumb($attr_x = null, $attr_y = null) {
+		print $this->thumb_toHtml($attr_x, $attr_y);
+	}
+	
 	
 	// REGULAR ------------------------------------------------
 	public function toHtml() {

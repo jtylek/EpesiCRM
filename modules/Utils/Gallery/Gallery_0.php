@@ -180,7 +180,7 @@ class Utils_Gallery extends Module {
 				
 				$thumb = $image->create_thumb(650, 450);
 				$preview = array();
-				$preview['open_link'] = '<a href="'.$thumb.'" rel="lightbox">';
+				$preview['open_link'] = '<a href="'.$thumb.'" rel="lightbox[]">';
 				$preview['img'] = $image->thumb_toHtml(350);
 			
 				$preview['name'] = $img;
@@ -189,22 +189,30 @@ class Utils_Gallery extends Module {
 				$prev_img = '';
 				$next_img = '';
 				$image_list = array();
+				
+				$prev_list = '';
+				$next_list = '';
+				$current_part = &$prev_list;
 				$c_images =  count($images);
 				for($i = 0; $i < $c_images; $i++ ) {
 					$image->load("./".$dir."/".$images[$i]); 
 				
 					$image_list[$i] = array();
-					$image_list[$i]['open_link'] = "<a ".$this->create_unique_href(array('img'=>$images[$i])).">";
+					$image_list[$i]['open_link'] = '<a '.$this->create_unique_href(array('img'=>$images[$i])).'>';
 					$image_list[$i]['img'] = $image->thumb_toHtml(120);
 				
 					$image_list[$i]['name'] = $images[$i];
 					$image_list[$i]['close_link'] = "</a>";
 					
 					if($images[$i] == $img) {
+						$current_part = &$next_list;
 						if($i > 0) 
 							$prev_img = $images[$i-1];
 						if($i < $c_images - 1) 
 							$next_img = $images[$i+1];
+					} else {
+						$thumb = $image->create_thumb(650, 450);
+						$current_part .= '<a href="'.$thumb.'" rel="lightbox[]">'.$image->thumb_toHtml(650, 450).'</a>';
 					}
 				}
 				
@@ -220,6 +228,8 @@ class Utils_Gallery extends Module {
 				
 				$theme->assign('style', 'preview');
 				$theme->assign('image_list', $image_list);
+				$theme->assign('prev_list', $prev_list);
+				$theme->assign('next_list', $next_list);
 				$theme->assign('buttons', $buttons);
 				$theme->assign('preview', $preview);
 				

@@ -2,12 +2,14 @@
 	<table id="Utils_Gallery" cellspacing="2">
 		<tr>
 			<td align=center>
+					<span style="display: none;">{$prev_list}</span>
 					{$preview.open_link}
 					<div class="utils_gallery_preview">
 						{$preview.img}<br>
 						{$preview.name}
 					</div>
 					{$preview.close_link}
+					<span style="display: none;">{$next_list}</span>
 			</td>
 		</tr>
 		
