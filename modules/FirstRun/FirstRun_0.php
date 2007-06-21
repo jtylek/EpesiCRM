@@ -71,8 +71,10 @@ class FirstRun extends Module {
 		$f->addElement('header', null, "Setup will now check for available modules and proceed with base install,<br> this operation may take several minutes<br> and will be triggered automatically only once.<br> Click ok to proceed.");
 		$wizard->end_page();
 
-		/////////////////////////////////////////		
+		/////////////////////////////////////////
+		print('<center>');		
 		$this->display_module($wizard, array(array($this,'done')));
+		print('</center>');
 	}
 	
 	public function choose_setup_type($d) {

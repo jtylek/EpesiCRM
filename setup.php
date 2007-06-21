@@ -23,7 +23,7 @@ require_once "HTML/QuickForm.php";
 
 
 if(!isset($_GET['licence'])) {
-	print('<h1>Welcome to epesi!<br></h1><h2>Please read and accept licence</h2><br><div style="overflow:auto;height:60%;">');
+	print('<h1>Welcome to epesi!<br></h1><h2>Please read and accept licence</h2><br><div style="overflow:auto;height:60%; border: 1px solid black;">');
 	licence();
 ?>
 </div>
