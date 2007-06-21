@@ -180,7 +180,8 @@ class Utils_Gallery extends Module {
 				
 				$thumb = $image->create_thumb(650, 450);
 				$preview = array();
-				$preview['open_link'] = '<a href="'.$thumb.'" rel="lightbox[]">';
+				$tag = md5(date("HMs"));
+				$preview['open_link'] = '<a href="'.$thumb.'" rel="lightbox['.$tag.']">';
 				$preview['img'] = $image->thumb_toHtml(350);
 			
 				$preview['name'] = $img;
@@ -212,10 +213,9 @@ class Utils_Gallery extends Module {
 							$next_img = $images[$i+1];
 					} else {
 						$thumb = $image->create_thumb(650, 450);
-						$current_part .= '<a href="'.$thumb.'" rel="lightbox[]">XXX</a>';
+						$current_part .= '<a href="'.$thumb.'" rel="lightbox['.$tag.']">XXX</a>';
 					}
 				}
-				
 				$buttons = array();
 				if($prev_img != '') 	$buttons[] = '<a class=utils_gallery_picture_link '.$this->create_unique_href(array('img'=>$prev_img)).'>&lt; Prevoius</a> ';
 				else					$buttons[] = '&lt; Prevoius';
