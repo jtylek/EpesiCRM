@@ -83,7 +83,14 @@ function load_css($u = false) {
 function load_js($u = false) {
 	eval_js_once('load_js(\'' . addslashes($u) . '\')');
 }
-
+/**
+ * Add js to load inline.
+ * 
+ * @param string
+ */
+function load_js_inline($u = false) {
+	eval_js( file_get_contents("modules/Utils/Tree/js/tree.js") );
+}
 /**
  * Add js block to eval. If no argument is specified return saved jses.
  * 
