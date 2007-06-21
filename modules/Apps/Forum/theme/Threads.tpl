@@ -11,7 +11,7 @@
 					<td style="background-color: #F8F8F8; height: 20px; border-bottom: 4px solid #CCCCCC; border-right: 1px solid #CCCCCC; width: 20%; text-align: center;">{$topic}</td>
 					<td style="background-color: #F8F8F8; height: 20px; border-bottom: 4px solid #CCCCCC; border-right: 1px solid #CCCCCC; width: 20%; text-align: center;" colspan="2">{$latest_post}</td>
 					<td style="background-color: #F8F8F8; height: 20px; border-bottom: 4px solid #CCCCCC; border-right: 1px solid #CCCCCC; width: 10%; text-align: center">{$posts_count}</td>
-					<td style="background-color: #F8F8F8; height: 20px; border-bottom: 4px solid #CCCCCC; width: 10%; text-align: center"></td>
+					<td style="background-color: #F8F8F8; height: 20px; border-bottom: 4px solid #CCCCCC; width: 10%; text-align: center">Actions</td>
 				</tr>
 				{foreach item=thread from=$threads}
 				<tr>

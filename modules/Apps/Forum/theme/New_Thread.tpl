@@ -16,7 +16,7 @@
 	</tr>
 	<tr>
 		<td></td>
-		<td colspan="2" style="text-align: left; padding-top: 5px;">{$form_data.submit.html}&nbsp;{$form_data.cancel.html}</td>
+		<td class="submit" colspan="2" style="text-align: left; padding-top: 5px;">{$form_data.submit.html}&nbsp;{$form_data.cancel.html}</td>
 	</tr>	
 </table>
 

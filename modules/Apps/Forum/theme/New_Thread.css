@@ -34,3 +34,22 @@ table#Apps_Forum__New_Thread td.post_input textarea {
 	width: 850px;
 	height: 200px;
 }
+
+table#Apps_Forum__New_Thread input {
+	font-size: 11px;
+}
+
+table#Apps_Forum__New_Thread select {
+	font-size: 11px;
+}
+
+table#Apps_Forum__New_Thread td.submit input {
+	color: #4C4C4C;
+	border: 0px;
+	width: 100px;
+	height: 20px;
+	text-align: center;
+	vertical-align: center;
+	background-image: url("images/button.png");
+	font-size: 11px;
+}
