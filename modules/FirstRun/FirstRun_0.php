@@ -21,12 +21,6 @@ class FirstRun extends Module {
 		$f->setDefaults(array('setup_type'=>'simple'));
 		$wizard->end_page(array($this,'choose_setup_type'));
 		
-		////////////////////////////////////////////////////////////
-		$f = & $wizard->begin_page('adv_warning');
-		$f->addElement('header', null, $this->lang->t('Warning'));
-		$f->addElement('header', null, "Setup will now check for available modules,<br> this operation may take several minutes<br> and will be triggered automatically only once.<br> Click ok to proceed.");
-		$wizard->end_page(999);
-
 		/////////////////////////////////////////////////////////////////
 		$f = & $wizard->begin_page('simple_user');
 		$f->addElement('header', null, $this->lang->t('Please enter administrator user login and password'));
@@ -71,17 +65,23 @@ class FirstRun extends Module {
 
 		$wizard->end_page();
 		
+		////////////////////////////////////////////////////////////
+		$f = & $wizard->begin_page('setup_warning');
+		$f->addElement('header', null, $this->lang->t('Warning'));
+		$f->addElement('header', null, "Setup will now check for available modules and proceed with base install,<br> this operation may take several minutes<br> and will be triggered automatically only once.<br> Click ok to proceed.");
+		$wizard->end_page();
+
 		/////////////////////////////////////////		
 		$this->display_module($wizard, array(array($this,'done')));
 	}
 	
 	public function choose_setup_type($d) {
 		if($d['setup_type']=='simple') return 'simple_user';
-		return 'adv_warning';
+		return 'setup_warning';
 	}
 
 	public function choose_mail_method($d) {
-		if($d['mail_method']=='mail') return 999;
+		if($d['mail_method']=='mail') return 'setup_warning';
 		return 'simple_mail_smtp';
 	}
 	
@@ -91,10 +91,11 @@ class FirstRun extends Module {
 				trigger_error('Unable to install Base/Setup module.',E_USER_ERROR);
 			Variable::set('default_module','Base_Setup');
 			Variable::set('simple_setup',0);
-			location(array());
 		} else {
 			if(!ModuleManager::install('Base'))
 				trigger_error('Unable to install Base module pack.',E_USER_ERROR);
+				
+			Base_SetupCommon::refresh_available_modules();
 
 			if(!Base_UserCommon::add_user($d['simple_user']['login'])) {
 		    	print('Unable to create user');
@@ -135,11 +136,9 @@ class FirstRun extends Module {
 					Variable::set('mail_user', $d['simple_mail_smtp']['mail_user']);
 					Variable::set('mail_password', $d['simple_mail_smtp']['mail_password']);
 				}
-			}
-			
-			
-			location(array());
+			}			
 		}
+		$GLOBALS['base']->redirect();
 	}
 
 }

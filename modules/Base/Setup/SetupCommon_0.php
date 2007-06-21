@@ -20,5 +20,14 @@ class Base_SetupCommon extends Module {
 	public static function admin_caption() {
 		return 'Main setup';
 	}
+	
+	public static function refresh_available_modules() {
+		$module_dirs = ModuleManager::list_modules();
+		DB::Execute('TRUNCATE TABLE available_modules');
+		foreach($module_dirs as $name => $v)
+			foreach($v as $ver => $u) 
+				DB::Execute('INSERT INTO available_modules VALUES(%s, %d, %s)',array($name,$ver,$u));
+		return $module_dirs;
+	}
 }
 ?>

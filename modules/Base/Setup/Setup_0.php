@@ -62,7 +62,7 @@ class Base_Setup extends Module {
 			}
 		}
 		if (empty($module_dirs))
-			$module_dirs = $this->parse_modules_folder($module_dirs);
+			$module_dirs = Base_SetupCommon::refresh_available_modules();
 			
 		$subgroups = array();
 		$structure = array();
@@ -145,17 +145,8 @@ class Base_Setup extends Module {
 		} else $form->display();
 	}
 	
-	public static function parse_modules_folder() {
-		$module_dirs = ModuleManager::list_modules();
-		DB::Execute('TRUNCATE TABLE available_modules');
-		foreach($module_dirs as $name => $v)
-			foreach($v as $ver => $u) 
-				DB::Execute('INSERT INTO available_modules VALUES(%s, %d, %s)',array($name,$ver,$u));
-		return $module_dirs;
-	}
-
 	public static function parse_modules_folder_refresh(){
-		self::parse_modules_folder();
+		Base_SetupCommon::refresh_available_modules();
 		//location(array());
 		return false;
 	}
