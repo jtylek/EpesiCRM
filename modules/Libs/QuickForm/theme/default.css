@@ -1,8 +1,7 @@
 #quickform .header {
 	white-space: nowrap;
-	/*background-color: #B3B3B3;*/
 	text-align: center;
-	vertical-align: top;
+	vertical-align: center;
 	font-weight: bold;
 	color: #4C4C4C;
 	background-color: #F0F0F0;
@@ -44,10 +43,15 @@
 
 #quickform input[type="submit"], input[name="submit_comment"], input[name="submit"], input[type="button"], input[type="file"] {
 	color: #4C4C4C;
-	border: 0px;
-	width: 100px;
+	/*border: 0px;*/
+	/*width: 100px;*/
+	border: 1px solid #B3B3B3;
 	height: 20px;
-	background-image: url("images/button.png");
+	text-align: center;
+	vertical-align: center;
+	padding-left: 20px;
+	padding-right: 20px;	
+	background-image: url("images/button-background-2.png");
 	font-size: 11px;
 }
 
