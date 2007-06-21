@@ -138,22 +138,24 @@ custom_show = function(menu, submenu) {
 
 custom_hide_f = function(menu, submenu, opacity) {
 	var id = sub_name(menu, submenu);
-	if(opacity <= 0) {
-		clearTimeout(timeout[menu][submenu]);
-		document.getElementById(id).className = "submenu";
-		document.getElementById(id).style.opacity = 1;
-		document.getElementById(id).style.visibility = "hidden";
-		
-		if( is_IE ) {
-			if( level[menu][submenu] != level[menu][last_open] ) {
-				var t = document.getElementById('mask_level'+level[menu][submenu]);
-				t.style.display = 'none';
+	if( document.getElementById(id) ) {
+		if(opacity <= 0) {
+			clearTimeout(timeout[menu][submenu]);
+			document.getElementById(id).className = "submenu";
+			document.getElementById(id).style.opacity = 1;
+			document.getElementById(id).style.visibility = "hidden";
+			
+			if( is_IE ) {
+				if( level[menu][submenu] != level[menu][last_open] ) {
+					var t = document.getElementById('mask_level'+level[menu][submenu]);
+					t.style.display = 'none';
+				}
 			}
+		} else {
+			document.getElementById(id).style.opacity = opacity;
+			//document.getElementById(id).style.filter = "Alpha(style=0, opacity="+eval(opacity*100)+")";
+			timeout[menu][submenu] = setTimeout('custom_hide_f('+menu+', '+submenu+', '+eval(opacity-0.11)+')', 20);
 		}
-	} else {
-		document.getElementById(id).style.opacity = opacity;
-		//document.getElementById(id).style.filter = "Alpha(style=0, opacity="+eval(opacity*100)+")";
-		timeout[menu][submenu] = setTimeout('custom_hide_f('+menu+', '+submenu+', '+eval(opacity-0.11)+')', 20);
 	}
 }
 
