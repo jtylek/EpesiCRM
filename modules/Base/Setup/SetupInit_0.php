@@ -17,7 +17,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  * @package epesi-base
  * @subpackage setup
  */
-class SetupInit_0 extends ModuleInit {
+class Base_SetupInit_0 extends ModuleInit {
 	public static function requires() {
 		return array (
 			array('name'=>'Libs/QuickForm','version'=>0),

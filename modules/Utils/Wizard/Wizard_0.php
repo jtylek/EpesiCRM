@@ -70,7 +70,7 @@ class Utils_Wizard extends Module {
 	
 	public function body($func) {
 		if($this->curr_page>=$this->counter) $this->curr_page = array_pop($this->history);
-		if($this->form[$this->curr_page]->getSubmitValue('submited')=='1' && $this->form[$this->curr_page]->validate()) {
+		if($this->form[$this->curr_page]->getSubmitValue('submited') && $this->form[$this->curr_page]->validate()) {
 				$this->form[$this->curr_page]->process(array($this,'submit')); 
 	
 	    		$this->history[] = $this->curr_page;

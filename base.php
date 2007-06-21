@@ -37,8 +37,9 @@ class Base extends saja {
 
 		$this->modules = array ();
 
-		$installed_modules = ModuleManager::get_load_priority_array();
-		if ($installed_modules) {
+		$installed_modules = ModuleManager::get_load_priority_array(true);
+		if ($installed_modules!==null) {
+			$first_run = false;
 			foreach($installed_modules as $row) {
 				$module = $row['name'];
 				$version = $row['version'];
@@ -46,13 +47,15 @@ class Base extends saja {
 				if(ModuleManager :: include_common($module, $version))
 					ModuleManager :: create_common_virtual_classes($module, $version);
 				ModuleManager :: register($module, $version, $this->modules);
+				if($module=='FirstRun') $first_run=true;
 			}
+			if(!$first_run && !ModuleManager :: install('FirstRun'))
+				trigger_error('Unable to install default module',E_USER_ERROR);
 		} else {
 			/////////////////////////////////
 			require_once('install.php');
-			if (!ModuleManager :: install('Setup',0)){
+			if (!ModuleManager :: install('FirstRun'))
 			    trigger_error('Unable to install default module',E_USER_ERROR);
-			}
 		}
 	}
 
@@ -70,7 +73,7 @@ class Base extends saja {
 			$default_module = Variable::get('default_module');
 			$m = & ModuleManager :: new_instance($default_module,null,'0');
 		} catch (Exception $e) {
-			$m = & ModuleManager :: new_instance('Setup',null,'0');
+			$m = & ModuleManager :: new_instance('FirstRun',null,'0');
 		}
 		$ret = trim(ob_get_contents());
 		if(strlen($ret)>0 || $m==null) trigger_error($ret,E_USER_ERROR);
@@ -146,6 +149,9 @@ class Base extends saja {
 			//clean up
 			foreach($this->content as $k=>$v)
 				unset($this->content[$k]);
+			
+			ModuleManager::clear_cache();
+			
 //			unset($this->jses);
 			$this->load_modules();
 	

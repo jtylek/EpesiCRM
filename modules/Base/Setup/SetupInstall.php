@@ -17,7 +17,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  * @package epesi-base
  * @subpackage setup
  */
-class SetupInstall extends ModuleInstall {
+class Base_SetupInstall extends ModuleInstall {
 	public static function version() {
 		return array('1.0.0');
 	}
@@ -31,7 +31,7 @@ class SetupInstall extends ModuleInstall {
 			print('Invalid SQL query - Setup module (populating variables)');
 			return false;
 		}
-		$ret = Variable::set('simple_setup',true);
+		$ret = Variable::set('simple_setup',1);
 		if($ret === false) {
 			print('Invalid SQL query - Setup module (populating variables)');
 			return false;
@@ -41,8 +41,7 @@ class SetupInstall extends ModuleInstall {
 	}
 
 	public static function uninstall() {
-		return (Variable::delete('anonymous_setup') && Variable::delete('simple_setup'));
-		return Variable::delete('simple_setup');
+		return (DB::DropTable('available_modules') && Variable::delete('anonymous_setup') && Variable::delete('simple_setup'));
 	}
 }
 ?>

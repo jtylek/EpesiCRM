@@ -31,8 +31,7 @@ class Base_Admin extends Module {
 			$this->set_module_variable('href', $module);
 		}
 		
-		if($module=='Setup') $this->pack_module($module);
-		elseif($module) {
+		if($module) {
 			$this->pack_module($module,null,'admin');
 		} else {
 			$this->list_admin_modules();
@@ -57,8 +56,6 @@ class Base_Admin extends Module {
 				if(!isset($caption)) $caption = $name.' module';
 				$mod_ok[$caption] = $name;
 			}
-		
-		if(ModuleCommon::check_access('Setup','body')) $mod_ok['Main setup'] = 'Setup';
 		ksort($mod_ok);
 		
 		$links = array();
@@ -83,8 +80,6 @@ class Base_Admin extends Module {
 				if(!isset($caption)) $caption = $name.' module';
 				$mod_ok[$caption] = array('admin_href'=>$name);
 			}
-		if(ModuleCommon::check_access('Setup','body'))
-			$mod_ok["Main setup"] = array('admin_href'=>'Setup');
 		$mod_ok['__submenu__']=1;
 		
 		ksort($mod_ok);

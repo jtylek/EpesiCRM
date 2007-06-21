@@ -15,7 +15,7 @@ $ret = DB::CreateTable('variables',"name C(32) KEY,value X");
 if($ret===false)
 	die('Invalid SQL query - Database module (variables table)');
 
-$ret = DB::Execute("insert into variables values('default_module',%s)",array(serialize('Setup')));
+$ret = DB::Execute("insert into variables values('default_module',%s)",array(serialize('FirstRun')));
 if($ret === false)
 	die('Invalid SQL query - Setup module (populating variables)');
 

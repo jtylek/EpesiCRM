@@ -15,7 +15,8 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_WizardInit_0 extends ModuleInit {
 	public static function requires() {
 		return array(
-			array('name'=>'Base/Lang','version'=>0)
+			array('name'=>'Base/Lang','version'=>0),
+			array('name'=>'Libs/QuickForm','version'=>0)
 		);
 	}
 	

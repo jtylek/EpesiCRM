@@ -132,7 +132,7 @@ class ModuleManager {
 		));
 		
 		$ret = array();
-		
+
 		foreach ($req_mod as $m) {
 			$m['name'] = str_replace('/','_',$m['name']);
 			if (!array_key_exists($m['name'], $module_table) || $module_table[$m['name']]['version']<$m['version'])
@@ -327,7 +327,7 @@ class ModuleManager {
 		$installed_version = self::is_installed($module);
 		if($installed_version>=$to_version) {
 			print('Upgrading module \''.$module.'\' to version '.$to_version.': There is already installed version '.$installed_version.'<br>');
-			return false;
+			return true;
 		}
 		if($installed_version==-1) {
 			print('Upgrading module \''.$module.'\' to version '.$to_version.': module is not installed, please install it first.');
@@ -462,11 +462,6 @@ class ModuleManager {
 		global $base;
 		//already installed?
 		if(defined('DEBUG')) print($module_to_install.': is installed?<br>');
-		if(self::is_installed($module_to_install)>=$version)
-			return true;
-			
-		if (!self :: exists($module_to_install,$version))
-			return false;
 
 		self :: include_install($module_to_install);
 		if(!class_exists($module_to_install.'Install')) {
@@ -477,13 +472,23 @@ class ModuleManager {
 		$inst_ver = call_user_func(array($module_to_install.'Install', 'version'));
 		if(is_array($inst_ver)) $inst_ver = count($inst_ver);
 			else $inst_ver = intval($inst_ver);
-		if($inst_ver<$version) {
-			print('Module '.$module_to_install.' is too old. Please download newer version<br>');
-			return false;
-		}
-		
-		//check dependecies
 
+		if(!isset($version)) {
+			$version = $inst_ver-1;
+		} else {
+			if($inst_ver<$version) {
+				print('Module '.$module_to_install.' is too old. Please download newer version<br>');
+				return false;
+			}		
+		}
+
+		if(self::is_installed($module_to_install)>=$version)
+			return true;
+			
+		if (!self :: exists($module_to_install,$version))
+			return false;
+
+		//check dependecies
 		try {
 			self :: include_init($module_to_install, $version);
 			$deps = self :: check_dependencies($module_to_install, $version, $base->modules);
@@ -494,7 +499,8 @@ class ModuleManager {
 				if(defined('DEBUG')) 
 					print('Inst/Up required module: '.$m['name'].' version='.$m['version'].' by '.$module_to_install.'<br>');
 				if(self :: is_installed($m['name'])<0){
-					if (!self :: install($m['name'], $m['version'])) return false;
+					if (!self :: install($m['name'], $m['version'])) 
+						return false;
 				} else {
 					if (!self :: upgrade($m['name'], $m['version'])) return false;
 				}
@@ -766,15 +772,17 @@ class ModuleManager {
 	}
 	
 		
-	public static final function get_load_priority_array() {
+	public static final function get_load_priority_array($force=false) {
 		static $load_prior_array=null;
-		if($load_prior_array===null) {
+		if($load_prior_array===null || $force) {
 			$errh = DB::$ado->raiseErrorFn;
 			DB::$ado->raiseErrorFn = false;
 			$installed_modules = DB::Execute('SELECT name,version FROM modules ORDER BY priority');
-			if ($installed_modules)
+			if ($installed_modules!==false) {
+				$load_prior_array = array();
 				while (($row = $installed_modules->FetchRow()))
 					$load_prior_array[] = $row;
+			}
 			DB::$ado->raiseErrorFn = $errh;
 		}
 		return $load_prior_array;
@@ -895,6 +903,11 @@ class ModuleManager {
 			} else unlink($name);
 		}
 		rmdir($path);
+	}
+	
+	public static final function clear_cache() {
+		self::$not_loaded_modules = null;
+		self::$loaded_modules = array();
 	}
 }
 ?>

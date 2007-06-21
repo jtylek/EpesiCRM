@@ -17,7 +17,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  * @package epesi-base
  * @subpackage setup
  */
-class Setup extends Module {
+class Base_Setup extends Module {
+
+	public function admin() {
+		$this->body();
+	}
 
 	public function body($arg) {
 		global $base;
@@ -124,7 +128,7 @@ class Setup extends Module {
 		//control buttons
 		$ok_b = HTML_QuickForm::createElement('submit', 'submit_button', 'OK');
 		$cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', 'Cancel', $this->create_back_href());
-		$parse_b = HTML_QuickForm::createElement('button', 'parse_button', 'Check for available modules', $this->create_confirm_callback_href('Parsing for additional modules may take up to several minutes, do you wish to continue?',array('Setup','parse_modules_folder_refresh')));
+		$parse_b = HTML_QuickForm::createElement('button', 'parse_button', 'Check for available modules', $this->create_confirm_callback_href('Parsing for additional modules may take up to several minutes, do you wish to continue?',array('Base_Setup','parse_modules_folder_refresh')));
 		$form->addGroup(array($parse_b,$ok_b, $cancel_b));
 		
 		$form->setDefaults($def);
@@ -160,7 +164,7 @@ class Setup extends Module {
 		global $base;
 		
 		$default_module = false;
-		$simple = false;
+		$simple = 0;
 		$installed = array ();
 		$install = array ();
 		$uninstall = array();
@@ -215,26 +219,12 @@ class Setup extends Module {
 		
 		foreach ($modules_prio_rev as $k) 
 			if(array_key_exists($k, $uninstall)) {
-			  	if($k=='Setup') {
-					if(count($base->modules)==1) {
-						$ret = SetupInstall::uninstall();
-						if ($ret) {
-//							session_destroy();
-							print('No modules installed. Go <a href="http'.(($_SERVER['HTTPS'])?'s':'').'://'. $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']).'/">here</a> to install Setup module!');
-							return false;
-						} else
-							print('Unable to remove Setup module!');
-						return false;
-					} else {
-						print('You cannot delete setup if any other module is installed!');
-						return false;
-					}
-				} else {
-					if (!ModuleManager::uninstall($k)) {
-						$return_code = false;
-						break;
-					}
-			  	}
+				if (!ModuleManager::uninstall($k)) {
+					$return_code = false;
+					break;
+				}
+				if(count($base->modules)==0)
+					print('No modules installed');
 			}
 		
 		return $return_code;

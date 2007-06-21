@@ -35,7 +35,7 @@ global $base;
 $base = new Base();
 
 
-$installed_modules = ModuleManager::get_load_priority_array();
+$installed_modules = ModuleManager::get_load_priority_array(true);
 if ($installed_modules) {
 	foreach($installed_modules as $row) {
 		$module = $row['name'];

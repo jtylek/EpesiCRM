@@ -14,7 +14,7 @@ if(version_compare(phpversion(), '5.0.0')==-1)
 	die("You are running an old version of PHP, php5 required.");
 
 if(!file_exists('data/config.php')) {
-	require_once 'setup.php';
+	header('Location: setup.php');
 	exit();
 }
 
