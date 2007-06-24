@@ -49,21 +49,19 @@ function generate_password($length = 8) {
  * @param array
  * @return string saved url
  */
-function location($u = false) {
-	static $variables = array ();
-	static $var_ok = false;
+function location($u = null,$ret = false) {
+	static $variables = false;
 
-	if (is_array($u)) {
-		$variables = array_merge($variables, $u);
-		$var_ok = true;
-	}
-	elseif ($var_ok) {
-		$var_ok = false;
-		$ret = '__location&' . http_build_query($variables);
-		$variables = array ();
+	if($ret) {
+		$ret = $variables;
+		$variables = false;
 		return $ret;
 	}
-	return array ();
+	
+	if($variables==false) $variables=array();
+
+	if (is_array($u))
+		$variables = array_merge($variables, $u);
 }
 
 /**
@@ -71,7 +69,7 @@ function location($u = false) {
  * 
  * @param string
  */
-function load_css($u = false) {
+function load_css($u) {
 	eval_js_once('load_css(\'' . addslashes($u) . '\')');
 }
 
@@ -80,7 +78,7 @@ function load_css($u = false) {
  * 
  * @param string
  */
-function load_js($u = false) {
+function load_js($u) {
 	eval_js_once('load_js(\'' . addslashes($u) . '\')');
 }
 /**
@@ -88,7 +86,7 @@ function load_js($u = false) {
  * 
  * @param string
  */
-function load_js_inline($u = false) {
+function load_js_inline($u) {
 	eval_js( file_get_contents($u) );
 }
 /**
@@ -97,14 +95,14 @@ function load_js_inline($u = false) {
  * @param string
  * @return string
  */
-function eval_js($u = false) {
+function eval_js($u) {
 	global $base;
 	if (is_string($u)) {
 		$base->js($u);
 	}
 }
 
-function eval_js_once($u = false) {
+function eval_js_once($u) {
 	global $base;
 	$session = & $base->get_tmp_session();
 	if (is_string($u) && !array_key_exists($u, $session['__evaled_jses__'])) {
@@ -114,26 +112,39 @@ function eval_js_once($u = false) {
 }
 
 /**
- * Add method to call on exit. If no argument is specified return saved methods;
+ * Add method to call on exit. If no argument is specified return saved methods and clear it.
  * 
  * @param mixed array or string
  * @return string
  */
-function on_exit($u = false) {
+function on_exit($u = null, $args = null, $stable=true, $ret = false) {
 	static $headers = array ();
-	static $var_ok = false;
-
-	if ($u != false) {
-		$headers[] = $u;
-		$var_ok = true;
-	}
-	elseif ($var_ok) {
-		$var_ok = false;
+	
+	if($ret) {
 		$ret = $headers;
 		$headers = array ();
+		foreach($ret as $v)
+			if($v['stable']) $headers[] = $v;
 		return $ret;
 	}
-	return array ();
+
+	if ($u != false)
+		$headers[] = array('func'=>$u,'args'=>$args, 'stable'=>$stable);
+}
+
+function on_init($u = null, $args = null, $stable=true, $ret = false) {
+	static $headers = array ();
+	
+	if($ret) {
+		$ret = $headers;
+		$headers = array ();
+		foreach($ret as $v)
+			if($v['stable']) $headers[] = $v;
+		return $ret;
+	}
+
+	if ($u != false)
+		$headers[] = array('func'=>$u,'args'=>$args, 'stable'=>$stable);
 }
 
 if (STRIP_OUTPUT) {

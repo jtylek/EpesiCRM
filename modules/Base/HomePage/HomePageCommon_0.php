@@ -18,6 +18,8 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  * @subpackage homepage
  */
 class Base_HomePageCommon {
+	public static $logged;
+	
 	public static function load() {
 		global $base;
 		if(!Acl::is_user()) return;
@@ -48,6 +50,22 @@ class Base_HomePageCommon {
 			return array('Set as your epesi home page'=>array('Base_HomePage_save'=>'1'));
 		return array();
 	}
+	
+	public static function login_check_init() {
+		self::$logged = Acl::is_user();
+	}
+
+	public static function login_check_exit() {
+		$after = Acl::is_user();
+		if($after!==self::$logged) {
+			if($after) Base_HomePageCommon::load();
+				else location(array('box_main_module'=>Base_BoxCommon::get_main_module_name()));
+		}
+	}
+	
+	public static function homepage_icon() {
+		Base_ActionBarCommon::add_icon('home','Home page',Module::create_href(array('Base_HomePage_load'=>'1')));
+	}
 }
 
 if($_REQUEST['Base_HomePage_load']) {
@@ -61,20 +79,9 @@ if($_REQUEST['Base_HomePage_load']) {
 	Base_StatusBarCommon::message(Base_LangCommon::ts('Home page saved'));
 }
 
-/*
-$session = & $base->get_session();
-if(Acl::is_user()) {
-	if(!$session['base_homepage_logged']) {
-		Base_HomePageCommon::load();
-		$session['base_homepage_logged'] = true;
-	}
-} else {
-	if($session['base_homepage_logged']) {
-		$_REQUEST['box_main_module'] = Base_BoxCommon::get_main_module_name();
-		$session['base_homepage_logged'] = false;
-	}
-}
-*/
-Base_ActionBarCommon::add_icon('home','Home page',Module::create_href(array('Base_HomePage_load'=>'1')));
+on_init(array('Base_HomePageCommon','login_check_init'));
+on_exit(array('Base_HomePageCommon','login_check_exit'));
+
+on_init(array('Base_HomePageCommon','homepage_icon'));
 
 ?>

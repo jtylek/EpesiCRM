@@ -43,10 +43,12 @@ class Base_ActionBarCommon {
 	}
 	
 	public static function get_icons() {
-		$ret = self::$icons;
+		return self::$icons;
+	}
+	
+	public static function clean_icons() {
 		self::$icons = array();
-		return $ret;
 	}
 }
-
+on_exit(array('Base_ActionBarCommon','clean_icons'));
 ?>

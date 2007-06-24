@@ -110,22 +110,25 @@ class Base extends saja {
 		$session = & $this->get_session();
 		$tmp_session = & $this->get_tmp_session();
 	
+		//on init call methods...
+		$ret = on_init(null,null,null,true);
+		foreach($ret as $k)
+			call_user_func_array($k['func'],$k['args']);
+	
 		$this->root = & $this->get_default_module();
 		$this->go($this->root);
 		
 		//on exit call methods...
-		$ret = on_exit();
+		$ret = on_exit(null,null,null,true);
 		foreach($ret as $k)
-			call_user_func($k);
+			call_user_func_array($k['func'],$k['args']);
 		
 		//go somewhere else?
-		$loc = location();
-		if($loc!=false) {
-			if(isset($_REQUEST['__action_module__'])) {
-				$xxx = array('__action_module__'=>$_REQUEST['__action_module__']);
-				$loc .= '&'.http_build_query($xxx);
-			}
-
+		$loc = location(null,true);
+		if($loc!==false) {
+			if(isset($_REQUEST['__action_module__']))
+				$loc['__action_module__'] = $_REQUEST['__action_module__'];
+			
 			//clean up
 			foreach($this->content as $k=>$v)
 				unset($this->content[$k]);
@@ -134,7 +137,7 @@ class Base extends saja {
 			$this->load_modules();
 	
 			//go
-			return $this->process($this->client_id,$loc);
+			return $this->process($this->client_id,'__location&' . http_build_query($loc));
 		}
 
 		if(DEBUG || MODULE_TIMES || SQL_TIMES) {
