@@ -30,7 +30,7 @@ class Apps_StaticPage extends Module {
 		}
 		$theme->assign('path',$path);
 		$theme->assign('title',$page['title']);
-		$content = preg_replace_callback('/href=["\']([\S ]*)["\']/',array($this,'parse_links_callback'),$page['content']);
+		$content = preg_replace_callback('/href=["\'](.*?)["\']/',array($this,'parse_links_callback'),$page['content']);
 		$theme->assign('content',$content);
 		$theme->display();
 		
@@ -40,7 +40,7 @@ class Apps_StaticPage extends Module {
 	}
 	
 	public function parse_links_callback($x) {
-		if(ereg('^http[s]{0,1}://',$x[1]))
+		if(ereg('^http[s]?://',$x[1]))
 			return "href=\"".$x[1].'"';
 		return $this->create_unique_href(array('view'=>$x[1]));
 	}
