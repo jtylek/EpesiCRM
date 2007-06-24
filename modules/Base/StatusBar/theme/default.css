@@ -16,27 +16,27 @@
 	background-color: #F5FCED;
 	z-index: 2001;
 	position: absolute;
-	width: 25%;
+	width: 300px;
 }
 
 .Base_StatusBar td.image {
 	text-align: center;
 	vertical-align: center;
-	width: 46px;
-	height: 34px;
+	width: 50px;
+	height: 35px;
 }
 
 .Base_StatusBar td.text {
 	text-align: center;
 	vertical-align: center;
-	width: 200px;
-	height: 34px;
+	width: 250px;
+	height: 35px;
 }
 
 .Base_StatusBar {
 	/* Netscape 4, IE 4.x-5.0/Win and other lesser browsers will use this */
   	position: absolute;
-	left: 40%; top: 30%;
+	left: 40%; top: 25%;
   	/* all */
 	/*visibility: hidden;*/
 	text-align: center;
