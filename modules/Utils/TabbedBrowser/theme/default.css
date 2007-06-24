@@ -21,10 +21,11 @@ ul#Utils_TabbedBrowser li.selected {
 ul#Utils_TabbedBrowser li.selected a {
 	background-color: #F0F0F0;
 	color: #4C4C4C;
+	position: relative; /* !!! */
 	top: 4px;
 	padding-top: 4px;
 	background-color: #F0F0F0;
-	background-image: url("images/button-background-2.png");
+	background-image: url("images/tabbed-background.png");
 	background-repeat: repeat-x;
 }
 
