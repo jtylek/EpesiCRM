@@ -36,7 +36,10 @@
 .Base_StatusBar {
 	/* Netscape 4, IE 4.x-5.0/Win and other lesser browsers will use this */
   	position: absolute;
-	left: 40%; top: 25%;
+	/*left: 40%; top: 25%;*/
+	left: 50%;
+	top: 30%;
+	margin-left: -150px;
   	/* all */
 	/*visibility: hidden;*/
 	text-align: center;
