@@ -53,3 +53,7 @@ table#Apps_Forum__New_Thread td.submit input {
 	background-image: url("images/button.png");
 	font-size: 11px;
 }
+
+table#Apps_Forum__New_Thread td.submit input:hover {
+	background-image: url("images/button-hover.png");
+}
