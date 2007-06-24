@@ -54,7 +54,7 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 	public function submit_admin($data) {
 		Variable::set('default_theme',$data['theme']);
 		Base_StatusBarCommon::message('Theme changed - reloading page');
-		eval_js('setTimeout(\'document.location=\\\'index.php\\\'\',\'4000\')');
+		eval_js('setTimeout(\'document.location=\\\'index.php\\\'\',\'3000\')');
 		return true;
 	}
 	

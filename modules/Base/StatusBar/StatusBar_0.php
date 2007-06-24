@@ -22,7 +22,7 @@ class Base_StatusBar extends Module {
 		$theme->assign('statusbar_id','Base_StatusBar');
 		$theme->assign('text_id','statusbar_text');
 		$theme->display();
-		on_exit(array($this, 'messages'));
+		on_exit(array($this, 'messages'),null,false);
 	}
 	
 	public function messages() {
