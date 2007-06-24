@@ -43,7 +43,9 @@ class Base_ActionBarCommon {
 	}
 	
 	public static function get_icons() {
-		return self::$icons;
+		$ret = self::$icons;
+		self::$icons = array();
+		return $ret;
 	}
 }
 

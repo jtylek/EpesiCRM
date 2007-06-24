@@ -61,7 +61,7 @@ if($_REQUEST['Base_HomePage_load']) {
 	Base_StatusBarCommon::message(Base_LangCommon::ts('Home page saved'));
 }
 
-
+/*
 $session = & $base->get_session();
 if(Acl::is_user()) {
 	if(!$session['base_homepage_logged']) {
@@ -74,7 +74,7 @@ if(Acl::is_user()) {
 		$session['base_homepage_logged'] = false;
 	}
 }
-
+*/
 Base_ActionBarCommon::add_icon('home','Home page',Module::create_href(array('Base_HomePage_load'=>'1')));
 
 ?>

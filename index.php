@@ -28,17 +28,11 @@ $saja->set_process_file('base.php');
 if(SECURE_HTTP)
     $saja->secure_http();
 
-if($_REQUEST['refresh'] && isset($_SESSION['num_of_clients'])) {
-	$client_id = $_SESSION['num_of_clients']-1;
-	if($client_id<0) $client_id=4;
-	unset($_SESSION['cl'.$client_id]['tmp']);
-} else {
-	$client_id = isset($_SESSION['num_of_clients'])?$_SESSION['num_of_clients']:0;
-	$client_id_next = $client_id+1;
-	if($client_id_next==5) $client_id_next=0;
-	$_SESSION['num_of_clients'] = $client_id_next;
-	unset($_SESSION['cl'.$client_id]);
-}
+$client_id = isset($_SESSION['num_of_clients'])?$_SESSION['num_of_clients']:0;
+$client_id_next = $client_id+1;
+if($client_id_next==5) $client_id_next=0;
+$_SESSION['num_of_clients'] = $client_id_next;
+unset($_SESSION['cl'.$client_id]);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">

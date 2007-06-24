@@ -50,11 +50,14 @@ class Libs_QuickForm extends Module {
 		return $return;
 	}
 	
-	public function get_submit_form_js($submited=true, $indicator=null, $fast=true) {
+	public function get_submit_form_js($submited=true, $indicator=null) {
 		if (!is_object($this->qf))
 			throw new Exception("QuickFrom object doesn't exists");
 		$form_name = $this->qf->getAttribute('name');
-		return $this->get_submit_form_js_by_name($form_name,$submited,$indicator,$fast); 
+		return $this->get_submit_form_js_by_name($form_name,$submited,$indicator); 
+	}
+	public function get_submit_form_href($submited=true, $indicator=null) {
+		 return ' href="javascript:void(0)" onClick="'.$this->get_submit_form_js($submited,$indicator).'" ';
 	}
 	
 	private function get_submit_form_js_by_name($form_name, $submited, $indicator) {

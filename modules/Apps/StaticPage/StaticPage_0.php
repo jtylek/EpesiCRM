@@ -82,9 +82,12 @@ class Apps_StaticPage extends Module {
 		$fck = & $f->addElement('fckeditor', 'content', $this->lang->t('Content'));
 		$fck->setFCKProps('800','300',true);
 		
-		$save_b = & HTML_QuickForm::createElement('submit', null, $this->lang->ht('Save'));
-		$back_b = & HTML_QuickForm::createElement('button', null, $this->lang->ht('Cancel'), $this->create_back_href());
-		$f->addGroup(array($save_b,$back_b),'submit_button');
+		
+		Base_ActionBarCommon::add_icon('back','Cancel',$this->create_back_href());
+		Base_ActionBarCommon::add_icon('save','Save',$f->get_submit_form_href());
+//		$save_b = & HTML_QuickForm::createElement('submit', null, $this->lang->ht('Save'));
+	//	$back_b = & HTML_QuickForm::createElement('button', null, $this->lang->ht('Cancel'), $this->create_back_href());
+		//$f->addGroup(array($save_b,$back_b),'submit_button');
 
 		if($path)
 			$menu = &$this->init_module('Utils/CustomMenu',array('staticpage:'.$page['id']));			
@@ -96,9 +99,10 @@ class Apps_StaticPage extends Module {
 				$menu->save($ret['path']);
 				if($this->isset_module_variable('view'))
 					$this->set_module_variable('view',$ret['path']);
-			} else
+			} else {
 				DB::Execute('INSERT INTO apps_staticpage_pages(path,title,content) VALUES (%s, %s, %s)',array($ret['path'],$ret['title'],$ret['content']));
-			
+				$this->set_module_variable('menu_edit',array('id'=>DB::Insert_ID(),'path'=>$ret['path']));
+			}
 			$this->unset_module_variable('edit');
 			Base_StatusBarCommon::message($this->lang->t('Page saved'));
 			location(array());
@@ -118,11 +122,26 @@ class Apps_StaticPage extends Module {
 		location(array());
 	}
 	
+	private function menu_edit($x) {
+		Base_ActionBarCommon::add_icon('save','Save',$this->create_unique_href(array('save'=>true)));
+		$menu = &$this->init_module('Utils/CustomMenu',array('staticpage:'.$x['id']));			
+		if($this->get_unique_href_variable('save')) {
+			$menu->save($x['path']);
+			$this->unset_module_variable('menu_edit');
+			Base_StatusBarCommon::message($this->lang->t('Menu entries saved'));
+			location(array());
+		}
+		$this->display_module($menu);
+	}
+	
 	public function admin() {
 		$this->lang = & $this->pack_module('Base/Lang');
 		
 		$edit = $this->get_module_variable_or_unique_href_variable('edit');
 		if(isset($edit)) return $this->edit($edit);
+
+		$menu_edit = $this->get_module_variable_or_unique_href_variable('menu_edit');
+		if(isset($menu_edit)) return $this->menu_edit($menu_edit);
 
 		if($this->is_back()) {
 			$this->unset_module_variable('view');
