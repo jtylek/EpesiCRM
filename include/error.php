@@ -7,6 +7,8 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
+if(!class_exists('saja')) return;
+
 class ErrorObserver
 {
 	public function update_observer($type, $message, $errfile, $errline, $errcontext)

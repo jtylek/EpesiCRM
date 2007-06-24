@@ -7,9 +7,18 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
+require_once('include/include_path.php');
+require_once('include/config.php');
+require_once('include/database.php');
+
 $ret = DB::CreateTable('modules',"name C(128) KEY,version I NOTNULL, priority I NOTNULL DEFAULT 0");
 if($ret===false)
 	die('Invalid SQL query - Setup module (modules table)');
+
+$ret = DB::CreateTable('session',"id I AUTO KEY, name C(255) NOTNULL DEFAULT '', " .
+		"expires I NOTNULL DEFAULT 0, data X2");
+if($ret===false)
+	die('Invalid SQL query - Database module (session table)');
 
 $ret = DB::CreateTable('variables',"name C(32) KEY,value X");
 if($ret===false)
@@ -33,6 +42,8 @@ if($ret===false)
 	die('Invalid SQL query - Setup module (phpgacl tables)');
 
 DB::$ado->raiseErrorFn = $errh;
+
+require_once('include/acl.php');
 		
 Acl::$gacl->add_object_section('Administration','Administration',1,0,'aco');
 Acl::$gacl->add_object_section('Data','Data',2,0,'aco');

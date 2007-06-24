@@ -5,27 +5,9 @@
  * @copyright Copyright &copy; 2007, Telaxus LLC
  * @licence SPL
  */
-define('_VALID_ACCESS',true);
-
 umask(0);
 
-$delimiter = ($_ENV['OS']=='Windows_NT')?';':':';
-ini_set('include_path','libs'.$delimiter.ini_get('include_path'));
-
-
-
-/**
- * Include database configuration file.
- */
-require_once "data/config.php";
-
-//include all other necessary files
-$include_dir = "include/";
-$to_include = scandir($include_dir);
-foreach ($to_include as $entry)
-	// Include all base files.
-	if (ereg('.\.php$', $entry))
-		require_once ($include_dir . $entry);
+require_once('include.php');
 
 class Base {
 	public $modules;

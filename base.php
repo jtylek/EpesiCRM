@@ -9,22 +9,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 umask(0);
 
-
-/**
- * Include database configuration file.
- */
-require_once "data/config.php";
-
-//include all other necessary files
-$include_dir = "include/";
-$to_include = scandir($include_dir);
-foreach ($to_include as $entry)
-	// Include all base files.
-	if (ereg('.\.php$', $entry))
-		require_once ($include_dir . $entry);
-
-
-
+require_once('include.php');
 
 class Base extends saja {
 	public $content;
@@ -38,25 +23,20 @@ class Base extends saja {
 		$this->modules = array ();
 
 		$installed_modules = ModuleManager::get_load_priority_array(true);
-		if ($installed_modules!==null) {
-			$first_run = false;
-			foreach($installed_modules as $row) {
-				$module = $row['name'];
-				$version = $row['version'];
-				ModuleManager :: include_init($module, $version);
-				if(ModuleManager :: include_common($module, $version))
-					ModuleManager :: create_common_virtual_classes($module, $version);
-				ModuleManager :: register($module, $version, $this->modules);
-				if($module=='FirstRun') $first_run=true;
-			}
-			if(!$first_run && !ModuleManager :: install('FirstRun'))
-				trigger_error('Unable to install default module',E_USER_ERROR);
-		} else {
-			/////////////////////////////////
-			require_once('install.php');
-			if (!ModuleManager :: install('FirstRun'))
-			    trigger_error('Unable to install default module',E_USER_ERROR);
+		ModuleManager::$not_loaded_modules = $installed_modules;
+		ModuleManager::$loaded_modules = array();
+		$first_run = false;
+		foreach($installed_modules as $row) {
+			$module = $row['name'];
+			$version = $row['version'];
+			ModuleManager :: include_init($module, $version);
+			if(ModuleManager :: include_common($module, $version))
+				ModuleManager :: create_common_virtual_classes($module, $version);
+			ModuleManager :: register($module, $version, $this->modules);
+			if($module=='FirstRun') $first_run=true;
 		}
+		if(!$first_run && !ModuleManager :: install('FirstRun'))
+			trigger_error('Unable to install default module',E_USER_ERROR);
 	}
 
 	public function js($js) {
@@ -149,8 +129,6 @@ class Base extends saja {
 			//clean up
 			foreach($this->content as $k=>$v)
 				unset($this->content[$k]);
-			
-			ModuleManager::clear_cache();
 			
 //			unset($this->jses);
 			$this->load_modules();

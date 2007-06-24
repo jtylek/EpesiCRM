@@ -4,6 +4,10 @@
  */
 define("_VALID_ACCESS", true);
 
+require_once('include/include_path.php');
+require_once('include/config.php');
+require_once('include/session.php');
+
 //initialize vars
 $php = null;
 $proc_file = null;
@@ -21,8 +25,6 @@ if($session_id && $session_id != session_id())
 	session_id($session_id);
 session_start();
 
-$delimiter = ($_ENV['OS']=='Windows_NT')?';':':';
-ini_set('include_path','libs'.$delimiter.ini_get('include_path'));
 require_once "saja/saja.php";
 
 //validate this request

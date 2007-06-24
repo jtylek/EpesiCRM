@@ -30,7 +30,7 @@ class Base_Setup extends Module {
 			$this->parent->reset();
 			return;
 		}
-		
+
 		//create default module form
 		$form = & $this->init_module('Libs/QuickForm','Processing modules');
 		

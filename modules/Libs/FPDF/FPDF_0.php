@@ -19,7 +19,7 @@ class Libs_FPDF extends Module {
 	public $fpdf;
 
 	public function construct($orientation='P',$unit='mm',$format='A4') {
-		require_once("modules/Libs/FPDF/fpdf153.php");
+		require_once("fpdf153.php");
 		$this->fpdf = new FPDF($orientation, $unit, $format);
 	}	
 

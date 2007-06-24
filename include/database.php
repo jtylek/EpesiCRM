@@ -30,6 +30,7 @@ class DB {
 	 * Connect to database.
 	 */
 	public static function Connect() {
+		if(isset(self::$ado)) return;
 		self::$ado = & NewADOConnection(DATABASE_DRIVER);
 		self::$ado->autoRollback = true; // default is false 
 		if(!self::$ado->PConnect(DATABASE_HOST, DATABASE_USER, DATABASE_PASSWORD, DATABASE_NAME))
@@ -42,6 +43,7 @@ class DB {
 	 */
 	public static function Disconnect() {
 		self::$ado->Close();
+		unset(self::$ado);
 	}
 
 

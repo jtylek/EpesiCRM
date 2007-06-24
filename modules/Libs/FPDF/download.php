@@ -4,9 +4,10 @@ $pdf_id = $_REQUEST['pdf'];
 $filename = $_REQUEST['filename'];
 if(!isset($id) || !isset($pdf_id)) die('Invalid usage');
 
+require_once('../../../include.php');
 session_start();
-$buffer = $_SESSION['cl'.$id]['__module_vars__'][$pdf_id]['pdf'];
 
+$buffer = $_SESSION['cl'.$id]['stable']['__module_vars__'][$pdf_id]['pdf'];
 header('Content-Type: application/pdf');
 if(headers_sent())
     die('Some data has already been output to browser, can\'t send PDF file');

@@ -163,9 +163,19 @@ define("SECURE_HTTP",1);
  * If you have got good server, but poor connection, turn it on.
  */
 define("STRIP_OUTPUT",0);
+
+/*
+ * Save session in database.
+ */
+define("DB_SESSION",0);
 ?>');
 	fclose($c);
 	chmod('data/config.php',0444);
+
+//fill database	
+	define("_VALID_ACCESS", true);
+	require_once('install.php');
+
 //	unlink('setup.php');
 	header('Location: index.php');
 }

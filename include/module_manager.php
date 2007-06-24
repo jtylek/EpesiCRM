@@ -8,8 +8,8 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class ModuleManager {
-	static $not_loaded_modules = null;
-	static $loaded_modules = array();
+	public static $not_loaded_modules = null;
+	public static $loaded_modules = array();
 
 	/**
 	 * Include file with module initialization class.
@@ -327,7 +327,7 @@ class ModuleManager {
 		$installed_version = self::is_installed($module);
 		if($installed_version>=$to_version) {
 			print('Upgrading module \''.$module.'\' to version '.$to_version.': There is already installed version '.$installed_version.'<br>');
-			return true;
+			return false;
 		}
 		if($installed_version==-1) {
 			print('Upgrading module \''.$module.'\' to version '.$to_version.': module is not installed, please install it first.');
@@ -543,11 +543,19 @@ class ModuleManager {
 
 		print ($module_to_install . ' module installed!<br>');
 		
-		if($version==0) return true;
-		if(defined('DEBUG')) print($module_to_install.': upgrades...<br>');
-		$up = self::upgrade($module_to_install, $version);
-		if($up) self::$not_loaded_modules = array('name'=>$module_to_install,'version'=>$version);
-		return $up;
+		if($version!=0) {
+			if(defined('DEBUG')) print($module_to_install.': upgrades...<br>');
+			$up = self::upgrade($module_to_install, $version);
+			if(!$up) return false;
+		}
+		self::$not_loaded_modules[] = array('name'=>$module_to_install,'version'=>$version);
+		
+		file_put_contents('/tmp/install',$module_to_install);
+		file_put_contents('/tmp/not_loaded',print_r(self::$not_loaded_modules,true));
+		file_put_contents('/tmp/loaded',print_r(self::$loaded_modules,true));
+		
+		return true;
+
 	}
 
 	public static final function restore($module,$date,$delete_old_data=true) {
@@ -775,15 +783,12 @@ class ModuleManager {
 	public static final function get_load_priority_array($force=false) {
 		static $load_prior_array=null;
 		if($load_prior_array===null || $force) {
-			$errh = DB::$ado->raiseErrorFn;
-			DB::$ado->raiseErrorFn = false;
 			$installed_modules = DB::Execute('SELECT name,version FROM modules ORDER BY priority');
 			if ($installed_modules!==false) {
 				$load_prior_array = array();
 				while (($row = $installed_modules->FetchRow()))
 					$load_prior_array[] = $row;
 			}
-			DB::$ado->raiseErrorFn = $errh;
 		}
 		return $load_prior_array;
 	}
@@ -802,8 +807,6 @@ class ModuleManager {
 		global $base;
 		if (!array_key_exists($mod, $base->modules))
 			throw new Exception('module not loaded');
-		if(self::$not_loaded_modules===null) 
-			self::$not_loaded_modules = self::get_load_priority_array();
 		if(!array_key_exists($mod, self::$loaded_modules)) {
 			foreach(self::$not_loaded_modules as $i=>$v) {
 				$version = $v['version'];
@@ -903,11 +906,6 @@ class ModuleManager {
 			} else unlink($name);
 		}
 		rmdir($path);
-	}
-	
-	public static final function clear_cache() {
-		self::$not_loaded_modules = null;
-		self::$loaded_modules = array();
 	}
 }
 ?>

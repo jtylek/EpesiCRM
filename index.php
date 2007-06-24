@@ -18,19 +18,9 @@ if(!file_exists('data/config.php')) {
 	exit();
 }
 
-//if( file_exists('setup.php') )
-//	die('Please delete setup.php file');
 
-/**
- * Define that this is valid access (thru index.php).
- */
-define("_VALID_ACCESS", true);
-
-//start session
-session_start();
-
-require_once "libs/saja/saja.php";
-require_once "data/config.php"; //isset DEBUG??
+require_once('libs/saja/saja.php');
+require_once('include.php');
 
 global $saja;
 $saja = new saja();
