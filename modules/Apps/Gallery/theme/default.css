@@ -52,6 +52,11 @@ table#Apps_Gallery a.gallery_path_child_link:hover {
 	text-decoration: underline;
 }
 
+table#Apps_Gallery td.images a img {
+	border: none;
+}
+
+
 /* Form */
 
 table#Apps_Gallery__form span.error {
