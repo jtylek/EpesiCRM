@@ -253,7 +253,6 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
             $html = preg_replace("/([ \t\n\r]*)?<!-- BEGIN required -->(\s|\S)*<!-- END required -->([ \t\n\r]*)?/iU", '', $html);
         }
         $html = str_replace('{error_id}', 'error'.$this->_formName.$name, $html);
-//		eval_js('document.getElementById(\'error'.$this->_formName.$name.'\').innerHTML=\''.addslashes($error).'\';');
   		eval_js('wait_while_null(\'seterror\',\'seterror(\\\'error'.$this->_formName.$name.'\\\',\\\''.addslashes(addslashes($error)).'\\\')\')');
         if (is_array($label)) {
             foreach($label as $key => $text) {
@@ -272,37 +271,30 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
     function _prepareValue(&$element) {
 		$type = $element->getType();
     		$name = $element->getName();
-        //if (!$element->getAttribute('id') || $type=='checkbox' || $type == 'radio')
-	//    	$element->updateAttributes(array('id' => 'id' .$this->_formName.$name));
 		$value = '';
 		if(!$element->isFrozen()) {
 			if($type == 'text' || $type=='textarea') {
 				$value = $element->getValue();
 	        	    	$element->setValue('');
 	        		if($value!==null) {
-//					eval_js('document.getElementById(\''.$this->_formName.'\').elements[\''.$name.'\'].value=\''.addslashes($value).'\';');
-//					eval_js('settextvalue(\''.$this->_formName.'\',\''.$name.'\',\''.addslashes($value).'\')');
 					eval_js('wait_while_null(\'settextvalue\',\'settextvalue(\\\''.$this->_formName.'\\\',\\\''.$name.'\\\',\\\''.addslashes(addslashes($value)).'\\\')\')');
 	    			}
 			} elseif($type == 'select') {
 				$value = $element->getValue();
   				$element->setValue(array());
+				if($element->getMultiple()) $name .= '[]'; 
 				if($value!==null)
 					foreach($value as $v) {
 						eval_js('wait_while_null(\'setselectvalue\',\'setselectvalue(\\\''.$this->_formName.'\\\',\\\''.$name.'\\\',\\\''.addslashes(addslashes($v)).'\\\')\')');
-						//eval_js('var elem=document.getElementById(\''.$this->_formName.'\').elements[\''.$name.'\'];for(i=0; i<elem.length; i++) if(elem.options[i].value==\''.$v.'\') {elem.options[i].selected=true;break;};');
 					}
 			} elseif($type == 'checkbox' || $type=='radio') {
 		    		$value = $element->getAttribute('checked');
     		        	$element->removeAttribute('checked');
 	    			if($value!==null) {
 					if($type=='checkbox')
-//						eval_js('setcheckvalue(\''.$this->_formName.'\',\''.$name.'\',\''.addslashes($value).'\')');
 						eval_js('wait_while_null(\'setcheckvalue\',\'setcheckvalue(\\\''.$this->_formName.'\\\',\\\''.$name.'\\\',\\\''.addslashes(addslashes($value)).'\\\')\')');
 					else
 						eval_js('wait_while_null(\'setradiovalue\',\'setradiovalue(\\\''.$this->_formName.'\\\',\\\''.$name.'\\\',\\\''.addslashes(addslashes($element->getValue())).'\\\')\')');
-//						eval_js('setradiovalue(\''.$this->_formName.'\',\''.$name.'\',\''.addslashes($element->getValue()).'\')');
-//						eval_js('var elem=document.getElementById(\''.$this->_formName.'\').elements[\''.$name.'\'];for(i=0; i<elem.length; i++){elem[i].checked=false;if(elem[i].value==\''.addslashes($element->getValue()).'\')elem[i].checked=true;};');
 	    			}
 			}
 		}
