@@ -571,7 +571,7 @@ class Utils_GenericBrowser extends Module {
 			$theme->assign('reset','');
 			$theme->assign('order','');
 		}
-		$theme->display($template);
+		$theme->display($template,isset($template));
 	}
 	
 	private function summary() {

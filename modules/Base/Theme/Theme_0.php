@@ -63,13 +63,16 @@ class Base_Theme extends Module {
 		return $ret;		
 	}
 
-	public function display($user_template) {
+	public function display($user_template,$fullname=false) {
 		$this->smarty->assign('__link', $this->links);
 		
 		$module_name = $this->parent->get_type();
-		if(isset($user_template)) 
-			$module_name .= '__'.$user_template;
-		else
+		if(isset($user_template)) { 
+			if (!$fullname)
+				$module_name .= '__'.$user_template;
+			else 
+				$module_name = $user_template;
+		} else
 			$module_name .= '__default';
 		
 		$tpl = $module_name.'.tpl';
