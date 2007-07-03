@@ -91,7 +91,10 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 		
 		$gb = & $this->init_module('Utils/GenericBrowser',null,'user_list');
 		
-		$gb->set_table_columns(array(array('name'=>$this->lang->t('Login'), 'order'=>'u.login', 'width'=>30), array('name'=>$this->lang->t('Mail'), 'order'=>'p.mail', 'width'=>40), array('name'=>$this->lang->t('Access'),'width'=>30)));
+		$gb->set_table_columns(array(
+						array('name'=>$this->lang->t('Login'), 'order'=>'u.login', 'width'=>30), 
+						array('name'=>$this->lang->t('Mail'), 'order'=>'p.mail', 'width'=>40), 
+						array('name'=>$this->lang->t('Access'),'width'=>30)));
 
 		$query = 'SELECT u.login, p.mail, u.id FROM user_login u INNER JOIN user_password p on p.user_login_id=u.id';
 		$query_qty = 'SELECT count(u.id) FROM user_login u INNER JOIN user_password p on p.user_login_id=u.id';

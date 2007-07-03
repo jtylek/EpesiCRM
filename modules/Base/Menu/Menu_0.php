@@ -266,6 +266,7 @@ class Base_Menu extends Module {
 //		if (!empty($modules_menu)) $menu[$lang->t('Modules',true)] = $modules_menu;
 		$menu = array_merge($menu,$home_menu);
 		$menu = array_merge($menu,$qaccess_menu);
+		$current_module_menu['Test'] = array();
 		$menu = array_merge($menu,$current_module_menu);
 //		if (!empty($tools_menu)) $menu[$lang->t('Tools',true)] = $tools_menu;
 
