@@ -184,7 +184,7 @@ class Base extends saja {
 					}
 				}
 				if(MODULE_TIMES)
-					$debug .= 'Time of loading module <b>'.$v['name'].'</b>: <i>'.$v['time'].'</i><hr>';
+					$debug .= 'Time of loading module <b>'.$k.'</b>: <i>'.$v['time'].'</i><hr>';
 				
 				if(isset($v['span']))
 					$this->text($v['value'], $v['span']);
