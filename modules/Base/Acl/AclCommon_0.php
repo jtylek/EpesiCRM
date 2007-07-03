@@ -89,27 +89,43 @@ class Base_AclCommon {
 	 * 
 	 * @return bool
 	 */
-	public static function i_am_sa($cache=false) {
-		static $ret;
-		if(!isset($ret) || !$cache) $ret = (Variable::get('anonymous_setup') || Acl::check('Administration','Main'));
+	public static function i_am_sa() {
+		static $ret, $user;
+		$new_user = Acl::get_user();
+		if (!isset($ret) || $new_user != $user) { 
+			$user = $new_user;
+			$ret = (Variable::get('anonymous_setup') || Acl::check('Administration','Main'));
+		}
 		return $ret;
 	}
 	
 	public static function i_am_admin($cache=false) {
-		static $ret;
-		if(!isset($ret) || !$cache) $ret = (Variable::get('anonymous_setup') || Acl::check('Administration','Modules'));
+		static $ret, $user;
+		$new_user = Acl::get_user();
+		if (!isset($ret) || $new_user != $user) { 
+			$user = $new_user;
+			$ret = (Variable::get('anonymous_setup') || Acl::check('Administration','Modules'));
+		}
 		return $ret;
 	}
 
 	public static function i_am_moderator($cache=false) {
-		static $ret;
-		if(!isset($ret) || !$cache) $ret = Acl::check('Data','Moderation');
+		static $ret, $user;
+		$new_user = Acl::get_user();
+		if (!isset($ret) || $new_user != $user) { 
+			$user = $new_user;
+			$ret = Acl::check('Data','Moderation');
+		}
 		return $ret;
 	}
 
 	public static function i_am_user($cache=false) {
-		static $ret;
-		if(!isset($ret) || !$cache) $ret = Acl::check('Data','View');
+		static $ret, $user;
+		$new_user = Acl::get_user();
+		if (!isset($ret) || $new_user != $user) { 
+			$user = $new_user;
+			$ret = Acl::check('Data','View');
+		}
 		return $ret;
 	}
 	
