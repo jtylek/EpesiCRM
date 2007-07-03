@@ -264,10 +264,10 @@ class Base_Menu extends Module {
 		// putting all menus into menu array
 		$menu = array();
 //		if (!empty($modules_menu)) $menu[$lang->t('Modules',true)] = $modules_menu;
-		$menu = array_merge($menu,$current_module_menu);
-		$menu = array_merge($menu,$qaccess_menu);
-//		if (!empty($tools_menu)) $menu[$lang->t('Tools',true)] = $tools_menu;
 		$menu = array_merge($menu,$home_menu);
+		$menu = array_merge($menu,$qaccess_menu);
+		$menu = array_merge($menu,$current_module_menu);
+//		if (!empty($tools_menu)) $menu[$lang->t('Tools',true)] = $tools_menu;
 
 		// preparing menu string
 		$menu_mod = & $this->init_module("Utils/Menu", "horizontal");

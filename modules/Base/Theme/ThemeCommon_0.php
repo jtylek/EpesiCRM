@@ -52,8 +52,12 @@ class Base_ThemeCommon {
 		return $themes_dir.$theme.'/';
 	}
 
+	public static function get_template_file_name($modulename,$filename) {
+		return str_replace("/", "_", $modulename).'__'.str_replace("/", "_", $filename);
+	}
+
 	public static function get_template_file($modulename,$filename) {
-		$filename = str_replace("/", "_", $modulename).'__'.str_replace("/", "_", $filename);
+		$filename = self::get_template_file_name($modulename,$filename);
 		$f = self::get_template_dir().$filename;
 		if(!is_readable($f)) {
 			$f = 'data/Base/Theme/templates/default/'.$filename;
