@@ -47,7 +47,7 @@
  * @param Smarty
  * @return string
  */
-function smarty_function_html_table_tcms($params, &$smarty)
+function smarty_function_html_scrolled_table_epesi($params, &$smarty)
 {
     $table_attr = 'border="1"';
     $tr_attr = '';
@@ -174,7 +174,7 @@ function smarty_function_html_table_tcms($params, &$smarty)
     $output .= "</tbody>\n";
     $output .= "</table>\n</div>\n</div>\n";
     
-    load_js('modules/Base/Theme/smarty/plugins/function.html_table_tcms.js');
+    load_js('modules/Base/Theme/smarty/plugins/function.html_scrolled_table_epesi.js');
     eval_js('wait_while_null(\'libs_theme__scrolling_table_fix_cols\',\'libs_theme__scrolling_table_fix_cols()\')');
     
     return $output;

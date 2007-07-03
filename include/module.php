@@ -69,10 +69,6 @@ abstract class Module {
 	private $displayed = false;
 	
 	/**
-	 * This function is called when module is send to client after it has been repainted.
-	 * Overload this function to get control of what happens after reload.
-	 */
-	/**
 	 * Constructor. Should not be called directly using new Module('name').
 	 * Use $this->pack_module or $this->init_module (inside other module).
 	 * 
@@ -109,12 +105,23 @@ abstract class Module {
 		return $this->children_count++;
 	}
 	
+	/**
+	 * Gets child module with specified node id.
+	 * 
+	 * @param string
+	 * @return module object
+	 */
 	public final function & get_child($id) {
 		if($this->fast_process) return false;
 		$yy = explode('|',$id);
 		return $this->children[$yy[0]][$yy[1]];
 	}
 
+	/**
+	 * Gets array of children modules.
+	 * 
+	 * @return array node id is a key, module object is value
+	 */
 	public final function & get_children() {
 		if($this->fast_process) return false;
 		$ret = array();
@@ -137,6 +144,11 @@ abstract class Module {
 		return false;
 	}
 	
+	/**
+	 * Get node identifier.
+	 * 
+	 * @return string
+	 */
 	public final function get_node_id() {
 		return $this->type.'|'.$this->instance;
 	}
