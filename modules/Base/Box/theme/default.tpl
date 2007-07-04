@@ -70,7 +70,7 @@
 </center>
 {php}
 	load_js('data/Base/Theme/templates/default/Base_Box__default.js');
-	eval_js('wait_while_null("base_box__set_content_height", "base_box__set_content_height(\'content\')");');
+	eval_js_once('setInterval(\'if(typeof(base_box__set_content_height)!=\\\'undefined\\\')base_box__set_content_height(\\\'content\\\')\',200);');
 	eval_js('wait_while_null("correctPNG", "correctPNG()");');
 {/php}
 {/if}

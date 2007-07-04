@@ -1,29 +1,33 @@
-getY = function( oElement ) {
-	var iReturnValue = 0;
-	while( oElement != null ) {
-		iReturnValue += oElement.offsetTop + 1;
-		oElement = oElement.offsetParent;
+getHeight = function(someObject){
+	var w;
+	if(document.defaultView &&
+		document.defaultView.getComputedStyle) {
+		w=document.defaultView.getComputedStyle(someObject ,'').getPropertyValue('height');
+	}else if(someObject.offsetHeight){
+		w=someObject.offsetHeight;
 	}
-	return iReturnValue - 2;
-}
+	if(typeof w=="string") w=parseInt(w);
+	return w;
+};
 
 base_box__set_content_height = function(content) {
-	if( document.getElementById(content) && document.documentElement.clientHeight > document.body.clientHeight ) {
-		var prev = -19;
-		var ch = (document.documentElement.clientHeight < document.body.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight)
-		var tmp = 0;
-		while(prev != tmp) {
-			prev = tmp;
-			ch = (document.documentElement.clientHeight < document.body.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight)
-			tmp = ch - getY(document.getElementById(content));
-			document.getElementById(content).style.height = tmp + 'px';
-		}
-		tmp -= 40;
-		document.getElementById(content).style.height = tmp + 'px';
-	} else {
-		setTimeout("base_box__set_content_height('"+content+"')", 100);
+	var frame = document.getElementById(content);
+	if(!frame)return;
+	var htmlheight = document.body.parentNode.scrollHeight;  
+
+	var windowheight = 0;
+	if( typeof( window.innerHeight ) == 'number' ) { //non ie
+		windowheight = window.innerHeight;
+	} else if( document.documentElement && document.documentElement.clientHeight ) { //ie6
+		windowheight = document.documentElement.clientHeight;
 	}
-}
+
+	var contentheight = getHeight(frame);
+	var h = windowheight-(htmlheight-contentheight);
+	if(h<200) h=200;
+	if(h!=frame.style.height)
+		frame.style.height = h + "px";
+};
 
 correctPNG = function() // correctly handle PNG transparency in Win IE 5.5 & 6.
 {
