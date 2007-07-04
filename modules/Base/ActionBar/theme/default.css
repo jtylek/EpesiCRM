@@ -10,9 +10,12 @@ ul#Base_ActionBar li {
 }
 
 ul#Base_ActionBar li a {
+	text-align: center;
 	background-color: #F0F0F0;
 	color: #4C4C4C;
-	position: relative;	bottom: -19px; left: -34px; _bottom: -25px;
+	width: 15%;
+	float: left;
+	position: relative;	bottom: 14px; left: -34px; _bottom: 2px;
 	background-repeat: no-repeat;
 	background-position: center 5px;
     border-top: 1px solid #F0F0F0;
