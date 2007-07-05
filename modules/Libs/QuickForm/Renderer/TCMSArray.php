@@ -259,7 +259,7 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
             'required'  => $required,
             // was:
             //'error'     => $error
-           	'error'		=> '<div style="color: #ff0000" id="'.htmlspecialchars($err_id).'"></div>'
+           	'error'		=> '<span style="color: #ff0000" id="'.htmlspecialchars($err_id).'"></span>'
         );
         
 		 if (!$element->getAttribute('id') || $type=='checkbox' || $type == 'radio')
