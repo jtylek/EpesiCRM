@@ -14,6 +14,8 @@ ul#Base_ActionBar li a {
 	background-color: #F0F0F0;
 	color: #4C4C4C;
 	width: 15%;
+	height: 13px;
+	overflow: hidden;
 	float: left;
 	position: relative;	bottom: 14px; left: -34px; _bottom: 2px;
 	background-repeat: no-repeat;
