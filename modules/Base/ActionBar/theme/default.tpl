@@ -6,9 +6,17 @@
  class="{$i.icon}"
 {/if}
 >
-{if $display_text}
-{$i.action_open}{$i.label}{$i.action_close}
-{/if}
+	{if !$display_text}
+		<span title="{$i.label}">
+	{/if}
+	{$i.action_open}
+		{if $display_text}
+			{$i.label}
+		{/if}
+	{$i.action_close}
+	{if !$display_text}
+		</span>
+	{/if}
 </li>
 {/foreach}
 </ul>

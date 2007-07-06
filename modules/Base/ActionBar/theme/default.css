@@ -1,5 +1,5 @@
 ul#Base_ActionBar {
-	text-align: left;
+	text-align: center;
 	font-size: 11px;
 	list-style-type: none;
 }
@@ -11,9 +11,8 @@ ul#Base_ActionBar li {
 
 ul#Base_ActionBar li a {
 	text-align: center;
-	background-color: #F0F0F0;
 	color: #4C4C4C;
-	width: 15%;
+	min-width: 15%;
 	height: 13px;
 	overflow: hidden;
 	float: left;
@@ -24,6 +23,15 @@ ul#Base_ActionBar li a {
     border-left: 1px solid #F0F0F0;
     border-right: 1px solid #B3B3B3;
     border-bottom: 1px solid #B3B3B3;
+	background-color: #FFFFFF;
+	padding: 3px 4px;
+	color: #336699;
+	margin-right: 0px;
+	text-decoration: none;
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 40px;
+	white-space: nowrap;
 }
 
 ul#Base_ActionBar li a:hover {
@@ -64,17 +72,6 @@ ul#Base_ActionBar li.calendar a:hover { background-image: url("images/icons/icon
 ul#Base_ActionBar li.view     a:hover { background-image: url("images/icons/icon-view-hover.png");     }
 ul#Base_ActionBar li.save     a:hover { background-image: url("images/icons/icon-save-hover.png");     }
 ul#Base_ActionBar li.settings a:hover { background-image: url("images/icons/icon-settings-hover.png"); }
-
-ul#Base_ActionBar li a {
-	background-color: #FFFFFF;
-	padding: 3px 4px;
-	color: #336699;
-	margin-right: 0px;
-	text-decoration: none;
-	padding-left: 5px;
-	padding-right: 5px;
-	padding-top: 40px;
-}
 
 ul#Base_ActionBar a:hover {
 	background: #FFFFFF;
