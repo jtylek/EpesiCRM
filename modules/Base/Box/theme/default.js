@@ -13,7 +13,7 @@ getHeight = function(someObject){
 base_box__set_content_height = function(content) {
 	var frame = document.getElementById(content);
 	if(!frame)return;
-	var htmlheight = document.body.parentNode.scrollHeight;  
+	var htmlheight = getHeight(document.getElementsByTagName('body')[0]);
 
 	var windowheight = 0;
 	if( typeof( window.innerHeight ) == 'number' ) { //non ie
@@ -25,8 +25,8 @@ base_box__set_content_height = function(content) {
 	var contentheight = getHeight(frame);
 	var h = windowheight-(htmlheight-contentheight);
 	if(h<200) h=200;
-	if(h!=frame.style.height)
-		frame.style.height = h + "px";
+	if(h!=parseInt(frame.style.height)+20)
+		frame.style.height = (h-20) + "px";
 };
 
 correctPNG = function() // correctly handle PNG transparency in Win IE 5.5 & 6.
