@@ -202,7 +202,7 @@ class Utils_Image extends Module {
 	}
 	
 	public function get_thumb_attributes() {
-		return array($this->thumb_width, $this->thumb_height, $this->type);
+		return array($this->thumb_width, $this->thumb_height, $this->type, 'width'=>$this->thumb_width, 'height'=>$this->thumb_height, 'type'=>$this->type);
 	}
 	
 	public function get_thumb_path( $size, $path = '' ) {

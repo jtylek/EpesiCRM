@@ -33,7 +33,7 @@ correctPNG = function() // correctly handle PNG transparency in Win IE 5.5 & 6.
 {
    var arVersion = navigator.appVersion.split("MSIE")
    var version = parseFloat(arVersion[1])
-   if ((version >= 5.5) && (document.body.filters)) 
+   if ((version >= 5.5) && (typeof document.body.filters == 'object')) 
    {
       for(var i=0; i<document.images.length; i++)
       {

@@ -167,7 +167,7 @@ define("STRIP_OUTPUT",0);
 /*
  * Save session in database.
  */
-define("DB_SESSION",0);
+define("DB_SESSION",1);
 ?>');
 	fclose($c);
 	chmod('data/config.php',0444);

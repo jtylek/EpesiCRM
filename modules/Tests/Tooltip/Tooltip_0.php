@@ -12,51 +12,7 @@ class Tests_Tooltip extends Module {
 	
 	public function body($arg) {
 		print "Tooltip Test<hr>";
-		$this->pack_module('Utils/Tooltip', array('text', 'tip'));
-		print "<hr>";
-		$this->pack_module('Utils/Tooltip', array('text', 'tip'));
-		print "<hr>";
-		$this->pack_module('Utils/Tooltip', array('text', 'tip'));
-		print "<hr>";
-		$this->pack_module('Utils/Tooltip', array('text', 'tip'));
-		print "<hr>";
-		$this->pack_module('Utils/Tooltip', array('text', 'tip'));
-		print "<hr>";
-		$this->pack_module('Utils/Tooltip', array('text', 'tip'));
-		print "<hr>";
-		$this->pack_module('Utils/Tooltip', array('text', 'tip'));
-		print "<hr>";
-		$this->pack_module('Utils/Tooltip', array('text', 'tip'));
-		print "<hr>";
-		$this->pack_module('Utils/Tooltip', array('text', 'tip'));
-		print "<hr>";
-		$this->pack_module('Utils/Tooltip', array('text', 'tip'));
-		print "<hr>";
-		$this->pack_module('Utils/Tooltip', array('text', 'tip'));
-		print "<hr>";
-		$this->pack_module('Utils/Tooltip', array('text', 'tip'));
-		print "<hr>";
-		$this->pack_module('Utils/Tooltip', array('text', 'tip'));
-		print "<hr>";
-		$this->pack_module('Utils/Tooltip', array('text', 'tip'));
-		print "<hr>";
-		$this->pack_module('Utils/Tooltip', array('text', 'tip'));
-		print "<hr>";
-		$this->pack_module('Utils/Tooltip', array('text', 'tip'));
-		print "<hr>";
-		$this->pack_module('Utils/Tooltip', array('text', 'tip'));
-		print "<hr>";
-		$this->pack_module('Utils/Tooltip', array('text', 'tip'));
-		$image = & $this->init_module('Utils/Image');
-		$image->load('alfa');
-		print "<hr>";
-		
-		$ttip = & $this->init_module('Utils/Tooltip', array('text2', 'tip2'));
-		$this->display_module($ttip);
-		print "<hr>";
-		$this->display_module($ttip, array('text3', 'tip3', 'TooltipD'));
-		$this->display_module($ttip, array($image->thumb_toHtml(50), 'tip over image'));
-			
+		$this->pack_module('Utils/Tooltip', array('point mouse here', 'tip'));
 		//------------------------------ print out src
 		print('<hr><b>Main</b><br>');
 		$this->pack_module('Utils/CatFile','modules/Tests/Tooltip/Tooltip_0.php');

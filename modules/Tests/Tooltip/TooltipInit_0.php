@@ -12,7 +12,6 @@ class Tests_TooltipInit_0 extends ModuleInit {
 	public static function requires() {
 		return array(
 			array('name'=>'Utils/CatFile','version'=>0),
-			array('name'=>'Utils/Image','version'=>0),
 			array('name'=>'Utils/Tooltip','version'=>0)
 		);
 	}

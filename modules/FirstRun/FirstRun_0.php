@@ -17,10 +17,10 @@ class FirstRun extends Module {
 		/////////////////////////////////////////////////////////////
 		$f = & $wizard->begin_page();
 		$f->addElement('header', null, $this->lang->t('Welcome to epesi first run wizard'));
-		$f->addElement('radio', 'setup_type', '', $this->lang->t('Simple setup'), 'simple');
-		$f->addElement('radio', 'setup_type', '', $this->lang->t('Advanced setup'),'adv');
-		$f->setDefaults(array('setup_type'=>'simple'));
-		$wizard->end_page(array($this,'choose_setup_type'));
+		$f->addElement('radio', 'setup_type', '', $this->lang->t('Base installation'), 'simple');
+		$f->addElement('radio', 'setup_type', '', $this->lang->t('Full installation'),'full');
+		$f->setDefaults(array('setup_type'=>'full'));
+		$wizard->end_page();
 		
 		/////////////////////////////////////////////////////////////////
 		$f = & $wizard->begin_page('simple_user');
@@ -78,69 +78,69 @@ class FirstRun extends Module {
 		print('</center>');
 	}
 	
-	public function choose_setup_type($d) {
-		if($d['setup_type']=='simple') return 'simple_user';
-		return 'setup_warning';
-	}
-
 	public function choose_mail_method($d) {
 		if($d['mail_method']=='mail') return 'setup_warning';
 		return 'simple_mail_smtp';
 	}
 	
 	public function done($d) {
-		if($d[0]['setup_type']=='adv') {
-			if(!ModuleManager::install('Base_Setup'))
-				trigger_error('Unable to install Base/Setup module.',E_USER_ERROR);
-			Variable::set('default_module','Base_Setup');
-			Variable::set('simple_setup',0);
-		} else {
-			if(!ModuleManager::install('Base'))
-				trigger_error('Unable to install Base module pack.',E_USER_ERROR);
-				
-			Base_SetupCommon::refresh_available_modules();
+		if(!ModuleManager::install('Base'))
+			trigger_error('Unable to install Base module pack.',E_USER_ERROR);
+		
+		if($d[0]['setup_type']=='full') {
+			if(!ModuleManager::install('Apps_Forum'))
+				trigger_error('Unable to install Forum module.',E_USER_ERROR);
+			if(!ModuleManager::install('Apps_Gallery'))
+				trigger_error('Unable to install Gallery module.',E_USER_ERROR);
+			if(!ModuleManager::install('Apps_StaticPage'))
+				trigger_error('Unable to install StaticPage module.',E_USER_ERROR);
+			
+			if(!ModuleManager::install('Tests'))
+				trigger_error('Unable to install Tests module pack.',E_USER_ERROR);
+		}
+			
+		Base_SetupCommon::refresh_available_modules();
 
-			if(!Base_UserCommon::add_user($d['simple_user']['login'])) {
+		if(!Base_UserCommon::add_user($d['simple_user']['login'])) {
 		    	print('Unable to create user');
 		    	return false;
-			}
-		
-			$user_id = Base_UserCommon::get_user_id($d['simple_user']['login']);
-			if($user_id===false) {
-			    print('Unable to get admin user id');
-			    return false;
-			}
-			
-			if(!DB::Execute('INSERT INTO user_password VALUES(%d,%s, %s)', array($user_id, md5($d['simple_user']['pass']), $d['simple_user']['mail']))) {
-		    	print('Unable to set user password');
-		    	return false;
-			}
-		
-			if(!Base_AclCommon::change_privileges($d['simple_user']['login'], array(Base_AclCommon::sa_group_id()))) {
-				print('Unable to update admin account data (groups).');
-				return false;
-			}
-		
-			Acl::set_user($d['simple_user']['login']);
-			Variable::set('anonymous_setup',false);
-			
-			$method = $d['simple_mail']['mail_method'];
-			Variable::set('mail_method', $method);
-			Variable::set('mail_from_addr', $d['simple_user']['mail']);
-			Variable::set('mail_from_name', $d['simple_user']['login']);
-			if($method=='smtp') {
-				Variable::set('mail_host', $d['simple_mail_smtp']['mail_host']);
-				if($d['simple_mail_smtp']['mail_user']!=='' && $d['simple_mail_smtp']['mail_user']!=='')
-					$auth = true;
-				else
-					$auth = false;
-				Variable::set('mail_auth', $auth);
-				if($auth) {
-					Variable::set('mail_user', $d['simple_mail_smtp']['mail_user']);
-					Variable::set('mail_password', $d['simple_mail_smtp']['mail_password']);
-				}
-			}			
 		}
+		
+		$user_id = Base_UserCommon::get_user_id($d['simple_user']['login']);
+		if($user_id===false) {
+		    print('Unable to get admin user id');
+		    return false;
+		}
+			
+		if(!DB::Execute('INSERT INTO user_password VALUES(%d,%s, %s)', array($user_id, md5($d['simple_user']['pass']), $d['simple_user']['mail']))) {
+		   	print('Unable to set user password');
+		    	return false;
+		}
+		
+		if(!Base_AclCommon::change_privileges($d['simple_user']['login'], array(Base_AclCommon::sa_group_id()))) {
+			print('Unable to update admin account data (groups).');
+			return false;
+		}
+		
+		Acl::set_user($d['simple_user']['login']);
+		Variable::set('anonymous_setup',false);
+			
+		$method = $d['simple_mail']['mail_method'];
+		Variable::set('mail_method', $method);
+		Variable::set('mail_from_addr', $d['simple_user']['mail']);
+		Variable::set('mail_from_name', $d['simple_user']['login']);
+		if($method=='smtp') {
+			Variable::set('mail_host', $d['simple_mail_smtp']['mail_host']);
+			if($d['simple_mail_smtp']['mail_user']!=='' && $d['simple_mail_smtp']['mail_user']!=='')
+				$auth = true;
+			else
+				$auth = false;
+			Variable::set('mail_auth', $auth);
+			if($auth) {
+				Variable::set('mail_user', $d['simple_mail_smtp']['mail_user']);
+				Variable::set('mail_password', $d['simple_mail_smtp']['mail_password']);
+			}
+		}			
 		$GLOBALS['base']->redirect();
 	}
 

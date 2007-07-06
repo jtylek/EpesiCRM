@@ -11,8 +11,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Tests_Image extends Module {
 	
 	public function body($arg) {
-		$this->pack_module('Utils/Tooltip', array('Image Test2', 'Test module for new Image module', 'TooltipD'));
-		print "<hr>";
 		$image = & $this->init_module('Utils/Image');
 		print '<table>';
 		for($row = 0; $row < 5; $row++) {
@@ -21,7 +19,7 @@ class Tests_Image extends Module {
 				$id = $row*5+$column + 1;
 				$image->load("modules/Tests/Image/image_".$id.".jpg");
 				$attr = $image->get_thumb_attributes();
-				print '<td width="'.$attr[0].'" height="'.$attr[1].'">';
+				print '<td width="'.$attr['width'].'" height="'.$attr['height'].'">';
 				//print_r($attr);
 				$image->display_thumb(120);
 				print '</td>';
