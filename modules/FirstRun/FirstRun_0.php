@@ -97,6 +97,9 @@ class FirstRun extends Module {
 			
 			if(!ModuleManager::install('Tests'))
 				trigger_error('Unable to install Tests module pack.',E_USER_ERROR);
+
+			if(!ModuleManager::install('Develop_ModuleCreator'))
+				trigger_error('Unable to install ModuleCreator module.',E_USER_ERROR);
 		}
 			
 		Base_SetupCommon::refresh_available_modules();
