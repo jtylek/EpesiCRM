@@ -50,7 +50,7 @@
 		<td colspan="3">
 			{if $main neq ""}
 			<div id="content">
-			<table width="100%" height="100%" cellspacing="0" cellpadding="0" border="0">
+			<table width="90%" height="100%" cellspacing="0" cellpadding="0" border="0">
 				<tr>
 					<td style="padding: 4px 4px 4px 4px; vertical-align: top;">
 						<center>{$main}</center>

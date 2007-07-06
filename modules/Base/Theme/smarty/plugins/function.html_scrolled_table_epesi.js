@@ -10,6 +10,16 @@ getWidth = function(someObject){
         return w;
 }
 
+libs_theme__scrolled_table_fix_headers = function() {
+	var divs = document.getElementsByTagName('div');
+	for (var i = 0; i < divs.length; i++) {
+		var relAttribute = String(divs[i].getAttribute('rel'));
+		if (relAttribute != 'scrolled_table') continue;
+		var table = divs[i].getElementsByTagName('table');
+		table[0].style.width = getWidth(table[1])+"px";
+	}
+}
+
 libs_theme__scrolled_table_fix_cols = function() {
 	var tables = document.getElementsByTagName('table');
 	for (var i = 0; i < tables.length; i++) {
@@ -30,6 +40,7 @@ libs_theme__scrolled_table_fix_cols = function() {
 		var main_div = document.createElement('div');
 		main_div.style.textAlign="left";
 		main_div.style.width=(div_width+30)+"px";
+		main_div.setAttribute("rel","scrolled_table");
 //		main_div.style.border="1px solid red";
 		table.parentNode.insertBefore(main_div,table);
 
@@ -66,4 +77,5 @@ libs_theme__scrolled_table_fix_cols = function() {
 		}
 		table.parentNode.removeChild(table);
 	}
+	setTimeout("libs_theme__scrolled_table_fix_headers()",10);
 }
