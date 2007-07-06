@@ -6,18 +6,26 @@
 {$action.open}
 
 {if $k=="view"}
-<img src="data/Base/Theme/templates/default/images/small-icon-view.png" border="0" width="14" height="14">
+<img src="data/Base/Theme/templates/default/images/small-icon-view.gif" border="0" width="14" height="14">
 {else}
 {if $k=="delete"}
-<img src="data/Base/Theme/templates/default/images/small-icon-delete.png" border="0" width="14" height="14">
+<img src="data/Base/Theme/templates/default/images/small-icon-delete.gif" border="0" width="14" height="14">
 {else}
 {if $k=="edit"}
-<img src="data/Base/Theme/templates/default/images/small-icon-edit.png" border="0" width="14" height="14">
+<img src="data/Base/Theme/templates/default/images/small-icon-edit.gif" border="0" width="14" height="14">
 {else}
 {if $k=="info"}
-<img src="data/Base/Theme/templates/default/images/small-icon-info.png" border="0" width="14" height="14">
+<img src="data/Base/Theme/templates/default/images/small-icon-info.gif" border="0" width="14" height="14">
+{else}
+{if $k=="restore"}
+<img src="data/Base/Theme/templates/default/images/small-icon-restore.gif" border="0" width="14" height="14">
+{else}
+{if $k=="append data"}
+<img src="data/Base/Theme/templates/default/images/small-icon-append-data.gif" border="0" width="14" height="14">
 {else}
 {$action.label}
+{/if}		
+{/if}		
 {/if}		
 {/if}		
 {/if}		
