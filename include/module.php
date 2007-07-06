@@ -561,8 +561,10 @@ abstract class Module {
 			$time = microtime(true);
 		//define key in array so it is before its children
 		$path = $m->get_path();
-		if(!$m->is_inline_display()) 
+		if(!$m->is_inline_display()) {
 			$base->content[$path]['span'] = $this_path.'|'.$this->children_count_display.'content';
+			$this->children_count_display++;	
+		}
 		$base->content[$path]['module'] = & $m;
 		
 		$tmp_session = & $base->get_tmp_session();
@@ -605,8 +607,6 @@ abstract class Module {
 		if(MODULE_TIMES)
 			$base->content[$path]['time'] = microtime(true)-$time;
 					
-		$this->children_count_display++;	
-		
 		$m->mark_displayed();
 		
 		if($m->is_inline_display()) return $base->content[$path]['value'];

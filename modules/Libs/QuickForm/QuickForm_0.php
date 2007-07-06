@@ -63,9 +63,8 @@ class Libs_QuickForm extends Module {
 	private function get_submit_form_js_by_name($form_name, $submited, $indicator) {
 		global $base; 
 		if(!isset($indicator)) $indicator='processing...';
-        $fast = "+'&".str_replace('&amp;','&',http_build_query(array('__action_module__'=>$this->get_parent_path())))."'"; 
-        $s = $base->run("process(".$base->get_client_id().",serialize_form('".addslashes($form_name)."')".$fast.")"); 
-//	 	$s = $base->run("process(".$base->get_client_id().",serialize_form('".addslashes($form_name)."'))");
+		$fast = "+'&".str_replace('&amp;','&',http_build_query(array('__action_module__'=>$this->get_parent_path())))."'"; 
+		$s = $base->run("process(".$base->get_client_id().",serialize_form('".addslashes($form_name)."')".$fast.")"); 
 		$s = str_replace('this',"document.getElementById('".addslashes($form_name)."')",Libs_QuickFormCommon::get_on_submit_actions()).'saja.updateIndicatorText(\''.addslashes($indicator).'\');'.$s;
 		if($submited)	 	
 	 		return "document.getElementById('".addslashes($form_name)."').submited.value=1;".$s."document.getElementById('".addslashes($form_name)."').submited.value=0;";

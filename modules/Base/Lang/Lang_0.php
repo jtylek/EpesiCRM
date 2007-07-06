@@ -26,18 +26,16 @@ class Base_Lang extends Module {
 	
 	public function construct() {
 		$this->set_fast_process();
+
+		$this->lang_code = Base_LangCommon::get_lang_code();
+		$this->parent_module = $this->get_parent_type();
+
+		global $translations;
+		include_once($this->get_data_dir().$this->lang_code.'.php');
 	}
 	
 	public function body($arg) {
 		global $translations;
-		$this->parent_module = $this->get_parent_type();
-		$this->lang_code = Base_LangCommon::get_lang_code();
-		
-		if(!isset($translations)) {
-			$translations = array();
-			include_once($this->get_data_dir().$this->lang_code.'.php');
-		}
-		
 		if(!Acl::check('Administration','Modules') || !Base_MaintenanceModeCommon::get_mode()) return;
 	
 		$original = $this->get_module_variable_or_unique_href_variable('original');
@@ -143,6 +141,7 @@ class Base_Lang extends Module {
 	
 	private function trans($original, $arg, $hidden) {
 		global $translations;
+
 		if(!array_key_exists($this->parent_module, $translations) || 
 			!array_key_exists($original, $translations[$this->parent_module])) {
 			$translations[$this->parent_module][$original] = '';

@@ -175,7 +175,7 @@ class Base extends saja {
 				 || $tmp_session['__module_content__'][$k]['js'] !== $v['js']))
 				 || $reload == true || $reloaded[$parent]) { //force reload or parent reloaded
 				if(DEBUG){
-					$debug .= 'Reloading '.$k.':&nbsp;&nbsp;&nbsp;&nbsp;parent='.$v['module']->get_parent_path().';&nbsp;&nbsp;&nbsp;&nbsp;span='.$v['span'].',&nbsp;&nbsp;&nbsp;&nbsp;triggered='.(($reload==true)?'force':'auto').',&nbsp;&nbsp;cmp='.((!isset($tmp_session['__old__'][$k]))?'old_null':(strcmp($v['value'],$tmp_session['__old__'][$k]))) .'&nbsp;&nbsp;&nbsp;&nbsp;<pre>'.htmlspecialchars($v['value']).'</pre><hr><pre>'.htmlspecialchars($tmp_session['__module_content__'][$k]).'</pre><hr>';
+					$debug .= 'Reloading '.$k.':&nbsp;&nbsp;&nbsp;&nbsp;parent='.$v['module']->get_parent_path().';&nbsp;&nbsp;&nbsp;&nbsp;span='.$v['span'].',&nbsp;&nbsp;&nbsp;&nbsp;triggered='.(($reload==true)?'force':'auto').',&nbsp;&nbsp;<pre>'.htmlspecialchars($v['value']).'</pre><hr><pre>'.htmlspecialchars($tmp_session['__module_content__'][$k]['value']).'</pre><hr>';
 					if(@include_once('tools/Diff.php')) {
 						include_once 'tools/Text/Diff/Renderer/inline.php';
 						$xxx = new Text_Diff(explode("\n",$tmp_session['__module_content__'][$k]['value']),explode("\n",$v['value']));

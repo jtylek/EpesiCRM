@@ -112,7 +112,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		$original = $this->get_module_variable('original');
 		$translations[$module][$original] = $data['trans_text'];
 		$this->set_back_location();
-		Base_Lang::save();
+		Base_LangCommon::save();
 	}
 	
 }

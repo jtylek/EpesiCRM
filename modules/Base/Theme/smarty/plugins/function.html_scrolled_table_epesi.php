@@ -60,7 +60,7 @@ function smarty_function_html_scrolled_table_epesi($params, &$smarty)
     $hdir = 'right';
     $inner = 'cols';
     $caption = '';
-    $height = '200px';
+    $height = '300px';
 
     if (!isset($params['loop'])) {
         $smarty->trigger_error("html_table: missing 'loop' parameter");
@@ -128,8 +128,7 @@ function smarty_function_html_scrolled_table_epesi($params, &$smarty)
         }
     }
 
-    $output = '<div align=left style="text-align: left" rel="scrolling_table">';
-    $output .= "<table $table_attr>\n";
+    $output .= "<table $table_attr rel='scrolled_table' body_height='$height'>\n";
 
     if (!empty($caption)) {
         $output .= '<caption>' . $caption . "</caption>\n";
@@ -146,10 +145,6 @@ function smarty_function_html_scrolled_table_epesi($params, &$smarty)
         }
         $output .= "</tr></thead>\n";
     }
-
-    $output .= "</table>\n";
-    $output .= '<div style="overflow: auto; overflow-x:hidden; height: '.$height.';">'."\n";
-    $output .= "<table $table_attr>\n";
 
     $output .= "<tbody>\n";
     for ($r=0; $r<$rows; $r++) {
@@ -175,7 +170,7 @@ function smarty_function_html_scrolled_table_epesi($params, &$smarty)
     $output .= "</table>\n</div>\n</div>\n";
     
     load_js('modules/Base/Theme/smarty/plugins/function.html_scrolled_table_epesi.js');
-    eval_js('wait_while_null(\'libs_theme__scrolling_table_fix_cols\',\'libs_theme__scrolling_table_fix_cols()\')');
+    eval_js('wait_while_null(\'libs_theme__scrolled_table_fix_cols\',\'libs_theme__scrolled_table_fix_cols()\')');
     
     return $output;
 }

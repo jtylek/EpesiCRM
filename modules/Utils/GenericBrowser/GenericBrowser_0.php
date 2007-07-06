@@ -387,6 +387,7 @@ class Utils_GenericBrowser extends Module {
 		// form processing
 		if($form->validate()) {
 			$values = $form->exportValues();
+//			print($values['per_page'].'<hr>');
 			$this->set_module_variable('per_page',$values['per_page']);
 			Base_User_SettingsCommon::save_user_settings('Utils/GenericBrowser','per_page',$values['per_page']);
 			$search = array();
@@ -401,7 +402,6 @@ class Utils_GenericBrowser extends Module {
 					if ($v!=$this->lang->ht('search keyword') && $v!='') $search[$val] = $v;
 				}
 			}
-			$this->set_module_variable('per_page',$form->exportValue('per_page'));
 			$this->set_module_variable('search',$search);
 			location(array());
 		}
