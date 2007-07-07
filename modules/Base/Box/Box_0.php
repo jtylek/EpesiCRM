@@ -82,6 +82,7 @@ class Base_Box extends Module {
 		
 		
 		//main output
+		$theme->assign('version_no',EPESI_VERSION);
 		$theme->display();
 	
 		
