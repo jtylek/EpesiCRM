@@ -29,11 +29,11 @@
 <table id="Utils_GenericBrowser__navigation" border="0" cellspacing="0" cellpadding="0">
 	<tr>
 		<td class="per_page"></td>
-		<td class="arrow">{if $first}<img src="data/Base/Theme/templates/default/images/first.png">{/if}</td><td class="first">{$first}</td>
-		<td class="arrow">{if $prev}<img src="data/Base/Theme/templates/default/images/prev.png">{/if}</td><td class="prev">{$prev}</td>
+		<td class="arrow">{if $first}<img src="{$theme_dir}/images/first.png">{/if}</td><td class="first">{$first}</td>
+		<td class="arrow">{if $prev}<img src="{$theme_dir}/images/prev.png">{/if}</td><td class="prev">{$prev}</td>
 		<td class="summary">{$summary}</td>
-		<td class="next">{$next}</td><td class="arrow">{if $next}<img src="data/Base/Theme/templates/default/images/next.png"></td>{/if}
-		<td class="last">{$last}</td><td class="arrow">{if $last}<img src="data/Base/Theme/templates/default/images/last.png">{/if}</td>
+		<td class="next">{$next}</td><td class="arrow">{if $next}<img src="{$theme_dir}/images/next.png"></td>{/if}
+		<td class="last">{$last}</td><td class="arrow">{if $last}<img src="{$theme_dir}/images/last.png">{/if}</td>
 		<td class="per_page">{$form_data.per_page.label}&nbsp;{$form_data.per_page.html}</td>
 	</tr>
 </table>

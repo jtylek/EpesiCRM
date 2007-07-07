@@ -13,7 +13,7 @@
 		<td class="button">
 			{$__link.links.$key.open}
 			<div style="display: block; height: 57px; padding-top: 23px; cursor: pointer; cursor: hand;">
-				<img src="data/Base/Theme/templates/default/images/icons/{$key}.png" border="0" width="32" height="32" align="middle">&nbsp;&nbsp;{$__link.links.$key.text}
+				<img src="{$theme_dir}/images/icons/{$key}.png" border="0" width="32" height="32" align="middle">&nbsp;&nbsp;{$__link.links.$key.text}
 			</div>
 			{$__link.links.$key.close}
 		</td>

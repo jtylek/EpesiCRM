@@ -3,7 +3,7 @@
 <table id="Apps_Forum__New_Thread" cellspacing="0" cellpadding="0" boredr="0">
 	<tr>
 		<td class="header" colspan="3">
-			{$forum_boards}&nbsp;<img border="0" src="data/Base/Theme/templates/default/Utils_Path__arrow.gif" width="11" height="11">&nbsp;{$board_name}
+			{$forum_boards}&nbsp;<img border="0" src="{$theme_dir}/Utils_Path__arrow.gif" width="11" height="11">&nbsp;{$board_name}
 		</td>
 	</tr>
 	<tr>

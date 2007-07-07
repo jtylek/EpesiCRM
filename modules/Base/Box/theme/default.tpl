@@ -3,7 +3,7 @@
 <table id="Base_Box__login" cellspacing="0" cellpadding="0" border="0">
 	<tr><td class="status"><center>{$status}</center></td></tr>
 	<tr><td class="entry">{$login}</td></tr>
-	<tr><td class="starting"><a href="http://www.epesi.org"><img src="data/Base/Theme/templates/default/images/epesi-powered.png" border="0"></a></td></tr>
+	<tr><td class="starting"><a href="http://www.epesi.org"><img src="{$theme_dir}/images/epesi-powered.png" border="0"></a></td></tr>
 </table>
 </center>
 {else}
@@ -26,7 +26,7 @@
 			<div id="menu">
 			<table width="978" cellspacing="0" cellpadding="0" border="0">
 				<tr>
-					<td class="logo"><a href="#"><img border="0" src="data/Base/Theme/templates/default/images/logo-small.png" width="193" height="68"></a></td>
+					<td class="logo"><a href="#"><img border="0" src="{$theme_dir}/images/logo-small.png" width="193" height="68"></a></td>
 					<td>
 						<table cellspacing="0" cellpadding="0" border="0">
 							<tr>
@@ -64,12 +64,12 @@
 	<tr>
 		<td class="footer" style="width: 100px; vertical-align: center; text-align: left; padding-left: 4px;">version 1.0</td>
 		<td class="footer" style="width: 778px;">Copyright &copy; 2007 &bull; <a href="http://sourceforge.net/projects/epesi/">epesi framework</a> &bull; Application developed by <a href="http://www.telaxus.com">Telaxus LLC</a><a href="http://www.epesi.org"></td>
-		<td class="footer" style="width: 100px; vertical-align: center; text-align: right; padding-right: 2px; padding-top: 2px;"><a href="http://www.epesi.org"><img src="data/Base/Theme/templates/default/images/epesi-powered.png" border="0"></a></td>
+		<td class="footer" style="width: 100px; vertical-align: center; text-align: right; padding-right: 2px; padding-top: 2px;"><a href="http://www.epesi.org"><img src="{$theme_dir}/images/epesi-powered.png" border="0"></a></td>
 	</tr>	
 </table>
 </center>
 {php}
-	load_js('data/Base/Theme/templates/default/Base_Box__default.js');
+	load_js('{$theme_dir}/Base_Box__default.js');
 	eval_js_once('setInterval(\'if(typeof(base_box__set_content_height)!=\\\'undefined\\\')base_box__set_content_height(\\\'content\\\')\',200);');
 	eval_js('wait_while_null("correctPNG", "correctPNG()");');
 {/php}

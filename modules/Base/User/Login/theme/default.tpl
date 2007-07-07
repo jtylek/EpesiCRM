@@ -1,7 +1,7 @@
 {if $is_logged_in}
 {$logged_as}
 {$__link.logout.open}
-	{$__link.logout.text}&nbsp;<img border="0" width="10" height="10" src="data/Base/Theme/templates/default/images/icon-logout.png">
+	{$__link.logout.text}&nbsp;<img border="0" width="10" height="10" src="{$theme_dir}/images/icon-logout.png">
 {$__link.logout.close}
 {else}
 	{$form_data.javascript}
@@ -14,7 +14,7 @@
 	    	<tr>
 				<td colspan="2" class="header_tail">
 					<!-- <span align=left class=header>{$form_data.header.login_header}</span> -->
-					<img border="0" src="data/Base/Theme/templates/default/images/logo.png" width="388" height="198">
+					<img border="0" src="{$theme_dir}/images/logo.png" width="388" height="198">
 				</td>
 			</tr>
 			{if $form_data.username.error}

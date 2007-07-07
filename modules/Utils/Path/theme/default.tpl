@@ -8,7 +8,7 @@
 	{$root.children_close}
 {/if}
 {foreach from=$list item=element}
-	&nbsp;<img border="0" src="data/Base/Theme/templates/default/Utils_Path__arrow.gif" width="11" height="11">&nbsp;{$element.item}
+	&nbsp;<img border="0" src="{$theme_dir}/Utils_Path__arrow.gif" width="11" height="11">&nbsp;{$element.item}
 	{if $element.children_num > 0}
 		{$element.children_open}
 		{foreach from=$element.children item=child}
