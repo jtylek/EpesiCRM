@@ -34,7 +34,9 @@ class Utils_Image extends Module {
 		// parse attributes
 		if(!is_file($img)) {
 			//print $img." -- no file<br>";
-			$this->img = $this->theme->get_theme_path().'error_image_not_found.gif';
+			$this->img = $this->theme->get_theme_path().'Utils_Image__error_image_not_found.gif';
+			if(!is_file($this->img))
+				$this->img = 'data/Base/Theme/templates/default/Utils_Image__error_image_not_found.gif';
 			//print $this->img." -- error file<br>";
 		} else {
 			$this->img = $img;
