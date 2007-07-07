@@ -31,20 +31,12 @@ class Base_ActionBar extends Module {
 		//sort
 		usort($icons, array($this,'sort'));
 		
-		//remove duplicates
-/*		$ic = count($icons);
-		for($k=1, $j=0; $k<$ic && $j<$ic; $k++) {
-			if($icons[$k]!=$icons[$j])
-				do{$j++;}while($j<$ic && !isset($icons[$j]));
-			else
-				unset($icons[$k]);
-		}*/
-		
-		//print_r($icons);
-		
 		//display
 		$th = & $this->pack_module('Base/Theme');
-		$display_settings = Base_User_SettingsCommon::get_user_settings('Base/ActionBar','display');
+		if(Acl::is_user())
+			$display_settings = Base_User_SettingsCommon::get_user_settings('Base/ActionBar','display');
+		else
+			$display_settings = 'both';
 		$th->assign('display_icon',($display_settings == 'both' || $display_settings == 'icons only'));
 		$th->assign('display_text',($display_settings == 'both' || $display_settings == 'text only'));
 		$th->assign('icons',$icons);

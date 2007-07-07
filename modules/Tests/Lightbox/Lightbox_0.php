@@ -11,7 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Tests_Lightbox extends Module{
 	public function body(){
 		print('This is an example Lightbox page.<hr>');
-		print('<a href="images/loader.gif" rel="lightbox">lightbox image</a><br>');
+		print('<a href="images/loader.gif" rel="lyteshow">lightbox image</a><br>');
 		print('<a rel="leightbox1" class="lbOn">leightbox container</a>
 		<div id="leightbox1" class="leightbox">
 			<h1>Leightbox</h1>

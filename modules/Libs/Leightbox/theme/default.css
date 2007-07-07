@@ -1,4 +1,5 @@
 .leightbox {
+	position: absolute;
 	color: #333;
 	display: none;
 	top: 25%;
@@ -9,9 +10,8 @@
 	border: 1em solid #B8B8B8;
 	background-color: white;
 	text-align: left;
-	z-index: 1006;
+	z-index: 1010;
 	overflow: auto;	
-	position: absolute;
 }
 .leightbox_overlay {
 	display: none;
