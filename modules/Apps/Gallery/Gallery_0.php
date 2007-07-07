@@ -654,9 +654,11 @@ class Apps_Gallery extends Module {
 		$tb->tag();
 		*/
 		if(Base_AclCommon::i_am_user()) {
-			Base_ActionBarCommon::add_icon('view',$this->lang->ht('View'),$this->create_callback_href(array($this,'set_action'), 'show'));
-			Base_ActionBarCommon::add_icon('add',$this->lang->ht('Upload'),$this->create_callback_href(array($this,'set_action'), 'upload'));
-			Base_ActionBarCommon::add_icon('settings',$this->lang->ht('Manage Folders'),$this->create_callback_href(array($this,'set_action'), 'setup'));
+			if ($action === 'show') {
+				Base_ActionBarCommon::add_icon('add',$this->lang->ht('Upload'),$this->create_callback_href(array($this,'set_action'), 'upload'));
+				Base_ActionBarCommon::add_icon('settings',$this->lang->ht('Manage Folders'),$this->create_callback_href(array($this,'set_action'), 'setup'));
+			} else
+				Base_ActionBarCommon::add_icon('back',$this->lang->ht('Back to Gallery'),$this->create_callback_href(array($this,'set_action'), 'show'));
 		}
 	}
 	
@@ -674,8 +676,9 @@ class Apps_Gallery extends Module {
 	
 	public function body( $arg ) {
 		$this->init();
-		$this->menu_main();
-		switch( $this->get_module_variable('action') ) {
+		$action = $this->get_module_variable('action','show');
+		$this->menu_main($action);
+		switch($action) {
 			case 'setup':
 				$this->menu_manage();
 				break;
