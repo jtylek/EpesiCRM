@@ -76,13 +76,13 @@ class Base_LangCommon {
 		return true;
 	}
 	
+	public static function load() {
+		include_once('data/Base/Lang/'.self::get_lang_code().'.php');
+	}
+	
 	public static function get_lang_code() {
 		static $lang_code;
 		if(!isset($lang_code)) {
-//			if(array_key_exists('lang',$_SESSION))
-//				$lang_code = $_SESSION['lang'];
-//			else
-//				$lang_code = Variable::get('default_lang');
 			if (ModuleManager::is_installed('Base/User/Settings')==-1 || ModuleManager::is_installed('Base/Lang/Administrator')==-1 || (ModuleManager::is_installed('Base/Lang/Administrator')!=-1 && !Variable::get('allow_lang_change'))) return Variable::get('default_lang');
 			$lang_code = Base_User_SettingsCommon::get_user_settings('Base_Lang_Administrator','language');
 		}
@@ -90,4 +90,6 @@ class Base_LangCommon {
 	}
 	
 }
+
+on_init(array('Base_LangCommon','load'));
 ?>

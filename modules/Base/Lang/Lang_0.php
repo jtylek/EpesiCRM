@@ -26,12 +26,7 @@ class Base_Lang extends Module {
 	
 	public function construct() {
 		$this->set_fast_process();
-
-		$this->lang_code = Base_LangCommon::get_lang_code();
 		$this->parent_module = $this->get_parent_type();
-
-		global $translations;
-		include_once($this->get_data_dir().$this->lang_code.'.php');
 	}
 	
 	public function body($arg) {
