@@ -17,7 +17,7 @@ class Libs_QuickForm extends Module {
 	private $qf;
 	
 	public function construct($indicator = null, $action = '', $target = '', $on_submit = null) {
-		$form_name = $this->parent->get_path();
+		$form_name = $this->get_path();
 		if($target=='' && $action!='')
 			$target = '_blank';
 		if(!isset($on_submit))
