@@ -121,22 +121,11 @@ leightbox.prototype = {
 	displayLeightbox: function(display){
 	
 		if(navigator.appName.indexOf('Explorer') != -1 ) {
-				var ch = (document.documentElement.clientHeight < document.body.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight);
-				var scrollTop = (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop);
-				if(navigator.appName.indexOf('Explorer') != -1 ) {
-					scrollTop = document.documentElement.scrollTop;
-				}
-				var height = (ch / 4);
+			var ch = (document.documentElement.clientHeight < document.body.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight);
 			$('leightbox_overlay').style.height = ch + 'px';
-			$(this.content).style.height = height + 'px';
-		} else {
-			body = document.getElementsByTagName('body')[0];
-			body.appendChild( $(this.content) );
 		}
 		$('leightbox_overlay').style.display = display;
 		$(this.content).style.display = display;
-		
-		//$(this.content).setParent(  );
 		if(display != 'none') this.actions();		
 	},
 	
@@ -191,6 +180,6 @@ function updateLbList() {
 	for(i = 0; i < leightboxes.length; i++)
 		delete(leightboxes[i]);
 	for(i = 0; i < lbox.length; i++) 
-		leightbox[i] = new leightbox(lbox[i]);
+		leightboxes[i] = new leightbox(lbox[i]);
 }
 

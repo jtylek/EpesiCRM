@@ -87,7 +87,7 @@ function load_js($u) {
  * @param string
  */
 function load_js_inline($u) {
-	eval_js( file_get_contents($u) );
+	eval_js_once( file_get_contents($u) );
 }
 /**
  * Add js block to eval. If no argument is specified return saved jses.

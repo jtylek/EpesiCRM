@@ -29,13 +29,13 @@
 <!--[if gte IE 5.5]>
 <![if lt IE 7]>
 .leightbox {
-	position: absolute;
 	top: expression( ( ignoreMe = (document.documentElement.scrollTop + document.documentElement.clientHeight/4) ) + 'px' );
+	left: expression( ( ignoreMe2 = (document.documentElement.scrollLeft + document.documentElement.clientWidth/4) ) + 'px' );
 }
 .leightbox_overlay {
-	position: absolute;
-	top: expression( ( ignoreMe_over = document.documentElement.scrollTop ) + 'px' );
-	filter: alpha(opacity=80);
+        position: absolute;
+        top: expression( ( ignoreMe_over = document.documentElement.scrollTop ) + 'px' );
+        filter: alpha(opacity=80);
 }
 <![endif]>
 <![endif]-->
