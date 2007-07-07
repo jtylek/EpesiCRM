@@ -24,12 +24,11 @@ class Base_User_SettingsCommon {
 					else $modules[$k] = array('box_main_module'=>$obj['name']);
 			}
 		}
-//		return array('My settings'=>array_merge(array('__submenu__'=>1),$modules));
 		return array('My settings'=>array_merge(array('__weight__'=>10,'__submenu__'=>1,'Control panel'=>array('__weight__'=>-10,'module'=>'__NONE__'),'__split__'=>1),$modules));
 	}
 	
 	public static function get_user_settings($module,$name){
-		if (!Base_AclCommon::i_am_user()) return;
+//		if (!Base_AclCommon::i_am_user()) return;
 		$module = str_replace('/','_',$module);
 		static $variables;
 		if (isset($variables[$module.'__'.$name]))
