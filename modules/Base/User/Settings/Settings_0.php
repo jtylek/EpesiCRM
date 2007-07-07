@@ -50,15 +50,23 @@ class Base_User_Settings extends Module {
 
 	public function submit_settings($values) {
 		list($module_name,$module_part) = explode('::',$this->module);
+		$reload = false;
 		if(method_exists($module_name.'Common', 'user_settings')) {
 			$menu = call_user_func(array($module_name.'Common','user_settings'));
 			if(!is_array($menu)) continue;
 			foreach($menu as $k=>$v) if ($k==$module_part){
 				$this->set_user_preferences($v,$values,$module_name);
+				if (!$reload) 
+					foreach($v as $f) 
+						if ($f['reload']) {
+							$reload = true;
+							break;
+						}
 			}
 		}
 		$this->unset_module_variable('module');
-		Base_StatusBarCommon::message($this->lang->ht('Setting saved'));
+		Base_StatusBarCommon::message($this->lang->ht('Setting saved'.($reload?' - reloading page':'')));
+		if ($reload) eval_js('setTimeout(\'document.location=\\\'index.php\\\'\',\'3000\')');
 		return true;
 	}
 	

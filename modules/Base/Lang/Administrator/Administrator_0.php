@@ -36,7 +36,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		if(isset($module) && isset($original)) 
 			return $this->translate($module, $original);
 		
-		$form = & $this->init_module('Libs/QuickForm');
+		$form = & $this->init_module('Libs/QuickForm',null,'language_setup');
 		
 		$ls_langs = scandir('data/Base/Lang');
 		$langs = array();
@@ -54,6 +54,8 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		$ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->lang->ht('OK'));
 		$cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->lang->ht('Cancel'), $this->create_back_href());
 		$form->addGroup(array($ok_b, $cancel_b));
+		
+		Base_ActionBarCommon::add_icon('add','New langpack',$this->create_callback_href(array($this,'new_lang_pack')));
 		
 		if($form->validate()) {
 			if($form->process(array($this,'submit_admin'))) {
@@ -82,6 +84,32 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		$this->display_module($gb,array(null,true));
 	}
 	
+	public function new_lang_pack(){
+		if ($this->is_back()) return false;
+		if (!isset($this->lang)) $this->lang = & $this->pack_module('Base/Lang');		
+
+		$form = & $this->init_module('Libs/QuickForm',$this->lang->t('Creating new langpack...',true),'new_langpack');
+		$form -> addElement('header',null,$this->lang->t('Create new langpack'));
+		$form -> addElement('text','code',$this->lang->t('Language code'),array('maxlength'=>2));
+		$form->registerRule('check_if_langpack_exists', 'callback', 'check_if_langpack_exists', &$this);
+		$form -> addRule('code', $this->lang->t('Specified langpack already exists'), 'check_if_langpack_exists');
+		$form -> addRule('code', $this->lang->t('Field required'), 'required');
+		$submit = HTML_QuickForm::createElement('submit','submit',$this->lang->ht('Create'));
+		$cancel = HTML_QuickForm::createElement('button','cancel',$this->lang->ht('Cancel'), $this->create_back_href());
+		$form -> addGroup(array($submit,$cancel));
+		if ($form->validate()) {
+			Base_LangCommon::new_langpack($form->exportValue('code'));
+			$this->unset_module_variable('action');
+			return false;
+		}
+		$form->display();
+		return true;
+	}
+	
+	public function check_if_langpack_exists($langpack) {
+		return Base_LangCommon::get_langpack($langpack) === false;
+	}
+
 	public function submit_admin($data) {
 		return Variable::set('default_lang',$data['lang_code']) && Variable::set('allow_lang_change',$data['allow_lang_change']);	
 	}

@@ -57,10 +57,10 @@ class Base_LangCommon {
 		return $trans;
 	}
 
-	public static function save() {
+	public static function save($lang = null) {
 		global $translations;
 		//save translations file
-		$lang = self::get_lang_code();
+		if (!isset($lang)) $lang = self::get_lang_code();
 		$f = @fopen('data/Base/Lang/'.$lang.'.php', 'w');
 		if(!$f)	return false;
 		
@@ -83,12 +83,45 @@ class Base_LangCommon {
 	public static function get_lang_code() {
 		static $lang_code;
 		if(!isset($lang_code)) {
-			if (ModuleManager::is_installed('Base/User/Settings')==-1 || ModuleManager::is_installed('Base/Lang/Administrator')==-1 || (ModuleManager::is_installed('Base/Lang/Administrator')!=-1 && !Variable::get('allow_lang_change'))) return Variable::get('default_lang');
+			if (!Base_AclCommon::i_am_user() ||
+				ModuleManager::is_installed('Base/User/Settings')==-1 || 
+				ModuleManager::is_installed('Base/Lang/Administrator')==-1 || 
+				(ModuleManager::is_installed('Base/Lang/Administrator')!=-1 && !Variable::get('allow_lang_change'))) 
+					return Variable::get('default_lang');
 			$lang_code = Base_User_SettingsCommon::get_user_settings('Base_Lang_Administrator','language');
 		}
 		return $lang_code;
 	}
 	
+	public static function install_translations($mod_name,$lang_dir='lang') {
+		global $translations;
+		$mod_name = str_replace('/','_',$mod_name);
+		$directory = 'modules/'.str_replace('_','/',$mod_name).'/'.$lang_dir;
+		$content = scandir($directory);
+		$trans_backup = $translations;
+		foreach ($content as $name){
+			if($name == '.' || $name == '..' || ereg('^[\.~]',$name)) continue;
+			$langcode = substr($name,0,strpos($name,'.'));
+			$translations = array();
+			include_once('data/Base/Lang/'.$langcode.'.php');
+			include_once($directory.'/'.$name);
+			Base_LangCommon::save($langcode);
+		}
+		$translations = $trans_backup; 
+	}
+
+	public static function new_langpack($code) {
+		file_put_contents('data/Base/Lang/'.$code.'.php','');
+	}
+
+	public static function get_langpack($code) {
+		global $translations;
+		if (!is_file('data/Base/Lang/'.$code.'.php')) return false;
+		include_once('data/Base/Lang/'.$code.'.php');
+		$langpack = $translations;
+		include_once('data/Base/Lang/'.self::get_lang_code().'.php');
+		return $langpack;
+	}
 }
 
 on_init(array('Base_LangCommon','load'));
