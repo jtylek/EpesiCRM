@@ -1,4 +1,4 @@
-<div style="width: 920px;">
+<div style="width: 850px;">
 
 {$form_data.javascript}
 
@@ -22,7 +22,20 @@
 	{$form_data.submit_search.html}{$adv_search}
 {/if}
 
-<div align="right" style="padding-bottom: 5px;">{$order}&nbsp;&nbsp;&nbsp;<b>{$reset}</b></div>
+<table width=100%>
+<tr>
+	<td align="left" style="padding-bottom: 5px;">
+		<b>
+		{foreach key=k item=link from=$letter_links}
+		{$link}&nbsp;
+		{/foreach}
+		</b>
+	</td>
+	<td align="right" style="padding-bottom: 5px;">
+		{$order}&nbsp;&nbsp;&nbsp;<b>{$reset}</b>
+	</td>
+</tr>
+</table>
 
 {html_scrolled_table_epesi table_attr='id="Utils_GenericBrowser" cellspacing="0" cellpadding="0"' loop=$data cols=$cols}
 

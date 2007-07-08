@@ -181,7 +181,7 @@ abstract class Module {
 	 */
 	public final function set_module_variable($name, $value) {
 		$session = & $GLOBALS['base']->get_session();
-		$session['__module_vars__'][$this->get_path()][$name] = $value;
+		return $session['__module_vars__'][$this->get_path()][$name] = $value;
 	}
 	
 	/**

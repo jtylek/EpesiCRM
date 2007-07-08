@@ -214,9 +214,16 @@ class Utils_GenericBrowser extends Module {
 		$this->set_module_variable('order',$new_order);
 	}
 	
-	public function get_search_query($arg = array()){
+	public function get_search_query($arg = null){
 		$search = $this->get_module_variable('search');
-		$where = '(';
+
+		$this->get_module_variable_or_unique_href_variable('quickjump_to');
+		$quickjump = $this->get_module_variable('quickjump');		
+		$quickjump_to = $this->get_module_variable('quickjump_to');
+		$this->set_module_variable('quickjump_to',$quickjump_to);
+
+		$where = '';
+
 		if(!$this->is_adv_search_on()) {
 			foreach($this->columns as $k=>$v){
 				if ($v['search'] && $search['__keyword__']) $where .= ($where?' OR':'').' '.$v['search'].' LIKE '.DB::Concat('\'%\'',sprintf('%s',DB::qstr($search['__keyword__'])),'\'%\'');
@@ -226,9 +233,21 @@ class Utils_GenericBrowser extends Module {
 				if ($v['search'] && $search[$v['search']]) $where .= ($where?' AND':'').' '.$v['search'].' LIKE '.DB::Concat('\'%\'',sprintf('%s',DB::qstr($search[$v['search']])),'\'%\'');
 			}
 		}
-		$where .= ')';
+ 		if (isset($quickjump) && $quickjump_to!='')
+			$where = ($where?'('.$where.') AND':'').' ('
+						.$quickjump.' LIKE '.DB::Concat(sprintf('%s',DB::qstr($quickjump_to)),'\'%\'')
+						.' OR '
+						.$quickjump.' LIKE '.DB::Concat(sprintf('%s',DB::qstr(strtolower($quickjump_to))),'\'%\'').
+						')';
+			
+		if ($where) $where = '('.$where.')';
+
 		if ($arg) $where .= ' AND ('.$arg.')';
 		return $where;
+	}
+	
+	public function unset_quickjump(){
+		$this->unset_module_variable('quickjump_to');
 	}
 	
 	public function is_adv_search_on(){
@@ -496,6 +515,10 @@ class Utils_GenericBrowser extends Module {
 		foreach($this->columns as $k=>$v) {
 			if (!$this->columns[$k]['width']) $this->columns[$k]['width'] = 100;
 			$all_width += $this->columns[$k]['width'];
+			if (isset($v['quickjump'])) {
+				$quickjump = $this->set_module_variable('quickjump',$v['quickjump']);
+				$quickjump_col = $k;
+			}
 		}
 		$i = 0;
 		foreach($this->columns as $v) {
@@ -530,12 +553,13 @@ class Utils_GenericBrowser extends Module {
 			foreach($r as $k=>$v) {
 				if((!Base_AclCommon::i_am_sa() || !Base_MaintenanceModeCommon::get_mode()) && ((array_key_exists('display',$this->columns[$k]) && $this->columns[$k]['display']==false) || !$col_pos[$k]['display'])) continue;
 				$col[$col_pos[$k]['pos']]['attrs'] = '';
-				if(!is_array($v)) $v = array('value'=>$v);
-				if($v['value']=='')
+				if (!is_array($v)) $v = array('value'=>$v);
+				if ($v['value']=='')
 					$col[$col_pos[$k]['pos']]['label'] = '&nbsp;';
 				else
 					$col[$col_pos[$k]['pos']]['label'] = $v['value'];
 				$col[$col_pos[$k]['pos']]['attrs'] = isset($v['style'])? 'style="'.$v['style'].'"':'';
+				if ($k==$quickjump_col) $col[$col_pos[$k]['pos']]['attrs'] .= ' class="Utils_GenericBrowser__quickjump"';
 				if ($this->columns[$k]['wrapmode']!='cut' && isset($v['hint'])) $col[$col_pos[$k]['pos']]['attrs'] .= ' title="'.$v['hint'].'"';
 				$col[$col_pos[$k]['pos']]['attrs'] .= ($this->columns[$k]['wrapmode']=='nowrap')?' nowrap':'';
 				$max_width = 130*$this->columns[$k]['width']/$all_width*(7+$this->columns[$k]['fontsize']);
@@ -552,6 +576,22 @@ class Utils_GenericBrowser extends Module {
 			foreach($col as $v)
 				$out_data[] = array('label'=>$v['label'],'attrs'=>$v['attrs']);
 		}
+		if (isset($quickjump)) {
+			$quickjump_to = $this->get_module_variable('quickjump_to');
+			$all = $this->lang->t('All');
+			if (isset($quickjump_to) && $quickjump_to != '') $all = '<a '.$this->create_unique_href(array('quickjump_to'=>'')).'>'.$all.'</a>';
+			$letter_links = array(0 => $all);  
+			$letter = 'A';
+			while ($letter<='Z') {
+				if ($quickjump_to != $letter) 
+					$letter_links[] .= '<a '.$this->create_unique_href(array('quickjump_to'=>$letter)).'>'.$letter.'</a>';
+				else
+					$letter_links[] .= $letter;
+				$letter = chr(ord($letter)+1);
+			}
+			$theme->assign('letter_links', $letter_links);
+		}
+		
 		$theme->assign('data', $out_data);
 		$theme->assign('cols', $out_headers);
 		
