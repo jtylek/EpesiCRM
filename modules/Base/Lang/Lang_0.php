@@ -140,7 +140,7 @@ class Base_Lang extends Module {
 			else $trans=$trans_oryg;
 		
 		if(Acl::check('Administration','Modules') && !$hidden && Base_MaintenanceModeCommon::get_mode())
-			$trans = '<span>'.$trans.'</span><a href="javascript:void(0)" onClick="var oryg=\''.escapeJS($original).'\';var x=prompt(oryg,\''.escapeJS($trans_oryg).'\');if(x!=null){if(x==\'\')x=oryg;this.parentNode.firstChild.innerHTML=x;'.$base->run('translate(\''.escapeJS($this->parent_module).'\',oryg,x)','modules/Base/Lang/submit_trans.php').'}">[*]</a>';
+			$trans = '<span>'.$trans.'</span><a href="javascript:void(0)" onClick="var oryg=\''.escapeJS($original).'\';var x=prompt(oryg,\''.escapeJS($trans_oryg).'\');if(x!=null){if(x==\'\')this.parentNode.firstChild.innerHTML=oryg;else this.parentNode.firstChild.innerHTML=x;'.$base->run('translate(\''.escapeJS($this->parent_module).'\',oryg,x)','modules/Base/Lang/submit_trans.php').'}">[*]</a>';
 		else
 			$trans = vsprintf($trans,$arg);
 		return $trans;
