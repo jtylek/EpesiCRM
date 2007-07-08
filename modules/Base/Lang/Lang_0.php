@@ -30,7 +30,7 @@ class Base_Lang extends Module {
 	}
 	
 	public function body($arg) {
-		global $translations;
+/*		global $translations;
 		if(!Acl::check('Administration','Modules') || !Base_MaintenanceModeCommon::get_mode()) return;
 	
 		$original = $this->get_module_variable_or_unique_href_variable('original');
@@ -56,7 +56,7 @@ class Base_Lang extends Module {
 		if($form->validate()) {
 			$form->process(array(&$this, 'translate'));
 		} else
-			$form->display();
+			$form->display();*/
 	}
 	
 	/**
@@ -100,10 +100,6 @@ class Base_Lang extends Module {
 	 * @return string   
 	 */
 	public function t($original, $arg) {
-		if (!is_array($arg) && isset($arg)) {
-			$arg = func_get_args();
-			array_shift($arg);
-		}
 		return $this->trans($original,$arg,false);
 	}
 	
@@ -127,15 +123,11 @@ class Base_Lang extends Module {
 	 * @return string   
 	 */
 	public function ht($original, $arg) {
-		if (!is_array($arg) && isset($arg)) {
-			$arg = func_get_args();
-			array_shift($arg);
-		}
 		return $this->trans($original,$arg,true);
 	}
-	
-	private function trans($original, $arg, $hidden) {
-		global $translations;
+
+	public function trans($original, $arg, $hidden=false) {
+		global $translations, $base;
 
 		if(!array_key_exists($this->parent_module, $translations) || 
 			!array_key_exists($original, $translations[$this->parent_module])) {
@@ -143,12 +135,16 @@ class Base_Lang extends Module {
 			//only first display of the string is not in translations database... slows down loading of the page only once...
 			Base_LangCommon::save();
 		}
-		$trans = $translations[$this->parent_module][$original];
-		if(!isset($trans) || $trans=='') $trans = $original;
-		$trans = vsprintf($trans,$arg);
+		$trans_oryg = $translations[$this->parent_module][$original];
+		if(!isset($trans_oryg) || $trans_oryg=='') $trans = $original;
+			else $trans=$trans_oryg;
+		
 		if(Acl::check('Administration','Modules') && !$hidden && Base_MaintenanceModeCommon::get_mode())
-			$trans = $trans.'<a '.$this->create_unique_href(array('original'=>$original)).'>[*]</a>';
+			$trans = '<span>'.$trans.'</span><a href="javascript:void(0)" onClick="var oryg=\''.escapeJS($original).'\';var x=prompt(oryg,\''.escapeJS($trans_oryg).'\');if(x!=null){if(x==\'\')x=oryg;this.parentNode.firstChild.innerHTML=x;'.$base->run('translate(\''.escapeJS($this->parent_module).'\',oryg,x)','modules/Base/Lang/submit_trans.php').'}">[*]</a>';
+		else
+			$trans = vsprintf($trans,$arg);
 		return $trans;
 	}
+
 }
 ?>

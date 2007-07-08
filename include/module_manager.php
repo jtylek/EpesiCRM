@@ -43,9 +43,10 @@ class ModuleManager {
 		$path = self::get_module_dir_path($class_name);
 		$file = self::get_module_file_name($class_name);
 		$file_url = 'modules/' . $path . '/' . $file . 'Common_'.$version.'.php';
+		file_put_contents('/tmp/dsasdffgdgsggdf23423453452',$file_url);
 		if(@file_exists($file_url) ) {
 			ob_start();
-    			include_once ($file_url);
+    			require_once ($file_url);
 			ob_end_clean();
 			return true;
 		}

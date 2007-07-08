@@ -99,7 +99,7 @@ class Base_AclCommon {
 		return $ret;
 	}
 	
-	public static function i_am_admin($cache=false) {
+	public static function i_am_admin() {
 		static $ret, $user;
 		$new_user = Acl::get_user();
 		if (!isset($ret) || $new_user != $user) { 
@@ -109,7 +109,7 @@ class Base_AclCommon {
 		return $ret;
 	}
 
-	public static function i_am_moderator($cache=false) {
+	public static function i_am_moderator() {
 		static $ret, $user;
 		$new_user = Acl::get_user();
 		if (!isset($ret) || $new_user != $user) { 
@@ -119,7 +119,7 @@ class Base_AclCommon {
 		return $ret;
 	}
 
-	public static function i_am_user($cache=false) {
+	public static function i_am_user() {
 		static $ret, $user;
 		$new_user = Acl::get_user();
 		if (!isset($ret) || $new_user != $user) { 
