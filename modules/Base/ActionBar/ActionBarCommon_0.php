@@ -17,18 +17,19 @@ class Base_ActionBarCommon {
 	
 	public static $available_icons = array(
 			'home'=>0,
-			'calendar'=>1,
-			'search'=>2,
-			'folder'=>3,
-			'new'=>4,
-			'edit'=>5,
-			'view'=>6,
-			'add'=>7,
-			'delete'=>8,
-			'save'=>9,
-			'settings'=>10,
-			'print'=>11,
-			'back'=>12);
+			'back'=>1,
+			'report'=>2,
+			'calendar'=>3,
+			'search'=>4,
+			'folder'=>5,
+			'new'=>6,
+			'edit'=>7,
+			'view'=>8,
+			'add'=>9,
+			'delete'=>10,
+			'save'=>11,
+			'settings'=>12,
+			'print'=>13);
 
 	public static function user_settings(){
 		return array('Action bar settings'=>array(

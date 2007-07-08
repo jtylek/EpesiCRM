@@ -46,6 +46,7 @@ ul#Base_ActionBar li a:hover {
 }
 
 ul#Base_ActionBar li.home     a { background-image: url("images/icons/icon-home.png");     }
+ul#Base_ActionBar li.report   a { background-image: url("images/icons/icon-report.png");     }
 ul#Base_ActionBar li.edit     a { background-image: url("images/icons/icon-edit.png");     }
 ul#Base_ActionBar li.add      a { background-image: url("images/icons/icon-add.png");      }
 ul#Base_ActionBar li.new      a { background-image: url("images/icons/icon-add.png");      }
@@ -60,6 +61,7 @@ ul#Base_ActionBar li.save     a { background-image: url("images/icons/icon-save.
 ul#Base_ActionBar li.settings a { background-image: url("images/icons/icon-settings.png"); }
 
 ul#Base_ActionBar li.home     a:hover { background-image: url("images/icons/icon-home-hover.png");     }
+ul#Base_ActionBar li.report   a:hover { background-image: url("images/icons/icon-report-hover.png");     }
 ul#Base_ActionBar li.edit     a:hover { background-image: url("images/icons/icon-edit-hover.png");     }
 ul#Base_ActionBar li.add      a:hover { background-image: url("images/icons/icon-add-hover.png");      }
 ul#Base_ActionBar li.new      a:hover { background-image: url("images/icons/icon-add-hover.png");      }
