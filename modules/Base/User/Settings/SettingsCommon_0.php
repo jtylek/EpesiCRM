@@ -15,7 +15,7 @@ class Base_User_SettingsCommon {
 		if (!Base_AclCommon::i_am_user()) return array();
 		global $base;
 		$modules = array(); 
-		foreach($base->modules as $name=>$obj) {
+		foreach(ModuleManager::$modules as $name=>$obj) {
 			if(method_exists($obj['name'].'Common', 'user_settings')) {
 				$menu = call_user_func(array($obj['name'].'Common','user_settings'));
 				if(!is_array($menu)) continue;

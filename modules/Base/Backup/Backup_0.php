@@ -49,7 +49,7 @@ class Base_Backup extends Module {
 		$theme->assign('create_backup',$this->lang->t('Create backup'));
 		$form = & $this->init_module('Libs/QuickForm');
 		$mods = array();
-		foreach($base->modules as $m=>$v) {
+		foreach(ModuleManager::$modules as $m=>$v) {
 			if ($v['name']!=$m || !is_callable(array($m.'Init_'.$v['version'],'backup'))) continue;
 			$mods[] = $m;
 		}

@@ -119,7 +119,7 @@ class Base_Setup extends Module {
 
 		//default module		
 			$av_modules=array();
-			foreach($base->modules as $name=>$obj)
+			foreach(ModuleManager::$modules as $name=>$obj)
 				$av_modules[$name] = $name;
 			$form->addElement('select','default_module','Default module to display',$av_modules);
 		}
@@ -204,7 +204,7 @@ class Base_Setup extends Module {
 		
 		//uninstall
 		$modules_prio_rev = array();
-		foreach ($base->modules as $k => $v)
+		foreach (ModuleManager::$modules as $k => $v)
 			$modules_prio_rev[] = $k; 
 		$modules_prio_rev = array_reverse($modules_prio_rev);
 		
@@ -214,7 +214,7 @@ class Base_Setup extends Module {
 					$return_code = false;
 					break;
 				}
-				if(count($base->modules)==0)
+				if(count(ModuleManager::$modules)==0)
 					print('No modules installed');
 			}
 		

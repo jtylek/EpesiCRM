@@ -31,7 +31,7 @@ class Base_Search extends Module {
 		$theme =  & $this->pack_module('Base/Theme');
 		
 		$modules_with_search = array();
-		foreach($base->modules as $name=>$obj) {
+		foreach(ModuleManager::$modules as $name=>$obj) {
 			if(method_exists($obj['name'].'Common', 'search'))
 				$modules_with_search[$name] = $obj;
 			if(method_exists($obj['name'], 'advanced_search'))

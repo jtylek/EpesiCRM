@@ -49,7 +49,7 @@ class Base_Admin extends Module {
 		$lang = & $this->pack_module('Base/Lang');
 		
 		$mod_ok = array();
-		foreach($base->modules as $name=>$obj)
+		foreach(ModuleManager::$modules as $name=>$obj)
 			if(method_exists($obj['name'].'Common','admin_caption')) {
 				if(!ModuleCommon::check_access($obj['name'],'admin') || $name=='Base_Admin') continue;
 				$caption = call_user_func(array($obj['name'].'Common','admin_caption'));
@@ -72,7 +72,7 @@ class Base_Admin extends Module {
 		
 		if(!Base_AclCommon::i_am_admin()) return array();
 		
-		$mod_cpy = $base->modules;
+		$mod_cpy = ModuleManager::$modules;
 		foreach($mod_cpy as $name=>$obj)
 			if(method_exists($obj['name'].'Common','admin_caption')) {
 				if(!ModuleCommon::check_access($obj['name'],'admin') || $name=='Base_Admin') continue;

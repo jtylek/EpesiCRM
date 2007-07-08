@@ -176,7 +176,7 @@ class Base_Menu extends Module {
 		// preparing modules menu and tools menu
 		$modules_menu = array();
 		$tools_menu = array();
-		foreach($base->modules as $name=>$obj) {
+		foreach(ModuleManager::$modules as $name=>$obj) {
 			if(method_exists($obj['name'].'Common', 'menu')) {
 				$module_menu = call_user_func(array($obj['name'].'Common','menu'));
 				if(!is_array($module_menu)) continue;
@@ -194,7 +194,7 @@ class Base_Menu extends Module {
 		if (!empty($tools_menu)) $tools_menu['__submenu__'] = 1;
 		
 		// preparing admin menu
-		if (array_key_exists('Base_Admin',$base->modules)){
+		if (array_key_exists('Base_Admin',ModuleManager::$modules)){
 			$admin_menu = call_user_func(array('Base_Admin','admin_menu'));
 			if(is_array($admin_menu)) {
 				self::add_default_menu($admin_menu, 'Base_Admin');
@@ -202,7 +202,7 @@ class Base_Menu extends Module {
 		} else $admin_menu = array();
 		
 		// preparing quick access menu
-		if (array_key_exists('Base_Menu_QuickAccess',$base->modules)){
+		if (array_key_exists('Base_Menu_QuickAccess',ModuleManager::$modules)){
 			$qaccess_menu = Base_Menu_QuickAccessCommon::quick_access_menu();
 			if(is_array($qaccess_menu)) {
 				self::add_default_menu($qaccess_menu, 'Base_Menu_QuickAccess');

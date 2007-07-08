@@ -105,7 +105,7 @@ class Base_User_Settings extends Module {
 		global $base;
 		$this->lang = & $this->pack_module('Base/Lang');
 		$modules = array(); 
-		foreach($base->modules as $name=>$obj) {
+		foreach(ModuleManager::$modules as $name=>$obj) {
 			if(method_exists($obj['name'].'Common', 'user_settings')) {
 				$menu = call_user_func(array($obj['name'].'Common','user_settings'));
 				if(!is_array($menu)) continue;

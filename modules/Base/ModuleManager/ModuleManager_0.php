@@ -138,14 +138,14 @@ class Base_ModuleManager extends Module {
 		
 		//uninstall
 		$modules_prio_rev = array();
-		foreach ($base->modules as $k => $v)
+		foreach (ModuleManager::$modules as $k => $v)
 			$modules_prio_rev[] = $k; 
 		$modules_prio_rev = array_reverse($modules_prio_rev);
 		
 		foreach ($modules_prio_rev as $k) 
 			if(array_key_exists($k, $uninstall)) {
 			  	if($k=='Setup') {
-					if(count($base->modules)==1) {
+					if(count(ModuleManager::$modules)==1) {
 						$ret = SetupInstall::uninstall();
 						if ($ret) {
 //							session_destroy();

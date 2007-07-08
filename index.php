@@ -84,7 +84,7 @@ unset($_SESSION['cl'.$client_id]);
 		<div id="error_box" onclick="this.innerHTML = ''"></div>
 		<script type="text/javascript">
 		<!--
-
+		var client_id=<?php echo $client_id; ?>;
 		var history_on=1;
 		history_call = function(history_id){
         		switch(history_on){
@@ -104,7 +104,7 @@ unset($_SESSION['cl'.$client_id]);
 		if(window.location.hash!='#1')
 			window.location = '#1';
 		else
-			<?php print $saja->run("process($client_id,'',0)"); ?>
+			<?php print $saja->run("process(client_id,'',0)"); ?>
 			
 		-->
 		</script>

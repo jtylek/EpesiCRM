@@ -1,14 +1,11 @@
 <?php
 require_once('include.php');
-class myFunctions extends saja {
-	public function translate($parent,$oryg,$trans) {
-		ModuleManager :: include_common('Base_Acl', 0);
-		ModuleManager :: include_common('Base_Lang', 0);
-		ModuleManager :: include_common('Base_MaintenanceMode', 0);
-
-		if(!Acl::check('Administration','Modules') || !Base_MaintenanceModeCommon::get_mode()) return;
+class myFunctions extends Epesi {
+	public function translate($cl_id,$parent,$oryg,$trans) {
+		$this->init($cl_id);
 		
-		require_once('LangCommon_0.php');
+		if(!Acl::check('Administration','Modules') || !Base_MaintenanceModeCommon::get_mode()) return;
+
 		Base_LangCommon::load();
 		if(Base_AclCommon::i_am_user())
 		global $translations;

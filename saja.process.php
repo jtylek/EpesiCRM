@@ -43,9 +43,9 @@ $proc_file = $_SESSION['SAJA_PROCESS']['REQUESTS'][$request_id]['PROCESS_FILE'];
 $function = $_SESSION['SAJA_PROCESS']['REQUESTS'][$request_id]['FUNCTION'];
 
 //load the class extension containing the user functions
+global $base;
 if($proc_file=='base.php') {
 	require($proc_file);
-	global $base;
 	$base = new Base(true);
 } else {
 	if(file_exists($proc_file))

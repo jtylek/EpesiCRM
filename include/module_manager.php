@@ -10,6 +10,8 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class ModuleManager {
 	public static $not_loaded_modules = null;
 	public static $loaded_modules = array();
+	public static $modules = array();
+	public static $root = array();
 
 	/**
 	 * Include file with module initialization class.
@@ -39,7 +41,6 @@ class ModuleManager {
 	}
 
 	public static final function include_common($class_name,$version) {
-		global $base;
 		$path = self::get_module_dir_path($class_name);
 		$file = self::get_module_file_name($class_name);
 		$file_url = 'modules/' . $path . '/' . $file . 'Common_'.$version.'.php';
@@ -82,13 +83,11 @@ class ModuleManager {
 	 * @return array array containing information with modules priorities
 	 */
 	public static final function & create_load_priority_array() {
-		global $base;
-		
 		$queue = array();
 		$virtual_modules = array(); //virtually loaded modules
 		$priority = array();
 		
-		foreach($base->modules as $module_to_load=>$v) {		
+		foreach(self::$modules as $module_to_load=>$v) {		
 			if ($v['name']!=$module_to_load) //provided packages
 				continue;
 
@@ -266,7 +265,6 @@ class ModuleManager {
 	 * @param string class name
 	 */
 	public static final function create_virtual_classes($mod, $version) {
-		global $base;
 		//check if any of required 'virtual modules' doesn't have its own provided class, and create it if needed
 		$req = call_user_func(array (
 			$mod . 'Init_'.$version,
@@ -274,7 +272,7 @@ class ModuleManager {
 		)); 
 		foreach($req as $r) {
 			$r = str_replace('/','_',$r['name']);
-			$real = $base->modules[$r]['name'];
+			$real = self::$modules[$r]['name'];
 			if(!$real)
 				trigger_error('Module '.$r.' required by '.$mod.' not installed.',E_USER_ERROR);
 			if($real!=$r && !class_exists($r)) 
@@ -283,7 +281,6 @@ class ModuleManager {
 	}
 
 	public static final function create_common_virtual_classes($mod, $version) {
-		global $base;
 		//check if any of required 'virtual modules' doesn't have its own provided class, and create it if needed
 		$req = call_user_func(array (
 			$mod . 'Init_'.$version,
@@ -291,7 +288,7 @@ class ModuleManager {
 		)); 
 		foreach($req as $r) {
 			$r = str_replace('/','_',$r['name']);
-			$real = $base->modules[$r]['name'];
+			$real = self::$modules[$r]['name'];
 			if(!$real)
 				trigger_error('Module '.$r.' required by '.$mod.' not installed.',E_USER_ERROR);
 			if($real!=$r && !class_exists($r.'Common') && class_exists($real.'Common')) 
@@ -306,10 +303,9 @@ class ModuleManager {
 	 * @return integer version of installed module or -1 when it's not installed
 	 */
 	public static final function is_installed($module_to_install) {
-		global $base;
 		$module_to_install = str_replace('/','_',$module_to_install);
-		if (isset ($base->modules) && array_key_exists($module_to_install, $base->modules) && $base->modules[$module_to_install]['name']==$module_to_install)
-			return $base->modules[$module_to_install]['version'];
+		if (isset (self::$modules) && array_key_exists($module_to_install, self::$modules) && self::$modules[$module_to_install]['name']==$module_to_install)
+			return self::$modules[$module_to_install]['version'];
 		return -1;
 	}
 
@@ -323,7 +319,6 @@ class ModuleManager {
 	 * @return bool true is module was upgraded sucesfully, false otherwise
 	 */
 	public static final function upgrade($module,$to_version) {
-		global $base;
 
 		$installed_version = self::is_installed($module);
 		if($installed_version>=$to_version) {
@@ -343,7 +338,7 @@ class ModuleManager {
 		
 		for($i=$installed_version+1; $i<=$to_version; $i++) {
 			self :: include_init($module, $i);
-			$deps = self::check_dependencies($module,$i,$base->modules);
+			$deps = self::check_dependencies($module,$i,self::$modules);
 			if(!empty($deps)) {
 				foreach($deps as $d)
 					print('Upgrading module \''.$module.'\' to version '.$to_version.': upgrade to version '.$i.' failed. Module '.$d['name'].' version='.$d['version'].' required!<br>');
@@ -363,7 +358,7 @@ class ModuleManager {
 			return false;
 		}
 		
-		self::register($module,$to_version,$base->modules);
+		self::register($module,$to_version,self::$modules);
 		
 		$arr = & self::create_load_priority_array();
 		foreach($arr as $k=>$v)
@@ -387,8 +382,6 @@ class ModuleManager {
 	 * @return bool true if module was downgraded sucesfully, false otherwise
 	 */
 	public static final function downgrade($module,$to_version) {
-		global $base;
-		
 		$installed_version = self::is_installed($module);
 		if($installed_version<$to_version) {
 			print('Downgrading module \''.$module.'\' to version '.$to_version.': There is already installed version '.$installed_version.'<br>');
@@ -406,7 +399,7 @@ class ModuleManager {
 		self::include_install($module);
 
 		//check if any other module requires this one....
-		foreach($base->modules as $k=>$o) {
+		foreach(self::$modules as $k=>$o) {
 			if($k!=$o['name'] || $k=$module) continue;
 			$k_version = self::is_installed($k);
 			include_init($k,$k_version);
@@ -424,7 +417,7 @@ class ModuleManager {
 		//go
 		for($i=$installed_version; $i>$to_version; $i--) {
 			self :: include_init($module,$i-1);
-			$deps = self::check_dependencies($module,$i-1,$base->modules);
+			$deps = self::check_dependencies($module,$i-1,self::$modules);
 			if(!empty($deps)) {
 				foreach($deps as $d)
 					print('Downgrading module \''.$module.'\' to version '.$to_version.' from '.$i.' failed: module '.$d['name'].' version='.$d['version'].' required!<br>');
@@ -460,7 +453,6 @@ class ModuleManager {
 	 * @return bool true if installation success, false otherwise
 	 */
 	public static final function install($module_to_install, $version) {
-		global $base;
 		//already installed?
 		if(defined('DEBUG')) print($module_to_install.': is installed?<br>');
 
@@ -492,7 +484,7 @@ class ModuleManager {
 		//check dependecies
 		try {
 			self :: include_init($module_to_install, $version);
-			$deps = self :: check_dependencies($module_to_install, $version, $base->modules);
+			$deps = self :: check_dependencies($module_to_install, $version, self::$modules);
 			while(!empty($deps)) {
 				$m = $deps[0];
 				if (!self :: exists($m['name'],$m['version']))
@@ -505,7 +497,7 @@ class ModuleManager {
 				} else {
 					if (!self :: upgrade($m['name'], $m['version'])) return false;
 				}
-				$deps = self :: check_dependencies($module_to_install, $version, $base->modules);
+				$deps = self :: check_dependencies($module_to_install, $version, self::$modules);
 			}
 		} catch (Exception $e) {
 			print ($e->getMessage());
@@ -535,7 +527,7 @@ class ModuleManager {
 			return false;
 		}
 
-		self :: register($module_to_install, 0, $base->modules);
+		self :: register($module_to_install, 0, self::$modules);
 
 		if(defined('DEBUG')) print($module_to_install.': rewriting priorities<br>');
 		$arr = & self::create_load_priority_array();
@@ -707,7 +699,6 @@ class ModuleManager {
 	 * @return bool true if uninstallation success, false otherwise
 	 */
 	public static final function uninstall($module_to_uninstall) {
-		global $base;
 		$installed_version = self::is_installed($module_to_uninstall);
 		if ($installed_version<0)
 			return false;
@@ -716,7 +707,7 @@ class ModuleManager {
 		
 		$provided_by_other = false;
 		//if other installed module provides this module
-		foreach ($base->modules as $name => $obj) {
+		foreach (self::$modules as $name => $obj) {
 			if ($name != $obj['name'] || $name == $module_to_uninstall)
 				continue; //skip provided modules and uninstalled module
 			$prov = call_user_func(array (
@@ -731,7 +722,7 @@ class ModuleManager {
 		}
 
 		if (!$provided_by_other)
-			foreach ($base->modules as $name => $obj) { //for each module
+			foreach (self::$modules as $name => $obj) { //for each module
 				if ($name != $obj['name'] || $name == $module_to_uninstall)
 					continue;
 				
@@ -742,7 +733,7 @@ class ModuleManager {
 				
 				foreach ($required as $req_mod) { //for each dependency of that module
 					$req_mod['name'] = str_replace('/','_',$req_mod['name']);
-					if ($base->modules[$req_mod['name']]['name'] == $module_to_uninstall) {
+					if (self::$modules[$req_mod['name']]['name'] == $module_to_uninstall) {
 						print ($module_to_uninstall . ' module is required by ' . $obj['name'] . ' module! You have to uninstall ' . $obj['name'] . ' first.<br>');
 						return false;
 					}
@@ -765,7 +756,7 @@ class ModuleManager {
 			return false;	
 		}
 		
-		self::unregister($module_to_uninstall,$installed_version,$base->modules);
+		self::unregister($module_to_uninstall,$installed_version,self::$modules);
 		
 		if (!self::remove_data_dir($module_to_uninstall)){
 			print ($module_to_uninstall . " module uninstallation failed: data directory remove<br>");
@@ -805,8 +796,7 @@ class ModuleManager {
 	 * @throws exception 'module not loaded' if the module is not registered 
 	 */
 	public static final function & new_instance($mod,$parent,$name) {
-		global $base;
-		if (!array_key_exists($mod, $base->modules))
+		if (!array_key_exists($mod, self::$modules))
 			throw new Exception('module not loaded');
 		if(!array_key_exists($mod, self::$loaded_modules)) {
 			foreach(self::$not_loaded_modules as $i=>$v) {
@@ -819,7 +809,7 @@ class ModuleManager {
 				if($module==$mod) break;
 			}
 		}
-		$m = new $base->modules[$mod]['name']($mod,$parent,$name);
+		$m = new self::$modules[$mod]['name']($mod,$parent,$name);
 		return $m;
 	}
 
@@ -831,10 +821,8 @@ class ModuleManager {
 	 * @return bool false if module instance was not found, requested module object otherwise
 	 */
 	public static final function & get_instance($path) {
-		global $base;
-		
 		$xx = explode('/',$path);
-		$curr = & $base->root;
+		$curr = & self::$root;
 		if($curr->get_node_id() != $xx[1]) return false;
 		if(count($xx)>2) {
 			$curr = & $curr->get_child($xx[2]);
@@ -907,6 +895,32 @@ class ModuleManager {
 			} else unlink($name);
 		}
 		rmdir($path);
+	}
+	
+	public static final function load_modules() {
+		self::$modules = array();
+		$installed_modules = ModuleManager::get_load_priority_array(true);
+		self::$not_loaded_modules = $installed_modules;
+		self::$loaded_modules = array();
+		foreach($installed_modules as $row) {
+			$module = $row['name'];
+			$version = $row['version'];
+			ModuleManager :: include_init($module, $version);
+			if(ModuleManager :: include_common($module, $version))
+				ModuleManager :: create_common_virtual_classes($module, $version);
+			ModuleManager :: register($module, $version, self::$modules);
+		}
+		
+		ob_start();
+		try {
+			$default_module = Variable::get('default_module');
+			self::$root = & ModuleManager :: new_instance($default_module,null,'0');
+		} catch (Exception $e) {
+			self::$root = & ModuleManager :: new_instance('FirstRun',null,'0');
+		}
+		$ret = trim(ob_get_contents());
+		if(strlen($ret)>0 || self::$root==null) trigger_error($ret,E_USER_ERROR);
+		ob_end_clean();
 	}
 }
 ?>

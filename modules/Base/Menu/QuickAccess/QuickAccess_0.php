@@ -33,7 +33,7 @@ class Base_Menu_QuickAccess extends Module {
 
 		$modules_menu = array();
 		$tools_menu = array();
-		foreach($base->modules as $name=>$obj) {
+		foreach(ModuleManager::$modules as $name=>$obj) {
 			if ($name=='Base_Admin') continue;
 			if ($name=='Base_Menu_QuickAccess') continue;
 			if(method_exists($obj['name'].'Common', 'menu')) {

@@ -11,54 +11,19 @@ umask(0);
 
 require_once('include.php');
 
-class Base extends saja {
+class Base extends Epesi {
 	public $content;
-	private $client_id;
-	private $jses;
-	public $modules;
-	public $root;
 	
 	private function load_modules() {
+		ModuleManager::load_modules();
 
-		$this->modules = array ();
-
-		$installed_modules = ModuleManager::get_load_priority_array(true);
-		ModuleManager::$not_loaded_modules = $installed_modules;
-		ModuleManager::$loaded_modules = array();
 		$first_run = false;
-		foreach($installed_modules as $row) {
+		foreach(ModuleManager::$modules as $row) {
 			$module = $row['name'];
-			$version = $row['version'];
-			ModuleManager :: include_init($module, $version);
-			if(ModuleManager :: include_common($module, $version))
-				ModuleManager :: create_common_virtual_classes($module, $version);
-			ModuleManager :: register($module, $version, $this->modules);
 			if($module=='FirstRun') $first_run=true;
 		}
 		if(!$first_run && !ModuleManager :: install('FirstRun'))
 			trigger_error('Unable to install default module',E_USER_ERROR);
-	}
-
-	public function js($js) {
-		if(STRIP_OUTPUT)
-			$this->jses[] = strip_js($js);
-		else
-			$this->jses[] = $js;
-	}
-	
-	private function & get_default_module() {
-		ob_start();
-		
-		try {
-			$default_module = Variable::get('default_module');
-			$m = & ModuleManager :: new_instance($default_module,null,'0');
-		} catch (Exception $e) {
-			$m = & ModuleManager :: new_instance('FirstRun',null,'0');
-		}
-		$ret = trim(ob_get_contents());
-		if(strlen($ret)>0 || $m==null) trigger_error($ret,E_USER_ERROR);
-		ob_end_clean();
-		return $m;
 	}
 
 	private function go(& $m) {
@@ -89,9 +54,7 @@ class Base extends saja {
 	}
 
 	public function process($cl_id, $url, $history_call) {
-		$this->client_id = $cl_id;
-		
-		ob_start(array('ErrorHandler','handle_fatal'));
+		$this->init($cl_id);
 		
 		if($history_call==='0')
 		    History::clear();
@@ -105,8 +68,6 @@ class Base extends saja {
 			$_GET = $_REQUEST = & $_POST;
 		}
 
-		$this->load_modules();
-
 		$session = & $this->get_session();
 		$tmp_session = & $this->get_tmp_session();
 	
@@ -115,8 +76,7 @@ class Base extends saja {
 		foreach($ret as $k)
 			call_user_func_array($k['func'],$k['args']);
 	
-		$this->root = & $this->get_default_module();
-		$this->go($this->root);
+		$this->go(ModuleManager::$root);
 		
 		//on exit call methods...
 		$ret = on_exit(null,null,null,true);
@@ -137,7 +97,7 @@ class Base extends saja {
 			$this->load_modules();
 	
 			//go
-			return $this->process($this->client_id,'__location&' . http_build_query($loc));
+			return $this->process($this->get_client_id(),'__location&' . http_build_query($loc));
 		}
 
 		if(DEBUG || MODULE_TIMES || SQL_TIMES) {
@@ -188,7 +148,7 @@ class Base extends saja {
 				
 				if(isset($v['span']))
 					$this->text($v['value'], $v['span']);
-				$this->jses[] = join(";",$v['js']);
+				$this->js(join(";",$v['js']));
 				$tmp_session['__module_content__'][$k]['value'] = $v['value'];
 				$tmp_session['__module_content__'][$k]['js'] = $v['js'];				
 				$tmp_session['__module_content__'][$k]['parent'] = $parent;				
@@ -203,12 +163,12 @@ class Base extends saja {
 					$debug .= 'Reloading missing '.$k.'<hr>';
 				if(isset($v['span']))
 					$this->text($v['value'], $v['span']);
-				$this->jses[] = join(";",$v['js']);	
+				$this->js(join(";",$v['js']));	
 				$reloaded[$k] = true;
 			}
 	
 		if(DEBUG) {
-			$debug .= 'vars '.$this->client_id.': '.print_r($session['__module_vars__'],true).'<br>';
+			$debug .= 'vars '.$this->get_client_id().': '.print_r($session['__module_vars__'],true).'<br>';
 			$debug .= 'user='.Acl::get_user().'<br>';
 			$debug .= 'action module='.$_REQUEST['__action_module__'].'<br>';
 			$debug .= $this->debug();
@@ -232,23 +192,9 @@ class Base extends saja {
 			$this->js('history_add('.History::get_id().')');
 		}
 		
-		foreach($this->jses as $cc)
-			parent::js($cc);
-		
+		$this->call_jses();
 		
 		ob_end_flush();
-	}
-	
-	public function get_client_id() {
-	        return $this->client_id;
-	}
-	
-	public function & get_session() {
-		return $_SESSION['cl'.$this->client_id]['stable'];
-	}
-
-	public function & get_tmp_session() {
-		return $_SESSION['cl'.$this->client_id]['tmp'];
 	}
 }
 
