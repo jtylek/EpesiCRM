@@ -58,6 +58,7 @@ class Base_User_SettingsCommon {
 
 	public static function save_user_settings($module,$name,$value){
 		if (!Base_AclCommon::i_am_user()) return;
+		if ($value === null) $value = 0;
 		$module = str_replace('/','_',$module);
 		$def = null;
 		if(method_exists($module.'Common', 'user_settings')) {
@@ -76,7 +77,7 @@ class Base_User_SettingsCommon {
 			DB::Execute('DELETE FROM base_user_settings WHERE user_login_id=%d AND module=%s AND variable=%s',array(Base_UserCommon::get_my_user_id(),$module,$name));
 		} else {
 			$val = DB::GetOne('SELECT value FROM base_user_settings WHERE user_login_id=%d AND module=%s AND variable=%s',array(Base_UserCommon::get_my_user_id(),$module,$name));
-			if (!$val)
+			if ($val === false)
 				DB::Execute('INSERT INTO base_user_settings VALUES (%d,%s,%s,%s)',array(Base_UserCommon::get_my_user_id(),$module,$name,$value));
 			else
 				DB::Execute('UPDATE base_user_settings SET value=%s WHERE user_login_id=%d AND module=%s AND variable=%s',array($value,Base_UserCommon::get_my_user_id(),$module,$name));
