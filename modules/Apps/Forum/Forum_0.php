@@ -14,9 +14,6 @@ class Apps_Forum extends Module {
 
 	public function body($arg) {
 		$this->lang = & $this->pack_module('Base/Lang');		
-		
-		if (!Base_AclCommon::i_am_user())
-			print($this->lang->t('Log in to the system to use forum.'));
 			
 		$view_board = $_REQUEST['view_board'];
 		if ($view_board) {
@@ -69,7 +66,8 @@ class Apps_Forum extends Module {
 		$theme -> assign('board_name',DB::GetOne('SELECT name FROM apps_forum_board WHERE id = %d',$board));
 		$theme -> assign('forum_boards','<a '.$this->create_back_href().'>'.$this->lang->t('Forum Boards').'</a>');
 		Base_ActionBarCommon::add_icon('back',$this->lang->ht('Boards'),$this->create_back_href());
-		Base_ActionBarCommon::add_icon('add',$this->lang->ht('New thread'),$this->create_callback_href(array($this,'new_thread'),array($board)));
+		if (Base_AclCommon::i_am_user())
+			Base_ActionBarCommon::add_icon('add',$this->lang->ht('New thread'),$this->create_callback_href(array($this,'new_thread'),array($board)));
 		$theme -> display('Threads');
 		return true;
 	}
@@ -83,6 +81,8 @@ class Apps_Forum extends Module {
 		
 		$comment->set_moderator(Base_AclCommon::i_am_admin());
 		$comment->set_per_page(20);
+		if (!Base_AclCommon::i_am_user())
+			$comment->set_reply(false);
 		$comment->reply_on_comment_page(false);
 		$comment->tree_structure(false);
 

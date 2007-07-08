@@ -260,6 +260,10 @@ class Utils_Comment extends Module{
 		return $this->per_page = $pp;
 	}
 
+	public function set_reply($r){
+		return $this->reply = $r;
+	}
+
 	public function reply_on_comment_page($rocp){
 		return $this->reply_on_comment_page = $rocp;
 	}
