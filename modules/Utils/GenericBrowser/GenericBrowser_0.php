@@ -62,8 +62,8 @@ class Utils_GenericBrowser extends Module {
 		$this->columns_qty = count($arg);
 	}
 
-	public function set_default_order($arg){
-		if ($this->isset_module_variable('first_display')) return;
+	public function set_default_order($arg,$reset=false){
+		if ($this->isset_module_variable('first_display') && !$reset) return;
 		if (!is_array($arg)){
 			print('Invalid argument for set_default_order, aborting.<br>');
 			return;
