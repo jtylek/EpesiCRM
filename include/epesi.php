@@ -7,6 +7,8 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
+if(!class_exists('saja')) return;
+
 class Epesi extends saja {
 	private $client_id;
 	private $jses;
