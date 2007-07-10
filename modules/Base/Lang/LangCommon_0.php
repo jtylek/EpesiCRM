@@ -83,7 +83,7 @@ class Base_LangCommon {
 	public static function get_lang_code() {
 		static $lang_code;
 		if(!isset($lang_code)) {
-			if (!Base_AclCommon::i_am_user() ||
+			if (!Acl::check('Data','View') ||
 				ModuleManager::is_installed('Base/User/Settings')==-1 || 
 				ModuleManager::is_installed('Base/Lang/Administrator')==-1 || 
 				(ModuleManager::is_installed('Base/Lang/Administrator')!=-1 && !Variable::get('allow_lang_change'))) 
