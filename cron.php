@@ -5,16 +5,11 @@
  * @copyright Copyright &copy; 2007, Telaxus LLC
  * @licence SPL
  */
-umask(0);
-
+require_once('libs/saja/saja.php');
 require_once('include.php');
 
-class Base {
-	public $modules;
-	public function js(){}
-};
 global $base;
-$base = new Base();
+$base = new Epesi();
 
 
 ModuleManager::load_modules();

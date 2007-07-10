@@ -81,6 +81,28 @@ class Base_ThemeCommon {
 		}
 	}
 	
-
+	public static function create_css_cache() {
+		$themes_dir = 'data/Base/Theme/templates/';
+		$tdir = $theme_dir.Variable::get('default_theme');
+		$arr = glob($themes_dir.'default/*.css',GLOB_NOSORT);
+		$css_def_out = '';
+		$css_cur_out = '';
+		$files_def_out = '';
+		$files_cur_out = '';
+		foreach($arr as $f) {
+			$name = basename($f);
+			if(is_readable($tdir.$name)) {
+				$css_cur_out .= file_get_contents($tdir.$name)."\n";
+				$files_cur_out .= $tdir.$name."\n";
+			} else {
+				$css_def_out .= file_get_contents($f)."\n";
+				$files_def_out .= $f."\n";
+			}
+		}
+		file_put_contents($themes_dir.'default/__cache.css',$css_def_out);
+		file_put_contents($tdir.'__cache.css',$css_cur_out);
+		file_put_contents($themes_dir.'default/__cache.files',$files_def_out);
+		file_put_contents($tdir.'__cache.files',$files_cur_out);
+	}
 }
 ?>

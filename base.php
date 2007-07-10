@@ -7,10 +7,6 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-umask(0);
-
-require_once('include.php');
-
 class Base extends Epesi {
 	public $content;
 	

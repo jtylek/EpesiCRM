@@ -18,7 +18,7 @@ class Base_StatusBar extends Module {
 	
 	public function body() {
 		$this->load_js();
-		$theme = & $this->pack_module("Base/Theme");
+		$theme = & $this->init_module("Base/Theme");
 		$theme->assign('statusbar_id','Base_StatusBar');
 		$theme->assign('text_id','statusbar_text');
 		$theme->display();

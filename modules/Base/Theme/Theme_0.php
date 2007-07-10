@@ -26,6 +26,7 @@ require_once(SMARTY_DIR.'Smarty.class.php');
  */
 class Base_Theme extends Module {
 	private static $theme;
+	private static $loaded_csses;
 	private static $themes_dir = 'data/Base/Theme/templates/';
 	public $links = array();
 	private $smarty = null;
@@ -50,6 +51,24 @@ class Base_Theme extends Module {
 		$this->smarty->compile_id = self::$theme;
 		$this->smarty->config_dir = 'data/Base/Theme/config/';
 		$this->smarty->cache_dir = 'data/Base/Theme/cache/';
+		
+		$this->load_css_cache();
+	}
+	
+	private function load_css_cache() {
+		if(!file_exists(self::$themes_dir.self::$theme.'/__cache.css') || !file_exists(self::$themes_dir.'default/__cache.css')) return;
+		global $base;
+		$sess = & $base->get_tmp_session();
+		if(load_css(self::$themes_dir.self::$theme.'/__cache.css')) {
+			$arr = explode("\n",file_get_contents(self::$themes_dir.self::$theme.'/__cache.files'));
+			foreach($arr as $f)
+				$sess['__loaded_csses__'][$f] = 1;
+		}
+		if(load_css(self::$themes_dir.'default/__cache.css')) {
+			$arr = explode("\n",file_get_contents(self::$themes_dir.'default/__cache.files'));
+			foreach($arr as $f)
+				$sess['__loaded_csses__'][$f] = 1;
+		}
 	}
 	
 	public function body() {
@@ -76,13 +95,14 @@ class Base_Theme extends Module {
 			$module_name .= '__default';
 		
 		$tpl = $module_name.'.tpl';
+		$css = $module_name.'.css';
 		
 		if($this->smarty->template_exists($tpl)) {
 			$this->smarty->assign('theme_dir',$this->smarty->template_dir);
 			$this->smarty->display($tpl);
-			$css = $this->smarty->template_dir.'/'.$module_name.'.css';
-			if(file_exists($css))
-		    		load_css($css);
+			$cssf = $this->smarty->template_dir.'/'.$css;
+			if(file_exists($cssf))
+		    		load_css($cssf);
 			
 			//trigger_error($this->smarty->template_dir.$templ_name, E_USER_ERROR);
 		} else {
@@ -95,9 +115,9 @@ class Base_Theme extends Module {
 
 			$this->smarty->assign('theme_dir',$this->smarty->template_dir);
 			$this->smarty->display($tpl);
-			$css = $this->smarty->template_dir.'/'.$module_name.'.css';
-			if(file_exists($css))
-				load_css($css);
+			$cssf = $this->smarty->template_dir.'/'.$css;
+			if(file_exists($cssf))
+				load_css($cssf);
 			
 			$this->smarty->template_dir = self::$themes_dir.self::$theme;
 			$this->smarty->compile_id = self::$theme;

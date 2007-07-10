@@ -1,5 +1,4 @@
 <?php
-require_once('include.php');
 class myFunctions extends Epesi {
 	public function translate($cl_id,$parent,$oryg,$trans) {
 		$this->init($cl_id);

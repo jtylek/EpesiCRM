@@ -9,6 +9,8 @@
 define("_VALID_ACCESS", true);
 define("EPESI_VERSION", '0.8.3');
 
+umask(0);
+
 require_once('include/include_path.php');
 require_once('include/config.php');
 require_once('include/error.php');

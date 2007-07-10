@@ -5,7 +5,7 @@
  * @copyright Copyright &copy; 2007, Telaxus LLC
  * @licence SPL
  */
-define("_VALID_ACCESS", true);
+defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 if(!DB_SESSION) return;
 

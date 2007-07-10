@@ -5,6 +5,8 @@
  * @copyright Copyright &copy; 2007, Telaxus LLC
  * @licence SPL
  */
+defined("_VALID_ACCESS") || die('Direct access forbidden');
+
 $delimiter = ($_ENV['OS']=='Windows_NT')?';':':';
 $dir = dirname(dirname(__FILE__));
 ini_set('include_path',$dir.'/libs'.$delimiter.$dir.$delimiter.ini_get('include_path'));

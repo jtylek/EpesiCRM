@@ -70,7 +70,15 @@ function location($u = null,$ret = false) {
  * @param string
  */
 function load_css($u) {
-	eval_js_once('load_css(\'' . addslashes($u) . '\')');
+	global $base;
+	$session = & $base->get_tmp_session();
+	if (is_string($u) && !array_key_exists($u, $session['__loaded_csses__'])) {
+		$base->js('load_css(\'' . addslashes($u) . '\')');
+		file_put_contents('/tmp/outek'.md5($u),$u.':'."\n".print_r($session['__loaded_csses__'],true));
+		$session['__loaded_csses__'][$u] = 1;
+		return true;
+	}
+	return false;
 }
 
 /**
@@ -79,7 +87,7 @@ function load_css($u) {
  * @param string
  */
 function load_js($u) {
-	eval_js_once('load_js(\'' . addslashes($u) . '\')');
+	return eval_js_once('load_js(\'' . addslashes($u) . '\')');
 }
 /**
  * Add js to load inline.
@@ -87,7 +95,7 @@ function load_js($u) {
  * @param string
  */
 function load_js_inline($u) {
-	eval_js_once( file_get_contents($u) );
+	return eval_js_once( file_get_contents($u) );
 }
 /**
  * Add js block to eval. If no argument is specified return saved jses.
@@ -108,7 +116,9 @@ function eval_js_once($u) {
 	if (is_string($u) && !array_key_exists($u, $session['__evaled_jses__'])) {
 		$base->js($u);
 		$session['__evaled_jses__'][$u] = 1;
+		return true;
 	}
+	return false;
 }
 
 /**

@@ -5,6 +5,8 @@
  * @copyright Copyright &copy; 2007, Telaxus LLC
  * @licence SPL
  */
+defined("_VALID_ACCESS") || die('Direct access forbidden');
+
 require_once('data/config.php');
 if(!defined('DATABASE_HOST')) trigger_error('Missing defined DATABASE_HOST in data/config.php.',E_USER_ERROR);
 if(!defined('DATABASE_USER')) trigger_error('Missing defined DATABASE_USER in data/config.php.',E_USER_ERROR);

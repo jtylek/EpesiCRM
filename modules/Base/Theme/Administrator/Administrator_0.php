@@ -36,7 +36,7 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 		$form->addElement('select', 'theme', $this->lang->t('Choose theme'), $themes);
 		
 		$ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->lang->ht('OK'));
-		$cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->lang->ht('Cancel'), 'onClick="parent.location=\''.$this->create_back_href().'\'"');
+		$cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->lang->ht('Cancel'), 'onClick="'.$this->create_back_href().'"');
 		$form->addGroup(array($ok_b, $cancel_b));
 		
 		$form->setDefaults(array('theme'=>Variable::get('default_theme')));
@@ -53,6 +53,7 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 	
 	public function submit_admin($data) {
 		Variable::set('default_theme',$data['theme']);
+		Base_ThemeCommon::create_css_cache();
 		Base_StatusBarCommon::message('Theme changed - reloading page');
 		eval_js('setTimeout(\'document.location=\\\'index.php\\\'\',\'3000\')');
 		return true;

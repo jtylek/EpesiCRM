@@ -22,7 +22,7 @@ class Utils_CatFile extends Module {
 	public function body($arg) {
 		print('<div align="left">');
 		if (file_exists($arg)) {
-			highlight_string(join("", file($arg)));
+			highlight_string(file_get_contents($arg));
 		} else {
 			echo "File $arg does not exist.";
 		}
