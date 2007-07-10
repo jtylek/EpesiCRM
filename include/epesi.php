@@ -14,8 +14,6 @@ class Epesi extends saja {
 	private $jses;
 	
 	public function init($cl) {
-		ob_start(array('ErrorHandler','handle_fatal'));
-		
 		$this->client_id = $cl;
 		$this->jses = array();
 		ModuleManager :: load_modules();

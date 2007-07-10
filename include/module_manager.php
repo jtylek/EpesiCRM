@@ -910,7 +910,9 @@ class ModuleManager {
 				ModuleManager :: create_common_virtual_classes($module, $version);
 			ModuleManager :: register($module, $version, self::$modules);
 		}
-		
+	}
+	
+	public static function & create_root() {
 		ob_start();
 		try {
 			$default_module = Variable::get('default_module');
@@ -921,6 +923,7 @@ class ModuleManager {
 		$ret = trim(ob_get_contents());
 		if(strlen($ret)>0 || self::$root==null) trigger_error($ret,E_USER_ERROR);
 		ob_end_clean();
+		return self::$root;
 	}
 }
 ?>

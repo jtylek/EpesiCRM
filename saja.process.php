@@ -46,7 +46,6 @@ $function = $_SESSION['SAJA_PROCESS']['REQUESTS'][$request_id]['FUNCTION'];
 global $base;
 
 require_once('include.php');
-
 if($proc_file=='base.php') {
 	require($proc_file);
 	$base = new Base(true);
@@ -62,8 +61,10 @@ if($proc_file=='base.php') {
 	$base = new myFunctions(true);
 }
 $base->set_process_file('base.php');
+ob_start(array('ErrorHandler','handle_fatal'));
 $base->runFunc($function, $php);
 $base->call_jses();
+ob_end_flush();
 if($base->hasActions())
 	echo $base->send();
 ?>

@@ -21,7 +21,7 @@ class DBSession {
     }
 
     public static function close() {
-        //self::gc(self::$lifetime);
+        self::gc(self::$lifetime);
         return true;
     }
     
@@ -40,8 +40,7 @@ class DBSession {
     }
 
     function gc($lifetime) {
-    	syslog(1,'session_gc');
-	   	DB::Execute('DELETE FROM session WHERE expires < %s',array(DB::DBTimeStamp(time()-$lifetime)));
+   	DB::Execute('DELETE FROM session WHERE expires < %s',array(DB::DBTimeStamp(time()-$lifetime)));
         return true;
     }
 }

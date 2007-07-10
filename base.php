@@ -10,10 +10,9 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base extends Epesi {
 	public $content;
 	
-	private function load_modules() {
-		ModuleManager::load_modules();
-
+	private function check_firstrun() {
 		$first_run = false;
+
 		foreach(ModuleManager::$modules as $row) {
 			$module = $row['name'];
 			if($module=='FirstRun') $first_run=true;
@@ -51,6 +50,7 @@ class Base extends Epesi {
 
 	public function process($cl_id, $url, $history_call) {
 		$this->init($cl_id);
+		$this->check_firstrun();
 		
 		if($history_call==='0')
 		    History::clear();
@@ -72,7 +72,8 @@ class Base extends Epesi {
 		foreach($ret as $k)
 			call_user_func_array($k['func'],$k['args']);
 	
-		$this->go(ModuleManager::$root);
+		$root = & ModuleManager::create_root();
+		$this->go($root);
 		
 		//on exit call methods...
 		$ret = on_exit(null,null,null,true);
@@ -189,8 +190,6 @@ class Base extends Epesi {
 		}
 		
 		$this->call_jses();
-		
-		ob_end_flush();
 	}
 }
 

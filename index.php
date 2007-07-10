@@ -18,9 +18,18 @@ if(!file_exists('data/config.php')) {
 	exit();
 }
 
-
+define('_VALID_ACCESS',1);
 require_once('libs/saja/saja.php');
-require_once('include.php');
+require_once('include/include_path.php');
+require_once('include/config.php');
+require_once('include/error.php');
+require_once('include/database.php');
+
+$tables = DB::MetaTables();
+if(!in_array('modules',$tables) || !in_array('variables',$tables) || !in_array('session',$tables))
+	die('Database structure you are using is apparently out of date or damaged. If you didn\'t perform application update recently you should try to restore the database. Otherwise, please refer to epesi documentation in order to perform database update.');
+
+require_once('include/session.php');
 
 global $saja;
 $saja = new saja();
