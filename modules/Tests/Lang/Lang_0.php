@@ -15,7 +15,7 @@ class Tests_Lang extends Module{
 		print($lang->t('This text can be translated.').'<br>');
 		print($lang->ht('This text can be translated, but not with mainatance mode.').'<br>');		
 		print(Base_LangCommon::ts('','This text can be translated, but will not be considered as part of module.').'<br>');		
-		print($lang->t('Here you can have some numbers: %d, %d, %d but you can still translate whole text.',2,6,3).'<br>');
+		print($lang->t('Here you can have some numbers: %d, %d, %d but you can still translate whole text.',array(2,6,3)).'<br>');
 		print('<hr>');
 		print('Translations for the following line were installed along with this module.<br>');
 		print($lang->t('Hello world!'));

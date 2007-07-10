@@ -99,7 +99,7 @@ class Base_Lang extends Module {
 	 * @param mixed
 	 * @return string   
 	 */
-	public function t($original, $arg) {
+	public function t($original, array $arg) {
 		return $this->trans($original,$arg,false);
 	}
 	
@@ -122,11 +122,11 @@ class Base_Lang extends Module {
 	 * @param mixed
 	 * @return string   
 	 */
-	public function ht($original, $arg) {
+	public function ht($original, array $arg) {
 		return $this->trans($original,$arg,true);
 	}
 
-	public function trans($original, $arg, $hidden=false) {
+	public function trans($original, array $arg, $hidden=false) {
 		global $translations, $base;
 
 		if(!array_key_exists($this->parent_module, $translations) || 

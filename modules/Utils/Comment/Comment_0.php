@@ -211,7 +211,7 @@ class Utils_Comment extends Module{
 		$form -> addElement('hidden','comment_content','none');
 		if ($answer!=-1) {
 			$comment_info = DB::Execute('SELECT c.id, c.text, ul.login, c.created_on FROM comment AS c LEFT JOIN user_login AS ul ON (c.user_login_id = ul.id) WHERE c.id = %d ORDER BY created_on',array($answer))->FetchRow();
-			$form -> addElement('header','reply',$this->lang->t('Reply to %s\'s comment given at %s',$comment_info['login'],date('G:i, d M Y',strtotime($comment_info['created_on']))));
+			$form -> addElement('header','reply',$this->lang->t('Reply to %s\'s comment given at %s',array($comment_info['login'],date('G:i, d M Y',strtotime($comment_info['created_on'])))));
 		}
 		$form -> addElement('textarea','comment_page_reply',$this->lang->t('Message'),array('rows'=>4,'cols'=>40,'onBlur'=>'document.getElementsByName(\'comment_content\')[0].value = document.getElementsByName(\'comment_page_reply\')[0].value.replace(/\n/g,\'<br>\');'));
 		$form -> addElement('submit','submit_comment','Submit');
