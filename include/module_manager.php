@@ -542,8 +542,6 @@ class ModuleManager {
 		}
 		self::$not_loaded_modules[] = array('name'=>$module_to_install,'version'=>$version);
 		
-		file_put_contents('/tmp/install',$module_to_install);
-		
 		return true;
 
 	}

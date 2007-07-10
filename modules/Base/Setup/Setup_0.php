@@ -161,7 +161,6 @@ class Base_Setup extends Module {
 		$uninstall = array();
 		$anonymous_setup = false;
 		$modified_modules_table = false;
-		$return_code = true;
 		
 		foreach ($data as $k => $v)
 			${ $k } = $v;
@@ -211,14 +210,14 @@ class Base_Setup extends Module {
 		foreach ($modules_prio_rev as $k) 
 			if(array_key_exists($k, $uninstall)) {
 				if (!ModuleManager::uninstall($k)) {
-					$return_code = false;
-					break;
+					return false;
 				}
 				if(count(ModuleManager::$modules)==0)
 					print('No modules installed');
 			}
 		
-		return $return_code;
+		Base_ThemeCommon::create_css_cache();
+		return true;
 	}
 }
 ?>

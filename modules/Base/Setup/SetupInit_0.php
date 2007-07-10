@@ -20,6 +20,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_SetupInit_0 extends ModuleInit {
 	public static function requires() {
 		return array (
+			array('name'=>'Base/Theme','version'=>0),
 			array('name'=>'Libs/QuickForm','version'=>0),
 			array('name'=>'Libs/Leightbox','version'=>0),
 			array('name'=>'Utils/Tree','version'=>0)

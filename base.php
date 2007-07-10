@@ -91,7 +91,7 @@ class Base extends Epesi {
 				unset($this->content[$k]);
 			
 //			unset($this->jses);
-			$this->load_modules();
+//			ModuleManager::load_modules();
 	
 			//go
 			return $this->process($this->get_client_id(),'__location&' . http_build_query($loc));
