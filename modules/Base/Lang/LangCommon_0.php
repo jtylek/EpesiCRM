@@ -36,7 +36,7 @@ class Base_LangCommon {
 	 * @param string string to translate
 	 * @return string
 	 */
-	 public static function ts($group, $original) {
+	 public static function ts($group, $original, array $arg) {
 		global $translations;
 		$group = str_replace('/','_',$group);
 		
@@ -52,8 +52,10 @@ class Base_LangCommon {
 			self::save();
 		}
 		$trans = $translations[$group][$original];
+
 		if(!isset($trans) || $trans=='') $trans = $original;
 
+		$trans = vsprintf($trans,$arg);
 		return $trans;
 	}
 
