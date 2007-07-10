@@ -74,7 +74,6 @@ function load_css($u) {
 	$session = & $base->get_tmp_session();
 	if (is_string($u) && !array_key_exists($u, $session['__loaded_csses__'])) {
 		$base->js('load_css(\'' . addslashes($u) . '\')');
-		file_put_contents('/tmp/outek'.md5($u),$u.':'."\n".print_r($session['__loaded_csses__'],true));
 		$session['__loaded_csses__'][$u] = 1;
 		return true;
 	}
