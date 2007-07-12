@@ -55,7 +55,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		$cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->lang->ht('Cancel'), $this->create_back_href());
 		$form->addGroup(array($ok_b, $cancel_b));
 		
-		Base_ActionBarCommon::add_icon('add','New langpack',$this->create_callback_href(array($this,'new_lang_pack')));
+		Base_ActionBarCommon::add('add','New langpack',$this->create_callback_href(array($this,'new_lang_pack')));
 		
 		if($form->validate()) {
 			if($form->process(array($this,'submit_admin'))) {

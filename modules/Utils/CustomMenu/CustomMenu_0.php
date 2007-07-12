@@ -58,7 +58,7 @@ class Utils_CustomMenu extends Module {
 		}
 		$this->display_module($gb);
 		
-		Base_ActionBarCommon::add_icon('add','New menu entry',$this->create_unique_href(array('edit'=>false)));
+		Base_ActionBarCommon::add('add','New menu entry',$this->create_unique_href(array('edit'=>false)));
 	}
 	
 	///////////////////////////////////////////////////////////////

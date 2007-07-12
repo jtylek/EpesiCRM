@@ -37,19 +37,19 @@ class Base_ActionBarCommon {
 			));
 	}
 	
-	public static function add_icon($type, $text, $action) {
+	public static function add($type, $text, $action) {
 		if(!array_key_exists($type,self::$available_icons)) trigger_error('Invalid action '.$type,E_USER_ERROR);
 
 		self::$icons[] = array('icon'=>$type,'label'=>$text,'action_open'=>'<a '.$action.'>','action_close'=>'</a>');
 	}
 	
-	public static function get_icons() {
+	public static function get() {
 		return self::$icons;
 	}
 	
-	public static function clean_icons() {
+	public static function clean() {
 		self::$icons = array();
 	}
 }
-on_exit(array('Base_ActionBarCommon','clean_icons'));
+on_exit(array('Base_ActionBarCommon','clean'));
 ?>

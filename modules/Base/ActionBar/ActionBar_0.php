@@ -21,7 +21,7 @@ class Base_ActionBar extends Module {
 	}
 
 	public function body($arg) {
-		$icons = Base_ActionBarCommon::get_icons();
+		$icons = Base_ActionBarCommon::get();
 		$l = & $this->pack_module('Base/Lang');
 
 		//translate

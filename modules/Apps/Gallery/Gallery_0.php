@@ -655,10 +655,10 @@ class Apps_Gallery extends Module {
 		*/
 		if(Base_AclCommon::i_am_user()) {
 			if ($action === 'show') {
-				Base_ActionBarCommon::add_icon('add',$this->lang->ht('Upload'),$this->create_callback_href(array($this,'set_action'), 'upload'));
-				Base_ActionBarCommon::add_icon('settings',$this->lang->ht('Manage Folders'),$this->create_callback_href(array($this,'set_action'), 'setup'));
+				Base_ActionBarCommon::add('add',$this->lang->ht('Upload'),$this->create_callback_href(array($this,'set_action'), 'upload'));
+				Base_ActionBarCommon::add('settings',$this->lang->ht('Manage Folders'),$this->create_callback_href(array($this,'set_action'), 'setup'));
 			} else
-				Base_ActionBarCommon::add_icon('back',$this->lang->ht('Back to Gallery'),$this->create_callback_href(array($this,'set_action'), 'show'));
+				Base_ActionBarCommon::add('back',$this->lang->ht('Back to Gallery'),$this->create_callback_href(array($this,'set_action'), 'show'));
 		}
 	}
 	

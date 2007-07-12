@@ -36,7 +36,7 @@ class Apps_StaticPage extends Module {
 		
 		//print('<hr><a '.$this->create_unique_href(array('edit'=>$path)).'>Edit</a>');
 		if(Base_AclCommon::i_am_admin())
-			Base_ActionBarCommon::add_icon('edit','Edit page',$this->create_unique_href(array('edit'=>$path)));
+			Base_ActionBarCommon::add('edit','Edit page',$this->create_unique_href(array('edit'=>$path)));
 	}
 	
 	public function parse_links_callback($x) {
@@ -83,8 +83,8 @@ class Apps_StaticPage extends Module {
 		$fck->setFCKProps('800','300',true);
 		
 		
-		Base_ActionBarCommon::add_icon('back','Cancel',$this->create_back_href());
-		Base_ActionBarCommon::add_icon('save','Save',$f->get_submit_form_href());
+		Base_ActionBarCommon::add('back','Cancel',$this->create_back_href());
+		Base_ActionBarCommon::add('save','Save',$f->get_submit_form_href());
 //		$save_b = & HTML_QuickForm::createElement('submit', null, $this->lang->ht('Save'));
 	//	$back_b = & HTML_QuickForm::createElement('button', null, $this->lang->ht('Cancel'), $this->create_back_href());
 		//$f->addGroup(array($save_b,$back_b),'submit_button');
@@ -112,7 +112,7 @@ class Apps_StaticPage extends Module {
 
 		if($path) {
 			$this->display_module($menu);
-			Base_ActionBarCommon::add_icon('delete','Delete page',$this->create_unique_href(array('delete'=>true)));
+			Base_ActionBarCommon::add('delete','Delete page',$this->create_unique_href(array('delete'=>true)));
 		}
 	}
 	
@@ -123,7 +123,7 @@ class Apps_StaticPage extends Module {
 	}
 	
 	private function menu_edit($x) {
-		Base_ActionBarCommon::add_icon('save','Save',$this->create_unique_href(array('save'=>true)));
+		Base_ActionBarCommon::add('save','Save',$this->create_unique_href(array('save'=>true)));
 		$menu = &$this->init_module('Utils/CustomMenu',array('staticpage:'.$x['id']));			
 		if($this->get_unique_href_variable('save')) {
 			$menu->save($x['path']);
@@ -150,7 +150,7 @@ class Apps_StaticPage extends Module {
 		if(isset($view)) { 
 			$this->body($view);
 //			print('<hr><a '.$this->create_back_href().'>Go back</a>');
-			Base_ActionBarCommon::add_icon('back','Go back',$this->create_back_href());
+			Base_ActionBarCommon::add('back','Go back',$this->create_back_href());
 			return;
 		}
 		
@@ -170,7 +170,7 @@ class Apps_StaticPage extends Module {
 		$this->display_module($gb);
 		
 //		print('<hr><a '.$this->create_unique_href(array('edit'=>false)).'>New</a>');
-		Base_ActionBarCommon::add_icon('add','New page',$this->create_unique_href(array('edit'=>false)));
+		Base_ActionBarCommon::add('add','New page',$this->create_unique_href(array('edit'=>false)));
 	}
 
 }

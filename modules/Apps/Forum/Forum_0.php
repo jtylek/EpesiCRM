@@ -32,7 +32,7 @@ class Apps_Forum extends Module {
 		$theme -> assign('forum_boards',$this->lang->t('Forum Boards'));
 		$theme -> assign('boards',$boards);
 		if (Base_AclCommon::i_am_admin()) {
-			Base_ActionBarCommon::add_icon('add',$this->lang->ht('New board'),$this->create_callback_href(array($this,'add_board')));
+			Base_ActionBarCommon::add('add',$this->lang->ht('New board'),$this->create_callback_href(array($this,'add_board')));
 		}
 		$theme -> display('Boards');
 	}
@@ -65,9 +65,9 @@ class Apps_Forum extends Module {
 		$theme -> assign('threads',$threads);
 		$theme -> assign('board_name',DB::GetOne('SELECT name FROM apps_forum_board WHERE id = %d',$board));
 		$theme -> assign('forum_boards','<a '.$this->create_back_href().'>'.$this->lang->t('Forum Boards').'</a>');
-		Base_ActionBarCommon::add_icon('back',$this->lang->ht('Boards'),$this->create_back_href());
+		Base_ActionBarCommon::add('back',$this->lang->ht('Boards'),$this->create_back_href());
 		if (Base_AclCommon::i_am_user())
-			Base_ActionBarCommon::add_icon('add',$this->lang->ht('New thread'),$this->create_callback_href(array($this,'new_thread'),array($board)));
+			Base_ActionBarCommon::add('add',$this->lang->ht('New thread'),$this->create_callback_href(array($this,'new_thread'),array($board)));
 		$theme -> display('Threads');
 		return true;
 	}
@@ -86,7 +86,7 @@ class Apps_Forum extends Module {
 		$comment->reply_on_comment_page(false);
 		$comment->tree_structure(false);
 
-		Base_ActionBarCommon::add_icon('back',$board_name,$this->create_back_href());
+		Base_ActionBarCommon::add('back',$board_name,$this->create_back_href());
 
 		ob_start();
 		$this -> display_module($comment);	

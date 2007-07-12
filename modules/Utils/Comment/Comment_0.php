@@ -66,7 +66,7 @@ class Utils_Comment extends Module{
 				}
 				$theme->assign_form('form', $form);
 			} else {
-				Base_ActionBarCommon::add_icon('add','Reply',$this->create_unique_href(array('action'=>'post_reply')));
+				Base_ActionBarCommon::add('add','Reply',$this->create_unique_href(array('action'=>'post_reply')));
 			}
 
 		$recordSet = DB::Execute('SELECT COUNT(*) FROM comment WHERE topic=%s AND parent <= -1 ORDER BY created_on',$this->key)->FetchRow();

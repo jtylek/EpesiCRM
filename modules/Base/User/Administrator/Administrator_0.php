@@ -114,7 +114,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 			
 		
 //		print('<a '.$this->create_unique_href(array('edit_user'=>-1)).'>'.$this->lang->t('Add new user').'</a>');
-		Base_ActionBarCommon::add_icon('add','New user',$this->create_unique_href(array('edit_user'=>-1)));
+		Base_ActionBarCommon::add('add','New user',$this->create_unique_href(array('edit_user'=>-1)));
 	}
 	
 	public function edit_user_form($edit_id) {
