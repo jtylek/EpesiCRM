@@ -35,7 +35,7 @@ class Apps_Shoutbox extends Module {
 		if(Base_AclCommon::i_am_admin())
 			Base_ActionBarCommon::add('delete',$l->ht('Clear shoutbox'),$this->create_callback_href(array($this,'delete_all')));
 
-		eval_js_once('shoutbox_refresh = function(){'.
+		eval_js_once('shoutbox_refresh = function(){if(typeof(document.getElementById(\'shoutbox\'))==\'undefined\') return;'.
 			$GLOBALS['base']->run('refresh(client_id)->shoutbox:innerHTML','modules/Apps/Shoutbox/refresh.php').
 			'};setInterval(\'shoutbox_refresh()\',5000)');
 		

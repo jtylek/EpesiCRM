@@ -41,6 +41,7 @@ class Epesi extends saja {
 	public function call_jses() {
 		foreach($this->jses as $cc)
 			parent::js($cc);
+		$this->jses=array();
 	}
 }
 ?>

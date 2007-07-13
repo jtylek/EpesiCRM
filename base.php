@@ -48,8 +48,9 @@ class Base extends Epesi {
 		}
 	}
 
-	public function process($cl_id, $url, $history_call) {
-		$this->init($cl_id);
+	public function process($cl_id, $url, $history_call=false,$refresh=false) {
+		if(!$refresh)
+			$this->init($cl_id);
 		$this->check_firstrun();
 		
 		if($history_call==='0')
@@ -94,7 +95,7 @@ class Base extends Epesi {
 //			ModuleManager::load_modules();
 	
 			//go
-			return $this->process($this->get_client_id(),'__location&' . http_build_query($loc));
+			return $this->process($this->get_client_id(),'__location&' . http_build_query($loc),false,true);
 		}
 
 		if(DEBUG || MODULE_TIMES || SQL_TIMES) {
@@ -188,8 +189,6 @@ class Base extends Epesi {
 //			$this->redirect('#'.History::get_id());
 			$this->js('history_add('.History::get_id().')');
 		}
-		
-		$this->call_jses();
 	}
 }
 

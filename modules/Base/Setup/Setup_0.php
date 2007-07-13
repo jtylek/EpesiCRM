@@ -139,8 +139,9 @@ class Base_Setup extends Module {
 				& $this,
 				'validate'
 			))) {
-				if($this->parent && $this->parent->get_type()=='Base_Admin') $this->parent->reset();
-					else location(array());
+//				if($this->parent && $this->parent->get_type()=='Base_Admin') $this->parent->reset();
+	//				else location(array());
+				eval_js_once('document.location=\'index.php\'');
 			}
 		} else $form->display();
 	}

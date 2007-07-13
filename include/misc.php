@@ -111,10 +111,12 @@ function eval_js($u) {
 
 function eval_js_once($u) {
 	global $base;
+	if(!is_string($u)) return false;
 	$session = & $base->get_tmp_session();
-	if (is_string($u) && !array_key_exists($u, $session['__evaled_jses__'])) {
+	$md5 = md5($u);
+	if (!array_key_exists($md5, $session['__evaled_jses__'])) {
 		$base->js($u);
-		$session['__evaled_jses__'][$u] = 1;
+		$session['__evaled_jses__'][$md5] = 1;
 		return true;
 	}
 	return false;
