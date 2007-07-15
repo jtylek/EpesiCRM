@@ -217,7 +217,7 @@ class Base_Setup extends Module {
 					print('No modules installed');
 			}
 		
-		Base_ThemeCommon::create_css_cache();
+		Base_ThemeCommon::create_cache();
 		return true;
 	}
 }

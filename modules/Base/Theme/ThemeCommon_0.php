@@ -81,7 +81,7 @@ class Base_ThemeCommon {
 		}
 	}
 	
-	public static function create_css_cache() {
+	private static function create_css_cache() {
 		$themes_dir = 'data/Base/Theme/templates/';
 		$tdir = $theme_dir.Variable::get('default_theme');
 		$arr = glob($themes_dir.'default/*.css',GLOB_NOSORT);
@@ -103,6 +103,40 @@ class Base_ThemeCommon {
 		file_put_contents($tdir.'__cache.css',$css_cur_out);
 		file_put_contents($themes_dir.'default/__cache.files',$files_def_out);
 		file_put_contents($tdir.'__cache.files',$files_cur_out);
+	}
+
+	private static function get_images($dir) {
+		$content = scandir($dir);
+		$ret = array();
+		foreach ($content as $name){
+			if ($name == '.' || $name == '..') continue;
+			$file_name = $dir.'/'.$name;
+			if (is_dir($file_name)) {
+				$ret = array_merge($ret,self::get_images($file_name));
+			} else {
+				$ext = strtolower(substr(strrchr($file_name,'.'),1));
+				if ($ext === 'jpg' ||
+					$ext === 'jpeg' ||
+					$ext === 'gif' ||
+					$ext === 'png')
+				$ret[] = $file_name;
+			}
+		}
+		return $ret;
+	}
+
+	private static function create_images_cache() {
+		$theme_dir = 'data/Base/Theme/templates/';
+		$default = self::get_images($theme_dir.'default');
+		$tdir = $theme_dir.Variable::get('default_theme');
+		$theme = self::get_images($tdir);
+		file_put_contents($theme_dir.'default/__cache.images',implode("\n",$default));
+		file_put_contents($tdir.'/__cache.images',implode("\n",$theme));
+	}
+
+	public static function create_cache() {
+		self::create_css_cache();
+		self::create_images_cache();
 	}
 }
 ?>

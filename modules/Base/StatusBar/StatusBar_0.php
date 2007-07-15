@@ -44,7 +44,8 @@ class Base_StatusBar extends Module {
 					'saja.updateIndicator=function(){' .
 						'statbar = $(\'Base_StatusBar\');' .
 						'if(saja.procOn){' .
-							'statbar.style.display=\'block\';' .
+							'statbar.style.display=\'block\';'.
+							'cache_pause=true;' .
 						'}else{' .
 							'if(statusbar_message_t!=\'\') {' .
 								't=$(\'statusbar_text\');' .
@@ -53,7 +54,8 @@ class Base_StatusBar extends Module {
 								'setTimeout(\'statusbar_fade()\',3000);' .
 							'}else{' .
 								'statusbar_fade();' .
-							'};' .
+							'};'.
+							'cache_pause=false;' .
 						'};' .
 					'};' .
 				'};' .

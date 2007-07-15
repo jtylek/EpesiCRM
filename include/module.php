@@ -723,6 +723,16 @@ abstract class Module {
 	protected final function get_module_dir() {
 		return 'modules/'.str_replace('_','/',$this->type).'/';
 	}
+	
+	public final function & get_session() {
+		global $base;
+		return $base->get_session();
+	}
+
+	public final function & get_tmp_session() {
+		global $base;
+		return $base->get_tmp_session();
+	}
 }
 
 ?>
