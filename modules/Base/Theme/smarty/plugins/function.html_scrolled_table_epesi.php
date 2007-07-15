@@ -60,7 +60,7 @@ function smarty_function_html_scrolled_table_epesi($params, &$smarty)
     $hdir = 'right';
     $inner = 'cols';
     $caption = '';
-    $height = '300px';
+    $height = '300';
 
     if (!isset($params['loop'])) {
         $smarty->trigger_error("html_table: missing 'loop' parameter");

@@ -10,6 +10,18 @@ getWidth = function(someObject){
         return w;
 }
 
+getHeight = function(someObject){
+        var w;
+        if(document.defaultView &&
+                document.defaultView.getComputedStyle) {
+                w=document.defaultView.getComputedStyle(someObject ,'').getPropertyValue('Height');
+        }else if(someObject.offsetHeight){
+                w=someObject.offsetHeight;
+        }
+	if(typeof w=="string") w=parseInt(w);
+        return w;
+}
+
 libs_theme__scrolled_table_fix_headers = function() {
 	var divs = document.getElementsByTagName('div');
 	for (var i = 0; i < divs.length; i++) {
@@ -58,8 +70,7 @@ libs_theme__scrolled_table_fix_cols = function() {
 		div.style.overflow='auto';
 		div.style.overflowX='hidden';
 		var height = table.getAttribute('body_height');
-		if(typeof(height)=='undefined') height='300px';
-		div.style.height=height;
+		if(typeof(height)=='undefined') height=300;
 		div.style.width=(div_width+30)+'px';
 		main_div.appendChild(div);
 
@@ -75,6 +86,11 @@ libs_theme__scrolled_table_fix_cols = function() {
 			for(var k=0; k<tds.length; k++)
 				tds[k].style.width = widths[k]+"px";
 		}
+		
+		var bheight = getHeight(table_body);
+		if(bheight<height) height = bheight+10;
+		div.style.height=height+'px';
+
 		table.parentNode.removeChild(table);
 	}
 	setTimeout("libs_theme__scrolled_table_fix_headers()",10);
