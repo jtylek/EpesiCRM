@@ -7,7 +7,12 @@ libs_theme__scrolled_table_getWidth = function(someObject){
 		var compStyle = document.defaultView.getComputedStyle(someObject, "");
 		return parseInt(compStyle.getPropertyValue('width'));
         } else if (someObject.currentStyle) {
-		return parseInt(someObject.currentStyle['width']);
+		var w = someObject.offsetWidth;
+		var x = parseInt(someObject.currentStyle['paddingLeft']);
+		if(x!='NaN') w-=x;
+		var x = parseInt(someObject.currentStyle['paddingRight']);
+		if(x!='NaN') w-=x;
+		return w;
 	} 
 	return "";
 //        return parseInt(document.defaultView.getComputedStyle(someObject ,'').getPropertyValue('width'));
@@ -23,7 +28,7 @@ libs_theme__scrolled_table_fix_cols = function() {
 		var tbody = table.getElementsByTagName('tbody')[0];
 		var ths = theader.getElementsByTagName('th');
 		var widths = Array();
-		var div_width=libs_theme__scrolled_table_getWidth(table);
+		var div_width=table.offsetWidth;
 		for(var k=0; k<ths.length; k++)
 			widths[k] = libs_theme__scrolled_table_getWidth(ths[k]);
 		var style=table.getAttribute('style');
