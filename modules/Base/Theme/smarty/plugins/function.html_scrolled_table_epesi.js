@@ -1,25 +1,16 @@
-getWidth = function(someObject){
-        var w;
-        if(document.defaultView &&
-                document.defaultView.getComputedStyle) {
-                w=document.defaultView.getComputedStyle(someObject ,'').getPropertyValue('width');
-        }else if(someObject.offsetWidth){
-                w=someObject.offsetWidth;
-        }
-	if(typeof w=="string") w=parseInt(w);
-        return w;
-}
+function getElementStyle(elemID, IEStyleProp, CSSStyleProp) {
+    var elem = document.getElementById(elemID);
+			}
 
-getHeight = function(someObject){
-        var w;
-        if(document.defaultView &&
-                document.defaultView.getComputedStyle) {
-                w=document.defaultView.getComputedStyle(someObject ,'').getPropertyValue('Height');
-        }else if(someObject.offsetHeight){
-                w=someObject.offsetHeight;
-        }
-	if(typeof w=="string") w=parseInt(w);
-        return w;
+libs_theme__scrolled_table_getWidth = function(someObject){
+	if (document.defaultView!=null && document.defaultView.getComputedStyle) {
+		var compStyle = document.defaultView.getComputedStyle(someObject, "");
+		return parseInt(compStyle.getPropertyValue('width'));
+        } else if (someObject.currentStyle) {
+		return parseInt(someObject.currentStyle['width']);
+	} 
+	return "";
+//        return parseInt(document.defaultView.getComputedStyle(someObject ,'').getPropertyValue('width'));
 }
 
 libs_theme__scrolled_table_fix_cols = function() {
@@ -32,9 +23,9 @@ libs_theme__scrolled_table_fix_cols = function() {
 		var tbody = table.getElementsByTagName('tbody')[0];
 		var ths = theader.getElementsByTagName('th');
 		var widths = Array();
-		var div_width=getWidth(table);
+		var div_width=libs_theme__scrolled_table_getWidth(table);
 		for(var k=0; k<ths.length; k++)
-			widths[k] = getWidth(ths[k]);
+			widths[k] = libs_theme__scrolled_table_getWidth(ths[k]);
 		var style=table.getAttribute('style');
 		var id=table.getAttribute('id');
 		var cl=table.getAttribute('class');		
@@ -42,10 +33,11 @@ libs_theme__scrolled_table_fix_cols = function() {
 		var main_div = document.createElement('div');
 		main_div.style.textAlign="left";
 		main_div.style.width=(div_width+30)+"px";
-//		main_div.style.border="1px solid red";
 		table.parentNode.insertBefore(main_div,table);
 
 		var table_header = document.createElement('table');
+		table_header.style.tableLayout='fixed';
+		table_header.style.width=div_width+"px";
 		table_header.appendChild(theader);
 		main_div.appendChild(table_header);
 		table_header.setAttribute('style',style);
@@ -64,6 +56,8 @@ libs_theme__scrolled_table_fix_cols = function() {
 		main_div.appendChild(div);
 
 		var table_body = document.createElement('table');
+		table_body.style.tableLayout='fixed';
+		table_body.style.width=div_width+"px";
 		table_body.appendChild(tbody);
 		div.appendChild(table_body);
 		var trs = tbody.getElementsByTagName('tr');

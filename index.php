@@ -98,7 +98,7 @@ unset($_SESSION['cl'.$client_id]);
 		history_call = function(history_id){
         		switch(history_on){
 			    case -1: history_on=1;
-			    case 0: return;
+			    		return;
 			    case 1: <?php print $saja->run("process($client_id,'',history_id)"); ?>
 			}
 		}
@@ -108,13 +108,10 @@ unset($_SESSION['cl'.$client_id]);
 			unFocus.History.addHistory(id);
 		}
 		
+		<?php print $saja->run("process(client_id,'',0)"); ?>
+			
 		unFocus.History.addEventListener('historyChange',history_call);
 		
-		if(window.location.hash!='#1')
-			window.location = '#1';
-		else
-			<?php print $saja->run("process(client_id,'',0)"); ?>
-			
 		-->
 		</script>
 	</body>
