@@ -7,7 +7,7 @@
  */
 
 define("_VALID_ACCESS", true);
-define("EPESI_VERSION", '0.8.3');
+define("EPESI_VERSION", '0.8.4');
 
 umask(0);
 

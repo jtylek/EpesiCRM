@@ -67,9 +67,9 @@ class Libs_QuickForm extends Module {
 		$s = $base->run("process(".$base->get_client_id().",serialize_form('".addslashes($form_name)."')".$fast.")"); 
 		$s = str_replace('this',"document.getElementById('".addslashes($form_name)."')",Libs_QuickFormCommon::get_on_submit_actions()).'saja.updateIndicatorText(\''.addslashes($indicator).'\');'.$s;
 		if($submited)	 	
-	 		return "document.getElementById('".addslashes($form_name)."').submited.value=1;".$s."document.getElementById('".addslashes($form_name)."').submited.value=0;";
+	 		return "if(saja.procOn==0){document.getElementById('".addslashes($form_name)."').submited.value=1;".$s."document.getElementById('".addslashes($form_name)."').submited.value=0;}";
 	 	else
-	 		return $s; 
+	 		return 'if(saja.procOn==0){'.$s.'}'; 
 	}
 }
 ?>

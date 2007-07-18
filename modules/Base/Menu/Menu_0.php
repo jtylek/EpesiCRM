@@ -23,7 +23,7 @@
  * - __description__ - description
  * - __url__ - open url instead of automatic generated epesi link... probably usable only with external sites.
  * - __target__ - for example you can pass '_blank' to open link in new window... usable only with __url__
- * - __module__ - module to pack as main module
+ * - __module__ - module to pack as main module (special values: '__none__')
  * - __function__ - function to call
  * - __function_arguments__ - string argument passed to function
  * - __weight__ - integer that specifies weight of menu entry
@@ -63,7 +63,10 @@ class Base_Menu extends Module {
 				self::add_default_menu($m[$k], $name);
 			elseif(is_array($arr)) {
 				if(array_key_exists('__module__',$arr)) {
-					$action = array('box_main_module'=>$arr['__module__'],'menu_click'=>1);
+					if($arr['__module__']!='__none__')
+						$action = array('box_main_module'=>$arr['__module__'],'menu_click'=>1);
+					else
+						$action = array();
 					unset($arr['__module__']);
 				} else
 					$action = array('box_main_module'=>$name,'menu_click'=>1);
@@ -76,7 +79,7 @@ class Base_Menu extends Module {
 					unset($arr['__function_arguments__']);
 				}
 				$m[$k] = array_merge($action,$arr);
-			} elseif($k!='__icon__' && $k!='__description__' && $k!='__url__' && $k!='__target__' && $k!='__weight__' && $k!='__function__' && $k!='__function_arguments__')
+			} elseif($k!='__icon__' && $k!='__description__' && $k!='__url__' && $k!='__target__' && $k!='__weight__' && $k!='__function__' && $k!='__function_arguments__' && $k!='__module__')
 				$m[$k] = array();
 		}
 	} 

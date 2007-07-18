@@ -49,6 +49,13 @@ class Base extends Epesi {
 	}
 
 	public function process($cl_id, $url, $history_call=false,$refresh=false) {
+		$url = str_replace('&amp;','&',$url);
+		
+		if($url) {
+			parse_str($url, $_POST);
+			$_GET = $_REQUEST = & $_POST;
+		}
+
 		if(!$refresh)
 			$this->init($cl_id);
 		$this->check_firstrun();
@@ -58,13 +65,6 @@ class Base extends Epesi {
 		elseif($history_call)
 		    History::set_id($history_call);
 		
-		$url = str_replace('&amp;','&',$url);
-		
-		if($url) {
-			parse_str($url, $_POST);
-			$_GET = $_REQUEST = & $_POST;
-		}
-
 		$session = & $this->get_session();
 		$tmp_session = & $this->get_tmp_session();
 	
