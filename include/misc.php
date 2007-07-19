@@ -129,12 +129,11 @@ function eval_js_once($u) {
 
 /**
  * Adds method to call on exit.
- * If fourth argument is set to true it will return list of functions to call.
  * 
  * @param mixed function to call
  * @param mixed list of arguments
- * @param bool if set to false the function will be called only once
- * @param bool if set to true the function will return currently hold list of functions
+ * @param bool if set to false the function will be called only once, location() doesn't affect with double call
+ * @param bool if set to true the function will return currently hold list of functions (don't use it in modules)
  * @return mixed returns function list if requested, true if function was added to list, false otherwise
  */
 function on_exit($u = null, $args = null, $stable=true, $ret = false) {
@@ -156,12 +155,11 @@ function on_exit($u = null, $args = null, $stable=true, $ret = false) {
 }
 /**
  * Adds method to call on init.
- * If fourth argument is set to true it will return list of functions to call.
  * 
  * @param mixed function to call
  * @param mixed list of arguments
- * @param bool if set to false the function will be called only once
- * @param bool if set to true the function will return currently hold list of functions
+ * @param bool if set to false the function will be called only once, location() doesn't affect with double call
+ * @param bool if set to true the function will return currently hold list of functions (don't use it in modules)
  * @return mixed function list if requested, true if function was added to list, false otherwise
  */
 function on_init($u = null, $args = null, $stable=true, $ret = false) {
