@@ -92,7 +92,7 @@ abstract class Module {
 		$this->children_count_display = 0;
 	}
 	
-	public final function register_child($ch) {
+	private final function register_child($ch) {
 		$type = $ch->get_type();
 		$instance = $ch->get_instance_id();
 		if(!isset($this->children[$type]))
@@ -101,7 +101,7 @@ abstract class Module {
 		$GLOBALS['base']->debug('registering '.$this->get_path().'/'.$type.'|'.$instance.'<br>');
 	}
 	
-	public final function get_new_child_instance_id() {
+	private final function get_new_child_instance_id() {
 		return $this->children_count++;
 	}
 	
@@ -264,6 +264,14 @@ abstract class Module {
 	}
 	
 	
+	/**
+	 * Share href variable passed as first parameter with module passed as second parameter.
+	 * Any change of this variable will be visible in both modules.
+	 * 
+	 * @param string href variable name
+	 * @param object module object
+	 * @return bool false if module is invalid, true otherwise
+	 */
 	public function share_unique_href_variable($name, & $m, $name2) {
 		if(!is_a($m, 'Module'))
 			return false;
@@ -276,9 +284,9 @@ abstract class Module {
 	}
 	
 	/**
-	 * Mark module to force its reload or prevent that.
+	 * Mark module to force its reload or prevent being reloaded.
 	 * If this method is not called, module is reloaded by default,
-	 * which means that only if output changed, reload proceeds.
+	 * which means that only if output changed reload proceeds.
 	 * 
 	 * @param bool true to force reload of whole module, false to suspend reloading
 	 */
@@ -295,7 +303,19 @@ abstract class Module {
 	 public final function get_reload() {
 	 	return $this->reload;
 	 }
-	 
+	
+	/** 
+	 * Create onClick action string destined for js code.
+	 * Use variables passed as first parameter, to generate variables accessible by $_REQUEST array.
+	 * 
+	 * <xmp>
+	 * print('<a '.$this->create_href(array('somekey'=>'somevalue'))).'">Link</a>');
+	 * </xmp>
+	 * 
+	 * @param array variables to pass along with href
+	 * @param string status bar indicator text
+	 * @return string href string
+	 */
 	public final static function create_href_js(array $variables = array (), $indicator=null) {
 		global $base;		
 		$ret = str_replace('&amp;','&',http_build_query($variables));
@@ -312,13 +332,28 @@ abstract class Module {
 	 * </xmp>
 	 * 
 	 * @param array variables to pass along with href
-	 * @return string
+	 * @param string status bar indicator text
+	 * @return string href string
 	 */
 	public final static function create_href(array $variables = array (),$indicator=null) {
 		return ' href="javascript:void(0)" onClick="'.self::create_href_js($variables,$indicator).'" ';
 	}
 	
-
+	/**
+	 * Create onClick action string (with href="javascript:void(0);").
+	 * Use variables passed as first parameter, to generate variables accessible by $_REQUEST array.
+	 * This function will trigger js confirm dialog before launching processing.
+	 * If cancelled, no processing will be done. 
+	 * 
+	 * <xmp>
+	 * print('<a '.$this->create_href(array('somekey'=>'somevalue'))).'">Link</a>');
+	 * </xmp>
+	 *
+	 * @param string question displayed in confirmation box
+	 * @param array variables to pass along with href
+	 * @param string status bar indicator text
+	 * @return string href string
+	 */
 	public final static function create_confirm_href($confirm, array $variables = array (), $indicator=null) {
 		$ret = http_build_query($variables);
 		return ' href="javascript:void(0)" onClick="if(confirm(\''.addslashes($confirm).'\')) {'.self::create_href_js($variables,$indicator).'}"';
@@ -329,7 +364,8 @@ abstract class Module {
 	 * Those variables can be accessed with get_unique_href_variable.
 	 * 
 	 * @param array variables to pass along with href
-	 * @return string
+	 * @param string status bar indicator text
+	 * @return string href string
 	 */
 	public final function create_unique_href(array $variables = array (),$indicator=null) {
 		$uvars = array('__action_module__'=>$this->get_path());
@@ -337,12 +373,32 @@ abstract class Module {
 			$uvars[$this->create_unique_key($a)] = $b;
 		return $this->create_href($uvars,$indicator);
 	}
+	/**
+	 * Create onClick action string destined for js code.
+	 * Similar to create_href, but variables passed to this function will only be accessible in module that called this function.
+	 * Those variables can be accessed with get_unique_href_variable.
+	 * 
+	 * @param array variables to pass along with href
+	 * @param string status bar indicator text
+	 * @return string href string
+	 */
 	public final function create_unique_href_js(array $variables = array (),$indicator=null) {
 		$uvars = array('__action_module__'=>$this->get_path());
 		foreach ($variables as $a => $b)
 			$uvars[$this->create_unique_key($a)] = $b;
 		return $this->create_href_js($uvars,$indicator);
 	}
+	/**
+	 * Similar to create_href, but variables passed to this function will only be accessible in module that called this function.
+	 * Those variables can be accessed with get_unique_href_variable.
+	 * This function will trigger js confirm dialog before launching processing.
+	 * If cancelled, no processing will be done. 
+	 * 
+	 * @param string question displayed in confirmation box
+	 * @param array variables to pass along with href
+	 * @param string status bar indicator text
+	 * @return string href string
+	 */
 	public final function create_confirm_unique_href($confirm,array $variables = array (),$indicator=null) {
 		$uvars = array('__action_module__'=>$this->get_path());
 		foreach ($variables as $a => $b)
@@ -383,13 +439,32 @@ abstract class Module {
 	 * callback that run on every page reload, with different arguments, use create_callback_href_with_id
 	 *
 	 * @param mixed function
-	 * @return string
+	 * @param mixed arguments
+	 * @param string status bar indicator text
+	 * @return string href string
 	 */
 	public final function create_callback_href($func,$args,$indicator=null) {
 		$name = md5(serialize(array($func,$args)));
 		return $this->create_callback_href_with_id($name,$func,$args,$indicator);
 	}
-
+	/**
+	 * Creates link similar to link created with create_href.
+	 * 
+	 * The link, when used, will lead to calling of function which name is given as first parameter.
+	 * Callback returns true if you use this link again after page refresh.
+	 * 
+	 * This function will trigger js confirm dialog before launching processing.
+	 * If cancelled, no processing will be done.
+	 * 
+	 * WARNING: id of callback is generated using arguments passed to this function, so if you want to create
+	 * callback that run on every page reload, with different arguments, use create_callback_href_with_id
+	 *
+	 * @param string question displayed in confirmation box
+	 * @param mixed function
+	 * @param mixed arguments
+	 * @param string status bar indicator text
+	 * @return string href string
+	 */
 	public final function create_confirm_callback_href($confirm, $func, $args,$indicator=null) {
 		$name = md5(serialize(array($func,$args)));
 		return $this->create_confirm_callback_href_with_id($name, $confirm, $func,$args,$indicator);
@@ -426,6 +501,20 @@ abstract class Module {
 		return $this->create_unique_href(array($name=>1),$indicator);
 	}
 	
+	/**
+	 * Creates link similar to links created with create_href.
+	 * 
+	 * The link, when used, will lead to calling of function which name is given as first parameter.
+	 * Callback returns true if you use this link again after page refresh.
+	 * 
+	 * This function will trigger js confirm dialog before launching processing.
+	 * If cancelled, no processing will be done.
+	 *
+	 * @param string question displayed in confirmation box
+	 * @param string callback id (name)
+	 * @param mixed function
+	 * @return string 
+	 */
 	public final function create_confirm_callback_href_with_id($name, $confirm, $func, $args, $indicator) {
 		$name = 'callback_'.$name;
 		$this->set_callback($name,$func,$args);
@@ -435,7 +524,8 @@ abstract class Module {
 	/**
 	 * Creates link that will lead back to previous page content.
 	 * Use is_back to check it was called.
-	 * 
+	 *
+	 * @param integer number of times isback() should return true after this link is used  
 	 * @return string string that should be placed inside html <pre><a></pre> tag. See create_href for example.
 	 */
 	public final function create_back_href($i=1) {
@@ -485,9 +575,11 @@ abstract class Module {
 	/**
 	 * Creates module instance which name is given as first parameter.
 	 * 
-	 * Created module instance will be child of the module which called this function. 
+	 * Created module instance will be a child to the module which called this function. 
 	 * 
 	 * @param string module name
+	 * @param mixed arguments for module constructor
+	 * @param string unique name for the instance, will be assigned automatically by default
 	 * @return mixed if access denied returns null, else child module object
 	 */
 	public final function & init_module($module_type, $args = null, $name=null) {
@@ -511,8 +603,8 @@ abstract class Module {
 	 * You can pass additional arguments as next parameters. 
 	 * 
 	 * @param module child module
+	 * @param mixed arguments
 	 * @param string function to call (get output from), if user has enought privileges.
-	 * @param mixed variables
 	 * @return mixed if access denied returns false, else true
 	 */
 	public final function display_module(& $m, $args, $function_name = 'body') {
@@ -529,8 +621,8 @@ abstract class Module {
 	 * Attention: do not pass the result of this function by one module to another module.
 	 * 
 	 * @param module child module
+	 * @param mixed arguments
 	 * @param string function to call (get output from), if user has enought privileges.
-	 * @param mixed variables
 	 * @return mixed if access denied returns false, else string
 	 */
 	public final function get_html_of_module(& $m, $args, $function_name = 'body') {
@@ -613,26 +705,50 @@ abstract class Module {
 		return '<span id="'.$base->content[$path]['span'].'"></span>';
 	}
 	
+	/**
+	 * Returns whether this module instance was already displayed.
+	 * 
+	 * @return true if this module instance was aready displayed, false otherwise
+	 */
 	public final function displayed() {
 		return $this->displayed;
 	}
 
+	/**
+	 * Marks this module instance as it was displayed.
+	 */
 	public final function mark_displayed() {
 		$this->displayed=true;
 	}
 	
+	/**
+	 * Returns whether this module instance has fast processing turned on.
+	 * 
+	 * @return true if this module instance has fast processing turned on, false otherwise
+	 */
 	public final function is_fast_process() {
 		return $this->fast_process;
 	}
 	
+	/**
+	 * Enable fast processing for this module instance.
+	 */
 	public final function set_fast_process() {
 		$this->fast_process = true;
 	}
 	
+	/**
+	 * Returns whether this module instance is displayed inline.
+	 * 
+	 * @return true if this module instance is displayed inline, false otherwise
+	 */
 	public final function is_inline_display() {
 		return $this->inline_display;
 	}
 	
+	/**
+	 * Changes display behavior for this module instance to inline.
+	 */
 	public final function set_inline_display() {
 		$this->inline_display = true;
 	}
@@ -660,11 +776,21 @@ abstract class Module {
 			
 		return null;
 	}
-	
+
+	/**
+	 * Appends js code to list of jses to evaluate.
+	 * 
+	 * @param string js code
+	 */	
 	public final function js($js) {
 		$this->jses[] = $js;
 	}
 	
+	/**
+	 * Returns list of jses to evaluate.
+	 * 
+	 * @return array list of js commands
+	 */	
 	public final function get_jses() {
 		return $this->jses;
 	}
@@ -689,6 +815,11 @@ abstract class Module {
 		return $this->type;
 	}
 
+	/**
+	 * Returns id of module instance.
+	 * 
+	 * @return mixed instance id 
+	 */
 	public final function get_instance_id() {
 		return $this->instance;
 	}
@@ -724,11 +855,21 @@ abstract class Module {
 		return 'modules/'.str_replace('_','/',$this->type).'/';
 	}
 	
+	/**
+	 * Returns current ajax session.
+	 * 
+	 * @return mixed ajax session
+	 */
 	public final function & get_session() {
 		global $base;
 		return $base->get_session();
 	}
 
+	/**
+	 * Returns ajax temporary session.
+	 * 
+	 * @return mixed ajax temporary session
+	 */
 	public final function & get_tmp_session() {
 		global $base;
 		return $base->get_tmp_session();

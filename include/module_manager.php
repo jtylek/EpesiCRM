@@ -14,7 +14,7 @@ class ModuleManager {
 	public static $root = array();
 
 	/**
-	 * Include file with module initialization class.
+	 * Includes file with module installation class.
 	 * 
 	 * Do not use directly.
 	 * 
@@ -30,6 +30,13 @@ class ModuleManager {
 			trigger_error('Module '.$path.': Invalid install file',E_USER_ERROR);
 	}
 
+	/**
+	 * Includes file with module initialization class.
+	 * 
+	 * Do not use directly.
+	 * 
+	 * @param string module name
+	 */
 	public static final function include_init($class_name, $version) {
 		$path = self::get_module_dir_path($class_name);
 		$file = self::get_module_file_name($class_name);
@@ -40,6 +47,13 @@ class ModuleManager {
 			trigger_error('Module '.$path.': Invalid init file',E_USER_ERROR);
 	}
 
+	/**
+	 * Includes file with module common class.
+	 * 
+	 * Do not use directly.
+	 * 
+	 * @param string module name
+	 */
 	public static final function include_common($class_name,$version) {
 		$path = self::get_module_dir_path($class_name);
 		$file = self::get_module_file_name($class_name);
@@ -54,7 +68,7 @@ class ModuleManager {
 	}
 
 	/**
-	 * Include file with module main class.
+	 * Includes file with module main class.
 	 * 
 	 * Do not use directly.
 	 * 
@@ -75,11 +89,11 @@ class ModuleManager {
 	}
 
 	/**
-	 * Gets array of loaded modules indexed by priority of loading, based on dependencies.
+	 * Creates array of installed modules indexed by priority of loading, based on dependencies.
 	 * 
 	 * Do not use directly.
 	 * 
-	 * @return array array containing information with modules priorities
+	 * @return array array containing information about modules priorities
 	 */
 	public static final function & create_load_priority_array() {
 		$queue = array();
@@ -121,6 +135,7 @@ class ModuleManager {
 	 * Should not be used directly.
 	 * 
 	 * @param string module to check if all requirements are satisifed
+	 * @param integer module version to check
 	 * @param array table with loaded modules
 	 * @return array 
 	 */
@@ -143,8 +158,9 @@ class ModuleManager {
 
 	
 	/**
-	 * Returns directories path to the module including module main directory.
+	 * Returns directory path to the module including module main directory.
 	 * 
+	 * @param string module name
 	 * @return string directory path to the module
 	 */
 	public static final function get_module_dir_path($name) {
@@ -225,7 +241,7 @@ class ModuleManager {
 	 * 
 	 * @param string module name
 	 * @param integer module version
-	 * @param array
+	 * @param array modules list
 	 */
 	public static final function register($mod, $version, & $module_table) {
 		$module_table[$mod] = array('name'=>$mod, 'version'=>$version);
@@ -241,6 +257,16 @@ class ModuleManager {
 		}
 	}
 	
+	/**
+	 * Unregisters module passed as first parameter from array passed as third parameter.
+	 * It is used to mark in an array that module is not loaded and doesn't provide some external modules anymore.
+	 * 
+	 * Do not use directly.
+	 * 
+	 * @param string module name
+	 * @param integer module version
+	 * @param array modules list
+	 */
 	public static final function unregister($mod, $version, & $module_table) {
 		unset($module_table[$mod]);
 		$prov = call_user_func(array (
@@ -256,7 +282,7 @@ class ModuleManager {
 	}
 	
 	/**
-	 * Creates required virtual classes.
+	 * Creates required virtual class.
 	 * If one module provides other module features, this function will create virtual class to redirect all function calls.
 	 *  
 	 * Do not use directly.
@@ -279,6 +305,14 @@ class ModuleManager {
 		}
 	}
 
+	/**
+	 * Creates required virtual common class.
+	 * If one module provides other module features, this function will create virtual class to redirect all function calls.
+	 *  
+	 * Do not use directly.
+	 * 
+	 * @param string class name
+	 */
 	public static final function create_common_virtual_classes($mod, $version) {
 		//check if any of required 'virtual modules' doesn't have its own provided class, and create it if needed
 		$req = call_user_func(array (
@@ -546,6 +580,14 @@ class ModuleManager {
 
 	}
 
+	/**
+	 * Restores module data based from backup.
+	 * 
+	 * @param string module name
+	 * @param string date on which desired backup was made
+	 * @param bool if set to true it will delete all current module data
+	 * @return bool true on success, false otherwise
+	 */
 	public static final function restore($module,$date,$delete_old_data=true) {
 		$module = str_replace('/','_',$module);
 		$version = self::is_installed($module);
@@ -598,6 +640,7 @@ class ModuleManager {
 			fclose($fp);
 		}
 		$ado->CompleteTrans();
+		return true;
 	}
 	
 	private static final function restore_files($src, $dest) {
@@ -614,6 +657,12 @@ class ModuleManager {
 		}		
 	}
 	
+	/**
+	 * Creates module backup point.
+	 * 
+	 * @param string module name
+	 * @return bool true on success, false otherwise
+	 */
 	public static final function backup($module) {
 		$module = str_replace('/','_',$module);
 		$installed_version = self::is_installed($module);
@@ -677,6 +726,11 @@ class ModuleManager {
 		}
 	}
 	
+	/**
+	 * Returns list of available backups.
+	 * 
+	 * @return array list of backups, each backup point is described as an array with fields 'name', 'version', 'date'
+	 */
 	public static final function list_backups() {
 		$backup_ls = scandir('backup');
 		$backup = array();
@@ -688,7 +742,7 @@ class ModuleManager {
 	}
 
 	/**
-	 * Deinstalls module.
+	 * Uninstalls module.
 	 * 
 	 * @param string module name
 	 * @return bool true if uninstallation success, false otherwise
@@ -766,7 +820,13 @@ class ModuleManager {
 		return true;
 	}
 	
-		
+	/**
+	 * Returns an array of installed modules indexed by priority of loading, based on dependencies.
+	 * 
+	 * Do not use directly.
+	 * 
+	 * @return array array containing information with modules priorities
+	 */
 	public static final function get_load_priority_array($force=false) {
 		static $load_prior_array=null;
 		if($load_prior_array===null || $force) {
@@ -892,6 +952,11 @@ class ModuleManager {
 		rmdir($path);
 	}
 	
+	/**
+	 * Loads all installed classes definitions.
+	 * 
+	 * Do not use directly.
+	 */
 	public static final function load_modules() {
 		self::$modules = array();
 		$installed_modules = ModuleManager::get_load_priority_array(true);
@@ -907,6 +972,11 @@ class ModuleManager {
 		}
 	}
 	
+	/**
+	 * Creates root(first) module instance.
+	 * 
+	 * Do not use directly.
+	 */
 	public static function & create_root() {
 		ob_start();
 		try {

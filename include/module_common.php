@@ -8,14 +8,15 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class ModuleCommon {
-		/**
-	 * Checks access to method which name is passed as second parameter.
-	 * First parameter is a module object 
+	/**
+	 * Checks access to a method.
+	 * First parameter is a module object and second is a method in this module.
 	 * 
-	 * If you want to restric access to a method just make another method called
-	 * 'methodname_access' returning false if user should not access the 'methodname' method.
+	 * If you want to restric access to a method just create a method called
+	 * 'methodname_access' returning false if you want restrict user from accessing 
+	 * 'methodname' method.
 	 * 
-	 * static_check_access is run automatically with each pack_module call.
+	 * check_access is called automatically with each pack_module call.
 	 * 
 	 * @param object module
 	 * @param string function name

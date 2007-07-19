@@ -12,10 +12,10 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
- * Generate specified length random string.
+ * Generates random string of specified length.
  * 
  * @param integer length
- * @return string
+ * @return string random string
  */
 function generate_password($length = 8) {
 	// start with a blank password
@@ -43,8 +43,8 @@ function generate_password($length = 8) {
 }
 
 /**
- * Redirect to specified url. First parameter is array of variables to pass with redirection.
- * If no argument is specified return saved redirect url.
+ * Redirects to specified url. First parameter is array of variables to pass with redirection.
+ * If no argument is specified returns saved redirect url.
  * 
  * @param array
  * @return string saved url
@@ -65,9 +65,9 @@ function location($u = null,$ret = false) {
 }
 
 /**
- * Add css to load.
+ * Requests css loading.
  * 
- * @param string
+ * @param string css file path and name
  */
 function load_css($u) {
 	global $base;
@@ -81,26 +81,26 @@ function load_css($u) {
 }
 
 /**
- * Add js to load.
+ * Adds js to load.
  * 
- * @param string
+ * @param string javascrpit code
  */
 function load_js($u) {
 	return eval_js_once('load_js(\'' . addslashes($u) . '\')');
 }
 /**
- * Add js to load inline.
+ * Adds js to load inline.
  * 
- * @param string
+ * @param string javascrpit code
+ * @return bool true on success, false otherwise
  */
 function load_js_inline($u) {
 	return eval_js_once( file_get_contents($u) );
 }
 /**
- * Add js block to eval. If no argument is specified return saved jses.
+ * Adds js block to eval. If no argument is specified returns saved jses.
  * 
- * @param string
- * @return string
+ * @param string javascrpit code
  */
 function eval_js($u) {
 	global $base;
@@ -108,7 +108,12 @@ function eval_js($u) {
 		$base->js($u);
 	}
 }
-
+/**
+ * Adds js block to eval. Given js will be evaluated only once.
+ * 
+ * @param string javascrpit code
+ * @return bool true on success, false otherwise
+ */
 function eval_js_once($u) {
 	global $base;
 	if(!is_string($u)) return false;
@@ -123,10 +128,14 @@ function eval_js_once($u) {
 }
 
 /**
- * Add method to call on exit. If no argument is specified return saved methods and clear it.
+ * Adds method to call on exit.
+ * If fourth argument is set to true it will return list of functions to call.
  * 
- * @param mixed array or string
- * @return string
+ * @param mixed function to call
+ * @param mixed list of arguments
+ * @param bool if set to false the function will be called only once
+ * @param bool if set to true the function will return currently hold list of functions
+ * @return mixed returns function list if requested, true if function was added to list, false otherwise
  */
 function on_exit($u = null, $args = null, $stable=true, $ret = false) {
 	static $headers = array ();
@@ -139,10 +148,22 @@ function on_exit($u = null, $args = null, $stable=true, $ret = false) {
 		return $ret;
 	}
 
-	if ($u != false)
+	if ($u != false) {
 		$headers[] = array('func'=>$u,'args'=>$args, 'stable'=>$stable);
+		return true;
+	}
+	return false;
 }
-
+/**
+ * Adds method to call on init.
+ * If fourth argument is set to true it will return list of functions to call.
+ * 
+ * @param mixed function to call
+ * @param mixed list of arguments
+ * @param bool if set to false the function will be called only once
+ * @param bool if set to true the function will return currently hold list of functions
+ * @return mixed function list if requested, true if function was added to list, false otherwise
+ */
 function on_init($u = null, $args = null, $stable=true, $ret = false) {
 	static $headers = array ();
 	
@@ -234,7 +255,14 @@ if (STRIP_OUTPUT) {
 		return $out;
 	}
 }
-
+/**
+ * Returns directory tree starting at given directory.
+ * 
+ * @param string starting directory
+ * @param integer maximum depth of the tree
+ * @param integer depth counter, for internal use
+ * @return array directory tree
+ */
 function dir_tree($path, $maxdepth = -1, $d = 0) {
 	if (substr($path, strlen($path) - 1) != '/') {
 		$path .= '/';
@@ -258,7 +286,11 @@ function dir_tree($path, $maxdepth = -1, $d = 0) {
 	}
 	return ($dirlist);
 }
-
+/**
+ * Removes directory recursively, deleteing all files stored under this directory
+ * 
+ * @param string directory to remove
+ */
 function recursive_rmdir($path) {
 	if (!is_dir($path)) {
 		unlink($path);
@@ -277,7 +309,13 @@ function recursive_rmdir($path) {
 	}
 	rmdir($path);
 }
-
+/**
+ * Copies directory recursively, along with all files stored under source directory.
+ * If destination directory doesn't exist it will be created.
+ * 
+ * @param string source directory
+ * @param string destination directory
+ */
 function recursive_copy($src, $dest) {
 	if (!is_dir($src)) {
 		copy($src, $dest);
@@ -300,7 +338,12 @@ function recursive_copy($src, $dest) {
 			copy($src_name, $dest_name);
 	}
 }
-
+/**
+ * Escapes special characters in js code.
+ * 
+ * @param string js code to escape
+ * @return string escaped js code
+ */
 function escapeJs($str) {
 	// borrowed from smarty
 	return strtr($str, array (
