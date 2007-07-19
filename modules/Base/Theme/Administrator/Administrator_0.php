@@ -47,11 +47,12 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 			    $this->parent->reset();
 			else
 			    location(array());*/
-		} else
+		} else {
 			$form->display();
 			
-		if(class_exists('ZipArchive'))
-			$this->pack_module('Utils/FileUpload',array(array($this,'upload_template'),$this->lang->t('Upload template')));
+			if(class_exists('ZipArchive'))
+				$this->pack_module('Utils/FileUpload',array(array($this,'upload_template'),$this->lang->t('Upload template')));
+		}
 	}
 	
 	public function upload_template($file) {
