@@ -49,6 +49,20 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 			    location(array());*/
 		} else
 			$form->display();
+			
+		if(class_exists('ZipArchive'))
+			$this->pack_module('Utils/FileUpload',array(array($this,'upload_template'),$this->lang->t('Upload template')));
+	}
+	
+	public function upload_template($file) {
+		$zip = new ZipArchive;
+		if ($zip->open($file) == 1) {
+    			$zip->extractTo('data/Base/Theme/templates/');
+			Base_StatusBarCommon::message($this->lang->t('Template installed'));
+    			return true;
+		}
+		Base_StatusBarCommon::message($this->lang->t('Invalid template file'),'error');
+		return true;
 	}
 	
 	public function submit_admin($data) {

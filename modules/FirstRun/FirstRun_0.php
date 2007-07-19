@@ -94,6 +94,8 @@ class FirstRun extends Module {
 				trigger_error('Unable to install Gallery module.',E_USER_ERROR);
 			if(!ModuleManager::install('Apps_StaticPage'))
 				trigger_error('Unable to install StaticPage module.',E_USER_ERROR);
+			if(!ModuleManager::install('Apps_Shoutbox'))
+				trigger_error('Unable to install StaticPage module.',E_USER_ERROR);
 			
 			if(!ModuleManager::install('Tests'))
 				trigger_error('Unable to install Tests module pack.',E_USER_ERROR);
