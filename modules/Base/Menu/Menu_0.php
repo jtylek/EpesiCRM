@@ -23,7 +23,7 @@
  * - __description__ - description
  * - __url__ - open url instead of automatic generated epesi link... probably usable only with external sites.
  * - __target__ - for example you can pass '_blank' to open link in new window... usable only with __url__
- * - __module__ - module to pack as main module (special values: '__none__')
+ * - __module__ - module to pack as main module
  * - __function__ - function to call
  * - __function_arguments__ - string argument passed to function
  * - __weight__ - integer that specifies weight of menu entry
