@@ -24,13 +24,13 @@ class Base_Admin extends Module {
 		
 	public function body($arg) {
 		
-		if(!isset($_REQUEST['menu_click']))
+		if($_REQUEST['menu_click']!='Base_Admin')
 			$module = $this->get_module_variable_or_unique_href_variable('href');
 		elseif(isset($_REQUEST['admin_href'])) {
 			$module = $_REQUEST['admin_href'];
 			$this->set_module_variable('href', $module);
 		}
-		
+
 		if($module) {
 			$this->pack_module($module,null,'admin');
 		} else {

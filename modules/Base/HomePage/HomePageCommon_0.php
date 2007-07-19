@@ -47,7 +47,7 @@ class Base_HomePageCommon {
 	
 	public static function tool_menu() {
 		if(Acl::is_user())
-			return array('Set as your epesi home page'=>array('Base_HomePage_save'=>'1','__module__'=>'__none__'));
+			return array('Set as your epesi home page'=>array('Base_HomePage_save'=>'1'));
 		return array();
 	}
 	
@@ -75,7 +75,8 @@ if($_REQUEST['Base_HomePage_load']) {
 		$_REQUEST['box_main_module'] = Base_BoxCommon::get_main_module_name();
 } elseif($_REQUEST['Base_HomePage_save']) {
 	Base_HomePageCommon::save();
-	Base_StatusBarCommon::message(Base_LangCommon::ts('Home page saved'));
+	unset($_REQUEST['box_main_module']);
+	Base_StatusBarCommon::message(Base_LangCommon::ts('Base_HomePage','Home page saved'));
 }
 
 on_init(array('Base_HomePageCommon','login_check_init'));

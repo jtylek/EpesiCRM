@@ -63,13 +63,10 @@ class Base_Menu extends Module {
 				self::add_default_menu($m[$k], $name);
 			elseif(is_array($arr)) {
 				if(array_key_exists('__module__',$arr)) {
-					if($arr['__module__']!='__none__')
-						$action = array('box_main_module'=>$arr['__module__'],'menu_click'=>1);
-					else
-						$action = array();
+					$action = array('box_main_module'=>$arr['__module__'],'menu_click'=>$name);
 					unset($arr['__module__']);
 				} else
-					$action = array('box_main_module'=>$name,'menu_click'=>1);
+					$action = array('box_main_module'=>$name,'menu_click'=>$name);
 				if(array_key_exists('__function__',$arr)) {
 					$action['box_main_function']=$arr['__function__'];
 					unset($arr['__function__']);
