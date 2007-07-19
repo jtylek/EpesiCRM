@@ -292,7 +292,8 @@ class Apps_Gallery extends Module {
 		foreach( $data as $dir => $sel) {
 			//print $this->user_name.": ". $dir ." <br>";
 			//print $dir . " <br>";
-			DB::Execute('insert into gallery_shared_media values(%s, %s)', array($this->user, $dir));
+			if( is_dir($this->root.$this->user.'/'.$dir) )
+				DB::Execute('insert into gallery_shared_media values(%s, %s)', array($this->user, $dir));
 		}
 		//print "</span>";
 		return true;
@@ -611,11 +612,16 @@ class Apps_Gallery extends Module {
 					$structure[$row['user_id']]['name'] = Base_UserCommon::get_user_login($row['user_id'])."'s gallery";
 					$structure[$row['user_id']]['sub'] = array();
 				}
-				$structure[$row['user_id']]['sub'][] = array( 
+				$tmp_struct = array( 
 					'sub'=>array(), 
 					'name'=>
 					'<a '.$this->create_unique_href(array('dir'=>$row['media'] , 'parent_dir'=>'/', 'user'=>$row['user_id'] )).'>'.$row['media'] .'</a>',
 					);
+				if($row['media'] == $dir) {
+					$tmp_struct['selected'] = 1;
+					$tmp_struct['visible'] = 1;
+				}
+				$structure[$row['user_id']]['sub'][] = $tmp_struct;
 			}
 			$other->set_structure($structure);
 			
