@@ -181,13 +181,19 @@ class Base_Theme extends Module {
 			$close="";
 			$len = strlen($val);
 			if ($val{0}==='<') 
-				while ($i<$len) {
+				while ($i<$len) {					
 					if ($val{$i}==='<') {
 						if ($val{$i+1}==='a') {
 							if ($count===0) {
 								while ($val{$i}!=='>') {
 									$open .= $val{$i};
 									$i++;
+									if ($val{$i}==='"') {
+										do {
+											$open .= $val{$i};
+											$i++;
+										} while ($val{$i}!=='"');
+									}
 								}
 								$open .= '>';
 							} else $text .= $val{$i};
