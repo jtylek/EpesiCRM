@@ -109,6 +109,7 @@ unset($_SESSION['cl'.$client_id]);
 			unFocus.History.addHistory(id);
 		}
 		
+		history_add(0);
 		<?php print $saja->run("process(client_id,'',0)"); ?>
 			
 		unFocus.History.addEventListener('historyChange',history_call);
