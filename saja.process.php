@@ -8,63 +8,96 @@ require_once('include/include_path.php');
 require_once('include/config.php');
 require_once('include/session.php');
 
+//let browser know that response is utf-8 encoded
+header('Content-Type: text/html; charset=utf-8');
+
 //initialize vars
 $php = null;
 $proc_file = null;
 $function = null;
 $session_id = null;
 $request_id = null;
+$true_utf8 = null;
+$errors = '';
+$req = $_POST['req'];
 
-//read the incoming request
-$HTTP_RAW_POST_DATA = file_get_contents('php://input');
-if(!$HTTP_RAW_POST_DATA) exit('Empty Request');
+if(!$req){
+	$errors .= 'Empty Request';
+}
 
-//start session and set ID to the expected saja session	
-list($php, $session_id, $request_id) = explode('<!SAJA!>', $HTTP_RAW_POST_DATA);
-if($session_id && $session_id != session_id())
-	session_id($session_id);
-session_start();
+if(!$errors){
+	//start session and set ID to the expected saja session
+	list($php, $session_id, $request_id) = explode('<!SAJA!>', $req);
+	if($session_id)
+		session_id($session_id);
+	session_start();
+	
+	//validate this request
+	if(!is_array($_SESSION['SAJA_PROCESS']['REQUESTS']))
+		$errors .=  'Session expired.';
+	else if(!in_array($request_id, array_keys($_SESSION['SAJA_PROCESS']['REQUESTS'])))
+		$errors .= 'Invalid Request.';
+}
 
 require_once "saja/saja.php";
 
-//validate this request
-if(!is_array($_SESSION['SAJA_PROCESS']['REQUESTS'])) {
-		$s = new saja(true);
-		$s->js('alert(\'Session expired.\')');
-		$s->redirect();
-		echo $s->send();
-		exit();
-}
-if(!in_array($request_id, array_keys($_SESSION['SAJA_PROCESS']['REQUESTS'])))
-	exit('Invalid Request: '.$request_id);
+//start capturing the response
+ob_start();
 
-//get function name and process file
-$proc_file = $_SESSION['SAJA_PROCESS']['REQUESTS'][$request_id]['PROCESS_FILE'];
-$function = $_SESSION['SAJA_PROCESS']['REQUESTS'][$request_id]['FUNCTION'];
+if(!$errors) {
 
-//load the class extension containing the user functions
-global $base;
+	//get function name and process file
+	$REQ = $_SESSION['SAJA_PROCESS']['REQUESTS'][$request_id];
+	$proc_file = $REQ['PROCESS_FILE'];
+	$function = $REQ['FUNCTION'];
+	$use_history = $REQ['HISTORY'];
+	$true_utf8 = $REQ['UTF8'];
+	
+	//add this request to the history
+	if($use_history)
+		$_SESSION['SAJA_PROCESS']['HISTORY'][] = $_SESSION['SAJA_PROCESS']['REQUESTS'][$request_id]['HISTORY'];
+	
+	
+	global $base;
 
-require_once('include.php');
-if($proc_file=='base.php') {
-	require($proc_file);
-	$base = new Base(true);
-} else {
-	if(file_exists($proc_file))
+	require_once('include.php');
+	if($proc_file=='base.php') {
 		require($proc_file);
-	else {
-		$s = new saja(true);
-		$s->text('Process file: ' . addslashes($proc_file) . ' not found.','error_box,p');
-		echo $s->send();
-		exit();
+		$base = new Base(true);
+	} else {
+		if(file_exists($proc_file))
+			require($proc_file);
+		else {
+			$s = new saja(true);
+			$s->alert('Process file: ' . addslashes($proc_file) . ' not found.');
+			echo $s->send();
+			exit();
+		}
+		$base = new myFunctions(true);
 	}
-	$base = new myFunctions(true);
+
+	$base->set_process_file('base.php');
+	ob_start(array('ErrorHandler','handle_fatal'));
+	$base->set_true_utf8($true_utf8);
+	$base->runFunc($function, $php);
+	$base->call_jses();
+	ob_end_flush();
+	if($base->hasActions())
+		echo $base->send();
+} else {
+	$s = new saja(true);
+	$s->alert($errors);
+	$s->redirect();
+	echo $s->send();
+	exit();
 }
-$base->set_process_file('base.php');
-ob_start(array('ErrorHandler','handle_fatal'));
-$base->runFunc($function, $php);
-$base->call_jses();
-ob_end_flush();
-if($base->hasActions())
-	echo $base->send();
+
+//capture the response and output as utf-8 encoded
+$content = ob_get_contents();
+ob_end_clean();
+
+if($s->true_utf8)
+	echo $content;
+else
+	echo utf8_encode($content);
 ?>

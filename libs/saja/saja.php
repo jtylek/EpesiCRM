@@ -1,53 +1,53 @@
 <?php
 /*
-	Example Usage: (ASP-style PHP tags are used instead of PHP-style tags to avoid bad parsing in editors)
+	Example Usage:
 	page url: http://www.yoursite.com/index.php
 	saja url: http://www.yoursite.com/path/to/saja.php.
 	
 	For full documentation see: http://saja.sourceforge.net/
 	
 	---------- <index.php> -----------
-	<%
+	<?php
 	include($_SERVER['DOCUMENT_ROOT'].'/path/to/saja.php');
 	$saja = new saja;
 	$saja->set_path('/path/to/');
 	$saja->secure_http(); //uses session variables to encrypt HTTP data (optional)
-	%>
+	? >
 	<div id=outputDiv>Some Text</div>
 	<input type=text id=myInput>
 	<button id=myButton onclick="<%=$saja->run("MyPhpFunction(myInput:value)->outputDiv:innerHTML");%>">do something</button>
 	---------- </index.php> -----------
 
 	---------- <saja.functions.php> -----------
-	<%
+	<?php
 	function MyPhpFunction($myInput)
 	{
 		echo "You typed: [$myInput]";
 		$saja = new saja;
 		$saja->hide('myInput');
 		$saja->text('Done!','myButton:innerHTML');
-		$saja->js("alert('Alert!')");
-		return $saja->send();
+		$saja->alert("done!");
 	}
-	%>
+	? >
 	---------- </saja.functions.php> -----------
 */
-class saja {
+class Saja {
 	
 	//configurable vars
 	var $saja_path = '';								//default SAJA path - this can be set so you never have to call set_path() again
 	var $saja_process_file = 'saja.functions.php';		//default process file to use
 	var $saja_process_path = '';						//relative or full path to the directory that contains your process files (functions) i.e. "../myfunctions/", "/www/apache/htdocs/public/", etc.
 	var $saja_process_class = 'myFunctions';			//default classname to use
+	var $true_utf8 = false;								//keep set to false unless you understand the implications of attempting true utf8 support with PHP (most european character sets will work with this as false)
 	
 	//leave these vars alone
 	var $functionPadding = 15;							//pad functions names having less than this many characters in their name
 	var $actions = array();
 	var $salt;
 	var $http_key;
-	var $historyAvailable;
+	var $argument_separator = '>>>saja_arg<<';			//separator for function arguments
 	
-	function saja()
+	function Saja()
 	{
 		if(!session_id())
 			session_start();
@@ -64,6 +64,10 @@ class saja {
 	function salt(){
 		$this->salt = $_SESSION['SAJA_SALT'] ? $_SESSION['SAJA_SALT'] : $this->generate_key();
 		$_SESSION['SAJA_SALT'] = $this->salt;
+	}
+	
+	function set_true_utf8($bool=true){
+		$this->true_utf8 = $bool;	
 	}
 	
 	function set_path($path)
@@ -91,10 +95,11 @@ class saja {
 	function saja_js()
 	{
 		$js  = '<script type="text/javascript">var SAJA_PATH="'.$this->saja_path.'"; var SAJA_HTTP_KEY="'.$this->http_key.'"</script>'."\n";
-		$js .= '<script type="text/javascript" SRC="'.$this->saja_path.'saja.js"></script>'."\n";;
+		$js .= '<script type="text/javascript" src="'.$this->saja_path.'saja.js"></script>'."\n";;
 		return $js;
 	}
 	
+
 	function saja_status($style='', $string='Working...')
 	{
 		return "<span id=\"sajaStatus\" style=\"visibility:hidden;$style\">".htmlentities($string)."</span>";	
@@ -129,7 +134,7 @@ class saja {
 	
 	function get_process_file()
 	{
-		return $this->saja_process_file;
+		return $this->saja_process_path . $this->saja_process_file;
 	}
 
 	function run($commands, $process_file=null)
@@ -191,6 +196,7 @@ class saja {
 				{
 					$request_id = md5($function . $this->salt);
 					$_SESSION['SAJA_PROCESS']['REQUESTS'][$request_id] = array(
+						'UTF8' => $this->true_utf8,
 						'FUNCTION' => $function,
 						'PROCESS_FILE' => $process_file ? $process_file : $this->get_process_file(),
 						'CLASS' => $this->get_process_class()
@@ -201,7 +207,6 @@ class saja {
 				}
 			}
 		}
-		
 		return $all_commands;
 	}
 
@@ -227,10 +232,10 @@ class saja {
 			}
 			if($getType == 'PHP')
 			{
-				if($i) $inner .= ',';
+				if($i) $inner .= $this->argument_separator;
 				if($property)
 					$inner .= "'+saja.Get('$id','$property')+'";
-				else if($arg!=='')
+				else if($arg)
 					$inner .= "'+saja.Get($arg)+'";
 				else
 					$inner .= "'+saja.Get($id)+'";
@@ -244,7 +249,7 @@ class saja {
 	{
 		$vals = array();
 		foreach(explode($seperator, $str) as $val)
-			if($val!=='')
+			if($val)
 				$vals[] = trim($val);
 		return $vals;
 	}
@@ -266,6 +271,12 @@ class saja {
 		$this->add_action("window.location = '$url'");
 	}
 	
+	//return a javascript alert
+	function alert($txt)
+	{
+		$this->add_action("alert('".str_replace('\'', '\\\'', $txt)."')");
+	}
+		
 	//adds a new saja action to the queue
 	function exec($action)
 	{
@@ -281,15 +292,8 @@ class saja {
 		list($targetId, $targetProperty) = $this->texplode(':', $target);
 		if(!$action) $action = 'r';
 		if(!$targetProperty) $targetProperty = 'innerHTML';
-		$content = strtr($content, array (
-			'\\' => '\\\\',
-			"'" => "\\'",
-			'"' => '\\"',
-			"\r" => '\\r',
-			"\n" => '\\n',
-			'</' => '<\/'
-		));
-		$action = "saja.Put('".$content."','$targetId','$action','$targetProperty')";
+		$action = "saja.Put(".($this->true_utf8 ? 'decodeURIComponent' : 'unescape')."('".rawurlencode($content)."'),'$targetId','$action','$targetProperty')";
+		//$action = "saja.Put('".str_replace('\'', '\\\'', $content)."','$targetId','$action','$targetProperty')";
 		$this->add_action($action);
 	}
 	
@@ -334,21 +338,55 @@ class saja {
 
 	function runFunc($function, $args)
 	{	
+		//kill magic quotes
+		if(get_magic_quotes_gpc()){
+			$args = stripslashes($args);
+		}
+		
 		//decode encrypted HTTP data if needed
 		if(isset($_SESSION['SAJA_HTTP_KEY'])){
 			$this->secure_http();
-			$args = $this->rc4($this->http_key, rawurldecode($args));
+			$args = $this->rc4($this->http_key, utf8_decode(rawurldecode($args)));
 		}
 		
-		$args = explode(',', $args, 100);//limited to 100 arguments for DNOS attack protection
+		$args = explode($this->argument_separator, $args, 100);//limited to 100 arguments for DNOS attack protection
+		//echo 'args: '; print_r($args);
 		for($i=0; $i<count($args); $i++){
-			$args[$i] = unserialize(rawurldecode($args[$i]));
+			if($this->true_utf8)
+				$args[$i] = $this->utf8_unserialize(rawurldecode($args[$i]));
+			else
+				$args[$i] = unserialize(utf8_decode(rawurldecode($args[$i])));
 		}
-		
+
 		if(method_exists($this, $function))
 			echo call_user_func_array(array(&$this, $function), $args);
 		else
 			echo "ERROR: [$function] Not validated.";
+	}
+	
+	function utf8_unserialize($str){
+		if(preg_match('/^a:[0-9]+:{s:[0-9]+:"/', $str)){
+			$ret = array();
+			$args = preg_split('/"?;?s:[0-9]+:"/', $str, -1, PREG_SPLIT_DELIM_CAPTURE);
+			array_shift($args);
+			$last = array_pop($args);
+			$last = preg_replace('/";}$/', '', $last);
+			$args[] = $last;
+			for($i=0; $i<count($args); $i+=2){
+				$ret[$args[$i]] = $args[$i+1];
+			}
+			return $ret;
+		} else if(preg_match('/^a:[0-9]+:{i:[0-9]+;s:[0-9]+:"/', $str)){
+			$args = preg_split('/"?;?i:[0-9]+;s:[0-9]+:"/', $str, -1, PREG_SPLIT_DELIM_CAPTURE);
+			array_shift($args);
+			$last = array_pop($args);
+			$last = preg_replace('/";}$/', '', $last);
+			$args[] = $last;
+			return $args;
+		} else {
+			$args = preg_split('/^s:[0-9]+:"([\w\W]*?)";$/', $str, -1, PREG_SPLIT_DELIM_CAPTURE);
+			return $args[1];
+		}
 	}
 
 	//RC4 Encryption from http://sourceforge.net/projects/rc4crypt

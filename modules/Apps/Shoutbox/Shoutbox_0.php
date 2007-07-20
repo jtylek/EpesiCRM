@@ -56,7 +56,6 @@ class Apps_Shoutbox extends Module {
 		eval_js_once('shoutbox_refresh = function(){if(!document.getElementById(\'shoutbox_board\')) return;saja.updateIndicatorText(\''.$l->ht('Refreshing shoutbox').'\');'.
 			$GLOBALS['base']->run('refresh(client_id)->shoutbox:innerHTML','modules/Apps/Shoutbox/refresh.php').
 			'};setInterval(\'shoutbox_refresh()\',10000)');
-		
 	}
 	
 	//delete_all callback (on "clear shoutbox" button)

@@ -34,6 +34,7 @@ require_once('include/session.php');
 global $saja;
 $saja = new saja();
 $saja->set_process_file('base.php');
+$saja->set_true_utf8(true);
 if(SECURE_HTTP)
     $saja->secure_http();
 

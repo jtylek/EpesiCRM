@@ -1,8 +1,7 @@
 var saja = {
 	procOn:0,
-	indicator:'sajaStatus',
 	updateIndicator: function(){
-		var s = document.getElementById(saja.indicator);
+		var s = document.getElementById('sajaStatus');
 		if(s)
 			s.style.visibility = saja.procOn ? 'visible' : 'hidden';
 	},
@@ -17,15 +16,17 @@ var saja = {
 			try{return new ActiveXObject("Microsoft.XMLHTTP");}catch(e){
 				try{return new ActiveXObject("Msxml2.XMLHTTP");}catch(e){}}
 	},
-	run: function(php, id, act, property, session_id, proc_file){
+	run: function(php, id, act, property, session_id, request_id){
 		saja.procOn++;
-		var requestString = (SAJA_HTTP_KEY ? escape(saja.rc4(SAJA_HTTP_KEY, php)) : php) + '<!SAJA!>' + session_id + '<!SAJA!>' + (proc_file || '');
+		var requestString = 'req=' + (SAJA_HTTP_KEY ? encodeURIComponent(saja.rc4(SAJA_HTTP_KEY, php)) : php) + '<!SAJA!>' + session_id + '<!SAJA!>' + (request_id || '');
+		requestString += '&rnd=' + Math.random();
 		saja.SendRequest(id, act, property, requestString);
 	},
 	SendRequest: function(id, act, property, requestString){
 		var req = saja.getReq();
 		saja.updateIndicator();
 		req.open('POST',SAJA_PATH + 'saja.process.php',true);
+		req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 		req.send(requestString);
 		req.onreadystatechange=function(){
 			if (req.readyState==4 && req.status==200){	
@@ -46,7 +47,7 @@ var saja = {
 			if(act=='p')
 				ob[property] = content + ob[property];
 			else if(act=='a')
-				ob[property] += ob[property];
+				ob[property] += content;
 			else if(property.split('.')[0]=='style')
 				ob.style[property.split('.')[1]] = content;
 			else if(ob)
@@ -68,7 +69,7 @@ var saja = {
 				ret = 'a:' + len + ':{';
 				for(var i=0; i<len; i++){
 					ret += 'i:' + i +';'
-					ret += 's:' + (v[i]+'').length + ':"' + escape(v[i]) +'";'
+					ret += 's:' + (v[i]+'').length + ':"' + encodeURIComponent(v[i]) +'";'
 				}
 				ret += '}';
 			} else {
@@ -77,12 +78,12 @@ var saja = {
 				ret = 'a:' + len + ':{';
 				for(var i in v){
 					ret += 's:' + i.length + ':"' + i +'";'
-					ret += 's:' + v[i].length + ':"' + escape(v[i]) +'";'
+					ret += 's:' + v[i].length + ':"' + encodeURIComponent(v[i]) +'";'
 				}
 				ret += '}';
 			}
 		} else {
-			ret += 's:' + (v+'').length + ':"' + escape(v) +'";'
+			ret += 's:' + (v+'').length + ':"' + encodeURIComponent(v) +'";'
 		}
 		return ret;
 	},
