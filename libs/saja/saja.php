@@ -281,7 +281,15 @@ class saja {
 		list($targetId, $targetProperty) = $this->texplode(':', $target);
 		if(!$action) $action = 'r';
 		if(!$targetProperty) $targetProperty = 'innerHTML';
-		$action = "saja.Put(unescape('".rawurlencode($content)."'),'$targetId','$action','$targetProperty')";
+		$content = strtr($content, array (
+			'\\' => '\\\\',
+			"'" => "\\'",
+			'"' => '\\"',
+			"\r" => '\\r',
+			"\n" => '\\n',
+			'</' => '<\/'
+		));
+		$action = "saja.Put('".$content."','$targetId','$action','$targetProperty')";
 		$this->add_action($action);
 	}
 	
