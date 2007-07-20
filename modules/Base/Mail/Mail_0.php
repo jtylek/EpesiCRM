@@ -19,9 +19,12 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  */
 class Base_Mail extends Module implements Base_AdminInterface {
 
-	public function body($arg) {
+	public function body() {
 	}
-	
+
+	/**
+	 * For internal use only.
+	 */
 	public function admin() {
 		if($this->is_back()) {
 			$this->parent->reset();
@@ -81,6 +84,9 @@ class Base_Mail extends Module implements Base_AdminInterface {
 		
 	}
 	
+	/**
+	 * For internal use only.
+	 */
 	public function submit_admin($data) {
 		$method = $data['mail_method'];
 		Variable::set('mail_method', $method);

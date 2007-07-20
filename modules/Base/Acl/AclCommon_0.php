@@ -99,6 +99,11 @@ class Base_AclCommon {
 		return $ret;
 	}
 	
+	/**
+	 * Returns whether currently logged in user is an administrator.
+	 * 
+	 * @return bool true if currently logged in user is an administrator
+	 */
 	public static function i_am_admin() {
 		static $ret, $user;
 		$new_user = Acl::get_user();
@@ -109,6 +114,11 @@ class Base_AclCommon {
 		return $ret;
 	}
 
+	/**
+	 * Returns whether currently logged in user is a moderator.
+	 * 
+	 * @return bool true if currently logged in user is a moderator
+	 */
 	public static function i_am_moderator() {
 		static $ret, $user;
 		$new_user = Acl::get_user();
@@ -119,6 +129,11 @@ class Base_AclCommon {
 		return $ret;
 	}
 
+	/**
+	 * Returns whether currently logged in user is a user.
+	 * 
+	 * @return bool true if currently logged in user is a user
+	 */
 	public static function i_am_user() {
 		static $ret, $user;
 		$new_user = Acl::get_user();
@@ -165,7 +180,7 @@ class Base_AclCommon {
 	}
 	
 	/**
-	 * Get names of groups assigned to user.
+	 * Get names of groups to which user is assigned.
 	 * 
 	 * @param integer user acl id (use get_acl_user_id)
 	 * @return mixed false if you are not super administrator and pointed user is super administrator, string with comma separated group names otherwise.
@@ -182,8 +197,14 @@ class Base_AclCommon {
 		return implode($groups, '<br>');
 	}
 	
-	public static function is_user_in_group($uid,$group) {
-		
+	/**
+	 * Checks whether user is in certain group.
+	 * 
+	 * @param integer user acl id (use get_acl_user_id)
+	 * @param string group name
+	 * @return mixed true if user is assigned to given group, false otherwise
+	 */
+	public static function is_user_in_group($uid,$group) {		
 		$groups_arr = Acl::$gacl->get_object_groups($uid);
 		$groups = array();
 		foreach($groups_arr as $id) {
@@ -204,6 +225,12 @@ class Base_AclCommon {
 		return Acl::$gacl->get_object_groups($uid);
 	}
 	
+	/**
+	 * Creates new User that is automatically assigned to 'User' group.
+	 * 
+	 * @param string username
+	 * @return mixed id of the user on success, false otherwise
+	 */
 	public static function add_user($username) {
 		//check if user is in acl
 		$aro_id = Acl::$gacl->get_object_id('Users', $username, 'ARO');

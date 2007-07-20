@@ -59,6 +59,9 @@ class Base_LangCommon {
 		return $trans;
 	}
 
+	/**
+	 * For internal use only.
+	 */
 	public static function save($lang = null) {
 		global $translations;
 		//save translations file
@@ -78,10 +81,16 @@ class Base_LangCommon {
 		return true;
 	}
 	
+	/**
+	 * For internal use only.
+	 */
 	public static function load() {
 		include_once('data/Base/Lang/'.self::get_lang_code().'.php');
 	}
 	
+	/**
+	 * For internal use only.
+	 */
 	public static function get_lang_code() {
 		static $lang_code;
 		if(!isset($lang_code)) {
@@ -95,6 +104,9 @@ class Base_LangCommon {
 		return $lang_code;
 	}
 	
+	/**
+	 * For internal use only.
+	 */
 	public static function install_translations($mod_name,$lang_dir='lang') {
 		global $translations;
 		$mod_name = str_replace('/','_',$mod_name);
@@ -112,10 +124,16 @@ class Base_LangCommon {
 		$translations = $trans_backup; 
 	}
 
+	/**
+	 * For internal use only.
+	 */
 	public static function new_langpack($code) {
 		file_put_contents('data/Base/Lang/'.$code.'.php','');
 	}
 
+	/**
+	 * For internal use only.
+	 */
 	public static function get_langpack($code) {
 		global $translations;
 		if (!is_file('data/Base/Lang/'.$code.'.php')) return false;

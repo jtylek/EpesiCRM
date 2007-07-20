@@ -60,7 +60,7 @@ class Base_Lang extends Module {
 	}
 	
 	/**
-	 * Don't use... required to be public by body.
+	 * For internal use only.
 	 */
 	public function translate($data) {
 		global $translations;
@@ -84,7 +84,7 @@ class Base_Lang extends Module {
 	/**
 	 * Use this function to translate desired string.
 	 * If you want to hide translation link '[*]', use ht() instead. 
-	 * This function can be used only when you pack 'Lang' module inside other previously.
+	 * This function can be used only when you pack 'Lang' module inside your module previously.
 	 * This function supports printf-like arguments.
 	 * 
 	 * Example
@@ -94,10 +94,9 @@ class Base_Lang extends Module {
 	 * print($lang->t('some text and %s',$some_string));
 	 * </pre>
 	 * 
-	 * 
-	 * @param string
-	 * @param mixed
-	 * @return string   
+	 * @param string text that will be translated
+	 * @param array array of arguments to put in the text
+	 * @return string translated version of given text
 	 */
 	public function t($original, array $arg) {
 		return $this->trans($original,$arg,false);
@@ -107,7 +106,7 @@ class Base_Lang extends Module {
 	 * Use this function to translate desired string, 
 	 * but in opposition to t() it will hide translation link '[*]'. 
 	 * It's useful inside buttons.
-	 * This function can be used only when you pack 'Lang' module inside other previously.
+	 * This function can be used only when you pack 'Lang' module inside your module previously.
 	 * This function supports printf-like arguments.
 	 * 
 	 * Example
@@ -117,15 +116,17 @@ class Base_Lang extends Module {
 	 * print($lang->t('some text and %s',$some_string));
 	 * </pre>
 	 * 
-	 * 
-	 * @param string
-	 * @param mixed
-	 * @return string   
+	 * @param string text that will be translated
+	 * @param array array of arguments to put in the text
+	 * @return string translated version of given text
 	 */
 	public function ht($original, array $arg) {
 		return $this->trans($original,$arg,true);
 	}
 
+	/**
+	 * For internal use only.
+	 */
 	public function trans($original, array $arg, $hidden=false) {
 		global $translations, $base;
 

@@ -14,13 +14,24 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_ActionBar extends Module {
 
-	public function sort($a, $b) {
+	/**
+	 * Compares two action bar entries to determine order.
+	 * For internal use only.
+	 * 
+	 * @param mixed action bar entry
+	 * @param mixed action bar entry
+	 * @return int comparison result
+	 */
+	public function compare($a, $b) {
 		$ret = Base_ActionBarCommon::$available_icons[$a['icon']]-Base_ActionBarCommon::$available_icons[$b['icon']];
 		if($ret==0) $ret = strcmp($a['label'],$b['label']);
 		return $ret;
 	}
 
-	public function body($arg) {
+	/**
+	 * Displays action bar.
+	 */
+	public function body() {
 		$icons = Base_ActionBarCommon::get();
 		$l = & $this->pack_module('Base/Lang');
 
@@ -29,7 +40,7 @@ class Base_ActionBar extends Module {
 			$i['label'] = $l->ht($i['label']);
 		
 		//sort
-		usort($icons, array($this,'sort'));
+		usort($icons, array($this,'compare'));
 		
 		//display
 		$th = & $this->pack_module('Base/Theme');

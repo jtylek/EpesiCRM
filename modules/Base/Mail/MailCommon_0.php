@@ -16,14 +16,33 @@ require_once ('class.phpmailer.php');
 
 
 class Base_MailCommon extends Base_AdminModuleCommon {
+	/**
+	 * For internal use only.
+	 */
 	public static function admin_caption() {
 		return 'Mail server settings';
 	}
 	
+	/**
+	 * For internal use only.
+	 */
 	public static function admin_access() {
 		return Base_AclCommon::i_am_sa();
 	}
 
+	/**
+	 * Sends an email.
+	 * 
+	 * Server settings are stored in epesi variables
+	 * and can be changed by administrator.
+	 * 
+	 * @param string recipent
+	 * @param string subject
+	 * @param string email message
+	 * @param string sender
+	 * @param string sender's name
+	 * @return true on success, false otherwise
+	 */
 	public static function send($to,$subject,$body,$from_addr, $from_name) {
 		$mailer = new PHPMailer();
 		$mailer->SetLanguage(Base_LangCommon::get_lang_code(), 'modules/Base/Mail/language/');
