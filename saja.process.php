@@ -87,7 +87,6 @@ if(!$errors) {
 } else {
 	$s = new saja(true);
 	$s->alert($errors);
-	$s->redirect();
 	echo $s->send();
 	exit();
 }
