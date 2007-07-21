@@ -13,7 +13,7 @@ class Apps_Shoutbox extends Module {
 			//create text box
 			$text = & HTML_QuickForm::createElement('text','post',$l->t('Post'),'id="shoutbox_text"');
 			//create submit button
-			$submit = & HTML_QuickForm::createElement('submit','button',$l->t('Submit'));
+			$submit = & HTML_QuickForm::createElement('submit','button',$l->ht('Submit'));
 			//add it
 			$qf->addGroup(array($text,$submit),'post');
 			$qf->addGroupRule('post',$l->t('Field required'),'required',null,2);
