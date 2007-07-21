@@ -140,9 +140,10 @@ class Base_Lang extends Module {
 		if(!isset($trans_oryg) || $trans_oryg=='') $trans = $original;
 			else $trans=$trans_oryg;
 		
-		if(Acl::check('Administration','Modules') && !$hidden && Base_MaintenanceModeCommon::get_mode())
-			$trans = '<span>'.$trans.'</span><a href="javascript:void(0)"  onClick="var oryg=\''.escapeJS($original).'\';var oryg_trans=this.getAttribute(\'oryginal_trans\');if(oryg_trans==null)oryg_trans=\''.escapeJS($trans_oryg).'\';var x=prompt(oryg,oryg_trans);if(x!=null){if(x==\'\')this.previousSibling.innerHTML=oryg;else this.previousSibling.innerHTML=x;this.setAttribute(\'oryginal_trans\',x);'.$base->run('translate(client_id,\''.escapeJS($this->parent_module).'\',oryg,x)','modules/Base/Lang/submit_trans.php').'}">[*]</a>';
-		else
+		if(Acl::check('Administration','Modules') && !$hidden && Base_MaintenanceModeCommon::get_mode()) {
+			$id = 'trans_'.md5($this->parent_module.$original);
+			$trans = '<span id="'.$id.'">'.$trans.'</span><a href="javascript:void(0)"  onClick="var oryg=\''.escapeJS($original).'\';var oryg_trans=this.getAttribute(\'oryginal_trans\');if(oryg_trans==null)oryg_trans=\''.escapeJS($trans_oryg).'\';var x=prompt(oryg,oryg_trans);if(x!=null){var sp=document.getElementById(\''.$id.'\');if(x==\'\')sp.innerHTML=oryg;else sp.innerHTML=x;this.setAttribute(\'oryginal_trans\',x);'.$base->run('translate(client_id,\''.escapeJS($this->parent_module).'\',oryg,x)','modules/Base/Lang/submit_trans.php').'}">[*]</a>';
+		} else
 			$trans = vsprintf($trans,$arg);
 		return $trans;
 	}
