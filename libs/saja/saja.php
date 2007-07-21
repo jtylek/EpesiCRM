@@ -249,7 +249,7 @@ class Saja {
 	{
 		$vals = array();
 		foreach(explode($seperator, $str) as $val)
-			if($val)
+			if($val!=='')
 				$vals[] = trim($val);
 		return $vals;
 	}
