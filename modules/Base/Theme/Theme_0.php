@@ -180,7 +180,7 @@ class Base_Theme extends Module {
 			$text="";
 			$close="";
 			$len = strlen($val);
-			if ($val{0}==='<') 
+			if ($val{0}==='<' && $val{1}==='a') 
 				while ($i<$len) {					
 					if ($val{$i}==='<') {
 						if ($val{$i+1}==='a') {
