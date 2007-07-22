@@ -380,17 +380,24 @@ class Apps_Gallery extends Module {
 	
 	////////////////////////////////////////////////////////////////////////
 	public function submit_all($data) {
-		//print_r($data);
-		//print "File uploaded succesfully!";
-		//print $data['root'].$data['target'].$data['uploaded_file'];
-		//print $data['root'].$data['target'].$data['uploaded_file'];
+		copy($this->get_module_variable('uploaded_file'), $this->root.$this->user.'/'.$this->get_module_variable('originally_uploaded_file'));
 		print 'Successfully uploaded "' . $data['uploaded_file'] . '" to "' . $data['target'] . '".<br>';
 		$image = & $this->init_module('Utils/Image');
 		$image->load($data['root'].$data['target'].$data['uploaded_file']);
 		$image->create_thumb(650, 450);
 		$image->display_thumb(120);
 		unset($data);
+		print '2';
 		return true;
+	}
+	
+	public function submit_upload($file, $ory, $data) {
+		print 'Successfully uploaded "' . $ory . '" to "' . $data['target'] . '".<br>';
+		
+		//copy($file, $this->root.$this->user.'/'.$data['target'].$ory);
+		$this->set_module_variable('uploaded_file', $file);
+		$this->set_module_variable('originally_uploaded_file', $ory);
+		print '1';
 	}
 	
 	public function upload() {
@@ -401,11 +408,13 @@ class Apps_Gallery extends Module {
 		$dir = $this->get_module_variable_or_unique_href_variable('dir', "");
 		$user = $this->get_module_variable_or_unique_href_variable('user', $this->user);
 		$this->lang = & $this->pack_module('Base/Lang');
-
+		
+		$form = & $this->init_module('Utils/FileUpload');
+		
 		if($this->isset_module_variable('data'))
 			return $this->process_data();
 		
-		$form = & $this->init_module('Libs/QuickForm', array($this->lang->ht('Uploading file...'),'modules/Apps/Gallery/upload.php','upload_iframe',''),'file_chooser');
+		//$form = & $this->init_module('Libs/QuickForm', array($this->lang->ht('Uploading file...'),'modules/Apps/Gallery/upload.php','upload_iframe',''),'file_chooser');
 		$form->addElement('header', 'upload', 'Import an image to your gallery');
 		
 		$form->addElement('hidden', 'root', $this->root.$this->user);
@@ -468,29 +477,9 @@ class Apps_Gallery extends Module {
 		
 		$form->addElement('html', '</tr><tr><td colspan=2>'.$tree->toHtml().'</td></tr><tr>');
 		
+		$this->display_module($form, array( array($this,'submit_upload') ));
 		
-		$form->addElement('static',null,null,'<iframe frameborder="0" id="upload_iframe", name="upload_iframe" src="" scrolling="No" height="0" width="0"></iframe>');
-		$form->addElement('hidden','uploaded_file');
-		$form->addElement('hidden','form_name', $form->getAttribute('name'));
-
-		$s = $form->get_submit_form_js(false,$this->lang->t('Processing file...'));
-		$s = str_replace("saja.","parent.saja.",$s);
-		$s = str_replace("serialize_form","parent.serialize_form",$s);
-
-		$form->addElement('hidden','submit_js',$s);
-		$form->addElement('file', 'xls', $this->lang->t('Specify file'), array('id'=>'import_filename'));
-		eval_js('focus_by_id(\'import_filename\');');
-		$form->addElement('static',null,$this->lang->t('Upload status'),'<div id="upload_status"></div>');
-		$form->addElement('submit', 'button', $this->lang->ht('Upload'), "onClick=\"document.getElementById('upload_status').innerHTML='uploading...'; submit(); disabled=true;\"");
 		
-		if($form->validate()) {
-			if($form->process(array($this,'submit_all'))) {
-				location(array());
-			}
-		} else {
-			
-			$form->display();
-		}
 		return true;
 	}
 
