@@ -17,7 +17,7 @@ if(!is_writable('data'))
 if(!is_writable('backup'))
 	die('Cannot write into "backup" directory. Please fix privileges.');
 
-$delimiter = ($_ENV['OS']=='Windows_NT')?';':':';
+$delimiter = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')?';':':';
 ini_set('include_path','modules/Libs/QuickForm/3.2.7'.$delimiter.ini_get('include_path'));
 require_once "HTML/QuickForm.php";
 
