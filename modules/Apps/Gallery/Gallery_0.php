@@ -177,10 +177,11 @@ class Apps_Gallery extends Module {
 		
 		$form->addElement('text', 'new', 'New Folder:', array('value'=>''));
 		$form->addElement('submit', 'submit_button', $lang->ht('Create'));
+		$form->addRule('new', $lang->t('Field required'),'required');
 		
 		if($form->getSubmitValue('submited') && $last_submited == 0 && $form->validate()) {
 			if($form->process(array(&$this, 'submit_mk_folder')))
-				$this->mk_folder(12);
+				location(array());
 		} else {	
 			$theme =  & $this->pack_module('Base/Theme');
 			$theme->assign('type', 'mk_folder');
@@ -271,7 +272,7 @@ class Apps_Gallery extends Module {
 		
 		if($form->getSubmitValue('submited') && $last_submited == 0 && $form->validate()) {
 			if($form->process(array(&$this, 'submit_rm_folder'))) {
-				$this->rm_folder(12);
+				location(array());
 			}
 		} else {
 			$theme =  & $this->pack_module('Base/Theme');
@@ -366,7 +367,7 @@ class Apps_Gallery extends Module {
 		$form->addElement('submit', 'submit_button', $lang->ht('Share selected'));
 		if($form->getSubmitValue('submited') && $last_submited == 0 && $form->validate()) {
 			if($form->process(array(&$this, 'submit_share_folders'))) {
-				$this->share_folders(13);
+				location(array());
 			}
 		} else {
 			$theme =  & $this->pack_module('Base/Theme');

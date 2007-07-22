@@ -123,6 +123,7 @@
 			</tr>
 			<tr>
 				<td>
+					{$form_data.new.error}
 					{$form_data.new.label}
 					{$form_data.new.html}
 				</td>
