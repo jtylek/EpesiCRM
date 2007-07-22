@@ -14,7 +14,7 @@ class Apps_Gallery extends Module {
 	private $root;
 	private $lang;
 	
-	private function init() {
+	public function construct() {
 		$this->lang = & $this->pack_module('Base/Lang');
 		$this->root = $this->get_data_dir();
 		//print Base_UserCommon::get_my_user_id()." - id<br>";
@@ -113,7 +113,7 @@ class Apps_Gallery extends Module {
 		return true;
 	}
 
-	public function mk_folder( $last_submited = 0 ) {
+	public function mk_folder() {
 		$dir = $this->get_module_variable_or_unique_href_variable('dir', "");
 		$user = $this->get_module_variable_or_unique_href_variable('user', $this->user);
 		$dirs = $this->getDirsRecursive($this->root.$this->user, "/^[^\.].*$/");
@@ -179,7 +179,7 @@ class Apps_Gallery extends Module {
 		$form->addElement('submit', 'submit_button', $lang->ht('Create'));
 		$form->addRule('new', $lang->t('Field required'),'required');
 		
-		if($form->getSubmitValue('submited') && $last_submited == 0 && $form->validate()) {
+		if($form->getSubmitValue('submited') && $form->validate()) {
 			if($form->process(array(&$this, 'submit_mk_folder')))
 				location(array());
 		} else {	
@@ -207,7 +207,7 @@ class Apps_Gallery extends Module {
 		return true;
 	}
 	
-	public function rm_folder($last_submited = 0) {
+	public function rm_folder() {
 		$dir = $this->get_module_variable_or_unique_href_variable('dir', "");
 		$user = $this->get_module_variable_or_unique_href_variable('user', $this->user);
 		$dirs = $this->getDirsRecursive($this->root.$this->user, "/^[^\.].*$/");
@@ -270,7 +270,7 @@ class Apps_Gallery extends Module {
 		
 		$form->addElement('submit', 'submit_button', $lang->ht('Remove'));
 		
-		if($form->getSubmitValue('submited') && $last_submited == 0 && $form->validate()) {
+		if($form->getSubmitValue('submited') && $form->validate()) {
 			if($form->process(array(&$this, 'submit_rm_folder'))) {
 				location(array());
 			}
@@ -299,7 +299,7 @@ class Apps_Gallery extends Module {
 		//print "</span>";
 		return true;
 	}
-	public function share_folders($last_submited = 0) {
+	public function share_folders() {
 		$dir = $this->get_module_variable_or_unique_href_variable('dir', "");
 		$user = $this->get_module_variable_or_unique_href_variable('user', $this->user);
 		$form = & $this->init_module('Libs/QuickForm');
@@ -365,7 +365,7 @@ class Apps_Gallery extends Module {
 		
 		
 		$form->addElement('submit', 'submit_button', $lang->ht('Share selected'));
-		if($form->getSubmitValue('submited') && $last_submited == 0 && $form->validate()) {
+		if($form->getSubmitValue('submited') && $form->validate()) {
 			if($form->process(array(&$this, 'submit_share_folders'))) {
 				location(array());
 			}
@@ -393,8 +393,10 @@ class Apps_Gallery extends Module {
 		return true;
 	}
 	
-	public function upload_image($last_submited = 0) {
-		$this->set_module_variable('action', 'upload');
+	public function upload() {
+		if($this->is_back()) return false;
+		Base_ActionBarCommon::add('back',$this->lang->ht('Back to Gallery'),$this->create_back_href());
+
 		$dirs = $this->getDirsRecursive($this->root.$this->user, "/^[^\.].*$/");
 		$dir = $this->get_module_variable_or_unique_href_variable('dir', "");
 		$user = $this->get_module_variable_or_unique_href_variable('user', $this->user);
@@ -481,18 +483,37 @@ class Apps_Gallery extends Module {
 		$form->addElement('static',null,$this->lang->t('Upload status'),'<div id="upload_status"></div>');
 		$form->addElement('submit', 'button', $this->lang->ht('Upload'), "onClick=\"document.getElementById('upload_status').innerHTML='uploading...'; submit(); disabled=true;\"");
 		
-		if($form->validate() && $last_submited == 0) {
+		if($form->validate()) {
 			if($form->process(array($this,'submit_all'))) {
-				$this->upload_image(13);
+				location(array());
 			}
 		} else {
 			
 			$form->display();
 		}
+		return true;
 	}
 
-	public function show() {
-			$this->set_module_variable('action', 'show');
+	
+	public function manage() {
+		if($this->is_back()) return false;
+		Base_ActionBarCommon::add('back',$this->lang->ht('Back to Gallery'),$this->create_back_href());
+		
+		$this->lang = & $this->pack_module('Base/Lang');
+
+		$tb = & $this->init_module('Utils/TabbedBrowser');
+		$tb->set_tab($this->lang->t('Add folder'),array($this, 'mk_folder'));
+		$tb->set_tab($this->lang->t('Remove folder'),array($this, 'rm_folder'));
+		$tb->set_tab($this->lang->t('Share folders'),array($this, 'share_folders'));
+		$tb->body();
+		$tb->tag();
+		return true;
+	}
+	
+	public function body() {
+			Base_ActionBarCommon::add('add',$this->lang->ht('Upload'),$this->create_callback_href(array($this,'upload')));
+			Base_ActionBarCommon::add('settings',$this->lang->ht('Manage Folders'),$this->create_callback_href(array($this,'manage')));
+
 			$dir = $this->get_module_variable_or_unique_href_variable('dir', "");
 			$user = $this->get_module_variable_or_unique_href_variable('user', $this->user);
 			
@@ -640,59 +661,6 @@ class Apps_Gallery extends Module {
 		$theme->assign('images', $images->toHtml($this->root.$user."/".$dir));
 		$images->expand();
 		$theme->display();
-	}
-	
-	public function set_action($action) {
-		$this->set_module_variable('action', $action);
-	}
-	public function menu_main($action) {
-		/*$tb = & $this->init_module('Utils/TabbedBrowser');
-		$tb->set_tab($this->lang->t('View'), array($this, 'show'));
-		if($this->user > 0) {
-			$tb->set_tab($this->lang->t('Upload'), array($this, 'upload_image'));
-			$tb->set_tab($this->lang->t('Manage Folders'), array($this, 'menu_manage'));
-		}
-		$tb->body();
-		$tb->tag();
-		*/
-		if(Base_AclCommon::i_am_user()) {
-			if ($action === 'show') {
-				Base_ActionBarCommon::add('add',$this->lang->ht('Upload'),$this->create_callback_href(array($this,'set_action'), 'upload'));
-				Base_ActionBarCommon::add('settings',$this->lang->ht('Manage Folders'),$this->create_callback_href(array($this,'set_action'), 'setup'));
-			} else
-				Base_ActionBarCommon::add('back',$this->lang->ht('Back to Gallery'),$this->create_callback_href(array($this,'set_action'), 'show'));
-		}
-	}
-	
-	public function menu_manage($manage) {
-		$this->set_module_variable('action', 'setup');
-		$this->lang = & $this->pack_module('Base/Lang');
-
-		$tb = & $this->init_module('Utils/TabbedBrowser');
-		$tb->set_tab($this->lang->t('Add folder'),array($this, 'mk_folder'));
-		$tb->set_tab($this->lang->t('Remove folder'),array($this, 'rm_folder'));
-		$tb->set_tab($this->lang->t('Share folders'),array($this, 'share_folders'));
-		$tb->body();
-		$tb->tag();
-	}
-	
-	public function body( $arg ) {
-		$this->init();
-		$action = $this->get_module_variable('action','show');
-		$this->menu_main($action);
-		switch($action) {
-			case 'setup':
-				$this->menu_manage();
-				break;
-			case 'upload':
-				$this->upload_image();
-				break;
-			case 'setup':
-			default:
-				$this->show();
-				break;
-			
-		}
 	}
 }
 ?>
