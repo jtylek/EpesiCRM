@@ -19,7 +19,6 @@ $session_id = null;
 $request_id = null;
 $true_utf8 = null;
 $errors = '';
-file_put_contents('/tmp/dupa',print_r($_POST,true));
 $req = $_POST['req'];
 
 if(!$req){

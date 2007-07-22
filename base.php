@@ -54,8 +54,6 @@ class Base extends Epesi {
 		if($history_call)
 			$this->alert($history_call);
 			
-		file_put_contents('/tmp/dupa-h',$cl_id.': '.$url);
-		
 		if($url) {
 			parse_str($url, $_POST);
 			$_GET = $_REQUEST = & $_POST;
