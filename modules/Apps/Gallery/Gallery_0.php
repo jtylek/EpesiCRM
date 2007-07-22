@@ -379,25 +379,15 @@ class Apps_Gallery extends Module {
 	}
 	
 	////////////////////////////////////////////////////////////////////////
-	public function submit_all($data) {
-		copy($this->get_module_variable('uploaded_file'), $this->root.$this->user.'/'.$this->get_module_variable('originally_uploaded_file'));
-		print 'Successfully uploaded "' . $data['uploaded_file'] . '" to "' . $data['target'] . '".<br>';
-		$image = & $this->init_module('Utils/Image');
-		$image->load($data['root'].$data['target'].$data['uploaded_file']);
-		$image->create_thumb(650, 450);
-		$image->display_thumb(120);
-		unset($data);
-		print '2';
-		return true;
-	}
-	
 	public function submit_upload($file, $ory, $data) {
 		print 'Successfully uploaded "' . $ory . '" to "' . $data['target'] . '".<br>';
 		
-		//copy($file, $this->root.$this->user.'/'.$data['target'].$ory);
-		$this->set_module_variable('uploaded_file', $file);
-		$this->set_module_variable('originally_uploaded_file', $ory);
-		print '1';
+		copy($this->get_module_variable('uploaded_file'), $this->root.$this->user.'/'.$this->get_module_variable('originally_uploaded_file'));
+		$image = & $this->init_module('Utils/Image');
+		$image->load($data['root'].$data['target'].$ory);
+		$image->create_thumb(650, 450);
+		$image->display_thumb(120);
+		return true;
 	}
 	
 	public function upload() {
