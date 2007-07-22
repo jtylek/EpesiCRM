@@ -88,7 +88,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		if ($this->is_back()) return false;
 		if (!isset($this->lang)) $this->lang = & $this->pack_module('Base/Lang');		
 
-		$form = & $this->init_module('Libs/QuickForm',$this->lang->t('Creating new langpack...',true),'new_langpack');
+		$form = & $this->init_module('Libs/QuickForm',$this->lang->t('Creating new langpack...'),'new_langpack');
 		$form -> addElement('header',null,$this->lang->t('Create new langpack'));
 		$form -> addElement('text','code',$this->lang->t('Language code'),array('maxlength'=>2));
 		$form->registerRule('check_if_langpack_exists', 'callback', 'check_if_langpack_exists', &$this);

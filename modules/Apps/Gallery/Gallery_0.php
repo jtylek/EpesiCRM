@@ -267,7 +267,7 @@ class Apps_Gallery extends Module {
 		$form->addRule('target', $lang->t('Select a folder'), 'required');
 		$tree->sort();
 		
-		$form->addElement('submit', 'submit_button', $lang->t('Remove',true));
+		$form->addElement('submit', 'submit_button', $lang->ht('Remove'));
 		
 		if($form->getSubmitValue('submited') && $last_submited == 0 && $form->validate()) {
 			if($form->process(array(&$this, 'submit_rm_folder'))) {
@@ -363,7 +363,7 @@ class Apps_Gallery extends Module {
 		$tree->sort();
 		
 		
-		$form->addElement('submit', 'submit_button', $lang->t('Share selected',true));
+		$form->addElement('submit', 'submit_button', $lang->ht('Share selected'));
 		if($form->getSubmitValue('submited') && $last_submited == 0 && $form->validate()) {
 			if($form->process(array(&$this, 'submit_share_folders'))) {
 				$this->share_folders(13);
@@ -470,15 +470,15 @@ class Apps_Gallery extends Module {
 		$form->addElement('hidden','uploaded_file');
 		$form->addElement('hidden','form_name', $form->getAttribute('name'));
 
-		$s = $form->get_submit_form_js(false,$this->lang->t('Processing file...',true));
+		$s = $form->get_submit_form_js(false,$this->lang->t('Processing file...'));
 		$s = str_replace("saja.","parent.saja.",$s);
 		$s = str_replace("serialize_form","parent.serialize_form",$s);
 
 		$form->addElement('hidden','submit_js',$s);
-		$form->addElement('file', 'xls', $this->lang->t('Specify file',true), array('id'=>'import_filename'));
+		$form->addElement('file', 'xls', $this->lang->t('Specify file'), array('id'=>'import_filename'));
 		eval_js('focus_by_id(\'import_filename\');');
 		$form->addElement('static',null,$this->lang->t('Upload status'),'<div id="upload_status"></div>');
-		$form->addElement('submit', 'button', $this->lang->t('Upload',true), "onClick=\"document.getElementById('upload_status').innerHTML='uploading...'; submit(); disabled=true;\"");
+		$form->addElement('submit', 'button', $this->lang->ht('Upload'), "onClick=\"document.getElementById('upload_status').innerHTML='uploading...'; submit(); disabled=true;\"");
 		
 		if($form->validate() && $last_submited == 0) {
 			if($form->process(array($this,'submit_all'))) {

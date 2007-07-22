@@ -258,16 +258,16 @@ class Base_Menu extends Module {
 		$home_menu = array();
 		$admin_menu['__submenu__'] = 1;
 		$tools_menu = array($lang->ht('Tools')=>array_merge($tools_menu,array('__submenu__' => 1)));
-//		$home_menu[$lang->t('Home',true)] = array_merge($admin_menu,$tools_menu,array('__split__'=>1),$modules_menu);
+//		$home_menu[$lang->t('Home')] = array_merge($admin_menu,$tools_menu,array('__split__'=>1),$modules_menu);
 		$home_menu[$lang->ht('Home')] = array_merge($modules_menu,array('__split__'=>1),$admin_menu,$tools_menu);
 
 		// putting all menus into menu array
 		$menu = array();
-//		if (!empty($modules_menu)) $menu[$lang->t('Modules',true)] = $modules_menu;
+//		if (!empty($modules_menu)) $menu[$lang->t('Modules')] = $modules_menu;
 		$menu = array_merge($menu,$home_menu);
 		$menu = array_merge($menu,$qaccess_menu);
 		$menu = array_merge($menu,$current_module_menu);
-//		if (!empty($tools_menu)) $menu[$lang->t('Tools',true)] = $tools_menu;
+//		if (!empty($tools_menu)) $menu[$lang->t('Tools')] = $tools_menu;
 
 		// preparing menu string
 		$menu_mod = & $this->init_module("Utils/Menu", "horizontal");

@@ -109,7 +109,7 @@ class Apps_Forum extends Module {
 		if ($this->is_back()) return false;
 		if (!isset($this->lang)) $this->lang = & $this->pack_module('Base/Lang');		
 
-		$form = & $this->init_module('Libs/QuickForm',$this->lang->t('Creating new board...',true),'add_board');
+		$form = & $this->init_module('Libs/QuickForm',$this->lang->t('Creating new board...'),'add_board');
 		$form -> addElement('header',null,$this->lang->t('Create new board'));
 		$form -> addElement('text','name',$this->lang->t('Name'));
 		$form -> addRule('name', $this->lang->t('Field required'), 'required');
