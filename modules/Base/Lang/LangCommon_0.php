@@ -36,7 +36,7 @@ class Base_LangCommon {
 	 * @param string string to translate
 	 * @return string
 	 */
-	 public static function ts($group, $original, array $arg) {
+	 public static function ts($group, $original, array $arg=array()) {
 		global $translations;
 		$group = str_replace('/','_',$group);
 		

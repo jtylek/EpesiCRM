@@ -98,7 +98,7 @@ class Base_Lang extends Module {
 	 * @param array array of arguments to put in the text
 	 * @return string translated version of given text
 	 */
-	public function t($original, array $arg) {
+	public function t($original, array $arg=array()) {
 		return $this->trans($original,$arg,false);
 	}
 	
@@ -120,14 +120,14 @@ class Base_Lang extends Module {
 	 * @param array array of arguments to put in the text
 	 * @return string translated version of given text
 	 */
-	public function ht($original, array $arg) {
+	public function ht($original, array $arg=array()) {
 		return $this->trans($original,$arg,true);
 	}
 
 	/**
 	 * For internal use only.
 	 */
-	public function trans($original, array $arg, $hidden=false) {
+	public function trans($original, array $arg=array(), $hidden=false) {
 		global $translations, $base;
 
 		if(!array_key_exists($this->parent_module, $translations) || 

@@ -102,10 +102,10 @@ class Utils_Wizard extends Module {
 		
 		if($this->curr_page<$this->counter && $this->curr_page>=0) {
 			if(empty($this->history)) {
-				$this->form[$this->curr_page]->addElement('submit', 'button_next', Base_LangCommon::ts('Wizard','Next',true));
+				$this->form[$this->curr_page]->addElement('submit', 'button_next', Base_LangCommon::ts('Wizard','Next'));
 			} else {
-				$button_prev = HTML_QuickForm::createElement('button', 'button_prev', Base_LangCommon::ts('Wizard','Prev',true), $this->create_back_href());
-				$button_next = HTML_QuickForm::createElement('submit', 'button_next', Base_LangCommon::ts('Wizard','Next',true));
+				$button_prev = HTML_QuickForm::createElement('button', 'button_prev', Base_LangCommon::ts('Wizard','Prev'), $this->create_back_href());
+				$button_next = HTML_QuickForm::createElement('submit', 'button_next', Base_LangCommon::ts('Wizard','Next'));
 				$this->form[$this->curr_page]->addGroup(array($button_prev, $button_next));
 			}
 
