@@ -23,10 +23,9 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_Admin extends Module {
 		
 	public function body($arg) {
-		
-		if($_REQUEST['menu_click']!='Base_Admin')
-			$module = $this->get_module_variable_or_unique_href_variable('href');
-		elseif(isset($_REQUEST['admin_href'])) {
+		$module = $this->get_module_variable_or_unique_href_variable('href');
+
+		if(isset($_REQUEST['admin_href'])) {
 			$module = $_REQUEST['admin_href'];
 			$this->set_module_variable('href', $module);
 		}

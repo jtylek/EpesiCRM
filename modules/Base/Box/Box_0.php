@@ -69,12 +69,24 @@ class Base_Box extends Module {
 			if(ModuleManager::is_installed($v['module'])==-1) {
 				if(Base_AclCommon::i_am_sa()) print($lang->t("Please install %s module or choose another theme!",$v['module'])."<br><a ".$this->create_href(array('box_main_module'=>'Base/Setup')).">".$lang->t('Manage modules').'</a><br><a '.$this->create_href(array('box_main_module'=>'Base/Theme/Administrator')).'>'.$lang->t("Choose another theme").'</a>');
 			} else {
+				$module_type = str_replace('/','_',$v['module']);
+				$this->modules[$k] = & ModuleManager::new_instance($module_type,$this,$v['name']);
+
+				if(isset($href))
+					$this->modules[$k]->clear_module_variables();
+
+				if(method_exists($this->modules[$k],'construct')) {
+					ob_start();
+					$this->modules[$k]->construct();
+					ob_end_clean();
+				}
+		
 				if(isset($v['function']))
-					$this->modules[$k] = call_user_func(array($this,'pack_module'),$v['module'],$v['arguments'],$v['function'],null,$v['name']);
+					$this->display_module($this->modules[$k],$v['arguments'],$v['function']);
 				elseif($v['arguments'])
-					$this->modules[$k] = call_user_func(array($this,'pack_module'),$v['module'],$v['arguments'],'body',null,$v['name']);
+					$this->display_module($this->modules[$k],$v['arguments']);
 				else
-					$this->modules[$k] = call_user_func(array($this,'pack_module'),$v['module'],null,'body',null,$v['name']);
+					$this->display_module($this->modules[$k]);
 			}
 			$theme->assign($k,ob_get_contents());
 			ob_end_clean();

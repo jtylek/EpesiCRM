@@ -184,6 +184,7 @@ abstract class Module {
 		return $session['__module_vars__'][$this->get_path()][$name] = $value;
 	}
 	
+
 	/**
 	 * Returns value of a module variable. If the variable is not set, function will return value given as second parameter.
 	 * For details concerning module variables, see set_module_variable. 
@@ -242,6 +243,15 @@ abstract class Module {
 	public final function unset_module_variable($name) {
 		$session = & $GLOBALS['base']->get_session();
 		unset($session['__module_vars__'][$this->get_path()][$name]);
+	}
+	
+	/**
+	 * Unset all module variables.
+	 * For details concerning module variables see set_module_variable. 
+	 */
+	public final function clear_module_variables() {
+		$session = & $GLOBALS['base']->get_session();
+		unset($session['__module_vars__'][$this->get_path()]);
 	}
 	
 	/**

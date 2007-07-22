@@ -40,7 +40,6 @@ class Apps_Forum extends Module {
 	}
 	
 	public function view_board($board){
-		if($_REQUEST['menu_click'] && !isset($_REQUEST['view_board'])) return false;
 		if ($this->is_back()) return false;
 		if (!isset($this->lang)) $this->lang = & $this->pack_module('Base/Lang');		
 		$ret = DB::Execute('SELECT id, topic FROM apps_forum_thread WHERE apps_forum_board_id=%d',$board);
@@ -76,7 +75,6 @@ class Apps_Forum extends Module {
 	}
 
 	public function view_thread($board,$thread){
-		if($_REQUEST['menu_click']) return false;
 		if ($this->is_back()) return false;
 		if (!isset($this->lang)) $this->lang = & $this->pack_module('Base/Lang');		
 		$board_name = DB::GetOne('SELECT name FROM apps_forum_board WHERE id = %d',$board);
@@ -108,7 +106,6 @@ class Apps_Forum extends Module {
 	}
 
 	public function add_board(){
-		if($_REQUEST['menu_click']) return false;
 		if ($this->is_back()) return false;
 		if (!isset($this->lang)) $this->lang = & $this->pack_module('Base/Lang');		
 
@@ -143,7 +140,6 @@ class Apps_Forum extends Module {
 	}
 
 	public function new_thread($board){
-		if($_REQUEST['menu_click']) return false;
 		if ($this->is_back()) return false;
 		if (!isset($this->lang)) $this->lang = & $this->pack_module('Base/Lang');		
 

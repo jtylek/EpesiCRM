@@ -399,11 +399,6 @@ class Apps_Gallery extends Module {
 		$user = $this->get_module_variable_or_unique_href_variable('user', $this->user);
 		$this->lang = & $this->pack_module('Base/Lang');
 
-		if($_REQUEST['menu_click']) {
-			$this->unset_module_variable('data');
-			$this->unset_module_variable('create_leads');
-		}
-		
 		if($this->isset_module_variable('data'))
 			return $this->process_data();
 		
