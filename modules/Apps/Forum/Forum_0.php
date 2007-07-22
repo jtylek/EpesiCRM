@@ -15,10 +15,12 @@ class Apps_Forum extends Module {
 	public function body($arg) {
 		$this->lang = & $this->pack_module('Base/Lang');		
 			
-		$view_board = $_REQUEST['view_board'];
+		$view_board = $this->get_module_variable('view_board',$_REQUEST['view_board']);
 		if ($view_board) {
-			$this->view_board($view_board);
-			return;
+			if($this->view_board($view_board))
+				return;
+			else
+				$this->unset_module_variable('view_board');
 		}
 			
 		$ret = DB::Execute('SELECT id, name, descr FROM apps_forum_board');
