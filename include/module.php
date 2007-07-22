@@ -482,6 +482,7 @@ abstract class Module {
 		}
 		if(!is_array($args)) $args = array($args);
 		$callbacks = & $this->get_module_variable('__callbacks__',array());
+		if(array_key_exists($name,$callbacks)) unset($callbacks[$name]);
 		$callbacks[$name] = array('func'=>$func,'args'=>$args);
 	} 
 	
