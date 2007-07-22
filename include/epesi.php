@@ -18,7 +18,7 @@ class Epesi extends saja {
 	 * 
 	 * @param string client id
 	 */
-	public function init($cl) {
+	public final function init($cl) {
 		$this->client_id = $cl;
 		$this->jses = array();
 		ModuleManager :: load_modules();
@@ -29,7 +29,7 @@ class Epesi extends saja {
 	 * 
 	 * @param string javascript code
 	 */
-	public function js($js) {
+	public final function js($js) {
 		if(STRIP_OUTPUT)
 			$this->jses[] = strip_js($js);
 		else
@@ -41,7 +41,7 @@ class Epesi extends saja {
 	 * 
 	 * @return string client id
 	 */
-	public function get_client_id() {
+	public final function get_client_id() {
 	        return $this->client_id;
 	}
 	
@@ -50,7 +50,7 @@ class Epesi extends saja {
 	 * 
 	 * @return mixed ajax session
 	 */
-	public function & get_session() {
+	public final function & get_session() {
 		return $_SESSION['cl'.$this->client_id]['stable'];
 	}
 
@@ -59,14 +59,14 @@ class Epesi extends saja {
 	 * 
 	 * @return mixed ajax temporary session
 	 */
-	public function & get_tmp_session() {
+	public final function & get_tmp_session() {
 		return $_SESSION['cl'.$this->client_id]['tmp'];
 	}
 
 	/**
 	 * Executes list of javascrpit commands gathered with js() function.
 	 */
-	public function call_jses() {
+	public final function call_jses() {
 		foreach($this->jses as $cc)
 			parent::js($cc);
 		$this->jses=array();

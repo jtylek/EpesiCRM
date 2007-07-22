@@ -235,7 +235,7 @@ class Saja {
 				if($i) $inner .= $this->argument_separator;
 				if($property)
 					$inner .= "'+saja.Get('$id','$property')+'";
-				else if($arg)
+				else if($arg!=='')
 					$inner .= "'+saja.Get($arg)+'";
 				else
 					$inner .= "'+saja.Get($id)+'";
@@ -249,7 +249,7 @@ class Saja {
 	{
 		$vals = array();
 		foreach(explode($seperator, $str) as $val)
-			if($val)
+			if($val!=='')
 				$vals[] = trim($val);
 		return $vals;
 	}

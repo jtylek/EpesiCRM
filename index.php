@@ -30,17 +30,18 @@ if(!in_array('modules',$tables) || !in_array('variables',$tables) || !in_array('
 	die('Database structure you are using is apparently out of date or damaged. If you didn\'t perform application update recently you should try to restore the database. Otherwise, please refer to epesi documentation in order to perform database update.');
 
 require_once('include/session.php');
+session_start();
 
 global $saja;
 $saja = new saja();
 $saja->set_process_file('base.php');
-$saja->set_true_utf8(true);
+$saja->set_true_utf8(false);
 if(SECURE_HTTP)
     $saja->secure_http();
 
 $client_id = isset($_SESSION['num_of_clients'])?$_SESSION['num_of_clients']:0;
 $client_id_next = $client_id+1;
-if($client_id_next==5) $client_id_next=0;
+if($client_id_next==2) $client_id_next=0;
 $_SESSION['num_of_clients'] = $client_id_next;
 unset($_SESSION['cl'.$client_id]);
 ?>
@@ -101,6 +102,7 @@ unset($_SESSION['cl'.$client_id]);
 			    case -1: history_on=1;
 			    		return;
 			    case 1: <?php print $saja->run("process($client_id,'',history_id)"); ?>
+			    
 			}
 		}
 		
@@ -110,7 +112,9 @@ unset($_SESSION['cl'.$client_id]);
 		}
 		
 		history_add(0);
+
 		<?php print $saja->run("process(client_id,'',0)"); ?>
+
 			
 		unFocus.History.addEventListener('historyChange',history_call);
 		

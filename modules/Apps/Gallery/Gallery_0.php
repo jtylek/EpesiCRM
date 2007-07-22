@@ -474,7 +474,7 @@ class Apps_Gallery extends Module {
 		);
 		$tree->sort();
 		
-		$form->addElement('static', $tree->toHtml()); //TUTAJ sie sypie
+		$form->addElement('static', $tree->toHtml());
 		
 		$this->display_module($form, array( array($this,'submit_upload') ));
 		

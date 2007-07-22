@@ -50,6 +50,11 @@ class Base extends Epesi {
 
 	public function process($cl_id, $url, $history_call=false,$refresh=false) {
 		$url = str_replace('&amp;','&',$url);
+
+		if($history_call)
+			$this->alert($history_call);
+			
+		file_put_contents('/tmp/dupa-h',$cl_id.': '.$url);
 		
 		if($url) {
 			parse_str($url, $_POST);
