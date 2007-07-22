@@ -18,7 +18,14 @@ class Utils_FileUpload extends Module {
 		$elems[] = $arr[1];
 		return call_user_func_array(array($this->form,'addElement'),$arr);
 	}
-
+	
+	public function createElement() {
+		$arr = func_get_args();
+		if($arr[0]=='submit') trigger_error('Unable to add submit element to Utils/FileUpload',E_USER_ERROR);
+		$elems[] = $arr[1];
+		return call_user_func_array(array($this->form,'createElement'),$arr);
+	}
+	
 	public function addRule() {
 		$arr = func_get_args();
 		return call_user_func_array(array($this->form,'addRule'),$arr);
