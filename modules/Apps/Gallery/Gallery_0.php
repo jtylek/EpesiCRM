@@ -176,7 +176,7 @@ class Apps_Gallery extends Module {
 		
 		
 		$form->addElement('text', 'new', 'New Folder:', array('value'=>''));
-		$form->addElement('submit', 'submit_button', $lang->t('Create',true));
+		$form->addElement('submit', 'submit_button', $lang->ht('Create'));
 		
 		if($form->getSubmitValue('submited') && $last_submited == 0 && $form->validate()) {
 			if($form->process(array(&$this, 'submit_mk_folder')))
