@@ -41,7 +41,7 @@ if(SECURE_HTTP)
 
 $client_id = isset($_SESSION['num_of_clients'])?$_SESSION['num_of_clients']:0;
 $client_id_next = $client_id+1;
-if($client_id_next==2) $client_id_next=0;
+if($client_id_next==5) $client_id_next=0;
 $_SESSION['num_of_clients'] = $client_id_next;
 unset($_SESSION['cl'.$client_id]);
 ?>
