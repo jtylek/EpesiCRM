@@ -39,6 +39,8 @@ class Base_MainModuleIndicator extends Module {
 					$caption = $base_title;
 				eval_js('document.title=\''.addslashes($caption).'\'');
 			}
+		} else {
+				eval_js('document.title=\''.addslashes(Variable::get('base_page_title')).'\'');
 		}
 	}
 	
