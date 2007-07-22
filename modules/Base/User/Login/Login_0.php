@@ -38,7 +38,7 @@ class Base_User_Login extends Module {
 				Base_UserCommon::set_my_user_id();
 				location(array());
 			} else {
-				$theme->assign('logged_as', $this->lang->t('Logged as %s.',Acl::get_user()));
+				$theme->assign('logged_as', $this->lang->t('Logged as %s.',array(Acl::get_user())));
 				$theme->assign('logout', '<a '.$this->create_unique_href(array('logout'=>1)).'>'.$this->lang->t('Logout').'</a>');
 				$theme->display();
 			}
