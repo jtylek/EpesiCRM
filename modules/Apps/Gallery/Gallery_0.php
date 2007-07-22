@@ -393,6 +393,7 @@ class Apps_Gallery extends Module {
 	
 	public function submit_upload($file, $ory, $data) {
 		print 'Successfully uploaded "' . $ory . '" to "' . $data['target'] . '".<br>';
+		print_r($data);
 		
 		//copy($file, $this->root.$this->user.'/'.$data['target'].$ory);
 		$this->set_module_variable('uploaded_file', $file);
@@ -473,9 +474,7 @@ class Apps_Gallery extends Module {
 		);
 		$tree->sort();
 		
-		
-		
-		$form->addElement('html', '</tr><tr><td colspan=2>'.$tree->toHtml().'</td></tr><tr>');
+		$form->addElement('static', $tree->toHtml()); //TUTAJ sie sypie
 		
 		$this->display_module($form, array( array($this,'submit_upload') ));
 		
@@ -500,142 +499,142 @@ class Apps_Gallery extends Module {
 	}
 	
 	public function body() {
-			Base_ActionBarCommon::add('add',$this->lang->ht('Upload'),$this->create_callback_href(array($this,'upload')));
-			Base_ActionBarCommon::add('settings',$this->lang->ht('Manage Folders'),$this->create_callback_href(array($this,'manage')));
+		Base_ActionBarCommon::add('add',$this->lang->ht('Upload'),$this->create_callback_href(array($this,'upload')));
+		Base_ActionBarCommon::add('settings',$this->lang->ht('Manage Folders'),$this->create_callback_href(array($this,'manage')));
 
-			$dir = $this->get_module_variable_or_unique_href_variable('dir', "");
-			$user = $this->get_module_variable_or_unique_href_variable('user', $this->user);
-			
-			$uname = ($user == $this->user ? 'My Gallery' : Base_UserCommon::get_user_login($user)."'s Gallery") ;
-			
-			$dir_listing = $this->getDirs($this->root.$user."/".$dir, "/^[^\.].*$/");
-			$parent_dir = explode("/", $dir);
-			
-			// PATH
-			$path = & $this->init_module('Utils/Path');
-			//$main_ch = array('<a class=gallery_path_child_link "'.$this->create_unique_href(array('dir'=>"", 'user'=>$this->user)).'" class=path_link  id=\'gallery_path_link_'.$this->_id.'_'.$this->_sub.'\')">My Gallery</a>');
-			//$ret = DB::Execute('SELECT user_id, media FROM gallery_shared_media where not (user_id = %s) group by user_id', array($this->user));
-			//while($row = $ret->FetchRow() ) {
-			//	$main_ch[] ="<a class=gallery_path_child_link ".$this->create_unique_href(array('dir'=>"", 'user'=>$row['user_id'])).">".Base_UserCommon::get_user_login($row['user_id'])."'s Gallery</a>";
-			//}
-			//$path->set_title( '<a class=gallery_path_link "'.$this->create_unique_href(array('dir'=>"", 'user'=>$user)).'" class=path_link  id=\'gallery_path_link_'.$this->_id.'_'.$this->_sub.'\')">'.$uname.'</a>', $main_ch );
-			$c = '';
-			if($user == $this->user) {
-				$path->set_title( '<a class=gallery_path_link "'.$this->create_unique_href(array('dir'=>"", 'user'=>$user)).'" class=path_link  id=\'gallery_path_link_'.$this->_id.'_'.$this->_sub.'\')">'.$uname.'</a>' );
-			
-				foreach($parent_dir as $k => $v) {
-					if($v != "") {
-						$children_t = $this->getDirs($this->root.$user."/".$c);
-						if(count($children_t) > 1) {
-							$children = array();
-							foreach($children_t as $kk => $vv) {
-								$children[] = "<a class=gallery_path_child_link ".$this->create_unique_href(array('dir'=>$c."/".$vv, 'parent_dir'=>$c, 'user'=>$this->user)).">".$vv."</a>";
-							}
-							$c .= "/".$v;
-							$path->add_node('<a class=gallery_path_link "'.$this->create_unique_href(array('dir'=>$c, 'parent_dir'=>$dir, 'user'=>$this->user)).'" class=path_link  id=\'gallery_path_link_'.$this->_id.'_'.$this->_sub.'\')">'.$v.'</a>', $children);
-						} else {
-							$c .= "/".$v;
-							$path->add_node('<a class=gallery_path_link "'.$this->create_unique_href(array('dir'=>$c, 'parent_dir'=>$dir, 'user'=>$this->user)).'" class=path_link  id=\'gallery_path_link_'.$this->_id.'_'.$this->_sub.'\')">'.$v.'</a>');
-							
+		$dir = $this->get_module_variable_or_unique_href_variable('dir', "");
+		$user = $this->get_module_variable_or_unique_href_variable('user', $this->user);
+		
+		$uname = ($user == $this->user ? 'My Gallery' : Base_UserCommon::get_user_login($user)."'s Gallery") ;
+		
+		$dir_listing = $this->getDirs($this->root.$user."/".$dir, "/^[^\.].*$/");
+		$parent_dir = explode("/", $dir);
+		
+		// PATH
+		$path = & $this->init_module('Utils/Path');
+		//$main_ch = array('<a class=gallery_path_child_link "'.$this->create_unique_href(array('dir'=>"", 'user'=>$this->user)).'" class=path_link  id=\'gallery_path_link_'.$this->_id.'_'.$this->_sub.'\')">My Gallery</a>');
+		//$ret = DB::Execute('SELECT user_id, media FROM gallery_shared_media where not (user_id = %s) group by user_id', array($this->user));
+		//while($row = $ret->FetchRow() ) {
+		//	$main_ch[] ="<a class=gallery_path_child_link ".$this->create_unique_href(array('dir'=>"", 'user'=>$row['user_id'])).">".Base_UserCommon::get_user_login($row['user_id'])."'s Gallery</a>";
+		//}
+		//$path->set_title( '<a class=gallery_path_link "'.$this->create_unique_href(array('dir'=>"", 'user'=>$user)).'" class=path_link  id=\'gallery_path_link_'.$this->_id.'_'.$this->_sub.'\')">'.$uname.'</a>', $main_ch );
+		$c = '';
+		if($user == $this->user) {
+			$path->set_title( '<a class=gallery_path_link "'.$this->create_unique_href(array('dir'=>"", 'user'=>$user)).'" class=path_link  id=\'gallery_path_link_'.$this->_id.'_'.$this->_sub.'\')">'.$uname.'</a>' );
+		
+			foreach($parent_dir as $k => $v) {
+				if($v != "") {
+					$children_t = $this->getDirs($this->root.$user."/".$c);
+					if(count($children_t) > 1) {
+						$children = array();
+						foreach($children_t as $kk => $vv) {
+							$children[] = "<a class=gallery_path_child_link ".$this->create_unique_href(array('dir'=>$c."/".$vv, 'parent_dir'=>$c, 'user'=>$this->user)).">".$vv."</a>";
 						}
+						$c .= "/".$v;
+						$path->add_node('<a class=gallery_path_link "'.$this->create_unique_href(array('dir'=>$c, 'parent_dir'=>$dir, 'user'=>$this->user)).'" class=path_link  id=\'gallery_path_link_'.$this->_id.'_'.$this->_sub.'\')">'.$v.'</a>', $children);
+					} else {
+						$c .= "/".$v;
+						$path->add_node('<a class=gallery_path_link "'.$this->create_unique_href(array('dir'=>$c, 'parent_dir'=>$dir, 'user'=>$this->user)).'" class=path_link  id=\'gallery_path_link_'.$this->_id.'_'.$this->_sub.'\')">'.$v.'</a>');
+						
 					}
 				}
-			} else {
-				$path->set_title( $uname );
+			}
+		} else {
+			$path->set_title( $uname );
+		
+			$ret = DB::Execute('SELECT user_id, media FROM gallery_shared_media where (user_id = %s)', array($user));
+			$children = array();
+			while($row = $ret->FetchRow() ) {
+				$children[] = "<a class=gallery_path_child_link ".$this->create_unique_href(array('dir'=>$row['media'], 'parent_dir'=>'/', 'user'=>$user)).">".$row['media']."</a>";
+			}
+			$path->add_node('<a class=gallery_path_link "'.$this->create_unique_href(array('dir'=>$dir, 'parent_dir'=>'/', 'user'=>$user)).'" class=path_link  id=\'gallery_path_link_'.$this->_id.'_'.$this->_sub.'\')">'.$dir.'</a>', $children);
 			
-				$ret = DB::Execute('SELECT user_id, media FROM gallery_shared_media where (user_id = %s)', array($user));
-				$children = array();
-				while($row = $ret->FetchRow() ) {
-					$children[] = "<a class=gallery_path_child_link ".$this->create_unique_href(array('dir'=>$row['media'], 'parent_dir'=>'/', 'user'=>$user)).">".$row['media']."</a>";
-				}
-				$path->add_node('<a class=gallery_path_link "'.$this->create_unique_href(array('dir'=>$dir, 'parent_dir'=>'/', 'user'=>$user)).'" class=path_link  id=\'gallery_path_link_'.$this->_id.'_'.$this->_sub.'\')">'.$dir.'</a>', $children);
+		}
+		array_pop( $parent_dir );
+		$parent_dir = join("/", $parent_dir);
+		$dirs = array();
+		if($user == $this->user) {
+			foreach( $dir_listing as $v ) {
+				$dirs[] = "<a " . $this->create_unique_href(array('dir'=>$dir."/".$v, 'parent_dir'=>$dir, 'user'=>$this->user)) . ">". $v . "</a>";
 				
 			}
-			array_pop( $parent_dir );
-			$parent_dir = join("/", $parent_dir);
-			$dirs = array();
-			if($user == $this->user) {
-				foreach( $dir_listing as $v ) {
-					$dirs[] = "<a " . $this->create_unique_href(array('dir'=>$dir."/".$v, 'parent_dir'=>$dir, 'user'=>$this->user)) . ">". $v . "</a>";
-					
-				}
-			} else {
-				$ret = DB::Execute('SELECT user_id, media FROM gallery_shared_media where (user_id = %s)', array($user));
-				while($row = $ret->FetchRow() ) {
-					$dirs[] = "<a ".$this->create_unique_href(array('dir'=>$row['media'], 'parent_dir'=>'/', 'user'=>$user)).">".$row['media']."</a>";
-				}
+		} else {
+			$ret = DB::Execute('SELECT user_id, media FROM gallery_shared_media where (user_id = %s)', array($user));
+			while($row = $ret->FetchRow() ) {
+				$dirs[] = "<a ".$this->create_unique_href(array('dir'=>$row['media'], 'parent_dir'=>'/', 'user'=>$user)).">".$row['media']."</a>";
 			}
-			
-			// TREE
-			$dir_listing = $this->getDirsRecursive($this->root.$this->user);
-			$structure = array();
-			foreach( $dir_listing as $k => $v ) {
-				$c = & $structure;
-				$pt = explode("/", $v);
-				$up = '';
-				foreach($pt as $d) {
-					if( $d != "" ) {
-						$up .= '/'.$d;
-						if($d != "" ) {
-							if( !is_array($c[$d]) ) {
-								$c[$d] = array(
-									'name' => '<a '.$this->create_unique_href(array('dir'=>$up, 'parent_dir'=>$dir, 'user'=>$this->user)).'>'.$d.'</a>',
-									'selected' => 0,
-									'sub' => array()
-								);
-								if($up == $dir) {
-									$c[$d]['selected'] = 1;
-									$c[$d]['visible'] = 1;
-								}
+		}
+		
+		// TREE
+		$dir_listing = $this->getDirsRecursive($this->root.$this->user);
+		$structure = array();
+		foreach( $dir_listing as $k => $v ) {
+			$c = & $structure;
+			$pt = explode("/", $v);
+			$up = '';
+			foreach($pt as $d) {
+				if( $d != "" ) {
+					$up .= '/'.$d;
+					if($d != "" ) {
+						if( !is_array($c[$d]) ) {
+							$c[$d] = array(
+								'name' => '<a '.$this->create_unique_href(array('dir'=>$up, 'parent_dir'=>$dir, 'user'=>$this->user)).'>'.$d.'</a>',
+								'selected' => 0,
+								'sub' => array()
+							);
+							if($up == $dir) {
+								$c[$d]['selected'] = 1;
+								$c[$d]['visible'] = 1;
 							}
-							$c = & $c[$d]['sub'];
-								
 						}
+						$c = & $c[$d]['sub'];
+							
 					}
 				}
 			}
-			
-			$tree = & $this->init_module('Utils/Tree');
-			$tmp = ($dir == '' ? 1 : 0);
-			$tree->set_structure(array('My Gallery'=>array(
-				'selected' => $tmp, 
-				'name' => '<a '.$this->create_unique_href(array('dir'=>"", 'user'=>$this->user)).' >My Gallery</a>', 
-				'sub' => $structure
-			)));
-			$tree->sort();
-			//$tree->open_all();
-			
-			$other = & $this->init_module('Utils/Tree');
-			$structure = array();
-			$ret = DB::Execute('SELECT user_id, media FROM gallery_shared_media where not (user_id = %s)', array($this->user));
-			while($row = $ret->FetchRow() ) {
-				$c = & $structure;
-				$pt = explode("/", $row['media']);
-				$up = '';
-				if(!is_array($structure[$row['user_id']])) {
-					$structure[$row['user_id']] = array();
-					//$structure[$row['user_id']]['name'] = "<a ".$this->create_unique_href(array('dir'=>"", 'user'=>$row['user_id'])).">".Base_UserCommon::get_user_login($row['user_id'])."'s gallery</a>";
-					$structure[$row['user_id']]['name'] = Base_UserCommon::get_user_login($row['user_id'])."'s gallery";
-					$structure[$row['user_id']]['sub'] = array();
-				}
-				$tmp_struct = array( 
-					'sub'=>array(), 
-					'name'=>
-					'<a '.$this->create_unique_href(array('dir'=>$row['media'] , 'parent_dir'=>'/', 'user'=>$row['user_id'] )).'>'.$row['media'] .'</a>',
-					);
-				if($row['media'] == $dir) {
-					$tmp_struct['selected'] = 1;
-					$tmp_struct['visible'] = 1;
-				}
-				$structure[$row['user_id']]['sub'][] = $tmp_struct;
-			}
-			$other->set_structure($structure);
-			
-			
-			// IMAGES
-			$images = & $this->init_module('Utils/Gallery', $this->root.$user."/".$dir);
+		}
 		
-			
+		$tree = & $this->init_module('Utils/Tree');
+		$tmp = ($dir == '' ? 1 : 0);
+		$tree->set_structure(array('My Gallery'=>array(
+			'selected' => $tmp, 
+			'name' => '<a '.$this->create_unique_href(array('dir'=>"", 'user'=>$this->user)).' >My Gallery</a>', 
+			'sub' => $structure
+		)));
+		$tree->sort();
+		//$tree->open_all();
+		
+		$other = & $this->init_module('Utils/Tree');
+		$structure = array();
+		$ret = DB::Execute('SELECT user_id, media FROM gallery_shared_media where not (user_id = %s)', array($this->user));
+		while($row = $ret->FetchRow() ) {
+			$c = & $structure;
+			$pt = explode("/", $row['media']);
+			$up = '';
+			if(!is_array($structure[$row['user_id']])) {
+				$structure[$row['user_id']] = array();
+				//$structure[$row['user_id']]['name'] = "<a ".$this->create_unique_href(array('dir'=>"", 'user'=>$row['user_id'])).">".Base_UserCommon::get_user_login($row['user_id'])."'s gallery</a>";
+				$structure[$row['user_id']]['name'] = Base_UserCommon::get_user_login($row['user_id'])."'s gallery";
+				$structure[$row['user_id']]['sub'] = array();
+			}
+			$tmp_struct = array( 
+				'sub'=>array(), 
+				'name'=>
+				'<a '.$this->create_unique_href(array('dir'=>$row['media'] , 'parent_dir'=>'/', 'user'=>$row['user_id'] )).'>'.$row['media'] .'</a>',
+				);
+			if($row['media'] == $dir) {
+				$tmp_struct['selected'] = 1;
+				$tmp_struct['visible'] = 1;
+			}
+			$structure[$row['user_id']]['sub'][] = $tmp_struct;
+		}
+		$other->set_structure($structure);
+		
+		
+		// IMAGES
+		$images = & $this->init_module('Utils/Gallery', $this->root.$user."/".$dir);
+	
+		
 		$theme = & $this->init_module('Base/Theme');
 		$theme->assign('type', 'images');
 		$theme->assign('path', $path->toHtml());

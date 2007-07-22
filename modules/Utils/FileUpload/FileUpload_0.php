@@ -4,7 +4,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_FileUpload extends Module {
 	private $on_submit = null;
 	private $form = null;
-	private $elems = array();
 
 	public function construct() {
 		$this->lang = & $this->init_module('Base/Lang');
@@ -15,15 +14,13 @@ class Utils_FileUpload extends Module {
 	public function addElement() {
 		$arr = func_get_args();
 		if($arr[0]=='submit') trigger_error('Unable to add submit element to Utils/FileUpload',E_USER_ERROR);
-		$elems[] = $arr[1];
 		return call_user_func_array(array($this->form,'addElement'),$arr);
 	}
 	
-	public function createElement() {
+	public static function createElement() {
 		$arr = func_get_args();
 		if($arr[0]=='submit') trigger_error('Unable to add submit element to Utils/FileUpload',E_USER_ERROR);
-		$elems[] = $arr[1];
-		return call_user_func_array(array($this->form,'createElement'),$arr);
+		return call_user_func_array(array('HTML_QuickForm','createElement'),$arr);
 	}
 	
 	public function addRule() {
@@ -55,14 +52,13 @@ class Utils_FileUpload extends Module {
 		
 		if($this->form->validate()) {
 			$data = $this->form->exportValues();
-			foreach($elems as $a)
-				$other[$a] = $data[$a];
-			if(call_user_func($this->on_submit, $data['uploaded_file'], $data['original_file'], $other))
+			print_r($data);
+			if(call_user_func($this->on_submit, $data['uploaded_file'], $data['original_file'], $data))
 				location(array());
 			//cleanup all unnecessary tmp files
 			$dd = $this->get_data_dir();
 			$ls = scandir($dd);
-			$rt=microtime(true);
+			$rt = microtime(true);
 			foreach($ls as $file) {
 				$reqs = array();
 				if(!eregi('^tmp_([0-9]+).([0-9]+)$',$file, $reqs)) continue;
