@@ -150,9 +150,12 @@ class Apps_Forum extends Module {
 		$form -> addElement('text','topic',$this->lang->t('Topic'));
 		$form -> addRule('topic',$this->lang->t('Field required'),'required');
 		$form -> addElement('textarea','post',$this->lang->t('First post'),array('rows'=>4,'cols'=>40,'onBlur'=>'document.getElementsByName(\'post_content\')[0].value = document.getElementsByName(\'post\')[0].value.replace(/\n/g,\'<br>\');'));
+		$form -> addRule('post',$this->lang->t('Field required'),'required');
 		$form -> addElement('submit','submit','Submit');
 		$form -> addElement('button','cancel','Cancel',$this->create_back_href());
 		$theme->assign_form('form', $form);
+		$theme->assign('required', '<span align=top size=4 style="color:#FF0000">*</span>');
+		$theme->assign('required_description', $this->lang->t('Indicates required fields.'));
 		$theme->assign('board_name','<a '.$this->create_back_href().'>'.DB::GetOne('SELECT name FROM apps_forum_board WHERE id = %d',$board).'</a>');
 		$theme->assign('forum_boards','<a '.$this->create_back_href(2).'>'.$this->lang->t('Forum Boards').'</a>'); // TODO: Again, way to get back 2 times
 		if ($form->validate() && Base_AclCommon::i_am_user()){

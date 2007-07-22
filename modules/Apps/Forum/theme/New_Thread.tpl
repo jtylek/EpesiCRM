@@ -7,17 +7,18 @@
 		</td>
 	</tr>
 	<tr>
-		<td class="topic_label">{$form_data.topic.label}</td>
-		<td class="topic_input" colspan="2">{$form_data.topic.html}</td>
+		<td class="topic_label">{$form_data.topic.label}{$required}</td>
+		<td class="topic_input" colspan="2">{$form_data.topic.error}{$form_data.topic.html}</td>
 	</tr>
 	<tr>
-		<td class="post_label" style="vertical-align: top;">{$form_data.post.label}</td>
-		<td class="post_input" colspan="2">{$form_data.post.html}</td>
+		<td class="post_label" style="vertical-align: top;">{$form_data.post.label}{$required}</td>
+		<td class="post_input" colspan="2">{$form_data.post.error}{$form_data.post.html}</td>
 	</tr>
 	<tr>
 		<td></td>
 		<td class="submit" colspan="2" style="text-align: left; padding-top: 5px;">{$form_data.submit.html}&nbsp;{$form_data.cancel.html}</td>
 	</tr>	
 </table>
+{$required}&nbsp;{$required_description}
 
 {$form_close}
