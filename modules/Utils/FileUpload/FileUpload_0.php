@@ -51,7 +51,6 @@ class Utils_FileUpload extends Module {
 		$this->form->addElement('submit', 'button', $this->lang->ht('Upload'), "onClick=\"document.getElementById('upload_status').innerHTML='uploading...'; submit(); disabled=true;\"");
 		
 		if($this->form->validate()) {
-			$data = $this->form->exportValues();
 			$this->form->process(array($this,'submit_parent'));
 			//cleanup all unnecessary tmp files
 			$dd = $this->get_data_dir();
@@ -61,7 +60,7 @@ class Utils_FileUpload extends Module {
 				$reqs = array();
 				if(!eregi('^tmp_([0-9]+).([0-9]+)$',$file, $reqs)) continue;
 				$rtc = $reqs[1].'.'.$reqs[2];
-				if(floatval($rt)-floatval($rtc)>86400) //files older then 24h
+				if(floatval($rt)-floatval($rtc)>ini_get("session.gc_maxlifetime")) //files older then session lifetime
 					unlink($dd.'/'.$file);
 			}
 		} else
