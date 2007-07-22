@@ -50,12 +50,7 @@ if(!$errors) {
 	$REQ = $_SESSION['SAJA_PROCESS']['REQUESTS'][$request_id];
 	$proc_file = $REQ['PROCESS_FILE'];
 	$function = $REQ['FUNCTION'];
-	$use_history = $REQ['HISTORY'];
 	$true_utf8 = $REQ['UTF8'];
-	
-	//add this request to the history
-	if($use_history)
-		$_SESSION['SAJA_PROCESS']['HISTORY'][] = $_SESSION['SAJA_PROCESS']['REQUESTS'][$request_id]['HISTORY'];
 	
 	
 	global $base;
@@ -76,7 +71,7 @@ if(!$errors) {
 		$base = new myFunctions(true);
 	}
 
-	$base->set_process_file('base.php');
+	$base->set_process_file($proc_file);
 	ob_start(array('ErrorHandler','handle_fatal'));
 	$base->set_true_utf8($true_utf8);
 	$base->runFunc($function, $php);

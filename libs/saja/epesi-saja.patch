@@ -3,13 +3,15 @@ Only in saja: readme.txt
 diff -rup saja-2.8/saja.js saja/saja.js
 --- saja-2.8/saja.js	2007-07-16 20:58:00.000000000 +0200
 +++ saja/saja.js	2007-07-20 19:23:20.000000000 +0200
-@@ -1,12 +1,14 @@
+@@ -1,12 +1,15 @@
  var saja = {
  	procOn:0,
 -	history:[],
 -	historyIndex:0,
++	indicator:'sajaStatus',
  	updateIndicator: function(){
- 		var s = document.getElementById('sajaStatus');
+-		var s = document.getElementById('sajaStatus');
++		var s = document.getElementById(saja.indicator);
  		if(s)
  			s.style.visibility = saja.procOn ? 'visible' : 'hidden';
  	},
@@ -20,7 +22,7 @@ diff -rup saja-2.8/saja.js saja/saja.js
  	getReq: function(){
  		if(window.XMLHttpRequest)
  			try{return new XMLHttpRequest();}catch(e){}
-@@ -14,16 +16,10 @@ var saja = {
+@@ -14,16 +17,10 @@ var saja = {
  			try{return new ActiveXObject("Microsoft.XMLHTTP");}catch(e){
  				try{return new ActiveXObject("Msxml2.XMLHTTP");}catch(e){}}
  	},
@@ -38,7 +40,7 @@ diff -rup saja-2.8/saja.js saja/saja.js
  		saja.SendRequest(id, act, property, requestString);
  	},
  	SendRequest: function(id, act, property, requestString){
-@@ -127,32 +123,5 @@ var saja = {
+@@ -127,32 +124,5 @@ var saja = {
  			if(f[i].id)
  				vals[f[i].id] = f[i].value;
  		return vals;

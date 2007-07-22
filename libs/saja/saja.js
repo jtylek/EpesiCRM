@@ -1,7 +1,8 @@
 var saja = {
 	procOn:0,
+	indicator:'sajaStatus',
 	updateIndicator: function(){
-		var s = document.getElementById('sajaStatus');
+		var s = document.getElementById(saja.indicator);
 		if(s)
 			s.style.visibility = saja.procOn ? 'visible' : 'hidden';
 	},

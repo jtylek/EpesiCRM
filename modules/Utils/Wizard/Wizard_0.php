@@ -44,7 +44,7 @@ class Utils_Wizard extends Module {
 	public function begin_page($name) {
 		$args = func_get_args();
 		array_shift($args);
-		$this->form[$this->counter] = call_user_func(array($this,'init_module'), 'Libs/QuickForm',$args,$this->counter);
+		$this->form[$this->counter] = & $this->init_module('Libs/QuickForm',$args,$this->counter);
 		
 		if(isset($name)) {
 			$this->r_aliases[$name] = $this->counter;
