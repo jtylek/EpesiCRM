@@ -77,7 +77,7 @@ class Utils_Gallery extends Module {
 			$ret = '';
 			$image = & $this->init_module('Utils/Image');
 			
-			$images = $this->getListing("./".$dir, "/(\.png$)|(\.jpeg$)|(\.jpg$)|(\.gif$)/");
+			$images = $this->getListing("./".$dir, "/(\.png$)|(\.jpeg$)|(\.jpg$)|(\.gif$)/i");
 			
 			
 			$image_list = array();
