@@ -393,7 +393,6 @@ class Apps_Gallery extends Module {
 	
 	public function submit_upload($file, $ory, $data) {
 		print 'Successfully uploaded "' . $ory . '" to "' . $data['target'] . '".<br>';
-		print_r($data);
 		
 		//copy($file, $this->root.$this->user.'/'.$data['target'].$ory);
 		$this->set_module_variable('uploaded_file', $file);
@@ -474,8 +473,7 @@ class Apps_Gallery extends Module {
 		);
 		$tree->sort();
 		
-		file_put_contents('/tmp/dupa', $tree->toHtml());
-		//$form->addElement('static', $tree->toHtml());
+		$form->addElement('static', null, $tree->toHtml());
 		
 		$this->display_module($form, array( array($this,'submit_upload') ));
 		

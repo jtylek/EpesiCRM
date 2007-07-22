@@ -52,9 +52,7 @@ class Utils_FileUpload extends Module {
 		
 		if($this->form->validate()) {
 			$data = $this->form->exportValues();
-			print_r($data);
-			if(call_user_func($this->on_submit, $data['uploaded_file'], $data['original_file'], $data))
-				location(array());
+			$this->form->process(array($this,'submit_parent'));
 			//cleanup all unnecessary tmp files
 			$dd = $this->get_data_dir();
 			$ls = scandir($dd);
@@ -68,6 +66,11 @@ class Utils_FileUpload extends Module {
 			}
 		} else
 			$this->form->display();
+	}
+	
+	public function submit_parent($data) {
+		if(call_user_func($this->on_submit, $data['uploaded_file'], $data['original_file'], $data))
+			location(array());
 	}
 }
 
