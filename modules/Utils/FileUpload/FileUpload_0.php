@@ -2,43 +2,55 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_FileUpload extends Module {
-	private $form_header = null;
 	private $on_submit = null;
+	private $form = null;
+	private $elems = array();
 
-	public function set_header($text) {
-		$this->form_header = $text;
+	public function construct() {
+		$this->lang = & $this->init_module('Base/Lang');
+		$this->form = & $this->init_module('Libs/QuickForm', array($this->lang->ht('Uploading file...'),'modules/Utils/FileUpload/upload.php','upload_iframe',''),'file_chooser');
+		$this->form->addElement('static',null,null,'<iframe frameborder="0" id="upload_iframe", name="upload_iframe" src="" scrolling="No" height="0" width="0"></iframe>');
+	}
+
+	public function addElement() {
+		$arr = func_get_args();
+		if($arr[0]=='submit') trigger_error('Unable to add submit element to Utils/FileUpload',E_USER_ERROR);
+		$elems[] = $arr[1];
+		return call_user_func_array(array($this->form,'addElement'),$arr);
+	}
+
+	public function addRule() {
+		$arr = func_get_args();
+		return call_user_func_array(array($this->form,'addRule'),$arr);
 	}
 
 	public function set_submit_callback($sub) {
 		$this->on_submit = $sub;
 	}
 	
-	public function body($on_sub,$header) {
-		if(isset($header)) $this->form_header = $header;
+	public function body($on_sub) {
 		if(isset($on_sub)) $this->on_submit = $on_sub;
 		if(!isset($this->on_submit)) trigger_error('You have to specify "on submit" method',E_USER_ERROR);
 		
-		$this->lang = & $this->init_module('Base/Lang');
-		$f = & $this->init_module('Libs/QuickForm', array($this->lang->ht('Uploading file...'),'modules/Utils/FileUpload/upload.php','upload_iframe',''),'file_chooser');
-		$f->addElement('static',null,null,'<iframe frameborder="0" id="upload_iframe", name="upload_iframe" src="" scrolling="No" height="0" width="0"></iframe>');
-		$f->addElement('hidden','uploaded_file');
-		$f->addElement('hidden','original_file');
-		if(isset($this->form_header))
-			$f->addElement('header',null,$this->form_header);
-		$form_name = $f->getAttribute('name');
-		$f->addElement('hidden','form_name',$form_name);
+		$this->form->addElement('hidden','uploaded_file');
+		$this->form->addElement('hidden','original_file');
+		$form_name = $this->form->getAttribute('name');
+		$this->form->addElement('hidden','form_name',$form_name);
 
-		$s = $f->get_submit_form_js(false,$this->lang->ht('Processing file...'));
+		$s = $this->form->get_submit_form_js(false,$this->lang->ht('Processing file...'));
 		$s = str_replace("saja.","parent.saja.",$s);
 		$s = str_replace("serialize_form","parent.serialize_form",$s);
 
-		$f->addElement('hidden','submit_js',$s);
-		$f->addElement('file', 'file', $this->lang->ht('Specify file'));
-		$f->addElement('static',null,$this->lang->t('Upload status'),'<div id="upload_status"></div>');
-		$f->addElement('submit', 'button', $this->lang->ht('Upload'), "onClick=\"document.getElementById('upload_status').innerHTML='uploading...'; submit(); disabled=true;\"");
+		$this->form->addElement('hidden','submit_js',$s);
+		$this->form->addElement('file', 'file', $this->lang->ht('Specify file'));
+		$this->form->addElement('static',null,$this->lang->t('Upload status'),'<div id="upload_status"></div>');
+		$this->form->addElement('submit', 'button', $this->lang->ht('Upload'), "onClick=\"document.getElementById('upload_status').innerHTML='uploading...'; submit(); disabled=true;\"");
 		
-		if($f->validate()) {
-			if(call_user_func($this->on_submit,$f->exportValue('uploaded_file'),$f->exportValue('original_file')))
+		if($this->form->validate()) {
+			$data = $this->form->exportValues();
+			foreach($elems as $a)
+				$other[$a] = $data[$a];
+			if(call_user_func($this->on_submit, $data['uploaded_file'], $data['original_file'], $other))
 				location(array());
 			//cleanup all unnecessary tmp files
 			$dd = $this->get_data_dir();
@@ -52,7 +64,7 @@ class Utils_FileUpload extends Module {
 					unlink($dd.'/'.$file);
 			}
 		} else
-			$f->display();
+			$this->form->display();
 	}
 }
 
