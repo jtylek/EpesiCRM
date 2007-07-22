@@ -55,7 +55,7 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 		}
 	}
 	
-	public function upload_template($file) {
+	public function upload_template($file, $oryginal_file) {
 		$zip = new ZipArchive;
 		if ($zip->open($file) == 1) {
     			$zip->extractTo('data/Base/Theme/templates/');
