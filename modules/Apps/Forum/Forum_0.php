@@ -14,7 +14,7 @@ class Apps_Forum extends Module {
 
 	public function body($arg) {
 		$this->lang = & $this->pack_module('Base/Lang');		
-			
+
 		$view_board = $this->get_module_variable('view_board',$_REQUEST['view_board']);
 		if ($view_board) {
 			if($this->view_board($view_board))
@@ -22,7 +22,7 @@ class Apps_Forum extends Module {
 			else
 				$this->unset_module_variable('view_board');
 		}
-			
+				
 		$ret = DB::Execute('SELECT id, name, descr FROM apps_forum_board');
 		$boards = array();
 		while ($row = $ret->FetchRow()) $boards[] = array(	'descr' => $row['descr'],
@@ -119,7 +119,6 @@ class Apps_Forum extends Module {
 		$form -> addGroup(array($submit,$cancel));
 		if ($form->validate()) {
 			DB::Execute('INSERT INTO apps_forum_board (name,descr) VALUES (%s,%s)',array($form->exportValue('name'),$form->exportValue('descr')));
-			$this->unset_module_variable('action');
 			return false;
 		}
 		$form->display();
@@ -161,7 +160,6 @@ class Apps_Forum extends Module {
 			$id = DB::GetOne('SELECT id FROM apps_forum_thread WHERE topic=%s AND apps_forum_board_id=%d',array($form->exportValue('topic'),$board));
 			$comment = & $this->init_module('Utils/Comment','apps_forum_'.$this->key.'_'.$id);
 			$comment->add_post($form->exportValue('post_content'));
-			$this->set_module_variable('action','view_board');
 			return false;
 		}
 		$theme->display('New_Thread');
