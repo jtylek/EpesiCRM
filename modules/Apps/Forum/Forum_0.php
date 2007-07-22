@@ -52,8 +52,8 @@ class Apps_Forum extends Module {
 			$last_post = $posts[$post_count-1];
 			$threads[str_pad(strtotime($last_post['date']), 16, "0", STR_PAD_LEFT).'_'.$row['id']] = 
 				array(	'topic' => '<a '.$this->create_callback_href(array($this,'view_thread'),array($board,$row['id'])).'>'.$row['topic'].'</a>',
-						'posted_on' =>  $this->lang->t('Posted on %s',$last_post['date']),
-						'posted_by' =>  $this->lang->t('Posted by %s',$last_post['user']),
+						'posted_on' =>  $this->lang->t('Posted on %s',array($last_post['date'])),
+						'posted_by' =>  $this->lang->t('Posted by %s',array($last_post['user'])),
 						'post_count' => $post_count?$post_count:'0',
 						'delete' => Base_AclCommon::i_am_admin()?'<a '.$this->create_confirm_callback_href($this->lang->ht('Are you sure you want to delete this thread?'),array($this,'delete_thread'),array($row['id'])).'>'.$this->lang->t('Delete').'</a>':null
 				);

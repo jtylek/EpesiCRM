@@ -91,7 +91,7 @@ class Base_Lang extends Module {
 	 * <pre>
 	 * $lang = & $this->pack_module('Lang');
 	 * ...
-	 * print($lang->t('some text and %s',$some_string));
+	 * print($lang->t('some text and %s',array($some_string)));
 	 * </pre>
 	 * 
 	 * @param string text that will be translated
@@ -113,7 +113,7 @@ class Base_Lang extends Module {
 	 * <pre>
 	 * $lang = & $this->pack_module('Lang');
 	 * ...
-	 * print($lang->t('some text and %s',$some_string));
+	 * print($lang->ht('some text and %s',array($some_string)));
 	 * </pre>
 	 * 
 	 * @param string text that will be translated

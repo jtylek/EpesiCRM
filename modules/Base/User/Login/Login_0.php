@@ -133,7 +133,7 @@ class Base_User_Login extends Module {
 		}
 		
 		if(!DB::Execute('UPDATE user_password SET password=%s WHERE user_login_id=%d', array(md5($pass), $user_id))) {
-			print($this->lang->t('Unable to update password for user %s.',$username));
+			print($this->lang->t('Unable to update password for user %s.',array($username)));
 			return false;
 		}
 		

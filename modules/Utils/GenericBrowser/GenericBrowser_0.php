@@ -616,7 +616,7 @@ class Utils_GenericBrowser extends Module {
 	
 	private function summary() {
 		if($this->rows_qty!=0)
-			return $this->lang->t('Records %d to %d of %d',$this->get_module_variable('offset')+1,($this->get_module_variable('offset')+$this->get_module_variable('per_page')>$this->rows_qty)?$this->rows_qty:$this->get_module_variable('offset')+$this->get_module_variable('per_page'),$this->rows_qty);
+			return $this->lang->t('Records %d to %d of %d',array($this->get_module_variable('offset')+1,($this->get_module_variable('offset')+$this->get_module_variable('per_page')>$this->rows_qty)?$this->rows_qty:$this->get_module_variable('offset')+$this->get_module_variable('per_page'),$this->rows_qty));
 		else 
 		if (isset($this->rows_qty))
 			return $this->lang->t('No records found');
