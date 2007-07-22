@@ -57,7 +57,6 @@ if(!isset($_GET['licence'])) {
 				$pass = $form->exportValue('password');
 				$link = pg_connect("host=$host user=$user password=$pass dbname=postgres");
 				if ($link) {
-					$form->freeze();
 					$dbname = $form->exportValue('db');
 					if($form->exportValue('newdb')==1) {
 						$sql = 'CREATE DATABASE '.$dbname;
@@ -79,7 +78,6 @@ if(!isset($_GET['licence'])) {
 				if (!$link) {
  					echo('Could not connect: ' . mysql_error());
 				} else {
-					$form->freeze();
 					$dbname = $form->exportValue('db');
 					if($form->exportValue('newdb')==1) {
 						$sql = 'CREATE DATABASE '.$dbname;
