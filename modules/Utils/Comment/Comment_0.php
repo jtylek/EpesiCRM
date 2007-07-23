@@ -64,7 +64,7 @@ class Utils_Comment extends Module{
 					$this->unset_module_variable('answer');
 					$answer = -1;
 				}
-				$theme->assign_form('form', $form);
+				$form->assign_theme('form', $theme);
 			} else {
 				Base_ActionBarCommon::add('add','Reply',$this->create_unique_href(array('action'=>'post_reply')));
 			}
@@ -224,7 +224,7 @@ class Utils_Comment extends Module{
 			$answer = -1;
 			location(array());
 		} else {
-			$theme->assign_form('form', $form);
+			$form->assign_theme('form', $theme);
 			$theme->assign('required', '<span align=top size=4 style="color:#FF0000">*</span>');
 			$theme->assign('required_description', $this->lang->t('Indicates required fields.'));
 			$theme -> display('Reply');

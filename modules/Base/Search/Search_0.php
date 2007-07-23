@@ -67,7 +67,7 @@ class Base_Search extends Module {
 		
 		$form->setDefaults($defaults);
 		
-		$theme->assign_form('form', $form);
+		$form->assign_theme('form', $theme);
 		$theme->assign('form_mini', 'no');
 		$theme->display('Search');
 		
@@ -119,7 +119,7 @@ class Base_Search extends Module {
 		$form->addElement('submit', 'quick_search_submit', $this->lang->ht('Search'), array('class'=>'mini_submit'));
 		
 		$theme =  & $this->pack_module('Base/Theme');
-		$theme->assign_form('form', $form);
+		$form->assign_theme('form', $theme);
 		$theme->assign('form_mini', 'yes');
 		$theme->display('Search');
 		

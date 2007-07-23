@@ -185,7 +185,7 @@ class Apps_Gallery extends Module {
 		} else {	
 			$theme =  & $this->pack_module('Base/Theme');
 			$theme->assign('type', 'mk_folder');
-			$theme->assign_form('form', $form);
+			$form->assign_theme('form', $theme);
 			$theme->assign('tree', $tree->toHtml());
 			$theme->display();
 		}
@@ -277,7 +277,7 @@ class Apps_Gallery extends Module {
 		} else {
 			$theme =  & $this->pack_module('Base/Theme');
 			$theme->assign('type', 'rm_folder');
-			$theme->assign_form('form', $form);
+			$form->assign_theme('form', $theme);
 			$theme->assign('tree', $tree->toHtml());
 			$theme->display();
 		}
@@ -372,7 +372,7 @@ class Apps_Gallery extends Module {
 		} else {
 			$theme =  & $this->pack_module('Base/Theme');
 			$theme->assign('type', 'share');
-			$theme->assign_form('form', $form);
+			$form->assign_theme('form', $theme);
 			$theme->assign('tree', $tree->toHtml());
 			$theme->display();
 		}

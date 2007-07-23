@@ -83,7 +83,7 @@ class Base_Backup extends Module {
 			if($form->process(array($this,'submit_backup')))
 				location(array());
 		} else {
-			$theme->assign_form('form',$form);
+			$form->assign_theme('form',$theme);
 		}
 		$theme->display();
 	}

@@ -77,7 +77,7 @@ class Base_User_Login extends Module {
 			
 			location(array());
 		} else {
-			$theme->assign_form('form', $form);
+			$form->assign_theme('form', $theme);
 			$theme->display();
 
 			eval_js("focus_by_id('username')");

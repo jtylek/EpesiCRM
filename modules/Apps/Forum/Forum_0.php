@@ -160,7 +160,7 @@ class Apps_Forum extends Module {
 			$comment->add_post($form->exportValue('post_content'));
 			return false;
 		}
-		$theme->assign_form('form', $form);
+		$form->assign_theme('form', $theme);
 
 		$theme->assign('required', '<span align=top size=4 style="color:#FF0000">*</span>');
 		$theme->assign('required_description', $this->lang->t('Indicates required fields.'));
