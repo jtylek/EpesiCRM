@@ -7,20 +7,24 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-$versions = array('0.8.6');
+$versions = array('0.8.5','0.8.6');
 
 function update_from_0_8_5_to_0_8_6() {
 }
 
 //=========================================================================
+try {
 $cur_ver = Variable::get('version');
+} catch(Exception $s) {
+$cur_ver = '0.8.5';
+}
 $go=false;
 $last_ver = '';
 foreach($versions as $v) {
 	$x = str_replace('.','_',$v);
 	if($go) {
 		if(is_callable('update_from_'.$last_ver.'_to_'.$x)) {
-			print('Update from '.$last_ver.' to '.$x.'<br>');
+//			print('Update from '.$last_ver.' to '.$x.'<br>');
 			call_user_func('update_from_'.$last_ver.'_to_'.$x);
 		}
 	}

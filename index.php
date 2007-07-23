@@ -29,7 +29,7 @@ require_once('include/variables.php');
 try {
 $cur_ver = Variable::get('version');
 } catch(Exception $s) {
-die('Your version doesn\'t support updates. Please install from scratch');
+$cur_ver = '';
 }
 if($cur_ver!==EPESI_VERSION)
 	require_once('update.php');
