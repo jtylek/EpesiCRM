@@ -53,7 +53,7 @@ class Utils_FileUpload extends Module {
 		if($this->form->validate()) {
 			$this->form->process(array($this,'submit_parent'));
 			//cleanup all unnecessary tmp files
-			$dd = $this->get_data_dir();
+/*			$dd = $this->get_data_dir();
 			$ls = scandir($dd);
 			$rt = microtime(true);
 			foreach($ls as $file) {
@@ -62,7 +62,7 @@ class Utils_FileUpload extends Module {
 				$rtc = $reqs[1].'.'.$reqs[2];
 				if(floatval($rt)-floatval($rtc)>ini_get("session.gc_maxlifetime")) //files older then session lifetime
 					unlink($dd.'/'.$file);
-			}
+			}*/
 		} else
 			$this->form->display();
 	}
@@ -70,6 +70,7 @@ class Utils_FileUpload extends Module {
 	public function submit_parent($data) {
 		if(call_user_func($this->on_submit, $data['uploaded_file'], $data['original_file'], $data))
 			location(array());
+		unlink($data['uploaded_file']);
 	}
 }
 

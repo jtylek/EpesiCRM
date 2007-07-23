@@ -154,11 +154,12 @@ class Apps_Forum extends Module {
 		$form -> addElement('submit','submit','Submit');
 		$form -> addElement('button','cancel','Cancel',$this->create_back_href());
 		$theme->assign_form('form', $form);
+
 		$theme->assign('required', '<span align=top size=4 style="color:#FF0000">*</span>');
 		$theme->assign('required_description', $this->lang->t('Indicates required fields.'));
 		$theme->assign('board_name','<a '.$this->create_back_href().'>'.DB::GetOne('SELECT name FROM apps_forum_board WHERE id = %d',$board).'</a>');
-		$theme->assign('forum_boards','<a '.$this->create_back_href(2).'>'.$this->lang->t('Forum Boards').'</a>'); // TODO: Again, way to get back 2 times
-		if ($form->validate() && Base_AclCommon::i_am_user()){
+		$theme->assign('forum_boards','<a '.$this->create_back_href(2).'>'.$this->lang->t('Forum Boards').'</a>');
+		if ($form->validate() && Base_AclCommon::i_am_user()) {
 			DB::Execute('INSERT INTO apps_forum_thread (topic, apps_forum_board_id) VALUES (%s,%d)',array($form->exportValue('topic'),$board));
 			$id = DB::GetOne('SELECT id FROM apps_forum_thread WHERE topic=%s AND apps_forum_board_id=%d',array($form->exportValue('topic'),$board));
 			$comment = & $this->init_module('Utils/Comment','apps_forum_'.$this->key.'_'.$id);

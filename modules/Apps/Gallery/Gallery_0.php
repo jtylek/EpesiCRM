@@ -380,19 +380,31 @@ class Apps_Gallery extends Module {
 	
 	////////////////////////////////////////////////////////////////////////
 	public function submit_upload($file, $ory, $data) {
-		print 'Successfully uploaded "' . $ory . '" to "' . $data['target'] . '".<br>';
-		
-		copy($this->get_module_variable('uploaded_file'), $this->root.$this->user.'/'.$this->get_module_variable('originally_uploaded_file'));
-		$image = & $this->init_module('Utils/Image');
-		$image->load($data['root'].$data['target'].$ory);
-		$image->create_thumb(650, 450);
-		$image->display_thumb(120);
+		$ext = strrchr($ory,'.');
+		if($ext==='' || !eregi('\.(jpg|jpeg|gif|png)$', $ext)) {
+			$GLOBALS['base']->alert($this->lang->t('Invalid extension'));
+		} else {
+			$dest = $this->root.$this->user.$data['target'].$ory;
+			copy($file, $dest);
+			$this->set_module_variable('last_uploaded_img',$dest);
+		}
 		return true;
 	}
 	
 	public function upload() {
 		if($this->is_back()) return false;
+		$this->lang = & $this->pack_module('Base/Lang');
 		Base_ActionBarCommon::add('back',$this->lang->ht('Back to Gallery'),$this->create_back_href());
+
+
+		$last = $this->get_module_variable('last_uploaded_img');
+		if($last) {
+			print 'Last succesfully uploaded image<br>';	
+			$image = & $this->init_module('Utils/Image');
+			$image->load($last);
+			$image->create_thumb(650, 450);
+			$image->display_thumb(120);
+		}
 
 		$dirs = $this->getDirsRecursive($this->root.$this->user, "/^[^\.].*$/");
 		$dir = $this->get_module_variable_or_unique_href_variable('dir', "");
@@ -405,9 +417,9 @@ class Apps_Gallery extends Module {
 			return $this->process_data();
 		
 		//$form = & $this->init_module('Libs/QuickForm', array($this->lang->ht('Uploading file...'),'modules/Apps/Gallery/upload.php','upload_iframe',''),'file_chooser');
-		$form->addElement('header', 'upload', 'Import an image to your gallery');
+		$form->addElement('header', 'upload', $this->lang->t('Import an image to your gallery'));
 		
-		$form->addElement('hidden', 'root', $this->root.$this->user);
+//		$form->addElement('hidden', 'root', $this->root.$this->user);
 		
 		
 		// TREE
@@ -488,6 +500,8 @@ class Apps_Gallery extends Module {
 	}
 	
 	public function body() {
+		$this->lang = & $this->pack_module('Base/Lang');
+
 		Base_ActionBarCommon::add('add',$this->lang->ht('Upload'),$this->create_callback_href(array($this,'upload')));
 		Base_ActionBarCommon::add('settings',$this->lang->ht('Manage Folders'),$this->create_callback_href(array($this,'manage')));
 
