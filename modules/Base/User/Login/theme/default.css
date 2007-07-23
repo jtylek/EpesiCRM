@@ -14,11 +14,11 @@ table#Base_User_Login a {
 
 table#Base_User_Login span.error {
 	color: red;
-	text-align: center;
 	font-size: 11px;
 }
 
 table#Base_User_Login td.error {
+	text-align: center;
 	height: 20px;
 }
 
