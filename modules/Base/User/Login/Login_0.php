@@ -138,7 +138,7 @@ class Base_User_Login extends Module {
 		}
 		
 		if(!$this->send_mail_with_password($username, $pass, $mail)) {
-			print($this->lang->t('Unable to send e-mail with password. Mail module configuration invalid. Notify about it your administrator.'));
+			print($this->lang->t('Unable to send e-mail with password. Mail module configuration invalid. Please contact system administrator.'));
 			return false;
 		}
 		
