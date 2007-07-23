@@ -55,8 +55,10 @@ if(!isset($_GET['licence'])) {
 				$host = $form->exportValue('host');
 				$user = $form->exportValue('user');
 				$pass = $form->exportValue('password');
-				$link = pg_connect("host=$host user=$user password=$pass dbname=postgres");
-				if ($link) {
+				$link = @pg_connect("host=$host user=$user password=$pass dbname=postgres");
+				if (!$link) {
+ 					echo('Could not connect.');
+				} else {
 					$dbname = $form->exportValue('db');
 					if($form->exportValue('newdb')==1) {
 						$sql = 'CREATE DATABASE '.$dbname;
@@ -64,7 +66,7 @@ if(!isset($_GET['licence'])) {
    							//echo "Database '$dbname' created successfully\n";
    							write_config($host,$user,$pass,$dbname,$engine);
 						} else
- 	  						echo 'Error creating database: ' . pg_error() . "\n";
+ 	  						echo 'Error creating database: ' . pg_last_error() . "\n";
    						pg_close($link);
 					} else
 						write_config($host,$user,$pass,$dbname,$engine);
@@ -74,7 +76,7 @@ if(!isset($_GET['licence'])) {
 				$host = $form->exportValue('host');
 				$user = $form->exportValue('user');
 				$pass = $form->exportValue('password');
-				$link = mysql_connect($host,$user,$pass);
+				$link = @mysql_connect($host,$user,$pass);
 				if (!$link) {
  					echo('Could not connect: ' . mysql_error());
 				} else {
