@@ -214,17 +214,21 @@ class Utils_Comment extends Module{
 			$form -> addElement('header','reply',$this->lang->t('Reply to %s\'s comment given at %s',array($comment_info['login'],date('G:i, d M Y',strtotime($comment_info['created_on'])))));
 		}
 		$form -> addElement('textarea','comment_page_reply',$this->lang->t('Message'),array('rows'=>4,'cols'=>40,'onBlur'=>'document.getElementsByName(\'comment_content\')[0].value = document.getElementsByName(\'comment_page_reply\')[0].value.replace(/\n/g,\'<br>\');'));
+		$form -> addRule('comment_page_reply',$this->lang->t('Field required'),'required');
 		$form -> addElement('submit','submit_comment','Submit');
 		$form -> addElement('button','cancel_comment','Cancel',$this->create_back_href());
-		$theme->assign_form('form', $form);
 		if ($form->validate() && Base_AclCommon::i_am_user() && $this->reply){
 			$this->add_post($form->exportValue('comment_content'),$answer);
 			$this->unset_module_variable('answer');
 			$this->unset_module_variable('action');
 			$answer = -1;
 			location(array());
-		} else
+		} else {
+			$theme->assign_form('form', $form);
+			$theme->assign('required', '<span align=top size=4 style="color:#FF0000">*</span>');
+			$theme->assign('required_description', $this->lang->t('Indicates required fields.'));
 			$theme -> display('Reply');
+		}
 	}
 	
 	public function add_post($post_text, $answer_to=-1){

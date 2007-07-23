@@ -161,7 +161,6 @@ class Base_Theme extends Module {
 		$this->assign($name.'_close', "</form>\n");
 	} 
 	
-	
 	public function get_theme_path() {
 		$module_name = $this->parent->get_type();
 		return self::$themes_dir.'/'.self::$theme.'/'.$module_name.'__';
