@@ -201,6 +201,10 @@ function install_base() {
 	$ret = DB::Execute("insert into variables values('default_module',%s)",array(serialize('FirstRun')));
 	if($ret === false)
 		die('Invalid SQL query - Setup module (populating variables)');
+
+	$ret = DB::Execute("insert into variables values('version',%s)",array(serialize(EPESI_VERSION)));
+	if($ret === false)
+		die('Invalid SQL query - Setup module (populating variables)');
 	
 	//phpgacl
 	require( "adodb/adodb-xmlschema.inc.php" );

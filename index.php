@@ -24,6 +24,16 @@ require_once('include/include_path.php');
 require_once('include/config.php');
 require_once('include/error.php');
 require_once('include/database.php');
+require_once('include/variables.php');
+
+try {
+$cur_ver = Variable::get('version');
+} catch(Exception $s) {
+die('Your version doesn\'t support updates. Please install from scratch');
+}
+if($cur_ver!==EPESI_VERSION)
+	require_once('update.php');
+
 
 $tables = DB::MetaTables();
 if(!in_array('modules',$tables) || !in_array('variables',$tables) || !in_array('session',$tables))

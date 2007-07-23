@@ -330,7 +330,7 @@ abstract class Module {
 		global $base;		
 		$ret = str_replace('&amp;','&',http_build_query($variables));
 		if(!isset($indicator)) $indicator='loading...';
-		return 'if(saja.procOn==0){saja.updateIndicatorText(\''.addslashes($indicator).'\');'.$base->run("process(".$base->get_client_id().",'".$ret."')").'}';
+		return 'if(saja.procOn==0){saja.updateIndicatorText(\''.addslashes($indicator).'\');'.$base->run("process(client_id,'".$ret."')").'}';
 	}
 	
 	/**
