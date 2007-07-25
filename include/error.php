@@ -60,7 +60,7 @@ class ErrorHandler {
 							echo("&nbsp;&nbsp;&nbsp;&nbsp;line ".$bt[$i]["line"]."<br />");
 						echo("&nbsp;&nbsp;&nbsp;&nbsp;function called: ".$bt[$i]["function"]);
        
-						if($bt[$i]["args"]) {
+/*						if($bt[$i]["args"]) {
 							echo("<br />&nbsp;&nbsp;&nbsp;&nbsp;args: ");
 							for($j = 0; $j <= count($bt[$i]["args"]) - 1; $j++) {
 								if(!is_string($bt[$i]["args"][$j]))
@@ -71,7 +71,7 @@ class ErrorHandler {
 								if($j != count($bt[$i]["args"]) - 1)
 									echo(", ");
 							}
-						}
+						}*/
 						echo("<br /><br />");
 					}
 					$backtrace = ob_get_contents();
