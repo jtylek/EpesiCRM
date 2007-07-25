@@ -10,14 +10,27 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_CommonDataCommon implements Base_AdminModuleCommonInterface {
 
+	/**
+	 * For internal use only.
+	 */
 	public static function admin_caption(){
 		return "Common data";
 	}
 
+	/**
+	 * For internal use only.
+	 */
 	public static function admin_access(){
 		return Base_AclCommon::i_am_sa();
 	}
 	
+	/**
+	 * Creates new array for common use.
+	 * 
+	 * @param string array name
+	 * @param array initialization value
+	 * @param bool whether method should overwrite if array already exists, otherwise the data will be appended
+	 */
 	public static function new_array($name,$array,$overwrite=false){
 		$id = DB::GetOne('SELECT id FROM utils_commondata_arrays WHERE name=%s',$name);
 		if ($id){
@@ -35,6 +48,13 @@ class Utils_CommonDataCommon implements Base_AdminModuleCommonInterface {
 		}
 	}
 
+	/**
+	 * Extends common data array.
+	 * 
+	 * @param string array name
+	 * @param array values to insert
+	 * @param bool whether method should overwrite data if array key already exists, otherwise the data will be preserved
+	 */
 	public static function extend_array($name,$array,$overwrite=false){
 		$id = DB::GetOne('SELECT id FROM utils_commondata_arrays WHERE name=%s',$name);
 		if (!$id){
@@ -52,6 +72,12 @@ class Utils_CommonDataCommon implements Base_AdminModuleCommonInterface {
 		}
 	}
 	
+	/**
+	 * Removes common data array.
+	 * 
+	 * @param string array name
+	 * @return true on success, false otherwise
+	 */
 	public static function remove_array($name){
 		$id = DB::GetOne('SELECT id FROM utils_commondata_arrays WHERE name=%s',$name);
 		if (!$id) return false;
@@ -61,22 +87,29 @@ class Utils_CommonDataCommon implements Base_AdminModuleCommonInterface {
 		return true;
 	}
 	
-	public static function remove_field($arg,$key=false){
-		if (is_array($arg)) {
-			$array=$arg[0];
-			$key=$arg[1];
-		} else {
-			$array=$arg;
-		}
+	/**
+	 * Removes entry from common data array.
+	 * 
+	 * @param string array name
+	 * @param string array key
+	 * @return true on success, false otherwise
+	 */
+	public static function remove_field($array,$key){
 		$id = DB::GetOne('SELECT id FROM utils_commondata_arrays WHERE name=%s',$array);
 		if (!$id) return false;
 		DB::Execute('DELETE FROM utils_commondata_data WHERE array_id=%s AND akey=%s',array($id,$key));
 	} 
 	
+	/**
+	 * Returns common data array.
+	 * 
+	 * @param string array name
+	 * @return mixed returns an array if such array exists, false otherwise 
+	 */
 	public static function get_array($name){
 		$array = array();
 		$id = DB::GetOne('SELECT id FROM utils_commondata_arrays WHERE name=%s',$name);
-		if (!$id) return null;
+		if (!$id) return false;
 		$ret = DB::Execute('SELECT akey, value FROM utils_commondata_data WHERE array_id=%d',$id);
 		while ($row=$ret->FetchRow()){
 			$array[$row['akey']] = $row['value'];

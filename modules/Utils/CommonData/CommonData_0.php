@@ -11,12 +11,20 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_CommonData extends Module {
 	private $lang;
 
+	/**
+	 * For internal use only.
+	 */
 	public function admin() {
 		$this->lang = & $this->pack_module('Base/Lang');
 		$action = $this->get_module_variable_or_unique_href_variable('action','browse');
 		$this->$action();
 	}
 
+	/**
+	 * Displays administrative options for given array.
+	 * 
+	 * @param string array name
+	 */
 	public function admin_array($name) {
 		$this->lang = & $this->pack_module('Base/Lang');
 		$this->set_module_variable('edit_name',$name);
@@ -24,6 +32,9 @@ class Utils_CommonData extends Module {
 		$this->$action();
 	}
 	
+	/**
+	 * For internal use only.
+	 */
 	public function add(){
 		if ($this->is_back()){
 			$this->set_module_variable('action','browse');
@@ -45,6 +56,9 @@ class Utils_CommonData extends Module {
 		} else $f->display();
 	}
 	
+	/**
+	 * For internal use only.
+	 */
 	public function edit(){
 		if ($this->is_back()){
 			$this->set_module_variable('action','browse');
@@ -92,6 +106,9 @@ class Utils_CommonData extends Module {
 		$f->display();
 	}
 	
+	/**
+	 * For internal use only.
+	 */
 	public function edit_field(){
 		if ($this->is_back()){
 			$this->set_module_variable('action','edit');
@@ -121,6 +138,9 @@ class Utils_CommonData extends Module {
 		$f->display();
 	}
 
+	/**
+	 * For internal use only.
+	 */
 	public function browse(){
 		$gb = & $this->init_module('Utils/GenericBrowser',null,'browse');
 		$gb->set_table_columns(array(	array('name'=>$this->lang->t('Name'), 'width'=>20),
@@ -137,11 +157,17 @@ class Utils_CommonData extends Module {
 		print('<a '.$this->create_unique_href(array('action'=>'add')).'>'.$this->lang->t('Add table').'</a>');
 	}
 	
+	/**
+	 * For internal use only.
+	 */
 	public static function remove_field_refresh($arg,$key=false){
 		Utils_CommonDataCommon::remove_field($arg,$key);
 		location(array());
 	}
 	
+	/**
+	 * For internal use only.
+	 */
 	public static function remove_array_refresh($name){
 		Utils_CommonDataCommon::remove_array($name);
 		location(array());
