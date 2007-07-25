@@ -21,5 +21,5 @@ if(!defined('MODULE_TIMES')) define("MODULE_TIMES",0);
 if(!defined('SQL_TIMES')) define("SQL_TIMES",0);
 if(!defined('SQL_TYPE_CONTROL')) define("SQL_TYPE_CONTROL",0);
 if(!defined('SECURE_HTTP')) define("SECURE_HTTP",0);
-if(!defined('STRUP_OUTPUT')) define("STRIP_OUTPUT",0);
+if(!defined('STRIP_OUTPUT')) define("STRIP_OUTPUT",0);
 ?>
