@@ -7,7 +7,13 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-$versions = array('0.8.5','0.8.6');
+$versions = array('0.8.5','0.8.6','0.8.7');
+
+function update_from_0_8_6_to_0_8_7() {
+	DB::DropTable('session');
+	DB::CreateTable('session',"id I AUTO KEY, name C(255) NOTNULL DEFAULT '', " .
+			"expires T NOTNULL, data X2");
+}
 
 function update_from_0_8_5_to_0_8_6() {
 }
