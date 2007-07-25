@@ -19,20 +19,20 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  */
 class Base_UserCommon {
 	/**
-	 * Change state of user (active or inactive).
+	 * Changes state of user (active or inactive).
 	 * 
 	 * @param integer user id
-	 * @param bool active?
+	 * @param bool is active?
 	 */
 	public static function change_active_state($uid, $active) {
 		return DB::Execute('UPDATE user_login SET active=%b WHERE id=%d',array($active, $uid));
 	}
 	
 	/**
-	 * Add user to database and add to User group (normal, regular user).
+	 * Adds user to the database and adds to User group (normal, regular user).
 	 * 
 	 * @param string username
-	 * @return bool everything went ok?
+	 * @return bool true on success, false otherwise
 	 */
 	public static function add_user($username) {
 		if(DB::Execute('INSERT INTO user_login(login) VALUES(%s)', $username)===false) {
@@ -48,7 +48,7 @@ class Base_UserCommon {
 	}
 	
 	/**
-	 * Get user id.
+	 * Returns user id.
 	 * 
 	 * @param string username
 	 * @return integer user id
@@ -57,33 +57,48 @@ class Base_UserCommon {
 		return DB::GetOne('SELECT id FROM user_login WHERE login=%s', $username);
 	}
 	
+	/**
+	 * Returns user username.
+	 * 
+	 * @param integer user id
+	 * @return string username
+	 */
 	public static function get_user_login($id) {
 		return DB::GetOne('SELECT login FROM user_login WHERE id=%d', $id);
 	}
 	
+	/**
+	 * Returns id of currently logged in user.
+	 * Method returns null if no user is logged in.
+	 * 
+	 * @return mixed user id
+	 */
 	public static function get_my_user_id() {
-    		global $base;
+    	global $base;
 		$session = & $base->get_session();
 		$id = $session['user_id'];
 		if(Acl::is_user()) {
 		    if(!isset($id)) {
-			$id = self::get_user_id(Acl::get_user());
-			$session['user_id'] = $id;
+				$id = self::get_user_id(Acl::get_user());
+				$session['user_id'] = $id;
 		    }
 		} else {
-		    unset($id);
-		    unset($session['user_id']);
+			unset($id);
+			unset($session['user_id']);
 		}
 		return $id;
-    	}
+    }
 	
+	/**
+	 * For internal use only. 
+	 */
 	public static function set_my_user_id($a) {
-    		global $base;
+    	global $base;
 		$session = & $base->get_session();
 		if(isset($a))
-		        $session['user_id'] = $a;
+	        $session['user_id'] = $a;
 		else
-		        unset($session['user_id']);
+	        unset($session['user_id']);
         }
 }
 

@@ -94,7 +94,7 @@ class Utils_Gallery extends Module {
 			$theme->assign('style', 'show_all');
 			$theme->assign('image_list', $image_list);
 			
-			$ret = $theme->toHtml();
+			$ret = $this->get_html_of_module($theme);
 			
 			return $ret;
 		} else {
@@ -167,7 +167,7 @@ class Utils_Gallery extends Module {
 					'wait_while_null( "utils_gallery_set_data", "utils_gallery()" );'
 				);
 				//'wait_while_null( "utils_gallery_set_data", "utils_gallery_set_data('.$buttonsHTML_js.')" );'
-				return $theme->toHtml();
+				return $this->get_html_of_module($theme);
 
 			// PREVIEW
 			} else {
@@ -232,7 +232,7 @@ class Utils_Gallery extends Module {
 				$theme->assign('next_list', $next_list);
 				$theme->assign('buttons', $buttons);
 				$theme->assign('preview', $preview);
-				return $theme->toHtml();
+				return $this->get_html_of_module($theme);
 			}
 		}
 		

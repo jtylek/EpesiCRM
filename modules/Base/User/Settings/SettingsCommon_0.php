@@ -26,9 +26,17 @@ class Base_User_SettingsCommon {
 		}
 		return array('My settings'=>array_merge(array('__weight__'=>10,'__submenu__'=>1,'Control panel'=>array('__weight__'=>-10,'module'=>'__NONE__'),'__split__'=>1),$modules));
 	}
-	
+
+	/**
+	 * Returns user setting.
+	 * If user is logged in, returns user prefered setting,
+	 * otherwise returns default value.
+	 * 
+	 * @param string module name
+	 * @param string variable name
+	 * @return mixed user value
+	 */	
 	public static function get_user_settings($module,$name){
-//		if (!Base_AclCommon::i_am_user()) return;
 		$module = str_replace('/','_',$module);
 		static $variables;
 		if (isset($variables[$module.'__'.$name]))
@@ -56,8 +64,17 @@ class Base_User_SettingsCommon {
 		return $val;
 	}
 
+	/**
+	 * Sets user setting to given value for currently logged in user.
+	 * Returns false if no user is logged in.
+	 * 
+	 * @param string module name
+	 * @param string variable name
+	 * @param mixed value
+	 * @return bool true on success, false otherwise
+	 */	
 	public static function save_user_settings($module,$name,$value){
-		if (!Base_AclCommon::i_am_user()) return;
+		if (!Base_AclCommon::i_am_user()) return false;
 		if ($value === null) $value = 0;
 		$module = str_replace('/','_',$module);
 		$def = null;

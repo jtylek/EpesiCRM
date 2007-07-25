@@ -40,10 +40,10 @@ class Base_User_LoginCommon extends Module {
 	}
 	
 	/**
-	 * Check username is free.
+	 * Checks if username is not assigned to a user.
 	 * 
-	 * @param string
-	 * @return bool
+	 * @param string username
+	 * @return bool false if there is a user in the system with given name, true otherwise
 	 */
 	public static function check_username_free($username) {
 		return Base_UserCommon::get_user_id($username)===false;
@@ -95,8 +95,7 @@ This e-mail was automatically generated and you do not need to respond to it."),
 		$ret = DB::Execute('INSERT INTO user_password VALUES(%d,%s, %s)', array($user_id, md5($pass), $mail));
 		
 		if(!self::send_mail_with_password($username, $pass, $mail)) {
-			print(Base_LangCommon::ts('Base/User/Login','Account creation failed.<br> Unable to send e-mail with password. Check Mail module configuration.'));
-			return false;
+			print(Base_LangCommon::ts('Base/User/Login','Warning: Unable to send e-mail with password. Check Mail module configuration.'));
 		}
 
 		return ($ret!==false);

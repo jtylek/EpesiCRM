@@ -13,6 +13,14 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_ThemeCommon {
+	/**
+	 * Performs installation of default theme files for a module.
+	 * 
+	 * Notice: the path should not contain / on the beginning nor on the end of string
+	 * 
+	 * @param string module name
+	 * @param string directory in which default theme data for the module is hold (path relative to specified module)
+	 */
 	public static function install_default_theme($mod_name,$theme_dir='theme') {
 		$directory = 'modules/'.str_replace('_','/',$mod_name).'/'.$theme_dir;
 		$mod_name = str_replace('/','_',$mod_name);
@@ -24,6 +32,11 @@ class Base_ThemeCommon {
 		}
 	}
 	
+	/**
+	 * Removes default theme files for a module.
+	 * 
+	 * @param string module name
+	 */
 	public static function uninstall_default_theme($mod_name) {
 		$directory = str_replace('_','/',$mod_name);
 		$mod_name = str_replace('/','_',$mod_name);
@@ -39,6 +52,11 @@ class Base_ThemeCommon {
 		}
 	}	
 	
+	/**
+	 * Returns path to currently selected theme.
+	 * 
+	 * @return string directory in which currently selected theme is placed 
+	 */
 	public static function get_template_dir() {
 		static $theme = null;
 		static $themes_dir = 'data/Base/Theme/templates/';
@@ -52,10 +70,30 @@ class Base_ThemeCommon {
 		return $themes_dir.$theme.'/';
 	}
 
+	/**
+	 * Returns path and filename of a template file.
+	 * 
+	 * Use this method if you want to pass full path and filename of a template file 
+	 * to another method which specifically accepts such data.
+	 * 
+	 * @param string module name
+	 * @param string path and filename (path relative to specified module)
+	 * @return string path and name of a file
+	 */
 	public static function get_template_file_name($modulename,$filename) {
 		return str_replace("/", "_", $modulename).'__'.str_replace("/", "_", $filename);
 	}
 
+	/**
+	 * Returns path and filename of a template file using path to currently selected theme.
+	 * 
+	 * Use this method if you want to get access to a template file of currently installed theme.
+	 * Files retreived this way are accessible via common file operation functions.
+	 * 
+	 * @param string module name
+	 * @param string path and filename (path relative to specified module)
+	 * @return mixed path and name of a file, false if no such file was found
+	 */
 	public static function get_template_file($modulename,$filename) {
 		$filename = self::get_template_file_name($modulename,$filename);
 		$f = self::get_template_dir().$filename;
@@ -67,6 +105,14 @@ class Base_ThemeCommon {
 		return $f;
 	}
 
+	/**
+	 * Loads css file.
+	 * 
+	 * @param string module name
+	 * @param string css file name, 'default' by default
+	 * @param bool sets whether there should be an error displayed if css is not present, true by default
+	 * @return bool true on success, false otherwise
+	 */
 	public static function load_css($module_name,$css_name = 'default',$trig_error=true) {
 		if(!isset($module_name)) 
 			trigger_error('Invalid argument for load_css, no module was specified.',E_USER_ERROR);
@@ -84,7 +130,7 @@ class Base_ThemeCommon {
 	private static function create_css_cache() {
 		$themes_dir = 'data/Base/Theme/templates/';
 		$def_theme = Variable::get('default_theme');
-		$tdir = $theme_dir.$def_theme;
+		$tdir = $themes_dir.$def_theme;
 		$arr = glob($themes_dir.'default/*.css',GLOB_NOSORT);
 		$css_def_out = '';
 		$css_cur_out = '';
@@ -140,6 +186,9 @@ class Base_ThemeCommon {
 		}		
 	}
 
+	/**
+	 * For internal use only.
+	 */
 	public static function create_cache() {
 		self::create_css_cache();
 		self::create_images_cache();

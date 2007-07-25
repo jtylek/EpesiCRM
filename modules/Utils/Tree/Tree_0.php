@@ -131,7 +131,7 @@ class Utils_Tree extends Module {
 			//eval_js('utils_tree_expand_all('.$this->_id.','.$this->_sub.');');
 		}
 		
-		return $theme->toHtml();
+		return $this->get_html_of_module($theme);
 	}
 	
 

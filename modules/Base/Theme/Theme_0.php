@@ -32,6 +32,9 @@ class Base_Theme extends Module {
 	private $smarty = null;
 	private $lang;
 	
+	/**
+	 * For internal use only.
+	 */
 	public function construct() {
 		$this->smarty = new Smarty();
 		
@@ -100,14 +103,12 @@ class Base_Theme extends Module {
 	public function body() {
 	}
 
-	public function toHtml($user_template) { // TODO: There have to be something more useful than ob_start()...
-		ob_start();
-		$this->display($user_template);
-		$ret = ob_get_contents();
-		ob_end_clean();
-		return $ret;		
-	}
-
+	/**
+	 * Displays gathered information using a .tpl file and .css file.
+	 * 
+	 * @param string name of theme file to use (without extension)
+	 * @param bool if set to true, module name will not be added to the filename and you should then pass a result of get_module_file_name() function as filename
+	 */
 	public function display($user_template,$fullname=false) {
 		$this->smarty->assign('__link', $this->links);
 		
@@ -151,15 +152,28 @@ class Base_Theme extends Module {
 		
 	}
 
+	/**
+	 * Returns path to currently selected theme.
+	 * 
+	 * @return string path to currently selected theme
+	 */
 	public function get_theme_path() {
 		$module_name = $this->parent->get_type();
 		return self::$themes_dir.'/'.self::$theme.'/'.$module_name.'__';
 	}
 	
+	/**
+	 * Returns instance of smarty object which is assigned to this Theme instance. 
+	 * 
+	 * @return mixed smarty object
+	 */
 	public function & get_smarty() {
 		return $this->smarty;
 	}
 	
+	/**
+	 * For internal use only. 
+	 */
 	public function parse_links($key, $val, $flat=true) {
 		if (!is_array($val)) {
 			$val = trim($val); 
@@ -209,15 +223,25 @@ class Base_Theme extends Module {
 		}
 	}
 	
+	/** 
+	 * Assigns text to a smarty variable.
+	 * Also parses the text looking for a link tag and if one is found, 
+	 * creates additinal smarty variables holding open, label and close for found tag.
+	 * 
+	 * @param string name for smarty variable
+	 * @param string variable contents 
+	 */
 	public function assign($name, $val) {
 		$new_links = $this->parse_links($name, $val);
-/*		$this->links[$name] = array_merge($this->links[$name],$new_links);
-		print_r($val);
-		print('<hr>');*/
 		$this->links[$name] = $new_links;
-		return $this->smarty->assign($name, $val);
+		$this->smarty->assign($name, $val);
 	}
 	
+	/** 
+	 * Returns list of available themes.
+	 * 
+	 * @param array list of available themes
+	 */
 	public static function list_themes() {
 		$themes = array();
 		$inc = dir(self::$themes_dir);
