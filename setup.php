@@ -192,7 +192,7 @@ function install_base() {
 		die('Invalid SQL query - Setup module (modules table)');
 	
 	$ret = DB::CreateTable('session',"id I AUTO KEY, name C(255) NOTNULL DEFAULT '', " .
-			"expires I NOTNULL DEFAULT 0, data X2");
+			"expires T NOTNULL, data X2");
 	if($ret===false)
 		die('Invalid SQL query - Database module (session table)');
 	

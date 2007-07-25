@@ -30,7 +30,7 @@ class DBSession {
     }
 
     public static function write($name, $data) {
-        $ret = DB::Replace('session',array('expires'=>time(),'data'=>$data,'name'=>$name),'name',true);
+        $ret = DB::Replace('session',array('expires'=>DB::DBTimeStamp(time()),'data'=>$data,'name'=>$name),'name',true);
         return ($ret>0)?true:false;
     }
 

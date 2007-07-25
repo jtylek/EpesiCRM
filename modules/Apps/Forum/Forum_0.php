@@ -90,10 +90,10 @@ class Apps_Forum extends Module {
 
 		Base_ActionBarCommon::add('back',$board_name,$this->create_back_href());
 
-		ob_start();
-		$this -> display_module($comment);	
-		$posts = ob_get_contents();
-		ob_end_clean();
+//		ob_start();
+		$posts = $this -> get_html_of_module($comment);	
+//		$posts = ob_get_contents();
+//		ob_end_clean();
 
 		$theme = & $this->init_module('Base/Theme');
 
@@ -109,7 +109,7 @@ class Apps_Forum extends Module {
 		if ($this->is_back()) return false;
 		if (!isset($this->lang)) $this->lang = & $this->pack_module('Base/Lang');		
 
-		$form = & $this->init_module('Libs/QuickForm',$this->lang->t('Creating new board...'),'add_board');
+		$form = & $this->init_module('Libs/QuickForm',$this->lang->t('Creating new board...'),'add_board_form');
 		$form -> addElement('header',null,$this->lang->t('Create new board'));
 		$form -> addElement('text','name',$this->lang->t('Name'));
 		$form -> addRule('name', $this->lang->t('Field required'), 'required');
@@ -118,6 +118,7 @@ class Apps_Forum extends Module {
 		$cancel = HTML_QuickForm::createElement('button','cancel',$this->lang->ht('Cancel'), $this->create_back_href());
 		$form -> addGroup(array($submit,$cancel));
 		if ($form->validate()) {
+		file_put_contents('/tmp/dupa','dp2');
 			DB::Execute('INSERT INTO apps_forum_board (name,descr) VALUES (%s,%s)',array($form->exportValue('name'),$form->exportValue('descr')));
 			return false;
 		}

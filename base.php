@@ -50,9 +50,6 @@ class Base extends Epesi {
 
 	public function process($cl_id, $url, $history_call=false,$refresh=false) {
 		$url = str_replace('&amp;','&',$url);
-
-//		if($history_call)
-//			$this->alert($history_call);
 			
 		if($url) {
 			parse_str($url, $_POST);

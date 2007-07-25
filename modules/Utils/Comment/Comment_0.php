@@ -69,7 +69,7 @@ class Utils_Comment extends Module{
 				Base_ActionBarCommon::add('add','Reply',$this->create_unique_href(array('action'=>'post_reply')));
 			}
 
-		$recordSet = DB::Execute('SELECT COUNT(*) FROM comment WHERE topic=%s AND parent <= -1 ORDER BY created_on',$this->key)->FetchRow();
+		$recordSet = DB::Execute('SELECT COUNT(*) FROM comment WHERE topic=%s AND parent <= -1',array($this->key))->FetchRow();
 
 		if (!$this->per_page) $this->per_page = 10;
 		$this->qty = $recordSet[0];
