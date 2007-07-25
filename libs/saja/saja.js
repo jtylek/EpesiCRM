@@ -33,7 +33,7 @@ var saja = {
 			if (req.readyState==4 && req.status==200){	
 				actions = req.responseText.split('<saja_split>');
 				if(id)
-					saja.Put(actions[0], id, act, property)
+					saja.Put(actions[0], id, act, property);
 				if(actions[1])
 					eval(actions[1]);
 				saja.procOn--;
