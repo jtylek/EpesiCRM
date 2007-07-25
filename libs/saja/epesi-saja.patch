@@ -1,8 +1,9 @@
+Only in saja: epesi-saja.patch
 Only in saja: licence.txt
 Only in saja: readme.txt
 diff -rup saja-2.8/saja.js saja/saja.js
 --- saja-2.8/saja.js	2007-07-16 20:58:00.000000000 +0200
-+++ saja/saja.js	2007-07-22 22:53:11.000000000 +0200
++++ saja/saja.js	2007-07-24 17:39:25.000000000 +0200
 @@ -1,12 +1,15 @@
  var saja = {
  	procOn:0,
@@ -40,10 +41,17 @@ diff -rup saja-2.8/saja.js saja/saja.js
  		saja.SendRequest(id, act, property, requestString);
  	},
  	SendRequest: function(id, act, property, requestString){
-@@ -127,32 +124,5 @@ var saja = {
- 			if(f[i].id)
- 				vals[f[i].id] = f[i].value;
- 		return vals;
+@@ -120,39 +117,5 @@ var saja = {
+ 			cipher += String.fromCharCode(data.charCodeAt(i) ^ k);
+ 		}
+ 		return cipher;
+-	},
+-	getForm: function(f){
+-		var vals = {};
+-		for(var i=0; i<f.length; i++)
+-			if(f[i].id)
+-				vals[f[i].id] = f[i].value;
+-		return vals;
 -	},
 -	addHistory: function(value){
 -		var historyURL1 = SAJA_PATH + 'saja.php/1/';

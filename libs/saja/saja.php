@@ -235,7 +235,7 @@ class Saja {
 				if($i) $inner .= $this->argument_separator;
 				if($property)
 					$inner .= "'+saja.Get('$id','$property')+'";
-				else if($arg!=='')
+				else if($arg || is_numeric($arg))
 					$inner .= "'+saja.Get($arg)+'";
 				else
 					$inner .= "'+saja.Get($id)+'";
@@ -248,9 +248,13 @@ class Saja {
 	function texplode($seperator, $str)
 	{
 		$vals = array();
-		foreach(explode($seperator, $str) as $val)
-			if($val!=='')
+		foreach(explode($seperator, $str) as $val){
+			if(is_numeric($val)){
+				$vals[] = $val;
+			} else if(strlen($val) > 0){
 				$vals[] = trim($val);
+			}
+		}	
 		return $vals;
 	}
 

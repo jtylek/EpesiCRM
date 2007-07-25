@@ -117,12 +117,5 @@ var saja = {
 			cipher += String.fromCharCode(data.charCodeAt(i) ^ k);
 		}
 		return cipher;
-	},
-	getForm: function(f){
-		var vals = {};
-		for(var i=0; i<f.length; i++)
-			if(f[i].id)
-				vals[f[i].id] = f[i].value;
-		return vals;
 	}
 }
