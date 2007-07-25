@@ -26,11 +26,11 @@ class DBSession {
     }
     
     public static function read($name) {
-        return DB::GetOne('SELECT data FROM session WHERE name = %s AND expires > %s', array($name, DB::DBTimeStamp(time()-self::$lifetime)));
+        return DB::GetOne('SELECT data FROM session WHERE name = %s AND expires > %s', array($name, time()-self::$lifetime));
     }
 
     public static function write($name, $data) {
-        $ret = DB::Replace('session',array('expires'=>DB::DBTimeStamp(time()),'data'=>$data,'name'=>$name),'name',true);
+        $ret = DB::Replace('session',array('expires'=>time(),'data'=>$data,'name'=>$name),'name',true);
         return ($ret>0)?true:false;
     }
 
@@ -40,7 +40,7 @@ class DBSession {
     }
 
     function gc($lifetime) {
-   	DB::Execute('DELETE FROM session WHERE expires < %s',array(DB::DBTimeStamp(time()-$lifetime)));
+   	DB::Execute('DELETE FROM session WHERE expires < %d',array(time()-$lifetime));
         return true;
     }
 }
