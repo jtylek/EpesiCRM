@@ -17,16 +17,58 @@ class Utils_GenericBrowser_Row_Object {
 		$this->num = $num;
 	}
 	
+	/**
+	 * Adds data to the row in Generic Browser.
+	 * 
+	 * Each argument fills one field, 
+	 * it can be either a string or an array.
+	 * 
+	 * If an array is passed it may consists following fields:
+	 * value - text that will be displayed in the field
+	 * style - additional css style definition
+	 * hint - tooltip for the field
+	 * wrapmode - what wrap method should be used (nowrap, wrap, cut)
+	 * 
+	 * If a string is passed it will be displayed in the field.
+	 * 
+	 * @param mixed list of arguments
+	 */
 	public function add_data($args){
 		$args = func_get_args();
 		$this->GBobj->__add_row_data($this->num,$args);
 	}
 	
+	/**
+	 * Adds data to the row in Generic Browser.
+	 * 
+	 * The argument should be an array, 
+	 * each array entry fills one field, 
+	 * it can be either a string or an array.
+	 * 
+	 * If an array is passed it may consists following fields:
+	 * value - text that will be displayed in the field
+	 * style - additional css style definition
+	 * hint - tooltip for the field
+	 * 
+	 * If a string is passed it will be displayed in the field.
+	 * 
+	 * @param array array with row data
+	 */
 	public function add_data_array($arg){
 		if (!is_array($arg)) trigger_error('Invalid argument for add_data_array.',E_USER_ERROR);
 		$this->GBobj->__add_row_data($this->num,$arg);
 	}
 	
+	/**
+	 * Adds an action to the Generic Browser.
+	 * 
+	 * All actions are placed in one, additional column.
+	 * Theme may replace text with icons and to determine which icon to use
+	 * label lowercase is used.
+	 * 
+	 * @param string href
+	 * @param string label
+	 */
 	public function add_action($tag_attrs,$label){
 		$this->GBobj->__add_row_action($this->num,'<a '.$tag_attrs.'>',$label,'</a>');
 	}
@@ -49,6 +91,20 @@ class Utils_GenericBrowser extends Module {
 			trigger_error('GenericBrowser did not receive string name for instance in module '.$this->get_parent_type().'.<br>Use $this->init_module(\'Utils/GenericBrowser\',\'instance name here\');',E_USER_ERROR);
 	}
 	
+	/**
+	 * Sets table columns according to given definition.
+	 * 
+	 * An argument should be an array, each array field represents one column.
+	 * An column is defined using an array. The following fields may be used:
+	 * name - column label
+	 * width - width of the column (percentage of the whole table)
+	 * search - sql column by which search should be performed
+	 * order - sql column by which order should be deterined
+	 * quickjump - sql column by which quickjump should be navigated
+	 * wrapmode - what wrap method should be used (nowrap, wrap, cut)
+	 * 
+	 * @param array columns definiton
+	 */
 	public function set_table_columns($arg){
 		if (!is_array($arg)) {
 			print('Invalid argument for table_columns, aborting.<br>');
@@ -62,6 +118,18 @@ class Utils_GenericBrowser extends Module {
 		$this->columns_qty = count($arg);
 	}
 
+	/**
+	 * Sets default order for the table.
+	 * This function can be called multiple times 
+	 * and only at the first call or if reset argument if set 
+	 * it will manipulate current order.
+	 * 
+	 * The default order should be provided as an array 
+	 * containing column names (names given with set_table_columns, not SQL column names).
+	 * 
+	 * @param array array with column names
+	 * @param bool true to force order reset
+	 */
 	public function set_default_order($arg,$reset=false){
 		if ($this->isset_module_variable('first_display') && !$reset) return;
 		if (!is_array($arg)){
@@ -85,12 +153,22 @@ class Utils_GenericBrowser extends Module {
 		$this->set_module_variable('default_order',$order);
 	}
 	
+	/**
+	 * Creates new row object.
+	 * You can then use methods add_data, add_data_array or add_action
+	 * to manipulate and extend the row.
+	 * 
+	 * @return object Generic Browser row object
+	 */
 	public function get_new_row() {
 		$this->cur_row++;
 		if ($this->per_page && $this->cur_row>=$this->per_page) trigger_error('Added more rows than expected, aborting.',E_USER_ERROR);
 		return new Utils_GenericBrowser_Row_Object($this,$this->cur_row);
 	}
 	
+	/**
+	 * For internal use only.
+	 */
 	public function __add_row_data($num,$arg) {
 		if (!is_array($arg)) {
 			trigger_error('Invalid argument 2 for add_row_array, aborting.<br>',E_USER_ERROR);
@@ -102,18 +180,57 @@ class Utils_GenericBrowser extends Module {
 		}
 		$this->rows[$num] = $arg;
 	}
-
+	
+	/**
+	 * For internal use only.
+	 */
 	public function __add_row_action($num,$open,$label,$close) {
 		if (!isset($this->lang)) $this->lang = & $this->pack_module('Base/Lang');
 		$this->actions[$num][strtolower(trim($label))] = array('open'=>$open,'label'=>$this->lang->t($label),'close'=>$close);
 		$this->en_actions = true;
 	}
 
+	/**
+	 * Adds new row with data to Generic Browser.
+	 * 
+	 * Each argument fills one field, 
+	 * it can be either a string or an array.
+	 * 
+	 * If an array is passed it may consists following fields:
+	 * value - text that will be displayed in the field
+	 * style - additional css style definition
+	 * hint - tooltip for the field
+	 * wrapmode - what wrap method should be used (nowrap, wrap, cut)
+	 * 
+	 * If a string is passed it will be displayed in the field.
+	 * 
+	 * It's not recommended to use this function in conjunction with add_new_row().
+	 * 
+	 * @param mixed list of arguments
+	 */
 	public function add_row($args) {
 		$args = func_get_args();
 		$this->add_row_array($args);
 	}
 
+	/**
+	 * Adds new row with data to Generic Browser.
+	 * 
+	 * The argument should be an array, 
+	 * each array entry fills one field, 
+	 * it can be either a string or an array.
+	 * 
+	 * If an array is passed it may consists following fields:
+	 * value - text that will be displayed in the field
+	 * style - additional css style definition
+	 * hint - tooltip for the field
+	 * 
+	 * If a string is passed it will be displayed in the field.
+	 * 
+	 * It's not recommended to use this function in conjunction with add_new_row().
+	 * 
+	 * @param array array with row data
+	 */
 	public function add_row_array($arg) {
 		if (!is_array($arg)) {
 			trigger_error('Invalid argument 2 for add_row_array, aborting.<br>',E_USER_ERROR);
@@ -128,6 +245,13 @@ class Utils_GenericBrowser extends Module {
 		if ($this->per_page && $this->cur_row>=$this->per_page) trigger_error('Added more rows than expected, aborting.',E_USER_ERROR);
 	}
 
+	/**
+	 * Returns values needed for proper selection of elements.
+	 * This is only neccessary if you are using 'paged' version of Genric Browser.
+	 * Returned values should be used together with DB::SelectLimit();
+	 * 
+	 * @return array array containing two fields: 'numrows' and 'offset'
+	 */
 	public function get_limit($max) {
 		$offset = $this->get_module_variable('offset',0);
 		$per_page = $this->get_module_variable('per_page',Base_User_SettingsCommon::get_user_settings('Utils/GenericBrowser','per_page'));
@@ -151,6 +275,16 @@ class Utils_GenericBrowser extends Module {
 						'offset'=>$offset);
 	}
 
+	/**
+	 * Returns 'ORDER BY' part of an QSL query 
+	 * which will sort rows in order chosen by end-user.
+	 * Default value returned is determined by arguments passed to set_default_order().
+	 * Returned string contains space at the beginning.
+	 * 
+	 * Do not use this method in conjuntion with get_order() 
+	 * 
+	 * @return string 'ORDER BY' part of the query
+	 */
 	public function get_query_order() {
 		$ch_order = $this->get_unique_href_variable('change_order');
 		if ($ch_order) $this->change_order($ch_order);
@@ -170,12 +304,32 @@ class Utils_GenericBrowser extends Module {
 		return $sql;
 	}
 	
+	/**
+	 * Returns an array containing information about row order.
+	 * Each field represents a column by which the order is determined.
+	 * First field is used as the final order criteria,
+	 * while the last field is used for the initial sort.
+	 * 
+	 * Each field contains:
+	 * column - Generic Browser column name
+	 * order - SQL column name
+	 * direction - ASC or DESC
+	 *  
+	 * Default value returned is determined by arguments passed to set_default_order().
+	 * 
+	 * Do not use this method in conjuntion with get_query_order() 
+	 * 
+	 * @return array array containing information about row order
+	 */
 	public function get_order(){
 		$this->get_query_order();	
 		$order = $this->get_module_variable('order');
 		return $order;
 	}
 	
+	/**
+	 * For internal use only.
+	 */
 	public function change_order($ch_order){
 		$order = $this->get_module_variable('order');
 		ksort($order);
@@ -214,7 +368,18 @@ class Utils_GenericBrowser extends Module {
 		$this->set_module_variable('order',$new_order);
 	}
 	
-	public function get_search_query($arg = null){
+	/**
+	 * Returns statement that should be used in 'WHERE' caluse 
+	 * to select elements that were searched for.
+	 * 
+	 * The statement generated using search criteria is enclosed with parenthesis
+	 * and does not include keyword 'WHERE'. 
+	 * 
+	 * If no conditions where spcified returns empty string.
+	 * 
+	 * @return string part of sql statement
+	 */
+	public function get_search_query(){
 		$search = $this->get_module_variable('search');
 
 		$this->get_module_variable_or_unique_href_variable('quickjump_to');
@@ -240,27 +405,19 @@ class Utils_GenericBrowser extends Module {
 						.$quickjump.' LIKE '.DB::Concat(sprintf('%s',DB::qstr(strtolower($quickjump_to))),'\'%\'').
 						')';
 			
-		if ($where) $where = '('.$where.')';
+		if ($where) $where = ' ('.$where.')';
 
-		if ($arg) $where .= ' AND ('.$arg.')';
 		return $where;
 	}
 	
-	public function unset_quickjump(){
-		$this->unset_module_variable('quickjump_to');
-	}
-	
+	/**
+	 * For internal use only.
+	 */	
 	public function is_adv_search_on(){
 		return $this->get_module_variable('adv_search',Base_User_SettingsCommon::get_user_settings('Utils_GenericBrowser','adv_search'));
 	}
 
-	public function switch_adv_search(){
-		if ($this->is_adv_search_on()) $this->set_module_variable('adv_search',0);
-		else $this->set_module_variable('adv_search',0);
-		location(array());
-	}
-
-	public function check_if_row_fits_array($row,$adv){
+	private function check_if_row_fits_array($row,$adv){
 		$search = $this->get_module_variable('search');
 		if (!$adv){
 			$ret = true;
@@ -279,6 +436,9 @@ class Utils_GenericBrowser extends Module {
 		}
 	}
 
+	/**
+	 * For internal use only.
+	 */	
 	public function simple_table($header, $data, $page_split = true, $template, $order=true) {
 		$len = count($header);
 		foreach($header as $i=>$h) {
@@ -330,6 +490,11 @@ class Utils_GenericBrowser extends Module {
 		$this->body($template); 
 	}
 
+	/**
+	 * Displays the table performing paging and searching automatically.
+	 * 
+	 * @param bool enabling paging, true by default
+	 */
 	public function automatic_display($paging=true){
 		$rows = array();
 		foreach($this->rows as $k=>$v){
@@ -347,6 +512,13 @@ class Utils_GenericBrowser extends Module {
 		$this->body();
 	}
 
+	/**
+	 * Executes SQL query that selects elements needed for the current page
+	 * and performs sort.
+	 * 
+	 * @param string SQL query that selects all elements for the table
+	 * @param string SQL query that will return number of rows in the table
+	 */	
 	public function query_order_limit($query,$query_numrows) {
 		$query_order = $this->get_query_order();
 		$qty = DB::GetOne($query_numrows);
@@ -354,11 +526,13 @@ class Utils_GenericBrowser extends Module {
 		return DB::SelectLimit($query.$query_order,$query_limits['numrows'],$query_limits['offset']);
 	}
 
-	public function body($template,$automatic=false,$paging=true){
-		if ($automatic) {
-			$this->automatic_display($paging);
-			return;
-		}
+	/**
+	 * Displays the table.
+	 * 
+	 * @param string template file that should be used to display the table, use Base_ThemeCommon::get_template_file_name() for proper filename
+	 * @param bool enabling paging, true by default
+	 */
+	public function body($template,$paging=true){
 		$this->set_module_variable('first_display','done');
 		if (!$this->lang) $this->lang = & $this->pack_module('Base/Lang');
 		$theme = & $this->init_module('Base/Theme');

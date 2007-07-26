@@ -81,7 +81,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 				$gb->add_row_array($v);
 			$id++;
 		}
-		$this->display_module($gb,array(null,true));
+		$this->display_module($gb,array(true),'automatic_display');
 	}
 	
 	public function new_lang_pack(){

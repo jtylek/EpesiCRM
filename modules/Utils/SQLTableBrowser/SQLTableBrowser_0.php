@@ -75,7 +75,7 @@ class Utils_SQLTableBrowser extends Module {
 				$qty = DB::GetOne('SELECT COUNT(*) FROM '.$this->t_properties['table_name']);
 				$limit = $this->gb->get_limit($qty);
 			}
-			$search_sql = $this->gb->get_search_query($this->search);
+			$search_sql = $this->gb->get_search_query().' AND ('.$this->search.')';
 			$order_sql = $this->gb->get_query_order();
 			$sql = 'SELECT '.$this->t_properties['id_row'].', '.$sql.' FROM '.$this->t_properties['table_name'].($search_sql?' WHERE '.$search_sql:'').$order_sql;
 			if ($this->t_properties['paging'])
