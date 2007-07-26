@@ -76,7 +76,7 @@ class Base_Backup extends Module {
 
 		$tree = & $this->init_module('Utils/Tree');		
 		$tree->set_structure($structure);
-		$theme->assign('tree',$tree->toHtml());
+		$theme->assign('tree',$this->get_html_of_module($tree));
 		
 		$form->addElement('submit', 'create_backup', $this->lang->ht('Create backup'));		
 		if($form->validate()) {

@@ -21,7 +21,7 @@ class Utils_BookmarkBrowser extends Module {
 		Utils_BookmarkBrowser::$bmk_counter++;
 	}
 	
-	function knatsort( &$arrIn ) {
+	private function knatsort( &$arrIn ) {
 		$key_array = array_keys($arrIn);
 		$arrOut = array();
 		
@@ -32,24 +32,35 @@ class Utils_BookmarkBrowser extends Module {
 		$arrIn = $arrOut;
 	}
 	
-	public function add_item($cnt, $title) {
-			if(!isset($title))
-				$this->_bookmarks[$this->current_bookmark][] = $cnt;
-			else
-				$this->_bookmarks[$this->current_bookmark][$title] = $cnt;
-	}
-	public function add_bookmark($cnt) {
-		if(! key_exists($cnt, $this->_bookmarks))
-			$this->_bookmarks[$cnt] = array();
-		$this->current_bookmark = $cnt;
+	/**
+	 * Adds an entry to the browser at given section.
+	 * The key may determine order of elements.
+	 * 
+	 * @param string section id
+	 * @param string text that will be displayed
+	 * @param string bookmark key, number will be assigned by default
+	 */
+	 public function add_item($sec, $cnt, $title=null) {
+		if(!key_exists($sec, $this->_bookmarks))
+			$this->_bookmarks[$sec] = array();
+		if(!isset($title))
+			$this->_bookmarks[$sec][] = $cnt;
+		else
+			$this->_bookmarks[$sec][$title] = $cnt;
 	}
 	
-	public function sortByBookmark() {
+	/**
+	 * Sorts sections with natural sort.
+	 */
+	public function sortSections() {
 		$this->knatsort($this->_bookmarks);
 	}
 
+	/**
+	 * Sorts both sections and entries with natural sort.
+	 */
 	public function sortAll($items_by_key = false) {
-		$this->knatsort($this->_bookmarks);
+		$this->sortSections();
 		foreach($this->_bookmarks as $k => &$v) {
 			if($items_by_key == true)
 				$this->knatsort($v);
@@ -58,11 +69,17 @@ class Utils_BookmarkBrowser extends Module {
 		}
 	}
 	
+	/**
+	 * Extends bookmark browser to the bottom line of the page.
+	 */
 	public function expand() {
 		$content_id = 'utils_bookmarkbrowser_'.$this->_id;
 		eval_js('wait_while_null("utils_bookmarkbrowser_set_content_height", "utils_bookmarkbrowser_set_content_height(\''.$content_id.'\')");');
 	}
 	
+	/**
+	 * Displays bookmark browser.
+	 */
 	public function body() {
 		
 		load_js('modules/Utils/BookmarkBrowser/js/BookmarkBrowser.js');

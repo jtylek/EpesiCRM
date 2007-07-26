@@ -111,7 +111,8 @@ class Base_Setup extends Module {
 		$tree = & $this->init_module('Utils/Tree');
 		$tree->set_structure($structure);
 		if ($simple) $tree->open_all();
-		$form->addElement('html', '<tr><td colspan=2>'.$tree->toHtml().'</td></tr>');
+		//$form->addElement('html', '<tr><td colspan=2>'.$tree->toHtml().'</td></tr>');
+		$form->addElement('html', '<tr><td colspan=2>'.$this->get_html_of_module($tree).'</td></tr>');
 		
 		if(!$simple) {
 			$form->addElement('header', 'anonymous_header', 'Other (dangerous, don\'t change if you are newbie)');
@@ -143,7 +144,9 @@ class Base_Setup extends Module {
 	//				else location(array());
 				eval_js_once('document.location=\'index.php\'');
 			}
-		} else $form->display();
+		} 
+		//else 
+		$form->display();
 	}
 	
 	public static function parse_modules_folder_refresh(){
@@ -154,7 +157,7 @@ class Base_Setup extends Module {
 	
 	public function validate($data) {
 		global $base;
-		
+
 		$default_module = false;
 		$simple = 0;
 		$installed = array ();

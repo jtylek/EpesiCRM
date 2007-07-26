@@ -24,7 +24,14 @@
 			setTimeout("utils_bookmarkbrowser_set_content_height('"+content+"')", 100);
 		}
 	}
+	
 	utils_bookmark_goto = function(cnt, bkm) {
 		document.getElementById(cnt).scrollTop = getY(document.getElementById(bkm)) - getY(document.getElementById(cnt));
 		//alert( tmp + 'px | ' + getY(document.getElementById(bkm)));
+	}
+	utils_bookmarkbrowser_markTab = function(item) {
+		item.className = 'utils_bookmarkbrowser_tab_hover';
+	}
+	utils_bookmarkbrowser_unmarkTab = function(item) {
+		item.className = 'utils_bookmarkbrowser_tab';
 	}

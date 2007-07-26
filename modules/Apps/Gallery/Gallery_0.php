@@ -186,7 +186,7 @@ class Apps_Gallery extends Module {
 			$theme =  & $this->pack_module('Base/Theme');
 			$theme->assign('type', 'mk_folder');
 			$form->assign_theme('form', $theme);
-			$theme->assign('tree', $tree->toHtml());
+			$theme->assign('tree', $this->get_html_of_module($tree));
 			$theme->display();
 		}
 	}
@@ -278,7 +278,7 @@ class Apps_Gallery extends Module {
 			$theme =  & $this->pack_module('Base/Theme');
 			$theme->assign('type', 'rm_folder');
 			$form->assign_theme('form', $theme);
-			$theme->assign('tree', $tree->toHtml());
+			$theme->assign('tree', $this->get_html_of_module($tree));
 			$theme->display();
 		}
 	}
@@ -373,7 +373,7 @@ class Apps_Gallery extends Module {
 			$theme =  & $this->pack_module('Base/Theme');
 			$theme->assign('type', 'share');
 			$form->assign_theme('form', $theme);
-			$theme->assign('tree', $tree->toHtml());
+			$theme->assign('tree', $this->get_html_of_module($tree));
 			$theme->display();
 		}
 	}
@@ -475,7 +475,7 @@ class Apps_Gallery extends Module {
 		);
 		$tree->sort();
 		
-		$form->addElement('static', null, $tree->toHtml());
+		$form->addElement('static', null, $this->get_html_of_module($tree));
 		
 		$this->display_module($form, array( array($this,'submit_upload') ));
 		
@@ -643,9 +643,9 @@ class Apps_Gallery extends Module {
 		$theme->assign('path', $path->toHtml());
 		$theme->assign('dirs', $dirs);
 		if(Base_AclCommon::i_am_user() > 0)
-			$theme->assign('tree', $tree->toHtml());
+			$theme->assign('tree', $this->get_html_of_module($tree));
 		if(count($structure) > 0)
-			$theme->assign('other', $other->toHtml());
+			$theme->assign('other', $this->get_html_of_module($other));
 		else
 			$theme->assign('other', '');
 		

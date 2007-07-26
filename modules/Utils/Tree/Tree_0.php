@@ -110,7 +110,7 @@ class Utils_Tree extends Module {
 		$this->_closed = false;
 	}
 	
-	public function toHtml() {
+	public function body() {
 		$s = $this->print_structure($this->_structure);
 		$expand_all = '<div class=utils_tree_expand_all id=tree_expand_all_'.$this->_id.' onclick="utils_tree_expand_all('.$this->_id.','.$this->_sub.')">Expand All</div> ';
 		$collapse_all = '<div class=utils_tree_expand_all id=tree_expand_all_'.$this->_id.' onclick="utils_tree_collapse_all('.$this->_id.','.$this->_sub.')">Collapse All</div> ';
@@ -131,11 +131,6 @@ class Utils_Tree extends Module {
 			//eval_js('utils_tree_expand_all('.$this->_id.','.$this->_sub.');');
 		}
 
-		return $this->get_html_of_module($theme,null,'display');
-	}
-	
-
-	public function body( $dir ) {
-		print($this->toHtml());
+		$theme->display();
 	}
 }
