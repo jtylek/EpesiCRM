@@ -13,20 +13,29 @@ class Utils_Comment extends Module{
 	private $qty;
 	private $key = null;
 	private $offset;
-	private $per_page;
+	private $per_page = 10;
 	private $mod = false;
 	private $report = false;
 	private $reply = true;
 	private $reply_on_comment_page = true;
 	private $tree_structure = true;
 	
+	/**
+	 * Constructs new instance of Comment module.
+	 * Key specifies group of comments that will be operated with this instance.
+	 * 
+	 * @param string identifier of the comment group
+	 */
 	public function construct($key) {
 		if(isset($key)) $this->key = $key;
 		else trigger_error('Key not given to comment module, aborting',E_USER_ERROR);
 		$this->lang = & $this->pack_module('Base/Lang');
 	}
 	
-	public function body($key){		
+	/**
+	 * Displays Comments.
+	 */
+	public function body(){		
 		$action = $this->get_module_variable_or_unique_href_variable('action');
 		if ($action) {
 			$this->$action();
@@ -128,27 +137,48 @@ class Utils_Comment extends Module{
 		$theme -> display('Comment');
 	}
 	
-	public static function delete_post_refresh($delete){
-		self::delete_post($delete);
-		location(array());
-	}
-	
-	public static function delete_post($delete){
-		if (!$delete)
-			trigger_error('Invalid action: delete post('.$delete.').');
-		DB::Execute('DELETE FROM comment WHERE id=%d',$delete);
-		DB::Execute('DELETE FROM comment_report WHERE id=%d',$delete);
-		$recSet = DB::Execute('SELECT id FROM comment WHERE parent=%d',$delete);
+	/**
+	 * Deletes comment by comment id.
+	 * All replies to this post are also deleted.
+	 * 
+	 * @param integer post id
+	 */
+	public static function delete_post($id){
+		if (!$id)
+			trigger_error('Invalid action: delete post('.$id.').');
+		DB::Execute('DELETE FROM comment WHERE id=%d',$id);
+		DB::Execute('DELETE FROM comment_report WHERE id=%d',$id);
+		$recSet = DB::Execute('SELECT id FROM comment WHERE parent=%d',$id);
 		while($row=$recSet->FetchRow()) self::delete_post($row['id']);
+		return false;
 	}
 	
-	public static function delete_posts_by_topic($delete){
-		if (!$delete)
-			trigger_error('Invalid action: delete post('.$delete.').');
-		$ret = DB::Execute('SELECT id FROM comment WHERE topic=%s',$delete);
+	/**
+	 * Deletes comments by comment group id.
+	 * 
+	 * @param string comment group id
+	 */
+	public static function delete_posts_by_topic($topic){
+		if (!$topic)
+			trigger_error('Invalid action: delete post('.$topic.').');
+		$ret = DB::Execute('SELECT id FROM comment WHERE topic=%s',$topic);
 		while ($row=$ret->FetchRow()) self::delete_post($row['id']);
 	}
 
+	/**
+	 * Returns all comments from current (specified during construction) comment group.
+	 * The result is an array. Each field in this array represents one comment.
+	 * Comment is described with an array with following fields:
+	 * text - comment contents
+	 * user - username of a user that posted this comment
+	 * date - date when comment was posted in format 'G:i, d M Y'
+	 * report - link that allows to report this comment
+	 * delete - link that allows to delete this comment
+	 * reply - link that will switch 'reply to' to this comment
+	 * tabs - number of tabs that are used to represent comment replies
+	 * 
+	 * @return array all comments
+	 */
 	public function fetch_posts(){
 		$recordSet = DB::Execute('SELECT c.id, c.text, ul.login, c.created_on FROM comment AS c LEFT JOIN user_login AS ul ON (c.user_login_id = ul.id) WHERE topic=%s AND parent <= -1 ORDER BY created_on',array($this->key));
 		$comments = array();
@@ -163,7 +193,7 @@ class Utils_Comment extends Module{
 		$row['text'] = str_replace('&#010;','<br>',$row['text']);
 		if (Base_AclCommon::i_am_user()) {
 			if ($this->mod) {
-				$delete = '<a '.$this->create_confirm_callback_href($this->lang->ht('Are you sure you want to delete this post?'),array($this,'delete_post_refresh'),$row['id']).'>'.$this->lang->t('Delete').'</a>';
+				$delete = '<a '.$this->create_confirm_callback_href($this->lang->ht('Are you sure you want to delete this post?'),array($this,'delete_post'),$row['id']).'>'.$this->lang->t('Delete').'</a>';
 				$rep_count = DB::GetOne('SELECT COUNT(*) FROM comment_report WHERE id=%d',$row['id']);
 				if (!$rep_count) $report = '';
 				else $report = $this->lang->t('Reported %d time(s)',$rep_count);
@@ -193,6 +223,9 @@ class Utils_Comment extends Module{
 		}
 	}
 	
+	/**
+	 * Displays and processes post replying form.
+	 */
 	public function post_reply(){
 		if ($this->is_back()) {
 			$this->unset_module_variable('action');
@@ -231,6 +264,13 @@ class Utils_Comment extends Module{
 		}
 	}
 	
+	/**
+	 * Adds new comment to current comment group.
+	 * You can also specify to which comment this was reply to.
+	 * 
+	 * @param string text message
+	 * @param integer id of a comment to which this one replies
+	 */
 	public function add_post($post_text, $answer_to=-1){
 		$post_text = str_replace('&#010;','<br>',$post_text);
 		DB::Execute('INSERT INTO comment (text, user_login_id, topic, created_on, parent) VALUES (%s, %d, %s, %s, %d)',array(str_replace('&#010;','<br>',$post_text),Base_UserCommon::get_my_user_id(),$this->key,date('Y-m-d G:i:s'),$answer_to));
@@ -256,22 +296,52 @@ class Utils_Comment extends Module{
       		return '<a '.$this->create_unique_href(array('last'=>1)).'>'.$this->lang->t('Last').'</a>';
 	}
 
+	/**
+	 * Sets whether moderation options are available.
+	 * False by default.
+	 *  
+	 * @param bool true to enable moderation
+	 */
 	public function set_moderator($mod){
-		return $this->mod = $mod;
+		$this->mod = $mod;
 	}
 
+	/**
+	 * Sets how many comments should be displayed on the page.
+	 * 10 by default.
+	 * 
+	 * @param integer number of comments per page
+	 */
 	public function set_per_page($pp){
-		return $this->per_page = $pp;
+		$this->per_page = $pp;
 	}
 
+	/**
+	 * Sets whether user is allowed to reply.
+	 * True by default.
+	 * 
+	 * @param bool true to allow replying
+	 */
 	public function set_reply($r){
-		return $this->reply = $r;
+		$this->reply = $r;
 	}
 
+	/**
+	 * Sets what method of posting comments should be used.
+	 * True by default.
+	 * 
+	 * @param bool true to reply on comment page, false to place button on ActionBar
+	 */
 	public function reply_on_comment_page($rocp){
-		return $this->reply_on_comment_page = $rocp;
+		$this->reply_on_comment_page = $rocp;
 	}
 
+	/**
+	 * Sets whether replying to specific comment is allowed.
+	 * True by default.
+	 * 
+	 * @param bool true to enable tree structure
+	 */
 	public function tree_structure($ts){
 		return $this->tree_structure = $ts;
 	}
