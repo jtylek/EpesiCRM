@@ -130,12 +130,12 @@ class Utils_Tree extends Module {
 			eval_js('wait_while_null("utils_tree_expand_all", "utils_tree_expand_all('.$this->_id.','.$this->_sub.')");');
 			//eval_js('utils_tree_expand_all('.$this->_id.','.$this->_sub.');');
 		}
-		
-		return $this->get_html_of_module($theme);
+
+		return $this->get_html_of_module($theme,null,'display');
 	}
 	
 
 	public function body( $dir ) {
-		print $this->toHtml();
+		print($this->toHtml());
 	}
 }

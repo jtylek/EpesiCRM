@@ -68,7 +68,7 @@ class Utils_Path extends Module {
 		$theme->assign('list', $this->list);
 		
 		eval_js('wait_while_null( "utils_path_writeOut", "utils_path_writeOut('.$this->_id.')" );');
-		return $this->get_html_of_module($theme);
+		return $this->get_html_of_module($theme,null,'display');
 	}
 	
 	public function body() {

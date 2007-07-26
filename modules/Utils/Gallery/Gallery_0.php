@@ -94,7 +94,7 @@ class Utils_Gallery extends Module {
 			$theme->assign('style', 'show_all');
 			$theme->assign('image_list', $image_list);
 			
-			$ret = $this->get_html_of_module($theme);
+			$ret = $this->get_html_of_module($theme,null,'display');
 			
 			return $ret;
 		} else {
@@ -232,7 +232,7 @@ class Utils_Gallery extends Module {
 				$theme->assign('next_list', $next_list);
 				$theme->assign('buttons', $buttons);
 				$theme->assign('preview', $preview);
-				return $this->get_html_of_module($theme);
+				return $this->get_html_of_module($theme,'display');
 			}
 		}
 		
