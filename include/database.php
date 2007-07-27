@@ -867,5 +867,6 @@ return $ret;
 
 }
 
+set_magic_quotes_runtime(false);
 DB::connect();
 ?>
