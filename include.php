@@ -6,7 +6,7 @@
  * @licence SPL
  */
 
-define("_VALID_ACCESS", true);
+defined("_VALID_ACCESS") || define("_VALID_ACCESS", true);
 
 umask(0);
 
