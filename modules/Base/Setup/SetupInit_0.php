@@ -8,13 +8,13 @@
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
  * @licence SPL
- * @package epesi-base
+ * @package epesi-base-extra
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
  * This class initializes setup module.
- * @package epesi-base
+ * @package epesi-base-extra
  * @subpackage setup
  */
 class Base_SetupInit_0 extends ModuleInit {

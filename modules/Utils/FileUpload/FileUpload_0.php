@@ -1,6 +1,20 @@
 <?php
+/**
+ * Uploads file
+ * 
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2006, Telaxus LLC
+ * @version 1.0
+ * @licence SPL
+ * @package epesi-utils
+ */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
+/**
+ * Main class
+ * @package epesi-utils
+ * @subpackage file-uploader
+ */
 class Utils_FileUpload extends Module {
 	private $on_submit = null;
 	private $form = null;

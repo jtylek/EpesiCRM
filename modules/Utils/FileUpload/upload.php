@@ -1,6 +1,14 @@
 <?php
-//print_r($_REQUEST);
-//print_r($_FILES);
+/**
+ * Uploads file
+ * 
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2006, Telaxus LLC
+ * @version 1.0
+ * @licence SPL
+ * @package epesi-utils
+ * @subpackage file-uploader
+ */
 
 $form_name = $_REQUEST['form_name'];
 if(!isset($form_name))

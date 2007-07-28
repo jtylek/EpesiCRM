@@ -1,4 +1,14 @@
 <?php
+/**
+ * Download file
+ * 
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2006, Telaxus LLC
+ * @version 1.0
+ * @licence SPL
+ * @package epesi-libs
+ * @subpackage fpdf
+ */
 $id = $_REQUEST['id'];
 $pdf_id = $_REQUEST['pdf'];
 $filename = $_REQUEST['filename'];

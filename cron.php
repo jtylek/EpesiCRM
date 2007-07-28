@@ -1,9 +1,11 @@
 <?php
-/*
+/**
+ * This file provides cron functionality... Add it to your cron.
  * @author Paul Bukowski <pbukowski@telaxus.com>
- * @version 1.0
- * @copyright Copyright &copy; 2007, Telaxus LLC
+ * @copyright Copyright &copy; 2006, Telaxus LLC
  * @licence SPL
+ * @version 1.0
+ * @package epesi-base
  */
 require_once('libs/saja/saja.php');
 require_once('include.php');

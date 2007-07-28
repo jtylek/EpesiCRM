@@ -11,6 +11,11 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
+/**
+ * This class provides interface for module install.
+ * @package epesi-base
+ * @subpackage module
+ */
 abstract class ModuleInstall {
 	/**
 	 * Module installation function.

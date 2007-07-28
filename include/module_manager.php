@@ -1,12 +1,18 @@
 <?php
-/*
+/**
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @version 1.0
  * @copyright Copyright &copy; 2007, Telaxus LLC
  * @licence SPL
+ * @package epesi-base
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
+/**
+ * This class provides methods for module manipulations
+ * @package epesi-base
+ * @subpackage module
+ */
 class ModuleManager {
 	public static $not_loaded_modules = null;
 	public static $loaded_modules = array();
