@@ -273,7 +273,7 @@ class Utils_Comment extends Module{
 	 */
 	public function add_post($post_text, $answer_to=-1){
 		$post_text = str_replace('&#010;','<br>',$post_text);
-		DB::Execute('INSERT INTO comment (text, user_login_id, topic, created_on, parent) VALUES (%s, %d, %s, %s, %d)',array(str_replace('&#010;','<br>',$post_text),Base_UserCommon::get_my_user_id(),$this->key,date('Y-m-d G:i:s'),$answer_to));
+		DB::Execute('INSERT INTO comment (text, user_login_id, topic, created_on, parent) VALUES (%s, %d, %s, %s, %d)',array(htmlspecialchars($post_text,ENT_QUOTES,'UTF-8'),Base_UserCommon::get_my_user_id(),$this->key,date('Y-m-d G:i:s'),$answer_to));
 	}
 
 	private function first() {

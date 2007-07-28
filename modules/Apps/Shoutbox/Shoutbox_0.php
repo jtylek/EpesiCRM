@@ -30,7 +30,7 @@ class Apps_Shoutbox extends Module {
 				eval_js('document.getElementById(\'shoutbox_text\').value=\'\';focus_by_id(\'shoutbox_text\')');
 			
 				//insert to db
-				DB::Execute('INSERT INTO apps_shoutbox_messages(message,base_user_login_id) VALUES(%s,%d)',array($msg,$user_id));
+				DB::Execute('INSERT INTO apps_shoutbox_messages(message,base_user_login_id) VALUES(%s,%d)',array(htmlspecialchars($msg,ENT_QUOTES,'UTF-8'),$user_id));
 			}
 			//display form
 			$qf->display();

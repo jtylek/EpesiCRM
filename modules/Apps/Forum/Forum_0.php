@@ -118,8 +118,7 @@ class Apps_Forum extends Module {
 		$cancel = HTML_QuickForm::createElement('button','cancel',$this->lang->ht('Cancel'), $this->create_back_href());
 		$form -> addGroup(array($submit,$cancel));
 		if ($form->validate()) {
-		file_put_contents('/tmp/dupa','dp2');
-			DB::Execute('INSERT INTO apps_forum_board (name,descr) VALUES (%s,%s)',array($form->exportValue('name'),$form->exportValue('descr')));
+			DB::Execute('INSERT INTO apps_forum_board (name,descr) VALUES (%s,%s)',array(htmlspecialchars($form->exportValue('name'),ENT_QUOTES,'UTF-8'),htmlspecialchars($form->exportValue('descr'),ENT_QUOTES,'UTF-8')));
 			return false;
 		}
 		$form->display();
@@ -155,8 +154,9 @@ class Apps_Forum extends Module {
 		$form -> addElement('submit','submit','Submit');
 		$form -> addElement('button','cancel','Cancel',$this->create_back_href());
 		if ($form->validate() && Base_AclCommon::i_am_user()) {
-			DB::Execute('INSERT INTO apps_forum_thread (topic, apps_forum_board_id) VALUES (%s,%d)',array($form->exportValue('topic'),$board));
-			$id = DB::GetOne('SELECT id FROM apps_forum_thread WHERE topic=%s AND apps_forum_board_id=%d',array($form->exportValue('topic'),$board));
+			$topic = htmlspecialchars($form->exportValue('topic'),ENT_QUOTES,'UTF-8');
+			DB::Execute('INSERT INTO apps_forum_thread (topic, apps_forum_board_id) VALUES (%s,%d)',array($topic,$board));
+			$id = DB::GetOne('SELECT id FROM apps_forum_thread WHERE topic=%s AND apps_forum_board_id=%d',array($topic,$board));
 			$comment = & $this->init_module('Utils/Comment','apps_forum_'.$this->key.'_'.$id);
 			$comment->add_post($form->exportValue('post_content'));
 			return false;
