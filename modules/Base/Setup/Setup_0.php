@@ -143,6 +143,7 @@ class Base_Setup extends Module {
 //				if($this->parent && $this->parent->get_type()=='Base_Admin') $this->parent->reset();
 	//				else location(array());
 				eval_js_once('document.location=\'index.php\'');
+				return;
 			}
 		} 
 		//else 
