@@ -33,15 +33,20 @@ class Tests_Callbacks extends Module {
 	}
 
 	public function form2() {
-		$form = & $this->init_module('Libs/QuickForm');
-		$form->addElement('header',null,'Form 2',null,'f2');
+		if($this->is_back()) return false;
+		$form = & $this->init_module('Libs/QuickForm',null,'f2');
+		$form->addElement('header',null,'Form 2');
+		$form->addElement('textarea','text','Form 2');
+//		$form->setDefaults(array('text'=>"wielka dupa\na"));
 		$form->addElement('submit',null,'OK');
+		$form->addElement('button',null,'Cancel',$this->create_back_href());
 		
 		if($form->validate()) {
 			print('Form 2 validated<hr>');
-			return false;
-		} else
-			$form->display();
+			print($form->exportValue('text'));
+		//	return true;
+		}
+		$form->display();
 		return true;
 	}
 	

@@ -66,10 +66,10 @@ class Utils_Comment extends Module{
 					$form -> addElement('header','reply',sprintf($this->lang->t('Reply to %s\'s comment given at %s'),$comment_info['login'],date('G:i, d M Y',strtotime($comment_info['created_on']))));
 					$form -> addElement('static','whole','','<a '.$this->create_unique_href(array('answer'=>-1)).'>'.$this->lang->t('Comment whole thread').'</a>');
 				}
-				$form -> addElement('textarea','comment_page_reply',$this->lang->t('Message'),array('rows'=>4,'cols'=>40,'onBlur'=>'document.getElementsByName(\'comment_content\')[0].value = document.getElementsByName(\'comment_page_reply\')[0].value.replace(/\n/g,\'<br>\');'));
+				$form -> addElement('textarea','comment_page_reply',$this->lang->t('Message'),array('rows'=>4,'cols'=>40));//,'onBlur'=>'document.getElementsByName(\'comment_content\')[0].value = document.getElementsByName(\'comment_page_reply\')[0].value.replace(/\n/g,\'<br>\');'));
 				$form -> addElement('submit','submit_comment','Submit');
 				if ($form->validate() && Base_AclCommon::i_am_user() && $this->reply){
-					$this->add_post($form->exportValue('comment_content'),$answer);
+					$this->add_post($form->exportValue('comment_page_reply'),$answer);
 					$this->unset_module_variable('answer');
 					$answer = -1;
 				}
@@ -190,7 +190,7 @@ class Utils_Comment extends Module{
 	}
 	
 	private function prepare_comment(& $comments,$row,$tab = 0){
-		$row['text'] = str_replace('&#010;','<br>',$row['text']);
+		$row['text'] = str_replace("\n",'<br>',$row['text']);
 		if (Base_AclCommon::i_am_user()) {
 			if ($this->mod) {
 				$delete = '<a '.$this->create_confirm_callback_href($this->lang->ht('Are you sure you want to delete this post?'),array($this,'delete_post'),$row['id']).'>'.$this->lang->t('Delete').'</a>';
@@ -246,12 +246,12 @@ class Utils_Comment extends Module{
 			$comment_info = DB::Execute('SELECT c.id, c.text, ul.login, c.created_on FROM comment AS c LEFT JOIN user_login AS ul ON (c.user_login_id = ul.id) WHERE c.id = %d ORDER BY created_on',array($answer))->FetchRow();
 			$form -> addElement('header','reply',$this->lang->t('Reply to %s\'s comment given at %s',array($comment_info['login'],date('G:i, d M Y',strtotime($comment_info['created_on'])))));
 		}
-		$form -> addElement('textarea','comment_page_reply',$this->lang->t('Message'),array('rows'=>4,'cols'=>40,'onBlur'=>'document.getElementsByName(\'comment_content\')[0].value = document.getElementsByName(\'comment_page_reply\')[0].value.replace(/\n/g,\'<br>\');'));
+		$form -> addElement('textarea','comment_page_reply',$this->lang->t('Message'),array('rows'=>4,'cols'=>40));//,'onBlur'=>'document.getElementsByName(\'comment_content\')[0].value = document.getElementsByName(\'comment_page_reply\')[0].value.replace(/\n/g,\'<br>\');'));
 		$form -> addRule('comment_page_reply',$this->lang->t('Field required'),'required');
 		$form -> addElement('submit','submit_comment','Submit');
 		$form -> addElement('button','cancel_comment','Cancel',$this->create_back_href());
 		if ($form->validate() && Base_AclCommon::i_am_user() && $this->reply){
-			$this->add_post($form->exportValue('comment_content'),$answer);
+			$this->add_post($form->exportValue('comment_page_reply'),$answer);
 			$this->unset_module_variable('answer');
 			$this->unset_module_variable('action');
 			$answer = -1;
@@ -272,7 +272,7 @@ class Utils_Comment extends Module{
 	 * @param integer id of a comment to which this one replies
 	 */
 	public function add_post($post_text, $answer_to=-1){
-		$post_text = str_replace('&#010;','<br>',$post_text);
+//		$post_text = str_replace("\n",'<br>',$post_text);
 		DB::Execute('INSERT INTO comment (text, user_login_id, topic, created_on, parent) VALUES (%s, %d, %s, %s, %d)',array(htmlspecialchars($post_text,ENT_QUOTES,'UTF-8'),Base_UserCommon::get_my_user_id(),$this->key,date('Y-m-d G:i:s'),$answer_to));
 	}
 

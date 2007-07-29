@@ -277,7 +277,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
 				$value = $element->getValue();
 	        	    	$element->setValue('');
 	        		if($value!==null) {
-					eval_js('wait_while_null(\'settextvalue\',\'settextvalue(\\\''.$this->_formName.'\\\',\\\''.$name.'\\\',\\\''.addslashes(addslashes($value)).'\\\')\')');
+					eval_js('wait_while_null(\'settextvalue\',\'settextvalue(\\\''.$this->_formName.'\\\',\\\''.$name.'\\\',"'.addslashes(str_replace("\n",'\n',addslashes($value))).'")\')');
 	    			}
 			} elseif($type == 'select') {
 				$value = $element->getValue();
@@ -285,7 +285,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
 				if($element->getMultiple()) $name .= '[]'; 
 				if($value!==null)
 					foreach($value as $v) {
-						eval_js('wait_while_null(\'setselectvalue\',\'setselectvalue(\\\''.$this->_formName.'\\\',\\\''.$name.'\\\',\\\''.addslashes(addslashes($v)).'\\\')\')');
+						eval_js('wait_while_null(\'setselectvalue\',\'setselectvalue(\\\''.$this->_formName.'\\\',\\\''.$name.'\\\',\\\''.addslashes(str_replace("\n",'\n',addslashes($v))).'\\\')\')');
 					}
 			} elseif($type == 'checkbox' || $type=='radio') {
 		    		$value = $element->getAttribute('checked');
@@ -294,7 +294,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
 					if($type=='checkbox')
 						eval_js('wait_while_null(\'setcheckvalue\',\'setcheckvalue(\\\''.$this->_formName.'\\\',\\\''.$name.'\\\',\\\''.addslashes(addslashes($value)).'\\\')\')');
 					else
-						eval_js('wait_while_null(\'setradiovalue\',\'setradiovalue(\\\''.$this->_formName.'\\\',\\\''.$name.'\\\',\\\''.addslashes(addslashes($element->getValue())).'\\\')\')');
+						eval_js('wait_while_null(\'setradiovalue\',\'setradiovalue(\\\''.$this->_formName.'\\\',\\\''.$name.'\\\',\\\''.addslashes(str_replace("\n",'\n',addslashes($element->getValue()))).'\\\')\')');
 	    			}
 			}
 		}
