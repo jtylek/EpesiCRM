@@ -88,13 +88,15 @@ if(!$errors) {
 	if($base->hasActions())
 		echo $base->send();
 } else {
+	$s = new saja(true);
 	if($_SESSION['__last_error__']!==$errors) {
-		$s = new saja(true);
 		$s->alert($errors);
 		$s->redirect('index.php');
 		$_SESSION['__last_error__']=$errors;
-		echo $s->send();
+	} else {
+		$s->text('Fatal error - '.$errors,'error_box');
 	}
+	echo $s->send();
 	exit();
 }
 $_SESSION['__last_error__']='';
