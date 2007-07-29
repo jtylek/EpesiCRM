@@ -115,7 +115,10 @@ class Utils_CustomMenu extends Module {
 	
 	public function delete_entry($path) {
 		DB::Execute('DELETE FROM utils_custommenu_entry WHERE path=%s',$path);
-		location(array());
+		$data = & $this->get_module_variable('data');
+		foreach($data as $i=>$row) {
+			if($row==$path) unset($data[$i]);
+		}
 	}
 }
 

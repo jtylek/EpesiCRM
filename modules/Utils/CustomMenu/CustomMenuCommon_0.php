@@ -15,7 +15,7 @@ class Utils_CustomMenuCommon {
 	}
 
 	public static function menu() {
-		$ret = DB::Execute('SELECT path,module,function,arguments FROM utils_custommenu_page LEFT JOIN utils_custommenu_entry ON page_id=id');
+		$ret = DB::Execute('SELECT path,module,function,arguments FROM utils_custommenu_page INNER JOIN utils_custommenu_entry ON page_id=id');
 		$menu = array();
 		while($row=$ret->FetchRow()) {
 			$path = explode('/',$row['path']);
