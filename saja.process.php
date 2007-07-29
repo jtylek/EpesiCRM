@@ -88,11 +88,16 @@ if(!$errors) {
 	if($base->hasActions())
 		echo $base->send();
 } else {
-	$s = new saja(true);
-	$s->alert($errors);
-	echo $s->send();
+	if($_SESSION['__last_error__']!==$errors) {
+		$s = new saja(true);
+		$s->alert($errors);
+		$s->redirect('index.php');
+		$_SESSION['__last_error__']=$errors;
+		echo $s->send();
+	}
 	exit();
 }
+$_SESSION['__last_error__']='';
 
 //capture the response and output as utf-8 encoded
 $content = ob_get_contents();
