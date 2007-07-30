@@ -151,7 +151,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 			$form->addElement('select', 'active', $this->lang->t('Active'), array(1=>$this->lang->ht('Yes'), 0=>$this->lang->ht('No')));
 		
 			//set defaults
-			$ret = DB::Execute('SELECT u.login, p.mail, u.active FROM user_login u INNER JOIN (user_password p) ON (p.user_login_id=u.id) WHERE u.id=%d', $edit_id);
+			$ret = DB::Execute('SELECT u.login, p.mail, u.active FROM user_login u INNER JOIN user_password p ON (p.user_login_id=u.id) WHERE u.id=%d', $edit_id);
 			$username = '';
 			if($ret && ($row = $ret->FetchRow())) {
 				$form->setDefaults(array('username'=>$row['login'], 'mail'=>$row['mail'], 'active'=>$row['active']));
