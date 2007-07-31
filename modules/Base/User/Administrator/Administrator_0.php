@@ -105,7 +105,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 				$uid = Base_AclCommon::get_acl_user_id($row['login']);
 				if(!$uid) continue;
 				$groups = Base_AclCommon::get_user_groups_names($uid);
-				if($groups===false) continue; //skip if you don't have enought priviligies
+				if($groups===false) continue; //skip if you don't have privileges
 				
 				$gb->add_row('<a '.$this->create_unique_href(array('edit_user'=>$row['id'])).'>'.$row['login'].'</a>',$row['mail'],$groups);
 			}
