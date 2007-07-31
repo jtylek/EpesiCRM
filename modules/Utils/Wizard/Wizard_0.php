@@ -58,8 +58,7 @@ class Utils_Wizard extends Module {
 	}
 	
 	public function end_page($func) {
-		$this->next[$this->counter] = func_get_args();
-			
+		$this->next[$this->counter] = $func;
 		$this->counter++;
 	}
 	
@@ -74,14 +73,14 @@ class Utils_Wizard extends Module {
 				$this->form[$this->curr_page]->process(array($this,'submit')); 
 	
 	    		$this->history[] = $this->curr_page;
-				if(is_int($this->next[$this->curr_page][0])) {
-					$this->curr_page = $this->next[$this->curr_page][0];
-				} elseif(is_string($this->next[$this->curr_page][0])) {
-					$this->curr_page = $this->r_aliases[$this->next[$this->curr_page][0]];
-				} elseif(is_callable($this->next[$this->curr_page][0])) {
-					$args = $this->next[$this->curr_page][0];
+				if(is_int($this->next[$this->curr_page])) {
+					$this->curr_page = $this->next[$this->curr_page];
+				} elseif(is_string($this->next[$this->curr_page])) {
+					$this->curr_page = $this->r_aliases[$this->next[$this->curr_page]];
+				} elseif(is_callable($this->next[$this->curr_page])) {
+					$args = $this->next[$this->curr_page];
 					$args[0] = & $this->data[$this->curr_page];
-    	    		$ret = call_user_func_array($this->next[$this->curr_page][0], $args);
+    	    		$ret = call_user_func_array($this->next[$this->curr_page], $args);
     	    		if(isset($ret)) {
 						if(is_int($ret))
 			    			$this->curr_page = $ret;
