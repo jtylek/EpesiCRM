@@ -9,11 +9,19 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_CustomMenuCommon {
+
+	/**
+	 * Delete all menu entries with specified group id.
+	 * @param string identifier of the menu entries group
+	 */
 	public static function delete($id) {
 		$p = md5($id);
 		return DB::Execute('DELETE FROM utils_custommenu_entry WHERE page_id=%s',$p) && DB::Execute('DELETE FROM utils_custommenu_page WHERE id=%s',$p);
 	}
 
+	/**
+	 * private function
+	 */
 	public static function menu() {
 		$ret = DB::Execute('SELECT path,module,function,arguments FROM utils_custommenu_page INNER JOIN utils_custommenu_entry ON page_id=id');
 		$menu = array();

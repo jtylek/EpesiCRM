@@ -13,6 +13,12 @@ class Utils_CustomMenu extends Module {
 	private $function = null;
 	private $arguments = null;
 	
+	/**
+	 * Constructs new instance of CustomMenu module.
+	 * Key specifies group of menu entries that will be operated with this instance.
+	 * 
+	 * @param string identifier of the menu entries group
+	 */
 	public function construct($id) {
 		$this->lang = & $this->pack_module('Base/Lang');
 		if(!isset($id)) {
@@ -31,6 +37,12 @@ class Utils_CustomMenu extends Module {
 		}
 	}
 	
+	/**
+	 * Menu entries from this group (specified in init_module) calls $function with $arguments.
+	 *
+	 * @param array or string arguments
+	 * @param function name
+	 */
 	public function save($arguments,$function='body') {
 		$id = md5($this->mid);
 		$module = $this->parent->get_type();
@@ -41,6 +53,9 @@ class Utils_CustomMenu extends Module {
 			DB::Execute('INSERT INTO utils_custommenu_entry(page_id,path) VALUES(%s, %s)',array($id,$row));		
 	}
 
+	/**
+	 * Displays menu editor.
+	 */
 	public function body() {
 		$edit = $this->get_module_variable_or_unique_href_variable('edit');
 		if(isset($edit)) return $this->edit($edit);
@@ -64,6 +79,9 @@ class Utils_CustomMenu extends Module {
 	///////////////////////////////////////////////////////////////
 	////////////////////   private area   /////////////////////////
 	///////////////////////////////////////////////////////////////
+	/**
+	 * private function
+	 */
 	private function edit($path) {
 		if($this->is_back()) {
 			$this->unset_module_variable('edit');
@@ -104,6 +122,9 @@ class Utils_CustomMenu extends Module {
 		$f->display();
 	}
 	
+	/**
+	 * private function
+	 */
 	public function check_path($path) {
 		$data = $this->get_module_variable('data');
 		foreach($data as $row)
@@ -113,6 +134,9 @@ class Utils_CustomMenu extends Module {
 		return true;
 	}
 	
+	/**
+	 * private function
+	 */
 	public function delete_entry($path) {
 		DB::Execute('DELETE FROM utils_custommenu_entry WHERE path=%s',$path);
 		$data = & $this->get_module_variable('data');
