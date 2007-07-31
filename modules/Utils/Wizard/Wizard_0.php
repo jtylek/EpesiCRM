@@ -12,7 +12,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
  * This is a wizard creator helper wizard.
- * Enjoy.
  * 
  * @package epesi-utils
  * @subpackage generic-browse
@@ -29,6 +28,12 @@ class Utils_Wizard extends Module {
 	private $aliases = array();
 	private $r_aliases = array();
 	
+	/**
+	 * Module constructor.
+	 * You can choose starting page while creating new instance of this module.
+	 * 
+	 * @param integer starting page number 
+	 */
 	public function construct($start_page=0) {
 		$this->counter = 0;
 		$this->curr_page = $this->get_module_variable('curr_page',$start_page);
@@ -41,6 +46,14 @@ class Utils_Wizard extends Module {
 		}
 	}
 	
+	/**
+	 * Starts new wizard step.
+	 * This method returns QuickForm object which you should use 
+	 * to create wizard step.
+	 * 
+	 * @param string alias for the page
+	 * @return object QuickForm object
+	 */
 	public function begin_page($name) {
 		$args = func_get_args();
 		array_shift($args);
@@ -53,20 +66,40 @@ class Utils_Wizard extends Module {
 		return $this->form[$this->counter];
 	}
 	
+	/**
+	 * Sets renderer that will be used to display current step.
+	 * 
+	 * @param object HTML QuickForm renderer object
+	 */
 	public function set_alternative_renderer(& $rend) {
 		$this->renderers[$this->counter] = & $rend;
 	}
 	
+	/**
+	 * Finishes current page.
+	 * You can also choose specific page (by number or alias).
+	 * 
+	 * @param mixed next page
+	 */
 	public function end_page($func) {
 		$this->next[$this->counter] = $func;
 		$this->counter++;
 	}
 	
+	/**
+	 * For internal use only.
+	 */
 	public function submit($d) {
 		$this->data[$this->curr_page] = $d;
 		if(isset($this->aliases[$this->curr_page])) $this->data[$this->aliases[$this->curr_page]] = & $this->data[$this->curr_page]; 
 	}
 	
+	/**
+	 * Displays wizard current step.
+	 * You can also specify function to process the data from all the pages.
+	 * 
+	 * @param method method to process the data
+	 */
 	public function body($func) {
 		if($this->curr_page>=$this->counter) $this->curr_page = array_pop($this->history);
 		if($this->form[$this->curr_page]->getSubmitValue('submited') && $this->form[$this->curr_page]->validate()) {
