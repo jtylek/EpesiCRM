@@ -13,6 +13,9 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_FontSize extends Module {
 	
+	/**
+	 * For internal use only.
+	 */
 	public function body($arg) {
 		
 		$js = '

@@ -19,7 +19,7 @@ class Tests_SQLTableBrowser_People extends Module {
 			$this -> display_module($m);
 			return;
 		}
-		$gb = & $this->init_module('Utils/SQLTableBrowser','browse_sql');
+		$gb = & $this->init_module('Utils/SQLTableBrowser',null,'browse_sql');
 		$gb->set_table_format(array(	array('label'=>$this->lang->t('Id'), 'width'=>20,'column'=>'id','order'=>1,'search'=>1),
 										array('label'=>$this->lang->t('First name'), 'width'=>20,'column'=>'fname','order'=>1),
 										array('label'=>$this->lang->t('Last name'), 'width'=>20,'column'=>'lname','order'=>1),

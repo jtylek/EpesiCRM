@@ -45,6 +45,7 @@ class Utils_DirtyRead extends Module {
 			$this->init_form($arg);
 	}
 	
+	
 	public function init_form(& $f) {
 		$f->addElement('hidden', '_read_time', $this->rt);
 		$f->addRule('_read_time', '','numeric');
@@ -87,7 +88,7 @@ class Utils_DirtyRead extends Module {
 	/**
 	 * Mark table(s) as modified and commit transaction.
 	 * 
-	 * @param mixed string if you wonna pass only one table, array(<table_name>=><id>) otherthise
+	 * @param mixed string if you want to pass only one table, array(<table_name>=><id>) otherthise
 	 * @param integer id if you are passing only one table
 	 */
 	public function modified($table, $id=null) {

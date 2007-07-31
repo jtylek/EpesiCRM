@@ -94,8 +94,8 @@ class Utils_GenericBrowser extends Module {
 	/**
 	 * Sets table columns according to given definition.
 	 * 
-	 * An argument should be an array, each array field represents one column.
-	 * An column is defined using an array. The following fields may be used:
+	 * Argument should be an array, each array field represents one column.
+	 * A column is defined using an array. The following fields may be used:
 	 * name - column label
 	 * width - width of the column (percentage of the whole table)
 	 * search - sql column by which search should be performed

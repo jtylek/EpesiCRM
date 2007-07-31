@@ -23,11 +23,21 @@ class Utils_TabbedBrowser extends Module {
 	private $c_caption;
 	private $tag;
 	
+	/**
+	 * Displays tabs.
+	 * You can alternatively choose to use different template file for tabs display.
+	 * 
+	 * @param string template file that will be used
+	 */
 	public function body($template) {
 		$theme = & $this->pack_module('Base/Theme');
 		
 		$captions = array();
-		$page = $this->get_module_variable_or_unique_href_variable('page', 0);
+		if ($this->get_module_variable('force')) {
+			$page = $this->get_module_variable('page', 0);
+			$this->unset_module_variable('force');
+		} else 	
+			$page = $this->get_module_variable_or_unique_href_variable('page', 0);
 		
 		$i = 0;
 		foreach($this->tabs as $caption=>$val) {
@@ -60,14 +70,37 @@ class Utils_TabbedBrowser extends Module {
 		$theme->display($template);
 	}
 	
+	/**
+	 * Allows you to set a function 
+	 * that will be called each time user switches tabs.
+	 * 
+	 * This function must accept two arguments:
+	 * tab to which user just switched
+	 * tab that was displayed when user have chosen to switch
+	 * 
+	 * @param method method that will be called on switch
+	 */
 	public function set_change_tab_callback(array $func) {
 		$this->c_func = $func;
 	}
 	
+	/**
+	 * Perform operation that guarantee module reloading.
+	 * You need to call this function from within your module
+	 * to make Tabbed Browser work properly.
+	 */
 	public function tag() {
 		print '<!--page '.$this->tag.'-->';
 	}
 
+	/**
+	 * Creates new tab.
+	 * You need to specify tab caption and what function should be called.
+	 * The rest of the arguments will be passed to the function.
+	 * 
+	 * @param string tab caption
+	 * @param method method that will be called when tab is displayed
+	 */
 	public function set_tab($caption, $function) {
 		$this->tabs[$caption]['func'] = & $function;
 		$args = func_get_args();
@@ -76,18 +109,30 @@ class Utils_TabbedBrowser extends Module {
 		$this->tabs[$caption]['args'] = $args;
 	}
 	
+	/**
+	 * This method will force Tabbed Browser to switch to selected tab.
+	 * 
+	 * @param intereger tab number
+	 */
 	public function switch_tab($i) {
 		if(!isset($i)) $i = count($this->tabs)-1;
 		$this->set_module_variable('page',$i);
+		$this->set_module_variable('force',true);
 	}
 	
+	/**
+	 * Sets default tab. 
+	 * No action will be done if tabbed browser was already displayed at least once.
+	 * 
+	 * @param intereger tab number
+	 */
 	public function set_default_tab($i) {
 		if($this->isset_module_variable('page')) return;
 		if(!isset($i)) $i = count($this->tabs)-1;
 		$this->set_module_variable('page',$i);
 	}
 
-	public function start_tab($caption) {
+/*	public function start_tab($caption) {
 		ob_start();
 		$this->caption = $caption;
 	}
@@ -96,5 +141,6 @@ class Utils_TabbedBrowser extends Module {
 		$this->tabs[$this->caption]['body'] = ob_get_contents();
 		ob_end_clean();		
 	}
+*/
 }
 ?>

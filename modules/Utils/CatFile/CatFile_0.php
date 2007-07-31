@@ -19,10 +19,15 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  * @subpackage catfile
  */
 class Utils_CatFile extends Module {
+	/**
+	 * Displays PHP code from selected file with syntax highlighting.
+	 * 
+	 * @param string filename
+	 */
 	public function body($arg) {
 		print('<div align="left">');
 		if (file_exists($arg)) {
-			highlight_string(file_get_contents($arg));
+			highlight_file($arg);
 		} else {
 			echo "File $arg does not exist.";
 		}

@@ -16,7 +16,7 @@ class Tests_TabbedBrowser extends Module {
 		$tb->set_tab('Manage Companies', array($this,'xxx'),'companies');
 		$tb->set_tab('Manage Sales Categories', array($this,'xxx'),'categories');
 		$this->display_module($tb);
-		$tb->tag();
+//		$tb->tag();
 
 		//------------------------------ print out src
 		print('<hr><b>Install</b><br>');
