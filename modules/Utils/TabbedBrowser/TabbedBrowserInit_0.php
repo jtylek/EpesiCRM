@@ -9,14 +9,10 @@
  * @version 0.9
  * @licence SPL
  * @package epesi-utils
+ * @subpackage tabbed-browser
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class provides initialization data for TabbedBrowser module.
- * @package epesi-utils
- * @subpackage tabbed-browser
- */
 class Utils_TabbedBrowserInit_0 extends ModuleInit {
 
 	public static function requires() {

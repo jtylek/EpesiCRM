@@ -7,15 +7,9 @@
  * @version 0.9
  * @licence SPL
  * @package epesi-utils
+ * @subpackage wizard
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
-
-/**
- * This is a wizard creator helper wizard.
- * 
- * @package epesi-utils
- * @subpackage generic-browse
- */
 
 class Utils_Wizard extends Module {
 	private $counter;

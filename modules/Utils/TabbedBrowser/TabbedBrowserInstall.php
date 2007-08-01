@@ -9,14 +9,10 @@
  * @version 0.9
  * @licence SPL
  * @package epesi-utils
+ * @subpackage tabbed-browser
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class provides initialization data for TabbedBrowser module.
- * @package epesi-utils
- * @subpackage tabbed-browser
- */
 class Utils_TabbedBrowserInstall extends ModuleInstall {
 	public static function install() {
 		Base_ThemeCommon::install_default_theme('Utils/TabbedBrowser');

@@ -9,14 +9,10 @@
  * @version 0.9
  * @licence SPL
  * @package epesi-utils
+ * @subpackage tabbed-browser
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class facilitates grouping page content in different tabs.
- * @package epesi-utils
- * @subpackage tabbed-browser
- */
 class Utils_TabbedBrowser extends Module {
 	private $tabs;
 	private $c_func;

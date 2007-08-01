@@ -7,6 +7,7 @@
  * @version 0.9
  * @licence SPL
  * @package epesi-utils
+ * @subpackage image
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

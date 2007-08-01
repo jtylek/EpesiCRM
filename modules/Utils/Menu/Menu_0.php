@@ -8,6 +8,7 @@
  * @version 0.9 
  * @licence SPL
  * @package epesi-utils 
+ * @subpackage menu
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
