@@ -1,6 +1,7 @@
 <?php
 /**
- * BookmarkBrowser class.
+ * Utils_BookmarkBrowser.
+ * Module for displaying large amounts of data in one table with navigation between specified data groups.
  * 
  * @author Kuba Slawinski <kslawinski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
@@ -40,7 +41,7 @@ class Utils_BookmarkBrowser extends Module {
 	 * @param string text that will be displayed
 	 * @param string bookmark key, number will be assigned by default
 	 */
-	 public function add_item($sec, $cnt, $title=null) {
+	 public function add_item($sec, $cnt, $title = null) {
 		if(!key_exists($sec, $this->_bookmarks))
 			$this->_bookmarks[$sec] = array();
 		if(!isset($title))
@@ -58,6 +59,8 @@ class Utils_BookmarkBrowser extends Module {
 
 	/**
 	 * Sorts both sections and entries with natural sort.
+	 * 
+	 * @param bool weather to sort by values or keys (default is by value)
 	 */
 	public function sortAll($items_by_key = false) {
 		$this->sortSections();
@@ -70,7 +73,7 @@ class Utils_BookmarkBrowser extends Module {
 	}
 	
 	/**
-	 * Extends bookmark browser to the bottom line of the page.
+	 * Expands bookmark browser to the bottom line of the page.
 	 */
 	public function expand() {
 		$content_id = 'utils_bookmarkbrowser_'.$this->_id;

@@ -15,7 +15,7 @@ class Utils_Tree extends Module {
 	private $_sub = 0;
 	private $_selected;
 	private $_structure;
-	private $_closed = true;
+	private $_opened = false;
 	private $_opened_paths = array();
 	
 	public function construct() {
@@ -24,30 +24,62 @@ class Utils_Tree extends Module {
 		load_js_inline("modules/Utils/Tree/js/tree.js");
 	}
 	
+	/**
+	 * Sets structure of tree. The structure has to be like this:
+	 * array(
+	 * 	array(
+	 * 		'name' => $string, //name_of_branch, basicly any HTML code
+	 * 		'opened' => $bool_1, //wheather_branch_is_opened
+	 * 		'visible' => $bool_2, //wheather_branch_is_visible (if opened, then also visible)
+	 * 		'selected' => $bool_3, //weather item is selected or not
+	 * 		$sub => array( // subbranch of identical structure as parent (leave array empty if you don't want subbranch)
+	 * 			...
+	 * 		)
+	 * 	),
+	 * 
+	 * 	array(
+	 * 		'name' => $string,
+	 * 		'opened' => $bool_1,
+	 * 		'visible' => $bool_2,
+	 * 		'selected' => $bool_3,
+	 * 		$sub => array( // subbranch of identical structure as parent (leave array empty if you don't want subbranch)
+	 * 			...
+	 * 		)
+	 * 	),
+	 * 	...
+	 * )
+	 * 
+	 * @param array structure of tree. 
+	 */
 	public function set_structure($s) {
 		$this->_structure = $s;
 	}
 	
+	/**
+	 * Private function for sorting branches.
+	 * 
+	 * @param array a branch.
+	 */
 	private function sort_r( & $t ) {
 		ksort( $t );
 		foreach( $t as $k => $v ) {
 			if(is_array($v['sub']))
-				$ret .= $this->print_structure_r($v['sub'], $level + 1);
+				$this->sort_r($v['sub']);
 		}
 	}
 	
-	public function sort( $arg ) {
-		if(isset($dir))
-			print $this->_structure = $dir;
-		
+	/**
+	 * Method for sorting whole tree structure.
+	 */
+	public function sort() {		
 		ksort($this->_structure);
 		foreach( $t as $k => $v ) {
 			if(is_array($v['sub']))
-				$ret .= $this->print_structure_r($v['sub'], $level + 1);
+				$this->sort_r($v['sub']);
 		}
 	}
 	
-	public function print_structure_r($t = array(), $level = 0, $path = '') {
+	private function print_structure_r($t = array(), $level = 0, $path = '') {
 		if(count($t) > 0) {
 			$ret = '<div class=utils_tree_submenu id=utils_tree_'.$this->_id.'_'.$this->_sub.'>';
 			$this->_sub++;
@@ -77,7 +109,7 @@ class Utils_Tree extends Module {
 		return '';
 	}
 		
-	public function print_structure($t = array(), $level = 0) {
+	private function print_structure($t = array(), $level = 0) {
 		$this->_sub = 0;
 		$ret = '<div class=utils_tree_root>';
 		foreach( $t as $k => $v ) {
@@ -106,10 +138,18 @@ class Utils_Tree extends Module {
 		return $ret;
 	}
 	
-	public function open_all() {
-		$this->_closed = false;
+	/**
+	 * Method for setting every branch opened.
+	 * 
+	 * @param bool set false if you want to close branches.
+	 */
+	public function open_all($opened = true) {
+		$this->_opened = $opened;
 	}
 	
+	/**
+	 * Displays the module.
+	 */
 	public function body() {
 		$s = $this->print_structure($this->_structure);
 		$expand_all = '<div class=utils_tree_expand_all id=tree_expand_all_'.$this->_id.' onclick="utils_tree_expand_all('.$this->_id.','.$this->_sub.')">Expand All</div> ';
@@ -126,7 +166,7 @@ class Utils_Tree extends Module {
 			eval_js('wait_while_null("utils_tree_open", "utils_tree_open('.$this->_id.', '.$path.')");');
 		}
 		
-		if( $this->_closed == false ) {
+		if( $this->_opened == true ) {
 			eval_js('wait_while_null("utils_tree_expand_all", "utils_tree_expand_all('.$this->_id.','.$this->_sub.')");');
 			//eval_js('utils_tree_expand_all('.$this->_id.','.$this->_sub.');');
 		}

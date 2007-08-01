@@ -1,5 +1,8 @@
 <?php
 /** 
+ * Utils_Path
+ * Module for creating path like You know from most GTK applications.
+ * 
  * @author Kuba Slawinski <kslawinski@telaxus.com> 
  * @copyright Copyright &copy; 2006, Telaxus LLC 
  * @version 0.9 
@@ -23,6 +26,13 @@ class Utils_Path extends Module {
 		}
 		load_js("modules/Utils/Path/js/path.js");
 	}
+	
+	/**
+	 * Sets title (designated first element) of the path.
+	 * 
+	 * @param string title. This is pure HTML, so if you want any links, you must spacify them on your own.
+	 * @param array submenu with this node's children. Also, it's just displaying the text, so any links must be made on your own.
+	 */
 	public function set_title($title, $children = null) {
 		$this->root = array();
 		$this->root['item'] = ' <span class=path_link id=\'path_link_'.$this->_id.'_'.$this->_sub.'\' onmouseover="show_path_children(\''.$this->_id.'_'.$this->_sub.'\')"  onmouseout="hide_path_children(\''.$this->_id.'_'.$this->_sub.'\')">' . ($title) . '</span>';
@@ -38,6 +48,12 @@ class Utils_Path extends Module {
 		$this->_sub++;
 	}
 	
+	/**
+	 * Adds an element to the end of the path.
+	 * 
+	 * @param string title. This is pure HTML, so if you want any links, you must spacify them on your own.
+	 * @param array submenu with this node's children. Also, it's just displaying the text, so any links must be made on your own.
+	 */
 	public function add_node( $title, $children = null ) {
 		$this->list[$this->_sub] = array();
 		$this->list[$this->_sub]['item'] = '<span class=path_link id=\'path_link_'.$this->_id.'_'.$this->_sub.'\' onmouseover="show_path_children(\''.$this->_id.'_'.$this->_sub.'\')"  onmouseout="hide_path_children(\''.$this->_id.'_'.$this->_sub.'\')">' . ($title) . '</span>';
@@ -59,6 +75,9 @@ class Utils_Path extends Module {
 		}
 	}
 	
+	/**
+	 * Returns HTML code for the path.
+	 */
 	public function toHtml() {
 		$this->prepare();
 		$theme = & $this->init_module('Base/Theme');
@@ -71,6 +90,9 @@ class Utils_Path extends Module {
 		return $this->get_html_of_module($theme,null,'display');
 	}
 	
+	/**
+	 * Displays the path.
+	 */
 	public function body() {
 		print $this->toHtml();
 	}
