@@ -42,16 +42,12 @@ class Base_Box extends Module {
 			if(($logged && $opts['display']=='anonymous') || (!$logged && $opts['display']=='logged')) {
 				continue;
 			}
-			if(array_key_exists('arguments',$opts))
-				eval('$containers[\''.$tag.'\'][\'arguments\']='.$opts['arguments'].';');
+			$containers[$tag]['arguments'] = $opts['arguments'];
 			$containers[$tag]['module'] = $opts['module'];
 			$containers[$tag]['function'] = $opts['function'];
 			$containers[$tag]['name'] = 'b'.$name;
 		}
 		
-//		if($logged) $containers = $ini_file['Logged'];
-//			else $containers = $ini_file['Anonymous'];
-
 		if($this->isset_module_variable('main'))
 			$containers['main'] = $this->get_module_variable('main');
 		

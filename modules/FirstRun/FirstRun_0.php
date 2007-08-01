@@ -9,16 +9,18 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class FirstRun extends Module {
+	private $ini;
 
 	public function body($arg) {
 		$wizard = & $this->init_module('Utils/Wizard');
 		$this->lang = & $this->pack_module('Base/Lang');
 		
 		/////////////////////////////////////////////////////////////
+		$this->ini = parse_ini_file('modules/FirstRun/distros.ini',true);
 		$f = & $wizard->begin_page();
 		$f->addElement('header', null, $this->lang->t('Welcome to epesi first run wizard'));
-		$f->addElement('radio', 'setup_type', '', $this->lang->t('Base installation'), 'simple');
-		$f->addElement('radio', 'setup_type', '', $this->lang->t('Full installation'),'full');
+		foreach($this->ini as $name=>$pkgs)
+			$f->addElement('radio', 'setup_type', '', $this->lang->t($name), $name);
 		$f->setDefaults(array('setup_type'=>'full'));
 		$wizard->end_page();
 		
@@ -84,24 +86,10 @@ class FirstRun extends Module {
 	}
 	
 	public function done($d) {
-		if(!ModuleManager::install('Base'))
-			trigger_error('Unable to install Base module pack.',E_USER_ERROR);
-		
-		if($d[0]['setup_type']=='full') {
-			if(!ModuleManager::install('Apps_Forum'))
-				trigger_error('Unable to install Forum module.',E_USER_ERROR);
-			if(!ModuleManager::install('Apps_Gallery'))
-				trigger_error('Unable to install Gallery module.',E_USER_ERROR);
-			if(!ModuleManager::install('Apps_StaticPage'))
-				trigger_error('Unable to install StaticPage module.',E_USER_ERROR);
-			if(!ModuleManager::install('Apps_Shoutbox'))
-				trigger_error('Unable to install StaticPage module.',E_USER_ERROR);
-			
-			if(!ModuleManager::install('Tests'))
-				trigger_error('Unable to install Tests module pack.',E_USER_ERROR);
-
-			if(!ModuleManager::install('Develop_ModuleCreator'))
-				trigger_error('Unable to install ModuleCreator module.',E_USER_ERROR);
+		$pkgs = $this->ini[$d[0]['setup_type']]['package'];
+		foreach($pkgs as $p) {
+			if(!ModuleManager::install(str_replace('/','_',$p)))
+				trigger_error('Unable to install '.str_replace('_','/',$p).' module.',E_USER_ERROR);
 		}
 			
 		Base_SetupCommon::refresh_available_modules();
