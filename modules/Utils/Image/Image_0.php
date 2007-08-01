@@ -1,6 +1,8 @@
 <?php
 /**
- * Utils_Image class.
+ * Utils_Image.
+ * It automates creating properly scaled image thumbnails. Works with most
+ * popular image formats. Also adds a preloader for displayd images.
  * 
  * @author Kuba Slawinski <kslawinski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
@@ -30,6 +32,17 @@ class Utils_Image extends Module {
 		$this->theme = & $this->init_module('Base/Theme');
 	}
 	
+	/**
+	 * Here you set imege to operate on and some additional parameters.
+	 * 
+	 * @param string path to image.
+	 * @param array options: 
+	 * 	left_caption - text on the left of image
+	 * 	right_caption - text on the right of image
+	 * 	thumb_size - max size of created thumbnail
+	 * 	thumb_size_x - max width of created thumbnail
+	 * 	thumb_size_y - max height of created thumbnail
+	 */
 	public function load($img, array $attr = null) {
 		// parse attributes
 		if(!is_file($img)) {
@@ -63,11 +76,14 @@ class Utils_Image extends Module {
 			if( isset($attr['thumb_size_y']) && $this->width < $this->height )
 				$this->max_dim = $attr_y;
 		}
-		
-		
-		//print $this->type." -- type<br>";
 	}
 	
+	/**
+	 * Creates thumb of loaded image.
+	 * 
+	 * @param int max size.
+	 * @param int max height. When specified, first parameter becomes responsible for max width.
+	 */
 	public function create_thumb($attr_x = null, $attr_y = null) {
 		$this->img_id = Utils_Image::$img_counter;
 		Utils_Image::$img_counter++;
@@ -170,6 +186,9 @@ class Utils_Image extends Module {
 	}
 	
 	// THUMB ---------------------------------------------------
+	/**
+	 * This returns HTML of created thumb.
+	 */
 	public function thumb_toHtml($attr_x = null, $attr_y = null) {
 		$this->img_id = Utils_Image::$img_counter;
 		Utils_Image::$img_counter++;
@@ -180,33 +199,58 @@ class Utils_Image extends Module {
 		return $ret;
 	}
 	
+	/**
+	 * This displays created thumb.
+	 */
 	public function display_thumb($attr_x = null, $attr_y = null) {
 		print $this->thumb_toHtml($attr_x, $attr_y);
 	}
 	
-	
 	// REGULAR ------------------------------------------------
+	/**
+	 * This returns HTML of original image.
+	 */
 	public function toHtml() {
 		return '<img width="'.$this->width.'" height="'.$this->height.'" src="'.$this->img.'">';
 	}
+	
+	/**
+	 * This displays original image.
+	 */
 	public function display() {
 		print '<img width="'.$this->width.'" height="'.$this->height.'" src="'.$this->img.'">';
 	}
 	
 	// DEFAULT -----------------------------------------------
+	/**
+	 * This displays created thumb.
+	 */
 	public function body($arg) {
 		$this->display_thumb();
 	}
 	
 	// ATTRIBUTES --------------------------------------------
+	/**
+	 * This returns array with image attributes (width, height, type, 'height="yyy" width="xxx"').
+	 */
 	public function get_attributes() {
 		return getimagesize($this->img);
 	}
 	
+	/**
+	 * This returns array with thumbnail attributes (width, height, type, 'height="yyy" width="xxx"').
+	 */
 	public function get_thumb_attributes() {
-		return array($this->thumb_width, $this->thumb_height, $this->type, 'width'=>$this->thumb_width, 'height'=>$this->thumb_height, 'type'=>$this->type);
+		return array(
+			$this->thumb_width, 
+			$this->thumb_height, 
+			$this->type, 
+			' width="'.$this->thumb_width.'" height="'.$this->thumb_height.'" ');
 	}
 	
+	/**
+	 * This returns address of created thumbnail.
+	 */
 	public function get_thumb_path( $size, $path = '' ) {
 		if($path === '') 
 			$path = $this->img;
