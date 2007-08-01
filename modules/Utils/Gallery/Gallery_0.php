@@ -1,5 +1,8 @@
 <?php
 /**
+ * Utils_Gallery
+ * One-method module for displaying images from one directory.
+ * 
  * @author Kuba Slawinski <kslawinski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
@@ -15,7 +18,7 @@ class Utils_Gallery extends Module {
 		$this->path = $arg;	
 	}
 		
-	function getListing($p_dirpath, $pattern = '0') { 
+	private function getListing($p_dirpath, $pattern = '0') { 
 		$r_ret  = array(); 
 			if ( is_dir($p_dirpath) ) {
 				if ($handle = opendir($p_dirpath)) { 
@@ -38,7 +41,7 @@ class Utils_Gallery extends Module {
 			return $r_ret; 
 	}
 	
-	function getDirs($p_dirpath, $pattern = '0') { 
+	private function getDirs($p_dirpath, $pattern = '0') { 
 		$r_ret = array(); 
 		if ( is_dir($p_dirpath) ) {
 			if ($handle = opendir($p_dirpath)) { 
@@ -61,10 +64,18 @@ class Utils_Gallery extends Module {
 		}
 	}
 	
+	/**
+	 * Sets directory, where images to show are located.
+	 * 
+	 * @param string path to the images directory.
+	 */
 	public function set_directory( $dir ) {
 		$this->path = $dir;
 	}
 	
+	/**
+	 * This methodreturns HTML code of the gallery.
+	 */
 	public function toHtml(  ) {
 		load_js('modules/Utils/Gallery/js/gallery.js');
 		$dir = $this->path;
@@ -237,10 +248,17 @@ class Utils_Gallery extends Module {
 		}
 		
 	}
+	
+	/**
+	 * This method expands gallery to the bottom of the page. Use only if gallery is last module on page.
+	 */
 	public function expand() {
 		eval_js('wait_while_null("utils_gallery__set_content_height", "utils_gallery__set_content_height(\'utils_gallery__conteiner\')");');
 	}
 	
+	/**
+	 * This method displays the gallery.
+	 */
 	public function body( $dir ) {
 		$this->path = $dir;
 		print $this->toHtml();
