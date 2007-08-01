@@ -1,4 +1,8 @@
 <?php
+/**
+ * @package epesi-libs
+ * @subpackage QuickForm
+ */
 /* vim: set expandtab tabstop=4 shiftwidth=4: */
 // +----------------------------------------------------------------------+
 // | PHP version 4.0                                                      |

@@ -7,13 +7,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage lang-administrator
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * @package epesi-base-extra
- * @subpackage lang-administrator
- */
 class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 	
 	public function body() {

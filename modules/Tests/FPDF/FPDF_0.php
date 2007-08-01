@@ -5,15 +5,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-tests
+ * @subpackage fpdf
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * Displays file content (default: 'TODO').
- * 
- * @package epesi-tests
- * @subpackage fpdf
- */
 class Tests_FPDF extends Module {
 	
 	public function body() {

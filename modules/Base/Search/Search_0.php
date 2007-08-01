@@ -9,14 +9,10 @@
  * @version 0.9
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage search
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * Provides for search functionality in a module. 
- * @package epesi-base-extra
- * @subpackage search
- */
 class Base_Search extends Module {
 	private $lang;
 	

@@ -5,13 +5,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-libs
+ * @subpackage QuickForm
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * @package epesi-libs
- * @subpackage QuickForm
- */
 class Libs_QuickFormInstall extends ModuleInstall {
 	public static function install() {
 		Base_ThemeCommon::install_default_theme('Libs/QuickForm');

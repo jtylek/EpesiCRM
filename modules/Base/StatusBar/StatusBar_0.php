@@ -7,13 +7,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage statusbar
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * @package epesi-base-extra
- * @subpackage statusbar
- */
 class Base_StatusBar extends Module {
 	
 	public function body() {

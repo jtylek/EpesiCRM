@@ -7,13 +7,10 @@
  * @version 0.9
  * @licence SPL
  * @package epesi-tests
+ * @subpackage tests-installer
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * @package epesi-tests
- * @subpackage tests-installer
- */
 class TestsInit_0 extends ModuleInit {
 	public static function requires() {
 		return array(

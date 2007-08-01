@@ -7,14 +7,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-utils
+ * @subpackage file-uploader
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * Installation
- * @package epesi-utils
- * @subpackage file-uploader
- */
 class Utils_FileUploadInstall extends ModuleInstall {
 
 	public static function install() {

@@ -7,6 +7,7 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage maintenance-mode-administrator
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

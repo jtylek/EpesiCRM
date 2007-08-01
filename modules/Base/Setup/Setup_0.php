@@ -9,13 +9,12 @@
  * @version 0.9
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage setup
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
  * This class provides for administration of modules.
- * @package epesi-base-extra
- * @subpackage setup
  */
 class Base_Setup extends Module {
 

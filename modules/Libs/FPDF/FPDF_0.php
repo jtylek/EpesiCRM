@@ -7,14 +7,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-libs
+ * @subpackage fpdf
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * @package epesi-libs
- * @subpackage fpdf
- */
- 
 class Libs_FPDF extends Module {
 	public $fpdf;
 

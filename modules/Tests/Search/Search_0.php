@@ -5,14 +5,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-tests
+ * @subpackage search
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * Provides for absolutely nothing yet.
- * @package epesi-tests
- * @subpackage search
- */
 class Tests_Search extends Module {
 	
 	public function body($arg) {

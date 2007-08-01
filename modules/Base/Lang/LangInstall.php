@@ -9,14 +9,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage lang
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class provides initialization data for Lang module.
- * @package epesi-base-extra
- * @subpackage lang
- */
 class Base_LangInstall extends ModuleInstall {
 	public static function install() {
 		return Variable::set('default_lang','en');

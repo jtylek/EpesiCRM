@@ -42,14 +42,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage menu
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * Provides layout to Menu module.
- * @package epesi-base-extra
- * @subpackage menu
- */
 class Base_Menu extends Module {
 	private static $menu;
 	private $menu_name;

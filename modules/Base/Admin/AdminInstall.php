@@ -9,14 +9,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage admin
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class provides initialization data for Admin module.
- * @package epesi-base-extra
- * @subpackage admin
- */
 class Base_AdminInstall extends ModuleInstall {
 	public static function install() {
 		Base_ThemeCommon::install_default_theme('Base/Admin');

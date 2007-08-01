@@ -9,14 +9,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage user-login
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class provides for basic login functionality, saves passwords to database and enables password recvery.
- * @package epesi-base-extra
- * @subpackage user-login
- */
 class Base_User_LoginCommon extends Module {
 	/**
 	 * Check if username and password is valid login.

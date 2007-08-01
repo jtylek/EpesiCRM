@@ -9,15 +9,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-utils
+ * @subpackage catfile
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * Displays file content
- * 
- * @package epesi-utils
- * @subpackage catfile
- */
 class Utils_CatFile extends Module {
 	/**
 	 * Displays PHP code from selected file with syntax highlighting.

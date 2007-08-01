@@ -9,14 +9,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage maintenance-mode
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class provides admin interface with maintenance mode toggle.
- * @package epesi-base-extra
- * @subpackage maintenance-mode
- */
 class Base_MaintenanceModeCommon {
 	public static function set_mode($x) {
 		if(is_bool($x))

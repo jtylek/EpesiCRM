@@ -9,20 +9,19 @@
  * @version 0.9
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage theme
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
  * load Smarty library
  */
- define(SMARTY_DIR, 'modules/Base/Theme/smarty/');
+define(SMARTY_DIR, 'modules/Base/Theme/smarty/');
  
 require_once(SMARTY_DIR.'Smarty.class.php');
 
 /**
  * Provides module templating.
- * @package epesi-base-extra
- * @subpackage theme
  */
 class Base_Theme extends Module {
 	private static $theme;

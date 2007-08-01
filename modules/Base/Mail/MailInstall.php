@@ -9,14 +9,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage mail
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class provides initialization data for Mail module.
- * @package epesi-base-extra
- * @subpackage mail
- */
 class Base_MailInstall extends ModuleInstall {
 	public static function install() {
 		$ret = true;

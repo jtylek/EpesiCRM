@@ -8,14 +8,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage backup
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class provides initialization data for Backup module.
- * @package epesi-base-extra
- * @subpackage backup
- */
 class Base_BackupInit_0 extends ModuleInit {	
 	public static function requires() {
 		return array(

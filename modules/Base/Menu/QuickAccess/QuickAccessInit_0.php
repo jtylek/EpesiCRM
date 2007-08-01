@@ -9,14 +9,9 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
- */
-defined("_VALID_ACCESS") || die('Direct access forbidden');
-
-/**
- * This class provides initialization data for QuickAccess module.
- * @package epesi-base-extra
  * @subpackage menu-quick-access
  */
+defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_Menu_QuickAccessInit_0 extends ModuleInit {
 	public static function requires() {

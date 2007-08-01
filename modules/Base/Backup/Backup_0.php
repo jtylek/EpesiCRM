@@ -9,14 +9,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage backup
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class provides functions for administrating the backup files.
- * @package epesi-base-extra
- * @subpackage backup
- */
 class Base_Backup extends Module {
 	
 	public function body($arg) {

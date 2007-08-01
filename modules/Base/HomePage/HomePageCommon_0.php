@@ -9,14 +9,10 @@
  * @version 0.9
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage homepage
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class provides saving any page as homepage for each user.
- * @package epesi-base-extra
- * @subpackage homepage
- */
 class Base_HomePageCommon {
 	public static $logged;
 	

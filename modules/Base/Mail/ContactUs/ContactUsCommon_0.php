@@ -5,13 +5,10 @@
  * @copyright Copyright &copy; 2007, Telaxus LLC
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage mail-contactus
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * @package epesi-base-extra
- * @subpackage mail-contactus
- */
 class Base_Mail_ContactUsCommon {
 	public static function tool_menu() {
 		return array('Contact us'=>array());

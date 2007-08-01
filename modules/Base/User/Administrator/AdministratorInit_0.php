@@ -7,13 +7,9 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
- */
-defined("_VALID_ACCESS") || die('Direct access forbidden');
-
-/**
- * @package epesi-base-extra
  * @subpackage user-administrator
  */
+defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_User_AdministratorInit_0 extends ModuleInit {
 	public static function requires() {

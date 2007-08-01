@@ -9,14 +9,10 @@
  * @version 0.9
  * @licence SPL
  * @package epesi-utils
+ * @subpackage dirty-read
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class provides initialization data for DirtyRead module.
- * @package epesi-utils
- * @subpackage dirty-read
- */
 class Utils_DirtyReadInstall extends ModuleInstall {
 	public static function install() {
 		return true;

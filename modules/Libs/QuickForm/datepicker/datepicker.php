@@ -1,3 +1,13 @@
+<?php
+/**
+ * @author Kuba Slawinski <kslawinski@telaxus.com>
+ * @copyright Copyright &copy; 2007, Telaxus LLC
+ * @version 1.0
+ * @licence SPL
+ * @package epesi-libs
+ * @subpackage QuickForm
+ */
+?>
 <html>
 	<head>
 		<meta http-equiv="content-type" content="text/html; charset=WINDOWS-1250">

@@ -9,12 +9,11 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage lang
  */
 
 /**
  * This class provides inline translation method.
- * @package epesi-base-extra
- * @subpackage lang
  */
 class myFunctions extends Epesi {
 	public function translate($cl_id,$parent,$oryg,$trans) {

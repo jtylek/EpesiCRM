@@ -7,13 +7,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage statusbar
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * @package epesi-base-extra
- * @subpackage statusbar
- */
 class Base_StatusBarInstall extends ModuleInstall {
 	public static function install() {
 		Base_ThemeCommon::install_default_theme('Base/StatusBar');

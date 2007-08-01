@@ -9,14 +9,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage user
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * The functions of this class facilitate user management.
- * @package epesi-base-extra
- * @subpackage user
- */
 class Base_UserCommon {
 	/**
 	 * Changes state of user (active or inactive).

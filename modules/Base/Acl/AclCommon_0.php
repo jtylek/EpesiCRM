@@ -8,15 +8,11 @@
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
  * @package epesi-base-extra
+ * @subpackage acl
  * @licence SPL
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class provides functions for administrating the ACL.
- * @package epesi-base-extra
- * @subpackage acl
- */
 class Base_AclCommon {
 	
 	/**

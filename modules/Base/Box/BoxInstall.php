@@ -9,14 +9,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage box
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class provides initialization of Box module.
- * @package epesi-base-extra
- * @subpackage box
- */
 class Base_BoxInstall extends ModuleInstall {
 
 	public static function install() {

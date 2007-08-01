@@ -6,14 +6,9 @@
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
  * @package epesi-base-extra
- */
-defined("_VALID_ACCESS") || die('Direct access forbidden');
-
-/**
- * This class provides initialization data for Test module.
- * @package epesi-base-extra
  * @subpackage theme-administrator
  */
+defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_Theme_AdministratorInit_0 extends ModuleInit {
 	public static function requires() {

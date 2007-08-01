@@ -9,14 +9,10 @@
  * @version 0.9
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage theme
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class provides initialization data for Test module.
- * @package epesi-base-extra
- * @subpackage theme
- */
 class Base_ThemeInstall extends ModuleInstall {
 	public static function install() {
 		mkdir('data/Base/Theme/templates');

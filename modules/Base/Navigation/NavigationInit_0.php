@@ -7,14 +7,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage navigation
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class provides initialization data for Test module.
- * @package epesi-base-extra
- * @subpackage navigation
- */
 class Base_NavigationInit_0 extends ModuleInit {
 	public static function requires() {
 		return array(array('name'=>'Base/Theme','version'=>0));

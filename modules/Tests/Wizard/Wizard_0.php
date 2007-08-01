@@ -7,15 +7,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-tests
+ * @subpackage wizard
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class provides functions for presenting data in a table (suports sorting 
- * by different columns and splitting results -- showing 10 rows per page).
- * @package epesi-utils
- * @subpackage generic-browse
- */
 class Tests_Wizard extends Module {
 	
 	public function display_results($data) {

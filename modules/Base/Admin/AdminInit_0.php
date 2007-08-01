@@ -9,14 +9,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage admin
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class provides initialization data for Admin module.
- * @package epesi-base-extra
- * @subpackage admin
- */
 class Base_AdminInit_0 extends ModuleInit {
 	public static function requires() {
 		return array(

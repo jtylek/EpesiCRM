@@ -1,19 +1,16 @@
 <?php
 /**
  * Mail_ContactUs class. 
+ * This class provides functionality for sending mail.
  * 
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
  * @package epesi-base-extra
+ * @subpackage mail-contactus
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class provides functionality for sending mail.
- * @package epesi-base-extra
- * @subpackage mail-contactus
- */
 class Base_Mail_ContactUs extends Module {
 
 	public function body($arg) {

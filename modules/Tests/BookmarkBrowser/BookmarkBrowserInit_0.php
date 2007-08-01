@@ -5,6 +5,7 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-tests
+ * @subpackage bookmark-browser
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

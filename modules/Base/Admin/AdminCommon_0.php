@@ -9,14 +9,12 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage admin
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
  * Interface which you must implement if you would like to have module administration entry.
- * 
- * @package epesi-base-extra
- * @subpackage admin
  */
 interface Base_AdminModuleCommonInterface {
 	public static function admin_access();
@@ -34,9 +32,6 @@ class Base_AdminCommon {
  * You can use it for default admin_access and admin_caption functions.
  * Access: Module administrator
  * Caption: <module_name> module 
- * 
- * @package epesi-base-extra
- * @subpackage admin
  */
 abstract class Base_AdminModuleCommon extends Module implements Base_AdminModuleCommonInterface {
     public static function admin_access() {

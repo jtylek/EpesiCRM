@@ -9,6 +9,7 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage lang
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -16,9 +17,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  * This class provides translations manipulation.
  * Translation files are kept in 'modules/Lang/translations'. 
  * Http server user should have write access to those files.
- * 
- * @package epesi-base-extra
- * @subpackage lang
  */
 class Base_Lang extends Module {
 	private $parent_module;

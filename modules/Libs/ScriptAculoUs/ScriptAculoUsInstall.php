@@ -5,13 +5,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-libs
+ * @subpackage ScriptAculoUs
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * @package epesi-libs
- * @subpackage ScriptAculoUs
- */
 class Libs_ScriptAculoUsInstall extends ModuleInstall {
 	public static function install() {
 		return true;

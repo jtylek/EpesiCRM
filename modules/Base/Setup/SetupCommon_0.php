@@ -5,14 +5,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage setup
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * Common data.
- * @package epesi-base-extra
- * @subpackage setup
- */
 class Base_SetupCommon extends Module {
 	public static function body_access() {
 		return (Variable::get('anonymous_setup') || Acl::check('Administration','Main'));

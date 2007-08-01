@@ -5,6 +5,7 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-tests
+ * @subpackage lightbox
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

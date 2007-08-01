@@ -9,13 +9,10 @@
  * @version 0.9
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage base-installer
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * @package epesi-base-extra
- * @subpackage base-installer
- */
 class BaseInstall extends ModuleInstall {
 	public static function install() {
 		if(!Variable::set('default_module','Base_Box')) return false;			

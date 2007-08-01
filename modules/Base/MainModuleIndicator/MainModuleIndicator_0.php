@@ -2,21 +2,17 @@
 /**
  * MainModuleIndicator class.
  * 
- * This class provides MainModuleIndicator sending functionality.
+ * This class provides MainModuleIndicator functionality.
  * 
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage MainModuleIndicator
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class provides MainModuleIndicator sending functionality.
- * @package epesi-base-extra
- * @subpackage MainModuleIndicator
- */
 class Base_MainModuleIndicator extends Module {
 
 	public function body($arg) {

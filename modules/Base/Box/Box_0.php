@@ -9,15 +9,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage box
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class provides basic container for other modules, with smarty as template engine.
- * 
- * @package epesi-base-extra
- * @subpackage box
- */
 class Base_Box extends Module {
 	private $modules;
 	

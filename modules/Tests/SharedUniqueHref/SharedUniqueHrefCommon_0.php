@@ -5,6 +5,7 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-tests
+ * @subpackage shared-unique-href
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

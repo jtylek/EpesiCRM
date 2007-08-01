@@ -9,14 +9,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage maintenance-mode-administrator
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class provides maintenance mode enable/disable admin interface.
- * @package epesi-base-extra
- * @subpackage maintenance-mode-administrator
- */
 class Base_MaintenanceMode_Administrator extends Module implements Base_AdminInterface {
 	
 	public function body($arg) {

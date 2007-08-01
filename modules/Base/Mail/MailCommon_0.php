@@ -9,11 +9,11 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage mail
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 require_once ('class.phpmailer.php');
-
 
 class Base_MailCommon extends Base_AdminModuleCommon {
 	/**

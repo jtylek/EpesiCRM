@@ -9,14 +9,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage setup
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class initializes setup module.
- * @package epesi-base-extra
- * @subpackage setup
- */
 class Base_SetupInstall extends ModuleInstall {
 	public static function version() {
 		return array('1.0.0');

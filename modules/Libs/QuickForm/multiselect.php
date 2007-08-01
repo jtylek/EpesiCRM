@@ -1,13 +1,15 @@
 <?php
-require_once('HTML/QuickForm/select.php');
-
 /**
  * HTML class for a multiselect
  * 
- * @author       Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @author       Arkadiusz Bisaga <abisaga@telaxus.com> based on HTML_QuickForm select.php
  * @version      1.0
  * @access       public
+ * @package epesi-libs
+ * @subpackage QuickForm
  */
+require_once('HTML/QuickForm/select.php');
+
 class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 {
     

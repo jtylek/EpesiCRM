@@ -9,14 +9,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage user-login
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class provides initialization data for Login module.
- * @package epesi-base-extra
- * @subpackage user-login
- */
 class Base_User_LoginInit_0 extends ModuleInit {
 	public static function requires() {
 		return array(

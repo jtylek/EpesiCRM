@@ -9,14 +9,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage mail
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class provides mail sending functionality.
- * @package epesi-base-extra
- * @subpackage mail
- */
 class Base_Mail extends Module implements Base_AdminInterface {
 
 	public function body() {

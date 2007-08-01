@@ -9,6 +9,7 @@
  * @version 0.9
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage theme
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

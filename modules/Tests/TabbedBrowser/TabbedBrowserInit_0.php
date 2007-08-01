@@ -5,14 +5,9 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-tests
+ * @subpackage tabbed-browser
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
-
-/**
- * This class provides initialization data for Test module.
- * @package epesi-tests
- * @subpackage Tabbed-browser
- */
 
 class Tests_TabbedBrowserInit_0 extends ModuleInit {
 	public static function requires() {

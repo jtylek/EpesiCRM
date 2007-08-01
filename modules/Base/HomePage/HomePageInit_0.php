@@ -9,14 +9,10 @@
  * @version 0.9
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage homepage
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class provides initialization data for HomePage module.
- * @package epesi-base-extra
- * @subpackage homepage
- */
 class Base_HomePageInit_0 extends ModuleInit {
 	public static function requires() {
 		return array(array('name'=>'Base/Box','version'=>0), 

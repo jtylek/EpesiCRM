@@ -5,6 +5,7 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-data
+ * @subpackage usa-states
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

@@ -9,6 +9,7 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage admin
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -16,9 +17,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  * This class provides administration menu. Just place admin(), admin_caption() (and admin_access()) 
  * functions inside your module.
  * You can extend AdminModule for default access privileges.
- * 
- * @package epesi-base-extra
- * @subpackage admin
  */
 class Base_Admin extends Module {
 		

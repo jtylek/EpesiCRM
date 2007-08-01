@@ -5,6 +5,7 @@
  * @version 0.9
  * @licence SPL
  * @package epesi-firstrun
+ * @subpackage first-run
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

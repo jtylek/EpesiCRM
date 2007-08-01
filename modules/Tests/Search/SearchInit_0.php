@@ -5,14 +5,9 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-tests
- */
-defined("_VALID_ACCESS") || die('Direct access forbidden');
-
-/**
- * This class provides initialization data for Test module.
- * @package epesi-tests
  * @subpackage search
  */
+defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Tests_SearchInit_0 extends ModuleInit {
 	public static function requires() {

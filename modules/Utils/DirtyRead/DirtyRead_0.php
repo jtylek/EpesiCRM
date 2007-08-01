@@ -9,6 +9,7 @@
  * @version 0.9
  * @licence SPL
  * @package epesi-utils
+ * @subpackage dirty-read
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -30,8 +31,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  * See InventoryInit class' source for database table creation examples.
  * Note you should use InnoDB engine for editable tables. 
  * 
- * @package epesi-utils
- * @subpackage dirty-read
  */
 class Utils_DirtyRead extends Module {
 

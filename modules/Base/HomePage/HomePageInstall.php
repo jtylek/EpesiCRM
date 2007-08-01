@@ -9,14 +9,10 @@
  * @version 0.9
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage homepage
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class provides initialization data for HomePage module.
- * @package epesi-base-extra
- * @subpackage homepage
- */
 class Base_HomePageInstall extends ModuleInstall {
 	public static function install() {
 		$ret = DB::CreateTable('home_page',"user_login_id I KEY,url X2 NOTNULL",array('constraints' => ', FOREIGN KEY (user_login_id) REFERENCES user_login(id)'));

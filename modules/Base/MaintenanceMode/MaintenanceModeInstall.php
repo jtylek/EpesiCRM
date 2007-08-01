@@ -8,13 +8,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage maintenance-mode
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * @package epesi-base-extra
- * @subpackage maintenance-mode
- */
 class Base_MaintenanceModeInstall extends ModuleInstall {
 	public static function install() {
 		return true;

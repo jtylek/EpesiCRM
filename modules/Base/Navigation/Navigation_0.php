@@ -7,14 +7,10 @@
  * @version 1.0
  * @licence SPL
  * @package epesi-base-extra
+ * @subpackage navigation
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * This class provides navigation menu.
- * @package epesi-base-extra
- * @subpackage navigation
- */
 class Base_Navigation extends Module {
 	private $lang = null;
 	
