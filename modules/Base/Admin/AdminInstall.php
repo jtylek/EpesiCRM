@@ -15,7 +15,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_AdminInstall extends ModuleInstall {
 	public static function install() {
-		Base_ThemeCommon::install_default_theme('Base/Admin');
+		Base_ThemeCommon::install_default_theme('Base/Admin','theme1');
 		return true;
 	}
 	
@@ -24,8 +24,18 @@ class Base_AdminInstall extends ModuleInstall {
 		return true;
 	}
 	
+	public static function upgrade_1() {
+		Base_ThemeCommon::install_default_theme('Base/Admin','theme1');
+		return true;
+	}
+
+	public static function downgrade_1() {
+		Base_ThemeCommon::install_default_theme('Base/Admin');
+		return true;
+	}
+	
 	public static function version() {
-		return array('1.0.0');
+		return array('1.0.0','1.0.1');
 	}
 }
 
