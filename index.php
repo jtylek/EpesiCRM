@@ -62,7 +62,10 @@ unset($_SESSION['cl'.$client_id]);
 		<link rel="icon" type="image/png" href="images/favicon.png" />
 		<title>Epesi</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<script type="text/javascript">var SAJA_PATH="<?php print(dirname($_SERVER['SCRIPT_NAME']).'/'); ?>"; var SAJA_HTTP_KEY="<?php print $saja->http_key; ?>"</script>
+		<script type="text/javascript">var SAJA_PATH="<?php 
+			$dir = dirname($_SERVER['SCRIPT_NAME']);
+			if($dir!='/') $dir .= '/';
+			print($dir); ?>"; var SAJA_HTTP_KEY="<?php print $saja->http_key; ?>"</script>
 		<script type="text/javascript" src="libs/saja/saja.js"></script>
 		<script type="text/javascript" src="libs/HistoryKeeper.js"></script>
 		<script type="text/javascript" src="include/utils.js"></script>
