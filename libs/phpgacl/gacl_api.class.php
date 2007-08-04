@@ -3042,7 +3042,7 @@ class gacl_api extends gacl {
 			return false;
 		}
 
-		if (strlen($name) >= 255 OR strlen($value) >= 230 ) {
+		if (strlen($name) >= 255 OR strlen($value) >= 150 ) {
 			$this->debug_text("add_object(): name ($name) OR value ($value) is too long.");
 			return false;
 		}
