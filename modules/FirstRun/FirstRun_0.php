@@ -22,7 +22,7 @@ class FirstRun extends Module {
 		$f->addElement('header', null, $this->lang->t('Welcome to epesi first run wizard'));
 		foreach($this->ini as $name=>$pkgs)
 			$f->addElement('radio', 'setup_type', '', $this->lang->t($name), $name);
-		$f->setDefaults(array('setup_type'=>'full'));
+		$f->setDefaults(array('setup_type'=>key($this->ini)));
 		$wizard->end_page();
 		
 		/////////////////////////////////////////////////////////////////
