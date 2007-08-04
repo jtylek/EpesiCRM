@@ -15,7 +15,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_AdminInstall extends ModuleInstall {
 	public static function install() {
-		Base_ThemeCommon::install_default_theme('Base/Admin','theme1');
+		Base_ThemeCommon::install_default_theme('Base/Admin');
 		return true;
 	}
 	
