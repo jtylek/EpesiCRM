@@ -12,7 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Tests_Menu extends Module {
 
 	public function body( $arg ) {
-		print "menu";
+		print "menu ".$this->get_unique_href_variable('action');
 		
 		$menu = & $this->init_module("Utils/Menu");
 		$menu->add_link("aaa");

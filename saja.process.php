@@ -12,12 +12,15 @@
  */
 define("_VALID_ACCESS", true);
 
-require_once('include/include_path.php');
-require_once('include/config.php');
-require_once('include/session.php');
-
 //let browser know that response is utf-8 encoded
 header('Content-Type: text/html; charset=utf-8');
+
+require_once('include/include_path.php');
+//require_once('include/config.php');
+//require_once('include/session.php');
+require_once "saja/saja.php";
+require_once('include.php');
+
 
 //initialize vars
 $php = null;
@@ -47,10 +50,11 @@ if(!$errors){
 		$errors .= 'Invalid Request.';
 }
 
-require_once "saja/saja.php";
+//require_once "saja/saja.php";
 
 //start capturing the response
-ob_start();
+//ob_start();
+ob_start(array('ErrorHandler','handle_fatal'));
 
 if(!$errors) {
 
@@ -63,32 +67,30 @@ if(!$errors) {
 	
 	global $base;
 
-	require_once('include.php');
 	if($proc_file=='base.php') {
 		require($proc_file);
-		$base = new Base(true);
+		$base = new Base();
 	} else {
 		if(file_exists($proc_file))
 			require($proc_file);
 		else {
-			$s = new saja(true);
+			$s = new Saja();
 			$s->alert('Process file: ' . addslashes($proc_file) . ' not found.');
 			echo $s->send();
 			exit();
 		}
-		$base = new myFunctions(true);
+		$base = new myFunctions();
 	}
 
 	$base->set_process_file($proc_file);
-	ob_start(array('ErrorHandler','handle_fatal'));
 	$base->set_true_utf8($true_utf8);
 	$base->runFunc($function, $php);
 	$base->call_jses();
-	ob_end_flush();
+//	ob_end_flush();
 	if($base->hasActions())
 		echo $base->send();
 } else {
-	$s = new saja(true);
+	$s = new Saja();
 	if($_SESSION['__last_error__']!==$errors) {
 		$s->alert($errors);
 		$s->redirect('index.php');

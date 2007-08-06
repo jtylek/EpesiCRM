@@ -13,7 +13,9 @@ umask(0);
 
 require_once('include/include_path.php');
 require_once('include/config.php');
+require_once('include/epesi.php');
 require_once('include/error.php');
+ob_start(array('ErrorHandler','handle_fatal'));
 require_once('include/database.php');
 require_once('include/session.php');
 require_once('include/variables.php');
@@ -23,5 +25,5 @@ require_once('include/acl.php');
 require_once('include/module_common.php');
 require_once('include/module.php');
 require_once('include/module_manager.php');
-require_once('include/epesi.php');
+ob_end_flush();
 ?>

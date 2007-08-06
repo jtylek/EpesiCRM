@@ -8,7 +8,6 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-if(!class_exists('saja')) return;
 
 class ErrorObserver
 {
@@ -23,9 +22,13 @@ class ErrorHandler {
 	
 	private static function notify_client($buffer) {
 		global $base;
-		if(!isset($base)) $base = new saja(true);
-		$base->text($buffer,'error_box,p');
-		return $base->send();	
+		if(class_exists('Saja')) {
+			if(!isset($base)) $base = new Saja();
+			$base->text($buffer,'error_box,p');
+			$base->alert('There was an error in one of epesi modules. Details are displayed at the bottom of the page, please send this information to system administrator.');
+			return $base->send();	
+		}
+		return $buffer;
 	}
 	
 	public static function handle_fatal($buffer) {
@@ -60,19 +63,6 @@ class ErrorHandler {
 						if(isset($bt[$i]["line"]))
 							echo("&nbsp;&nbsp;&nbsp;&nbsp;line ".$bt[$i]["line"]."<br />");
 						echo("&nbsp;&nbsp;&nbsp;&nbsp;function called: ".$bt[$i]["function"]);
-       
-/*						if($bt[$i]["args"]) {
-							echo("<br />&nbsp;&nbsp;&nbsp;&nbsp;args: ");
-							for($j = 0; $j <= count($bt[$i]["args"]) - 1; $j++) {
-								if(!is_string($bt[$i]["args"][$j]))
-									print_r($bt[$i]["args"][$j]);
-								else
-									echo($bt[$i]["args"][$j]);   
-                           
-								if($j != count($bt[$i]["args"]) - 1)
-									echo(", ");
-							}
-						}*/
 						echo("<br /><br />");
 					}
 					$backtrace = ob_get_contents();
@@ -80,7 +70,7 @@ class ErrorHandler {
 					$backtrace = '<br>error backtrace:<br>'.$backtrace;
 				} else $backtrace = '';
 
-				echo self::notify_client('type='.$type.'<br>message='.$message.'<br>error file='.$errfile.'<br>error line='.$errline.'<br>error context='.var_dump($errcontext).$backtrace.'<hr>');
+				echo self::notify_client('type='.$type.'<br>message='.$message.'<br>error file='.$errfile.'<br>error line='.$errline.'<br>error context='.print_r($errcontext,true).$backtrace.'<hr>');
 				exit();
 			}
 		}

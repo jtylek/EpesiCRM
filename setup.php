@@ -10,7 +10,7 @@
  * Check access to working directories
  */
 if(file_exists('data/config.php') && !is_writable('data/config.php'))
-	die('Cannot write into data/config.php file. Please fix privileges.');
+	die('Cannot write into data/config.php file. Please fix privileges or delete this file.');
 
 if(!is_writable('data'))
 	die('Cannot write into "data" directory. Please fix privileges.');
@@ -171,7 +171,6 @@ define("STRIP_OUTPUT",0);
 define("DB_SESSION",1);
 ?>');
 	fclose($c);
-	chmod('data/config.php',0444);
 
 	//fill database	
 	install_base();
@@ -182,12 +181,18 @@ define("DB_SESSION",1);
 
 
 //////////////////////////////////////////////
+function rm_config($x) {
+	unlink(dirname(__FILE__).'/data/config.php');
+	return $x;
+}
+
 function install_base() {
 	define("_VALID_ACCESS", true);
 	require_once('include/include_path.php');
 	require_once('include/config.php');
 	require_once('include/database.php');
 	
+	ob_start('rm_config');
 	$ret = DB::CreateTable('modules',"name C(128) KEY,version I NOTNULL, priority I NOTNULL DEFAULT 0");
 	if($ret===false)
 		die('Invalid SQL query - Setup module (modules table)');
@@ -223,6 +228,7 @@ function install_base() {
 		die('Invalid SQL query - Setup module (phpgacl tables)');
 	
 	DB::$ado->raiseErrorFn = $errh;
+	ob_end_flush();
 	
 	require_once('include/acl.php');
 			

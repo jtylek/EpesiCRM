@@ -19,13 +19,12 @@ if(!file_exists('data/config.php')) {
 }
 
 define('_VALID_ACCESS',1);
-require_once('libs/saja/saja.php');
 require_once('include/include_path.php');
 require_once('include/config.php');
 require_once('include/error.php');
+ob_start(array('ErrorHandler','handle_fatal'));
 require_once('include/database.php');
 require_once('include/variables.php');
-
 try {
 $cur_ver = Variable::get('version');
 } catch(Exception $s) {
@@ -42,8 +41,10 @@ if(!in_array('modules',$tables) || !in_array('variables',$tables) || !in_array('
 require_once('include/session.php');
 session_start();
 
+require_once('saja/saja.php');
+
 global $saja;
-$saja = new saja();
+$saja = new Saja();
 $saja->set_process_file('base.php');
 $saja->set_true_utf8(true);
 if(SECURE_HTTP)
@@ -135,3 +136,7 @@ unset($_SESSION['cl'.$client_id]);
 		</script>
 	</body>
 </html>
+<?php
+ob_end_flush();
+?>
+

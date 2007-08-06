@@ -13,5 +13,9 @@ class Tests_MenuCommon {
 	public static function menu() {
 		return array('Tests'=>array('__submenu__'=>1,'Menu'=>array()));
 	}
+
+	public static function quick_menu() {
+		return array('Quick menu test'=>array('action'=>'ble'));
+	}
 }
 ?>

@@ -33,9 +33,12 @@ class DB {
 		if(isset(self::$ado)) return;
 		self::$ado = & NewADOConnection(DATABASE_DRIVER);
 		self::$ado->autoRollback = true; // default is false 
+//		$errh = DB::$ado->raiseErrorFn;
+//		DB::$ado->raiseErrorFn = false;
 		if(!self::$ado->PConnect(DATABASE_HOST, DATABASE_USER, DATABASE_PASSWORD, DATABASE_NAME))
+//			error_log('dupa');
     			trigger_error("Connect to database failed",E_USER_ERROR);
-    	
+//  		DB::$ado->raiseErrorFn = $errh;
 	}
 
 	/**
