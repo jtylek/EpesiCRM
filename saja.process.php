@@ -16,8 +16,6 @@ define("_VALID_ACCESS", true);
 header('Content-Type: text/html; charset=utf-8');
 
 require_once('include/include_path.php');
-//require_once('include/config.php');
-//require_once('include/session.php');
 require_once "saja/saja.php";
 require_once('include.php');
 
@@ -53,7 +51,6 @@ if(!$errors){
 //require_once "saja/saja.php";
 
 //start capturing the response
-//ob_start();
 ob_start(array('ErrorHandler','handle_fatal'));
 
 if(!$errors) {
@@ -86,7 +83,6 @@ if(!$errors) {
 	$base->set_true_utf8($true_utf8);
 	$base->runFunc($function, $php);
 	$base->call_jses();
-//	ob_end_flush();
 	if($base->hasActions())
 		echo $base->send();
 } else {

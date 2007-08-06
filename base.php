@@ -48,8 +48,11 @@ class Base extends Epesi {
 			return $msgs;
 		}
 	}
-
+	
 	public function process($cl_id, $url, $history_call=false,$refresh=false) {
+		if(MODULE_TIMES) 
+			$time = microtime(true);
+
 		$url = str_replace('&amp;','&',$url);
 			
 		if($url) {
@@ -142,8 +145,6 @@ class Base extends Epesi {
 						$debug .= '<pre>'.$renderer->render($xxx).'</pre><hr>';
 					}
 				}
-				if(MODULE_TIMES)
-					$debug .= 'Time of loading module <b>'.$k.'</b>: <i>'.$v['time'].'</i><hr>';
 				
 				if(isset($v['span']))
 					$this->text($v['value'], $v['span']);
@@ -173,6 +174,12 @@ class Base extends Epesi {
 			$debug .= $this->debug();
 		}
 		
+		if(MODULE_TIMES) {
+			foreach ($this->content as $k => $v)
+				$debug .= 'Time of loading module <b>'.$k.'</b>: <i>'.$v['time'].'</i><br>';
+			$debug .= 'Page renderered in '.(microtime(true)-$time).'s<hr>';
+		}
+
 		if(SQL_TIMES) {
 			$debug .= '<font size="+1">QUERIES</font><br>';
 			$queries = DB::GetQueries();
