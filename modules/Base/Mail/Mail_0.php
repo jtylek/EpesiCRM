@@ -28,7 +28,7 @@ class Base_Mail extends Module implements Base_AdminInterface {
 			return;
 		}
 		
-		$lang = & $this->pack_module('Base/Lang');
+		$lang = & $this->init_module('Base/Lang');
 		
 		$form = & $this->init_module('Libs/QuickForm');
 		//defaults

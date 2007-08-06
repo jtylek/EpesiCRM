@@ -11,7 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Tests_Lang extends Module{
 	public function body(){
-		$lang = & $this->pack_module('Base/Lang');
+		$lang = & $this->init_module('Base/Lang');
 		print('This is an example page that uses Base/Lang module.<br>');
 		print($lang->t('This text can be translated.').'<br>');
 		print($lang->ht('This text can be translated, but not with mainatance mode.').'<br>');		

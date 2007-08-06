@@ -186,7 +186,7 @@ class Utils_GenericBrowser extends Module {
 	 * For internal use only.
 	 */
 	public function __add_row_action($num,$open,$label,$close) {
-		if (!isset($this->lang)) $this->lang = & $this->pack_module('Base/Lang');
+		if (!isset($this->lang)) $this->lang = & $this->init_module('Base/Lang');
 		$this->actions[$num][strtolower(trim($label))] = array('open'=>$open,'label'=>$this->lang->t($label),'close'=>$close);
 		$this->en_actions = true;
 	}
@@ -535,7 +535,7 @@ class Utils_GenericBrowser extends Module {
 	 */
 	public function body($template,$paging=true){
 		$this->set_module_variable('first_display','done');
-		if (!$this->lang) $this->lang = & $this->pack_module('Base/Lang');
+		if (!$this->lang) $this->lang = & $this->init_module('Base/Lang');
 		$theme = & $this->init_module('Base/Theme');
 		$per_page = $this->get_module_variable('per_page');
 		$order = $this->get_module_variable('order');

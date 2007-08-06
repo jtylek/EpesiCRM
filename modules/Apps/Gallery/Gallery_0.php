@@ -15,7 +15,7 @@ class Apps_Gallery extends Module {
 	private $lang;
 	
 	public function construct() {
-		$this->lang = & $this->pack_module('Base/Lang');
+		$this->lang = & $this->init_module('Base/Lang');
 		$this->root = $this->get_data_dir();
 		//print Base_UserCommon::get_my_user_id()." - id<br>";
 		//print Base_AclCommon::i_am_user()." - am i user<br>";
@@ -119,7 +119,7 @@ class Apps_Gallery extends Module {
 		$dirs = $this->getDirsRecursive($this->root.$this->user, "/^[^\.].*$/");
 		ksort($dirs);
 		$form = & $this->init_module('Libs/QuickForm');
-		$lang = & $this->pack_module('Base/Lang');
+		$lang = & $this->init_module('Base/Lang');
 		
 		$form->addElement('header', 'mk_folder', $lang->t('Add Folder to Your Gallery'));
 		
@@ -213,7 +213,7 @@ class Apps_Gallery extends Module {
 		$dirs = $this->getDirsRecursive($this->root.$this->user, "/^[^\.].*$/");
 		ksort($dirs);
 		$form = & $this->init_module('Libs/QuickForm');
-		$lang = & $this->pack_module('Base/Lang');
+		$lang = & $this->init_module('Base/Lang');
 		$form->addElement('header', 'rm_folder', $lang->t('Remove Folder from Your Gallery'));
 		
 		$dir_listing = $this->getDirsRecursive($this->root.$this->user);
@@ -303,7 +303,7 @@ class Apps_Gallery extends Module {
 		$dir = $this->get_module_variable_or_unique_href_variable('dir', "");
 		$user = $this->get_module_variable_or_unique_href_variable('user', $this->user);
 		$form = & $this->init_module('Libs/QuickForm');
-		$lang = & $this->pack_module('Base/Lang');
+		$lang = & $this->init_module('Base/Lang');
 		
 		$form->addElement('header', 'share', $lang->t('Select folders You want to share with others.'));
 		
@@ -393,7 +393,7 @@ class Apps_Gallery extends Module {
 	
 	public function upload() {
 		if($this->is_back()) return false;
-		$this->lang = & $this->pack_module('Base/Lang');
+		$this->lang = & $this->init_module('Base/Lang');
 		Base_ActionBarCommon::add('back',$this->lang->ht('Back to Gallery'),$this->create_back_href());
 
 
@@ -409,7 +409,7 @@ class Apps_Gallery extends Module {
 		$dirs = $this->getDirsRecursive($this->root.$this->user, "/^[^\.].*$/");
 		$dir = $this->get_module_variable_or_unique_href_variable('dir', "");
 		$user = $this->get_module_variable_or_unique_href_variable('user', $this->user);
-		$this->lang = & $this->pack_module('Base/Lang');
+		$this->lang = & $this->init_module('Base/Lang');
 		
 		$form = & $this->init_module('Utils/FileUpload');
 		
@@ -488,7 +488,7 @@ class Apps_Gallery extends Module {
 		if($this->is_back()) return false;
 		Base_ActionBarCommon::add('back',$this->lang->ht('Back to Gallery'),$this->create_back_href());
 		
-		$this->lang = & $this->pack_module('Base/Lang');
+		$this->lang = & $this->init_module('Base/Lang');
 
 		$tb = & $this->init_module('Utils/TabbedBrowser');
 		$tb->set_tab($this->lang->t('Add folder'),array($this, 'mk_folder'));
@@ -500,7 +500,7 @@ class Apps_Gallery extends Module {
 	}
 	
 	public function body() {
-		$this->lang = & $this->pack_module('Base/Lang');
+		$this->lang = & $this->init_module('Base/Lang');
 
 		Base_ActionBarCommon::add('add',$this->lang->ht('Upload'),$this->create_callback_href(array($this,'upload')));
 		Base_ActionBarCommon::add('settings',$this->lang->ht('Manage Folders'),$this->create_callback_href(array($this,'manage')));

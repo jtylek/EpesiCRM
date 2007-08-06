@@ -24,7 +24,7 @@ class Base_MaintenanceMode_Administrator extends Module implements Base_AdminInt
 			return;
 		}
 		
-		$lang = & $this->pack_module('Base/Lang');
+		$lang = & $this->init_module('Base/Lang');
 		
 		$f = & $this->init_module('Libs/QuickForm');
 		

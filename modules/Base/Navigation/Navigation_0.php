@@ -17,7 +17,7 @@ class Base_Navigation extends Module {
 	public function body($arg) {
 		global $base;
 		
-		$lang = & $this->pack_module('Base/Lang');
+		$lang = & $this->init_module('Base/Lang');
 		$theme = & $this->init_module('Base/Theme');
 		
 		if(History::is_back())

@@ -18,7 +18,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 	
 	public function admin() {
 		global $translations;
-		$this->lang = & $this->pack_module('Base/Lang');
+		$this->lang = & $this->init_module('Base/Lang');
 
 		if($this->is_back()) {
 			if($this->isset_module_variable('module') && $this->isset_module_variable('original')) {
@@ -83,7 +83,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 	
 	public function new_lang_pack(){
 		if ($this->is_back()) return false;
-		if (!isset($this->lang)) $this->lang = & $this->pack_module('Base/Lang');		
+		if (!isset($this->lang)) $this->lang = & $this->init_module('Base/Lang');		
 
 		$form = & $this->init_module('Libs/QuickForm',$this->lang->t('Creating new langpack...'),'new_langpack');
 		$form -> addElement('header',null,$this->lang->t('Create new langpack'));

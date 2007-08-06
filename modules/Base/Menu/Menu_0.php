@@ -167,7 +167,7 @@ class Base_Menu extends Module {
 	
 	public function body($arg) {
 		global $base;
-		$lang = & $this->pack_module('Base/Lang');
+		$lang = & $this->init_module('Base/Lang');
 		
 		// preparing modules menu and tools menu
 		$modules_menu = array();

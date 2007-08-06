@@ -21,7 +21,7 @@ class Utils_CustomMenu extends Module {
 	 * @param string identifier of the menu entries group
 	 */
 	public function construct($id) {
-		$this->lang = & $this->pack_module('Base/Lang');
+		$this->lang = & $this->init_module('Base/Lang');
 		if(!isset($id)) {
 			print($this->lang->t('Menu Editor: no ID given - unable to edit menus'));
 			return;

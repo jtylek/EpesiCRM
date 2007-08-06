@@ -25,7 +25,7 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 			return;
 		}
 		
-		$this->lang = & $this->pack_module('Base/Lang'); 
+		$this->lang = & $this->init_module('Base/Lang'); 
 		
 		$form = & $this->init_module('Libs/QuickForm','Changing theme');
 		

@@ -16,7 +16,7 @@ class Utils_CommonData extends Module {
 	 * For internal use only.
 	 */
 	public function admin() {
-		$this->lang = & $this->pack_module('Base/Lang');
+		$this->lang = & $this->init_module('Base/Lang');
 		$action = $this->get_module_variable_or_unique_href_variable('action','browse');
 		$this->$action();
 	}
@@ -27,7 +27,7 @@ class Utils_CommonData extends Module {
 	 * @param string array name
 	 */
 	public function admin_array($name) {
-		$this->lang = & $this->pack_module('Base/Lang');
+		$this->lang = & $this->init_module('Base/Lang');
 		$this->set_module_variable('edit_name',$name);
 		$action = $this->get_module_variable_or_unique_href_variable('action','edit');
 		$this->$action();

@@ -34,7 +34,7 @@ class Base_ActionBar extends Module {
 	 */
 	public function body() {
 		$icons = Base_ActionBarCommon::get();
-		$l = & $this->pack_module('Base/Lang');
+		$l = & $this->init_module('Base/Lang');
 
 		//translate
 		foreach($icons as &$i)

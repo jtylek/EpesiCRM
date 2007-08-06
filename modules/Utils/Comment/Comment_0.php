@@ -30,7 +30,7 @@ class Utils_Comment extends Module{
 	public function construct($key) {
 		if(isset($key)) $this->key = $key;
 		else trigger_error('Key not given to comment module, aborting',E_USER_ERROR);
-		$this->lang = & $this->pack_module('Base/Lang');
+		$this->lang = & $this->init_module('Base/Lang');
 	}
 	
 	/**

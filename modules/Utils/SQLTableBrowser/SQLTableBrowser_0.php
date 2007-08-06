@@ -89,7 +89,7 @@ class Utils_SQLTableBrowser extends Module {
 	 * Displays the table or associated form, depending on action.
 	 */	
 	public function body($arg) {
-		$this->lang = &$this->pack_module('Base/Lang');
+		$this->lang = &$this->init_module('Base/Lang');
 		$theme = &$this->pack_module('Base/Theme');
 		if ($this->is_back())
 			$this->unset_module_variable('action');

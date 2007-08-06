@@ -13,7 +13,7 @@ class Apps_Forum extends Module {
 	private $key = '';
 
 	public function body($arg) {
-		$this->lang = & $this->pack_module('Base/Lang');		
+		$this->lang = & $this->init_module('Base/Lang');		
 
 		$view_board = $this->get_module_variable('view_board',$_REQUEST['view_board']);
 		if ($view_board) {
@@ -41,7 +41,7 @@ class Apps_Forum extends Module {
 	
 	public function view_board($board){
 		if ($this->is_back()) return false;
-		if (!isset($this->lang)) $this->lang = & $this->pack_module('Base/Lang');		
+		if (!isset($this->lang)) $this->lang = & $this->init_module('Base/Lang');		
 		$ret = DB::Execute('SELECT id, topic FROM apps_forum_thread WHERE apps_forum_board_id=%d',$board);
 		$threads = array();
 
@@ -76,7 +76,7 @@ class Apps_Forum extends Module {
 
 	public function view_thread($board,$thread){
 		if ($this->is_back()) return false;
-		if (!isset($this->lang)) $this->lang = & $this->pack_module('Base/Lang');		
+		if (!isset($this->lang)) $this->lang = & $this->init_module('Base/Lang');		
 		$board_name = DB::GetOne('SELECT name FROM apps_forum_board WHERE id = %d',$board);
 
 		$comment = & $this->init_module('Utils/Comment','apps_forum_'.$this->key.'_'.$thread);
@@ -107,7 +107,7 @@ class Apps_Forum extends Module {
 
 	public function add_board(){
 		if ($this->is_back()) return false;
-		if (!isset($this->lang)) $this->lang = & $this->pack_module('Base/Lang');		
+		if (!isset($this->lang)) $this->lang = & $this->init_module('Base/Lang');		
 
 		$form = & $this->init_module('Libs/QuickForm',$this->lang->t('Creating new board...'),'add_board_form');
 		$form -> addElement('header',null,$this->lang->t('Create new board'));
@@ -141,7 +141,7 @@ class Apps_Forum extends Module {
 
 	public function new_thread($board){
 		if ($this->is_back()) return false;
-		if (!isset($this->lang)) $this->lang = & $this->pack_module('Base/Lang');		
+		if (!isset($this->lang)) $this->lang = & $this->init_module('Base/Lang');		
 
 		$form = & $this->init_module('Libs/QuickForm',$this->lang->ht('Creating new thread'));
 		$theme = & $this->init_module('Base/Theme');

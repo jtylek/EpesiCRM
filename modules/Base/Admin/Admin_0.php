@@ -43,7 +43,7 @@ class Base_Admin extends Module {
 	
 	private function list_admin_modules() {
 		global $base;
-		$lang = & $this->pack_module('Base/Lang');
+		$lang = & $this->init_module('Base/Lang');
 		
 		$mod_ok = array();
 		foreach(ModuleManager::$modules as $name=>$obj)

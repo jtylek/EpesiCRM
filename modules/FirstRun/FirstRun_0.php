@@ -14,7 +14,7 @@ class FirstRun extends Module {
 
 	public function body($arg) {
 		$wizard = & $this->init_module('Utils/Wizard');
-		$this->lang = & $this->pack_module('Base/Lang');
+		$this->lang = & $this->init_module('Base/Lang');
 		
 		/////////////////////////////////////////////////////////////
 		$this->ini = parse_ini_file('modules/FirstRun/distros.ini',true);
