@@ -26,7 +26,7 @@ class Acl {
 	 * @param string
 	 * @return bool false on access denied
 	 */
-	public static function check($a,$b,$c,$d) {
+	public static function check($a,$b,$c=null,$d=null) {
 		if(!isset($d)) {
 			$d = self::get_user();
 			if(!isset($d))

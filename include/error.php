@@ -118,5 +118,5 @@ class ErrorHandler {
 }
 
 set_error_handler(array('ErrorHandler', 'handle_error'));
-
+ini_set('display_errors','off');
 ?>
