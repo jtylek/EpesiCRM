@@ -41,7 +41,7 @@ var saja = {
 					saja.updateIndicator();
 				}
 			} catch(e) {
-				alert('Abort/ESC pressed - restarting epesi.');
+				alert('Connection error - restarting epesi.');
 				window.location = "index.php";
 			}
 		}
