@@ -30,14 +30,19 @@ var saja = {
 		req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 		req.send(requestString);
 		req.onreadystatechange=function(){
-			if (req.readyState==4 && req.status==200){	
-				actions = req.responseText.split('<saja_split>');
-				if(id)
-					saja.Put(actions[0], id, act, property);
-				if(actions[1])
-					eval(actions[1]);
-				saja.procOn--;
-				saja.updateIndicator();
+			try {
+				if (req.readyState==4 && req.status==200){	
+					actions = req.responseText.split('<saja_split>');
+					if(id)
+						saja.Put(actions[0], id, act, property);
+					if(actions[1])
+						eval(actions[1]);
+					saja.procOn--;
+					saja.updateIndicator();
+				}
+			} catch(e) {
+				alert('Abort/ESC pressed - restarting epesi.');
+				window.location = "index.php";
 			}
 		}
 	},
