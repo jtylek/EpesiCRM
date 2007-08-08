@@ -187,7 +187,7 @@ define("DISPLAY_ERRORS",1);
 
 //////////////////////////////////////////////
 function rm_config($x) {
-	unlink(dirname(__FILE__).'/data/config.php');
+	if($x) unlink(dirname(__FILE__).'/data/config.php');
 	return $x;
 }
 
