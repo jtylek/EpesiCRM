@@ -177,11 +177,15 @@ define("DISPLAY_ERRORS",1);
 ?>');
 	fclose($c);
 
+	ob_start('rm_config');
+
 	//fill database	
 	install_base();
 
 //	unlink('setup.php');
 	header('Location: index.php');
+
+	ob_end_flush();
 }
 
 
@@ -197,7 +201,6 @@ function install_base() {
 	require_once('include/config.php');
 	require_once('include/database.php');
 	
-	ob_start('rm_config');
 	$ret = DB::CreateTable('modules',"name C(128) KEY,version I NOTNULL, priority I NOTNULL DEFAULT 0");
 	if($ret===false)
 		die('Invalid SQL query - Setup module (modules table)');
@@ -233,7 +236,6 @@ function install_base() {
 		die('Invalid SQL query - Setup module (phpgacl tables)');
 	
 	DB::$ado->raiseErrorFn = $errh;
-	ob_end_flush();
 	
 	require_once('include/acl.php');
 			
