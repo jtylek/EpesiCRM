@@ -88,12 +88,15 @@ class FirstRun extends Module {
 	
 	public function done($d) {
 		$pkgs = $this->ini[$d[0]['setup_type']]['package'];
+		if(!ModuleManager::install('Base'))
+			trigger_error('Unable to install Base module pack.',E_USER_ERROR);
 		foreach($pkgs as $p) {
 			if(!ModuleManager::install(str_replace('/','_',$p)))
 				trigger_error('Unable to install '.str_replace('_','/',$p).' module.',E_USER_ERROR);
 		}
 			
 		Base_SetupCommon::refresh_available_modules();
+		Base_ThemeCommon::create_cache();
 
 		if(!Base_UserCommon::add_user($d['simple_user']['login'])) {
 		    	print('Unable to create user');

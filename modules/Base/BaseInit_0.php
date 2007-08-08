@@ -16,7 +16,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class BaseInit_0 extends ModuleInit {
 	public static function requires() {
 		return array(
-		    array('name'=>'Base/Admin','version'=>0),
+		    array('name'=>'Base/Admin','version'=>1),
 		    array('name'=>'Base/ActionBar','version'=>0),
 		    array('name'=>'Base/Backup','version'=>0),
 		    array('name'=>'Base/Setup','version'=>0),

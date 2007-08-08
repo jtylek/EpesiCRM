@@ -139,6 +139,7 @@ class Base_ThemeCommon {
 		$files_cur_out = '';
 		foreach($arr as $f) {
 			$name = basename($f);
+			if($name=='__cache.css') continue;
 			if(is_readable($tdir.$name)) {
 				$css_cur_out .= file_get_contents($tdir.$name)."\n";
 				$files_cur_out .= $tdir.$name."\n";
