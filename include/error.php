@@ -117,5 +117,9 @@ class ErrorHandler {
 	}
 }
 
-set_error_handler(array('ErrorHandler', 'handle_error'));
+//sometimes set_error_handler doesn't work with classes
+function handle_epesi_error($type, $message,$errfile,$errline,$errcontext) {
+	return ErrorHandler::handle_error($type, $message,$errfile,$errline,$errcontext);
+}
+set_error_handler('handle_epesi_error');
 ?>
