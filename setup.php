@@ -169,6 +169,11 @@ define("STRIP_OUTPUT",0);
  * Save session in database.
  */
 define("DB_SESSION",1);
+
+/*
+ * Display errors on page.
+ */
+define("DISPLAY_ERRORS",1);
 ?>');
 	fclose($c);
 

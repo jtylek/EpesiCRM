@@ -24,8 +24,9 @@ class ErrorHandler {
 		global $base;
 		if(class_exists('Saja')) {
 			if(!isset($base)) $base = new Saja();
-			$base->text($buffer,'error_box,p');
-			$base->alert('There was an error in one of epesi modules. Details are displayed at the bottom of the page, please send this information to system administrator.');
+			if(DISPLAY_ERRORS)
+				$base->text($buffer,'error_box,p');
+			$base->alert('There was an error in one of epesi modules.'.((DISPLAY_ERRORS)?' Details are displayed at the bottom of the page, please send this information to system administrator.':''));
 			return $base->send();	
 		}
 		return $buffer;
