@@ -148,6 +148,9 @@ class Utils_Image extends Module {
 			 		imagecopyresampled($t_im, $im, 0, 0, 0, 0, $this->thumb_width, $this->thumb_height, $this->width, $this->height);
 			
 					imagepng($t_im, $this->get_data_dir().$this->thumb);
+					imagecolordeallocate($t_im,$background);
+					imagedestroy($t_im);
+					imagedestroy($im);
 					//print $this->get_data_dir().$this->thumb." created<br>";
 				}
 			} elseif( $this->type == 2 ) {
@@ -161,6 +164,8 @@ class Utils_Image extends Module {
 					header("Content-type: image/jpeg");
 					
 					imagejpeg($t_im, $this->get_data_dir().$this->thumb, 90);
+					imagedestroy($im);
+					imagedestroy($t_im);
 					//print $this->get_data_dir().$this->thumb." created<br>";
 				}
 			} elseif( $this->type == 1 ) {
@@ -179,6 +184,9 @@ class Utils_Image extends Module {
 					imagetruecolortopalette($imgDestination1, true, 256); 
 					
 					imagegif($imgDestination1, $this->get_data_dir().$this->thumb); 
+					imagecolordeallocate($t_im,$black);
+					imagedestroy($imgDestination1);
+					imagedestroy($im);
 				}
 			}
        	}

@@ -35,8 +35,7 @@ class DB {
 		self::$ado->autoRollback = true; // default is false 
 //		$errh = DB::$ado->raiseErrorFn;
 //		DB::$ado->raiseErrorFn = false;
-		if(!self::$ado->PConnect(DATABASE_HOST, DATABASE_USER, DATABASE_PASSWORD, DATABASE_NAME))
-//			error_log('dupa');
+		if(!self::$ado->Connect(DATABASE_HOST, DATABASE_USER, DATABASE_PASSWORD, DATABASE_NAME))
     			trigger_error("Connect to database failed",E_USER_ERROR);
 //  		DB::$ado->raiseErrorFn = $errh;
 	}
