@@ -474,7 +474,7 @@ class Apps_Gallery extends Module {
 			))
 		);
 		$tree->sort();
-		
+		$tree->set_inline_display();
 		$form->addElement('static', null, $this->get_html_of_module($tree));
 		
 		$this->display_module($form, array( array($this,'submit_upload') ));
