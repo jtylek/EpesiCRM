@@ -37,5 +37,5 @@
         top: expression( ( ignoreMe_over = document.documentElement.scrollTop ) + 'px' );
         filter: alpha(opacity=80);
 }
-<![endif]>
+<![endif]-->
 <![endif]-->
