@@ -244,7 +244,7 @@ class Utils_Gallery extends Module {
 				$theme->assign('next_list', $next_list);
 				$theme->assign('buttons', $buttons);
 				$theme->assign('preview', $preview);
-				return $this->get_html_of_module($theme,'display');
+				return $this->get_html_of_module($theme,null,'display');
 			}
 		}
 		
