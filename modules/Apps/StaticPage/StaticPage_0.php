@@ -83,7 +83,6 @@ class Apps_StaticPage extends Module {
 		$fck = & $f->addElement('fckeditor', 'content', $this->lang->t('Content'));
 		$fck->setFCKProps('800','300',true);
 		
-		
 		Base_ActionBarCommon::add('back','Cancel',$this->create_back_href());
 		Base_ActionBarCommon::add('save','Save',$f->get_submit_form_href());
 //		$save_b = & HTML_QuickForm::createElement('submit', null, $this->lang->ht('Save'));
@@ -95,13 +94,14 @@ class Apps_StaticPage extends Module {
 		
 		if($f->validate()) {
 			$ret = $f->exportValues();
+			$content = str_replace("\n",'',$ret['content']);
 			if($page) {
-				DB::Execute('UPDATE apps_staticpage_pages SET path=%s, title=%s, content=%s WHERE id=%d',array($ret['path'],$ret['title'],$ret['content'],$page['id']));
+				DB::Execute('UPDATE apps_staticpage_pages SET path=%s, title=%s, content=%s WHERE id=%d',array($ret['path'],$ret['title'],$content,$page['id']));
 				$menu->save($ret['path']);
 				if($this->isset_module_variable('view'))
 					$this->set_module_variable('view',$ret['path']);
 			} else {
-				DB::Execute('INSERT INTO apps_staticpage_pages(path,title,content) VALUES (%s, %s, %s)',array($ret['path'],$ret['title'],$ret['content']));
+				DB::Execute('INSERT INTO apps_staticpage_pages(path,title,content) VALUES (%s, %s, %s)',array($ret['path'],$ret['title'],$content));
 				$this->set_module_variable('menu_edit',array('id'=>DB::Insert_ID(),'path'=>$ret['path']));
 			}
 			$this->unset_module_variable('edit');
