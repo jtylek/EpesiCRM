@@ -9,7 +9,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9');
+$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10');
 
 function update_from_0_8_6_to_0_8_7() {
 }
