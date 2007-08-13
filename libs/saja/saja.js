@@ -41,8 +41,12 @@ var saja = {
 					saja.updateIndicator();
 				}
 			} catch(e) {
-				alert('Connection error - restarting epesi.');
-				window.location = "index.php";
+				if(e.name=='NS_ERROR_NOT_AVAILABLE') {
+					alert('Connection error - restarting epesi.');
+					window.location = "index.php";
+					return;
+				}
+				throw e;
 			}
 		}
 	},
