@@ -189,6 +189,20 @@ abstract class Module {
 		return $session['__module_vars__'][$this->get_path()][$name] = $value;
 	}
 	
+	/**
+	 * Sets variable that will be available only for module instance that called this function.
+	 * Note that after page refresh, this variable will preserve its value in contrary to module field variables.
+	 * Module variables are hold separately for every client.
+	 * 
+	 * @param integer client id
+	 * @param string module path (returned by get_path() method);
+	 * @param string key
+	 * @param mixed value
+	 */
+	public final static function static_set_module_variable($client_id,$path,$name, $value) {
+		return $_SESSION['cl'.$client_id]['stable']['__module_vars__'][$path][$name] = $value;
+	}
+	
 
 	/**
 	 * Returns value of a module variable. If the variable is not set, function will return value given as second parameter.
@@ -199,11 +213,28 @@ abstract class Module {
 	 * @return mixed value
 	 */
 	public final function & get_module_variable($name, $default) {
-		$session = & $GLOBALS['base']->get_session();
 		$path = $this->get_path();
+		$session = & $GLOBALS['base']->get_session();
 		if(isset($default) && !$this->isset_module_variable($name))
 			$session['__module_vars__'][$path][$name] = & $default;
 		return $session['__module_vars__'][$path][$name];
+	}
+
+
+	/**
+	 * Returns value of a module variable. If the variable is not set, function will return value given as third parameter.
+	 * For details concerning module variables, see set_module_variable. 
+	 * 
+	 * @param integer client id
+	 * @param string module path (returned by get_path() method);
+	 * @param string key
+	 * @param mixed default value
+	 * @return mixed value
+	 */
+	public final static function & static_get_module_variable($client_id, $path, $name, $default) {
+		if(isset($default) && !self::static_isset_module_variable($name))
+			$_SESSION['cl'.$client_id]['stable']['__module_vars__'][$path][$name] = & $default;
+		return $_SESSION['cl'.$client_id]['stable']['__module_vars__'][$path][$name];
 	}
 	
 	/**
@@ -240,6 +271,19 @@ abstract class Module {
 	}
 	
 	/**
+	 * Checks if variable exists.
+	 * For details concerning module variables, see set_module_variable. 
+	 * 
+	 * @param integer client id
+	 * @param string module path (returned by get_path() method);
+	 * @param string key
+	 * @return bool true if variable exists, false otherwise
+	 */
+	public final static function static_isset_module_variable($client_id,$path,$name) {
+		return isset($_SESSION['cl'.$client_id]['stable']['__module_vars__'][$path][$name]);
+	}
+	
+	/**
 	 * Unset module variable.
 	 * For details concerning module variables see set_module_variable. 
 	 * 
@@ -248,6 +292,18 @@ abstract class Module {
 	public final function unset_module_variable($name) {
 		$session = & $GLOBALS['base']->get_session();
 		unset($session['__module_vars__'][$this->get_path()][$name]);
+	}
+	
+	/**
+	 * Unset module variable.
+	 * For details concerning module variables see set_module_variable. 
+	 * 
+	 * @param integer client id
+	 * @param string module path (returned by get_path() method);
+	 * @param string key
+	 */
+	public final static function static_unset_module_variable($client_id,$path,$name) {
+		unset($_SESSION['cl'.$client_id]['stable']['__module_vars__'][$path][$name]);
 	}
 	
 	/**

@@ -11,7 +11,7 @@
  * Define that this is valid access (thru ajax call).
  */
 define("_VALID_ACCESS", true);
-
+define("_SAJA_PROCESS",true);
 //let browser know that response is utf-8 encoded
 header('Content-Type: text/html; charset=utf-8');
 

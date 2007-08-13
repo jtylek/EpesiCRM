@@ -39,7 +39,6 @@ if(!in_array('modules',$tables) || !in_array('variables',$tables) || !in_array('
 	die('Database structure you are using is apparently out of date or damaged. If you didn\'t perform application update recently you should try to restore the database. Otherwise, please refer to epesi documentation in order to perform database update.');
 
 require_once('include/session.php');
-session_start();
 
 require_once('saja/saja.php');
 
