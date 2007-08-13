@@ -46,6 +46,7 @@ var saja = {
 					window.location = "index.php";
 					return;
 				}
+				alert('JavaScript error - stopping Epesi!');
 				throw e;
 			}
 		}
