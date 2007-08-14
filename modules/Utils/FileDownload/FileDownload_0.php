@@ -24,7 +24,7 @@ class Utils_FileDownload extends Module {
 		global $base;
 		DB::Execute('INSERT INTO utils_filedownload_files(path,size) VALUES (%s,-1)',$file);
 		$this->set_module_variable('download_id',DB::Insert_ID('utils_downloadfile_files','id'));
-		print('<iframe src="'.$this->get_module_dir().'download.php?'.http_build_query(array('client_id'=>$base->get_client_id(),'path'=>$path)).'">');
+		print('<iframe src="'.$this->get_module_dir().'download.php?'.http_build_query(array('client_id'=>$base->get_client_id(),'path'=>$path)).'" width="0" height="0" frameborder="0" >');
 		eval_js('setTimeout(\'utils_filedownload_refresh("'.$id.'","'.$path.'")\',3000)');
 
 	}
