@@ -110,20 +110,16 @@ class Base extends Epesi {
 		$to_cleanup = array_keys($tmp_session['__module_content__']);
 		foreach($to_cleanup as $k) {
 			$mod = ModuleManager::get_instance($k);
-/*		
-			if(is_object($mod)) {
-				if($mod->is_fast_process())
-					$debug .= 'skipped2 '.$k.': '.print_r($mod,true).'<br>';
-				else
-					$debug .= 'OK '.$k.': '.$mod->get_path().'<br>';
-			} elseif($mod===null)
-				$debug .= 'skipped '.$k.': '.print_r($mod,true).'<br>';
-			else*/
 			if($mod === null) {
-				if(DEBUG)
-					$debug .= 'Clearing mod vars & module content '.$k.'<br>';
-				unset($session['__module_vars__'][$k]);
-				unset($tmp_session['__module_content__'][$k]);
+				$xx = explode('/',$k);
+				$yy = explode('|',$xx[count($xx)-1]);
+				$mod = $yy[0];
+				if((!is_callable(array($mod.'Common','destroy')) || !call_user_func(array($mod.'Common','destroy'),$k,$session['__module_vars__'][$k]))) {
+					if(DEBUG)
+						$debug .= 'Clearing mod vars & module content '.$k.'<br>';
+					unset($session['__module_vars__'][$k]);
+					unset($tmp_session['__module_content__'][$k]);
+				}
 			}
 		}
 		

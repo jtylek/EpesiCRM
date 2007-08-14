@@ -56,6 +56,7 @@ class Base_Box extends Module {
 		
 		$this->modules = array();
 		foreach ($containers as $k => $v) {
+//			error_log($k.'=>'.$v['module']);
 			ob_start();
 			if(ModuleManager::is_installed($v['module'])==-1) {
 				if(Base_AclCommon::i_am_sa()) print($lang->t("Please install %s module or choose another theme!",array($v['module']))."<br><a ".$this->create_href(array('box_main_module'=>'Base/Setup')).">".$lang->t('Manage modules').'</a><br><a '.$this->create_href(array('box_main_module'=>'Base/Theme/Administrator')).'>'.$lang->t("Choose another theme").'</a>');
