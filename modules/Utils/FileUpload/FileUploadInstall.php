@@ -21,7 +21,7 @@ class Utils_FileUploadInstall extends ModuleInstall {
 		return true;
 	}
 	public static function version() {
-		return array("0.1");
+		return array("0.5");
 	}
 	
 }
