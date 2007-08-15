@@ -268,7 +268,7 @@ class Utils_GenericBrowser extends Module {
 		elseif($this->get_unique_href_variable('first')=='1')
 			$offset = 0;
 		elseif($this->get_unique_href_variable('last')=='1')
-			$offset = floor($this->rows_qty/$per_page)*$per_page;
+			$offset = floor(($this->rows_qty-1)/$per_page)*$per_page;
 		
 		$this->set_module_variable('offset', $offset);
 		$this->set_module_variable('per_page', $per_page);
@@ -551,7 +551,7 @@ class Utils_GenericBrowser extends Module {
 
 		$renderer =& new HTML_QuickForm_Renderer_TCMSArraySmarty();
 		$form = & $this->init_module('Libs/QuickForm',$this->lang->ht('Changing display settings'));
-		if(isset($this->rows_qty)) {
+		if(isset($this->rows_qty) && $paging) {
 			$form->addElement('select','per_page',$this->lang->t('Number of rows per page'), array(5=>5,10=>10,25=>25,50=>50,100=>100), 'onChange="'.$form->get_submit_form_js(false).'"');
 			$form->setDefaults(array('per_page'=>$per_page));
 		}
@@ -793,7 +793,7 @@ class Utils_GenericBrowser extends Module {
 		if($this->rows_qty!=0)
 			return $this->lang->t('Records %d to %d of %d',array($this->get_module_variable('offset')+1,($this->get_module_variable('offset')+$this->get_module_variable('per_page')>$this->rows_qty)?$this->rows_qty:$this->get_module_variable('offset')+$this->get_module_variable('per_page'),$this->rows_qty));
 		else 
-		if (isset($this->rows_qty))
+		if (isset($this->rows_qty) || (!isset($this->rows_qty) && empty($this->rows)))
 			return $this->lang->t('No records found');
 		else 
 			return '';
