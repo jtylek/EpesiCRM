@@ -88,6 +88,8 @@ class Base_User_Settings extends Module {
 			}
 			if ($v['bool'])
 				$f -> addElement('checkbox',$module.'::'.$v['name'],$this->lang->t($v['label']));
+			if ($v['text'])
+				$f -> addElement('text',$module.'::'.$v['name'],$this->lang->t($v['label']));
 			$f -> setDefaults(array($module.'::'.$v['name']=>Base_User_SettingsCommon::get_user_settings($module,$v['name'])));
 		}
 	}
