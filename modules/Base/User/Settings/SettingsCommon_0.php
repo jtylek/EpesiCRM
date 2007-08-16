@@ -18,7 +18,7 @@ class Base_User_SettingsCommon {
 		$modules = array(); 
 		foreach(ModuleManager::$modules as $name=>$obj) {
 			if(method_exists($obj['name'].'Common', 'user_settings')) {
-				$menu = call_user_func(array($obj['name'].'Common','user_settings'));
+				$menu = call_user_func(array($obj['name'].'Common','user_settings'),array(true));
 				if(!is_array($menu)) continue;
 				foreach($menu as $k=>$v)
 					if ($v!='callbody') $modules[$k] = array('module'=>$obj['name'].'::'.$k);

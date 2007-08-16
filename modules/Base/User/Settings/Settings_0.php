@@ -23,6 +23,7 @@ class Base_User_Settings extends Module {
 		if ($module=='__NONE__') $module = null;
 		
 		if (!$module) {
+//		if (!$module || $this->is_back()) {
 			$this->main_page();
 			return;
 		}
@@ -33,13 +34,21 @@ class Base_User_Settings extends Module {
 		list($module_name,$module_part) = explode('::',$module);
 		if(method_exists($module_name.'Common', 'user_settings')) {
 			$menu = call_user_func(array($module_name.'Common','user_settings'));
-			if(!is_array($menu)) continue;
-			foreach($menu as $k=>$v) if ($k==$module_part){
-				$f->addElement('header',null,$this->lang->t($k));
-				$this->add_module_settings_to_form($v,$f,$module_name);
+			if (is_array($menu)) { 
+				foreach($menu as $k=>$v) if ($k==$module_part){
+					$f->addElement('header',null,$this->lang->t($k));
+	//				$this->add_module_settings_to_form($v,$f,$module_name);
+				}
 			}
 		}
-		$f->addElement('submit','submit',$this->lang->ht('OK'));
+		$f -> addElement('checkbox','Base_Menu_QuickAccess::5ae5da81f563fe024775caed04ba1632','My settings: Control panel');
+		$f -> addElement('checkbox','Base_Menu_QuickAccess::7fb26aba15c987bacb6d23bb4d19f227','My settings: Action bar settings');
+		$f -> addElement('checkbox','Base_Menu_QuickAccess::1efaa0622866f83618e3e57968c7f46b','My settings: Browsing tables');
+		$f -> addElement('checkbox','Base_Menu_QuickAccess::a0a505746e8c3a7d58237dfa0e6cf035','My settings: Language');
+
+		$submit = HTML_QuickForm::createElement('submit','submit',$this->lang->ht('OK'));
+		$cancel = HTML_QuickForm::createElement('button','cancel',$this->lang->ht('Cancel'), $this->create_back_href());
+		$f->addGroup(array($submit,$cancel));
 
 		if($f->validate()) {
 			$f->process(array(& $this, 'submit_settings'));

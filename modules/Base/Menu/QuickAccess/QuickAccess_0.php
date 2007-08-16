@@ -17,7 +17,7 @@ class Base_Menu_QuickAccess extends Module {
 	private $lang;
 	
 	public function body() {
-		global $base;
+/*		global $base;
 		$this->lang = & $this->init_module('Base/Lang');
 		
 		$form = & $this->init_module('Libs/QuickForm',$this->lang->ht('Saving settings'),'quick_access');
@@ -35,13 +35,13 @@ class Base_Menu_QuickAccess extends Module {
 			if(method_exists($obj['name'].'Common', 'menu')) {
 				$module_menu = call_user_func(array($obj['name'].'Common','menu'));
 				if(!is_array($module_menu)) continue;
-				Base_Menu::add_default_menu($module_menu, $name);
+				Base_MenuCommon::add_default_menu($module_menu, $name);
 				$modules_menu = array_merge_recursive($modules_menu,$module_menu);
 			}
 			if(method_exists($obj['name'].'Common', 'tool_menu')) {
 				$module_menu = call_user_func(array($obj['name'].'Common','tool_menu'));
 				if(!is_array($module_menu)) continue;
-				Base_Menu::add_default_menu($module_menu, $name);
+				Base_MenuCommon::add_default_menu($module_menu, $name);
 				$tools_menu = array_merge_recursive($tools_menu,$module_menu);
 			}
 		}
@@ -62,9 +62,9 @@ class Base_Menu_QuickAccess extends Module {
 			location(array('box_main_module'=>'Base_User_Settings'));
 		} else
 			$form->display();
-	}
+*/	}
 	
-	public function submit_settings($values){
+/*	public function submit_settings($values){
 		DB::Execute('DELETE FROM quick_access WHERE user_login_id = %d',Base_UserCommon::get_my_user_id());
 		foreach($values as $k=>$v){
 			if ($k=='submited' || $k=='submit_button' || $v!=1) continue;
@@ -87,6 +87,6 @@ class Base_Menu_QuickAccess extends Module {
 			}
 		}
 	}
-	
+*/	
 }
 ?>

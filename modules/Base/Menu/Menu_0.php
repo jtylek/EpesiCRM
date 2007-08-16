@@ -53,30 +53,6 @@ class Base_Menu extends Module {
 	private static $tmp_menu;
 	private $duplicate = false;
 	
-	public static function add_default_menu(& $m, $name) {
-		foreach($m as $k=>$arr) {
-			if(array_key_exists('__submenu__', $arr)) 
-				self::add_default_menu($m[$k], $name);
-			elseif(is_array($arr)) {
-				if(array_key_exists('__module__',$arr)) {
-					$action = array('box_main_module'=>$arr['__module__']);
-					unset($arr['__module__']);
-				} else
-					$action = array('box_main_module'=>$name);
-				if(array_key_exists('__function__',$arr)) {
-					$action['box_main_function']=$arr['__function__'];
-					unset($arr['__function__']);
-				}
-				if(array_key_exists('__function_arguments__',$arr)) {
-					$action['box_main_arguments']=$arr['__function_arguments__'];
-					unset($arr['__function_arguments__']);
-				}
-				$m[$k] = array_merge($action,$arr);
-			} elseif($k!='__icon__' && $k!='__description__' && $k!='__url__' && $k!='__target__' && $k!='__weight__' && $k!='__function__' && $k!='__function_arguments__' && $k!='__module__')
-				$m[$k] = array();
-		}
-	} 
-	
 	private static function build_menu(& $menu, & $m) {
 		foreach($m as $k=>$arr) {
 			if($k=='__split__')
@@ -176,13 +152,13 @@ class Base_Menu extends Module {
 			if(method_exists($obj['name'].'Common', 'menu')) {
 				$module_menu = call_user_func(array($obj['name'].'Common','menu'));
 				if(!is_array($module_menu)) continue;
-				self::add_default_menu($module_menu, $name);
+				Base_MenuCommon::add_default_menu($module_menu, $name);
 				self::add_menu($modules_menu,$module_menu);
 			}
 			if(method_exists($obj['name'].'Common', 'tool_menu')) {
 				$module_menu = call_user_func(array($obj['name'].'Common','tool_menu'));
 				if(!is_array($module_menu)) continue;
-				self::add_default_menu($module_menu, $name);
+				Base_MenuCommon::add_default_menu($module_menu, $name);
 				self::add_menu($tools_menu,$module_menu);
 			}
 		}
@@ -193,7 +169,7 @@ class Base_Menu extends Module {
 		if (array_key_exists('Base_Admin',ModuleManager::$modules)){
 			$admin_menu = call_user_func(array('Base_Admin','admin_menu'));
 			if(is_array($admin_menu)) {
-				self::add_default_menu($admin_menu, 'Base_Admin');
+				Base_MenuCommon::add_default_menu($admin_menu, 'Base_Admin');
 			} else $admin_menu = array();
 		} else $admin_menu = array();
 		
@@ -201,7 +177,7 @@ class Base_Menu extends Module {
 		if (array_key_exists('Base_Menu_QuickAccess',ModuleManager::$modules)){
 			$qaccess_menu = Base_Menu_QuickAccessCommon::quick_access_menu();
 			if(is_array($qaccess_menu)) {
-				self::add_default_menu($qaccess_menu, 'Base_Menu_QuickAccess');
+				Base_MenuCommon::add_default_menu($qaccess_menu, 'Base_Menu_QuickAccess');
 			} else $qaccess_menu = array();
 		} else $qaccess_menu = array();
 		
