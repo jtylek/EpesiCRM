@@ -14,25 +14,6 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_Menu_QuickAccessCommon {
-	public static function user_settings() {
-		if(Base_AclCommon::i_am_user()) return array('Quick access'=>'callbody');
-		return array();
-	} 
-
-	public static function quick_access_menu() {
-		if (!Base_AclCommon::i_am_user()) return array();
-		$ret = DB::Execute('SELECT * FROM quick_access WHERE user_login_id = %d ORDER BY label',Base_UserCommon::get_my_user_id());
-		$qa_menu = array('__submenu__'=>1);
-		while ($row = $ret->FetchRow()){
-			$menu_entry = null;
-			parse_str($row['link'],$menu_entry);
-			$qa_menu[$row['label']] = $menu_entry; 
-		} 
-		if ($qa_menu == array('__submenu__'=>1)) return array();
-		return array('Quick Access'=>$qa_menu);
-	}
-/*
-
 	private static $options = null;
 	
 	public static function user_settings($info = false) {
@@ -43,7 +24,6 @@ class Base_Menu_QuickAccessCommon {
 		if (!isset(self::$options)) {
 			$modules_menu = array();
 			$tools_menu = array();
-			$i = 0;
 			foreach(ModuleManager::$modules as $name=>$obj) {
 				if ($name=='Base_Admin') continue;
 				if ($name=='Base_Menu_QuickAccess') continue;
@@ -52,16 +32,12 @@ class Base_Menu_QuickAccessCommon {
 					if(!is_array($module_menu)) continue;
 					Base_MenuCommon::add_default_menu($module_menu, $name);
 					$modules_menu = array_merge_recursive($modules_menu,$module_menu);
-					$i++;
-					if ($i==2) break;
 				}
 				if(method_exists($obj['name'].'Common', 'tool_menu')) {
 					$module_menu = call_user_func(array($obj['name'].'Common','tool_menu'));
 					if(!is_array($module_menu)) continue;
 					Base_MenuCommon::add_default_menu($module_menu, $name);
 					$tools_menu = array_merge_recursive($tools_menu,$module_menu);
-					$i++;
-					if ($i==2) break;
 				}
 			}
 			$tools_menu = array('Tools'=>array_merge($tools_menu,array('__submenu__'=>1)));
@@ -88,6 +64,7 @@ class Base_Menu_QuickAccessCommon {
 							,'link'=>$http_query
 							,'label'=>$prefix.$k
 							,'type'=>'bool'
+							,'reload'=>true
 							,'default'=>$ret!==false);
 			}
 		}
@@ -106,7 +83,7 @@ class Base_Menu_QuickAccessCommon {
 			} 
 		if ($qa_menu == array('__submenu__'=>1)) return array();
 		return array('Quick Access'=>$qa_menu);
-	}*/
+	}
 }
 
 ?>
