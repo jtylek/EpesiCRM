@@ -17,7 +17,6 @@ class Libs_QuickForm extends Module {
 	
 	public function construct($indicator = null, $action = '', $target = '', $on_submit = null) {
 		$form_name = $this->get_path();
-		file_put_contents('/tmp/dupa2',file_get_contents('/tmp/dupa2')."\n".$form_name);
 		if($target=='' && $action!='')
 			$target = '_blank';
 		if(!isset($on_submit))
