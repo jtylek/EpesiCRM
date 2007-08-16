@@ -73,22 +73,22 @@ class Base_User_Settings extends Module {
 	
 	private function add_module_settings_to_form($info, &$f, $module){
 		foreach($info as $v){
-			if ($v['select']){
+			if ($v['type']=='select'){
 				$select = array(); 
-				foreach($v['select'] as $k=>$x) $select[$k] = $this->lang->ht($x);
+				foreach($v['values'] as $k=>$x) $select[$k] = $this->lang->ht($x);
 				$f -> addElement('select',$module.'::'.$v['name'],$this->lang->t($v['label']),$select);
 			}
-			if ($v['radio']){
+			if ($v['type']=='radio'){
 				$radio = array();
 				$label = $this->lang->t($v['label']);
-				foreach($v['radio'] as $k=>$x) {
+				foreach($v['values'] as $k=>$x) {
 					$f -> addElement('radio',$module.'::'.$v['name'],$label,$this->lang->ht($x),$k);
 					$label = '';
 				}
 			}
-			if ($v['bool'])
+			if ($v['type']=='bool')
 				$f -> addElement('checkbox',$module.'::'.$v['name'],$this->lang->t($v['label']));
-			if ($v['text'])
+			if ($v['type']=='text')
 				$f -> addElement('text',$module.'::'.$v['name'],$this->lang->t($v['label']));
 			$f -> setDefaults(array($module.'::'.$v['name']=>Base_User_SettingsCommon::get_user_settings($module,$v['name'])));
 		}

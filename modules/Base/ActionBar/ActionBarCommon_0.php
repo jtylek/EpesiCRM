@@ -34,7 +34,7 @@ class Base_ActionBarCommon {
 
 	public static function user_settings(){
 		return array('Action bar settings'=>array(
-			array('name'=>'display','label'=>'Display','select'=>array('icons only'=>'icons only','text only'=>'text only','both'=>'both'),'default'=>'both','reload'=>true)
+			array('name'=>'display','label'=>'Display','type'=>'select','values'=>array('icons only'=>'icons only','text only'=>'text only','both'=>'both'),'default'=>'both','reload'=>true)
 			));
 	}
 	

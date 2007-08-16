@@ -12,10 +12,10 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_GenericBrowserCommon {
 	public static function user_settings(){
 		return array('Browsing tables'=>array(
-			array('name'=>'per_page','label'=>'Records per page','select'=>array(5=>5,10=>10,25=>25,50=>50,100=>100),'default'=>10),
-			array('name'=>'actions_position','label'=>'Position of \'Actions\' column','radio'=>array(0=>'Left',1=>'Right'),'default'=>0),
-			array('name'=>'adv_search','label'=>'Advanced search by default','bool'=>1,'default'=>0),
-			array('name'=>'adv_history','label'=>'Advanced order history','bool'=>1,'default'=>0)
+			array('name'=>'per_page','label'=>'Records per page','type'=>'select','values'=>array(5=>5,10=>10,25=>25,50=>50,100=>100),'default'=>10),
+			array('name'=>'actions_position','label'=>'Position of \'Actions\' column','type'=>'radio','values'=>array(0=>'Left',1=>'Right'),'default'=>0),
+			array('name'=>'adv_search','label'=>'Advanced search by default','type'=>'bool','default'=>0),
+			array('name'=>'adv_history','label'=>'Advanced order history','type'=>'bool','default'=>0)
 			));
 	}
 }
