@@ -75,7 +75,7 @@ class Base_Menu_QuickAccessCommon {
 		self::user_settings();
 		$qa_menu = array('__submenu__'=>1);
 		foreach (self::$options as $v)
-			if (Base_User_SettingsCommon::get_user_settings('Base_Menu_QuickAccess',$v['name'])) {
+			if (Base_User_SettingsCommon::get('Base_Menu_QuickAccess',$v['name'])) {
 				$info = explode('#qa_sep#',$v['link']);
 				$menu_entry = null;
 				parse_str($v['link'],$menu_entry);

@@ -46,7 +46,7 @@ class Base_ActionBar extends Module {
 		//display
 		$th = & $this->pack_module('Base/Theme');
 		if(Acl::is_user())
-			$display_settings = Base_User_SettingsCommon::get_user_settings('Base/ActionBar','display');
+			$display_settings = Base_User_SettingsCommon::get('Base/ActionBar','display');
 		else
 			$display_settings = 'both';
 		$th->assign('display_icon',($display_settings == 'both' || $display_settings == 'icons only'));

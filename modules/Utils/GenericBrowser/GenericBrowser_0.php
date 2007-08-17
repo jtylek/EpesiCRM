@@ -255,7 +255,7 @@ class Utils_GenericBrowser extends Module {
 	 */
 	public function get_limit($max) {
 		$offset = $this->get_module_variable('offset',0);
-		$per_page = $this->get_module_variable('per_page',Base_User_SettingsCommon::get_user_settings('Utils/GenericBrowser','per_page'));
+		$per_page = $this->get_module_variable('per_page',Base_User_SettingsCommon::get('Utils/GenericBrowser','per_page'));
 		$this->rows_qty = $max;
 		if ($offset>=$max) $offset = 0;
 		
@@ -415,7 +415,7 @@ class Utils_GenericBrowser extends Module {
 	 * For internal use only.
 	 */	
 	public function is_adv_search_on(){
-		return $this->get_module_variable('adv_search',Base_User_SettingsCommon::get_user_settings('Utils_GenericBrowser','adv_search'));
+		return $this->get_module_variable('adv_search',Base_User_SettingsCommon::get('Utils_GenericBrowser','adv_search'));
 	}
 
 	private function check_if_row_fits_array($row,$adv){
@@ -583,7 +583,7 @@ class Utils_GenericBrowser extends Module {
 			$values = $form->exportValues();
 //			print($values['per_page'].'<hr>');
 			$this->set_module_variable('per_page',$values['per_page']);
-			Base_User_SettingsCommon::save_user_settings('Utils/GenericBrowser','per_page',$values['per_page']);
+			Base_User_SettingsCommon::save('Utils/GenericBrowser','per_page',$values['per_page']);
 			$search = array();
 			foreach ($values as $k=>$v){
 				if ($k=='search') {  
@@ -652,7 +652,7 @@ class Utils_GenericBrowser extends Module {
 
 		$headers = array();
 		if ($this->en_actions) {
-			$actions_position = Base_User_SettingsCommon::get_user_settings('Utils/GenericBrowser','actions_position');
+			$actions_position = Base_User_SettingsCommon::get('Utils/GenericBrowser','actions_position');
 			if ($actions_position==0)	$headers[-1] = array('label'=>$this->lang->t('Actions'),'attrs'=>'style="width: 0%"'); 
 			else		$headers[count($this->columns)] = array('label'=>$this->lang->t('Actions'),'attrs'=>'style="width: 0%"');
 		}
@@ -703,7 +703,7 @@ class Utils_GenericBrowser extends Module {
 			}
 			$headers[$col_pos[$i]['pos']]['label'] .= isset($v['order'])?'<a '.$this->create_unique_href(array('change_order'=>$v['name'])).'>'.$v['name'].'</a>':$v['name'];
 			//if ($v['search']) $headers[$col_pos[$i]['pos']] .= $form_array['search__'.$v['search']]['label'].$form_array['search__'.$v['search']]['html'];
-			if (!Base_User_SettingsCommon::get_user_settings('Utils/GenericBrowser','adv_history') && $v['name']==$order[0]['column']) $headers[$col_pos[$i]['pos']]['label'] .= ' '.$order[0]['direction']; 
+			if (!Base_User_SettingsCommon::get('Utils/GenericBrowser','adv_history') && $v['name']==$order[0]['column']) $headers[$col_pos[$i]['pos']]['label'] .= ' '.$order[0]['direction']; 
 			$headers[$col_pos[$i]['pos']]['attrs'] = 'style="width: '.intval(100*$v['width']/$all_width).'%"';
 			$i++;
 		}
@@ -779,7 +779,7 @@ class Utils_GenericBrowser extends Module {
 		if ($search_on) $theme->assign('adv_search','<a '.$this->create_unique_href(array('adv_search'=>!$this->is_adv_search_on())).'>'.($this->is_adv_search_on()?$this->lang->t('Simple Search'):$this->lang->t('Advanced Search')).'</a>');
 		else $theme->assign('adv_search','');
 		
-		if (Base_User_SettingsCommon::get_user_settings('Utils/GenericBrowser','adv_history')){
+		if (Base_User_SettingsCommon::get('Utils/GenericBrowser','adv_history')){
 			$theme->assign('reset', '<a '.$this->create_unique_href(array('action'=>'reset_order')).'>'.$this->lang->t('Reset Order').'</a>');
 			$theme->assign('order',$this->get_module_variable('order_history_display'));
 		} else {

@@ -97,7 +97,7 @@ class Base_LangCommon {
 				ModuleManager::is_installed('Base/Lang/Administrator')==-1 || 
 				(ModuleManager::is_installed('Base/Lang/Administrator')!=-1 && !Variable::get('allow_lang_change'))) 
 					return Variable::get('default_lang');
-			$lang_code = Base_User_SettingsCommon::get_user_settings('Base_Lang_Administrator','language');
+			$lang_code = Base_User_SettingsCommon::get('Base_Lang_Administrator','language');
 		}
 		return $lang_code;
 	}

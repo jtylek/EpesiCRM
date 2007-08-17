@@ -13,7 +13,9 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_User_Settings extends Module {
 	private $lang;
-	private $module; 
+	private $module;
+	private $set_default_js;
+	private $sep = "__";
 
 	public function body($arg) {
 		global $base;
@@ -30,7 +32,7 @@ class Base_User_Settings extends Module {
 		
 		$this->set_module_variable('module',$module);
 		$f = &$this->init_module('Libs/QuickForm',$this->lang->ht('Saving settings'),'settings');
-		list($module_name,$module_part) = explode('::',$module);
+		list($module_name,$module_part) = explode($this->sep,$module);
 		if(method_exists($module_name.'Common', 'user_settings')) {
 			$menu = call_user_func(array($module_name.'Common','user_settings'));
 			if (is_array($menu)) { 
@@ -41,9 +43,10 @@ class Base_User_Settings extends Module {
 			}
 		}
 
+		$defaults = HTML_QuickForm::createElement('button','defaults',$this->lang->ht('Restore defaults'), 'onClick="'.$this->set_default_js.'"');
 		$submit = HTML_QuickForm::createElement('submit','submit',$this->lang->ht('OK'));
 		$cancel = HTML_QuickForm::createElement('button','cancel',$this->lang->ht('Cancel'), $this->create_back_href());
-		$f->addGroup(array($submit,$cancel));
+		$f->addGroup(array($defaults, $submit,$cancel));
 
 		if($f->validate()) {
 			$f->process(array(& $this, 'submit_settings'));
@@ -54,7 +57,7 @@ class Base_User_Settings extends Module {
 	}
 
 	public function submit_settings($values) {
-		list($module_name,$module_part) = explode('::',$this->module);
+		list($module_name,$module_part) = explode($this->sep,$this->module);
 		$reload = false;
 		if(method_exists($module_name.'Common', 'user_settings')) {
 			$menu = call_user_func(array($module_name.'Common','user_settings'));
@@ -80,27 +83,51 @@ class Base_User_Settings extends Module {
 			if ($v['type']=='select'){
 				$select = array(); 
 				foreach($v['values'] as $k=>$x) $select[$k] = $this->lang->ht($x);
-				$f -> addElement('select',$module.'::'.$v['name'],$this->lang->t($v['label']),$select);
+				$f -> addElement('select',$module.$this->sep.$v['name'],$this->lang->t($v['label']),$select);
+				$this->set_default_js .= 'e = document.getElementById(\''.$f->getAttribute('name').'\').'.$module.$this->sep.$v['name'].';'.
+										'for(i=0; i<e.length; i++) if(e.options[i].value=='.Base_User_SettingsCommon::get_default($module,$v['name']).'){e.options[i].selected=true;break;};';
 			}
 			if ($v['type']=='radio'){
 				$radio = array();
 				$label = $this->lang->t($v['label']);
 				foreach($v['values'] as $k=>$x) {
-					$f -> addElement('radio',$module.'::'.$v['name'],$label,$this->lang->ht($x),$k);
+					$f -> addElement('radio',$module.$this->sep.$v['name'],$label,$this->lang->ht($x),$k);
 					$label = '';
 				}
+				$this->set_default_js .= 'e = document.getElementById(\''.$f->getAttribute('name').'\').'.$module.$this->sep.$v['name'].';'.
+										'for(i=0; i<e.length; i++){e[i].checked=false;if(e[i].value=='.Base_User_SettingsCommon::get_default($module,$v['name']).')e[i].checked=true;};';
 			}
-			if ($v['type']=='bool')
-				$f -> addElement('checkbox',$module.'::'.$v['name'],$this->lang->t($v['label']));
-			if ($v['type']=='text')
-				$f -> addElement('text',$module.'::'.$v['name'],$this->lang->t($v['label']));
-			$f -> setDefaults(array($module.'::'.$v['name']=>Base_User_SettingsCommon::get_user_settings($module,$v['name'])));
+			if ($v['type']=='bool') {
+				$f -> addElement('checkbox',$module.$this->sep.$v['name'],$this->lang->t($v['label']));
+				$this->set_default_js .= 'document.getElementById(\''.$f->getAttribute('name').'\').'.$module.$this->sep.$v['name'].'.checked = '.Base_User_SettingsCommon::get_default($module,$v['name']).';';
+			}
+			if ($v['type']=='text') {
+				$f -> addElement('text',$module.$this->sep.$v['name'],$this->lang->t($v['label']));
+				$this->set_default_js .= 'document.getElementById(\''.$f->getAttribute('name').'\').'.$module.$this->sep.$v['name'].'.value = '.Base_User_SettingsCommon::get_default($module,$v['name']).';';
+			}
+			if ($v['rule']) {
+				$i = 0;
+				foreach ($v['rule'] as $r) {
+					if (!isset($r['message'])) trigger_error('No error message specified for field '.$v['name'], E_USER_ERROR);
+					if ($r['type']=='callback') {
+						if (!is_array($r['param'])) trigger_error('Invalid parameter specified for rule definition for field '.$v['name'], E_USER_ERROR);
+						$form->registerRule($v['name'].$i.'_rule', 'callback', $r['param'][1], $r['param'][0]);
+						$form->addRule($module.$this->sep.$v['name'], $this->lang->t($r['message']), $v['name'].$i.'_rule');
+					} else {
+						if ($r['type']=='regex' && !isset($r['param'])) trigger_error('No regex defined for a rule for field '.$v['name'], E_USER_ERROR);
+						$form->addRule($module.$this->sep.$v['name'], $this->lang->t($r['message']), $v['type'], $v['param']);
+					}
+					$i++;
+				}
+			}
+			
+			$f -> setDefaults(array($module.$this->sep.$v['name']=>Base_User_SettingsCommon::get($module,$v['name'])));
 		}
 	}
 	
 	private function set_user_preferences($info,$values,$module){
 		foreach($info as $v){
-			Base_User_SettingsCommon::save_user_settings($module,$v['name'],$values[$module.'::'.$v['name']]);
+			Base_User_SettingsCommon::save($module,$v['name'],$values[$module.$this->sep.$v['name']]);
 		}
 	}
 	
@@ -116,7 +143,7 @@ class Base_User_Settings extends Module {
 				$menu = call_user_func(array($obj['name'].'Common','user_settings'));
 				if(!is_array($menu)) continue;
 				foreach($menu as $k=>$v)
-					if ($v!='callbody') $modules[$k] = array('action'=>array('module'=>$obj['name'].'::'.$k),'module_name'=>$obj['name']);
+					if ($v!='callbody') $modules[$k] = array('action'=>array('module'=>$obj['name'].$this->sep.$k),'module_name'=>$obj['name']);
 					else $modules[$k] = array('action'=>array('box_main_module'=>$obj['name']),'module_name'=>$obj['name']);
 			}
 		}
