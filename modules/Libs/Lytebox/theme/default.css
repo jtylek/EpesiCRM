@@ -31,14 +31,14 @@
 #lbImageContainer>#lbHoverNav { left: 0; }
 #lbHoverNav a { outline: none; }
 
-#lbPrev { width: 49%; height: 100%; background: transparent url(Libs_Lytebox__images/blank.gif) no-repeat; display: block; left: 0; float: left; }
+#lbPrev { width: 49%; height: 100%; background-color: white; display: block; left: 0; float: left; }
 	#lbPrev.grey:hover, #lbPrev.grey:visited:hover { background: url(Libs_Lytebox__images/prev_grey.gif) left 15% no-repeat; }
 	#lbPrev.red:hover, #lbPrev.red:visited:hover { background: url(Libs_Lytebox__images/prev_red.gif) left 15% no-repeat; }
 	#lbPrev.green:hover, #lbPrev.green:visited:hover { background: url(Libs_Lytebox__images/prev_green.gif) left 15% no-repeat; }
 	#lbPrev.blue:hover, #lbPrev.blue:visited:hover { background: url(Libs_Lytebox__images/prev_blue.gif) left 15% no-repeat; }
 	#lbPrev.gold:hover, #lbPrev.gold:visited:hover { background: url(Libs_Lytebox__images/prev_gold.gif) left 15% no-repeat; }
 	
-#lbNext { width: 49%; height: 100%; background: transparent url(Libs_Lytebox__images/blank.gif) no-repeat; display: block; right: 0; float: right; }
+#lbNext { width: 49%; height: 100%; background-color: white; display: block; right: 0; float: right; }
 	#lbNext.grey:hover, #lbNext.grey:visited:hover { background: url(Libs_Lytebox__images/next_grey.gif) right 15% no-repeat; }
 	#lbNext.red:hover, #lbNext.red:visited:hover { background: url(Libs_Lytebox__images/next_red.gif) right 15% no-repeat; }
 	#lbNext.green:hover, #lbNext.green:visited:hover { background: url(Libs_Lytebox__images/next_green.gif) right 15% no-repeat; }
