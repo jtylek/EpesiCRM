@@ -64,12 +64,12 @@ class Base_HomePageCommon {
 	}
 }
 
-if($_REQUEST['Base_HomePage_load']) {
+if(isset($_REQUEST['Base_HomePage_load'])) {
 	if(Acl::is_user())
 		Base_HomePageCommon::load();
 	else
 		$_REQUEST['box_main_module'] = Base_BoxCommon::get_main_module_name();
-} elseif($_REQUEST['Base_HomePage_save']) {
+} elseif(isset($_REQUEST['Base_HomePage_save'])) {
 	Base_HomePageCommon::save();
 	unset($_REQUEST['box_main_module']);
 	Base_StatusBarCommon::message(Base_LangCommon::ts('Base_HomePage','Home page saved'));

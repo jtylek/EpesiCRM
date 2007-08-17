@@ -62,7 +62,7 @@ class Saja {
 	}
 	
 	function salt(){
-		$this->salt = $_SESSION['SAJA_SALT'] ? $_SESSION['SAJA_SALT'] : $this->generate_key();
+		$this->salt = isset($_SESSION['SAJA_SALT']) ? $_SESSION['SAJA_SALT'] : $this->generate_key();
 		$_SESSION['SAJA_SALT'] = $this->salt;
 	}
 	
@@ -270,7 +270,7 @@ class Saja {
 	}
 	
 	//redirect the browser to a URL
-	function redirect($url)
+	function redirect($url='')
 	{
 		$this->add_action("window.location = '$url'");
 	}
@@ -290,12 +290,12 @@ class Saja {
 	//used for placing complex / long text into an element
 	function text($content, $target)
 	{
-		$action = '';
-        $targetProperty = '';
-		list($target, $action) = $this->texplode(',', $target);
-		list($targetId, $targetProperty) = $this->texplode(':', $target);
-		if(!$action) $action = 'r';
-		if(!$targetProperty) $targetProperty = 'innerHTML';
+		$x = $this->texplode(',', $target);
+		if(!isset($x[1])) $x[1] = 'r';
+		list($target, $action) = $x;
+		$x = $this->texplode(':', $target);
+		if(!isset($x[1])) $x[1] = 'innerHTML';
+		list($targetId, $targetProperty) = $x;
 		$action = "saja.Put(".($this->true_utf8 ? 'decodeURIComponent' : 'unescape')."('".rawurlencode($content)."'),'$targetId','$action','$targetProperty')";
 		//$action = "saja.Put('".str_replace('\'', '\\\'', $content)."','$targetId','$action','$targetProperty')";
 		$this->add_action($action);

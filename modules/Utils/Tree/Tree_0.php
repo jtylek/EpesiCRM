@@ -90,13 +90,13 @@ class Utils_Tree extends Module {
 					$ret .= '<td id=utils_tree_opener_'.$this->_id.'_'.($this->_sub).' class=utils_tree_opener_active_closed onclick="tree_node_visibility_toggle('.$this->_id.', '.($this->_sub).')"><img id=utils_tree_opener_img_'.$this->_id.'_'.($this->_sub).' src=modules/Utils/Tree/theme/opener_active_closed.gif></td>';
 				else
 					$ret .= '<td class=utils_tree_opener_inactive><img src=modules/Utils/Tree/theme/opener_inactive.gif></td>';
-				if($v['selected'] == 1)
+				if(isset($v['selected']) && $v['selected'] == 1)
 					$ret .= "<td width=100% class=utils_tree_node_content_selected>".$v['name']."</td>";
 				else
 					$ret .= "<td width=100% class=utils_tree_node_content>".$v['name']."</td>";
-				if($v['visible'] == 1)
+				if(isset($v['visible']) && $v['visible'] == 1)
 					array_push($this->_opened_paths, $path);
-				if($v['opened'] == 1 && is_array($v['sub']))
+				if(isset($v['opened']) && $v['opened'] == 1 && is_array($v['sub']))
 					array_push($this->_opened_paths, $path.'_'.$this->_sub);
 					
 				$ret .= "</tr></table></div>";
@@ -120,14 +120,14 @@ class Utils_Tree extends Module {
 			else
 				$ret .= '<td class=utils_tree_opener_inactive><img src=modules/Utils/Tree/theme/opener_inactive.gif></td>';
 			
-			if($v['selected'] == 1)
+			if(isset($v['selected']) && $v['selected'] == 1)
 				$ret .= "<td width=100% class=utils_tree_node_content_selected>".$v['name']."</td>";
 			else
 				$ret .= "<td width=100% class=utils_tree_node_content>".$v['name']."</td>";
 			
-			if($v['visible'] == 1)
+			if(isset($v['visible']) && $v['visible'] == 1)
 				array_push($this->_opened_paths, $path);
-			if($v['opened'] == 1 && is_array($v['sub']))
+			if(isset($v['opened']) && $v['opened'] == 1 && is_array($v['sub']))
 				array_push($this->_opened_paths, $path.'_'.$this->_sub);
 					
 			$ret .= "</tr></table></div>";

@@ -26,9 +26,11 @@
 <tr>
 	<td align="left" style="padding-bottom: 5px;">
 		<b>
+		{if isset($letter_links)}
 		{foreach key=k item=link from=$letter_links}
 		{$link}&nbsp;
 		{/foreach}
+		{/if}
 		</b>
 	</td>
 	<td align="right" style="padding-bottom: 5px;">

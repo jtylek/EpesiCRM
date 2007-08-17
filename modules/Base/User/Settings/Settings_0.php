@@ -20,7 +20,7 @@ class Base_User_Settings extends Module {
 	public function body($arg) {
 		global $base;
 		$this->lang = & $this->init_module('Base/Lang');
-		if ($_REQUEST['module']) $module = $_REQUEST['module']; 
+		if (isset($_REQUEST['module'])) $module = $_REQUEST['module']; 
 		else $module = $this->get_module_variable('module');
 		if ($module=='__NONE__') $module = null;
 		

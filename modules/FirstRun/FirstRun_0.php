@@ -87,7 +87,7 @@ class FirstRun extends Module {
 	}
 	
 	public function done($d) {
-		$pkgs = $this->ini[$d[0]['setup_type']]['package'];
+		$pkgs = isset($this->ini[$d[0]['setup_type']]['package'])?$this->ini[$d[0]['setup_type']]['package']:array();
 		if(!ModuleManager::install('Base'))
 			trigger_error('Unable to install Base module pack.',E_USER_ERROR);
 		foreach($pkgs as $p) {

@@ -16,7 +16,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 /**
  * load Smarty library
  */
-define(SMARTY_DIR, 'modules/Base/Theme/smarty/');
+define('SMARTY_DIR', 'modules/Base/Theme/smarty/');
  
 require_once(SMARTY_DIR.'Smarty.class.php');
 
@@ -74,7 +74,7 @@ class Base_Theme extends Module {
 	private function load_image_cache() {
 		global $base;
 		$sess = & $this->get_tmp_session();
-		if($sess['image_cache']) return;
+		if(isset($sess['image_cache'])) return;
 		$sess['image_cache']=true;
 		$imgs = array();
 		if(file_exists(self::$themes_dir.self::$theme.'/__cache.images'))
@@ -182,7 +182,7 @@ class Base_Theme extends Module {
 			$text="";
 			$close="";
 			$len = strlen($val);
-			if ($val{0}==='<' && $val{1}==='a') 
+			if ($len>2 && $val{0}==='<' && $val{1}==='a') 
 				while ($i<$len) {					
 					if ($val{$i}==='<') {
 						if ($val{$i+1}==='a') {

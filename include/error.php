@@ -48,7 +48,7 @@ class ErrorHandler {
 				return false;
 			}
 
-			$breakLevel = E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR;
+			$breakLevel = E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_NOTICE;
 
 			if (($type & $breakLevel) > 0) {
 				if(function_exists('debug_backtrace')) {

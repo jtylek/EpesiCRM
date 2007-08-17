@@ -37,21 +37,31 @@ class Base_Box extends Module {
 			if(($logged && $opts['display']=='anonymous') || (!$logged && $opts['display']=='logged')) {
 				continue;
 			}
-			$containers[$tag]['arguments'] = $opts['arguments'];
-			$containers[$tag]['module'] = $opts['module'];
-			$containers[$tag]['function'] = $opts['function'];
+			if(isset($opts['function'])) {
+				$containers[$tag]['function'] = $opts['function'];
+				$containers[$tag]['arguments'] = null;
+			}
+			if(isset($opts['arguments']))
+				$containers[$tag]['arguments'] = $opts['arguments'];
+			if(isset($opts['module']))
+				$containers[$tag]['module'] = $opts['module'];
 			$containers[$tag]['name'] = 'b'.$name;
 		}
 		
 		if($this->isset_module_variable('main'))
 			$containers['main'] = $this->get_module_variable('main');
 		
-		$href = $_REQUEST['box_main_module'];
-		if (isset($href)) {
+		
+		if (isset($_REQUEST['box_main_module'])) {
+			$href = $_REQUEST['box_main_module'];
 			$containers['main']['module'] = $href;
-			$containers['main']['function'] = $_REQUEST['box_main_function'];
+			if(isset($_REQUEST['box_main_function'])) {
+				$containers['main']['function'] = $_REQUEST['box_main_function'];
+				$containers['main']['arguments'] = null;
+			}
 			$this->set_module_variable('main', $containers['main']);
-			$containers['main']['arguments'] = $_REQUEST['box_main_arguments'];
+			if(isset($_REQUEST['box_main_arguments']))
+				$containers['main']['arguments'] = $_REQUEST['box_main_arguments'];
 		}
 		
 		$this->modules = array();
@@ -74,7 +84,7 @@ class Base_Box extends Module {
 		
 				if(isset($v['function']))
 					$this->display_module($this->modules[$k],$v['arguments'],$v['function']);
-				elseif($v['arguments'])
+				elseif(isset($v['arguments']))
 					$this->display_module($this->modules[$k],$v['arguments']);
 				else
 					$this->display_module($this->modules[$k]);
@@ -92,7 +102,7 @@ class Base_Box extends Module {
 	}
 	
 	public function get_main_module() {
-		return $this->modules['main'];
+		return isset($this->modules['main'])?$this->modules['main']:null;
 	}
 }
 ?>

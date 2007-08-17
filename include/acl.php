@@ -8,7 +8,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-define('ADODB_DIR','adodb');
+defined('ADODB_DIR') || define('ADODB_DIR','adodb');
 
 require_once('phpgacl/gacl.class.php');
 require_once('phpgacl/gacl_api.class.php');
@@ -42,7 +42,7 @@ class Acl {
 	 * @return string
 	 */
 	public static function get_user() {
-		return $_SESSION[$_SERVER['PHP_SELF']]['user'];
+		return isset($_SESSION[$_SERVER['PHP_SELF']]['user'])?$_SESSION[$_SERVER['PHP_SELF']]['user']:null;
 	}
     
     	/**

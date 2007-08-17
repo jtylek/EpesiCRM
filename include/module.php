@@ -117,7 +117,10 @@ abstract class Module {
 	 * @return module object
 	 */
 	public final function & get_child($id) {
-		if($this->fast_process) return false;
+		if($this->fast_process) {
+			$x = false;
+			return $x;
+		}
 		$yy = explode('|',$id);
 		return $this->children[$yy[0]][$yy[1]];
 	}
@@ -212,7 +215,7 @@ abstract class Module {
 	 * @param mixed default value
 	 * @return mixed value
 	 */
-	public final function & get_module_variable($name, $default) {
+	public final function & get_module_variable($name, $default=null) {
 		$path = $this->get_path();
 		$session = & $GLOBALS['base']->get_session();
 		if(isset($default) && !$this->isset_module_variable($name))
@@ -249,7 +252,7 @@ abstract class Module {
 	 * @param string
 	 * @return mixed
 	 */
-	public final function & get_module_variable_or_unique_href_variable($name, $default_value) {
+	public final function & get_module_variable_or_unique_href_variable($name, $default_value=null) {
 		$rid = $this->get_module_variable($name, $default_value);
 		if($this->isset_unique_href_variable($name))
 			$rid = $this->get_unique_href_variable($name);
@@ -514,7 +517,7 @@ abstract class Module {
 	 * @param string status bar indicator text
 	 * @return string href string
 	 */
-	public final function create_callback_href($func,$args,$indicator=null) {
+	public final function create_callback_href($func,$args=null,$indicator=null) {
 		$name = md5(serialize(array($func,$args)));
 		return $this->create_callback_href_with_id($name,$func,$args,$indicator);
 	}
@@ -536,7 +539,7 @@ abstract class Module {
 	 * @param string status bar indicator text
 	 * @return string href string
 	 */
-	public final function create_confirm_callback_href($confirm, $func, $args,$indicator=null) {
+	public final function create_confirm_callback_href($confirm, $func, $args=null,$indicator=null) {
 		$name = md5(serialize(array($func,$args)));
 		return $this->create_confirm_callback_href_with_id($name, $confirm, $func,$args,$indicator);
 	}
@@ -587,7 +590,7 @@ abstract class Module {
 	 * @param mixed function
 	 * @return string 
 	 */
-	public final function create_confirm_callback_href_with_id($name, $confirm, $func, $args, $indicator) {
+	public final function create_confirm_callback_href_with_id($name, $confirm, $func, $args=null, $indicator=null) {
 		$name = 'callback_'.$name;
 		$this->set_callback($name,$func,$args);
 		return $this->create_confirm_unique_href($confirm,array($name=>1),$indicator);
@@ -679,7 +682,7 @@ abstract class Module {
 	 * @param string function to call (get output from), if user has enought privileges.
 	 * @return mixed if access denied returns false, else true
 	 */
-	public final function display_module(& $m, $args, $function_name = 'body') {
+	public final function display_module(& $m, $args=null, $function_name = 'body') {
 		$ret = $this->get_html_of_module($m,$args,$function_name);
 		if($ret===false) return false;
 		print($ret);
@@ -697,7 +700,7 @@ abstract class Module {
 	 * @param string function to call (get output from), if user has enought privileges.
 	 * @return mixed if access denied returns false, else string
 	 */
-	public final function get_html_of_module(& $m, $args, $function_name = 'body') {
+	public final function get_html_of_module(& $m, $args=null, $function_name = 'body') {
 		global $base;
 		
 		$this_path = $this->get_path();
@@ -733,7 +736,7 @@ abstract class Module {
 		
 		$tmp_session = & $base->get_tmp_session();
 
-		if(!$m->is_fast_process() || strpos($_REQUEST['__action_module__'],$path)===0 || !isset($tmp_session['__module_content__'][$path])) {
+		if(!$m->is_fast_process() || (isset($_REQUEST['__action_module__']) && strpos($_REQUEST['__action_module__'],$path)===0) || !isset($tmp_session['__module_content__'][$path])) {
 			if(!is_array($args)) $args = array($args);
 			
 			ob_start();
@@ -835,7 +838,7 @@ abstract class Module {
 	 * @param mixed variables
 	 * @return mixed if access denied returns null, otherwise returns child module object
 	 */
-	public final function & pack_module($module_type, $display_args, $function_name = 'body', $construct_args, $name) {
+	public final function & pack_module($module_type, $display_args=null, $function_name = 'body', $construct_args=null, $name=null) {
 		if(!is_array($construct_args)) $construct_args = array($construct_args);
 		$m = & $this->init_module($module_type,$construct_args,$name);
 		

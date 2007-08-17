@@ -86,6 +86,7 @@ class Utils_GenericBrowser extends Module {
 	private $actions = array();
 	private $en_actions = false;
 	private $cur_row = -1;
+	private $per_page;
 	
 	public function construct() {
 		if (is_numeric($this->get_instance_id()))
@@ -666,6 +667,7 @@ class Utils_GenericBrowser extends Module {
 				if($col_pos[$i]['pos']<$this->columns_qty-1) $right = ' <a '.$this->create_unique_href(array('action'=>'move', 'id'=>$i, 'new_id'=>$col_pos[$i]['pos']+1)).'>=></a>';
 				else $right = '';
 
+				if(!isset($headers[$col_pos[$i]['pos']])) $headers[$col_pos[$i]['pos']] = array();
 				$headers[$col_pos[$i]['pos']]['label'] = $left.$enabled.$right.'<hr>';
 			}
 		}
@@ -688,7 +690,7 @@ class Utils_GenericBrowser extends Module {
 
 		$all_width = 0;
 		foreach($this->columns as $k=>$v) {
-			if (!$this->columns[$k]['width']) $this->columns[$k]['width'] = 100;
+			if (!isset($this->columns[$k]['width'])) $this->columns[$k]['width'] = 100;
 			$all_width += $this->columns[$k]['width'];
 			if (isset($v['quickjump'])) {
 				$quickjump = $this->set_module_variable('quickjump',$v['quickjump']);
@@ -701,6 +703,7 @@ class Utils_GenericBrowser extends Module {
 				$i++;
 				continue;
 			}
+			if(!isset($headers[$col_pos[$i]['pos']])) $headers[$col_pos[$i]['pos']] = array('label'=>'');
 			$headers[$col_pos[$i]['pos']]['label'] .= isset($v['order'])?'<a '.$this->create_unique_href(array('change_order'=>$v['name'])).'>'.$v['name'].'</a>':$v['name'];
 			//if ($v['search']) $headers[$col_pos[$i]['pos']] .= $form_array['search__'.$v['search']]['label'].$form_array['search__'.$v['search']]['html'];
 			if (!Base_User_SettingsCommon::get('Utils/GenericBrowser','adv_history') && $v['name']==$order[0]['column']) $headers[$col_pos[$i]['pos']]['label'] .= ' '.$order[0]['direction']; 
@@ -734,11 +737,11 @@ class Utils_GenericBrowser extends Module {
 				else
 					$col[$col_pos[$k]['pos']]['label'] = $v['value'];
 				$col[$col_pos[$k]['pos']]['attrs'] = isset($v['style'])? 'style="'.$v['style'].'"':'';
-				if ($k==$quickjump_col) $col[$col_pos[$k]['pos']]['attrs'] .= ' class="Utils_GenericBrowser__quickjump"';
-				if ($this->columns[$k]['wrapmode']!='cut' && isset($v['hint'])) $col[$col_pos[$k]['pos']]['attrs'] .= ' title="'.$v['hint'].'"';
-				$col[$col_pos[$k]['pos']]['attrs'] .= ($this->columns[$k]['wrapmode']=='nowrap')?' nowrap':'';
-				$max_width = 130*$this->columns[$k]['width']/$all_width*(7+$this->columns[$k]['fontsize']);
-				if ($this->columns[$k]['wrapmode']=='cut'){
+				if (isset($quickjump_col) && $k==$quickjump_col) $col[$col_pos[$k]['pos']]['attrs'] .= ' class="Utils_GenericBrowser__quickjump"';
+				if ((!isset($this->columns[$k]['wrapmode']) || $this->columns[$k]['wrapmode']!='cut') && isset($v['hint'])) $col[$col_pos[$k]['pos']]['attrs'] .= ' title="'.$v['hint'].'"';
+				$col[$col_pos[$k]['pos']]['attrs'] .= (isset($this->columns[$k]['wrapmode']) && $this->columns[$k]['wrapmode']=='nowrap')?' nowrap':'';
+				$max_width = 130*$this->columns[$k]['width']/$all_width*(7+(isset($this->columns[$k]['fontsize'])?$this->columns[$k]['fontsize']:0));
+				if (isset($this->columns[$k]['wrapmode']) && $this->columns[$k]['wrapmode']=='cut'){
 					if (strlen($col[$col_pos[$k]['pos']]['label'])>$max_width){
 						if (is_array($v) && isset($v['hint'])) $col[$col_pos[$k]['pos']]['attrs'] .= ' title="'.$col[$col_pos[$k]['pos']]['label'].': '.$v['hint'].'"';
 						else $col[$col_pos[$k]['pos']]['attrs'] .= ' title="'.$col[$col_pos[$k]['pos']]['label'].'"';
@@ -786,7 +789,10 @@ class Utils_GenericBrowser extends Module {
 			$theme->assign('reset','');
 			$theme->assign('order','');
 		}
-		$theme->display($template,isset($template));
+		if(isset($template))
+			$theme->display($template,true);
+		else
+			$theme->display();
 	}
 	
 	private function summary() {

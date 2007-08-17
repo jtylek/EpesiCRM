@@ -37,6 +37,8 @@ class Base extends Epesi {
 			$m->body();
 		$this->content[$path]['value'] = ob_get_contents();
 		ob_end_clean();
+		$this->content[$path]['js'] = $m->get_jses();
+
 		if(MODULE_TIMES)
 		    $this->content[$path]['time'] = microtime(true)-$time;
 	}
@@ -107,18 +109,20 @@ class Base extends Epesi {
 		}
 						
 		//clean up old modules
-		$to_cleanup = array_keys($tmp_session['__module_content__']);
-		foreach($to_cleanup as $k) {
-			$mod = ModuleManager::get_instance($k);
-			if($mod === null) {
-				$xx = explode('/',$k);
-				$yy = explode('|',$xx[count($xx)-1]);
-				$mod = $yy[0];
-				if((!is_callable(array($mod.'Common','destroy')) || !call_user_func(array($mod.'Common','destroy'),$k,$session['__module_vars__'][$k]))) {
-					if(DEBUG)
-						$debug .= 'Clearing mod vars & module content '.$k.'<br>';
-					unset($session['__module_vars__'][$k]);
-					unset($tmp_session['__module_content__'][$k]);
+		if(isset($tmp_session['__module_content__'])) {
+			$to_cleanup = array_keys($tmp_session['__module_content__']);
+			foreach($to_cleanup as $k) {
+				$mod = ModuleManager::get_instance($k);
+				if($mod === null) {
+					$xx = explode('/',$k);
+					$yy = explode('|',$xx[count($xx)-1]);
+					$mod = $yy[0];
+					if((!is_callable(array($mod.'Common','destroy')) || !call_user_func(array($mod.'Common','destroy'),$k,$session['__module_vars__'][$k]))) {
+						if(DEBUG)
+							$debug .= 'Clearing mod vars & module content '.$k.'<br>';
+						unset($session['__module_vars__'][$k]);
+						unset($tmp_session['__module_content__'][$k]);
+					}
 				}
 			}
 		}
@@ -131,7 +135,7 @@ class Base extends Epesi {
 			if ((!isset($reload) && (!isset ($tmp_session['__module_content__'][$k])
 				 || $tmp_session['__module_content__'][$k]['value'] !== $v['value'] //content differs
 				 || $tmp_session['__module_content__'][$k]['js'] !== $v['js']))
-				 || $reload == true || $reloaded[$parent]) { //force reload or parent reloaded
+				 || $reload == true || isset($reloaded[$parent])) { //force reload or parent reloaded
 				if(DEBUG){
 					$debug .= 'Reloading '.$k.':&nbsp;&nbsp;&nbsp;&nbsp;parent='.$v['module']->get_parent_path().';&nbsp;&nbsp;&nbsp;&nbsp;span='.$v['span'].',&nbsp;&nbsp;&nbsp;&nbsp;triggered='.(($reload==true)?'force':'auto').',&nbsp;&nbsp;<pre>'.htmlspecialchars($v['value']).'</pre><hr><pre>'.htmlspecialchars($tmp_session['__module_content__'][$k]['value']).'</pre><hr>';
 					if(@include_once('tools/Diff.php')) {
@@ -154,7 +158,7 @@ class Base extends Epesi {
 		}
 		
 		foreach($tmp_session['__module_content__'] as $k=>$v)
-			if(!array_key_exists($k,$this->content) && $reloaded[$v['parent']]) {
+			if(!array_key_exists($k,$this->content) && isset($reloaded[$v['parent']])) {
 				if(DEBUG)
 					$debug .= 'Reloading missing '.$k.'<hr>';
 				if(isset($v['span']))

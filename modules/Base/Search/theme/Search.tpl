@@ -1,8 +1,7 @@
-{if $form_mini == yes}
+{if $form_mini == 'yes'}
+	{$form_data.javascript}
 	<form {$form_data.attributes}>
-	<input type="hidden" name="_qf__{$form_name}" value="">
-	{$form_data.submited.label}
-	<input type="hidden" name="submited" vaalue="0">
+	{$form_data.hidden}
     <!-- Display the fields -->
 	    <table id="Base_Search__Search" cellpadding="0" cellspacing="0" border="0">
 			<tr>
@@ -12,10 +11,9 @@
 		</table>
 	</form>
 {else}
+	{$form_data.javascript}
 	<form {$form_data.attributes}>
-	<input type="hidden" name="_qf__{$form_name}" value="">
-	{$form_data.submited.label}
-	<input type="hidden" name="submited" vaalue="0">
+	{$form_data.hidden}
     <!-- Display the fields -->
     <table>
     <tr>

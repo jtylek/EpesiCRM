@@ -119,8 +119,8 @@ class Base_Menu extends Module {
 	}
 	
 	public static function sort_menus_cmp($a, $b) {
-		$aw = self::$tmp_menu[$a]['__weight__'];
-		$bw = self::$tmp_menu[$b]['__weight__'];
+		$aw = isset(self::$tmp_menu[$a]['__weight__']) ? self::$tmp_menu[$a]['__weight__']:0;
+		$bw = isset(self::$tmp_menu[$b]['__weight__']) ? self::$tmp_menu[$b]['__weight__']:0;
 		if(!isset($aw) || !is_numeric($aw)) $aw=0;
 		if(!isset($bw) || !is_numeric($bw)) $bw=0;
 		if($aw==$bw)

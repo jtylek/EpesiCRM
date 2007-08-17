@@ -119,7 +119,7 @@ function eval_js_once($u) {
 	if(!is_string($u)) return false;
 	$session = & $base->get_tmp_session();
 	$md5 = md5($u);
-	if (!array_key_exists($md5, $session['__evaled_jses__'])) {
+	if (!isset($session['__evaled_jses__'][$md5])) {
 		$base->js($u);
 		$session['__evaled_jses__'][$md5] = 1;
 		return true;

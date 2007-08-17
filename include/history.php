@@ -37,6 +37,7 @@ class History {
 		if(self::$action)
 			return;
 
+		if(!isset($session['__history_id__'])) $session['__history_id__']=0;
 		$session['__history__'][$session['__history_id__']] = $session['__module_vars__'];
 		$session['__history_id__']++;
 		for($i=$session['__history_id__']; $i<count($session['__history__']); $i++)

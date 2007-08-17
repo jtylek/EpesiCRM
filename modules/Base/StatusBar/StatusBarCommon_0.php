@@ -13,7 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_StatusBarCommon {
 	public static $messages = array();
-	public static function message($text,$type) {
+	public static function message($text,$type=null) {
 		if($type=='error')
 			self::$messages[] = '<div id="Base_StatusBar__error_message">'.$text.'</div>';
 		elseif($type=='warning')

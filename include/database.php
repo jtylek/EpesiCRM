@@ -92,29 +92,35 @@ class DB {
 					case '%d' :
 						if (!is_numeric($arr[$j]))
 							trigger_error('Argument '.$j.' is not number('.$y.'): <ul><li>'.$sql.'</li><li>'.var_dump($arr).'</li></ul>',E_USER_ERROR);
-						$arr[$j++] = (int)($arr[$j]);
+						$arr[$j] = (int)($arr[$j]);
+						$j++;
 						$ret .= '?';
 						break;
 					case '%f' :
 						if (!is_numeric($arr[$j]))
 							trigger_error('Argument '.$j.' is not number('.$y.'): <ul><li>'.$sql.'</li><li>'.var_dump($arr).'</li></ul>',E_USER_ERROR);
-						$arr[$j++] = (float)($arr[$j]);
+						$arr[$j] = (float)($arr[$j]);
+						$j++;
 						$ret .= '?';
 						break;
 					case '%s' :
-						$arr[$j++] = self::qstr($arr[$j]);
+						$arr[$j] = self::qstr($arr[$j]);
+						$j++;
 						$ret .= '?';
 						break;
 					case '%D' :
-						$arr[$j++] =  self::DBDate($arr[$j]);
+						$arr[$j] =  self::DBDate($arr[$j]);
+						$j++;
 						$ret .= '?';
 						break;
 					case '%T' :
-						$arr[$j++] = self::DBTimeStamp($arr[$j]);
+						$arr[$j] = self::DBTimeStamp($arr[$j]);
+						$j++;
 						$ret .= '?';
 						break;
 					case '%b' :
-						$arr[$j++] = (int) ((bool) $arr[$j]);
+						$arr[$j] = (int) ((bool) $arr[$j]);
+						$j++;
 						$ret .= '?';
 						break;
 					case '%%':

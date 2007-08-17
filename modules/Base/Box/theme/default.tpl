@@ -42,7 +42,6 @@
 							</tr>
 							<tr>
 								<td class="search"><center>{$search}</center></td>
-								<!-- <td class="entry"><center>{$homepage}</center></td> -->
 							</tr>
 						</table>
 					</td>	

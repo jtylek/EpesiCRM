@@ -128,7 +128,7 @@ function smarty_function_html_scrolled_table_epesi($params, &$smarty)
         }
     }
 
-    $output .= "<table $table_attr rel='scrolled_table' body_height='$height'>\n";
+    $output = "<table $table_attr rel='scrolled_table' body_height='$height'>\n";
 
     if (!empty($caption)) {
         $output .= '<caption>' . $caption . "</caption>\n";

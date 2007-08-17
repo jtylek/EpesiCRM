@@ -41,10 +41,11 @@ if(!$errors){
 		session_id($session_id);
 	session_start();
 	
+	//file_put_contents('grr.txt',file_get_contents('grr.txt')."\n".$request_id.' in '.implode(', ',array_keys($_SESSION['SAJA_PROCESS']['REQUESTS'])).' for '.$req."\n");
 	//validate this request
 	if(!is_array($_SESSION['SAJA_PROCESS']['REQUESTS']))
 		$errors .=  'Session expired.';
-	else if(!in_array($request_id, array_keys($_SESSION['SAJA_PROCESS']['REQUESTS'])))
+	else if(!array_key_exists($request_id, $_SESSION['SAJA_PROCESS']['REQUESTS']))
 		$errors .= 'Invalid Request.';
 }
 
@@ -54,7 +55,6 @@ if(!$errors){
 ob_start(array('ErrorHandler','handle_fatal'));
 
 if(!$errors) {
-
 	//get function name and process file
 	$REQ = $_SESSION['SAJA_PROCESS']['REQUESTS'][$request_id];
 	$proc_file = $REQ['PROCESS_FILE'];
@@ -103,7 +103,7 @@ $_SESSION['__last_error__']='';
 $content = ob_get_contents();
 ob_end_clean();
 
-if($s->true_utf8)
+if($base->true_utf8)
 	echo $content;
 else
 	echo utf8_encode($content);

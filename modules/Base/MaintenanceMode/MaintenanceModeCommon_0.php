@@ -21,14 +21,14 @@ class Base_MaintenanceModeCommon {
 	}
 	
 	public static function get_mode() {
-		return $_SESSION['maintenance_mode'];
+		return isset($_SESSION['maintenance_mode']) && $_SESSION['maintenance_mode'];
 	}
 	
 	public static function get_changed() {
-		return ($_SESSION['maintenance_mode_changed']>0)?true:false;
+		return (isset($_SESSION['maintenance_mode_changed']) && $_SESSION['maintenance_mode_changed']>0)?true:false;
 	}
 }
 
-if($_SESSION['maintenance_mode_changed']>0)
+if(isset($_SESSION['maintenance_mode_changed']) && $_SESSION['maintenance_mode_changed']>0)
 	$_SESSION['maintenance_mode_changed']--;
 ?>

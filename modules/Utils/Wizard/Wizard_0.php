@@ -75,7 +75,7 @@ class Utils_Wizard extends Module {
 	 * 
 	 * @param mixed next page
 	 */
-	public function end_page($func) {
+	public function end_page($func=null) {
 		$this->next[$this->counter] = $func;
 		$this->counter++;
 	}
@@ -135,7 +135,7 @@ class Utils_Wizard extends Module {
 				$this->form[$this->curr_page]->addGroup(array($button_prev, $button_next));
 			}
 
-		    if(is_array($this->data[$this->curr_page]))
+		    if(isset($this->data[$this->curr_page]) && is_array($this->data[$this->curr_page]))
 			    $this->form[$this->curr_page]->setDefaults($this->data[$this->curr_page]);
 			if(isset($this->renderers[$this->curr_page]))
 				$this->renderers[$this->curr_page]->display();
