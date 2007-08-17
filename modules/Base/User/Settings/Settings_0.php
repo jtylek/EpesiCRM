@@ -103,7 +103,7 @@ class Base_User_Settings extends Module {
 			}
 			if ($v['type']=='text') {
 				$f -> addElement('text',$module.$this->sep.$v['name'],$this->lang->t($v['label']));
-				$this->set_default_js .= 'document.getElementById(\''.$f->getAttribute('name').'\').'.$module.$this->sep.$v['name'].'.value = '.Base_User_SettingsCommon::get_default($module,$v['name']).';';
+				$this->set_default_js .= 'document.getElementById(\''.$f->getAttribute('name').'\').'.$module.$this->sep.$v['name'].'.value = \''.Base_User_SettingsCommon::get_default($module,$v['name']).'\';';
 			}
 			if ($v['rule']) {
 				$i = 0;
