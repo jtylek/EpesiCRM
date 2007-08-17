@@ -45,9 +45,8 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 		
 		$form->addElement('submit', 'submit_button', $this->lang->ht('OK'));
 		
-		if($form->validate_with_message('Settings saved','Problem encountered')) {
+		if($form->validate_with_message('Setting saved','Problem encountered')) {
 			if($form->process(array(&$this, 'submit_user_preferences'))){
-				Base_StatusBarCommon::message($this->lang->t('Setting saved'));
 				location(array('box_main_module'=>'Base_User_Settings'));
 			}
 		} else {
