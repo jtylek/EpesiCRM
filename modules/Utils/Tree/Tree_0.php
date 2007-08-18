@@ -74,7 +74,7 @@ class Utils_Tree extends Module {
 	 */
 	public function sort() {		
 		ksort($this->_structure);
-		foreach( $t as $k => $v ) {
+		foreach( $this->_structure as $k => $v ) {
 			if(is_array($v['sub']))
 				$this->sort_r($v['sub']);
 		}

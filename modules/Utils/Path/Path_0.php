@@ -16,12 +16,13 @@ class Utils_Path extends Module {
 	public static $path_counter = 0;
 	private $_id;
 	private $_sub = 0;
+	private $_string = ''; // TODO: cleanup
 	private $root;
 	private $list = array();
 	
-	public function construct( $title, $address ) {
+	public function construct( $title=null , $address=null ) {
 		$this->_id = Utils_Path::$path_counter;
-		$this->layout = $arg;
+//		$this->layout = $arg;
 		if( $title ) {
 			$this->_string = '<a "'.($address).'" class=path_link>' . htmlspecialchars($title) . '</a>';
 		}

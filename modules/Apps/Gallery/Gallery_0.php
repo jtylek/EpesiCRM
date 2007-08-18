@@ -13,6 +13,8 @@ class Apps_Gallery extends Module {
 	private $user_name;
 	private $root;
 	private $lang;
+	private $_id = null; // TODO: cleanup
+	private $_sub = null; // TODO: cleanup
 	
 	public function construct() {
 		$this->lang = & $this->init_module('Base/Lang');
