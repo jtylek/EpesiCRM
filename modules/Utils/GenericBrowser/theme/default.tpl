@@ -5,7 +5,7 @@
 <form {$form_data.attributes}> 
 {$form_data.hidden}
 
-{if $form_data.search.label}
+{if isset($form_data.search)}
 	<b>{$form_data.search.label}</b>{$form_data.search.html}
 	{$form_data.submit_search.html}{$adv_search}
 {else}

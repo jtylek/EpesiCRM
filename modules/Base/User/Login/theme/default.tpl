@@ -17,12 +17,8 @@
 					<img border="0" src="{$theme_dir}/images/logo.png" width="388" height="198">
 				</td>
 			</tr>
-			{if $form_data.username.error}
 				<tr><td colspan="2" class="error"><span class="error">{$form_data.username.error}</span></td></tr>
-			{/if}
-			{if $form_data.username.error}
 				<tr><td colspan="2" class="error"><span class="error">{$form_data.password.error}</span></td></tr>
-			{/if}
 			<tr>
 				<td align="right" class="label">{$form_data.username.label}&nbsp;&nbsp;</td>
 				<td align="left" class="input">{$form_data.username.html}</td>

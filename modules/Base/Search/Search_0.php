@@ -19,7 +19,9 @@ class Base_Search extends Module {
 	public function body() {
 		global $base;
 	
-		$qs_keyword = $_REQUEST['quick_search'];
+		
+		$qs_keyword = isset($_REQUEST['quick_search'])?$_REQUEST['quick_search']:null;
+		
 				
 		$this->lang = & $this->init_module('Base/Lang');
 		
@@ -55,7 +57,7 @@ class Base_Search extends Module {
 
 		$defaults['quick_search']=$qs_keyword;
 		if (!$qs_keyword) {
-			if (!$advanced_search) $advanced_search = $this->get_module_variable('advanced_search');
+			if (!isset($advanced_search)) $advanced_search = $this->get_module_variable('advanced_search');
 			$defaults['advanced_search'] = $advanced_search;
 		} else {
 			$this->unset_module_variable();

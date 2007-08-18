@@ -294,6 +294,7 @@ abstract class Module {
 	 */
 	public final function unset_module_variable($name) {
 		$session = & $GLOBALS['base']->get_session();
+		if(!isset($name)) trigger_error('unset_module_variable needs one argument',E_USER_ERROR);
 		unset($session['__module_vars__'][$this->get_path()][$name]);
 	}
 	

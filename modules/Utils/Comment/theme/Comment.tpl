@@ -1,9 +1,6 @@
 {if $no_comments}
 	{$no_comments}<br>
 {else}
-
-	<!--<tr><td style="border-bottom: 3px solid #CCCCCC;" colspan="4"></td><tr>-->
-
 	{foreach item=c from=$comments}
 	<table id="Utils_Comment__Comment" border="0" cellpadding="0" cellspacing="0">
 		<tr>
@@ -41,14 +38,10 @@
 	<form {$form_data.attributes}> 
 		{$form_data.hidden}
 		{$form_data.header.reply}<br>
-		{if $form_data.whole.html}
+		{if isset($form_data.whole)}
 			{$form_data.whole.html}<br>
 		{/if}
 		{$form_data.comment_page_reply.label}{$form_data.comment_page_reply.html}<br>
 		{$form_data.submit_comment.html}
 	</form>
-{else}
-	{if $reply_button}
-		{$reply_button}
-	{/if}
 {/if}

@@ -22,11 +22,9 @@
 	    	<tr>
 				<td colspan="2" class="header_tail"><span class="header" align="left">{$form_data.header.quick_search_header}</span></td>
 			</tr>
-			{if $form_data.quick_search.error}
 			<tr>
 				<td colspan="2"><span class="error">{$form_data.quick_search.error}</span></td>
 			</tr>
-			{/if}
 			<tr>
 				<td align="right" class="label">{$form_data.quick_search.label}</td>
 				<td align="left" class="data">{$form_data.quick_search.html}</td>
@@ -38,7 +36,7 @@
 	</td>
 	<td style="vertical-align: top;">	
 		<table id="Base_Search__Search">
-			{if $form_data.advanced_search_header.label}
+			{if isset($form_data.advanced_search_header)}
 			<tr>
 				<td colspan="2" class="header_tail"><span class="header">{$form_data.advanced_search_header.label}</span></td>
 			</tr>
