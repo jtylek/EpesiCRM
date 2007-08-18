@@ -99,9 +99,7 @@ class Base_Menu extends Module {
 	}
 	
 	private static function add_menu(& $menu,$addon){
-//		print_r($addon);
 		foreach($addon as $k=>$v){
-//			print($k.'<br>');
 			if (!array_key_exists($k,$menu)){
 				$menu[$k] = $v;
 			} else {

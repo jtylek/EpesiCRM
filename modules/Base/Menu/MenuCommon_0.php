@@ -34,7 +34,7 @@ class Base_MenuCommon {
 				}
 				$m[$k] = array_merge($action,$arr);
 			} elseif($k!='__icon__' && $k!='__description__' && $k!='__url__' && $k!='__target__' && $k!='__weight__' && $k!='__function__' && $k!='__function_arguments__' && $k!='__module__')
-				$m[$k] = array();
+				$m[$k] = null;
 		}
 	} 	
 }

@@ -66,7 +66,7 @@ class Base_User_Settings extends Module {
 				$this->set_user_preferences($v,$values,$module_name);
 				if (!$reload) 
 					foreach($v as $f) 
-						if ($f['reload']) {
+						if (isset($f['reload']) && $f['reload']!=0) {
 							$reload = true;
 							break;
 						}
@@ -85,7 +85,7 @@ class Base_User_Settings extends Module {
 				foreach($v['values'] as $k=>$x) $select[$k] = $this->lang->ht($x);
 				$f -> addElement('select',$module.self::$sep.$v['name'],$this->lang->t($v['label']),$select);
 				$this->set_default_js .= 'e = document.getElementById(\''.$f->getAttribute('name').'\').'.$module.self::$sep.$v['name'].';'.
-										'for(i=0; i<e.length; i++) if(e.options[i].value=='.Base_User_SettingsCommon::get_default($module,$v['name']).'){e.options[i].selected=true;break;};';
+										'for(i=0; i<e.length; i++) if(e.options[i].value==\''.Base_User_SettingsCommon::get_default($module,$v['name']).'\'){e.options[i].selected=true;break;};';
 			}
 			if ($v['type']=='radio'){
 				$radio = array();
@@ -95,7 +95,7 @@ class Base_User_Settings extends Module {
 					$label = '';
 				}
 				$this->set_default_js .= 'e = document.getElementById(\''.$f->getAttribute('name').'\').'.$module.self::$sep.$v['name'].';'.
-										'for(i=0; i<e.length; i++){e[i].checked=false;if(e[i].value=='.Base_User_SettingsCommon::get_default($module,$v['name']).')e[i].checked=true;};';
+										'for(i=0; i<e.length; i++){e[i].checked=false;if(e[i].value==\''.Base_User_SettingsCommon::get_default($module,$v['name']).'\')e[i].checked=true;};';
 			}
 			if ($v['type']=='bool') {
 				$f -> addElement('checkbox',$module.self::$sep.$v['name'],$this->lang->t($v['label']));
@@ -105,7 +105,7 @@ class Base_User_Settings extends Module {
 				$f -> addElement('text',$module.self::$sep.$v['name'],$this->lang->t($v['label']));
 				$this->set_default_js .= 'document.getElementById(\''.$f->getAttribute('name').'\').'.$module.self::$sep.$v['name'].'.value = \''.Base_User_SettingsCommon::get_default($module,$v['name']).'\';';
 			}
-			if ($v['rule']) {
+			if (isset($v['rule'])) {
 				$i = 0;
 				foreach ($v['rule'] as $r) {
 					if (!isset($r['message'])) trigger_error('No error message specified for field '.$v['name'], E_USER_ERROR);

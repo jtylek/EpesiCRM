@@ -29,7 +29,7 @@ class Base_Box extends Module {
 		$logged = Acl::is_user();
 		$theme->assign('logged',$logged);
 		$containers = array();
-		$containers['main'] = array(); //so 'main' is first in array
+		$containers['main'] = array('module'=>null); //so 'main' is first in array
 		
 		$name = 0;
 		foreach($ini_file as $tag=>$opts) {
@@ -45,6 +45,8 @@ class Base_Box extends Module {
 				$containers[$tag]['arguments'] = $opts['arguments'];
 			if(isset($opts['module']))
 				$containers[$tag]['module'] = $opts['module'];
+			else
+				trigger_error('No module specified.',E_USER_ERROR);
 			$containers[$tag]['name'] = 'b'.$name;
 		}
 		
@@ -71,6 +73,7 @@ class Base_Box extends Module {
 				if(Base_AclCommon::i_am_sa()) print($lang->t("Please install %s module or choose another theme!",array($v['module']))."<br><a ".$this->create_href(array('box_main_module'=>'Base/Setup')).">".$lang->t('Manage modules').'</a><br><a '.$this->create_href(array('box_main_module'=>'Base/Theme/Administrator')).'>'.$lang->t("Choose another theme").'</a>');
 			} else {
 				$module_type = str_replace('/','_',$v['module']);
+				if (!isset($v['name'])) $v['name'] = null;
 				$this->modules[$k] = & ModuleManager::new_instance($module_type,$this,$v['name']);
 
 				if(isset($href))

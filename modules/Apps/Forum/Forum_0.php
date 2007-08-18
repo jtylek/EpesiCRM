@@ -15,7 +15,7 @@ class Apps_Forum extends Module {
 	public function body($arg) {
 		$this->lang = & $this->init_module('Base/Lang');		
 
-		$view_board = $this->get_module_variable('view_board',$_REQUEST['view_board']);
+		$view_board = $this->get_module_variable('view_board',isset($_REQUEST['view_board'])?$_REQUEST['view_board']:null);
 		if ($view_board) {
 			if($this->view_board($view_board))
 				return;

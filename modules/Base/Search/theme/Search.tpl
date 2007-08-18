@@ -1,4 +1,4 @@
-{if $form_mini == 'yes'}
+{if $form_mini=="yes"}
 	{$form_data.javascript}
 	<form {$form_data.attributes}>
 	{$form_data.hidden}
