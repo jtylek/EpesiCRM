@@ -125,13 +125,11 @@ class Utils_Comment extends Module{
 		}
 		if (!empty($comments)) {
 			$theme -> assign('comments', $comments);
-			if ($pages != $curr_page) {
-				$theme -> assign('first', $this->first());
-				$theme -> assign('prev', $this->prev());
-				$theme -> assign('next', $this->next());
-				$theme -> assign('last', $this->last());
-				$theme -> assign('pages', $pages_links);
-			}
+			$theme -> assign('first', ($pages != $curr_page)?$this->first():null);
+			$theme -> assign('prev', ($pages != $curr_page)?$this->prev():null);
+			$theme -> assign('next', ($pages != $curr_page)?$this->next():null);
+			$theme -> assign('last', ($pages != $curr_page)?$this->last():null);
+			$theme -> assign('pages', ($pages != $curr_page)?$pages_links:null);
 		} else
 			$theme->assign('no_comments','No comments yet.');
 
@@ -181,7 +179,7 @@ class Utils_Comment extends Module{
 	 * @return array all comments
 	 */
 	public function fetch_posts(){
-		$recordSet = DB::Execute('SELECT c.id, c.text, ul.login, c.created_on FROM comment AS c LEFT JOIN user_login AS ul ON (c.user_login_id = ul.id) WHERE topic=%s AND parent <= -1 ORDER BY created_on',array($this->key));
+		$recordSet = DB::Execute('SELECT c.id, c.text, ul.login, c.created_on,c.parent FROM comment AS c LEFT JOIN user_login AS ul ON (c.user_login_id = ul.id) WHERE topic=%s AND parent <= -1 ORDER BY created_on',array($this->key));
 		$comments = array();
 		while (!$recordSet->EOF){
 			$row = $recordSet->FetchRow();
@@ -207,12 +205,12 @@ class Utils_Comment extends Module{
 		$reply_vars = array('answer'=>$row['id']);
 		if (!$this->reply_on_comment_page) $reply_vars['action'] = 'post_reply';
 		if ($this->tree_structure && $this->reply) $reply_link = '<a '.$this->create_unique_href($reply_vars).'>'.$this->lang->t('Reply').'</a>';
-		else $reply_link = ''; 
+		else $reply_link = null; 
 		$comments[] = array('text'=>$row['text'],
 							'user'=>$row['login'],
 							'date'=>date('G:i, d M Y',strtotime($row['created_on'])),
-							'report'=>$report,
-							'delete'=>$delete,
+							'report'=>isset($report)?$report:null,
+							'delete'=>isset($delete)?$delete:null,
 							'reply'=>$reply_link,
 							'tabs'=>$tab);
 		if ($row['parent']!=-1){
@@ -280,21 +278,29 @@ class Utils_Comment extends Module{
 	private function first() {
 		if($this->offset>0)
 			return '<a '.$this->create_unique_href(array('first'=>1)).'>'.$this->lang->t('First').'</a>';
+		else
+			return null;
 	} 
 	
 	private function prev() {
 		if($this->offset>0)
     		return '</a><a '.$this->create_unique_href(array('prev'=>1)).'>'.$this->lang->t('Prev').'</a>';
+		else
+			return null;
 	}
 	
 	private function next() {
 		if($this->offset+$this->per_page<$this->qty) 
       		return '<a '.$this->create_unique_href(array('next'=>1)).'>'.$this->lang->t('Next').'</a>';
+		else
+			return null;
 	}
 	
 	private function last() {
 		if($this->offset+$this->per_page<$this->qty) 
       		return '<a '.$this->create_unique_href(array('last'=>1)).'>'.$this->lang->t('Last').'</a>';
+		else
+			return null;
 	}
 
 	/**

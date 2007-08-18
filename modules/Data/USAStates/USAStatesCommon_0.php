@@ -14,7 +14,7 @@ class Data_USAStatesCommon extends Base_AdminModuleCommon {
 		return "USA States";
 	}
 	
-	public static function & get() {
+	public static function get() {
 		return Utils_CommonDataCommon::get_array('USA States');
 	}
 }

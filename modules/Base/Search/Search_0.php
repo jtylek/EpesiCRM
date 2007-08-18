@@ -29,14 +29,15 @@ class Base_Search extends Module {
 		$theme =  & $this->pack_module('Base/Theme');
 		
 		$modules_with_search = array();
-		foreach(ModuleManager::$modules as $name=>$obj) {
+		$modules_with_adv_search = array();
+		foreach(ModuleManager::$modules as $name=>$obj)
 			if(method_exists($obj['name'].'Common', 'search'))
 				$modules_with_search[$name] = $obj;
-			if(method_exists($obj['name'], 'advanced_search'))
+			if(method_exists($obj['name'], 'advanced_search')){
 				if(!method_exists($obj['name'], 'advanced_search_access') 
 					|| ModuleCommon::check_access($obj['name'],'advanced_search'))
 						$modules_with_adv_search[$name] = $this->lang->ht(str_replace('_',': ',$name));
-		}
+			}
 		ksort($modules_with_search);
 
 		$form->addElement('header', 'quick_search_header', $this->lang->t('Quick search'));
@@ -46,21 +47,20 @@ class Base_Search extends Module {
 
 		if (!empty($modules_with_adv_search)) {
 			$modules_with_adv_search[0] = '('.$this->lang->ht('Select module').')'; 
-			ksort($modules_with_adv_search);
+			//ksort($modules_with_adv_search);
 			$form->addElement('static', 'advanced_search_header', $this->lang->t('Advanced search'));
-			$adv = true;
 			$form->addElement('select', 'advanced_search', 'Module:', $modules_with_adv_search, array('onChange'=>$form->get_submit_form_js(false),'id'=>'advanced_search_select'));
 			$advanced_search = $form->exportValue('advanced_search');
-		}
+		} else $advanced_search = false;
 		
 		$defaults = array();
 
 		$defaults['quick_search']=$qs_keyword;
 		if (!$qs_keyword) {
-			if (!isset($advanced_search)) $advanced_search = $this->get_module_variable('advanced_search');
+			if (!$advanced_search) $advanced_search = $this->get_module_variable('advanced_search');
 			$defaults['advanced_search'] = $advanced_search;
 		} else {
-			$this->unset_module_variable();
+			$this->unset_module_variable('advanced_search');
 		}
 		
 		$form->setDefaults($defaults);
@@ -72,9 +72,9 @@ class Base_Search extends Module {
 		if (($form->validate() || $qs_keyword) && !$advanced_search) {
 			if ($form->exportValue('submited')==1)
 				$keyword = $form->exportValue('quick_search');
-			elseif($_POST['qs_keyword'])
+			elseif(isset($_POST['qs_keyword']))
 				$keyword = $_POST['qs_keyword'];
-			elseif($qs_keyword)
+			elseif(isset($qs_keyword))
 				$keyword = $qs_keyword;
 			if($keyword) {
 				$links = array();
@@ -89,7 +89,7 @@ class Base_Search extends Module {
 				$qs_theme->assign('header', $this->lang->t('Search results'));
 				$qs_theme->assign('links', $links);
 				$qs_theme->display('Results');
-				if($adv)
+				if($advanced_search)
 					eval_js('var elem=document.getElementById(\'advanced_search_select\');for(i=0; i<elem.length; i++) if(elem.options[i].value==\'0\') {elem.options[i].selected=true;break;};');
 				return;
 			}
