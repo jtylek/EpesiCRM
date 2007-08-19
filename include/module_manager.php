@@ -203,14 +203,7 @@ class ModuleManager {
 					$version_arr[] = $i;
 			}
 
-			$files = scandir($d);
-			$versions_available = array();
-			foreach($files as $vfile) {
-				if(ereg('^'.$file.'([Common]?)_([0-9]+)\.php$', $vfile, $v)) {
-					if($v[2]<=$version) $versions_available[$v[2]]=$version_arr[$v[2]];
-				}
-			}
-			$ret[$module] = $versions_available;
+			$ret[$module] = $version_arr;
 		}
 		return $ret;
 	}
