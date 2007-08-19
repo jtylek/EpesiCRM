@@ -31,5 +31,9 @@ class Base_UserInstall extends ModuleInstall {
 		return array("1.0");
 	}
 	
+	public static function requires_0() {
+		return array(
+			array('name'=>'Base/Acl','version'=>0));
+	}
 }
 ?>

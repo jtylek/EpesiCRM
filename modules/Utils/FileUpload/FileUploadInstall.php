@@ -24,6 +24,11 @@ class Utils_FileUploadInstall extends ModuleInstall {
 		return array("0.5");
 	}
 	
+	public static function requires_0() {
+		return array(
+			array('name'=>'Libs/QuickForm','version'=>0),
+			array('name'=>'Base/Lang','version'=>0));
+	}
 }
 
 ?>

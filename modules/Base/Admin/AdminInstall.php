@@ -24,18 +24,15 @@ class Base_AdminInstall extends ModuleInstall {
 		return true;
 	}
 	
-	public static function upgrade_1() {
-		Base_ThemeCommon::install_default_theme('Base/Admin','theme1');
-		return true;
+	public static function version() {
+		return array('1.0.0');
 	}
 
-	public static function downgrade_1() {
-		Base_ThemeCommon::install_default_theme('Base/Admin');
-		return true;
-	}
-	
-	public static function version() {
-		return array('1.0.0','1.0.1');
+	public static function requires_0() {
+		return array(
+			array('name'=>'Base/Theme','version'=>0),
+			array('name'=>'Base/Lang','version'=>0),
+			array('name'=>'Base/Acl', 'version'=>0));
 	}
 }
 

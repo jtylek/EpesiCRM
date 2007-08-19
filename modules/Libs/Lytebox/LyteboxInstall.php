@@ -24,6 +24,10 @@ class Libs_LyteboxInstall extends ModuleInstall {
 		return array("3.10");
 	}
 	
+	public static function requires_0() {
+		return array(array('name'=>'Base/Theme','version'=>0),
+			array('name'=>'Libs/ScriptAculoUs','version'=>0));
+	}
 }
 
 ?>

@@ -28,30 +28,14 @@ abstract class ModuleInstall {
 	 * @return true if installation success, false otherwise
 	 */
 	abstract public static function uninstall();
-}
 
-/**
- * This class provides interface for module setup.
- * @package epesi-base
- * @subpackage module
- */
-abstract class ModuleInit {
 	/**
 	 * Returns array that contains information about modules required by this module.
 	 * The array should be determined by the version number that is given as parameter.
 	 * 
 	 * @return array Array constructed as following: array(array('name'=>$ModuleName,'version'=>$ModuleVersion),...)  
 	 */
-	abstract public static function requires();
-
-	/**
-	 * Return array that contains information which modules functionality can be provided by this module.
-	 * 
-	 * @return array Array constructed as following: array(array('name'=>$ModuleName,'version'=>$ModuleVersion),...)
-	 */
-	abstract public static function provides();
-
-//	abstract public static function backup();
+//	abstract public static function requires();
 }
 
 /**

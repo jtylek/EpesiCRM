@@ -33,6 +33,13 @@ class Base_MainModuleIndicatorInstall extends ModuleInstall {
 	public static function version() {
 		return array('1.0.0');
 	}
+	public static function requires_0() {
+		return array(
+			array('name'=>'Base/Box', 'version'=>0),
+			array('name'=>'Base/Admin', 'version'=>0),
+			array('name'=>'Libs/QuickForm', 'version'=>0),
+			array('name'=>'Base/Theme', 'version'=>0));
+	}
 }
 
 ?>

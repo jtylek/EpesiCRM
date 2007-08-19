@@ -28,6 +28,12 @@ class Base_ActionBarInstall extends ModuleInstall {
 	public static function version() {
 		return array("0.9.9");
 	}
+
+	public static function requires_0() {
+		return array(
+			array('name'=>'Base/Lang','version'=>0),
+			array('name'=>'Base/User/Settings','version'=>0));
+	}
 	
 }
 ?>

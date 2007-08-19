@@ -18,5 +18,9 @@ class Tests_LangInstall extends ModuleInstall{
 	public static function uninstall() {
 		return true;
 	}
+	public static function requires_0() {
+		return array(	array('name'=>'Utils/CatFile','version'=>0),
+						array('name'=>'Base/Lang','version'=>0));
+	}
 } 
 ?>

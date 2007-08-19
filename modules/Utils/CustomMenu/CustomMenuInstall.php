@@ -44,6 +44,10 @@ class Utils_CustomMenuInstall extends ModuleInstall {
 	public static function version() {
 		return array('1.0.0');
 	}
+	public static function requires_0() {
+		return array(
+			array('name'=>'Base/Lang','version'=>0));
+	}
 }
 
 ?>

@@ -22,6 +22,9 @@ class Utils_TreeInstall extends ModuleInstall {
 	public static function version() {
 		return array('0.9.9');
 	}
+	public static function requires_0() {
+		return array();
+	}
 }
 
 ?>

@@ -44,6 +44,17 @@ class Apps_StaticPageInstall extends ModuleInstall {
 	public static function version() {
 		return array('0.8.5');
 	}
+
+	public static function requires_0() {
+		return array(
+			array('name'=>'Base/Lang','version'=>0),
+			array('name'=>'Base/Acl','version'=>0),
+			array('name'=>'Base/Admin','version'=>0),
+			array('name'=>'Utils/GenericBrowser','version'=>0),
+			array('name'=>'Utils/CustomMenu','version'=>0),
+			array('name'=>'Libs/FCKeditor','version'=>0),
+			array('name'=>'Libs/QuickForm','version'=>0));
+	}
 }
 
 ?>

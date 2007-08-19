@@ -53,6 +53,16 @@ class Apps_ForumInstall extends ModuleInstall {
 	public static function version() {
 		return array('0.9.9');
 	}
+
+	public static function requires_0() {
+		return array(
+			array('name'=>'Base/Lang','version'=>0),
+			array('name'=>'Base/Theme','version'=>0),
+			array('name'=>'Base/User','version'=>0),
+			array('name'=>'Libs/QuickForm','version'=>0),
+			array('name'=>'Utils/Comment','version'=>0));
+	}
+	
 }
 
 ?>

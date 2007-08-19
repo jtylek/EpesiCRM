@@ -32,6 +32,15 @@ class Base_User_LoginInstall extends ModuleInstall {
 	public static function version() {
 		return array('1.0.0');
 	}
+	public static function requires_0() {
+		return array(
+			array('name'=>'Libs/QuickForm','version'=>0), 
+			array('name'=>'Base/User','version'=>0), 
+			array('name'=>'Base/Theme','version'=>0), 
+			array('name'=>'Base/Lang','version'=>0),
+			array('name'=>'Base/Theme','version'=>0),
+			array('name'=>'Base/Mail', 'version'=>0));
+	}
 }
 
 ?>

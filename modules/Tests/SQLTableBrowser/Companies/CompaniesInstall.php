@@ -28,6 +28,9 @@ class Tests_SQLTableBrowser_CompaniesInstall extends ModuleInstall {
 		$ret &= DB::DropTable('companies');
 		return $ret;
 	}
+	public static function requires_0() {
+		return array(array('name'=>'Utils/SQLTableBrowser','version'=>0));
+	}
 }
 
 ?>

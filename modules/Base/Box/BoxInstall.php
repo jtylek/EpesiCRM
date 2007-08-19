@@ -30,5 +30,14 @@ class Base_BoxInstall extends ModuleInstall {
 	public static function version() {
 		return array('1.0.0');
 	}
+
+	public static function requires_0() {
+		return array (
+			array('name'=>'Base/Lang', 'version'=>0),
+			array('name'=>'Base/Setup', 'version'=>0),
+			array('name'=>'Base/Acl', 'version'=>0),
+			array('name'=>'Base/Theme/Administrator', 'version'=>0)
+		);
+	}
 }
 ?>

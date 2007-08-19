@@ -88,12 +88,15 @@ class FirstRun extends Module {
 	
 	public function done($d) {
 		$pkgs = isset($this->ini[$d[0]['setup_type']]['package'])?$this->ini[$d[0]['setup_type']]['package']:array();
-		if(!ModuleManager::install('Base'))
-			trigger_error('Unable to install Base module pack.',E_USER_ERROR);
-		foreach($pkgs as $p) {
-			if(!ModuleManager::install(str_replace('/','_',$p)))
-				trigger_error('Unable to install '.str_replace('_','/',$p).' module.',E_USER_ERROR);
+		if(!ModuleManager::install('Base')) {
+			print('Unable to install Base module pack.');
+			return false;
 		}
+		foreach($pkgs as $p)
+			if(!ModuleManager::install(str_replace('/','_',$p))) {
+				print('Unable to install '.str_replace('_','/',$p).' module.');
+				return false;
+			}
 			
 		Base_SetupCommon::refresh_available_modules();
 		Base_ThemeCommon::create_cache();

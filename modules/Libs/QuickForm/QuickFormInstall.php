@@ -23,6 +23,9 @@ class Libs_QuickFormInstall extends ModuleInstall {
 	public static function version() {
 		return array('3.2.7');
 	}
+	public static function requires_0() {
+		return array(array('name'=>'Base/Theme','version'=>0));
+	}
 }
 
 ?>

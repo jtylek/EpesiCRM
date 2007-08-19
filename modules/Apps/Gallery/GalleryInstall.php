@@ -36,6 +36,16 @@ class Apps_GalleryInstall extends ModuleInstall {
 	public static function version() {
 		return array('0.8.6');
 	}
+	
+	public static function requires_0() {
+		return array(
+			array('name'=>'Utils/TabbedBrowser', 'version'=>0), 
+			array('name'=>'Utils/Path', 'version'=>0), 
+			array('name'=>'Utils/Tree', 'version'=>0), 
+			array('name'=>'Utils/Gallery', 'version'=>0)
+		);
+	}
+
 }
 
 ?>

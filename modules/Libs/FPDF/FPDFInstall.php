@@ -23,6 +23,9 @@ class Libs_FPDFInstall extends ModuleInstall {
 	public static function version() {
 		return array('1.5.3');
 	}
+	public static function requires_0() {
+		return array();
+	}
 }
 
 ?>

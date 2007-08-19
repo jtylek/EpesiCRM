@@ -21,6 +21,9 @@ class Libs_ScriptAculoUsInstall extends ModuleInstall {
 	public static function version() {
 		return array('1.7.0');
 	}
+	public static function requires_0() {
+		return array();
+	}
 }
 
 ?>

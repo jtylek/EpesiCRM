@@ -52,6 +52,9 @@ class Base_ThemeInstall extends ModuleInstall {
 				copy($path,'data/Base/Theme/templates/default/'.$f.'/'.$name);
 		}
 	}
+	public static function requires_0() {
+		return array();
+	}
 }
 
 ?>

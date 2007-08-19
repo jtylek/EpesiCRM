@@ -18,6 +18,15 @@ class Base_Mail_ContactUsInstall extends ModuleInstall {
 	public static function uninstall() {
 	    return true;
 	}
+
+	public static function requires_0() {
+		return array(
+			array('name'=>'Libs/QuickForm','version'=>0), 
+			array('name'=>'Base/Mail', 'version'=>0), 
+			array('name'=>'Base/Lang', 'version'=>0),
+			array('name'=>'Base/StatusBar', 'version'=>0),
+			array('name'=>'Base/User/Login', 'version'=>0));
+	}
 }
 
 ?>

@@ -22,6 +22,11 @@ class Tests_BookmarkBrowserInstall extends ModuleInstall {
 		return array("0.1");
 	}
 	
+	public static function requires_0() {
+		return array(
+			array('name'=>'Utils/CatFile','version'=>0),
+			array('name'=>'Utils/BookmarkBrowser','version'=>0));
+	}
 }
 
 ?>

@@ -17,6 +17,10 @@ class Base_ModuleManagerInstall extends ModuleInstall {
 	public static function uninstall() {
 		return true;
 	}
+	public static function requires_0() {
+		return array(
+		array('name'=>'Libs/QuickForm','version'=>0));
+	}
 }
 
 ?>

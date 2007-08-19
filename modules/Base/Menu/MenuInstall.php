@@ -27,6 +27,15 @@ class Base_MenuInstall extends ModuleInstall {
 	public static function version () {
 		return array('1.0.0');
 	}
+	public static function requires_0() {
+		return array(
+//			array('name'=>'Base/Menu/QuickAccess','version'=>0),  
+			array('name'=>'Base/Box','version'=>0), 
+			array('name'=>'Base/Lang','version'=>0), 
+			array('name'=>'Base/Theme','version'=>0),
+			array('name'=>'Utils/Menu','version'=>0)
+		);
+	}
 }
 
 ?>

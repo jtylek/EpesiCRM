@@ -20,7 +20,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  */
 class Base_Admin extends Module {
 		
-	public function body($arg) {
+	public function body() {
 		$module = $this->get_module_variable_or_unique_href_variable('href');
 
 		if(isset($_REQUEST['admin_href'])) {
@@ -56,8 +56,13 @@ class Base_Admin extends Module {
 		ksort($mod_ok);
 		
 		$links = array();
-		foreach($mod_ok as $caption=>$name)
-			$links[$name]= '<a '.$this->create_unique_href(array('href'=>$name)).'>'.$lang->t($caption).'</a>';
+		foreach($mod_ok as $caption=>$name) {
+			if (method_exists($name.'Common','admin_icon')) {
+				$icon = call_user_func(array($name.'Common','admin_icon'));
+			} else 
+				$icon = 'images/icons/'.$name;
+			$links[$icon]= '<a '.$this->create_unique_href(array('href'=>$name)).'>'.$lang->t($caption).'</a>';
+		}
 		$theme =  & $this->pack_module('Base/Theme');
 		$theme->assign('header', $lang->t('Modules settings'));
 		$theme->assign('links', $links);
@@ -86,7 +91,9 @@ class Base_Admin extends Module {
 	
 	public function caption() {
 		$module = $this->get_module_variable('href');
-		$caption = call_user_func(array($module.'Common','admin_caption'));
+		$func = array($module.'Common','admin_caption');
+		if(!is_callable($func)) return;
+		$caption = call_user_func($func);
 		if($caption) return "Administration: ".$caption;
 		return "Administration";
 	}

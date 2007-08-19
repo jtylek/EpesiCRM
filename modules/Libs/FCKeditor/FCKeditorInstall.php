@@ -23,6 +23,10 @@ class Libs_FCKeditorInstall extends ModuleInstall {
 		return array('2.4.2');
 	}
 	
+	public static function requires_0() {
+		return array(array('name'=>'Base/Lang','version'=>0),
+			array('name'=>'Libs/QuickForm','version'=>0));
+	}
 }
 
 ?>

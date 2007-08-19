@@ -31,6 +31,23 @@ class TestsInstall extends ModuleInstall {
 	public static function version() {
 		return array('0.9.9');
 	}
+	public static function requires_0() {
+		return array(
+		    array('name'=>'Tests/BookmarkBrowser','version'=>0),
+		    array('name'=>'Tests/Callbacks','version'=>0),
+		    array('name'=>'Tests/Comment','version'=>0),
+		    array('name'=>'Tests/FPDF','version'=>0),
+		    array('name'=>'Tests/GenericBrowser','version'=>0),
+		    array('name'=>'Tests/Image','version'=>0),
+		    array('name'=>'Tests/Lang','version'=>0),
+		    array('name'=>'Tests/Lightbox','version'=>0),
+		    array('name'=>'Tests/Menu','version'=>0),
+		    array('name'=>'Tests/Search','version'=>0),
+		    array('name'=>'Tests/SharedUniqueHref','version'=>0),
+		    array('name'=>'Tests/TabbedBrowser','version'=>0),
+		    array('name'=>'Tests/Tooltip','version'=>0),
+		    array('name'=>'Tests/Wizard','version'=>0));
+	}
 }
 
 ?>

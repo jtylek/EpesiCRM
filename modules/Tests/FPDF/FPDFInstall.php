@@ -17,6 +17,10 @@ class Tests_FPDFInstall extends ModuleInstall {
 	public static function uninstall() {
 		return true;
 	}
+	public static function requires_0() {
+		return array(array('name'=>'Utils/CatFile','version'=>0),
+			array('name'=>'Libs/FPDF','version'=>0));
+	}
 }
 
 ?>

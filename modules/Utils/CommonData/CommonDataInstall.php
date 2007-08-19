@@ -40,6 +40,14 @@ class Utils_CommonDataInstall extends ModuleInstall {
 		$ret &= DB::DropTable('utils_commondata_data');
 		return $ret;
 	}
+	public static function requires_0() {
+		return array(
+			array('name'=>'Base/Lang','version'=>0),
+			array('name'=>'Base/Acl','version'=>0),
+			array('name'=>'Base/Admin','version'=>0),
+			array('name'=>'Utils/GenericBrowser','version'=>0),
+			array('name'=>'Utils/Wizard','version'=>0));
+	}
 }
 
 ?>

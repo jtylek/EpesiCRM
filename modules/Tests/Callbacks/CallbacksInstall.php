@@ -22,6 +22,10 @@ class Tests_CallbacksInstall extends ModuleInstall {
 		return array("1.0.0");
 	}
 	
+	public static function requires_0() {
+		return array(array('name'=>'Libs/QuickForm','version'=>0),
+			array('name'=>'Utils/CatFile','version'=>0));
+	}
 }
 
 ?>

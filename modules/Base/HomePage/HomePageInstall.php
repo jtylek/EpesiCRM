@@ -30,6 +30,15 @@ class Base_HomePageInstall extends ModuleInstall {
 	public static function version() {
 		return array('0.8.9');
 	}
+
+	public static function requires_0() {
+		return array(array('name'=>'Base/Box','version'=>0), 
+			array('name'=>'Base/Lang', 'version'=>0),
+			array('name'=>'Base/User', 'version'=>0),
+			array('name'=>'Base/ActionBar', 'version'=>0)
+			);
+	}
+	
 }
 
 ?>

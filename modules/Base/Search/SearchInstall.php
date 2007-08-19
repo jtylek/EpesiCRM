@@ -27,6 +27,12 @@ class Base_SearchInstall extends ModuleInstall {
 	public static function version() {
 		return array('0.9.1');
 	}
+	public static function requires_0() {
+		return array(
+			array('name'=>'Libs/QuickForm','version'=>0), 
+			array('name'=>'Base/Lang','version'=>0),
+			array('name'=>'Base/Box','version'=>0));
+	}
 }
 
 ?>

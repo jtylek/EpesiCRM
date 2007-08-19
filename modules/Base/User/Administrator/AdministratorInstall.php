@@ -23,6 +23,17 @@ class Base_User_AdministratorInstall extends ModuleInstall {
 	public static function uninstall() {
 		return true;
 	}
+	public static function requires_0() {
+		return array(
+			array('name'=>'Libs/QuickForm','version'=>0), 
+			array('name'=>'Base/Admin','version'=>0), 
+			array('name'=>'Base/Acl','version'=>0), 
+			array('name'=>'Utils/GenericBrowser','version'=>0), 
+			array('name'=>'Base/User','version'=>0), 
+			array('name'=>'Base/ActionBar','version'=>0), 
+			array('name'=>'Base/User/Login','version'=>0), 
+			array('name'=>'Base/Lang','version'=>0));
+	}
 }
 
 ?>

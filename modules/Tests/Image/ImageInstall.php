@@ -17,6 +17,11 @@ class Tests_ImageInstall extends ModuleInstall {
 	public static function uninstall() {
 		return true;
 	}
+	public static function requires_0() {
+		return array(array('name'=>'Utils/CatFile','version'=>0),
+			array('name'=>'Utils/Image','version'=>0)
+		);
+	}
 }
 
 ?>
