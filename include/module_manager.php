@@ -251,15 +251,15 @@ class ModuleManager {
 	 */
 	public static final function register($mod, $version, & $module_table) {
 		$module_table[$mod] = array('name'=>$mod, 'version'=>$version);
-		$prov = call_user_func(array (
-			$mod . 'Init_'.$version,
-			'provides'
-		));
-		//print('registered'.$mod.'<br>');
-		foreach ($prov as $p) {
-			$p['name'] = str_replace('/','_',$p['name']);
-			if (!array_key_exists($p['name'], $module_table) || $module_table[$p['name']]['name']==$mod) //priviliged original modules, not alternatives
-				$module_table[$p['name']] = array('name'=>$mod, 'version'=>$p['version']);
+		$func_prov = array ($mod . 'Init_'.$version,'provides');
+		if(is_callable($func_prov)) {
+			$prov = call_user_func($func_prov);
+			//print('registered'.$mod.'<br>');
+			foreach ($prov as $p) {
+				$p['name'] = str_replace('/','_',$p['name']);
+				if (!array_key_exists($p['name'], $module_table) || $module_table[$p['name']]['name']==$mod) //priviliged original modules, not alternatives
+					$module_table[$p['name']] = array('name'=>$mod, 'version'=>$p['version']);
+			}
 		}
 	}
 	
@@ -491,7 +491,7 @@ class ModuleManager {
 	 * @param integer module version
 	 * @return bool true if installation success, false otherwise
 	 */
-	public static final function install($module_to_install, $version) {
+	public static final function install($module_to_install, $version=null) {
 		//already installed?
 		if(defined('DEBUG')) print($module_to_install.': is installed?<br>');
 

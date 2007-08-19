@@ -83,7 +83,10 @@ class Base_LangCommon {
 	 * For internal use only.
 	 */
 	public static function load() {
-		include_once('data/Base/Lang/'.self::get_lang_code().'.php');
+		if(!@include_once('data/Base/Lang/'.self::get_lang_code().'.php')) {
+			global $translations;
+			$translations=array();
+		}
 	}
 	
 	/**

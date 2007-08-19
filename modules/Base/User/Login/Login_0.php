@@ -133,7 +133,7 @@ class Base_User_Login extends Module {
 			return false;
 		}
 		
-		if(!$this->send_mail_with_password($username, $pass, $mail)) {
+		if(!Base_User_LoginCommon::send_mail_with_password($username, $pass, $mail)) {
 			print($this->lang->t('Unable to send e-mail with password. Mail module configuration invalid. Please contact system administrator.'));
 			return false;
 		}

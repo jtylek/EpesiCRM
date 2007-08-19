@@ -174,6 +174,11 @@ define("DB_SESSION",1);
  * Display errors on page.
  */
 define("DISPLAY_ERRORS",1);
+
+/*
+ * Notify all errors, including E_NOTICE, etc. Developer should use it!
+ */
+define("NOTIFY_ALL_ERRORS",0);
 ?>');
 	fclose($c);
 
