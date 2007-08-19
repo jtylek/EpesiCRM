@@ -136,7 +136,7 @@ class Apps_Gallery extends Module {
 				if( $d != "" ) {
 					$up .= '/'.$d;
 					if($d != "" ) {
-						if( !is_array($c[$d]) ) {
+						if( !isset($c[$d]) || !is_array($c[$d]) ) {
 							$tmp = & $form->createElement('radio', 'target', $up, $d, $up.'/');
 							$opened = 0;
 							if($up == $dir) {
@@ -326,7 +326,7 @@ class Apps_Gallery extends Module {
 				if( $d != "" ) {
 					$up .= '/'.$d;
 					if($d != "" ) {
-						if( !is_array($c[$d]) ) {
+						if( !isset($c[$d]) || !is_array($c[$d]) ) {
 							$tmp = & $form->createElement('checkbox', $up, $up, $d);
 							$opened = 0;
 							if(array_key_exists(str_replace(" ", "_", $up), $shared)) {
@@ -436,7 +436,7 @@ class Apps_Gallery extends Module {
 				if( $d != "" ) {
 					$up .= '/'.$d;
 					if($d != "" ) {
-						if( !is_array($c[$d]) ) {
+						if( !isset($c[$d]) || !is_array($c[$d]) ) {
 							$tmp = & $form->createElement('radio', 'target', $up, $d, $up.'/');
 							$opened = 0;
 							if($up == $dir) {
@@ -561,7 +561,6 @@ class Apps_Gallery extends Module {
 		if($user == $this->user) {
 			foreach( $dir_listing as $v ) {
 				$dirs[] = "<a " . $this->create_unique_href(array('dir'=>$dir."/".$v, 'parent_dir'=>$dir, 'user'=>$this->user)) . ">". $v . "</a>";
-				
 			}
 		} else {
 			$ret = DB::Execute('SELECT user_id, media FROM gallery_shared_media where (user_id = %s)', array($user));
@@ -581,7 +580,7 @@ class Apps_Gallery extends Module {
 				if( $d != "" ) {
 					$up .= '/'.$d;
 					if($d != "" ) {
-						if( !is_array($c[$d]) ) {
+						if( !isset($c[$d]) || !is_array($c[$d]) ) {
 							$c[$d] = array(
 								'name' => '<a '.$this->create_unique_href(array('dir'=>$up, 'parent_dir'=>$dir, 'user'=>$this->user)).'>'.$d.'</a>',
 								'selected' => 0,
@@ -616,7 +615,7 @@ class Apps_Gallery extends Module {
 			$c = & $structure;
 			$pt = explode("/", $row['media']);
 			$up = '';
-			if(!is_array($structure[$row['user_id']])) {
+			if(!isset($structure[$row['user_id']]) || !is_array($structure[$row['user_id']])) {
 				$structure[$row['user_id']] = array();
 				//$structure[$row['user_id']]['name'] = "<a ".$this->create_unique_href(array('dir'=>"", 'user'=>$row['user_id'])).">".Base_UserCommon::get_user_login($row['user_id'])."'s gallery</a>";
 				$structure[$row['user_id']]['name'] = Base_UserCommon::get_user_login($row['user_id'])."'s gallery";
@@ -646,6 +645,8 @@ class Apps_Gallery extends Module {
 		$theme->assign('dirs', $dirs);
 		if(Base_AclCommon::i_am_user() > 0)
 			$theme->assign('tree', $this->get_html_of_module($tree));
+		else
+			$theme->assign('tree', '');
 		if(count($structure) > 0)
 			$theme->assign('other', $this->get_html_of_module($other));
 		else

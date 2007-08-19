@@ -28,7 +28,7 @@ class Tests_Wizard extends Module {
 		return 2;
 	}
 	
-	public function body($arg) {
+	public function body() {
 		print "Wizard Test<hr>";
 		$wizard = & $this->init_module('Utils/Wizard');
 		

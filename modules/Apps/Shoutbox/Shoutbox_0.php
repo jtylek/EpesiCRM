@@ -10,7 +10,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Apps_Shoutbox extends Module {
 
-	public function body($arg) {
+	public function body() {
 		//initialize lang module
 		$l = & $this->init_module('Base/Lang');
 

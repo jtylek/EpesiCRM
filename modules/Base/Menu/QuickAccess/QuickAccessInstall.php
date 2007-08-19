@@ -15,11 +15,16 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_Menu_QuickAccessInstall extends ModuleInstall {
 	public static function install() {
+		$ret = DB::CreateTable('quick_access',"user_login_id I NOTNULL, label C(64) NOTNULL, link C(255) NOTNULL", array('constraints' => ', PRIMARY KEY (user_login_id,label)'));
+		if($ret===false) {
+			print('Invalid SQL query - Base/Menu/QuickAccess module install');
+			return false;
+		}
 		return true;
 	}
 	
 	public static function uninstall() {
-		return true;
+		return DB::DropTable('quick_access');;
 	}
 	
 	public static function version() {

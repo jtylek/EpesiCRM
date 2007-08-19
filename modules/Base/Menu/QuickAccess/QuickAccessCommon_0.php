@@ -53,10 +53,10 @@ class Base_Menu_QuickAccessCommon {
 		return array();
 	} 
 
-	private function check_for_links(& $result,$prefix,$array,& $defaults){
+	private function check_for_links(& $result,$prefix,$array){
 		foreach($array as $k=>$v){
 			if (substr($k,0,2)=='__') continue;
-			if (array_key_exists('__submenu__',$v)) self::check_for_links($result,$prefix.$k.': ',$v,$defaults);
+			if (array_key_exists('__submenu__',$v)) self::check_for_links($result,$prefix.$k.': ',$v);
 			else {
 				$http_query = http_build_query($v,'','&');
 				$ret = DB::Execute('SELECT * FROM quick_access WHERE user_login_id = %d AND label = %s',array(Base_UserCommon::get_my_user_id(),$prefix.$k))->FetchRow();

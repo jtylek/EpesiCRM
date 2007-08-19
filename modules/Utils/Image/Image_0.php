@@ -121,12 +121,15 @@ class Utils_Image extends Module {
 		//  1) it does
 		if( is_file($this->get_data_dir().$this->thumb) ) {
 			//print $this->get_data_dir().$this->thumb." exists<br>";
-			list($this->thumb_width, $this->thumb_height, $type, $attr) = getimagesize($this->get_data_dir().$this->thumb_name);
+			list($this->thumb_width, $this->thumb_height, $type, $attr) = getimagesize($this->get_data_dir().$this->thumb);
 		// 2) it does not
 		} else { // create thumb
+			$path_till_now = '';
 			foreach($img_path as $dir) {
 				$path_till_now .= '/' . $dir;
-				mkdir($this->get_data_dir() . $path_till_now);
+				$mkdir = $this->get_data_dir() . $path_till_now;
+				if(file_exists($mkdir) && is_dir($mkdir) && is_writable($mkdir) && is_readable($mkdir)) continue;
+				mkdir($mkdir);
 			}
 			//print "typ: ". $this->type;
 			//print $this->get_data_dir().$this->thumb." does not exist<br>";
@@ -234,7 +237,7 @@ class Utils_Image extends Module {
 	/**
 	 * This displays created thumb.
 	 */
-	public function body($arg) {
+	public function body() {
 		$this->display_thumb();
 	}
 	
@@ -247,14 +250,13 @@ class Utils_Image extends Module {
 	}
 	
 	/**
-	 * This returns array with thumbnail attributes (width, height, type, 'height="yyy" width="xxx"').
+	 * This returns associative array with thumbnail attributes (width, height, type).
 	 */
 	public function get_thumb_attributes() {
 		return array(
-			$this->thumb_width, 
-			$this->thumb_height, 
-			$this->type, 
-			' width="'.$this->thumb_width.'" height="'.$this->thumb_height.'" ');
+			'width'=>$this->thumb_width, 
+			'height'=>$this->thumb_height, 
+			'type'=>$this->type);
 	}
 	
 	/**

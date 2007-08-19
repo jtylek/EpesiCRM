@@ -120,7 +120,7 @@ class HTML_QuickForm_Renderer_TCMSArraySmarty extends HTML_QuickForm_Renderer_TC
     * @param  bool    true: render an array of labels to many labels, $key 0 to 'label' and the oterh to "label_$key"
     * @access public
     */
-    function HTML_QuickForm_Renderer_TCMSArraySmarty(&$tpl, $staticLabels = false)
+    function HTML_QuickForm_Renderer_TCMSArraySmarty(&$tpl=null, $staticLabels = false)
     {
         $this->HTML_QuickForm_Renderer_TCMSArray(true, $staticLabels);
         $this->_tpl =& $tpl;

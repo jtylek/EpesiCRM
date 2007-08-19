@@ -125,11 +125,6 @@ class Utils_Tree extends Module {
 			else
 				$ret .= "<td width=100% class=utils_tree_node_content>".$v['name']."</td>";
 			
-			if(isset($v['visible']) && $v['visible'] == 1)
-				array_push($this->_opened_paths, $path);
-			if(isset($v['opened']) && $v['opened'] == 1 && is_array($v['sub']))
-				array_push($this->_opened_paths, $path.'_'.$this->_sub);
-					
 			$ret .= "</tr></table></div>";
 			if(is_array($v['sub'])) {
 				$ret .= $this->print_structure_r($v['sub'], $level + 1, $this->_sub);

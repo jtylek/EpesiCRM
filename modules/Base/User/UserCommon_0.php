@@ -88,13 +88,13 @@ class Base_UserCommon {
 	/**
 	 * For internal use only. 
 	 */
-	public static function set_my_user_id($a) {
-    	global $base;
+	public static function set_my_user_id($a=null) {
+		global $base;
 		$session = & $base->get_session();
 		if(isset($a))
-	        $session['user_id'] = $a;
+			$session['user_id'] = $a;
 		else
-	        unset($session['user_id']);
+			unset($session['user_id']);
         }
 }
 

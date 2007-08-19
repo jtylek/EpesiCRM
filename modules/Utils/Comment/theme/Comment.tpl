@@ -32,16 +32,3 @@
 		</tr>
 	</table>
 {/if}
-
-{if $form_name}
-	{$form_data.javascript}
-	<form {$form_data.attributes}> 
-		{$form_data.hidden}
-		{$form_data.header.reply}<br>
-		{if isset($form_data.whole)}
-			{$form_data.whole.html}<br>
-		{/if}
-		{$form_data.comment_page_reply.label}{$form_data.comment_page_reply.html}<br>
-		{$form_data.submit_comment.html}
-	</form>
-{/if}

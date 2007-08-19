@@ -71,7 +71,7 @@ class Libs_QuickForm extends Module {
 	 		return 'if(saja.procOn==0){'.$s.'}'; 
 	}
 
-	public function assign_theme($name, & $theme, $renderer){ 
+	public function assign_theme($name, & $theme, $renderer=null){ 
 		if(!isset($renderer)) $renderer = & new HTML_QuickForm_Renderer_TCMSArraySmarty(); 
 		$this->accept($renderer); 
 		$form_data = $renderer->toArray();

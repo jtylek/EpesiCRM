@@ -11,7 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Tests_Image extends Module {
 	
-	public function body($arg) {
+	public function body() {
 		$image = & $this->init_module('Utils/Image');
 		print '<table>';
 		for($row = 0; $row < 5; $row++) {

@@ -12,7 +12,7 @@ class Apps_Forum extends Module {
 	private $lang;
 	private $key = '';
 
-	public function body($arg) {
+	public function body() {
 		$this->lang = & $this->init_module('Base/Lang');		
 
 		$view_board = $this->get_module_variable('view_board',isset($_REQUEST['view_board'])?$_REQUEST['view_board']:null);

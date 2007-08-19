@@ -19,7 +19,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  * @subpackage Cache
  */
 class Utils_Cache_HD extends Utils_Cache_Base {
-	public function body($arg) {
+	public function body() {
 	}
 	
 	protected function _in_cache() {

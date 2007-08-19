@@ -115,7 +115,7 @@ class Base_LangCommon {
 			if($name == '.' || $name == '..' || ereg('^[\.~]',$name)) continue;
 			$langcode = substr($name,0,strpos($name,'.'));
 			$translations = array();
-			include_once('data/Base/Lang/'.$langcode.'.php');
+			@include_once('data/Base/Lang/'.$langcode.'.php');
 			include_once($directory.'/'.$name);
 			Base_LangCommon::save($langcode);
 		}

@@ -11,7 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Tests_BookmarkBrowser extends Module {
 
-	public function body($arg) {
+	public function body() {
 		$bb = & $this->init_module('Utils/BookmarkBrowser', 'employees');
 		
 		$bb->add_item('First section', 'Item #1', 'B');

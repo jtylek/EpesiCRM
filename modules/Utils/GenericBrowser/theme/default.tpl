@@ -19,7 +19,7 @@
 		}
 		$this->assign('cols',$cols);
 	{/php}
-	{$form_data.submit_search.html}{$adv_search}
+	{if isset($form_data.submit_search)}{$form_data.submit_search.html}{$adv_search}{/if}
 {/if}
 
 <table width=100%>
@@ -49,7 +49,9 @@
 		<td class="summary">{$summary}</td>
 		<td class="next">{$next}</td><td class="arrow">{if $next}<img src="{$theme_dir}/images/next.png"></td>{/if}
 		<td class="last">{$last}</td><td class="arrow">{if $last}<img src="{$theme_dir}/images/last.png">{/if}</td>
+		{if isset($form_data.per_page)}
 		<td class="per_page">{$form_data.per_page.label}&nbsp;{$form_data.per_page.html}</td>
+		{/if}
 	</tr>
 </table>
 

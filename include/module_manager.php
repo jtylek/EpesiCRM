@@ -501,7 +501,11 @@ class ModuleManager {
 			return false;
 		}
 		
-		$inst_ver = call_user_func(array($module_to_install.'Install', 'version'));
+		$func_version = array($module_to_install.'Install', 'version');
+		if(is_callable($func_version))
+			$inst_ver = call_user_func($func_version);
+		else
+			$inst_ver = 0;
 		if(is_array($inst_ver)) $inst_ver = count($inst_ver);
 			else $inst_ver = intval($inst_ver);
 

@@ -11,7 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Tests_TabbedBrowser extends Module {
 	
-	public function body($arg) {
+	public function body() {
 		$tb = & $this->init_module('Utils/TabbedBrowser');
 		$tb->set_tab('Manage Users', array($this,'xxx'),'users');
 		$tb->set_tab('Manage Companies', array($this,'xxx'),'companies');

@@ -146,7 +146,7 @@ class Base_ModuleManager extends Module {
 						$ret = SetupInstall::uninstall();
 						if ($ret) {
 //							session_destroy();
-							print('No modules installed. Go <a href="http'.(($_SERVER['HTTPS'])?'s':'').'://'. $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']).'/">here</a> to install Setup module!');
+							print('No modules installed. Go <a href="http'.(isset($_SERVER['HTTPS'])?'s':'').'://'. $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']).'/">here</a> to install Setup module!');
 							return false;
 						} else
 							print('Unable to remove Setup module!');

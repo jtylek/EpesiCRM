@@ -19,10 +19,10 @@ class Libs_FPDF extends Module {
 		$this->fpdf = new FPDF($orientation, $unit, $format);
 	}	
 
-	public function body($arg) {
+	public function body() {
 	}
 	
-	public function get_href($filename) {
+	public function get_href($filename=null) {
 		global $base;
 		$pdf_id = $this->get_path();
 		$this->set_module_variable('pdf', $this->fpdf->Output('','S'));

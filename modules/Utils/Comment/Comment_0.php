@@ -130,6 +130,7 @@ class Utils_Comment extends Module{
 			$theme -> assign('next', ($pages != $curr_page)?$this->next():null);
 			$theme -> assign('last', ($pages != $curr_page)?$this->last():null);
 			$theme -> assign('pages', ($pages != $curr_page)?$pages_links:null);
+			$theme -> assign('no_comments',false);
 		} else
 			$theme->assign('no_comments','No comments yet.');
 

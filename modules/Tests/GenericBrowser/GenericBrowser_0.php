@@ -11,7 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Tests_GenericBrowser extends Module {
 	
-	public function body($arg) {
+	public function body() {
  		$m = & $this->init_module('Utils/GenericBrowser',null,'t1');
  		$m->set_table_columns(array(array('name'=>'xxx')));
  		$m->add_row('xxx');
@@ -25,7 +25,7 @@ class Tests_GenericBrowser extends Module {
  		$m->add_row('xxx');
  		$this->display_module($m);
 
- 		$m = & $this->init_module('Utils/GenericBrowser',null,'t1');
+ 		$m = & $this->init_module('Utils/GenericBrowser',null,'t2');
  		$m->set_table_columns(array(array('name'=>'xxx','search'=>1)));
 		$m->get_limit(9);
  		$m->add_row('xxx');

@@ -46,7 +46,8 @@ class Utils_Path extends Module {
 			}
 			$this->root['children_close'] = '</div>';
 			$this->root['children_num'] = count($this->root['children']);
-		}
+		} else
+			$this->root['children_num'] = 0;
 		$this->_sub++;
 	}
 	
@@ -67,7 +68,8 @@ class Utils_Path extends Module {
 			}
 			$this->list[$this->_sub]['children_close'] = '</div>';
 			$this->list[$this->_sub]['children_num'] = count($this->list[$this->_sub]['children']);
-		}
+		} else
+			$this->list[$this->_sub]['children_num'] = 0;
 		$this->_sub++;
 	}
 		

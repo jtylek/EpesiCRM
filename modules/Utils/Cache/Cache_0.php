@@ -19,7 +19,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  * @subpackage Cache
  */
 class Utils_Cache extends Module {
-	public function body($arg) {
+	public function body() {
 	}
 }
 ?>

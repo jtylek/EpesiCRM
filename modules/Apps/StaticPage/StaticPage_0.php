@@ -9,7 +9,8 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Apps_StaticPage extends Module {
-
+	private $lang;
+	
 	public function body($path) {
 		if(!$this->lang) $this->lang = & $this->init_module('Base/Lang');
 
@@ -89,13 +90,13 @@ class Apps_StaticPage extends Module {
 	//	$back_b = & HTML_QuickForm::createElement('button', null, $this->lang->ht('Cancel'), $this->create_back_href());
 		//$f->addGroup(array($save_b,$back_b),'submit_button');
 
-		if($path)
+		if(isset($page))
 			$menu = &$this->init_module('Utils/CustomMenu',array('staticpage:'.$page['id']));			
 		
 		if($f->validate()) {
 			$ret = $f->exportValues();
 			$content = str_replace("\n",'',$ret['content']);
-			if($page) {
+			if(isset($page)) {
 				DB::Execute('UPDATE apps_staticpage_pages SET path=%s, title=%s, content=%s WHERE id=%d',array($ret['path'],$ret['title'],$content,$page['id']));
 				$menu->save($ret['path']);
 				if($this->isset_module_variable('view'))

@@ -11,7 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Tests_SQLTableBrowser_People extends Module {
 	private $lang;
 
-	public function body($arg) {
+	public function body() {
 		$this->lang = & $this->init_module('Base/Lang');
 
 		if ($_REQUEST['module']) {

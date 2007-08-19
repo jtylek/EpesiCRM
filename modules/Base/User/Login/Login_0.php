@@ -21,7 +21,7 @@ class Base_User_Login extends Module {
 			$this->set_fast_process();
 	}
 	
-	public function body($arg) {
+	public function body() {
 		$this->lang = & $this->init_module('Base/Lang');
 
 		$theme =  & $this->pack_module('Base/Theme');

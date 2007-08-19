@@ -22,7 +22,7 @@ class Base_Setup extends Module {
 		$this->body();
 	}
 
-	public function body($arg) {
+	public function body() {
 		global $base;
 
 		if($this->is_back() && $this->parent) {
@@ -70,18 +70,22 @@ class Base_Setup extends Module {
 				$installed = ModuleManager::is_installed($entry);
 
 				$module_install_class = $entry.'Install';
-				$simple_module = call_user_func(array($module_install_class,'simple_setup'));
+				$func_simple = array($module_install_class,'simple_setup');
+				$simple_module = is_callable($func_simple) && call_user_func($func_simple);
 				if($simple && !$simple_module) continue;
 
 
-				$module_info = call_user_func(array($module_install_class,'info'));
-				if($module_info) {
-					$info = ' (<a rel="'.$entry.'" class="lbOn">info</a>)';
-					$iii = '<div id="'.$entry.'" class="leightbox"><h1>'.str_replace('_','/',$entry).'</h1><table>';
-					foreach($module_info as $k=>$v)
-						$iii .= '<tr><td>'.$k.'</td><td>'.$v.'</td></tr>';
-					$iii .= '</table><a class="lbAction" rel="deactivate">Close</a></div>';
-					print($iii);
+				$func_info = array($module_install_class,'info');
+				if(is_callable($func_info)) {
+					$module_info = call_user_func($func_info);
+					if($module_info) {
+						$info = ' (<a rel="'.$entry.'" class="lbOn">info</a>)';
+						$iii = '<div id="'.$entry.'" class="leightbox"><h1>'.str_replace('_','/',$entry).'</h1><table>';
+						foreach($module_info as $k=>$v)
+							$iii .= '<tr><td>'.$k.'</td><td>'.$v.'</td></tr>';
+						$iii .= '</table><a class="lbAction" rel="deactivate">Close</a></div>';
+						print($iii);
+					} else $info = '';
 				} else $info = '';
 
 				$versions[-1]='not installed';

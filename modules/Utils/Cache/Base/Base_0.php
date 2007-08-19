@@ -25,7 +25,7 @@ abstract class Utils_Cache_Base extends Module {
 	private $modules_instances;
 	private $parent_vars;
 
-	public function body($arg) {
+	public function body() {
 	}
 	
 	public function construct($options, $interval=60) {

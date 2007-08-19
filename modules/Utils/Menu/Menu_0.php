@@ -18,7 +18,7 @@ class Utils_Menu extends Module {
 	private $menu_string;
 	private $layout;
 	
-	public function construct( $arg ) {
+	public function construct( $arg = null) {
 		if(!isset($arg)) {
 			$arg = "vertical";
 		}
@@ -39,7 +39,7 @@ class Utils_Menu extends Module {
 	 * @param string target address of the link
 	 * @param string optional path to an icon
 	 */
-	public function add_link($title, $address, $icon) {
+	public function add_link($title, $address='', $icon=null) {
 		$this->menu_string .= 'menubar_'.$this->menu_id.'.addLink("'.htmlspecialchars($title).'"';
 		if(isset($address)) {
 			$this->menu_string .= ', "'.addslashes($address).'"';
@@ -54,7 +54,7 @@ class Utils_Menu extends Module {
 	 * Adds a splitting line to the menu. Useful when you want to 
 	 * divide menu into sctions without using submenus.
 	 */
-	public function add_split($title) {
+	public function add_split() {
 		$this->menu_string .= 'menubar_'.$this->menu_id.'.addSplit();';
 	}
 	
@@ -65,7 +65,7 @@ class Utils_Menu extends Module {
 	 * @param string name of the submenu
 	 * @param string optional path to an icon
 	 */
-	public function begin_submenu($title, $icon) {
+	public function begin_submenu($title, $icon=null) {
 		$this->menu_string .= 'menubar_'.$this->menu_id.'.beginSubmenu("'.htmlspecialchars($title).'"';
 		if(isset($icon)) {
 			$this->menu_string .= ', "'.addslashes($icon).'"';

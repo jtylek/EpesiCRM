@@ -17,7 +17,7 @@ class Utils_FontSize extends Module {
 	/**
 	 * For internal use only.
 	 */
-	public function body($arg) {
+	public function body() {
 		
 		$js = '
 			isDigit = function(num) {

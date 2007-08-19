@@ -25,7 +25,7 @@ class Utils_TabbedBrowser extends Module {
 	 * 
 	 * @param string template file that will be used
 	 */
-	public function body($template) {
+	public function body($template=null) {
 		$theme = & $this->pack_module('Base/Theme');
 		
 		$captions = array();

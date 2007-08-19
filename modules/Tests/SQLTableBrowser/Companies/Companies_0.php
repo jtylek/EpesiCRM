@@ -11,7 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Tests_SQLTableBrowser_Companies extends Module {
 	private $lang;
 
-	public function body($arg) {
+	public function body() {
 		$this->lang = & $this->init_module('Base/Lang');
 		$gb = & $this->init_module('Utils/SQLTableBrowser',null,'browse_sql');
 		$gb->set_table_format(array(	array('label'=>$this->lang->t('Id'), 'width'=>20,'column'=>'id','order'=>1),

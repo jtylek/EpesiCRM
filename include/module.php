@@ -234,7 +234,7 @@ abstract class Module {
 	 * @param mixed default value
 	 * @return mixed value
 	 */
-	public final static function & static_get_module_variable($client_id, $path, $name, $default) {
+	public final static function & static_get_module_variable($client_id, $path, $name, $default=null) {
 		if(isset($default) && !self::static_isset_module_variable($name))
 			$_SESSION['cl'.$client_id]['stable']['__module_vars__'][$path][$name] = & $default;
 		return $_SESSION['cl'.$client_id]['stable']['__module_vars__'][$path][$name];
@@ -299,18 +299,6 @@ abstract class Module {
 	}
 	
 	/**
-	 * Unset module variable.
-	 * For details concerning module variables see set_module_variable. 
-	 * 
-	 * @param integer client id
-	 * @param string module path (returned by get_path() method);
-	 * @param string key
-	 */
-	public final static function static_unset_module_variable($client_id,$path,$name) {
-		unset($_SESSION['cl'.$client_id]['stable']['__module_vars__'][$path][$name]);
-	}
-	
-	/**
 	 * Unset all module variables.
 	 * For details concerning module variables see set_module_variable. 
 	 */
@@ -347,7 +335,7 @@ abstract class Module {
 	 * @param object module object
 	 * @return bool false if module is invalid, true otherwise
 	 */
-	public function share_unique_href_variable($name, & $m, $name2) {
+	public function share_unique_href_variable($name, & $m, $name2=null) {
 		if(!is_a($m, 'Module'))
 			return false;
 				             
@@ -742,7 +730,7 @@ abstract class Module {
 			
 			ob_start();
 	
-			$callbacks = array_reverse($m->get_module_variable('__callbacks__'),true);
+			$callbacks = array_reverse($m->get_module_variable('__callbacks__',array()),true);
 			$skip_display = false;
 			foreach($callbacks as $name=>$c) {
 				$ret = $m->get_module_variable_or_unique_href_variable($name);

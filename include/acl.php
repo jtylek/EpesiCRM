@@ -48,7 +48,7 @@ class Acl {
     	/**
 	 * Set currently logged user
 	 */
-	public static function set_user($a) {
+	public static function set_user($a=null) {
 		if(isset($a))
 			$_SESSION[$_SERVER['PHP_SELF']]['user'] = $a;
 		else

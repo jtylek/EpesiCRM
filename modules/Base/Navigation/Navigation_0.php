@@ -14,7 +14,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_Navigation extends Module {
 	private $lang = null;
 	
-	public function body($arg) {
+	public function body() {
 		global $base;
 		
 		$lang = & $this->init_module('Base/Lang');

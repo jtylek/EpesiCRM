@@ -11,7 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Libs_ScriptAculoUs extends Module {
 	
-	public function body($arg) {
+	public function body() {
 	}
 }
 ?>

@@ -27,34 +27,7 @@ class Base_Lang extends Module {
 		$this->parent_module = $this->get_parent_type();
 	}
 	
-	public function body($arg) {
-/*		global $translations;
-		if(!Acl::check('Administration','Modules') || !Base_MaintenanceModeCommon::get_mode()) return;
-	
-		$original = $this->get_module_variable_or_unique_href_variable('original');
-		
-		if(!isset($original)) return;
-		if($this->is_back()) {
-			$this->unset_module_variable('original');
-			return;
-		}
-			
-		$trans = $translations[$this->parent_module][$original];
-		
-		$form = & $this->init_module('Libs/QuickForm');
-		$form->addElement('header', null, $original);
-		$form->addElement('hidden', 'trans_original', $original);
-		$form->addElement('text','trans_text','Translation');
-		$form->setDefaults(array('trans_text'=>$trans));
-		
-		$ok_b = HTML_QuickForm::createElement('submit', 'submit_button', 'OK');
-		$cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', 'Cancel', $this->create_back_href());
-		$form->addGroup(array($ok_b, $cancel_b));
-		
-		if($form->validate()) {
-			$form->process(array(&$this, 'translate'));
-		} else
-			$form->display();*/
+	public function body() {
 	}
 	
 	/**

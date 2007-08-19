@@ -20,7 +20,7 @@ class Utils_Tooltip extends Module {
 	 * @param string tooltip text
 	 * @param string style
 	 */
-	public function body( $text, $tip, $style ) {
+	public function body( $text, $tip, $style = 'default') {
 		if(isset($tip)) {
 			print $this->create($text, $tip, $style);
 		} else {
@@ -74,13 +74,13 @@ class Utils_Tooltip extends Module {
 	public function open_tag_attrs( $tip, $style = 'default' ) {
 		load_js('modules/Utils/Tooltip/js/Tooltip.js');
 
-		if(Utils_Tooltip::$styles[$style] != 1) {
+		if(!isset(Utils_Tooltip::$styles[$style])) {
 			print "<div id=div_tip_".$style." style='position: absolute; visibility: hidden;'>";
 			$theme = & $this->init_module('Base/Theme');
 			$theme->assign('tip', '<span id="tooltip_text_'.$style.'"></span>');
 				$theme->display($style);
 			print "</div>";
-			Utils_Tooltip::$styles[$style] = 1;
+			Utils_Tooltip::$styles[$style] = true;
 		}
 		
 		return ' onMouseMove="showTip(\''.htmlspecialchars($tip).'\', \''.$style.'\' , event)" onMouseOut="hideTip(\''.$style.'\')"';

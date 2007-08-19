@@ -13,7 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_Mail_ContactUs extends Module {
 
-	public function body($arg) {
+	public function body() {
 		$this->lang = & $this->init_module('Base/Lang');
 		
 		$form = & $this->init_module('Libs/QuickForm','Sending message');
@@ -46,7 +46,7 @@ class Base_Mail_ContactUs extends Module {
 		    $mail = DB::GetOne('SELECT mail FROM user_password WHERE user_login_id=%d',Base_UserCommon::get_my_user_id());
 		else
 		    $mail = $data['mail'];
-		if(!Base_MailCommon::send($to, Acl::get_user().' comment (http'.(($_SERVER['HTTPS'])?'s':'').'://'. $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].')', $data['body'],$mail,Acl::get_user())) {
+		if(!Base_MailCommon::send($to, Acl::get_user().' comment (http'.(isset($_SERVER['HTTPS'])?'s':'').'://'. $_SERVER['HTTP_HOST'].dirname($_SERVER['PHP_SELF']).')', $data['body'],$mail,Acl::get_user())) {
 			print($this->lang->t('Unable to send message. Invalid configuration.'));
 			return false;
 		}

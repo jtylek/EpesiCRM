@@ -72,7 +72,7 @@ function location($u = null,$ret = false) {
 function load_css($u) {
 	global $base;
 	$session = & $base->get_tmp_session();
-	if (is_string($u) && !array_key_exists($u, $session['__loaded_csses__'])) {
+	if (is_string($u) && (!isset($session['__loaded_csses__']) || !array_key_exists($u, $session['__loaded_csses__']))) {
 		$base->js('load_css(\'' . addslashes($u) . '\')');
 		$session['__loaded_csses__'][$u] = 1;
 		return true;
@@ -121,7 +121,7 @@ function eval_js_once($u) {
 	$md5 = md5($u);
 	if (!isset($session['__evaled_jses__'][$md5])) {
 		$base->js($u);
-		$session['__evaled_jses__'][$md5] = 1;
+		$session['__evaled_jses__'][$md5] = true;
 		return true;
 	}
 	return false;

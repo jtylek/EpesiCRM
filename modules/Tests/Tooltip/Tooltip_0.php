@@ -11,7 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Tests_Tooltip extends Module {
 	
-	public function body($arg) {
+	public function body() {
 		print "Tooltip Test<hr>";
 		$this->pack_module('Utils/Tooltip', array('point mouse here', 'tip'));
 		//------------------------------ print out src

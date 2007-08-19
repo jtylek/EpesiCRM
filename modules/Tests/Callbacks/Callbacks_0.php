@@ -11,7 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Tests_Callbacks extends Module {
 
-	public function body($arg) {
+	public function body() {
 		print('<a '.$this->create_callback_href(array($this,'instead')).'>Instead</a> :: ');
 		print('<a '.$this->create_callback_href(array($this,'before')).'>Before</a> :: ');
 		print('<a '.$this->create_callback_href(array($this,'src')).'>Source of this example</a> :: ');

@@ -11,7 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Tests_Search extends Module {
 	
-	public function body($arg) {
+	public function body() {
 	}
 	
 	public static function menu() {

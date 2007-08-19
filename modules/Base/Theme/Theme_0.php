@@ -108,7 +108,7 @@ class Base_Theme extends Module {
 	 * @param string name of theme file to use (without extension)
 	 * @param bool if set to true, module name will not be added to the filename and you should then pass a result of get_module_file_name() function as filename
 	 */
-	public function display($user_template,$fullname=false) {
+	public function display($user_template=null,$fullname=false) {
 		$this->smarty->assign('__link', $this->links);
 		
 		$module_name = $this->parent->get_type();

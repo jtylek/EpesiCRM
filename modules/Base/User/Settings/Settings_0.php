@@ -17,7 +17,7 @@ class Base_User_Settings extends Module {
 	private $set_default_js;
 	private static $sep = "__";
 
-	public function body($arg) {
+	public function body() {
 		global $base;
 		$this->lang = & $this->init_module('Base/Lang');
 		if (isset($_REQUEST['module'])) $module = $_REQUEST['module']; 

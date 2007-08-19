@@ -291,6 +291,7 @@ class Utils_GenericBrowser extends Module {
 		$ch_order = $this->get_unique_href_variable('change_order');
 		if ($ch_order) $this->change_order($ch_order);
 		$order = $this->get_module_variable('order');
+		if(!is_array($order)) return '';
 		ksort($order);
 		$sql = '';
 		$ohd = '';
@@ -534,7 +535,7 @@ class Utils_GenericBrowser extends Module {
 	 * @param string template file that should be used to display the table, use Base_ThemeCommon::get_template_file_name() for proper filename
 	 * @param bool enabling paging, true by default
 	 */
-	public function body($template,$paging=true){
+	public function body($template=null,$paging=true){
 		$this->set_module_variable('first_display','done');
 		if (!$this->lang) $this->lang = & $this->init_module('Base/Lang');
 		$theme = & $this->init_module('Base/Theme');
@@ -559,15 +560,15 @@ class Utils_GenericBrowser extends Module {
 		$search_on=false;
 		if(!$this->is_adv_search_on()) {
 			foreach($this->columns as $k=>$v)
-				if ($v['search']) {
+				if (isset($v['search'])) {
 					$form->addElement('text','search',$this->lang->ht('Keyword'), array('onfocus'=>'if (this.value=="'.$this->lang->ht('search keyword').'") this.value="";','onblur'=>'if (this.value=="") this.value="'.$this->lang->ht('search keyword').'";'));
-					$form->setDefaults(array('search'=>$search['__keyword__']?$search['__keyword__']:$this->lang->ht('search keyword')));
+					$form->setDefaults(array('search'=>isset($search['__keyword__'])?$search['__keyword__']:$this->lang->ht('search keyword')));
 					$search_on=true;
 					break;
 				}
 		} else {
 			foreach($this->columns as $k=>$v)
-				if ($v['search']) {
+				if (isset($v['search'])) {
 					$form->addElement('text','search__'.$v['search'],'',array('onfocus'=>'if (this.value=="'.$this->lang->ht('search keyword').'") this.value="";','onblur'=>'if (this.value=="") this.value="'.$this->lang->ht('search keyword').'";'));
 					$form->setDefaults(array('search__'.$v['search']=>$search[$v['search']]?$search[$v['search']]:$this->lang->ht('search keyword')));
 					$search_on=true;

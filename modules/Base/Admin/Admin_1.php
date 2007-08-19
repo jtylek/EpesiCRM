@@ -20,7 +20,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  */
 class Base_Admin extends Module {
 		
-	public function body($arg) {
+	public function body() {
 		$module = $this->get_module_variable_or_unique_href_variable('href');
 
 		if(isset($_REQUEST['admin_href'])) {
@@ -91,7 +91,9 @@ class Base_Admin extends Module {
 	
 	public function caption() {
 		$module = $this->get_module_variable('href');
-		$caption = call_user_func(array($module.'Common','admin_caption'));
+		$func = array($module.'Common','admin_caption');
+		if(!is_callable($func)) return;
+		$caption = call_user_func($func);
 		if($caption) return "Administration: ".$caption;
 		return "Administration";
 	}

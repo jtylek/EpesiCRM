@@ -48,7 +48,7 @@ class Utils_Wizard extends Module {
 	 * @param string alias for the page
 	 * @return object QuickForm object
 	 */
-	public function begin_page($name) {
+	public function begin_page($name=null) {
 		$args = func_get_args();
 		array_shift($args);
 		$this->form[$this->counter] = & $this->init_module('Libs/QuickForm',$args,$this->counter);
