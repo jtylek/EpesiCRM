@@ -394,11 +394,11 @@ class Utils_GenericBrowser extends Module {
 
 		if(!$this->is_adv_search_on()) {
 			foreach($this->columns as $k=>$v){
-				if ($v['search'] && $search['__keyword__']) $where .= ($where?' OR':'').' '.$v['search'].' LIKE '.DB::Concat('\'%\'',sprintf('%s',DB::qstr($search['__keyword__'])),'\'%\'');
+				if (isset($v['search']) && isset($search['__keyword__'])) $where .= ($where?' OR':'').' '.$v['search'].' LIKE '.DB::Concat('\'%\'',sprintf('%s',DB::qstr($search['__keyword__'])),'\'%\'');
 			}
 		} else {
 			foreach($this->columns as $k=>$v){
-				if ($v['search'] && $search[$v['search']]) $where .= ($where?' AND':'').' '.$v['search'].' LIKE '.DB::Concat('\'%\'',sprintf('%s',DB::qstr($search[$v['search']])),'\'%\'');
+				if (isset($v['search']) && isset($search[$v['search']])) $where .= ($where?' AND':'').' '.$v['search'].' LIKE '.DB::Concat('\'%\'',sprintf('%s',DB::qstr($search[$v['search']])),'\'%\'');
 			}
 		}
  		if (isset($quickjump) && $quickjump_to!='')

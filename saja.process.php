@@ -43,7 +43,7 @@ if(!$errors){
 	
 	//file_put_contents('grr.txt',file_get_contents('grr.txt')."\n".$request_id.' in '.implode(', ',array_keys($_SESSION['SAJA_PROCESS']['REQUESTS'])).' for '.$req."\n");
 	//validate this request
-	if(!is_array($_SESSION['SAJA_PROCESS']['REQUESTS']))
+	if(!isset($_SESSION['SAJA_PROCESS']['REQUESTS']) || !is_array($_SESSION['SAJA_PROCESS']['REQUESTS']))
 		$errors .=  'Session expired.';
 	else if(!array_key_exists($request_id, $_SESSION['SAJA_PROCESS']['REQUESTS']))
 		$errors .= 'Invalid Request.';
@@ -87,7 +87,7 @@ if(!$errors) {
 		echo $base->send();
 } else {
 	$s = new Saja();
-	if($_SESSION['__last_error__']!==$errors) {
+	if(!isset($_SESSION['__last_error__']) || $_SESSION['__last_error__']!==$errors) {
 		$s->alert($errors);
 		$s->redirect('index.php');
 		$_SESSION['__last_error__']=$errors;

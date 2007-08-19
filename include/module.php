@@ -299,7 +299,7 @@ abstract class Module {
 	 * @param object module object
 	 * @return bool false if module is invalid, true otherwise
 	 */
-	public final function share_module_variable($name, & $m, $name2) {
+	public final function share_module_variable($name, & $m, $name2=null) {
 		if(!is_a($m, 'Module'))
 			return false;
 		

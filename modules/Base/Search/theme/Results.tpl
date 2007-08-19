@@ -1,3 +1,4 @@
+{if isset($links)}
 <table id="Base_Search__Results" cellspacing="0" cellpadding="0" border="0">
 	<tr>
 		<td class="header">{$header}</td>
@@ -9,3 +10,4 @@
 	</tr>
 	{/foreach}
 </table>
+{/if}
