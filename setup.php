@@ -178,7 +178,7 @@ define("DISPLAY_ERRORS",1);
 /*
  * Notify all errors, including E_NOTICE, etc. Developer should use it!
  */
-define("NOTIFY_ALL_ERRORS",0);
+define("REPORT_ALL_ERRORS",1);
 ?>');
 	fclose($c);
 

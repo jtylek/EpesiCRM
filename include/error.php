@@ -48,7 +48,7 @@ class ErrorHandler {
 				return false;
 			}
 
-			if(NOTIFY_ALL_ERRORS)
+			if(REPORT_ALL_ERRORS)
 				$breakLevel = E_ALL;
 			else
 				$breakLevel = E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR;

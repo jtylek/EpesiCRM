@@ -188,7 +188,11 @@ class ModuleManager {
 				continue;
 
 			self::include_install($module);
-			$version_ret = call_user_func(array($module.'Install','version'));
+			$version_f = array($module.'Install','version');
+			if(is_callable($version_f))
+				$version_ret = call_user_func($version_f);
+			else
+				$version_ret = 0;
 			$version_arr = array();
 			if(is_array($version_ret)) {
 				$version_arr = $version_ret;

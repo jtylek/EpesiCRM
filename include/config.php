@@ -24,5 +24,5 @@ if(!defined('SQL_TYPE_CONTROL')) define("SQL_TYPE_CONTROL",0);
 if(!defined('SECURE_HTTP')) define("SECURE_HTTP",0);
 if(!defined('STRIP_OUTPUT')) define("STRIP_OUTPUT",0);
 if(!defined('DISPLAY_ERRORS')) define("DISPLAY_ERRORS",0);
-if(!defined('NOTIFY_ALL_ERRORS')) define("NOTIFY_ALL_ERRORS",0);
+if(!defined('REPORT_ALL_ERRORS')) define("REPORT_ALL_ERRORS",0);
 ?>
