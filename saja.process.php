@@ -49,7 +49,6 @@ if(!$errors){
 		$errors .= 'Invalid Request.';
 }
 
-//require_once "saja/saja.php";
 
 //start capturing the response
 ob_start(array('ErrorHandler','handle_fatal'));
