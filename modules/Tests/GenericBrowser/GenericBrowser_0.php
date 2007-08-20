@@ -36,8 +36,8 @@ class Tests_GenericBrowser extends Module {
  		$m->add_row('search');
  		$m->add_row('search keyword');
  		$m->add_row('ttttesst');
- 		$m->add_row('xxx');
- 		$this->display_module($m);
+ 		$m->add_row('xxxy');
+ 		$this->display_module($m,array(true),'automatic_display');
 
 		//------------------------------ print out src
 		print('<hr><b>Install</b><br>');

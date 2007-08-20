@@ -423,6 +423,7 @@ class Utils_GenericBrowser extends Module {
 	private function check_if_row_fits_array($row,$adv){
 		$search = $this->get_module_variable('search');
 		if (!$adv){
+			if (!isset($search['__keyword__'])) return true;
 			$ret = true;
 			foreach($this->columns as $k=>$v){
 				if ($v['search'] && $search['__keyword__']) {
