@@ -46,7 +46,8 @@ class Base_Backup extends Module {
 		$form = & $this->init_module('Libs/QuickForm');
 		$mods = array();
 		foreach(ModuleManager::$modules as $m=>$v) {
-			if ($v['name']!=$m || !is_callable(array($m.'Init_'.$v['version'],'backup'))) continue;
+			ModuleManager::include_install($m);
+			if ($v['name']!=$m || !is_callable(array($m.'Install','backup',$v['version']))) continue;
 			$mods[] = $m;
 		}
 		asort($mods);
@@ -72,19 +73,20 @@ class Base_Backup extends Module {
 
 		$tree = & $this->init_module('Utils/Tree');		
 		$tree->set_structure($structure);
+		//$tree->set_inline_display(true);
 		$theme->assign('tree',$this->get_html_of_module($tree));
 		
 		$form->addElement('submit', 'create_backup', $this->lang->ht('Create backup'));		
 		if($form->validate()) {
 			if($form->process(array($this,'submit_backup')))
 				location(array());
-		} else {
-			$form->assign_theme('form',$theme);
 		}
+		$form->assign_theme('form',$theme);
 		$theme->display();
 	}
 	
 	public function submit_backup($data) {
+		if(!isset($data['backup'])) return true;
 		$bacs = $data['backup'];
 		$ret = true;
 		foreach($bacs as $k=>$v) {

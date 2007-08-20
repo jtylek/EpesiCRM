@@ -35,5 +35,9 @@ class Base_UserInstall extends ModuleInstall {
 		return array(
 			array('name'=>'Base/Acl','version'=>0));
 	}
+	
+	public static function backup($v) {
+		return array('user_login');
+	}
 }
 ?>
