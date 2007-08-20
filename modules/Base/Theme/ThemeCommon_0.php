@@ -22,8 +22,9 @@ class Base_ThemeCommon {
 	 * @param string module name
 	 * @param string directory in which default theme data for the module is hold (path relative to specified module)
 	 */
-	public static function install_default_theme($mod_name,$theme_dir='theme') {
-		$directory = 'modules/'.str_replace('_','/',$mod_name).'/'.$theme_dir;
+	public static function install_default_theme($mod_name,$version=0) {
+		$directory = 'modules/'.str_replace('_','/',$mod_name).'/theme_'.$version;
+		if (!is_dir($directory)) $directory = 'modules/'.str_replace('_','/',$mod_name).'/theme';
 		$mod_name = str_replace('/','_',$mod_name);
 		$data_dir = 'data/Base_Theme/templates/default/';
 		$content = scandir($directory);
