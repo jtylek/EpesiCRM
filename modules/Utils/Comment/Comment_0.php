@@ -36,7 +36,8 @@ class Utils_Comment extends Module{
 	/**
 	 * Displays Comments.
 	 */
-	public function body(){		
+	public function body(){
+		if (!Base_AclCommon::i_am_user()) $this->reply=false;
 		$action = $this->get_module_variable_or_unique_href_variable('action');
 		if ($action) {
 			$this->$action();
@@ -69,7 +70,7 @@ class Utils_Comment extends Module{
 				}
 				$form -> addElement('textarea','comment_page_reply',$this->lang->t('Message'),array('rows'=>4,'cols'=>40));//,'onBlur'=>'document.getElementsByName(\'comment_content\')[0].value = document.getElementsByName(\'comment_page_reply\')[0].value.replace(/\n/g,\'<br>\');'));
 				$form -> addElement('submit','submit_comment','Submit');
-				if ($form->validate() && Base_AclCommon::i_am_user() && $this->reply){
+				if ($form->validate() && $this->reply){
 					$this->add_post($form->exportValue('comment_page_reply'),$answer);
 					$this->unset_module_variable('answer');
 					$answer = -1;
@@ -250,7 +251,7 @@ class Utils_Comment extends Module{
 		$form -> addRule('comment_page_reply',$this->lang->t('Field required'),'required');
 		$form -> addElement('submit','submit_comment','Submit');
 		$form -> addElement('button','cancel_comment','Cancel',$this->create_back_href());
-		if ($form->validate() && Base_AclCommon::i_am_user() && $this->reply){
+		if ($form->validate() && $this->reply){
 			$this->add_post($form->exportValue('comment_page_reply'),$answer);
 			$this->unset_module_variable('answer');
 			$this->unset_module_variable('action');
