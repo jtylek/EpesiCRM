@@ -22,7 +22,8 @@ function themeup(){
 	}	
 	$ret = DB::Execute('SELECT * FROM modules');
 	while($row = $ret->FetchRow()) {
-		$directory = 'modules/'.str_replace('_','/',$row[0]).'/theme';
+		$directory = 'modules/'.str_replace('_','/',$row[0]).'/theme_'.$row['version'];
+		if (!is_dir($directory)) $directory = 'modules/'.str_replace('_','/',$row[0]).'/theme';
 		$mod_name = $row[0];
 		$data_dir = 'data/Base_Theme/templates/default/';
 		if (!is_dir($directory)) continue;
