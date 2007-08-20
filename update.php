@@ -45,10 +45,11 @@ function mod_cmp($a, $b){
 }
 function update_from_0_8_11_to_0_9_0() {
 	DB::Execute('UPDATE modules SET version=0 WHERE name=\'Base_Admin\'');
-	recursive_copy('data',sys_get_temp_dir().'data_old');
-	unlink(sys_get_temp_dir().'data_old/config.php');
-	recursive_copy('data',sys_get_temp_dir().'data_tmp');
-	unlink(sys_get_temp_dir().'data_tmp/config.php');
+	$tmp_dir = rtrim(sys_get_temp_dir(),'\\/');
+	recursive_copy('data',$tmp_dir.'data_old');
+	unlink($tmp_dir.'data_old/config.php');
+	recursive_copy('data',$tmp_dir.'data_tmp');
+	unlink($tmp_dir.'data_tmp/config.php');
 	$content = scandir('data/');
 	foreach($content as $name) {
 		if($name == '.' || $name == '..' || $name == 'config.php') continue;
@@ -58,10 +59,10 @@ function update_from_0_8_11_to_0_9_0() {
 	usort($mod,'mod_cmp');
 	foreach($mod as $row) {
 		$name = str_replace('_','/',$row['name']);
-		recursive_copy(sys_get_temp_dir().'data_tmp/'.$name,'data/'.$row['name']);
-		recursive_rmdir(sys_get_temp_dir().'data_tmp/'.$name);
+		recursive_copy($tmp_dir.'data_tmp/'.$name,'data/'.$row['name']);
+		recursive_rmdir($tmp_dir.'data_tmp/'.$name);
 	}
-	recursive_rmdir(sys_get_temp_dir().'data_tmp');
+	recursive_rmdir($tmp_dir.'data_tmp');
 	themeup();
 }
 /****************** 0.8.6 to 0.8.7 **********************/
