@@ -1699,7 +1699,7 @@ private function FTable_row($row,$w){
 			if ($length>$wmax[$i]) {
 				$cut_to = $l;
 				while ($row[$i]['value']{$cut_to}!=' ' && $cut_to>$last_cut) {
-					$length -= $cw[$row[$i]['value']{$$cut_to}];
+					$length -= $cw[$row[$i]['value']{$cut_to}];
 					$cut_to--;
 				}
 				if ($cut_to==$last_cut) $cut_to = $l-2;
@@ -1724,25 +1724,27 @@ private function FTable_row($row,$w){
 			$wmax = ($w[$i]-2*$this->cMargin)*1000/$this->FontSize;
 //			print('GET: $line['.$i.']['.$j.']='.$line[$i][$j].'<br>');
 			$style = '';
-			if ($row[$i]['bold']) $style .= 'B';
-			if ($row[$i]['italic']) $style .= 'I';
-			if ($row[$i]['underline']) $style .= 'U';
-			if ($row[$i]['align']=='left') $align='L';
-			elseif ($row[$i]['align']=='right') $align='R';
-			elseif ($row[$i]['align']=='justify') {
-				$align='C';
-//				print('BEFORE:'.$line[$i][$j].'.<br>');
-				$line[$i][$j] = preg_replace('/^\s+(.*)$/','\\1',$line[$i][$j]);
-				$line[$i][$j] = preg_replace('/^(.*)\s+$/','\\1',$line[$i][$j]);
-//				print('AFTER:'.$line[$i][$j].'.<br><br>');
-				$spaces = preg_match_all('/\s/',$line[$i][$j],$spam);
-				$space = ' ';
-				$length = 0;
-				for ($l=0;$l<strlen($line[$i][$j]);$l++)
-					$length += $cw[$line[$i][$j]{$l}];
-				for ($o=0;$o<($wmax-$length)/$cw[' ']/$spaces;$o++) $space .= ' ';
-				$line[$i][$j] = preg_replace('/\s/',$space,$line[$i][$j]);
-//				eval_js('alert("'.$line[$i][$j].'")');
+			if (isset($row[$i]['bold'])) $style .= 'B';
+			if (isset($row[$i]['italic'])) $style .= 'I';
+			if (isset($row[$i]['underline'])) $style .= 'U';
+			if (isset($row[$i]['align'])) {
+				if ($row[$i]['align']=='left') $align='L';
+				elseif ($row[$i]['align']=='right') $align='R';
+				elseif ($row[$i]['align']=='justify') {
+					$align='C';
+	//				print('BEFORE:'.$line[$i][$j].'.<br>');
+					$line[$i][$j] = preg_replace('/^\s+(.*)$/','\\1',$line[$i][$j]);
+					$line[$i][$j] = preg_replace('/^(.*)\s+$/','\\1',$line[$i][$j]);
+	//				print('AFTER:'.$line[$i][$j].'.<br><br>');
+					$spaces = preg_match_all('/\s/',$line[$i][$j],$spam);
+					$space = ' ';
+					$length = 0;
+					for ($l=0;$l<strlen($line[$i][$j]);$l++)
+						$length += $cw[$line[$i][$j]{$l}];
+					for ($o=0;$o<($wmax-$length)/$cw[' ']/$spaces;$o++) $space .= ' ';
+					$line[$i][$j] = preg_replace('/\s/',$space,$line[$i][$j]);
+//					eval_js('alert("'.$line[$i][$j].'")');
+				}
 			} else $align='C';
 			$this->SetFont('',$style);
 			if ($j==0) {
