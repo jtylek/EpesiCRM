@@ -47,7 +47,7 @@ class Base_Backup extends Module {
 		$mods = array();
 		foreach(ModuleManager::$modules as $m=>$v) {
 			ModuleManager::include_install($m);
-			if ($v['name']!=$m || !is_callable(array($m.'Install','backup',$v['version']))) continue;
+			if ($v['name']!=$m || !is_callable(array($m.'Install','backup'))) continue;
 			$mods[] = $m;
 		}
 		asort($mods);

@@ -17,7 +17,7 @@ class Tests_SearchInstall extends ModuleInstall {
 	public static function uninstall() {
 		return true;
 	}
-	public static function requires_0() {
+	public static function requires($v) {
 		return array(
 			array('name'=>'Base/Search','version'=>0));
 	}

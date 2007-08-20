@@ -23,7 +23,7 @@ class Base_Lang_AdministratorInstall extends ModuleInstall {
 	public static function uninstall() {
 		return Variable::delete('allow_lang_change');
 	}
-	public static function requires_0() {
+	public static function requires($v) {
 		return array(
 			array('name'=>'Base/Admin','version'=>0), 
 			array('name'=>'Base/Acl','version'=>0), 

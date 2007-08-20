@@ -52,7 +52,7 @@ class Base_ThemeInstall extends ModuleInstall {
 				copy($path,'data/Base_Theme/templates/default/'.$f.'/'.$name);
 		}
 	}
-	public static function requires_0() {
+	public static function requires($v) {
 		return array();
 	}
 }

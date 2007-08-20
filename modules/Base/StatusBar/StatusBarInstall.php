@@ -25,7 +25,7 @@ class Base_StatusBarInstall extends ModuleInstall {
 	public static function version() {
 		return array('1.0.0');
 	}
-	public static function requires_0() {
+	public static function requires($v) {
 		return array(array('name'=>'Libs/ScriptAculoUs','version'=>0));
 	}
 }

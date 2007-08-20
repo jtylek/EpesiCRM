@@ -35,7 +35,9 @@ abstract class ModuleInstall {
 	 * 
 	 * @return array Array constructed as following: array(array('name'=>$ModuleName,'version'=>$ModuleVersion),...)  
 	 */
-//	abstract public static function requires();
+	abstract public static function requires($v);
+
+//	abstract public static function backup($v);
 }
 
 /**

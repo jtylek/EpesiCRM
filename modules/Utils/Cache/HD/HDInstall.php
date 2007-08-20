@@ -25,7 +25,7 @@ class Utils_Cache_HDInstall extends ModuleInstall {
 	public static function uninstall() {
 		return true;
 	}
-	public static function requires_0() {
+	public static function requires($v) {
 		return array(array('name'=>'Utils/Cache/Base','version'=>0));
 	}
 }

@@ -35,7 +35,7 @@ class BaseInstall extends ModuleInstall {
 		return array('0.9.9');
 	}
 
-	public static function requires_0() {
+	public static function requires($v) {
 		return array(
 		    array('name'=>'Base/Admin','version'=>0),
 		    array('name'=>'Base/ActionBar','version'=>0),

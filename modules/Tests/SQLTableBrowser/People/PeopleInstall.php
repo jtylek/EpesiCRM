@@ -30,7 +30,7 @@ class Tests_SQLTableBrowser_PeopleInstall extends ModuleInstall {
 		$ret &= DB::DropTable('People');
 		return $ret;
 	}
-	public static function requires_0() {
+	public static function requires($v) {
 		return array(array('name'=>'Utils/SQLTableBrowser','version'=>0));
 	}
 }

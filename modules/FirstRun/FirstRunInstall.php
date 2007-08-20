@@ -23,7 +23,7 @@ class FirstRunInstall extends ModuleInstall {
 		return array("1.0");
 	}
 	
-	public static function requires_0() {
+	public static function requires($v) {
 		return array(
 			array('name'=>'Utils/Wizard','version'=>0),
 			array('name'=>'Base/Lang','version'=>0));

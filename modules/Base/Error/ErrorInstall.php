@@ -24,7 +24,7 @@ class Base_ErrorInstall extends ModuleInstall {
 		return array('1.0.0');
 	}
 
-	public static function requires_0() {
+	public static function requires($v) {
 		return array(
 			array('name'=>'Base/Mail', 'version'=>0));
 	}

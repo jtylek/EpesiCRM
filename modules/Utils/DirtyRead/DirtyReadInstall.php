@@ -25,7 +25,7 @@ class Utils_DirtyReadInstall extends ModuleInstall {
 	public static function version() {
 		return array('0.9.6');
 	}
-	public static function requires_0() {
+	public static function requires($v) {
 		return array(array('name'=>'Base/Lang','version'=>0));
 	}
 }

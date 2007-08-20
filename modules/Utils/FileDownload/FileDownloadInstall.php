@@ -39,7 +39,7 @@ class Utils_FileDownloadInstall extends ModuleInstall {
 		return array("0.1");
 	}
 	
-	public static function requires_0() {
+	public static function requires($v) {
 		return array(
 			array('name'=>'Base/Lang','version'=>0));
 	}

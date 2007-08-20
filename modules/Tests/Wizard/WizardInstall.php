@@ -17,7 +17,7 @@ class Tests_WizardInstall extends ModuleInstall {
 	public static function uninstall() {
 		return true;
 	}
-	public static function requires_0() {
+	public static function requires($v) {
 		return array(array('name'=>'Utils/CatFile','version'=>0),
 			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'Utils/Wizard','version'=>0)

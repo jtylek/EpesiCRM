@@ -19,7 +19,7 @@ class Utils_BookmarkBrowserInstall extends ModuleInstall {
 		Base_ThemeCommon::uninstall_default_theme('Utils/BookmarkBrowser');
 		return true;
 	}
-	public static function requires_0() {
+	public static function requires($v) {
 		return array(array('name'=>'Base/Theme','version'=>0));
 	}
 }

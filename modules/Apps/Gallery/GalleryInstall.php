@@ -37,7 +37,7 @@ class Apps_GalleryInstall extends ModuleInstall {
 		return array('0.8.6');
 	}
 	
-	public static function requires_0() {
+	public static function requires($v) {
 		return array(
 			array('name'=>'Utils/TabbedBrowser', 'version'=>0), 
 			array('name'=>'Utils/Path', 'version'=>0), 

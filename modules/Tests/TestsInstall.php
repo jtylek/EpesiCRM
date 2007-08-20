@@ -31,7 +31,7 @@ class TestsInstall extends ModuleInstall {
 	public static function version() {
 		return array('0.9.9');
 	}
-	public static function requires_0() {
+	public static function requires($v) {
 		return array(
 		    array('name'=>'Tests/BookmarkBrowser','version'=>0),
 		    array('name'=>'Tests/Callbacks','version'=>0),

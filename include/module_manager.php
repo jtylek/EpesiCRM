@@ -133,10 +133,10 @@ class ModuleManager {
 		
 		$func = array (
 			$module_to_check . 'Install',
-			'requires_'.$version
+			'requires'
 		);
 		if(!is_callable($func)) return array();
-		$req_mod = call_user_func($func);
+		$req_mod = call_user_func($func,$version);
 		
 		$ret = array();
 
@@ -359,10 +359,10 @@ class ModuleManager {
 			
 			$func = array (
 				$k . 'Install',
-				'requires_'.$k_version
+				'requires_'
 			);
 			if(!is_callable($func)) continue;
-			$req_mod = call_user_func($func);
+			$req_mod = call_user_func($func,$k_version);
 
 			foreach($req_mod as $req)
 				if($req['name']==$module && $req['version']>$to_version) {
@@ -519,7 +519,8 @@ class ModuleManager {
 			print('Module '.$module.' not installed.<br>');
 			return false;
 		}
-		if(!is_callable(array($module.'Install','backup',$version))) {
+		self::include_install($module);
+		if(!is_callable(array($module.'Install','backup'))) {
 			print('Module '.$module.' doesn\'t support restore.<br>');
 			return false;
 		}
@@ -533,13 +534,13 @@ class ModuleManager {
 		
 		if($delete_old_data)
 			self::remove_data_dir($module);
-		self::restore_files('backup/'.$pkg_name.'/data/','data/'.$module.'/');
+		recursive_copy('backup/'.$pkg_name.'/data/','data/'.$module.'/');
 		
 		//restore tables
 		$backup_tables = call_user_func(array (
 				$module . 'Install',
-				'backup',$version
-			));
+				'backup'
+			),$version);
 		
 		$ado = & DB::$ado;
 		$ado->StartTrans();
@@ -567,20 +568,6 @@ class ModuleManager {
 		return true;
 	}
 	
-	private static final function restore_files($src, $dest) {
-		$content = scandir($src);
-		mkdir($dest);
-		foreach ($content as $name){
-			if($name == '.' || $name == '..') continue;
-			$tmp_src = $src.$name;
-			$tmp_dest = $dest.$name;
-			if (is_dir($tmp_src)) {
-				if (self::is_installed(substr($tmp_dest,5))==-1)
-					self::backup_files($tmp_src.'/',$tmp_dest.'/');
-			} else copy($tmp_src, $tmp_dest);
-		}		
-	}
-	
 	/**
 	 * Creates module backup point.
 	 * 
@@ -594,7 +581,8 @@ class ModuleManager {
 			print('Module '.$module.' not installed.<br>');
 			return false;
 		}
-		if(!is_callable(array($module.'Install','backup',$installed_version))) {
+		self::include_install($module);
+		if(!is_callable(array($module.'Install','backup'))) {
 			print('Module '.$module.' doesn\'t support backup.<br>');
 			return false;
 		}
@@ -610,15 +598,15 @@ class ModuleManager {
 		mkdir('backup/'.$pkg_name);
 		
 		//backup data
-		$src = 'data/'.self::get_module_dir_path($module).'/';
+		$src = 'data/'.$module.'/';
 		$dest = 'backup/'.$pkg_name.'/data/';
-		self::backup_files($src,$dest);
+		recursive_copy($src,$dest);
 		
 		//backup tables
 		$backup_tables = call_user_func(array (
 				$module . 'Install',
-				'backup',$installed_version
-			));
+				'backup'
+			),$installed_version);
 		
 		mkdir('backup/'.$pkg_name.'/sql');
 		foreach($backup_tables as $table) {
@@ -634,20 +622,6 @@ class ModuleManager {
 		}
 		
 		return true;
-	}
-	
-	private static final function backup_files($src, $dest) {
-		$content = scandir($src);
-		mkdir($dest);
-		foreach ($content as $name){
-			if($name == '.' || $name == '..') continue;
-			$tmp_src = $src.$name;
-			$tmp_dest = $dest.$name;
-			if (is_dir($tmp_src)) {
-				if (self::is_installed(substr($tmp_src,5))==-1)
-					self::backup_files($tmp_src.'/',$tmp_dest.'/');
-			} else copy($tmp_src, $tmp_dest);
-		}
 	}
 	
 	/**

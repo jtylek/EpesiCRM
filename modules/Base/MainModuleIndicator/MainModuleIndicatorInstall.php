@@ -33,7 +33,7 @@ class Base_MainModuleIndicatorInstall extends ModuleInstall {
 	public static function version() {
 		return array('1.0.0');
 	}
-	public static function requires_0() {
+	public static function requires($v) {
 		return array(
 			array('name'=>'Base/Box', 'version'=>0),
 			array('name'=>'Base/Admin', 'version'=>0),

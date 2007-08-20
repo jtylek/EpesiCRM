@@ -22,7 +22,7 @@ class Utils_GalleryInstall extends ModuleInstall {
 	public static function version() {
 		return array('1.0.0');
 	}
-	public static function requires_0() {
+	public static function requires($v) {
 		return array(
 			array('name'=>'Libs/Lytebox', 'version'=>0),
 			array('name'=>'Utils/Image', 'version'=>0)

@@ -38,7 +38,7 @@ class Apps_ShoutboxInstall extends ModuleInstall {
 		return true;
 	}
 	
-	public static function requires_0() {
+	public static function requires($v) {
 		return array(
 			array('name'=>'Base/Acl','version'=>0),
 			array('name'=>'Base/User','version'=>0),

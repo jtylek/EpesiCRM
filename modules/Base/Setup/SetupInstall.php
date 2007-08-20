@@ -39,7 +39,7 @@ class Base_SetupInstall extends ModuleInstall {
 	public static function uninstall() {
 		return (DB::DropTable('available_modules') && Variable::delete('anonymous_setup') && Variable::delete('simple_setup'));
 	}
-	public static function requires_0() {
+	public static function requires($v) {
 		return array (
 			array('name'=>'Base/Theme','version'=>0),
 			array('name'=>'Libs/QuickForm','version'=>0),

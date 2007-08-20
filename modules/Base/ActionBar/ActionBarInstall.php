@@ -29,7 +29,7 @@ class Base_ActionBarInstall extends ModuleInstall {
 		return array("0.9.9");
 	}
 
-	public static function requires_0() {
+	public static function requires($v) {
 		return array(
 			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'Base/User/Settings','version'=>0));

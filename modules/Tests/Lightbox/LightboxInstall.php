@@ -17,7 +17,7 @@ class Tests_LightboxInstall extends ModuleInstall{
 	public static function uninstall() {
 		return true;
 	}
-	public static function requires_0() {
+	public static function requires($v) {
 		return array(array('name'=>'Utils/CatFile','version'=>0),
 			array('name'=>'Libs/Leightbox','version'=>0),
 			array('name'=>'Libs/Lytebox','version'=>0));

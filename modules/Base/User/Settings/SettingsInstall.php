@@ -43,7 +43,7 @@ class Base_User_SettingsInstall extends ModuleInstall {
 		return array("1.0");
 	}
 
-	public static function requires_0() {
+	public static function requires($v) {
 		return array(
 			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'Libs/QuickForm','version'=>0), 

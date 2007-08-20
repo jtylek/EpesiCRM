@@ -31,7 +31,7 @@ class Base_HomePageInstall extends ModuleInstall {
 		return array('0.8.9');
 	}
 
-	public static function requires_0() {
+	public static function requires($v) {
 		return array(array('name'=>'Base/Box','version'=>0), 
 			array('name'=>'Base/Lang', 'version'=>0),
 			array('name'=>'Base/User', 'version'=>0),

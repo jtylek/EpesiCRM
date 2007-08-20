@@ -40,7 +40,7 @@ class Utils_CommonDataInstall extends ModuleInstall {
 		$ret &= DB::DropTable('utils_commondata_data');
 		return $ret;
 	}
-	public static function requires_0() {
+	public static function requires($v) {
 		return array(
 			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'Base/Acl','version'=>0),

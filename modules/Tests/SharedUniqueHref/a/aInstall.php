@@ -17,7 +17,7 @@ class Tests_SharedUniqueHref_aInstall extends ModuleInstall {
 	public static function uninstall() {
 		return true;
 	}
-	public static function requires_0() {
+	public static function requires($v) {
 		return array();
 	}
 }

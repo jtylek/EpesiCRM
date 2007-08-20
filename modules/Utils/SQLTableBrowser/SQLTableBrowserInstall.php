@@ -23,7 +23,7 @@ class Utils_SQLTableBrowserInstall extends ModuleInstall {
 	public static function version() {
 		return array('0.8.0');
 	}
-	public static function requires_0() {
+	public static function requires($v) {
 		return array(
 			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'Base/Theme','version'=>0),

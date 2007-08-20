@@ -36,7 +36,7 @@ class Utils_CommentInstall extends ModuleInstall{
 	public static function version() {
 		return array('1.0.0');
 	}
-	public static function requires_0() {
+	public static function requires($v) {
 		return array(
 			array('name'=>'Base/Theme','version'=>0),
 			array('name'=>'Base/User','version'=>0));
