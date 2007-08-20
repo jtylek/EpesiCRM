@@ -27,7 +27,6 @@ class Tests_GenericBrowser extends Module {
 
  		$m = & $this->init_module('Utils/GenericBrowser',null,'t2');
  		$m->set_table_columns(array(array('name'=>'xxx','search'=>1)));
-		$m->get_limit(9);
  		$m->add_row('xxx');
  		$m->add_row('sdasf');
  		$m->add_row('wwww');
