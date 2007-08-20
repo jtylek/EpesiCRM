@@ -26,7 +26,7 @@ require_once(SMARTY_DIR.'Smarty.class.php');
 class Base_Theme extends Module {
 	private static $theme;
 	private static $loaded_csses;
-	private static $themes_dir = 'data/Base/Theme/templates/';
+	private static $themes_dir = 'data/Base_Theme/templates/';
 	public $links = array();
 	private $smarty = null;
 	private $lang;
@@ -46,10 +46,10 @@ class Base_Theme extends Module {
 		}
 				
 		$this->smarty->template_dir = self::$themes_dir.self::$theme;
-		$this->smarty->compile_dir = 'data/Base/Theme/compiled/';
+		$this->smarty->compile_dir = 'data/Base_Theme/compiled/';
 		$this->smarty->compile_id = self::$theme;
-		$this->smarty->config_dir = 'data/Base/Theme/config/';
-		$this->smarty->cache_dir = 'data/Base/Theme/cache/';
+		$this->smarty->config_dir = 'data/Base_Theme/config/';
+		$this->smarty->cache_dir = 'data/Base_Theme/cache/';
 		
 		$this->load_css_cache();
 		$this->load_image_cache();

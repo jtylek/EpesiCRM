@@ -93,7 +93,7 @@ class Utils_Menu extends Module {
 		//$str = '<div id=menu_contener_'.$this->menu_id.'><img style="background: white; color: white; border: 1px solid black" src="modules/Utils/Menu/theme/loader.gif"></div>';
 		Base_ThemeCommon::load_css('Utils/Menu');
 		//load_css('data/');
-		return '<div id=menu_contener_'.$this->menu_id.'><img src="modules/Utils/Menu/theme/loader.gif"></div>';
+		return '<div id=menu_contener_'.$this->menu_id.'><img src="modules/Utils_Menu/theme/loader.gif"></div>';
 		//return $theme->toHTML();
 	}
 	

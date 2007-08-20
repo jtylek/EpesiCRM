@@ -16,7 +16,7 @@ class Apps_GalleryInstall extends ModuleInstall {
 			print('Invalid SQL query - Gallery module install');
 			return false;
 		}
-		mkdir('data/Apps/Gallery/-1');
+		mkdir('data/Apps_Gallery/-1');
 		return true;
 	}
 	

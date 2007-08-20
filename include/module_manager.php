@@ -130,10 +130,13 @@ class ModuleManager {
 	 */
 	private static final function check_dependencies($module_to_check, $version, & $module_table) {
 		self::include_install($module_to_check);
-		$req_mod = call_user_func(array (
+		
+		$func = array (
 			$module_to_check . 'Install',
 			'requires_'.$version
-		));
+		);
+		if(!is_callable($func)) return array();
+		$req_mod = call_user_func($func);
 		
 		$ret = array();
 
@@ -353,10 +356,14 @@ class ModuleManager {
 		foreach(self::$modules as $k=>$o) {
 			if($k!=$o['name'] || $k=$module) continue;
 			$k_version = self::is_installed($k);
-			$req_mod = call_user_func(array (
+			
+			$func = array (
 				$k . 'Install',
 				'requires_'.$k_version
-			));
+			);
+			if(!is_callable($func)) continue;
+			$req_mod = call_user_func($func);
+
 			foreach($req_mod as $req)
 				if($req['name']==$module && $req['version']>$to_version) {
 					print('Downgrading module \''.$module.'\' to version '.$to_version.': module '.$k.' requires this module at least in version '.$req['version'].' !');
@@ -526,7 +533,7 @@ class ModuleManager {
 		
 		if($delete_old_data)
 			self::remove_data_dir($module);
-		self::restore_files('backup/'.$pkg_name.'/data/','data/'.self::get_module_dir_path($module).'/');
+		self::restore_files('backup/'.$pkg_name.'/data/','data/'.$module.'/');
 		
 		//restore tables
 		$backup_tables = call_user_func(array (
@@ -783,18 +790,11 @@ class ModuleManager {
 	 * @return bool true if directory was created or already exists, false otherwise
 	 */
 	private static final function create_data_dir($name) {
-		$dirs = explode('_','data_'.$name);
-		$path = '';
-		foreach($dirs as $dir){
-			if (is_dir($path.$dir) && is_writable($path.$dir)) {
-				$path .= $dir.'/';
-				continue;
-			}
-			print('Creating data directory '.$path.$dir.'<br>');
-			if (!mkdir($path.$dir,0777)) return false;
-			$path .= $dir.'/';
-		}
-		return true;
+		$dir = 'data/'.$name;
+		if (is_dir($dir) && is_writable($dir))
+			return true;
+		print('Creating data directory '.$dir.'<br>');
+		return mkdir($dir,0777);
 	}
 
 	/**
@@ -806,30 +806,13 @@ class ModuleManager {
 	 * @return bool true if directory was removed or did not exist, false otherwise
 	 */
 	protected static final function remove_data_dir($name) {
-		$dir = 'data/'.str_replace('_','/',$name).'/';
-		self::remove_data_files($dir);
-		$dirs = explode('_',$name);
-		$dir = substr($dir,0,strlen($dir)-strlen($dirs[count($dirs)-1])-1);
-		for ($i=count($dirs)-2;$i>=0;$i--){
-			if (self::is_installed(substr($dir,5))==-1) rmdir($dir);
-			else break;
-			$dir = substr($dir,0,strlen($dir)-strlen($dirs[$i])-1);
-		}
+		$dir = 'data/'.$name.'/';
+		recursive_rmdir($dir);
 		return true;
 	}
 	
-	private static final function remove_data_files($path) {
-		$path = rtrim($path,'/');
-		$content = scandir($path);
-		foreach ($content as $name){
-			if($name == '.' || $name == '..') continue;
-			$name = $path.'/'.$name;
-			if (is_dir($name)) {
-				if (self::is_installed(substr($name,5))==-1)
-					self::remove_data_files($name);
-			} else unlink($name);
-		}
-		rmdir($path);
+	public static final function get_data_dir($name) {
+		return 'data/'.$name.'/';
 	}
 	
 	/**

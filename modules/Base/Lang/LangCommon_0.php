@@ -40,7 +40,7 @@ class Base_LangCommon {
 		
 		if(!isset($translations)) {
 			$translations = array();
-			include_once('data/Base/Lang/'.self::get_lang_code().'.php');
+			include_once('data/Base_Lang/'.self::get_lang_code().'.php');
 		}
 		
 		if(!array_key_exists($group, $translations) || 
@@ -64,7 +64,7 @@ class Base_LangCommon {
 		global $translations;
 		//save translations file
 		if (!isset($lang)) $lang = self::get_lang_code();
-		$f = @fopen('data/Base/Lang/'.$lang.'.php', 'w');
+		$f = @fopen('data/Base_Lang/'.$lang.'.php', 'w');
 		if(!$f)	return false;
 		
 		fwrite($f, "<?php\n");
@@ -83,7 +83,7 @@ class Base_LangCommon {
 	 * For internal use only.
 	 */
 	public static function load() {
-		if(!@include_once('data/Base/Lang/'.self::get_lang_code().'.php')) {
+		if(!@include_once('data/Base_Lang/'.self::get_lang_code().'.php')) {
 			global $translations;
 			$translations=array();
 		}
@@ -118,7 +118,7 @@ class Base_LangCommon {
 			if($name == '.' || $name == '..' || ereg('^[\.~]',$name)) continue;
 			$langcode = substr($name,0,strpos($name,'.'));
 			$translations = array();
-			@include_once('data/Base/Lang/'.$langcode.'.php');
+			@include_once('data/Base_Lang/'.$langcode.'.php');
 			include_once($directory.'/'.$name);
 			Base_LangCommon::save($langcode);
 		}
@@ -129,7 +129,7 @@ class Base_LangCommon {
 	 * For internal use only.
 	 */
 	public static function new_langpack($code) {
-		file_put_contents('data/Base/Lang/'.$code.'.php','');
+		file_put_contents('data/Base_Lang/'.$code.'.php','');
 	}
 
 	/**
@@ -137,10 +137,10 @@ class Base_LangCommon {
 	 */
 	public static function get_langpack($code) {
 		global $translations;
-		if (!is_file('data/Base/Lang/'.$code.'.php')) return false;
-		include_once('data/Base/Lang/'.$code.'.php');
+		if (!is_file('data/Base_Lang/'.$code.'.php')) return false;
+		include_once('data/Base_Lang/'.$code.'.php');
 		$langpack = $translations;
-		include_once('data/Base/Lang/'.self::get_lang_code().'.php');
+		include_once('data/Base_Lang/'.self::get_lang_code().'.php');
 		return $langpack;
 	}
 }

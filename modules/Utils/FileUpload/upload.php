@@ -15,7 +15,7 @@ if(!isset($form_name))
 	exit();
 $doc = $_FILES['file'];
 $dest_filename  = 'tmp_'.microtime(true);
-$dest_path  = 'data/Utils/FileUpload/'.$dest_filename;
+$dest_path  = 'data/Utils_FileUpload/'.$dest_filename;
 $dest_doc = '../../../'.$dest_path;
 
 if($doc['error']!='0') {

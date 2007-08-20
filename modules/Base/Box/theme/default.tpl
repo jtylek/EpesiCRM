@@ -8,7 +8,7 @@
 </center>
 {else}
 {php}
-	load_js_inline('data/Base/Theme/templates/default/Base_Box__default.js');
+	load_js_inline('data/Base_Theme/templates/default/Base_Box__default.js');
 	eval_js_once('setInterval(\'base_box__set_content_height(\\\'content\\\')\',200)');
 	eval_js('correctPNG()');
 {/php}

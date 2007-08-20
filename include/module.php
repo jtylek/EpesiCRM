@@ -891,7 +891,7 @@ abstract class Module {
 	 * @return string path to the data directory
 	 */
 	protected final function get_data_dir() {
-		return 'data/'.str_replace('_','/',$this->type).'/';
+		return 'data/'.$this->type.'/';
 	}
 
 	/**

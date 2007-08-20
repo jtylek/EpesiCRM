@@ -31,7 +31,7 @@ flush();
 ob_flush();
 
 $dest_filename  = 'tmp_'.microtime(true);
-$dest_path  = 'data/Utils/FileDownload/'.$dest_filename;
+$dest_path  = 'data/Utils_FileDownload/'.$dest_filename;
 $out = fopen($dest_path,'wb');
 
 print('Connected<br>');

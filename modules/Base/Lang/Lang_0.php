@@ -44,7 +44,7 @@ class Base_Lang extends Module {
 		$this->unset_module_variable('original');
 		
 		if(!Base_LangCommon::save()) {
-			print('Unable to save translation file. Check http server user privileges for directory "data/translations" and files inside.');
+			print('Unable to save translation file. Check http server user privileges for directory "data/" and files inside.');
 			$translations[$this->parent_module][$orig] = $prev;
 			return false;
 		}

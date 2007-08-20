@@ -25,7 +25,7 @@ class Base_ThemeCommon {
 	public static function install_default_theme($mod_name,$theme_dir='theme') {
 		$directory = 'modules/'.str_replace('_','/',$mod_name).'/'.$theme_dir;
 		$mod_name = str_replace('/','_',$mod_name);
-		$data_dir = 'data/Base/Theme/templates/default/';
+		$data_dir = 'data/Base_Theme/templates/default/';
 		$content = scandir($directory);
 		foreach ($content as $name){
 			if($name == '.' || $name == '..' || ereg('^[\.~]',$name)) continue;
@@ -41,7 +41,7 @@ class Base_ThemeCommon {
 	public static function uninstall_default_theme($mod_name) {
 		$directory = str_replace('_','/',$mod_name);
 		$mod_name = str_replace('/','_',$mod_name);
-		$data_dir = 'data/Base/Theme/templates/default/';
+		$data_dir = 'data/Base_Theme/templates/default/';
 
 		$content = scandir($data_dir);
 		foreach ($content as $name){
@@ -60,7 +60,7 @@ class Base_ThemeCommon {
 	 */
 	public static function get_template_dir() {
 		static $theme = null;
-		static $themes_dir = 'data/Base/Theme/templates/';
+		static $themes_dir = 'data/Base_Theme/templates/';
 		if(!isset($theme)) {
 			$theme = Variable::get('default_theme');
 		
@@ -99,7 +99,7 @@ class Base_ThemeCommon {
 		$filename = self::get_template_file_name($modulename,$filename);
 		$f = self::get_template_dir().$filename;
 		if(!is_readable($f)) {
-			$f = 'data/Base/Theme/templates/default/'.$filename;
+			$f = 'data/Base_Theme/templates/default/'.$filename;
 			if(!is_readable($f))
 				return false;
 		}
@@ -129,7 +129,7 @@ class Base_ThemeCommon {
 	}
 	
 	private static function create_css_cache() {
-		$themes_dir = 'data/Base/Theme/templates/';
+		$themes_dir = 'data/Base_Theme/templates/';
 		$def_theme = Variable::get('default_theme');
 		$tdir = $themes_dir.$def_theme;
 		$arr = glob($themes_dir.'default/*.css',GLOB_NOSORT);
@@ -177,7 +177,7 @@ class Base_ThemeCommon {
 	}
 
 	private static function create_images_cache() {
-		$theme_dir = 'data/Base/Theme/templates/';
+		$theme_dir = 'data/Base_Theme/templates/';
 		$default = self::get_images($theme_dir.'default');
 		file_put_contents($theme_dir.'default/__cache.images',implode("\n",$default));
 		$def_theme = Variable::get('default_theme');
