@@ -1744,15 +1744,16 @@ private function FTable_row($row,$w){
 					for ($o=0;$o<($wmax-$length)/$cw[' ']/$spaces;$o++) $space .= ' ';
 					$line[$i][$j] = preg_replace('/\s/',$space,$line[$i][$j]);
 //					eval_js('alert("'.$line[$i][$j].'")');
-				}
+				} else $align='C';
 			} else $align='C';
 			$this->SetFont('',$style);
+			$l = isset($line[$i][$j])?$line[$i][$j]:'';
 			if ($j==0) {
-				$this->Cell($w[$i],$this->FontSize*1.3,$line[$i][$j],'LTR',0,$align,1);
+				$this->Cell($w[$i],$this->FontSize*1.3,$l,'LTR',0,$align,1);
 			} elseif ($j==$max_lines_no-1) {
-				$this->Cell($w[$i],$this->FontSize*1.3,$line[$i][$j],'LBR',0,$align,1);
+				$this->Cell($w[$i],$this->FontSize*1.3,$l,'LBR',0,$align,1);
 			} else {
-				$this->Cell($w[$i],$this->FontSize*1.3,$line[$i][$j],'LR',0,$align,1);
+				$this->Cell($w[$i],$this->FontSize*1.3,$l,'LR',0,$align,1);
 			}
 		}
 		$this->Ln();
