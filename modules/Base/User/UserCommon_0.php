@@ -70,19 +70,17 @@ class Base_UserCommon {
 	 * @return mixed user id
 	 */
 	public static function get_my_user_id() {
-    	global $base;
+    		global $base;
 		$session = & $base->get_session();
-		$id = $session['user_id'];
 		if(Acl::is_user()) {
-		    if(!isset($id)) {
+		    if(!isset($session['user_id'])) {
 				$id = self::get_user_id(Acl::get_user());
 				$session['user_id'] = $id;
-		    }
+		    } 
 		} else {
-			unset($id);
 			unset($session['user_id']);
 		}
-		return $id;
+		return $session['user_id'];
     }
 	
 	/**
