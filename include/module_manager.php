@@ -741,7 +741,10 @@ class ModuleManager {
 	public static final function & get_instance($path) {
 		$xx = explode('/',$path);
 		$curr = & self::$root;
-		if($curr->get_node_id() != $xx[1]) return false;
+		if($curr->get_node_id() != $xx[1]) {
+			$x = false;
+			return $x;
+		}
 		if(count($xx)>2) {
 			$curr = & $curr->get_child($xx[2]);
 			if(!$curr) return $curr;
