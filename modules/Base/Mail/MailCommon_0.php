@@ -43,7 +43,7 @@ class Base_MailCommon extends Base_AdminModuleCommon {
 	 * @param string sender's name
 	 * @return true on success, false otherwise
 	 */
-	public static function send($to,$subject,$body,$from_addr, $from_name) {
+	public static function send($to,$subject,$body,$from_addr=null, $from_name=null) {
 		$mailer = new PHPMailer();
 		$mailer->SetLanguage(Base_LangCommon::get_lang_code(), 'modules/Base/Mail/language/');
 		if(!isset($from_addr)) $from_addr = Variable::get('mail_from_addr');

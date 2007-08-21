@@ -330,7 +330,7 @@ function recursive_copy($src, $dest) {
 		$src_name = $src . '/' . $name;
 		$dest_name = $dest . '/' . $name;
 		if (is_dir($src_name)) {
-			mkdir($dest_name);
+			if (!is_dir($dest_name)) mkdir($dest_name);
 			recursive_copy($src_name, $dest_name);
 		} else
 			copy($src_name, $dest_name);
