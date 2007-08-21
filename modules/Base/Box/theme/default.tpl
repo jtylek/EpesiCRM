@@ -52,7 +52,6 @@
 	</tr>
 	<tr>
 		<td colspan="3">
-			{if $main neq ""}
 			<div id="content">
 			<table width="90%" height="100%" cellspacing="0" cellpadding="0" border="0">
 				<tr>
@@ -62,7 +61,6 @@
 				</tr>
 			</table>
 			</div>
-			{/if}
 		</td>
 	</tr>
 	<tr>

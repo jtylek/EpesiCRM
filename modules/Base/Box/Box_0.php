@@ -53,7 +53,6 @@ class Base_Box extends Module {
 		if($this->isset_module_variable('main'))
 			$containers['main'] = $this->get_module_variable('main');
 		
-		
 		if (isset($_REQUEST['box_main_module'])) {
 			$href = $_REQUEST['box_main_module'];
 			$containers['main']['module'] = $href;
@@ -84,7 +83,6 @@ class Base_Box extends Module {
 					$this->modules[$k]->construct();
 					ob_end_clean();
 				}
-		
 				if(isset($v['function']))
 					$this->display_module($this->modules[$k],$v['arguments'],$v['function']);
 				elseif(isset($v['arguments']))
