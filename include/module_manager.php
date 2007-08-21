@@ -461,8 +461,6 @@ class ModuleManager {
 			return false;
 		}
 
-		print($module_to_install.': deps ok, including main class<br>');
-		self :: include_common($module_to_install,$version);
 
 		print($module_to_install.': creating data dir<br>');
 		if (!self::create_data_dir($module_to_install)) {
@@ -500,6 +498,9 @@ class ModuleManager {
 		}
 		self::$not_loaded_modules[] = array('name'=>$module_to_install,'version'=>$version);
 		
+		print($module_to_install.': deps ok, including common class<br>');
+		self :: include_common($module_to_install,$version);
+
 		return true;
 
 	}
