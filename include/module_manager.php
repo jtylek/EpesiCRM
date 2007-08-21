@@ -751,8 +751,10 @@ class ModuleManager {
 			for($i=2; $i<count($xx)-1; $i++) {
 				if($curr->get_node_id() == $xx[$i]) {
 					$curr = & $curr->get_child($xx[$i+1]);
-				} else
-					return false;
+				} else {
+					$x = false;
+					return $x;
+				}
 				if(!$curr) return $curr;
 			}
 		}
