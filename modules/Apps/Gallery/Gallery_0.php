@@ -503,10 +503,11 @@ class Apps_Gallery extends Module {
 	
 	public function body() {
 		$this->lang = & $this->init_module('Base/Lang');
-
-		Base_ActionBarCommon::add('add',$this->lang->ht('Upload'),$this->create_callback_href(array($this,'upload')));
-		Base_ActionBarCommon::add('settings',$this->lang->ht('Manage Folders'),$this->create_callback_href(array($this,'manage')));
-
+		
+		if( Base_AclCommon::i_am_user() ) {
+			Base_ActionBarCommon::add('add',$this->lang->ht('Upload'),$this->create_callback_href(array($this,'upload')));
+			Base_ActionBarCommon::add('settings',$this->lang->ht('Manage Folders'),$this->create_callback_href(array($this,'manage')));
+		}
 		$dir = $this->get_module_variable_or_unique_href_variable('dir', "");
 		$user = $this->get_module_variable_or_unique_href_variable('user', $this->user);
 		
