@@ -93,7 +93,7 @@ class Utils_Gallery extends Module {
 			
 			$image_list = array();
 			for($i = 0; $i < count($images); $i++ ) {
-				$image->load("./".$dir.$images[$i]);
+				$image->load("./".$dir.'/'.$images[$i]);
 				
 				$image_list[$i] = array();
 				$image_list[$i]['open_link'] = "<a ".$this->create_unique_href(array('img'=>$images[$i])).">";
