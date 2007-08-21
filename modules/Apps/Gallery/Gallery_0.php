@@ -229,7 +229,7 @@ class Apps_Gallery extends Module {
 				if( $d != "" ) {
 					$up .= '/'.$d;
 					if($d != "" ) {
-						if( !is_array($c[$d]) ) {
+						if( !key_exists($d, $c) || !is_array($c[$d]) ) {
 							$tmp = & $form->createElement('radio', 'target', $up, $d, $up.'/');
 							$opened = 0;
 							if($up == $dir) {
