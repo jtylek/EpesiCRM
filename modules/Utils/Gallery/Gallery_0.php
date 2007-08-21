@@ -78,7 +78,6 @@ class Utils_Gallery extends Module {
 	 * This methodreturns HTML code of the gallery.
 	 */
 	public function toHtml(  ) {
-		load_js('modules/Utils/Gallery/js/gallery.js');
 		$dir = $this->path;
 		$img = $this->get_unique_href_variable('img', '');
 		$slideshow = $this->get_unique_href_variable('slideshow', 'no');
@@ -94,7 +93,7 @@ class Utils_Gallery extends Module {
 			
 			$image_list = array();
 			for($i = 0; $i < count($images); $i++ ) {
-				$image->load("./".$dir."/".$images[$i]);
+				$image->load("./".$dir.$images[$i]);
 				
 				$image_list[$i] = array();
 				$image_list[$i]['open_link'] = "<a ".$this->create_unique_href(array('img'=>$images[$i])).">";
@@ -111,78 +110,7 @@ class Utils_Gallery extends Module {
 			return $ret;
 		} else {
 			
-			// SLIDESHOW
-			if( $slideshow == 'yes' ) {
-				print "<div id=gal_deb></div>";
-				$ret = '';
-				$image = & $this->init_module('Utils/Image');
-				
-				$images = $this->getListing("./".$dir, "/(\.png$)|(\.jpeg$)|(\.jpg$)|(\.gif$)/i");
-				
-				$image->load("./".$dir."/".$img); 
-							
-				$preview = array();
-				$preview['open_link'] = '<a  href="'.$dir.'/'.$img.'" target="_blank">';
-				$preview['img'] = $image->thumb_toHtml(600);
-			
-				$preview['name'] = $img;
-				$preview['close_link'] = "</a>";
-				
-				$prev_img = '';
-				$next_img = '';
-				$buttonsHTML = array();
-				$buttons_real = array();
-				$img_index = 0;
-				$c_images =  count($images);
-				
-				for($i = 0; $i < $c_images; $i++ ) {
-					$image->load("./".$dir."/".$images[$i]); 
-					$image->create_thumb(600);
-					
-					if($images[$i] == $img) {
-						$img_index = $i;
-					}
-					$buttons_real[$i] = '"./'.$dir."/".$images[$i].'"';
-					$buttonsHTML[$i] = '"'. htmlspecialchars($image->get_thumb_address("./".$dir."/".$images[$i], 600)) .'"';
-					
-				}
-				
-				$buttons = array();
-				$buttons[] = '<span id=gallery_slideshow_prev>prev</span>';
-				$buttons[] = '<span id=gallery_slideshow_auto>auto</span>';
-				$buttons[] = '<span id=gallery_slideshow_speed>'.
-					'<select id=utils_gallery_speed onchange=utils_gallery_set_speed()>'.
-					'<option value=500>0.5 second</option>'.
-					'<option value=1000>1 second</option>'.
-					'<option value=3000>3 seconds</option>'.
-					'<option value=5000>5 seconds</option>'.
-					'</select></span>';
-				$buttons[] = '<span id=gallery_slideshow_down>down</span>';
-				$buttons[] = "<a class=utils_gallery_picture_link ".$this->create_unique_href(array('img'=>'')).">Close slideshow</a>";;
-				$buttons[] = '<span id=gallery_slideshow_next>next</span>';
-				
-				
-				
-				$theme->assign('style', 'slideshow');
-				$theme->assign('buttons', $buttons);
-				$theme->assign('preview', '<img id=gallery_slideshow_image src=modules/Utils/Gallery/theme/loader.gif>');
-				$buttonsHTML_js = '[ ' . join( ',', $buttonsHTML ) . ' ]';
-				$buttons_real_js = '[ ' . join( ',', $buttons_real ) . ' ]';
-				eval_js(
-					"utils_gallery = function() {".
-						"utils_gallery_set_data(".$buttonsHTML_js.");".
-						"utils_gallery_set_real(".$buttons_real_js.");".
-						"utils_gallery_show(".$img_index.");".
-					"};"
-				);
-				eval_js(
-					'wait_while_null( "utils_gallery_set_data", "utils_gallery()" );'
-				);
-				//'wait_while_null( "utils_gallery_set_data", "utils_gallery_set_data('.$buttonsHTML_js.')" );'
-				return $this->get_html_of_module($theme);
-
-			// PREVIEW
-			} else {
+			{
 				$ret = '';
 				$image = & $this->init_module('Utils/Image');
 				

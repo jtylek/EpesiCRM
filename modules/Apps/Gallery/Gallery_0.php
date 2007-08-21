@@ -107,25 +107,15 @@ class Apps_Gallery extends Module {
 		return $r_ret;
 	}
 	
-	public function submit_mk_folder($data) {
-		//print "Created folder: ".$data['target'] . $data['new'];
-		mkdir($this->root.$this->user.$data['target'] . $data['new']);
-		$this->set_module_variable('dir', $data['target'] . $data['new']);
-		unset($data);
-		return true;
-	}
-
-	public function mk_folder() {
-		$dir = $this->get_module_variable_or_unique_href_variable('dir', "");
-		$user = $this->get_module_variable_or_unique_href_variable('user', $this->user);
-		$dirs = $this->getDirsRecursive($this->root.$this->user, "/^[^\.].*$/");
-		ksort($dirs);
-		$form = & $this->init_module('Libs/QuickForm');
-		$lang = & $this->init_module('Base/Lang');
+	private function create_structure_for_tree($root_user, $dir, &$form) {
+		$dir_listing = $this->getDirsRecursive($root_user);
 		
-		$form->addElement('header', 'mk_folder', $lang->t('Add Folder to Your Gallery'));
+		$ret = DB::Execute('SELECT user_id, media FROM gallery_shared_media where user_id = %s', array($this->user));
+		$shared = array();
+		while($row = $ret->FetchRow() ) {
+			$shared[$row['media']] = $row['media'];
+		}
 		
-		$dir_listing = $this->getDirsRecursive($this->root.$this->user);
 		$structure = array();
 		$media = array();
 		foreach( $dir_listing as $k => $v ) {
@@ -137,7 +127,11 @@ class Apps_Gallery extends Module {
 					$up .= '/'.$d;
 					if($d != "" ) {
 						if( !isset($c[$d]) || !is_array($c[$d]) ) {
-							$tmp = & $form->createElement('radio', 'target', $up, $d, $up.'/');
+							$title = $d;
+							if(array_key_exists(str_replace(" ", "_", $up), $shared)) {
+								$title .= ' (shared)';
+							}
+							$tmp = & $form->createElement('radio', 'target', $up, $title, $up.'/');
 							$opened = 0;
 							if($up == $dir) {
 								$opened = 1;
@@ -157,22 +151,49 @@ class Apps_Gallery extends Module {
 			}
 			
 		}
-		
-		$tree = & $this->init_module('Utils/Tree', $this->root.$this->user);
-		$tmp_t = & $form->createElement('radio', 'target', '/', 'My Gallery', '/');
+		$title = 'My Gallery';
+		if(array_key_exists(str_replace(" ", "_", $up), $shared)) {
+			$title .= ' (shared)';
+		}
+		$tmp_t = & $form->createElement('radio', 'target', '/', $title, '/');
 		$opened = 0;
 		if($dir == '') {
 			$tmp_t->setChecked(1);
 			$opened = 1;
 		}
-		$tree->set_structure( array(
+		$structure = array(
 			'My Gallery' => array(
 				'name'=> $tmp_t->toHtml(),
 				'selected' => $opened,
 				'visible' => $opened,
 				'opened' => $opened,
 				'sub'=>$structure
-			))
+			));
+		return $structure;
+	}
+	
+	public function submit_mk_folder($data) {
+		//print "Created folder: ".$data['target'] . $data['new'];
+		mkdir($this->root.$this->user.$data['target'] . $data['new']);
+		$this->set_module_variable('dir', $data['target'] . $data['new']);
+		unset($data);
+		return true;
+	}
+
+	public function mk_folder() {
+		$dir = $this->get_module_variable_or_unique_href_variable('dir', "");
+		$user = $this->get_module_variable_or_unique_href_variable('user', $this->user);
+		$dirs = $this->getDirsRecursive($this->root.$this->user, "/^[^\.].*$/");
+		ksort($dirs);
+		$form = & $this->init_module('Libs/QuickForm');
+		$lang = & $this->init_module('Base/Lang');
+		
+		$form->addElement('header', 'mk_folder', $lang->t('Add Folder to Your Gallery'));
+		
+		$structure = $this->create_structure_for_tree($this->root.$this->user, $dir, $form);
+		$tree = & $this->init_module('Utils/Tree', $this->root.$this->user);
+		$tree->set_structure( 
+			$structure
 		);
 		$tree->sort();
 		
@@ -218,56 +239,11 @@ class Apps_Gallery extends Module {
 		$lang = & $this->init_module('Base/Lang');
 		$form->addElement('header', 'rm_folder', $lang->t('Remove Folder from Your Gallery'));
 		
-		$dir_listing = $this->getDirsRecursive($this->root.$this->user);
-		$structure = array();
-		$media = array();
-		foreach( $dir_listing as $k => $v ) {
-			$c = & $structure;
-			$pt = explode("/", $v);
-			$up = '';
-			foreach($pt as $d) {
-				if( $d != "" ) {
-					$up .= '/'.$d;
-					if($d != "" ) {
-						if( !key_exists($d, $c) || !is_array($c[$d]) ) {
-							$tmp = & $form->createElement('radio', 'target', $up, $d, $up.'/');
-							$opened = 0;
-							if($up == $dir) {
-								$opened = 1;
-								$tmp->setChecked(1);
-							}
-							$c[$d] = array(
-								'name' => $tmp->toHtml(),
-								'selected' => $opened,
-								'visible' => $opened,
-								'opened' => $opened,
-								'sub' => array()
-							);
-						}
-						$c = & $c[$d]['sub'];
-					}
-				}
-			}
-			
-		}
-		
+		$structure = $this->create_structure_for_tree($this->root.$this->user, $dir, $form);
 		$tree = & $this->init_module('Utils/Tree', $this->root.$this->user);
-		$tmp_t = & $form->createElement('radio', 'target', '', 'My Gallery', '/');
-		$opened = 0;
-		if($dir == '') {
-			$tmp_t->setChecked(1);
-			$opened = 1;
-		}
-		$tree->set_structure( array(
-			'My Gallery' => array(
-				'name'=> $tmp_t->toHtml(),
-				'selected' => $opened,
-				'visible' => $opened,
-				'opened' => $opened,
-				'sub'=>$structure
-			))
+		$tree->set_structure( 
+			$structure
 		);
-		$form->addRule('target', $lang->t('Select a folder'), 'required');
 		$tree->sort();
 		
 		$form->addElement('submit', 'submit_button', $lang->ht('Remove'));
@@ -425,55 +401,10 @@ class Apps_Gallery extends Module {
 		
 		
 		// TREE
-		$dir_listing = $this->getDirsRecursive($this->root.$this->user);
-		$structure = array();
-		$media = array();
-		foreach( $dir_listing as $k => $v ) {
-			$c = & $structure;
-			$pt = explode("/", $v);
-			$up = '';
-			foreach($pt as $d) {
-				if( $d != "" ) {
-					$up .= '/'.$d;
-					if($d != "" ) {
-						if( !isset($c[$d]) || !is_array($c[$d]) ) {
-							$tmp = & $form->createElement('radio', 'target', $up, $d, $up.'/');
-							$opened = 0;
-							if($up == $dir) {
-								$opened = 1;
-								$tmp->setChecked(1);
-							}
-							$c[$d] = array(
-								'name' => $tmp->toHtml(),
-								'selected' => $opened,
-								'visible' => $opened,
-								'opened' => $opened,
-								'sub' => array()
-							);
-						}
-						$c = & $c[$d]['sub'];
-							
-					}
-				}
-			}
-			
-		}
-		
-		$tree = & $this->init_module('Utils/Tree');
-		$tmp_t = & $form->createElement('radio', 'target', '', 'My Gallery', '/');
-		$opened = 0;
-		if($dir == '') {
-			$tmp_t->setChecked(1);
-			$opened = 1;
-		}
-		$tree->set_structure( array(
-			'My Gallery' => array(
-				'name'=> $tmp_t->toHtml(),
-				'selected' => $opened,
-				'visible' => $opened,
-				'opened' => $opened,
-				'sub'=>$structure
-			))
+		$structure = $this->create_structure_for_tree($this->root.$this->user, $dir, $form);
+		$tree = & $this->init_module('Utils/Tree', $this->root.$this->user);
+		$tree->set_structure( 
+			$structure
 		);
 		$tree->sort();
 		$tree->set_inline_display();
@@ -573,6 +504,12 @@ class Apps_Gallery extends Module {
 		// TREE
 		$dir_listing = $this->getDirsRecursive($this->root.$this->user);
 		$structure = array();
+		$ret = DB::Execute('SELECT user_id, media FROM gallery_shared_media where user_id = %s', array($this->user));
+		$shared = array();
+		while($row = $ret->FetchRow() ) {
+			$shared[$row['media']] = $row['media'];
+		}
+		
 		foreach( $dir_listing as $k => $v ) {
 			$c = & $structure;
 			$pt = explode("/", $v);
@@ -582,8 +519,12 @@ class Apps_Gallery extends Module {
 					$up .= '/'.$d;
 					if($d != "" ) {
 						if( !isset($c[$d]) || !is_array($c[$d]) ) {
+							$title = $d;
+							if(array_key_exists(str_replace(" ", "_", $up), $shared)) {
+								$title .= ' (shared)';
+							}
 							$c[$d] = array(
-								'name' => '<a '.$this->create_unique_href(array('dir'=>$up, 'parent_dir'=>$dir, 'user'=>$this->user)).'>'.$d.'</a>',
+								'name' => '<a '.$this->create_unique_href(array('dir'=>$up, 'parent_dir'=>$dir, 'user'=>$this->user)).'>'.$title.'</a>',
 								'selected' => 0,
 								'sub' => array()
 							);
@@ -601,9 +542,13 @@ class Apps_Gallery extends Module {
 		
 		$tree = & $this->init_module('Utils/Tree');
 		$tmp = ($dir == '' ? 1 : 0);
+		$title = 'My Gallery';
+		if(array_key_exists(str_replace(" ", "_", $up), $shared)) {
+			$title .= ' (shared)';
+		}
 		$tree->set_structure(array('My Gallery'=>array(
 			'selected' => $tmp, 
-			'name' => '<a '.$this->create_unique_href(array('dir'=>"", 'user'=>$this->user)).' >My Gallery</a>', 
+			'name' => '<a '.$this->create_unique_href(array('dir'=>"", 'user'=>$this->user)).' >'.$title.'</a>', 
 			'sub' => $structure
 		)));
 		$tree->sort();

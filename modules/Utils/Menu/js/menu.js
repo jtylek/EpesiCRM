@@ -221,7 +221,11 @@ CustomMenubar = function(id, _layout) {
 				if(icon) {
 					menu_string[this.id] += '<img class=link_icon src="'+icon+'">';
 				}
-				menu_string[this.id] += '<a href="'+address+'" class=root_item_link>' + title + '</a>';
+				if( this.depth == 0) {
+					menu_string[this.id] += '<a href="'+address+'" class=root_item_link_none>' + title + '</a>';
+				} else {
+					menu_string[this.id] += '<a href="'+address+'" class=root_item_link>' + title + '</a>';
+				}
 				menu_string[this.id] += '</td>';
 			}
 		}

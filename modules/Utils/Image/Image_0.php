@@ -187,7 +187,7 @@ class Utils_Image extends Module {
 					imagetruecolortopalette($imgDestination1, true, 256); 
 					
 					imagegif($imgDestination1, $this->get_data_dir().$this->thumb); 
-					imagecolordeallocate($t_im,$black);
+					imagecolordeallocate($imgDestination1,$black);
 					imagedestroy($imgDestination1);
 					imagedestroy($im);
 				}
