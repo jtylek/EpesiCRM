@@ -742,7 +742,7 @@ class ModuleManager {
 		$xx = explode('/',$path);
 		$curr = & self::$root;
 		if($curr->get_node_id() != $xx[1]) {
-			$x = false;
+			$x = null;
 			return $x;
 		}
 		if(count($xx)>2) {
@@ -752,7 +752,7 @@ class ModuleManager {
 				if($curr->get_node_id() == $xx[$i]) {
 					$curr = & $curr->get_child($xx[$i+1]);
 				} else {
-					$x = false;
+					$x = null;
 					return $x;
 				}
 				if(!$curr) return $curr;
