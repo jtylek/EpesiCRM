@@ -44,11 +44,13 @@ class Base_Search extends Module {
 		$form->addElement('submit', 'quick_search_submit',  $this->lang->ht('Search'), array('class'=>'submit','onclick'=>'var elem=getElementById(\''.$form->getAttribute('name').'\').elements[\'advanced_search\'];if(elem)elem.value=0;'));
 
 		if (!empty($modules_with_adv_search)) {
-			$modules_with_adv_search[0] = '('.$this->lang->ht('Select module').')'; 
+			$modules_with_adv_search_['__null__'] = '('.$this->lang->ht('Select module').')'; 
 			ksort($modules_with_adv_search);
+			foreach($modules_with_adv_search as $k=>$v) $modules_with_adv_search_[$k] = $v;
 			$form->addElement('static', 'advanced_search_header', $this->lang->t('Advanced search'));
-			$form->addElement('select', 'advanced_search', 'Module:', $modules_with_adv_search, array('onChange'=>$form->get_submit_form_js(false),'id'=>'advanced_search_select'));
+			$form->addElement('select', 'advanced_search', 'Module:', $modules_with_adv_search_, array('onChange'=>$form->get_submit_form_js(false),'id'=>'advanced_search_select'));
 			$advanced_search = $form->exportValue('advanced_search');
+			if ($advanced_search === '__null__') $advanced_search = false; 
 		} else $advanced_search = false;
 
 		$defaults['quick_search']=$qs_keyword;
@@ -58,7 +60,7 @@ class Base_Search extends Module {
 		} else {
 			$this->unset_module_variable('advanced_search');
 		}
-		$defaults = array('advanced_search'=>$advanced_search?$advanced_search:0);
+		$defaults = array('advanced_search'=>$advanced_search?$advanced_search:'__null__');
 		
 		$form->setDefaults($defaults);
 		
