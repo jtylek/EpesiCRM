@@ -127,7 +127,7 @@ class Base_User_Settings extends Module {
 	
 	private function set_user_preferences($info,$values,$module){
 		foreach($info as $v){
-			Base_User_SettingsCommon::save($module,$v['name'],$values[$module.self::$sep.$v['name']]);
+			Base_User_SettingsCommon::save($module,$v['name'],isset($values[$module.self::$sep.$v['name']])?$values[$module.self::$sep.$v['name']]:0);
 		}
 	}
 	
