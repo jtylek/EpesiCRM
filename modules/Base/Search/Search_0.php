@@ -45,13 +45,11 @@ class Base_Search extends Module {
 
 		if (!empty($modules_with_adv_search)) {
 			$modules_with_adv_search[0] = '('.$this->lang->ht('Select module').')'; 
-			//ksort($modules_with_adv_search);
+			ksort($modules_with_adv_search);
 			$form->addElement('static', 'advanced_search_header', $this->lang->t('Advanced search'));
 			$form->addElement('select', 'advanced_search', 'Module:', $modules_with_adv_search, array('onChange'=>$form->get_submit_form_js(false),'id'=>'advanced_search_select'));
 			$advanced_search = $form->exportValue('advanced_search');
 		} else $advanced_search = false;
-
-		$defaults = array('advanced_search'=>0);
 
 		$defaults['quick_search']=$qs_keyword;
 		if (!$qs_keyword) {
@@ -60,6 +58,7 @@ class Base_Search extends Module {
 		} else {
 			$this->unset_module_variable('advanced_search');
 		}
+		$defaults = array('advanced_search'=>$advanced_search?$advanced_search:0);
 		
 		$form->setDefaults($defaults);
 		
