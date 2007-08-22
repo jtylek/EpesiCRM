@@ -64,6 +64,15 @@ function update_from_0_8_11_to_0_9_0() {
 	}
 	recursive_rmdir($tmp_dir.'data_tmp');
 	themeup();
+	$qa = DB::GetOne('SELECT name FROM modules WHERE name=\'Base_Menu_QuickAccess\'');
+	if ($qa=='Base_Menu_QuickAccess') {
+		$ret = DB::Execute('SELECT * FROM quick_access');
+		while ($row = $ret->FetchRow()) {
+			$entry = md5(str_replace(array('href=','&menu_click=1'),array('box_main_module=',''),$row['link']).'#qa_sep#'.str_replace(' ','_',$row['label']));
+			DB::Execute('INSERT INTO base_user_settings VALUES (%s,%s,%s,%d)',array($row['user_login_id'], 'Base_Menu_QuickAccess', $entry, 1));
+		}
+	}
+	DB::DropTable('quick_access');
 }
 /****************** 0.8.6 to 0.8.7 **********************/
 function update_from_0_8_6_to_0_8_7() {
