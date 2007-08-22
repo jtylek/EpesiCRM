@@ -59,7 +59,6 @@ class Base_Menu_QuickAccessCommon {
 			if (array_key_exists('__submenu__',$v)) self::check_for_links($result,$prefix.$k.': ',$v);
 			else {
 				$http_query = http_build_query($v,'','&');
-				print($http_query.'#qa_sep#'.str_replace(' ','_',$prefix.$k).'<br>');
 				$result[] = array('name'=>md5($http_query.'#qa_sep#'.str_replace(' ','_',$prefix.$k))
 							,'link'=>$http_query
 							,'label'=>$prefix.$k
