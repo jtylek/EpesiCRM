@@ -70,8 +70,8 @@ class Utils_GenericBrowser_Row_Object {
 	 * @param string href
 	 * @param string label
 	 */
-	public function add_action($tag_attrs,$label){
-		$this->GBobj->__add_row_action($this->num,'<a '.$tag_attrs.'>',$label,'</a>');
+	public function add_action($tag_attrs,$label,$tooltip=null){
+		$this->GBobj->__add_row_action($this->num, $tag_attrs,$label,isset($tooltip)?$tooltip:$label);
 	}
 	
 }
@@ -186,9 +186,9 @@ class Utils_GenericBrowser extends Module {
 	/**
 	 * For internal use only.
 	 */
-	public function __add_row_action($num,$open,$label,$close) {
+	public function __add_row_action($num,$tag_attrs,$label,$tooltip) {
 		if (!isset($this->lang)) $this->lang = & $this->init_module('Base/Lang');
-		$this->actions[$num][strtolower(trim($label))] = array('open'=>$open,'label'=>$this->lang->t($label),'close'=>$close);
+		$this->actions[$num][strtolower(trim($label))] = array('tag_attrs'=>$tag_attrs,'label'=>$this->lang->t($label),'tooltip'=>$tooltip);
 		$this->en_actions = true;
 	}
 
@@ -656,6 +656,7 @@ class Utils_GenericBrowser extends Module {
 		$headers = array();
 		if ($this->en_actions) {
 			$actions_position = Base_User_SettingsCommon::get('Utils/GenericBrowser','actions_position');
+			$tooltip = $this->init_module('Utils/Tooltip');
 			if ($actions_position==0)	$headers[-1] = array('label'=>$this->lang->t('Actions'),'attrs'=>'style="width: 0%"'); 
 			else		$headers[count($this->columns)] = array('label'=>$this->lang->t('Actions'),'attrs'=>'style="width: 0%"');
 		}
@@ -725,7 +726,14 @@ class Utils_GenericBrowser extends Module {
 				else $column_no = count($this->columns);
 				if (!empty($this->actions[$i])) {
 					$ac_theme = & $this->init_module('Base/Theme');
-					$ac_theme->assign('actions',$this->actions[$i]);
+					$actions = array();
+					foreach($this->actions[$i] as $lab=>$arr) {
+						$actions[$lab] = array(
+							'open'=>'<a '.$tooltip->open_tag_attrs($arr['tooltip']).' '.$arr['tag_attrs'].'>',
+							'close'=>'</a>',
+							'label'=>$arr['label']);
+					}
+					$ac_theme->assign('actions',$actions);
 					$col[$column_no]['label'] = $this->get_html_of_module($ac_theme,'Actions','display');
 				} else $col[$column_no]['label'] = '&nbsp;';
 				$col[$column_no]['attrs'] = 'nowrap="nowrap"';
