@@ -194,7 +194,7 @@ class Base_Theme extends Module {
 										do {
 											$open .= $val{$i};
 											$i++;
-										} while ($val{$i}!=='"');
+										} while ($i<$len && $val{$i}!=='"');
 									}
 								}
 								$open .= '>';
