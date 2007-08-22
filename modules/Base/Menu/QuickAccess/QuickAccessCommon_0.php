@@ -59,13 +59,13 @@ class Base_Menu_QuickAccessCommon {
 			if (array_key_exists('__submenu__',$v)) self::check_for_links($result,$prefix.$k.': ',$v);
 			else {
 				$http_query = http_build_query($v,'','&');
-				$ret = DB::Execute('SELECT * FROM quick_access WHERE user_login_id = %d AND label = %s',array(Base_UserCommon::get_my_user_id(),$prefix.$k))->FetchRow();
+				print($http_query.'#qa_sep#'.str_replace(' ','_',$prefix.$k).'<br>');
 				$result[] = array('name'=>md5($http_query.'#qa_sep#'.str_replace(' ','_',$prefix.$k))
 							,'link'=>$http_query
 							,'label'=>$prefix.$k
 							,'type'=>'bool'
 							,'reload'=>true
-							,'default'=>$ret!==false);
+							,'default'=>0);
 			}
 		}
 	}
@@ -76,7 +76,6 @@ class Base_Menu_QuickAccessCommon {
 		$qa_menu = array('__submenu__'=>1);
 		foreach (self::$options as $v)
 			if (Base_User_SettingsCommon::get('Base_Menu_QuickAccess',$v['name'])) {
-				$info = explode('#qa_sep#',$v['link']);
 				$menu_entry = null;
 				parse_str($v['link'],$menu_entry);
 				$qa_menu[str_replace('_',' ',$v['label'])] = $menu_entry;
