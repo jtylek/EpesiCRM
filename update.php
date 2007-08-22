@@ -45,7 +45,7 @@ function mod_cmp($a, $b){
 }
 function update_from_0_8_11_to_0_9_0() {
 	DB::Execute('UPDATE modules SET version=0 WHERE name=\'Base_Admin\'');
-	$tmp_dir = rtrim(sys_get_temp_dir(),'\\/');
+	$tmp_dir = rtrim(sys_get_temp_dir(),'\\/').'/';
 	recursive_copy('data',$tmp_dir.'data_old');
 	unlink($tmp_dir.'data_old/config.php');
 	recursive_copy('data',$tmp_dir.'data_tmp');
