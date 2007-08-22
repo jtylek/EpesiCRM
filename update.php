@@ -44,7 +44,10 @@ function mod_cmp($a, $b){
 	return strlen($b['name']) - strlen($a['name']);
 }
 function update_from_0_8_11_to_0_9_0() {
+	// Reducing Base_Admin version number
 	DB::Execute('UPDATE modules SET version=0 WHERE name=\'Base_Admin\'');
+	
+	// flat datadir structure
 	$tmp_dir = rtrim(sys_get_temp_dir(),'\\/').'/';
 	recursive_copy('data',$tmp_dir.'data_old');
 	unlink($tmp_dir.'data_old/config.php');
@@ -63,7 +66,7 @@ function update_from_0_8_11_to_0_9_0() {
 		recursive_rmdir($tmp_dir.'data_tmp/'.$name);
 	}
 	recursive_rmdir($tmp_dir.'data_tmp');
-	themeup();
+	// adjusting quickaccess
 	$qa = DB::GetOne('SELECT name FROM modules WHERE name=\'Base_Menu_QuickAccess\'');
 	if ($qa=='Base_Menu_QuickAccess') {
 		$ret = DB::Execute('SELECT * FROM quick_access');
@@ -73,6 +76,10 @@ function update_from_0_8_11_to_0_9_0() {
 		}
 	}
 	DB::DropTable('quick_access');
+	// installing Tooltip
+	DB::Execute('INSERT INTO modules VALUES(%s,%d,%d)',array('Utils_Tooltip',0,0));
+	// flush
+	themeup();
 }
 /****************** 0.8.6 to 0.8.7 **********************/
 function update_from_0_8_6_to_0_8_7() {
