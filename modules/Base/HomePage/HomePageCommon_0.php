@@ -43,7 +43,7 @@ class Base_HomePageCommon {
 	
 	public static function tool_menu() {
 		if(Acl::is_user())
-			return array('Set as your epesi home page'=>array('Base_HomePage_save'=>'1'));
+			return array('Set my epesi home page'=>array('Base_HomePage_save'=>'1'));
 		return array();
 	}
 	
