@@ -37,6 +37,19 @@ table#Base_Search__Results td.link {
 	text-align: left;	
 }
 
+table#Base_Search__Results td.warning {
+	border-left: 1px solid #B3B3B3;
+	border-right: 1px solid #B3B3B3;
+	border-bottom: 1px solid #B3B3B3;
+	background-color: #FFCCCC;
+	padding-left: 20px;
+	padding-right: 20px;
+	height: 20px;
+	font-weight: bold;
+	vertical-align: center;
+	text-align: center;	
+}
+
 table#Base_Search__Results td.link:hover {
 	background-color: #F0F0F0;
 }

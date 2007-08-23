@@ -79,16 +79,23 @@ class Base_Search extends Module {
 			if($keyword) {
 				$links = array();
 				$this->set_module_variable('quick_search',$keyword);
+				$count = 0;
 				foreach($modules_with_search as $k=>$v) {
 					$results = call_user_func(array($v['name'].'Common','search'),$keyword);
 					if (!empty($results))
 						foreach ($results as $rk => $rv) {
+							$count++;
+							if ($count == 101) {
+								$warning = $this->lang->t('Only 100 results are displayed.');
+								break;
+							}
 							$links[] = '<a '.$this->create_href(array_merge($rv,array('box_main_module'=>$k))).'>'.$rk.'</a>';
 						}
 				}
 				$qs_theme =  & $this->pack_module('Base/Theme');
 				$qs_theme->assign('header', $this->lang->t('Search results'));
 				$qs_theme->assign('links', $links);
+				$qs_theme->assign('warning', isset($warning)?$warning:null);
 				$qs_theme->display('Results');
 					eval_js('var elem=document.getElementById(\'advanced_search_select\');if(elem){for(i=0; i<elem.length; i++) if(elem.options[i].value==\'__null__\') {elem.options[i].selected=true;break;};};');
 				return;
