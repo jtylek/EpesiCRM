@@ -48,7 +48,7 @@ class Base_User_SettingsCommon {
 			if(is_array($menu))
 				foreach($menu as $v)
 					foreach($v as $v2)
-						if ($v2['name']==$name) {
+						if ($v2['type']!='static' && $v2['name']==$name) {
 							$variables[$module.'__'.$name] = $v2['default'];
 							return $v2['default'];
 						}

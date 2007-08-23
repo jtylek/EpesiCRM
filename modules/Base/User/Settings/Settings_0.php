@@ -86,8 +86,9 @@ class Base_User_Settings extends Module {
 				$f -> addElement('select',$module.self::$sep.$v['name'],$this->lang->t($v['label']),$select);
 				$this->set_default_js .= 'e = document.getElementById(\''.$f->getAttribute('name').'\').'.$module.self::$sep.$v['name'].';'.
 										'for(i=0; i<e.length; i++) if(e.options[i].value==\''.Base_User_SettingsCommon::get_default($module,$v['name']).'\'){e.options[i].selected=true;break;};';
-			}
-			if ($v['type']=='radio'){
+			} elseif ($v['type']=='static') {
+				$f -> addElement('static',$module.self::$sep.$v['name'],$this->lang->t($v['label']),$this->lang->t($v['values']));
+			} elseif ($v['type']=='radio') {
 				$radio = array();
 				$label = $this->lang->t($v['label']);
 				foreach($v['values'] as $k=>$x) {
@@ -96,12 +97,10 @@ class Base_User_Settings extends Module {
 				}
 				$this->set_default_js .= 'e = document.getElementById(\''.$f->getAttribute('name').'\').'.$module.self::$sep.$v['name'].';'.
 										'for(i=0; i<e.length; i++){e[i].checked=false;if(e[i].value==\''.Base_User_SettingsCommon::get_default($module,$v['name']).'\')e[i].checked=true;};';
-			}
-			if ($v['type']=='bool') {
+			} elseif ($v['type']=='bool') {
 				$f -> addElement('checkbox',$module.self::$sep.$v['name'],$this->lang->t($v['label']));
 				$this->set_default_js .= 'document.getElementById(\''.$f->getAttribute('name').'\').'.$module.self::$sep.$v['name'].'.checked = '.Base_User_SettingsCommon::get_default($module,$v['name']).';';
-			}
-			if ($v['type']=='text') {
+			} elseif ($v['type']=='text') {
 				$f -> addElement('text',$module.self::$sep.$v['name'],$this->lang->t($v['label']));
 				$this->set_default_js .= 'document.getElementById(\''.$f->getAttribute('name').'\').'.$module.self::$sep.$v['name'].'.value = \''.Base_User_SettingsCommon::get_default($module,$v['name']).'\';';
 			}

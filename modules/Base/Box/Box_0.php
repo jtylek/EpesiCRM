@@ -84,7 +84,7 @@ class Base_Box extends Module {
 					ob_end_clean();
 				}
 				if(isset($v['function']))
-					$this->display_module($this->modules[$k],$v['arguments'],$v['function']);
+					$this->display_module($this->modules[$k],isset($v['arguments'])?$v['arguments']:null,$v['function']);
 				elseif(isset($v['arguments']))
 					$this->display_module($this->modules[$k],$v['arguments']);
 				else
