@@ -1,4 +1,4 @@
-			showTip = function(tip, style, my_event) {
+			Utils_Toltip__showTip = function(tip, style, my_event) {
 				var div_tip = 'div_tip_' + style;
 				var tooltip_text = 'tooltip_text_' + style;
 				//document.getElementById(div_tip).style = 'tip';
@@ -40,6 +40,6 @@
 				document.getElementById(div_tip).style.visibility = 'visible';
 			}
 			
-			hideTip = function(style) {
+			Utils_Toltip__hideTip = function(style) {
 				document.getElementById('div_tip_'+style).style.visibility = 'hidden';
 			} 

@@ -43,6 +43,14 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input
         $this->setType('text');
         if( $this->getAttribute('format') == '' ) 
         	$this->setFormat('%Y.%m.%d');
+       	$js = "
+		popUpCalendar = function(URL) {
+			day = new Date();
+			id = day.getTime();
+			calendar = window.open(URL, 'calendar', 'toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width=400,height=250,left=490,top=250');
+		}
+		";
+        eval_js($js);
     } //end constructor
         
     function setFormat($format) {

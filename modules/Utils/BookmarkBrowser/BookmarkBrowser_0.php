@@ -93,7 +93,7 @@ class Utils_BookmarkBrowser extends Module {
 		$theme->assign('list', $bookmark);
 		$theme->assign('content_id', $content_id);
 		$theme->assign('groups', count($bookmark));
-		$theme->assign('header_width', 100/count($bookmark));
+		$theme->assign('header_width', ( count($bookmark) != 0 ? 100/count($bookmark) : 100 ));
 		$theme->assign('items', $this->_bookmarks);
 		
 		$theme->display();

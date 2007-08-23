@@ -83,7 +83,7 @@ class Utils_Tooltip extends Module {
 			Utils_Tooltip::$styles[$style] = true;
 		}
 		
-		return ' onMouseMove="showTip(\''.htmlspecialchars($tip).'\', \''.$style.'\' , event)" onMouseOut="hideTip(\''.$style.'\')"';
+		return ' onMouseMove="Utils_Toltip__showTip(\''.htmlspecialchars($tip).'\', \''.$style.'\' , event)" onMouseOut="Utils_Toltip__hideTip(\''.$style.'\')"';
 	}
 
 }
