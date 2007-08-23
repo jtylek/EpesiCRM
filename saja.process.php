@@ -26,7 +26,6 @@ $proc_file = null;
 $function = null;
 $session_id = null;
 $request_id = null;
-$true_utf8 = null;
 $errors = '';
 $req = $_POST['req'];
 
@@ -58,7 +57,6 @@ if(!$errors) {
 	$REQ = $_SESSION['SAJA_PROCESS']['REQUESTS'][$request_id];
 	$proc_file = $REQ['PROCESS_FILE'];
 	$function = $REQ['FUNCTION'];
-	$true_utf8 = $REQ['UTF8'];
 	
 	
 	global $base;
@@ -79,7 +77,6 @@ if(!$errors) {
 	}
 
 	$base->set_process_file($proc_file);
-	$base->set_true_utf8($true_utf8);
 	$base->runFunc($function, $php);
 	$base->call_jses();
 	if($base->hasActions())
@@ -102,8 +99,11 @@ $_SESSION['__last_error__']='';
 $content = ob_get_contents();
 ob_end_clean();
 
-if($base->true_utf8)
+if(GZIP_OUTPUT) {
+	ob_start("ob_gzhandler");
 	echo $content;
-else
-	echo utf8_encode($content);
+	ob_end_flush();
+} else {
+	echo $content;
+}
 ?>

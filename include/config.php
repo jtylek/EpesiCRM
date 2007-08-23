@@ -16,7 +16,6 @@ if(!defined('DATABASE_USER')) trigger_error('Missing defined DATABASE_USER in da
 if(!defined('DATABASE_PASSWORD')) trigger_error('Missing defined DATABASE_PASSWORD in data/config.php.',E_USER_ERROR);
 if(!defined('DATABASE_NAME')) trigger_error('Missing defined DATABASE_NAME in data/config.php.',E_USER_ERROR);
 if(!defined('DATABASE_DRIVER')) trigger_error('Missing defined DATABASE_DRIVER in data/config.php.',E_USER_ERROR);
-if(!defined('DB_SESSION')) define('DB_SESSION',true);
 if(!defined('DEBUG')) define("DEBUG",0);
 if(!defined('MODULE_TIMES')) define("MODULE_TIMES",0);
 if(!defined('SQL_TIMES')) define("SQL_TIMES",0);
@@ -25,4 +24,7 @@ if(!defined('SECURE_HTTP')) define("SECURE_HTTP",0);
 if(!defined('STRIP_OUTPUT')) define("STRIP_OUTPUT",0);
 if(!defined('DISPLAY_ERRORS')) define("DISPLAY_ERRORS",0);
 if(!defined('REPORT_ALL_ERRORS')) define("REPORT_ALL_ERRORS",0);
+if(!defined('GZIP_OUTPUT')) define("GZIP_OUTPUT",0);
+if(!defined('GZIP_SESSION')) define("GZIP_SESSION",0);
+if(!defined('GZIP_HISTORY')) define("GZIP_HISTORY",0);
 ?>

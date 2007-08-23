@@ -19,7 +19,9 @@ class History {
 		$session = & $GLOBALS['base']->get_session();
 		self::$action = true;
 		if(self::is_back()) $session['__history_id__']--;
-		$session['__module_vars__'] = $session['__history__'][$session['__history_id__']-1];
+		$data = DB::GetOne('SELECT data FROM history WHERE session_name=%s AND page_id=%d AND client_id=%d',array(session_id(),$session['__history_id__']-1,$GLOBALS['base']->get_client_id()));
+		if(GZIP_HISTORY) $data = gzuncompress($data);
+		$session['__module_vars__'] = unserialize($data);
 		location(array());
 	}
 	
@@ -28,7 +30,9 @@ class History {
 		if(self::is_forward()) 
 			$session['__history_id__']++;
 		self::$action = true;
-		$session['__module_vars__'] = $session['__history__'][$session['__history_id__']-1];
+		$data = DB::GetOne('SELECT data FROM history WHERE session_name=%s AND page_id=%d AND client_id=%d',array(session_id(),$session['__history_id__']-1,$GLOBALS['base']->get_client_id()));
+		if(GZIP_HISTORY) $data = gzuncompress($data);
+		$session['__module_vars__'] = unserialize($data);
 		location(array());
 	}
 	
@@ -38,10 +42,11 @@ class History {
 			return;
 
 		if(!isset($session['__history_id__'])) $session['__history_id__']=0;
-		$session['__history__'][$session['__history_id__']] = $session['__module_vars__'];
+		$data = serialize($session['__module_vars__']);
+		if(GZIP_HISTORY) $data = gzcompress($data);
+		DB::Replace('history',array('data'=>$data,'page_id'=>$session['__history_id__'],'client_id'=>$GLOBALS['base']->get_client_id(), 'session_name'=>session_id()),array('session_name','client_id','page_id'),true);
 		$session['__history_id__']++;
-		for($i=$session['__history_id__']; $i<count($session['__history__']); $i++)
-			unset($session['__history__'][$i]);
+		DB::Execute('DELETE FROM history WHERE session_name=%s AND page_id>=%d AND client_id=%d',array(session_id(),$session['__history_id__'],$GLOBALS['base']->get_client_id()));
 	}
 	
 	public static function is_back() {
@@ -53,7 +58,8 @@ class History {
 	
 	public static function is_forward() {
 		$session = & $GLOBALS['base']->get_session();
-		return $session['__history_id__']<count($session['__history__']);
+		$c = DB::GetOne('SELECT count(*) FROM history WHERE session_name=%s AND client_id=%d',array(session_id(),$GLOBALS['base']->get_client_id()));
+		return $session['__history_id__']<$c;
 	}
 	
 	public static function get_id() {
@@ -66,16 +72,19 @@ class History {
 
 	public static function set_id($id) {
 		$session = & $GLOBALS['base']->get_session();
+		$c = DB::GetOne('SELECT count(*) FROM history WHERE session_name=%s AND client_id=%d',array(session_id(),$GLOBALS['base']->get_client_id()));
 		if($id<1) $id = 1;
-		elseif($id>count($session['__history__'])) $id=count($session['__history__']);
+		elseif($id>$c) $id=$c;
 		$session['__history_id__']=$id;
-		$session['__module_vars__'] = $session['__history__'][$session['__history_id__']-1];
+		$data = DB::GetOne('SELECT data FROM history WHERE session_name=%s AND page_id=%d AND client_id=%d',array(session_id(),$session['__history_id__']-1,$GLOBALS['base']->get_client_id()));
+		if(GZIP_HISTORY) $data = gzuncompress($data);
+		$session['__module_vars__'] = unserialize($data);
 	}
 	
 	public static function clear() {
 		$session = & $GLOBALS['base']->get_session();
 		unset($session['__history_id__']);
-		unset($session['__history__']);
+		DB::Execute('DELETE FROM history WHERE session_name=%s AND client_id=%d',array(session_id(),$GLOBALS['base']->get_client_id()));
 	}
 	
 	public static function soft_call() {

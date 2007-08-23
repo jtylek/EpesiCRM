@@ -166,11 +166,6 @@ define("SECURE_HTTP",0);
 define("STRIP_OUTPUT",0);
 
 /*
- * Save session in database.
- */
-define("DB_SESSION",1);
-
-/*
  * Display errors on page.
  */
 define("DISPLAY_ERRORS",1);
@@ -179,6 +174,13 @@ define("DISPLAY_ERRORS",1);
  * Notify all errors, including E_NOTICE, etc. Developer should use it!
  */
 define("REPORT_ALL_ERRORS",1);
+
+/*
+ * Compress output buffer,session,history
+ */
+define("GZIP_OUTPUT",1);
+define("GZIP_SESSION",1);
+define("GZIP_HISTORY",1);
 ?>');
 	fclose($c);
 
@@ -210,10 +212,15 @@ function install_base() {
 	if($ret===false)
 		die('Invalid SQL query - Setup module (modules table)');
 	
-	$ret = DB::CreateTable('session',"id I AUTO KEY, name C(255) NOTNULL DEFAULT '', " .
+	$ret = DB::CreateTable('session',"name C(255) NOTNULL KEY, " .
 			"expires I NOTNULL DEFAULT 0, data X2");
 	if($ret===false)
 		die('Invalid SQL query - Database module (session table)');
+	
+	$ret = DB::CreateTable('history',"session_name C(255) NOTNULL, " .
+			"data X2",array('constraints'=>', FOREIGN KEY(session_name) REFERENCES session(name)'));
+	if($ret===false)
+		die('Invalid SQL query - Database module (history table)');
 	
 	$ret = DB::CreateTable('variables',"name C(32) KEY,value X");
 	if($ret===false)

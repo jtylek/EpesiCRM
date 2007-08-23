@@ -45,7 +45,6 @@ require_once('saja/saja.php');
 global $saja;
 $saja = new Saja();
 $saja->set_process_file('base.php');
-$saja->set_true_utf8(true);
 if(SECURE_HTTP)
     $saja->secure_http();
 
@@ -138,4 +137,3 @@ unset($_SESSION['cl'.$client_id]);
 <?php
 ob_end_flush();
 ?>
-

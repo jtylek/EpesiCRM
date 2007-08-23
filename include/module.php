@@ -221,7 +221,7 @@ abstract class Module {
 	 * @return mixed value
 	 */
 	public final static function & static_get_module_variable($client_id, $path, $name, $default=null) {
-		if(isset($default) && !self::static_isset_module_variable($name))
+		if(isset($default) && !self::static_isset_module_variable($client_id,$path,$name))
 			$_SESSION['cl'.$client_id]['stable']['__module_vars__'][$path][$name] = & $default;
 		return $_SESSION['cl'.$client_id]['stable']['__module_vars__'][$path][$name];
 	}
@@ -284,6 +284,10 @@ abstract class Module {
 		unset($session['__module_vars__'][$this->get_path()][$name]);
 	}
 	
+	public final static function static_unset_module_variable($client_id,$path,$name) {
+		unset($_SESSION['cl'.$client_id]['stable']['__module_vars__'][$path][$name]);
+	}
+
 	/**
 	 * Unset all module variables.
 	 * For details concerning module variables see set_module_variable. 

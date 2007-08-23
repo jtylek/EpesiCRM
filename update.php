@@ -44,6 +44,12 @@ function mod_cmp($a, $b){
 	return strlen($b['name']) - strlen($a['name']);
 }
 function update_from_0_8_11_to_0_9_0() {
+	DB::DropTable('session');
+	DB::CreateTable('session',"name C(255) NOTNULL KEY, " .
+			"expires I NOTNULL DEFAULT 0, data X2");
+	DB::CreateTable('history',"session_name C(255) NOTNULL, page_id I, client_id I," .
+			"data X2",array('constraints'=>', FOREIGN KEY(session_name) REFERENCES session(name)'));
+
 	// Reducing Base_Admin version number
 	DB::Execute('UPDATE modules SET version=0 WHERE name=\'Base_Admin\'');
 	
