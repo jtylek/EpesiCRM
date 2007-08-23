@@ -50,17 +50,18 @@ class Base_Search extends Module {
 			$form->addElement('static', 'advanced_search_header', $this->lang->t('Advanced search'));
 			$form->addElement('select', 'advanced_search', 'Module:', $modules_with_adv_search_, array('onChange'=>$form->get_submit_form_js(false),'id'=>'advanced_search_select'));
 			$advanced_search = $form->exportValue('advanced_search');
+			if ($advanced_search != $this->get_module_variable('advanced_search')) $qs_keyword = null;
 			if ($advanced_search === '__null__') $advanced_search = false; 
 		} else $advanced_search = false;
 
 		$defaults['quick_search']=$qs_keyword;
 		if (!$qs_keyword) {
 			if (!isset($advanced_search)) $advanced_search = $this->get_module_variable('advanced_search');
-//			$defaults['advanced_search'] = $advanced_search;
+			$defaults = array('advanced_search'=>$advanced_search?$advanced_search:'__null__');
 		} else {
 			$this->unset_module_variable('advanced_search');
+			$advanced_search = null;
 		}
-		$defaults = array('advanced_search'=>$advanced_search?$advanced_search:'__null__');
 		
 		$form->setDefaults($defaults);
 		
@@ -81,15 +82,15 @@ class Base_Search extends Module {
 				foreach($modules_with_search as $k=>$v) {
 					$results = call_user_func(array($v['name'].'Common','search'),$keyword);
 					if (!empty($results))
-						foreach ($results as $rk => $rv)
+						foreach ($results as $rk => $rv) {
 							$links[] = '<a '.$this->create_href(array_merge($rv,array('box_main_module'=>$k))).'>'.$rk.'</a>';
+						}
 				}
 				$qs_theme =  & $this->pack_module('Base/Theme');
 				$qs_theme->assign('header', $this->lang->t('Search results'));
 				$qs_theme->assign('links', $links);
 				$qs_theme->display('Results');
-				if($advanced_search)
-					eval_js('var elem=document.getElementById(\'advanced_search_select\');for(i=0; i<elem.length; i++) if(elem.options[i].value==\'0\') {elem.options[i].selected=true;break;};');
+					eval_js('var elem=document.getElementById(\'advanced_search_select\');if(elem){for(i=0; i<elem.length; i++) if(elem.options[i].value==\'__null__\') {elem.options[i].selected=true;break;};};');
 				return;
 			}
 		}
