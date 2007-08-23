@@ -109,13 +109,14 @@ class Base_User_Settings extends Module {
 				$i = 0;
 				foreach ($v['rule'] as $r) {
 					if (!isset($r['message'])) trigger_error('No error message specified for field '.$v['name'], E_USER_ERROR);
+					if (!isset($r['type'])) trigger_error('No error type specified for field '.$v['name'], E_USER_ERROR);
 					if ($r['type']=='callback') {
 						if (!is_array($r['param'])) trigger_error('Invalid parameter specified for rule definition for field '.$v['name'], E_USER_ERROR);
-						$form->registerRule($v['name'].$i.'_rule', 'callback', $r['param'][1], $r['param'][0]);
-						$form->addRule($module.self::$sep.$v['name'], $this->lang->t($r['message']), $v['name'].$i.'_rule');
+						$f->registerRule($v['name'].$i.'_rule', 'callback', $r['param'][1], $r['param'][0]);
+						$f->addRule($module.self::$sep.$v['name'], $this->lang->t($r['message']), $v['name'].$i.'_rule');
 					} else {
 						if ($r['type']=='regex' && !isset($r['param'])) trigger_error('No regex defined for a rule for field '.$v['name'], E_USER_ERROR);
-						$form->addRule($module.self::$sep.$v['name'], $this->lang->t($r['message']), $v['type'], $v['param']);
+						$f->addRule($module.self::$sep.$v['name'], $this->lang->t($r['message']), $v['type'], isset($v['param'])?$v['param']:null);
 					}
 					$i++;
 				}
