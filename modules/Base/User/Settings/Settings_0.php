@@ -111,12 +111,19 @@ class Base_User_Settings extends Module {
 					if (!isset($r['message'])) trigger_error('No error message specified for field '.$v['name'], E_USER_ERROR);
 					if (!isset($r['type'])) trigger_error('No error type specified for field '.$v['name'], E_USER_ERROR);
 					if ($r['type']=='callback') {
-						if (!is_array($r['param'])) trigger_error('Invalid parameter specified for rule definition for field '.$v['name'], E_USER_ERROR);
-						$f->registerRule($v['name'].$i.'_rule', 'callback', $r['param'][1], $r['param'][0]);
-						$f->addRule($module.self::$sep.$v['name'], $this->lang->t($r['message']), $v['name'].$i.'_rule');
+						if (!isset($r['func'])) trigger_error('Invalid parameter specified for rule definition for field '.$v['name'], E_USER_ERROR);
+						if(is_string($r['func']))
+							$f->registerRule($v['name'].$i.'_rule', 'callback', $r['func']);
+						elseif(is_array($r['func']))
+							$f->registerRule($v['name'].$i.'_rule', 'callback', $r['func'][1], $r['func'][0]);
+						else
+							trigger_error('Invalid parameter specified for rule definition for field '.$v['name'], E_USER_ERROR);
+						if(isset($r['param']) && $r['param']=='__form__')
+							$r['param'] = &$f;
+						$f->addRule($module.self::$sep.$v['name'], $this->lang->t($r['message']), $v['name'].$i.'_rule', isset($r['param'])?$r['param']:null);
 					} else {
 						if ($r['type']=='regex' && !isset($r['param'])) trigger_error('No regex defined for a rule for field '.$v['name'], E_USER_ERROR);
-						$f->addRule($module.self::$sep.$v['name'], $this->lang->t($r['message']), $v['type'], isset($v['param'])?$v['param']:null);
+						$f->addRule($module.self::$sep.$v['name'], $this->lang->t($r['message']), $r['type'], isset($r['param'])?$r['param']:null);
 					}
 					$i++;
 				}
