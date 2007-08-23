@@ -23,12 +23,12 @@ class Base_HomePageCommon {
 		if($uid == '')
 			return;
 		$session = & $base->get_session();
-		$ret = DB::Execute('SELECT url FROM home_page WHERE user_login_id=%d',$uid);
-		if(!($row = $ret->FetchRow())) {
+		$ret = DB::GetOne('SELECT url FROM home_page WHERE user_login_id=%d',$uid);
+		if(!$ret) {
 			$_REQUEST['box_main_module'] = Base_BoxCommon::get_main_module_name();
 			return;
 		}
-		parse_str($row[0], $session['__module_vars__']);
+		$session['__module_vars__'] = unserialize($ret);
 		location(array());
 	}
 	
@@ -37,8 +37,8 @@ class Base_HomePageCommon {
 		global $base;
 		$uid = Base_UserCommon::get_user_id(Acl::get_user());
 		$session = & $base->get_session();
-		$url = http_build_query($session['__module_vars__']);
-		DB::Execute('INSERT INTO home_page VALUES(%d, %s) ON DUPLICATE KEY UPDATE url=%s',array($uid, $url, $url));
+		$url = serialize($session['__module_vars__']);
+		DB::Replace('home_page',array('user_login_id'=>$uid,'url'=>$url), 'user_login_id',true);
 	}
 	
 	public static function tool_menu() {
