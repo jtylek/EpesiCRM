@@ -72,7 +72,7 @@ class Utils_Tooltip extends Module {
 	 * @return string HTML tag attributes
 	 */
 	public function open_tag_attrs( $tip, $style = 'default' ) {
-		load_js('modules/Utils/Tooltip/js/Tooltip.js');
+		load_js_inline('modules/Utils/Tooltip/js/Tooltip.js');
 
 		if(!isset(Utils_Tooltip::$styles[$style])) {
 			print "<div id=div_tip_".$style." style='position: absolute; visibility: hidden;'>";
