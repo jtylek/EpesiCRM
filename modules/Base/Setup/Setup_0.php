@@ -147,9 +147,10 @@ class Base_Setup extends Module {
 	//				else location(array());
 				eval_js_once('document.location=\'index.php\'');
 				return;
+			} else {
+				print('<hr><a '.$this->create_href(array()).'>back</a>');
 			}
-		} 
-		//else 
+		} else 
 		$form->display();
 	}
 	

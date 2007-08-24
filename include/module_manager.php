@@ -18,6 +18,7 @@ class ModuleManager {
 	public static $loaded_modules = array();
 	public static $modules = array();
 	public static $root = array();
+	private static $processing = array(); 
 
 	/**
 	 * Includes file with module installation class.
@@ -148,7 +149,34 @@ class ModuleManager {
 		
 		return $ret;
 	}
-
+	
+	private static function satisfy_dependencies($module_to_install,$version) {
+		self::$processing[$module_to_install] = $version;  
+		try {
+			$deps = self :: check_dependencies($module_to_install, $version, self::$modules);
+			while(!empty($deps)) {
+				$m = $deps[0];
+				if(isset(self::$processing[$m['name']])) 
+					throw new Exception('Cross dependencies: '.$module_to_install);
+				
+				if (!self :: exists($m['name'],$m['version']))
+					throw new Exception('Module not found: ' . $m['name'].' version='.$m['version']);
+				
+				print('Inst/Up required module: '.$m['name'].' version='.$m['version'].' by '.$module_to_install.'<br>');
+				if(self :: is_installed($m['name'])<0){
+					if (!self :: install($m['name'], $m['version'])) 
+						return false;
+				} else {
+					if (!self :: upgrade($m['name'], $m['version'])) return false;
+				}
+				$deps = self :: check_dependencies($module_to_install, $version, self::$modules);
+			}
+		} catch (Exception $e) {
+			print ($e->getMessage().'<br>');
+			return false;
+		}
+		unset(self::$processing[$module_to_install]);
+	}
 	
 	/**
 	 * Returns directory path to the module including module main directory.
@@ -216,7 +244,7 @@ class ModuleManager {
 	 * 
 	 * @return bool true if module was found, false otherwise
 	 */
-	public static final function exists($mod, $version) {
+	public static final function exists($mod) {
 		$path = self::get_module_dir_path($mod);
 		$file = self::get_module_file_name($mod);
 		//print_r($file);
@@ -247,7 +275,7 @@ class ModuleManager {
 	 * @param integer module version
 	 * @param array modules list
 	 */
-	public static final function unregister($mod, $version, & $module_table) {
+	public static final function unregister($mod, & $module_table) {
 		unset($module_table[$mod]);
 	}
 	
@@ -281,26 +309,26 @@ class ModuleManager {
 			return false;
 		}
 		if($installed_version==-1) {
-			print('Upgrading module \''.$module.'\' to version '.$to_version.': module is not installed, please install it first.');
+			print('Upgrading module \''.$module.'\' to version '.$to_version.': module is not installed, please install it first.<br>');
 			return false;
 		}
 		if (!self :: exists($module,$to_version)) {
-			print('Upgrading module \''.$module.'\' to version '.$to_version.': specified version of module is missing, please download it first.');
+			print('Upgrading module \''.$module.'\' to version '.$to_version.': specified version of module is missing, please download it first.<br>');
 			return false;
 		}
 		
 		self::include_install($module);
 		
 		for($i=$installed_version+1; $i<=$to_version; $i++) {
-			$deps = self::check_dependencies($module,$i,self::$modules);
+			/*$deps = self::check_dependencies($module,$i,self::$modules);
 			if(!empty($deps)) {
 				foreach($deps as $d)
 					print('Upgrading module \''.$module.'\' to version '.$to_version.': upgrade to version '.$i.' failed. Module '.$d['name'].' version='.$d['version'].' required!<br>');
 				break;
-			}
-			if(is_callable(array($module.'Install', 'upgrade_'.$i)) 
-			    && !call_user_func(array($module.'Install', 'upgrade_'.$i))) {
-				print('Upgrading module \''.$module.'\' to version '.$to_version.': upgrade to version '.$i.' failed.');
+			}*/
+			if(!self::satisfy_dependencies($module,$i) || (is_callable(array($module.'Install', 'upgrade_'.$i)) 
+				&& !call_user_func(array($module.'Install', 'upgrade_'.$i)))) {
+				print('Upgrading module \''.$module.'\' to version '.$to_version.': upgrade to version '.$i.' failed.<br>');
 				break;
 			}
 		}
@@ -308,7 +336,7 @@ class ModuleManager {
 		$i--;
 		
 		if(!DB::Execute('UPDATE modules SET version=%d WHERE name=%s',array($i,$module))) {
-			print('Upgrading module \''.$module.'\' to version '.$to_version.': unable to update database');
+			print('Upgrading module \''.$module.'\' to version '.$to_version.': unable to update database<br>');
 			return false;
 		}
 		
@@ -342,11 +370,11 @@ class ModuleManager {
 			return false;
 		}
 		if($installed_version==-1) {
-			print('Downgrading module \''.$module.'\' to version '.$to_version.': module not installed.');
+			print('Downgrading module \''.$module.'\' to version '.$to_version.': module not installed.<br>');
 			return false;
 		}
 		if (!self :: exists($module,$to_version)) {
-			print('Downgrading module \''.$module.'\' to version '.$to_version.': specified version of module is missing, please download it first.');
+			print('Downgrading module \''.$module.'\' to version '.$to_version.': specified version of module is missing, please download it first.<br>');
 			return false;
 		}
 		
@@ -366,28 +394,27 @@ class ModuleManager {
 
 			foreach($req_mod as $req)
 				if($req['name']==$module && $req['version']>$to_version) {
-					print('Downgrading module \''.$module.'\' to version '.$to_version.': module '.$k.' requires this module at least in version '.$req['version'].' !');
+					print('Downgrading module \''.$module.'\' to version '.$to_version.': module '.$k.' requires this module at least in version '.$req['version'].' !<br>');
 					return false;
 				}
 		}
 		
 		//go
 		for($i=$installed_version; $i>$to_version; $i--) {
-			$deps = self::check_dependencies($module,$i-1,self::$modules);
+/*			$deps = self::check_dependencies($module,$i-1,self::$modules);
 			if(!empty($deps)) {
 				foreach($deps as $d)
 					print('Downgrading module \''.$module.'\' to version '.$to_version.' from '.$i.' failed: module '.$d['name'].' version='.$d['version'].' required!<br>');
 				break;
-			}
-			if(is_callable(array($module.'Install', 'downgrade_'.$i)) 
-			    && !call_user_func(array($module.'Install', 'downgrade_'.$i))) {
-				print('Downgrading module \''.$module.'\' to version '.$to_version.' from '.$i.' failed.');
+			}*/
+			if(!self::satisfy_dependencies($module,$i) || (is_callable(array($module.'Install', 'downgrade_'.$i)) 
+				&& !call_user_func(array($module.'Install', 'downgrade_'.$i)))) {					print('Downgrading module \''.$module.'\' to version '.$to_version.' from '.$i.' failed.<br>');
 				break;
 			}
 		}
 		
 		if(!DB::Execute('UPDATE modules SET version=%d WHERE name=%s',array($i,$module))) {
-			print('Downgrading module \''.$module.'\' to version '.$to_version.' failed: unable to update database');
+			print('Downgrading module \''.$module.'\' to version '.$to_version.' failed: unable to update database<br>');
 			return false;
 		}
 		
@@ -441,30 +468,14 @@ class ModuleManager {
 			return false;
 
 		//check dependecies
-		try {
-			$deps = self :: check_dependencies($module_to_install, $version, self::$modules);
-			while(!empty($deps)) {
-				$m = $deps[0];
-				if (!self :: exists($m['name'],$m['version']))
-					throw new Exception('Module not found: ' . $m['name'].' version='.$m['version']);
-				print('Inst/Up required module: '.$m['name'].' version='.$m['version'].' by '.$module_to_install.'<br>');
-				if(self :: is_installed($m['name'])<0){
-					if (!self :: install($m['name'], $m['version'])) 
-						return false;
-				} else {
-					if (!self :: upgrade($m['name'], $m['version'])) return false;
-				}
-				$deps = self :: check_dependencies($module_to_install, $version, self::$modules);
-			}
-		} catch (Exception $e) {
-			print ($e->getMessage());
+		if(!self::satisfy_dependencies($module_to_install,$version)) {
+			print($module_to_install.': dependecies not satisfied.<br>');
 			return false;
 		}
 
-
 		print($module_to_install.': creating data dir<br>');
 		if (!self::create_data_dir($module_to_install)) {
-			print($module_to_install.': unable to create data directory.');
+			print($module_to_install.': unable to create data directory.<br>');
 			return false;
 		}
 
@@ -633,6 +644,7 @@ class ModuleManager {
 	public static final function list_backups() {
 		$backup_ls = scandir('backup');
 		$backup = array();
+		$reqs = array();
 		foreach($backup_ls as $b) {
 			if(!ereg('([^-]+)__([0-9]+)__([0-9]+)',$b,$reqs)) continue;
 			$backup[] = array('name'=>$reqs[1],'version'=>$reqs[2],'date'=>$reqs[3]);
@@ -669,7 +681,7 @@ class ModuleManager {
 			return false;	
 		}
 		
-		self::unregister($module_to_uninstall,$installed_version,self::$modules);
+		self::unregister($module_to_uninstall,self::$modules);
 		
 		if (!self::remove_data_dir($module_to_uninstall)){
 			print ($module_to_uninstall . " module uninstallation failed: data directory remove<br>");
@@ -727,7 +739,8 @@ class ModuleManager {
 				if($module==$mod) break;
 			}
 		}
-		$m = new self::$modules[$mod]['name']($mod,$parent,$name);
+		$c = self::$modules[$mod]['name'];
+		$m = new $c($mod,$parent,$name);
 		return $m;
 	}
 

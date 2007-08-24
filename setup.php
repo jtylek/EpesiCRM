@@ -217,7 +217,7 @@ function install_base() {
 	if($ret===false)
 		die('Invalid SQL query - Database module (session table)');
 	
-	$ret = DB::CreateTable('history',"session_name C(255) NOTNULL, " .
+	$ret = DB::CreateTable('history',"session_name C(255) NOTNULL, page_id I, client_id I," .
 			"data X2",array('constraints'=>', FOREIGN KEY(session_name) REFERENCES session(name)'));
 	if($ret===false)
 		die('Invalid SQL query - Database module (history table)');
