@@ -23,6 +23,7 @@
 	{if isset($form_data.submit_search)}{$form_data.submit_search.html}{$adv_search}{/if}
 {/if}
 
+{if isset($order) || isset($letter_links)}
 <table width=100%>
 <tr>
 	<td align="left" style="padding-bottom: 5px;">
@@ -35,11 +36,13 @@
 		</b>
 	</td>
 	<td align="right" style="padding-bottom: 5px;">
+		{if isset($order)}
 		{$order}&nbsp;&nbsp;&nbsp;<b>{$reset}</b>
+		{/if}
 	</td>
 </tr>
 </table>
-
+{/if}
 {html_scrolled_table_epesi table_attr='id="Utils_GenericBrowser" cellspacing="0" cellpadding="0"' loop=$data cols=$cols}
 
 <table id="Utils_GenericBrowser__navigation" border="0" cellspacing="0" cellpadding="0">

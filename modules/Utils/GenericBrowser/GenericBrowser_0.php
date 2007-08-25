@@ -701,11 +701,13 @@ class Utils_GenericBrowser extends Module {
 			}
 		}
 		$i = 0;
+		$is_order = false;
 		foreach($this->columns as $v) {
 			if((!Base_AclCommon::i_am_sa() || !Base_MaintenanceModeCommon::get_mode()) && ((array_key_exists('display', $v) && $v['display']==false) || !$col_pos[$i]['display'])) {
 				$i++;
 				continue;
 			}
+			if(isset($v['order'])) $is_order = true;
 			if(!isset($headers[$col_pos[$i]['pos']])) $headers[$col_pos[$i]['pos']] = array('label'=>'');
 			$headers[$col_pos[$i]['pos']]['label'] .= isset($v['order'])?'<a '.$this->create_unique_href(array('change_order'=>$v['name'])).'>'.$v['name'].'</a>':$v['name'];
 			//if ($v['search']) $headers[$col_pos[$i]['pos']] .= $form_array['search__'.$v['search']]['label'].$form_array['search__'.$v['search']]['html'];
@@ -792,13 +794,10 @@ class Utils_GenericBrowser extends Module {
 		if ($search_on) $theme->assign('adv_search','<a '.$this->create_unique_href(array('adv_search'=>!$this->is_adv_search_on())).'>'.($this->is_adv_search_on()?$this->lang->t('Simple Search'):$this->lang->t('Advanced Search')).'</a>');
 		else $theme->assign('adv_search','');
 		
-		if (Base_User_SettingsCommon::get('Utils/GenericBrowser','adv_history')){
+		if (Base_User_SettingsCommon::get('Utils/GenericBrowser','adv_history') && $is_order){
 			$theme->assign('reset', '<a '.$this->create_unique_href(array('action'=>'reset_order')).'>'.$this->lang->t('Reset Order').'</a>');
 			$theme->assign('order',$this->get_module_variable('order_history_display'));
-		} else {
-			$theme->assign('reset','');
-			$theme->assign('order','');
-		}
+		} 
 		if(isset($template))
 			$theme->display($template,true);
 		else
