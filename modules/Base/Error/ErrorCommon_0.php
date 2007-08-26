@@ -18,7 +18,7 @@ class EpesiErrorObserver extends ErrorObserver {
 				debug_print_backtrace();
 				$backtrace = "\nerror backtrace:\n".ob_get_contents();
 			} else $backtrace = '';
-			Base_MailCommon::send('bugs@telaxus.com','Epesi Error',"who=".Acl::get_user()."\ntype=".$type."\nmessage=".$message."\nerror file=".$errfile."\nerror line=".$errline."\nerror context=".var_export($errcontext,true).$backtrace);
+			Base_MailCommon::send('bugs@telaxus.com','Epesi Error',"who=".Acl::get_user()."\ntype=".$type."\nmessage=".$message."\nerror file=".$errfile."\nerror line=".$errline."\n".$backtrace);
 		}
 		return true;
 	}
