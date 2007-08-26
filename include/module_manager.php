@@ -85,7 +85,7 @@ class ModuleManager {
 	 * 
 	 * @return array array containing information about modules priorities
 	 */
-	public static final function & create_load_priority_array() {
+	public static final function create_load_priority_array() {
 		$queue = array();
 		$virtual_modules = array(); //virtually loaded modules
 		$priority = array();
@@ -114,8 +114,21 @@ class ModuleManager {
 				}
 			}
 		}
-
-		return $priority;
+		if(!empty($queue)) {
+			$x = 'Modules deps not satisfied: ';
+			foreach($queue as $k=>$m) { 
+				$deps = self :: check_dependencies($m['name'], $m['version'], $virtual_modules);
+				$yyy = array();
+				foreach($deps as $xxx) {
+					$yyy[] = $xxx['name'].' ['.$xxx['version'].']';
+				}
+				$x .= $m['name'].' ['.$m['version'].'] ('.implode(',',$yyy).'), ';
+			}
+			$x .= '<br>';
+			trigger_error($x,E_USER_ERROR);
+		}
+		foreach($priority as $k=>$v)
+			DB::Execute('UPDATE modules SET priority=%d WHERE name=%s',array($k,$v));
 	}
 	
 	/**
@@ -343,9 +356,7 @@ class ModuleManager {
 		
 		self::register($module,$to_version,self::$modules);
 		
-		$arr = & self::create_load_priority_array();
-		foreach($arr as $k=>$v)
-			DB::Execute('UPDATE modules SET priority=%d WHERE name=%s',array($k,$v));
+		self::create_load_priority_array();
 		
 		if($i==$to_version)	{
 			if(DEBUG)
@@ -419,9 +430,7 @@ class ModuleManager {
 			return false;
 		}
 		
-		$arr = & self::create_load_priority_array();
-		foreach($arr as $k=>$v)
-			DB::Execute('UPDATE modules SET priority=%d WHERE name=%s',array($k,$v));
+		self::create_load_priority_array();
 		
 		print('Module '.$module.' succesfully downgraded to version '.$to_version.'<br>');
 		return true;
@@ -497,10 +506,8 @@ class ModuleManager {
 		self :: register($module_to_install, 0, self::$modules);
 
 		print($module_to_install.': rewriting priorities<br>');
-		$arr = & self::create_load_priority_array();
-		foreach($arr as $k=>$v)
-			DB::Execute('UPDATE modules SET priority=%d WHERE name=%s',array($k,$v));
-
+		self::create_load_priority_array();
+		
 		print ($module_to_install . ' module installed!<br>');
 		
 		if($version!=0) {
@@ -689,9 +696,7 @@ class ModuleManager {
 			return false;
 		}
 		
-		$arr = & self::create_load_priority_array();
-		foreach($arr as $k=>$v)
-			DB::Execute('UPDATE modules SET priority=%d WHERE name=%s',array($k,$v));
+		self::create_load_priority_array();
 		
 		print ($module_to_uninstall . " module uninstalled! You can safely remove module directory.<br>");
 		return true;
