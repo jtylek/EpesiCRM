@@ -470,7 +470,7 @@ class ModuleManager {
 
 		//check dependecies
 		if(!self::satisfy_dependencies($module_to_install,$version)) {
-			print($module_to_install.': dependecies not satisfied.<br>');
+			print($module_to_install.': dependencies not satisfied.<br>');
 			return false;
 		}
 
