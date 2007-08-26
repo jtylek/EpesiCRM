@@ -122,7 +122,7 @@ class Base extends Epesi {
 					$xx = explode('/',$k);
 					$yy = explode('|',$xx[count($xx)-1]);
 					$mod = $yy[0];
-					if((!is_callable(array($mod.'Common','destroy')) || !call_user_func(array($mod.'Common','destroy'),$k,$session['__module_vars__'][$k]))) {
+					if(!is_callable(array($mod.'Common','destroy')) || !call_user_func(array($mod.'Common','destroy'),$k,isset($session['__module_vars__'][$k])?$session['__module_vars__'][$k]:null)) {
 						if(DEBUG)
 							$debug .= 'Clearing mod vars & module content '.$k.'<br>';
 						unset($session['__module_vars__'][$k]);

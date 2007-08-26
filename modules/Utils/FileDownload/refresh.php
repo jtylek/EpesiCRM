@@ -15,8 +15,18 @@ class myFunctions extends Epesi {
 		$download_id = Module::static_get_module_variable($cl_id,$path,'download_id');
 		$ret = DB::Execute('SELECT size,curr,time,rate FROM utils_filedownload_files WHERE id=%d',array($download_id));
 		$row = $ret->FetchRow();
+
+		if($row['size']==-2) {
+			print('File not found.');
+			return;
+		}
+
 		if($row['size']==-1) {
 			print('Connecting...');
+			return;
+		}
+		if($row['curr']==$row['size']) {
+			print('Finished');
 			return;
 		}
 

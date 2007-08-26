@@ -21,26 +21,23 @@ $file = DB::GetOne('SELECT path FROM utils_filedownload_files WHERE id=%d',array
 
 $in = fopen($file,'rb');
 
-$size = filesize($file);
 $headers = array_change_key_case(get_headers($file, 1),CASE_LOWER);
 if ((!array_key_exists("content-length", $headers))) $size = -1;
 $size = $headers["content-length"];
 
 print('Size: '.$size.'<br>');
 flush();
-ob_flush();
 
 $dest_filename  = 'tmp_'.microtime(true);
-$dest_path  = 'data/Utils_FileDownload/'.$dest_filename;
+$dest_path  = '../../../data/Utils_FileDownload/'.$dest_filename;
 $out = fopen($dest_path,'wb');
 
 print('Connected<br>');
 flush();
-ob_flush();
 
 $x = 0;
 $t = microtime(true);
-$last_t = $t;
+$curr_t = $last_t = $t;
 
 DB::Execute('UPDATE utils_filedownload_files SET size=%d, time=%f, view_time=%f WHERE id=%d',array($size,$t,$t,$download_id));
 
@@ -62,6 +59,8 @@ while(!feof($in)) {
 		$last_t = $curr_t;
 	}
 }
+DB::Execute('UPDATE utils_filedownload_files SET curr=%d, time=%f, rate=%f  WHERE id=%d',array($x,$curr_t,$x/($curr_t-$t)/1024,$download_id));
+
 fclose($in);
 fclose($out);
 

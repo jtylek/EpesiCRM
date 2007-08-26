@@ -362,7 +362,7 @@ abstract class Module {
 	 * Use variables passed as first parameter, to generate variables accessible by $_REQUEST array.
 	 * 
 	 * <xmp>
-	 * print('<a '.$this->create_href(array('somekey'=>'somevalue'))).'">Link</a>');
+	 * print('<a '.$this->create_href(array('somekey'=>'somevalue'))).'>Link</a>');
 	 * </xmp>
 	 * 
 	 * @param array variables to pass along with href

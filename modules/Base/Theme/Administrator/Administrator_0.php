@@ -47,8 +47,10 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 		} else {
 			$form->display();
 			
-			if(class_exists('ZipArchive'))
+			if(class_exists('ZipArchive')) {
 				$this->pack_module('Utils/FileUpload',array(array($this,'upload_template'),$this->lang->t('Upload template')));
+				print('<a '.$this->create_callback_href(array($this,'download_template')).'>'.$this->lang->t('Download new templates').'</a>');
+			}
 		}
 	}
 	
@@ -71,5 +73,26 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 		return true;
 	}
 	
+	public function download_template() {
+		Base_ActionBarCommon::add('search','Update templates list',$this->create_callback_href(array($this,'download_templates_list')));
+		$list_file = $this->get_data_dir().'list.zip';
+		if(!file_exists($list_file)) return $this->download_templates_list();
+		$zip = new ZipArchive();
+		$zip->open($list_file);
+		for ($i=0; $i<$zip->numFiles;$i++) {
+			echo "index: $i\n";
+			print_r($zip->statIndex($i));
+		}
+	}
+	
+	public function download_templates_list() {
+		$this->pack_module('Utils/FileDownload',array('http://localhost/trunk2/tools/themes/index.php?list',array($this,'on_download_list')));
+		return true;
+	}
+	
+	public function on_download_list() {
+		trigger_error('ok',E_USER_ERROR);
+	
+	}
 }
 ?>
