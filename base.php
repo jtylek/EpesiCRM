@@ -18,8 +18,13 @@ class Base extends Epesi {
 			$module = $row['name'];
 			if($module=='FirstRun') $first_run=true;
 		}
-		if(!$first_run && !ModuleManager :: install('FirstRun'))
-			trigger_error('Unable to install default module',E_USER_ERROR);
+		ob_start();
+		if(!$first_run && !ModuleManager :: install('FirstRun')) {
+			$x = ob_get_contents();
+			ob_end_clean();
+			trigger_error('Unable to install default module: '.$x,E_USER_ERROR);
+		}
+		ob_end_clean();
 	}
 
 	private function go(& $m) {

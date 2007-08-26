@@ -176,6 +176,7 @@ class ModuleManager {
 			return false;
 		}
 		unset(self::$processing[$module_to_install]);
+		return true;
 	}
 	
 	/**

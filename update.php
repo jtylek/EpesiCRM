@@ -83,7 +83,8 @@ function update_from_0_8_11_to_0_9_0() {
 	}
 	DB::DropTable('quick_access');
 	// installing Tooltip
-	DB::Execute('INSERT INTO modules VALUES(%s,%d,%d)',array('Utils_Tooltip',0,0));
+	if(!DB::GetOne('SELECT name FROM modules WHERE name=\'Utils_Tooltip\''))
+		DB::Execute('INSERT INTO modules VALUES(%s,%d,%d)',array('Utils_Tooltip',0,0));
 	// flush
 	themeup();
 }
