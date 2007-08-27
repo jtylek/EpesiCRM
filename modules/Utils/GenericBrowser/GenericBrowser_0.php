@@ -70,8 +70,8 @@ class Utils_GenericBrowser_Row_Object {
 	 * @param string href
 	 * @param string label
 	 */
-	public function add_action($tag_attrs,$label,$tooltip=null){
-		$this->GBobj->__add_row_action($this->num, $tag_attrs,$label,isset($tooltip)?$tooltip:$label);
+	public function add_action($tag_attrs,$label,$tooltip=null,$icon=null){
+		$this->GBobj->__add_row_action($this->num, $tag_attrs,$label,isset($tooltip)?$tooltip:$label,$icon);
 	}
 	
 }
@@ -186,9 +186,10 @@ class Utils_GenericBrowser extends Module {
 	/**
 	 * For internal use only.
 	 */
-	public function __add_row_action($num,$tag_attrs,$label,$tooltip) {
+	public function __add_row_action($num,$tag_attrs,$label,$tooltip,$icon) {
 		if (!isset($this->lang)) $this->lang = & $this->init_module('Base/Lang');
-		$this->actions[$num][strtolower(trim($label))] = array('tag_attrs'=>$tag_attrs,'label'=>$this->lang->t($label),'tooltip'=>$tooltip);
+		if (!isset($icon)) $icon = strtolower(trim($label));
+		$this->actions[$num][$icon] = array('tag_attrs'=>$tag_attrs,'label'=>$this->lang->t($label),'tooltip'=>$tooltip);
 		$this->en_actions = true;
 	}
 
