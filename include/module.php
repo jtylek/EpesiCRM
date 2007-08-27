@@ -500,6 +500,26 @@ abstract class Module {
 		$name = md5(serialize(array($func,$args)));
 		return $this->create_callback_href_with_id($name,$func,$args,$indicator);
 	}
+
+	/**
+	 * Creates link similar to link created with create_href.
+	 * 
+	 * The link, when used, will lead to calling of function which name is given as first parameter.
+	 * Callback returns true if you use this link again after page refresh.
+	 * 
+	 * WARNING: id of callback is generated using arguments passed to this function, so if you want to create
+	 * callback that run on every page reload, with different arguments, use create_callback_href_with_id
+	 *
+	 * @param mixed function
+	 * @param mixed arguments
+	 * @param string status bar indicator text
+	 * @return string href string
+	 */
+	public final function create_callback_href_js($func,$args=null,$indicator=null) {
+		$name = md5(serialize(array($func,$args)));
+		return $this->create_callback_href_with_id_js($name,$func,$args,$indicator);
+	}
+
 	/**
 	 * Creates link similar to link created with create_href.
 	 * 
@@ -553,6 +573,22 @@ abstract class Module {
 		$name = 'callback_'.$name;
 		$this->set_callback($name,$func,$args);
 		return $this->create_unique_href(array($name=>1),$indicator);
+	}
+	
+	/**
+	 * Creates link similar to links created with create_href.
+	 * 
+	 * The link, when used, will lead to calling of function which name is given as first parameter.
+	 * Callback returns true if you use this link again after page refresh.
+	 * 
+	 * @param string callback id (name)
+	 * @param mixed function
+	 * @return string 
+	 */
+	public final function create_callback_href_with_id_js($name, $func, $args,$indicator) {
+		$name = 'callback_'.$name;
+		$this->set_callback($name,$func,$args);
+		return $this->create_unique_href_js(array($name=>1),$indicator);
 	}
 	
 	/**
