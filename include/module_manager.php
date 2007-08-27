@@ -673,6 +673,23 @@ class ModuleManager {
 		
 		self::include_install($module_to_uninstall);
 		
+		foreach (self::$modules as $name => $obj) { //for each module
+			if ($name != $obj['name'] || $name == $module_to_uninstall)
+				continue;
+			
+			$required = call_user_func(array (
+				$obj['name'] . 'Install',
+				'requires'
+				),$obj['version']);
+			
+			foreach ($required as $req_mod) { //for each dependency of that module
+				$req_mod['name'] = str_replace('/','_',$req_mod['name']);
+				if (self::$modules[$req_mod['name']]['name'] == $module_to_uninstall) {
+					print ($module_to_uninstall . ' module is required by ' . $obj['name'] . ' module! You have to uninstall ' . $obj['name'] . ' first.<br>');
+					return false;
+				}
+			}
+		}
 		self::backup($module_to_uninstall);
 		
 		if($installed_version>0 && !self::downgrade($module_to_uninstall, 0))
