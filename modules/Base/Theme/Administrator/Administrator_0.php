@@ -80,15 +80,17 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 		$zip = new ZipArchive();
 		$zip->open($list_file);
 		
-		$m = & $this->init_module('Utils/GenericBrowser',null,'t2');
+		$m = & $this->init_module('Utils/GenericBrowser',null,'new_templates');
  		$m->set_table_columns(array(array('name'=>'Name','search'=>1),array('name'=>'Version'),array('name'=>'Screenshot'),array('name'=>'Author','search'=>1),array('name'=>'Info','search'=>1),array('name'=>'Compatible')));
-
+		
+		$tmpl = $this->get_data_dir().'tmp_list';
 		
 		for ($i=0; $i<$zip->numFiles;$i++) {
 			$stat = $zip->statIndex($i);
 			$file = $stat['name'];
 			if(ereg('.ini$',$file)) { 
-				$ini = parse_ini_file('zip://'.$list_file.'#'.$file);
+				file_put_contents($tmpl,$zip->getFromName($file));
+				$ini = parse_ini_file($tmpl);
 				$m->add_row(dirname($file),$ini['version'],'',$ini['author'],$ini['info'],(version_compare(EPESI_VERSION,$ini['epesi_version'])==-1)?'<font color="green">yes</font>':'<font color="red">NO</font> epesi '.$ini['epesi_version'].' required');
 			}
 		}
