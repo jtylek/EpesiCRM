@@ -14,7 +14,10 @@
 		$search_fields = $this->get_template_vars('search_fields');
 		$i=0;
 		foreach($cols as $k=>$v){
-			if(!isset($search_fields[$i])) continue;
+			if(!isset($search_fields[$i])) {
+				$i++;
+				continue;
+			}
 			$cols[$k]['label'] = $cols[$k]['label'].$search_fields[$i];
 			$i++;
 		}

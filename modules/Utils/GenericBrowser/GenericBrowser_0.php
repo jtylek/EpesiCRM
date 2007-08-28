@@ -502,6 +502,8 @@ class Utils_GenericBrowser extends Module {
 	 */
 	public function automatic_display($paging=true){
 		$rows = array();
+		foreach($this->columns as $k=>$v)
+			if (isset($v['search'])) $this->columns[$k]['search'] = $k;
 		foreach($this->rows as $k=>$v){
 			if ($this->check_if_row_fits_array($v,$this->is_adv_search_on())) $rows[] = $v;
 		}
@@ -585,7 +587,6 @@ class Utils_GenericBrowser extends Module {
 		// form processing
 		if($form->validate()) {
 			$values = $form->exportValues();
-//			print($values['per_page'].'<hr>');
 			$this->set_module_variable('per_page',$values['per_page']);
 			Base_User_SettingsCommon::save('Utils/GenericBrowser','per_page',$values['per_page']);
 			$search = array();
@@ -680,9 +681,10 @@ class Utils_GenericBrowser extends Module {
 			$search_fields = array();
 			foreach ($form_array as $k=>$v)
 				if (substr($k,0,8)=='search__') {
-					$i=0;
+					if ($this->en_actions && $actions_position==0) $i = 1;
+					else $i=0;
 					foreach($this->columns as $g=>$u){
-						if ('search__'.$u['search']==$k) {
+						if (isset($u['search']) && 'search__'.$u['search']==$k) {
 							$search_fields[$col_pos[$i]['pos']] = $v['html'];
 							break;
 						}
