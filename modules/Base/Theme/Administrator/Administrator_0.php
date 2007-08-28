@@ -85,6 +85,7 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
  		$m->set_table_columns(array(array('name'=>'Name','search'=>1),array('name'=>'Version'),array('name'=>'Screenshot'),array('name'=>'Author','search'=>1),array('name'=>'Info','search'=>1),array('name'=>'Compatible')));
 		
 		$tmpl = $this->get_data_dir().'tmp_list';
+		$image = & $this->init_module('Utils/Image');
 		
 		for ($i=0; $i<$zip->numFiles;$i++) {
 			$stat = $zip->statIndex($i);
@@ -121,7 +122,7 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 	
 	public function download_templates_list() {
 		if($this->is_back()) return false;
-		$this->pack_module('Utils/FileDownload',array('http://localhost/trunk2/tools/themes/index.php?list',array($this,'on_download_list')));
+		$this->pack_module('Utils/FileDownload',array('http://www.epesi.org/themes_repo/index.php?list',array($this,'on_download_list')));
 		return true;
 	}
 	
@@ -132,7 +133,7 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 	
 	public function install_template($template_name) {
 		if($this->is_back()) return false;
-		$this->pack_module('Utils/FileDownload',array('http://localhost/trunk2/tools/themes/index.php?'.http_build_query(array('get'=>$template_name)),array($this,'on_download_template')));
+		$this->pack_module('Utils/FileDownload',array('http://www.epesi.org/themes_repo/index.php?'.http_build_query(array('get'=>$template_name)),array($this,'on_download_template')));
 		return true;
 	}
 
@@ -157,7 +158,7 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 		if(!$del)
 			recursive_rmdir('data/Base_Theme/templates/'.$template_name);
 		
-		$this->pack_module('Utils/FileDownload',array('http://localhost/trunk2/tools/themes/index.php?'.http_build_query(array('get'=>$template_name)),array($this,'on_download_template')));
+		$this->pack_module('Utils/FileDownload',array('http://www.epesi.org/themes/themes/index.php?'.http_build_query(array('get'=>$template_name)),array($this,'on_download_template')));
 		return true;
 	}
 	
