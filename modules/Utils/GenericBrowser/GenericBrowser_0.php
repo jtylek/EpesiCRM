@@ -435,7 +435,7 @@ class Utils_GenericBrowser extends Module {
 			return $ret;
 		} else {
 			foreach($this->columns as $k=>$v){
-				if ($v['search'] && $search[$v['search']]) if (strpos(preg_replace('/<[^<>]*>/','',$row[$k]),$search[$v['search']])===false) return false;
+				if (isset($v['search']) && isset($search[$v['search']]) && strpos(preg_replace('/<[^<>]*>/','',$row[$k]),$search[$v['search']])===false) return false;
 			}
 			return true;
 		}
@@ -572,7 +572,7 @@ class Utils_GenericBrowser extends Module {
 			foreach($this->columns as $k=>$v)
 				if (isset($v['search'])) {
 					$form->addElement('text','search__'.$v['search'],'',array('onfocus'=>'if (this.value=="'.$this->lang->ht('search keyword').'") this.value="";','onblur'=>'if (this.value=="") this.value="'.$this->lang->ht('search keyword').'";'));
-					$form->setDefaults(array('search__'.$v['search']=>$search[$v['search']]?$search[$v['search']]:$this->lang->ht('search keyword')));
+					$form->setDefaults(array('search__'.$v['search']=>isset($search[$v['search']])?$search[$v['search']]:$this->lang->ht('search keyword')));
 					$search_on=true;
 				}
 		}

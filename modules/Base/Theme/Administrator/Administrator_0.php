@@ -74,25 +74,40 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 	}
 	
 	public function download_template() {
-		Base_ActionBarCommon::add('search','Update templates list',$this->create_callback_href(array($this,'download_templates_list')));
 		$list_file = $this->get_data_dir().'list.zip';
 		if(!file_exists($list_file)) return $this->download_templates_list();
+		Base_ActionBarCommon::add('search','Update templates list',$this->create_callback_href(array($this,'download_templates_list')));
 		$zip = new ZipArchive();
 		$zip->open($list_file);
+		
+		$m = & $this->init_module('Utils/GenericBrowser',null,'t2');
+ 		$m->set_table_columns(array(array('name'=>'Name','search'=>1),array('name'=>'Version'),array('name'=>'Screenshot'),array('name'=>'Author','search'=>1),array('name'=>'Info','search'=>1),array('name'=>'Compatible')));
+
+		
 		for ($i=0; $i<$zip->numFiles;$i++) {
-			echo "index: $i\n";
-			print_r($zip->statIndex($i));
+			$stat = $zip->statIndex($i);
+			$file = $stat['name'];
+			if(ereg('.ini$',$file)) { 
+				$ini = parse_ini_file('zip://'.$list_file.'#'.$file);
+				$m->add_row(dirname($file),$ini['version'],'',$ini['author'],$ini['info'],(version_compare(EPESI_VERSION,$ini['epesi_version'])==-1)?'<font color="green">yes</font>':'<font color="red">NO</font> epesi '.$ini['epesi_version'].' required');
+			}
 		}
+
+ 		$this->display_module($m,array(true),'automatic_display');
+
+		return true;
 	}
 	
 	public function download_templates_list() {
+		if($this->is_back()) return false;
 		$this->pack_module('Utils/FileDownload',array('http://localhost/trunk2/tools/themes/index.php?list',array($this,'on_download_list')));
 		return true;
 	}
 	
-	public function on_download_list() {
-		trigger_error('ok',E_USER_ERROR);
-	
+	public function on_download_list($tmp,$oryg) {
+		copy($tmp,$this->get_data_dir().'list.zip');
+		$this->set_back_location();
+		//print($tmp.'=>'.$this->get_data_dir().'list.zip');
 	}
 }
 ?>

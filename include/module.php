@@ -367,13 +367,20 @@ abstract class Module {
 	 * 
 	 * @param array variables to pass along with href
 	 * @param string status bar indicator text
+	 * @param string block, allow, queue click on simutanous click
 	 * @return string href string
 	 */
-	public final static function create_href_js(array $variables = array (), $indicator=null) {
-		global $base;		
+	public final static function create_href_js(array $variables = array (), $indicator=null, $mode=null) {
+		global $base;
 		$ret = str_replace('&amp;','&',http_build_query($variables));
+		eval_js_once('create_href_js=function(href,indicator,mode){'.
+				'if(saja.procOn==0 || mode==\'allow\'){'.
+					'saja.updateIndicatorText(indicator);'.
+					$base->run("process(client_id,href)").
+				'}else if(mode==\'queue\') setTimeout(\'create_href_js("\'+href+\'", "\'+indicator+\'", "\'+mode+\'")\',500);}'
+					);
 		if(!isset($indicator)) $indicator='loading...';
-		return 'if(saja.procOn==0){saja.updateIndicatorText(\''.addslashes($indicator).'\');'.$base->run("process(client_id,'".$ret."')").'}';
+		return 'create_href_js(\''.$ret.'\', \''.addslashes($indicator).'\', \''.$mode.'\');';
 	}
 	
 	/**
@@ -381,15 +388,16 @@ abstract class Module {
 	 * Use variables passed as first parameter, to generate variables accessible by $_REQUEST array.
 	 * 
 	 * <xmp>
-	 * print('<a '.$this->create_href(array('somekey'=>'somevalue'))).'">Link</a>');
+	 * print('<a '.$this->create_href(array('somekey'=>'somevalue'))).'>Link</a>');
 	 * </xmp>
 	 * 
 	 * @param array variables to pass along with href
 	 * @param string status bar indicator text
+	 * @param string block, allow, queue click on simutanous click
 	 * @return string href string
 	 */
-	public final static function create_href(array $variables = array (),$indicator=null) {
-		return ' href="javascript:void(0)" onClick="'.self::create_href_js($variables,$indicator).'" ';
+	public final static function create_href(array $variables = array (),$indicator=null, $mode=null) {
+		return ' href="javascript:void(0)" onClick="'.self::create_href_js($variables,$indicator,$mode).'" ';
 	}
 	
 	/**
@@ -399,17 +407,18 @@ abstract class Module {
 	 * If cancelled, no processing will be done. 
 	 * 
 	 * <xmp>
-	 * print('<a '.$this->create_href(array('somekey'=>'somevalue'))).'">Link</a>');
+	 * print('<a '.$this->create_href(array('somekey'=>'somevalue'))).'>Link</a>');
 	 * </xmp>
 	 *
 	 * @param string question displayed in confirmation box
 	 * @param array variables to pass along with href
 	 * @param string status bar indicator text
+	 * @param string block, allow, queue click on simutanous click
 	 * @return string href string
 	 */
-	public final static function create_confirm_href($confirm, array $variables = array (), $indicator=null) {
+	public final static function create_confirm_href($confirm, array $variables = array (), $indicator=null, $mode=null) {
 		$ret = http_build_query($variables);
-		return ' href="javascript:void(0)" onClick="if(confirm(\''.addslashes($confirm).'\')) {'.self::create_href_js($variables,$indicator).'}"';
+		return ' href="javascript:void(0)" onClick="if(confirm(\''.addslashes($confirm).'\')) {'.self::create_href_js($variables,$indicator,$mode).'}"';
 	}
 
 	/**
@@ -418,13 +427,14 @@ abstract class Module {
 	 * 
 	 * @param array variables to pass along with href
 	 * @param string status bar indicator text
+	 * @param string block, allow, queue click on simutanous click
 	 * @return string href string
 	 */
-	public final function create_unique_href(array $variables = array (),$indicator=null) {
+	public final function create_unique_href(array $variables = array (),$indicator=null,$mode=null) {
 		$uvars = array('__action_module__'=>$this->get_path());
 		foreach ($variables as $a => $b)
 			$uvars[$this->create_unique_key($a)] = $b;
-		return $this->create_href($uvars,$indicator);
+		return $this->create_href($uvars,$indicator,$mode);
 	}
 	/**
 	 * Create onClick action string destined for js code.
@@ -433,13 +443,14 @@ abstract class Module {
 	 * 
 	 * @param array variables to pass along with href
 	 * @param string status bar indicator text
+ 	 * @param string block, allow, queue click on simutanous click
 	 * @return string href string
 	 */
-	public final function create_unique_href_js(array $variables = array (),$indicator=null) {
+	public final function create_unique_href_js(array $variables = array (),$indicator=null,$mode=null) {
 		$uvars = array('__action_module__'=>$this->get_path());
 		foreach ($variables as $a => $b)
 			$uvars[$this->create_unique_key($a)] = $b;
-		return $this->create_href_js($uvars,$indicator);
+		return $this->create_href_js($uvars,$indicator,$mode);
 	}
 	/**
 	 * Similar to create_href, but variables passed to this function will only be accessible in module that called this function.
@@ -450,13 +461,14 @@ abstract class Module {
 	 * @param string question displayed in confirmation box
 	 * @param array variables to pass along with href
 	 * @param string status bar indicator text
+	 * @param string block, allow, queue click on simutanous click
 	 * @return string href string
 	 */
-	public final function create_confirm_unique_href($confirm,array $variables = array (),$indicator=null) {
+	public final function create_confirm_unique_href($confirm,array $variables = array (),$indicator=null,$mode=null) {
 		$uvars = array('__action_module__'=>$this->get_path());
 		foreach ($variables as $a => $b)
 			$uvars[$this->create_unique_key($a)] = $b;
-		return $this->create_confirm_href($confirm, $uvars,$indicator);
+		return $this->create_confirm_href($confirm, $uvars,$indicator,$mode);
 	}
 	
 	/**
@@ -494,11 +506,12 @@ abstract class Module {
 	 * @param mixed function
 	 * @param mixed arguments
 	 * @param string status bar indicator text
+	 * @param string block, allow, queue click on simutanous click
 	 * @return string href string
 	 */
-	public final function create_callback_href($func,$args=null,$indicator=null) {
+	public final function create_callback_href($func,$args=null,$indicator=null,$mode=null) {
 		$name = md5(serialize(array($func,$args)));
-		return $this->create_callback_href_with_id($name,$func,$args,$indicator);
+		return $this->create_callback_href_with_id($name,$func,$args,$indicator,$mode);
 	}
 
 	/**
@@ -536,11 +549,12 @@ abstract class Module {
 	 * @param mixed function
 	 * @param mixed arguments
 	 * @param string status bar indicator text
+	 * @param string block, allow, queue click on simutanous click
 	 * @return string href string
 	 */
-	public final function create_confirm_callback_href($confirm, $func, $args=null,$indicator=null) {
+	public final function create_confirm_callback_href($confirm, $func, $args=null,$indicator=null,$mode=null) {
 		$name = md5(serialize(array($func,$args)));
-		return $this->create_confirm_callback_href_with_id($name, $confirm, $func,$args,$indicator);
+		return $this->create_confirm_callback_href_with_id($name, $confirm, $func,$args,$indicator,$mode);
 	}
 
 	private final function set_callback($name,$func,$args) {
@@ -567,12 +581,15 @@ abstract class Module {
 	 * 
 	 * @param string callback id (name)
 	 * @param mixed function
+	 * @param mixed arguments
+	 * @param string status bar indicator text
+	 * @param string block, allow, queue click on simutanous click
 	 * @return string 
 	 */
-	public final function create_callback_href_with_id($name, $func, $args,$indicator) {
+	public final function create_callback_href_with_id($name, $func, $args,$indicator,$mode) {
 		$name = 'callback_'.$name;
 		$this->set_callback($name,$func,$args);
-		return $this->create_unique_href(array($name=>1),$indicator);
+		return $this->create_unique_href(array($name=>1),$indicator,$mode);
 	}
 	
 	/**
@@ -603,12 +620,15 @@ abstract class Module {
 	 * @param string question displayed in confirmation box
 	 * @param string callback id (name)
 	 * @param mixed function
+	 * @param mixed arguments
+	 * @param string status bar indicator text
+	 * @param string block, allow, queue click on simutanous click
 	 * @return string 
 	 */
-	public final function create_confirm_callback_href_with_id($name, $confirm, $func, $args=null, $indicator=null) {
+	public final function create_confirm_callback_href_with_id($name, $confirm, $func, $args=null, $indicator=null,$mode=null) {
 		$name = 'callback_'.$name;
 		$this->set_callback($name,$func,$args);
-		return $this->create_confirm_unique_href($confirm,array($name=>1),$indicator);
+		return $this->create_confirm_unique_href($confirm,array($name=>1),$indicator,$mode);
 	}
 	
 	/**
@@ -616,9 +636,11 @@ abstract class Module {
 	 * Use is_back to check it was called.
 	 *
 	 * @param integer number of times isback() should return true after this link is used  
+	 * @param string status bar indicator text
+	 * @param string block, allow, queue click on simutanous click
 	 * @return string string that should be placed inside html <pre><a></pre> tag. See create_href for example.
 	 */
-	public final function create_back_href($i=1) {
+	public final function create_back_href($i=1,$indicator=null,$mode=null) {
 		return $this->create_unique_href(array('back'=>$i));
 	}
 

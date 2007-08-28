@@ -28,7 +28,7 @@ $size = $headers["content-length"];
 print('Size: '.$size.'<br>');
 flush();
 
-$dest_filename  = 'tmp_'.microtime(true);
+$dest_filename  = $download_id.'.tmp';
 $dest_path  = '../../../data/Utils_FileDownload/'.$dest_filename;
 $out = fopen($dest_path,'wb');
 
