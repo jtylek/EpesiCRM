@@ -91,9 +91,15 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 			if(ereg('.ini$',$file)) { 
 				file_put_contents($tmpl,$zip->getFromName($file));
 				$ini = parse_ini_file($tmpl);
-				$m->add_row(dirname($file),$ini['version'],'',$ini['author'],$ini['info'],(version_compare(EPESI_VERSION,$ini['epesi_version'])==-1)?'<font color="green">yes</font>':'<font color="red">NO</font> epesi '.$ini['epesi_version'].' required');
+				$template_name = dirname($file);
+				
+				$r = $m->get_new_row();
+				$r->add_data($template_name,$ini['version'],'',$ini['author'],$ini['info'],(version_compare(EPESI_VERSION,$ini['epesi_version'])==-1)?'<font color="green">yes</font>':'<font color="red">NO</font> epesi '.$ini['epesi_version'].' required');
+				$r->add_action($this->create_callback_href(array($this,'install_template'),$template_name),'Install');
 			}
 		}
+		
+		@unlink($tmpl);
 
  		$this->display_module($m,array(true),'automatic_display');
 
@@ -110,6 +116,10 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 		copy($tmp,$this->get_data_dir().'list.zip');
 		$this->set_back_location();
 		//print($tmp.'=>'.$this->get_data_dir().'list.zip');
+	}
+	
+	public function install_template($template_name) {
+	
 	}
 }
 ?>
