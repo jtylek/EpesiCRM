@@ -19,14 +19,18 @@ $download_id = Module::static_get_module_variable($id,$path,'download_id');
 session_write_close();
 $file = DB::GetOne('SELECT path FROM utils_filedownload_files WHERE id=%d',array($download_id));
 
-$in = fopen($file,'rb');
-
 $headers = array_change_key_case(get_headers($file, 1),CASE_LOWER);
-if ((!array_key_exists("content-length", $headers))) $size = -1;
-$size = $headers["content-length"];
+if(strpos($headers[0],'404')!==false) {
+	DB::Execute('UPDATE utils_filedownload_files SET size=-2 WHERE id=%d',array($download_id));
+	print('File not found: '.$headers[0]);
+	exit();
+} elseif ((!array_key_exists("content-length", $headers))) $size = -1;
+else $size = $headers["content-length"];
 
 print('Size: '.$size.'<br>');
 flush();
+
+$in = fopen($file,'rb');
 
 $dest_filename  = $download_id.'.tmp';
 $dest_path  = '../../../data/Utils_FileDownload/'.$dest_filename;
