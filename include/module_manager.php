@@ -822,12 +822,14 @@ class ModuleManager {
 	 * @return bool true if directory was removed or did not exist, false otherwise
 	 */
 	protected static final function remove_data_dir($name) {
+		$name = str_replace('/','_',$name);
 		$dir = 'data/'.$name.'/';
 		recursive_rmdir($dir);
 		return true;
 	}
 	
 	public static final function get_data_dir($name) {
+		$name = str_replace('/','_',$name);
 		return 'data/'.$name.'/';
 	}
 	
