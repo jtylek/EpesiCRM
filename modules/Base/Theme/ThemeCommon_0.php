@@ -82,7 +82,7 @@ class Base_ThemeCommon {
 	 * @param string path and filename (path relative to specified module)
 	 * @return string path and name of a file
 	 */
-	public static function get_template_file_name($modulename,$filename) {
+	public static function get_template_filename($modulename,$filename) {
 		return str_replace("/", "_", $modulename).'__'.str_replace("/", "_", $filename);
 	}
 
@@ -97,7 +97,7 @@ class Base_ThemeCommon {
 	 * @return mixed path and name of a file, false if no such file was found
 	 */
 	public static function get_template_file($modulename,$filename) {
-		$filename = self::get_template_file_name($modulename,$filename);
+		$filename = self::get_template_filename($modulename,$filename);
 		$f = self::get_template_dir().$filename;
 		if(!is_readable($f)) {
 			$f = 'data/Base_Theme/templates/default/'.$filename;

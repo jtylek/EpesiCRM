@@ -86,18 +86,15 @@ class Utils_Gallery extends Module {
 		if($img == '') {
 				
 			$ret = '';
-			$image = & $this->init_module('Utils/Image');
 			
 			$images = $this->getListing("./".$dir, "/(\.png$)|(\.jpeg$)|(\.jpg$)|(\.gif$)/i");
 			
 			
 			$image_list = array();
 			for($i = 0; $i < count($images); $i++ ) {
-				$image->load("./".$dir.'/'.$images[$i]);
-				
 				$image_list[$i] = array();
 				$image_list[$i]['open_link'] = "<a ".$this->create_unique_href(array('img'=>$images[$i])).">";
-				$image_list[$i]['img'] = $image->thumb_toHtml(120);
+				$image_list[$i]['img'] = Utils_ImageCommon::get_thumb_html("./".$dir.'/'.$images[$i],120);
 			
 				$image_list[$i]['name'] = $images[$i];
 				$image_list[$i]['close_link'] = "</a>";
@@ -112,17 +109,13 @@ class Utils_Gallery extends Module {
 			
 			{
 				$ret = '';
-				$image = & $this->init_module('Utils/Image');
-				
 				$images = $this->getListing("./".$dir, "/(\.png$)|(\.jpeg$)|(\.jpg$)|(\.gif$)/i");
 				
-				$image->load("./".$dir."/".$img); 
-				
-				$thumb = $image->create_thumb(650, 450);
+				$thumb = Utils_ImageCommon::create_thumb("./".$dir."/".$img,650, 450);
 				$preview = array();
 				$tag = md5(date("HMs"));
-				$preview['open_link'] = '<a href="'.$thumb.'" rel="lyteshow['.$tag.']">';
-				$preview['img'] = $image->thumb_toHtml(350);
+				$preview['open_link'] = '<a href="'.$thumb['thumb'].'" rel="lyteshow['.$tag.']">';
+				$preview['img'] = Utils_ImageCommon::get_thumb_html("./".$dir."/".$img,350);
 			
 				$preview['name'] = $img;
 				$preview['close_link'] = "</a>";
@@ -136,11 +129,9 @@ class Utils_Gallery extends Module {
 				$current_part = &$prev_list;
 				$c_images =  count($images);
 				for($i = 0; $i < $c_images; $i++ ) {
-					$image->load("./".$dir."/".$images[$i]); 
-				
 					$image_list[$i] = array();
 					$image_list[$i]['open_link'] = '<a '.$this->create_unique_href(array('img'=>$images[$i])).'>';
-					$image_list[$i]['img'] = $image->thumb_toHtml(120);
+					$image_list[$i]['img'] = Utils_ImageCommon::get_thumb_html("./".$dir."/".$images[$i],120);
 				
 					$image_list[$i]['name'] = $images[$i];
 					$image_list[$i]['close_link'] = "</a>";
@@ -152,8 +143,8 @@ class Utils_Gallery extends Module {
 						if($i < $c_images - 1) 
 							$next_img = $images[$i+1];
 					} else {
-						$thumb = $image->create_thumb(650, 450);
-						$current_part .= '<a href="'.$thumb.'" rel="lyteshow['.$tag.']">XXX</a>';
+						$thumb = Utils_ImageCommon::create_thumb("./".$dir."/".$images[$i],650,450);
+						$current_part .= '<a href="'.$thumb['thumb'].'" rel="lyteshow['.$tag.']">XXX</a>';
 					}
 				}
 				$buttons = array();

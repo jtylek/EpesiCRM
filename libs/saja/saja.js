@@ -21,9 +21,6 @@ var saja = {
 		saja.procOn++;
 		var requestString = 'req=' + (SAJA_HTTP_KEY ? encodeURIComponent(saja.rc4(SAJA_HTTP_KEY, php)) : php) + '<!SAJA!>' + session_id + '<!SAJA!>' + (request_id || '');
 		requestString += '&rnd=' + Math.random();
-		saja.SendRequest(id, act, property, requestString);
-	},
-	SendRequest: function(id, act, property, requestString){
 		var req = saja.getReq();
 		saja.updateIndicator();
 		req.open('POST',SAJA_PATH + 'saja.process.php',true);

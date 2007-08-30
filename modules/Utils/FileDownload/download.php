@@ -59,11 +59,11 @@ while(!feof($in)) {
 			DB::Execute('DELETE FROM utils_filedownload_files WHERE id=%d',array($download_id));
 			break;
 		}
-		DB::Execute('UPDATE utils_filedownload_files SET curr=%d, time=%f, rate=%f  WHERE id=%d',array($x,$curr_t,$x/($curr_t-$t)/1024,$download_id));
+		DB::Execute('UPDATE utils_filedownload_files SET curr=%d, time=%f, rate=%f  WHERE id=%d',array($x,$curr_t,$x/($curr_t-$t),$download_id));
 		$last_t = $curr_t;
 	}
 }
-DB::Execute('UPDATE utils_filedownload_files SET curr=%d, time=%f, rate=%f  WHERE id=%d',array($x,$curr_t,$x/($curr_t-$t)/1024,$download_id));
+DB::Execute('UPDATE utils_filedownload_files SET curr=%d, time=%f, rate=%f  WHERE id=%d',array($x,$curr_t,$x/($curr_t-$t),$download_id));
 
 fclose($in);
 fclose($out);

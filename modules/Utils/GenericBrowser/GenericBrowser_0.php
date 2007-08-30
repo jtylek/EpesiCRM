@@ -536,7 +536,7 @@ class Utils_GenericBrowser extends Module {
 	/**
 	 * Displays the table.
 	 * 
-	 * @param string template file that should be used to display the table, use Base_ThemeCommon::get_template_file_name() for proper filename
+	 * @param string template file that should be used to display the table, use Base_ThemeCommon::get_template_filename() for proper filename
 	 * @param bool enabling paging, true by default
 	 */
 	public function body($template=null,$paging=true){

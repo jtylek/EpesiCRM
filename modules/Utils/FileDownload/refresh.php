@@ -35,7 +35,21 @@ class myFunctions extends Epesi {
 			print('Timeout');
 			return;
 		}
-		print($row['rate'].'kB/s, '.$row['curr'].' z '.$row['size']);
+		
+		$m = array('B','kB','MB','GB','TB');
+		$curr=$row['curr'];
+		for($i=0; $i<count($m) && $curr>1024; $i++)
+			$curr /= 1024;
+		
+		$size=$row['size'];
+		for($j=0; $j<count($m) && $size>1024; $j++)
+			$size /= 1024;
+
+		$rate=$row['rate'];
+		for($k=0; $k<count($m) && $rate>1024; $k++)
+			$rate /= 1024;
+		
+		print(number_format($rate,2).$m[$k].'/s, '.number_format($curr,2).$m[$i].' z '.number_format($size,2).$m[$j]	);
 		DB::Execute('UPDATE utils_filedownload_files SET view_time=%f  WHERE id=%d',array($t,$download_id));
 	}
 }

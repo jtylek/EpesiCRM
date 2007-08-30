@@ -74,47 +74,45 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 	}
 	
 	public function download_template() {
+		$ld = $this->get_data_dir().'list/';
+		if(!file_exists($ld)) return $this->download_templates_list();
 		if($this->is_back()) return false;
-		$list_file = $this->get_data_dir().'list.zip';
-		if(!file_exists($list_file)) return $this->download_templates_list();				Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 		Base_ActionBarCommon::add('search','Update templates list',$this->create_callback_href(array($this,'download_templates_list')));
-		$zip = new ZipArchive();
-		$zip->open($list_file);
 		
 		$m = & $this->init_module('Utils/GenericBrowser',null,'new_templates');
  		$m->set_table_columns(array(array('name'=>'Name','search'=>1),array('name'=>'Version'),array('name'=>'Screenshot'),array('name'=>'Author','search'=>1),array('name'=>'Info','search'=>1),array('name'=>'Compatible')));
 		
-		$tmpl = $this->get_data_dir().'tmp_list';
-		$image = & $this->init_module('Utils/Image');
+		$content = scandir($ld);
+		foreach ($content as $template_name) {
+			if ($template_name == '.' || $template_name == '..')
+				continue;
 		
-		for ($i=0; $i<$zip->numFiles;$i++) {
-			$stat = $zip->statIndex($i);
-			$file = $stat['name'];
-			if(ereg('.ini$',$file)) { 
-				file_put_contents($tmpl,$zip->getFromName($file));
-				$ini = parse_ini_file($tmpl);
-				$template_name = dirname($file);
-				$compatible = version_compare(EPESI_VERSION,$ini['epesi_version']);
-				$installed = is_dir('data/Base_Theme/templates/'.$template_name);
-				if($installed) {
-					$installed_ini = @parse_ini_file('data/Base_Theme/templates/'.$template_name.'/info.ini');
-					if(!$installed_ini) $installed_ini = array('version'=>0);
-				}
-				
-				$r = $m->get_new_row();
-				$r->add_data($template_name,$ini['version'],'',$ini['author'],$ini['info'],($compatible)?'<font color="green">yes</font>':'<font color="red">NO</font> epesi '.$ini['epesi_version'].' required');
-				if($compatible && !$installed)
-					$r->add_action($this->create_callback_href(array($this,'install_template'),$template_name),'Install');
-				if($installed) {
-					$r->add_action($this->create_callback_href(array($this,'delete_template'),$template_name),'Delete');
-					if($ini['version']>$installed_ini['version'])
-						$r->add_action($this->create_callback_href(array($this,'update_template'),$template_name),'Update');
-				}
+			$ini = parse_ini_file($ld.$template_name.'/info.ini');
+			
+			$compatible = version_compare(EPESI_VERSION,$ini['epesi_version']);
+			$installed = is_dir('data/Base_Theme/templates/'.$template_name);
+			if($installed) {
+				$installed_ini = @parse_ini_file('data/Base_Theme/templates/'.$template_name.'/info.ini');
+				if(!$installed_ini) $installed_ini = array('version'=>0);
+			}
+			
+			if(isset($ini['screenshot'])) {
+				$th_big = Utils_ImageCommon::create_thumb($ld.$template_name.'/'.$ini['screenshot'],640,480);
+				$thumb = '<a href="'.$th_big['thumb'].'" rel="lyteshow">'.Utils_ImageCommon::get_thumb_html($ld.$template_name.'/'.$ini['screenshot'],120,120).'</a>';		
+			} else $thumb='';
+			
+			$r = $m->get_new_row();
+			$r->add_data($template_name,$ini['version'],$thumb,$ini['author'],$ini['info'],($compatible)?'<font color="green">yes</font>':'<font color="red">NO</font> epesi '.$ini['epesi_version'].' required');
+			if($compatible && !$installed)
+				$r->add_action($this->create_callback_href(array($this,'install_template'),$template_name),'Install');
+			if($installed) {
+				$r->add_action($this->create_callback_href(array($this,'delete_template'),$template_name),'Delete');
+				if($ini['version']>$installed_ini['version'])
+					$r->add_action($this->create_callback_href(array($this,'update_template'),$template_name),'Update');
 			}
 		}
 		
-		@unlink($tmpl);
-
  		$this->display_module($m,array(true),'automatic_display');
 
 		return true;
@@ -127,7 +125,12 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 	}
 	
 	public function on_download_list($tmp,$oryg) {
-		copy($tmp,$this->get_data_dir().'list.zip');
+		$ld = $this->get_data_dir().'list/';
+		@recursive_rmdir($ld);
+		mkdir($ld);
+		$zip = new ZipArchive();
+		$zip->open($tmp);
+		$zip->extractTo($ld);
 		$this->set_back_location();
 	}
 	

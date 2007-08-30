@@ -30,7 +30,7 @@ class Base_StatusBar extends Module {
 		eval_js_once('var statusbar_message_t=\'\';' .
 				'statusbar_message=function(text){statusbar_message_t=text;};' .
 				'statusbar_fade=function(){'.
-					'wait_while_null(\'$(\\\'Base_StatusBar\\\')\',\'$(\\\'Base_StatusBar\\\').style.display=\\\'none\\\';\');'.
+					'wait_while_null(\'document.getElementById(\\\'Base_StatusBar\\\')\',\'document.getElementById(\\\'Base_StatusBar\\\').style.display=\\\'none\\\';\');'.
 					'statusbar_hide_selects(\'visible\');'.
 				'};'.
 				'statusbar_hide_selects=function(visibility){'.
@@ -42,19 +42,19 @@ class Base_StatusBar extends Module {
 				'};' .				
 				'updateSajaIndicatorFunction=function(){' .
 					'saja.indicator=\'statusbar_text\';' .
-					'$(\'sajaStatus\').style.visibility=\'hidden\';' .
-					'statbar = $(\'Base_StatusBar\');' .
+					'document.getElementById(\'sajaStatus\').style.visibility=\'hidden\';' .
+					'statbar = document.getElementById(\'Base_StatusBar\');' .
 					'statbar.onclick = Function("if(!saja.procOn)statusbar_fade();");' .
 					'statbar.style.display=\'none\';' .
 					'saja.updateIndicator=function(){' .
-						'statbar = $(\'Base_StatusBar\');' .
+						'statbar = document.getElementById(\'Base_StatusBar\');' .
 						'if(saja.procOn){' .
 							'statbar.style.display=\'block\';'.
 							'cache_pause=true;'.
 							'statusbar_hide_selects(\'hidden\');'.
 						'}else{' .
 							'if(statusbar_message_t!=\'\') {' .
-								't=$(\'statusbar_text\');' .
+								't=document.getElementById(\'statusbar_text\');' .
 								'if(t)t.innerHTML=statusbar_message_t;' .
 								'statusbar_message(\'\');' .
 								'setTimeout(\'statusbar_fade()\',3000);' .
@@ -65,7 +65,7 @@ class Base_StatusBar extends Module {
 						'};' .
 					'};' .
 				'};' .
-				'wait_while_null(\'Effect\',\'updateSajaIndicatorFunction()\')');
+				'updateSajaIndicatorFunction()');
 	}
 }
 ?>

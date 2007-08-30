@@ -378,10 +378,7 @@ class Apps_Gallery extends Module {
 		$last = $this->get_module_variable('last_uploaded_img');
 		if($last) {
 			print 'Last succesfully uploaded image<br>';	
-			$image = & $this->init_module('Utils/Image');
-			$image->load($last);
-			$image->create_thumb(650, 450);
-			$image->display_thumb(120);
+			Utils_ImageCommon::display_thumb($last,120);
 		}
 
 		$dirs = $this->getDirsRecursive($this->root.$this->user, "/^[^\.].*$/");

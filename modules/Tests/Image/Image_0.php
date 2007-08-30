@@ -12,17 +12,14 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Tests_Image extends Module {
 	
 	public function body() {
-		$image = & $this->init_module('Utils/Image');
 		print '<table>';
 		for($row = 0; $row < 5; $row++) {
 			print '<tr>';
 			for($column = 0; $column < 4; $column++) {
 				$id = $row*5+$column + 1;
-				$image->load("modules/Tests/Image/image_".$id.".jpg");
-				$attr = $image->get_thumb_attributes();
-				print '<td width="'.$attr['width'].'" height="'.$attr['height'].'">';
+				print '<td>';
 				//print_r($attr);
-				$image->display_thumb(120);
+				Utils_ImageCommon::display_thumb("modules/Tests/Image/image_".$id.".jpg",120);
 				print '</td>';
 			}
 			print '</tr>';

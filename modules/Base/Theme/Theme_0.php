@@ -150,16 +150,6 @@ class Base_Theme extends Module {
 		}
 		
 	}
-
-	/**
-	 * Returns path to currently selected theme.
-	 * 
-	 * @return string path to currently selected theme
-	 */
-	public function get_theme_path() {
-		$module_name = $this->parent->get_type();
-		return self::$themes_dir.'/'.self::$theme.'/'.$module_name.'__';
-	}
 	
 	/**
 	 * Returns instance of smarty object which is assigned to this Theme instance. 
@@ -187,7 +177,7 @@ class Base_Theme extends Module {
 					if ($val{$i}==='<') {
 						if ($val{$i+1}==='a') {
 							if ($count===0) {
-								while ($val{$i}!=='>' && $i<$len-1) {
+								while ($i<$len-1 && $val{$i}!=='>') {
 									$open .= $val{$i};
 									$i++;
 									if ($val{$i}==='"') {
