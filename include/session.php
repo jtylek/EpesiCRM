@@ -26,13 +26,10 @@ class DBSession {
     
     public static function read($name) {
     	$data = DB::GetOne('SELECT data FROM session WHERE name = %s AND expires > %s', array($name, time()-self::$lifetime));
-	if(GZIP_SESSION && $data!='') $data = gzuncompress($data);
         return $data;
     }
 
     public static function write($name, $data) {
-    	if(GZIP_SESSION)
-		$data = gzcompress($data);
         $ret = DB::Replace('session',array('expires'=>time(),'data'=>$data,'name'=>$name),'name',true);
         return ($ret>0)?true:false;
     }

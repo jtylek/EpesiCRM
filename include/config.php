@@ -25,6 +25,5 @@ if(!defined('STRIP_OUTPUT')) define("STRIP_OUTPUT",0);
 if(!defined('DISPLAY_ERRORS')) define("DISPLAY_ERRORS",0);
 if(!defined('REPORT_ALL_ERRORS')) define("REPORT_ALL_ERRORS",0);
 if(!defined('GZIP_OUTPUT')) define("GZIP_OUTPUT",0);
-if(!defined('GZIP_SESSION')) define("GZIP_SESSION",0);
 if(!defined('GZIP_HISTORY')) define("GZIP_HISTORY",0);
 ?>

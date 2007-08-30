@@ -179,7 +179,6 @@ define("REPORT_ALL_ERRORS",1);
  * Compress output buffer,session,history
  */
 define("GZIP_OUTPUT",1);
-define("GZIP_SESSION",1);
 define("GZIP_HISTORY",1);
 ?>');
 	fclose($c);
