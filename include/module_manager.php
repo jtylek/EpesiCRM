@@ -806,6 +806,7 @@ class ModuleManager {
 	 * @return bool true if directory was created or already exists, false otherwise
 	 */
 	private static final function create_data_dir($name) {
+		$name = str_replace('/','_',$name);
 		$dir = 'data/'.$name;
 		if (is_dir($dir) && is_writable($dir))
 			return true;
