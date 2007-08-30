@@ -335,8 +335,7 @@ class Utils_GenericBrowser extends Module {
 	 * For internal use only.
 	 */
 	public function change_order($ch_order){
-		$order = $this->get_module_variable('order');
-		ksort($order);
+		$order = $this->get_module_variable('order', array());
 		foreach($this->columns as $val) 
 			if ($val['name'] == $ch_order) {
 				$ord = $val['order'];
