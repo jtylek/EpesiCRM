@@ -53,7 +53,7 @@ class Base_User_LoginCommon extends Module {
 	 * @param string destination mail address
 	 */
 	public static function send_mail_with_password($username, $pass, $mail) {
-		$url = 'http'.(isset($_SERVER['HTTPS'])?'s':'').'://'. $_SERVER['HTTP_HOST'].dirname($_SERVER['PHP_SELF']);
+		$url = get_epesi_url();
 		$subject = sprintf(Base_LangCommon::ts('Login','Your account at %s'),$url);
 		$body = sprintf(Base_LangCommon::ts('Login', "This e-mail is to inform you that a user account was setup for you at: %s
 Your login name is: %s
