@@ -50,7 +50,6 @@ abstract class Module {
 	protected $children = array();
 	private $jses = array();
 	private $instance;
-	private $children_count;
 	private $children_count_display;
 	private $type;
 	private $path;
@@ -73,13 +72,12 @@ abstract class Module {
 			if(isset($name))
 				$this->instance = (string)$name;
 			else
-				$this->instance = $parent->get_new_child_instance_id();
-			$this->parent->register_child($this);
+				$this->instance = $parent->get_new_child_instance_id($type);
+			$parent->register_child($this);
 		} elseif(isset($name))
 			$this->instance = (string)$name;
 		$this->path = null;
 		if(!isset($this->instance)) throw new Exception('No instance name or parent specified.');
-		$this->children_count = 0;
 		$this->children_count_display = 0;
 	}
 	
@@ -92,8 +90,8 @@ abstract class Module {
 		$GLOBALS['base']->debug('registering '.$this->get_path().'/'.$type.'|'.$instance.'<br>');
 	}
 	
-	private final function get_new_child_instance_id() {
-		return $this->children_count++;
+	private final function get_new_child_instance_id($type) {
+		return isset($this->children[$type])?count($this->children[$type]):0;
 	}
 	
 	/**
