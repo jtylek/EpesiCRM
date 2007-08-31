@@ -13,16 +13,17 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class EpesiErrorObserver extends ErrorObserver {
 	public function update_observer($type, $message,$errfile,$errline,$errcontext) {
-		if($type & (E_ERROR | E_PARSE | E_CORE_ERROR | E_CORE_WARNING | E_USER_ERROR | E_USER_WARNING | E_RECOVERABLE_ERROR | E_COMPILE_ERROR)) {
+		$mail = Variable::get('error_mail');
+		if(($type & (E_ERROR | E_PARSE | E_CORE_ERROR | E_CORE_WARNING | E_USER_ERROR | E_USER_WARNING | E_RECOVERABLE_ERROR | E_COMPILE_ERROR)) && $mail) {
 			if(function_exists('debug_print_backtrace')) { 
 				debug_print_backtrace();
 				$backtrace = "\nerror backtrace:\n".ob_get_contents();
 			} else $backtrace = '';
 			$x = "who=".Acl::get_user()."\ntype=".$type."\nmessage=".$message."\nerror file=".$errfile."\nerror line=".$errline."\n".$backtrace;
-			$d = $this->get_data_dir().md5($x).'.txt';
+			$d = ModuleManager::get_data_dir('Base/Error').md5($x).'.txt';
 			file_put_contents($d,$x);
-			$url = 'http'.(isset($_SERVER['HTTPS'])?'s':'').'://'. $_SERVER['HTTP_HOST'].dirname($_SERVER['PHP_SELF']);
-			Base_MailCommon::send('pbukowski@telaxus.com','Epesi Error',$url.'/'.$d);
+			$url = get_epesi_url();
+			Base_MailCommon::send($mail,'Epesi Error - '.$url,$url.'/'.$d);
 		}
 		return true;
 	}
@@ -30,5 +31,16 @@ class EpesiErrorObserver extends ErrorObserver {
 
 $err = new EpesiErrorObserver();
 ErrorHandler::add_observer($err);
+
+class Base_ErrorCommon implements Base_AdminModuleCommonInterface {
+	public static function admin_caption() {
+		return 'PHP & SQL Errors to mail';
+	}
+
+	public static function admin_access() {
+		return Base_AclCommon::i_am_sa();
+	}
+}
+
 
 ?>

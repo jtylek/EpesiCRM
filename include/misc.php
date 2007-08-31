@@ -353,4 +353,8 @@ function escapeJs($str) {
 		'</' => '<\/'
 	));
 }
+
+function get_epesi_url() {
+	return 'http'.(isset($_SERVER['HTTPS'])?'s':'').'://'. $_SERVER['HTTP_HOST'].trim(dirname($_SERVER['PHP_SELF']),'/\\');
+}
 ?>
