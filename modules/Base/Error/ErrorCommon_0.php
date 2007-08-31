@@ -18,7 +18,11 @@ class EpesiErrorObserver extends ErrorObserver {
 				debug_print_backtrace();
 				$backtrace = "\nerror backtrace:\n".ob_get_contents();
 			} else $backtrace = '';
-			Base_MailCommon::send('bugs@telaxus.com','Epesi Error',"who=".Acl::get_user()."\ntype=".$type."\nmessage=".$message."\nerror file=".$errfile."\nerror line=".$errline."\n".$backtrace);
+			$x = "who=".Acl::get_user()."\ntype=".$type."\nmessage=".$message."\nerror file=".$errfile."\nerror line=".$errline."\n".$backtrace;
+			$d = $this->get_data_dir().md5($x).'.txt';
+			file_put_contents($d,$x);
+			$url = 'http'.(isset($_SERVER['HTTPS'])?'s':'').'://'. $_SERVER['HTTP_HOST'].dirname($_SERVER['PHP_SELF']);
+			Base_MailCommon::send('pbukowski@telaxus.com','Epesi Error',$url.'/'.$d);
 		}
 		return true;
 	}
