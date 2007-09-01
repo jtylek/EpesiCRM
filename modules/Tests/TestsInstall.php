@@ -12,26 +12,26 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class TestsInstall extends ModuleInstall {
-	public static function install() {
+	public function install() {
 		return true;
 	}
 	
-	public static function uninstall() {
+	public function uninstall() {
 		return true;
 	}
 	
-	public static function info() {
+	public function info() {
 		return array('Author'=>'<a href="mailto:pbukowski@telaxus.com">Paul Bukowski</a>, <a href="mailto:kslawinski@telaxus.com">Kuba Slawinski</a> and <a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'Licence'=>'SPL', 'Description'=>'Module examples pack');
 	}
 	
-	public static function simple_setup() {
+	public function simple_setup() {
 		return true;
 	}
 	
-	public static function version() {
+	public function version() {
 		return array('0.9.9');
 	}
-	public static function requires($v) {
+	public function requires($v) {
 		return array(
 		    array('name'=>'Tests/BookmarkBrowser','version'=>0),
 		    array('name'=>'Tests/Callbacks','version'=>0),

@@ -10,7 +10,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Apps_ShoutboxInstall extends ModuleInstall {
 
-	public static function install() {
+	public function install() {
 		$ret = true;
 		$ret &= DB::CreateTable('apps_shoutbox_messages','
 			id I4 AUTO KEY,
@@ -25,20 +25,20 @@ class Apps_ShoutboxInstall extends ModuleInstall {
 		return $ret;
 	}
 	
-	public static function uninstall() {
+	public function uninstall() {
 		$ret = true;
 		$ret &= DB::DropTable('apps_shoutbox_messages');
 		return $ret;
 	}
-	public static function version() {
+	public function version() {
 		return array("0.5");
 	}
 	
-	public static function simple_setup() {
+	public function simple_setup() {
 		return true;
 	}
 	
-	public static function requires($v) {
+	public function requires($v) {
 		return array(
 			array('name'=>'Base/Acl','version'=>0),
 			array('name'=>'Base/User','version'=>0),

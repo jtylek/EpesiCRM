@@ -14,11 +14,11 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_SetupInstall extends ModuleInstall {
-	public static function version() {
+	public function version() {
 		return array('1.0.0');
 	}
 	
-	public static function install() {		
+	public function install() {		
 		$ret = DB::CreateTable('available_modules','name C(128), vkey I NOTNULL, version C(64) NOTNULL',array('constraints'=>', PRIMARY KEY(name, vkey)'));
 		if($ret===false)
 			die('Invalid SQL query - Setup module (modules table)');
@@ -36,10 +36,10 @@ class Base_SetupInstall extends ModuleInstall {
 		return true;
 	}
 
-	public static function uninstall() {
+	public function uninstall() {
 		return (DB::DropTable('available_modules') && Variable::delete('anonymous_setup') && Variable::delete('simple_setup'));
 	}
-	public static function requires($v) {
+	public function requires($v) {
 		return array (
 			array('name'=>'Base/Theme','version'=>0),
 			array('name'=>'Libs/QuickForm','version'=>0),

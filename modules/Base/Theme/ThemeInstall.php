@@ -14,7 +14,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_ThemeInstall extends ModuleInstall {
-	public static function install() {
+	public function install() {
 		mkdir('data/Base_Theme/templates');
 		mkdir('data/Base_Theme/templates/default');
 		mkdir('data/Base_Theme/compiled');
@@ -24,16 +24,16 @@ class Base_ThemeInstall extends ModuleInstall {
 		return Variable::set('default_theme','default');
 	}
 	
-	public static function uninstall() {
+	public function uninstall() {
 		recursive_rmdir('data/Base_Theme/templates/default/images');
 		return Variable::delete('default_theme');
 	}
 	
-	public static function version() {
+	public function version() {
 		return array('1.0.0');
 	}
 	
-	public static function install_default_theme_common_files($dir,$f) {
+	public function install_default_theme_common_files($dir,$f) {
 		if(class_exists('ZipArchive')) {
 			$zip = new ZipArchive;
 			if ($zip->open($dir.$f.'.zip') == 1) {
@@ -52,7 +52,7 @@ class Base_ThemeInstall extends ModuleInstall {
 				copy($path,'data/Base_Theme/templates/default/'.$f.'/'.$name);
 		}
 	}
-	public static function requires($v) {
+	public function requires($v) {
 		return array();
 	}
 }

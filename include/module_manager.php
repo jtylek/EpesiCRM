@@ -17,6 +17,8 @@ class ModuleManager {
 	public static $not_loaded_modules = null;
 	public static $loaded_modules = array();
 	public static $modules = array();
+	public static $modules_install = array();
+	public static $modules_common = array();
 	public static $root = array();
 	private static $processing = array(); 
 
@@ -28,13 +30,16 @@ class ModuleManager {
 	 * @param string module name
 	 */
 	public static final function include_install($class_name) {
+		if(isset(self::$modules_install[$class_name])) return;
 		$path = self::get_module_dir_path($class_name);
 		$file = self::get_module_file_name($class_name);
 		ob_start();
 		require_once ('modules/' . $path . '/' . $file . 'Install.php');
 		ob_end_clean();
-		if(!class_exists($class_name.'Install'))
+		$x = $class_name.'Install';
+		if(!class_exists($x))
 			trigger_error('Module '.$path.': Invalid install file',E_USER_ERROR);
+		self::$modules_install[$class_name] = new $x($class_name); 
 	}
 
 	/**
@@ -146,7 +151,7 @@ class ModuleManager {
 		self::include_install($module_to_check);
 		
 		$func = array (
-			$module_to_check . 'Install',
+			self::$modules_install[$module_to_check],
 			'requires'
 		);
 		if(!is_callable($func)) return array();
@@ -233,7 +238,7 @@ class ModuleManager {
 				continue;
 
 			self::include_install($module);
-			$version_f = array($module.'Install','version');
+			$version_f = array(self::$modules_install[$module],'version');
 			if(is_callable($version_f))
 				$version_ret = call_user_func($version_f);
 			else
@@ -340,8 +345,9 @@ class ModuleManager {
 					print('Upgrading module \''.$module.'\' to version '.$to_version.': upgrade to version '.$i.' failed. Module '.$d['name'].' version='.$d['version'].' required!<br>');
 				break;
 			}*/
-			if(!self::satisfy_dependencies($module,$i) || (is_callable(array($module.'Install', 'upgrade_'.$i)) 
-				&& !call_user_func(array($module.'Install', 'upgrade_'.$i)))) {
+			$up_func = array(self::$modules_install[$module], 'upgrade_'.$i);
+			if(!self::satisfy_dependencies($module,$i) || (is_callable($up_func) 
+				&& !call_user_func($up_func))) {
 				print('Upgrading module \''.$module.'\' to version '.$to_version.': upgrade to version '.$i.' failed.<br>');
 				break;
 			}
@@ -398,8 +404,8 @@ class ModuleManager {
 			$k_version = self::is_installed($k);
 			
 			$func = array (
-				$k . 'Install',
-				'requires_'
+				self::$modules_install[$k],
+				'requires'
 			);
 			if(!is_callable($func)) continue;
 			$req_mod = call_user_func($func,$k_version);
@@ -419,8 +425,10 @@ class ModuleManager {
 					print('Downgrading module \''.$module.'\' to version '.$to_version.' from '.$i.' failed: module '.$d['name'].' version='.$d['version'].' required!<br>');
 				break;
 			}*/
-			if(!self::satisfy_dependencies($module,$i) || (is_callable(array($module.'Install', 'downgrade_'.$i)) 
-				&& !call_user_func(array($module.'Install', 'downgrade_'.$i)))) {					print('Downgrading module \''.$module.'\' to version '.$to_version.' from '.$i.' failed.<br>');
+			$down_func = array(self::$modules_install[$module], 'downgrade_'.$i);
+			if(!self::satisfy_dependencies($module,$i) || (is_callable($down_func) 
+				&& !call_user_func($down_func))) {
+				print('Downgrading module \''.$module.'\' to version '.$to_version.' from '.$i.' failed.<br>');
 				break;
 			}
 		}
@@ -449,12 +457,8 @@ class ModuleManager {
 		print($module_to_install.': is installed?<br>');
 
 		self :: include_install($module_to_install);
-		if(!class_exists($module_to_install.'Install')) {
-			print('Invalid module<br>');
-			return false;
-		}
 		
-		$func_version = array($module_to_install.'Install', 'version');
+		$func_version = array(self::$modules_install[$module_to_install], 'version');
 		if(is_callable($func_version))
 			$inst_ver = call_user_func($func_version);
 		else
@@ -492,7 +496,7 @@ class ModuleManager {
 		print($module_to_install.': calling install method<br>');
 		//call install script and fill database
 		if(!call_user_func(array (
-			$module_to_install . 'Install',
+			self::$modules_install[$module_to_install],
 			'install'
 		))) return false;
 
@@ -540,7 +544,7 @@ class ModuleManager {
 			return false;
 		}
 		self::include_install($module);
-		if(!is_callable(array($module.'Install','backup'))) {
+		if(!is_callable(array(self::$modules_install[$module],'backup'))) {
 			print('Module '.$module.' doesn\'t support restore.<br>');
 			return false;
 		}
@@ -558,7 +562,7 @@ class ModuleManager {
 		
 		//restore tables
 		$backup_tables = call_user_func(array (
-				$module . 'Install',
+			self::$modules_install[$module],
 				'backup'
 			),$version);
 		
@@ -602,7 +606,7 @@ class ModuleManager {
 			return false;
 		}
 		self::include_install($module);
-		if(!is_callable(array($module.'Install','backup'))) {
+		if(!is_callable(array(self::$modules_install[$module],'backup'))) {
 			print('Module '.$module.' doesn\'t support backup.<br>');
 			return false;
 		}
@@ -624,7 +628,7 @@ class ModuleManager {
 		
 		//backup tables
 		$backup_tables = call_user_func(array (
-				$module . 'Install',
+				self::$modules_install[$module],
 				'backup'
 			),$installed_version);
 		
@@ -678,7 +682,7 @@ class ModuleManager {
 				continue;
 			
 			$required = call_user_func(array (
-				$obj['name'] . 'Install',
+				self::$modules_install[$obj['name']],
 				'requires'
 				),$obj['version']);
 			
@@ -696,9 +700,11 @@ class ModuleManager {
 			return false;
 		
 		if(!call_user_func(array (
-			$module_to_uninstall . 'Install',
+			self::$modules_install[$module_to_uninstall],
 			'uninstall'
 		))) return false;
+		
+		Acl::del_aco_section(self::$modules_install[$module_to_uninstall]->get_type());
 		
 		$ret = DB::Execute('DELETE FROM modules WHERE name=%s', $module_to_uninstall);
 		if(!$ret) {

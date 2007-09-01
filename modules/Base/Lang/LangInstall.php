@@ -14,19 +14,19 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_LangInstall extends ModuleInstall {
-	public static function install() {
+	public function install() {
 		return Variable::set('default_lang','en');
 	}
 	
-	public static function uninstall() {
+	public function uninstall() {
 		return Variable::delete('default_lang');
 	}
 	
-	public static function version() {
+	public function version() {
 		return array('1.0.0');
 	}
 
-	public static function requires($v) {
+	public function requires($v) {
 		return array(array('name'=>'Libs/QuickForm','version'=>0),
 				array('name'=>'Base/MaintenanceMode','version'=>0));
 	}

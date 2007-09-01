@@ -12,40 +12,11 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
- * This class provides interface for module install.
- * @package epesi-base
- * @subpackage module
- */
-abstract class ModuleInstall {
-	/**
-	 * Module installation function.
-	 * @return true if installation success, false otherwise
-	 */
-	abstract public static function install();
-
-	/**
-	 * Module uninstallation function.
-	 * @return true if installation success, false otherwise
-	 */
-	abstract public static function uninstall();
-
-	/**
-	 * Returns array that contains information about modules required by this module.
-	 * The array should be determined by the version number that is given as parameter.
-	 * 
-	 * @return array Array constructed as following: array(array('name'=>$ModuleName,'version'=>$ModuleVersion),...)  
-	 */
-	abstract public static function requires($v);
-
-//	abstract public static function backup($v);
-}
-
-/**
  * This class provides some basic functionality for every epesi module.
  * @package epesi-base
  * @subpackage module
  */
-abstract class Module {
+abstract class Module extends ModulePrimitive {
 	protected $parent = null;
 	protected $children = array();
 	private $jses = array();
@@ -66,6 +37,7 @@ abstract class Module {
 	 */
 	public final function __construct($type,$parent,$name) {
 		global $base;
+		parent::__construct($type);
 		$this->type = $type;
 		if($parent) {
 			$this->parent = & $parent;
@@ -917,15 +889,6 @@ abstract class Module {
 	}
 	
 	/**
-	 * Returns name(type) of module that called this function.
-	 * 
-	 * @return string 
-	 */
-	public final function get_type() {
-		return $this->type;
-	}
-
-	/**
 	 * Returns id of module instance.
 	 * 
 	 * @return mixed instance id 
@@ -946,25 +909,6 @@ abstract class Module {
 		return $this->get_path() . '_' . $name;
 	}
 
-	/**
-	 * Returns path to the default data directory for module calling this method.
-	 * Use this directory if your module requires to create or operate on a file.  
-	 * 
-	 * @return string path to the data directory
-	 */
-	protected final function get_data_dir() {
-		return 'data/'.$this->type.'/';
-	}
-
-	/**
-	 * Returns path to the module directory.  
-	 * 
-	 * @return string path to the module directory
-	 */
-	protected final function get_module_dir() {
-		return 'modules/'.str_replace('_','/',$this->type).'/';
-	}
-	
 	/**
 	 * Returns current ajax session.
 	 * 

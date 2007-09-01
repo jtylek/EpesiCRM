@@ -14,18 +14,18 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_DirtyReadInstall extends ModuleInstall {
-	public static function install() {
+	public function install() {
 		return true;
 	}
 	
-	public static function uninstall() {
+	public function uninstall() {
 		return true;
 	}
 
-	public static function version() {
+	public function version() {
 		return array('0.9.6');
 	}
-	public static function requires($v) {
+	public function requires($v) {
 		return array(array('name'=>'Base/Lang','version'=>0));
 	}
 }

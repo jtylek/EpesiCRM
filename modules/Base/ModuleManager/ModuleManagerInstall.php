@@ -10,14 +10,14 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_ModuleManagerInstall extends ModuleInstall {
-	public static function install() {
+	public function install() {
 		return true;
 	}
 	
-	public static function uninstall() {
+	public function uninstall() {
 		return true;
 	}
-	public static function requires($v) {
+	public function requires($v) {
 		return array(
 		array('name'=>'Libs/QuickForm','version'=>0));
 	}

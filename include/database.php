@@ -70,7 +70,7 @@ class DB {
 		return $ret==2;
 	}
 	
-	public static function CreateTable($name, $cols, $opts=false) {
+	public static function CreateTable($name, $cols, $opts=null) {
 		$dict = &self::dict();
 		$arr = $dict->CreateTableSQL($name,$cols,isset($opts)?array_merge($opts,array('postgres'=>' WITH OIDS','mysql' => ' TYPE=ISAM')):array('postgres'=>' WITH OIDS','mysql' => ' TYPE=MyISAM'));
 		if($arr===false) return false;

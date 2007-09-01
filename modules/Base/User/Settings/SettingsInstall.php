@@ -13,7 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_User_SettingsInstall extends ModuleInstall {
 
-	public static function install() {
+	public function install() {
 		global $database;
 		$ret = true;
 		$ret &= DB::CreateTable('base_user_settings','
@@ -31,7 +31,7 @@ class Base_User_SettingsInstall extends ModuleInstall {
 		return $ret;
 	}
 	
-	public static function uninstall() {
+	public function uninstall() {
 		global $database;
 		$ret = true;
 		$ret &= DB::DropTable('base_user_settings');
@@ -39,11 +39,11 @@ class Base_User_SettingsInstall extends ModuleInstall {
 		return $ret;
 	}
 
-	public static function version() {
+	public function version() {
 		return array("1.0");
 	}
 
-	public static function requires($v) {
+	public function requires($v) {
 		return array(
 			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'Libs/QuickForm','version'=>0), 

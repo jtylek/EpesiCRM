@@ -10,7 +10,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Tests_SQLTableBrowser_PeopleInstall extends ModuleInstall {
 
-	public static function install() {
+	public function install() {
 		$ret = true;
 		$ret &= DB::CreateTable('People','
 			id I4 AUTO KEY,
@@ -25,12 +25,12 @@ class Tests_SQLTableBrowser_PeopleInstall extends ModuleInstall {
 		return $ret;
 	}
 	
-	public static function uninstall() {
+	public function uninstall() {
 		$ret = true;
 		$ret &= DB::DropTable('People');
 		return $ret;
 	}
-	public static function requires($v) {
+	public function requires($v) {
 		return array(array('name'=>'Utils/SQLTableBrowser','version'=>0));
 	}
 }

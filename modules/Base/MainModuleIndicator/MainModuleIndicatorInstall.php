@@ -14,7 +14,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_MainModuleIndicatorInstall extends ModuleInstall {
-	public static function install() {
+	public function install() {
 		Variable::set('base_page_title','Epesi');
 		Variable::set('show_caption_in_title','1');
 		Variable::set('show_module_indicator','1');
@@ -22,7 +22,7 @@ class Base_MainModuleIndicatorInstall extends ModuleInstall {
 		return true;
 	}
 	
-	public static function uninstall() {
+	public function uninstall() {
 		Variable::delete('base_page_title');
 		Variable::delete('show_caption_in_title');
 		Variable::delete('show_module_indicator');
@@ -30,10 +30,10 @@ class Base_MainModuleIndicatorInstall extends ModuleInstall {
 		return true;
 	}
 	
-	public static function version() {
+	public function version() {
 		return array('1.0.0');
 	}
-	public static function requires($v) {
+	public function requires($v) {
 		return array(
 			array('name'=>'Base/Box', 'version'=>0),
 			array('name'=>'Base/Admin', 'version'=>0),

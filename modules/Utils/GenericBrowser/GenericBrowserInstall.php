@@ -11,7 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_GenericBrowserInstall extends ModuleInstall {
 
-	public static function install() {
+	public function install() {
 		$ret = true;
 		$ret &= DB::CreateTable('generic_browser',"name C(40) NOTNULL, column_id I NOTNULL, column_pos I NOTNULL, display I1 DEFAULT 1", array('constraints' => ', PRIMARY KEY (name,column_id)'));
 		if(!$ret){
@@ -22,7 +22,7 @@ class Utils_GenericBrowserInstall extends ModuleInstall {
 		return $ret;
 	}
 	
-	public static function uninstall() {
+	public function uninstall() {
 		global $database;
 		$ret = true;
 		$ret &= DB::DropTable('generic_browser');
@@ -30,10 +30,10 @@ class Utils_GenericBrowserInstall extends ModuleInstall {
 		return true;
 	}
 
-	public static function version() {
+	public function version() {
 		return array('0.9.9');
 	}	
-	public static function requires($v) {
+	public function requires($v) {
 		return array(
 			array('name'=>'Base/Acl','version'=>0),
 			array('name'=>'Base/Lang','version'=>0),

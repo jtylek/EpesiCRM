@@ -11,7 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_CommonDataInstall extends ModuleInstall {
 
-	public static function install() {
+	public function install() {
 		$ret = true;
 		$ret &= DB::CreateTable('utils_commondata_arrays','
 			id I4 AUTO KEY,
@@ -33,14 +33,14 @@ class Utils_CommonDataInstall extends ModuleInstall {
 		return $ret;
 	}
 	
-	public static function uninstall() {
+	public function uninstall() {
 		global $database;
 		$ret = true;
 		$ret &= DB::DropTable('utils_commondata_arrays');
 		$ret &= DB::DropTable('utils_commondata_data');
 		return $ret;
 	}
-	public static function requires($v) {
+	public function requires($v) {
 		return array(
 			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'Base/Acl','version'=>0),

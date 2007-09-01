@@ -100,10 +100,20 @@ class Acl {
 	}
 	
 	public static function add_aco($section,$name) {
+		Acl::add_aco_section($section);
+		return Acl::$gacl->add_object($section,$name,$name,0,0,'aco');
+	}
+
+	public static function del_aco($section,$name) {
+		$id = Acl::$gacl->get_object_id($section,$name,'aco');
+		if($id===false) return false;
+		return Acl::$gacl->del_object($id,'aco',true);
+	}
+	
+	public static function add_aco_section($section) {
 		$id = Acl::$gacl->get_object_section_section_id($section,$section,'aco');
 		if($id===false)
 			Acl::$gacl->add_object_section($section,$section,0,0,'aco');
-		return Acl::$gacl->add_object($section,$name,$name,0,0,'aco');
 	}
 	
 	public static function del_aco_section($section) {

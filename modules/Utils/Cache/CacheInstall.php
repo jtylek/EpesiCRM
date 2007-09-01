@@ -18,14 +18,14 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  * @subpackage Cache
  */
 class Utils_CacheInstall extends ModuleInstall {
-	public static function install() {
+	public function install() {
 		return true;
 	}
 	
-	public static function uninstall() {
+	public function uninstall() {
 		return true;
 	}
-	public static function requires($v) {
+	public function requires($v) {
 		return array();
 	}
 }

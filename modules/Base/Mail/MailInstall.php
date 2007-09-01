@@ -14,7 +14,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_MailInstall extends ModuleInstall {
-	public static function install() {
+	public function install() {
 		$ret = true;
 		if($ret) $ret = Variable::set('mail_from_addr','admin@example.com');
 		if($ret) $ret = Variable::set('mail_from_name','Administrator');
@@ -27,7 +27,7 @@ class Base_MailInstall extends ModuleInstall {
 		return $ret;
 	}
 	
-	public static function uninstall() {
+	public function uninstall() {
 		$ret = true;
 		if($ret) $ret = Variable::delete('mail_from_addr');
 		if($ret) $ret = Variable::delete('mail_from_name');
@@ -40,11 +40,11 @@ class Base_MailInstall extends ModuleInstall {
 		return $ret;
 	}
 	
-	public static function version() {
+	public function version() {
 		return array('1.0.0');
 	}
 
-	public static function requires($v) {
+	public function requires($v) {
 		return array(
 			array('name'=>'Libs/QuickForm','version'=>0), 
 			array('name'=>'Base/Acl', 'version'=>0), 

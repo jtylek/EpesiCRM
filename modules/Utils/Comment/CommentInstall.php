@@ -10,7 +10,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_CommentInstall extends ModuleInstall{
-	public static function install(){
+	public function install(){
 		$ret = DB::CreateTable('comment',"id I AUTO KEY, text X(4000) NOTNULL, user_login_id I NOTNULL, parent I DEFAULT -1 NOTNULL, topic C(255) NOTNULL, created_on T NOTNULL");
 		if($ret===false) {
 			print('Invalid SQL query - Comment module install: '.DB::error());
@@ -27,16 +27,16 @@ class Utils_CommentInstall extends ModuleInstall{
 		return true;
 	}
 
-	public static function uninstall() {
+	public function uninstall() {
 		Base_ThemeCommon::uninstall_default_theme('Utils/Comment');
 		return DB::DropTable('comment_report')
 			&& DB::DropTable('comment');
 	}
 	
-	public static function version() {
+	public function version() {
 		return array('1.0.0');
 	}
-	public static function requires($v) {
+	public function requires($v) {
 		return array(
 			array('name'=>'Base/Theme','version'=>0),
 			array('name'=>'Base/User','version'=>0));

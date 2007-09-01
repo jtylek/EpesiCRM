@@ -10,20 +10,20 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_TooltipInstall extends ModuleInstall {
-	public static function install() {
+	public function install() {
 		Base_ThemeCommon::install_default_theme('Utils/Tooltip');
 		return true;
 	}
 	
-	public static function uninstall() {
+	public function uninstall() {
 		Base_ThemeCommon::uninstall_default_theme('Utils/Tooltip');
 		return true;
 	}
 	
-	public static function version() {
+	public function version() {
 		return array('1.0.0');
 	}
-	public static function requires($v) {
+	public function requires($v) {
 		return array(
 			array('name'=>'Base/Theme', 'version'=>0)
 		    );

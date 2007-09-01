@@ -10,14 +10,14 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Tests_SharedUniqueHrefInstall extends ModuleInstall {
-	public static function install() {
+	public function install() {
 		return true;
 	}
 	
-	public static function uninstall() {
+	public function uninstall() {
 		return true;
 	}
-	public static function requires($v) {
+	public function requires($v) {
 		return array(array('name'=>'Tests_SharedUniqueHref_a','version'=>0));
 	}
 }

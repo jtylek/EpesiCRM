@@ -11,7 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Data_USAStatesInstall extends ModuleInstall {
 
-	public static function install() {
+	public function install() {
 		$usa_states = array('AL'=>"Alabama",  
 			'AK'=>"Alaska",  
 			'AZ'=>"Arizona",  
@@ -67,15 +67,15 @@ class Data_USAStatesInstall extends ModuleInstall {
 		return true;
 	}
 	
-	public static function uninstall() {
+	public function uninstall() {
 		Utils_CommonDataCommon::remove_array('usa_states');
 		return true;
 	}
 	
-	public static function version() {
+	public function version() {
 		return array('2007');
 	}
-	public static function requires($v) {
+	public function requires($v) {
 		return array(
 			array('name'=>'Base/Admin','version'=>0),
 			array('name'=>'Utils/CommonData','version'=>0));

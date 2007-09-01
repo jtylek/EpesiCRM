@@ -10,7 +10,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Apps_ForumInstall extends ModuleInstall {
 
-	public static function install() {
+	public function install() {
 		$ret = true;
 		$ret &= DB::CreateTable('apps_forum_board','
 			id I4 AUTO KEY,
@@ -34,7 +34,7 @@ class Apps_ForumInstall extends ModuleInstall {
 		return $ret;
 	}
 	
-	public static function uninstall() {
+	public function uninstall() {
 		$ret = true;
 		$ret &= DB::DropTable('apps_forum_board');
 		$ret &= DB::DropTable('apps_forum_thread');
@@ -42,19 +42,19 @@ class Apps_ForumInstall extends ModuleInstall {
 		return $ret;
 	}
 
-	public static function info() {
+	public function info() {
 		return array('Author'=>'<a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'Licence'=>'TL', 'Description'=>'Simple forum');
 	}
 	
-	public static function simple_setup() {
+	public function simple_setup() {
 		return true;
 	}
 	
-	public static function version() {
+	public function version() {
 		return array('0.9.9');
 	}
 
-	public static function requires($v) {
+	public function requires($v) {
 		return array(
 			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'Base/Theme','version'=>0),

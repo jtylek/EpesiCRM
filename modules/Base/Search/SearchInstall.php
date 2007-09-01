@@ -14,20 +14,20 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_SearchInstall extends ModuleInstall {
-	public static function install() {
+	public function install() {
 		Base_ThemeCommon::install_default_theme('Base/Search');
 		return true;
 	}
 	
-	public static function uninstall() {
+	public function uninstall() {
 		Base_ThemeCommon::uninstall_default_theme('Base/Search');
 		return true;
 	}
 	
-	public static function version() {
+	public function version() {
 		return array('0.9.1');
 	}
-	public static function requires($v) {
+	public function requires($v) {
 		return array(
 			array('name'=>'Libs/QuickForm','version'=>0), 
 			array('name'=>'Base/Lang','version'=>0),

@@ -10,19 +10,19 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_PathInstall extends ModuleInstall {
-	public static function install() {
+	public function install() {
 		Base_ThemeCommon::install_default_theme('Utils/Path');
 		return true;
 	}
 	
-	public static function uninstall() {
+	public function uninstall() {
 		return true;
 	}
 	
-	public static function version() {
+	public function version() {
 		return array('0.9.0');
 	}
-	public static function requires($v) {
+	public function requires($v) {
 		return array();
 	}
 }

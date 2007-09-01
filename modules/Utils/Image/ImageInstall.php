@@ -12,20 +12,20 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_ImageInstall extends ModuleInstall {
-	public static function install() {
+	public function install() {
 		Base_ThemeCommon::install_default_theme('Utils/Image');
 		return true;
 	}
 	
-	public static function uninstall() {
+	public function uninstall() {
 		Base_ThemeCommon::uninstall_default_theme('Utils/Image');
 		return true;
 	}
 	
-	public static function version() {
+	public function version() {
 		return array('0.8.9');
 	}
-	public static function requires($v) {
+	public function requires($v) {
 		if(!function_exists('imagecreatefromjpeg')) return array(array('name'=>'php5-gd','version'=>0));
 		return array();
 	}

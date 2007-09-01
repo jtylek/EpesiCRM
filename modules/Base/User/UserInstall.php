@@ -14,7 +14,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_UserInstall extends ModuleInstall {
-	public static function install() {
+	public function install() {
 		$ret = DB::CreateTable('user_login',"id I AUTO KEY ,login C(32) NOTNULL, active I1 NOTNULL DEFAULT 1", array('constraints' => ', UNIQUE (login)'));
 		if($ret===false) {
 			print('Invalid SQL query - User module install');
@@ -23,20 +23,20 @@ class Base_UserInstall extends ModuleInstall {
 		return true;
 	}
 	
-	public static function uninstall() {
+	public function uninstall() {
 		return DB::DropTable('user_login');
 	}
 	
-	public static function version() {
+	public function version() {
 		return array("1.0");
 	}
 	
-	public static function requires($v) {
+	public function requires($v) {
 		return array(
 			array('name'=>'Base/Acl','version'=>0));
 	}
 	
-	public static function backup($v) {
+	public function backup($v) {
 		return array('user_login');
 	}
 }

@@ -12,22 +12,22 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_ErrorInstall extends ModuleInstall {
-	public static function install() {
+	public function install() {
 		file_put_contents(ModuleManager::get_data_dir('Base/Error').'index.html','');
 		Variable::set('error_mail','');
 		return true;
 	}
 	
-	public static function uninstall() {
+	public function uninstall() {
 		Variable::delete('error_mail');
 		return true;
 	}
 	
-	public static function version() {
+	public function version() {
 		return array('1.0.0');
 	}
 
-	public static function requires($v) {
+	public function requires($v) {
 		return array(
 			array('name'=>'Base/Mail', 'version'=>0),
 			array('name'=>'Base/Lang', 'version'=>0),

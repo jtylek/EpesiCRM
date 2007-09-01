@@ -11,7 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_CustomMenuInstall extends ModuleInstall {
 
-	public static function install() {
+	public function install() {
 		$ret = true;
 		$ret &= DB::CreateTable('utils_custommenu_page','
 			id C(32) KEY NOTNULL,
@@ -34,17 +34,17 @@ class Utils_CustomMenuInstall extends ModuleInstall {
 		return $ret;
 	}
 	
-	public static function uninstall() {
+	public function uninstall() {
 		$ret = true;
 		$ret &= DB::DropTable('utils_custommenu_entry');
 		$ret &= DB::DropTable('utils_custommenu_page');
 		return $ret;
 	}
 	
-	public static function version() {
+	public function version() {
 		return array('1.0.0');
 	}
-	public static function requires($v) {
+	public function requires($v) {
 		return array(
 			array('name'=>'Base/Lang','version'=>0));
 	}
