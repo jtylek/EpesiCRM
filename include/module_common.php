@@ -13,7 +13,23 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  * @package epesi-base
  * @subpackage module
  */
-class ModuleCommon {
+class ModuleCommon extends ModulePrimitive {
+	
+	/**
+	 * Singleton.
+	 *
+	 * @return object
+	 */
+	public static final function Instance($arg=null) {
+		static $obj;
+		if(!isset($obj) && isset($arg)) $obj = $arg;
+		elseif(is_string($obj)) {
+			$cl = $obj.'Common';
+			$obj = new $cl($obj);
+		}
+		return $obj;
+	}
+	
 	/**
 	 * Checks access to a method.
 	 * First parameter is a module object and second is a method in this module.
@@ -28,7 +44,7 @@ class ModuleCommon {
 	 * @param string function name
 	 * @return bool true if access is granted, false otherwise
 	 */
-	public static function check_access($mod, $m) {
+	public static final function check_access($mod, $m) {
 		if (method_exists($mod.'Common', $m . '_access') && !call_user_func(array (
 				$mod.'Common',
 				$m . '_access'
@@ -36,6 +52,5 @@ class ModuleCommon {
 			return false;
 		return true;
 	}
-
 }
 ?>

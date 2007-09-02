@@ -20,7 +20,7 @@ $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['datepicker'] = array('modules/Libs/Qui
 $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['multiselect'] = array('modules/Libs/QuickForm/multiselect.php','HTML_QuickForm_multiselect');
 $GLOBALS['_HTML_QuickForm_registered_rules']['comparestring'] = array('HTML_QuickForm_Rule_CompareString', 'Rule/CompareString.php');
 
-class Libs_QuickFormCommon {
+class Libs_QuickFormCommon extends ModuleCommon {
 	private static $on_submit = '';
 	
 	public static function add_on_submit_action($action) {

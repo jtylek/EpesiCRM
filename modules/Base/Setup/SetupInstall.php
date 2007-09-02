@@ -32,7 +32,9 @@ class Base_SetupInstall extends ModuleInstall {
 			print('Invalid SQL query - Setup module (populating variables)');
 			return false;
 		}
-
+		
+		$this->create_data_dir();
+		
 		return true;
 	}
 

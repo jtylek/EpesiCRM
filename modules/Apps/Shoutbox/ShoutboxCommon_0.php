@@ -8,7 +8,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Apps_ShoutboxCommon {
+class Apps_ShoutboxCommon extends ModuleCommon {
 	public static function menu() {
 		return array('Shoutbox'=>array());
 	}

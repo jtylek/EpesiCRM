@@ -11,7 +11,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Base_User_SettingsCommon {
+class Base_User_SettingsCommon extends ModuleCommon {
 	public static $sep = "__";
 	
 	public static function menu(){

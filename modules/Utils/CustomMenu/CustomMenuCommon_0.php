@@ -9,7 +9,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Utils_CustomMenuCommon {
+class Utils_CustomMenuCommon extends ModuleCommon {
 
 	/**
 	 * Delete all menu entries with specified group id.

@@ -13,7 +13,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Base_AclCommon {
+class Base_AclCommon extends ModuleCommon {
 	
 	/**
 	 * Gets array of acl groups. Don't use any parameters, it is recursive function.

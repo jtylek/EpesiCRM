@@ -9,7 +9,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Utils_CommonDataCommon implements Base_AdminModuleCommonInterface {
+class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCommonInterface {
 
 	/**
 	 * For internal use only.

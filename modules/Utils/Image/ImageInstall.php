@@ -13,6 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_ImageInstall extends ModuleInstall {
 	public function install() {
+		$this->create_data_dir();
 		Base_ThemeCommon::install_default_theme('Utils/Image');
 		return true;
 	}

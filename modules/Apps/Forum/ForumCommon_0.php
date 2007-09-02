@@ -8,7 +8,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Apps_ForumCommon {
+class Apps_ForumCommon extends ModuleCommon {
 	public static function menu(){
 		$ret = DB::Execute('SELECT id, name FROM apps_forum_board ORDER BY name');
 		$boards = array();

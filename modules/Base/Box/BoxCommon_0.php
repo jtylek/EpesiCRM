@@ -13,7 +13,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Base_BoxCommon{
+class Base_BoxCommon extends ModuleCommon {
 	public static function get_main_module_name() {
 		$ini = Base_ThemeCommon::get_template_file('Base_Box','default.ini');
 		if(!$ini) {

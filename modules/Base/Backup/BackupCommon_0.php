@@ -13,7 +13,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Base_BackupCommon {
+class Base_BackupCommon extends ModuleCommon {
 	public static function admin_access() {
 		return Base_AclCommon::i_am_sa();
 	}

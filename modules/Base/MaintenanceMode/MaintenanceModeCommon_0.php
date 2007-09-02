@@ -13,7 +13,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Base_MaintenanceModeCommon {
+class Base_MaintenanceModeCommon extends ModuleCommon {
 	public static function set_mode($x) {
 		if(is_bool($x))
 			$_SESSION['maintenance_mode']=$x;

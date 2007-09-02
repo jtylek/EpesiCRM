@@ -9,7 +9,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Base_SetupCommon extends Module {
+class Base_SetupCommon extends ModuleCommon {
 	public static function body_access() {
 		return (Variable::get('anonymous_setup') || Acl::check('Administration','Main'));
 	}

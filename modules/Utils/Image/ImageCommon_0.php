@@ -13,7 +13,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Utils_ImageCommon {
+class Utils_ImageCommon extends ModuleCommon {
 
 	/**
 	 * Creates thumb of loaded image.

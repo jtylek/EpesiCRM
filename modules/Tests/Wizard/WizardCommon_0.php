@@ -9,7 +9,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Tests_WizardCommon {
+class Tests_WizardCommon extends ModuleCommon {
 	public static function menu(){
 		return array('Tests'=>array('__submenu__'=>1,'Wizard'=>array()));
 	}

@@ -9,7 +9,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Base_Mail_ContactUsCommon {
+class Base_Mail_ContactUsCommon extends ModuleCommon {
 	public static function tool_menu() {
 		return array('Contact us'=>array());
 	}

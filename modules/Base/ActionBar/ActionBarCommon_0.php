@@ -13,7 +13,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Base_ActionBarCommon {
+class Base_ActionBarCommon extends ModuleCommon {
 	private static $icons = array();
 	
 	public static $available_icons = array(

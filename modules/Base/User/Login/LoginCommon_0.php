@@ -13,7 +13,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Base_User_LoginCommon extends Module {
+class Base_User_LoginCommon extends ModuleCommon {
 	/**
 	 * Check if username and password is valid login.
 	 * 

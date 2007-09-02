@@ -15,6 +15,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_ThemeInstall extends ModuleInstall {
 	public function install() {
+		$this->create_data_dir();
 		mkdir('data/Base_Theme/templates');
 		mkdir('data/Base_Theme/templates/default');
 		mkdir('data/Base_Theme/compiled');

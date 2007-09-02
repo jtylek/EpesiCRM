@@ -8,7 +8,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Apps_StaticPageCommon {
+class Apps_StaticPageCommon extends ModuleCommon {
 	public static function admin_caption() {
 		return "Static pages";
 	}

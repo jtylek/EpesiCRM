@@ -13,8 +13,8 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_ErrorInstall extends ModuleInstall {
 	public function install() {
-		file_put_contents(ModuleManager::get_data_dir('Base/Error').'index.html','');
 		Variable::set('error_mail','');
+		$this->create_data_dir();
 		return true;
 	}
 	

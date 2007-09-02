@@ -9,7 +9,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Base_ModuleManagerCommon extends Base_AdminModuleCommon{
+class Base_ModuleManagerCommon extends Base_AdminModuleCommon {
 	public static function admin_caption() {
 		return 'Manage modules';
 	}

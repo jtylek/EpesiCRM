@@ -18,7 +18,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  * Translation files are kept in 'modules/Lang/translations'. 
  * Http server user should have write access to those files.
  */
-class Base_LangCommon {
+class Base_LangCommon extends ModuleCommon {
 	/**
 	 * Use this function to translate desired string. Translation link is never shown.
 	 * This function can be used with static functions, it doesn't require

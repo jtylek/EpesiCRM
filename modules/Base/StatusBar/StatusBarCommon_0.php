@@ -11,7 +11,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Base_StatusBarCommon {
+class Base_StatusBarCommon extends ModuleCommon {
 	public static $messages = array();
 	public static function message($text,$type=null) {
 		if($type=='error')

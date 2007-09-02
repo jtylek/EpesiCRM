@@ -13,7 +13,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Base_HomePageCommon {
+class Base_HomePageCommon extends ModuleCommon {
 	public static $logged;
 	
 	public static function load() {

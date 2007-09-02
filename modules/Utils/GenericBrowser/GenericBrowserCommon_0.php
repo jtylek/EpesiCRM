@@ -9,7 +9,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Utils_GenericBrowserCommon {
+class Utils_GenericBrowserCommon extends ModuleCommon {
 	public static function user_settings(){
 		return array('Browsing tables'=>array(
 			array('name'=>'per_page','label'=>'Records per page','type'=>'select','values'=>array(5=>5,10=>10,25=>25,50=>50,100=>100),'default'=>10),

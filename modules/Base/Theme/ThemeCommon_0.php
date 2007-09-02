@@ -13,7 +13,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Base_ThemeCommon {
+class Base_ThemeCommon extends ModuleCommon {
 	/**
 	 * Performs installation of default theme files for a module.
 	 * 

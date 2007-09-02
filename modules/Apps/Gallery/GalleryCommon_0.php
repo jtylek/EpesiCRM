@@ -8,7 +8,7 @@
  */
  defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Apps_GalleryCommon {
+class Apps_GalleryCommon extends ModuleCommon {
 	public static function menu() {
 		return array('Gallery'=>array());
 	}

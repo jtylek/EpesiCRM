@@ -11,7 +11,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-abstract class Utils_FontSizeCommon extends Module {
+abstract class Utils_FontSizeCommon extends ModuleCommon {
 
 	/**
 	 * For internal use only.

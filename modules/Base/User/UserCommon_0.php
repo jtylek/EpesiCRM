@@ -13,7 +13,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Base_UserCommon {
+class Base_UserCommon extends ModuleCommon {
 	/**
 	 * Changes state of user (active or inactive).
 	 * 

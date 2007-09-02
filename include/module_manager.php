@@ -57,6 +57,8 @@ class ModuleManager {
 			ob_start();
     			require_once ($file_url);
 			ob_end_clean();
+			if(class_exists($class_name.'Common'))
+				call_user_func(array($class_name.'Common','Instance'),$class_name);
 			return true;
 		}
 		return false;
@@ -487,12 +489,12 @@ class ModuleManager {
 			return false;
 		}
 
-		print($module_to_install.': creating data dir<br>');
+/*		print($module_to_install.': creating data dir<br>');
 		if (!self::create_data_dir($module_to_install)) {
 			print($module_to_install.': unable to create data directory.<br>');
 			return false;
 		}
-
+*/
 		print($module_to_install.': calling install method<br>');
 		//call install script and fill database
 		if(!call_user_func(array (
@@ -556,9 +558,13 @@ class ModuleManager {
 			return false;
 		}
 		
-		if($delete_old_data)
-			self::remove_data_dir($module);
-		recursive_copy('backup/'.$pkg_name.'/data/','data/'.$module.'/');
+		$src = 'backup/'.$pkg_name.'/data/';
+		if(is_dir($src)) {
+			$dest = 'data/'.$module.'/';
+			if($delete_old_data && is_dir($dest))
+				self::remove_data_dir($module);
+			recursive_copy($src,$dest);
+		}
 		
 		//restore tables
 		$backup_tables = call_user_func(array (
@@ -624,7 +630,8 @@ class ModuleManager {
 		//backup data
 		$src = 'data/'.$module.'/';
 		$dest = 'backup/'.$pkg_name.'/data/';
-		recursive_copy($src,$dest);
+		if(is_dir($src))
+			recursive_copy($src,$dest);
 		
 		//backup tables
 		$backup_tables = call_user_func(array (
@@ -811,13 +818,14 @@ class ModuleManager {
 	 * @param string module name
 	 * @return bool true if directory was created or already exists, false otherwise
 	 */
-	private static final function create_data_dir($name) {
+	public static final function create_data_dir($name) {
 		$name = str_replace('/','_',$name);
 		$dir = 'data/'.$name;
 		if (is_dir($dir) && is_writable($dir))
 			return true;
-		print('Creating data directory '.$dir.'<br>');
-		return mkdir($dir,0777);
+		$x = mkdir($dir,0777);
+		file_put_contents($dir.'/index.html','');
+		return $x;
 	}
 
 	/**
@@ -828,10 +836,11 @@ class ModuleManager {
 	 * @param string module name
 	 * @return bool true if directory was removed or did not exist, false otherwise
 	 */
-	protected static final function remove_data_dir($name) {
+	public static final function remove_data_dir($name) {
 		$name = str_replace('/','_',$name);
 		$dir = 'data/'.$name.'/';
-		recursive_rmdir($dir);
+		if(is_dir($dir))
+			recursive_rmdir($dir);
 		return true;
 	}
 	

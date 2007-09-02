@@ -13,7 +13,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Base_MenuCommon {
+class Base_MenuCommon extends ModuleCommon {
 	public static function add_default_menu(& $m, $name) {
 		foreach($m as $k=>$arr) {
 			if(is_array($arr)) {

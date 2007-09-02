@@ -27,6 +27,7 @@ class Utils_FileDownloadInstall extends ModuleInstall {
 			print('Unable to create table utils_filedownload_files.<br>');
 			return false;
 		}
+		$this->create_data_dir();
 		return $ret;
 	}
 	

@@ -32,7 +32,7 @@ class EpesiErrorObserver extends ErrorObserver {
 $err = new EpesiErrorObserver();
 ErrorHandler::add_observer($err);
 
-class Base_ErrorCommon implements Base_AdminModuleCommonInterface {
+class Base_ErrorCommon extends ModuleCommon implements Base_AdminModuleCommonInterface {
 	public static function admin_caption() {
 		return 'PHP & SQL Errors to mail';
 	}

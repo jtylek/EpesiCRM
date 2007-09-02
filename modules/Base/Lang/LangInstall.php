@@ -15,6 +15,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_LangInstall extends ModuleInstall {
 	public function install() {
+		$this->create_data_dir();
 		return Variable::set('default_lang','en');
 	}
 	

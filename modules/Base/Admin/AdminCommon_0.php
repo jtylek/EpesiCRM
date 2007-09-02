@@ -21,7 +21,7 @@ interface Base_AdminModuleCommonInterface {
 	public static function admin_caption();
 }
 
-class Base_AdminCommon {
+class Base_AdminCommon extends ModuleCommon {
 	public static function body_access() {
 		return Base_AclCommon::i_am_admin();
 	}
@@ -33,7 +33,7 @@ class Base_AdminCommon {
  * Access: Module administrator
  * Caption: <module_name> module 
  */
-abstract class Base_AdminModuleCommon extends Module implements Base_AdminModuleCommonInterface {
+abstract class Base_AdminModuleCommon extends ModuleCommon implements Base_AdminModuleCommonInterface {
     public static function admin_access() {
 	return Base_AclCommon::i_am_admin();
     }

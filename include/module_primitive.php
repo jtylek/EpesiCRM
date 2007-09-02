@@ -45,6 +45,26 @@ abstract class ModulePrimitive extends ModuleAcl {
 	public final function get_module_dir() {
 		return 'modules/'.str_replace('_','/',$this->type).'/';
 	}
+	
+	/**
+	 * Creates default data directory for module. Typical usage: in module installation
+	 * 
+	 * @param string module name
+	 * @return bool true if directory was created or already exists, false otherwise
+	 */
+	public final function create_data_dir() {
+		return ModuleManager::create_data_dir($this->type);
+	}
+
+	/**
+	 * Removes default data directory of a module. Typical usage: in module uninstallation
+	 * 
+	 * @param string module name
+	 * @return bool true if directory was created or already exists, false otherwise
+	 */
+	public final function remove_data_dir() {
+		return ModuleManager::remove_data_dir($this->type);
+	}
 }
 
 ?>
