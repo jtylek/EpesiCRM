@@ -74,16 +74,13 @@ class Acl {
 		if(is_array($names)) {
 			foreach($names as $k=>$v) {
 				if(is_array($v) && is_string($k)) {
-					print('1) addding group: '.$k.'<br>');
 					self::add_groups($v,self::$gacl->add_group($k,$k, $parent));
 				} elseif(is_string($v)) {
-					print('2) addding group: '.$v.'<br>');
 					if(!self::$gacl->add_group($v,$v, $parent)) return false;
 				} else 
 					return false;
 			}
 		} elseif(is_string($names)) {
-			print('3) addding group: '.$names.'<br>');
 			self::$gacl->add_group($names,$names, $parent);
 		} else 
 			return false;
@@ -99,9 +96,21 @@ class Acl {
 		return true;
 	}
 	
-	public static function add_aco($section,$name) {
+	public static function add_aco($section,$name,$group=null) {
 		Acl::add_aco_section($section);
-		return Acl::$gacl->add_object($section,$name,$name,0,0,'aco');
+		$ret = Acl::$gacl->add_object($section,$name,$name,0,0,'aco');
+		if(!$ret) return false;
+		if(isset($group)) {
+			if(is_string($group)) $group = array($group);
+			foreach($group as $g) {
+				$x = Acl::$gacl->get_group_id($g);
+				if($x===false) return false;
+				$ret = Acl::$gacl->add_acl(array($section =>array($name)), array(), array($x), NULL, NULL,1,1,'','','user');
+				if(!$ret) return false;
+				print('adding '.$section.' '.$name.' '.$g.'<br>');
+			}
+		}
+		return $ret;
 	}
 
 	public static function del_aco($section,$name) {
@@ -121,14 +130,7 @@ class Acl {
 		if($id===false)
 			return false;
 		return Acl::$gacl->del_object_section($id, 'aco',true);
-	}
-	
-	public static function aco_accept_group($section,$name,$group) {
-		$x = Acl::$gacl->get_group_id($group);
-		if($x===false) return false;
-		Acl::$gacl->add_acl(array($section =>array($name)), array(), array($x), NULL, NULL,1,1,'','','user');
-		return true;
-	}
+	}	
 }
 
 Acl::$gacl = new gacl_api(array('db'=>& DB::$ado));

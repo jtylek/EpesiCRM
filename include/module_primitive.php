@@ -1,8 +1,5 @@
 <?php
 /**
- * Module file
- * 
- * This file defines abstract class Module whose provides basic modules functionality.
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @licence SPL
