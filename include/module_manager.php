@@ -37,7 +37,7 @@ class ModuleManager {
 		require_once ('modules/' . $path . '/' . $file . 'Install.php');
 		ob_end_clean();
 		$x = $class_name.'Install';
-		if(!class_exists($x))
+		if(!class_exists($x) || !array_key_exists('ModuleInstall',class_parents($x)))
 			trigger_error('Module '.$path.': Invalid install file',E_USER_ERROR);
 		self::$modules_install[$class_name] = new $x($class_name); 
 	}
@@ -57,7 +57,8 @@ class ModuleManager {
 			ob_start();
     			require_once ($file_url);
 			ob_end_clean();
-			if(class_exists($class_name.'Common'))
+			$x = $class_name.'Common';
+			if(class_exists($x) && array_key_exists('ModuleCommon',class_parents($x)))
 				call_user_func(array($class_name.'Common','Instance'),$class_name);
 			return true;
 		}
@@ -80,6 +81,8 @@ class ModuleManager {
 			ob_start();
 			require_once ($file_url);
 			ob_end_clean();
+			if(!class_exists($class_name) || !array_key_exists('Module',class_parents($class_name)))
+				trigger_error('Module '.$path.': Invalid main file',E_USER_ERROR);
 			return true;
 		}
 		return false;
