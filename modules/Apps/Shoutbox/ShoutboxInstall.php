@@ -34,7 +34,7 @@ class Apps_ShoutboxInstall extends ModuleInstall {
 		return array("0.5");
 	}
 	
-	public function simple_setup() {
+	public static function simple_setup() {
 		return true;
 	}
 	

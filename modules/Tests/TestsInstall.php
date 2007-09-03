@@ -20,11 +20,11 @@ class TestsInstall extends ModuleInstall {
 		return true;
 	}
 	
-	public function info() {
+	public static function info() {
 		return array('Author'=>'<a href="mailto:pbukowski@telaxus.com">Paul Bukowski</a>, <a href="mailto:kslawinski@telaxus.com">Kuba Slawinski</a> and <a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'Licence'=>'SPL', 'Description'=>'Module examples pack');
 	}
 	
-	public function simple_setup() {
+	public static function simple_setup() {
 		return true;
 	}
 	

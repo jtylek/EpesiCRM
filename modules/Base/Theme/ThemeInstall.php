@@ -21,7 +21,7 @@ class Base_ThemeInstall extends ModuleInstall {
 		mkdir('data/Base_Theme/compiled');
 		mkdir('data/Base_Theme/cache');
 		mkdir('data/Base_Theme/config');
-		self::install_default_theme_common_files('modules/Base/Theme/','images');
+		$this->install_default_theme_common_files('modules/Base/Theme/','images');
 		return Variable::set('default_theme','default');
 	}
 	
@@ -48,7 +48,7 @@ class Base_ThemeInstall extends ModuleInstall {
 			if ($name == '.' || $name == '..') continue;
 			$path = $dir.$f.'/'.$name;
 			if (is_dir($path))
-				self::install_default_theme_common_files($dir,$f.'/'.$name);
+				$this->install_default_theme_common_files($dir,$f.'/'.$name);
 			else
 				copy($path,'data/Base_Theme/templates/default/'.$f.'/'.$name);
 		}

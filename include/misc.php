@@ -355,6 +355,6 @@ function escapeJs($str) {
 }
 
 function get_epesi_url() {
-	return 'http'.(isset($_SERVER['HTTPS'])?'s':'').'://'. $_SERVER['HTTP_HOST'].trim(dirname($_SERVER['PHP_SELF']),'/\\').'/';
+	return 'http'.(isset($_SERVER['HTTPS'])?'s':'').'://'. $_SERVER['HTTP_HOST'].str_replace('\\','/',dirname($_SERVER['PHP_SELF']));
 }
 ?>

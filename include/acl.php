@@ -26,14 +26,18 @@ class Acl {
 	 * @param string
 	 * @return bool false on access denied
 	 */
-	public static function check($a,$b,$c=null,$d=null) {
+	public static function check($a,$b,$c=null,$d=null,$cache=true) {
+		static $cached = array();
 		if(!isset($d)) {
 			$d = self::get_user();
 			if(!isset($d))
 				return false;
 		}
 		if(!isset($c)) $c = 'Users';
-		return self::$gacl->acl_check($a,$b,$c,$d);
+		if($cache && isset($cached[$a][$b][$c][$d])) {
+			return $cached[$a][$b][$c][$d];	
+		}
+		return $cached[$a][$b][$c][$d] = self::$gacl->acl_check($a,$b,$c,$d);
 	}
 	
 	/**

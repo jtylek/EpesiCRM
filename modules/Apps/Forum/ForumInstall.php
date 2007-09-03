@@ -42,11 +42,11 @@ class Apps_ForumInstall extends ModuleInstall {
 		return $ret;
 	}
 
-	public function info() {
+	public static function info() {
 		return array('Author'=>'<a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'Licence'=>'TL', 'Description'=>'Simple forum');
 	}
 	
-	public function simple_setup() {
+	public static function simple_setup() {
 		return true;
 	}
 	

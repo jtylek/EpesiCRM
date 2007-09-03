@@ -10,10 +10,6 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_FileDownloadCommon extends ModuleCommon {
-	public static function menu() {
-		return array('Test'=>array());
-	}
-	
 	public static function destroy($path,$vars) {
 		DB::Execute('DELETE FROM utils_filedownload_files WHERE id=%d OR posted_on<%T',array($vars['download_id'],date('Y-m-d G:i:s',time()-120)));
 	}

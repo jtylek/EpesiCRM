@@ -33,11 +33,11 @@ class Apps_StaticPageInstall extends ModuleInstall {
 		return $ret;
 	}
 	
-	public function info() {
+	public static function info() {
 		return array('Author'=>'<a href="mailto:pbukowski@telaxus.com">Paul Bukowski</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'Licence'=>'TL', 'Description'=>'Simple WIKI pages');
 	}
 	
-	public function simple_setup() {
+	public static function simple_setup() {
 		return true;
 	}
 	
