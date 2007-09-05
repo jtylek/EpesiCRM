@@ -29,28 +29,5 @@ class ModuleCommon extends ModulePrimitive {
 		}
 		return $obj;
 	}
-	
-	/**
-	 * Checks access to a method.
-	 * First parameter is a module object and second is a method in this module.
-	 * 
-	 * If you want to restric access to a method just create a method called
-	 * 'methodname_access' returning false if you want restrict user from accessing 
-	 * 'methodname' method.
-	 * 
-	 * check_access is called automatically with each pack_module call.
-	 * 
-	 * @param object module
-	 * @param string function name
-	 * @return bool true if access is granted, false otherwise
-	 */
-	public static final function check_access($mod, $m) {
-		if (method_exists($mod.'Common', $m . '_access') && !call_user_func(array (
-				$mod.'Common',
-				$m . '_access'
-			)))
-			return false;
-		return true;
-	}
 }
 ?>

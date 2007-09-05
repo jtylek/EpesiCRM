@@ -462,6 +462,7 @@ class Utils_GenericBrowser extends Module {
 						if(is_array($c)) $xxx = $c['value'];
 							else $xxx = $c;
 						if(isset($header[$i]['order_eregi'])) {
+							$ret = array();
 							eregi($header[$i]['order_eregi'],$xxx, $ret);
 							$xxx = $ret[1];
 						}
@@ -556,9 +557,11 @@ class Utils_GenericBrowser extends Module {
 
 		$renderer =& new HTML_QuickForm_Renderer_TCMSArraySmarty();
 		$form = & $this->init_module('Libs/QuickForm',$this->lang->ht('Changing display settings'));
+		$pager_on = false;
 		if(isset($this->rows_qty) && $paging) {
 			$form->addElement('select','per_page',$this->lang->t('Number of rows per page'), array(5=>5,10=>10,25=>25,50=>50,100=>100), 'onChange="'.$form->get_submit_form_js(false).'"');
 			$form->setDefaults(array('per_page'=>$per_page));
+			$pager_on = true;
 		}
 		$search_on=false;
 		if(!$this->is_adv_search_on()) {
@@ -578,30 +581,34 @@ class Utils_GenericBrowser extends Module {
 				}
 		}
 		if ($search_on) $form->addElement('submit','submit_search',$this->lang->ht('Search'));
-		$form->accept($renderer);
-		$form_array = $renderer->toArray();
-		$theme->assign('form_data', $form_array);
-		$theme->assign('form_name', $form->getAttribute('name'));
-
-		// form processing
-		if($form->validate()) {
-			$values = $form->exportValues();
-			$this->set_module_variable('per_page',$values['per_page']);
-			Base_User_SettingsCommon::save('Utils/GenericBrowser','per_page',$values['per_page']);
-			$search = array();
-			foreach ($values as $k=>$v){
-				if ($k=='search') {  
-					if ($v!=$this->lang->ht('search keyword'))
-						$search['__keyword__'] = $v;
-					break;
-				}  
-				if (substr($k,0,8)=='search__') {
-					$val = substr($k,8);
-					if ($v!=$this->lang->ht('search keyword') && $v!='') $search[$val] = $v;
+		if ($pager_on || $search_on) {
+			$form->accept($renderer);
+			$form_array = $renderer->toArray();
+			$theme->assign('form_data', $form_array);
+			$theme->assign('form_name', $form->getAttribute('name'));
+		
+			// form processing
+			if($form->validate()) {
+				$values = $form->exportValues();
+				if(isset($values['per_page'])) {
+					$this->set_module_variable('per_page',$values['per_page']);
+					Base_User_SettingsCommon::save('Utils/GenericBrowser','per_page',$values['per_page']);
 				}
+				$search = array();
+				foreach ($values as $k=>$v){
+					if ($k=='search') {  
+						if ($v!=$this->lang->ht('search keyword'))
+							$search['__keyword__'] = $v;
+						break;
+					}  
+					if (substr($k,0,8)=='search__') {
+						$val = substr($k,8);
+						if ($v!=$this->lang->ht('search keyword') && $v!='') $search[$val] = $v;
+					}
+				}
+				$this->set_module_variable('search',$search);
+				location(array());
 			}
-			$this->set_module_variable('search',$search);
-			location(array());
 		}
 		
 		// maintance mode -> action

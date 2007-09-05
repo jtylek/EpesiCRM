@@ -58,8 +58,11 @@ class ModuleManager {
     			require_once ($file_url);
 			ob_end_clean();
 			$x = $class_name.'Common';
-			if(class_exists($x) && array_key_exists('ModuleCommon',class_parents($x)))
+			if(class_exists($x)) {
+				if(!array_key_exists('ModuleCommon',class_parents($x)))
+					trigger_error('Module '.$path.': Common class should extend ModuleCommon class.',E_USER_ERROR);
 				call_user_func(array($class_name.'Common','Instance'),$class_name);
+			}
 			return true;
 		}
 		return false;
@@ -888,5 +891,31 @@ class ModuleManager {
 		ob_end_clean();
 		return self::$root;
 	}
+
+	/**
+	 * Checks access to a method.
+	 * First parameter is a module object and second is a method in this module.
+	 * 
+	 * If you want to restric access to a method just create a method called
+	 * 'methodname_access' returning false if you want restrict user from accessing 
+	 * 'methodname' method.
+	 * 
+	 * check_access is called automatically with each pack_module call.
+	 * 
+	 * @param object module
+	 * @param string function name
+	 * @return bool true if access is granted, false otherwise
+	 */
+	public static final function check_access($mod, $m) {
+		$comm = $mod.'Common';
+		if(class_exists($comm)) {
+			$sing = call_user_func(array($comm,'Instance'));
+			if (method_exists($sing, $m . '_access') && 
+				!call_user_func(array($sing, $m . '_access')))
+				return false;
+		}
+		return true;
+	}
+
 }
 ?>

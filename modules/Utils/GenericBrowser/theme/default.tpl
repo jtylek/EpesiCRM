@@ -1,10 +1,10 @@
-<div style="width: 850px;">
-
+<div>
+{if isset($form_data)}
 {$form_data.javascript}
 
 <form {$form_data.attributes}> 
 {$form_data.hidden}
-
+{/if}
 {if isset($form_data.search)}
 	<b>{$form_data.search.label}</b>{$form_data.search.html}
 	{$form_data.submit_search.html}{$adv_search}
@@ -50,7 +50,9 @@
 
 <table id="Utils_GenericBrowser__navigation" border="0" cellspacing="0" cellpadding="0">
 	<tr>
+		{if isset($form_data.per_page)}
 		<td class="per_page"></td>
+		{/if}
 		<td class="arrow">{if $first}<img src="{$theme_dir}/images/first.png">{/if}</td><td class="first">{$first}</td>
 		<td class="arrow">{if $prev}<img src="{$theme_dir}/images/prev.png">{/if}</td><td class="prev">{$prev}</td>
 		<td class="summary">{$summary}</td>
@@ -62,6 +64,7 @@
 	</tr>
 </table>
 
+{if isset($form_data)}
 </form>
-
-</div>	
+{/if}
+</div>

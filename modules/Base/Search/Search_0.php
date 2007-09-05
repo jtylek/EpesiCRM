@@ -33,7 +33,7 @@ class Base_Search extends Module {
 		foreach(ModuleManager::$modules as $name=>$obj) {
 			if(method_exists($obj['name'].'Common', 'search'))
 				$modules_with_search[$name] = $obj;
-			if(method_exists($name.'Common','advanced_search_access') && ModuleCommon::check_access($name,'advanced_search'))
+			if(method_exists($name.'Common','advanced_search_access') && ModuleManager::check_access($name,'advanced_search'))
 				$modules_with_adv_search[$name] = $this->lang->ht(str_replace('_',': ',$name));
 		}
 		ksort($modules_with_search);

@@ -28,6 +28,9 @@ class Apps_StaticPageInstall extends ModuleInstall {
 	
 	public function uninstall() {
 		$ret = true;
+		$x = DB::Execute('SELECT id FROM apps_staticpage_pages');
+		while($row=$x->FetchRow())
+			Utils_CustomMenuCommon::delete('staticpage:'.$row['id']);
 		$ret &= DB::DropTable('apps_staticpage_pages');
 		Base_ThemeCommon::uninstall_default_theme('Apps/StaticPage');
 		return $ret;

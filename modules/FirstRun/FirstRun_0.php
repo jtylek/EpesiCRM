@@ -23,7 +23,7 @@ class FirstRun extends Module {
 		$f->setDefaults(array('setup_type'=>key($this->ini)));
 		foreach($this->ini as $name=>$pkgs)
 			$f->addElement('radio', 'setup_type', '', $this->lang->t($name), $name);
-		$wizard->end_page();
+		$wizard->next_page();
 		
 		/////////////////////////////////////////////////////////////////
 		$f = & $wizard->begin_page('simple_user');
@@ -44,7 +44,7 @@ class FirstRun extends Module {
 		$f->addRule(array('pass','pass_c'), $this->lang->t('Passwords don\'t match'), 'compare');
 		$f->addRule('pass', $this->lang->t('Your password must be longer then 5 chars'), 'minlength', 5);
 		
-		$wizard->end_page();
+		$wizard->next_page();
 		
 		/////////////////////////////////////////////////////		
 		$f = & $wizard->begin_page('simple_mail');
@@ -54,7 +54,7 @@ class FirstRun extends Module {
 		$f->addElement('header',null, $this->lang->t('If you are on hosted server, you probably don\'t need to change it.'));
 		$f->addElement('select','mail_method', $this->lang->t('Choose method'), array('smtp'=>'remote smtp server', 'mail'=>'local php.ini settings'));
 		
-		$wizard->end_page(array($this,'choose_mail_method'));
+		$wizard->next_page(array($this,'choose_mail_method'));
 
 		//////////////////////
 		$f = & $wizard->begin_page('simple_mail_smtp');
@@ -67,13 +67,13 @@ class FirstRun extends Module {
 		$f->addElement('text','mail_user', $this->lang->t('Login'));					
 		$f->addElement('password','mail_password', $this->lang->t('Password'));
 
-		$wizard->end_page();
+		$wizard->next_page();
 		
 		////////////////////////////////////////////////////////////
 		$f = & $wizard->begin_page('setup_warning');
 		$f->addElement('header', null, $this->lang->t('Warning'));
 		$f->addElement('header', null, "Setup will now check for available modules and proceed with base install,<br> this operation may take several minutes<br> and will be triggered automatically only once.<br> Click next to proceed.");
-		$wizard->end_page();
+		$wizard->next_page();
 
 		/////////////////////////////////////////
 		print('<center>');		

@@ -48,7 +48,7 @@ class Base extends Epesi {
 		    $this->content[$path]['time'] = microtime(true)-$time;
 	}
 	
-	public function debug($msg) {
+	public function debug($msg=null) {
 		if(DEBUG) {
 			static $msgs = '';
 			if($msg) $msgs .= $msg;
@@ -141,9 +141,9 @@ class Base extends Epesi {
 				 || $tmp_session['__module_content__'][$k]['value'] !== $v['value'] //content differs
 				 || $tmp_session['__module_content__'][$k]['js'] !== $v['js']))
 				 || $reload == true || isset($reloaded[$parent])) { //force reload or parent reloaded
-				if(DEBUG){
-					$debug .= 'Reloading '.$k.':&nbsp;&nbsp;&nbsp;&nbsp;parent='.$v['module']->get_parent_path().';&nbsp;&nbsp;&nbsp;&nbsp;span='.$v['span'].',&nbsp;&nbsp;&nbsp;&nbsp;triggered='.(($reload==true)?'force':'auto').',&nbsp;&nbsp;<pre>'.htmlspecialchars($v['value']).'</pre><hr><pre>'.htmlspecialchars($tmp_session['__module_content__'][$k]['value']).'</pre><hr>';
-					if(@include_once('tools/Diff.php')) {
+				if(DEBUG && isset($tmp_session['__module_content__'])){
+					$debug .= 'Reloading '.$k.':&nbsp;&nbsp;&nbsp;&nbsp;parent='.$v['module']->get_parent_path().(isset($v['span'])?';&nbsp;&nbsp;&nbsp;&nbsp;span='.$v['span']:'').',&nbsp;&nbsp;&nbsp;&nbsp;triggered='.(($reload==true)?'force':'auto').',&nbsp;&nbsp;<pre>'.htmlspecialchars($v['value']).'</pre>'.(isset($tmp_session['__module_content__'][$k]['value'])?'<hr><pre>'.htmlspecialchars($tmp_session['__module_content__'][$k]['value']).'</pre><hr>':'');
+					if(@include_once('tools/Diff.php') && isset($tmp_session['__module_content__'][$k]['value'])) {
 						include_once 'tools/Text/Diff/Renderer/inline.php';
 						$xxx = new Text_Diff(explode("\n",$tmp_session['__module_content__'][$k]['value']),explode("\n",$v['value']));
 						$renderer = &new Text_Diff_Renderer_inline();
@@ -175,7 +175,8 @@ class Base extends Epesi {
 		if(DEBUG) {
 			$debug .= 'vars '.$this->get_client_id().': '.print_r($session['__module_vars__'],true).'<br>';
 			$debug .= 'user='.Acl::get_user().'<br>';
-			$debug .= 'action module='.$_REQUEST['__action_module__'].'<br>';
+			if(isset($_REQUEST['__action_module__']))
+				$debug .= 'action module='.$_REQUEST['__action_module__'].'<br>';
 			$debug .= $this->debug();
 		}
 		

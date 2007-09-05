@@ -62,6 +62,21 @@ abstract class ModulePrimitive extends ModuleAcl {
 	public final function remove_data_dir() {
 		return ModuleManager::remove_data_dir($this->type);
 	}
+
+	/**
+	 * Checks access to function which name is passed as first parameter.
+	 * 
+	 * If you want to restric access to a function just make function named
+	 * 'functionname_access' returning false if user should not access this function.
+	 * 
+	 * This function is called automatically with each pack_module call.
+	 * 
+	 * @param string function name
+	 * @return bool true if access is granted, false otherwise
+	 */
+	public final function check_access($m) {
+		return ModuleManager::check_access($this->type,$m);
+	}
 }
 
 ?>

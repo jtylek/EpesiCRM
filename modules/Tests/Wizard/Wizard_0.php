@@ -38,12 +38,12 @@ class Tests_Wizard extends Module {
 		$f->addElement('header', null, 'Welcome Page... ');
 		$f->addElement('select', 'select_0', 'Jump to page', array(1=>'1', 2=>'2'));
 		//method decides about jump to page
-		$wizard->end_page(array($this,'jump_page0'));
+		$wizard->next_page(array($this,'jump_page0'));
 		
 		//call method that generates form named 'test2'
 		$this->page1($wizard->begin_page('page1'));
 		//always jump to page 3
-		$wizard->end_page(3);
+		$wizard->next_page(3);
 		
 		
 		$f = & $wizard->begin_page();
@@ -51,11 +51,11 @@ class Tests_Wizard extends Module {
 		$f->addElement('text', 'page_2_input', 'page_2_input');
 		$f->addRule('page_2_input', 'Required!', 'required');
 		//jump to next page
-		$wizard->end_page();
+		$wizard->next_page();
 
 		$f = & $wizard->begin_page();
 		$f->addElement('header', null, 'Yeah! you came from page 1 or 2');
-		$wizard->end_page();
+		$wizard->next_page();
 		
 		
 		//call wizard with process function specified as third arg

@@ -10,7 +10,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 $delimiter = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')?';':':';
-ini_set('include_path','modules/Libs/QuickForm/3.2.7'.$delimiter.ini_get('include_path'));
+ini_set('include_path','modules/Libs/QuickForm/3.2.9'.$delimiter.ini_get('include_path'));
 
 require_once('HTML/QuickForm.php');
 require_once('Renderer/TCMSArraySmarty.php');
