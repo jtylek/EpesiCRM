@@ -19,7 +19,7 @@ if(!is_writable('backup'))
 	die('Cannot write into "backup" directory. Please fix privileges.');
 
 $delimiter = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')?';':':';
-ini_set('include_path','modules/Libs/QuickForm/3.2.7'.$delimiter.ini_get('include_path'));
+ini_set('include_path','modules/Libs/QuickForm/3.2.9'.$delimiter.ini_get('include_path'));
 require_once "HTML/QuickForm.php";
 
 
@@ -43,8 +43,10 @@ if(!isset($_GET['licence'])) {
 	$form->addRule('password', 'Field required', 'required');
 	$form->addElement('text', 'db', 'Database name');
 	$form->addRule('db', 'Field required', 'required');
-	$form->addElement('select', 'newdb', 'Create new database',array(1=>'Yes', 0=>'No'));
+	$form->addElement('select', 'newdb', 'Create new database',array(1=>'Yes', 0=>'No'),array('onChange'=>'if(this.value==0)alert("WARNING: All tables in specified database will be dropped!","warning");'));
 	$form->addRule('newdb', 'Field required', 'required');
+//	$form->addElement('select', 'newuser', 'Create new user',array(1=>'Yes', 0=>'No'));
+//	$form->addRule('newuser', 'Field required', 'required');
 
 	$form->addElement('submit', 'submit', 'OK');
 	$form->setDefaults(array('engine'=>'mysqlt','db'=>'epesi','host'=>'localhost'));
@@ -183,26 +185,46 @@ define("GZIP_HISTORY",1);
 ?>');
 	fclose($c);
 
+	ob_start();
 	ob_start('rm_config');
 
 	//fill database	
+	clean_database();
 	install_base();
 
 //	unlink('setup.php');
-	header('Location: index.php');
 
+	ob_end_flush();
+
+	if(file_exists('data/config.php'))
+		header('Location: index.php');
 	ob_end_flush();
 }
 
 
 //////////////////////////////////////////////
 function rm_config($x) {
-	if($x) unlink(dirname(__FILE__).'/data/config.php');
+	if($x) {
+		unlink(dirname(__FILE__).'/data/config.php');
+		clean_database();
+	}
 	return false;
 }
 
+function clean_database() {
+	@define("_VALID_ACCESS", true);
+	require_once('include/include_path.php');
+	require_once('include/config.php');
+	require_once('include/database.php');
+	$tables_db = DB::MetaTables();
+	$tables = array();
+	foreach($tables_db as $t) {
+		DB::DropTable($t);
+	}
+}
+
 function install_base() {
-	define("_VALID_ACCESS", true);
+	@define("_VALID_ACCESS", true);
 	require_once('include/include_path.php');
 	require_once('include/config.php');
 	require_once('include/database.php');

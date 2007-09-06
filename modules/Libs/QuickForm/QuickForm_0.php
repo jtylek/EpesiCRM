@@ -17,6 +17,8 @@ class Libs_QuickForm extends Module {
 	
 	public function construct($indicator = null, $action = '', $target = '', $on_submit = null) {
 		$form_name = $this->get_path();
+		if(!ereg('^[a-zA-Z_0-9|/]+$',$form_name)) //chars like [, ] can couse JS error
+			trigger_error('Form name invalid: '.$form_name,E_USER_ERROR);
 		if($target=='' && $action!='')
 			$target = '_blank';
 		if(!isset($on_submit))

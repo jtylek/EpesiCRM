@@ -79,24 +79,7 @@ class Utils_Menu extends Module {
 		$this->menu_string .= 'menubar_'.$this->menu_id.'.endSubmenu();';
 	}
 	
-	/**
-	 * This method returns HTML code of generated menu.
-	 */
-	public function toHtml() {
-		$this->menu_string .= 'writeOut('.$this->menu_id.');';
-		$this->menu_string .= '}; '; 
-				
-		$this->menu_string .= 'wait_while_null( "CustomMenubar", "load_menu_'.$this->menu_id.'(12)" );';
-		eval_js($this->menu_string);
-		
-		//$theme = & $this->init_module('Base/Theme');
-		//$str = '<div id=menu_contener_'.$this->menu_id.'><img style="background: white; color: white; border: 1px solid black" src="modules/Utils/Menu/theme/loader.gif"></div>';
-		Base_ThemeCommon::load_css('Utils/Menu');
-		//load_css('data/');
-		return '<div id=menu_contener_'.$this->menu_id.'><img src="modules/Utils_Menu/theme/loader.gif"></div>';
-		//return $theme->toHTML();
-	}
-	
+
 	/**
 	 * This method displays menu.
 	 */
@@ -107,8 +90,18 @@ class Utils_Menu extends Module {
 		$theme->display();
 		$this->menu_string .= 'writeOut('.$this->menu_id.');';
 		$this->menu_string .= '}; '; 
-				
 		$this->menu_string .= 'wait_while_null( "CustomMenubar", "load_menu_'.$this->menu_id.'(12)" );';
+		
+		$old = & $this->get_module_variable('old'); 
+		if($this->menu_string!=$old) {
+			$old = $this->menu_string; 
+			eval_js($this->menu_string);	
+		}
+	}
+	
+	public function reloaded() {
 		eval_js($this->menu_string);
 	}
 }
+
+?>

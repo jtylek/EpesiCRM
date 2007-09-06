@@ -253,7 +253,8 @@ class Base_Menu extends Module {
 		$theme = & $this->init_module('Base/Theme');
 		
 //		$theme->assign('menu', '<div id="'.$this->menu_name.'">');
-		$theme->assign('menu', $menu_mod->toHtml());
+		$menu_mod->set_inline_display();
+		$theme->assign('menu', $this->get_html_of_module($menu_mod));
 
 /*		$mmd5 = md5(self::$menu);
 		$smd5 = $this->get_module_variable('md5');

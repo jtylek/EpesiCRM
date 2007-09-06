@@ -1,3 +1,4 @@
+{if !empty($captions)}
 <table style="width:100%"><tr><td style="width:200px;vertical-align:top;">
 {assign var=level value=0}
 <ul>
@@ -27,5 +28,8 @@
 {/foreach}
 </ul>
 </td><td>
+{/if}
 {$page}
+{if !empty($captions)}
 </td></tr></table>
+{/if}
