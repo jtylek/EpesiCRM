@@ -72,7 +72,7 @@ class DB {
 	
 	public static function CreateTable($name, $cols, $opts=null) {
 		$dict = &self::dict();
-		$arr = $dict->CreateTableSQL($name,$cols,isset($opts)?array_merge($opts,array('postgres'=>' WITH OIDS','mysql' => ' TYPE=ISAM')):array('postgres'=>' WITH OIDS','mysql' => ' TYPE=MyISAM'));
+		$arr = $dict->CreateTableSQL($name,$cols,isset($opts)?array_merge($opts,array('postgres'=>' WITH OIDS','mysql' => ' TYPE=InnoDB')):array('postgres'=>' WITH OIDS','mysql' => ' TYPE=InnoDB'));
 		if($arr===false) return false;
 		$ret = $dict->ExecuteSQLArray($arr);
 		if($ret != 2) trigger_error(var_dump($arr).'\n'.self::ErrorMsg().'\n', E_USER_ERROR); 
