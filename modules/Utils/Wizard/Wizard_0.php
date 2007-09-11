@@ -67,7 +67,9 @@ class Utils_Wizard extends Module {
 			$args = func_get_args();
 			array_shift($args);
 			array_shift($args);
-			$this->form[$this->counter] = & $this->init_module('Libs/QuickForm',$args,isset($name)?$name:$this->counter);
+			$this->form[$this->counter] =  $this->init_module('Libs/QuickForm',$args,isset($name)?$name:$this->counter);
+			if(isset($this->data[$this->counter]) && is_array($this->data[$this->counter]))
+				$this->form[$this->counter]->setDefaults($this->data[$this->counter]);
 		} else $this->form[$this->counter] = false;
 		ob_start();
 		return $this->form[$this->counter];
@@ -147,8 +149,6 @@ class Utils_Wizard extends Module {
 				if($cont)
 					$this->displayed = $cont;
 				ob_start();
-				if(isset($this->data[$this->curr_page]) && is_array($this->data[$this->curr_page]))
-					$this->form[$this->curr_page]->setDefaults($this->data[$this->curr_page]);
 				if(isset($this->renderers[$this->curr_page]))
 					$this->renderers[$this->curr_page]->display();
 				else	

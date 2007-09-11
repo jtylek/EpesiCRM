@@ -61,8 +61,7 @@ class Apps_ForumInstall extends ModuleInstall {
 			array('name'=>'Base/User','version'=>0),
 			array('name'=>'Libs/QuickForm','version'=>0),
 			array('name'=>'Utils/Comment','version'=>0));
-	}
-	
+	}	
 }
 
 ?>
