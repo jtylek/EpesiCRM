@@ -2,7 +2,7 @@
 /**
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
- * @licence SPL
+ * @license SPL
  * @version 1.0
  * @package epesi-base
  */

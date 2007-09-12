@@ -5,7 +5,7 @@
  * @version 0.9
  * @package utils
  * @subpackage file-download
- * @licence SPL
+ * @license SPL
  */
 class myFunctions extends Epesi {
 	public function refresh($cl_id,$path) {

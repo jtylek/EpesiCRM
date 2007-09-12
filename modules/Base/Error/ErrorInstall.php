@@ -5,7 +5,7 @@
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
- * @licence SPL
+ * @license SPL
  * @package epesi-base-extra
  * @subpackage error
  */

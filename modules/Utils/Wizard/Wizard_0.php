@@ -5,7 +5,7 @@
  * @author Paul Bukowski <pbukowski@telaxus.com> and Kuba Slawinski <kslawinski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
- * @licence SPL
+ * @license SPL
  * @package epesi-utils
  * @subpackage wizard
  */
@@ -221,7 +221,6 @@ class Utils_Wizard extends Module {
 		$this->flush_deleted();
 
 		if(!isset($this->displayed) || (is_int($this->curr_page) && $this->curr_page>=$this->counter) || (is_string($this->curr_page) && !isset($this->r_aliases[$this->curr_page]))) {
-			file_put_contents('data/xxx.txt',$this->displayed."\n\n\n\n\n\n".((is_int($this->curr_page) && $this->curr_page>=$this->counter)?'true':'false')."\n\n\n\n".((is_string($this->curr_page) && !isset($this->r_aliases[$this->curr_page]))?'true':'false'));
 			if(is_callable($func)) {
 				$args = func_get_args();
 				$args[0] = $this->data;

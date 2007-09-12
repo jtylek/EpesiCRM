@@ -4,7 +4,7 @@
  * @version 1.0
  * @copyright Copyright &copy; 2007, Telaxus LLC
  * @package apps-static-page
- * @licence SPL
+ * @license SPL
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -37,7 +37,7 @@ class Apps_StaticPageInstall extends ModuleInstall {
 	}
 	
 	public static function info() {
-		return array('Author'=>'<a href="mailto:pbukowski@telaxus.com">Paul Bukowski</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'Licence'=>'TL', 'Description'=>'Simple WIKI pages');
+		return array('Author'=>'<a href="mailto:pbukowski@telaxus.com">Paul Bukowski</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'License'=>'TL', 'Description'=>'Simple WIKI pages');
 	}
 	
 	public static function simple_setup() {

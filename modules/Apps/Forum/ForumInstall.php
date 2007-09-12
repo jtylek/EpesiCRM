@@ -4,7 +4,7 @@
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
  * @package apps-forum
- * @licence SPL
+ * @license SPL
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -43,7 +43,7 @@ class Apps_ForumInstall extends ModuleInstall {
 	}
 
 	public static function info() {
-		return array('Author'=>'<a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'Licence'=>'TL', 'Description'=>'Simple forum');
+		return array('Author'=>'<a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'License'=>'TL', 'Description'=>'Simple forum');
 	}
 	
 	public static function simple_setup() {

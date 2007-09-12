@@ -7,7 +7,7 @@
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
- * @licence SPL
+ * @license SPL
  * @package epesi-utils
  * @subpackage dirty-read
  */

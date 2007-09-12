@@ -5,7 +5,7 @@
  * @author Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
- * @licence SPL
+ * @license SPL
  * @package epesi-base-extra
  * @subpackage user-settings
  */
@@ -15,7 +15,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	public static $sep = "__";
 	
 	public static function menu(){
-		if (!Base_AclCommon::i_am_user()) return array();
+		if (!Acl::is_user()) return array();
 		global $base;
 		$modules = array(); 
 		foreach(ModuleManager::$modules as $name=>$obj) {
@@ -69,14 +69,14 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	 * @return mixed user value
 	 */	
 	public static function get($module,$name){
+		if (!Acl::is_user()) return null;
 		$module = str_replace('/','_',$module);
 		static $variables;
 		if (isset($variables[$module.'__'.$name]))
 			return $variables[$module.'__'.$name];
 		$val = null;
 		$module = str_replace('/','_',$module);
-		if (Base_AclCommon::i_am_user())
-			$val = DB::GetOne('SELECT value FROM base_user_settings WHERE user_login_id=%d AND module=%s AND variable=%s',array(Base_UserCommon::get_my_user_id(),$module,$name));
+		$val = DB::GetOne('SELECT value FROM base_user_settings WHERE user_login_id=%d AND module=%s AND variable=%s',array(Base_UserCommon::get_my_user_id(),$module,$name));
 		if ($val===false) {
 			$val = self::get_default($module,$name);
 		}
@@ -94,7 +94,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	 * @return bool true on success, false otherwise
 	 */	
 	public static function save($module,$name,$value){
-		if (!Base_AclCommon::i_am_user()) return false;
+		if (!Acl::is_user()) return false;
 		if ($value === null) $value = 0;
 		$module = str_replace('/','_',$module);
 		$def = self::get_default($module,$name);

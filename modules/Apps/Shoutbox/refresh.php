@@ -4,7 +4,7 @@
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
  * @package apps-shoutbox
- * @licence SPL
+ * @license SPL
  */
 class myFunctions extends Epesi {
 	public function refresh($cl_id) {

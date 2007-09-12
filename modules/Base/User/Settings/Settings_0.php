@@ -5,7 +5,7 @@
  * @author Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
- * @licence SPL
+ * @license SPL
  * @package epesi-base-extra
  * @subpackage user-settings
  */
@@ -97,13 +97,13 @@ class Base_User_Settings extends Module {
 				}
 				$this->set_default_js .= 'e = document.getElementById(\''.$f->getAttribute('name').'\').'.$module.self::$sep.$v['name'].';'.
 										'for(i=0; i<e.length; i++){e[i].checked=false;if(e[i].value==\''.Base_User_SettingsCommon::get_default($module,$v['name']).'\')e[i].checked=true;};';
-			} elseif ($v['type']=='bool') {
+			} elseif ($v['type']=='bool' || $v['type']=='checkbox') {
 				$f -> addElement('checkbox',$module.self::$sep.$v['name'],$this->lang->t($v['label']));
 				$this->set_default_js .= 'document.getElementById(\''.$f->getAttribute('name').'\').'.$module.self::$sep.$v['name'].'.checked = '.Base_User_SettingsCommon::get_default($module,$v['name']).';';
 			} elseif ($v['type']=='text') {
 				$f -> addElement('text',$module.self::$sep.$v['name'],$this->lang->t($v['label']));
 				$this->set_default_js .= 'document.getElementById(\''.$f->getAttribute('name').'\').'.$module.self::$sep.$v['name'].'.value = \''.Base_User_SettingsCommon::get_default($module,$v['name']).'\';';
-			}
+			} else trigger_error('Invalid type: '.$v['type'],E_USER_ERROR);
 			if (isset($v['rule'])) {
 				$i = 0;
 				foreach ($v['rule'] as $r) {
@@ -139,7 +139,7 @@ class Base_User_Settings extends Module {
 	}
 	
 	public function main_page(){
-		if (!Base_AclCommon::i_am_user()) {
+		if (!Acl::is_user()) {
 			print('Log in to change your settings.');
 		}
 		global $base;

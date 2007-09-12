@@ -7,7 +7,7 @@
  * @author Arkadiusz Bisaga <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
- * @licence SPL
+ * @license SPL
  * @package epesi-base-extra
  * @subpackage search
  */

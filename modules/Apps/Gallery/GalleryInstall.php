@@ -4,7 +4,7 @@
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
  * @package apps-gallery
- * @licence SPL
+ * @license SPL
  */
  defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -27,7 +27,7 @@ class Apps_GalleryInstall extends ModuleInstall {
 	}
 
 	public static function info() {
-		return array('Author'=>'<a href="mailto:kslawinski@telaxus.com">Kuba Slawinski</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'Licence'=>'TL', 'Description'=>'Simple gallery module');
+		return array('Author'=>'<a href="mailto:kslawinski@telaxus.com">Kuba Slawinski</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'License'=>'TL', 'Description'=>'Simple gallery module');
 	}
 	
 	public static function simple_setup() {

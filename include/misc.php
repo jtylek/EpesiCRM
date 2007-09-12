@@ -7,7 +7,7 @@
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
  * @package epesi-base
- * @licence SPL
+ * @license SPL
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

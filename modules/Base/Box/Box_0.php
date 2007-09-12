@@ -7,7 +7,7 @@
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
- * @licence SPL
+ * @license SPL
  * @package epesi-base-extra
  * @subpackage box
  */
@@ -73,7 +73,11 @@ class Base_Box extends Module {
 			} else {
 				$module_type = str_replace('/','_',$v['module']);
 				if (!isset($v['name'])) $v['name'] = null;
-				$this->modules[$k] = $this->init_module($module_type,null,$v['name'],true);
+				
+				if(isset($href) && $k=='main')
+					$this->modules[$k] = $this->init_module($module_type,null,$v['name'],true);
+				else
+					$this->modules[$k] = $this->init_module($module_type,null,$v['name']);
 				
 				if(isset($v['function']))
 					$this->display_module($this->modules[$k],isset($v['arguments'])?$v['arguments']:null,$v['function']);
