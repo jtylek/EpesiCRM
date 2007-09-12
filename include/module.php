@@ -28,6 +28,7 @@ abstract class Module extends ModulePrimitive {
 	private $fast_process = false;
 	private $inline_display = false;
 	private $displayed = false;
+	private $clear_child_vars = false;
 	
 	/**
 	 * Constructor. Should not be called directly using new Module('name').
@@ -35,7 +36,7 @@ abstract class Module extends ModulePrimitive {
 	 * 
 	 * @param string module name 
 	 */
-	public final function __construct($type,$parent,$name) {
+	public final function __construct($type,$parent,$name,$clear_vars) {
 		global $base;
 		parent::__construct($type);
 		$this->type = $type;
@@ -51,6 +52,10 @@ abstract class Module extends ModulePrimitive {
 		$this->path = null;
 		if(!isset($this->instance)) throw new Exception('No instance name or parent specified.');
 		$this->children_count_display = 0;
+		if($clear_vars) {
+			$this->clear_module_variables();
+			$this->clear_child_vars = true;
+		}
 	}
 	
 	private final function register_child($ch) {
@@ -650,10 +655,10 @@ abstract class Module extends ModulePrimitive {
 	 * @param string unique name for the instance, will be assigned automatically by default
 	 * @return mixed if access denied returns null, else child module object
 	 */
-	public final function & init_module($module_type, $args = null, $name=null) {
+	public final function & init_module($module_type, $args = null, $name=null,$clear_vars=false) {
 		$module_type = str_replace('/','_',$module_type);
-		$m = & ModuleManager::new_instance($module_type,$this,$name);
-
+		$m = & ModuleManager::new_instance($module_type,$this,$name,($clear_vars || $this->clear_child_vars));
+		
 		if($args!==null && !is_array($args)) $args = array($args);
 
 		if(method_exists($m,'construct')) {

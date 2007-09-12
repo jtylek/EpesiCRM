@@ -22,6 +22,7 @@ class Utils_Wizard extends Module {
 	private $r_aliases = array();
 	private $displayed;
 	private $captions = array();
+	private $to_del = array();
 	
 	/**
 	 * Module constructor.
@@ -32,7 +33,7 @@ class Utils_Wizard extends Module {
 	public function construct($start_page=0) {
 		$this->counter = 0;
 		$this->curr_page = $this->get_module_variable('curr_page',$start_page);
-		$this->data = $this->get_module_variable('data',array());
+		$this->data = & $this->get_module_variable('data',array());
 		$this->history = $this->get_module_variable('history',array());
 		if($this->is_back()) {
     		        $this->curr_page = array_pop($this->history);
@@ -134,7 +135,6 @@ class Utils_Wizard extends Module {
 				} else $this->curr_page++;
 					
 				$this->set_module_variable('curr_page',$this->curr_page);
-				$this->set_module_variable('data',$this->data);
 				$this->set_module_variable('history',$this->history);
 				if(!is_string($this->curr_page) && $this->curr_page<=$this->counter) location(array());
 			} else {
@@ -165,8 +165,8 @@ class Utils_Wizard extends Module {
 	 * Gets data submited till now.
 	 * @return array
 	 */
-	public function & get_data() {
-		return $this->get_module_variable('data');
+	public function get_data() {
+		return $this->data;
 	}
 	
 	/**
@@ -178,6 +178,39 @@ class Utils_Wizard extends Module {
 	}
 	
 	/**
+	 * Delete page
+	 * @param page name or number
+	 */
+	public function delete_page($x) {
+		$this->to_del[] = $x;
+	}
+	
+	private function flush_deleted() {
+		foreach($this->to_del as $x) {
+			if(is_string($x)) {
+				if(!isset($this->r_aliases[$x]))
+					trigger_error('No such page: '.$x,E_USER_ERROR);
+				$id = $this->r_aliases[$x];
+				$name = $x;
+			} elseif(is_int($x)) {
+				if(isset($this->aliases[$x]))
+					$name = $this->aliases[$x];
+				$id = $x;
+			} else
+				trigger_error('Invalid page id: '.$x,E_USER_ERROR);
+			
+			unset($this->data[$id]);
+			unset($this->captions[$id]);
+			if(isset($name))
+				unset($this->data[$name]);
+			if(isset($this->r_aliases[$name])) {
+				unset($this->r_aliases[$name]);
+				unset($this->aliases[$id]);
+			}
+		}
+	}
+	
+	/**
 	 * Displays wizard current step.
 	 * You can also specify function to process the data from all the pages.
 	 * 
@@ -185,7 +218,8 @@ class Utils_Wizard extends Module {
 	 */
 	public function body($func) {
 		$this->next_page();
-		//if($this->curr_page>=$this->counter) $this->curr_page = array_pop($this->history);
+		$this->flush_deleted();
+
 		if(!isset($this->displayed) || (is_int($this->curr_page) && $this->curr_page>=$this->counter) || (is_string($this->curr_page) && !isset($this->r_aliases[$this->curr_page]))) {
 			file_put_contents('data/xxx.txt',$this->displayed."\n\n\n\n\n\n".((is_int($this->curr_page) && $this->curr_page>=$this->counter)?'true':'false')."\n\n\n\n".((is_string($this->curr_page) && !isset($this->r_aliases[$this->curr_page]))?'true':'false'));
 			if(is_callable($func)) {

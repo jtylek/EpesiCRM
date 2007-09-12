@@ -73,16 +73,8 @@ class Base_Box extends Module {
 			} else {
 				$module_type = str_replace('/','_',$v['module']);
 				if (!isset($v['name'])) $v['name'] = null;
-				$this->modules[$k] = & ModuleManager::new_instance($module_type,$this,$v['name']);
-
-				if(isset($href))
-					$this->modules[$k]->clear_module_variables();
-
-				if(method_exists($this->modules[$k],'construct')) {
-					ob_start();
-					$this->modules[$k]->construct();
-					ob_end_clean();
-				}
+				$this->modules[$k] = $this->init_module($module_type,null,$v['name'],true);
+				
 				if(isset($v['function']))
 					$this->display_module($this->modules[$k],isset($v['arguments'])?$v['arguments']:null,$v['function']);
 				elseif(isset($v['arguments']))

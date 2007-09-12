@@ -768,7 +768,7 @@ class ModuleManager {
 	 * @return object newly created module object
 	 * @throws exception 'module not loaded' if the module is not registered 
 	 */
-	public static final function & new_instance($mod,$parent,$name) {
+	public static final function & new_instance($mod,$parent,$name,$clear_vars=false) {
 		if (!array_key_exists($mod, self::$modules))
 			throw new Exception('module not loaded');
 		if(!array_key_exists($mod, self::$loaded_modules)) {
@@ -782,7 +782,7 @@ class ModuleManager {
 			}
 		}
 		$c = self::$modules[$mod]['name'];
-		$m = new $c($mod,$parent,$name);
+		$m = new $c($mod,$parent,$name,$clear_vars);
 		return $m;
 	}
 
