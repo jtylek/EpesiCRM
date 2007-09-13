@@ -24,7 +24,7 @@ class Tests_ActiveBoardInstall extends ModuleInstall {
 	}
 	
 	public function requires($v) {
-		return array();
+		return array(array('name'=>'Apps/ActiveBoard','version'=>0));
 	}
 	
 	public static function info() {
