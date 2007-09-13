@@ -1,0 +1,18 @@
+#activeboard .applet {
+	padding: 5px;
+}
+
+#activeboard .handle {
+	border: 1px solid gray;
+	cursor: move;
+	width: 100%;
+}
+
+#activeboard .content {
+	border: 1px solid gray;
+	background-color: #fbfbfb;
+}
+
+#activeboard .handle .toggle, #activeboard .handle .toggle .remove{
+	cursor: pointer;
+}

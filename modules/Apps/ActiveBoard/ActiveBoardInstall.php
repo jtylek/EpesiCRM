@@ -16,8 +16,10 @@ class Apps_ActiveBoardInstall extends ModuleInstall {
 		$ret &= DB::CreateTable('apps_activeboard_applets','
 			id I4 AUTO KEY,
 			base_user_login_id I4,
-			module C(128)',
-			array('constraints'=>', FOREIGN KEY (base_user_login_id) REFERENCES user_login(ID), FOREIGN KEY (module) REFERENCES modules(NAME)'));
+			module_name C(128),
+			col I2 DEFAULT 0,
+			pos I2 DEFAULT 0',
+			array('constraints'=>', FOREIGN KEY (base_user_login_id) REFERENCES user_login(ID), FOREIGN KEY (module_name) REFERENCES modules(NAME)'));
 		if(!$ret){
 			print('Unable to create table apps_activeboard_applets.<br>');
 			return false;
@@ -36,7 +38,12 @@ class Apps_ActiveBoardInstall extends ModuleInstall {
 	}
 	
 	public function requires($v) {
-		return array(array('name'=>'Base_User_Settings','version'=>0));
+		return array(
+			array('name'=>'Base/ActionBar','version'=>0),
+			array('name'=>'Base/Theme','version'=>0),
+			array('name'=>'Base/Lang','version'=>0),
+			array('name'=>'Libs/ScriptAculoUs','version'=>0),
+			array('name'=>'Utils/Tooltip','version'=>0));
 	}
 	
 	public static function info() {
