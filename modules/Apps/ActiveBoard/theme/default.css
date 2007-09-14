@@ -5,7 +5,6 @@
 #activeboard .handle {
 	border: 1px solid gray;
 	cursor: move;
-	width: 100%;
 }
 
 #activeboard .content {
@@ -13,6 +12,6 @@
 	background-color: #fbfbfb;
 }
 
-#activeboard .handle .toggle, #activeboard .handle .toggle .remove{
+#activeboard .handle .toggle, #activeboard .handle .remove, #activeboard .handle .configure {
 	cursor: pointer;
 }

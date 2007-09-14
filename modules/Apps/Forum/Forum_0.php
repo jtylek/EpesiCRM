@@ -25,10 +25,11 @@ class Apps_Forum extends Module {
 				
 		$ret = DB::Execute('SELECT id, name, descr FROM apps_forum_board');
 		$boards = array();
-		while ($row = $ret->FetchRow()) $boards[] = array(	'descr' => $row['descr'],
-															'label' => '<a '.$this->create_callback_href(array($this,'view_board'),array($row['id'])).'>'.$row['name'].'</a>',
-															'delete' => Base_AclCommon::i_am_admin()?'<a '.$this->create_confirm_callback_href($this->lang->ht('Are you sure you want to delete this board?'),array($this,'delete_board'),array($row['id'])).'>'.$this->lang->t('Delete').'</a>':null
-															);
+		while ($row = $ret->FetchRow()) 
+			$boards[] = array('descr' => $row['descr'],
+				'label' => '<a '.$this->create_callback_href(array($this,'view_board'), array($row['id'])).'>'.$row['name'].'</a>',
+				'delete' => Base_AclCommon::i_am_admin()?'<a '.$this->create_confirm_callback_href($this->lang->ht('Are you sure you want to delete this board?'), array($this,'delete_board'), array($row['id'])).'>'.$this->lang->t('Delete').'</a>':null
+				);
 		
 		$theme = & $this->pack_module('Base/Theme');
 		$theme -> assign('forum_boards',$this->lang->t('Forum Boards'));

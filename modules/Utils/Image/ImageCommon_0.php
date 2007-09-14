@@ -30,9 +30,9 @@ class Utils_ImageCommon extends ModuleCommon {
 		list($width,$height,$type,$attr) = getimagesize($img);
 		
 		$max_dim = 100;
-		if( is_int($attr_x) )
+		if( is_numeric($attr_x) )
 			$max_dim = $attr_x;
-		if( is_int($attr_y) && $width < $height )
+		if( is_numeric($attr_y) && $width < $height )
 			$max_dim = $attr_y;
 			
 		if($height > $max_dim || $width > $max_dim) {
@@ -52,9 +52,8 @@ class Utils_ImageCommon extends ModuleCommon {
 		}
 		
 		$thumb = md5($max_dim.$img).strrchr($img,'.');
-		
+	
 		// check if thumbnail in desired scale already exists
-		
 		//  1) it does
 		$thumb_real = ModuleManager::get_data_dir('Utils/Image').$thumb;
 		if( is_file($thumb_real) && filemtime($img)<filemtime($thumb_real) && filectime($img)<filectime($thumb_real)) {

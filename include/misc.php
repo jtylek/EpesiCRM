@@ -284,6 +284,38 @@ function dir_tree($path, $maxdepth = -1, $d = 0) {
 	}
 	return ($dirlist);
 }
+
+/**
+ * Returns files tree matching pattern starting at given directory.
+ * 
+ * @param string starting directory
+ * @param string glob pattern
+ * @param mixed glob flags
+ * @param integer maximum depth of the tree
+ * @param integer depth counter, for internal use
+ * @return array directory tree
+ */
+function glob_tree($path, $pattern, $flags=null, $maxdepth = -1, $d = 0) {
+	if (substr($path, strlen($path) - 1) != '/') {
+		$path .= '/';
+	}
+	$list = glob($path.$pattern,$flags);
+	if ($handle = opendir($path)) {
+		while (false !== ($file = readdir($handle))) {
+			if ($file != '.' && $file != '..') {
+				$file = $path . $file;
+				if (is_dir($file) && $d >= 0 && ($d < $maxdepth || $maxdepth < 0))
+					$list = array_merge($list,glob_tree($file . '/', $pattern, $flags, $maxdepth, $d +1));
+			}
+		}
+		closedir($handle);
+	}
+	if ($d == 0) {
+		natcasesort($list);
+	}
+	return $list;
+}
+
 /**
  * Removes directory recursively, deleteing all files stored under this directory
  * 

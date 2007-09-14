@@ -15,20 +15,32 @@ class Apps_ActiveBoardInstall extends ModuleInstall {
 		$ret = true;
 		$ret &= DB::CreateTable('apps_activeboard_applets','
 			id I4 AUTO KEY,
-			base_user_login_id I4,
+			user_login_id I4,
 			module_name C(128),
 			col I2 DEFAULT 0,
 			pos I2 DEFAULT 0',
-			array('constraints'=>', FOREIGN KEY (base_user_login_id) REFERENCES user_login(ID), FOREIGN KEY (module_name) REFERENCES modules(NAME)'));
+			array('constraints'=>', FOREIGN KEY (user_login_id) REFERENCES user_login(ID), FOREIGN KEY (module_name) REFERENCES modules(NAME)'));
 		if(!$ret){
 			print('Unable to create table apps_activeboard_applets.<br>');
 			return false;
 		}
+		$ret &= DB::CreateTable('apps_activeboard_settings','
+			applet_id I4,
+			name C(32) NOTNULL,
+			value C(128) NOTNULL',
+			array('constraints'=>', FOREIGN KEY (applet_id) REFERENCES apps_activeboard_applets(ID), PRIMARY KEY(applet_id,name)'));
+		if(!$ret){
+			print('Unable to create table apps_activeboard_applets.<br>');
+			return false;
+		}
+		Base_ThemeCommon::install_default_theme($this->get_type());
 		return $ret;
 	}
 	
 	public function uninstall() {
+		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		$ret = true;
+		$ret &= DB::DropTable('apps_activeboard_settings');
 		$ret &= DB::DropTable('apps_activeboard_applets');
 		return $ret;
 	}
@@ -41,6 +53,7 @@ class Apps_ActiveBoardInstall extends ModuleInstall {
 		return array(
 			array('name'=>'Base/ActionBar','version'=>0),
 			array('name'=>'Base/Theme','version'=>0),
+			array('name'=>'Libs/QuickForm','version'=>0),
 			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'Libs/ScriptAculoUs','version'=>0),
 			array('name'=>'Utils/Tooltip','version'=>0));

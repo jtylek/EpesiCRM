@@ -377,7 +377,8 @@ class Apps_Gallery extends Module {
 
 		$last = $this->get_module_variable('last_uploaded_img');
 		if($last) {
-			print 'Last succesfully uploaded image<br>';	
+			print 'Last succesfully uploaded image<br>';
+	
 			Utils_ImageCommon::display_thumb($last,120);
 		}
 
@@ -598,6 +599,10 @@ class Apps_Gallery extends Module {
 		$theme->assign('images', $images->toHtml($this->root.$user."/".$dir));
 		$images->expand();
 		$theme->display();
+	}
+	
+	public function applet($vars) {
+		Utils_ImageCommon::display_thumb($vars['image'],$vars['size']);
 	}
 }
 ?>

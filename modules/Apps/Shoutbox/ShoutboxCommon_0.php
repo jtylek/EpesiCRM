@@ -12,5 +12,13 @@ class Apps_ShoutboxCommon extends ModuleCommon {
 	public static function menu() {
 		return array('Shoutbox'=>array());
 	}
+	
+	public static function applet_caption() {
+		return "Shoutbox";
+	}
+
+	public static function applet_info() {
+		return "Mini shoutbox"; //here can be associative array
+	}
 }
 ?>

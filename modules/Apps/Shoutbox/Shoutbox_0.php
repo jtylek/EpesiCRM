@@ -12,8 +12,8 @@ class Apps_Shoutbox extends Module {
 
 	public function body() {
 		//initialize lang module
-		$l = & $this->init_module('Base/Lang');
-
+		$l = & $this->init_module('Base/Lang');		
+		
 		if(Acl::is_user()) {
 			//initialize HTML_QuickForm
 			$qf = & $this->init_module('Libs/QuickForm');
@@ -61,13 +61,17 @@ class Apps_Shoutbox extends Module {
 
 		//if there is displayed shoutbox, call myFunctions->refresh from refresh.php file every 5s
 		eval_js_once('shoutbox_refresh = function(){if(!document.getElementById(\'shoutbox_board\')) return;saja.updateIndicatorText(\''.$l->ht('Refreshing shoutbox').'\');'.
-			$GLOBALS['base']->run('refresh(client_id)->shoutbox:innerHTML','modules/Apps/Shoutbox/refresh.php').
+			$GLOBALS['base']->run('refresh(client_id)->shoutbox_board:innerHTML','modules/Apps/Shoutbox/refresh.php').
 			'};setInterval(\'shoutbox_refresh()\',30000)');
 	}
 	
 	//delete_all callback (on "clear shoutbox" button)
 	public function delete_all() {
 		DB::Execute('DELETE FROM apps_shoutbox_messages');
+	}
+	
+	public function applet() {
+		$this->body();
 	}
 }
 
