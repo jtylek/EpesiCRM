@@ -32,9 +32,9 @@ if($doc['error']!='0') {
 	?>
 	<script type="text/javascript">
 	<!--
-	parent.document.getElementById('upload_status').innerHTML='uploaded <?=$doc['name']?>';
-	parent.document.forms['<?=$form_name?>'].uploaded_file.value='<?=$dest_path?>';
-	parent.document.forms['<?=$form_name?>'].original_file.value='<?=$doc['name']?>';
+	parent.document.getElementById('upload_status').innerHTML='uploaded <?php print($doc['name']); ?>';
+	parent.document.forms['<?php print($form_name); ?>'].uploaded_file.value='<?php print($dest_path); ?>';
+	parent.document.forms['<?php print($form_name); ?>'].original_file.value='<?php print($doc['name']); ?>';
 	-->
 	</script>
 	<?php
@@ -43,10 +43,10 @@ if($doc['error']!='0') {
 ?>
 <script type="text/javascript">
 	<!--
-	orig=parent.document.forms['<?=$form_name?>'].file;
+	orig=parent.document.forms['<?php print($form_name); ?>'].file;
 	orig.disabled=false;
 	orig.value='';
-	parent.document.forms['<?=$form_name?>'].button.disabled=false; 
+	parent.document.forms['<?php print($form_name); ?>'].button.disabled=false; 
 <?php
 	if($ok) {
 		if(get_magic_quotes_gpc())
