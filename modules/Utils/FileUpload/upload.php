@@ -9,6 +9,8 @@
  * @package epesi-utils
  * @subpackage file-uploader
  */
+header("Cache-Control: no-cache, must-revalidate");
+header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // date in the past
 
 $form_name = $_REQUEST['form_name'];
 if(!isset($form_name))
