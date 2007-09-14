@@ -5,32 +5,33 @@
  * @copyright Copyright &copy; 2007, Telaxus LLC
  * @license SPL
  * @version 0.1
- * @package apps-activeboard
+ * @package epesi-base-extra
+ * @subpackage activeboard
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Apps_ActiveBoardInstall extends ModuleInstall {
+class Base_ActiveBoardInstall extends ModuleInstall {
 
 	public function install() {
 		$ret = true;
-		$ret &= DB::CreateTable('apps_activeboard_applets','
+		$ret &= DB::CreateTable('base_activeboard_applets','
 			id I4 AUTO KEY,
 			user_login_id I4,
 			module_name C(128),
 			col I2 DEFAULT 0,
 			pos I2 DEFAULT 0',
-			array('constraints'=>', FOREIGN KEY (user_login_id) REFERENCES user_login(ID), FOREIGN KEY (module_name) REFERENCES modules(NAME)'));
+			array('constraints'=>', FOREIGN KEY (user_login_id) REFERENCES user_login(ID)'));
 		if(!$ret){
-			print('Unable to create table apps_activeboard_applets.<br>');
+			print('Unable to create table base_activeboard_applets.<br>');
 			return false;
 		}
-		$ret &= DB::CreateTable('apps_activeboard_settings','
+		$ret &= DB::CreateTable('base_activeboard_settings','
 			applet_id I4,
 			name C(32) NOTNULL,
 			value C(128) NOTNULL',
-			array('constraints'=>', FOREIGN KEY (applet_id) REFERENCES apps_activeboard_applets(ID), PRIMARY KEY(applet_id,name)'));
+			array('constraints'=>', FOREIGN KEY (applet_id) REFERENCES base_activeboard_applets(ID), PRIMARY KEY(applet_id,name)'));
 		if(!$ret){
-			print('Unable to create table apps_activeboard_applets.<br>');
+			print('Unable to create table base_activeboard_applets.<br>');
 			return false;
 		}
 		Base_ThemeCommon::install_default_theme($this->get_type());
@@ -40,13 +41,13 @@ class Apps_ActiveBoardInstall extends ModuleInstall {
 	public function uninstall() {
 		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		$ret = true;
-		$ret &= DB::DropTable('apps_activeboard_settings');
-		$ret &= DB::DropTable('apps_activeboard_applets');
+		$ret &= DB::DropTable('base_activeboard_settings');
+		$ret &= DB::DropTable('base_activeboard_applets');
 		return $ret;
 	}
 	
 	public function version() {
-		return array("0.1");
+		return array("0.8.0");
 	}
 	
 	public function requires($v) {
@@ -67,7 +68,7 @@ class Apps_ActiveBoardInstall extends ModuleInstall {
 	}
 	
 	public static function simple_setup() {
-		return true;
+		return false;
 	}
 	
 }

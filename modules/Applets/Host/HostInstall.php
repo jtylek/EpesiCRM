@@ -16,7 +16,6 @@ class Applets_HostInstall extends ModuleInstall {
 	}
 	
 	public function uninstall() {
-		Apps_ActiveBoardCommon::delete($this->get_type());
 		return true;
 	}
 	
@@ -27,7 +26,7 @@ class Applets_HostInstall extends ModuleInstall {
 	public function requires($v) {
 		return array(
 			array('name'=>'Libs/QuickForm','version'=>0),
-			array('name'=>'Apps/ActiveBoard','version'=>0));
+			array('name'=>'Base/ActiveBoard','version'=>0));
 	}
 	
 	public static function info() {

@@ -5,11 +5,12 @@
  * @copyright Copyright &copy; 2007, Telaxus LLC
  * @license SPL
  * @version 0.1
- * @package apps-activeboard
+ * @package epesi-base-extra
+ * @subpackage activeboard
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Apps_ActiveBoard extends Module {
+class Base_ActiveBoard extends Module {
 	private $lang;
 	private $set_default_js='';
 	
@@ -21,8 +22,13 @@ class Apps_ActiveBoard extends Module {
 		for($j=0; $j<3; $j++) {
 			print('<div id="activeboard_applets_'.$j.'" style="float:left;width:33%;min-height:100px">');
 			
-			$ret = DB::Execute('SELECT id,module_name FROM apps_activeboard_applets WHERE col=%d AND user_login_id=%d ORDER BY pos',array($j,Base_UserCommon::get_my_user_id()));
+			$ret = DB::Execute('SELECT id,module_name FROM base_activeboard_applets WHERE col=%d AND user_login_id=%d ORDER BY pos',array($j,Base_UserCommon::get_my_user_id()));
 			while($row = $ret->FetchRow()) {
+				if(ModuleManager::is_installed($row['module_name'])==-1) {//if its invalid entry
+					$this->delete_applets($row['module_name']);
+					continue;
+				}
+					
 				$m = $this->init_module($row['module_name'],null,$row['id']);
 				$th = $this->init_module('Base/Theme');
 				$th->assign('handle_class','handle');
@@ -81,15 +87,23 @@ class Apps_ActiveBoard extends Module {
 	}
 	
 	public function add_applet($mod) {
-		DB::Execute('INSERT INTO apps_activeboard_applets(user_login_id,module_name) VALUES (%d,%s)',array(Base_UserCommon::get_my_user_id(),$mod));
-		$this->set_module_variable('first_conf',DB::Insert_ID('apps_activeboard_applets','id'));
+		DB::Execute('INSERT INTO base_activeboard_applets(user_login_id,module_name) VALUES (%d,%s)',array(Base_UserCommon::get_my_user_id(),$mod));
+		$this->set_module_variable('first_conf',DB::Insert_ID('base_activeboard_applets','id'));
 		$this->set_module_variable('mod_conf',$mod);
 		Base_StatusBarCommon::message(Base_LangCommon::ts($this->get_type(),'Applet added'));
 	}
 
-	public function delete_applet($id) {
-		DB::Execute('DELETE FROM apps_activeboard_settings WHERE applet_id=%d',array($id));
-		DB::Execute('DELETE FROM apps_activeboard_applets WHERE id=%d AND user_login_id=%d',array($id,Base_UserCommon::get_my_user_id()));
+	public static function delete_applet($id) {
+		DB::Execute('DELETE FROM base_activeboard_settings WHERE applet_id=%d',array($id));
+		DB::Execute('DELETE FROM base_activeboard_applets WHERE id=%d AND user_login_id=%d',array($id,Base_UserCommon::get_my_user_id()));
+	}
+
+	public static function delete_applets($module) {
+		$module = str_replace('/','_',$module);
+		$ret = DB::GetAll('SELECT id FROM base_activeboard_applets WHERE module_name=%s',array($module));
+		foreach($ret as $row)
+			DB::Execute('DELETE FROM base_activeboard_settings WHERE applet_id=%d',array($row['id']));
+		DB::Execute('DELETE FROM base_activeboard_applets WHERE module_name=%s',array($module));
 	}
 
 	public function configure_applet($id,$mod) {
@@ -118,9 +132,9 @@ class Apps_ActiveBoard extends Module {
 			foreach($defaults as $name=>$def_value)
 				if($submited[$name]!=$old[$name]) {
 					if($submited[$name]==$def_value)
-						DB::Execute('DELETE FROM apps_activeboard_settings WHERE applet_id=%d AND name=%s',array($id,$name));
+						DB::Execute('DELETE FROM base_activeboard_settings WHERE applet_id=%d AND name=%s',array($id,$name));
 					else
-						DB::Replace('apps_activeboard_settings', array('applet_id'=>$id, 'name'=>$name, 'value'=>$submited[$name]), array('applet_id','name'), true);
+						DB::Replace('base_activeboard_settings', array('applet_id'=>$id, 'name'=>$name, 'value'=>$submited[$name]), array('applet_id','name'), true);
 				}
 			return false;
 		}
@@ -146,7 +160,7 @@ class Apps_ActiveBoard extends Module {
 	private function get_values($id,$mod) {
 		$variables = $this->get_default_values($mod);
 
-		$ret = DB::Execute('SELECT name,value FROM apps_activeboard_settings WHERE applet_id=%d',array($id));
+		$ret = DB::Execute('SELECT name,value FROM base_activeboard_settings WHERE applet_id=%d',array($id));
 		while($v = $ret->FetchRow())
 			$variables[$v['name']] = $v['value'];
 		

@@ -694,8 +694,9 @@ class ModuleManager {
 			if ($name != $obj['name'] || $name == $module_to_uninstall)
 				continue;
 			
+			self::include_install($name);
 			$required = call_user_func(array (
-				self::$modules_install[$obj['name']],
+				self::$modules_install[$name],
 				'requires'
 				),$obj['version']);
 			

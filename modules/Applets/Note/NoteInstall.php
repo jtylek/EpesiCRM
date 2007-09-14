@@ -16,7 +16,6 @@ class Applets_NoteInstall extends ModuleInstall {
 	}
 	
 	public function uninstall() {
-		Apps_ActiveBoardCommon::delete($this->get_type());
 		return true;
 	}
 	
@@ -25,7 +24,7 @@ class Applets_NoteInstall extends ModuleInstall {
 	}
 	
 	public function requires($v) {
-		return array(array('name'=>'Apps/ActiveBoard','version'=>0));
+		return array(array('name'=>'Base/ActiveBoard','version'=>0));
 	}
 	
 	public static function info() {
