@@ -602,7 +602,12 @@ class Apps_Gallery extends Module {
 	}
 	
 	public function applet($vars) {
-		Utils_ImageCommon::display_thumb($vars['image'],$vars['size']);
+		if(!isset($vars['image']))
+			print(Base_LangCommon::ts($this->get_type(),'No selected image'));
+		elseif(!file_exists($vars['image']))
+			print(Base_LangCommon::ts($this->get_type(),'Selected image doesn\'t exists'));
+		else
+			Utils_ImageCommon::display_thumb($vars['image'],$vars['size']);
 	}
 }
 ?>

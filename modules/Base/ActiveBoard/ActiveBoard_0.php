@@ -152,7 +152,8 @@ class Base_ActiveBoard extends Module {
 		if(method_exists($mod.'Common', 'applet_settings')) {
 			$menu = call_user_func(array($mod.'Common','applet_settings'));
 			foreach($menu as $v) 
-				$variables[$mod][$v['name']] = $v['default'];
+				if(isset($v['default']))
+					$variables[$mod][$v['name']] = $v['default'];
 		}
 		return $variables[$mod];
 	}
