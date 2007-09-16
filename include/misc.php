@@ -298,17 +298,18 @@ function dir_tree($path, $maxdepth = -1, $d = 0) {
  * @param integer depth counter, for internal use
  * @return array directory tree
  */
-function glob_tree($path, $pattern, $flags=null, $maxdepth = -1, $d = 0) {
+function ereg_tree($path, $pattern, $maxdepth = -1, $d = 0) {
 	if (substr($path, strlen($path) - 1) != '/') {
 		$path .= '/';
 	}
-	$list = glob($path.$pattern,$flags);
+	$list = array();
 	if ($handle = opendir($path)) {
 		while (false !== ($file = readdir($handle))) {
 			if ($file != '.' && $file != '..') {
-				$file = $path . $file;
-				if (is_dir($file) && $d >= 0 && ($d < $maxdepth || $maxdepth < 0))
-					$list = array_merge($list,glob_tree($file . '/', $pattern, $flags, $maxdepth, $d +1));
+				$filep = $path . $file;
+				if(ereg($pattern,$file)) $list[] = $filep;
+				if (is_dir($filep) && $d >= 0 && ($d < $maxdepth || $maxdepth < 0))
+					$list = array_merge($list,ereg_tree($filep . '/', $pattern, $maxdepth, $d +1));
 			}
 		}
 		closedir($handle);

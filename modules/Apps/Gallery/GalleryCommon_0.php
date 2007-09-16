@@ -25,7 +25,7 @@ class Apps_GalleryCommon extends ModuleCommon {
 		$dir = $this->get_data_dir().Base_UserCommon::get_my_user_id().'/';
 		$images = array();
 		if(file_exists($dir) && is_dir($dir)) {
-			$images_tmp = glob_tree($dir,'*.{'.sql_regcase('jpg,jpeg,png,gif').'}',GLOB_BRACE);
+			$images_tmp = ereg_tree($dir,'\.('.sql_regcase('jpg|jpeg|png|gif').')$');
 			$def = null;
 			foreach($images_tmp as $f) {
 				if(!isset($def)) $def = $f;
