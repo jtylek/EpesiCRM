@@ -136,7 +136,7 @@ class Apps_Forum extends Module {
 	
 	public function delete_thread($thread){
 		DB::Execute('DELETE FROM apps_forum_thread WHERE id=%d',$thread);
-		Utils_Comment::delete_posts_by_topic('apps_forum_'.$this->key.'_'.$thread);
+		Utils_CommentCommon::delete_posts_by_topic('apps_forum_'.$this->key.'_'.$thread);
 		return false;
 	}
 

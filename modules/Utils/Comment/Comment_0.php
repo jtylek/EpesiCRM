@@ -139,34 +139,6 @@ class Utils_Comment extends Module{
 	}
 	
 	/**
-	 * Deletes comment by comment id.
-	 * All replies to this post are also deleted.
-	 * 
-	 * @param integer post id
-	 */
-	public static function delete_post($id){
-		if (!$id)
-			trigger_error('Invalid action: delete post('.$id.').');
-		DB::Execute('DELETE FROM comment WHERE id=%d',$id);
-		DB::Execute('DELETE FROM comment_report WHERE id=%d',$id);
-		$recSet = DB::Execute('SELECT id FROM comment WHERE parent=%d',$id);
-		while($row=$recSet->FetchRow()) self::delete_post($row['id']);
-		return false;
-	}
-	
-	/**
-	 * Deletes comments by comment group id.
-	 * 
-	 * @param string comment group id
-	 */
-	public static function delete_posts_by_topic($topic){
-		if (!$topic)
-			trigger_error('Invalid action: delete post('.$topic.').');
-		$ret = DB::Execute('SELECT id FROM comment WHERE topic=%s',$topic);
-		while ($row=$ret->FetchRow()) self::delete_post($row['id']);
-	}
-
-	/**
 	 * Returns all comments from current (specified during construction) comment group.
 	 * The result is an array. Each field in this array represents one comment.
 	 * Comment is described with an array with following fields:
@@ -194,7 +166,7 @@ class Utils_Comment extends Module{
 		$row['text'] = str_replace("\n",'<br>',$row['text']);
 		if (Base_AclCommon::i_am_user()) {
 			if ($this->mod) {
-				$delete = '<a '.$this->create_confirm_callback_href($this->lang->ht('Are you sure you want to delete this post?'),array($this,'delete_post'),$row['id']).'>'.$this->lang->t('Delete').'</a>';
+				$delete = '<a '.$this->create_confirm_callback_href($this->lang->ht('Are you sure you want to delete this post?'),array('Utils_CommentCommon','delete_post'),$row['id']).'>'.$this->lang->t('Delete').'</a>';
 				$rep_count = DB::GetOne('SELECT COUNT(*) FROM comment_report WHERE id=%d',$row['id']);
 				if (!$rep_count) $report = '';
 				else $report = $this->lang->t('Reported %d time(s)',$rep_count);
