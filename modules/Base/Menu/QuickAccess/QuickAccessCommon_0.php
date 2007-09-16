@@ -56,8 +56,8 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 	private function check_for_links(& $result,$prefix,$array){
 		foreach($array as $k=>$v){
 			if (substr($k,0,2)=='__') continue;
-			if (array_key_exists('__submenu__',$v)) self::check_for_links($result,$prefix.$k.': ',$v);
-			else {
+			if (is_array($v) && array_key_exists('__submenu__',$v)) self::check_for_links($result,$prefix.$k.': ',$v);
+			elseif(is_array($v)) {
 				$http_query = http_build_query($v,'','&');
 				$result[] = array('name'=>md5($http_query.'#qa_sep#'.str_replace(' ','_',$prefix.$k))
 							,'link'=>$http_query

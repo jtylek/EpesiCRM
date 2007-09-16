@@ -107,11 +107,19 @@ class Base_Menu extends Module {
 				if (is_array($menu[$k]) && array_key_exists('__submenu__',$menu[$k])) {
 					self::add_menu($menu[$k],$v);
 //					ksort($menu[$k]);
-				} else {
-					$menu[$k] = array(
-						str_replace('_',': ',$menu[$k]['box_main_module']) =>$menu[$k], 
-						'__submenu__'=>array(),
-						str_replace('_',': ',$v['box_main_module'])=>$v);
+				} elseif(is_array($v)) {
+					$c = Base_LangCommon::ts('Base/Menu','submenu');
+					if(is_array($menu[$k]) && array_key_exists('__submenu__',$menu[$k]))
+						$menu[$k][str_replace('_',': ',$v['box_main_module'])] = $v;
+					elseif(is_array($v) && array_key_exists('__submenu__',$v)) {
+						$old = $menu[$k];
+						$menu[$k] = $v;
+						$menu[$k][str_replace('_',': ',$old['box_main_module'])] = $old;
+					} else
+						$menu[$k] = array(
+							str_replace('_',': ',$menu[$k]['box_main_module']) =>$menu[$k], 
+							'__submenu__'=>1,
+							str_replace('_',': ',$v['box_main_module'])=>$v);
 				}
 			}
 		}
