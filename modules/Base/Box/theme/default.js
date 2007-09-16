@@ -1,4 +1,4 @@
-getHeight = function(someObject){
+base_box__get_height = function(someObject){
 	var w;
 	if(document.defaultView &&
 		document.defaultView.getComputedStyle) {
@@ -13,7 +13,7 @@ getHeight = function(someObject){
 base_box__set_content_height = function(content) {
 	var frame = document.getElementById(content);
 	if(!frame)return;
-	var htmlheight = getHeight(document.getElementsByTagName('body')[0]);
+	var htmlheight = base_box__get_height(document.getElementsByTagName('body')[0]);
 
 	var windowheight = 0;
 	if( typeof( window.innerHeight ) == 'number' ) { //non ie
@@ -22,12 +22,13 @@ base_box__set_content_height = function(content) {
 		windowheight = document.documentElement.clientHeight;
 	}
 
-	var contentheight = getHeight(frame);
+	var contentheight = base_box__get_height(frame);
 	var h = windowheight-(htmlheight-contentheight);
 	if(h<200) h=200;
 	if(h!=parseInt(frame.style.height)+20)
 		frame.style.height = (h-20) + "px";
 };
+setInterval('base_box__set_content_height(\'content\')',200);
 
 correctPNG = function() // correctly handle PNG transparency in Win IE 5.5 & 6.
 {
@@ -57,4 +58,4 @@ correctPNG = function() // correctly handle PNG transparency in Win IE 5.5 & 6.
          }
       }
    }    
-}
+};

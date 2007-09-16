@@ -17,7 +17,7 @@ class Base_ActiveBoard extends Module {
 	public function body() {
 		$this->lang = $this->init_module('Base/Lang');
 		Base_ActionBarCommon::add('add','Add applet',$this->create_callback_href(array($this,'applets_list')));
-		load_js_inline($this->get_module_dir().'ab.js');
+		load_js($this->get_module_dir().'ab.js');
 		print('<div id="activeboard">');
 		for($j=0; $j<3; $j++) {
 			print('<div id="activeboard_applets_'.$j.'" style="float:left;width:33%;min-height:100px">');
@@ -34,11 +34,11 @@ class Base_ActiveBoard extends Module {
 				$th->assign('handle_class','handle');
 				$th->assign('caption',call_user_func(array($row['module_name'].'Common', 'applet_caption')));
 				$th->assign('toggle','<a class="toggle">=</a>');
-				$th->assign('remove','<a class="remove" '.$this->create_confirm_callback_href($this->lang->t('Are you sure?'),array($this,'delete_applet'),$row['id']).'>x</a>');
+				$th->assign('remove','<a class="remove" '.$this->create_confirm_callback_href($this->lang->t('Delete this applet?'),array($this,'delete_applet'),$row['id']).'>x</a>');
 				if(method_exists($row['module_name'].'Common', 'applet_settings'))
 					$th->assign('configure','<a class="configure" '.$this->create_callback_href(array($this,'configure_applet'),array($row['id'],$row['module_name'])).'>c</a>');
 				$th->assign('content','<div class="content">'.
-						$this->get_html_of_module($m,array($this->get_values($row['id'],$row['module_name'])),'applet').
+						$this->get_html_of_module($m,array($this->get_values($row['id'],$row['module_name']), $row['id']),'applet').
 						'</div>');
 				print('<div class="applet" id="ab_item_'.$row['id'].'">');
 				$th->display();
@@ -47,7 +47,8 @@ class Base_ActiveBoard extends Module {
 			print('</div>');
 		}
 		print('</div>');
-		eval_js('wait_while_null("Effect","activeboard_activate()")');
+//		eval_js('activeboard_activate()');
+		eval_js('wait_while_null(\'Sortable\',\'activeboard_activate()\')');
 	}
 	
 	public function applets_list() {
@@ -61,7 +62,11 @@ class Base_ActiveBoard extends Module {
 			}
 			return true;
 		}
-		
+
+		if($this->is_back()) return false;		
+		Base_ActionBarCommon::add('back','Back to ActiveBoard',$this->create_back_href());
+
+
 		$tipmod = $this->init_module('Utils/Tooltip');
 		foreach(ModuleManager::$modules as $name=>$obj) {
 			if(method_exists($obj['name'].'Common', 'applet_caption')) {

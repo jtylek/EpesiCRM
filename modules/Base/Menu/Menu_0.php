@@ -252,29 +252,13 @@ class Base_Menu extends Module {
 		
 		$theme = & $this->init_module('Base/Theme');
 		
-//		$theme->assign('menu', '<div id="'.$this->menu_name.'">');
 		$menu_mod->set_inline_display();
 		$theme->assign('menu', $this->get_html_of_module($menu_mod));
 
-/*		$mmd5 = md5(self::$menu);
-		$smd5 = $this->get_module_variable('md5');
-		if(!isset($smd5) || $smd5!=$mmd5) {
-			if(!isset($smd5)) 
-				eval_js("load_js('modules/Base/Menu/menulib.php')");
-			eval_js("wait_while_null('main_menu','main_menu = [".addslashes(self::$menu)."]')");
-			$this->set_module_variable('md5',$mmd5);
-			$this->set_reload(true);
-		} 
-		
-*/
 		$theme->display();
 		
 	}
 
-	public function reloaded() {
-//		    eval_js("wait_while_null('print_menu','print_menu(\'".$this->menu_name."\')')");
-	}
-	
 	public static function add_unique_keys(& $arr, & $module){
 		foreach ($arr as $k=>& $v){
 			if (array_key_exists('__submenu__',$v)){

@@ -78,7 +78,7 @@ class Utils_BookmarkBrowser extends Module {
 	 */
 	public function expand() {
 		$content_id = 'utils_bookmarkbrowser_'.$this->_id;
-		eval_js('wait_while_null("utils_bookmarkbrowser_set_content_height", "utils_bookmarkbrowser_set_content_height(\''.$content_id.'\')");');
+		eval_js('utils_bookmarkbrowser_set_content_height(\''.$content_id.'\')');
 	}
 	
 	/**

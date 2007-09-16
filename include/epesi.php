@@ -31,10 +31,12 @@ class Epesi extends Saja {
 	 * @param string javascript code
 	 */
 	public final function js($js) {
+		if(!is_string($js) || strlen($js)==0) return false;
 		if(STRIP_OUTPUT)
 			$this->jses[] = strip_js($js);
 		else
 			$this->jses[] = $js;
+		return true;
 	}
 	
 	/**
@@ -68,8 +70,10 @@ class Epesi extends Saja {
 	 * Executes list of javascrpit commands gathered with js() function.
 	 */
 	public final function call_jses() {
-		foreach($this->jses as $cc)
-			parent::js($cc);
+		foreach($this->jses as $cc) {
+			$x = rtrim($cc,';');
+			if($x) parent::js($x);
+		}
 		$this->jses=array();
 	}
 }

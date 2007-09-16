@@ -71,9 +71,10 @@ function location($u = null,$ret = false) {
  */
 function load_css($u) {
 	global $base;
+	if(!is_string($u) || strlen($u)==0) return false;
 	$session = & $base->get_tmp_session();
 	if (is_string($u) && (!isset($session['__loaded_csses__']) || !array_key_exists($u, $session['__loaded_csses__']))) {
-		$base->js('load_css(\'' . addslashes($u) . '\')');
+		$base->js('_lcss(\'' . escapeJS($u) . '\')');
 		$session['__loaded_csses__'][$u] = 1;
 		return true;
 	}
@@ -86,17 +87,17 @@ function load_css($u) {
  * @param string javascrpit code
  */
 function load_js($u) {
-	return eval_js_once('load_js(\'' . addslashes($u) . '\')');
+	global $base;
+	if(!is_string($u) || strlen($u)==0) return false;
+	$session = & $base->get_tmp_session();
+	if (!isset($session['__loaded_jses__'][$u])) {
+		$base->js('_ljs(\''.escapeJS($u).'\')');
+		$session['__loaded_jses__'][$u] = true;
+		return true;
+	}
+	return false;
 }
-/**
- * Adds js to load inline.
- * 
- * @param string javascrpit code
- * @return bool true on success, false otherwise
- */
-function load_js_inline($u) {
-	return eval_js_once( file_get_contents($u) );
-}
+
 /**
  * Adds js block to eval. If no argument is specified returns saved jses.
  * 
@@ -104,8 +105,9 @@ function load_js_inline($u) {
  */
 function eval_js($u) {
 	global $base;
-	if (is_string($u)) {
-		$base->js($u);
+	if (is_string($u) && strlen($u)>0) {
+		$u = rtrim($u,';');
+		$base->js('_ajs(\''.escapeJS($u).'\')');
 	}
 }
 /**
@@ -116,11 +118,12 @@ function eval_js($u) {
  */
 function eval_js_once($u) {
 	global $base;
-	if(!is_string($u)) return false;
+	if(!is_string($u) || strlen($u)==0) return false;
 	$session = & $base->get_tmp_session();
 	$md5 = md5($u);
 	if (!isset($session['__evaled_jses__'][$md5])) {
-		$base->js($u);
+		$u = rtrim($u,';');
+		$base->js('_ajs(\''.escapeJS($u).'\')');
 		$session['__evaled_jses__'][$md5] = true;
 		return true;
 	}

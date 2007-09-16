@@ -5,7 +5,7 @@
  * @licence SPL
  */
 var loaded_csses="";
-function load_css(file) {
+function _lcss(file) {
 	if (loaded_csses.indexOf(file)!=-1) return false;
 	fileref=document.createElement("link")
 	fileref.setAttribute("rel", "stylesheet");
@@ -15,14 +15,15 @@ function load_css(file) {
 	loaded_csses += file+" ";
 	return true;
 };
-		
+load_css = _lcss;
+
 function focus_by_id(idd) {
 	xx = document.getElementById(idd);
 	if(xx) setTimeout('xx.focus();',200);
 };
 
 var loaded_jss="";
-function load_js(file) {
+function _ljs(file) {
 	if (loaded_jss.indexOf(file)!=-1) return false;
 	fileref=document.createElement("script")
 	fileref.setAttribute("type", "text/javascript");
@@ -31,12 +32,15 @@ function load_js(file) {
 	loaded_jss += file+" ";
 	return true;
 };
+load_js = _ljs;
 
-function append_js(texti) {
+function _ajs(texti) {
 	fileref=document.createElement("script")
-	document.body.appendChild(fileref);
+	fileref.setAttribute("type", "text/javascript");
 	fileref.text = texti;
+	document.body.appendChild(fileref);
 };
+append_js = _ajs;
 
 function collect(a,f) {
 	var n=[];
@@ -75,11 +79,11 @@ function serialize_form(formName){
 	return i.concat(s).concat(t).join('&');
 };
 
-function addcslashes(x){return x.replace(/('|"|\\)/g,"\\$1")}
+function addslashes(x){return x.replace(/('|"|\\)/g,"\\$1")}
 
 function wait_while_null(id,action) {
 	if(eval('typeof('+id+')') != 'undefined')
 		eval(action);
 	else
-		setTimeout('wait_while_null(\''+addcslashes(id)+'\', \''+addcslashes(action)+'\')',200);
+		setTimeout('wait_while_null(\''+addslashes(id)+'\', \''+addslashes(action)+'\')',200);
 };

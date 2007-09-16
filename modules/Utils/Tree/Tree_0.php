@@ -22,7 +22,7 @@ class Utils_Tree extends Module {
 	public function construct() {
 		$this->_id = Utils_Tree::$_counter;
 		Utils_Tree::$_counter++;
-		load_js_inline("modules/Utils/Tree/js/tree.js");
+		load_js("modules/Utils/Tree/js/tree.js");
 	}
 	
 	/**
@@ -158,15 +158,15 @@ class Utils_Tree extends Module {
 		$theme->assign('expand_all', $expand_all);
 		$theme->assign('tree', $s);
 		
-		eval_js('wait_while_null("utils_tree_reset", "utils_tree_reset('.$this->_id.')");');
+		eval_js('utils_tree_reset('.$this->_id.')');
 		foreach($this->_opened_paths as $path) {
 			$path = explode('_', $path);
 			$path = '['.join(', ', $path).']';
-			eval_js('wait_while_null("utils_tree_open", "utils_tree_open('.$this->_id.', '.$path.')");');
+			eval_js('utils_tree_open('.$this->_id.', '.$path.')');
 		}
 		
 		if( $this->_opened == true ) {
-			eval_js('wait_while_null("utils_tree_expand_all", "utils_tree_expand_all('.$this->_id.','.$this->_sub.')");');
+			eval_js('utils_tree_expand_all('.$this->_id.','.$this->_sub.')');
 			//eval_js('utils_tree_expand_all('.$this->_id.','.$this->_sub.');');
 		}
 

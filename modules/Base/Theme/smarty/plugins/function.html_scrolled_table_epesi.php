@@ -170,7 +170,7 @@ function smarty_function_html_scrolled_table_epesi($params, &$smarty)
     $output .= "</table>\n";
     
     load_js('modules/Base/Theme/smarty/plugins/function.html_scrolled_table_epesi.js');
-    eval_js('wait_while_null(\'libs_theme__scrolled_table_fix_cols\',\'libs_theme__scrolled_table_fix_cols()\')');
+    eval_js('libs_theme__scrolled_table_fix_cols()');
     
     return $output;
 }

@@ -131,7 +131,7 @@ class Utils_ImageCommon extends ModuleCommon {
 		$x = self::create_thumb($img, $attr_x, $attr_y);
 		$md = md5($x['thumb']);
 		load_js("modules/Utils/Image/js/image.js");
-		eval_js('wait_while_null( "utils_image_load_thumb", "utils_image_load_thumb(\''.$x['thumb'].'\', \''.$md.'\')" );');
+		eval_js('utils_image_load_thumb(\''.$x['thumb'].'\', \''.$md.'\')');
 
 		return '<img class="loader_'.$md.'" src="'.Base_ThemeCommon::get_template_file('Utils/Image','loader.gif').'">';
 	}

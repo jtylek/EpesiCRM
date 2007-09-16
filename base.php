@@ -153,7 +153,8 @@ class Base extends Epesi {
 				
 				if(isset($v['span']))
 					$this->text($v['value'], $v['span']);
-				$this->js(join(";",$v['js']));
+				if($v['js'])
+					$this->js('_ajs(\''.escapeJS(join(";",$v['js'])).'\')');
 				$tmp_session['__module_content__'][$k]['value'] = $v['value'];
 				$tmp_session['__module_content__'][$k]['js'] = $v['js'];				
 				$tmp_session['__module_content__'][$k]['parent'] = $parent;				
@@ -168,7 +169,8 @@ class Base extends Epesi {
 					$debug .= 'Reloading missing '.$k.'<hr>';
 				if(isset($v['span']))
 					$this->text($v['value'], $v['span']);
-				$this->js(join(";",$v['js']));	
+				if($v['js'])
+					$this->js('_ajs(\''.escapeJS(join(";",$v['js'])).'\')');
 				$reloaded[$k] = true;
 			}
 	
@@ -200,7 +202,6 @@ class Base extends Epesi {
 		}
 		
 		if(!$history_call) {
-//			$this->redirect('#'.History::get_id());
 			$this->js('history_add('.History::get_id().')');
 		}
 	}
