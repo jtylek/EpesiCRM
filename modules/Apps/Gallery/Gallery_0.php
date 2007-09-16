@@ -603,7 +603,7 @@ class Apps_Gallery extends Module {
 	
 	public function applet($vars) {
 		if(!isset($vars['image']))
-			print(Base_LangCommon::ts($this->get_type(),'No selected image'));
+			print(Base_LangCommon::ts($this->get_type(),'No image selected'));
 		elseif(!file_exists($vars['image']))
 			print(Base_LangCommon::ts($this->get_type(),'Selected image doesn\'t exists'));
 		else

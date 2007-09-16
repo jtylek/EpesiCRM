@@ -36,7 +36,7 @@ class Apps_GalleryCommon extends ModuleCommon {
 		$ret = array();
 		if($images) {
 			$ret[] = array('name'=>'image','label'=>'Choose image','type'=>'select','values'=>$images,'default'=>$def,'rule'=>array(array('message'=>'Field required', 'type'=>'required')));
-			$ret[] = array('name'=>'size','label'=>'Maximal size','type'=>'select','values'=>array(100=>'100x100',200=>'200x200',300=>'300x300'),'default'=>200,'rule'=>array(array('message'=>'Field required', 'type'=>'required')));
+			$ret[] = array('name'=>'size','label'=>'Maximum size','type'=>'select','values'=>array(100=>'100x100',200=>'200x200',300=>'300x300'),'default'=>200,'rule'=>array(array('message'=>'Field required', 'type'=>'required')));
 		} else {
 			$ret[] = array('name'=>'no_img','type'=>'static','label'=>'','values'=>Base_LangCommon::ts($this->get_type(),'No images in your gallery'));
 		}
