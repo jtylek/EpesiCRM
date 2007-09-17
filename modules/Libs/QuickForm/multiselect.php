@@ -27,7 +27,7 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
      * @var       string
      * @access    private
      */
-    var $_values = null;
+    var $_values = array();
 
     /**
      * Hash table to hold original keys of given options
@@ -357,21 +357,22 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 			$this->setName($myName . 'from[]');
 			$attrString = $this->_getAttrString($this->_attributes);
 			$attrArray = $this->getAttributes();
-			$leave_selected = $attrArray['leave_selected'];
+			$leave_selected = isset($attrArray['leave_selected']) ? $attrArray['leave_selected'] : 0;
 			$fromElement = '';
             $fromElement .= $tabs . '<select' . $attrString . ' ondblclick="add_selected()">'."\n";
 //			print_r($this->_values);
-			if (eregi($this->list_sep,$this->_values[0])) {
+			if (isset($this->_values[0]) && eregi($this->list_sep,$this->_values[0])) {
 		        $this->_values = explode($this->list_sep,$this->_values[0]);
 		        array_shift($this->_values);
 			}
 			$i = 0;
             foreach ($this->_options as $k=>$option) {
-            	$this->keyhash[i] = $this->_options[$k]['attr']['value'];
-            	$kv = array_search($this->_options[$k]['attr']['value'],$this->_values);
-            	if ($kv!==false) $this->_values[$kv] = $i;
+            	$this->keyhash[$i] = $this->_options[$k]['attr']['value'];
+            	$kv = array_search($this->_options[$k]['attr']['value'], $this->_values);
+            	// ghaxx:
+            	//if ($kv!==false) $this->_values[$kv] = $i;
 //				print(':'.($kv!==false).' - '.$i.' = '.$this->_options[$k]['attr']['value'].':');
-            	$this->_options[$k]['attr']['value'] = $i;
+            	//$this->_options[$k]['attr']['value'] = $i;
             	$i++;
 				if ($leave_selected || !(is_array($this->_values) && in_array((string)$this->_options[$k]['attr']['value'], $this->_values)))
                 	$fromElement .= $tabs . "\t<option " . $this->_getAttrString($this->_options[$k]['attr']) . ">" . $this->_options[$k]['text'] . "</option>\n";
