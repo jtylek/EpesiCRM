@@ -218,9 +218,11 @@ function clean_database() {
 	require_once('include/database.php');
 	$tables_db = DB::MetaTables();
 	$tables = array();
+	DB::Execute('SET FOREIGN_KEY_CHECKS=0');
 	foreach($tables_db as $t) {
 		DB::DropTable($t);
 	}
+	DB::Execute('SET FOREIGN_KEY_CHECKS=1');
 }
 
 function install_base() {

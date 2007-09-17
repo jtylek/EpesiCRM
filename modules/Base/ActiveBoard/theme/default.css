@@ -3,15 +3,24 @@
 }
 
 #activeboard .handle {
-	border: 1px solid gray;
 	cursor: move;
-}
-
-#activeboard .content {
-	border: 1px solid gray;
-	background-color: #fbfbfb;
 }
 
 #activeboard .handle .toggle, #activeboard .handle .remove, #activeboard .handle .configure {
 	cursor: pointer;
 }
+
+#activeboard .content_td {
+	border: 1px solid gray;
+	background-color: #fbfbfb;
+}
+
+#activeboard .container {
+	width: 100%; 
+	border: 1px solid gray;
+}
+
+#activeboard .controls {
+	text-align:right;
+}
+
