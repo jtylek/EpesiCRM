@@ -12,7 +12,7 @@ if(!class_exists('Saja')) return;
 
 class Epesi extends Saja {
 	private $client_id;
-	private $jses;
+	private $jses = array();
 	
 	/**
 	 * Initializes ajax engine.
@@ -29,7 +29,7 @@ class Epesi extends Saja {
 				'if(indicator==\'\') indicator=\'loading...\';'.
 				'saja.updateIndicatorText(indicator);'.
 				$this->run("process(client_id,href)").
-			'}else if(mode==\'queue\') setTimeout(\'create_href_js("\'+href+\'", "\'+indicator+\'", "\'+mode+\'")\',500);}'.
+			'}else if(mode==\'queue\') setTimeout(\'create_href_js("\'+href+\'", "\'+indicator+\'", "\'+mode+\'")\',500);};'.
 			'create_href_js=_chj;'
 		);
 	}
