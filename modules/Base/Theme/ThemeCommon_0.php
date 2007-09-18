@@ -132,7 +132,7 @@ class Base_ThemeCommon extends ModuleCommon {
 	private static function create_css_cache() {
 		$themes_dir = 'data/Base_Theme/templates/';
 		$def_theme = Variable::get('default_theme');
-		$tdir = $themes_dir.$def_theme;
+		$tdir = $themes_dir.$def_theme.'/';
 		$arr = glob($themes_dir.'default/*.css',GLOB_NOSORT);
 		$css_def_out = '';
 		$css_cur_out = '';
@@ -141,8 +141,8 @@ class Base_ThemeCommon extends ModuleCommon {
 		foreach($arr as $f) {
 			$name = basename($f);
 			if($name=='__cache.css') continue;
-			if(is_readable($tdir.'/'.$name)) {
-				$css_cur_out .= file_get_contents($tdir.'/'.$name)."\n";
+			if(is_readable($tdir.$name)) {
+				$css_cur_out .= file_get_contents($tdir.$name)."\n";
 				$files_cur_out .= $tdir.$name."\n";
 			} else {
 				$css_def_out .= file_get_contents($f)."\n";
