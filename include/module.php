@@ -348,13 +348,6 @@ abstract class Module extends ModulePrimitive {
 	public final static function create_href_js(array $variables = array (), $indicator=null, $mode=null) {
 		global $base;
 		$ret = str_replace('&amp;','&',http_build_query($variables));
-		eval_js_once('create_href_js=function(href,indicator,mode){'.
-				'if(saja.procOn==0 || mode==\'allow\'){'.
-					'if(indicator==\'\') indicator=\'loading...\';'.
-					'saja.updateIndicatorText(indicator);'.
-					$base->run("process(client_id,href)").
-				'}else if(mode==\'queue\') setTimeout(\'create_href_js("\'+href+\'", "\'+indicator+\'", "\'+mode+\'")\',500);}'
-					);
 		if(!isset($indicator)) $indicator='';
 		return 'create_href_js(\''.$ret.'\', \''.addslashes($indicator).'\', \''.$mode.'\');';
 	}

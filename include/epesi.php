@@ -23,6 +23,14 @@ class Epesi extends Saja {
 		$this->client_id = $cl;
 		$this->jses = array();
 		ModuleManager :: load_modules();
+		
+		eval_js_once('create_href_js=function(href,indicator,mode){'.
+			'if(saja.procOn==0 || mode==\'allow\'){'.
+				'if(indicator==\'\') indicator=\'loading...\';'.
+				'saja.updateIndicatorText(indicator);'.
+				$this->run("process(client_id,href)").
+			'}else if(mode==\'queue\') setTimeout(\'create_href_js("\'+href+\'", "\'+indicator+\'", "\'+mode+\'")\',500);}'
+		);
 	}
 
 	/**
