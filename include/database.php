@@ -31,7 +31,7 @@ class DB {
 	 */
 	public static function Connect() {
 		if(isset(self::$ado)) return;
-		self::$ado = & NewADOConnection(DATABASE_DRIVER);
+		self::$ado = & NewADOConnection(DATABASE_DRIVER,'pear:transaction:extend:date:meta');
 		self::$ado->autoRollback = true; // default is false 
 //		$errh = DB::$ado->raiseErrorFn;
 //		DB::$ado->raiseErrorFn = false;
