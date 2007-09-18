@@ -349,7 +349,7 @@ abstract class Module extends ModulePrimitive {
 		global $base;
 		$ret = str_replace('&amp;','&',http_build_query($variables));
 		if(!isset($indicator)) $indicator='';
-		return 'create_href_js(\''.$ret.'\', \''.addslashes($indicator).'\', \''.$mode.'\');';
+		return '_chj(\''.$ret.'\', \''.addslashes($indicator).'\', \''.$mode.'\');';
 	}
 	
 	/**
