@@ -47,8 +47,7 @@ class Base_ActiveBoard extends Module {
 			print('</div>');
 		}
 		print('</div>');
-//		eval_js('activeboard_activate()');
-		eval_js('wait_while_null(\'Sortable\',\'activeboard_activate()\')');
+		eval_js('activeboard_activate()');
 	}
 	
 	public function applets_list() {
