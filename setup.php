@@ -9,8 +9,8 @@
 /**
  * Check access to working directories
  */
-if(file_exists('data/config.php') && !is_writable('data/config.php'))
-	die('Cannot write into data/config.php file. Please fix privileges or delete this file.');
+if(file_exists('data/config.php'))
+	die('Cannot write into data/config.php file. Please delete this file.');
 
 if(!is_writable('data'))
 	die('Cannot write into "data" directory. Please fix privileges.');
@@ -218,11 +218,13 @@ function clean_database() {
 	require_once('include/database.php');
 	$tables_db = DB::MetaTables();
 	$tables = array();
-	DB::Execute('SET FOREIGN_KEY_CHECKS=0');
+	if(DATABASE_DRIVER=='mysqlt')
+		DB::Execute('SET FOREIGN_KEY_CHECKS=0');
 	foreach($tables_db as $t) {
 		DB::DropTable($t);
 	}
-	DB::Execute('SET FOREIGN_KEY_CHECKS=1');
+	if(DATABASE_DRIVER=='mysqlt')
+		DB::Execute('SET FOREIGN_KEY_CHECKS=1');
 }
 
 function install_base() {
