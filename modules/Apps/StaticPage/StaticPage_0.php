@@ -95,7 +95,7 @@ class Apps_StaticPage extends Module {
 		
 		if($f->validate()) {
 			$ret = $f->exportValues();
-			$content = $ret['content'];
+			$content = str_replace("\n",'',$ret['content']);
 			if(isset($page)) {
 				DB::Execute('UPDATE apps_staticpage_pages SET path=%s, title=%s, content=%s WHERE id=%d',array($ret['path'],$ret['title'],$content,$page['id']));
 				$menu->save($ret['path']);
