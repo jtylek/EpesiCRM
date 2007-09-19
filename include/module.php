@@ -386,7 +386,6 @@ abstract class Module extends ModulePrimitive {
 	 * @return string href string
 	 */
 	public final static function create_confirm_href($confirm, array $variables = array (), $indicator=null, $mode=null) {
-		$ret = http_build_query($variables);
 		return ' href="javascript:void(0)" onClick="if(confirm(\''.addslashes($confirm).'\')) {'.self::create_href_js($variables,$indicator,$mode).'}"';
 	}
 
