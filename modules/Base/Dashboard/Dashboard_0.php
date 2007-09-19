@@ -18,9 +18,9 @@ class Base_Dashboard extends Module {
 		$this->lang = $this->init_module('Base/Lang');
 		Base_ActionBarCommon::add('add','Add applet',$this->create_callback_href(array($this,'applets_list')));
 		load_js($this->get_module_dir().'ab.js');
-		print('<div id="dashboard" session="'.session_id().'">');
+		print('<table id="dashboard" session="'.session_id().'" style="width: 100%"><tr>');
 		for($j=0; $j<3; $j++) {
-			print('<div id="dashboard_applets_'.$j.'" style="float:left;width:33%;min-height:100px">');
+			print('<td id="dashboard_applets_'.$j.'" style="width:33%;min-height:100px;vertical-align:top;">');
 			
 			$ret = DB::Execute('SELECT id,module_name FROM base_dashboard_applets WHERE col=%d AND user_login_id=%d ORDER BY pos',array($j,Base_UserCommon::get_my_user_id()));
 			while($row = $ret->FetchRow()) {
@@ -44,9 +44,9 @@ class Base_Dashboard extends Module {
 				$th->display();
 				print('</div>');
 			}
-			print('</div>');
+			print('</td>');
 		}
-		print('</div>');
+		print('</tr></table>');
 		eval_js('dashboard_activate()');
 	}
 	
