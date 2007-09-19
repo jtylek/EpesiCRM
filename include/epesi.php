@@ -83,6 +83,7 @@ class Epesi extends Saja {
 			$x = rtrim($cc,';');
 			if($x) parent::js($x);
 		}
+		file_put_contents('data/jses',implode($this->jses,"\n\n\n"));
 		$this->jses=array();
 	}
 }

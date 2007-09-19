@@ -84,14 +84,18 @@ function load_css($u) {
 /**
  * Adds js to load.
  * 
- * @param string javascrpit code
+ * @param string javascript file
+ * @param boolean append contents of js file instead of use src tag?
  */
-function load_js($u) {
+function load_js($u,$inline=true) {
 	global $base;
 	if(!is_string($u) || strlen($u)==0) return false;
 	$session = & $base->get_tmp_session();
 	if (!isset($session['__loaded_jses__'][$u])) {
-		$base->js('_ljs(\''.escapeJS($u).'\')');
+		if($inline)
+			$base->js('_ajs(\''.escapeJS(file_get_contents($u)).'\')');
+		else
+			$base->js('_ljs(\''.escapeJS($u).'\')');
 		$session['__loaded_jses__'][$u] = true;
 		return true;
 	}

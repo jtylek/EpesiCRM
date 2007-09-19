@@ -94,7 +94,7 @@ class Base_Theme extends Module {
 					"cache.appendChild(current_image);".
 				"}".
 				"if(images_list.length)".
-					"setTimeout('cache_images()',200);".
+					"setTimeout('cache_images()',500);".
 			"};".
 			"cache_images();");		
 	}
