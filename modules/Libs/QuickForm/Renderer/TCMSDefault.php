@@ -281,7 +281,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
 				$value = $element->getValue();
 	        	    	$element->setValue('');
 	        		if($value!==null) {
-					eval_js('settextvalue(\''.$this->_formName.'\',\''.$name.'\',"'.addslashes(str_replace("\n",'\n',addslashes($value))).'")');
+					eval_js('settextvalue(\''.$this->_formName.'\',\''.$name.'\',"'.str_replace("\n",'\n',addslashes(addslashes($value))).'")');
 	    			}
 			} elseif($type == 'select') {
 				$value = $element->getValue();

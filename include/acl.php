@@ -46,7 +46,7 @@ class Acl {
 	 * @return string
 	 */
 	public static function get_user() {
-		return isset($_SESSION[$_SERVER['PHP_SELF']]['user'])?$_SESSION[$_SERVER['PHP_SELF']]['user']:null;
+		return isset($_SESSION[__FILE__]['user'])?$_SESSION[__FILE__]['user']:null;
 	}
     
     	/**
@@ -54,9 +54,9 @@ class Acl {
 	 */
 	public static function set_user($a=null) {
 		if(isset($a))
-			$_SESSION[$_SERVER['PHP_SELF']]['user'] = $a;
+			$_SESSION[__FILE__]['user'] = $a;
 		else
-			unset($_SESSION[$_SERVER['PHP_SELF']]['user']);
+			unset($_SESSION[__FILE__]['user']);
 	}
     
     	/**
@@ -65,7 +65,7 @@ class Acl {
 	 * @return bool 
 	 */
 	public static function is_user() {
-		return isset($_SESSION[$_SERVER['PHP_SELF']]['user']);
+		return isset($_SESSION[__FILE__]['user']);
 	}
 	
 	/**
