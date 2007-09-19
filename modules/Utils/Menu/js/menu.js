@@ -21,7 +21,6 @@ iframe_name = function(menu, submenu) {
 	return 'custom_iframe_'+menu+'_'+submenu;
 }
 
-
 hideAllNow_f = function(menu, submenu) {
 	var tmp_id;
 	for(i = 0; i < a_submenu_number[menu]; i++ ) {
@@ -231,25 +230,18 @@ CustomMenubar = function(id, _layout) {
 		}
 	}	
 	this.addLink_bullet = function( title, icon ) {
-		if(layout[this.id] == 'horizontal' && this.depth == 0) {
-			
-			menu_string[this.id] += '<td id="'+opener_name(this.id, this.submenu_number)+'" class=item onmouseover="hideAllNow('+this.id+','+this.submenu_number+')">';
-			if(icon) {
-				menu_string[this.id] += '<img class=link_icon src="'+icon+'">';
-			}
-			menu_string[this.id] += '<a  href=# class=root_item_link_down>' + title + '</a>';
-			menu_string[this.id] += '</td>';
-			
-			//menu_string[this.id] += '<td class=item onmouseover="hideAllNow('+this.id+','+this.submenu_number+')"><img class=link_bullet src="modules/Utils/Menu/theme/arrow_down.gif"><a href=# class=root_item_link>' + title + '</a></td>';
-		} else {
-			menu_string[this.id] += '<td id="'+opener_name(this.id, this.submenu_number)+'" class=item onmouseover="hideAllNow('+this.id+','+this.submenu_number+')">';
-			if(icon) {
-				menu_string[this.id] += '<img class=link_icon src="'+icon+'">';
-			}
-			menu_string[this.id] += '<a  href=# class=root_item_link_right>' + title + '</a>';
-			menu_string[this.id] += '</td>';
-			//menu_string[this.id] += '<td class=item onmouseover="hideAllNow('+this.id+','+this.submenu_number+')"><img class=link_bullet src="modules/Utils/Menu/theme/arrow.gif"><a href=# class=root_item_link>' + title + '</a></td>';
+		menu_string[this.id] += '<td id="'+opener_name(this.id, this.submenu_number)+'" class=item onmouseover="hideAllNow('+this.id+','+this.submenu_number+')">';
+		if(icon) {
+			menu_string[this.id] += '<img class=link_icon src="'+icon+'">';
 		}
+		if(layout[this.id] == 'horizontal' && this.depth == 0) {
+			menu_string[this.id] += '<a  href=# class=root_item_link_down><div class=root_item_link_down_arrow>' + title + '</div></a>';
+		} else {
+			menu_string[this.id] += '<a  href=# class=root_item_link_right><div class=root_item_link_right_arrow>' + title + '</div></a>';
+		}
+		menu_string[this.id] += '</td>';
+			
+		//<div class=root_item_link_right_arrow>' + title + '</div>
 	}
 	
 	this.beginSubmenu = function( title, icon ) {
@@ -259,11 +251,6 @@ CustomMenubar = function(id, _layout) {
 			menu_string[this.id] += '<tr>';
 			this.addLink_bullet( title, icon );
 			menu_string[this.id] += '<td class=item_sub><table cellspacing=0 cellpadding=0 id="'+sub_name(this.id, this.submenu_number)+'" class=submenu>';	
-			is_over[this.id][this.submenu_number] = 0;
-			level[this.id][this.submenu_number] = this.depth;
-			this.submenu_number++;	
-			this.depth++;
-			a_submenu_number[this.id] = this.submenu_number;
 		} else {
 			if(this.depth == 0 ) {
 				if(this.init == 0) {
@@ -275,15 +262,15 @@ CustomMenubar = function(id, _layout) {
 				menu_string[this.id] += '<td>';
 				menu_string[this.id] += '<table cellspacing=0 cellpadding=0 onmouseout="custom_hide('+this.id+','+this.submenu_number+')" onmouseover="custom_show('+this.id+','+this.submenu_number+')" class=custom_opener>';
 				menu_string[this.id] += '<tr>';
-				this.addLink_bullet( title );
+				this.addLink_bullet( title, icon );
 				menu_string[this.id] += '</tr><tr><td class=item_sub> <table cellspacing=0 cellpadding=0 id="'+sub_name(this.id, this.submenu_number)+'" class=submenu>';	
-				is_over[this.id][this.submenu_number] = 0;
-				level[this.id][this.submenu_number] = this.depth;
-				this.submenu_number++;	
-				this.depth++;
-				a_submenu_number[this.id] = this.submenu_number;
 			}
 		}
+		is_over[this.id][this.submenu_number] = 0;
+		level[this.id][this.submenu_number] = this.depth;
+		this.submenu_number++;	
+		this.depth++;
+		a_submenu_number[this.id] = this.submenu_number;
 	}
 	
 	this.endSubmenu = function() {

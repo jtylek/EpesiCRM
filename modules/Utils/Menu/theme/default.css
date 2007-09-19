@@ -74,7 +74,6 @@ a.root_item_link {
 
 a.root_item_link_down {
 	margin: 0px;
-	padding: 1px 25px 1px 25px;
 	display: block; /* for HTML standards... */
 	margin: 0px;
 	color: #336699;
@@ -84,6 +83,9 @@ a.root_item_link_down {
 	text-decoration: none;
 	white-space: nowrap;
 	z-index: 1000;
+}
+.root_item_link_down_arrow {
+	padding: 1px 25px 1px 25px;
 	background: url(Utils_Menu__arrow_down.gif) no-repeat center right;
 }
 
@@ -104,7 +106,6 @@ a.root_item_link_none {
 }
 a.root_item_link_right {
 	margin: 0px;
-	padding: 1px 25px 1px 25px;
 	display: block; /* for HTML standards... */
 	margin: 0px;
 	color: #336699;
@@ -114,9 +115,13 @@ a.root_item_link_right {
 	text-decoration: none;
 	white-space: nowrap;
 	z-index: 1000;
-	background: url(Utils_Menu__arrow.gif) no-repeat center right;
+	
 	padding-top: 4px;
 	padding-bottom: 3px;
+}
+.root_item_link_right_arrow {
+	padding: 1px 25px 1px 25px;
+	background: url(Utils_Menu__arrow.gif) no-repeat center right;
 }
 
 img.link_bullet {
