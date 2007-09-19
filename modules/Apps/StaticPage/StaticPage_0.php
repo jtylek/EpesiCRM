@@ -26,8 +26,8 @@ class Apps_StaticPage extends Module {
 		if(!isset($path) || 
 			!($page = DB::Execute('SELECT title,content FROM apps_staticpage_pages WHERE path=%s',$path)) ||
 			!($page = $page->FetchRow())) {
-			print($this->lang->t('No such page'));
-			if(Base_AclCommon::i_am_admin()) print('<a '.$this->create_unique_href(array('edit'=>$path)).'>Create new one</a>');
+			print($this->lang->t('No such page').'<br>');
+			if(Base_AclCommon::i_am_admin()) print('<a '.$this->create_unique_href(array('edit'=>$path)).'>'.$this->lang->t('Create new one').'</a>');
 			return;
 		}
 		$theme->assign('path',$path);
@@ -51,7 +51,7 @@ class Apps_StaticPage extends Module {
 		if($this->get_unique_href_variable('delete')) {
 			$id = DB::GetOne('SELECT id FROM apps_staticpage_pages WHERE path=%s',$path);
 			$this->delete($id);
-			$this->unset_module_variable('view');
+			//$this->unset_module_variable('view');
 			$this->unset_module_variable('edit');
 			Base_StatusBarCommon::message($this->lang->t('Page deleted'));
 			return;
@@ -66,7 +66,7 @@ class Apps_StaticPage extends Module {
 		$f = &$this->init_module('Libs/QuickForm');
 
 		if($path) {
-			if(!($page = DB::Execute('SELECT id,title,content FROM apps_staticpage_pages WHERE path=%s',$path)) ||
+			if(!($page = DB::Execute('SELECT id,title,content FROM apps_staticpage_pages WHERE path=%s',array($path))) ||
 			!($page = $page->FetchRow())) {
 				print($this->lang->t('No such page, creating new one'));
 				$f->setDefaults(array('path'=>$path));
@@ -96,13 +96,14 @@ class Apps_StaticPage extends Module {
 		if($f->validate()) {
 			$ret = $f->exportValues();
 			$content = str_replace("\n",'',$ret['content']);
-			if(isset($page)) {
+			if(isset($page) && $page) {
 				DB::Execute('UPDATE apps_staticpage_pages SET path=%s, title=%s, content=%s WHERE id=%d',array($ret['path'],$ret['title'],$content,$page['id']));
 				$menu->save($ret['path']);
 				if($this->isset_module_variable('view'))
 					$this->set_module_variable('view',$ret['path']);
 			} else {
 				DB::Execute('INSERT INTO apps_staticpage_pages(path,title,content) VALUES (%s, %s, %s)',array($ret['path'],$ret['title'],$content));
+				$this->set_module_variable('view',$ret['path']);
 				$this->set_module_variable('menu_edit',array('id'=>DB::Insert_ID(),'path'=>$ret['path']));
 			}
 			$this->unset_module_variable('edit');
@@ -114,7 +115,7 @@ class Apps_StaticPage extends Module {
 
 		if($path) {
 			$this->display_module($menu);
-			Base_ActionBarCommon::add('delete','Delete page',$this->create_unique_href(array('delete'=>true)));
+			Base_ActionBarCommon::add('delete','Delete page',$this->create_confirm_unique_href($this->lang->ht('Delete this page?'), array('delete'=>true)));
 		}
 	}
 	
