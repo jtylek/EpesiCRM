@@ -1,0 +1,26 @@
+#dashboard .applet {
+	padding: 5px;
+}
+
+#dashboard .handle {
+	cursor: move;
+}
+
+#dashboard .handle .toggle, #dashboard .handle .remove, #dashboard .handle .configure {
+	cursor: pointer;
+}
+
+#dashboard .content_td {
+	border: 1px solid gray;
+	background-color: #fbfbfb;
+}
+
+#dashboard .container {
+	width: 100%; 
+	border: 1px solid gray;
+}
+
+#dashboard .controls {
+	text-align:right;
+}
+
