@@ -13,7 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_ActiveBoardCommon extends ModuleCommon {
 	public static function menu() {
 		if(Acl::is_user())
-			return array('Active board'=>array());
+			return array('Dashboard'=>array());
 		return array();
 	}
 	

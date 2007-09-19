@@ -34,60 +34,60 @@
 class Saja {
 	
 	//configurable vars
-	var $saja_path = '';								//default SAJA path - this can be set so you never have to call set_path() again
-	var $saja_process_file = 'saja.functions.php';		//default process file to use
-	var $saja_process_path = '';						//relative or full path to the directory that contains your process files (functions) i.e. "../myfunctions/", "/www/apache/htdocs/public/", etc.
-	var $saja_process_class = 'myFunctions';			//default classname to use
+	private $saja_path = '';								//default SAJA path - this can be set so you never have to call set_path() again
+	private $saja_process_file = 'saja.functions.php';		//default process file to use
+	private $saja_process_path = '';						//relative or full path to the directory that contains your process files (functions) i.e. "../myfunctions/", "/www/apache/htdocs/public/", etc.
+	private $saja_process_class = 'myFunctions';			//default classname to use
 	
 	//leave these vars alone
-	var $functionPadding = 15;							//pad functions names having less than this many characters in their name
-	var $actions = array();
-	var $salt;
-	var $http_key;
-	var $argument_separator = '>>>saja_arg<<';			//separator for function arguments
+	private $functionPadding = 15;							//pad functions names having less than this many characters in their name
+	private $actions = array();
+	private $salt;
+	public $http_key;
+	private $argument_separator = '>>>saja_arg<<';			//separator for function arguments
 	
-	function Saja()
+	function __construct()
 	{
 		if(!session_id())
 			session_start();
 		$this->salt();
 	}
 	
-	function clear_state(){
+	public function clear_state(){
 		unset($_SESSION['SAJA_SALT']);
 		unset($_SESSION['SAJA_HTTP_KEY']);
 		$this->salt = $this->http_key = null;
 		$this->salt();
 	}
 	
-	function salt(){
+	public function salt(){
 		$this->salt = isset($_SESSION['SAJA_SALT']) ? $_SESSION['SAJA_SALT'] : $this->generate_key();
 		$_SESSION['SAJA_SALT'] = $this->salt;
 	}
 	
-	function set_path($path)
+	public function set_path($path)
 	{
 		$this->saja_path = $path;
 	}
 	
-	function secure_http()
+	public function secure_http()
 	{
 		$this->http_key = $_SESSION['SAJA_HTTP_KEY'] ? $_SESSION['SAJA_HTTP_KEY'] : $this->generate_key();
 		$_SESSION['SAJA_HTTP_KEY'] = $this->http_key;
 	}
 	
-	function clear_secure_http()
+	public function clear_secure_http()
 	{
 		$this->http_key = null;
 		unset($_SESSION['SAJA_HTTP_KEY']);
 	}
 	
-	function generate_key()
+	public function generate_key()
 	{
 		return md5(uniqid(rand()));
 	}
 	
-	function saja_js()
+	public function saja_js()
 	{
 		$js  = '<script type="text/javascript">var SAJA_PATH="'.$this->saja_path.'"; var SAJA_HTTP_KEY="'.$this->http_key.'"</script>'."\n";
 		$js .= '<script type="text/javascript" src="'.$this->saja_path.'saja.js"></script>'."\n";;
@@ -95,44 +95,44 @@ class Saja {
 	}
 	
 
-	function saja_status($style='', $string='Working...')
+	public function saja_status($style='', $string='Working...')
 	{
 		return "<span id=\"sajaStatus\" style=\"visibility:hidden;$style\">".htmlentities($string)."</span>";	
 	}
 
-	function hasActions()
+	public function hasActions()
 	{
 		return (count($this->actions) > 0);
 	}
 	
 	//example: set_process_path('myFunctions/');
-	function set_process_path($fpath)
+	public function set_process_path($fpath)
 	{
 		$this->saja_process_path = $fpath;
 	}
 	
-	function set_process_class($name)
+	public function set_process_class($name)
 	{
 		$this->saja_process_class = $name;
 	}
 	
-	function get_process_class()
+	public function get_process_class()
 	{
 		return $this->saja_process_class;
 	}
 	
 	//exaple: set_process_file('myOtherFunctions.php');
-	function set_process_file($filename)
+	public function set_process_file($filename)
 	{
 		$this->saja_process_file = $filename;
 	}
 	
-	function get_process_file()
+	public function get_process_file()
 	{
 		return $this->saja_process_path . $this->saja_process_file;
 	}
 
-	function run($commands, $process_file=null)
+	public function run($commands, $process_file=null)
 	{
 		if(!$this->http_key)
 			$this->clear_secure_http();
@@ -142,7 +142,7 @@ class Saja {
 		return $this->ParseCommands($commands, $process_file);
 	}
 
-	function ParseCommands($commands, $process_file)
+	private function ParseCommands($commands, $process_file)
 	{
 		$commands = $this->texplode(';', $commands);
 		$all_commands = '';
@@ -189,10 +189,10 @@ class Saja {
 				
 				if($function)
 				{
-					$request_id = md5($function . $this->salt);
+					$request_id = md5($process_file.$function.$this->salt);
 					$_SESSION['SAJA_PROCESS']['REQUESTS'][$request_id] = array(
 						'FUNCTION' => $function,
-						'PROCESS_FILE' => $process_file ? $process_file : $this->get_process_file(),
+						'PROCESS_FILE' => $process_file,
 						'CLASS' => $this->get_process_class()
 					);
 					
@@ -204,7 +204,7 @@ class Saja {
 		return $all_commands;
 	}
 
-	function parseArgs($args, $getType)
+	private function parseArgs($args, $getType)
 	{
 		$i = 0;
 		$inner = '';
@@ -239,7 +239,7 @@ class Saja {
 		return $inner;
 	}
 
-	function texplode($seperator, $str)
+	private function texplode($seperator, $str)
 	{
 		$vals = array();
 		foreach(explode($seperator, $str) as $val){
@@ -258,31 +258,31 @@ class Saja {
 #			SAJA RESPONSE FUNCTIONS
 #
 	//execute raw javascript code
-	function js($js)
+	public function js($js)
 	{
 		$this->add_action($js);
 	}
 	
 	//redirect the browser to a URL
-	function redirect($url='')
+	public function redirect($url='')
 	{
 		$this->add_action("window.location = '$url'");
 	}
 	
 	//return a javascript alert
-	function alert($txt)
+	public function alert($txt)
 	{
 		$this->add_action("alert('".str_replace('\'', '\\\'', $txt)."')");
 	}
 		
 	//adds a new saja action to the queue
-	function exec($action)
+	public function exec($action)
 	{
 		$this->add_action($this->run($action));
 	}
 
 	//used for placing complex / long text into an element
-	function text($content, $target)
+	public function text($content, $target)
 	{
 		$x = $this->texplode(',', $target);
 		if(!isset($x[1])) $x[1] = 'r';
@@ -296,36 +296,36 @@ class Saja {
 	}
 	
 	//hide an element
-	function hide($element)
+	public function hide($element)
 	{
 		$this->add_action("saja.Put('none','$element','r','style.display')");	
 	}
 	
 	//show an element
-	function show($element)
+	public function show($element)
 	{
 		$this->add_action("saja.Put('','$element','r','style.display')");
 	}
 	
 	//set style for an element
-	function style($element, $styleString)
+	public function style($element, $styleString)
 	{
 		$this->add_action("saja.SetStyle('$element', '$styleString')");
 	}
 	
 	//return response actions to javascript for execution
-	function send()
+	public function send()
 	{
 		$ret = $this->get_actions();
 		$this->actions = array();
 		return $ret;
 	}
 	
-	function add_action($js){
+	public function add_action($js){
 		$this->actions[] = $js;
 	}
 	
-	function get_actions(){
+	public function get_actions(){
 		return ($this->hasActions() ? '<saja_split>' : '') . implode(';', $this->actions);
 	}
 
@@ -334,7 +334,7 @@ class Saja {
 #			REQUEST HANDLING
 #
 
-	function runFunc($function, $args)
+	public function runFunc($function, $args)
 	{	
 		//kill magic quotes
 		if(get_magic_quotes_gpc()){
@@ -359,7 +359,7 @@ class Saja {
 			echo "ERROR: [$function] Not validated.";
 	}
 	
-	function utf8_unserialize($str){
+	private function utf8_unserialize($str){
 		if(preg_match('/^a:[0-9]+:{s:[0-9]+:"/', $str)){
 			$ret = array();
 			$args = preg_split('/"?;?s:[0-9]+:"/', $str, -1, PREG_SPLIT_DELIM_CAPTURE);
@@ -385,7 +385,7 @@ class Saja {
 	}
 
 	//RC4 Encryption from http://sourceforge.net/projects/rc4crypt
-	function rc4($pwd, $data)
+	private function rc4($pwd, $data)
 	{
 		$cipher = '';
 		$pwd_length = strlen($pwd);

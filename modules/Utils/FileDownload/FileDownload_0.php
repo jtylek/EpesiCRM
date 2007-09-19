@@ -48,7 +48,7 @@ class Utils_FileDownload extends Module {
 		$path = $this->get_path();
 		$id = $this->create_unique_key('stat');
 		print('<div id="'.$id.'"></div>');
-		eval_js_once('utils_filedownload_refresh = function(id,path){if(!document.getElementById(id)) return;saja.updateIndicatorText(\''.$l->ht('Refreshing download status').'\');'.
+		eval_js_once('utils_filedownload_refresh = function(id,path){var stat=document.getElementById(id);if(!stat || stat.innerHTML==\'Processing downloaded file\') return;saja.updateIndicatorText(\''.$l->ht('Refreshing download status').'\');'.
 			$GLOBALS['base']->run('refresh(client_id,path)->'.$id.':innerHTML','modules/Utils/FileDownload/refresh.php').
 			'setTimeout("utils_filedownload_refresh(\'"+id+"\',\'"+path+"\')",3000);}');
 		eval_js_once('utils_filedownload_check_completed = function(id){stat=document.getElementById(id);'.

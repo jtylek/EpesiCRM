@@ -16,6 +16,7 @@ class Utils_Menu extends Module {
 	private static $menu_counter = 0;
 	private $menu_id;
 	private $menu_string;
+	private $old_menu_string;
 	private $layout;
 	
 	public function construct( $arg = null) {
@@ -92,15 +93,14 @@ class Utils_Menu extends Module {
 		$this->menu_string .= '}; '; 
 		$this->menu_string .= 'wait_while_null( "CustomMenubar", "load_menu_'.$this->menu_id.'(12)" );';
 		
-		$old = & $this->get_module_variable('old'); 
-		if($this->menu_string!=$old) {
-			$old = $this->menu_string; 
+		$this->old_menu_string = & $this->get_module_variable('old'); 
+		if($this->menu_string!=$this->old_menu_string)
 			eval_js($this->menu_string);	
-		}
 	}
 	
 	public function reloaded() {
-		eval_js($this->menu_string);
+		if($this->menu_string==$this->old_menu_string)
+			eval_js($this->menu_string);
 	}
 }
 

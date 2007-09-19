@@ -22,16 +22,15 @@ class Epesi extends Saja {
 	public final function init($cl) {
 		$this->client_id = $cl;
 		$this->jses = array();
-		ModuleManager :: load_modules();
-		
 		eval_js_once('_chj=function(href,indicator,mode){'.
 			'if(saja.procOn==0 || mode==\'allow\'){'.
 				'if(indicator==\'\') indicator=\'loading...\';'.
 				'saja.updateIndicatorText(indicator);'.
-				$this->run("process(client_id,href)").
+				$this->run("process(client_id,href)",'base.php').
 			'}else if(mode==\'queue\') setTimeout(\'create_href_js("\'+href+\'", "\'+indicator+\'", "\'+mode+\'")\',500);};'.
 			'create_href_js=_chj;'
 		);
+		ModuleManager :: load_modules();
 	}
 
 	/**
@@ -83,7 +82,7 @@ class Epesi extends Saja {
 			$x = rtrim($cc,';');
 			if($x) parent::js($x);
 		}
-		file_put_contents('data/jses',implode($this->jses,"\n\n\n"));
+		//file_put_contents('data/jses',implode($this->jses,"\n\n\n"));
 		$this->jses=array();
 	}
 }

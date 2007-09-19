@@ -346,7 +346,7 @@ abstract class Module extends ModulePrimitive {
 	 * @return string href string
 	 */
 	public final static function create_href_js(array $variables = array (), $indicator=null, $mode=null) {
-		global $base;
+//		global $base;
 		$ret = str_replace('&amp;','&',http_build_query($variables));
 		if(!isset($indicator)) $indicator='';
 		return '_chj(\''.$ret.'\', \''.addslashes($indicator).'\', \''.$mode.'\');';
