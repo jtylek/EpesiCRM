@@ -19,6 +19,7 @@ class Utils_BookmarkBrowser extends Module {
 	public static $bmk_counter = 0;
 	
 	public function construct() {
+		load_js('modules/Utils/BookmarkBrowser/js/BookmarkBrowser.js');
 		$this->_id = Utils_BookmarkBrowser::$bmk_counter;
 		Utils_BookmarkBrowser::$bmk_counter++;
 	}
@@ -86,7 +87,6 @@ class Utils_BookmarkBrowser extends Module {
 	 */
 	public function body() {
 		
-		load_js('modules/Utils/BookmarkBrowser/js/BookmarkBrowser.js');
 		$bookmark = array_keys($this->_bookmarks);
 		$content_id = 'utils_bookmarkbrowser_'.$this->_id;
 		$theme = & $this->init_module('Base/Theme');
