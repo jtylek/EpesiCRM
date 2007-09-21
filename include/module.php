@@ -832,9 +832,6 @@ abstract class Module extends ModulePrimitive {
 		if(!is_array($construct_args)) $construct_args = array($construct_args);
 		$m = & $this->init_module($module_type,$construct_args,$name);
 		
-		$args = func_get_args();
-		$args[0] = &$m;
-		
 		if(!is_array($display_args)) $display_args = array($display_args);
 		if($this->display_module($m, $display_args, $function_name))
 			return $m;

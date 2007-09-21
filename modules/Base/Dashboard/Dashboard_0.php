@@ -30,16 +30,17 @@ class Base_Dashboard extends Module {
 				}
 					
 				$m = $this->init_module($row['module_name'],null,$row['id']);
+				$title = call_user_func(array($row['module_name'].'Common', 'applet_caption'));
 				$th = $this->init_module('Base/Theme');
 				$th->assign('handle_class','handle');
-				$th->assign('caption',call_user_func(array($row['module_name'].'Common', 'applet_caption')));
 				$th->assign('toggle','<a class="toggle">=</a>');
 				$th->assign('remove','<a class="remove" '.$this->create_confirm_callback_href($this->lang->t('Delete this applet?'),array($this,'delete_applet'),$row['id']).'>x</a>');
 				if(method_exists($row['module_name'].'Common', 'applet_settings'))
 					$th->assign('configure','<a class="configure" '.$this->create_callback_href(array($this,'configure_applet'),array($row['id'],$row['module_name'])).'>c</a>');
 				$th->assign('content','<div class="content">'.
-						$this->get_html_of_module($m,array($this->get_values($row['id'],$row['module_name']), $row['id']),'applet').
+						$this->get_html_of_module($m,array($this->get_values($row['id'],$row['module_name']), & $title, $row['id']),'applet').
 						'</div>');
+				$th->assign('caption',$title);
 				print('<div class="applet" id="ab_item_'.$row['id'].'">');
 				$th->display();
 				print('</div>');
