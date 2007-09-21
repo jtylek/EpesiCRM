@@ -35,18 +35,37 @@ class Utils_TabbedBrowser extends Module {
 		} else 	
 			$page = $this->get_module_variable_or_unique_href_variable('page', 0);
 		
+		eval_js_once('tabbed_browser_switch = function(id,max,elem){'.
+				'var x = document.getElementById("'.escapeJS($this->get_path()).'_"+id);'.
+				'if(x) {'.
+					'for(var i=0; i<max; i++){'.
+						'var y = document.getElementById("'.escapeJS($this->get_path()).'_"+i);'.
+						'if(y) y.style.display="none";'.
+					'}'.
+					'x.style.display="block";'.
+				'} else eval(elem.getAttribute("original_action"));'.
+			     '}');
+		
 		$i = 0;
+		$max = count($this->tabs);
+		$body = '';
 		foreach($this->tabs as $caption=>$val) {
-			$captions[$caption] = '<a '.$this->create_unique_href(array('page'=>$i)).'>'.$caption.'</a>';
-			if($page==$i) 
+			if($val['js'])
+				$captions[$caption] = '<a href="javascript:void(0)" onClick="tabbed_browser_switch('.$i.','.$max.',this)">'.$caption.'</a>';
+			else
+				$captions[$caption] = '<a href="javascript:void(0)" onClick="tabbed_browser_switch('.$i.','.$max.',this)" original_action="'.$this->create_unique_href_js(array('page'=>$i)).'">'.$caption.'</a>';
+			if($page==$i || $val['js']) {
+				$body .= '<div id="'.escapeJS($this->get_path()).'_'.$i.'" '.($page==$i?'':'style="display:none"').'>';
 				if (isset($val['func'])){
 					ob_start();
 					call_user_func_array($val['func'],$val['args']);
-					$body = ob_get_contents();
+					$body .= ob_get_contents();
 					ob_end_clean();
 				} else {
-					$body = $val['body'];
+					$body .= $val['body'];
 				}
+				$body .= '</div>';
+			}
 			$i++;
 		}
 		
@@ -97,12 +116,10 @@ class Utils_TabbedBrowser extends Module {
 	 * @param string tab caption
 	 * @param method method that will be called when tab is displayed
 	 */
-	public function set_tab($caption, $function) {
+	public function set_tab($caption, $function,$args=array(),$js=false) {
 		$this->tabs[$caption]['func'] = & $function;
-		$args = func_get_args();
-		array_shift($args);
-		array_shift($args);
 		$this->tabs[$caption]['args'] = $args;
+		$this->tabs[$caption]['js'] = $js;
 	}
 	
 	/**
@@ -128,15 +145,17 @@ class Utils_TabbedBrowser extends Module {
 		$this->set_module_variable('page',$i);
 	}
 
-/*	public function start_tab($caption) {
+	//always JS
+	public function start_tab($caption) {
 		ob_start();
 		$this->caption = $caption;
 	}
 
-	public function close_tab() {
+	public function end_tab() {
 		$this->tabs[$this->caption]['body'] = ob_get_contents();
 		ob_end_clean();		
+		$this->tabs[$this->caption]['js'] = true;
 	}
-*/
+
 }
 ?>

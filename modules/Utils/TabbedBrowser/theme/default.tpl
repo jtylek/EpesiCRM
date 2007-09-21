@@ -8,7 +8,7 @@
 			<ul id="Utils_TabbedBrowser">
 			{foreach from=$captions key=cap item=link}
 			{if $counter==$selected}
-				<li class="selected"><a>{$cap}</a></li>&nbsp;
+				<li class="selected">{$link}</li>&nbsp;
 			{else}
 				<li>{$link}</li>&nbsp;
 			{/if}
