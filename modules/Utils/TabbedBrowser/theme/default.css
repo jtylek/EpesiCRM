@@ -13,12 +13,7 @@ ul#Utils_TabbedBrowser li {
 	display: inline;
 }
 
-ul#Utils_TabbedBrowser li.selected {
-	border-bottom: 4px solid #F0F0F0;
-	background-color: #F0F0F0;
-}
-
-ul#Utils_TabbedBrowser li.selected a {
+ul#Utils_TabbedBrowser a.tabbed_browser_selected {
 	background-color: #F0F0F0; 
 	color: #4C4C4C;
 	top: 4px;
