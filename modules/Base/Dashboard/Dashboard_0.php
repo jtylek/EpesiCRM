@@ -55,7 +55,12 @@ class Base_Dashboard extends Module {
 		$fc = $this->get_module_variable('first_conf');
 		if(isset($fc)) {
 			$mod = $this->get_module_variable('mod_conf');
-			if(!$this->configure_applet($fc,$mod)) {
+			$ok = null;
+			if(!$this->configure_applet($fc,$mod,& $ok)) {
+				if(!$ok) 
+					self::delete_applet($fc);
+				else 
+					Base_StatusBarCommon::message(Base_LangCommon::ts($this->get_type(),'Applet added'));
 				$this->unset_module_variable('first_conf');
 				$this->unset_module_variable('mod_conf');
 				return false;
@@ -95,7 +100,8 @@ class Base_Dashboard extends Module {
 		DB::Execute('INSERT INTO base_dashboard_applets(user_login_id,module_name) VALUES (%d,%s)',array(Base_UserCommon::get_my_user_id(),$mod));
 		$this->set_module_variable('first_conf',DB::Insert_ID('base_dashboard_applets','id'));
 		$this->set_module_variable('mod_conf',$mod);
-		Base_StatusBarCommon::message(Base_LangCommon::ts($this->get_type(),'Applet added'));
+//		$this->set_back_location();
+		
 	}
 
 	public static function delete_applet($id) {
@@ -111,8 +117,11 @@ class Base_Dashboard extends Module {
 		DB::Execute('DELETE FROM base_dashboard_applets WHERE module_name=%s',array($module));
 	}
 
-	public function configure_applet($id,$mod) {
-		if($this->is_back() || !method_exists($mod.'Common', 'applet_settings')) return false;
+	public function configure_applet($id,$mod,& $ok) {
+		if($this->is_back() || !method_exists($mod.'Common', 'applet_settings')) {
+			$ok=false;
+			return false;
+		}
 		
 		$this->lang = $this->init_module('Base/Lang');
 		$f = &$this->init_module('Libs/QuickForm',$this->lang->ht('Saving settings'),'settings');
@@ -141,8 +150,10 @@ class Base_Dashboard extends Module {
 					else
 						DB::Replace('base_dashboard_settings', array('applet_id'=>$id, 'name'=>$name, 'value'=>$submited[$name]), array('applet_id','name'), true);
 				}
+			$ok = true;
 			return false;
 		}
+		$ok=null;
 		$f->display();
 		return true;
 

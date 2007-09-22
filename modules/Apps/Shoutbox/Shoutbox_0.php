@@ -9,21 +9,37 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Apps_Shoutbox extends Module {
+	private $lang;
+	
+	public function construct() {
+		//initialize lang module
+		$this->lang = & $this->init_module('Base/Lang');	
+	}
 
 	public function body() {
-		//initialize lang module
-		$l = & $this->init_module('Base/Lang');		
+		//if i am admin add "clear shoutbox" actionbar button
+		if(Base_AclCommon::i_am_admin())
+			Base_ActionBarCommon::add('delete',$this->lang->ht('Clear shoutbox'),$this->create_callback_href(array($this,'delete_all')));
 		
+		$this->applet();
+	}
+	
+	//delete_all callback (on "clear shoutbox" button)
+	public function delete_all() {
+		DB::Execute('DELETE FROM apps_shoutbox_messages');
+	}
+	
+	public function applet() {
 		if(Acl::is_user()) {
 			//initialize HTML_QuickForm
 			$qf = & $this->init_module('Libs/QuickForm');
 			//create text box
-			$text = & HTML_QuickForm::createElement('text','post',$l->t('Post'),'id="shoutbox_text"');
+			$text = & HTML_QuickForm::createElement('text','post',$this->lang->t('Post'),'id="shoutbox_text"');
 			//create submit button
-			$submit = & HTML_QuickForm::createElement('submit','button',$l->ht('Submit'));
+			$submit = & HTML_QuickForm::createElement('submit','button',$this->lang->ht('Submit'));
 			//add it
 			$qf->addGroup(array($text,$submit),'post');
-			$qf->addGroupRule('post',$l->t('Field required'),'required',null,2);
+			$qf->addGroupRule('post',$this->lang->t('Field required'),'required',null,2);
 
 			//if submited
 			if($qf->validate()) {
@@ -42,7 +58,7 @@ class Apps_Shoutbox extends Module {
 			//display form
 			$qf->display();
 		} else {
-			print($l->t('Please log in to post message').'<br>');
+			print($this->lang->t('Please log in to post message').'<br>');
 		}
 
 		//get last 50 messages
@@ -50,28 +66,16 @@ class Apps_Shoutbox extends Module {
 		print('<div id=\'shoutbox_board\' style="height:200px;overflow:auto;text-align:left;border:1px solid black;">');
 		foreach($arr as $row) {
 			if(!$row['login']) $row['login']='Anonymous';
-			$msg = $l->t('[%s] %s: %s',array($row['posted_on'], $row['login'], $row['message']));
+			$msg = $this->lang->t('[%s] %s: %s',array($row['posted_on'], $row['login'], $row['message']));
 			print($msg.'<br>');
 		}
 		print('</div>');
 
-		//if i am admin add "clear shoutbox" actionbar button
-		if(Base_AclCommon::i_am_admin())
-			Base_ActionBarCommon::add('delete',$l->ht('Clear shoutbox'),$this->create_callback_href(array($this,'delete_all')));
 
 		//if there is displayed shoutbox, call myFunctions->refresh from refresh.php file every 5s
-		eval_js_once('shoutbox_refresh = function(){if(!document.getElementById(\'shoutbox_board\')) return;saja.updateIndicatorText(\''.$l->ht('Refreshing shoutbox').'\');'.
+		eval_js_once('shoutbox_refresh = function(){if(!document.getElementById(\'shoutbox_board\')) return;saja.updateIndicatorText(\''.$this->lang->ht('Refreshing shoutbox').'\');'.
 			$GLOBALS['base']->run('refresh(client_id)->shoutbox_board:innerHTML','modules/Apps/Shoutbox/refresh.php').
 			'};setInterval(\'shoutbox_refresh()\',30000)');
-	}
-	
-	//delete_all callback (on "clear shoutbox" button)
-	public function delete_all() {
-		DB::Execute('DELETE FROM apps_shoutbox_messages');
-	}
-	
-	public function applet() {
-		$this->body();
 	}
 }
 

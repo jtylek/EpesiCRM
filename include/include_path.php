@@ -8,8 +8,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-$delimiter = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')?';':':';
 $dir = dirname(dirname(__FILE__));
-ini_set('include_path',$dir.'/libs'.$delimiter.$dir.$delimiter.ini_get('include_path'));
+ini_set('include_path',$dir.'/libs'.PATH_SEPARATOR.$dir.PATH_SEPARATOR.ini_get('include_path'));
 
 ?>

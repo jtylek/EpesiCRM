@@ -18,10 +18,7 @@ if(!is_writable('data'))
 if(!is_writable('backup'))
 	die('Cannot write into "backup" directory. Please fix privileges.');
 
-$delimiter = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')?';':':';
-ini_set('include_path','modules/Libs/QuickForm/3.2.9'.$delimiter.ini_get('include_path'));
-require_once "HTML/QuickForm.php";
-
+require_once('modules/Libs/QuickForm/requires.php');
 
 if(!isset($_GET['licence'])) {
 	print('<h1>Welcome to epesi!<br></h1><h2>Please read and accept licence</h2><br><div style="overflow:auto;height:60%; border: 1px solid black;">');

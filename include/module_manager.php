@@ -685,8 +685,10 @@ class ModuleManager {
 	 */
 	public static final function uninstall($module_to_uninstall) {
 		$installed_version = self::is_installed($module_to_uninstall);
-		if ($installed_version<0)
+		if ($installed_version<0) {
+			print($module_to_uninstall . ' module not installed<br>');
 			return false;
+		}
 		
 		self::include_install($module_to_uninstall);
 		
