@@ -1,0 +1,36 @@
+table#Base_Dashboard .label {
+}
+
+table#Base_Dashboard td.button {
+	width: 190px;
+	height: 80px;
+	background-color: #F0F0F0;	
+	background-image: url("images/big-button.png");
+	vertical-align: middle;
+	text-align: left;
+	padding-left: 15px;
+}
+
+table#Base_Dashboard td.button:hover {
+	background-image: url("images/big-button-hover-2.png");
+}
+
+table#Base_Dashboard a {
+	color: #336699;
+	font-weight: bold;
+}
+
+table#Base_Dashboard a:hover {
+	color: #993333;
+}
+
+table#Base_Dashboard .header {
+	color: #4C4C4C;
+	background-image: url("images/background-30px-2.png");
+	background-repeat: repeat-x;
+	font-weight: bold;
+	height: 30px;
+	border: 1px solid #CCCCCC;
+	text-align: center;
+	vertical-align: center;
+}

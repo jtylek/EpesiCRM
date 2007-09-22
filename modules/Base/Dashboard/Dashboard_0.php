@@ -52,6 +52,8 @@ class Base_Dashboard extends Module {
 	}
 	
 	public function applets_list() {
+		$this->lang = $this->init_module('Base/Lang');
+
 		$fc = $this->get_module_variable('first_conf');
 		if(isset($fc)) {
 			$mod = $this->get_module_variable('mod_conf');
@@ -90,9 +92,15 @@ class Base_Dashboard extends Module {
 						trigger_error('Invalid applet info for module: '.$obj['name'],E_USER_ERROR);
 					$attrs .= $tipmod->open_tag_attrs($out).' ';
 				}
-				print('<a '.$attrs.$this->create_callback_href(array($this,'add_applet'),$obj['name']).'>'.call_user_func(array($obj['name'].'Common', 'applet_caption')).'</a><br>');
+				$links[$obj['name']] = '<a '.$attrs.$this->create_callback_href(array($this,'add_applet'),$obj['name']).'>'.call_user_func(array($obj['name'].'Common', 'applet_caption')).'</a>';
 			}
 		}
+		
+		$theme =  & $this->pack_module('Base/Theme');
+		$theme->assign('header', $this->lang->t('Add applet'));
+		$theme->assign('links', $links);
+		$theme->display('list');
+		
 		return true;
 	}
 	
