@@ -117,9 +117,13 @@ class Base_Dashboard extends Module {
 		DB::Execute('DELETE FROM base_dashboard_applets WHERE module_name=%s',array($module));
 	}
 
-	public function configure_applet($id,$mod,& $ok) {
-		if($this->is_back() || !method_exists($mod.'Common', 'applet_settings')) {
+	public function configure_applet($id,$mod,& $ok=null) {
+		if($this->is_back()) {
 			$ok=false;
+			return false;
+		}
+		if(!method_exists($mod.'Common', 'applet_settings')) {
+			$ok=true;
 			return false;
 		}
 		
