@@ -87,14 +87,14 @@ class Base_RecordBrowserCommon extends ModuleCommon {
 	
 	public function uninstall_new_recordset($tab_name = null) {
 		if (!$tab_name) return false;
-		DB::DropTable($tab_name);
-		DB::DropTable($tab_name.'_data');
-		DB::DropTable($tab_name.'_field');
-		DB::DropTable($tab_name.'_edit_history');
-		DB::DropTable($tab_name.'_edit_history_data');
-		DB::DropTable($tab_name.'_favorite');
-		DB::DropTable($tab_name.'_recent');
 		DB::DropTable($tab_name.'_addon');
+		DB::DropTable($tab_name.'_recent');
+		DB::DropTable($tab_name.'_favorite');
+		DB::DropTable($tab_name.'_edit_history_data');
+		DB::DropTable($tab_name.'_edit_history');
+		DB::DropTable($tab_name.'_field');
+		DB::DropTable($tab_name.'_data');
+		DB::DropTable($tab_name);
 		return true;
 	}
 	
