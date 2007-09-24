@@ -13,6 +13,7 @@ class FirstRun extends Module {
 	private $ini;
 
 	public function body() {
+		$th = & $this->init_module('Base/Theme');
 		$wizard = & $this->init_module('Utils/Wizard');
 		$this->lang = & $this->init_module('Base/Lang');
 		
@@ -76,9 +77,13 @@ class FirstRun extends Module {
 		$wizard->next_page();
 
 		/////////////////////////////////////////
+		ob_start();
 		print('<center>');		
 		$this->display_module($wizard, array(array($this,'done')));
 		print('</center>');
+		$th->assign('wizard',ob_get_contents());
+		ob_end_clean();
+		$th->display();
 	}
 	
 	public function choose_mail_method($d) {

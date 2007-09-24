@@ -12,10 +12,12 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class FirstRunInstall extends ModuleInstall {
 
 	public function install() {
+		Base_ThemeCommon::install_default_theme('FirstRun');
 		return true;
 	}
 	
 	public function uninstall() {
+		Base_ThemeCommon::uninstall_default_theme('FirstRun');
 		return true;
 	}
 	
@@ -25,6 +27,7 @@ class FirstRunInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
+			array('name'=>'Base/Theme','version'=>0),
 			array('name'=>'Utils/Wizard','version'=>0),
 			array('name'=>'Base/Lang','version'=>0));
 	}

@@ -18,6 +18,7 @@ if(!is_writable('data'))
 if(!is_writable('backup'))
 	die('Cannot write into "backup" directory. Please fix privileges.');
 
+@define("_VALID_ACCESS", true);
 require_once('modules/Libs/QuickForm/requires.php');
 
 if(!isset($_GET['licence'])) {
@@ -209,7 +210,6 @@ function rm_config($x) {
 }
 
 function clean_database() {
-	@define("_VALID_ACCESS", true);
 	require_once('include/include_path.php');
 	require_once('include/config.php');
 	require_once('include/database.php');
@@ -225,7 +225,6 @@ function clean_database() {
 }
 
 function install_base() {
-	@define("_VALID_ACCESS", true);
 	require_once('include/include_path.php');
 	require_once('include/config.php');
 	require_once('include/database.php');
