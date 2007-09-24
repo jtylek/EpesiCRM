@@ -54,14 +54,14 @@ class Base_User_LoginCommon extends ModuleCommon {
 	 */
 	public static function send_mail_with_password($username, $pass, $mail) {
 		$url = get_epesi_url();
-		$subject = sprintf(Base_LangCommon::ts('Login','Your account at %s'),$url);
-		$body = sprintf(Base_LangCommon::ts('Login', "This e-mail is to inform you that a user account was setup for you at: %s
+		$subject = Base_LangCommon::ts('Login','Your account at %s',array($url));
+		$body = Base_LangCommon::ts('Login', "This e-mail is to inform you that a user account was setup for you at: %s
 Your login name is: %s
 Your password is: %s
 
 For security reasons it is recommened that you login immediately and change your password.
 
-This e-mail was automatically generated and you do not need to respond to it."),$url,$username,$pass);
+This e-mail was automatically generated and you do not need to respond to it.", array($url,$username,$pass));
 		
 		return Base_MailCommon::send($mail, $subject, $body);
 	}
