@@ -25,25 +25,9 @@ class Base_RecordBrowser extends Module {
 	}
 	
 	public function init($admin=false) {
-		static $initialized = false;
-		if ($initialized && !$admin) return;
-		$initialized = true;
 		if (!isset($this->lang)) $this->lang = & $this->init_module('Base/Lang');
-		$this->table_rows = array();
-		$ret = DB::Execute('SELECT * FROM '.$this->tab.'_field'.($admin?'':' WHERE active=1 AND type!=\'page_split\'').' ORDER BY position');
-		while($row = $ret->FetchRow()) {
-			if ($row['field']=='id') continue;
-			$this->table_rows[$row['field']] = 
-				array(	'name'=>$row['field'], 
-						'id'=>strtolower(str_replace(' ','_',$row['field'])), 
-						'type'=>$row['type'], 
-						'visible'=>$row['visible'], 
-						'required'=>$row['required'], 
-						'extra'=>$row['extra'], 
-						'active'=>$row['active'], 
-						'position'=>$row['position'], 
-						'param'=>$row['param']);
-		}
+		$tab = Base_RecordBrowserCommon::init($this->tab, $admin);
+		if ($tab!==false) $this->table_rows = $tab;
 	}
 	// BODY //////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function body($arg) {
@@ -55,31 +39,7 @@ class Base_RecordBrowser extends Module {
 			print($this->lang->t('You must log in to use contacts.'));
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
-	public function get_records($admin = false){
-		$ret = DB::Execute('SELECT id, active, created_on, created_by FROM '.$this->tab.($admin?'':' WHERE active=1'));
-		$records = array();
-		while ($row = $ret->FetchRow()) {
-			$data = DB::Execute('SELECT * FROM '.$this->tab.'_data WHERE '.$this->tab.'_id=%d', array($row['id']));
-			$records[$row['id']] = array();
-			while($field = $data->FetchRow())
-				$records[$row['id']][$field['field']] = $field['value'];
-			foreach($this->table_rows as $field=>$args)
-				if (!isset($records[$row['id']][$field]))
-					$records[$row['id']][$field] = '';
-			foreach(array('active','created_on','created_by') as $v)
-				$records[$row['id']][$v] = $row[$v]; 
-			$records[$row['id']]['id'] = $row['id'];
-		}
-		return $records;
-	}
-
-	public function get_record($id, $admin = false){
-		if (!isset($id)) trigger_error('No argument for get_record method, aborting.', E_USER_ERROR);
-		$records = $this->get_records($admin);
-		return $records[$id];
-	}
-	//////////////////////////////////////////////////////////////////////////////////////////
-	public function show_data() {
+	public function show_data($crits = array()) {
 		$this->init();
 		$gb = & $this->init_module('Utils/GenericBrowser', null, $this->tab);
 		
@@ -88,21 +48,28 @@ class Base_RecordBrowser extends Module {
 		$table_columns_SQL = array();
 		foreach($this->table_rows as $field => $args) {
 			if ($field === 'id') continue;
+			if (!$args['visible']) continue;
 			$table_columns[] = array('name'=>$args['name'], 'order'=>$field);
 			array_push($table_columns_SQL, 'e.'.$field);
 		}
-			
 		$table_columns_SQL = join(', ', $table_columns_SQL);
 		$gb->set_table_columns( $table_columns );
 		
 		$get_fields = array();
 		
-		$records = $this->get_records();
+		$records = Base_RecordBrowserCommon::get_records($this->tab, $crits);
 		foreach ($records as $row) {
 			$gb_row = & $gb->get_new_row();
 			$row_data = array();
 			foreach($this->table_rows as $field => $args)
-				$row_data[] = $row[$field];
+				if ($args['visible']) {
+					if ($args['type']=='select') {
+						list($tab, $col) = explode('::',$args['param']);
+						$row[$field] = DB::GetOne('SELECT value FROM '.$tab.'_data WHERE field=%s AND '.$tab.'_id=%d', array($col, $row[$field]));
+						if ($row[$field]===false) $row[$field] = '--';
+					}
+					$row_data[] = $row[$field];
+				}
 			$gb_row->add_data_array($row_data);
 			$gb_row->add_action($this->create_callback_href(array($this,'view_entry'),array('view',$row['id'])),$this->lang->t('View'));
 			$gb_row->add_action($this->create_callback_href(array($this,'view_entry'),array('edit',$row['id'])),$this->lang->t('Edit'));
@@ -161,6 +128,14 @@ class Base_RecordBrowser extends Module {
 			$last_page = $pos;
 			if ($row) $label = $row['field'];
 		}
+		if ($mode!='add') {
+			$record = Base_RecordBrowserCommon::get_record($this->tab, $id, true);
+			$ret = DB::Execute('SELECT * FROM '.$this->tab.'_addon');
+			while ($row = $ret->FetchRow()) {
+				$mod = $this->init_module($row['module']);
+				$tb->set_tab($this->lang->t($row['label']),array($mod,$row['func']), array($record), $js);
+			}
+		}
 		$this->display_module($tb);
 		$tb->tag();
 
@@ -187,7 +162,7 @@ class Base_RecordBrowser extends Module {
 		}
 		$form->addElement('header', null, $this->lang->t($header));
 		
-		if ($mode!=='add') $records = $this->get_records();
+		if ($mode!=='add') $records = Base_RecordBrowserCommon::get_records($this->tab);
 		
 		foreach($this->table_rows as $field => $args){ 
 			switch ($args['type']) {
@@ -200,6 +175,13 @@ class Base_RecordBrowser extends Module {
 				case 'long text':		$form->addElement('textarea', $args['id'], $this->lang->t($args['name']));
 									break;
 				case 'date':		$form->addElement('datepicker', $args['id'], $this->lang->t($args['name']));
+									break;
+				case 'select':		$comp = array();
+									if (!$args['required']) $comp[''] = '--';
+									list($tab, $col) = explode('::',$args['param']);
+									$ret = DB::Execute('SELECT * FROM '.$tab.'_data WHERE field=%s ORDER BY value', array($col));
+									while ($row = $ret->FetchRow()) $comp[$row[$tab.'_id']] = $row['value'];
+									$form->addElement('select', $args['id'], $this->lang->t($args['name']), $comp);
 									break;
 			}
 			if ($mode!=='add') $form->setDefaults(array($args['id']=>$records[$id][$field]));
@@ -223,7 +205,7 @@ class Base_RecordBrowser extends Module {
 	public function update_record_data($id,$values) {
 		DB::StartTrans();	
 		$this->init();
-		$records = $this->get_records();
+		$records = Base_RecordBrowserCommon::get_records($this->tab);
 		$diff = array();
 		foreach($this->table_rows as $field => $args){
 			if ($args['id']=='id') continue;
@@ -509,7 +491,7 @@ class Base_RecordBrowser extends Module {
 		
 		//read database
 		
-		$records = $this->get_records(true);
+		$records = Base_RecordBrowserCommon::get_records($this->tab, null, true);
 		foreach ($records as $row) {
 			$gb_row = & $gb->get_new_row();
 			$row_data = array($row['active']?$this->lang->t('Yes'):$this->lang->t('No'));
@@ -540,7 +522,7 @@ class Base_RecordBrowser extends Module {
 		$table_columns_SQL = join(', ', $table_columns_SQL);
 		$gb->set_table_columns( $table_columns );
 		
-		$created = $this->get_record($id, true);
+		$created = Base_RecordBrowserCommon::get_record($this->tab, $id);
 		$created['created_by_login'] = DB::GetOne('SELECT login FROM user_login WHERE id=%d',array($created['created_by']));
 		$row_data = array(
 						array('value'=>'--','style'=>'border-top: 1px solid black;'),

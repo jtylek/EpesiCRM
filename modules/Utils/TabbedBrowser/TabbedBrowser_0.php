@@ -14,7 +14,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_TabbedBrowser extends Module {
-	private $tabs;
+	private $tabs = array();
 	private $c_func;
 	private $c_caption;
 	private $tag;
@@ -26,6 +26,7 @@ class Utils_TabbedBrowser extends Module {
 	 * @param string template file that will be used
 	 */
 	public function body($template=null) {
+		if (empty($this->tabs)) return;
 		$theme = & $this->pack_module('Base/Theme');
 		
 		$captions = array();
