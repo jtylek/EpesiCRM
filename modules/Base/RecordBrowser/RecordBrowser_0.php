@@ -116,7 +116,6 @@ class Base_RecordBrowser extends Module {
 		print($data['javascript'].'<form '.$data['attributes'].'>'.$data['hidden']."\n");
 
 		$last_page = DB::GetOne('SELECT MIN(position) FROM '.$this->tab.'_field WHERE type = \'page_split\' AND field != \'General\'');
-		print($last_page);
 		$label = DB::GetOne('SELECT field FROM '.$this->tab.'_field WHERE position=%s', array($last_page));
 		$this->view_entry_details(1, $last_page, $data, true);
 		$ret = DB::Execute('SELECT position, field FROM '.$this->tab.'_field WHERE type = \'page_split\' AND position > %d', array($last_page));
