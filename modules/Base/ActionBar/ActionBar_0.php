@@ -35,22 +35,34 @@ class Base_ActionBar extends Module {
 	public function body() {
 		$icons = Base_ActionBarCommon::get();
 		$l = & $this->init_module('Base/Lang');
+		$tip = & $this->init_module('Utils/Tooltip');
 
+		if(Acl::is_user())
+			$display_settings = Base_User_SettingsCommon::get('Base/ActionBar','display');
+		else
+			$display_settings = 'both';
+		$display_icon = ($display_settings == 'both' || $display_settings == 'icons only');
+		$display_text = ($display_settings == 'both' || $display_settings == 'text only');
+		
 		//translate
-		foreach($icons as &$i)
+		foreach($icons as &$i) {
 			$i['label'] = $l->ht($i['label']);
+			$i['description'] = $l->ht($i['description']);
+			if($display_text)
+				$t = $tip->open_tag_attrs((($i['description'])?$i['description']:$i['label']));
+			else
+				$t = $tip->open_tag_attrs($i['label'].' - '.(($i['description'])?$i['description']:''));
+			$i['open'] = '<a '.$i['action'].' '.$t.'>';
+			$i['close'] = '</a>';
+		}
 		
 		//sort
 		usort($icons, array($this,'compare'));
 		
 		//display
 		$th = & $this->pack_module('Base/Theme');
-		if(Acl::is_user())
-			$display_settings = Base_User_SettingsCommon::get('Base/ActionBar','display');
-		else
-			$display_settings = 'both';
-		$th->assign('display_icon',($display_settings == 'both' || $display_settings == 'icons only'));
-		$th->assign('display_text',($display_settings == 'both' || $display_settings == 'text only'));
+		$th->assign('display_icon',$display_icon);
+		$th->assign('display_text',$display_text);
 		$th->assign('icons',$icons);
 		$th->display();
 	}
