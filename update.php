@@ -85,6 +85,12 @@ function update_from_0_8_11_to_0_9_0() {
 	// installing Tooltip
 	if(!DB::GetOne('SELECT name FROM modules WHERE name=\'Utils_Tooltip\''))
 		DB::Execute('INSERT INTO modules VALUES(%s,%d,%d)',array('Utils_Tooltip',0,0));
+	// installing About
+	if(!DB::GetOne('SELECT name FROM modules WHERE name=\'Base_About\''))
+		DB::Execute('INSERT INTO modules VALUES(%s,%d,%d)',array('Base_About',0,0));
+	// installing Dashboard
+	if(!DB::GetOne('SELECT name FROM modules WHERE name=\'Base_Dashboard\''))
+		DB::Execute('INSERT INTO modules VALUES(%s,%d,%d)',array('Base_Dashboard',0,0));
 	// flush
 	themeup();
 }
