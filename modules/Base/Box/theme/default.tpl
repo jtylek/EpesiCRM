@@ -65,7 +65,7 @@
 	<tr>
 		<td class="footer" style="width: 100px; vertical-align: center; text-align: left; padding-left: 4px;"><a href="http://sourceforge.net/project/showfiles.php?group_id=192918">version {$version_no}</a></td>
 		<td class="footer" style="width: 778px;">Copyright &copy; 2007 &bull; <a href="http://sourceforge.net/projects/epesi/">epesi framework</a> &bull; Application developed by <a href="http://www.telaxus.com">Telaxus LLC</a><a href="http://www.epesi.org"></td>
-		<td class="footer" style="width: 100px; vertical-align: center; text-align: right; padding-right: 2px; padding-top: 2px;"><a href="http://www.epesi.org"><img src="{$theme_dir}/images/epesi-powered.png" border="0"></a></td>
+		<td class="footer" style="width: 100px; vertical-align: center; text-align: right; padding-right: 2px; padding-top: 2px;"><a href="http://www.epesi.org">{$about}</a></td>
 	</tr>	
 </table>
 </center>

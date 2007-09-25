@@ -38,6 +38,7 @@ class BaseInstall extends ModuleInstall {
 	public function requires($v) {
 		return array(
 		    array('name'=>'Base/Admin','version'=>0),
+		    array('name'=>'Base/About','version'=>0),
 		    array('name'=>'Base/ActionBar','version'=>0),
 		    array('name'=>'Base/Dashboard','version'=>0),
 		    array('name'=>'Base/Backup','version'=>0),
