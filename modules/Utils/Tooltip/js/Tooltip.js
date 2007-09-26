@@ -1,7 +1,6 @@
-			Utils_Toltip__showTip = function(tip, style, my_event) {
-				var div_tip = 'div_tip_' + style;
-				var tooltip_text = 'tooltip_text_' + style;
-				//document.getElementById(div_tip).style = 'tip';
+			Utils_Toltip__showTip = function(tip, my_event) {
+				var div_tip = 'tooltip_div';
+				var tooltip_text = 'tooltip_text';
 				document.getElementById(div_tip).style.top = 0;
 				document.getElementById(div_tip).style.left = 0;
 				document.getElementById(tooltip_text).innerHTML = tip;
@@ -11,7 +10,6 @@
 				var curPosx = ((my_event.x) ? parseInt(my_event.x) : parseInt(my_event.clientX));
 				var curPosy = ((my_event.y) ? parseInt(my_event.y) : parseInt(my_event.clientY));
 				
-				//document.getElementById(div_tip).style.width = offWidth;
 				if(document.body.scrollLeft + curPosx + 20 + offWidth < document.body.clientWidth - 5) {
 					var pos = document.body.scrollLeft + curPosx + 20;
 					//alert("pos x: "+pos);
@@ -40,6 +38,6 @@
 				document.getElementById(div_tip).style.visibility = 'visible';
 			}
 			
-			Utils_Toltip__hideTip = function(style) {
-				document.getElementById('div_tip_'+style).style.visibility = 'hidden';
+			Utils_Toltip__hideTip = function() {
+				document.getElementById('tooltip_div').style.visibility = 'hidden';
 			} 

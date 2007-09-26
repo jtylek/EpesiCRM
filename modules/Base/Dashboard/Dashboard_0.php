@@ -18,6 +18,7 @@ class Base_Dashboard extends Module {
 		$this->lang = $this->init_module('Base/Lang');
 		Base_ActionBarCommon::add('add','Add applet',$this->create_callback_href(array($this,'applets_list')));
 		load_js($this->get_module_dir().'ab.js');
+		$tipmod = $this->init_module('Utils/Tooltip');
 		print('<table id="dashboard" session="'.session_id().'" style="width: 100%"><tr>');
 		for($j=0; $j<3; $j++) {
 			print('<td id="dashboard_applets_'.$j.'" style="width:33%;min-height:100px;vertical-align:top;">');
@@ -33,10 +34,10 @@ class Base_Dashboard extends Module {
 				$title = call_user_func(array($row['module_name'].'Common', 'applet_caption'));
 				$th = $this->init_module('Base/Theme');
 				$th->assign('handle_class','handle');
-				$th->assign('toggle','<a class="toggle">=</a>');
-				$th->assign('remove','<a class="remove" '.$this->create_confirm_callback_href($this->lang->t('Delete this applet?'),array($this,'delete_applet'),$row['id']).'>x</a>');
+				$th->assign('toggle','<a class="toggle" '.$tipmod->open_tag_attrs($this->lang->ht('Toggle')).'>=</a>');
+				$th->assign('remove','<a class="remove" '.$tipmod->open_tag_attrs($this->lang->ht('Remove')).' '.$this->create_confirm_callback_href($this->lang->t('Delete this applet?'),array($this,'delete_applet'),$row['id']).'>x</a>');
 				if(method_exists($row['module_name'].'Common', 'applet_settings'))
-					$th->assign('configure','<a class="configure" '.$this->create_callback_href(array($this,'configure_applet'),array($row['id'],$row['module_name'])).'>c</a>');
+					$th->assign('configure','<a class="configure" '.$tipmod->open_tag_attrs($this->lang->ht('Configure')).' '.$this->create_callback_href(array($this,'configure_applet'),array($row['id'],$row['module_name'])).'>c</a>');
 				$th->assign('content','<div class="content">'.
 						$this->get_html_of_module($m,array($this->get_values($row['id'],$row['module_name']), & $title, $row['id']),'applet').
 						'</div>');

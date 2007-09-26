@@ -10,19 +10,18 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_Tooltip extends Module {
-	private static $styles = array();
+	private static $displayed = false;
 	
 	/**
-	 * Displays the tooltip with given text, tip and style.
+	 * Displays the tooltip with given text, tip.
 	 * Style parameter is optional.
 	 * 
 	 * @param string text
 	 * @param string tooltip text
-	 * @param string style
 	 */
-	public function body( $text, $tip, $style = 'default') {
+	public function body( $text, $tip) {
 		if(isset($tip)) {
-			print $this->create($text, $tip, $style);
+			print $this->create($text, $tip);
 		} else {
 			print $text;
 		}
@@ -30,27 +29,23 @@ class Utils_Tooltip extends Module {
 
 	/**
 	 * Returns string that if displayed will create text with tooltip.
-	 * Style parameter is optional.
 	 * 
 	 * @param string text
 	 * @param string tooltip text
-	 * @param string style
 	 * @return string text with tooltip
 	 */
-	public function create( $text, $tip, $style = 'default' ) {
-		return $this->open_tag( $tip, $style ).$text.$this->close_tag();
+	public function create( $text, $tip) {
+		return $this->open_tag( $tip ).$text.$this->close_tag();
 	}
 
 	/**
 	 * Returns string that opens HTML tag that will place tooltip over this tag contents.
-	 * Style parameter is optional.
 	 * 
 	 * @param string tooltip text
-	 * @param string style
 	 * @return string HTML tag open
 	 */
-	public function open_tag( $tip, $style = 'default' ) {
-		return '<span '.$this->open_tag_attrs($tip, $style).'>';	
+	public function open_tag( $tip ) {
+		return '<span '.$this->open_tag_attrs($tip).'>';	
 	}
 
 	/**
@@ -65,25 +60,23 @@ class Utils_Tooltip extends Module {
 	/**
 	 * Returns string that when placed as tag attribute 
 	 * will enable tooltip when placing mouse over that element.
-	 * Style parameter is optional.
 	 * 
 	 * @param string tooltip text
-	 * @param string style
 	 * @return string HTML tag attributes
 	 */
-	public function open_tag_attrs( $tip, $style = 'default' ) {
+	public function open_tag_attrs( $tip ) {
 		load_js('modules/Utils/Tooltip/js/Tooltip.js');
 
-		if(!isset(Utils_Tooltip::$styles[$style])) {
-			print "<div id=div_tip_".$style." style='position: absolute; visibility: hidden;'>";
+		if(!self::$displayed) {
+			print '<div id="tooltip_div" style="position: absolute; visibility: hidden; z-index: 1010;">';
 			$theme = & $this->init_module('Base/Theme');
-			$theme->assign('tip', '<span id="tooltip_text_'.$style.'"></span>');
-				$theme->display($style);
-			print "</div>";
-			Utils_Tooltip::$styles[$style] = true;
+			$theme->assign('tip', '<span id="tooltip_text"></span>');
+				$theme->display();
+			print '</div>';
+			self::$displayed = true;
 		}
 		
-		return ' onMouseMove="Utils_Toltip__showTip(\''.htmlspecialchars($tip).'\', \''.$style.'\' , event)" onMouseOut="Utils_Toltip__hideTip(\''.$style.'\')"';
+		return ' onMouseMove="Utils_Toltip__showTip(\''.escapeJS(htmlspecialchars($tip)).'\', event)" onMouseOut="Utils_Toltip__hideTip()"';
 	}
 
 }
