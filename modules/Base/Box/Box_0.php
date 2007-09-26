@@ -64,6 +64,10 @@ class Base_Box extends Module {
 				$containers['main']['arguments'] = $_REQUEST['box_main_arguments'];
 			else
 				unset($containers['main']['arguments']);
+			if(isset($_REQUEST['box_main_constructor_arguments']))
+				$containers['main']['constructor_arguments'] = $_REQUEST['box_main_constructor_arguments'];
+			else
+				unset($containers['main']['constructor_arguments']);
 			$this->set_module_variable('main', $containers['main']);
 		}
 		
@@ -77,9 +81,9 @@ class Base_Box extends Module {
 				if (!isset($v['name'])) $v['name'] = null;
 				
 				if(isset($href) && $k=='main')
-					$this->modules[$k] = $this->init_module($module_type,null,$v['name'],true);
+					$this->modules[$k] = $this->init_module($module_type,(isset($v['constructor_arguments'])?$v['constructor_arguments']:null),$v['name'],true);
 				else
-					$this->modules[$k] = $this->init_module($module_type,null,$v['name']);
+					$this->modules[$k] = $this->init_module($module_type,(isset($v['constructor_arguments'])?$v['constructor_arguments']:null),$v['name']);
 				
 				if(isset($v['function']))
 					$this->display_module($this->modules[$k],isset($v['arguments'])?$v['arguments']:null,$v['function']);

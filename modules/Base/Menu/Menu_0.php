@@ -26,6 +26,7 @@
  * - __module__ - module to pack as main module
  * - __function__ - function to call
  * - __function_arguments__ - string argument passed to function
+ * - __constructor_arguments__ - string argument passed to function
  * - __weight__ - integer that specifies weight of menu entry
  * Example:
  *  return array(	'Label 1'=>array('variable1'=>'value2'),

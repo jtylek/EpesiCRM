@@ -33,6 +33,10 @@ class Base_MenuCommon extends ModuleCommon {
 						$action['box_main_arguments']=$arr['__function_arguments__'];
 						unset($arr['__function_arguments__']);
 					}
+					if(array_key_exists('__constructor_arguments__',$arr)) {
+						$action['box_main_constructor_arguments']=$arr['__constructor_arguments__'];
+						unset($arr['__constructor_arguments__']);
+					}
 					$m[$k] = array_merge($action,$arr);
 				}
 			} elseif($k!='__icon__' && $k!='__description__' && $k!='__url__' && $k!='__target__' && $k!='__weight__' && $k!='__function__' && $k!='__function_arguments__' && $k!='__module__')
