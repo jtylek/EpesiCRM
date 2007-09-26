@@ -27,23 +27,26 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 		
 		$this->lang = & $this->init_module('Base/Lang'); 
 		
-		$form = & $this->init_module('Libs/QuickForm','Changing theme');
+		$form = & $this->init_module('Libs/QuickForm','Changing template');
 		
 		$themes = Base_Theme::list_themes();
-		$form->addElement('select', 'theme', $this->lang->t('Choose theme'), $themes);
+		$form->addElement('select', 'theme', $this->lang->t('Choose template'), $themes);
+
+		$form->addElement('checkbox', 'preload_selected', $this->lang->t('Preload selected template images'));
+		$form->addElement('checkbox', 'preload_default', $this->lang->t('Preload default template images'));
 		
 		$ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->lang->ht('OK'));
 		$cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->lang->ht('Cancel'), 'onClick="'.$this->create_back_href().'"');
 		$form->addGroup(array($ok_b, $cancel_b));
 		
-		$form->setDefaults(array('theme'=>Variable::get('default_theme')));
+		$form->setDefaults(array(
+			'theme'=>Variable::get('default_theme'),
+			'preload_selected'=>Variable::get('preload_image_cache_selected'),
+			'preload_default'=>Variable::get('preload_image_cache_default')
+			));
 		
 		if($form->validate()) {
 			$form->process(array(& $this, 'submit_admin'));
-/*			if($this->parent->get_type()=='Base_Admin')
-			    $this->parent->reset();
-			else
-			    location(array());*/
 		} else {
 			$form->display();
 			
@@ -67,6 +70,8 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 	
 	public function submit_admin($data) {
 		Variable::set('default_theme',$data['theme']);
+		Variable::set('preload_image_cache_default',isset($data['preload_default']));
+		Variable::set('preload_image_cache_selected',isset($data['preload_selected']));
 		Base_ThemeCommon::create_cache();
 		Base_StatusBarCommon::message('Theme changed - reloading page');
 		eval_js('setTimeout(\'document.location=\\\'index.php\\\'\',\'3000\')');

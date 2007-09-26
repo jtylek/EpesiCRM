@@ -68,7 +68,7 @@ class Utils_Tooltip extends Module {
 		load_js('modules/Utils/Tooltip/js/Tooltip.js');
 
 		if(!self::$displayed) {
-			print '<div id="tooltip_div" style="position: absolute; visibility: hidden; z-index: 1010;">';
+			print '<div id="tooltip_div" style="position: absolute; visibility: hidden; z-index: 2000;">';
 			$theme = & $this->init_module('Base/Theme');
 			$theme->assign('tip', '<span id="tooltip_text"></span>');
 				$theme->display();

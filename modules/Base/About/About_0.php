@@ -48,8 +48,8 @@ class Base_About extends Module {
 
 	public function body() {
 		$tip = $this->init_module('Utils/Tooltip');
-		print('<a rel="aboutepesi" class="lbOn" '.$tip->open_tag_attrs(Base_LangCommon::ts('Base_About','Click to get more info')).'><img src="'.$this->get_module_dir().'epesi-powered.png" border=0></a>');
 		print('<div id="aboutepesi" class="leightbox">'.$this->get_info().'<br><a class="lbAction" rel="deactivate">Close</a></div>');
+		print('<a rel="aboutepesi" class="lbOn" '.$tip->open_tag_attrs(Base_LangCommon::ts('Base_About','Click to get more info')).'><img src="'.$this->get_module_dir().'epesi-powered.png" border=0></a>');
 	}
 
 }

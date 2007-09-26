@@ -91,6 +91,9 @@ function update_from_0_8_11_to_0_9_0() {
 	// installing Dashboard
 	if(!DB::GetOne('SELECT name FROM modules WHERE name=\'Base_Dashboard\''))
 		DB::Execute('INSERT INTO modules VALUES(%s,%d,%d)',array('Base_Dashboard',0,0));
+
+	Variable::set('preload_image_cache_default',true);
+	Variable::set('preload_image_cache_selected',true);
 	// flush
 	themeup();
 }

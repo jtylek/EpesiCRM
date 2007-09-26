@@ -77,11 +77,12 @@ class Base_Theme extends Module {
 		if(isset($sess['image_cache'])) return;
 		$sess['image_cache']=true;
 		$imgs = array();
-		if(file_exists(self::$themes_dir.self::$theme.'/__cache.images'))
+		if(Variable::get('preload_image_cache_selected') && file_exists(self::$themes_dir.self::$theme.'/__cache.images'))
 			$imgs = explode("\n",file_get_contents(self::$themes_dir.self::$theme.'/__cache.images'));
-		if(file_exists(self::$themes_dir.'default/__cache.images'))
+		if(Variable::get('preload_image_cache_default') && file_exists(self::$themes_dir.'default/__cache.images'))
 			$imgs = array_merge($imgs,explode("\n",file_get_contents(self::$themes_dir.'default/__cache.images')));
-		eval_js("var cache = document.createElement('div');".
+		if(!empty($imgs))
+			eval_js("var cache = document.createElement('div');".
 			"cache.style.display='none';".
 			"document.body.appendChild(cache);".
 			"var current_image = null;".

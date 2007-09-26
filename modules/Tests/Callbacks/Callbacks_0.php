@@ -38,7 +38,6 @@ class Tests_Callbacks extends Module {
 		$form = & $this->init_module('Libs/QuickForm',null,'f2');
 		$form->addElement('header',null,'Form 2');
 		$form->addElement('textarea','text','Form 2');
-//		$form->setDefaults(array('text'=>"wielka dupa\na"));
 		$form->addElement('submit',null,'OK');
 		$form->addElement('button',null,'Cancel',$this->create_back_href());
 		

@@ -16,7 +16,7 @@ class Tests_TabbedBrowser extends Module {
 		$tb->set_tab('Manage Users', array($this,'xxx'),'users');
 		$tb->set_tab('Manage Companies', array($this,'xxx'),'companies');
 		$tb->set_tab('Manage Sales Categories', array($this,'xxx'),'categories',true);
-		$tb->set_tab('Dupa', array($this,'xxx'),'dupa',true);
+		$tb->set_tab('XXX', array($this,'xxx'),'xxx',true);
 		$tb->start_tab('XXX');
 		print('xXX');
 		$tb->end_tab();

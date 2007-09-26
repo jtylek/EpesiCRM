@@ -80,7 +80,9 @@ class Epesi extends Saja {
 	public final function call_jses() {
 		foreach($this->jses as $cc) {
 			$x = rtrim($cc,';');
-			if($x) parent::js($x);
+			if($x) {
+				parent::js($x);
+			}
 		}
 		//file_put_contents('data/jses',implode($this->jses,"\n\n\n"));
 		$this->jses=array();
