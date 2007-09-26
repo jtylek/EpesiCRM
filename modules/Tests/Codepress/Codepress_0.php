@@ -22,7 +22,7 @@ class Tests_Codepress extends Module {
 		$qf->setDefaults(array('cd'=>file_get_contents($this->get_module_dir().'Codepress_0.php')));
 		//$qf->freeze(array('cd'));
 		$qf->addElement('submit',null,'ok');
-		$qf->addElement('button',null,'toggle','onClick="CodePress.update()"');
+//		$qf->addElement('button',null,'toggle','onClick="CodePress.update()"');
 		if($qf->validate())
 			print('<div align="left"><pre>'.htmlspecialchars($qf->exportValue('cd')).'</pre></div>');
 		else
