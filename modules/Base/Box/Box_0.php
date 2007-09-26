@@ -56,13 +56,15 @@ class Base_Box extends Module {
 		if (isset($_REQUEST['box_main_module'])) {
 			$href = $_REQUEST['box_main_module'];
 			$containers['main']['module'] = $href;
-			if(isset($_REQUEST['box_main_function'])) {
+			if(isset($_REQUEST['box_main_function']))
 				$containers['main']['function'] = $_REQUEST['box_main_function'];
-				$containers['main']['arguments'] = null;
-			}
-			$this->set_module_variable('main', $containers['main']);
+			else
+				unset($containers['main']['function']);
 			if(isset($_REQUEST['box_main_arguments']))
 				$containers['main']['arguments'] = $_REQUEST['box_main_arguments'];
+			else
+				unset($containers['main']['arguments']);
+			$this->set_module_variable('main', $containers['main']);
 		}
 		
 		$this->modules = array();

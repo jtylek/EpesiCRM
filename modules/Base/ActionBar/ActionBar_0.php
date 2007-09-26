@@ -51,7 +51,7 @@ class Base_ActionBar extends Module {
 			if($display_text)
 				$t = $tip->open_tag_attrs((($i['description'])?$i['description']:$i['label']));
 			else
-				$t = $tip->open_tag_attrs($i['label'].' - '.(($i['description'])?$i['description']:''));
+				$t = $tip->open_tag_attrs($i['label'].(($i['description'])?' - '.$i['description']:''));
 			$i['open'] = '<a '.$i['action'].' '.$t.'>';
 			$i['close'] = '</a>';
 		}
