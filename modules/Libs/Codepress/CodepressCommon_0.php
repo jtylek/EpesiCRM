@@ -13,7 +13,6 @@ HTML_Quickform::registerElementType('codepress','modules/Libs/Codepress/HTML_Qui
                                             ,'HTML_Quickform_codepress');
 load_js('modules/Libs/Codepress/0.9.6/codepress.js');
 eval_js('CodePress.run()');
-//load_js('modules/Libs/Codepress/onsubmit.js');
-//Libs_QuickFormCommon::add_on_submit_action('if(typeof(codepress_onsubmit)!=\'undefined\')codepress_onsubmit(this)');
+Libs_QuickFormCommon::add_on_submit_action('CodePress.update(this)');
 
 ?>

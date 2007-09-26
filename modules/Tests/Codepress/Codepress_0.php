@@ -21,7 +21,12 @@ class Tests_Codepress extends Module {
 		//$x->setAutocomplete(true); //default
 		$qf->setDefaults(array('cd'=>file_get_contents($this->get_module_dir().'Codepress_0.php')));
 		//$qf->freeze(array('cd'));
-		$qf->display();
+		$qf->addElement('submit',null,'ok');
+		$qf->addElement('button',null,'toggle','onClick="CodePress.update()"');
+		if($qf->validate())
+			print('<div align="left"><pre>'.htmlspecialchars($qf->exportValue('cd')).'</pre></div>');
+		else
+			$qf->display();
 	}
 
 }

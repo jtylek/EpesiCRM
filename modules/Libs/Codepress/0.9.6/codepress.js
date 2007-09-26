@@ -95,7 +95,7 @@ CodePress = function(obj) {
 			self.textarea.style.display = 'none';
 		}
 	}
-
+	
 	self.edit();
 	return self;
 }
@@ -128,3 +128,16 @@ CodePress.run = function() {
 		} 
 	}
 }
+
+CodePress.update = function(form) {
+	t = form.getElementsByTagName('textarea');
+	for(var i=0,n=t.length;i<n;i++) {
+		if(t[i].className.match('codepress')) {
+			//t[i].innerHTML = 'x';//t[i].getCode();
+			id = t[i].id;
+			id = id.substr(0,id.length-3);
+			eval(id+'.toggleEditor()');
+		}
+	}
+}
+
