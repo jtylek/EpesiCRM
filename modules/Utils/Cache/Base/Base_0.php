@@ -89,11 +89,10 @@ abstract class Utils_Cache_Base extends Module {
 	}
 	
 	public function save() {
-		global $base;
 		$ret = array();
 		$ret['this'] = ob_get_contents();
 		ob_end_flush();
-		$session = & $base->get_session();
+		$session = & Epesi::get_session();
 		
 		//instances
 		$diff = array();
