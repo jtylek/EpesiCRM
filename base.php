@@ -111,6 +111,10 @@ class Base extends Epesi {
 
 		if(DEBUG || MODULE_TIMES || SQL_TIMES) {
 			$debug = '';
+			if(DEBUG && ($debug_diff = @include_once('tools/Diff.php'))) {
+				require_once 'tools/Text/Diff/Renderer/inline.php';
+				$diff_renderer = &new Text_Diff_Renderer_inline();
+			}
 		}
 						
 		//clean up old modules
@@ -142,13 +146,12 @@ class Base extends Epesi {
 				 || $tmp_session['__module_content__'][$k]['js'] !== $v['js']))
 				 || $reload == true || isset($reloaded[$parent])) { //force reload or parent reloaded
 				if(DEBUG && isset($tmp_session['__module_content__'])){
-					$debug .= 'Reloading '.$k.':&nbsp;&nbsp;&nbsp;&nbsp;parent='.$v['module']->get_parent_path().(isset($v['span'])?';&nbsp;&nbsp;&nbsp;&nbsp;span='.$v['span']:'').',&nbsp;&nbsp;&nbsp;&nbsp;triggered='.(($reload==true)?'force':'auto').',&nbsp;&nbsp;<pre>'.htmlspecialchars($v['value']).'</pre>'.(isset($tmp_session['__module_content__'][$k]['value'])?'<hr><pre>'.htmlspecialchars($tmp_session['__module_content__'][$k]['value']).'</pre><hr>':'');
-					if(@include_once('tools/Diff.php') && isset($tmp_session['__module_content__'][$k]['value'])) {
-						include_once 'tools/Text/Diff/Renderer/inline.php';
+					$debug .= '<b>Reloading '.$k.':&nbsp;&nbsp;&nbsp;&nbsp;parent='.$v['module']->get_parent_path().(isset($v['span'])?';&nbsp;&nbsp;&nbsp;&nbsp;span='.$v['span']:'').',&nbsp;&nbsp;&nbsp;&nbsp;triggered='.(($reload==true)?'force':'auto').',&nbsp;&nbsp;</b><hr><b>New value:</b><br><pre>'.htmlspecialchars($v['value']).'</pre>'.(isset($tmp_session['__module_content__'][$k]['value'])?'<hr><b>Old value:</b><br><pre>'.htmlspecialchars($tmp_session['__module_content__'][$k]['value']).'</pre>':'');
+					if($debug_diff && isset($tmp_session['__module_content__'][$k]['value'])) {
 						$xxx = new Text_Diff(explode("\n",$tmp_session['__module_content__'][$k]['value']),explode("\n",$v['value']));
-						$renderer = &new Text_Diff_Renderer_inline();
-						$debug .= '<pre>'.$renderer->render($xxx).'</pre><hr>';
+						$debug .= '<hr><b>Diff:</b><br><pre>'.$diff_renderer->render($xxx).'</pre>';
 					}
+					$debug .= '<hr style="height: 5px; background-color:black">';
 				}
 				
 				if(isset($v['span']))
