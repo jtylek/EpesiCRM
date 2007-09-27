@@ -23,17 +23,17 @@
 
 .utils_tree_opener_active_open {
 	white-space: pre;
-	vertical-align: center;
+	vertical-align: middle;
 }
 
 .utils_tree_opener_active_closed {
 	white-space: pre;
-	vertical-align: center;
+	vertical-align: middle;
 }
 
 .utils_tree_opener_inactive {
 	white-space: pre;
-	vertical-align: center;
+	vertical-align: middle;
 }
 
 .utils_tree_node {
@@ -46,7 +46,8 @@
 .utils_tree_node_hover {
 	padding: 0px;
 	margin: 0px;
-	border: 1px solid #336699;
+	background-color: #FFFFFF;
+	border: 1px solid #FFFFFF;
 	/*background-color: #eeeeee;*/
 }
 

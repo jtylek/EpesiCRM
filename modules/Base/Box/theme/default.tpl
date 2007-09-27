@@ -16,10 +16,10 @@
 
 <table id="Base_Box__logged" cellspacing="0" cellpadding="0" border="0">
 	<tr>
-		<td colspan="3" style="height: 20px; border-bottom: 4px solid #CCCCCC;">
+		<td colspan="3" style="height: 20px; border-bottom: 4px solid #B3B3B3;">
 			<table cellspacing="0" cellpadding="0" border="0">
 				<tr>
-					<td style="width: 691px; height: 20px; text-align: left;">{$menu}</td>
+					<td class="menu-bar">{$menu}</td>
 					<td class="module_name">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</td>
 				</tr>
 			</table>
@@ -43,7 +43,7 @@
 								<td class="search"><center>{$search}</center></td>
 							</tr>
 						</table>
-					</td>	
+					</td>
 				</tr>
 			</table>
 			</div>
@@ -66,7 +66,7 @@
 		<td class="footer" style="width: 100px; vertical-align: center; text-align: left; padding-left: 4px;"><a href="http://sourceforge.net/project/showfiles.php?group_id=192918">version {$version_no}</a></td>
 		<td class="footer" style="width: 778px;">Copyright &copy; 2007 &bull; <a href="http://sourceforge.net/projects/epesi/">epesi framework</a> &bull; Application developed by <a href="http://www.telaxus.com">Telaxus LLC</a><a href="http://www.epesi.org"></td>
 		<td class="footer" style="width: 100px; vertical-align: center; text-align: right; padding-right: 2px; padding-top: 2px;">{$about}</td>
-	</tr>	
+	</tr>
 </table>
 </center>
 {/if}

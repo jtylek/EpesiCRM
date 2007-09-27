@@ -1,8 +1,60 @@
+/*** SHADOW ***/
+
+#shadow .top-left {
+	width: 5px;
+	height: 5px;
+	background-image: url('images/shadow-top-left.png');
+}
+
+#shadow .top-center {
+	height: 5px;
+	background-image: url('images/shadow-top-center.png');
+}
+
+#shadow .top-right {
+	width: 5px;
+	height: 5px;
+	background-image: url('images/shadow-top-right.png');
+}
+
+#shadow .center-left {
+	width: 5px;
+	background-image: url('images/shadow-center-left.png');
+}
+
+#shadow .center-center {
+}
+
+#shadow .center-right {
+	width: 5px;
+	background-image: url('images/shadow-center-right.png');
+}
+
+#shadow .bottom-left {
+	width: 5px;
+	height: 5px;
+	background-image: url('images/shadow-bottom-left.png');
+}
+
+#shadow .bottom-center {
+	height: 5px;
+	background-image: url('images/shadow-bottom-center.png');
+}
+
+#shadow .bottom-right {
+	width: 5px;
+	height: 5px;
+	background-image: url('images/shadow-bottom-right.png');
+}
+
+
+/*** ***/
+
 body {
 	padding: 0px 0px 0px 0px;
 	margin: 10px 10px 10px 10px;
 	font-family: "Tahoma" "Verdana" "Vera-Sans" "DejaVu-Sans";
-	font-size: 11px;	
+	font-size: 11px;
 }
 
 table {
@@ -31,7 +83,7 @@ table#Base_Box__login {
 	width: 980px;
 	height: 578px;
 	text-align: center;
-	border: 1px solid #B3B3B3;	
+	border: 1px solid #B3B3B3;
 }
 
 table#Base_Box__logged {
@@ -39,7 +91,7 @@ table#Base_Box__logged {
 	text-align: center;
 	border: 1px solid #B3B3B3;
 	background-color: #F0F0F0;
-	color: #4C4C4C;	
+	color: #000000;
 }
 
 table#Base_Box__login td.status {
@@ -53,13 +105,13 @@ table#Base_Box__login td.entry {
 	font-size: 11px;
 	text-align: center;
 	height: 440px;
-	color: #4C4C4C;		
+	color: #000000;
 }
 
 table#Base_Box__login td.starting {
 	background-color: #F0F0F0;
 	height: 70px;
-	color: #4C4C4C;
+	color: #000000;
 	vertical-align: top;
 }
 
@@ -81,17 +133,24 @@ table#Base_Box__logged td.top-bar {
 	background-repeat: no-repeat;
 }
 
+#Base_Box__logged .menu-bar {
+	width: 691px;
+	height: 20px;
+	text-align: left;
+	background-image: url('images/header-grey-hover.png');
+}
+
 table#Base_Box__logged td.logo {
 	text-align: left;
 	vertical-align: top;
 	width: 199px;
 	padding-left: 5px;
-	padding-top: 5px;	
+	padding-top: 5px;
 }
 
 table#Base_Box__logged td.footer {
 	color: #777777;
-	font-size: 10px;	
+	font-size: 10px;
 	text-align: center;
 	height: 20px;
 	vertical-align: center;
@@ -125,13 +184,13 @@ table#Base_Box__logged td.login a {
 table#Base_Box__logged td.module_name {
 	width: 286px;
 	height: 20px;
-	background-image: url("images/button-background-2.png");
+	background-image: url("images/header-yellow.png");
 	background-repeat: repeat-x;
 	font-weight: bold;
 	text-align: center;
 	border-left: 1px solid #B3B3B3;
 	font-size: 11px;
-	color: #4C4C4C;
+	color: #FFFFFF;
 }
 
 table#Base_Box__logged td.search {

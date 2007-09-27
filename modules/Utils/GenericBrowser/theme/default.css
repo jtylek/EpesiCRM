@@ -9,7 +9,7 @@ table#Utils_GenericBrowser {
 
 table#Utils_GenericBrowser th {
     background-color: #E5E5E5;
-    background-image: url("images/background-30px-2.png");
+    background-image: url("images/header-red-30px.png");
     background-repeat: repeat-x;
     text-align: center;
     padding-left: 3px;
@@ -18,6 +18,11 @@ table#Utils_GenericBrowser th {
     border-top: 1px solid #CCCCCC;
     border-right: 1px solid #CCCCCC;
     border-bottom: 1px solid #CCCCCC;
+	color: #FFFFFF;
+}
+
+table#Utils_GenericBrowser th a {
+	color: #FFFFFF;
 }
 
 table#Utils_GenericBrowser tbody {
@@ -82,4 +87,3 @@ table#Utils_GenericBrowser__navigation .per_page {
 table#Utils_GenericBrowser__navigation .per_page select {
 	font-size: 11px;
 }
-

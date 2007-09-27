@@ -1,6 +1,8 @@
 table.root {
 	border: 0px;
-	background-image: url("images/button-background-2.png");
+	background-color: #336699;
+	background-image: url("images/header-blue.png");
+	background-repeat: repeat-x;
 	list-style-type: none;
 	padding: 2px;
 	margin: 0px;
@@ -11,7 +13,9 @@ table.root {
 }
 
 table.root:hover {
-	background-image: url("images/button-background-2-hover.png");
+	background-color: #336699;
+	background-image: url("images/header-blue-hover.png");
+	background-repeat: repeat-x;
 }
 
 table.root td.separator {
@@ -36,6 +40,7 @@ table.root td.separator {
 	display: block;
 	z-index: 1000;
 	font-weight: normal;
+	background-color: #336699;
 }
 
 /*
@@ -52,15 +57,15 @@ table.root td.separator {
 .custom_iframe {
 	position: absolute;
 	display: none;
-	z-
-	index: 900;
+	z-index: 900;
 }
+
 a.root_item_link {
 	margin: 0px;
 	padding: 1px 25px 1px 25px;
 	display: block; /* for HTML standards... */
 	margin: 0px;
-	color: #336699;
+	color: #FFFFFF;
 	font-size: 11px;
 	border-bottom: 1px solid #B3B3B3;
 	text-align: left;
@@ -69,14 +74,18 @@ a.root_item_link {
 	z-index: 1000;
 	padding-top: 4px;
 	padding-bottom: 3px;
-	background-image: url("images/button-background-empty.png");
+	/*background-image: url("images/button-background-empty.png");*/
+}
+
+table.root a:hover {
+	color: #FFFFFF;
 }
 
 a.root_item_link_down {
 	margin: 0px;
 	display: block; /* for HTML standards... */
 	margin: 0px;
-	color: #336699;
+	color: #FFFFFF;
 	font-size: 11px;
 	border: 0px;
 	text-align: left;
@@ -84,6 +93,7 @@ a.root_item_link_down {
 	white-space: nowrap;
 	z-index: 1000;
 }
+
 .root_item_link_down_arrow {
 	padding: 1px 25px 1px 25px;
 	background: url(Utils_Menu__arrow_down.gif) no-repeat center right;
@@ -94,7 +104,7 @@ a.root_item_link_none {
 	padding: 1px 25px 1px 25px;
 	display: block; /* for HTML standards... */
 	margin: 0px;
-	color: #336699;
+	color: #FFFFFF;
 	font-size: 11px;
 	border-bottom: 1px solid #B3B3B3;
 	text-align: left;
@@ -104,21 +114,23 @@ a.root_item_link_none {
 	padding-top: 4px;
 	padding-bottom: 3px;
 }
+
 a.root_item_link_right {
 	margin: 0px;
 	display: block; /* for HTML standards... */
 	margin: 0px;
-	color: #336699;
+	color: #FFFFFF;
 	font-size: 11px;
 	border-bottom: 1px solid #B3B3B3;
 	text-align: left;
 	text-decoration: none;
 	white-space: nowrap;
 	z-index: 1000;
-	
+
 	padding-top: 4px;
 	padding-bottom: 3px;
 }
+
 .root_item_link_right_arrow {
 	padding: 1px 25px 1px 25px;
 	background: url(Utils_Menu__arrow.gif) no-repeat center right;
@@ -126,35 +138,39 @@ a.root_item_link_right {
 
 img.link_bullet {
 	float: right;
-	margin: 5px;	
+	margin: 5px;
 	vertical-align: middle;
 	z-index: 1000;
 }
 
 img.link_icon {
 	float: left;
-	margin: 2px;	
+	margin: 2px;
 	vertical-align: middle;
 	z-index: 1000;
 }
 
 table.root a.root_item_link_down:hover {
-	background-image: url("images/button-background-2-hover.png");
+	background-color: #336699;
+	background-image: url("images/header-blue-hover.png");
 	background-repeat: repeat-x;
 }
-	
+
 a.root_item_link:hover {
-	background-image: url("images/button-background-2.png");	
+	background-color: #336699;
+	background-image: url("images/header-blue.png");
 	background-repeat: repeat-x;
 }
 
 a.root_item_link_down:hover {
-	background-image: url("images/button-background-2.png");
+	background-color: #336699;
+	background-image: url("images/header-blue.png");
 	background-repeat: repeat-x;
 }
 
 a.root_item_link_right:hover {
-	background-image: url("images/button-background-2.png");
+	background-color: #336699;
+	background-image: url("images/header-blue.png");
 	background-repeat: repeat-x;
 }
 
@@ -182,7 +198,7 @@ td.item_sub {
 td.splitter {
 	/*margin: 0px 0px 0px 0px;
 	padding: 0px 0px  0px  0px;*/
-	vertical-align: center;
+	vertical-align: middle;
 	z-index: 1000;
 	height: 1px;
 	/*border-top: 1px solid blue;

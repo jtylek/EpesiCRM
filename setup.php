@@ -6,6 +6,7 @@
  * @license SPL
  * @package epesi-base
  */
+
 /**
  * Check access to working directories
  */
@@ -22,87 +23,113 @@ if(!is_writable('backup'))
 require_once('modules/Libs/QuickForm/requires.php');
 
 if(!isset($_GET['licence'])) {
-	print('<h1>Welcome to epesi!<br></h1><h2>Please read and accept licence</h2><br><div style="overflow:auto;height:60%; border: 1px solid black;">');
+        html_begin();
+        banner();
+        table_begin();
+	print('<h1>Welcome to epesi!<br></h1><h2>Please read and accept licence</h2><br><div class="licence">');
 	licence();
+        print('</div><br><a class="button" href="setup.php?licence=1">Accept</a>');
+        table_end();
+        footer();
+        html_end();
 ?>
-</div>
-<h2><a href="setup.php?licence=1">Accept</a></h2>
+
 <?php
-} else {
-	$form = new HTML_QuickForm('serverform','post',$_SERVER['PHP_SELF'].'?'.http_build_query($_GET));
-	$form->addElement('header', null, 'Database server settings');
-	$form->addElement('text', 'host', 'Database server address');
-	$form->addRule('host', 'Field required', 'required');
-	$form->addElement('select', 'engine', 'Database engine',array('postgres'=>'PostgreSQL', 'mysqlt'=>'MySQL'));
-	$form->addRule('engine', 'Field required', 'required');
-	$form->addElement('text', 'user', 'Database server user');
-	$form->addRule('user', 'Field required', 'required');
-	$form->addElement('password', 'password', 'Database server password');
-	$form->addRule('password', 'Field required', 'required');
-	$form->addElement('text', 'db', 'Database name');
-	$form->addRule('db', 'Field required', 'required');
-	$form->addElement('select', 'newdb', 'Create new database',array(1=>'Yes', 0=>'No'),array('onChange'=>'if(this.value==0)alert("WARNING: All tables in specified database will be dropped!","warning");'));
-	$form->addRule('newdb', 'Field required', 'required');
-//	$form->addElement('select', 'newuser', 'Create new user',array(1=>'Yes', 0=>'No'));
-//	$form->addRule('newuser', 'Field required', 'required');
-
-	$form->addElement('submit', 'submit', 'OK');
-	$form->setDefaults(array('engine'=>'mysqlt','db'=>'epesi','host'=>'localhost'));
-
-	if ($form->validate()) {
-		$engine = $form->exportValue('engine');
-		switch($engine) {
-			case 'postgres': 
-				$host = $form->exportValue('host');
-				$user = $form->exportValue('user');
-				$pass = $form->exportValue('password');
-				$link = @pg_connect("host=$host user=$user password=$pass dbname=postgres");
-				if (!$link) {
- 					echo('Could not connect.');
-				} else {
-					$dbname = $form->exportValue('db');
-					if($form->exportValue('newdb')==1) {
-						$sql = 'CREATE DATABASE '.$dbname;
-						if (pg_query($link, $sql)) {
-   							//echo "Database '$dbname' created successfully\n";
-   							write_config($host,$user,$pass,$dbname,$engine);
-						} else
- 	  						echo 'Error creating database: ' . pg_last_error() . "\n";
-   						pg_close($link);
-					} else
-						write_config($host,$user,$pass,$dbname,$engine);
-				}
-				break;
-			case 'mysqlt':
-				$host = $form->exportValue('host');
-				$user = $form->exportValue('user');
-				$pass = $form->exportValue('password');
-				$link = @mysql_connect($host,$user,$pass);
-				if (!$link) {
- 					echo('Could not connect: ' . mysql_error());
-				} else {
-					$dbname = $form->exportValue('db');
-					if($form->exportValue('newdb')==1) {
-						$sql = 'CREATE DATABASE '.$dbname;
-						if (mysql_query($sql, $link)) {
-   							//echo "Database '$dbname' created successfully\n";
-   							write_config($host,$user,$pass,$dbname,$engine);
-						} else
-	   						echo 'Error creating database: ' . mysql_error() . "\n";
-   						mysql_close($link);
-					} else
-						write_config($host,$user,$pass,$dbname,$engine);
-				}
-		}
-	}
-	$form->display();
 }
+    else {
+	$form = new HTML_QuickForm('serverform','post',$_SERVER['PHP_SELF'].'?'.http_build_query($_GET));
+	$form -> addElement('header', null, 'Database server settings');
+	$form -> addElement('text', 'host', 'Database server address');
+	$form -> addRule('host', 'Field required', 'required');
+	$form -> addElement('select', 'engine', 'Database engine',array('postgres'=>'PostgreSQL', 'mysqlt'=>'MySQL'));
+	$form -> addRule('engine', 'Field required', 'required');
+	$form -> addElement('text', 'user', 'Database server user');
+	$form -> addRule('user', 'Field required', 'required');
+	$form -> addElement('password', 'password', 'Database server password');
+	$form -> addRule('password', 'Field required', 'required');
+	$form -> addElement('text', 'db', 'Database name');
+	$form -> addRule('db', 'Field required', 'required');
+	$form -> addElement('select', 'newdb', 'Create new database',array(1=>'Yes', 0=>'No'),array('onChange'=>'if(this.value==0)alert("WARNING: All tables in specified database will be dropped!","warning");'));
+	$form -> addRule('newdb', 'Field required', 'required');
+//	$form -> addElement('select', 'newuser', 'Create new user',array(1=>'Yes', 0=>'No'));
+//	$form -> addRule('newuser', 'Field required', 'required');
+
+	$form -> addElement('submit', 'submit', 'OK');
+	$form -> setDefaults(array('engine'=>'mysqlt','db'=>'epesi','host'=>'localhost'));
+
+	if($form -> validate()) {
+	    $engine = $form -> exportValue('engine');
+	    switch($engine) {
+		case 'postgres': {
+		    $host = $form -> exportValue('host');
+		    $user = $form -> exportValue('user');
+		    $pass = $form -> exportValue('password');
+		    $link = @pg_connect("host=$host user=$user password=$pass dbname=postgres");
+		    if(!$link) {
+ 			echo('Could not connect.');
+		    }
+                    else {
+			$dbname = $form -> exportValue('db');
+			if($form->exportValue('newdb')==1) {
+			    $sql = 'CREATE DATABASE '.$dbname;
+			    if (pg_query($link, $sql)) {
+   				//echo "Database '$dbname' created successfully\n";
+   				write_config($host,$user,$pass,$dbname,$engine);
+			    }
+                            else {
+ 	  			echo 'Error creating database: ' . pg_last_error() . "\n";
+                            }
+   			    pg_close($link);
+			}
+                        else {
+			    write_config($host, $user, $pass, $dbname, $engine);
+                        }
+		    }
+                }
+                break;
+		case 'mysqlt': {
+		    $host = $form->exportValue('host');
+		    $user = $form->exportValue('user');
+		    $pass = $form->exportValue('password');
+		    $link = @mysql_connect($host,$user,$pass);
+		    if (!$link) {
+ 			echo('Could not connect: ' . mysql_error());
+		    }
+                    else {
+			$dbname = $form->exportValue('db');
+			if($form->exportValue('newdb')==1) {
+			    $sql = 'CREATE DATABASE '.$dbname;
+			    if(mysql_query($sql, $link)) {
+   				//echo "Database '$dbname' created successfully\n";
+   				write_config($host,$user,$pass,$dbname,$engine);
+			    }
+                            else {
+	   			echo 'Error creating database: ' . mysql_error() . "\n";
+                            }
+   			    mysql_close($link);
+			}
+                        else {
+			    write_config($host, $user, $pass, $dbname, $engine);
+                        }
+		    }
+                }
+                break;    
+	    }
+	}
+        html_begin();
+        banner();
+        table_begin();
+	$form -> display();
+        table_end();
+        footer();
+        html_end();
+    }
 
 ///////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////
-function write_config($host,$user,$pass,$dbname,$engine) {
-	$c = & fopen('data/config.php','w');
-	fwrite($c, '<?php
+function write_config($host, $user, $pass, $dbname, $engine) {
+    $c = & fopen('data/config.php', 'w');
+    fwrite($c, '<?php
 /**
  * Config file
  * 
@@ -767,4 +794,71 @@ function licence() {
 </blockquote>
 <?php
 }
+?>
+
+<?php
+
+// -------------------------------------------------------------------------- //
+
+function html_begin() {
+    echo '
+        <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+        <html>
+        <head>
+            <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+            <title>epesi setup</title>
+            <link href="setup.css" type="text/css" rel="stylesheet"/>
+        </head>
+        <body>
+    ';
+}
+
+function html_end() {
+    echo '
+        </body>
+        </html>
+    ';
+}
+
+function banner() {
+    echo '
+        <table id="banner" border="0" cellpadding="0" cellspacing="0">
+            <tr>
+                <td class="image">&nbsp;</td>
+                <td class="back">&nbsp;</td>
+            </tr>
+        </table>
+        <br>
+    ';
+}
+
+function table_begin() {
+    echo '
+        <center>
+        <table id="main" border="0" cellpadding="0" cellspacing="0">
+            <tr>
+                <td>
+    ';
+}
+
+function table_end() {
+    echo '
+                </td>
+            </tr>
+        </table>
+        </center>
+    ';
+}
+
+function footer() {
+    echo '
+        <br>
+        <center>
+        <span class="footer">Copyright &copy; 2007 &bull; <a href="http://epesi.sourceforge.net/">epesi framework</a> &bull; Application developed by <a href="http://www.telaxus.com">Telaxus LLC</a></span>
+        <br>
+        <p><a href="http://www.epesi.org"><img src="images/epesi-powered.png" border="0"></a></p>
+        </center>
+    ';
+}
+
 ?>
