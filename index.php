@@ -107,7 +107,8 @@ unset($_SESSION['cl'.$client_id]);
 		<div id="error_box" onclick="this.innerHTML = ''"></div>
 		<script type="text/javascript">
 		<!--
-		var client_id=<?php echo $client_id; ?>;
+		var client_id=<?php print($client_id); ?>;
+		var session_id='<?php print(session_id()); ?>';
 		var history_on=1;
 		history_call = function(history_id){
         		switch(history_on){

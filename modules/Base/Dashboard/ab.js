@@ -4,7 +4,7 @@ dashboard_activate = function() {
 		Sortable.create("dashboard_applets_"+id,{dropOnEmpty:true,tag:'div',containment:["dashboard_applets_0","dashboard_applets_1","dashboard_applets_2"],constraint:false, ghosting: true, handle: 'handle',onUpdate:function(c){
 		        new Ajax.Request("modules/Base/Dashboard/update.php",{
 					method: "post",
-					parameters: { data: Sortable.serialize(c.id), session: String($('dashboard').getAttribute('session')) }
+					parameters: { data: Sortable.serialize(c.id), session: session_id }
 			});
 		}});
 

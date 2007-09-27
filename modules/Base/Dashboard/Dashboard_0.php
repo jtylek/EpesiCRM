@@ -19,7 +19,7 @@ class Base_Dashboard extends Module {
 		Base_ActionBarCommon::add('add','Add applet',$this->create_callback_href(array($this,'applets_list')));
 		load_js($this->get_module_dir().'ab.js');
 		$tipmod = $this->init_module('Utils/Tooltip');
-		print('<table id="dashboard" session="'.session_id().'" style="width: 100%"><tr>');
+		print('<table id="dashboard" style="width: 100%"><tr>');
 		for($j=0; $j<3; $j++) {
 			print('<td id="dashboard_applets_'.$j.'" style="width:33%;min-height:100px;vertical-align:top;">');
 			
