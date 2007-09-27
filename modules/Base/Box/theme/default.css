@@ -1,50 +1,79 @@
 /*** SHADOW ***/
 
-#shadow .top-left {
+#shadow {
+	font-size: 2px;
+}
+
+#shadow .td-5x5 {
 	width: 5px;
 	height: 5px;
-	background-image: url('images/shadow-top-left.png');
+}
+
+#shadow .top-left {
+	background-image: url('images/shadow/shadow-top-left.png');
+}
+
+#shadow .top-left-left {
+	background-image: url('images/shadow/shadow-top-left-left.png');
+}
+
+#shadow .top-left-right {
+	background-image: url('images/shadow/shadow-top-left-right.png');
 }
 
 #shadow .top-center {
-	height: 5px;
-	background-image: url('images/shadow-top-center.png');
+	background-image: url('images/shadow/shadow-top-center.png');
 }
 
 #shadow .top-right {
-	width: 5px;
-	height: 5px;
-	background-image: url('images/shadow-top-right.png');
+	background-image: url('images/shadow/shadow-top-right.png');
+}
+
+#shadow .top-right-left {
+	background-image: url('images/shadow/shadow-top-right-left.png');
+}
+
+#shadow .top-right-right {
+	background-image: url('images/shadow/shadow-top-right-right.png');
 }
 
 #shadow .center-left {
-	width: 5px;
-	background-image: url('images/shadow-center-left.png');
+	background-image: url('images/shadow/shadow-center-left.png');
 }
 
 #shadow .center-center {
 }
 
 #shadow .center-right {
-	width: 5px;
-	background-image: url('images/shadow-center-right.png');
+	background-image: url('images/shadow/shadow-center-right.png');
 }
 
 #shadow .bottom-left {
-	width: 5px;
-	height: 5px;
-	background-image: url('images/shadow-bottom-left.png');
+	background-image: url('images/shadow/shadow-bottom-left.png');
+}
+
+#shadow .bottom-left-left {
+	background-image: url('images/shadow/shadow-bottom-left-left.png');
+}
+
+#shadow .bottom-left-right {
+	background-image: url('images/shadow/shadow-bottom-left-right.png');
 }
 
 #shadow .bottom-center {
-	height: 5px;
-	background-image: url('images/shadow-bottom-center.png');
+	background-image: url('images/shadow/shadow-bottom-center.png');
 }
 
 #shadow .bottom-right {
-	width: 5px;
-	height: 5px;
-	background-image: url('images/shadow-bottom-right.png');
+	background-image: url('images/shadow/shadow-bottom-right.png');
+}
+
+#shadow .bottom-right-left {
+	background-image: url('images/shadow/shadow-bottom-right-left.png');
+}
+
+#shadow .bottom-right-right {
+	background-image: url('images/shadow/shadow-bottom-right-right.png');
 }
 
 

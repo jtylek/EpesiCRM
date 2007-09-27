@@ -2,7 +2,7 @@
 {if isset($form_data)}
 {$form_data.javascript}
 
-<form {$form_data.attributes}> 
+<form {$form_data.attributes}>
 {$form_data.hidden}
 {/if}
 {if isset($form_data.search)}
