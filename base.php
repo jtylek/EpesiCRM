@@ -140,13 +140,20 @@ class Base extends Epesi {
 		foreach ($this->content as $k => $v) {
 			$reload = $v['module']->get_reload();			
 			$parent = $v['module']->get_parent_path();
-			
+			if(DEBUG) {
+				$debug .= '<hr style="height: 3px; background-color:black">';
+				$debug .= '<b> Checking '.$k.', &nbsp;&nbsp;&nbsp; parent='.$v['module']->get_parent_path().'</b><ul>'.
+					'<li>Force - '.(isset($reload)?print_r($reload,true):'not set').'</li>'.
+					'<li>First display - '.(isset ($tmp_session['__module_content__'][$k])?'no</li><li>Content changed - '.(($tmp_session['__module_content__'][$k]['value'] !== $v['value'])?'yes':'no').'</li><li>JS changed - '.(($tmp_session['__module_content__'][$k]['js'] !== $v['js'])?'yes':'no'):'yes').'</li>'.
+					'<li>Parent reloaded - '.(isset($reloaded[$parent])?'yes':'no').'</li>'.
+					'</ul>';
+			}
 			if ((!isset($reload) && (!isset ($tmp_session['__module_content__'][$k])
 				 || $tmp_session['__module_content__'][$k]['value'] !== $v['value'] //content differs
 				 || $tmp_session['__module_content__'][$k]['js'] !== $v['js']))
 				 || $reload == true || isset($reloaded[$parent])) { //force reload or parent reloaded
 				if(DEBUG && isset($tmp_session['__module_content__'])){
-					$debug .= '<b>Reloading '.$k.':&nbsp;&nbsp;&nbsp;&nbsp;parent='.$v['module']->get_parent_path().(isset($v['span'])?';&nbsp;&nbsp;&nbsp;&nbsp;span='.$v['span']:'').',&nbsp;&nbsp;&nbsp;&nbsp;triggered='.(($reload==true)?'force':'auto').',&nbsp;&nbsp;</b><hr><b>New value:</b><br><pre>'.htmlspecialchars($v['value']).'</pre>'.(isset($tmp_session['__module_content__'][$k]['value'])?'<hr><b>Old value:</b><br><pre>'.htmlspecialchars($tmp_session['__module_content__'][$k]['value']).'</pre>':'');
+					$debug .= '<b>Reloading: '.(isset($v['span'])?';&nbsp;&nbsp;&nbsp;&nbsp;span='.$v['span'].',':'').'&nbsp;&nbsp;&nbsp;&nbsp;triggered='.(($reload==true)?'force':'auto').',&nbsp;&nbsp;</b><hr><b>New value:</b><br><pre>'.htmlspecialchars($v['value']).'</pre>'.(isset($tmp_session['__module_content__'][$k]['value'])?'<hr><b>Old value:</b><br><pre>'.htmlspecialchars($tmp_session['__module_content__'][$k]['value']).'</pre>':'');
 					if($debug_diff && isset($tmp_session['__module_content__'][$k]['value'])) {
 						$xxx = new Text_Diff(explode("\n",$tmp_session['__module_content__'][$k]['value']),explode("\n",$v['value']));
 						$debug .= '<hr><b>Diff:</b><br><pre>'.$diff_renderer->render($xxx).'</pre>';
