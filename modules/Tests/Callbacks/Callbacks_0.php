@@ -81,8 +81,6 @@ class Tests_Callbacks extends Module {
 		//------------------------------ print out src
 		print('<hr><b>Install</b><br>');
 		$this->pack_module('Utils/CatFile','modules/Tests/Callbacks/CallbacksInstall.php');
-		print('<hr><b>Init</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/Callbacks/CallbacksInit_0.php');
 		print('<hr><b>Main</b><br>');
 		$this->pack_module('Utils/CatFile','modules/Tests/Callbacks/Callbacks_0.php');
 		print('<hr><b>Common</b><br>');

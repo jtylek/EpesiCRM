@@ -25,17 +25,10 @@ class Tests_FPDF extends Module {
 		//------------------------------ print out src
 		print('<hr><b>Install</b><br>');
 		$this->pack_module('Utils/CatFile','modules/Tests/FPDF/FPDFInstall.php');
-		print('<hr><b>Init</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/FPDF/FPDFInit_0.php');
 		print('<hr><b>Main</b><br>');
 		$this->pack_module('Utils/CatFile','modules/Tests/FPDF/FPDF_0.php');
 		print('<hr><b>Common</b><br>');
 		$this->pack_module('Utils/CatFile','modules/Tests/FPDF/FPDFCommon_0.php');
 	}
-	
-	public static function menu() {
-		return array('FPDF test'=>array());
-	}
-
 }
 ?>

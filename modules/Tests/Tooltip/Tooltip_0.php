@@ -19,8 +19,6 @@ class Tests_Tooltip extends Module {
 		$this->pack_module('Utils/CatFile','modules/Tests/Tooltip/Tooltip_0.php');
 		print('<hr><b>Common</b><br>');
 		$this->pack_module('Utils/CatFile','modules/Tests/Tooltip/TooltipCommon_0.php');
-		print('<hr><b>Init</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/Tooltip/TooltipInit_0.php');
 		print('<hr><b>Install</b><br>');
 		$this->pack_module('Utils/CatFile','modules/Tests/Tooltip/TooltipInstall.php');
 	}

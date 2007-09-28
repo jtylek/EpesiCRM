@@ -24,8 +24,6 @@ class Tests_BookmarkBrowser extends Module {
 		//------------------------------ print out src
 		print('<hr><b>Install</b><br>');
 		$this->pack_module('Utils/CatFile','modules/Tests/BookmarkBrowser/BookmarkBrowserInstall.php');
-		print('<hr><b>Init</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/BookmarkBrowser/BookmarkBrowserInit_0.php');
 		print('<hr><b>Main</b><br>');
 		$this->pack_module('Utils/CatFile','modules/Tests/BookmarkBrowser/BookmarkBrowser_0.php');
 		print('<hr><b>Common</b><br>');

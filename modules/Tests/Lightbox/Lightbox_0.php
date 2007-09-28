@@ -23,8 +23,6 @@ class Tests_Lightbox extends Module{
 		//------------------------------ print out src
 		print('<hr><b>Install</b><br>');
 		$this->pack_module('Utils/CatFile','modules/Tests/Lightbox/LightboxInstall.php');
-		print('<hr><b>Init</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/Lightbox/LightboxInit_0.php');
 		print('<hr><b>Main</b><br>');
 		$this->pack_module('Utils/CatFile','modules/Tests/Lightbox/Lightbox_0.php');
 		print('<hr><b>Common</b><br>');

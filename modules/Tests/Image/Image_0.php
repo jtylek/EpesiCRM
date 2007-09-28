@@ -29,8 +29,6 @@ class Tests_Image extends Module {
 		//------------------------------ print out src
 		print('<hr><b>Install</b><br>');
 		$this->pack_module('Utils/CatFile','modules/Tests/Image/ImageInstall.php');
-		print('<hr><b>Init</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/Image/ImageInit_0.php');
 		print('<hr><b>Main</b><br>');
 		$this->pack_module('Utils/CatFile','modules/Tests/Image/Image_0.php');
 		print('<hr><b>Common</b><br>');

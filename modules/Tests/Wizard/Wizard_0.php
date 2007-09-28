@@ -65,8 +65,6 @@ class Tests_Wizard extends Module {
 		//------------------------------ print out src
 		print('<hr><b>Install</b><br>');
 		$this->pack_module('Utils/CatFile','modules/Tests/Wizard/WizardInstall.php');
-		print('<hr><b>Init</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/Wizard/WizardInit_0.php');
 		print('<hr><b>Main</b><br>');
 		$this->pack_module('Utils/CatFile','modules/Tests/Wizard/Wizard_0.php');
 		print('<hr><b>Common</b><br>');

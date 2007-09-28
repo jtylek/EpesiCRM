@@ -21,8 +21,6 @@ class Tests_Comment extends Module{
 		//------------------------------ print out src
 		print('<hr><b>Install</b><br>');
 		$this->pack_module('Utils/CatFile','modules/Tests/Comment/CommentInstall.php');
-		print('<hr><b>Init</b><br>');
-		$this->pack_module('Utils/CatFile','modules/Tests/Comment/CommentInit_0.php');
 		print('<hr><b>Main</b><br>');
 		$this->pack_module('Utils/CatFile','modules/Tests/Comment/Comment_0.php');
 		print('<hr><b>Common</b><br>');
