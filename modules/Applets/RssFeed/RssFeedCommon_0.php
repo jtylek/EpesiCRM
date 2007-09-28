@@ -17,7 +17,7 @@ class Applets_rssfeedCommon extends ModuleCommon {
 	public static function applet_info() {
 		return "Simple RSS Feed"; //here can be associative array
 	}
-	
+
 	public static function applet_settings() {
 		return array(
 			array('name'=>'rssfeed','label'=>'RSS Feed','type'=>'text','default'=>'http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/technology/rss.xml','rule'=>array(array('message'=>'Field required', 'type'=>'required'))),

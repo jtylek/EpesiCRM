@@ -17,13 +17,19 @@
 }
 
 #dashboard .container {
-	width: 100%;
+	width: 210px;
 	padding: 5px 5px 5px 5px;
 	background-color: #FFFFFF;
 }
 
 #dashboard .controls {
+	width: 30%;
 	text-align: right;
+}
+
+#dashboard .title {
+	width: 70%;
+	text-align: left;
 }
 
 #dashboard .controls a {
@@ -34,5 +40,5 @@
 	color: #FFFFFF;
 	font-weight: bold;
 	height: 20px;
-	background-image: url('images/header-green.png');
+	background-image: url('images/header-blue.png');
 }

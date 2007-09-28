@@ -10,25 +10,25 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Apps_Shoutbox extends Module {
 	private $lang;
-	
+
 	public function construct() {
 		//initialize lang module
-		$this->lang = & $this->init_module('Base/Lang');	
+		$this->lang = & $this->init_module('Base/Lang');
 	}
 
 	public function body() {
 		//if i am admin add "clear shoutbox" actionbar button
 		if(Base_AclCommon::i_am_admin())
 			Base_ActionBarCommon::add('delete',$this->lang->ht('Clear shoutbox'),$this->create_callback_href(array($this,'delete_all')));
-		
+
 		$this->applet();
 	}
-	
+
 	//delete_all callback (on "clear shoutbox" button)
 	public function delete_all() {
 		DB::Execute('DELETE FROM apps_shoutbox_messages');
 	}
-	
+
 	public function applet() {
 		if(Acl::is_user()) {
 			//initialize HTML_QuickForm
@@ -39,7 +39,7 @@ class Apps_Shoutbox extends Module {
 			$submit = & HTML_QuickForm::createElement('submit','button',$this->lang->ht('Submit'));
 			//add it
 			$qf->addGroup(array($text,$submit),'post');
-			$qf->addGroupRule('post',$this->lang->t('Field required'),'required',null,2);
+			//$qf->addGroupRule('post',$this->lang->t('Field required'),'required',null,2);
 
 			//if submited
 			if($qf->validate()) {
@@ -51,7 +51,7 @@ class Apps_Shoutbox extends Module {
 				$user_id = Base_UserCommon::get_my_user_id();
 				//clear text box and focus it
 				eval_js('$(\'shoutbox_text\').value=\'\';focus_by_id(\'shoutbox_text\')');
-			
+
 				//insert to db
 				DB::Execute('INSERT INTO apps_shoutbox_messages(message,base_user_login_id) VALUES(%s,%d)',array(htmlspecialchars($msg,ENT_QUOTES,'UTF-8'),$user_id));
 			}
@@ -63,7 +63,7 @@ class Apps_Shoutbox extends Module {
 
 		//get last 50 messages
 		$arr = DB::GetAll('SELECT asm.id, ul.login, asm.message, asm.posted_on FROM apps_shoutbox_messages asm LEFT JOIN user_login ul ON ul.id=asm.base_user_login_id ORDER BY asm.posted_on DESC LIMIT 50');
-		print('<div id=\'shoutbox_board\' style="height:200px;overflow:auto;text-align:left;border:1px solid black;">');
+		print('<div id=\'shoutbox_board\' style="width:220px;height:200px;overflow:auto;text-align:left;border:1px solid #B3B3B3;">');
 		foreach($arr as $row) {
 			if(!$row['login']) $row['login']='Anonymous';
 			$msg = $this->lang->t('[%s] %s: %s',array($row['posted_on'], $row['login'], $row['message']));

@@ -16,7 +16,7 @@ class Applets_rssfeed extends Module {
 	public function body(&$x) {
 	}
 
-	private function get_page_title($url){
+	private function get_page_title($url) {
 		$html = @file_get_contents($url);
 		if(!$html)
 			return null;
@@ -29,7 +29,7 @@ class Applets_rssfeed extends Module {
 
 		return $title;
 	}
-	
+
 	public function applet($values, & $title) {
 		if(isset($values['rssfeed'])) {
 			$new_title = $this->get_page_title($values['rssfeed']);
