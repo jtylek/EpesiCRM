@@ -3,7 +3,7 @@
 <table id="Base_Box__login" cellspacing="0" cellpadding="0" border="0">
 	<tr><td class="status"><center>{$status}</center></td></tr>
 	<tr><td class="entry">{$login}</td></tr>
-	<tr><td class="starting"><a href="http://www.epesi.org"><img src="{$theme_dir}/images/epesi-powered.png" border="0"></a></td></tr>
+	<tr><td class="starting">{$about}</td></tr>
 </table>
 </center>
 {else}

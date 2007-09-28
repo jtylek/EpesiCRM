@@ -76,6 +76,7 @@ class Base_Dashboard extends Module {
 
 
 		$tipmod = $this->init_module('Utils/Tooltip');
+		$links = array();
 		foreach(ModuleManager::$modules as $name=>$obj) {
 			if(method_exists($obj['name'].'Common', 'applet_caption')) {
 				$attrs = '';
@@ -95,6 +96,11 @@ class Base_Dashboard extends Module {
 				}
 				$links[$obj['name']] = '<a '.$attrs.$this->create_callback_href(array($this,'add_applet'),$obj['name']).'>'.call_user_func(array($obj['name'].'Common', 'applet_caption')).'</a>';
 			}
+		}
+		
+		if(empty($links)) {
+			print($this->lang->t('No applets installed'));
+			return true;
 		}
 		
 		$theme =  & $this->pack_module('Base/Theme');
