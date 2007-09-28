@@ -8,12 +8,11 @@ Utils_Toltip__showTip = function(tip, my_event) {
 	offWidth = div_tip.offsetWidth;
 	offHeight = div_tip.offsetHeight;
 	
-	var curPosx = ((my_event.x) ? parseInt(my_event.x) : parseInt(my_event.clientX));
-	var curPosy = ((my_event.y) ? parseInt(my_event.y) : parseInt(my_event.clientY));
+	var curPosx = ((my_event.clientX) ? parseInt(my_event.clientX) : parseInt(my_event.x));
+	var curPosy = ((my_event.clientY) ? parseInt(my_event.clientY) : parseInt(my_event.y));
 	
 	if(document.body.scrollLeft + curPosx + 20 + offWidth < document.body.clientWidth - 5) {
 		var pos = document.body.scrollLeft + curPosx + 20;
-		//alert("pos x: "+pos);
 		div_tip.style.left = pos + 'px';
 	} else {
 		var pos = document.body.scrollLeft + curPosx - (offWidth) - 10;
@@ -36,9 +35,9 @@ Utils_Toltip__showTip = function(tip, my_event) {
 		div_tip.style.top = pos + "px";
 	}
 	
-	div_tip.style.visibility = 'visible';
+	div_tip.style.display = 'block';
 }
 
 Utils_Toltip__hideTip = function() {
-	$('tooltip_div').style.visibility = 'hidden';
+	$('tooltip_div').style.display = 'none';
 } 

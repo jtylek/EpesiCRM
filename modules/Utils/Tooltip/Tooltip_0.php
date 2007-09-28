@@ -68,11 +68,29 @@ class Utils_Tooltip extends Module {
 		load_js('modules/Utils/Tooltip/js/Tooltip.js');
 
 		if(!self::$displayed) {
-			print '<div id="tooltip_div" style="position: absolute; visibility: hidden; z-index: 2000;">';
+			/*
+			print 'XXX<div id="tooltip_div" style="position: absolute; dispay: none; z-index: 2000;">';
 			$theme = & $this->init_module('Base/Theme');
 			$theme->assign('tip', '<span id="tooltip_text"></span>');
 				$theme->display();
-			print '</div>';
+			print '</div>';*/
+			ob_start();
+			$theme = & $this->init_module('Base/Theme');
+			$theme->assign('tip', '<span id="tooltip_text"></span>');
+				$theme->display();
+			$html = ob_get_clean();
+			$js = "
+				div = document.createElement('div', 'id=tooltip_div');
+				div.id = 'tooltip_div';
+				div.style.position = 'absolute';
+				div.style.display = 'none';
+				body = document.getElementsByTagName('body');
+				body = body[0];
+				document.body.appendChild(div);
+				div.innerHTML = '".$html."';
+			";
+			eval_js($js);
+			//<div id="tooltip_div" style="position: absolute; dispay: none; z-index: 2000;"><span id="tooltip_text"></span></div>
 			self::$displayed = true;
 		}
 		
