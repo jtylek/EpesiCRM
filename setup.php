@@ -192,11 +192,6 @@ define("SQL_TIMES",0);
 define("SQL_TYPE_CONTROL",0);
 
 /*
- * Lower performance, unable to debug JS... Teenage hacker probably won\'t decrypt it.
- */
-define("SECURE_HTTP",0);
-
-/*
  * If you have got good server, but poor connection, turn it on.
  */
 define("STRIP_OUTPUT",0);
