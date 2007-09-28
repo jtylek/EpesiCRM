@@ -1,7 +1,6 @@
 <?php
 /**
  * Flash clock
- * (clock taken from http://www.kirupa.com/developer/actionscript/clock.htm)
  *
  * @author pbukowski@telaxus.com
  * @copyright pbukowski@telaxus.com
@@ -19,6 +18,12 @@ class Applets_ClockCommon extends ModuleCommon {
 	public static function applet_info() {
 		return "Analog flash clock"; //here can be associative array
 	}
+
+	public static function applet_settings() {
+		return array(
+			array('name'=>'skin','label'=>'Clock skin','type'=>'select','default'=>'swissRail','rule'=>array(array('message'=>'Field required', 'type'=>'required')),'values'=>array('swissRail'=>'swissRail','chunkySwiss'=>'chunkySwiss','fancy'=>'fancy','machine'=>'machine','classic'=>'classic','modern'=>'modern','simple'=>'simple'))
+			);
+	}	
 }
 
 ?>
