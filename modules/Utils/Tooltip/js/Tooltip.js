@@ -2,8 +2,6 @@ Utils_Toltip__showTip = function(tip, my_event) {
 	var div_tip = $('tooltip_div');
 	var tooltip_text = $('tooltip_text');
 	if(!div_tip || !tooltip_text) return;
-	div_tip.style.top = 0;
-	div_tip.style.left = 0;
 	tooltip_text.innerHTML = tip;
 	offWidth = div_tip.offsetWidth;
 	offHeight = div_tip.offsetHeight;
