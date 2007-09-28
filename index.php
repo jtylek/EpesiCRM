@@ -55,7 +55,7 @@ unset($_SESSION['cl'.$client_id]);
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<script type="text/javascript" src="libs/prototype.js"></script>
 		<script type="text/javascript" src="libs/HistoryKeeper.js"></script>
-		<script type="text/javascript" src="include/utils.js"></script>
+		<script type="text/javascript" src="include/epesi.js"></script>
 		
 		<style type="text/css">
 			#epesiStatus {
