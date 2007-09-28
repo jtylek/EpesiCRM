@@ -8,7 +8,6 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-$dir = dirname(dirname(__FILE__));
-ini_set('include_path',$dir.'/libs'.PATH_SEPARATOR.$dir.PATH_SEPARATOR.ini_get('include_path'));
+ini_set('include_path','libs'.PATH_SEPARATOR.'.'.PATH_SEPARATOR.ini_get('include_path'));
 
 ?>
