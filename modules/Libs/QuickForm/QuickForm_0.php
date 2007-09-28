@@ -25,7 +25,7 @@ class Libs_QuickForm extends Module {
 			$on_submit = $this->get_submit_form_js_by_name($form_name,true,$indicator)."return false;";
 		$this->qf = new HTML_QuickForm($form_name, 'post', $action, $target, array('onSubmit'=>$on_submit), true);
 		$this->qf->addElement('hidden', 'submited', 0);
-		eval_js_once("set_qf_sub0 = function(fn){var x=document.getElementById(fn);if(x)x.submited.value=0}");
+		eval_js_once("set_qf_sub0 = function(fn){var x=$(fn);if(x)x.submited.value=0}");
 		eval_js("set_qf_sub0('".addslashes($form_name)."')");
 		Base_ThemeCommon::load_css('Libs_QuickForm');
 	}
@@ -67,12 +67,11 @@ class Libs_QuickForm extends Module {
 		global $base; 
 		if(!isset($indicator)) $indicator='processing...';
 		$fast = "+'&".str_replace('&amp;','&',http_build_query(array('__action_module__'=>$this->get_parent_path())))."'"; 
-		$s = $base->run("process(".$base->get_client_id().",serialize_form('".addslashes($form_name)."')".$fast.")"); 
-		$s = str_replace('this',"document.getElementById('".addslashes($form_name)."')",Libs_QuickFormCommon::get_on_submit_actions()).'saja.updateIndicatorText(\''.addslashes($indicator).'\');'.$s;
-		if($submited)	 	
-	 		return "if(saja.procOn==0){document.getElementById('".addslashes($form_name)."').submited.value=1;".$s."document.getElementById('".addslashes($form_name)."').submited.value=0;}";
-	 	else
-	 		return 'if(saja.procOn==0){'.$s.'}'; 
+		$preactions = str_replace('this',"$('".addslashes($form_name)."')",Libs_QuickFormCommon::get_on_submit_actions());
+		$s = "Epesi.href($('".addslashes($form_name)."').serialize()".$fast.", '".Epesi::escapeJS($indicator)."', '".Epesi::escapeJS($preactions)."');";
+		if($submited)
+	 		$s = "$('".addslashes($form_name)."').submited.value=1;".$s."$('".addslashes($form_name)."').submited.value=0;";
+		return $s;
 	}
 
 	public function assign_theme($name, & $theme, $renderer=null){ 

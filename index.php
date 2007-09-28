@@ -40,14 +40,6 @@ if(!in_array('modules',$tables) || !in_array('variables',$tables) || !in_array('
 
 require_once('include/session.php');
 
-require_once('saja/saja.php');
-
-global $saja;
-$saja = new Saja();
-$saja->set_process_file('base.php');
-if(SECURE_HTTP)
-    $saja->secure_http();
-
 $client_id = isset($_SESSION['num_of_clients'])?$_SESSION['num_of_clients']:0;
 $client_id_next = $client_id+1;
 if($client_id_next==5) $client_id_next=0;
@@ -61,16 +53,12 @@ unset($_SESSION['cl'.$client_id]);
 		<link rel="icon" type="image/png" href="images/favicon.png" />
 		<title>Epesi</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<script type="text/javascript">var SAJA_PATH="<?php 
-			$dir = dirname($_SERVER['SCRIPT_NAME']);
-			if($dir!='/') $dir .= '/';
-			print($dir); ?>"; var SAJA_HTTP_KEY="<?php print $saja->http_key; ?>"</script>
-		<script type="text/javascript" src="libs/saja/saja.js"></script>
+		<script type="text/javascript" src="libs/prototype.js"></script>
 		<script type="text/javascript" src="libs/HistoryKeeper.js"></script>
 		<script type="text/javascript" src="include/utils.js"></script>
 		
 		<style type="text/css">
-			#sajaStatus {
+			#epesiStatus {
   				/* Netscape 4, IE 4.x-5.0/Win and other lesser browsers will use this */
   				position: absolute;
   				left: 40%; top: 45%;
@@ -92,7 +80,7 @@ unset($_SESSION['cl'.$client_id]);
 	</head>
 	<body>
 		<div id="main_content"></div>
-		<div id="sajaStatus">
+		<div id="epesiStatus">
 			<table cellspacing="0" cellpadding="0" border="0" style="width:100%;">
 				<tr>
 					<td style="text-align: center; vertical-align: center;"><img src="images/loader.gif" width="16" height="16" border="0"></td>
@@ -107,15 +95,14 @@ unset($_SESSION['cl'.$client_id]);
 		<div id="error_box" onclick="this.innerHTML = ''"></div>
 		<script type="text/javascript">
 		<!--
-		var client_id=<?php print($client_id); ?>;
-		var session_id='<?php print(session_id()); ?>';
+		Epesi.client_id=<?php print($client_id); ?>;
+		Epesi.process_file='<?php print(str_replace('\\','/',dirname($_SERVER['PHP_SELF'])).'/process.php'); ?>';
 		var history_on=1;
 		history_call = function(history_id){
         		switch(history_on){
 			    case -1: history_on=1;
 			    		return;
-			    case 1: <?php print $saja->run("process($client_id,'',history_id)"); ?>
-			    
+			    case 1: Epesi.request('',history_id);
 			}
 		}
 		
@@ -126,11 +113,9 @@ unset($_SESSION['cl'.$client_id]);
 		
 		history_add(0);
 
-		<?php print $saja->run("process(client_id,'',0)"); ?>
+		Epesi.request('',0);
 
-			
 		unFocus.History.addEventListener('historyChange',history_call);
-		
 		-->
 		</script>
 	</body>

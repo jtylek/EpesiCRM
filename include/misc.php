@@ -70,11 +70,10 @@ function location($u = null,$ret = false) {
  * @param string css file path and name
  */
 function load_css($u) {
-	global $base;
 	if(!is_string($u) || strlen($u)==0) return false;
-	$session = & $base->get_tmp_session();
+	$session = & Epesi::get_tmp_session();
 	if (is_string($u) && (!isset($session['__loaded_csses__']) || !array_key_exists($u, $session['__loaded_csses__']))) {
-		$base->js('_lcss(\'' . escapeJS($u) . '\')');
+		Epesi::js('_lcss(\'' . escapeJS($u) . '\')');
 		$session['__loaded_csses__'][$u] = 1;
 		return true;
 	}
@@ -88,14 +87,13 @@ function load_css($u) {
  * @param boolean append contents of js file instead of use src tag?
  */
 function load_js($u,$inline=true) {
-	global $base;
 	if(!is_string($u) || strlen($u)==0) return false;
-	$session = & $base->get_tmp_session();
+	$session = & Epesi::get_tmp_session();
 	if (!isset($session['__loaded_jses__'][$u])) {
 		if($inline)
-			$base->js('_ajs(\''.escapeJS(file_get_contents($u)).'\')');
+			Epesi::js('_ajs(\''.escapeJS(file_get_contents($u)).'\')');
 		else
-			$base->js('_ljs(\''.escapeJS($u).'\')');
+			Epesi::js('_ljs(\''.escapeJS($u).'\')');
 		$session['__loaded_jses__'][$u] = true;
 		return true;
 	}
@@ -108,10 +106,9 @@ function load_js($u,$inline=true) {
  * @param string javascrpit code
  */
 function eval_js($u) {
-	global $base;
 	if (is_string($u) && strlen($u)>0) {
 		$u = rtrim($u,';');
-		$base->js('_ajs(\''.escapeJS($u).'\')');
+		Epesi::js('_ajs(\''.escapeJS($u).'\')');
 	}
 }
 /**
@@ -121,13 +118,12 @@ function eval_js($u) {
  * @return bool true on success, false otherwise
  */
 function eval_js_once($u) {
-	global $base;
 	if(!is_string($u) || strlen($u)==0) return false;
-	$session = & $base->get_tmp_session();
+	$session = & Epesi::get_tmp_session();
 	$md5 = md5($u);
 	if (!isset($session['__evaled_jses__'][$md5])) {
 		$u = rtrim($u,';');
-		$base->js('_ajs(\''.escapeJS($u).'\')');
+		Epesi::js('_ajs(\''.escapeJS($u).'\')');
 		$session['__evaled_jses__'][$md5] = true;
 		return true;
 	}
@@ -376,23 +372,8 @@ function recursive_copy($src, $dest) {
 			copy($src_name, $dest_name);
 	}
 }
-/**
- * Escapes special characters in js code.
- * 
- * @param string js code to escape
- * @return string escaped js code
- */
-function escapeJs($str) {
-	// borrowed from smarty
-	return strtr($str, array (
-		'\\' => '\\\\',
-		"'" => "\\'",
-		'"' => '\\"',
-		"\r" => '\\r',
-		"\n" => '\\n',
-		'</' => '<\/'
-	));
-}
+
+function escapeJS($str) {return Epesi::escapeJS($str);}
 
 function get_epesi_url() {
 	return 'http'.(isset($_SERVER['HTTPS'])?'s':'').'://'. $_SERVER['HTTP_HOST'].str_replace('\\','/',dirname($_SERVER['PHP_SELF']));

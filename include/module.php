@@ -37,7 +37,6 @@ abstract class Module extends ModulePrimitive {
 	 * @param string module name 
 	 */
 	public final function __construct($type,$parent,$name,$clear_vars) {
-		global $base;
 		parent::__construct($type);
 		$this->type = $type;
 		if($parent) {
@@ -149,7 +148,7 @@ abstract class Module extends ModulePrimitive {
 	 * @param mixed value
 	 */
 	public final function set_module_variable($name, $value) {
-		$session = & $GLOBALS['base']->get_session();
+		$session = & Epesi::get_session();
 		return $session['__module_vars__'][$this->get_path()][$name] = $value;
 	}
 	
@@ -178,7 +177,7 @@ abstract class Module extends ModulePrimitive {
 	 */
 	public final function & get_module_variable($name, $default=null) {
 		$path = $this->get_path();
-		$session = & $GLOBALS['base']->get_session();
+		$session = & Epesi::get_session();
 		if(isset($default) && !$this->isset_module_variable($name))
 			$session['__module_vars__'][$path][$name] = & $default;
 		return $session['__module_vars__'][$path][$name];
@@ -230,7 +229,7 @@ abstract class Module extends ModulePrimitive {
 	 * @return bool true if variable exists, false otherwise
 	 */
 	public final function isset_module_variable($name) {
-		$session = & $GLOBALS['base']->get_session();
+		$session = & Epesi::get_session();
 		return isset($session['__module_vars__'][$this->get_path()][$name]);
 	}
 	
@@ -254,7 +253,7 @@ abstract class Module extends ModulePrimitive {
 	 * @param string key
 	 */
 	public final function unset_module_variable($name) {
-		$session = & $GLOBALS['base']->get_session();
+		$session = & Epesi::get_session();
 		if(!isset($name)) trigger_error('unset_module_variable needs one argument',E_USER_ERROR);
 		unset($session['__module_vars__'][$this->get_path()][$name]);
 	}
@@ -268,7 +267,7 @@ abstract class Module extends ModulePrimitive {
 	 * For details concerning module variables see set_module_variable. 
 	 */
 	public final function clear_module_variables() {
-		$session = & $GLOBALS['base']->get_session();
+		$session = & Epesi::get_session();
 		unset($session['__module_vars__'][$this->get_path()]);
 	}
 	
@@ -285,7 +284,7 @@ abstract class Module extends ModulePrimitive {
 			return false;
 		
 		if(!isset($name2)) $name2=$name;
-		$session = & $GLOBALS['base']->get_session();
+		$session = & Epesi::get_session();
 		
 		$session['__module_vars__'][$m->get_path()][$name2] = & $session['__module_vars__'][$this->get_path()][$name];
 		return true;
@@ -346,7 +345,6 @@ abstract class Module extends ModulePrimitive {
 	 * @return string href string
 	 */
 	public final static function create_href_js(array $variables = array (), $indicator=null, $mode=null) {
-//		global $base;
 		$ret = str_replace('&amp;','&',http_build_query($variables));
 		if(!isset($indicator)) $indicator='';
 		return '_chj(\''.$ret.'\', \''.addslashes($indicator).'\', \''.$mode.'\');';
@@ -724,7 +722,7 @@ abstract class Module extends ModulePrimitive {
 		}
 		$base->content[$path]['module'] = & $m;
 		
-		$tmp_session = & $base->get_tmp_session();
+		$tmp_session = & Epesi::get_tmp_session();
 
 		if(!$m->is_fast_process() || (isset($_REQUEST['__action_module__']) && strpos($_REQUEST['__action_module__'],$path)===0) || !isset($tmp_session['__module_content__'][$path])) {
 			if(!is_array($args)) $args = array($args);
@@ -895,8 +893,7 @@ abstract class Module extends ModulePrimitive {
 	 * @return mixed ajax session
 	 */
 	public final function & get_session() {
-		global $base;
-		return $base->get_session();
+		return Epesi::get_session();
 	}
 
 	/**
@@ -905,8 +902,7 @@ abstract class Module extends ModulePrimitive {
 	 * @return mixed ajax temporary session
 	 */
 	public final function & get_tmp_session() {
-		global $base;
-		return $base->get_tmp_session();
+		return Epesi::get_tmp_session();
 	}
 }
 

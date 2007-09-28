@@ -97,7 +97,7 @@ class Base_Search extends Module {
 				$qs_theme->assign('links', $links);
 				$qs_theme->assign('warning', isset($warning)?$warning:null);
 				$qs_theme->display('Results');
-					eval_js('var elem=document.getElementById(\'advanced_search_select\');if(elem){for(i=0; i<elem.length; i++) if(elem.options[i].value==\'__null__\') {elem.options[i].selected=true;break;};};');
+					eval_js('var elem=$(\'advanced_search_select\');if(elem){for(i=0; i<elem.length; i++) if(elem.options[i].value==\'__null__\') {elem.options[i].selected=true;break;};};');
 				return;
 			}
 		}
@@ -113,7 +113,7 @@ class Base_Search extends Module {
 	
 /*	
 	public static function search_menu(){
-		return '<form action="javascript:load_page(\'href=Base_Search&qs_keyword=\'+document.getElementById(\'qs_keyword\').value);" method=POST><input type=text name=qs_keyword /><input type=submit value=Search /></form>';
+		return '<form action="javascript:load_page(\'href=Base_Search&qs_keyword=\'+$(\'qs_keyword\').value);" method=POST><input type=text name=qs_keyword /><input type=submit value=Search /></form>';
 	}
 	*/
 	public function mini() {

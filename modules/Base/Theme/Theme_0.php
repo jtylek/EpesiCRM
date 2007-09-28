@@ -57,14 +57,13 @@ class Base_Theme extends Module {
 	
 	private function load_css_cache() {
 		if(!file_exists(self::$themes_dir.self::$theme.'/__cache.css') || !file_exists(self::$themes_dir.'default/__cache.css')) return;
-		global $base;
-		$sess = & $base->get_tmp_session();
-		if(load_css(self::$themes_dir.self::$theme.'/__cache.css')) {
+		$sess = & Epesi::get_tmp_session();
+		if(load_css($this->get_module_dir().'css.php?d=0')) {
 			$arr = explode("\n",file_get_contents(self::$themes_dir.self::$theme.'/__cache.files'));
 			foreach($arr as $f)
 				$sess['__loaded_csses__'][$f] = 1;
 		}
-		if(load_css(self::$themes_dir.'default/__cache.css')) {
+		if(self::$theme!='default' && load_css($this->get_module_dir().'css.php?d=1')) {
 			$arr = explode("\n",file_get_contents(self::$themes_dir.'default/__cache.files'));
 			foreach($arr as $f)
 				$sess['__loaded_csses__'][$f] = 1;

@@ -141,17 +141,30 @@ class Base_ThemeCommon extends ModuleCommon {
 		foreach($arr as $f) {
 			$name = basename($f);
 			if($name=='__cache.css') continue;
-			if(is_readable($tdir.$name)) {
+			if(is_readable($tdir.$name) && $def_theme!='default') {
 				$css_cur_out .= file_get_contents($tdir.$name)."\n";
 				$files_cur_out .= $tdir.$name."\n";
 			} else {
 				$css_def_out .= file_get_contents($f)."\n";
 				$files_def_out .= $f."\n";
 			}
-		}		
+		}
+		
+		if(function_exists('gzopen')) {
+			$zp = gzopen($themes_dir.'default/__cache.css.gz', 'w9');
+			gzwrite($zp, $css_def_out);
+			gzclose($zp);
+		}
+
 		file_put_contents($themes_dir.'default/__cache.css',$css_def_out);
 		file_put_contents($themes_dir.'default/__cache.files',$files_def_out);
 		if($def_theme!='default') {
+			if(function_exists('gzopen')) {
+				$zp = gzopen($tdir.'/__cache.css.gz', 'w9');
+				gzwrite($zp, $css_cur_out);
+				gzclose($zp);
+			}
+			
 			file_put_contents($tdir.'/__cache.css',$css_cur_out);
 			file_put_contents($tdir.'/__cache.files',$files_cur_out);
 		}

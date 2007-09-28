@@ -84,27 +84,16 @@ class Utils_FileUpload extends Module {
 		$this->form->addElement('hidden','form_name',$form_name);
 
 		$s = $this->form->get_submit_form_js(false,$this->lang->ht('Processing file...'));
-		$s = str_replace("saja.","parent.saja.",$s);
-		$s = str_replace("serialize_form","parent.serialize_form",$s);
+		$s = str_replace("Epesi.","parent.Epesi.",$s);
+		$s = str_replace('$','parent.$',$s);
 
 		$this->form->addElement('hidden','submit_js',$s);
 		$this->form->addElement('file', 'file', $this->lang->ht('Specify file'));
 		$this->form->addElement('static',null,$this->lang->t('Upload status'),'<div id="upload_status"></div>');
-		$this->form->addElement('submit', 'button', $this->lang->ht('Upload'), "onClick=\"document.getElementById('upload_status').innerHTML='uploading...'; submit(); disabled=true;\"");
+		$this->form->addElement('submit', 'button', $this->lang->ht('Upload'), "onClick=\"$('upload_status').innerHTML='uploading...'; submit(); disabled=true;\"");
 		
 		if($this->form->validate()) {
 			$this->form->process(array($this,'submit_parent'));
-			//cleanup all unnecessary tmp files
-/*			$dd = $this->get_data_dir();
-			$ls = scandir($dd);
-			$rt = microtime(true);
-			foreach($ls as $file) {
-				$reqs = array();
-				if(!eregi('^tmp_([0-9]+).([0-9]+)$',$file, $reqs)) continue;
-				$rtc = $reqs[1].'.'.$reqs[2];
-				if(floatval($rt)-floatval($rtc)>ini_get("session.gc_maxlifetime")) //files older then session lifetime
-					unlink($dd.'/'.$file);
-			}*/
 		} else
 			$this->form->display();
 	}

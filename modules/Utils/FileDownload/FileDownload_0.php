@@ -48,18 +48,17 @@ class Utils_FileDownload extends Module {
 		$path = $this->get_path();
 		$id = $this->create_unique_key('stat');
 		print('<div id="'.$id.'"></div>');
-		eval_js_once('utils_filedownload_refresh = function(id,path){var stat=document.getElementById(id);if(!stat || stat.innerHTML==\'Processing downloaded file\') return;saja.updateIndicatorText(\''.$l->ht('Refreshing download status').'\');'.
-			$GLOBALS['base']->run('refresh(client_id,path)->'.$id.':innerHTML','modules/Utils/FileDownload/refresh.php').
+		eval_js_once('utils_filedownload_refresh = function(id,path){var stat=$(id);if(!stat || stat.innerHTML==\'Processing downloaded file\') return;'.
+			'new Ajax.Updater(id,\''.$this->get_module_dir().'refresh.php\',{method:\'post\', parameters:{client_id: Epesi.client_id, path: path}});'.
 			'setTimeout("utils_filedownload_refresh(\'"+id+"\',\'"+path+"\')",3000);}');
 		eval_js_once('utils_filedownload_check_completed = function(id){stat=document.getElementById(id);'.
 				'if(stat && stat.innerHTML==\'Finished\'){
 					stat.innerHTML=\'Processing downloaded file\';'.
 					$this->create_href_js(array('download_complete_'.$this->get_path()=>1),$l->t('Download finished'),'queue').
 				'}setTimeout(\'utils_filedownload_check_completed("\'+id+\'")\',500);}');
-		global $base;
 		DB::Execute('INSERT INTO utils_filedownload_files(path,size) VALUES (%s,-1)',array($file));
 		$this->set_module_variable('download_id',DB::Insert_ID('utils_downloadfile_files','id'));
-		print('<iframe src="'.$this->get_module_dir().'download.php?'.http_build_query(array('client_id'=>$base->get_client_id(),'path'=>$path)).'"  width=0 height=0 frameborder=0>');
+		print('<iframe src="'.$this->get_module_dir().'download.php?'.http_build_query(array('client_id'=>Epesi::get_client_id(),'path'=>$path)).'"  width=0 height=0 frameborder=0>');
 		eval_js('utils_filedownload_refresh("'.$id.'","'.$path.'");utils_filedownload_check_completed("'.$id.'")');
 
 	}

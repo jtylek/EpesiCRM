@@ -7,12 +7,7 @@
  * @version 1.0
  * @package epesi-base
  */
-require_once('libs/saja/saja.php');
 require_once('include.php');
-
-global $base;
-$base = new Epesi();
-
 
 ModuleManager::load_modules();
 foreach(ModuleManager::$modules as $name=>$obj) {

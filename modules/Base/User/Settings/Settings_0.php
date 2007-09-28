@@ -84,7 +84,7 @@ class Base_User_Settings extends Module {
 				$select = array(); 
 				foreach($v['values'] as $k=>$x) $select[$k] = $this->lang->ht($x);
 				$f -> addElement('select',$module.self::$sep.$v['name'],$this->lang->t($v['label']),$select);
-				$this->set_default_js .= 'e = document.getElementById(\''.$f->getAttribute('name').'\').'.$module.self::$sep.$v['name'].';'.
+				$this->set_default_js .= 'e = $(\''.$f->getAttribute('name').'\').'.$module.self::$sep.$v['name'].';'.
 										'for(i=0; i<e.length; i++) if(e.options[i].value==\''.$v['default'].'\'){e.options[i].selected=true;break;};';
 			} elseif ($v['type']=='static' || $v['type']=='header') {
 				$f -> addElement($v['type'],$module.self::$sep.$v['name'],$this->lang->t($v['label']),$this->lang->t($v['values']));
@@ -95,14 +95,14 @@ class Base_User_Settings extends Module {
 					$f -> addElement('radio',$module.self::$sep.$v['name'],$label,$this->lang->ht($x),$k);
 					$label = '';
 				}
-				$this->set_default_js .= 'e = document.getElementById(\''.$f->getAttribute('name').'\').'.$module.self::$sep.$v['name'].';'.
+				$this->set_default_js .= 'e = $(\''.$f->getAttribute('name').'\').'.$module.self::$sep.$v['name'].';'.
 										'for(i=0; i<e.length; i++){e[i].checked=false;if(e[i].value==\''.$v['default'].'\')e[i].checked=true;};';
 			} elseif ($v['type']=='bool' || $v['type']=='checkbox') {
 				$f -> addElement('checkbox',$module.self::$sep.$v['name'],$this->lang->t($v['label']));
-				$this->set_default_js .= 'document.getElementById(\''.$f->getAttribute('name').'\').'.$module.self::$sep.$v['name'].'.checked = '.$v['default'].';';
+				$this->set_default_js .= '$(\''.$f->getAttribute('name').'\').'.$module.self::$sep.$v['name'].'.checked = '.$v['default'].';';
 			} elseif ($v['type']=='text' || $v['type']=='textarea') {
 				$f -> addElement($v['type'],$v['name'],$this->lang->t($v['label']));
-				$this->set_default_js .= 'document.getElementById(\''.$f->getAttribute('name').'\').'.$module.self::$sep.$v['name'].'.value = \''.$v['default'].'\';';
+				$this->set_default_js .= '$(\''.$f->getAttribute('name').'\').'.$module.self::$sep.$v['name'].'.value = \''.$v['default'].'\';';
 			} else trigger_error('Invalid type: '.$v['type'],E_USER_ERROR);
 			if (isset($v['rule'])) {
 				$i = 0;

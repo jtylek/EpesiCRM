@@ -6,7 +6,28 @@
  * @license SPL
  * @package epesi-base
  */
-
+ob_start();
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+      <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+      <title>epesi setup</title>
+      <link href="setup.css" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+        <table id="banner" border="0" cellpadding="0" cellspacing="0">
+            <tr>
+                <td class="image">&nbsp;</td>
+                <td class="back">&nbsp;</td>
+            </tr>
+        </table>
+        <br>
+        <center>
+        <table id="main" border="0" cellpadding="0" cellspacing="0">
+            <tr>
+                <td>
+<?php
 /**
  * Check access to working directories
  */
@@ -23,15 +44,9 @@ if(!is_writable('backup'))
 require_once('modules/Libs/QuickForm/requires.php');
 
 if(!isset($_GET['licence'])) {
-        html_begin();
-        banner();
-        table_begin();
 	print('<h1>Welcome to epesi!<br></h1><h2>Please read and accept licence</h2><br><div class="licence">');
 	licence();
         print('</div><br><a class="button" href="setup.php?licence=1">Accept</a>');
-        table_end();
-        footer();
-        html_end();
 ?>
 
 <?php
@@ -116,13 +131,7 @@ if(!isset($_GET['licence'])) {
                 break;    
 	    }
 	}
-        html_begin();
-        banner();
-        table_begin();
 	$form -> display();
-        table_end();
-        footer();
-        html_end();
     }
 
 ///////////////////////////////////////////////////////////////
@@ -795,70 +804,18 @@ function licence() {
 <?php
 }
 ?>
-
-<?php
-
-// -------------------------------------------------------------------------- //
-
-function html_begin() {
-    echo '
-        <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-        <html>
-        <head>
-            <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
-            <title>epesi setup</title>
-            <link href="setup.css" type="text/css" rel="stylesheet"/>
-        </head>
-        <body>
-    ';
-}
-
-function html_end() {
-    echo '
-        </body>
-        </html>
-    ';
-}
-
-function banner() {
-    echo '
-        <table id="banner" border="0" cellpadding="0" cellspacing="0">
-            <tr>
-                <td class="image">&nbsp;</td>
-                <td class="back">&nbsp;</td>
-            </tr>
-        </table>
-        <br>
-    ';
-}
-
-function table_begin() {
-    echo '
-        <center>
-        <table id="main" border="0" cellpadding="0" cellspacing="0">
-            <tr>
-                <td>
-    ';
-}
-
-function table_end() {
-    echo '
                 </td>
             </tr>
         </table>
         </center>
-    ';
-}
-
-function footer() {
-    echo '
         <br>
         <center>
         <span class="footer">Copyright &copy; 2007 &bull; <a href="http://epesi.sourceforge.net/">epesi framework</a> &bull; Application developed by <a href="http://www.telaxus.com">Telaxus LLC</a></span>
         <br>
         <p><a href="http://www.epesi.org"><img src="images/epesi-powered.png" border="0"></a></p>
         </center>
-    ';
-}
-
+</body>
+</html>
+<?php
+ob_end_flush();
 ?>

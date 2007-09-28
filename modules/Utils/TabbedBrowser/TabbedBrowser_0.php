@@ -37,15 +37,15 @@ class Utils_TabbedBrowser extends Module {
 			$page = $this->get_module_variable_or_unique_href_variable('page', 0);
 		
 		eval_js_once('tabbed_browser_switch = function(id,max,elem){'.
-				'var x = document.getElementById("'.escapeJS($this->get_path()).'_d"+id);'.
+				'var x = $("'.escapeJS($this->get_path()).'_d"+id);'.
 				'if(x) {'.
 					'for(var i=0; i<max; i++){'.
-						'var y = document.getElementById("'.escapeJS($this->get_path()).'_d"+i);'.
+						'var y = $("'.escapeJS($this->get_path()).'_d"+i);'.
 						'if(y) y.style.display="none";'.
-						'document.getElementById("'.escapeJS($this->get_path()).'_c"+i).className="tabbed_browser_unselected";'.
+						'$("'.escapeJS($this->get_path()).'_c"+i).className="tabbed_browser_unselected";'.
 					'}'.
 					'x.style.display="block";'.
-					'document.getElementById("'.escapeJS($this->get_path()).'_c"+id).className="tabbed_browser_selected";'.
+					'$("'.escapeJS($this->get_path()).'_c"+id).className="tabbed_browser_selected";'.
 				'} else eval(elem.getAttribute("original_action"));'.
 			     '}');
 		

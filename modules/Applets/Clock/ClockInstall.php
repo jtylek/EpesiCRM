@@ -22,7 +22,7 @@ class Applets_ClockInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array("0.1");
+		return array("0.9.9");
 	}
 	
 	public function requires($v) {

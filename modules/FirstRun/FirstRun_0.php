@@ -146,7 +146,7 @@ class FirstRun extends Module {
 				Variable::set('mail_password', $d['simple_mail_smtp']['mail_password']);
 			}
 		}			
-		$GLOBALS['base']->redirect();
+		eval_js('document.location=\'\'');
 	}
 
 }

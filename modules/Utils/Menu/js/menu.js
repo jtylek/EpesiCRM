@@ -25,11 +25,11 @@ hideAllNow_f = function(menu, submenu) {
 	var tmp_id;
 	for(i = 0; i < a_submenu_number[menu]; i++ ) {
 		tmp_id = sub_name(menu, i);
-		if( is_over[menu][i] == 0 && document.getElementById(tmp_id) && level[menu][submenu] <= level[menu][i] ) {
-			document.getElementById(tmp_id).style.visibility = "hidden";
+		if( is_over[menu][i] == 0 && $(tmp_id) && level[menu][submenu] <= level[menu][i] ) {
+			$(tmp_id).style.visibility = "hidden";
 			clearTimeout(timeout[menu][i]);
 			if( (level[menu][submenu] < level[menu][i]) && is_IE ) {
-				document.getElementById('mask_level'+level[menu][i]).style.display = 'none';
+				$('mask_level'+level[menu][i]).style.display = 'none';
 			}
 		}
 	}
@@ -45,8 +45,8 @@ super_hideAllNow = function() {
 	for(menu = 0; menu < a_menu_number; menu++ ) {
 		for(i = 0; i < a_submenu_number[menu]; i++ ) {
 			tmp_id = sub_name(menu, i);
-			if( is_over[menu][i] == 0 && document.getElementById(tmp_id) && level[menu][submenu] <= level[menu][i] ) {
-				document.getElementById(tmp_id).style.visibility = "hidden";
+			if( is_over[menu][i] == 0 && $(tmp_id) && level[menu][submenu] <= level[menu][i] ) {
+				$(tmp_id).style.visibility = "hidden";
 			}
 		}
 	}
@@ -113,46 +113,46 @@ custom_show = function(menu, submenu) {
 	}
 	var id = sub_name(menu, submenu);
 	var opener = opener_name(menu, submenu);
-	document.getElementById(id).style.zIndex = 1000;
+	$(id).style.zIndex = 1000;
 	
-	//document.getElementById(id).style.visibility = "visible";
+	//$(id).style.visibility = "visible";
 	//var t = cmAllocFrame(level[menu][submenu]);
 	
 	if( is_IE ) {
-		var t = document.getElementById('mask_level'+level[menu][submenu]);
-		t.style.zIndex = 9;//document.getElementById(id).style.zIndex - 1;
-		t.style.left = getX(document.getElementById(id));
-		t.style.top = getY(document.getElementById(id));
-		t.style.width = getWidth(document.getElementById(id));
-		t.style.height = document.getElementById(id).offsetHeight;
+		var t = $('mask_level'+level[menu][submenu]);
+		t.style.zIndex = 9;//$(id).style.zIndex - 1;
+		t.style.left = getX($(id));
+		t.style.top = getY($(id));
+		t.style.width = getWidth($(id));
+		t.style.height = $(id).offsetHeight;
 		t.style.display = 'block';
 	}
 	
-	//document.getElementById(id).style.filter = "Alpha()";
-	document.getElementById(id).style.opacity = 1;
-	document.getElementById(id).style.visibility  = "visible";
+	//$(id).style.filter = "Alpha()";
+	$(id).style.opacity = 1;
+	$(id).style.visibility  = "visible";
 	
 	
 }
 
 custom_hide_f = function(menu, submenu, opacity) {
 	var id = sub_name(menu, submenu);
-	if( document.getElementById(id) ) {
+	if( $(id) ) {
 		if(opacity <= 0) {
 			clearTimeout(timeout[menu][submenu]);
-			document.getElementById(id).className = "submenu";
-			document.getElementById(id).style.opacity = 1;
-			document.getElementById(id).style.visibility = "hidden";
+			$(id).className = "submenu";
+			$(id).style.opacity = 1;
+			$(id).style.visibility = "hidden";
 			
 			if( is_IE ) {
 				if( level[menu][submenu] != level[menu][last_open] ) {
-					var t = document.getElementById('mask_level'+level[menu][submenu]);
+					var t = $('mask_level'+level[menu][submenu]);
 					t.style.display = 'none';
 				}
 			}
 		} else {
-			document.getElementById(id).style.opacity = opacity;
-			//document.getElementById(id).style.filter = "Alpha(style=0, opacity="+eval(opacity*100)+")";
+			$(id).style.opacity = opacity;
+			//$(id).style.filter = "Alpha(style=0, opacity="+eval(opacity*100)+")";
 			timeout[menu][submenu] = setTimeout('custom_hide_f('+menu+', '+submenu+', '+eval(opacity-0.11)+')', 20);
 		}
 	}
@@ -288,19 +288,19 @@ CustomMenubar = function(id, _layout) {
 //////////////////////////////////////////////////////////////////////////////
 writeOut = function(menu) {
 	//var bodies = document.getElementsByTagName('body');
-	if( document.getElementById('menu_contener_' + menu) ) {
+	if( $('menu_contener_' + menu) ) {
 	//if( bodies[0] ) {
 		if( layout[menu] == 'horizontal' ) {
 			menu_string[menu] += '</tr>';
 		}
-		document.getElementById('menu_contener_' + menu).innerHTML = menu_string[menu] + '</table>' ;
+		$('menu_contener_' + menu).innerHTML = menu_string[menu] + '</table>' ;
 		
 		if( is_IE ) {
-			document.getElementById('menu_contener_' + menu).innerHTML += '<iframe class=custom_iframe id="mask_level0">blah</iframe>';
-			document.getElementById('menu_contener_' + menu).innerHTML += '<iframe class=custom_iframe id="mask_level1">blah</iframe>';
-			document.getElementById('menu_contener_' + menu).innerHTML += '<iframe class=custom_iframe id="mask_level2">blah</iframe>';
-			document.getElementById('menu_contener_' + menu).innerHTML += '<iframe class=custom_iframe id="mask_level3">blah</iframe>';
-			document.getElementById('menu_contener_' + menu).innerHTML += '<iframe class=custom_iframe id="mask_level4">blah</iframe>';
+			$('menu_contener_' + menu).innerHTML += '<iframe class=custom_iframe id="mask_level0">blah</iframe>';
+			$('menu_contener_' + menu).innerHTML += '<iframe class=custom_iframe id="mask_level1">blah</iframe>';
+			$('menu_contener_' + menu).innerHTML += '<iframe class=custom_iframe id="mask_level2">blah</iframe>';
+			$('menu_contener_' + menu).innerHTML += '<iframe class=custom_iframe id="mask_level3">blah</iframe>';
+			$('menu_contener_' + menu).innerHTML += '<iframe class=custom_iframe id="mask_level4">blah</iframe>';
 		}
 		//bodies[0].innerHTML += menu_string[menu] + '</table>' ;
 	} else {

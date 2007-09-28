@@ -8,28 +8,19 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-if(!class_exists('Saja')) return;
-
-class Epesi extends Saja {
-	private $client_id;
-	private $jses = array();
+class Epesi {
+	private static $client_id;
+	private static $jses = array();
+	private static $txts = '';
 	
 	/**
 	 * Initializes ajax engine.
 	 * 
 	 * @param string client id
 	 */
-	public final function init($cl) {
-		$this->client_id = $cl;
-		$this->jses = array();
-		eval_js_once('_chj=function(href,indicator,mode){'.
-			'if(saja.procOn==0 || mode==\'allow\'){'.
-				'if(indicator==\'\') indicator=\'loading...\';'.
-				'saja.updateIndicatorText(indicator);'.
-				$this->run("process(client_id,href)",'base.php').
-			'}else if(mode==\'queue\') setTimeout(\'create_href_js("\'+href+\'", "\'+indicator+\'", "\'+mode+\'")\',500);};'.
-			'create_href_js=_chj;'
-		);
+	public final static function init($cl,$register_shutdown=true) {
+		self::$client_id = $cl;
+		self::$jses = array();
 		ModuleManager :: load_modules();
 	}
 
@@ -38,12 +29,12 @@ class Epesi extends Saja {
 	 * 
 	 * @param string javascript code
 	 */
-	public final function js($js) {
+	public final static function js($js) {
 		if(!is_string($js) || strlen($js)==0) return false;
 		if(STRIP_OUTPUT)
-			$this->jses[] = strip_js($js);
+			self::$jses[] = strip_js($js);
 		else
-			$this->jses[] = $js;
+			self::$jses[] = $js;
 		return true;
 	}
 	
@@ -52,8 +43,8 @@ class Epesi extends Saja {
 	 * 
 	 * @return string client id
 	 */
-	public final function get_client_id() {
-	        return $this->client_id;
+	public final static function get_client_id() {
+	        return self::$client_id;
 	}
 	
 	/**
@@ -61,8 +52,8 @@ class Epesi extends Saja {
 	 * 
 	 * @return mixed ajax session
 	 */
-	public final function & get_session() {
-		return $_SESSION['cl'.$this->client_id]['stable'];
+	public final static function & get_session() {
+		return $_SESSION['cl'.self::$client_id]['stable'];
 	}
 
 	/**
@@ -70,22 +61,57 @@ class Epesi extends Saja {
 	 * 
 	 * @return mixed ajax temporary session
 	 */
-	public final function & get_tmp_session() {
-		return $_SESSION['cl'.$this->client_id]['tmp'];
+	public final static function & get_tmp_session() {
+		return $_SESSION['cl'.self::$client_id]['tmp'];
 	}
 
 	/**
 	 * Executes list of javascrpit commands gathered with js() function.
 	 */
-	public final function call_jses() {
-		foreach($this->jses as $cc) {
+	public final static function send_output() {
+		print(self::get_output());
+	}
+
+	public final static function get_output() {
+		$ret = self::$txts;
+		foreach(self::$jses as $cc) {
 			$x = rtrim($cc,';');
-			if($x) {
-				parent::js($x);
-			}
+			if($x) $ret.=$x.';';
 		}
-		//file_put_contents('data/jses',implode($this->jses,"\n\n\n"));
-		$this->jses=array();
+		self::clean();
+		//file_put_contents('data/jses',implode(self::$jses,"\n\n\n"));
+		return $ret;
+	}
+	
+	public final static function clean() {
+		self::$txts = '';
+		self::$jses=array();
+	}
+	
+	public final static function text($txt,$id,$type='instead') {
+		self::$txts .= 'Epesi.text(\''.self::escapeJS($txt).'\',\''.self::escapeJS($id).'\',\''.self::escapeJS($type{0}).'\');';
+	}
+	
+	public final static function alert($txt) {
+		self::$jses[] = 'alert(\''.self::escapeJS($txt).'\')';
+	}
+
+	/**
+	 * Escapes special characters in js code.
+	 * 
+	 * @param string js code to escape
+	 * @return string escaped js code
+	 */
+	public final static function escapeJS($str) {
+		// borrowed from smarty
+		return strtr($str, array (
+			'\\' => '\\\\',
+			"'" => "\\'",
+			'"' => '\\"',
+			"\r" => '\\r',
+			"\n" => '\\n',
+			'</' => '<\/'
+		));
 	}
 }
 ?>

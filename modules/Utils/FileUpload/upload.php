@@ -12,9 +12,9 @@
 header("Cache-Control: no-cache, must-revalidate");
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // date in the past
 
-$form_name = $_REQUEST['form_name'];
-if(!isset($form_name))
+if(!isset($_REQUEST['form_name']))
 	exit();
+$form_name = $_REQUEST['form_name'];
 $doc = $_FILES['file'];
 $dest_filename  = 'tmp_'.microtime(true);
 $dest_path  = 'data/Utils_FileUpload/'.$dest_filename;
@@ -24,7 +24,7 @@ if($doc['error']!='0') {
 	?>
 	<script type="text/javascript">
 	<!--
-	parent.document.getElementById('upload_status').innerHTML='Unable to upload specified file';
+	parent.$('upload_status').innerHTML='Unable to upload specified file';
 	-->
 	</script>
 	<?php
@@ -34,7 +34,7 @@ if($doc['error']!='0') {
 	?>
 	<script type="text/javascript">
 	<!--
-	parent.document.getElementById('upload_status').innerHTML='uploaded <?php print($doc['name']); ?>';
+	parent.$('upload_status').innerHTML='uploaded <?php print($doc['name']); ?>';
 	parent.document.forms['<?php print($form_name); ?>'].uploaded_file.value='<?php print($dest_path); ?>';
 	parent.document.forms['<?php print($form_name); ?>'].original_file.value='<?php print($doc['name']); ?>';
 	-->

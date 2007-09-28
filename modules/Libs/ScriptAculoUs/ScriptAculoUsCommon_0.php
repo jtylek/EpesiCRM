@@ -9,7 +9,6 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-load_js('modules/Libs/ScriptAculoUs/1.7.0/prototype.js');
 load_js('modules/Libs/ScriptAculoUs/1.7.0/scriptaculous.js');
 load_js('modules/Libs/ScriptAculoUs/1.7.0/builder.js');
 load_js('modules/Libs/ScriptAculoUs/1.7.0/effects.js');

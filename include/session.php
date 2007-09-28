@@ -55,6 +55,5 @@ session_set_save_handler(array('DBSession','open'),
                              array('DBSession','destroy'),
                              array('DBSession','gc'));
  
-if(!session_id() && !defined('_SAJA_PROCESS'))
-	session_start();
+session_start();
 ?>

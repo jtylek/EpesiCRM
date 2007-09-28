@@ -53,9 +53,9 @@ class ModuleManager {
 		$path = self::get_module_dir_path($class_name);
 		$file = self::get_module_file_name($class_name);
 		$file_url = 'modules/' . $path . '/' . $file . 'Common_'.$version.'.php';
-		if(@file_exists($file_url) ) {
+		if(file_exists($file_url)) {
 			ob_start();
-    			require_once ($file_url);
+			require_once ($file_url);
 			ob_end_clean();
 			$x = $class_name.'Common';
 			if(class_exists($x)) {
@@ -80,7 +80,7 @@ class ModuleManager {
 		$path = self::get_module_dir_path($class_name);
 		$file = self::get_module_file_name($class_name);
 		$file_url = 'modules/' . $path . '/' . $file . '_'.$version.'.php';
-		if(@file_exists($file_url) ) {
+		if( file_exists($file_url) ) {
 			ob_start();
 			require_once ($file_url);
 			ob_end_clean();
@@ -785,6 +785,8 @@ class ModuleManager {
 			}
 		}
 		$c = self::$modules[$mod]['name'];
+		if(!class_exists($c))
+			trigger_error('Class not exists: '.$c,E_USER_ERROR);
 		$m = new $c($mod,$parent,$name,$clear_vars);
 		return $m;
 	}

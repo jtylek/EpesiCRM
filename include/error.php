@@ -21,13 +21,12 @@ class ErrorHandler {
 	private static $observers = array();
 	
 	private static function notify_client($buffer) {
-		global $base;
-		if(class_exists('Saja')) {
-			if(!isset($base)) $base = new Saja();
+		if(class_exists('Epesi')) {
+			Epesi::clean();
 			if(DISPLAY_ERRORS)
-				$base->text($buffer,'error_box,p');
-			$base->alert('There was an error in one of epesi modules.'.((DISPLAY_ERRORS)?' Details are displayed at the bottom of the page, please send this information to system administrator.':''));
-			return $base->send();	
+				Epesi::text($buffer,'error_box','prepend');
+			Epesi::alert('There was an error in one of epesi modules.'.((DISPLAY_ERRORS)?' Details are displayed at the bottom of the page, please send this information to system administrator.':''));
+			return Epesi::get_output();
 		}
 		return $buffer;
 	}

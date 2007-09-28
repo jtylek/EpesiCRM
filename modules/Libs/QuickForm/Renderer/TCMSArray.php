@@ -159,7 +159,7 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
         $this->_collectHidden = $collectHidden;
         $this->_staticLabels  = $staticLabels;
         //print "<div id='asdfre'></div>";
-//        $js = "HTML_QuickForm_Renderer_TCMSArray_error=function(err_id, error){terefere = document.getElementById(err_id);if(terefere) terefere.innerHTML = error;}";
+//        $js = "HTML_QuickForm_Renderer_TCMSArray_error=function(err_id, error){terefere = $(err_id);if(terefere) terefere.innerHTML = error;}";
 //		eval_js($js);
     } // end constructor
 

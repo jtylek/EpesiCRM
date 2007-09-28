@@ -42,43 +42,6 @@ function _ajs(texti) {
 };
 append_js = _ajs;
 
-function collect(a,f) {
-	var n=[];
-	for(var i=0;i<a.length;i++){
-		if(a[i].disabled) continue;
-		var v=f(a[i]);
-		if(v!=null) n.push(v)
-	}
-	return n
-}
-
-function serialize_form(formName){
-	f = document.getElementById(formName);
-	var g=function(n) {
-		return f.getElementsByTagName(n)
-	};
-	var nv=function(e){
-		if(e.name)
-			return encodeURIComponent(e.name)+'='+encodeURIComponent(e.value);
-		else 
-			return ''
-	};
-	var i=collect(g('input'),function(i) {
-		if((i.type!='radio'&&i.type!='checkbox')||i.checked)
-			return nv(i)
-	});
-	var s=collect(g('select'),function(sss) {
-		ret = [];
-          for(var i=0;i<sss.options.length;i++){
-			if(sss.options[i].selected)
-				ret.push(encodeURIComponent(sss.name)+'='+encodeURIComponent(sss.options[i].value));
-		}
-		return ret.join('&')
-	});
-	var t=collect(g('textarea'),nv);
-	return i.concat(s).concat(t).join('&');
-};
-
 function addslashes(x){return x.replace(/('|"|\\)/g,"\\$1")}
 
 function wait_while_null(id,action) {
@@ -87,3 +50,60 @@ function wait_while_null(id,action) {
 	else
 		setTimeout('wait_while_null(\''+addslashes(id)+'\', \''+addslashes(action)+'\')',200);
 };
+
+var Epesi = {
+	procOn:0,
+	client_id:0,
+	process_file:'',
+	indicator:'epesiStatus',
+	updateIndicator: function(){
+		var s = $(Epesi.indicator);
+		if(s) s.style.visibility = Epesi.procOn ? 'visible' : 'hidden';
+	},
+	updateIndicatorText: function(text){
+		$(Epesi.indicator).innerHTML = text;
+	},
+	request: function(url,history_id) {
+		Epesi.procOn++;
+		Epesi.updateIndicator();
+		new Ajax.Request(Epesi.process_file, { 
+			method:'post', 
+			parameters: {
+				client: Epesi.client_id, 
+				history: history_id,
+				url:url
+			},
+			onComplete: function(t) {
+				Epesi.procOn--;
+				Epesi.updateIndicator();
+			},
+			onException: function(t,e) {
+				throw(e);
+			},
+			onFailure: function(t) {
+				alert('Failure');
+			}
+		});
+	},
+	href: function(url,indicator,mode,preactions,postactions) {
+		if(Epesi.procOn==0 || mode=='allow'){
+			if(indicator=='') indicator='loading...';
+			if(typeof(preactions)!='undefined') eval(preactions);
+			Epesi.updateIndicatorText(indicator);
+			Epesi.request(url);
+			if(typeof(postactions)!='undefined') eval(postactions);
+		} else if(mode=='queue') 
+			setTimeout('Epesi.href("'+href+'", "'+indicator+'", "'+mode+'")',500);
+	},
+	text: function(txt,idt,type) {
+		var t=$(idt);
+		if(!t) return;
+		if(type=='i')//instead
+			t.innerHTML = txt;
+		else if(type=='p')//prepend
+			t.innerHTML = txt+t.innerHTML;
+		else if($type=='a')//append
+			t.innerHTML += txt;
+	}
+};
+_chj=Epesi.href;

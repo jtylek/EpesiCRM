@@ -8,7 +8,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Base extends Epesi {
+class Base {
 	public $content;
 	
 	private function check_firstrun() {
@@ -56,7 +56,7 @@ class Base extends Epesi {
 		}
 	}
 	
-	public function process($cl_id, $url, $history_call=false,$refresh=false) {
+	public function process($url, $history_call=false,$refresh=false) {
 		if(MODULE_TIMES) 
 			$time = microtime(true);
 
@@ -67,17 +67,15 @@ class Base extends Epesi {
 			$_GET = $_REQUEST = & $_POST;
 		}
 
-		if(!$refresh)
-			$this->init($cl_id);
 		$this->check_firstrun();
-		
+
 		if($history_call==='0')
 		    History::clear();
 		elseif($history_call)
 		    History::set_id($history_call);
 		
-		$session = & $this->get_session();
-		$tmp_session = & $this->get_tmp_session();
+		$session = & Epesi::get_session();
+		$tmp_session = & Epesi::get_tmp_session();
 	
 		//on init call methods...
 		$ret = on_init(null,null,null,true);
@@ -106,7 +104,7 @@ class Base extends Epesi {
 //			ModuleManager::load_modules();
 	
 			//go
-			return $this->process($this->get_client_id(),'__location&' . http_build_query($loc),false,true);
+			return $this->process('__location&' . http_build_query($loc),false,true);
 		}
 
 		if(DEBUG || MODULE_TIMES || SQL_TIMES) {
@@ -162,9 +160,9 @@ class Base extends Epesi {
 				}
 				
 				if(isset($v['span']))
-					$this->text($v['value'], $v['span']);
+					Epesi::text($v['value'], $v['span']);
 				if($v['js'])
-					$this->js('_ajs(\''.escapeJS(join(";",$v['js'])).'\')');
+					Epesi::js('_ajs(\''.Epesi::escapeJS(join(";",$v['js'])).'\')');
 				$tmp_session['__module_content__'][$k]['value'] = $v['value'];
 				$tmp_session['__module_content__'][$k]['js'] = $v['js'];				
 				$tmp_session['__module_content__'][$k]['parent'] = $parent;				
@@ -178,14 +176,14 @@ class Base extends Epesi {
 				if(DEBUG)
 					$debug .= 'Reloading missing '.$k.'<hr>';
 				if(isset($v['span']))
-					$this->text($v['value'], $v['span']);
+					Epesi::text($v['value'], $v['span']);
 				if($v['js'])
-					$this->js('_ajs(\''.escapeJS(join(";",$v['js'])).'\')');
+					Epesi::js('_ajs(\''.Epesi::escapeJS(join(";",$v['js'])).'\')');
 				$reloaded[$k] = true;
 			}
 	
 		if(DEBUG) {
-			$debug .= 'vars '.$this->get_client_id().': '.print_r($session['__module_vars__'],true).'<br>';
+			$debug .= 'vars '.Epesi::get_client_id().': '.print_r($session['__module_vars__'],true).'<br>';
 			$debug .= 'user='.Acl::get_user().'<br>';
 			if(isset($_REQUEST['__action_module__']))
 				$debug .= 'action module='.$_REQUEST['__action_module__'].'<br>';
@@ -205,14 +203,14 @@ class Base extends Epesi {
 				$debug .= '<b>'.$q['func'].'</b> '.var_export($q['args'],true).' <i>'.$q['time'].'</i><br>';
 		}
 		if(DEBUG || MODULE_TIMES || SQL_TIMES)
-			$this->text($debug,'debug');
+			Epesi::text($debug,'debug');
 		
 		if(!$history_call && !History::soft_call()) {
 		        History::set();
 		}
 		
 		if(!$history_call) {
-			$this->js('history_add('.History::get_id().')');
+			Epesi::js('history_add('.History::get_id().')');
 		}
 	}
 }

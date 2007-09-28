@@ -103,7 +103,7 @@
 			header_string += '<td width=100% align=center><a href="javascript:datepicker.show_year(\''+year+'\')">'+this.monthName[month] + ' ' + year_real+'</a></td>';
 			header_string += '<td align=right><a href="javascript:datepicker.show_month(\''+next_month+'\', \''+next_year+'\')">&gt;&gt</a></td>';
 			header_string += '</tr></table>';
-			document.getElementById('datepicker_header').innerHTML = header_string;
+			$('datepicker_header').innerHTML = header_string;
 			
 			// filling month
 			Calendar.setDate(1);
@@ -153,7 +153,7 @@
 			}
 			cal += '</TABLE>';
 			// and final solution
-			document.getElementById('datepicker_view').innerHTML = cal;
+			$('datepicker_view').innerHTML = cal;
 		}
 		
 		//show a year
@@ -183,7 +183,7 @@
 			header_string += '<td width=100% align=center><a href="javascript:datepicker.show_decade(\''+(year - (year%10))+'\')">'+ year_real+'</a></td>';
 			header_string += '<td align=right><a href="javascript:datepicker.show_year(\''+next_year+'\')">&gt;&gt</a></td>';
 			header_string += '</tr></table>';
-			document.getElementById('datepicker_header').innerHTML = header_string;
+			$('datepicker_header').innerHTML = header_string;
 			
 			// filling year with months	
 			var cal = '';
@@ -206,7 +206,7 @@
 			
 			cal += '</TABLE>';
 			// and final solution
-			document.getElementById('datepicker_view').innerHTML = cal;
+			$('datepicker_view').innerHTML = cal;
 		}
 		
 		//show a decade
@@ -235,7 +235,7 @@
 			header_string += '<td width=100% align=center><a href="javascript:datepicker.show_century(\''+(decade - (decade%100))+'\')">'+ decade_real + ' - ' + (decade_real+10) + '</a></td>';
 			header_string += '<td align=right><a href="javascript:datepicker.show_decade(\''+next_decade+'\')">&gt;&gt</a></td>';
 			header_string += '</tr></table>';
-			document.getElementById('datepicker_header').innerHTML = header_string;
+			$('datepicker_header').innerHTML = header_string;
 			
 			// filling year with months	
 			var cal = '';
@@ -258,7 +258,7 @@
 			
 			cal += '</TABLE>';
 			// and final solution
-			document.getElementById('datepicker_view').innerHTML = cal;
+			$('datepicker_view').innerHTML = cal;
 		}
 		
 		//show a century
@@ -287,7 +287,7 @@
 			header_string += '<td width=100% align=center>'+ century_real + ' - ' + (century_real+100) + '</td>';
 			header_string += '<td align=right><a href="javascript:datepicker.show_century(\''+next_century+'\')">&gt;&gt</a></td>';
 			header_string += '</tr></table>';
-			document.getElementById('datepicker_header').innerHTML = header_string;
+			$('datepicker_header').innerHTML = header_string;
 			
 			// filling year with months	
 			var cal = '';
@@ -310,6 +310,6 @@
 			
 			cal += '</TABLE>';
 			// and final solution
-			document.getElementById('datepicker_view').innerHTML = cal;
+			$('datepicker_view').innerHTML = cal;
 		}
 	}

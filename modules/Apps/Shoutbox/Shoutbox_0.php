@@ -50,7 +50,7 @@ class Apps_Shoutbox extends Module {
 				//get logged user id
 				$user_id = Base_UserCommon::get_my_user_id();
 				//clear text box and focus it
-				eval_js('document.getElementById(\'shoutbox_text\').value=\'\';focus_by_id(\'shoutbox_text\')');
+				eval_js('$(\'shoutbox_text\').value=\'\';focus_by_id(\'shoutbox_text\')');
 			
 				//insert to db
 				DB::Execute('INSERT INTO apps_shoutbox_messages(message,base_user_login_id) VALUES(%s,%d)',array(htmlspecialchars($msg,ENT_QUOTES,'UTF-8'),$user_id));
@@ -73,8 +73,8 @@ class Apps_Shoutbox extends Module {
 
 
 		//if there is displayed shoutbox, call myFunctions->refresh from refresh.php file every 5s
-		eval_js_once('shoutbox_refresh = function(){if(!document.getElementById(\'shoutbox_board\')) return;saja.updateIndicatorText(\''.$this->lang->ht('Refreshing shoutbox').'\');'.
-			$GLOBALS['base']->run('refresh(client_id)->shoutbox_board:innerHTML','modules/Apps/Shoutbox/refresh.php').
+		eval_js_once('shoutbox_refresh = function(){if(!$(\'shoutbox_board\')) return;'.
+			'new Ajax.Updater(\'shoutbox_board\',\'modules/Apps/Shoutbox/refresh.php\',{method:\'get\'});'.
 			'};setInterval(\'shoutbox_refresh()\',30000)');
 	}
 }

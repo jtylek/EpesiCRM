@@ -11,7 +11,7 @@ base_box__get_height = function(someObject){
 };
 
 base_box__set_content_height = function(content) {
-	var frame = document.getElementById(content);
+	var frame = $(content);
 	if(!frame)return;
 	var htmlheight = base_box__get_height(document.getElementsByTagName('body')[0]);
 
