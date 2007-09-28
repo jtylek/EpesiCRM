@@ -80,8 +80,8 @@ var Epesi = {
 			onException: function(t,e) {
 				throw(e);
 			},
-			onFailure: function(t) {
-				alert('Failure');
+			onFailure: function(t,x) {
+				alert('Failure: '+x);
 			}
 		});
 	},
