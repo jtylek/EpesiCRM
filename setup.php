@@ -44,7 +44,7 @@ if(!is_writable('backup'))
 require_once('modules/Libs/QuickForm/requires.php');
 
 if(!isset($_GET['licence'])) {
-	print('<h1>Welcome to epesi!<br></h1><h2>Please read and accept licence</h2><br><div class="licence">');
+	print('<h1>Welcome to epesi framework setup!<br></h1><h2>Please read and accept licence</h2><br><div class="licence">');
 	licence();
         print('</div><br><a class="button" href="setup.php?licence=1">Accept</a>');
 ?>
@@ -326,7 +326,7 @@ function install_base() {
 //////////////////////////////////////////////
 function licence() {
 ?>
-<h1>SUN PUBLIC LICENSE Version 1.0</h1>
+<h2>SUN PUBLIC LICENSE Version 1.0</h2>
 <p><tt><br>
 1. Definitions.</tt></p>
 <blockquote>
