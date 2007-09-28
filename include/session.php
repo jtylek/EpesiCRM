@@ -62,6 +62,6 @@ $document_root = trim($document_root,'/');
 if($document_root) $document_root = '/'.$document_root.'/';
 	else $document_root = '/';
 
-session_set_cookie_params(ini_get("session.gc_maxlifetime"),$document_root);
+session_set_cookie_params(0,$document_root);
 session_start();
 ?>
