@@ -67,8 +67,7 @@ class Libs_QuickForm extends Module {
 		global $base; 
 		if(!isset($indicator)) $indicator='processing...';
 		$fast = "+'&".str_replace('&amp;','&',http_build_query(array('__action_module__'=>$this->get_parent_path())))."'"; 
-		$preactions = str_replace('this',"$('".addslashes($form_name)."')",Libs_QuickFormCommon::get_on_submit_actions());
-		$s = "Epesi.href($('".addslashes($form_name)."').serialize()".$fast.", '".Epesi::escapeJS($indicator)."', '".Epesi::escapeJS($preactions)."');";
+		$s = str_replace('this',"$('".addslashes($form_name)."')",Libs_QuickFormCommon::get_on_submit_actions())."Epesi.href($('".addslashes($form_name)."').serialize()".$fast.", '".Epesi::escapeJS($indicator)."');";
 		if($submited)
 	 		$s = "$('".addslashes($form_name)."').submited.value=1;".$s."$('".addslashes($form_name)."').submited.value=0;";
 		return $s;

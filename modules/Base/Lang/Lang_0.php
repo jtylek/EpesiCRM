@@ -115,7 +115,6 @@ class Base_Lang extends Module {
 			$id = 'trans_'.md5($this->parent_module.$original);
 			$trans = '<span id="'.$id.'">'.$trans.'</span><a href="javascript:void(0)"  onClick="var oryg=\''.escapeJS($original).'\';var oryg_trans=this.getAttribute(\'oryginal_trans\');if(oryg_trans==null)oryg_trans=\''.escapeJS($trans_oryg).'\';var x=prompt(oryg,oryg_trans);if(x!=null){var sp=$(\''.$id.'\');if(x==\'\')sp.innerHTML=oryg;else sp.innerHTML=x;this.setAttribute(\'oryginal_trans\',x);'.
 			'new Ajax.Request(\'modules/Base/Lang/submit_trans.php\',{method:\'post\',parameters:{client_id:Epesi.client_id, parent:\''.escapeJS($this->parent_module).'\', oryg: oryg, trans:x}});'.
-//			$base->run('translate(client_id,\''.escapeJS($this->parent_module).'\',oryg,x)','modules/Base/Lang/submit_trans.php').
 			'}">[*]</a>';
 		} else
 			$trans = vsprintf($trans,$arg);

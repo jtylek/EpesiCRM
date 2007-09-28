@@ -85,13 +85,11 @@ var Epesi = {
 			}
 		});
 	},
-	href: function(url,indicator,mode,preactions,postactions) {
+	href: function(url,indicator,mode) {
 		if(Epesi.procOn==0 || mode=='allow'){
 			if(indicator=='') indicator='loading...';
-			if(typeof(preactions)!='undefined') eval(preactions);
 			Epesi.updateIndicatorText(indicator);
 			Epesi.request(url);
-			if(typeof(postactions)!='undefined') eval(postactions);
 		} else if(mode=='queue') 
 			setTimeout('Epesi.href("'+href+'", "'+indicator+'", "'+mode+'")',500);
 	},
