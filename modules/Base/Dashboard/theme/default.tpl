@@ -1,4 +1,4 @@
-<table id="shadow" cellpadding="0" cellspacing="0" border="0">
+<table id="shadow" cellpadding="0" cellspacing="0" border="0" style="width:100%">
     <tr>
         <td class="td-5x5 top-left"></td>
         <td class="td-5x5 top-left-right"></td>
