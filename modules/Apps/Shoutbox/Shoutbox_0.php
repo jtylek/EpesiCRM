@@ -39,7 +39,8 @@ class Apps_Shoutbox extends Module {
 			$submit = & HTML_QuickForm::createElement('submit','button',$this->lang->ht('Submit'));
 			//add it
 			$qf->addGroup(array($text,$submit),'post');
-			//$qf->addGroupRule('post',$this->lang->t('Field required'),'required',null,2);
+			$qf->addGroupRule('post',$this->lang->t('Field required'),'required',null,2);
+			$qf->setRequiredNote(null);
 
 			//if submited
 			if($qf->validate()) {
