@@ -73,7 +73,7 @@ var Epesi = {
 				history: history_id,
 				url:url
 			},
-			onComplete: function(t,n) {
+			onComplete: function(t) {
 				Epesi.procOn--;
 				Epesi.updateIndicator();
 			},
