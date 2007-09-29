@@ -1,8 +1,6 @@
 <?php
 /**
- * CRMHR class.
- * 
- * This class is just my first module, test only.
+ * RecordBrowser class.
  * 
  * @author Kuba Sławiński <ruud@o2.pl>, Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
@@ -17,63 +15,151 @@ class Base_RecordBrowser extends Module {
 	private $lang;
 	private $SQL_chars = array('text'=>'%s', 'long text'=>'%s', 'date'=>'%D', 'integer'=>'%d');
 	private $tab;
-	
+	private $browse_mode;
+
 	public function construct($tab = null) {
 		if (!isset($tab))
 			trigger_error('RecordBrowser did not receive string name for the table '.$this->get_parent_type().'.<br>Use $this->init_module(\'Utils/RecordBrowser\',\'table name here\');',E_USER_ERROR);
-			$this->tab = $tab;
+		$this->tab = $tab;
 	}
 	
 	public function init($admin=false) {
 		if (!isset($this->lang)) $this->lang = & $this->init_module('Base/Lang');
-		$tab = Base_RecordBrowserCommon::init($this->tab, $admin);
-		if ($tab!==false) $this->table_rows = $tab;
+		$this->table_rows = Base_RecordBrowserCommon::init($this->tab, $admin);
 	}
 	// BODY //////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function body($arg) {
 		if(Base_AclCommon::i_am_user()) {
 			$this->init();
-			Base_ActionBarCommon::add('add',$this->lang->t('New contact'), $this->create_callback_href(array($this,'view_entry'),array('add')));// TODO:label
-			$this->show_data();
+			if (isset($_REQUEST['tab'])) {
+				$this->tab = $_REQUEST['tab'];
+				$this->init();
+				$this->view_entry($_REQUEST['action'], $_REQUEST['id']);
+			} else {
+				Base_ActionBarCommon::add('add',$this->lang->t('New'), $this->create_callback_href(array($this,'view_entry'),array('add')));
+				$this->browse_mode = $this->get_module_variable('browse_mode', 'all');
+				if ($this->browse_mode!=='recent') Base_ActionBarCommon::add('report',$this->lang->t('Recent'), $this->create_callback_href(array($this,'switch_view'),array('recent')));
+				if ($this->browse_mode!=='all') Base_ActionBarCommon::add('report',$this->lang->t('All'), $this->create_callback_href(array($this,'switch_view'),array('all')));
+				if ($this->browse_mode!=='favorites') Base_ActionBarCommon::add('report',$this->lang->t('Favorites'), $this->create_callback_href(array($this,'switch_view'),array('favorites')));
+				$crits = $this->show_filters();
+				$this->show_data($crits);
+			}
 		} else
-			print($this->lang->t('You must log in to use contacts.'));
+			print($this->lang->t('You must log in to view this data.'));
+	}
+	public function switch_view($mode){
+		$this->browse_mode = $mode;
+		$this->set_module_variable('browse_mode', $mode);
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
-	public function show_data($crits = array()) {
+	public function show_filters() {
+		$ret = DB::Execute('SELECT field FROM '.$this->tab.'_field WHERE filter=1');
+		if ($ret->EOF) return array();
+		$form = $this->init_module('Libs/QuickForm', null, $this->tab.'filters');
+		$filters = array();
+		while($row = $ret->FetchRow()) {
+			if ($this->table_rows[$row['field']]['type'] == 'select') {
+				$arr = array('__NULL__'=>'--');
+				list($tab, $col) = explode('::',$this->table_rows[$row['field']]['param']);
+				$ret2 = DB::Execute('SELECT '.$tab.'_id, value FROM '.$tab.'_data WHERE field=%s', array($col));
+				while ($row2 = $ret2->FetchRow()) $arr[$row2[$tab.'_id']] = $row2['value'];
+			} else {
+				$ret2 = DB::Execute('SELECT value FROM '.$this->tab.'_data WHERE field=%s ORDER BY value', array($row['field']));
+				$arr = array('__NULL__'=>'--');
+				while ($row2 = $ret2->FetchRow()) $arr[$row2['value']] = $row2['value'];
+			}
+			$form->addElement('select', str_replace(' ','_',$row['field']), $row['field'], $arr);
+			$filters[] = str_replace(' ','_',$row['field']);
+		}
+		$form->addElement('submit', 'submit', 'Show');
+		$crits = array();
+		if ($form->validate()) {
+			$vals = $form->exportValues();
+			unset($vals['submit']);
+			unset($vals['submited']);
+			foreach($vals as $k=>$v)
+				if ($v!=='__NULL__') $crits[$k] = $v;
+		}
+		$theme = $this->init_module('Base/Theme');
+		$form->assign_theme('form',$theme);
+		$theme->assign('filters', $filters);
+		$theme->display('Filter');
+		return $crits;
+	}
+	//////////////////////////////////////////////////////////////////////////////////////////
+	public function show_data($crits = array(), $cols = array(), $fs_links = false) {
 		$this->init();
 		$gb = & $this->init_module('Utils/GenericBrowser', null, $this->tab);
 		
 		$table_columns = array();
 		
 		$table_columns_SQL = array();
+		$quickjump = DB::GetOne('SELECT col FROM recordbrowser_quickjump WHERE tab=%s', array($this->tab));
 		foreach($this->table_rows as $field => $args) {
 			if ($field === 'id') continue;
-			if (!$args['visible']) continue;
-			$table_columns[] = array('name'=>$args['name'], 'order'=>$field);
+			if (!$args['visible'] && (!isset($cols[$args['name']]) || $cols[$args['name']] === false)) continue;
+			if (isset($cols[$args['name']]) && $cols[$args['name']] === false) continue;
+			$arr = array('name'=>$args['name'], 'order'=>$field);
+			if ($quickjump!==false && $args['name']===$quickjump) $arr['quickjump'] = $args['name'];
+			$table_columns[] = $arr;
 			array_push($table_columns_SQL, 'e.'.$field);
 		}
+
 		$table_columns_SQL = join(', ', $table_columns_SQL);
+		if ($this->browse_mode == 'recent')
+			$table_columns[] = array('name'=>$this->lang->t('Visited on')); 
 		$gb->set_table_columns( $table_columns );
-		
+		$crits = array_merge($crits, $gb->get_search_query(true));
+
 		$get_fields = array();
 		
 		$records = Base_RecordBrowserCommon::get_records($this->tab, $crits);
+		if ($this->browse_mode == 'recent') {
+			$rec_tmp = array();
+			$ret = DB::Execute('SELECT * FROM '.$this->tab.'_recent WHERE user_id=%d ORDER BY visited_on DESC', array(Base_UserCommon::get_my_user_id()));
+			while ($row = $ret->FetchRow()) {
+				if (!isset($records[$row[$this->tab.'_id']])) continue;
+				$rec_tmp[$row[$this->tab.'_id']] = $records[$row[$this->tab.'_id']];
+				$rec_tmp[$row[$this->tab.'_id']]['visited_on'] = $row['visited_on'];
+			}
+			$records = $rec_tmp;
+		}
+		if ($this->browse_mode == 'favorites') {
+			$rec_tmp = array();
+			$ret = DB::Execute('SELECT * FROM '.$this->tab.'_favorite WHERE user_id=%d', array(Base_UserCommon::get_my_user_id()));
+			while ($row = $ret->FetchRow()) {
+				if (!isset($records[$row[$this->tab.'_id']])) continue;
+				$rec_tmp[$row[$this->tab.'_id']] = $records[$row[$this->tab.'_id']];
+			}
+			$records = $rec_tmp;
+		}
 		foreach ($records as $row) {
 			$gb_row = & $gb->get_new_row();
 			$row_data = array();
 			foreach($this->table_rows as $field => $args)
-				if ($args['visible']) {
+				if (($args['visible'] && !isset($cols[$args['name']])) || (isset($cols[$args['name']]) && $cols[$args['name']] === true)) {
 					if ($args['type']=='select') {
 						list($tab, $col) = explode('::',$args['param']);
-						$row[$field] = DB::GetOne('SELECT value FROM '.$tab.'_data WHERE field=%s AND '.$tab.'_id=%d', array($col, $row[$field]));
+						$row[$field] = DB::GetOne('SELECT '.$tab.'_id FROM '.$tab.'_data WHERE field=%s AND '.$tab.'_id=%d', array($col, $row[$field]));
 						if ($row[$field]===false) $row[$field] = '--';
+						else {
+							$row[$field] = $this->create_linked_label($tab, $col, $row[$field]);
+						}
 					}
 					$row_data[] = $row[$field];
 				}
+			if ($this->browse_mode == 'recent')
+				$row_data[] = $row['visited_on'];
 			$gb_row->add_data_array($row_data);
-			$gb_row->add_action($this->create_callback_href(array($this,'view_entry'),array('view',$row['id'])),$this->lang->t('View'));
-			$gb_row->add_action($this->create_callback_href(array($this,'view_entry'),array('edit',$row['id'])),$this->lang->t('Edit'));
-			$gb_row->add_action($this->create_callback_href(array($this,'view_entry'),array('delete',$row['id'])),$this->lang->t('Delete'));
+			if ($fs_links===false) {
+				$gb_row->add_action($this->create_callback_href(array($this,'view_entry'),array('view',$row['id'])),$this->lang->t('View'));
+				$gb_row->add_action($this->create_callback_href(array($this,'view_entry'),array('edit',$row['id'])),$this->lang->t('Edit'));
+				$gb_row->add_action($this->create_callback_href(array($this,'view_entry'),array('delete',$row['id'])),$this->lang->t('Delete'));
+			} else {
+				$gb_row->add_action($this->create_href(array('box_main_module'=>'Base_RecordBrowser', 'box_main_constructor_arguments'=>array($this->tab), 'tab'=>$this->tab, 'id'=>$row['id'], 'action'=>'view')),$this->lang->t('View'));
+				$gb_row->add_action($this->create_href(array('box_main_module'=>'Base_RecordBrowser', 'box_main_constructor_arguments'=>array($this->tab), 'tab'=>$this->tab, 'id'=>$row['id'], 'action'=>'edit')),$this->lang->t('Edit'));
+				$gb_row->add_action($this->create_href(array('box_main_module'=>'Base_RecordBrowser', 'box_main_constructor_arguments'=>array($this->tab), 'tab'=>$this->tab, 'id'=>$row['id'], 'action'=>'delete')),$this->lang->t('Delete'));
+			}
 		}
 		$this->display_module($gb);
 	} //show employees
@@ -84,17 +170,13 @@ class Base_RecordBrowser extends Module {
 			return false;
 		$this->init();
 
+		if($mode!='add')
+			$this->add_recent_entry(Base_UserCommon::get_my_user_id(),$id);
+
 		$tb = $this->init_module('Utils/TabbedBrowser');
 		$form = & $this->init_module('Libs/QuickForm',null,$mode);
 
 		$this->prepare_view_entry_details($mode, $id, &$form);
-		if ($mode=='view') { 
-			$form->addElement('button', 'submit_button', $this->lang->t('Edit'), $this->create_callback_href(array($this,'view_entry'), array('edit',$id)));
-			$form->addElement('button', 'cancel_button', $this->lang->ht('Back'), $this->create_back_href());
-		} else {
-			$form->addElement('submit', 'submit_button', $this->lang->ht('OK'));
-			$form->addElement('button', 'cancel_button', $this->lang->ht('Cancel'), $this->create_back_href());
-		}
 
 		if ($form->validate()) {
 			$values = $form->exportValues();
@@ -106,6 +188,25 @@ class Base_RecordBrowser extends Module {
 				$this->update_record_data($id,$values);
 			}
 			return false;
+		}
+
+		if ($mode=='view') { 
+			Base_ActionBarCommon::add('edit', $this->lang->ht('Edit'), $this->create_callback_href(array($this,'view_entry'), array('edit',$id)));
+			Base_ActionBarCommon::add('back', $this->lang->ht('Back'), $this->create_callback_href(array('History', 'back')));
+		} else if ($mode=='delete') {
+			Base_ActionBarCommon::add('delete', $this->lang->ht('Delete'), $form->get_submit_form_href());
+			Base_ActionBarCommon::add('back', $this->lang->ht('Back'), $this->create_callback_href(array('History', 'back')));
+		} else {
+			Base_ActionBarCommon::add('save', $this->lang->ht('Save'), $form->get_submit_form_href());
+			Base_ActionBarCommon::add('delete', $this->lang->ht('Cancel'), $this->create_callback_href(array('History', 'back')));
+		}
+		
+		if ($mode!='add') {
+			$fav = DB::GetOne('SELECT user_id FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%s', array(Base_UserCommon::get_my_user_id(), $id));
+			if ($fav===false)
+				Base_ActionBarCommon::add('folder', $this->lang->ht('Add to Favs'), $this->create_callback_href(array($this,'add_to_favs'), array($id)));
+			else
+				Base_ActionBarCommon::add('folder', $this->lang->ht('Remove from Favs'), $this->create_callback_href(array($this,'remove_from_favs'), array($id)));
 		}
 
 		if ($mode=='delete' || $mode=='view') $form->freeze();
@@ -123,8 +224,8 @@ class Base_RecordBrowser extends Module {
 		while ($row) {
 			$row = $ret->FetchRow();
 			if ($row) $pos = $row['position'];
-			else $pos = DB::GetOne('SELECT MAX(position) FROM '.$this->tab.'_field');;
-			if ($pos - $last_page>1) $tb->set_tab($this->lang->t($label),array($this,'view_entry_details'), array($last_page, $pos, $data), $js);
+			else $pos = DB::GetOne('SELECT MAX(position) FROM '.$this->tab.'_field')+1;
+			if ($pos - $last_page>1) $tb->set_tab($this->lang->t($label),array($this,'view_entry_details'), array($last_page, $pos+1, $data), $js);
 			$last_page = $pos;
 			if ($row) $label = $row['field'];
 		}
@@ -133,7 +234,7 @@ class Base_RecordBrowser extends Module {
 			$ret = DB::Execute('SELECT * FROM '.$this->tab.'_addon');
 			while ($row = $ret->FetchRow()) {
 				$mod = $this->init_module($row['module']);
-				$tb->set_tab($this->lang->t($row['label']),array($mod,$row['func']), array($record), $js);
+				$tb->set_tab($this->lang->t($row['label']),array($this, 'display_module'), array($mod, array($record), $row['func']), $js);
 			}
 		}
 		$this->display_module($tb);
@@ -145,21 +246,22 @@ class Base_RecordBrowser extends Module {
 	} //view_entry
 	
 	public function view_entry_details($from, $to, $data, $main_page = false){
+		$theme = $this->init_module('Base/Theme');
+		$fields = array();
 		foreach($this->table_rows as $field => $args) 
 			if ($args['position'] >= $from && ($to == -1 || $args['position'] < $to)) 
-			{
-				print($data[$args['id']]['label'].$data[$args['id']]['html'].'<br>');
+			{	
+				$fields[$args['id']] = array(	'label'=>$data[$args['id']]['label'],
+												'html'=>$data[$args['id']]['html'],
+												'type'=>$args['type']);
 			}
-		if ($main_page) print($data['submit_button']['html'].$data['cancel_button']['html']);
+		$theme->assign('fields', $fields);
+		if ($main_page) $tpl = DB::GetOne('SELECT filename FROM recordbrowser_tpl WHERE tab=%s', array($this->tab));
+		else $tpl = false;
+		$theme->display(($tpl!==false)?$tpl:'View_entry', ($tpl!==false));
 	}
 
 	public function prepare_view_entry_details($mode, $id, &$form){
-		switch ($mode) {
-			case 'add': $header = 'New contact'; break; // TODO: labels
-			case 'view': $header = 'Contact details'; break;
-			case 'edit': $header = 'Edit contact'; break;
-			case 'delete': $header = 'Delete contact'; break;
-		}
 		$form->addElement('header', null, $this->lang->t($header));
 		
 		if ($mode!=='add') $records = Base_RecordBrowserCommon::get_records($this->tab);
@@ -168,33 +270,48 @@ class Base_RecordBrowser extends Module {
 			switch ($args['type']) {
 				case 'integer':		$form->addElement('text', $args['id'], $this->lang->t($args['name']));
 									$form->addRule($args['id'], $this->lang->t('Only numbers are allowed.'), 'numeric');
+									if ($mode!=='add') $form->setDefaults(array($args['id']=>$records[$id][$field]));
 									break;
 				case 'text':		$form->addElement('text', $args['id'], $this->lang->t($args['name']), array('maxlength'=>$args['param']));
 									$form->addRule($args['id'], $this->lang->t('Maximum length for this field is '.$args['param'].'.'), 'maxlength', $args['param']);
+									if ($mode!=='add') $form->setDefaults(array($args['id']=>$records[$id][$field]));
 									break;
-				case 'long text':		$form->addElement('textarea', $args['id'], $this->lang->t($args['name']));
+				case 'long text':	$form->addElement('textarea', $args['id'], $this->lang->t($args['name']));
+									if ($mode!=='add') $form->setDefaults(array($args['id']=>$records[$id][$field]));
 									break;
 				case 'date':		$form->addElement('datepicker', $args['id'], $this->lang->t($args['name']));
+									if ($mode!=='add') $form->setDefaults(array($args['id']=>$records[$id][$field]));
 									break;
 				case 'select':		$comp = array();
 									if (!$args['required']) $comp[''] = '--';
 									list($tab, $col) = explode('::',$args['param']);
-									$ret = DB::Execute('SELECT * FROM '.$tab.'_data WHERE field=%s ORDER BY value', array($col));
-									while ($row = $ret->FetchRow()) $comp[$row[$tab.'_id']] = $row['value'];
-									$form->addElement('select', $args['id'], $this->lang->t($args['name']), $comp);
+									if ($mode=='add' || $mode=='edit') {
+										$ret = DB::Execute('SELECT * FROM '.$tab.'_data WHERE field=%s ORDER BY value', array($col));
+										while ($row = $ret->FetchRow()) $comp[$row[$tab.'_id']] = $row['value'];
+										$form->addElement('select', $args['id'], $this->lang->t($args['name']), $comp);
+										if ($mode!=='add') $form->setDefaults(array($args['id']=>$records[$id][$field]));
+									} else {
+										$form->addElement('static', $args['id'], $this->lang->t($args['name']));
+										if ($mode!=='add') $form->setDefaults(array($args['id']=>$this->create_linked_label($tab, $col, $records[$id][$field])));
+									}
 									break;
 			}
-			if ($mode!=='add') $form->setDefaults(array($args['id']=>$records[$id][$field]));
 			if ($args['required'])
 				$form->addRule($args['id'], $this->lang->t('Field required'), 'required');
 		}		
 	}
-	
+	public function add_to_favs($id) {
+		DB::Execute('INSERT INTO '.$this->tab.'_favorite (user_id, '.$this->tab.'_id) VALUES (%d, %d)', array(Base_UserCommon::get_my_user_id(), $id));
+	}
+	public function remove_from_favs($id) {
+		DB::Execute('DELETE FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%d', array(Base_UserCommon::get_my_user_id(), $id));
+	}
 	public function add_record($values) {
 		DB::StartTrans();	
 		$SQLcols = array();
 		DB::Execute('INSERT INTO '.$this->tab.' (created_on, created_by, active) VALUES (%T, %d, %d)',array(date('Y-m-d G:i:s'), Base_UserCommon::get_my_user_id(), 1));
 		$id = DB::Insert_ID($this->tab, 'id');
+		$this->add_recent_entry(Base_UserCommon::get_my_user_id(), $id);
 		foreach($this->table_rows as $field => $args)
 			DB::Execute('INSERT INTO '.$this->tab.'_data ('.$this->tab.'_id, field, value) VALUES (%d, %s, %s)',array($id, $field, $values[$args['id']]));
 		DB::CompleteTrans();
@@ -233,7 +350,7 @@ class Base_RecordBrowser extends Module {
 		$tb = & $this->init_module('Utils/TabbedBrowser');
 		
 		$tb->set_tab($this->lang->t('Manage Fields'),array($this, 'setup_loader') );
-		$tb->set_tab($this->lang->t('Manage Contacts'),array($this, 'show_data_table') ); // TODO: labels
+		$tb->set_tab($this->lang->t('Manage Records'),array($this, 'show_data_table') );
 		
 		$tb->body();
 		$tb->tag();
@@ -300,6 +417,7 @@ class Base_RecordBrowser extends Module {
 			array('name'=>$this->lang->t('Type'), 'width'=>20),
 			array('name'=>$this->lang->t('Visible'), 'width'=>5),
 			array('name'=>$this->lang->t('Required'), 'width'=>5),
+			array('name'=>$this->lang->t('Filter'), 'width'=>5),
 			array('name'=>$this->lang->t('Parameters'), 'width'=>5))
 		);
 
@@ -333,14 +451,16 @@ class Base_RecordBrowser extends Module {
 						array('style'=>'background-color: #DFDFFF;', 'value'=>$this->lang->t('Page Split')), 
 						array('style'=>'background-color: #DFDFFF;', 'value'=>''), 
 						array('style'=>'background-color: #DFDFFF;', 'value'=>''), 
+						array('style'=>'background-color: #DFDFFF;', 'value'=>''), 
 						array('style'=>'background-color: #DFDFFF;', 'value'=>'')
 					);
 				else 
 					$gb_row->add_data( 
 						$field, 
 						$args['type'], 
-						$args['visible'], 
-						$args['required'], 
+						$args['visible']?$this->lang->t('<b>Yes</b>'):$this->lang->t('No'), 
+						$args['required']?$this->lang->t('<b>Yes</b>'):$this->lang->t('No'), 
+						$args['filter']?$this->lang->t('<b>Yes</b>'):$this->lang->t('No'),
 						$args['param']
 					);
 		}
@@ -372,7 +492,12 @@ class Base_RecordBrowser extends Module {
 		if (!isset($this->lang)) $this->lang = & $this->init_module('Base/Lang');
 		$form = & $this->init_module('Libs/QuickForm');
 		
-		$form->addElement('header', null, $this->lang->t('Add new field'));
+		switch ($action) {
+			case 'add': $form->addElement('header', null, $this->lang->t('Add new field'));
+						break;
+			case 'edit': $form->addElement('header', null, $this->lang->t('Edit field properties'));
+						break;
+		}
 		$form->addElement('text', 'field', $this->lang->t('Field'));
 		$form->registerRule('check_if_column_exists', 'callback', 'check_if_column_exists', &$this);
 		$form->registerRule('check_if_no_id', 'callback', 'check_if_no_id', &$this);
@@ -383,7 +508,7 @@ class Base_RecordBrowser extends Module {
 
 
 		if ($action=='edit') {
-			$row = DB::GetRow('SELECT field, type, visible, required, param FROM '.$this->tab.'_field WHERE field=%s',array($id));
+			$row = DB::GetRow('SELECT field, type, visible, required, param, filter FROM '.$this->tab.'_field WHERE field=%s',array($id));
 			$form->setDefaults($row);
 			$form->addElement('static', 'select_data_type', $this->lang->t('Data Type'), $row['type']);
 			$selected_data = $row['type'];
@@ -405,6 +530,7 @@ class Base_RecordBrowser extends Module {
 		}
 		$form->addElement('checkbox', 'visible', $this->lang->t('Visible'));
 		$form->addElement('checkbox', 'required', $this->lang->t('Required'));
+		$form->addElement('checkbox', 'filter', $this->lang->t('Filter enabled'));
 
 		$ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->lang->ht('OK'));
 		$cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->lang->ht('Cancel'), $this->create_back_href());
@@ -415,13 +541,14 @@ class Base_RecordBrowser extends Module {
 				$data = $form->exportValues();
 				if(!isset($data['visible']) || $data['visible'] == '') $data['visible'] = 0;
 				if(!isset($data['required']) || $data['required'] == '') $data['required'] = 0;
+				if(!isset($data['filter']) || $data['filter'] == '') $data['filter'] = 0;
 				
 				foreach($data as $key=>$val)
 					$data[$key] = htmlspecialchars($val);
 		
 				DB::StartTrans();	
-				DB::Execute('UPDATE '.$this->tab.'_field SET field=%s, visible=%d, required=%d WHERE field=%s',
-							array($data['field'], $data['visible'], $data['required'], $id));
+				DB::Execute('UPDATE '.$this->tab.'_field SET field=%s, visible=%d, required=%d, filter=%d WHERE field=%s',
+							array($data['field'], $data['visible'], $data['required'], $data['filter'], $id));
 				DB::Execute('UPDATE '.$this->tab.'_data SET field=%s WHERE field=%s',
 							array($data['field'], $id));
 				DB::Execute('UPDATE '.$this->tab.'_edit_history_data SET field=%s WHERE field=%s',
@@ -456,15 +583,16 @@ class Base_RecordBrowser extends Module {
 		}
 		if(!isset($data['visible']) || $data['visible'] == '') $data['visible'] = 0;
 		if(!isset($data['required']) || $data['required'] == '') $data['required'] = 0;
+		if(!isset($data['filter']) || $data['filter'] == '') $data['filter'] = 0;
 		
 		foreach($data as $key=>$val)
 			$data[$key] = htmlspecialchars($val);
 
 		DB::StartTrans();
 		$max = DB::GetOne('SELECT MAX(position) FROM '.$this->tab.'_field')+1;
-		DB::Execute('INSERT INTO '.$this->tab.'_field(field, type, visible, required, param, position)'.
-					' VALUES(%s, %s, %d, %d, %s, %d)', 
-					array($data['field'], $data['select_data_type'], $data['visible'], $data['required'], $param, $max));
+		DB::Execute('INSERT INTO '.$this->tab.'_field(field, type, visible, required, param, position, filter)'.
+					' VALUES(%s, %s, %d, %d, %s, %d, %d)', 
+					array($data['field'], $data['select_data_type'], $data['visible'], $data['required'], $param, $max, $data['filter']));
 		DB::CompleteTrans();
 		return true;
 	} //submit_add_field
@@ -571,6 +699,28 @@ class Base_RecordBrowser extends Module {
 		Base_ActionBarCommon::add('back',$this->lang->t('Back'),$this->create_back_href());
 		return true;
 	}
+	private function add_recent_entry($user_id ,$id){
+		DB::StartTrans();
+		DB::Execute('DELETE FROM '.$this->tab.'_recent WHERE user_id = %d AND '.$this->tab.'_id = %d',
+					array($user_id,
+					$id));
+		$ret = DB::SelectLimit('SELECT visited_on FROM '.$this->tab.'_recent WHERE user_id = %d ORDER BY visited_on DESC',
+					9,
+					-1,
+					array($user_id));
+		while($row_temp = $ret->FetchRow()) $row = $row_temp;
+		if (isset($row)) {
+			DB::Execute('DELETE FROM '.$this->tab.'_recent WHERE user_id = %d AND visited_on < %T',
+						array($user_id,	
+						$row['visited_on']));
+		}
+		DB::Execute('INSERT INTO '.$this->tab.'_recent VALUES (%d, %d, %T)',
+					array($id,
+					$user_id,
+					date('Y-m-d G:i:s')));
+		DB::CompleteTrans();
+	}
+	
 	public function set_active($id, $state=true){
 		DB::Execute('UPDATE '.$this->tab.' SET active=%d WHERE id=%d',array($state,$id));
 		return false;
@@ -585,6 +735,10 @@ class Base_RecordBrowser extends Module {
 		}
 		$this->update_record_data($id,$values);
 		return false;
+	}
+	public function create_linked_label($tab, $col, $id){
+		$label = DB::GetOne('SELECT value FROM '.$tab.'_data WHERE field=%s', array($col));
+		return '<a '.$this->create_href(array('box_main_module'=>'Base_RecordBrowser', 'box_main_constructor_arguments'=>array($tab), 'tab'=>$tab, 'id'=>$id, 'action'=>'view')).'>'.$label.'</a>';
 	}
 }
 ?>

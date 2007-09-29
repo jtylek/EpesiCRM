@@ -18,10 +18,22 @@ defined("_VALID_ACCESS") || die();
  */
 class Base_RecordBrowserInstall extends ModuleInstall {
 	public function install() {
+		Base_ThemeCommon::install_default_theme('Base/RecordBrowser');
+		DB::CreateTable('recordbrowser_quickjump',
+						'tab C(64) KEY,'.
+						'col C(64)',
+						array('constraints'=>''));
+		DB::CreateTable('recordbrowser_tpl',
+						'tab C(64) KEY,'.
+						'filename C(256)',
+						array('constraints'=>''));
 		return true;
 	}
 	
 	public function uninstall() {
+		DB::DropTable('recordbrowser_quickjump');
+		DB::DropTable('recordbrowser_tpl');
+		Base_ThemeCommon::uninstall_default_theme('Base/RecordBrowser');
 		return true;
 	}
 	

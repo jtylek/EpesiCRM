@@ -382,7 +382,7 @@ class Utils_GenericBrowser extends Module {
 	 * 
 	 * @return string part of sql statement
 	 */
-	public function get_search_query(){
+	public function get_search_query( $array = false){
 		$search = $this->get_module_variable('search');
 
 		$this->get_module_variable_or_unique_href_variable('quickjump_to');
@@ -390,7 +390,10 @@ class Utils_GenericBrowser extends Module {
 		$quickjump_to = $this->get_module_variable('quickjump_to');
 		$this->set_module_variable('quickjump_to',$quickjump_to);
 
-		$where = '';
+		if (!$array)
+			$where = '';
+		else
+			$where = array();
 
 		if(!$this->is_adv_search_on()) {
 			foreach($this->columns as $k=>$v){
@@ -402,13 +405,16 @@ class Utils_GenericBrowser extends Module {
 			}
 		}
  		if (isset($quickjump) && $quickjump_to!='')
-			$where = ($where?'('.$where.') AND':'').' ('
-						.$quickjump.' LIKE '.DB::Concat(sprintf('%s',DB::qstr($quickjump_to)),'\'%\'')
-						.' OR '
-						.$quickjump.' LIKE '.DB::Concat(sprintf('%s',DB::qstr(strtolower($quickjump_to))),'\'%\'').
-						')';
-			
-		if ($where) $where = ' ('.$where.')';
+ 			if (!$array) {
+				$where = ($where?'('.$where.') AND':'').' ('
+							.$quickjump.' LIKE '.DB::Concat(sprintf('%s',DB::qstr($quickjump_to)),'\'%\'')
+							.' OR '
+							.$quickjump.' LIKE '.DB::Concat(sprintf('%s',DB::qstr(strtolower($quickjump_to))),'\'%\'').
+							')';
+				if ($where) $where = ' ('.$where.')';
+ 			} else {
+				$where = array($quickjump=>array(sprintf('%s',$quickjump_to).'%'),sprintf('%s',strtolower($quickjump_to).'%'));
+ 			}
 
 		return $where;
 	}

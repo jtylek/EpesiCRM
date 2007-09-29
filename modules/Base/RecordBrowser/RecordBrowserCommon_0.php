@@ -5,9 +5,6 @@ class Base_RecordBrowserCommon extends ModuleCommon {
 	private static $table_rows = array();
 	
 	public static function init($tab, $admin=false) {
-//		static $initialized = false;
-//		if ($initialized && !$admin) return false;
-//		$initialized = true;
 		self::$table_rows = array();
 		$ret = DB::Execute('SELECT * FROM '.$tab.'_field'.($admin?'':' WHERE active=1 AND type!=\'page_split\'').' ORDER BY position');
 		while($row = $ret->FetchRow()) {
@@ -21,6 +18,7 @@ class Base_RecordBrowserCommon extends ModuleCommon {
 						'extra'=>$row['extra'], 
 						'active'=>$row['active'], 
 						'position'=>$row['position'], 
+						'filter'=>$row['filter'], 
 						'param'=>$row['param']);
 		}
 		return self::$table_rows;
@@ -49,6 +47,7 @@ class Base_RecordBrowserCommon extends ModuleCommon {
 					'required I1 DEFAULT 1,'.
 					'active I1 DEFAULT 1,'.
 					'position I,'.
+					'filter I1 DEFAULT 0,'.
 					'param C(32)',
 					array('constraints'=>''));
 		DB::CreateTable($tab_name.'_edit_history',
@@ -95,6 +94,8 @@ class Base_RecordBrowserCommon extends ModuleCommon {
 		DB::DropTable($tab_name.'_field');
 		DB::DropTable($tab_name.'_data');
 		DB::DropTable($tab_name);
+		DB::Execute('DELETE FROM recordbrowser_quickjump WHERE tab=%s', array($tab_name));
+		DB::Execute('DELETE FROM recordbrowser_tpl WHERE tab=%s', array($tab_name));
 		return true;
 	}
 	
@@ -113,6 +114,27 @@ class Base_RecordBrowserCommon extends ModuleCommon {
 		}
 		DB::Execute('INSERT INTO '.$tab_name.'_field(field, type, param, position, extra, required) VALUES(%s, %s, %s, %d, %d, %d)', array($field, $type, $param, $pos, $extra, $required));
 	}
+	public static function new_addon($tab_name, $module, $func, $label) {
+		$module = str_replace('/','_',$module);
+		self::delete_addon($tab_name, $module, $func);
+		DB::Execute('INSERT INTO '.$tab_name.'_addon (module, func, label) VALUES (%s, %s, %s)', array($module, $func, $label));
+	}
+	public static function delete_addon($tab_name, $module, $func) {
+		$module = str_replace('/','_',$module);
+		DB::Execute('DELETE FROM '.$tab_name.'_addon WHERE module=%s AND func=%s', array($module, $func));
+	}
+	public static function new_filter($tab_name, $col_name) {
+		DB::Execute('UPDATE '.$tab_name.'_field SET filter=1 WHERE field=%s', array($col_name));
+	}
+	public static function delete_filter($tab_name, $col_name) {
+		DB::Execute('UPDATE '.$tab_name.'_field SET filter=0 WHERE field=%s', array($col_name));
+	}
+	public static function set_quickjump($tab_name, $col_name) {
+		DB::Execute('INSERT INTO recordbrowser_quickjump (tab, col) VALUES (%s, %s)', array($tab_name, $col_name));
+	}
+	public static function set_tpl($tab_name, $filename) {
+		DB::Execute('INSERT INTO recordbrowser_tpl (tab, filename) VALUES (%s, %s)', array($tab_name, $fiename));
+	}
 	
 	public static function get_records( $tab_name = null, $crits = null, $admin = false ) {
 		if (!$tab_name) return false;
@@ -124,25 +146,30 @@ class Base_RecordBrowserCommon extends ModuleCommon {
 		foreach($crits as $k=>$v){
 			$where .= ' AND (SELECT COUNT(*) FROM '.$tab_name.'_data WHERE x.id = '.$tab_name.'_id';
 			if (is_array($v)) {
-				$where .= ' AND field=%s (';
+				if (empty($v)) {
+					$where .= ' AND 0)';
+					break;
+				}
+				$where .= ' AND field=%s AND (';
 				$vals[] = $k;
 				$first = true;
 				foreach($v as $w) {
 					if (!$first) $where .= ' OR';
 					else $first = false;
-					$where .= ' value=%s';
+					$where .= ' value LIKE %s';
 					$vals[] = $w;
 				}
 				$where .= ')';
 			} else {
-				$where .= ' AND field=%s AND value=%s';
+				$where .= ' AND field=%s AND value LIKE %s';
 				$vals[] = $k;
 				$vals[] = $v;
 			}
+			$where .= ') != 0';
 		}
-		if ($where!='') $where .= ') != 0';
 		
 		$ret = DB::Execute('SELECT id, active FROM '.$tab_name.' AS x WHERE 1'.($admin?'':' AND active=1').$where, $vals);
+		//vprintf('SELECT id, active FROM '.$tab_name.' AS x WHERE 1'.($admin?'':' AND active=1').$where, $vals);
 		$records = array();
 		if($ret)
 			while ($row = $ret->FetchRow()) {
@@ -173,16 +200,6 @@ class Base_RecordBrowserCommon extends ModuleCommon {
 		} else {
 			return '';
 		}
-	}
-	
-	public static function new_addon($tab_name, $module, $func, $label) {
-		$module = str_replace('/','_',$module);
-		self::delete_addon($tab_name, $module, $func);
-		DB::Execute('INSERT INTO '.$tab_name.'_addon (module, func, label) VALUES (%s, %s, %s)', array($module, $func, $label));
-	}
-	public static function delete_addon($tab_name, $module, $func) {
-		$module = str_replace('/','_',$module);
-		DB::Execute('DELETE FROM '.$tab_name.'_addon WHERE module=%s AND func=%s', array($module, $func));
 	}
 }
 ?>
