@@ -56,6 +56,7 @@ class Base_DashboardInstall extends ModuleInstall {
 			array('name'=>'Base/Theme','version'=>0),
 			array('name'=>'Base/User','version'=>0),
 			array('name'=>'Libs/QuickForm','version'=>0),
+			array('name'=>'Libs/FCKeditor','version'=>0),
 			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'Libs/ScriptAculoUs','version'=>0),
 			array('name'=>'Utils/Tooltip','version'=>0));

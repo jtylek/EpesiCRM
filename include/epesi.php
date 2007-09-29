@@ -89,6 +89,7 @@ class Epesi {
 	}
 	
 	public final static function text($txt,$id,$type='instead') {
+		//self::$txts .= 'Epesi.text(decodeURIComponent(\''.rawurlencode(utf8_encode($txt)) .'\'),\''.self::escapeJS($id).'\',\''.self::escapeJS($type{0}).'\');';
 		self::$txts .= 'Epesi.text(\''.self::escapeJS($txt).'\',\''.self::escapeJS($id).'\',\''.self::escapeJS($type{0}).'\');';
 	}
 	

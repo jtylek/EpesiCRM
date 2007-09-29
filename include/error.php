@@ -72,7 +72,8 @@ class ErrorHandler {
 					ob_end_clean(); 
 					$backtrace = '<br>error backtrace:<br>'.$backtrace;
 				} else $backtrace = '';
-
+				
+				while(@ob_end_clean());
 				echo self::notify_client('type='.$type.'<br>message='.$message.'<br>error file='.$errfile.'<br>error line='.$errline.'<br>error context='.print_r($errcontext,true).$backtrace.'<hr>');
 				exit();
 			}

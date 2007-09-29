@@ -226,8 +226,10 @@ class Base_Dashboard extends Module {
 			} elseif ($v['type']=='bool' || $v['type']=='checkbox') {
 				$f -> addElement('checkbox',$v['name'],$this->lang->t($v['label']));
 				$this->set_default_js .= '$(\''.$f->getAttribute('name').'\').'.$v['name'].'.checked = '.$v['default'].';';
-			} elseif ($v['type']=='text' || $v['type']=='textarea') {
-				$f -> addElement($v['type'],$v['name'],$this->lang->t($v['label']));
+			} elseif ($v['type']=='text' || $v['type']=='textarea' || $v['type']=='fckeditor') {
+				$obj = $f -> addElement($v['type'],$v['name'],$this->lang->t($v['label']));
+				if($v['type']=='fckeditor')
+					$obj->setFCKProps('400','125',false);
 				$this->set_default_js .= '$(\''.$f->getAttribute('name').'\').'.$v['name'].'.value = \''.$v['default'].'\';';
 			} else trigger_error('Invalid type: '.$v['type'],E_USER_ERROR);
 			if (isset($v['rule'])) {

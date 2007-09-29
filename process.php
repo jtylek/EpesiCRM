@@ -3,7 +3,7 @@ ob_start();
 header("content-type: application/javascript");
 
 if(!isset($_POST['url']) || !isset($_POST['client']))
-	die('Invalid request');
+	die('alert(\'Invalid request\');');
 
 require_once('include.php');
 require_once('base.php');
