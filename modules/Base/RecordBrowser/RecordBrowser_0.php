@@ -262,7 +262,6 @@ class Base_RecordBrowser extends Module {
 	}
 
 	public function prepare_view_entry_details($mode, $id, &$form){
-		$form->addElement('header', null, $this->lang->t($header));
 		
 		if ($mode!=='add') $records = Base_RecordBrowserCommon::get_records($this->tab);
 		
