@@ -76,6 +76,7 @@ class Utils_Tooltip extends Module {
 				'div.style.position = \'absolute\';'.
 				'div.style.display = \'none\';'.
 				'div.style.zIndex = 2000;'.
+				'div.onMouseMove = "Utils_Toltip__hideTip();";'.
 				'body = document.getElementsByTagName(\'body\');'.
 				'body = body[0];'.
 				'document.body.appendChild(div);'.

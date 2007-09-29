@@ -20,6 +20,7 @@ class Applets_NoteCommon extends ModuleCommon {
 	
 	public static function applet_settings() {
 		return array(
+			array('name'=>'title','label'=>'Title','type'=>'text','default'=>'Note','rule'=>array(array('message'=>'Field required', 'type'=>'required'))),
 			array('name'=>'text','label'=>'Text to display','type'=>'textarea','default'=>'','rule'=>array(array('message'=>'Field required', 'type'=>'required')))
 			);
 	}	

@@ -13,7 +13,7 @@
             <table class="container" cellpadding="0" cellspacing="0" border="0">
                 <tr>
             	<td class="header title {$handle_class}">&nbsp;{$caption}</td>
-            	<td class="header controls">{$__link.toggle.open}<img src="{$theme_dir}/images/icons/small-icon-roll-down.png" width="14" height="14" alt="=" border="0">{$__link.toggle.close}
+            	<td class="header controls">{$__link.toggle.open}<img src="{$theme_dir}/images/icons/small-icon-roll-down.png" onClick="var x='{$theme_dir}/images/icons/small-icon-roll-';if(this.src.indexOf(x+'down.png')>=0)this.src=x+'up.png';else this.src=x+'down.png';" minimized=0 width="14" height="14" alt="=" border="0">{$__link.toggle.close}
             	{if isset($configure)}{$__link.configure.open}<img src="{$theme_dir}/images/icons/small-icon-configure.png" width="14" height="14" alt="c" border="0">{$__link.configure.close} {/if}
             	{$__link.remove.open}<img src="{$theme_dir}/images/icons/small-icon-close.png" width="14" height="14" alt="x" border="0">{$__link.remove.close}&nbsp;</td>
                 </tr>
