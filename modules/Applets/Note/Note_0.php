@@ -17,7 +17,7 @@ class Applets_Note extends Module {
 
 	public function applet($values, & $title) {
 		$title = $values['title'];
-		print(str_replace("\n",'<br>',strip_tags($values['text'])));
+		print(str_replace("\n",'<br>',$values['text']));
 	}
 
 }
