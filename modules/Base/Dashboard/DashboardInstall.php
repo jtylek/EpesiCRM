@@ -28,7 +28,7 @@ class Base_DashboardInstall extends ModuleInstall {
 		$ret &= DB::CreateTable('base_dashboard_settings','
 			applet_id I4,
 			name C(32) NOTNULL,
-			value C(128) NOTNULL',
+			value X NOTNULL',
 			array('constraints'=>', FOREIGN KEY (applet_id) REFERENCES base_dashboard_applets(ID), PRIMARY KEY(applet_id,name)'));
 		if(!$ret){
 			print('Unable to create table base_dashboard_applets.<br>');
