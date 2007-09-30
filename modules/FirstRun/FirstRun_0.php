@@ -117,7 +117,7 @@ class FirstRun extends Module {
 		    return false;
 		}
 			
-		if(!DB::Execute('INSERT INTO user_password VALUES(%d,%s, %s)', array($user_id, md5($d['simple_user']['pass']), $d['simple_user']['mail']))) {
+		if(!DB::Execute('INSERT INTO user_password(user_login_id,password,mail) VALUES(%d,%s, %s)', array($user_id, md5($d['simple_user']['pass']), $d['simple_user']['mail']))) {
 		   	print('Unable to set user password');
 		    	return false;
 		}
