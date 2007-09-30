@@ -601,7 +601,9 @@ class Apps_Gallery extends Module {
 		$theme->display();
 	}
 	
-	public function applet($vars) {
+	public function applet($vars,$opts) {  //available applet options: toggle,href,title,go,go_function,go_arguments,go_contruct_arguments
+		//$opts['href'] = $this->create_href(array('box_main_module'=>$this->get_type()));
+		$opts['go'] = true;
 		if(!isset($vars['image']))
 			print(Base_LangCommon::ts($this->get_type(),'No image selected'));
 		elseif(!file_exists($vars['image']))

@@ -15,8 +15,8 @@ class Applets_Note extends Module {
 		
 	}
 
-	public function applet($values, & $title) {
-		$title = $values['title'];
+	public function applet($values, $opts) { //available applet options: toggle,href,title,go,go_function,go_arguments,go_contruct_arguments
+		$opts['title'] = $values['title'];
 		print(str_replace("\n",'<br>',$values['text']));
 	}
 

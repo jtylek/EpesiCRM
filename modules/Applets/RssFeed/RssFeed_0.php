@@ -30,11 +30,11 @@ class Applets_rssfeed extends Module {
 		return $title;
 	}
 
-	public function applet($values, & $title) {
+	public function applet($values, $opts) { //available applet options: toggle,href,title,go,go_function,go_arguments,go_contruct_arguments
 		if(isset($values['rssfeed'])) {
 			$new_title = $this->get_page_title($values['rssfeed']);
 			if($new_title!==null)
-				$title = $new_title;
+				$opts['title'] = substr($new_title,0,15).'...';
 			echo RSS_Display(($values['rssfeed']), ($values['rssnumber']));
 		} else print('RSS feed not defined');
 	}

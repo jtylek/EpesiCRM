@@ -31,17 +31,38 @@ class Base_Dashboard extends Module {
 				}
 					
 				$m = $this->init_module($row['module_name'],null,$row['id']);
-				$title = call_user_func(array($row['module_name'].'Common', 'applet_caption'));
+				
+				$opts = array();
+				$opts['title'] = call_user_func(array($row['module_name'].'Common', 'applet_caption'));
+				$opts['toggle'] = true;
+				$opts['href'] = null;
+				$opts['go'] = false;
+				$opts['go_function'] = 'body';
+				$opts['go_arguments'] = array();
+				$opts['go_constructor_arguments'] = array();
+				
 				$th = $this->init_module('Base/Theme');
+				
+				$th->assign('content','<div class="content">'.
+						$this->get_html_of_module($m,array($this->get_values($row['id'],$row['module_name']), & $opts, $row['id']),'applet').
+						'</div>');
 				$th->assign('handle_class','handle');
-				$th->assign('toggle','<a class="toggle" '.$tipmod->open_tag_attrs($this->lang->ht('Toggle')).'>=</a>');
+				
+				if($opts['toggle'])
+					$th->assign('toggle','<a class="toggle" '.$tipmod->open_tag_attrs($this->lang->ht('Toggle')).'>=</a>');
+				
+				if($opts['go'])
+					$opts['href']=Module::create_href(array('box_main_module'=>$row['module_name'],'box_main_function'=>$opts['go_function'],'box_main_arguments'=>$opts['go_arguments'],'box_main_constructor_arguments'=>$opts['go_constructor_arguments']));
+				if($opts['href'])
+					$th->assign('href','<a class="href" '.$opts['href'].'>G</a>');
+				
 				$th->assign('remove','<a class="remove" '.$tipmod->open_tag_attrs($this->lang->ht('Remove')).' '.$this->create_confirm_callback_href($this->lang->t('Delete this applet?'),array($this,'delete_applet'),$row['id']).'>x</a>');
+				
 				if(method_exists($row['module_name'].'Common', 'applet_settings'))
 					$th->assign('configure','<a class="configure" '.$tipmod->open_tag_attrs($this->lang->ht('Configure')).' '.$this->create_callback_href(array($this,'configure_applet'),array($row['id'],$row['module_name'])).'>c</a>');
-				$th->assign('content','<div class="content">'.
-						$this->get_html_of_module($m,array($this->get_values($row['id'],$row['module_name']), & $title, $row['id']),'applet').
-						'</div>');
-				$th->assign('caption',$title);
+				
+				$th->assign('caption',$opts['title']);
+				
 				print('<div class="applet" id="ab_item_'.$row['id'].'">');
 				$th->display();
 				print('</div>');
