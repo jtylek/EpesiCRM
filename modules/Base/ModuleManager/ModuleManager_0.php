@@ -90,8 +90,6 @@ class Base_ModuleManager extends Module {
 	}
 
 	public function validate($data) {
-		global $base;
-		
 		$default_module = false;
 		$installed = array ();
 		$download = array ();

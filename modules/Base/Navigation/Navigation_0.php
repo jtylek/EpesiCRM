@@ -15,8 +15,6 @@ class Base_Navigation extends Module {
 	private $lang = null;
 	
 	public function body() {
-		global $base;
-		
 		$lang = & $this->init_module('Base/Lang');
 		$theme = & $this->init_module('Base/Theme');
 		
@@ -36,13 +34,11 @@ class Base_Navigation extends Module {
 	}
 	
 	public static function back() {
-		global $base;
 		on_exit(array('History','back'));
 		return false;
 	}
 	
 	public static function forward() {
-		global $base;
 		on_exit(array('History','forward'));
 		return false;
 	}

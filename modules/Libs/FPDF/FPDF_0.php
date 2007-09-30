@@ -23,7 +23,6 @@ class Libs_FPDF extends Module {
 	}
 	
 	public function get_href($filename=null) {
-		global $base;
 		$pdf_id = $this->get_path();
 		$this->set_module_variable('pdf', $this->fpdf->Output('','S'));
 		if(!isset($filename)) $filename='download.pdf';

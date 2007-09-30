@@ -17,9 +17,6 @@ class Base_Search extends Module {
 	private $lang;
 	
 	public function body() {
-		global $base;
-	
-		
 		$qs_keyword = isset($_REQUEST['quick_search'])?$_REQUEST['quick_search']:null;
 		
 				

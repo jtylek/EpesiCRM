@@ -150,7 +150,6 @@ class Base_Menu extends Module {
 	}
 	
 	public function body() {
-		global $base;
 		$lang = & $this->init_module('Base/Lang');
 		
 		// preparing modules menu and tools menu

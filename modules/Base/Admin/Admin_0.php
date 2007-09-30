@@ -42,7 +42,6 @@ class Base_Admin extends Module {
 	}
 	
 	private function list_admin_modules() {
-		global $base;
 		$lang = & $this->init_module('Base/Lang');
 		
 		$mod_ok = array();
@@ -70,8 +69,6 @@ class Base_Admin extends Module {
 	}
 	
 	public static function admin_menu() {
-		global $base;
-		
 		if(!Base_AclCommon::i_am_admin()) return array();
 		
 		$mod_cpy = ModuleManager::$modules;

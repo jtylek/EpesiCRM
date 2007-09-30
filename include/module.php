@@ -63,7 +63,7 @@ abstract class Module extends ModulePrimitive {
 		if(!isset($this->children[$type]))
 			$this->children[$type] = array();
 		$this->children[$type][$instance] = & $ch;
-		$GLOBALS['base']->debug('registering '.$this->get_path().'/'.$type.'|'.$instance.'<br>');
+		Epesi::debug('registering '.$this->get_path().'/'.$type.'|'.$instance.'<br>');
 	}
 	
 	private final function get_new_child_instance_id($type) {
@@ -689,8 +689,6 @@ abstract class Module extends ModulePrimitive {
 	 * @return mixed if access denied returns false, else string
 	 */
 	public final function get_html_of_module(& $m, $args=null, $function_name = 'body') {
-		global $base;
-		
 		$this_path = $this->get_path();
 		
 		if(!$m) trigger_error('Arument 0 for display_module is null.',E_USER_ERROR);
@@ -717,10 +715,10 @@ abstract class Module extends ModulePrimitive {
 		//define key in array so it is before its children
 		$path = $m->get_path();
 		if(!$m->is_inline_display()) {
-			$base->content[$path]['span'] = $this_path.'|'.$this->children_count_display.'content';
+			Epesi::$content[$path]['span'] = $this_path.'|'.$this->children_count_display.'content';
 			$this->children_count_display++;	
 		}
-		$base->content[$path]['module'] = & $m;
+		Epesi::$content[$path]['module'] = & $m;
 		
 		$tmp_session = & Epesi::get_tmp_session();
 
@@ -749,23 +747,23 @@ abstract class Module extends ModulePrimitive {
 				call_user_func_array(array($m,$function_name),$args);
 			
 			if(STRIP_OUTPUT)
-				$base->content[$path]['value'] = strip_html(ob_get_contents());
+				Epesi::$content[$path]['value'] = strip_html(ob_get_contents());
 			else
-				$base->content[$path]['value'] = ob_get_contents();
+				Epesi::$content[$path]['value'] = ob_get_contents();
 			ob_end_clean();
-			$base->content[$path]['js'] = $m->get_jses();
+			Epesi::$content[$path]['js'] = $m->get_jses();
 		} else {
-			$base->content[$path]['value'] = $tmp_session['__module_content__'][$path]['value'];
-			$base->content[$path]['js'] = $tmp_session['__module_content__'][$path]['js'];
-			$base->debug('Fast process of '.$path.'<br>');
+			Epesi::$content[$path]['value'] = $tmp_session['__module_content__'][$path]['value'];
+			Epesi::$content[$path]['js'] = $tmp_session['__module_content__'][$path]['js'];
+			Epesi::debug('Fast process of '.$path.'<br>');
 		}
 		if(MODULE_TIMES)
-			$base->content[$path]['time'] = microtime(true)-$time;
+			Epesi::$content[$path]['time'] = microtime(true)-$time;
 					
 		$m->mark_displayed();
 		
-		if($m->is_inline_display()) return $base->content[$path]['value'];
-		return '<span id="'.$base->content[$path]['span'].'"></span>';
+		if($m->is_inline_display()) return Epesi::$content[$path]['value'];
+		return '<span id="'.Epesi::$content[$path]['span'].'"></span>';
 	}
 	
 	/**

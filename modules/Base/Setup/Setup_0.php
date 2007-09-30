@@ -23,8 +23,6 @@ class Base_Setup extends Module {
 	}
 
 	public function body() {
-		global $base;
-
 		if($this->is_back() && $this->parent) {
 			$this->parent->reset();
 			return;
@@ -161,7 +159,6 @@ class Base_Setup extends Module {
 	}
 	
 	public function validate($data) {
-		global $base;
 
 		$default_module = false;
 		$simple = 0;

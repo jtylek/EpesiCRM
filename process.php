@@ -6,15 +6,9 @@ if(!isset($_POST['url']) || !isset($_POST['client']))
 	die('alert(\'Invalid request\');');
 
 require_once('include.php');
-require_once('base.php');
 
 ob_start(array('ErrorHandler','handle_fatal'));
-
-Epesi::init($_POST['client']);
-global $base;
-$base = new Base();
-$base->process($_POST['url'],isset($_POST['history'])?$_POST['history']:false);
-Epesi::send_output();
+Epesi::process($_POST['client'],$_POST['url'],isset($_POST['history'])?$_POST['history']:false);
 ob_end_flush();
 
 $content = ob_get_contents();

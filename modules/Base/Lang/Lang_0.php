@@ -99,7 +99,7 @@ class Base_Lang extends Module {
 	 * For internal use only.
 	 */
 	public function trans($original, array $arg=array(), $hidden=false) {
-		global $translations, $base;
+		global $translations;
 
 		if(!array_key_exists($this->parent_module, $translations) || 
 			!array_key_exists($original, $translations[$this->parent_module])) {

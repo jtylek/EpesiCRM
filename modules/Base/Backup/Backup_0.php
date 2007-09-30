@@ -19,7 +19,6 @@ class Base_Backup extends Module {
 	} 
 	
 	public function admin() {
-		global $base;
 		$this->lang = & $this->init_module('Base/Lang');
 		$theme = & $this->pack_module('Base/Theme');
 		

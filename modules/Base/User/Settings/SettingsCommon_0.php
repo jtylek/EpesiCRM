@@ -16,7 +16,6 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	
 	public static function menu(){
 		if (!Acl::is_user()) return array();
-		global $base;
 		$modules = array(); 
 		foreach(ModuleManager::$modules as $name=>$obj) {
 			if(method_exists($obj['name'].'Common', 'user_settings')) {

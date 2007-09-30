@@ -71,7 +71,6 @@ class Base_Theme extends Module {
 	}
 	
 	private function load_image_cache() {
-		global $base;
 		$sess = & $this->get_tmp_session();
 		if(isset($sess['image_cache'])) return;
 		$sess['image_cache']=true;

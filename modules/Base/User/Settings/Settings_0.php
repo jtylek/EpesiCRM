@@ -18,7 +18,6 @@ class Base_User_Settings extends Module {
 	private static $sep = "__";
 
 	public function body() {
-		global $base;
 		$this->lang = & $this->init_module('Base/Lang');
 		if (isset($_REQUEST['module'])) $module = $_REQUEST['module']; 
 		else $module = $this->get_module_variable('module');
@@ -144,7 +143,6 @@ class Base_User_Settings extends Module {
 		if (!Acl::is_user()) {
 			print('Log in to change your settings.');
 		}
-		global $base;
 		$this->lang = & $this->init_module('Base/Lang');
 		$modules = array(); 
 		foreach(ModuleManager::$modules as $name=>$obj) {
