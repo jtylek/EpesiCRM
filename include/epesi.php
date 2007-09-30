@@ -20,7 +20,6 @@ class Epesi {
 	 */
 	public final static function init($cl,$register_shutdown=true) {
 		self::$client_id = $cl;
-		self::$jses = array();
 		ModuleManager :: load_modules();
 	}
 

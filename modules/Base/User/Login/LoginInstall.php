@@ -15,7 +15,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_User_LoginInstall extends ModuleInstall {
 	public function install() {
-		$ret = DB::CreateTable('user_password',"user_login_id I KEY, password C(32) NOTNULL, mail C(255) NOTNULL",array('constraints' => ', FOREIGN KEY (user_login_id) REFERENCES user_login(id)'));
+		$ret = DB::CreateTable('user_password',"user_login_id I KEY, password C(32) NOTNULL, mail C(255) NOTNULL, autologin_id C(32)",array('constraints' => ', FOREIGN KEY (user_login_id) REFERENCES user_login(id)'));
 		if($ret===false) {
 			print('Invalid SQL query - Login module install');
 			return false;

@@ -21,6 +21,37 @@ class Base_User_Login extends Module {
 			$this->set_fast_process();
 	}
 	
+	private function set_logged($user) {
+		Acl::set_user($user); //tag who is logged
+		$uid = Base_UserCommon::get_user_id($user);
+		Base_UserCommon::set_my_user_id($uid);
+	}
+	
+	private function new_autologin_id() {
+		$user = Acl::get_user();
+		$uid = Base_UserCommon::get_my_user_id();
+		$autologin_id = md5(mt_rand().(isset($_COOKIE['autologin_id'])?$_COOKIE['autologin_id']:md5($user.$uid)).mt_rand());
+		setcookie('autologin_id',$user.' '.$autologin_id,time()+60*60*24*30);
+		DB::Execute('UPDATE user_password SET autologin_id=%s WHERE user_login_id=%d',array($autologin_id,$uid));
+	}
+	
+	private function autologin() {
+		if(isset($_COOKIE['autologin_id'])) {
+			$arr = explode(' ',$_COOKIE['autologin_id']);
+			if(count($arr)==2) {
+				list($user,$autologin_id) = $arr;
+				$ret = DB::GetOne('SELECT p.autologin_id FROM user_login u JOIN user_password p ON u.id=p.user_login_id WHERE u.login=%s AND u.active=1', array($user));
+				if($ret && $ret==$autologin_id) {
+					$this->set_logged($user);
+					$this->new_autologin_id();
+					location(array());
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
 	public function body() {
 		$this->lang = & $this->init_module('Base/Lang');
 
@@ -30,6 +61,7 @@ class Base_User_Login extends Module {
 		$theme->assign('is_logged_in', Acl::is_user());
 		if(Acl::is_user()) {
 			if($this->get_unique_href_variable('logout')) {
+				DB::Execute('UPDATE user_password SET autologin_id=\'\' WHERE user_login_id=%d',array(Base_UserCommon::get_my_user_id()));
 				Acl::set_user();
 				Base_UserCommon::set_my_user_id();
 				location(array());
@@ -49,12 +81,14 @@ class Base_User_Login extends Module {
 			$this->recover_pass();
 			return;
 		}
+		if($this->autologin()) return;
 		
 		//else just login form
 		$form = & $this->init_module('Libs/QuickForm',$this->lang->ht('Logging in'));
 		$form->addElement('header', 'login_header', $this->lang->t('Login'));
 		$form->addElement('text', 'username', $this->lang->t('Username'),array('id'=>'username'));
 		$form->addElement('password', 'password', $this->lang->t('Password'));
+		$form->addElement('checkbox', 'autologin', '',$this->lang->t('remember me'));
 		$form->addElement('static', 'recover_password', null, '<a '.$this->create_unique_href(array('mail_recover_pass'=>1)).'>'.$this->lang->t('Recover password').'</a>');
 		$form->addElement('submit', 'submit_button', $this->lang->ht('Login'), array('class'=>'submit'));
 		
@@ -67,10 +101,13 @@ class Base_User_Login extends Module {
 
 		if($form->validate()) {
 			$user = $form->exportValue('username');
-			Acl::set_user($user); //tag who is logged
+			$autologin = $form->exportValue('autologin');
 			
-			Base_UserCommon::set_my_user_id(Base_UserCommon::get_user_id($user));
+			$this->set_logged($user);
 			
+			if($autologin)
+				$this->new_autologin_id();
+
 			location(array());
 		} else {
 			$form->assign_theme('form', $theme);

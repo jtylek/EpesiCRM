@@ -94,6 +94,10 @@ function update_from_0_8_11_to_0_9_0() {
 
 	Variable::set('preload_image_cache_default',true);
 	Variable::set('preload_image_cache_selected',true);
+
+	$ret = DB::dict()->AddColumnSQL('user_password','autologin_id C(32)');
+	DB::Execute($ret[0]);
+	
 	// flush
 	themeup();
 }
