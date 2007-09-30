@@ -76,15 +76,15 @@ class Utils_Tooltip extends Module {
 				'div.style.position = \'absolute\';'.
 				'div.style.display = \'none\';'.
 				'div.style.zIndex = 2000;'.
-				'div.onMouseMove = "Utils_Toltip__hideTip();";'.
+				'div.onmouseover = Utils_Toltip__hideTip;'.
+				'div.innerHTML = \''.Epesi::escapeJS($html).'\';'.
 				'body = document.getElementsByTagName(\'body\');'.
 				'body = body[0];'.
-				'document.body.appendChild(div);'.
-				'div.innerHTML = \''.Epesi::escapeJS($html).'\';';
+				'document.body.appendChild(div);';
 			eval_js($js);
 			$session['utils_tooltip'] = true;
 		}
-		return ' onMouseMove="Utils_Toltip__showTip(\''.escapeJS(htmlspecialchars($tip)).'\', event)" onMouseOut="Utils_Toltip__hideTip()"';
+		return ' onMouseMove="Utils_Toltip__showTip(\''.escapeJS(htmlspecialchars($tip)).'\', event)" onMouseOut="Utils_Toltip__hideTip()" onMouseUp="Utils_Toltip__hideTip()" ';
 	}
 
 }
