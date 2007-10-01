@@ -58,6 +58,10 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 		}
 	}
 	
+	public function caption() {
+		return "My settings: user";
+	}
+
 	public function submit_user_preferences($data) {
 		$new_pass = $data['new_pass'];
 		$mail = $data['mail'];
