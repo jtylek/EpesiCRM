@@ -20,7 +20,7 @@ class History {
 		self::$action = true;
 		if(self::is_back()) $session['__history_id__']--;
 		$data = DB::GetOne('SELECT data FROM history WHERE session_name=%s AND page_id=%d AND client_id=%d',array(session_id(),$session['__history_id__']-1,Epesi::get_client_id()));
-		if(GZIP_HISTORY) $data = gzuncompress($data);
+		if(GZIP_HISTORY && function_exists('gzuncompress')) $data = gzuncompress($data);
 		$session['__module_vars__'] = unserialize($data);
 		location(array());
 	}
@@ -31,7 +31,7 @@ class History {
 			$session['__history_id__']++;
 		self::$action = true;
 		$data = DB::GetOne('SELECT data FROM history WHERE session_name=%s AND page_id=%d AND client_id=%d',array(session_id(),$session['__history_id__']-1,Epesi::get_client_id()));
-		if(GZIP_HISTORY) $data = gzuncompress($data);
+		if(GZIP_HISTORY && function_exists('gzuncompress')) $data = gzuncompress($data);
 		$session['__module_vars__'] = unserialize($data);
 		location(array());
 	}
@@ -43,7 +43,7 @@ class History {
 
 		if(!isset($session['__history_id__'])) $session['__history_id__']=0;
 		$data = serialize($session['__module_vars__']);
-		if(GZIP_HISTORY) $data = gzcompress($data);
+		if(GZIP_HISTORY && function_exists('gzcompress')) $data = gzcompress($data);
 		DB::Replace('history',array('data'=>$data,'page_id'=>$session['__history_id__'],'client_id'=>Epesi::get_client_id(), 'session_name'=>session_id()),array('session_name','client_id','page_id'),true);
 		$session['__history_id__']++;
 		DB::Execute('DELETE FROM history WHERE session_name=%s AND page_id>=%d AND client_id=%d',array(session_id(),$session['__history_id__'],Epesi::get_client_id()));
@@ -77,7 +77,7 @@ class History {
 		elseif($id>$c) $id=$c;
 		$session['__history_id__']=$id;
 		$data = DB::GetOne('SELECT data FROM history WHERE session_name=%s AND page_id=%d AND client_id=%d',array(session_id(),$session['__history_id__']-1,Epesi::get_client_id()));
-		if(GZIP_HISTORY) $data = gzuncompress($data);
+		if(GZIP_HISTORY && function_exists('gzuncompress')) $data = gzuncompress($data);
 		$session['__module_vars__'] = unserialize($data);
 	}
 	
