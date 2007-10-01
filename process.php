@@ -7,9 +7,15 @@ if(!isset($_POST['url']) || !isset($_POST['client']))
 
 require_once('include.php');
 
-ob_start(array('ErrorHandler','handle_fatal'));
-Epesi::process($_POST['client'],$_POST['url'],isset($_POST['history'])?$_POST['history']:false);
-ob_end_flush();
+if(!isset($_SESSION['num_of_clients'])) {
+	Epesi::alert('Session expired, restarting epesi');
+	Epesi::redirect();
+	Epesi::send_output();
+} else {
+	ob_start(array('ErrorHandler','handle_fatal'));
+	Epesi::process($_POST['client'],$_POST['url'],isset($_POST['history'])?$_POST['history']:false);
+	ob_end_flush();
+}
 
 $content = ob_get_contents();
 ob_end_clean();

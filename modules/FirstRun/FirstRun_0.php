@@ -145,8 +145,8 @@ class FirstRun extends Module {
 				Variable::set('mail_user', $d['simple_mail_smtp']['mail_user']);
 				Variable::set('mail_password', $d['simple_mail_smtp']['mail_password']);
 			}
-		}			
-		eval_js('document.location=\'\'');
+		}
+		Epesi::redirect();
 	}
 
 }

@@ -95,6 +95,10 @@ class Epesi {
 	public final static function alert($txt) {
 		self::$jses[] = 'alert(\''.self::escapeJS($txt).'\')';
 	}
+	
+	public final static function redirect($addr='') {
+		self::js('document.location=\''.escapeJS($addr).'\'');
+	}
 
 	/**
 	 * Escapes special characters in js code.
