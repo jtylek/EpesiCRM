@@ -16,6 +16,7 @@ class Base_User_Settings extends Module {
 	private $module;
 	private $set_default_js;
 	private static $sep = "__";
+	private $indicator = '';
 
 	public function body() {
 		$this->lang = & $this->init_module('Base/Lang');
@@ -37,7 +38,9 @@ class Base_User_Settings extends Module {
 			if (is_array($menu)) { 
 				foreach($menu as $k=>$v) if ($k==$module_part){
 					$f->addElement('header',null,$this->lang->t($k));
+					$this->indicator = ': '.$k;
 					$this->add_module_settings_to_form($v,$f,$module_name);
+					break;
 				}
 			}
 		}
@@ -164,6 +167,9 @@ class Base_User_Settings extends Module {
 		$theme->display();
 	}
 	
+	public function caption() {
+		return "My settings".$this->indicator;
+	}
 }
 
 ?>

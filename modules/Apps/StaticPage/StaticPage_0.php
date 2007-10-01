@@ -176,6 +176,12 @@ class Apps_StaticPage extends Module {
 		Base_ActionBarCommon::add('add','New page',$this->create_unique_href(array('edit'=>false)));
 	}
 
+	public function caption() {
+		$edit = $this->isset_module_variable('edit');
+		if($edit)
+			return "Editing page";
+		return "Page";
+	}
 }
 
 ?>

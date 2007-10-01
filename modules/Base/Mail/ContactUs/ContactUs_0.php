@@ -53,5 +53,9 @@ class Base_Mail_ContactUs extends Module {
 		Base_StatusBarCommon::message('Message sent');
 		return true;
 	}
+
+	public function caption() {
+		return "Contact us";
+	}
 }
 ?>

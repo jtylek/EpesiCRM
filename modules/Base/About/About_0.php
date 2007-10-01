@@ -51,6 +51,10 @@ class Base_About extends Module {
 		print('<a rel="aboutepesi" class="lbOn" '.$tip->open_tag_attrs(Base_LangCommon::ts('Base_About','Click to get more info')).'><img src="'.$this->get_module_dir().'epesi-powered.png" border=0></a>');
 	}
 
+	public function caption() {
+		return "About Epesi";
+	}
+
 }
 
 ?>

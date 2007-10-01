@@ -611,5 +611,9 @@ class Apps_Gallery extends Module {
 		else
 			Utils_ImageCommon::display_thumb($vars['image'],$vars['size']);
 	}
+
+	public function caption() {
+		return "Gallery";
+	}
 }
 ?>

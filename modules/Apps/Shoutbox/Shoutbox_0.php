@@ -78,6 +78,10 @@ class Apps_Shoutbox extends Module {
 			'new Ajax.Updater(\'shoutbox_board\',\'modules/Apps/Shoutbox/refresh.php\',{method:\'get\'});'.
 			'};setInterval(\'shoutbox_refresh()\',30000)');
 	}
+
+	public function caption() {
+		return "Shoutbox";
+	}
 }
 
 ?>

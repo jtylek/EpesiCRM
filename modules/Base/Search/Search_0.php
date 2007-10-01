@@ -130,6 +130,10 @@ class Base_Search extends Module {
 			location(array('box_main_module'=>'Base_Search','quick_search'=>$search['quick_search'],'advanced_search'=>0));
 		}
 	}
+
+	public function caption() {
+		return "Search";
+	}
 }
 
 ?>

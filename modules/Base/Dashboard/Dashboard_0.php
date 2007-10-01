@@ -280,6 +280,10 @@ class Base_Dashboard extends Module {
 		$f -> setDefaults($values);
 	}
 
+	public function caption() {
+		return "Dashboard";
+	}
+
 }
 
 ?>

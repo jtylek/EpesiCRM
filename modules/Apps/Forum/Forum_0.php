@@ -11,6 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Apps_Forum extends Module {
 	private $lang;
 	private $key = '';
+	private $indicator = '';
 
 	public function body() {
 		$this->lang = & $this->init_module('Base/Lang');		
@@ -38,6 +39,7 @@ class Apps_Forum extends Module {
 			Base_ActionBarCommon::add('add',$this->lang->ht('New board'),$this->create_callback_href(array($this,'add_board')));
 		}
 		$theme -> display('Boards');
+		$this->indicator = '';
 	}
 	
 	public function view_board($board){
@@ -66,7 +68,9 @@ class Apps_Forum extends Module {
 		$theme -> assign('posts_count',$this->lang->t('Posts'));
 		$theme -> assign('topic',$this->lang->t('Topic'));
 		$theme -> assign('threads',$threads);
-		$theme -> assign('board_name',DB::GetOne('SELECT name FROM apps_forum_board WHERE id = %d',$board));
+		$board_name = DB::GetOne('SELECT name FROM apps_forum_board WHERE id = %d',$board);
+		$theme -> assign('board_name',$board_name);
+		$this->indicator = ' board';
 		$theme -> assign('forum_boards','<a '.$this->create_back_href().'>'.$this->lang->t('Forum Boards').'</a>');
 		Base_ActionBarCommon::add('back',$this->lang->ht('Boards'),$this->create_back_href());
 		if (Base_AclCommon::i_am_user())
@@ -99,7 +103,9 @@ class Apps_Forum extends Module {
 		$theme = & $this->init_module('Base/Theme');
 
 		$theme -> assign('posts',$posts);
-		$theme -> assign('topic',DB::GetOne('SELECT topic FROM apps_forum_thread WHERE id = %d',$thread));
+		$topic_name = DB::GetOne('SELECT topic FROM apps_forum_thread WHERE id = %d',$thread);
+		$theme -> assign('topic',$topic_name);
+		$this->indicator = ' topic';
 		$theme -> assign('forum_boards','<a '.$this->create_back_href(2).'>'.$this->lang->t('Forum Boards').'</a>'); // TODO: need some way to get back to forum boards
 		$theme -> assign('board_name','<a '.$this->create_back_href().'>'.$board_name.'</a>');
 		$theme -> display('View_Thread');
@@ -109,6 +115,7 @@ class Apps_Forum extends Module {
 	public function add_board(){
 		if ($this->is_back()) return false;
 		if (!isset($this->lang)) $this->lang = & $this->init_module('Base/Lang');		
+		$this->indicator = ' - new board';
 
 		$form = & $this->init_module('Libs/QuickForm',$this->lang->t('Creating new board...'),'add_board_form');
 		$form -> addElement('header',null,$this->lang->t('Create new board'));
@@ -144,6 +151,8 @@ class Apps_Forum extends Module {
 		if ($this->is_back()) return false;
 		if (!isset($this->lang)) $this->lang = & $this->init_module('Base/Lang');		
 
+		$this->indicator = ' - new thread';
+
 		$form = & $this->init_module('Libs/QuickForm',$this->lang->ht('Creating new thread'));
 		$theme = & $this->init_module('Base/Theme');
 
@@ -172,6 +181,9 @@ class Apps_Forum extends Module {
 		return true;
 	}
 
+	public function caption() {
+		return 'Forum'.$this->indicator;
+	}
 }
 
 ?>
