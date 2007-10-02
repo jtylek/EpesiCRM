@@ -52,7 +52,7 @@ class Base_About extends Module {
 	}
 
 	public function caption() {
-		return "About Epesi";
+		return "About";
 	}
 
 }
