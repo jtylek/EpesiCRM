@@ -21,7 +21,8 @@ class Applets_NoteCommon extends ModuleCommon {
 	public static function applet_settings() {
 		return array(
 			array('name'=>'title','label'=>'Title','type'=>'text','default'=>'Note','rule'=>array(array('message'=>'Field required', 'type'=>'required'))),
-			array('name'=>'text','label'=>'Text to display','type'=>'fckeditor','default'=>'','rule'=>array(array('message'=>'Field required', 'type'=>'required')))
+			array('name'=>'text','label'=>'Text to display','type'=>'fckeditor','default'=>'','rule'=>array(array('message'=>'Field required', 'type'=>'required'))),
+			array('name'=>'bcolor','label'=>'Background color','type'=>'select','default'=>'yellow','rule'=>array(array('message'=>'Field required', 'type'=>'required')), 'values'=>array('yellow'=>'yellow','red'=>'red','blue'=>'blue','white'=>'white'))
 			);
 	}	
 }
