@@ -7,13 +7,12 @@
  * @subpackage file-download
  * @license SPL
  */
-if(!isset($_POST['client_id']) || !isset($_POST['path']))
+if(!isset(!isset($_POST['path']))
 	die('Invalid request');
-$cl_id = $_POST['client_id'];
 $path = $_POST['path'];
 require_once('../../../include.php');
 //initialize Epesi
-Epesi::init($cl_id);
+Epesi::init();
 if(!Module::static_isset_module_variable($cl_id,$path,'download_id')) return;
 $download_id = Module::static_get_module_variable($cl_id,$path,'download_id');
 $ret = DB::Execute('SELECT size,curr,time,rate FROM utils_filedownload_files WHERE id=%d',array($download_id));

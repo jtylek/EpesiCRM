@@ -16,14 +16,13 @@
  * This class provides inline translation method.
  */
  
-if(!isset($_POST['client_id']) || !isset($_POST['parent']) || !isset($_POST['oryg']) || !isset($_POST['trans']))
-	die('');
-$cl_id = $_POST['client_id'];
+if(!isset(!isset($_POST['parent']) || !isset($_POST['oryg']) || !isset($_POST['trans']))
+	die('Invalid request');
 $parent = $_POST['parent'];
 $trans = $_POST['trans'];
 $oryg = $_POST['oryg'];
 require_once('../../../include.php');
-Epesi::init($cl_id);
+Epesi::init();
 
 if(!Acl::check('Administration','Modules') || !Base_MaintenanceModeCommon::get_mode()) return;
 

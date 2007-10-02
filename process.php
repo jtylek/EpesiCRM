@@ -2,7 +2,7 @@
 ob_start();
 header("content-type: application/javascript");
 
-if(!isset($_POST['url']) || !isset($_POST['client']))
+if(!isset($_POST['url']) || !isset($_SERVER['HTTP_CLIENT_ID']))
 	die('alert(\'Invalid request\');');
 
 require_once('include.php');
@@ -13,7 +13,7 @@ if(!isset($_SESSION['num_of_clients'])) {
 	Epesi::send_output();
 } else {
 	ob_start(array('ErrorHandler','handle_fatal'));
-	Epesi::process($_POST['client'],$_POST['url'],isset($_POST['history'])?$_POST['history']:false);
+	Epesi::process($_POST['url'],isset($_POST['history'])?$_POST['history']:false);
 	ob_end_flush();
 }
 

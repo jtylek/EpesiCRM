@@ -18,8 +18,13 @@ class Epesi {
 	 * 
 	 * @param string client id
 	 */
-	public final static function init($cl,$register_shutdown=true) {
-		self::$client_id = $cl;
+	public final static function init($register_shutdown=true, $client_id = null) {
+		if(isset($_SERVER['HTTP_CLIENT_ID']))
+			self::$client_id = $_SERVER['HTTP_CLIENT_ID'];
+		elseif($client_id!==null)
+			self::$client_id = $client_id;
+		else
+			trigger_error('Invalid request without client id');
 		ModuleManager :: load_modules();
 	}
 
@@ -166,7 +171,7 @@ class Epesi {
 		}
 	}
 	
-	public static function process($cl_id, $url, $history_call=false,$refresh=false) {
+	public static function process($url, $history_call=false,$refresh=false) {
 		if(MODULE_TIMES) 
 			$time = microtime(true);
 
@@ -177,7 +182,7 @@ class Epesi {
 			$_GET = $_REQUEST = & $_POST;
 		}
 
-		self::init($cl_id);
+		self::init();
 		self::check_firstrun();
 
 		if($history_call==='0')
@@ -215,7 +220,7 @@ class Epesi {
 //			ModuleManager::load_modules();
 	
 			//go
-			return self::process($cl_id,'__location&' . http_build_query($loc),false,true);
+			return self::process('__location&' . http_build_query($loc),false,true);
 		}
 
 		if(DEBUG || MODULE_TIMES || SQL_TIMES) {

@@ -67,11 +67,10 @@ var Epesi = {
 		Epesi.procOn++;
 		Epesi.updateIndicator();
 		new Ajax.Request(Epesi.process_file, { 
-			method:'post', 
+			method: 'post', 
 			parameters: {
-				client: Epesi.client_id, 
 				history: history_id,
-				url:url
+				url: url
 			},
 			onComplete: function(t) {
 				Epesi.procOn--;
@@ -105,3 +104,11 @@ var Epesi = {
 	}
 };
 _chj=Epesi.href;
+Ajax.Responders.register({onCreate: function(x,y) { //hack
+	if (typeof x.options.requestHeaders == 'undefined')
+		x.options.requestHeaders = ['client_id', Epesi.client_id];
+	else if (typeof x.options.requestHeaders.push == 'function')
+		x.options.requestHeaders.push('client_id',Epesi.client_id);
+	else
+		x.options.requestHeaders = $H(x.options.requestHeaders).merge({client_id: Epesi.client_id});
+}});
