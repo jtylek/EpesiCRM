@@ -17,7 +17,8 @@ class Base_Mail_ContactUs extends Module {
 		$this->lang = & $this->init_module('Base/Lang');
 		
 		$form = & $this->init_module('Libs/QuickForm','Sending message');
-		$form->addElement('header', null, $this->lang->t('Contact us'));
+		$form->addElement('header', null, $this->lang->t('Support'));
+		$form->addElement('html', '<tr><td colspan=2>'.$this->lang->t('You can write a message to administrator here.').'</td><tr>');
 		if(!Acl::is_user()) {
     		    $form->addElement('text','mail', $this->lang->t('E-mail address:'));
 		    $form->addRule('mail', $this->lang->t('Field required'), 'required');
@@ -55,7 +56,7 @@ class Base_Mail_ContactUs extends Module {
 	}
 
 	public function caption() {
-		return "Contact us";
+		return "Support";
 	}
 }
 ?>
