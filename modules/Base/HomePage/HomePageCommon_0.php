@@ -39,9 +39,9 @@ class Base_HomePageCommon extends ModuleCommon {
 		DB::Replace('home_page',array('user_login_id'=>$uid,'url'=>$url), 'user_login_id',true);
 	}
 	
-	public static function tool_menu() {
+	public static function menu() {
 		if(Acl::is_user())
-			return array('Set my epesi home page'=>array('Base_HomePage_save'=>'1','__module__'=>null));
+			return array('My settings'=>array('__submenu__'=>1,'Set my epesi home page'=>array('Base_HomePage_save'=>'1','__module__'=>null)));
 		return array();
 	}
 	

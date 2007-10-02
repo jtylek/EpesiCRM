@@ -9,7 +9,6 @@
  * 
  * A module will use Menu module functionality if it defines at least one of three methods:
  * - menu() - Menu in 'Modules' section, each option will automatically link to the module body
- * - menu_tool() - Menu in 'Tools' section, each option will automatically link to the module body
  * - quick_menu() - Separate menu that will be displayed only if the module is active (is placed in Container_0 in Box module)
  * quick_menu variables are accessible via get_unique_href_variable function. 
  * Menu content is passed with an array. The array should be created as follows:
@@ -154,7 +153,6 @@ class Base_Menu extends Module {
 		
 		// preparing modules menu and tools menu
 		$modules_menu = array();
-		$tools_menu = array();
 		foreach(ModuleManager::$modules as $name=>$obj) {
 			if(method_exists($obj['name'].'Common', 'menu')) {
 				$module_menu = call_user_func(array($obj['name'].'Common','menu'));
@@ -162,15 +160,8 @@ class Base_Menu extends Module {
 				Base_MenuCommon::add_default_menu($module_menu, $name);
 				self::add_menu($modules_menu,$module_menu);
 			}
-			if(method_exists($obj['name'].'Common', 'tool_menu')) {
-				$module_menu = call_user_func(array($obj['name'].'Common','tool_menu'));
-				if(!is_array($module_menu)) continue;
-				Base_MenuCommon::add_default_menu($module_menu, $name);
-				self::add_menu($tools_menu,$module_menu);
-			}
 		}
 		if (!empty($modules_menu)) $modules_menu['__submenu__'] = 1;
-		if (!empty($tools_menu)) $tools_menu['__submenu__'] = 1;
 		
 		// preparing admin menu
 		if (array_key_exists('Base_Admin',ModuleManager::$modules)){
@@ -229,27 +220,21 @@ class Base_Menu extends Module {
 			}
 		}
 		
-		//print_r($modules_menu);
 		self::sort_menus($modules_menu);
-		self::sort_menus($tools_menu);
-		// sorting menus
-//		ksort($modules_menu);
-//		ksort($tools_menu);
 
 		// Home menu
 		$home_menu = array();
-		$admin_menu['__submenu__'] = 1;
-		$tools_menu = array($lang->ht('Tools')=>array_merge($tools_menu,array('__submenu__' => 1)));
-//		$home_menu[$lang->t('Home')] = array_merge($admin_menu,$tools_menu,array('__split__'=>1),$modules_menu);
-		$home_menu[$lang->ht('Home')] = array_merge($modules_menu,array('__split__'=>1),$admin_menu,$tools_menu);
+		if(!empty($admin_menu)) {
+			$admin_menu['__submenu__'] = 1;
+			$modules_menu = array_merge($modules_menu,array('__split__'=>1),$admin_menu);
+		}
+		$home_menu[$lang->ht('Home')] = $modules_menu;
 
 		// putting all menus into menu array
 		$menu = array();
-//		if (!empty($modules_menu)) $menu[$lang->t('Modules')] = $modules_menu;
 		$menu = array_merge($menu,$home_menu);
 		$menu = array_merge($menu,$qaccess_menu);
 		$menu = array_merge($menu,$current_module_menu);
-//		if (!empty($tools_menu)) $menu[$lang->t('Tools')] = $tools_menu;
 
 		// preparing menu string
 		$menu_mod = & $this->init_module("Utils/Menu", "horizontal");

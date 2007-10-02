@@ -23,7 +23,6 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 		}
 		if (!isset(self::$options)) {
 			$modules_menu = array();
-			$tools_menu = array();
 			foreach(ModuleManager::$modules as $name=>$obj) {
 				if ($name=='Base_Admin') continue;
 				if ($name=='Base_Menu_QuickAccess') continue;
@@ -33,19 +32,11 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 					Base_MenuCommon::add_default_menu($module_menu, $name);
 					$modules_menu = array_merge_recursive($modules_menu,$module_menu);
 				}
-				if(method_exists($obj['name'].'Common', 'tool_menu')) {
-					$module_menu = call_user_func(array($obj['name'].'Common','tool_menu'));
-					if(!is_array($module_menu)) continue;
-					Base_MenuCommon::add_default_menu($module_menu, $name);
-					$tools_menu = array_merge_recursive($tools_menu,$module_menu);
-				}
 			}
-			$tools_menu = array('Tools'=>array_merge($tools_menu,array('__submenu__'=>1)));
-			$menu = array_merge($modules_menu,$tools_menu);
-			ksort($menu);
+			ksort($modules_menu);
 	
 			$array = array();
-			self::check_for_links($array,'',$menu);
+			self::check_for_links($array,'',$modules_menu);
 			
 			self::$options = $array;
 		} else $array = self::$options;

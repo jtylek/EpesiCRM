@@ -10,8 +10,8 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_Mail_ContactUsCommon extends ModuleCommon {
-	public static function tool_menu() {
-		return array('Contact us'=>array());
+	public static function menu() {
+		return array('Help'=>array('__submenu__'=>1,'__weight__'=>1000,'Contact us'=>array()));
 	}
 }
 ?>
