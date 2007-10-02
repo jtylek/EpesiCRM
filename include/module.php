@@ -162,7 +162,11 @@ abstract class Module extends ModulePrimitive {
 	 * @param string key
 	 * @param mixed value
 	 */
-	public final static function static_set_module_variable($client_id,$path,$name, $value) {
+	public final static function static_set_module_variable($path,$name, $value,$client_id=null) {
+		if($client_id===null)
+			$client_id = Epesi::get_client_id();
+		if($client_id===null)
+			trigger_error('Epesi not initialized and no client id specified.',E_USER_ERROR);
 		return $_SESSION['cl'.$client_id]['stable']['__module_vars__'][$path][$name] = $value;
 	}
 	
@@ -194,8 +198,12 @@ abstract class Module extends ModulePrimitive {
 	 * @param mixed default value
 	 * @return mixed value
 	 */
-	public final static function & static_get_module_variable($client_id, $path, $name, $default=null) {
-		if(isset($default) && !self::static_isset_module_variable($client_id,$path,$name))
+	public final static function & static_get_module_variable($path, $name, $default=null, $client_id=null) {
+		if($client_id===null)
+			$client_id = Epesi::get_client_id();
+		if($client_id===null)
+			trigger_error('Epesi not initialized and no client id specified.',E_USER_ERROR);
+		if(isset($default) && !self::static_isset_module_variable($path,$name,$client_id))
 			$_SESSION['cl'.$client_id]['stable']['__module_vars__'][$path][$name] = & $default;
 		return $_SESSION['cl'.$client_id]['stable']['__module_vars__'][$path][$name];
 	}
@@ -242,7 +250,11 @@ abstract class Module extends ModulePrimitive {
 	 * @param string key
 	 * @return bool true if variable exists, false otherwise
 	 */
-	public final static function static_isset_module_variable($client_id,$path,$name) {
+	public final static function static_isset_module_variable($path,$name,$client_id=null) {
+		if($client_id===null)
+			$client_id = Epesi::get_client_id();
+		if($client_id===null)
+			trigger_error('Epesi not initialized and no client id specified.',E_USER_ERROR);
 		return isset($_SESSION['cl'.$client_id]['stable']['__module_vars__'][$path][$name]);
 	}
 	
@@ -258,7 +270,11 @@ abstract class Module extends ModulePrimitive {
 		unset($session['__module_vars__'][$this->get_path()][$name]);
 	}
 	
-	public final static function static_unset_module_variable($client_id,$path,$name) {
+	public final static function static_unset_module_variable($path,$name,$client_id=null) {
+		if($client_id===null)
+			$client_id = Epesi::get_client_id();
+		if($client_id===null)
+			trigger_error('Epesi not initialized and no client id specified.',E_USER_ERROR);
 		unset($_SESSION['cl'.$client_id]['stable']['__module_vars__'][$path][$name]);
 	}
 

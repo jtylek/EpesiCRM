@@ -19,7 +19,7 @@ if(!isset($id) || !isset($path)) die('Invalid usage');
 
 require_once('../../../include.php');
 
-$download_id = Module::static_get_module_variable($id,$path,'download_id');
+$download_id = Module::static_get_module_variable($path,'download_id',null,$id);
 session_write_close();
 $file = DB::GetOne('SELECT path FROM utils_filedownload_files WHERE id=%d',array($download_id));
 

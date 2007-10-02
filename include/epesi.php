@@ -9,7 +9,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Epesi {
-	private static $client_id;
+	private static $client_id = null;
 	private static $jses = array();
 	private static $txts = '';
 	
