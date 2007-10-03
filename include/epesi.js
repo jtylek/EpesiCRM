@@ -37,7 +37,7 @@ load_js = _ljs;
 function _ajs(texti) {
 	fileref=document.createElement("script")
 	fileref.setAttribute("type", "text/javascript");
-	fileref.text = texti;
+	fileref.text = 'try{'+texti+'}catch(e){alert(e);}';//workaround
 	document.body.appendChild(fileref);
 };
 append_js = _ajs;
@@ -104,11 +104,16 @@ var Epesi = {
 	}
 };
 _chj=Epesi.href;
-Ajax.Responders.register({onCreate: function(x,y) { //hack
+Ajax.Responders.register({
+onCreate: function(x,y) { //hack
 	if (typeof x.options.requestHeaders == 'undefined')
 		x.options.requestHeaders = ['X-Client-ID', Epesi.client_id];
 	else if (typeof x.options.requestHeaders.push == 'function')
 		x.options.requestHeaders.push('X-Client-ID',Epesi.client_id);
 	else
 		x.options.requestHeaders = $H(x.options.requestHeaders).merge({'X-Client-ID': Epesi.client_id});
+},
+onException: function(req, e){ 
+	alert(e); 
 }});
+

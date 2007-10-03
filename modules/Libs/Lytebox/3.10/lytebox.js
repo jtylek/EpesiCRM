@@ -683,11 +683,4 @@ LyteBox.prototype.pause = function(numberMillis) {
 		if (now.getTime() > exitTime) { return; }
 	}
 };
-if (window.addEventListener) {
-	window.addEventListener("load",initLytebox,false);
-} else if (window.attachEvent) {
-	window.attachEvent("onload",initLytebox);
-} else {
-	window.onload = function() {initLytebox();}
-}
 function initLytebox() { myLytebox = new LyteBox(); }

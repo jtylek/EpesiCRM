@@ -38,6 +38,7 @@ if (!window.CanvasRenderingContext2D) {
     },
 
     init_: function (doc, e) {
+    	alert('ij');
       if (doc.readyState == "complete") {
         // create xmlns
         if (!doc.namespaces["g_vml_"]) {
@@ -701,4 +702,4 @@ if (!window.CanvasRenderingContext2D) {
 
 })();
 
-} // if
+}; // if

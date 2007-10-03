@@ -12,6 +12,7 @@ dashboard_activate = function() {
 	applets.each(function (appl) {
 			var content = document.getElementsByClassName('content',appl)[0];
 			var toggle = document.getElementsByClassName('toggle',appl)[0];
-			Event.observe(toggle, 'click', function (e) { Effect.toggle(content, 'blind'); },false);
+			if(toggle)
+				Event.observe(toggle, 'click', function (e) { Effect.toggle(content, 'blind'); },false);
 	});
 }
