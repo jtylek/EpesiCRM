@@ -19,8 +19,8 @@ class Epesi {
 	 * @param string client id
 	 */
 	public final static function init($register_shutdown=true, $client_id = null) {
-		if(isset($_SERVER['HTTP_CLIENT_ID']))
-			self::$client_id = $_SERVER['HTTP_CLIENT_ID'];
+		if(isset($_SERVER['HTTP_X_CLIENT_ID']))
+			self::$client_id = $_SERVER['HTTP_X_CLIENT_ID'];
 		elseif($client_id!==null)
 			self::$client_id = $client_id;
 		else

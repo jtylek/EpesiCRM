@@ -1,5 +1,5 @@
 <?php
-header("content-type: application/javascript");
+header("Content-type: text/javascript");
 
 require_once('../../../include.php');
 

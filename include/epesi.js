@@ -106,9 +106,9 @@ var Epesi = {
 _chj=Epesi.href;
 Ajax.Responders.register({onCreate: function(x,y) { //hack
 	if (typeof x.options.requestHeaders == 'undefined')
-		x.options.requestHeaders = ['client_id', Epesi.client_id];
+		x.options.requestHeaders = ['X-Client-ID', Epesi.client_id];
 	else if (typeof x.options.requestHeaders.push == 'function')
-		x.options.requestHeaders.push('client_id',Epesi.client_id);
+		x.options.requestHeaders.push('X-Client-ID',Epesi.client_id);
 	else
-		x.options.requestHeaders = $H(x.options.requestHeaders).merge({client_id: Epesi.client_id});
+		x.options.requestHeaders = $H(x.options.requestHeaders).merge({'X-Client-ID': Epesi.client_id});
 }});

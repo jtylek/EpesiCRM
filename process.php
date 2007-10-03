@@ -1,8 +1,8 @@
 <?php
 ob_start();
-header("content-type: application/javascript");
+header("Content-type: text/javascript");
 
-if(!isset($_POST['url']) || !isset($_SERVER['HTTP_CLIENT_ID']))
+if(!isset($_POST['url']) || !isset($_SERVER['HTTP_X_CLIENT_ID']))
 	die('alert(\'Invalid request\');');
 
 require_once('include.php');
