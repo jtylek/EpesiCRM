@@ -227,32 +227,54 @@ class Base_Dashboard extends Module {
 	private function add_module_settings_to_form($info, &$f, $id, $module){
 		$values = $this->get_values($id,$module);
 		foreach($info as $v){
-			if ($v['type']=='select'){
-				$select = array(); 
-				foreach($v['values'] as $k=>$x) $select[$k] = $this->lang->ht($x);
-				$f -> addElement('select',$v['name'],$this->lang->t($v['label']),$select);
-				$this->set_default_js .= 'e = $(\''.$f->getAttribute('name').'\').'.$v['name'].';'.
-										'for(i=0; i<e.length; i++) if(e.options[i].value==\''.$v['default'].'\'){e.options[i].selected=true;break;};';
-			} elseif ($v['type']=='static' || $v['type']=='header') {
-				$f -> addElement($v['type'],$v['name'],$this->lang->t($v['label']),$this->lang->t($v['values']));
-			} elseif ($v['type']=='radio') {
-				$radio = array();
-				$label = $this->lang->t($v['label']);
-				foreach($v['values'] as $k=>$x) {
-					$f -> addElement('radio',$v['name'],$label,$this->lang->ht($x),$k);
-					$label = '';
-				}
-				$this->set_default_js .= 'e = $(\''.$f->getAttribute('name').'\').'.$v['name'].';'.
-										'for(i=0; i<e.length; i++){e[i].checked=false;if(e[i].value==\''.$v['default'].'\')e[i].checked=true;};';
-			} elseif ($v['type']=='bool' || $v['type']=='checkbox') {
-				$f -> addElement('checkbox',$v['name'],$this->lang->t($v['label']));
-				$this->set_default_js .= '$(\''.$f->getAttribute('name').'\').'.$v['name'].'.checked = '.$v['default'].';';
-			} elseif ($v['type']=='text' || $v['type']=='textarea' || $v['type']=='fckeditor') {
-				$obj = $f -> addElement($v['type'],$v['name'],$this->lang->t($v['label']));
-				if($v['type']=='fckeditor')
+			
+			switch($v['type']){
+				case 'select':
+					$select = array(); 
+					foreach($v['values'] as $k=>$x) $select[$k] = $this->lang->ht($x);
+						$f -> addElement('select',$v['name'],$this->lang->t($v['label']),$select);
+						$this->set_default_js .= 'e = $(\''.$f->getAttribute('name').'\').'.$v['name'].';'.
+						'for(i=0; i<e.length; i++) if(e.options[i].value==\''.$v['default'].'\'){e.options[i].selected=true;break;};';
+					break;
+				
+				case 'static':
+				case 'header':
+					$f -> addElement($v['type'],$v['name'],$this->lang->t($v['label']),$this->lang->t($v['values']));
+					break;
+					
+				case 'radio':
+					$radio = array();
+					$label = $this->lang->t($v['label']);
+					foreach($v['values'] as $k=>$x) {
+						$f -> addElement('radio',$v['name'],$label,$this->lang->ht($x),$k);
+						$label = '';
+					}
+					$this->set_default_js .= 'e = $(\''.$f->getAttribute('name').'\').'.$v['name'].';'.
+					'for(i=0; i<e.length; i++){e[i].checked=false;if(e[i].value==\''.$v['default'].'\')e[i].checked=true;};';
+					break;
+					
+				case 'bool':
+				case 'checkbox':
+					$f -> addElement('checkbox',$v['name'],$this->lang->t($v['label']));
+					$this->set_default_js .= '$(\''.$f->getAttribute('name').'\').'.$v['name'].'.checked = '.$v['default'].';';
+					break;
+				
+				case 'text':
+				case 'textarea':
+					$obj = $f -> addElement($v['type'],$v['name'],$this->lang->t($v['label']));
+					$this->set_default_js .= '$(\''.$f->getAttribute('name').'\').'.$v['name'].'.value = \''.$v['default'].'\';';
+				break;
+							
+				case 'fckeditor':
+					$obj = $f -> addElement($v['type'],$v['name'],$this->lang->t($v['label']));
 					$obj->setFCKProps('400','125',false);
-				$this->set_default_js .= '$(\''.$f->getAttribute('name').'\').'.$v['name'].'.value = \''.$v['default'].'\';';
-			} else trigger_error('Invalid type: '.$v['type'],E_USER_ERROR);
+					$this->set_default_js .= '$(\''.$f->getAttribute('name').'\').'.$v['name'].'.value = \''.$v['default'].'\';';
+				break;
+							
+				default:
+					trigger_error('Invalid type: '.$v['type'],E_USER_ERROR);
+			}
+			
 			if (isset($v['rule'])) {
 				$i = 0;
 				foreach ($v['rule'] as $r) {
