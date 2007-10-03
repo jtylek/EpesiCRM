@@ -144,6 +144,19 @@ class Base_RecordBrowserCommon extends ModuleCommon {
 		$vals = array();
 		if (!$crits) $crits = array();
 		foreach($crits as $k=>$v){
+			if ($k == 'id') {
+				$where .= ' AND (';
+				if (!is_array($v)) $v = array($v);
+				$first = true;
+				foreach($v as $w) {
+					if (!$first) $where .= ' OR';
+					else $first = false;
+					$where .= ' x.id = %d';
+					$vals[] = $w;
+				}
+				$where .= ')';
+				continue;
+			}
 			$where .= ' AND (SELECT COUNT(*) FROM '.$tab_name.'_data WHERE x.id = '.$tab_name.'_id';
 			if (is_array($v)) {
 				if (empty($v)) {
