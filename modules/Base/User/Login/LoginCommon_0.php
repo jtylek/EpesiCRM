@@ -88,7 +88,7 @@ This e-mail was automatically generated and you do not need to respond to it.", 
 			print(Base_LangCommon::ts('Base/User/Login','Account creation failed.<br> Unable to get id of added user.<br>'));
 			return false;
 		}
-		$ret = DB::Execute('INSERT INTO user_password VALUES(%d,%s, %s)', array($user_id, md5($pass), $mail));
+		$ret = DB::Execute('INSERT INTO user_password(user_login_id,password,mail) VALUES(%d,%s, %s)', array($user_id, md5($pass), $mail));
 		
 		if(!self::send_mail_with_password($username, $pass, $mail)) {
 			print(Base_LangCommon::ts('Base/User/Login','Warning: Unable to send e-mail with password. Check Mail module configuration.'));
