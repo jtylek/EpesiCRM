@@ -18,7 +18,7 @@ class Applets_Note extends Module {
 	public function applet($values, $opts) { //available applet options: toggle,href,title,go,go_function,go_arguments,go_contruct_arguments
 		$opts['title'] = $values['title'];
 
-		print ('<div style="color: black; background: '.$values['bcolor'].'; padding: .5em; position: relative;">');
+		print ('<div style="color: black; background: '.$values['bcolor'].'; padding: .5em;">');
  		print (str_replace("\n",'<br>',$values['text']));
 		print ('</div>');
 	}

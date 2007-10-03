@@ -3,13 +3,13 @@ Utils_Toltip__showTip = function(tip, my_event) {
 	var tooltip_text = $('tooltip_text');
 	if(!div_tip || !tooltip_text) return;
 	tooltip_text.innerHTML = tip;
-	offWidth = div_tip.offsetWidth;
-	offHeight = div_tip.offsetHeight;
+	offWidth = div_tip.getWidth();
+	offHeight = div_tip.getHeight();
 	
 	var curPosx = ((my_event.clientX) ? parseInt(my_event.clientX) : parseInt(my_event.x));
 	var curPosy = ((my_event.clientY) ? parseInt(my_event.clientY) : parseInt(my_event.y));
 	
-	if(document.body.scrollLeft + curPosx + 20 + offWidth < document.body.clientWidth - 5) {
+	if(document.body.scrollLeft + curPosx + 20 + offWidth < document.body.clientWidth - 10) {
 		var pos = document.body.scrollLeft + curPosx + 20;
 		div_tip.style.left = pos + 'px';
 	} else {
@@ -25,7 +25,7 @@ Utils_Toltip__showTip = function(tip, my_event) {
 	
 	//tooltip_text.innerHTML += ' ' + scrollTop + ' ' + ch;
 	
-	if(curPosy + 20 + offHeight < ch - 5) {
+	if(curPosy + 20 + offHeight < ch - 10) {
 		var pos = scrollTop + curPosy + 20;
 		div_tip.style.top = pos + "px";
 	} else {
