@@ -16,12 +16,18 @@ class Applets_ClockCommon extends ModuleCommon {
 	}
 
 	public static function applet_info() {
-		return "Analog JS clock - only Firefox and Safari!"; //here can be associative array
+		return "Analog JS clock"; //here can be associative array
 	}
 
 	public static function applet_settings() {
-		return array(
-			array('name'=>'skin','label'=>'Clock skin','type'=>'select','default'=>'swissRail','rule'=>array(array('message'=>'Field required', 'type'=>'required')),'values'=>array('swissRail'=>'swissRail','chunkySwiss'=>'chunkySwiss','fancy'=>'fancy','machine'=>'machine','classic'=>'classic','modern'=>'modern','simple'=>'simple'))
+		$browser = stripos($_SERVER['HTTP_USER_AGENT'],'msie');
+		if($browser!==false)
+			return array(
+				array('name'=>'skin','label'=>'Clock configurable only on non-IE browsers only.','type'=>'static','values'=>'')
+			);
+		else
+			return array(
+				array('name'=>'skin','label'=>'Clock skin','type'=>'select','default'=>'swissRail','rule'=>array(array('message'=>'Field required', 'type'=>'required')),'values'=>array('swissRail'=>'swissRail','chunkySwiss'=>'chunkySwiss','fancy'=>'fancy','machine'=>'machine','classic'=>'classic','modern'=>'modern','simple'=>'simple','flash'=>'flash'))
 			);
 	}	
 }

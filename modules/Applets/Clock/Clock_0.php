@@ -12,22 +12,31 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Applets_Clock extends Module {
 	
-	private function load_js() {
-		load_js($this->get_module_dir().'coolclock.js');
-		eval_js('CoolClock.findAndCreateClocks()');
-	}
-
-	public function body($skin) {
-		$this->load_js();
-		print('<canvas id="'.$this->get_path().'canvas" class="CoolClock:'.$skin.':200"></canvas>');
+	public function body($skin, $size=200) {
+		if($skin===null || $skin=='flash') {
+			$size *= 2;
+			//clock taken from http://www.kirupa.com/developer/actionscript/clock.htm
+			$clock = $this->get_module_dir().'clock.swf';
+			print('<center><object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,29,0" height="'.$size.'" width="'.$size.'">'.
+				'<param name="movie" value="'.$clock.'">'.
+				'<param name="quality" value="high">'.
+				'<param name="wmode" value="transparent">'.
+				'<param name="menu" value="false">'.
+				'<embed src="'.$clock.'" quality="high" pluginspage="http://www.macromedia.com/go/getflashplayer" type="application/x-shockwave-flash" wmode="transparent" height="'.$size.'" width="'.$size.'">'.
+				'</object></center>');
+		} else {
+			load_js($this->get_module_dir().'coolclock.js');
+			eval_js('CoolClock.findAndCreateClocks()');
+			print('<canvas id="'.$this->get_path().'canvas" class="CoolClock:'.$skin.':'.$size.'"></canvas>');
+		}
 	}
 	
 	public function applet($conf, $opts) { //available applet options: toggle,href,title,go,go_function,go_arguments,go_contruct_arguments
 		$opts['toggle'] = false;
 		$opts['go'] = true;
-		$opts['go_arguments'] = array($conf['skin']);
-		$this->load_js();
-		print('<canvas id="'.$this->get_path().'canvas" class="CoolClock:'.$conf['skin'].'"></canvas>');
+		$skin = isset($conf['skin'])?$conf['skin']:null;
+		$opts['go_arguments'] = array($skin);
+		$this->body($skin,100);
 	}
 
 }
