@@ -16,7 +16,7 @@ class Applets_ClockCommon extends ModuleCommon {
 	}
 
 	public static function applet_info() {
-		return "Analog flash clock"; //here can be associative array
+		return "Analog JS clock - only Firefox and Safari!"; //here can be associative array
 	}
 
 	public static function applet_settings() {

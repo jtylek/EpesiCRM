@@ -70,14 +70,7 @@ function location($u = null,$ret = false) {
  * @param string css file path and name
  */
 function load_css($u) {
-	if(!is_string($u) || strlen($u)==0) return false;
-	$session = & Epesi::get_tmp_session();
-	if (is_string($u) && (!isset($session['__loaded_csses__']) || !array_key_exists($u, $session['__loaded_csses__']))) {
-		Epesi::js('_lcss(\'' . escapeJS($u) . '\')');
-		$session['__loaded_csses__'][$u] = 1;
-		return true;
-	}
-	return false;
+	return Epesi::load_css($u);
 }
 
 /**
@@ -86,18 +79,8 @@ function load_css($u) {
  * @param string javascript file
  * @param boolean append contents of js file instead of use src tag?
  */
-function load_js($u,$inline=true) {
-	if(!is_string($u) || strlen($u)==0) return false;
-	$session = & Epesi::get_tmp_session();
-	if (!isset($session['__loaded_jses__'][$u])) {
-		if($inline)
-			Epesi::js('_ajs(\''.escapeJS(file_get_contents($u)).'\')');
-		else
-			Epesi::js('_ljs(\''.escapeJS($u).'\')');
-		$session['__loaded_jses__'][$u] = true;
-		return true;
-	}
-	return false;
+function load_js($u) {
+	return Epesi::load_js($u);
 }
 
 /**
@@ -106,10 +89,7 @@ function load_js($u,$inline=true) {
  * @param string javascrpit code
  */
 function eval_js($u) {
-	if (is_string($u) && strlen($u)>0) {
-		$u = rtrim($u,';');
-		Epesi::js('_ajs(\''.escapeJS($u).'\')');
-	}
+	Epesi::js($u);
 }
 /**
  * Adds js block to eval. Given js will be evaluated only once.
@@ -122,8 +102,7 @@ function eval_js_once($u) {
 	$session = & Epesi::get_tmp_session();
 	$md5 = md5($u);
 	if (!isset($session['__evaled_jses__'][$md5])) {
-		$u = rtrim($u,';');
-		Epesi::js('_ajs(\''.escapeJS($u).'\')');
+		Epesi::js($u);
 		$session['__evaled_jses__'][$md5] = true;
 		return true;
 	}

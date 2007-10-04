@@ -11,6 +11,8 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Epesi {
 	private static $client_id = null;
 	private static $jses = array();
+	private static $load_jses = array();
+	private static $load_csses = array();
 	private static $txts = '';
 	
 	/**
@@ -28,20 +30,6 @@ class Epesi {
 		ModuleManager :: load_modules();
 	}
 
-	/**
-	 * Extends list of javascript commands to execute
-	 * 
-	 * @param string javascript code
-	 */
-	public final static function js($js) {
-		if(!is_string($js) || strlen($js)==0) return false;
-		if(STRIP_OUTPUT)
-			self::$jses[] = strip_js($js);
-		else
-			self::$jses[] = $js;
-		return true;
-	}
-	
 	/**
 	 * Returns client id.
 	 * 
@@ -77,11 +65,19 @@ class Epesi {
 	}
 
 	public final static function get_output() {
-		$ret = self::$txts;
+		$ret = '';
+		foreach(self::$load_csses as $f)
+			$ret .= 'Epesi.load_css(\''.self::escapeJS($f).'\');';
+		foreach(self::$load_jses as $f)
+			$ret .= 'Epesi.load_js(\''.self::escapeJS($f).'\');';
+		$ret .= self::$txts;
+		$jjj = '';
 		foreach(self::$jses as $cc) {
 			$x = rtrim($cc,';');
-			if($x) $ret.=$x.';';
+			if($x) $jjj.=$x.';';
 		}
+		if($jjj!=='')
+			$ret .= 'Epesi.append_js(\''.self::escapeJS($jjj).'\');';
 		self::clean();
 		//file_put_contents('data/jses',implode(self::$jses,"\n\n\n"));
 		return $ret;
@@ -89,11 +85,33 @@ class Epesi {
 	
 	public final static function clean() {
 		self::$txts = '';
-		self::$jses=array();
+		self::$jses = array();
+		self::$load_jses = array();
+	}
+	
+	public final static function load_js($file) {
+		if(!is_string($file) || strlen($file)==0) return false;
+		$session = & Epesi::get_tmp_session();
+		if (!isset($session['__loaded_jses__'][$file])) {
+			self::$load_jses[] = $file;
+			$session['__loaded_jses__'][$file] = true;
+			return true;
+		}
+		return false;
+	}
+	
+	public final static function load_css($u) {
+		if(!is_string($u) || strlen($u)==0) return false;
+		$session = & Epesi::get_tmp_session();
+		if (is_string($u) && (!isset($session['__loaded_csses__']) || !array_key_exists($u, $session['__loaded_csses__']))) {
+			self::$load_csses[] = $u;
+			$session['__loaded_csses__'][$u] = 1;
+			return true;
+		}
+		return false;
 	}
 	
 	public final static function text($txt,$id,$type='instead') {
-		//self::$txts .= 'Epesi.text(decodeURIComponent(\''.rawurlencode(utf8_encode($txt)) .'\'),\''.self::escapeJS($id).'\',\''.self::escapeJS($type{0}).'\');';
 		self::$txts .= 'Epesi.text(\''.self::escapeJS($txt).'\',\''.self::escapeJS($id).'\',\''.self::escapeJS($type{0}).'\');';
 	}
 	
@@ -102,9 +120,24 @@ class Epesi {
 	}
 	
 	public final static function redirect($addr='') {
-		self::js('document.location=\''.escapeJS($addr).'\'');
+		self::$jses[] = 'document.location=\''.self::escapeJS($addr).'\'';
 	}
 
+	/**
+	 * Extends list of javascript commands to execute
+	 * 
+	 * @param string javascript code
+	 */
+	public final static function js($js) {
+		if(!is_string($js) || strlen($js)==0) return false;
+		$js = rtrim($js,';');
+		if(STRIP_OUTPUT)
+			self::$jses[] = strip_js($js);
+		else
+			self::$jses[] = $js;
+		return true;
+	}
+	
 	/**
 	 * Escapes special characters in js code.
 	 * 
@@ -278,7 +311,7 @@ class Epesi {
 				if(isset($v['span']))
 					self::text($v['value'], $v['span']);
 				if($v['js'])
-					self::js('_ajs(\''.self::escapeJS(join(";",$v['js'])).'\')');
+					self::js(join(";",$v['js']));
 				$tmp_session['__module_content__'][$k]['value'] = $v['value'];
 				$tmp_session['__module_content__'][$k]['js'] = $v['js'];				
 				$tmp_session['__module_content__'][$k]['parent'] = $parent;				
@@ -294,7 +327,7 @@ class Epesi {
 				if(isset($v['span']))
 					self::text($v['value'], $v['span']);
 				if($v['js'])
-					self::js('_ajs(\''.self::escapeJS(join(";",$v['js'])).'\')');
+					self::js(join(";",$v['js']));
 				$reloaded[$k] = true;
 			}
 	

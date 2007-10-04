@@ -4,43 +4,11 @@
  * @copyright Copyright &copy; 2007, Telaxus LLC
  * @licence SPL
  */
-var loaded_csses="";
-function _lcss(file) {
-	if (loaded_csses.indexOf(file)!=-1) return false;
-	fileref=document.createElement("link")
-	fileref.setAttribute("rel", "stylesheet");
-	fileref.setAttribute("type", "text/css");
-	fileref.setAttribute("href", file);
-	document.getElementsByTagName("head").item(0).appendChild(fileref);
-	loaded_csses += file+" ";
-	return true;
-};
-load_css = _lcss;
 
 function focus_by_id(idd) {
 	xx = document.getElementById(idd);
 	if(xx) setTimeout('xx.focus();',200);
 };
-
-var loaded_jss="";
-function _ljs(file) {
-	if (loaded_jss.indexOf(file)!=-1) return false;
-	fileref=document.createElement("script")
-	fileref.setAttribute("type", "text/javascript");
-	fileref.setAttribute("src", file);
-	document.getElementsByTagName("head").item(0).appendChild(fileref);
-	loaded_jss += file+" ";
-	return true;
-};
-load_js = _ljs;
-
-function _ajs(texti) {
-	fileref=document.createElement("script")
-	fileref.setAttribute("type", "text/javascript");
-	fileref.text = 'try{'+texti+'}catch(e){alert(e);}';//workaround
-	document.body.appendChild(fileref);
-};
-append_js = _ajs;
 
 function addslashes(x){return x.replace(/('|"|\\)/g,"\\$1")}
 
@@ -101,6 +69,66 @@ var Epesi = {
 			t.innerHTML = txt+t.innerHTML;
 		else if($type=='a')//append
 			t.innerHTML += txt;
+	},
+	//js loader
+	loaded_jss:new Array(),
+	to_load_jss:new Array(),
+	to_append_jss:new Array(),
+	js_loader_running:false,
+	load_js:function(file) {
+		if (Epesi.loaded_jss.indexOf(file)!=-1) return;
+		Epesi.to_load_jss[Epesi.to_load_jss.size()] = file;
+		if(Epesi.js_loader_running==false) {
+			Epesi.js_loader_running=true;
+			Epesi.js_loader();
+		}
+	},
+	append_js:function(texti) {
+		if(Epesi.js_loader_running==false) {
+			Epesi.append_js_script(texti);
+		} else
+			Epesi.to_append_jss[Epesi.to_append_jss.size()] = texti;
+	},
+	append_js_script:function(texti) {
+		fileref=document.createElement("script");
+		fileref.setAttribute("type", "text/javascript");
+		fileref.text = texti;
+		document.getElementsByTagName("head").item(0).appendChild(fileref);
+	},
+	js_loader:function() {
+		file = Epesi.to_load_jss.first();
+		if(typeof file != 'undefined') {
+			fileref=document.createElement("script")
+			fileref.setAttribute("type", "text/javascript");
+			fileref.setAttribute("src", file);
+			fileref.onload=fileref.onreadystatechange=function() {
+				if (fileref.readyState && fileref.readyState != 'loaded' && fileref.readyState != 'complete')
+					return;
+				Epesi.loaded_jss[Epesi.loaded_jss.size()] = file;
+				Epesi.js_loader();
+			}
+			document.getElementsByTagName("head").item(0).appendChild(fileref);
+			Epesi.to_load_jss = Epesi.to_load_jss.without(file);
+		} else {
+			for(var i=0; i<Epesi.to_append_jss.size(); i++) {
+				var texti = Epesi.to_append_jss[i];
+				Epesi.append_js_script(texti);
+			}
+			Epesi.to_append_jss.clear();
+			Epesi.js_loader_running = false;
+		}
+	},
+	//csses
+	loaded_csses:new Array(),
+	load_css:function(file) {
+		if (Epesi.loaded_csses.indexOf(file)!=-1) return false;
+		fileref=document.createElement("link")
+		fileref.setAttribute("rel", "stylesheet");
+		fileref.setAttribute("type", "text/css");
+		fileref.setAttribute("href", file);
+		document.getElementsByTagName("head").item(0).appendChild(fileref);
+		Epesi.loaded_csses[Epesi.loaded_csses.size()] = file;
+		return true;
 	}
 };
 _chj=Epesi.href;
@@ -116,4 +144,3 @@ onCreate: function(x,y) { //hack
 onException: function(req, e){ 
 	alert(e); 
 }});
-
