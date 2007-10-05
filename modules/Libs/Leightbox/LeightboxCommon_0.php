@@ -11,6 +11,5 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 Base_ThemeCommon::load_css('Libs/Leightbox','default',false);
 load_js('modules/Libs/Leightbox/leightbox.js');
-eval_js('updateLbList()');
 
 ?>

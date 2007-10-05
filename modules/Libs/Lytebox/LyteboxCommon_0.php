@@ -11,6 +11,5 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 Base_ThemeCommon::load_css('Libs/Lytebox','default',false);
 load_js('modules/Libs/Lytebox/3.10/lytebox.js');
-eval_js('initLytebox()');
 
 ?>

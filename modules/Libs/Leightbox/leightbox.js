@@ -178,11 +178,12 @@ function addLeightboxMarkup() {
 addLeightboxMarkup();
 getBrowserInfo();
 
-function updateLbList() {
+document.observe("e_load", function() {
 	lbox = document.getElementsByClassName('lbOn');
 	for(i = 0; i < leightboxes.length; i++)
 		delete(leightboxes[i]);
 	for(i = 0; i < lbox.length; i++) 
 		leightboxes[i] = new leightbox(lbox[i]);
-}
+});
+
 

@@ -78,7 +78,7 @@ unset($_SESSION['cl'.$client_id]);
 			}
 		</style>
 	</head>
-	<body onload="epesi_go()">
+	<body>
 		<div id="main_content"></div>
 		<div id="epesiStatus">
 			<table cellspacing="0" cellpadding="0" border="0" style="width:100%;">
@@ -108,14 +108,12 @@ unset($_SESSION['cl'.$client_id]);
 			unFocus.History.addHistory(id);
 		}
 		
-		epesi_go = function() {
-			Epesi.client_id=<?php print($client_id); ?>;
-			Epesi.process_file='<?php print(str_replace('\\','/',dirname($_SERVER['PHP_SELF'])).'/process.php'); ?>';
-			var history_on=1;
-			history_add(0);
-			Epesi.request('',0);
-			unFocus.History.addEventListener('historyChange',history_call);
-		}
+		Epesi.client_id=<?php print($client_id); ?>;
+		Epesi.process_file='<?php print(str_replace('\\','/',dirname($_SERVER['PHP_SELF'])).'/process.php'); ?>';
+		var history_on=1;
+		history_add(0);
+		Epesi.request('',0);
+		unFocus.History.addEventListener('historyChange',history_call);
 		-->
 		</script>
 	</body>

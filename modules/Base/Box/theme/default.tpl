@@ -9,7 +9,6 @@
 {else}
 {php}
 	load_js('data/Base_Theme/templates/default/Base_Box__default.js');
-	eval_js('correctPNG()');
 {/php}
 
 <center>
