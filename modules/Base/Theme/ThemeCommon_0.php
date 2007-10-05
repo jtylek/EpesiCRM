@@ -133,7 +133,7 @@ class Base_ThemeCommon extends ModuleCommon {
 		$themes_dir = 'data/Base_Theme/templates/';
 		$def_theme = Variable::get('default_theme');
 		$tdir = $themes_dir.$def_theme.'/';
-		$arr = glob($themes_dir.'default/*.css',GLOB_NOSORT);
+		$arr = glob($themes_dir.'default/*.css');
 		$css_def_out = '';
 		$css_cur_out = '';
 		$files_def_out = '';
