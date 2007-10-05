@@ -158,7 +158,7 @@ table#Base_Box__logged td.login a:hover {
 
 table#Base_Box__logged td.top-bar {
 	height: 78px;
-	background-image: url("images/top-bar.png");
+	background-image: url("images/top-bar-2.png");
 	background-repeat: no-repeat;
 }
 
@@ -182,8 +182,9 @@ table#Base_Box__logged td.footer {
 	font-size: 10px;
 	text-align: center;
 	height: 20px;
-	vertical-align: center;
-	border-top: 4px solid #CCCCCC;
+	vertical-align: middle;
+	border-top: 1px solid #B3B3B3;
+	background-image: url('images/header-grey-hover.png');
 }
 
 table#Base_Box__logged td.footer a {
