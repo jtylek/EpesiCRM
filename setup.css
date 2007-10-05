@@ -6,7 +6,7 @@ body {
 }
 
 table {
-    font-size: 11px;    
+    font-size: 11px;
 }
 
 a {
@@ -16,15 +16,17 @@ a {
 }
 
 a.button {
+    color: #FFFFFF;
+    width: 100px;
     line-height: 20px;
     display: block;
-    width: 100px;
-    background-image: url("images/button.png");
+    background-image: url("images/header-blue.png");
+    border: 0px;
     text-align: center;
 }
 
 a.button:hover {
-    background-image: url("images/button-hover.png");
+    background-image: url("images/header-blue-hover.png");
 }
 
 span.footer {

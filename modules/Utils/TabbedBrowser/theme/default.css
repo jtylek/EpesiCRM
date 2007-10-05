@@ -1,9 +1,9 @@
 ul#Utils_TabbedBrowser {
 	text-align: left;
 	margin: 1em 0 1em 0;
-	font-weight: bold;
+	font-weight: normal;
 	font-size: 11px;
-	border-bottom: 4px solid #339933;
+	border-bottom: 4px solid #336699;
 	list-style-type: none;
 	padding: 3px 20px 3px 20px;
 	background-color: #F0F0F0;
@@ -14,20 +14,19 @@ ul#Utils_TabbedBrowser li {
 }
 
 ul#Utils_TabbedBrowser a.tabbed_browser_selected {
-	background-color: #F0F0F0;
 	color: #FFFFFF;
 	top: 4px;
 	padding-top: 4px;
-	background-color: #F0F0F0;
-	background-image: url("images/header-green.png");
+	background-color: #336699;
+	background-image: url("images/header-blue.png");
 	background-repeat: repeat-x;
 }
 
 ul#Utils_TabbedBrowser li a {
 	padding: 3px 4px;
-	border: 1px solid #339933;
-	background-color: #CCCCCC;
-	color: #339933;
+	border: 0px;
+	background-color: #B3B3B3;
+	color: #FFFFFF;
 	margin-right: 0px;
 	text-decoration: none;
 	border-bottom: none;
@@ -37,6 +36,7 @@ ul#Utils_TabbedBrowser li a {
 
 ul#Utils_TabbedBrowser a:hover {
 	color: #FFFFFF;
-	background-image: url("images/header-green-hover.png");
+	background-color: #336699;
+	/*background-image: url("images/header-blue-hover.png");*/
 	background-repeat: repeat-x;
 }

@@ -166,6 +166,7 @@ table#Base_Box__logged td.top-bar {
 	width: 691px;
 	height: 20px;
 	text-align: left;
+	background-color: #B3B3B3;
 	background-image: url('images/header-grey-hover.png');
 }
 
@@ -183,8 +184,9 @@ table#Base_Box__logged td.footer {
 	text-align: center;
 	height: 20px;
 	vertical-align: middle;
-	border-top: 1px solid #B3B3B3;
-	background-image: url('images/header-grey-hover.png');
+	background-color: #F0F0F0;
+	border-top: 4px solid #B3B3B3;
+	/*background-image: url('images/header-grey-hover.png');*/
 }
 
 table#Base_Box__logged td.footer a {

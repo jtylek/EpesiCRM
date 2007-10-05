@@ -3,28 +3,27 @@ table#Base_Search__Search span.error {
 }
 
 table#Base_Search__Search td.header_tail {
-	color: #4C4C4C;
-	background-color: #E5E5E5;
-	background-image: url("images/button-background-2.png");
+	color: #FFFFFF;
+	background-color: #336699;
+	background-image: url("images/header-blue.png");
 	background-repeat: repeat-x;
 	font-weight: bold;
 	width: 200px;
 	height: 20px;
-	border: 1px solid #CCCCCC;
+	border: 0px;
 	text-align: center;
-	vertical-align: center;
+	vertical-align: middle;
 }
 
 table#Base_Search__Search td.header_tail span.header {
-	color: #4C4C4C;
+	color: #FFFFFF;
 	text-align: left;
 	font-weight: bold;
-	/*border: 1px solid #B3B3B3;*/
 	padding-left: 5px;
 }
 
 table#Base_Search__Search input {
-	color: #4C4C4C;
+	color: #000000;
 	border: 1px solid #B3B3B3;
 	width: 158px;
 	height: 16px;
@@ -40,39 +39,38 @@ table#Base_Search__Search td.submit {
 }
 
 table#Base_Search__Search input.mini_submit {
-	color: #4C4C4C;
-	border: 0px solid #B3B3B3;
+	color: #FFFFFF;
+	border: 0px;
 	width: 100px;
 	height: 20px;
-	background-image: url("images/button.png");
+	background-image: url("images/header-blue.png");
 	font-size: 11px;
 }
 
 table#Base_Search__Search input.mini_submit:hover {
-	background-image: url("images/button-hover.png");
+	background-image: url("images/header-blue-hover.png");
 }
 
 table#Base_Search__Search input.submit {
-	color: #4C4C4C;
-	border: 0px solid #B3B3B3;
+	color: #FFFFFF;
+	border: 0px;
 	width: 100px;
 	height: 20px;
-	background-image: url("images/button.png");
+	background-image: url("images/header-blue.png");
 	font-size: 11px;
 }
 
 table#Base_Search__Search input.submit:hover {
-	background-image: url("images/button-hover.png");
+	background-image: url("images/header-blue-hover.png");
 }
 
 table#Base_Search__Search .label {
-	/*font-weight: bold;*/
-	color: #4C4C4C;
+	color: #000000;
 	font-size: 11px;
-	vertical-align: center;
+	vertical-align: middle;
 }
 
 table#Base_Search__Search td.data select {
 	font-size: 11px;
-	vertical-align: center;
+	vertical-align: middle;
 }
