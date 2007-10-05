@@ -39,7 +39,7 @@ if(Acl::is_user()) {
 		if($x_time<$interval)
 			$interval = $x_time;
 		eval_js_once('SessionKeeper.maxtime='.$x_time.';'.
-			'SessionKeeper.interval='.($sys_time/2).';'.
+			'SessionKeeper.interval='.$interval.';'.
 			'SessionKeeper.load()');
 	}
 }
