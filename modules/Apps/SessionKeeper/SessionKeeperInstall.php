@@ -20,7 +20,7 @@ class Apps_SessionKeeperInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array("0.1");
+		return array("0.9");
 	}
 	
 	public function requires($v) {
