@@ -35,14 +35,12 @@ if(Acl::is_user()) {
 		load_js('modules/Apps/SessionKeeper/sk.js');
 		$sys_time = ini_get("session.gc_maxlifetime");
 		$x_time = $time-$sys_time;
-		if($x_time>0) {
-			$interval = $sys_time/2;
-			if($x_time<$interval)
-				$interval = $x_time;
-			eval_js_once('SessionKeeper.maxtime='.$x_time.';'.
-				'SessionKeeper.interval='.($sys_time/2).';'.
-				'SessionKeeper.load()');
-		}
+		$interval = $sys_time/2;
+		if($x_time<$interval)
+			$interval = $x_time;
+		eval_js_once('SessionKeeper.maxtime='.$x_time.';'.
+			'SessionKeeper.interval='.($sys_time/2).';'.
+			'SessionKeeper.load()');
 	}
 }
 ?>
