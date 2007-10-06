@@ -56,7 +56,7 @@ class Base_Dashboard extends Module {
 				if($opts['href'])
 					$th->assign('href','<a class="href" '.$opts['href'].'>G</a>');
 				
-				$th->assign('remove','<a class="remove" '.$tipmod->open_tag_attrs($this->lang->ht('Remove')).' '.$this->create_confirm_callback_href($this->lang->t('Delete this applet?'),array($this,'delete_applet'),$row['id']).'>x</a>');
+				$th->assign('remove','<a class="remove" '.$tipmod->open_tag_attrs($this->lang->ht('Remove')).' '.$this->create_confirm_callback_href($this->lang->ht('Delete this applet?'),array($this,'delete_applet'),$row['id']).'>x</a>');
 				
 				if(method_exists($row['module_name'].'Common', 'applet_settings'))
 					$th->assign('configure','<a class="configure" '.$tipmod->open_tag_attrs($this->lang->ht('Configure')).' '.$this->create_callback_href(array($this,'configure_applet'),array($row['id'],$row['module_name'])).'>c</a>');
@@ -226,79 +226,17 @@ class Base_Dashboard extends Module {
 
 	private function add_module_settings_to_form($info, &$f, $id, $module){
 		$values = $this->get_values($id,$module);
-		foreach($info as $v){
-			
-			switch($v['type']){
-				case 'select':
-					$select = array(); 
-					foreach($v['values'] as $k=>$x) $select[$k] = $this->lang->ht($x);
-						$f -> addElement('select',$v['name'],$this->lang->t($v['label']),$select);
-						$this->set_default_js .= 'e = $(\''.$f->getAttribute('name').'\').'.$v['name'].';'.
-						'for(i=0; i<e.length; i++) if(e.options[i].value==\''.$v['default'].'\'){e.options[i].selected=true;break;};';
-					break;
-				
-				case 'static':
-				case 'header':
-					$f -> addElement($v['type'],$v['name'],$this->lang->t($v['label']),$this->lang->t($v['values']));
-					break;
-					
-				case 'radio':
-					$radio = array();
-					$label = $this->lang->t($v['label']);
-					foreach($v['values'] as $k=>$x) {
-						$f -> addElement('radio',$v['name'],$label,$this->lang->ht($x),$k);
-						$label = '';
-					}
-					$this->set_default_js .= 'e = $(\''.$f->getAttribute('name').'\').'.$v['name'].';'.
-					'for(i=0; i<e.length; i++){e[i].checked=false;if(e[i].value==\''.$v['default'].'\')e[i].checked=true;};';
-					break;
-					
-				case 'bool':
-				case 'checkbox':
-					$f -> addElement('checkbox',$v['name'],$this->lang->t($v['label']));
-					$this->set_default_js .= '$(\''.$f->getAttribute('name').'\').'.$v['name'].'.checked = '.$v['default'].';';
-					break;
-				
-				case 'text':
-				case 'textarea':
-					$obj = $f -> addElement($v['type'],$v['name'],$this->lang->t($v['label']));
-					$this->set_default_js .= '$(\''.$f->getAttribute('name').'\').'.$v['name'].'.value = \''.$v['default'].'\';';
-				break;
-							
-				case 'fckeditor':
-					$obj = $f -> addElement($v['type'],$v['name'],$this->lang->t($v['label']));
-					$obj->setFCKProps('400','125',false);
-					$this->set_default_js .= '$(\''.$f->getAttribute('name').'\').'.$v['name'].'.value = \''.$v['default'].'\';';
-				break;
-							
-				default:
-					trigger_error('Invalid type: '.$v['type'],E_USER_ERROR);
-			}
-			
-			if (isset($v['rule'])) {
-				$i = 0;
-				foreach ($v['rule'] as $r) {
-					if (!isset($r['message'])) trigger_error('No error message specified for field '.$v['name'], E_USER_ERROR);
-					if (!isset($r['type'])) trigger_error('No error type specified for field '.$v['name'], E_USER_ERROR);
-					if ($r['type']=='callback') {
-						if (!isset($r['func'])) trigger_error('Invalid parameter specified for rule definition for field '.$v['name'], E_USER_ERROR);
-						if(is_string($r['func']))
-							$f->registerRule($v['name'].$i.'_rule', 'callback', $r['func']);
-						elseif(is_array($r['func']))
-							$f->registerRule($v['name'].$i.'_rule', 'callback', $r['func'][1], $r['func'][0]);
-						else
-							trigger_error('Invalid parameter specified for rule definition for field '.$v['name'], E_USER_ERROR);
-						if(isset($r['param']) && $r['param']=='__form__')
-							$r['param'] = &$f;
-						$f->addRule($v['name'], $this->lang->t($r['message']), $v['name'].$i.'_rule', isset($r['param'])?$r['param']:null);
-					} else {
-						if ($r['type']=='regex' && !isset($r['param'])) trigger_error('No regex defined for a rule for field '.$v['name'], E_USER_ERROR);
-						$f->addRule($v['name'], $this->lang->t($r['message']), $r['type'], isset($r['param'])?$r['param']:null);
-					}
-					$i++;
-				}
-			}
+		foreach($info as & $v){
+			if(isset($v['label'])) $v['label'] = $this->lang->t($v['label']);
+			if(isset($v['values']) && is_array($v['values']))
+				foreach($v['values'] as &$x) 
+					$x = $this->lang->ht($x);
+			if (isset($v['rule']))
+				foreach ($v['rule'] as & $r)
+					if (isset($r['message'])) $r = $this->lang->t($r['message']);
 		}
+		$this->set_default_js = '';
+		$f -> add_array($info, $this->set_default_js);
 		$f -> setDefaults($values);
 	}
 

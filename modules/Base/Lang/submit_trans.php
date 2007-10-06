@@ -15,8 +15,7 @@
 /**
  * This class provides inline translation method.
  */
- 
-if(!isset(!isset($_POST['parent']) || !isset($_POST['oryg']) || !isset($_POST['trans']))
+if(!isset($_POST['parent']) || !isset($_POST['oryg']) || !isset($_POST['trans']))
 	die('Invalid request');
 $parent = $_POST['parent'];
 $trans = $_POST['trans'];

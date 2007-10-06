@@ -81,5 +81,81 @@ class Libs_QuickForm extends Module {
 		$theme->assign($name.'_open', $form_data['javascript'].'<form '.$form_data['attributes'].'>'.$form_data['hidden']."\n");
 		$theme->assign($name.'_close', "</form>\n");
 	} 
+	
+	public function add_array($info, & $default_js=''){
+		$l = $this->init_module('Base/Lang');
+		foreach($info as $v){
+			switch($v['type']){
+				case 'select':
+					$this -> addElement('select',$v['name'],$v['label'],$v['values']);
+					$default_js .= 'e = $(\''.$this->getAttribute('name').'\').'.$v['name'].';'.
+					'for(i=0; i<e.length; i++) if(e.options[i].value==\''.$v['default'].'\'){e.options[i].selected=true;break;};';
+					break;
+				
+				case 'static':
+				case 'header':
+					$this -> addElement($v['type'],$v['name'],$v['label'],$v['values']);
+					break;
+					
+				case 'radio':
+					$radio = array();
+					$label = $v['label'];
+					foreach($v['values'] as $k=>$x) {
+						$this -> addElement('radio',$v['name'],$label,$this->lang->ht($x),$k);
+						$label = '';
+					}
+					$default_js .= 'e = $(\''.$this->getAttribute('name').'\').'.$v['name'].';'.
+					'for(i=0; i<e.length; i++){e[i].checked=false;if(e[i].value==\''.$v['default'].'\')e[i].checked=true;};';
+					break;
+					
+				case 'bool':
+				case 'checkbox':
+					$this -> addElement('checkbox',$v['name'],$v['label']);
+					$default_js .= '$(\''.$this->getAttribute('name').'\').'.$v['name'].'.checked = '.$v['default'].';';
+					break;
+				
+				case 'text':
+				case 'textarea':
+					$obj = $this -> addElement($v['type'],$v['name'],$v['label']);
+					$default_js .= '$(\''.$this->getAttribute('name').'\').'.$v['name'].'.value = \''.$v['default'].'\';';
+				break;
+							
+				case 'fckeditor':
+					$obj = $this -> addElement($v['type'],$v['name'],$v['label']);
+					$obj->setFCKProps('400','125',false);
+					$default_js .= '$(\''.$this->getAttribute('name').'\').'.$v['name'].'.value = \''.$v['default'].'\';';
+				break;
+							
+				default:
+					trigger_error('Invalid type: '.$v['type'],E_USER_ERROR);
+			}
+			if(isset($v['default'])) $this->setDefaults(array($v['name']=>$v['default']));
+			
+			if (isset($v['rule'])) {
+				$i = 0;
+				foreach ($v['rule'] as $r) {
+					if (!isset($r['message'])) trigger_error('No error message specified for field '.$v['name'], E_USER_ERROR);
+					if (!isset($r['type'])) trigger_error('No error type specified for field '.$v['name'], E_USER_ERROR);
+					if ($r['type']=='callback') {
+						if (!isset($r['func'])) trigger_error('Invalid parameter specified for rule definition for field '.$v['name'], E_USER_ERROR);
+						if(is_string($r['func']))
+							$this->registerRule($v['name'].$i.'_rule', 'callback', $r['func']);
+						elseif(is_array($r['func']))
+							$this->registerRule($v['name'].$i.'_rule', 'callback', $r['func'][1], $r['func'][0]);
+						else
+							trigger_error('Invalid parameter specified for rule definition for field '.$v['name'], E_USER_ERROR);
+						if(isset($r['param']) && $r['param']=='__form__')
+							$r['param'] = &$this;
+						$this->addRule($v['name'], $r['message'], $v['name'].$i.'_rule', isset($r['param'])?$r['param']:null);
+					} else {
+						if ($r['type']=='regex' && !isset($r['param'])) trigger_error('No regex defined for a rule for field '.$v['name'], E_USER_ERROR);
+						$this->addRule($v['name'], $r['message'], $r['type'], isset($r['param'])?$r['param']:null);
+					}
+					$i++;
+				}
+			}
+		}
+	}
+
 }
 ?>

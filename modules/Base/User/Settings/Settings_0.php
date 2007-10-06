@@ -81,59 +81,22 @@ class Base_User_Settings extends Module {
 	}
 	
 	private function add_module_settings_to_form($info, &$f, $module){
-		foreach($info as $v){
-			if ($v['type']=='select'){
-				$select = array(); 
-				foreach($v['values'] as $k=>$x) $select[$k] = $this->lang->ht($x);
-				$f -> addElement('select',$module.self::$sep.$v['name'],$this->lang->t($v['label']),$select);
-				$this->set_default_js .= 'e = $(\''.$f->getAttribute('name').'\').'.$module.self::$sep.$v['name'].';'.
-										'for(i=0; i<e.length; i++) if(e.options[i].value==\''.$v['default'].'\'){e.options[i].selected=true;break;};';
-			} elseif ($v['type']=='static' || $v['type']=='header') {
-				$f -> addElement($v['type'],$module.self::$sep.$v['name'],$this->lang->t($v['label']),$this->lang->t($v['values']));
-			} elseif ($v['type']=='radio') {
-				$radio = array();
-				$label = $this->lang->t($v['label']);
-				foreach($v['values'] as $k=>$x) {
-					$f -> addElement('radio',$module.self::$sep.$v['name'],$label,$this->lang->ht($x),$k);
-					$label = '';
-				}
-				$this->set_default_js .= 'e = $(\''.$f->getAttribute('name').'\').'.$module.self::$sep.$v['name'].';'.
-										'for(i=0; i<e.length; i++){e[i].checked=false;if(e[i].value==\''.$v['default'].'\')e[i].checked=true;};';
-			} elseif ($v['type']=='bool' || $v['type']=='checkbox') {
-				$f -> addElement('checkbox',$module.self::$sep.$v['name'],$this->lang->t($v['label']));
-				$this->set_default_js .= '$(\''.$f->getAttribute('name').'\').'.$module.self::$sep.$v['name'].'.checked = '.$v['default'].';';
-			} elseif ($v['type']=='text' || $v['type']=='textarea' || $v['type']=='fckeditor') {
-				$obj = $f -> addElement($v['type'],$v['name'],$this->lang->t($v['label']));
-				if($v['type']=='fckeditor')
-					$obj->setFCKProps('400','125',false);
-				$this->set_default_js .= '$(\''.$f->getAttribute('name').'\').'.$module.self::$sep.$v['name'].'.value = \''.$v['default'].'\';';
-			} else trigger_error('Invalid type: '.$v['type'],E_USER_ERROR);
-			if (isset($v['rule'])) {
-				$i = 0;
-				foreach ($v['rule'] as $r) {
-					if (!isset($r['message'])) trigger_error('No error message specified for field '.$v['name'], E_USER_ERROR);
-					if (!isset($r['type'])) trigger_error('No error type specified for field '.$v['name'], E_USER_ERROR);
-					if ($r['type']=='callback') {
-						if (!isset($r['func'])) trigger_error('Invalid parameter specified for rule definition for field '.$v['name'], E_USER_ERROR);
-						if(is_string($r['func']))
-							$f->registerRule($v['name'].$i.'_rule', 'callback', $r['func']);
-						elseif(is_array($r['func']))
-							$f->registerRule($v['name'].$i.'_rule', 'callback', $r['func'][1], $r['func'][0]);
-						else
-							trigger_error('Invalid parameter specified for rule definition for field '.$v['name'], E_USER_ERROR);
-						if(isset($r['param']) && $r['param']=='__form__')
-							$r['param'] = &$f;
-						$f->addRule($module.self::$sep.$v['name'], $this->lang->t($r['message']), $v['name'].$i.'_rule', isset($r['param'])?$r['param']:null);
-					} else {
-						if ($r['type']=='regex' && !isset($r['param'])) trigger_error('No regex defined for a rule for field '.$v['name'], E_USER_ERROR);
-						$f->addRule($module.self::$sep.$v['name'], $this->lang->t($r['message']), $r['type'], isset($r['param'])?$r['param']:null);
-					}
-					$i++;
-				}
-			}
-			
-			$f -> setDefaults(array($module.self::$sep.$v['name']=>Base_User_SettingsCommon::get($module,$v['name'])));
+		$defaults = array();
+		foreach($info as & $v){
+			if(isset($v['label'])) $v['label'] = $this->lang->t($v['label']);
+			$v['name'] = $module.self::$sep.$v['name'];
+			if(isset($v['values']) && is_array($v['values']))
+				foreach($v['values'] as &$x) 
+					$x = $this->lang->ht($x);
+			if (isset($v['rule']))
+				foreach ($v['rule'] as & $r)
+					if (isset($r['message'])) $r = $this->lang->t($r['message']);
+			$defaults = array_merge($defaults,array($v['name']=>Base_User_SettingsCommon::get($module,$v['name'])));
 		}
+		$this->set_default_js = '';
+		$f -> add_array($info, $this->set_default_js);
+		$f -> setDefaults($defaults);
+
 	}
 	
 	private function set_user_preferences($info,$values,$module){

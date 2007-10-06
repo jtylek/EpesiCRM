@@ -90,7 +90,7 @@ class Utils_GenericBrowser extends Module {
 	
 	public function construct() {
 		if (is_numeric($this->get_instance_id()))
-			trigger_error('GenericBrowser did not receive string name for instance in module '.$this->get_parent_type().'.<br>Use $this->init_module(\'Utils/GenericBrowser\',\'instance name here\');',E_USER_ERROR);
+			trigger_error('GenericBrowser did not receive string name for instance in module '.$this->get_parent_type().'.<br>Use $this->init_module(\'Utils/GenericBrowser\',<construct args>, \'instance name here\');',E_USER_ERROR);
 	}
 	
 	/**
