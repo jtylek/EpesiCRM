@@ -1,0 +1,22 @@
+#calc {
+    background-color: #FFFFFF;
+    background-image: url('images/calc-background-2.png');
+    background-repeat: repeat-x;
+}
+
+#calc .button {
+    width: 34px;
+    height: 24px;
+    background-image: url('images/header-blue.png');
+    color: #FFFFFF;
+    border: 2px solid #FFFFFF;
+}
+
+#calc input:hover.button {
+    background-image: url('images/header-blue-hover.png');
+}
+
+#calc .text {
+    border: 2px solid #B3B3B3;
+    width: 141px;
+}
