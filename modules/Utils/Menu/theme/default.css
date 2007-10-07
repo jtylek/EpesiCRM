@@ -9,7 +9,7 @@ table.root {
 	z-index: 1000;
 	font-weight: bold;
 	height: 20px;
-	border-right: 1px solid #B3B3B3;
+	border-right: 6px solid #B3B3B3;
 }
 
 table.root:hover {

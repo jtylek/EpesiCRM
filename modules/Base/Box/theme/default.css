@@ -84,6 +84,7 @@ body {
 	margin: 10px 10px 10px 10px;
 	font-family: "Tahoma" "Verdana" "Vera-Sans" "DejaVu-Sans";
 	font-size: 11px;
+	background-color: #FFFFFF;
 }
 
 table {
@@ -137,6 +138,18 @@ table#Base_Box__login td.entry {
 	color: #000000;
 }
 
+table#Base_Box__login td.title {
+	color: #777777;
+	background-color: #F0F0F0;
+	font-size: 15px;
+	text-align: center;
+}
+
+table#Base_Box__login td.title span {
+	vertical-align: super;
+	font-size: 9px;
+}
+
 table#Base_Box__login td.starting {
 	background-color: #F0F0F0;
 	height: 70px;
@@ -163,11 +176,11 @@ table#Base_Box__logged td.top-bar {
 }
 
 #Base_Box__logged .menu-bar {
-	width: 691px;
+	width: 690px;
 	height: 20px;
 	text-align: left;
 	background-color: #B3B3B3;
-	background-image: url('images/header-grey-hover.png');
+	background-image: url('images/header-blue.png');
 }
 
 table#Base_Box__logged td.logo {
@@ -214,13 +227,13 @@ table#Base_Box__logged td.login a {
 }
 
 table#Base_Box__logged td.module_name {
-	width: 286px;
+	width: 287px;
 	height: 20px;
 	background-image: url("images/header-blue.png");
 	background-repeat: repeat-x;
 	font-weight: bold;
 	text-align: center;
-	border-left: 1px solid #B3B3B3;
+	border-left: 6px solid #B3B3B3;
 	font-size: 11px;
 	color: #FFFFFF;
 }

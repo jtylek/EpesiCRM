@@ -6,7 +6,7 @@
 {else}
 	{$form_data.javascript}
 
-	<form {$form_data.attributes}> 
+	<form {$form_data.attributes}>
 	{$form_data.hidden}
     <!-- Display the fields -->
 		<center>
@@ -28,12 +28,12 @@
 				<td align="left" class="input">{$form_data.password.html}</td>
 			</tr>
 			<tr>
-				<td colspan=2 align="center">{$form_data.autologin.html}</td>
+				<td colspan="2" align="center">{$form_data.autologin.html}</td>
 			</tr>
 			<tr><td colspan="2" class="submit_button">{$form_data.submit_button.html}</td></tr>
 			<tr><td colspan="2" class="recover_password">{$form_data.recover_password.html}</td></tr>
-			<tr><td colspan="2" class="footer">Copyright &copy; 2007 &bull; <a href="http://sourceforge.net/projects/epesi/">epesi framework</a><br>Application developed by <a href="http://www.telaxus.com">Telaxus LLC</a></td></tr>
+			<tr><td colspan="2" class="footer">Copyright &copy; 2007 &bull; <a href="http://www.telaxus.com">Telaxus LLC</a></td></tr>
 		</table>
 		</center>
 	</form>
-{/if}	
+{/if}

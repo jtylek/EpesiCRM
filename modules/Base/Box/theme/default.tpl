@@ -2,6 +2,7 @@
 <center>
 <table id="Base_Box__login" cellspacing="0" cellpadding="0" border="0">
 	<tr><td class="status"><center>{$status}</center></td></tr>
+	<tr><td class="title">Managing Business Your Way <span>TM</span></td></tr>
 	<tr><td class="entry">{$login}</td></tr>
 	<tr><td class="starting">{$about}</td></tr>
 </table>
@@ -12,6 +13,20 @@
 {/php}
 
 <center>
+
+<!-- shadow begin
+<table id="shadow" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+        <td class="td-5x5 top-left"></td>
+        <td class="td-5x5 top-left-right"></td>
+        <td class="top-center">&nbsp;</td>
+        <td class="td-5x5 top-right-left"></td>
+        <td class="td-5x5 top-right"></td>
+    </tr>
+    <tr>
+        <td class="td-5x5 top-left-left"></td>
+        <td colspan="3" rowspan="3" class="center-center">
+ -->
 
 <table id="Base_Box__logged" cellspacing="0" cellpadding="0" border="0">
 	<tr>
@@ -67,6 +82,29 @@
 		<td class="footer" style="width: 100px; vertical-align: center; text-align: right; padding-right: 2px; padding-top: 2px;">{$about}</td>
 	</tr>
 </table>
+
+<!--
+        </td>
+        <td class="td-5x5 top-right-right"></td>
+    </tr>
+    <tr>
+        <td class="center-left">&nbsp;</td>
+        <td class="center-right">&nbsp;</td>
+    </tr>
+    <tr>
+        <td class="td-5x5 bottom-left-right"></td>
+        <td class="td-5x5 bottom-right-left"></td>
+    </tr>
+    <tr>
+        <td class="td-5x5 bottom-left"></td>
+        <td class="td-5x5 bottom-left-left"></td>
+        <td class="bottom-center">&nbsp;</td>
+        <td class="td-5x5 bottom-right-right"></td>
+        <td class="td-5x5 bottom-right"></td>
+    </tr>
+</table>
+ -->
+
 </center>
 {/if}
 
