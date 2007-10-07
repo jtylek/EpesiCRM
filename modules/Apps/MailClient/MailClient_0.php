@@ -9,7 +9,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Apps_Mail extends Module {
+class Apps_MailClient extends Module {
 	private $lang;
 	
 	public function construct() {
@@ -20,7 +20,7 @@ class Apps_Mail extends Module {
 	//account management
 	public function account_manager() {
 		$gb = $this->init_module('Utils/GenericBrowser',null,'accounts');
-		$ret = $gb->query_order_limit('SELECT id,mail FROM apps_mail_accounts WHERE user_login_id='.Base_UserCommon::get_my_user_id(),'SELECT count(mail) FROM apps_mail_accounts WHERE user_login_id='.Base_UserCommon::get_my_user_id());
+		$ret = $gb->query_order_limit('SELECT id,mail FROM apps_mailclient_accounts WHERE user_login_id='.Base_UserCommon::get_my_user_id(),'SELECT count(mail) FROM apps_mailclient_accounts WHERE user_login_id='.Base_UserCommon::get_my_user_id());
 		$gb->set_table_columns(array(
 			array('name'=>$this->lang->t('Mail'), 'order'=>'mail')
 				));
@@ -42,7 +42,7 @@ class Apps_Mail extends Module {
 
 		$defaults=null;
 		if($action!='new') {
-			$ret = DB::Execute('SELECT * FROM apps_mail_accounts WHERE id=%d',array($id));
+			$ret = DB::Execute('SELECT * FROM apps_mailclient_accounts WHERE id=%d',array($id));
 			$defaults = $ret->FetchRow();
 		}
 
@@ -64,7 +64,7 @@ class Apps_Mail extends Module {
 				array('name'=>'smtp_ssl','label'=>$this->lang->t('Send with SSL'))
 			);
 		
-		$f->add_table('apps_mail_accounts',$cols);
+		$f->add_table('apps_mailclient_accounts',$cols);
 		$f->setDefaults($defaults);
 		
 		if($action=='view') {
@@ -78,7 +78,7 @@ class Apps_Mail extends Module {
 				foreach($cols as $v)
 					if(isset($values[$v['name']]))
 						$dbup[$v['name']] = DB::qstr($values[$v['name']]);
-				DB::Replace('apps_mail_accounts', $dbup, array('id','user_login_id'), true);
+				DB::Replace('apps_mailclient_accounts', $dbup, array('id','user_login_id'), true);
 				return false;	
 			}
 			Base_ActionBarCommon::add('save','Save',' href="javascript:void(0)" onClick="'.addcslashes($f->get_submit_form_js(),'"').'"');
@@ -91,7 +91,7 @@ class Apps_Mail extends Module {
 	}
 
 	public function delete_account($id){
-		DB::Execute('DELETE FROM apps_mail_accounts WHERE id=%d',array($id));
+		DB::Execute('DELETE FROM apps_mailclient_accounts WHERE id=%d',array($id));
 	}
 	
 
@@ -105,17 +105,17 @@ class Apps_Mail extends Module {
 				));
 		foreach($conf as $id=>$on) 
 			if($on) {
-				$account = DB::GetAll('SELECT * FROM apps_mail_accounts WHERE id=%d',array($id));
+				$account = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE id=%d',array($id));
 				$account = $account[0];
 				$r = & $gb->get_new_row();
 				$r->add_data($account['mail'],$account['num_msgs']);
 				$r->add_action($this->create_callback_href(array($this,'applet_update_num_of_msgs'),$id),'Update');
 			}
- 		$this->display_module($gb,array(true),'automatic_display');
+ 		$this->display_module($gb,array(false),'automatic_display');
 	}
 	
 	public function applet_update_num_of_msgs($id) {
-		$ret = Apps_MailCommon::update_num_of_msgs($id);
+		$ret = Apps_MailClientCommon::update_num_of_msgs($id);
 		if(is_string($ret)) {
 			if($ret=='')
 				Epesi::alert($this->lang->ht('Unknown authorization error'));

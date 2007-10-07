@@ -10,7 +10,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
 
-class Apps_MailCommon extends ModuleCommon {
+class Apps_MailClientCommon extends ModuleCommon {
 	public static function user_settings() {
 		if(Acl::is_user()) return array('Mail accounts'=>'account_manager');
 		return array();
@@ -29,7 +29,7 @@ class Apps_MailCommon extends ModuleCommon {
 	}
 
 	public static function applet_settings() {
-		$ret = DB::Execute('SELECT id,mail FROM apps_mail_accounts WHERE user_login_id=%d',array(Base_UserCommon::get_my_user_id()));
+		$ret = DB::Execute('SELECT id,mail FROM apps_mailclient_accounts WHERE user_login_id=%d',array(Base_UserCommon::get_my_user_id()));
 		$conf = array(array('type'=>'header','label'=>'Choose accounts'));
 		while($row=$ret->FetchRow())
 			$conf[] = array('name'=>$row['id'], 'label'=>$row['mail'], 'type'=>'checkbox', 'default'=>0);
@@ -37,7 +37,7 @@ class Apps_MailCommon extends ModuleCommon {
 	}	
 
 	public static function update_num_of_msgs($id) {
-		$account = DB::GetAll('SELECT pop3_method,incoming_ssl,incoming_server,login,password,incoming_protocol FROM apps_mail_accounts WHERE id=%d',array($id));
+		$account = DB::GetAll('SELECT pop3_method,incoming_ssl,incoming_server,login,password,incoming_protocol FROM apps_mailclient_accounts WHERE id=%d',array($id));
 		$account = $account[0];
 
 		$host = explode(':',$account['incoming_server']);
@@ -85,7 +85,7 @@ class Apps_MailCommon extends ModuleCommon {
 			$num_msgs = $imap->getNumberOfMessages();
 			$imap->disconnect();
 		}
-		DB::Execute('UPDATE apps_mail_accounts SET num_msgs=%d WHERE id=%d',array($num_msgs,$id));
+		DB::Execute('UPDATE apps_mailclient_accounts SET num_msgs=%d WHERE id=%d',array($num_msgs,$id));
 		return true;
 	}
 }

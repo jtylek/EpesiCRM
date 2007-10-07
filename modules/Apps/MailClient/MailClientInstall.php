@@ -9,11 +9,11 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Apps_MailInstall extends ModuleInstall {
+class Apps_MailClientInstall extends ModuleInstall {
 
 	public function install() {
 		$ret = true;
-		$ret &= DB::CreateTable('apps_mail_accounts','
+		$ret &= DB::CreateTable('apps_mailclient_accounts','
 			id I4 AUTO KEY,
 			user_login_id I4 NOTNULL,
 			login C(127) NOTNULL,
@@ -33,7 +33,7 @@ class Apps_MailInstall extends ModuleInstall {
 			num_msgs I4 DEFAULT 0',
 			array('constraints'=>', FOREIGN KEY (user_login_id) REFERENCES user_login(ID)'));
 		if(!$ret){
-			print('Unable to create table apps_mail_accounts.<br>');
+			print('Unable to create table apps_mailclient_accounts.<br>');
 			return false;
 		}
 		return $ret;
@@ -41,7 +41,7 @@ class Apps_MailInstall extends ModuleInstall {
 	
 	public function uninstall() {
 		$ret = true;
-		$ret &= DB::DropTable('apps_mail_accounts');
+		$ret &= DB::DropTable('apps_mailclient_accounts');
 		return $ret;
 	}
 	
