@@ -24,3 +24,6 @@
 <br>
 <p><a href="http://www.epesi.org"><img src="images/epesi-powered.png" border="0"></a></p>
 </center>
+{php}
+eval_js_once('document.body.id=\'FirstRun\'');
+{/php}

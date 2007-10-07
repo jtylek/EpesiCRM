@@ -10,6 +10,7 @@
 {else}
 {php}
 	load_js('data/Base_Theme/templates/default/Base_Box__default.js');
+	eval_js_once('document.body.id=null');
 {/php}
 
 <center>

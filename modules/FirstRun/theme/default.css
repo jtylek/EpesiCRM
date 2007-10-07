@@ -1,21 +1,21 @@
-body {
+body#FirstRun {
     font-family: "Tahoma" "Verdana" "Vera-Sans" "DejaVu-Sans";
     font-size: 11px;
     margin: 0px 0px 0px 0px;
     padding: 0px 0px 0px 0px;
 }
 
-table {
+#FirstRun table {
     font-size: 11px;    
 }
 
-a {
+#FirstRun a {
     color: #336699;
     font-weight: bold;
     text-decoration: none;
 }
 
-a.button {
+#FirstRun a.button {
     line-height: 20px;
     display: block;
     width: 100px;
@@ -23,43 +23,43 @@ a.button {
     text-align: center;
 }
 
-a.button:hover {
+#FirstRun a.button:hover {
     background-image: url("images/button-hover.png");
 }
 
-span.footer {
+#FirstRun span.footer {
     font-size: 10px;
     color: #777777;
 }
 
 /*** table banner ***/
 
-#banner {
+#FirstRun #banner {
     width: 100%;
     border-bottom: 4px solid #B3B3B3;
 }
 
-#banner .image {
+#FirstRun #banner .image {
     background-image: url("images/logo-small.png");
     background-repeat: repeat-x;
     width: 193px;
     height: 68px;
 }
 
-#banner .back {
+#FirstRun #banner .back {
     background-image: url("images/banner-background.png");
 
 }
 
 /*** table main ***/
 
-#main {
+#FirstRun #main {
     border: 1px solid #B3B3B3;
     background-color: #F0F0F0;
     padding: 20px 20px 20px 20px;
 }
 
-div.licence {
+#FirstRun div.licence {
     overflow: auto;
     height: 400px;
     border: 1px solid #B3B3B3;
