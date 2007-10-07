@@ -32,7 +32,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$ret = DB::Execute('SELECT id,mail FROM apps_mailclient_accounts WHERE user_login_id=%d',array(Base_UserCommon::get_my_user_id()));
 		$conf = array(array('type'=>'header','label'=>'Choose accounts'));
 		while($row=$ret->FetchRow())
-			$conf[] = array('name'=>$row['id'], 'label'=>$row['mail'], 'type'=>'checkbox', 'default'=>0);
+			$conf[] = array('name'=>'account_'.$row['id'], 'label'=>$row['mail'], 'type'=>'checkbox', 'default'=>0);
 		return $conf;
 	}	
 

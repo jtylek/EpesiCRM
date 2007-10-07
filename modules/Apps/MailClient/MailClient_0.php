@@ -103,14 +103,17 @@ class Apps_MailClient extends Module {
 			array('name'=>$this->lang->t('Mail')),
 			array('name'=>$this->lang->t('Messages'))
 				));
-		foreach($conf as $id=>$on) 
-			if($on) {
+		foreach($conf as $key=>$on) {
+			$x = explode('_',$key);
+			if($x[0]=='account' && $on) {
+				$id = $x[1];
 				$account = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE id=%d',array($id));
 				$account = $account[0];
 				$r = & $gb->get_new_row();
 				$r->add_data($account['mail'],$account['num_msgs']);
 				$r->add_action($this->create_callback_href(array($this,'applet_update_num_of_msgs'),$id),'Update');
 			}
+		}
  		$this->display_module($gb,array(false),'automatic_display');
 	}
 	
