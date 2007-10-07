@@ -19,12 +19,18 @@ class Apps_MailInstall extends ModuleInstall {
 			login C(127) NOTNULL,
 			mail C(255) NOTNULL,
 			password C(127) NOTNULL,
-			smtp_server C(255),
+
 			incoming_server C(255) NOTNULL,
 			incoming_protocol I1 NOTNULL,
-			smtp_auth I1 NOTNULL DEFAULT 1,
-			smtp_ssl I1 NOTNULL DEFAULT 0,
-			incoming_ssl I1 NOTNULL DEFAULT 0',
+			pop3_method C(15) DEFAULT \'auto\',
+
+			smtp_server C(255),
+			smtp_auth I1 DEFAULT 1,
+
+			smtp_ssl I1 DEFAULT 0,
+			incoming_ssl I1 DEFAULT 0,
+
+			num_msgs I4 DEFAULT 0',
 			array('constraints'=>', FOREIGN KEY (user_login_id) REFERENCES user_login(ID)'));
 		if(!$ret){
 			print('Unable to create table apps_mail_accounts.<br>');

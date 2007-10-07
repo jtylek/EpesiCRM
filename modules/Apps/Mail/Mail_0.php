@@ -16,7 +16,9 @@ class Apps_Mail extends Module {
 		$this->lang = $this->init_module('Base/Lang');
 	}
 
-	public function body() {
+	////////////////////////////////////////////////////////////
+	//account management
+	public function account_manager() {
 		$gb = $this->init_module('Utils/GenericBrowser',null,'accounts');
 		$ret = $gb->query_order_limit('SELECT id,mail FROM apps_mail_accounts WHERE user_login_id='.Base_UserCommon::get_my_user_id(),'SELECT count(mail) FROM apps_mail_accounts WHERE user_login_id='.Base_UserCommon::get_my_user_id());
 		$gb->set_table_columns(array(
@@ -37,6 +39,13 @@ class Apps_Mail extends Module {
 		if($this->is_back()) return false;
 
 		$f = $this->init_module('Libs/QuickForm');
+
+		$defaults=null;
+		if($action!='new') {
+			$ret = DB::Execute('SELECT * FROM apps_mail_accounts WHERE id=%d',array($id));
+			$defaults = $ret->FetchRow();
+		}
+
 		$cols = array(
 				array('name'=>'header','label'=>$this->lang->t(ucwords($action).' account'),'type'=>'header'),
 				array('name'=>'mail','label'=>$this->lang->t('Mail address'),'rule'=>array(array('type'=>'email','message'=>$this->lang->t('This isn\'t valid e-mail address')))),
@@ -44,9 +53,10 @@ class Apps_Mail extends Module {
 				array('name'=>'password','label'=>$this->lang->t('Password'),'type'=>'password'),
 				
 				array('name'=>'in_header','label'=>$this->lang->t('Incoming mail'),'type'=>'header'),
-				array('name'=>'incoming_protocol','label'=>$this->lang->t('Incoming protocol'),'type'=>'select','values'=>array(0=>'POP3',1=>'IMAP'), 'default'=>0),
+				array('name'=>'incoming_protocol','label'=>$this->lang->t('Incoming protocol'),'type'=>'select','values'=>array(0=>'POP3',1=>'IMAP'), 'default'=>0,'param'=>array('onChange'=>'if(this.value==1)this.form.pop3_method.disabled=true;else this.form.pop3_method.disabled=false;')),
 				array('name'=>'incoming_server','label'=>$this->lang->t('Incoming server address')),
 				array('name'=>'incoming_ssl','label'=>$this->lang->t('Receive with SSL')),
+				array('name'=>'pop3_method','label'=>$this->lang->t('POP3 authorization method'),'type'=>'select','values'=>array('auto'=>'Automatic', 'CRAM-MD5'=>'CRAM-MD5', 'APOP'=>'APOP', 'PLAIN'=>'PLAIN', 'LOGIN'=>'LOGIN', 'USER'=>'USER'), 'default'=>'auto', 'param'=>((isset($defaults) && $defaults['incoming_protocol'])?array('disabled'=>0):null)),
 
 				array('name'=>'out_header','label'=>$this->lang->t('Outgoing mail'),'type'=>'header'),
 				array('name'=>'smtp_server','label'=>$this->lang->t('SMTP server address')),
@@ -55,11 +65,7 @@ class Apps_Mail extends Module {
 			);
 		
 		$f->add_table('apps_mail_accounts',$cols);
-		if($action!='new') {
-			$ret = DB::Execute('SELECT * FROM apps_mail_accounts WHERE id=%d',array($id));
-			if($row = $ret->FetchRow())
-				$f->setDefaults($row);
-		}
+		$f->setDefaults($defaults);
 		
 		if($action=='view') {
 			Base_ActionBarCommon::add('edit','Edit',$this->create_callback_href(array($this,'account'),array($id,'edit')));
@@ -86,6 +92,37 @@ class Apps_Mail extends Module {
 
 	public function delete_account($id){
 		DB::Execute('DELETE FROM apps_mail_accounts WHERE id=%d',array($id));
+	}
+	
+
+	//////////////////////////////////////////////////////////////////
+	//applet	
+	public function applet($conf) {
+		$gb = $this->init_module('Utils/GenericBrowser',null,'applet');
+		$gb->set_table_columns(array(
+			array('name'=>$this->lang->t('Mail')),
+			array('name'=>$this->lang->t('Messages'))
+				));
+		foreach($conf as $id=>$on) 
+			if($on) {
+				$account = DB::GetAll('SELECT * FROM apps_mail_accounts WHERE id=%d',array($id));
+				$account = $account[0];
+				$r = & $gb->get_new_row();
+				$r->add_data($account['mail'],$account['num_msgs']);
+				$r->add_action($this->create_callback_href(array($this,'applet_update_num_of_msgs'),$id),'Update');
+			}
+ 		$this->display_module($gb,array(true),'automatic_display');
+	}
+	
+	public function applet_update_num_of_msgs($id) {
+		$ret = Apps_MailCommon::update_num_of_msgs($id);
+		if(is_string($ret)) {
+			if($ret=='')
+				Epesi::alert($this->lang->ht('Unknown authorization error'));
+			else
+				Epesi::alert($ret);
+		}
+		return false;
 	}
 }
 

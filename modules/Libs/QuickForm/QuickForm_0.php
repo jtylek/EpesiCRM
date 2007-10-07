@@ -96,7 +96,7 @@ class Libs_QuickForm extends Module {
 				
 				case 'static':
 				case 'header':
-					$this -> addElement($v['type'],$v['name'],$v['label'],isset($v['values'])?$v['values']:'');
+					$this -> addElement($v['type'],isset($v['name'])?$v['name']:null,$v['label'],isset($v['values'])?$v['values']:'');
 					break;
 					
 				case 'radio':

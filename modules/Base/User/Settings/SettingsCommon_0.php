@@ -22,8 +22,8 @@ class Base_User_SettingsCommon extends ModuleCommon {
 				$menu = call_user_func(array($obj['name'].'Common','user_settings'),array(true));
 				if(!is_array($menu)) continue;
 				foreach($menu as $k=>$v)
-					if ($v!='callbody') $modules[$k] = array('module'=>$obj['name'].self::$sep.$k);
-					else $modules[$k] = array('box_main_module'=>$obj['name']);
+					if (!is_string($v)) $modules[$k] = array('module'=>$obj['name'].self::$sep.$k);
+					else $modules[$k] = array('box_main_module'=>$obj['name'],'box_main_function'=>$v);
 			}
 		}
 		return array('My settings'=>array_merge(array('__weight__'=>10,'__submenu__'=>1,'Control panel'=>array('__weight__'=>-10,'module'=>'__NONE__'),'__split__'=>1),$modules));

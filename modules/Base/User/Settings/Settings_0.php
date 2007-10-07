@@ -116,8 +116,8 @@ class Base_User_Settings extends Module {
 				$menu = call_user_func(array($obj['name'].'Common','user_settings'));
 				if(!is_array($menu)) continue;
 				foreach($menu as $k=>$v)
-					if ($v!='callbody') $modules[$k] = array('action'=>array('module'=>$obj['name'].self::$sep.$k),'module_name'=>$obj['name']);
-					else $modules[$k] = array('action'=>array('box_main_module'=>$obj['name']),'module_name'=>$obj['name']);
+					if (!is_string($v)) $modules[$k] = array('action'=>array('module'=>$obj['name'].self::$sep.$k),'module_name'=>$obj['name']);
+					else $modules[$k] = array('action'=>array('box_main_module'=>$obj['name'],'box_main_function'=>$v),'module_name'=>$obj['name']);
 			}
 		}
 		
