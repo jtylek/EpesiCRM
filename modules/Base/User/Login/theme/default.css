@@ -34,7 +34,7 @@ table#Base_User_Login input.submit {
 	width: 100px;
 	height: 20px;
 	background-image: url("images/header-blue.png");
-	vertical-align: center;
+	vertical-align: middle;
 }
 
 table#Base_User_Login input.submit:hover {

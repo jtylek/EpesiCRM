@@ -20,20 +20,20 @@
 	left: 50%;
 	top: 30%;
 	margin-left: -150px;
-	text-align: center; 
-	vertical-align: center;
+	text-align: center;
+	vertical-align: middle;
 }
 
 .Base_StatusBar td.image {
 	text-align: center;
-	vertical-align: center;
+	vertical-align: middle;
 	width: 50px;
 	height: 35px;
 }
 
 .Base_StatusBar td.text {
 	text-align: center;
-	vertical-align: center;
+	vertical-align: middle;
 	width: 250px;
 	height: 35px;
 }
@@ -46,4 +46,3 @@
 <![endif]-->
 <![endif]-->
 }
-

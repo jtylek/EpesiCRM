@@ -76,7 +76,6 @@
 	background-image: url('images/shadow/shadow-bottom-right-right.png');
 }
 
-
 /*** ***/
 
 body {
@@ -159,7 +158,6 @@ table#Base_Box__login td.starting {
 
 table#Base_Box__logged div#content {
 	font-size: 11px;
-	/*vertical-align: center;*/
 	text-align: center;
     overflow: hidden;
     overflow-y: auto;
@@ -199,7 +197,6 @@ table#Base_Box__logged td.footer {
 	vertical-align: middle;
 	background-color: #F0F0F0;
 	border-top: 4px solid #B3B3B3;
-	/*background-image: url('images/header-grey-hover.png');*/
 }
 
 table#Base_Box__logged td.footer a {
@@ -217,7 +214,7 @@ table#Base_Box__logged td.login {
 	height: 44px;
 	font-size: 11px;
 	text-align: center;
-	vertical-align: center;
+	vertical-align: middle;
 }
 
 table#Base_Box__logged td.login a {

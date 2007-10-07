@@ -40,7 +40,7 @@ class Base_About extends Module {
 			'<img src="'.$this->get_module_dir().'telaxus.jpg"><br>'.
 			'Copyright &copy; 2007</center>';
 	}
-		
+
 	public function info() {
 		print($this->get_info());
 	}
