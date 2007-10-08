@@ -3,8 +3,8 @@ Utils_Toltip__showTip = function(tip, my_event) {
 	var tooltip_text = $('tooltip_text');
 	if(!div_tip || !tooltip_text) return;
 	tooltip_text.innerHTML = tip;
-	offWidth = div_tip.getWidth();
-	offHeight = div_tip.getHeight();
+	var offWidth = div_tip.offsetWidth;
+	var offHeight = div_tip.offsetHeight;
 	
 	var curPosx = ((my_event.clientX) ? parseInt(my_event.clientX) : parseInt(my_event.x));
 	var curPosy = ((my_event.clientY) ? parseInt(my_event.clientY) : parseInt(my_event.y));
@@ -32,7 +32,7 @@ Utils_Toltip__showTip = function(tip, my_event) {
 		var pos = scrollTop + curPosy - (offHeight) - 10;
 		div_tip.style.top = pos + "px";
 	}
-	
+
 	div_tip.style.display = 'block';
 }
 

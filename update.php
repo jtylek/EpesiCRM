@@ -91,6 +91,18 @@ function update_from_0_8_11_to_0_9_0() {
 	// installing Dashboard
 	if(!DB::GetOne('SELECT name FROM modules WHERE name=\'Base_Dashboard\''))
 		DB::Execute('INSERT INTO modules VALUES(%s,%d,%d)',array('Base_Dashboard',0,0));
+	DB::CreateTable('base_dashboard_applets','
+		id I4 AUTO KEY,
+		user_login_id I4,
+		module_name C(128),
+		col I2 DEFAULT 0,
+		pos I2 DEFAULT 0',
+		array('constraints'=>', FOREIGN KEY (user_login_id) REFERENCES user_login(ID)'));
+	DB::CreateTable('base_dashboard_settings','
+		applet_id I4,
+		name C(32) NOTNULL,
+		value X NOTNULL',
+		array('constraints'=>', FOREIGN KEY (applet_id) REFERENCES base_dashboard_applets(ID), PRIMARY KEY(applet_id,name)'));
 
 	Variable::set('preload_image_cache_default',true);
 	Variable::set('preload_image_cache_selected',true);
