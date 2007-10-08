@@ -76,6 +76,8 @@ class Utils_Tooltip extends Module {
 				'div.style.position = \'absolute\';'.
 				'div.style.display = \'none\';'.
 				'div.style.zIndex = 2000;'.
+				'div.style.left = 0;'.
+				'div.style.top = 0;'.
 				'div.onmouseover = Utils_Toltip__hideTip;'.
 				'div.innerHTML = \''.Epesi::escapeJS($html).'\';'.
 				'body = document.getElementsByTagName(\'body\');'.

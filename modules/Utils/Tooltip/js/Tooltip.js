@@ -3,17 +3,16 @@ Utils_Toltip__showTip = function(tip, my_event) {
 	var tooltip_text = $('tooltip_text');
 	if(!div_tip || !tooltip_text) return;
 	tooltip_text.innerHTML = tip;
-	var offWidth = div_tip.offsetWidth;
-	var offHeight = div_tip.offsetHeight;
+	var dimensions = div_tip.getDimensions();
 	
 	var curPosx = ((my_event.clientX) ? parseInt(my_event.clientX) : parseInt(my_event.x));
 	var curPosy = ((my_event.clientY) ? parseInt(my_event.clientY) : parseInt(my_event.y));
 	
-	if(document.body.scrollLeft + curPosx + 20 + offWidth < document.body.clientWidth - 10) {
+	if(document.body.scrollLeft + curPosx + 20 + dimensions.width < document.body.clientWidth - 10) {
 		var pos = document.body.scrollLeft + curPosx + 20;
 		div_tip.style.left = pos + 'px';
 	} else {
-		var pos = document.body.scrollLeft + curPosx - (offWidth) - 10;
+		var pos = document.body.scrollLeft + curPosx - (dimensions.width) - 10;
 		div_tip.style.left = pos + 'px';//$('ev').style.width;
 	}
 
@@ -25,11 +24,11 @@ Utils_Toltip__showTip = function(tip, my_event) {
 	
 	//tooltip_text.innerHTML += ' ' + scrollTop + ' ' + ch;
 	
-	if(curPosy + 20 + offHeight < ch - 10) {
+	if(curPosy + 20 + dimensions.height < ch - 10) {
 		var pos = scrollTop + curPosy + 20;
 		div_tip.style.top = pos + "px";
 	} else {
-		var pos = scrollTop + curPosy - (offHeight) - 10;
+		var pos = scrollTop + curPosy - (dimensions.height) - 10;
 		div_tip.style.top = pos + "px";
 	}
 
