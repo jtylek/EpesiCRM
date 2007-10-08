@@ -49,7 +49,7 @@ var Epesi = {
 				throw(e);
 			},
 			onFailure: function(t) {
-				alert('Failure');
+				alert('Failure: '+t.status);
 			}
 		});
 	},

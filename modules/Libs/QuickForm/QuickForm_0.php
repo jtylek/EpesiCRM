@@ -155,7 +155,7 @@ class Libs_QuickForm extends Module {
 						$this->addRule($v['name'], $r['message'], $v['name'].$i.'_rule', isset($r['param'])?$r['param']:null);
 					} else {
 						if ($r['type']=='regex' && !isset($r['param'])) trigger_error('No regex defined for a rule for field '.$v['name'], E_USER_ERROR);
-						//print($v['name'].', '.$r['message'].', '.$r['type'].'<br>');
+//						print($v['name'].', '.$r['message'].', '.$r['type'].', '.(isset($r['param'])?$r['param']:'').'<br>');
 						$this->addRule($v['name'], $r['message'], $r['type'], isset($r['param'])?$r['param']:null);
 					}
 					$i++;

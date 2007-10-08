@@ -233,7 +233,7 @@ class Base_Dashboard extends Module {
 					$x = $this->lang->ht($x);
 			if (isset($v['rule']))
 				foreach ($v['rule'] as & $r)
-					if (isset($r['message'])) $r = $this->lang->t($r['message']);
+					if (isset($r['message'])) $r['message'] = $this->lang->t($r['message']);
 		}
 		$this->set_default_js = '';
 		$f -> add_array($info, $this->set_default_js);
