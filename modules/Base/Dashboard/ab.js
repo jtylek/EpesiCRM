@@ -13,6 +13,6 @@ dashboard_activate = function() {
 			var content = document.getElementsByClassName('content',appl)[0];
 			var toggle = document.getElementsByClassName('toggle',appl)[0];
 			if(toggle)
-				Event.observe(toggle, 'click', function (e) { Effect.toggle(content, 'blind', {speed:0.1}); },false);
+				Event.observe(toggle, 'click', function (e) { Effect.toggle(content, 'slide', {duration:0.3}); },false);
 	});
 }
