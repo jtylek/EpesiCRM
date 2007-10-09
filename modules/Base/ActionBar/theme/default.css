@@ -1,3 +1,4 @@
+/*
 table#Base_ActionBar {
 	text-align: left;
 	font-size: 11px;
@@ -34,4 +35,76 @@ table#Base_ActionBar td a:hover {
 	border-left: 1px solid #B3B3B3;
 	border-right: 1px solid #F0F0F0;
 	border-bottom: 1px solid #F0F0F0;
+}
+*/
+/*** ***/
+
+#Base_ActionBar {
+}
+
+#Base_ActionBar div.main {
+	width: 100%;
+	padding: 0;
+}
+
+#Base_ActionBar table.icons {
+	background-color: #FFFFFF;
+	width: 481px;
+	height: 68px;
+	padding: 10px;
+	border-collapse: collapse;
+}
+
+#Base_ActionBar table.icons td {
+	padding: 3px;
+	text-align: left;
+}
+
+#Base_ActionBar #panel {
+	text-align: center;
+	vertical-align: middle;
+}
+
+#Base_ActionBar #panel div.icon   {
+	margin: 2px;
+}
+
+#Base_ActionBar #panel div.icon a {
+	display: block; float: left;
+	height: 54px !important;
+	height: 56px;
+	width: 58px !important;
+	width: 60px;
+	vertical-align: middle;
+	text-decoration : none;
+	border: 1px solid #B3B3B3;
+	padding: 2px 5px 1px 5px;
+}
+
+#Base_ActionBar #panel div.icon a:link {
+	color: #336699;
+}
+
+#Base_ActionBar #panel div.icon a:hover {
+	color : #993333;
+	background-color: #F0F0F0;
+	border: 1px solid #336699;
+	padding: 3px 4px 0px 6px;
+}
+
+#Base_ActionBar #panel div.icon a:hover span {
+	color : #993333;
+}
+
+#Base_ActionBar #panel div.icon a:active span {
+	color : #339933;
+}
+
+#Base_ActionBar #panel div.icon img {
+	margin-top: 3px;
+}
+
+#Base_ActionBar #panel div.icon span {
+	display: block;
+	padding-top: 3px;
 }
