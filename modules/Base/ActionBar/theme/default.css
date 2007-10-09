@@ -42,11 +42,6 @@ table#Base_ActionBar td a:hover {
 #Base_ActionBar {
 }
 
-#Base_ActionBar div.main {
-	width: 100%;
-	padding: 0;
-}
-
 #Base_ActionBar table.icons {
 	background-color: #FFFFFF;
 	width: 481px;
@@ -73,8 +68,8 @@ table#Base_ActionBar td a:hover {
 	display: block; float: left;
 	height: 54px !important;
 	height: 56px;
-	width: 58px !important;
-	width: 60px;
+	/*width: 58px !important;
+	width: 60px;*/
 	vertical-align: middle;
 	text-decoration : none;
 	border: 1px solid #B3B3B3;

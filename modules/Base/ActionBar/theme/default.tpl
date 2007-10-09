@@ -1,25 +1,22 @@
 <div id="Base_ActionBar" align="center">
-	<div class="main">
-		<table class="icons">
+	<table class="icons">
         <tbody>
             <tr>
                 <td valign="top">
                     <div id="panel">
 						{foreach item=i from=$icons}
-						{$i.open}
                         <div style="float: left;">
                             <div class="icon">
-                                <a href="">
+                                {$i.open}
 									{if $display_icon}
 									<img src="{$theme_dir}/images/icons/icon-{$i.icon}.png" alt="" align="middle" border="0">
 									{/if}
 									{if $display_text}
 									<span>{$i.label}</span>
 									{/if}
-								</a>
+								{$i.close}
                             </div>
                         </div>
-						{$i.close}
 						{/foreach}
 					</div>
                 </td>
