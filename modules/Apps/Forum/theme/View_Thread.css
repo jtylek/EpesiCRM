@@ -10,3 +10,7 @@ table#Apps_Forum__View_Thread td.header {
 	text-align: center;
 	vertical-align: middle;
 }
+
+table#Apps_Forum__View_Thread td.header a {
+	color: #FFFFFF;
+}

@@ -1,9 +1,9 @@
 <?php
 /**
  * Search class.
- * 
- * Provides for search functionality in a module. 
- * 
+ *
+ * Provides for search functionality in a module.
+ *
  * @author Arkadiusz Bisaga <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
@@ -15,16 +15,16 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_Search extends Module {
 	private $lang;
-	
+
 	public function body() {
 		$qs_keyword = isset($_REQUEST['quick_search'])?$_REQUEST['quick_search']:null;
-		
-				
+
+
 		$this->lang = & $this->init_module('Base/Lang');
-		
+
 		$form = & $this->init_module('Libs/QuickForm',$this->lang->ht('Searching'));
 		$theme =  & $this->pack_module('Base/Theme');
-		
+
 		$modules_with_search = array();
 		$modules_with_adv_search = array();
 		foreach(ModuleManager::$modules as $name=>$obj) {
@@ -41,14 +41,14 @@ class Base_Search extends Module {
 		$form->addElement('submit', 'quick_search_submit',  $this->lang->ht('Search'), array('class'=>'submit','onclick'=>'var elem=getElementById(\''.$form->getAttribute('name').'\').elements[\'advanced_search\'];if(elem)elem.value=0;'));
 
 		if (!empty($modules_with_adv_search)) {
-			$modules_with_adv_search_['__null__'] = '('.$this->lang->ht('Select module').')'; 
+			$modules_with_adv_search_['__null__'] = '('.$this->lang->ht('Select module').')';
 			ksort($modules_with_adv_search);
 			foreach($modules_with_adv_search as $k=>$v) $modules_with_adv_search_[$k] = $v;
 			$form->addElement('static', 'advanced_search_header', $this->lang->t('Advanced search'));
 			$form->addElement('select', 'advanced_search', 'Module:', $modules_with_adv_search_, array('onChange'=>$form->get_submit_form_js(false),'id'=>'advanced_search_select'));
 			$advanced_search = $form->exportValue('advanced_search');
 			if ($advanced_search != $this->get_module_variable('advanced_search')) $qs_keyword = null;
-			if ($advanced_search === '__null__') $advanced_search = false; 
+			if ($advanced_search === '__null__') $advanced_search = false;
 		} else $advanced_search = false;
 
 		$defaults['quick_search']=$qs_keyword;
@@ -59,13 +59,13 @@ class Base_Search extends Module {
 			$this->unset_module_variable('advanced_search');
 			$advanced_search = null;
 		}
-		
+
 		$form->setDefaults($defaults);
-		
+
 		$form->assign_theme('form', $theme);
 		$theme->assign('form_mini', 'no');
 		$theme->display('Search');
-		
+
 		if (($form->validate() || $qs_keyword) && !$advanced_search) {
 			if ($form->exportValue('submited')==1)
 				$keyword = $form->exportValue('quick_search');
@@ -105,10 +105,10 @@ class Base_Search extends Module {
 			$this->pack_module($advanced_search,null,'advanced_search');
 			$this->set_module_variable('advanced_search',$advanced_search);
 		}
-		
+
 	}
-	
-/*	
+
+/*
 	public static function search_menu(){
 		return '<form action="javascript:load_page(\'href=Base_Search&qs_keyword=\'+$(\'qs_keyword\').value);" method=POST><input type=text name=qs_keyword /><input type=submit value=Search /></form>';
 	}
@@ -116,15 +116,15 @@ class Base_Search extends Module {
 	public function mini() {
 		$this->lang = & $this->init_module('Base/Lang');
 		$form = & $this->init_module('Libs/QuickForm',$this->lang->ht('Searching'));
-		
+
 		$form->addElement('text', 'quick_search', $this->lang->t('Quick search'));
 		$form->addElement('submit', 'quick_search_submit', $this->lang->ht('Search'), array('class'=>'mini_submit'));
-		
+
 		$theme =  & $this->pack_module('Base/Theme');
 		$form->assign_theme('form', $theme);
 		$theme->assign('form_mini', 'yes');
 		$theme->display('Search');
-		
+
 		if($form->validate()) {
 			$search = $form->exportValues();
 			location(array('box_main_module'=>'Base_Search','quick_search'=>$search['quick_search'],'advanced_search'=>0));
