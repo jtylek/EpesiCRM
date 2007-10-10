@@ -99,13 +99,14 @@ class Apps_MailClient extends Module {
 	//applet	
 	public function applet($conf) {
 		$accounts = array();
+		$ret = array();
 		foreach($conf as $key=>$on) {
 			$x = explode('_',$key);
 			if($x[0]=='account' && $on) {
 				$id = $x[1];
 				$mail = DB::GetOne('SELECT mail FROM apps_mailclient_accounts WHERE id=%d',array($id));
 				if(!$mail) continue;
-				print($mail.' <div id="mailaccount_'.$id.'">Loading...</div>');
+				$ret[$mail] = '<span id="mailaccount_'.$id.'"></span>';
 				
 				//interval execution
 				eval_js_once('var mailclientcache = Array();'.
@@ -126,7 +127,9 @@ class Apps_MailClient extends Module {
 
 			}
 		}
-
+		$th = $this->init_module('Base/Theme');
+		$th->assign('accounts',$ret);
+		$th->display('applet');
 	}
 }
 

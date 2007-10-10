@@ -34,12 +34,14 @@ class Apps_MailClientInstall extends ModuleInstall {
 			print('Unable to create table apps_mailclient_accounts.<br>');
 			return false;
 		}
+		Base_ThemeCommon::install_default_theme($this -> get_type());
 		return $ret;
 	}
 	
 	public function uninstall() {
 		$ret = true;
 		$ret &= DB::DropTable('apps_mailclient_accounts');
+		Base_ThemeCommon::uninstall_default_theme($this -> get_type());
 		return $ret;
 	}
 	
@@ -52,6 +54,7 @@ class Apps_MailClientInstall extends ModuleInstall {
 			array('name'=>'Base/ActionBar','version'=>0),
 			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'Base/User','version'=>0),
+			array('name'=>'Base/Theme','version'=>0),
 			array('name'=>'Base/User/Settings','version'=>0),
 			array('name'=>'Libs/QuickForm','version'=>0),
 			array('name'=>'Utils/FileUpload','version'=>0),
