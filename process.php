@@ -23,7 +23,7 @@ if(!isset($_SESSION['num_of_clients'])) {
 $content = ob_get_contents();
 ob_end_clean();
 
-file_put_contents('data/x',str_replace('Epesi.',"\nEpesi.",$content));
+//file_put_contents('data/x',str_replace('Epesi.',"\nEpesi.",$content));
 if(GZIP_OUTPUT && function_exists('ob_gzhandler') ) {
 	ob_start("ob_gzhandler");
 	echo $content;
