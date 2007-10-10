@@ -9,10 +9,13 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-require_once("rsslib.php");
-
-class Applets_rssfeed extends Module {
-
+class Applets_RssFeed extends Module {
+	private $lang;
+	
+	public function construct() {
+		$this->lang = $this->init_module('Base/Lang');
+	}
+	
 	public function body(&$x) {
 	}
 
@@ -25,33 +28,28 @@ class Applets_rssfeed extends Module {
 
 		$title = $matches[1];
 		if(!$title)
-		return "No title was found on this page.";
+			return null;
 
 		return $title;
 	}
 
 	public function applet($values, $opts) { //available applet options: toggle,href,title,go,go_function,go_arguments,go_contruct_arguments
-		if(isset($values['rssfeed'])) {
-			$new_title = $this->get_page_title($values['rssfeed']);
-			if($new_title!==null)
-				$opts['title'] = substr($new_title,0,15).'...';
-			
-		// Check if RSS can be read
-		$rss = curl_init();
-		curl_setopt($rss, CURLOPT_URL, $values['rssfeed']);
-		curl_setopt($rss, CURLOPT_RETURNTRANSFER, true);
-		$output = curl_exec($rss);
-		$response_code = curl_getinfo($rss, CURLINFO_HTTP_CODE);
-				
-		if ($response_code == '404') {
-    		echo "Error: ".$response_code."<BR>";
-			echo $values['rssfeed'];
-			echo ("<BR>Invalid RSS feed.<BR>Please check your configuration.<BR>");
-		} else {
-        	echo RSS_Display(($values['rssfeed']), ($values['rssnumber']));
-		}
+		$new_title = $this->get_page_title($values['rssfeed']);
+		if($new_title!==null)
+			$opts['title'] = substr($new_title,0,15).'...';
 		
-		} else print('RSS feed not defined');
+		$name = md5($this->get_path().$values['rssfeed']);
+
+		//div for updating
+		print('<div id="rssfeed_'.$name.'" style="padding-left: 20px">'.$this->lang->t('Loading RSS...').'</div>');
+		
+		//interval execution
+		eval_js_once('rssfeedfunc_'.$name.' = function(){if(!$(\'rssfeed_'.$name.'\')) return;'.
+			'new Ajax.Updater(\'rssfeed_'.$name.'\',\'modules/Applets/RssFeed/refresh.php\',{method:\'post\', parameters:{feed:\''.Epesi::escapeJS($values['rssfeed'],false).'\', number:\''.$values['rssnumber'].'\'}});'.
+			'};'.
+			'setInterval(\'rssfeedfunc_'.$name.'()\',1799993);'); //29 minutes and 53 seconds
+		//get rss now!
+		eval_js('rssfeedfunc_'.$name.'()');
 	}
 }
 

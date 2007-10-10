@@ -23,7 +23,7 @@ class Base_StatusBar extends Module {
 	}
 	
 	public function messages() {
-		eval_js("statusbar_message('".addslashes(Epesi::escapeJS(implode('<br>',Base_StatusBarCommon::$messages)))."')");
+		eval_js("statusbar_message('".addslashes(Epesi::escapeJS(implode('<br>',Base_StatusBarCommon::$messages),false))."')");
 	}
 	
 	private function load_js() {

@@ -9,7 +9,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Applets_rssfeedInstall extends ModuleInstall {
+class Applets_RssFeedInstall extends ModuleInstall {
 
 	public function install() {
 		return true;
@@ -25,6 +25,7 @@ class Applets_rssfeedInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
+			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'Base/Dashboard','version'=>0));
 	}
 	

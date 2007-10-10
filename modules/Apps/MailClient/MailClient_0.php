@@ -78,7 +78,7 @@ class Apps_MailClient extends Module {
 				foreach($cols as $v)
 					if(isset($values[$v['name']]))
 						$dbup[$v['name']] = DB::qstr($values[$v['name']]);
-				DB::Replace('apps_mailclient_accounts', $dbup, array('id','user_login_id'), true);
+				DB::Replace('apps_mailclient_accounts', $dbup, array('id'), true,true);
 				return false;	
 			}
 			Base_ActionBarCommon::add('save','Save',' href="javascript:void(0)" onClick="'.addcslashes($f->get_submit_form_js(),'"').'"');
@@ -98,34 +98,26 @@ class Apps_MailClient extends Module {
 	//////////////////////////////////////////////////////////////////
 	//applet	
 	public function applet($conf) {
-		$gb = $this->init_module('Utils/GenericBrowser',null,'applet');
-		$gb->set_table_columns(array(
-			array('name'=>$this->lang->t('Mail')),
-			array('name'=>$this->lang->t('Messages'))
-				));
+		$accounts = array();
 		foreach($conf as $key=>$on) {
 			$x = explode('_',$key);
-			if($x[0]=='account' && $on) {
-				$id = $x[1];
-				$account = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE id=%d',array($id));
-				$account = $account[0];
-				$r = & $gb->get_new_row();
-				$r->add_data($account['mail'],$account['num_msgs']);
-				$r->add_action($this->create_callback_href(array($this,'applet_update_num_of_msgs'),$id),'Update');
-			}
+			if($x[0]=='account' && $on)
+				$accounts[] = $x[1];
 		}
- 		$this->display_module($gb,array(false),'automatic_display');
-	}
-	
-	public function applet_update_num_of_msgs($id) {
-		$ret = Apps_MailClientCommon::update_num_of_msgs($id);
-		if(is_string($ret)) {
-			if($ret=='')
-				Epesi::alert($this->lang->ht('Unknown authorization error'));
-			else
-				Epesi::alert($ret);
-		}
-		return false;
+
+		$ser_accounts = serialize($accounts);
+		$name = md5($this->get_path().$ser_accounts);
+
+		//div for updating
+		print('<div id="mailclient_'.$name.'">'.$this->lang->t('Loading applet...').'</div>');
+		
+		//interval execution
+		eval_js_once('mailclientfunc_'.$name.' = function(){if(!$(\'mailclient_'.$name.'\')) return;'.
+			'new Ajax.Updater(\'mailclient_'.$name.'\',\'modules/Apps/MailClient/refresh.php\',{method:\'post\', parameters:{accounts:\''.$ser_accounts.'\'}});'.
+			'};'.
+			'setInterval(\'mailclientfunc_'.$name.'()\',600002);'); //10 minutes and 2 seconds
+		//get rss now!
+		eval_js('mailclientfunc_'.$name.'()');
 	}
 }
 

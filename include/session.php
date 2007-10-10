@@ -34,13 +34,13 @@ class DBSession {
         return ($ret>0)?true:false;
     }
 
-    function destroy($name) {
+    public static function destroy($name) {
     	DB::Execute('DELETE FROM history WHERE session_name=%s',array($name));
     	DB::Execute('DELETE FROM session WHERE name=%s',array($name));
     	return true;
     }
 
-    function gc($lifetime) {
+    public static function gc($lifetime) {
     	$t = time()-$lifetime;
 	DB::Execute('DELETE FROM history WHERE session_name IN (SELECT name FROM session WHERE expires < %d)',array($t));
    	DB::Execute('DELETE FROM session WHERE expires < %d',array($t));

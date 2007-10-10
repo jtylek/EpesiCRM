@@ -67,9 +67,9 @@ class Epesi {
 	public final static function get_output() {
 		$ret = '';
 		foreach(self::$load_csses as $f)
-			$ret .= 'Epesi.load_css(\''.self::escapeJS($f).'\');';
+			$ret .= 'Epesi.load_css(\''.self::escapeJS($f,false).'\');';
 		foreach(self::$load_jses as $f)
-			$ret .= 'Epesi.load_js(\''.self::escapeJS($f).'\');';
+			$ret .= 'Epesi.load_js(\''.self::escapeJS($f,false).'\');';
 		$ret .= self::$txts;
 		$jjj = '';
 		foreach(self::$jses as $cc) {
@@ -77,7 +77,7 @@ class Epesi {
 			if($x) $jjj.=$x.';';
 		}
 		if($jjj!=='')
-			$ret .= 'Epesi.append_js(\''.self::escapeJS($jjj).'\');';
+			$ret .= 'Epesi.append_js(\''.self::escapeJS($jjj,false).'\');';
 		self::clean();
 		//file_put_contents('data/jses',implode(self::$jses,"\n\n\n"));
 		return $ret;
@@ -112,15 +112,15 @@ class Epesi {
 	}
 	
 	public final static function text($txt,$id,$type='instead') {
-		self::$txts .= 'Epesi.text(\''.self::escapeJS($txt).'\',\''.self::escapeJS($id).'\',\''.self::escapeJS($type{0}).'\');';
+		self::$txts .= 'Epesi.text(\''.self::escapeJS($txt,false).'\',\''.self::escapeJS($id,false).'\',\''.self::escapeJS($type{0},false).'\');';
 	}
 	
 	public final static function alert($txt) {
-		self::$jses[] = 'alert(\''.self::escapeJS($txt).'\')';
+		self::$jses[] = 'alert(\''.self::escapeJS($txt,false).'\')';
 	}
 	
 	public final static function redirect($addr='') {
-		self::$jses[] = 'document.location=\''.self::escapeJS($addr).'\'';
+		self::$jses[] = 'document.location=\''.self::escapeJS($addr,false).'\'';
 	}
 
 	/**
@@ -144,16 +144,19 @@ class Epesi {
 	 * @param string js code to escape
 	 * @return string escaped js code
 	 */
-	public final static function escapeJS($str) {
-		// borrowed from smarty
-		return strtr($str, array (
+	public final static function escapeJS($str,$double=true,$single=true) {
+		$arr = array (
 			'\\' => '\\\\',
-			"'" => "\\'",
-			'"' => '\\"',
 			"\r" => '\\r',
 			"\n" => '\\n',
 			'</' => '<\/'
-		));
+		);
+		if($single)
+			$arr["'"] = "\\'";
+		if($double)
+			$arr['"'] = '\\"';
+		// borrowed from smarty
+		return strtr($str, $arr);
 	}
 
 	//============================================

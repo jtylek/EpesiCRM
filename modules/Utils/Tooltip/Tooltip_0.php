@@ -79,7 +79,7 @@ class Utils_Tooltip extends Module {
 				'div.style.left = 0;'.
 				'div.style.top = 0;'.
 				'div.onmouseover = Utils_Toltip__hideTip;'.
-				'div.innerHTML = \''.Epesi::escapeJS($html).'\';'.
+				'div.innerHTML = \''.Epesi::escapeJS($html,false).'\';'.
 				'body = document.getElementsByTagName(\'body\');'.
 				'body = body[0];'.
 				'document.body.appendChild(div);';
