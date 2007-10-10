@@ -18,6 +18,7 @@ class Applets_Calc extends Module {
 	}
 
 	public function applet() {
+	Base_ThemeCommon::load_css($this->get_type());
         print ('<div id="calc">');
  		print ('
             <form name="Calc">
