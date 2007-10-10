@@ -1,5 +1,5 @@
 table#Apps_Forum__Boards hr {
-	color: #CCCCCC;
+	color: #B3B3B3;
 }
 
 table#Apps_Forum__Boards {
@@ -7,14 +7,11 @@ table#Apps_Forum__Boards {
 }
 
 table#Apps_Forum__Boards td.header {
-	color: #4C4C4C;
-	background-image: url("images/background-30px-2.png");
+	color: #FFFFFF;
+	background-image: url("images/header-blue.png");
 	background-repeat: repeat-x;
-	font-weight: bold;
-	height: 30px;
-	border: 1px solid #CCCCCC;
+	height: 20px;
 	text-align: center;
-	vertical-align: center;
-
-	border-bottom: 4px solid #CCCCCC;	
+	vertical-align: middle;
+	border-bottom: 4px solid #B3B3B3;
 }
