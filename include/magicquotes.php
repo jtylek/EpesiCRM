@@ -10,18 +10,24 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 //strip slashes!!!
 if (get_magic_quotes_gpc()) {
-    function stripslashes_deep($value)
-    {
-        $value = is_array($value) ?
-                    array_map('stripslashes_deep', $value) :
-                    stripslashes($value);
-
-        return $value;
+    function undoMagicQuotes($array, $topLevel=true) {
+        $newArray = array();
+        foreach($array as $key => $value) {
+            if (!$topLevel) {
+                $key = stripslashes($key);
+            }
+            if (is_array($value)) {
+                $newArray[$key] = undoMagicQuotes($value, false);
+            }
+            else {
+                $newArray[$key] = stripslashes($value);
+            }
+        }
+        return $newArray;
     }
-
-    $_POST = array_map('stripslashes_deep', $_POST);
-    $_GET = array_map('stripslashes_deep', $_GET);
-    $_COOKIE = array_map('stripslashes_deep', $_COOKIE);
-    $_REQUEST = array_map('stripslashes_deep', $_REQUEST);
+    $_GET = undoMagicQuotes($_GET);
+    $_POST = undoMagicQuotes($_POST);
+    $_COOKIE = undoMagicQuotes($_COOKIE);
+    $_REQUEST = undoMagicQuotes($_REQUEST);
 }
 ?>

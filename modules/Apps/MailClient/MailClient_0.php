@@ -101,23 +101,32 @@ class Apps_MailClient extends Module {
 		$accounts = array();
 		foreach($conf as $key=>$on) {
 			$x = explode('_',$key);
-			if($x[0]=='account' && $on)
-				$accounts[] = $x[1];
+			if($x[0]=='account' && $on) {
+				$id = $x[1];
+				$mail = DB::GetOne('SELECT mail FROM apps_mailclient_accounts WHERE id=%d',array($id));
+				if(!$mail) continue;
+				print($mail.' <div id="mailaccount_'.$id.'">Loading...</div>');
+				
+				//interval execution
+				eval_js_once('var mailclientcache = Array();'.
+					'mailclientfunc = function(accid,cache){'.
+					'if(!$(\'mailaccount_\'+accid)) return;'.
+					'if(cache && typeof mailclientcache[accid] != \'undefined\')'.
+						'$(\'mailaccount_\'+accid).innerHTML = mailclientcache[accid];'.
+					'else '.
+						'new Ajax.Updater(\'mailaccount_\'+accid,\'modules/Apps/MailClient/refresh.php\',{'.
+							'method:\'post\','.
+							'onComplete:function(r){mailclientcache[accid]=r.responseText},'.
+							'parameters:{acc_id:accid}});'.
+					'}');
+				eval_js_once('setInterval(\'mailclientfunc('.$id.' , 0)\',600002)');
+
+				//get rss now!
+				eval_js('mailclientfunc('.$id.' , 1)');
+
+			}
 		}
 
-		$ser_accounts = serialize($accounts);
-		$name = md5($this->get_path().$ser_accounts);
-
-		//div for updating
-		print('<div id="mailclient_'.$name.'">'.$this->lang->t('Loading applet...').'</div>');
-		
-		//interval execution
-		eval_js_once('mailclientfunc_'.$name.' = function(){if(!$(\'mailclient_'.$name.'\')) return;'.
-			'new Ajax.Updater(\'mailclient_'.$name.'\',\'modules/Apps/MailClient/refresh.php\',{method:\'post\', parameters:{accounts:\''.$ser_accounts.'\'}});'.
-			'};'.
-			'setInterval(\'mailclientfunc_'.$name.'()\',600002);'); //10 minutes and 2 seconds
-		//get rss now!
-		eval_js('mailclientfunc_'.$name.'()');
 	}
 }
 

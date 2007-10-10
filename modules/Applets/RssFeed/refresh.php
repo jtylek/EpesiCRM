@@ -4,7 +4,6 @@ if(!isset($_POST['feed']) || !isset($_POST['number']))
 
 require_once('../../../include.php');
 require_once("rsslib.php");
-//ModuleManager::load_modules();
 
 class MailClientErrorObserver extends ErrorObserver {
 	public function update_observer($type, $message,$errfile,$errline,$errcontext) {

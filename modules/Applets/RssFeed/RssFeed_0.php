@@ -44,12 +44,21 @@ class Applets_RssFeed extends Module {
 		print('<div id="rssfeed_'.$name.'" style="padding-left: 20px">'.$this->lang->t('Loading RSS...').'</div>');
 		
 		//interval execution
-		eval_js_once('rssfeedfunc_'.$name.' = function(){if(!$(\'rssfeed_'.$name.'\')) return;'.
-			'new Ajax.Updater(\'rssfeed_'.$name.'\',\'modules/Applets/RssFeed/refresh.php\',{method:\'post\', parameters:{feed:\''.Epesi::escapeJS($values['rssfeed'],false).'\', number:\''.$values['rssnumber'].'\'}});'.
-			'};'.
-			'setInterval(\'rssfeedfunc_'.$name.'()\',1799993);'); //29 minutes and 53 seconds
+		eval_js_once('var rssfeedcache = Array();'.
+			'rssfeedfunc = function(name,fee,num,cache){'.
+			'if(!$(\'rssfeed_\'+name)) return;'.
+			'if(cache && typeof rssfeedcache[name] != \'undefined\')'.
+				'$(\'rssfeed_\'+name).innerHTML = rssfeedcache[name];'.
+			'else '.
+				'new Ajax.Updater(\'rssfeed_\'+name,\'modules/Applets/RssFeed/refresh.php\',{'.
+					'method:\'post\','.
+					'onComplete:function(r){rssfeedcache[name]=r.responseText},'.
+					'parameters:{feed:fee, number:num}});'.
+			'}');
+		eval_js_once('setInterval(\'rssfeedfunc(\\\''.$name.'\\\',\\\''.Epesi::escapeJS($values['rssfeed'],false).'\\\' ,'.$values['rssnumber'].' , 0)\',1799993)'); //29 minutes and 53 seconds
+
 		//get rss now!
-		eval_js('rssfeedfunc_'.$name.'()');
+		eval_js('rssfeedfunc(\''.$name.'\',\''.Epesi::escapeJS($values['rssfeed'],false).'\' ,'.$values['rssnumber'].' , 1)');
 	}
 }
 
