@@ -158,6 +158,7 @@ class Base_ThemeCommon extends ModuleCommon {
 
 		file_put_contents($themes_dir.'default/__cache.css',$css_def_out);
 		file_put_contents($themes_dir.'default/__cache.files',$files_def_out);
+		copy('modules/Base/Theme/css.php',$themes_dir.'default/__cache.php');
 		if($def_theme!='default') {
 			if(function_exists('gzopen')) {
 				$zp = gzopen($tdir.'/__cache.css.gz', 'w9');
@@ -167,6 +168,7 @@ class Base_ThemeCommon extends ModuleCommon {
 			
 			file_put_contents($tdir.'/__cache.css',$css_cur_out);
 			file_put_contents($tdir.'/__cache.files',$files_cur_out);
+			copy('modules/Base/Theme/css.php',$tdir.'/__cache.php');
 		}
 	}
 

@@ -43,13 +43,6 @@ table.root td.separator {
 	background-color: #336699;
 }
 
-/*
-#custom_submenu_0_0 .submenu {
-	margin-top: -1px;
-	margin-left: 0px;
-}
-*/
-
 .submenu tr {
 	z-index: 1000;
 }
@@ -196,8 +189,6 @@ td.item_sub {
 }
 
 td.splitter {
-	/*margin: 0px 0px 0px 0px;
-	padding: 0px 0px  0px  0px;*/
 	vertical-align: middle;
 	z-index: 1000;
 	height: 1px;
