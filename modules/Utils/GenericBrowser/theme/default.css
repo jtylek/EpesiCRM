@@ -3,19 +3,20 @@
 }
 
 table#Utils_GenericBrowser {
-    border-left: 1px solid #CCCCCC;
+    border-left: 1px solid #B3B3B3;
     background-color: #FFFFFF;
 }
 
 table#Utils_GenericBrowser th {
     background-color: #336699;
     background-image: url("images/header-blue.png");
+    font-weight: normal;
     background-repeat: repeat-x;
     text-align: center;
     padding-left: 3px;
     padding-right: 3px;
     height: 20px;
-    /*border-top: 1px solid #CCCCCC;*/
+    /*border-top: 1px solid #B3B3B3;*/
     border-right: 1px solid #FFFFFF;
     border-bottom: 1px solid #FFFFFF;
 	color: #FFFFFF;
@@ -39,8 +40,8 @@ table#Utils_GenericBrowser tr:hover {
 
 table#Utils_GenericBrowser td {
     text-align: left;
-    border-right: 1px solid #CCCCCC;
-    border-bottom: 1px solid #CCCCCC;
+    border-right: 1px solid #B3B3B3;
+    border-bottom: 1px solid #B3B3B3;
     height: 16px;
     padding-left: 3px;
     padding-right: 3px;
