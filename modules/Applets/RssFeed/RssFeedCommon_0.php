@@ -31,7 +31,7 @@ class Applets_RssFeedCommon extends ModuleCommon {
 				'filter'=>array(array('Applets_RssFeedCommon','set_url'))
 			),
 			array('name'=>'rssnumber','label'=>'Number of news','type'=>'text','default'=>'5','rule'=>array(array('message'=>'Field required', 'type'=>'required'))),
-			array('name'=>'title','label'=>'Title (leave empty to get it from RSS feed)','type'=>'text','default'=>'',
+			array('name'=>'title','label'=>'Title (leave empty for RSS feed value)','type'=>'text','default'=>'',
 				'filter'=>array(
 					array('Applets_RssFeedCommon','get_title')
 				)
@@ -60,7 +60,6 @@ class Applets_RssFeedCommon extends ModuleCommon {
 
 	public static function get_title($t) {
 		if($t!='') return $t;
-		file_put_contents('data/xx',self::$url);
 		$html = @file_get_contents(self::$url);
 		if(!$html) return '';
 		$matches = array();
