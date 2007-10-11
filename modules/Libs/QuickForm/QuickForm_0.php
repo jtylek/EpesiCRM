@@ -161,6 +161,10 @@ class Libs_QuickForm extends Module {
 					$i++;
 				}
 			}
+			if (isset($v['filter']))
+				foreach ($v['filter'] as $r) {
+					$this->applyFilter($v['name'],$r);
+				}
 		}
 	}
 			

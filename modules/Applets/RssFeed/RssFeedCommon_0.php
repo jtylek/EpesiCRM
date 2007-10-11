@@ -10,6 +10,8 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Applets_RssFeedCommon extends ModuleCommon {
+	private static $url;
+	
 	public static function applet_caption() {
 		return "RSS Feed";
 	}
@@ -20,16 +22,21 @@ class Applets_RssFeedCommon extends ModuleCommon {
 
 	public static function applet_settings() {
 		return array(
-//			array('name'=>'title','label'=>'Title','type'=>'text','default'=>'RSS Feed','rule'=>array(array('message'=>'Field required', 'type'=>'required'))),
 			array('name'=>'rssfeed','label'=>'RSS Feed','type'=>'text','default'=>'http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/technology/rss.xml',
 				'rule'=>array(
 					array('message'=>'Field required', 'type'=>'required'),
-					array('message'=>'Invalid RSS feed', 'type'=>'callback', 'func'=>array('Applets_RssFeedCommon','check_feed'),'param'=>'__form__'),
+					array('message'=>'Invalid RSS feed', 'type'=>'callback', 'func'=>array('Applets_RssFeedCommon','check_feed')),
 					array('message'=>'Invalid address','type'=>'regex','param'=>'/^http(s)?:\/\//')
-					)
-				),
-			array('name'=>'rssnumber','label'=>'Number of news','type'=>'text','default'=>'5','rule'=>array(array('message'=>'Field required', 'type'=>'required')))
-			);
+					),
+				'filter'=>array(array('Applets_RssFeedCommon','set_url'))
+			),
+			array('name'=>'rssnumber','label'=>'Number of news','type'=>'text','default'=>'5','rule'=>array(array('message'=>'Field required', 'type'=>'required'))),
+			array('name'=>'title','label'=>'Title (leave empty to get it from RSS feed)','type'=>'text','default'=>'',
+				'filter'=>array(
+					array('Applets_RssFeedCommon','get_title')
+				)
+			)
+		);
 	}
 	
 	public static function check_feed($feed) {
@@ -42,7 +49,28 @@ class Applets_RssFeedCommon extends ModuleCommon {
 		
 		if ($response_code == '404')
 			return false;
+		
 		return true;
+	}
+	
+	public static function set_url($feed) {
+		self::$url = $feed;
+		return $feed;
+	}
+
+	public static function get_title($t) {
+		if($t!='') return $t;
+		file_put_contents('data/xx',self::$url);
+		$html = @file_get_contents(self::$url);
+		if(!$html) return '';
+		$matches = array();
+		preg_match('/<title>([^<]*)</i', $html, $matches);
+
+		$title = $matches[1];
+		if(!$title)
+			return 'RSS Feed';
+
+		return substr($title,0,15).'...';
 	}
 
 }
