@@ -5,15 +5,10 @@ if(!isset($_POST['feed']) || !isset($_POST['number']))
 require_once('../../../include.php');
 require_once("rsslib.php");
 
-class MailClientErrorObserver extends ErrorObserver {
-	public function update_observer($type, $message,$errfile,$errline,$errcontext) {
-		die('Error getting RSS');
-		return false;
-	}
+function handle_rss_error($type, $message,$errfile,$errline,$errcontext) {
+	die('Error getting RSS');
 }
-
-$err = new MailClientErrorObserver();
-ErrorHandler::add_observer($err);
+set_error_handler('handle_rss_error');
 
 $feed = $_POST['feed'];
 $num = $_POST['number'];

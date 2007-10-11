@@ -127,5 +127,7 @@ function handle_epesi_error($type, $message,$errfile,$errline,$errcontext) {
 }
 if(REPORT_ALL_ERRORS)
 	error_reporting(E_ALL);
-set_error_handler('handle_epesi_error');
+	
+if(JS_OUTPUT)
+	set_error_handler('handle_epesi_error');
 ?>

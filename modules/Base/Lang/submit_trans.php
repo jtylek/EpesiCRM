@@ -15,11 +15,16 @@
 /**
  * This class provides inline translation method.
  */
+header("Content-type: text/javascript");
+header("Cache-Control: no-cache, must-revalidate");
+header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // date in the past
+
 if(!isset($_POST['parent']) || !isset($_POST['oryg']) || !isset($_POST['trans']))
 	die('Invalid request');
 $parent = $_POST['parent'];
 $trans = $_POST['trans'];
 $oryg = $_POST['oryg'];
+define('JS_OUTPUT',1);
 require_once('../../../include.php');
 Epesi::init();
 

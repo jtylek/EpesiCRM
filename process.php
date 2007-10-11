@@ -3,11 +3,11 @@ ob_start();
 header("Content-type: text/javascript");
 header("Cache-Control: no-cache, must-revalidate");
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // date in the past
-header('Status: 404');
 
 if(!isset($_POST['url']) || !isset($_SERVER['HTTP_X_CLIENT_ID']))
 	die('alert(\'Invalid request\');');
 
+define('JS_OUTPUT',1);
 require_once('include.php');
 
 if(!isset($_SESSION['num_of_clients'])) {

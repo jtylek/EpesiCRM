@@ -75,9 +75,13 @@ class Apps_MailClient extends Module {
 			if($f->validate()) {
 				$values = $f->exportValues();
 				$dbup = array('id'=>$id, 'user_login_id'=>Base_UserCommon::get_my_user_id());
-				foreach($cols as $v)
+				foreach($cols as $v) {
+					if(ereg("header$",$v['name'])) continue;
 					if(isset($values[$v['name']]))
 						$dbup[$v['name']] = DB::qstr($values[$v['name']]);
+					else
+						$dbup[$v['name']] = 0;
+				}
 				DB::Replace('apps_mailclient_accounts', $dbup, array('id'), true,true);
 				return false;	
 			}
