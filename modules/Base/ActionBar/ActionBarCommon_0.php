@@ -23,7 +23,7 @@ class Base_ActionBarCommon extends ModuleCommon {
 			'calendar'=>3,
 			'search'=>4,
 			'folder'=>5,
-			'new'=>6,
+//			'new'=>6,
 			'edit'=>7,
 			'view'=>8,
 			'add'=>9,
