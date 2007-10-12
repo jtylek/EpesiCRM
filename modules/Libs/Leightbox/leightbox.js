@@ -186,4 +186,3 @@ document.observe("e_load", function() {
 		leightboxes[i] = new leightbox(lbox[i]);
 });
 
-
