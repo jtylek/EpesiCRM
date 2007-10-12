@@ -22,7 +22,7 @@ class Apps_MailClientInstall extends ModuleInstall {
 
 			incoming_server C(255) NOTNULL,
 			incoming_protocol I1 NOTNULL,
-			pop3_method C(15) DEFAULT \'auto\',
+			incoming_method C(15) DEFAULT \'auto\',
 
 			smtp_server C(255),
 			smtp_auth I1 DEFAULT 1,

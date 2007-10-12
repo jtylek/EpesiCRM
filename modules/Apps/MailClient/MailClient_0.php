@@ -45,6 +45,18 @@ class Apps_MailClient extends Module {
 			$ret = DB::Execute('SELECT * FROM apps_mailclient_accounts WHERE id=%d',array($id));
 			$defaults = $ret->FetchRow();
 		}
+		
+		$methods = array(
+				array('auto'=>'Automatic', 'DIGEST-MD5'=>'DIGEST-MD5', 'CRAM-MD5'=>'CRAM-MD5', 'APOP'=>'APOP', 'PLAIN'=>'PLAIN', 'LOGIN'=>'LOGIN', 'USER'=>'USER'),
+				array('auto'=>'Automatic', 'DIGEST-MD5'=>'DIGEST-MD5', 'CRAM-MD5'=>'CRAM-MD5', 'LOGIN'=>'LOGIN')
+			);
+		$methods_js = json_encode($methods);
+		eval_js('Event.observe(\'mailclient_incoming_protocol\',\'change\',function(x) {'.
+				'var methods = '.$methods_js.';'.
+				'var opts = this.form.incoming_method.options;'.
+				'opts.length=0;'.
+				'$H(methods[this.value]).each(function(x,y) {opts[y] = new Option(x[1],x[0]);});'.
+				'})');
 
 		$cols = array(
 				array('name'=>'header','label'=>$this->lang->t(ucwords($action).' account'),'type'=>'header'),
@@ -53,10 +65,10 @@ class Apps_MailClient extends Module {
 				array('name'=>'password','label'=>$this->lang->t('Password'),'type'=>'password'),
 				
 				array('name'=>'in_header','label'=>$this->lang->t('Incoming mail'),'type'=>'header'),
-				array('name'=>'incoming_protocol','label'=>$this->lang->t('Incoming protocol'),'type'=>'select','values'=>array(0=>'POP3',1=>'IMAP'), 'default'=>0,'param'=>array('onChange'=>'if(this.value==1)this.form.pop3_method.disabled=true;else this.form.pop3_method.disabled=false;')),
+				array('name'=>'incoming_protocol','label'=>$this->lang->t('Incoming protocol'),'type'=>'select','values'=>array(0=>'POP3',1=>'IMAP'), 'default'=>0,'param'=>array('id'=>'mailclient_incoming_protocol')),
 				array('name'=>'incoming_server','label'=>$this->lang->t('Incoming server address')),
 				array('name'=>'incoming_ssl','label'=>$this->lang->t('Receive with SSL')),
-				array('name'=>'pop3_method','label'=>$this->lang->t('POP3 authorization method'),'type'=>'select','values'=>array('auto'=>'Automatic', 'CRAM-MD5'=>'CRAM-MD5', 'APOP'=>'APOP', 'PLAIN'=>'PLAIN', 'LOGIN'=>'LOGIN', 'USER'=>'USER'), 'default'=>'auto', 'param'=>((isset($defaults) && $defaults['incoming_protocol'])?array('disabled'=>0):null)),
+				array('name'=>'incoming_method','label'=>$this->lang->t('Authorization method'),'type'=>'select','values'=>$methods[(isset($defaults) && $defaults['incoming_protocol'])?1:0], 'default'=>'auto'),
 
 				array('name'=>'out_header','label'=>$this->lang->t('Outgoing mail'),'type'=>'header'),
 				array('name'=>'smtp_server','label'=>$this->lang->t('SMTP server address')),
