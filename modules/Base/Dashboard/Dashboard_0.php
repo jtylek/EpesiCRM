@@ -183,13 +183,16 @@ class Base_Dashboard extends Module {
 			$submited = $f->exportValues();
 			$defaults = $this->get_default_values($mod);
 			$old = $this->get_values($id,$mod);
-			foreach($defaults as $name=>$def_value)
+			print_r($defaults);
+			foreach($defaults as $name=>$def_value) {
+				if(!isset($submited[$name])) $submited[$name]=0;
 				if($submited[$name]!=$old[$name]) {
 					if($submited[$name]==$def_value)
 						DB::Execute('DELETE FROM base_dashboard_settings WHERE applet_id=%d AND name=%s',array($id,$name));
 					else
 						DB::Replace('base_dashboard_settings', array('applet_id'=>$id, 'name'=>$name, 'value'=>$submited[$name]), array('applet_id','name'), true);
 				}
+			}
 			$ok = true;
 			return false;
 		}

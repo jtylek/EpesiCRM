@@ -21,39 +21,39 @@ $user = $account['login'];
 $pass = $account['password'];
 $ssl = $account['incoming_ssl'];
 $method = $account['incoming_method']!='auto'?$account['incoming_method']:null;
+$pop3 = ($account['incoming_protocol']==0);
 
-if($account['incoming_protocol']==0) { //pop3
+if($pop3) { //pop3
 	require_once('Net/POP3.php');
-	$pop3 = new Net_POP3();
+	$in = new Net_POP3();
 	
 	if($port==null) {
 		if($ssl) $port=995;
 		else $port=110;
 	}
-	if(PEAR::isError( $ret= $pop3->connect(($ssl?'ssl://':'').$host , $port) ))
-		die('(connect error) '.$ret->getMessage());
-	
-	if(PEAR::isError( $ret= $pop3->login($user , $pass, $method)))
-		die('(login error) '.$ret->getMessage());
-
-	$num_msgs = $pop3->numMsg();
-	$pop3->disconnect();
-	if($num_msgs===false) $num_msgs = 'unknown error';
 } else { //imap
 	require_once('Net/IMAP.php');
 	if($port==null) {
 		if($ssl) $port=993;
 		else $port=143;
 	}
-	$imap = new Net_IMAP(($ssl?'ssl://':'').$host,$port);
-
-	if(PEAR::isError( $ret= $imap->login($user , $pass, $method)))
-		die('(login error) '.$ret->getMessage());
-	
-	if(PEAR::isError($num_msgs = $imap->getNumberOfMessages()))
-		die('(connection error) '.$num_msgs->getMessage());
-	
-	$imap->disconnect();
+	$in = new Net_IMAP();
 }
+
+if(PEAR::isError( $ret= $in->connect(($ssl?'ssl://':'').$host , $port) ))
+	die('(connect error) '.$ret->getMessage());
+	
+if(PEAR::isError( $ret= $in->login($user , $pass, $method)))
+	die('(login error) '.$ret->getMessage());
+
+if($pop3) {
+	$num_msgs = $in->numMsg();
+	if($num_msgs===false) die('unknown error');
+} else { //imap
+	if(PEAR::isError($num_msgs = $in->getNumberOfMessages()))
+		die('(connection error) '.$num_msgs->getMessage());
+}
+$in->disconnect();
+
 print($num_msgs);
 ?>

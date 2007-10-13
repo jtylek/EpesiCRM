@@ -40,10 +40,9 @@ class Net_IMAP extends Net_IMAPProtocol {
      * @param string The value to give when sending EHLO or HELO.
      */
 
-    function Net_IMAP($host = 'localhost', $port = 143)
+    function Net_IMAP()
     {
         $this->Net_IMAPProtocol();
-        $ret = $this->connect( $host , $port );
     }
 
 
@@ -71,11 +70,11 @@ class Net_IMAP extends Net_IMAPProtocol {
             $res = $this->cmdCapability();
 
             // check if we can enable TLS via STARTTLS
-            if($this->hasCapability('STARTTLS') === true && function_exists('stream_socket_enable_crypto') === true) {
+/*            if($this->hasCapability('STARTTLS') === true && function_exists('stream_socket_enable_crypto') === true) {
                 if (PEAR::isError($res = $this->cmdStartTLS())) {
                     return $res;
                 }
-            }
+            }*/
             return $ret;
         }
         if(empty($ret)){
