@@ -21,7 +21,7 @@ class ErrorHandler {
 	private static $observers = array();
 	
 	private static function notify_client($buffer) {
-		if(class_exists('Epesi')) {
+		if(JS_OUTPUT && class_exists('Epesi')) {
 			Epesi::clean();
 			if(DISPLAY_ERRORS)
 				Epesi::text($buffer,'error_box','prepend');
@@ -128,6 +128,5 @@ function handle_epesi_error($type, $message,$errfile,$errline,$errcontext) {
 if(REPORT_ALL_ERRORS)
 	error_reporting(E_ALL);
 	
-if(JS_OUTPUT)
-	set_error_handler('handle_epesi_error');
+set_error_handler('handle_epesi_error');
 ?>

@@ -183,7 +183,6 @@ class Base_Dashboard extends Module {
 			$submited = $f->exportValues();
 			$defaults = $this->get_default_values($mod);
 			$old = $this->get_values($id,$mod);
-			print_r($defaults);
 			foreach($defaults as $name=>$def_value) {
 				if(!isset($submited[$name])) $submited[$name]=0;
 				if($submited[$name]!=$old[$name]) {
