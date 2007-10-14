@@ -33,7 +33,7 @@ class Tools_FontSizeInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'Change font size from menu.',
-			'Author'=>'Kuba Slawinski <kslawinski@telaxus.com> and Paul Bukowski <pbukowski@telaxus.com>',
+			'Author'=>'Kuba Slawinski (kslawinski@telaxus.com) and Paul Bukowski (pbukowski@telaxus.com)',
 			'License'=>'SPL');
 	}
 	
