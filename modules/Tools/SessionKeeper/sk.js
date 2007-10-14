@@ -1,6 +1,6 @@
 var SessionKeeper = {
 	func: function(pe) {
-		new Ajax.Request('modules/Apps/SessionKeeper/sk.php');
+		new Ajax.Request('modules/Tools/SessionKeeper/sk.php');
 		this.time-=this.interval;
 		if(this.time<0) pe.stop();
 	},

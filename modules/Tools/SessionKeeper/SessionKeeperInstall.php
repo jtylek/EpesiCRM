@@ -5,11 +5,11 @@
  * @copyright pbukowski@telaxus.com
  * @license SPL
  * @version 0.1
- * @package apps-sessionkeeper
+ * @package tools-sessionkeeper
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Apps_SessionKeeperInstall extends ModuleInstall {
+class Tools_SessionKeeperInstall extends ModuleInstall {
 
 	public function install() {
 		return true;
