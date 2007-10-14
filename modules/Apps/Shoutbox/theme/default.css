@@ -1,0 +1,28 @@
+#shoutbox_board {
+    width: 250px;
+    height: 200px;
+    overflow: auto;
+    text-align: left;
+    border: 1px solid #B3B3B3;
+}
+
+#shoutbox_board .author {
+    color: #336699;
+}
+
+#shoutbox_board .time {
+    color: #B3B3B3;
+}
+
+#shoutbox_button {
+    color: #FFFFFF;
+    background-color: #336699;
+    background-image: url('images/header-blue.png');
+    background-repeat: repeat-x;
+    border: 0px;
+    padding: 1px 10px 1px 10px;
+}
+
+#shoutbox_button:hover {
+    background-image: url('images/header-blue-hover.png');
+}
