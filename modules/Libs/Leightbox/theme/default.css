@@ -36,6 +36,7 @@
 <!--[if lt IE 7]>
         filter: alpha(opacity=80);
         position: absolute;
+	height: expression(( ignoreMe = (document.documentElement.clientHeight < document.body.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight) ) + 'px' );
 <![endif]-->
 <![endif]-->
 }

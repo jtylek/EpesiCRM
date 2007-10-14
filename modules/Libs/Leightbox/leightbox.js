@@ -120,10 +120,7 @@ leightbox.prototype = {
 	
 	displayLeightbox: function(display){
 	
-		if(navigator.appName.indexOf('Explorer') != -1 ) {
-//			var ch = (document.documentElement.clientHeight < document.body.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight);
-//			$('leightbox_overlay').style.height = ch + 'px';
-		} else {
+		if(navigator.appName.indexOf('Explorer') == -1 ) {
 			body = document.getElementsByTagName('body')[0];
 			body.appendChild( $(this.content) );
 		}
