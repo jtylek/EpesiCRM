@@ -31,13 +31,7 @@
 	vertical-align: middle;
 	text-decoration : none;
 	padding: 2px 5px 1px 5px;
-	/*border: 1px solid #B3B3B3;*/
 	border: 1px solid #FFFFFF;
-/*
-	border-top: 2px solid #F0F0F0;
-	border-left: 2px solid #F0F0F0;
-	border-right: 2px solid #B3B3B3;
-	border-bottom: 2px solid #B3B3B3;*/
 }
 
 #Base_ActionBar #panel div.icon a:link {
@@ -48,12 +42,11 @@
 	color : #993333;
 	background-color: #F0F0F0;
 	padding: 3px 4px 0px 6px;
-	border: 1px solid #336699;
-/*
-	border-top: 2px solid #B3B3B3;
-	border-left: 2px solid #B3B3B3;
-	border-right: 2px solid #F0F0F0;
-	border-bottom: 2px solid #F0F0F0;*/
+	/*border: 1px solid #336699;*/
+	border-top: 1px solid #B3B3B3;
+	border-left: 1px solid #B3B3B3;
+	border-right: 1px solid #F0F0F0;
+	border-bottom: 1px solid #F0F0F0;
 }
 
 #Base_ActionBar #panel div.icon a:hover span {

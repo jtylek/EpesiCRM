@@ -14,11 +14,13 @@
 
 #dashboard .content_td {
 	background-color: #FFFFFF;
+	text-align: left;
+	vertical-align: top;
 }
 
 #dashboard .container {
 	width: 290px;
-	padding: 5px 5px 5px 5px;
+	border: 5px solid #FFFFFF;
 	background-color: #FFFFFF;
 }
 
