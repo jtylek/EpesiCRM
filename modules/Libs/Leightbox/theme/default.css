@@ -16,6 +16,8 @@
 <!--[if lt IE 7]>
 	top: expression( ( ignoreMe = (document.documentElement.scrollTop + document.documentElement.clientHeight/4) ) + 'px' );
 	left: expression( ( ignoreMe2 = (document.documentElement.scrollLeft + document.documentElement.clientWidth/4) ) + 'px' );
+	height: expression( ( ignoreMe = (document.documentElement.clientHeight/2) ) + 'px' );
+	width: expression( ( ignoreMe2 = (document.documentElement.clientWidth/2) ) + 'px' );
 <![endif]-->
 <![endif]-->
 }
@@ -32,9 +34,8 @@
 	opacity: .80;
 <!--[if gte IE 5.5]>
 <!--[if lt IE 7]>
-        position: absolute;
-        top: expression( ( ignoreMe_over = document.documentElement.scrollTop ) + 'px' );
         filter: alpha(opacity=80);
+        position: absolute;
 <![endif]-->
 <![endif]-->
 }
