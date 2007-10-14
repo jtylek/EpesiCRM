@@ -30,13 +30,14 @@ class Apps_Shoutbox extends Module {
 	}
 
 	public function applet() {
+		Base_ThemeCommon::load_css($this->get_type());
 		if(Acl::is_user()) {
 			//initialize HTML_QuickForm
 			$qf = & $this->init_module('Libs/QuickForm');
 			//create text box
 			$text = & HTML_QuickForm::createElement('text','post',$this->lang->t('Post'),'id="shoutbox_text"');
 			//create submit button
-			$submit = & HTML_QuickForm::createElement('submit','button',$this->lang->ht('Submit'));
+			$submit = & HTML_QuickForm::createElement('submit','button',$this->lang->ht('Submit'), 'id="shoutbox_button"');
 			//add it
 			$qf->addGroup(array($text,$submit),'post');
 			$qf->addGroupRule('post',$this->lang->t('Field required'),'required',null,2);
@@ -64,10 +65,10 @@ class Apps_Shoutbox extends Module {
 
 		//get last 50 messages
 		$arr = DB::GetAll('SELECT asm.id, ul.login, asm.message, asm.posted_on FROM apps_shoutbox_messages asm LEFT JOIN user_login ul ON ul.id=asm.base_user_login_id ORDER BY asm.posted_on DESC LIMIT 50');
-		print('<div id=\'shoutbox_board\' style="width:220px;height:200px;overflow:auto;text-align:left;border:1px solid #B3B3B3;">');
+		print('<div id=\'shoutbox_board\'>');
 		foreach($arr as $row) {
 			if(!$row['login']) $row['login']='Anonymous';
-			$msg = $this->lang->t('[%s] %s: %s',array($row['posted_on'], $row['login'], $row['message']));
+			$msg = $this->lang->t('<span class="time">[%s]</span> <span class="author">%s</span>:<br>%s<br>',array($row['posted_on'], $row['login'], $row['message']));
 			print($msg.'<br>');
 		}
 		print('</div>');

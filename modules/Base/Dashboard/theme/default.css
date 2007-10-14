@@ -19,18 +19,18 @@
 }
 
 #dashboard .container {
-	width: 290px;
+	width: 210px;
 	border: 5px solid #FFFFFF;
 	background-color: #FFFFFF;
 }
 
 #dashboard .controls {
-	width: 30%;
+	width: 50%;
 	text-align: right;
 }
 
 #dashboard .title {
-	width: 70%;
+	width: 50%;
 	text-align: left;
 }
 

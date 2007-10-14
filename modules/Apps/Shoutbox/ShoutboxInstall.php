@@ -22,22 +22,24 @@ class Apps_ShoutboxInstall extends ModuleInstall {
 			print('Unable to create table apps_shoutbox_messages.<br>');
 			return false;
 		}
+		Base_ThemeCommon::install_default_theme($this -> get_type());
 		return $ret;
 	}
-	
+
 	public function uninstall() {
 		$ret = true;
 		$ret &= DB::DropTable('apps_shoutbox_messages');
+		Base_ThemeCommon::uninstall_default_theme($this -> get_type());
 		return $ret;
 	}
 	public function version() {
 		return array("0.5");
 	}
-	
+
 	public static function simple_setup() {
 		return true;
 	}
-	
+
 	public function requires($v) {
 		return array(
 			array('name'=>'Base/Acl','version'=>0),

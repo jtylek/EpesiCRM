@@ -11,11 +11,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Applets_RssFeed extends Module {
 	private $lang;
-	
+
 	public function construct() {
 		$this->lang = $this->init_module('Base/Lang');
 	}
-	
+
 	public function body(&$x) {
 	}
 
@@ -38,12 +38,12 @@ class Applets_RssFeed extends Module {
 //		if($new_title!==null)
 //			$opts['title'] = substr($new_title,0,15).'...';
 		$opts['title'] = $values['title'];
-		
+
 		$name = md5($this->get_path().$values['rssfeed']);
 
 		//div for updating
-		print('<div id="rssfeed_'.$name.'" style="padding-left: 20px">'.$this->lang->t('Loading RSS...').'</div>');
-		
+		print('<div id="rssfeed_'.$name.'" style="width: 270px; padding-left: 20px">'.$this->lang->t('Loading RSS...').'</div>');
+
 		//interval execution
 		eval_js_once('var rssfeedcache = Array();'.
 			'rssfeedfunc = function(name,fee,num,cache){'.

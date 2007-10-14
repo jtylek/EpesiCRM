@@ -1,5 +1,5 @@
 <?php
-/** 
+/**
  * Something like igoogle
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2007, Telaxus LLC
@@ -13,7 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_Dashboard extends Module {
 	private $lang;
 	private $set_default_js='';
-	
+
 	public function body() {
 		$this->lang = $this->init_module('Base/Lang');
 		Base_ActionBarCommon::add('add','Add applet',$this->create_callback_href(array($this,'applets_list')));
@@ -22,16 +22,16 @@ class Base_Dashboard extends Module {
 		print('<table id="dashboard" style="width: 100%"><tr>');
 		for($j=0; $j<3; $j++) {
 			print('<td id="dashboard_applets_'.$j.'" style="width:33%;min-height:100px;vertical-align:top;">');
-			
+
 			$ret = DB::Execute('SELECT id,module_name FROM base_dashboard_applets WHERE col=%d AND user_login_id=%d ORDER BY pos',array($j,Base_UserCommon::get_my_user_id()));
 			while($row = $ret->FetchRow()) {
 				if(ModuleManager::is_installed($row['module_name'])==-1) {//if its invalid entry
 					$this->delete_applets($row['module_name']);
 					continue;
 				}
-					
+
 				$m = $this->init_module($row['module_name'],null,$row['id']);
-				
+
 				$opts = array();
 				$opts['title'] = call_user_func(array($row['module_name'].'Common', 'applet_caption'));
 				$opts['toggle'] = true;
@@ -40,29 +40,29 @@ class Base_Dashboard extends Module {
 				$opts['go_function'] = 'body';
 				$opts['go_arguments'] = array();
 				$opts['go_constructor_arguments'] = array();
-				
+
 				$th = $this->init_module('Base/Theme');
-				
+
 				$th->assign('content','<div class="content">'.
 						$this->get_html_of_module($m,array($this->get_values($row['id'],$row['module_name']), & $opts, $row['id']),'applet').
 						'</div>');
 				$th->assign('handle_class','handle');
-				
+
 				if($opts['toggle'])
 					$th->assign('toggle','<a class="toggle" '.$tipmod->open_tag_attrs($this->lang->ht('Toggle')).'>=</a>');
-				
+
 				if($opts['go'])
 					$opts['href']=Module::create_href(array('box_main_module'=>$row['module_name'],'box_main_function'=>$opts['go_function'],'box_main_arguments'=>$opts['go_arguments'],'box_main_constructor_arguments'=>$opts['go_constructor_arguments']));
 				if($opts['href'])
 					$th->assign('href','<a class="href" '.$opts['href'].'>G</a>');
-				
+
 				$th->assign('remove','<a class="remove" '.$tipmod->open_tag_attrs($this->lang->ht('Remove')).' '.$this->create_confirm_callback_href($this->lang->ht('Delete this applet?'),array($this,'delete_applet'),$row['id']).'>x</a>');
-				
+
 				if(method_exists($row['module_name'].'Common', 'applet_settings'))
 					$th->assign('configure','<a class="configure" '.$tipmod->open_tag_attrs($this->lang->ht('Configure')).' '.$this->create_callback_href(array($this,'configure_applet'),array($row['id'],$row['module_name'])).'>c</a>');
-				
+
 				$th->assign('caption',$opts['title']);
-				
+
 				print('<div class="applet" id="ab_item_'.$row['id'].'">');
 				$th->display();
 				print('</div>');
@@ -72,7 +72,7 @@ class Base_Dashboard extends Module {
 		print('</tr></table>');
 		eval_js('dashboard_activate()');
 	}
-	
+
 	public function applets_list() {
 		$this->lang = $this->init_module('Base/Lang');
 
@@ -81,9 +81,9 @@ class Base_Dashboard extends Module {
 			$mod = $this->get_module_variable('mod_conf');
 			$ok = null;
 			if(!$this->configure_applet($fc,$mod,& $ok)) {
-				if(!$ok) 
+				if(!$ok)
 					self::delete_applet($fc);
-				else 
+				else
 					Base_StatusBarCommon::message(Base_LangCommon::ts($this->get_type(),'Applet added'));
 				$this->unset_module_variable('first_conf');
 				$this->unset_module_variable('mod_conf');
@@ -92,7 +92,7 @@ class Base_Dashboard extends Module {
 			return true;
 		}
 
-		if($this->is_back()) return false;		
+		if($this->is_back()) return false;
 		Base_ActionBarCommon::add('back','Back to Dashboard',$this->create_back_href());
 
 
@@ -118,26 +118,26 @@ class Base_Dashboard extends Module {
 				$links[$obj['name']] = '<a '.$attrs.$this->create_callback_href(array($this,'add_applet'),$obj['name']).'>'.call_user_func(array($obj['name'].'Common', 'applet_caption')).'</a>';
 			}
 		}
-		
+
 		if(empty($links)) {
 			print($this->lang->t('No applets installed'));
 			return true;
 		}
-		
+
 		$theme =  & $this->pack_module('Base/Theme');
 		$theme->assign('header', $this->lang->t('Add applet'));
 		$theme->assign('links', $links);
 		$theme->display('list');
-		
+
 		return true;
 	}
-	
+
 	public function add_applet($mod) {
 		DB::Execute('INSERT INTO base_dashboard_applets(user_login_id,module_name) VALUES (%d,%s)',array(Base_UserCommon::get_my_user_id(),$mod));
 		$this->set_module_variable('first_conf',DB::Insert_ID('base_dashboard_applets','id'));
 		$this->set_module_variable('mod_conf',$mod);
 //		$this->set_back_location();
-		
+
 	}
 
 	public static function delete_applet($id) {
@@ -162,13 +162,13 @@ class Base_Dashboard extends Module {
 			$ok=true;
 			return false;
 		}
-		
+
 		$this->lang = $this->init_module('Base/Lang');
 		$f = &$this->init_module('Libs/QuickForm',$this->lang->ht('Saving settings'),'settings');
 		$f->addElement('header',null,$this->lang->t(call_user_func(array($mod.'Common','applet_caption'))));
-		
+
 		$menu = call_user_func(array($mod.'Common','applet_settings'));
-		if (is_array($menu)) 
+		if (is_array($menu))
 			$this->add_module_settings_to_form($menu,$f,$id,$mod);
 		else
 			trigger_error('Invalid applet settings function: '.$mod,E_USER_ERROR);
@@ -200,7 +200,7 @@ class Base_Dashboard extends Module {
 		return true;
 
 	}
-	
+
 	private function get_default_values($mod) {
 		static $variables;
 		if (isset($variables[$mod]))
@@ -209,20 +209,20 @@ class Base_Dashboard extends Module {
 		$variables[$mod] = array();
 		if(method_exists($mod.'Common', 'applet_settings')) {
 			$menu = call_user_func(array($mod.'Common','applet_settings'));
-			foreach($menu as $v) 
+			foreach($menu as $v)
 				if(isset($v['default']))
 					$variables[$mod][$v['name']] = $v['default'];
 		}
 		return $variables[$mod];
 	}
-	
+
 	private function get_values($id,$mod) {
 		$variables = $this->get_default_values($mod);
 
 		$ret = DB::Execute('SELECT name,value FROM base_dashboard_settings WHERE applet_id=%d',array($id));
 		while($v = $ret->FetchRow())
 			$variables[$v['name']] = $v['value'];
-		
+
 		return $variables;
 	}
 
@@ -231,7 +231,7 @@ class Base_Dashboard extends Module {
 		foreach($info as & $v){
 			if(isset($v['label'])) $v['label'] = $this->lang->t($v['label']);
 			if(isset($v['values']) && is_array($v['values']))
-				foreach($v['values'] as &$x) 
+				foreach($v['values'] as &$x)
 					$x = $this->lang->ht($x);
 			if (isset($v['rule']))
 				foreach ($v['rule'] as & $r)
