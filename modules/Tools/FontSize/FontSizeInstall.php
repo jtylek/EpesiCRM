@@ -29,6 +29,17 @@ class Tools_FontSizeInstall extends ModuleInstall {
 			array('name'=>'Base/Theme','version'=>0)
 		);
 	}
+
+	public static function info() {
+		return array(
+			'Description'=>'Change font size from menu.',
+			'Author'=>'Kuba Slawinski <kslawinski@telaxus.com> and Paul Bukowski <pbukowski@telaxus.com>',
+			'License'=>'SPL');
+	}
+	
+	public static function simple_setup() {
+		return true;
+	}
 }
 
 ?>
