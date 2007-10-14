@@ -9,7 +9,7 @@ table.root {
 	z-index: 1000;
 	font-weight: bold;
 	height: 20px;
-	border-right: 6px solid #B3B3B3;
+	border-right: 4px solid #B3B3B3;
 }
 
 table.root:hover {
@@ -191,6 +191,6 @@ td.item_sub {
 td.splitter {
 	vertical-align: middle;
 	z-index: 1000;
-	height: 1px;
+	height: 2px;
 	background-color: #B3B3B3;
 }

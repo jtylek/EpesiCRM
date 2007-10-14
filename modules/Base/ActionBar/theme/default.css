@@ -1,49 +1,7 @@
-/*
-table#Base_ActionBar {
-	text-align: left;
-	font-size: 11px;
-	list-style-type: none;
-	padding: 5px;
-}
-
-table#Base_ActionBar td a {
-	text-align: center;
-	color: #4C4C4C;
-	overflow: hidden;
-	border-top: 1px solid #F0F0F0;
-	border-left: 1px solid #F0F0F0;
-	border-right: 1px solid #B3B3B3;
-	border-bottom: 1px solid #B3B3B3;
-	background-color: #FFFFFF;
-	color: #336699;
-	padding-left: 5px;
-	padding-right: 5px;
-	padding-top: 5px;
-	white-space: nowrap;
-	text-decoration: none;
-	display: block;
-}
-
-table#Base_ActionBar img {
-	border: none;
-}
-
-table#Base_ActionBar td a:hover {
-	background-color: #F0F0F0;
-	color: #993333;
-	border-top: 1px solid #B3B3B3;
-	border-left: 1px solid #B3B3B3;
-	border-right: 1px solid #F0F0F0;
-	border-bottom: 1px solid #F0F0F0;
-}
-*/
-/*** ***/
-
 #Base_ActionBar {
 }
 
 #Base_ActionBar table.icons {
-	background-color: #FFFFFF;
 	width: 481px;
 	height: 68px;
 	padding: 10px;
@@ -72,8 +30,14 @@ table#Base_ActionBar td a:hover {
 	width: 60px;*/
 	vertical-align: middle;
 	text-decoration : none;
-	border: 1px solid #B3B3B3;
 	padding: 2px 5px 1px 5px;
+	/*border: 1px solid #B3B3B3;*/
+	border: 1px solid #FFFFFF;
+/*
+	border-top: 2px solid #F0F0F0;
+	border-left: 2px solid #F0F0F0;
+	border-right: 2px solid #B3B3B3;
+	border-bottom: 2px solid #B3B3B3;*/
 }
 
 #Base_ActionBar #panel div.icon a:link {
@@ -83,8 +47,13 @@ table#Base_ActionBar td a:hover {
 #Base_ActionBar #panel div.icon a:hover {
 	color : #993333;
 	background-color: #F0F0F0;
-	border: 1px solid #336699;
 	padding: 3px 4px 0px 6px;
+	border: 1px solid #336699;
+/*
+	border-top: 2px solid #B3B3B3;
+	border-left: 2px solid #B3B3B3;
+	border-right: 2px solid #F0F0F0;
+	border-bottom: 2px solid #F0F0F0;*/
 }
 
 #Base_ActionBar #panel div.icon a:hover span {

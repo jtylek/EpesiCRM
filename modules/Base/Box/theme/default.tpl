@@ -2,7 +2,6 @@
 <center>
 <table id="Base_Box__login" cellspacing="0" cellpadding="0" border="0">
 	<tr><td class="status"><center>{$status}</center></td></tr>
-	<tr><td class="title">Managing Business Your Way <span>TM</span></td></tr>
 	<tr><td class="entry">{$login}</td></tr>
 	<tr><td class="starting">{$about}</td></tr>
 </table>
@@ -35,9 +34,7 @@
 					<td>
 						<table cellspacing="0" cellpadding="0" border="0">
 							<tr>
-								<td class="icons" rowspan="2">
-									{$actionbar}
-								</td>
+								<td class="icons" rowspan="2">{$actionbar}</td>
 								<td class="login">{$login}</td>
 							</tr>
 							<tr>

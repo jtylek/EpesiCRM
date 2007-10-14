@@ -12,40 +12,13 @@
 #shadow .center-center		{ }
 
 #shadow .top-left			{ background-image: url('images/shadow/shadow-top-left.png'); }
-#shadow .top-left-left		{ background-image: url('images/shadow/shadow-top-left-left.png'); }
-#shadow .top-left-right		{ background-image: url('images/shadow/shadow-top-left-right.png');	}
 #shadow .top-center			{ background-image: url('images/shadow/shadow-top-center.png'); }
 #shadow .top-right			{ background-image: url('images/shadow/shadow-top-right.png'); }
-#shadow .top-right-left		{ background-image: url('images/shadow/shadow-top-right-left.png'); }
-#shadow .top-right-right	{ background-image: url('images/shadow/shadow-top-right-right.png'); }
 #shadow .center-left		{ background-image: url('images/shadow/shadow-center-left.png'); }
 #shadow .center-right		{ background-image: url('images/shadow/shadow-center-right.png'); }
 #shadow .bottom-left		{ background-image: url('images/shadow/shadow-bottom-left.png'); }
-#shadow .bottom-left-left	{ background-image: url('images/shadow/shadow-bottom-left-left.png'); }
-#shadow .bottom-left-right	{ background-image: url('images/shadow/shadow-bottom-left-right.png'); }
 #shadow .bottom-center		{ background-image: url('images/shadow/shadow-bottom-center.png'); }
 #shadow .bottom-right		{ background-image: url('images/shadow/shadow-bottom-right.png'); }
-#shadow .bottom-right-left	{ background-image: url('images/shadow/shadow-bottom-right-left.png'); }
-#shadow .bottom-right-right { background-image: url('images/shadow/shadow-bottom-right-right.png'); }
-
-/*** only IE understands it
-#shadow .top-left			{ filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/shadow/shadow-top-left.png',           sizingMethod='scale'); }
-#shadow .top-left-left		{ filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/shadow/shadow-top-left-left.png',      sizingMethod='scale'); }
-#shadow .top-left-right		{ filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/shadow/shadow-top-left-right.png',     sizingMethod='scale'); }
-#shadow .top-center			{ filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/shadow/shadow-top-center.png',         sizingMethod='scale'); }
-#shadow .top-right			{ filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/shadow/shadow-top-right.png',          sizingMethod='scale'); }
-#shadow .top-right-left		{ filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/shadow/shadow-top-right-left.png',     sizingMethod='scale'); }
-#shadow .top-right-right	{ filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/shadow/shadow-top-right-right.png',    sizingMethod='scale'); }
-#shadow .center-left		{ filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/shadow/shadow-center-left.png',        sizingMethod='scale'); }
-#shadow .center-right		{ filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/shadow/shadow-center-right.png',       sizingMethod='scale'); }
-#shadow .bottom-left		{ filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/shadow/shadow-bottom-left.png',        sizingMethod='scale'); }
-#shadow .bottom-left-left	{ filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/shadow/shadow-bottom-left-left.png',   sizingMethod='scale'); }
-#shadow .bottom-left-right	{ filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/shadow/shadow-bottom-left-right.png',  sizingMethod='scale'); }
-#shadow .bottom-center		{ filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/shadow/shadow-bottom-center.png',      sizingMethod='scale'); }
-#shadow .bottom-right		{ filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/shadow/shadow-bottom-right.png',       sizingMethod='scale'); }
-#shadow .bottom-right-left	{ filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/shadow/shadow-bottom-right-left.png',  sizingMethod='scale'); }
-#shadow .bottom-right-right { filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/shadow/shadow-bottom-right-right.png', sizingMethod='scale'); }
-***/
 
 body {
 	padding: 0px 0px 0px 0px;
@@ -79,7 +52,7 @@ table#Base_Box__login div#menu td.icons a {
 
 table#Base_Box__login {
 	width: 980px;
-	height: 578px;
+	height: 570px;
 	text-align: center;
 	border: 1px solid #B3B3B3;
 }
@@ -93,7 +66,7 @@ table#Base_Box__logged {
 }
 
 table#Base_Box__login td.status {
-	height: 68px;
+	height: 45px;
 	background-color: #F0F0F0;
 	text-align: center;
 }
@@ -102,27 +75,13 @@ table#Base_Box__login td.entry {
 	background-color: #F0F0F0;
 	font-size: 11px;
 	text-align: center;
-	height: 440px;
-	color: #000000;
-}
-
-table#Base_Box__login td.title {
-	color: #777777;
-	background-color: #F0F0F0;
-	font-size: 15px;
-	text-align: center;
-}
-
-table#Base_Box__login td.title span {
-	vertical-align: super;
-	font-size: 9px;
+	height: 480px;
 }
 
 table#Base_Box__login td.starting {
 	background-color: #F0F0F0;
-	height: 70px;
-	color: #000000;
-	vertical-align: top;
+	height: 45px;
+	vertical-align: middle;
 }
 
 table#Base_Box__logged div#content {
@@ -199,7 +158,7 @@ table#Base_Box__logged td.module_name {
 	background-repeat: repeat-x;
 	font-weight: bold;
 	text-align: center;
-	border-left: 6px solid #B3B3B3;
+	border-left: 4px solid #B3B3B3;
 	font-size: 11px;
 	color: #FFFFFF;
 }
@@ -214,4 +173,6 @@ table#Base_Box__logged td.search {
 table#Base_Box__logged td.icons {
 	width: 484px;
 	height: 78px;
+	vertical-align: top;
+	padding-top: 5px;
 }
