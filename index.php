@@ -1,8 +1,8 @@
 <?php
 /**
  * Index file
- * 
- * This file includes all 'include files', loads modules 
+ *
+ * This file includes all 'include files', loads modules
  * and gets output of default module.
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
@@ -56,7 +56,7 @@ unset($_SESSION['cl'.$client_id]);
 		<script type="text/javascript" src="libs/prototype.js"></script>
 		<script type="text/javascript" src="libs/HistoryKeeper.js"></script>
 		<script type="text/javascript" src="include/epesi.js"></script>
-		
+
 		<style type="text/css">
 			#epesiStatus {
   				/* Netscape 4, IE 4.x-5.0/Win and other lesser browsers will use this */
@@ -64,18 +64,20 @@ unset($_SESSION['cl'.$client_id]);
   				left: 40%; top: 45%;
   				/* all */
   				background-color: #F0F0F0;
-				border: 1px solid #CCCCCC;
-				color: #B2B2B2;
-				font-weight: bold;
+				border: 1px solid #B3B3B3;
 				visibility: hidden;
 				padding-top: 10px;
 				padding-bottom: 10px;
 				width: 20%;
 				text-align: center;
-				font-family: "Tahoma" "Verdana" "Vera-Sans" "DejaVu-Sans";
-				font-size: 11px;
 				vertical-align: center;
 			}
+			#epesiStatus table {
+				color: #B3B3B3;
+				font-weight: bold;
+				font-family: "Tahoma" "Verdana" "Vera-Sans" "DejaVu-Sans";
+				font-size: 11px;
+            }
 		</style>
 	</head>
 	<body>
@@ -86,10 +88,10 @@ unset($_SESSION['cl'.$client_id]);
 					<td style="text-align: center; vertical-align: center;"><img src="images/loader.gif" width="16" height="16" border="0"></td>
 					<td style="text-align: center; vertical-align: center;">Starting epesi...</td>
 				</tr>
-			</table>	
+			</table>
 		</div>
 		<?php
-			if(defined('DEBUG')) 
+			if(defined('DEBUG'))
 				print('<div id="debug" style="font-size: 0.7em;"></div>');
 		?>
 		<div id="error_box" onclick="this.innerHTML = ''"></div>
@@ -102,12 +104,12 @@ unset($_SESSION['cl'.$client_id]);
 			    case 1: Epesi.request('',history_id);
 			}
 		}
-		
+
 		history_add = function(id){
 			history_on=-1;
 			unFocus.History.addHistory(id);
 		}
-		
+
 		Epesi.client_id=<?php print($client_id); ?>;
 		Epesi.process_file='<?php print(str_replace('\\','/',dirname($_SERVER['PHP_SELF'])).'/process.php'); ?>';
 		var history_on=1;

@@ -1,11 +1,12 @@
 table#Base_User_Login {
 	border: 1px solid #FFFFFF;
 	font-size: 11px;
+	background-color: #E0E0E0;
 }
 
 table#Base_User_Login .gradient {
-	background-color: #F0F0F0;
-	background-image: url("images/login-background.png");
+	background-color: #E0E0E0;
+	background-image: url("images/login-background-2.png");
 	background-repeat: repeat-x
 }
 
@@ -37,7 +38,7 @@ table#Base_User_Login td.error {
 }
 
 table#Base_User_Login td.input input {
-	color: #4C4C4C;
+	color: #000000;
 	border: 1px solid #B3B3B3;
 	width: 160px;
 }
@@ -60,7 +61,7 @@ table#Base_User_Login td.label {
 	width: 225px;
 	height: 30px;
 	font-size: 11px;
-	color: #777777;
+	color: #000000;
 }
 
 table#Base_User_Login td.input {
