@@ -30,7 +30,7 @@ class Apps_Shoutbox extends Module {
 	}
 
 	public function applet() {
-		Base_ThemeCommon::load_css($this->get_type());
+		Base_ThemeCommon::load_css($this->get_type()); // added by MS
 		if(Acl::is_user()) {
 			//initialize HTML_QuickForm
 			$qf = & $this->init_module('Libs/QuickForm');
@@ -68,16 +68,17 @@ class Apps_Shoutbox extends Module {
 		print('<div id=\'shoutbox_board\'>');
 		foreach($arr as $row) {
 			if(!$row['login']) $row['login']='Anonymous';
-			$msg = $this->lang->t('<span class="time">[%s]</span> <span class="author">%s</span>:<br>%s<br>',array($row['posted_on'], $row['login'], $row['message']));
+			$posted_on = $row['posted_on'];
+			$posted_on = substr($posted_on, 5);
+			$msg = $this->lang->t('<span class="time">[%s]</span> <span class="author">%s</span>:<br>%s<br>',array($posted_on, $row['login'], $row['message']));
 			print($msg.'<br>');
 		}
 		print('</div>');
 
-
 		//if there is displayed shoutbox, call myFunctions->refresh from refresh.php file every 5s
 		eval_js_once('shoutbox_refresh = function(){if(!$(\'shoutbox_board\')) return;'.
 			'new Ajax.Updater(\'shoutbox_board\',\'modules/Apps/Shoutbox/refresh.php\',{method:\'get\'});'.
-			'};setInterval(\'shoutbox_refresh()\',30000)');
+			'};setInterval(\'shoutbox_refresh()\',30000)'); // 30000
 	}
 
 	public function caption() {

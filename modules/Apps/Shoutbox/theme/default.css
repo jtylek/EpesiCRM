@@ -1,9 +1,10 @@
 #shoutbox_board {
-    width: 250px;
+    width: auto;
     height: 200px;
     overflow: auto;
     text-align: left;
     border: 1px solid #B3B3B3;
+    padding: 5px;
 }
 
 #shoutbox_board .author {
@@ -12,6 +13,10 @@
 
 #shoutbox_board .time {
     color: #B3B3B3;
+}
+
+#shoutbox_text {
+    width: 200px;
 }
 
 #shoutbox_button {
