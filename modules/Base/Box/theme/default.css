@@ -7,6 +7,26 @@
 #shadow .td-5x5 {
 	width: 5px;
 	height: 5px;
+	background-repeat: no-repeat;
+}
+
+#shadow .td-h-5 {
+	height: 5px;
+	background-repeat: repeat-x;
+	background-position: bottom;
+}
+
+#shadow .p-bottom {
+	background-position: bottom;
+}
+
+#shadow .p-top {
+	background-position: top;
+}
+
+#shadow .td-w-5 {
+	width: 5px;
+	background-repeat: repeat-y;
 }
 
 #shadow .center-center		{ }
