@@ -1,7 +1,7 @@
 table#Base_Admin .label {
 }
 
-table#Base_Admin td.button {
+table#Base_Admin .button {
 	width: 200px;
 	height: 60px;
 	background-color: #F0F0F0;
@@ -12,9 +12,14 @@ table#Base_Admin td.button {
 	text-align: left;
 	padding-left: 15px;
 	font-size: 11px;
+
+	display: block;
+	padding-top: 20px;
+	cursor: pointer;
+	cursor: hand; /* css2 */
 }
 
-table#Base_Admin td.button:hover {
+table#Base_Admin .button:hover {
 	background-color: #FFFFFF;
 	background-image: url("images/big-button-hover.png");
 	background-repeat: repeat-x;

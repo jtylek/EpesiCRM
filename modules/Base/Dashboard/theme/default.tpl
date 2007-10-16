@@ -2,12 +2,12 @@
 <table id="shadow" cellpadding="0" cellspacing="0" border="0">
     <tbody>
     <tr>
-        <td class="td-5x5 p-bottom top-left">&nbsp;</td>
-        <td class="td-h-5 p-bottom top-center">&nbsp;</td>
-        <td class="td-5x5 p-bottom top-right">&nbsp;</td>
+        <td class="td-5x5 p-top top-left">&nbsp;</td>
+        <td class="td-h-5 p-top top-center">&nbsp;</td>
+        <td class="td-5x5 p-top top-right">&nbsp;</td>
     </tr>
     <tr>
-        <td class="td-w-5 center-left">&nbsp;</td>
+        <td class="td-w-5 p-left center-left">&nbsp;</td>
         <td class="center-center">
         <!-- -->
 
@@ -25,12 +25,12 @@
 
         <!-- -->
         </td>
-        <td class="td-w-5 center-right">&nbsp;</td>
+        <td class="td-w-5 p-right center-right">&nbsp;</td>
     </tr>
     <tr>
-        <td class="td-5x5 p-top bottom-left">&nbsp;</td>
-        <td class="td-h-5 p-top bottom-center">&nbsp;</td>
-        <td class="td-5x5 p-top bottom-right">&nbsp;</td>
+        <td class="td-5x5 p-bottom bottom-left">&nbsp;</td>
+        <td class="td-h-5 p-bottom bottom-center">&nbsp;</td>
+        <td class="td-5x5 p-bottom bottom-right">&nbsp;</td>
     </tr>
     </tbody>
 </table>

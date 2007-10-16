@@ -16,13 +16,10 @@
 	background-position: bottom;
 }
 
-#shadow .p-bottom {
-	background-position: bottom;
-}
-
-#shadow .p-top {
-	background-position: top;
-}
+#shadow .p-bottom	{ background-position: top; }
+#shadow .p-top		{ background-position: bottom; }
+#shadow .p-left		{ background-position: right; }
+#shadow .p-right	{ background-position: left; }
 
 #shadow .td-w-5 {
 	width: 5px;
