@@ -134,6 +134,8 @@ table#Base_Box__logged td.logo {
 	padding-top: 5px;
 }
 
+/*** footer ***/
+
 table#Base_Box__logged td.footer {
 	color: #777777;
 	font-size: 10px;
@@ -153,6 +155,8 @@ table#Base_Box__logged td.footer a {
 table#Base_Box__logged td.footer a:hover {
 	color: #336699;
 }
+
+/*** ***/
 
 table#Base_Box__logged td.login {
 	width: 290px;
