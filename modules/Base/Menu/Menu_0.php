@@ -71,13 +71,13 @@ class Base_Menu extends Module {
 					$description = 'null';
 
 				if(array_key_exists('__url__',$arr)) {
-					$url = "'".$arr['__url__']."'";
+					$url = $arr['__url__'];
 					unset($arr['__url__']);
 					if(array_key_exists('__target__',$arr)) {
-						$target = "'".$arr['__target__']."'";
+						$target = $arr['__target__'];
 						unset($arr['__target__']);
 					} else
-						$target = 'null';
+						$target = '_blank';
 				} else
 					$url = null;
 					
