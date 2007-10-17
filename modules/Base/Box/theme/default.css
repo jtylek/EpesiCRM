@@ -105,7 +105,7 @@ table#Base_Box__logged div#content {
 	font-size: 11px;
 	text-align: center;
     overflow: hidden;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 table#Base_Box__logged td.login a:hover {
