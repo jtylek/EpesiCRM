@@ -1,16 +1,25 @@
-table#Base_User_Settings td.button {
-	width: 190px;
-	height: 80px;
-	background-color: #F0F0F0;	
+table#Base_User_Settings .button {
+	width: 200px;
+	height: 60px;
+	background-color: #F0F0F0;
+	border: 1px solid #FFFFFF;
 	background-image: url("images/big-button.png");
-	/*background-repeat: repeat-x;*/
+	background-repeat: repeat-x;
 	vertical-align: middle;
 	text-align: left;
 	padding-left: 15px;
+	font-size: 11px;
+
+	display: block;
+	padding-top: 20px;
+	cursor: pointer;
+	cursor: hand; /* css2 */
 }
 
-table#Base_User_Settings td.button:hover {
-	background-image: url("images/big-button-hover-2.png");
+table#Base_User_Settings .button:hover {
+	background-color: #FFFFFF;
+	background-image: url("images/big-button-hover.png");
+	background-repeat: repeat-x;
 }
 
 table#Base_User_Settings a {
@@ -23,13 +32,11 @@ table#Base_User_Settings a:hover {
 }
 
 table#Base_User_Settings .header {
-	color: #4C4C4C;
-	background-color: #E5E5E5;
-	background-image: url("images/background-30px-2.png");
+	color: #FFFFFF;
+	background-color: #336699;
+	background-image: url("images/header-blue.png");
 	background-repeat: repeat-x;
-	font-weight: bold;
-	height: 30px;
-	border: 1px solid #B3B3B3;
+	height: 20px;
 	text-align: center;
-	vertical-align: center;
+	vertical-align: middle;
 }

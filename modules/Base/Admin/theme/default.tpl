@@ -1,5 +1,3 @@
-<br>
-<br>
 <table id="Base_Admin" cellspacing="5" cellpadding="0">
 	<tr>
 		<td colspan="4" class="header">{$header}</td>

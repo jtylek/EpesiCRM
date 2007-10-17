@@ -12,7 +12,7 @@ class Apps_GalleryCommon extends ModuleCommon {
 	public static function menu() {
 		return array('Gallery'=>array());
 	}
-	
+
 	public static function applet_caption() {
 		return "Image";
 	}
@@ -20,7 +20,7 @@ class Apps_GalleryCommon extends ModuleCommon {
 	public static function applet_info() {
 		return "Displays image from your gallery"; //here can be associative array
 	}
-	
+
 	public function _applet_settings() {
 		$dir = $this->get_data_dir().Base_UserCommon::get_my_user_id().'/';
 		$images = array();

@@ -93,7 +93,7 @@ class Base_Dashboard extends Module {
 		}
 
 		if($this->is_back()) return false;
-		Base_ActionBarCommon::add('back','Back to Dashboard',$this->create_back_href());
+		Base_ActionBarCommon::add('back','Dashboard',$this->create_back_href());
 
 
 		$tipmod = $this->init_module('Utils/Tooltip');

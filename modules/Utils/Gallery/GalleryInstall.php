@@ -14,11 +14,11 @@ class Utils_GalleryInstall extends ModuleInstall {
 		Base_ThemeCommon::install_default_theme('Utils/Gallery');
 		return true;
 	}
-	
+
 	public function uninstall() {
 		return true;
 	}
-	
+
 	public function version() {
 		return array('1.0.0');
 	}
