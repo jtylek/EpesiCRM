@@ -32,6 +32,8 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$conf = array(array('type'=>'header','label'=>'Choose accounts'));
 		while($row=$ret->FetchRow())
 			$conf[] = array('name'=>'account_'.$row['id'], 'label'=>$row['mail'], 'type'=>'checkbox', 'default'=>0);
+		if(count($conf)==1)
+			return array(array('type'=>'static','label'=>'No accounts configured, go Home->My settings->Mail accounts'));
 		return $conf;
 	}	
 }

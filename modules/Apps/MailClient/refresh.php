@@ -49,8 +49,16 @@ if(PEAR::isError( $ret= $in->login($user , $pass, $method)))
 if($pop3) {
 	$num_msgs = $in->numMsg();
 	if($num_msgs===false) die('unknown error');
+//	does anybody know how to handle leave on server read messages?	
+//	print('<pre>');
+//	print_r($in->getListing());
+//	for($i=1; $i<=$num_msgs; $i++) {
+//		$headers = $in->getParsedHeaders(1);
+//		print_r($headers);
+//	}
+//	print('</pre>');
 } else { //imap
-	if(PEAR::isError($num_msgs = $in->getNumberOfMessages()))
+	if(PEAR::isError($num_msgs = $in->getNumberOfUnSeenMessages()))
 		die('(connection error) '.$num_msgs->getMessage());
 }
 $in->disconnect();
