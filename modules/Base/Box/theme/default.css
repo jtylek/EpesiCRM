@@ -102,19 +102,30 @@ table#Base_Box__login td.starting {
 }
 
 table#Base_Box__logged div#content {
+	width: 978px;
 	font-size: 11px;
 	text-align: center;
     overflow: hidden;
     overflow-y: auto;
 }
 
+#Base_Box__logged #content .main {
+	padding: 4px 4px 4px 4px;
+	vertical-align: top;
+}
+
 table#Base_Box__logged td.login a:hover {
 	color: #993333;
 }
 
-table#Base_Box__logged td.top-bar {
+#Base_Box__logged td.top-bar {
+	height: 20px;
+	border-bottom: 4px solid #B3B3B3;
+}
+
+#Base_Box__logged td.action-bar {
 	height: 78px;
-	background-image: url("images/top-bar.png");
+	background-image: url("images/action-bar.png");
 	background-repeat: no-repeat;
 }
 
@@ -136,7 +147,12 @@ table#Base_Box__logged td.logo {
 
 /*** footer ***/
 
-table#Base_Box__logged td.footer {
+#Base_Box__logged .footer {
+	height: 24px;
+	vertical-align: bottom;
+}
+
+#Base_Box__logged #footer td {
 	color: #777777;
 	font-size: 10px;
 	text-align: center;
@@ -146,13 +162,32 @@ table#Base_Box__logged td.footer {
 	border-top: 4px solid #B3B3B3;
 }
 
-table#Base_Box__logged td.footer a {
+#Base_Box__logged #footer .left {
+	width: 100px;
+	vertical-align: middle;
+	text-align: left;
+	padding-left: 4px;
+}
+
+#Base_Box__logged #footer .center {
+	width: 778px;
+}
+
+#Base_Box__logged #footer .right {
+	width: 100px;
+	vertical-align: middle;
+	text-align: right;
+	padding-right: 2px;
+	padding-top: 2px;
+}
+
+#Base_Box__logged #footer a {
 	text-decoration: none;
 	color: #777777;
 	font-weight: bold;
 }
 
-table#Base_Box__logged td.footer a:hover {
+#Base_Box__logged #footer a:hover {
 	color: #336699;
 }
 
