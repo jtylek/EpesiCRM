@@ -63,8 +63,6 @@ class Apps_Shoutbox extends Module {
 			print($this->lang->t('Please log in to post message').'<br>');
 		}
 
-		//get last 50 messages
-		$arr = DB::GetAll('SELECT asm.id, ul.login, asm.message, asm.posted_on FROM apps_shoutbox_messages asm LEFT JOIN user_login ul ON ul.id=asm.base_user_login_id ORDER BY asm.posted_on DESC LIMIT 50');
 		print('<div id=\'shoutbox_board\'></div>');
 		Base_ThemeCommon::load_css($this->get_type());
 
