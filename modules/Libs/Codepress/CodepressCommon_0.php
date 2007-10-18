@@ -12,7 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 HTML_Quickform::registerElementType('codepress','modules/Libs/Codepress/HTML_Quickform_codepress_0.php'
                                             ,'HTML_Quickform_codepress');
 load_js('modules/Libs/Codepress/0.9.6/codepress.js');
-eval_js('CodePress.run()');
+eval_js_once('document.observe("e_load", function(){CodePress.run();})');
 Libs_QuickFormCommon::add_on_submit_action('CodePress.update(this)');
 
 ?>

@@ -60,11 +60,12 @@ class Apps_MailClient extends Module {
 				
 				$r = $gb->get_new_row();
 				$r->add_data($structure->headers['subject'],$structure->headers['from'],$structure->headers['date'],strlen($message));
-				$r->add_action('href="javascript:void(0)" onClick="new Ajax.Updater(\''.$preview_id.'\',\''.$this->get_module_dir().'preview.php\',{'.
+				$r->add_action('href="javascript:void(0)" onClick="new Ajax.Request(\''.$this->get_module_dir().'preview.php\',{'.
 					'method:\'post\','.
 					'parameters:{'.
 						'\'mbox\':\''.Epesi::escapeJS($mbox_file).'\','.
-						'\'msg_id\':\''.$n.'\''.
+						'\'msg_id\':\''.$n.'\','.
+						'\'mc_id\':\''.$preview_id.'\''.
 					'}})"','View');
 			}
 			
