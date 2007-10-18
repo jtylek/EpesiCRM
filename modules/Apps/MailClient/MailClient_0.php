@@ -9,11 +9,89 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
+ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
+require_once('Mail/Mbox.php');
+require_once('Mail/mimeDecode.php');
+
 class Apps_MailClient extends Module {
 	private $lang;
 	
 	public function construct() {
 		$this->lang = $this->init_module('Base/Lang');
+	}
+	
+	public function body() {
+		$tree = $this->init_module('Utils/Tree');
+		$str = Apps_MailClientCommon::get_mail_dir_structure();
+		$this->set_open_mail_dir_callbacks($str);
+		$tree->set_structure($str);
+		$tree->sort();
+		$this->display_module($tree);
+		
+		$preview_id = $this->get_path().'preview';
+		
+		$mbox_file = $this->get_module_variable('opened_mbox','/Inbox');
+		$mbox = new Mail_Mbox(Apps_MailClientCommon::get_mail_dir().ltrim($mbox_file,'/').'.mbox');
+		if(($ret = $mbox->setTmpDir($this->get_data_dir().'tmp'))===true && ($ret = $mbox->open())===true) {
+			$gb = $this->init_module('Utils/GenericBrowser',null,'list');
+			$gb->set_table_columns(array(
+				array('name'=>$this->lang->t('Subject')),
+				array('name'=>$this->lang->t('From')),
+				array('name'=>$this->lang->t('Date')),
+				array('name'=>$this->lang->t('Size'))
+				));
+			
+			$limit_max = $mbox->size();
+			$limit = $gb->get_limit($limit_max);
+			$limit_max2 = $limit['offset']+$limit['numrows'];
+			if($limit_max2>$limit_max) $limit_max2=$limit_max;
+			
+			$message = null;
+			
+			for ($n = $limit['offset']; $n < $limit_max2; $n++) {
+				if(PEAR::isError($message = $mbox->get($n))) {
+					$limit_max2 +=1;
+					if($limit_max2>$limit_max) $limit_max2=$limit_max;
+					continue;
+				}
+
+				$decode = new Mail_mimeDecode($message, "\r\n");
+				$structure = $decode->decode();
+				
+				$r = $gb->get_new_row();
+				$r->add_data($structure->headers['subject'],$structure->headers['from'],$structure->headers['date'],strlen($message));
+				$r->add_action('href="javascript:void(0)" onClick="new Ajax.Updater(\''.$preview_id.'\',\''.$this->get_module_dir().'preview.php\',{'.
+					'method:\'post\','.
+					'parameters:{'.
+						'\'mbox\':\''.Epesi::escapeJS($mbox_file).'\','.
+						'\'msg_id\':\''.$n.'\''.
+					'}})"','View');
+			}
+			
+			$this->display_module($gb);
+		} else {
+			print($ret->getMessage());
+		}
+		$mbox->close();
+		
+		print('<div id="'.$preview_id.'"></div>');
+	}
+	
+	private function set_open_mail_dir_callbacks(array & $str,$path='') {
+		$opened_mbox = $this->get_module_variable('opened_mbox');
+		foreach($str as $k=>& $v) {
+			$mpath = $path.'/'.$v['name'];
+			if($mpath == $opened_mbox) {
+				$v['visible']=true;
+				$v['selected'] = true;
+			}
+			if(isset($v['sub']) && is_array($v['sub'])) $this->set_open_mail_dir_callbacks($v['sub'],$mpath);
+			$v['name'] = '<a '.$this->create_callback_href(array($this,'open_mail_dir_callback'),$mpath).'>'.$v['name'].'</a>';
+		}
+	}
+	
+	public function open_mail_dir_callback($path) {
+		$this->set_module_variable('opened_mbox',$path);
 	}
 
 	////////////////////////////////////////////////////////////

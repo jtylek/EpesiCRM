@@ -3,6 +3,7 @@ if(!isset($_POST['acc_id']))
 	die('Invalid request');
 
 require_once('../../../include.php');
+session_write_close(); //don't messup session
 Epesi::init();
 if(!Acl::is_user()) return;
 
@@ -49,7 +50,7 @@ if(PEAR::isError( $ret= $in->login($user , $pass, $method)))
 if($pop3) {
 	$num_msgs = $in->numMsg();
 	if($num_msgs===false) die('unknown error');
-//	does anybody know how to handle leave on server read messages?	
+//	does anybody know how to handle leave on server messages?
 //	print('<pre>');
 //	print_r($in->getListing());
 //	for($i=1; $i<=$num_msgs; $i++) {

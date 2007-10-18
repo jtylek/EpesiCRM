@@ -35,6 +35,8 @@ class Apps_MailClientInstall extends ModuleInstall {
 			return false;
 		}
 		Base_ThemeCommon::install_default_theme($this -> get_type());
+		$this->create_data_dir();
+		mkdir($this->get_data_dir().'tmp');
 		return $ret;
 	}
 	
@@ -54,13 +56,11 @@ class Apps_MailClientInstall extends ModuleInstall {
 			array('name'=>'Base/ActionBar','version'=>0),
 			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'Base/User','version'=>0),
-			array('name'=>'Base/Theme','version'=>0),
 			array('name'=>'Base/User/Settings','version'=>0),
 			array('name'=>'Libs/QuickForm','version'=>0),
-			array('name'=>'Utils/FileUpload','version'=>0),
 			array('name'=>'Utils/GenericBrowser','version'=>0),
 			array('name'=>'Utils/Tooltip','version'=>0),
-			array('name'=>'Utils/Wizard','version'=>0));
+			array('name'=>'Utils/Tree','version'=>0));
 	}
 	
 	public static function info() {

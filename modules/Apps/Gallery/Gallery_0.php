@@ -15,7 +15,7 @@ class Apps_Gallery extends Module {
 	private $lang;
 	private $_id = null; // TODO: cleanup
 	private $_sub = null; // TODO: cleanup
-
+	
 	public function construct() {
 		$this->lang = & $this->init_module('Base/Lang');
 		$this->root = $this->get_data_dir();
@@ -33,49 +33,49 @@ class Apps_Gallery extends Module {
 			$this->user_name = $this->user;
 		}
 	}
-
-	function getDirs($p_dirpath, $pattern = '0') {
-		$r_ret = array();
+	
+	function getDirs($p_dirpath, $pattern = '0') { 
+		$r_ret = array(); 
 		if ( is_dir($p_dirpath) ) {
-			if ($handle = opendir($p_dirpath)) {
-				while(false !== ($file = readdir($handle))) {
-					if($file != "." && $file != "..") {
+			if ($handle = opendir($p_dirpath)) { 
+				while(false !== ($file = readdir($handle))) { 
+					if($file != "." && $file != "..") { 
 						if ( is_dir($p_dirpath."/".$file) ){
 							if($pattern != '0') {
-								if(preg_match($pattern, $file))
-									array_push($r_ret, $file);
-							} else
-								array_push($r_ret, $file);
-						}
-					}
-				}
+								if(preg_match($pattern, $file)) 
+									array_push($r_ret, $file); 
+							} else 
+								array_push($r_ret, $file); 
+						} 
+					} 
+				} 
 				closedir($handle);
 			} else 	{
-				return "Unable to open directory: ./" . $p_dirpath;
-			}
-			return $r_ret;
+				return "Unable to open directory: ./" . $p_dirpath; 
+			} 
+			return $r_ret; 
 		}
 	}
-
+	
 	public function delete($path) {
 		if( !file_exists($path) ) return false;
-
-		if(is_file($path) || is_link($path))
+	
+		if(is_file($path) || is_link($path)) 
 			return unlink($path);
 
 		$files = scandir($path);
 		foreach($files as $filename) {
-			if($filename == '.' || $filename == '..')
+			if($filename == '.' || $filename == '..') 
 				continue;
 			$file = str_replace('//','/',$path.'/'.$filename);
 			$this->delete($file);
 		}
-		if( !rmdir($path) )
+		if( !rmdir($path) ) 
 			return false;
 		return true;
 	}//end function unlink
-
-	function getDirsRecursive($p_dirpath, $pattern = '0') {
+	
+	function getDirsRecursive($p_dirpath, $pattern = '0') { 
 		$r_ret = array("/"=>"/");
 		$stack = array();
 		array_push($stack, "");
@@ -83,39 +83,39 @@ class Apps_Gallery extends Module {
 			//print_r($stack); print "<br>";
 			$curr = array_pop($stack);
 			//print "curr: ".$p_dirpath.$curr."<br>";
-			if( $handle = opendir($p_dirpath."/".$curr) ) {
-				while(false !== ($file = readdir($handle))) {
-					if($file != "." && $file != "..") {
+			if( $handle = opendir($p_dirpath."/".$curr) ) { 
+				while(false !== ($file = readdir($handle))) { 
+					if($file != "." && $file != "..") { 
 						if ( is_dir($p_dirpath."/".$curr."/".$file) ){
 							if($pattern != '0') {
 								if(preg_match($pattern, $file)) {
-									//array_push($r_ret, $curr."/".$file."/");
+									//array_push($r_ret, $curr."/".$file."/"); 
 									$r_ret[$curr."/".$file."/"] = $curr."/".$file."/";
-									array_push($stack, $curr."/".$file);
+									array_push($stack, $curr."/".$file); 
 								}
 							} else  {
-								//array_push($r_ret, $curr."/".$file."/");
+								//array_push($r_ret, $curr."/".$file."/"); 
 								$r_ret[$curr."/".$file."/"] = $curr."/".$file."/";
-								array_push($stack, $curr."/".$file);
+								array_push($stack, $curr."/".$file); 
 							}
-						}
-					}
-				}
+						} 
+					} 
+				} 
 				closedir($handle);
 			}
 		}
 		return $r_ret;
 	}
-
+	
 	private function create_structure_for_tree($root_user, $dir, &$form) {
 		$dir_listing = $this->getDirsRecursive($root_user);
-
+		
 		$ret = DB::Execute('SELECT user_id, media FROM gallery_shared_media where user_id = %s', array($this->user));
 		$shared = array();
 		while($row = $ret->FetchRow() ) {
 			$shared[$row['media']] = $row['media'];
 		}
-
+		
 		$structure = array();
 		$media = array();
 		foreach( $dir_listing as $k => $v ) {
@@ -149,7 +149,7 @@ class Apps_Gallery extends Module {
 					}
 				}
 			}
-
+			
 		}
 		$title = 'My Gallery';
 		if(array_key_exists(str_replace(" ", "_", $up), $shared)) {
@@ -171,7 +171,7 @@ class Apps_Gallery extends Module {
 			));
 		return $structure;
 	}
-
+	
 	public function submit_mk_folder($data) {
 		//print "Created folder: ".$data['target'] . $data['new'];
 		mkdir($this->root.$this->user.$data['target'] . $data['new']);
@@ -187,25 +187,25 @@ class Apps_Gallery extends Module {
 		ksort($dirs);
 		$form = & $this->init_module('Libs/QuickForm');
 		$lang = & $this->init_module('Base/Lang');
-
+		
 		$form->addElement('header', 'mk_folder', $lang->t('Add Folder to Your Gallery'));
-
+		
 		$structure = $this->create_structure_for_tree($this->root.$this->user, $dir, $form);
-		$tree = & $this->init_module('Utils/Tree', $this->root.$this->user);
-		$tree->set_structure(
+		$tree = & $this->init_module('Utils/Tree');
+		$tree->set_structure( 
 			$structure
 		);
 		$tree->sort();
-
-
+		
+		
 		$form->addElement('text', 'new', 'New Folder:', array('value'=>''));
 		$form->addElement('submit', 'submit_button', $lang->ht('Create'));
 		$form->addRule('new', $lang->t('Field required'),'required');
-
+		
 		if($form->getSubmitValue('submited') && $form->validate()) {
 			if($form->process(array(&$this, 'submit_mk_folder')))
 				location(array());
-		} else {
+		} else {	
 			$theme =  & $this->pack_module('Base/Theme');
 			$theme->assign('type', 'mk_folder');
 			$form->assign_theme('form', $theme);
@@ -213,9 +213,9 @@ class Apps_Gallery extends Module {
 			$theme->display();
 		}
 	}
-
+	
 	////////////////////////////////////////////////////////////////////////
-
+	
 	public function submit_rm_folder($data) {
 		print "Removed folder: ".$data['target'];
 		$this->delete($this->root.$this->user.$data['target']);
@@ -229,7 +229,7 @@ class Apps_Gallery extends Module {
 		unset($data);
 		return true;
 	}
-
+	
 	public function rm_folder() {
 		$dir = $this->get_module_variable_or_unique_href_variable('dir', "");
 		$user = $this->get_module_variable_or_unique_href_variable('user', $this->user);
@@ -238,16 +238,16 @@ class Apps_Gallery extends Module {
 		$form = & $this->init_module('Libs/QuickForm');
 		$lang = & $this->init_module('Base/Lang');
 		$form->addElement('header', 'rm_folder', $lang->t('Remove Folder from Your Gallery'));
-
+		
 		$structure = $this->create_structure_for_tree($this->root.$this->user, $dir, $form);
-		$tree = & $this->init_module('Utils/Tree', $this->root.$this->user);
-		$tree->set_structure(
+		$tree = & $this->init_module('Utils/Tree');
+		$tree->set_structure( 
 			$structure
 		);
 		$tree->sort();
-
+		
 		$form->addElement('submit', 'submit_button', $lang->ht('Remove'));
-
+		
 		if($form->getSubmitValue('submited') && $form->validate()) {
 			if($form->process(array(&$this, 'submit_rm_folder'))) {
 				location(array());
@@ -260,7 +260,7 @@ class Apps_Gallery extends Module {
 			$theme->display();
 		}
 	}
-
+	
 	///////////////////////////////////////////////////////////////////////////
 	public function submit_share_folders($data) {
 		//print "<span align=left>Sharing folders:<br>";
@@ -282,9 +282,9 @@ class Apps_Gallery extends Module {
 		$user = $this->get_module_variable_or_unique_href_variable('user', $this->user);
 		$form = & $this->init_module('Libs/QuickForm');
 		$lang = & $this->init_module('Base/Lang');
-
+		
 		$form->addElement('header', 'share', $lang->t('Select folders You want to share with others.'));
-
+		
 		$ret = DB::Execute('SELECT user_id, media FROM gallery_shared_media where user_id = %s', array($this->user));
 		$shared = array();
 		while($row = $ret->FetchRow() ) {
@@ -321,10 +321,10 @@ class Apps_Gallery extends Module {
 					}
 				}
 			}
-
+			
 		}
-
-		$tree = & $this->init_module('Utils/Tree', $this->root.$this->user);
+		
+		$tree = & $this->init_module('Utils/Tree');
 		$tmp_t = & $form->createElement('checkbox', '/', 'My Gallery', 'My Gallery');
 		$opened = 0;
 		if(array_key_exists('/', $shared)) {
@@ -340,8 +340,8 @@ class Apps_Gallery extends Module {
 			))
 		);
 		$tree->sort();
-
-
+		
+		
 		$form->addElement('submit', 'submit_button', $lang->ht('Share selected'));
 		if($form->getSubmitValue('submited') && $form->validate()) {
 			if($form->process(array(&$this, 'submit_share_folders'))) {
@@ -355,7 +355,7 @@ class Apps_Gallery extends Module {
 			$theme->display();
 		}
 	}
-
+	
 	////////////////////////////////////////////////////////////////////////
 	public function submit_upload($file, $ory, $data) {
 		$ext = strrchr($ory,'.');
@@ -368,7 +368,7 @@ class Apps_Gallery extends Module {
 		}
 		return true;
 	}
-
+	
 	public function upload() {
 		if($this->is_back()) return false;
 		$this->lang = & $this->init_module('Base/Lang');
@@ -378,7 +378,7 @@ class Apps_Gallery extends Module {
 		$last = $this->get_module_variable('last_uploaded_img');
 		if($last) {
 			print 'Last succesfully uploaded image<br>';
-
+	
 			Utils_ImageCommon::display_thumb($last,120);
 		}
 
@@ -386,39 +386,39 @@ class Apps_Gallery extends Module {
 		$dir = $this->get_module_variable_or_unique_href_variable('dir', "");
 		$user = $this->get_module_variable_or_unique_href_variable('user', $this->user);
 		$this->lang = & $this->init_module('Base/Lang');
-
+		
 		$form = & $this->init_module('Utils/FileUpload');
-
+		
 		if($this->isset_module_variable('data'))
 			return $this->process_data();
-
+		
 		//$form = & $this->init_module('Libs/QuickForm', array($this->lang->ht('Uploading file...'),'modules/Apps/Gallery/upload.php','upload_iframe',''),'file_chooser');
 		$form->addElement('header', 'upload', $this->lang->t('Import an image to your gallery'));
-
+		
 //		$form->addElement('hidden', 'root', $this->root.$this->user);
-
-
+		
+		
 		// TREE
 		$structure = $this->create_structure_for_tree($this->root.$this->user, $dir, $form);
-		$tree = & $this->init_module('Utils/Tree', $this->root.$this->user);
-		$tree->set_structure(
+		$tree = & $this->init_module('Utils/Tree');
+		$tree->set_structure( 
 			$structure
 		);
 		$tree->sort();
 		$tree->set_inline_display();
 		$form->addElement('static', null, $this->get_html_of_module($tree));
-
+		
 		$this->display_module($form, array( array($this,'submit_upload') ));
-
-
+		
+		
 		return true;
 	}
 
-
+	
 	public function manage() {
 		if($this->is_back()) return false;
 		Base_ActionBarCommon::add('back',$this->lang->ht('Back to Gallery'),$this->create_back_href());
-
+		
 		$this->lang = & $this->init_module('Base/Lang');
 
 		$tb = & $this->init_module('Utils/TabbedBrowser');
@@ -429,22 +429,22 @@ class Apps_Gallery extends Module {
 		$tb->tag();
 		return true;
 	}
-
+	
 	public function body() {
 		$this->lang = & $this->init_module('Base/Lang');
-
+		
 		if( Base_AclCommon::i_am_user() ) {
 			Base_ActionBarCommon::add('add',$this->lang->ht('Upload'),$this->create_callback_href(array($this,'upload')));
 			Base_ActionBarCommon::add('settings',$this->lang->ht('Manage Folders'),$this->create_callback_href(array($this,'manage')));
 		}
 		$dir = $this->get_module_variable_or_unique_href_variable('dir', "");
 		$user = $this->get_module_variable_or_unique_href_variable('user', $this->user);
-
+		
 		$uname = ($user == $this->user ? 'My Gallery' : Base_UserCommon::get_user_login($user)."'s Gallery") ;
-
+		
 		$dir_listing = $this->getDirs($this->root.$user."/".$dir, "/^[^\.].*$/");
 		$parent_dir = explode("/", $dir);
-
+		
 		// PATH
 		$path = & $this->init_module('Utils/Path');
 		//$main_ch = array('<a class=gallery_path_child_link "'.$this->create_unique_href(array('dir'=>"", 'user'=>$this->user)).'" class=path_link  id=\'gallery_path_link_'.$this->_id.'_'.$this->_sub.'\')">My Gallery</a>');
@@ -456,7 +456,7 @@ class Apps_Gallery extends Module {
 		$c = '';
 		if($user == $this->user) {
 			$path->set_title( '<a class=gallery_path_link "'.$this->create_unique_href(array('dir'=>"", 'user'=>$user)).'" class=path_link  id=\'gallery_path_link_'.$this->_id.'_'.$this->_sub.'\')">'.$uname.'</a>' );
-
+		
 			foreach($parent_dir as $k => $v) {
 				if($v != "") {
 					$children_t = $this->getDirs($this->root.$user."/".$c);
@@ -470,20 +470,20 @@ class Apps_Gallery extends Module {
 					} else {
 						$c .= "/".$v;
 						$path->add_node('<a class=gallery_path_link "'.$this->create_unique_href(array('dir'=>$c, 'parent_dir'=>$dir, 'user'=>$this->user)).'" class=path_link  id=\'gallery_path_link_'.$this->_id.'_'.$this->_sub.'\')">'.$v.'</a>');
-
+						
 					}
 				}
 			}
 		} else {
 			$path->set_title( $uname );
-
+		
 			$ret = DB::Execute('SELECT user_id, media FROM gallery_shared_media where (user_id = %s)', array($user));
 			$children = array();
 			while($row = $ret->FetchRow() ) {
 				$children[] = "<a class=gallery_path_child_link ".$this->create_unique_href(array('dir'=>$row['media'], 'parent_dir'=>'/', 'user'=>$user)).">".$row['media']."</a>";
 			}
 			$path->add_node('<a class=gallery_path_link "'.$this->create_unique_href(array('dir'=>$dir, 'parent_dir'=>'/', 'user'=>$user)).'" class=path_link  id=\'gallery_path_link_'.$this->_id.'_'.$this->_sub.'\')">'.$dir.'</a>', $children);
-
+			
 		}
 		array_pop( $parent_dir );
 		$parent_dir = join("/", $parent_dir);
@@ -498,7 +498,7 @@ class Apps_Gallery extends Module {
 				$dirs[] = "<a ".$this->create_unique_href(array('dir'=>$row['media'], 'parent_dir'=>'/', 'user'=>$user)).">".$row['media']."</a>";
 			}
 		}
-
+		
 		// TREE
 		$dir_listing = $this->getDirsRecursive($this->root.$this->user);
 		$structure = array();
@@ -507,7 +507,7 @@ class Apps_Gallery extends Module {
 		while($row = $ret->FetchRow() ) {
 			$shared[$row['media']] = $row['media'];
 		}
-
+		
 		foreach( $dir_listing as $k => $v ) {
 			$c = & $structure;
 			$pt = explode("/", $v);
@@ -532,12 +532,12 @@ class Apps_Gallery extends Module {
 							}
 						}
 						$c = & $c[$d]['sub'];
-
+							
 					}
 				}
 			}
 		}
-
+		
 		$tree = & $this->init_module('Utils/Tree');
 		$tmp = ($dir == '' ? 1 : 0);
 		$title = 'My Gallery';
@@ -545,13 +545,13 @@ class Apps_Gallery extends Module {
 			$title .= ' (shared)';
 		}
 		$tree->set_structure(array('My Gallery'=>array(
-			'selected' => $tmp,
-			'name' => '<a '.$this->create_unique_href(array('dir'=>"", 'user'=>$this->user)).' >'.$title.'</a>',
+			'selected' => $tmp, 
+			'name' => '<a '.$this->create_unique_href(array('dir'=>"", 'user'=>$this->user)).' >'.$title.'</a>', 
 			'sub' => $structure
 		)));
 		$tree->sort();
 		//$tree->open_all();
-
+		
 		$other = & $this->init_module('Utils/Tree');
 		$structure = array();
 		$ret = DB::Execute('SELECT user_id, media FROM gallery_shared_media where not (user_id = %s)', array($this->user));
@@ -565,8 +565,8 @@ class Apps_Gallery extends Module {
 				$structure[$row['user_id']]['name'] = Base_UserCommon::get_user_login($row['user_id'])."'s gallery";
 				$structure[$row['user_id']]['sub'] = array();
 			}
-			$tmp_struct = array(
-				'sub'=>array(),
+			$tmp_struct = array( 
+				'sub'=>array(), 
 				'name'=>
 				'<a '.$this->create_unique_href(array('dir'=>$row['media'] , 'parent_dir'=>'/', 'user'=>$row['user_id'] )).'>'.$row['media'] .'</a>',
 				);
@@ -577,12 +577,12 @@ class Apps_Gallery extends Module {
 			$structure[$row['user_id']]['sub'][] = $tmp_struct;
 		}
 		$other->set_structure($structure);
-
-
+		
+		
 		// IMAGES
 		$images = & $this->init_module('Utils/Gallery', $this->root.$user."/".$dir);
-
-
+	
+		
 		$theme = & $this->init_module('Base/Theme');
 		$theme->assign('type', 'images');
 		$theme->assign('path', $path->toHtml());
@@ -595,12 +595,12 @@ class Apps_Gallery extends Module {
 			$theme->assign('other', $this->get_html_of_module($other));
 		else
 			$theme->assign('other', '');
-
+		
 		$theme->assign('images', $images->toHtml($this->root.$user."/".$dir));
 		$images->expand();
 		$theme->display();
 	}
-
+	
 	public function applet($vars,$opts) {  //available applet options: toggle,href,title,go,go_function,go_arguments,go_contruct_arguments
 		//$opts['href'] = $this->create_href(array('box_main_module'=>$this->get_type()));
 		$opts['go'] = true;

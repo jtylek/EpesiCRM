@@ -2,6 +2,7 @@
 header("Content-type: text/javascript");
 
 require_once('../../../include.php');
+session_write_close(); //don't messup session
 
 if(!Acl::is_user()) return;
 $user = DB::GetOne('SELECT id FROM user_login WHERE login=%s',array(Acl::get_user()));
