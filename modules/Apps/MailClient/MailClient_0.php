@@ -21,6 +21,9 @@ class Apps_MailClient extends Module {
 	}
 	
 	public function body() {
+		$mbox_file = $this->get_module_variable('opened_mbox','/Inbox');
+		$preview_id = $this->get_path().'preview';
+
 		$th = $this->init_module('Base/Theme');
 		$tree = $this->init_module('Utils/Tree');
 		$str = Apps_MailClientCommon::get_mail_dir_structure();
@@ -29,9 +32,6 @@ class Apps_MailClient extends Module {
 		$tree->sort();
 		$th->assign('tree', $this->get_html_of_module($tree));
 		
-		$preview_id = $this->get_path().'preview';
-		
-		$mbox_file = $this->get_module_variable('opened_mbox','/Inbox');
 		$mbox = new Mail_Mbox(Apps_MailClientCommon::get_mail_dir().ltrim($mbox_file,'/').'.mbox');
 		if(($ret = $mbox->setTmpDir($this->get_data_dir().'tmp'))===true && ($ret = $mbox->open())===true) {
 			$gb = $this->init_module('Utils/GenericBrowser',null,'list');

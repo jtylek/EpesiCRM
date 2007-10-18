@@ -189,7 +189,7 @@ define("SQL_TIMES",0);
 /*
  * Check type of params passed to queries in DB::* methods. Use it for debug, and early stage of usage.
  */
-define("SQL_TYPE_CONTROL",0);
+define("SQL_TYPE_CONTROL",1);
 
 /*
  * If you have got good server, but poor connection, turn it on.
