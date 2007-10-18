@@ -16,6 +16,7 @@ class Utils_TreeInstall extends ModuleInstall {
 	}
 	
 	public function uninstall() {
+		Base_ThemeCommon::uninstall_default_theme('Utils/Tree');
 		return true;
 	}
 	

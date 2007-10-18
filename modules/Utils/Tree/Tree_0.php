@@ -33,7 +33,7 @@ class Utils_Tree extends Module {
 	 * 		'opened' => $bool_1, //wheather_branch_is_opened
 	 * 		'visible' => $bool_2, //wheather_branch_is_visible (if opened, then also visible)
 	 * 		'selected' => $bool_3, //weather item is selected or not
-	 * 		$sub => array( // subbranch of identical structure as parent (leave array empty if you don't want subbranch)
+	 * 		'sub' => array( // subbranch of identical structure as parent (leave array empty if you don't want subbranch)
 	 * 			...
 	 * 		)
 	 * 	),
@@ -43,7 +43,7 @@ class Utils_Tree extends Module {
 	 * 		'opened' => $bool_1,
 	 * 		'visible' => $bool_2,
 	 * 		'selected' => $bool_3,
-	 * 		$sub => array( // subbranch of identical structure as parent (leave array empty if you don't want subbranch)
+	 * 		'sub' => array( // subbranch of identical structure as parent (leave array empty if you don't want subbranch)
 	 * 			...
 	 * 		)
 	 * 	),
@@ -57,84 +57,51 @@ class Utils_Tree extends Module {
 	}
 	
 	/**
-	 * Private function for sorting branches.
-	 * 
-	 * @param array a branch.
-	 */
-	private function sort_r( & $t ) {
-		ksort( $t );
-		foreach( $t as $k => $v ) {
-			if(is_array($v['sub']))
-				$this->sort_r($v['sub']);
-		}
-	}
-	
-	/**
 	 * Method for sorting whole tree structure.
 	 */
-	public function sort() {		
-		ksort($this->_structure);
-		foreach( $this->_structure as $k => $v ) {
-			if(is_array($v['sub']))
-				$this->sort_r($v['sub']);
+	public function sort(& $t = null) {
+		if($t===null)
+			$t = $this->_structure;
+		ksort($t);
+		foreach( $t as $k => $v ) {
+			if(isset($v['sub']) && is_array($v['sub']))
+				$this->sort($v['sub']);
 		}
 	}
 	
-	private function print_structure_r($t = array(), $level = 0, $path = '') {
+	private function print_structure($t = array(), $level = 0, $path = null) {
 		if(count($t) > 0) {
-			$ret = '<div class=utils_tree_submenu id=utils_tree_'.$this->_id.'_'.$this->_sub.'>';
-			$this->_sub++;
+			if($path===null) {
+				$this->_sub = 0;
+				$ret = '<div class=utils_tree_root>';
+			} else {
+				$ret = '<div class=utils_tree_submenu id=utils_tree_'.$this->_id.'_'.$this->_sub.'>';
+				$this->_sub++;
+			}
 			foreach( $t as $k => $v ) {
-				$ret .= '<div class=utils_tree_node onmouseover=\'utils_tree_hl(this)\' onmouseout=\'utils_tree_rg(this)\'><table><tr>';
-				if(count($v['sub']) > 0)
-					$ret .= '<td id=utils_tree_opener_'.$this->_id.'_'.($this->_sub).' class=utils_tree_opener_active_closed onclick="tree_node_visibility_toggle('.$this->_id.', '.($this->_sub).')"><img id=utils_tree_opener_img_'.$this->_id.'_'.($this->_sub).' src=modules/Utils/Tree/theme/opener_active_closed.gif></td>';
+				$ret .= '<div id=utils_tree_node_'.$this->_id.' class=utils_tree_node onmouseover=\'utils_tree_hl(this)\' onmouseout=\'utils_tree_rg(this)\'><table><tr>';
+				if(isset($v['sub']) && count($v['sub']) > 0)
+					$ret .= '<td id=utils_tree_opener_'.$this->_id.'_'.($this->_sub).' class=utils_tree_opener_active_closed onclick="tree_node_visibility_toggle('.$this->_id.', '.($this->_sub).')"><img id=utils_tree_opener_img_'.$this->_id.'_'.($this->_sub).' src="'.Base_ThemeCommon::get_template_file($this->get_type(),'opener_active_closed.gif').'"></td>';
 				else
-					$ret .= '<td class=utils_tree_opener_inactive><img src=modules/Utils/Tree/theme/opener_inactive.gif></td>';
+				$ret .= '<td class=utils_tree_opener_inactive><img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'opener_inactive.gif').'"></td>';
 				if(isset($v['selected']) && $v['selected'] == 1)
 					$ret .= "<td width=100% class=utils_tree_node_content_selected>".$v['name']."</td>";
 				else
 					$ret .= "<td width=100% class=utils_tree_node_content>".$v['name']."</td>";
-				if(isset($v['visible']) && $v['visible'] == 1)
+				if(isset($v['visible']) && $v['visible'] == 1 && $path!==null)
 					array_push($this->_opened_paths, $path);
 				if(isset($v['opened']) && $v['opened'] == 1 && is_array($v['sub']))
 					array_push($this->_opened_paths, $path.'_'.$this->_sub);
 					
 				$ret .= "</tr></table></div>";
-				if(is_array($v['sub'])) {
-					$ret .= $this->print_structure_r($v['sub'], $level + 1, $path.'_'.$this->_sub);
+				if(isset($v['sub']) && is_array($v['sub'])) {
+					$ret .= $this->print_structure($v['sub'], $level + 1, $path.'_'.$this->_sub);
 				}
 			}
 			$ret .= "</div>";
 			return $ret;
 		}
 		return '';
-	}
-		
-	private function print_structure($t = array(), $level = 0) {
-		$this->_sub = 0;
-		$ret = '<div class=utils_tree_root>';
-		foreach( $t as $k => $v ) {
-			$ret .= '<div id=utils_tree_node_'.$this->_id.' class=utils_tree_node onmouseover=\'utils_tree_hl(this)\' onmouseout=\'utils_tree_rg(this)\'><table><tr>';
-			if(count($v['sub']) > 0)
-				$ret .= '<td id=utils_tree_opener_'.$this->_id.'_'.($this->_sub).' class=utils_tree_opener_active_closed onclick="tree_node_visibility_toggle('.$this->_id.', '.($this->_sub).')"><img id=utils_tree_opener_img_'.$this->_id.'_'.($this->_sub).' src=modules/Utils/Tree/theme/opener_active_closed.gif></td>';
-			else
-				$ret .= '<td class=utils_tree_opener_inactive><img src=modules/Utils/Tree/theme/opener_inactive.gif></td>';
-			
-			if(isset($v['selected']) && $v['selected'] == 1)
-				$ret .= "<td width=100% class=utils_tree_node_content_selected>".$v['name']."</td>";
-			else
-				$ret .= "<td width=100% class=utils_tree_node_content>".$v['name']."</td>";
-			
-			if(isset($v['opened']) && $v['opened'] == 1 && is_array($v['sub']))
-				array_push($this->_opened_paths, $this->_sub);
-					
-			$ret .= "</tr></table></div>";
-			if(is_array($v['sub'])) {
-				$ret .= $this->print_structure_r($v['sub'], $level + 1, $this->_sub);
-			}
-		}
-		$ret .= "</div>";
-		return $ret;
 	}
 	
 	/**
@@ -173,3 +140,4 @@ class Utils_Tree extends Module {
 		$theme->display();
 	}
 }
+?>
