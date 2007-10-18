@@ -31,8 +31,9 @@ if(($ret = $mbox->setTmpDir(Apps_MailClientCommon::Instance()->get_data_dir().'t
 	$decode = new Mail_mimeDecode($message, "\r\n");
 	$structure = $decode->decode(array('decode_bodies'=>true,'include_bodies'=>true));
 	
-//	print_r($structure);
-	Epesi::text($structure->body,$mc_id);
+	Epesi::text($structure->body,$mc_id.'body');
+	Epesi::text($structure->headers['subject'],$mc_id.'subject');
+	Epesi::text($structure->headers['from'],$mc_id.'from');
 } else {
 	Epesi::alert($ret->getMessage());
 }

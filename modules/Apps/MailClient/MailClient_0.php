@@ -21,12 +21,13 @@ class Apps_MailClient extends Module {
 	}
 	
 	public function body() {
+		$th = $this->init_module('Base/Theme');
 		$tree = $this->init_module('Utils/Tree');
 		$str = Apps_MailClientCommon::get_mail_dir_structure();
 		$this->set_open_mail_dir_callbacks($str);
 		$tree->set_structure($str);
 		$tree->sort();
-		$this->display_module($tree);
+		$th->assign('tree', $this->get_html_of_module($tree));
 		
 		$preview_id = $this->get_path().'preview';
 		
@@ -69,13 +70,18 @@ class Apps_MailClient extends Module {
 					'}})"','View');
 			}
 			
-			$this->display_module($gb);
+			$th->assign('list', $this->get_html_of_module($gb));
 		} else {
 			print($ret->getMessage());
+			return;
 		}
 		$mbox->close();
 		
-		print('<div id="'.$preview_id.'"></div>');
+		$th->assign('preview',array(
+			'subject'=>'<span id="'.$preview_id.'subject"></span>',
+			'from'=>'<span id="'.$preview_id.'from"></span>',
+			'body'=>'<span id="'.$preview_id.'body"></span>'));
+		$th->display();
 	}
 	
 	private function set_open_mail_dir_callbacks(array & $str,$path='') {
