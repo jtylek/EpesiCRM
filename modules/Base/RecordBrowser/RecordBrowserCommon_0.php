@@ -112,7 +112,7 @@ class Base_RecordBrowserCommon extends ModuleCommon {
 			foreach ($param as $k=>$v) $tmp = $k.'::'.$v;
 			$param = $tmp;
 		}
-		DB::Execute('INSERT INTO '.$tab_name.'_field(field, type, param, position, extra, required) VALUES(%s, %s, %s, %d, %d, %d)', array($field, $type, $param, $pos, $extra, $required));
+		DB::Execute('INSERT INTO '.$tab_name.'_field(field, type, param, position, extra, required) VALUES(%s, %s, %s, %d, %b, %b)', array($field, $type, $param, $pos, $extra, $required));
 	}
 	public static function new_addon($tab_name, $module, $func, $label) {
 		$module = str_replace('/','_',$module);
