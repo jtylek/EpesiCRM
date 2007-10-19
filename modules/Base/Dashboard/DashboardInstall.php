@@ -25,6 +25,13 @@ class Base_DashboardInstall extends ModuleInstall {
 			print('Unable to create table base_dashboard_applets.<br>');
 			return false;
 		}
+		$ret &= DB::CreateTable('base_dashboard_users','
+			user_login_id I4 KEY',
+			array('constraints'=>', FOREIGN KEY (user_login_id) REFERENCES user_login(ID)'));
+		if(!$ret){
+			print('Unable to create table base_dashboard_users.<br>');
+			return false;
+		}
 		$ret &= DB::CreateTable('base_dashboard_settings','
 			applet_id I4,
 			name C(32) NOTNULL,
@@ -62,6 +69,9 @@ class Base_DashboardInstall extends ModuleInstall {
 		$ret = true;
 		$ret &= DB::DropTable('base_dashboard_settings');
 		$ret &= DB::DropTable('base_dashboard_applets');
+		$ret &= DB::DropTable('base_dashboard_default_settings');
+		$ret &= DB::DropTable('base_dashboard_default_applets');
+		$ret &= DB::DropTable('base_dashboard_users');
 		return $ret;
 	}
 	

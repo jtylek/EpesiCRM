@@ -19,6 +19,16 @@ class Base_Dashboard extends Module {
 	}
 
 	public function body() {
+		$is_user = DB::GetOne('SELECT user_login_id FROM base_dashboard_users WHERE user_login_id=%d',array(Base_UserCommon::get_my_user_id()));
+		if(!$is_user) {
+			$this->set_default_applets();
+			DB::Execute('INSERT INTO base_dashboard_users VALUES(%d)',array(Base_UserCommon::get_my_user_id()));
+		}
+
+		$this->dashboard();
+	}
+
+	private function dashboard() {
 		Base_ActionBarCommon::add('add','Add applet',$this->create_callback_href(array($this,'applets_list')));
 		load_js($this->get_module_dir().'ab.js');
 		$tipmod = $this->init_module('Utils/Tooltip');
@@ -27,10 +37,10 @@ class Base_Dashboard extends Module {
 			print('<td id="dashboard_applets_'.$j.'" style="width:33%;min-height:100px;vertical-align:top;">');
 
 			if($this->get_module_variable('default')) 
-				$ret = DB::Execute('SELECT id,module_name FROM base_dashboard_default_applets WHERE col=%d ORDER BY pos',array($j));
+				$ret = DB::GetAll('SELECT id,module_name FROM base_dashboard_default_applets WHERE col=%d ORDER BY pos',array($j));
 			else
-				$ret = DB::Execute('SELECT id,module_name FROM base_dashboard_applets WHERE col=%d AND user_login_id=%d ORDER BY pos',array($j,Base_UserCommon::get_my_user_id()));
-			while($row = $ret->FetchRow()) {
+				$ret = DB::GetAll('SELECT id,module_name FROM base_dashboard_applets WHERE col=%d AND user_login_id=%d ORDER BY pos',array($j,Base_UserCommon::get_my_user_id()));
+			foreach($ret as $row) {
 				if(ModuleManager::is_installed($row['module_name'])==-1) {//if its invalid entry
 					$this->delete_applets($row['module_name']);
 					continue;
@@ -76,7 +86,7 @@ class Base_Dashboard extends Module {
 			print('</td>');
 		}
 		print('</tr></table>');
-		eval_js('dashboard_activate()');
+		eval_js('dashboard_activate(\''.$this->get_path().'\')');
 	}
 
 	public function applets_list() {
@@ -279,7 +289,18 @@ class Base_Dashboard extends Module {
 	//default dashboard
 	public function admin() {
 		$this->set_module_variable('default',true);
-		$this->body();
+		$this->dashboard();
+	}
+	
+	public function set_default_applets() {
+		$ret = DB::GetAll('SELECT id,module_name,col FROM base_dashboard_default_applets ORDER BY pos');
+		foreach($ret as $row) {
+			DB::Execute('INSERT INTO base_dashboard_applets(module_name,col,user_login_id) VALUES(%s,%d,%d)',array($row['module_name'],$row['col'],Base_UserCommon::get_my_user_id()));
+			$ins_id = DB::Insert_ID('base_dashboard_applets','id');
+			$ret_set = DB::GetAll('SELECT name,value FROM base_dashboard_default_settings WHERE applet_id=%d',array($row['id']));
+			foreach($ret_set as $row_set)
+				DB::Execute('INSERT INTO base_dashboard_settings(applet_id,value,name) VALUES(%d,%s,%s)',array($ins_id,$row_set['value'],$row_set['name']));
+		}
 	}
 
 }
