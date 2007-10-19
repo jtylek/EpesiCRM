@@ -12,7 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Tools_FontSizeCommon extends ModuleCommon {
 	public static function menu() {
-		return array('Tools'=>array('__submenu__'=>1,'Font size'=>array('__submenu__'=>1,'Bigger'=>array('__url__'=>'javascript:Tools_FontSize.change(3)'),'Smaller'=>array('__url__'=>'javascript:Tools_FontSize.change(-3)'))));
+		return array('Tools'=>array('__submenu__'=>1,'Font size'=>array('__submenu__'=>1,'Big'=>array('__url__'=>'javascript:Tools_FontSize.change(3)'),'Normal'=>array('__url__'=>'javascript:Tools_FontSize.change(0)'),'Small'=>array('__url__'=>'javascript:Tools_FontSize.change(-3)'))));
 	}
 }
 
