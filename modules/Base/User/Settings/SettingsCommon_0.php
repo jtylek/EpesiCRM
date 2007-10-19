@@ -17,7 +17,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 		$modules = array(); 
 		foreach(ModuleManager::$modules as $name=>$obj) {
 			if(method_exists($obj['name'].'Common', 'user_settings')) {
-				$menu = call_user_func(array($obj['name'].'Common','user_settings'),array(true));
+				$menu = call_user_func(array($obj['name'].'Common','user_settings'));
 				if(!is_array($menu)) continue;
 				foreach($menu as $k=>$v)
 					if (!is_string($v)) $modules[$k] = array('settings_branch'=>$k);
@@ -49,7 +49,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 							$variables[$module.'__'.$name] = $v2['default'];
 							return $v2['default'];
 						}
-			trigger_error('There is no such variable as '.$name.' in module '.$module,E_USER_ERROR);
+			return null;//trigger_error('There is no such variable as '.$name.' in module '.$module,E_USER_ERROR);
 		} else {
 			trigger_error('There is no such module as '.$module,E_USER_ERROR);
 		}

@@ -14,8 +14,11 @@ class Base_Dashboard extends Module {
 	private $lang;
 	private $set_default_js='';
 
-	public function body() {
+	public function construct() {
 		$this->lang = $this->init_module('Base/Lang');
+	}
+
+	public function body() {
 		Base_ActionBarCommon::add('add','Add applet',$this->create_callback_href(array($this,'applets_list')));
 		load_js($this->get_module_dir().'ab.js');
 		$tipmod = $this->init_module('Utils/Tooltip');
@@ -23,7 +26,10 @@ class Base_Dashboard extends Module {
 		for($j=0; $j<3; $j++) {
 			print('<td id="dashboard_applets_'.$j.'" style="width:33%;min-height:100px;vertical-align:top;">');
 
-			$ret = DB::Execute('SELECT id,module_name FROM base_dashboard_applets WHERE col=%d AND user_login_id=%d ORDER BY pos',array($j,Base_UserCommon::get_my_user_id()));
+			if($this->get_module_variable('default')) 
+				$ret = DB::Execute('SELECT id,module_name FROM base_dashboard_default_applets WHERE col=%d ORDER BY pos',array($j));
+			else
+				$ret = DB::Execute('SELECT id,module_name FROM base_dashboard_applets WHERE col=%d AND user_login_id=%d ORDER BY pos',array($j,Base_UserCommon::get_my_user_id()));
 			while($row = $ret->FetchRow()) {
 				if(ModuleManager::is_installed($row['module_name'])==-1) {//if its invalid entry
 					$this->delete_applets($row['module_name']);
@@ -133,20 +139,32 @@ class Base_Dashboard extends Module {
 	}
 
 	public function add_applet($mod) {
-		DB::Execute('INSERT INTO base_dashboard_applets(user_login_id,module_name) VALUES (%d,%s)',array(Base_UserCommon::get_my_user_id(),$mod));
-		$this->set_module_variable('first_conf',DB::Insert_ID('base_dashboard_applets','id'));
+		if($this->get_module_variable('default'))
+			DB::Execute('INSERT INTO base_dashboard_default_applets(module_name) VALUES (%s)',array($mod));
+		else
+			DB::Execute('INSERT INTO base_dashboard_applets(user_login_id,module_name) VALUES (%d,%s)',array(Base_UserCommon::get_my_user_id(),$mod));
+		$this->set_module_variable('first_conf',DB::Insert_ID('base_dashboard_default_applets','id'));
 		$this->set_module_variable('mod_conf',$mod);
-//		$this->set_back_location();
-
 	}
 
 	public static function delete_applet($id) {
-		DB::Execute('DELETE FROM base_dashboard_settings WHERE applet_id=%d',array($id));
-		DB::Execute('DELETE FROM base_dashboard_applets WHERE id=%d AND user_login_id=%d',array($id,Base_UserCommon::get_my_user_id()));
+		if($this->get_module_variable('default')) {
+			DB::Execute('DELETE FROM base_dashboard_default_settings WHERE applet_id=%d',array($id));
+			DB::Execute('DELETE FROM base_dashboard_default_applets WHERE id=%d',array($id));
+		} else {
+			DB::Execute('DELETE FROM base_dashboard_settings WHERE applet_id=%d',array($id));
+			DB::Execute('DELETE FROM base_dashboard_applets WHERE id=%d AND user_login_id=%d',array($id,Base_UserCommon::get_my_user_id()));
+		}
 	}
 
 	public static function delete_applets($module) {
 		$module = str_replace('/','_',$module);
+
+		$ret = DB::GetAll('SELECT id FROM base_dashboard_default_applets WHERE module_name=%s',array($module));
+		foreach($ret as $row)
+			DB::Execute('DELETE FROM base_dashboard_default_settings WHERE applet_id=%d',array($row['id']));
+		DB::Execute('DELETE FROM base_dashboard_default_applets WHERE module_name=%s',array($module));
+
 		$ret = DB::GetAll('SELECT id FROM base_dashboard_applets WHERE module_name=%s',array($module));
 		foreach($ret as $row)
 			DB::Execute('DELETE FROM base_dashboard_settings WHERE applet_id=%d',array($row['id']));
@@ -186,10 +204,17 @@ class Base_Dashboard extends Module {
 			foreach($defaults as $name=>$def_value) {
 				if(!isset($submited[$name])) $submited[$name]=0;
 				if($submited[$name]!=$old[$name]) {
-					if($submited[$name]==$def_value)
-						DB::Execute('DELETE FROM base_dashboard_settings WHERE applet_id=%d AND name=%s',array($id,$name));
-					else
-						DB::Replace('base_dashboard_settings', array('applet_id'=>$id, 'name'=>$name, 'value'=>$submited[$name]), array('applet_id','name'), true);
+					if($this->get_module_variable('default')) {
+						if($submited[$name]==$def_value)
+							DB::Execute('DELETE FROM base_dashboard_default_settings WHERE applet_id=%d AND name=%s',array($id,$name));
+						else
+							DB::Replace('base_dashboard_default_settings', array('applet_id'=>$id, 'name'=>$name, 'value'=>$submited[$name]), array('applet_id','name'), true);
+					} else {
+						if($submited[$name]==$def_value)
+							DB::Execute('DELETE FROM base_dashboard_settings WHERE applet_id=%d AND name=%s',array($id,$name));
+						else
+							DB::Replace('base_dashboard_settings', array('applet_id'=>$id, 'name'=>$name, 'value'=>$submited[$name]), array('applet_id','name'), true);
+					}
 				}
 			}
 			$ok = true;
@@ -218,8 +243,12 @@ class Base_Dashboard extends Module {
 
 	private function get_values($id,$mod) {
 		$variables = $this->get_default_values($mod);
-
-		$ret = DB::Execute('SELECT name,value FROM base_dashboard_settings WHERE applet_id=%d',array($id));
+		
+		if($this->get_module_variable('default'))
+			$ret = DB::Execute('SELECT name,value FROM base_dashboard_default_settings WHERE applet_id=%d',array($id));
+		else
+			$ret = DB::Execute('SELECT name,value FROM base_dashboard_settings WHERE applet_id=%d',array($id));
+			
 		while($v = $ret->FetchRow())
 			$variables[$v['name']] = $v['value'];
 
@@ -244,6 +273,13 @@ class Base_Dashboard extends Module {
 
 	public function caption() {
 		return "Dashboard";
+	}
+	
+	//////////////////////////////////////////////////////////
+	//default dashboard
+	public function admin() {
+		$this->set_module_variable('default',true);
+		$this->body();
 	}
 
 }

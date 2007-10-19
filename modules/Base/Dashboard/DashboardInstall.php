@@ -31,9 +31,28 @@ class Base_DashboardInstall extends ModuleInstall {
 			value X NOTNULL',
 			array('constraints'=>', FOREIGN KEY (applet_id) REFERENCES base_dashboard_applets(ID), PRIMARY KEY(applet_id,name)'));
 		if(!$ret){
-			print('Unable to create table base_dashboard_applets.<br>');
+			print('Unable to create table base_dashboard_settings.<br>');
 			return false;
 		}
+		$ret &= DB::CreateTable('base_dashboard_default_applets','
+			id I4 AUTO KEY,
+			module_name C(128),
+			col I2 DEFAULT 0,
+			pos I2 DEFAULT 0');
+		if(!$ret){
+			print('Unable to create table base_dashboard_default_applets.<br>');
+			return false;
+		}
+		$ret &= DB::CreateTable('base_dashboard_default_settings','
+			applet_id I4,
+			name C(32) NOTNULL,
+			value X NOTNULL',
+			array('constraints'=>', FOREIGN KEY (applet_id) REFERENCES base_dashboard_default_applets(ID), PRIMARY KEY(applet_id,name)'));
+		if(!$ret){
+			print('Unable to create table base_dashboard_default_settings<br>');
+			return false;
+		}
+		$this->add_aco('set default dashboard','Super administrator');
 		Base_ThemeCommon::install_default_theme($this->get_type());
 		return $ret;
 	}
