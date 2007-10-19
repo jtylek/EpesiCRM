@@ -14,8 +14,9 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Tools_FontSize extends Module {
 	public function body() {
 		$theme =  & $this->pack_module('Base/Theme');
-		$theme->assign('increaseOnClick', 'onClick="Tools_FontSize.change(3)"');
-		$theme->assign('decreaseOnClick', 'onClick="Tools_FontSize.change(-3)"');
+		$theme->assign('increase', 'onClick="Tools_FontSize.change(3)"');
+		$theme->assign('normal', 'onClick="Tools_FontSize.change(0)"');
+		$theme->assign('decrease', 'onClick="Tools_FontSize.change(-3)"');
 		$theme->display();
 	}
 }
