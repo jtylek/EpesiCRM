@@ -583,7 +583,7 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 			$this->setName($myName);
 			$attrString = $this->_getAttrString($this->_attributes);
 			$strHtml .= $tabs . '<input type=hidden name="' . $myName . "\" value=\"".$list."\" />\n";
-
+//			print_r($this->_options);
 			return $strHtml;
         }
     }
@@ -596,9 +596,9 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
      */
     function getFrozenHtml()
     {
+    	$html = '';
     	foreach($this->_options as $k=>$v)
 	        if (in_array($v['attr']['value'],$this->_values)) $html .= empty($v['text'])? '&nbsp;':$v['text'].'<br />';
-
         return $html;
     }
 
@@ -614,9 +614,9 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
         }
         $cleanValue = explode('__SEP__',$value);
         array_shift($cleanValue);
-        foreach($cleanValue as $k=>$v) {
-        	$cleanValue[$k] = $this->_options[$v]['attr']['value'];
-        }
+//        foreach($cleanValue as $k=>$v) {
+//        	$cleanValue[$k] = $this->_options[$v]['attr']['value'];
+//        }
 		return $this->_prepareValue($cleanValue, $assoc);
     }
     
