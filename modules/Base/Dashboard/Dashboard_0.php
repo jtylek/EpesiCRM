@@ -98,7 +98,7 @@ class Base_Dashboard extends Module {
 			$ok = null;
 			if(!$this->configure_applet($fc,$mod,& $ok)) {
 				if(!$ok)
-					self::delete_applet($fc);
+					$this->delete_applet($fc);
 				else
 					Base_StatusBarCommon::message(Base_LangCommon::ts($this->get_type(),'Applet added'));
 				$this->unset_module_variable('first_conf');
@@ -157,7 +157,7 @@ class Base_Dashboard extends Module {
 		$this->set_module_variable('mod_conf',$mod);
 	}
 
-	public static function delete_applet($id) {
+	public function delete_applet($id) {
 		if($this->get_module_variable('default')) {
 			DB::Execute('DELETE FROM base_dashboard_default_settings WHERE applet_id=%d',array($id));
 			DB::Execute('DELETE FROM base_dashboard_default_applets WHERE id=%d',array($id));
