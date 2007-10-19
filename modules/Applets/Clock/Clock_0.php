@@ -13,6 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Applets_Clock extends Module {
 	
 	public function body($skin, $size=200) {
+		print('<center>');
 		$browser = stripos($_SERVER['HTTP_USER_AGENT'],'msie');
 		if($browser!==false || $skin=='flash') {
 			$size *= 2;
@@ -30,6 +31,7 @@ class Applets_Clock extends Module {
 			eval_js('CoolClock.findAndCreateClocks()');
 			print('<canvas id="'.$this->get_path().'canvas" class="CoolClock:'.$skin.':'.$size.'"></canvas>');
 		}
+		print('<BR>'.date('l dS F Y').'</center>');
 	}
 	
 	public function applet($conf, $opts) { //available applet options: toggle,href,title,go,go_function,go_arguments,go_contruct_arguments
