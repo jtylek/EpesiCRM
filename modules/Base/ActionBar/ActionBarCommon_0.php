@@ -33,8 +33,8 @@ class Base_ActionBarCommon extends ModuleCommon {
 			'print'=>13);
 
 	public static function user_settings(){
-		return array('Action bar settings'=>array(
-			array('name'=>'display','label'=>'Display','type'=>'select','values'=>array('icons only'=>'icons only','text only'=>'text only','both'=>'both'),'default'=>'both','reload'=>true)
+		return array('Misc'=>array(
+			array('name'=>'display','label'=>'Action bar displays','type'=>'select','values'=>array('icons only'=>'icons only','text only'=>'text only','both'=>'both'),'default'=>'both','reload'=>true)
 			));
 	}
 	
