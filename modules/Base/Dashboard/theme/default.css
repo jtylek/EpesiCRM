@@ -8,6 +8,7 @@
 
 #dashboard .handle .toggle,
 #dashboard .handle .remove,
+#dashboard .handle .href,
 #dashboard .handle .configure {
 	cursor: pointer;
 }

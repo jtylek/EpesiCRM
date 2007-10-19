@@ -10,16 +10,22 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_Tooltip extends Module {
+	private $help_tooltips;
+	
+	public function construct() {
+		$this->help_tooltips = Base_User_SettingsCommon::get($this->get_type(),'help_tooltips');
+	}
 	/**
 	 * Displays the tooltip with given text, tip.
 	 * Style parameter is optional.
 	 * 
 	 * @param string text
 	 * @param string tooltip text
+	 * @param boolean help tooltip? (you can turn off help tooltips)
 	 */
-	public function body( $text, $tip) {
+	public function body( $text, $tip, $help=true) {
 		if(isset($tip)) {
-			print $this->create($text, $tip);
+			print $this->create($text, $tip, $help);
 		} else {
 			print $text;
 		}
@@ -30,20 +36,25 @@ class Utils_Tooltip extends Module {
 	 * 
 	 * @param string text
 	 * @param string tooltip text
+	 * @param boolean help tooltip? (you can turn off help tooltips)
 	 * @return string text with tooltip
 	 */
-	public function create( $text, $tip) {
-		return $this->open_tag( $tip ).$text.$this->close_tag();
+	public function create( $text, $tip, $help=true) {
+		if(!$help || $this->help_tooltips)
+			return $this->open_tag( $tip ).$text.$this->close_tag();
+		else
+			return $text;
 	}
 
 	/**
 	 * Returns string that opens HTML tag that will place tooltip over this tag contents.
 	 * 
 	 * @param string tooltip text
+	 * @param boolean help tooltip? (you can turn off help tooltips)
 	 * @return string HTML tag open
 	 */
-	public function open_tag( $tip ) {
-		return '<span '.$this->open_tag_attrs($tip).'>';	
+	public function open_tag( $tip, $help=true ) {
+		return '<span '.$this->open_tag_attrs($tip,$help).'>';	
 	}
 
 	/**
@@ -60,16 +71,18 @@ class Utils_Tooltip extends Module {
 	 * will enable tooltip when placing mouse over that element.
 	 * 
 	 * @param string tooltip text
+	 * @param boolean help tooltip? (you can turn off help tooltips)
 	 * @return string HTML tag attributes
 	 */
-	public function open_tag_attrs( $tip ) {
+	public function open_tag_attrs( $tip, $help=true ) {
+		if($help && !$this->help_tooltips) return '';
 		load_js('modules/Utils/Tooltip/js/Tooltip.js');
 		$session = & Epesi::get_tmp_session();
 		if(!isset($session['utils_tooltip'])) {
 			ob_start();
 			$theme = & $this->init_module('Base/Theme');
 			$theme->assign('tip', '<span id="tooltip_text"></span>');
-				$theme->display();
+			$theme->display();
 			$html = ob_get_clean();
 			$js = 'div = document.createElement(\'div\');'.
 				'div.id = \'tooltip_div\';'.

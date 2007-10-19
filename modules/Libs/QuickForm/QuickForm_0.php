@@ -103,7 +103,7 @@ class Libs_QuickForm extends Module {
 					$radio = array();
 					$label = $v['label'];
 					foreach($v['values'] as $k=>$x) {
-						$this -> addElement('radio',$v['name'],$label,$this->lang->ht($x),$k,$v['param']);
+						$this -> addElement('radio',$v['name'],$label,$l->ht($x),$k,$v['param']);
 						$label = '';
 					}
 					$default_js .= 'e = $(\''.$this->getAttribute('name').'\').'.$v['name'].';'.

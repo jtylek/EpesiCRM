@@ -13,35 +13,36 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_User_Settings extends Module {
 	private $lang;
-	private $module;
+	private $settings_fields;
 	private $set_default_js;
 	private static $sep = "__";
 	private $indicator = '';
 
 	public function body() {
 		$this->lang = & $this->init_module('Base/Lang');
-		if (isset($_REQUEST['module'])) $module = $_REQUEST['module']; 
-		else $module = $this->get_module_variable('module');
-		if ($module=='__NONE__') $module = null;
+		if (isset($_REQUEST['settings_branch'])) $branch = $_REQUEST['settings_branch']; 
+		else $branch = $this->get_module_variable('settings_branch');
+		if ($branch=='__NONE__') $branch = null;
 		
-		if (!$module || $this->is_back()) {
+		if (!$branch || $this->is_back()) {
 			$this->main_page();
 			return;
 		}
-		$this->module = $module;
+		$this->branch = $branch;
 		
-		$this->set_module_variable('module',$module);
+		$this->set_module_variable('settings_branch',$branch);
 		$f = &$this->init_module('Libs/QuickForm',$this->lang->ht('Saving settings'),'settings');
-		list($module_name,$module_part) = explode(self::$sep,$module);
-		if(method_exists($module_name.'Common', 'user_settings')) {
-			$menu = call_user_func(array($module_name.'Common','user_settings'));
-			if (is_array($menu)) { 
-				foreach($menu as $k=>$v) if ($k==$module_part){
-					$f->addElement('header',null,$this->lang->t($k));
-					$this->indicator = ': '.$k;
-					$this->add_module_settings_to_form($v,$f,$module_name);
-					break;
-				}
+		$f->addElement('header',null,$this->lang->t($branch));
+		$this->indicator = ': '.$branch;
+		$this->settings_fields = array();
+
+		foreach(ModuleManager::$modules as $name=>$obj) {
+			if(method_exists($obj['name'].'Common', 'user_settings')) {
+				$menu = call_user_func(array($obj['name'].'Common','user_settings'));
+				if(!is_array($menu)) continue;
+				foreach($menu as $k=>$v)
+					if($k==$branch)
+						$this->add_module_settings_to_form($v,$f,$name);
 			}
 		}
 
@@ -59,22 +60,30 @@ class Base_User_Settings extends Module {
 	}
 
 	public function submit_settings($values) {
-		list($module_name,$module_part) = explode(self::$sep,$this->module);
 		$reload = false;
-		if(method_exists($module_name.'Common', 'user_settings')) {
-			$menu = call_user_func(array($module_name.'Common','user_settings'));
-			if(!is_array($menu)) continue;
-			foreach($menu as $k=>$v) if ($k==$module_part){
-				$this->set_user_preferences($v,$values,$module_name);
-				if (!$reload) 
-					foreach($v as $f) 
-						if (isset($f['reload']) && $f['reload']!=0) {
-							$reload = true;
-							break;
+		foreach($this->settings_fields as $k) {
+			$v = isset($values[$k])?$values[$k]:0;
+			$x = explode(self::$sep,$k);
+			if(count($x)!=2) continue;
+			list($module_name,$module_part) = $x;
+			Base_User_SettingsCommon::save($module_name,$module_part,$v);
+			
+			//check reload
+			if(!$reload && method_exists($module_name.'Common', 'user_settings')) {
+				$menu = call_user_func(array($module_name.'Common','user_settings'));
+				if(!is_array($menu)) continue;
+				foreach($menu as $vv) 
+					foreach($vv as $v)
+						if($v['name']==$module_part) {
+							if (isset($v['reload']) && $v['reload']!=0) {
+								$reload = true;
+								break;
+							}
 						}
 			}
 		}
-		$this->unset_module_variable('module');
+		
+		$this->unset_module_variable('settings_branch');
 		Base_StatusBarCommon::message($this->lang->ht('Setting saved'.($reload?' - reloading page':'')));
 		if ($reload) eval_js('setTimeout(\'document.location=\\\'index.php\\\'\',\'3000\')');
 		return true;
@@ -84,25 +93,21 @@ class Base_User_Settings extends Module {
 		$defaults = array();
 		foreach($info as & $v){
 			if(isset($v['label'])) $v['label'] = $this->lang->t($v['label']);
+			$old_name = $v['name'];
 			$v['name'] = $module.self::$sep.$v['name'];
+			$this->settings_fields[] = $v['name'];
 			if(isset($v['values']) && is_array($v['values']))
 				foreach($v['values'] as &$x) 
 					$x = $this->lang->ht($x);
 			if (isset($v['rule']))
 				foreach ($v['rule'] as & $r)
 					if (isset($r['message'])) $r = $this->lang->t($r['message']);
-			$defaults = array_merge($defaults,array($v['name']=>Base_User_SettingsCommon::get($module,$v['name'])));
+			$defaults = array_merge($defaults,array($v['name']=>Base_User_SettingsCommon::get($module,$old_name)));
 		}
 		$this->set_default_js = '';
 		$f -> add_array($info, $this->set_default_js);
 		$f -> setDefaults($defaults);
 
-	}
-	
-	private function set_user_preferences($info,$values,$module){
-		foreach($info as $v){
-			Base_User_SettingsCommon::save($module,$v['name'],isset($values[$module.self::$sep.$v['name']])?$values[$module.self::$sep.$v['name']]:0);
-		}
 	}
 	
 	public function main_page(){
@@ -116,7 +121,7 @@ class Base_User_Settings extends Module {
 				$menu = call_user_func(array($obj['name'].'Common','user_settings'));
 				if(!is_array($menu)) continue;
 				foreach($menu as $k=>$v)
-					if (!is_string($v)) $modules[$k] = array('action'=>array('module'=>$obj['name'].self::$sep.$k),'module_name'=>$obj['name']);
+					if (!is_string($v)) $modules[$k] = array('action'=>array('settings_branch'=>$k),'module_name'=>$obj['name']);
 					else $modules[$k] = array('action'=>array('box_main_module'=>$obj['name'],'box_main_function'=>$v),'module_name'=>$obj['name']);
 			}
 		}

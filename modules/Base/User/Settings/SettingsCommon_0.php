@@ -12,8 +12,6 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_User_SettingsCommon extends ModuleCommon {
-	public static $sep = "__";
-	
 	public static function menu(){
 		if (!Acl::is_user()) return array();
 		$modules = array(); 
@@ -22,11 +20,11 @@ class Base_User_SettingsCommon extends ModuleCommon {
 				$menu = call_user_func(array($obj['name'].'Common','user_settings'),array(true));
 				if(!is_array($menu)) continue;
 				foreach($menu as $k=>$v)
-					if (!is_string($v)) $modules[$k] = array('module'=>$obj['name'].self::$sep.$k);
+					if (!is_string($v)) $modules[$k] = array('settings_branch'=>$k);
 					else $modules[$k] = array('box_main_module'=>$obj['name'],'box_main_function'=>$v);
 			}
 		}
-		return array('My settings'=>array_merge(array('__weight__'=>10,'__submenu__'=>1,'Control panel'=>array('__weight__'=>-10,'module'=>'__NONE__'),'__split__'=>1),$modules));
+		return array('My settings'=>array_merge(array('__weight__'=>10,'__submenu__'=>1,'Control panel'=>array('__weight__'=>-10,'settings_branch'=>'__NONE__'),'__split__'=>1),$modules));
 	}
 
 	/**
@@ -51,11 +49,10 @@ class Base_User_SettingsCommon extends ModuleCommon {
 							$variables[$module.'__'.$name] = $v2['default'];
 							return $v2['default'];
 						}
-			return null;
+			trigger_error('There is no such variable as '.$name.' in module '.$module,E_USER_ERROR);
 		} else {
 			trigger_error('There is no such module as '.$module,E_USER_ERROR);
 		}
-		return null;
 	}
 
 	/**

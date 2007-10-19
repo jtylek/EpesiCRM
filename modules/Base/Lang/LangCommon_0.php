@@ -100,7 +100,8 @@ class Base_LangCommon extends ModuleCommon {
 				ModuleManager::is_installed('Base/Lang/Administrator')==-1 || 
 				(ModuleManager::is_installed('Base/Lang/Administrator')!=-1 && !Variable::get('allow_lang_change'))) 
 					return Variable::get('default_lang');
-			$lang_code = Base_User_SettingsCommon::get('Base_Lang_Administrator','language');
+			if(class_exists('Base_User_SettingsCommon'))
+				$lang_code = Base_User_SettingsCommon::get('Base_Lang_Administrator','language');
 		}
 		return $lang_code;
 	}

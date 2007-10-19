@@ -25,7 +25,8 @@ class Utils_TooltipInstall extends ModuleInstall {
 	}
 	public function requires($v) {
 		return array(
-			array('name'=>'Base/Theme', 'version'=>0)
+			array('name'=>'Base/Theme', 'version'=>0),
+			array('name'=>'Base/User/Settings', 'version'=>0)
 		    );
 	}
 }
