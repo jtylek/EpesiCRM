@@ -16,7 +16,7 @@ class Tools_WhoIsOnlineInstall extends ModuleInstall {
 		$ret &= DB::CreateTable('tools_whoisonline_users','
 			session_name C(32) KEY NOTNULL,
 			user_login_id I4 NOTNULL',
-			array('constraints'=>', FOREIGN KEY (session_name) REFERENCES session(NAME), FOREIGN KEY (user_login_id) REFERENCES user_login(ID)'));
+			array('constraints'=>', FOREIGN KEY (user_login_id) REFERENCES user_login(ID)'));
 		if(!$ret){
 			print('Unable to create table tools_whoisonline_users.<br>');
 			return false;
