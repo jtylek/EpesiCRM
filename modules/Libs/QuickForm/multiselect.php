@@ -628,7 +628,7 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
                 $value = $this->_findValue($caller->_submitValues);
                 // Fix for bug #4465 & #5269
                 // XXX: should we push this to element::onQuickFormEvent()?
-                if (null === $value && (!$caller->isSubmitted() || !$this->getMultiple())) {
+                if (null === $value && (!$caller->isSubmitted())) {
                     $value = $this->_findValue($caller->_defaultValues);
                 }
             }
