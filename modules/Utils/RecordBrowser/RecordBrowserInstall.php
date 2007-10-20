@@ -58,7 +58,7 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 	}
 	
 	public static function simple_setup() {
-		return true;
+		return false;
 	}
 	
 	public function version() {
