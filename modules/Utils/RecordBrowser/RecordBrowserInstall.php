@@ -16,9 +16,9 @@ defined("_VALID_ACCESS") || die();
  * @package tcms-extra
  * @subpackage test
  */
-class Base_RecordBrowserInstall extends ModuleInstall {
+class Utils_RecordBrowserInstall extends ModuleInstall {
 	public function install() {
-		Base_ThemeCommon::install_default_theme('Base/RecordBrowser');
+		Base_ThemeCommon::install_default_theme('Utils/RecordBrowser');
 		DB::CreateTable('recordbrowser_quickjump',
 						'tab C(64) KEY,'.
 						'col C(64)',
@@ -33,12 +33,13 @@ class Base_RecordBrowserInstall extends ModuleInstall {
 	public function uninstall() {
 		DB::DropTable('recordbrowser_quickjump');
 		DB::DropTable('recordbrowser_tpl');
-		Base_ThemeCommon::uninstall_default_theme('Base/RecordBrowser');
+		Base_ThemeCommon::uninstall_default_theme('Utils/RecordBrowser');
 		return true;
 	}
 	
 	public function requires($v) {
 		return array(
+			array('name'=>'Utils/CommonData', 'version'=>0), 
 			array('name'=>'Utils/Tooltip', 'version'=>0), 
 			array('name'=>'Utils/BookmarkBrowser', 'version'=>0), 
 			array('name'=>'Utils/GenericBrowser', 'version'=>0), 

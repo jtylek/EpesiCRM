@@ -1,7 +1,7 @@
 <?php
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Base_RecordBrowserCommon extends ModuleCommon {
+class Utils_RecordBrowserCommon extends ModuleCommon {
 	private static $table_rows = array();
 	
 	public static function init($tab, $admin=false) {
@@ -37,8 +37,7 @@ class Base_RecordBrowserCommon extends ModuleCommon {
 					$tab_name.'_id I,'.
 					'field C(32) NOT NULL,'.
 					'value C(256) NOT NULL',			
-					array('constraints'=>', PRIMARY KEY (field, '.$tab_name.'_id)'.
-										', FOREIGN KEY ('.$tab_name.'_id) REFERENCES '.$tab_name.'(id)'));
+					array('constraints'=>', FOREIGN KEY ('.$tab_name.'_id) REFERENCES '.$tab_name.'(id)'));
 		DB::CreateTable($tab_name.'_field',
 					'field C(32) UNIQUE NOT NULL,'.
 					'type C(32),'.
@@ -111,8 +110,10 @@ class Base_RecordBrowserCommon extends ModuleCommon {
 		if (is_array($param)) {
 			foreach ($param as $k=>$v) $tmp = $k.'::'.$v;
 			$param = $tmp;
+		} else {
+			if ($type=='select') $param = '__COMMON__::'.$param;
 		}
-		DB::Execute('INSERT INTO '.$tab_name.'_field(field, type, param, position, extra, required) VALUES(%s, %s, %s, %d, %b, %b)', array($field, $type, $param, $pos, $extra, $required));
+		DB::Execute('INSERT INTO '.$tab_name.'_field(field, type, param, position, extra, required) VALUES(%s, %s, %s, %d, %d, %d)', array($field, $type, $param, $pos, $extra?1:0, $required?1:0));
 	}
 	public static function new_addon($tab_name, $module, $func, $label) {
 		$module = str_replace('/','_',$module);
@@ -144,6 +145,7 @@ class Base_RecordBrowserCommon extends ModuleCommon {
 		$vals = array();
 		if (!$crits) $crits = array();
 		foreach($crits as $k=>$v){
+			if (empty($v)) break;
 			if ($k == 'id') {
 				$where .= ' AND (';
 				if (!is_array($v)) $v = array($v);
@@ -182,7 +184,6 @@ class Base_RecordBrowserCommon extends ModuleCommon {
 		}
 		
 		$ret = DB::Execute('SELECT id, active FROM '.$tab_name.' AS x WHERE 1'.($admin?'':' AND active=1').$where, $vals);
-		//vprintf('SELECT id, active FROM '.$tab_name.' AS x WHERE 1'.($admin?'':' AND active=1').$where, $vals);
 		$records = array();
 		if($ret)
 			while ($row = $ret->FetchRow()) {
@@ -190,24 +191,36 @@ class Base_RecordBrowserCommon extends ModuleCommon {
 				$records[$row['id']] = array(	'id'=>$row['id'], 
 												'active'=>$row['active']);
 				while($field = $data->FetchRow())
-					$records[$row['id']][$field['field']] = $field['value'];
+					if (self::$table_rows[$field['field']]['type'] == 'multiselect')
+						if (isset($records[$row['id']][$field['field']]))
+							$records[$row['id']][$field['field']][] = $field['value'];
+						else $records[$row['id']][$field['field']] = array($field['value']);
+					else 
+						$records[$row['id']][$field['field']] = $field['value'];
 				foreach(self::$table_rows as $field=>$args)
 					if (!isset($records[$row['id']][$field]))
-						$records[$row['id']][$field] = '';
+						if (self::$table_rows[$field]['type'] == 'multiselect') $records[$row['id']][$field] = array();
+						else $records[$row['id']][$field] = '';
 			}
 		return $records;
 	}
 	
 	public static function get_record( $tab_name, $id, $admin = false) {
-		if(isset( $id )) {
+		self::init($tab_name, $admin);
+		if( isset($id) ) {
 			$data = DB::Execute('SELECT * FROM '.$tab_name.'_data WHERE '.$tab_name.'_id=%d', array($id));
 			$record = array();
 			while($field = $data->FetchRow())
-				$record[$field['field']] = $field['value'];
+				if (self::$table_rows[$field['field']]['type'] == 'multiselect')
+					if (isset($record[$field['field']]))
+						$record[$field['field']][] = $field['value'];
+					else $record[$field['field']] = array($field['value']);
+				else 
+					$record[$field['field']] = $field['value'];
 			if ($admin) { 
-				$row = DB::Execute('SELECT id, active FROM '.$tab_name.' WHERE 1'.($admin?'':' AND active=1'))->FetchRow();
-				$record['id'] = $row['id'];
-				$record['active'] = $row['active'];
+				$row = DB::Execute('SELECT id, active, created_by, created_on FROM '.$tab_name.' WHERE 1'.($admin?'':' AND active=1'))->FetchRow();
+				foreach(array('id','active','created_by','created_on') as $v)
+					$record[$v] = $row[$v];
 			}
 			return $record;
 		} else {
