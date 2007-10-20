@@ -36,19 +36,8 @@ class Utils_TabbedBrowser extends Module {
 		} else 	
 			$page = $this->get_module_variable_or_unique_href_variable('page', 0);
 		
-		eval_js_once('tabbed_browser_switch = function(id,max,elem,path){'.
-				'var x = $(path+"_d"+id);'.
-				'if(x) {'.
-					'for(var i=0; i<max; i++){'.
-						'var y = $(path+"_d"+i);'.
-						'if(y) y.style.display="none";'.
-						'$(path+"_c"+i).className="tabbed_browser_unselected";'.
-					'}'.
-					'x.style.display="block";'.
-					'$(path+"_c"+id).className="tabbed_browser_selected";'.
-				'} else eval(elem.getAttribute("original_action"));'.
-			     '}');
-		
+		load_js($this->get_module_dir().'tb.js');
+				
 		$i = 0;
 		$max = count($this->tabs);
 		$path = escapeJS($this->get_path());
