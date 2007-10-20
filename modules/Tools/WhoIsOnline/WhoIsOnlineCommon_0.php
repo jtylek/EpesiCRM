@@ -30,7 +30,7 @@ class Tools_WhoIsOnlineCommon extends ModuleCommon {
 }
 if(!isset($_SESSION['tools_whoisonline']) || $_SESSION['tools_whoisonline']!=Acl::get_user()) {
 	if(Base_User_SettingsCommon::get('Tools_WhoIsOnline','show_me'))
-		DB::Execute('INSERT INTO tools_whoisonline_users(session_name,user_login_id) VALUES(%s,%d)',array(session_id(),Base_UserCommon::get_my_user_id()));
+		@DB::Execute('INSERT INTO tools_whoisonline_users(session_name,user_login_id) VALUES(%s,%d)',array(session_id(),Base_UserCommon::get_my_user_id()));
 	$_SESSION['tools_whoisonline']=Acl::get_user();
 }
 ?>

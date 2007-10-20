@@ -89,9 +89,6 @@ class Base_LangCommon extends ModuleCommon {
 		}
 	}
 	
-	/**
-	 * For internal use only.
-	 */
 	public static function get_lang_code() {
 		static $lang_code;
 		if(!isset($lang_code)) {

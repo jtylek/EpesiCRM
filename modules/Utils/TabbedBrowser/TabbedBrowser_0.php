@@ -36,29 +36,30 @@ class Utils_TabbedBrowser extends Module {
 		} else 	
 			$page = $this->get_module_variable_or_unique_href_variable('page', 0);
 		
-		eval_js_once('tabbed_browser_switch = function(id,max,elem){'.
-				'var x = $("'.escapeJS($this->get_path(),true,false).'_d"+id);'.
+		eval_js_once('tabbed_browser_switch = function(id,max,elem,path){'.
+				'var x = $(path+"_d"+id);'.
 				'if(x) {'.
 					'for(var i=0; i<max; i++){'.
-						'var y = $("'.escapeJS($this->get_path(),true,false).'_d"+i);'.
+						'var y = $(path+"_d"+i);'.
 						'if(y) y.style.display="none";'.
-						'$("'.escapeJS($this->get_path(),true,false).'_c"+i).className="tabbed_browser_unselected";'.
+						'$(path+"_c"+i).className="tabbed_browser_unselected";'.
 					'}'.
 					'x.style.display="block";'.
-					'$("'.escapeJS($this->get_path(),true,false).'_c"+id).className="tabbed_browser_selected";'.
+					'$(path+"_c"+id).className="tabbed_browser_selected";'.
 				'} else eval(elem.getAttribute("original_action"));'.
 			     '}');
 		
 		$i = 0;
 		$max = count($this->tabs);
+		$path = escapeJS($this->get_path());
 		$body = '';
 		foreach($this->tabs as $caption=>$val) {
 			if($page==$i) $selected = ' class="tabbed_browser_selected"';
 				else $selected = ' class="tabbed_browser_unselected"';
 			if($val['js'])
-				$captions[$caption] = '<a id="'.escapeJS($this->get_path(),true,false).'_c'.$i.'" href="javascript:void(0)" onClick="tabbed_browser_switch('.$i.','.$max.',this)"'.$selected.'>'.$caption.'</a>';
+				$captions[$caption] = '<a id="'.escapeJS($this->get_path(),true,false).'_c'.$i.'" href="javascript:void(0)" onClick="tabbed_browser_switch('.$i.','.$max.',this,\''.$path.'\')"'.$selected.'>'.$caption.'</a>';
 			else
-				$captions[$caption] = '<a id="'.escapeJS($this->get_path(),true,false).'_c'.$i.'" href="javascript:void(0)" onClick="tabbed_browser_switch('.$i.','.$max.',this)"'.$selected.' original_action="'.$this->create_unique_href_js(array('page'=>$i)).'">'.$caption.'</a>';
+				$captions[$caption] = '<a id="'.escapeJS($this->get_path(),true,false).'_c'.$i.'" href="javascript:void(0)" onClick="tabbed_browser_switch('.$i.','.$max.',this,\''.$path.'\')"'.$selected.' original_action="'.$this->create_unique_href_js(array('page'=>$i)).'">'.$caption.'</a>';
 			if($page==$i || $val['js']) {
 				$body .= '<div id="'.escapeJS($this->get_path(),true,false).'_d'.$i.'" '.($page==$i?'':'style="display:none"').'>';
 				if (isset($val['func'])){
@@ -110,7 +111,7 @@ class Utils_TabbedBrowser extends Module {
 	 * to make Tabbed Browser work properly.
 	 */
 	public function tag() {
-		print '<!--page '.$this->tag.'-->';
+		print('<span style="display:none">'.$this->tag.'</span>');
 	}
 
 	/**
