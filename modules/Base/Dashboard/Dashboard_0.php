@@ -32,11 +32,12 @@ class Base_Dashboard extends Module {
 		Base_ActionBarCommon::add('add','Add applet',$this->create_callback_href(array($this,'applets_list')));
 		load_js($this->get_module_dir().'ab.js');
 		$tipmod = $this->init_module('Utils/Tooltip');
+		$default_dash = $this->get_module_variable('default');
 		print('<table id="dashboard" style="width: 100%"><tr>');
 		for($j=0; $j<3; $j++) {
 			print('<td id="dashboard_applets_'.$j.'" style="width:33%;min-height:100px;vertical-align:top;">');
 
-			if($this->get_module_variable('default')) 
+			if($default_dash) 
 				$ret = DB::GetAll('SELECT id,module_name FROM base_dashboard_default_applets WHERE col=%d ORDER BY pos',array($j));
 			else
 				$ret = DB::GetAll('SELECT id,module_name FROM base_dashboard_applets WHERE col=%d AND user_login_id=%d ORDER BY pos',array($j,Base_UserCommon::get_my_user_id()));
@@ -86,7 +87,7 @@ class Base_Dashboard extends Module {
 			print('</td>');
 		}
 		print('</tr></table>');
-		eval_js('dashboard_activate(\''.$this->get_path().'\')');
+		eval_js('dashboard_activate('.($default_dash?1:0).')');
 	}
 
 	public function applets_list() {

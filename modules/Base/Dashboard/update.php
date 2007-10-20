@@ -4,12 +4,15 @@ header("Content-type: text/javascript");
 define('JS_OUTPUT',1);
 require_once('../../../include.php');
 session_write_close(); //don't messup session
-Epesi::init();
 
-if(!Acl::is_user()) return;
+if(!Acl::is_user()) {
+	Epesi::alert('Session expired, logged out - reloading epesi.');
+	Epesi::redirect('');
+	Epesi::send_output();
+	exit();
+}
 
-$mod_path = $_POST['mod_path'];
-$default = Module::static_get_module_variable($mod_path,'default');
+$default = $_POST['default_dash'];
 if($default && !Acl::check('Base_Dashboard','set default dashboard')) {
 	Epesi::alert('Permission denied');
 	Epesi::send_output();
