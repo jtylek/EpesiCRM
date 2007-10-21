@@ -1,4 +1,4 @@
-CRM_Calendar_Utils_MiniCalendar = function(link_proto, instance_id) {
+Utils_Calendar = function(link_proto, instance_id) {
 		this.monthName = new Array('January','February','March','April','May','June','July','August','September','October','November','December');
 		this.link_proto = link_proto;
 		this.instance_id = instance_id;

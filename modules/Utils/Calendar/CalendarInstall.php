@@ -1,20 +1,22 @@
 <?php
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class CRM_Calendar_Utils_MiniCalendarInstall extends ModuleInstall {
+class Utils_CalendarInstall extends ModuleInstall {
 
 	public function install() {
-		Base_ThemeCommon::install_default_theme('CRM/Calendar/Utils/MiniCalendar');
+		Base_ThemeCommon::install_default_theme('Utils/Calendar');
 		return true;
 	}
 	
 	public function uninstall() {
-		Base_ThemeCommon::uninstall_default_theme('CRM/Calendar/Utils/MiniCalendar');
+		Base_ThemeCommon::uninstall_default_theme('Utils/Calendar');
 		return true;
 	}
 	
 	public function requires($v) {
-		return array();
+		return array(
+			array('name'=>'Libs/Leightbox', 'version'=>0),
+		);
 	}	
 	
 	public function provides($v) {
