@@ -2,7 +2,7 @@
 /**
  * User_Settings class.
  * 
- * @author Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com> and Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
  * @license SPL
@@ -26,7 +26,17 @@ class Base_User_SettingsInstall extends ModuleInstall {
 			print('Unable to create table base_user_settings.<br>');
 			return false;
 		}
+		$ret &= DB::CreateTable('base_user_settings_admin_defaults','
+			module C(128) NOTNULL,
+			variable C(32) NOTNULL,
+			value X NOTNULL',
+			array('constraints'=>', PRIMARY KEY(module,variable), FOREIGN KEY (module) REFERENCES modules(name)'));
+		if(!$ret){
+			print('Unable to create table base_user_settings_defaults.<br>');
+			return false;
+		}
 		Base_ThemeCommon::install_default_theme('Base/User/Settings');
+		$this->add_aco('set defaults','Super administrator');
 
 		return $ret;
 	}

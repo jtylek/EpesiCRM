@@ -139,6 +139,7 @@ class Libs_QuickForm extends Module {
 			
 			if (isset($v['rule'])) {
 				$i = 0;
+				if(isset($v['rule']['message']) && isset($v['rule']['type'])) $v['rule'] = array($v['rule']);
 				foreach ($v['rule'] as $r) {
 					if (!isset($r['message'])) trigger_error('No error message specified for field '.$v['name'], E_USER_ERROR);
 					if (!isset($r['type'])) trigger_error('No error type specified for field '.$v['name'], E_USER_ERROR);
@@ -152,6 +153,7 @@ class Libs_QuickForm extends Module {
 							trigger_error('Invalid parameter specified for rule definition for field '.$v['name'], E_USER_ERROR);
 						if(isset($r['param']) && $r['param']=='__form__')
 							$r['param'] = &$this;
+//						print($v['name'].', '.$r['message'].', '.$r['type'].', '.(isset($r['param'])?$r['param']:'').'<br>');
 						$this->addRule($v['name'], $r['message'], $v['name'].$i.'_rule', isset($r['param'])?$r['param']:null);
 					} else {
 						if ($r['type']=='regex' && !isset($r['param'])) trigger_error('No regex defined for a rule for field '.$v['name'], E_USER_ERROR);

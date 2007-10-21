@@ -2,7 +2,7 @@
 /**
  * User_Settings class.
  * 
- * @author Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com> and Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
  * @license SPL
@@ -18,19 +18,20 @@ class Base_User_Settings extends Module {
 	private static $sep = "__";
 	private $indicator = '';
 
-	public function body() {
+	public function body($branch=null,$admin_settings=false) {
 		$this->lang = & $this->init_module('Base/Lang');
-		if (isset($_REQUEST['settings_branch'])) $branch = $_REQUEST['settings_branch']; 
-		else $branch = $this->get_module_variable('settings_branch');
-		if ($branch=='__NONE__') $branch = null;
-		
-		if (!$branch || $this->is_back()) {
+
+		$branch = $this->get_module_variable_or_unique_href_variable('settings_branch',$branch);
+		if($this->is_back()) $branch = null;
+		$this->set_module_variable('settings_branch',$branch);
+
+		$this->get_module_variable('admin_settings',($admin_settings && $this->acl_check('set defaults')));
+
+		if (!$branch) {
 			$this->main_page();
 			return;
 		}
-		$this->branch = $branch;
-		
-		$this->set_module_variable('settings_branch',$branch);
+
 		$f = &$this->init_module('Libs/QuickForm',$this->lang->ht('Saving settings'),'settings');
 		$f->addElement('header',null,$this->lang->t($branch));
 		$this->indicator = ': '.$branch;
@@ -52,8 +53,8 @@ class Base_User_Settings extends Module {
 		$f->addGroup(array($defaults, $submit,$cancel));
 
 		if($f->validate()) {
-			$f->process(array(& $this, 'submit_settings'));
-			location(array());
+			if($f->process(array(& $this, 'submit_settings')))
+				$this->set_back_location();
 		} else
 			$f->display();
 		return;
@@ -66,7 +67,10 @@ class Base_User_Settings extends Module {
 			$x = explode(self::$sep,$k);
 			if(count($x)!=2) continue;
 			list($module_name,$module_part) = $x;
-			Base_User_SettingsCommon::save($module_name,$module_part,$v);
+			if($this->get_module_variable('admin_settings'))
+				Base_User_SettingsCommon::save_admin($module_name,$module_part,$v);
+			else
+				Base_User_SettingsCommon::save($module_name,$module_part,$v);
 			
 			//check reload
 			if(!$reload && method_exists($module_name.'Common', 'user_settings')) {
@@ -83,7 +87,6 @@ class Base_User_Settings extends Module {
 			}
 		}
 		
-		$this->unset_module_variable('settings_branch');
 		Base_StatusBarCommon::message($this->lang->ht('Setting saved'.($reload?' - reloading page':'')));
 		if ($reload) eval_js('setTimeout(\'document.location=\\\'index.php\\\'\',\'3000\')');
 		return true;
@@ -91,6 +94,7 @@ class Base_User_Settings extends Module {
 	
 	private function add_module_settings_to_form($info, &$f, $module){
 		$defaults = array();
+		$admin_settings = $this->get_module_variable('admin_settings');
 		foreach($info as & $v){
 			if(isset($v['label'])) $v['label'] = $this->lang->t($v['label']);
 			$old_name = $v['name'];
@@ -104,7 +108,11 @@ class Base_User_Settings extends Module {
 				foreach ($v['rule'] as & $r)
 					if (isset($r['message'])) $r['message'] = $this->lang->t($r['message']);
 			}
-			$defaults = array_merge($defaults,array($v['name']=>Base_User_SettingsCommon::get($module,$old_name)));
+			if($admin_settings)
+				$value = Base_User_SettingsCommon::get_admin($module,$old_name);
+			else
+				$value = Base_User_SettingsCommon::get($module,$old_name);
+			$defaults = array_merge($defaults,array($v['name']=>$value));
 		}
 		$this->set_default_js = '';
 		$f -> add_array($info, $this->set_default_js);
@@ -118,19 +126,20 @@ class Base_User_Settings extends Module {
 		}
 		$this->lang = & $this->init_module('Base/Lang');
 		$modules = array(); 
+		$admin_settings = $this->get_module_variable('admin_settings');
 		foreach(ModuleManager::$modules as $name=>$obj) {
 			if(method_exists($obj['name'].'Common', 'user_settings')) {
 				$menu = call_user_func(array($obj['name'].'Common','user_settings'));
 				if(!is_array($menu)) continue;
 				foreach($menu as $k=>$v)
-					if (!is_string($v)) $modules[$k] = array('action'=>array('settings_branch'=>$k),'module_name'=>$obj['name']);
-					else $modules[$k] = array('action'=>array('box_main_module'=>$obj['name'],'box_main_function'=>$v),'module_name'=>$obj['name']);
+					if (!is_string($v)) $modules[$k] = array('action'=>$this->create_unique_href(array('settings_branch'=>$k)),'module_name'=>$obj['name']);
+					elseif(!$admin_settings) $modules[$k] = array('action'=>$this->create_href(array('box_main_module'=>$obj['name'],'box_main_function'=>$v)),'module_name'=>$obj['name']);
 			}
 		}
 		
 		$links = array();
 		foreach($modules as $caption=>$arg)
-			$links[$arg['module_name']]= '<a '.$this->create_href($arg['action']).'>'.$this->lang->t($caption).'</a>';
+			$links[$arg['module_name']]= '<a '.$arg['action'].'>'.$this->lang->t($caption).'</a>';
 		$theme =  & $this->pack_module('Base/Theme');
 		$theme->assign('header', $this->lang->t('User Settings'));
 		$theme->assign('links', $links);
@@ -138,7 +147,7 @@ class Base_User_Settings extends Module {
 	}
 	
 	public function caption() {
-		return "My settings".$this->indicator;
+		return ($this->get_module_variable('admin_settings')?'Default':'My').' settings'.$this->indicator;
 	}
 }
 
