@@ -146,6 +146,7 @@ class Utils_RecordBrowser extends Module {
 		if ($this->browse_mode == 'recent')
 			$table_columns[] = array('name'=>$this->lang->t('Visited on')); 
 		$gb->set_table_columns( $table_columns );
+		//print_r($gb->get_search_query(true));
 		$crits = array_merge($crits, $gb->get_search_query(true));
 		
 		$records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, $admin);
@@ -321,34 +322,41 @@ class Utils_RecordBrowser extends Module {
 		if ($mode!=='add') $records = Utils_RecordBrowserCommon::get_records($this->tab);
 		
 		foreach($this->table_rows as $field => $args){
-			if (isset($this->requires[$field])) {
-				print('Event.observe(\''.json_encode($args['id']).'\',\'change\',function(x) {'.
-						'alert("!");'.
-						'})');
-				eval_js('Event.observe(\''.json_encode($args['id']).'\',\'change\',function(x) {'.
-						'alert("!");'.
-						'})');
-			}
-	
 			if ($mode!=='add' && $mode!='edit') $records[$id][$field] = $this->get_val($field, $records[$id][$field]);
 			if (isset($this->QFfield_callback_table[$field])) {
 				call_user_func($this->QFfield_callback_table[$field], &$form, $args['id'], $this->lang->t($args['name']));
 				if ($mode!=='add') $form->setDefaults(array($args['id']=>$records[$id][$field]));
 				continue;
-			}  
+			}
+			if (isset($this->requires[$field])) {
+				foreach($this->requires[$field] as $k=>$v) {
+					if (!is_array($v)) $v = array($v);
+					$r_id = strtolower(str_replace(' ','_',$k));
+					$js = 	'Event.observe(\''.$r_id.'\',\'change\',function(x) {'.
+							'if (0';
+					foreach ($v as $w)
+						$js .= ' || this.form.'.$r_id.'.value == \''.$w.'\'';
+					$js .= 	') { this.form.'.$args['id'].'.style.display = \'inline\';'.
+							'document.getElementById(\'_'.$args['id'].'__label\').style.display = \'inline\'; }'.
+							'else { this.form.'.$args['id'].'.style.display = \'none\';'.
+							'document.getElementById(\'_'.$args['id'].'__label\').style.display = \'none\'; }'.
+							'})';
+					eval_js($js);
+				}
+			}
 			switch ($args['type']) {
-				case 'integer':		$form->addElement('text', $args['id'], $this->lang->t($args['name']));
+				case 'integer':		$form->addElement('text', $args['id'], '<div id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</div>', array('id'=>$args['id']));
 									$form->addRule($args['id'], $this->lang->t('Only numbers are allowed.'), 'numeric');
 									if ($mode!=='add') $form->setDefaults(array($args['id']=>$records[$id][$field]));
 									break;
-				case 'text':		$form->addElement('text', $args['id'], $this->lang->t($args['name']), array('maxlength'=>$args['param']));
+				case 'text':		$form->addElement('text', $args['id'], '<div id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</div>', array('id'=>$args['id'], 'maxlength'=>$args['param']));
 									$form->addRule($args['id'], $this->lang->t('Maximum length for this field is '.$args['param'].'.'), 'maxlength', $args['param']);
 									if ($mode!=='add') $form->setDefaults(array($args['id']=>$records[$id][$field]));
 									break;
-				case 'long text':	$form->addElement('textarea', $args['id'], $this->lang->t($args['name']));
+				case 'long text':	$form->addElement('textarea', $args['id'], '<div id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</div>', array('id'=>$args['id']));
 									if ($mode!=='add') $form->setDefaults(array($args['id']=>$records[$id][$field]));
 									break;
-				case 'date':		$form->addElement('datepicker', $args['id'], $this->lang->t($args['name']));
+				case 'date':		$form->addElement('datepicker', $args['id'], '<div id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</div>', array('id'=>$args['id']));
 									if ($mode!=='add') $form->setDefaults(array($args['id']=>$records[$id][$field]));
 									break;
 				case 'select':		
@@ -366,10 +374,10 @@ class Utils_RecordBrowser extends Module {
 											$ret = DB::Execute('SELECT * FROM '.$tab.'_data WHERE field=%s ORDER BY value', array($col));
 											while ($row = $ret->FetchRow()) $comp[$row[$tab.'_id']] = $row['value'];
 										}
-										$form->addElement($args['type'], $args['id'], $this->lang->t($args['name']), $comp);
+										$form->addElement($args['type'], $args['id'], '<div id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</div>', $comp, array('id'=>$args['id']));
 										if ($mode!=='add') $form->setDefaults(array($args['id']=>$records[$id][$field]));
 									} else {
-										$form->addElement('static', $args['id'], $this->lang->t($args['name']));
+										$form->addElement('static', $args['id'], '<div id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</div>', array('id'=>$args['id']));
 										if (isset($this->display_callback_table[$field])) {
 											$form->setDefaults(array($args['id']=>call_user_func($this->display_callback_table[$field], $records[$id][$field])));
 											continue;
