@@ -41,7 +41,7 @@ Utils_Calendar = function(link_proto, instance_id) {
 			header_string += '<td width=100% align=center><a href="javascript:datepicker_'+this.instance_id+'.show_year(\''+year+'\')">'+this.monthName[month] + ' ' + year_real+'</a></td>';
 			header_string += '<td align=right><a href="javascript:datepicker_'+this.instance_id+'.show_month(\''+next_month+'\', \''+next_year+'\')">&gt;&gt</a></td>';
 			header_string += '</tr></table>';
-			document.getElementById('datepicker_'+this.instance_id+'_header').innerHTML = header_string;
+			$('datepicker_'+this.instance_id+'_header').innerHTML = header_string;
 			
 			// filling month
 			Calendar.setDate(1);
@@ -95,7 +95,7 @@ Utils_Calendar = function(link_proto, instance_id) {
 			}
 			cal += '</TABLE>';
 			// and final solution
-			document.getElementById('datepicker_'+this.instance_id+'_view').innerHTML = cal;
+			$('datepicker_'+this.instance_id+'_view').innerHTML = cal;
 		}
 		
 		//show a year
