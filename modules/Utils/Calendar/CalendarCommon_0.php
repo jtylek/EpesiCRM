@@ -18,13 +18,10 @@ class Utils_CalendarCommon extends ModuleCommon {
 				'<tr><td id="datepicker_'.self::$counter.'_view">aa</td></tr></table>';
 		$iii .= '<a class="lbAction" rel="deactivate">Close</a></div>';
 		print $info.$iii;
-		eval_js('
-			make_cal = function() {
-				datepicker_'.self::$counter.' = new Utils_Calendar("'.$function.'", '.self::$counter.');
-				datepicker_'.self::$counter.'.show_month();
-			}
-		');
-		eval_js('wait_while_null("Utils_Calendar", "make_cal()");');
+		eval_js(
+			'datepicker_'.self::$counter.' = new Utils_Calendar("'.$function.'", '.self::$counter.');'.
+			'datepicker_'.self::$counter.'.show_month();'.
+		);
 	}
 }
 
