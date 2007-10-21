@@ -30,7 +30,7 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input
 				$id = 'datepicker_field_'.$this->getAttribute('name');
 				$this->setAttributes(array('id'=>$id));
 			}
-			$str .= $this->_getTabs() . '<input' . $this->_getAttrString($this->_attributes) . ' />'.
+			$str .= $this->_getTabs() . '<input readonly ' . $this->_getAttrString($this->_attributes) . ' />'.
 				Utils_CalendarCommon::show(
 					'new Ajax.Request(\'modules/Utils/Calendar/up.php\','.
 					'{method:\'post\', parameters:{date: __YEAR__+\'-\'+__MONTH__+\'-\'+__DAY__},'.
