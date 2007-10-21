@@ -118,6 +118,13 @@ function update_from_0_8_11_to_0_9_0() {
 		array('constraints'=>', FOREIGN KEY (applet_id) REFERENCES base_dashboard_default_applets(ID), PRIMARY KEY(applet_id,name)'));
 	Acl::add_aco('Base_Dashboard','set default dashboard','Super administrator');
 
+	DB::CreateTable('base_user_settings_admin_defaults','
+		module C(128) NOTNULL,
+		variable C(32) NOTNULL,
+		value X NOTNULL',
+		array('constraints'=>', PRIMARY KEY(module,variable), FOREIGN KEY (module) REFERENCES modules(name)'));
+	Acl::add_aco('Base_User_Settings','set defaults','Super administrator');
+
 	Variable::set('preload_image_cache_default',true);
 	Variable::set('preload_image_cache_selected',true);
 

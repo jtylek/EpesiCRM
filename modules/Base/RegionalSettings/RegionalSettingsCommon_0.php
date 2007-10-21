@@ -134,11 +134,6 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		print('go '.$t.'<br>');
 		return strtotime($t);
 	}
-	
-	public static function menu() {
-		return array('dupa'=>array());
-	}
-	
 }
 
 ?>
