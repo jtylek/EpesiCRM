@@ -16,6 +16,17 @@ class Utils_RecordBrowser extends Module {
 	private $SQL_chars = array('text'=>'%s', 'long text'=>'%s', 'date'=>'%D', 'integer'=>'%d');
 	private $tab;
 	private $browse_mode;
+	private $display_callback_table = array();
+	private $QFfield_callback_table = array();
+	private $requires = array();
+
+	public function get_val($field, $val) {
+		if (isset($this->display_callback_table[$field])) {
+			return call_user_func($this->display_callback_table[$field], $val);
+		} else {
+			return $val;
+		}
+	}
 
 	public function construct($tab = null) {
 		if (!isset($tab))
@@ -26,6 +37,22 @@ class Utils_RecordBrowser extends Module {
 	public function init($admin=false) {
 		if (!isset($this->lang)) $this->lang = & $this->init_module('Base/Lang');
 		$this->table_rows = Utils_RecordBrowserCommon::init($this->tab, $admin);
+		$this->requires = array();
+		$this->display_callback_table = array();
+		$this->QFfield_callback_table = array();
+		$ret = DB::Execute('SELECT * FROM '.$this->tab.'_callback');
+		while ($row = $ret->FetchRow())
+			if ($row['freeze']==1) $this->display_callback_table[$row['field']] = array($row['module'], $row['func']);
+			else $this->QFfield_callback_table[$row['field']] = array($row['module'], $row['func']);
+		$ret = DB::Execute('SELECT * FROM '.$this->tab.'_require');
+		while ($row = $ret->FetchRow()) {
+			if (!isset($this->requires[$row['field']]))
+				$this->requires[$row['field']] = array();
+			if (!isset($this->requires[$row['field']][$row['req_field']]))
+				$this->requires[$row['field']][$row['req_field']] = array($row['value']);
+			else 
+				array_unshift($this->requires[$row['field']][$row['req_field']], $row['value']);
+		}
 	}
 	// BODY //////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function body($arg) {
@@ -169,7 +196,7 @@ class Utils_RecordBrowser extends Module {
 							else $row[$field] .= $this->create_linked_label($tab, $col, $v);
 						}
 					}
-					$row_data[] = $row[$field];
+					$row_data[] = $this->get_val($field, $row[$field]);
 				}
 			if ($this->browse_mode == 'recent')
 				$row_data[] = $row['visited_on'];
@@ -178,9 +205,11 @@ class Utils_RecordBrowser extends Module {
 				$gb_row->add_action($this->create_callback_href(array($this,'view_entry'),array('view',$row['id'])),$this->lang->t('View'));
 				$gb_row->add_action($this->create_callback_href(array($this,'view_entry'),array('edit',$row['id'])),$this->lang->t('Edit'));
 				$gb_row->add_action($this->create_callback_href(array($this,'view_entry'),array('delete',$row['id'])),$this->lang->t('Delete'));
-				if (!$row['active']) $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],true)),$this->lang->t('Activate'));
-				else $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],false)),$this->lang->t('Deactivate'));
-				$gb_row->add_action($this->create_callback_href(array($this,'view_edit_history'),array($row['id'])),$this->lang->t('View edit history'),null,'info');
+				if ($admin) {
+					if (!$row['active']) $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],true)),$this->lang->t('Activate'));
+					else $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],false)),$this->lang->t('Deactivate'));
+					$gb_row->add_action($this->create_callback_href(array($this,'view_edit_history'),array($row['id'])),$this->lang->t('View edit history'),null,'info');
+				}
 			} else {
 				$gb_row->add_action($this->create_href(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($this->tab), 'tab'=>$this->tab, 'id'=>$row['id'], 'action'=>'view')),$this->lang->t('View'));
 				$gb_row->add_action($this->create_href(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($this->tab), 'tab'=>$this->tab, 'id'=>$row['id'], 'action'=>'edit')),$this->lang->t('Edit'));
@@ -291,7 +320,22 @@ class Utils_RecordBrowser extends Module {
 		
 		if ($mode!=='add') $records = Utils_RecordBrowserCommon::get_records($this->tab);
 		
-		foreach($this->table_rows as $field => $args){ 
+		foreach($this->table_rows as $field => $args){
+			if (isset($this->requires[$field])) {
+				print('Event.observe(\''.json_encode($args['id']).'\',\'change\',function(x) {'.
+						'alert("!");'.
+						'})');
+				eval_js('Event.observe(\''.json_encode($args['id']).'\',\'change\',function(x) {'.
+						'alert("!");'.
+						'})');
+			}
+	
+			if ($mode!=='add' && $mode!='edit') $records[$id][$field] = $this->get_val($field, $records[$id][$field]);
+			if (isset($this->QFfield_callback_table[$field])) {
+				call_user_func($this->QFfield_callback_table[$field], &$form, $args['id'], $this->lang->t($args['name']));
+				if ($mode!=='add') $form->setDefaults(array($args['id']=>$records[$id][$field]));
+				continue;
+			}  
 			switch ($args['type']) {
 				case 'integer':		$form->addElement('text', $args['id'], $this->lang->t($args['name']));
 									$form->addRule($args['id'], $this->lang->t('Only numbers are allowed.'), 'numeric');
@@ -311,11 +355,14 @@ class Utils_RecordBrowser extends Module {
 				case 'multiselect':	$comp = array();
 									if (!$args['required'] && $args['type']==='select') $comp[''] = '--';
 									list($tab, $col) = explode('::',$args['param']);
+									if ($tab=='__COMMON__') {
+										$data = Utils_CommonDataCommon::get_array($col);
+										$data[''] = '--';
+									}
 									if ($mode=='add' || $mode=='edit') {
-										if ($tab=='__COMMON__') {
-											$data = Utils_CommonDataCommon::get_array($col);
+										if ($tab=='__COMMON__') 
 											$comp = array_merge($comp, $data);
-										} else {
+										else {
 											$ret = DB::Execute('SELECT * FROM '.$tab.'_data WHERE field=%s ORDER BY value', array($col));
 											while ($row = $ret->FetchRow()) $comp[$row[$tab.'_id']] = $row['value'];
 										}
@@ -323,8 +370,10 @@ class Utils_RecordBrowser extends Module {
 										if ($mode!=='add') $form->setDefaults(array($args['id']=>$records[$id][$field]));
 									} else {
 										$form->addElement('static', $args['id'], $this->lang->t($args['name']));
-										if ($tab=='__COMMON__') $data = Utils_CommonDataCommon::get_array($col);
-										if ($mode!=='add') 
+										if (isset($this->display_callback_table[$field])) {
+											$form->setDefaults(array($args['id']=>call_user_func($this->display_callback_table[$field], $records[$id][$field])));
+											continue;
+										}
 										if (!is_array($records[$id][$field])) {
 											if ($tab=='__COMMON__') $form->setDefaults(array($args['id']=>$data[$records[$id][$field]]));
 											else $form->setDefaults(array($args['id']=>$this->create_linked_label($tab, $col, $records[$id][$field])));
@@ -392,8 +441,9 @@ class Utils_RecordBrowser extends Module {
 			DB::Execute('INSERT INTO '.$this->tab.'_edit_history(edited_on, edited_by, '.$this->tab.'_id) VALUES (%T,%d,%d)', array(date('Y-m-d G:i:s'), Base_UserCommon::get_my_user_id(), $id));
 			$edit_id = DB::Insert_ID(''.$this->tab.'_edit_history','id');
 			foreach($diff as $k=>$v) {
-				if (is_array($v)) $v = serialize($v); 
-				DB::Execute('INSERT INTO '.$this->tab.'_edit_history_data(edit_id, field, old_value) VALUES (%d,%s,%s)', array($edit_id, $k, $v));
+				if (!is_array($v)) $v = array($v);
+				foreach($v as $c)  
+					DB::Execute('INSERT INTO '.$this->tab.'_edit_history_data(edit_id, field, old_value) VALUES (%d,%s,%s)', array($edit_id, $k, $c));
 			}
 		}
 		DB::CompleteTrans();
@@ -469,7 +519,7 @@ class Utils_RecordBrowser extends Module {
 		$gb->set_table_columns(array(
 			array('name'=>$this->lang->t('Field'), 'width'=>20),
 			array('name'=>$this->lang->t('Type'), 'width'=>20),
-			array('name'=>$this->lang->t('Visible'), 'width'=>5),
+			array('name'=>$this->lang->t('Table view'), 'width'=>5),
 			array('name'=>$this->lang->t('Required'), 'width'=>5),
 			array('name'=>$this->lang->t('Filter'), 'width'=>5),
 			array('name'=>$this->lang->t('Parameters'), 'width'=>5))
@@ -582,7 +632,7 @@ class Utils_RecordBrowser extends Module {
 				}
 				break;	
 		}
-		$form->addElement('checkbox', 'visible', $this->lang->t('Visible'));
+		$form->addElement('checkbox', 'visible', $this->lang->t('Table view'));
 		$form->addElement('checkbox', 'required', $this->lang->t('Required'));
 		$form->addElement('checkbox', 'filter', $this->lang->t('Filter enabled'));
 
@@ -677,7 +727,14 @@ class Utils_RecordBrowser extends Module {
 						);
 		foreach($this->table_rows as $field => $args) {
 			if ($field=='id') continue;
-			$row_data[] = array('value'=>$created[$field],'style'=>'font-weight: bold; border-top: 1px solid black;','hint'=>$created[$field]);
+			if (is_array($created[$field])) {
+				$val = '';
+				foreach($created[$field] as $v)
+					$val .= ($val==''?'':', ').$v;
+			} else {
+				$val = $created[$field];
+			}
+			$row_data[] = array('DBvalue'=>$created[$field],'value'=>$val,'style'=>'font-weight: bold; border-top: 1px solid black;','hint'=>$val);
 		}
 		$edit_history = array($row_data);
 		$ret = DB::Execute('SELECT ul.login, c.id, c.edited_on, c.edited_by FROM '.$this->tab.'_edit_history AS c LEFT JOIN user_login AS ul ON ul.id=c.edited_by WHERE c.'.$this->tab.'_id=%d ORDER BY edited_on DESC',array($id));
@@ -685,13 +742,30 @@ class Utils_RecordBrowser extends Module {
 		$counter = 0;
 		while ($row=$ret->FetchRow()) {
 			$no_edits = false;
-			foreach($created as $k=>$v)
-				$new_created[$k] = array('value'=>$v,'style'=>'color: #CCCCCC;','hint'=>$v);
+			foreach($created as $k=>$c) {
+				if (is_array($c)) {
+					$v = '';
+					foreach($c as $c2)
+						$v .= ($v==''?'':', ').$c2;
+				} else $v = $c;
+				$new_created[$k] = array('DBvalue'=>$c,'value'=>$v,'style'=>'color: #CCCCCC;','hint'=>$v);
+			}
 			$row_data = array('Edited',$row['login'],$row['edited_on']);
 			$ret2 = DB::Execute('SELECT * FROM '.$this->tab.'_edit_history_data WHERE edit_id=%d',array($row['id']));
+			$changed = array();
 			while($row2 = $ret2->FetchRow()) {
-				$new_created[$row2['field']]['style'] = 'font-weight: bold; background-color: #EFEFFF;';
-				$created[$row2['field']] = $row2['old_value'];
+				if (isset($changed[$row2['field']])) {
+					if (is_array($created[$row2['field']]))
+						array_unshift($created[$row2['field']], $row2['old_value']);
+					else
+						$created[$row2['field']] = array($row2['old_value'], $created[$row2['field']]);
+				} else {
+					$changed[$row2['field']] = true;
+					$new_created[$row2['field']]['style'] = 'font-weight: bold; background-color: #EFEFFF;';
+					$created[$row2['field']] = $row2['old_value'];
+				}
+				if (is_array($created[$row2['field']]))
+					sort($created[$row2['field']]);
 			}
 			foreach($this->table_rows as $field => $args) {
 				if ($field=='id') continue;
@@ -703,7 +777,12 @@ class Utils_RecordBrowser extends Module {
 		$row_data = array('Created',$created['created_by_login'],$created['created_on']);
 		foreach($this->table_rows as $field => $args) {
 			if ($field=='id') continue;
-			$row_data[] = array('value'=>$created[$field],'style'=>'font-weight: bold;','hint'=>$created[$field]);
+			if (is_array($created[$field])) {
+				$v = '';
+				foreach($created[$field] as $c)
+					$v .= ($v==''?'':', ').$c;
+			} else $v = $created[$field];
+			$row_data[] = array('DBvalue'=>$created[$field],'value'=>$v,'style'=>'font-weight: bold;','hint'=>$v);
 		}
 		array_unshift($edit_history, $row_data);
 		foreach($edit_history as $row_data) {
@@ -740,7 +819,7 @@ class Utils_RecordBrowser extends Module {
 	}
 	
 	public function set_active($id, $state=true){
-		DB::Execute('UPDATE '.$this->tab.' SET active=%d WHERE id=%d',array($state,$id));
+		DB::Execute('UPDATE '.$this->tab.' SET active=%d WHERE id=%d',array($state?1:0,$id));
 		return false;
 	}
 	public function restore_record($data, $id) {
@@ -749,8 +828,9 @@ class Utils_RecordBrowser extends Module {
 		$values = array();
 		foreach($this->table_rows as $field => $args) {
 			if ($field=='id') continue;
-			$values[$args['id']] = $data[$i++]['value'];
+			$values[$args['id']] = $data[$i++]['DBvalue'];
 		}
+		//print_r($values);
 		$this->update_record_data($id,$values);
 		return false;
 	}

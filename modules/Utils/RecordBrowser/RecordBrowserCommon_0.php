@@ -24,7 +24,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return self::$table_rows;
 	}
 
-	public function install_new_recordset($tab_name = null) {
+	public function install_new_recordset($tab_name = null, $fields) {
 		if (!$tab_name) return false;
 		DB::CreateTable($tab_name,
 					'id I AUTO KEY,'.
@@ -77,10 +77,46 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					'func C(128),'.
 					'label C(64)',
 					array('constraints'=>', PRIMARY KEY(module, func)'));
+		DB::CreateTable($tab_name.'_callback',
+					'field C(32),'.
+					'module C(64),'.
+					'func C(128),'.
+					'freeze I1',
+					array('constraints'=>''));
+		DB::CreateTable($tab_name.'_require',
+					'field C(32),'.
+					'req_field C(64),'.
+					'value C(128)',
+					array('constraints'=>''));
 		DB::Execute('INSERT INTO '.$tab_name.'_field(field, type, extra, visible, position) VALUES(\'id\', \'foreign index\', 0, 0, 1)');
 		DB::Execute('INSERT INTO '.$tab_name.'_field(field, type, extra, position) VALUES(\'General\', \'page_split\', 0, 2)');
 		DB::Execute('INSERT INTO '.$tab_name.'_field(field, type, extra, position) VALUES(\'Details\', \'page_split\', 0, 3)');
+		foreach ($fields as $v) {
+			if (!isset($v['param'])) $v['param'] = '';
+			if (!isset($v['extra'])) $v['extra'] = true;
+			Utils_RecordBrowserCommon::new_record_field($tab_name, $v['name'], $v['type'], $v['required'], $v['param'], $v['extra']);			
+			if (isset($v['display_callback'])) self::set_display_method($tab_name, $v['name'], $v['display_callback'][0], $v['display_callback'][1]);
+			if (isset($v['QFfield_callback'])) self::set_QFfield_method($tab_name, $v['name'], $v['QFfield_callback'][0], $v['QFfield_callback'][1]);
+			if (isset($v['requires']))
+				foreach($v['requires'] as $k=>$w) {
+					if (!is_array($w)) $w = array($w); 
+					foreach($w as $c)
+						self::field_requires($tab_name, $v['name'], $k, $c);
+				}
+		}
 		return true;
+	}	
+	public function field_requires($tab_name = null, $field, $req_field, $val) {
+		if (!$tab_name) return false;
+		DB::Execute('INSERT INTO '.$tab_name.'_require (field, req_field, value) VALUES(%s, %s, %s)', array($field, $req_field, $val));
+	}
+	public function set_display_method($tab_name = null, $field, $module, $func) {
+		if (!$tab_name) return false;
+		DB::Execute('INSERT INTO '.$tab_name.'_callback (field, module, func, freeze) VALUES(%s, %s, %s, 1)', array($field, $module, $func));
+	}
+	public function set_QFfield_method($tab_name = null, $field, $module, $func) {
+		if (!$tab_name) return false;
+		DB::Execute('INSERT INTO '.$tab_name.'_callback (field, module, func, freeze) VALUES(%s, %s, %s, 0)', array($field, $module, $func));
 	}
 	
 	public function uninstall_new_recordset($tab_name = null) {
@@ -98,7 +134,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return true;
 	}
 	
-	public function new_record_field($tab_name, $field, $type, $required, $param, $extra = true){
+	public function new_record_field($tab_name, $field, $type, $required, $param='', $extra = true){
 		if ($extra) {
 			$pos = DB::GetOne('SELECT MAX(position) FROM '.$tab_name.'_field')+1;
 		} else {
@@ -218,9 +254,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				else 
 					$record[$field['field']] = $field['value'];
 			if ($admin) { 
-				$row = DB::Execute('SELECT id, active, created_by, created_on FROM '.$tab_name.' WHERE 1'.($admin?'':' AND active=1'))->FetchRow();
-				foreach(array('id','active','created_by','created_on') as $v)
+				$row = DB::Execute('SELECT active, created_by, created_on FROM '.$tab_name.' WHERE 1'.($admin?'':' AND active=1'))->FetchRow();
+				foreach(array('active','created_by','created_on') as $v)
 					$record[$v] = $row[$v];
+				$record['id'] = $id;
 			}
 			return $record;
 		} else {
