@@ -130,7 +130,7 @@ class Base_Dashboard extends Module {
 						$out = $ret;
 					else
 						trigger_error('Invalid applet info for module: '.$obj['name'],E_USER_ERROR);
-					$attrs .= $tipmod->open_tag_attrs($out).' ';
+					$attrs .= $tipmod->open_tag_attrs($out,false).' ';
 				}
 				$links[$obj['name']] = '<a '.$attrs.$this->create_callback_href(array($this,'add_applet'),$obj['name']).'>'.call_user_func(array($obj['name'].'Common', 'applet_caption')).'</a>';
 			}
