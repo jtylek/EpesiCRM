@@ -20,7 +20,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 		print $info.$iii;
 		eval_js(
 			'datepicker_'.self::$counter.' = new Utils_Calendar("'.$function.'", '.self::$counter.');'.
-			'datepicker_'.self::$counter.'.show_month();'.
+			'datepicker_'.self::$counter.'.show_month();'
 		);
 	}
 }
