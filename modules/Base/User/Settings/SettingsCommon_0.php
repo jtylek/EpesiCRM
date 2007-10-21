@@ -14,25 +14,19 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_User_SettingsCommon extends ModuleCommon {
 	public static function menu(){
 		if (!Acl::is_user()) return array();
-		$modules = array();
-		foreach(ModuleManager::$modules as $name=>$obj) {
-			if(method_exists($obj['name'].'Common', 'user_settings')) {
-				$menu = call_user_func(array($obj['name'].'Common','user_settings'));
-				if(!is_array($menu)) continue;
-				foreach($menu as $k=>$v)
-					if (!is_string($v)) $modules[$k] = array('__function_arguments__'=>$k);
-					else $modules[$k] = array('box_main_module'=>$obj['name'],'box_main_function'=>$v);
-			}
-		}
-		if(self::Instance()->acl_check('set defaults')) {
-			$modules_def = array();
-			foreach($modules as $k=>$v)
-				if(isset($v['__function_arguments__']))
-					$modules_def[$k] = array('__function_arguments__'=>array($v['__function_arguments__'], true));
-			return array('My settings'=>array_merge(array('__weight__'=>10,'__submenu__'=>1,'Control panel'=>array('__weight__'=>-10),'__split__'=>1),$modules),
-				'Default settings'=>array_merge(array('__weight__'=>10,'__submenu__'=>1,'Control panel'=>array('__weight__'=>-10,'__function_arguments__'=>array('',true)),'__split__'=>1),$modules_def));
-		}
-		return array('My settings'=>array_merge(array('__weight__'=>10,'__submenu__'=>1,'Control panel'=>array('__weight__'=>-10),'__split__'=>1),$modules));
+		return array('My settings'=>array('__weight__'=>10,'__submenu__'=>1,'Control panel'=>array()));
+	}
+	
+	public static function body_access() {
+		return Acl::is_user();
+	}
+
+	public static function admin_access() {
+		return self::Instance()->acl_check('set defaults');
+	}
+	
+	public static function admin_caption() {
+		return 'Default user settings';
 	}
 
 	/**

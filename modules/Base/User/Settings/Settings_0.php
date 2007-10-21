@@ -18,6 +18,10 @@ class Base_User_Settings extends Module {
 	private static $sep = "__";
 	private $indicator = '';
 
+	public function admin() {
+		$this->body(null,true);
+	}
+	
 	public function body($branch=null,$admin_settings=false) {
 		$this->lang = & $this->init_module('Base/Lang');
 
