@@ -99,9 +99,11 @@ class Base_User_Settings extends Module {
 			if(isset($v['values']) && is_array($v['values']))
 				foreach($v['values'] as &$x) 
 					$x = $this->lang->ht($x);
-			if (isset($v['rule']))
+			if (isset($v['rule'])) {
+				if(isset($v['rule']['message']) && isset($v['rule']['type'])) $v['rule'] = array($v['rule']);
 				foreach ($v['rule'] as & $r)
-					if (isset($r['message'])) $r = $this->lang->t($r['message']);
+					if (isset($r['message'])) $r['message'] = $this->lang->t($r['message']);
+			}
 			$defaults = array_merge($defaults,array($v['name']=>Base_User_SettingsCommon::get($module,$old_name)));
 		}
 		$this->set_default_js = '';
