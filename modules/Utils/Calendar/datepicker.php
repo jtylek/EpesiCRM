@@ -27,14 +27,14 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input
 		} else {
 			$id = $this->getAttribute('id');
 			if(!isset($id)) {
-				$id = 'dupne_id';
+				$id = 'datepicker_field_'.$this->getAttribute('name');
 				$this->setAttributes(array('id'=>$id));
 			}
 			$str .= $this->_getTabs() . '<input' . $this->_getAttrString($this->_attributes) . ' />'.
 				Utils_CalendarCommon::show(
-					'alert(\'opk\');new Ajax.Updater(\''.Epesi::escapeJS($id,false).'\',\'modules/Utils/Calendar/up.php\','.
-					'{method:\'post\', parameters:{date: __YEAR__+\'-\'+__MONTH__+\'-\'+__DAY__}})');
-//				'new Ajax.Updater(id,\''.$this->get_module_dir().'refresh.php\',{method:\'post\', parameters:{path: path}});'.
+					'new Ajax.Request(\'modules/Utils/Calendar/up.php\','.
+					'{method:\'post\', parameters:{date: __YEAR__+\'-\'+__MONTH__+\'-\'+__DAY__},'.
+					'onSuccess:function(t){$(\''.Epesi::escapeJS($id,false).'\').value=t.responseText;}})');
 		}
 		return $str;
 	} //end func toHtml
