@@ -5,11 +5,11 @@
  * @version 1.0
  * @license SPL
  * @package epesi-tests
- * @subpackage lightbox
+ * @subpackage Lytebox
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Tests_LightboxInstall extends ModuleInstall{
+class Tests_LyteboxInstall extends ModuleInstall{
 	public function install(){
 		return true;
 	}
@@ -19,7 +19,6 @@ class Tests_LightboxInstall extends ModuleInstall{
 	}
 	public function requires($v) {
 		return array(array('name'=>'Utils/CatFile','version'=>0),
-			array('name'=>'Libs/Leightbox','version'=>0),
 			array('name'=>'Libs/Lytebox','version'=>0));
 	}
 } 

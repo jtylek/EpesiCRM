@@ -5,13 +5,13 @@
  * @version 1.0
  * @license SPL
  * @package epesi-tests
- * @subpackage lightbox
+ * @subpackage Lytebox
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Tests_LightboxCommon extends ModuleCommon {
+class Tests_LyteboxCommon extends ModuleCommon {
 	public static function menu(){
-		return array('Tests'=>array('__submenu__'=>1,'__weight__'=>-10, 'Lightbox page'=>array()));
+		return array('Tests'=>array('__submenu__'=>1,'__weight__'=>-10, 'Lytebox page'=>array()));
 	}
 }
 

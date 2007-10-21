@@ -12,6 +12,12 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Tests_Leightbox extends Module{
 	public function body(){
 		Utils_CalendarCommon::show('alert(__DAY__+\'.\'+__MONTH__+\'.\'+__YEAR__ )');
+		print('<hr><a rel="leightbox1" class="lbOn">leightbox container</a>
+		<div id="leightbox1" class="leightbox">
+			<h1>Leightbox</h1>
+			ble ble ble
+			<a href="#" class="lbAction" rel="deactivate">Close</a>
+			</div>');
 
 		//------------------------------ print out src
 		print('<hr><b>Install</b><br>');
