@@ -79,7 +79,7 @@ Utils_Calendar = function(link_proto, instance_id) {
 				var prep_link = this.link_proto.replace("__YEAR__", year_real);
 				prep_link = prep_link.replace("__MONTH__", (month+1));
 				prep_link = prep_link.replace("__DAY__", Calendar.getDate());
-				cal += '<a class=day href="javascript:void(0)" onclick="'+prep_link+'">';
+				cal += '<a class=day href="javascript:void(0)" onclick="'+prep_link+'" rel="deactivate">';
 				cal += Calendar.getDate();
 				cal += '</a>' + TDend;
 				
