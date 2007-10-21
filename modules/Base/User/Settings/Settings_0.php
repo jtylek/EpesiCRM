@@ -40,6 +40,7 @@ class Base_User_Settings extends Module {
 		$f->addElement('header',null,$this->lang->t($branch));
 		$this->indicator = ': '.$branch;
 		$this->settings_fields = array();
+		$this->set_default_js = '';
 
 		foreach(ModuleManager::$modules as $name=>$obj) {
 			if(method_exists($obj['name'].'Common', 'user_settings')) {
@@ -118,7 +119,6 @@ class Base_User_Settings extends Module {
 				$value = Base_User_SettingsCommon::get($module,$old_name);
 			$defaults = array_merge($defaults,array($v['name']=>$value));
 		}
-		$this->set_default_js = '';
 		$f -> add_array($info, $this->set_default_js);
 		$f -> setDefaults($defaults);
 

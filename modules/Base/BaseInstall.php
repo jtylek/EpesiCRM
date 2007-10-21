@@ -49,6 +49,7 @@ class BaseInstall extends ModuleInstall {
 		    array('name'=>'Base/Menu/QuickAccess','version'=>0),
 		    array('name'=>'Base/MainModuleIndicator','version'=>0),
 		    array('name'=>'Base/Menu','version'=>0),
+		    array('name'=>'Base/RegionalSettings','version'=>0),
 		    array('name'=>'Base/StatusBar','version'=>0),
 		    array('name'=>'Base/Search','version'=>0),
 		    array('name'=>'Base/HomePage','version'=>0),
