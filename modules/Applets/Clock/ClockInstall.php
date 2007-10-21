@@ -27,7 +27,8 @@ class Applets_ClockInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
-			array('name'=>'Base/Dashboard','version'=>0));
+			array('name'=>'Base/Dashboard','version'=>0),
+			array('name'=>'Base/RegionalSettings','version'=>0));
 	}
 	
 	public static function info() {

@@ -31,7 +31,7 @@ class Applets_Clock extends Module {
 			eval_js('CoolClock.findAndCreateClocks()');
 			print('<canvas id="'.$this->get_path().'canvas" class="CoolClock:'.$skin.':'.$size.'"></canvas>');
 		}
-		print('<BR>'.date('l dS F Y').'</center>');
+		print('<BR>'.Base_RegionalSettingsCommon::time2reg(null,false).'</center>');
 	}
 	
 	public function applet($conf, $opts) { //available applet options: toggle,href,title,go,go_function,go_arguments,go_contruct_arguments

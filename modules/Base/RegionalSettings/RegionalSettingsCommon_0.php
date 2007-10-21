@@ -77,8 +77,9 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		return $ret;
 	}
 
-	public static function time2reg($t,$time=true) {
-		if(!is_integer($t)) $t = strtotime($t);
+	public static function time2reg($t=null,$time=true) {
+		if(!isset($t)) $t = time();
+		elseif(!is_integer($t)) $t = strtotime($t);
 		$datef = Base_User_SettingsCommon::get('Base_RegionalSettings','date');
 		$timef = Base_User_SettingsCommon::get('Base_RegionalSettings','time');
 
