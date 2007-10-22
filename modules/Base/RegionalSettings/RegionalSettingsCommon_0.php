@@ -39,7 +39,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 
 	public static function user_settings() {
 		$now = time();
-		$date_formats_proto = array('%Y-%m-%d','%y-%m-%d','%D','%d %B %Y','%d %B %y','%d %b %Y','%d %b %y','%b %d, %Y');
+		$date_formats_proto = array('%Y-%m-%d','%y-%m-%d','%m/%d/%y','%d %B %Y','%d %B %y','%d %b %Y','%d %b %y','%b %d, %Y');
 		$date_formats = array();
 		self::set_locale();
 		foreach($date_formats_proto as $f)
@@ -48,7 +48,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		return array('Regional settings'=>array(
 				//array('type'=>'select','name'=>'currency','label'=>'Currency') //google X pln in usd????
 				array('type'=>'select','name'=>'date','label'=>'Date format', 
-					'default'=>'%D','values'=>$date_formats),//strftime
+					'default'=>'%m/%d/%y','values'=>$date_formats),//strftime
 				array('type'=>'select','name'=>'time','label'=>'Time format', 
 					'default'=>'%r','values'=>array('%r'=>'12h am/pm', '%R'=>'24h'), 
 					'rule'=>array('type'=>'callback', 
@@ -82,7 +82,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		elseif(!is_integer($t)) $t = strtotime($t);
 		$datef = Base_User_SettingsCommon::get('Base_RegionalSettings','date');
 		$timef = Base_User_SettingsCommon::get('Base_RegionalSettings','time');
-
+		
 		self::set_locale();
 		$ret = self::strftime($datef.($time?' '.$timef:''),$t);
 		self::restore_locale();
@@ -104,7 +104,6 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 				$lang_code.'.utf8',
 				$lang_code.'.UTF-8',
 				isset(self::$countries[$lang_code])?self::$countries[$lang_code]:null);//win32
-		//for win32 start iconv here from '' to 'UTF-8'
 	}
 	
 	private static function restore_locale() {
