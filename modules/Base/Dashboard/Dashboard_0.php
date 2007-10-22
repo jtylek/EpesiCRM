@@ -170,8 +170,13 @@ class Base_Dashboard extends Module {
 				DB::Execute('UPDATE '.$table.' SET name=%s WHERE id=%d',array($name,$id));
 			else {
 				DB::StartTrans();
-				$max = DB::GetOne('SELECT max(pos)+1 FROM '.$table.($default_dash?'':' WHERE user_login_id=%d'),array(Base_UserCommon::get_my_user_id()));
-				DB::Execute('INSERT INTO '.$table.'(name,pos,user_login_id) VALUES(%s,%d,%d)',array($name,$max,Base_UserCommon::get_my_user_id()));
+				if($default_dash) {
+					$max = DB::GetOne('SELECT max(pos)+1 FROM '.$table);
+					DB::Execute('INSERT INTO '.$table.'(name,pos) VALUES(%s,%d)',array($name,$max));
+				} else {
+					$max = DB::GetOne('SELECT max(pos)+1 FROM '.$table.' WHERE user_login_id=%d',array(Base_UserCommon::get_my_user_id()));
+					DB::Execute('INSERT INTO '.$table.'(name,pos,user_login_id) VALUES(%s,%d,%d)',array($name,$max,Base_UserCommon::get_my_user_id()));
+				}
 				DB::CompleteTrans();
 			}
 			return false;
@@ -398,17 +403,19 @@ class Base_Dashboard extends Module {
 	}
 	
 	public function set_default_applets() {
-		$tabs = DB::GetAll('SELECT pos,name FROM base_dashboard_default_tabs');
+		$tabs = DB::GetAll('SELECT id,pos,name FROM base_dashboard_default_tabs');
 		foreach($tabs as $tab) {
 			DB::Execute('INSERT INTO base_dashboard_tabs(user_login_id,pos,name) VALUES(%d,%d,%s)',array(Base_UserCommon::get_my_user_id(),$tab['pos'],$tab['name']));
-		}
-		$ret = DB::GetAll('SELECT id,module_name,col,tab FROM base_dashboard_default_applets ORDER BY pos');
-		foreach($ret as $row) {
-			DB::Execute('INSERT INTO base_dashboard_applets(module_name,col,user_login_id,tab) VALUES(%s,%d,%d,%d)',array($row['module_name'],$row['col'],Base_UserCommon::get_my_user_id(),$row['tab']));
-			$ins_id = DB::Insert_ID('base_dashboard_applets','id');
-			$ret_set = DB::GetAll('SELECT name,value FROM base_dashboard_default_settings WHERE applet_id=%d',array($row['id']));
-			foreach($ret_set as $row_set)
-				DB::Execute('INSERT INTO base_dashboard_settings(applet_id,value,name) VALUES(%d,%s,%s)',array($ins_id,$row_set['value'],$row_set['name']));
+			$id = DB::Insert_ID('base_dashboard_tabs','id');
+			
+			$ret = DB::GetAll('SELECT id,module_name,col,tab FROM base_dashboard_default_applets WHERE tab=%d ORDER BY pos',array($tab['id']));
+			foreach($ret as $row) {
+				DB::Execute('INSERT INTO base_dashboard_applets(module_name,col,user_login_id,tab) VALUES(%s,%d,%d,%d)',array($row['module_name'],$row['col'],Base_UserCommon::get_my_user_id(),$id));
+				$ins_id = DB::Insert_ID('base_dashboard_applets','id');
+				$ret_set = DB::GetAll('SELECT name,value FROM base_dashboard_default_settings WHERE applet_id=%d',array($row['id']));
+				foreach($ret_set as $row_set)
+					DB::Execute('INSERT INTO base_dashboard_settings(applet_id,value,name) VALUES(%d,%s,%s)',array($ins_id,$row_set['value'],$row_set['name']));
+			}
 		}
 	}
 
