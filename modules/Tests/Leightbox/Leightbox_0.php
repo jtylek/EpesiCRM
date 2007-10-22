@@ -12,15 +12,20 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Tests_Leightbox extends Module{
 	public function body(){
 		print(Utils_CalendarCommon::show('alert(__DAY__+\'.\'+__MONTH__+\'.\'+__YEAR__ )'));
+		
 		print('<hr><a rel="leightbox1" class="lbOn">leightbox container</a>
 		<div id="leightbox1" class="leightbox">
 			<h1>Leightbox</h1>
 			ble ble ble
 			<a href="#" class="lbAction" rel="deactivate">Close</a>
-			</div>');
+			</div><hr>');
 		
 		$f = $this->init_module('Libs/QuickForm');
 		$f->addElement('datepicker','xxx','Date picker');
+		$f->addElement('submit',null,'ok');
+		if($f->validate()) {
+			print_r($f->exportValues());
+		}
 		$f->display();
 
 		//------------------------------ print out src

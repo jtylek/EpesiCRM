@@ -132,7 +132,6 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 			$t = str_replace($months,self::$months_en_short,$t);
 		}
 
-		print('go '.$t.'<br>');
 		return strtotime($t);
 	}
 }
