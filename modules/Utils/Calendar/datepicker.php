@@ -12,6 +12,7 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 		HTML_QuickForm_input::HTML_QuickForm_input($elementName, $elementLabel, $attributes);
 		$this->_persistantFreeze = true;
 		$this->setType('text');
+		$this->updateAttributes(array('readonly'=>1));
 	} //end constructor
         
 	function toHtml() {
@@ -35,10 +36,11 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 
 	function exportValue(&$submitValues, $assoc = false) {                                                                          
 		$val = parent::exportValue($submitValues,$assoc);
-		if($assoc)
-			$val[$this->getName()] = strftime('%Y-%m-%d',Base_RegionalSettingsCommon::reg2time($val[$this->getName()]));
-		else
-			$val=strftime('%Y-%m-%d',Base_RegionalSettingsCommon::reg2time($val));
+		if($assoc) {
+			if($val[$this->getName()]) $val[$this->getName()] = strftime('%Y-%m-%d',Base_RegionalSettingsCommon::reg2time($val[$this->getName()]));
+		} else {
+			if($val) $val=strftime('%Y-%m-%d',Base_RegionalSettingsCommon::reg2time($val));
+		}
 		return $val;
 	}
 	
