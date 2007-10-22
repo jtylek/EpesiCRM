@@ -94,7 +94,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		foreach ($fields as $v) {
 			if (!isset($v['param'])) $v['param'] = '';
 			if (!isset($v['extra'])) $v['extra'] = true;
-			Utils_RecordBrowserCommon::new_record_field($tab_name, $v['name'], $v['type'], $v['required'], $v['param'], $v['extra']);			
+			if (!isset($v['visible'])) $v['visible'] = false;
+			Utils_RecordBrowserCommon::new_record_field($tab_name, $v['name'], $v['type'], $v['visible'], $v['required'], $v['param'], $v['extra']);			
 			if (isset($v['display_callback'])) self::set_display_method($tab_name, $v['name'], $v['display_callback'][0], $v['display_callback'][1]);
 			if (isset($v['QFfield_callback'])) self::set_QFfield_method($tab_name, $v['name'], $v['QFfield_callback'][0], $v['QFfield_callback'][1]);
 			if (isset($v['requires']))
@@ -121,6 +122,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	
 	public function uninstall_new_recordset($tab_name = null) {
 		if (!$tab_name) return false;
+		DB::DropTable($tab_name.'_callback');
+		DB::DropTable($tab_name.'_require');
 		DB::DropTable($tab_name.'_addon');
 		DB::DropTable($tab_name.'_recent');
 		DB::DropTable($tab_name.'_favorite');
@@ -134,7 +137,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return true;
 	}
 	
-	public function new_record_field($tab_name, $field, $type, $required, $param='', $extra = true){
+	public function new_record_field($tab_name, $field, $type, $visible, $required, $param='', $extra = true){
 		if ($extra) {
 			$pos = DB::GetOne('SELECT MAX(position) FROM '.$tab_name.'_field')+1;
 		} else {
@@ -149,7 +152,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		} else {
 			if ($type=='select') $param = '__COMMON__::'.$param;
 		}
-		DB::Execute('INSERT INTO '.$tab_name.'_field(field, type, param, position, extra, required) VALUES(%s, %s, %s, %d, %d, %d)', array($field, $type, $param, $pos, $extra?1:0, $required?1:0));
+		DB::Execute('INSERT INTO '.$tab_name.'_field(field, type, visible, param, position, extra, required) VALUES(%s, %s, %d, %s, %d, %d, %d)', array($field, $type, $visible?1:0, $param, $pos, $extra?1:0, $required?1:0));
 	}
 	public static function new_addon($tab_name, $module, $func, $label) {
 		$module = str_replace('/','_',$module);

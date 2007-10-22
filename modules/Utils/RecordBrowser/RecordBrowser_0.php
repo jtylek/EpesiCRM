@@ -35,7 +35,7 @@ class Utils_RecordBrowser extends Module {
 	}
 	
 	public function init($admin=false) {
-		if (!isset($this->lang)) $this->lang = & $this->init_module('Base/Lang');
+		if (!isset($this->lang)) $this->lang = $this->init_module('Base/Lang');
 		$this->table_rows = Utils_RecordBrowserCommon::init($this->tab, $admin);
 		$this->requires = array();
 		$this->display_callback_table = array();
@@ -123,7 +123,7 @@ class Utils_RecordBrowser extends Module {
 		if (!Base_AclCommon::i_am_admin() && $admin) {
 			print($this->lang->t('You don\'t have permission to access this data.'));
 		}
-		$gb = & $this->init_module('Utils/GenericBrowser', null, $this->tab);
+		$gb = $this->init_module('Utils/GenericBrowser', null, $this->tab);
 		
 		if ($admin)
 			$table_columns = array(array('name'=>'Active', 'width'=>1));
@@ -171,7 +171,7 @@ class Utils_RecordBrowser extends Module {
 			$records = $rec_tmp;
 		}
 		foreach ($records as $row) {
-			$gb_row = & $gb->get_new_row();
+			$gb_row = $gb->get_new_row();
 			if ($admin)
 				$row_data = array($row['active']?$this->lang->t('Yes'):$this->lang->t('No'));
 			else
@@ -230,9 +230,9 @@ class Utils_RecordBrowser extends Module {
 			$this->add_recent_entry(Base_UserCommon::get_my_user_id(),$id);
 
 		$tb = $this->init_module('Utils/TabbedBrowser');
-		$form = & $this->init_module('Libs/QuickForm',null,$mode);
+		$form = $this->init_module('Libs/QuickForm',null,$mode);
 
-		$this->prepare_view_entry_details($mode, $id, &$form);
+		$this->prepare_view_entry_details($mode, $id, $form);
 
 		if ($form->validate()) {
 			$values = $form->exportValues();
@@ -266,7 +266,7 @@ class Utils_RecordBrowser extends Module {
 		}
 
 		if ($mode=='delete' || $mode=='view') $form->freeze();
-		if(!isset($renderer)) $renderer = & new HTML_QuickForm_Renderer_TCMSArraySmarty(); 
+		if(!isset($renderer)) $renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty(); 
 		$form->accept($renderer);
 		$data = $renderer->toArray();
 		
@@ -307,6 +307,7 @@ class Utils_RecordBrowser extends Module {
 		foreach($this->table_rows as $field => $args) 
 			if ($args['position'] >= $from && ($to == -1 || $args['position'] < $to)) 
 			{	
+				if (!isset($data[$args['id']])) $data[$args['id']] = array('label'=>'', 'html'=>'');
 				$fields[$args['id']] = array(	'label'=>$data[$args['id']]['label'],
 												'html'=>$data[$args['id']]['html'],
 												'type'=>$args['type']);
@@ -317,33 +318,51 @@ class Utils_RecordBrowser extends Module {
 		$theme->display(($tpl!==false)?$tpl:'View_entry', ($tpl!==false));
 	}
 
-	public function prepare_view_entry_details($mode, $id, &$form){
-		
+	public function prepare_view_entry_details($mode, $id, $form){
 		if ($mode!=='add') $records = Utils_RecordBrowserCommon::get_records($this->tab);
-		
+		$init_js = '';
 		foreach($this->table_rows as $field => $args){
 			if ($mode!=='add' && $mode!='edit') $records[$id][$field] = $this->get_val($field, $records[$id][$field]);
 			if (isset($this->QFfield_callback_table[$field])) {
-				call_user_func($this->QFfield_callback_table[$field], &$form, $args['id'], $this->lang->t($args['name']));
+				call_user_func($this->QFfield_callback_table[$field], $form, $args['id'], $this->lang->t($args['name']), $mode);
 				if ($mode!=='add') $form->setDefaults(array($args['id']=>$records[$id][$field]));
 				continue;
 			}
-			if (isset($this->requires[$field])) {
-				foreach($this->requires[$field] as $k=>$v) {
-					if (!is_array($v)) $v = array($v);
-					$r_id = strtolower(str_replace(' ','_',$k));
-					$js = 	'Event.observe(\''.$r_id.'\',\'change\',function(x) {'.
-							'if (0';
-					foreach ($v as $w)
-						$js .= ' || this.form.'.$r_id.'.value == \''.$w.'\'';
-					$js .= 	') { this.form.'.$args['id'].'.style.display = \'inline\';'.
-							'document.getElementById(\'_'.$args['id'].'__label\').style.display = \'inline\'; }'.
-							'else { this.form.'.$args['id'].'.style.display = \'none\';'.
-							'document.getElementById(\'_'.$args['id'].'__label\').style.display = \'none\'; }'.
-							'})';
-					eval_js($js);
+			if (isset($this->requires[$field])) 
+				if ($mode=='add' || $mode=='edit') {
+					foreach($this->requires[$field] as $k=>$v) {
+						if (!is_array($v)) $v = array($v);
+						$r_id = strtolower(str_replace(' ','_',$k));
+						$js = 	'Event.observe(\''.$r_id.'\',\'change\', onchange_'.$args['id'].'__'.$k.');'.
+								'function onchange_'.$args['id'].'__'.$k.'() {'.
+								'if (0';
+						foreach ($v as $w)
+							$js .= ' || document.forms[\''.$form->getAttribute('name').'\'].'.$r_id.'.value == \''.$w.'\'';
+						$js .= 	') { '.
+								'document.forms[\''.$form->getAttribute('name').'\'].'.$args['id'].'.style.display = \'inline\';'.
+								'document.getElementById(\'_'.$args['id'].'__label\').style.display = \'inline\';'.
+								'} else { '.
+								'document.forms[\''.$form->getAttribute('name').'\'].'.$args['id'].'.style.display = \'none\';'.
+								'document.getElementById(\'_'.$args['id'].'__label\').style.display = \'none\';'.
+								'}};';
+						$init_js .= 'onchange_'.$args['id'].'__'.$k.'();';
+						eval_js($js);
+					}
+				} else {
+					$hidden = false;
+					foreach($this->requires[$field] as $k=>$v) {
+						if (!is_array($v)) $v = array($v);
+						$r_id = strtolower(str_replace(' ','_',$k));
+						foreach ($v as $w) {
+							if ($records[$id][$k] != $w) {
+								$hidden = true;
+								break;
+							}
+						}
+						if ($hidden) break;
+					}
+					if ($hidden) continue;
 				}
-			}
 			switch ($args['type']) {
 				case 'integer':		$form->addElement('text', $args['id'], '<div id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</div>', array('id'=>$args['id']));
 									$form->addRule($args['id'], $this->lang->t('Only numbers are allowed.'), 'numeric');
@@ -401,7 +420,8 @@ class Utils_RecordBrowser extends Module {
 			}
 			if ($args['required'])
 				$form->addRule($args['id'], $this->lang->t('Field required'), 'required');
-		}		
+		}
+		eval_js($init_js);	
 	}
 	public function add_to_favs($id) {
 		DB::Execute('INSERT INTO '.$this->tab.'_favorite (user_id, '.$this->tab.'_id) VALUES (%d, %d)', array(Base_UserCommon::get_my_user_id(), $id));
@@ -459,7 +479,7 @@ class Utils_RecordBrowser extends Module {
 	//////////////////////////////////////////////////////////////////////////////////////////
 	public function admin() {
 		$this->init();
-		$tb = & $this->init_module('Utils/TabbedBrowser');
+		$tb = $this->init_module('Utils/TabbedBrowser');
 		
 		$tb->set_tab($this->lang->t('Manage Fields'),array($this, 'setup_loader') );
 		$tb->set_tab($this->lang->t('Manage Records'),array($this, 'show_data'), array(array(), array(), false, true) );
@@ -489,12 +509,12 @@ class Utils_RecordBrowser extends Module {
 	public function edit_page($id) {
 		if ($this->is_back()) return false;
 		$this->init();
-		$form = & $this->init_module('Libs/QuickForm', null, 'edit_page');
+		$form = $this->init_module('Libs/QuickForm', null, 'edit_page');
 		
 		$form->addElement('header', null, $this->lang->t('Edit page properties'));
 		$form->addElement('text', 'label', $this->lang->t('Label'));
-		$form->registerRule('check_if_column_exists', 'callback', 'check_if_column_exists', &$this);
-		$form->registerRule('check_if_no_id', 'callback', 'check_if_no_id', &$this);
+		$form->registerRule('check_if_column_exists', 'callback', 'check_if_column_exists', $this);
+		$form->registerRule('check_if_no_id', 'callback', 'check_if_no_id', $this);
 		$form->addRule('label', $this->lang->t('Field required.'), 'required');
 		$form->addRule('label', $this->lang->t('Field or Page with this name already exists.'), 'check_if_column_exists');
 		$form->addRule('label', $this->lang->t('Only letters and space are allowed.'), 'regex', '/^[a-zA-Z ]*$/');
@@ -523,7 +543,7 @@ class Utils_RecordBrowser extends Module {
 		
 		Base_ActionBarCommon::add('add','New field',$this->create_callback_href(array($this, 'view_field')));
 		Base_ActionBarCommon::add('add','New page',$this->create_callback_href(array($this, 'new_page')));
-		$gb = & $this->init_module('Utils/GenericBrowser', null, 'fields');
+		$gb = $this->init_module('Utils/GenericBrowser', null, 'fields');
 		$gb->set_table_columns(array(
 			array('name'=>$this->lang->t('Field'), 'width'=>20),
 			array('name'=>$this->lang->t('Type'), 'width'=>20),
@@ -537,7 +557,7 @@ class Utils_RecordBrowser extends Module {
 		$rows = count($this->table_rows);
 		$max_p = DB::GetOne('SELECT position FROM '.$this->tab.'_field WHERE field = \'Details\'');
 		foreach($this->table_rows as $field=>$args) {
-			$gb_row = & $gb->get_new_row();
+			$gb_row = $gb->get_new_row();
 			if($args['extra']) {
 				if ($args['type'] != 'page_split') {
 					if ($args['active']) $gb_row->add_action($this->create_callback_href(array($this, 'set_field_active'),array($field, false)),'Deactivate');
@@ -601,8 +621,8 @@ class Utils_RecordBrowser extends Module {
 		);
 		asort($data_type);
 		
-		if (!isset($this->lang)) $this->lang = & $this->init_module('Base/Lang');
-		$form = & $this->init_module('Libs/QuickForm');
+		if (!isset($this->lang)) $this->lang = $this->init_module('Base/Lang');
+		$form = $this->init_module('Libs/QuickForm');
 		
 		switch ($action) {
 			case 'add': $form->addElement('header', null, $this->lang->t('Add new field'));
@@ -611,8 +631,8 @@ class Utils_RecordBrowser extends Module {
 						break;
 		}
 		$form->addElement('text', 'field', $this->lang->t('Field'));
-		$form->registerRule('check_if_column_exists', 'callback', 'check_if_column_exists', &$this);
-		$form->registerRule('check_if_no_id', 'callback', 'check_if_no_id', &$this);
+		$form->registerRule('check_if_column_exists', 'callback', 'check_if_column_exists', $this);
+		$form->registerRule('check_if_no_id', 'callback', 'check_if_no_id', $this);
 		$form->addRule('field', $this->lang->t('Field required.'), 'required');
 		$form->addRule('field', $this->lang->t('Field with this name already exists.'), 'check_if_column_exists');
 		$form->addRule('field', $this->lang->t('Only letters and space are allowed.'), 'regex', '/^[a-zA-Z ]*$/');
@@ -668,7 +688,7 @@ class Utils_RecordBrowser extends Module {
 				DB::CompleteTrans();
 				return false;
 			} else { 
-				if ($form->process(array(&$this, 'submit_add_field')))
+				if ($form->process(array($this, 'submit_add_field')))
 					return false;				
 			}
 		}
@@ -711,7 +731,7 @@ class Utils_RecordBrowser extends Module {
 	public function view_edit_history($id){
 		if ($this->is_back()) return false;
 		$this->init();
-		$gb = & $this->init_module('Utils/GenericBrowser', null, $this->tab);
+		$gb = $this->init_module('Utils/GenericBrowser', null, $this->tab);
 		
 		$table_columns = array(	array('name'=>$this->lang->t('Action'), 'width'=>1, 'wrapmode'=>'nowrap'),
 								array('name'=>$this->lang->t('User'), 'width'=>1, 'wrapmode'=>'nowrap'),
@@ -794,7 +814,7 @@ class Utils_RecordBrowser extends Module {
 		}
 		array_unshift($edit_history, $row_data);
 		foreach($edit_history as $row_data) {
-			$gb_row = & $gb->get_new_row();
+			$gb_row = $gb->get_new_row();
 			$gb_row->add_data_array($row_data);
 			if ($counter > 0) $gb_row->add_action($this->create_callback_href(array($this, 'restore_record'), array($row_data, $id)),'Restore');
 			$counter--;
