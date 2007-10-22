@@ -50,7 +50,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 				array('type'=>'select','name'=>'date','label'=>'Date format', 
 					'default'=>'%m/%d/%y','values'=>$date_formats),//strftime
 				array('type'=>'select','name'=>'time','label'=>'Time format', 
-					'default'=>'%r','values'=>array('%r'=>'12h am/pm', '%R'=>'24h'), 
+					'default'=>'%H::%M:%S','values'=>array('%I:%M:%S %p'=>'12h am/pm', '%H::%M:%S'=>'24h'), 
 					'rule'=>array('type'=>'callback', 
 						'func'=>array('Base_RegionalSettingsCommon','check_12h'), 
 						'message'=>'This language does not support 12h clock',
@@ -71,6 +71,9 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 				isset(self::$countries[$lang_code])?self::$countries[$lang_code]:null);//win32
 
 		$ret = ($t == strtotime('2010-01-01 '.strftime($v,$t)));
+		/*print($v.': '.$t.'<br>');
+		print(strftime($v,$t).'<br>');
+		print(strtotime('2010-01-01 '.strftime($v,$t)).'<br>');*/
 
 		setlocale(LC_TIME,self::$curr_locale);
 
