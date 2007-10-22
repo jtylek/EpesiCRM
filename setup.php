@@ -41,6 +41,7 @@ if(!is_writable('backup'))
 	die('Cannot write into "backup" directory. Please fix privileges.');
 
 @define("_VALID_ACCESS", true);
+require_once('include/include_path.php');
 require_once('modules/Libs/QuickForm/requires.php');
 
 if(!isset($_GET['licence'])) {

@@ -12,25 +12,44 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_Dashboard extends Module {
 	private $lang;
+	private $tb;
 	private $set_default_js='';
 
 	public function construct() {
 		$this->lang = $this->init_module('Base/Lang');
+		$this->tb = $this->init_module('Utils/TabbedBrowser');
 	}
 
 	public function body() {
-		$is_user = DB::GetOne('SELECT user_login_id FROM base_dashboard_users WHERE user_login_id=%d',array(Base_UserCommon::get_my_user_id()));
-		if(!$is_user) {
+		$is_user = DB::GetAll('SELECT name,pos FROM base_dashboard_tabs WHERE user_login_id=%d',array(Base_UserCommon::get_my_user_id()));
+		if(!$is_user)
 			$this->set_default_applets();
-			DB::Execute('INSERT INTO base_dashboard_users VALUES(%d)',array(Base_UserCommon::get_my_user_id()));
-		}
 
 		$this->dashboard();
 	}
 
 	private function dashboard() {
-		Base_ActionBarCommon::add('add','Add applet',$this->create_callback_href(array($this,'applets_list')));
+		Base_ActionBarCommon::add('settings','Manage tabs',$this->create_callback_href(array($this,'tabs_list')));
 		load_js($this->get_module_dir().'ab.js');
+		$default_dash = $this->get_module_variable('default');
+		
+		if($default_dash)
+			$tabs = DB::GetAll('SELECT name,id FROM base_dashboard_default_tabs ORDER BY pos');
+		else
+			$tabs = DB::GetAll('SELECT name,id FROM base_dashboard_tabs WHERE user_login_id=%d ORDER BY pos',array(Base_UserCommon::get_my_user_id()));
+		
+		if(count($tabs)>1) {
+			foreach($tabs as $tab)
+				$this->tb->set_tab($tab['name'], array($this,'display_dashboard'),$tab['id']);
+			$this->display_module($this->tb);
+			$this->tb->tag();
+		} else
+			$this->display_dashboard($tabs[0]['id']);
+	}
+	
+	public function display_dashboard($tab_id) {
+		Base_ActionBarCommon::add('add','Add applet',$this->create_callback_href(array($this,'applets_list'),$tab_id));
+		
 		$tipmod = $this->init_module('Utils/Tooltip');
 		$default_dash = $this->get_module_variable('default');
 		print('<table id="dashboard" style="width: 100%"><tr>');
@@ -38,9 +57,9 @@ class Base_Dashboard extends Module {
 			print('<td id="dashboard_applets_'.$j.'" style="width:33%;min-height:100px;vertical-align:top;">');
 
 			if($default_dash) 
-				$ret = DB::GetAll('SELECT id,module_name FROM base_dashboard_default_applets WHERE col=%d ORDER BY pos',array($j));
+				$ret = DB::GetAll('SELECT id,module_name FROM base_dashboard_default_applets WHERE col=%d AND tab=%d ORDER BY pos',array($j,$tab_id));
 			else
-				$ret = DB::GetAll('SELECT id,module_name FROM base_dashboard_applets WHERE col=%d AND user_login_id=%d ORDER BY pos',array($j,Base_UserCommon::get_my_user_id()));
+				$ret = DB::GetAll('SELECT id,module_name FROM base_dashboard_applets WHERE col=%d AND user_login_id=%d AND tab=%d ORDER BY pos',array($j,Base_UserCommon::get_my_user_id(),$tab_id));
 			foreach($ret as $row) {
 				if(ModuleManager::is_installed($row['module_name'])==-1) {//if its invalid entry
 					$this->delete_applets($row['module_name']);
@@ -89,8 +108,91 @@ class Base_Dashboard extends Module {
 		print('</tr></table>');
 		eval_js('dashboard_activate('.($default_dash?1:0).')');
 	}
+	
+	public function tabs_list() {
+		if($this->is_back()) return false;
+		Base_ActionBarCommon::add('back','Dashboard',$this->create_back_href());
+		Base_ActionBarCommon::add('add','Add tab',$this->create_callback_href(array($this,'edit_tab')));
+		
+		$default_dash = $this->get_module_variable('default');
+		
+		$gb = $this->init_module('Utils/GenericBrowser',null,'tabs');
+		$gb->set_table_columns(array(
+				array('name'=>$this->lang->t('Caption'))
+				));
+		
+		if($default_dash)
+			$ret = DB::GetAll('SELECT id,name,pos FROM base_dashboard_default_tabs ORDER BY pos');
+		else
+			$ret = DB::GetAll('SELECT id,name,pos FROM base_dashboard_tabs WHERE user_login_id=%d ORDER BY pos',array(Base_UserCommon::get_my_user_id()));
+		foreach($ret as $row) {
+			$gb_row = $gb->get_new_row();
+			$gb_row->add_data($row['name']);
+			$gb_row->add_action($this->create_callback_href(array($this,'edit_tab'),$row['id']), 'Edit');
+			$gb_row->add_action($this->create_confirm_callback_href($this->lang->t('Delete this tab and all applets assigned to it?'),array($this,'delete_tab'),$row['id']), 'Delete');
+			if($row['pos']>0)
+				$gb_row->add_action($this->create_callback_href(array($this,'move_tab'),array($row['id'],$row['pos'],$row['pos']-1)), 'Up');
+			if($row['pos']<count($ret)-1)
+				$gb_row->add_action($this->create_callback_href(array($this,'move_tab'),array($row['id'],$row['pos'],$row['pos']+1)), 'Down');
+		}
+			
+		$this->display_module($gb);
+		return true;
+	}
+	
+	public function delete_tab($id) {
+		$default_dash = $this->get_module_variable('default');
+		$table_tabs = 'base_dashboard_'.($default_dash?'default_':'').'tabs';
+		$table_applets = 'base_dashboard_'.($default_dash?'default_':'').'applets';
+		$table_settings = 'base_dashboard_'.($default_dash?'default_':'').'settings';
+		
+		$ret = DB::GetAll('SELECT id FROM '.$table_applets.' WHERE tab=%d',array($id));
+		foreach($ret as $row)
+			DB::Execute('DELETE FROM '.$table_settings.' WHERE applet_id=%d',array($row['id']));
+		DB::Execute('DELETE FROM '.$table_applets.' WHERE tab=%d',array($id));
+		DB::Execute('DELETE FROM '.$table_tabs.' WHERE id=%d',array($id));
+	}
+	
+	public function edit_tab($id=null) {
+		if($this->is_back()) return false;
+		
+		$default_dash = $this->get_module_variable('default');
+		$table = 'base_dashboard_'.($default_dash?'default_':'').'tabs';
+		$qf = $this->init_module('Libs/QuickForm');
+		$qf->add_table($table, array(
+				array('name'=>'name', 'label'=>$this->lang->t('Caption'))
+			));
+		if(isset($id))
+			$qf->setDefaults(array('name'=>DB::GetOne('SELECT name FROM '.$table.' WHERE id=%d',array($id))));
+		if($qf->validate()) {
+			$name = $qf->exportValue('name');
+			if(isset($id))
+				DB::Execute('UPDATE '.$table.' SET name=%s WHERE id=%d',array($name,$id));
+			else {
+				DB::StartTrans();
+				$max = DB::GetOne('SELECT max(pos)+1 FROM '.$table.($default_dash?'':' WHERE user_login_id=%d'),array(Base_UserCommon::get_my_user_id()));
+				DB::Execute('INSERT INTO '.$table.'(name,pos,user_login_id) VALUES(%s,%d,%d)',array($name,$max,Base_UserCommon::get_my_user_id()));
+				DB::CompleteTrans();
+			}
+			return false;
+		}
+		Base_ActionBarCommon::add('save','Save',$qf->get_submit_form_href());
+		Base_ActionBarCommon::add('back','Cancel',$this->create_back_href());
+		$qf->display();
+		return true;
+	}
+	
+	public function move_tab($id,$old_pos,$new_pos) {
+		$default_dash = $this->get_module_variable('default');
+		$table = 'base_dashboard_'.($default_dash?'default_':'').'tabs';
+		DB::StartTrans();
+		$id2 = DB::GetOne('SELECT id FROM '.$table.' WHERE pos=%d',array($new_pos));
+		DB::Execute('UPDATE '.$table.' SET pos=%d WHERE id=%d',array($old_pos,$id2));
+		DB::Execute('UPDATE '.$table.' SET pos=%d WHERE id=%d',array($new_pos,$id));
+		DB::CompleteTrans();
+	}
 
-	public function applets_list() {
+	public function applets_list($tab_id) {
 		$this->lang = $this->init_module('Base/Lang');
 
 		$fc = $this->get_module_variable('first_conf');
@@ -132,7 +234,7 @@ class Base_Dashboard extends Module {
 						trigger_error('Invalid applet info for module: '.$obj['name'],E_USER_ERROR);
 					$attrs .= $tipmod->open_tag_attrs($out,false).' ';
 				}
-				$links[$obj['name']] = '<a '.$attrs.$this->create_callback_href(array($this,'add_applet'),$obj['name']).'>'.call_user_func(array($obj['name'].'Common', 'applet_caption')).'</a>';
+				$links[$obj['name']] = '<a '.$attrs.$this->create_callback_href(array($this,'add_applet'),array($obj['name'],$tab_id)).'>'.call_user_func(array($obj['name'].'Common', 'applet_caption')).'</a>';
 			}
 		}
 
@@ -149,11 +251,11 @@ class Base_Dashboard extends Module {
 		return true;
 	}
 
-	public function add_applet($mod) {
+	public function add_applet($mod,$tab_id) {
 		if($this->get_module_variable('default'))
-			DB::Execute('INSERT INTO base_dashboard_default_applets(module_name) VALUES (%s)',array($mod));
+			DB::Execute('INSERT INTO base_dashboard_default_applets(module_name,tab) VALUES (%s,%d)',array($mod,$tab_id));
 		else
-			DB::Execute('INSERT INTO base_dashboard_applets(user_login_id,module_name) VALUES (%d,%s)',array(Base_UserCommon::get_my_user_id(),$mod));
+			DB::Execute('INSERT INTO base_dashboard_applets(user_login_id,module_name,tab) VALUES (%d,%s,%d)',array(Base_UserCommon::get_my_user_id(),$mod,$tab_id));
 		$this->set_module_variable('first_conf',DB::Insert_ID('base_dashboard_default_applets','id'));
 		$this->set_module_variable('mod_conf',$mod);
 	}
@@ -296,9 +398,13 @@ class Base_Dashboard extends Module {
 	}
 	
 	public function set_default_applets() {
-		$ret = DB::GetAll('SELECT id,module_name,col FROM base_dashboard_default_applets ORDER BY pos');
+		$tabs = DB::GetAll('SELECT pos,name FROM base_dashboard_default_tabs');
+		foreach($tabs as $tab) {
+			DB::Execute('INSERT INTO base_dashboard_tabs(user_login_id,pos,name) VALUES(%d,%d,%s)',array(Base_UserCommon::get_my_user_id(),$tab['pos'],$tab['name']));
+		}
+		$ret = DB::GetAll('SELECT id,module_name,col,tab FROM base_dashboard_default_applets ORDER BY pos');
 		foreach($ret as $row) {
-			DB::Execute('INSERT INTO base_dashboard_applets(module_name,col,user_login_id) VALUES(%s,%d,%d)',array($row['module_name'],$row['col'],Base_UserCommon::get_my_user_id()));
+			DB::Execute('INSERT INTO base_dashboard_applets(module_name,col,user_login_id,tab) VALUES(%s,%d,%d,%d)',array($row['module_name'],$row['col'],Base_UserCommon::get_my_user_id(),$row['tab']));
 			$ins_id = DB::Insert_ID('base_dashboard_applets','id');
 			$ret_set = DB::GetAll('SELECT name,value FROM base_dashboard_default_settings WHERE applet_id=%d',array($row['id']));
 			foreach($ret_set as $row_set)

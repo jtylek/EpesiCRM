@@ -91,33 +91,44 @@ function update_from_0_8_11_to_0_9_0() {
 	// installing Dashboard
 	if(!DB::GetOne('SELECT name FROM modules WHERE name=\'Base_Dashboard\''))
 		DB::Execute('INSERT INTO modules VALUES(%s,%d,%d)',array('Base_Dashboard',0,0));
+	DB::CreateTable('base_dashboard_tabs','
+		id I4 AUTO KEY,
+		user_login_id I4,
+		name C(64) NOTNULL,
+		pos I2',
+		array('constraints'=>', FOREIGN KEY (user_login_id) REFERENCES user_login(ID)'));
+	DB::CreateTable('base_dashboard_default_tabs','
+		id I4 AUTO KEY,
+		name C(64) NOTNULL,
+		pos I2');
+	DB::Execute('INSERT INTO base_dashboard_default_tabs(name,pos) VALUES(\'Default\',0)');
 	DB::CreateTable('base_dashboard_applets','
 		id I4 AUTO KEY,
 		user_login_id I4,
 		module_name C(128),
 		col I2 DEFAULT 0,
-		pos I2 DEFAULT 0',
-		array('constraints'=>', FOREIGN KEY (user_login_id) REFERENCES user_login(ID)'));
+		pos I2 DEFAULT 0,
+		tab I4',
+		array('constraints'=>', FOREIGN KEY (user_login_id) REFERENCES user_login(ID), FOREIGN KEY (tab) REFERENCES base_dashboard_tabs(ID)'));
 	DB::CreateTable('base_dashboard_settings','
 		applet_id I4,
 		name C(32) NOTNULL,
 		value X NOTNULL',
 		array('constraints'=>', FOREIGN KEY (applet_id) REFERENCES base_dashboard_applets(ID), PRIMARY KEY(applet_id,name)'));
-	DB::CreateTable('base_dashboard_users','
-		user_login_id I4 KEY',
-		array('constraints'=>', FOREIGN KEY (user_login_id) REFERENCES user_login(ID)'));
 	DB::CreateTable('base_dashboard_default_applets','
 		id I4 AUTO KEY,
 		module_name C(128),
 		col I2 DEFAULT 0,
-		pos I2 DEFAULT 0');
+		pos I2 DEFAULT 0,
+		tab I4',
+		array('constraints'=>', FOREIGN KEY (tab) REFERENCES base_dashboard_default_tabs(ID)'));
 	DB::CreateTable('base_dashboard_default_settings','
 		applet_id I4,
 		name C(32) NOTNULL,
 		value X NOTNULL',
 		array('constraints'=>', FOREIGN KEY (applet_id) REFERENCES base_dashboard_default_applets(ID), PRIMARY KEY(applet_id,name)'));
-	Acl::add_aco('Base_Dashboard','set default dashboard','Super administrator');
-
+	$this->add_aco('set default dashboard','Super administrator');
+	
 	DB::CreateTable('base_user_settings_admin_defaults','
 		module C(128) NOTNULL,
 		variable C(32) NOTNULL,

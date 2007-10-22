@@ -14,22 +14,35 @@ class Base_DashboardInstall extends ModuleInstall {
 
 	public function install() {
 		$ret = true;
+		$ret &= DB::CreateTable('base_dashboard_tabs','
+			id I4 AUTO KEY,
+			user_login_id I4,
+			name C(64) NOTNULL,
+			pos I2',
+			array('constraints'=>', FOREIGN KEY (user_login_id) REFERENCES user_login(ID)'));
+		if(!$ret){
+			print('Unable to create table base_dashboard_tabs.<br>');
+			return false;
+		}
+		$ret &= DB::CreateTable('base_dashboard_default_tabs','
+			id I4 AUTO KEY,
+			name C(64) NOTNULL,
+			pos I2');
+		if(!$ret){
+			print('Unable to create table base_dashboard_default_tabs.<br>');
+			return false;
+		}
+		DB::Execute('INSERT INTO base_dashboard_default_tabs(name,pos) VALUES(\'Default\',0)');
 		$ret &= DB::CreateTable('base_dashboard_applets','
 			id I4 AUTO KEY,
 			user_login_id I4,
 			module_name C(128),
 			col I2 DEFAULT 0,
-			pos I2 DEFAULT 0',
-			array('constraints'=>', FOREIGN KEY (user_login_id) REFERENCES user_login(ID)'));
+			pos I2 DEFAULT 0,
+			tab I4',
+			array('constraints'=>', FOREIGN KEY (user_login_id) REFERENCES user_login(ID), FOREIGN KEY (tab) REFERENCES base_dashboard_tabs(ID)'));
 		if(!$ret){
 			print('Unable to create table base_dashboard_applets.<br>');
-			return false;
-		}
-		$ret &= DB::CreateTable('base_dashboard_users','
-			user_login_id I4 KEY',
-			array('constraints'=>', FOREIGN KEY (user_login_id) REFERENCES user_login(ID)'));
-		if(!$ret){
-			print('Unable to create table base_dashboard_users.<br>');
 			return false;
 		}
 		$ret &= DB::CreateTable('base_dashboard_settings','
@@ -45,7 +58,9 @@ class Base_DashboardInstall extends ModuleInstall {
 			id I4 AUTO KEY,
 			module_name C(128),
 			col I2 DEFAULT 0,
-			pos I2 DEFAULT 0');
+			pos I2 DEFAULT 0,
+			tab I4',
+			array('constraints'=>', FOREIGN KEY (tab) REFERENCES base_dashboard_default_tabs(ID)'));
 		if(!$ret){
 			print('Unable to create table base_dashboard_default_applets.<br>');
 			return false;
