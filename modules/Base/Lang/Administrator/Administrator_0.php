@@ -88,7 +88,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		$form = & $this->init_module('Libs/QuickForm',$this->lang->t('Creating new langpack...'),'new_langpack');
 		$form -> addElement('header',null,$this->lang->t('Create new langpack'));
 		$form -> addElement('text','code',$this->lang->t('Language code'),array('maxlength'=>2));
-		$form->registerRule('check_if_langpack_exists', 'callback', 'check_if_langpack_exists', &$this);
+		$form->registerRule('check_if_langpack_exists', 'callback', 'check_if_langpack_exists', $this);
 		$form -> addRule('code', $this->lang->t('Specified langpack already exists'), 'check_if_langpack_exists');
 		$form -> addRule('code', $this->lang->t('Field required'), 'required');
 		$submit = HTML_QuickForm::createElement('submit','submit',$this->lang->ht('Create'));

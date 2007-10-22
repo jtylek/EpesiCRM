@@ -204,7 +204,7 @@ class Base_Dashboard extends Module {
 		if(isset($fc)) {
 			$mod = $this->get_module_variable('mod_conf');
 			$ok = null;
-			if(!$this->configure_applet($fc,$mod,& $ok)) {
+			if(!$this->configure_applet($fc,$mod,$ok)) {
 				if(!$ok)
 					$this->delete_applet($fc);
 				else

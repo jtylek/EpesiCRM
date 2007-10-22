@@ -98,7 +98,7 @@ class Utils_CustomMenu extends Module {
 		$f->addElement('text', 'path', $this->lang->t('Menu entry path'),array('maxlength'=>255));
 		$f->addRule('path',$this->lang->t('This field is required'),'required');
 		$f->addRule('path',$this->lang->t('Field too long, max 255 chars'),'maxlength',255);
-		$f->registerRule('check_path', 'callback', 'check_path', &$this);
+		$f->registerRule('check_path', 'callback', 'check_path', $this);
 		$f->addRule('path',$this->lang->t('Specified path already exists'),'check_path');
 		
 		$save_b = & HTML_QuickForm::createElement('submit', null, $this->lang->ht('OK'));
