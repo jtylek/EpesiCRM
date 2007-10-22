@@ -15,7 +15,14 @@ class Tests_Callbacks extends Module {
 		print('<a '.$this->create_callback_href(array($this,'instead')).'>Instead</a> :: ');
 		print('<a '.$this->create_callback_href(array($this,'before')).'>Before</a> :: ');
 		print('<a '.$this->create_callback_href(array($this,'src')).'>Source of this example</a> :: ');
-		print('<a '.$this->create_callback_href(array($this,'form1')).'>Form test</a>');
+		print('<a '.$this->create_callback_href(array($this,'form1')).'>Form test</a> :: ');
+		print('<a '.$this->create_callback_href(array($this,'incr'),0).'>Incr test</a>');
+	}
+
+	public function incr($inc) {
+		print($inc.'<br>');
+		print('<a '.$this->create_callback_href(array($this,'incr'),$inc+1).'>Incr test</a>');
+		return true;
 	}
 	
 	public function form1() {
