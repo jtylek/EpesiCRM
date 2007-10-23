@@ -784,10 +784,10 @@ abstract class Module extends ModulePrimitive {
 	}
 	
 	/**
-	 * Returns value returned by function in get_html_of_module/display_module
+	 * Returns last value returned by function in get_html_of_module/display_module
 	 * @return mixed
 	 */
-	public final function returned() {
+	public final function last_returned() {
 		return $this->last_ret;
 	}
 	
