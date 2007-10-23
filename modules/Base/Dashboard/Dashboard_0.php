@@ -94,8 +94,7 @@ class Base_Dashboard extends Module {
 
 				$th->assign('remove','<a class="remove" '.$tipmod->open_tag_attrs($this->lang->ht('Remove')).' '.$this->create_confirm_callback_href($this->lang->ht('Delete this applet?'),array($this,'delete_applet'),$row['id']).'>x</a>');
 
-				if(method_exists($row['module_name'].'Common', 'applet_settings'))
-					$th->assign('configure','<a class="configure" '.$tipmod->open_tag_attrs($this->lang->ht('Configure')).' '.$this->create_callback_href(array($this,'configure_applet'),array($row['id'],$row['module_name'])).'>c</a>');
+				$th->assign('configure','<a class="configure" '.$tipmod->open_tag_attrs($this->lang->ht('Configure')).' '.$this->create_callback_href(array($this,'configure_applet'),array($row['id'],$row['module_name'])).'>c</a>');
 
 				$th->assign('caption',$opts['title']);
 
@@ -294,29 +293,35 @@ class Base_Dashboard extends Module {
 			$ok=false;
 			return false;
 		}
-		if(!method_exists($mod.'Common', 'applet_settings')) {
-			$ok=true;
-			return false;
-		}
 
 		$this->lang = $this->init_module('Base/Lang');
 		$f = &$this->init_module('Libs/QuickForm',$this->lang->ht('Saving settings'),'settings');
-		$f->addElement('header',null,$this->lang->t(call_user_func(array($mod.'Common','applet_caption'))));
-
-		$menu = call_user_func(array($mod.'Common','applet_settings'));
-		if (is_array($menu))
-			$this->add_module_settings_to_form($menu,$f,$id,$mod);
-		else
-			trigger_error('Invalid applet settings function: '.$mod,E_USER_ERROR);
-
-		$defaults = HTML_QuickForm::createElement('button','defaults',$this->lang->ht('Restore defaults'), 'onClick="'.$this->set_default_js.'"');
-		$submit = HTML_QuickForm::createElement('submit','submit',$this->lang->ht('OK'));
-		$cancel = HTML_QuickForm::createElement('button','cancel',$this->lang->ht('Cancel'), $this->create_back_href());
-		$f->addGroup(array($defaults, $submit,$cancel));
+		$caption = call_user_func(array($mod.'Common','applet_caption'));
+		
+		$sett_fn = array($mod.'Common','applet_settings');
+		if(is_callable($sett_fn)) {
+			$f->addElement('header',null,$this->lang->t($caption. ' settings'));
+			
+			$menu = call_user_func($sett_fn);
+			if (is_array($menu))
+				$this->add_module_settings_to_form($menu,$f,$id,$mod);
+			else
+				trigger_error('Invalid applet settings function: '.$mod,E_USER_ERROR);
+		}
+		
+		$f->addElement('header',null,$this->lang->t($caption.' position'));
+		$default_dash = $this->get_module_variable('default');
+		$table_tabs = 'base_dashboard_'.($default_dash?'default_':'').'tabs';
+		$table_applets = 'base_dashboard_'.($default_dash?'default_':'').'applets';
+		$tabs = DB::GetAssoc('SELECT id,name FROM '.$table_tabs,null,true,true);
+		$f->addElement('select','__tab',$this->lang->t('Tab'),$tabs);
+		$f->setDefaults(array('__tab'=>DB::GetOne('SELECT tab FROM '.$table_applets.' WHERE id=%d',array($id))));
 
 		if($f->validate()) {
 			//$f->process(array(& $this, 'submit_settings'));
 			$submited = $f->exportValues();
+			DB::Execute('UPDATE '.$table_applets.' SET tab=%d WHERE id=%d',array($submited['__tab'],$id));
+			
 			$defaults = $this->get_default_values($mod);
 			$old = $this->get_values($id,$mod);
 			foreach($defaults as $name=>$def_value) {
@@ -340,6 +345,11 @@ class Base_Dashboard extends Module {
 		}
 		$ok=null;
 		$f->display();
+
+		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+		Base_ActionBarCommon::add('save','Save',$f->get_submit_form_href());
+		Base_ActionBarCommon::add('settings','Restore defaults','onClick="'.$this->set_default_js.'" href="javascript:void(0)"');
+
 		return true;
 
 	}
