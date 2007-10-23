@@ -25,7 +25,7 @@ class DBSession {
     }
     
     public static function read($name) {
-    	$data = DB::GetOne('SELECT data FROM session WHERE name = %s AND expires > %s', array($name, time()-self::$lifetime));
+    	$data = DB::GetOne('SELECT data FROM session WHERE name = %s AND expires > %d', array($name, time()-self::$lifetime));
         return $data;
     }
 

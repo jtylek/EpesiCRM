@@ -17,6 +17,8 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 require_once('adodb/adodb-errorhandler.inc.php');
 require_once('adodb/adodb.inc.php');
 
+define('SYSTEM_TIMEZONE',date_default_timezone_get());
+
 /**
  * This class maintains database connection.
  * @package epesi-base
@@ -82,57 +84,56 @@ class DB {
 
 
 	public static function TypeControl($sql, & $arr) {
-		if(SQL_TYPE_CONTROL) {		
-			$x = preg_split('/(%[%DTdsbf])/', $sql, -1, PREG_SPLIT_DELIM_CAPTURE);
-			
-			$ret = '';
-			$j=0;
-			foreach($x as $y) {
-				switch ($y) {
-					case '%d' :
-						if (!is_numeric($arr[$j]))
-							trigger_error('Argument '.$j.' is not number('.$y.'): <ul><li>'.$sql.'</li><li>'.print_r($arr,true).'</li></ul>',E_USER_ERROR);
-						$arr[$j] = (int)($arr[$j]);
-						$j++;
-						$ret .= '?';
-						break;
-					case '%f' :
-						if (!is_numeric($arr[$j]))
-							trigger_error('Argument '.$j.' is not number('.$y.'): <ul><li>'.$sql.'</li><li>'.print_r($arr,true).'</li></ul>',E_USER_ERROR);
-						$arr[$j] = (float)($arr[$j]);
-						$j++;
-						$ret .= '?';
-						break;
-					case '%s' :
-						$arr[$j] = self::qstr($arr[$j]);
-						$j++;
-						$ret .= '?';
-						break;
-					case '%D' :
-						$arr[$j] =  self::DBDate($arr[$j]);
-						$j++;
-						$ret .= '?';
-						break;
-					case '%T' :
-						$arr[$j] = self::DBTimeStamp($arr[$j]);
-						$j++;
-						$ret .= '?';
-						break;
-					case '%b' :
-						$arr[$j] = (int) ((bool) $arr[$j]);
-						$j++;
-						$ret .= '?';
-						break;
-					case '%%':
-						$ret .= '%';
-						break;
-					default:
-						$ret .= $y;
-				}
+		$x = preg_split('/(%[%DTdsbf])/', $sql, -1, PREG_SPLIT_DELIM_CAPTURE);
+		
+		$ret = '';
+		$j=0;
+		$curr_tz = date_default_timezone_get();
+		date_default_timezone_set(SYSTEM_TIMEZONE);
+		foreach($x as $y) {
+			switch ($y) {
+				case '%d' :
+					if (!is_numeric($arr[$j]))
+						trigger_error('Argument '.$j.' is not number('.$y.'): <ul><li>'.$sql.'</li><li>'.print_r($arr,true).'</li></ul>',E_USER_ERROR);
+					$arr[$j] = (int)($arr[$j]);
+					$j++;
+					$ret .= '?';
+					break;
+				case '%f' :
+					if (!is_numeric($arr[$j]))
+						trigger_error('Argument '.$j.' is not number('.$y.'): <ul><li>'.$sql.'</li><li>'.print_r($arr,true).'</li></ul>',E_USER_ERROR);
+					$arr[$j] = (float)($arr[$j]);
+					$j++;
+					$ret .= '?';
+					break;
+				case '%s' :
+					$arr[$j] = (string)$arr[$j];
+					$j++;
+					$ret .= '?';
+					break;
+				case '%D' :
+					$arr[$j] = self::BindDate($arr[$j]);
+					$j++;
+					$ret .= '?';
+					break;
+				case '%T' :
+					$arr[$j] = self::BindTimeStamp($arr[$j]);
+					$j++;
+					$ret .= '?';
+					break;
+				case '%b' :
+					$arr[$j] = (boolean) $arr[$j];
+					$j++;
+					$ret .= '?';
+					break;
+				case '%%':
+					$ret .= '%';
+					break;
+				default:
+					$ret .= $y;
 			}
-		} else {
-			$ret = str_replace(array('%s','%d','%f','%D','%T','%b'),'?',str_replace('%%','%',$sql));
-		} 
+		}
+		date_default_timezone_set($curr_tz);
 		return $ret;
 	}
 	
@@ -291,7 +292,7 @@ return $ret;
 public static function &Execute( $sql , $inputarr = false ) {
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
-$args[0] = self::TypeControl($sql,$inputarr);
+$args[0] = self::TypeControl($sql,$args[1]);
 $ret = call_user_func_array(array(self::$ado,"Execute"), $args);
 if(SQL_TIMES)self::$queries[] = array("func"=>"Execute", "args"=>$args, "time"=>microtime(true)-$time);
 return $ret;
@@ -385,7 +386,7 @@ return $ret;
 public static function &SelectLimit( $sql , $nrows = -1 , $offset = -1 , $inputarr = false , $secs2cache = 0 ) {
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
-$args[0] = self::TypeControl($sql,$inputarr);
+$args[0] = self::TypeControl($sql,$args[3]);
 $ret = call_user_func_array(array(self::$ado,"SelectLimit"), $args);
 if(SQL_TIMES)self::$queries[] = array("func"=>"SelectLimit", "args"=>$args, "time"=>microtime(true)-$time);
 return $ret;
@@ -402,7 +403,7 @@ return $ret;
 public static function &GetAll( $sql , $inputarr = false ) {
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
-$args[0] = self::TypeControl($sql,$inputarr);
+$args[0] = self::TypeControl($sql,$args[1]);
 $ret = call_user_func_array(array(self::$ado,"GetAll"), $args);
 if(SQL_TIMES)self::$queries[] = array("func"=>"GetAll", "args"=>$args, "time"=>microtime(true)-$time);
 return $ret;
@@ -412,7 +413,7 @@ return $ret;
 public static function &GetAssoc( $sql , $inputarr = false , $force_array = false , $first2cols = false ) {
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
-$args[0] = self::TypeControl($sql,$inputarr);
+$args[0] = self::TypeControl($sql,$args[1]);
 $ret = call_user_func_array(array(self::$ado,"GetAssoc"), $args);
 if(SQL_TIMES)self::$queries[] = array("func"=>"GetAssoc", "args"=>$args, "time"=>microtime(true)-$time);
 return $ret;
@@ -422,7 +423,7 @@ return $ret;
 public static function &CacheGetAssoc( $secs2cache , $sql = false , $inputarr = false , $force_array = false , $first2cols = false ) {
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
-$args[1] = self::TypeControl($sql,$inputarr);
+$args[1] = self::TypeControl($sql,$args[2]);
 $ret = call_user_func_array(array(self::$ado,"CacheGetAssoc"), $args);
 if(SQL_TIMES)self::$queries[] = array("func"=>"CacheGetAssoc", "args"=>$args, "time"=>microtime(true)-$time);
 return $ret;
@@ -432,7 +433,7 @@ return $ret;
 public static function &GetOne( $sql , $inputarr = false ) {
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
-$args[0] = self::TypeControl($sql,$inputarr);
+$args[0] = self::TypeControl($sql,$args[1]);
 $ret = call_user_func_array(array(self::$ado,"GetOne"), $args);
 if(SQL_TIMES)self::$queries[] = array("func"=>"GetOne", "args"=>$args, "time"=>microtime(true)-$time);
 return $ret;
@@ -442,7 +443,7 @@ return $ret;
 public static function &CacheGetOne( $secs2cache , $sql = false , $inputarr = false ) {
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
-$args[1] = self::TypeControl($sql,$inputarr);
+$args[1] = self::TypeControl($sql,$args[2]);
 $ret = call_user_func_array(array(self::$ado,"CacheGetOne"), $args);
 if(SQL_TIMES)self::$queries[] = array("func"=>"CacheGetOne", "args"=>$args, "time"=>microtime(true)-$time);
 return $ret;
@@ -452,7 +453,7 @@ return $ret;
 public static function &GetCol( $sql , $inputarr = false , $trim = false ) {
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
-$args[0] = self::TypeControl($sql,$inputarr);
+$args[0] = self::TypeControl($sql,$args[1]);
 $ret = call_user_func_array(array(self::$ado,"GetCol"), $args);
 if(SQL_TIMES)self::$queries[] = array("func"=>"GetCol", "args"=>$args, "time"=>microtime(true)-$time);
 return $ret;
@@ -462,7 +463,7 @@ return $ret;
 public static function &CacheGetCol( $secs , $sql = false , $inputarr = false , $trim = false ) {
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
-$args[1] = self::TypeControl($sql,$inputarr);
+$args[1] = self::TypeControl($sql,$args[2]);
 $ret = call_user_func_array(array(self::$ado,"CacheGetCol"), $args);
 if(SQL_TIMES)self::$queries[] = array("func"=>"CacheGetCol", "args"=>$args, "time"=>microtime(true)-$time);
 return $ret;
@@ -486,7 +487,7 @@ return $ret;
 public static function &GetArray( $sql , $inputarr = false ) {
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
-$args[0] = self::TypeControl($sql,$inputarr);
+$args[0] = self::TypeControl($sql,$args[1]);
 $ret = call_user_func_array(array(self::$ado,"GetArray"), $args);
 if(SQL_TIMES)self::$queries[] = array("func"=>"GetArray", "args"=>$args, "time"=>microtime(true)-$time);
 return $ret;
@@ -496,7 +497,7 @@ return $ret;
 public static function &CacheGetAll( $secs2cache , $sql = false , $inputarr = false ) {
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
-$args[1] = self::TypeControl($sql,$inputarr);
+$args[1] = self::TypeControl($sql,$args[2]);
 $ret = call_user_func_array(array(self::$ado,"CacheGetAll"), $args);
 if(SQL_TIMES)self::$queries[] = array("func"=>"CacheGetAll", "args"=>$args, "time"=>microtime(true)-$time);
 return $ret;
@@ -506,7 +507,7 @@ return $ret;
 public static function &CacheGetArray( $secs2cache , $sql = false , $inputarr = false ) {
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
-$args[1] = self::TypeControl($sql,$inputarr);
+$args[1] = self::TypeControl($sql,$args[2]);
 $ret = call_user_func_array(array(self::$ado,"CacheGetArray"), $args);
 if(SQL_TIMES)self::$queries[] = array("func"=>"CacheGetArray", "args"=>$args, "time"=>microtime(true)-$time);
 return $ret;
@@ -516,7 +517,7 @@ return $ret;
 public static function &GetRow( $sql , $inputarr = false ) {
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
-$args[0] = self::TypeControl($sql,$inputarr);
+$args[0] = self::TypeControl($sql,$args[1]);
 $ret = call_user_func_array(array(self::$ado,"GetRow"), $args);
 if(SQL_TIMES)self::$queries[] = array("func"=>"GetRow", "args"=>$args, "time"=>microtime(true)-$time);
 return $ret;
@@ -526,7 +527,7 @@ return $ret;
 public static function &CacheGetRow( $secs2cache , $sql = false , $inputarr = false ) {
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
-$args[1] = self::TypeControl($sql,$inputarr);
+$args[1] = self::TypeControl($sql,$args[2]);
 $ret = call_user_func_array(array(self::$ado,"CacheGetRow"), $args);
 if(SQL_TIMES)self::$queries[] = array("func"=>"CacheGetRow", "args"=>$args, "time"=>microtime(true)-$time);
 return $ret;
@@ -543,7 +544,7 @@ return $ret;
 public static function &CacheSelectLimit( $secs2cache , $sql , $nrows = -1 , $offset = -1 , $inputarr = false ) {
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
-$args[1] = self::TypeControl($sql,$inputarr);
+$args[1] = self::TypeControl($sql,$args[4]);
 $ret = call_user_func_array(array(self::$ado,"CacheSelectLimit"), $args);
 if(SQL_TIMES)self::$queries[] = array("func"=>"CacheSelectLimit", "args"=>$args, "time"=>microtime(true)-$time);
 return $ret;
@@ -553,7 +554,7 @@ return $ret;
 public static function &CacheFlush( $sql = false , $inputarr = false ) {
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
-$args[0] = self::TypeControl($sql,$inputarr);
+$args[0] = self::TypeControl($sql,$args[1]);
 $ret = call_user_func_array(array(self::$ado,"CacheFlush"), $args);
 if(SQL_TIMES)self::$queries[] = array("func"=>"CacheFlush", "args"=>$args, "time"=>microtime(true)-$time);
 return $ret;
@@ -563,7 +564,7 @@ return $ret;
 public static function &xCacheFlush( $sql = false , $inputarr = false ) {
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
-$args[0] = self::TypeControl($sql,$inputarr);
+$args[0] = self::TypeControl($sql,$args[1]);
 $ret = call_user_func_array(array(self::$ado,"xCacheFlush"), $args);
 if(SQL_TIMES)self::$queries[] = array("func"=>"xCacheFlush", "args"=>$args, "time"=>microtime(true)-$time);
 return $ret;
@@ -573,7 +574,7 @@ return $ret;
 public static function &CacheExecute( $secs2cache , $sql = false , $inputarr = false ) {
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
-$args[1] = self::TypeControl($sql,$inputarr);
+$args[1] = self::TypeControl($sql,$args[2]);
 $ret = call_user_func_array(array(self::$ado,"CacheExecute"), $args);
 if(SQL_TIMES)self::$queries[] = array("func"=>"CacheExecute", "args"=>$args, "time"=>microtime(true)-$time);
 return $ret;
@@ -856,7 +857,7 @@ return $ret;
 public static function &PageExecute( $sql , $nrows , $page , $inputarr = false , $secs2cache = 0 ) {
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
-$args[0] = self::TypeControl($sql,$inputarr);
+$args[0] = self::TypeControl($sql,$args[3]);
 $ret = call_user_func_array(array(self::$ado,"PageExecute"), $args);
 if(SQL_TIMES)self::$queries[] = array("func"=>"PageExecute", "args"=>$args, "time"=>microtime(true)-$time);
 return $ret;
@@ -866,7 +867,7 @@ return $ret;
 public static function &CachePageExecute( $secs2cache , $sql , $nrows , $page , $inputarr = false ) {
 $args = func_get_args();
 if(SQL_TIMES) $time = microtime(true);
-$args[1] = self::TypeControl($sql,$inputarr);
+$args[1] = self::TypeControl($sql,$args[4]);
 $ret = call_user_func_array(array(self::$ado,"CachePageExecute"), $args);
 if(SQL_TIMES)self::$queries[] = array("func"=>"CachePageExecute", "args"=>$args, "time"=>microtime(true)-$time);
 return $ret;
