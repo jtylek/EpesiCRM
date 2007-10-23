@@ -188,6 +188,7 @@ class Libs_QuickForm extends Module {
 				$arr[] = $v;
 				continue;
 			}
+			if(isset($v['rule']['message']) && isset($v['rule']['type'])) $v['rule'] = array($v['rule']);
 			if(!isset($v['default']) && $meta->has_default) $v['default'] = $meta->default_value;
 			$type = DB::dict()->MetaType($meta);
 			if(!isset($v['type']))
