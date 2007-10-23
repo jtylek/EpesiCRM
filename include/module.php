@@ -29,6 +29,7 @@ abstract class Module extends ModulePrimitive {
 	private $inline_display = false;
 	private $displayed = false;
 	private $clear_child_vars = false;
+	private $last_ret = null;
 	
 	/**
 	 * Constructor. Should not be called directly using new Module('name').
@@ -760,7 +761,7 @@ abstract class Module extends ModulePrimitive {
 			}
 			
 			if(!$skip_display)
-				call_user_func_array(array($m,$function_name),$args);
+				$this->last_ret = call_user_func_array(array($m,$function_name),$args);
 			
 			if(STRIP_OUTPUT)
 				Epesi::$content[$path]['value'] = strip_html(ob_get_contents());
@@ -780,6 +781,14 @@ abstract class Module extends ModulePrimitive {
 		
 		if($m->is_inline_display()) return Epesi::$content[$path]['value'];
 		return '<span id="'.Epesi::$content[$path]['span'].'"></span>';
+	}
+	
+	/**
+	 * Returns value returned by function in get_html_of_module/display_module
+	 * @return mixed
+	 */
+	public final function returned() {
+		return $this->last_ret;
 	}
 	
 	/**
