@@ -132,12 +132,8 @@ class Utils_GenericBrowser extends Module {
 	 * @param array array with column names
 	 * @param bool true to force order reset
 	 */
-	public function set_default_order($arg,$reset=false){
+	public function set_default_order(array $arg,$reset=false){
 		if ($this->isset_module_variable('first_display') && !$reset) return;
-		if (!is_array($arg)){
-			print('Invalid argument for set_default_order, aborting.<br>');
-			return;
-		}
 		$order=array();
 		foreach($arg as $k=>$v){
 			$ord = false;
