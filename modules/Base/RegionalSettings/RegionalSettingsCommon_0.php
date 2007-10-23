@@ -45,6 +45,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		foreach($date_formats_proto as $f)
 			$date_formats[$f] = self::strftime($f,$now);
 		self::restore_locale();
+		$tz = timezone_identifiers_list();
 		return array('Regional settings'=>array(
 				//array('type'=>'select','name'=>'currency','label'=>'Currency') //google X pln in usd????
 				array('type'=>'select','name'=>'date','label'=>'Date format', 
@@ -55,7 +56,8 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 						'func'=>array('Base_RegionalSettingsCommon','check_12h'), 
 						'message'=>'This language does not support 12h clock',
 						'param'=>'__form__')
-				)
+				),
+				array('type'=>'select','name'=>'tz','label'=>'Timezone', 'default'=>'GMT', 'values'=>array_combine($tz,$tz))
 			));
 	}
 	
@@ -137,5 +139,8 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		return strtotime($t);
 	}
 }
+
+if(Acl::is_user())
+	date_default_timezone_set(Base_User_SettingsCommon::get('Base_RegionalSettings','tz'));
 
 ?>
