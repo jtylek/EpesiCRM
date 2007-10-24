@@ -50,14 +50,11 @@
 	background-color: #333;
 	-moz-opacity: 0.8;
 	opacity: .80;
+	filter: alpha(opacity=80);
 <!--[if gte IE 5.5]>
 <!--[if lt IE 7]>
-    filter: alpha(opacity=80);
-    position: absolute;
+	position: absolute;
 	height: expression(( ignoreMe = (document.documentElement.clientHeight < document.body.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight) ) + 'px' );
 <![endif]-->
 <![endif]-->
-}
-.leightbox_overlay {
-    filter: alpha(opacity=80);
 }

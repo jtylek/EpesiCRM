@@ -313,7 +313,7 @@ class Base_Dashboard extends Module {
 		$default_dash = $this->get_module_variable('default');
 		$table_tabs = 'base_dashboard_'.($default_dash?'default_':'').'tabs';
 		$table_applets = 'base_dashboard_'.($default_dash?'default_':'').'applets';
-		$tabs = DB::GetAssoc('SELECT id,name FROM '.$table_tabs,null,true,true);
+		$tabs = DB::GetAssoc('SELECT id,name FROM '.$table_tabs);
 		$f->addElement('select','__tab',$this->lang->t('Tab'),$tabs);
 		$f->setDefaults(array('__tab'=>DB::GetOne('SELECT tab FROM '.$table_applets.' WHERE id=%d',array($id))));
 

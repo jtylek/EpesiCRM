@@ -217,8 +217,6 @@ define("GZIP_HISTORY",1);
 	clean_database();
 	install_base();
 
-//	unlink('setup.php');
-
 	ob_end_flush();
 
 	if(file_exists('data/config.php'))
@@ -233,7 +231,7 @@ function rm_config($x) {
 		unlink(dirname(__FILE__).'/data/config.php');
 		clean_database();
 	}
-	return false;
+	return $x;
 }
 
 function clean_database() {

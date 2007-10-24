@@ -13,40 +13,32 @@ class Utils_CommonDataInstall extends ModuleInstall {
 
 	public function install() {
 		$ret = true;
-		$ret &= DB::CreateTable('utils_commondata_arrays','
+		$ret &= DB::CreateTable('utils_commondata_tree','
 			id I4 AUTO KEY,
-			name C(32) NOTNULL',
-			array('constraints'=>''));
-		if(!$ret){
-			print('Unable to create table utils_commondata_arrays.<br>');
-			return false;
-		}
-		$ret &= DB::CreateTable('utils_commondata_data','
-			array_id I4 NOT NULL,
-			akey C(64),
+			parent_id I4 DEFAULT -1,
+			akey C(64) NOTNULL,
 			value X',
-			array('constraints'=>', FOREIGN KEY (array_id) REFERENCES utils_commondata_arrays(id), PRIMARY KEY (array_id, akey)'));
+			array('constraints'=>', UNIQUE(parent_id,akey)'));
 		if(!$ret){
-			print('Unable to create table utils_commondata_data.<br>');
+			print('Unable to create table utils_commondata_tree.<br>');
 			return false;
 		}
+		$this->add_aco('manage','Super administrator');
 		return $ret;
 	}
 	
 	public function uninstall() {
 		global $database;
 		$ret = true;
-		$ret &= DB::DropTable('utils_commondata_arrays');
-		$ret &= DB::DropTable('utils_commondata_data');
+		$ret &= DB::DropTable('utils_commondata_tree');
 		return $ret;
 	}
 	public function requires($v) {
 		return array(
 			array('name'=>'Base/Lang','version'=>0),
-			array('name'=>'Base/Acl','version'=>0),
+			array('name'=>'Base/ActionBar','version'=>0),
 			array('name'=>'Base/Admin','version'=>0),
-			array('name'=>'Utils/GenericBrowser','version'=>0),
-			array('name'=>'Utils/Wizard','version'=>0));
+			array('name'=>'Utils/GenericBrowser','version'=>0));
 	}
 }
 

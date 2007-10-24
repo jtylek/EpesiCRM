@@ -22,7 +22,75 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 	 * For internal use only.
 	 */
 	public static function admin_access(){
-		return Base_AclCommon::i_am_sa();
+		return self::Instance()->acl_check('manage');
+	}
+
+	/**
+	 * For internal use only.
+	 */
+	public static function admin_array_access(){
+		return self::Instance()->acl_check('manage');
+	}
+	
+	public static function get_id($name) {
+		$name = trim($name,'/');
+		$pcs = explode('/',$name);
+		$id = -1;
+		foreach($pcs as $v) {
+			if($v==='') continue;
+			$id = DB::GetOne('SELECT id FROM utils_commondata_tree WHERE parent_id=%d AND akey=%s',array($id,$v));
+			if($id===false)
+				return false;
+		}
+		return $id;
+	}
+
+	public static function new_id($name) {
+		$name = trim($name,'/');
+		if(!$name) return false;
+		$pcs = explode('/',$name);
+		$id = -1;
+		foreach($pcs as $v) {
+			$id2 = DB::GetOne('SELECT id FROM utils_commondata_tree WHERE parent_id=%d AND akey=%s',array($id,$v));
+			if($id2===false) {
+				DB::Execute('INSERT INTO utils_commondata_tree(parent_id,akey) VALUES(%d,%s)',array($id,$v));
+				$id = DB::Insert_ID('utils_commondata_tree','id');
+			} else
+				$id=$id2;
+		}
+		return $id;
+	}
+
+	/**
+	 * Creates new node with value.
+	 * 
+	 * @param string array name
+	 * @param array initialization value
+	 * @param bool whether method should overwrite if array already exists, otherwise the data will be appended
+	 */
+	public static function set_value($name,$value,$overwrite=true){
+		$id = self::get_id($name);
+		if ($id===false){
+			$id = self::new_id($name);
+			if($id===false) return false;
+		} else {
+			if (!$overwrite) return false;
+		}
+		DB::Execute('UPDATE utils_commondata_tree SET value=%s WHERE id=%d',array($value,$id));
+		return true;
+	}
+
+	/**
+	 * Gets node value.
+	 * 
+	 * @param string array name
+	 * @return mixed false on invalid name
+	 */
+	public static function get_value($name){
+		$val = false;
+		$id = self::get_id($name);
+		if($id===false) return false;
+		return DB::GetOne('SELECT value FROM utils_commondata_tree WHERE id=%d',array($id));
 	}
 	
 	/**
@@ -33,20 +101,20 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 	 * @param bool whether method should overwrite if array already exists, otherwise the data will be appended
 	 */
 	public static function new_array($name,$array,$overwrite=false){
-		$id = DB::GetOne('SELECT id FROM utils_commondata_arrays WHERE name=%s',$name);
-		if ($id){
+		$id = self::get_id($name);
+		if ($id!==false){
 			if (!$overwrite) {
 				self::extend_array($name,$array);
-				return;
+				return true;
 			} else {
 				self::remove_array($name);
 			}
 		}
-		DB::Execute('INSERT INTO utils_commondata_arrays (name) VALUES (%s)',$name);
-		$id = DB::GetOne('SELECT id FROM utils_commondata_arrays WHERE name=%s',$name);
-		foreach($array as $k=>$v){
-			DB::Execute('INSERT INTO utils_commondata_data (array_id, akey, value) VALUES (%d,%s,%s)',array($id,$k,$v));
-		}
+		$id = self::new_id($name);
+		if($id===false) return false;
+		foreach($array as $k=>$v)
+			DB::Execute('INSERT INTO utils_commondata_tree (parent_id, akey, value) VALUES (%d,%s,%s)',array($id,$k,$v));
+		return true;
 	}
 
 	/**
@@ -57,49 +125,46 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 	 * @param bool whether method should overwrite data if array key already exists, otherwise the data will be preserved
 	 */
 	public static function extend_array($name,$array,$overwrite=false){
-		$id = DB::GetOne('SELECT id FROM utils_commondata_arrays WHERE name=%s',$name);
-		if (!$id){
+		$id = self::get_id($name);
+		if ($id===false){
 			self::new_array($name,$array);
 			return;
 		}
+		$in_db = DB::GetCol('SELECT akey FROM utils_commondata_tree WHERE parent_id=%s',array($id));
 		foreach($array as $k=>$v){
-			$akey = DB::GetOne('SELECT akey FROM utils_commondata_data WHERE akey=%s AND array_id=%s',array($k,$id));
-			if ($akey) {
+			if (in_array($k,$in_db)) {
 				if (!$overwrite) continue;
-				DB::Execute('UPDATE utils_commondata_data SET value=%s WHERE akey=%s',array($v,$k));
+				DB::Execute('UPDATE utils_commondata_tree SET value=%s WHERE akey=%s AND parent_id=%d',array($v,$k,$id));
 			} else {
-				DB::Execute('INSERT INTO utils_commondata_data (array_id, akey, value) VALUES (%d,%s,%s)',array($id,$k,$v));
+				DB::Execute('INSERT INTO utils_commondata_tree (parent_id, akey, value) VALUES (%d,%s,%s)',array($id,$k,$v));
 			}
 		}
 	}
 	
 	/**
-	 * Removes common data array.
+	 * Removes common data array or entry.
 	 * 
-	 * @param string array name
+	 * @param string entry name
 	 * @return true on success, false otherwise
 	 */
-	public static function remove_array($name){
-		$id = DB::GetOne('SELECT id FROM utils_commondata_arrays WHERE name=%s',$name);
-		if (!$id) return false;
-		DB::Execute('DELETE FROM utils_commondata_data WHERE array_id=%d',$id);
-		DB::Execute('DELETE FROM utils_commondata_arrays WHERE id=%d',$id);
-		//$this->unset_module_variable($name);
-		return true;
+	public static function remove($name){
+		$id = self::get_id($name);
+		if ($id===false) return false;
+		self::remove_by_id($id);
 	}
 	
 	/**
-	 * Removes entry from common data array.
+	 * Removes common data array or entry using id.
 	 * 
-	 * @param string array name
-	 * @param string array key
+	 * @param integer entry id
 	 * @return true on success, false otherwise
 	 */
-	public static function remove_field($array,$key){
-		$id = DB::GetOne('SELECT id FROM utils_commondata_arrays WHERE name=%s',$array);
-		if (!$id) return false;
-		DB::Execute('DELETE FROM utils_commondata_data WHERE array_id=%s AND akey=%s',array($id,$key));
-	} 
+	public static function remove_by_id($id) {
+		$ret = DB::GetCol('SELECT id FROM utils_commondata_tree WHERE parent_id=%d',array($id));
+		foreach($ret as $r)
+			self::remove_by_id($r);
+		DB::Execute('DELETE FROM utils_commondata_tree WHERE id=%d',array($id));
+	}
 	
 	/**
 	 * Returns common data array.
@@ -108,14 +173,28 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 	 * @return mixed returns an array if such array exists, false otherwise 
 	 */
 	public static function get_array($name){
-		$array = array();
-		$id = DB::GetOne('SELECT id FROM utils_commondata_arrays WHERE name=%s',$name);
-		if (!$id) return false;
-		$ret = DB::Execute('SELECT akey, value FROM utils_commondata_data WHERE array_id=%d',$id);
-		while ($row=$ret->FetchRow()){
-			$array[$row['akey']] = $row['value'];
-		}
-		return $array;
+		$id = self::get_id($name);
+		if($id===false) return false;
+		return DB::GetAssoc('SELECT akey, value FROM utils_commondata_tree WHERE parent_id=%d',array($id));
+	}
+
+	/**
+	 * Counts elements in common data array.
+	 * 
+	 * @param string array name
+	 * @return mixed returns an array if such array exists, false otherwise 
+	 */
+	public static function get_array_count($name){
+		$id = self::get_id($name);
+		if($id===false) return false;
+		return DB::GetAssoc('SELECT count(akey) FROM utils_commondata_tree WHERE parent_id=%d',array($id));
+	}
+	
+	public static function rename_key($parent,$old,$new) {
+		$id = self::get_id($parent.'/'.$old);
+		if($id===false) return false;
+		DB::Execute('UPDATE utils_commondata_tree SET akey=%s WHERE id=%d',array($new,$id));
+		return true;
 	}
 }
 
