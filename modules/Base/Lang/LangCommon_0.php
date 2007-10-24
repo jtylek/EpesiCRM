@@ -72,7 +72,7 @@ class Base_LangCommon extends ModuleCommon {
 		fwrite($f, 'global $translations;'."\n");
 		foreach($translations as $p=>$xxx) 
 			foreach($xxx as $k=>$v)
-				fwrite($f, '$translations[\''.addslashes($p).'\'][\''.addslashes($k).'\']=\''.addslashes($v)."';\n");
+				fwrite($f, '$translations[\''.addcslashes($p,'\\\'').'\'][\''.addcslashes($k,'\\\'').'\']=\''.addcslashes($v,'\\\'')."';\n");
 		
 		fwrite($f, '?>');
 		fclose($f);
