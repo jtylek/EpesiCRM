@@ -1,5 +1,6 @@
 #Utils_RecordBrowser__View_entry {
     width: 100%;
+    background-color: #B3B3B3;
 }
 
 #Utils_RecordBrowser__View_entry td {
@@ -12,11 +13,13 @@
     color: #FFFFFF;
 	text-align: right;
 	background-color: #336699;
+    width: 15%;
 }
 
 #Utils_RecordBrowser__View_entry .data {
 	text-align: left;
 	background-color: #FFFFFF;
+    width: 35%;
 }
 
 #Utils_RecordBrowser__View_entry select {

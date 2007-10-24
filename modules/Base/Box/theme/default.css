@@ -99,7 +99,7 @@ input, textarea, select {
 #bottom_bar {
 	height: 24px;
 	left: 0px;
-	bottom: -1px;
+	bottom: 0px;
 	z-index: 1;
 }
 
@@ -184,6 +184,7 @@ input, textarea, select {
 	height: 34px;
 	vertical-align: middle;
 	padding-top: 5px;
+	text-align: center;
 }
 
 /*** footer ***/

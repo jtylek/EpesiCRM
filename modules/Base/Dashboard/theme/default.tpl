@@ -14,12 +14,11 @@
             <table class="container" cellpadding="0" cellspacing="0" border="0">
                 <tbody>
                 <tr>
-                    <td class="header grab {$handle_class}">&nbsp;<img src="{$theme_dir}/images/icons/small-icon-grab.png" width="17" height="17" border="0" alt="#"></td>
-                    <td class="header title {$handle_class}">&nbsp;{$caption}</td>
+                    <td class="header title {$handle_class}">&nbsp;<img src="{$theme_dir}/images/icons/small-icon-grab.png" width="17" height="17" border="0" alt="#" align="absmiddle">&nbsp;{$caption}</td>
                     <td class="header controls">{if isset($href)}{$__link.href.open}<img src="{$theme_dir}/images/icons/small-icon-resize.png" width="14" height="14" alt="G" border="0">&nbsp;{$__link.href.close}{/if}{if isset($toggle)}{$__link.toggle.open}<img src="{$theme_dir}/images/icons/small-icon-roll-up.png" onClick="var x='{$theme_dir}/images/icons/small-icon-roll-';if(this.src.indexOf(x+'down.png')>=0)this.src=x+'up.png';else this.src=x+'down.png';" width="14" height="14" alt="=" border="0">&nbsp;{$__link.toggle.close}{/if}{if isset($configure)}{$__link.configure.open}<img src="{$theme_dir}/images/icons/small-icon-configure.png" width="14" height="14" alt="c" border="0">&nbsp;{$__link.configure.close}{/if}{$__link.remove.open}<img src="{$theme_dir}/images/icons/small-icon-close.png" width="14" height="14" alt="x" border="0">&nbsp;{$__link.remove.close}</td>
                 </tr>
                 <tr>
-                    <td colspan="3" class="content_td">{$content}</td>
+                    <td colspan="2" class="content_td">{$content}</td>
                 </tr>
                 </tbody>
             </table>

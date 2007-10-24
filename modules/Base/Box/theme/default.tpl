@@ -12,6 +12,7 @@
 	load_js('data/Base_Theme/templates/default/Base_Box__default.js');
 	eval_js_once('document.body.id=null');
 {/php}
+
 	<div id="top_bar">
 		<table id="top_bar_1" cellspacing="0" cellpadding="0" border="0">
 		<tbody>
@@ -37,7 +38,7 @@
 	<!-- -->
 	<div id="content">
 		<div style="height: 102px"></div>
-		<div id="content_body">
+		<div id="content_body" style="padding: 10px;">
 			{$main}
 		</div>
 		<div style="height: 24px"></div>
@@ -70,6 +71,7 @@ div > div#bottom_bar { position: fixed;}
 #bottom_bar {
 	position: absolute;
 	width: expression( (body.offsetWidth-20)+'px');
+	bottom: -1px;
 }
 #content_body {
 	width: expression( (body.offsetWidth-20)+'px');

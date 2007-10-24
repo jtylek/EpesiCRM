@@ -1,14 +1,12 @@
-#Utils_RecordBrowser__Filter .show,
-#Utils_RecordBrowser__Filter #show_filter_b,
-#Utils_RecordBrowser__Filter #hide_filter_b {
+#buttons input {
     color: #FFFFFF;
     background-color: #336699;
     background-image: url('images/header-blue.png');
+    width: 100px;
     height: 20px;
     border: 0px;
 }
 
-#Utils_RecordBrowser__Filter #show_filter_b:hover,
-#Utils_RecordBrowser__Filter #hide_filter_b:hover {
+#buttons input:hover {
     background-image: url('images/header-blue-hover.png');
 }
