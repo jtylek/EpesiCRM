@@ -21,7 +21,6 @@ class Tests_FPDF extends Module {
 
 		print('<a href="'.$pdf->get_href().'" target="_blank">TEST</a>');
 
-
 		//------------------------------ print out src
 		print('<hr><b>Install</b><br>');
 		$this->pack_module('Utils/CatFile','modules/Tests/FPDF/FPDFInstall.php');
