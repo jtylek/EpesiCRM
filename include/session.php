@@ -35,8 +35,10 @@ class DBSession {
     }
 
     public static function destroy($name) {
+    	DB::StartTrans();
     	DB::Execute('DELETE FROM history WHERE session_name=%s',array($name));
     	DB::Execute('DELETE FROM session WHERE name=%s',array($name));
+    	DB::CompleteTrans();
     	return true;
     }
 

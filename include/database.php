@@ -88,8 +88,6 @@ class DB {
 		
 		$ret = '';
 		$j=0;
-		$curr_tz = date_default_timezone_get();
-		date_default_timezone_set(SYSTEM_TIMEZONE);
 		foreach($x as $y) {
 			switch ($y) {
 				case '%d' :
@@ -112,12 +110,18 @@ class DB {
 					$ret .= '?';
 					break;
 				case '%D' :
+					$curr_tz = date_default_timezone_get();
+					date_default_timezone_set(SYSTEM_TIMEZONE);
 					$arr[$j] = self::BindDate($arr[$j]);
+					date_default_timezone_set($curr_tz);
 					$j++;
 					$ret .= '?';
 					break;
 				case '%T' :
+					$curr_tz = date_default_timezone_get();
+					date_default_timezone_set(SYSTEM_TIMEZONE);
 					$arr[$j] = self::BindTimeStamp($arr[$j]);
+					date_default_timezone_set($curr_tz);
 					$j++;
 					$ret .= '?';
 					break;
@@ -133,7 +137,6 @@ class DB {
 					$ret .= $y;
 			}
 		}
-		date_default_timezone_set($curr_tz);
 		return $ret;
 	}
 	
