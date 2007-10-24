@@ -12,6 +12,9 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_User_SettingsCommon extends ModuleCommon {
+	private static $admin_variables;
+	private static $user_variables;
+
 	public static function menu(){
 		if (!Acl::is_user()) return array();
 		return array('My settings'=>array('__weight__'=>10,'__submenu__'=>1,'Control panel'=>array()));
@@ -47,10 +50,12 @@ class Base_User_SettingsCommon extends ModuleCommon {
 			if(is_array($menu))
 				foreach($menu as $v)
 					foreach($v as $v2)
-						if ($v2['type']!='static' && $v2['type']!='header' && $v2['name']==$name) {
+						if ($v2['type']!='static' && $v2['type']!='header') {
 							$variables[$module.'__'.$name] = $v2['default'];
-							return $v2['default'];
+							if($v2['name']==$name)
+								$ret=$v2['default'];
 						}
+			if(isset($ret)) return $ret;
 			return null;//trigger_error('There is no such variable as '.$name.' in module '.$module,E_USER_ERROR);
 		} else {
 			trigger_error('There is no common class for module: '.$module,E_USER_ERROR);
@@ -65,18 +70,12 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	 * @return mixed user value
 	 */	
 	public static function get_admin($module,$name){
-		$module = str_replace('/','_',$module);
-		static $variables;
-		if (isset($variables[$module.'__'.$name]))
-			return $variables[$module.'__'.$name];
-		$val = null;
-		$module = str_replace('/','_',$module);
-		$val = DB::GetOne('SELECT value FROM base_user_settings_admin_defaults WHERE module=%s AND variable=%s',array($module,$name));
-		if ($val===false) {
-			$val = self::get_default($module,$name);
+		if (!isset(self::$admin_variables)) {
+			self::$admin_variables = DB::GetAssoc('SELECT '.DB::Concat('module','\'__\'','variable').',value FROM base_user_settings_admin_defaults WHERE module=%s',array($module));
 		}
-		$variables[$module.'__'.$name] = $val;
-		return $val;
+		if (isset(self::$admin_variables[$module.'__'.$name]))
+			return self::$admin_variables[$module.'__'.$name];
+		return self::get_default($module,$name);
 	}
 
 	/**
@@ -91,17 +90,12 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	public static function get($module,$name){
 		if (!Acl::is_user()) return null;
 		$module = str_replace('/','_',$module);
-		static $variables;
-		if (isset($variables[$module.'__'.$name]))
-			return $variables[$module.'__'.$name];
-		$val = null;
-		$module = str_replace('/','_',$module);
-		$val = DB::GetOne('SELECT value FROM base_user_settings WHERE user_login_id=%d AND module=%s AND variable=%s',array(Base_UserCommon::get_my_user_id(),$module,$name));
-		if ($val===false) {
-			$val = self::get_admin($module,$name);
+		if (!isset(self::$user_variables)) {
+			self::$user_variables = DB::GetAssoc('SELECT '.DB::Concat('module','\'__\'','variable').',value FROM base_user_settings WHERE user_login_id=%d AND module=%s',array(Base_UserCommon::get_my_user_id(),$module));
 		}
-		$variables[$module.'__'.$name] = $val;
-		return $val;
+		if (isset(self::$user_variables[$module.'__'.$name]))
+			return self::$user_variables[$module.'__'.$name];
+		return self::get_admin($module,$name);
 	}
 
 	/**
