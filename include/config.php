@@ -26,4 +26,8 @@ if(!defined('GZIP_OUTPUT')) define("GZIP_OUTPUT",0);
 if(!defined('GZIP_HISTORY')) define("GZIP_HISTORY",0);
 
 if(!defined('JS_OUTPUT')) define('JS_OUTPUT',0);
+
+//other
+define('SYSTEM_TIMEZONE',date_default_timezone_get());
+
 ?>

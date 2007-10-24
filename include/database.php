@@ -17,8 +17,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 require_once('adodb/adodb-errorhandler.inc.php');
 require_once('adodb/adodb.inc.php');
 
-define('SYSTEM_TIMEZONE',date_default_timezone_get());
-
 /**
  * This class maintains database connection.
  * @package epesi-base
