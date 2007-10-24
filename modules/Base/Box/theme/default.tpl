@@ -25,10 +25,10 @@
 		<table id="top_bar_2" cellspacing="0" cellpadding="0" border="0">
 		<tbody>
 			<tr>
-				<td class="logo"><a href="#"><img border="0" src="{$theme_dir}/images/logo-small.png" width="193" height="68"></a></td>
+				<td class="logo"><a href="#"><img border="0" src="{$theme_dir}/images/logo-small-2.png" width="193" height="68"></a></td>
 				<td class="icons">{$actionbar}</td>
 				<td class="login-search">
-					<div class="login">{$login}</div>
+					<div class="login"><br>{$login}</div>
 					<div class="search"><center>{$search}</center></div>
 				</td>
 			</tr>
@@ -38,8 +38,8 @@
 	<!-- -->
 	<div id="content">
 		<div style="height: 102px"></div>
-		<div id="content_body" style="padding: 10px;">
-			{$main}
+		<div id="content_body" style="padding: 10px; text-align: center;">
+			<center>{$main}</center>
 		</div>
 		<div style="height: 24px"></div>
 	</div>

@@ -11,7 +11,7 @@
 }
 
 #Base_ActionBar table.ActionBar td {
-	padding: 3px;
+	/*padding: 3px;*/
 	text-align: left;
 }
 
@@ -27,7 +27,7 @@
 #Base_ActionBar #panel div.icon a {
 	display: block; float: left;
 	height: 54px !important;
-	height: 56px;
+	height: 54px;
 	/*width: 58px !important;
 	width: 60px;*/
 	vertical-align: middle;
@@ -65,5 +65,6 @@
 
 #Base_ActionBar #panel div.icon span {
 	display: block;
-	padding-top: 3px;
+	/* to powoduje blad rozciagania sie w IE */
+	/*padding-top: 3px;*/
 }

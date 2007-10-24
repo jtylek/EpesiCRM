@@ -12,6 +12,7 @@
 									<img src="{$theme_dir}/images/icons/icon-{$i.icon}.png" alt="" align="middle" border="0" width="32" height="32">
 									{/if}
 									{if $display_text}
+                                    <span style="font-size: 3px;">&nbsp;</span>
 									<span>{$i.label}</span>
 									{/if}
 								{$i.close}

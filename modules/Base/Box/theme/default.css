@@ -140,17 +140,17 @@ input, textarea, select {
 }
 
 #top_bar #top_bar_2 .logo {
-	width: 210px;
-	height: 78px;
+	width: 205px;
+	height: 73px;
 	text-align: left;
 	vertical-align: top;
 	background-image: url('images/action-bar-left.png');
 	background-repeat: no-repeat;
+	padding-top: 5px;
+	padding-left: 5px;
 }
 
 #top_bar #top_bar_2 .logo img {
-	padding-top: 5px;
-	padding-left: 5px;
 }
 
 #top_bar #top_bar_2 .icons {
@@ -162,13 +162,14 @@ input, textarea, select {
 
 #top_bar #top_bar_2 .login-search {
 	width: 297px;
+	height: 78px;
 	background-image: url('images/action-bar-right.png');
 	background-repeat: no-repeat;
 }
 
 #top_bar #top_bar_2 .login {
-	height: 24px;
-	padding-top: 15px;
+	height: 39px;
+	vertical-align: middle;
 	text-align: center;
 }
 
@@ -183,10 +184,10 @@ input, textarea, select {
 }
 
 #top_bar #top_bar_2 .search {
-	height: 34px;
+	height: 39px;
 	vertical-align: middle;
-	padding-top: 5px;
 	text-align: center;
+	padding-left: 5px;
 }
 
 /*** footer ***/
