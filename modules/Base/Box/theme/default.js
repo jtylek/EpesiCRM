@@ -1,35 +1,3 @@
-base_box__get_height = function(someObject){
-	var w;
-	if(document.defaultView &&
-		document.defaultView.getComputedStyle) {
-		w=document.defaultView.getComputedStyle(someObject ,'').getPropertyValue('height');
-	}else if(someObject.offsetHeight){
-		w=someObject.offsetHeight;
-	}
-	if(typeof w=="string") w=parseInt(w);
-	return w;
-};
-
-base_box__set_content_height = function(content) {
-	var frame = $(content);
-	if(!frame)return;
-	var htmlheight = base_box__get_height(document.getElementsByTagName('body')[0]);
-
-	var windowheight = 0;
-	if( typeof( window.innerHeight ) == 'number' ) { //non ie
-		windowheight = window.innerHeight;
-	} else if( document.documentElement && document.documentElement.clientHeight ) { //ie6
-		windowheight = document.documentElement.clientHeight;
-	}
-
-	var contentheight = base_box__get_height(frame);
-	var h = windowheight-(htmlheight-contentheight);
-	if(h<200) h=200;
-	if(h!=parseInt(frame.style.height)+20)
-		frame.style.height = (h-20) + "px";
-};
-setInterval('base_box__set_content_height(\'content\')',200);
-
 correctPNG = function() // correctly handle PNG transparency in Win IE 5.5 & 6.
 {
    var arVersion = navigator.appVersion.split("MSIE")
@@ -60,3 +28,9 @@ correctPNG = function() // correctly handle PNG transparency in Win IE 5.5 & 6.
    }
 };
 document.observe("e_load", correctPNG);
+
+var cont = $('content_body');
+var debug = $('debug');
+if(debug)
+	cont.appendChild(debug);
+cont.appendChild($('error_box'));

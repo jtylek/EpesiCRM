@@ -1,4 +1,4 @@
-<div style="text-align:left; width: 950px;">
+<div id="Utils_RecordBrowser__Filter" style="text-align:left; width: 100%;">
 {php}
 eval_js_once('show_filters = 0');
 eval_js('var b=document.getElementById(\'recordbrowser_filters\');if(b){if(!show_filters){b.style.display=\'none\';document.getElementById(\'hide_filter_b\').style.display=\'none\';}else{document.getElementById(\'show_filter_b\').style.display=\'none\';}}');

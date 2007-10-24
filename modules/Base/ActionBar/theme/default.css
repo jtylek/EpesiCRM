@@ -1,14 +1,16 @@
-#Base_ActionBar {
+#Base_ActionBar table.ActionBar {
+	font-size: 11px;
+	font-family: "Tahoma" "Verdana" "Vera-Sans" "DejaVu-Sans";
 }
 
-#Base_ActionBar table.icons {
-	width: 481px;
+#Base_ActionBar table.ActionBar {
+	width: 100%;
 	height: 68px;
 	padding: 10px;
 	border-collapse: collapse;
 }
 
-#Base_ActionBar table.icons td {
+#Base_ActionBar table.ActionBar td {
 	padding: 3px;
 	text-align: left;
 }
@@ -34,11 +36,11 @@
 	border: 1px solid #FFFFFF;
 }
 
-#Base_ActionBar #panel div.icon a:link {
+#Base_ActionBar table.ActionBar #panel div.icon a:link {
 	color: #336699;
 }
 
-#Base_ActionBar #panel div.icon a:hover {
+#Base_ActionBar table.ActionBar #panel div.icon a:hover {
 	color : #993333;
 	background-color: #F0F0F0;
 	padding: 3px 4px 0px 6px;
@@ -49,11 +51,11 @@
 	border-bottom: 1px solid #F0F0F0;
 }
 
-#Base_ActionBar #panel div.icon a:hover span {
+#Base_ActionBar table.ActionBar #panel div.icon a:hover span {
 	color : #993333;
 }
 
-#Base_ActionBar #panel div.icon a:active span {
+#Base_ActionBar table.ActionBar #panel div.icon a:active span {
 	color : #339933;
 }
 

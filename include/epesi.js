@@ -34,8 +34,8 @@ var Epesi = {
 	request: function(url,history_id) {
 		Epesi.procOn++;
 		Epesi.updateIndicator();
-		new Ajax.Request(Epesi.process_file, { 
-			method: 'post', 
+		new Ajax.Request(Epesi.process_file, {
+			method: 'post',
 			parameters: {
 				history: history_id,
 				url: url
@@ -58,7 +58,7 @@ var Epesi = {
 			if(indicator=='') indicator='loading...';
 			Epesi.updateIndicatorText(indicator);
 			Epesi.request(url);
-		} else if(mode=='queue') 
+		} else if(mode=='queue')
 			setTimeout('Epesi.href("'+href+'", "'+indicator+'", "'+mode+'")',500);
 	},
 	text: function(txt,idt,type) {
@@ -142,6 +142,6 @@ onCreate: function(x,y) { //hack
 	else
 		x.options.requestHeaders = $H(x.options.requestHeaders).merge({'X-Client-ID': Epesi.client_id});
 },
-onException: function(req, e){ 
-	alert(e); 
+onException: function(req, e){
+	alert(e);
 }});

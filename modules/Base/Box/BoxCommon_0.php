@@ -1,9 +1,9 @@
 <?php
 /**
  * Box class.
- * 
+ *
  * This class provides basic container for other modules, with smarty as template engine.
- * 
+ *
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0

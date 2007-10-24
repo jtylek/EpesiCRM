@@ -1,5 +1,5 @@
 <div id="Base_ActionBar" align="center">
-	<table class="icons">
+	<table class="ActionBar">
         <tbody>
             <tr>
                 <td valign="top">

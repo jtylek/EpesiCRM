@@ -25,13 +25,19 @@
 	background-color: #FFFFFF;
 }
 
+#dashboard .grab {
+	width: 10%;
+	text-align: left;
+	vertical-align: bottom;
+}
+
 #dashboard .controls {
-	width: 50%;
+	width: 30%;
 	text-align: right;
 }
 
 #dashboard .title {
-	width: 50%;
+	width: 60%;
 	text-align: left;
 }
 
