@@ -1,0 +1,14 @@
+#Utils_RecordBrowser__Filter .show,
+#Utils_RecordBrowser__Filter #show_filter_b,
+#Utils_RecordBrowser__Filter #hide_filter_b {
+    color: #FFFFFF;
+    background-color: #336699;
+    background-image: url('images/header-blue.png');
+    height: 20px;
+    border: 0px;
+}
+
+#Utils_RecordBrowser__Filter #show_filter_b:hover,
+#Utils_RecordBrowser__Filter #hide_filter_b:hover {
+    background-image: url('images/header-blue-hover.png');
+}

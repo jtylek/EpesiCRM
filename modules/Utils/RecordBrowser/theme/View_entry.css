@@ -1,0 +1,30 @@
+#Utils_RecordBrowser__View_entry {
+    width: 100%;
+}
+
+#Utils_RecordBrowser__View_entry td {
+    height: 20px;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+#Utils_RecordBrowser__View_entry .label {
+    color: #FFFFFF;
+	text-align: right;
+	background-color: #336699;
+}
+
+#Utils_RecordBrowser__View_entry .data {
+	text-align: left;
+	background-color: #FFFFFF;
+}
+
+#Utils_RecordBrowser__View_entry select {
+	font-weight: normal;
+	font-size: 11px;
+}
+
+#Utils_RecordBrowser__View_entry input {
+	font-weight: normal;
+	font-size: 11px;
+}
