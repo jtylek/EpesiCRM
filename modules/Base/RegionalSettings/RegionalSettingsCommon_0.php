@@ -57,7 +57,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 						'message'=>'This language does not support 12h clock',
 						'param'=>'__form__')
 				),
-				array('type'=>'select','name'=>'tz','label'=>'Timezone', 'default'=>'GMT', 'values'=>array_combine($tz,$tz))
+				array('type'=>'select','name'=>'tz','label'=>'Timezone', 'default'=>SYSTEM_TIMEZONE, 'values'=>array_combine($tz,$tz))
 			));
 	}
 	
