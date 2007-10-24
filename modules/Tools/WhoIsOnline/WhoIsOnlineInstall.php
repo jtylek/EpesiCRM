@@ -21,12 +21,14 @@ class Tools_WhoIsOnlineInstall extends ModuleInstall {
 			print('Unable to create table tools_whoisonline_users.<br>');
 			return false;
 		}
+		Base_ThemeCommon::install_default_theme($this -> get_type());
 		return $ret;
 	}
 	
 	public function uninstall() {
 		$ret = true;
 		$ret &= DB::DropTable('tools_whoisonline_users');
+		Base_ThemeCommon::uninstall_default_theme($this -> get_type());
 		return $ret;
 	}
 	
@@ -38,6 +40,7 @@ class Tools_WhoIsOnlineInstall extends ModuleInstall {
 		return array(
 			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'Base/User','version'=>0),
+			array('name'=>'Base/Theme','version'=>0),
 			array('name'=>'Base/User/Settings','version'=>0));
 	}
 	
