@@ -116,11 +116,13 @@ input, textarea, select {
 	text-align: left;
 	background-color: #B3B3B3;
 	background-image: url('images/header-blue.png');
+	background-repeat: repeat-x;
 }
 
 #top_bar #top_bar_1 .module-indicator {
 	width: 287px;
 	height: 20px;
+	background-color: #336699;
 	background-image: url("images/header-blue.png");
 	background-repeat: repeat-x;
 	font-weight: bold;
