@@ -170,12 +170,17 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 	 * Returns common data array.
 	 * 
 	 * @param string array name
+	 * @param boolean order by key instead of value
 	 * @return mixed returns an array if such array exists, false otherwise 
 	 */
-	public static function get_array($name){
+	public static function get_array($name, $order_by_key=false){
 		$id = self::get_id($name);
 		if($id===false) return false;
-		return DB::GetAssoc('SELECT akey, value FROM utils_commondata_tree WHERE parent_id=%d',array($id));
+		if($order_by_key)
+			$order_by = 'akey';
+		else
+			$order_by = 'value';
+		return DB::GetAssoc('SELECT akey, value FROM utils_commondata_tree WHERE parent_id=%d ORDER BY '.$order_by,array($id));
 	}
 
 	/**
@@ -197,5 +202,7 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 		return true;
 	}
 }
+
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['commondata'] = array('modules/Utils/CommonData/qf.php','HTML_QuickForm_commondata');
 
 ?>

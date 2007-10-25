@@ -2,7 +2,7 @@
 require_once("HTML/QuickForm/input.php");
 
 /**
- * HTML class for a text field
+ * HTML class for a text field with calendar
  * 
  * @author       Paul Bukowski <pbukowski@telaxus.com>
  */
@@ -44,5 +44,5 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 		return $val;
 	}
 	
-} //end class HTML_QuickForm_text
+} //end class HTML_QuickForm_datepicker
 ?>

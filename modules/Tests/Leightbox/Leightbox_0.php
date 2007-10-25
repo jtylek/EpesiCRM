@@ -22,6 +22,7 @@ class Tests_Leightbox extends Module{
 		
 		$f = $this->init_module('Libs/QuickForm');
 		$f->addElement('datepicker','xxx','Date picker');
+		$x = $f->addElement('commondata','xxx2','Commondata test', 'Countries',2);
 		$f->addElement('submit',null,'ok');
 		if($f->validate()) {
 			print_r($f->exportValues());
