@@ -25,20 +25,24 @@ class DBSession {
     }
     
     public static function read($name) {
-    	$data = DB::GetOne('SELECT data FROM session WHERE name = %s AND expires > %d', array($name, time()-self::$lifetime));
+    	$_SESSION = unserialize(DB::GetOne('SELECT data FROM session WHERE name = %s AND expires > %d', array($name, time()-self::$lifetime)));
+	if(CID!==false)
+		$_SESSION['client'] = unserialize(DB::GetOne('SELECT data FROM session_client WHERE session_name = %s AND client_id=%d', array($name,CID)));
 //	file_put_contents('/tmp/sess_l',$data);
-        return $data;
+        return '';
     }
 
     public static function write($name, $data) {
 //	file_put_contents('/tmp/sess',$data);
-	$ret = DB::Replace('session',array('expires'=>time(),'data'=>$data,'name'=>$name),'name',true);
+	$ret = true;
+	if(CID!==false)
+		$ret &= DB::Replace('session_client',array('data'=>serialize($_SESSION['client']),'session_name'=>$name,'client_id'=>CID),array('session_name','client_id'),true);
+	unset($_SESSION['client']);
+	$ret &= DB::Replace('session',array('expires'=>time(),'data'=>serialize($_SESSION),'name'=>$name),'name',true);
         return ($ret>0)?true:false;
     }
     
     public static function write_client() {
-	DB::Replace('session_client',array('data'=>serialize($_SESSION['client']),'session_name'=>session_id(),'client_id'=>CID),array('session_name','client_id'),true);
-	unset($_SESSION['client']);
     }
 
     public static function destroy($name) {
@@ -81,8 +85,4 @@ if(!defined('CID')) {
 
 session_set_cookie_params(0,$document_root);
 session_start();
-if(CID!==false) {
-	$_SESSION['client'] = unserialize(DB::GetOne('SELECT data FROM session_client WHERE session_name = %s AND client_id=%d', array(session_id(),CID)));
-	register_shutdown_function(array('DBSession','write_client'));
-}
 ?>
