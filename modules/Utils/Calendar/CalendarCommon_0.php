@@ -12,15 +12,17 @@ class Utils_CalendarCommon extends ModuleCommon {
 		
 		$curr = 'Select date';
 		$entry = 'datepicker_'.self::$counter.'_calendar';
-		$info = '<a rel="'.$entry.'" class="lbOn">'.$curr.'</a>';
+		$info = '<a rel="'.$entry.'" class="lbOn" id="dupaX">'.$curr.'</a>';
 
-		$iii = '<div id="'.$entry.'" class="leightbox"><a class="lbAction" rel="deactivate">';
+		$iii = '<div id="'.$entry.'" class="leightbox"><div id="Utils_Calendar">';
 		$iii .= '<table><tr><td id="datepicker_'.self::$counter.'_header">error</td></tr>'.
 				'<tr><td id="datepicker_'.self::$counter.'_view">calendar not loaded</td></tr></table>';
-		$iii .= 'Close</a></div>';
+		$iii .= '<a class="lbAction" rel="deactivate" id="close_leightbox">Close</a></div></div>';
+
+		$function .= ';leightbox_deactivate(\''.$entry.'\');';
 
 		eval_js(
-			'datepicker_'.self::$counter.' = new Utils_Calendar("'.$function.'", '.self::$counter.');'.
+			'datepicker_'.self::$counter.' = new Utils_Calendar("'.Epesi::escapeJS($function,true,false).'", '.self::$counter.');'.
 			'datepicker_'.self::$counter.'.show_month();'
 		);
 		return $info.$iii;

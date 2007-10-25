@@ -79,9 +79,9 @@ Utils_Calendar = function(link_proto, instance_id) {
 				var prep_link = this.link_proto.replace("__YEAR__", year_real);
 				prep_link = prep_link.replace("__MONTH__", (month+1));
 				prep_link = prep_link.replace("__DAY__", Calendar.getDate());
-				cal += '<a class=day href="javascript:void(0)" onclick="'+prep_link+'" rel="deactivate">';
+				cal += '<div class="day"><a href="javascript:void(0)" onClick="'+prep_link+'">';
 				cal += Calendar.getDate();
-				cal += '</a>' + TDend;
+				cal += '</a></div>' + TDend;
 				
 				if(weekday == 0) { cal += TRend; }
 				Calendar.setDate(Calendar.getDate()+1);
@@ -139,9 +139,9 @@ Utils_Calendar = function(link_proto, instance_id) {
 				} else {
 					cal += '>';
 				}
-				cal += '<a class=month href="javascript:datepicker_'+this.instance_id+'.show_month('+index+', '+year+')">';
+				cal += '<div class="month"><a href="javascript:datepicker_'+this.instance_id+'.show_month('+index+', '+year+')">';
 				cal += this.monthName[index];
-				cal += '</a>' + TDend;
+				cal += '</a></div>' + TDend;
 				
 				if(index % 3 == 2) { cal += TRend; }
 			} // end for loop
@@ -191,9 +191,9 @@ Utils_Calendar = function(link_proto, instance_id) {
 				} else {
 					cal += '>';
 				}
-				cal += '<a class=month href="javascript:datepicker_'+this.instance_id+'.show_year(' + (decade + index - 1) + ')">';
+				cal += '<div class="month"><a href="javascript:datepicker_'+this.instance_id+'.show_year(' + (decade + index - 1) + ')">';
 				cal += (decade_real + index - 1);
-				cal += '</a>' + TDend;
+				cal += '</a></div>' + TDend;
 				
 				if(index % 3 == 2) { cal += TRend; }
 			} // end for loop
@@ -243,9 +243,9 @@ Utils_Calendar = function(link_proto, instance_id) {
 				} else {
 					cal += '>';
 				}
-				cal += '<a class=month href="javascript:datepicker_'+this.instance_id+'.show_decade(' + (century + index - 10) + ')">';
+				cal += '<div class="month"><a href="javascript:datepicker_'+this.instance_id+'.show_decade(' + (century + index - 10) + ')">';
 				cal += (century_real + index - 10) + ' - ' + (century_real + index);
-				cal += '</a>' + TDend;
+				cal += '</a></div>' + TDend;
 				
 				if(index % 30 == 20) { cal += TRend; }
 			} // end for loop

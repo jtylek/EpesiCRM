@@ -172,6 +172,10 @@ function addLeightboxMarkup() {
 	bod.appendChild(leightbox_overlay);
 }
 
+function leightbox_deactivate(name) {
+for(i=0;i<leightboxes.length;i++)if(leightboxes[i].content==name){leightboxes[i].deactivate();break;}
+}
+
 addLeightboxMarkup();
 getBrowserInfo();
 

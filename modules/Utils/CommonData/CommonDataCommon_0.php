@@ -25,13 +25,6 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 		return self::Instance()->acl_check('manage');
 	}
 
-	/**
-	 * For internal use only.
-	 */
-	public static function admin_array_access(){
-		return self::Instance()->acl_check('manage');
-	}
-	
 	public static function get_id($name) {
 		$name = trim($name,'/');
 		$pcs = explode('/',$name);

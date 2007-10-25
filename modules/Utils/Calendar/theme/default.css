@@ -1,16 +1,4 @@
-body {
-	background: #ffffff;
-	color: #000000;
-	font: 12px "Verdana";
-}
-a {
-	color: black;
-	text-decoration: none;
-}
-a:hover {
-	color: #000055;
-}
-a.day {
+#Utils_Calendar div.day {
 	color: blue;
 	display: block;
 	height: 1.3em;
@@ -19,12 +7,7 @@ a.day {
 	text-align: center;
 	vertical-align: center;
 }
-a.day:hover {
-	border: 1px solid #555567;
-	margin: 0px;
-	background: #DDDDEF;
-}
-a.month {
+#Utils_Calendar div.month {
 	color: blue;
 	display: block;
 	height: 1.3em;
@@ -33,37 +16,31 @@ a.month {
 	text-align: center;
 	vertical-align: center;
 }
-a.month:hover {
-	border: 1px solid #555567;
-	margin: 0;
-	background: #DDDDEF;
-}
-/* classes for small table */
-	table.small {
+#Utils_Calendar table.small {
 		border: 1px solid #000000;
 		padding: 0 0 0 0;
 		width: 100%;
 	}
-	table.small td {
+#Utils_Calendar table.small td {
 		border: 1px solid transparent;
 		padding: 1;
 		text-align: center;
 	}
 	
-	table.small td.daysHeader {
+#Utils_Calendar table.small td.daysHeader {
 		width: 2.3em;
 		text-align: center;
 		background: #eeefff;
 		text-align: center;
 	}
-	table.small td.empty {
+#Utils_Calendar table.small td.empty {
 		background: #ffffff;
 	}
-	table.small td.today {
+#Utils_Calendar table.small td.today {
 		border: 1px solid #000000;
 		text-align: center;
 	}
-	table.small td.spacerTop {
+#Utils_Calendar table.small td.spacerTop {
 		height: 0px;
 		margin: 0 0 0 0;
 		background: #ffffff;

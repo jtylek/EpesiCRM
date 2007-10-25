@@ -18,7 +18,7 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 	
 	public static function user_settings($info = true) {
 		if ($info) {  
-			if (Base_AclCommon::i_am_user()) return array('Quick access'=>array());
+			if (Acl::is_user()) return array('Quick access'=>array());
 			return array();
 		}
 		if (!isset(self::$options)) {
