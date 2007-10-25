@@ -29,6 +29,7 @@ abstract class Module extends ModulePrimitive {
 	private $inline_display = false;
 	private $displayed = false;
 	private $clear_child_vars = false;
+	public $display_func = false;
 	
 	/**
 	 * Constructor. Should not be called directly using new Module('name').
@@ -620,8 +621,10 @@ abstract class Module extends ModulePrimitive {
 		$rkey = $this->create_unique_key('back');
 		if(isset($_REQUEST[$rkey])) {
 			$i = intval($_REQUEST[$rkey]);
-			$pkey = $this->parent->create_unique_key('back');
-			$_REQUEST[$pkey]=$i;
+			if($this->display_func && $i>0) { //pass to parent only in main display method
+				$pkey = $this->parent->create_unique_key('back');
+				$_REQUEST[$pkey]=$i;
+			}
 			if($i<=0) return false;
 			$i--;
 			$_REQUEST[$rkey] = $i;
@@ -736,8 +739,11 @@ abstract class Module extends ModulePrimitive {
 				}	
 			}
 			
-			if(!$skip_display)
+			if(!$skip_display) {
+				$m->display_func=true;
 				call_user_func_array(array($m,$function_name),$args);
+				$m->display_func=false;
+			}
 			
 			if(STRIP_OUTPUT)
 				Epesi::$content[$path]['value'] = strip_html(ob_get_contents());

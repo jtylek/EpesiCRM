@@ -12,7 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Tests_Callbacks_a extends Module {
 	
 	public function body() {
-		if($this->is_back())
+		if($this->is_back()) //required in main display method, because it goes to parent only here
 			return;
 		print('This is module A<br>');
 		print('<a '.$this->create_callback_href(array($this,'x1')).'>Other module (a->x1)</a> :: ');
