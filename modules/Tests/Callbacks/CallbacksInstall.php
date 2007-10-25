@@ -24,6 +24,7 @@ class Tests_CallbacksInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(array('name'=>'Libs/QuickForm','version'=>0),
+			array('name'=>'Tests/Callbacks/a','version'=>0),
 			array('name'=>'Utils/CatFile','version'=>0));
 	}
 }
