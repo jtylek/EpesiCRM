@@ -20,15 +20,6 @@ class Tests_Leightbox extends Module{
 			<a href="#" class="lbAction" rel="deactivate">Close</a>
 			</div><hr>');
 		
-		$f = $this->init_module('Libs/QuickForm');
-		$f->addElement('datepicker','xxx','Date picker');
-		$x = $f->addElement('commondata','xxx2','Commondata test', 'Countries',2);
-		$f->addElement('submit',null,'ok');
-		if($f->validate()) {
-			print_r($f->exportValues());
-		}
-		$f->display();
-
 		//------------------------------ print out src
 		print('<hr><b>Install</b><br>');
 		$this->pack_module('Utils/CatFile','modules/Tests/Leightbox/LeightboxInstall.php');

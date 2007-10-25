@@ -5,11 +5,11 @@
  * @version 1.0
  * @license SPL
  * @package epesi-tests
- * @subpackage lightbox
+ * @subpackage QuickForm
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Tests_LeightboxInstall extends ModuleInstall{
+class Tests_QuickFormInstall extends ModuleInstall{
 	public function install(){
 		return true;
 	}
@@ -20,7 +20,8 @@ class Tests_LeightboxInstall extends ModuleInstall{
 	public function requires($v) {
 		return array(array('name'=>'Utils/CatFile','version'=>0),
 			array('name'=>'Utils/Calendar','version'=>0),
-			array('name'=>'Libs/Leightbox','version'=>0));
+			array('name'=>'Data/Countries','version'=>0),
+			array('name'=>'Libs/QuickForm','version'=>0));
 	}
 } 
 ?>
