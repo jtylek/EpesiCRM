@@ -99,11 +99,10 @@ function eval_js($u) {
  */
 function eval_js_once($u) {
 	if(!is_string($u) || strlen($u)==0) return false;
-	$session = & Epesi::get_tmp_session();
 	$md5 = md5($u);
-	if (!isset($session['__evaled_jses__'][$md5])) {
+	if (!isset($_SESSION['client']['__evaled_jses__'][$md5])) {
 		Epesi::js($u);
-		$session['__evaled_jses__'][$md5] = true;
+		$_SESSION['client']['__evaled_jses__'][$md5] = true;
 		return true;
 	}
 	return false;

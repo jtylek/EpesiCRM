@@ -21,21 +21,19 @@ class Base_HomePageCommon extends ModuleCommon {
 		$uid = Base_UserCommon::get_user_id(Acl::get_user());
 		if($uid == '')
 			return;
-		$session = & Epesi::get_session();
 		$ret = DB::GetOne('SELECT url FROM home_page WHERE user_login_id=%d',$uid);
 		if(!$ret) {
 			$_REQUEST['box_main_module'] = Base_BoxCommon::get_main_module_name();
 			return;
 		}
-		$session['__module_vars__'] = unserialize($ret);
+		$_SESSION['client']['__module_vars__'] = unserialize($ret);
 		location(array());
 	}
 	
 	public static function save() {
 		if(!Acl::is_user()) return;
 		$uid = Base_UserCommon::get_user_id(Acl::get_user());
-		$session = & Epesi::get_session();
-		$url = serialize($session['__module_vars__']);
+		$url = serialize($_SESSION['client']['__module_vars__']);
 		DB::Replace('home_page',array('user_login_id'=>$uid,'url'=>$url), 'user_login_id',true);
 	}
 	

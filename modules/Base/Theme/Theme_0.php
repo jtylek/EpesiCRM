@@ -58,23 +58,21 @@ class Base_Theme extends Module {
 	private function load_css_cache() {
 		if(!file_exists(self::$themes_dir.self::$theme.'/__cache.css') || !file_exists(self::$themes_dir.'default/__cache.css') ||
 			!file_exists(self::$themes_dir.self::$theme.'/__cache.php') || !file_exists(self::$themes_dir.'default/__cache.php')) return;
-		$sess = & Epesi::get_tmp_session();
 		if(load_css(self::$themes_dir.self::$theme.'/__cache.php')) {
 			$arr = explode("\n",file_get_contents(self::$themes_dir.self::$theme.'/__cache.files'));
 			foreach($arr as $f)
-				$sess['__loaded_csses__'][$f] = 1;
+				$_SESSION['client']['__loaded_csses__'][$f] = 1;
 		}
 		if(self::$theme!='default' && load_css(self::$themes_dir.'default/__cache.php')) {
 			$arr = explode("\n",file_get_contents(self::$themes_dir.'default/__cache.files'));
 			foreach($arr as $f)
-				$sess['__loaded_csses__'][$f] = 1;
+				$_SESSION['client']['__loaded_csses__'][$f] = 1;
 		}
 	}
 	
 	private function load_image_cache() {
-		$sess = & $this->get_tmp_session();
-		if(isset($sess['image_cache'])) return;
-		$sess['image_cache']=true;
+		if(isset($_SESSION['client']['image_cache'])) return;
+		$_SESSION['client']['image_cache']=true;
 		$imgs = array();
 		if(Variable::get('preload_image_cache_selected') && file_exists(self::$themes_dir.self::$theme.'/__cache.images'))
 			$imgs = explode("\n",file_get_contents(self::$themes_dir.self::$theme.'/__cache.images'));

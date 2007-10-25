@@ -26,17 +26,25 @@ class DBSession {
     
     public static function read($name) {
     	$data = DB::GetOne('SELECT data FROM session WHERE name = %s AND expires > %d', array($name, time()-self::$lifetime));
+//	file_put_contents('/tmp/sess_l',$data);
         return $data;
     }
 
     public static function write($name, $data) {
-        $ret = DB::Replace('session',array('expires'=>time(),'data'=>$data,'name'=>$name),'name',true);
+//	file_put_contents('/tmp/sess',$data);
+	$ret = DB::Replace('session',array('expires'=>time(),'data'=>$data,'name'=>$name),'name',true);
         return ($ret>0)?true:false;
+    }
+    
+    public static function write_client() {
+	DB::Replace('session_client',array('data'=>serialize($_SESSION['client']),'session_name'=>session_id(),'client_id'=>CID),array('session_name','client_id'),true);
+	unset($_SESSION['client']);
     }
 
     public static function destroy($name) {
     	DB::StartTrans();
     	DB::Execute('DELETE FROM history WHERE session_name=%s',array($name));
+    	DB::Execute('DELETE FROM session_client WHERE session_name=%s',array($name));
     	DB::Execute('DELETE FROM session WHERE name=%s',array($name));
     	DB::CompleteTrans();
     	return true;
@@ -64,6 +72,17 @@ $document_root = trim($document_root,'/');
 if($document_root) $document_root = '/'.$document_root.'/';
 	else $document_root = '/';
 
+if(!defined('CID')) {
+	if(isset($_SERVER['HTTP_X_CLIENT_ID']))
+		define('CID', $_SERVER['HTTP_X_CLIENT_ID']);
+	else
+		trigger_error('Invalid request without client id');
+}
+
 session_set_cookie_params(0,$document_root);
 session_start();
+if(CID!==false) {
+	$_SESSION['client'] = unserialize(DB::GetOne('SELECT data FROM session_client WHERE session_name = %s AND client_id=%d', array(session_id(),CID)));
+	register_shutdown_function(array('DBSession','write_client'));
+}
 ?>

@@ -14,9 +14,10 @@ $pdf_id = $_REQUEST['pdf'];
 $filename = $_REQUEST['filename'];
 if(!isset($id) || !isset($pdf_id)) die('Invalid usage');
 
+define('CID', $id);
 require_once('../../../include.php');
 
-$buffer = Module::static_get_module_variable($pdf_id,'pdf',null,$id);
+$buffer = Module::static_get_module_variable($pdf_id,'pdf',null);
 header('Content-Type: application/pdf');
 if(headers_sent())
     die('Some data has already been output to browser, can\'t send PDF file');

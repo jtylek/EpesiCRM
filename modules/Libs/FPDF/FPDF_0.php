@@ -26,7 +26,7 @@ class Libs_FPDF extends Module {
 		$pdf_id = $this->get_path();
 		$this->set_module_variable('pdf', $this->fpdf->Output('','S'));
 		if(!isset($filename)) $filename='download.pdf';
-		return 'modules/Libs/FPDF/download.php?'.http_build_query(array('id'=>Epesi::get_client_id(),'pdf'=>$pdf_id,'filename'=>$filename));
+		return 'modules/Libs/FPDF/download.php?'.http_build_query(array('id'=>CID,'pdf'=>$pdf_id,'filename'=>$filename));
 	}
 }
 

@@ -29,7 +29,6 @@ abstract class Module extends ModulePrimitive {
 	private $inline_display = false;
 	private $displayed = false;
 	private $clear_child_vars = false;
-	private $last_ret = null;
 	
 	/**
 	 * Constructor. Should not be called directly using new Module('name').
@@ -149,8 +148,7 @@ abstract class Module extends ModulePrimitive {
 	 * @param mixed value
 	 */
 	public final function set_module_variable($name, $value) {
-		$session = & Epesi::get_session();
-		return $session['__module_vars__'][$this->get_path()][$name] = $value;
+		return $_SESSION['client']['__module_vars__'][$this->get_path()][$name] = $value;
 	}
 	
 	/**
@@ -163,12 +161,8 @@ abstract class Module extends ModulePrimitive {
 	 * @param string key
 	 * @param mixed value
 	 */
-	public final static function static_set_module_variable($path,$name, $value,$client_id=null) {
-		if($client_id===null)
-			$client_id = Epesi::get_client_id();
-		if($client_id===null)
-			trigger_error('Epesi not initialized and no client id specified.',E_USER_ERROR);
-		return $_SESSION['cl'.$client_id]['stable']['__module_vars__'][$path][$name] = $value;
+	public final static function static_set_module_variable($path,$name, $value) {
+		return $_SESSION['client']['__module_vars__'][$path][$name] = $value;
 	}
 	
 
@@ -182,10 +176,9 @@ abstract class Module extends ModulePrimitive {
 	 */
 	public final function & get_module_variable($name, $default=null) {
 		$path = $this->get_path();
-		$session = & Epesi::get_session();
 		if(isset($default) && !$this->isset_module_variable($name))
-			$session['__module_vars__'][$path][$name] = & $default;
-		return $session['__module_vars__'][$path][$name];
+			$_SESSION['client']['__module_vars__'][$path][$name] = & $default;
+		return $_SESSION['client']['__module_vars__'][$path][$name];
 	}
 
 
@@ -199,14 +192,10 @@ abstract class Module extends ModulePrimitive {
 	 * @param mixed default value
 	 * @return mixed value
 	 */
-	public final static function & static_get_module_variable($path, $name, $default=null, $client_id=null) {
-		if($client_id===null)
-			$client_id = Epesi::get_client_id();
-		if($client_id===null)
-			trigger_error('Epesi not initialized and no client id specified.',E_USER_ERROR);
-		if(isset($default) && !self::static_isset_module_variable($path,$name,$client_id))
-			$_SESSION['cl'.$client_id]['stable']['__module_vars__'][$path][$name] = & $default;
-		return $_SESSION['cl'.$client_id]['stable']['__module_vars__'][$path][$name];
+	public final static function & static_get_module_variable($path, $name, $default=null) {
+		if(isset($default) && !self::static_isset_module_variable($path,$name))
+			$_SESSION['client']['__module_vars__'][$path][$name] = & $default;
+		return $_SESSION['client']['__module_vars__'][$path][$name];
 	}
 	
 	/**
@@ -238,8 +227,7 @@ abstract class Module extends ModulePrimitive {
 	 * @return bool true if variable exists, false otherwise
 	 */
 	public final function isset_module_variable($name) {
-		$session = & Epesi::get_session();
-		return isset($session['__module_vars__'][$this->get_path()][$name]);
+		return isset($_SESSION['client']['__module_vars__'][$this->get_path()][$name]);
 	}
 	
 	/**
@@ -251,12 +239,8 @@ abstract class Module extends ModulePrimitive {
 	 * @param string key
 	 * @return bool true if variable exists, false otherwise
 	 */
-	public final static function static_isset_module_variable($path,$name,$client_id=null) {
-		if($client_id===null)
-			$client_id = Epesi::get_client_id();
-		if($client_id===null)
-			trigger_error('Epesi not initialized and no client id specified.',E_USER_ERROR);
-		return isset($_SESSION['cl'.$client_id]['stable']['__module_vars__'][$path][$name]);
+	public final static function static_isset_module_variable($path,$name) {
+		return isset($_SESSION['client']['__module_vars__'][$path][$name]);
 	}
 	
 	/**
@@ -266,17 +250,12 @@ abstract class Module extends ModulePrimitive {
 	 * @param string key
 	 */
 	public final function unset_module_variable($name) {
-		$session = & Epesi::get_session();
 		if(!isset($name)) trigger_error('unset_module_variable needs one argument',E_USER_ERROR);
-		unset($session['__module_vars__'][$this->get_path()][$name]);
+		unset($_SESSION['client']['__module_vars__'][$this->get_path()][$name]);
 	}
 	
-	public final static function static_unset_module_variable($path,$name,$client_id=null) {
-		if($client_id===null)
-			$client_id = Epesi::get_client_id();
-		if($client_id===null)
-			trigger_error('Epesi not initialized and no client id specified.',E_USER_ERROR);
-		unset($_SESSION['cl'.$client_id]['stable']['__module_vars__'][$path][$name]);
+	public final static function static_unset_module_variable($path,$name) {
+		unset($_SESSION['client']['__module_vars__'][$path][$name]);
 	}
 
 	/**
@@ -284,8 +263,7 @@ abstract class Module extends ModulePrimitive {
 	 * For details concerning module variables see set_module_variable. 
 	 */
 	public final function clear_module_variables() {
-		$session = & Epesi::get_session();
-		unset($session['__module_vars__'][$this->get_path()]);
+		unset($_SESSION['client']['__module_vars__'][$this->get_path()]);
 	}
 	
 	/**
@@ -301,9 +279,7 @@ abstract class Module extends ModulePrimitive {
 			return false;
 		
 		if(!isset($name2)) $name2=$name;
-		$session = & Epesi::get_session();
-		
-		$session['__module_vars__'][$m->get_path()][$name2] = & $session['__module_vars__'][$this->get_path()][$name];
+		$_SESSION['client']['__module_vars__'][$m->get_path()][$name2] = & $session['__module_vars__'][$this->get_path()][$name];
 		return true;
 	}
 	
@@ -644,6 +620,8 @@ abstract class Module extends ModulePrimitive {
 		$rkey = $this->create_unique_key('back');
 		if(isset($_REQUEST[$rkey])) {
 			$i = intval($_REQUEST[$rkey]);
+			$pkey = $this->parent->create_unique_key('back');
+			$_REQUEST[$pkey]=$i;
 			if($i<=0) return false;
 			$i--;
 			$_REQUEST[$rkey] = $i;
@@ -737,10 +715,8 @@ abstract class Module extends ModulePrimitive {
 		}
 		Epesi::$content[$path]['module'] = & $m;
 		
-		$tmp_session = & Epesi::get_tmp_session();
-
-		if(!$m->is_fast_process() || (isset($_REQUEST['__action_module__']) && strpos($_REQUEST['__action_module__'],$path)===0) || !isset($tmp_session['__module_content__'][$path])) {
-			if(!is_array($args)) $args = array($args);
+		if(!$m->is_fast_process() || (isset($_REQUEST['__action_module__']) && strpos($_REQUEST['__action_module__'],$path)===0) || !isset($_SESSION['client']['__module_content__'][$path])) {
+			if(isset($args) && !is_array($args)) $args = array($args);
 			
 			ob_start();
 	
@@ -761,7 +737,7 @@ abstract class Module extends ModulePrimitive {
 			}
 			
 			if(!$skip_display)
-				$this->last_ret = call_user_func_array(array($m,$function_name),$args);
+				call_user_func_array(array($m,$function_name),$args);
 			
 			if(STRIP_OUTPUT)
 				Epesi::$content[$path]['value'] = strip_html(ob_get_contents());
@@ -770,8 +746,8 @@ abstract class Module extends ModulePrimitive {
 			ob_end_clean();
 			Epesi::$content[$path]['js'] = $m->get_jses();
 		} else {
-			Epesi::$content[$path]['value'] = $tmp_session['__module_content__'][$path]['value'];
-			Epesi::$content[$path]['js'] = $tmp_session['__module_content__'][$path]['js'];
+			Epesi::$content[$path]['value'] = $_SESSION['client']['__module_content__'][$path]['value'];
+			Epesi::$content[$path]['js'] = $_SESSION['client']['__module_content__'][$path]['js'];
 			Epesi::debug('Fast process of '.$path.'<br>');
 		}
 		if(MODULE_TIMES)
@@ -781,14 +757,6 @@ abstract class Module extends ModulePrimitive {
 		
 		if($m->is_inline_display()) return Epesi::$content[$path]['value'];
 		return '<span id="'.Epesi::$content[$path]['span'].'"></span>';
-	}
-	
-	/**
-	 * Returns last value returned by function in get_html_of_module/display_module
-	 * @return mixed
-	 */
-	public final function last_returned() {
-		return $this->last_ret;
 	}
 	
 	/**
@@ -850,10 +818,10 @@ abstract class Module extends ModulePrimitive {
 	 * @return mixed if access denied returns null, otherwise returns child module object
 	 */
 	public final function & pack_module($module_type, $display_args=null, $function_name = 'body', $construct_args=null, $name=null) {
-		if(!is_array($construct_args)) $construct_args = array($construct_args);
+		if(isset($construct_args) && !is_array($construct_args)) $construct_args = array($construct_args);
 		$m = & $this->init_module($module_type,$construct_args,$name);
 		
-		if(!is_array($display_args)) $display_args = array($display_args);
+		if(isset($display_args) && !is_array($display_args)) $display_args = array($display_args);
 		if($this->display_module($m, $display_args, $function_name))
 			return $m;
 			
@@ -908,24 +876,6 @@ abstract class Module extends ModulePrimitive {
 	 */
 	public final function create_unique_key($name) {
 		return $this->get_path() . '_' . $name;
-	}
-
-	/**
-	 * Returns current ajax session.
-	 * 
-	 * @return mixed ajax session
-	 */
-	public final function & get_session() {
-		return Epesi::get_session();
-	}
-
-	/**
-	 * Returns ajax temporary session.
-	 * 
-	 * @return mixed ajax temporary session
-	 */
-	public final function & get_tmp_session() {
-		return Epesi::get_tmp_session();
 	}
 }
 

@@ -4,7 +4,7 @@ if(!isset($_POST['date']))
 
 require_once('../../../include.php');
 session_commit();
-Epesi::init();
+ModuleManager::load_modules();
 
 print(Base_RegionalSettingsCommon::time2reg($_POST['date'],false));
 ?>

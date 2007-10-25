@@ -8,7 +8,6 @@ if(!isset($_POST['msg_id']) || !isset($_POST['mbox']) || !isset($_POST['mc_id'])
 
 define('JS_OUTPUT',1);
 require_once('../../../include.php');
-Epesi::init();
 session_write_close(); //don't messup session
 
 if(!Acl::is_user()) die('Not logged in');

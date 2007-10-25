@@ -27,7 +27,7 @@ $oryg = $_POST['oryg'];
 define('JS_OUTPUT',1);
 require_once('../../../include.php');
 session_write_close(); //don't messup session
-Epesi::init();
+ModuleManager::load_modules();
 
 if(!Acl::check('Administration','Modules') || !Base_MaintenanceModeCommon::get_mode()) return;
 

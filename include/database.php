@@ -84,7 +84,8 @@ class DB {
 	public static function TypeControl($sql, & $arr) {
 		$x = preg_split('/(%[%DTdsbf])/', $sql, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-		if (!is_array($arr) && isset($arr)) $arr = array($arr);
+		if (isset($arr) && !is_array($arr))
+			$arr = array($arr);
 	
 		$ret = '';
 		$j=0;

@@ -30,7 +30,7 @@ class Utils_CustomMenuCommon extends ModuleCommon {
 			$path = explode('/',$row['path']);
 			//print_r($path);
 			$curr = & $menu;
-			for($i=0; $i<count($path)-1; $i++) {
+			for($i=0, $max=count($path)-1; $i<$max; $i++) {
 				if(!isset($curr[$path[$i]])) {
 					$curr[$path[$i]] = array('__submenu__'=>1);
 				}

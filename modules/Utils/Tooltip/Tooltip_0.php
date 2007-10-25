@@ -77,8 +77,7 @@ class Utils_Tooltip extends Module {
 	public function open_tag_attrs( $tip, $help=true ) {
 		if($help && !$this->help_tooltips) return '';
 		load_js('modules/Utils/Tooltip/js/Tooltip.js');
-		$session = & Epesi::get_tmp_session();
-		if(!isset($session['utils_tooltip'])) {
+		if(!isset($_SESSION['client']['utils_tooltip'])) {
 			ob_start();
 			$theme = & $this->init_module('Base/Theme');
 			$theme->assign('tip', '<span id="tooltip_text"></span>');
@@ -97,7 +96,7 @@ class Utils_Tooltip extends Module {
 				'body = body[0];'.
 				'document.body.appendChild(div);';
 			eval_js($js);
-			$session['utils_tooltip'] = true;
+			$_SESSION['client']['utils_tooltip'] = true;
 		}
 		return ' onMouseMove="Utils_Toltip__showTip(\''.escapeJS(htmlspecialchars($tip)).'\', event)" onMouseOut="Utils_Toltip__hideTip()" onMouseUp="Utils_Toltip__hideTip()" ';
 	}

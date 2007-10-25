@@ -805,10 +805,12 @@ class ModuleManager {
 			$x = null;
 			return $x;
 		}
-		if(count($xx)>2) {
+		$xx_count = count($xx);
+		if($xx_count>2) {
 			$curr = & $curr->get_child($xx[2]);
 			if(!$curr) return $curr;
-			for($i=2; $i<count($xx)-1; $i++) {
+			$xx_count--;
+			for($i=2; $i<$xx_count; $i++) {
 				if($curr->get_node_id() == $xx[$i]) {
 					$curr = & $curr->get_child($xx[$i+1]);
 				} else {

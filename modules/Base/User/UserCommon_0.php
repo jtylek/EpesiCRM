@@ -70,27 +70,25 @@ class Base_UserCommon extends ModuleCommon {
 	 * @return mixed user id
 	 */
 	public static function get_my_user_id() {
-		$session = & Epesi::get_session();
 		if(Acl::is_user()) {
-		    if(!isset($session['user_id'])) {
+		    if(!isset($_SESSION['client']['user_id'])) {
 				$id = self::get_user_id(Acl::get_user());
-				$session['user_id'] = $id;
+				$_SESSION['client']['user_id'] = $id;
 		    } 
 		} else {
-			unset($session['user_id']);
+			unset($_SESSION['client']['user_id']);
 		}
-		return $session['user_id'];
+		return $_SESSION['client']['user_id'];
     }
 	
 	/**
 	 * For internal use only. 
 	 */
 	public static function set_my_user_id($a=null) {
-		$session = & Epesi::get_session();
 		if(isset($a))
-			$session['user_id'] = $a;
+			$_SESSION['client']['user_id'] = $a;
 		else
-			unset($session['user_id']);
+			unset($_SESSION['client']['user_id']);
         }
 }
 

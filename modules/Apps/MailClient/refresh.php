@@ -4,7 +4,6 @@ if(!isset($_POST['acc_id']))
 
 require_once('../../../include.php');
 session_write_close(); //don't messup session
-Epesi::init();
 if(!Acl::is_user()) return;
 
 ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));

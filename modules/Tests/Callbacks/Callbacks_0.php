@@ -16,12 +16,26 @@ class Tests_Callbacks extends Module {
 		print('<a '.$this->create_callback_href(array($this,'before')).'>Before</a> :: ');
 		print('<a '.$this->create_callback_href(array($this,'src')).'>Source of this example</a> :: ');
 		print('<a '.$this->create_callback_href(array($this,'form1')).'>Form test</a> :: ');
-		print('<a '.$this->create_callback_href(array($this,'incr'),0).'>Incr test</a>');
+		print('<a '.$this->create_callback_href(array($this,'incr'),0).'>Incr test</a> :: ');
+		print('<a '.$this->create_callback_href(array($this,'a1')).'>Other module (this->a1)</a>');
 	}
-
+	
 	public function incr($inc) {
 		print($inc.'<br>');
 		print('<a '.$this->create_callback_href(array($this,'incr'),$inc+1).'>Incr test</a>');
+		return true;
+	}
+
+	public function a1() {
+		if($this->is_back()) return false;
+		print('<a '.$this->create_callback_href(array($this,'a2')).'>Other module (this->a2 with pack a)</a> :: ');
+		print('<a '.$this->create_back_href().'>Back</a>');
+		return true;
+	}
+	
+	public function a2() {
+		$this->pack_module('Tests/Callbacks/a');
+		if($this->is_back()) return false;
 		return true;
 	}
 	

@@ -9,54 +9,16 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Epesi {
-	private static $client_id = null;
 	private static $jses = array();
 	private static $load_jses = array();
 	private static $load_csses = array();
 	private static $txts = '';
 	
 	/**
-	 * Initializes ajax engine.
-	 * 
-	 * @param string client id
-	 */
-	public final static function init($register_shutdown=true, $client_id = null) {
-		if(isset($_SERVER['HTTP_X_CLIENT_ID']))
-			self::$client_id = $_SERVER['HTTP_X_CLIENT_ID'];
-		elseif($client_id!==null)
-			self::$client_id = $client_id;
-		else
-			trigger_error('Invalid request without client id');
-		ModuleManager :: load_modules();
-	}
-
-	/**
-	 * Returns client id.
-	 * 
-	 * @return string client id
-	 */
-	public final static function get_client_id() {
-	        return self::$client_id;
-	}
-	
-	/**
-	 * Returns current ajax session.
-	 * 
-	 * @return mixed ajax session
-	 */
-	public final static function & get_session() {
-		return $_SESSION['cl'.self::$client_id]['stable'];
-	}
-
-	/**
 	 * Returns ajax temporary session.
 	 * 
 	 * @return mixed ajax temporary session
 	 */
-	public final static function & get_tmp_session() {
-		return $_SESSION['cl'.self::$client_id]['tmp'];
-	}
-
 	/**
 	 * Executes list of javascrpit commands gathered with js() function.
 	 */
@@ -91,10 +53,9 @@ class Epesi {
 	
 	public final static function load_js($file) {
 		if(!is_string($file) || strlen($file)==0) return false;
-		$session = & Epesi::get_tmp_session();
-		if (!isset($session['__loaded_jses__'][$file])) {
+		if (!isset($_SESSION['client']['__loaded_jses__'][$file])) {
 			self::$load_jses[] = $file;
-			$session['__loaded_jses__'][$file] = true;
+			$_SESSION['client']['__loaded_jses__'][$file] = true;
 			return true;
 		}
 		return false;
@@ -102,10 +63,9 @@ class Epesi {
 	
 	public final static function load_css($u) {
 		if(!is_string($u) || strlen($u)==0) return false;
-		$session = & Epesi::get_tmp_session();
-		if (is_string($u) && (!isset($session['__loaded_csses__']) || !array_key_exists($u, $session['__loaded_csses__']))) {
+		if (is_string($u) && (!isset($_SESSION['client']['__loaded_csses__']) || !array_key_exists($u, $_SESSION['client']['__loaded_csses__']))) {
 			self::$load_csses[] = $u;
-			$session['__loaded_csses__'][$u] = 1;
+			$_SESSION['client']['__loaded_csses__'][$u] = 1;
 			return true;
 		}
 		return false;
@@ -218,7 +178,7 @@ class Epesi {
 			$_GET = $_REQUEST = & $_POST;
 		}
 
-		self::init();
+		ModuleManager::load_modules();
 		self::check_firstrun();
 
 		if($history_call==='0')
@@ -226,9 +186,6 @@ class Epesi {
 		elseif($history_call)
 		    History::set_id($history_call);
 		
-		$session = & self::get_session();
-		$tmp_session = & self::get_tmp_session();
-	
 		//on init call methods...
 		$ret = on_init(null,null,null,true);
 		foreach($ret as $k)
@@ -268,19 +225,19 @@ class Epesi {
 		}
 						
 		//clean up old modules
-		if(isset($tmp_session['__module_content__'])) {
-			$to_cleanup = array_keys($tmp_session['__module_content__']);
+		if(isset($_SESSION['client']['__module_content__'])) {
+			$to_cleanup = array_keys($_SESSION['client']['__module_content__']);
 			foreach($to_cleanup as $k) {
 				$mod = ModuleManager::get_instance($k);
 				if($mod === null) {
 					$xx = explode('/',$k);
 					$yy = explode('|',$xx[count($xx)-1]);
 					$mod = $yy[0];
-					if(!is_callable(array($mod.'Common','destroy')) || !call_user_func(array($mod.'Common','destroy'),$k,isset($session['__module_vars__'][$k])?$session['__module_vars__'][$k]:null)) {
+					if(!is_callable(array($mod.'Common','destroy')) || !call_user_func(array($mod.'Common','destroy'),$k,isset($_SESSION['client']['__module_vars__'][$k])?$_SESSION['client']['__module_vars__'][$k]:null)) {
 						if(DEBUG)
 							$debug .= 'Clearing mod vars & module content '.$k.'<br>';
-						unset($session['__module_vars__'][$k]);
-						unset($tmp_session['__module_content__'][$k]);
+						unset($_SESSION['client']['__module_vars__'][$k]);
+						unset($_SESSION['client']['__module_content__'][$k]);
 					}
 				}
 			}
@@ -294,18 +251,18 @@ class Epesi {
 				$debug .= '<hr style="height: 3px; background-color:black">';
 				$debug .= '<b> Checking '.$k.', &nbsp;&nbsp;&nbsp; parent='.$v['module']->get_parent_path().'</b><ul>'.
 					'<li>Force - '.(isset($reload)?print_r($reload,true):'not set').'</li>'.
-					'<li>First display - '.(isset ($tmp_session['__module_content__'][$k])?'no</li><li>Content changed - '.(($tmp_session['__module_content__'][$k]['value'] !== $v['value'])?'yes':'no').'</li><li>JS changed - '.(($tmp_session['__module_content__'][$k]['js'] !== $v['js'])?'yes':'no'):'yes').'</li>'.
+					'<li>First display - '.(isset ($_SESSION['client']['__module_content__'][$k])?'no</li><li>Content changed - '.(($_SESSION['client']['__module_content__'][$k]['value'] !== $v['value'])?'yes':'no').'</li><li>JS changed - '.(($_SESSION['client']['__module_content__'][$k]['js'] !== $v['js'])?'yes':'no'):'yes').'</li>'.
 					'<li>Parent reloaded - '.(isset($reloaded[$parent])?'yes':'no').'</li>'.
 					'</ul>';
 			}
-			if ((!isset($reload) && (!isset ($tmp_session['__module_content__'][$k])
-				 || $tmp_session['__module_content__'][$k]['value'] !== $v['value'] //content differs
-				 || $tmp_session['__module_content__'][$k]['js'] !== $v['js']))
+			if ((!isset($reload) && (!isset ($_SESSION['client']['__module_content__'][$k])
+				 || $_SESSION['client']['__module_content__'][$k]['value'] !== $v['value'] //content differs
+				 || $_SESSION['client']['__module_content__'][$k]['js'] !== $v['js']))
 				 || $reload == true || isset($reloaded[$parent])) { //force reload or parent reloaded
-				if(DEBUG && isset($tmp_session['__module_content__'])){
-					$debug .= '<b>Reloading: '.(isset($v['span'])?';&nbsp;&nbsp;&nbsp;&nbsp;span='.$v['span'].',':'').'&nbsp;&nbsp;&nbsp;&nbsp;triggered='.(($reload==true)?'force':'auto').',&nbsp;&nbsp;</b><hr><b>New value:</b><br><pre>'.htmlspecialchars($v['value']).'</pre>'.(isset($tmp_session['__module_content__'][$k]['value'])?'<hr><b>Old value:</b><br><pre>'.htmlspecialchars($tmp_session['__module_content__'][$k]['value']).'</pre>':'');
-					if($debug_diff && isset($tmp_session['__module_content__'][$k]['value'])) {
-						$xxx = new Text_Diff(explode("\n",$tmp_session['__module_content__'][$k]['value']),explode("\n",$v['value']));
+				if(DEBUG && isset($_SESSION['client']['__module_content__'])){
+					$debug .= '<b>Reloading: '.(isset($v['span'])?';&nbsp;&nbsp;&nbsp;&nbsp;span='.$v['span'].',':'').'&nbsp;&nbsp;&nbsp;&nbsp;triggered='.(($reload==true)?'force':'auto').',&nbsp;&nbsp;</b><hr><b>New value:</b><br><pre>'.htmlspecialchars($v['value']).'</pre>'.(isset($_SESSION['client']['__module_content__'][$k]['value'])?'<hr><b>Old value:</b><br><pre>'.htmlspecialchars($_SESSION['client']['__module_content__'][$k]['value']).'</pre>':'');
+					if($debug_diff && isset($_SESSION['client']['__module_content__'][$k]['value'])) {
+						$xxx = new Text_Diff(explode("\n",$_SESSION['client']['__module_content__'][$k]['value']),explode("\n",$v['value']));
 						$debug .= '<hr><b>Diff:</b><br><pre>'.$diff_renderer->render($xxx).'</pre>';
 					}
 					$debug .= '<hr style="height: 5px; background-color:black">';
@@ -315,15 +272,15 @@ class Epesi {
 					self::text($v['value'], $v['span']);
 				if($v['js'])
 					self::js(join(";",$v['js']));
-				$tmp_session['__module_content__'][$k]['value'] = $v['value'];
-				$tmp_session['__module_content__'][$k]['js'] = $v['js'];				
-				$tmp_session['__module_content__'][$k]['parent'] = $parent;				
+				$_SESSION['client']['__module_content__'][$k]['value'] = $v['value'];
+				$_SESSION['client']['__module_content__'][$k]['js'] = $v['js'];				
+				$_SESSION['client']['__module_content__'][$k]['parent'] = $parent;				
 				$reloaded[$k] = true;
 				if(method_exists($v['module'],'reloaded')) $v['module']->reloaded();
 			}
 		}
 		
-		foreach($tmp_session['__module_content__'] as $k=>$v)
+		foreach($_SESSION['client']['__module_content__'] as $k=>$v)
 			if(!array_key_exists($k,self::$content) && isset($reloaded[$v['parent']])) {
 				if(DEBUG)
 					$debug .= 'Reloading missing '.$k.'<hr>';
@@ -335,7 +292,7 @@ class Epesi {
 			}
 	
 		if(DEBUG) {
-			$debug .= 'vars '.self::get_client_id().': '.print_r($session['__module_vars__'],true).'<br>';
+			$debug .= 'vars '.CID.': '.print_r($_SESSION['client']['__module_vars__'],true).'<br>';
 			$debug .= 'user='.Acl::get_user().'<br>';
 			if(isset($_REQUEST['__action_module__']))
 				$debug .= 'action module='.$_REQUEST['__action_module__'].'<br>';
@@ -367,7 +324,5 @@ class Epesi {
 
 		self::send_output();
 	}
-
-
 }
 ?>
