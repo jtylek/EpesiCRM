@@ -12,7 +12,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 		
 		$curr = 'Select date';
 		$entry = 'datepicker_'.self::$counter.'_calendar';
-		$info = '<a rel="'.$entry.'" class="lbOn" id="dupaX">'.$curr.'</a>';
+		$info = '<a rel="'.$entry.'" class="lbOn">'.$curr.'</a>';
 
 		$iii = '<div id="'.$entry.'" class="leightbox"><div id="Utils_Calendar">';
 		$iii .= '<table><tr><td id="datepicker_'.self::$counter.'_header">error</td></tr>'.

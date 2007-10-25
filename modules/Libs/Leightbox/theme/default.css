@@ -1,5 +1,5 @@
 .leightbox {
-	position: absolute;
+	position: fixed;
 	color: #333;
 	display: none;
 	top: 25%;
@@ -12,36 +12,11 @@
 	text-align: left;
 	z-index: 1010;
 	overflow: auto;	
-<!--[if gte IE 5.5]>
-<!--[if lt IE 7]>
-	top: expression( ( ignoreMe = (document.documentElement.scrollTop + document.documentElement.clientHeight/4) ) + 'px' );
-	left: expression( ( ignoreMe2 = (document.documentElement.scrollLeft + document.documentElement.clientWidth/4) ) + 'px' );
-	height: expression( ( ignoreMe = (document.documentElement.clientHeight/2) ) + 'px' );
-	width: expression( ( ignoreMe2 = (document.documentElement.clientWidth/2) ) + 'px' );
-<![endif]-->
-<![endif]-->
 }
-.leightbox_center {
-	position: absolute;
-	color: #333;
-	display: none;
-	top: 25%;
-	padding: 1em;
-	border: 1em solid #B8B8B8;
-	background-color: white;
-	text-align: center;
-	z-index: 1010;
-	overflow: auto;	
-<!--[if gte IE 5.5]>
-<!--[if lt IE 7]>
-	top: expression( ( ignoreMe = (document.documentElement.scrollTop + document.documentElement.clientHeight/4) ) + 'px' );
-	left: expression( ( ignoreMe2 = (document.documentElement.scrollLeft + document.documentElement.clientWidth/2) ) + 'px' );
-<![endif]-->
-<![endif]-->
-}
+
 .leightbox_overlay {
-	display: none;
 	position: fixed;
+	display: none;
 	top: 0;
 	left: 0;
 	width: 100%;
@@ -51,10 +26,4 @@
 	-moz-opacity: 0.8;
 	opacity: .80;
 	filter: alpha(opacity=80);
-<!--[if gte IE 5.5]>
-<!--[if lt IE 7]>
-	position: absolute;
-	height: expression(( ignoreMe = (document.documentElement.clientHeight < document.body.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight) ) + 'px' );
-<![endif]-->
-<![endif]-->
 }

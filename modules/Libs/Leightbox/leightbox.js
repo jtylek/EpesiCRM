@@ -119,13 +119,22 @@ leightbox.prototype = {
 	},
 	
 	displayLeightbox: function(display){
-	
+		var c = $(this.content);
+		var co = $('leightbox_overlay');
 		if(navigator.appName.indexOf('Explorer') == -1 ) {
 			body = document.getElementsByTagName('body')[0];
-			body.appendChild( $(this.content) );
+			body.appendChild( c );
+		} else {
+			c.style.position="absolute";
+			co.style.position="absolute";
+			c.style.top = (document.documentElement.scrollTop + document.documentElement.clientHeight/4) + 'px';
+			c.style.left = (document.documentElement.scrollLeft + document.documentElement.clientWidth/4) + 'px';
+			c.style.height = (document.documentElement.clientHeight/2) + 'px';
+			c.style.width = (document.documentElement.clientWidth/2) + 'px';
+			co.style.height = (document.documentElement.clientHeight < document.body.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight) + 'px';
 		}
-		$('leightbox_overlay').style.display = display;
-		$(this.content).style.display = display;
+		co.style.display = display;
+		c.style.display = display;
 		if(display != 'none') this.actions();		
 	},
 	
