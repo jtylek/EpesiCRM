@@ -121,17 +121,16 @@ leightbox.prototype = {
 	displayLeightbox: function(display){
 		var c = $(this.content);
 		var co = $('leightbox_overlay');
-		if(navigator.appName.indexOf('Explorer') == -1 ) {
-			body = document.getElementsByTagName('body')[0];
-			body.appendChild( c );
-		} else {
+		body = document.getElementsByTagName('body')[0];
+		body.appendChild( c );
+		if(navigator.appName.indexOf('Explorer') != -1 ) {
 			c.style.position="absolute";
 			co.style.position="absolute";
+			co.style.height = (document.documentElement.clientHeight < document.body.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight) + 'px';
 			c.style.top = (document.documentElement.scrollTop + document.documentElement.clientHeight/4) + 'px';
 			c.style.left = (document.documentElement.scrollLeft + document.documentElement.clientWidth/4) + 'px';
 			c.style.height = (document.documentElement.clientHeight/2) + 'px';
 			c.style.width = (document.documentElement.clientWidth/2) + 'px';
-			co.style.height = (document.documentElement.clientHeight < document.body.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight) + 'px';
 		}
 		co.style.display = display;
 		c.style.display = display;
