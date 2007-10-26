@@ -1,8 +1,8 @@
-var Utils_CommonData = {
-request:function(e,cd_root,name,max_id) {
+var Utils_CommonData = function(cd_root,name,max_id,add_empty) {
+this.request = function(e,mid) {
 	var self = Event.element(e);
-	var dest = $(name+'_'+max_id);
-	for(var i=0; i<max_id-1; i++)
+	var dest = $(name+'_'+mid);
+	for(var i=0; i<mid-1; i++)
 		cd_root += '/' + $(name+'_'+i).value;
 	new Ajax.Request('modules/Utils/CommonData/update.php',{
 				method:'post',
@@ -15,20 +15,20 @@ request:function(e,cd_root,name,max_id) {
 					opts.length=0;
 					if(new_opts.length==0) dest.disabled=true;
 					else {
-						$H(new_opts).each(function(x,y) {opts[y] = new Option(x[1],x[0]);});
+						if(add_empty==1) opts[0] = new Option('---','');
+						$H(new_opts).each(function(x) {opts[opts.length] = new Option(x[1],x[0]);});
 						dest.disabled=false;
 					}
-					for(var i=max_id+1, ed=null; ed=$(name+'_'+i);i++) {
+					for(var i=mid+1, ed=null; ed=$(name+'_'+i);i++) {
 						ed.disabled=true;
 						ed.options.length=true;
 					}
 				}
 			});
-},
-init:function(cd_root,name,max_id) {
+};
 for(var i=1; i<max_id; i++) {
 	$(name+'_'+i).disabled=true;
-	Event.observe(name+'_'+(i-1),'change',this.request.bindAsEventListener(this,cd_root,name,i));
+	Event.observe(name+'_'+(i-1),'change',this.request.bindAsEventListener(this,i));
 }
-}
+
 };

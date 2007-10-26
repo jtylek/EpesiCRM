@@ -13,7 +13,7 @@ class Tests_QuickForm extends Module{
 	public function body(){
 		$f = $this->init_module('Libs/QuickForm');
 		$f->addElement('datepicker','xxx','Date picker');
-		$f->addElement('commondata','xxx2','Commondata test', 'Countries',2);
+		$f->addElement('commondata','xxx2','Commondata test', 'Countries',array('depth'=>2,'separator'=>'<br>','empty_option'=>true),array('readonly'=>1));
 		$f->addElement('submit',null,'ok');
 		if($f->validate()) {
 			print_r($f->exportValues());
