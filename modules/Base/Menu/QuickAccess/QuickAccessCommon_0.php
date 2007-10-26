@@ -18,30 +18,30 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 	
 	public static function user_settings($info = true) {
 		if (!isset(self::$options)) 
-			self::get_options();
+			self::set_options();
 		if (Acl::is_user()) return array('Quick access'=>self::$options);
 		return array();
 	} 
 	
-	private static function get_options() {
+	private static function set_options() {
 		self::$options = array();
-			$modules_menu = array();
-			foreach(ModuleManager::$modules as $name=>$obj) {
-				if ($name=='Base_Admin') continue;
-				if ($name=='Base_Menu_QuickAccess') continue;
-				if(method_exists($obj['name'].'Common', 'menu')) {
-					$module_menu = call_user_func(array($obj['name'].'Common','menu'));
-					if(!is_array($module_menu)) continue;
-					Base_MenuCommon::add_default_menu($module_menu, $name);
-					$modules_menu = array_merge_recursive($modules_menu,$module_menu);
-				}
+		$modules_menu = array();
+		foreach(ModuleManager::$modules as $name=>$obj) {
+			if ($name=='Base_Admin') continue;
+			if ($name=='Base_Menu_QuickAccess') continue;
+			if(method_exists($obj['name'].'Common', 'menu')) {
+				$module_menu = call_user_func(array($obj['name'].'Common','menu'));
+				if(!is_array($module_menu)) continue;
+				Base_MenuCommon::add_default_menu($module_menu, $name);
+				$modules_menu = array_merge_recursive($modules_menu,$module_menu);
 			}
-			ksort($modules_menu);
+		}
+		ksort($modules_menu);
 	
-			$array = array();
-			self::check_for_links($array,'',$modules_menu);
+		$array = array();
+		self::check_for_links($array,'',$modules_menu);
 			
-			self::$options = $array;
+		self::$options = $array;
 	}
 
 	private static function check_for_links(& $result,$prefix,$array){
@@ -63,7 +63,7 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 	public static function quick_access_menu() {
 		if (!Base_AclCommon::i_am_user()) return array();
 		if (!isset(self::$options)) 
-			self::get_options();
+			self::set_options();
 		$qa_menu = array('__submenu__'=>1);
 		foreach (self::$options as $v)
 			if (Base_User_SettingsCommon::get('Base_Menu_QuickAccess',$v['name'])) {

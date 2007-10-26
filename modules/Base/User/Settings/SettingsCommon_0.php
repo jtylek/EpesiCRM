@@ -56,7 +56,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 								$ret=$v2['default'];
 						}
 			if(isset($ret)) return $ret;
-			return null;//trigger_error('There is no such variable as '.$name.' in module '.$module,E_USER_ERROR);
+			return null;
 		} else {
 			trigger_error('There is no common class for module: '.$module,E_USER_ERROR);
 		}
