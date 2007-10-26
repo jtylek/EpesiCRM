@@ -91,7 +91,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 		if (!Acl::is_user()) return null;
 		$module = str_replace('/','_',$module);
 		if (!isset(self::$user_variables)) {
-			self::$user_variables = DB::GetAssoc('SELECT '.DB::Concat('module','\'__\'','variable').',value FROM base_user_settings WHERE user_login_id=%d AND module=%s',array(Base_UserCommon::get_my_user_id(),$module));
+			self::$user_variables = DB::GetAssoc('SELECT '.DB::Concat('module','\'__\'','variable').',value FROM base_user_settings WHERE user_login_id=%d',array(Base_UserCommon::get_my_user_id()));
 		}
 		if (isset(self::$user_variables[$module.'__'.$name]))
 			return self::$user_variables[$module.'__'.$name];

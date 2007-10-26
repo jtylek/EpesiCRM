@@ -17,11 +17,14 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 	private static $options = null;
 	
 	public static function user_settings($info = true) {
-		if ($info) {  
-			if (Acl::is_user()) return array('Quick access'=>array());
-			return array();
-		}
-		if (!isset(self::$options)) {
+		if (!isset(self::$options)) 
+			self::get_options();
+		if (Acl::is_user()) return array('Quick access'=>self::$options);
+		return array();
+	} 
+	
+	private static function get_options() {
+		self::$options = array();
 			$modules_menu = array();
 			foreach(ModuleManager::$modules as $name=>$obj) {
 				if ($name=='Base_Admin') continue;
@@ -39,12 +42,9 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 			self::check_for_links($array,'',$modules_menu);
 			
 			self::$options = $array;
-		} else $array = self::$options;
-		if (Base_AclCommon::i_am_user()) return array('Quick access'=>$array);
-		return array();
-	} 
+	}
 
-	private function check_for_links(& $result,$prefix,$array){
+	private static function check_for_links(& $result,$prefix,$array){
 		foreach($array as $k=>$v){
 			if (substr($k,0,2)=='__') continue;
 			if (is_array($v) && array_key_exists('__submenu__',$v)) self::check_for_links($result,$prefix.$k.': ',$v);
@@ -62,7 +62,8 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 
 	public static function quick_access_menu() {
 		if (!Base_AclCommon::i_am_user()) return array();
-		self::user_settings(false);
+		if (!isset(self::$options)) 
+			self::get_options();
 		$qa_menu = array('__submenu__'=>1);
 		foreach (self::$options as $v)
 			if (Base_User_SettingsCommon::get('Base_Menu_QuickAccess',$v['name'])) {
