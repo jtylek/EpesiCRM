@@ -260,6 +260,7 @@ class Base_Dashboard extends Module {
 			DB::Execute('INSERT INTO base_dashboard_default_applets(module_name,tab) VALUES (%s,%d)',array($mod,$tab_id));
 		else
 			DB::Execute('INSERT INTO base_dashboard_applets(user_login_id,module_name,tab) VALUES (%d,%s,%d)',array(Base_UserCommon::get_my_user_id(),$mod,$tab_id));
+		$sett_fn = array($mod.'Common','applet_settings');
 		$this->set_module_variable('first_conf',DB::Insert_ID('base_dashboard_default_applets','id'));
 		$this->set_module_variable('mod_conf',$mod);
 	}
@@ -294,12 +295,18 @@ class Base_Dashboard extends Module {
 			return false;
 		}
 
+		$sett_fn = array($mod.'Common','applet_settings');
+		$is_conf = is_callable($sett_fn);
+		if(!$is_conf) {
+			$ok=true;
+			return false;
+		}
+
 		$this->lang = $this->init_module('Base/Lang');
 		$f = &$this->init_module('Libs/QuickForm',$this->lang->ht('Saving settings'),'settings');
 		$caption = call_user_func(array($mod.'Common','applet_caption'));
 		
-		$sett_fn = array($mod.'Common','applet_settings');
-		if(is_callable($sett_fn)) {
+		if($is_conf) {
 			$f->addElement('header',null,$this->lang->t($caption. ' settings'));
 			
 			$menu = call_user_func($sett_fn);
