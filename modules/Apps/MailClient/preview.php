@@ -7,8 +7,10 @@ if(!isset($_POST['msg_id']) || !isset($_POST['mbox']) || !isset($_POST['mc_id'])
 	die('Invalid request');
 
 define('JS_OUTPUT',1);
+define('CID',false);
 require_once('../../../include.php');
-session_write_close(); //don't messup session
+session_commit();
+ModuleManager::load_modules();
 
 if(!Acl::is_user()) die('Not logged in');
 

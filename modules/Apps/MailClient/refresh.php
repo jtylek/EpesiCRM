@@ -2,8 +2,9 @@
 if(!isset($_POST['acc_id']))
 	die('Invalid request');
 
+define('CID',false);
 require_once('../../../include.php');
-session_write_close(); //don't messup session
+session_commit();
 if(!Acl::is_user()) return;
 
 ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));

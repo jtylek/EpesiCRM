@@ -1,6 +1,6 @@
 <?php
+define('SET_SESSION',0);
 require_once('../../../include.php');
-session_commit();
 ModuleManager::load_modules();
 
 //get last 50 messages

@@ -18,6 +18,8 @@ define('CID', $id);
 require_once('../../../include.php');
 
 $buffer = Module::static_get_module_variable($pdf_id,'pdf',null);
+session_commit();
+
 header('Content-Type: application/pdf');
 if(headers_sent())
     die('Some data has already been output to browser, can\'t send PDF file');

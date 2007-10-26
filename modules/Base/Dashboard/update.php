@@ -2,8 +2,9 @@
 header("Content-type: text/javascript");
 
 define('JS_OUTPUT',1);
+define('CID',false); //don't load user session
 require_once('../../../include.php');
-session_write_close(); //don't messup session
+session_commit();
 
 if(!Acl::is_user()) {
 	Epesi::alert('Session expired, logged out - reloading epesi.');

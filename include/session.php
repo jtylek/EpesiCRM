@@ -8,6 +8,8 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
+if(!SET_SESSION) return;
+
 require_once('database.php');
 
 class DBSession {

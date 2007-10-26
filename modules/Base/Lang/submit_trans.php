@@ -26,13 +26,11 @@ $trans = $_POST['trans'];
 $oryg = $_POST['oryg'];
 define('JS_OUTPUT',1);
 require_once('../../../include.php');
-session_write_close(); //don't messup session
 ModuleManager::load_modules();
 
 if(!Acl::check('Administration','Modules') || !Base_MaintenanceModeCommon::get_mode()) return;
 
 Base_LangCommon::load();
-if(Base_AclCommon::i_am_user())
 global $translations;
 $translations[$parent][$oryg]=$trans;
 Base_LangCommon::save();

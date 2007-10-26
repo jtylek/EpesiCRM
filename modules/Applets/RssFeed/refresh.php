@@ -2,7 +2,6 @@
 if(!isset($_POST['feed']) || !isset($_POST['number']))
 	die('Invalid request');
 
-require_once('../../../include.php');
 require_once("rsslib.php");
 
 function handle_rss_error($type, $message,$errfile,$errline,$errcontext) {
