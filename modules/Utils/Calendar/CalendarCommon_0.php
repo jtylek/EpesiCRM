@@ -2,28 +2,24 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_CalendarCommon extends ModuleCommon {
-	private static $counter = 0;
-	
-	public function show($function = '') {
-		self::$counter++;
-		
+	public function show($name,$function = '') {
 		Base_ThemeCommon::load_css('Utils_Calendar');
 		load_js('modules/Utils/Calendar/js/main.js');
 		
 		$curr = 'Select date';
-		$entry = 'datepicker_'.self::$counter.'_calendar';
+		$entry = 'datepicker_'.$name.'_calendar';
 		$info = '<a rel="'.$entry.'" class="lbOn">'.$curr.'</a>';
 
 		$iii = '<div id="'.$entry.'" class="leightbox"><div id="Utils_Calendar">';
-		$iii .= '<table><tr><td id="datepicker_'.self::$counter.'_header">error</td></tr>'.
-				'<tr><td id="datepicker_'.self::$counter.'_view">calendar not loaded</td></tr></table>';
+		$iii .= '<table><tr><td id="datepicker_'.$name.'_header">error</td></tr>'.
+				'<tr><td id="datepicker_'.$name.'_view">calendar not loaded</td></tr></table>';
 		$iii .= '<a class="lbAction" rel="deactivate" id="close_leightbox">Close</a></div></div>';
 
 		$function .= ';leightbox_deactivate(\''.$entry.'\');';
 
 		eval_js(
-			'datepicker_'.self::$counter.' = new Utils_Calendar("'.Epesi::escapeJS($function,true,false).'", '.self::$counter.');'.
-			'datepicker_'.self::$counter.'.show_month();'
+			'datepicker_'.$name.' = new Utils_Calendar("'.Epesi::escapeJS($function,true,false).'", \''.$name.'\');'.
+			'datepicker_'.$name.'.show_month();'
 		);
 		return $info.$iii;
 	}

@@ -21,12 +21,13 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 			$str .= $this->getFrozenHtml();
 		} else {
 			$id = $this->getAttribute('id');
+			$name = $this->getAttribute('name');
 			if(!isset($id)) {
-				$id = 'datepicker_field_'.$this->getAttribute('name');
+				$id = 'datepicker_field_'.$name;
 				$this->updateAttributes(array('id'=>$id));
 			}
 			$str .= $this->_getTabs() . '<input ' . $this->_getAttrString($this->_attributes) . ' />'.
-				Utils_CalendarCommon::show(
+				Utils_CalendarCommon::show($name,
 					'new Ajax.Request(\'modules/Utils/Calendar/up.php\','.
 					'{method:\'post\', parameters:{date: __YEAR__+\'-\'+__MONTH__+\'-\'+__DAY__},'.
 					'onSuccess:function(t){$(\''.Epesi::escapeJS($id,false).'\').value=t.responseText;}})');
