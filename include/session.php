@@ -27,9 +27,11 @@ class DBSession {
     }
     
     public static function read($name) {
-    	$_SESSION = unserialize(DB::GetOne('SELECT data FROM session WHERE name = %s AND expires > %d', array($name, time()-self::$lifetime)));
-	if(CID!==false)
-		$_SESSION['client'] = unserialize(DB::GetOne('SELECT data FROM session_client WHERE session_name = %s AND client_id=%d', array($name,CID)));
+    	$ret = DB::GetOne('SELECT data FROM session WHERE name = %s AND expires > %d', array($name, time()-self::$lifetime));
+	if($ret)
+	    	$_SESSION = unserialize($ret);
+	if(CID!==false && ($ret = DB::GetOne('SELECT data FROM session_client WHERE session_name = %s AND client_id=%d', array($name,CID))))
+		$_SESSION['client'] = unserialize($ret);
 //	file_put_contents('/tmp/sess_l',$data);
         return '';
     }
