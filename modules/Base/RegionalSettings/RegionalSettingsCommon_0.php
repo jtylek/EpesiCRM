@@ -138,6 +138,15 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 
 		return strtotime($t);
 	}
+	
+	public static function server_time($t) {
+		$t = strtotime($t);
+		$curr_tz = date_default_timezone_get();
+		date_default_timezone_set(SYSTEM_TIMEZONE);
+		$ret = self::BindTimeStamp($t);
+		date_default_timezone_set($curr_tz);
+		return $ret;
+	}
 }
 
 if(Acl::is_user())

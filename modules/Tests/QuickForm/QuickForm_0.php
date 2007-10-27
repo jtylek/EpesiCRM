@@ -21,6 +21,7 @@ class Tests_QuickForm extends Module{
 		$f->addElement('commondata','cd_state','commondata State', array('Countries','cd_country'));
 		$f->addElement('commondata','cd_city','commondata City', array('Countries','cd_country','cd_state'));
 		$f->addElement('commondata','cd_street','commondata street', array('Countries','cd_country','cd_state','cd_city'));
+		$f->setDefaults(array('cd_country'=>'US','cd_state'=>'AR'));
 		$f->addElement('submit',null,'ok');
 		if($f->validate()) {
 			print_r($f->exportValues());
