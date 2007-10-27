@@ -597,7 +597,6 @@ class Apps_Gallery extends Module {
 			$theme->assign('other', '');
 		
 		$theme->assign('images', $images->toHtml($this->root.$user."/".$dir));
-		$images->expand();
 		$theme->display();
 	}
 	
