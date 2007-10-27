@@ -42,7 +42,8 @@ class HTML_QuickForm_commondata extends HTML_QuickForm_select {
 				$id = $this->getName();
 				$this->updateAttributes(array('id'=>$id));
 			}
-			eval_js('Utils_CommonData(\''.Epesi::escapeJS($id,false).'\', \''.Epesi::escapeJS(json_encode($this->_cd),false).'\', '.($this->_add_empty_fields?1:0).')');
+			$val = $this->getValue();
+			eval_js('new Utils_CommonData(\''.Epesi::escapeJS($id,false).'\', \''.Epesi::escapeJS($val[0],false).'\', \''.Epesi::escapeJS(json_encode($this->_cd),false).'\', '.($this->_add_empty_fields?1:0).')');
 		}
 	        return parent::toHtml();
 	}
