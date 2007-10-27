@@ -17,7 +17,7 @@ this.request = function(e,mid) {
 					value:cd_root+'/'+self.value
 				},
 				onSuccess:function(t) {
-					eval(t.responseText);
+					var new_opts = t.responseText.evalJSON();
 					var opts = dest.options;
 					opts.length=0;
 					if(new_opts.length==0) dest.disabled=true;
