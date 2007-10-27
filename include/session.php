@@ -39,9 +39,9 @@ class DBSession {
     public static function write($name, $data) {
 //	file_put_contents('/tmp/sess',$data);
 	$ret = true;
-	if(CID!==false)
+	if(CID!==false && isset($_SESSION['client']))
 		$ret &= DB::Replace('session_client',array('data'=>serialize($_SESSION['client']),'session_name'=>$name,'client_id'=>CID),array('session_name','client_id'),true);
-	unset($_SESSION['client']);
+	if(isset($_SESSION['client'])) unset($_SESSION['client']);
 	$ret &= DB::Replace('session',array('expires'=>time(),'data'=>serialize($_SESSION),'name'=>$name),'name',true);
         return ($ret>0)?true:false;
     }
