@@ -143,7 +143,16 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		$t = strtotime($t);
 		$curr_tz = date_default_timezone_get();
 		date_default_timezone_set(SYSTEM_TIMEZONE);
-		$ret = self::BindTimeStamp($t);
+		$ret = DB::BindTimeStamp($t);
+		date_default_timezone_set($curr_tz);
+		return $ret;
+	}
+
+	public static function server_date($t) {
+		$t = strtotime($t);
+		$curr_tz = date_default_timezone_get();
+		date_default_timezone_set(SYSTEM_TIMEZONE);
+		$ret = DB::BindDate($t);
 		date_default_timezone_set($curr_tz);
 		return $ret;
 	}
