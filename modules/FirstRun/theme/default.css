@@ -16,15 +16,20 @@ body#FirstRun {
 }
 
 #FirstRun a.button {
+    color: #FFFFFF;
     line-height: 20px;
     display: block;
     width: 100px;
-    background-image: url("images/button.png");
+    background-image: url("images/header-blue.png");
     text-align: center;
 }
 
 #FirstRun a.button:hover {
-    background-image: url("images/button-hover.png");
+    background-image: url("images/header-blue-hover.png");
+}
+
+#FirstRun .header {
+    font-weight: normal;
 }
 
 #FirstRun span.footer {

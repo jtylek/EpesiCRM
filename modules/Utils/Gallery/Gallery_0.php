@@ -173,7 +173,7 @@ class Utils_Gallery extends Module {
 	 * This method expands gallery to the bottom of the page. Use only if gallery is last module on page.
 	 */
 	public function expand() {
-		load_js($this->get_module_dir().'js/gallery.js');
+		//load_js($this->get_module_dir().'js/gallery.js');
 		eval_js('utils_gallery__set_content_height(\'utils_gallery__conteiner\')');
 	}
 

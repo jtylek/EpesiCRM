@@ -129,7 +129,7 @@ if(!isset($_GET['licence'])) {
                         }
 		    }
                 }
-                break;    
+                break;
 	    }
 	}
 	$form -> display();
@@ -142,14 +142,14 @@ function write_config($host, $user, $pass, $dbname, $engine) {
     fwrite($c, '<?php
 /**
  * Config file
- * 
+ *
  * This file contains database configuration.
  */
  defined("_VALID_ACCESS") || die("Direct access forbidden");
- 
+
 /**
  * Address of SQL server.
- */ 
+ */
 define("DATABASE_HOST","'.$host.'");
 
  /**
@@ -157,19 +157,19 @@ define("DATABASE_HOST","'.$host.'");
  */
 define("DATABASE_USER","'.$user.'");
 
- /** 
+ /**
  * User password to authorize SQL server.
- */ 
+ */
 define("DATABASE_PASSWORD","'.$pass.'");
- 
- /** 
+
+ /**
  * Database to use.
- */	  
+ */
 define("DATABASE_NAME","'.$dbname.'");
 
-/** 
+/**
  * Database driver.
- */	  
+ */
 define("DATABASE_DRIVER","'.$engine.'");
 
 /*
@@ -213,7 +213,7 @@ define("GZIP_HISTORY",1);
 	ob_start();
 	ob_start('rm_config');
 
-	//fill database	
+	//fill database
 	clean_database();
 	install_base();
 
@@ -253,11 +253,11 @@ function install_base() {
 	require_once('include/include_path.php');
 	require_once('include/config.php');
 	require_once('include/database.php');
-	
+
 	$ret = DB::CreateTable('modules',"name C(128) KEY,version I NOTNULL, priority I NOTNULL DEFAULT 0");
 	if($ret===false)
 		die('Invalid SQL query - Setup module (modules table)');
-	
+
 	$ret = DB::CreateTable('session',"name C(32) NOTNULL," .
 			"expires I NOTNULL DEFAULT 0, data X",array('constraints'=>', PRIMARY KEY(name)'));
 	if($ret===false)
@@ -267,16 +267,16 @@ function install_base() {
 			"data X2",array('constraints'=>', FOREIGN KEY(session_name) REFERENCES session(name)'));
 	if($ret===false)
 		die('Invalid SQL query - Database module (session_client table)');
-	
+
 	$ret = DB::CreateTable('history',"session_name C(32) NOTNULL, page_id I, client_id I2," .
 			"data X2",array('constraints'=>', FOREIGN KEY(session_name) REFERENCES session(name)'));
 	if($ret===false)
 		die('Invalid SQL query - Database module (history table)');
-	
+
 	$ret = DB::CreateTable('variables',"name C(32) KEY,value X");
 	if($ret===false)
 		die('Invalid SQL query - Database module (variables table)');
-	
+
 	$ret = DB::Execute("insert into variables values('default_module',%s)",array(serialize('FirstRun')));
 	if($ret === false)
 		die('Invalid SQL query - Setup module (populating variables)');
@@ -284,34 +284,34 @@ function install_base() {
 	$ret = DB::Execute("insert into variables values('version',%s)",array(serialize(EPESI_VERSION)));
 	if($ret === false)
 		die('Invalid SQL query - Setup module (populating variables)');
-	
+
 	//phpgacl
 	require( "adodb/adodb-xmlschema.inc.php" );
-			
+
 	$errh = DB::$ado->raiseErrorFn;
 	DB::$ado->raiseErrorFn = false;
-	
+
 	$schema = new adoSchema(DB::$ado);
 	$schema->ParseSchema('libs/phpgacl/schema.xml');
 	$schema->ContinueOnError(TRUE);
 	$ret = $schema->ExecuteSchema();
 	if($ret===false)
 		die('Invalid SQL query - Setup module (phpgacl tables)');
-	
+
 	DB::$ado->raiseErrorFn = $errh;
-	
+
 	require_once('include/acl.php');
-			
+
 	Acl::$gacl->add_object_section('Administration','Administration',1,0,'aco');
 	Acl::$gacl->add_object_section('Data','Data',2,0,'aco');
-	
+
 	Acl::$gacl->add_object('Administration','Main','Main',1,0,'aco');
 	Acl::$gacl->add_object('Administration','Modules','Modules',2,0,'aco');
 	Acl::$gacl->add_object('Data','Moderation','Moderation',1,0,'aco');
 	Acl::$gacl->add_object('Data','View','View',2,0,'aco');
-	
+
 	Acl::$gacl->add_object_section('Users','Users',1,0,'aro');
-			
+
 	$user_id = Acl::$gacl->add_group('User','User');
 	$moderator_id = Acl::$gacl->add_group('Moderator','Moderator', $user_id);
 	$administrator_id = Acl::$gacl->add_group('Administrator','Administrator', $moderator_id);
@@ -320,7 +320,7 @@ function install_base() {
 	Acl::$gacl->add_acl(array('Administration' =>array('Main')), array(), array($sa_id), NULL, NULL,1,1,'','','user');
 	Acl::$gacl->add_acl(array('Administration' =>array('Modules')), array(), array($administrator_id), NULL, NULL,1,1,'','','user');
 	Acl::$gacl->add_acl(array('Data' =>array('Moderation')), array(), array($moderator_id), NULL, NULL,1,1,'','','user');
-	Acl::$gacl->add_acl(array('Data' =>array('View')), array(), array($user_id), NULL, NULL,1,1,'','','user');	
+	Acl::$gacl->add_acl(array('Data' =>array('View')), array(), array($user_id), NULL, NULL,1,1,'','','user');
 }
 //////////////////////////////////////////////
 function licence() {

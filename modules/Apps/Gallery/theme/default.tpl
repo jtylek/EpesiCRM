@@ -1,5 +1,5 @@
 {if $type == 'images'}
-	<table id="Apps_Gallery" cellpadding="0" cellspacing="0">
+	<table id="Apps_Gallery" cellpadding="0" cellspacing="0" border="0">
 		<tr>
 			<td colspan="2" class="path">
 				{$path}

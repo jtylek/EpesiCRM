@@ -119,6 +119,26 @@ input, textarea, select {
 	background-repeat: repeat-x;
 }
 
+#top_bar #top_bar_1 .version {
+	width: 120px;
+	height: 20px;
+	background-color: #336699;
+	background-image: url("images/header-blue.png");
+	background-repeat: repeat-x;
+	text-align: center;
+	vertical-align: middle;
+	font-size: 9px;
+}
+
+#top_bar #top_bar_1 .version a {
+	color: #FFFFFF;
+}
+
+#top_bar #top_bar_1 .version a:hover {
+	color: #336699;
+	background-color: #FFFFFF;
+}
+
 #top_bar #top_bar_1 .module-indicator {
 	width: 287px;
 	height: 20px;

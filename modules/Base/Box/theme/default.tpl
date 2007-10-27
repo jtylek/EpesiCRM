@@ -18,6 +18,7 @@
 		<tbody>
 			<tr>
 				<td class="menu-bar">{$menu}</td>
+				<td class="version"><a href="http://sourceforge.net/project/showfiles.php?group_id=192918">&nbsp;version&nbsp;{$version_no}&nbsp;</a></td>
 				<td class="module-indicator">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</td>
 			</tr>
 		</tbody>
@@ -25,7 +26,7 @@
 		<table id="top_bar_2" cellspacing="0" cellpadding="0" border="0">
 		<tbody>
 			<tr>
-				<td class="logo"><a href="#"><img border="0" src="{$theme_dir}/images/logo-small-2.png" width="193" height="68"></a></td>
+				<td class="logo"><a href="#"><img border="0" src="{$theme_dir}/images/logo-small.png" width="193" height="68"></a></td>
 				<td class="icons">{$actionbar}</td>
 				<td class="login-search">
 					<div class="login"><br>{$login}</div>
@@ -41,9 +42,9 @@
 		<div id="content_body" style="padding: 10px; text-align: center;">
 			<center>{$main}</center>
 		</div>
-		<div style="height: 24px"></div>
+		<!-- <div style="height: 24px"></div> -->
 	</div>
-	<!-- -->
+	<!--
 	<div id="bottom_bar">
         <table id="footer" cellspacing="0" cellpadding="0" border="0">
 		<tbody>
@@ -55,7 +56,8 @@
 		</tbody>
         </table>
 	</div>
-
+	-->
+	
 {literal}
 <style type="text/css">
 div > div#top_bar { position: fixed;}
@@ -68,11 +70,13 @@ div > div#bottom_bar { position: fixed;}
 	position: absolute;
 	width: expression( (body.offsetWidth-20)+'px');
 }
+/*
 #bottom_bar {
 	position: absolute;
 	width: expression( (body.offsetWidth-20)+'px');
 	bottom: -1px;
 }
+*/
 #content_body {
 	width: expression( (body.offsetWidth-20)+'px');
 }

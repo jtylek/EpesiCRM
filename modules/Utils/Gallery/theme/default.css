@@ -13,7 +13,7 @@ table.Utils_Gallery a.utils_gallery_picture_link:hover {
 }
 
 table.Utils_Gallery .utils_gallery_item {
-	border: 1px solid #CCCCCC;
+	border: 1px solid #B3B3B3;
 	padding: 5px;
 	margin: 10px;
 	vertical-align: bottom;
@@ -25,7 +25,7 @@ table.Utils_Gallery .utils_gallery_preview {
 }
 
 table.Utils_Gallery .utils_gallery_prewiev_list {
-	border-top: 1px dashed #CCCCCC;
+	border-top: 1px dashed #B3B3B3;
 	margin-top: 15px;
 	width: 600px;
 	height: 200px;

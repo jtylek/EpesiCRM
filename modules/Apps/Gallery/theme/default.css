@@ -1,5 +1,5 @@
 table#Apps_Gallery {
-	width: 950px;
+	width: 100%;
 }
 
 table#Apps_Gallery td.images {
@@ -29,9 +29,14 @@ table#Apps_Gallery .dirs {
 
 table#Apps_Gallery .tree {
 	width: 20%;
+	height: 100%;
 	vertical-align: top;
 	border-right: 1px solid #B3B3B3;
 	padding: 5px 15px 5px 5px;
+}
+
+table#Apps_Gallery .images {
+	height: 100%;
 }
 
 table#Apps_Gallery a.gallery_path_link {

@@ -10,7 +10,7 @@ getY = function( oElement ) {
 
 utils_gallery__set_content_height = function(content) {
 	if( $(content) ) {
-		var prev = -19;
+		var prev = -39;
 		var ch = (document.documentElement.clientHeight < document.body.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight)
 		var tmp = 0;
 		while(prev != tmp) {
@@ -19,7 +19,7 @@ utils_gallery__set_content_height = function(content) {
 			tmp = ch - getY($(content));
 			$(content).style.height = tmp + 'px';
 		}
-		tmp -= 20;
+		tmp -= 40;
 		$(content).style.height = tmp + 'px';
 	} else {
 		setTimeout("base_box__set_content_height('"+content+"')", 100);
