@@ -24,7 +24,9 @@ class Libs_QuickFormInstall extends ModuleInstall {
 		return array('3.2.9');
 	}
 	public function requires($v) {
-		return array(array('name'=>'Base/Theme','version'=>0));
+		return array(
+		array('name'=>'Base/Lang','version'=>0),
+		array('name'=>'Base/Theme','version'=>0));
 	}
 }
 
