@@ -1,6 +1,6 @@
 <?php
 require_once('HTML/QuickForm/group.php');
-require_once('HTML/QuickForm/select.php');
+require_once('qf.php');
 
 /**
  * HTML class for common data
@@ -16,7 +16,7 @@ class HTML_QuickForm_commondata_group extends HTML_QuickForm_group {
 		$this->HTML_QuickForm_element($elementName, $elementLabel, $attributes);
 		$this->_persistantFreeze = true;
 		$this->_type = 'commondata';
-		$this->_appendName = true;
+		$this->_appendName = false;
 
 		if(isset($commondata)) {
 			if(is_array($commondata)) {
@@ -43,39 +43,15 @@ class HTML_QuickForm_commondata_group extends HTML_QuickForm_group {
 	} //end constructor
 	
 	function _createElements() {
-		$root_data = Utils_CommonDataCommon::get_array($this->_cd_root);
-		$attributes = $this->getAttributes();
-		if(!isset($attributes) || !is_array($attributes))
-			$attributes = array();
 		$name = $this->_name;
+		$cd = array($this->_cd_root);
+		$attributes = $this->getAttributes();
 		
-		if($this->_add_empty_fields)
-			$root_data = array_merge(array(''=>'---'),$root_data);
-
-		$this->_elements[] = & new HTML_QuickForm_select(0, null, $root_data, array_merge($attributes,array('id'=>$name.'_0')));
+		$this->_elements[] = & new HTML_QuickForm_commondata($name.'__0', null, $cd, $attributes);
 		for($i=1; $i<$this->_cd_depth; $i++) {
-			$this->_elements[] = & new HTML_QuickForm_select($i, null, array(), array_merge($attributes,array('id'=>$name.'_'.$i)));
+			$cd[] = $name.'__'.($i-1);
+			$this->_elements[] = & new HTML_QuickForm_commondata($name.'__'.$i, null, $cd, $attributes);
 		}
 	}
-	
-	function toHtml() {
-		load_js('modules/Utils/CommonData/qf_group.js');
-		$name = $this->_name;
-		$root = $this->_cd_root;
-		$max=count($this->getElements());
-//		for($i=1,; $i<$max; $i++)
-		eval_js('Utils_CommonData_group(\''.Epesi::escapeJS($root,false).'\', \''.Epesi::escapeJS($name,false).'\', '.$max.', '.($this->_add_empty_fields?1:0).')');
-
-	        include_once('HTML/QuickForm/Renderer/Default.php');
-	        $renderer =& new HTML_QuickForm_Renderer_Default();
-	        $renderer->setElementTemplate('{element}');
-	        parent::accept($renderer);
-	        return $renderer->toHtml();
-	}
-	
-	function accept(&$renderer, $required = false, $error = null) {
-		$renderer->renderElement($this, $required, $error);
-	} // end func accept
-
 } //end class HTML_QuickForm_commondata
 ?>
