@@ -75,3 +75,12 @@ div.licence {
     background-color: #FFFFFF;
     padding: 10px 10px 10px 10px;
 }
+
+span.required_note,
+span.required_note_star {
+    font-size: 9px;
+}
+
+span.required_note_star {
+    color: #FF0000;
+}
