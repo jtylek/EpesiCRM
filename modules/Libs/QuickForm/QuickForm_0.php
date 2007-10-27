@@ -27,7 +27,7 @@ class Libs_QuickForm extends Module {
 			$on_submit = $this->get_submit_form_js_by_name($form_name,true,$indicator)."return false;";
 		$this->qf = new HTML_QuickForm($form_name, 'post', $action, $target, array('onSubmit'=>$on_submit), true);
 		$this->qf->addElement('hidden', 'submited', 0);
-		$this->qf->setRequiredNote('<span class="required_note_star">*</span><span class="required_note">'.$this->lang->t('denotes required field').'</span>');
+		$this->qf->setRequiredNote('<span class="required_note_star">*</span> <span class="required_note">'.$this->lang->t('denotes required field').'</span>');
 		eval_js_once("set_qf_sub0 = function(fn){var x=$(fn);if(x)x.submited.value=0}");
 		eval_js("set_qf_sub0('".addslashes($form_name)."')");
 		Base_ThemeCommon::load_css('Libs_QuickForm');

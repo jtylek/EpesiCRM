@@ -197,5 +197,6 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 }
 
 $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['commondata'] = array('modules/Utils/CommonData/qf.php','HTML_QuickForm_commondata');
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['commondata_group'] = array('modules/Utils/CommonData/qf_group.php','HTML_QuickForm_commondata_group');
 
 ?>
