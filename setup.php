@@ -73,6 +73,8 @@ if(!isset($_GET['licence'])) {
 	$form -> addElement('submit', 'submit', 'OK');
 	$form -> setDefaults(array('engine'=>'mysqlt','db'=>'epesi','host'=>'localhost'));
 
+	$form->setRequiredNote('<span class="required_note_star">*</span> <span class="required_note">denotes required field</span>');
+
 	if($form -> validate()) {
 	    $engine = $form -> exportValue('engine');
 	    switch($engine) {
