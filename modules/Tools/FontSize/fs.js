@@ -34,4 +34,4 @@ change:function(inc) {
 	}
 }
 };
-document.observe("e_load", function(){if(Tools_FontSize.last_size!=0)Tools_FontSize.change(Tools_FontSize.last_size);});
+document.observe("e:load", function(){if(Tools_FontSize.last_size!=0)Tools_FontSize.change(Tools_FontSize.last_size);});

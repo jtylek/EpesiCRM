@@ -27,7 +27,7 @@ correctPNG = function() // correctly handle PNG transparency in Win IE 5.5 & 6.
       }
    }
 };
-document.observe("e_load", correctPNG);
+document.observe("e:load", correctPNG);
 
 var cont = $('content_body');
 var debug = $('debug');

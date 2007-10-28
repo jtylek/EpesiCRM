@@ -14,6 +14,6 @@ var SessionKeeper = {
 		this.id = new PeriodicalExecuter(this.func,this.interval);
 	}
 };
-document.observe("e_load", function() {
+document.observe("e:load", function() {
 	SessionKeeper.load();
 });

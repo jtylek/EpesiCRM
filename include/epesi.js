@@ -43,7 +43,7 @@ var Epesi = {
 			onComplete: function(t) {
 				Epesi.procOn--;
 				Epesi.updateIndicator();
-				Epesi.append_js('Event.fire(document,\'e_load\');');
+				Epesi.append_js('Event.fire(document,\'e:load\');');
 			},
 			onException: function(t,e) {
 				throw(e);

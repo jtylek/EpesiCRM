@@ -187,11 +187,10 @@ for(i=0;i<leightboxes.length;i++)if(leightboxes[i].content==name){leightboxes[i]
 addLeightboxMarkup();
 getBrowserInfo();
 
-document.observe("e_load", function() {
+document.observe("e:load", function() {
 	lbox = document.getElementsByClassName('lbOn');
 	for(i = 0; i < leightboxes.length; i++)
 		delete(leightboxes[i]);
 	for(i = 0; i < lbox.length; i++) 
 		leightboxes[i] = new leightbox(lbox[i]);
 });
-

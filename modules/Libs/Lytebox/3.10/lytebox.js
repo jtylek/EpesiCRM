@@ -683,4 +683,4 @@ LyteBox.prototype.pause = function(numberMillis) {
 		if (now.getTime() > exitTime) { return; }
 	}
 };
-document.observe("e_load", function(){myLytebox = new LyteBox();});
+document.observe("e:load", function(){myLytebox = new LyteBox();});
