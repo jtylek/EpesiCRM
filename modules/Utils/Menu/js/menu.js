@@ -26,7 +26,7 @@ hideAllNow_f = function(menu, submenu) {
 	for(i = 0; i < a_submenu_number[menu]; i++ ) {
 		tmp_id = sub_name(menu, i);
 		if( is_over[menu][i] == 0 && $(tmp_id) && level[menu][submenu] <= level[menu][i] ) {
-			$(tmp_id).style.visibility = "hidden";
+			$(tmp_id).style.display = "none";
 			clearTimeout(timeout[menu][i]);
 			if( (level[menu][submenu] < level[menu][i]) && is_IE ) {
 				$('mask_level'+level[menu][i]).style.display = 'none';
@@ -46,7 +46,7 @@ super_hideAllNow = function() {
 		for(i = 0; i < a_submenu_number[menu]; i++ ) {
 			tmp_id = sub_name(menu, i);
 			if( is_over[menu][i] == 0 && $(tmp_id) && level[menu][submenu] <= level[menu][i] ) {
-				$(tmp_id).style.visibility = "hidden";
+				$(tmp_id).style.display = "none";
 			}
 		}
 	}
@@ -130,7 +130,7 @@ custom_show = function(menu, submenu) {
 	
 	//$(id).style.filter = "Alpha()";
 	$(id).style.opacity = 1;
-	$(id).style.visibility  = "visible";
+	$(id).style.display  = "block";
 	
 	
 }
@@ -142,7 +142,7 @@ custom_hide_f = function(menu, submenu, opacity) {
 			clearTimeout(timeout[menu][submenu]);
 			$(id).className = "submenu";
 			$(id).style.opacity = 1;
-			$(id).style.visibility = "hidden";
+			$(id).style.display = "none";
 			
 			if( is_IE ) {
 				if( level[menu][submenu] != level[menu][last_open] ) {

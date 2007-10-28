@@ -33,11 +33,10 @@ table.root td.separator {
 	list-style-type: none;
 	opacity: 1;
 	background: white;
-	visibility: hidden;
 	position: absolute;
 	vertical-align: top;
 	overflow: visible;
-	display: block;
+	display: none;
 	z-index: 1000;
 	font-weight: normal;
 	background-color: #336699;
