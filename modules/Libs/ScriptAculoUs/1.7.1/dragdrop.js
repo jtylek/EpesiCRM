@@ -644,6 +644,7 @@ var Sortable = {
       elements:    false,
       handles:     false,
       
+      onDrop:      Prototype.emptyFunction,
       onChange:    Prototype.emptyFunction,
       onUpdate:    Prototype.emptyFunction
     }, arguments[1] || {});
@@ -661,7 +662,7 @@ var Sortable = {
       delay:       options.delay,
       ghosting:    options.ghosting,
       constraint:  options.constraint,
-      handle:      options.handle };
+      handle:      options.handle};
 
     if(options.starteffect)
       options_for_draggable.starteffect = options.starteffect;
@@ -686,14 +687,16 @@ var Sortable = {
       containment: options.containment,
       tree:        options.tree,
       hoverclass:  options.hoverclass,
-      onHover:     Sortable.onHover
+      onHover:     Sortable.onHover,
+      onDrop:      options.onDrop 
     }
     
     var options_for_tree = {
       onHover:      Sortable.onEmptyHover,
       overlap:      options.overlap,
       containment:  options.containment,
-      hoverclass:   options.hoverclass
+      hoverclass:   options.hoverclass,
+      onDrop:       options.onDrop 
     }
 
     // fix for gecko engine
