@@ -89,19 +89,6 @@ function getX( oElement ) {
 	}
 	return iReturnValue - 2;
 }
-function getWidth (obj)
-{
-	var width = obj.offsetWidth;
-	if (width > 0)
-		return width;
-	if (!obj.firstChild)
-		return 0;
-	// use TABLE's length can cause an extra pixel gap
-	//return obj.parentNode.parentNode.offsetWidth;
-
-	// use the left and right child instead
-	return obj.lastChild.offsetLeft - obj.firstChild.offsetLeft + cmGetWidth (obj.lastChild);
-}
 
 custom_show = function(menu, submenu) {
 	if(timeout[menu][submenu] != null) {
@@ -123,7 +110,7 @@ custom_show = function(menu, submenu) {
 		t.style.zIndex = 9;//$(id).style.zIndex - 1;
 		t.style.left = getX($(id));
 		t.style.top = getY($(id));
-		t.style.width = getWidth($(id));
+		t.style.width = $(id).getWidth();
 		t.style.height = $(id).offsetHeight;
 		t.style.display = 'block';
 	}
