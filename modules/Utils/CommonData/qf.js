@@ -3,7 +3,7 @@ Utils_CommonData.prototype = {
 	obj:null,
 	path:null,
 	add_empty:null,
-	def_val:null,
+	def_val:'',
 	initialize: function(id,val,cd,ae) {
 		this.obj = $(id);
 		this.path = cd.evalJSON();
@@ -50,11 +50,12 @@ Utils_CommonData.prototype = {
 			this.obj.disabled=false;
 			if(this.add_empty==1) opts[0] = new Option('---','');
 			$H(new_opts).each(function(x) {opts[opts.length] = new Option(x[1],x[0]);});
-			if(this.def_val!=null) {
+			if(this.def_val!='') {
 				this.obj.value = this.def_val;
-				this.def_val=null;
-			}
-//			alert('fire '+this.obj.name);
+				this.def_val='';
+			} else
+				this.obj.value = opts[0].value;
+//			alert('fire='+this.obj.name+' valyx='+opts[0].value);
 //			this.obj.fire('e_u_cd:load');
 			setTimeout(this.obj.fire.bind(this.obj,'e_u_cd:load'),1);
 		}
