@@ -35,7 +35,7 @@ class ErrorHandler {
 	    if (ereg("(error</b>:)(.+)(<br)", $buffer, $regs) ) {
 		$err = preg_replace("/<.*?>/","",$regs[2]);
 		error_log($err);
-		return self::notify_client($err);
+		return self::notify_client('Fatal: '.$err);
 	    }
 	    return $buffer;
 	}
