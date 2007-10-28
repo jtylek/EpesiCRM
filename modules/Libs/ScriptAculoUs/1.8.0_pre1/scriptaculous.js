@@ -24,5 +24,5 @@
 // For details, see the script.aculo.us web site: http://script.aculo.us/
 
 var Scriptaculous = {
-  Version: '1.7.1beta3'
+  Version: '1.8.0_pre1'
 }
