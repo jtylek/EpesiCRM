@@ -46,8 +46,6 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 	}
 
 	function setValue($value) {
-		if(!is_numeric($value) && is_string($value))
-			$value = strtotime($value);
 		$this->updateAttributes(array('value'=>Base_RegionalSettingsCommon::time2reg($value,false)));
 	} // end func setValue
 
