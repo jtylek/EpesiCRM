@@ -13,6 +13,10 @@ class Tests_QuickForm extends Module{
 	public function body(){
 		$f = $this->init_module('Libs/QuickForm');
 		
+		$x = $f->addElement('datepicker','xxxy','Date picker');
+		$f->setDefaults(array('xxxy'=>time()));
+//		print($x->getValue().'<br>');
+
 		$f->addElement('commondata_group','xxx2','commondata_group', 'Countries',array('depth'=>2,'separator'=>'<br>','empty_option'=>true));
 
 		$f->addElement('commondata','cd_country','commondata Country', 'Countries', array('empty_option'=>true));
@@ -21,9 +25,7 @@ class Tests_QuickForm extends Module{
 		$f->addElement('commondata','cd_street','commondata street', array('Countries','cd_country','cd_state','cd_city'));
 		$f->setDefaults(array('cd_country'=>'US','cd_state'=>'AL'));
 //		$f->addRule('cd_city','required','required');
-
-		$f->addElement('datepicker','xxxy','Date picker');
-		$f->setDefaults(array('xxxy'=>time()));
+//		print($x->getValue().'<br>');
 
 		$f->addElement('submit',null,'ok');
 		if($f->validate()) {

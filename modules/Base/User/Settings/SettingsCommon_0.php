@@ -51,8 +51,8 @@ class Base_User_SettingsCommon extends ModuleCommon {
 				foreach($menu as $v)
 					foreach($v as $v2)
 						if ($v2['type']!='static' && $v2['type']!='header') {
-							$variables[$module.'__'.$name] = $v2['default'];
-							if($v2['name']==$name)
+							$variables[$module.'__'.$v2['name']] = $v2['default'];
+							if($v2['name']===$name)
 								$ret=$v2['default'];
 						}
 			if(isset($ret)) return $ret;
