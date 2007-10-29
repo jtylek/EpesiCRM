@@ -646,6 +646,7 @@ var Sortable = {
       elements:    false,
       handles:     false,
       
+      onDrop:	   Prototype.emptyFunction,
       onChange:    Prototype.emptyFunction,
       onUpdate:    Prototype.emptyFunction
     }, arguments[1] || { });
@@ -688,14 +689,16 @@ var Sortable = {
       containment: options.containment,
       tree:        options.tree,
       hoverclass:  options.hoverclass,
-      onHover:     Sortable.onHover
+      onHover:     Sortable.onHover,
+      onDrop:      options.onDrop
     }
     
     var options_for_tree = {
       onHover:      Sortable.onEmptyHover,
       overlap:      options.overlap,
       containment:  options.containment,
-      hoverclass:   options.hoverclass
+      hoverclass:   options.hoverclass,
+      onDrop:      options.onDrop
     }
 
     // fix for gecko engine
