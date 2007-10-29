@@ -6,7 +6,7 @@
 				</tr><tr>
 				{assign var=x value=0}
 			{/if}
-			<td class="label" nowrap>{$f.label}</td>
+			<td class="label" nowrap>{$f.label}{if $f.required}*{/if}</td>
 			<td class="data">{$f.html}</td>
 			{assign var=x value=$x+1}
 		{/foreach}
@@ -16,3 +16,4 @@
 		{/section}
 	</tr>
 </table>
+*{$required_note}

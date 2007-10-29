@@ -47,7 +47,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					'active I1 DEFAULT 1,'.
 					'position I,'.
 					'filter I1 DEFAULT 0,'.
-					'param C(32)',
+					'param C(256)',
 					array('constraints'=>''));
 		DB::CreateTable($tab_name.'_edit_history',
 					'id I AUTO KEY,'.
@@ -147,10 +147,20 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			DB::CompleteTrans();
 		}
 		if (is_array($param)) {
-			foreach ($param as $k=>$v) $tmp = $k.'::'.$v;
-			$param = $tmp;
+			if ($type=='commondata') {
+				$tmp = '';
+				foreach ($param as $v) {
+					if ($tmp!='') $v = strtolower(str_replace(' ','_',$v));
+					$tmp .= ($tmp==''?'':'::').$v;
+				}
+				$param = $tmp;
+			} else {
+				$tmp = '';
+				foreach ($param as $k=>$v) $tmp .= $k.'::'.$v;
+				$param = $tmp;
+			}
 		} else {
-			if ($type=='select') $param = '__COMMON__::'.$param;
+			$param = '__COMMON__::'.$param;
 		}
 		DB::Execute('INSERT INTO '.$tab_name.'_field(field, type, visible, param, position, extra, required) VALUES(%s, %s, %d, %s, %d, %d, %d)', array($field, $type, $visible?1:0, $param, $pos, $extra?1:0, $required?1:0));
 	}

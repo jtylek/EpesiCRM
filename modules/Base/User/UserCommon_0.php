@@ -38,7 +38,7 @@ class Base_UserCommon extends ModuleCommon {
 		$acl = Base_AclCommon::add_user($username);
 		if(!$acl) {
 			print('Unable to add user to ACL. Deleting user.');
-			DB::Execute('DELETE FROM user_login WHERE login=%s',$username);
+			DB::Execute('DELETE FROM user_login WHERE login=%s', array($username));
 		}
 		return $acl;
 	}
@@ -50,7 +50,7 @@ class Base_UserCommon extends ModuleCommon {
 	 * @return integer user id
 	 */
 	public static function get_user_id($username) {
-		return DB::GetOne('SELECT id FROM user_login WHERE login=%s', $username);
+		return DB::GetOne('SELECT id FROM user_login WHERE login=%s', array($username));
 	}
 	
 	/**
@@ -60,7 +60,7 @@ class Base_UserCommon extends ModuleCommon {
 	 * @return string username
 	 */
 	public static function get_user_login($id) {
-		return DB::GetOne('SELECT login FROM user_login WHERE id=%d', $id);
+		return DB::GetOne('SELECT login FROM user_login WHERE id=%d', array($id));
 	}
 	
 	/**
