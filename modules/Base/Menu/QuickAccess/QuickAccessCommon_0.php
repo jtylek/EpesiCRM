@@ -17,13 +17,13 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 	private static $options = null;
 	
 	public static function user_settings($info = true) {
-		if (!isset(self::$options)) 
-			self::set_options();
+		self::set_options();
 		if (Acl::is_user()) return array('Quick access'=>self::$options);
 		return array();
 	} 
 	
 	private static function set_options() {
+		if (isset(self::$options)) return;
 		self::$options = array();
 		$modules_menu = array();
 		foreach(ModuleManager::$modules as $name=>$obj) {
@@ -62,8 +62,7 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 
 	public static function quick_access_menu() {
 		if (!Base_AclCommon::i_am_user()) return array();
-		if (!isset(self::$options)) 
-			self::set_options();
+		self::set_options();
 		$qa_menu = array('__submenu__'=>1);
 		foreach (self::$options as $v)
 			if (Base_User_SettingsCommon::get('Base_Menu_QuickAccess',$v['name'])) {
