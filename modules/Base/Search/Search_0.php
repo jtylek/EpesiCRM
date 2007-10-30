@@ -25,15 +25,13 @@ class Base_Search extends Module {
 		$form = & $this->init_module('Libs/QuickForm',$this->lang->ht('Searching'));
 		$theme =  & $this->pack_module('Base/Theme');
 
-		$modules_with_search = array();
+		$modules_with_search = ModuleManager::check_common_methods('search');
 		$modules_with_adv_search = array();
-		foreach(ModuleManager::$modules as $name=>$obj) {
-			if(method_exists($obj['name'].'Common', 'search'))
-				$modules_with_search[$name] = $obj;
-			if(method_exists($name.'Common','advanced_search_access') && ModuleManager::check_access($name,'advanced_search'))
+		$cmr = ModuleManager::check_common_methods('advanced_search');
+		foreach($cmr as $name) {
+			if(ModuleManager::check_access($name,'advanced_search'))
 				$modules_with_adv_search[$name] = $this->lang->ht(str_replace('_',': ',$name));
 		}
-		ksort($modules_with_search);
 
 		$form->addElement('header', 'quick_search_header', $this->lang->t('Quick search'));
 		$form->addElement('text', 'quick_search',  $this->lang->ht('Keyword'), array('id'=>'quick_search_text'));
@@ -77,8 +75,8 @@ class Base_Search extends Module {
 				$links = array();
 				$this->set_module_variable('quick_search',$keyword);
 				$count = 0;
-				foreach($modules_with_search as $k=>$v) {
-					$results = call_user_func(array($v['name'].'Common','search'),$keyword);
+				foreach($modules_with_search as $k) {
+					$results = call_user_func(array($k.'Common','search'),$keyword);
 					if (!empty($results))
 						foreach ($results as $rk => $rv) {
 							$count++;

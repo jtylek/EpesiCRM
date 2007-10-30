@@ -43,6 +43,16 @@ class Base_MenuCommon extends ModuleCommon {
 				$m[$k] = null;
 		}
 	} 	
+	
+	public static function get_menus() {
+		static $menus;
+		if(!isset($menus)) { //here can be bug with caching and location
+			$menus = ModuleManager::call_common_methods('menu');
+			foreach($menus as $m=>$r)
+				if(!is_array($r)) unset($menus[$m]);
+		}
+		return $menus;
+	}
 }
 
 ?>

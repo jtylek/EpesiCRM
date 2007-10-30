@@ -26,15 +26,13 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 		if (isset(self::$options)) return;
 		self::$options = array();
 		$modules_menu = array();
-		foreach(ModuleManager::$modules as $name=>$obj) {
+		
+		$menus = Base_MenuCommon::get_menus();
+		foreach($menus as $name=>$ret) {
 			if ($name=='Base_Admin') continue;
 			if ($name=='Base_Menu_QuickAccess') continue;
-			if(method_exists($obj['name'].'Common', 'menu')) {
-				$module_menu = call_user_func(array($obj['name'].'Common','menu'));
-				if(!is_array($module_menu)) continue;
-				Base_MenuCommon::add_default_menu($module_menu, $name);
-				$modules_menu = array_merge_recursive($modules_menu,$module_menu);
-			}
+			Base_MenuCommon::add_default_menu($ret, $name);
+			$modules_menu = array_merge_recursive($modules_menu,$ret);
 		}
 		ksort($modules_menu);
 	

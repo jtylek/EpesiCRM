@@ -21,6 +21,18 @@ class Tests_BookmarkBrowser extends Module {
 		$bb->sortAll(true);
 		$bb->expand();
 		$this->display_module($bb);
+		
+		$t1 = microtime(true);
+		for($i=0; $i<1000; $i++)
+			$ret = ModuleManager::check_common_methods('menu');
+		$t2 = microtime(true);
+		for($i=0; $i<1000; $i++) {
+			$ret = DB::Execute('SELECT name FROM modules');
+//			while($ret->FetchRow());
+		}
+		$t3 = microtime(true);
+		print(($t2-$t1).' > '.($t3-$t2));
+		
 		//------------------------------ print out src
 		print('<hr><b>Install</b><br>');
 		$this->pack_module('Utils/CatFile','modules/Tests/BookmarkBrowser/BookmarkBrowserInstall.php');

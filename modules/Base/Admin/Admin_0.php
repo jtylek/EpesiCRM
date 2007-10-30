@@ -45,13 +45,13 @@ class Base_Admin extends Module {
 		$lang = & $this->init_module('Base/Lang');
 		
 		$mod_ok = array();
-		foreach(ModuleManager::$modules as $name=>$obj)
-			if(method_exists($obj['name'].'Common','admin_caption')) {
-				if(!ModuleManager::check_access($obj['name'],'admin') || $name=='Base_Admin') continue;
-				$caption = call_user_func(array($obj['name'].'Common','admin_caption'));
-				if(!isset($caption)) $caption = $name.' module';
-				$mod_ok[$caption] = $name;
-			}
+		
+		$cmr = ModuleManager::call_common_methods('admin_caption');
+		foreach($cmr as $name=>$caption) {
+			if(!ModuleManager::check_access($name,'admin') || $name=='Base_Admin') continue;
+			if(!isset($caption)) $caption = $name.' module';
+			$mod_ok[$caption] = $name;
+		}
 		ksort($mod_ok);
 		
 		$links = array();
@@ -71,14 +71,12 @@ class Base_Admin extends Module {
 	public static function admin_menu() {
 		if(!Base_AclCommon::i_am_admin()) return array();
 		
-		$mod_cpy = ModuleManager::$modules;
-		foreach($mod_cpy as $name=>$obj)
-			if(method_exists($obj['name'].'Common','admin_caption')) {
-				if(!ModuleManager::check_access($obj['name'],'admin') || $name=='Base_Admin') continue;
-				$caption = call_user_func(array($obj['name'].'Common','admin_caption'));
-				if(!isset($caption)) $caption = $name.' module';
-				$mod_ok[$caption] = array('admin_href'=>$name);
-			}
+		$mod_cpy = ModuleManager::call_common_methods('admin_caption');
+		foreach($mod_cpy as $name=>$caption) {
+			if(!ModuleManager::check_access($name,'admin') || $name=='Base_Admin') continue;
+			if(!isset($caption)) $caption = $name.' module';
+			$mod_ok[$caption] = array('admin_href'=>$name);
+		}
 		$mod_ok['__submenu__']=1;
 		
 		ksort($mod_ok);

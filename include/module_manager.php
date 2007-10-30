@@ -103,19 +103,16 @@ class ModuleManager {
 		$virtual_modules = array(); //virtually loaded modules
 		$priority = array();
 		
-		foreach(self::$modules as $module_to_load=>$v) {		
-			if ($v['name']!=$module_to_load) //provided packages
-				continue;
-
-			$deps = self :: check_dependencies($v['name'], $v['version'], $virtual_modules);
+		foreach(self::$modules as $module_to_load=>$version) {		
+			$deps = self :: check_dependencies($module_to_load, $version, $virtual_modules);
 		
 			if(!empty($deps)) {
-				$queue[] = $v;
+				$queue[] = array('name'=>$module_to_load,'version'=>$version);
 				continue;
 			}
 		
-			$priority[] = $v['name'];
-			self :: register($v['name'], $v['version'], $virtual_modules);
+			$priority[] = $module_to_load;
+			self :: register($module_to_load, $version, $virtual_modules);
 		
 			//queue
 			foreach($queue as $k=>$m) {
@@ -289,7 +286,7 @@ class ModuleManager {
 	 * @param array modules list
 	 */
 	public static final function register($mod, $version, & $module_table) {
-		$module_table[$mod] = array('name'=>$mod, 'version'=>$version);
+		$module_table[$mod] = $version;
 	}
 	
 	/**
@@ -314,8 +311,8 @@ class ModuleManager {
 	 */
 	public static final function is_installed($module_to_install) {
 		$module_to_install = str_replace('/','_',$module_to_install);
-		if (isset (self::$modules) && array_key_exists($module_to_install, self::$modules) && self::$modules[$module_to_install]['name']==$module_to_install)
-			return self::$modules[$module_to_install]['version'];
+		if (isset (self::$modules) && array_key_exists($module_to_install, self::$modules))
+			return self::$modules[$module_to_install];
 		return -1;
 	}
 
@@ -347,12 +344,6 @@ class ModuleManager {
 		self::include_install($module);
 		
 		for($i=$installed_version+1; $i<=$to_version; $i++) {
-			/*$deps = self::check_dependencies($module,$i,self::$modules);
-			if(!empty($deps)) {
-				foreach($deps as $d)
-					print('Upgrading module \''.$module.'\' to version '.$to_version.': upgrade to version '.$i.' failed. Module '.$d['name'].' version='.$d['version'].' required!<br>');
-				break;
-			}*/
 			$up_func = array(self::$modules_install[$module], 'upgrade_'.$i);
 			if(!self::satisfy_dependencies($module,$i) || (is_callable($up_func) 
 				&& !call_user_func($up_func))) {
@@ -407,9 +398,8 @@ class ModuleManager {
 		self::include_install($module);
 
 		//check if any other module requires this one....
-		foreach(self::$modules as $k=>$o) {
-			if($k!=$o['name'] || $k=$module) continue;
-			$k_version = self::is_installed($k);
+		foreach(self::$modules as $k=>$k_version) {
+			if($k=$module) continue;
 			
 			$func = array (
 				self::$modules_install[$k],
@@ -427,12 +417,6 @@ class ModuleManager {
 		
 		//go
 		for($i=$installed_version; $i>$to_version; $i--) {
-/*			$deps = self::check_dependencies($module,$i-1,self::$modules);
-			if(!empty($deps)) {
-				foreach($deps as $d)
-					print('Downgrading module \''.$module.'\' to version '.$to_version.' from '.$i.' failed: module '.$d['name'].' version='.$d['version'].' required!<br>');
-				break;
-			}*/
 			$down_func = array(self::$modules_install[$module], 'downgrade_'.$i);
 			if(!self::satisfy_dependencies($module,$i) || (is_callable($down_func) 
 				&& !call_user_func($down_func))) {
@@ -692,19 +676,19 @@ class ModuleManager {
 		
 		self::include_install($module_to_uninstall);
 		
-		foreach (self::$modules as $name => $obj) { //for each module
-			if ($name != $obj['name'] || $name == $module_to_uninstall)
+		foreach (self::$modules as $name => $version) { //for each module
+			if ($name == $module_to_uninstall)
 				continue;
 			
 			self::include_install($name);
 			$required = call_user_func(array (
 				self::$modules_install[$name],
 				'requires'
-				),$obj['version']);
+				),$version);
 			
 			foreach ($required as $req_mod) { //for each dependency of that module
 				$req_mod['name'] = str_replace('/','_',$req_mod['name']);
-				if (self::$modules[$req_mod['name']]['name'] == $module_to_uninstall) {
+				if ($req_mod['name'] == $module_to_uninstall) {
 					print ($module_to_uninstall . ' module is required by ' . $obj['name'] . ' module! You have to uninstall ' . $obj['name'] . ' first.<br>');
 					return false;
 				}
@@ -784,10 +768,9 @@ class ModuleManager {
 				if($module==$mod) break;
 			}
 		}
-		$c = self::$modules[$mod]['name'];
-		if(!class_exists($c))
-			trigger_error('Class not exists: '.$c,E_USER_ERROR);
-		$m = new $c($mod,$parent,$name,$clear_vars);
+		if(!class_exists($mod))
+			trigger_error('Class not exists: '.$mod,E_USER_ERROR);
+		$m = new $mod($mod,$parent,$name,$clear_vars);
 		return $m;
 	}
 
@@ -922,6 +905,34 @@ class ModuleManager {
 				return false;
 		}
 		return true;
+	}
+	
+	public static final function call_common_methods($method,$cached=true) { //przy instalacji niech rejestruje commony a pozniej idzie do bazy
+		static $cache;
+		if(!isset($cache[$method]) || !$cached) {
+			$ret = array();
+			ob_start();
+			foreach(self::$modules as $name=>$version)
+				if(method_exists($name.'Common', $method)) {
+					$ret[$name] = call_user_func(array($name.'Common',$method));
+				}
+			ob_end_clean();
+			$cache[$method]=&$ret;
+		}
+		return $cache[$method];
+	}
+
+	public static final function check_common_methods($method,$cached=true) { //przy instalacji niech rejestruje commony a pozniej idzie do bazy
+		static $cache;
+		if(!isset($cache[$method]) || !$cached) {
+			$ret = array();
+			foreach(self::$modules as $name=>$version)
+				if(method_exists($name.'Common', $method)) {
+					$ret[] = $name;
+				}
+			$cache[$method]=&$ret;
+		}
+		return $cache[$method];
 	}
 
 }

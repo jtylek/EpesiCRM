@@ -221,25 +221,24 @@ class Base_Dashboard extends Module {
 
 		$tipmod = $this->init_module('Utils/Tooltip');
 		$links = array();
-		foreach(ModuleManager::$modules as $name=>$obj) {
-			if(method_exists($obj['name'].'Common', 'applet_caption')) {
-				$attrs = '';
-				if(method_exists($obj['name'].'Common', 'applet_info')) {
-					$out = '';
-					$ret = call_user_func(array($obj['name'].'Common', 'applet_info'));
-					if(is_array($ret)) {
-						$out .= '<table>';
-						foreach($ret as $k=>$v)
-							$out .= '<tr><td>'.$k.'</td><td>'.$v.'</td></tr>';
-						$out .= '</table>';
-					} elseif(is_string($ret))
-						$out = $ret;
-					else
-						trigger_error('Invalid applet info for module: '.$obj['name'],E_USER_ERROR);
-					$attrs .= $tipmod->open_tag_attrs($out,false).' ';
-				}
-				$links[$obj['name']] = '<a '.$attrs.$this->create_callback_href(array($this,'add_applet'),array($obj['name'],$tab_id)).'>'.call_user_func(array($obj['name'].'Common', 'applet_caption')).'</a>';
+		$app_cap = ModuleManager::call_common_methods('applet_caption');
+		$app_info = ModuleManager::call_common_methods('applet_info');
+		foreach($app_cap as $name=>$cap) {
+			if(isset($app_info[$name])) {
+				$out = '';
+				$ret = $app_info[$name];
+				if(is_array($ret)) {
+					$out .= '<table>';
+					foreach($ret as $k=>$v)
+						$out .= '<tr><td>'.$k.'</td><td>'.$v.'</td></tr>';
+					$out .= '</table>';
+				} elseif(is_string($ret))
+					$out = $ret;
+				else
+					trigger_error('Invalid applet info for module: '.$name,E_USER_ERROR);
+				$attrs .= $tipmod->open_tag_attrs($out,false).' ';
 			}
+			$links[$name] = '<a '.$attrs.$this->create_callback_href(array($this,'add_applet'),array($name,$tab_id)).'>'.$cap.'</a>';
 		}
 
 		if(empty($links)) {

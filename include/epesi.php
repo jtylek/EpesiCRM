@@ -125,9 +125,8 @@ class Epesi {
 	private static function check_firstrun() {
 		$first_run = false;
 
-		foreach(ModuleManager::$modules as $row) {
-			$module = $row['name'];
-			if($module=='FirstRun') $first_run=true;
+		foreach(ModuleManager::$modules as $name=>$version) {
+			if($name=='FirstRun') $first_run=true;
 		}
 		ob_start();
 		if(!$first_run && !ModuleManager :: install('FirstRun')) {

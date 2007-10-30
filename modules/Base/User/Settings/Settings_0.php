@@ -41,15 +41,13 @@ class Base_User_Settings extends Module {
 		$this->indicator = ': '.$branch;
 		$this->settings_fields = array();
 		$this->set_default_js = '';
-
-		foreach(ModuleManager::$modules as $name=>$obj) {
-			if(method_exists($obj['name'].'Common', 'user_settings')) {
-				$menu = call_user_func(array($obj['name'].'Common','user_settings'));
-				if(!is_array($menu)) continue;
-				foreach($menu as $k=>$v)
-					if($k==$branch)
-						$this->add_module_settings_to_form($v,$f,$name);
-			}
+		
+		$us = ModuleManager::call_common_methods('user_settings');
+		foreach($us as $name=>$menu) {
+			if(!is_array($menu)) continue;
+			foreach($menu as $k=>$v)
+				if($k==$branch)
+					$this->add_module_settings_to_form($v,$f,$name);
 		}
 
 		$defaults = HTML_QuickForm::createElement('button','defaults',$this->lang->ht('Restore defaults'), 'onClick="'.$this->set_default_js.'"');
@@ -78,8 +76,9 @@ class Base_User_Settings extends Module {
 				Base_User_SettingsCommon::save($module_name,$module_part,$v);
 			
 			//check reload
-			if(!$reload && method_exists($module_name.'Common', 'user_settings')) {
-				$menu = call_user_func(array($module_name.'Common','user_settings'));
+			$cmr = ModuleManager::call_common_methods('user_settings'); //already cached output
+			if(!$reload && isset($cmr[$module_name])) {
+				$menu = $cmr[$module_name];
 				if(!is_array($menu)) continue;
 				foreach($menu as $vv) 
 					foreach($vv as $v)
@@ -131,16 +130,15 @@ class Base_User_Settings extends Module {
 		$this->lang = & $this->init_module('Base/Lang');
 		$modules = array(); 
 		$admin_settings = $this->get_module_variable('admin_settings');
-		foreach(ModuleManager::$modules as $name=>$obj) {
-			if(method_exists($obj['name'].'Common', 'user_settings')) {
-				$menu = call_user_func(array($obj['name'].'Common','user_settings'));
-				if(!is_array($menu)) continue;
-				foreach($menu as $k=>$v)
-					if (!is_string($v)) $modules[$k] = array('action'=>$this->create_unique_href(array('settings_branch'=>$k)),'module_name'=>$obj['name']);
-					elseif(!$admin_settings) $modules[$k] = array('action'=>$this->create_href(array('box_main_module'=>$obj['name'],'box_main_function'=>$v)),'module_name'=>$obj['name']);
-			}
+
+		$us = ModuleManager::call_common_methods('user_settings');
+		foreach($us as $name=>$menu) {
+			if(!is_array($menu)) continue;
+			foreach($menu as $k=>$v)
+				if (!is_string($v)) $modules[$k] = array('action'=>$this->create_unique_href(array('settings_branch'=>$k)),'module_name'=>$name);
+				elseif(!$admin_settings) $modules[$k] = array('action'=>$this->create_href(array('box_main_module'=>$name,'box_main_function'=>$v)),'module_name'=>$name);
 		}
-		
+
 		$links = array();
 		foreach($modules as $caption=>$arg)
 			$links[$arg['module_name']]= '<a '.$arg['action'].'>'.$this->lang->t($caption).'</a>';

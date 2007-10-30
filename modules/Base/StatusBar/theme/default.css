@@ -37,12 +37,3 @@
 	width: 250px;
 	height: 36px;
 }
-
-.Base_StatusBar {
-<!--[if gte IE 5.5]>
-<!--[if lt IE 7]>
-	position: absolute;
-  	top: expression( ignoreMe = (document.documentElement.scrollTop + document.body.clientHeight/4) + 'px' );
-<![endif]-->
-<![endif]-->
-}
