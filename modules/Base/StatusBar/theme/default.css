@@ -15,7 +15,6 @@
 	background-color: #F5FCED;
 	z-index: 2001;
 	width: 300px;
-	/* Netscape 4, IE 4.x-5.0/Win and other lesser browsers will use this */
   	position: fixed;
 	left: 50%;
 	top: 30%;
