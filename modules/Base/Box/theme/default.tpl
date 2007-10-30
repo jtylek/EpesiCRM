@@ -42,21 +42,7 @@
 		<div id="content_body" style="padding: 10px; text-align: center;">
 			<center>{$main}</center>
 		</div>
-		<!-- <div style="height: 24px"></div> -->
 	</div>
-	<!--
-	<div id="bottom_bar">
-        <table id="footer" cellspacing="0" cellpadding="0" border="0">
-		<tbody>
-            <tr>
-                <td class="left"><a href="http://sourceforge.net/project/showfiles.php?group_id=192918">version {$version_no}</a></td>
-                <td class="center">Copyright &copy; 2007 &bull; <a href="http://sourceforge.net/projects/epesi/">epesi framework</a> &bull; Application developed by <a href="http://www.telaxus.com">Telaxus LLC</a></td>
-                <td class="right">{$about}</td>
-            </tr>
-		</tbody>
-        </table>
-	</div>
-	-->
 	
 {literal}
 <style type="text/css">
@@ -70,13 +56,6 @@ div > div#bottom_bar { position: fixed;}
 	position: absolute;
 	width: expression( (body.offsetWidth-20)+'px');
 }
-/*
-#bottom_bar {
-	position: absolute;
-	width: expression( (body.offsetWidth-20)+'px');
-	bottom: -1px;
-}
-*/
 #content_body {
 	width: expression( (body.offsetWidth-20)+'px');
 }

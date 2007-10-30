@@ -30,14 +30,13 @@ class Utils_TabbedBrowser extends Module {
 		if (empty($this->tabs)) return;
 		$theme = & $this->pack_module('Base/Theme');
 		
-		$this->get_module_variable_or_unique_href_variable('page', 0);
-		
 		$captions = array();
-		if ($this->get_module_variable('force')) {
+		if ($this->isset_unique_href_variable('page') || !$this->get_module_variable('force'))
+			$page = $this->get_module_variable_or_unique_href_variable('page', 0);
+		else {
 			$page = $this->get_module_variable('page', 0);
 			$this->unset_module_variable('force');
-		} else 	
-			$page = $this->get_module_variable_or_unique_href_variable('page', 0);
+		}
 		
 		load_js($this->get_module_dir().'tb.js');
 				
