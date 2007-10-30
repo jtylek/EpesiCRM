@@ -25,9 +25,12 @@ class Utils_TabbedBrowser extends Module {
 	 * 
 	 * @param string template file that will be used
 	 */
+	
 	public function body($template=null) {
 		if (empty($this->tabs)) return;
 		$theme = & $this->pack_module('Base/Theme');
+		
+		$this->get_module_variable_or_unique_href_variable('page', 0);
 		
 		$captions = array();
 		if ($this->get_module_variable('force')) {
