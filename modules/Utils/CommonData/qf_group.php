@@ -53,5 +53,15 @@ class HTML_QuickForm_commondata_group extends HTML_QuickForm_group {
 			$this->_elements[] = & new HTML_QuickForm_commondata($name.'__'.$i, null, $cd, $attributes);
 		}
 	}
+	
+	function exportValue(&$submitValues, $assoc = false) {
+		$ret = parent::exportValue($submitValues, false);
+		$ret2 = array();
+		foreach($ret as $k=>$v) {
+			$name = explode('__',$k);
+			$ret2[$name[0]][$name[1]] = $v;
+		}
+		return $ret2;
+	}
 } //end class HTML_QuickForm_commondata
 ?>
