@@ -19,7 +19,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 
 		eval_js(
 			'datepicker_'.$name.' = new Utils_Calendar("'.Epesi::escapeJS($function,true,false).'", \''.$name.'\');'.
-			'datepicker_'.$name.'.show_month();'
+			'datepicker_'.$name.'.show_month()'
 		);
 		return $info.$iii;
 	}

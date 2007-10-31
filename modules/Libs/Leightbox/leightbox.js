@@ -121,8 +121,8 @@ leightbox.prototype = {
 	displayLeightbox: function(display){
 		var c = $(this.content);
 		var co = $('leightbox_overlay');
-		body = document.getElementsByTagName('body')[0];
-		body.appendChild( c );
+//		body = document.getElementsByTagName('body')[0];
+//		body.appendChild( c );
 		if(navigator.appName.indexOf('Explorer') != -1 ) {
 			c.style.position="absolute";
 			co.style.position="absolute";

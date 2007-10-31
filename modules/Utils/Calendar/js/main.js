@@ -37,9 +37,9 @@ Utils_Calendar = function(link_proto, instance_id) {
 			
 			// filling header
 			var header_string = '<table><tr>';
-			header_string += '<td align=left><a href="javascript:datepicker_'+this.instance_id+'.show_month(\''+prev_month+'\', \''+prev_year+'\')">&lt;&lt</a></td>';
-			header_string += '<td width=100% align=center><a href="javascript:datepicker_'+this.instance_id+'.show_year(\''+year+'\')">'+this.monthName[month] + ' ' + year_real+'</a></td>';
-			header_string += '<td align=right><a href="javascript:datepicker_'+this.instance_id+'.show_month(\''+next_month+'\', \''+next_year+'\')">&gt;&gt</a></td>';
+			header_string += '<td align=left><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_month(\''+prev_month+'\', \''+prev_year+'\')">&lt;&lt</a></td>';
+			header_string += '<td width=100% align=center><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_year(\''+year+'\')">'+this.monthName[month] + ' ' + year_real+'</a></td>';
+			header_string += '<td align=right><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_month(\''+next_month+'\', \''+next_year+'\')">&gt;&gt</a></td>';
 			header_string += '</tr></table>';
 			$('datepicker_'+this.instance_id+'_header').innerHTML = header_string;
 			
@@ -121,9 +121,9 @@ Utils_Calendar = function(link_proto, instance_id) {
 			
 			// filling header
 			var header_string = '<table><tr>';
-			header_string += '<td align=left><a href="javascript:datepicker_'+this.instance_id+'.show_year(\''+prev_year+'\')">&lt;&lt</a></td>';
-			header_string += '<td width=100% align=center><a href="javascript:datepicker_'+this.instance_id+'.show_decade(\''+(year - (year%10))+'\')">'+ year_real+'</a></td>';
-			header_string += '<td align=right><a href="javascript:datepicker_'+this.instance_id+'.show_year(\''+next_year+'\')">&gt;&gt</a></td>';
+			header_string += '<td align=left><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_year(\''+prev_year+'\')">&lt;&lt</a></td>';
+			header_string += '<td width=100% align=center><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_decade(\''+(year - (year%10))+'\')">'+ year_real+'</a></td>';
+			header_string += '<td align=right><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_year(\''+next_year+'\')">&gt;&gt</a></td>';
 			header_string += '</tr></table>';
 			document.getElementById('datepicker_'+this.instance_id+'_header').innerHTML = header_string;
 			
@@ -139,7 +139,7 @@ Utils_Calendar = function(link_proto, instance_id) {
 				} else {
 					cal += '>';
 				}
-				cal += '<div class="month"><a href="javascript:datepicker_'+this.instance_id+'.show_month('+index+', '+year+')">';
+				cal += '<div class="month"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_month('+index+', '+year+')">';
 				cal += this.monthName[index];
 				cal += '</a></div>' + TDend;
 				
@@ -173,9 +173,9 @@ Utils_Calendar = function(link_proto, instance_id) {
 			
 			// filling header
 			var header_string = '<table><tr>';
-			header_string += '<td align=left><a href="javascript:datepicker_'+this.instance_id+'.show_decade(\''+prev_decade+'\')">&lt;&lt</a></td>';
-			header_string += '<td width=100% align=center><a href="javascript:datepicker_'+this.instance_id+'.show_century(\''+(decade - (decade%100))+'\')">'+ decade_real + ' - ' + (decade_real+10) + '</a></td>';
-			header_string += '<td align=right><a href="javascript:datepicker_'+this.instance_id+'.show_decade(\''+next_decade+'\')">&gt;&gt</a></td>';
+			header_string += '<td align=left><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_decade(\''+prev_decade+'\')">&lt;&lt</a></td>';
+			header_string += '<td width=100% align=center><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_century(\''+(decade - (decade%100))+'\')">'+ decade_real + ' - ' + (decade_real+10) + '</a></td>';
+			header_string += '<td align=right><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_decade(\''+next_decade+'\')">&gt;&gt</a></td>';
 			header_string += '</tr></table>';
 			document.getElementById('datepicker_'+this.instance_id+'_header').innerHTML = header_string;
 			
@@ -191,7 +191,7 @@ Utils_Calendar = function(link_proto, instance_id) {
 				} else {
 					cal += '>';
 				}
-				cal += '<div class="month"><a href="javascript:datepicker_'+this.instance_id+'.show_year(' + (decade + index - 1) + ')">';
+				cal += '<div class="month"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_year(' + (decade + index - 1) + ')">';
 				cal += (decade_real + index - 1);
 				cal += '</a></div>' + TDend;
 				
@@ -225,9 +225,9 @@ Utils_Calendar = function(link_proto, instance_id) {
 			
 			// filling header
 			var header_string = '<table><tr>';
-			header_string += '<td align=left><a href="javascript:datepicker_'+this.instance_id+'.show_century(\''+prev_century+'\')">&lt;&lt</a></td>';
+			header_string += '<td align=left><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_century(\''+prev_century+'\')">&lt;&lt</a></td>';
 			header_string += '<td width=100% align=center>'+ century_real + ' - ' + (century_real+100) + '</td>';
-			header_string += '<td align=right><a href="javascript:datepicker_'+this.instance_id+'.show_century(\''+next_century+'\')">&gt;&gt</a></td>';
+			header_string += '<td align=right><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_century(\''+next_century+'\')">&gt;&gt</a></td>';
 			header_string += '</tr></table>';
 			document.getElementById('datepicker_'+this.instance_id+'_header').innerHTML = header_string;
 			
@@ -243,7 +243,7 @@ Utils_Calendar = function(link_proto, instance_id) {
 				} else {
 					cal += '>';
 				}
-				cal += '<div class="month"><a href="javascript:datepicker_'+this.instance_id+'.show_decade(' + (century + index - 10) + ')">';
+				cal += '<div class="month"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_decade(' + (century + index - 10) + ')">';
 				cal += (century_real + index - 10) + ' - ' + (century_real + index);
 				cal += '</a></div>' + TDend;
 				
