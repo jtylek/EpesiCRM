@@ -159,6 +159,14 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		date_default_timezone_set($curr_tz);
 		return $ret;
 	}
+	
+	public static function date_format() {
+		return Base_User_SettingsCommon::get('Base_RegionalSettings','date');
+	}
+
+	public static function timestamp_format() {
+		return Base_User_SettingsCommon::get('Base_RegionalSettings','date').' '.Base_User_SettingsCommon::get('Base_RegionalSettings','time');
+	}
 }
 
 if(Acl::is_user())

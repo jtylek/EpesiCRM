@@ -12,7 +12,7 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 		HTML_QuickForm_input::HTML_QuickForm_input($elementName, $elementLabel, $attributes);
 		$this->_persistantFreeze = true;
 		$this->setType('text');
-		$this->updateAttributes(array('readonly'=>1));
+//		$this->updateAttributes(array('readonly'=>1));
 	} //end constructor
         
 	function toHtml() {
@@ -26,11 +26,12 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 				$id = 'datepicker_field_'.$name;
 				$this->updateAttributes(array('id'=>$id));
 			}
-			$str .= $this->_getTabs() . '<input ' . $this->_getAttrString($this->_attributes) . ' />'.
+			$str .= $this->_getTabs() . '<input ' . $this->_getAttrString($this->_attributes) . ' '.Utils_Tooltip::open_tag_attrs(Base_RegionalSettingsCommon::date_format(), false ).' />'.
 				Utils_CalendarCommon::show($name,
 					'new Ajax.Request(\'modules/Utils/Calendar/up.php\','.
 					'{method:\'post\', parameters:{date: __YEAR__+\'-\'+__MONTH__+\'-\'+__DAY__},'.
-					'onSuccess:function(t){$(\''.Epesi::escapeJS($id,false).'\').value=t.responseText;}})');
+					'onSuccess:function(t){$(\''.Epesi::escapeJS($id,false).'\').value=t.responseText;}})',
+					false,'expression( ($(\''.$id.'\').getStyle(\'top\') )+\'px\')','expression( ($(\''.$id.'\').getStyle(\'left\') )+\'px\')');
 		}
 		return $str;
 	} //end func toHtml
