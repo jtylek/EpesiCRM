@@ -224,6 +224,7 @@ class Base_Dashboard extends Module {
 		$app_cap = ModuleManager::call_common_methods('applet_caption');
 		$app_info = ModuleManager::call_common_methods('applet_info');
 		foreach($app_cap as $name=>$cap) {
+			$attrs = '';
 			if(isset($app_info[$name])) {
 				$out = '';
 				$ret = $app_info[$name];
