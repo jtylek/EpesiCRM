@@ -18,7 +18,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 		$function .= ';leightbox_deactivate(\''.$entry.'\');';
 
 		eval_js(
-			'datepicker_'.$name.' = new Utils_Calendar("'.Epesi::escapeJS($function,true,false).'", \''.$name.'\');'.
+			'var datepicker_'.$name.' = new Utils_Calendar("'.Epesi::escapeJS($function,true,false).'", \''.$name.'\');'.
 			'datepicker_'.$name.'.show_month()'
 		);
 		return $info.$iii;

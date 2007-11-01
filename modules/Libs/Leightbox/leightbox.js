@@ -123,10 +123,13 @@ leightbox.prototype = {
 		var co = $('leightbox_overlay');
 		var ccont = $('leightbox_container');
 		if(display == 'none') {
-		    ccont.removeChild($(this.content+'__clone'));
+		    var tag = $(this.content+'__tag');
+		    tag.parentNode.insertBefore(c,tag);
+		    tag.parentNode.removeChild(tag);
 		} else {
-		    c = c.cloneNode(true);
-		    c.id = this.content+'__clone';
+		    var tag = document.createElement('div');
+		    tag.id = this.content+'__tag';
+		    c.parentNode.insertBefore(tag,c);
 		    ccont.appendChild(c);
 		    if(navigator.appName.indexOf('Explorer') != -1 ) {
 			co.style.position="absolute";
