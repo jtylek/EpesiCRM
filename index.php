@@ -112,7 +112,6 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 		}
 
 		Epesi.client_id=<?php print($client_id); ?>;
-		Epesi.process_file='<?php print(str_replace('\\','/',dirname($_SERVER['PHP_SELF'])).'/process.php'); ?>';
 		var history_on=1;
 		history_add(0);
 		Epesi.request('',0);

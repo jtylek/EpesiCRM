@@ -22,7 +22,6 @@ function wait_while_null(id,action) {
 var Epesi = {
 	procOn:0,
 	client_id:0,
-	process_file:'',
 	indicator:'epesiStatus',
 	updateIndicator: function(){
 		var s = $(Epesi.indicator);
@@ -34,7 +33,7 @@ var Epesi = {
 	request: function(url,history_id) {
 		Epesi.procOn++;
 		Epesi.updateIndicator();
-		new Ajax.Request(Epesi.process_file, {
+		new Ajax.Request('process.php', {
 			method: 'post',
 			parameters: {
 				history: history_id,
