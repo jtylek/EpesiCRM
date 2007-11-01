@@ -10,7 +10,7 @@
 	border: 1em solid #B8B8B8;
 	background-color: white;
 	text-align: left;
-	z-index: 1010;
+	z-index: 1001;
 	overflow: auto;	
 }
 
@@ -21,9 +21,9 @@
 	left: 0;
 	width: 100%;
 	height: 100%;
-	z-index: 1005;
+	z-index: 1000;
 	background-color: #333;
 	-moz-opacity: 0.8;
-	opacity: .80;
+	opacity:.80;
 	filter: alpha(opacity=80);
 }

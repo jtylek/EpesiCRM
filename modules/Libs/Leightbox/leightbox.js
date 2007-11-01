@@ -121,16 +121,22 @@ leightbox.prototype = {
 	displayLeightbox: function(display){
 		var c = $(this.content);
 		var co = $('leightbox_overlay');
-//		body = document.getElementsByTagName('body')[0];
-//		body.appendChild( c );
-		if(navigator.appName.indexOf('Explorer') != -1 ) {
-			c.style.position="absolute";
+		var ccont = $('leightbox_container');
+		if(display == 'none') {
+		    ccont.removeChild($(this.content+'__clone'));
+		} else {
+		    c = c.cloneNode(true);
+		    c.id = this.content+'__clone';
+		    ccont.appendChild(c);
+		    if(navigator.appName.indexOf('Explorer') != -1 ) {
 			co.style.position="absolute";
 			co.style.height = (document.documentElement.clientHeight < document.body.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight) + 'px';
+			c.style.position="absolute";
 			c.style.top = (document.documentElement.scrollTop + document.documentElement.clientHeight/4) + 'px';
 			c.style.left = (document.documentElement.scrollLeft + document.documentElement.clientWidth/4) + 'px';
 			c.style.height = (document.documentElement.clientHeight/2) + 'px';
 			c.style.width = (document.documentElement.clientWidth/2) + 'px';
+		    }
 		}
 		co.style.display = display;
 		c.style.display = display;
@@ -168,16 +174,17 @@ var leightboxes = Array();
 // Overlay holds the shadow
 // Lightbox is the centered square that the content is put into.
 function addLeightboxMarkup() {
-
 	bod 				= document.getElementsByTagName('body')[0];
 
 	leightbox_overlay 			= document.createElement('div');
-	
 	leightbox_overlay.style.display = 'none';
 	leightbox_overlay.id			= 'leightbox_overlay';
 	leightbox_overlay.className		= 'leightbox_overlay';
-
 	bod.appendChild(leightbox_overlay);
+
+	leightbox_container 			= document.createElement('div');
+	leightbox_container.id			= 'leightbox_container';
+	bod.appendChild(leightbox_container);
 }
 
 function leightbox_deactivate(name) {
