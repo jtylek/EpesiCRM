@@ -52,7 +52,8 @@ class FirstRun extends Module {
 	
 		$f->setDefaults(array('mail_method'=>'mail'));
 		$f->addElement('header',null, $this->lang->t('Mail settings'));
-		$f->addElement('header',null, $this->lang->t('If you are on hosted server, you probably don\'t need to change it.'));
+		$f->addElement('html','<tr><td colspan=2>.$this->lang->t('If you are on hosted server, you probably don\'t need to change it.').</td></tr>');
+		//$f->addElement('header',null, $this->lang->t('If you are on hosted server, you probably don\'t need to change it.'));
 		$f->addElement('select','mail_method', $this->lang->t('Choose method'), array('smtp'=>'remote smtp server', 'mail'=>'local php.ini settings'));
 		
 		$wizard->next_page(array($this,'choose_mail_method'));
