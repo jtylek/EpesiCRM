@@ -19,20 +19,20 @@ defined("_VALID_ACCESS") || die();
 class Utils_RecordBrowserInstall extends ModuleInstall {
 	public function install() {
 		Base_ThemeCommon::install_default_theme('Utils/RecordBrowser');
-		DB::CreateTable('recordbrowser_quickjump',
+		DB::CreateTable('recordbrowser_table_properties',
 						'tab C(64) KEY,'.
-						'col C(64)',
-						array('constraints'=>''));
-		DB::CreateTable('recordbrowser_tpl',
-						'tab C(64) KEY,'.
-						'filename C(256)',
+						'quickjump C(64) DEFAULT \'\','.
+						'tpl C(256) DEFAULT \'\','.
+						'favorites I1 DEFAULT 0,'.
+						'recent I2 DEFAULT 1,'.
+						'full_history I1 DEFAULT 1,'.
+						'data_process_method C(256) DEFAULT \'\'',
 						array('constraints'=>''));
 		return true;
 	}
 	
 	public function uninstall() {
-		DB::DropTable('recordbrowser_quickjump');
-		DB::DropTable('recordbrowser_tpl');
+		DB::DropTable('recordbrowser_table_properties');
 		Base_ThemeCommon::uninstall_default_theme('Utils/RecordBrowser');
 		return true;
 	}

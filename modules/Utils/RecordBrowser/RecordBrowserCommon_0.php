@@ -26,6 +26,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
 	public function install_new_recordset($tab_name = null, $fields) {
 		if (!$tab_name) return false;
+		DB::Execute('INSERT INTO recordbrowser_table_properties (tab) VALUES (%s)', array($tab_name));
 		DB::CreateTable($tab_name,
 					'id I AUTO KEY,'.
 					'created_on T NOT NULL,'.
@@ -132,8 +133,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		DB::DropTable($tab_name.'_field');
 		DB::DropTable($tab_name.'_data');
 		DB::DropTable($tab_name);
-		DB::Execute('DELETE FROM recordbrowser_quickjump WHERE tab=%s', array($tab_name));
-		DB::Execute('DELETE FROM recordbrowser_tpl WHERE tab=%s', array($tab_name));
+		DB::Execute('DELETE FROM recordbrowser_table_properties WHERE tab=%s', array($tab_name));
 		return true;
 	}
 	
@@ -150,7 +150,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if ($type=='commondata') {
 				$tmp = '';
 				foreach ($param as $v) {
-					if ($tmp!='') $v = strtolower(str_replace(' ','_',$v));
 					$tmp .= ($tmp==''?'':'::').$v;
 				}
 				$param = $tmp;
@@ -160,7 +159,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$param = $tmp;
 			}
 		} else {
-			$param = '__COMMON__::'.$param;
+			if ($type=='select' || $type=='multiselect')
+				$param = '__COMMON__::'.$param;
 		}
 		DB::Execute('INSERT INTO '.$tab_name.'_field(field, type, visible, param, position, extra, required) VALUES(%s, %s, %d, %s, %d, %d, %d)', array($field, $type, $visible?1:0, $param, $pos, $extra?1:0, $required?1:0));
 	}
@@ -179,13 +179,56 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function delete_filter($tab_name, $col_name) {
 		DB::Execute('UPDATE '.$tab_name.'_field SET filter=0 WHERE field=%s', array($col_name));
 	}
+	public static function set_processing_method($tab_name, $method) {
+		DB::Execute('UPDATE recordbrowser_table_properties SET data_process_method=%s WHERE tab=%s', array($method[0].'::'.$method[1], $tab_name));
+	}
 	public static function set_quickjump($tab_name, $col_name) {
-		DB::Execute('INSERT INTO recordbrowser_quickjump (tab, col) VALUES (%s, %s)', array($tab_name, $col_name));
+		DB::Execute('UPDATE recordbrowser_table_properties SET quickjump=%s WHERE tab=%s', array($col_name, $tab_name));
 	}
 	public static function set_tpl($tab_name, $filename) {
-		DB::Execute('INSERT INTO recordbrowser_tpl (tab, filename) VALUES (%s, %s)', array($tab_name, $fiename));
+		DB::Execute('UPDATE recordbrowser_table_properties SET tpl=%s WHERE tab=%s', array($filename, $tab_name));
 	}
 	
+	public static function new_record( $tab_name = null, $values = array()) {
+		if (!$tab_name) return false;
+		self::init($tab_name);
+		DB::StartTrans();	
+		$SQLcols = array();
+		DB::Execute('INSERT INTO '.$tab_name.' (created_on, created_by, active) VALUES (%T, %d, %d)',array(date('Y-m-d G:i:s'), Base_UserCommon::get_my_user_id(), 1));
+		$id = DB::Insert_ID($tab_name, 'id');
+		self::add_recent_entry($tab_name, Base_UserCommon::get_my_user_id(), $id);
+		foreach(self::$table_rows as $field => $args) {
+			if (!isset($values[$args['id']]) || $values[$args['id']]=='') continue;
+			if (!is_array($values[$args['id']])) 
+				DB::Execute('INSERT INTO '.$tab_name.'_data ('.$tab_name.'_id, field, value) VALUES (%d, %s, %s)',array($id, $field, $values[$args['id']]));
+			else
+				foreach($values[$args['id']] as $v)
+					DB::Execute('INSERT INTO '.$tab_name.'_data ('.$tab_name.'_id, field, value) VALUES (%d, %s, %s)',array($id, $field, $v));
+		}
+		DB::CompleteTrans();
+		return $id;
+	}
+	public function add_recent_entry($tab_name, $user_id ,$id){
+		DB::StartTrans();
+		DB::Execute('DELETE FROM '.$tab_name.'_recent WHERE user_id = %d AND '.$tab_name.'_id = %d',
+					array($user_id,
+					$id));
+		$ret = DB::SelectLimit('SELECT visited_on FROM '.$tab_name.'_recent WHERE user_id = %d ORDER BY visited_on DESC',
+					9,
+					-1,
+					array($user_id));
+		while($row_temp = $ret->FetchRow()) $row = $row_temp;
+		if (isset($row)) {
+			DB::Execute('DELETE FROM '.$tab_name.'_recent WHERE user_id = %d AND visited_on < %T',
+						array($user_id,	
+						$row['visited_on']));
+		}
+		DB::Execute('INSERT INTO '.$tab_name.'_recent VALUES (%d, %d, %T)',
+					array($id,
+					$user_id,
+					date('Y-m-d G:i:s')));
+		DB::CompleteTrans();
+	}
 	public static function get_records( $tab_name = null, $crits = null, $admin = false ) {
 		if (!$tab_name) return false;
 		self::init($tab_name, $admin);
@@ -276,6 +319,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		} else {
 			return '';
 		}
+	}
+	public function create_linked_label($tab, $col, $id){
+		$label = DB::GetOne('SELECT value FROM '.$tab.'_data WHERE field=%s AND '.$tab.'_id=%d', array($col, $id));
+		return '<a '.Module::create_href(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($tab), 'tab'=>$tab, 'id'=>$id, 'action'=>'view')).'>'.$label.'</a>';
 	}
 }
 ?>
