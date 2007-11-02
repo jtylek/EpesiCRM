@@ -167,6 +167,10 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	public static function timestamp_format() {
 		return Base_User_SettingsCommon::get('Base_RegionalSettings','date').' '.Base_User_SettingsCommon::get('Base_RegionalSettings','time');
 	}
+	
+	public static function time_12h() {
+		return '%I:%M:%S %p'==Base_User_SettingsCommon::get('Base_RegionalSettings','time');
+	}
 }
 
 if(Acl::is_user())
