@@ -27,7 +27,7 @@ validate_blur: function(ev,f) {
 init_re: function(f) {
 	if(this.format!=f) {
 		this.re = new RegExp();
-		alert(this.format2regexp(f));
+//		alert(this.format2regexp(f));
 		this.re.compile('^'+this.format2regexp(f)+'$');
 		this.format=f;
 	}
