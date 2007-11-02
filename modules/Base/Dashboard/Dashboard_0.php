@@ -256,10 +256,24 @@ class Base_Dashboard extends Module {
 	}
 
 	public function add_applet($mod,$tab_id) {
-		if($this->get_module_variable('default'))
-			DB::Execute('INSERT INTO base_dashboard_default_applets(module_name,tab) VALUES (%s,%d)',array($mod,$tab_id));
-		else
-			DB::Execute('INSERT INTO base_dashboard_applets(user_login_id,module_name,tab) VALUES (%d,%s,%d)',array(Base_UserCommon::get_my_user_id(),$mod,$tab_id));
+		$pos = 0;
+		DB::StartTrans();
+		if($this->get_module_variable('default')) {
+			$cols = DB::GetAssoc('SELECT col,count(id) FROM base_dashboard_default_applets WHERE tab=%d GROUP BY col ORDER BY col',array($tab_id));
+			for($col=0; $col<3 && isset($cols[$col]); $col++);
+			if($col==3) $col=0;
+			if(isset($cols[$col]))
+				$pos = $cols[$col];
+			DB::Execute('INSERT INTO base_dashboard_default_applets(module_name,tab,col,pos) VALUES (%s,%d,%d,%d)',array($mod,$tab_id,$col,$pos));
+		} else {
+			$cols = DB::GetAssoc('SELECT col,count(id) FROM base_dashboard_applets WHERE user_login_id=%d AND tab=%d GROUP BY col ORDER BY col',array(Base_UserCommon::get_my_user_id(),$tab_id));
+			for($col=0; $col<3 && isset($cols[$col]); $col++);
+			if($col==3) $col=0;
+			if(isset($cols[$col]))
+				$pos = $cols[$col];
+			DB::Execute('INSERT INTO base_dashboard_applets(user_login_id,module_name,tab,col,pos) VALUES (%d,%s,%d,%d,%d)',array(Base_UserCommon::get_my_user_id(),$mod,$tab_id,$col,$pos));
+		}
+		DB::CompleteTrans();
 		$sett_fn = array($mod.'Common','applet_settings');
 		$this->set_module_variable('first_conf',DB::Insert_ID('base_dashboard_default_applets','id'));
 		$this->set_module_variable('mod_conf',$mod);

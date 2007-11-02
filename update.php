@@ -43,6 +43,9 @@ $versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9
 function mod_cmp($a, $b){
 	return strlen($b['name']) - strlen($a['name']);
 }
+function update_from_0_9_0_to_0_9_1() {
+
+}
 function update_from_0_8_11_to_0_9_0() {
 	DB::DropTable('session');
 	DB::CreateTable('session',"name C(32) NOTNULL," .
