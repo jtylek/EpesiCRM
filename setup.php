@@ -44,10 +44,10 @@ if(!is_writable('backup'))
 require_once('include/include_path.php');
 require_once('modules/Libs/QuickForm/requires.php');
 
-if(!isset($_GET['licence'])) {
-	print('<h1>Welcome to epesi framework setup!<br></h1><h2>Please read and accept licence</h2><br><div class="licence">');
-	licence();
-        print('</div><br><a class="button" href="setup.php?licence=1">Accept</a>');
+if(!isset($_GET['license'])) {
+	print('<h1>Welcome to epesi framework setup!<br></h1><h2>Please read and accept license</h2><br><div class="license">');
+	license();
+        print('</div><br><a class="button" href="setup.php?license=1">Accept</a>');
 ?>
 
 <?php
@@ -330,7 +330,7 @@ function install_base() {
 	Acl::$gacl->add_acl(array('Data' =>array('View')), array(), array($user_id), NULL, NULL,1,1,'','','user');
 }
 //////////////////////////////////////////////
-function licence() {
+function license() {
 $fp = @fopen('license.html', 'r');
 if ($fp){
 	$license_txt = fread($fp,filesize('license.html'));

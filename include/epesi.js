@@ -48,7 +48,8 @@ var Epesi = {
 				throw(e);
 			},
 			onFailure: function(t) {
-				alert('Failure ('+t.status+'): '+t.responseText);
+				alert('Failure ('+t.status+')');
+				Epesi.text(t.responseText,'error_box','p');
 			}
 		});
 	},
