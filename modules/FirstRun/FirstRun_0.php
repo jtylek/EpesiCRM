@@ -52,8 +52,7 @@ class FirstRun extends Module {
 	
 		$f->setDefaults(array('mail_method'=>'mail'));
 		$f->addElement('header',null, $this->lang->t('Mail settings'));
-		$f->addElement('html','<tr><td colspan=2>.$this->lang->t('If you are on hosted server, you probably don\'t need to change it.').</td></tr>');
-		//$f->addElement('header',null, $this->lang->t('If you are on hosted server, you probably don\'t need to change it.'));
+		$f->addElement('html','<tr><td colspan=2>'.$this->lang->t('If you are on a hosted server it probably should stay as it is now.').'</td></tr>');
 		$f->addElement('select','mail_method', $this->lang->t('Choose method'), array('smtp'=>'remote smtp server', 'mail'=>'local php.ini settings'));
 		
 		$wizard->next_page(array($this,'choose_mail_method'));
@@ -74,7 +73,7 @@ class FirstRun extends Module {
 		////////////////////////////////////////////////////////////
 		$f = & $wizard->begin_page('setup_warning');
 		$f->addElement('header', null, $this->lang->t('Warning'));
-		$f->addElement('header', null, "Setup will now check for available modules and proceed with base install,<br> this operation may take several minutes<br> and will be triggered automatically only once.<br> Click next to proceed.");
+		$f->addElement('html','<tr><td colspan=2>Setup will now check for available modules and will install them.<br>This operation may take several minutes.<br><br>This is the final step of the installation.</td></tr>');
 		$wizard->next_page();
 
 		/////////////////////////////////////////
