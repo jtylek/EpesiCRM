@@ -9,9 +9,6 @@
  * 
  * A module will use Menu module functionality if it defines at least one of three methods:
  * - menu() - Menu in 'Modules' section, each option will automatically link to the module body
- * - quick_menu() - Separate menu that will be displayed only if the module is active (is placed in Container_0 in Box module)
- * quick_menu variables are accessible via get_unique_href_variable function. 
- * Menu content is passed with an array. The array should be created as follows:
  * - Each value is a menu option
  * - Options labels are created based on array keys
  * - value is an array that defines variables: $key=>$value
