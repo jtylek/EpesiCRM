@@ -239,8 +239,12 @@ class Base_Dashboard extends Module {
 					trigger_error('Invalid applet info for module: '.$name,E_USER_ERROR);
 				$attrs .= $tipmod->open_tag_attrs($out,false).' ';
 			}
+			if (method_exists($name.'Common','applet_icon'))
+				$icon = call_user_func(array($name.'Common','applet_icon'));
+			else 
+				$icon = Base_ThemeCommon::get_template_file($name,'icon.png');
 			$buttons[] = array('link'=>'<a '.$attrs.$this->create_callback_href(array($this,'add_applet'),array($name,$tab_id)).'>'.$cap.'</a>',
-						'icon'=>Base_ThemeCommon::get_template_file($name,'icon.png'));
+						'icon'=>$icon);
 		}
 
 		if(empty($buttons)) {
