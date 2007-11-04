@@ -15,10 +15,12 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_Menu_QuickAccessInstall extends ModuleInstall {
 	public function install() {
+		Base_ThemeCommon::install_default_theme($this->get_type());
 		return true;
 	}
 	
 	public function uninstall() {
+		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		return true;
 	}
 	
@@ -29,6 +31,7 @@ class Base_Menu_QuickAccessInstall extends ModuleInstall {
 		return array(array('name'=>'Base/Lang','version'=>0),
 				array('name'=>'Libs/QuickForm','version'=>0), 
 				array('name'=>'Base/Menu','version'=>0),  
+				array('name'=>'Base/Theme','version'=>0),  
 				array('name'=>'Base/Acl','version'=>0));
 	}
 }

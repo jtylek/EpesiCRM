@@ -12,11 +12,13 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_Theme_AdministratorInstall extends ModuleInstall {
 	public function install() {
+		Base_ThemeCommon::install_default_theme($this->get_type());
 		$this->create_data_dir();
 		return true;
 	}
 	
 	public function uninstall() {
+		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		return true;
 	}
 

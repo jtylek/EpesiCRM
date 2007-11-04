@@ -83,7 +83,7 @@ class Base_ThemeCommon extends ModuleCommon {
 	 * @return string path and name of a file
 	 */
 	public static function get_template_filename($modulename,$filename) {
-		return str_replace("/", "_", $modulename).'__'.str_replace("/", "_", $filename);
+		return str_replace("/", "_", $modulename).'__'.$filename;
 	}
 
 	/**

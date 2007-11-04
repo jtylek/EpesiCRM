@@ -17,16 +17,19 @@ class Base_User_AdministratorInstall extends ModuleInstall {
 	}
 	
 	public function install() {
+		Base_ThemeCommon::install_default_theme($this->get_type());
 		return true;
 	}
 	
 	public function uninstall() {
+		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		return true;
 	}
 	public function requires($v) {
 		return array(
 			array('name'=>'Libs/QuickForm','version'=>0), 
 			array('name'=>'Base/Admin','version'=>0), 
+			array('name'=>'Base/Theme','version'=>0), 
 			array('name'=>'Base/Acl','version'=>0), 
 			array('name'=>'Utils/GenericBrowser','version'=>0), 
 			array('name'=>'Base/User','version'=>0), 

@@ -59,7 +59,7 @@ class Base_Admin extends Module {
 			if (method_exists($name.'Common','admin_icon')) {
 				$icon = call_user_func(array($name.'Common','admin_icon'));
 			} else 
-				$icon = 'images/icons/'.$name;
+				$icon = Base_ThemeCommon::get_template_filename($name,'icon.png');
 			$links[$icon]= '<a '.$this->create_unique_href(array('href'=>$name)).'>'.$lang->t($caption).'</a>';
 		}
 		$theme =  & $this->pack_module('Base/Theme');

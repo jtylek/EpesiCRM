@@ -53,6 +53,19 @@ class Base_MenuCommon extends ModuleCommon {
 		}
 		return $menus;
 	}
+	
+        private static $quick = array();
+	public static function add_quick_menu($name,$action) {
+		self::$quick[$name] = $action;
+	}
+	
+	public static function get_quick_menu() {
+		return self::$quick;
+	}
+	
+	public static function clean_quick_menu() {
+		self::$quick = array();
+	}
 }
-
+on_exit(array('Base_MenuCommon','clean_quick_menu'));
 ?>

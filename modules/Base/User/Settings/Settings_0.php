@@ -134,17 +134,18 @@ class Base_User_Settings extends Module {
 		$us = ModuleManager::call_common_methods('user_settings');
 		foreach($us as $name=>$menu) {
 			if(!is_array($menu)) continue;
-			foreach($menu as $k=>$v)
+			foreach($menu as $k=>$v) {
 				if (!is_string($v)) $modules[$k] = array('action'=>$this->create_unique_href(array('settings_branch'=>$k)),'module_name'=>$name);
 				elseif(!$admin_settings) $modules[$k] = array('action'=>$this->create_href(array('box_main_module'=>$name,'box_main_function'=>$v)),'module_name'=>$name);
+			}
 		}
 
-		$links = array();
+		$buttons = array();
 		foreach($modules as $caption=>$arg)
-			$links[$arg['module_name']]= '<a '.$arg['action'].'>'.$this->lang->t($caption).'</a>';
+			$buttons[]= array('link'=>'<a '.$arg['action'].'>'.$this->lang->t($caption).'</a>','module'=>$arg['module_name'],'icon'=>Base_ThemeCommon::get_template_filename($arg['module_name'],'icon.png'));
 		$theme =  & $this->pack_module('Base/Theme');
 		$theme->assign('header', $this->lang->t('User Settings'));
-		$theme->assign('links', $links);
+		$theme->assign('buttons', $buttons);
 		$theme->display();
 	}
 	

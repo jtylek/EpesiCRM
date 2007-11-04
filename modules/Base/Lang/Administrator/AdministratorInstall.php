@@ -18,15 +18,18 @@ class Base_Lang_AdministratorInstall extends ModuleInstall {
 	
 	public function install() {
 		return Variable::set('allow_lang_change',true);
+		Base_ThemeCommon::install_default_theme($this->get_type());
 	}
 	
 	public function uninstall() {
 		return Variable::delete('allow_lang_change');
+		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 	}
 	public function requires($v) {
 		return array(
 			array('name'=>'Base/Admin','version'=>0), 
 			array('name'=>'Base/Acl','version'=>0), 
+			array('name'=>'Base/Theme','version'=>0), 
 			array('name'=>'Libs/QuickForm','version'=>0), 
 			array('name'=>'Base/User','version'=>0), 
 			array('name'=>'Utils/GenericBrowser','version'=>0), 

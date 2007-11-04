@@ -4,7 +4,7 @@
 	</tr>
 
 	{assign var=x value=0}
-	{foreach key=key item=link from=$links}
+	{foreach key=key item=button from=$buttons}
 		{assign var=x value=$x+1}
 		<td>
 
@@ -26,11 +26,11 @@
 
 
 
-			{$__link.links.$key.open}
+			{$__link.buttons.$key.link.open}
 			<div class="button">
-				<img src="{$theme_dir}/images/icons/{$key}.png" border="0" width="32" height="32" align="middle">&nbsp;&nbsp;{$__link.links.$key.text}
+				<img src="{$theme_dir}/{$button.icon}" border="0" width="32" height="32" align="middle">&nbsp;&nbsp;{$__link.buttons.$key.link.text}
 			</div>
-			{$__link.links.$key.close}
+			{$__link.buttons.$key.link.close}
 
 
 

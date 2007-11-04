@@ -24,6 +24,7 @@ class Utils_CommonDataInstall extends ModuleInstall {
 			return false;
 		}
 		$this->add_aco('manage','Super administrator');
+		Base_ThemeCommon::install_default_theme($this->get_type());
 		return $ret;
 	}
 	
@@ -31,11 +32,13 @@ class Utils_CommonDataInstall extends ModuleInstall {
 		global $database;
 		$ret = true;
 		$ret &= DB::DropTable('utils_commondata_tree');
+		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		return $ret;
 	}
 	public function requires($v) {
 		return array(
 			array('name'=>'Base/Lang','version'=>0),
+			array('name'=>'Base/Theme','version'=>0),
 			array('name'=>'Base/ActionBar','version'=>0),
 			array('name'=>'Base/Admin','version'=>0),
 			array('name'=>'Utils/GenericBrowser','version'=>0));

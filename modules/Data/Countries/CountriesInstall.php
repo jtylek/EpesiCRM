@@ -311,11 +311,13 @@ class Data_CountriesInstall extends ModuleInstall {
 			'WI'=>"Wisconsin",  
 			'WY'=>"Wyoming");
 		Utils_CommonDataCommon::new_array('Countries/US',$usa_states);
+		Base_ThemeCommon::install_default_theme($this->get_type());
 		return true;
 	}
 	
 	public function uninstall() {
 		Utils_CommonDataCommon::remove_array('Countries');
+		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		return true;
 	}
 	
@@ -325,6 +327,7 @@ class Data_CountriesInstall extends ModuleInstall {
 	public function requires($v) {
 		return array(
 			array('name'=>'Base/Admin','version'=>0),
+			array('name'=>'Base/Theme','version'=>0),
 			array('name'=>'Utils/CommonData','version'=>0));
 	}
 }

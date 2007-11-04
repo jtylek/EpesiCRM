@@ -29,7 +29,7 @@ class Base_Dashboard extends Module {
 	}
 
 	private function dashboard() {
-		Base_ActionBarCommon::add('settings','Manage tabs',$this->create_callback_href(array($this,'tabs_list')));
+		//Base_MenuCommon::add_quick_menu('Dashboard/Manage tabs',$this->create_callback_href(array($this,'tabs_list')));
 		load_js($this->get_module_dir().'ab.js');
 		$default_dash = $this->get_module_variable('default');
 		
@@ -109,8 +109,8 @@ class Base_Dashboard extends Module {
 	}
 	
 	public function tabs_list() {
-		if($this->is_back()) return false;
-		Base_ActionBarCommon::add('back','Dashboard',$this->create_back_href());
+//		if($this->is_back()) return false;
+//		Base_ActionBarCommon::add('back','Dashboard',$this->create_back_href());
 		Base_ActionBarCommon::add('add','Add tab',$this->create_callback_href(array($this,'edit_tab')));
 		
 		$default_dash = $this->get_module_variable('default');

@@ -28,5 +28,9 @@ class Base_DashboardCommon extends ModuleCommon {
 	public static function body_access() {
 		return Acl::is_user();
 	}
+	
+	public static function user_settings() {
+		return array('Manage tabs'=>'tabs_list');
+	}
 }
 ?>

@@ -23,6 +23,7 @@ class Base_MailInstall extends ModuleInstall {
 		if($ret) $ret = Variable::set('mail_password','');
 		if($ret) $ret = Variable::set('mail_host','smtp.example.com:25');
 		if($ret) $ret = Variable::set('mail_auth',false);
+		Base_ThemeCommon::install_default_theme($this->get_type());
 		
 		return $ret;
 	}
@@ -36,6 +37,7 @@ class Base_MailInstall extends ModuleInstall {
 		if($ret) $ret = Variable::delete('mail_password');
 		if($ret) $ret = Variable::delete('mail_host');
 		if($ret) $ret = Variable::delete('mail_auth');
+		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		
 		return $ret;
 	}
@@ -49,6 +51,7 @@ class Base_MailInstall extends ModuleInstall {
 			array('name'=>'Libs/QuickForm','version'=>0), 
 			array('name'=>'Base/Acl', 'version'=>0), 
 			array('name'=>'Base/Admin', 'version'=>0), 
+			array('name'=>'Base/Theme', 'version'=>0), 
 			array('name'=>'Base/Lang', 'version'=>0));
 	}
 }

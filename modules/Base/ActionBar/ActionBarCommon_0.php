@@ -30,12 +30,14 @@ class Base_ActionBarCommon extends ModuleCommon {
 			'delete'=>10,
 			'save'=>11,
 			'settings'=>12,
-			'print'=>13);
+			'print'=>13,
+			'favorites'=>14);
 
 	public static function user_settings(){
 		return array('Misc'=>array(
 			array('name'=>'display','label'=>'Action bar displays','type'=>'select','values'=>array('icons only'=>'icons only','text only'=>'text only','both'=>'both'),'default'=>'both','reload'=>true)
-			));
+			),
+			'Quick access icons'=>Base_Menu_QuickAccessCommon::get_options());
 	}
 	
 	public static function add($type, $text, $action, $description=null) {

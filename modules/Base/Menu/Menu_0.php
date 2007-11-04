@@ -178,44 +178,17 @@ class Base_Menu extends Module {
 		
 		// preparing quick menu
 		$current_module_menu = array();
-		$box_module = ModuleManager::get_instance('/Base_Box|0');
-		if($box_module)
-			$active_module = $box_module->get_main_module();
-		if($active_module) {
-			$first_child = true;
-			$func = array($active_module->get_type().'Common','quick_menu');
-			if(is_callable($func)) {
-				$current_module_menu = call_user_func($func);
-				if(is_array($current_module_menu)) {
-					self::add_unique_keys($current_module_menu,$active_module);
-				} else {
-					$current_module_menu = array();
-					$first_child = false;
-				}
-		
-				// preparing children quick menu
-				$current_module_children_menu = array();
-				$children = $active_module->get_children();
-				foreach($children as $k=>$mod)
-					if(method_exists($mod->get_type().'Common', 'quick_menu')) {
-							$module_menu = call_user_func(array($mod->get_type().'Common','quick_menu'));
-							if(!is_array($module_menu)) continue;
-							self::add_unique_keys($module_menu,$mod);
-							if (empty($current_module_menu)) {
-								$current_module_menu = array($lang->ht('Main')=>array());
-							} else {
-								reset($current_module_menu);
-								if ($first_child) $current_module_menu[key($current_module_menu)] = array_merge($current_module_menu[key($current_module_menu)],array('<hr>'=>1,'__submenu__'=>1));
-								$first_child = false; 
-							}
-							$current_module_children_menu = array_merge($current_module_children_menu,$module_menu);
-							$current_module_children_menu['__submenu__'] = 1;
-					}
-				// filling quick menu with children menu
-				reset($current_module_menu);
-				if (!empty($current_module_menu)) $current_module_menu[key($current_module_menu)] = array_merge($current_module_menu[key($current_module_menu)],$current_module_children_menu);
-			}
-		}
+                $qm = Base_MenuCommon::get_quick_menu();
+                foreach($qm as $name=>$action) {
+                    $r = explode('/',trim($name,'/'));
+                    $curr = & $current_module_menu;
+                    for($i=0; $i<count($r)-1; $i++) {
+                        if(!isset($curr[$r[$i]]))
+                            $curr[$r[$i]] = array('__submenu__'=>1);
+                        $curr = & $curr[$r[$i]];
+                    }
+                    $curr[$r[count($r)-1]] = array('__url__'=>'javascript:('.$action.')');
+                }
 		
 		self::sort_menus($modules_menu);
 
@@ -247,20 +220,6 @@ class Base_Menu extends Module {
 
 		$theme->display();
 		
-	}
-
-	public static function add_unique_keys(& $arr, & $module){
-		foreach ($arr as $k=>& $v){
-			if (array_key_exists('__submenu__',$v)){
-				self::add_unique_keys($v, $module);				
-			} else {
-				$new = array();
-				foreach ($v as $a => $b){
-					$new[$module->create_unique_key($a)] = $b;
-				}
-				$v = $new;
-			}
-		}
 	}
 }
 ?>

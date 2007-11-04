@@ -34,11 +34,13 @@ class Base_SetupInstall extends ModuleInstall {
 		}
 		
 		$this->create_data_dir();
+		Base_ThemeCommon::install_default_theme($this->get_type());
 		
 		return true;
 	}
 
 	public function uninstall() {
+		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		return (DB::DropTable('available_modules') && Variable::delete('anonymous_setup') && Variable::delete('simple_setup'));
 	}
 	public function requires($v) {
