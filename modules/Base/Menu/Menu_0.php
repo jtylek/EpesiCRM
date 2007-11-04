@@ -195,7 +195,7 @@ class Base_Menu extends Module {
 			$admin_menu['__submenu__'] = 1;
 			$modules_menu = array_merge($modules_menu,array('__split__'=>1),$admin_menu);
 		}
-		$home_menu[$lang->ht('Home')] = $modules_menu;
+		$home_menu[$lang->ht('Menu')] = $modules_menu;
 
 		// putting all menus into menu array
 		$menu = array();
