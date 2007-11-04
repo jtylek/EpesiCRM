@@ -50,7 +50,7 @@ class Utils_CommonData extends Module {
 						));
 		if($key!==null) {
 			$value=Utils_CommonDataCommon::get_value($parent.'/'.$key);
-			$f->setDefaults(array('key'=>$key,'value'=>$value));
+			$f->setDefaults(array('akey'=>$key,'value'=>$value));
 		}
 
 		if ($f->validate()) {

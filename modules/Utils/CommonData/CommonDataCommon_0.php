@@ -26,10 +26,11 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 	}
 
 	public static function get_id($name) {
-		$name = ltrim($name,'/');
+		$name = trim($name,'/');
 		$pcs = explode('/',$name);
 		$id = -1;
 		foreach($pcs as $v) {
+			if($v==='') continue; //ignore emtpy paths
 			$id = DB::GetOne('SELECT id FROM utils_commondata_tree WHERE parent_id=%d AND akey=%s',array($id,$v));
 			if($id===false)
 				return false;
