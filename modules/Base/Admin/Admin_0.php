@@ -54,17 +54,18 @@ class Base_Admin extends Module {
 		}
 		ksort($mod_ok);
 		
-		$links = array();
+		$buttons = array();
 		foreach($mod_ok as $caption=>$name) {
 			if (method_exists($name.'Common','admin_icon')) {
 				$icon = call_user_func(array($name.'Common','admin_icon'));
 			} else 
-				$icon = Base_ThemeCommon::get_template_filename($name,'icon.png');
-			$links[$icon]= '<a '.$this->create_unique_href(array('href'=>$name)).'>'.$lang->t($caption).'</a>';
+				$icon = Base_ThemeCommon::get_template_file($name,'icon.png');
+			$buttons[]= array('link'=>'<a '.$this->create_unique_href(array('href'=>$name)).'>'.$lang->t($caption).'</a>',
+						'icon'=>$icon);
 		}
 		$theme =  & $this->pack_module('Base/Theme');
 		$theme->assign('header', $lang->t('Modules settings'));
-		$theme->assign('links', $links);
+		$theme->assign('buttons', $buttons);
 		$theme->display();
 	}
 	

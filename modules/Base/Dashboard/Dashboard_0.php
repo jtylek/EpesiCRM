@@ -220,7 +220,7 @@ class Base_Dashboard extends Module {
 
 
 		$tipmod = $this->init_module('Utils/Tooltip');
-		$links = array();
+		$buttons = array();
 		$app_cap = ModuleManager::call_common_methods('applet_caption');
 		$app_info = ModuleManager::call_common_methods('applet_info');
 		foreach($app_cap as $name=>$cap) {
@@ -239,17 +239,18 @@ class Base_Dashboard extends Module {
 					trigger_error('Invalid applet info for module: '.$name,E_USER_ERROR);
 				$attrs .= $tipmod->open_tag_attrs($out,false).' ';
 			}
-			$links[$name] = '<a '.$attrs.$this->create_callback_href(array($this,'add_applet'),array($name,$tab_id)).'>'.$cap.'</a>';
+			$buttons[] = array('link'=>'<a '.$attrs.$this->create_callback_href(array($this,'add_applet'),array($name,$tab_id)).'>'.$cap.'</a>',
+						'icon'=>Base_ThemeCommon::get_template_file($name,'icon.png'));
 		}
 
-		if(empty($links)) {
+		if(empty($buttons)) {
 			print($this->lang->t('No applets installed'));
 			return true;
 		}
 
 		$theme =  & $this->pack_module('Base/Theme');
 		$theme->assign('header', $this->lang->t('Add applet'));
-		$theme->assign('links', $links);
+		$theme->assign('buttons', $buttons);
 		$theme->display('list');
 
 		return true;
