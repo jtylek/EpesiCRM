@@ -17,6 +17,9 @@ class Applets_NoteCommon extends ModuleCommon {
 	public static function applet_info() {
 		return "Simple note applet"; //here can be associative array
 	}
+	
+//	public static function applet_icon() {
+//	}
 
 	public static function applet_settings() {
 		return array(
