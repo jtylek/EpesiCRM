@@ -30,7 +30,7 @@ class Base_DashboardCommon extends ModuleCommon {
 	}
 	
 	public static function user_settings() {
-		return array('Manage tabs'=>'tabs_list');
+		return array('Manage dashboard tabs'=>'tabs_list');
 	}
 }
 ?>
