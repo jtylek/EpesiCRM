@@ -95,7 +95,7 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 		
 			$ini = parse_ini_file($ld.$template_name.'/info.ini');
 			
-			$compatible = version_compare(EPESI_VERSION,$ini['epesi_version']);
+			$compatible = version_compare($ini['epesi_version'],EPESI_VERSION)<=0;
 			$installed = is_dir('data/Base_Theme/templates/'.$template_name);
 			if($installed) {
 				$installed_ini = @parse_ini_file('data/Base_Theme/templates/'.$template_name.'/info.ini');
