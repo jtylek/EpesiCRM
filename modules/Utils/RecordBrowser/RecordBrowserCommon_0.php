@@ -82,7 +82,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					'field C(32),'.
 					'module C(64),'.
 					'func C(128),'.
-					'freeze I1',
+					'freezed I1',
 					array('constraints'=>''));
 		DB::CreateTable($tab_name.'_require',
 					'field C(32),'.
@@ -114,14 +114,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 	public function set_display_method($tab_name = null, $field, $module, $func) {
 		if (!$tab_name) return false;
-		DB::Execute('INSERT INTO '.$tab_name.'_callback (field, module, func, freeze) VALUES(%s, %s, %s, 1)', array($field, $module, $func));
+		DB::Execute('INSERT INTO '.$tab_name.'_callback (field, module, func, freezed) VALUES(%s, %s, %s, 1)', array($field, $module, $func));
 	}
 	public function set_QFfield_method($tab_name = null, $field, $module, $func) {
 		if (!$tab_name) return false;
-		DB::Execute('INSERT INTO '.$tab_name.'_callback (field, module, func, freeze) VALUES(%s, %s, %s, 0)', array($field, $module, $func));
+		DB::Execute('INSERT INTO '.$tab_name.'_callback (field, module, func, freezed) VALUES(%s, %s, %s, 0)', array($field, $module, $func));
 	}
 	
-	public function uninstall_new_recordset($tab_name = null) {
+	public function uninstall_recordset($tab_name = null) {
 		if (!$tab_name) return false;
 		DB::DropTable($tab_name.'_callback');
 		DB::DropTable($tab_name.'_require');
@@ -275,7 +275,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$where .= ') != 0';
 		}
 		
-		$ret = DB::Execute('SELECT id, active FROM '.$tab_name.' AS x WHERE 1'.($admin?'':' AND active=1').$where, $vals);
+		$ret = DB::Execute('SELECT id, active FROM '.$tab_name.' AS x WHERE true'.($admin?'':' AND active=1').$where, $vals);
 		$records = array();
 		if($ret)
 			while ($row = $ret->FetchRow()) {
@@ -310,7 +310,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				else 
 					$record[$field['field']] = $field['value'];
 			if ($admin) { 
-				$row = DB::Execute('SELECT active, created_by, created_on FROM '.$tab_name.' WHERE 1'.($admin?'':' AND active=1'))->FetchRow();
+				$row = DB::Execute('SELECT active, created_by, created_on FROM '.$tab_name.' WHERE true'.($admin?'':' AND active=1'))->FetchRow();
 				foreach(array('active','created_by','created_on') as $v)
 					$record[$v] = $row[$v];
 				$record['id'] = $id;

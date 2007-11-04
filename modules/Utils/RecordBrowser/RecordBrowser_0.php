@@ -42,7 +42,7 @@ class Utils_RecordBrowser extends Module {
 		$this->QFfield_callback_table = array();
 		$ret = DB::Execute('SELECT * FROM '.$this->tab.'_callback');
 		while ($row = $ret->FetchRow())
-			if ($row['freeze']==1) $this->display_callback_table[$row['field']] = array($row['module'], $row['func']);
+			if ($row['freezed']==1) $this->display_callback_table[$row['field']] = array($row['module'], $row['func']);
 			else $this->QFfield_callback_table[$row['field']] = array($row['module'], $row['func']);
 		$ret = DB::Execute('SELECT * FROM '.$this->tab.'_require');
 		while ($row = $ret->FetchRow()) {
@@ -199,11 +199,15 @@ class Utils_RecordBrowser extends Module {
 						}
 					}
 					if ($args['type']=='commondata') {
-						$arr = explode('::',$args['param']);
-						$path = array_shift($arr);
-						foreach($arr as $v) $path .= '/'.$row[$v];
-						$path .= '/'.$row[$field];
-						$ret = Utils_CommonDataCommon::get_value($path);
+						if (!$row[$field]) {
+							$ret = '';
+						} else {
+							$arr = explode('::',$args['param']);
+							$path = array_shift($arr);
+							foreach($arr as $v) $path .= '/'.$row[$v];
+							$path .= '/'.$row[$field];
+							$ret = Utils_CommonDataCommon::get_value($path);
+						}
 					}
 					$row_data[] = $this->get_val($field, $ret);
 				}
