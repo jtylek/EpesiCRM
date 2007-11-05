@@ -44,6 +44,7 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 		$pcs = explode('/',$name);
 		$id = -1;
 		foreach($pcs as $v) {
+			if($v==='') continue;
 			$id2 = DB::GetOne('SELECT id FROM utils_commondata_tree WHERE parent_id=%d AND akey=%s',array($id,$v));
 			if($id2===false) {
 				DB::Execute('INSERT INTO utils_commondata_tree(parent_id,akey) VALUES(%d,%s)',array($id,$v));
