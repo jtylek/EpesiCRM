@@ -21,7 +21,13 @@ class Apps_MailClient extends Module {
 	}
 	
 	public function body() {
-		$mbox_file = $this->get_module_variable('opened_mbox','/Inbox');
+		$def_mbox = Apps_MailClientCommon::get_default_mbox();
+		if($def_mbox===null) {
+			print($this->lang->t('No mailboxes defined'));
+			return;
+		}
+
+		$mbox_file = $this->get_module_variable('opened_mbox',$def_mbox);
 		$preview_id = $this->get_path().'preview';
 
 		$th = $this->init_module('Base/Theme');
@@ -41,24 +47,23 @@ class Apps_MailClient extends Module {
 				array('name'=>$this->lang->t('Date')),
 				array('name'=>$this->lang->t('Size'))
 				));
-			
+		
 			$limit_max = $mbox->size();
 			$limit = $gb->get_limit($limit_max);
 			$limit_max2 = $limit['offset']+$limit['numrows'];
 			if($limit_max2>$limit_max) $limit_max2=$limit_max;
-			
+		
 			$message = null;
-			
+		
 			for ($n = $limit['offset']; $n < $limit_max2; $n++) {
 				if(PEAR::isError($message = $mbox->get($n))) {
 					$limit_max2 +=1;
 					if($limit_max2>$limit_max) $limit_max2=$limit_max;
 					continue;
 				}
-
 				$decode = new Mail_mimeDecode($message, "\r\n");
 				$structure = $decode->decode();
-				
+			
 				$r = $gb->get_new_row();
 				$r->add_data($structure->headers['subject'],$structure->headers['from'],$structure->headers['date'],strlen($message));
 				$r->add_action('href="javascript:void(0)" onClick="new Ajax.Request(\''.$this->get_module_dir().'preview.php\',{'.
@@ -69,13 +74,14 @@ class Apps_MailClient extends Module {
 						'\'mc_id\':\''.$preview_id.'\''.
 					'}})"','View');
 			}
-			
-			$th->assign('list', $this->get_html_of_module($gb));
+		
 		} else {
 			print($ret->getMessage());
 			return;
 		}
 		$mbox->close();
+
+		$th->assign('list', $this->get_html_of_module($gb));
 		
 		$th->assign('preview',array(
 			'subject'=>'<span id="'.$preview_id.'subject"></span>',
@@ -85,15 +91,16 @@ class Apps_MailClient extends Module {
 	}
 	
 	private function set_open_mail_dir_callbacks(array & $str,$path='') {
-		$opened_mbox = $this->get_module_variable('opened_mbox');
+		$opened_mbox = str_replace(array('__at__','__dot__'),array('@','.'),$this->get_module_variable('opened_mbox'));
 		foreach($str as $k=>& $v) {
 			$mpath = $path.'/'.$v['name'];
+			print($mpath);//tu jest blad
 			if($mpath == $opened_mbox) {
-				$v['visible']=true;
+				$v['visible'] = true;
 				$v['selected'] = true;
 			}
 			if(isset($v['sub']) && is_array($v['sub'])) $this->set_open_mail_dir_callbacks($v['sub'],$mpath);
-			$v['name'] = '<a '.$this->create_callback_href(array($this,'open_mail_dir_callback'),$mpath).'>'.$v['name'].'</a>';
+			$v['name'] = '<a '.$this->create_callback_href(array($this,'open_mail_dir_callback'),str_replace(array('@','.'),array('__at__','__dot__'),$mpath)).'>'.$v['name'].'</a>';
 		}
 	}
 	
