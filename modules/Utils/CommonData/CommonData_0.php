@@ -77,13 +77,14 @@ class Utils_CommonData extends Module {
 	public function browse($name='',$root=true){
 		if($this->is_back()) return false;
 		
-		$gb = & $this->init_module('Utils/GenericBrowser',null,'browse');
+		$gb = & $this->init_module('Utils/GenericBrowser',null,'browse'.md5($name));
 
 		$gb->set_table_columns(array(
 						array('name'=>'Key','width'=>20, 'order'=>'akey','search'=>1,'quickjump'=>'akey'),
 						array('name'=>'Value','width'=>20, 'order'=>'value','search'=>1)
 					));
-
+		
+		print('<h2>'.$name.'</h2><br>');
 		$ret = Utils_CommonDataCommon::get_array($name);
 		foreach($ret as $k=>$v) {
 			$gb_row = $gb->get_new_row();
