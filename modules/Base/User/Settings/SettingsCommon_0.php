@@ -71,7 +71,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	 */	
 	public static function get_admin($module,$name){
 		if (!isset(self::$admin_variables)) {
-			self::$admin_variables = DB::GetAssoc('SELECT '.DB::Concat('module','\'__\'','variable').',value FROM base_user_settings_admin_defaults WHERE module=%s',array($module));
+			self::$admin_variables = DB::GetAssoc('SELECT '.DB::Concat('module','\'__\'','variable').',value FROM base_user_settings_admin_defaults');
 		}
 		if (isset(self::$admin_variables[$module.'__'.$name]))
 			return self::$admin_variables[$module.'__'.$name];

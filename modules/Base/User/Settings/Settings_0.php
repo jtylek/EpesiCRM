@@ -70,9 +70,10 @@ class Base_User_Settings extends Module {
 			$x = explode(self::$sep,$k);
 			if(count($x)!=2) continue;
 			list($module_name,$module_part) = $x;
-			if($this->get_module_variable('admin_settings'))
+			if($this->get_module_variable('admin_settings')) {
 				Base_User_SettingsCommon::save_admin($module_name,$module_part,$v);
-			else
+				continue;
+			} else
 				Base_User_SettingsCommon::save($module_name,$module_part,$v);
 			
 			//check reload
