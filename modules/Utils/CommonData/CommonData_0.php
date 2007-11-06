@@ -92,7 +92,9 @@ class Utils_CommonData extends Module {
 			$gb_row->add_action($this->create_callback_href(array($this,'edit'),array($name,$k)),'Edit');
 			$gb_row->add_action($this->create_confirm_callback_href($this->lang->t('Delete array').' \''.Epesi::escapeJS($name.'/'.$k,false).'\'?',array('Utils_CommonData','remove_array'), array($name.'/'.$k)),'Delete');
 		}
-		$this->display_module($gb);
+		//$this->display_module($gb);
+		$this->display_module($gb,array(true),'automatic_display');
+
 		Base_ActionBarCommon::add('add','Add array',$this->create_callback_href(array($this,'edit'),$name));
 		if(!$root)
 			Base_ActionBarCommon::add('back','Back',$this->create_back_href());
