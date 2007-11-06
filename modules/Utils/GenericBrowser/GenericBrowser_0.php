@@ -424,6 +424,21 @@ class Utils_GenericBrowser extends Module {
 
 	private function check_if_row_fits_array($row,$adv){
 		$search = $this->get_module_variable('search');
+		$this->get_module_variable_or_unique_href_variable('quickjump_to');
+		$quickjump = $this->get_module_variable('quickjump');		
+		$quickjump_to = $this->get_module_variable('quickjump_to');
+		$this->set_module_variable('quickjump_to',$quickjump_to);
+
+ 		if (isset($quickjump) && $quickjump_to!='') {
+			foreach($this->columns as $k=>$v){ 
+				if (isset($v['quickjump'])){
+	 				if (!isset($row[$k][0]) || 
+	 					($quickjump_to != $row[$k][0] &&
+	 					strtolower($quickjump_to) != $row[$k][0]))
+	 					return false;
+				}
+			}
+ 		}
 		if (!$adv){
 			if (!isset($search['__keyword__'])) return true;
 			$ret = true;
@@ -441,7 +456,42 @@ class Utils_GenericBrowser extends Module {
 			return true;
 		}
 	}
+	
+	private function sort_data($data, $actions=null){
+		if(($order = $this->get_order()) && $order=$order[0]) {
+			$col = array();
+			foreach($data as $j=>$d)
+				foreach($d as $i=>$c)
+					if($this->columns[$i]['order']==$order['order']) {
+						if(is_array($c)) $xxx = $c['value'];
+							else $xxx = $c;
+						if(isset($this->columns[$i]['order_eregi'])) {
+							$ret = array();
+							eregi($this->columns[$i]['order_eregi'],$xxx, $ret);
+							$xxx = $ret[1];
+						}
+						$xxx = strtolower($xxx);
+						$col[$j] = $xxx;
+					}
 
+			asort($col);
+			$data2 = array();
+			$actions2 = array();
+			foreach($col as $j=>$v) {
+				$data2[] = $data[$j];
+				if (isset($actions)) $actions2[] = $actions[$j];
+			}
+			if($order['direction']!='ASC') {
+				$data2 = array_reverse($data2);
+				$actions2 = array_reverse($actions2);
+			}
+		} else {
+			if (isset($actions)) return array('data'=>$data, 'actions'=>$actions);
+			return $data;
+		}
+		if (isset($actions)) return array('data'=>$data2, 'actions'=>$actions2);
+		return $data2;
+	}
 	/**
 	 * For internal use only.
 	 */	
@@ -456,7 +506,8 @@ class Utils_GenericBrowser extends Module {
 		}
 		$this->set_table_columns($header);
 		
-		if($order && ($order = $this->get_order()) && $order=$order[0]) {
+		if($order) $data = $this->sort_data($data);
+/*		if($order && ($order = $this->get_order()) && $order=$order[0]) {
 			$col = array();
 			foreach($data as $j=>$d)
 				foreach($d as $i=>$c)
@@ -482,7 +533,7 @@ class Utils_GenericBrowser extends Module {
 			else
 				$data = array_reverse($data2);
 		}
-		
+*/		
 		if ($page_split){
 			$cd = count($data);
 			$limit = $this->get_limit($cd);
@@ -504,17 +555,27 @@ class Utils_GenericBrowser extends Module {
 	 */
 	public function automatic_display($paging=true){
 		$rows = array();
+		$actions = array();
 		foreach($this->columns as $k=>$v)
 			if (isset($v['search'])) $this->columns[$k]['search'] = $k;
 		foreach($this->rows as $k=>$v){
-			if ($this->check_if_row_fits_array($v,$this->is_adv_search_on())) $rows[] = $v;
+			if ($this->check_if_row_fits_array($v,$this->is_adv_search_on())) {
+				$rows[] = $v;
+				$actions[] = $this->actions[$k];
+			}
 		}
+		$sorted = $this->sort_data($rows, $actions);
+		$rows = $sorted['data'];
+		$actions = $sorted['actions'];
+
 		$this->rows = array();
+		$this->actions = array();
 		$limit = $this->get_limit(count($rows));
 		$id = 0;
-		foreach($rows as $v) {
+		foreach($rows as $k=>$v) {
 			if (!$paging || ($id>=$limit['offset'] && $id<$limit['offset']+$limit['numrows'])){
-				$this->add_row_array($v);
+				$this->rows[] = $v;
+				$this->actions[] = $actions[$k];
 			}
 			$id++;
 		}
@@ -745,6 +806,7 @@ class Utils_GenericBrowser extends Module {
 							'close'=>'</a>',
 							'label'=>$arr['label']);
 					}
+					ksort($actions);
 					$ac_theme->assign('actions',$actions);
 					$col[$column_no]['label'] = $this->get_html_of_module($ac_theme,'Actions','display');
 				} else $col[$column_no]['label'] = '&nbsp;';

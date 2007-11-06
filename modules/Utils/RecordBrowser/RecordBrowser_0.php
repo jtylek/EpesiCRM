@@ -170,13 +170,17 @@ class Utils_RecordBrowser extends Module {
 			}
 			$records = $rec_tmp;
 		}
+		$limit = $gb->get_limit(count($records));
+		$count = -1;
 		foreach ($records as $row) {
 			$gb_row = $gb->get_new_row();
 			if ($admin)
 				$row_data = array($row['active']?$this->lang->t('Yes'):$this->lang->t('No'));
 			else
 				$row_data = array();
-
+			$count++;
+			if ($count<$limit['offset'] || $count>=$limit['numrows']+$limit['offset']) continue;
+			
 			foreach($this->table_rows as $field => $args)
 				if (($args['visible'] && !isset($cols[$args['name']])) || (isset($cols[$args['name']]) && $cols[$args['name']] === true)) {
 					$ret = $row[$field];
