@@ -80,8 +80,8 @@ class Utils_CommonData extends Module {
 		$gb = & $this->init_module('Utils/GenericBrowser',null,'browse');
 
 		$gb->set_table_columns(array(
-						array('name'=>'Key','width'=>20, 'order'=>'akey'),
-						array('name'=>'Value','width'=>20, 'order'=>'value')
+						array('name'=>'Key','width'=>20, 'order'=>'akey','search'=>1,'quickjump'=>'akey'),
+						array('name'=>'Value','width'=>20, 'order'=>'value','search'=>1)
 					));
 
 		$ret = Utils_CommonDataCommon::get_array($name);
