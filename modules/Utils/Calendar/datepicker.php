@@ -26,8 +26,9 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 				$id = 'datepicker_field_'.$name;
 				$this->updateAttributes(array('id'=>$id));
 			}
+			$ex_date = Base_RegionalSettingsCommon::time2reg(null,false);
 			$date_format = Base_RegionalSettingsCommon::date_format();
-			$str .= $this->_getTabs() . '<input ' . $this->_getAttrString($this->_attributes) . ' '.Utils_Tooltip::open_tag_attrs($date_format, false ).' />'.
+			$str .= $this->_getTabs() . '<input ' . $this->_getAttrString($this->_attributes) . ' '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils/Calendar','Example date: %s',array($ex_date)), false ).' />'.
 				Utils_CalendarCommon::show($name,
 					'new Ajax.Request(\'modules/Utils/Calendar/up.php\','.
 					'{method:\'post\', parameters:{date: __YEAR__+\'-\'+__MONTH__+\'-\'+__DAY__},'.

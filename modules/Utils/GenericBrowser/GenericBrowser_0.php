@@ -666,7 +666,6 @@ class Utils_GenericBrowser extends Module {
 		$headers = array();
 		if ($this->en_actions) {
 			$actions_position = Base_User_SettingsCommon::get('Utils/GenericBrowser','actions_position');
-			$tooltip = $this->init_module('Utils/Tooltip');
 			if ($actions_position==0)	$headers[-1] = array('label'=>$this->lang->t('Actions'),'attrs'=>'style="width: 0%"'); 
 			else		$headers[count($this->columns)] = array('label'=>$this->lang->t('Actions'),'attrs'=>'style="width: 0%"');
 		}
@@ -742,7 +741,7 @@ class Utils_GenericBrowser extends Module {
 					$actions = array();
 					foreach($this->actions[$i] as $lab=>$arr) {
 						$actions[$lab] = array(
-							'open'=>'<a '.$tooltip->open_tag_attrs($arr['tooltip']).' '.$arr['tag_attrs'].'>',
+							'open'=>'<a '.Utils_TooltipCommon::open_tag_attrs($arr['tooltip']).' '.$arr['tag_attrs'].'>',
 							'close'=>'</a>',
 							'label'=>$arr['label']);
 					}

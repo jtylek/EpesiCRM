@@ -10,11 +10,17 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_Tooltip extends Module {
-	private $help_tooltips;
+	private static $help_tooltips;
+	
+	private static function show_help() {
+		if(!isset(self::$help_tooltips))
+			self::$help_tooltips = Base_User_SettingsCommon::get($this->get_type(),'help_tooltips');
+	}
 	
 	public function construct() {
-		$this->help_tooltips = Base_User_SettingsCommon::get($this->get_type(),'help_tooltips');
+		self::show_help();
 	}
+
 	/**
 	 * Displays the tooltip with given text, tip.
 	 * Style parameter is optional.
@@ -64,41 +70,6 @@ class Utils_Tooltip extends Module {
 	 */
 	public function close_tag() {
 		return '</span>';
-	}
-
-	/**
-	 * Returns string that when placed as tag attribute 
-	 * will enable tooltip when placing mouse over that element.
-	 * 
-	 * @param string tooltip text
-	 * @param boolean help tooltip? (you can turn off help tooltips)
-	 * @return string HTML tag attributes
-	 */
-	public function open_tag_attrs( $tip, $help=true ) {
-		if($help && !$this->help_tooltips) return '';
-		load_js('modules/Utils/Tooltip/js/Tooltip.js');
-		if(!isset($_SESSION['client']['utils_tooltip'])) {
-			ob_start();
-			$theme = & $this->init_module('Base/Theme');
-			$theme->assign('tip', '<span id="tooltip_text"></span>');
-			$theme->display();
-			$html = ob_get_clean();
-			$js = 'div = document.createElement(\'div\');'.
-				'div.id = \'tooltip_div\';'.
-				'div.style.position = \'absolute\';'.
-				'div.style.display = \'none\';'.
-				'div.style.zIndex = 2000;'.
-				'div.style.left = 0;'.
-				'div.style.top = 0;'.
-				'div.onmouseover = Utils_Toltip__hideTip;'.
-				'div.innerHTML = \''.Epesi::escapeJS($html,false).'\';'.
-				'body = document.getElementsByTagName(\'body\');'.
-				'body = body[0];'.
-				'document.body.appendChild(div);';
-			eval_js($js);
-			$_SESSION['client']['utils_tooltip'] = true;
-		}
-		return ' onMouseMove="Utils_Toltip__showTip(\''.escapeJS(htmlspecialchars($tip)).'\', event)" onMouseOut="Utils_Toltip__hideTip()" onMouseUp="Utils_Toltip__hideTip()" ';
 	}
 
 }

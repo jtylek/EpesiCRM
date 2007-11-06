@@ -35,7 +35,6 @@ class Base_ActionBar extends Module {
 	public function body() {
 		$icons = Base_ActionBarCommon::get();
 		$l = & $this->init_module('Base/Lang');
-		$tip = & $this->init_module('Utils/Tooltip');
 
 		if(Acl::is_user())
 			$display_settings = Base_User_SettingsCommon::get('Base/ActionBar','display');
@@ -52,9 +51,9 @@ class Base_ActionBar extends Module {
 			$i['label'] = $l->ht($i['label']);
 			$i['description'] = $l->ht($i['description']);
 			if($display_text)
-				$t = $tip->open_tag_attrs((($i['description'])?$i['description']:$i['label']));
+				$t = Utils_TooltipCommon::open_tag_attrs((($i['description'])?$i['description']:$i['label']));
 			else
-				$t = $tip->open_tag_attrs($i['label'].(($i['description'])?' - '.$i['description']:''),false);
+				$t = Utils_TooltipCommon::open_tag_attrs($i['label'].(($i['description'])?' - '.$i['description']:''),false);
 			$i['open'] = '<a '.$i['action'].' '.$t.'>';
 			$i['close'] = '</a>';
 			$i['icon'] = Base_ThemeCommon::get_template_file('Base_ActionBar','icons/'.$i['icon'].'.png');
@@ -70,7 +69,7 @@ class Base_ActionBar extends Module {
 					parse_str($v['link'],$menu_entry);
 					$ii = array();
 					$ii['label'] = substr(strrchr($v['label'],':'),1);
-					$ii['description'] = '';
+					$ii['description'] = $v['label'];
 					$ii['open'] = '<a '.$this->create_href($menu_entry).'>';
 					$ii['close'] = '</a>';
 					$icon = Base_ThemeCommon::get_template_file($v['module'],'icon.png');

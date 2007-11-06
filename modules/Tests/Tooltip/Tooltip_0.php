@@ -13,7 +13,7 @@ class Tests_Tooltip extends Module {
 	
 	public function body() {
 		print "Tooltip Test<hr>";
-		$this->pack_module('Utils/Tooltip', array('point mouse here', 'tip'));
+		Utils_TooltipCommon::create('point mouse here', 'tip');
 		//------------------------------ print out src
 		print('<hr><b>Main</b><br>');
 		$this->pack_module('Utils/CatFile','modules/Tests/Tooltip/Tooltip_0.php');

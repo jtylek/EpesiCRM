@@ -50,7 +50,6 @@ class Base_Dashboard extends Module {
 	public function display_dashboard($tab_id) {
 		Base_ActionBarCommon::add('add','Add applet',$this->create_callback_href(array($this,'applets_list'),$tab_id));
 		
-		$tipmod = $this->init_module('Utils/Tooltip');
 		$default_dash = $this->get_module_variable('default');
 		print('<table id="dashboard" style="width: 100%"><tr>');
 		for($j=0; $j<3; $j++) {
@@ -85,16 +84,16 @@ class Base_Dashboard extends Module {
 				$th->assign('handle_class','handle');
 
 				if($opts['toggle'])
-					$th->assign('toggle','<a class="toggle" '.$tipmod->open_tag_attrs($this->lang->ht('Toggle')).'>=</a>');
+					$th->assign('toggle','<a class="toggle" '.Utils_TooltipCommon::open_tag_attrs($this->lang->ht('Toggle')).'>=</a>');
 
 				if($opts['go'])
 					$opts['href']=Module::create_href(array('box_main_module'=>$row['module_name'],'box_main_function'=>$opts['go_function'],'box_main_arguments'=>$opts['go_arguments'],'box_main_constructor_arguments'=>$opts['go_constructor_arguments']));
 				if($opts['href'])
 					$th->assign('href','<a class="href" '.$opts['href'].'>G</a>');
 
-				$th->assign('remove','<a class="remove" '.$tipmod->open_tag_attrs($this->lang->ht('Remove')).' '.$this->create_confirm_callback_href($this->lang->ht('Delete this applet?'),array($this,'delete_applet'),$row['id']).'>x</a>');
+				$th->assign('remove','<a class="remove" '.Utils_TooltipCommon::open_tag_attrs($this->lang->ht('Remove')).' '.$this->create_confirm_callback_href($this->lang->ht('Delete this applet?'),array($this,'delete_applet'),$row['id']).'>x</a>');
 
-				$th->assign('configure','<a class="configure" '.$tipmod->open_tag_attrs($this->lang->ht('Configure')).' '.$this->create_callback_href(array($this,'configure_applet'),array($row['id'],$row['module_name'])).'>c</a>');
+				$th->assign('configure','<a class="configure" '.Utils_TooltipCommon::open_tag_attrs($this->lang->ht('Configure')).' '.$this->create_callback_href(array($this,'configure_applet'),array($row['id'],$row['module_name'])).'>c</a>');
 
 				$th->assign('caption',$opts['title']);
 
@@ -219,7 +218,6 @@ class Base_Dashboard extends Module {
 		Base_ActionBarCommon::add('back','Dashboard',$this->create_back_href());
 
 
-		$tipmod = $this->init_module('Utils/Tooltip');
 		$buttons = array();
 		$app_cap = ModuleManager::call_common_methods('applet_caption');
 		$app_info = ModuleManager::call_common_methods('applet_info');
@@ -237,7 +235,7 @@ class Base_Dashboard extends Module {
 					$out = $ret;
 				else
 					trigger_error('Invalid applet info for module: '.$name,E_USER_ERROR);
-				$attrs .= $tipmod->open_tag_attrs($out,false).' ';
+				$attrs .= Utils_TooltipCommon::open_tag_attrs($out,false).' ';
 			}
 			if (method_exists($name.'Common','applet_icon'))
 				$icon = call_user_func(array($name.'Common','applet_icon'));
