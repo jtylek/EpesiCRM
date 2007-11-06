@@ -65,7 +65,8 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
   				left: 40%; top: 45%;
   				/* all */
   				background-color: #F0F0F0;
-				border: 1px solid #B3B3B3;
+                background-color: #e6ecf2;
+				border: 1px solid #336699;
 				visibility: hidden;
 				padding-top: 10px;
 				padding-bottom: 10px;
@@ -74,7 +75,7 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 				vertical-align: center;
 			}
 			#epesiStatus table {
-				color: #B3B3B3;
+				color: #336699;
 				font-weight: bold;
 				font-family: "Tahoma" "Verdana" "Vera-Sans" "DejaVu-Sans";
 				font-size: 11px;
