@@ -596,6 +596,17 @@ class Utils_GenericBrowser extends Module {
 		return DB::SelectLimit($query.$query_order,$query_limits['numrows'],$query_limits['offset']);
 	}
 
+  	//internal use
+  	public function sort_actions($a,$b) {
+		static $ca = array("view"=>0, "edit"=>1, "delete"=>2, "restore"=>3, "append data"=>4, "info"=>5);
+		if(isset($ca[$a])) {
+			if(isset($ca[$b])) return $ca[$a]-$ca[$b];
+			return -1;
+		} elseif(isset($ca[$b]))
+			return 1;
+		else
+			return strcasecmp($a,$b);
+	}
 	/**
 	 * Displays the table.
 	 * 
@@ -800,13 +811,13 @@ class Utils_GenericBrowser extends Module {
 				if (!empty($this->actions[$i])) {
 					$ac_theme = & $this->init_module('Base/Theme');
 					$actions = array();
-					foreach($this->actions[$i] as $lab=>$arr) {
-						$actions[$lab] = array(
+					foreach($this->actions[$i] as $icon=>$arr) {
+						$actions[$icon] = array(
 							'open'=>'<a '.Utils_TooltipCommon::open_tag_attrs($arr['tooltip']).' '.$arr['tag_attrs'].'>',
 							'close'=>'</a>',
 							'label'=>$arr['label']);
 					}
-					ksort($actions);
+					uksort($actions, array($this,'sort_actions'));
 					$ac_theme->assign('actions',$actions);
 					$col[$column_no]['label'] = $this->get_html_of_module($ac_theme,'Actions','display');
 				} else $col[$column_no]['label'] = '&nbsp;';
