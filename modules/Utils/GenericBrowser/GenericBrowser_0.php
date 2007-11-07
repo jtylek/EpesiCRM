@@ -598,7 +598,9 @@ class Utils_GenericBrowser extends Module {
 
   	//internal use
   	public function sort_actions($a,$b) {
-		static $ca = array("view"=>0, "edit"=>1, "delete"=>2, "restore"=>3, "append data"=>4, "info"=>5);
+		static $ca = array("view"=>0, "edit"=>1, "delete"=>2);
+		if($a=='info') return 1;
+		if($b=='info') return -1;
 		if(isset($ca[$a])) {
 			if(isset($ca[$b])) return $ca[$a]-$ca[$b];
 			return -1;

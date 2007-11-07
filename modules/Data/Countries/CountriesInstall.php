@@ -5,7 +5,7 @@
  * @version 1.0
  * @license SPL
  * @package epesi-data
- * @subpackage usa-states
+ * @subpackage countries
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -324,6 +324,7 @@ class Data_CountriesInstall extends ModuleInstall {
 	public function version() {
 		return array('2007');
 	}
+	
 	public function requires($v) {
 		return array(
 			array('name'=>'Base/Admin','version'=>0),

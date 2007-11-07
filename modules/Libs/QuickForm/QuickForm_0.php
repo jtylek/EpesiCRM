@@ -128,12 +128,11 @@ class Libs_QuickForm extends Module {
 					$default_js .= '$(\''.$this->getAttribute('name').'\').'.$v['name'].'.value = \''.$v['default'].'\';';
 					break;
 							
-				case 'fckeditor':
-					$obj = $this -> addElement($v['type'],$v['name'],$v['label'],$v['param']);
-					$obj->setFCKProps('400','125',false);
-					$default_js .= '$(\''.$this->getAttribute('name').'\').'.$v['name'].'.value = \''.$v['default'].'\';';
+				case 'callback':
+					if(!isset($v['func']))
+						trigger_error('Callback function not defined in '.$v['name'],E_USER_ERROR);
+					call_user_func($v['func'],$this,$v['name'],$v,$default_js);
 					break;
-							
 				default:
 					trigger_error('Invalid type: '.$v['type'],E_USER_ERROR);
 			}

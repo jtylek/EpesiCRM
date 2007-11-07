@@ -68,7 +68,8 @@ class Base_ActionBar extends Module {
 					$menu_entry = null;
 					parse_str($v['link'],$menu_entry);
 					$ii = array();
-					$ii['label'] = substr(strrchr($v['label'],':'),1);
+					$trimmed_label = substr(strrchr($v['label'],':'),1);
+					$ii['label'] = $trimmed_label?$trimmed_label:$v['label'];
 					$ii['description'] = $v['label'];
 					$ii['open'] = '<a '.$this->create_href($menu_entry).'>';
 					$ii['close'] = '</a>';

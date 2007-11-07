@@ -70,8 +70,11 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	 * @return mixed user value
 	 */	
 	public static function get_admin($module,$name){
+		$module = str_replace('/','_',$module);
 		if (!isset(self::$admin_variables)) {
-			self::$admin_variables = DB::GetAssoc('SELECT '.DB::Concat('module','\'__\'','variable').',value FROM base_user_settings_admin_defaults');
+			$ret = DB::Execute('SELECT '.DB::Concat('module','\'__\'','variable').',value FROM base_user_settings_admin_defaults');
+			while($row = $ret->FetchRow())
+				self::$admin_variables[$row[0]] = unserialize($row[1]);
 		}
 		if (isset(self::$admin_variables[$module.'__'.$name]))
 			return self::$admin_variables[$module.'__'.$name];
@@ -91,7 +94,9 @@ class Base_User_SettingsCommon extends ModuleCommon {
 		if (!Acl::is_user()) return null;
 		$module = str_replace('/','_',$module);
 		if (!isset(self::$user_variables)) {
-			self::$user_variables = DB::GetAssoc('SELECT '.DB::Concat('module','\'__\'','variable').',value FROM base_user_settings WHERE user_login_id=%d',array(Base_UserCommon::get_my_user_id()));
+			$ret = DB::Execute('SELECT '.DB::Concat('module','\'__\'','variable').',value FROM base_user_settings WHERE user_login_id=%d',array(Base_UserCommon::get_my_user_id()));
+			while($row = $ret->FetchRow())
+				self::$user_variables[$row[0]] = unserialize($row[1]);
 		}
 		if (isset(self::$user_variables[$module.'__'.$name]))
 			return self::$user_variables[$module.'__'.$name];
@@ -109,13 +114,14 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	 */	
 	public static function save($module,$name,$value){
 		if (!Acl::is_user()) return false;
-		if ($value === null) $value = 0;
+		//if ($value === null) $value = 0;
 		$module = str_replace('/','_',$module);
 		$def = self::get_admin($module,$name);
 		if (!isset($def)) return false;
 		if ($value==$def) {
 			DB::Execute('DELETE FROM base_user_settings WHERE user_login_id=%d AND module=%s AND variable=%s',array(Base_UserCommon::get_my_user_id(),$module,$name));
 		} else {
+			$value = serialize($value);
 			$val = DB::GetOne('SELECT value FROM base_user_settings WHERE user_login_id=%d AND module=%s AND variable=%s',array(Base_UserCommon::get_my_user_id(),$module,$name));
 			if ($val === false)
 				DB::Execute('INSERT INTO base_user_settings VALUES (%d,%s,%s,%s)',array(Base_UserCommon::get_my_user_id(),$module,$name,$value));
@@ -136,13 +142,14 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	 */	
 	public static function save_admin($module,$name,$value){
 		if (!self::Instance()->acl_check('set defaults')) return false;
-		if ($value === null) $value = 0;
+		//if ($value === null) $value = 0;
 		$module = str_replace('/','_',$module);
 		$def = self::get_default($module,$name);
 		if (!isset($def)) return false;
 		if ($value==$def) {
 			DB::Execute('DELETE FROM base_user_settings_admin_defaults WHERE module=%s AND variable=%s',array($module,$name));
 		} else {
+			$value = serialize($value);
 			$val = DB::GetOne('SELECT value FROM base_user_settings_admin_defaults WHERE module=%s AND variable=%s',array($module,$name));
 			if ($val === false)
 				DB::Execute('INSERT INTO base_user_settings_admin_defaults VALUES (%s,%s,%s)',array($module,$name,$value));

@@ -29,6 +29,7 @@ class Base_RegionalSettingsInstall extends ModuleInstall {
 		return array(
 			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'Base/Theme','version'=>0),
+			array('name'=>'Data/Countries','version'=>0),
 			array('name'=>'Base/Lang/Administrator','version'=>0),
 			array('name'=>'Base/User/Settings','version'=>0));
 	}

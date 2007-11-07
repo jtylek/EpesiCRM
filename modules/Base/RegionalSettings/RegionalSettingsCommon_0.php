@@ -59,8 +59,27 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 						'message'=>'This language does not support 12h clock',
 						'param'=>'__form__')
 				),
-				array('type'=>'select','name'=>'tz','label'=>'Timezone', 'default'=>SYSTEM_TIMEZONE, 'values'=>array_combine($tz,$tz))
+				array('type'=>'select','name'=>'tz','label'=>'Timezone', 'default'=>SYSTEM_TIMEZONE, 'values'=>array_combine($tz,$tz)),
+				array('type'=>'header','label'=>'Your location','name'=>null),
+				array('name'=>'default_country', 'type'=>'callback','func'=>array('Base_RegionalSettingsCommon','default_country_elem'),'default'=>'US'),
+				array('name'=>'default_state', 'type'=>'callback','func'=>array('Base_RegionalSettingsCommon','default_state_elem'),'default'=>'')
 			));
+	}
+
+	private static $country_elem_name;
+	public static function default_country_elem(& $f, $name, $args, & $def_js) {
+		$f->addElement('commondata',$name,'Country','Countries');
+		self::$country_elem_name = $name;
+	}
+
+	public static function default_state_elem(& $f, $name, $args, & $def_js) {
+		$f->addElement('commondata',$name,'State',array('Countries',self::$country_elem_name),array('empty_option'=>true));
+	}
+	
+	public static function get_default_location() {
+		$country = Base_User_SettingsCommon::get('Base_RegionalSettings','dafault_country');
+		$state = Base_User_SettingsCommon::get('Base_RegionalSettings','dafault_state');
+		return array(0=>$country,'country'=>$country,'state'=>$state,1=>$state);
 	}
 	
 	public static function check_12h($v,$form) {

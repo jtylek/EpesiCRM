@@ -56,8 +56,8 @@ class Base_User_Settings extends Module {
 		$f->addGroup(array($defaults, $submit,$cancel));
 
 		if($f->validate()) {
-			if($f->process(array(& $this, 'submit_settings')))
-				$this->set_back_location();
+			$this->submit_settings($f->exportValues());
+			$this->set_back_location();
 		} else
 			$f->display();
 		return;
@@ -146,6 +146,8 @@ class Base_User_Settings extends Module {
 				}
 			}
 		}
+		
+		ksort($modules);
 
 		$buttons = array();
 		foreach($modules as $caption=>$arg) {
