@@ -26,12 +26,12 @@ class HTML_QuickForm_commondata_group extends HTML_QuickForm_group {
 					$this->_cd_root = $commondata[0];
 				if(isset($commondata['depth']) && is_numeric($commondata['depth']))
 					$this->_cd_depth = $commondata['depth'];
-				elseif(isset($commondata[0]) && is_numeric($commondata[0]))
-					$this->_cd_depth = $commondata[0];
+				elseif(isset($commondata[1]) && is_numeric($commondata[1]))
+					$this->_cd_depth = $commondata[1];
 			} elseif(is_string($commondata))
 				$this->_cd_root = $commondata;
 		}
-		
+
 		if (isset($options['depth']) && is_numeric($options['depth']))
 			$this->_cd_depth = $options['depth'];
 
