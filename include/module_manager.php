@@ -37,7 +37,7 @@ class ModuleManager {
 		require_once ('modules/' . $path . '/' . $file . 'Install.php');
 		ob_end_clean();
 		$x = $class_name.'Install';
-		if(!class_exists($x) || !array_key_exists('ModuleInstall',class_parents($x)))
+		if(!(class_exists($x) && in_array($x, get_declared_classes())) || !array_key_exists('ModuleInstall',class_parents($x)))
 			trigger_error('Module '.$path.': Invalid install file',E_USER_ERROR);
 		self::$modules_install[$class_name] = new $x($class_name); 
 	}
