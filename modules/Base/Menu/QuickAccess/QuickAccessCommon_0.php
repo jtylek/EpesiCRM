@@ -16,7 +16,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_Menu_QuickAccessCommon extends ModuleCommon {
 	private static $options = null;
 	
-	public static function user_settings($info = true) {
+	public static function user_settings_icon() {
+		return Base_ThemeCommon::get_template_file('Base_Menu_QuickAccess','icon.png');
+	}
+	
+	public static function user_settings() {
 		self::get_options();
 		if (Acl::is_user()) return array('Quick access menu'=>self::$options);
 		return array();
@@ -47,7 +51,7 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 			if (is_array($v) && array_key_exists('__submenu__',$v)) $result = array_merge($result,self::check_for_links($prefix.$k.': ',$v,$mod));
 			elseif(is_array($v)) {
 				$http_query = http_build_query($v,'','&');
-				$result[] = array('name'=>md5($http_query.'#qa_sep#'.str_replace(' ','_',$prefix.$k))
+				$result[] = array('name'=>md5($http_query.'#qa_sep#'.$prefix.$k)
 							,'link'=>$http_query
 							,'label'=>$prefix.$k
 							,'type'=>'bool'

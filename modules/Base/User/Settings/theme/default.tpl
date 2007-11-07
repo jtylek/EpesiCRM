@@ -28,7 +28,7 @@
 
 			{$__link.buttons.$key.link.open}
 			<div class="button">
-				<img src="{$theme_dir}/{$button.icon}" border="0" width="32" height="32" align="middle">&nbsp;&nbsp;{$__link.buttons.$key.link.text}
+				<img src="{$button.icon}" border="0" width="32" height="32" align="middle">&nbsp;&nbsp;{$__link.buttons.$key.link.text}
 			</div>
 			{$__link.buttons.$key.link.close}
 

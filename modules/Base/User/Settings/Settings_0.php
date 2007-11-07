@@ -136,14 +136,44 @@ class Base_User_Settings extends Module {
 		foreach($us as $name=>$menu) {
 			if(!is_array($menu)) continue;
 			foreach($menu as $k=>$v) {
-				if (!is_string($v)) $modules[$k] = array('action'=>$this->create_unique_href(array('settings_branch'=>$k)),'module_name'=>$name);
-				elseif(!$admin_settings) $modules[$k] = array('action'=>$this->create_href(array('box_main_module'=>$name,'box_main_function'=>$v)),'module_name'=>$name);
+				if(isset($modules[$k])) {
+					if (!is_string($v) && !isset($modules[$k]['external']))
+						$modules[$k]['module_names'][] = $name;
+					else trigger_error('You cannot override this key: '.$k,E_USER_ERROR);
+				} else {
+					if (!is_string($v)) $modules[$k] = array('action'=>$this->create_unique_href(array('settings_branch'=>$k)),'module_names'=>array($name));
+					elseif(!$admin_settings) $modules[$k] = array('action'=>$this->create_href(array('box_main_module'=>$name,'box_main_function'=>$v)),'module_names'=>array($name),'external'=>true);
+				}
 			}
 		}
 
 		$buttons = array();
-		foreach($modules as $caption=>$arg)
-			$buttons[]= array('link'=>'<a '.$arg['action'].'>'.$this->lang->t($caption).'</a>','module'=>$arg['module_name'],'icon'=>Base_ThemeCommon::get_template_filename($arg['module_name'],'icon.png'));
+		foreach($modules as $caption=>$arg) {
+			$icon = false;
+			sort($arg['module_names']);
+			foreach($arg['module_names'] as $m) {
+				$f = array($m.'Common','user_settings_icon');
+				if(is_callable($f)) {
+					$ret = call_user_func($f);
+					if(is_array($ret)) {
+						if(isset($ret[$caption]['icons'])) {
+							$icon = $ret[$caption]['icons'];
+							break;
+						}
+					} elseif(is_string($ret)) {
+						$icon = $ret;
+						break;
+					}
+				}
+			}
+			if(!$icon)
+				foreach($arg['module_names'] as $m) {
+					$icon = Base_ThemeCommon::get_template_file($m,'icon.png');
+					if($icon) break;
+				}
+			if(!$icon) $icon = '';
+			$buttons[]= array('link'=>'<a '.$arg['action'].'>'.$this->lang->t($caption).'</a>','module'=>$arg['module_names'],'icon'=>$icon);
+		}
 		$theme =  & $this->pack_module('Base/Theme');
 		$theme->assign('header', $this->lang->t('User Settings'));
 		$theme->assign('buttons', $buttons);
