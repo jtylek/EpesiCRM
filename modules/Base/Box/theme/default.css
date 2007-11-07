@@ -107,19 +107,17 @@ input, textarea, select {
 #top_bar #top_bar_1 .menu-bar {
 	height: 20px;
 	text-align: left;
-	background-color: #B3B3B3;
+	background-color: #336699;
 	background-image: url('images/header-blue.png');
 	background-repeat: repeat-x;
 }
 
 #top_bar #top_bar_1 .version {
 	width: 120px;
-	height: 20px;
 	background-color: #336699;
 	background-image: url("images/header-blue.png");
 	background-repeat: repeat-x;
 	text-align: center;
-	vertical-align: middle;
 	font-size: 9px;
 }
 
@@ -134,13 +132,11 @@ input, textarea, select {
 
 #top_bar #top_bar_1 .module-indicator {
 	width: 287px;
-	height: 20px;
 	background-color: #336699;
 	background-image: url("images/header-blue.png");
 	background-repeat: repeat-x;
 	font-weight: bold;
 	text-align: center;
-	vertical-align: middle;
 	border-left: 4px solid #B3B3B3;
 	color: #FFFFFF;
 }

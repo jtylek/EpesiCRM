@@ -4,32 +4,25 @@ table.root {
 	background-image: url("images/header-blue.png");
 	background-repeat: repeat-x;
 	list-style-type: none;
-	padding: 2px;
+	padding: 0px;
 	margin: 0px;
 	z-index: 1000;
 	font-weight: bold;
-	height: 20px;
 	border-right: 4px solid #B3B3B3;
 }
 
-table.root:hover {
-	background-color: #336699;
-	background-image: url("images/header-blue-hover.png");
-	background-repeat: repeat-x;
-}
-
 table.root td.separator {
-	color: #CCCCCC;
-	font-size: 11px;
-	font-weight: normal;
+	width: 4px;
+	height: 20px;
+	background-color: #B3B3B3;
 }
 
 .submenu {
 	border-top: 1px solid #B3B3B3;
 	border-left: 1px solid #B3B3B3;
 	border-right: 1px solid #B3B3B3;
-	margin-top: 3px;
-	margin-left: -3px;
+	margin-top: 2px;
+	margin-left: -1px;
 	list-style-type: none;
 	opacity: 1;
 	background: white;
@@ -53,8 +46,7 @@ table.root td.separator {
 }
 
 a.root_item_link {
-	margin: 0px;
-	padding: 1px 25px 1px 25px;
+	padding: 0px 25px 0px 25px;
 	display: block; /* for HTML standards... */
 	margin: 0px;
 	color: #FFFFFF;
@@ -74,7 +66,6 @@ table.root a:hover {
 }
 
 a.root_item_link_down {
-	margin: 0px;
 	display: block; /* for HTML standards... */
 	margin: 0px;
 	color: #FFFFFF;
@@ -87,13 +78,12 @@ a.root_item_link_down {
 }
 
 .root_item_link_down_arrow {
-	padding: 1px 25px 1px 25px;
+	padding: 0px 25px 0px 25px;
 	background: url("Utils_Menu__arrow_down.gif") no-repeat center right;
 }
 
 a.root_item_link_none {
-	margin: 0px;
-	padding: 1px 25px 1px 25px;
+	padding: 0px 25px 0px 25px;
 	display: block; /* for HTML standards... */
 	margin: 0px;
 	color: #FFFFFF;
@@ -108,7 +98,6 @@ a.root_item_link_none {
 }
 
 a.root_item_link_right {
-	margin: 0px;
 	display: block; /* for HTML standards... */
 	margin: 0px;
 	color: #FFFFFF;
@@ -118,13 +107,12 @@ a.root_item_link_right {
 	text-decoration: none;
 	white-space: nowrap;
 	z-index: 1000;
-
 	padding-top: 4px;
 	padding-bottom: 3px;
 }
 
 .root_item_link_right_arrow {
-	padding: 1px 25px 1px 25px;
+	padding: 0px 25px 0px 25px;
 	background: url("Utils_Menu__arrow.gif") no-repeat center right;
 }
 
@@ -143,27 +131,36 @@ img.link_icon {
 }
 
 table.root a.root_item_link_down:hover {
-	background-color: #336699;
+	background-color: #6C99D7;
 	background-image: url("images/header-blue-hover.png");
 	background-repeat: repeat-x;
 }
 
 a.root_item_link:hover {
-	background-color: #336699;
-	background-image: url("images/header-blue.png");
+	background-color: #6C99D7;
+	background-image: url("images/header-blue-hover.png");
 	background-repeat: repeat-x;
 }
 
 a.root_item_link_down:hover {
-	background-color: #336699;
-	background-image: url("images/header-blue.png");
+	background-color: #6C99D7;
+	background-image: url("images/header-blue-hover.png");
 	background-repeat: repeat-x;
 }
 
 a.root_item_link_right:hover {
-	background-color: #336699;
-	background-image: url("images/header-blue.png");
+	background-color: #6C99D7;
+	background-image: url("images/header-blue-hover.png");
 	background-repeat: repeat-x;
+}
+
+table.root a.root_item_link_down {
+	padding-top: 3px;
+	padding-bottom: 4px;
+}
+
+table.root a.root_item_link_down:hover {
+	background-color: #6C99D7;
 }
 
 .custom_opener {

@@ -177,7 +177,7 @@ CustomMenubar = function(id, _layout) {
 		} else {
 			if(this.depth == 0 ) {
 				if(this.init == 0) {
-					menu_string[this.id] += '<td class="separator">|</td>';
+					menu_string[this.id] += '<td class="separator">&nbsp;</td>';
 					this.init = 0;
 				} else {
 					this.init = 0;
@@ -197,7 +197,7 @@ CustomMenubar = function(id, _layout) {
 		} else {
 			if(this.depth == 0 ) {
 				if(this.init == 0) {
-					menu_string[this.id] += '<td class="separator">|</td>';
+					menu_string[this.id] += '<td class="separator">&nbsp;</td>';
 					this.init = 0;
 				} else {
 					this.init = 0;
@@ -241,7 +241,7 @@ CustomMenubar = function(id, _layout) {
 		} else {
 			if(this.depth == 0 ) {
 				if(this.init == 0) {
-					menu_string[this.id] += '<td class="separator">|</td>';
+					menu_string[this.id] += '<td class="separator">&nbsp;</td>';
 					this.init = 0;
 				} else {
 					this.init = 0;
