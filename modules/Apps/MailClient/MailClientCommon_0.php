@@ -45,6 +45,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 	// scan mail dir, etc
 	private function _get_mail_dir() {
 		$dir = $this->get_data_dir().Base_UserCommon::get_my_user_id().'/';
+		if(!file_exists($dir)) mkdir($dir);
 		$accounts = DB::GetCol('SELECT mail FROM apps_mailclient_accounts WHERE user_login_id=%d',array(Base_UserCommon::get_my_user_id()));
 		foreach($accounts as $account) {
 			$acc_dir = $dir.str_replace(array('@','.'),array('__at__','__dot__'),$account).'/';
@@ -101,7 +102,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$ret = null;
 		foreach($cont as $c)
 			if(ereg('__at__[a-zA-Z0-9]+__dot__',$c)) {
-				$ret = $c.'/Inbox';
+				$ret = '/'.$c.'/Inbox';
 				break;
 			}
 		return $ret;

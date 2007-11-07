@@ -5,6 +5,7 @@ if(!isset($_POST['acc_id']))
 define('CID',false);
 require_once('../../../include.php');
 session_commit();
+ModuleManager::load_modules();
 if(!Acl::is_user()) return;
 
 ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
