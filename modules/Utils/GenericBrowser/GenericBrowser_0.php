@@ -445,7 +445,7 @@ class Utils_GenericBrowser extends Module {
 			foreach($this->columns as $k=>$v){
 				if (isset($v['search']) && isset($search['__keyword__'])) {
 					$ret = false;
-					if (strpos(preg_replace('/<[^<>]*>/','',$row[$k]),$search['__keyword__'])!==false) return true;
+					if (stripos(preg_replace('/<[^<>]*>/','',$row[$k]),$search['__keyword__'])!==false) return true;
 				}
 			}
 			return $ret;
