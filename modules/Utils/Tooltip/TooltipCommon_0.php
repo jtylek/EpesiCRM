@@ -36,7 +36,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 		if($help && !self::$help_tooltips) return '';
 		load_js('modules/Utils/Tooltip/js/Tooltip.js');
 		if(!isset($_SESSION['client']['utils_tooltip'])) {
-			load_css(Base_ThemeCommon::get_template_filename('Utils_Tooltip','default.css'));
+			load_css(Base_ThemeCommon::get_template_file('Utils_Tooltip','default.css'));
 			$js = 'div = document.createElement(\'div\');'.
 				'div.id = \'tooltip_div\';'.
 				'div.style.position = \'absolute\';'.
