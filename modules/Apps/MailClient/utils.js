@@ -1,6 +1,6 @@
 var Apps_MailClient = {
 preview: function(id,query,subject,from) {
-    var iframe = $(id);
+    var iframe = $(id+'_body');
     if(!iframe) return;
     iframe.src = 'modules/Apps/MailClient/preview.php?'+query;
     var subj = $(id+'_subject');

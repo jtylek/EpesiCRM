@@ -29,6 +29,7 @@ class Apps_MailClient extends Module {
 
 		$mbox_file = $this->get_module_variable('opened_mbox',$def_mbox);
 		$preview_id = $this->get_path().'preview';
+		$show_id = $this->get_path().'show';
 
 		$th = $this->init_module('Base/Theme');
 		$tree = $this->init_module('Utils/Tree');
@@ -69,9 +70,10 @@ class Apps_MailClient extends Module {
 				$r = $gb->get_new_row();
 				$from = htmlentities($structure->headers['from']);
 				$subject = htmlentities($structure->headers['subject']);
-				$r->add_data($subject,$from,$structure->headers['date'],strlen($message));
+				$r->add_data('<a href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$n)).'\',\''.Epesi::escapeJS($subject,true,false).'\',\''.Epesi::escapeJS($from,true,false).'\')">'.$subject.'</a>',$from,$structure->headers['date'],strlen($message));
 				//print('"Apps_MailClient.preview(\''.$preview_id.'\',\''.Epesi::escapeJS(http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$n)),true,false).'\',\''.Epesi::escapeJS($subject,true,false).'\',\''.Epesi::escapeJS($from,true,false).'\')"<br>');
-				$r->add_action('href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.Epesi::escapeJS(http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$n)),true,false).'\',\''.Epesi::escapeJS($subject,true,false).'\',\''.Epesi::escapeJS($from,true,false).'\')"','View');
+				$r->add_action('href="javascript:void(0)" rel="'.$show_id.'" class="lbOn" onMouseDown="Apps_MailClient.preview(\''.$show_id.'\',\''.http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$n)).'\',\''.Epesi::escapeJS($subject,true,false).'\',\''.Epesi::escapeJS($from,true,false).'\')"','View');
+				//$r->add_action($this->create_confirm_callback_href($this->lang->t('Do you really want to delete this message'),array()),'Delete');//TODO
 			}
 		
 		} else {
@@ -83,8 +85,17 @@ class Apps_MailClient extends Module {
 		$th->assign('list', $this->get_html_of_module($gb));
 		$th->assign('preview_subject','<div id="'.$preview_id.'_subject"></div>');
 		$th->assign('preview_from','<div id="'.$preview_id.'_from"></div>');
-		$th->assign('preview','<iframe id="'.$preview_id.'" style="width:100%"></iframe>');
+		$th->assign('preview_body','<iframe id="'.$preview_id.'_body" style="width:100%"></iframe>');
 		$th->display();
+
+		$th_show = $this->init_module('Base/Theme');
+		$th_show->assign('subject','<div id="'.$show_id.'_subject"></div>');
+		$th_show->assign('from','<div id="'.$show_id.'_from"></div>');
+		$th_show->assign('body','<iframe id="'.$show_id.'_body" style="width:100%"></iframe>');
+		$th_show->assign('close','<a class="lbAction" rel="deactivate">Close</a>');
+		print('<div id="'.$show_id.'" class="leightbox">');
+		$th_show->display('message');
+		print('</div>');
 		
 		Base_ActionBarCommon::add('folder',$this->lang->t('Check'),$this->create_callback_href(array($this,'check_mail')));
 	}

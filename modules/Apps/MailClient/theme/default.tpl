@@ -13,7 +13,7 @@
 				<td>From: </td><td>{$preview_from}</td>
 			</tr>
 			<tr>
-				<td colspan=2>{$preview}</td>
+				<td colspan=2>{$preview_body}</td>
 			</tr>
 			</table>
 		</td>
