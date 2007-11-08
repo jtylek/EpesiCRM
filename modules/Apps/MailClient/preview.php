@@ -88,6 +88,8 @@ if(($ret = $mbox->setTmpDir(Apps_MailClientCommon::Instance()->get_data_dir().'t
 				'<body><pre>'.$body.'</pre></body>'.
 				'</html>';
 		
+		$body = preg_replace('/"cid:(\w+\.\w+)@(\w+\.\w+)"/','"preview.php?'.http_build_query($_GET).'&attachment=$1"',$body);
+		
 		$ret_attachments = '';
 		if($attachments) {
 			$ret_attachments = '<hr>';
