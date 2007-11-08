@@ -74,6 +74,15 @@ class Utils_GenericBrowser_Row_Object {
 		$this->GBobj->__add_row_action($this->num, $tag_attrs,$label,isset($tooltip)?$tooltip:$label,$icon);
 	}
 	
+	/**
+	 * Adds an info icon to the Generic Browser.
+	 * 
+	 * @param string tooltip
+	 */
+	public function add_info($tooltip){
+		$this->GBobj->__add_row_action($this->num, '','info',$tooltip,null);
+	}
+	
 }
 
 

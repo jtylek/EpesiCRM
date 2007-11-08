@@ -54,6 +54,8 @@ class Apps_MailClient extends Module {
 			if($limit_max2>$limit_max) $limit_max2=$limit_max;
 		
 			$message = null;
+			
+			load_js($this->get_module_dir().'utils.js');
 		
 			for ($n = $limit['offset']; $n < $limit_max2; $n++) {
 				if(PEAR::isError($message = $mbox->get($n))) {
@@ -65,14 +67,11 @@ class Apps_MailClient extends Module {
 				$structure = $decode->decode();
 			
 				$r = $gb->get_new_row();
-				$r->add_data($structure->headers['subject'],$structure->headers['from'],$structure->headers['date'],strlen($message));
-				$r->add_action('href="javascript:void(0)" onClick="new Ajax.Request(\''.$this->get_module_dir().'preview.php\',{'.
-					'method:\'post\','.
-					'parameters:{'.
-						'\'mbox\':\''.Epesi::escapeJS($mbox_file).'\','.
-						'\'msg_id\':\''.$n.'\','.
-						'\'mc_id\':\''.$preview_id.'\''.
-					'}})"','View');
+				$from = htmlentities($structure->headers['from']);
+				$subject = htmlentities($structure->headers['subject']);
+				$r->add_data($subject,$from,$structure->headers['date'],strlen($message));
+				//print('"Apps_MailClient.preview(\''.$preview_id.'\',\''.Epesi::escapeJS(http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$n)),true,false).'\',\''.Epesi::escapeJS($subject,true,false).'\',\''.Epesi::escapeJS($from,true,false).'\')"<br>');
+				$r->add_action('href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.Epesi::escapeJS(http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$n)),true,false).'\',\''.Epesi::escapeJS($subject,true,false).'\',\''.Epesi::escapeJS($from,true,false).'\')"','View');
 			}
 		
 		} else {
@@ -82,11 +81,9 @@ class Apps_MailClient extends Module {
 		$mbox->close();
 
 		$th->assign('list', $this->get_html_of_module($gb));
-		
-		$th->assign('preview',array(
-			'subject'=>'<span id="'.$preview_id.'subject"></span>',
-			'from'=>'<span id="'.$preview_id.'from"></span>',
-			'body'=>'<span id="'.$preview_id.'body"></span>'));
+		$th->assign('preview_subject','<div id="'.$preview_id.'_subject"></div>');
+		$th->assign('preview_from','<div id="'.$preview_id.'_from"></div>');
+		$th->assign('preview','<iframe id="'.$preview_id.'" style="width:100%"></iframe>');
 		$th->display();
 		
 		Base_ActionBarCommon::add('folder',$this->lang->t('Check'),$this->create_callback_href(array($this,'check_mail')));
