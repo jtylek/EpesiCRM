@@ -65,7 +65,7 @@ if(!isset($_GET['license'])) {
 	$form -> addRule('password', 'Field required', 'required');
 	$form -> addElement('text', 'db', 'Database name');
 	$form -> addRule('db', 'Field required', 'required');
-	$form -> addElement('select', 'newdb', 'Create new database',array(0=>'No',1=>'Yes'),array('onChange'=>'if(this.value==0)alert("WARNING: All tables in specified database will be dropped!","warning");'));
+	$form -> addElement('select', 'newdb', 'Create new database',array(0=>'No',1=>'Yes'),array('onChange'=>'if(this.value==1)alert("WARNING: Make sure you have CREATE access level to do this!","warning");'));
 	$form -> addRule('newdb', 'Field required', 'required');
 //	$form -> addElement('select', 'newuser', 'Create new user',array(1=>'Yes', 0=>'No'));
 //	$form -> addRule('newuser', 'Field required', 'required');
@@ -74,7 +74,7 @@ if(!isset($_GET['license'])) {
 	$form -> setDefaults(array('engine'=>'mysqlt','db'=>'epesi','host'=>'localhost'));
 
 	$form->setRequiredNote('<span class="required_note_star">*</span> <span class="required_note">denotes required field</span>');
-	$form -> addElement('html','<tr><td colspan=2>The database will be populated with data.<br />This operation can take a while.</td></tr>');
+	$form -> addElement('html','<tr><td colspan=2><b>Any existing tables will be dropped!</b><br />The database will be populated with data.<br />This operation can take a while.</td></tr>');
 	if($form -> validate()) {
 	    $engine = $form -> exportValue('engine');
 	    switch($engine) {
