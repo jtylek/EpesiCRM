@@ -23,7 +23,10 @@ class Apps_MailClient extends Module {
 	public function body() {
 		$def_mbox = Apps_MailClientCommon::get_default_mbox();
 		if($def_mbox===null) {
-			print($this->lang->t('No mailboxes defined'));
+			print($this->lang->t('No mailboxes defined !<br />'));
+			print($this->lang->t('You need to setup a mailbox first.<br />'));
+			print($this->lang->t('<br /><br />Click on New Account icon in the action bar to setup the account.<br />'));
+			Base_ActionBarCommon::add('add','New account',$this->create_callback_href(array($this,'account'),array(null,'new')));
 			return;
 		}
 
