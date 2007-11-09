@@ -90,8 +90,8 @@ table#Base_User_Login td.header_tail {
 }
 
 table#Base_User_Login td.footer {
-	color: #777777;
-	font-size: 10px;
+	color: #336699;
+	font-size: 11px;
 	text-align: center;
 	height: 40px;
 	vertical-align: top;
@@ -99,10 +99,13 @@ table#Base_User_Login td.footer {
 
 table#Base_User_Login td.footer a {
 	font-weight: bold;
+	color: #336699;
 }
 
 table#Base_User_Login td.recover_password {
 	text-align: center;
+	color: #336699;
+	font-weight: bold;
 	height: 25px;
 }
 

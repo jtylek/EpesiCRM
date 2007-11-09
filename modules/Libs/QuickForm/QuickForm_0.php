@@ -123,6 +123,7 @@ class Libs_QuickForm extends Module {
 					$v['rule'][] = array('type'=>'numeric','message'=>Base_LangCommon::ts('Libs_QuickForm','This is not valid number'));
 				case 'password':
 				case 'text':
+				case 'html':
 				case 'textarea':
 					$obj = $this -> addElement($v['type'],$v['name'],$v['label'],$v['param']);
 					$default_js .= '$(\''.$this->getAttribute('name').'\').'.$v['name'].'.value = \''.$v['default'].'\';';

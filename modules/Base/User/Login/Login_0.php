@@ -88,7 +88,12 @@ class Base_User_Login extends Module {
 		$form->addElement('header', 'login_header', $this->lang->t('Login'));
 		$form->addElement('text', 'username', $this->lang->t('Username'),array('id'=>'username'));
 		$form->addElement('password', 'password', $this->lang->t('Password'));
-		$form->addElement('checkbox', 'autologin', '',$this->lang->t('remember me'));
+		
+		// Display warning about storing a cookie
+		$warning=$this->lang->t('Don\'t check this box if you are using public computer!');
+		$form->addElement('static','warning',null,$warning);
+		$form->addElement('checkbox', 'autologin', '',$this->lang->t('Remember me'));
+		
 		$form->addElement('static', 'recover_password', null, '<a '.$this->create_unique_href(array('mail_recover_pass'=>1)).'>'.$this->lang->t('Recover password').'</a>');
 		$form->addElement('submit', 'submit_button', $this->lang->ht('Login'), array('class'=>'submit'));
 		
