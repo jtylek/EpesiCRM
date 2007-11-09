@@ -94,76 +94,18 @@ class Apps_MailClient extends Module {
 		$th_show = $this->init_module('Base/Theme');
 		$th_show->assign('subject','<div id="'.$show_id.'_subject"></div>');
 		$th_show->assign('from','<div id="'.$show_id.'_from"></div>');
-		$th_show->assign('body','<iframe id="'.$show_id.'_body" style="width:100%"></iframe>');
+		$th_show->assign('body','<iframe id="'.$show_id.'_body" style="width:95%;height:90%"></iframe>');
 		$th_show->assign('close','<a class="lbAction" rel="deactivate">Close</a>');
 		print('<div id="'.$show_id.'" class="leightbox">');
 		$th_show->display('message');
 		print('</div>');
 		
-		Base_ActionBarCommon::add('folder',$this->lang->t('Check'),$this->create_callback_href(array($this,'check_mail')));
-	}
-	
-	public function check_mail() {
-		$accounts = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE user_login_id=%d',array(Base_UserCommon::get_my_user_id()));
-		foreach($accounts as $account) {
-			$host = explode(':',$account['incoming_server']);
-			if(isset($host[1])) $port=$host[1];
-				else $port = null;
-			$host = $host[0];
-			$user = $account['login'];
-			$pass = $account['password'];
-			$ssl = $account['incoming_ssl'];
-			$method = $account['incoming_method']!='auto'?$account['incoming_method']:null;
-			$pop3 = ($account['incoming_protocol']==0);
-
-			$mbox = new Mail_Mbox(Apps_MailClientCommon::get_mail_dir().str_replace(array('@','.'),array('__at__','__dot__'),$account['mail']).'/Inbox.mbox');
-			if(($ret = $mbox->setTmpDir($this->get_data_dir().'tmp'))===false 
-				|| ($ret = $mbox->open())===false) {
-				Base_StatusBarCommon::message($account['mail'].' - unable to open Inbox file');
-				continue;	
-			}
-
-			if($pop3) { //pop3
-				require_once('Net/POP3.php');
-				$in = new Net_POP3();
-	
-				if($port==null) {
-					if($ssl) $port=995;
-					else $port=110;
-				}
-			} else { //imap
-				require_once('Net/IMAP.php');
-				if($port==null) {
-					if($ssl) $port=993;
-					else $port=143;
-				}
-				$in = new Net_IMAP();
-			}
-
-			if(PEAR::isError( $ret= $in->connect(($ssl?'ssl://':'').$host , $port) )) {
-				Base_StatusBarCommon::message($account['mail'].' - (connect error) '.$ret->getMessage());
-				continue;
-			}
-	
-			if(PEAR::isError( $ret= $in->login($user , $pass, $method))) {
-				Base_StatusBarCommon::message($account['mail'].' - (login error) '.$ret->getMessage());
-				continue;
-			}
-
-			$num = 0;
-			if($pop3) {
-				$l = $in->getListing();
-				foreach($l as $msgl) {
-					$mbox->insert("From - ".date('D M d H:i:s Y')."\n".$in->getMsg($msgl['msg_id']));
-					$num++;
-				}
-			} else { //imap
-			}
-			$in->disconnect();
-			$mbox->close();
-			Base_StatusBarCommon::message($account['mail'].' - ok, got '.$num.' messages ');
-		}
-		return false;
+		$checknew_id = $this->get_path().'checknew';
+		Base_ActionBarCommon::add('folder',$this->lang->t('Check'),'href="javascript:void(0)" rel="'.$checknew_id.'" class="lbOn" onMouseDown="$(\''.$checknew_id.'X\').src=\'modules/Apps/MailClient/checknew.php?t='.microtime(true).'\'"');
+		print('<div id="'.$checknew_id.'" class="leightbox">'.
+			'<iframe id="'.$checknew_id.'X" style="width:95%;height:90%"></iframe><br>'.
+			'<a class="lbAction" rel="deactivate">Hide</a>'.
+			'</div>');
 	}
 	
 	private function set_open_mail_dir_callbacks(array & $str,$path='') {

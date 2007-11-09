@@ -27,6 +27,15 @@ class Tools_WhoIsOnlineCommon extends ModuleCommon {
 			array('name'=>'show_me','type'=>'checkbox','label'=>'Show me in online users','default'=>1)
 			));
 	}
+	
+	public static function get() {
+		DB::Execute('delete from tools_whoisonline_users where session_name not in (select session_name from session)');
+		$ret = DB::Execute('SELECT ul.login FROM tools_whoisonline_users twu INNER JOIN user_login ul on ul.id=twu.user_login_id');
+		$all = array();
+		while($r = $ret->FetchRow())
+			if($r['login']!=Acl::get_user()) $all[] = $r['login'];
+		return $all;
+	}
 }
 if(!isset($_SESSION['tools_whoisonline']) || $_SESSION['tools_whoisonline']!=Acl::get_user()) {
 	if(Base_User_SettingsCommon::get('Tools_WhoIsOnline','show_me'))

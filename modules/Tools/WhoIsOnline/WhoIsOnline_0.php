@@ -12,12 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Tools_WhoIsOnline extends Module {
 
 	public function body() {
-		DB::Execute('delete from tools_whoisonline_users where session_name not in (select session_name from session)');
-		$ret = DB::Execute('SELECT ul.login FROM tools_whoisonline_users twu INNER JOIN user_login ul on ul.id=twu.user_login_id');
-		$all = array();
-		while($r = $ret->FetchRow())
-			if($r['login']!=Acl::get_user()) $all[] = $r['login'];
-			
+		$all = Tools_WhoIsOnlineCommon::get();
 		$th = $this->init_module('Base/Theme');
 		$th->assign('users',$all);
 		$th->display();

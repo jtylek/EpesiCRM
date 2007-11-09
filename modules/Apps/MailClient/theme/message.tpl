@@ -8,5 +8,5 @@
 <tr>
 	<td colspan=2>{$body}</td>
 </tr>
-</table>
+</table><br>
 {$close}
