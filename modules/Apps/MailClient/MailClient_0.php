@@ -189,10 +189,10 @@ class Apps_MailClient extends Module {
 	//account management
 	public function account_manager() {
 		$gb = $this->init_module('Utils/GenericBrowser',null,'accounts');
-		$ret = $gb->query_order_limit('SELECT id,mail FROM apps_mailclient_accounts WHERE user_login_id='.Base_UserCommon::get_my_user_id(),'SELECT count(mail) FROM apps_mailclient_accounts WHERE user_login_id='.Base_UserCommon::get_my_user_id());
 		$gb->set_table_columns(array(
 			array('name'=>$this->lang->t('Mail'), 'order'=>'mail')
 				));
+		$ret = $gb->query_order_limit('SELECT id,mail FROM apps_mailclient_accounts WHERE user_login_id='.Base_UserCommon::get_my_user_id(),'SELECT count(mail) FROM apps_mailclient_accounts WHERE user_login_id='.Base_UserCommon::get_my_user_id());
 		while($row=$ret->FetchRow()) {
 			$r = & $gb->get_new_row();
 			$r->add_data($row['mail']);
