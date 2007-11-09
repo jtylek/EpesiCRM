@@ -144,6 +144,7 @@ class Utils_GenericBrowser extends Module {
 	public function set_default_order(array $arg,$reset=false){
 		if ($this->isset_module_variable('first_display') && !$reset) return;
 		$order=array();
+		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
 		foreach($arg as $k=>$v){
 			$ord = false;
 			foreach($this->columns as $val) 
@@ -177,14 +178,11 @@ class Utils_GenericBrowser extends Module {
 	 * For internal use only.
 	 */
 	public function __add_row_data($num,$arg) {
-		if (!is_array($arg)) {
+		if (!is_array($arg))
 			trigger_error('Invalid argument 2 for add_row_array, aborting.<br>',E_USER_ERROR);
-			return;
-		}
-		if (count($arg)!=$this->columns_qty) {
+		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
+		if (count($arg)!=$this->columns_qty)
 			trigger_error('Invalid size of array for argument 2 while adding data, was '.count($arg).', should be '.$this->columns_qty.'. Aborting.<br>',E_USER_ERROR);
-			return;
-		}
 		$this->rows[$num] = $arg;
 	}
 	
@@ -240,14 +238,11 @@ class Utils_GenericBrowser extends Module {
 	 * @param array array with row data
 	 */
 	public function add_row_array($arg) {
-		if (!is_array($arg)) {
+		if (!is_array($arg))
 			trigger_error('Invalid argument 2 for add_row_array, aborting.<br>',E_USER_ERROR);
-			return;
-		}
-		if (count($arg)!=$this->columns_qty) {
+		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
+		if (count($arg)!=$this->columns_qty)
 			trigger_error('Invalid size of array for argument 2 while adding data, was '.count($arg).', should be '.$this->columns_qty.'. Aborting.<br>',E_USER_ERROR);
-			return;
-		}
 		$this->rows[] = $arg;
 		$this->cur_row++;
 		if ($this->per_page && $this->cur_row>=$this->per_page) trigger_error('Added more rows than expected, aborting.',E_USER_ERROR);
@@ -341,6 +336,7 @@ class Utils_GenericBrowser extends Module {
 	 */
 	public function change_order($ch_order){
 		$order = $this->get_module_variable('order', array());
+		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
 		foreach($this->columns as $val) 
 			if ($val['name'] == $ch_order) {
 				$ord = $val['order'];
@@ -400,6 +396,7 @@ class Utils_GenericBrowser extends Module {
 		else
 			$where = array();
 
+		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
 		if(!$this->is_adv_search_on()) {
 			foreach($this->columns as $k=>$v){
 				if (isset($v['search']) && isset($search['__keyword__'])) $where .= ($where?' OR':'').' '.$v['search'].' LIKE '.DB::Concat('\'%\'',sprintf('%s',DB::qstr($search['__keyword__'])),'\'%\'');
@@ -438,6 +435,8 @@ class Utils_GenericBrowser extends Module {
 		$quickjump_to = $this->get_module_variable('quickjump_to');
 		$this->set_module_variable('quickjump_to',$quickjump_to);
 
+		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
+
  		if (isset($quickjump) && $quickjump_to!='') {
 			foreach($this->columns as $k=>$v){ 
 				if (isset($v['quickjump'])){
@@ -467,6 +466,7 @@ class Utils_GenericBrowser extends Module {
 	}
 	
 	private function sort_data($data, $actions=null){
+		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
 		if(($order = $this->get_order()) && $order=$order[0]) {
 			$col = array();
 			foreach($data as $j=>$d)
@@ -563,6 +563,7 @@ class Utils_GenericBrowser extends Module {
 	 * @param bool enabling paging, true by default
 	 */
 	public function automatic_display($paging=true){
+		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
 		$rows = array();
 		$actions = array();
 		foreach($this->columns as $k=>$v)
@@ -625,6 +626,7 @@ class Utils_GenericBrowser extends Module {
 	 * @param bool enabling paging, true by default
 	 */
 	public function body($template=null,$paging=true){
+		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
 		$this->set_module_variable('first_display','done');
 		if (!$this->lang) $this->lang = & $this->init_module('Base/Lang');
 		$theme = & $this->init_module('Base/Theme');
