@@ -86,38 +86,12 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 		<div id="main_content"></div>
         
 		<div id="epesiStatus">
-
-<!-- SHADIW BEGIN -->
-	<div class="layer">
-		<div class="content">
-<!-- -->
-
 			<table cellspacing="0" cellpadding="0" border="0" style="width:100%;">
 				<tr>
 					<td style="text-align: center; vertical-align: center;"><img src="images/loader.gif" width="16" height="16" border="0"></td>
 					<td style="text-align: center; vertical-align: center;">Starting epesi...</td>
 				</tr>
 			</table>
-
-<!-- SHADOW END -->
- 		</div>
-		<div class="shadow-top">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-middle">
-			<div class="left"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-bottom">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
-	</div>
-<!-- -->
-
 		</div>
 
 		<?php
