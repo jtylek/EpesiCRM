@@ -32,12 +32,10 @@ class DBSession {
 	    	$_SESSION = unserialize($ret);
 	if(CID!==false && ($ret = DB::GetOne('SELECT data FROM session_client WHERE session_name = %s AND client_id=%d', array($name,CID))))
 		$_SESSION['client'] = unserialize($ret);
-//	file_put_contents('/tmp/sess_l',$data);
         return '';
     }
 
     public static function write($name, $data) {
-//	file_put_contents('/tmp/sess',$data);
 	$ret = true;
 	if(CID!==false && isset($_SESSION['client']))
 		$ret &= DB::Replace('session_client',array('data'=>serialize($_SESSION['client']),'session_name'=>$name,'client_id'=>CID),array('session_name','client_id'),true);
@@ -46,9 +44,6 @@ class DBSession {
         return ($ret>0)?true:false;
     }
     
-    public static function write_client() {
-    }
-
     public static function destroy($name) {
     	DB::StartTrans();
     	DB::Execute('DELETE FROM history WHERE session_name=%s',array($name));
@@ -60,9 +55,11 @@ class DBSession {
 
     public static function gc($lifetime) {
     	$t = time()-$lifetime;
+    	DB::StartTrans();
 	DB::Execute('DELETE FROM history WHERE session_name IN (SELECT name FROM session WHERE expires < %d)',array($t));
     	DB::Execute('DELETE FROM session_client WHERE session_name IN (SELECT name FROM session WHERE expires < %d)',array($t));
    	DB::Execute('DELETE FROM session WHERE expires < %d',array($t));
+    	DB::CompleteTrans();
         return true;
     }
 }
