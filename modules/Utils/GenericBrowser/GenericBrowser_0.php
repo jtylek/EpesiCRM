@@ -571,7 +571,7 @@ class Utils_GenericBrowser extends Module {
 		foreach($this->rows as $k=>$v){
 			if ($this->check_if_row_fits_array($v,$this->is_adv_search_on())) {
 				$rows[] = $v;
-				$actions[] = $this->actions[$k];
+				$actions[] = isset($this->actions[$k])?$this->actions[$k]:array();
 			}
 		}
 		$sorted = $this->sort_data($rows, $actions);
