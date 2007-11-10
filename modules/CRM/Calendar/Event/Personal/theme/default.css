@@ -1,0 +1,44 @@
+@CHARSET "ISO-8859-1";
+hr.small {
+	background: #000000;
+	height: 1px;
+}
+p.event {
+	font-size: 7px;
+	line-height: 11px;
+	margin: 4 0 2 0;
+	position: absolute;
+}
+.QForm_multiselect {
+	width: 100%;	
+	border: 1px double black;
+}
+.QForm_multiselect_left {
+	width: 100%;	
+}
+.QForm_multiselect_right {
+	width: 100%;	
+}
+table.form {
+	background: transparent;
+	white-space: nowrap;
+}
+table.form td {
+	background: transparent;
+}
+table.form td.nowrap {
+	white-space: nowrap;
+}
+table.form td.group_bottom {
+	border-bottom: 1px double black;
+}
+
+table.x_details td.x_show_details {
+		background: #BEbEbE;
+		color: blue;
+		width: 15px;
+		height: 100%;
+	}
+table.form span.error {
+	color: red;
+}

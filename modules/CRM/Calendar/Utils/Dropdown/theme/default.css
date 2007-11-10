@@ -1,0 +1,28 @@
+.CRM_Calendar_Utils_Dropdown_main {
+	border: 1px solid #333333;
+	background-color: #dddddd;
+	padding: 2px;
+}
+.CRM_Calendar_Utils_Dropdown_Hidden {
+	position: absolute;
+	visibility: hidden;
+	border: 1px solid black;
+	background-color: white;
+	padding: 2px;
+	text-align: left;
+	list-style-type: none;
+	z-index: 20020;
+}
+.CRM_Calendar_Utils_Dropdown_ul {
+	list-style-type: none;
+	margin: 0px;
+	padding: 0px;
+	overflow: auto;
+}
+
+.CRM_Calendar_Utils_Dropdown_Hidden_middle {
+	border-top: 1px solid black;
+	border-right: none;
+	border-bottom: 1px solid black;
+	border-left: none;
+}
