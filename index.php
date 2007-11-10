@@ -83,6 +83,7 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 		</style>
 	</head>
 	<body>
+		<div id="body_content">
 		<div id="main_content"></div>
         
 		<div id="epesiStatus">
@@ -99,6 +100,7 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 				print('<div id="debug" style="font-size: 0.7em;"></div>');
 		?>
 		<div id="error_box" onclick="this.innerHTML = ''"></div>
+		</div>
 		<script type="text/javascript">
 		<!--
 		history_call = function(history_id){
