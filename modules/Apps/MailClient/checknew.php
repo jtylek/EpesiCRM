@@ -2,6 +2,9 @@
 header("Cache-Control: no-cache, must-revalidate");
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // date in the past
 
+if(!isset($_GET['id']))
+	die('Invalid request');
+
 define('CID',false);
 require_once('../../../include.php');
 session_commit();
@@ -33,7 +36,7 @@ foreach($accounts as $account) {
 		continue;	
 	}
 
-	echo($account['mail'].': login<br>');
+	echo('<script>parent.$(\''.$_GET['id'].'\').innerHTML=\''.$account['mail'].': login\'</script>');
 	flush();
 
 	if($pop3) { //pop3
@@ -63,7 +66,7 @@ foreach($accounts as $account) {
 		continue;
 	}
 
-	echo($account['mail'].': getting messages<br>');
+	echo('<script>parent.$(\''.$_GET['id'].'\').innerHTML=\''.$account['mail'].': getting messages\'</script>');
 	flush();
 
 	$num = 0;
@@ -71,7 +74,7 @@ foreach($accounts as $account) {
 		$l = $in->getListing();
 		$count = count($l);
 		foreach($l as $msgl) {
-			echo($account['mail'].': '.$num.'/'.$count.'<br>');
+			echo('<script>parent.$(\''.$_GET['id'].'\').innerHTML=\''.$account['mail'].': '.$num.'/'.$count.'\'</script>');
 			flush();
 			$mbox->insert("From - ".date('D M d H:i:s Y')."\n".$in->getMsg($msgl['msg_id']));
 			$num++;

@@ -35,7 +35,7 @@ class HTML_QuickForm_commondata extends HTML_QuickForm_select {
 	} //end constructor
 	
 	function toHtml() {
-		if(count($this->_cd)>1) {
+		if(count($this->_cd)>1 && !$this->_flagFrozen) {
 			load_js('modules/Utils/CommonData/qf.js');
 			$id=$this->getAttribute('id');
 			if(!isset($id)) {

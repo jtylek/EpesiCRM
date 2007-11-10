@@ -689,7 +689,7 @@ class ModuleManager {
 			foreach ($required as $req_mod) { //for each dependency of that module
 				$req_mod['name'] = str_replace('/','_',$req_mod['name']);
 				if ($req_mod['name'] == $module_to_uninstall) {
-					print ($module_to_uninstall . ' module is required by ' . $obj['name'] . ' module! You have to uninstall ' . $obj['name'] . ' first.<br>');
+					print ($module_to_uninstall . ' module is required by ' . $name . ' module! You have to uninstall ' . $name . ' first.<br>');
 					return false;
 				}
 			}
