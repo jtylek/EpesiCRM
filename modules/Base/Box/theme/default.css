@@ -198,3 +198,70 @@ input, textarea, select {
 	text-align: center;
 	padding-left: 5px;
 }
+
+
+
+
+
+/*	=layer
+---------------------------------------------------------------------------- */
+
+.layer {
+	margin: 0px;
+	padding: 10px;
+	position: relative;
+}
+
+.layer .content {
+	position: relative;
+	z-index: 1;
+}
+
+/*	=shadow
+---------------------------------------------------------------------------- */
+
+.layer .left,
+.layer .right,
+.layer .center {
+	position: absolute;
+}
+
+.layer .shadow-top .left,
+.layer .shadow-top .right,
+.layer .shadow-bottom .left,
+.layer .shadow-bottom .right {
+	width: 20px;
+	height: 20px;
+	background-repeat: no-repeat;
+	background-position: 0 0;
+}
+
+.layer .shadow-top .center,
+.layer .shadow-bottom .center {
+	height: 10px;
+	right: 20px;
+	left: 20px;
+	background-repeat: repeat-x;
+}
+
+.layer .shadow-middle div {
+	width: 10px;
+	bottom: 20px;
+	top: 20px;
+	background-repeat: repeat-y;
+}
+
+.layer .shadow-top div { top: 0; }
+.layer .shadow-bottom div { bottom: 0; }
+
+.layer .left { left: 0; }
+.layer .right { right: 0; }
+
+.layer .shadow-top		.left	{ background-image: url('images/shadow/tl.png'); }
+.layer .shadow-top		.right	{ background-image: url('images/shadow/tr.png'); }
+.layer .shadow-bottom	.left	{ background-image: url('images/shadow/bl.png'); }
+.layer .shadow-bottom	.right	{ background-image: url('images/shadow/br.png'); }
+.layer .shadow-top		.center	{ background-image: url('images/shadow/t.png' ); }
+.layer .shadow-bottom	.center	{ background-image: url('images/shadow/b.png' ); }
+.layer .shadow-middle	.left	{ background-image: url('images/shadow/l.png' ); }
+.layer .shadow-middle	.right	{ background-image: url('images/shadow/r.png' ); }
