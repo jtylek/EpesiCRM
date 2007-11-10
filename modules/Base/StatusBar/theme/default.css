@@ -7,12 +7,6 @@
 }
 
 .Base_StatusBar {
-	font-family: "Tahoma" "Verdana" "Vera-Sans" "DejaVu-Sans";
-	font-size: 11px;
-	font-weight: bold;
-	color: #339933;
-	border: 1px solid #339933;
-	background-color: #e7f3e7;
 	z-index: 2001;
 	width: 300px;
   	position: fixed;
@@ -21,6 +15,15 @@
 	margin-left: -150px;
 	text-align: center;
 	vertical-align: middle;
+}
+
+.Base_StatusBar table {
+	font-family: "Tahoma" "Verdana" "Vera-Sans" "DejaVu-Sans";
+	font-size: 11px;
+	font-weight: bold;
+	color: #669933;
+	/*border: 1px solid #339933;*/
+	background-color: #ecf2e6;
 }
 
 .Base_StatusBar td.image {
