@@ -1,7 +1,6 @@
 <?php
 header("Cache-Control: no-cache, must-revalidate");
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // date in the past
-
 if(!isset($_GET['id']))
 	die('Invalid request');
 
@@ -16,6 +15,11 @@ if(!Acl::is_user()) die('Not logged in');
 ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
 require_once('Mail/Mbox.php');
 require_once('Mail/mimeDecode.php');
+
+function message($id,$text) {
+	echo('<script>parent.Apps_MailClient.progress_bar.set_text(parent.$(\''.$_GET['id'].'progresses\'),\''.$id.'\',\''.Epesi::escapeJS($text,false).'\')</script>');
+	flush();
+}
 
 $accounts = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE user_login_id=%d',array(Base_UserCommon::get_my_user_id()));
 foreach($accounts as $account) {
@@ -32,12 +36,11 @@ foreach($accounts as $account) {
 	$mbox = new Mail_Mbox(Apps_MailClientCommon::get_mail_dir().str_replace(array('@','.'),array('__at__','__dot__'),$account['mail']).'/Inbox.mbox');
 	if(($ret = $mbox->setTmpDir('data/Apps_MailClient/tmp'))===false 
 		|| ($ret = $mbox->open())===false) {
-		Base_StatusBarCommon::message($account['mail'].' - unable to open Inbox file');
+		message($account['id'],$account['mail'].': unable to open Inbox file');
 		continue;	
 	}
 
-	echo('<script>parent.$(\''.$_GET['id'].'\').innerHTML=\''.$account['mail'].': login\'</script>');
-	flush();
+	message($account['id'],$account['mail'].': login');
 
 	if($pop3) { //pop3
 		require_once('Net/POP3.php');
@@ -57,33 +60,31 @@ foreach($accounts as $account) {
 	}
 
 	if(PEAR::isError( $ret= $in->connect(($ssl?'ssl://':'').$host , $port) )) {
-		Base_StatusBarCommon::message($account['mail'].' - (connect error) '.$ret->getMessage());
+		message($account['id'],$account['mail'].': (connect error) '.$ret->getMessage());
 		continue;
 	}
 
 	if(PEAR::isError( $ret= $in->login($user , $pass, $method))) {
-		Base_StatusBarCommon::message($account['mail'].' - (login error) '.$ret->getMessage());
+		message($account['id'],$account['mail'].': (login error) '.$ret->getMessage());
 		continue;
 	}
-
-	echo('<script>parent.$(\''.$_GET['id'].'\').innerHTML=\''.$account['mail'].': getting messages\'</script>');
-	flush();
 
 	$num = 0;
 	if($pop3) {
 		$l = $in->getListing();
 		$count = count($l);
 		foreach($l as $msgl) {
-			echo('<script>parent.$(\''.$_GET['id'].'\').innerHTML=\''.$account['mail'].': '.$num.'/'.$count.'\'</script>');
-			flush();
+			message($account['id'],$account['mail'].': getting message '.$num.' of '.$count);
 			$mbox->insert("From - ".date('D M d H:i:s Y')."\n".$in->getMsg($msgl['msg_id']));
 			$num++;
+			echo('<script>parent.Apps_MailClient.progress_bar.set_progress(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\', '.ceil($num*100/$count).')</script>');
+			flush();
 		}
 	} else { //imap
 	}
 	$in->disconnect();
 	$mbox->close();
-	echo($account['mail'].': ok, got '.$num.' new messages<br>');
-	flush();
+	message($account['id'],$account['mail'].': ok, got '.$num.' new messages');
 }
+echo('<a href="javascript:parent.leightbox_deactivate(\''.$_GET['id'].'\')">hide</a>');
 ?>

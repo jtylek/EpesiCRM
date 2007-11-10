@@ -102,9 +102,8 @@ class Apps_MailClient extends Module {
 		
 		$checknew_id = $this->get_path().'checknew';
 		Base_ActionBarCommon::add('folder',$this->lang->t('Check'),'href="javascript:void(0)" rel="'.$checknew_id.'" class="lbOn" onMouseDown="$(\''.$checknew_id.'X\').src=\'modules/Apps/MailClient/checknew.php?'.http_build_query(array('id'=>$checknew_id,'t'=>microtime(true))).'\'"');
-		print('<div id="'.$checknew_id.'" class="leightbox">'.
-			'<iframe id="'.$checknew_id.'X" frameborder=0 scrolling="No" height="0" width="0"></iframe><br>'.
-//			'<a class="lbAction" rel="deactivate">Hide</a>'.
+		print('<div id="'.$checknew_id.'" class="leightbox"><div style="width:100%;text-align:center" id="'.$checknew_id.'progresses"></div>'.
+			'<iframe id="'.$checknew_id.'X" frameborder=0 scrolling="No" height="50" width="100%"></iframe>'.
 			'</div>');
 	}
 	

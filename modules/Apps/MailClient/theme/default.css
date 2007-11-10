@@ -1,0 +1,9 @@
+div.mail_progressbar_out {
+	border: 2px solid black;
+	width: 100%;
+}
+
+div.mail_progressbar_in {
+	background-color: yellow;
+	height: 20px;
+}
