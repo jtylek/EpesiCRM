@@ -282,13 +282,15 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$data = DB::Execute('SELECT * FROM '.$tab_name.'_data WHERE '.$tab_name.'_id=%d', array($row['id']));
 				$records[$row['id']] = array(	'id'=>$row['id'], 
 												'active'=>$row['active']);
-				while($field = $data->FetchRow())
+				while($field = $data->FetchRow()) {
+					if (!$admin && !self::check_if_value_valid($field)) continue;
 					if (self::$table_rows[$field['field']]['type'] == 'multiselect')
 						if (isset($records[$row['id']][$field['field']]))
 							$records[$row['id']][$field['field']][] = $field['value'];
 						else $records[$row['id']][$field['field']] = array($field['value']);
 					else 
 						$records[$row['id']][$field['field']] = $field['value'];
+				}
 				foreach(self::$table_rows as $field=>$args)
 					if (!isset($records[$row['id']][$field]))
 						if (self::$table_rows[$field]['type'] == 'multiselect') $records[$row['id']][$field] = array();
@@ -296,19 +298,38 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			}
 		return $records;
 	}
-	
+	public static function get_record_info($tab_name = null, $id = null) {
+		if (!$tab_name) return false;
+		if (!$id) return false;
+		$created = DB::GetRow('SELECT created_on, created_by FROM '.$tab_name.' WHERE id=%d', array($id));
+		$edited = DB::GetRow('SELECT edited_on, edited_by FROM '.$tab_name.'_edit_history WHERE '.$tab_name.'_id=%d ORDER BY edited_on DESC', array($id));
+		if (!isset($edited['edited_on'])) $edited['edited_on'] = null;
+		if (!isset($edited['edited_by'])) $edited['edited_by'] = null;
+		return array(	'created_on'=>$created['created_on'],'created_by'=>$created['created_by'],
+						'edited_on'=>$edited['edited_on'],'edited_by'=>$edited['edited_by']);
+	}
+	public static function get_html_record_info($tab_name = null, $id = null){
+			$info = Utils_RecordBrowserCommon::get_record_info($tab_name, $id);
+			return Base_LangCommon::ts('Utils_RecordBrowser','Created by').' '.Base_UserCommon::get_user_login($info['created_by']). '<br>'.
+					Base_LangCommon::ts('Utils_RecordBrowser','Created on').' '.$info['created_on']. '<br>'.
+					(($info['edited_by']!=null)?(
+					Base_LangCommon::ts('Utils_RecordBrowser','Edited by').' '.Base_UserCommon::get_user_login($info['edited_by']). '<br>'.
+					Base_LangCommon::ts('Utils_RecordBrowser','Edited on').' '.$info['edited_on']. '<br>'):'');
+	}
 	public static function get_record( $tab_name, $id, $admin = false) {
 		self::init($tab_name, $admin);
 		if( isset($id) ) {
 			$data = DB::Execute('SELECT * FROM '.$tab_name.'_data WHERE '.$tab_name.'_id=%d', array($id));
 			$record = array();
-			while($field = $data->FetchRow())
+			while($field = $data->FetchRow()) {
+				if (!$admin && !self::check_if_value_valid($field)) continue;
 				if (self::$table_rows[$field['field']]['type'] == 'multiselect')
 					if (isset($record[$field['field']]))
 						$record[$field['field']][] = $field['value'];
 					else $record[$field['field']] = array($field['value']);
 				else 
 					$record[$field['field']] = $field['value'];
+			}
 			if ($admin) { 
 				$row = DB::Execute('SELECT active, created_by, created_on FROM '.$tab_name.' WHERE true'.($admin?'':' AND active=1'))->FetchRow();
 				foreach(array('active','created_by','created_on') as $v)
@@ -319,6 +340,23 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		} else {
 			return '';
 		}
+	}
+	private static function check_if_value_valid($field) {
+		switch (self::$table_rows[$field['field']]['type']) {
+			 case 'multiselect':
+			 case 'select':
+			 			list($tab,$col) = explode('::', self::$table_rows[$field['field']]['param']);
+			 			if ($col!='__COMMON__') {
+			 				if ($field['value']!=='') 
+			 					if (!DB::GetOne('SELECT active FROM '.$tab.' WHERE id=%d', array($field['value']))) {
+/*			 						print('Invalid:<br>');
+			 						print_r($field);
+			 						print('<hr>');
+*/			 						return false;
+			 					}
+			 			}
+		}
+		return true;
 	}
 	public function create_linked_label($tab, $col, $id){
 		$label = DB::GetOne('SELECT value FROM '.$tab.'_data WHERE field=%s AND '.$tab.'_id=%d', array($col, $id));

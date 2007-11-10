@@ -128,7 +128,7 @@ class Utils_RecordBrowser extends Module {
 		if ($admin)
 			$table_columns = array(array('name'=>'Active', 'width'=>1));
 		else
-			$table_columns = array();
+			$table_columns = array(array('name'=>'Fav', 'width'=>1));
 		
 		$table_columns_SQL = array();
 		$quickjump = DB::GetOne('SELECT quickjump FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
@@ -146,7 +146,6 @@ class Utils_RecordBrowser extends Module {
 		if ($this->browse_mode == 'recent')
 			$table_columns[] = array('name'=>$this->lang->t('Visited on')); 
 		$gb->set_table_columns( $table_columns );
-		//print_r($gb->get_search_query(true));
 		$crits = array_merge($crits, $gb->get_search_query(true));
 		
 		$records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, $admin);
@@ -170,16 +169,18 @@ class Utils_RecordBrowser extends Module {
 			}
 			$records = $rec_tmp;
 		}
-		$limit = $gb->get_limit(count($records));
-		$count = -1;
+//		$limit = $gb->get_limit(count($records));
+//		$count = -1;
 		foreach ($records as $row) {
 			$gb_row = $gb->get_new_row();
 			if ($admin)
 				$row_data = array($row['active']?$this->lang->t('Yes'):$this->lang->t('No'));
-			else
-				$row_data = array();
-			$count++;
-			if ($count<$limit['offset'] || $count>=$limit['numrows']+$limit['offset']) continue;
+			else {
+				$isfav = DB::GetOne('SELECT user_id FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%d', array(Base_UserCommon::get_my_user_id(), $row['id']));
+				$row_data = array('<a '.Utils_TooltipCommon::open_tag_attrs(($isfav?$this->lang->t('This item is on your favourites list<br>Click to remove it from your favorites'):$this->lang->t('Click to add this item to favorites'))).' '.$this->create_callback_href(array($this,($isfav?'remove_from_favs':'add_to_favs')), array($row['id'])).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','star_'.($isfav==false?'no':'').'fav.png').'" /></a>');
+			}
+//			$count++;
+//			if ($count<$limit['offset'] || $count>=$limit['numrows']+$limit['offset']) continue;
 			
 			foreach($this->table_rows as $field => $args)
 				if (($args['visible'] && !isset($cols[$args['name']])) || (isset($cols[$args['name']]) && $cols[$args['name']] === true)) {
@@ -221,19 +222,20 @@ class Utils_RecordBrowser extends Module {
 			if ($fs_links===false) {
 				$gb_row->add_action($this->create_callback_href(array($this,'view_entry'),array('view',$row['id'])),$this->lang->t('View'));
 				$gb_row->add_action($this->create_callback_href(array($this,'view_entry'),array('edit',$row['id'])),$this->lang->t('Edit'));
-				$gb_row->add_action($this->create_callback_href(array($this,'view_entry'),array('delete',$row['id'])),$this->lang->t('Delete'));
 				if ($admin) {
 					if (!$row['active']) $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],true)),$this->lang->t('Activate'));
 					else $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],false)),$this->lang->t('Deactivate'));
-					$gb_row->add_action($this->create_callback_href(array($this,'view_edit_history'),array($row['id'])),$this->lang->t('View edit history'),null,'info');
-				}
+					$gb_row->add_action($this->create_callback_href(array($this,'view_edit_history'),array($row['id'])),$this->lang->t('View edit history'),null,'history');
+				} else 
+				$gb_row->add_action($this->create_callback_href(array($this,'view_entry'),array('delete',$row['id'])),$this->lang->t('Delete'));
 			} else {
 				$gb_row->add_action($this->create_href(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($this->tab), 'tab'=>$this->tab, 'id'=>$row['id'], 'action'=>'view')),$this->lang->t('View'));
 				$gb_row->add_action($this->create_href(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($this->tab), 'tab'=>$this->tab, 'id'=>$row['id'], 'action'=>'edit')),$this->lang->t('Edit'));
 				$gb_row->add_action($this->create_href(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($this->tab), 'tab'=>$this->tab, 'id'=>$row['id'], 'action'=>'delete')),$this->lang->t('Delete'));
 			}
+			$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info($this->tab, $row['id']));
 		}
-		$this->display_module($gb);
+		$this->display_module($gb, null, 'automatic_display');
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
 	public function view_entry($mode, $id = null, $defaults = array()) {
@@ -271,16 +273,17 @@ class Utils_RecordBrowser extends Module {
 
 		if ($mode=='view') { 
 			Base_ActionBarCommon::add('edit', $this->lang->ht('Edit'), $this->create_callback_href(array($this,'view_entry'), array('edit',$id)));
-			Base_ActionBarCommon::add('back', $this->lang->ht('Back'), $this->create_callback_href(array('History', 'back')));
+			Base_ActionBarCommon::add('back', $this->lang->ht('Back'), $this->create_back_href());
 		} else if ($mode=='delete') {
 			Base_ActionBarCommon::add('delete', $this->lang->ht('Delete'), $form->get_submit_form_href());
-			Base_ActionBarCommon::add('back', $this->lang->ht('Back'), $this->create_callback_href(array('History', 'back')));
+			Base_ActionBarCommon::add('back', $this->lang->ht('Back'), $this->create_back_href());
 		} else {
 			Base_ActionBarCommon::add('save', $this->lang->ht('Save'), $form->get_submit_form_href());
-			Base_ActionBarCommon::add('delete', $this->lang->ht('Cancel'), $this->create_callback_href(array('History', 'back')));
+			Base_ActionBarCommon::add('delete', $this->lang->ht('Cancel'), $this->create_back_href());
 		}
-		
+
 		if ($mode!='add') {
+			Base_ActionBarCommon::add('report', $this->lang->ht('Info'), 'javascript:void(0)', Utils_RecordBrowserCommon::get_html_record_info($this->tab, $id));
 			$fav = DB::GetOne('SELECT user_id FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%s', array(Base_UserCommon::get_my_user_id(), $id));
 			if ($fav===false)
 				Base_ActionBarCommon::add('folder', $this->lang->ht('Add to Favs'), $this->create_callback_href(array($this,'add_to_favs'), array($id)));
@@ -465,7 +468,7 @@ class Utils_RecordBrowser extends Module {
 	public function update_record_data($id,$values) {
 		DB::StartTrans();	
 		$this->init();
-		$records = Utils_RecordBrowserCommon::get_records($this->tab);
+		$records = Utils_RecordBrowserCommon::get_records($this->tab, null, true);
 		$diff = array();
 		foreach($this->table_rows as $field => $args){
 			if ($args['id']=='id') continue;
@@ -771,6 +774,7 @@ class Utils_RecordBrowser extends Module {
 						);
 		foreach($this->table_rows as $field => $args) {
 			if ($field=='id') continue;
+			if (!isset($created[$field])) $created[$field] = '';
 			if (is_array($created[$field])) {
 				$val = '';
 				foreach($created[$field] as $v)

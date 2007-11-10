@@ -471,7 +471,7 @@ class Utils_GenericBrowser extends Module {
 			$col = array();
 			foreach($data as $j=>$d)
 				foreach($d as $i=>$c)
-					if($this->columns[$i]['order']==$order['order']) {
+					if(isset($this->columns[$i]['order']) && $this->columns[$i]['order']==$order['order']) {
 						if(is_array($c)) $xxx = $c['value'];
 							else $xxx = $c;
 						if(isset($this->columns[$i]['order_eregi'])) {
@@ -840,8 +840,8 @@ class Utils_GenericBrowser extends Module {
 				if((!Base_AclCommon::i_am_sa() || !Base_MaintenanceModeCommon::get_mode()) && ((array_key_exists('display',$this->columns[$k]) && $this->columns[$k]['display']==false) || !$col_pos[$k]['display'])) continue;
 				$col[$col_pos[$k]['pos']]['attrs'] = '';
 				if (!is_array($v)) $v = array('value'=>$v);
-				if ($v['value']=='')
-					$col[$col_pos[$k]['pos']]['label'] = '&nbsp;';
+				if (trim(strip_tags($v['value']),' ')=='')
+					$col[$col_pos[$k]['pos']]['label'] = $v['value'].'&nbsp;';
 				else
 					$col[$col_pos[$k]['pos']]['label'] = $v['value'];
 				$col[$col_pos[$k]['pos']]['attrs'] = isset($v['style'])? 'style="'.$v['style'].'"':'';
