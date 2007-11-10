@@ -19,7 +19,7 @@ class Libs_ScriptAculoUsInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array('1.8.0_pre1');
+		return array('1.8.0');
 	}
 	public function requires($v) {
 		return array();
