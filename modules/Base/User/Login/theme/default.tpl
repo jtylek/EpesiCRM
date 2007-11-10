@@ -11,18 +11,10 @@
     <!-- Display the fields -->
 		<center>
 
-<!-- poprawic cien - jako funkcje -->
-<table id="shadow" cellpadding="0" cellspacing="0" border="0">
-    <tbody>
-    <tr>
-        <td class="td-5x5 p-top top-left">&nbsp;</td>
-        <td class="td-h-5 p-top top-center">&nbsp;</td>
-        <td class="td-5x5 p-top top-right">&nbsp;</td>
-    </tr>
-    <tr>
-        <td class="td-w-5 p-left center-left">&nbsp;</td>
-        <td class="center-center">
-        <!-- -->
+<!-- SHADIW BEGIN -->
+	<div class="layer" style="padding: 9px; width: 550px;">
+		<div class="content">
+<!-- -->
 
 	    <table id="Base_User_Login" cellspacing="0" cellpadding="0" border="0">
             <tbody>
@@ -60,18 +52,24 @@
             </tbody>
 		</table>
 
-        <!-- -->
-        </td>
-        <td class="td-w-5 p-right center-right">&nbsp;</td>
-    </tr>
-    <tr>
-        <td class="td-5x5 p-bottom bottom-left">&nbsp;</td>
-        <td class="td-h-5 p-bottom bottom-center">&nbsp;</td>
-        <td class="td-5x5 p-bottom bottom-right">&nbsp;</td>
-    </tr>
-    </tbody>
-</table>
-
+<!-- SHADOW END -->
+ 		</div>
+		<div class="shadow-top">
+			<div class="left"></div>
+			<div class="center"></div>
+			<div class="right"></div>
+		</div>
+		<div class="shadow-middle">
+			<div class="left"></div>
+			<div class="right"></div>
+		</div>
+		<div class="shadow-bottom">
+			<div class="left"></div>
+			<div class="center"></div>
+			<div class="right"></div>
+		</div>
+	</div>
+<!-- -->
 
 
 
