@@ -29,7 +29,7 @@ class Tools_WhoIsOnlineCommon extends ModuleCommon {
 	}
 	
 	public static function get() {
-		DB::Execute('delete from tools_whoisonline_users where session_name not in (select session_name from session)');
+		DB::Execute('delete from tools_whoisonline_users where session_name not in (select name from session)');
 		$ret = DB::Execute('SELECT ul.login FROM tools_whoisonline_users twu INNER JOIN user_login ul on ul.id=twu.user_login_id');
 		$all = array();
 		while($r = $ret->FetchRow())
