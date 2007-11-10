@@ -1,3 +1,5 @@
+// script.aculo.us dragdrop.js v1.8.0, Tue Nov 06 15:01:40 +0300 2007
+
 // Copyright (c) 2005-2007 Thomas Fuchs (http://script.aculo.us, http://mir.aculo.us)
 //           (c) 2005-2007 Sammi Williams (http://www.oriontransfer.co.nz, sammi@oriontransfer.co.nz)
 // 
@@ -646,7 +648,6 @@ var Sortable = {
       elements:    false,
       handles:     false,
       
-      onDrop:	   Prototype.emptyFunction,
       onChange:    Prototype.emptyFunction,
       onUpdate:    Prototype.emptyFunction
     }, arguments[1] || { });
@@ -689,16 +690,14 @@ var Sortable = {
       containment: options.containment,
       tree:        options.tree,
       hoverclass:  options.hoverclass,
-      onHover:     Sortable.onHover,
-      onDrop:      options.onDrop
+      onHover:     Sortable.onHover
     }
     
     var options_for_tree = {
       onHover:      Sortable.onEmptyHover,
       overlap:      options.overlap,
       containment:  options.containment,
-      hoverclass:   options.hoverclass,
-      onDrop:      options.onDrop
+      hoverclass:   options.hoverclass
     }
 
     // fix for gecko engine

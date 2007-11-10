@@ -1,3 +1,5 @@
+// script.aculo.us sound.js v1.8.0, Tue Nov 06 15:01:40 +0300 2007
+
 // Copyright (c) 2005-2007 Thomas Fuchs (http://script.aculo.us, http://mir.aculo.us)
 //
 // Based on code created by Jules Gravinese (http://www.webveteran.com/)
