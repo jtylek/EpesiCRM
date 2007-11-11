@@ -46,10 +46,11 @@ class Apps_MailClient extends Module {
 
 		$gb = $this->init_module('Utils/GenericBrowser',null,'list');
 		$gb->set_table_columns(array(
-			array('name'=>$this->lang->t('Subject'), 'search'=>1, 'order'=>'subj','order_eregi'=>'^<a [^<>]*>([^<>]*)</a>$'),
-			array('name'=>$this->lang->t('From'), 'search'=>1,'quickjump'=>1, 'order'=>'from'),
-			array('name'=>$this->lang->t('Date'), 'search'=>1, 'order'=>'date'),
-			array('name'=>$this->lang->t('Size'), 'search'=>1, 'order'=>'size')
+			array('name'=>$this->lang->t('ID'), 'order'=>'id','width'=>'3'),
+			array('name'=>$this->lang->t('Subject'), 'search'=>1, 'order'=>'subj','order_eregi'=>'^<a [^<>]*>([^<>]*)</a>$','width'=>'40'),
+			array('name'=>$this->lang->t('From'), 'search'=>1,'quickjump'=>1, 'order'=>'from','width'=>'32'),
+			array('name'=>$this->lang->t('Date'), 'search'=>1, 'order'=>'date','width'=>'15'),
+			array('name'=>$this->lang->t('Size'), 'search'=>1, 'order'=>'size','width'=>'10')
 			));
 	
 		$limit_max = count($mbox);
@@ -58,8 +59,9 @@ class Apps_MailClient extends Module {
 	
 		foreach($mbox as $id=>$data) {
 			$r = $gb->get_new_row();
-			$r->add_data('<a href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$id, 'pid'=>$preview_id)).'\')">'.$data['subject'].'</a>',$data['from'],Base_RegionalSettingsCommon::time2reg($data['date']),$data['size']);
+			$r->add_data($id,'<a href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$id, 'pid'=>$preview_id)).'\')">'.htmlentities($data['subject']).'</a>',htmlentities($data['from']),Base_RegionalSettingsCommon::time2reg($data['date']),$data['size']);
 			$r->add_action('href="javascript:void(0)" rel="'.$show_id.'" class="lbOn" onMouseDown="Apps_MailClient.preview(\''.$show_id.'\',\''.http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$id, 'pid'=>$show_id)).'\')"','View');
+			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Delete this message?'),array($this,'delete_message'),array($mbox_file,$id)),'Delete');
 		}
 		
 		$th->assign('list', $this->get_html_of_module($gb,array(true),'automatic_display'));
@@ -103,6 +105,13 @@ class Apps_MailClient extends Module {
 	
 	public function open_mail_dir_callback($path) {
 		$this->set_module_variable('opened_mbox',$path);
+	}
+	
+	public function delete_message($box,$id) {
+		if(Apps_MailClientCommon::delete_msg($box,$id))
+			Base_StatusBarCommon::message('Message deleted');
+		else
+			Base_StatusBarCommon::message('Unable to delete message','error');
 	}
 
 	////////////////////////////////////////////////////////////

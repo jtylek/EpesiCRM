@@ -33,7 +33,9 @@ foreach($accounts as $account) {
 	$method = $account['incoming_method']!='auto'?$account['incoming_method']:null;
 	$pop3 = ($account['incoming_protocol']==0);
 	
-	$mbox = new Mail_Mbox(Apps_MailClientCommon::get_mail_dir().str_replace(array('@','.'),array('__at__','__dot__'),$account['mail']).'/Inbox.mbox');
+	$box = str_replace(array('@','.'),array('__at__','__dot__'),$account['mail']).'/Inbox';
+	
+	$mbox = new Mail_Mbox(Apps_MailClientCommon::get_mail_dir().$box.'.mbox');
 	if(($ret = $mbox->setTmpDir('data/Apps_MailClient/tmp'))===false 
 		|| ($ret = $mbox->open())===false) {
 		message($account['id'],$account['mail'].': unable to open Inbox file');
@@ -70,12 +72,23 @@ foreach($accounts as $account) {
 	}
 
 	$num = 0;
+	$error = false;
 	if($pop3) {
 		$l = $in->getListing();
 		$count = count($l);
 		foreach($l as $msgl) {
 			message($account['id'],$account['mail'].': getting message '.$num.' of '.$count);
-			$mbox->insert("From - ".date('D M d H:i:s Y')."\n".$in->getMsg($msgl['msg_id']));
+			$msg = $in->getMsg($msgl['msg_id']);
+			$msg_id = $mbox->size();
+			$mbox->insert("From - ".date('D M d H:i:s Y')."\n".$msg);
+			$decode = new Mail_mimeDecode($msg, "\r\n");
+			$structure = $decode->decode();
+			if(!Apps_MailClientCommon::append_msg_to_index($box,$msg_id,$structure->headers['subject'],$structure->headers['from'],$structure->headers['date'],strlen($msg))) {
+				message($account['id'],$account['mail'].': broken index file');
+				$mbox->delete($msg_id);
+				$error = true;
+				break;
+			}
 			$num++;
 			echo('<script>parent.Apps_MailClient.progress_bar.set_progress(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\', '.ceil($num*100/$count).')</script>');
 			flush();
@@ -84,7 +97,8 @@ foreach($accounts as $account) {
 	}
 	$in->disconnect();
 	$mbox->close();
-	message($account['id'],$account['mail'].': ok, got '.$num.' new messages');
+	if(!$error)
+		message($account['id'],$account['mail'].': ok, got '.$num.' new messages');
 }
 echo('<a href="javascript:parent.leightbox_deactivate(\''.$_GET['id'].'\')">hide</a>');
 ?>

@@ -112,7 +112,6 @@ class Apps_MailClientCommon extends ModuleCommon {
 		ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
 		require_once('Mail/Mbox.php');
 		require_once('Mail/mimeDecode.php');
-		print($boxpath.'.mbox');
 		$mbox = new Mail_Mbox($boxpath.'.mbox');
 		if(($ret = $mbox->setTmpDir(self::Instance()->get_data_dir().'tmp'))===true && ($ret = $mbox->open())===true) {
 			$limit_max = $mbox->size();
@@ -124,9 +123,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 				$decode = new Mail_mimeDecode($message, "\r\n");
 				$structure = $decode->decode();
 			
-				$from = htmlentities($structure->headers['from']);
-				$subject = htmlentities($structure->headers['subject']);
-				fputcsv($out, array($n,substr($subject,0,256),substr($from,0,256),substr($structure->headers['date'],0,64),substr(strlen($message),0,64)));
+				fputcsv($out, array($n,substr($structure->headers['subject'],0,256),substr($structure->headers['from'],0,256),substr($structure->headers['date'],0,64),substr(strlen($message),0,64)));
 			}
 			fclose($out);
 			$mbox->close();
@@ -136,7 +133,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 	}
 	
 	public static function get_index($box) {
-		$box = Apps_MailClientCommon::get_mail_dir().$box;
+		$box = Apps_MailClientCommon::get_mail_dir().ltrim($box,'/');
 		if(!file_exists($box.'.idx')) self::build_index($box);
 		$in = @fopen($box.'.idx','r');
 		if($in==false) return false;
@@ -150,8 +147,35 @@ class Apps_MailClientCommon extends ModuleCommon {
 		return $ret;
 	}
 	
+	public static function delete_msg($box, $id) {
+		ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
+		require_once('Mail/Mbox.php');
+		require_once('Mail/mimeDecode.php');
+
+		$idx = self::get_index($box);
+		
+		$boxpath = self::get_mail_dir().ltrim($box,'/');
+		$mbox = new Mail_Mbox($boxpath.'.mbox');
+		if(($ret = $mbox->setTmpDir(self::Instance()->get_data_dir().'tmp'))===true && ($ret = $mbox->open())===true) {
+			if($mbox->size()<=$id) return false;
+			$mbox->remove($id);
+		}
+		$mbox->close();
+
+		if($idx===false) return false;
+		$box = Apps_MailClientCommon::get_mail_dir().$box;
+		$out = @fopen($box.'.idx','w');
+		if($out==false) return false;
+		unset($idx[$id]);
+		$idx = array_values($idx);
+		foreach($idx as $id=>$d)
+			fputcsv($out, array($id,substr($d['subject'],0,256),substr($d['from'],0,256),substr($d['date'],0,64),substr($d['size'],0,64)));
+		fclose($out);
+		return true;
+	}
+	
 	public static function append_msg_to_index($box, $id, $subject, $from, $date, $size) {
-		$box = self::get_mail_dir().$box;
+		$box = self::get_mail_dir().ltrim($box,'/');
 		$out = @fopen($box.'.idx','a');
 		if($out==false) return false;
 		fputcsv($out,array($id, substr($subject,0,256), substr($from,0,256), substr($date,0,64), substr($size,0,64)));
