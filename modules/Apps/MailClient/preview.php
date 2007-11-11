@@ -30,6 +30,7 @@ if(($ret = $mbox->setTmpDir(Apps_MailClientCommon::Instance()->get_data_dir().'t
 	$decode = new Mail_mimeDecode($message, "\r\n");
 	$structure = $decode->decode(array('decode_bodies'=>true,'include_bodies'=>true));
 	
+	
 	if(isset($_GET['attachment'])) {
 		if(isset($structure->parts)) {
 			$parts = $structure->parts;
@@ -54,13 +55,8 @@ if(($ret = $mbox->setTmpDir(Apps_MailClientCommon::Instance()->get_data_dir().'t
 		$body_type = false;
 		$body_ctype = false;
 		$attachments = array();
-		if(isset($structure->body) && $structure->ctype_primary=='text') {
-			$body = $structure->body;
-			$body_type = $structure->ctype_secondary;
-			$body_ctype = isset($structure->headers['content-type'])?$structure->headers['content-type']:'text/'.$body_type;
-		}
-		
-		if(isset($structure->parts)) {
+	
+		if($structure->ctype_primary=='multipart' && isset($structure->parts)) {
 			$parts = $structure->parts;
 			for($i=0; $i<count($parts); $i++) {
 				$part = $parts[$i];
@@ -79,24 +75,37 @@ if(($ret = $mbox->setTmpDir(Apps_MailClientCommon::Instance()->get_data_dir().'t
 				if(isset($part->ctype_parameters['name']))
 					$attachments[] = $part->ctype_parameters['name']; //nie moze byc po name, powinno byc po jakims id
 			}
+		} elseif(isset($structure->body) && $structure->ctype_primary=='text') {
+			$body = $structure->body;
+			$body_type = $structure->ctype_secondary;
+			$body_ctype = isset($structure->headers['content-type'])?$structure->headers['content-type']:'text/'.$body_type;
 		}
+
 		if($body===false) die('invalid message');
-		header("Content-type: text/html");
-		if($body_type=='plain')
-			$body = '<html>'.
-				'<head><meta http-equiv=Content-Type content="'.$body_ctype.'"></head>'.
-				'<body><pre>'.$body.'</pre></body>'.
-				'</html>';
 		
 		$body = preg_replace('/"cid:(\w+\.\w+)@(\w+\.\w+)"/','"preview.php?'.http_build_query($_GET).'&attachment=$1"',$body);
 		
 		$ret_attachments = '';
 		if($attachments) {
-			$ret_attachments = '<hr>';
 			foreach($attachments as $a)
-				$ret_attachments .= '<a href="preview.php?'.http_build_query(array_merge($_GET,array('attachment'=>$a))).'">'.$a.'</a><br>';
+				$ret_attachments .= '<a target="_blank" href="modules/Apps/MailClient/preview.php?'.http_build_query(array_merge($_GET,array('attachment'=>$a))).'">'.$a.'</a><br>';
 		}
-		echo $body.$ret_attachments;
+		
+		$script = 'parent.$(\''.$_GET['pid'].'_subject\').innerHTML=\''.Epesi::escapeJS(htmlentities($structure->headers['subject']),false).'\';'.
+			'parent.$(\''.$_GET['pid'].'_from\').innerHTML=\''.Epesi::escapeJS(htmlentities($structure->headers['from']),false).'\';'.
+			'parent.$(\''.$_GET['pid'].'_attachments\').innerHTML=\''.Epesi::escapeJS($ret_attachments,false).'\';';
+		
+		header("Content-type: text/html");
+		if($body_type=='plain')
+			$body = '<html>'.
+				'<head><meta http-equiv=Content-Type content="'.$body_ctype.'"></head>'.
+				'<body><pre>'.$body.'</pre></body>';
+		else
+			$body = substr($body,0,stripos($body,'</html>'));
+		$body .= '<script>'.$script.'</script>'.
+				'</html>';
+
+		echo $body;
 	}
 	
 } else {

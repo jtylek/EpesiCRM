@@ -107,6 +107,57 @@ class Apps_MailClientCommon extends ModuleCommon {
 			}
 		return $ret;
 	}
+	
+	public static function build_index($boxpath) {
+		ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
+		require_once('Mail/Mbox.php');
+		require_once('Mail/mimeDecode.php');
+		print($boxpath.'.mbox');
+		$mbox = new Mail_Mbox($boxpath.'.mbox');
+		if(($ret = $mbox->setTmpDir(self::Instance()->get_data_dir().'tmp'))===true && ($ret = $mbox->open())===true) {
+			$limit_max = $mbox->size();
+			$out = @fopen($boxpath.'.idx','w');
+			if($out==false) return false;
+			for ($n = 0; $n < $limit_max; $n++) {
+				if(PEAR::isError($message = $mbox->get($n)))
+					continue;
+				$decode = new Mail_mimeDecode($message, "\r\n");
+				$structure = $decode->decode();
+			
+				$from = htmlentities($structure->headers['from']);
+				$subject = htmlentities($structure->headers['subject']);
+				fputcsv($out, array($n,substr($subject,0,256),substr($from,0,256),substr($structure->headers['date'],0,64),substr(strlen($message),0,64)));
+			}
+			fclose($out);
+			$mbox->close();
+			return true;
+		}
+		return false;
+	}
+	
+	public static function get_index($box) {
+		$box = Apps_MailClientCommon::get_mail_dir().$box;
+		if(!file_exists($box.'.idx')) self::build_index($box);
+		$in = @fopen($box.'.idx','r');
+		if($in==false) return false;
+		$ret = array();
+		while (($data = fgetcsv($in, 660)) !== false) { //teoretically max is 640+integer and commas
+			$num = count($data);
+			if($num!=5) continue;
+			$ret[$data[0]] = array('from'=>$data[2], 'date'=>$data[3], 'subject'=>$data[1], 'size'=>$data[4]);
+		}
+		fclose($in);
+		return $ret;
+	}
+	
+	public static function append_msg_to_index($box, $id, $subject, $from, $date, $size) {
+		$box = self::get_mail_dir().$box;
+		$out = @fopen($box.'.idx','a');
+		if($out==false) return false;
+		fputcsv($out,array($id, substr($subject,0,256), substr($from,0,256), substr($date,0,64), substr($size,0,64)));
+		fclose($out);
+		return true;
+	}
 }
 
 ?>

@@ -9,10 +9,6 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
-require_once('Mail/Mbox.php');
-require_once('Mail/mimeDecode.php');
-
 class Apps_MailClient extends Module {
 	private $lang;
 	
@@ -42,58 +38,41 @@ class Apps_MailClient extends Module {
 		$tree->sort();
 		$th->assign('tree', $this->get_html_of_module($tree));
 		
-		$mbox = new Mail_Mbox(Apps_MailClientCommon::get_mail_dir().ltrim($mbox_file,'/').'.mbox');
-		if(($ret = $mbox->setTmpDir($this->get_data_dir().'tmp'))===true && ($ret = $mbox->open())===true) {
-			$gb = $this->init_module('Utils/GenericBrowser',null,'list');
-			$gb->set_table_columns(array(
-				array('name'=>$this->lang->t('Subject')),
-				array('name'=>$this->lang->t('From')),
-				array('name'=>$this->lang->t('Date')),
-				array('name'=>$this->lang->t('Size'))
-				));
-		
-			$limit_max = $mbox->size();
-			$limit = $gb->get_limit($limit_max);
-			$limit_max2 = $limit['offset']+$limit['numrows'];
-			if($limit_max2>$limit_max) $limit_max2=$limit_max;
-		
-			$message = null;
-			
-			load_js($this->get_module_dir().'utils.js');
-		
-			for ($n = $limit['offset']; $n < $limit_max2; $n++) {
-				if(PEAR::isError($message = $mbox->get($n))) {
-					$limit_max2 +=1;
-					if($limit_max2>$limit_max) $limit_max2=$limit_max;
-					continue;
-				}
-				$decode = new Mail_mimeDecode($message, "\r\n");
-				$structure = $decode->decode();
-			
-				$r = $gb->get_new_row();
-				$from = htmlentities($structure->headers['from']);
-				$subject = htmlentities($structure->headers['subject']);
-				$r->add_data('<a href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$n)).'\',\''.Epesi::escapeJS($subject,true,false).'\',\''.Epesi::escapeJS($from,true,false).'\')">'.$subject.'</a>',$from,$structure->headers['date'],strlen($message));
-				//print('"Apps_MailClient.preview(\''.$preview_id.'\',\''.Epesi::escapeJS(http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$n)),true,false).'\',\''.Epesi::escapeJS($subject,true,false).'\',\''.Epesi::escapeJS($from,true,false).'\')"<br>');
-				$r->add_action('href="javascript:void(0)" rel="'.$show_id.'" class="lbOn" onMouseDown="Apps_MailClient.preview(\''.$show_id.'\',\''.http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$n)).'\',\''.Epesi::escapeJS($subject,true,false).'\',\''.Epesi::escapeJS($from,true,false).'\')"','View');
-				//$r->add_action($this->create_confirm_callback_href($this->lang->t('Do you really want to delete this message'),array()),'Delete');//TODO
-			}
-		
-		} else {
-			print($ret->getMessage());
+		$mbox = Apps_MailClientCommon::get_index(ltrim($mbox_file,'/'));
+		if($mbox===false) {
+			print('Invalid mailbox');
 			return;
 		}
-		$mbox->close();
 
-		$th->assign('list', $this->get_html_of_module($gb));
+		$gb = $this->init_module('Utils/GenericBrowser',null,'list');
+		$gb->set_table_columns(array(
+			array('name'=>$this->lang->t('Subject'), 'search'=>1, 'order'=>'subj','order_eregi'=>'^<a [^<>]*>([^<>]*)</a>$'),
+			array('name'=>$this->lang->t('From'), 'search'=>1,'quickjump'=>1, 'order'=>'from'),
+			array('name'=>$this->lang->t('Date'), 'search'=>1, 'order'=>'date'),
+			array('name'=>$this->lang->t('Size'), 'search'=>1, 'order'=>'size')
+			));
+	
+		$limit_max = count($mbox);
+		
+		load_js($this->get_module_dir().'utils.js');
+	
+		foreach($mbox as $id=>$data) {
+			$r = $gb->get_new_row();
+			$r->add_data('<a href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$id, 'pid'=>$preview_id)).'\')">'.$data['subject'].'</a>',$data['from'],Base_RegionalSettingsCommon::time2reg($data['date']),$data['size']);
+			$r->add_action('href="javascript:void(0)" rel="'.$show_id.'" class="lbOn" onMouseDown="Apps_MailClient.preview(\''.$show_id.'\',\''.http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$id, 'pid'=>$show_id)).'\')"','View');
+		}
+		
+		$th->assign('list', $this->get_html_of_module($gb,array(true),'automatic_display'));
 		$th->assign('preview_subject','<div id="'.$preview_id.'_subject"></div>');
 		$th->assign('preview_from','<div id="'.$preview_id.'_from"></div>');
-		$th->assign('preview_body','<iframe id="'.$preview_id.'_body" style="width:100%"></iframe>');
+		$th->assign('preview_attachments','<div id="'.$preview_id.'_attachments"></div>');
+		$th->assign('preview_body','<iframe id="'.$preview_id.'_body" style="width:100%;height:70%"></iframe>');
 		$th->display();
 
 		$th_show = $this->init_module('Base/Theme');
 		$th_show->assign('subject','<div id="'.$show_id.'_subject"></div>');
 		$th_show->assign('from','<div id="'.$show_id.'_from"></div>');
+		$th_show->assign('attachments','<div id="'.$show_id.'_attachments"></div>');
 		$th_show->assign('body','<iframe id="'.$show_id.'_body" style="width:95%;height:90%"></iframe>');
 		$th_show->assign('close','<a class="lbAction" rel="deactivate">Close</a>');
 		print('<div id="'.$show_id.'" class="leightbox">');

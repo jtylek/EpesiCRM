@@ -682,8 +682,8 @@ abstract class Module extends ModulePrimitive {
 	 * Attention: do not pass the result of this function by one module to another module.
 	 * 
 	 * @param module child module
-	 * @param mixed arguments
 	 * @param string function to call (get output from), if user has enought privileges.
+	 * @param mixed arguments
 	 * @return mixed if access denied returns false, else string
 	 */
 	public final function get_html_of_module(& $m, $args=null, $function_name = 'body') {
