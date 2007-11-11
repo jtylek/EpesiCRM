@@ -48,6 +48,8 @@ table.week {
 
 table.week td {
 	height: 21px;
+	padding: 0px;
+	margin: 0px;
 }
 
 table.week td.header {
@@ -57,12 +59,12 @@ table.week td.header {
 }
 
 table.week td.hours_header {
-	width: 5%;
+	width: 20%;
 	border: 0px;
 }
 
 table.week td.hours_header_lower {
-	width: 5%;
+	width: 20%;
 	border: 0px;
 }
 
@@ -109,6 +111,7 @@ table.week td.header_month {
 	height: 20px;
 	border: 0px;
 	padding-left: 10px;
+	width: 80%;
 }
 
 table.week td.header_month a {
@@ -126,7 +129,7 @@ table.week td.today {
 }
 
 table.week td.hour {
-	width: 5%;
+	width: 20%;
 	vertical-align: top;
 	color: #000000;
 	border: 1px solid #B3B3B3;
@@ -147,7 +150,7 @@ table.week td.inter {
 }
 
 table.week td.midday_hour {
-	width: 5%;
+	width: 20%;
 	vertical-align: top;
 	color: #000000;
 	border: 1px solid #B3B3B3;
@@ -179,13 +182,41 @@ div.events {
 }
 
 div.events_brief {
-	background-color: #336699;
-	background-image: url('images/header-blue-hover.png');
+	background-color: #cfe6cf;
 	background-repeat: repeat-x;
-	color: #FFFFFF;
+	color: #000000;
 	height: 20px;
 	font-weight: normal;
 	border: 0px;
 	padding: 0px;
 	margin: 0px;
+}
+
+div.events_brief img {
+	vertical-align: middle;
+}
+
+div.day-menu {
+	padding-bottom: 20px;
+}
+
+div.day-menu img {
+	vertical-align: middle;
+}
+
+div.day-menu a.button {
+    font-weight: normal;
+    color: #FFFFFF;
+    width: 100px;
+    line-height: 20px;
+    height: 20px;
+    display: block;
+    background-image: url("images/header-blue.png");
+    border: 0px;
+    text-align: center;
+}
+
+div.day-menu a.button:hover {
+    background-image: url("images/header-blue-hover.png");
+
 }

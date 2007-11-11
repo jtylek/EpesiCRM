@@ -5,7 +5,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 	public function show($name,$function = '',$fullscreen=true,$top=0,$left=0) {
 		Base_ThemeCommon::load_css('Utils_Calendar');
 		load_js('modules/Utils/Calendar/js/main.js');
-		
+
 		$label = 'Select date';
 		$calendar = '<div id="Utils_Calendar">'.
 			'<table><tr><td id="datepicker_'.$name.'_header">error</td></tr>'.
@@ -13,7 +13,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 		$ret = '';
 		if($fullscreen) {
 			$entry = 'datepicker_'.$name.'_calendar';
-			$ret = '<a rel="'.$entry.'" class="lbOn">'.$label.'</a>';
+			$ret = '<a rel="'.$entry.'" class="button lbOn">'.$label.'</a>';
 
 			$ret .= '<div id="'.$entry.'" class="leightbox">'.
 				$calendar.
@@ -30,7 +30,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 				'</div>';
 			$function .= ';$(\''.$entry.'\').hide()';
 		}
-		
+
 		eval_js(
 			'var datepicker_'.$name.' = new Utils_Calendar("'.Epesi::escapeJS($function,true,false).'", \''.$name.'\');'.
 			'datepicker_'.$name.'.show_month()'

@@ -24,7 +24,7 @@
 			<td class=header_timeless id="{$timeless_event.id}">
 			{if $timeless_event.event_num > 0}
 				{foreach item=event from=$timeless_event.event}
-				<div name="events_brief" class=events_brief id="{$event.div_id}">&nbsp;<img src="{$theme_dir}/CRM_Calendar__grab.png" width="14" height="14" border="0" alt="#">&nbsp;&nbsp;&nbsp;{$event.brief}</div>
+				<div name="events_brief" class=events_brief id="{$event.div_id}">&nbsp;<img src="{$theme_dir}/CRM_Calendar__grab.gif" width="15" height="15" border="0" alt="#">&nbsp;&nbsp;&nbsp;{$event.brief}</div>
 				{/foreach}
 			{/if}
 			</td>
@@ -45,7 +45,7 @@
 							{$tt[tt].info}
 						{if $tt[tt].event_num > 0}
 							{foreach item=event from=$tt[tt].event}
-								<div name="events_brief" class=events_brief id="{$event.div_id}">&nbsp;<img src="{$theme_dir}/CRM_Calendar__grab.png" width="14" height="14" border="0" alt="#">&nbsp;&nbsp;&nbsp;{$event.brief}</div>
+								<div name="events_brief" class=events_brief id="{$event.div_id}">&nbsp;<img src="{$theme_dir}/CRM_Calendar__grab.gif" width="15" height="15" border="0" alt="#">&nbsp;&nbsp;&nbsp;{$event.brief}</div>
 							{/foreach}
 						{/if}
 
