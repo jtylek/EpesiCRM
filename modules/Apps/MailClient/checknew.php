@@ -85,7 +85,7 @@ foreach($accounts as $account) {
 			$structure = $decode->decode();
 			if(!Apps_MailClientCommon::append_msg_to_index($box,$msg_id,$structure->headers['subject'],$structure->headers['from'],$structure->headers['date'],strlen($msg))) {
 				message($account['id'],$account['mail'].': broken index file');
-				$mbox->delete($msg_id);
+				$mbox->remove($msg_id);
 				$error = true;
 				break;
 			}
