@@ -15,16 +15,22 @@ a {
     text-decoration: none;
 }
 
+h1 {
+    color: #336699;
+}
+
 input, select {
-    border: 1px solid #B3B3B3;    
+    border: 1px solid #B3B3B3;
     font-size: 11px;
 }
 
 input[type="submit"],
 a.button {
+    font-weight: normal;
     color: #FFFFFF;
     width: 100px;
     line-height: 20px;
+    height: 20px;
     display: block;
     background-image: url("images/header-blue.png");
     border: 0px;

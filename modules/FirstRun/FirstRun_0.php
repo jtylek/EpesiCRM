@@ -16,7 +16,7 @@ class FirstRun extends Module {
 		$th = & $this->init_module('Base/Theme');
 		$wizard = & $this->init_module('Utils/Wizard');
 		$this->lang = & $this->init_module('Base/Lang');
-		
+
 		/////////////////////////////////////////////////////////////
 		$this->ini = parse_ini_file('modules/FirstRun/distros.ini',true);
 		$f = & $wizard->begin_page();
@@ -25,7 +25,7 @@ class FirstRun extends Module {
 		foreach($this->ini as $name=>$pkgs)
 			$f->addElement('radio', 'setup_type', '', $this->lang->t($name), $name);
 		$wizard->next_page();
-		
+
 		/////////////////////////////////////////////////////////////////
 		$f = & $wizard->begin_page('simple_user');
 		$f->addElement('header', null, $this->lang->t('Please enter administrator user login and password'));
@@ -33,7 +33,7 @@ class FirstRun extends Module {
 		$f->addElement('text', 'login', $this->lang->t('Login'));
 		$f->addRule('login', $this->lang->t('A username must be between 3 and 32 chars'), 'rangelength', array(3,32));
 		$f->addRule('login', $this->lang->t('Field required'), 'required');
-		
+
 		$f->addElement('text', 'mail', $this->lang->t('e-mail'));
 		$f->addRule('mail', $this->lang->t('Field required'), 'required');
 		$f->addRule('mail', $this->lang->t('This isn\'t valid e-mail address'), 'email');
@@ -44,17 +44,17 @@ class FirstRun extends Module {
 		$f->addRule('pass_c', $this->lang->t('Field required'), 'required');
 		$f->addRule(array('pass','pass_c'), $this->lang->t('Passwords don\'t match'), 'compare');
 		$f->addRule('pass', $this->lang->t('Your password must be longer then 5 chars'), 'minlength', 5);
-		
+
 		$wizard->next_page();
-		
-		/////////////////////////////////////////////////////		
+
+		/////////////////////////////////////////////////////
 		$f = & $wizard->begin_page('simple_mail');
-	
+
 		$f->setDefaults(array('mail_method'=>'mail'));
 		$f->addElement('header',null, $this->lang->t('Mail settings'));
 		$f->addElement('html','<tr><td colspan=2>'.$this->lang->t('If you are on a hosted server it probably should stay as it is now.').'</td></tr>');
 		$f->addElement('select','mail_method', $this->lang->t('Choose method'), array('smtp'=>'remote smtp server', 'mail'=>'local php.ini settings'));
-		
+
 		$wizard->next_page(array($this,'choose_mail_method'));
 
 		//////////////////////
@@ -63,34 +63,34 @@ class FirstRun extends Module {
 		$f->addElement('header',null, $this->lang->t('Mail settings'));
 		$f->addElement('text','mail_host', $this->lang->t('SMTP host address'));
 		$f->addRule('mail_host', $this->lang->t('Field required'),'required');
-			
+
 		$f->addElement('header',null, $this->lang->t('If your server needs authorization...'));
-		$f->addElement('text','mail_user', $this->lang->t('Login'));					
+		$f->addElement('text','mail_user', $this->lang->t('Login'));
 		$f->addElement('password','mail_password', $this->lang->t('Password'));
 
 		$wizard->next_page();
-		
+
 		////////////////////////////////////////////////////////////
 		$f = & $wizard->begin_page('setup_warning');
 		$f->addElement('header', null, $this->lang->t('Warning'));
-		$f->addElement('html','<tr><td colspan=2>Setup will now check for available modules and will install them.<br>This operation may take several minutes.<br><br>This is the final step of the installation.</td></tr>');
+		$f->addElement('html','<tr><td colspan=2><br />Setup will now check for available modules and will install them.<br>This operation may take several minutes.<br><br><b>This is the final step of the installation.</b><br /></td></tr>');
 		$wizard->next_page();
 
 		/////////////////////////////////////////
 		ob_start();
-		print('<center>');		
+		print('<center>');
 		$this->display_module($wizard, array(array($this,'done')));
 		print('</center>');
 		$th->assign('wizard',ob_get_contents());
 		ob_end_clean();
 		$th->display();
 	}
-	
+
 	public function choose_mail_method($d) {
 		if($d['mail_method']=='mail') return 'setup_warning';
 		return 'simple_mail_smtp';
 	}
-	
+
 	public function done($d) {
 		set_time_limit(0);
 		$pkgs = isset($this->ini[$d[0]['setup_type']]['package'])?$this->ini[$d[0]['setup_type']]['package']:array();
@@ -103,7 +103,7 @@ class FirstRun extends Module {
 				print('Unable to install '.str_replace('_','/',$p).' module.');
 				return false;
 			}
-			
+
 		Base_SetupCommon::refresh_available_modules();
 		Base_ThemeCommon::create_cache();
 
@@ -111,26 +111,26 @@ class FirstRun extends Module {
 		    	print('Unable to create user');
 		    	return false;
 		}
-		
+
 		$user_id = Base_UserCommon::get_user_id($d['simple_user']['login']);
 		if($user_id===false) {
 		    print('Unable to get admin user id');
 		    return false;
 		}
-			
+
 		if(!DB::Execute('INSERT INTO user_password(user_login_id,password,mail) VALUES(%d,%s, %s)', array($user_id, md5($d['simple_user']['pass']), $d['simple_user']['mail']))) {
 		   	print('Unable to set user password');
 		    	return false;
 		}
-		
+
 		if(!Base_AclCommon::change_privileges($d['simple_user']['login'], array(Base_AclCommon::sa_group_id()))) {
 			print('Unable to update admin account data (groups).');
 			return false;
 		}
-		
+
 		Acl::set_user($d['simple_user']['login']);
 		Variable::set('anonymous_setup',false);
-			
+
 		$method = $d['simple_mail']['mail_method'];
 		Variable::set('mail_method', $method);
 		Variable::set('mail_from_addr', $d['simple_user']['mail']);

@@ -70,11 +70,11 @@ if(!isset($_GET['license'])) {
 //	$form -> addElement('select', 'newuser', 'Create new user',array(1=>'Yes', 0=>'No'));
 //	$form -> addRule('newuser', 'Field required', 'required');
 
-	$form -> addElement('submit', 'submit', 'NEXT');
+	$form -> addElement('submit', 'submit', 'Next');
 	$form -> setDefaults(array('engine'=>'mysqlt','db'=>'epesi','host'=>'localhost'));
 
 	$form->setRequiredNote('<span class="required_note_star">*</span> <span class="required_note">denotes required field</span>');
-	$form -> addElement('html','<tr><td colspan=2><b>Any existing tables will be dropped!</b><br />The database will be populated with data.<br />This operation can take a while.</td></tr>');
+	$form -> addElement('html','<tr><td colspan=2><br /><b>Any existing tables will be dropped!</b><br />The database will be populated with data.<br />This operation can take a while.</td></tr>');
 	if($form -> validate()) {
 	    $engine = $form -> exportValue('engine');
 	    switch($engine) {
@@ -134,7 +134,7 @@ if(!isset($_GET['license'])) {
                 break;
 	    }
 	}
-	
+
 	$renderer =& $form->defaultRenderer();
 	$renderer->setHeaderTemplate("\n\t<tr>\n\t\t<td style=\"white-space: nowrap; height: 20px; vertical-align: middle; background-color: #336699; background-image: url('images/header-blue.png'); background-repeat: repeat-x; color: #FFFFFF; font-weight: normal; text-align: center;\" align=\"left\" valign=\"top\" colspan=\"2\">{header}</td>\n\t</tr>");
 	$renderer->setElementTemplate("\n\t<tr>\n\t\t<td align=\"right\" valign=\"top\"><!-- BEGIN required --><span style=\"color: #ff0000\">*</span><!-- END required -->{label}</td>\n\t\t<td valign=\"top\" align=\"left\"><!-- BEGIN error --><span style=\"color: #ff0000\">{error}</span><br /><!-- END error -->\t{element}</td>\n\t</tr>");
