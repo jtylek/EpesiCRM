@@ -44,6 +44,8 @@
 		</div>
 	</div>
 
+{$status}
+
 {literal}
 <style type="text/css">
 div > div#top_bar { position: fixed;}
@@ -75,20 +77,8 @@ div > div#bottom_bar { position: fixed;}
 html { height: 100%; max-height: 100%; padding: 0; margin: 0; border: 0; overflow:hidden; /*get rid of scroll bars in IE */ }
 body { height: 100%; max-height: 100%; border: 0; }
 
-</style>
-
-<![endif]><![endif]-->
 
 
-{/literal}
-
-{/if}
-
-{$status}
-
-{literal}
-<!--[if gte IE 5.5]><![if lt IE 7]>
-<style type="text/css">
 
 .layer .left,
 .layer .right,
@@ -131,6 +121,9 @@ body { height: 100%; max-height: 100%; border: 0; }
 }
 
 </style>
+
 <![endif]><![endif]-->
 
 {/literal}
+
+{/if}

@@ -3,7 +3,7 @@
 
 <!-- SHADIW BEGIN -->
 	<div class="layer" style="padding: 9px; width: 300px;">
-		<div class="content" style="border: 1px solid white; background-color: #ecf2e6;">
+		<div class="content_shadow" style="border: 1px solid white; background-color: #ecf2e6;">
 <!-- -->
 
 	<table>

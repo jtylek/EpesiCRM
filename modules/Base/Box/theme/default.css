@@ -212,7 +212,7 @@ input, textarea, select {
 	position: relative;
 }
 
-.layer .content {
+.layer .content_shadow {
 	position: relative;
 	z-index: 1;
 }

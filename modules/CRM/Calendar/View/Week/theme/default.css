@@ -3,7 +3,7 @@
 	cursor: move;
 }
 .no_border {
-	border: none;	
+	border: none;
 }
 hr.small {
 	background: #000000;
@@ -16,7 +16,7 @@ p.event {
 	position: absolute;
 }
 /* classes for big table */
-	
+
 a.new_event:hover {
 		padding: 0 4 0 4;
 		border: 1px solid red;
@@ -24,7 +24,7 @@ a.new_event:hover {
 	}
 a.icon {
 	border: none;
-	text-decoration: none;	
+	text-decoration: none;
 }
 table.week{
 		width: 80%;
@@ -60,8 +60,6 @@ table.week td.header_day {
 		border-right: 1px solid #000000;
 		border-bottom: none;
 		border-left: none;
-		margin: 2 2 2 2;
-		padding: 3 3 3 3;
 		text-align: left;
 		background: #fcfffd;
 		width: 14%;
@@ -73,8 +71,6 @@ table.week td.header_day_today {
 		border-right: 1px solid #000000;
 		border-bottom: none;
 		border-left: none;
-		margin: 2 2 2 2;
-		padding: 3 3 3 3;
 		text-align: left;
 		background: #dcdfdd;
 		width: 14%;
@@ -86,8 +82,6 @@ table.week td.header_timeless {
 		border-right: 1px solid #000000;
 		border-bottom: 1px double #000000;
 		border-left: none;
-		margin: 2 2 2 2;
-		padding: 3 3 3 3;
 		text-align: left;
 		background: #fcfffd;
 		width: 14%;
@@ -99,11 +93,9 @@ table.week td.header_weekday {
 		border-right: 1px solid #000000;
 		border-bottom: none;
 		border-left: none;
-		margin: 2 2 2 2;
-		padding: 3 3 3 3;
 		text-align: left;
 		background: #fcfffd;
-	}	
+	}
 table.week td.header_month {
 	color: #000000;
 	vertical-align: middle;
@@ -119,8 +111,6 @@ table.week td.today {
 		width: 14%;
 		color: #000000;
 		border: 1px solid #000000;
-		margin: 2 2 2 2;
-		padding: 3 3 3 3;
 		text-align: left;
 		background: #f1f3f5;
 	}
@@ -131,9 +121,7 @@ table.week td.hour {
 	border-right: 1px solid #000000;
 	border-bottom: 1px solid #000000;
 	border-left: 1px solid #000000;
-	margin: 2 2 2 2;
 	white-space: nowrap;
-	padding: 3 3 3 3;
 	text-align: center;
 	background: #dfdfcd;
 }
@@ -144,8 +132,6 @@ table.week td.inter {
 		border-right: 1px dashed #888888;
 		border-bottom: 1px dashed #888888;
 		border-left: none;
-		margin: 2 2 2 2;
-		padding: 3 3 3 3;
 		text-align: left;
 		background: #dfdfcd;
 	}
@@ -156,8 +142,6 @@ table.week td.inter_today {
 		border-right: 1px dashed #888888;
 		border-bottom: 1px dashed #888888;
 		border-left: none;
-		margin: 2 2 2 2;
-		padding: 3 3 3 3;
 		text-align: left;
 		background: #cfcfed;
 	}
@@ -168,9 +152,7 @@ table.week td.midday_hour {
 	border-right: 1px solid #000000;
 	border-bottom: 1px solid #000000;
 	border-left: 1px solid #000000;
-	margin: 2 2 2 2;
 	white-space: nowrap;
-	padding: 3 3 3 3;
 	text-align: left;
 	background: #ffffed;
 }
@@ -181,8 +163,6 @@ table.week td.midday_inter {
 		border-right: 1px dashed #888888;
 		border-bottom: 1px dashed #888888;
 		border-left: none;
-		margin: 2 2 2 2;
-		padding: 3 3 3 3;
 		text-align: left;
 		background: #ffffed;
 	}
@@ -193,14 +173,10 @@ table.week td.midday_inter_today {
 		border-right: 1px dashed #888888;
 		border-bottom: 1px dashed #888888;
 		border-left: none;
-		margin: 2 2 2 2;
-		padding: 3 3 3 3;
 		text-align: left;
 		background: #efefdd;
 	}
 .crm_calendar_view_week__eventsfull {
-		padding: 2;
-		margin: 1;
 		visibility: hidden;
 		position: absolute;
 		dislay: block;
@@ -209,14 +185,23 @@ table.week td.midday_inter_today {
 		border: 1px solid black;
 		width: 200px;
 	}
+
+
 div.events_brief {
-		padding: 1 0 0 1;
-		border: 1px solid #d2ad00;
-		background: #f1dc7d;
-	}
+	background-color: #336699;
+	background-image: url('images/header-blue.png');
+	background-repeat: repeat-x;
+	color: #FFFFFF;
+	height: 20px;
+	font-weight: normal;
+	border: 0px;
+	padding: 0px;
+	margin: 0px;
+	cursor: move;
+}
+
+
 div.events_mounted {
-		padding: 2;
-		margin: 1;
 		position: absolute;
 		visibility: hidden;
 		background: white;

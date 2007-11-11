@@ -13,7 +13,7 @@
 
 <!-- SHADIW BEGIN -->
 	<div class="layer" style="padding: 9px; width: 550px;">
-		<div class="content">
+		<div class="content_shadow">
 <!-- -->
 
 	    <table id="Base_User_Login" cellspacing="0" cellpadding="0" border="0">
@@ -40,7 +40,7 @@
                             <td colspan="2" class="autologin">{$form_data.autologin.html}</td>
 			</tr>
 			<tr>
-			    <td colspan="2" class="autologin">{$form_data.warning.html}</td>			    
+			    <td colspan="2" class="autologin">{$form_data.warning.html}</td>
                         </tr>
                         <tr><td colspan="2" class="recover_password">{$form_data.recover_password.html}</td></tr>
 			<tr><td>&nbsp;</td></tr>

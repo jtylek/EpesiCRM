@@ -13,7 +13,7 @@
 
 <!-- SHADIW BEGIN -->
 	<div class="layer" style="padding: 9px; width: 220px;">
-		<div class="content">
+		<div class="content_shadow">
 <!-- -->
 
 			{$__link.buttons.$key.link.open}
