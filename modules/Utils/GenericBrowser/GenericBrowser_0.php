@@ -395,7 +395,7 @@ class Utils_GenericBrowser extends Module {
 			$where = '';
 		else
 			$where = array();
-
+			
 		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
 		if(!$this->is_adv_search_on()) {
 			foreach($this->columns as $k=>$v){
@@ -448,7 +448,7 @@ class Utils_GenericBrowser extends Module {
 			}
  		}
 		if (!$adv){
-			if (!isset($search['__keyword__'])) return true;
+			if (!isset($search['__keyword__']) || $search['__keyword__']=='') return true;
 			$ret = true;
 			foreach($this->columns as $k=>$v){
 				if (isset($v['search']) && isset($search['__keyword__'])) {
