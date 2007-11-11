@@ -453,13 +453,13 @@ class Utils_GenericBrowser extends Module {
 			foreach($this->columns as $k=>$v){
 				if (isset($v['search']) && isset($search['__keyword__'])) {
 					$ret = false;
-					if (stripos(preg_replace('/<[^<>]*>/','',$row[$k]),$search['__keyword__'])!==false) return true;
+					if (stripos(strip_tags($row[$k]),$search['__keyword__'])!==false) return true;
 				}
 			}
 			return $ret;
 		} else {
 			foreach($this->columns as $k=>$v){
-				if (isset($v['search']) && isset($search[$v['search']]) && strpos(preg_replace('/<[^<>]*>/','',$row[$k]),$search[$v['search']])===false) return false;
+				if (isset($v['search']) && isset($search[$v['search']]) && stripos(strip_tags($row[$k]),$search[$v['search']])===false) return false;
 			}
 			return true;
 		}
@@ -477,7 +477,7 @@ class Utils_GenericBrowser extends Module {
 						if(isset($this->columns[$i]['order_eregi'])) {
 							$ret = array();
 							eregi($this->columns[$i]['order_eregi'],$xxx, $ret);
-							$xxx = $ret[1];
+							$xxx = isset($ret[1])?$ret[1]:'';
 						}
 						$xxx = strtolower($xxx);
 						$col[$j] = $xxx;
@@ -773,14 +773,13 @@ class Utils_GenericBrowser extends Module {
 			$search_fields = array();
 			foreach ($form_array as $k=>$v)
 				if (substr($k,0,8)=='search__') {
-					if ($this->en_actions && $actions_position==0) $i = 1;
-					else $i=0;
+					if ($this->en_actions && $actions_position==0) $mov = 1;
+					else $mov=0;
 					foreach($this->columns as $g=>$u){
 						if (isset($u['search']) && 'search__'.$u['search']==$k) {
-							$search_fields[$col_pos[$i]['pos']] = $v['html'];
+							$search_fields[$col_pos[$g]['pos']+$mov] = $v['html'];
 							break;
 						}
-						$i++;
 					}
 				}
 			$theme->assign('search_fields', $search_fields);
