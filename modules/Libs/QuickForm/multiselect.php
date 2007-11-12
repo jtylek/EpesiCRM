@@ -354,6 +354,7 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
             }
 
             $myName = $this->getName();
+			$mod = $myName;
 			$this->setName($myName . 'from[]');
 			$attrString = $this->_getAttrString($this->_attributes);
 			$attrArray = $this->getAttributes();
@@ -380,7 +381,6 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 			$fromElement .= $tabs . '</select>'; 
             
 			$toElement = '';
-			$mod = $myName;
 			$this->setName($myName . 'to[]');
 			$attrString = $this->_getAttrString($this->_attributes);
 			$toElement .= $tabs . '<select' . $attrString . ' ondblclick="remove_selected_'.$mod.'();">'."\n";
