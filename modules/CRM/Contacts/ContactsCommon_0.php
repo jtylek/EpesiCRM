@@ -2,18 +2,6 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_ContactsCommon extends ModuleCommon {
-	public static function menu() {
-		return array('CRM'=>array('__submenu__'=>1,'Contacts'=>array('mode'=>'contact'),'Companies'=>array('mode'=>'company')));
-	}
-
-	public static function caption() {
-		return 'Companies & Contacts';
-	}
-
-	public function admin_caption() {
-		return 'Companies & Contacts';	
-	}
-	
 	public static function get_contacts($crits) {
 		return Utils_RecordBrowserCommon::get_records('contact', $crits);
 	}
@@ -25,7 +13,27 @@ class CRM_ContactsCommon extends ModuleCommon {
 	public static function get_contact($id) {
 		return Utils_RecordBrowserCommon::get_record('contact', $id);
 	}
-
+	
+	/*--------------------------------------------------------------------*/
+	public static function menu() {
+		return array('CRM'=>array('__submenu__'=>1,'Contacts'=>array('mode'=>'contact'),'Companies'=>array('mode'=>'company')));
+	}
+	public static function caption() {
+		return 'Companies & Contacts';
+	}
+	public function admin_caption() {
+		return 'Companies & Contacts';	
+	}
+	public static function QFfield_country(&$form, $field, $label, $mode, $default) {
+		$form->addElement('commondata', $field, $label, array('Countries'), array('empty_option'=>true));
+		if ($mode!=='add') $form->setDefaults(array($field=>$default));
+		else $form->setDefaults(array($field=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country')));
+	}
+	public static function QFfield_zone(&$form, $field, $label, $mode, $default) {
+		$form->addElement('commondata', $field, $label, array('Countries', 'country'), array('empty_option'=>true));
+		if ($mode!=='add') $form->setDefaults(array($field=>$default));
+		else $form->setDefaults(array($field=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state')));	
+	}
 	public static function QFfield_company(&$form, $field, $label, $mode, $default) {
 		$comp = array();
 		$col='Name';
@@ -50,10 +58,6 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$form->setDefaults(array($field=>$def));
 		}
 	}
-	public static function display_webaddress($v) {
-		if (strpos($v, 'http://')==false && $v) $v = 'http://'.$v;
-		return '<a href="'.$v.'" target="_blank">'.$v.'</a>';
-	}
 	public static function QFfield_webaddress(&$form, $field, $label, $mode, $default) {
 		if ($mode=='add' || $mode=='edit') {
 			$form->addElement('text', $field, $label);
@@ -62,12 +66,6 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$form->addElement('static', $field, $label);
 			$form->setDefaults(array($field=>self::display_webaddress($default)));
 		}
-	}
-	public static function display_login($v) {
-		if (!$v)
-			return '--';
-		else
-			return Base_UserCommon::get_user_login($v);
 	}
 	public static function QFfield_login(&$form, $field, $label, $mode, $default) {
 		if (Base_AclCommon::i_am_admin()) {
@@ -83,6 +81,16 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$form->addElement('static', $field, $label);
 			$form->setDefaults(array($field=>self::display_login($default)));
 		}
+	}
+	public static function display_webaddress($v) {
+		if (strpos($v, 'http://')==false && $v) $v = 'http://'.$v;
+		return '<a href="'.$v.'" target="_blank">'.$v.'</a>';
+	}
+	public static function display_login($v) {
+		if (!$v)
+			return '--';
+		else
+			return Base_UserCommon::get_user_login($v);
 	}
 	public static function submit_contact($values, $mode) {
 		if (isset($values['create_company'])) {

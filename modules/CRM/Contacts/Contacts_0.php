@@ -43,15 +43,19 @@ class CRM_Contacts extends Module {
 
 	public function company_addon($arg){
 		$theme = $this->init_module('Base/Theme');
-		$theme->assign('add_contact', '<a '.$this->create_href(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array('contact'), 'tab'=>'contact', 'action'=>'add', 'id'=>'', 'defaults'=>array('company'=>array($arg['id'])))).'>'.Base_LangCommon::ts('CRM_Contacts','Add new contact').'</a>');
-		$rb = $this->init_module('Utils/RecordBrowser','contact');
+		$theme->assign('add_contact', '<a '.$this->create_href(array('box_main_module'=>'CRM_Contacts', 'box_main_function'=>'new_contact', 'box_main_arguments'=>array($arg['id']))).'>'.Base_LangCommon::ts('CRM_Contacts','Add new contact').'</a>');
+		$rb = $this->init_module('Utils/RecordBrowser','contact','contact_addon');
 		$theme->assign('contacts', $this->get_html_of_module($rb, array(array('Company'=>$arg['id']), array('Company'=>false), true), 'show_data'));
 		$theme->display('Company_plugin');
 	}
-	public function new_contact($arg){
+	public function new_contact($company){
 		$rb = $this->init_module('Utils/RecordBrowser','contact','contact');
-		$rb->view_entry('add', null, array('company'=>array($arg['id'])));
-		return false;
+		$ret = $rb->view_entry('add', null, array('company'=>array($company)));
+		$this->set_module_variable('view_or_add', 'add');
+		if ($ret==false) {
+			$rb2 = $this->init_module('Utils/RecordBrowser','company','company');
+			$rb2->view_entry('view', $company);
+		}
 	}
 }
 ?>
