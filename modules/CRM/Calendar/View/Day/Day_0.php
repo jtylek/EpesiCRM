@@ -120,7 +120,7 @@ class CRM_Calendar_View_Day extends Module {
 					$div_id = generate_password(4);
 					$div_id = sprintf('%s_%4d%2d%2d0000X%d', $div_id, $this->date['year'], $this->date['month'], $this->date['day'], $EV['id']);
 					$event[$g]['div_id'] = $div_id;
-					CRM_Calendar_Utils_SidetipCommon::create($div_id.'_brief', $div_id, $event[$g]['full']);
+					CRM_Calendar_Utils_SidetipCommon::create($div_id, $div_id, $event[$g]['full'], 'vertical');
 				}
 			}
 		}
@@ -160,7 +160,7 @@ class CRM_Calendar_View_Day extends Module {
 							$div_id = 'daylistevent';
 							$div_id = sprintf('%s_%sX%d', $div_id, $EV['datetime_start'], $EV['id']);
 							$event[$g]['div_id'] = $div_id;
-							CRM_Calendar_Utils_SidetipCommon::create($div_id.'_brief', $div_id, $event[$g]['full']);
+							CRM_Calendar_Utils_SidetipCommon::create($div_id, $div_id, $event[$g]['full'], 'vertical');
 						}
 					}
 				}
