@@ -140,13 +140,13 @@ custom_hide_f = function(menu, submenu, opacity) {
 		} else {
 			$(id).style.opacity = opacity;
 			//$(id).style.filter = "Alpha(style=0, opacity="+eval(opacity*100)+")";
-			timeout[menu][submenu] = setTimeout('custom_hide_f('+menu+', '+submenu+', '+eval(opacity-0.11)+')', 20);
+			timeout[menu][submenu] = setTimeout('custom_hide_f('+menu+', '+submenu+', '+eval(opacity-0.10)+')', 15);
 		}
 	}
 }
 
 custom_hide = function(menu, submenu) {
-	timeout[menu][submenu] = setTimeout('custom_hide_f('+menu+', '+submenu+', 1)', 800);
+	timeout[menu][submenu] = setTimeout('custom_hide_f('+menu+', '+submenu+', 1)', 300);
 }
 //////////////////////////////////////////////////////////////////////////////
 CustomMenubar = function(id, _layout) {
