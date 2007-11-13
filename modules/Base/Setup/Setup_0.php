@@ -1,9 +1,9 @@
 <?php
 /**
  * Setup class
- * 
+ *
  * This file contains setup module.
- * 
+ *
  * @author Paul Bukowski <pbukowski@telaxus.com> and Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
@@ -30,14 +30,14 @@ class Base_Setup extends Module {
 
 		//create default module form
 		$form = & $this->init_module('Libs/QuickForm','Processing modules');
-		
+
 		//set defaults
 		$form->setDefaults(array (
-			'default_module' => Variable::get('default_module'), 
+			'default_module' => Variable::get('default_module'),
 			'simple' => Variable::get('simple_setup'),
 			'anonymous_setup' => Variable::get('anonymous_setup')));
 //		print('='.Base_AclCommon::change_privileges('admin', array(Base_AclCommon::sa_group_id())).'=');
-		
+
 		$form->addElement('header', 'install_module_header', 'Module administration');
 		//$form->addElement('checkbox','simple','Simple setup','',array('onChange'=>$form->get_submit_form_js(false)));
 		$form->addElement('select','simple','Setup type',array(1=>'Simple',0=>'Advanced'),array('onChange'=>$form->get_submit_form_js(false)));
@@ -55,12 +55,12 @@ class Base_Setup extends Module {
 				$module_dirs[$row['name']][$row['vkey']] = $row['version'];
 				ModuleManager::include_install($row['name']);
 			} else {
-				DB::Execute('DELETE FROM available_modules WHERE name=%s and vkey=%d',array($row['name'],$row['vkey']));	
+				DB::Execute('DELETE FROM available_modules WHERE name=%s and vkey=%d',array($row['name'],$row['vkey']));
 			}
 		}
 		if (empty($module_dirs))
 			$module_dirs = Base_SetupCommon::refresh_available_modules();
-			
+
 		$subgroups = array();
 		$structure = array();
 		$def = array();
@@ -77,7 +77,7 @@ class Base_Setup extends Module {
 				if(is_callable($func_info)) {
 					$module_info = call_user_func($func_info);
 					if($module_info) {
-						$info = ' (<a rel="'.$entry.'" class="lbOn">info</a>)';
+						$info = ' <a rel="'.$entry.'" class="lbOn"><img style="vertical-align: middle; cursor: pointer;" border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('Base_Setup', 'info.gif').'></a>';
 						$iii = '<div id="'.$entry.'" class="leightbox"><h1>'.str_replace('_','/',$entry).'</h1><table>';
 						foreach($module_info as $k=>$v)
 							$iii .= '<tr><td>'.$k.'</td><td>'.$v.'</td></tr>';
@@ -102,11 +102,11 @@ class Base_Setup extends Module {
 				$ele = $form->createElement('select', 'installed['.$entry.']', $path[count($path)-1], $versions);
 				$ele->setValue($installed);
 				$c[$path[count($path)-1]] = array();
-				$c[$path[count($path)-1]]['name'] = '<table width=100%><tr><td width=100% align=left>'.$path[count($path)-1].$info.'</td><td align=right>' . $ele->toHtml() . '</td></tr></table>';
+				$c[$path[count($path)-1]]['name'] = '<table width=100%><tr><td width=100% align=left>' . $info . ' ' . $path[count($path)-1] . '</td><td align=right>' . $ele->toHtml() . '</td></tr></table>';
 				$c[$path[count($path)-1]]['sub'] = array();
 				array_push($def, array('installed['.$entry.']'=>$installed));
-		
-		
+
+
 		}
 
 		$tree = & $this->init_module('Utils/Tree');
@@ -114,27 +114,27 @@ class Base_Setup extends Module {
 		if ($simple) $tree->open_all();
 		//$form->addElement('html', '<tr><td colspan=2>'.$tree->toHtml().'</td></tr>');
 		$form->addElement('html', '<tr><td colspan=2>'.$this->get_html_of_module($tree).'</td></tr>');
-		
+
 		if(!$simple) {
 			$form->addElement('header', 'anonymous_header', 'Other (dangerous, don\'t change if you are newbie)');
 			$form->addElement('checkbox','anonymous_setup', 'Anonymous setup');
 
-		//default module		
+		//default module
 			$av_modules=array();
 			foreach(ModuleManager::$modules as $name=>$obj)
 				$av_modules[$name] = $name;
 			$form->addElement('select','default_module','Default module to display',$av_modules);
 		}
-				
+
 		//print $tree->toHtml();
 		//control buttons
 		$ok_b = HTML_QuickForm::createElement('submit', 'submit_button', 'OK');
 		$cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', 'Cancel', $this->create_back_href());
 		$parse_b = HTML_QuickForm::createElement('button', 'parse_button', 'Check for available modules', $this->create_confirm_callback_href('Parsing for additional modules may take up to several minutes, do you wish to continue?',array('Base_Setup','parse_modules_folder_refresh')));
 		$form->addGroup(array($parse_b,$ok_b, $cancel_b));
-		
+
 		$form->setDefaults($def);
-		
+
 		//validation or display
 		if ($form->exportValue('submited') && $form->validate()) {
 			if($form->process(array (
@@ -146,18 +146,18 @@ class Base_Setup extends Module {
 				Epesi::redirect();
 				return;
 			} else {
-				print('<hr><a '.$this->create_href(array()).'>back</a>');
+				print('<hr class="line"><center><a class="button"' . $this -> create_href(array()) . '>Back</a></center>');
 			}
-		} else 
+		} else
 		$form->display();
 	}
-	
+
 	public static function parse_modules_folder_refresh(){
 		Base_SetupCommon::refresh_available_modules();
 		//location(array());
 		return false;
 	}
-	
+
 	public function validate($data) {
 
 		$default_module = false;
@@ -167,7 +167,7 @@ class Base_Setup extends Module {
 		$uninstall = array();
 		$anonymous_setup = false;
 		$modified_modules_table = false;
-		
+
 		foreach ($data as $k => $v)
 			${ $k } = $v;
 
@@ -177,7 +177,7 @@ class Base_Setup extends Module {
 			Variable::set('anonymous_setup', $anonymous_setup);
 		}
 		Variable::set('simple_setup', $simple);
-				
+
 		foreach ($installed as $name => $new_version) {
 			$old_version = ModuleManager::is_installed($name);
 			if($old_version==$new_version) continue;
@@ -200,20 +200,20 @@ class Base_Setup extends Module {
 				continue;
 			}
 		}
-		
+
 		//install
 		foreach($install as $i=>$v)
 			if (!ModuleManager::install($i,$v))
 				return false;
-				
-		
+
+
 		//uninstall
 		$modules_prio_rev = array();
 		foreach (ModuleManager::$modules as $k => $v)
-			$modules_prio_rev[] = $k; 
+			$modules_prio_rev[] = $k;
 		$modules_prio_rev = array_reverse($modules_prio_rev);
-		
-		foreach ($modules_prio_rev as $k) 
+
+		foreach ($modules_prio_rev as $k)
 			if(array_key_exists($k, $uninstall)) {
 				if (!ModuleManager::uninstall($k)) {
 					return false;
@@ -221,7 +221,7 @@ class Base_Setup extends Module {
 				if(count(ModuleManager::$modules)==0)
 					print('No modules installed');
 			}
-		
+
 		Base_ThemeCommon::create_cache();
 		return true;
 	}

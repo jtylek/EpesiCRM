@@ -22,8 +22,6 @@
 			</div>
 			{$__link.buttons.$key.link.close}
 
-
-
 <!-- SHADOW END -->
  		</div>
 		<div class="shadow-top">

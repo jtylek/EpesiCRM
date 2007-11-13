@@ -20,13 +20,13 @@ class ModuleManager {
 	public static $modules_install = array();
 	public static $modules_common = array();
 	public static $root = array();
-	private static $processing = array(); 
+	private static $processing = array();
 
 	/**
 	 * Includes file with module installation class.
-	 * 
+	 *
 	 * Do not use directly.
-	 * 
+	 *
 	 * @param string module name
 	 */
 	public static final function include_install($class_name) {
@@ -39,14 +39,14 @@ class ModuleManager {
 		$x = $class_name.'Install';
 		if(!(class_exists($x) && in_array($x, get_declared_classes())) || !array_key_exists('ModuleInstall',class_parents($x)))
 			trigger_error('Module '.$path.': Invalid install file',E_USER_ERROR);
-		self::$modules_install[$class_name] = new $x($class_name); 
+		self::$modules_install[$class_name] = new $x($class_name);
 	}
 
 	/**
 	 * Includes file with module common class.
-	 * 
+	 *
 	 * Do not use directly.
-	 * 
+	 *
 	 * @param string module name
 	 */
 	public static final function include_common($class_name,$version) {
@@ -70,9 +70,9 @@ class ModuleManager {
 
 	/**
 	 * Includes file with module main class.
-	 * 
+	 *
 	 * Do not use directly.
-	 * 
+	 *
 	 * @param string module name
 	 */
 	public static final function include_main($class_name, $version) {
@@ -93,27 +93,27 @@ class ModuleManager {
 
 	/**
 	 * Creates array of installed modules indexed by priority of loading, based on dependencies.
-	 * 
+	 *
 	 * Do not use directly.
-	 * 
+	 *
 	 * @return array array containing information about modules priorities
 	 */
 	public static final function create_load_priority_array() {
 		$queue = array();
 		$virtual_modules = array(); //virtually loaded modules
 		$priority = array();
-		
-		foreach(self::$modules as $module_to_load=>$version) {		
+
+		foreach(self::$modules as $module_to_load=>$version) {
 			$deps = self :: check_dependencies($module_to_load, $version, $virtual_modules);
-		
+
 			if(!empty($deps)) {
 				$queue[] = array('name'=>$module_to_load,'version'=>$version);
 				continue;
 			}
-		
+
 			$priority[] = $module_to_load;
 			self :: register($module_to_load, $version, $virtual_modules);
-		
+
 			//queue
 			foreach($queue as $k=>$m) {
 				$deps = self :: check_dependencies($m['name'], $m['version'], $virtual_modules);
@@ -126,7 +126,7 @@ class ModuleManager {
 		}
 		if(!empty($queue)) {
 			$x = 'Modules deps not satisfied: ';
-			foreach($queue as $k=>$m) { 
+			foreach($queue as $k=>$m) {
 				$deps = self :: check_dependencies($m['name'], $m['version'], $virtual_modules);
 				$yyy = array();
 				foreach($deps as $xxx) {
@@ -140,28 +140,28 @@ class ModuleManager {
 		foreach($priority as $k=>$v)
 			DB::Execute('UPDATE modules SET priority=%d WHERE name=%s',array($k,$v));
 	}
-	
+
 	/**
 	 * Check dependencies and return array of unsatisfied dependencies.
-	 * 
+	 *
 	 * This function is called when installing modules.
 	 * Should not be used directly.
-	 * 
+	 *
 	 * @param string module to check if all requirements are satisifed
 	 * @param integer module version to check
 	 * @param array table with loaded modules
-	 * @return array 
+	 * @return array
 	 */
 	private static final function check_dependencies($module_to_check, $version, & $module_table) {
 		self::include_install($module_to_check);
-		
+
 		$func = array (
 			self::$modules_install[$module_to_check],
 			'requires'
 		);
 		if(!is_callable($func)) return array();
 		$req_mod = call_user_func($func,$version);
-		
+
 		$ret = array();
 
 		foreach ($req_mod as $m) {
@@ -169,25 +169,25 @@ class ModuleManager {
 			if (!array_key_exists($m['name'], $module_table) || $module_table[$m['name']]['version']<$m['version'])
 				$ret[] = $m;
 		}
-		
+
 		return $ret;
 	}
-	
+
 	private static function satisfy_dependencies($module_to_install,$version) {
-		self::$processing[$module_to_install] = $version;  
+		self::$processing[$module_to_install] = $version;
 		try {
 			$deps = self :: check_dependencies($module_to_install, $version, self::$modules);
 			while(!empty($deps)) {
 				$m = $deps[0];
-				if(isset(self::$processing[$m['name']])) 
+				if(isset(self::$processing[$m['name']]))
 					throw new Exception('Cross dependencies: '.$module_to_install);
-				
+
 				if (!self :: exists($m['name'],$m['version']))
-					throw new Exception('Module not found: ' . $m['name'].' version='.$m['version']);
-				
-				print('Inst/Up required module: '.$m['name'].' version='.$m['version'].' by '.$module_to_install.'<br>');
+					throw new Exception('Module not found: ' . '<b>' . $m['name'] . '</b>' . ' version='.$m['version']);
+
+				print('Inst/Up required module: ' . '<b>' . $m['name'] . '</b>' . ' version='.$m['version'].' by ' . '<b>' . $module_to_install . '</b>' . '<br>');
 				if(self :: is_installed($m['name'])<0){
-					if (!self :: install($m['name'], $m['version'])) 
+					if (!self :: install($m['name'], $m['version']))
 						return false;
 				} else {
 					if (!self :: upgrade($m['name'], $m['version'])) return false;
@@ -201,35 +201,35 @@ class ModuleManager {
 		unset(self::$processing[$module_to_install]);
 		return true;
 	}
-	
+
 	/**
 	 * Returns directory path to the module including module main directory.
-	 * 
+	 *
 	 * @param string module name
 	 * @return string directory path to the module
 	 */
 	public static final function get_module_dir_path($name) {
 		return str_replace('_', '/',$name);
 	}
-	
+
 	/**
 	 * Returns main filename part of the module.
-	 * 
+	 *
 	 * Module named Box, instance 1:
 	 * get_module_file_name returns 'Box'
-	 * 
+	 *
 	 * Note that file names always contain some other parts like 'Box_0.php'
-	 * 
+	 *
 	 * @return string directory path to the module
 	 */
 	public static final function get_module_file_name($name) {
 		$ret = strrchr($name,'_');
 		return ($ret)? substr($ret,1):$name;
 	}
-	
+
 	/**
 	 * Creates list of modules currently available to install along with list of available versions.
-	 * 
+	 *
 	 * @return array array built as follows: array('Box'=>array(0,1)...)
 	 */
 	public static final function list_modules() {
@@ -265,7 +265,7 @@ class ModuleManager {
 
 	/**
 	 * Check if module passed as first parameter with version passed as second parameter can be found in Modules' directory.
-	 * 
+	 *
 	 * @return bool true if module was found, false otherwise
 	 */
 	public static final function exists($mod) {
@@ -278,9 +278,9 @@ class ModuleManager {
 	/**
 	 * Registers module passed as first parameter in array passed as third parameter.
 	 * It is used to mark in an array that module is loaded and provides some external modules.
-	 * 
+	 *
 	 * Do not use directly.
-	 * 
+	 *
 	 * @param string module name
 	 * @param integer module version
 	 * @param array modules list
@@ -288,13 +288,13 @@ class ModuleManager {
 	public static final function register($mod, $version, & $module_table) {
 		$module_table[$mod] = $version;
 	}
-	
+
 	/**
 	 * Unregisters module passed as first parameter from array passed as third parameter.
 	 * It is used to mark in an array that module is not loaded and doesn't provide some external modules anymore.
-	 * 
+	 *
 	 * Do not use directly.
-	 * 
+	 *
 	 * @param string module name
 	 * @param integer module version
 	 * @param array modules list
@@ -302,10 +302,10 @@ class ModuleManager {
 	public static final function unregister($mod, & $module_table) {
 		unset($module_table[$mod]);
 	}
-	
+
 	/**
 	 * Checks if module is installed.
-	 * 
+	 *
 	 * @param string module name
 	 * @return integer version of installed module or -1 when it's not installed
 	 */
@@ -318,9 +318,9 @@ class ModuleManager {
 
 	/**
 	 * This function performs upgrade process when it is requested by Setup module.
-	 * 
+	 *
 	 * Do not use directly.
-	 * 
+	 *
 	 * @param string module name
 	 * @param int version to which module should be upgraded
 	 * @return bool true is module was upgraded sucesfully, false otherwise
@@ -340,29 +340,29 @@ class ModuleManager {
 			print('Upgrading module \''.$module.'\' to version '.$to_version.': specified version of module is missing, please download it first.<br>');
 			return false;
 		}
-		
+
 		self::include_install($module);
-		
+
 		for($i=$installed_version+1; $i<=$to_version; $i++) {
 			$up_func = array(self::$modules_install[$module], 'upgrade_'.$i);
-			if(!self::satisfy_dependencies($module,$i) || (is_callable($up_func) 
+			if(!self::satisfy_dependencies($module,$i) || (is_callable($up_func)
 				&& !call_user_func($up_func))) {
 				print('Upgrading module \''.$module.'\' to version '.$to_version.': upgrade to version '.$i.' failed.<br>');
 				break;
 			}
 		}
-		
+
 		$i--;
-		
+
 		if(!DB::Execute('UPDATE modules SET version=%d WHERE name=%s',array($i,$module))) {
 			print('Upgrading module \''.$module.'\' to version '.$to_version.': unable to update database<br>');
 			return false;
 		}
-		
+
 		self::register($module,$to_version,self::$modules);
-		
+
 		self::create_load_priority_array();
-		
+
 		if($i==$to_version)	{
 			if(DEBUG)
 				print('Module '.$module.' succesfully upgraded to version '.$to_version.'<br>');
@@ -370,12 +370,12 @@ class ModuleManager {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * This function performs downgrade process when it is requested by Setup module.
-	 * 
+	 *
 	 * Do not use directly.
-	 * 
+	 *
 	 * @param string module name
 	 * @param int version to which module should be downgraded
 	 * @return bool true if module was downgraded sucesfully, false otherwise
@@ -394,13 +394,13 @@ class ModuleManager {
 			print('Downgrading module \''.$module.'\' to version '.$to_version.': specified version of module is missing, please download it first.<br>');
 			return false;
 		}
-		
+
 		self::include_install($module);
 
 		//check if any other module requires this one....
 		foreach(self::$modules as $k=>$k_version) {
 			if($k=$module) continue;
-			
+
 			$func = array (
 				self::$modules_install[$k],
 				'requires'
@@ -414,42 +414,44 @@ class ModuleManager {
 					return false;
 				}
 		}
-		
+
 		//go
 		for($i=$installed_version; $i>$to_version; $i--) {
 			$down_func = array(self::$modules_install[$module], 'downgrade_'.$i);
-			if(!self::satisfy_dependencies($module,$i) || (is_callable($down_func) 
+			if(!self::satisfy_dependencies($module,$i) || (is_callable($down_func)
 				&& !call_user_func($down_func))) {
 				print('Downgrading module \''.$module.'\' to version '.$to_version.' from '.$i.' failed.<br>');
 				break;
 			}
 		}
-		
+
 		if(!DB::Execute('UPDATE modules SET version=%d WHERE name=%s',array($i,$module))) {
 			print('Downgrading module \''.$module.'\' to version '.$to_version.' failed: unable to update database<br>');
 			return false;
 		}
-		
+
 		self::create_load_priority_array();
-		
+
 		print('Module '.$module.' succesfully downgraded to version '.$to_version.'<br>');
 		return true;
 	}
-	
+
 	/**
 	 * Installs module given as first parameter.
 	 * Additionally, this function calls upgrade to version given as second parameter.
-	 * 
+	 *
 	 * @param string module name
 	 * @param integer module version
 	 * @return bool true if installation success, false otherwise
 	 */
 	public static final function install($module_to_install, $version=null) {
+		print('<div class="green" style="text-align: left;">');
+
 		//already installed?
-		print($module_to_install.': is installed?<br>');
+		print('<b>' . $module_to_install . '</b>' .': is installed?<br>');
 
 		self :: include_install($module_to_install);
-		
+
 		$func_version = array(self::$modules_install[$module_to_install], 'version');
 		if(is_callable($func_version))
 			$inst_ver = call_user_func($func_version);
@@ -462,20 +464,20 @@ class ModuleManager {
 			$version = $inst_ver-1;
 		} else {
 			if($inst_ver<$version) {
-				print('Module '.$module_to_install.' is too old. Please download newer version<br>');
+				print('Module ' . '<b>' . $module_to_install . '</b>' .' is too old. Please download newer version<br>');
 				return false;
-			}		
+			}
 		}
 
 		if(self::is_installed($module_to_install)>=$version)
 			return true;
-			
+
 		if (!self :: exists($module_to_install,$version))
 			return false;
 
 		//check dependecies
 		if(!self::satisfy_dependencies($module_to_install,$version)) {
-			print($module_to_install.': dependencies not satisfied.<br>');
+			print('<b>' . $module_to_install . '</b>' . ': dependencies not satisfied.<br>');
 			return false;
 		}
 
@@ -485,44 +487,45 @@ class ModuleManager {
 			return false;
 		}
 */
-		print($module_to_install.': calling install method<br>');
+		print('<b>' . $module_to_install . '</b>' . ': calling install method<br>');
 		//call install script and fill database
 		if(!call_user_func(array (
 			self::$modules_install[$module_to_install],
 			'install'
 		))) return false;
 
-		print($module_to_install.': registering<br>');
+		print('<b>' . $module_to_install . '</b>' . ': registering<br>');
 		$ret = DB::Execute('insert into modules(name, version) values(%s,0)', $module_to_install);
 		if (!$ret) {
-			print ($module_to_install . ' module installation failed: database<br>');
+			print ('<b>' . $module_to_install . '</b>' . ' module installation failed: database<br>');
 			return false;
 		}
 
 		self :: register($module_to_install, 0, self::$modules);
 
-		print($module_to_install.': rewriting priorities<br>');
+		print('<b>' . $module_to_install . '</b>' . ': rewriting priorities<br>');
 		self::create_load_priority_array();
-		
-		print ($module_to_install . ' module installed!<br>');
-		
+
+		print ('<b>' . $module_to_install . '</b>' . ' module installed!<br>');
+
 		if($version!=0) {
-			print($module_to_install.': upgrades...<br>');
+			print('<b>' . $module_to_install . '</b>' . ': upgrades...<br>');
 			$up = self::upgrade($module_to_install, $version);
 			if(!$up) return false;
 		}
 		self::$not_loaded_modules[] = array('name'=>$module_to_install,'version'=>$version);
-		
-		print($module_to_install.': deps ok, including common class<br>');
+
+		print('<b>' . $module_to_install . '</b>' . ': deps ok, including common class<br>');
 		self :: include_common($module_to_install,$version);
 
+		print('</div>');
 		return true;
 
 	}
 
 	/**
 	 * Restores module data based from backup.
-	 * 
+	 *
 	 * @param string module name
 	 * @param string date on which desired backup was made
 	 * @param bool if set to true it will delete all current module data
@@ -540,14 +543,14 @@ class ModuleManager {
 			print('Module '.$module.' doesn\'t support restore.<br>');
 			return false;
 		}
-		
+
 		if(is_numeric($date))
 			$pkg_name = $module.'__'.$version.'__'.$date;
 		else {
 			print('Invalid restore timestamp.');
 			return false;
 		}
-		
+
 		$src = 'backup/'.$pkg_name.'/data/';
 		if(is_dir($src)) {
 			$dest = 'data/'.$module.'/';
@@ -555,13 +558,13 @@ class ModuleManager {
 				self::remove_data_dir($module);
 			recursive_copy($src,$dest);
 		}
-		
+
 		//restore tables
 		$backup_tables = call_user_func(array (
 			self::$modules_install[$module],
 				'backup'
 			),$version);
-		
+
 		$ado = & DB::$ado;
 		$ado->StartTrans();
 		foreach($backup_tables as $table) {
@@ -587,10 +590,10 @@ class ModuleManager {
 		$ado->CompleteTrans();
 		return true;
 	}
-	
+
 	/**
 	 * Creates module backup point.
-	 * 
+	 *
 	 * @param string module name
 	 * @return bool true on success, false otherwise
 	 */
@@ -606,29 +609,29 @@ class ModuleManager {
 			print('Module '.$module.' doesn\'t support backup.<br>');
 			return false;
 		}
-		
+
 		require_once('adodb/toexport.inc.php');
-		
-		
+
+
 		if(!is_dir('backup') || !is_writable('backup'))
 			return false;
-			
+
 		$pkg_name = $module.'__'.$installed_version.'__'.time();
-		
+
 		mkdir('backup/'.$pkg_name);
-		
+
 		//backup data
 		$src = 'data/'.$module.'/';
 		$dest = 'backup/'.$pkg_name.'/data/';
 		if(is_dir($src))
 			recursive_copy($src,$dest);
-		
+
 		//backup tables
 		$backup_tables = call_user_func(array (
 				self::$modules_install[$module],
 				'backup'
 			),$installed_version);
-		
+
 		mkdir('backup/'.$pkg_name.'/sql');
 		foreach($backup_tables as $table) {
 			$fp = fopen('backup/'.$pkg_name.'/sql/'.$table, "w");
@@ -641,13 +644,13 @@ class ModuleManager {
 			}
 			fclose($fp);
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Returns list of available backups.
-	 * 
+	 *
 	 * @return array list of backups, each backup point is described as an array with fields 'name', 'version', 'date'
 	 */
 	public static final function list_backups() {
@@ -663,7 +666,7 @@ class ModuleManager {
 
 	/**
 	 * Uninstalls module.
-	 * 
+	 *
 	 * @param string module name
 	 * @return bool true if uninstallation success, false otherwise
 	 */
@@ -673,19 +676,19 @@ class ModuleManager {
 			print($module_to_uninstall . ' module not installed<br>');
 			return false;
 		}
-		
+
 		self::include_install($module_to_uninstall);
-		
+
 		foreach (self::$modules as $name => $version) { //for each module
 			if ($name == $module_to_uninstall)
 				continue;
-			
+
 			self::include_install($name);
 			$required = call_user_func(array (
 				self::$modules_install[$name],
 				'requires'
 				),$version);
-			
+
 			foreach ($required as $req_mod) { //for each dependency of that module
 				$req_mod['name'] = str_replace('/','_',$req_mod['name']);
 				if ($req_mod['name'] == $module_to_uninstall) {
@@ -695,41 +698,41 @@ class ModuleManager {
 			}
 		}
 		self::backup($module_to_uninstall);
-		
+
 		if($installed_version>0 && !self::downgrade($module_to_uninstall, 0))
 			return false;
-		
+
 		if(!call_user_func(array (
 			self::$modules_install[$module_to_uninstall],
 			'uninstall'
 		))) return false;
-		
+
 		Acl::del_aco_section(self::$modules_install[$module_to_uninstall]->get_type());
-		
+
 		$ret = DB::Execute('DELETE FROM modules WHERE name=%s', $module_to_uninstall);
 		if(!$ret) {
 			print ($module_to_uninstall . " module uninstallation failed: database<br>");
-			return false;	
+			return false;
 		}
-		
+
 		self::unregister($module_to_uninstall,self::$modules);
-		
+
 		if (!self::remove_data_dir($module_to_uninstall)){
 			print ($module_to_uninstall . " module uninstallation failed: data directory remove<br>");
 			return false;
 		}
-		
+
 		self::create_load_priority_array();
-		
+
 		print ($module_to_uninstall . " module uninstalled! You can safely remove module directory.<br>");
 		return true;
 	}
-	
+
 	/**
 	 * Returns an array of installed modules indexed by priority of loading, based on dependencies.
-	 * 
+	 *
 	 * Do not use directly.
-	 * 
+	 *
 	 * @return array array containing information with modules priorities
 	 */
 	public static final function get_load_priority_array($force=false) {
@@ -747,13 +750,13 @@ class ModuleManager {
 
 	/**
 	 * Creates new module instance.
-	 * 
+	 *
 	 * Do not use directly.
 	 * Use pack_module instead.
-	 * 
+	 *
 	 * @param module name
 	 * @return object newly created module object
-	 * @throws exception 'module not loaded' if the module is not registered 
+	 * @throws exception 'module not loaded' if the module is not registered
 	 */
 	public static final function & new_instance($mod,$parent,$name,$clear_vars=false) {
 		if (!array_key_exists($mod, self::$modules))
@@ -776,7 +779,7 @@ class ModuleManager {
 
 	/**
 	 * Returns instance of module.
-	 * 
+	 *
 	 * @param string module name
 	 * @param integer instance id
 	 * @return bool false if module instance was not found, requested module object otherwise
@@ -808,9 +811,9 @@ class ModuleManager {
 
 	/**
 	 * Creates default data directory for module.
-	 * 
+	 *
 	 * Do not use directly.
-	 * 
+	 *
 	 * @param string module name
 	 * @return bool true if directory was created or already exists, false otherwise
 	 */
@@ -826,9 +829,9 @@ class ModuleManager {
 
 	/**
 	 * Removes default data directory of a module.
-	 * 
+	 *
 	 * Do not use directly.
-	 * 
+	 *
 	 * @param string module name
 	 * @return bool true if directory was removed or did not exist, false otherwise
 	 */
@@ -839,15 +842,15 @@ class ModuleManager {
 			recursive_rmdir($dir);
 		return true;
 	}
-	
+
 	public static final function get_data_dir($name) {
 		$name = str_replace('/','_',$name);
 		return 'data/'.$name.'/';
 	}
-	
+
 	/**
 	 * Loads all installed classes definitions.
-	 * 
+	 *
 	 * Do not use directly.
 	 */
 	public static final function load_modules() {
@@ -862,10 +865,10 @@ class ModuleManager {
 			ModuleManager :: register($module, $version, self::$modules);
 		}
 	}
-	
+
 	/**
 	 * Creates root(first) module instance.
-	 * 
+	 *
 	 * Do not use directly.
 	 */
 	public static function & create_root() {
@@ -885,13 +888,13 @@ class ModuleManager {
 	/**
 	 * Checks access to a method.
 	 * First parameter is a module object and second is a method in this module.
-	 * 
+	 *
 	 * If you want to restric access to a method just create a method called
-	 * 'methodname_access' returning false if you want restrict user from accessing 
+	 * 'methodname_access' returning false if you want restrict user from accessing
 	 * 'methodname' method.
-	 * 
+	 *
 	 * check_access is called automatically with each pack_module call.
-	 * 
+	 *
 	 * @param object module
 	 * @param string function name
 	 * @return bool true if access is granted, false otherwise
@@ -900,13 +903,13 @@ class ModuleManager {
 		$comm = $mod.'Common';
 		if(class_exists($comm)) {
 			$sing = call_user_func(array($comm,'Instance'));
-			if (method_exists($sing, $m . '_access') && 
+			if (method_exists($sing, $m . '_access') &&
 				!call_user_func(array($sing, $m . '_access')))
 				return false;
 		}
 		return true;
 	}
-	
+
 	public static final function call_common_methods($method,$cached=true) { //przy instalacji niech rejestruje commony a pozniej idzie do bazy
 		static $cache;
 		if(!isset($cache[$method]) || !$cached) {
