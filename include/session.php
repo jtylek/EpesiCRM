@@ -45,21 +45,17 @@ class DBSession {
     }
     
     public static function destroy($name) {
-    	DB::StartTrans();
     	DB::Execute('DELETE FROM history WHERE session_name=%s',array($name));
     	DB::Execute('DELETE FROM session_client WHERE session_name=%s',array($name));
     	DB::Execute('DELETE FROM session WHERE name=%s',array($name));
-    	DB::CompleteTrans();
     	return true;
     }
 
     public static function gc($lifetime) {
     	$t = time()-$lifetime;
-    	DB::StartTrans();
 	DB::Execute('DELETE FROM history WHERE session_name IN (SELECT name FROM session WHERE expires < %d)',array($t));
     	DB::Execute('DELETE FROM session_client WHERE session_name IN (SELECT name FROM session WHERE expires < %d)',array($t));
    	DB::Execute('DELETE FROM session WHERE expires < %d',array($t));
-    	DB::CompleteTrans();
         return true;
     }
 }
