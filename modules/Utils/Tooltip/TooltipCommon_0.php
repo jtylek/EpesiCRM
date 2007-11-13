@@ -1,10 +1,10 @@
 <?php
-/** 
+/**
  * @author Kuba Slawinski <kslawinski@telaxus.com> and Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC 
  * @version 0.9
- * @license SPL 
- * @package epesi-utils 
+ * @license SPL
+ * @package epesi-utils
  * @subpackage tooltip
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
@@ -21,12 +21,12 @@ class Utils_TooltipCommon extends ModuleCommon {
 		if(!isset(self::$help_tooltips))
 			self::$help_tooltips = Base_User_SettingsCommon::get('Utils/Tooltip','help_tooltips');
 	}
-	
+
 
 	/**
-	 * Returns string that when placed as tag attribute 
+	 * Returns string that when placed as tag attribute
 	 * will enable tooltip when placing mouse over that element.
-	 * 
+	 *
 	 * @param string tooltip text
 	 * @param boolean help tooltip? (you can turn off help tooltips)
 	 * @return string HTML tag attributes
@@ -57,7 +57,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 
 	/**
 	 * Returns string that if displayed will create text with tooltip.
-	 * 
+	 *
 	 * @param string text
 	 * @param string tooltip text
 	 * @param boolean help tooltip? (you can turn off help tooltips)

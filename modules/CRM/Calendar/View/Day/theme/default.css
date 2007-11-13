@@ -70,16 +70,16 @@ table.week td.hours_header_lower {
 
 table.week td.header_day {
 	vertical-align: top;
-	color: #000000;
 	border: 1px solid #B3B3B3;
 	border-right: 0px;
 	border-top: 0px;
 	border-bottom: 0px;
 	text-align: left;
 	background-color: #fcfffd;
+	font-size: 18px;
 }
 
-table.week td.header_day a {
+table.week td.header_day a table {
 	font-weight: bold;
 	font-size: 18px;
 }
@@ -197,7 +197,8 @@ div.events_brief img {
 }
 
 div.day-menu {
-	padding-bottom: 20px;
+	padding-bottom: 10px;
+	border-bottom: 4px solid #B3B3B3;
 }
 
 div.day-menu img {

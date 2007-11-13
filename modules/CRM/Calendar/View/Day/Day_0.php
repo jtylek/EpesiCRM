@@ -275,7 +275,7 @@ class CRM_Calendar_View_Day extends Module {
 		print '<td>' . $today. '</td>';
 		print '<td>' . Utils_CalendarCommon::show('week_selector', $link_text) . '</td>';
 		print '<td>' . $next . '</td>';
-		print '</tr></div>';
+		print '</tr></table></div><br>';
 	} // calendar menu
 
 	public function parse_links($date) {
