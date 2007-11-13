@@ -58,14 +58,14 @@ class Apps_MailClient extends Module {
 		$limit_max = count($mbox);
 		
 		load_js($this->get_module_dir().'utils.js');
-	
+		
 		foreach($mbox as $id=>$data) {
 			$r = $gb->get_new_row();
 			$r->add_data($id,'<a href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$id, 'pid'=>$preview_id)).'\')">'.htmlentities($data['subject']).'</a>',htmlentities($data['from']),Base_RegionalSettingsCommon::time2reg($data['date']),$data['size']);
 			$lid = 'mailclient_link_'.$id;
-			$r->add_action('href="javascript:void(0)" rel="'.$show_id.'" class="lbOn" id="'.$lid.'"','View');
-			eval_js('Event.observe(\''.$lid.'\',\'click\',function() {Apps_MailClient.preview(\''.$show_id.'\',\''.http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$id, 'pid'=>$show_id)).'\')})');
+			$r->add_action('href="javascript:void(0)" rel="'.$show_id.'" class="lbOn" id="'.$lid.'" ','View');
 			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Delete this message?'),array($this,'remove_message'),array($mbox_file,$id)),'Delete');
+			$r->add_js('Event.observe(\''.$lid.'\',\'click\',function() {Apps_MailClient.preview(\''.$show_id.'\',\''.http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$id, 'pid'=>$show_id)).'\')})');
 		}
 		
 		$th->assign('list', $this->get_html_of_module($gb,array(true),'automatic_display'));

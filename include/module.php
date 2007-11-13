@@ -444,6 +444,16 @@ abstract class Module extends ModulePrimitive {
 	}
 	
 	/**
+	 * Unsets *unique_href variable.
+	 * 
+	 * @param string key
+	 */
+	public final function unset_unique_href_variable($key) {
+		$rkey = $this->create_unique_key($key);
+		if(isset($_REQUEST[$rkey])) unset($_REQUEST[$rkey]);
+	}
+	
+	/**
 	 * Checks if variable given as first parameter was passed with create_unique_href function.
 	 * 
 	 * @param string key
