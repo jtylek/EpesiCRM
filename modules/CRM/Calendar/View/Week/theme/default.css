@@ -181,15 +181,7 @@ a.icon {
 	text-align: left;
 	background: #ffffed;
 }
-.crm_calendar_view_week__eventsfull {
-		visibility: hidden;
-		position: absolute;
-		dislay: block;
-		background: white;
-		z-index: 10001;
-		border: 1px solid black;
-		width: 200px;
-	}
+
 
 
 div.events_brief {

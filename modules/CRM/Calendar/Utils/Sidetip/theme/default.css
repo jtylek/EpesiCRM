@@ -1,1 +1,9 @@
-@CHARSET "ISO-8859-1";
+.crm_calendar_utils_sidetip {
+	visibility: hidden;
+	position: absolute;
+	dislay: block;
+	background: white;
+	z-index: 10001;
+	border: 1px solid black;
+	width: 200px;
+}

@@ -48,7 +48,7 @@ var CRM_Clendar_Utils_Sidetip = {
 		this.tip.id = this.activator+'_f';
 		this.tip.innerHTML = this.text;
 		this.tip.style.zIndex = 100000;
-		this.tip.className = 'crm_calendar_view_week__eventsfull';
+		this.tip.className = 'crm_calendar_utils_sidetip';
 		
 		document.body.appendChild(this.tip);
 		this.action_on = function(event) {

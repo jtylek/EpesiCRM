@@ -3,6 +3,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_Calendar_Utils_SidetipCommon extends ModuleCommon {
 	public static function load() {
+		Base_ThemeCommon::load_css('CRM_Calendar_Utils_Sidetip');
 		load_js('modules/CRM/Calendar/Utils/Sidetip/sidetip.js');
 		eval_js('CRM_Clendar_Utils_Sidetip.reset()');
 	}
