@@ -1,9 +1,9 @@
 <?php
 /**
  * CRMCalendar class.
- * 
+ *
  * Calendar module with support for managing events.
- * 
+ *
  * @author Kuba Slawinski <kslawinski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.99
@@ -14,7 +14,7 @@
  * status: 0 - open; 1 - in progres; 3 - done; 4 - canceled
  * access: 0 - public; 1 - public, r/o; 2 - private (r/w for creator and related people)
  */
- 
+
 defined("_VALID_ACCESS") || die();
 
 class CRM_Calendar_View_Week extends Module {
@@ -34,7 +34,7 @@ class CRM_Calendar_View_Week extends Module {
 	private $nearest_delim;
 	private $settings;
 	private $lang;
-	
+
 	private function init() {
 		$this->lang = & $this->pack_module('Base/Lang');
 		$tmp;
@@ -57,13 +57,13 @@ class CRM_Calendar_View_Week extends Module {
 				$this->logged = Base_UserCommon::get_my_user_id();
 			$this->admin = true;
 			//print Base_User::get_User_login($this->logged);
-				
+
 		} else {
 			$this->logged = -1;
 		}
 		CRM_Calendar_Utils_SidetipCommon::load();
-		/*$this->view_style = $this->get_module_variable_or_unique_href_variable('view_style', $tmp);	
-		
+		/*$this->view_style = $this->get_module_variable_or_unique_href_variable('view_style', $tmp);
+
 		$this->date = array();
 		//
 		$this->date['year'] = $this->get_module_variable_or_unique_href_variable('date_year', date("Y"));
@@ -81,7 +81,7 @@ class CRM_Calendar_View_Week extends Module {
 		$event = & $this->init_module('CRM/Calendar/Event');
 		return $event->add_event($date, $time);
 	}
-	
+
 	public function edit_event($event_type, $event_id) {
 		$event = & $this->init_module($event_type);
 		return $event->edit_event($event_id);
@@ -95,19 +95,19 @@ class CRM_Calendar_View_Week extends Module {
 		$event = & $this->init_module('CRM/Calendar/Event');
 		return $event->delete_event($event_type, $event_id);
 	}
-	
+
 	////////////////////////////////////////////////////////////////////////////
 	// week view
 	public function create_month_header($start) {
 		$header_month = array();
 		$header_month[0] = array(
-				'colspan' => 7, 
+				'colspan' => 7,
 				'info'=>
 					'<a '.$this->parent->create_unique_href( array('action'=>'show', 'view_style'=>'month', 'date'=>array('year'=>$start['year'], 'month'=>$start['month'], 'day'=>1), 'direct'=>'yes') ).'>'.
 					CRM_Calendar_Utils_FuncCommon::name_of_month( $start['month'] ) . " (".$start['year'].")" .
 					"</a>"
 		);
-		
+
 		$limit = CRM_Calendar_Utils_FuncCommon::days_in_month_r($start);
 		if($start['day'] + 6 > $limit) {
 			if($start['month'] == 12) {
@@ -119,7 +119,7 @@ class CRM_Calendar_View_Week extends Module {
 			 	$current_month = $this->name_of_month_abbr[ $start['month'] ];
 			}
 			$header_month[1] = array(
-				'colspan' => 0, 
+				'colspan' => 0,
 				'info'=>
 					'<a '.$this->parent->create_unique_href( array('action'=>'show', 'view_style'=>'month', 'date'=>array('year'=>$start['year'], 'month'=>$start['month'], 'day'=>1), 'direct'=>'yes') ).'>'.
 					CRM_Calendar_Utils_FuncCommon::name_of_month( $start['month'] ) . " (".$start['year'].")" .
@@ -143,7 +143,7 @@ class CRM_Calendar_View_Week extends Module {
 		for($i = $start['day'], $a = 0; $i < $start['day']+7; $i++, $a++) {
 			$current_day = $i ;
 			$cnt = array();
-			
+
 			// determine end of month
 			if($current_day > $limit) {
 				$current_day -= $limit;
@@ -162,18 +162,18 @@ class CRM_Calendar_View_Week extends Module {
 			// check if day to display is today's day
 			if(intval($start['year']) == intval($today['year']) && intval($start['month']) == intval($today['month']) && intval($current_day) == intval($today['day']))
 				$cnt['class'] = "today";
-			else 
+			else
 				$cnt['class'] = "day";
 			$k = CRM_Calendar_Utils_FuncCommon::day_of_week($start['year'], $start['month'], $current_day);
 			$cnt['info'] = "<a ".$this->parent->create_unique_href( array('action'=>'show', 'view_style'=>'day', 'date'=>array('year'=>$start['year'], 'month'=>$start['month'], 'day'=>$current_day)) )."><table width=100%><tr><td width=50% align=left><span class=day_number >$current_day</span></td>".
 				"<td width=50% align=right>".CRM_Calendar_Utils_FuncCommon::name_of_day($k)."</td></tr></table></a>";
-			
+
 			$cnt['info'] .= Utils_TooltipCommon::create("<a ".$this->create_callback_href(array($this,'add_event'),array('date'=>array('year'=>$start['year'], 'month'=>$start['month'], 'day'=>$current_day))).">add</a>", "Click to add new event on $current_day $current_month.");
 			$header_day[] = array('info'=>$cnt['info'], 'week'=>CRM_Calendar_Utils_FuncCommon::name_of_day($k), 'class'=>$cnt['class']);
 		}
 		return $header_day;
 	}
-	
+
 	// exxtracting events from tables
 	public function extract_timeless_from_week(&$event_groups, $day) {
 		$event = array();
@@ -190,16 +190,16 @@ class CRM_Calendar_View_Week extends Module {
 					$g++;
 					$div_id = generate_password(4);
 					$div_id = sprintf('%s_%4d%2d%2d0000X%d', $div_id, $this->date['year'], $this->date['month'], $this->date['day'], $EV['id']);
-					
+
 					$event[$g] = array();
 					$event[$g]['full'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'full');
 					$more = call_user_func(array($module.'Common', 'get_text'), $EV, 'edit');
 					$event[$g]['more'] = '<img id="'.$div_id.'_more" border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', "icon-view.gif").'>';
-								
+
 					// special priviliges
 					if($this->logged > 0) {
-						$event[$g]['full'] .= '<br>'; 
-						// edit 
+						$event[$g]['full'] .= '<br>';
+						// edit
 						if($EV['access'] == 0 || $EV['created_by'] == $this->logged)
 							$event[$g]['full'] .= '<a '.$this->parent->create_callback_href(array($this, 'edit_event'), array($module, $EV['id'])).' class=icon><img  border="0" width="32" height="32" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'icon-edit.png').'></a> ';
 						// details
@@ -208,11 +208,11 @@ class CRM_Calendar_View_Week extends Module {
 						// delete
 						if($EV['access'] == 0 || $EV['created_by'] == $this->logged)
 							$event[$g]['full'] .= '<a '.$this->parent->create_confirm_callback_href('Are you sure, you want to delete this event?', array($this, 'delete_event'), array($module, $EV['id'])).' class=icon><img  border="0" width="32" height="32" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'icon-delete.png').'></a> ';
-					
+
 					}
 					$event[$g]['brief'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'brief');
 					$event[$g]['move'] = '<img  border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'grab-2.png').'>';
-							
+
 					$event[$g]['div_id'] = $div_id;
 					CRM_Calendar_Utils_SidetipCommon::create($div_id.'_brief', $div_id, $event[$g]['full']);
 					CRM_Calendar_Utils_SidetipCommon::create($div_id.'_more', $div_id, $more);
@@ -237,11 +237,11 @@ class CRM_Calendar_View_Week extends Module {
 							$event[$g] = array();
 							$div_id = 'daylistevent';
 							$div_id = sprintf('%s_%sX%d', $div_id, $EV['datetime_start'], $EV['id']);
-														
+
 							$event[$g]['full'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'full');
 							$more = call_user_func(array($module.'Common', 'get_text'), $EV, 'edit');
 							$event[$g]['more'] = '<img id="'.$div_id.'_more" border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', "icon-view.gif").'>';
-								
+
 							// special priviliges
 							if($this->logged > 0) {
 								$event[$g]['full'] .= '<br>';
@@ -254,12 +254,12 @@ class CRM_Calendar_View_Week extends Module {
 								// delete
 								if($EV['access'] == 0 || $EV['created_by'] == $this->logged)
 									$event[$g]['full'] .= '<a '.$this->parent->create_confirm_callback_href('Are you sure, you want to delete this event?', array($this, 'delete_event'), array($module, $EV['id'])).' class=icon><img  border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'icon-delete.gif').'></a> ';
-							
+
 							}
 							$event[$g]['brief'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'brief');
 							$event[$g]['move'] = '<img  border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'grab-2.png').'>';
 							$event[$g]['div_id'] = $div_id;
-							
+
 							//if($EV['created_by'] != Base_UserCommon::get_My_user_id())
 							//	eval_js('crm_calendar_view_week__remove_element("'.$div_id.'")');
 							//else
@@ -274,11 +274,11 @@ class CRM_Calendar_View_Week extends Module {
 	}
 	/////////////////////////////////////////////////////////////////////////////
 	public function show_calendar_week($date = array()) {
-		
+
 			$theme = & $this->pack_module('Base/Theme');
 			load_js('modules/CRM/Calendar/View/Week/js/Week.js');
 			load_js('modules/CRM/Calendar/dnd.js');
-			
+
 			eval_js('mini_calendar_week_visibleDetails = new Array();');
 			$start = $date;
 			$events = CRM_Calendar_EventCommon::get_7days($start);
@@ -287,13 +287,13 @@ class CRM_Calendar_View_Week extends Module {
 			$i = CRM_Calendar_Utils_FuncCommon::day_of_week_r(CRM_Calendar_Utils_FuncCommon::today());
 			$day_of_week = CRM_Calendar_Utils_FuncCommon::translate($i);
 			$today = CRM_Calendar_Utils_FuncCommon::today();
-			
+
 			// month header
 			$header_month = $this->create_month_header($start);
-				
+
 			// day header
 			$header_day = $this->create_day_header($start);
-			
+
 			$t = $this->date['year'];
 			$x = 0;
 			// timeless events
@@ -301,12 +301,12 @@ class CRM_Calendar_View_Week extends Module {
 			for($i = $start['day']; $i < $start['day']+7; $i++) {
 				$cnt = '&nbsp;';
 				$current_day = $i ;
-				
+
 				// check for new month
 				if($current_day > $limit) {
 					$current_day -= $limit;
 					$tmp = $this->date['month']+1;
-					if($tmp > 12) 
+					if($tmp > 12)
 						$tmp = 1;
 					$date['month'] = $tmp;
 				} else {
@@ -314,20 +314,20 @@ class CRM_Calendar_View_Week extends Module {
 				}
 				$event = $this->extract_timeless_from_week($events, $current_day);
 				$id = 'daylist_'.CRM_Calendar_EventCommon::make_containment_id($date['year'], $date['month'], $current_day);
-				
+
 				$class = "day";
 				if(intval($date['year']) == intval($today['year']) && intval($date['month']) == intval($today['month']) && intval($current_day) == intval($today['day']))
 					$class = "today";
-				
+
 				$timeless_tt[] = array('info'=>$cnt, 'class'=>$class, 'id'=>$id, 'event'=>$event, 'event_num'=>count($event));
 				eval_js('CRMCalendarDND.add_containment("'.$id.'")');
 			}
-			
+
 			// regular events
 			for($j = 0; $j < 24; ) {
 				$midday = "";
 				$x = $j;
-				
+
 				// START
 				if($j < $this->settings['start_day']) {
 					if($x + round($this->settings['start_day'] / $this->settings['grid_morning']) <= $this->settings['start_day'])
@@ -345,20 +345,20 @@ class CRM_Calendar_View_Week extends Module {
 					if($x > 24)
 						$x = 24;
 				}
-				
+
 				// SLOT
 				$cnt = "$j<sup>00</sup>&nbsp;-&nbsp;" . $x . "<sup>00</sup>";
-				
+
 				$tt[] = array('info'=>$cnt, 'event'=>array(), 'event_num'=>0, 'class'=>'hour', 'midday'=>$midday);
 				for($i = $start['day']; $i < $start['day']+7; $i++) {
 					$current_day = $i;
 					// check for new month
-					
+
 					$date = $start;
 					if($current_day > $limit) {
 						$current_day -= $limit;
 						$tmp = $start['month']+1;
-						if($tmp > 12) { 
+						if($tmp > 12) {
 							$tmp = 1;
 							$date['year'] = $start['year']+1;
 						}
@@ -370,11 +370,11 @@ class CRM_Calendar_View_Week extends Module {
 					$class = "day";
 					if(intval($date['year']) == intval($today['year']) && intval($date['month']) == intval($today['month']) && intval($current_day) == intval($today['day']))
 						$class = "today";
-					
+
 					$tt[] = array('info'=>$cnt, 'class'=>$class, 'id'=>$id, 'event'=>$event, 'event_num'=>count($event), 'midday'=>$midday);
 					eval_js('CRMCalendarDND.add_containment("'.$id.'")');
 				}
-				
+
 				// END
 				if($j < $this->settings['start_day']) {
 						$j = $j + round($this->settings['start_day'] / $this->settings['grid_morning']);
@@ -384,12 +384,12 @@ class CRM_Calendar_View_Week extends Module {
 					$j = $j + round((24-$this->settings['end_day']) / $this->settings['grid_evening']);
 				//print "</tr>";
 			}
-		
+
 			$theme->assign('header_month', $header_month);
 			$theme->assign('header_day', $header_day);
 			$theme->assign('timeless_event', $timeless_tt);
 			$theme->assign('tt', $tt);
-			
+
 			$theme->display();
 			eval_js('CRMCalendarDND.create_containments()');
 			CRM_Calendar_Utils_SidetipCommon::create_all();
@@ -401,26 +401,30 @@ class CRM_Calendar_View_Week extends Module {
 	// MENUS ///////////////////////////////////////////////////////////
 
 	////////////////////////////////////////////////////////////////////////
-	
+
 	/////////////////////////////////////////////////////////////////////////////
 	public function menu($date) {
+		print '<div class="week-menu"><table border="0"><tr>';
+
 		$link_text = $this->create_unique_href_js(array( 'date'=>array('year'=>'__YEAR__', 'month'=>'__MONTH__', 'day'=>'__DAY__') ));
-		$next = '<a '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::next_day($date) )).'>One day >></a>';
-		$prev = '<a '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::prev_day($date) )).'><< One day</a>';
-		
-		$today = '<a '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::begining_of_week_r( CRM_Calendar_Utils_FuncCommon::today() ))).'>Today</a>';
-		
-		$next7 = '<a '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::next_week($date) )).'>One week >></a>';
-		$prev7 = '<a '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::prev_week($date) )).'><< One week</a>';
-		
-		print $prev.' ';
-		print '| '.$next. ' | ';
-		print $today.' | ';
-		print Utils_CalendarCommon::show('week_selector', $link_text);
-		print ' | '.$prev7.' ';
-		print '| '.$next7;
+		$next = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::next_day($date) )).'>Next day <img border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'next.png').'></a>';
+		$prev = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::prev_day($date) )).'><img border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'prev.png').'> Previous day</a>';
+
+		$today = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::begining_of_week_r( CRM_Calendar_Utils_FuncCommon::today() ))).'>Today <img border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'this.png').'></a>';
+
+		$next7 = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::next_week($date) )).'>Next week <img border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'next.png').'></a>';
+		$prev7 = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::prev_week($date) )).'><img border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'prev.png').'> Previous week</a>';
+
+		print '<td>' . $prev . '</td>';
+		print '<td>' . $next . '</td>';
+		print '<td>' . $today . '</td>';
+		print '<td style="width: 20px;"></td><td>' . Utils_CalendarCommon::show('week_selector', $link_text) . '</td><td style="width: 20px;"></td>';
+		print '<td>' . $prev7 . '</td>';
+		print '<td>' . $next7 . '</td>';
+
+		print '</tr></table></div><br>';
 	} // calendar menu
-	
+
 	public function parse_links($date) {
 		$action = $this->get_module_variable_or_unique_href_variable('action', '');
 		$subject = $this->get_module_variable_or_unique_href_variable('subject', '');
@@ -442,10 +446,10 @@ class CRM_Calendar_View_Week extends Module {
 	public function body($arg = null) {
 		$this->init();
 		if(!isset($arg['date'])) {
-			$def = CRM_Calendar_Utils_FuncCommon::begining_of_week_r(CRM_Calendar_Utils_FuncCommon::today());	
+			$def = CRM_Calendar_Utils_FuncCommon::begining_of_week_r(CRM_Calendar_Utils_FuncCommon::today());
 			if(Base_User_SettingsCommon::get('CRM/Calendar', 'default_today') == 1)
-				$def = CRM_Calendar_Utils_FuncCommon::today();	
-				
+				$def = CRM_Calendar_Utils_FuncCommon::today();
+
 			$this->date = $this->get_module_variable_or_unique_href_variable('date', $def);
 		} else {
 			$this->date = $arg['date'];
@@ -453,8 +457,8 @@ class CRM_Calendar_View_Week extends Module {
 		$this->menu($this->date);
 		$this->parse_links($this->date);
 		Base_ActionBarCommon::add('add',$this->lang->t('Add Event'), $this->parent->create_callback_href(array($this,'add_event'),array($this->date)));
-		
+
 	}
-	
+
 }
 ?>

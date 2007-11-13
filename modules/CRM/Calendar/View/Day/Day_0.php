@@ -267,9 +267,9 @@ class CRM_Calendar_View_Day extends Module {
 		print '<div class="day-menu"><table border="0"><tr>';
 		$link_text = $this->create_unique_href_js(array( 'date'=>array('year'=>'__YEAR__', 'month'=>'__MONTH__', 'day'=>'__DAY__') ));
 
-		$next = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::next_day($date) )).'>Next <img border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'next.png').'></a>';
+		$next = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::next_day($date) )).'>Next day <img border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'next.png').'></a>';
 		$today = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::today() )).'>Today <img border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'this.png').'></a>';
-		$prev = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::prev_day($date) )).'><img border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'prev.png').'> Previous</a>';
+		$prev = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::prev_day($date) )).'><img border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'prev.png').'> Previous day</a>';
 
 		print '<td>' . $prev . '</td>';
 		print '<td>' . $today. '</td>';

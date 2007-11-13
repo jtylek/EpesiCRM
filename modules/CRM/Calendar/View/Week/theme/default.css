@@ -196,3 +196,31 @@ div.events_brief {
 .crm_calendar_week .event_drag_handle {
 	cursor: move;
 }
+
+/* menu */
+
+div.week-menu {
+	padding-bottom: 10px;
+	border-bottom: 4px solid #B3B3B3;
+}
+
+div.week-menu img {
+	vertical-align: middle;
+}
+
+div.week-menu a.button {
+    font-weight: normal;
+    color: #FFFFFF;
+    width: 100px;
+    line-height: 20px;
+    height: 20px;
+    display: block;
+    background-image: url("images/header-blue.png");
+    border: 0px;
+    text-align: center;
+}
+
+div.week-menu a.button:hover {
+    background-image: url("images/header-blue-hover.png");
+
+}
