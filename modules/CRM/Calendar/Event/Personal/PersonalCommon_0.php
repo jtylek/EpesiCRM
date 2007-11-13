@@ -110,38 +110,48 @@ class CRM_Calendar_Event_PersonalCommon extends ModuleCommon {
 				else
 					return "<b>".$time.$divider.$finish."</b> -- ".Base_UserCommon::get_user_login($row['created_by']).' PRIVATE';
 			//-----------------------------------------
+			case 'edit':
+				$edits = array('created_by'=>'created_on', 'edited_by'=>'edited_on');
+				$more = '<table>';
+				foreach($edits as $who=>$when) {
+					if(CRM_Calendar_Utils_FuncCommon::get_settings('show_detail_'.$who) == 1) {
+						if(isset($row[$who]) && $row[$who] !== '') {
+							$more .= '<tr><td style=\'vertical-align: top\'><u>'.str_replace('_', ' ', ucfirst($who)).'</u>:</td><td>'.Base_UserCommon::get_user_login($row[$who]);
+						
+							if(CRM_Calendar_Utils_FuncCommon::get_settings('show_detail_'.$when) == 1)
+								if(isset($row[$when]) && $row[$when] !== '')
+									$more .= '<br>on '.$row[$when];
+							$more .= '</tr>';
+						}
+					}
+				}
+				$more .= '</table>';
+				if($row['created_by'] == Base_UserCommon::get_my_user_id() || $row['access'] <= 1)
+					return '<b>'.$time.$divider.$finish.$after.$row['title'].'</b>'.$more;
+				else
+					return "<b>".$time.$divider.$finish.'</b><br>'.Base_UserCommon::get_user_login($row['created_by']).' PRIVATE';
+				break;
 			case 'full':
 			case 0:
 			default:
 				$row['activity'] = $acts;
 				$row['participants'] = $emps;
 				$fields = array('activity', 'participants', 'description', 'access', 'priority');
-				$edits = array('created_by'=>'created_on', 'edited_by'=>'edited_on');
-				$full = '';
-				$more = '';
+				$full = '<table>';
 				foreach($fields as $f) {
 					if(CRM_Calendar_Utils_FuncCommon::get_settings('show_detail_'.$f) == 1) {
 						if(isset($row[$f]) && $row[$f] !== '')
-							$full .= '<br><u>'.str_replace('_', ' ', ucfirst($f)).'</u>: '.$row[$f];
+							$full .= '<tr><td style=\'vertical-align: top\'><u>'.str_replace('_', ' ', ucfirst($f)).'</u>:</td><td>'.$row[$f].'</td></tr>';
 					}
 				}
-				foreach($edits as $who=>$when) {
-					if(CRM_Calendar_Utils_FuncCommon::get_settings('show_detail_'.$who) == 1) {
-						if(isset($row[$who]) && $row[$who] !== '') {
-							$more .= '<br><u>'.str_replace('_', ' ', ucfirst($who)).'</u>: '.Base_UserCommon::get_user_login($row[$who]);
-						
-							if(CRM_Calendar_Utils_FuncCommon::get_settings('show_detail_'.$when) == 1)
-								if(isset($row[$when]) && $row[$when] !== '')
-									$more .= ' on '.$row[$when];
-						}
-					}
-				}
-				if($more !== '') {
+				$full .= '</table>';
+				
+				//if($more !== '') {
 					//$id = generate_password(6);
 					//CRM_Calendar_Utils_SidetipCommon::create_for($id, $more);
 					//$full .= '<br><span id="'.$id.'">more</span>';
-					$full .= '<br>'.$more;
-				}
+				//	$full .= '<br>'.$more;
+				//}
 				if($row['created_by'] == Base_UserCommon::get_my_user_id() || $row['access'] <= 1)
 					return '<b>'.$time.$divider.$finish.$after.$row['title'].'</b>'.$full;
 				else

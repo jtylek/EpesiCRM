@@ -1,4 +1,4 @@
-	<table name=CRMCalendar cellspacing=0 class=week>
+	<table class="crm_calendar_week" cellspacing=0>
 		<tr>
 {* shows month *}
 			<td class=hours_header>&nbsp;</td> 
@@ -14,7 +14,7 @@
 			
 			{section name=header_day loop=$header_day}
 				{if $header_day[header_day].class == 'today'}
-					<td class=header_day_today>{$header_day[header_day].info}</td>
+					<td class="header_day_today">{$header_day[header_day].info}</td>
 				{else}
 					<td class=header_day>{$header_day[header_day].info}</td>
 				{/if}
@@ -26,12 +26,18 @@
 			<td class=hours_header_lower>&nbsp;</td>
 			
 			{foreach item=t_event from=$timeless_event}
-				<td class=header_timeless id={$t_event.id}>
+			
+				{if $t_event.class == 'today'}
+					<td class=header_timeless_today id={$t_event.id}>
+				{else}
+					<td class=header_timeless id={$t_event.id}>
+				{/if}
 				{if $t_event.event_num > 0}
 					{foreach item=event from=$t_event.event}
 					<div name="events_brief" class=events_brief id="{$event.div_id}">
-						<span class="event_drag_handle">X</span>
-						{$event.brief}
+							<span class="event_drag_handle">{$event.move}</span>
+							<span id="{$event.div_id}_brief">{$event.brief}</span>
+							<span>{$event.more}</span>
 					</div>
 					{/foreach}
 				{else}
@@ -53,17 +59,18 @@
 					<td class={$tt[tt].midday}hour>{$tt[tt].info}
 				{else}
 					{if $tt[tt].class == 'today'}
-						<td class={$tt[tt].midday}inter_today>
+						<td class="{$tt[tt].midday}inter_today" id="{$tt[tt].id}">
 					{else}
-						<td class={$tt[tt].midday}inter id="{$tt[tt].id}"> 
+						<td class="{$tt[tt].midday}inter" id="{$tt[tt].id}"> 
 					{/if}
 					{$tt[tt].info}
 					{if $tt[tt].event_num > 0}
 						<br>
 						{foreach item=event from=$tt[tt].event}
 						<div name="events_brief" class=events_brief id="{$event.div_id}">
-							<span class="event_drag_handle">X</span>
-							{$event.brief}
+							<span class="event_drag_handle">{$event.move}</span>
+							<span id="{$event.div_id}_brief">{$event.brief}</span>
+							<span>{$event.more}</span>
 						</div>
 						
 						{/foreach}

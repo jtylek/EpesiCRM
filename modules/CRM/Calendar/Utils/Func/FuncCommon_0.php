@@ -109,6 +109,21 @@ class CRM_Calendar_Utils_FuncCommon extends ModuleCommon {
 		$week = self::week_of_year_r(array('year'=>date("Y"), 'month'=>date("m"),'day'=>date("d")));
 		return array('year'=>date("Y"), 'month'=>date("m"), 'day'=>date("d"), 'week'=>$week);
 	}
+	public static function is_today($date) {
+		$is = false;
+		$today = array('year'=>date("Y"), 'month'=>date("m"), 'day'=>date("d"));
+		if(intval($date['year']) == intval($today['year']) && intval($date['month']) == intval($today['month']) && intval($date['day']) == intval($today['day']))
+			$is = true;
+		return $is;
+	}
+	public static function is_today_r($year, $month, $day) {
+		$is = false;
+		$today = array('year'=>date("Y"), 'month'=>date("m"), 'day'=>date("d"));
+		if(intval($year) == intval($today['year']) && intval($month) == intval($today['month']) && intval($day) == intval($today['day']))
+			$is = true;
+		return $is;
+	}
+	
 	public static function next_day($date, $more = 1) {
 		if(!isset($date['year']) || !isset($date['month']) || !isset($date['day'])) 
 			return self::today();
@@ -172,6 +187,14 @@ class CRM_Calendar_Utils_FuncCommon extends ModuleCommon {
 		);
 		return $prev;
 	}
+	// next/prev week -------------------------------------------------
+	public static function next_week($date, $more = 1) {
+		return self::begining_of_week_r(self::next_day($date, $more*7 ));
+	}
+	public static function prev_week($date, $more = 1) {
+		return self::begining_of_week_r(self::prev_day($date, $more*7 ));
+	}
+	
 	//TODO: correct returned value to see today's day in returned week
 	public static function week_of_year($year, $month, $day) {
 		$first_day_of_year = (self::translate(self::day_of_week($year, 1, 1)))%7;
