@@ -21,6 +21,10 @@ function message($id,$text) {
 	flush();
 }
 
+function rm_lock($lock) {
+	@unlink(dirname(dirname(dirname(__FILE__))).'/'.$lock);
+}
+
 $accounts = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE user_login_id=%d',array(Base_UserCommon::get_my_user_id()));
 foreach($accounts as $account) {
 	$host = explode(':',$account['incoming_server']);
@@ -35,10 +39,21 @@ foreach($accounts as $account) {
 	
 	$box = str_replace(array('@','.'),array('__at__','__dot__'),$account['mail']).'/Inbox';
 	
+	//check if mbox is not locked
+	$lock = Apps_MailClientCommon::get_mail_dir().$box.'.lock';
+	if(file_exists($lock)) {
+		message($account['id'],$account['mail'].': mailbox locked');
+		continue;	
+	}
+	file_put_contents($lock,'');
+	register_shutdown_function('rm_lock',$lock); //be sure that lock was deleted
+	
+	//open mbox
 	$mbox = new Mail_Mbox(Apps_MailClientCommon::get_mail_dir().$box.'.mbox');
 	if(($ret = $mbox->setTmpDir('data/Apps_MailClient/tmp'))===false 
 		|| ($ret = $mbox->open())===false) {
 		message($account['id'],$account['mail'].': unable to open Inbox file');
+		unlink($lock);
 		continue;	
 	}
 
@@ -63,11 +78,13 @@ foreach($accounts as $account) {
 
 	if(PEAR::isError( $ret= $in->connect(($ssl?'ssl://':'').$host , $port) )) {
 		message($account['id'],$account['mail'].': (connect error) '.$ret->getMessage());
+		unlink($lock);
 		continue;
 	}
 
 	if(PEAR::isError( $ret= $in->login($user , $pass, $method))) {
 		message($account['id'],$account['mail'].': (login error) '.$ret->getMessage());
+		unlink($lock);
 		continue;
 	}
 
@@ -75,6 +92,14 @@ foreach($accounts as $account) {
 	$error = false;
 	if($pop3) {
 		$l = $in->getListing();
+		//check uidls and unset already downloaded messages
+		$uidls_file = Apps_MailClientCommon::get_mail_dir().$box.'.uilds';
+		if($account['pop3_leave_msgs_on_server']>0 && file_exists($uidls_file)) {
+			$uidls = explode("\n",file_get_contents($uidls_file));
+			$count = count($l);
+			for($k=0; $k<$count; $k++)
+				if(in_array($l[$k]['uidl'],$uidls)) unset($l[$k]);
+		} else $uidls=array();
 		$count = count($l);
 		foreach($l as $msgl) {
 			message($account['id'],$account['mail'].': getting message '.$num.' of '.$count);
@@ -90,15 +115,19 @@ foreach($accounts as $account) {
 				break;
 			}
 			$num++;
+			$uidls[] = $msgl['uidl'];
 			echo('<script>parent.Apps_MailClient.progress_bar.set_progress(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\', '.ceil($num*100/$count).')</script>');
 			flush();
 		}
+		if($account['pop3_leave_msgs_on_server']>0)
+			file_put_contents($uidls_file,implode("\n",$uidls));
 	} else { //imap
 	}
 	$in->disconnect();
 	$mbox->close();
 	if(!$error)
 		message($account['id'],$account['mail'].': ok, got '.$num.' new messages');
+	unlink($lock);
 }
-echo('<a href="javascript:parent.leightbox_deactivate(\''.$_GET['id'].'\')">hide</a>');
+echo('<a href="javascript:parent.$(\''.$_GET['id'].'X\').src=\'\';parent.leightbox_deactivate(\''.$_GET['id'].'\')">hide</a>');
 ?>

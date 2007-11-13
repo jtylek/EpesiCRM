@@ -1,6 +1,6 @@
-<table>
+<table style="width:100%">
 	<tr>
-		<td rowspan=2 style="vertical-align:top">{$tree}</td>
+		<td rowspan=2 style="vertical-align:top; width: 100px; overflow:auto">{$tree}</td>
 		<td>{$list}</td>
 	</tr>
 	<tr>

@@ -62,7 +62,9 @@ class Apps_MailClient extends Module {
 		foreach($mbox as $id=>$data) {
 			$r = $gb->get_new_row();
 			$r->add_data($id,'<a href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$id, 'pid'=>$preview_id)).'\')">'.htmlentities($data['subject']).'</a>',htmlentities($data['from']),Base_RegionalSettingsCommon::time2reg($data['date']),$data['size']);
-			$r->add_action('href="javascript:void(0)" rel="'.$show_id.'" class="lbOn" onMouseDown="Apps_MailClient.preview(\''.$show_id.'\',\''.http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$id, 'pid'=>$show_id)).'\')"','View');
+			$lid = 'mailclient_link_'.$id;
+			$r->add_action('href="javascript:void(0)" rel="'.$show_id.'" class="lbOn" id="'.$lid.'"','View');
+			eval_js('Event.observe(\''.$lid.'\',\'click\',function() {Apps_MailClient.preview(\''.$show_id.'\',\''.http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$id, 'pid'=>$show_id)).'\')})');
 			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Delete this message?'),array($this,'remove_message'),array($mbox_file,$id)),'Delete');
 		}
 		
@@ -84,7 +86,14 @@ class Apps_MailClient extends Module {
 		print('</div>');
 		
 		$checknew_id = $this->get_path().'checknew';
-		Base_ActionBarCommon::add('folder',$this->lang->t('Check'),'href="javascript:void(0)" rel="'.$checknew_id.'" class="lbOn" onMouseDown="$(\''.$checknew_id.'X\').src=\'modules/Apps/MailClient/checknew.php?'.http_build_query(array('id'=>$checknew_id,'t'=>microtime(true))).'\'"');
+		Base_ActionBarCommon::add('folder',$this->lang->t('Check'),'href="javascript:void(0)" rel="'.$checknew_id.'" class="lbOn" id="'.$checknew_id.'b"');
+		eval_js('mailclient_check_f = function() {'.
+				'if($(\''.$checknew_id.'\').style.display==\'block\'){'.
+					'$(\''.$checknew_id.'X\').src=\'modules/Apps/MailClient/checknew.php?'.http_build_query(array('id'=>$checknew_id,'t'=>microtime(true))).'\';'.
+				'}else{'.
+					'setTimeout(mailclient_check_f,100);'.
+				'}};'.
+			'Event.observe(\''.$checknew_id.'b\',\'click\',mailclient_check_f)');
 		print('<div id="'.$checknew_id.'" class="leightbox"><div style="width:100%;text-align:center" id="'.$checknew_id.'progresses"></div>'.
 			'<iframe id="'.$checknew_id.'X" frameborder=0 scrolling="No" height="50" width="100%"></iframe>'.
 			'</div>');
@@ -137,7 +146,7 @@ class Apps_MailClient extends Module {
 			$r = & $gb->get_new_row();
 			$r->add_data($row['mail']);
 			$r->add_action($this->create_callback_href(array($this,'account'),array($row['id'],'edit')),'Edit');
-			$r->add_action($this->create_callback_href(array($this,'account'),array($row['id'],'view')),'View');
+//			$r->add_action($this->create_callback_href(array($this,'account'),array($row['id'],'view')),'View');
 			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Are you sure?'),array($this,'delete_account'),$row['id']),'Delete');
 		}
 		$this->display_module($gb);
@@ -165,6 +174,10 @@ class Apps_MailClient extends Module {
 				'var opts = this.form.incoming_method.options;'.
 				'opts.length=0;'.
 				'$H(methods[this.value]).each(function(x,y) {opts[y] = new Option(x[1],x[0]);});'.
+				'if(this.value==0) this.form.pop3_leave_msgs_on_server.disabled=false; else this.form.pop3_leave_msgs_on_server.disabled=true;'.
+				'});'.
+			'Event.observe(\'mailclient_smtp_auth\',\'change\',function(x) {'.
+				'if(this.checked==true) {this.form.smtp_login.disabled=false;this.form.smtp_password.disabled=false;} else {this.form.smtp_login.disabled=true;this.form.smtp_password.disabled=true;}'.
 				'})');
 
 		$cols = array(
@@ -178,13 +191,18 @@ class Apps_MailClient extends Module {
 				array('name'=>'incoming_server','label'=>$this->lang->t('Incoming server address')),
 				array('name'=>'incoming_ssl','label'=>$this->lang->t('Receive with SSL')),
 				array('name'=>'incoming_method','label'=>$this->lang->t('Authorization method'),'type'=>'select','values'=>$methods[(isset($defaults) && $defaults['incoming_protocol'])?1:0], 'default'=>'auto'),
+				array('name'=>'pop3_leave_msgs_on_server','label'=>$this->lang->t('Remove messages from server after'),'type'=>'select',
+					'values'=>array(0=>'0 days',1=>'1 day', 3=>'3 days', 7=>'1 week', 14=>'2 weeks', 30=>'1 month'), 
+					'default'=>'0','param'=>((isset($defaults) && $defaults['incoming_protocol']) || ($f->getSubmitValue('submited') && $f->getSubmitValue('incoming_protocol')))?array('disabled'=>1):array()),
 
 				array('name'=>'out_header','label'=>$this->lang->t('Outgoing mail'),'type'=>'header'),
 				array('name'=>'smtp_server','label'=>$this->lang->t('SMTP server address')),
-				array('name'=>'smtp_auth','label'=>$this->lang->t('SMTP authorization required')),
-				array('name'=>'smtp_ssl','label'=>$this->lang->t('Send with SSL'))
+				array('name'=>'smtp_ssl','label'=>$this->lang->t('Send with SSL')),
+				array('name'=>'smtp_auth','label'=>$this->lang->t('SMTP authorization required'),'param'=>array('id'=>'mailclient_smtp_auth')),
+				array('name'=>'smtp_login','label'=>$this->lang->t('Login'),'param'=>((isset($defaults) && $defaults['smtp_auth']==0) || ($f->getSubmitValue('submited') && !$f->getSubmitValue('smtp_auth')))?array('disabled'=>1):array()),
+				array('name'=>'smtp_password','label'=>$this->lang->t('Password'),'type'=>'password','param'=>((isset($defaults) && $defaults['smtp_auth']==0) || ($f->getSubmitValue('submited') && !$f->getSubmitValue('smtp_auth')))?array('disabled'=>1):array())
 			);
-		
+
 		$f->add_table('apps_mailclient_accounts',$cols);
 		$f->setDefaults($defaults);
 		
