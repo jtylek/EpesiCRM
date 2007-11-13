@@ -1,7 +1,7 @@
 .crm_calendar_utils_sidetip {
 	visibility: hidden;
 	position: absolute;
-	dislay: block;
+	display: block;
 	background: white;
 	z-index: 10001;
 	border: 1px solid black;
