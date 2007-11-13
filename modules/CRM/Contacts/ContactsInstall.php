@@ -26,6 +26,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 			array('name'=>'Last Name', 'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true),
 			array('name'=>'Address 1', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
 			array('name'=>'Address 2', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
+			array('name'=>'Email', 'type'=>'text', 'required'=>false, 'param'=>'128', 'extra'=>false, 'visible'=>false, 'display_callback'=>array('CRM_ContactsCommon', 'display_email'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_email')),
 			array('name'=>'City', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>true),
 			array('name'=>'Country', 'type'=>'commondata', 'required'=>true, 'param'=>array('Countries'), 'extra'=>false, 'visible'=>true, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_country')),
 			array('name'=>'Zone', 'type'=>'commondata', 'required'=>false, 'param'=>array('Countries','Country'), 'extra'=>false, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_zone')),
@@ -33,13 +34,17 @@ class CRM_ContactsInstall extends ModuleInstall {
 			array('name'=>'Phone', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>true),
 			array('name'=>'Fax', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
 			array('name'=>'Web address', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'display_callback'=>array('CRM_ContactsCommon', 'display_webaddress'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_webaddress')),
-			array('name'=>'Company', 'type'=>'multiselect', 'required'=>false, 'param'=>array('company'=>'Name'), 'extra'=>false, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_company'))
+			array('name'=>'Company', 'type'=>'multiselect', 'required'=>false, 'param'=>array('company'=>'Name'), 'extra'=>false, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_company')),
+			array('name'=>'Group', 'type'=>'multiselect', 'required'=>false, 'param'=>'Contacts_groups', 'extra'=>false)
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('contact', $fields);
 		Utils_RecordBrowserCommon::set_tpl('contact', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'Contact'));
 		Utils_RecordBrowserCommon::set_processing_method('contact', array('CRM_ContactsCommon', 'submit_contact'));
 		Utils_RecordBrowserCommon::new_filter('contact', 'Company');
 		Utils_RecordBrowserCommon::set_quickjump('contact', 'Last Name');
+		Utils_RecordBrowserCommon::set_favorites('contact', true);
+		Utils_RecordBrowserCommon::set_recent('contact', 15);
+		Utils_RecordBrowserCommon::set_caption('contact', 'Contacts');
 //		Utils_RecordBrowserCommon::set_tpl('contact', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'View_entry'));
 // ************ companies ************** //
 		$fields = array(
@@ -52,13 +57,19 @@ class CRM_ContactsInstall extends ModuleInstall {
 			array('name'=>'Postal Code', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
 			array('name'=>'Phone', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>true),
 			array('name'=>'Fax', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
-			array('name'=>'Web address', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'display_callback'=>array('CRM_ContactsCommon', 'display_webaddress'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_webaddress'), 'visible'=>true)
+			array('name'=>'Web address', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'display_callback'=>array('CRM_ContactsCommon', 'display_webaddress'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_webaddress'), 'visible'=>true),
+			array('name'=>'Group', 'type'=>'multiselect', 'required'=>false, 'param'=>'Contacts_groups', 'extra'=>false)
 		);
 		Utils_RecordBrowserCommon::set_tpl('company', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'Company'));
 		Utils_RecordBrowserCommon::install_new_recordset('company', $fields);
 		Utils_RecordBrowserCommon::set_quickjump('company', 'Name');
-// ************ addons************** //
+		Utils_RecordBrowserCommon::set_favorites('company', true);
+		Utils_RecordBrowserCommon::set_recent('company', 15);
+		Utils_RecordBrowserCommon::set_caption('company', 'Companies');
+// ************ addons ************** //
 		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Contacts', 'company_addon', 'Contacts');
+// ************ other ************** //
+		Utils_CommonDataCommon::new_array('Contacts_Groups',array('Emplyee','Customer'));
 		return true;
 	}
 	
@@ -67,6 +78,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::delete_addon('company', 'CRM/Contacts', 'company_addon');
 		Utils_RecordBrowserCommon::uninstall_recordset('company');
 		Utils_RecordBrowserCommon::uninstall_recordset('contact');
+		Utils_CommonDataCommon::remove('Contacts_Groups');
 		return true;
 	}
 	

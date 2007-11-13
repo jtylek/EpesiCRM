@@ -67,6 +67,15 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$form->setDefaults(array($field=>self::display_webaddress($default)));
 		}
 	}
+	public static function QFfield_email(&$form, $field, $label, $mode, $default) {
+		if ($mode=='add' || $mode=='edit') {
+			$form->addElement('text', $field, $label);
+			if ($mode=='edit') $form->setDefaults(array($field=>$default));
+		} else {
+			$form->addElement('static', $field, $label);
+			$form->setDefaults(array($field=>self::display_email($default)));
+		}
+	}
 	public static function QFfield_login(&$form, $field, $label, $mode, $default) {
 		if (Base_AclCommon::i_am_admin()) {
 			$ret = DB::Execute('SELECT id, login FROM user_login ORDER BY login');
@@ -85,6 +94,9 @@ class CRM_ContactsCommon extends ModuleCommon {
 	public static function display_webaddress($v) {
 		if (strpos($v, 'http://')==false && $v) $v = 'http://'.$v;
 		return '<a href="'.$v.'" target="_blank">'.$v.'</a>';
+	}
+	public static function display_email($v) {
+		return '<a href="mailto:'.$v.'">'.$v.'</a>';
 	}
 	public static function display_login($v) {
 		if (!$v)
@@ -107,6 +119,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 			);
 			$values['company'] = array($comp_id);
 		}
+		if ($values['email']=='' && $values['login']!=0 && $mode=='add')
+			$values['email'] = DB::GetOne('SELECT mail FROM user_password WHERE user_login_id=%d', array($values['login']));
 		return $values;
 	}
 }

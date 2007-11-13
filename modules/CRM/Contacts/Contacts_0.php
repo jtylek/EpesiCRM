@@ -13,15 +13,15 @@
 defined("_VALID_ACCESS") || die();
 
 class CRM_Contacts extends Module {
+	private $rb = null;
+	
 	public function body() {
 		if (isset($_REQUEST['mode'])) $this->set_module_variable('mode', $_REQUEST['mode']);
 		$mode = $this->get_module_variable('mode');
 		if ($mode == 'contact') {
-			$rb = $this->init_module('Utils/RecordBrowser','contact');
-			$this->display_module($rb);
+			location(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array('contact')));
 		} else {
-			$rb = $this->init_module('Utils/RecordBrowser','company');
-			$this->display_module($rb);
+			location(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array('company')));
 		}
 	}
 
@@ -50,12 +50,14 @@ class CRM_Contacts extends Module {
 	}
 	public function new_contact($company){
 		$rb = $this->init_module('Utils/RecordBrowser','contact','contact');
+		$this->rb = $rb;
 		$ret = $rb->view_entry('add', null, array('company'=>array($company)));
 		$this->set_module_variable('view_or_add', 'add');
-		if ($ret==false) {
-			$rb2 = $this->init_module('Utils/RecordBrowser','company','company');
-			$rb2->view_entry('view', $company);
-		}
+		if ($ret==false)
+			location(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array('company'), 'box_main_function'=>'view_entry', 'box_main_arguments'=>array('view', $company, array())));
+	}
+	public function caption(){
+		if (isset($this->rb)) return $this->rb->caption();
 	}
 }
 ?>

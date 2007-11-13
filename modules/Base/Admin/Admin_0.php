@@ -87,11 +87,12 @@ class Base_Admin extends Module {
 	
 	public function caption() {
 		$module = $this->get_module_variable('href');
+		if ($module===null) return 'Administration: Control Panel';
 		$func = array($module.'Common','admin_caption');
-		if(!is_callable($func)) return;
+		if(!is_callable($func)) return 'Administration: '.$module;
 		$caption = call_user_func($func);
-		if($caption) return "Administration: ".$caption;
-		return "Administration";
+		if($caption) return 'Administration: '.$caption;
+		return 'Administration';
 	}
 }
 

@@ -188,6 +188,18 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function set_tpl($tab_name, $filename) {
 		DB::Execute('UPDATE recordbrowser_table_properties SET tpl=%s WHERE tab=%s', array($filename, $tab_name));
 	}
+	public static function set_favorites($tab_name, $value) {
+		DB::Execute('UPDATE recordbrowser_table_properties SET favorites=%d WHERE tab=%s', array($value?1:0, $tab_name));
+	}
+	public static function set_recent($tab_name, $value) {
+		DB::Execute('UPDATE recordbrowser_table_properties SET recent=%d WHERE tab=%s', array($value, $tab_name));
+	}
+	public static function set_full_history($tab_name, $value) {
+		DB::Execute('UPDATE recordbrowser_table_properties SET full_history=%d WHERE tab=%s', array($value?1:0, $tab_name));
+	}
+	public static function set_caption($tab_name, $value) {
+		DB::Execute('UPDATE recordbrowser_table_properties SET caption=%s WHERE tab=%s', array($value, $tab_name));
+	}
 	
 	public static function new_record( $tab_name = null, $values = array()) {
 		if (!$tab_name) return false;
@@ -210,11 +222,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 	public function add_recent_entry($tab_name, $user_id ,$id){
 		DB::StartTrans();
+		static $rec_size;
+		if (!isset($rec_size)) $rec_size = DB::GetOne('SELECT recent FROM recordbrowser_table_properties WHERE tab=%s', array($tab_name));
 		DB::Execute('DELETE FROM '.$tab_name.'_recent WHERE user_id = %d AND '.$tab_name.'_id = %d',
 					array($user_id,
 					$id));
 		$ret = DB::SelectLimit('SELECT visited_on FROM '.$tab_name.'_recent WHERE user_id = %d ORDER BY visited_on DESC',
-					9,
+					$rec_size-1,
 					-1,
 					array($user_id));
 		while($row_temp = $ret->FetchRow()) $row = $row_temp;
@@ -346,14 +360,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			 case 'multiselect':
 			 case 'select':
 			 			list($tab,$col) = explode('::', self::$table_rows[$field['field']]['param']);
-			 			if ($col!='__COMMON__') {
+			 			if ($tab!='__COMMON__') {
 			 				if ($field['value']!=='') 
-			 					if (!DB::GetOne('SELECT active FROM '.$tab.' WHERE id=%d', array($field['value']))) {
-/*			 						print('Invalid:<br>');
-			 						print_r($field);
-			 						print('<hr>');
-*/			 						return false;
-			 					}
+			 					if (!DB::GetOne('SELECT active FROM '.$tab.' WHERE id=%d', array($field['value'])))
+			 						return false;
 			 			}
 		}
 		return true;

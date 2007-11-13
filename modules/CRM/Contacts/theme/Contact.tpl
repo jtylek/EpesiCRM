@@ -16,7 +16,7 @@
 		{/section}
 	</tr>
 	{if isset($Form_data.create_company)}
-	</tr>
+	<tr>
 		<td class="label" nowrap>
 			{$Form_data.create_company.label}
 		</td>
@@ -27,4 +27,4 @@
 	</tr>
 	{/if}
 </table>
-{$required_note}
+{if isset($fav_tooltip)}{$fav_tooltip}{/if}{if isset($info_tooltip)}{$info_tooltip}{/if}           *{$required_note}

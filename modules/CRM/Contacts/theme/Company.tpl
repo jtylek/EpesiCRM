@@ -16,4 +16,4 @@
 		{/section}
 	</tr>
 </table>
-{$required_note}
+{if isset($fav_tooltip)}{$fav_tooltip}{/if}{if isset($info_tooltip)}{$info_tooltip}{/if}           *{$required_note}

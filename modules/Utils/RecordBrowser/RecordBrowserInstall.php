@@ -24,8 +24,9 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 						'quickjump C(64) DEFAULT \'\','.
 						'tpl C(256) DEFAULT \'\','.
 						'favorites I1 DEFAULT 0,'.
-						'recent I2 DEFAULT 1,'.
+						'recent I2 DEFAULT 0,'.
 						'full_history I1 DEFAULT 1,'.
+						'caption C(32) DEFAULT \'\','.
 						'data_process_method C(256) DEFAULT \'\'',
 						array('constraints'=>''));
 		return true;
