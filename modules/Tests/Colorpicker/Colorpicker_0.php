@@ -39,7 +39,7 @@ class Tests_Colorpicker extends Module {
 				print '<tr><td>G: </td>		<td id=color_green>0</td></tr>';
 				print '<tr><td>B: </td>		<td id=color_blue>0</td></tr>';
 				print '<tr><td>HTML: </td>	<td id=color_html>#000000</td></tr>';
-				print '<tr><td>Previed: </td><td><div id=color_preview style="height: 17px; width: 40px; border: 1px dashed black; background: black"></div></td></tr>';
+				print '<tr><td>Preview: </td><td><div id=color_preview style="height: 17px; width: 40px; border: 1px dashed black; background: black"></div></td></tr>';
 				
 			print '</table>';
 		print '</td></tr></table>';
