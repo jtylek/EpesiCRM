@@ -34,7 +34,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 			array('name'=>'Phone', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>true),
 			array('name'=>'Fax', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
 			array('name'=>'Web address', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'display_callback'=>array('CRM_ContactsCommon', 'display_webaddress'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_webaddress')),
-			array('name'=>'Company', 'type'=>'multiselect', 'required'=>false, 'param'=>array('company'=>'Name'), 'extra'=>false, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_company')),
+			array('name'=>'Company', 'type'=>'multiselect', 'required'=>false, 'param'=>array('company'=>'Company Name'), 'extra'=>false, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_company')),
 			array('name'=>'Group', 'type'=>'multiselect', 'required'=>false, 'param'=>'Contacts_groups', 'extra'=>false)
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('contact', $fields);
@@ -48,7 +48,8 @@ class CRM_ContactsInstall extends ModuleInstall {
 //		Utils_RecordBrowserCommon::set_tpl('contact', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'View_entry'));
 // ************ companies ************** //
 		$fields = array(
-			array('name'=>'Name', 'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true),
+			array('name'=>'Company Name', 'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true),
+			array('name'=>'Short Name', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>false),
 			array('name'=>'Address 1', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
 			array('name'=>'Address 2', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
 			array('name'=>'City', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>true),
@@ -69,7 +70,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 // ************ addons ************** //
 		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Contacts', 'company_addon', 'Contacts');
 // ************ other ************** //
-		Utils_CommonDataCommon::new_array('Contacts_Groups',array('Emplyee','Customer'));
+		Utils_CommonDataCommon::new_array('Contacts_Groups',array('Customer','Vendor','Other'));
 		return true;
 	}
 	
