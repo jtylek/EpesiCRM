@@ -6,7 +6,6 @@
 
 .no_border {
 	border: none;
-	border: 0px;
 }
 
 hr.small {
@@ -50,6 +49,7 @@ table.week td {
 	height: 21px;
 	padding: 0px;
 	margin: 0px;
+	vertical-align: middle;
 }
 
 table.week td.header {
@@ -91,7 +91,7 @@ table.week td.header_timeless {
 	border-right: 0px;
 	border-bottom: 0px;
 	text-align: left;
-	background: #fcfffd;
+	background-color: #F0F0F0;
 }
 
 table.week td.header_weekday {
@@ -147,6 +147,7 @@ table.week td.inter {
 	border-bottom: 0px;
 	text-align: left;
 	background-color: #CFDAE6;
+	padding: 0px;
 }
 
 table.week td.midday_hour {
@@ -183,10 +184,10 @@ div.events {
 
 div.events_brief {
 	background-color: #cfe6cf;
-	background-repeat: repeat-x;
 	color: #000000;
 	height: 20px;
 	font-weight: normal;
+	border: 2px solid #339933;
 	border: 0px;
 	padding: 0px;
 	margin: 0px;

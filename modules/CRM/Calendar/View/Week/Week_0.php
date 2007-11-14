@@ -194,24 +194,24 @@ class CRM_Calendar_View_Week extends Module {
 					$event[$g] = array();
 					$event[$g]['full'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'full');
 					$more = call_user_func(array($module.'Common', 'get_text'), $EV, 'edit');
-					$event[$g]['more'] = '<img id="'.$div_id.'_more" border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', "icon-view.gif").'>';
+					$event[$g]['more'] = '<img style="vertical-align: middle;" id="'.$div_id.'_more" border="0" width="14" height="1" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', "icon-view.gif").'>';
 
 					// special priviliges
 					if($this->logged > 0) {
 						$event[$g]['full'] .= '<br>';
 						// edit
 						if($EV['access'] == 0 || $EV['created_by'] == $this->logged)
-							$event[$g]['full'] .= '<a '.$this->parent->create_callback_href(array($this, 'edit_event'), array($module, $EV['id'])).' class=icon><img  border="0" width="32" height="32" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'icon-edit.png').'></a> ';
+							$event[$g]['full'] .= '<a '.$this->parent->create_callback_href(array($this, 'edit_event'), array($module, $EV['id'])).' class=icon><img style="vertical-align: middle;" border="0" width="32" height="32" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'icon-edit.png').'></a> ';
 						// details
 						if($EV['access'] <= 1 || $EV['created_by'] == $this->logged)
-							$event[$g]['full'] .= '<a '.$this->parent->create_callback_href(array($this, 'details_event'), array($module, $EV['id'])).' class=icon><img  border="0" width="32" height="32" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', "icon-view.png").'></a> ';
+							$event[$g]['full'] .= '<a '.$this->parent->create_callback_href(array($this, 'details_event'), array($module, $EV['id'])).' class=icon><img style="vertical-align: middle;" border="0" width="32" height="32" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', "icon-view.png").'></a> ';
 						// delete
 						if($EV['access'] == 0 || $EV['created_by'] == $this->logged)
 							$event[$g]['full'] .= '<a '.$this->parent->create_confirm_callback_href('Are you sure, you want to delete this event?', array($this, 'delete_event'), array($module, $EV['id'])).' class=icon><img  border="0" width="32" height="32" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'icon-delete.png').'></a> ';
 
 					}
 					$event[$g]['brief'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'brief');
-					$event[$g]['move'] = '<img  border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'grab-2.png').'>';
+					$event[$g]['move'] = '<img  border="0" width="15" height="15" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'grab.gif').'>';
 
 					$event[$g]['div_id'] = $div_id;
 					CRM_Calendar_Utils_SidetipCommon::create($div_id.'_brief', $div_id, $event[$g]['full']);
@@ -240,24 +240,24 @@ class CRM_Calendar_View_Week extends Module {
 
 							$event[$g]['full'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'full');
 							$more = call_user_func(array($module.'Common', 'get_text'), $EV, 'edit');
-							$event[$g]['more'] = '<img id="'.$div_id.'_more" border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', "icon-view.gif").'>';
+							$event[$g]['more'] = '<img style="vertical-align: middle;" id="'.$div_id.'_more" border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', "icon-view.gif").'>';
 
 							// special priviliges
 							if($this->logged > 0) {
 								$event[$g]['full'] .= '<br>';
 								// edit
 								if($EV['access'] == 0 || $EV['created_by'] == $this->logged)
-									$event[$g]['full'] .= '<a '.$this->parent->create_callback_href(array($this, 'edit_event'), array($module, $EV['id'])).' class=icon><img  border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'icon-edit.gif').'></a> ';
+									$event[$g]['full'] .= '<a '.$this->parent->create_callback_href(array($this, 'edit_event'), array($module, $EV['id'])).' class=icon><img style="vertical-align: middle;" border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'icon-edit.gif').'></a> ';
 								// details
 								if($EV['access'] <= 1 || $EV['created_by'] == $this->logged)
-									$event[$g]['full'] .= '<a '.$this->parent->create_callback_href(array($this, 'details_event'), array($module, $EV['id'])).' class=icon><img  border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', "icon-view.gif").'></a> ';
+									$event[$g]['full'] .= '<a '.$this->parent->create_callback_href(array($this, 'details_event'), array($module, $EV['id'])).' class=icon><img style="vertical-align: middle;" border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', "icon-view.gif").'></a> ';
 								// delete
 								if($EV['access'] == 0 || $EV['created_by'] == $this->logged)
-									$event[$g]['full'] .= '<a '.$this->parent->create_confirm_callback_href('Are you sure, you want to delete this event?', array($this, 'delete_event'), array($module, $EV['id'])).' class=icon><img  border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'icon-delete.gif').'></a> ';
+									$event[$g]['full'] .= '<a '.$this->parent->create_confirm_callback_href('Are you sure, you want to delete this event?', array($this, 'delete_event'), array($module, $EV['id'])).' class=icon><img style="vertical-align: middle;" border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'icon-delete.gif').'></a> ';
 
 							}
 							$event[$g]['brief'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'brief');
-							$event[$g]['move'] = '<img  border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'grab-2.png').'>';
+							$event[$g]['move'] = '<img  border="0" width="15" height="15" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'grab.gif').'>';
 							$event[$g]['div_id'] = $div_id;
 
 							//if($EV['created_by'] != Base_UserCommon::get_My_user_id())
@@ -416,9 +416,9 @@ class CRM_Calendar_View_Week extends Module {
 		$prev7 = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::prev_week($date) )).'><img border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'prev.png').'> Previous week</a>';
 
 		print '<td>' . $prev . '</td>';
-		print '<td>' . $next . '</td>';
 		print '<td>' . $today . '</td>';
-		print '<td style="width: 20px;"></td><td>' . Utils_CalendarCommon::show('week_selector', $link_text) . '</td><td style="width: 20px;"></td>';
+		print '<td>' . $next . '</td>';
+		print '<td style="width: 10px;"></td><td>' . Utils_CalendarCommon::show('week_selector', $link_text) . '</td><td style="width: 10px;"></td>';
 		print '<td>' . $prev7 . '</td>';
 		print '<td>' . $next7 . '</td>';
 

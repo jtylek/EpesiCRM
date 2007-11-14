@@ -3,196 +3,245 @@
 .no_border {
 	border: none;
 }
+
 hr.small {
-	background: #000000;
+	background: #B3B3B3;
 	height: 1px;
+	border: 0px;
 }
+
 p.event {
 	font-size: 7px;
 	line-height: 11px;
-	margin: 4 0 2 0;
+	margin: 4px 0px 2px 0px;
 	position: absolute;
 }
+
 /* classes for big table */
 
 a.new_event:hover {
-		padding: 0 4 0 4;
-		border: 1px solid red;
-		text-decoration: none;
-	}
+	padding: 0px 4px 0px 4px;
+	border: 1px solid red;
+	text-decoration: none;
+}
+
 a.icon {
 	border: none;
 	text-decoration: none;
 }
-.crm_calendar_week{
-	width: 80%;
+
+/* CRM week calendar */
+
+.crm_calendar_week {
+	width: 100%;
 	background: transparent;
+	border: 1px solid #B3B3B3;
+	border-left: 0px;
+	border-top: 0px;
+}
+
+.crm_calendar_week td {
+	height: 21px;
 }
 
 .crm_calendar_week td.today {
-	background: #cfcfed;
-}
-.crm_calendar_week td.hours_header {
-	width: 5%;
-	border-top: none;
-	border-right: 1px solid #000000;
-	border-bottom: none;
-	border-left: none;
-}
-.crm_calendar_week td.hours_header_lower {
-	width: 5%;
-	border-top: none;
-	border-right: 1px solid #000000;
-	border-bottom: 1px solid #000000;
-	border-left: none;
-}
-.crm_calendar_week td.header_day {
-	vertical-align: top;
-	color: #000000;
-	border-left: none;
-	border-right: 1px solid #000000;
-	border-bottom: none;
-	border-left: none;
-	text-align: left;
-	background: #fcfffd;
-	width: 14%;
-}
-.crm_calendar_week td.header_day_today {
-	vertical-align: top;
-	color: #000000;
-	border-left: none;
-	border-right: 1px solid #000000;
-	border-bottom: none;
-	border-left: none;
-	text-align: left;
-	background: #cfcfed;
-	width: 14%;
+	background-color: red;
 }
 
+.crm_calendar_week td.hours_header {
+	width: 9%;
+	border: 0px;
+}
+
+.crm_calendar_week td.hours_header_lower {
+	width: 10%;
+	border: 0px;
+}
+
+.crm_calendar_week td.header_day {
+	vertical-align: top;
+	border: 1px solid #B3B3B3;
+	border-right: 0px;
+	border-top: 0px;
+	border-bottom: 0px;
+	text-align: left;
+	background-color: #FFFFFF;
+	width: 13%;
+}
+
+.crm_calendar_week td.header_day a table {
+	font-weight: bold;
+	font-size: 18px;
+}
+
+.crm_calendar_week td.header_day_today {
+	vertical-align: top;
+	border: 1px solid #B3B3B3;
+	border-right: 0px;
+	border-top: 0px;
+	border-bottom: 0px;
+	text-align: left;
+	background-color: #E6ECF2;
+	width: 13%;
+
+	border-left: 2px solid #336699;
+	border-right: 2px solid #336699;
+}
+
+.crm_calendar_week td.header_day_today a table {
+	font-weight: bold;
+	font-size: 18px;
+}
 
 .crm_calendar_week td.header_timeless {
 	vertical-align: top;
 	color: #000000;
-	border-left: none;
-	border-right: 1px solid #000000;
-	border-bottom: 1px double #000000;
-	border-left: none;
+	border: 1px solid #B3B3B3;
+	border-right: 0px;
+	border-bottom: 0px;
 	text-align: left;
-	background: #fcfffd;
-	width: 14%;
+	background-color: #F0F0F0;
+	padding: 0px;
 }
+
 .crm_calendar_week td.header_timeless_today {
 	vertical-align: top;
 	color: #000000;
-	border-left: none;
-	border-right: 1px solid #000000;
-	border-bottom: 1px double #000000;
-	border-left: none;
+	border: 1px solid #B3B3B3;
+	border-right: 0px;
+	border-bottom: 0px;
 	text-align: left;
-	background: #cfcfed;
-	width: 14%;
+	background-color: #F0F0F0;
+	padding: 0px;
+
+	border-left: 2px solid #336699;
+	border-right: 2px solid #336699;
 }
 
 
 .crm_calendar_week td.header_weekday {
 	vertical-align: top;
 	color: #000000;
-	border-left: none;
-	border-right: 1px solid #000000;
-	border-bottom: none;
-	border-left: none;
+	border: 1px solid #B3B3B3;
 	text-align: left;
 	background: #fcfffd;
 }
+
 .crm_calendar_week td.header_month {
-	color: #000000;
+	color: #FFFFFF;
 	vertical-align: middle;
-	height: 40;
-	background: #dedfff;
-	border-top: 1px solid black;
-	border-right: 1px solid black;
-	border-bottom: 1px dotted black;
-	border-left: none;
+	background-color: #336699;
+	background-image: url('images/header-blue.png');
+	background-repeat: repeat-x;
+	height: 20px;
+	border: 0px;
+	padding-left: 10px;
 }
+
+.crm_calendar_week td.header_month a {
+	color: #FFFFFF;
+}
+
 .crm_calendar_week td.hour {
+	width: 10%;
 	vertical-align: top;
 	color: #000000;
-	border-top: none;
-	border-right: 1px solid #000000;
-	border-bottom: 1px solid #000000;
-	border-left: 1px solid #000000;
-	white-space: nowrap;
+	border: 1px solid #B3B3B3;
+	border-right: 0px;
+	border-bottom: 0px;
 	text-align: center;
-	background: #dfdfcd;
+	background-color: #CFDAE6;
 }
 
 
 .crm_calendar_week td.inter {
 	vertical-align: top;
 	color: #000000;
-	border-top: none;
-	border-right: 1px dashed #888888;
-	border-bottom: 1px dashed #888888;
-	border-left: none;
+	border: 1px solid #B3B3B3;
+	border-right: 0px;
+	border-bottom: 0px;
 	text-align: left;
-	background: #dfdfcd;
+	background-color: #CFDAE6;
+	padding: 0px;
+	border: 1px solid red;
 }
+
 .crm_calendar_week td.inter_today {
 	vertical-align: top;
 	color: #000000;
-	border-top: none;
-	border-right: 1px dashed #888888;
-	border-bottom: 1px dashed #888888;
-	border-left: none;
+	border: 1px solid #B3B3B3;
+	border-right: 0px;
+	border-bottom: 0px;
 	text-align: left;
-	background: #cfcfed;
+	background-color: #CFDAE6;
+	padding: 0px;
+
+	border-left: 2px solid #336699;
+	border-right: 2px solid #336699;
+	border: 1px solid green;
 }
+
 .crm_calendar_week td.midday_inter {
 	vertical-align: top;
 	color: #000000;
-	border-top: none;
-	border-right: 1px dashed #888888;
-	border-bottom: 1px dashed #888888;
-	border-left: none;
+	border: 1px solid #B3B3B3;
+	border-right: 0px;
+	border-bottom: 0px;
 	text-align: left;
-	background: #ffffed;
+	background-color: #FFFFFF;
+	padding: 0px;
+	margin: 0px;
+	border: 1px solid blue;
 }
+
 .crm_calendar_week td.midday_inter_today {
 	vertical-align: top;
 	color: #000000;
-	border-top: none;
-	border-right: 1px dashed #888888;
-	border-bottom: 1px dashed #888888;
-	border-left: none;
+	border: 1px solid #B3B3B3;
+	border-right: 0px;
+	border-bottom: 0px;
 	text-align: left;
-	background: #efefdd;
+	padding: 0px;
+	margin: 0px;
+	background-color: #E6ECF2;
+
+	border-left: 2px solid #336699;
+	border-right: 2px solid #336699;
 }
-
-
 
 .crm_calendar_week td.midday_hour {
+	width: 10%;
 	vertical-align: top;
 	color: #000000;
-	border-top: none;
-	border-right: 1px solid #000000;
-	border-bottom: 1px solid #000000;
-	border-left: 1px solid #000000;
-	white-space: nowrap;
-	text-align: left;
-	background: #ffffed;
+	border: 1px solid #B3B3B3;
+	border-right: 0px;
+	border-bottom: 0px;
+	text-align: center;
+	background-color: #E6ECF2;
 }
 
-
-
-div.events_brief {
-	background-color: #336699;
-	padding: 2 0 0 1;
-	border: 1px solid #336699;
-	background: #73d6f9;
+.crm_calendar_week div.events_brief {
+	background-color: #cfe6cf;
+	color: #000000;
+	height: 20px;
+	font-weight: normal;
+	border: 1px solid #339933;
+	border: 0px;
+	padding: 0px;
+	margin: 0px;
 }
+
+.crm_calendar_week div.events_brief span {
+	display: block;
+	float: left;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
 .crm_calendar_week .event_icon {
 	border: 1px solid #336699;
 }
+
 .crm_calendar_week .event_drag_handle {
 	cursor: move;
 }

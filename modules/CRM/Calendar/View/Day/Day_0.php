@@ -273,8 +273,8 @@ class CRM_Calendar_View_Day extends Module {
 
 		print '<td>' . $prev . '</td>';
 		print '<td>' . $today. '</td>';
-		print '<td>' . Utils_CalendarCommon::show('week_selector', $link_text) . '</td>';
 		print '<td>' . $next . '</td>';
+		print '<td style="width: 10px;"></td><td>' . Utils_CalendarCommon::show('week_selector', $link_text) . '</td>';
 		print '</tr></table></div><br>';
 	} // calendar menu
 

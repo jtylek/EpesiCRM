@@ -2,8 +2,11 @@
 	visibility: hidden;
 	position: absolute;
 	display: block;
-	background: white;
+	float: left;
 	z-index: 10001;
-	border: 1px solid black;
+	border: 2px solid #336699;
 	width: 200px;
+	background-color: #FFFFFF;
+	font-size: 10px;
+	color: #336699;
 }
