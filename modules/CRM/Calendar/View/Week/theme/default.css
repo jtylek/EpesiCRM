@@ -102,6 +102,7 @@ a.icon {
 	text-align: left;
 	background-color: #F0F0F0;
 	padding: 0px;
+	cursor: pointer;
 }
 
 .crm_calendar_week td.header_timeless_today {
@@ -113,6 +114,7 @@ a.icon {
 	text-align: left;
 	background-color: #F0F0F0;
 	padding: 0px;
+	cursor: pointer;
 
 	border-left: 2px solid #336699;
 	border-right: 2px solid #336699;
@@ -163,7 +165,7 @@ a.icon {
 	text-align: left;
 	background-color: #CFDAE6;
 	padding: 0px;
-	border: 1px solid red;
+	cursor: pointer;
 }
 
 .crm_calendar_week td.inter_today {
@@ -175,10 +177,10 @@ a.icon {
 	text-align: left;
 	background-color: #CFDAE6;
 	padding: 0px;
+	cursor: pointer;
 
 	border-left: 2px solid #336699;
 	border-right: 2px solid #336699;
-	border: 1px solid green;
 }
 
 .crm_calendar_week td.midday_inter {
@@ -191,7 +193,7 @@ a.icon {
 	background-color: #FFFFFF;
 	padding: 0px;
 	margin: 0px;
-	border: 1px solid blue;
+	cursor: pointer;
 }
 
 .crm_calendar_week td.midday_inter_today {
@@ -204,6 +206,7 @@ a.icon {
 	padding: 0px;
 	margin: 0px;
 	background-color: #E6ECF2;
+	cursor: pointer;
 
 	border-left: 2px solid #336699;
 	border-right: 2px solid #336699;
