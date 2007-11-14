@@ -1,7 +1,10 @@
 <?php
 header("Content-type: text/javascript");
 define('JS_OUTPUT',1);
+define('CID',false); //don't load user session
 require_once('../../../../../include.php');
+session_commit();
+
 
 if(!Acl::is_user()) return;
 $user = DB::GetOne('SELECT id FROM user_login WHERE login=%s',array(Acl::get_user()));
