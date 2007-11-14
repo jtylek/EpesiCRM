@@ -32,7 +32,7 @@
 				{else}
 					<td class="header_timeless {$t_event.has_events}" id={$t_event.id} onDblClick="{$t_event.add}">
 				{/if}
-				{if $t_event.event_num > 0}
+				{if $t_event.has_events != '0'}
 					{foreach item=event from=$t_event.event}
 					<div name="events_brief" class=events_brief id="{$event.div_id}">
 							<span class="event_drag_handle">{$event.move}</span>
@@ -63,7 +63,7 @@
 					{else}
 						<td class="{$tt[tt].midday}inter {$tt[tt].has_events}" id="{$tt[tt].id}" onDblClick="{$tt[tt].add}">
 					{/if}
-					{if $tt[tt].event_num > 0}
+					{if $tt[tt].has_events != '0'}
 						{foreach item=event from=$tt[tt].event}
 						<div name="events_brief" class="events_brief" id="{$event.div_id}">
 							<span class="event_drag_handle">{$event.move}</span>

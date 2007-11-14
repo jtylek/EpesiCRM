@@ -100,21 +100,22 @@ class CRM_Calendar_View_Day extends Module {
 					$event[$g] = array();
 
 					$event[$g]['brief'] = '';
+					$event[$g]['full'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'full');
+					
 					// special priviliges
 					if($this->logged > 0) {
-						$event[$g]['brief'] = '';
+						$event[$g]['full'] .= '<br>';
 						// edit
 						if($EV['access'] == 0 || $EV['created_by'] == $this->logged)
-							$event[$g]['brief'] .= '<a '.$this->parent->create_callback_href(array($this, 'edit_event'), array($module, $EV['id'])).' class=icon><img border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'icon-edit.gif').'></a> ';
+							$event[$g]['full'] .= '<a '.$this->parent->create_callback_href(array($this, 'edit_event'), array($module, $EV['id'])).' class=icon><img border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'icon-edit.gif').'></a> ';
 						// details
 						if($EV['access'] <= 1 || $EV['created_by'] == $this->logged)
-							$event[$g]['brief'] .= '<a '.$this->parent->create_callback_href(array($this, 'details_event'), array($module, $EV['id'])).' class=icon><img border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', "icon-view.gif").'></a> ';
+							$event[$g]['full'] .= '<a '.$this->parent->create_callback_href(array($this, 'details_event'), array($module, $EV['id'])).' class=icon><img border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', "icon-view.gif").'></a> ';
 						// delete
 						if($EV['access'] == 0 || $EV['created_by'] == $this->logged)
-							$event[$g]['brief'] .= '<a '.$this->parent->create_confirm_callback_href('Are you sure, you want to delete this event?', array($this, 'delete_event'), array($module, $EV['id'])).' class=icon><img  border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'icon-delete.gif').'></a> ';
+							$event[$g]['full'] .= '<a '.$this->parent->create_confirm_callback_href('Are you sure, you want to delete this event?', array($this, 'delete_event'), array($module, $EV['id'])).' class=icon><img  border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'icon-delete.gif').'></a> ';
 
 					}
-					$event[$g]['full'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'full');
 					$event[$g]['brief'] .= call_user_func(array($module.'Common', 'get_text'), $EV, 'line');
 
 					$div_id = generate_password(4);
@@ -140,21 +141,22 @@ class CRM_Calendar_View_Day extends Module {
 							$g++;
 							$event[$g] = array();
 							$event[$g]['brief'] = '';
+							$event[$g]['full'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'full');
+							
 							// special priviliges
 							if($this->logged > 0) {
-								$event[$g]['brief'] = '';
+								$event[$g]['full'] .= '<br>';
 								// edit
 								if($EV['access'] == 0 || $EV['created_by'] == $this->logged)
-									$event[$g]['brief'] .= '<a '.$this->parent->create_callback_href(array($this, 'edit_event'), array($module, $EV['id'])).' class=icon><img  border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'icon-edit.gif').'></a> ';
+									$event[$g]['full'] .= '<a '.$this->parent->create_callback_href(array($this, 'edit_event'), array($module, $EV['id'])).' class=icon><img  border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'icon-edit.gif').'></a> ';
 								// details
 								if($EV['access'] <= 1 || $EV['created_by'] == $this->logged)
-									$event[$g]['brief'] .= '<a '.$this->parent->create_callback_href(array($this, 'details_event'), array($module, $EV['id'])).' class=icon><img  border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', "icon-view.gif").'></a> ';
+									$event[$g]['full'] .= '<a '.$this->parent->create_callback_href(array($this, 'details_event'), array($module, $EV['id'])).' class=icon><img  border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', "icon-view.gif").'></a> ';
 								// delete
 								if($EV['access'] == 0 || $EV['created_by'] == $this->logged)
-									$event[$g]['brief'] .= '<a '.$this->parent->create_confirm_callback_href('Are you sure, you want to delete this event?', array($this, 'delete_event'), array($module, $EV['id'])).' class=icon><img  border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'icon-delete.gif').'></a> ';
+									$event[$g]['full'] .= '<a '.$this->parent->create_confirm_callback_href('Are you sure, you want to delete this event?', array($this, 'delete_event'), array($module, $EV['id'])).' class=icon><img  border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'icon-delete.gif').'></a> ';
 
 							}
-							$event[$g]['full'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'full');
 							$event[$g]['brief'] .= call_user_func(array($module.'Common', 'get_text'), $EV, 'line');
 
 							$div_id = 'daylistevent';
@@ -183,7 +185,14 @@ class CRM_Calendar_View_Day extends Module {
 			$events = CRM_Calendar_EventCommon::get_day($date);
 			$timeless_events = $this->extract_timeless_from_day($events);
 			$id = sprintf('daylist_%4d%02d%02dtt', $date['year'], $date['month'], $date['day']);
-			$timeless_events = array('info'=>'', 'id'=>$id, 'event'=>$timeless_events, 'event_num'=>count($timeless_events));
+			$has_events = '0';
+			if(count($timeless_events) > 0)
+				$has_events = 'has_events';
+			$timeless_events = array(
+				'has_events'=>$has_events, 'id'=>$id, 'event'=>$timeless_events, 
+				'add'=>$this->create_callback_href_js(array($this,'add_event'),array('date'=>array('year'=>$date['year'], 'month'=>$date['month'], 'day'=>$date['day'])))
+			);
+			
 			eval_js('CRMCalendarDND.add_containment("'.$id.'")');
 
 			$i = CRM_Calendar_Utils_FuncCommon::day_of_week_r(CRM_Calendar_Utils_FuncCommon::today());
@@ -237,7 +246,15 @@ class CRM_Calendar_View_Day extends Module {
 				$cnt = "<a style='position: absolute; float: right; align: right'".$this->create_callback_href(array($this,'add_event'),array('date'=>array('year'=>$date['year'], 'month'=>$date['month'], 'day'=>$date['day']), 'time'=>array('hour'=>$j, 'minute'=>'00'))).">+</a>";
 
 				$id = sprintf( 'daylist_%4d%02d%02d%02d',$date['year'], $date['month'], $date['day'], $j);
-				$tt[] = array('info'=>$cnt, 'id'=>$id, 'event'=>$event, 'event_num'=>count($event), 'class'=>'inter', 'midday'=>$midday);
+				
+				$has_events = '0';
+				if(count($event) > 0)
+					$has_events = 'has_events';
+				$tt[] = array(
+					'has_events'=>$has_events, 'class'=>'inter', 'id'=>$id, 'event'=>$event, 'midday'=>$midday,
+					'add'=>$this->parent->create_callback_href_js(array($this,'add_event'),array('date'=>$date, 'time'=>array('hour'=>$j, 'minute'=>'00')))
+				);
+				
 				eval_js('CRMCalendarDND.add_containment("'.$id.'")');
 
 				if($j < $this->settings['start_day']) {

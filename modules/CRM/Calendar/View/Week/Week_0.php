@@ -319,10 +319,11 @@ class CRM_Calendar_View_Week extends Module {
 				if(intval($date['year']) == intval($today['year']) && intval($date['month']) == intval($today['month']) && intval($current_day) == intval($today['day']))
 					$class = "today";
 				
-				$has_events = '';
+				$has_events = '0';
 				if(count($event) > 0)
 					$has_events = 'has_events';
-				$timeless_tt[] = array('has_events'=>$has_events, 'info'=>$cnt, 'class'=>$class, 'id'=>$id, 'event'=>$event, 'event_num'=>count($event), 
+				$timeless_tt[] = array(
+					'has_events'=>$has_events, 'class'=>$class, 'id'=>$id, 'event'=>$event, 
 					'add'=>$this->create_callback_href_js(array($this,'add_event'),array('date'=>array('year'=>$start['year'], 'month'=>$start['month'], 'day'=>$current_day)))
 				);
 				eval_js('CRMCalendarDND.add_containment("'.$id.'")');
@@ -376,11 +377,11 @@ class CRM_Calendar_View_Week extends Module {
 					if(intval($date['year']) == intval($today['year']) && intval($date['month']) == intval($today['month']) && intval($current_day) == intval($today['day']))
 						$class = "today";
 					
-					$has_events = '';
+					$has_events = '0';
 					if(count($event) > 0)
 						$has_events = 'has_events';
 					$tt[] = array(
-						'has_events'=>$has_events, 'info'=>$cnt, 'class'=>$class, 'id'=>$id, 'event'=>$event, 'event_num'=>count($event), 'midday'=>$midday,
+						'has_events'=>$has_events, 'class'=>$class, 'id'=>$id, 'event'=>$event, 'midday'=>$midday,
 						'add'=>$this->parent->create_callback_href_js(array($this,'add_event'),array('date'=>array('year'=>$date['year'], 'month'=>$date['month'], 'day'=>$current_day), 'time'=>array('hour'=>$j, 'minute'=>'00')))
 					);
 					eval_js('CRMCalendarDND.add_containment("'.$id.'")');
