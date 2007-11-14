@@ -28,9 +28,9 @@
 			{foreach item=t_event from=$timeless_event}
 
 				{if $t_event.class == 'today'}
-					<td class=header_timeless_today id={$t_event.id}>
+					<td class="header_timeless_today {$t_event.has_events}" id={$t_event.id} onDblClick="{$t_event.add}">
 				{else}
-					<td class=header_timeless id={$t_event.id}>
+					<td class="header_timeless {$t_event.has_events}" id={$t_event.id} onDblClick="{$t_event.add}">
 				{/if}
 				{if $t_event.event_num > 0}
 					{foreach item=event from=$t_event.event}
@@ -59,11 +59,10 @@
 					<td class={$tt[tt].midday}hour>{$tt[tt].info}
 				{else}
 					{if $tt[tt].class == 'today'}
-						<td class="{$tt[tt].midday}inter_today" id="{$tt[tt].id}">
+						<td class="{$tt[tt].midday}inter_today {$tt[tt].has_events}" id="{$tt[tt].id}" onDblClick="{$tt[tt].add}">
 					{else}
-						<td class="{$tt[tt].midday}inter" id="{$tt[tt].id}">
+						<td class="{$tt[tt].midday}inter {$tt[tt].has_events}" id="{$tt[tt].id}" onDblClick="{$tt[tt].add}">
 					{/if}
-					{$tt[tt].info}
 					{if $tt[tt].event_num > 0}
 						{foreach item=event from=$tt[tt].event}
 						<div name="events_brief" class="events_brief" id="{$event.div_id}">
