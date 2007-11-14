@@ -25,9 +25,6 @@ class Tests_Colorpicker extends Module {
 		print '<div id=track_'.$name.' style="height: 256px; width: 12px; border: 1px solid '.$color.'; background: '.$bg_color.'">';
 		print '<div id=handle_'.$name.' style="height: 4px; width: 10px; border: 1px solid '.$color.'; cursor: n-resize;"></div>';
 		print '</div>';
-		
-		print '<div id=color_'.$name.'>0</div>';
-		
 	}
 	public function body() {
 		print '<table><tr><td style="width: 20px">';
@@ -38,10 +35,10 @@ class Tests_Colorpicker extends Module {
 		$this->create_slider('blue', '#336699', '#cfdae6');
 		print '</td><td style="width: 300px">';
 			print '<table>';
-				print '<tr><td>R: </td><td id=color_red>0</td></tr>';
-				print '<tr><td>G: </td><td id=color_green>0</td></tr>';
-				print '<tr><td>B: </td><td id=color_blue>0</td></tr>';
-				print '<tr><td>HTML: </td><td id=color_html>#000000</td></tr>';
+				print '<tr><td>R: </td>		<td id=color_red>0</td></tr>';
+				print '<tr><td>G: </td>		<td id=color_green>0</td></tr>';
+				print '<tr><td>B: </td>		<td id=color_blue>0</td></tr>';
+				print '<tr><td>HTML: </td>	<td id=color_html>#000000</td></tr>';
 				print '<tr><td>Previed: </td><td><div id=color_preview style="height: 17px; width: 40px; border: 1px dashed black; background: black"></div></td></tr>';
 				
 			print '</table>';
