@@ -191,8 +191,8 @@ class Apps_MailClient extends Module {
 				array('name'=>'incoming_server','label'=>$this->lang->t('Incoming server address')),
 				array('name'=>'incoming_ssl','label'=>$this->lang->t('Receive with SSL')),
 				array('name'=>'incoming_method','label'=>$this->lang->t('Authorization method'),'type'=>'select','values'=>$methods[(isset($defaults) && $defaults['incoming_protocol'])?1:0], 'default'=>'auto'),
-				array('name'=>'pop3_leave_msgs_on_server','label'=>$this->lang->t('Remove messages from server after'),'type'=>'select',
-					'values'=>array(0=>'0 days',1=>'1 day', 3=>'3 days', 7=>'1 week', 14=>'2 weeks', 30=>'1 month'), 
+				array('name'=>'pop3_leave_msgs_on_server','label'=>$this->lang->t('Remove messages from server'),'type'=>'select',
+					'values'=>array(0=>'immediately',1=>'after 1 day', 3=>'after 3 days', 7=>'after 1 week', 14=>'after 2 weeks', 30=>'after 1 month', -1=>'never'), 
 					'default'=>'0','param'=>((isset($defaults) && $defaults['incoming_protocol']) || ($f->getSubmitValue('submited') && $f->getSubmitValue('incoming_protocol')))?array('disabled'=>1):array()),
 
 				array('name'=>'out_header','label'=>$this->lang->t('Outgoing mail'),'type'=>'header'),
@@ -240,7 +240,8 @@ class Apps_MailClient extends Module {
 
 	//////////////////////////////////////////////////////////////////
 	//applet	
-	public function applet($conf) {
+	public function applet($conf, $opts) {
+		$opts['go'] = true;
 		$accounts = array();
 		$ret = array();
 		foreach($conf as $key=>$on) {

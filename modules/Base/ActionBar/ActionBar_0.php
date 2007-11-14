@@ -63,22 +63,42 @@ class Base_ActionBar extends Module {
 		$launcher=array();
 		if(Acl::is_user()) {
 			$opts = Base_Menu_QuickAccessCommon::get_options();
-			foreach ($opts as $v)
-				if (Base_User_SettingsCommon::get('Base_ActionBar',$v['name'])) {
-					$menu_entry = null;
-					parse_str($v['link'],$menu_entry);
-					$ii = array();
-					$trimmed_label = substr(strrchr($v['label'],':'),1);
-					$ii['label'] = $trimmed_label?$trimmed_label:$v['label'];
-					$ii['description'] = $v['label'];
-					$ii['open'] = '<a '.$this->create_href($menu_entry).'>';
-					$ii['close'] = '</a>';
-					$icon = Base_ThemeCommon::get_template_file($v['module'],'icon.png');
-					if($icon===false)
-						$icon = Base_ThemeCommon::get_template_file($this->get_type(),'default_icon.png');
-					$ii['icon'] = $icon;
-					$launcher[] = $ii;
-				} 
+			if(!empty($opts)) {
+				foreach ($opts as $k=>$v)
+					if (Base_User_SettingsCommon::get('Base_ActionBar',$v['name'])) {
+						$menu_entry = null;
+						parse_str($v['link'],$menu_entry);
+						$ii = array();
+						$trimmed_label = substr(strrchr($v['label'],':'),1);
+						$ii['label'] = $trimmed_label?$trimmed_label:$v['label'];
+						$ii['description'] = $v['label'];
+						$ii['link_id'] = 'actionbar_launchpad_'.$k;
+						$ii['open'] = '<a '.$this->create_href($menu_entry).' id="'.$ii['link_id'].'">';
+						$ii['close'] = '</a>';
+						$icon = Base_ThemeCommon::get_template_file($v['module'],'icon.png');
+						if($icon===false)
+							$icon = Base_ThemeCommon::get_template_file($this->get_type(),'default_icon.png');
+						$ii['icon'] = $icon;
+						$launcher[] = $ii;
+					}
+				if(!($mod=ModuleManager::get_instance('/Base_Box|0')) || $mod->get_main_module()->get_type()!='Base_Dashboard') {
+					$icon = Base_ThemeCommon::get_template_file($this->get_type(),'launcher.png');
+					$th = & $this->pack_module('Base/Theme');
+					$th->assign('display_icon',$display_icon);
+					$th->assign('display_text',$display_text);
+					$close_icon = Base_ThemeCommon::get_template_file('Base_ActionBar','icons/back.png');
+					$close_link_id = 'actionbar_launchpad_close';
+					$launcher[] = array('label'=>'Close launchpad','link_id'=>$close_link_id,'open'=>'<a id="'.$close_link_id.'" href="javascript:void(0)">','close'=>'</a>','icon'=>$close_icon);
+					$th->assign('icons',$launcher);
+					eval_js_once('actionbar_launchpad_deactivate = function(){leightbox_deactivate(\'actionbar_launchpad\');}');
+					foreach($launcher as $v)
+						eval_js('Event.observe(\''.$v['link_id'].'\',\'click\', actionbar_launchpad_deactivate)');
+					print('<div id="actionbar_launchpad" class="leightbox">');
+					$th->display('launchpad');
+					print('</div>');
+					$launcher = array(array('label'=>'Launchpad','description'=>'Quick modules launcher','open'=>'<a class="lbOn" rel="actionbar_launchpad" href="javascript:void(0)">','close'=>'</a>','icon'=>$icon));
+				}
+			}
 		}
 		
 		//display

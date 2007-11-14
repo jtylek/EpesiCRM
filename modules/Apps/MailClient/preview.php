@@ -69,21 +69,18 @@ if(($ret = $mbox->setTmpDir(Apps_MailClientCommon::Instance()->get_data_dir().'t
 				} elseif($part->ctype_primary=='text' && $part->ctype_secondary=='html' && ($body===false || $body_type=='plain') && (!isset($part->disposition) || $part->disposition=='inline')) {
 					$body = $part->body;
 					$body_type = 'html';
-					continue;
 				}
 				//if(isset($part->disposition) && $part->disposition=='attachment')
 				if(isset($part->ctype_parameters['name']))
-					$attachments[] = $part->ctype_parameters['name']; //nie moze byc po name, powinno byc po jakims id
+					$attachments[] = $part->ctype_parameters['name']; //it should be by some id, not name, because there can be 2 files with the same name
 			}
 		} elseif(isset($structure->body) && $structure->ctype_primary=='text') {
 			$body = $structure->body;
 			$body_type = $structure->ctype_secondary;
 			$body_ctype = isset($structure->headers['content-type'])?$structure->headers['content-type']:'text/'.$body_type;
 		}
-
-		if($body===false) die('invalid message');
 		
-		$body = preg_replace('/"cid:(\w+\.\w+)@(\w+\.\w+)"/','"preview.php?'.http_build_query($_GET).'&attachment=$1"',$body);
+		if($body===false) die('invalid message');
 		
 		$ret_attachments = '';
 		if($attachments) {
@@ -96,12 +93,19 @@ if(($ret = $mbox->setTmpDir(Apps_MailClientCommon::Instance()->get_data_dir().'t
 			'parent.$(\''.$_GET['pid'].'_attachments\').innerHTML=\''.Epesi::escapeJS($ret_attachments,false).'\';';
 		
 		header("Content-type: text/html");
-		if($body_type=='plain')
+		if($body_type=='plain') {
+			$body = preg_replace("/(http:\/\/[a-z0-9]+(\.[a-z0-9]+)+(\/[\.a-z0-9]+)*)/i", "<a href='\\1'>\\1</a>", $body);
 			$body = '<html>'.
 				'<head><meta http-equiv=Content-Type content="'.$body_ctype.'"></head>'.
 				'<body><pre>'.$body.'</pre></body>';
-		else
-			$body = substr($body,0,stripos($body,'</html>'));
+		} else {
+			$body = trim($body);
+			if(ereg('</html>$',$body))
+				$body = substr($body,0,strlen($body)-7);
+		}
+		$body = preg_replace('/"cid:(\w+\.\w+)@(\w+\.\w+)"/','"preview.php?'.http_build_query($_GET).'&attachment=$1"',$body);
+		$body = preg_replace("/<a([^>]*)>(.*)<\/a>/i", "<a\\1 target='_blank'>\\2</a>", $body);
+		
 		$body .= '<script>'.$script.'</script>'.
 				'</html>';
 

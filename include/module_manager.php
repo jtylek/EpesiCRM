@@ -781,7 +781,6 @@ class ModuleManager {
 	 * Returns instance of module.
 	 *
 	 * @param string module name
-	 * @param integer instance id
 	 * @return bool false if module instance was not found, requested module object otherwise
 	 */
 	public static final function & get_instance($path) {

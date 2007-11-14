@@ -94,7 +94,7 @@ foreach($accounts as $account) {
 		$l = $in->getListing();
 		//check uidls and unset already downloaded messages
 		$uidls_file = Apps_MailClientCommon::get_mail_dir().$box.'.uilds';
-		if($account['pop3_leave_msgs_on_server']>0 && file_exists($uidls_file)) {
+		if($account['pop3_leave_msgs_on_server']!=0 && file_exists($uidls_file)) {
 			$uidls = explode("\n",file_get_contents($uidls_file));
 			$count = count($l);
 			for($k=0; $k<$count; $k++)
@@ -119,7 +119,7 @@ foreach($accounts as $account) {
 			echo('<script>parent.Apps_MailClient.progress_bar.set_progress(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\', '.ceil($num*100/$count).')</script>');
 			flush();
 		}
-		if($account['pop3_leave_msgs_on_server']>0)
+		if($account['pop3_leave_msgs_on_server']!=0)
 			file_put_contents($uidls_file,implode("\n",$uidls));
 	} else { //imap
 	}
