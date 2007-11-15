@@ -102,7 +102,7 @@ class Base_ThemeCommon extends ModuleCommon {
 		if(!is_readable($f)) {
 			$f = 'data/Base_Theme/templates/default/'.$filename;
 			if(!is_readable($f))
-				return false;
+				throw new Exception('No such template file: '.$filename);
 		}
 		return $f;
 	}
