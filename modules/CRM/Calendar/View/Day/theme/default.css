@@ -1,6 +1,6 @@
 @CHARSET "ISO-8859-1";
 
-.event_drag_handle {
+.events_drag_handle {
 	cursor: move;
 }
 
@@ -29,11 +29,11 @@ a.new_event:hover {
 	text-decoration: none;
 }
 
-.crm_calendar_event_personal__action_icon {
+.crm_calendar_events_personal__action_icon {
 	border: none;
 }
 
-.crm_calendar_event_personal__action_link {
+.crm_calendar_events_personal__action_link {
 	border: none;
 }
 
@@ -46,7 +46,7 @@ table.week {
 }
 
 table.week td {
-	height: 21px;
+	height: 25px;
 	padding: 0px;
 	margin: 0px;
 	vertical-align: middle;
@@ -61,25 +61,68 @@ table.week td.header {
 table.week td.hours_header {
 	width: 20%;
 	border: 0px;
+	text-align: center;
+	color: #339933;
+	/*font-weight: bold;*/
+	border: 1px solid #B3B3B3;
+	border-right: 0px;
+	border-bottom: 0px;
+	background-color: #FFFFFF;
 }
 
 table.week td.hours_header_lower {
 	width: 20%;
-	border: 0px;
+	vertical-align: top;
+	color: #FFFFFF;
+	border: 1px solid #B3B3B3;
+	border-right: 0px;
+	border-bottom: 0px;
+	text-align: center;
+	/*background-color: #E6ECF2;*/
+	background-color: #336699;
+	padding-top: 2px;
 }
 
 table.week td.header_day {
+	height: 50px;
 	vertical-align: top;
 	border: 1px solid #B3B3B3;
 	border-right: 0px;
 	border-top: 0px;
 	border-bottom: 0px;
 	text-align: left;
-	background-color: #fcfffd;
-	font-size: 18px;
+	background-color: #B3B3B3;
+	background-image: url('images/day-header.png');
+	background-repeat: repeat-x;
+	width: 13%;
+	padding-left: 5px;
+	padding-right: 5px;
 }
 
 table.week td.header_day a table {
+	font-weight: bold;
+	font-size: 18px;
+}
+
+table.week td.header_day_today {
+	vertical-align: top;
+	border: 1px solid #B3B3B3;
+	border-right: 0px;
+	border-top: 0px;
+	border-bottom: 0px;
+	text-align: left;
+	background-color: #CFDAE6;
+	background-image: url('images/day-header-today.png');
+	background-repeat: repeat-x;
+	width: 13%;
+	padding-left: 5px;
+	padding-right: 5px;
+
+	border-left: 2px solid #336699;
+	border-right: 2px solid #336699;
+}
+
+table.week td.header_day_today a table {
 	font-weight: bold;
 	font-size: 18px;
 }
@@ -131,12 +174,27 @@ table.week td.today {
 table.week td.hour {
 	width: 20%;
 	vertical-align: top;
-	color: #000000;
+	color: #FFFFFF;
 	border: 1px solid #B3B3B3;
 	border-right: 0px;
 	border-bottom: 0px;
 	text-align: center;
-	background-color: #CFDAE6;
+	/*background-color: #CFDAE6;*/
+	background-color: #336699;
+	padding-top: 2px;
+}
+
+table.week td.midday_hour {
+	width: 20%;
+	vertical-align: top;
+	color: #FFFFFF;
+	border: 1px solid #B3B3B3;
+	border-right: 0px;
+	border-bottom: 0px;
+	text-align: center;
+	/*background-color: #E6ECF2;*/
+	background-color: #336699;
+	padding-top: 2px;
 }
 
 table.week td.inter {
@@ -148,17 +206,6 @@ table.week td.inter {
 	text-align: left;
 	background-color: #CFDAE6;
 	padding: 0px;
-}
-
-table.week td.midday_hour {
-	width: 20%;
-	vertical-align: top;
-	color: #000000;
-	border: 1px solid #B3B3B3;
-	border-right: 0px;
-	border-bottom: 0px;
-	text-align: center;
-	background-color: #E6ECF2;
 }
 
 table.week td.midday_inter {
@@ -173,35 +220,58 @@ table.week td.midday_inter {
 	margin: 0px;
 }
 
-div.events {
-	position: absolute;
-	display: none;
-	background: white;
-	z-index: 1000;
-	border: 1px solid #B3B3B3;
-	width: 200px;
-}
+/* events */
 
-div.events_brief {
+table.week div.events_brief {
+	height: 18px;
+	border: 2px solid #339933;
 	background-color: #cfe6cf;
 	color: #000000;
-	height: 20px;
 	font-weight: normal;
-	border: 2px solid #339933;
-	border: 0px;
 	padding: 0px;
-	margin: 0px;
+	margin: 1px;
 }
 
-div.events_brief img {
-	vertical-align: middle;
+table.week div.events_brief span {
+	height: 18px;
+}
+
+table.week .events_icon {
+	border: 1px solid #336699;
+}
+
+table.week .events_drag_handle {
+	cursor: move;
+	background-color: #339933;
+	width: 18px;
+	display: block;
+	float: left;
+	padding-left: 1px;
+	padding-top: 1px;
+}
+
+table.week .events_brief_info {
+	display: block;
+	float: left;
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 1px;
+}
+
+table.week .events_more {
+	background-color: #339933;
+	display: block;
+	float: right;
+	padding-left: 4px;
+	padding-right: 2px;
+	padding-top: 1px;
 }
 
 /* menu */
 
 div.day-menu {
-	padding-bottom: 10px;
-	border-bottom: 4px solid #B3B3B3;
+	padding-bottom: 5px;
+	/*border-bottom: 4px solid #B3B3B3;*/
 }
 
 div.day-menu img {

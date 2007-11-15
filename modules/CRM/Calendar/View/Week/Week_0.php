@@ -165,10 +165,11 @@ class CRM_Calendar_View_Week extends Module {
 			else
 				$cnt['class'] = "day";
 			$k = CRM_Calendar_Utils_FuncCommon::day_of_week($start['year'], $start['month'], $current_day);
-			$cnt['info'] = "<a ".$this->parent->create_unique_href( array('action'=>'show', 'view_style'=>'day', 'date'=>array('year'=>$start['year'], 'month'=>$start['month'], 'day'=>$current_day)) )."><table width=100%><tr><td width=50% align=left><span class=day_number >$current_day</span></td>".
-				"<td width=50% align=right>".CRM_Calendar_Utils_FuncCommon::name_of_day($k)."</td></tr></table></a>";
+			$cnt['info'] = "<a ".$this->parent->create_unique_href( array('action'=>'show', 'view_style'=>'day', 'date'=>array('year'=>$start['year'], 'month'=>$start['month'], 'day'=>$current_day)) )."><table width=100%><tr>".
+				'<td width="50%" align="left">' . CRM_Calendar_Utils_FuncCommon::name_of_day($k) . '</td>' .
+				'<td width="50%" align="right"><span class="day_number">' . $current_day . '</span></td>' . '</tr></table></a>';
 
-			$cnt['info'] .= Utils_TooltipCommon::create("<a ".$this->create_callback_href(array($this,'add_event'),array('date'=>array('year'=>$start['year'], 'month'=>$start['month'], 'day'=>$current_day))).">add</a>", "Click to add new event on $current_day $current_month.");
+			//$cnt['info'] .= Utils_TooltipCommon::create("<a ".$this->create_callback_href(array($this,'add_event'),array('date'=>array('year'=>$start['year'], 'month'=>$start['month'], 'day'=>$current_day))).">add</a>", "Click to add new event on $current_day $current_month.");
 			$header_day[] = array('info'=>$cnt['info'], 'week'=>CRM_Calendar_Utils_FuncCommon::name_of_day($k), 'class'=>$cnt['class']);
 		}
 		return $header_day;

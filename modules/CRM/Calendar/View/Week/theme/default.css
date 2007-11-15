@@ -86,6 +86,8 @@ a.icon {
 	background-image: url('images/day-header.png');
 	background-repeat: repeat-x;
 	width: 13%;
+	padding-left: 5px;
+	padding-right: 5px;
 }
 
 .crm_calendar_week td.header_day a table {
@@ -104,6 +106,8 @@ a.icon {
 	background-image: url('images/day-header-today.png');
 	background-repeat: repeat-x;
 	width: 13%;
+	padding-left: 5px;
+	padding-right: 5px;
 
 	border-left: 2px solid #336699;
 	border-right: 2px solid #336699;
@@ -187,6 +191,18 @@ a.icon {
 	padding-top: 2px;
 }
 
+.crm_calendar_week td.midday_hour {
+	width: 10%;
+	vertical-align: top;
+	color: #FFFFFF;
+	border: 1px solid #B3B3B3;
+	border-right: 0px;
+	border-bottom: 0px;
+	text-align: center;
+	/*background-color: #E6ECF2;*/
+	background-color: #336699;
+	padding-top: 2px;
+}
 
 .crm_calendar_week td.inter {
 	vertical-align: top;
@@ -260,19 +276,6 @@ a.icon {
 	background-color: #B3B3B3;
 }
 
-.crm_calendar_week td.midday_hour {
-	width: 10%;
-	vertical-align: top;
-	color: #FFFFFF;
-	border: 1px solid #B3B3B3;
-	border-right: 0px;
-	border-bottom: 0px;
-	text-align: center;
-	/*background-color: #E6ECF2;*/
-	background-color: #336699;
-	padding-top: 2px;
-}
-
 /* event */
 
 .crm_calendar_week div.events_brief {
@@ -289,11 +292,11 @@ a.icon {
 	height: 18px;
 }
 
-.crm_calendar_week .event_icon {
+.crm_calendar_week .events_icon {
 	border: 1px solid #336699;
 }
 
-.crm_calendar_week .event_drag_handle {
+.crm_calendar_week .events_drag_handle {
 	cursor: move;
 	background-color: #339933;
 	width: 18px;
@@ -303,7 +306,7 @@ a.icon {
 	padding-top: 1px;
 }
 
-.crm_calendar_week .event_brief_info {
+.crm_calendar_week .events_brief_info {
 	display: block;
 	float: left;
 	padding-left: 5px;
@@ -311,11 +314,7 @@ a.icon {
 	padding-top: 1px;
 }
 
-.crm_calendar_week .event_info div,
-.crm_calendar_week .event_info span {
-}
-
-.crm_calendar_week .event_more {
+.crm_calendar_week .events_more {
 	background-color: #339933;
 	display: block;
 	float: right;
