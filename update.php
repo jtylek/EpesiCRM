@@ -44,7 +44,21 @@ function mod_cmp($a, $b){
 	return strlen($b['name']) - strlen($a['name']);
 }
 function update_from_0_9_0_to_0_9_1() {
+	DB::DropTable('base_user_settings');
+	DB::DropTable('base_user_settings_admin_defaults');
+	DB::CreateTable('base_user_settings','
+			user_login_id I4 NOTNULL,
+			module C(128) NOTNULL,
+			variable C(64) NOTNULL,
+			value X NOTNULL',
+			array('constraints'=>', FOREIGN KEY (user_login_id) REFERENCES user_login(id), PRIMARY KEY(user_login_id,module,variable), FOREIGN KEY (module) REFERENCES modules(name)'));
+	DB::CreateTable('base_user_settings_admin_defaults','
+			module C(128) NOTNULL,
+			variable C(64) NOTNULL,
+			value X NOTNULL',
+			array('constraints'=>', PRIMARY KEY(module,variable), FOREIGN KEY (module) REFERENCES modules(name)'));
 
+	themeup();
 }
 function update_from_0_8_11_to_0_9_0() {
 	DB::DropTable('session');

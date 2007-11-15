@@ -105,6 +105,18 @@ class CRM_ContactsInstall extends ModuleInstall {
 	public function version() {
 		return array('0.9');
 	}
+	
+	public static function post_install() {
+		return array(array('type'=>'select','name'=>'first','label'=>'First name','default'=>'0','values'=>array('x','y')),array('type'=>'text','name'=>'lastn','label'=>'Last name','default'=>'x'),
+			     array('type'=>'group', 'label'=>'radio','elems'=>array(
+				array('type'=>'checkbox','label'=>'c1_l','name'=>'c1','values'=>'c1_t','default'=>0),
+				array('type'=>'checkbox','label'=>'c2_l','name'=>'c2','values'=>'c2_t','default'=>0))
+				   ));
+	}
+
+	public static function post_install_process($val) {
+		print_r($val);
+	}
 }
 
 ?>

@@ -15,7 +15,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class BaseInstall extends ModuleInstall {
 	public function install() {
-		if(!Variable::set('default_module','Base_Box')) return false;			
 		return true;
 	}
 	

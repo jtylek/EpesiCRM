@@ -109,12 +109,13 @@ class Libs_QuickForm extends Module {
 			
 			case 'numeric':
 				if(!isset($v['rule']) || !is_array($v['rule'])) $v['rule']=array();
+				$v['type'] = 'text';
 				$v['rule'][] = array('type'=>'numeric','message'=>Base_LangCommon::ts('Libs_QuickForm','This is not valid number'));
 			case 'password':
 			case 'text':
 			case 'html':
 			case 'textarea':
-				$obj = $this -> createElement($v['type'],$v['name'],$v['label'],$v['param']);
+				$elem = $this -> createElement($v['type'],$v['name'],$v['label'],$v['param']);
 				$default_js .= '$(\''.$this->getAttribute('name').'\').'.$v['name'].'.value = \''.$v['default'].'\';';
 				break;
 						
@@ -126,6 +127,8 @@ class Libs_QuickForm extends Module {
 			default:
 				trigger_error('Invalid type: '.$v['type'],E_USER_ERROR);
 		}
+		if(PEAR::isError($elem))
+			trigger_error($elem->getMessage(),E_USER_ERROR);
 		return $elem;
 	}
 	
