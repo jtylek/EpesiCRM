@@ -42,6 +42,7 @@ a.icon {
 
 .crm_calendar_week td {
 	height: 21px;
+	vertical-align: middle;
 }
 
 .crm_calendar_week td.today {
@@ -51,21 +52,38 @@ a.icon {
 .crm_calendar_week td.hours_header {
 	width: 9%;
 	border: 0px;
+	text-align: center;
+	color: #339933;
+	/*font-weight: bold;*/
+	border: 1px solid #B3B3B3;
+	border-right: 0px;
+	border-bottom: 0px;
+	background-color: #FFFFFF;
 }
 
 .crm_calendar_week td.hours_header_lower {
 	width: 10%;
-	border: 0px;
+	vertical-align: top;
+	color: #FFFFFF;
+	border: 1px solid #B3B3B3;
+	border-right: 0px;
+	border-bottom: 0px;
+	text-align: center;
+	/*background-color: #E6ECF2;*/
+	background-color: #336699;
 }
 
 .crm_calendar_week td.header_day {
+	height: 50px;
 	vertical-align: top;
 	border: 1px solid #B3B3B3;
 	border-right: 0px;
 	border-top: 0px;
 	border-bottom: 0px;
 	text-align: left;
-	background-color: #FFFFFF;
+	background-color: #B3B3B3;
+	background-image: url('images/day-header.png');
+	background-repeat: repeat-x;
 	width: 13%;
 }
 
@@ -81,7 +99,9 @@ a.icon {
 	border-top: 0px;
 	border-bottom: 0px;
 	text-align: left;
-	background-color: #E6ECF2;
+	background-color: #CFDAE6;
+	background-image: url('images/day-header-today.png');
+	background-repeat: repeat-x;
 	width: 13%;
 
 	border-left: 2px solid #336699;
@@ -96,7 +116,8 @@ a.icon {
 .crm_calendar_week td.header_timeless {
 	vertical-align: top;
 	color: #000000;
-	border: 1px solid #B3B3B3;
+	border-left: 1px solid #B3B3B3;
+	border-top: 1px solid #FFFFFF;
 	border-right: 0px;
 	border-bottom: 0px;
 	text-align: left;
@@ -105,10 +126,15 @@ a.icon {
 	cursor: pointer;
 }
 
+.crm_calendar_week td.header_timeless:hover {
+	background-color: #B3B3B3;
+}
+
 .crm_calendar_week td.header_timeless_today {
 	vertical-align: top;
 	color: #000000;
-	border: 1px solid #B3B3B3;
+	border-left: 1px solid #B3B3B3;
+	border-top: 1px solid #FFFFFF;
 	border-right: 0px;
 	border-bottom: 0px;
 	text-align: left;
@@ -120,6 +146,9 @@ a.icon {
 	border-right: 2px solid #336699;
 }
 
+.crm_calendar_week td.header_timeless_today:hover {
+	background-color: #B3B3B3;
+}
 
 .crm_calendar_week td.header_weekday {
 	vertical-align: top;
@@ -147,12 +176,13 @@ a.icon {
 .crm_calendar_week td.hour {
 	width: 10%;
 	vertical-align: top;
-	color: #000000;
+	color: #FFFFFF;
 	border: 1px solid #B3B3B3;
 	border-right: 0px;
 	border-bottom: 0px;
 	text-align: center;
-	background-color: #CFDAE6;
+	/*background-color: #CFDAE6;*/
+	background-color: #336699;
 }
 
 
@@ -166,6 +196,10 @@ a.icon {
 	background-color: #CFDAE6;
 	padding: 0px;
 	cursor: pointer;
+}
+
+.crm_calendar_week td.inter:hover {
+	background-color: #B3B3B3;
 }
 
 .crm_calendar_week td.inter_today {
@@ -183,6 +217,10 @@ a.icon {
 	border-right: 2px solid #336699;
 }
 
+.crm_calendar_week td.inter_today:hover {
+	background-color: #B3B3B3;
+}
+
 .crm_calendar_week td.midday_inter {
 	vertical-align: top;
 	color: #000000;
@@ -194,6 +232,10 @@ a.icon {
 	padding: 0px;
 	margin: 0px;
 	cursor: pointer;
+}
+
+.crm_calendar_week td.midday_inter:hover {
+	background-color: #B3B3B3;
 }
 
 .crm_calendar_week td.midday_inter_today {
@@ -212,15 +254,20 @@ a.icon {
 	border-right: 2px solid #336699;
 }
 
+.crm_calendar_week td.midday_inter_today:hover {
+	background-color: #B3B3B3;
+}
+
 .crm_calendar_week td.midday_hour {
 	width: 10%;
 	vertical-align: top;
-	color: #000000;
+	color: #FFFFFF;
 	border: 1px solid #B3B3B3;
 	border-right: 0px;
 	border-bottom: 0px;
 	text-align: center;
-	background-color: #E6ECF2;
+	/*background-color: #E6ECF2;*/
+	background-color: #336699;
 }
 
 .crm_calendar_week div.events_brief {
@@ -252,8 +299,8 @@ a.icon {
 /* menu */
 
 div.week-menu {
-	padding-bottom: 10px;
-	border-bottom: 4px solid #B3B3B3;
+	padding-bottom: 5px;
+	/*border-bottom: 4px solid #B3B3B3;*/
 }
 
 div.week-menu img {

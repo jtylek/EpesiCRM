@@ -13,7 +13,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 		$ret = '';
 		if($fullscreen) {
 			$entry = 'datepicker_'.$name.'_calendar';
-			$ret = '<a rel="'.$entry.'" class="button lbOn">'.$label.'</a>';
+			$ret = '<a style="cursor: pointer;" rel="'.$entry.'" class="button lbOn">' . $label . ' <img style="vertical-align: middle;" border="0" width="16" height="16" src=' . Base_ThemeCommon::get_template_file('Utils_Calendar', 'select.png').'>' . '</a>';
 
 			$ret .= '<div id="'.$entry.'" class="leightbox">'.
 				$calendar.

@@ -1,7 +1,7 @@
-	<table class="crm_calendar_week" cellspacing=0>
+	<table class="crm_calendar_week" cellspacing="0" cellpadding="0">
 		<tr>
 {* shows month *}
-			<td class=hours_header>&nbsp;</td>
+			<td class="hours_header" rowspan="2"><img src="{$theme_dir}/CRM_Calendar__icon-week.png" width="32" height="32" border="0"><br>Week calendar</td>
 
 			{section name=header_month loop=$header_month}
 					<td class=header_month colspan={$header_month[header_month].colspan}>{$header_month[header_month].info}</td>
@@ -10,20 +10,19 @@
 
 		<tr>
 {* this row contains days of month *}
-			<td class=hours_header>&nbsp;</td>
 
 			{section name=header_day loop=$header_day}
 				{if $header_day[header_day].class == 'today'}
 					<td class="header_day_today">{$header_day[header_day].info}</td>
 				{else}
-					<td class=header_day>{$header_day[header_day].info}</td>
+					<td class="header_day">{$header_day[header_day].info}</td>
 				{/if}
 			{/section}
 		</tr>
 
 		<tr>
 {* this row contains timeless events *}
-			<td class=hours_header_lower>&nbsp;</td>
+			<td class="hours_header_lower">Timeless</td>
 
 			{foreach item=t_event from=$timeless_event}
 
@@ -79,3 +78,4 @@
 
 		{/section}
 	</table>
+	<div style="text-align: left; padding-top: 10px;">Double click on cell to add event<div>
