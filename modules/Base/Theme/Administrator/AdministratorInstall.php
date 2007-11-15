@@ -29,7 +29,6 @@ class Base_Theme_AdministratorInstall extends ModuleInstall {
 		return array(
 			array('name'=>'Base/Theme','version'=>0),
 			array('name'=>'Base/Admin','version'=>0),
-			array('name'=>'Base/ActionBar','version'=>0),
 			array('name'=>'Utils/FileUpload','version'=>0),
 			array('name'=>'Utils/FileDownload','version'=>0),
 			array('name'=>'Utils/Image','version'=>0),
