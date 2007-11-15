@@ -103,8 +103,7 @@ class CRM_Calendar_View_Month extends Module {
 						
 						}
 						$event[$g]['brief'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'brief');
-						$event[$g]['move'] = '<img  border="0" width="16" height="16" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar', 'grab.png').'">';
-						//print "<xmp>".$event[$g]['move']."</xmp>";
+						$event[$g]['move'] = '<img  border="0" width="16" height="16" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar', 'grab.gif').'">';
 						$event[$g]['div_id'] = $div_id;
 						CRM_Calendar_Utils_SidetipCommon::create($div_id.'_brief', $div_id, $event[$g]['full']);
 						CRM_Calendar_Utils_SidetipCommon::create($div_id.'_more', $div_id, $more);
@@ -187,9 +186,7 @@ class CRM_Calendar_View_Month extends Module {
 				$t = $date['year']*10000 + $date['month']*100 + $current_day; //array('year'=>$date['year'], 'month'=>$date['month'], 'day'=>$current_day)
 				$event = $this->extract_day_events_from_month($events, $current_day);
 				$counter++;
-				//$days[] = array('class'=>$class, 'info'=>$txt, 'event_num'=>count($event), 'event'=>$event);
-				$days[] = array('class'=>$class, 'info'=>'as', 'event_num'=>0, 'event'=>array());
-					
+				$days[] = array('class'=>$class, 'info'=>$txt, 'event_num'=>count($event), 'event'=>$event);
 			}
 			
 			// adding remaining empty slots
