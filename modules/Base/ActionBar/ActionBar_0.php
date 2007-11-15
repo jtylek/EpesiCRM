@@ -80,7 +80,8 @@ class Base_ActionBar extends Module {
 							$icon = Base_ThemeCommon::get_template_file($this->get_type(),'default_icon.png');
 						$ii['icon'] = $icon;
 						$launcher[] = $ii;
-					} elseif (Base_User_SettingsCommon::get('Base_Menu_QuickAccess',$v['name'].'_l')) {
+					}
+					if (Base_User_SettingsCommon::get('Base_Menu_QuickAccess',$v['name'].'_l')) {
 						$ii = array();
 						$trimmed_label = substr(strrchr($v['label'],':'),1);
 						$ii['label'] = $trimmed_label?$trimmed_label:$v['label'];
