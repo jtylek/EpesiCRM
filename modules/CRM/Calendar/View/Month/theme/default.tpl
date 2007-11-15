@@ -1,4 +1,4 @@
-	
+
 	<table name=CRMCalendar class=big>
 		<tr>
 		{section name=header loop=$header}
