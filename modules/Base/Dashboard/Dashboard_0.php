@@ -239,8 +239,13 @@ class Base_Dashboard extends Module {
 			}
 			if (method_exists($name.'Common','applet_icon'))
 				$icon = call_user_func(array($name.'Common','applet_icon'));
-			else 
-				$icon = Base_ThemeCommon::get_template_file($name,'icon.png');
+			else {
+				try {
+					$icon = Base_ThemeCommon::get_template_file($name,'icon.png');
+				} catch(Exception $e) {
+					$icon = null;
+				}
+			}
 			$buttons[] = array('link'=>'<a '.$attrs.$this->create_callback_href(array($this,'add_applet'),array($name,$tab_id)).'>'.$cap.'</a>',
 						'icon'=>$icon);
 		}

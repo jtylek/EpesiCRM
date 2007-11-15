@@ -19,8 +19,9 @@ class Base_Box extends Module {
 	public function body() {
 		$theme = & $this->pack_module('Base/Theme');
 		$lang = & $this->init_module('Base/Lang');
-		$ini = Base_ThemeCommon::get_template_file('Base_Box','default.ini');
-		if(!$ini) {
+		try {
+			$ini = Base_ThemeCommon::get_template_file('Base_Box','default.ini');
+		} catch(Exception $e) {
 			print($lang->t('Unable to read Base_Box__default.ini file! Please create one, or change theme.'));
 			$this->pack_module('Base/Theme/Administrator',null,'admin');
 			return;

@@ -22,7 +22,6 @@ class Utils_CalendarCommon extends ModuleCommon {
 
 			$function .= ';leightbox_deactivate(\''.$entry.'\');';
 		} else {
-			load_css('modules/Utils/Calendar/popup.css');
 			$entry = 'datepicker_'.$name.'_calendar';
 			$ret = '<a onClick="$(\''.$entry.'\').toggle()" href="javascript:void(0)">'.$label.'</a>';
 			$ret .= '<div id="'.$entry.'" class="utils_calendar_popup" style="top: '.Epesi::escapeJS($top,true,false).';left:'.Epesi::escapeJS($left,true,false).';display:none;z-index:1;position:absolute;">'.

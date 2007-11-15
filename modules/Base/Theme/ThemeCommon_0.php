@@ -119,13 +119,13 @@ class Base_ThemeCommon extends ModuleCommon {
 		if(!isset($module_name)) 
 			trigger_error('Invalid argument for load_css, no module was specified.',E_USER_ERROR);
 		
-		$css = self::get_template_file($module_name,$css_name.'.css');
-		if(!$css) {
-			if($trig_error) trigger_error('Invalid css specified: '.$module_name.'__'.$css_name.'.css',E_USER_ERROR);
-			return false;
-		} else {
+		try {
+			$css = self::get_template_file($module_name,$css_name.'.css');
 			load_css($css);
 			return true;
+		} catch(Exception $e) {
+			if($trig_error) trigger_error('Invalid css specified: '.$module_name.'__'.$css_name.'.css',E_USER_ERROR);
+			return false;
 		}
 	}
 	

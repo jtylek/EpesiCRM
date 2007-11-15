@@ -17,7 +17,10 @@
 
 			{$__link.buttons.$key.link.open}
 			<div class="button">
-				<img src="{$button.icon}" border="0" width="32" height="32" align="middle">&nbsp;&nbsp;{$__link.buttons.$key.link.text}
+				{if isset($button.icon)}
+				<img src="{$button.icon}" border="0" width="32" height="32" align="middle">&nbsp;&nbsp;
+				{/if}
+				{$__link.buttons.$key.link.text}
 			</div>
 			{$__link.buttons.$key.link.close}
 

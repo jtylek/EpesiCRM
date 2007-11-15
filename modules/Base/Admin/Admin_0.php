@@ -58,8 +58,13 @@ class Base_Admin extends Module {
 		foreach($mod_ok as $caption=>$name) {
 			if (method_exists($name.'Common','admin_icon')) {
 				$icon = call_user_func(array($name.'Common','admin_icon'));
-			} else 
-				$icon = Base_ThemeCommon::get_template_file($name,'icon.png');
+			} else {
+				try {
+					$icon = Base_ThemeCommon::get_template_file($name,'icon.png');
+				} catch(Exception $e) {
+					$icon = null;
+				}
+			}
 			$buttons[]= array('link'=>'<a '.$this->create_unique_href(array('href'=>$name)).'>'.$lang->t($caption).'</a>',
 						'icon'=>$icon);
 		}

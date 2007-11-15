@@ -32,7 +32,7 @@ class DBSession {
 	    	$_SESSION = unserialize($ret);
 	if(CID!==false && ($ret = DB::GetOne('SELECT data FROM session_client WHERE session_name = %s AND client_id=%d', array($name,CID))))
 		$_SESSION['client'] = unserialize($ret);
-        return '';
+	return '';
     }
 
     public static function write($name, $data) {
@@ -41,7 +41,7 @@ class DBSession {
 		$ret &= DB::Replace('session_client',array('data'=>serialize($_SESSION['client']),'session_name'=>$name,'client_id'=>CID),array('session_name','client_id'),true);
 	if(isset($_SESSION['client'])) unset($_SESSION['client']);
 	$ret &= DB::Replace('session',array('expires'=>time(),'data'=>serialize($_SESSION),'name'=>$name),'name',true);
-        return ($ret>0)?true:false;
+	return ($ret>0)?true:false;
     }
     
     public static function destroy($name) {

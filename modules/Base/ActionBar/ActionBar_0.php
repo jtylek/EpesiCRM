@@ -75,9 +75,11 @@ class Base_ActionBar extends Module {
 						$ii['link_id'] = 'actionbar_launchpad_'.$k;
 						$ii['open'] = '<a '.$this->create_href($v['link']).' id="'.$ii['link_id'].'">';
 						$ii['close'] = '</a>';
-						$icon = Base_ThemeCommon::get_template_file($v['module'],'icon.png');
-						if($icon===false)
+						try {
+							$icon = Base_ThemeCommon::get_template_file($v['module'],'icon.png');
+						} catch(Exception $e) {
 							$icon = Base_ThemeCommon::get_template_file($this->get_type(),'default_icon.png');
+						}
 						$ii['icon'] = $icon;
 						$launcher[] = $ii;
 					}
