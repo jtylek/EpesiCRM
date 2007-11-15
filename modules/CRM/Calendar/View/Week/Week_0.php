@@ -194,7 +194,7 @@ class CRM_Calendar_View_Week extends Module {
 					$event[$g] = array();
 					$event[$g]['full'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'full');
 					$more = call_user_func(array($module.'Common', 'get_text'), $EV, 'edit');
-					$event[$g]['more'] = '<img style="vertical-align: middle;" id="'.$div_id.'_more" border="0" width="14" height="1" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', "icon-view.gif").'>';
+					$event[$g]['more'] = '<img style="vertical-align: middle;" id="'.$div_id.'_more" border="0" width="14" height="1" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', "info.gif").'>';
 
 					// special priviliges
 					if($this->logged > 0) {
@@ -211,7 +211,7 @@ class CRM_Calendar_View_Week extends Module {
 
 					}
 					$event[$g]['brief'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'brief');
-					$event[$g]['move'] = '<img  border="0" width="15" height="15" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'grab.gif').'>';
+					$event[$g]['move'] = '<img  border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'grab.gif').'>';
 
 					$event[$g]['div_id'] = $div_id;
 					CRM_Calendar_Utils_SidetipCommon::create($div_id.'_brief', $div_id, $event[$g]['full']);
@@ -240,7 +240,7 @@ class CRM_Calendar_View_Week extends Module {
 
 							$event[$g]['full'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'full');
 							$more = call_user_func(array($module.'Common', 'get_text'), $EV, 'edit');
-							$event[$g]['more'] = '<img style="vertical-align: middle;" id="'.$div_id.'_more" border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', "icon-view.gif").'>';
+							$event[$g]['more'] = '<img style="vertical-align: middle;" id="'.$div_id.'_more" border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', "info.gif").'>';
 
 							// special priviliges
 							if($this->logged > 0) {
@@ -257,7 +257,7 @@ class CRM_Calendar_View_Week extends Module {
 
 							}
 							$event[$g]['brief'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'brief');
-							$event[$g]['move'] = '<img  border="0" width="15" height="15" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'grab.gif').'>';
+							$event[$g]['move'] = '<img  border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'grab.gif').'>';
 							$event[$g]['div_id'] = $div_id;
 
 							//if($EV['created_by'] != Base_UserCommon::get_My_user_id())
@@ -318,12 +318,12 @@ class CRM_Calendar_View_Week extends Module {
 				$class = "day";
 				if(intval($date['year']) == intval($today['year']) && intval($date['month']) == intval($today['month']) && intval($current_day) == intval($today['day']))
 					$class = "today";
-				
+
 				$has_events = '0';
 				if(count($event) > 0)
 					$has_events = 'has_events';
 				$timeless_tt[] = array(
-					'has_events'=>$has_events, 'class'=>$class, 'id'=>$id, 'event'=>$event, 
+					'has_events'=>$has_events, 'class'=>$class, 'id'=>$id, 'event'=>$event,
 					'add'=>$this->create_callback_href_js(array($this,'add_event'),array('date'=>array('year'=>$start['year'], 'month'=>$start['month'], 'day'=>$current_day)))
 				);
 				eval_js('CRMCalendarDND.add_containment("'.$id.'")');
@@ -376,7 +376,7 @@ class CRM_Calendar_View_Week extends Module {
 					$class = "day";
 					if(intval($date['year']) == intval($today['year']) && intval($date['month']) == intval($today['month']) && intval($current_day) == intval($today['day']))
 						$class = "today";
-					
+
 					$has_events = '0';
 					if(count($event) > 0)
 						$has_events = 'has_events';
