@@ -34,7 +34,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 			array('name'=>'Phone', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>true),
 			array('name'=>'Fax', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
 			array('name'=>'Web address', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'display_callback'=>array('CRM_ContactsCommon', 'display_webaddress'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_webaddress')),
-			array('name'=>'Company', 'type'=>'multiselect', 'required'=>false, 'param'=>array('company'=>'Company Name'), 'extra'=>false, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_company')),
+			array('name'=>'Company Name', 'type'=>'multiselect', 'required'=>false, 'param'=>array('company'=>'Company Name'), 'extra'=>false, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_company')),
 			array('name'=>'Group', 'type'=>'multiselect', 'required'=>false, 'param'=>'Contacts_groups', 'extra'=>false)
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('contact', $fields);
