@@ -22,7 +22,30 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 	
 	public static function user_settings() {
 		self::get_options();
-		if (Acl::is_user()) return array('Quick access menu'=>self::$options);
+		$ret_opts = array();
+		foreach(self::$options as $opt) {
+			unset($opt['link']);
+			$name = $opt['name'];
+			unset($opt['name']);
+			$opt = array_merge($opt,array(
+						'type'=>'bool',
+						'reload'=>true,
+						'default'=>0
+						));
+			$ret_opts[] = array('type'=>'group', 'label'=>$opt['label'], 'elems'=>array(
+						array_merge($opt,array(
+							'values'=>'menu',
+							'name'=>$name.'_m')),
+						array_merge($opt,array(
+							'values'=>'dashboard',
+							'name'=>$name.'_d')),
+						array_merge($opt,array(
+							'values'=>'launchpad',
+							'name'=>$name.'_l'))
+					));
+		}
+		//trigger_error(print_r($ret_opts,true));
+		if (Acl::is_user()) return array('Quick access'=>$ret_opts);
 		return array();
 	} 
 	
@@ -50,13 +73,9 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 			if (substr($k,0,2)=='__') continue;
 			if (is_array($v) && array_key_exists('__submenu__',$v)) $result = array_merge($result,self::check_for_links($prefix.$k.': ',$v,$mod));
 			elseif(is_array($v)) {
-				$http_query = http_build_query($v,'','&');
-				$result[] = array('name'=>md5($http_query.'#qa_sep#'.$prefix.$k)
-							,'link'=>$http_query
+				$result[] = array('name'=>md5($prefix.$k)
+							,'link'=>$v
 							,'label'=>$prefix.$k
-							,'type'=>'bool'
-							,'reload'=>true
-							,'default'=>0
 							,'module'=>$mod);
 			}
 		}
@@ -68,11 +87,9 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 		self::get_options();
 		$qa_menu = array('__submenu__'=>1);
 		foreach (self::$options as $v)
-			if (Base_User_SettingsCommon::get('Base_Menu_QuickAccess',$v['name'])) {
-				$menu_entry = null;
-				parse_str($v['link'],$menu_entry);
-				$qa_menu[$v['label']] = $menu_entry;
-			} 
+			if (Base_User_SettingsCommon::get('Base_Menu_QuickAccess',$v['name'].'_m'))
+				$qa_menu[$v['label']] = $v['link'];
+			
 		if ($qa_menu == array('__submenu__'=>1)) return array();
 		return array('Quick Access'=>$qa_menu);
 	}

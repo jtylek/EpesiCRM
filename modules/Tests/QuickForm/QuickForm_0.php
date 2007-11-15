@@ -26,6 +26,12 @@ class Tests_QuickForm extends Module{
 		$f->setDefaults(array('cd_country'=>'US','cd_state'=>'AL'));
 //		$f->addRule('cd_city','required','required');
 //		print($x->getValue().'<br>');
+		
+		$c1 = $f->createElement('checkbox','c1','c1_l','c1_t');
+		$c2 = $f->createElement('checkbox','c2','c2_l','c2_t');
+		$c3 = $f->createElement('checkbox','c3','c3_l','c3_t');
+		$f->addGroup(array($c1,$c2,$c3),'g','g_l');
+		$f->add_array(array(array('type'=>'group','elems'=>array(array('type'=>'checkbox','label'=>'c1_l','name'=>'c1','values'=>'c1_t','default'=>0),array('type'=>'checkbox','label'=>'c2_l','name'=>'c2','values'=>'c2_t','default'=>0)), 'label'=>'radio')));
 
 		$f->addElement('submit',null,'ok');
 		if($f->validate()) {

@@ -32,7 +32,6 @@ class Base_ActionBarInstall extends ModuleInstall {
 	public function requires($v) {
 		return array(
 			array('name'=>'Base/Lang','version'=>0),
-			array('name'=>'Base/Box','version'=>0),
 			array('name'=>'Libs/Leightbox','version'=>0),
 			array('name'=>'Base/Menu/QuickAccess','version'=>0),
 			array('name'=>'Base/User/Settings','version'=>0),

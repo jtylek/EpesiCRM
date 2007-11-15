@@ -19,7 +19,6 @@ class Applets_CalcCommon extends ModuleCommon {
 	public static function applet_info() {
 		return "Simple calculator applet";
 	}
-
 }
 
 ?>

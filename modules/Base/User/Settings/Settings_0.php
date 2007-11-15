@@ -70,6 +70,7 @@ class Base_User_Settings extends Module {
 			$x = explode(self::$sep,$k);
 			if(count($x)!=2) continue;
 			list($module_name,$module_part) = $x;
+			//print($module_name.':'.$module_part.'=>'.$v.'<br>');
 			if($this->get_module_variable('admin_settings')) {
 				Base_User_SettingsCommon::save_admin($module_name,$module_part,$v);
 				continue;
@@ -82,13 +83,17 @@ class Base_User_Settings extends Module {
 				$menu = $cmr[$module_name];
 				if(!is_array($menu)) continue;
 				foreach($menu as $vv) 
-					foreach($vv as $v)
-						if($v['name']==$module_part) {
-							if (isset($v['reload']) && $v['reload']!=0) {
+					foreach($vv as $v) {
+						if($v['type']=='group') {
+							foreach($v['elems'] as $e)
+								if($e['name']==$module_part && isset($e['reload']) && $e['reload']!=0)
+									$reload = true;
+						} elseif($v['name']==$module_part) {
+							if (isset($v['reload']) && $v['reload']!=0)
 								$reload = true;
-								break;
-							}
 						}
+						if($reload) break;
+					}
 			}
 		}
 		
@@ -97,27 +102,35 @@ class Base_User_Settings extends Module {
 		return true;
 	}
 	
+	private function add_elem_to_form(array & $v,array & $defaults, $module,$admin_settings) {
+		if(isset($v['label'])) $v['label'] = $this->lang->t($v['label']);
+		$old_name = $v['name'];
+		$v['name'] = $module.self::$sep.$v['name'];
+		$this->settings_fields[] = $v['name'];
+		if(isset($v['values']) && is_array($v['values']))
+			foreach($v['values'] as &$x) 
+				$x = $this->lang->ht($x);
+		if (isset($v['rule'])) {
+			if(isset($v['rule']['message']) && isset($v['rule']['type'])) $v['rule'] = array($v['rule']);
+			foreach ($v['rule'] as & $r)
+				if (isset($r['message'])) $r['message'] = $this->lang->t($r['message']);
+		}
+		if($admin_settings)
+			$value = Base_User_SettingsCommon::get_admin($module,$old_name);
+		else
+			$value = Base_User_SettingsCommon::get($module,$old_name);
+		$defaults = array_merge($defaults,array($v['name']=>$value));
+	}
+	
 	private function add_module_settings_to_form($info, &$f, $module){
 		$defaults = array();
 		$admin_settings = $this->get_module_variable('admin_settings');
 		foreach($info as & $v){
-			if(isset($v['label'])) $v['label'] = $this->lang->t($v['label']);
-			$old_name = $v['name'];
-			$v['name'] = $module.self::$sep.$v['name'];
-			$this->settings_fields[] = $v['name'];
-			if(isset($v['values']) && is_array($v['values']))
-				foreach($v['values'] as &$x) 
-					$x = $this->lang->ht($x);
-			if (isset($v['rule'])) {
-				if(isset($v['rule']['message']) && isset($v['rule']['type'])) $v['rule'] = array($v['rule']);
-				foreach ($v['rule'] as & $r)
-					if (isset($r['message'])) $r['message'] = $this->lang->t($r['message']);
-			}
-			if($admin_settings)
-				$value = Base_User_SettingsCommon::get_admin($module,$old_name);
+			if($v['type']=='group')
+				foreach($v['elems'] as & $vv)
+					$this->add_elem_to_form($vv,$defaults, $module,$admin_settings);
 			else
-				$value = Base_User_SettingsCommon::get($module,$old_name);
-			$defaults = array_merge($defaults,array($v['name']=>$value));
+				$this->add_elem_to_form($v,$defaults, $module,$admin_settings);
 		}
 		$f -> add_array($info, $this->set_default_js);
 		$f -> setDefaults($defaults);

@@ -42,19 +42,30 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	public static function get_default($module,$name){
 		$module = str_replace('/','_',$module);
 		static $variables;
-		if (isset($variables[$module.'__'.$name]))
-			return $variables[$module.'__'.$name];
-		$module = str_replace('/','_',$module);
+		if (isset($variables[$module])) {
+			if(isset($variables[$module][$name]))
+				return $variables[$module][$name];
+			return null;
+		}
 		if(method_exists($module.'Common', 'user_settings')) {
 			$menu = call_user_func(array($module.'Common','user_settings'));
 			if(is_array($menu))
 				foreach($menu as $v)
-					foreach($v as $v2)
-						if ($v2['type']!='static' && $v2['type']!='header') {
-							$variables[$module.'__'.$v2['name']] = $v2['default'];
+					foreach($v as $v2) {
+						if(!isset($v2['type'])) trigger_error(print_r($v2,true));
+						if ($v2['type']=='group') {
+							foreach($v2['elems'] as $e)
+								if ($e['type']!='static' && $e['type']!='header') {
+									$variables[$module][$e['name']] = $e['default'];
+									if($e['name']===$name)
+										$ret=$e['default'];
+								}
+						} elseif ($v2['type']!='static' && $v2['type']!='header') {
+							$variables[$module][$v2['name']] = $v2['default'];
 							if($v2['name']===$name)
 								$ret=$v2['default'];
 						}
+					}
 			if(isset($ret)) return $ret;
 			return null;
 		} else {
@@ -71,13 +82,14 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	 */	
 	public static function get_admin($module,$name){
 		$module = str_replace('/','_',$module);
+		//print('get_admin '.$module.':'.$name.';');
 		if (!isset(self::$admin_variables)) {
-			$ret = DB::Execute('SELECT '.DB::Concat('module','\'__\'','variable').',value FROM base_user_settings_admin_defaults');
+			$ret = DB::Execute('SELECT module,variable,value FROM base_user_settings_admin_defaults');
 			while($row = $ret->FetchRow())
-				self::$admin_variables[$row[0]] = unserialize($row[1]);
+				self::$admin_variables[$row['module']][$row['variable']] = unserialize($row['value']);
 		}
-		if (isset(self::$admin_variables[$module.'__'.$name]))
-			return self::$admin_variables[$module.'__'.$name];
+		if (isset(self::$admin_variables[$module][$name]))
+			return self::$admin_variables[$module][$name];
 		return self::get_default($module,$name);
 	}
 
@@ -93,13 +105,14 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	public static function get($module,$name){
 		if (!Acl::is_user()) return null;
 		$module = str_replace('/','_',$module);
+		//print('get '.$module.':'.$name.';');
 		if (!isset(self::$user_variables)) {
-			$ret = DB::Execute('SELECT '.DB::Concat('module','\'__\'','variable').',value FROM base_user_settings WHERE user_login_id=%d',array(Base_UserCommon::get_my_user_id()));
+			$ret = DB::Execute('SELECT module, variable, value FROM base_user_settings WHERE user_login_id=%d',array(Base_UserCommon::get_my_user_id()));
 			while($row = $ret->FetchRow())
-				self::$user_variables[$row[0]] = unserialize($row[1]);
+				self::$user_variables[$row['module']][$row['variable']] = unserialize($row['value']);
 		}
-		if (isset(self::$user_variables[$module.'__'.$name]))
-			return self::$user_variables[$module.'__'.$name];
+		if (isset(self::$user_variables[$module][$name]))
+			return self::$user_variables[$module][$name];
 		return self::get_admin($module,$name);
 	}
 

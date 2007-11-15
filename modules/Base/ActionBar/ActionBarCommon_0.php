@@ -36,8 +36,7 @@ class Base_ActionBarCommon extends ModuleCommon {
 	public static function user_settings(){
 		return array('Misc'=>array(
 			array('name'=>'display','label'=>'Action bar displays','type'=>'select','values'=>array('icons only'=>'icons only','text only'=>'text only','both'=>'both'),'default'=>'both','reload'=>true)
-			),
-			'Quick access icons'=>Base_Menu_QuickAccessCommon::get_options());
+			));
 	}
 	
 	public static function add($type, $text, $action, $description=null) {

@@ -387,7 +387,11 @@ class Base_Dashboard extends Module {
 		if(method_exists($mod.'Common', 'applet_settings')) {
 			$menu = call_user_func(array($mod.'Common','applet_settings'));
 			foreach($menu as $v)
-				if(isset($v['default']))
+				if($v['type']=='group') {
+					foreach($v['elems'] as $e)
+						if(isset($e['default']))
+							$variables[$mod][$e['name']] = $e['default'];
+				} elseif(isset($v['default']))
 					$variables[$mod][$v['name']] = $v['default'];
 		}
 		return $variables[$mod];

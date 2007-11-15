@@ -83,59 +83,75 @@ class Libs_QuickForm extends Module {
 		$theme->assign($name.'_data', $form_data);
 		$theme->assign($name.'_open', $form_data['javascript'].'<form '.$form_data['attributes'].'>'.$form_data['hidden']."\n");
 		$theme->assign($name.'_close', "</form>\n");
-	} 
+	}
+	
+	public function get_element_by_array(array $v, & $default_js = null) {
+		$elem = null;
+		if(!isset($v['param'])) $v['param']=null;
+		if(!isset($v['values'])) $v['values']=null;
+		switch($v['type']){
+			case 'select':
+				$elem = $this -> createElement('select',$v['name'],$v['label'],$v['values'],$v['param']);
+				$default_js .= 'e = $(\''.$this->getAttribute('name').'\').'.$v['name'].';'.
+				'for(i=0; i<e.length; i++) if(e.options[i].value==\''.$v['default'].'\'){e.options[i].selected=true;break;};';
+				break;
+			
+			case 'static':
+			case 'header':
+				$elem = $this -> createElement($v['type'],isset($v['name'])?$v['name']:null,$v['label'],isset($v['values'])?$v['values']:'');
+				break;
+				
+			case 'bool':
+			case 'checkbox':
+				$elem = $this -> createElement('checkbox',$v['name'],$v['label'],$v['values'],$v['param']);
+				$default_js .= '$(\''.$this->getAttribute('name').'\').'.$v['name'].'.checked = '.$v['default'].';';
+				break;
+			
+			case 'numeric':
+				if(!isset($v['rule']) || !is_array($v['rule'])) $v['rule']=array();
+				$v['rule'][] = array('type'=>'numeric','message'=>Base_LangCommon::ts('Libs_QuickForm','This is not valid number'));
+			case 'password':
+			case 'text':
+			case 'html':
+			case 'textarea':
+				$obj = $this -> createElement($v['type'],$v['name'],$v['label'],$v['param']);
+				$default_js .= '$(\''.$this->getAttribute('name').'\').'.$v['name'].'.value = \''.$v['default'].'\';';
+				break;
+						
+			case 'callback':
+				if(!isset($v['func']))
+					trigger_error('Callback function not defined in '.$v['name'],E_USER_ERROR);
+				$elem = call_user_func($v['func'],$v['name'],$v,$default_js);
+				break;
+			default:
+				trigger_error('Invalid type: '.$v['type'],E_USER_ERROR);
+		}
+		return $elem;
+	}
 	
 	public function add_array($info, & $default_js=''){
 		foreach($info as $v){
 			if(!isset($v['param'])) $v['param']=null;
 			if(!isset($v['values'])) $v['values']=null;
-			switch($v['type']){
-				case 'select':
-					$this -> addElement('select',$v['name'],$v['label'],$v['values'],$v['param']);
-					$default_js .= 'e = $(\''.$this->getAttribute('name').'\').'.$v['name'].';'.
-					'for(i=0; i<e.length; i++) if(e.options[i].value==\''.$v['default'].'\'){e.options[i].selected=true;break;};';
-					break;
-				
-				case 'static':
-				case 'header':
-					$this -> addElement($v['type'],isset($v['name'])?$v['name']:null,$v['label'],isset($v['values'])?$v['values']:'');
-					break;
-					
+			switch($v['type']) {
 				case 'radio':
 					$radio = array();
-					$label = $v['label'];
-					foreach($v['values'] as $k=>$x) {
-						$this -> addElement('radio',$v['name'],$label,$this->lang->ht($x),$k,$v['param']);
-						$label = '';
-					}
+					foreach($v['values'] as $k=>$x)
+						$radio[] = $this -> createElement('radio',$v['name'],null,$this->lang->ht($x),$k,$v['param']);
+					$this->addGroup($radio,null,$v['label']);
 					$default_js .= 'e = $(\''.$this->getAttribute('name').'\').'.$v['name'].';'.
 					'for(i=0; i<e.length; i++){e[i].checked=false;if(e[i].value==\''.$v['default'].'\')e[i].checked=true;};';
 					break;
-					
-				case 'bool':
-				case 'checkbox':
-					$this -> addElement('checkbox',$v['name'],$v['label'],$v['values'],$v['param']);
-					$default_js .= '$(\''.$this->getAttribute('name').'\').'.$v['name'].'.checked = '.$v['default'].';';
-					break;
-				
-				case 'numeric':
-					if(!isset($v['rule']) || !is_array($v['rule'])) $v['rule']=array();
-					$v['rule'][] = array('type'=>'numeric','message'=>Base_LangCommon::ts('Libs_QuickForm','This is not valid number'));
-				case 'password':
-				case 'text':
-				case 'html':
-				case 'textarea':
-					$obj = $this -> addElement($v['type'],$v['name'],$v['label'],$v['param']);
-					$default_js .= '$(\''.$this->getAttribute('name').'\').'.$v['name'].'.value = \''.$v['default'].'\';';
-					break;
-							
-				case 'callback':
-					if(!isset($v['func']))
-						trigger_error('Callback function not defined in '.$v['name'],E_USER_ERROR);
-					call_user_func($v['func'],$this,$v['name'],$v,$default_js);
+				case 'group':
+					$elems = array();
+					if(!isset($v['elems']))
+						trigger_error('Empty group',E_USER_ERROR);
+					foreach($v['elems'] as $x)
+						$elems[] = $this->get_element_by_array($x,$default_js);
+					$this->addGroup($elems,null,$v['label']);
 					break;
 				default:
-					trigger_error('Invalid type: '.$v['type'],E_USER_ERROR);
+					$this->qf->addElement($this->get_element_by_array($v,$default_js));
 			}
 			if(isset($v['default'])) $this->setDefaults(array($v['name']=>$v['default']));
 			
@@ -172,7 +188,7 @@ class Libs_QuickForm extends Module {
 		}
 	}
 			
-	public function add_table($table_name, array $cols, &$js='') {
+	public function add_table($table_name, array $cols, &$js='') { //TODO: add group here?
 		$meta_table = DB::MetaColumns($table_name);
 		$arr = array();
 		foreach($cols as $k=>$v) {
