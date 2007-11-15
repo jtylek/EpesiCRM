@@ -145,7 +145,7 @@ class CRM_Calendar_View_Agenda extends Module {
 						$row->add_action( $this->parent->create_confirm_callback_href('Are you sure, you want to delete this event?', array($this, 'delete_event'), array($module['module_name'], $event['id'])), $this->lang->t('Delete') );
 					}
 					$full = call_user_func(array($module['module_name'].'Common', 'get_text'), $event, 'full');
-					CRM_Calendar_Utils_SidetipCommon::create_for($ev_id, $full, 'agenda');
+					CRM_Calendar_Utils_SidetipCommon::create($ev_id, $ev_id, $full, 'agenda');
 				}
 				
 				foreach($events['regular'] as $event) {
@@ -168,13 +168,13 @@ class CRM_Calendar_View_Agenda extends Module {
 						$row->add_action( $this->parent->create_confirm_callback_href('Are you sure, you want to delete this event?', array($this, 'delete_event'), array($module['module_name'], $event['id'])), $this->lang->t('Delete') );
 					}
 					$full = call_user_func(array($module['module_name'].'Common', 'get_text'), $event, 'full');
-					CRM_Calendar_Utils_SidetipCommon::create_for($ev_id, $full, 'agenda');
+					CRM_Calendar_Utils_SidetipCommon::create($ev_id, $ev_id, $full, 'agenda');
 				}
 				
 			}
 		}
 		$this->display_module($gb);
-		CRM_Calendar_Utils_SidetipCommon::create_for_all();
+		CRM_Calendar_Utils_SidetipCommon::create_all();
 	}
 	
 	///////////////////////////////////////////////////////////////////////////
