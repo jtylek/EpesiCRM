@@ -142,11 +142,12 @@ class Base_Setup extends Module {
 				} else {
 					print('<hr class="line"><center><a class="button"' . $this -> create_href(array()) . '>Back</a></center>');
 				}
-			} elseif(!$post_install)
+			} elseif(!$post_install){
 				$form->display();
 				Base_ActionBarCommon::add('settings','Scan for new modules',$this->create_confirm_callback_href('Parsing for additional modules may take up to several minutes, do you wish to continue?',array('Base_Setup','parse_modules_folder_refresh')));
 				Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
 				Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
+			}
 		}
 		
 		if(is_array($post_install)) {
