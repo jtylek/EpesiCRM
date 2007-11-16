@@ -25,11 +25,16 @@ class HTML_QuickForm_commondata extends HTML_QuickForm_select {
 		
 		if (isset($options['empty_option']))
 			$this->_add_empty_fields = $options['empty_option'];
-
+		if(count($this->_cd)==1) {
+			$root_data = Utils_CommonDataCommon::get_array($this->_cd[0]);
+			if($this->_add_empty_fields)
+				$root_data = array_merge(array(''=>'---'),$root_data);
+			$this->loadArray($root_data);
+		}
 	} //end constructor
 	
 	function toHtml() {
-		if(count($this->_cd)>1 && !$this->_flagFrozen) {
+		if(count($this->_cd)>1) {
 			load_js('modules/Utils/CommonData/qf.js');
 			$id=$this->getAttribute('id');
 			if(!isset($id)) {
@@ -37,12 +42,21 @@ class HTML_QuickForm_commondata extends HTML_QuickForm_select {
 				$this->updateAttributes(array('id'=>$id));
 			}
 			$val = $this->getValue();
-			eval_js('new Utils_CommonData(\''.Epesi::escapeJS($id,false).'\', \''.Epesi::escapeJS($val[0],false).'\', \''.Epesi::escapeJS(json_encode($this->_cd),false).'\', '.($this->_add_empty_fields?1:0).')');
-		} else {
-			$root_data = Utils_CommonDataCommon::get_array($this->_cd[0]);
-			if($this->_add_empty_fields)
-				$root_data = array_merge(array(''=>'---'),$root_data);
-			$this->loadArray($root_data);
+			$val = $val[0];
+			if($this->_flagFrozen) {
+				eval_js('new Utils_CommonData_freeze(\''.Epesi::escapeJS($id,false).'\', \''.Epesi::escapeJS(json_encode($this->_cd),false).'\')');
+				$html = '<span id="'.$id.'_label">&nbsp;</span>';
+				$name = $this->getPrivateName();
+				// Only use id attribute if doing single hidden input
+				$html .= '<input' . $this->_getAttrString(array(
+					     'type'  => 'hidden',
+					     'name'  => $name,
+					     'value' => $val,
+					     'id'    => $id
+					 )) . ' />';
+				return $html;
+			}
+			eval_js('new Utils_CommonData(\''.Epesi::escapeJS($id,false).'\', \''.Epesi::escapeJS($val,false).'\', \''.Epesi::escapeJS(json_encode($this->_cd),false).'\', '.($this->_add_empty_fields?1:0).')');
 		}
 	        return parent::toHtml();
 	}

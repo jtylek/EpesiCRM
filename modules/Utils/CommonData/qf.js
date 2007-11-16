@@ -10,10 +10,6 @@ Utils_CommonData.prototype = {
 		this.add_empty = ae;
 		this.def_val = val;
 		var obj = this.obj;
-//		for(var i=1,max=this.path.length-1; i<max; i++)
-//			Event.observe(eval('obj.form.'+this.path[i]),'e_u_cd:clear',function(){obj.options.length=0;obj.disabled=true;alert('clear '+obj.name);});
-
-//		alert('observe '+obj.name);
 		var prev_obj = eval('obj.form.'+this.path[this.path.length-1]);
 		Event.observe(prev_obj,'change',this.request.bindAsEventListener(this));
 		Event.observe(prev_obj,'e_u_cd:load',this.request.bindAsEventListener(this));
@@ -75,5 +71,58 @@ Utils_CommonData.prototype = {
 //			this.obj.fire('e_u_cd:load');
 			setTimeout(this.obj.fire.bind(this.obj,'e_u_cd:load'),1);
 		}
+	}
+};
+var Utils_CommonData_freeze = Class.create();
+Utils_CommonData_freeze.prototype = {
+	obj:null,
+	path:null,
+	id:null,
+	initialize: function(id,cd) {
+		this.id = id;
+		this.obj = $(id);
+		this.path = cd.evalJSON();
+		var obj = this.obj;
+		var prev_obj = eval('obj.form.'+this.path[this.path.length-1]);
+		Event.observe(prev_obj,'e_u_cd:load',this.request.bindAsEventListener(this));
+		
+		this.first_request_bind = this.first_request.bindAsEventListener(this);
+		if(this.path.length==2)
+			Event.observe(document,'e:load',this.first_request_bind);
+	},
+	
+	first_request: function(e) {
+		Event.stopObserving(document,'e:load',this.first_request_bind);
+		//alert('first');
+		this.request(null);
+	},
+	first_request_bind:null,
+	
+	request: function(e) {
+		var obj = this.obj;
+		//alert('request '+obj.name);
+		var curr_root = this.path[0];
+		for(var i=1; i<this.path.length; i++) {
+			var val = eval('obj.form.'+this.path[i]).value;
+			if(val=='') {
+				$(this.id+'_label').innerHTML = '---';
+				setTimeout(this.obj.fire.bind(this.obj,'e_u_cd:load'),1);
+				return;
+			}
+			curr_root += '/' + val;
+		}
+		curr_root += '/'+this.obj.value;
+		new Ajax.Request('modules/Utils/CommonData/update_freeze.php',{
+				method:'post',
+				parameters:{
+					value: curr_root
+				},
+				onSuccess: this.on_request.bind(this)
+			});
+	},
+	on_request: function(t) {
+		var val = t.responseText.evalJSON();
+		$(this.id+'_label').innerHTML = val;
+		setTimeout(this.obj.fire.bind(this.obj,'e_u_cd:load'),1);
 	}
 };
