@@ -29,6 +29,10 @@ class Base_ActionBar extends Module {
 		return $ret;
 	}
 
+	public function compare_launcher($a, $b) {
+		return strcmp($a['label'],$b['label']);
+	}
+
 	/**
 	 * Displays action bar.
 	 */
@@ -91,13 +95,16 @@ class Base_ActionBar extends Module {
 						$ii['link_id'] = 'actionbar_launchpad_'.$k;
 						$ii['open'] = '<a '.$this->create_href($v['link']).' id="'.$ii['link_id'].'">';
 						$ii['close'] = '</a>';
-						$icon = Base_ThemeCommon::get_template_file($v['module'],'icon.png');
-						if($icon===false)
+						try {
+							$icon = Base_ThemeCommon::get_template_file($v['module'],'icon.png');
+						} catch(Exception $e) {
 							$icon = Base_ThemeCommon::get_template_file($this->get_type(),'default_icon.png');
+						}
 						$ii['icon'] = $icon;
 						$launchpad[] = $ii;
 					}
 				}
+				usort($launchpad,array($this,'compare_launcher'));
 				if(!empty($launchpad)) {
 					$icon = Base_ThemeCommon::get_template_file($this->get_type(),'launcher.png');
 					$th = & $this->pack_module('Base/Theme');
@@ -105,6 +112,7 @@ class Base_ActionBar extends Module {
 					$th->assign('display_text',$display_text);
 					$close_icon = Base_ThemeCommon::get_template_file('Base_ActionBar','icons/back.png');
 					$close_link_id = 'actionbar_launchpad_close';
+					usort($launchpad,array($this,'compare_launcher'));
 					$launchpad[] = array('label'=>'Close launchpad','link_id'=>$close_link_id,'open'=>'<a id="'.$close_link_id.'" href="javascript:void(0)">','close'=>'</a>','icon'=>$close_icon);
 					$th->assign('icons',$launchpad);
 					eval_js_once('actionbar_launchpad_deactivate = function(){leightbox_deactivate(\'actionbar_launchpad\');}');
