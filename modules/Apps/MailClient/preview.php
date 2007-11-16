@@ -109,7 +109,7 @@ if(($ret = $mbox->setTmpDir(Apps_MailClientCommon::Instance()->get_data_dir().'t
 		$body .= '<script>'.$script.'</script>'.
 				'</html>';
 
-		echo $body.'<pre>'.htmlentities(print_r($structure,true)).'</pre>';
+		echo $body;//.'<pre>'.htmlentities(print_r($structure,true)).'</pre>';
 	}
 	
 } else {
