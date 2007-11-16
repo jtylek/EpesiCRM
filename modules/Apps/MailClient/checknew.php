@@ -97,8 +97,8 @@ foreach($accounts as $account) {
 		$uidls = array();
 		if(($uidls_fp = @fopen($uidls_file,'r'))!==false) {
 			while(($data = fgetcsv($uidls_fp,200))!==false) {
-				$num = count($data);
-				if($num!=2) continue;
+				$xxx = count($data);
+				if($xxx!=2) continue;
 				$uidls[$data[0]] = intval($data[1]);
 			}
 			fclose($uidls_fp);
@@ -108,14 +108,14 @@ foreach($accounts as $account) {
 		if(!empty($uidls))
 			for($k=0; $k<$count; $k++)
 				if(array_key_exists($l[$k]['uidl'],$uidls)) {
-					if($account['pop3_leave_msgs_on_server']==-1 || ($uidls[$l[$k]['uidl']]+$account['pop3_leave_msgs_on_server']*86400)<$now)
-						unset($l[$k]);
-					else { //remove message from server and uidls file
+					//print('old uidl=>'.$l[$k]['uidl'].', time=>'.$uidls[$l[$k]['uidl']].', live time=>'.($uidls[$l[$k]['uidl']]+$account['pop3_leave_msgs_on_server']*86400).', now=>'.$now.'<br>');
+					if($account['pop3_leave_msgs_on_server']>=0 && ($uidls[$l[$k]['uidl']]+$account['pop3_leave_msgs_on_server']*86400)<=$now) {
 						$in->deleteMsg($l[$k]['msg_id']);
 						unset($uidls[$l[$k]['uidl']]);
 					}
+					unset($l[$k]);
 				}
-				
+		
 		$count = count($l);
 		foreach($l as $msgl) {
 			message($account['id'],$account['mail'].': getting message '.$num.' of '.$count);
@@ -137,7 +137,7 @@ foreach($accounts as $account) {
 			}
 			$tt = strtotime($structure->headers['date']);
 			if($tt===false) $tt=$now;
-			print('uidl=>'.$msgl['uidl'].', time=>'.$tt.', live time=>'.($tt+$account['pop3_leave_msgs_on_server']*86400).', now=>'.$now.'<br>');
+			//print('uidl=>'.$msgl['uidl'].', time=>'.$tt.', live time=>'.($tt+$account['pop3_leave_msgs_on_server']*86400).', now=>'.$now.'<br>');
 			if($account['pop3_leave_msgs_on_server']>=0 && ($tt+$account['pop3_leave_msgs_on_server']*86400)<=$now) {
 				$in->deleteMsg($msgl['msg_id']);
 			} else {
