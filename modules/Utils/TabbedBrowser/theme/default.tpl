@@ -1,3 +1,5 @@
+<div id="Utils_TabbedBrowser_div">
+
 <table cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
 	<tr>
 		<td>
@@ -6,7 +8,7 @@
 				<li>{$link}</li>&nbsp;
 			{/foreach}
 			</ul>
-		</td>	
+		</td>
 	</tr>
 	<tr>
 		<td style="height: 5px;"></td>
@@ -17,3 +19,5 @@
 		</td>
 	</tr>
 </table>
+
+</div>

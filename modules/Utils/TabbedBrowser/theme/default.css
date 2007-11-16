@@ -1,3 +1,8 @@
+#Utils_TabbedBrowser_div {
+	background-image: url('images/tabbed-background.png');
+	background-repeat: repeat-x;
+}
+
 ul#Utils_TabbedBrowser {
 	text-align: left;
 	margin: 1em 0 1em 0;
@@ -5,8 +10,8 @@ ul#Utils_TabbedBrowser {
 	font-size: 11px;
 	border-bottom: 4px solid #336699;
 	list-style-type: none;
-	padding: 3px 20px 3px 20px;
-	background-color: #F0F0F0;
+	padding: 13px 20px 3px 20px;
+	background: transparent;
 }
 
 ul#Utils_TabbedBrowser li {
