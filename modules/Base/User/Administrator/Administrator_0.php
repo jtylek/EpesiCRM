@@ -138,9 +138,11 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 		$form->addElement($sel);
 		
 		if($edit_id<0)
-			$form->addElement('header',null,$this->lang->t('If you leave this fields empty, password is generated.'));
+			$form -> addElement('html','<tr><td colspan=2><b>'.$this->lang->t('If you leave password fields empty<br />random password is automatically generated<br />and e-mailed to the user.').'</b></td></tr>');
+			//$form->addElement('header',null,$this->lang->t('If you leave this fields empty, password is generated.'));
 		else
-			$form->addElement('header',null,$this->lang->t('If you leave this fields empty, password is not changed.'));
+			$form -> addElement('html','<tr><td colspan=2><b>'.$this->lang->t('If you leave password fields empty, password is not changed.').'</b></td></tr>');
+			//$form->addElement('header',null,$this->lang->t('If you leave this fields empty, password is not changed.'));
 		
 		$form->addElement('password', 'pass', $this->lang->t('Password'));
 		$form->addElement('password', 'pass_c', $this->lang->t('Confirm password'));
@@ -172,15 +174,20 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 			$sel->setSelected(array(Base_AclCommon::get_group_id('User')));
 		}
 		
+		/*
 		$ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->lang->ht('OK'));
 		$cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->lang->ht('Cancel'), 'onClick="parent.location=\''.$this->create_href().'\'"');
 		$form->addGroup(array($ok_b, $cancel_b));
+		*/
 		
 		
 		if($form->validate()) {
 			if($form->process(array(&$this, 'submit_edit_user_form')))
 				location(array());
 		} else $form->display();
+		
+		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+		Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
 	}
 	
 	public function submit_edit_user_form($data) {

@@ -28,11 +28,14 @@ class Base_MaintenanceMode_Administrator extends Module implements Base_AdminInt
 		
 		$f = & $this->init_module('Libs/QuickForm');
 		
+		$f->addElement('header', 'module_header', 'Maintenance Mode Administration');
 		$f->addElement('select', 'm', $lang->t('Maintenance mode'), array(1=>$lang->ht('Yes'), 0=>$lang->ht('No')));
 		
+		/*
 		$ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $lang->ht('OK'));
 		$cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $lang->ht('Cancel'), 'onClick="parent.location=\''.$this->create_back_href().'\'"');
 		$f->addGroup(array($ok_b, $cancel_b));
+		*/
 		
 		$f->setDefaults(array('m'=>((Base_MaintenanceModeCommon::get_mode())?'1':'0')));
 		
@@ -40,7 +43,9 @@ class Base_MaintenanceMode_Administrator extends Module implements Base_AdminInt
 			$f->process(array(& $this, 'submit_admin'));
 			$this->parent->reset();
 		} else
-			$f->display();	
+			$f->display();
+		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+		Base_ActionBarCommon::add('save', 'Save', $f->get_submit_form_href());
 	}
 	
 	public function submit_admin($data) {

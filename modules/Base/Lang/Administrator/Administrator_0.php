@@ -42,17 +42,22 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 				$lang = substr($entry,0,-4);
 				$langs[$lang] = $lang;
 			}
+		$form->addElement('header', 'module_header', 'Languages Administration');
 		$form->addElement('select','lang_code',$this->lang->t('Default language'), $langs);
 		
 		$form->addElement('checkbox','allow_lang_change',$this->lang->t('Allow users to change language'));
 		
 		$form->setDefaults(array('lang_code'=>Variable::get('default_lang'),'allow_lang_change'=>Variable::get('allow_lang_change')));
 		
+		/*
 		$ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->lang->ht('OK'));
 		$cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->lang->ht('Cancel'), $this->create_back_href());
 		$form->addGroup(array($ok_b, $cancel_b));
+		*/
 		
 		Base_ActionBarCommon::add('add','New langpack',$this->create_callback_href(array($this,'new_lang_pack')));
+		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+		Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
 		
 		if($form->validate()) {
 			if($form->process(array($this,'submit_admin'))) {

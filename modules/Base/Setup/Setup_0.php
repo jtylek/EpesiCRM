@@ -27,7 +27,7 @@ class Base_Setup extends Module {
 			$this->parent->reset();
 			return;
 		}
-
+	
 		$post_install = & $this->get_module_variable('post-install');
 		if(!is_array($post_install)) {
 			//create default module form
@@ -40,15 +40,15 @@ class Base_Setup extends Module {
 				'anonymous_setup' => Variable::get('anonymous_setup')));
 	//		print('='.Base_AclCommon::change_privileges('admin', array(Base_AclCommon::sa_group_id())).'=');
 	
-			$form->addElement('header', 'install_module_header', 'Module administration');
+			$form->addElement('header', 'install_module_header', 'Modules Administration');
 			//$form->addElement('checkbox','simple','Simple setup','',array('onChange'=>$form->get_submit_form_js(false)));
 			$form->addElement('select','simple','Setup type',array(1=>'Simple',0=>'Advanced'),array('onChange'=>$form->get_submit_form_js(false)));
 			$simple = $form->exportValue('simple');
 	
 	
 			//install module header
-			$form->addElement('header', 'install_module_info', 'Please select modules to be installed/uninstalled.<br>For module details please click on "info"');
-	
+			$form -> addElement('html','<tr><td colspan=2><br /><b>Please select modules to be installed/uninstalled.<br>For module details please click on "i" icon.</td></tr>');
+			
 			//show uninstalled & installed modules
 			$ret = DB::Execute('SELECT * FROM available_modules');
 			$module_dirs = array();
@@ -129,12 +129,7 @@ class Base_Setup extends Module {
 			}
 	
 			//print $tree->toHtml();
-			//control buttons
-			$ok_b = HTML_QuickForm::createElement('submit', 'submit_button', 'OK');
-			$cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', 'Cancel', $this->create_back_href());
-			$parse_b = HTML_QuickForm::createElement('button', 'parse_button', 'Check for available modules', $this->create_confirm_callback_href('Parsing for additional modules may take up to several minutes, do you wish to continue?',array('Base_Setup','parse_modules_folder_refresh')));
-			$form->addGroup(array($parse_b,$ok_b, $cancel_b));
-	
+			
 			$form->setDefaults($def);
 	
 			//validation or display
@@ -149,6 +144,9 @@ class Base_Setup extends Module {
 				}
 			} elseif(!$post_install)
 				$form->display();
+				Base_ActionBarCommon::add('settings','Scan for new modules',$this->create_confirm_callback_href('Parsing for additional modules may take up to several minutes, do you wish to continue?',array('Base_Setup','parse_modules_folder_refresh')));
+				Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+				Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
 		}
 		
 		if(is_array($post_install)) {

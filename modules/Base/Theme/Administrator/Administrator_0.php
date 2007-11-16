@@ -30,14 +30,17 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 		$form = & $this->init_module('Libs/QuickForm','Changing template');
 		
 		$themes = Base_Theme::list_themes();
+		$form->addElement('header', 'install_module_header', 'Themes Administration');
 		$form->addElement('select', 'theme', $this->lang->t('Choose template'), $themes);
 
 		$form->addElement('checkbox', 'preload_selected', $this->lang->t('Preload selected template images'));
 		$form->addElement('checkbox', 'preload_default', $this->lang->t('Preload default template images'));
 		
+		/*
 		$ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->lang->ht('OK'));
 		$cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->lang->ht('Cancel'), 'onClick="'.$this->create_back_href().'"');
 		$form->addGroup(array($ok_b, $cancel_b));
+		*/
 		
 		$form->setDefaults(array(
 			'theme'=>Variable::get('default_theme'),
@@ -55,6 +58,8 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 				Base_ActionBarCommon::add('edit','Manage templates',$this->create_callback_href(array($this,'download_template')));
 			}
 		}
+				Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+				Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
 	}
 	
 	public function upload_template($file, $oryginal_file) {
