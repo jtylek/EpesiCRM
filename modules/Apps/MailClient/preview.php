@@ -39,7 +39,7 @@ if(($ret = $mbox->setTmpDir(Apps_MailClientCommon::Instance()->get_data_dir().'t
 				if($part->ctype_primary=='multipart' && isset($part->parts))
 					$parts = array_merge($parts,$part->parts);
 				//if(isset($part->disposition) && $part->disposition=='attachment' && $part->ctype_parameters['name']==$_GET['attachment']) {
-				if(isset($part->ctype_parameters['name']) && $part->ctype_parameters['name']==$_GET['attachment']) {
+				if(isset($part->headers['content-id']) && trim($part->headers['content-id'],'<>')==$_GET['attachment']) {
 					if(isset($part->headers['content-type']))
 						header('Content-Type: '.$part->headers['content-type']);
 					if(isset($part->headers['content-dispositon']))
@@ -71,8 +71,8 @@ if(($ret = $mbox->setTmpDir(Apps_MailClientCommon::Instance()->get_data_dir().'t
 					$body_type = 'html';
 				}
 				//if(isset($part->disposition) && $part->disposition=='attachment')
-				if(isset($part->ctype_parameters['name']))
-					$attachments[] = $part->ctype_parameters['name']; //it should be by some id, not name, because there can be 2 files with the same name
+				if(isset($part->headers['content-id']))
+					$attachments[$part->ctype_parameters['name']] = trim($part->headers['content-id'],'><'); //it should be by some id, not name, because there can be 2 files with the same name
 			}
 		} elseif(isset($structure->body) && $structure->ctype_primary=='text') {
 			$body = $structure->body;
@@ -84,8 +84,8 @@ if(($ret = $mbox->setTmpDir(Apps_MailClientCommon::Instance()->get_data_dir().'t
 		
 		$ret_attachments = '';
 		if($attachments) {
-			foreach($attachments as $a)
-				$ret_attachments .= '<a target="_blank" href="modules/Apps/MailClient/preview.php?'.http_build_query(array_merge($_GET,array('attachment'=>$a))).'">'.$a.'</a><br>';
+			foreach($attachments as $name=>$a)
+				$ret_attachments .= '<a target="_blank" href="modules/Apps/MailClient/preview.php?'.http_build_query(array_merge($_GET,array('attachment'=>$a))).'">'.$name.'</a><br>';
 		}
 		
 		$script = 'parent.$(\''.$_GET['pid'].'_subject\').innerHTML=\''.Epesi::escapeJS(htmlentities($structure->headers['subject']),false).'\';'.
@@ -103,13 +103,13 @@ if(($ret = $mbox->setTmpDir(Apps_MailClientCommon::Instance()->get_data_dir().'t
 			if(ereg('</html>$',$body))
 				$body = substr($body,0,strlen($body)-7);
 		}
-		$body = preg_replace('/"cid:(\w+\.\w+)@(\w+\.\w+)"/','"preview.php?'.http_build_query($_GET).'&attachment=$1"',$body);
-		$body = preg_replace("/<a([^>]*)>(.*)<\/a>/i", "<a\\1 target='_blank'>\\2</a>", $body);
+		$body = preg_replace('/"cid:([^@]+@[^@]+)"/i','"preview.php?'.http_build_query($_GET).'&attachment=$1"',$body);
+		$body = preg_replace("/<a([^>]*)>(.*)<\/a>/is", "<a\\1 target='_blank'>\\2</a>", $body);
 		
 		$body .= '<script>'.$script.'</script>'.
 				'</html>';
 
-		echo $body;
+		echo $body.'<pre>'.htmlentities(print_r($structure,true)).'</pre>';
 	}
 	
 } else {
