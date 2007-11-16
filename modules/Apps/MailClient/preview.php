@@ -71,7 +71,7 @@ if(($ret = $mbox->setTmpDir(Apps_MailClientCommon::Instance()->get_data_dir().'t
 					$body_type = 'html';
 				}
 				//if(isset($part->disposition) && $part->disposition=='attachment')
-				if(isset($part->headers['content-id']))
+				if(isset($part->headers['content-id']) && isset($part->ctype_parameters['name']))
 					$attachments[$part->ctype_parameters['name']] = trim($part->headers['content-id'],'><'); //it should be by some id, not name, because there can be 2 files with the same name
 			}
 		} elseif(isset($structure->body) && $structure->ctype_primary=='text') {
