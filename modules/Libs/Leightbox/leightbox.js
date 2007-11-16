@@ -124,8 +124,10 @@ leightbox.prototype = {
 		var ccont = $('leightbox_container');
 		if(display == 'none') {
 		    var tag = $(this.content+'__tag');
-		    tag.parentNode.insertBefore(c,tag);
-		    tag.parentNode.removeChild(tag);
+		    if(tag) {
+			tag.parentNode.insertBefore(c,tag);
+			tag.parentNode.removeChild(tag);
+		    }
 		} else {
 		    var tag = document.createElement('div');
 		    tag.id = this.content+'__tag';

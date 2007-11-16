@@ -94,12 +94,28 @@ foreach($accounts as $account) {
 		$l = $in->getListing();
 		//check uidls and unset already downloaded messages
 		$uidls_file = Apps_MailClientCommon::get_mail_dir().$box.'.uilds';
-		if($account['pop3_leave_msgs_on_server']!=0 && file_exists($uidls_file)) {
-			$uidls = explode("\n",file_get_contents($uidls_file));
-			$count = count($l);
+		$uidls = array();
+		if(($uidls_fp = @fopen($uidls_file,'r'))!==false) {
+			while(($data = fgetcsv($uidls_fp,200))!==false) {
+				$num = count($data);
+				if($num!=2) continue;
+				$uidls[$data[0]] = intval($data[1]);
+			}
+			fclose($uidls_fp);
+		}
+		$now = time();
+		$count = count($l);
+		if(!empty($uidls))
 			for($k=0; $k<$count; $k++)
-				if(in_array($l[$k]['uidl'],$uidls)) unset($l[$k]);
-		} else $uidls=array();
+				if(array_key_exists($l[$k]['uidl'],$uidls)) {
+					if($account['pop3_leave_msgs_on_server']==-1 || ($uidls[$l[$k]['uidl']]+$account['pop3_leave_msgs_on_server']*86400)<$now)
+						unset($l[$k]);
+					else { //remove message from server and uidls file
+						$in->deleteMsg($l[$k]['msg_id']);
+						unset($uidls[$l[$k]['uidl']]);
+					}
+				}
+				
 		$count = count($l);
 		foreach($l as $msgl) {
 			message($account['id'],$account['mail'].': getting message '.$num.' of '.$count);
@@ -108,19 +124,35 @@ foreach($accounts as $account) {
 			$mbox->insert("From - ".date('D M d H:i:s Y')."\n".$msg);
 			$decode = new Mail_mimeDecode($msg, "\r\n");
 			$structure = $decode->decode();
-			if(!Apps_MailClientCommon::append_msg_to_index($box,$msg_id,$structure->headers['subject'],$structure->headers['from'],$structure->headers['date'],strlen($msg))) {
+			if(!isset($structure->headers['from']) || !isset($structure->headers['date'])) {
+				$in->deleteMsg($msgl['msg_id']);
+				$count--;
+				continue;
+			}
+			if(!Apps_MailClientCommon::append_msg_to_index($box,$msg_id,isset($structure->headers['subject'])?$structure->headers['subject']:'no subject',$structure->headers['from'],$structure->headers['date'],strlen($msg))) {
 				message($account['id'],$account['mail'].': broken index file');
 				$mbox->remove($msg_id);
 				$error = true;
 				break;
 			}
+			$tt = strtotime($structure->headers['date']);
+			if($tt===false) $tt=$now;
+			print('uidl=>'.$msgl['uidl'].', time=>'.$tt.', live time=>'.($tt+$account['pop3_leave_msgs_on_server']*86400).', now=>'.$now.'<br>');
+			if($account['pop3_leave_msgs_on_server']>=0 && ($tt+$account['pop3_leave_msgs_on_server']*86400)<=$now) {
+				$in->deleteMsg($msgl['msg_id']);
+			} else {
+				$uidls[$msgl['uidl']] = $tt;	
+			}
+
 			$num++;
-			$uidls[] = $msgl['uidl'];
 			echo('<script>parent.Apps_MailClient.progress_bar.set_progress(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\', '.ceil($num*100/$count).')</script>');
 			flush();
 		}
-		if($account['pop3_leave_msgs_on_server']!=0)
-			file_put_contents($uidls_file,implode("\n",$uidls));
+		if(($uidls_fp = @fopen($uidls_file,'w'))!==false) {
+			foreach($uidls as $ui=>$t)
+				fputcsv($uidls_fp,array($ui,$t));
+			fclose($uidls_fp);
+		}
 	} else { //imap
 	}
 	$in->disconnect();

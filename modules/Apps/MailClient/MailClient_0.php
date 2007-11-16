@@ -95,7 +95,7 @@ class Apps_MailClient extends Module {
 				'}};'.
 			'Event.observe(\''.$checknew_id.'b\',\'click\',mailclient_check_f)');
 		print('<div id="'.$checknew_id.'" class="leightbox"><div style="width:100%;text-align:center" id="'.$checknew_id.'progresses"></div>'.
-			'<iframe id="'.$checknew_id.'X" frameborder=0 scrolling="No" height="50" width="100%"></iframe>'.
+			'<iframe id="'.$checknew_id.'X" frameborder=0 scrolling="No" height="80" width="100%"></iframe>'.
 			'</div>');
 	}
 	
