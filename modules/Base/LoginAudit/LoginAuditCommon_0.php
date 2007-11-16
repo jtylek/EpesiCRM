@@ -22,4 +22,9 @@ class Base_LoginAuditCommon extends ModuleCommon {
 		return Acl::is_user();
 	}
 }
+if(!defined('LOGGED')) {
+	$now=DB::DBTimeStamp(date("Y-m-d H:i:s",time()));
+	@DB::Execute('INSERT INTO login_audit(user_login_id,timestamp) VALUES('.Base_UserCommon::get_my_user_id().','.$now.')');
+	define('LOGGED','YES');
+}
 ?>

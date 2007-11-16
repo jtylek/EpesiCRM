@@ -19,7 +19,9 @@ class Base_LoginAudit extends Module {
 		}
 		$th = $this->init_module('Base/Theme');
 		$th->assign('users',$all);
-		$th->assign('test_text',print_r ($all));
+#		$now=DB::DBDate(date("Y-m-d H:i:s",time()));
+		$now=DB::DBTimeStamp(date("Y-m-d H:i:s",time()));
+		$th->assign('test_text','Logged: '.LOGGED);
 		$th->display();
 	}
 	

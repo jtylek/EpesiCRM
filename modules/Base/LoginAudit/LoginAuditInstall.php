@@ -14,15 +14,16 @@ class Base_LoginAuditInstall extends ModuleInstall {
 	public function install() {
 		Base_ThemeCommon::install_default_theme($this -> get_type());
 	
-	/*	
-		$ret = DB::CreateTable('login_audit',"session_name C(32) NOTNULL, client_id I2,");
+		
+		$ret = DB::CreateTable('login_audit',"user_login_id I, timestamp datetime");
 	if($ret===false)
 		die('Invalid SQL query - Database module (login_audit table)');
-	*/
+	
 		return true;
 	}
 	
 	public function uninstall() {
+		return DB::DropTable('login_audit');
 		Base_ThemeCommon::uninstall_default_theme($this -> get_type());
 		return true;
 	}
