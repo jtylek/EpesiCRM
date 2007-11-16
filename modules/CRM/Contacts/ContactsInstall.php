@@ -108,15 +108,72 @@ class CRM_ContactsInstall extends ModuleInstall {
 	}
 	
 	public static function post_install() {
-		return array(array('type'=>'select','name'=>'first','label'=>'First name','default'=>'0','values'=>array('x','y')),array('type'=>'text','name'=>'lastn','label'=>'Last name','default'=>'x'),
-			     array('type'=>'group', 'label'=>'radio','elems'=>array(
-				array('type'=>'checkbox','label'=>'c1_l','name'=>'c1','values'=>'c1_t','default'=>0),
-				array('type'=>'checkbox','label'=>'c2_l','name'=>'c2','values'=>'c2_t','default'=>0))
-				   ));
+		$loc = Base_RegionalSettingsCommon::get_default_location();
+		$count = DB::GetOne('SELECT count(ul.id) FROM user_login ul');
+		$ret = array(array('type'=>'text','name'=>'cname','label'=>'Company name','default'=>'','param'=>array('maxlength'=>64),'rule'=>array(array('type'=>'required','message'=>'Field required'))),
+			     array('type'=>'text','name'=>'sname','label'=>'Short company name','default'=>'','param'=>array('maxlength'=>64)),
+			);
+		if($count==1) {
+			$ret[] = array('type'=>'text','name'=>'fname','label'=>'Your first name','default'=>'','param'=>array('maxlength'=>64), 'rule'=>array(array('type'=>'required','message'=>'Field required')));
+			$ret[] = array('type'=>'text','name'=>'lname','label'=>'Your last name','default'=>'','param'=>array('maxlength'=>64), 'rule'=>array(array('type'=>'required','message'=>'Field required')));
+		}
+		return array_merge($ret,array(
+			     array('type'=>'text','name'=>'address1','label'=>'Address 1','default'=>'','param'=>array('maxlength'=>64)),
+			     array('type'=>'text','name'=>'address2','label'=>'Address 2','default'=>'','param'=>array('maxlength'=>64)),
+			     array('type'=>'callback','name'=>'country','func'=>array('CRM_ContactsInstall','country_element'),'default'=>$loc['country']),
+			     array('type'=>'callback','name'=>'state','func'=>array('CRM_ContactsInstall','state_element'),'default'=>$loc['state']),
+			     array('type'=>'text','name'=>'city','label'=>'City','default'=>'','param'=>array('maxlength'=>64)),
+			     array('type'=>'text','name'=>'postal','label'=>'Postal Code','default'=>'','param'=>array('maxlength'=>64)),
+			     array('type'=>'text','name'=>'phone','label'=>'Phone','default'=>'','param'=>array('maxlength'=>64)),
+			     array('type'=>'text','name'=>'fax','label'=>'Fax','default'=>'','param'=>array('maxlength'=>64)),
+			     array('type'=>'text','name'=>'web','label'=>'Web address','default'=>'','param'=>array('maxlength'=>64))
+			     ));
+	}
+	
+	private static $country_elem_name;
+	public static function country_element($name, $args, & $def_js) {
+		self::$country_elem_name = $name;
+		return HTML_QuickForm::createElement('commondata',$name,'Country','Countries');
+	}
+
+	public static function state_element($name, $args, & $def_js) {
+		return HTML_QuickForm::createElement('commondata',$name,'State',array('Countries',self::$country_elem_name),array('empty_option'=>true));
 	}
 
 	public static function post_install_process($val) {
-		print_r($val);
+		$comp_id = Utils_RecordBrowserCommon::new_record('company',
+			array('company_name'=>$val['cname'],
+				'short_name'=>isset($val['sname'])?$val['sname']:'',
+				'address_1'=>isset($val['address1'])?$val['address1']:'',
+				'address_2'=>isset($val['address2'])?$val['address2']:'',
+				'country'=>isset($val['country'])?$val['country']:'',
+				'zone'=>isset($val['state'])?$val['state']:'',
+				'city'=>isset($val['city'])?$val['city']:'',
+				'postal_code'=>isset($val['postal'])?$val['postal']:'',
+				'phone'=>isset($val['phone'])?$val['phone']:'',
+				'fax'=>isset($val['fax'])?$val['fax']:'',
+				'web_address'=>isset($val['web'])?$val['web']:''
+				));
+		$count = DB::GetOne('SELECT count(ul.id) FROM user_login ul');
+		if($count==1) {
+			$user = DB::GetRow('SELECT ul.id,up.mail FROM user_login ul INNER JOIN user_password up ON up.user_login_id=ul.id');
+			Utils_RecordBrowserCommon::new_record('contact',
+				array('first_name'=>$val['fname'],
+					'last_name'=>$val['lname'],
+					'address_1'=>isset($val['address1'])?$val['address1']:'',
+					'address_2'=>isset($val['address2'])?$val['address2']:'',
+					'country'=>isset($val['country'])?$val['country']:'',
+					'zone'=>isset($val['state'])?$val['state']:'',
+					'city'=>isset($val['city'])?$val['city']:'',
+					'postal_code'=>isset($val['postal'])?$val['postal']:'',
+					'phone'=>isset($val['phone'])?$val['phone']:'',
+					'fax'=>isset($val['fax'])?$val['fax']:'',
+					'web_address'=>isset($val['web'])?$val['web']:'',
+					'company'=>$comp_id,
+					'login'=>$user['id'],
+					'email'=>$user['mail']
+					));
+		}
 	}
 }
 
