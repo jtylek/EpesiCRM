@@ -20,6 +20,6 @@ if((!Acl::is_user() || !Acl::check('Administration','Main','Users',Acl::get_user
 }
 
 function submit_login($username,$form) {
-	return Base_User_LoginCommon::check_login($username, $form->exportValue('pass')) && Acl::check('Administration','Main','Users',$username);
+	return ModuleManager::is_installed('Base_User_Login')>=0 && Base_User_LoginCommon::check_login($username, $form->exportValue('pass')) && Acl::check('Administration','Main','Users',$username);
 }
 ?>
