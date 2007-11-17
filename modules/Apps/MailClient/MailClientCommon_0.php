@@ -122,8 +122,9 @@ class Apps_MailClientCommon extends ModuleCommon {
 					continue;
 				$decode = new Mail_mimeDecode($message, "\r\n");
 				$structure = $decode->decode();
-			
-				fputcsv($out, array($n,substr($structure->headers['subject'],0,256),substr($structure->headers['from'],0,256),substr($structure->headers['date'],0,64),substr(strlen($message),0,64)));
+				if(!isset($structure->headers['from']) || !isset($structure->headers['date']))
+					continue;
+				fputcsv($out, array($n,isset($structure->headers['subject'])?substr($structure->headers['subject'],0,256):'no subject',substr($structure->headers['from'],0,256),substr($structure->headers['date'],0,64),substr(strlen($message),0,64)));
 			}
 			fclose($out);
 			$mbox->close();

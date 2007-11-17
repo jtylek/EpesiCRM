@@ -117,18 +117,20 @@ foreach($accounts as $account) {
 				}
 		
 		$count = count($l);
+		$invalid = 0;
 		foreach($l as $msgl) {
 			message($account['id'],$account['mail'].': getting message '.$num.' of '.$count);
 			$msg = $in->getMsg($msgl['msg_id']);
-			$msg_id = $mbox->size();
-			$mbox->insert("From - ".date('D M d H:i:s Y')."\n".$msg);
 			$decode = new Mail_mimeDecode($msg, "\r\n");
 			$structure = $decode->decode();
-			if(!isset($structure->headers['from']) || !isset($structure->headers['date'])) {
-				$in->deleteMsg($msgl['msg_id']);
-				$count--;
+			if($msg===false || !isset($structure->headers['from']) || !isset($structure->headers['date'])) {
+				$invalid++;
+				//$in->deleteMsg($msgl['msg_id']);
+				//$count--;
 				continue;
 			}
+			$msg_id = $mbox->size();
+			$mbox->insert("From - ".date('D M d H:i:s Y')."\n".$msg);
 			if(!Apps_MailClientCommon::append_msg_to_index($box,$msg_id,isset($structure->headers['subject'])?$structure->headers['subject']:'no subject',$structure->headers['from'],$structure->headers['date'],strlen($msg))) {
 				message($account['id'],$account['mail'].': broken index file');
 				$mbox->remove($msg_id);
@@ -158,7 +160,7 @@ foreach($accounts as $account) {
 	$in->disconnect();
 	$mbox->close();
 	if(!$error)
-		message($account['id'],$account['mail'].': ok, got '.$num.' new messages');
+		message($account['id'],$account['mail'].': ok, got '.$num.' new messages, '.$invalid.' invalid messages skipped');
 	unlink($lock);
 }
 echo('<a href="javascript:parent.$(\''.$_GET['id'].'X\').src=\'\';parent.leightbox_deactivate(\''.$_GET['id'].'\')">hide</a>');
