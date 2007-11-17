@@ -420,20 +420,20 @@ class CRM_Calendar_View_Week extends Module {
 		print '<div class="week-menu"><table border="0"><tr>';
 
 		$link_text = $this->create_unique_href_js(array( 'date'=>array('year'=>'__YEAR__', 'month'=>'__MONTH__', 'day'=>'__DAY__') ));
-		$next = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::next_day($date) )).'>Next day <img border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'next.png').'></a>';
-		$prev = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::prev_day($date) )).'><img border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'prev.png').'> Previous day</a>';
+		$next = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::next_day($date) )).'>Next day&nbsp;&nbsp;<img border="0" width="8" height="8" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'next.png').'></a>';
+		$prev = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::prev_day($date) )).'><img border="0" width="8" height="8" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'prev.png').'>&nbsp;&nbsp;Previous day</a>';
 
-		$today = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::begining_of_week_r( CRM_Calendar_Utils_FuncCommon::today() ))).'>Today <img border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'this.png').'></a>';
+		$today = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::begining_of_week_r( CRM_Calendar_Utils_FuncCommon::today() ))).'>Today&nbsp;&nbsp;<img border="0" width="8" height="8" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'this.png').'></a>';
 
-		$next7 = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::next_week($date) )).'>Next week <img border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'next.png').'></a>';
-		$prev7 = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::prev_week($date) )).'><img border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'prev.png').'> Previous week</a>';
+		$next7 = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::next_week($date) )).'>Next week&nbsp;&nbsp;<img border="0" width="8" height="8" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'next.png').'><img border="0" width="8" height="8" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'next.png').'></a>';
+		$prev7 = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::prev_week($date) )).'><img border="0" width="8" height="8" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'prev.png').'><img border="0" width="8" height="8" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'prev.png').'>&nbsp;&nbsp;Previous week</a>';
 
+		print '<td>' . $prev7 . '</td>';
 		print '<td>' . $prev . '</td>';
 		print '<td>' . $today . '</td>';
 		print '<td>' . $next . '</td>';
-		print '<td style="width: 10px;"></td><td>' . Utils_CalendarCommon::show('week_selector', $link_text) . '</td><td style="width: 10px;"></td>';
-		print '<td>' . $prev7 . '</td>';
 		print '<td>' . $next7 . '</td>';
+		print '<td style="width: 10px;"></td><td>' . Utils_CalendarCommon::show('week_selector', $link_text) . '</td><td style="width: 10px;"></td>';
 
 		print '</tr></table></div><br>';
 	} // calendar menu

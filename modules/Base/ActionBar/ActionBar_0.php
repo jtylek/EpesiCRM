@@ -1,9 +1,9 @@
 <?php
 /**
  * ActionBar
- * 
+ *
  * This class provides action bar component.
- * 
+ *
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2007, Telaxus LLC
  * @version 1.0
@@ -18,7 +18,7 @@ class Base_ActionBar extends Module {
 	/**
 	 * Compares two action bar entries to determine order.
 	 * For internal use only.
-	 * 
+	 *
 	 * @param mixed action bar entry
 	 * @param mixed action bar entry
 	 * @return int comparison result
@@ -46,7 +46,7 @@ class Base_ActionBar extends Module {
 			$display_settings = 'both';
 		$display_icon = ($display_settings == 'both' || $display_settings == 'icons only');
 		$display_text = ($display_settings == 'both' || $display_settings == 'text only');
-		
+
 		//sort
 		usort($icons, array($this,'compare'));
 
@@ -63,7 +63,7 @@ class Base_ActionBar extends Module {
 			$i['icon'] = Base_ThemeCommon::get_template_file('Base_ActionBar','icons/'.$i['icon'].'.png');
 		}
 
-				
+
 		$launcher=array();
 		if(Acl::is_user()) {
 			$opts = Base_Menu_QuickAccessCommon::get_options();
@@ -110,10 +110,10 @@ class Base_ActionBar extends Module {
 					$th = & $this->pack_module('Base/Theme');
 					$th->assign('display_icon',$display_icon);
 					$th->assign('display_text',$display_text);
-					$close_icon = Base_ThemeCommon::get_template_file('Base_ActionBar','icons/back.png');
+					$close_icon = Base_ThemeCommon::get_template_file('Base_ActionBar','icons/exit.png');
 					$close_link_id = 'actionbar_launchpad_close';
 					usort($launchpad,array($this,'compare_launcher'));
-					$launchpad[] = array('label'=>'Close launchpad','link_id'=>$close_link_id,'open'=>'<a id="'.$close_link_id.'" href="javascript:void(0)">','close'=>'</a>','icon'=>$close_icon);
+					$launchpad[] = array('label'=>'Exit','link_id'=>$close_link_id,'open'=>'<a id="'.$close_link_id.'" href="javascript:void(0)">','close'=>'</a>','icon'=>$close_icon);
 					$th->assign('icons',$launchpad);
 					eval_js_once('actionbar_launchpad_deactivate = function(){leightbox_deactivate(\'actionbar_launchpad\');}');
 					foreach($launchpad as $v)
@@ -125,7 +125,7 @@ class Base_ActionBar extends Module {
 				}
 			}
 		}
-		
+
 		//display
 		$th = & $this->pack_module('Base/Theme');
 		$th->assign('display_icon',$display_icon);

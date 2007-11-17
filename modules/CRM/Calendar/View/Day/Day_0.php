@@ -101,7 +101,7 @@ class CRM_Calendar_View_Day extends Module {
 
 					$event[$g]['brief'] = '';
 					$event[$g]['full'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'full');
-					
+
 					// special priviliges
 					if($this->logged > 0) {
 						$event[$g]['full'] .= '<br>';
@@ -142,7 +142,7 @@ class CRM_Calendar_View_Day extends Module {
 							$event[$g] = array();
 							$event[$g]['brief'] = '';
 							$event[$g]['full'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'full');
-							
+
 							// special priviliges
 							if($this->logged > 0) {
 								$event[$g]['full'] .= '<br>';
@@ -189,10 +189,10 @@ class CRM_Calendar_View_Day extends Module {
 			if(count($timeless_events) > 0)
 				$has_events = 'has_events';
 			$timeless_events = array(
-				'has_events'=>$has_events, 'id'=>$id, 'event'=>$timeless_events, 
+				'has_events'=>$has_events, 'id'=>$id, 'event'=>$timeless_events,
 				'add'=>$this->create_callback_href_js(array($this,'add_event'),array('date'=>array('year'=>$date['year'], 'month'=>$date['month'], 'day'=>$date['day'])))
 			);
-			
+
 			eval_js('CRMCalendarDND.add_containment("'.$id.'")');
 
 			$i = CRM_Calendar_Utils_FuncCommon::day_of_week_r(CRM_Calendar_Utils_FuncCommon::today());
@@ -246,7 +246,7 @@ class CRM_Calendar_View_Day extends Module {
 				$cnt = "<a style='position: absolute; float: right; align: right'".$this->create_callback_href(array($this,'add_event'),array('date'=>array('year'=>$date['year'], 'month'=>$date['month'], 'day'=>$date['day']), 'time'=>array('hour'=>$j, 'minute'=>'00'))).">+</a>";
 
 				$id = sprintf( 'daylist_%4d%02d%02d%02d',$date['year'], $date['month'], $date['day'], $j);
-				
+
 				$has_events = '0';
 				if(count($event) > 0)
 					$has_events = 'has_events';
@@ -254,7 +254,7 @@ class CRM_Calendar_View_Day extends Module {
 					'has_events'=>$has_events, 'class'=>'inter', 'id'=>$id, 'event'=>$event, 'midday'=>$midday,
 					'add'=>$this->parent->create_callback_href_js(array($this,'add_event'),array('date'=>$date, 'time'=>array('hour'=>$j, 'minute'=>'00')))
 				);
-				
+
 				eval_js('CRMCalendarDND.add_containment("'.$id.'")');
 
 				if($j < $this->settings['start_day']) {
@@ -284,9 +284,9 @@ class CRM_Calendar_View_Day extends Module {
 		print '<div class="day-menu"><table border="0"><tr>';
 		$link_text = $this->create_unique_href_js(array( 'date'=>array('year'=>'__YEAR__', 'month'=>'__MONTH__', 'day'=>'__DAY__') ));
 
-		$next = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::next_day($date) )).'>Next day <img border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'next.png').'></a>';
-		$today = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::today() )).'>Today <img border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'this.png').'></a>';
-		$prev = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::prev_day($date) )).'><img border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'prev.png').'> Previous day</a>';
+		$next = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::next_day($date) )).'>Next day&nbsp;&nbsp;<img border="0" width="8" height="8" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'next.png').'></a>';
+		$today = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::today() )).'>Today&nbsp;&nbsp;<img border="0" width="8" height="8" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'this.png').'></a>';
+		$prev = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::prev_day($date) )).'><img border="0" width="8" height="8" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'prev.png').'>&nbsp;&nbsp;Previous day</a>';
 
 		print '<td>' . $prev . '</td>';
 		print '<td>' . $today. '</td>';

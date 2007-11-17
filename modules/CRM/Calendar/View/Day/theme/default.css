@@ -270,7 +270,7 @@ table.week .events_more {
 /* menu */
 
 div.day-menu {
-	padding-bottom: 5px;
+	padding-bottom: 0px;
 	/*border-bottom: 4px solid #B3B3B3;*/
 }
 
@@ -285,12 +285,15 @@ div.day-menu a.button {
     line-height: 20px;
     height: 20px;
     display: block;
-    background-image: url("images/header-blue.png");
+	background-color: #336699;
+    /*background-image: url("images/header-blue.png");*/
+    background-image: none;
     border: 0px;
     text-align: center;
 }
 
-div.day-menu a.button:hover {
-    background-image: url("images/header-blue-hover.png");
 
+div.day-menu a.button:hover {
+	background-color: #339933;
+    /*background-image: url("images/header-blue-hover.png");*/
 }
