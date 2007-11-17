@@ -8,7 +8,7 @@ $form->addElement('header', null, 'Uninstall module');
 foreach(ModuleManager::$modules as $name=>$v)
 	$form->addElement('checkbox',$name,$name.' (ver '.$v.')');
 
-$form->addElement('submit', 'submit_button', 'OK');
+$form->addElement('submit', 'submit_button', 'Uninstall');
 
 //validation or display
 if ($form->validate()) {
