@@ -1,8 +1,4 @@
 <?php
-require_once('auth.php');
-//error_reporting(0);
-error_reporting(E_ERROR | E_WARNING | E_PARSE);
-
 //======================================================================
 //
 // Name        : Web File Browser
@@ -70,6 +66,8 @@ error_reporting(E_ERROR | E_WARNING | E_PARSE);
 // usage that would give the idea to the user to sue him ;-)
 //
 //======================================================================
+require_once('auth.php');
+error_reporting(E_ERROR | E_WARNING | E_PARSE);
 
 // ---------------- Things that can be customized... -------------------
 
@@ -106,9 +104,9 @@ $uploadmaxsize = 2097152;          // Max file size for uploads (check your php.
 $readmefile = "wfbreadme.html";    // README file name (empty means no README file)
 $showreadmefile = false;           // Allows README file to be in file list
 
-$useimages = false;                // Use images, set to false by default to respect the philosophy
+$useimages = true;                // Use images, set to false by default to respect the philosophy
 $imagesdir = "wfbimages";          // Images directory (must be located in base directory)
-$showimagesdir = false;            // Show images directory
+$showimagesdir = true;            // Show images directory
 $trashcanimage = "trashcan.gif";   // Image for trash can
 $upperdirimage = "upperdir.gif";   // Image for upper and main directory
 $opendirimage = "opendir.gif";     // Image for open directory
