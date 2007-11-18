@@ -64,9 +64,8 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
   				position: absolute;
   				left: 40%; top: 45%;
   				/* all */
-  				background-color: #F0F0F0;
-                background-color: #e6ecf2;
-				border: 1px solid #336699;
+  				background-color: #EDF4E9;
+				border: 3px solid #808080;
 				visibility: hidden;
 				padding-top: 10px;
 				padding-bottom: 10px;
@@ -75,7 +74,7 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 				vertical-align: center;
 			}
 			#epesiStatus table {
-				color: #336699;
+				color: #2A2A2A;
 				font-weight: bold;
 				font-family: "Tahoma" "Verdana" "Vera-Sans" "DejaVu-Sans";
 				font-size: 11px;
@@ -89,9 +88,9 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 		<div id="epesiStatus">
 			<table cellspacing="0" cellpadding="0" border="0" style="width:100%;">
 				<tr>
-					<td style="text-align: center; vertical-align: center;"><img src="images/loader.gif" width="16" height="16" border="0"></td>
-					<td style="text-align: center; vertical-align: center;">Starting epesi...</td>
-				</tr>
+					<td style="text-align: center; vertical-align: center;"><img src="images/loader.gif" width="32" height="32" border="0"></td>
+					<td style="text-align: center; vertical-align: center;">Starting epesi ...</td>
+				</tr> 
 			</table>
 		</div>
 
