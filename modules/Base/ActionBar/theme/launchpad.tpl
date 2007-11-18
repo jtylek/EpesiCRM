@@ -1,7 +1,7 @@
 <center>
 <table id="Base_ActionBar" cellspacing="0" cellpadding="0">
 	<tr>
-		<td colspan="6" class="header">Launchpad</td>
+		<td colspan="5" class="header">Launchpad</td>
 	</tr>
 	<tr>
 
@@ -49,7 +49,7 @@
 
 		</td>
 
-	{if ($x%6)==0}
+	{if ($x%5)==0}
 	</tr>
 	<tr>
 	{/if}
