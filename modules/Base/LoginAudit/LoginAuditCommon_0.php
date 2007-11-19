@@ -22,9 +22,12 @@ class Base_LoginAuditCommon extends ModuleCommon {
 		return Acl::is_user();
 	}
 }
-if(!defined('LOGGED')) {
-	$now=DB::DBTimeStamp(date("Y-m-d H:i:s",time()));
-	@DB::Execute('INSERT INTO login_audit(user_login_id,timestamp) VALUES('.Base_UserCommon::get_my_user_id().','.$now.')');
-	define('LOGGED','YES');
+if(isset($_SESSION['base_login_audit']) && $_SESSION['base_login_audit_user']==Acl::get_user()) {
+	DB::Execute('UPDATE base_login_audit SET end_time=%T WHERE id=%d',array(time(),$_SESSION['login_audit']));
+} else {
+	$now = time();
+	DB::Execute('INSERT INTO base_login_audit(user_login_id,start_time,end_time) VALUES(%d,%T,%T)',array(Base_UserCommon::get_my_user_id(),$now,$now));
+	$_SESSION['base_login_audit'] = DB::Insert_ID('base_login_audit');
+	$_SESSION['base_login_audit_user'] = Acl::get_user();
 }
 ?>
