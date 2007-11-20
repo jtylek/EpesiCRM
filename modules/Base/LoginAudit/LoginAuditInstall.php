@@ -15,7 +15,7 @@ class Base_LoginAuditInstall extends ModuleInstall {
 		Base_ThemeCommon::install_default_theme($this -> get_type());
 	
 		
-		$ret = DB::CreateTable('base_login_audit',"id I AUTO KEY, user_login_id I, start_time T, end_time T");
+		$ret = DB::CreateTable('base_login_audit',"id I AUTO KEY, user_login_id I, start_time T, end_time T, ip_address C(32), host_name C(64)");
 	if($ret===false)
 		die('Invalid SQL query - Database module (login_audit table)');
 	

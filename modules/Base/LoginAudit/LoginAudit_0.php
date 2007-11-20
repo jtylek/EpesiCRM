@@ -12,16 +12,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_LoginAudit extends Module {
 
 	public function body() {
-		$all = Tools_WhoIsOnlineCommon::get();
-		//print_r ($all);
-		foreach($all as &$x) {
-			//print ('<br/> logged:'.$x)
-		}
+		#$all = 'Login audit: '.$_SESSION['base_login_audit'];
+		$all = 'test';
 		$th = $this->init_module('Base/Theme');
 		$th->assign('users',$all);
-#		$now=DB::DBDate(date("Y-m-d H:i:s",time()));
-		$now=DB::DBTimeStamp(date("Y-m-d H:i:s",time()));
-		$th->assign('test_text','Logged: '.LOGGED);
+		$th->assign('test_text','User: '.$_SESSION['base_login_audit_user']);
 		$th->display();
 	}
 	
