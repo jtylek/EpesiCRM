@@ -5,6 +5,9 @@ class CRM_ContactsCommon extends ModuleCommon {
 	public static function get_contacts($crits) {
 		return Utils_RecordBrowserCommon::get_records('contact', $crits);
 	}
+	public static function get_companies($crits) {
+		return Utils_RecordBrowserCommon::get_records('company', $crits);
+	}
 	public static function get_contact_by_user_id($uid) {
 		$rec = Utils_RecordBrowserCommon::get_records('contact', array('login'=>$uid));
 		if (is_array($rec) && !empty($rec)) return array_shift($rec);
@@ -12,6 +15,9 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 	public static function get_contact($id) {
 		return Utils_RecordBrowserCommon::get_record('contact', $id);
+	}
+	public static function get_company($id) {
+		return Utils_RecordBrowserCommon::get_record('company', $id);
 	}
 	
 	/*--------------------------------------------------------------------*/
@@ -36,9 +42,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 	public static function QFfield_company(&$form, $field, $label, $mode, $default) {
 		$comp = array();
-		$col='Name';
 		if ($mode=='add' || $mode=='edit') {
-			$ret = DB::Execute('SELECT * FROM company_data WHERE field=%s ORDER BY value', array($col));
+			$ret = DB::Execute('SELECT * FROM company_data WHERE field=%s ORDER BY value', array('Company Name'));
 			while ($row = $ret->FetchRow()) $comp[$row['company_id']] = $row['value'];
 			$form->addElement('multiselect', $field, $label, $comp);
 			if ($mode!=='add') $form->setDefaults(array($field=>$default));
@@ -53,7 +58,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			foreach($default as $k=>$v){
 				if ($first) $first = false;
 				else $def .= '<br>';
-				$def .= Utils_RecordBrowserCommon::create_linked_label('company', $col, $v);
+				$def .= Utils_RecordBrowserCommon::create_linked_label('company', array('Company Name'), $v);
 			}
 			$form->setDefaults(array($field=>$def));
 		}
