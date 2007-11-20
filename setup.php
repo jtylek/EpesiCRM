@@ -74,7 +74,7 @@ if(!isset($_GET['license'])) {
 	$form -> setDefaults(array('engine'=>'mysqlt','db'=>'epesi','host'=>'localhost'));
 
 	$form->setRequiredNote('<span class="required_note_star">*</span> <span class="required_note">denotes required field</span>');
-	$form -> addElement('html','<tr><td colspan=2><br /><b>Any existing tables will be dropped!</b><br />The database will be populated with data.<br />This operation can take a while.</td></tr>');
+	$form -> addElement('html','<tr><td colspan=2><br /><b>Any existing tables will be dropped!</b><br />The database will be populated with data.<br />This operation can take several minutes.</td></tr>');
 	if($form -> validate()) {
 	    $engine = $form -> exportValue('engine');
 	    switch($engine) {
