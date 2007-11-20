@@ -16,9 +16,16 @@ class Base_LoginAuditInstall extends ModuleInstall {
 	
 		
 		$ret = DB::CreateTable('base_login_audit',"id I AUTO KEY, user_login_id I, start_time T, end_time T, ip_address C(32), host_name C(64)");
-	if($ret===false)
+	if($ret===false){
 		die('Invalid SQL query - Database module (login_audit table)');
-	
+	} else {
+		$now = time();
+		$remote_address = $_SERVER['REMOTE_ADDR'];
+		$remote_host = gethostbyaddr($_SERVER['REMOTE_ADDR']);
+		DB::Execute('INSERT INTO base_login_audit(user_login_id,start_time,end_time,ip_address,host_name) VALUES(%d,%T,%T,%s,%s)',array(Base_UserCommon::get_my_user_id(),$now,$now,$remote_address,$remote_host));
+		$_SESSION['base_login_audit'] = DB::Insert_ID('base_login_audit');
+		$_SESSION['base_login_audit_user'] = Acl::get_user();
+	}
 		return true;
 	}
 	

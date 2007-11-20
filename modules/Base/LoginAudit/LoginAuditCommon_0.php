@@ -27,7 +27,7 @@ if(isset($_SESSION['base_login_audit']) && isset($_SESSION['base_login_audit_use
 } elseif(Acl::is_user()) {
 	$now = time();
 	$remote_address = $_SERVER['REMOTE_ADDR'];
-	$remote_host = $_SERVER['REMOTE_HOST'];
+	$remote_host = gethostbyaddr($_SERVER['REMOTE_ADDR']);
 	DB::Execute('INSERT INTO base_login_audit(user_login_id,start_time,end_time,ip_address,host_name) VALUES(%d,%T,%T,%s,%s)',array(Base_UserCommon::get_my_user_id(),$now,$now,$remote_address,$remote_host));
 	$_SESSION['base_login_audit'] = DB::Insert_ID('base_login_audit');
 	$_SESSION['base_login_audit_user'] = Acl::get_user();
