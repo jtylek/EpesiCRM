@@ -22,7 +22,7 @@ class Base_LoginAuditCommon extends ModuleCommon {
 		return Acl::is_user();
 	}
 }
-if(isset($_SESSION['base_login_audit']) && $_SESSION['base_login_audit_user']==Acl::get_user()) {
+if(isset($_SESSION['base_login_audit']) && isset($_SESSION['base_login_audit_user']) && $_SESSION['base_login_audit_user']==Acl::get_user()) {
 	DB::Execute('UPDATE base_login_audit SET end_time=%T WHERE id=%d',array(time(),$_SESSION['base_login_audit']));
 } elseif(Acl::is_user()) {
 	$now = time();
