@@ -125,10 +125,15 @@ if(!isset($_GET['license'])) {
 	   			echo 'Error creating database: ' . mysql_error() . "\n";
                             }
    			    mysql_close($link);
-			}
-                        else {
-			    write_config($host, $user, $pass, $dbname, $engine);
-                        }
+			} else {
+                  $result=mysql_select_db($dbname, $link);
+                  if (!$result) {
+                        echo 'Database does not exist: ' . mysql_error() . "\n";
+                        echo '<br />Please create the database first <br />or select option <b>Create new database</b>';
+                  } else {
+                        write_config($host, $user, $pass, $dbname, $engine);
+                         }
+                  }
 		    }
                 }
                 break;
@@ -345,7 +350,7 @@ print $license_txt;
         </center>
         <br>
         <center>
-        <span class="footer">Copyright &copy; 2007 &bull; <a href="http://epesi.sourceforge.net/">epesi framework</a> &bull; Application developed by <a href="http://www.telaxus.com">Telaxus LLC</a></span>
+        <span class="footer">Copyright &copy; 2007 &bull; <a href="http://www.telaxus.com">Telaxus LLC</a></span>
         <br>
         <p><a href="http://www.epesi.org"><img src="images/epesi-powered.png" border="0"></a></p>
         </center>
