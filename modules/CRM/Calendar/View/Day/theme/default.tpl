@@ -29,7 +29,7 @@
 				{foreach item=event from=$timeless_event.event}
 				<div name="events_brief" class="events_brief" id="{$event.div_id}">
 					<span class="events_drag_handle"><img src="{$theme_dir}/CRM_Calendar__grab.gif" width="15" height="15" border="0" alt="#"></span>
-					<span class="events_info" id="{$event.div_id}_brief">{$event.brief}</span>
+					<span class="events_brief_info" id="{$event.div_id}_brief">{$event.brief}</span>
 				</div>
 				{/foreach}
 			{/if}
@@ -52,7 +52,7 @@
 							{foreach item=event from=$tt[tt].event}
 								<div name="events_brief" class="events_brief" id="{$event.div_id}">
 									<span class="events_drag_handle"><img src="{$theme_dir}/CRM_Calendar__grab.gif" width="15" height="15" border="0" alt="#"></span>
-									<span class="events_info" id="{$event.div_id}_brief">{$event.brief}</span>
+									<span class="events_brief_info" id="{$event.div_id}_brief">{$event.brief}</span>
 								</div>
 							{/foreach}
 						{/if}

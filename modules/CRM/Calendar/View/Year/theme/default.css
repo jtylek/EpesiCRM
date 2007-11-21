@@ -1,6 +1,6 @@
 @CHARSET "ISO-8859-1";
 .no_border {
-	border: none;	
+	border: none;
 }
 hr.small {
 	background: #000000;
@@ -52,12 +52,33 @@ p.event {
 		text-align: left;
 		background: #f1f3f5;
 	}
+
 	#year td.header {
 		color: #000000;
 		vertical-align: middle;
 		background-color: #dedfff;
 		border: 1px solid black;
 	}
+
+#year td.header-month {
+	height: 20px;
+	vertical-align: middle;
+	text-align: left;
+	padding-left: 5px;
+	color: #FFFFFF;
+	background-color: #336699;
+	background-image: url('images/header-background.png');
+	background-repeat: repeat-x;
+}
+
+#year td.header-month a {
+	color: #FFFFFF;
+}
+
+#year td.header-month a:hover {
+	background-image: url('images/header-background-hover.png');
+}
+
 	#year td.daysHeader {
 		background-color: #eeefff;
 		vertical-align: middle;
@@ -94,4 +115,3 @@ a.new_event:hover {
 		border: 1px solid red;
 		text-decoration: none;
 	}
-	
