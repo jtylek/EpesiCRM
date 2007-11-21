@@ -5,6 +5,9 @@
 
 	<table name="CRMCalendar" id="year">
 		<tr>
+			<td>{$name}</td>
+		</tr>
+		<tr>
 		{section name=header loop=$header}
 			<td class={$header[header].class}>{$header[header].cnt}</td>
 		{/section}

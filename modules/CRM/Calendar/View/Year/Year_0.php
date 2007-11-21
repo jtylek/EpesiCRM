@@ -1,9 +1,9 @@
 <?php
 /**
  * CRMCalendar class.
- *
+ * 
  * Calendar module with support for managing events.
- *
+ * 
  * @author Kuba Slawinski <kslawinski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.99
@@ -14,7 +14,7 @@
  * status: 0 - open; 1 - in progres; 3 - done; 4 - canceled
  * access: 0 - public; 1 - public, r/o; 2 - private (r/w for creator and related people)
  */
-
+ 
 defined("_VALID_ACCESS") || die();
 
 class CRM_Calendar_View_Year extends Module {
@@ -35,11 +35,11 @@ class CRM_Calendar_View_Year extends Module {
 	private $settings;
 	private $func;
 	public $parent_module;
-
+		
 	public function construct(&$par = null) {
 		$this->parent_module = $par;
 	}
-
+	
 	private function init() {
 		$tmp;
 		$this->activities = array();
@@ -60,12 +60,12 @@ class CRM_Calendar_View_Year extends Module {
 			if(!$this->logged)
 				$this->logged = 1;
 			$this->admin = true;
-
+			
 		} else {
 			$this->logged = -1;
 		}
-		$this->view_style = $this->get_module_variable_or_unique_href_variable('view_style', $tmp);
-
+		$this->view_style = $this->get_module_variable_or_unique_href_variable('view_style', $tmp);	
+		
 		$this->date = array();
 		$this->name_of_month_abbr = array(1=>'Jan', 2=>'Feb', 3=>'Mar', 4=>'Apr', 5=>'May', 6=>'Jun', 7=>'Jul', 8=>'Aug', 9=>'Sep', 10=>'Oct', 11=>'Nov', 12=>'Dec');
 		$this->name_of_day_abbr = array(0=>'Sun', 1=>'Mon', 2=>'Tue', 3=>'Wed', 4=>'Thu', 5=>'Fri', 6=>'Sat');
@@ -74,8 +74,8 @@ class CRM_Calendar_View_Year extends Module {
 		//
 		$this->max_per_day = 3;
 	}
-
-
+	
+		
 	//ADD EVENT
 	public function add_event($date) {
 		if($this->is_back())
@@ -123,7 +123,7 @@ class CRM_Calendar_View_Year extends Module {
 						$g++;
 						$event[$g] = array();
 						$event[$g]['full'] = call_user_func(array($module.'Common', 'get_full'), $EV);
-
+							
 						// special priviliges
 						if($this->logged > 0) {
 							$event[$g]['full'] .= '<br>';
@@ -139,7 +139,7 @@ class CRM_Calendar_View_Year extends Module {
 							}
 						}
 						$event[$g]['brief'] = call_user_func(array($module.'Common', 'get_brief'), $EV);
-
+						
 						$div_id = generate_password(4);
 						$div_id .= '_'.$g;
 						$event[$g]['div_id'] = $div_id;
@@ -150,11 +150,11 @@ class CRM_Calendar_View_Year extends Module {
 		}
 		return $event;
 	}
-
-
+	
+	
 	private function new_week_grid($date, $week) {
 		return array(
-					'class'=>'week_number',
+					'class'=>'week_number', 
 					'info'=>
 						'<a '.$this->parent->create_unique_href( array('action'=>'show', 'view_style'=>'week', 'date'=>array('year'=>$date['year'], 'month'=>$date['month'], 'day'=>$date['day'], 'week'=>$week), 'direct'=>'yes') ).'>'.
 						$week
@@ -162,41 +162,41 @@ class CRM_Calendar_View_Year extends Module {
 					'event_num'=>0, 'event'=>'', 'div_id'=>''
 				);
 	}
-
-	public function show_calendar_month($date) {
-
+	
+	public function show_calendar_month($date) { 	
+		
 			$theme = & $this->pack_module('Base/Theme');
-
+			
 			//load_js('modules/CRM/Calendar/View/Month/js/Month.js');
-
+						
 			$days = array();
 			$weeks = array();
 			$header = array();
-
+			
 			// get events list for this month
 			$events = CRM_Calendar_EventCommon::get_month($date);
 			$i = CRM_Calendar_Utils_FuncCommon::starting_day_r($date);
-
+			
 			// header with day names
 			$header[] = array('class'=>'none', 'cnt'=>'');
 			for($a = 0; $a <= 6; $a++) {
 				$header[] = array(
-					'class'=>'header',
+					'class'=>'header', 
 					'cnt'=>CRM_Calendar_Utils_FuncCommon::name_of_day($a, 1)
 					);
 			}
-
+			
 			$current_week = CRM_Calendar_Utils_FuncCommon::week_of_year($date['year'], $date['month'], 1);
 			if(CRM_Calendar_Utils_FuncCommon::translate($i) != 0)
 				$days[] = $this->new_week_grid($date, $current_week);
-
+				
 			// empty slots before month begins...
 			$counter = 0;
 			for(; $counter < CRM_Calendar_Utils_FuncCommon::translate($i); $counter++) {
 				$days[] = array('class'=>'empty', 'info'=>'&nbsp;', 'event_num'=>0, 'event'=>'', 'div_id'=>'');
 			}
-
-
+			
+			
 			$b = CRM_Calendar_Utils_FuncCommon::translate($i) - 1;
 			$limit = CRM_Calendar_Utils_FuncCommon::days_in_month_r($date);
 			for($i = $b + 1; $i <= $limit + $b; $i++) {
@@ -206,7 +206,7 @@ class CRM_Calendar_View_Year extends Module {
 					$weeks[] = $days;
 					$days = array( $this->new_week_grid(array('year'=>$date['year'], 'month'=>$date['month'], 'day'=>$current_day), $current_week) );
 				}
-
+				
 				// check if day to display is today's day
 				$tmp = CRM_Calendar_Utils_FuncCommon::today();
 				$class = ''; $txt = '';
@@ -214,34 +214,40 @@ class CRM_Calendar_View_Year extends Module {
 					$class = "today";
 				else
 					$class = "day";
-
+				
 				// day number and regular stuff
 				$txt = "<a class=new_event ".$this->parent->create_unique_href(array('date'=>array('year'=>$date['year'], 'month'=>$date['month'], 'day'=>$current_day), 'action'=>'show', 'view_style'=>'day' )).">$current_day.</a>";
-
+					
 				// getting events for that day... in an optimized way now!
 				$t = $date['year']*10000 + $date['month']*100 + $current_day; //array('year'=>$date['year'], 'month'=>$date['month'], 'day'=>$current_day)
 				$g = 0;
 				$event = $this->extract_day_events_from_month($events, $current_day);
-
+					
 				$counter++;
 				$div_id = generate_password(4);
 				if(count( $event ) > 0 )
 					$txt = Utils_TooltipCommon::create('<b>'.$txt.'</b>', join('<br>', $event));
 				$days[] = array('class'=>$class, 'info'=>$txt);
-
+				
 			}
-
+			
 			// epmty grid after month
 			for(;$i % 7 != 0; $i++)
 				$days[] = array('class'=>'empty', 'info'=>'&nbsp;');
 			$weeks[] = $days;
+			
+			$name = '<a '.$this->parent->create_unique_href( array('action'=>'show', 'view_style'=>'month', 'date'=>array('year'=>$date['year'], 'month'=>$date['month'], 'day'=>1), 'direct'=>'yes') ).'>'.
+					CRM_Calendar_Utils_FuncCommon::name_of_month( $date['month'], 2 )
+					.'</a><br>';
+			
 			$theme->assign('header', $header);
 			$theme->assign('weeks', $weeks);
-
+			$theme->assign('name', $name);
+			
 			$theme->display();
-
-
-
+			
+			
+			
 	} // show calendar month
 	///////////////////////////////////////////////////////////////////////////
 	// nearest events
@@ -265,7 +271,7 @@ class CRM_Calendar_View_Year extends Module {
 			$start = $this->date['year']-2;
 		else
 			$start = $today['year']-2;
-
+			
 		if($this->date['year'] > $today['year'])
 			$end = $this->date['year']+2;
 		else
@@ -278,11 +284,11 @@ class CRM_Calendar_View_Year extends Module {
 				if($this->date['year'] != $i) {
 					if($i == $today['year'])
 						array_push($menu_y, '<a '.$this->create_unique_href(array( 'date'=>array('year'=>$i, 'month'=>$this->date['month']) )).'><font color=red>'.$i."</font></a>");
-					else
+					else 
 						array_push($menu_y, '<a '.$this->create_unique_href(array( 'date'=>array('year'=>$i, 'month'=>$this->date['month']) )).'>'.$i."</a>");
 				} else
 					array_push($menu_y, '<b>'.$i."</b>");
-
+				
 		}
 		//print join(" | ", $menu_y);
 		$curr = '';
@@ -292,7 +298,7 @@ class CRM_Calendar_View_Year extends Module {
 			$start = $this->date['year']-4;
 		else
 			$start = $today['year']-4;
-
+			
 		if($this->date['year'] > $today['year'])
 			$end = $this->date['year']+4;
 		else
@@ -300,14 +306,14 @@ class CRM_Calendar_View_Year extends Module {
 		for($i = $start; $i < $this->date['year']; $i++) {
 			if($i == $today['year'])
 				array_push($pre, '<a '.$this->create_unique_href(array( 'date'=>array('year'=>$i, 'month'=>$this->date['month'], 'day'=>1) )).'><font color=red>'.$i."</font></a>");
-			else
+			else 
 				array_push($pre, '<a '.$this->create_unique_href(array( 'date'=>array('year'=>$i, 'month'=>$this->date['month'], 'day'=>1) )).'>'.$i."</a>");
 		}
 		$curr = '<b>'.$i."</b>";
 		for($i = $this->date['year'] + 1; $i <= $end; $i++) {
 			if($i == $today['year'])
 				array_push($post, '<a '.$this->create_unique_href(array( 'date'=>array('year'=>$i, 'month'=>$this->date['month'], 'day'=>1) )).'><font color=red>'.$i."</font></a>");
-			else
+			else 
 				array_push($post, '<a '.$this->create_unique_href(array( 'date'=>array('year'=>$i, 'month'=>$this->date['month'], 'day'=>1) )).'>'.$i."</a>");
 		}
 		$dr = & $this->init_module('CRM/Calendar/Utils/Dropdown');
@@ -335,11 +341,8 @@ class CRM_Calendar_View_Year extends Module {
 				for($x = 1; $x <= 12; $x+=4 ) {
 					print '<tr>';
 					for($y = $x; $y < $x+4; $y++ ) {
-						print '<td class="header-month">';
+						print '<td style="vertical-align: top">';
 						$date['month'] = $y;
-						print '<a '.$this->parent->create_unique_href( array('action'=>'show', 'view_style'=>'month', 'date'=>array('year'=>$date['year'], 'month'=>$date['month'], 'day'=>1), 'direct'=>'yes') ).'>'.
-								$this->name_of_month_abbr[ $date['month'] ]
-								.'</a><br>';
 						$this->show_calendar_month($date);
 						print '</td>';
 					}
@@ -358,11 +361,11 @@ class CRM_Calendar_View_Year extends Module {
 		} else {
 			$this->date = $arg['date'];
 		}
-
+		
 		$this->menu($this->date);
 		$this->parse_links($this->date);
 		Base_ActionBarCommon::add('add',$this->lang->t('Add Event'), $this->parent->create_callback_href(array($this,'add_event'),array(CRM_Calendar_Utils_FuncCommon::today())));
 	}
-
+	
 }
 ?>
