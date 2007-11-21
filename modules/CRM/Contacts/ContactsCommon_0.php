@@ -37,8 +37,9 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 	public static function QFfield_zone(&$form, $field, $label, $mode, $default) {
 		$form->addElement('commondata', $field, $label, array('Countries', 'country'), array('empty_option'=>true));
-		if ($mode!=='add') $form->setDefaults(array($field=>$default));
-		else $form->setDefaults(array($field=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state')));	
+		if ($default!='')
+			if ($mode!=='add') $form->setDefaults(array($field=>$default));
+			else $form->setDefaults(array($field=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state')));	
 	}
 	public static function QFfield_company(&$form, $field, $label, $mode, $default) {
 		$comp = array();
@@ -58,7 +59,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			foreach($default as $k=>$v){
 				if ($first) $first = false;
 				else $def .= '<br>';
-				$def .= Utils_RecordBrowserCommon::create_linked_label('company', array('Company Name'), $v);
+				$def .= Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $v);
 			}
 			$form->setDefaults(array($field=>$def));
 		}

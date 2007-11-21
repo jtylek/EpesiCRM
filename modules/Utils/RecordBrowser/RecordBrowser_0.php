@@ -133,10 +133,12 @@ class Utils_RecordBrowser extends Module {
 		}
 		$gb = $this->init_module('Utils/GenericBrowser', null, $this->tab);
 		
-		if ($admin)
+/*		if ($admin)
 			$table_columns = array(array('name'=>'Active', 'width'=>1));
-		elseif ($this->favorites)
-			$table_columns = array(array('name'=>'Fav', 'width'=>1));
+		else
+*/
+		if (!$admin && $this->favorites)
+			$table_columns = array(array('name'=>'Fav', 'width'=>1, 'order'=>'Fav'));
 		else 
 			$table_columns = array();
 		
@@ -183,9 +185,10 @@ class Utils_RecordBrowser extends Module {
 //		$count = -1;
 		foreach ($records as $row) {
 			$gb_row = $gb->get_new_row();
-			if ($admin)
+/*			if ($admin)
 				$row_data = array($row['active']?$this->lang->t('Yes'):$this->lang->t('No'));
-			else if ($this->favorites) {
+			else*/ 
+			if (!$admin && $this->favorites) {
 				$isfav = DB::GetOne('SELECT user_id FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%d', array(Base_UserCommon::get_my_user_id(), $row['id']));
 				$row_data = array('<a '.Utils_TooltipCommon::open_tag_attrs(($isfav?$this->lang->t('This item is on your favourites list<br>Click to remove it from your favorites'):$this->lang->t('Click to add this item to favorites'))).' '.$this->create_callback_href(array($this,($isfav?'remove_from_favs':'add_to_favs')), array($row['id'])).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','star_'.($isfav==false?'no':'').'fav.png').'" /></a>');
 			} else $row_data = array(); 
@@ -233,8 +236,8 @@ class Utils_RecordBrowser extends Module {
 				$gb_row->add_action($this->create_callback_href(array($this,'view_entry'),array('view',$row['id'])),$this->lang->t('View'));
 				$gb_row->add_action($this->create_callback_href(array($this,'view_entry'),array('edit',$row['id'])),$this->lang->t('Edit'));
 				if ($admin) {
-					if (!$row['active']) $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],true)),$this->lang->t('Activate'));
-					else $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],false)),$this->lang->t('Deactivate'));
+					if (!$row['active']) $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],true)),$this->lang->t('Activate'), null, 'active-off');
+					else $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],false)),$this->lang->t('Deactivate'), null, 'active-on');
 					$gb_row->add_action($this->create_callback_href(array($this,'view_edit_history'),array($row['id'])),$this->lang->t('View edit history'),null,'history');
 				} else 
 				$gb_row->add_action($this->create_callback_href(array($this,'view_entry'),array('delete',$row['id'])),$this->lang->t('Delete'));
@@ -301,7 +304,7 @@ class Utils_RecordBrowser extends Module {
 
 		if ($mode!='add') {
 			$isfav = DB::GetOne('SELECT user_id FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%d', array(Base_UserCommon::get_my_user_id(), $id));
-			$theme -> assign('info_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(Utils_RecordBrowserCommon::get_html_record_info($this->tab, $id)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_GenericBrowser','info.gif').'" /></a>');
+			$theme -> assign('info_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(Utils_RecordBrowserCommon::get_html_record_info($this->tab, $id)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_GenericBrowser','info.png').'" /></a>');
 			$row_data = array();
 			$fav = DB::GetOne('SELECT user_id FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%s', array(Base_UserCommon::get_my_user_id(), $id));
 			if ($this->favorites) {
@@ -447,6 +450,7 @@ class Utils_RecordBrowser extends Module {
 											$comp = $comp+$data;
 										else {
 											$ret = DB::Execute('SELECT * FROM '.$tab.'_data WHERE field=%s ORDER BY value', array($col));
+											vprintf('SELECT * FROM '.$tab.'_data WHERE field=%s ORDER BY value', array($col));
 											while ($row = $ret->FetchRow()) $comp[$row[$tab.'_id']] = $row['value'];
 										}
 										$form->addElement($args['type'], $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', $comp, array('id'=>$args['id']));
@@ -500,9 +504,11 @@ class Utils_RecordBrowser extends Module {
 				DB::StartTrans();
 				$val = DB::GetOne('SELECT value FROM '.$this->tab.'_data WHERE '.$this->tab.'_id=%d AND field=%s',array($id, $field));
 				if ($val!==false) DB::Execute('DELETE FROM '.$this->tab.'_data WHERE '.$this->tab.'_id=%d AND field=%s',array($id, $field));
-				if (!is_array($values[$args['id']])) $values[$args['id']] = array($values[$args['id']]);
-				foreach($values[$args['id']] as $v) 
-					DB::Execute('INSERT INTO '.$this->tab.'_data(value, '.$this->tab.'_id, field) VALUES (%s, %d, %s)',array($v, $id, $field));
+				if ($values[$args['id']] !== '') {
+					if (!is_array($values[$args['id']])) $values[$args['id']] = array($values[$args['id']]);
+					foreach ($values[$args['id']] as $v) 
+						DB::Execute('INSERT INTO '.$this->tab.'_data(value, '.$this->tab.'_id, field) VALUES (%s, %d, %s)',array($v, $id, $field));
+				}
 				DB::CompleteTrans();
 				$diff[$field] = $records[$id][$field];
 			}
@@ -523,8 +529,8 @@ class Utils_RecordBrowser extends Module {
 		$this->init();
 		$tb = $this->init_module('Utils/TabbedBrowser');
 		
-		$tb->set_tab($this->lang->t('Manage Fields'),array($this, 'setup_loader') );
 		$tb->set_tab($this->lang->t('Manage Records'),array($this, 'show_data'), array(array(), array(), false, true) );
+		$tb->set_tab($this->lang->t('Manage Fields'),array($this, 'setup_loader') );
 		
 		$tb->body();
 		$tb->tag();
@@ -602,21 +608,23 @@ class Utils_RecordBrowser extends Module {
 			$gb_row = $gb->get_new_row();
 			if($args['extra']) {
 				if ($args['type'] != 'page_split') {
-					if ($args['active']) $gb_row->add_action($this->create_callback_href(array($this, 'set_field_active'),array($field, false)),'Deactivate');
-					else $gb_row->add_action($this->create_callback_href(array($this, 'set_field_active'),array($field, true)),'Activate');
 					$gb_row->add_action($this->create_callback_href(array($this, 'view_field'),array('edit',$field)),'Edit');
 				} else {
 					$gb_row->add_action($this->create_callback_href(array($this, 'delete_page'),array($field)),'Delete');
 					$gb_row->add_action($this->create_callback_href(array($this, 'edit_page'),array($field)),'Edit');
 				}
-				if ($args['position']<=$rows)
-					$gb_row->add_action($this->create_callback_href(array($this, 'move_field'),array($field, $args['position'], +1)),'Move down');
-				if ($args['position']>$max_p+1)
-					$gb_row->add_action($this->create_callback_href(array($this, 'move_field'),array($field, $args['position'], -1)),'Move up');
 			} else {
 				if ($field!='General' && $args['type']=='page_split')
 					$gb_row->add_action($this->create_callback_href(array($this, 'edit_page'),array($field)),'Edit');
 			}
+			if ($args['type']!=='page_split'){
+				if ($args['active']) $gb_row->add_action($this->create_callback_href(array($this, 'set_field_active'),array($field, false)),'Deactivate', null, 'active-on');
+				else $gb_row->add_action($this->create_callback_href(array($this, 'set_field_active'),array($field, true)),'Activate', null, 'active-off');
+			}
+			if ($args['position']>$max_p && $args['position']<=$rows || ($args['position']<$max_p-1 && $args['position']>2))
+				$gb_row->add_action($this->create_callback_href(array($this, 'move_field'),array($field, $args['position'], +1)),'Move down', null, 'move-down');
+			if ($args['position']>$max_p+1 || ($args['position']<$max_p && $args['position']>3))
+				$gb_row->add_action($this->create_callback_href(array($this, 'move_field'),array($field, $args['position'], -1)),'Move up', null, 'move-up');
 			if ($args['type']=='text')
 				$args['param'] = $this->lang->t('Length').' '.$args['param'];
 			if ($args['type'] == 'page_split')
@@ -880,7 +888,6 @@ class Utils_RecordBrowser extends Module {
 			if ($field=='id') continue;
 			$values[$args['id']] = $data[$i++]['DBvalue'];
 		}
-		//print_r($values);
 		$this->update_record_data($id,$values);
 		return false;
 	}
