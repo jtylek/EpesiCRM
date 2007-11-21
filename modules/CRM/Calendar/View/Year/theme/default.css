@@ -13,36 +13,31 @@ p.event {
 	position: absolute;
 }
 /* classes for big table */
-	#year {
-		color: #000000;
-		background: transparent;
-		padding: 1px;
-		border-top: 1px;
-		border-right: 1px;
-		border-bottom: 0px;
-		border-left: 0px;
-	}
-	#year td {
-		border: none;
-		background: transparent;
-	}
+
+#year {
+	border-right: 1px solid #FFFFFF;
+	border-bottom: 1px solid #FFFFFF;
+	background-color: #336699;
+}
+
+#year td {
+	background: transparent;
+	height: 20px;
+	width: 25px;
+}
+
 	#year td.empty {
 		background: #fcfffd;
 		border: 1px dashed #00ff00;
 		margin: 2px;
 	}
-	#year td.day {
-		vertical-align: top;
-		color: #000000;
-		border-top: none;
-		border-right: 1px dashed #000000;
-		border-bottom: 1px dashed #000000;
-		border-left: none;
-		margin: 2px;
-		padding: 3px;
-		text-align: left;
-		background: #fcfffd;
-	}
+
+#year td.day {
+	border-right: 1px solid #B3B3B3;
+	border-bottom: 1px solid #B3B3B3;
+	background: #FFFFFF;
+}
+
 	#year td.today {
 		vertical-align: top;
 		color: #000000;
@@ -53,12 +48,17 @@ p.event {
 		background: #f1f3f5;
 	}
 
-	#year td.header {
-		color: #000000;
-		vertical-align: middle;
-		background-color: #dedfff;
-		border: 1px solid black;
-	}
+#year td.header {
+	height: 20px;
+	vertical-align: middle;
+	text-align: left;
+	padding-left: 5px;
+	padding-right: 5px;
+	color: #FFFFFF;
+	background-color: #336699;
+	border-left: 1px solid #FFFFFF;
+	border-top: 1px solid #FFFFFF;
+}
 
 #year td.header-month {
 	height: 20px;

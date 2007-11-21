@@ -1,9 +1,9 @@
 <!-- SHADIW BEGIN -->
-	<div class="layer" style="padding: 9px; width: 98%;">
+	<div class="layer" style="padding: 9px; width: 100%;">
 		<div class="content_shadow">
 <!-- -->
 
-	<table name="CRMCalendar" id="year">
+	<table name="CRMCalendar" id="year" cellpadding="0" cellspacing="0" border="0">
 		<tr>
 			<td>{$name}</td>
 		</tr>
