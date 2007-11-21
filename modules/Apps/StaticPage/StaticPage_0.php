@@ -104,7 +104,7 @@ class Apps_StaticPage extends Module {
 			} else {
 				DB::Execute('INSERT INTO apps_staticpage_pages(path,title,content) VALUES (%s, %s, %s)',array($ret['path'],$ret['title'],$content));
 				$this->set_module_variable('view',$ret['path']);
-				$this->set_module_variable('menu_edit',array('id'=>DB::Insert_ID(),'path'=>$ret['path']));
+				$this->set_module_variable('menu_edit',array('id'=>DB::Insert_ID('apps_staticpage_pages','id'),'path'=>$ret['path']));
 			}
 			$this->unset_module_variable('edit');
 			Base_StatusBarCommon::message($this->lang->t('Page saved'));

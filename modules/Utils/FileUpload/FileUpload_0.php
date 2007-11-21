@@ -1,7 +1,7 @@
 <?php
 /**
  * Uploads file
- * 
+ *
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
@@ -26,7 +26,7 @@ class Utils_FileUpload extends Module {
 
 	/**
 	 * Calls QuickForm method addElement() on own QuickForm object.
-	 * 
+	 *
 	 * @param mixed refer to QuickForm addElement() method
 	 */
 	public function addElement() {
@@ -34,10 +34,10 @@ class Utils_FileUpload extends Module {
 		if($arr[0]=='submit') trigger_error('Unable to add submit element to Utils/FileUpload',E_USER_ERROR);
 		return call_user_func_array(array($this->form,'addElement'),$arr);
 	}
-	
+
 	/**
 	 * Calls QuickForm method createElement() on own QuickForm object.
-	 * 
+	 *
 	 * @param mixed refer to QuickForm createElement() method
 	 */
 	public static function createElement() {
@@ -45,10 +45,10 @@ class Utils_FileUpload extends Module {
 		if($arr[0]=='submit') trigger_error('Unable to add submit element to Utils/FileUpload',E_USER_ERROR);
 		return call_user_func_array(array('HTML_QuickForm','createElement'),$arr);
 	}
-	
+
 	/**
 	 * Calls QuickForm method addRule() on own QuickForm object.
-	 * 
+	 *
 	 * @param mixed refer to QuickForm addRule() method
 	 */
 	public function addRule() {
@@ -57,27 +57,27 @@ class Utils_FileUpload extends Module {
 	}
 
 	/**
-	 * Assigns method to submit action. 
+	 * Assigns method to submit action.
 	 * This method will recieve three arguments:
 	 * file - filename of newly uploaded image
 	 * name - filename of the original file
 	 * data - QuickForm data
-	 * 
+	 *
 	 * @param method method for submit action
 	 */
 	public function set_submit_callback($sub) {
 		$this->on_submit = $sub;
 	}
-	
+
 	/**
-	 * Displays the form. 
-	 * 
+	 * Displays the form.
+	 *
 	 * @param method method for submit action
 	 */
 	public function body($on_sub) {
 		if(isset($on_sub)) $this->on_submit = $on_sub;
 		if(!isset($this->on_submit)) trigger_error('You have to specify "on submit" method',E_USER_ERROR);
-		
+
 		$this->form->addElement('hidden','uploaded_file');
 		$this->form->addElement('hidden','original_file');
 		$form_name = $this->form->getAttribute('name');
@@ -91,13 +91,13 @@ class Utils_FileUpload extends Module {
 		$this->form->addElement('file', 'file', $this->lang->ht('Specify file'));
 		$this->form->addElement('static',null,$this->lang->t('Upload status'),'<div id="upload_status"></div>');
 		$this->form->addElement('submit', 'button', $this->lang->ht('Upload'), "onClick=\"$('upload_status').innerHTML='uploading...'; submit(); disabled=true;\"");
-		
+
 		if($this->form->validate()) {
 			$this->form->process(array($this,'submit_parent'));
 		} else
 			$this->form->display();
 	}
-	
+
 	/**
 	 * For internal use only.
 	 */

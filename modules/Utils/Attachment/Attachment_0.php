@@ -36,7 +36,16 @@ class Utils_Attachment extends Module {
 	}
 
 	public function attach_file() {
-		
+		$form = & $this->init_module('Utils/FileUpload');
+		$form->addElement('header', 'upload', $this->lang->t('Attach file'));
+		$form->addElement('textarea', 'comment', $this->lang->t('Comment'));
+		$this->display_module($form, array( array($this,'submit_attach') ));
+	}
+
+	public function submit_attach($file,$oryg,$data) {
+		DB::Execute('INSERT INTO utils_attachments_link(key) VALUES(%s)',array($this->key));
+		$id = DB::Insert_ID('utils_attachments_link','id');
+		rename($file,$this->get_data_dir().$id);
 	}
 
 }

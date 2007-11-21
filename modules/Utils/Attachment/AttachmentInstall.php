@@ -49,6 +49,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 		$ret = true;
 		$ret &= DB::DropTable('utils_attachment_file');
 		$ret &= DB::DropTable('utils_attachment_comment');
+		$ret &= DB::DropTable('utils_attachment_link');
 		return $ret;
 	}
 
