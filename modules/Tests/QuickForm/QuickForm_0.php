@@ -23,7 +23,7 @@ class Tests_QuickForm extends Module{
 		$f->addElement('commondata','cd_state','commondata State', array('Countries','cd_country'), array('empty_option'=>true));
 		$f->addElement('commondata','cd_city','commondata City', array('Countries','cd_country','cd_state'));
 		$f->addElement('commondata','cd_street','commondata street', array('Countries','cd_country','cd_state','cd_city'));
-		$f->setDefaults(array('cd_country'=>'US','cd_state'=>'AL'));
+		$f->setDefaults(array('cd_country'=>'US'));
 //		$f->addRule('cd_city','required','required');
 //		print($x->getValue().'<br>');
 		
@@ -38,6 +38,7 @@ class Tests_QuickForm extends Module{
 			print_r($f->exportValues());
 		}
 		$f->display();
+		
 		
 		//------------------------------ print out src
 		print('<hr><b>Install</b><br>');

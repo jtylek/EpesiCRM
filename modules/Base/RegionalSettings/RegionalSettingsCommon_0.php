@@ -190,6 +190,13 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	public static function time_12h() {
 		return '%I:%M:%S %p'==Base_User_SettingsCommon::get('Base_RegionalSettings','time');
 	}
+	
+	public static function convert_24h($in) {
+		$t = strtotime($in);
+		$format = Base_User_SettingsCommon::get('Base_RegionalSettings','time');
+		$ret = self::strftime($format,$t);
+		return $ret;
+	}
 }
 
 if(Acl::is_user())
