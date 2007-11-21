@@ -150,7 +150,7 @@ $viewextensions = array(           // Viewable extensions (empty array means eve
 //$basedir = @dirname(__FILE__).'/..';    // Base directory = local directory
 $basedir = '.';    // Base directory = local directory
 //$basedir = "/foo/bar";          // Base directory = custom directory (UNIX)
-//$basedir = "c:/My Documents";   // Base directory = custom directory (WINDOWS)
+//$basedir = "d:/www/epesi";   // Base directory = custom directory (WINDOWS)
 
 // Remember that the trash can must be located in the base directory (local or custom)
 
@@ -579,6 +579,7 @@ function quoteJS($str) {
 
 // Page footer
 function pageFooter() {
+#   print('<hr><a href="index.php">Main admin menu</a>');
    echo "\n</body>";
    echo "\n</html>";
 }
@@ -665,7 +666,10 @@ $thisfile = strtolower(@basename(__FILE__));
 $basedir = strtr($basedir, "\\", "/");
 
 // This script URI
-$thisscript = $HTTP_SERVER_VARS["PHP_SELF"];
+# Error Undefined variable: HTTP_SERVER_VARS when using below
+# $thisscript = $HTTP_SERVER_VARS["PHP_SELF"];
+# fixed - 11/20/07 - J. Tylek
+$thisscript = $_SERVER['PHP_SELF'];
 
 // General HTTP directives
 header("Expires: -1");
