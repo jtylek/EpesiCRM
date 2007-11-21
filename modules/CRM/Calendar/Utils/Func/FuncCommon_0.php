@@ -197,7 +197,7 @@ class CRM_Calendar_Utils_FuncCommon extends ModuleCommon {
 	
 	//TODO: correct returned value to see today's day in returned week
 	public static function week_of_year($year, $month, $day) {
-		$first_day_of_year = (self::translate(self::day_of_week($year, 1, 1)))%7;
+		$first_day_of_year = ((self::day_of_week($year, 1, 1)))%7;
 		//print 'first_day_of_year: '.$first_day_of_year;
 		$sum = $first_day_of_year;
 		$week = 1;
@@ -227,9 +227,9 @@ class CRM_Calendar_Utils_FuncCommon extends ModuleCommon {
 	}
 	
 	public static function begining_of_week($year, $week) {
-		$needed_day = 6 - self::translate(self::day_of_week($year, 1, 1));
+		$needed_day = 6 - (self::day_of_week($year, 1, 1));
 		$needed_day = $needed_day + ($week-1)*7;
-		$needed_day = -1*(self::translate(self::day_of_week($year, 1, 1)))%7;
+		$needed_day = -1*((self::day_of_week($year, 1, 1)))%7;
 		$needed_day = $needed_day + ($week-1)*7 + 1;
 		
 		$r = 0;
@@ -275,10 +275,12 @@ class CRM_Calendar_Utils_FuncCommon extends ModuleCommon {
 		return $ret;
 	}
 	public static function day_of_week($Y, $M, $d, $mode = 0) {
-		return JDDayOfWeek ( cal_to_jd(CAL_GREGORIAN, $M, $d, $Y) , $mode );
+		$idx = JDDayOfWeek ( cal_to_jd(CAL_GREGORIAN, $M, $d, $Y) , $mode );
+		return CRM_Calendar_Utils_FuncCommon::translate($idx);
 	}
 	public static function day_of_week_r($date, $mode = 0) {
-		return JDDayOfWeek ( cal_to_jd(CAL_GREGORIAN, $date['month'], $date['day'], $date['year']) , $mode );
+		$idx = JDDayOfWeek ( cal_to_jd(CAL_GREGORIAN, $date['month'], $date['day'], $date['year']) , $mode );
+		return CRM_Calendar_Utils_FuncCommon::translate($idx);
 	}
 	public static function translate($day) {
 		$a = $day - self::get_settings('first_day');
