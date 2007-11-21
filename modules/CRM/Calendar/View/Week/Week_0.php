@@ -363,7 +363,21 @@ class CRM_Calendar_View_Week extends Module {
 				}
 
 				// SLOT
-				$cnt = "$j<sup>00</sup>&nbsp;-&nbsp;" . $x . "<sup>00</sup>";
+				$cnt = $j."<sup>00</sup>&nbsp;-&nbsp;" . $x . "<sup>00</sup>";
+				if(Base_RegionalSettingsCommon::time_12h()) {
+					if($j > 12)
+						$cnt = ($j-12).":00&nbsp;pm&nbsp;-&nbsp;";
+					else
+						$cnt = $j.":00&nbsp;am&nbsp;-&nbsp;";
+					//-----------------
+					if($j == 0)
+						$cnt = "12:00&nbsp;pm&nbsp;-&nbsp;";
+					//-----------------
+					if($x > 12)
+						$cnt .= ($x-12).":00 pm";
+					else
+						$cnt .= $x.":00 am";
+				}
 
 				$tt[] = array('info'=>$cnt, 'event'=>array(), 'event_num'=>0, 'class'=>'hour', 'midday'=>$midday);
 				for($i = $start['day']; $i < $start['day']+7; $i++) {
