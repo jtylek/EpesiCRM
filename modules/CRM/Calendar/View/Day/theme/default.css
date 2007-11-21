@@ -80,7 +80,7 @@ table.week td.hours_header_lower {
 	text-align: center;
 	/*background-color: #E6ECF2;*/
 	background-color: #336699;
-	padding-top: 2px;
+	padding-top: 4px;
 }
 
 table.week td.header_day {
@@ -135,6 +135,10 @@ table.week td.header_timeless {
 	border-bottom: 0px;
 	text-align: left;
 	background-color: #e6e6cf;
+}
+
+table.week td.header_timeless:hover {
+	background-color: #e6cfcf
 }
 
 table.week td.header_weekday {
@@ -208,6 +212,10 @@ table.week td.inter {
 	padding: 0px;
 }
 
+table.week td.inter:hover {
+	background-color: #e6cfcf
+}
+
 table.week td.midday_inter {
 	vertical-align: top;
 	color: #000000;
@@ -218,6 +226,10 @@ table.week td.midday_inter {
 	background-color: #FFFFFF;
 	padding: 0px;
 	margin: 0px;
+}
+
+table.week td.midday_inter:hover {
+	background-color: #e6cfcf
 }
 
 /* events */

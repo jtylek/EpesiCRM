@@ -1,6 +1,6 @@
 @CHARSET "ISO-8859-1";
 .no_border {
-	border: none;	
+	border: none;
 }
 hr.small {
 	background: #000000;
@@ -95,7 +95,7 @@ a.new_event:hover {
 		border: 1px solid red;
 		text-decoration: none;
 	}
-	
+
 div.events {
 	padding: 2px;
 	margin: 5px 0px 0px 20px;
@@ -109,3 +109,67 @@ div.events {
 div.events_brief {
 		padding: 1px 0px 0px 1px;
 	}
+
+#Agenda {
+}
+
+#Agenda td {
+	height: 20px;
+}
+
+#Agenda .button input {
+	background-color: #336699;
+	background-image: url('images/header-blue.png');
+	background-repeat: repeat-x;
+	color: #FFFFFF;
+	border: 0px;
+	height: 20px;
+	width: 100px;
+}
+
+#Agenda .button input:hover {
+	background-image: url('images/header-blue-hover.png');
+}
+
+#Agenda .label {
+	background-color: #336699;
+	color: #FFFFFF;
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-top: 3px;
+	vertical-align: top;
+}
+
+#Agenda .data {
+	background-color: #FFFFFF;
+	/*border: 1px solid #B3B3B3;*/
+	height: 20px;
+}
+
+#Agenda .data input {
+	padding: 3px 2px 2px 2px;
+	width: 94px;
+}
+
+/* Select date */
+
+#Agenda .data a {
+    font-weight: normal;
+    color: #FFFFFF;
+    width: 100px;
+    line-height: 20px;
+    height: 20px;
+    display: block;
+	float: top;
+	background-color: #336699;
+    background-image: url("images/header-blue.png");
+    /*background-image: none;*/
+    border: 0px;
+    text-align: center;
+}
+
+
+#Agenda .data a:hover {
+	background-color: #339933;
+    background-image: url("images/header-blue-hover.png");
+}

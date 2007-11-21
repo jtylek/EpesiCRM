@@ -67,7 +67,7 @@ a.icon {
 	border-left: 1px solid #FFFFFF;
 	text-align: center;
 	background-color: #336699;
-	padding-top: 2px;
+	padding-top: 4px;
 }
 
 .crm_calendar_week td.header_day {
@@ -122,6 +122,14 @@ a.icon {
 	font-weight: bold;
 	font-size: 18px;
 	height: 50px;
+}
+
+.crm_calendar_week .weekend {
+	background-image: url('images/day-header-weekend.png');
+}
+
+.crm_calendar_week .weekend:hover {
+	background-image: url('images/day-header-weekend-hover.png');
 }
 
 .crm_calendar_week td.header_timeless {
@@ -186,7 +194,7 @@ a.icon {
 }
 
 .crm_calendar_week td.hour {
-	width: 10%;
+	width: 9%;
 	vertical-align: top;
 	color: #FFFFFF;
 	border-top: 1px solid #B3B3B3;
@@ -198,7 +206,7 @@ a.icon {
 }
 
 .crm_calendar_week td.midday_hour {
-	width: 10%;
+	width: 9%;
 	vertical-align: top;
 	color: #FFFFFF;
 	border-top: 1px solid #B3B3B3;

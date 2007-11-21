@@ -1,7 +1,9 @@
 <center>
 <table id="Base_ActionBar" cellspacing="0" cellpadding="0">
 	<tr>
-		<td colspan="5" class="header">Launchpad</td>
+        <td class="header"></td>
+		<td colspan="3" class="header" style="text-align: center;">Launchpad</td>
+        <td class="header" style="text-align: right; padding-right: 5px;"><img style="vertical-align: middle;" src="{$theme_dir}/Base_ActionBar__close.png" width="14" height="14" alt="x" border="0"></td>
 	</tr>
 	<tr>
 

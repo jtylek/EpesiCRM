@@ -18,7 +18,7 @@
 
 {* this row contains timeless events *}
 		<tr>
-			<td class="hours_header_lower no_border">&nbsp;</td>
+			<td class="hours_header_lower">Timeless</td>
 
 			<td class="header_timeless" id="{$timeless_event.id}" onDblClick="{$timeless_event.add}">
 			{if $timeless_event.has_events != '0'}

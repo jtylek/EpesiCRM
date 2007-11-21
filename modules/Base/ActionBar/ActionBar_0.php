@@ -113,7 +113,7 @@ class Base_ActionBar extends Module {
 					$close_icon = Base_ThemeCommon::get_template_file('Base_ActionBar','icons/exit.png');
 					$close_link_id = 'actionbar_launchpad_close';
 					usort($launchpad,array($this,'compare_launcher'));
-					$launchpad[] = array('label'=>'Exit','link_id'=>$close_link_id,'open'=>'<a id="'.$close_link_id.'" href="javascript:void(0)">','close'=>'</a>','icon'=>$close_icon);
+					$launchpad[] = array('label'=>'Close','link_id'=>$close_link_id,'open'=>'<a id="'.$close_link_id.'" href="javascript:void(0)">','close'=>'</a>','icon'=>$close_icon);
 					$th->assign('icons',$launchpad);
 					eval_js_once('actionbar_launchpad_deactivate = function(){leightbox_deactivate(\'actionbar_launchpad\');}');
 					foreach($launchpad as $v)
