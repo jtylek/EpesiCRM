@@ -40,7 +40,7 @@
 					{foreach item=event from=$t_event.event}
 					<div name="events_brief" class="events_brief" id="{$event.div_id}">
 							<span class="events_drag_handle">{$event.move}</span>
-							<span class="events_info" id="{$event.div_id}_brief">{$event.brief}</span>
+							<span class="events_brief_info" id="{$event.div_id}_brief">{$event.brief}</span>
 							<span class="events_more">{$event.more}</span>
 					</div>
 					{/foreach}
@@ -103,4 +103,4 @@
 	</div>
 <!-- -->
 
-	<div style="text-align: center; padding-top: 10px; color: #777777;">Double click on cell to add event<div>
+<div style="text-align: center; padding-top: 10px; color: #777777;">Double click on cell to add event<div>

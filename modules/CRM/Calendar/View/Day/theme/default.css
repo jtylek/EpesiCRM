@@ -38,7 +38,7 @@ a.new_event:hover {
 }
 
 table.week {
-	width: 50%;
+	width: 100%;
 	background: transparent;
 	border: 1px solid #B3B3B3;
 	border-left: 0px;
@@ -97,6 +97,10 @@ table.week td.header_day {
 	width: 13%;
 	padding-left: 5px;
 	padding-right: 5px;
+}
+
+table.week td.header_day:hover {
+	background-image: url('images/day-header-hover.png');
 }
 
 table.week td.header_day a table {

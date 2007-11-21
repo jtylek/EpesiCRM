@@ -1,3 +1,7 @@
+<!-- SHADIW BEGIN -->
+	<div class="layer" style="padding: 9px; width: 60%;">
+		<div class="content_shadow">
+<!-- -->
 
 	<table name=CRMCalendar cellspacing=0 class=week>
 {* shows month *}
@@ -60,3 +64,24 @@
 
 		{/section}
 	</table>
+
+<!-- SHADOW END -->
+ 		</div>
+		<div class="shadow-top">
+			<div class="left"></div>
+			<div class="center"></div>
+			<div class="right"></div>
+		</div>
+		<div class="shadow-middle">
+			<div class="left"></div>
+			<div class="right"></div>
+		</div>
+		<div class="shadow-bottom">
+			<div class="left"></div>
+			<div class="center"></div>
+			<div class="right"></div>
+		</div>
+	</div>
+<!-- -->
+
+<div style="text-align: center; padding-top: 10px; color: #777777;">Double click on cell to add event<div>

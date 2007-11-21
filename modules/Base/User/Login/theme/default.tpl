@@ -12,7 +12,7 @@
 		<center>
 
 <!-- SHADIW BEGIN -->
-	<div class="layer" style="padding: 9px; width: 550px;">
+	<div class="layer" style="padding: 9px; width: 552px;">
 		<div class="content_shadow">
 <!-- -->
 
