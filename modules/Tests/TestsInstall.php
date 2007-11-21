@@ -35,6 +35,7 @@ class TestsInstall extends ModuleInstall {
 		return array(
 		    array('name'=>'Tests/BookmarkBrowser','version'=>0),
 		    array('name'=>'Tests/Callbacks','version'=>0),
+		    array('name'=>'Tests/Colorpicker','version'=>0),
 		    array('name'=>'Tests/Comment','version'=>0),
 		    array('name'=>'Tests/FPDF','version'=>0),
 		    array('name'=>'Tests/GenericBrowser','version'=>0),
