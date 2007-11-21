@@ -104,7 +104,7 @@ class CRM_Calendar_View_Week extends Module {
 				'colspan' => 7,
 				'info'=>
 					'<a '.$this->parent->create_unique_href( array('action'=>'show', 'view_style'=>'month', 'date'=>array('year'=>$start['year'], 'month'=>$start['month'], 'day'=>1), 'direct'=>'yes') ).'>'.
-					CRM_Calendar_Utils_FuncCommon::name_of_month( $start['month'] ) . " (".$start['year'].")" .
+					CRM_Calendar_Utils_FuncCommon::name_of_month( $start['month'], 2 ) . " (".$start['year'].")" .
 					"</a>"
 		);
 
