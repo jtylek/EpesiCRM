@@ -153,8 +153,8 @@ class CRM_Calendar_View_Agenda extends Module {
 					$row = & $gb->get_new_row();
 					$row->add_data(
 						date('Y.m.d', strtotime($event['datetime_start'])), 
-						date('H:i:s', strtotime($event['datetime_start'])), 
-						date('H:i:s', strtotime($event['datetime_end'])), 
+						Base_RegionalSettingsCommon::time_12h() ? date('h:ia', strtotime($event['datetime_start'])) : date('H:i', strtotime($event['datetime_start'])), 
+						Base_RegionalSettingsCommon::time_12h() ? date('h:ia', strtotime($event['datetime_end'])) : date('H:i', strtotime($event['datetime_end'])), 
 						'<div id="'.$ev_id.'">'.call_user_func(array($module['module_name'].'Common', 'get_text'), $event, 'agenda').'</div>'
 					);
 					if($event['access'] == 0 || $event['created_by'] == $this->logged || $event['uid'] == $this->logged) {
