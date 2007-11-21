@@ -5,8 +5,8 @@
 
 {$action.open}
 
-{if $k=="view" || $k=="delete" || $k=="edit" || $k=="info" || $k=="restore" || $k=="append data"}
-<img src="{$theme_dir}/Utils_GenericBrowser__{$k}.gif" border="0" width="14" height="14">
+{if $k=="view" || $k=="delete" || $k=="edit" || $k=="info" || $k=="restore" || $k=="append data" || $k=="active-on" || $k=="active-off"}
+<img src="{$theme_dir}/Utils_GenericBrowser__{$k}.png" border="0" width="14" height="14">
 {else}
 {$action.label}
 {/if}		
