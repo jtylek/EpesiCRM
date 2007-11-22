@@ -104,7 +104,7 @@ class Utils_FileUpload extends Module {
 	public function submit_parent($data) {
 		if(call_user_func($this->on_submit, $data['uploaded_file'], $data['original_file'], $data))
 			location(array());
-		unlink($data['uploaded_file']);
+		@unlink($data['uploaded_file']);
 	}
 }
 

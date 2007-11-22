@@ -12,11 +12,12 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Tests_Attachment extends Module{
 	public function body(){
 		print('This is an example Attachment page.');
-		$com = & $this->init_module('Utils/Attachment','test');
+		$com = & $this->init_module('Utils/Attachment',array('test','grupa'));
 /*		$com -> set_moderator(true);
 		$com -> set_per_page(3);
 		$com -> reply_on_Attachment_page(false);
-		$com -> tree_structure(true);*/
+		$com -> tree_structure(true);
+*/
 		$this -> display_module($com);
 		//------------------------------ print out src
 		print('<hr><b>Install</b><br>');
@@ -25,7 +26,7 @@ class Tests_Attachment extends Module{
 		$this->pack_module('Utils/CatFile','modules/Tests/Attachment/Attachment_0.php');
 		print('<hr><b>Common</b><br>');
 		$this->pack_module('Utils/CatFile','modules/Tests/Attachment/AttachmentCommon_0.php');
-		
+
 	}
 }
 

@@ -12,42 +12,87 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_Attachment extends Module {
 	private $lang;
 	private $key;
+	private $persistant_deletion;
+	private $group;
 
-	public function construct($key) {
-		if(isset($key)) $this->key = md5($key);
-		else trigger_error('Key not given to attachment module, aborting',E_USER_ERROR);
+	public function construct($key,$group='',$persistant=false) {
+		if(!isset($key)) trigger_error('Key not given to attachment module',E_USER_ERROR);
 		$this->lang = & $this->init_module('Base/Lang');
+		$this->persistant_deletion = $persistant;
+		$this->group = $group;
+		$this->key = md5($group.$key);
 	}
 
 	public function body() {
 		$gb = $this->init_module('Utils/GenericBrowser',null,$this->key);
 		$gb->set_table_columns(array(
 				array('name'=>'Comment', 'order'=>'uac.text'),
-				array('name'=>'Files')
+				array('name'=>'Files', 'order'=>'ual.original')
 			));
-		$ret = $gb->query_order_limit('SELECT ual.id,uac.created_on,uac.created_by,uac.text FROM utils_attachment_link ual LEFT JOIN utils_attachment_comment uac ON uac.comment_id=ual.id WHERE ual.attachment_key=\''.$this->key.'\' AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_comment x WHERE x.comment_id=uac.comment_id) AND ual.deleted=0','SELECT count(*) FROM utils_attachment_link ual WHERE ual.attachment_key=\''.$this->key.'\' AND ual.deleted=0');
+		$ret = $gb->query_order_limit('SELECT uac.revision,ual.id,uac.created_on as comment_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as comment_by,uac.text,ual.original,ual.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE ual.created_by=l2.id) as upload_by FROM utils_attachment_link ual LEFT JOIN utils_attachment_comment uac ON uac.attach_id=ual.id WHERE ual.attachment_key=\''.$this->key.'\' AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_comment x WHERE x.attach_id=uac.attach_id) AND ual.deleted=0','SELECT count(*) FROM utils_attachment_link ual WHERE ual.attachment_key=\''.$this->key.'\' AND ual.deleted=0');
 		while($row = $ret->FetchRow()) {
 			$r = $gb->get_new_row();
-			$r->add_data($row['text'],'');
+
+			$file = '<a href="modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$row['id'])).'">'.$row['original'].'</a>';
+			if($row['revision']=='0')
+				$info = $this->lang->t('Created by %s<br>Created on %s',array($row['upload_by'],Base_RegionalSettingsCommon::time2reg($row['upload_on'])));
+			else
+				$info = $this->lang->t('Last comment by %s<br>Last comment on %s<br>File uploaded by %s<br>File uploaded on %s',array($row['comment_by'],Base_RegionalSettingsCommon::time2reg($row['comment_on']),$row['upload_by'],Base_RegionalSettingsCommon::time2reg($row['upload_on'])));
+			$r->add_info($info);
+			$r->add_action($this->create_callback_href(array($this,'edit_comment')),'edit');
+			$r->add_action($this->create_callback_href(array($this,'delete'),$row['id']),'delete');
+			$r->add_data($row['text'],$file);
 		}
 		$this->display_module($gb);
 
-		Base_ActionBarCommon::add('new','Attach file',$this->create_callback_href(array($this,'attach_file')));
+		Base_ActionBarCommon::add('add','Attach file',$this->create_callback_href(array($this,'attach_file')));
 	}
 
 	public function attach_file() {
 		$form = & $this->init_module('Utils/FileUpload');
 		$form->addElement('header', 'upload', $this->lang->t('Attach file'));
-		$form->addElement('textarea', 'comment', $this->lang->t('Comment'));
+		$fck = $form->addElement('fckeditor', 'comment', $this->lang->t('Comment'));
+		$fck->setFCKProps('800','300',true);
+		$this->ret_attach = true;
 		$this->display_module($form, array( array($this,'submit_attach') ));
+		return $this->ret_attach;
 	}
 
 	public function submit_attach($file,$oryg,$data) {
-		DB::Execute('INSERT INTO utils_attachments_link(key) VALUES(%s)',array($this->key));
-		$id = DB::Insert_ID('utils_attachments_link','id');
-		rename($file,$this->get_data_dir().$id);
+		DB::Execute('INSERT INTO utils_attachment_link(attachment_key,original,created_by,local) VALUES(%s,%s,%d,%s)',array($this->key,$oryg,Base_UserCommon::get_my_user_id(),$this->group));
+		$id = DB::Insert_ID('utils_attachment_link','id');
+		DB::Execute('INSERT INTO utils_attachment_comment(attach_id,text,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$data['comment'],Base_UserCommon::get_my_user_id()));
+		$local = $this->group.'/'.$id;
+		@mkdir($this->get_data_dir().$this->group,0777,true);
+		rename($file,$this->get_data_dir().$local);
+		$this->ret_attach = false;
 	}
 
+	public function edit_comment() {
+		if($this->is_back()) return false;
+		$f = $this->init_module('Libs/QuickForm','edit_comment');
+		$f->addElement('header',null,$this->lang->t('Edit comment'));
+		$fck = $f->addElement('fckeditor','comment', $this->lang->t('Comment'));
+		$fck->setFCKProps('800','300',true);
+		if($f->validate()) {
+			return false;
+		} else {
+			$f->display();
+			Base_ActionBarCommon::add('save',$this->lang->t('Save'),$f->get_submit_form_href());
+			Base_ActionBarCommon::add('back',$this->lang->t('Cancel'),$this->create_back_href());
+		}
+		return true;
+	}
+
+	public function delete($id) {
+		if($this->persistant_deletion) {
+			DB::Execute('DELETE FROM utils_attachment_comment WHERE attach_id=%d',array($id));
+			DB::Execute('DELETE FROM utils_attachment_link WHERE id=%d',array($id));
+			unlink($this->get_data_dir().$id);
+		} else {
+			DB::Execute('UPDATE utils_attachment_link SET deleted=1 WHERE id=%d',array($id));
+		}
+	}
 }
 
 ?>
