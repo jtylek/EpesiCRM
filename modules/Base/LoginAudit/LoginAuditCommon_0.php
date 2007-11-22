@@ -14,6 +14,10 @@ class Base_LoginAuditCommon extends ModuleCommon {
 		return "Login Audit";
 	}
 
+	public static function admin_caption() {
+		return 'Login Audit';
+	}
+	
 	public static function applet_info() {
 		return "Tracks users logins";
 	}
