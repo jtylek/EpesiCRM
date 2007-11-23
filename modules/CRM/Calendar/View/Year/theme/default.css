@@ -15,22 +15,18 @@ p.event {
 /* classes for big table */
 
 #year {
-	border-right: 1px solid #FFFFFF;
-	border-bottom: 1px solid #FFFFFF;
+	border: 1px solid #FFFFFF;
 	background-color: #336699;
 }
 
 #year td {
 	background: transparent;
-	height: 20px;
 	width: 25px;
+	height: 20px;
 }
 
-	#year td.empty {
-		background: #fcfffd;
-		border: 1px dashed #00ff00;
-		margin: 2px;
-	}
+#year td.empty {
+}
 
 #year td.day {
 	border-right: 1px solid #B3B3B3;
@@ -38,15 +34,11 @@ p.event {
 	background: #FFFFFF;
 }
 
-	#year td.today {
-		vertical-align: top;
-		color: #000000;
-		border: 1px solid #000000;
-		margin: 2px;
-		padding: 3px;
-		text-align: left;
-		background: #f1f3f5;
-	}
+#year td.today {
+	vertical-align: top;
+	color: #000000;
+	background-color: #E6ECF2;
+}
 
 #year td.header {
 	height: 20px;
@@ -60,30 +52,49 @@ p.event {
 	border-top: 1px solid #FFFFFF;
 }
 
+#year td.week-number {
+	color: #FFFFFF;
+	text-align: center;
+	vertical-align: middle;
+	background-color: #336699;
+	border-top: 1px solid #FFFFFF;
+}
+
+#year td.week-number a {
+	color: #FFFFFF;
+	display: block;
+	line-height: 20px;
+	width: 25px;
+}
+
+#year td.week-number a:hover {
+	background-color: #339933;
+}
+
 #year td.header-month {
 	height: 20px;
-	vertical-align: middle;
-	text-align: left;
-	padding-left: 5px;
-	color: #FFFFFF;
 	background-color: #336699;
-	background-image: url('images/header-background.png');
-	background-repeat: repeat-x;
 }
 
 #year td.header-month a {
+	vertical-align: middle;
+	text-align: center;
 	color: #FFFFFF;
+	background-image: url('images/header-blue.png');
+	background-repeat: repeat-x;
+	display: block;
+	line-height: 20px;
 }
 
 #year td.header-month a:hover {
-	background-image: url('images/header-background-hover.png');
+	background-image: url('images/header-blue-hover.png');
 }
 
 	#year td.daysHeader {
 		background-color: #eeefff;
 		vertical-align: middle;
-		padding: 0px 0px 0px 5px;
 	}
+
 	#year td.empty {
 		background-color: transparent;
 		border: none;
@@ -105,13 +116,11 @@ p.event {
 		font-size: 14pt;
 	}
 a.new_event {
-		padding: 0px 2px 0px 2px;
 		border: 1px solid transparent;
 		margin: 1px;
 		text-decoration: none;
 	}
 a.new_event:hover {
-		padding: 0px 2px 0px 2px;
 		border: 1px solid red;
 		text-decoration: none;
 	}

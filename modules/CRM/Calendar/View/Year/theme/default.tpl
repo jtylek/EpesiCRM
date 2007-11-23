@@ -1,11 +1,11 @@
 <!-- SHADIW BEGIN -->
-	<div class="layer" style="padding: 9px; width: 100%;">
+	<div class="layer" style="padding: 9px; width: 240px;">
 		<div class="content_shadow">
 <!-- -->
 
 	<table name="CRMCalendar" id="year" cellpadding="0" cellspacing="0" border="0">
 		<tr>
-			<td>{$name}</td>
+			<td colspan="8" class="header-month">{$name}</td>
 		</tr>
 		<tr>
 		{section name=header loop=$header}
@@ -17,11 +17,11 @@
 	      	<tr>
 			{section name=days loop=$days}
 				{if $days[days].class == 'today'}
-					<td class=today>{$days[days].info}
+					<td class="today">{$days[days].info}
 				{elseif $days[days].class == 'week_number'}
-					<td class=header>{$days[days].info}
+					<td class="week-number">{$days[days].info}
 				{else}
-					<td class=day>{$days[days].info}
+					<td class="day">{$days[days].info}
 				{/if}
 				</td>
 			{/section}

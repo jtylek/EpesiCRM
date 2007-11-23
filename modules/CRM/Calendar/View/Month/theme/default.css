@@ -26,8 +26,8 @@ table.crm_calendar_month td.empty {
 table.crm_calendar_month td.day {
 	vertical-align: top;
 	color: #000000;
-	border-top: 1px solid #B3B3B3;
-	border-left: 1px solid #B3B3B3;
+	border-bottom: 1px solid #B3B3B3;
+	border-right: 1px solid #B3B3B3;
 	text-align: left;
 	background-color: #FFFFFF;
 	width: 14%;
