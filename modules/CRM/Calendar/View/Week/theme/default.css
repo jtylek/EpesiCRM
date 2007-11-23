@@ -84,7 +84,7 @@ a.icon {
 
 .crm_calendar_week td.header_day a table {
 	font-weight: bold;
-	font-size: 18px;
+	font-size: 16px;
 	height: 50px;
 }
 
@@ -112,7 +112,7 @@ a.icon {
 
 .crm_calendar_week td.header_day_today a table {
 	font-weight: bold;
-	font-size: 18px;
+	font-size: 16px;
 	height: 50px;
 }
 
@@ -175,10 +175,12 @@ a.icon {
 	background-color: #336699;
 	background-image: url('images/header-blue.png');
 	background-repeat: repeat-x;
-	height: 20px;
+	height: 30px;
 	border: 0px;
 	padding-left: 10px;
 	border-top: 1px solid #FFFFFF;
+	font-size: 14px;
+	text-align: center;
 }
 
 .crm_calendar_week td.header_month a {
