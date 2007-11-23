@@ -18,10 +18,11 @@ class Utils_FileUpload extends Module {
 	/**
 	 * Module constructor.
 	 */
-	public function construct() {
+	public function construct($req=true) {
 		$this->lang = & $this->init_module('Base/Lang');
 		$this->form = & $this->init_module('Libs/QuickForm', array($this->lang->ht('Uploading file...'),'modules/Utils/FileUpload/upload.php','upload_iframe',''),'file_chooser');
 		$this->form->addElement('static',null,null,'<iframe frameborder="0" id="upload_iframe", name="upload_iframe" src="" scrolling="No" height="0" width="0"></iframe>');
+		$this->form->addElement('hidden','required',$req?'1':'0');
 	}
 
 	/**
