@@ -27,7 +27,8 @@
 {/if}
 
 {if isset($order) || isset($letter_links)}
-<table width=100%>
+
+<table width="100%">
 <tr>
 	<td align="left" style="padding-bottom: 5px;">
 		<b>
@@ -45,8 +46,34 @@
 	</td>
 </tr>
 </table>
+
 {/if}
+
+<!-- SHADIW BEGIN -->
+	<div class="layer" style="padding: 9px; width: 98%; min-height: 40px;">
+		<div class="content_shadow">
+<!-- -->
+
 {html_table_epesi table_attr='id="Utils_GenericBrowser" cellspacing="0" cellpadding="0"' loop=$data cols=$cols}
+
+<!-- SHADOW END -->
+ 		</div>
+		<div class="shadow-top">
+			<div class="left"></div>
+			<div class="center"></div>
+			<div class="right"></div>
+		</div>
+		<div class="shadow-middle">
+			<div class="left"></div>
+			<div class="right"></div>
+		</div>
+		<div class="shadow-bottom">
+			<div class="left"></div>
+			<div class="center"></div>
+			<div class="right"></div>
+		</div>
+	</div>
+<!-- -->
 
 <table id="Utils_GenericBrowser__navigation" border="0" cellspacing="0" cellpadding="0">
 	<tr>

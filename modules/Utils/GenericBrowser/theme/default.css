@@ -3,7 +3,7 @@
 }
 
 table#Utils_GenericBrowser {
-    border-left: 1px solid #B3B3B3;
+    border: 1px solid #FFFFFF;
     background-color: #FFFFFF;
 }
 
@@ -17,7 +17,7 @@ table#Utils_GenericBrowser th {
     padding-right: 3px;
     height: 20px;
     /*border-top: 1px solid #B3B3B3;*/
-    border-right: 1px solid #FFFFFF;
+    border-left: 1px solid #FFFFFF;
     border-bottom: 1px solid #FFFFFF;
 	color: #FFFFFF;
 }
