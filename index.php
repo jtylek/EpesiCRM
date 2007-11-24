@@ -64,33 +64,37 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
   				position: absolute;
   				left: 40%; top: 45%;
   				/* all */
-  				background-color: #EDF4E9;
-				border: 3px solid #808080;
+  				background-color: #e6ecf2;
+				border: 2px solid #336699;
 				visibility: hidden;
-				padding-top: 10px;
-				padding-bottom: 10px;
 				width: 20%;
 				text-align: center;
 				vertical-align: center;
 			}
 			#epesiStatus table {
-				color: #2A2A2A;
+				color: #336699;
 				font-weight: bold;
 				font-family: "Tahoma" "Verdana" "Vera-Sans" "DejaVu-Sans";
 				font-size: 11px;
+				border: 4px solid #FFFFFF;
+            }
+            body {
+                background-color: #5C5C5C;
             }
 		</style>
 	</head>
 	<body>
 		<div id="body_content">
 		<div id="main_content"></div>
-        
+
 		<div id="epesiStatus">
-			<table cellspacing="0" cellpadding="0" border="0" style="width:100%;">
+			<table cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
 				<tr>
-					<td style="text-align: center; vertical-align: center;"><img src="images/loader.gif" width="32" height="32" border="0"></td>
-					<td style="text-align: center; vertical-align: center;">Starting epesi ...</td>
-				</tr> 
+					<td style="text-align: center; vertical-align: center; height: 30px;">Starting epesi ...</td>
+                </tr>
+                <tr>
+					<td style="text-align: center; vertical-align: center; height: 20px;"><img src="images/loader.gif" width="224" height="10" border="0"></td>
+				</tr>
 			</table>
 		</div>
 

@@ -216,10 +216,10 @@ class CRM_Calendar_View_Month extends Module {
 	}
 	/////////////////////////////////////////////////////////////////////////////
 	public function menu($date) {
-		// CALENDAR --------------------------------------------------
-		$link_text = $this->create_unique_href_js(array( 'date'=>array('year'=>'__YEAR__', 'month'=>'__MONTH__', 'day'=>'__DAY__') ));
 
-		print Utils_CalendarCommon::show('week_selector', $link_text);
+		print '<div class="month-menu">';
+		print '<table border="0"><tr>';
+		print '<td>';
 
 		// DROPDOWNS -------------------------------------------------
 		$today = CRM_Calendar_Utils_FuncCommon::today();
@@ -238,14 +238,14 @@ class CRM_Calendar_View_Month extends Module {
 			$end = $today['year']+4;
 		for($i = $start; $i < $this->date['year']; $i++) {
 			if($i == $today['year'])
-				array_push($pre, '<a '.$this->create_unique_href(array( 'date'=>array('year'=>$i, 'month'=>$this->date['month'], 'day'=>1) )).'><font color=red>'.$i."</font></a>");
+				array_push($pre, '<a '.$this->create_unique_href(array( 'date'=>array('year'=>$i, 'month'=>$this->date['month'], 'day'=>1) )).'><font color="#993333">'.$i."</font></a>");
 			else
 				array_push($pre, '<a '.$this->create_unique_href(array( 'date'=>array('year'=>$i, 'month'=>$this->date['month'], 'day'=>1) )).'>'.$i."</a>");
 		}
 		$curr = '<b>'.$i."</b>";
 		for($i = $this->date['year'] + 1; $i <= $end; $i++) {
 			if($i == $today['year'])
-				array_push($post, '<a '.$this->create_unique_href(array( 'date'=>array('year'=>$i, 'month'=>$this->date['month'], 'day'=>1) )).'><font color=red>'.$i."</font></a>");
+				array_push($post, '<a '.$this->create_unique_href(array( 'date'=>array('year'=>$i, 'month'=>$this->date['month'], 'day'=>1) )).'><font color="#993333">'.$i."</font></a>");
 			else
 				array_push($post, '<a '.$this->create_unique_href(array( 'date'=>array('year'=>$i, 'month'=>$this->date['month'], 'day'=>1) )).'>'.$i."</a>");
 		}
@@ -262,7 +262,7 @@ class CRM_Calendar_View_Month extends Module {
 
 		for($i = 1; $i < $this->date['month']; $i++) {
 			if($i == $today['month'] && $this->date['year'] == $today['year']) {
-				array_push($pre, '<a '.$this->create_unique_href(array( 'date'=>array('year'=>$this->date['year'] ,'month'=>$i, 'day'=>1) )).'><font color=red>'.CRM_Calendar_Utils_FuncCommon::name_of_month($i, 2)."</font></a>");
+				array_push($pre, '<a '.$this->create_unique_href(array( 'date'=>array('year'=>$this->date['year'] ,'month'=>$i, 'day'=>1) )).'><font color="#993333">'.CRM_Calendar_Utils_FuncCommon::name_of_month($i, 2)."</font></a>");
 			} else {
 				array_push($pre, '<a '.$this->create_unique_href(array( 'date'=>array('year'=>$this->date['year'] ,'month'=>$i, 'day'=>1) )).'>'.CRM_Calendar_Utils_FuncCommon::name_of_month($i,2)."</a>");
 			}
@@ -270,12 +270,14 @@ class CRM_Calendar_View_Month extends Module {
 		$curr = '<b>'.CRM_Calendar_Utils_FuncCommon::name_of_month($i,2)."</b>";
 		for($i = $this->date['month'] + 1; $i <= 12; $i++) {
 			if($i == $today['month'] && $this->date['year'] == $today['year']) {
-				array_push($post, '<a '.$this->create_unique_href(array( 'date'=>array('year'=>$this->date['year'] ,'month'=>$i, 'day'=>1) )).'><font color=red>'.CRM_Calendar_Utils_FuncCommon::name_of_month($i,2)."</font></a>");
+				array_push($post, '<a '.$this->create_unique_href(array( 'date'=>array('year'=>$this->date['year'] ,'month'=>$i, 'day'=>1) )).'><font color="#993333">'.CRM_Calendar_Utils_FuncCommon::name_of_month($i,2)."</font></a>");
 			} else {
 				array_push($post, '<a '.$this->create_unique_href(array( 'date'=>array('year'=>$this->date['year'] ,'month'=>$i, 'day'=>1) )).'>'.CRM_Calendar_Utils_FuncCommon::name_of_month($i,2)."</a>");
 			}
 		}
+
 		$dr_m = & $this->init_module('CRM/Calendar/Utils/Dropdown');
+
 		$dr_m->set_current($curr);
 		$dr_m->set_values($post);
 		$dr_m->set_pre_values($pre);
@@ -285,11 +287,18 @@ class CRM_Calendar_View_Month extends Module {
 		$today = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::today() )).'>Today&nbsp;&nbsp;<img border="0" width="8" height="8" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'this.png').'></a>';
 		$prev = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::prev_month($date) )).'><img border="0" width="8" height="8" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'prev.png').'>&nbsp;&nbsp;Previous</a>';
 
-		print '<div class="month-menu"><table border="0"><tr>';
-
+		print '</td>';
+		print '<td style="width: 10px;"></td>';
 		print '<td>' . $prev . '</td>';
 		print '<td>' . $today . '</td>';
 		print '<td>' . $next . '</td>';
+		print '<td style="width: 10px;"></td>';
+
+		print '<td>';
+		// CALENDAR --------------------------------------------------
+		$link_text = $this->create_unique_href_js(array( 'date'=>array('year'=>'__YEAR__', 'month'=>'__MONTH__', 'day'=>'__DAY__') ));
+		print Utils_CalendarCommon::show('week_selector', $link_text);
+		print '</td>';
 
 		print '</tr></table></div><br>';
 

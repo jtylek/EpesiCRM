@@ -3,6 +3,7 @@ body#FirstRun {
     font-size: 11px;
     margin: 0px 0px 0px 0px;
     padding: 0px 0px 0px 0px;
+    background-color: #FFFFFF;
 }
 
 #FirstRun table {
