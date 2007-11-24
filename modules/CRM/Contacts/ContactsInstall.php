@@ -1,9 +1,9 @@
 <?php
 /**
  * CRMHRInstall class.
- * 
+ *
  * This class provides initialization data for CRMHR module.
- * 
+ *
  * @author Kuba SĹawiĹski <ruud@o2.pl>, Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
@@ -69,44 +69,48 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_caption('company', 'Companies');
 // ************ addons ************** //
 		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Contacts', 'company_addon', 'Contacts');
+		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Contacts', 'company_attachment_addon', 'Notes & docs');
+		Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Contacts', 'contact_attachment_addon', 'Notes & docs');
 // ************ other ************** //
 		Utils_CommonDataCommon::new_array('Companies_Groups',array('Customer','Vendor','Other'));
 		Utils_CommonDataCommon::new_array('Contacts_Groups',array('Public','Private','Other'));
 		return true;
 	}
-	
+
 	public function uninstall() {
 		Base_ThemeCommon::uninstall_default_theme('CRM/Contacts');
 		Utils_RecordBrowserCommon::delete_addon('company', 'CRM/Contacts', 'company_addon');
+		Utils_RecordBrowserCommon::delete_addon('company', 'CRM/Contacts', 'company_attachment_addon');
+		Utils_RecordBrowserCommon::delete_addon('contact', 'CRM/Contacts', 'contact_attachment_addon');
 		Utils_RecordBrowserCommon::uninstall_recordset('company');
 		Utils_RecordBrowserCommon::uninstall_recordset('contact');
 		Utils_CommonDataCommon::remove('Contacts_Groups');
 		return true;
 	}
-	
+
 	public function requires($v) {
 		return array(
 			array('name'=>'Utils/RecordBrowser', 'version'=>0),
-			array('name'=>'Data/Countries', 'version'=>0) 
+			array('name'=>'Data/Countries', 'version'=>0)
 		);
 	}
-	
+
 	public function provides($v) {
 		return array();
 	}
-	
+
 	public static function info() {
 		return array('Author'=>'<a href="mailto:kslawinski@telaxus.com">Kuba Sławiński</a> and <a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'License'=>'TL', 'Description'=>'Module for organising Your contacts.');
 	}
-	
+
 	public static function simple_setup() {
 		return true;
 	}
-	
+
 	public function version() {
 		return array('0.9');
 	}
-	
+
 	public static function post_install() {
 		$loc = Base_RegionalSettingsCommon::get_default_location();
 		$count = DB::GetOne('SELECT count(ul.id) FROM user_login ul');
@@ -129,7 +133,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 			     array('type'=>'text','name'=>'web','label'=>'Web address','default'=>'','param'=>array('maxlength'=>64))
 			     ));
 	}
-	
+
 	private static $country_elem_name;
 	public static function country_element($name, $args, & $def_js) {
 		self::$country_elem_name = $name;

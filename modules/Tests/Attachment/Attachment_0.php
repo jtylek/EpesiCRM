@@ -19,6 +19,9 @@ class Tests_Attachment extends Module{
 		$com -> tree_structure(true);
 */
 		$this -> display_module($com);
+		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Contacts', 'company_attachment_addon', 'Notes & docs');
+		Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Contacts', 'contact_attachment_addon', 'Notes & docs');
+
 		//------------------------------ print out src
 		print('<hr><b>Install</b><br>');
 		$this->pack_module('Utils/CatFile','modules/Tests/Attachment/AttachmentInstall.php');

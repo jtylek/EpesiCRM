@@ -1,9 +1,9 @@
 <?php
 /**
  * CRMHR class.
- * 
+ *
  * This class is just my first module, test only.
- * 
+ *
  * @author Kuba Sławiński <ruud@o2.pl>, Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.99
@@ -14,7 +14,7 @@ defined("_VALID_ACCESS") || die();
 
 class CRM_Contacts extends Module {
 	private $rb = null;
-	
+
 	public function body() {
 		if (isset($_REQUEST['mode'])) $this->set_module_variable('mode', $_REQUEST['mode']);
 		$mode = $this->get_module_variable('mode');
@@ -48,6 +48,17 @@ class CRM_Contacts extends Module {
 		$theme->assign('contacts', $this->get_html_of_module($rb, array(array('Company Name'=>$arg['id']), array('Company'=>false), true), 'show_data'));
 		$theme->display('Company_plugin');
 	}
+
+	public function company_attachment_addon($arg){
+		$a = $this->init_module('Utils/Attachment',array($arg['id'],'CRM/Company/'.$arg['id']));
+		$this->display_module($a);
+	}
+
+	public function contact_attachment_addon($arg){
+		$a = $this->init_module('Utils/Attachment',array($arg['id'],'CRM/Contact/'.$arg['id']));
+		$this->display_module($a);
+	}
+
 	public function new_contact($company){
 		$rb = $this->init_module('Utils/RecordBrowser','contact','contact');
 		$this->rb = $rb;

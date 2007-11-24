@@ -12,22 +12,25 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_Attachment extends Module {
 	private $lang;
 	private $key;
-	private $persistant_deletion;
+	private $persistant_deletion = false;
 	private $group;
 	private $view = true;
 	private $edit = true;
 	private $download = true;
 
-	public function construct($key,$group='',$persistant=false) {
+	public function construct($key,$group='') {
 		if(!isset($key)) trigger_error('Key not given to attachment module',E_USER_ERROR);
 		$this->lang = & $this->init_module('Base/Lang');
-		$this->persistant_deletion = $persistant;
 		$this->group = $group;
 		$this->key = md5($key);
 	}
 
 	public function allow_edit($x=true) {
 		$this->edit = $x;
+	}
+
+	public function set_persistant_delete($x=false) {
+		$this->persistant_deletion = $x;
 	}
 
 	public function allow_view($x=true) {
