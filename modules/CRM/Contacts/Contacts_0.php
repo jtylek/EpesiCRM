@@ -51,11 +51,13 @@ class CRM_Contacts extends Module {
 
 	public function company_attachment_addon($arg){
 		$a = $this->init_module('Utils/Attachment',array($arg['id'],'CRM/Company/'.$arg['id']));
+		$a->inline_attach_file(true);
 		$this->display_module($a);
 	}
 
 	public function contact_attachment_addon($arg){
 		$a = $this->init_module('Utils/Attachment',array($arg['id'],'CRM/Contact/'.$arg['id']));
+		$a->inline_attach_file(true);
 		$this->display_module($a);
 	}
 

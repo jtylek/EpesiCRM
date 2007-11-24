@@ -17,6 +17,7 @@ class Utils_Attachment extends Module {
 	private $view = true;
 	private $edit = true;
 	private $download = true;
+	private $inline = false;
 
 	public function construct($key,$group='') {
 		if(!isset($key)) trigger_error('Key not given to attachment module',E_USER_ERROR);
@@ -25,12 +26,16 @@ class Utils_Attachment extends Module {
 		$this->key = md5($key);
 	}
 
-	public function allow_edit($x=true) {
-		$this->edit = $x;
+	public function inline_attach_file($x=true) {
+		$this->inline = $x;
 	}
 
 	public function set_persistant_delete($x=false) {
 		$this->persistant_deletion = $x;
+	}
+
+	public function allow_edit($x=true) {
+		$this->edit = $x;
 	}
 
 	public function allow_view($x=true) {
@@ -68,9 +73,12 @@ class Utils_Attachment extends Module {
 			}
 			$r->add_data($row['text'],$file);
 		}
-		$this->display_module($gb);
+		if($this->inline)
+			print('<a '.$this->create_callback_href(array($this,'attach_file')).'>'.$this->lang->t('Attach file').'</a>');
+		else
+			Base_ActionBarCommon::add('add','Attach file',$this->create_callback_href(array($this,'attach_file')));
 
-		Base_ActionBarCommon::add('add','Attach file',$this->create_callback_href(array($this,'attach_file')));
+		$this->display_module($gb);
 	}
 
 	public function attach_file() {
