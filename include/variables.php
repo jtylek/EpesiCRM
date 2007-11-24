@@ -8,26 +8,28 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
+class NoSuchVariableException extends Exception {};
+
 class Variable {
 	private static $variables;
-	
+
 	private static function load() {
 		if(!isset(self::$variables)) {
 		    self::$variables = array();
 		    $ret = DB::Execute("SELECT name,value FROM variables");
-		    while($row = $ret->FetchRow()) 
+		    while($row = $ret->FetchRow())
 			self::$variables[$row['name']] = $row['value'];
 		}
 	}
-	
+
 	public static function get($name) {
 		self::load();
 		if(!array_key_exists($name,self::$variables))
-			throw new Exception('No such variable in database('.var_export(self::$variables,true).'): ' . $name);
+			throw new NoSuchVariableException('No such variable in database('.var_export(self::$variables,true).'): ' . $name);
 		return unserialize(self::$variables[$name]);
 	}
 
-	
+
 	public static function set($name, $value) {
 		self::load();
 		$value = serialize($value);
@@ -43,7 +45,7 @@ class Variable {
 	public static function delete($name) {
 		self::load();
 		if(!array_key_exists($name,self::$variables)) {
-			throw new Exception('No such variable in database('.var_export(self::$variables,true).'): ' . $name);
+			throw new NoSuchVariableException('No such variable in database('.var_export(self::$variables,true).'): ' . $name);
 		} else {
 			unset(self::$variables[$name]);;
 			return DB::Execute("DELETE FROM variables WHERE name=%s", $name);

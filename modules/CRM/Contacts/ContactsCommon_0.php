@@ -19,7 +19,14 @@ class CRM_ContactsCommon extends ModuleCommon {
 	public static function get_company($id) {
 		return Utils_RecordBrowserCommon::get_record('company', $id);
 	}
-	
+	public static function get_main_company() {
+		try {
+			return Variable::get('main_company');
+		} catch(NoSuchVariableException $e) {
+			return null;
+		}
+	}
+
 	/*--------------------------------------------------------------------*/
 	public static function menu() {
 		return array('CRM'=>array('__submenu__'=>1,'Contacts'=>array('mode'=>'contact'),'Companies'=>array('mode'=>'company')));
@@ -28,7 +35,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return 'Companies & Contacts';
 	}
 	public function admin_caption() {
-		return 'Companies & Contacts';	
+		return 'Companies & Contacts';
 	}
 	public static function QFfield_country(&$form, $field, $label, $mode, $default) {
 		$form->addElement('commondata', $field, $label, array('Countries'), array('empty_option'=>true));
@@ -39,7 +46,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$form->addElement('commondata', $field, $label, array('Countries', 'country'), array('empty_option'=>true));
 		if ($default!='')
 			if ($mode!=='add') $form->setDefaults(array($field=>$default));
-			else $form->setDefaults(array($field=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state')));	
+			else $form->setDefaults(array($field=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state')));
 	}
 	public static function QFfield_company(&$form, $field, $label, $mode, $default) {
 		$comp = array();
@@ -53,7 +60,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			}
 		} else {
 			$form->addElement('static', $field, $label, array('id'=>$field));
-			
+
 			$def = '';
 			$first = true;
 			foreach($default as $k=>$v){
@@ -112,7 +119,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 	public static function submit_contact($values, $mode) {
 		if (isset($values['create_company'])) {
-			$comp_id = Utils_RecordBrowserCommon::new_record('company', 
+			$comp_id = Utils_RecordBrowserCommon::new_record('company',
 				array(	'name'=>$values['first_name'].' '.$values['last_name'],
 						'address_1'=>$values['address_1'],
 						'address_2'=>$values['address_2'],

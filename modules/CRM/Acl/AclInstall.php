@@ -16,17 +16,17 @@ class CRM_AclInstall extends ModuleInstall {
 		if($ret) $ret = Acl::add_groups(array('Employee'=>array('Employee Manager'=>array('Employee Administrator'))));
 		return $ret;
 	}
-	
+
 	public function uninstall() {
 		Acl::del_group('Customer');
 		Acl::del_group('Customer Manager');
 		Acl::del_group('Customer Administrator');
-		Acl::del_group('Employer');
-		Acl::del_group('Employer Manager');
-		Acl::del_group('Employer Administrator');
+		Acl::del_group('Employee');
+		Acl::del_group('Employee Manager');
+		Acl::del_group('Employee Administrator');
 		return true;
 	}
-	
+
 	public function version() {
 		return array('1.0.0');
 	}

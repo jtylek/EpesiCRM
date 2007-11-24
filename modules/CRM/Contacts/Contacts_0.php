@@ -29,8 +29,29 @@ class CRM_Contacts extends Module {
 		$tb = $this->init_module('Utils/TabbedBrowser');
 		$tb->set_tab('Contacts', array($this, 'contact_admin'));
 		$tb->set_tab('Companies', array($this, 'company_admin'));
+		$tb->set_tab('Main company', array($this, 'main_company_admin'));
 		$this->display_module($tb);
 		$tb->tag();
+	}
+	public function main_company_admin(){
+		$qf = $this->init_module('Libs/QuickForm','my_company');
+		$l = $this->init_module('Base/Lang');
+		$companies = CRM_ContactsCommon::get_companies();
+		$x = array();
+		foreach($companies as $c)
+			$x[$c['id']] = $c['Company Name'].' ('.$c['Short Name'].')';
+		$qf->addElement('select','company',$l->t('Choose main company'),$x,array('onChange'=>$qf->get_submit_form_js()));
+		$qf->addElement('static',null,null,'Contacts assigned to this company are treated as employees.');
+		try {
+			$main_company = Variable::get('main_company');
+			$qf->setDefaults(array('company'=>$main_company));
+		} catch(NoSuchVariableException $e) {
+		}
+
+		if($qf->validate()) {
+			Variable::set('main_company',$qf->exportValue('company'));
+		}
+		$qf->display();
 	}
 	public function contact_admin(){
 		$rb = $this->init_module('Utils/RecordBrowser','contact','contact');

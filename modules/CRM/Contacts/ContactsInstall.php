@@ -91,6 +91,8 @@ class CRM_ContactsInstall extends ModuleInstall {
 	public function requires($v) {
 		return array(
 			array('name'=>'Utils/RecordBrowser', 'version'=>0),
+			array('name'=>'Utils/Attachment', 'version'=>0),
+			array('name'=>'Base/Lang', 'version'=>0),
 			array('name'=>'Data/Countries', 'version'=>0)
 		);
 	}
@@ -158,6 +160,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 				'fax'=>isset($val['fax'])?$val['fax']:'',
 				'web_address'=>isset($val['web'])?$val['web']:''
 				));
+		Variable::set('main_company',$comp_id);
 		$count = DB::GetOne('SELECT count(ul.id) FROM user_login ul');
 		if($count==1) {
 			$user = DB::GetRow('SELECT ul.id,up.mail FROM user_login ul INNER JOIN user_password up ON up.user_login_id=ul.id');
@@ -173,7 +176,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 					'phone'=>isset($val['phone'])?$val['phone']:'',
 					'fax'=>isset($val['fax'])?$val['fax']:'',
 					'web_address'=>isset($val['web'])?$val['web']:'',
-					'company'=>$comp_id,
+					'company_name'=>array($comp_id),
 					'login'=>$user['id'],
 					'email'=>$user['mail']
 					));
