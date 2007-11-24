@@ -1,10 +1,12 @@
 <center>
+
+<div id="Launchpad_header">
+    <div class="left">&nbsp;</div>
+    <div class="center"><div style="position: absolute; left: 50%;">Launchpad</div></div>
+    <div class="right"><img src="{$theme_dir}/Base_ActionBar__close.png" width="14" height="14" alt="x" border="0"></div>
+</div>
+
 <table id="Base_ActionBar" cellspacing="0" cellpadding="0">
-	<tr>
-        <td class="header"></td>
-		<td colspan="3" class="header" style="text-align: center;">Launchpad</td>
-        <td class="header" style="text-align: right; padding-right: 5px;"><img style="vertical-align: middle;" src="{$theme_dir}/Base_ActionBar__close.png" width="14" height="14" alt="x" border="0"></td>
-	</tr>
 	<tr>
 
 	{assign var=x value=0}

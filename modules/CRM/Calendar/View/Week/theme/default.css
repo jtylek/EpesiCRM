@@ -84,7 +84,7 @@ a.icon {
 
 .crm_calendar_week td.header_day a table {
 	font-weight: bold;
-	font-size: 16px;
+	font-size: 14px;
 	height: 50px;
 }
 
@@ -112,7 +112,7 @@ a.icon {
 
 .crm_calendar_week td.header_day_today a table {
 	font-weight: bold;
-	font-size: 16px;
+	font-size: 14px;
 	height: 50px;
 }
 
@@ -180,6 +180,7 @@ a.icon {
 	padding-left: 10px;
 	border-top: 1px solid #FFFFFF;
 	font-size: 14px;
+	font-weight: bold;
 	text-align: center;
 }
 

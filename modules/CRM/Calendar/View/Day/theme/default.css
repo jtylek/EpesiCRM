@@ -103,7 +103,8 @@ table.week td.header_day:hover {
 
 table.week td.header_day a table {
 	font-weight: bold;
-	font-size: 18px;
+	font-size: 14px;
+	height: 50px;
 }
 
 table.week td.header_day_today {
@@ -126,7 +127,8 @@ table.week td.header_day_today {
 
 table.week td.header_day_today a table {
 	font-weight: bold;
-	font-size: 18px;
+	font-size: 14px;
+	height: 50px;
 }
 
 table.week td.header_timeless {
@@ -153,14 +155,17 @@ table.week td.header_weekday {
 
 table.week td.header_month {
 	color: #FFFFFF;
+	text-align: center;
 	vertical-align: middle;
 	background-color: #336699;
 	background-image: url('images/header-blue.png');
 	background-repeat: repeat-x;
-	height: 20px;
+	height: 30px;
 	border: 0px;
 	padding-left: 10px;
 	width: 80%;
+	font-size: 14px;
+	font-weight: bold;
 }
 
 table.week td.header_month a {

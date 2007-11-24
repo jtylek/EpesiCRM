@@ -1,3 +1,33 @@
+#Launchpad_header {
+	color: #FFFFFF;
+	background-color: #336699;
+	background-image: url("images/header-blue.png");
+	background-repeat: repeat-x;
+	height: 20px;
+}
+
+#Launchpad_header .left {
+	width: 17px;
+	display: block;
+	float: left;
+}
+
+#Launchpad_header .center {
+	display: block;
+	float: left;
+	padding-top: 3px;
+	font-weight: bold;
+	text-align: center;
+}
+
+#Launchpad_header .right {
+	width: 17px;
+	display: block;
+	float: right;
+	padding-top: 3px;
+	padding-right: 3px;
+}
+
 table#Base_ActionBar .label {
 }
 
@@ -32,15 +62,3 @@ table#Base_ActionBar a {
 table#Base_ActionBar a:hover {
 	color: #993333;
 }
-
-table#Base_ActionBar .header {
-	color: #FFFFFF;
-	background-color: #336699;
-	background-image: url("images/header-blue.png");
-	background-repeat: repeat-x;
-	height: 20px;
-	text-align: center;
-	vertical-align: middle;
-	font-weight: bold;
-}
-

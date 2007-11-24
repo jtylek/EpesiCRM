@@ -39,7 +39,7 @@
 	<!-- -->
 	<div id="content">
 		<div style="height: 102px"></div>
-		<div id="content_body" style="padding: 10px; text-align: center;">
+		<div id="content_body" style="padding: 10px 0px 10px 0px; text-align: center;">
 			<center>{$main}</center>
 		</div>
 	</div>
