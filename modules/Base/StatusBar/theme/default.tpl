@@ -2,14 +2,21 @@
 <div id="{$statusbar_id}" class="Base_StatusBar">
 
 <!-- SHADIW BEGIN -->
-	<div class="layer" style="padding: 9px; width: 300px;">
-		<div class="content_shadow" style="border: 1px solid white; background-color: #ecf2e6;">
+	<div class="layer" style="padding: 10px; width: 300px;">
+		<div class="content_shadow" style="border: 4px solid #FFFFFF;">
 <!-- -->
+
+<!-- TEMP
+			<td class="image"><img src="{$theme_dir}/Base_StatusBar__loader.gif" width="32" height="32" border="0"></td>
+			<td class="text"><span id="{$text_id}">Loading...</span></td>
+-->
 
 	<table>
 		<tr>
-			<td class="image"><img src="{$theme_dir}/Base_StatusBar__loader.gif" width="32" height="32" border="0"></td>
 			<td class="text"><span id="{$text_id}">Loading...</span></td>
+        </tr>
+        <tr>
+			<td class="image"><img src="{$theme_dir}/Base_StatusBar__loader.gif" width="224" height="10" border="0"></td>
 		</tr>
 	</table>
 

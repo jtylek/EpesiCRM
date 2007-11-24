@@ -3,8 +3,9 @@
 }
 
 table#Utils_GenericBrowser {
-    border: 1px solid #FFFFFF;
     background-color: #FFFFFF;
+    border-top: 1px solid #FFFFFF;
+    border-left: 1px solid #FFFFFF;
 }
 
 table#Utils_GenericBrowser th {
@@ -17,7 +18,7 @@ table#Utils_GenericBrowser th {
     padding-right: 3px;
     height: 20px;
     /*border-top: 1px solid #B3B3B3;*/
-    border-left: 1px solid #FFFFFF;
+    border-right: 1px solid #FFFFFF;
     border-bottom: 1px solid #FFFFFF;
 	color: #FFFFFF;
 }

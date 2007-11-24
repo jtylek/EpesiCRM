@@ -1,5 +1,6 @@
 .Base_StatusBar__error_message {
-	background-color: red;
+	background-color: #993333;
+    color: #FFFFFF;
 }
 
 .Base_StatusBar__warning_message {
@@ -8,7 +9,7 @@
 
 .Base_StatusBar {
 	z-index: 2001;
-	width: 300px;
+	width: 100%;
   	position: fixed;
 	left: 50%;
 	top: 30%;
@@ -18,24 +19,25 @@
 }
 
 .Base_StatusBar table {
+    width: 100%;
 	font-family: "Tahoma" "Verdana" "Vera-Sans" "DejaVu-Sans";
 	font-size: 11px;
 	font-weight: bold;
-	color: #669933;
+	color: #339933;
 	/*border: 1px solid #339933;*/
-	background-color: #ecf2e6;
+    border: 0px solid #7fb37f;
+    background-color: #cfe6cf;
+    background-color: #e6f2e6;
 }
 
 .Base_StatusBar td.image {
 	text-align: center;
 	vertical-align: middle;
-	width: 50px;
-	height: 36px;
+    height: 20px;
 }
 
 .Base_StatusBar td.text {
 	text-align: center;
 	vertical-align: middle;
-	width: 250px;
-	height: 36px;
+    height: 30px;
 }
