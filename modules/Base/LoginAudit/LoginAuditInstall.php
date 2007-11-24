@@ -42,11 +42,14 @@ class Base_LoginAuditInstall extends ModuleInstall {
 	public function requires($v) {
 		return array(
 			array('name'=>'Base/Theme','version'=>0),
-			array('name'=>'Tools/WhoIsOnline','version'=>0));
+			array('name'=>'CRM/Contacts', 'version'=>0),
+			array('name'=>'Base/User', 'version'=>0));
 	}
 	
 		public static function info() {
-		return array('Author'=>'<a href="mailto:jtylek@telaxus.com">Janusz Tylek</a> and <a href="mailto:pbukowski@telaxus.com">Pawel Bukowski</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'License'=>'TL', 'Description'=>'Provides login audit log.');
+		return array('Author'=>'<a href="mailto:jtylek@telaxus.com">Janusz Tylek</a> and <a href="mailto:pbukowski@telaxus.com">Pawel Bukowski</a>
+					 (<a href="http://www.telaxus.com">Telaxus LLC</a>)',
+					 'License'=>'TL', 'Description'=>'Provides login audit log.');
 	}
 		
 	public static function simple_setup() {

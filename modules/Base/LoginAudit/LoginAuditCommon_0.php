@@ -10,16 +10,9 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_LoginAuditCommon extends ModuleCommon {
-	public static function applet_caption() {
-		return "Login Audit";
-	}
 
 	public static function admin_caption() {
 		return 'Login Audit';
-	}
-	
-	public static function applet_info() {
-		return "Tracks users logins";
 	}
 	
 	public static function body_access() {
