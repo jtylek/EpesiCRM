@@ -13,6 +13,7 @@ p.event {
 	position: absolute;
 }
 /* classes for big table */
+
 	table.big {
 		width: 80%;
 		height: 100%;
@@ -141,7 +142,9 @@ div.events_brief {
 }
 
 #Agenda .data {
-	background-color: #FFFFFF;
+	background-color: #336699;
+	/*background-image: url('images/header-blue.png');*/
+	background-repeat: repeat-x;
 	/*border: 1px solid #B3B3B3;*/
 	height: 20px;
 }
@@ -154,22 +157,15 @@ div.events_brief {
 /* Select date */
 
 #Agenda .data a {
-    font-weight: normal;
-    color: #FFFFFF;
-    width: 100px;
-    line-height: 20px;
-    height: 20px;
-    display: block;
-	float: top;
-	background-color: #336699;
-    background-image: url("images/header-blue.png");
-    /*background-image: none;*/
-    border: 0px;
-    text-align: center;
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-top: 4px;
+	padding-bottom: 3px;
+	color: #FFFFFF;
 }
 
 
 #Agenda .data a:hover {
 	background-color: #339933;
-    background-image: url("images/header-blue-hover.png");
+    /*background-image: url("images/header-blue-hover.png");*/
 }
