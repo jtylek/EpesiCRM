@@ -2,7 +2,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_CalendarCommon extends ModuleCommon {
-	public function show($name,$function = '',$fullscreen=true,$top=0,$left=0) {
+	public static function show($name,$function = '',$fullscreen=true,$top=0,$left=0) {
 		Base_ThemeCommon::load_css('Utils_Calendar');
 		load_js('modules/Utils/Calendar/js/main.js');
 
