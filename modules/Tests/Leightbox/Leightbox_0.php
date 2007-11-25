@@ -12,6 +12,15 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Tests_Leightbox extends Module{
 	public function body(){
 		print(Utils_CalendarCommon::show('test','alert(__DAY__+\'.\'+__MONTH__+\'.\'+__YEAR__ )'));
+
+		$form = $this->init_module('Libs/QuickForm', null, 'RBpicker_test');
+		$form->addElement('multiselect', 'test', 'Test', array(1=>0, 6=>1, 7=>2, 8=>3));
+		$form->addElement('submit', 'submit', 'Submit');
+		$form->display();
+		if ($form->validate()) print_r($form->exportValues());
+
+		$rb1 = $this->init_module('Utils/RecordBrowser','contact','contact');
+		$this->display_module($rb1, array('test',array('Tests_LeightboxCommon','TEST')), 'recordpicker');
 		
 		print('<hr><a rel="leightbox1" class="lbOn">leightbox container</a>
 		<div id="leightbox1" class="leightbox">

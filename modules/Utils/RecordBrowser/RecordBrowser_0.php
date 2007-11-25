@@ -125,7 +125,7 @@ class Utils_RecordBrowser extends Module {
 		return $crits;
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
-	public function show_data($crits = array(), $cols = array(), $fs_links = false, $admin = false) {
+	public function show_data($crits = array(), $cols = array(), $fs_links = false, $admin = false, $special=false) {
 		$this->init();
 		$this->action = 'Browse';
 		if (!Base_AclCommon::i_am_admin() && $admin) {
@@ -232,23 +232,31 @@ class Utils_RecordBrowser extends Module {
 			if ($this->browse_mode == 'recent')
 				$row_data[] = $row['visited_on'];
 			$gb_row->add_data_array($row_data);
-			if ($fs_links===false) {
-				$gb_row->add_action($this->create_callback_href(array($this,'view_entry'),array('view',$row['id'])),$this->lang->t('View'));
-				$gb_row->add_action($this->create_callback_href(array($this,'view_entry'),array('edit',$row['id'])),$this->lang->t('Edit'));
-				if ($admin) {
-					if (!$row['active']) $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],true)),$this->lang->t('Activate'), null, 'active-off');
-					else $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],false)),$this->lang->t('Deactivate'), null, 'active-on');
-					$gb_row->add_action($this->create_callback_href(array($this,'view_edit_history'),array($row['id'])),$this->lang->t('View edit history'),null,'history');
-				} else 
-				$gb_row->add_action($this->create_callback_href(array($this,'view_entry'),array('delete',$row['id'])),$this->lang->t('Delete'));
+			if (!$special) {
+				if ($fs_links===false) {
+					$gb_row->add_action($this->create_callback_href(array($this,'view_entry'),array('view',$row['id'])),$this->lang->t('View'));
+					$gb_row->add_action($this->create_callback_href(array($this,'view_entry'),array('edit',$row['id'])),$this->lang->t('Edit'));
+					if ($admin) {
+						if (!$row['active']) $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],true)),$this->lang->t('Activate'), null, 'active-off');
+						else $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],false)),$this->lang->t('Deactivate'), null, 'active-on');
+						$gb_row->add_action($this->create_callback_href(array($this,'view_edit_history'),array($row['id'])),$this->lang->t('View edit history'),null,'history');
+					} else 
+					$gb_row->add_action($this->create_callback_href(array($this,'view_entry'),array('delete',$row['id'])),$this->lang->t('Delete'));
+				} else {
+					$gb_row->add_action($this->create_href(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($this->tab), 'tab'=>$this->tab, 'id'=>$row['id'], 'action'=>'view')),$this->lang->t('View'));
+					$gb_row->add_action($this->create_href(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($this->tab), 'tab'=>$this->tab, 'id'=>$row['id'], 'action'=>'edit')),$this->lang->t('Edit'));
+					$gb_row->add_action($this->create_href(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($this->tab), 'tab'=>$this->tab, 'id'=>$row['id'], 'action'=>'delete')),$this->lang->t('Delete'));
+				}
 			} else {
-				$gb_row->add_action($this->create_href(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($this->tab), 'tab'=>$this->tab, 'id'=>$row['id'], 'action'=>'view')),$this->lang->t('View'));
-				$gb_row->add_action($this->create_href(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($this->tab), 'tab'=>$this->tab, 'id'=>$row['id'], 'action'=>'edit')),$this->lang->t('Edit'));
-				$gb_row->add_action($this->create_href(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($this->tab), 'tab'=>$this->tab, 'id'=>$row['id'], 'action'=>'delete')),$this->lang->t('Delete'));
+//				$gb_row->add_action($this->create_callback_href(array($this,'rbpicker_select'),array($row['id'])),$this->lang->t('Add'));
+				$func = $this->get_module_variable('format_func');
+				$element = $this->get_module_variable('element');
+				$gb_row->add_action('href="javascript:addto_'.$element.'('.$row['id'].', \''.call_user_func($func, $row['id']).'\');"', $this->lang->t('Add'));
 			}
 			$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info($this->tab, $row['id']));
 		}
-		$this->display_module($gb, null, 'automatic_display');
+		if ($special) return $this->get_html_of_module($gb, null, 'automatic_display');
+		else $this->display_module($gb, null, 'automatic_display');
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
 	public function view_entry($mode='view', $id = null, $defaults = array()) {
@@ -893,6 +901,55 @@ class Utils_RecordBrowser extends Module {
 	}
 	public function caption(){
 		return $this->caption.': '.$this->action;
+	}
+	public function recordpicker($element, $format) {
+		if (!isset($this->lang)) $this->lang = $this->init_module('Base/Lang');
+		$this->set_module_variable('element',$element);
+		$this->set_module_variable('format_func',$format);
+		print('<hr><a rel="leightbox_'.$element.'" class="lbOn">'.$element.'</a>'.
+			'<div id="leightbox_'.$element.'" class="leightbox">'.
+			'<h1>'.$this->lang->t('Select records').'</h1>'.
+			$this->show_data(array(), array(), false, false, true).
+			'<a href="#" class="lbAction" rel="deactivate">Close</a>'.
+			'</div><hr>');
+//	}
+//	public function rbpicker_select($id){
+//		$element = $this->get_module_variable('element');
+		eval_js(
+			'addto_'.$element.' = function(id, cstring){'.
+			'tolist = document.getElementsByName(\''.$element.'to[]\')[0];'.
+			'fromlist = document.getElementsByName(\''.$element.'from[]\')[0];'.
+			'list = \'\';'.
+			'k = 0;'.
+			'i = false;'.
+			'while (k!=tolist.length) {'.
+			'	if (tolist.options[k].value == id) {'.
+			'		i = true;'.
+			'		break;'.
+			' 	}'. 
+			'	k++;'.
+			'}'.
+			'if (i) return;'.
+			'k = 0;'.
+			'i = false;'.
+			'while (k!=fromlist.length) {'.
+			'	fromlist.options[k].selected = false;'.
+			'	if (fromlist.options[k].value == id) {'.
+			'		fromlist.options[k].selected = true;'.
+			'		i = true;'.
+			'		break;'.
+			' 	}'. 
+			'	k++;'.
+			'}'.
+			'if (!i) {'.
+			'	fromlist.options[k] = new Option();'.
+			'	fromlist.options[k].selected = true;'.
+			'	fromlist.options[k].text = cstring;'.
+			'	fromlist.options[k].value = id;'.
+			'}'.
+			'add_selected_'.$element.'();'.
+			'};');
+//		return false;
 	}
 }
 ?>

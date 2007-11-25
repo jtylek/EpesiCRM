@@ -97,6 +97,10 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
         return $this->_values;
     }
     
+    function getMultiple()
+    {
+        return true;
+    }
     /**
      * Sets the input field name
      * 
