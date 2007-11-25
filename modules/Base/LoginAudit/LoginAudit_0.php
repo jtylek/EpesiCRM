@@ -10,11 +10,35 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_LoginAudit extends Module {
-
-	    public function admin() {
+    
+    public function admin() {
+        $purge = $this->get_unique_href_variable('purge_log');
+        $purge_date = $this->get_unique_href_variable('purge_date');
+        print ('purge: '.$purge);
+        print ('<br />purge_date: '.$purge_date);
+		if($purge==1) {
+			$this->purge_log($purge_date);
+        } else {
+            $this->show_log();
+        }
+    }
         
-		$this->lang = & $this->init_module('Base/Lang');
-				
+    public function show_log() {
+        
+	    $this->lang = & $this->init_module('Base/Lang');
+        
+        $user = $this->get_module_variable('filter_user',-1);
+        $form = $this->init_module('Libs/QuickForm',null,'filter');
+        $form->setDefaults(array('users'=>$user));
+        $ret = DB::Execute('SELECT id FROM user_login');
+	            $users = array(-1=>$this->lang->t('All'));
+	            while($row = $ret->FetchRow())
+	                $users[$row['id']] = Base_UserCommon::get_user_login($row['id']);
+	            $form->addElement('select','users',$this->lang->t('Select user'), $users, 'onChange="'.$form->get_submit_form_js().'"');
+		$user = $form->exportValue('users');
+        $form->display();
+        $this->set_module_variable('filter_user',$user);
+        		
 		$gb = & $this->init_module('Utils/GenericBrowser',null,'login_audit');
 		
 		$gb->set_table_columns(array(
@@ -27,8 +51,13 @@ class Base_LoginAudit extends Module {
 
         $gb->set_default_order(array($this->lang->t('End')=>'DESC'));
 
-		$query = 'SELECT b.user_login_id, b.start_time, b.end_time, b.ip_address, b.host_name FROM base_login_audit b';
-		$query_qty = 'SELECT count(b.id) FROM base_login_audit b';
+		if($user>=0){
+            $query = 'SELECT b.user_login_id, b.start_time, b.end_time, b.ip_address, b.host_name FROM base_login_audit b WHERE b.user_login_id='.$user;
+            $query_qty = 'SELECT count(b.id) FROM base_login_audit b WHERE b.user_login_id='.$user;
+        } else {
+            $query = 'SELECT b.user_login_id, b.start_time, b.end_time, b.ip_address, b.host_name FROM base_login_audit b';
+            $query_qty = 'SELECT count(b.id) FROM base_login_audit b';
+        }
         
 		$ret = $gb->query_order_limit($query, $query_qty);
 		
@@ -36,6 +65,7 @@ class Base_LoginAudit extends Module {
 			while(($row=$ret->FetchRow())) {
 				$c = CRM_ContactsCommon::get_contact_by_user_id($row['user_login_id']);
                 $ulogin = Base_UserCommon::get_user_login($row['user_login_id']);
+                $uid = 'Contact not set';
                 if($c) {
                         $uid = $c['First Name'].' '.$c['Last Name'];
                         }
@@ -46,16 +76,25 @@ class Base_LoginAudit extends Module {
         		
 		$this->display_module($gb);
         
-        #Base_StatusBarCommon::Message('This is the test');
-		
+        Base_ActionBarCommon::add('settings',$this->lang->t('Audit Log Maintenance'),$this->create_unique_href(array('purge_log'=>1)));
 	}
 	
-	public function body() {
-	}
-
-    private function purge(){
+    public function purge_log($pd){
         
+        $this->lang = & $this->init_module('Base/Lang');
         
+        $form = $this->init_module('Libs/QuickForm',null,'purge_date');
+        
+        $form->addElement('select','purge_date',$this->lang->t('Select number of days'), array(-1=>'None',30=>30,90=>90,365=>365,1=>'All'));
+		$purge_date = $form->exportValue('purge_date');
+        $form->display();
+        
+        #$purge_date = $this->get_unique_href_variable('purge_date');
+        print ('Purging log...'.$purge_date);
+        
+        # Base_StatusBarCommon::Message('Purging audit log...');
+        Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+        Base_ActionBarCommon::add('delete',$this->lang->t('Purge Log File'),$this->create_unique_href(array('purge_log'=>1,'purge_date'=>10)));
     }
 }
 
