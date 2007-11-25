@@ -73,12 +73,20 @@ class CRM_Contacts extends Module {
 	public function company_attachment_addon($arg){
 		$a = $this->init_module('Utils/Attachment',array($arg['id'],'CRM/Company/'.$arg['id']));
 		$a->inline_attach_file(true);
+		$a->allow_view_deleted($this->acl_check('view deleted attachments'));
+		$a->allow_view($this->acl_check('view attachments'));
+		$a->allow_edit($this->acl_check('edit attachments'));
+		$a->allow_download($this->acl_check('download attachments'));
 		$this->display_module($a);
 	}
 
 	public function contact_attachment_addon($arg){
 		$a = $this->init_module('Utils/Attachment',array($arg['id'],'CRM/Contact/'.$arg['id']));
 		$a->inline_attach_file(true);
+		$a->allow_view_deleted($this->acl_check('view deleted attachments'));
+		$a->allow_view($this->acl_check('view attachments'));
+		$a->allow_edit($this->acl_check('edit attachments'));
+		$a->allow_download($this->acl_check('download attachments'));
 		$this->display_module($a);
 	}
 

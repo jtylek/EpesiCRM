@@ -74,6 +74,11 @@ class CRM_ContactsInstall extends ModuleInstall {
 // ************ other ************** //
 		Utils_CommonDataCommon::new_array('Companies_Groups',array('Customer','Vendor','Other'));
 		Utils_CommonDataCommon::new_array('Contacts_Groups',array('Public','Private','Other'));
+
+		$this->add_aco('view deleted attachments','Employee Manager');
+		$this->add_aco('view attachments','Employee');
+		$this->add_aco('edit attachments','Employee');
+		$this->add_aco('download attachments','Employee');
 		return true;
 	}
 
@@ -85,6 +90,10 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::uninstall_recordset('company');
 		Utils_RecordBrowserCommon::uninstall_recordset('contact');
 		Utils_CommonDataCommon::remove('Contacts_Groups');
+		$this->del_aco('view deleted attachments');
+		$this->del_aco('view attachments');
+		$this->del_aco('edit attachments');
+		$this->del_aco('download attachments');
 		return true;
 	}
 
@@ -92,6 +101,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 		return array(
 			array('name'=>'Utils/RecordBrowser', 'version'=>0),
 			array('name'=>'Utils/Attachment', 'version'=>0),
+			array('name'=>'CRM/Acl', 'version'=>0),
 			array('name'=>'Base/Lang', 'version'=>0),
 			array('name'=>'Data/Countries', 'version'=>0)
 		);

@@ -1,7 +1,13 @@
 <?php
 require_once('include.php');
 
-if((!Acl::is_user() || !Acl::check('Administration','Main','Users',Acl::get_user())) && !Variable::get('anonymous_setup')) {
+try {
+$anonymous = Variable::get('anonymous_setup');
+} catch(NoSuchVariableException $e) {
+$anonymous = true;
+}
+
+if((!Acl::is_user() || !Acl::check('Administration','Main','Users',Acl::get_user())) && !$anonymous) {
 	$form = new HTML_QuickForm('loginform','get');
 	$form->addElement('text','user','Login');
 	$form->addRule('user','Field required','required');
