@@ -1,9 +1,9 @@
 <?php
 /**
  * BaseInstall class.
- * 
+ *
  * This class initialization data for Base pack of module.
- * 
+ *
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
@@ -17,19 +17,19 @@ class BaseInstall extends ModuleInstall {
 	public function install() {
 		return true;
 	}
-	
+
 	public function uninstall() {
 		return true;
 	}
-	
+
 	public static function info() {
 		return array('Author'=>'<a href="mailto:pbukowski@telaxus.com">Paul Bukowski</a> and <a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'License'=>'TL', 'Description'=>'Base EPESI modules pack');
 	}
-	
+
 	public static function simple_setup() {
 		return true;
 	}
-	
+
 	public function version() {
 		return array('0.9.9');
 	}
@@ -42,6 +42,7 @@ class BaseInstall extends ModuleInstall {
 		    array('name'=>'Base/Dashboard','version'=>0),
 		    array('name'=>'Base/Backup','version'=>0),
 		    array('name'=>'Base/Setup','version'=>0),
+		    array('name'=>'Base/LoginAudit','version'=>0),
 		    array('name'=>'Base/Lang/Administrator','version'=>0),
 		    array('name'=>'Base/Mail/ContactUs','version'=>0),
 		    array('name'=>'Base/MaintenanceMode/Administrator','version'=>0),
