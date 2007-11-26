@@ -170,7 +170,10 @@ class Utils_Attachment extends Module {
 		$fck->setFCKProps('800','300');
 		$f->setDefaults(array('note'=>$text));
 		if($f->validate()) {
-			DB::Execute('INSERT INTO utils_attachment_note(text,attach_id,revision,created_by) VALUES (%s,%d,((SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=%d)+1),%d)',array($f->exportValue('note'),$id,$id,Base_UserCommon::get_my_user_id()));
+			DB::StartTrans();
+			$rev = DB::GetOne('SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=%d',array($id));
+			DB::Execute('INSERT INTO utils_attachment_note(text,attach_id,revision,created_by) VALUES (%s,%d,%d,%d)',array($f->exportValue('note'),$id,$rev+1,Base_UserCommon::get_my_user_id()));
+			DB::CompleteTrans();
 			return false;
 		} else {
 			if($this->inline) {
