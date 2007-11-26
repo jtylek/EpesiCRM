@@ -143,6 +143,8 @@ class Utils_Attachment extends Module {
 		$fck = $form->addElement('fckeditor', 'note', $this->lang->t('Note'));
 		$fck->setFCKProps('800','300');
 		$form->set_upload_button_caption('Save');
+		if($form->getSubmitValue('note')=='' && $form->getSubmitValue('uploaded_file')=='')
+			$form->addRule('note',$this->lang->t('Please enter note or choose file'),'required');
 		$this->ret_attach = true;
 		$this->display_module($form, array( array($this,'submit_attach') ));
 		return $this->ret_attach;

@@ -53,9 +53,12 @@ class Utils_FileUpload extends Module {
 	 *
 	 * @param mixed refer to QuickForm addRule() method
 	 */
-	public function addRule() {
-		$arr = func_get_args();
-		return call_user_func_array(array($this->form,'addRule'),$arr);
+	public function & __call($func_name, $args) {
+		if (is_object($this->form))
+			$return = & call_user_func_array(array($this->form, $func_name), $args);
+		else
+			trigger_error("QuickFrom object doesn't exists", E_USER_ERROR);
+		return $return;
 	}
 
 	/**
