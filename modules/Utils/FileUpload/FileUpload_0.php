@@ -14,6 +14,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_FileUpload extends Module {
 	private $on_submit = null;
 	private $form = null;
+	private $upload_button_caption = 'Upload';
 
 	/**
 	 * Module constructor.
@@ -71,6 +72,15 @@ class Utils_FileUpload extends Module {
 	}
 
 	/**
+	 * Upload button caption
+	 *
+	 * @param string
+	 */
+	public function set_upload_button_caption($x) {
+		$this->upload_button_caption = $x;
+	}
+
+	/**
 	 * Displays the form.
 	 *
 	 * @param method method for submit action
@@ -91,7 +101,7 @@ class Utils_FileUpload extends Module {
 		$this->form->addElement('hidden','submit_js',$s);
 		$this->form->addElement('file', 'file', $this->lang->ht('Specify file'));
 		$this->form->addElement('static',null,$this->lang->t('Upload status'),'<div id="upload_status"></div>');
-		$this->form->addElement('submit', 'button', $this->lang->ht('Upload'), "onClick=\"$('upload_status').innerHTML='uploading...'; submit(); disabled=true;\"");
+		$this->form->addElement('submit', 'button', $this->lang->ht($this->upload_button_caption), "onClick=\"$('upload_status').innerHTML='uploading...'; submit(); disabled=true;\"");
 
 		if($this->form->validate()) {
 			$this->form->process(array($this,'submit_parent'));

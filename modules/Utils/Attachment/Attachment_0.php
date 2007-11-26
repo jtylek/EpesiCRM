@@ -73,8 +73,8 @@ class Utils_Attachment extends Module {
 		$cols = array();
 		if($vd)
 			$cols[] = array('name'=>'Deleted','order'=>'ual.deleted','width'=>5);
-		$cols[] = array('name'=>'Comment', 'order'=>'uac.text','width'=>65);
-		$cols[] = array('name'=>'File', 'order'=>'ual.original');
+		$cols[] = array('name'=>'Note', 'order'=>'uac.text','width'=>88);
+		$cols[] = array('name'=>'Attachment', 'order'=>'ual.original');
 		$gb->set_table_columns($cols);
 
 		//tag for get.php
@@ -82,9 +82,9 @@ class Utils_Attachment extends Module {
 		$this->set_module_variable('key',$this->key);
 		$this->set_module_variable('group',$this->group);
 		if($vd)
-			$ret = $gb->query_order_limit('SELECT ual.deleted,ual.local,uac.revision,ual.id,uac.created_on as comment_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as comment_by,uac.text,ual.original,ual.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE ual.created_by=l2.id) as upload_by FROM utils_attachment_link ual LEFT JOIN utils_attachment_comment uac ON uac.attach_id=ual.id WHERE ual.attachment_key=\''.$this->key.'\' AND ual.local='.DB::qstr($this->group).' AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_comment x WHERE x.attach_id=uac.attach_id)','SELECT count(*) FROM utils_attachment_link ual WHERE ual.attachment_key=\''.$this->key.'\' AND ual.local='.DB::qstr($this->group));
+			$ret = $gb->query_order_limit('SELECT ual.deleted,ual.local,uac.revision,ual.id,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text,ual.original,ual.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE ual.created_by=l2.id) as upload_by FROM utils_attachment_link ual LEFT JOIN utils_attachment_note uac ON uac.attach_id=ual.id WHERE ual.attachment_key=\''.$this->key.'\' AND ual.local='.DB::qstr($this->group).' AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id)','SELECT count(*) FROM utils_attachment_link ual WHERE ual.attachment_key=\''.$this->key.'\' AND ual.local='.DB::qstr($this->group));
 		else
-			$ret = $gb->query_order_limit('SELECT ual.local,uac.revision,ual.id,uac.created_on as comment_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as comment_by,uac.text,ual.original,ual.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE ual.created_by=l2.id) as upload_by FROM utils_attachment_link ual LEFT JOIN utils_attachment_comment uac ON uac.attach_id=ual.id WHERE ual.attachment_key=\''.$this->key.'\' AND ual.local='.DB::qstr($this->group).' AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_comment x WHERE x.attach_id=uac.attach_id) AND ual.deleted=0','SELECT count(*) FROM utils_attachment_link ual WHERE ual.attachment_key=\''.$this->key.'\' AND ual.local='.DB::qstr($this->group).' AND ual.deleted=0');
+			$ret = $gb->query_order_limit('SELECT ual.local,uac.revision,ual.id,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text,ual.original,ual.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE ual.created_by=l2.id) as upload_by FROM utils_attachment_link ual LEFT JOIN utils_attachment_note uac ON uac.attach_id=ual.id WHERE ual.attachment_key=\''.$this->key.'\' AND ual.local='.DB::qstr($this->group).' AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND ual.deleted=0','SELECT count(*) FROM utils_attachment_link ual WHERE ual.attachment_key=\''.$this->key.'\' AND ual.local='.DB::qstr($this->group).' AND ual.deleted=0');
 		while($row = $ret->FetchRow()) {
 			$r = $gb->get_new_row();
 
@@ -92,10 +92,10 @@ class Utils_Attachment extends Module {
 			if($row['revision']=='0')
 				$info = $this->lang->t('Created by %s<br>Created on %s',array($row['upload_by'],Base_RegionalSettingsCommon::time2reg($row['upload_on'])));
 			else
-				$info = $this->lang->t('Last comment by %s<br>Last comment on %s<br>File uploaded by %s<br>File uploaded on %s',array($row['comment_by'],Base_RegionalSettingsCommon::time2reg($row['comment_on']),$row['upload_by'],Base_RegionalSettingsCommon::time2reg($row['upload_on'])));
+				$info = $this->lang->t('Last note by %s<br>Last note on %s<br>File uploaded by %s<br>File uploaded on %s',array($row['note_by'],Base_RegionalSettingsCommon::time2reg($row['note_on']),$row['upload_by'],Base_RegionalSettingsCommon::time2reg($row['upload_on'])));
 			$r->add_info($info);
 			if($this->edit) {
-				$r->add_action($this->create_callback_href(array($this,'edit_comment'),array($row['id'],$row['text'])),'edit');
+				$r->add_action($this->create_callback_href(array($this,'edit_note'),array($row['id'],$row['text'])),'edit');
 				$r->add_action($this->create_confirm_callback_href($this->lang->ht('Delete this entry?'),array($this,'delete'),$row['id']),'delete');
 				$r->add_action($this->create_callback_href(array($this,'edition_history'),$row['id']),'history');
 			}
@@ -118,15 +118,15 @@ class Utils_Attachment extends Module {
 		$gb = $this->init_module('Utils/GenericBrowser',null,'h'.$this->key);
 		$gb->set_table_columns(array(
 				array('name'=>'Revision', 'order'=>'uac.revision'),
-				array('name'=>'Date', 'order'=>'comment_on'),
-				array('name'=>'Who', 'order'=>'comment_by'),
-				array('name'=>'Comment', 'order'=>'uac.text')
+				array('name'=>'Date', 'order'=>'note_on'),
+				array('name'=>'Who', 'order'=>'note_by'),
+				array('name'=>'Note', 'order'=>'uac.text')
 			));
 
-		$ret = $gb->query_order_limit('SELECT uac.revision,uac.created_on as comment_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as comment_by,uac.text FROM utils_attachment_comment uac WHERE uac.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_comment uac WHERE uac.attach_id='.$id);
+		$ret = $gb->query_order_limit('SELECT uac.revision,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text FROM utils_attachment_note uac WHERE uac.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_note uac WHERE uac.attach_id='.$id);
 		while($row = $ret->FetchRow()) {
 			$r = $gb->get_new_row();
-			$r->add_data($row['revision'],$row['comment_on'],$row['comment_by'],$row['text']);
+			$r->add_data($row['revision'],$row['note_on'],$row['note_by'],$row['text']);
 		}
 		if($this->inline)
 			print('<a '.$this->create_back_href().'>'.$this->lang->t('back').'</a>');
@@ -140,8 +140,9 @@ class Utils_Attachment extends Module {
 	public function attach_file() {
 		$form = & $this->init_module('Utils/FileUpload',array(false));
 		$form->addElement('header', 'upload', $this->lang->t('Attach note'));
-		$fck = $form->addElement('fckeditor', 'comment', $this->lang->t('Comment'));
-		$fck->setFCKProps('800','300',true);
+		$fck = $form->addElement('fckeditor', 'note', $this->lang->t('Note'));
+		$fck->setFCKProps('800','300');
+		$form->set_upload_button_caption('Save');
 		$this->ret_attach = true;
 		$this->display_module($form, array( array($this,'submit_attach') ));
 		return $this->ret_attach;
@@ -150,7 +151,7 @@ class Utils_Attachment extends Module {
 	public function submit_attach($file,$oryg,$data) {
 		DB::Execute('INSERT INTO utils_attachment_link(attachment_key,original,created_by,local) VALUES(%s,%s,%d,%s)',array($this->key,$oryg,Base_UserCommon::get_my_user_id(),$this->group));
 		$id = DB::Insert_ID('utils_attachment_link','id');
-		DB::Execute('INSERT INTO utils_attachment_comment(attach_id,text,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$data['comment'],Base_UserCommon::get_my_user_id()));
+		DB::Execute('INSERT INTO utils_attachment_note(attach_id,text,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$data['note'],Base_UserCommon::get_my_user_id()));
 		if($file) {
 			$local = $this->group.'/'.$id;
 			@mkdir($this->get_data_dir().$this->group,0777,true);
@@ -159,15 +160,15 @@ class Utils_Attachment extends Module {
 		$this->ret_attach = false;
 	}
 
-	public function edit_comment($id,$text) {
+	public function edit_note($id,$text) {
 		if($this->is_back()) return false;
-		$f = $this->init_module('Libs/QuickForm','edit_comment');
-		$f->addElement('header',null,$this->lang->t('Edit comment'));
-		$fck = $f->addElement('fckeditor','comment', $this->lang->t('Comment'));
-		$fck->setFCKProps('800','300',true);
-		$f->setDefaults(array('comment'=>$text));
+		$f = $this->init_module('Libs/QuickForm','edit_note');
+		$f->addElement('header',null,$this->lang->t('Edit note'));
+		$fck = $f->addElement('fckeditor','note', $this->lang->t('Note'));
+		$fck->setFCKProps('800','300');
+		$f->setDefaults(array('note'=>$text));
 		if($f->validate()) {
-			DB::Execute('INSERT INTO utils_attachment_comment(text,attach_id,revision,created_by) VALUES (%s,%d,((SELECT max(x.revision) FROM utils_attachment_comment x WHERE x.attach_id=%d)+1),%d)',array($f->exportValue('comment'),$id,$id,Base_UserCommon::get_my_user_id()));
+			DB::Execute('INSERT INTO utils_attachment_note(text,attach_id,revision,created_by) VALUES (%s,%d,((SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=%d)+1),%d)',array($f->exportValue('note'),$id,$id,Base_UserCommon::get_my_user_id()));
 			return false;
 		} else {
 			if($this->inline) {
@@ -185,7 +186,7 @@ class Utils_Attachment extends Module {
 
 	public function delete($id) {
 		if($this->persistant_deletion) {
-			DB::Execute('DELETE FROM utils_attachment_comment WHERE attach_id=%d',array($id));
+			DB::Execute('DELETE FROM utils_attachment_note WHERE attach_id=%d',array($id));
 			DB::Execute('DELETE FROM utils_attachment_link WHERE id=%d',array($id));
 			unlink($this->get_data_dir().$id);
 		} else {

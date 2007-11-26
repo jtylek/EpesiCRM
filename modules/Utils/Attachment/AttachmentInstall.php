@@ -25,7 +25,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			print('Unable to create table utils_attachment_link.<br>');
 			return false;
 		}
-		$ret &= DB::CreateTable('utils_attachment_comment','
+		$ret &= DB::CreateTable('utils_attachment_note','
 			attach_id I4 NOTNULL,
 			text X NOTNULL,
 			created_by I4,
@@ -33,7 +33,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			revision I4 NOTNULL',
 			array('constraints'=>', UNIQUE(attach_id,revision), FOREIGN KEY (created_by) REFERENCES user_login(ID), FOREIGN KEY (attach_id) REFERENCES utils_attachment_link(id)'));
 		if(!$ret){
-			print('Unable to create table utils_attachment_comment.<br>');
+			print('Unable to create table utils_attachment_note.<br>');
 			return false;
 		}
 		$this->create_data_dir();
@@ -42,7 +42,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 
 	public function uninstall() {
 		$ret = true;
-		$ret &= DB::DropTable('utils_attachment_comment');
+		$ret &= DB::DropTable('utils_attachment_note');
 		$ret &= DB::DropTable('utils_attachment_link');
 		return $ret;
 	}
