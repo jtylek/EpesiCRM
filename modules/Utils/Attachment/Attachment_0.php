@@ -105,9 +105,9 @@ class Utils_Attachment extends Module {
 				$r->add_data($row['text'],$file);
 		}
 		if($this->inline) {
-			print('<a '.$this->create_callback_href(array($this,'attach_file')).'>'.$this->lang->t('Attach file').'</a>');
+			print('<a '.$this->create_callback_href(array($this,'attach_file')).'>'.$this->lang->t('Attach note').'</a>');
 		} else {
-			Base_ActionBarCommon::add('add','Attach file',$this->create_callback_href(array($this,'attach_file')));
+			Base_ActionBarCommon::add('add','Attach note',$this->create_callback_href(array($this,'attach_file')));
 		}
 
 		$this->display_module($gb);
@@ -139,7 +139,7 @@ class Utils_Attachment extends Module {
 
 	public function attach_file() {
 		$form = & $this->init_module('Utils/FileUpload',array(false));
-		$form->addElement('header', 'upload', $this->lang->t('Attach file'));
+		$form->addElement('header', 'upload', $this->lang->t('Attach note'));
 		$fck = $form->addElement('fckeditor', 'comment', $this->lang->t('Comment'));
 		$fck->setFCKProps('800','300',true);
 		$this->ret_attach = true;

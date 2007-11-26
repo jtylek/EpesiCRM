@@ -35,7 +35,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 				'es'=>'spanish',
 				'se'=>'swedish',
 				'tr'=>'turkish');
-	
+
 
 	public static function user_settings() {
 		$now = time();
@@ -50,12 +50,12 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		$tz = timezone_identifiers_list();
 		return array('Regional settings'=>array(
 				//array('type'=>'select','name'=>'currency','label'=>'Currency') //google X pln in usd????
-				array('type'=>'select','name'=>'date','label'=>'Date format', 
+				array('type'=>'select','name'=>'date','label'=>'Date format',
 					'default'=>'%m/%d/%y','values'=>$date_formats),//strftime
-				array('type'=>'select','name'=>'time','label'=>'Time format', 
-					'default'=>'%H:%M:%S','values'=>array('%I:%M:%S %p'=>'12h am/pm', '%H:%M:%S'=>'24h'), 
-					'rule'=>array('type'=>'callback', 
-						'func'=>array('Base_RegionalSettingsCommon','check_12h'), 
+				array('type'=>'select','name'=>'time','label'=>'Time format',
+					'default'=>'%H:%M:%S','values'=>array('%I:%M:%S %p'=>'12h am/pm', '%H:%M:%S'=>'24h'),
+					'rule'=>array('type'=>'callback',
+						'func'=>array('Base_RegionalSettingsCommon','check_12h'),
 						'message'=>'This language does not support 12h clock',
 						'param'=>'__form__')
 				),
@@ -75,13 +75,13 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	public static function default_state_elem($name, $args, & $def_js) {
 		return HTML_QuickForm::createElement('commondata',$name,'State',array('Countries',self::$country_elem_name),array('empty_option'=>true));
 	}
-	
+
 	public static function get_default_location() {
-		$country = Base_User_SettingsCommon::get('Base_RegionalSettings','dafault_country');
-		$state = Base_User_SettingsCommon::get('Base_RegionalSettings','dafault_state');
+		$country = Base_User_SettingsCommon::get('Base_RegionalSettings','default_country');
+		$state = Base_User_SettingsCommon::get('Base_RegionalSettings','default_state');
 		return array(0=>$country,'country'=>$country,'state'=>$state,1=>$state);
 	}
-	
+
 	public static function check_12h($v,$form) {
 		$t = strtotime('2010-01-01 20:00');
 
@@ -97,8 +97,8 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		/*print($v.': '.$t.'<br>');
 		print(strftime($v,$t).'<br>');
 		print(strtotime('2010-01-01 '.strftime($v,$t)).'<br>');*/
-		
-		setlocale(LC_TIME,self::$curr_locale);
+
+		setlocale(LC_TIME,$curr_locale);
 
 		return $ret;
 	}
@@ -109,20 +109,20 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		$format = Base_User_SettingsCommon::get('Base_RegionalSettings','date');
 		if($time)
 			$format .= ' '.Base_User_SettingsCommon::get('Base_RegionalSettings','time');
-		
+
 		self::set_locale();
 		$ret = self::strftime($format,$t);
 		self::restore_locale();
 		return $ret;
 	}
-	
+
 	private static function strftime($format,$timestamp) {
 		$ret = strftime($format,$timestamp);
 		if ( strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' )
 		 	return iconv('','UTF-8',$ret);
 		return $ret;
 	}
-	
+
 	private static function set_locale() {
 		self::$curr_locale = setlocale(LC_TIME,0);
 		$lang_code = strtolower(Base_LangCommon::get_lang_code());
@@ -132,7 +132,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 				$lang_code.'.UTF-8',
 				isset(self::$countries[$lang_code])?self::$countries[$lang_code]:null);//win32
 	}
-	
+
 	private static function restore_locale() {
 		setlocale(LC_TIME,self::$curr_locale);
 	}
@@ -160,7 +160,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 
 		return strtotime($t);
 	}
-	
+
 	public static function server_time($t) {
 		$t = strtotime($t);
 		$curr_tz = date_default_timezone_get();
@@ -178,7 +178,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		date_default_timezone_set($curr_tz);
 		return $ret;
 	}
-	
+
 	public static function date_format() {
 		return Base_User_SettingsCommon::get('Base_RegionalSettings','date');
 	}
@@ -186,11 +186,11 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	public static function timestamp_format() {
 		return Base_User_SettingsCommon::get('Base_RegionalSettings','date').' '.Base_User_SettingsCommon::get('Base_RegionalSettings','time');
 	}
-	
+
 	public static function time_12h() {
 		return '%I:%M:%S %p'==Base_User_SettingsCommon::get('Base_RegionalSettings','time');
 	}
-	
+
 	public static function convert_24h($in) {
 		$t = strtotime($in);
 		$format = Base_User_SettingsCommon::get('Base_RegionalSettings','time');

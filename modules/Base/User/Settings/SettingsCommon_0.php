@@ -1,7 +1,7 @@
 <?php
 /**
  * User_Settings class.
- * 
+ *
  * @author Arkadiusz Bisaga <abisaga@telaxus.com> and Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
@@ -19,7 +19,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 		if (!Acl::is_user()) return array();
 		return array('My settings'=>array('__weight__'=>10,'__submenu__'=>1,'Control panel'=>array()));
 	}
-	
+
 	public static function body_access() {
 		return Acl::is_user();
 	}
@@ -27,21 +27,22 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	public static function admin_access() {
 		return self::Instance()->acl_check('set defaults');
 	}
-	
+
 	public static function admin_caption() {
 		return 'Default user settings';
 	}
 
 	/**
 	 * Returns default setting.
-	 * 
+	 *
 	 * @param string module name
 	 * @param string variable name
 	 * @return mixed variable value
-	 */	
+	 */
 	public static function get_default($module,$name){
 		$module = str_replace('/','_',$module);
 		static $variables;
+		//print('get_default '.$module.':'.$name.';');
 		if (isset($variables[$module])) {
 			if(isset($variables[$module][$name]))
 				return $variables[$module][$name];
@@ -52,7 +53,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 			if(is_array($menu))
 				foreach($menu as $v)
 					foreach($v as $v2) {
-						if(!isset($v2['type'])) trigger_error(print_r($v2,true));
+						if(!isset($v2['type'])) trigger_error('Type not defined in array: '.print_r($v2,true),E_USER_ERROR);
 						if ($v2['type']=='group') {
 							foreach($v2['elems'] as $e)
 								if ($e['type']!='static' && $e['type']!='header') {
@@ -75,11 +76,11 @@ class Base_User_SettingsCommon extends ModuleCommon {
 
 	/**
 	 * Returns admin setting.
-	 * 
+	 *
 	 * @param string module name
 	 * @param string variable name
 	 * @return mixed user value
-	 */	
+	 */
 	public static function get_admin($module,$name){
 		$module = str_replace('/','_',$module);
 		//print('get_admin '.$module.':'.$name.';');
@@ -97,11 +98,11 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	 * Returns user setting.
 	 * If user is logged in, returns user prefered setting,
 	 * otherwise returns default value.
-	 * 
+	 *
 	 * @param string module name
 	 * @param string variable name
 	 * @return mixed user value
-	 */	
+	 */
 	public static function get($module,$name){
 		if (!Acl::is_user()) return null;
 		$module = str_replace('/','_',$module);
@@ -119,12 +120,12 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	/**
 	 * Sets user setting to given value for currently logged in user.
 	 * Returns false if no user is logged in.
-	 * 
+	 *
 	 * @param string module name
 	 * @param string variable name
 	 * @param mixed value
 	 * @return bool true on success, false otherwise
-	 */	
+	 */
 	public static function save($module,$name,$value){
 		if (!Acl::is_user()) return false;
 		//if ($value === null) $value = 0;
@@ -133,7 +134,9 @@ class Base_User_SettingsCommon extends ModuleCommon {
 		if (!isset($def)) return false;
 		if ($value==$def) {
 			DB::Execute('DELETE FROM base_user_settings WHERE user_login_id=%d AND module=%s AND variable=%s',array(Base_UserCommon::get_my_user_id(),$module,$name));
+			if(isset(self::$user_variables)) unset(self::$user_variables[$module][$name]);
 		} else {
+			if(isset(self::$user_variables)) self::$user_variables[$module][$name]=$value;
 			$value = serialize($value);
 			$val = DB::GetOne('SELECT value FROM base_user_settings WHERE user_login_id=%d AND module=%s AND variable=%s',array(Base_UserCommon::get_my_user_id(),$module,$name));
 			if ($val === false)
@@ -147,12 +150,12 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	/**
 	 * Sets admin setting to given value for currently logged in user.
 	 * Returns false on permission denied.
-	 * 
+	 *
 	 * @param string module name
 	 * @param string variable name
 	 * @param mixed value
 	 * @return bool true on success, false otherwise
-	 */	
+	 */
 	public static function save_admin($module,$name,$value){
 		if (!self::Instance()->acl_check('set defaults')) return false;
 		//if ($value === null) $value = 0;
@@ -161,7 +164,9 @@ class Base_User_SettingsCommon extends ModuleCommon {
 		if (!isset($def)) return false;
 		if ($value==$def) {
 			DB::Execute('DELETE FROM base_user_settings_admin_defaults WHERE module=%s AND variable=%s',array($module,$name));
+			if(isset(self::$admin_variables)) unset(self::$admin_variables[$module][$name]);
 		} else {
+			if(isset(self::$admin_variables)) self::$admin_variables[$module][$name]=$value;
 			$value = serialize($value);
 			$val = DB::GetOne('SELECT value FROM base_user_settings_admin_defaults WHERE module=%s AND variable=%s',array($module,$name));
 			if ($val === false)

@@ -27,28 +27,28 @@ class Base_Setup extends Module {
 			$this->parent->reset();
 			return;
 		}
-	
+
 		$post_install = & $this->get_module_variable('post-install');
 		if(!is_array($post_install)) {
 			//create default module form
 			$form = & $this->init_module('Libs/QuickForm','Processing modules');
-	
+
 			//set defaults
 			$form->setDefaults(array (
 				'default_module' => Variable::get('default_module'),
 				'simple' => Variable::get('simple_setup'),
 				'anonymous_setup' => Variable::get('anonymous_setup')));
 	//		print('='.Base_AclCommon::change_privileges('admin', array(Base_AclCommon::sa_group_id())).'=');
-	
+
 			$form->addElement('header', 'install_module_header', 'Modules Administration');
 			//$form->addElement('checkbox','simple','Simple setup','',array('onChange'=>$form->get_submit_form_js(false)));
 			$form->addElement('select','simple','Setup type',array(1=>'Simple',0=>'Advanced'),array('onChange'=>$form->get_submit_form_js(false)));
 			$simple = $form->exportValue('simple');
-	
-	
+
+
 			//install module header
 			$form -> addElement('html','<tr><td colspan=2><br /><b>Please select modules to be installed/uninstalled.<br>For module details please click on "i" icon.</td></tr>');
-			
+
 			//show uninstalled & installed modules
 			$ret = DB::Execute('SELECT * FROM available_modules');
 			$module_dirs = array();
@@ -62,19 +62,19 @@ class Base_Setup extends Module {
 			}
 			if (empty($module_dirs))
 				$module_dirs = Base_SetupCommon::refresh_available_modules();
-	
+
 			$subgroups = array();
 			$structure = array();
 			$def = array();
 			foreach($module_dirs as $entry=>$versions) {
 					$installed = ModuleManager::is_installed($entry);
-	
+
 					$module_install_class = $entry.'Install';
 					$func_simple = array($module_install_class,'simple_setup');
 					$simple_module = is_callable($func_simple) && call_user_func($func_simple);
 					if($simple && !$simple_module) continue;
-	
-	
+
+
 					$func_info = array($module_install_class,'info');
 					if(is_callable($func_info)) {
 						$module_info = call_user_func($func_info);
@@ -87,10 +87,10 @@ class Base_Setup extends Module {
 							print($iii);
 						} else $info = '';
 					} else $info = '';
-	
+
 					$versions[-1]='not installed';
 					ksort($versions);
-	
+
 					$path = explode('_',$entry);
 					$c = & $structure;
 					for($i=0, $path_count = count($path)-1;$i<$path_count;$i++){
@@ -107,31 +107,31 @@ class Base_Setup extends Module {
 					$c[$path[count($path)-1]]['name'] = '<table width=100%><tr><td width=100% align=left>' . $info . ' ' . $path[count($path)-1] . '</td><td align=right>' . $ele->toHtml() . '</td></tr></table>';
 					$c[$path[count($path)-1]]['sub'] = array();
 					array_push($def, array('installed['.$entry.']'=>$installed));
-	
-	
+
+
 			}
-	
+
 			$tree = & $this->init_module('Utils/Tree');
 			$tree->set_structure($structure);
 			if ($simple) $tree->open_all();
 			//$form->addElement('html', '<tr><td colspan=2>'.$tree->toHtml().'</td></tr>');
 			$form->addElement('html', '<tr><td colspan=2>'.$this->get_html_of_module($tree).'</td></tr>');
-	
+
 			if(!$simple) {
 				$form->addElement('header', 'anonymous_header', 'Other (dangerous, don\'t change if you are newbie)');
 				$form->addElement('checkbox','anonymous_setup', 'Anonymous setup');
-	
+
 			//default module
 				$av_modules=array();
 				foreach(ModuleManager::$modules as $name=>$obj)
 					$av_modules[$name] = $name;
 				$form->addElement('select','default_module','Default module to display',$av_modules);
 			}
-	
+
 			//print $tree->toHtml();
-			
+
 			$form->setDefaults($def);
-	
+
 			//validation or display
 			if ($form->exportValue('submited') && $form->validate()) {
 				if($form->process(array (
@@ -149,7 +149,7 @@ class Base_Setup extends Module {
 				Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
 			}
 		}
-		
+
 		if(is_array($post_install)) {
 			foreach($post_install as $i=>$v) {
 				ModuleManager::include_install($i);
@@ -160,7 +160,7 @@ class Base_Setup extends Module {
 					continue;
 				}
 				$ret = call_user_func($f);
-				$form = $this->init_module('Libs/QuickForm');
+				$form = $this->init_module('Libs/QuickForm',null,$i);
 				$form->addElement('header',null,'Post installation of '.str_replace('_','/',$i));
 				$form->add_array($ret);
 				$form->addElement('submit',null,'OK');
@@ -175,7 +175,7 @@ class Base_Setup extends Module {
 			if(empty($post_install))
 				Epesi::redirect();
 		}
-		
+
 	}
 
 	public static function parse_modules_folder_refresh(){
@@ -248,8 +248,8 @@ class Base_Setup extends Module {
 			}
 
 		Base_ThemeCommon::create_cache();
-		
-		$this->set_module_variable('post-install',$install);
+
+		$this->set_module_variable('post-install',ModuleManager::get_processed_modules());
 		return true;
 	}
 }

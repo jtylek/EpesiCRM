@@ -21,6 +21,7 @@ class ModuleManager {
 	public static $modules_common = array();
 	public static $root = array();
 	private static $processing = array();
+	private static $processed_modules = array();
 
 	/**
 	 * Includes file with module installation class.
@@ -363,6 +364,7 @@ class ModuleManager {
 
 		self::create_load_priority_array();
 
+		self::$processed_modules[$module] = $to_version;
 		if($i==$to_version)	{
 			if(DEBUG)
 				print('Module '.$module.' succesfully upgraded to version '.$to_version.'<br>');
@@ -433,6 +435,7 @@ class ModuleManager {
 		self::create_load_priority_array();
 
 		print('Module '.$module.' succesfully downgraded to version '.$to_version.'<br>');
+		self::$processed_modules[$module] = $to_version;
 		return true;
 	}
 
@@ -519,6 +522,7 @@ class ModuleManager {
 		self :: include_common($module_to_install,$version);
 
 		print('</div>');
+		self::$processed_modules[$module_to_install] = $version;
 		return true;
 
 	}
@@ -725,7 +729,12 @@ class ModuleManager {
 		self::create_load_priority_array();
 
 		print ($module_to_uninstall . " module uninstalled! You can safely remove module directory.<br>");
+		self::$processed_modules[$module_to_uninstall] = -1;
 		return true;
+	}
+
+	public static function get_processed_modules() {
+		return self::$processed_modules;
 	}
 
 	/**
