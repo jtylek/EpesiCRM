@@ -73,8 +73,8 @@ class Utils_Attachment extends Module {
 		$cols = array();
 		if($vd)
 			$cols[] = array('name'=>'Deleted','order'=>'ual.deleted','width'=>5);
-		$cols[] = array('name'=>'Note', 'order'=>'uac.text','width'=>88);
-		$cols[] = array('name'=>'Attachment', 'order'=>'ual.original');
+		$cols[] = array('name'=>'Note', 'order'=>'uac.text','width'=>80);
+		$cols[] = array('name'=>'Attachment', 'order'=>'ual.original','width'=>5);
 		$gb->set_table_columns($cols);
 
 		//tag for get.php
