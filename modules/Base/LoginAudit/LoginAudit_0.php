@@ -33,9 +33,9 @@ class Base_LoginAudit extends Module {
 						array('name'=>$this->lang->t('<b>Login</b> -> User Name'),'order'=>'b.user_login_id','width'=>20), 
 						array('name'=>$this->lang->t('Start'), 'order'=>'b.start_time', 'width'=>15), 
 						array('name'=>$this->lang->t('End'),'order'=>'b.end_time','width'=>15),
-                        array('name'=>$this->lang->t('Duration'),'width'=>5),
-                        array('name'=>$this->lang->t('IP Address'),'order'=>'b.ip_address','width'=>15),
-                        array('name'=>$this->lang->t('Host Name'),'order'=>'b.host_name','width'=>35)));
+                        array('name'=>$this->lang->t('Duration'),'width'=>10),
+                        array('name'=>$this->lang->t('IP Address'),'order'=>'b.ip_address','width'=>10),
+                        array('name'=>$this->lang->t('Host Name'),'order'=>'b.host_name','width'=>30)));
 
         $gb->set_default_order(array($this->lang->t('End')=>'DESC'));
 
@@ -78,24 +78,28 @@ class Base_LoginAudit extends Module {
         $form = $this->init_module('Libs/QuickForm',null,'purge_date');
         
         $form->addElement('header',null,$this->lang->t('Audit Log Maintenance'));
-        $form -> addElement('html','<tr><td colspan=2><br />'.$this->lang->t('Log records older than specified below will be deleted').'</td></tr>');
-        $form->addElement('select','purge_date',$this->lang->t('Select number of days'), array(-1=>'None',30=>30,90=>90,365=>365,1=>'All'));
+        $form -> addElement('html','<tr><td colspan=2><br />'.$this->lang->t('Purge log with records older than specified number of days:').'</td></tr>');
+        $form->addElement('select','purge_date',$this->lang->t('Select number of days'), array(30=>30,90=>90,365=>365,1=>'All'));
 		$purge_date = $form->exportValue('purge_date');
         $form->display();
         
-        $del_date=strtotime("-".$purge_date." days",time());
-        if ($purge_date==-1) {
-            print ('Nothing to purge');
-        } else {
+        if (!$purge_date==null){
+            $del_date=strtotime("-".$purge_date." days",time());
+            $sql_date=date('Y-m-d H:i:s',$del_date);
+            # print ('<br/> date: '.$sql_date.'<br />');
             if ($purge_date==1) {
-                print ('Entire log will be purged');
-            }else{
-                print ('Purging log: '.$purge_date.' -> '.date('M d Y',$del_date));
+                $sql_query = 'Delete FROM base_login_audit';
+                $ret = DB::Execute($sql_query);
+                print ($this->lang->t('Entire log was be purged!'));
+            } else {
+                $sql_query = 'Delete FROM base_login_audit where start_time < \''.$sql_date.'\'';
+                $ret = DB::Execute($sql_query);
+                print ($this->lang->t('Records older than ').$purge_date.$this->lang->t(' days (').date('Y-m-d',$del_date).$this->lang->t(') were purged.'));
             }
         }
-        
+           
         Base_ActionBarCommon::add('back',$this->lang->t('Back'),$this->create_back_href());
-        Base_ActionBarCommon::add('delete',$this->lang->t('Purge Log File'),$form->get_submit_form_href());
+        Base_ActionBarCommon::add('delete',$this->lang->t('Purge Log File'),'href="javascript:void(0)" onClick="if(confirm(\'Log will be purged!\')){'.$form->get_submit_form_js().'}"');
         return true;
     }
 }
