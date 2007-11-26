@@ -12,18 +12,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_LoginAudit extends Module {
     
     public function admin() {
-        $purge = $this->get_unique_href_variable('purge_log');
-        $purge_date = $this->get_unique_href_variable('purge_date');
-        print ('purge: '.$purge);
-        print ('<br />purge_date: '.$purge_date);
-		if($purge==1) {
-			$this->purge_log($purge_date);
-        } else {
-            $this->show_log();
-        }
-    }
-        
-    public function show_log() {
         
 	    $this->lang = & $this->init_module('Base/Lang');
         
@@ -76,25 +64,39 @@ class Base_LoginAudit extends Module {
         		
 		$this->display_module($gb);
         
-        Base_ActionBarCommon::add('settings',$this->lang->t('Audit Log Maintenance'),$this->create_unique_href(array('purge_log'=>1)));
+        Base_ActionBarCommon::add('settings',$this->lang->t('Audit Log Maintenance'),$this->create_callback_href(array($this, 'purge_log')));
+        return true;
 	}
 	
-    public function purge_log($pd){
+    public function purge_log(){
+        
+        # Return to main body
+        if($this->is_back()) return false;
         
         $this->lang = & $this->init_module('Base/Lang');
         
         $form = $this->init_module('Libs/QuickForm',null,'purge_date');
         
+        $form->addElement('header',null,$this->lang->t('Audit Log Maintenance'));
+        $form -> addElement('html','<tr><td colspan=2><br />'.$this->lang->t('Log records older than specified below will be deleted').'</td></tr>');
         $form->addElement('select','purge_date',$this->lang->t('Select number of days'), array(-1=>'None',30=>30,90=>90,365=>365,1=>'All'));
 		$purge_date = $form->exportValue('purge_date');
         $form->display();
         
-        #$purge_date = $this->get_unique_href_variable('purge_date');
-        print ('Purging log...'.$purge_date);
+        $del_date=strtotime("-".$purge_date." days",time());
+        if ($purge_date==-1) {
+            print ('Nothing to purge');
+        } else {
+            if ($purge_date==1) {
+                print ('Entire log will be purged');
+            }else{
+                print ('Purging log: '.$purge_date.' -> '.date('M d Y',$del_date));
+            }
+        }
         
-        # Base_StatusBarCommon::Message('Purging audit log...');
-        Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
-        Base_ActionBarCommon::add('delete',$this->lang->t('Purge Log File'),$this->create_unique_href(array('purge_log'=>1,'purge_date'=>10)));
+        Base_ActionBarCommon::add('back',$this->lang->t('Back'),$this->create_back_href());
+        Base_ActionBarCommon::add('delete',$this->lang->t('Purge Log File'),$form->get_submit_form_href());
+        return true;
     }
 }
 
