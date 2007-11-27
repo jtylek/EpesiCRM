@@ -55,6 +55,16 @@ class Base_User_Login extends Module {
 	public function body() {
 		$this->lang = & $this->init_module('Base/Lang');
 
+		//check bans
+		$t = Variable::get('host_ban_time');
+		if($t>0) {
+			$fails = DB::GetOne('SELECT count(*) FROM user_login_ban WHERE failed_on>%d AND from_addr=%s',array(time()-$t,$_SERVER['REMOTE_ADDR']));
+			if($fails>=3) {
+				print('<a href="'.get_epesi_url().'">'.$this->lang->t('Host banned. Click here to refresh.').'</a>');
+				return;
+			}
+		}
+
 		$theme =  & $this->pack_module('Base/Theme');
 
 		//if logged
@@ -123,7 +133,18 @@ class Base_User_Login extends Module {
 	}
 
 	public static function submit_login($username, $form) {
-		return Base_User_LoginCommon::check_login($username, $form->exportValue('password'));
+		$ret = Base_User_LoginCommon::check_login($username, $form->exportValue('password'));
+		if(!$ret) {
+			$t = Variable::get('host_ban_time');
+			if($t>0) {
+				DB::Execute('DELETE FROM user_login_ban WHERE failed_on<=%d',array(time()-$t));
+				DB::Execute('INSERT INTO user_login_ban(failed_on,from_addr) VALUES(%d,%s)',array(time(),$_SERVER['REMOTE_ADDR']));
+				$fails = DB::GetOne('SELECT count(*) FROM user_login_ban WHERE failed_on>%d AND from_addr=%s',array(time()-$t,$_SERVER['REMOTE_ADDR']));
+				if($fails>=3)
+					location(array());
+			}
+		}
+		return $ret;
 	}
 
 	public function recover_pass() {

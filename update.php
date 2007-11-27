@@ -19,7 +19,7 @@ function themeup(){
 		if (!is_dir($data_dir.'/'.$name)){
 			unlink($data_dir.'/'.$name);
 		}
-	}	
+	}
 	$ret = DB::Execute('SELECT * FROM modules');
 	while($row = $ret->FetchRow()) {
 		$directory = 'modules/'.str_replace('_','/',$row[0]).'/theme_'.$row['version'];
@@ -58,6 +58,9 @@ function update_from_0_9_0_to_0_9_1() {
 			value X NOTNULL',
 			array('constraints'=>', PRIMARY KEY(module,variable), FOREIGN KEY (module) REFERENCES modules(name)'));
 
+	DB::CreateTable('user_login_ban',"failed_on I4, from_addr C(32)");
+	Variable::set('host_ban_time',300);
+
 	themeup();
 }
 function update_from_0_8_11_to_0_9_0() {
@@ -71,7 +74,7 @@ function update_from_0_8_11_to_0_9_0() {
 
 	// Reducing Base_Admin version number
 	DB::Execute('UPDATE modules SET version=0 WHERE name=\'Base_Admin\'');
-	
+
 	// flat datadir structure
 	$tmp_dir = rtrim(sys_get_temp_dir(),'\\/').'/';
 	recursive_copy('data',$tmp_dir.'data_old');
@@ -147,7 +150,7 @@ function update_from_0_8_11_to_0_9_0() {
 		value X NOTNULL',
 		array('constraints'=>', FOREIGN KEY (applet_id) REFERENCES base_dashboard_default_applets(ID), PRIMARY KEY(applet_id,name)'));
 	$this->add_aco('set default dashboard','Super administrator');
-	
+
 	DB::CreateTable('base_user_settings_admin_defaults','
 		module C(128) NOTNULL,
 		variable C(32) NOTNULL,
@@ -160,7 +163,7 @@ function update_from_0_8_11_to_0_9_0() {
 
 	$ret = DB::dict()->AddColumnSQL('user_password','autologin_id C(32)');
 	DB::Execute($ret[0]);
-	
+
 	// flush
 	themeup();
 }
