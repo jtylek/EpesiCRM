@@ -49,7 +49,7 @@
 
 {/if}
 
-<!-- SHADIW BEGIN -->
+<!-- SHADOW BEGIN -->
 	<div class="layer" style="padding: 9px; width: 98%; min-height: 22px;">
 		<div class="content_shadow">
 <!-- -->

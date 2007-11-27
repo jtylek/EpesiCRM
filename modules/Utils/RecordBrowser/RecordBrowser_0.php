@@ -315,12 +315,15 @@ class Utils_RecordBrowser extends Module {
 			$theme -> assign('info_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(Utils_RecordBrowserCommon::get_html_record_info($this->tab, $id)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_GenericBrowser','info.png').'" /></a>');
 			$row_data = array();
 			$fav = DB::GetOne('SELECT user_id FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%s', array(Base_UserCommon::get_my_user_id(), $id));
+			
 			if ($this->favorites) {
 				$theme -> assign('fav_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(($isfav?$this->lang->t('This item is on your favourites list<br>Click to remove it from your favorites'):$this->lang->t('Click to add this item to favorites'))).' '.$this->create_callback_href(array($this,($isfav?'remove_from_favs':'add_to_favs')), array($id)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','star_'.($isfav==false?'no':'').'fav.png').'" /></a>');
+				/* Favorites are handled by an icon within the body - ActionBar icon is no necessary
 				if ($fav===false)
 					Base_ActionBarCommon::add('folder', $this->lang->ht('Add to Favs'), $this->create_callback_href(array($this,'add_to_favs'), array($id)));
 				else
 					Base_ActionBarCommon::add('folder', $this->lang->ht('Remove from Favs'), $this->create_callback_href(array($this,'remove_from_favs'), array($id)));
+				*/
 			}
 		}
 

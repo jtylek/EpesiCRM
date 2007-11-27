@@ -107,7 +107,7 @@ class Utils_Attachment extends Module {
 		if($this->inline) {
 			print('<a '.$this->create_callback_href(array($this,'attach_file')).'>'.$this->lang->t('Attach note').'</a>');
 		} else {
-			Base_ActionBarCommon::add('add','Attach note',$this->create_callback_href(array($this,'attach_file')));
+			Base_ActionBarCommon::add('folder','Attach note',$this->create_callback_href(array($this,'attach_file')));
 		}
 
 		$this->display_module($gb);
