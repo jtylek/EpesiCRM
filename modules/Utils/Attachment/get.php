@@ -4,6 +4,7 @@ if(!isset($_REQUEST['cid']) || !isset($_REQUEST['id']) || !isset($_REQUEST['path
 $cid = $_REQUEST['cid'];
 $path = $_REQUEST['path'];
 $id = $_REQUEST['id'];
+$rev = $_REQUEST['revision'];
 
 define('CID', $cid);
 require_once('../../../include.php');
@@ -14,8 +15,8 @@ $local = Module::static_get_module_variable($path,'group',null);
 session_commit();
 if(!$allow || !$key || $local===null)
     die('Permission denied');
-$original = DB::GetOne('SELECT ual.original FROM utils_attachment_link ual WHERE ual.attachment_key='.DB::qstr($key).' AND ual.local='.DB::qstr($local));
-$filename = $local.'/'.$id;
+$original = DB::GetOne('SELECT ual.original FROM utils_attachment_file ual WHERE ual.attach_id='.DB::qstr($id).' AND ual.revision='.DB::qstr($rev));
+$filename = $local.'/'.$id.'_'.$rev;
 
 if(headers_sent())
     die('Some data has already been output to browser, can\'t send file');

@@ -13,6 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_FileUpload extends Module {
 	private $on_submit = null;
+	private $on_submit_args = array();
 	private $form = null;
 	private $upload_button_caption = 'Upload';
 
@@ -72,6 +73,9 @@ class Utils_FileUpload extends Module {
 	 */
 	public function set_submit_callback($sub) {
 		$this->on_submit = $sub;
+		$args = func_get_args();
+		array_shift($args);
+		$this->on_submit_args = $args;
 	}
 
 	/**
@@ -83,15 +87,11 @@ class Utils_FileUpload extends Module {
 		$this->upload_button_caption = $x;
 	}
 
-	/**
-	 * Displays the form.
-	 *
-	 * @param method method for submit action
-	 */
-	public function body($on_sub) {
-		if(isset($on_sub)) $this->on_submit = $on_sub;
-		if(!isset($this->on_submit)) trigger_error('You have to specify "on submit" method',E_USER_ERROR);
-
+	public function add_upload_element() {
+		static $added_upload_elem = false;
+		if($added_upload_elem) return;
+		$added_upload_elem = true;
+		
 		$this->form->addElement('hidden','uploaded_file');
 		$this->form->addElement('hidden','original_file');
 		$form_name = $this->form->getAttribute('name');
@@ -105,6 +105,21 @@ class Utils_FileUpload extends Module {
 		$this->form->addElement('file', 'file', $this->lang->ht('Specify file'));
 		$this->form->addElement('static',null,$this->lang->t('Upload status'),'<div id="upload_status"></div>');
 		$this->form->addElement('submit', 'button', $this->lang->ht($this->upload_button_caption), "onClick=\"$('upload_status').innerHTML='uploading...'; submit(); disabled=true;\"");
+	}
+
+	/**
+	 * Displays the form.
+	 *
+	 * @param method method for submit action
+	 */
+	public function body($on_sub) {
+		if(isset($on_sub)) {
+			$args = func_get_args();
+			call_user_func_array(array($this,'set_submit_callback'),$args);
+		}
+		if(!isset($this->on_submit)) trigger_error('You have to specify "on submit" method',E_USER_ERROR);
+
+		$this->add_upload_element();
 
 		if($this->form->validate()) {
 			$this->form->process(array($this,'submit_parent'));
@@ -116,7 +131,7 @@ class Utils_FileUpload extends Module {
 	 * For internal use only.
 	 */
 	public function submit_parent($data) {
-		if(call_user_func($this->on_submit, $data['uploaded_file'], $data['original_file'], $data))
+		if(call_user_func_array($this->on_submit, array_merge(array($data['uploaded_file'], $data['original_file'], $data),$this->on_submit_args)))
 			location(array());
 		@unlink($data['uploaded_file']);
 	}
