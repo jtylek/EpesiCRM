@@ -14,7 +14,7 @@ class Tests_Leightbox extends Module{
 		print(Utils_CalendarCommon::show('test','alert(__DAY__+\'.\'+__MONTH__+\'.\'+__YEAR__ )'));
 
 		$form = $this->init_module('Libs/QuickForm', null, 'RBpicker_test');
-		$form->addElement('multiselect', 'test', 'Test', array(1=>0, 6=>1, 7=>2, 8=>3));
+		$form->addElement('multiselect', 'test', 'Test', array(1=>0, 4=>1, 7=>2, 8=>3));
 		$form->addElement('submit', 'submit', 'Submit');
 		$form->display();
 		if ($form->validate()) print_r($form->exportValues());

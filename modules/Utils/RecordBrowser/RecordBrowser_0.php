@@ -133,15 +133,10 @@ class Utils_RecordBrowser extends Module {
 		}
 		$gb = $this->init_module('Utils/GenericBrowser', null, $this->tab);
 		
-/*		if ($admin)
-			$table_columns = array(array('name'=>'Active', 'width'=>1));
-		else
-*/
-		if (!$admin && $this->favorites)
+		if ($special)
+			$table_columns = array(array('name'=>'Add', 'width'=>1, 'order'=>'Add'));
+		elseif (!$admin && $this->favorites)
 			$table_columns = array(array('name'=>'Fav', 'width'=>1, 'order'=>'Fav'));
-		else 
-			$table_columns = array();
-		
 		$table_columns_SQL = array();
 		$quickjump = DB::GetOne('SELECT quickjump FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 		foreach($this->table_rows as $field => $args) {
@@ -183,6 +178,7 @@ class Utils_RecordBrowser extends Module {
 		}
 //		$limit = $gb->get_limit(count($records));
 //		$count = -1;
+		if ($special) $rpicker_ind = array();
 		foreach ($records as $row) {
 			$gb_row = $gb->get_new_row();
 /*			if ($admin)
@@ -191,7 +187,13 @@ class Utils_RecordBrowser extends Module {
 			if (!$admin && $this->favorites) {
 				$isfav = DB::GetOne('SELECT user_id FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%d', array(Base_UserCommon::get_my_user_id(), $row['id']));
 				$row_data = array('<a '.Utils_TooltipCommon::open_tag_attrs(($isfav?$this->lang->t('This item is on your favourites list<br>Click to remove it from your favorites'):$this->lang->t('Click to add this item to favorites'))).' '.$this->create_callback_href(array($this,($isfav?'remove_from_favs':'add_to_favs')), array($row['id'])).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','star_'.($isfav==false?'no':'').'fav.png').'" /></a>');
-			} else $row_data = array(); 
+			} else $row_data = array();
+			if ($special) { 
+				$func = $this->get_module_variable('format_func');
+				$element = $this->get_module_variable('element');
+				$row_data = array('<a href="javascript:addto_'.$element.'('.$row['id'].', \''.call_user_func($func, $row['id']).'\');"><img src="null"  border="0" name="leightbox_rpicker_'.$row['id'].'" /></a>');
+				$rpicker_ind[] = $row['id'];
+			}
 //			$count++;
 //			if ($count<$limit['offset'] || $count>=$limit['numrows']+$limit['offset']) continue;
 			
@@ -247,16 +249,13 @@ class Utils_RecordBrowser extends Module {
 					$gb_row->add_action($this->create_href(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($this->tab), 'tab'=>$this->tab, 'id'=>$row['id'], 'action'=>'edit')),$this->lang->t('Edit'));
 					$gb_row->add_action($this->create_href(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($this->tab), 'tab'=>$this->tab, 'id'=>$row['id'], 'action'=>'delete')),$this->lang->t('Delete'));
 				}
-			} else {
-//				$gb_row->add_action($this->create_callback_href(array($this,'rbpicker_select'),array($row['id'])),$this->lang->t('Add'));
-				$func = $this->get_module_variable('format_func');
-				$element = $this->get_module_variable('element');
-				$gb_row->add_action('href="javascript:addto_'.$element.'('.$row['id'].', \''.call_user_func($func, $row['id']).'\');"', $this->lang->t('Add'));
 			}
 			$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info($this->tab, $row['id']));
 		}
-		if ($special) return $this->get_html_of_module($gb, null, 'automatic_display');
-		else $this->display_module($gb, null, 'automatic_display');
+		if ($special) {
+			$this->set_module_variable('rpicker_ind',$rpicker_ind);
+			return $this->get_html_of_module($gb, null, 'automatic_display');
+		} else $this->display_module($gb, null, 'automatic_display');
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
 	public function view_entry($mode='view', $id = null, $defaults = array()) {
@@ -907,32 +906,54 @@ class Utils_RecordBrowser extends Module {
 	}
 	public function recordpicker($element, $format) {
 		if (!isset($this->lang)) $this->lang = $this->init_module('Base/Lang');
+		$icon_on = 'data/Base_Theme/templates/default/Utils_GenericBrowser__active-on.png';
+		$icon_off = 'data/Base_Theme/templates/default/Utils_GenericBrowser__active-off.png';
+		// TODO: independant
 		$this->set_module_variable('element',$element);
 		$this->set_module_variable('format_func',$format);
-		print('<hr><a rel="leightbox_'.$element.'" class="lbOn">'.$element.'</a>'.
+		print('<hr><a rel="leightbox_'.$element.'" class="lbOn" onclick="init_all_rpicker_'.$element.'();">'.$element.'</a>'.
 			'<div id="leightbox_'.$element.'" class="leightbox">'.
 			'<h1>'.$this->lang->t('Select records').'</h1>'.
 			$this->show_data(array(), array(), false, false, true).
 			'<a href="#" class="lbAction" rel="deactivate">Close</a>'.
 			'</div><hr>');
-//	}
-//	public function rbpicker_select($id){
-//		$element = $this->get_module_variable('element');
+		$rpicker_ind = $this->get_module_variable('rpicker_ind');
+		eval_js(
+			'rpicker_init_'.$element.' = function(id){'.
+			'	img = document.getElementsByName(\'leightbox_rpicker_\'+id)[0];'.
+			'	tolist = document.getElementsByName(\''.$element.'to[]\')[0];'.
+			'	k = 0;'.
+			'	img.src = "'.$icon_off.'";'.
+			'	while (k!=tolist.length) {'.
+			'		if (tolist.options[k].value == id) {'.
+			'			img.src = "'.$icon_on.'";'.
+			'			break;'.
+			' 		}'. 
+			'		k++;'.
+			'	}'.
+			'}');
+		$init_func = 'init_all_rpicker_'.$element.' = function(id, cstring){';
+		foreach($rpicker_ind as $v)
+			$init_func .= 'rpicker_init_'.$element.'('.$v.');';
+		$init_func .= '}';
+		eval_js($init_func.';init_all_rpicker_'.$element.'();');
 		eval_js(
 			'addto_'.$element.' = function(id, cstring){'.
 			'tolist = document.getElementsByName(\''.$element.'to[]\')[0];'.
 			'fromlist = document.getElementsByName(\''.$element.'from[]\')[0];'.
+			'img = document.getElementsByName(\'leightbox_rpicker_\'+id)[0];'.
 			'list = \'\';'.
 			'k = 0;'.
-			'i = false;'.
 			'while (k!=tolist.length) {'.
 			'	if (tolist.options[k].value == id) {'.
-			'		i = true;'.
-			'		break;'.
+			'		x = 0;'.
+			'		while (x!=tolist.length) tolist.options[x].selected = (k==x++);'.
+			'		remove_selected_'.$element.'();'.
+			'		img.src = "'.$icon_off.'";'.
+			'		return;'.
 			' 	}'. 
 			'	k++;'.
 			'}'.
-			'if (i) return;'.
 			'k = 0;'.
 			'i = false;'.
 			'while (k!=fromlist.length) {'.
@@ -940,7 +961,6 @@ class Utils_RecordBrowser extends Module {
 			'	if (fromlist.options[k].value == id) {'.
 			'		fromlist.options[k].selected = true;'.
 			'		i = true;'.
-			'		break;'.
 			' 	}'. 
 			'	k++;'.
 			'}'.
@@ -950,9 +970,9 @@ class Utils_RecordBrowser extends Module {
 			'	fromlist.options[k].text = cstring;'.
 			'	fromlist.options[k].value = id;'.
 			'}'.
+			'img.src = "'.$icon_on.'";'.
 			'add_selected_'.$element.'();'.
 			'};');
-//		return false;
 	}
 }
 ?>
