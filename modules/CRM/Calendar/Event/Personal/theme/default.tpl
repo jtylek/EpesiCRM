@@ -1,174 +1,216 @@
+
 {if $view_style == 'new_event'}
 	{$form_open}
-    <div>
-    <table name=CRMCalendar class=form cellspacing=0>
+
+    <div id="CRM_Calendar_Event_Personal">
+
+<!-- SHADIW BEGIN -->
+	<div class="layer" style="padding: 9px; width: 700px; height: 500px;">
+		<div class="content_shadow">
+<!-- -->
+
+    <table name="CRMCalendar" class="form" cellspacing="0" cellpadding="0" border="0">
+    <tbody>
     	<tr>
-    		<td style='border-bottom: 1px double black; border-right: 1px double black; width: 50%' style='padding: 10;'>
-	    		<table cellspacing=0>
+    		<td class="left">
+	    		<table cellspacing="0" cellpadding="0" border="0">
+                <tbody>
 					{if $form_data.title.error}
-						<tr><td colspan=4><span class=error>{$form_data.title.error}</span></td></tr>
+					<tr>
+                        <td colspan="4"><span class="error">{$form_data.title.error}</span></td>
+                    </tr>
 					{/if}
 					<tr>
-						<td class=group_bottom align=left>{$form_data.title.label}</td>
-						<td class=group_bottom align=left colspan=3>
-						{$form_data.title.html}
-						</td>
+						<td class="group_bottom label bold" align="left">{$form_data.title.label}</td>
+						<td class="group_bottom data bold" align="left" colspan="3">{$form_data.title.html}</td>
 					</tr>
 					{if $repeatable == 0}
-						{*** date and time for non-rep event ***} 
+						{*** date and time for non-rep event ***}
 						{math assign="span" equation="x" x=2}
 						{if $form_data.date_s.error}
-							<tr><td colspan=3><span class=error>{$form_data.date_s.error}</span></td></tr>
+					<tr>
+                        <td colspan="3"><span class="error">{$form_data.date_s.error}</span></td>
+                    </tr>
 						{/if}
 						{if $form_data.date_e.error}
 							{math assign="span" equation="x+1" x=$span}
 						{/if}
-						<tr>
-					  		<td class=nowrap align=left>{$form_data.date_s.label}</td>
-					 		<td class=nowrap align=left>{$form_data.date_s.html}</td>
+                        <tr>
+					  		<td class="nowrap label" align="left">{$form_data.date_s.label}</td>
+					 		<td class="nowrap data" align="left">{$form_data.date_s.html}</td>
 						  		{if $timeless == 0}
-							  		<td class=nowrap align=left>{$form_data.time_s.html}</td>
-							  		<td rowspan={$span} class=group_bottom>{$form_data.timeless.html}{$form_data.timeless.label}</td>
+							  		<td class="nowrap data" align="left">{$form_data.time_s.html}</td>
+							  		<td rowspan={$span} class="group_bottom data padd">{$form_data.timeless.html}{$form_data.timeless.label}</td>
 								{else}
-							  		<td colspan=2 rowspan={$span} class=group_bottom>{$form_data.timeless.html}{$form_data.timeless.label}</td>
+							  		<td colspan="2" rowspan={$span} class="group_bottom data padd">{$form_data.timeless.html}{$form_data.timeless.label}</td>
 							  	{/if}
-						</tr>
+                        </tr>
 						{if $form_data.date_e.error}
-							<tr><td colspan=3><span class=error>{$form_data.date_e.error}</span></td></tr>
+							<tr><td colspan="3"><span class="error">{$form_data.date_e.error}</span></td></tr>
 						{/if}
 						<tr>
-					  		<td class=nowrap style='border-bottom: 1px double black;' align=left>{$form_data.date_e.label}</td>
-					  		<td class=nowrap style='border-bottom: 1px double black;' align=left>{$form_data.date_e.html}</td>
+					  		<td class="nowrap label">{$form_data.date_e.label}</td>
+					  		<td class="nowrap data">{$form_data.date_e.html}</td>
 						 	{if $timeless == 0}
-						 		<td class=nowrap style='border-bottom: 1px double black;'>{$form_data.time_e.html}</td>
+						 		<td class="nowrap data">{$form_data.time_e.html}</td>
 						 	{/if}
 				 		</tr>
 				 	{else}
 				 		<tr>
-				 			<td align=left>{$form_data.date_s.label}</td>
-					 		<td align=left>{$form_data.date_s.html}</td>
+				 			<td style="label" align="left">xxx11{$form_data.date_s.label}</td>
+					 		<td style="data" align="left">xxx12{$form_data.date_s.html}</td>
 				 		</tr>
 				 		<tr>
-					 		<td align=left>{$form_data.date_e.label}</td>
+					 		<td align="left">{$form_data.date_e.label}</td>
 					 		{if $repeat_forever == 0}
-						 		<td align=left>{$form_data.date_e.html}</td>
-								<td align=left>{$form_data.repeat_forever.html}{$form_data.repeat_forever.label}</td>
+						 		<td class="label" align="left">xxx13{$form_data.date_e.html}</td>
+								<td class="data" align="left">xxx14{$form_data.repeat_forever.html}{$form_data.repeat_forever.label}</td>
 							{else}
-								<td colspan=2 align=left>{$form_data.repeat_forever.html}{$form_data.repeat_forever.label}</td>
+								<td colspan="2" align="left">xxx15{$form_data.repeat_forever.html}{$form_data.repeat_forever.label}</td>
 						 	{/if}
 				 		</tr>
 					 	<tr>
-						  	<td align=left>{$form_data.time_s.label}</td>
+						  	<td align="left">xxx16{$form_data.time_s.label}</td>
 						  	{if $timeless == 0}
-						  		<td align=left>{$form_data.time_s.html}</td>
-					 			<td align=left rowspan=2>{$form_data.timeless.html}{$form_data.timeless.label}</td>
-					 		{else}	
+						  		<td align="left">xxx17{$form_data.time_s.html}</td>
+					 			<td align="left" rowspan="2">xxx18{$form_data.timeless.html}{$form_data.timeless.label}</td>
+					 		{else}
 					 			<td align=left colspan=2 rowspan=2>{$form_data.timeless.html}{$form_data.timeless.label}</td>
 					 		{/if}
 					 	<tr>
 							<td align=left>{$form_data.time_e.label}</td>
 					 		{if $timeless == 0}
-						 		<td align=left>{$form_data.time_e.html}</td>
+						 		<td align="left">{$form_data.time_e.html}</td>
 							{/if}
 					  	</tr>
 					  	<tr>
-							<td align=left>{$form_data.repeat_header.label}</td>
+							<td align="left">{$form_data.repeat_header.label}</td>
 						</tr>
 						<tr>
-							<td class=group_bottom colspan=3 align=right>
-						  	<table width=90%>
+							<td class="group_bottom" colspan="3" align="right">
+						  	<table>
+                                <tbody>
 							  	<tr>
-									<td width=33% align=left>{$form_data.month_r.label}</td>
-									<td width=33% align=left>{$form_data.day_m_r.label}</td>
-									<td width=33% align=left>{$form_data.day_w_r.label}</td>
+									<td align=left>{$form_data.month_r.label}</td>
+									<td align=left>{$form_data.day_m_r.label}</td>
+									<td align=left>{$form_data.day_w_r.label}</td>
 							  	</tr>
 							  	<tr>
 									<td align=left>{$form_data.month_r.html}</td>
 									<td align=left>{$form_data.day_m_r.html}</td>
 									<td align=left colspan=3>{$form_data.day_w_r.html}</td>
 							  	</tr>
+                                </tbody>
 							</table>
 							</td>
 						</tr>
 				 	{/if}
 					{**********}
 					<tr>
-					  <td class=group_bottom align=left>{$form_data.act_id.label}</td>
-					  <td class=group_bottom align=left colspan=3>{$form_data.act_id.html}</td>
+					  <td class="group_bottom label" align="left">{$form_data.act_id.label}</td>
+					  <td class="group_bottom data" align="left" colspan="3">{$form_data.act_id.html}</td>
 					</tr>
 					{*********}
 					<tr>
-					  <td align=left>{$form_data.access.0.label}</td>
-					  <td align=left colspan=3>{$form_data.access.0.html}{$form_data.access.1.html}{$form_data.access.2.html}</td>
+					  <td class="label" align="left">{$form_data.access.0.label}</td>
+					  <td class="data" align="left" colspan="3">{$form_data.access.0.html}{$form_data.access.1.html}{$form_data.access.2.html}</td>
 					</tr>
 					<tr>
-					  	<td align=left width=15%>{$form_data.priority.0.label}</td>
-						<td align=left colspan=3>{$form_data.priority.0.html}{$form_data.priority.1.html}{$form_data.priority.2.html}</td>
+					  	<td class="label" align="left">{$form_data.priority.0.label}</td>
+						<td class="data" align="left" colspan="3">{$form_data.priority.0.html}{$form_data.priority.1.html}{$form_data.priority.2.html}</td>
 					</tr>
+                </tbody>
 				</table>
-			</td>
-			<td style='border-bottom: 1px double black; vertical-align: top;'>
-				<table cellspacing=0 width=100%>
+			</td> <!-- td.left -->
+			<td class="right">
+				<table cellspacing="0" cellpadding="0" border="0">
+                <tbody>
 					<tr>
-					  <td align=left>{$form_data.rel_com_id.label}</td>
-					  <td align=left colspan=3>
-					 	{$form_data.rel_com_id.html}
-					  </td>
+					  <td class="label" >{$form_data.rel_com_id.label}</td>
+					  <td class="data" colspan="3">{$form_data.rel_com_id.html}</td>
 					</tr>
 					{if $form_data.emp_id.error}
-						<tr><td colspan=2><span class=error>{$form_data.emp_id.error}</span></td></tr>
+					<tr>
+                        <td colspan="2"><span class="error">{$form_data.emp_id.error}</span></td>
+                    </tr>
 					{/if}
 					<tr>
-						<td align=left colspan=2> {$form_data.emp_id.label}</td>
+                        <td class="label" colspan="2"> {$form_data.emp_id.label}</td>
 					</tr>
-					
+
 					{if $edit_mode == 1}
 						{$form_data.id.html}{$form_data.id.label}
 						<tr>
-							<input type=hidden name=id value={$event_id}>
-							<input type=hidden name=gid value={$event_gid}>
+							<input type="hidden" name="id" value={$event_id}>
+							<input type="hidden" name="gid" value={$event_gid}>
 							{$form_data.gid.html}
-							
-							<td class=group_bottom align=left colspan=2>{$form_data.emp_id.html}</td>
+							<td class="group_bottom data" colspan="2">{$form_data.emp_id.html}</td>
 						</tr>
 						<tr>
-							<td align=left>{$form_data.created.label}</td>
-							<td align=left>{$form_data.created.html}</td>
+							<td class="label">{$form_data.created.label}</td>
+							<td class="data">{$form_data.created.html}</td>
 						</tr>
 						<tr>
-							<td align=left>{$form_data.edited.label}</td>
-							<td align=left>{$form_data.edited.html}</td>
+							<td class="label">{$form_data.edited.label}</td>
+							<td class="data">{$form_data.edited.html}</td>
 						</tr>
 					{else}
 						<tr>
-							<td align=left colspan=2>{$form_data.emp_id.html}</td>
+							<td class="data no-border arrows" colspan="2">{$form_data.emp_id.html}</td>
 						</tr>
 					{/if}
+                </tbody>
 				</table>
-			</td>
+			</td> <!-- td.right -->
 		</tr>
-	  {* description *}
-		<tr>
-		  <td colspan=2>
-		    {$form_data.description.label}
-		  </td>
-		</tr>
-		<tr>
-		  <td colspan=2>
-		    {$form_data.description.html}
-		  </td>
-		</tr>
-		{* buttons *}
+        {* description *}
+
+        {*
+		<tr><td class="bottom label no-border" colspan="2">{$form_data.description.label}</td></tr>
+		<tr><td class="bottom data no-border" colspan="2">{$form_data.description.html}</td></tr>
+		*}
+
+        {* buttons *}
 		{*<tr>
 		  <td align="center" colspan=2>
 		    {$form_data.cancel_button.html}&nbsp;{$form_data.submit_button.html}
 		  </td>
 		</tr>*}
+    </tbody>
 	</table>
-    </div>
-  </form>
+
+<!-- SHADOW END -->
+ 		</div>
+		<div class="shadow-top">
+			<div class="left"></div>
+			<div class="center"></div>
+			<div class="right"></div>
+		</div>
+		<div class="shadow-middle">
+			<div class="left"></div>
+			<div class="right"></div>
+		</div>
+		<div class="shadow-bottom">
+			<div class="left"></div>
+			<div class="center"></div>
+			<div class="right"></div>
+		</div>
+	</div>
+<!-- -->
+
+</form>
+
+</div>
+
 {elseif $view_style == details_event}
+
+<!-- SHADIW BEGIN -->
+	<div class="layer" style="padding: 9px; width: 700px; height: 500px;">
+		<div class="content_shadow">
+<!-- -->
+
 	<table>
+    <tbody>
 		<tr>
 			<td align="right">Title:</td>
 			<td align="left">{$event.title}</td>
@@ -198,7 +240,28 @@
 			<td align="left">{$event.emps}</td>
 		</tr>
 		<tr>
-			<td colspan=2 align="center">{$event.description}</td>
+			<td colspan="2" align="center">{$event.description}</td>
 		</tr>
-	</table>	
+    </tbody>
+	</table>
+
+<!-- SHADOW END -->
+ 		</div>
+		<div class="shadow-top">
+			<div class="left"></div>
+			<div class="center"></div>
+			<div class="right"></div>
+		</div>
+		<div class="shadow-middle">
+			<div class="left"></div>
+			<div class="right"></div>
+		</div>
+		<div class="shadow-bottom">
+			<div class="left"></div>
+			<div class="center"></div>
+			<div class="right"></div>
+		</div>
+	</div>
+<!-- -->
+
 {/if}

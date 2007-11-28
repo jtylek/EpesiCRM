@@ -8,7 +8,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 
 		$label = 'Select date';
 		$calendar = '<div id="Utils_Calendar">'.
-			'<table><tr><td id="datepicker_'.$name.'_header">error</td></tr>'.
+			'<table cellspacing="0" cellpadding="0" border="0"><tr><td id="datepicker_'.$name.'_header">error</td></tr>'.
 			'<tr><td id="datepicker_'.$name.'_view">calendar not loaded</td></tr></table></div>';
 		$ret = '';
 		if($fullscreen) {
@@ -16,8 +16,8 @@ class Utils_CalendarCommon extends ModuleCommon {
 			$ret = '<a style="cursor: pointer;" rel="'.$entry.'" class="button lbOn">' . $label . '&nbsp;&nbsp;<img style="padding-bottom: 2px;" border="0" width="10" height="8" src=' . Base_ThemeCommon::get_template_file('Utils_Calendar', 'select.png').'>' . '</a>';
 
 			$ret .= '<div id="'.$entry.'" class="leightbox">'.
-				$calendar.
-				'<a class="lbAction" rel="deactivate" id="close_leightbox">Close</a>'.
+				$calendar .
+				'<br><a class="button lbAction" rel="deactivate" id="close_leightbox">Close&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img style="vertical-align: top; padding-top: 3px;" src="' . Base_ThemeCommon::get_template_file('Utils/Calendar','close.png') . '"> width="14" height="14" alt="x" border="0"></a>'.
 				'</div>';
 
 			$function .= ';leightbox_deactivate(\''.$entry.'\');';

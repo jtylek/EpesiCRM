@@ -1,53 +1,103 @@
+#Utils_Calendar .button {
+	cursor: pointer;
+	width: 40px;
+}
+
+/* menu */
+
+#Utils_Calendar table.menu {
+	background-color: #336699;
+	color: #FFFFFF;
+}
+
+#Utils_Calendar table.menu a {
+	color: #FFFFFF;
+	display: block;
+	line-height: 20px;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+#Utils_Calendar table.menu a:hover {
+	background-color: #339933;
+}
+
+#Utils_Calendar table.menu .prev {
+	text-align: left;
+}
+
+#Utils_Calendar table.menu .month {
+	text-align: center;
+	width: 100%;
+}
+
+#Utils_Calendar table.menu .next {
+	text-align: right;
+}
+
+/* calendar */
+
 #Utils_Calendar div.day {
 	color: blue;
 	display: block;
-	height: 1.3em;
 	text-decoration: none;
-	margin: 1px;
 	text-align: center;
-	vertical-align: center;
+	vertical-align: middle;
 }
+
 #Utils_Calendar div.month {
 	color: blue;
 	display: block;
-	height: 1.3em;
 	text-decoration: none;
-	margin: 1;
 	text-align: center;
-	vertical-align: center;
+	vertical-align: middle;
 }
+
 #Utils_Calendar table.small {
-		border: 1px solid #000000;
-		padding: 0 0 0 0;
-		width: 100%;
-	}
+	border: 1px solid #336699;
+	width: 100%;
+}
+
 #Utils_Calendar table.small td {
-		border: 1px solid transparent;
-		padding: 1;
-		text-align: center;
-	}
-	
+	border: 0px;
+	text-align: center;
+	vertical-align: middle;
+	width: 25px;
+	height: 20px;
+}
+
+#Utils_Calendar table.small td a {
+	display: block;
+	line-height: 20px;
+	width: 25px;
+	text-align: center;
+	vertical-align: middle;
+}
+
+#Utils_Calendar table.small td a:hover {
+	background-color: #e6cfcf
+}
+
 #Utils_Calendar table.small td.daysHeader {
-		width: 2.3em;
-		text-align: center;
-		background: #eeefff;
-		text-align: center;
-	}
+	color: #FFFFFF;
+	background-color: #336699;
+	background-image: url('images/header-blue.png');
+	background-repeat: repeat-x;
+	border-bottom: #336699;
+	height: 20px;
+}
+
 #Utils_Calendar table.small td.empty {
-		background: #ffffff;
-	}
+}
+
 #Utils_Calendar table.small td.today {
-		border: 1px solid #000000;
-		text-align: center;
-	}
+	background-color: #E6ECF2;
+	font-weight: bold;
+}
+
 #Utils_Calendar table.small td.spacerTop {
-		height: 0px;
-		margin: 0 0 0 0;
-		background: #ffffff;
-		border-top: 1px solid #000000;
-	}
+}
 
 div.utils_calendar_popup {
-	background-color: white;
 	border: 1px solid gray;
 }
