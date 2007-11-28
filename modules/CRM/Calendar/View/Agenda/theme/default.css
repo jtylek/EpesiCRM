@@ -85,17 +85,6 @@ p.event {
 	span.day_number {
 		font-size: 14pt;
 	}
-	a.new_event {
-		padding: 0px 4px 0px 4px;
-		border: 1px solid transparent;
-		margin: 15px;
-		text-decoration: none;
-	}
-a.new_event:hover {
-		padding: 0px 4px 0px 4px;
-		border: 1px solid red;
-		text-decoration: none;
-	}
 
 div.events {
 	padding: 2px;

@@ -100,11 +100,6 @@ span.day_number {
 		margin: 15px;
 		text-decoration: none;
 	}
-a.new_event:hover {
-		padding: 0px 4px 0px 4px;
-		border: 1px solid red;
-		text-decoration: none;
-	}
 */
 
 /* event */
@@ -152,6 +147,30 @@ table.crm_calendar_month .events_more {
 	padding-left: 4px;
 	padding-right: 2px;
 	padding-top: 1px;
+}
+
+/* month-header */
+
+table.crm_calendar_month .month-header {
+	color: #FFFFFF;
+	vertical-align: middle;
+	background-color: #336699;
+	background-image: url('images/header-blue.png');
+	background-repeat: repeat-x;
+	height: 30px;
+	padding-left: 10px;
+	border-bottom: 1px solid #FFFFFF;
+	font-size: 14px;
+	font-weight: bold;
+	text-align: center;
+}
+
+table.crm_calendar_month .icon {
+	background-color: #FFFFFF;
+	color: #339933;
+	vertical-align: middle;
+	text-align: center;
+	width: 40px;
 }
 
 /* menu */

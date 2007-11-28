@@ -21,14 +21,6 @@ p.event {
 	position: absolute;
 }
 
-/* classes for big table */
-
-a.new_event:hover {
-	padding: 0px 4px 0px 4px;
-	border: 1px solid #993333;
-	text-decoration: none;
-}
-
 .crm_calendar_events_personal__action_icon {
 	border: none;
 }

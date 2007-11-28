@@ -9,19 +9,6 @@ p.event {
 }
 */
 
-/* classes for big table */
-
-a.new_event:hover {
-	padding: 0px 4px 0px 4px;
-	border: 1px solid red;
-	text-decoration: none;
-}
-
-a.icon {
-	border: none;
-	text-decoration: none;
-}
-
 /* CRM week calendar */
 
 .crm_calendar_week {
@@ -176,7 +163,8 @@ a.icon {
 	background-image: url('images/header-blue.png');
 	background-repeat: repeat-x;
 	height: 30px;
-	border: 0px;
+	border-left: 1px solid #FFFFFF;
+	border-right: 1px solid #FFFFFF;
 	padding-left: 10px;
 	border-top: 1px solid #FFFFFF;
 	font-size: 14px;

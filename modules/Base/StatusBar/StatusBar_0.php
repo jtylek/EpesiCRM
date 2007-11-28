@@ -1,7 +1,7 @@
 <?php
 /**
  * Fancy statusbar.
- * 
+ *
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
@@ -12,7 +12,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_StatusBar extends Module {
-	
+
 	public function body() {
 		$theme = & $this->init_module("Base/Theme");
 		$theme->assign('statusbar_id','Base_StatusBar');
@@ -21,11 +21,11 @@ class Base_StatusBar extends Module {
 		$this->load_js();
 		on_exit(array($this, 'messages'),null,false);
 	}
-	
+
 	public function messages() {
 		eval_js("statusbar_message('".Epesi::escapeJS(implode('<br>',Base_StatusBarCommon::$messages),false)."')");
 	}
-	
+
 	private function load_js() {
 		eval_js_once('var statusbar_message_t=\'\';' .
 				'statusbar_message=function(text){statusbar_message_t=text;};' .
@@ -39,7 +39,7 @@ class Base_StatusBar extends Module {
 					'for(i = 0; i < selects.length; i++) {'.
 						'selects[i].style.visibility = visibility;'.
 					'}}'.
-				'};' .				
+				'};' .
 				'updateEpesiIndicatorFunction=function(){' .
 					'Epesi.indicator=\'statusbar_text\';' .
 					'$(\'epesiStatus\').style.visibility=\'hidden\';' .

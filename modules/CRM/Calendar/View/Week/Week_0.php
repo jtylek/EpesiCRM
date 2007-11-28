@@ -112,7 +112,7 @@ class CRM_Calendar_View_Week extends Module {
 			if($start['month'] == 12) {
 				$start['month'] = 1 ;
 				$start['year']++;
-				$current_month = $this->name_of_month_abbr[ $start['month'] ]." (".$start['year'].")";
+				$current_month = $this->name_of_month_abbr[ $start['month'] ]." &bull; ".$start['year'];
 			} else {
 			 	$start['month']++;
 			 	$current_month = $this->name_of_month_abbr[ $start['month'] ];
@@ -121,7 +121,7 @@ class CRM_Calendar_View_Week extends Module {
 				'colspan' => 0,
 				'info'=>
 					'<a '.$this->parent->create_unique_href( array('action'=>'show', 'view_style'=>'month', 'date'=>array('year'=>$start['year'], 'month'=>$start['month'], 'day'=>1), 'direct'=>'yes') ).'>'.
-					CRM_Calendar_Utils_FuncCommon::name_of_month( $start['month'] ) . " (".$start['year'].")" .
+					CRM_Calendar_Utils_FuncCommon::name_of_month( $start['month'] ) . " &bull; ".$start['year'] .
 					"</a>"
 			);
 			$span = 7;

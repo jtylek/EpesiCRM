@@ -17,12 +17,14 @@ p.event {
 #year {
 	border: 1px solid #FFFFFF;
 	background-color: #336699;
+	width: 240px;
 }
 
 #year td {
 	background: transparent;
-	width: 25px;
+	width: 30px;
 	height: 20px;
+	text-align: right;
 }
 
 #year td.empty {
@@ -35,21 +37,18 @@ p.event {
 }
 
 #year td.today {
-	vertical-align: top;
 	color: #000000;
 	background-color: #E6ECF2;
+	font-weight: bold;
+	border: 1px solid #336699;
 }
 
 #year td.header {
-	height: 20px;
 	vertical-align: middle;
-	text-align: left;
-	padding-left: 5px;
-	padding-right: 5px;
+	text-align: center;
 	color: #FFFFFF;
 	background-color: #336699;
 	border-left: 1px solid #FFFFFF;
-	border-top: 1px solid #FFFFFF;
 }
 
 #year td.week-number {
@@ -64,7 +63,7 @@ p.event {
 	color: #FFFFFF;
 	display: block;
 	line-height: 20px;
-	width: 25px;
+	width: 30px;
 }
 
 #year td.week-number a:hover {
@@ -72,8 +71,8 @@ p.event {
 }
 
 #year td.header-month {
-	height: 20px;
 	background-color: #336699;
+	border-bottom: 1px solid #FFFFFF;
 }
 
 #year td.header-month a {
@@ -90,37 +89,34 @@ p.event {
 	background-image: url('images/header-blue-hover.png');
 }
 
-	#year td.daysHeader {
-		background-color: #eeefff;
-		vertical-align: middle;
-	}
 
-	#year td.empty {
-		background-color: transparent;
-		border: none;
-	}
-	.holiday {
-		font-weight: bold;
-		border: 1px dotted #999999;
-		background-color: #e3f7e5;
-	}
-	.holiday_today {
-		font-weight: bold;
-		border: 1px solid #000000;
-		background-color: #e3f7e5;
-	}
-	.weekend {
-		background: #fff3f5;
-	}
-	span.day_number {
-		font-size: 14pt;
-	}
+.holiday {
+	font-weight: bold;
+	border: 1px dotted #999999;
+	background-color: #e3f7e5;
+}
+
+.holiday_today {
+	font-weight: bold;
+	border: 1px solid #000000;
+	background-color: #e3f7e5;
+}
+
+.weekend {
+	background: #fff3f5;
+}
+
+span.day_number {
+	font-size: 14pt;
+}
+
 a.new_event {
-		border: 1px solid transparent;
-		margin: 1px;
-		text-decoration: none;
-	}
+	display: block;
+	line-height: 20px;
+	vertical-align: middle;
+	padding-right: 2px;
+}
+
 a.new_event:hover {
-		border: 1px solid red;
-		text-decoration: none;
-	}
+	background-color: #e6cfcf
+}

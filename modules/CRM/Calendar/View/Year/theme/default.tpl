@@ -1,7 +1,7 @@
-<!-- SHADIW BEGIN -->
+<!-- SHADIW BEGIN
 	<div class="layer" style="padding: 9px; width: 240px;">
 		<div class="content_shadow">
-<!-- -->
+ -->
 
 	<table name="CRMCalendar" id="year" cellpadding="0" cellspacing="0" border="0">
 		<tr>
@@ -30,7 +30,7 @@
 		{/foreach}
 	</table>
 
-<!-- SHADOW END -->
+<!-- SHADOW END
  		</div>
 		<div class="shadow-top">
 			<div class="left"></div>
@@ -47,4 +47,4 @@
 			<div class="right"></div>
 		</div>
 	</div>
-<!-- -->
+-->
