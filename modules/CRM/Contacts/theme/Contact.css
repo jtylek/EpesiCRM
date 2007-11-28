@@ -1,0 +1,53 @@
+#Utils_RecordBrowser__View_entry {
+    width: 100%;
+    border-top: 1px solid #B3B3B3;
+    border-left: 1px solid #B3B3B3;
+}
+
+#Utils_RecordBrowser__View_entry .label {
+    background-color: #336699;
+    color: #FFFFFF;
+    border-bottom: 1px solid #B3B3B3;
+    border-right: 1px solid #B3B3B3;
+    height: 20px;
+    vertical-align: middle;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+#Utils_RecordBrowser__View_entry .data {
+    border-bottom: 1px solid #B3B3B3;
+    border-right: 1px solid #B3B3B3;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.Utils_RecordBrowser__table {
+    width: 100%;
+    vertical-align: middle;
+}
+
+.Utils_RecordBrowser__table .icon {
+    text-align: left;
+    padding-left: 20px;
+}
+
+.Utils_RecordBrowser__table .name {
+    text-align: left;
+    font-size: 14px;
+    font-weight: bold;
+    color: #336699;
+    padding-left: 20px;
+}
+
+.Utils_RecordBrowser__table .empty {
+    width: 100%;
+}
+
+.Utils_RecordBrowser__table .fav {
+    padding-right: 5px;
+}
+
+.Utils_RecordBrowser__table .info {
+    padding-right: 20px;
+}
