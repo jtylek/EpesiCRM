@@ -350,9 +350,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					$record[$v] = $row[$v];
 				$record['id'] = $id;
 			}
+			foreach(self::$table_rows as $field=>$args)
+				if (!isset($record[$field]))
+					if (self::$table_rows[$field]['type'] == 'multiselect') $record[$field] = array();
+					else $record[$field] = '';
 			return $record;
 		} else {
-			return '';
+			return null;
 		}
 	}
 	private static function check_if_value_valid($field) {

@@ -61,7 +61,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 			array('name'=>'Web address', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'display_callback'=>array('CRM_ContactsCommon', 'display_webaddress'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_webaddress'), 'visible'=>true),
 			array('name'=>'Group', 'type'=>'multiselect', 'required'=>false, 'param'=>'Companies_groups', 'extra'=>false)
 		);
-		Utils_RecordBrowserCommon::set_tpl('company', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'Company'));
+//		Utils_RecordBrowserCommon::set_tpl('company', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'Company'));
 		Utils_RecordBrowserCommon::install_new_recordset('company', $fields);
 		Utils_RecordBrowserCommon::set_quickjump('company', 'Name');
 		Utils_RecordBrowserCommon::set_favorites('company', true);

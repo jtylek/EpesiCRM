@@ -152,7 +152,7 @@ class Utils_GenericBrowser extends Module {
 	 * @param bool true to force order reset
 	 */
 	public function set_default_order(array $arg,$reset=false){
-		if ($this->isset_module_variable('first_display') && !$reset) return;
+		if (($this->isset_module_variable('first_display') && !$reset) || empty($arg)) return;
 		$order=array();
 		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
 		foreach($arg as $k=>$v){

@@ -1,3 +1,6 @@
+{if isset($Form_data.paste_company_info)}
+{$Form_data.paste_company_info.html}
+{/if}
 {assign var=x value=0}
 <table id="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="1" border="0">
 	<tr>

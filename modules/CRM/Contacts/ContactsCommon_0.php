@@ -2,6 +2,8 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_ContactsCommon extends ModuleCommon {
+	public static $paste_or_new = 'new';
+	
 	public static function get_contacts($crits = array()) {
 		return Utils_RecordBrowserCommon::get_records('contact', $crits);
 	}
@@ -38,15 +40,14 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return 'Companies & Contacts';
 	}
 	public static function QFfield_country(&$form, $field, $label, $mode, $default) {
-		$form->addElement('commondata', $field, $label, array('Countries'), array('empty_option'=>true));
+		$form->addElement('commondata', $field, $label, 'Countries', array('empty_option'=>true));
 		if ($mode!=='add') $form->setDefaults(array($field=>$default));
 		else $form->setDefaults(array($field=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country')));
 	}
 	public static function QFfield_zone(&$form, $field, $label, $mode, $default) {
 		$form->addElement('commondata', $field, $label, array('Countries', 'country'), array('empty_option'=>true));
-		if ($default!='')
-			if ($mode!=='add') $form->setDefaults(array($field=>$default));
-			else $form->setDefaults(array($field=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state')));
+		if ($mode!=='add') $form->setDefaults(array($field=>$default));
+		else $form->setDefaults(array($field=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state')));
 	}
 	public static function QFfield_company(&$form, $field, $label, $mode, $default) {
 		$comp = array();
@@ -56,7 +57,27 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$form->addElement('multiselect', $field, $label, $comp);
 			if ($mode!=='add') $form->setDefaults(array($field=>$default));
 			else {
-				$form->addElement('checkbox', 'create_company', 'Create new company', null, array('onClick'=>'document.getElementsByName("companyfrom[]")[0].disabled=document.getElementsByName("companyto[]")[0].disabled=this.checked;'));
+				if (self::$paste_or_new=='new')
+					$form->addElement('checkbox', 'create_company', 'Create new company', null, array('onClick'=>'document.getElementsByName("companyfrom[]")[0].disabled=document.getElementsByName("companyto[]")[0].disabled=this.checked;'));
+				else {
+					$comp = self::get_company(self::$paste_or_new);
+					$paste_company_info =
+						'document.getElementsByName("address_1")[0].value="'.$comp['Address 1'].'";'.
+						'document.getElementsByName("address_2")[0].value="'.$comp['Address 2'].'";'.
+						'document.getElementsByName("phone")[0].value="'.$comp['Phone'].'";'.
+						'document.getElementsByName("fax")[0].value="'.$comp['Fax'].'";'.
+						'document.getElementsByName("city")[0].value="'.$comp['City'].'";'.
+						'document.getElementsByName("postal_code")[0].value="'.$comp['Postal Code'].'";'.
+						'country = document.getElementsByName("country")[0];'.
+						'k = 0; while (k < country.options.length) if (country.options[k].value=="'.$comp['Country'].'") break; else k++;'.
+						'country.selectedIndex = k;'.
+						'zone = document.getElementsByName("zone")[0];'.
+						'k = 0; while (k < zone.options.length) if (zone.options[k].value=="'.$comp['Zone'].'") break; else k++;'.
+						'zone.selectedIndex = k;'.
+						'document.getElementsByName("web_address")[0].value="'.$comp['Web address'].'";';
+					;
+					$form->addElement('button', 'paste_company_info', 'Paste Company Info', array('onClick'=>$paste_company_info));
+				}
 			}
 		} else {
 			$form->addElement('static', $field, $label, array('id'=>$field));
@@ -90,19 +111,15 @@ class CRM_ContactsCommon extends ModuleCommon {
 		}
 	}
 	public static function QFfield_login(&$form, $field, $label, $mode, $default) {
-		if (Base_AclCommon::i_am_admin()) {
-			$ret = DB::Execute('SELECT id, login FROM user_login ORDER BY login');
-			$users = array(''=>'--');
-			while ($row=$ret->FetchRow()) {
-				if (DB::GetOne('SELECT contact_id FROM contact_data WHERE field=\'Login\' AND value=%d', array($row['id']))===false || $row['id']===$default)
-					$users[$row['id']] = $row['login'];
-			}
-			$form->addElement('select', $field, $label, $users);
-			$form->setDefaults(array($field=>$default));
-		} else {
-			$form->addElement('static', $field, $label);
-			$form->setDefaults(array($field=>self::display_login($default)));
+		$ret = DB::Execute('SELECT id, login FROM user_login ORDER BY login');
+		$users = array(''=>'--');
+		while ($row=$ret->FetchRow()) {
+			if (DB::GetOne('SELECT contact_id FROM contact_data WHERE field=\'Login\' AND value=%d', array($row['id']))===false || $row['id']===$default)
+				$users[$row['id']] = $row['login'];
 		}
+		$form->addElement('select', $field, $label, $users);
+		$form->setDefaults(array($field=>$default));
+		if (!Base_AclCommon::i_am_admin()) $form->freeze($field);  
 	}
 	public static function display_webaddress($v) {
 		if (strpos($v, 'http://')==false && $v) $v = 'http://'.$v;
@@ -132,8 +149,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 			);
 			$values['company'] = array($comp_id);
 		}
-		if ($values['email']=='' && $values['login']!=0 && $mode=='add')
-			$values['email'] = DB::GetOne('SELECT mail FROM user_password WHERE user_login_id=%d', array($values['login']));
+//		if ($values['email']=='' && $values['login']!=0 && $mode=='add')
+//			$values['email'] = DB::GetOne('SELECT mail FROM user_password WHERE user_login_id=%d', array($values['login']));
 		return $values;
 	}
 }

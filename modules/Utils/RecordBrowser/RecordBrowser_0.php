@@ -72,9 +72,9 @@ class Utils_RecordBrowser extends Module {
 				Base_ActionBarCommon::add('add',$this->lang->t('New'), $this->create_callback_href(array($this,'view_entry'),array('add')));
 				$this->browse_mode = $this->get_module_variable('browse_mode', 'all');
 				if (($this->browse_mode=='recent' && $this->recent==0) || ($this->browse_mode=='favorites' && !$this->favorites)) $this->set_module_variable('browse_mode', $this->browse_mode='all'); 
-				if ($this->browse_mode!=='recent' && $this->recent>0) Base_ActionBarCommon::add('report',$this->lang->t('Recent'), $this->create_callback_href(array($this,'switch_view'),array('recent')));
+				if ($this->browse_mode!=='recent' && $this->recent>0) Base_ActionBarCommon::add('history',$this->lang->t('Recent'), $this->create_callback_href(array($this,'switch_view'),array('recent')));
 				if ($this->browse_mode!=='all') Base_ActionBarCommon::add('report',$this->lang->t('All'), $this->create_callback_href(array($this,'switch_view'),array('all')));
-				if ($this->browse_mode!=='favorites' && $this->favorites) Base_ActionBarCommon::add('report',$this->lang->t('Favorites'), $this->create_callback_href(array($this,'switch_view'),array('favorites')));
+				if ($this->browse_mode!=='favorites' && $this->favorites) Base_ActionBarCommon::add('favorites',$this->lang->t('Favorites'), $this->create_callback_href(array($this,'switch_view'),array('favorites')));
 				$crits = $this->show_filters();
 				$this->show_data($crits);
 			}
@@ -125,7 +125,7 @@ class Utils_RecordBrowser extends Module {
 		return $crits;
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
-	public function show_data($crits = array(), $cols = array(), $fs_links = false, $admin = false, $special=false) {
+	public function show_data($crits = array(), $cols = array(), $order = array(), $fs_links = false, $admin = false, $special = false) {
 		$this->init();
 		$this->action = 'Browse';
 		if (!Base_AclCommon::i_am_admin() && $admin) {
@@ -153,6 +153,7 @@ class Utils_RecordBrowser extends Module {
 		if ($this->browse_mode == 'recent')
 			$table_columns[] = array('name'=>$this->lang->t('Visited on')); 
 		$gb->set_table_columns( $table_columns );
+		$gb->set_default_order( $order );
 		$crits = array_merge($crits, $gb->get_search_query(true));
 		
 		$records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, $admin);
@@ -371,8 +372,8 @@ class Utils_RecordBrowser extends Module {
 				if (!isset($data[$args['id']])) $data[$args['id']] = array('label'=>'', 'html'=>'');
 				$fields[$args['id']] = array(	'label'=>$data[$args['id']]['label'],
 												'html'=>$data[$args['id']]['html'],
-												'error'=>$data[$args['id']]['error'],
-												'required'=>$args['required'],
+												'error'=>isset($data[$args['id']]['error'])?$data[$args['id']]['error']:null,
+												'required'=>isset($args['required'])?$args['required']:null,
 												'type'=>$args['type']);
 			}
 		$theme->assign('fields', $fields);
@@ -539,7 +540,7 @@ class Utils_RecordBrowser extends Module {
 		$this->init();
 		$tb = $this->init_module('Utils/TabbedBrowser');
 		
-		$tb->set_tab($this->lang->t('Manage Records'),array($this, 'show_data'), array(array(), array(), false, true) );
+		$tb->set_tab($this->lang->t('Manage Records'),array($this, 'show_data'), array(array(), array(), array(), false, true) );
 		$tb->set_tab($this->lang->t('Manage Fields'),array($this, 'setup_loader') );
 		
 		$tb->body();
@@ -914,7 +915,7 @@ class Utils_RecordBrowser extends Module {
 		print('<hr><a rel="leightbox_'.$element.'" class="lbOn" onclick="init_all_rpicker_'.$element.'();">'.$element.'</a>'.
 			'<div id="leightbox_'.$element.'" class="leightbox">'.
 			'<h1>'.$this->lang->t('Select records').'</h1>'.
-			$this->show_data(array(), array(), false, false, true).
+			$this->show_data(array(), array(), array(), false, false, true).
 			'<a href="#" class="lbAction" rel="deactivate">Close</a>'.
 			'</div><hr>');
 		$rpicker_ind = $this->get_module_variable('rpicker_ind');

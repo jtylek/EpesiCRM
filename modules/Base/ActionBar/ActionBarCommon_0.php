@@ -20,18 +20,19 @@ class Base_ActionBarCommon extends ModuleCommon {
 			'home'=>0,
 			'back'=>1,
 			'report'=>2,
-			'calendar'=>3,
-			'search'=>4,
-			'folder'=>5,
+			'history'=>3,
+			'favorites'=>4,
+			'calendar'=>5,
+			'search'=>6,
+			'folder'=>7,
 //			'new'=>6,
-			'edit'=>7,
-			'view'=>8,
-			'add'=>9,
-			'delete'=>10,
-			'save'=>11,
-			'settings'=>12,
-			'print'=>13,
-			'favorites'=>14);
+			'edit'=>8,
+			'view'=>9,
+			'add'=>10,
+			'delete'=>11,
+			'save'=>12,
+			'settings'=>13,
+			'print'=>14);
 
 	public static function user_settings(){
 		return array('Misc'=>array(
