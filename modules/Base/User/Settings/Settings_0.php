@@ -50,10 +50,9 @@ class Base_User_Settings extends Module {
 					$this->add_module_settings_to_form($v,$f,$name);
 		}
 
-		$defaults = HTML_QuickForm::createElement('button','defaults',$this->lang->ht('Restore defaults'), 'onClick="'.$this->set_default_js.'"');
-		$submit = HTML_QuickForm::createElement('submit','submit',$this->lang->ht('OK'));
-		$cancel = HTML_QuickForm::createElement('button','cancel',$this->lang->ht('Cancel'), $this->create_back_href());
-		$f->addGroup(array($defaults, $submit,$cancel));
+		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+		Base_ActionBarCommon::add('save', 'Save', $f->get_submit_form_href());
+		Base_ActionBarCommon::add('settings',$this->lang->t('Restore Defaults'),'href="javascript:void(0)" onClick="'.$this->set_default_js.'"');
 
 		if($f->validate()) {
 			$this->submit_settings($f->exportValues());

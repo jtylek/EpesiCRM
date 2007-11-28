@@ -34,13 +34,13 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 						));
 			$ret_opts[] = array('type'=>'group', 'label'=>$opt['label'], 'elems'=>array(
 						array_merge($opt,array(
-							'values'=>'menu',
+							'values'=>'',
 							'name'=>$name.'_m')),
 						array_merge($opt,array(
-							'values'=>'dashboard',
+							'values'=>'',
 							'name'=>$name.'_d')),
 						array_merge($opt,array(
-							'values'=>'launchpad',
+							'values'=>'Menu &bull; Dashboard &bull; Launchpad',
 							'name'=>$name.'_l'))
 					));
 		}

@@ -14,6 +14,9 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_User_Administrator extends Module implements Base_AdminInterface {
 
 	public function body() {
+		
+		if($this->is_back()) return false;
+		
 		$this->lang = & $this->init_module('Base/Lang');
 
 		if(!Base_AclCommon::i_am_user()) {
@@ -24,7 +27,8 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 		$form = & $this->init_module('Libs/QuickForm',$this->lang->t('Saving settings'));
 
 		//pass
-		$form->addElement('header', null, $this->lang->t('Change password (leave empty if you prefer your current password)'));
+		$form->addElement('header', null, $this->lang->t('Change password'));
+		$form->addElement('html','<tr><td colspan=2>'.$this->lang->t('Leave password boxes empty if you prefer your current password').'</td></tr>');
 		$form->addElement('password','new_pass',$this->lang->t('New password'));
 		$form->addElement('password','new_pass_c',$this->lang->t('Confirm new password'));
 		$form->addRule(array('new_pass', 'new_pass_c'), $this->lang->t('Your passwords don\'t match'), 'compare');
@@ -43,7 +47,9 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 		$form->addRule('old_pass', $this->lang->t('Old password incorrect'), 'check_old_pass');
 		$form->addRule('old_pass', $this->lang->t('Field required'), 'required');
 
-		$form->addElement('submit', 'submit_button', $this->lang->ht('OK'));
+		Base_ActionBarCommon::add('back',$this->lang->t('Back'),$this->create_back_href());
+		Base_ActionBarCommon::add('save',$this->lang->t('Save'),$form->get_submit_form_href());
+		#$form->addElement('submit', 'submit_button', $this->lang->ht('OK'));
 
 		if($form->validate_with_message('Setting saved','Problem encountered')) {
 			if($form->process(array(&$this, 'submit_user_preferences'))){
