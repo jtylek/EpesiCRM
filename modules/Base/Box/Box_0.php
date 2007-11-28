@@ -77,6 +77,8 @@ class Base_Box extends Module {
 				$containers['main']['constructor_arguments'] = $_REQUEST['box_main_constructor_arguments'];
 			else
 				unset($containers['main']['constructor_arguments']);
+
+			$mains = array();
 		}
 		array_push($mains,$containers['main']);
 		$this->set_module_variable('main', $mains);
