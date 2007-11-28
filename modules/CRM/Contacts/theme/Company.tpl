@@ -1,4 +1,10 @@
 {assign var=x value=0}
+
+<!-- SHADOW BEGIN -->
+	<div class="layer" style="padding: 9px; width: 98%;">
+		<div class="content_shadow">
+<!-- -->
+
 <table id="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="1" border="0">
 	<tr>
 		{foreach key=k item=f from=$fields}
@@ -16,4 +22,24 @@
 		{/section}
 	</tr>
 </table>
+
+<!-- SHADOW END -->
+ 		</div>
+		<div class="shadow-top">
+			<div class="left"></div>
+			<div class="center"></div>
+			<div class="right"></div>
+		</div>
+		<div class="shadow-middle">
+			<div class="left"></div>
+			<div class="right"></div>
+		</div>
+		<div class="shadow-bottom">
+			<div class="left"></div>
+			<div class="center"></div>
+			<div class="right"></div>
+		</div>
+	</div>
+<!-- -->
+
 {if isset($fav_tooltip)}{$fav_tooltip}{/if}{if isset($info_tooltip)}{$info_tooltip}{/if}           *{$required_note}

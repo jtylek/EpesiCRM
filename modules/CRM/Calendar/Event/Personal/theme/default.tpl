@@ -4,10 +4,10 @@
 
     <div id="CRM_Calendar_Event_Personal">
 
-<!-- SHADIW BEGIN -->
+<!-- SHADIW BEGIN
 	<div class="layer" style="padding: 9px; width: 700px; height: 500px;">
 		<div class="content_shadow">
-<!-- -->
+ -->
 
     <table name="CRMCalendar" class="form" cellspacing="0" cellpadding="0" border="0">
     <tbody>
@@ -164,11 +164,8 @@
 			</td> <!-- td.right -->
 		</tr>
         {* description *}
-
-        {*
 		<tr><td class="bottom label no-border" colspan="2">{$form_data.description.label}</td></tr>
 		<tr><td class="bottom data no-border" colspan="2">{$form_data.description.html}</td></tr>
-		*}
 
         {* buttons *}
 		{*<tr>
@@ -179,7 +176,7 @@
     </tbody>
 	</table>
 
-<!-- SHADOW END -->
+<!-- SHADOW END
  		</div>
 		<div class="shadow-top">
 			<div class="left"></div>
@@ -196,7 +193,7 @@
 			<div class="right"></div>
 		</div>
 	</div>
-<!-- -->
+ -->
 
 </form>
 
@@ -204,10 +201,10 @@
 
 {elseif $view_style == details_event}
 
-<!-- SHADIW BEGIN -->
+<!-- SHADIW BEGIN
 	<div class="layer" style="padding: 9px; width: 700px; height: 500px;">
 		<div class="content_shadow">
-<!-- -->
+ -->
 
 	<table>
     <tbody>
@@ -245,7 +242,7 @@
     </tbody>
 	</table>
 
-<!-- SHADOW END -->
+<!-- SHADOW END
  		</div>
 		<div class="shadow-top">
 			<div class="left"></div>
@@ -262,6 +259,6 @@
 			<div class="right"></div>
 		</div>
 	</div>
-<!-- -->
+ -->
 
 {/if}

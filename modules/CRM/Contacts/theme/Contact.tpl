@@ -2,7 +2,28 @@
 {$Form_data.paste_company_info.html}
 {/if}
 {assign var=x value=0}
-<table id="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="1" border="0">
+
+<table class="Utils_RecordBrowser__table" border="0" cellpadding="0" cellspacing="0">
+	<tbody>
+		<tr>
+			<td class="icon"><img src="{$theme_dir}/CRM_Contacts__contacts.png" width="32" height="32" border="0"></td>
+			<td class="name">Contacts</td>
+			<td class="empty"></td>
+			<td class="fav">{if isset($fav_tooltip)}{$fav_tooltip}{/if}</td>
+			<td class="info">{if isset($info_tooltip)}{$info_tooltip}{/if}</td>
+		</tr>
+	</tbody>
+</table>
+
+
+<!-- SHADOW BEGIN -->
+	<div class="layer" style="padding: 9px; width: 98%;">
+		<div class="content_shadow">
+<!-- -->
+
+<div style="padding: 4px 5px 5px 5px; background-color: #FFFFFF;">
+
+<table id="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
 	<tr>
 		{foreach key=k item=f from=$fields}
 			{if $x==2}
@@ -30,4 +51,26 @@
 	</tr>
 	{/if}
 </table>
-{if isset($fav_tooltip)}{$fav_tooltip}{/if}{if isset($info_tooltip)}{$info_tooltip}{/if}           *{$required_note}
+
+</div>
+
+<!-- SHADOW END -->
+ 		</div>
+		<div class="shadow-top">
+			<div class="left"></div>
+			<div class="center"></div>
+			<div class="right"></div>
+		</div>
+		<div class="shadow-middle">
+			<div class="left"></div>
+			<div class="right"></div>
+		</div>
+		<div class="shadow-bottom">
+			<div class="left"></div>
+			<div class="center"></div>
+			<div class="right"></div>
+		</div>
+	</div>
+<!-- -->
+
+<div style="text-align: center; padding-top: 10px; color: #777777;">* {$required_note}<div>

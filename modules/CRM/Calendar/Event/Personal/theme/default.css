@@ -13,11 +13,8 @@ p.event {
 }
 
 #CRM_Calendar_Event_Personal table.form {
-	width: 100%;
-	height: 100%;
 	background-color: #FFFFFF;
-	border-top: 1px solid #B3B3B3;
-	padding: 1px;
+	padding: 5px;
 }
 
 #CRM_Calendar_Event_Personal .QForm_multiselect {

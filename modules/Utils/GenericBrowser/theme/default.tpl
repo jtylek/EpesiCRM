@@ -50,11 +50,15 @@
 {/if}
 
 <!-- SHADOW BEGIN -->
-	<div class="layer" style="padding: 9px; width: 98%; min-height: 22px;">
+	<div class="layer" style="padding: 9px; width: 98%;">
 		<div class="content_shadow">
 <!-- -->
 
-{html_table_epesi table_attr='id="Utils_GenericBrowser" cellspacing="0" cellpadding="0" style="width:100%"' loop=$data cols=$cols}
+<div style="padding: 4px 5px 5px 5px; background-color: #FFFFFF;">
+
+{html_table_epesi table_attr='id="Utils_GenericBrowser" cellspacing="0" cellpadding="0" style="width:100%;"' loop=$data cols=$cols}
+
+</div>
 
 <!-- SHADOW END -->
  		</div>
