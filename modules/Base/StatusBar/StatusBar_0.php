@@ -41,7 +41,8 @@ class Base_StatusBar extends Module {
 					'}}'.
 				'};' .
 				'updateEpesiIndicatorFunction=function(){' .
-					'Epesi.indicator=\'statusbar_text\';' .
+					'Epesi.indicator_text=\'statusbar_text\';' .
+					'Epesi.indicator=\'Base_StatusBar\';' .
 					'$(\'epesiStatus\').style.visibility=\'hidden\';' .
 					'statbar = $(\'Base_StatusBar\');' .
 					'statbar.onclick = Function("if(!Epesi.procOn)statusbar_fade();");' .

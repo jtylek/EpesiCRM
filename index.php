@@ -92,7 +92,7 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 		<div id="epesiStatus">
 			<table cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
 				<tr>
-					<td style="text-align: center; vertical-align: center; height: 30px;"><span id="#epesiStatusText">Starting epesi ...<span></td>
+					<td style="text-align: center; vertical-align: center; height: 30px;"><span id="epesiStatusText">Starting epesi ...<span></td>
                 </tr>
                 <tr>
 					<td style="text-align: center; vertical-align: center; height: 20px;"><img src="images/loader.gif" width="224" height="10" border="0"></td>

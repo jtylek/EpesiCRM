@@ -24,12 +24,13 @@ var Epesi = {
 	client_id:0,
 	process_file:'process.php',
 	indicator:'epesiStatus',
-	updateIndicator: function(){
+	indicator_text:'epesiStatusText',
+	updateIndicator: function() {
 		var s = $(Epesi.indicator);
 		if(s) s.style.visibility = Epesi.procOn ? 'visible' : 'hidden';
 	},
-	updateIndicatorText: function(text){
-		$(Epesi.indicator).innerHTML = text;
+	updateIndicatorText: function(text) {
+		$(Epesi.indicator_text).innerHTML = text;
 	},
 	request: function(url,history_id) {
 		Epesi.procOn++;
