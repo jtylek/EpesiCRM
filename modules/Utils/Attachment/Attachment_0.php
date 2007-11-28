@@ -12,19 +12,28 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_Attachment extends Module {
 	private $lang;
 	private $key;
-	private $persistant_deletion = false;
+	private $real_key;
 	private $group;
+	private $persistant_deletion = false;
 	private $view = true;
-	private $view_deleted = true;
 	private $edit = true;
 	private $download = true;
+	private $view_deleted = true;
 	private $inline = false;
 
-	public function construct($key,$group='') {
+	public function construct($key,$group='',$pd=null,$in=null,$v=null,$e=null,$d=null,$vd=null) {
 		if(!isset($key)) trigger_error('Key not given to attachment module',E_USER_ERROR);
 		$this->lang = & $this->init_module('Base/Lang');
 		$this->group = $group;
+		$this->real_key = $key;
 		$this->key = md5($key);
+
+		if(isset($pd)) $this->persistant_deletion = $pd;
+		if(isset($in)) $this->inline = $in;
+		if(isset($v)) $this->view = $v;
+		if(isset($e)) $this->edit = $e;
+		if(isset($d)) $this->download = $d;
+		if(isset($vd)) $this->view_deleted = $vd;
 	}
 
 	public function inline_attach_file($x=true) {
@@ -92,9 +101,14 @@ class Utils_Attachment extends Module {
 			$info = $this->lang->t('Last note by %s<br>Last note on %s<br>Number of note edits: %d<br>Last file uploaded by %s<br>Last file uploaded on %s<br>Number of file uploads: %d',array($row['note_by'],Base_RegionalSettingsCommon::time2reg($row['note_on']),$row['note_revision'],$row['upload_by'],Base_RegionalSettingsCommon::time2reg($row['upload_on']),$row['file_revision']));
 			$r->add_info($info);
 			if($this->edit) {
-				$r->add_action($this->create_callback_href(array($this,'edit_note'),array($row['id'],$row['text'])),'edit');
+				if($this->inline) {
+					$r->add_action($this->create_callback_href(array($this,'edit_note'),array($row['id'],$row['text'])),'edit');
+					$r->add_action($this->create_callback_href(array($this,'edition_history'),$row['id']),'history');
+				} else {
+					$r->add_action($this->create_callback_href(array($this,'edit_note_queue'),array($row['id'],$row['text'])),'edit');
+					$r->add_action($this->create_callback_href(array($this,'edition_history_queue'),$row['id']),'history');
+				}
 				$r->add_action($this->create_confirm_callback_href($this->lang->ht('Delete this entry?'),array($this,'delete'),$row['id']),'delete');
-				$r->add_action($this->create_callback_href(array($this,'edition_history'),$row['id']),'history');
 			}
 			if($vd)
 				$r->add_data(($row['deleted']?'yes':'no'),$row['text'],$file);
@@ -104,14 +118,22 @@ class Utils_Attachment extends Module {
 		if($this->inline) {
 			print('<a '.$this->create_callback_href(array($this,'attach_file')).'>'.$this->lang->t('Attach note').'</a>');
 		} else {
-			Base_ActionBarCommon::add('folder','Attach note',$this->create_callback_href(array($this,'attach_file')));
+			Base_ActionBarCommon::add('folder','Attach note',$this->create_callback_href(array($this,'attach_file_queue')));
 		}
 
 		$this->display_module($gb);
 	}
 
+	public function edition_history_queue($id) {
+		$this->push_box0('edition_history',array($id),array($this->real_key,$this->group,$this->persistant_deletion,$this->inline,$this->view,$this->edit,$this->download,$this->view_deleted));
+		return true;
+	}
+
 	public function edition_history($id) {
-		if($this->is_back()) return false;
+		if($this->is_back()) {
+			if($this->inline) return false;
+			return $this->pop_box0();
+		}
 
 		if($this->inline)
 			print('<a '.$this->create_back_href().'>'.$this->lang->t('back').'</a>');
@@ -130,6 +152,8 @@ class Utils_Attachment extends Module {
 		$ret = $gb->query_order_limit('SELECT uac.revision,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text FROM utils_attachment_note uac WHERE uac.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_note uac WHERE uac.attach_id='.$id);
 		while($row = $ret->FetchRow()) {
 			$r = $gb->get_new_row();
+			if($this->edit)
+				$r->add_action($this->create_callback_href(array($this,'restore_note'),array($id,$row['revision'])),'restore');
 			$r->add_data($row['revision'],$row['note_on'],$row['note_by'],$row['text']);
 		}
 		$this->display_module($gb);
@@ -145,12 +169,50 @@ class Utils_Attachment extends Module {
 		$ret = $gb->query_order_limit('SELECT uaf.revision,uaf.created_on as upload_on,(SELECT l.login FROM user_login l WHERE uaf.created_by=l.id) as upload_by,uaf.original FROM utils_attachment_file uaf WHERE uaf.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_file uaf WHERE uaf.attach_id='.$id);
 		while($row = $ret->FetchRow()) {
 			$r = $gb->get_new_row();
+			if($this->edit)
+				$r->add_action($this->create_callback_href(array($this,'restore_file'),array($id,$row['revision'])),'restore');
 			$file = '<a href="modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$id,'revision'=>$row['revision'],'path'=>$this->get_path(),'cid'=>CID)).'">'.$row['original'].'</a>';
 			$r->add_data($row['revision'],$row['upload_on'],$row['upload_by'],$file);
 		}
 		$this->display_module($gb);
 
 		return true;
+	}
+
+	public function restore_note($id,$rev) {
+		DB::StartTrans();
+		$text = DB::GetOne('SELECT text FROM utils_attachment_note WHERE attach_id=%d AND revision=%d',array($id,$rev));
+		$rev2 = DB::GetOne('SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=%d',array($id));
+		DB::Execute('INSERT INTO utils_attachment_note(text,attach_id,revision,created_by) VALUES (%s,%d,%d,%d)',array($text,$id,$rev2+1,Base_UserCommon::get_my_user_id()));
+		DB::CompleteTrans();
+	}
+
+	public function restore_file($id,$rev) {
+		DB::StartTrans();
+		$original = DB::GetOne('SELECT original FROM utils_attachment_file WHERE attach_id=%d AND revision=%d',array($id,$rev));
+		$rev2 = DB::GetOne('SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=%d',array($id));
+		$rev2 = $rev2+1;
+		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,revision) VALUES(%d,%s,%d,%d)',array($id,$original,Base_UserCommon::get_my_user_id(),$rev2));
+		DB::CompleteTrans();
+		$local = $this->get_data_dir().$this->group.'/'.$id.'_';
+		copy($local.$rev,$local.$rev2);
+	}
+
+	public function attach_file_queue() {
+		$this->push_box0('attach_file',array(),array($this->real_key,$this->group,$this->persistant_deletion,$this->inline,$this->view,$this->edit,$this->download,$this->view_deleted));
+		return true;
+	}
+
+	public function pop_box0() {
+		$x = ModuleManager::get_instance('/Base_Box|0');
+		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+		$x->pop_main();
+	}
+
+	public function push_box0($func,$args,$const_args) {
+		$x = ModuleManager::get_instance('/Base_Box|0');
+		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+		$x->push_main('Utils/Attachment',$func,$args,$const_args);
 	}
 
 	public function attach_file() {
@@ -163,7 +225,10 @@ class Utils_Attachment extends Module {
 			$form->addRule('note',$this->lang->t('Please enter note or choose file'),'required');
 		$this->ret_attach = true;
 		$this->display_module($form, array( array($this,'submit_attach') ));
-		return $this->ret_attach;
+		if($this->inline)
+			return $this->ret_attach;
+		elseif(!$this->ret_attach)
+			return $this->pop_box0();
 	}
 
 	public function submit_attach($file,$oryg,$data) {
@@ -179,6 +244,11 @@ class Utils_Attachment extends Module {
 		$this->ret_attach = false;
 	}
 
+	public function edit_note_queue($id,$text) {
+		$this->push_box0('edit_note',array($id,$text),array($this->real_key,$this->group,$this->persistant_deletion,$this->inline,$this->view,$this->edit,$this->download,$this->view_deleted));
+		return true;
+	}
+
 	public function edit_note($id,$text) {
 		$form = & $this->init_module('Utils/FileUpload',array(false));
 		$form->addElement('header', 'upload', $this->lang->t('Edit note'));
@@ -191,7 +261,10 @@ class Utils_Attachment extends Module {
 		$this->ret_attach = true;
 		$form->addElement('header',null,$this->lang->t('Replace attachment with file'));
 		$this->display_module($form, array( array($this,'submit_edit'),$id,$text));
-		return $this->ret_attach;
+		if($this->inline)
+			return $this->ret_attach;
+		elseif(!$this->ret_attach)
+			return $this->pop_box0();
 	}
 
 	public function submit_edit($file,$oryg,$data,$id,$text) {
@@ -217,9 +290,12 @@ class Utils_Attachment extends Module {
 	public function delete($id) {
 		if($this->persistant_deletion) {
 			DB::Execute('DELETE FROM utils_attachment_note WHERE attach_id=%d',array($id));
+			$rev = DB::GetOne('SELECT count(*) FROM utils_attachment_file WHERE attach_id=%d',array($id));
+			$file_base = $this->get_data_dir().$this->group.'/'.$id.'_';
+			for($i=0; $i<$rev; $i++)
+			    @unlink($file_base.$i);
 			DB::Execute('DELETE FROM utils_attachment_file WHERE attach_id=%d',array($id));
 			DB::Execute('DELETE FROM utils_attachment_link WHERE id=%d',array($id));
-			unlink($this->get_data_dir().$id);
 		} else {
 			DB::Execute('UPDATE utils_attachment_link SET deleted=1 WHERE id=%d',array($id));
 		}

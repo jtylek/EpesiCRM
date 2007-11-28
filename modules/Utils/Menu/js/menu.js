@@ -94,17 +94,17 @@ custom_show = function(menu, submenu) {
 	if(timeout[menu][submenu] != null) {
 		clearTimeout(timeout[menu][submenu]);
 	}
-	
+
 	if(level[menu][submenu] >= level[menu][last_open]) {
 		last_open[menu] = submenu;
 	}
 	var id = sub_name(menu, submenu);
 	var opener = opener_name(menu, submenu);
 	$(id).style.zIndex = 1000;
-	
+
 	//$(id).style.visibility = "visible";
 	//var t = cmAllocFrame(level[menu][submenu]);
-	
+
 	if( is_IE ) {
 		var t = $('mask_level'+level[menu][submenu]);
 		t.style.zIndex = 9;//$(id).style.zIndex - 1;
@@ -114,12 +114,12 @@ custom_show = function(menu, submenu) {
 		t.style.height = $(id).offsetHeight;
 		t.style.display = 'block';
 	}
-	
+
 	//$(id).style.filter = "Alpha()";
 	$(id).style.opacity = 1;
 	$(id).style.display  = "block";
-	
-	
+
+
 }
 
 custom_hide_f = function(menu, submenu, opacity) {
@@ -130,7 +130,7 @@ custom_hide_f = function(menu, submenu, opacity) {
 			$(id).className = "submenu";
 			$(id).style.opacity = 1;
 			$(id).style.display = "none";
-			
+
 			if( is_IE ) {
 				if( level[menu][submenu] != level[menu][last_open] ) {
 					var t = $('mask_level'+level[menu][submenu]);
@@ -140,13 +140,13 @@ custom_hide_f = function(menu, submenu, opacity) {
 		} else {
 			$(id).style.opacity = opacity;
 			//$(id).style.filter = "Alpha(style=0, opacity="+eval(opacity*100)+")";
-			timeout[menu][submenu] = setTimeout('custom_hide_f('+menu+', '+submenu+', '+eval(opacity-0.10)+')', 15);
+			timeout[menu][submenu] = setTimeout('custom_hide_f(\''+menu+'\', '+submenu+', '+eval(opacity-0.10)+')', 15);
 		}
 	}
 }
 
 custom_hide = function(menu, submenu) {
-	timeout[menu][submenu] = setTimeout('custom_hide_f('+menu+', '+submenu+', 1)', 300);
+	timeout[menu][submenu] = setTimeout('custom_hide_f(\''+menu+'\', '+submenu+', 1)', 300);
 }
 //////////////////////////////////////////////////////////////////////////////
 CustomMenubar = function(id, _layout) {
@@ -170,7 +170,7 @@ CustomMenubar = function(id, _layout) {
 		is_IE = true;
 		this.postfix = '_ie';
 	}
-	
+
 	this.addSplit = function( ) {
 		if(layout[this.id] == 'vertical' || this.depth != 0) {
 			menu_string[this.id] += '<tr><td class=splitter></td></tr>'; /*<hr class=custom_split>*/
@@ -202,7 +202,7 @@ CustomMenubar = function(id, _layout) {
 				} else {
 					this.init = 0;
 				}
-				
+
 				menu_string[this.id] += '<td class=item>';
 				if(icon) {
 					menu_string[this.id] += '<img class=link_icon src="'+icon+'">';
@@ -215,9 +215,9 @@ CustomMenubar = function(id, _layout) {
 				menu_string[this.id] += '</td>';
 			}
 		}
-	}	
+	}
 	this.addLink_bullet = function( title, icon ) {
-		menu_string[this.id] += '<td id="'+opener_name(this.id, this.submenu_number)+'" class=item onmouseover="hideAllNow('+this.id+','+this.submenu_number+')">';
+		menu_string[this.id] += '<td id="'+opener_name(this.id, this.submenu_number)+'" class=item onmouseover="hideAllNow(\''+this.id+'\','+this.submenu_number+')">';
 		if(icon) {
 			menu_string[this.id] += '<img class=link_icon src="'+icon+'">';
 		}
@@ -227,17 +227,17 @@ CustomMenubar = function(id, _layout) {
 			menu_string[this.id] += '<a  href=# class=root_item_link_right><div class=root_item_link_right_arrow>' + title + '</div></a>';
 		}
 		menu_string[this.id] += '</td>';
-			
+
 		//<div class=root_item_link_right_arrow>' + title + '</div>
 	}
-	
+
 	this.beginSubmenu = function( title, icon ) {
 		if(layout[this.id] == 'vertical' || this.depth != 0) {
 			menu_string[this.id] += '<tr><td>';
-			menu_string[this.id] += '<table cellspacing=0 cellpadding=0 onmouseout="custom_hide('+this.id+','+this.submenu_number+')" onmouseover="custom_show('+this.id+','+this.submenu_number+')" class=custom_opener>';
+			menu_string[this.id] += '<table cellspacing=0 cellpadding=0 onmouseout="custom_hide(\''+this.id+'\','+this.submenu_number+')" onmouseover="custom_show(\''+this.id+'\','+this.submenu_number+')" class=custom_opener>';
 			menu_string[this.id] += '<tr>';
 			this.addLink_bullet( title, icon );
-			menu_string[this.id] += '<td class=item_sub><table cellspacing=0 cellpadding=0 id="'+sub_name(this.id, this.submenu_number)+'" class=submenu>';	
+			menu_string[this.id] += '<td class=item_sub><table cellspacing=0 cellpadding=0 id="'+sub_name(this.id, this.submenu_number)+'" class=submenu>';
 		} else {
 			if(this.depth == 0 ) {
 				if(this.init == 0) {
@@ -247,19 +247,19 @@ CustomMenubar = function(id, _layout) {
 					this.init = 0;
 				}
 				menu_string[this.id] += '<td>';
-				menu_string[this.id] += '<table cellspacing=0 cellpadding=0 onmouseout="custom_hide('+this.id+','+this.submenu_number+')" onmouseover="custom_show('+this.id+','+this.submenu_number+')" class=custom_opener>';
+				menu_string[this.id] += '<table cellspacing=0 cellpadding=0 onmouseout="custom_hide(\''+this.id+'\','+this.submenu_number+')" onmouseover="custom_show(\''+this.id+'\','+this.submenu_number+')" class=custom_opener>';
 				menu_string[this.id] += '<tr>';
 				this.addLink_bullet( title, icon );
-				menu_string[this.id] += '</tr><tr><td class=item_sub> <table cellspacing=0 cellpadding=0 id="'+sub_name(this.id, this.submenu_number)+'" class=submenu>';	
+				menu_string[this.id] += '</tr><tr><td class=item_sub> <table cellspacing=0 cellpadding=0 id="'+sub_name(this.id, this.submenu_number)+'" class=submenu>';
 			}
 		}
 		is_over[this.id][this.submenu_number] = 0;
 		level[this.id][this.submenu_number] = this.depth;
-		this.submenu_number++;	
+		this.submenu_number++;
 		this.depth++;
 		a_submenu_number[this.id] = this.submenu_number;
 	}
-	
+
 	this.endSubmenu = function() {
 		this.depth--;
 		if(layout[this.id] == 'vertical' || this.depth != 0) {
@@ -270,7 +270,7 @@ CustomMenubar = function(id, _layout) {
 			}
 		}
 	}
-	
+
 }
 //////////////////////////////////////////////////////////////////////////////
 writeOut = function(menu) {
@@ -281,7 +281,7 @@ writeOut = function(menu) {
 			menu_string[menu] += '</tr>';
 		}
 		$('menu_contener_' + menu).innerHTML = menu_string[menu] + '</table>' ;
-		
+
 		if( is_IE ) {
 			$('menu_contener_' + menu).innerHTML += '<iframe class=custom_iframe id="mask_level0">blah</iframe>';
 			$('menu_contener_' + menu).innerHTML += '<iframe class=custom_iframe id="mask_level1">blah</iframe>';
@@ -291,6 +291,6 @@ writeOut = function(menu) {
 		}
 		//bodies[0].innerHTML += menu_string[menu] + '</table>' ;
 	} else {
-		setTimeout("writeOut("+menu+")", 20);
+		setTimeout("writeOut('"+menu+"')", 20);
 	}
 }

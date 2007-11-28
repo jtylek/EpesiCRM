@@ -1,40 +1,39 @@
 <?php
-/** 
+/**
  * Utils_Menu
  * Module for creating menus. Very easy.
- * 
- * @author Kuba Slawinski <kslawinski@telaxus.com> 
- * @copyright Copyright &copy; 2006, Telaxus LLC 
- * @version 0.9 
+ *
+ * @author Kuba Slawinski <kslawinski@telaxus.com>
+ * @copyright Copyright &copy; 2006, Telaxus LLC
+ * @version 0.9
  * @license SPL
- * @package epesi-utils 
+ * @package epesi-utils
  * @subpackage menu
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_Menu extends Module {
-	private static $menu_counter = 0;
+	//private static $menu_counter = 0;
 	private $menu_id;
 	private $menu_string;
 	private $layout;
-	
+
 	public function construct( $arg = null) {
 		if(!isset($arg)) {
 			$arg = "vertical";
 		}
-		$this->menu_id = Utils_Menu::$menu_counter;
+		$this->menu_id = md5($this->get_path());//Utils_Menu::$menu_counter;
 		$this->layout = $arg;
-		$this->menu_string = 
+		$this->menu_string =
 			'load_menu_'.$this->menu_id.' = function() {'.
-			'	menubar_'.$this->menu_id.' = new CustomMenubar('.$this->menu_id.', "'.htmlspecialchars($arg).'");'
-		;
-		Utils_Menu::$menu_counter++;
+			'	menubar_'.$this->menu_id.' = new CustomMenubar(\''.$this->menu_id.'\', "'.htmlspecialchars($arg).'");';
+		//Utils_Menu::$menu_counter++;
 		load_js("modules/Utils/Menu/js/menu.js");
 	}
-	
+
 	/**
 	 * Adds hyperlink to the menu.
-	 * 
+	 *
 	 * @param string displayed text
 	 * @param string target address of the link
 	 * @param string optional path to an icon
@@ -48,20 +47,20 @@ class Utils_Menu extends Module {
 			}
 		}
 		$this->menu_string .= ');';
-	}	
-	
+	}
+
 	/**
-	 * Adds a splitting line to the menu. Useful when you want to 
+	 * Adds a splitting line to the menu. Useful when you want to
 	 * divide menu into sctions without using submenus.
 	 */
 	public function add_split() {
 		$this->menu_string .= 'menubar_'.$this->menu_id.'.addSplit();';
 	}
-	
+
 	/**
-	 * Begins submenu. Everything placed between 'begin_submenu' and 'end_submenu' 
+	 * Begins submenu. Everything placed between 'begin_submenu' and 'end_submenu'
 	 * is conthent of that submenu.
-	 * 
+	 *
 	 * @param string name of the submenu
 	 * @param string optional path to an icon
 	 */
@@ -78,7 +77,7 @@ class Utils_Menu extends Module {
 	public function end_submenu() {
 		$this->menu_string .= 'menubar_'.$this->menu_id.'.endSubmenu();';
 	}
-	
+
 
 	/**
 	 * This method displays menu.
@@ -88,15 +87,15 @@ class Utils_Menu extends Module {
 		$str = '<div id=menu_contener_'.$this->menu_id.'><img width="16" height="16" border="0" style="width: 16px; height: 16px; background: white; color: white; border: 0px;" src="modules/Utils/Menu/theme/loader.gif"></div>';
 		$theme->assign('menu', $str);
 		$theme->display();
-		$this->menu_string .= 'writeOut('.$this->menu_id.');';
-		$this->menu_string .= '}; '; 
+		$this->menu_string .= 'writeOut(\''.$this->menu_id.'\');';
+		$this->menu_string .= '}; ';
 		$this->menu_string .= 'wait_while_null( "CustomMenubar", "load_menu_'.$this->menu_id.'(12)" );';
-		
+
 	}
-	
+
 	public function reloaded() {
 		$new_md5 = md5($this->menu_string);
-		$old_md5 = & $this->get_module_variable('old'); 
+		$old_md5 = & $this->get_module_variable('old');
 		if($new_md5!=$old_md5) {
 			eval_js($this->menu_string);
 			$old_md5 = $new_md5;

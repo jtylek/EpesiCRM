@@ -17,7 +17,7 @@ class Tests_QuickForm extends Module{
 		$f->setDefaults(array('xxxy'=>time()));
 //		print($x->getValue().'<br>');
 
-		$f->addElement('commondata_group','xxx2','commondata_group', 'Countries',array('depth'=>2,'separator'=>'<br>','empty_option'=>true));
+//		$f->addElement('commondata_group','xxx2','commondata_group', 'Countries',array('depth'=>2,'separator'=>'<br>','empty_option'=>true));
 
 		$f->addElement('commondata','cd_country','commondata Country', 'Countries', array('empty_option'=>true));
 		$f->addElement('commondata','cd_state','commondata State', array('Countries','cd_country'), array('empty_option'=>true));
