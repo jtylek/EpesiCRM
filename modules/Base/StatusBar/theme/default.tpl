@@ -16,7 +16,7 @@
 			<td class="text"><span id="{$text_id}">Loading...</span></td>
         </tr>
         <tr>
-			<td class="image"><img src="{$theme_dir}/Base_StatusBar__loader.gif" width="224" height="10" border="0"></td>
+			<td class="image"><img src="{$theme_dir}/Base_StatusBar__loader.gif" width="256" height="10" border="0"></td>
 		</tr>
 	</table>
 

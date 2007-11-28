@@ -23,11 +23,13 @@
 	font-family: "Tahoma" "Verdana" "Vera-Sans" "DejaVu-Sans";
 	font-size: 11px;
 	font-weight: bold;
-	color: #339933;
+	/*color: #339933;*/
+	color: #336699;
 	/*border: 1px solid #339933;*/
     border: 0px solid #7fb37f;
-    background-color: #cfe6cf;
-    background-color: #e6f2e6;
+    /*background-color: #cfe6cf;
+    background-color: #e6f2e6;*/
+	background-color: #e6ecf2;
 }
 
 .Base_StatusBar td.image {
