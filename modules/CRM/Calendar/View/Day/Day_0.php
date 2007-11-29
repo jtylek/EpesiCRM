@@ -42,8 +42,8 @@ class CRM_Calendar_View_Day extends Module {
 		$this->activities = array();
 		$this->max_per_day = 2;
 		$this->nearest_delim = 8;
-		$this->settings['start_day'] = 9;
-		$this->settings['end_day'] = 17;
+		$this->settings['start_day'] = Base_User_SettingsCommon::get('CRM/Calendar', 'start_day');
+		$this->settings['end_day'] = Base_User_SettingsCommon::get('CRM/Calendar', 'end_day');;
 		$this->settings['grid_morning'] = 1;
 		$this->settings['grid_day'] = 8;
 		$this->settings['grid_evening'] = 1;
@@ -242,18 +242,19 @@ class CRM_Calendar_View_Day extends Module {
 				$cnt = $j."<sup>00</sup>&nbsp;-&nbsp;" . $x . "<sup>00</sup>";
 				if(Base_RegionalSettingsCommon::time_12h()) {
 					if($j > 12)
-						$cnt = ($j-12).":00&nbsp;pm&nbsp;-&nbsp;";
+						$cnt = ($j-12)."&nbsp;-&nbsp;";
 					else
-						$cnt = $j.":00&nbsp;am&nbsp;-&nbsp;";
+						$cnt = $j."&nbsp;-&nbsp;";
 					//-----------------
 					if($j == 0)
-						$cnt = "12:00&nbsp;pm&nbsp;-&nbsp;";
+						$cnt = "12&nbsp;-&nbsp;";
 					//-----------------
 					if($x > 12)
-						$cnt .= ($x-12).":00 pm";
+						$cnt .= ($x-12)." pm";
 					else
-						$cnt .= $x.":00 am";
+						$cnt .= $x." am";
 				}
+				
 				$tt[] = array('info'=>$cnt, 'class'=>'hour', 'midday'=>$midday, 'event_num'=>0);
 
 				$event = $this->extract_hour_events_from_day($events, $j, $x);
@@ -329,6 +330,7 @@ class CRM_Calendar_View_Day extends Module {
 	// BODY //////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function body($arg = null) {
 		$this->init();
+		print 
 		$this->date = $this->get_unique_href_variable('date', CRM_Calendar_Utils_FuncCommon::today());
 		if(!isset($arg['date'])) {
 

@@ -42,11 +42,11 @@ class CRM_Calendar_View_Week extends Module {
 		$this->activities = array();
 		$this->max_per_day = 2;
 		$this->nearest_delim = 8;
-		$this->settings['start_day'] = 9;
-		$this->settings['end_day'] = 17;
-		$this->settings['grid_morning'] = 1;
-		$this->settings['grid_day'] = 8;
-		$this->settings['grid_evening'] = 1;
+		$this->settings['start_day'] = CRM_Calendar_Utils_FuncCommon::get_settings('start_day');
+		$this->settings['end_day'] = CRM_Calendar_Utils_FuncCommon::get_settings('end_day');
+		$this->settings['grid_morning'] = CRM_Calendar_Utils_FuncCommon::get_settings('grid_morning');
+		$this->settings['grid_day'] = CRM_Calendar_Utils_FuncCommon::get_settings('grid_day');
+		$this->settings['grid_evening'] = CRM_Calendar_Utils_FuncCommon::get_settings('grid_evening');
 		$this->settings['display_type'] = 'per_day';
 		//admin mode?
 		$tmp = 'month';
@@ -284,6 +284,14 @@ class CRM_Calendar_View_Week extends Module {
 	/////////////////////////////////////////////////////////////////////////////
 	public function show_calendar_week($date = array()) {
 
+			# initialize user settings
+			$start_day=$this->settings['start_day'];
+			$end_day=$this->settings['end_day'];
+			$grid_morning=$this->settings['grid_morning'];
+			if ($grid_morning==0) $grid_morning=1;
+			$grid_day=$this->settings['grid_day'];
+			$grid_evening=$this->settings['grid_evening'];
+
 			$theme = & $this->pack_module('Base/Theme');
 			load_js('modules/CRM/Calendar/View/Week/js/Week.js');
 			load_js('modules/CRM/Calendar/dnd.js');
@@ -342,21 +350,21 @@ class CRM_Calendar_View_Week extends Module {
 			for($j = 0; $j < 24; ) {
 				$midday = "";
 				$x = $j;
-
+				
 				// START
-				if($j < $this->settings['start_day']) {
-					if($x + round($this->settings['start_day'] / $this->settings['grid_morning']) <= $this->settings['start_day'])
-						$x = $j + round($this->settings['start_day'] / $this->settings['grid_morning']);
+				if($j < $start_day) {
+					if($x + round($start_day / $grid_morning) <= $start_day)
+						$x = $j + round($start_day / $grid_morning);
 					else
-						$x = $this->settings['start_day'];
-				} else if($j < $this->settings['end_day']) {
+						$x = $start_day;
+				} else if($j < $end_day) {
 					$midday = "midday_";
-					if($x + round(($this->settings['end_day']-$this->settings['start_day']) / $this->settings['grid_day']) <= $this->settings['end_day']){
-						$x = $j + round(($this->settings['end_day']-$this->settings['start_day']) / $this->settings['grid_day']);
+					if($x + round(($end_day-$start_day) / $grid_day) <= $end_day){
+						$x = $j + round(($end_day-$start_day) / $grid_day);
 					} else
-						$x = $this->settings['end_day'];
+						$x = $end_day;
 				} else {
-					$x = $j + round((24-$this->settings['end_day']) / $this->settings['grid_evening']);
+					$x = $j + round((24-$end_day) / $grid_evening);
 					if($x > 24)
 						$x = 24;
 				}
@@ -364,18 +372,14 @@ class CRM_Calendar_View_Week extends Module {
 				// SLOT
 				$cnt = $j."<sup>00</sup>&nbsp;-&nbsp;" . $x . "<sup>00</sup>";
 				if(Base_RegionalSettingsCommon::time_12h()) {
-					if($j > 12)
-						$cnt = ($j-12).":00&nbsp;pm&nbsp;-&nbsp;";
-					else
-						$cnt = $j.":00&nbsp;am&nbsp;-&nbsp;";
-					//-----------------
-					if($j == 0)
-						$cnt = "12:00&nbsp;pm&nbsp;-&nbsp;";
-					//-----------------
-					if($x > 12)
-						$cnt .= ($x-12).":00 pm";
-					else
-						$cnt .= $x.":00 am";
+				$jj=$j.':00:00';
+				if ($x<$end_day) {
+					$xx=$x.':00:00';	
+				}else{
+					$xx='24:00:00';
+				}
+				
+				$cnt =date("g",strtotime($jj)).'-'.date("g a",strtotime($xx));
 				}
 
 				$tt[] = array('info'=>$cnt, 'event'=>array(), 'event_num'=>0, 'class'=>'hour', 'midday'=>$midday);
@@ -411,12 +415,12 @@ class CRM_Calendar_View_Week extends Module {
 				}
 
 				// END
-				if($j < $this->settings['start_day']) {
-						$j = $j + round($this->settings['start_day'] / $this->settings['grid_morning']);
-				} else if($j < $this->settings['end_day']) {
-						$j = $j + round(($this->settings['end_day']-$this->settings['start_day']) / $this->settings['grid_day']);
+				if($j < $start_day) {
+						$j = $j + round($start_day / $grid_morning);
+				} else if($j < $end_day) {
+						$j = $j + round(($end_day-$start_day) / $this->settings['grid_day']);
 				} else
-					$j = $j + round((24-$this->settings['end_day']) / $this->settings['grid_evening']);
+					$j = $j + round((24-$end_day) / $grid_evening);
 				//print "</tr>";
 			}
 
