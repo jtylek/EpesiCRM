@@ -55,7 +55,9 @@ class Base_Box extends Module {
 		if($this->isset_module_variable('main')) {
 			$mains = $this->get_module_variable('main');
 			if($pop_main) array_pop($mains);
-			$containers['main'] = array_pop($mains);
+			$main = array_pop($mains);
+			if(isset($main['module']) && $main['module']!=null)
+				$containers['main'] = & $main;
 			foreach($mains as $m)
 				if(ModuleManager::is_installed($m['module'])>=0)
 					$this->init_module(str_replace('/','_',$m['module']),(isset($m['constructor_arguments'])?$m['constructor_arguments']:null),(isset($m['name'])?$m['name']:null));
@@ -82,7 +84,8 @@ class Base_Box extends Module {
 		}
 		array_push($mains,$containers['main']);
 		$this->set_module_variable('main', $mains);
-
+		//print_r($containers);
+		
 		$this->modules = array();
 		foreach ($containers as $k => $v) {
 			ob_start();
