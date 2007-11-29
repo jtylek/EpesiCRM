@@ -15,7 +15,8 @@ p.event {
 /* classes for big table */
 
 #year {
-	border: 1px solid #FFFFFF;
+	border-left: 1px solid #B3B3B3;
+	border-top: 1px solid #B3B3B3;
 	background-color: #336699;
 	width: 240px;
 }

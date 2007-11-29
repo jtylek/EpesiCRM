@@ -13,10 +13,8 @@ p.event {
 
 .crm_calendar_week {
 	width: 100%;
-	background: transparent;
-	border: 1px solid #FFFFFF;
-	border-left: 0px;
-	border-top: 0px;
+	border-right: 1px solid #B3B3B3;
+	border-bottom: 1px solid #B3B3B3;
 }
 
 .crm_calendar_week td {
@@ -43,7 +41,7 @@ p.event {
 	vertical-align: top;
 	color: #FFFFFF;
 	border-top: 1px solid #B3B3B3;
-	border-left: 1px solid #FFFFFF;
+	border-left: 1px solid #B3B3B3;
 	text-align: center;
 	background-color: #336699;
 	padding-top: 4px;
@@ -164,9 +162,9 @@ p.event {
 	background-repeat: repeat-x;
 	height: 30px;
 	border-left: 1px solid #FFFFFF;
-	border-right: 1px solid #FFFFFF;
+	/*border-right: 1px solid #FFFFFF;*/
 	padding-left: 10px;
-	border-top: 1px solid #FFFFFF;
+	border-top: 1px solid #B3B3B3;
 	font-size: 14px;
 	font-weight: bold;
 	text-align: center;
@@ -181,7 +179,7 @@ p.event {
 	vertical-align: top;
 	color: #FFFFFF;
 	border-top: 1px solid #B3B3B3;
-	border-left: 1px solid #FFFFFF;
+	border-left: 1px solid #B3B3B3;
 	text-align: center;
 	/*background-color: #CFDAE6;*/
 	background-color: #336699;
@@ -193,7 +191,7 @@ p.event {
 	vertical-align: top;
 	color: #FFFFFF;
 	border-top: 1px solid #B3B3B3;
-	border-left: 1px solid #FFFFFF;
+	border-left: 1px solid #B3B3B3;
 	text-align: center;
 	/*background-color: #E6ECF2;*/
 	background-color: #336699;

@@ -146,11 +146,15 @@ div.events_brief {
 /* Select date */
 
 #Agenda .data a {
-	padding-left: 10px;
-	padding-right: 10px;
+	padding-left: 15px;
+	padding-right: 25px;
 	padding-top: 4px;
 	padding-bottom: 3px;
 	color: #FFFFFF;
+	background-color: #336699;
+	background-image: url('images/select.png');
+	background-repeat: no-repeat;
+	background-position: 75px;
 }
 
 

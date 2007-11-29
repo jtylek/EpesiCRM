@@ -79,7 +79,7 @@ class Base_Setup extends Module {
 					if(is_callable($func_info)) {
 						$module_info = call_user_func($func_info);
 						if($module_info) {
-							$info = ' <a rel="'.$entry.'" class="lbOn"><img style="vertical-align: middle; cursor: pointer;" border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('Base_Setup', 'info.gif').'></a>';
+							$info = ' <a rel="'.$entry.'" class="lbOn"><img style="vertical-align: middle; cursor: pointer;" border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('Base_Setup', 'info.png').'></a>';
 							$iii = '<div id="'.$entry.'" class="leightbox"><h1>'.str_replace('_','/',$entry).'</h1><table>';
 							foreach($module_info as $k=>$v)
 								$iii .= '<tr><td>'.$k.'</td><td>'.$v.'</td></tr>';

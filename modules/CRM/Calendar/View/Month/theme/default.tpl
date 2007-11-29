@@ -3,6 +3,8 @@
 		<div class="content_shadow">
 <!-- -->
 
+<div style="padding: 2px; background-color: #FFFFFF;">
+
 	<table name="CRMCalendar" class="crm_calendar_month" cellpadding="0" cellspacing="0" border="0">
 		<tr>
 			<td class="month-header"><!-- <img src="{$theme_dir}/CRM_Calendar__icon.png" width="32" height="32" border="0"> --></td>
@@ -39,6 +41,8 @@
 
 		{/foreach}
 	</table>
+
+</div>
 
 <!-- SHADOW END -->
  		</div>

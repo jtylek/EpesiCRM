@@ -54,7 +54,7 @@
 		<div class="content_shadow">
 <!-- -->
 
-<div style="padding: 4px 5px 5px 5px; background-color: #FFFFFF;">
+<div style="padding: 2px; background-color: #FFFFFF;">
 
 {html_table_epesi table_attr='id="Utils_GenericBrowser" cellspacing="0" cellpadding="0" style="width:100%;"' loop=$data cols=$cols}
 

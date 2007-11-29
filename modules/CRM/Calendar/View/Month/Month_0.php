@@ -86,7 +86,7 @@ class CRM_Calendar_View_Month extends Module {
 						$event[$g] = array();
 						$event[$g]['full'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'full');
 						$more = call_user_func(array($module.'Common', 'get_text'), $EV, 'edit');
-						$event[$g]['more'] = '<img style="vertical-align: middle; id="'.$div_id.'_more" border="0" width="14" height="14" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar', "info.gif").'">';
+						$event[$g]['more'] = '<img style="vertical-align: middle; id="'.$div_id.'_more" border="0" width="14" height="14" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar', "info.png").'">';
 
 						// special priviliges
 						if($this->logged > 0) {
@@ -103,7 +103,7 @@ class CRM_Calendar_View_Month extends Module {
 
 						}
 						$event[$g]['brief'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'brief');
-						$event[$g]['move'] = '<img border="0" width="16" height="16" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar', 'grab.gif').'">';
+						$event[$g]['move'] = '<img border="0" width="14" height="14" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar', 'grab.png').'">';
 						$event[$g]['div_id'] = $div_id;
 						CRM_Calendar_Utils_SidetipCommon::create($div_id.'_brief', $div_id, $event[$g]['full']);
 						CRM_Calendar_Utils_SidetipCommon::create($div_id.'_more', $div_id, $more);

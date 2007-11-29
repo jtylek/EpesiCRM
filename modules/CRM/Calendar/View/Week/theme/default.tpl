@@ -3,6 +3,8 @@
 		<div class="content_shadow">
 <!-- -->
 
+<div style="padding: 2px; background-color: #FFFFFF;">
+
 	<table class="crm_calendar_week" cellspacing="0" cellpadding="0">
 		<tr>
 {* shows month *}
@@ -83,6 +85,8 @@
 
 		{/section}
 	</table>
+
+</div>
 
 <!-- SHADOW END -->
  		</div>

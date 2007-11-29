@@ -212,10 +212,10 @@ class CRM_Calendar_View_Week extends Module {
 							$more .= '<br>';
 					}
 					$more .= call_user_func(array($module.'Common', 'get_text'), $EV, 'edit');
-					$event[$g]['more'] = '<img style="vertical-align: middle;" id="'.$div_id.'_more" border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'info.gif').'>';
+					$event[$g]['more'] = '<img style="vertical-align: middle;" id="'.$div_id.'_more" border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'info.png').'>';
 
 					$event[$g]['brief'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'brief');
-					$event[$g]['move'] = '<img  border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'grab.gif').'>';
+					$event[$g]['move'] = '<img  border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'grab.png').'>';
 
 					$event[$g]['div_id'] = $div_id;
 					CRM_Calendar_Utils_SidetipCommon::create($div_id.'_brief', $div_id, $event[$g]['full']);
@@ -261,12 +261,12 @@ class CRM_Calendar_View_Week extends Module {
 									$more .= '<br>';
 							}
 							$more .= call_user_func(array($module.'Common', 'get_text'), $EV, 'edit');
-							$event[$g]['more'] = '<img style="vertical-align: middle;" id="'.$div_id.'_more" border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'info.gif').'>';
+							$event[$g]['more'] = '<img style="vertical-align: middle;" id="'.$div_id.'_more" border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'info.png').'>';
 							if($EV['access'] > 1 || $EV['created_by'] != $this->logged)
-								$event[$g]['more'] = '<img style="vertical-align: middle; visibility: hidden" id="'.$div_id.'_more" border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'info.gif').'>';
+								$event[$g]['more'] = '<img style="vertical-align: middle; visibility: hidden" id="'.$div_id.'_more" border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'info.png').'>';
 
 							$event[$g]['brief'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'brief');
-							$event[$g]['move'] = '<img  border="0" width="16" height="16" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'grab.gif').'>';
+							$event[$g]['move'] = '<img  border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'grab.png').'>';
 							$event[$g]['div_id'] = $div_id;
 
 							//if($EV['created_by'] != Base_UserCommon::get_My_user_id())
@@ -350,7 +350,7 @@ class CRM_Calendar_View_Week extends Module {
 			for($j = 0; $j < 24; ) {
 				$midday = "";
 				$x = $j;
-				
+
 				// START
 				if($j < $start_day) {
 					if($x + round($start_day / $grid_morning) <= $start_day)
@@ -374,11 +374,11 @@ class CRM_Calendar_View_Week extends Module {
 				if(Base_RegionalSettingsCommon::time_12h()) {
 				$jj=$j.':00:00';
 				if ($x<$end_day) {
-					$xx=$x.':00:00';	
+					$xx=$x.':00:00';
 				}else{
 					$xx='24:00:00';
 				}
-				
+
 				$cnt =date("g",strtotime($jj)).'-'.date("g a",strtotime($xx));
 				}
 

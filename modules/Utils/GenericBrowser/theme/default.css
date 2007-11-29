@@ -4,7 +4,7 @@
 
 table#Utils_GenericBrowser {
     background-color: #FFFFFF;
-    border-top: 1px solid #FFFFFF;
+    border-top: 1px solid #B3B3B3;
     border-left: 1px solid #B3B3B3;
 }
 
@@ -14,8 +14,6 @@ table#Utils_GenericBrowser th {
     font-weight: normal;
     background-repeat: repeat-x;
     text-align: center;
-    padding-left: 3px;
-    padding-right: 3px;
     height: 20px;
     /*border-top: 1px solid #B3B3B3;*/
     border-right: 1px solid #FFFFFF;
@@ -24,7 +22,16 @@ table#Utils_GenericBrowser th {
 }
 
 table#Utils_GenericBrowser th a {
+    padding-left: 3px;
+    padding-right: 3px;
 	color: #FFFFFF;
+    display: block;
+    line-height: 20px;
+}
+
+table#Utils_GenericBrowser th a:hover {
+    background-image: url('images/header-blue-hover.png');
+    background-repeat: repeat-x;
 }
 
 table#Utils_GenericBrowser tbody {
