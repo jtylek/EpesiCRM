@@ -64,7 +64,7 @@ class Base_LoginAudit extends Module {
 
 		$this->display_module($gb);
 
-        Base_ActionBarCommon::add('settings',$this->lang->t('Audit Log Maintenance'),$this->create_callback_href(array($this, 'purge_log')));
+        Base_ActionBarCommon::add('settings',$this->lang->t('Maintenance'),$this->create_callback_href(array($this, 'purge_log')));
         return true;
 	}
 
