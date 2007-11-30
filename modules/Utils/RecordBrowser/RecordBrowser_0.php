@@ -334,15 +334,8 @@ class Utils_RecordBrowser extends Module {
 			$row_data = array();
 			$fav = DB::GetOne('SELECT user_id FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%s', array(Base_UserCommon::get_my_user_id(), $id));
 			
-			if ($this->favorites) {
+			if ($this->favorites)
 				$theme -> assign('fav_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(($isfav?$this->lang->t('This item is on your favourites list<br>Click to remove it from your favorites'):$this->lang->t('Click to add this item to favorites'))).' '.$this->create_callback_href(array($this,($isfav?'remove_from_favs':'add_to_favs')), array($id)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','star_'.($isfav==false?'no':'').'fav.png').'" /></a>');
-				/* Favorites are handled by an icon within the body - ActionBar icon is no necessary
-				if ($fav===false)
-					Base_ActionBarCommon::add('folder', $this->lang->ht('Add to Favs'), $this->create_callback_href(array($this,'add_to_favs'), array($id)));
-				else
-					Base_ActionBarCommon::add('folder', $this->lang->ht('Remove from Favs'), $this->create_callback_href(array($this,'remove_from_favs'), array($id)));
-				*/
-			}
 		}
 
 		if ($mode=='view') $form->freeze();
@@ -357,6 +350,8 @@ class Utils_RecordBrowser extends Module {
 		$this->view_entry_details(1, $last_page, $data, $theme, true);
 		$ret = DB::Execute('SELECT position, field FROM '.$this->tab.'_field WHERE type = \'page_split\' AND position > %d', array($last_page));
 		$row = true;
+		if ($mode=='view')
+			print("</form>\n");
 		while ($row) {
 			$row = $ret->FetchRow();
 			if ($row) $pos = $row['position'];
@@ -372,7 +367,6 @@ class Utils_RecordBrowser extends Module {
 				$mod = $this->init_module($row['module']);
 				$tb->set_tab($this->lang->t($row['label']),array($this, 'display_module'), array($mod, array($record), $row['func']), $js);
 			}
-			print("</form>\n");
 		}
 		$this->display_module($tb);
 		if ($mode=='add' || $mode=='edit') print("</form>\n");
@@ -389,6 +383,7 @@ class Utils_RecordBrowser extends Module {
 			{	
 				if (!isset($data[$args['id']])) $data[$args['id']] = array('label'=>'', 'html'=>'');
 				$fields[$args['id']] = array(	'label'=>$data[$args['id']]['label'],
+												'element'=>$args['id'],
 												'html'=>$data[$args['id']]['html'],
 												'error'=>isset($data[$args['id']]['error'])?$data[$args['id']]['error']:null,
 												'required'=>isset($args['required'])?$args['required']:null,

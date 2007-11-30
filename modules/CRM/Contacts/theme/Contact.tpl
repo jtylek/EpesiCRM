@@ -30,6 +30,9 @@
 				</tr><tr>
 				{assign var=x value=0}
 			{/if}
+			{if !isset($focus)}
+				{assign var=focus value=$f.element}
+			{/if}
 			<td class="label" nowrap>{$f.label}{if $f.required}*{/if}</td>
 			<td class="data">{if $f.error}{$f.error}{/if}{$f.html}</td>
 			{assign var=x value=$x+1}
@@ -51,6 +54,9 @@
 	</tr>
 	{/if}
 </table>
+{php}
+	eval_js('focus_by_id(\''.$this->_tpl_vars['focus'].'\');');
+{/php}
 
 </div>
 
