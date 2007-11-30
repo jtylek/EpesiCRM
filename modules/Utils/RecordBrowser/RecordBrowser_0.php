@@ -65,7 +65,6 @@ class Utils_RecordBrowser extends Module {
 	}
 	// BODY //////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function body() {
-		$this->set_module_variable('self_initialized', true);
 		if(Base_AclCommon::i_am_user()) {
 			$this->init();
 			if (isset($_REQUEST['tab'])) {
@@ -286,15 +285,8 @@ class Utils_RecordBrowser extends Module {
 	//////////////////////////////////////////////////////////////////////////////////////////
 	public function view_entry($mode='view', $id = null, $defaults = array()) {
 		$js = true;
-		if ($this->is_back()) {
-			if (!$this->get_module_variable('self_initialized',false)) {
-//				trigger_error('!!!', E_USER_ERROR);
-				$x = ModuleManager::get_instance('/Base_Box|0');
-				if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-				return $x->pop_main();
-			}
+		if ($this->is_back())
 			return false;
-		}
 		$this->init();
 		switch ($mode) {
 			case 'add': $this->action = 'New record'; break;
