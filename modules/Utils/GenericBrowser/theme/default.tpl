@@ -30,7 +30,7 @@
 
 <table width="100%">
 <tr>
-	<td align="left" style="padding-bottom: 5px;">
+	<td align="left" style="padding-bottom: 5px; padding-left: 20px;">
 		<b>
 		{if isset($letter_links)}
 		{foreach key=k item=link from=$letter_links}
