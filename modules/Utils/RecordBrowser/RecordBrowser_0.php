@@ -99,18 +99,27 @@ class Utils_RecordBrowser extends Module {
 		$this->set_module_variable('browse_mode', $mode);
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
-	public function show_filters() {
+	public function show_filters($filters_set = array()) {
 		$ret = DB::Execute('SELECT field FROM '.$this->tab.'_field WHERE filter=1');
-		if ($ret->EOF) {
+		$filters_all = array();
+		while($row = $ret->FetchRow())
+			if (!isset($filters_set[$row['field']]) || $filters_set[$row['field']]) {
+				$filters_all[] = $row['field'];
+				if (isset($filters_set[$row['field']])) unset($filters_set[$row['field']]);
+			}
+		foreach($filters_set as $k=>$v)
+			if ($v) $filters_all[] = $k;
+		if (empty($filters_all)) {
 			$this->crits = array();
 			return '';
 		}
+		
 		$form = $this->init_module('Libs/QuickForm', null, $this->tab.'filters');
 		$filters = array();
-		while($row = $ret->FetchRow()) {
-			if ($this->table_rows[$row['field']]['type'] == 'select' || $this->table_rows[$row['field']]['type'] == 'multiselect') {
+		foreach ($filters_all as $filter) {
+			if ($this->table_rows[$filter]['type'] == 'select' || $this->table_rows[$filter]['type'] == 'multiselect') {
 				$arr = array('__NULL__'=>'--');
-				list($tab, $col) = explode('::',$this->table_rows[$row['field']]['param']);
+				list($tab, $col) = explode('::',$this->table_rows[$filter]['param']);
 				if ($tab=='__COMMON__') {
 					$arr = Utils_CommonDataCommon::get_array($col);
 				} else {
@@ -118,12 +127,12 @@ class Utils_RecordBrowser extends Module {
 					while ($row2 = $ret2->FetchRow()) $arr[$row2[$tab.'_id']] = $row2['value'];
 				}
 			} else {
-				$ret2 = DB::Execute('SELECT value FROM '.$this->tab.'_data WHERE field=%s ORDER BY value', array($row['field']));
+				$ret2 = DB::Execute('SELECT value FROM '.$this->tab.'_data WHERE field=%s ORDER BY value', array($filter));
 				$arr = array('__NULL__'=>'--');
 				while ($row2 = $ret2->FetchRow()) $arr[$row2['value']] = $row2['value'];
 			}
-			$form->addElement('select', str_replace(' ','_',$row['field']), $row['field'], $arr);
-			$filters[] = str_replace(' ','_',$row['field']);
+			$form->addElement('select', str_replace(' ','_',$filter), $filter, $arr);
+			$filters[] = str_replace(' ','_',$filter);
 		}
 		$form->addElement('submit', 'submit', 'Show');
 		$this->crits = array();
@@ -321,7 +330,7 @@ class Utils_RecordBrowser extends Module {
 
 		if ($mode!='add') {
 			$isfav = DB::GetOne('SELECT user_id FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%d', array(Base_UserCommon::get_my_user_id(), $id));
-			$theme -> assign('info_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(Utils_RecordBrowserCommon::get_html_record_info($this->tab, $id)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_GenericBrowser','info.png').'" /></a>');
+			$theme -> assign('info_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(Utils_RecordBrowserCommon::get_html_record_info($this->tab, $id)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','info.png').'" /></a>');
 			$row_data = array();
 			$fav = DB::GetOne('SELECT user_id FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%s', array(Base_UserCommon::get_my_user_id(), $id));
 			
@@ -912,19 +921,22 @@ class Utils_RecordBrowser extends Module {
 	public function caption(){
 		return $this->caption.': '.$this->action;
 	}
-	public function recordpicker($element, $format) {
+	public function recordpicker($element, $label, $format, $filters=array()) {
 		if (!isset($this->lang)) $this->lang = $this->init_module('Base/Lang');
-		$icon_on = 'data/Base_Theme/templates/default/Utils_GenericBrowser__active-on.png';
-		$icon_off = 'data/Base_Theme/templates/default/Utils_GenericBrowser__active-off.png';
-		// TODO: independant
+		$this->init();
+		$icon_on = Base_ThemeCommon::get_template_file('Utils_RecordBrowser','active-on.png');
+		$icon_off = Base_ThemeCommon::get_template_file('Utils_RecordBrowser','active-off.png');
 		$this->set_module_variable('element',$element);
 		$this->set_module_variable('format_func',$format);
-		print('<hr><a rel="leightbox_'.$element.'" class="lbOn" onmousedown="init_all_rpicker_'.$element.'();">'.$element.'</a>'.
+		$theme = $this->init_module('Base/Theme');
+		$theme->assign('header', $this->lang->t('Select records').': '.$this->caption);
+		$theme->assign('filters', $this->show_filters($filters));
+		$theme->assign('table', $this->show_data($this->crits, array(), array(), false, false, true));
+
+		print('<a rel="leightbox_'.$element.'" class="lbOn" onmousedown="init_all_rpicker_'.$element.'();">'.$label.'</a>'.
 			'<div id="leightbox_'.$element.'" class="leightbox">'.
-			'<h1>'.$this->lang->t('Select records').'</h1>'.
-			$this->show_data(array(), array(), array(), false, false, true).
-			'<a href="#" class="lbAction" rel="deactivate">Close</a>'.
-			'</div><hr>');
+			$this->get_html_of_module($theme, 'Record_picker', 'display').
+			'</div>');
 		$rpicker_ind = $this->get_module_variable('rpicker_ind');
 		eval_js(
 			'rpicker_init_'.$element.' = function(id){'.
