@@ -111,8 +111,9 @@ class CRM_Contacts extends Module {
 		$ret = $rb->view_entry('add', null, array('company_name'=>array($company)));
 		$this->set_module_variable('view_or_add', 'add');
 		if ($ret==false) {
-			unset($_REQUEST['__CRM_Contacts__adding_new_contact']);
-			location(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array('company'), 'box_main_function'=>'view_entry', 'box_main_arguments'=>array('view', $company, array())));
+			$x = ModuleManager::get_instance('/Base_Box|0');
+			if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+			return $x->pop_main();
 		}
 	}
 	public function caption(){
