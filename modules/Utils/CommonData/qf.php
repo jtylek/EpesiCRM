@@ -3,7 +3,7 @@ require_once('HTML/QuickForm/select.php');
 
 /**
  * HTML class for common data
- * 
+ *
  * @author       Paul Bukowski <pbukowski@telaxus.com>
  */
 class HTML_QuickForm_commondata extends HTML_QuickForm_select {
@@ -22,7 +22,7 @@ class HTML_QuickForm_commondata extends HTML_QuickForm_select {
 			} elseif(is_string($commondata))
 				$this->_cd = array($commondata);
 		}
-		
+
 		if (isset($options['empty_option']))
 			$this->_add_empty_fields = $options['empty_option'];
 		if(count($this->_cd)==1) {
@@ -32,7 +32,7 @@ class HTML_QuickForm_commondata extends HTML_QuickForm_select {
 			$this->loadArray($root_data);
 		}
 	} //end constructor
-	
+
 	function toHtml() {
 		if(count($this->_cd)>1) {
 			load_js('modules/Utils/CommonData/qf.js');

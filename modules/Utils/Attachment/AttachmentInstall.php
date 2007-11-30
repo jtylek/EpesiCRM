@@ -44,6 +44,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			return false;
 		}
 		$this->create_data_dir();
+		Base_ThemeCommon::install_default_theme($this->get_type());
 		return $ret;
 	}
 
@@ -52,6 +53,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 		$ret &= DB::DropTable('utils_attachment_note');
 		$ret &= DB::DropTable('utils_attachment_file');
 		$ret &= DB::DropTable('utils_attachment_link');
+		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		return $ret;
 	}
 
@@ -64,9 +66,11 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			     array('name'=>'Utils/FileUpload', 'version'=>0),
 			     array('name'=>'Libs/QuickForm', 'version'=>0),
 			     array('name'=>'Libs/FCKeditor', 'version'=>0),
+			     array('name'=>'Libs/Leigthbox', 'version'=>0),
 			     array('name'=>'Utils/Tooltip', 'version'=>0),
 			     array('name'=>'Base/RegionalSettings', 'version'=>0),
 			     array('name'=>'Base/Box', 'version'=>0),
+			     array('name'=>'Base/Theme', 'version'=>0),
 			     array('name'=>'Base/ActionBar', 'version'=>0));
 	}
 

@@ -16,25 +16,42 @@ if(!isset($_REQUEST['form_name']) || !isset($_REQUEST['required']))
 	exit();
 $form_name = $_REQUEST['form_name'];
 $doc = $_FILES['file'];
+print_r($doc);
 $dest_filename  = 'tmp_'.microtime(true);
 $dest_path  = 'data/Utils_FileUpload/'.$dest_filename;
 $dest_doc = '../../../'.$dest_path;
 $required = $_REQUEST['required'];
 
-if($doc['error']!='0') {
+if($doc['error']==UPLOAD_ERR_INI_SIZE || $doc['error']==UPLOAD_ERR_FORM_SIZE) {
+	?>
+	<script type="text/javascript">
+	<!--
+	parent.$('upload_status').innerHTML='Specified file too big';
+	-->
+	</script>
+	<?php
+} elseif($doc['error']==UPLOAD_ERR_PARTIAL || $doc['error']==UPLOAD_ERR_EXTENSION) {
+	?>
+	<script type="text/javascript">
+	<!--
+	parent.$('upload_status').innerHTML='Upload failed';
+	-->
+	</script>
+	<?php
+} elseif($doc['error']==UPLOAD_ERR_NO_TMP_DIR || $doc['error']==UPLOAD_ERR_CANT_WRITE) {
+	?>
+	<script type="text/javascript">
+	<!--
+	parent.$('upload_status').innerHTML='Invalid server setup: cannot write to temporary directory';
+	-->
+	</script>
+	<?php
+} elseif($doc['error']==UPLOAD_ERR_NO_FILE) {
 	if($required &&  $name=='') {
 	?>
 	<script type="text/javascript">
 	<!--
 	parent.$('upload_status').innerHTML='Please specify file to upload';
-	-->
-	</script>
-	<?php
-	} elseif($required) {
-	?>
-	<script type="text/javascript">
-	<!--
-	parent.$('upload_status').innerHTML='Unable to upload specified file';
 	-->
 	</script>
 	<?php
@@ -68,7 +85,7 @@ if($doc['error']!='0') {
 	orig=parent.document.forms['<?php print($form_name); ?>'].file;
 	orig.disabled=false;
 	orig.value='';
-	parent.document.forms['<?php print($form_name); ?>'].button.disabled=false;
+	//parent.document.forms['<?php print($form_name); ?>'].button.disabled=false;
 <?php
 	if($ok) {
 		if(get_magic_quotes_gpc())

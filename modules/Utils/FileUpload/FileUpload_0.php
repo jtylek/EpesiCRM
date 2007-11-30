@@ -16,6 +16,7 @@ class Utils_FileUpload extends Module {
 	private $on_submit_args = array();
 	private $form = null;
 	private $upload_button_caption = 'Upload';
+	private $submit_button = true;
 
 	/**
 	 * Module constructor.
@@ -23,7 +24,7 @@ class Utils_FileUpload extends Module {
 	public function construct($req=true) {
 		$this->lang = & $this->init_module('Base/Lang');
 		$this->form = & $this->init_module('Libs/QuickForm', array($this->lang->ht('Uploading file...'),'modules/Utils/FileUpload/upload.php','upload_iframe',''),'file_chooser');
-		$this->form->addElement('static',null,null,'<iframe frameborder="0" id="upload_iframe", name="upload_iframe" src="" scrolling="No" height="0" width="0"></iframe>');
+		$this->form->addElement('static',null,null,'<iframe frameborder="0" id="upload_iframe", name="upload_iframe" src="" style="display:none"></iframe>');
 		$this->form->addElement('hidden','required',$req?'1':'0');
 	}
 
@@ -91,7 +92,7 @@ class Utils_FileUpload extends Module {
 		static $added_upload_elem = false;
 		if($added_upload_elem) return;
 		$added_upload_elem = true;
-		
+
 		$this->form->addElement('hidden','uploaded_file');
 		$this->form->addElement('hidden','original_file');
 		$form_name = $this->form->getAttribute('name');
@@ -104,7 +105,15 @@ class Utils_FileUpload extends Module {
 		$this->form->addElement('hidden','submit_js',$s);
 		$this->form->addElement('file', 'file', $this->lang->ht('Specify file'));
 		$this->form->addElement('static',null,$this->lang->t('Upload status'),'<div id="upload_status"></div>');
-		$this->form->addElement('submit', 'button', $this->lang->ht($this->upload_button_caption), "onClick=\"$('upload_status').innerHTML='uploading...'; submit(); disabled=true;\"");
+	}
+
+	public function get_submit_form_js() {
+		$this->submit_button=false;
+		return "$('upload_status').innerHTML='uploading...'; document.forms['".$this->form->getAttribute('name')."'].submit();";
+	}
+
+	public function get_submit_form_href() {
+		return " onClick=\"".$this->get_submit_form_js()."\" href=\"javascript:void(0)\" ";
 	}
 
 	/**
@@ -120,6 +129,9 @@ class Utils_FileUpload extends Module {
 		if(!isset($this->on_submit)) trigger_error('You have to specify "on submit" method',E_USER_ERROR);
 
 		$this->add_upload_element();
+
+		if($this->submit_button)
+			$this->form->addElement('submit', 'button', $this->lang->ht($this->upload_button_caption), $this->get_submit_form_href());
 
 		if($this->form->validate()) {
 			$this->form->process(array($this,'submit_parent'));

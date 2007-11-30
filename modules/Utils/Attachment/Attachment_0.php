@@ -20,8 +20,9 @@ class Utils_Attachment extends Module {
 	private $download = true;
 	private $view_deleted = true;
 	private $inline = false;
+	private $add_header = '';
 
-	public function construct($key,$group='',$pd=null,$in=null,$v=null,$e=null,$d=null,$vd=null) {
+	public function construct($key,$group='',$pd=null,$in=null,$v=null,$e=null,$d=null,$vd=null,$header=null) {
 		if(!isset($key)) trigger_error('Key not given to attachment module',E_USER_ERROR);
 		$this->lang = & $this->init_module('Base/Lang');
 		$this->group = $group;
@@ -34,6 +35,11 @@ class Utils_Attachment extends Module {
 		if(isset($e)) $this->edit = $e;
 		if(isset($d)) $this->download = $d;
 		if(isset($vd)) $this->view_deleted = $vd;
+		if(isset($header)) $this->add_header = $header;
+	}
+
+	public function additional_header($x) {
+		$this->add_header = $x;
 	}
 
 	public function inline_attach_file($x=true) {
@@ -68,7 +74,7 @@ class Utils_Attachment extends Module {
 
 		$vd = null;
 		if($this->view_deleted && !$this->persistant_deletion) {
-			$f = $this->init_module('Libs/QuickForm','view_deleted');
+			$f = $this->init_module('Libs/QuickForm',null,'view_deleted');
 			$f->addElement('checkbox','view_del',$this->lang->t('View deleted attachments'),null,array('onClick'=>$f->get_submit_form_js()));
 			$vd = & $this->get_module_variable('view_deleted');
 			$f->setDefaults(array('view_del'=>$vd));
@@ -97,7 +103,7 @@ class Utils_Attachment extends Module {
 		while($row = $ret->FetchRow()) {
 			$r = $gb->get_new_row();
 
-			$file = '<a href="modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$row['id'],'revision'=>$row['file_revision'],'path'=>$this->get_path(),'cid'=>CID)).'">'.$row['original'].'</a>';
+			$file = $this->get_file($row);//'<a href="modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$row['id'],'revision'=>$row['file_revision'],'path'=>$this->get_path(),'cid'=>CID)).'">'.$row['original'].'</a>';
 			$info = $this->lang->t('Last note by %s<br>Last note on %s<br>Number of note edits: %d<br>Last file uploaded by %s<br>Last file uploaded on %s<br>Number of file uploads: %d',array($row['note_by'],Base_RegionalSettingsCommon::time2reg($row['note_on']),$row['note_revision'],$row['upload_by'],Base_RegionalSettingsCommon::time2reg($row['upload_on']),$row['file_revision']));
 			$r->add_info($info);
 			if($this->edit) {
@@ -110,10 +116,17 @@ class Utils_Attachment extends Module {
 				}
 				$r->add_action($this->create_confirm_callback_href($this->lang->ht('Delete this entry?'),array($this,'delete'),$row['id']),'delete');
 			}
-			if($vd)
-				$r->add_data(($row['deleted']?'yes':'no'),$row['text'],$file);
+			if($this->inline)
+				$r->add_action($this->create_callback_href(array($this,'view'),array($row['id'])),'view');
 			else
-				$r->add_data($row['text'],$file);
+				$r->add_action($this->create_callback_href(array($this,'view_queue'),array($row['id'])),'view');
+			$text = $row['text'];
+			if(strlen($text)>160)
+				$text = array('value'=>substr($text,0,160).'...'.$this->lang->t('[cut]'),'hint'=>$this->lang->t('Click on view icon to see full note'));
+			if($vd)
+				$r->add_data(($row['deleted']?'yes':'no'),$text,$file);
+			else
+				$r->add_data($text,$file);
 		}
 		if($this->inline) {
 			print('<a '.$this->create_callback_href(array($this,'attach_file')).'>'.$this->lang->t('Attach note').'</a>');
@@ -124,9 +137,67 @@ class Utils_Attachment extends Module {
 		$this->display_module($gb);
 	}
 
-	public function edition_history_queue($id) {
-		$this->push_box0('edition_history',array($id),array($this->real_key,$this->group,$this->persistant_deletion,$this->inline,$this->view,$this->edit,$this->download,$this->view_deleted));
+	public function view_queue($id) {
+		$this->push_box0('view',array($id),array($this->real_key,$this->group,$this->persistant_deletion,$this->inline,$this->view,$this->edit,$this->download,$this->view_deleted,$this->add_header));
+	}
+
+	public function get_file($row) {
+		static $th;
+		if(!isset($th)) $th = $this->init_module('Base/Theme');
+
+		$lid = 'get_file_'.md5($this->get_path()).'_'.$row['id'];
+		$th->assign('view','<a href="modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$row['id'],'revision'=>$row['file_revision'],'path'=>$this->get_path(),'cid'=>CID,'view'=>1)).'" target="_blank" id="view_'.$lid.'">'.$this->lang->t('View').'</a><br>');
+		$th->assign('download','<a href="modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$row['id'],'revision'=>$row['file_revision'],'path'=>$this->get_path(),'cid'=>CID)).'" id="download_'.$lid.'">'.$this->lang->t('Download').'</a><br>');
+		eval_js('Event.observe(\'view_'.$lid.'\',\'click\', function(){leightbox_deactivate("'.$lid.'")})');
+		eval_js('Event.observe(\'download_'.$lid.'\',\'click\', function(){leightbox_deactivate("'.$lid.'")})');
+
+		ob_start();
+		$th->display('download');
+		$c = ob_get_clean();
+
+		return '<div class="leightbox" id="'.$lid.'">'.
+			$c.
+			'<a class="lbAction" rel="deactivate">Close</a></div>'.
+			'<a class="lbOn" rel="'.$lid.'">'.$row['original'].'</a>';
+	}
+
+	public function view($id) {
+		if($this->is_back()) {
+			if($this->inline) return false;
+			return $this->pop_box0();
+		}
+
+		$row = DB::GetRow('SELECT ual.deleted,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text,uaf.original,uaf.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE uaf.created_by=l2.id) as upload_by FROM utils_attachment_link ual INNER JOIN (utils_attachment_note uac,utils_attachment_file uaf) ON (uac.attach_id=ual.id AND uaf.attach_id=ual.id) WHERE ual.id=%d AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id)',array($id));
+
+		$info = $this->lang->t('Last note by %s<br>Last note on %s<br>Number of note edits: %d<br>Last file uploaded by %s<br>Last file uploaded on %s<br>Number of file uploads: %d',array($row['note_by'],Base_RegionalSettingsCommon::time2reg($row['note_on']),$row['note_revision'],$row['upload_by'],Base_RegionalSettingsCommon::time2reg($row['upload_on']),$row['file_revision']));
+		if($this->inline) {
+			if($this->edit) {
+				print('<a '.$this->create_callback_href(array($this,'edit_note'),array($id,$row['text'])).'>'.$this->lang->t('Edit').'</a> :: ');
+				print('<a '.$this->create_callback_href(array($this,'edition_history'),$id).'>'.$this->lang->t('History').'</a> :: ');
+				print('<a '.$this->create_confirm_callback_href($this->lang->ht('Delete this entry?'),array($this,'delete_back'),$id).'>'.$this->lang->t('Delete').'</a> :: ');
+			}
+			print('<a '.$this->create_back_href().'>'.$this->lang->t('back').'</a><br>');
+		} else {
+			if($this->edit) {
+				Base_ActionBarCommon::add('edit','Edit',$this->create_callback_href(array($this,'edit_note_queue'),array($id,$row['text'])));
+				Base_ActionBarCommon::add('history','Edition history',$this->create_callback_href(array($this,'edition_history_queue'),$id));
+				Base_ActionBarCommon::add('delete','Delete',$this->create_confirm_callback_href($this->lang->ht('Delete this entry?'),array($this,'delete_back'),$id));
+			}
+			Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+		}
+
+		print($row['text']);
 		return true;
+	}
+
+	public function delete_back($id) {
+		$this->delete($id);
+		$this->set_back_location();
+		return false;
+	}
+
+	public function edition_history_queue($id) {
+		$this->push_box0('edition_history',array($id),array($this->real_key,$this->group,$this->persistant_deletion,$this->inline,$this->view,$this->edit,$this->download,$this->view_deleted,$this->add_header));
 	}
 
 	public function edition_history($id) {
@@ -199,8 +270,7 @@ class Utils_Attachment extends Module {
 	}
 
 	public function attach_file_queue() {
-		$this->push_box0('attach_file',array(),array($this->real_key,$this->group,$this->persistant_deletion,$this->inline,$this->view,$this->edit,$this->download,$this->view_deleted));
-		return true;
+		$this->push_box0('attach_file',array(),array($this->real_key,$this->group,$this->persistant_deletion,$this->inline,$this->view,$this->edit,$this->download,$this->view_deleted,$this->add_header));
 	}
 
 	public function pop_box0() {
@@ -216,15 +286,31 @@ class Utils_Attachment extends Module {
 	}
 
 	public function attach_file() {
-		$form = & $this->init_module('Utils/FileUpload',array(false));
-		$form->addElement('header', 'upload', $this->lang->t('Attach note'));
-		$fck = $form->addElement('fckeditor', 'note', $this->lang->t('Note'));
-		$fck->setFCKProps('800','300');
-		$form->set_upload_button_caption('Save');
-		if($form->getSubmitValue('note')=='' && $form->getSubmitValue('uploaded_file')=='')
-			$form->addRule('note',$this->lang->t('Please enter note or choose file'),'required');
-		$this->ret_attach = true;
-		$this->display_module($form, array( array($this,'submit_attach') ));
+		if(!$this->is_back()) {
+			$form = & $this->init_module('Utils/FileUpload',array(false));
+			$form->addElement('header', 'upload', $this->lang->t('Attach note').': '.$this->add_header);
+			$fck = $form->addElement('fckeditor', 'note', $this->lang->t('Note'));
+			$fck->setFCKProps('800','300');
+			$form->set_upload_button_caption('Save');
+			if($form->getSubmitValue('note')=='' && $form->getSubmitValue('uploaded_file')=='')
+				$form->addRule('note',$this->lang->t('Please enter note or choose file'),'required');
+
+			$form->add_upload_element();
+
+			if(!$this->inline) {
+				Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
+				Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+			} else {
+				$s = HTML_QuickForm::createElement('button',null,$this->lang->t('Save'),$form->get_submit_form_href());
+				$c = HTML_QuickForm::createElement('button',null,$this->lang->t('Cancel'),$this->create_back_href());
+				$form->addGroup(array($s,$c));
+			}
+			$this->ret_attach = true;
+			$this->display_module($form, array( array($this,'submit_attach') ));
+		} else {
+			$this->ret_attach = false;
+		}
+
 		if($this->inline)
 			return $this->ret_attach;
 		elseif(!$this->ret_attach)
@@ -245,22 +331,38 @@ class Utils_Attachment extends Module {
 	}
 
 	public function edit_note_queue($id,$text) {
-		$this->push_box0('edit_note',array($id,$text),array($this->real_key,$this->group,$this->persistant_deletion,$this->inline,$this->view,$this->edit,$this->download,$this->view_deleted));
-		return true;
+		$this->push_box0('edit_note',array($id,$text),array($this->real_key,$this->group,$this->persistant_deletion,$this->inline,$this->view,$this->edit,$this->download,$this->view_deleted,$this->add_header));
 	}
 
 	public function edit_note($id,$text) {
-		$form = & $this->init_module('Utils/FileUpload',array(false));
-		$form->addElement('header', 'upload', $this->lang->t('Edit note'));
-		$fck = $form->addElement('fckeditor', 'note', $this->lang->t('Note'));
-		$form->setDefaults(array('note'=>$text));
-		$fck->setFCKProps('800','300');
-		$form->set_upload_button_caption('Save');
-		if($form->getSubmitValue('note')=='' && $form->getSubmitValue('uploaded_file')=='')
-			$form->addRule('note',$this->lang->t('Please enter note or choose file'),'required');
-		$this->ret_attach = true;
-		$form->addElement('header',null,$this->lang->t('Replace attachment with file'));
-		$this->display_module($form, array( array($this,'submit_edit'),$id,$text));
+		if(!$this->is_back()) {
+			$form = & $this->init_module('Utils/FileUpload',array(false));
+			$form->addElement('header', 'upload', $this->lang->t('Edit note').': '.$this->add_header);
+			$fck = $form->addElement('fckeditor', 'note', $this->lang->t('Note'));
+			$form->setDefaults(array('note'=>$text));
+			$fck->setFCKProps('800','300');
+			$form->set_upload_button_caption('Save');
+			if($form->getSubmitValue('note')=='' && $form->getSubmitValue('uploaded_file')=='')
+				$form->addRule('note',$this->lang->t('Please enter note or choose file'),'required');
+
+			$form->addElement('header',null,$this->lang->t('Replace attachment with file'));
+			$form->add_upload_element();
+
+			if(!$this->inline) {
+				Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
+				Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+			} else {
+				$s = HTML_QuickForm::createElement('button',null,$this->lang->t('Save'),$form->get_submit_form_href());
+				$c = HTML_QuickForm::createElement('button',null,$this->lang->t('Cancel'),$this->create_back_href());
+				$form->addGroup(array($s,$c));
+			}
+
+			$this->ret_attach = true;
+			$this->display_module($form, array( array($this,'submit_edit'),$id,$text));
+		} else {
+			$this->ret_attach = false;
+		}
+
 		if($this->inline)
 			return $this->ret_attach;
 		elseif(!$this->ret_attach)

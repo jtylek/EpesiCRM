@@ -14,19 +14,19 @@ Utils_CommonData.prototype = {
 		Event.observe(prev_obj,'change',this.request.bindAsEventListener(this));
 		Event.observe(prev_obj,'e_u_cd:load',this.request.bindAsEventListener(this));
 		Event.observe(prev_obj,'e_u_cd:clear',function(){obj.options.length=0;obj.fire('e_u_cd:clear');obj.disabled=true;});
-		
+
 		this.first_request_bind = this.first_request.bindAsEventListener(this);
 		if(this.path.length==2)
 			Event.observe(document,'e:load',this.first_request_bind);
 	},
-	
+
 	first_request: function(e) {
 		Event.stopObserving(document,'e:load',this.first_request_bind);
 //		alert('first');
 		this.request(null);
 	},
 	first_request_bind:null,
-	
+
 	request: function(e) {
 		var obj = this.obj;
 //		alert('request '+obj.name);
@@ -73,6 +73,7 @@ Utils_CommonData.prototype = {
 		}
 	}
 };
+
 var Utils_CommonData_freeze = Class.create();
 Utils_CommonData_freeze.prototype = {
 	obj:null,
@@ -84,23 +85,23 @@ Utils_CommonData_freeze.prototype = {
 		this.path = cd.evalJSON();
 		var obj = this.obj;
 		var prev_obj = eval('obj.form.'+this.path[this.path.length-1]);
-		Event.observe(prev_obj,'e_u_cd:load',this.request.bindAsEventListener(this));
-		
+		if(this.path.length>2)
+			Event.observe(prev_obj,'e_u_cd:load',this.request.bindAsEventListener(this));
+
 		this.first_request_bind = this.first_request.bindAsEventListener(this);
 		if(this.path.length==2)
 			Event.observe(document,'e:load',this.first_request_bind);
 	},
-	
+
 	first_request: function(e) {
 		Event.stopObserving(document,'e:load',this.first_request_bind);
 		//alert('first');
 		this.request(null);
 	},
 	first_request_bind:null,
-	
+
 	request: function(e) {
 		var obj = this.obj;
-		//alert('request '+obj.name);
 		var curr_root = this.path[0];
 		for(var i=1; i<this.path.length; i++) {
 			var val = eval('obj.form.'+this.path[i]).value;
@@ -111,7 +112,12 @@ Utils_CommonData_freeze.prototype = {
 			}
 			curr_root += '/' + val;
 		}
-		curr_root += '/'+this.obj.value;
+		if(this.obj.value=='') {
+			$(this.id+'_label').innerHTML = '---';
+			setTimeout(this.obj.fire.bind(this.obj,'e_u_cd:load'),1);
+			return;
+		}
+		//alert('request '+obj.name+'; root '+curr_root);
 		new Ajax.Request('modules/Utils/CommonData/update_freeze.php',{
 				method:'post',
 				parameters:{

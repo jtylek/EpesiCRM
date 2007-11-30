@@ -83,9 +83,10 @@ class Base_Box extends Module {
 			$mains = array();
 		}
 		array_push($mains,$containers['main']);
+		//error_log(print_r($mains,true)."\n\n\n",3,'data/log');
 		$this->set_module_variable('main', $mains);
 		//print_r($containers);
-		
+
 		$this->modules = array();
 		foreach ($containers as $k => $v) {
 			ob_start();
