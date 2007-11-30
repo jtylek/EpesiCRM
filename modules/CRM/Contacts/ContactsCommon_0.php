@@ -58,7 +58,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			if ($mode!=='add') $form->setDefaults(array($field=>$default));
 			else {
 				if (self::$paste_or_new=='new')
-					$form->addElement('checkbox', 'create_company', 'Create new company', null, array('onClick'=>'document.getElementsByName("companyfrom[]")[0].disabled=document.getElementsByName("companyto[]")[0].disabled=this.checked;'));
+					$form->addElement('checkbox', 'create_company', 'Create new company', null, array('onClick'=>'document.getElementsByName("company_namefrom[]")[0].disabled=document.getElementsByName("company_nameto[]")[0].disabled=this.checked;'));
 				else {
 					$comp = self::get_company(self::$paste_or_new);
 					$paste_company_info =
@@ -68,12 +68,15 @@ class CRM_ContactsCommon extends ModuleCommon {
 						'document.getElementsByName("fax")[0].value="'.$comp['Fax'].'";'.
 						'document.getElementsByName("city")[0].value="'.$comp['City'].'";'.
 						'document.getElementsByName("postal_code")[0].value="'.$comp['Postal Code'].'";'.
-						'country = document.getElementsByName("country")[0];'.
+						'country = $(\'country\');'.
 						'k = 0; while (k < country.options.length) if (country.options[k].value=="'.$comp['Country'].'") break; else k++;'.
 						'country.selectedIndex = k;'.
-						'zone = document.getElementsByName("zone")[0];'.
-						'k = 0; while (k < zone.options.length) if (zone.options[k].value=="'.$comp['Zone'].'") break; else k++;'.
+						'country.fire(\'e_u_cd:load\');'.
+						'zone = $(\'zone\');'.
+						'setTimeout("'.
+						'k = 0; while (k < zone.options.length) if (zone.options[k].value==\''.$comp['Zone'].'\') break; else k++;'.
 						'zone.selectedIndex = k;'.
+						'",900);'.
 						'document.getElementsByName("web_address")[0].value="'.$comp['Web address'].'";';
 					;
 					$form->addElement('button', 'paste_company_info', 'Paste Company Info', array('onClick'=>$paste_company_info));
@@ -121,6 +124,15 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$form->setDefaults(array($field=>$default));
 		if (!Base_AclCommon::i_am_admin()) $form->freeze($field);  
 	}
+	public static function display_fname($v, $i) {
+		return Utils_RecordBrowserCommon::create_linked_label('contact', 'First Name', $i);
+	}
+	public static function display_lname($v, $i) {
+		return Utils_RecordBrowserCommon::create_linked_label('contact', 'Last Name', $i);
+	}
+	public static function display_cname($v, $i) {
+		return Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $i);
+	}
 	public static function display_webaddress($v) {
 		if (strpos($v, 'http://')==false && $v) $v = 'http://'.$v;
 		return '<a href="'.$v.'" target="_blank">'.$v.'</a>';
@@ -137,7 +149,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	public static function submit_contact($values, $mode) {
 		if (isset($values['create_company'])) {
 			$comp_id = Utils_RecordBrowserCommon::new_record('company',
-				array(	'name'=>$values['first_name'].' '.$values['last_name'],
+				array(	'company_name'=>$values['first_name'].' '.$values['last_name'],
 						'address_1'=>$values['address_1'],
 						'address_2'=>$values['address_2'],
 						'country'=>$values['country'],
@@ -147,10 +159,10 @@ class CRM_ContactsCommon extends ModuleCommon {
 						'fax'=>$values['fax'],
 						'web_address'=>$values['web_address'])
 			);
-			$values['company'] = array($comp_id);
+			$values['company_name'] = array($comp_id);
 		}
-//		if ($values['email']=='' && $values['login']!=0 && $mode=='add')
-//			$values['email'] = DB::GetOne('SELECT mail FROM user_password WHERE user_login_id=%d', array($values['login']));
+		if ($values['email']=='' && $values['login']!=0 && $mode=='add')
+			$values['email'] = DB::GetOne('SELECT mail FROM user_password WHERE user_login_id=%d', array($values['login']));
 		return $values;
 	}
 }

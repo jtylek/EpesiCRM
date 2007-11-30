@@ -21,13 +21,15 @@ class Utils_RecordBrowser extends Module {
 	private $requires = array();
 	private $recent = 0;
 	private $caption = '';
+	private $icon = '';
 	private $favorites = false;
 	private $full_history = true;
 	private $action = 'Browsing';
+	private $crits = array();
 		
-	public function get_val($field, $val) {
+	public function get_val($field, $val, $id) {
 		if (isset($this->display_callback_table[$field])) {
-			return call_user_func($this->display_callback_table[$field], $val);
+			return call_user_func($this->display_callback_table[$field], $val, $id);
 		} else {
 			return $val;
 		}
@@ -41,7 +43,7 @@ class Utils_RecordBrowser extends Module {
 	
 	public function init($admin=false) {
 		if (!isset($this->lang)) $this->lang = $this->init_module('Base/Lang');
-		list($this->caption,$this->recent,$this->favorites,$this->full_history)= DB::GetRow('SELECT caption, recent, favorites, full_history FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
+		list($this->caption,$this->icon,$this->recent,$this->favorites,$this->full_history)= DB::GetRow('SELECT caption, icon, recent, favorites, full_history FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 		
 		$this->table_rows = Utils_RecordBrowserCommon::init($this->tab, $admin);
 		$this->requires = array();
@@ -75,8 +77,19 @@ class Utils_RecordBrowser extends Module {
 				if ($this->browse_mode!=='recent' && $this->recent>0) Base_ActionBarCommon::add('history',$this->lang->t('Recent'), $this->create_callback_href(array($this,'switch_view'),array('recent')));
 				if ($this->browse_mode!=='all') Base_ActionBarCommon::add('report',$this->lang->t('All'), $this->create_callback_href(array($this,'switch_view'),array('all')));
 				if ($this->browse_mode!=='favorites' && $this->favorites) Base_ActionBarCommon::add('favorites',$this->lang->t('Favorites'), $this->create_callback_href(array($this,'switch_view'),array('favorites')));
-				$crits = $this->show_filters();
-				$this->show_data($crits);
+
+				$filters = $this->show_filters();
+				ob_start();
+				$this->show_data($this->crits);
+				$table = ob_get_contents();
+				ob_end_clean();
+
+				$theme = $this->init_module('Base/Theme');
+				$theme->assign('filters', $filters);
+				$theme->assign('table', $table);
+				$theme->assign('caption', $this->caption);
+				$theme->assign('icon', $this->icon);
+				$theme->display('Browsing_records');
 			}
 		} else
 			print($this->lang->t('You must log in to view this data.'));
@@ -88,7 +101,10 @@ class Utils_RecordBrowser extends Module {
 	//////////////////////////////////////////////////////////////////////////////////////////
 	public function show_filters() {
 		$ret = DB::Execute('SELECT field FROM '.$this->tab.'_field WHERE filter=1');
-		if ($ret->EOF) return array();
+		if ($ret->EOF) {
+			$this->crits = array();
+			return '';
+		}
 		$form = $this->init_module('Libs/QuickForm', null, $this->tab.'filters');
 		$filters = array();
 		while($row = $ret->FetchRow()) {
@@ -110,19 +126,18 @@ class Utils_RecordBrowser extends Module {
 			$filters[] = str_replace(' ','_',$row['field']);
 		}
 		$form->addElement('submit', 'submit', 'Show');
-		$crits = array();
+		$this->crits = array();
 		if ($form->validate()) {
 			$vals = $form->exportValues();
 			unset($vals['submit']);
 			unset($vals['submited']);
 			foreach($vals as $k=>$v)
-				if ($v!=='__NULL__') $crits[$k] = $v;
+				if ($v!=='__NULL__') $this->crits[str_replace('_',' ',$k)] = $v;
 		}
 		$theme = $this->init_module('Base/Theme');
 		$form->assign_theme('form',$theme);
 		$theme->assign('filters', $filters);
-		$theme->display('Filter');
-		return $crits;
+		return $this->get_html_of_module($theme, 'Filter', 'display');
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
 	public function show_data($crits = array(), $cols = array(), $order = array(), $fs_links = false, $admin = false, $special = false) {
@@ -155,7 +170,7 @@ class Utils_RecordBrowser extends Module {
 		$gb->set_table_columns( $table_columns );
 		$gb->set_default_order( $order );
 		$crits = array_merge($crits, $gb->get_search_query(true));
-		
+
 		$records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, $admin);
 		if ($admin) $this->browse_mode = 'all'; 
 		if ($this->browse_mode == 'recent') {
@@ -230,7 +245,7 @@ class Utils_RecordBrowser extends Module {
 							$ret = Utils_CommonDataCommon::get_value($path);
 						}
 					}
-					$row_data[] = $this->get_val($field, $ret);
+					$row_data[] = $this->get_val($field, $ret, $row['id']);
 				}
 			if ($this->browse_mode == 'recent')
 				$row_data[] = $row['visited_on'];
@@ -244,11 +259,11 @@ class Utils_RecordBrowser extends Module {
 						else $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],false)),$this->lang->t('Deactivate'), null, 'active-on');
 						$gb_row->add_action($this->create_callback_href(array($this,'view_edit_history'),array($row['id'])),$this->lang->t('View edit history'),null,'history');
 					} else 
-					$gb_row->add_action($this->create_callback_href(array($this,'view_entry'),array('delete',$row['id'])),$this->lang->t('Delete'));
+					$gb_row->add_action($this->create_confirm_callback_href($this->lang->t('Are you sure you want to delete this record?'),array('Utils_RecordBrowserCommon','delete_record'),array($this->tab, $row['id'])),$this->lang->t('Delete'));
 				} else {
 					$gb_row->add_action($this->create_href(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($this->tab), 'tab'=>$this->tab, 'id'=>$row['id'], 'action'=>'view')),$this->lang->t('View'));
 					$gb_row->add_action($this->create_href(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($this->tab), 'tab'=>$this->tab, 'id'=>$row['id'], 'action'=>'edit')),$this->lang->t('Edit'));
-					$gb_row->add_action($this->create_href(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($this->tab), 'tab'=>$this->tab, 'id'=>$row['id'], 'action'=>'delete')),$this->lang->t('Delete'));
+					$gb_row->add_action($this->create_confirm_callback_href($this->lang->t('Are you sure you want to delete this record?'),array('Utils_RecordBrowserCommon','delete_record'),array($this->tab, $row['id'])),$this->lang->t('Delete'));
 				}
 			}
 			$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info($this->tab, $row['id']));
@@ -267,7 +282,6 @@ class Utils_RecordBrowser extends Module {
 		switch ($mode) {
 			case 'add': $this->action = 'New record'; break;
 			case 'edit': $this->action = 'Edit record'; break;
-			case 'delete': $this->action = 'Delete record'; break;
 			case 'view': $this->action = 'View record'; break;
 		}
 		$theme = $this->init_module('Base/Theme');
@@ -291,8 +305,6 @@ class Utils_RecordBrowser extends Module {
 			}
 			if ($mode=='add') {
 				Utils_RecordBrowserCommon::new_record($this->tab, $values);
-			} elseif ($mode=='delete') {
-				$this->delete_record($id);
 			} else {
 				$this->update_record_data($id,$values);
 			}
@@ -301,9 +313,6 @@ class Utils_RecordBrowser extends Module {
 
 		if ($mode=='view') { 
 			Base_ActionBarCommon::add('edit', $this->lang->ht('Edit'), $this->create_callback_href(array($this,'view_entry'), array('edit',$id)));
-			Base_ActionBarCommon::add('back', $this->lang->ht('Back'), $this->create_back_href());
-		} else if ($mode=='delete') {
-			Base_ActionBarCommon::add('delete', $this->lang->ht('Delete'), $form->get_submit_form_href());
 			Base_ActionBarCommon::add('back', $this->lang->ht('Back'), $this->create_back_href());
 		} else {
 			Base_ActionBarCommon::add('save', $this->lang->ht('Save'), $form->get_submit_form_href());
@@ -327,7 +336,7 @@ class Utils_RecordBrowser extends Module {
 			}
 		}
 
-		if ($mode=='delete' || $mode=='view') $form->freeze();
+		if ($mode=='view') $form->freeze();
 		if(!isset($renderer)) $renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty(); 
 		$form->accept($renderer);
 		$data = $renderer->toArray();
@@ -392,7 +401,7 @@ class Utils_RecordBrowser extends Module {
 				call_user_func($this->QFfield_callback_table[$field], $form, $args['id'], $this->lang->t($args['name']), $mode, $mode=='add'?0:$records[$id][$field]);
 				continue;
 			}
-			if ($mode!=='add' && $mode!=='edit') $records[$id][$field] = $this->get_val($field, $records[$id][$field]);
+			if ($mode!=='add' && $mode!=='edit') $records[$id][$field] = $this->get_val($field, $records[$id][$field], $id);
 			if (isset($this->requires[$field])) 
 				if ($mode=='add' || $mode=='edit') {
 					foreach($this->requires[$field] as $k=>$v) {
@@ -433,7 +442,8 @@ class Utils_RecordBrowser extends Module {
 									$form->addRule($args['id'], $this->lang->t('Only numbers are allowed.'), 'numeric');
 									if ($mode!=='add') $form->setDefaults(array($args['id']=>$records[$id][$field]));
 									break;
-				case 'text':		$form->addElement('text', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id'], 'maxlength'=>$args['param']));
+				case 'text':		if ($mode!=='view') $form->addElement('text', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id'], 'maxlength'=>$args['param']));
+									else $form->addElement('static', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
 									$form->addRule($args['id'], $this->lang->t('Maximum length for this field is '.$args['param'].'.'), 'maxlength', $args['param']);
 									if ($mode!=='add') $form->setDefaults(array($args['id']=>$records[$id][$field]));
 									break;
@@ -500,9 +510,6 @@ class Utils_RecordBrowser extends Module {
 	public function remove_from_favs($id) {
 		DB::Execute('DELETE FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%d', array(Base_UserCommon::get_my_user_id(), $id));
 	}
-	public function delete_record($id) {
-		DB::Execute('UPDATE '.$this->tab.' SET active=0 where id=%d', array($id));
-	}		
 	public function update_record_data($id,$values) {
 		DB::StartTrans();	
 		$this->init();
@@ -912,7 +919,7 @@ class Utils_RecordBrowser extends Module {
 		// TODO: independant
 		$this->set_module_variable('element',$element);
 		$this->set_module_variable('format_func',$format);
-		print('<hr><a rel="leightbox_'.$element.'" class="lbOn" onclick="init_all_rpicker_'.$element.'();">'.$element.'</a>'.
+		print('<hr><a rel="leightbox_'.$element.'" class="lbOn" onmousedown="init_all_rpicker_'.$element.'();">'.$element.'</a>'.
 			'<div id="leightbox_'.$element.'" class="leightbox">'.
 			'<h1>'.$this->lang->t('Select records').'</h1>'.
 			$this->show_data(array(), array(), array(), false, false, true).

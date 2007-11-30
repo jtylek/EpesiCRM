@@ -71,7 +71,7 @@ class Utils_GenericBrowser_Row_Object {
 	 * @param string label
 	 */
 	public function add_action($tag_attrs,$label,$tooltip=null,$icon=null){
-		$this->GBobj->__add_row_action($this->num, $tag_attrs,$label,isset($tooltip)?$tooltip:$label,$icon);
+		$this->GBobj->__add_row_action($this->num, $tag_attrs,$label,isset($tooltip)?$tooltip:null,$icon);
 	}
 
 	/**
@@ -824,7 +824,7 @@ class Utils_GenericBrowser extends Module {
 					$actions = array();
 					foreach($this->actions[$i] as $icon=>$arr) {
 						$actions[$icon] = array(
-							'open'=>'<a '.Utils_TooltipCommon::open_tag_attrs($arr['tooltip']).' '.$arr['tag_attrs'].'>',
+							'open'=>'<a '.Utils_TooltipCommon::open_tag_attrs($arr['tooltip']!==null?$arr['tooltip']:$arr['label'], $arr['tooltip']===null).' '.$arr['tag_attrs'].'>',
 							'close'=>'</a>',
 							'label'=>$arr['label']);
 					}

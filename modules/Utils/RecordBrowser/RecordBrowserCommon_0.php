@@ -200,6 +200,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function set_caption($tab_name, $value) {
 		DB::Execute('UPDATE recordbrowser_table_properties SET caption=%s WHERE tab=%s', array($value, $tab_name));
 	}
+	public static function set_icon($tab_name, $value) {
+		DB::Execute('UPDATE recordbrowser_table_properties SET icon=%s WHERE tab=%s', array($value, $tab_name));
+	}
 	
 	public static function new_record( $tab_name = null, $values = array()) {
 		if (!$tab_name) return false;
@@ -372,6 +375,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		return true;
 	}
+	public function delete_record($tab, $id) {
+		DB::Execute('UPDATE '.$tab.' SET active=0 where id=%d', array($id));
+	}		
 	public function create_linked_label($tab, $col, $id){
 		$label = DB::GetOne('SELECT value FROM '.$tab.'_data WHERE field=%s AND '.$tab.'_id=%d', array($col, $id));
 		return '<a '.Module::create_href(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($tab), 'tab'=>$tab, 'id'=>$id, 'action'=>'view')).'>'.$label.'</a>';
