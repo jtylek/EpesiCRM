@@ -83,8 +83,12 @@ class CRM_Contacts extends Module {
 	public function contact_attachment_addon($arg){
 		$a = $this->init_module('Utils/Attachment',array($arg['id'],'CRM/Contact/'.$arg['id']));
 		$l = $this->init_module('Base/Lang');
-		$company = CRM_ContactsCommon::get_company($arg['Company Name'][0]);
-		$a->additional_header($l->t('%s %s from %s',array($arg['First Name'],$arg['Last Name'],$company['Company Name'].($company['Short Name']?' ('.$company['Short Name'].')':''))));
+		$companies = array();
+		foreach($arg['Company Name'] as $comp) {
+			$company = CRM_ContactsCommon::get_company($comp);
+			$companies[] = $company['Company Name'].($company['Short Name']?' ('.$company['Short Name'].')':'');
+		}
+		$a->additional_header($l->t('%s %s from %s',array($arg['First Name'],$arg['Last Name'],implode(', ',$companies))));
 		$a->allow_view_deleted($this->acl_check('view deleted attachments'));
 		$a->allow_view($this->acl_check('view attachments'));
 		$a->allow_edit($this->acl_check('edit attachments'));
