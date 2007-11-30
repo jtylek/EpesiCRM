@@ -68,7 +68,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_favorites('company', true);
 		Utils_RecordBrowserCommon::set_recent('company', 15);
 		Utils_RecordBrowserCommon::set_caption('company', 'Companies');
-		Utils_RecordBrowserCommon::set_icon('company', Base_ThemeCommon::get_template_file('CRM/Contacts', 'company.png'));
+		Utils_RecordBrowserCommon::set_icon('company', Base_ThemeCommon::get_template_file('CRM/Contacts', 'companies.png'));
 // ************ addons ************** //
 		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Contacts', 'company_addon', 'Contacts');
 		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Contacts', 'company_attachment_addon', 'Notes');
