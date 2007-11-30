@@ -802,9 +802,10 @@ class Utils_GenericBrowser extends Module {
 			}
 			if(isset($v['order'])) $is_order = true;
 			if(!isset($headers[$col_pos[$i]['pos']])) $headers[$col_pos[$i]['pos']] = array('label'=>'');
-			$headers[$col_pos[$i]['pos']]['label'] .= isset($v['order'])?'<a '.$this->create_unique_href(array('change_order'=>$v['name'])).'>'.$v['name'].'</a>':$v['name'];
+			if (!Base_User_SettingsCommon::get('Utils/GenericBrowser','adv_history') && $v['name']==$order[0]['column']) $sort .= '<img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_GenericBrowser','sort-'.strtolower($order[0]['direction']).'ending.png').'" />';
+			else $sort = '';
+			$headers[$col_pos[$i]['pos']]['label'] .= isset($v['order'])?'<a '.$this->create_unique_href(array('change_order'=>$v['name'])).'>'.$v['name'].$sort.'</a>':$v['name'];
 			//if ($v['search']) $headers[$col_pos[$i]['pos']] .= $form_array['search__'.$v['search']]['label'].$form_array['search__'.$v['search']]['html'];
-			if (!Base_User_SettingsCommon::get('Utils/GenericBrowser','adv_history') && $v['name']==$order[0]['column']) $headers[$col_pos[$i]['pos']]['label'] .= ' '.$order[0]['direction'];
 			$headers[$col_pos[$i]['pos']]['attrs'] = 'style="width: '.intval(100*$v['width']/$all_width).'%"';
 			$i++;
 		}
