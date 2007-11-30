@@ -64,10 +64,18 @@ class CRM_Contacts extends Module {
 
 	public function company_addon($arg){
 		$theme = $this->init_module('Base/Theme');
-		$theme->assign('add_contact', '<a '.$this->create_href(array('box_main_module'=>'CRM_Contacts', 'box_main_function'=>'new_contact', 'box_main_arguments'=>array($arg['id']))).'>'.Base_LangCommon::ts('CRM_Contacts','Add new contact').'</a>');
+//		$theme->assign('add_contact', '<a '.$this->create_href(array('box_main_module'=>'CRM_Contacts', 'box_main_function'=>'new_contact', 'box_main_arguments'=>array($arg['id']))).'>'.Base_LangCommon::ts('CRM_Contacts','Add new contact').'</a>');
+		$theme->assign('add_contact', '<a '.$this->create_callback_href(array($this, 'company_addon_new_contact'), array($arg['id'])).'>'.Base_LangCommon::ts('CRM_Contacts','Add new contact').'</a>');
 		$rb = $this->init_module('Utils/RecordBrowser','contact','contact_addon');
 		$theme->assign('contacts', $this->get_html_of_module($rb, array(array('Company Name'=>$arg['id']), array('Company'=>false), array('Fav'=>'DESC'), true), 'show_data'));
 		$theme->display('Company_plugin');
+	}
+
+	public function company_addon_new_contact($id){
+		$x = ModuleManager::get_instance('/Base_Box|0');
+		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+		$x->push_main('CRM/Contacts','new_contact',$id,array());
+		return false;
 	}
 
 	public function company_attachment_addon($arg){

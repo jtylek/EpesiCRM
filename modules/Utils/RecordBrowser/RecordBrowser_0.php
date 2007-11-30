@@ -65,6 +65,7 @@ class Utils_RecordBrowser extends Module {
 	}
 	// BODY //////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function body() {
+		$this->set_module_variable('self_initialized', true);
 		if(Base_AclCommon::i_am_user()) {
 			$this->init();
 			if (isset($_REQUEST['tab'])) {
@@ -285,8 +286,15 @@ class Utils_RecordBrowser extends Module {
 	//////////////////////////////////////////////////////////////////////////////////////////
 	public function view_entry($mode='view', $id = null, $defaults = array()) {
 		$js = true;
-		if($this->is_back())
+		if ($this->is_back()) {
+			if (!$this->get_module_variable('self_initialized',false)) {
+//				trigger_error('!!!', E_USER_ERROR);
+				$x = ModuleManager::get_instance('/Base_Box|0');
+				if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+				return $x->pop_main();
+			}
 			return false;
+		}
 		$this->init();
 		switch ($mode) {
 			case 'add': $this->action = 'New record'; break;
@@ -299,7 +307,7 @@ class Utils_RecordBrowser extends Module {
 			Utils_RecordBrowserCommon::add_recent_entry($this->tab, Base_UserCommon::get_my_user_id(),$id);
 
 		$tb = $this->init_module('Utils/TabbedBrowser');
-		$form = $this->init_module('Libs/QuickForm',null,$mode);
+		$form = $this->init_module('Libs/QuickForm',null, $mode);
 		if($mode=='add')
 			$form->setDefaults($defaults);
 
@@ -989,5 +997,16 @@ class Utils_RecordBrowser extends Module {
 			'add_selected_'.$element.'();'.
 			'};');
 	}
+	public function pop_box0() {
+		$x = ModuleManager::get_instance('/Base_Box|0');
+		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+		$x->pop_main();
+	}
+	public function push_box0($func,$args,$const_args) {
+		$x = ModuleManager::get_instance('/Base_Box|0');
+		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+		$x->push_main('Utils/RecordBrowser',$func,$args,$const_args);
+	}
+
 }
 ?>

@@ -40,12 +40,12 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return 'Companies & Contacts';
 	}
 	public static function QFfield_country(&$form, $field, $label, $mode, $default) {
-		$form->addElement('commondata', $field, $label, 'Countries', array('empty_option'=>true));
+		$form->addElement('commondata', $field, $label, 'Countries', array('empty_option'=>true), array('id'=>'country'));
 		if ($mode!=='add') $form->setDefaults(array($field=>$default));
 		else $form->setDefaults(array($field=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country')));
 	}
 	public static function QFfield_zone(&$form, $field, $label, $mode, $default) {
-		$form->addElement('commondata', $field, $label, array('Countries', 'country'), array('empty_option'=>true));
+		$form->addElement('commondata', $field, $label, array('Countries', 'country'), array('empty_option'=>true), array('id'=>'zone'));
 		if ($mode!=='add') $form->setDefaults(array($field=>$default));
 		else $form->setDefaults(array($field=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state')));
 	}
@@ -134,6 +134,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $i);
 	}
 	public static function display_webaddress($v) {
+		$v = trim($v, ' ');
+		if ($v=='') return '';
 		if (strpos($v, 'http://')==false && $v) $v = 'http://'.$v;
 		return '<a href="'.$v.'" target="_blank">'.$v.'</a>';
 	}
