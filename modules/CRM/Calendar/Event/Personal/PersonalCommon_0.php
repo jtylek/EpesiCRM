@@ -80,11 +80,22 @@ class CRM_Calendar_Event_PersonalCommon extends ModuleCommon {
 		else
 			$emps = '';
 		$acts = CRM_Calendar_Event_PersonalCommon::decode_activity($row['act_id']);
-		$time = '<span name="event'.$row['id'].'start">'.substr($row['datetime_start'], 8, 2).":".substr($row['datetime_start'], 10, 2).'</span>';
-		$divider = '<span name="event'.$row['id'].'divider"> - </span>';
-		$finish = '<span name="event'.$row['id'].'finish">'.substr($row['datetime_end'], 8, 2).":".substr($row['datetime_end'], 10, 2).'</span>';
-		$after = '<span name="event'.$row['id'].'after">: </span>';
+		$time = substr($row['datetime_start'], 8, 2).':'.substr($row['datetime_start'], 10, 2);
+		$finish = substr($row['datetime_end'], 8, 2).':'.substr($row['datetime_end'], 10, 2);
 		
+		
+		if(Base_RegionalSettingsCommon::time_12h()) {
+			$time = strtotime($time);
+			$format = '%I:%M %p';
+			$time =strftime($format,$time);
+			$finish = strtotime($finish);
+			$finish = strftime($format,$finish);
+		}
+		
+		$time = '<span name="event'.$row['id'].'start">'.$time.'</span>';
+		$divider = '<span name="event'.$row['id'].'divider"> - </span>';
+		$finish = '<span name="event'.$row['id'].'finish">'.$finish.'</span>';
+		$after = '<span name="event'.$row['id'].'after">: </span>';
 		if($row['timeless'] == 1) {
 			$time = '<span name="event'.$row['id'].'start"></span>';
 			$divider = '<span name="event'.$row['id'].'divider"></span>';
@@ -92,6 +103,14 @@ class CRM_Calendar_Event_PersonalCommon extends ModuleCommon {
 			$after = '<span name="event'.$row['id'].'after"></span>';
 		}
 		switch($style) {
+			case 'time':
+				return '<b>'.$time.$divider.$finish.'</b>';
+			case 'title':
+				if($row['created_by'] == Base_UserCommon::get_my_user_id() || $row['access'] <= 1)
+					return $row['title'];
+				else
+					return '<font color=red>'.Base_UserCommon::get_user_login($row['created_by']).' PRIVATE</font>';
+			//--------------------------------------------------------
 			case 'brief':
 				if($row['created_by'] == Base_UserCommon::get_my_user_id() || $row['access'] <= 1)
 					return '<font size=1 face=tahoma><b>'.$time.$after.'</b>'.$row['title'];

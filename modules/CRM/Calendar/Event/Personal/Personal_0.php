@@ -27,13 +27,25 @@ class CRM_Calendar_Event_Personal extends Module {
 		$d['date_s'] = Base_RegionalSettingsCommon::server_date($d['date_s']);
 		$d['date_e'] = Base_RegionalSettingsCommon::server_date($d['date_e']);
 		if($d['timeless'] == 0){
-			$dt_start = 	$d['date_s']." ".$d['time_s']['H'].":".$d['time_s']['i'].":00";
-			$dt_end = 		$d['date_e']." ".$d['time_e']['H'].":".$d['time_e']['i'].":00";
+			if(Base_RegionalSettingsCommon::time_12h()) {
+				if($d['time_s']['a'] == 'pm')
+					$d['time_s']['h'] += 12;
+				if($d['time_e']['a'] == 'pm')
+					$d['time_e']['h'] += 12;
+				$dt_start = 	$d['date_s']." ".$d['time_s']['h'].":".$d['time_s']['i'].":00";
+				$dt_end = 		$d['date_e']." ".$d['time_e']['h'].":".$d['time_e']['i'].":00";
+			} else {
+				$dt_start = 	$d['date_s']." ".$d['time_s']['H'].":".$d['time_s']['i'].":00";
+				$dt_end = 		$d['date_e']." ".$d['time_e']['H'].":".$d['time_e']['i'].":00";
+			}
 		} else {
 			$dt_start = 	$d['date_s']." "."00:00".":00";
 			$dt_end = 		$d['date_e']." "."23:59".":59";
 		}
 		// adding participants group
+		
+		//print $dt_start.' '.$dt_end.'<br>';
+		//return false;
 		$d['emp_id'] = explode('__SEP__',$d['emp_id']);
         array_shift($d['emp_id']);
 		foreach( $d['emp_id'] as $key=>$val) {
@@ -76,8 +88,17 @@ class CRM_Calendar_Event_Personal extends Module {
 		$d['date_s'] = Base_RegionalSettingsCommon::server_date($d['date_s']);
 		$d['date_e'] = Base_RegionalSettingsCommon::server_date($d['date_e']);
 		if($d['timeless'] == 0){
-			$dt_start = 	$d['date_s']." ".$d['time_s']['H'].":".$d['time_s']['i'].":00";
-			$dt_end = 		$d['date_e']." ".$d['time_e']['H'].":".$d['time_e']['i'].":00";
+			if(Base_RegionalSettingsCommon::time_12h()) {
+				if($d['time_s']['a'] == 'pm')
+					$d['time_s']['h'] += 12;
+				if($d['time_e']['a'] == 'pm')
+					$d['time_e']['h'] += 12;
+				$dt_start = 	$d['date_s']." ".$d['time_s']['h'].":".$d['time_s']['i'].":00";
+				$dt_end = 		$d['date_e']." ".$d['time_e']['h'].":".$d['time_e']['i'].":00";
+			} else {
+				$dt_start = 	$d['date_s']." ".$d['time_s']['H'].":".$d['time_s']['i'].":00";
+				$dt_end = 		$d['date_e']." ".$d['time_e']['H'].":".$d['time_e']['i'].":00";
+			}
 		} else {
 			$dt_start = 	$d['date_s']." "."00:00".":00";
 			$dt_end = 		$d['date_e']." "."23:59".":59";
@@ -225,15 +246,21 @@ class CRM_Calendar_Event_Personal extends Module {
 			$form->addRule('date_s', 'Field is required!', 'required');
 			//$form->registerRule('proper_date','regex','/^\d{4}\.\d{2}\.\d{2}$/'); 
 			//$form->addRule('date_e', 'Invalid date format, must be yyyy.mm.dd', 'proper_date');
-		$form->addElement('date', 'time_s', $lang->t('Time'), array('format'=>'H:i'));
-		
+		if(Base_RegionalSettingsCommon::time_12h())
+			$form->addElement('date', 'time_s', $lang->t('Time'), array('format'=>'h:i:a'));
+		else
+			$form->addElement('date', 'time_s', $lang->t('Time'), array('format'=>'H:i'));
+			
 		// fin
 		$form->addElement('header', null, $lang->t('Ending of event'));
 		$form->addElement('datepicker', 'date_e', $lang->t('Event end'));
 			$form->addRule('date_e', 'Field is required!', 'required');
 			//$form->addRule('date_e', 'Invalid date format, must be yyyy.mm.dd', 'proper_date');
 			//$form->addRule(array('date_e', 'date_s'), 'End date must be after begin date...', 'compare', 'gte');
-		$form->addElement('date', 'time_e', $lang->t('Time'), array('format'=>'H:i'));
+		if(Base_RegionalSettingsCommon::time_12h())
+			$form->addElement('date', 'time_e', $lang->t('Time'), array('format'=>'h:i:a'));
+		else
+			$form->addElement('date', 'time_e', $lang->t('Time'), array('format'=>'H:i'));
 		
 		// all day event?
 		$form->addElement('checkbox', 'timeless', $lang->t('Lasts whole day?'), null,'onClick="'.$form->get_submit_form_js(false).'"');

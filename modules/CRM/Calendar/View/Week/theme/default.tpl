@@ -42,8 +42,10 @@
 					{foreach item=event from=$t_event.event}
 					<div name="events_brief" class="events_brief" id="{$event.div_id}">
 							<span class="events_drag_handle">{$event.move}</span>
-							<span class="events_brief_info" id="{$event.div_id}_brief">{$event.brief}</span>
+							<span class="events_brief_info" id="{$event.div_id}_time">{$event.time}</span>
 							<span class="events_more">{$event.more}</span>
+								<br>
+							<span class="events_brief_info" id="{$event.div_id}_title">{$event.title}</span>
 					</div>
 					{/foreach}
 				{else}
@@ -73,8 +75,10 @@
 						{foreach item=event from=$tt[tt].event}
 						<div name="events_brief" class="events_brief" id="{$event.div_id}">
 							<span class="events_drag_handle">{$event.move}</span>
-							<span class="events_brief_info" id="{$event.div_id}_brief">{$event.brief}</span>
+							<span class="events_brief_info" id="{$event.div_id}_time">{$event.time}</span>
 							<span class="events_more">{$event.more}</span>
+								<br>
+							<div class="events_brief_info" id="{$event.div_id}_title">{$event.title}</div>
 						</div>
 						{/foreach}
 					{/if}

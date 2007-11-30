@@ -273,7 +273,7 @@ p.event {
 /* event */
 
 .crm_calendar_week div.events_brief {
-	height: 18px;
+	height: 36px;
 	border: 2px solid #339933;
 	background-color: #cfe6cf;
 	color: #000000;

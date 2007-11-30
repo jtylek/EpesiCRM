@@ -214,11 +214,15 @@ class CRM_Calendar_View_Week extends Module {
 					$more .= call_user_func(array($module.'Common', 'get_text'), $EV, 'edit');
 					$event[$g]['more'] = '<img style="vertical-align: middle;" id="'.$div_id.'_more" border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'info.png').'>';
 
-					$event[$g]['brief'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'brief');
+					//$event[$g]['brief'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'brief');
+					$event[$g]['time'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'time');
+					$event[$g]['title'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'title');
 					$event[$g]['move'] = '<img  border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'grab.png').'>';
 
 					$event[$g]['div_id'] = $div_id;
-					CRM_Calendar_Utils_SidetipCommon::create($div_id.'_brief', $div_id, $event[$g]['full']);
+					//CRM_Calendar_Utils_SidetipCommon::create($div_id.'_brief', $div_id, $event[$g]['full']);
+					CRM_Calendar_Utils_SidetipCommon::create($div_id.'_time', $div_id, $event[$g]['full']);
+					CRM_Calendar_Utils_SidetipCommon::create($div_id.'_title', $div_id, $event[$g]['full']);
 					CRM_Calendar_Utils_SidetipCommon::create($div_id.'_more', $div_id, $more);
 				}
 			}
@@ -265,14 +269,18 @@ class CRM_Calendar_View_Week extends Module {
 							if($EV['access'] > 1 || $EV['created_by'] != $this->logged)
 								$event[$g]['more'] = '<img style="vertical-align: middle; visibility: hidden" id="'.$div_id.'_more" border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'info.png').'>';
 
-							$event[$g]['brief'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'brief');
+							//$event[$g]['brief'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'brief');
+							$event[$g]['time'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'time');
+							$event[$g]['title'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'title');
 							$event[$g]['move'] = '<img  border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'grab.png').'>';
 							$event[$g]['div_id'] = $div_id;
 
 							//if($EV['created_by'] != Base_UserCommon::get_My_user_id())
 							//	eval_js('crm_calendar_view_week__remove_element("'.$div_id.'")');
 							//else
-							CRM_Calendar_Utils_SidetipCommon::create($div_id.'_brief', $div_id, $event[$g]['full']);
+							//CRM_Calendar_Utils_SidetipCommon::create($div_id.'_brief', $div_id, $event[$g]['full']);
+							CRM_Calendar_Utils_SidetipCommon::create($div_id.'_time', $div_id, $event[$g]['full']);
+							CRM_Calendar_Utils_SidetipCommon::create($div_id.'_title', $div_id, $event[$g]['full']);
 							CRM_Calendar_Utils_SidetipCommon::create($div_id.'_more', $div_id, $more);
 						}
 					}

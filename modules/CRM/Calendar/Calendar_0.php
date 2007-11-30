@@ -32,7 +32,11 @@ class CRM_Calendar extends Module {
 		
 		$this->menu_main_show_tb = & $this->init_module('Utils/TabbedBrowser');
 		
-		// tabbed browsers:
+		
+		load_js('modules/CRM/Calendar/dnd.js');
+		
+		if(Base_RegionalSettingsCommon::time_12h())
+			eval_js('CRMCalendarDND.is_AM = true');
 		
 		// TODO: perhaps better to load modules when needed, not every time.
 		$this->modules['month'] 	= & $this->init_module('CRM/Calendar/View/Month', array($this));

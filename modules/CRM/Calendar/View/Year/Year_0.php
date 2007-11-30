@@ -238,7 +238,7 @@ class CRM_Calendar_View_Year extends Module {
 
 			$name = '<a '.$this->parent->create_unique_href( array('action'=>'show', 'view_style'=>'month', 'date'=>array('year'=>$date['year'], 'month'=>$date['month'], 'day'=>1), 'direct'=>'yes') ).'>'.
 					CRM_Calendar_Utils_FuncCommon::name_of_month( $date['month'], 2 )
-					.'</a>';
+					.'</a><br>';
 
 			$theme->assign('header', $header);
 			$theme->assign('weeks', $weeks);
@@ -337,18 +337,10 @@ class CRM_Calendar_View_Year extends Module {
 				break;
 			case 'show':
 			default:
-
-				print '
-					<!-- SHADIW BEGIN -->
-					<div class="layer" style="padding: 9px; width: 740px;">
-					<div class="content_shadow">
-					<!-- -->
-				';
-
-				print '<table border="0" cellpadding="0" cellspacing="5" style="vertical-align: top; background-color: #FFFFFF;">';
-				for($x = 1; $x <= 12; $x+=3 ) {
+				print '<table border="0" cellpadding="0" cellspacing="5">';
+				for($x = 1; $x <= 12; $x+=4 ) {
 					print '<tr>';
-					for($y = $x; $y < $x+3; $y++ ) {
+					for($y = $x; $y < $x+4; $y++ ) {
 						print '<td style="vertical-align: top">';
 						$date['month'] = $y;
 						$this->show_calendar_month($date);
@@ -357,27 +349,6 @@ class CRM_Calendar_View_Year extends Module {
 					print '</tr>';
 				}
 				print '</table>';
-
-				print '
-				<!-- SHADOW END -->
-		 		</div>
-				<div class="shadow-top">
-					<div class="left"></div>
-					<div class="center"></div>
-					<div class="right"></div>
-				</div>
-				<div class="shadow-middle">
-					<div class="left"></div>
-					<div class="right"></div>
-				</div>
-				<div class="shadow-bottom">
-					<div class="left"></div>
-					<div class="center"></div>
-					<div class="right"></div>
-				</div>
-				</div>
-				<!-- -->
-				';
 		}
 	}
 	// BODY //////////////////////////////////////////////////////////////////////////////////////////////////////

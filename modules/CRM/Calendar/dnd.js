@@ -1,5 +1,6 @@
 // chowa ta postac klasy jako tabeli...
 var CRMCalendarDND = {
+	is_AM: false,
 	containments: new Array(),
 	elements: new Array(),
 	add_containment: function(id) {
@@ -38,7 +39,7 @@ var CRMCalendarDND = {
 		Sortable.create(id,
 	     	{
 	     		dropOnEmpty:true, containment:CRMCalendarDND.containments, constraint:false, treeTag:'td', tag:'div', tree: true, 
-	     		handle: 'event_drag_handle',
+	     		handle: 'events_drag_handle',
 	     		onDrop:function(c){
 	     			//alert(c.id+' on '+id);
 			    	new Ajax.Request("modules/CRM/Calendar/Event/Personal/update.php",
@@ -53,16 +54,26 @@ var CRMCalendarDND = {
 								eid = eid[1];
 								new_h = CRMCalendarDND.str_to_num(id.substring(16,18));
 								
-								$(c.id).style.zIndex = 10000;
+								$(c.id).style.zIndex = 100;
 								if($(c.id+'_f')) {
-									$(c.id+'_f').style.zIndex = 10001;
+									$(c.id+'_f').style.zIndex = 101;
 								}
 								if(id.substring(16,18) != 'tt') {
 									times = document.getElementsByName('event'+eid+'start');
 									//alert(times[i].innerHTML.substr(0,2));
 									for(i = 0; i < times.length; i++) {
 										beg_h = CRMCalendarDND.str_to_num(times[i].innerHTML.substr(0,2));
-										times[i].innerHTML = id.substring(16,18) + ':'+edate.substring(10,12);
+										var n_h = id.substring(16,18);
+										//if(n_h < 10) n_h = '0' + n_h + '';
+										var ampm = '';
+										if(CRMCalendarDND.is_AM) {
+											if(n_h > 12) { n_h = eval(n_h-12); ampm = ' PM'; }
+											else {
+												if(n_h == '00') { n_h = '12'; ampm = ' AM'; }
+												else {ampm = ' AM';}
+											}
+										}
+										times[i].innerHTML = n_h + ':'+edate.substring(10,12) + ampm;
 									}
 									if(beg_h == '') beg_h = 1;
 									times = document.getElementsByName('event'+eid+'finish');
@@ -73,8 +84,16 @@ var CRMCalendarDND = {
 										if(isNaN(n_h)) {
 											times[i].innerHTML = id.substring(16,18)+':00';
 										} else {
+											var ampm = '';
+											if(CRMCalendarDND.is_AM) {
+												if(n_h > 12) { n_h = eval(n_h-12); ampm = ' PM'; }
+												else {
+													if(n_h == '00') { n_h = '12'; ampm = ' AM'; }
+													else {ampm = ' AM';}
+												}
+											}
 											if(n_h < 10) n_h = '0' + n_h + '';
-											times[i].innerHTML = n_h+times[i].innerHTML.substr(2);
+											times[i].innerHTML = n_h+times[i].innerHTML.substr(2,4)+ampm;
 										}
 									}
 									times = document.getElementsByName('event'+eid+'divider');
