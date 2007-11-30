@@ -117,7 +117,8 @@ Utils_CommonData_freeze.prototype = {
 			setTimeout(this.obj.fire.bind(this.obj,'e_u_cd:load'),1);
 			return;
 		}
-		//alert('request '+obj.name+'; root '+curr_root);
+		curr_root += '/' + this.obj.value;
+//		alert('request '+obj.name+'; root '+curr_root);
 		new Ajax.Request('modules/Utils/CommonData/update_freeze.php',{
 				method:'post',
 				parameters:{
