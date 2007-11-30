@@ -8,7 +8,7 @@
 		<tr>
 			<td class="icon"><img src="{$theme_dir}/CRM_Contacts__contacts.png" width="32" height="32" border="0"></td>
 			<td class="name">Contacts</td>
-			<td class="empty"></td>
+			<td class="required">* {$required_note}</td>
 			<td class="fav">{if isset($fav_tooltip)}{$fav_tooltip}{/if}</td>
 			<td class="info">{if isset($info_tooltip)}{$info_tooltip}{/if}</td>
 		</tr>
@@ -72,5 +72,3 @@
 		</div>
 	</div>
 <!-- -->
-
-<div style="text-align: center; padding-top: 10px; color: #777777;">* {$required_note}<div>

@@ -219,6 +219,8 @@ class CRM_Calendar_View_Month extends Module {
 
 		print '<div class="month-menu">';
 		print '<table border="0"><tr>';
+		print '<td style="padding-left: 180px;"></td>';
+		print '<td style="width: 50%;"></td>';
 		print '<td>';
 
 		// DROPDOWNS -------------------------------------------------
@@ -300,7 +302,10 @@ class CRM_Calendar_View_Month extends Module {
 		print Utils_CalendarCommon::show('week_selector', $link_text);
 		print '</td>';
 
-		print '</tr></table></div><br>';
+		print '<td class="empty"></td>';
+		print '<td class="add-info">Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event</td>';
+
+		print '</tr></table></div>';
 
 	} // calendar menu
 	// Settings ////////////////////////////////////////////////////////////////////////////////////////

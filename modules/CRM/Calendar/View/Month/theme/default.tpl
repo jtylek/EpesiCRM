@@ -3,7 +3,7 @@
 		<div class="content_shadow">
 <!-- -->
 
-<div style="padding: 2px; background-color: #FFFFFF;">
+<div style="padding: 5px; background-color: #FFFFFF;">
 
 	<table name="CRMCalendar" class="crm_calendar_month" cellpadding="0" cellspacing="0" border="0">
 		<tr>
@@ -62,5 +62,3 @@
 		</div>
 	</div>
 <!-- -->
-
-<div style="text-align: center; padding-top: 10px; color: #777777;">Double click on cell to add event<div>

@@ -3,7 +3,7 @@
 		<div class="content_shadow">
 <!-- -->
 
-<div style="padding: 2px; background-color: #FFFFFF;">
+<div style="padding: 5px; background-color: #FFFFFF;">
 
 	<table name=CRMCalendar cellspacing=0 class=week>
 {* shows month *}

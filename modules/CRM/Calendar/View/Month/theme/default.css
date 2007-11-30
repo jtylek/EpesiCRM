@@ -181,8 +181,25 @@ div.month-menu {
 	/*border-bottom: 4px solid #B3B3B3;*/
 }
 
+div.month-menu table {
+	width: 100%;
+}
+
 div.month-menu img {
 	vertical-align: middle;
+}
+
+div.month-menu .empty {
+	width: 50%;
+}
+
+div.month-menu .add-info {
+	color: #777777;
+	padding-right: 20px;
+}
+
+div.month-menu .add-info:hover {
+	color: #000000;
 }
 
 div.month-menu a.button {

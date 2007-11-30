@@ -3,7 +3,7 @@
 		<div class="content_shadow">
 <!-- -->
 
-<div style="padding: 2px; background-color: #FFFFFF;">
+<div style="padding: 5px; background-color: #FFFFFF;">
 
 	<table class="crm_calendar_week" cellspacing="0" cellpadding="0">
 		<tr>
