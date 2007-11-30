@@ -145,7 +145,7 @@ class Utils_Attachment extends Module {
 		static $th;
 		if(!isset($th)) $th = $this->init_module('Base/Theme');
 
-		$lid = 'get_file_'.md5($this->get_path()).'_'.$row['id'];
+		$lid = 'get_file_'.md5($this->get_path()).'_'.$row['id'].'_'.$row['file_revision'];
 		$th->assign('view','<a href="modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$row['id'],'revision'=>$row['file_revision'],'path'=>$this->get_path(),'cid'=>CID,'view'=>1)).'" target="_blank" id="view_'.$lid.'">'.$this->lang->t('View').'</a><br>');
 		$th->assign('download','<a href="modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$row['id'],'revision'=>$row['file_revision'],'path'=>$this->get_path(),'cid'=>CID)).'" id="download_'.$lid.'">'.$this->lang->t('Download').'</a><br>');
 		eval_js('Event.observe(\'view_'.$lid.'\',\'click\', function(){leightbox_deactivate("'.$lid.'")})');
@@ -229,21 +229,25 @@ class Utils_Attachment extends Module {
 		}
 		$this->display_module($gb);
 
+		$this->set_module_variable('download',$this->download);
+		$this->set_module_variable('key',$this->key);
+		$this->set_module_variable('group',$this->group);
+
 		$gb = $this->init_module('Utils/GenericBrowser',null,'ha'.$this->key);
 		$gb->set_table_columns(array(
-				array('name'=>'Revision', 'order'=>'uaf.revision','width'=>5),
+				array('name'=>'Revision', 'order'=>'file_revision','width'=>5),
 				array('name'=>'Date', 'order'=>'upload_on','width'=>15),
 				array('name'=>'Who', 'order'=>'upload_by','width'=>15),
 				array('name'=>'Attachment', 'order'=>'uaf.original')
 			));
 
-		$ret = $gb->query_order_limit('SELECT uaf.revision,uaf.created_on as upload_on,(SELECT l.login FROM user_login l WHERE uaf.created_by=l.id) as upload_by,uaf.original FROM utils_attachment_file uaf WHERE uaf.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_file uaf WHERE uaf.attach_id='.$id);
+		$ret = $gb->query_order_limit('SELECT uaf.attach_id as id,uaf.revision as file_revision,uaf.created_on as upload_on,(SELECT l.login FROM user_login l WHERE uaf.created_by=l.id) as upload_by,uaf.original FROM utils_attachment_file uaf WHERE uaf.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_file uaf WHERE uaf.attach_id='.$id);
 		while($row = $ret->FetchRow()) {
 			$r = $gb->get_new_row();
 			if($this->edit)
-				$r->add_action($this->create_callback_href(array($this,'restore_file'),array($id,$row['revision'])),'restore');
-			$file = '<a href="modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$id,'revision'=>$row['revision'],'path'=>$this->get_path(),'cid'=>CID)).'">'.$row['original'].'</a>';
-			$r->add_data($row['revision'],$row['upload_on'],$row['upload_by'],$file);
+				$r->add_action($this->create_callback_href(array($this,'restore_file'),array($id,$row['file_revision'])),'restore');
+			$file = $this->get_file($row);
+			$r->add_data($row['file_revision'],$row['upload_on'],$row['upload_by'],$file);
 		}
 		$this->display_module($gb);
 
