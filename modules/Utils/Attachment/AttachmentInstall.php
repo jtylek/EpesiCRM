@@ -66,7 +66,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			     array('name'=>'Utils/FileUpload', 'version'=>0),
 			     array('name'=>'Libs/QuickForm', 'version'=>0),
 			     array('name'=>'Libs/FCKeditor', 'version'=>0),
-			     array('name'=>'Libs/Leigthbox', 'version'=>0),
+			     array('name'=>'Libs/Leightbox', 'version'=>0),
 			     array('name'=>'Utils/Tooltip', 'version'=>0),
 			     array('name'=>'Base/RegionalSettings', 'version'=>0),
 			     array('name'=>'Base/Box', 'version'=>0),
