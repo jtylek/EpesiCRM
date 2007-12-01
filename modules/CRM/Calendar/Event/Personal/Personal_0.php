@@ -32,6 +32,8 @@ class CRM_Calendar_Event_Personal extends Module {
 					$d['time_s']['h'] += 12;
 				if($d['time_e']['a'] == 'pm')
 					$d['time_e']['h'] += 12;
+				$d['time_s']['i'] = sprintf("%02d", $d['time_s']['i']);
+				$d['time_e']['i'] = sprintf("%02d", $d['time_e']['i']);
 				$dt_start = 	$d['date_s']." ".$d['time_s']['h'].":".$d['time_s']['i'].":00";
 				$dt_end = 		$d['date_e']." ".$d['time_e']['h'].":".$d['time_e']['i'].":00";
 			} else {
