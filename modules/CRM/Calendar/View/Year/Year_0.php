@@ -243,9 +243,10 @@ class CRM_Calendar_View_Year extends Module {
 			$theme->assign('header', $header);
 			$theme->assign('weeks', $weeks);
 			$theme->assign('name', $name);
-
-			$theme->display();
-
+			
+			ob_start();
+			$theme->display('month');
+			return ob_get_clean();
 
 
 	} // show calendar month
@@ -326,6 +327,7 @@ class CRM_Calendar_View_Year extends Module {
 	public function parse_links($date) {
 		$action = $this->get_module_variable_or_unique_href_variable('action', '');
 		$subject = $this->get_module_variable_or_unique_href_variable('subject', '');
+		$months = array();
 		switch($action) {
 			case 'edit':
 				$event = & $this->init_module('CRM/Calendar/Event/Personal');
@@ -337,46 +339,13 @@ class CRM_Calendar_View_Year extends Module {
 				break;
 			case 'show':
 			default:
-
-				print '
-				<!-- SHADIW BEGIN -->
-				<div class="layer" style="padding: 9px; width: 740px;">
-				<div class="content_shadow">
-				<!-- -->';
-
-				print '<table border="0" cellpadding="0" cellspacing="5" style="background-color: #FFFFFF;">';
-				for($x = 1; $x <= 12; $x+=3 ) {
-					print '<tr>';
-					for($y = $x; $y < $x+3; $y++ ) {
-						print '<td style="vertical-align: top">';
-						$date['month'] = $y;
-						$this->show_calendar_month($date);
-						print '</td>';
-					}
-					print '</tr>';
+				$theme = & $this->pack_module('Base/Theme');
+				for($x = 1; $x <= 12; $x++ ) {
+					$date['month'] = $x;
+					$months[] = $this->show_calendar_month($date);
 				}
-				print '</table>';
-
-				print '
-				<!-- SHADOW END -->
-		 		</div>
-				<div class="shadow-top">
-				<div class="left"></div>
-				<div class="center"></div>
-				<div class="right"></div>
-				</div>
-				<div class="shadow-middle">
-				<div class="left"></div>
-				<div class="right"></div>
-				</div>
-				<div class="shadow-bottom">
-				<div class="left"></div>
-				<div class="center"></div>
-				<div class="right"></div>
-				</div>
-				</div>
-				<!-- -->';
-
+				$theme->assign('months', $months);
+				$theme->display();
 		}
 	}
 	// BODY //////////////////////////////////////////////////////////////////////////////////////////////////////
