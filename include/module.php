@@ -498,9 +498,15 @@ abstract class Module extends ModulePrimitive {
 	 * @param string status bar indicator text
 	 * @return string href string
 	 */
-	public final function create_callback_href_js($func,$args=null,$indicator=null) {
+	public final function create_callback_href_js($func,$args=null,$indicator=null,$mode=null) {
 		$name = md5(serialize(array($func,$args)));
-		return $this->create_callback_href_with_id_js($name,$func,$args,$indicator);
+		return $this->create_callback_href_with_id_js($name,$func,$args,$indicator,$mode);
+	}
+
+	public final function call_callback_href($func,$args=null) {
+		$name = 'callback_'.md5(serialize(array($func,$args)));
+		$this->set_callback($name,$func,$args);
+		location(array($this->create_unique_key($name)=>1));
 	}
 
 	/**
@@ -556,7 +562,7 @@ abstract class Module extends ModulePrimitive {
 	 * @param string block, allow, queue click on simutanous click
 	 * @return string 
 	 */
-	public final function create_callback_href_with_id($name, $func, $args,$indicator,$mode) {
+	public final function create_callback_href_with_id($name, $func, $args=null,$indicator=null,$mode=null) {
 		$name = 'callback_'.$name;
 		$this->set_callback($name,$func,$args);
 		return $this->create_unique_href(array($name=>1),$indicator,$mode);
@@ -572,10 +578,10 @@ abstract class Module extends ModulePrimitive {
 	 * @param mixed function
 	 * @return string 
 	 */
-	public final function create_callback_href_with_id_js($name, $func, $args,$indicator) {
+	public final function create_callback_href_with_id_js($name, $func, $args=null,$indicator=null,$mode=null) {
 		$name = 'callback_'.$name;
 		$this->set_callback($name,$func,$args);
-		return $this->create_unique_href_js(array($name=>1),$indicator);
+		return $this->create_unique_href_js(array($name=>1),$indicator,$mode);
 	}
 	
 	/**
