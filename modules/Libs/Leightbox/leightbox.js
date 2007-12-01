@@ -65,7 +65,6 @@ var leightbox = Class.create();
 leightbox.prototype = {
 
 	yPos : 0,
-	xPos : 0,
 
 	initialize: function(ctrl) {
 		this.content = ctrl.rel;
@@ -203,6 +202,6 @@ document.observe("e:load", function() {
 	lbox = document.getElementsByClassName('lbOn');
 	for(i = 0; i < leightboxes.length; i++)
 		delete(leightboxes[i]);
-	for(i = 0; i < lbox.length; i++) 
+	for(i = 0; i < lbox.length; i++)
 		leightboxes[i] = new leightbox(lbox[i]);
 });

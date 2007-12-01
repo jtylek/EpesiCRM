@@ -927,6 +927,7 @@ class Utils_RecordBrowser extends Module {
 		$theme->assign('header', $this->lang->t('Select records').': '.$this->caption);
 		$theme->assign('filters', $this->show_filters($filters));
 		$theme->assign('table', $this->show_data($this->crits, array(), array(), false, false, true));
+		$theme->assign('close_button','<a href="javascript:leightbox_deactivate(\'leightbox_'.$element.'\')">Close</a>');
 
 		print('<a rel="leightbox_'.$element.'" class="lbOn" onmousedown="init_all_rpicker_'.$element.'();">'.$label.'</a>'.
 			'<div id="leightbox_'.$element.'" class="leightbox">'.
