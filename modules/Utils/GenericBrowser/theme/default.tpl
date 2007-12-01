@@ -28,18 +28,16 @@
 
 {if isset($order) || isset($letter_links)}
 
-<table width="100%">
+<table id="letter-links">
 <tr>
-	<td align="left" style="padding-bottom: 5px; padding-left: 20px;">
-		<b>
+	<td class="letters">
 		{if isset($letter_links)}
 		{foreach key=k item=link from=$letter_links}
-		{$link}&nbsp;
+		{$link}
 		{/foreach}
 		{/if}
-		</b>
 	</td>
-	<td align="right" style="padding-bottom: 5px;">
+	<td class="reset">
 		{if isset($order)}
 		{$order}&nbsp;&nbsp;&nbsp;<b>{$reset}</b>
 		{/if}

@@ -22,6 +22,19 @@
     padding-right: 5px;
 }
 
+/*
+#Utils_RecordBrowser__View_entry .data input {
+    background-color: #336699;
+    color: #FFFFFF;
+    width: 40px;
+    height: 20px;
+    border: 0px
+}
+
+#Utils_RecordBrowser__View_entry .data input:hover {
+    background-color: #339933;
+}
+*/
 .Utils_RecordBrowser__table {
     width: 100%;
     vertical-align: middle;

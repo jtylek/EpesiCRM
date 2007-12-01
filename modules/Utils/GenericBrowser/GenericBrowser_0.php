@@ -865,15 +865,15 @@ class Utils_GenericBrowser extends Module {
 		}
 		if (isset($quickjump)) {
 			$quickjump_to = $this->get_module_variable('quickjump_to');
-			$all = $this->lang->t('All');
-			if (isset($quickjump_to) && $quickjump_to != '') $all = '<a '.$this->create_unique_href(array('quickjump_to'=>'')).'>'.$all.'</a>';
+			$all = $this->lang->t('<span class="all">All</span>');
+			if (isset($quickjump_to) && $quickjump_to != '') $all = '<a class="all" '.$this->create_unique_href(array('quickjump_to'=>'')).'>All</a>';
 			$letter_links = array(0 => $all);
 			$letter = 'A';
 			while ($letter<='Z') {
 				if ($quickjump_to != $letter)
-					$letter_links[] .= '<a '.$this->create_unique_href(array('quickjump_to'=>$letter)).'>'.$letter.'</a>';
+					$letter_links[] .= '<a class="letter" '.$this->create_unique_href(array('quickjump_to'=>$letter)).'>'.$letter.'</a>';
 				else
-					$letter_links[] .= $letter;
+					$letter_links[] .= '<span class="letter">' . $letter . '</span>';
 				$letter = chr(ord($letter)+1);
 			}
 			$theme->assign('letter_links', $letter_links);

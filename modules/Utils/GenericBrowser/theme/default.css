@@ -96,3 +96,45 @@ table#Utils_GenericBrowser__navigation .per_page {
 table#Utils_GenericBrowser__navigation .per_page select {
 	font-size: 11px;
 }
+
+/* letter links */
+
+#letter-links {
+    width: 100%;
+    padding-left: 20px;
+}
+
+#letter-links .letters {
+    text-align: left;
+}
+
+#letter-links .letters .all {
+    width: 20px;
+    padding-right: 5px;
+}
+
+#letter-links .letters .letter {
+    width: 14px;
+}
+
+#letter-links .letters a,
+#letter-links .letters span {
+    margin: 2px;
+    display: block;
+    float: left;
+    line-height: 14px;
+    background-repeat: no-repeat;
+    vertical-align: middle;
+    text-align: center;
+}
+
+#letter-links .letters a                { color: #FFFFFF; }
+#letter-links .letters a span           { color: #FFFFFF; }
+#letter-links .letters a.letter         { background-image: url('images/char-back.png'); }
+#letter-links .letters a.letter:hover   { background-image: url('images/char-back-hover.png'); }
+#letter-links .letters a.all            { background-image: url('images/all-back.png'); }
+#letter-links .letters a.all:hover      { background-image: url('images/all-back-hover.png'); }
+
+#letter-links .letters span             { color: #336699; }
+#letter-links .letters span.letter      { background-image: url('images/char-back-sel.png'); }
+#letter-links .letters span.all         { background-image: url('images/all-back-sel.png'); }

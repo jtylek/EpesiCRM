@@ -1,8 +1,3 @@
-<!-- SHADIW BEGIN
-	<div class="layer" style="padding: 9px; width: 240px;">
-		<div class="content_shadow">
- -->
-
 	<table name="CRMCalendar" id="year" cellpadding="0" cellspacing="0" border="0">
 		<tr>
 			<td colspan="8" class="header-month">{$name}</td>
@@ -30,21 +25,3 @@
 		{/foreach}
 	</table>
 
-<!-- SHADOW END
- 		</div>
-		<div class="shadow-top">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-middle">
-			<div class="left"></div>
-			<div class="right"></div>
-		</div>
-		<div class="shadow-bottom">
-			<div class="left"></div>
-			<div class="center"></div>
-			<div class="right"></div>
-		</div>
-	</div>
--->
