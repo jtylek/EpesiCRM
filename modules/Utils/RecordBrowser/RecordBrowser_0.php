@@ -69,7 +69,7 @@ class Utils_RecordBrowser extends Module {
 			$this->init();
 			if (isset($_REQUEST['tab'])) {
 				$this->tab = $_REQUEST['tab'];
-				$this->view_entry($_REQUEST['action'], $_REQUEST['id'], isset($_REQUEST['defaults'])?$_REQUEST['defaults']:array());
+				$this->call_callback_href(array($this,'view_entry'),array($_REQUEST['action'], $_REQUEST['id'], isset($_REQUEST['defaults'])?$_REQUEST['defaults']:array()));
 			} else {
 				Base_ActionBarCommon::add('add',$this->lang->t('New'), $this->create_callback_href(array($this,'view_entry'),array('add')));
 				$this->browse_mode = $this->get_module_variable('browse_mode', 'all');

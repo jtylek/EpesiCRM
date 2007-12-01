@@ -46,7 +46,6 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_recent('contact', 15);
 		Utils_RecordBrowserCommon::set_caption('contact', 'Contacts');
 		Utils_RecordBrowserCommon::set_icon('contact', Base_ThemeCommon::get_template_file('CRM/Contacts', 'icon.png'));
-//		Utils_RecordBrowserCommon::set_tpl('contact', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'View_entry'));
 // ************ companies ************** //
 		$fields = array(
 			array('name'=>'Company Name', 'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_cname')),

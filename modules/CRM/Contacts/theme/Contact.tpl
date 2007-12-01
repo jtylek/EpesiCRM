@@ -30,7 +30,7 @@
 				</tr><tr>
 				{assign var=x value=0}
 			{/if}
-			{if !isset($focus)}
+			{if !isset($focus) && $f.type=="text"}
 				{assign var=focus value=$f.element}
 			{/if}
 			<td class="label" nowrap>{$f.label}{if $f.required}*{/if}</td>
