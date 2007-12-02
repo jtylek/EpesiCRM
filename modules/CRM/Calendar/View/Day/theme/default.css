@@ -283,8 +283,16 @@ div.day-menu {
 	/*border-bottom: 4px solid #B3B3B3;*/
 }
 
+div.day-menu table {
+	width: 100%;
+}
+
 div.day-menu img {
 	vertical-align: middle;
+}
+
+div.day-menu .empty {
+	width: 50%;
 }
 
 div.day-menu a.button {
@@ -301,8 +309,16 @@ div.day-menu a.button {
     text-align: center;
 }
 
-
 div.day-menu a.button:hover {
 	background-color: #339933;
     /*background-image: url("images/header-blue-hover.png");*/
+}
+
+div.day-menu .add-info {
+	color: #777777;
+	padding-right: 20px;
+}
+
+div.day-menu .add-info:hover {
+	color: #000000;
 }

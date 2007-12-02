@@ -220,7 +220,7 @@ class CRM_Calendar_View_Month extends Module {
 		print '<div class="month-menu">';
 		print '<table border="0"><tr>';
 		print '<td style="padding-left: 180px;"></td>';
-		print '<td style="width: 50%;"></td>';
+		print '<td class="empty"></td>';
 		print '<td>';
 
 		// DROPDOWNS -------------------------------------------------

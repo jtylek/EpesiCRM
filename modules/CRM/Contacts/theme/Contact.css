@@ -4,6 +4,13 @@
     border-left: 1px solid #B3B3B3;
 }
 
+#Utils_RecordBrowser__View_entry table {
+    width: 100%;
+}
+
+#Utils_RecordBrowser__View_entry td.left-column  { width: 50%; vertical-align: top; }
+#Utils_RecordBrowser__View_entry td.right-column { width: 50%; vertical-align: top; }
+
 #Utils_RecordBrowser__View_entry .label {
     background-color: #336699;
     color: #FFFFFF;
@@ -35,6 +42,7 @@
     background-color: #339933;
 }
 */
+
 .Utils_RecordBrowser__table {
     width: 100%;
     vertical-align: middle;

@@ -121,3 +121,49 @@ a.new_event {
 a.new_event:hover {
 	background-color: #e6cfcf
 }
+
+/* menu */
+
+div.year-menu {
+	padding-bottom: 0px;
+	/*border-bottom: 4px solid #B3B3B3;*/
+}
+
+div.year-menu img {
+	vertical-align: middle;
+}
+
+div.year-menu a.button {
+    font-weight: normal;
+    color: #FFFFFF;
+    width: 100px;
+    line-height: 20px;
+    display: block;
+	background-color: #336699;
+    /*background-image: url("images/header-blue.png");*/
+    background-image: none;
+    border: 0px;
+    text-align: center;
+}
+
+div.year-menu a.button:hover {
+	background-color: #339933;
+    /*background-image: url("images/header-blue-hover.png");*/
+}
+
+div.year-menu table {
+	width: 100%;
+}
+
+div.year-menu .empty {
+	width: 50%;
+}
+
+div.year-menu .add-info {
+	color: #777777;
+	padding-right: 20px;
+}
+
+div.year-menu .add-info:hover {
+	color: #000000;
+}

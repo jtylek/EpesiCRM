@@ -243,7 +243,7 @@ class CRM_Calendar_View_Year extends Module {
 			$theme->assign('header', $header);
 			$theme->assign('weeks', $weeks);
 			$theme->assign('name', $name);
-			
+
 			ob_start();
 			$theme->display('month');
 			return ob_get_clean();
@@ -264,6 +264,12 @@ class CRM_Calendar_View_Year extends Module {
 	}
 	/////////////////////////////////////////////////////////////////////////////
 	public function menu($date) {
+
+		print '<div class="year-menu">';
+		print '<table border="0"><tr>';
+		print '<td style="padding-left: 180px;"></td>';
+		print '<td class="empty"></td>';
+
 		$menu = array();
 		$menu_y = array();
 		$today = CRM_Calendar_Utils_FuncCommon::today();
@@ -322,6 +328,12 @@ class CRM_Calendar_View_Year extends Module {
 		$dr->set_values($post);
 		$dr->set_pre_values($pre);
 		$this->display_module($dr);
+
+		print '<td class="empty"></td>';
+		print '<td class="add-info">Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event</td>';
+
+		print '</tr></table></div>';
+
 	} // calendar menu
 	// Settings ////////////////////////////////////////////////////////////////////////////////////////
 	public function parse_links($date) {

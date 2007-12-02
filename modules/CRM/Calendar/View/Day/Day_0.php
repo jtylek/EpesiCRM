@@ -254,7 +254,7 @@ class CRM_Calendar_View_Day extends Module {
 					else
 						$cnt .= $x." am";
 				}
-				
+
 				$tt[] = array('info'=>$cnt, 'class'=>'hour', 'midday'=>$midday, 'event_num'=>0);
 
 				$event = $this->extract_hour_events_from_day($events, $j, $x);
@@ -296,18 +296,28 @@ class CRM_Calendar_View_Day extends Module {
 
 	/////////////////////////////////////////////////////////////////////////////
 	public function menu($date) {
-		print '<div class="day-menu"><table border="0"><tr>';
+
+		print '<div class="day-menu">';
+		print '<table border="0"><tr>';
+		print '<td style="padding-left: 180px;"></td>';
+		print '<td class="empty"></td>';
+
 		$link_text = $this->create_unique_href_js(array( 'date'=>array('year'=>'__YEAR__', 'month'=>'__MONTH__', 'day'=>'__DAY__') ));
 
 		$next = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::next_day($date) )).'>Next day&nbsp;&nbsp;<img border="0" width="8" height="8" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'next.png').'></a>';
 		$today = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::today() )).'>Today&nbsp;&nbsp;<img border="0" width="8" height="8" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'this.png').'></a>';
 		$prev = '<a class="button" '.$this->create_unique_href(array( 'date'=>CRM_Calendar_Utils_FuncCommon::prev_day($date) )).'><img border="0" width="8" height="8" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'prev.png').'>&nbsp;&nbsp;Previous day</a>';
 
+		print '<td style="width: 10px;"></td>';
 		print '<td>' . $prev . '</td>';
-		print '<td>' . $today. '</td>';
+		print '<td>' . $today . '</td>';
 		print '<td>' . $next . '</td>';
-		print '<td style="width: 10px;"></td><td>' . Utils_CalendarCommon::show('week_selector', $link_text) . '</td>';
-		print '</tr></table></div><br>';
+		print '<td style="width: 10px;"></td>';
+		print '<td>' . Utils_CalendarCommon::show('week_selector', $link_text) . '</td>';
+		print '<td class="empty"></td>';
+		print '<td class="add-info">Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event</td>';
+		print '</tr></table></div>';
+		
 	} // calendar menu
 
 	public function parse_links($date) {
@@ -330,7 +340,7 @@ class CRM_Calendar_View_Day extends Module {
 	// BODY //////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function body($arg = null) {
 		$this->init();
-		print 
+		print
 		$this->date = $this->get_unique_href_variable('date', CRM_Calendar_Utils_FuncCommon::today());
 		if(!isset($arg['date'])) {
 

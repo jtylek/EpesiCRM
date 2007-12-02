@@ -341,8 +341,24 @@ div.week-menu a.button {
     text-align: center;
 }
 
-
 div.week-menu a.button:hover {
 	background-color: #339933;
     /*background-image: url("images/header-blue-hover.png");*/
+}
+
+div.week-menu table {
+	width: 100%;
+}
+
+div.week-menu .empty {
+	width: 50%;
+}
+
+div.week-menu .add-info {
+	color: #777777;
+	padding-right: 20px;
+}
+
+div.week-menu .add-info:hover {
+	color: #000000;
 }
