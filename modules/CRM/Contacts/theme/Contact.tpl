@@ -23,24 +23,39 @@
 
 <div style="padding: 2px 2px 2px 2px; background-color: #FFFFFF;">
 
+{* Outside table *}
 <table id="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
-	<tr>
-		{foreach key=k item=f from=$fields}
-			{if $x==2}
-				</tr><tr>
-				{assign var=x value=0}
-			{/if}
+	<tr><td>
+	{* First column table *}
+	<table cellpadding="0" cellspacing="0" border="0"><tr>
+		{assign var=i value=0}
+		{assign var=j value=0}
+		{foreach key=k item=f from=$fields name=fields}
 			{if !isset($focus) && $f.type=="text"}
 				{assign var=focus value=$f.element}
 			{/if}
 			<td class="label" nowrap>{$f.label}{if $f.required}*{/if}</td>
 			<td class="data">{if $f.error}{$f.error}{/if}{$f.html}</td>
 			{assign var=x value=$x+1}
+			
+			{* If more than half records displayed start new table - second column table *}
+			{if ($smarty.foreach.fields.index+1 > $smarty.foreach.fields.total/2) and $i==0}
+				</tr></table></td>
+				{* First table closed - start second column*}
+				<td><table cellpadding="0" cellspacing="0" border="0"><tr>
+				{assign var=i value=1}
+			{else}
+				</tr><tr>		
+			{/if}
+		{assign var=j value=$j+1}
 		{/foreach}
-		{assign var=z value=$x*-2+4}
-		{section name=y loop=$z}
+		
+		{* Fill empty row if number of records is not even *}
+		{if $j is not even}
 			<td class="label">&nbsp;</td>
-		{/section}
+			<td class="label">&nbsp;</td>
+		{/if}
+
 	</tr>
 	{if isset($Form_data.create_company)}
 	<tr>
@@ -53,7 +68,8 @@
 		<td />
 	</tr>
 	{/if}
-</table>
+</table></td></tr></table>
+
 {php}
 	eval_js('focus_by_id(\''.$this->_tpl_vars['focus'].'\');');
 {/php}

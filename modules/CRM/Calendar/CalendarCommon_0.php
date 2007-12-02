@@ -13,12 +13,8 @@ class CRM_CalendarCommon extends ModuleCommon {
 					array('name'=>'view_style','label'=>'Default view', 'type'=>'select', 'values'=>array(0=>'Agenda', 1=>'Day', 2=>'Week', 3=>'Month', 4=>'Year'), 'default'=>2),
 					array('name'=>'show_event_types','label'=>'Show Event Types', 'type'=>'select', 'values'=>array(0=>'No', 1=>'Yes'), 'default'=>0),
 
-					array('name'=>'start_day','label'=>'Start day at', 'type'=>'select', 'values'=>range(0, 23), 'default'=>9),
-					array('name'=>'end_day','label'=>'End day at', 'type'=>'select', 'values'=>range(0, 23), 'default'=>17),
-
-					array('name'=>'grid_morning','label'=>'grid: morning', 'type'=>'select', 'values'=>range(1, 23), 'default'=>1),
-					array('name'=>'grid_day','label'=>'grid: day', 'type'=>'select', 'values'=>range(0, 23), 'default'=>8),
-					array('name'=>'grid_evening','label'=>'grid: evening', 'type'=>'select', 'values'=>range(0, 23), 'default'=>1),
+					array('name'=>'start_day','label'=>'Start day at', 'type'=>'select', 'values'=>range(0, 11), 'default'=>8),
+					array('name'=>'end_day','label'=>'End day at', 'type'=>'select', 'values'=>range(0, 24), 'default'=>17),
 
 					array('name'=>'defautl_today','label'=>'Start by default with today\'s date', 'type'=>'select', 'values'=>array(0=>'No', 1=>'Yes'), 'default'=>0),
 					array('name'=>'details_fields_header','label'=>'Display in detailed tooltip', 'type'=>'header'),
