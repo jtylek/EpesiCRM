@@ -255,8 +255,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (!$crits) $crits = array();
 		foreach($crits as $k=>$v){
 			if (empty($v)) break;
+			if ($k[0]=='!') {
+				$negative = true;
+				$k = ltrim($k, '!');
+			} else $negative = false;
 			if ($k == 'id') {
-				$where .= ' AND (';
+				$where .= ' AND'.($negative?' NOT':'').' (';
 				if (!is_array($v)) $v = array($v);
 				$first = true;
 				foreach($v as $w) {
@@ -289,7 +293,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$vals[] = $k;
 				$vals[] = $v;
 			}
-			$where .= ') != 0';
+			$where .= ') '.($negative?'':'!').'= 0';
 		}
 		
 		$ret = DB::Execute('SELECT id, active FROM '.$tab_name.' AS x WHERE true'.($admin?'':' AND active=1').$where, $vals);
