@@ -462,9 +462,10 @@ class Utils_GenericBrowser extends Module {
  		if (isset($quickjump) && $quickjump_to!='') {
 			foreach($this->columns as $k=>$v){
 				if (isset($v['quickjump'])){
-	 				if (!isset(strip_tags($row[$k][0])) ||
-	 					($quickjump_to != strip_tags($row[$k][0]) &&
-	 					strtolower($quickjump_to) != strip_tags($row[$k][0])))
+					$r = strip_tags($row[$k]);
+	 				if (!isset($r[0]) ||
+	 					($quickjump_to != $r[0] &&
+	 					strtolower($quickjump_to) != $r[0]))
 	 					return false;
 				}
 			}
