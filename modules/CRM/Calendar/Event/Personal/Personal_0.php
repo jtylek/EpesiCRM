@@ -16,8 +16,6 @@ class CRM_Calendar_Event_Personal extends Module {
 	}
 		
 	public function add_event_submit($d) {
-		DB::Execute("INSERT INTO calendar_event_personal_gid_counter(something) VALUES(1)");
-		$gid = DB::Insert_ID('calendar_event_personal_gid_counter', 'id');
 		
 		if(!isset($d['timeless']))
 			$d['timeless'] = 0;
@@ -50,8 +48,19 @@ class CRM_Calendar_Event_Personal extends Module {
 		//return false;
 		$d['emp_id'] = explode('__SEP__',$d['emp_id']);
         array_shift($d['emp_id']);
+		$d['cus_id'] = explode('__SEP__',$d['cus_id']);
+        array_shift($d['cus_id']);
+        
+		DB::Execute("INSERT INTO calendar_event_personal_gid_counter(something) VALUES(1)");
+		$emp_gid = DB::Insert_ID('calendar_event_personal_gid_counter', 'id');
 		foreach( $d['emp_id'] as $key=>$val) {
-			DB::Execute("insert into calendar_event_personal_group(gid, uid) values(%d, %d)", array($gid, $val));
+			DB::Execute("insert into calendar_event_personal_group(gid, uid) values(%d, %d)", array($emp_gid, $val));
+		}
+		
+		DB::Execute("INSERT INTO calendar_event_personal_gid_counter(something) VALUES(1)");
+		$cus_gid = DB::Insert_ID('calendar_event_personal_gid_counter', 'id');
+		foreach( $d['cus_id'] as $key=>$val) {
+			DB::Execute("insert into calendar_event_personal_group(gid, uid) values(%d, %d)", array($cus_gid, $val));
 		}
 			
 		//DB::Execute("insert into calendar_event_personal(title,    act_id,       emp_gid,       description,       datetime_start, datetime_end, timeless,       priority,       access,       status, created_on, created_by, edited_on, edited_by) ".
@@ -61,7 +70,8 @@ class CRM_Calendar_Event_Personal extends Module {
 		$record = new CRM_Calendar_Event_PersonalRecord();
 		$record->title = $d['title'];
 		$record->act_id = $d['act_id'];
-		$record->emp_gid = $gid;
+		$record->emp_gid = $emp_gid;
+		$record->cus_gid = $cus_gid;
 		$record->description = $d['description'];
 		$record->datetime_start = $dt_start;
 		$record->datetime_end = $dt_end;
@@ -223,9 +233,14 @@ class CRM_Calendar_Event_Personal extends Module {
 		//////////////////////////////////////////////////////////////////////////
 		// getting data...
 		$emp = array();
-		$ret = CRM_ContactsCommon::get_contacts(null);
+		$ret = CRM_ContactsCommon::get_contacts(array('Company Name'=>CRM_ContactsCommon::get_main_company()));
 		foreach($ret as $id=>$data) {
 			$emp[$id] = $data['Last Name']. " " .$data['First Name'];
+		}
+		$cus = array();
+		$ret = CRM_ContactsCommon::get_contacts(array('!Company Name'=>CRM_ContactsCommon::get_main_company()));
+		foreach($ret as $id=>$data) {
+			$cus[$id] = $data['Last Name']. " " .$data['First Name'];
 		}
 		
 		$act = array();
@@ -288,16 +303,26 @@ class CRM_Calendar_Event_Personal extends Module {
 		$form->addElement('select', 'act_id', $lang->t('Activity'), $act, array('style'=>'width: 100%;'));
 		// event access
 		//$form->addElement('select', 'access', $lang->t('Access'), $access, array('style'=>'width: 100%;'));
-		foreach($access as $key=>$val)
-			$form->addElement('radio', 'access', $lang->t('Access'), $val, $key);
+		$form->addElement('select', 'access', $lang->t('Access'), $access);
 		//$form->getElement('access')->updateAttributes(array('id'=>'sadffhsdfwdasd'));
 		// priority
-		foreach($priority as $key=>$val)
-			$form->addElement('radio', 'priority', $lang->t('Priority'), $val, $key);
+		$form->addElement('select', 'priority', $lang->t('Priority'), $priority);
 		//$form->addElement('select', 'priority', $lang->t('Priority'), $priority, array('style'=>'width: 100%;'));
 		
 		// events participants
-		$mls = $form->addElement('multiselect', 'emp_id', $lang->t('Participants'), $emp, array('size'=>$size, 'style'=>'\'width: 100%\''));
+		//employees
+		$mls = $form->addElement('multiselect', 'emp_id', $lang->t('Employees'), $emp, array('size'=>$size, 'style'=>'\'width: 100%\''));
+		$rb1 = $this->init_module('Utils/RecordBrowser/RecordPicker');
+		ob_start();
+		$this->display_module($rb1, array('contact' ,'emp_id','Add from table',array('CRM_Calendar_Event_PersonalCommon','decode_contact'), array('Company Name'=>true)));
+		$emp_click = ob_get_clean();
+		
+		// customers
+		$mls = $form->addElement('multiselect', 'cus_id', $lang->t('Customers'), $cus, array('size'=>$size, 'style'=>'\'width: 100%\''));
+		$rb1 = $this->init_module('Utils/RecordBrowser/RecordPicker');
+		ob_start();
+		$this->display_module($rb1, array('contact' ,'cus_id','Add from table',array('CRM_Calendar_Event_PersonalCommon','decode_contact'), array('Company Name'=>true)));
+		$cus_click = ob_get_clean();
 		//	eval_js( $mls->getElementJs() );
 		$form->addElement('text', 'rel_emp', $lang->t('Related Person'), array('style'=>'width: 100%;'));
 		
@@ -357,7 +382,11 @@ class CRM_Calendar_Event_Personal extends Module {
 			$theme->assign('repeat_forever', 0);
 			$theme->assign('edit_mode', 0);
 			$theme->assign('timeless', $timeless);
+			$theme->assign('emp_click', $emp_click);
+			$theme->assign('cus_click', $cus_click);
+			$theme->assign('timeless', $timeless);
 		$form->assign_theme('form', $theme, new HTML_QuickForm_Renderer_TCMSArraySmarty());
+		
 		$theme->display();
 		
 		Base_ActionBarCommon::add('back',$this->lang->t('Back'), $this->create_back_href());

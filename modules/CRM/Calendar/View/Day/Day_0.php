@@ -340,22 +340,23 @@ class CRM_Calendar_View_Day extends Module {
 	// BODY //////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function body($arg = null) {
 		$this->init();
-		print
 		$this->date = $this->get_unique_href_variable('date', CRM_Calendar_Utils_FuncCommon::today());
 		if(!isset($arg['date'])) {
-
-			$def = CRM_Calendar_Utils_FuncCommon::begining_of_week_r(CRM_Calendar_Utils_FuncCommon::today());
-			if(Base_User_SettingsCommon::get('CRM/Calendar', 'default_today') == 1)
-				$def = CRM_Calendar_Utils_FuncCommon::today();
+			print 'no arg';
+			$def = CRM_Calendar_Utils_FuncCommon::today();
 
 			$this->date = $this->get_module_variable_or_unique_href_variable('date', $def);
-			if(!is_array($this->date))
+			if(!is_array($this->date)) {
+				print 'def';
 				$this->date = $def;
-			if(!$this->isset_module_variable('first_run')) {
-				$this->set_module_variable('first_run', 1);
-				$this->date = CRM_Calendar_Utils_FuncCommon::today();
 			}
+			//if(!$this->isset_module_variable('first_run')) {
+			//	print 'first';
+			//	$this->set_module_variable('first_run', 1);
+			//	$this->date = CRM_Calendar_Utils_FuncCommon::today();
+			//}
 		} else {
+			print 'arg';
 			$this->date = $arg['date'];
 		}
 

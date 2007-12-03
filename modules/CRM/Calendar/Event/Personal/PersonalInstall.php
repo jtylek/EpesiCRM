@@ -29,6 +29,7 @@ class CRM_Calendar_Event_PersonalInstall extends ModuleInstall {
 			"title C(80) NO NULL, " .
 			"act_id I REFERENCES activities(id)," .
 			"emp_gid I REFERENCES calendar_groups(gid)," .
+			"cus_gid I REFERENCES calendar_groups(gid)," .
 			"description C(250), " .
 			
 			"datetime_start T NOT NULL, " .
