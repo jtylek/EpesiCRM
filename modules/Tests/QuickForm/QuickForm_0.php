@@ -26,7 +26,7 @@ class Tests_QuickForm extends Module{
 		$f->setDefaults(array('cd_country'=>'US'));
 //		$f->addRule('cd_city','required','required');
 //		print($x->getValue().'<br>');
-		$f->freeze();
+//		$f->freeze();
 
 		$c1 = $f->createElement('checkbox','c1','c1_l','c1_t');
 		$c2 = $f->createElement('checkbox','c2','c2_l','c2_t');
