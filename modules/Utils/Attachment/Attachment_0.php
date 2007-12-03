@@ -386,7 +386,7 @@ class Utils_Attachment extends Module {
 	}
 
 	public function submit_attach($file,$oryg,$data) {
-		DB::Execute('INSERT INTO utils_attachment_link(attachment_key,local,permission,permission_by,other_read) VALUES(%s,%s,%d,%d,%b)',array($this->key,$this->group,$data['permission'],Base_UserCommon::get_my_user_id(),$data['other']));
+		DB::Execute('INSERT INTO utils_attachment_link(attachment_key,local,permission,permission_by,other_read) VALUES(%s,%s,%d,%d,%b)',array($this->key,$this->group,$data['permission'],Base_UserCommon::get_my_user_id(),isset($data['other']) && $data['other']));
 		$id = DB::Insert_ID('utils_attachment_link','id');
 		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$oryg,Base_UserCommon::get_my_user_id()));
 		DB::Execute('INSERT INTO utils_attachment_note(attach_id,text,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$data['note'],Base_UserCommon::get_my_user_id()));
@@ -399,7 +399,7 @@ class Utils_Attachment extends Module {
 	}
 
 	public function submit_edit($file,$oryg,$data,$id,$text) {
-		DB::Execute('UPDATE utils_attachment_link SET other_read=%b,permission=%d,permission_by=%d WHERE id=%d',array($data['other'],$data['permission'],Base_UserCommon::get_my_user_id(),$id));
+		DB::Execute('UPDATE utils_attachment_link SET other_read=%b,permission=%d,permission_by=%d WHERE id=%d',array(isset($data['other']) && $data['other'],$data['permission'],Base_UserCommon::get_my_user_id(),$id));
 		if($data['note']!=$text) {
 			DB::StartTrans();
 			$rev = DB::GetOne('SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=%d',array($id));
