@@ -462,9 +462,9 @@ class Utils_GenericBrowser extends Module {
  		if (isset($quickjump) && $quickjump_to!='') {
 			foreach($this->columns as $k=>$v){
 				if (isset($v['quickjump'])){
-	 				if (!isset($row[$k][0]) ||
-	 					($quickjump_to != $row[$k][0] &&
-	 					strtolower($quickjump_to) != $row[$k][0]))
+	 				if (!isset(strip_tags($row[$k][0])) ||
+	 					($quickjump_to != strip_tags($row[$k][0]) &&
+	 					strtolower($quickjump_to) != strip_tags($row[$k][0])))
 	 					return false;
 				}
 			}
@@ -501,7 +501,7 @@ class Utils_GenericBrowser extends Module {
 							eregi($this->columns[$i]['order_eregi'],$xxx, $ret);
 							$xxx = isset($ret[1])?$ret[1]:'';
 						}
-						$xxx = strtolower($xxx);
+						$xxx = strip_tags(strtolower($xxx));
 						$col[$j] = $xxx;
 					}
 
