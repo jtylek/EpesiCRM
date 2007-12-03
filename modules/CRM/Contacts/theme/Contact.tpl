@@ -1,6 +1,16 @@
 {if isset($Form_data.paste_company_info)}
 {$Form_data.paste_company_info.html}
 {/if}
+{* Get total number of fields to display *}
+{foreach key=k item=f from=$fields name=fields}
+	{assign var=count value=$smarty.foreach.fields.total}
+{/foreach}
+{if $count is not even}
+	{assign var=rows value=$count+1}
+	{assign var=rows value=$rows/2}
+{else}
+	{assign var=rows value=$count/2}
+{/if}
 {assign var=x value=0}
 
 <table class="Utils_RecordBrowser__table" border="0" cellpadding="0" cellspacing="0">
@@ -41,7 +51,7 @@
 						<td class="data">{if $f.error}{$f.error}{/if}{$f.html}</td>
 						{assign var=x value=$x+1}
 						{* If more than half records displayed start new table - second column table *}
-						{if ($smarty.foreach.fields.index+1 > $smarty.foreach.fields.total/2) and $i==0}
+						{if $x >= $rows and $i==0}
 					</tr>
 				</table>
 			</td>
