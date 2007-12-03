@@ -51,10 +51,8 @@ class Base_Theme extends Module {
 		$this->smarty->config_dir = 'data/Base_Theme/config/';
 		$this->smarty->cache_dir = 'data/Base_Theme/cache/';
 
-		if(CACHE) {
-			$this->load_css_cache();
-			$this->load_image_cache();
-		}
+		$this->load_css_cache();
+		$this->load_image_cache();
 	}
 
 	private function load_css_cache() {

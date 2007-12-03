@@ -190,11 +190,6 @@ define("DATABASE_DRIVER","'.$engine.'");
 define("DEBUG",0);
 
 /*
- * Turn on caching.
- */
-define("CACHE",1);
-
-/*
  * Show module loading time ...  = module + all children times
  */
 define("MODULE_TIMES",0);
