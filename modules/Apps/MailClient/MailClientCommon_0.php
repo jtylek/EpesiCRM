@@ -109,7 +109,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 	}
 	
 	public static function build_index($boxpath) {
-		ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
+		ini_set('include_path','modules/Apps/MailClient/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
 		require_once('Mail/Mbox.php');
 		require_once('Mail/mimeDecode.php');
 		$mbox = new Mail_Mbox($boxpath.'.mbox');
@@ -149,7 +149,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 	}
 	
 	public static function remove_msg($box, $id) {
-		ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
+		ini_set('include_path','modules/Apps/MailClient/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
 		require_once('Mail/Mbox.php');
 		require_once('Mail/mimeDecode.php');
 		
@@ -183,7 +183,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 	}
 	
 	public static function move_msg($box, $box2, $id) {
-		ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
+		ini_set('include_path','modules/Apps/MailClient/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
 		require_once('Mail/Mbox.php');
 		require_once('Mail/mimeDecode.php');
 		

@@ -97,10 +97,9 @@ class CRM_Contacts extends Module {
 			$companies[] = $company['Company Name'].($company['Short Name']?' ('.$company['Short Name'].')':'');
 		}
 		$a->additional_header($l->t('%s %s from %s',array($arg['First Name'],$arg['Last Name'],implode(', ',$companies))));
-		$a->allow_view_deleted($this->acl_check('view deleted attachments'));
-		$a->allow_view($this->acl_check('view attachments'));
-		$a->allow_edit($this->acl_check('edit attachments'));
-		$a->allow_download($this->acl_check('download attachments'));
+		$a->allow_view_deleted($this->acl_check('view deleted notes'));
+		$a->allow_protected($this->acl_check('view protected notes'),$this->acl_check('edit protected notes'));
+		$a->allow_public($this->acl_check('view public notes'),$this->acl_check('edit public notes'));
 		$this->display_module($a);
 	}
 

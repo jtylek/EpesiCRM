@@ -76,10 +76,11 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_CommonDataCommon::new_array('Companies_Groups',array('Customer','Vendor','Other'));
 		Utils_CommonDataCommon::new_array('Contacts_Groups',array('Public','Private','Other'));
 
-		$this->add_aco('view deleted attachments','Employee Manager');
-		$this->add_aco('view attachments','Employee');
-		$this->add_aco('edit attachments','Employee');
-		$this->add_aco('download attachments','Employee');
+		$this->add_aco('view deleted notes','Employee Manager');
+		$this->add_aco('view protected notes','Employee');
+		$this->add_aco('view public notes','Employee');
+		$this->add_aco('edit protected notes','Employee Administrator');
+		$this->add_aco('edit public notes','Employee');
 		return true;
 	}
 
@@ -91,10 +92,11 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::uninstall_recordset('company');
 		Utils_RecordBrowserCommon::uninstall_recordset('contact');
 		Utils_CommonDataCommon::remove('Contacts_Groups');
-		$this->del_aco('view deleted attachments');
-		$this->del_aco('view attachments');
-		$this->del_aco('edit attachments');
-		$this->del_aco('download attachments');
+		$this->del_aco('view deleted notes');
+		$this->del_aco('view public notes');
+		$this->del_aco('view protected notes');
+		$this->del_aco('edit protected notes');
+		$this->del_aco('edit public notes');
 		return true;
 	}
 

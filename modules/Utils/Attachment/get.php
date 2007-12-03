@@ -10,14 +10,25 @@ $disposition = (isset($_REQUEST['view']) && $_REQUEST['view'])?'inline':'attachm
 define('CID', $cid);
 require_once('../../../include.php');
 
-$allow = Module::static_get_module_variable($path,'download',false);
+$public = Module::static_get_module_variable($path,'public',false);
+$protected = Module::static_get_module_variable($path,'protected',false);
+$private = Module::static_get_module_variable($path,'private',false);
 $key = Module::static_get_module_variable($path,'key',null);
 $local = Module::static_get_module_variable($path,'group',null);
 session_commit();
-if(!$allow || !$key || $local===null)
+if(!$key || $local===null)
     die('Permission denied');
-$original = DB::GetOne('SELECT ual.original FROM utils_attachment_file ual WHERE ual.attach_id='.DB::qstr($id).' AND ual.revision='.DB::qstr($rev));
+$row = DB::GetRow('SELECT uaf.original,ual.permission,ual.other_read,ual.permission_by FROM utils_attachment_file uaf INNER JOIN utils_attachment_link ual ON ual.id=uaf.attach_id WHERE ual.id='.DB::qstr($id).' AND uaf.revision='.DB::qstr($rev));
+$original = $row['original'];
 $filename = $local.'/'.$id.'_'.$rev;
+
+if(!$row['other_read'] && $row['permission_by']!=Base_UserCommon::get_my_user_id()) {
+	if(($row['permission']==0 && !$public) || 
+		($row['permission']==1 && !$protected) ||
+		($row['permission']==2 && !$private))
+		die('Permission denied');
+}
+
 
 if(headers_sent())
     die('Some data has already been output to browser, can\'t send file');

@@ -85,6 +85,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 		$module = str_replace('/','_',$module);
 		//print('get_admin '.$module.':'.$name.';');
 		if (!isset(self::$admin_variables)) {
+			self::$admin_variables = array();
 			$ret = DB::Execute('SELECT module,variable,value FROM base_user_settings_admin_defaults');
 			while($row = $ret->FetchRow())
 				self::$admin_variables[$row['module']][$row['variable']] = unserialize($row['value']);
@@ -108,6 +109,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 		$module = str_replace('/','_',$module);
 		//print('get '.$module.':'.$name.';');
 		if (!isset(self::$user_variables)) {
+			self::$user_variables = array();
 			$ret = DB::Execute('SELECT module, variable, value FROM base_user_settings WHERE user_login_id=%d',array(Base_UserCommon::get_my_user_id()));
 			while($row = $ret->FetchRow())
 				self::$user_variables[$row['module']][$row['variable']] = unserialize($row['value']);
