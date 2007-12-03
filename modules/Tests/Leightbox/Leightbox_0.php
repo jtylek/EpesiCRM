@@ -19,8 +19,8 @@ class Tests_Leightbox extends Module{
 		$form->display();
 		if ($form->validate()) print_r($form->exportValues());
 
-		$rb1 = $this->init_module('Utils/RecordBrowser','contact','contact');
-		$this->display_module($rb1, array('test','Click here!',array('Tests_LeightboxCommon','TEST'), array('Company Name'=>true)), 'recordpicker');
+		$rb1 = $this->init_module('Utils/RecordBrowser/RecordPicker');
+		$this->display_module($rb1, array('contact' ,'test','Click here!',array('Tests_LeightboxCommon','TEST'), array('Company Name'=>true)));
 		
 		print('<hr><a rel="leightbox1" class="lbOn">leightbox container</a>
 		<div id="leightbox1" class="leightbox">

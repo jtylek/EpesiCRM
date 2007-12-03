@@ -378,9 +378,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public function delete_record($tab, $id) {
 		DB::Execute('UPDATE '.$tab.' SET active=0 where id=%d', array($id));
 	}		
-	public function create_linked_label($tab, $col, $id){
+	public function create_linked_label($tab, $col, $id, $nolink=false){
 		$label = DB::GetOne('SELECT value FROM '.$tab.'_data WHERE field=%s AND '.$tab.'_id=%d', array($col, $id));
-		return '<a '.Module::create_href(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($tab), 'tab'=>$tab, 'id'=>$id, 'action'=>'view')).'>'.$label.'</a>';
+		if (!$nolink) return '<a '.Module::create_href(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($tab), 'tab'=>$tab, 'id'=>$id, 'action'=>'view')).'>'.$label.'</a>';
+		else return $label;
 	}
 }
 ?>

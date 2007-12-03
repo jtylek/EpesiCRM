@@ -43,7 +43,9 @@ class Utils_RecordBrowser extends Module {
 	
 	public function init($admin=false) {
 		if (!isset($this->lang)) $this->lang = $this->init_module('Base/Lang');
-		list($this->caption,$this->icon,$this->recent,$this->favorites,$this->full_history)= DB::GetRow('SELECT caption, icon, recent, favorites, full_history FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
+		$params = DB::GetRow('SELECT caption, icon, recent, favorites, full_history FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
+		if ($params==false) trigger_error('There is no such recordSet as '.$this->tab.'.', E_USER_ERROR);
+		list($this->caption,$this->icon,$this->recent,$this->favorites,$this->full_history) = $params;
 		
 		$this->table_rows = Utils_RecordBrowserCommon::init($this->tab, $admin);
 		$this->requires = array();
@@ -201,14 +203,9 @@ class Utils_RecordBrowser extends Module {
 			}
 			$records = $rec_tmp;
 		}
-//		$limit = $gb->get_limit(count($records));
-//		$count = -1;
 		if ($special) $rpicker_ind = array();
 		foreach ($records as $row) {
 			$gb_row = $gb->get_new_row();
-/*			if ($admin)
-				$row_data = array($row['active']?$this->lang->t('Yes'):$this->lang->t('No'));
-			else*/ 
 			if (!$admin && $this->favorites) {
 				$isfav = DB::GetOne('SELECT user_id FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%d', array(Base_UserCommon::get_my_user_id(), $row['id']));
 				$row_data = array('<a '.Utils_TooltipCommon::open_tag_attrs(($isfav?$this->lang->t('This item is on your favourites list<br>Click to remove it from your favorites'):$this->lang->t('Click to add this item to favorites'))).' '.$this->create_callback_href(array($this,($isfav?'remove_from_favs':'add_to_favs')), array($row['id'])).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','star_'.($isfav==false?'no':'').'fav.png').'" /></a>');
@@ -219,8 +216,6 @@ class Utils_RecordBrowser extends Module {
 				$row_data = array('<a href="javascript:addto_'.$element.'('.$row['id'].', \''.call_user_func($func, $row['id']).'\');"><img src="null"  border="0" name="leightbox_rpicker_'.$row['id'].'" /></a>');
 				$rpicker_ind[] = $row['id'];
 			}
-//			$count++;
-//			if ($count<$limit['offset'] || $count>=$limit['numrows']+$limit['offset']) continue;
 			
 			foreach($this->table_rows as $field => $args)
 				if (($args['visible'] && !isset($cols[$args['name']])) || (isset($cols[$args['name']]) && $cols[$args['name']] === true)) {
@@ -240,7 +235,7 @@ class Utils_RecordBrowser extends Module {
 							if ($first) $first = false;
 							else $ret .= ', ';
 							if ($tab=='__COMMON__') $ret .= $data[$v];
-							else $ret .= Utils_RecordBrowserCommon::create_linked_label($tab, $col, $v);
+							else $ret .= Utils_RecordBrowserCommon::create_linked_label($tab, $col, $v, $special);
 						}
 					}
 					if ($args['type']=='commondata') {
@@ -254,7 +249,8 @@ class Utils_RecordBrowser extends Module {
 							$ret = Utils_CommonDataCommon::get_value($path);
 						}
 					}
-					$row_data[] = $this->get_val($field, $ret, $row['id']);
+					if ($special) $row_data[] = $ret;
+					else $row_data[] = $this->get_val($field, $ret, $row['id']);
 				}
 			if ($this->browse_mode == 'recent')
 				$row_data[] = $row['visited_on'];
@@ -929,10 +925,10 @@ class Utils_RecordBrowser extends Module {
 		$theme->assign('table', $this->show_data($this->crits, array(), array(), false, false, true));
 		$theme->assign('close_button','<a href="javascript:leightbox_deactivate(\'leightbox_'.$element.'\')">Close</a>');
 
-		print('<a rel="leightbox_'.$element.'" class="lbOn" onmousedown="init_all_rpicker_'.$element.'();">'.$label.'</a>'.
+/*		print('<a rel="leightbox_'.$element.'" class="lbOn" onmousedown="init_all_rpicker_'.$element.'();">'.$label.'</a>'.
 			'<div id="leightbox_'.$element.'" class="leightbox">'.
 			$this->get_html_of_module($theme, 'Record_picker', 'display').
-			'</div>');
+			'</div>');*/
 		$rpicker_ind = $this->get_module_variable('rpicker_ind');
 		eval_js(
 			'rpicker_init_'.$element.' = function(id){'.
@@ -989,16 +985,7 @@ class Utils_RecordBrowser extends Module {
 			'img.src = "'.$icon_on.'";'.
 			'add_selected_'.$element.'();'.
 			'};');
-	}
-	public function pop_box0() {
-		$x = ModuleManager::get_instance('/Base_Box|0');
-		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-		$x->pop_main();
-	}
-	public function push_box0($func,$args,$const_args) {
-		$x = ModuleManager::get_instance('/Base_Box|0');
-		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-		$x->push_main('Utils/RecordBrowser',$func,$args,$const_args);
+		$theme->display('Record_picker');
 	}
 
 }
