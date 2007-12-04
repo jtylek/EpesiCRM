@@ -143,7 +143,7 @@ class Utils_RecordBrowser extends Module {
 			unset($vals['submit']);
 			unset($vals['submited']);
 			foreach($vals as $k=>$v)
-				if ($v!=='__NULL__') $this->crits[str_replace('_',' ',$k)] = $v;
+				if ($v!=='__NULL__') $this->crits[str_replace('_',' ',$k)] = array($v);
 		}
 		$theme = $this->init_module('Base/Theme');
 		$form->assign_theme('form',$theme);
@@ -923,7 +923,13 @@ class Utils_RecordBrowser extends Module {
 		$theme = $this->init_module('Base/Theme');
 		$theme->assign('header', $this->lang->t('Select records').': '.$this->caption);
 		$theme->assign('filters', $this->show_filters($filters, $element));
-		$theme->assign('table', $this->show_data($crits, array(), array(), false, false, true));
+		foreach	($crits as $k=>$v) {
+			if (!is_array($v)) $v = array($v);
+			if (isset($this->crits[$k]) && !empty($v)) {
+				foreach ($v as $w) if (!in_array($w, $this->crits[$k])) $this->crits[$k][] = $w;
+			} else $this->crits[$k] = $v;
+		}
+		$theme->assign('table', $this->show_data($this->crits, array(), array(), false, false, true));
 		$theme->assign('close_button','<a href="javascript:leightbox_deactivate(\'leightbox_'.$element.'\')">Close</a>');
 
 		$rpicker_ind = $this->get_module_variable('rpicker_ind');
