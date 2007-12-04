@@ -50,7 +50,7 @@ class Apps_Shoutbox extends Module {
 				//get msg from post group
 				$msg = $msg['post'];
 				//get logged user id
-				$user_id = Base_UserCommon::get_my_user_id();
+				$user_id = Acl::get_user();
 				//clear text box and focus it
 				eval_js('$(\'shoutbox_text\').value=\'\';focus_by_id(\'shoutbox_text\')');
 

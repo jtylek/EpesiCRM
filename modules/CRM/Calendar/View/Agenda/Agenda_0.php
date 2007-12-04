@@ -24,11 +24,11 @@ class CRM_Calendar_View_Agenda extends Module {
 	private $agenda_delim;
 	
 	private function init() {
-		$this->logged = (Base_AclCommon::i_am_user() ? Base_UserCommon::get_my_user_id() : -1);
+		$this->logged = (Acl::is_user() ? Acl::get_user() : -1);
 		$this->lang = & $this->init_module('Base/Lang');
 		$this->agenda_delim = 8;
 		load_js($this->get_module_dir().'/js/Agenda.js');
-		$this->logged = Base_UserCommon::get_my_user_id();
+		$this->logged = Acl::get_user();
 		CRM_Calendar_Utils_SidetipCommon::load();
 	}
 				

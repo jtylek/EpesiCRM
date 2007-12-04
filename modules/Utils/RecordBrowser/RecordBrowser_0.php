@@ -187,7 +187,7 @@ class Utils_RecordBrowser extends Module {
 		if ($admin) $this->browse_mode = 'all'; 
 		if ($this->browse_mode == 'recent') {
 			$rec_tmp = array();
-			$ret = DB::Execute('SELECT * FROM '.$this->tab.'_recent WHERE user_id=%d ORDER BY visited_on DESC', array(Base_UserCommon::get_my_user_id()));
+			$ret = DB::Execute('SELECT * FROM '.$this->tab.'_recent WHERE user_id=%d ORDER BY visited_on DESC', array(Acl::get_user()));
 			while ($row = $ret->FetchRow()) {
 				if (!isset($records[$row[$this->tab.'_id']])) continue;
 				$rec_tmp[$row[$this->tab.'_id']] = $records[$row[$this->tab.'_id']];
@@ -197,7 +197,7 @@ class Utils_RecordBrowser extends Module {
 		}
 		if ($this->browse_mode == 'favorites') {
 			$rec_tmp = array();
-			$ret = DB::Execute('SELECT * FROM '.$this->tab.'_favorite WHERE user_id=%d', array(Base_UserCommon::get_my_user_id()));
+			$ret = DB::Execute('SELECT * FROM '.$this->tab.'_favorite WHERE user_id=%d', array(Acl::get_user()));
 			while ($row = $ret->FetchRow()) {
 				if (!isset($records[$row[$this->tab.'_id']])) continue;
 				$rec_tmp[$row[$this->tab.'_id']] = $records[$row[$this->tab.'_id']];
@@ -208,7 +208,7 @@ class Utils_RecordBrowser extends Module {
 		foreach ($records as $row) {
 			$gb_row = $gb->get_new_row();
 			if (!$admin && $this->favorites) {
-				$isfav = DB::GetOne('SELECT user_id FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%d', array(Base_UserCommon::get_my_user_id(), $row['id']));
+				$isfav = DB::GetOne('SELECT user_id FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%d', array(Acl::get_user(), $row['id']));
 				$row_data = array('<a '.Utils_TooltipCommon::open_tag_attrs(($isfav?$this->lang->t('This item is on your favourites list<br>Click to remove it from your favorites'):$this->lang->t('Click to add this item to favorites'))).' '.$this->create_callback_href(array($this,($isfav?'remove_from_favs':'add_to_favs')), array($row['id'])).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','star_'.($isfav==false?'no':'').'fav.png').'" /></a>');
 			} else $row_data = array();
 			if ($special) { 
@@ -293,7 +293,7 @@ class Utils_RecordBrowser extends Module {
 		$theme = $this->init_module('Base/Theme');
 
 		if($mode!='add')
-			Utils_RecordBrowserCommon::add_recent_entry($this->tab, Base_UserCommon::get_my_user_id(),$id);
+			Utils_RecordBrowserCommon::add_recent_entry($this->tab, Acl::get_user(),$id);
 
 		$tb = $this->init_module('Utils/TabbedBrowser');
 		$form = $this->init_module('Libs/QuickForm',null, $mode);
@@ -326,10 +326,10 @@ class Utils_RecordBrowser extends Module {
 		}
 
 		if ($mode!='add') {
-			$isfav = DB::GetOne('SELECT user_id FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%d', array(Base_UserCommon::get_my_user_id(), $id));
+			$isfav = DB::GetOne('SELECT user_id FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%d', array(Acl::get_user(), $id));
 			$theme -> assign('info_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(Utils_RecordBrowserCommon::get_html_record_info($this->tab, $id)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','info.png').'" /></a>');
 			$row_data = array();
-			$fav = DB::GetOne('SELECT user_id FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%s', array(Base_UserCommon::get_my_user_id(), $id));
+			$fav = DB::GetOne('SELECT user_id FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%s', array(Acl::get_user(), $id));
 			
 			if ($this->favorites)
 				$theme -> assign('fav_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(($isfav?$this->lang->t('This item is on your favourites list<br>Click to remove it from your favorites'):$this->lang->t('Click to add this item to favorites'))).' '.$this->create_callback_href(array($this,($isfav?'remove_from_favs':'add_to_favs')), array($id)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','star_'.($isfav==false?'no':'').'fav.png').'" /></a>');
@@ -506,10 +506,10 @@ class Utils_RecordBrowser extends Module {
 		eval_js($init_js);	
 	}
 	public function add_to_favs($id) {
-		DB::Execute('INSERT INTO '.$this->tab.'_favorite (user_id, '.$this->tab.'_id) VALUES (%d, %d)', array(Base_UserCommon::get_my_user_id(), $id));
+		DB::Execute('INSERT INTO '.$this->tab.'_favorite (user_id, '.$this->tab.'_id) VALUES (%d, %d)', array(Acl::get_user(), $id));
 	}
 	public function remove_from_favs($id) {
-		DB::Execute('DELETE FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%d', array(Base_UserCommon::get_my_user_id(), $id));
+		DB::Execute('DELETE FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%d', array(Acl::get_user(), $id));
 	}
 	public function update_record_data($id,$values) {
 		DB::StartTrans();	
@@ -533,7 +533,7 @@ class Utils_RecordBrowser extends Module {
 			}
 		}
 		if (!empty($diff)) {
-			DB::Execute('INSERT INTO '.$this->tab.'_edit_history(edited_on, edited_by, '.$this->tab.'_id) VALUES (%T,%d,%d)', array(date('Y-m-d G:i:s'), Base_UserCommon::get_my_user_id(), $id));
+			DB::Execute('INSERT INTO '.$this->tab.'_edit_history(edited_on, edited_by, '.$this->tab.'_id) VALUES (%T,%d,%d)', array(date('Y-m-d G:i:s'), Acl::get_user(), $id));
 			$edit_id = DB::Insert_ID(''.$this->tab.'_edit_history','id');
 			foreach($diff as $k=>$v) {
 				if (!is_array($v)) $v = array($v);

@@ -37,7 +37,7 @@ class CRM_Calendar_View_Month extends Module {
 		$this->lang = & $this->pack_module('Base/Lang');
 		//admin mode?
 		$tmp = 'month';
-		$this->logged = (Base_AclCommon::i_am_user() ? Base_UserCommon::get_my_user_id() : -1);
+		$this->logged = (Acl::is_user() ? Acl::get_user() : -1);
 		$this->view_style = $this->get_module_variable_or_unique_href_variable('view_style', $tmp);
 
 		$this->date = array();

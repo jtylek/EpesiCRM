@@ -35,7 +35,7 @@ class Base_UserCommon extends ModuleCommon {
 			print('Unable to add user to user_login table<br>');
 			return false;
 		}
-		$acl = Base_AclCommon::add_user($username);
+		$acl = Base_AclCommon::add_user(DB::Insert_ID('user_login','id'));
 		if(!$acl) {
 			print('Unable to add user to ACL. Deleting user.');
 			DB::Execute('DELETE FROM user_login WHERE login=%s', array($username));
@@ -63,33 +63,16 @@ class Base_UserCommon extends ModuleCommon {
 		return DB::GetOne('SELECT login FROM user_login WHERE id=%d', array($id));
 	}
 
-	/**
-	 * Returns id of currently logged in user.
-	 * Method returns null if no user is logged in.
-	 *
-	 * @return mixed user id
-	 */
-	public static function get_my_user_id() {
-		if(Acl::is_user()) {
-		    if(!isset($_SESSION['client']['user_id'])) {
-				$id = self::get_user_id(Acl::get_user());
-				$_SESSION['client']['user_id'] = $id;
-		    }
-		} else {
-			unset($_SESSION['client']['user_id']);
+	public static function get_my_user_login() {
+		static $x;
+		if(!isset($x)) {
+			if(Acl::is_user())
+				$x = self::get_user_login(Acl::get_user());
+			else
+				$x = null;
 		}
-		return $_SESSION['client']['user_id'];
-    }
-
-	/**
-	 * For internal use only.
-	 */
-	public static function set_my_user_id($a=null) {
-		if(isset($a))
-			$_SESSION['client']['user_id'] = $a;
-		else
-			unset($_SESSION['client']['user_id']);
-        }
+		return $x; 
+	}
 }
 
 ?>

@@ -19,12 +19,12 @@ class Apps_Gallery extends Module {
 	public function construct() {
 		$this->lang = & $this->init_module('Base/Lang');
 		$this->root = $this->get_data_dir();
-		//print Base_UserCommon::get_my_user_id()." - id<br>";
+		//print Acl::get_user()." - id<br>";
 		//print Base_AclCommon::i_am_user()." - am i user<br>";
-		//print Base_UserCommon::get_user_login(Base_UserCommon::get_my_user_id())." - login<br>";
+		//print Base_UserCommon::get_user_login(Acl::get_user())." - login<br>";
 		if(Base_AclCommon::i_am_user()) {
-			$this->user = Base_UserCommon::get_my_user_id();
-			$this->user_name = Base_UserCommon::get_user_login(Base_UserCommon::get_my_user_id());
+			$this->user = Acl::get_user();
+			$this->user_name = Base_UserCommon::get_user_login(Acl::get_user());
 			if(!is_dir( $this->root.$this->user )) {
 				mkdir( $this->root.$this->user );
 			}
@@ -267,7 +267,7 @@ class Apps_Gallery extends Module {
 		DB::Execute('delete from gallery_shared_media where user_id = %s', array($this->user));
 		unset($data['submited']);
 		unset($data['submit_button']);
-		//print Base_UserCommon::get_user_login(Base_UserCommon::get_my_user_id()) ." <br>";
+		//print Base_UserCommon::get_user_login(Acl::get_user()) ." <br>";
 		foreach( $data as $dir => $sel) {
 			//print $this->user_name.": ". $dir ." <br>";
 			//print $dir . " <br>";

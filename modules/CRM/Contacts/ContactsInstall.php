@@ -178,10 +178,10 @@ class CRM_ContactsInstall extends ModuleInstall {
 		$count = DB::GetOne('SELECT count(ul.id) FROM user_login ul');
 		if($count==1) {
 			$user = DB::GetRow('SELECT ul.id,up.mail,ul.login FROM user_login ul INNER JOIN user_password up ON up.user_login_id=ul.id');
-			$uid = Base_AclCommon::get_acl_user_id($user['login']);
+			$uid = Base_AclCommon::get_acl_user_id($user['id']);
 			if($uid !== false) {
 				$groups_old = Base_AclCommon::get_user_groups($uid);
-				Base_AclCommon::change_privileges($user['login'], array_merge($groups_old,array(Base_AclCommon::get_group_id('Employee Administrator'),Base_AclCommon::get_group_id('Customer Administrator'))));
+				Base_AclCommon::change_privileges($user['id'], array_merge($groups_old,array(Base_AclCommon::get_group_id('Employee Administrator'),Base_AclCommon::get_group_id('Customer Administrator'))));
 			}
 
 			Utils_RecordBrowserCommon::new_record('contact',

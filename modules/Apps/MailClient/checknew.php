@@ -25,7 +25,7 @@ function rm_lock($lock) {
 	@unlink(dirname(dirname(dirname(__FILE__))).'/'.$lock);
 }
 
-$accounts = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE user_login_id=%d',array(Base_UserCommon::get_my_user_id()));
+$accounts = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE user_login_id=%d',array(Acl::get_user()));
 foreach($accounts as $account) {
 	$host = explode(':',$account['incoming_server']);
 	if(isset($host[1])) $port=$host[1];

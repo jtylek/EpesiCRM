@@ -118,7 +118,7 @@ class Utils_Attachment extends Module {
 		$ret = DB::Execute($query.$query_order);
 
 		while($row = $ret->FetchRow()) {
-			if(!$row['other_read'] && $row['permission_by']!=Base_UserCommon::get_my_user_id()) {
+			if(!$row['other_read'] && $row['permission_by']!=Acl::get_user()) {
 				if($row['permission']==0 && !$this->public_read) continue;//protected
 				elseif($row['permission']==1 && !$this->protected_read) continue;//protected
 				elseif($row['permission']==2 && !$this->private_read) continue;//private
@@ -132,7 +132,7 @@ class Utils_Attachment extends Module {
 				$this->lang->t('Permission: %s',array($perm)).'<hr>'.
 				$this->lang->t('Last note by %s<br>Last note on %s<br>Number of note edits: %d<br>Last file uploaded by %s<br>Last file uploaded on %s<br>Number of file uploads: %d',array($row['note_by'],Base_RegionalSettingsCommon::time2reg($row['note_on']),$row['note_revision'],$row['upload_by'],Base_RegionalSettingsCommon::time2reg($row['upload_on']),$row['file_revision']));
 			$r->add_info($info);
-			if($row['permission_by']==Base_UserCommon::get_my_user_id() ||
+			if($row['permission_by']==Acl::get_user() ||
 			   ($row['permission']==0 && $this->public_write) ||
 			   ($row['permission']==1 && $this->protected_write) ||
 			   ($row['permission']==2 && $this->private_write)) {
@@ -206,7 +206,7 @@ class Utils_Attachment extends Module {
 		$file = $this->get_file($row);
 		$info = $this->lang->t('Last note by %s<br>Last note on %s<br>Number of note edits: %d<br>Last file uploaded by %s<br>Last file uploaded on %s<br>Number of file uploads: %d',array($row['note_by'],Base_RegionalSettingsCommon::time2reg($row['note_on']),$row['note_revision'],$row['upload_by'],Base_RegionalSettingsCommon::time2reg($row['upload_on']),$row['file_revision']));
 		if($this->inline) {
-			if($row['permission_by']==Base_UserCommon::get_my_user_id() ||
+			if($row['permission_by']==Acl::get_user() ||
 			   ($row['permission']==0 && $this->public_write) ||
 			   ($row['permission']==1 && $this->protected_write) ||
 			   ($row['permission']==2 && $this->private_write)) {
@@ -218,7 +218,7 @@ class Utils_Attachment extends Module {
 			print('<a '.$this->create_callback_href(array($this,'edition_history'),$id).'>'.$this->lang->t('History').'</a> :: ');
 			print('<a '.$this->create_back_href().'>'.$this->lang->t('back').'</a><br>');
 		} else {
-			if($row['permission_by']==Base_UserCommon::get_my_user_id() ||
+			if($row['permission_by']==Acl::get_user() ||
 			   ($row['permission']==0 && $this->public_write) ||
 			   ($row['permission']==1 && $this->protected_write) ||
 			   ($row['permission']==2 && $this->private_write)) {
@@ -268,7 +268,7 @@ class Utils_Attachment extends Module {
 		$ret = $gb->query_order_limit('SELECT ual.permission_by,ual.permission,uac.revision,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text FROM utils_attachment_note uac INNER JOIN utils_attachment_link ual ON ual.id=uac.attach_id WHERE uac.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_note uac WHERE uac.attach_id='.$id);
 		while($row = $ret->FetchRow()) {
 			$r = $gb->get_new_row();
-			if($row['permission_by']==Base_UserCommon::get_my_user_id() ||
+			if($row['permission_by']==Acl::get_user() ||
 			   ($row['permission']==0 && $this->public_write) ||
 			   ($row['permission']==1 && $this->protected_write) ||
 			   ($row['permission']==2 && $this->private_write))
@@ -288,7 +288,7 @@ class Utils_Attachment extends Module {
 		$ret = $gb->query_order_limit('SELECT ual.permission_by,ual.permission,uaf.attach_id as id,uaf.revision as file_revision,uaf.created_on as upload_on,(SELECT l.login FROM user_login l WHERE uaf.created_by=l.id) as upload_by,uaf.original FROM utils_attachment_file uaf INNER JOIN utils_attachment_link ual ON ual.id=uaf.attach_id WHERE uaf.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_file uaf WHERE uaf.attach_id='.$id);
 		while($row = $ret->FetchRow()) {
 			$r = $gb->get_new_row();
-			if($row['permission_by']==Base_UserCommon::get_my_user_id() ||
+			if($row['permission_by']==Acl::get_user() ||
 			   ($row['permission']==0 && $this->public_write) ||
 			   ($row['permission']==1 && $this->protected_write) ||
 			   ($row['permission']==2 && $this->private_write))
@@ -305,7 +305,7 @@ class Utils_Attachment extends Module {
 		DB::StartTrans();
 		$text = DB::GetOne('SELECT text FROM utils_attachment_note WHERE attach_id=%d AND revision=%d',array($id,$rev));
 		$rev2 = DB::GetOne('SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=%d',array($id));
-		DB::Execute('INSERT INTO utils_attachment_note(text,attach_id,revision,created_by) VALUES (%s,%d,%d,%d)',array($text,$id,$rev2+1,Base_UserCommon::get_my_user_id()));
+		DB::Execute('INSERT INTO utils_attachment_note(text,attach_id,revision,created_by) VALUES (%s,%d,%d,%d)',array($text,$id,$rev2+1,Acl::get_user()));
 		DB::CompleteTrans();
 	}
 
@@ -314,7 +314,7 @@ class Utils_Attachment extends Module {
 		$original = DB::GetOne('SELECT original FROM utils_attachment_file WHERE attach_id=%d AND revision=%d',array($id,$rev));
 		$rev2 = DB::GetOne('SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=%d',array($id));
 		$rev2 = $rev2+1;
-		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,revision) VALUES(%d,%s,%d,%d)',array($id,$original,Base_UserCommon::get_my_user_id(),$rev2));
+		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,revision) VALUES(%d,%s,%d,%d)',array($id,$original,Acl::get_user(),$rev2));
 		DB::CompleteTrans();
 		$local = $this->get_data_dir().$this->group.'/'.$id.'_';
 		copy($local.$rev,$local.$rev2);
@@ -386,10 +386,10 @@ class Utils_Attachment extends Module {
 	}
 
 	public function submit_attach($file,$oryg,$data) {
-		DB::Execute('INSERT INTO utils_attachment_link(attachment_key,local,permission,permission_by,other_read) VALUES(%s,%s,%d,%d,%b)',array($this->key,$this->group,$data['permission'],Base_UserCommon::get_my_user_id(),isset($data['other']) && $data['other']));
+		DB::Execute('INSERT INTO utils_attachment_link(attachment_key,local,permission,permission_by,other_read) VALUES(%s,%s,%d,%d,%b)',array($this->key,$this->group,$data['permission'],Acl::get_user(),isset($data['other']) && $data['other']));
 		$id = DB::Insert_ID('utils_attachment_link','id');
-		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$oryg,Base_UserCommon::get_my_user_id()));
-		DB::Execute('INSERT INTO utils_attachment_note(attach_id,text,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$data['note'],Base_UserCommon::get_my_user_id()));
+		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$oryg,Acl::get_user()));
+		DB::Execute('INSERT INTO utils_attachment_note(attach_id,text,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$data['note'],Acl::get_user()));
 		if($file) {
 			$local = $this->get_data_dir().$this->group;
 			@mkdir($local,0777,true);
@@ -399,18 +399,18 @@ class Utils_Attachment extends Module {
 	}
 
 	public function submit_edit($file,$oryg,$data,$id,$text) {
-		DB::Execute('UPDATE utils_attachment_link SET other_read=%b,permission=%d,permission_by=%d WHERE id=%d',array(isset($data['other']) && $data['other'],$data['permission'],Base_UserCommon::get_my_user_id(),$id));
+		DB::Execute('UPDATE utils_attachment_link SET other_read=%b,permission=%d,permission_by=%d WHERE id=%d',array(isset($data['other']) && $data['other'],$data['permission'],Acl::get_user(),$id));
 		if($data['note']!=$text) {
 			DB::StartTrans();
 			$rev = DB::GetOne('SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=%d',array($id));
-			DB::Execute('INSERT INTO utils_attachment_note(text,attach_id,revision,created_by) VALUES (%s,%d,%d,%d)',array($data['note'],$id,$rev+1,Base_UserCommon::get_my_user_id()));
+			DB::Execute('INSERT INTO utils_attachment_note(text,attach_id,revision,created_by) VALUES (%s,%d,%d,%d)',array($data['note'],$id,$rev+1,Acl::get_user()));
 			DB::CompleteTrans();
 		}
 		if($file) {
 			DB::StartTrans();
 			$rev = DB::GetOne('SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=%d',array($id));
 			$rev = $rev+1;
-			DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,revision) VALUES(%d,%s,%d,%d)',array($id,$oryg,Base_UserCommon::get_my_user_id(),$rev));
+			DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,revision) VALUES(%d,%s,%d,%d)',array($id,$oryg,Acl::get_user(),$rev));
 			DB::CompleteTrans();
 			$local = $this->get_data_dir().$this->group;
 			@mkdir($local,0777,true);

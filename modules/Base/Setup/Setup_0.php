@@ -38,7 +38,6 @@ class Base_Setup extends Module {
 				'default_module' => Variable::get('default_module'),
 				'simple' => Variable::get('simple_setup'),
 				'anonymous_setup' => Variable::get('anonymous_setup')));
-	//		print('='.Base_AclCommon::change_privileges('admin', array(Base_AclCommon::sa_group_id())).'=');
 
 			$form->addElement('header', 'install_module_header', 'Modules Administration');
 			//$form->addElement('checkbox','simple','Simple setup','',array('onChange'=>$form->get_submit_form_js(false)));

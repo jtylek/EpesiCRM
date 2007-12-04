@@ -141,7 +141,7 @@ class Apps_MailClient extends Module {
 		$gb->set_table_columns(array(
 			array('name'=>$this->lang->t('Mail'), 'order'=>'mail')
 				));
-		$ret = $gb->query_order_limit('SELECT id,mail FROM apps_mailclient_accounts WHERE user_login_id='.Base_UserCommon::get_my_user_id(),'SELECT count(mail) FROM apps_mailclient_accounts WHERE user_login_id='.Base_UserCommon::get_my_user_id());
+		$ret = $gb->query_order_limit('SELECT id,mail FROM apps_mailclient_accounts WHERE user_login_id='.Acl::get_user(),'SELECT count(mail) FROM apps_mailclient_accounts WHERE user_login_id='.Acl::get_user());
 		while($row=$ret->FetchRow()) {
 			$r = & $gb->get_new_row();
 			$r->add_data($row['mail']);
@@ -213,7 +213,7 @@ class Apps_MailClient extends Module {
 			$f->addElement('submit',null,'Save','style="display:none"'); //provide on ENTER submit event
 			if($f->validate()) {
 				$values = $f->exportValues();
-				$dbup = array('id'=>$id, 'user_login_id'=>Base_UserCommon::get_my_user_id());
+				$dbup = array('id'=>$id, 'user_login_id'=>Acl::get_user());
 				foreach($cols as $v) {
 					if(ereg("header$",$v['name'])) continue;
 					if(isset($values[$v['name']]))

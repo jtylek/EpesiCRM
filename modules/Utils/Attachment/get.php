@@ -22,7 +22,7 @@ $row = DB::GetRow('SELECT uaf.original,ual.permission,ual.other_read,ual.permiss
 $original = $row['original'];
 $filename = $local.'/'.$id.'_'.$rev;
 
-if(!$row['other_read'] && $row['permission_by']!=Base_UserCommon::get_my_user_id()) {
+if(!$row['other_read'] && $row['permission_by']!=Acl::get_user()) {
 	if(($row['permission']==0 && !$public) || 
 		($row['permission']==1 && !$protected) ||
 		($row['permission']==2 && !$private))

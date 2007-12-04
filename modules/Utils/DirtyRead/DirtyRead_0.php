@@ -95,7 +95,7 @@ class Utils_DirtyRead extends Module {
 			$table = array($table=>$id);
 		
 		foreach($table as $t=>$i) {
-			DB::Execute('UPDATE '.$t.' SET edited_on = CURRENT_TIMESTAMP, edited_by=%d WHERE id=%d',array(Base_UserCommon::get_my_user_id(),$i));
+			DB::Execute('UPDATE '.$t.' SET edited_on = CURRENT_TIMESTAMP, edited_by=%d WHERE id=%d',array(Acl::get_user(),$i));
 		}
 		DB::$ado->CompleteTrans();
 		$this->unset_module_variable('read_time');

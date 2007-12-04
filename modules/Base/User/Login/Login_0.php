@@ -22,14 +22,13 @@ class Base_User_Login extends Module {
 	}
 
 	private function set_logged($user) {
-		Acl::set_user($user); //tag who is logged
 		$uid = Base_UserCommon::get_user_id($user);
-		Base_UserCommon::set_my_user_id($uid);
+		Acl::set_user($uid); //tag who is logged
 	}
 
 	private function new_autologin_id() {
 		$user = Acl::get_user();
-		$uid = Base_UserCommon::get_my_user_id();
+		$uid = Acl::get_user();
 		$autologin_id = md5(mt_rand().(isset($_COOKIE['autologin_id'])?$_COOKIE['autologin_id']:md5($user.$uid)).mt_rand());
 		setcookie('autologin_id',$user.' '.$autologin_id,time()+60*60*24*30);
 		DB::Execute('UPDATE user_password SET autologin_id=%s WHERE user_login_id=%d',array($autologin_id,$uid));
@@ -71,12 +70,11 @@ class Base_User_Login extends Module {
 		$theme->assign('is_logged_in', Acl::is_user());
 		if(Acl::is_user()) {
 			if($this->get_unique_href_variable('logout')) {
-				DB::Execute('UPDATE user_password SET autologin_id=\'\' WHERE user_login_id=%d',array(Base_UserCommon::get_my_user_id()));
+				DB::Execute('UPDATE user_password SET autologin_id=\'\' WHERE user_login_id=%d',array(Acl::get_user()));
 				Acl::set_user();
-				Base_UserCommon::set_my_user_id();
 				location(array());
 			} else {
-				$theme->assign('logged_as', $this->lang->t('Logged as <b class="green">%s</b>.',array(Acl::get_user())));
+				$theme->assign('logged_as', $this->lang->t('Logged as <b class="green">%s</b>.',array(Base_UserCommon::get_my_user_login())));
 				$theme->assign('logout', '<a '.$this->create_unique_href(array('logout'=>1)).'>'.$this->lang->t('Logout').'</a>');
 				$theme->display();
 			}

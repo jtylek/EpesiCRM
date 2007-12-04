@@ -28,7 +28,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 	}
 
 	public static function applet_settings() {
-		$ret = DB::Execute('SELECT id,mail FROM apps_mailclient_accounts WHERE user_login_id=%d',array(Base_UserCommon::get_my_user_id()));
+		$ret = DB::Execute('SELECT id,mail FROM apps_mailclient_accounts WHERE user_login_id=%d',array(Acl::get_user()));
 		$conf = array(array('type'=>'header','label'=>'Choose accounts'));
 		while($row=$ret->FetchRow())
 			$conf[] = array('name'=>'account_'.$row['id'], 'label'=>$row['mail'], 'type'=>'checkbox', 'default'=>0);
@@ -44,9 +44,9 @@ class Apps_MailClientCommon extends ModuleCommon {
 	////////////////////////////////////////////////////
 	// scan mail dir, etc
 	private function _get_mail_dir() {
-		$dir = $this->get_data_dir().Base_UserCommon::get_my_user_id().'/';
+		$dir = $this->get_data_dir().Acl::get_user().'/';
 		if(!file_exists($dir)) mkdir($dir);
-		$accounts = DB::GetCol('SELECT mail FROM apps_mailclient_accounts WHERE user_login_id=%d',array(Base_UserCommon::get_my_user_id()));
+		$accounts = DB::GetCol('SELECT mail FROM apps_mailclient_accounts WHERE user_login_id=%d',array(Acl::get_user()));
 		foreach($accounts as $account) {
 			$acc_dir = $dir.str_replace(array('@','.'),array('__at__','__dot__'),$account).'/';
 			if(!file_exists($acc_dir)) { // create user dir

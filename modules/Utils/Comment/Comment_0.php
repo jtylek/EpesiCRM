@@ -56,7 +56,7 @@ class Utils_Comment extends Module{
 
 		$report = $this -> get_unique_href_variable('report');
 		if ($report) {
-			DB::Execute('INSERT INTO comment_report (id, user_login_id) VALUES (%d, %d)',array($report,Base_UserCommon::get_my_user_id()));
+			DB::Execute('INSERT INTO comment_report (id, user_login_id) VALUES (%d, %d)',array($report,Acl::get_user()));
 		}
 		
 		if ($this->reply)
@@ -171,7 +171,7 @@ class Utils_Comment extends Module{
 				if (!$rep_count) $report = '';
 				else $report = $this->lang->t('Reported %d time(s)',$rep_count);
 			} else if ($this->report) {
-				$rep_count = DB::GetOne('SELECT COUNT(*) FROM comment_report WHERE id=%d AND user_login_id=%d',array($row['id'],Base_UserCommon::get_my_user_id()));
+				$rep_count = DB::GetOne('SELECT COUNT(*) FROM comment_report WHERE id=%d AND user_login_id=%d',array($row['id'],Acl::get_user()));
 				if ($rep_count==0) $report = '<a '.$this->create_unique_href(array('report'=>$row['id'])).'>'.$this->lang->t('Report').'</a>';
 				else $report = $this->lang->t('Post reported');
 			}
@@ -246,7 +246,7 @@ class Utils_Comment extends Module{
 	 */
 	public function add_post($post_text, $answer_to=-1){
 //		$post_text = str_replace("\n",'<br>',$post_text);
-		DB::Execute('INSERT INTO comment (text, user_login_id, topic, created_on, parent) VALUES (%s, %d, %s, %s, %d)',array(htmlspecialchars($post_text,ENT_QUOTES,'UTF-8'),Base_UserCommon::get_my_user_id(),$this->key,date('Y-m-d G:i:s'),$answer_to));
+		DB::Execute('INSERT INTO comment (text, user_login_id, topic, created_on, parent) VALUES (%s, %d, %s, %s, %d)',array(htmlspecialchars($post_text,ENT_QUOTES,'UTF-8'),Acl::get_user(),$this->key,date('Y-m-d G:i:s'),$answer_to));
 	}
 
 	private function first() {

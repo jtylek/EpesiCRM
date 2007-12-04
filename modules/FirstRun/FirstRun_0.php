@@ -153,7 +153,7 @@ class FirstRun extends Module {
 		    	return false;
 		}
 
-		if(!Base_AclCommon::change_privileges($d['simple_user']['login'], array(Base_AclCommon::sa_group_id()))) {
+		if(!Base_AclCommon::change_privileges($user_id, array(Base_AclCommon::sa_group_id()))) {
 			print('Unable to update admin account data (groups).');
 			return false;
 		}

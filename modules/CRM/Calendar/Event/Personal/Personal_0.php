@@ -65,7 +65,7 @@ class CRM_Calendar_Event_Personal extends Module {
 			
 		//DB::Execute("insert into calendar_event_personal(title,    act_id,       emp_gid,       description,       datetime_start, datetime_end, timeless,       priority,       access,       status, created_on, created_by, edited_on, edited_by) ".
 		//										"values(%s,        %d,           %d,            %s,                %d,             %d,           %d,             %d,             %d,           %s, %d, '%s', %d, '%s', %d)", 
-		//										array($d['title'], $d['act_id'], $d['emp_gid'], $d['description'], $dt_start,      $dt_end,      $d['timeless'], $d['priority'], $d['access'], $d['status'], Base_UserCommon::get_my_user_id(), date("Y.m.d H:i"), Base_UserCommon::get_my_user_id(), date("Y.m.d H:i"), $data['timeless'])
+		//										array($d['title'], $d['act_id'], $d['emp_gid'], $d['description'], $dt_start,      $dt_end,      $d['timeless'], $d['priority'], $d['access'], $d['status'], Acl::get_user(), date("Y.m.d H:i"), Acl::get_user(), date("Y.m.d H:i"), $data['timeless'])
 		//);
 		$record = new CRM_Calendar_Event_PersonalRecord();
 		$record->title = $d['title'];
@@ -80,9 +80,9 @@ class CRM_Calendar_Event_Personal extends Module {
 		$record->access = $d['access'];
 		$record->status = 1;
 		$record->created_on = date("Y.m.d H:i");
-		$record->created_by = Base_UserCommon::get_my_user_id();
+		$record->created_by = Acl::get_user();
 		$record->edited_on = date("Y.m.d H:i");
-		$record->edited_by = Base_UserCommon::get_my_user_id();
+		$record->edited_by = Acl::get_user();
 		$record->save();
 		return true;
 	}
@@ -138,7 +138,7 @@ class CRM_Calendar_Event_Personal extends Module {
 				'edited_on=%T, '.
 				'edited_by=%d '.
 			'where id=%d',
-			array($d['title'], $d['act_id'], $gid, $d['description'], $dt_start, $dt_end, $d['timeless'], $d['priority'], $d['access'], 1, date("Y.m.d H:i"), Base_UserCommon::get_my_user_id(), $d['id'])
+			array($d['title'], $d['act_id'], $gid, $d['description'], $dt_start, $dt_end, $d['timeless'], $d['priority'], $d['access'], 1, date("Y.m.d H:i"), Acl::get_user(), $d['id'])
 		);
 		return true;
 	}
@@ -178,7 +178,7 @@ class CRM_Calendar_Event_Personal extends Module {
 			} else {
 				$def['timeless'] = 1;
 			}
-			$def['emp_id'] = array(Base_UserCommon::get_my_user_id());
+			$def['emp_id'] = array(Acl::get_user());
 		// EDIT / PREVIEW:
 		} else if($action == 'edit' || $action == 'details') {
 			//print 'edit';
@@ -365,7 +365,7 @@ class CRM_Calendar_Event_Personal extends Module {
 		}
 		// display form
 		if($form->getSubmitValue('submited')) {
-			if($action == 'details' && ($event['created_by'] == Base_UserCommon::get_my_user_id() || $event['status'] == 0)) {
+			if($action == 'details' && ($event['created_by'] == Acl::get_user() || $event['status'] == 0)) {
 				print 'frozen';
 				return $this->manage_event($subject, 'edit');	
 			} else {

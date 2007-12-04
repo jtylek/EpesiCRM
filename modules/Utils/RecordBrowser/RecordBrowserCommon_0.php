@@ -209,9 +209,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		self::init($tab_name);
 		DB::StartTrans();	
 		$SQLcols = array();
-		DB::Execute('INSERT INTO '.$tab_name.' (created_on, created_by, active) VALUES (%T, %d, %d)',array(date('Y-m-d G:i:s'), Base_UserCommon::get_my_user_id(), 1));
+		DB::Execute('INSERT INTO '.$tab_name.' (created_on, created_by, active) VALUES (%T, %d, %d)',array(date('Y-m-d G:i:s'), Acl::get_user(), 1));
 		$id = DB::Insert_ID($tab_name, 'id');
-		self::add_recent_entry($tab_name, Base_UserCommon::get_my_user_id(), $id);
+		self::add_recent_entry($tab_name, Acl::get_user(), $id);
 		foreach(self::$table_rows as $field => $args) {
 			if (!isset($values[$args['id']]) || $values[$args['id']]=='') continue;
 			if (!is_array($values[$args['id']])) 

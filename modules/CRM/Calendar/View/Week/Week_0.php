@@ -47,11 +47,11 @@ class CRM_Calendar_View_Week extends Module {
 		$this->settings['display_type'] = 'per_day';
 		//admin mode?
 		$tmp = 'month';
-		if(Base_AclCommon::i_am_user()) {
+		if(Acl::is_user()) {
 			$ret = 0;
 			$this->logged = 0;
 			if(!$this->logged)
-				$this->logged = Base_UserCommon::get_my_user_id();
+				$this->logged = Acl::get_user();
 			$this->admin = true;
 			//print Base_User::get_User_login($this->logged);
 

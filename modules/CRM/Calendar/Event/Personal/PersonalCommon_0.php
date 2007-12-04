@@ -132,25 +132,25 @@ class CRM_Calendar_Event_PersonalCommon extends ModuleCommon {
 			case 'time':
 				return '<b>'.$time.$divider.$finish.'</b>';
 			case 'title':
-				if($row['created_by'] == Base_UserCommon::get_my_user_id() || $row['access'] <= 1)
+				if($row['created_by'] == Acl::get_user() || $row['access'] <= 1)
 					return $row['title'];
 				else
 					return '<font color=red>'.Base_UserCommon::get_user_login($row['created_by']).' PRIVATE</font>';
 			//--------------------------------------------------------
 			case 'brief':
-				if($row['created_by'] == Base_UserCommon::get_my_user_id() || $row['access'] <= 1)
+				if($row['created_by'] == Acl::get_user() || $row['access'] <= 1)
 					return '<font size=1 face=tahoma><b>'.$time.$after.'</b>'.$row['title'];
 				else
 					return '<font size=1 face=tahoma><b>'.$time.$after.'</b><font color=red>'.Base_UserCommon::get_user_login($row['created_by']).' PRIVATE</font>';
 			//----------------------------------------	
 			case 'agenda':
-				if($row['created_by'] == Base_UserCommon::get_my_user_id() || $row['access'] <= 1)
+				if($row['created_by'] == Acl::get_user() || $row['access'] <= 1)
 					return "<b>".$row['title']."</b> -- <u>".$acts."</u>".$emps;
 				else
 					return "<b>".Base_UserCommon::get_user_login($row['created_by']).' PRIVATE</b>';
 			//----------------------------------------	
 			case 'line':
-				if($row['created_by'] == Base_UserCommon::get_my_user_id() || $row['access'] <= 1)
+				if($row['created_by'] == Acl::get_user() || $row['access'] <= 1)
 					return "<b>".$time.$divider.$finish.$after.$row['title']."</b> -- <u>".$acts."</u>".$emps;
 				else
 					return "<b>".$time.$divider.$finish."</b> -- ".Base_UserCommon::get_user_login($row['created_by']).' PRIVATE';
@@ -171,7 +171,7 @@ class CRM_Calendar_Event_PersonalCommon extends ModuleCommon {
 					}
 				}
 				$more .= '</table>';
-				if($row['created_by'] == Base_UserCommon::get_my_user_id() || $row['access'] <= 1)
+				if($row['created_by'] == Acl::get_user() || $row['access'] <= 1)
 					return '<b>'.$time.$divider.$finish.$after.$row['title'].'</b>'.$more;
 				else
 					return "<b>".$time.$divider.$finish.'</b><br>'.Base_UserCommon::get_user_login($row['created_by']).' PRIVATE';
@@ -198,7 +198,7 @@ class CRM_Calendar_Event_PersonalCommon extends ModuleCommon {
 					//$full .= '<br><span id="'.$id.'">more</span>';
 				//	$full .= '<br>'.$more;
 				//}
-				if($row['created_by'] == Base_UserCommon::get_my_user_id() || $row['access'] <= 1)
+				if($row['created_by'] == Acl::get_user() || $row['access'] <= 1)
 					return '<b>'.$time.$divider.$finish.$after.$row['title'].'</b>'.$full;
 				else
 					return "<b>".$time.$divider.$finish.'</b><br>'.Base_UserCommon::get_user_login($row['created_by']).' PRIVATE';
@@ -208,8 +208,8 @@ class CRM_Calendar_Event_PersonalCommon extends ModuleCommon {
 	
 	public static function get_month( $date ) {
 		$logged = -1;
-		if(Base_AclCommon::i_am_user())
-			$logged = Base_UserCommon::get_my_user_id();
+		if(Acl::is_user())
+			$logged = Acl::get_user();
 			
 		$ret = null;
 		if(Base_AclCommon::i_am_admin() && CRM_Calendar_Utils_FuncCommon::get_settings('show_private'))
@@ -256,7 +256,7 @@ class CRM_Calendar_Event_PersonalCommon extends ModuleCommon {
 				$datetime_end = sprintf("%d%02d%02d999999", $end['year'],$end['month'],$end['day']);
 			
 			//print $datetime_start;
-			$logged = Base_UserCommon::get_my_user_id();
+			$logged = Acl::get_user();
 			if(Base_AclCommon::i_am_admin() && CRM_Calendar_Utils_FuncCommon::get_settings('show_private'))
 				$ret = DB::Execute(
 					self::select_all().
@@ -307,7 +307,7 @@ class CRM_Calendar_Event_PersonalCommon extends ModuleCommon {
 		if(Base_AclCommon::i_am_user()) {
 			$datetime_start = sprintf("%d%02d%02d%%", $date['year'], $date['month'], $date['day']);
 			
-			$logged = Base_UserCommon::get_my_user_id();
+			$logged = Acl::get_user();
 			if(Base_AclCommon::i_am_admin() && CRM_Calendar_Utils_FuncCommon::get_settings('show_private'))
 				$ret = DB::Execute(
 					self::select_all().
@@ -360,7 +360,7 @@ class CRM_Calendar_Event_PersonalCommon extends ModuleCommon {
 			$end = CRM_Calendar_Utils_FuncCommon::next_day($start, 7);
 			$datetime_end = sprintf("%d%02d%02d999999", $end['year'],$end['month'],$end['day']);
 			
-			$logged = Base_UserCommon::get_my_user_id();
+			$logged = Acl::get_user();
 			$ret = null;
 			if(Base_AclCommon::i_am_admin() && CRM_Calendar_Utils_FuncCommon::get_settings('show_private'))
 				$ret = DB::Execute("select ".
@@ -421,7 +421,7 @@ class CRM_Calendar_Event_PersonalCommon extends ModuleCommon {
 			$end = CRM_Calendar_Utils_FuncCommon::ending_of_week($year, $week);
 			$datetime_end = sprintf("%d%02d%02d999999", $end['year'],$end['month'],$end['day']);
 			
-			$logged = Base_UserCommon::get_my_user_id();
+			$logged = Acl::get_user();
 			$ret = DB::Execute("select id, emp_gid, cus_gid, round(datetime_start)+0 as datetime_start, round(datetime_end)+0 as datetime_end, title, description,  act_id, created_by, created_on, edited_by, edited_on,  access, timeless from calendar_event_personal where (datetime_start+0>=%s and datetime_start+0<=%s) and (created_by=%d or access=0) and timeless=0 and status=1", array($datetime_start, $datetime_end, $logged));
 			//print "select id, calendar_event_personal.emp_gid, round(datetime_start)+0 as datetime_start, round(datetime_end)+0 as datetime_end, title, description,  act_id, created_by, created_on, edited_by, edited_on,  access, timeless from calendar_event_personal where (datetime_start+0>=$datetime_start and datetime_start+0<=$datetime_end) and (created_by=$logged or access=0) and timeless=0 and status=1<br>";
 			$events = array();

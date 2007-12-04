@@ -11,7 +11,7 @@ if(!Acl::is_user()) return;
 ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
 
 $id = $_POST['acc_id'];
-$account = DB::GetRow('SELECT * FROM apps_mailclient_accounts WHERE id=%d AND user_login_id=%d',array($id,Base_UserCommon::get_my_user_id()));
+$account = DB::GetRow('SELECT * FROM apps_mailclient_accounts WHERE id=%d AND user_login_id=%d',array($id,Acl::get_user()));
 if(!$account) die('No such account');
 	
 $host = explode(':',$account['incoming_server']);

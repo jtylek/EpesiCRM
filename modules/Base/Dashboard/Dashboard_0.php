@@ -21,7 +21,7 @@ class Base_Dashboard extends Module {
 	}
 
 	public function body() {
-		$is_user = DB::GetAll('SELECT name,pos FROM base_dashboard_tabs WHERE user_login_id=%d',array(Base_UserCommon::get_my_user_id()));
+		$is_user = DB::GetAll('SELECT name,pos FROM base_dashboard_tabs WHERE user_login_id=%d',array(Acl::get_user()));
 		if(!$is_user)
 			$this->set_default_applets();
 
@@ -36,7 +36,7 @@ class Base_Dashboard extends Module {
 		if($default_dash)
 			$tabs = DB::GetAll('SELECT name,id FROM base_dashboard_default_tabs ORDER BY pos');
 		else
-			$tabs = DB::GetAll('SELECT name,id FROM base_dashboard_tabs WHERE user_login_id=%d ORDER BY pos',array(Base_UserCommon::get_my_user_id()));
+			$tabs = DB::GetAll('SELECT name,id FROM base_dashboard_tabs WHERE user_login_id=%d ORDER BY pos',array(Acl::get_user()));
 		
 		if(count($tabs)>1) {
 			foreach($tabs as $tab)
@@ -58,7 +58,7 @@ class Base_Dashboard extends Module {
 			if($default_dash) 
 				$ret = DB::GetAll('SELECT id,module_name FROM base_dashboard_default_applets WHERE col=%d AND tab=%d ORDER BY pos',array($j,$tab_id));
 			else
-				$ret = DB::GetAll('SELECT id,module_name FROM base_dashboard_applets WHERE col=%d AND user_login_id=%d AND tab=%d ORDER BY pos',array($j,Base_UserCommon::get_my_user_id(),$tab_id));
+				$ret = DB::GetAll('SELECT id,module_name FROM base_dashboard_applets WHERE col=%d AND user_login_id=%d AND tab=%d ORDER BY pos',array($j,Acl::get_user(),$tab_id));
 			foreach($ret as $row) {
 				if(ModuleManager::is_installed($row['module_name'])==-1) {//if its invalid entry
 					$this->delete_applets($row['module_name']);
@@ -122,7 +122,7 @@ class Base_Dashboard extends Module {
 		if($default_dash)
 			$ret = DB::GetAll('SELECT id,name,pos FROM base_dashboard_default_tabs ORDER BY pos');
 		else
-			$ret = DB::GetAll('SELECT id,name,pos FROM base_dashboard_tabs WHERE user_login_id=%d ORDER BY pos',array(Base_UserCommon::get_my_user_id()));
+			$ret = DB::GetAll('SELECT id,name,pos FROM base_dashboard_tabs WHERE user_login_id=%d ORDER BY pos',array(Acl::get_user()));
 		foreach($ret as $row) {
 			$gb_row = $gb->get_new_row();
 			$gb_row->add_data($row['name']);
@@ -172,8 +172,8 @@ class Base_Dashboard extends Module {
 					$max = DB::GetOne('SELECT max(pos)+1 FROM '.$table);
 					DB::Execute('INSERT INTO '.$table.'(name,pos) VALUES(%s,%d)',array($name,$max));
 				} else {
-					$max = DB::GetOne('SELECT max(pos)+1 FROM '.$table.' WHERE user_login_id=%d',array(Base_UserCommon::get_my_user_id()));
-					DB::Execute('INSERT INTO '.$table.'(name,pos,user_login_id) VALUES(%s,%d,%d)',array($name,$max,Base_UserCommon::get_my_user_id()));
+					$max = DB::GetOne('SELECT max(pos)+1 FROM '.$table.' WHERE user_login_id=%d',array(Acl::get_user()));
+					DB::Execute('INSERT INTO '.$table.'(name,pos,user_login_id) VALUES(%s,%d,%d)',array($name,$max,Acl::get_user()));
 				}
 				DB::CompleteTrans();
 			}
@@ -274,12 +274,12 @@ class Base_Dashboard extends Module {
 				$pos = $cols[$col];
 			DB::Execute('INSERT INTO base_dashboard_default_applets(module_name,tab,col,pos) VALUES (%s,%d,%d,%d)',array($mod,$tab_id,$col,$pos));
 		} else {
-			$cols = DB::GetAssoc('SELECT col,count(id) FROM base_dashboard_applets WHERE user_login_id=%d AND tab=%d GROUP BY col ORDER BY col',array(Base_UserCommon::get_my_user_id(),$tab_id));
+			$cols = DB::GetAssoc('SELECT col,count(id) FROM base_dashboard_applets WHERE user_login_id=%d AND tab=%d GROUP BY col ORDER BY col',array(Acl::get_user(),$tab_id));
 			for($col=0; $col<3 && isset($cols[$col]); $col++);
 			if($col==3) $col=0;
 			if(isset($cols[$col]))
 				$pos = $cols[$col];
-			DB::Execute('INSERT INTO base_dashboard_applets(user_login_id,module_name,tab,col,pos) VALUES (%d,%s,%d,%d,%d)',array(Base_UserCommon::get_my_user_id(),$mod,$tab_id,$col,$pos));
+			DB::Execute('INSERT INTO base_dashboard_applets(user_login_id,module_name,tab,col,pos) VALUES (%d,%s,%d,%d,%d)',array(Acl::get_user(),$mod,$tab_id,$col,$pos));
 		}
 		DB::CompleteTrans();
 		$sett_fn = array($mod.'Common','applet_settings');
@@ -293,7 +293,7 @@ class Base_Dashboard extends Module {
 			DB::Execute('DELETE FROM base_dashboard_default_applets WHERE id=%d',array($id));
 		} else {
 			DB::Execute('DELETE FROM base_dashboard_settings WHERE applet_id=%d',array($id));
-			DB::Execute('DELETE FROM base_dashboard_applets WHERE id=%d AND user_login_id=%d',array($id,Base_UserCommon::get_my_user_id()));
+			DB::Execute('DELETE FROM base_dashboard_applets WHERE id=%d AND user_login_id=%d',array($id,Acl::get_user()));
 		}
 	}
 
@@ -448,12 +448,12 @@ class Base_Dashboard extends Module {
 	public function set_default_applets() {
 		$tabs = DB::GetAll('SELECT id,pos,name FROM base_dashboard_default_tabs');
 		foreach($tabs as $tab) {
-			DB::Execute('INSERT INTO base_dashboard_tabs(user_login_id,pos,name) VALUES(%d,%d,%s)',array(Base_UserCommon::get_my_user_id(),$tab['pos'],$tab['name']));
+			DB::Execute('INSERT INTO base_dashboard_tabs(user_login_id,pos,name) VALUES(%d,%d,%s)',array(Acl::get_user(),$tab['pos'],$tab['name']));
 			$id = DB::Insert_ID('base_dashboard_tabs','id');
 			
 			$ret = DB::GetAll('SELECT id,module_name,col,tab FROM base_dashboard_default_applets WHERE tab=%d ORDER BY pos',array($tab['id']));
 			foreach($ret as $row) {
-				DB::Execute('INSERT INTO base_dashboard_applets(module_name,col,user_login_id,tab) VALUES(%s,%d,%d,%d)',array($row['module_name'],$row['col'],Base_UserCommon::get_my_user_id(),$id));
+				DB::Execute('INSERT INTO base_dashboard_applets(module_name,col,user_login_id,tab) VALUES(%s,%d,%d,%d)',array($row['module_name'],$row['col'],Acl::get_user(),$id));
 				$ins_id = DB::Insert_ID('base_dashboard_applets','id');
 				$ret_set = DB::GetAll('SELECT name,value FROM base_dashboard_default_settings WHERE applet_id=%d',array($row['id']));
 				foreach($ret_set as $row_set)

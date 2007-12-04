@@ -37,7 +37,7 @@ function themeup(){
 	}
 }
 
-$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0');
+$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1');
 
 /******************* 0.8.11 to 0.9.0 **********************/
 function mod_cmp($a, $b){
@@ -60,6 +60,13 @@ function update_from_0_9_0_to_0_9_1() {
 
 	DB::CreateTable('user_login_ban',"failed_on I4, from_addr C(32)");
 	Variable::set('host_ban_time',300);
+
+	//rewrite acl
+	$ret = DB::Execute('SELECT id,login FROM user_login');
+	while($row = $ret->FetchRow()) {
+		$aro_id = Acl::$gacl->get_object_id('Users', $row['login'], 'ARO');
+		Acl::$gacl->edit_object($aro_id,'Users', $row['id'], $row['id'], 1, 0, 'ARO');
+	}
 
 	themeup();
 }

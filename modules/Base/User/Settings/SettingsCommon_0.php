@@ -110,7 +110,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 		//print('get '.$module.':'.$name.';');
 		if (!isset(self::$user_variables)) {
 			self::$user_variables = array();
-			$ret = DB::Execute('SELECT module, variable, value FROM base_user_settings WHERE user_login_id=%d',array(Base_UserCommon::get_my_user_id()));
+			$ret = DB::Execute('SELECT module, variable, value FROM base_user_settings WHERE user_login_id=%d',array(Acl::get_user()));
 			while($row = $ret->FetchRow())
 				self::$user_variables[$row['module']][$row['variable']] = unserialize($row['value']);
 		}
@@ -135,16 +135,16 @@ class Base_User_SettingsCommon extends ModuleCommon {
 		$def = self::get_admin($module,$name);
 		if (!isset($def)) return false;
 		if ($value==$def) {
-			DB::Execute('DELETE FROM base_user_settings WHERE user_login_id=%d AND module=%s AND variable=%s',array(Base_UserCommon::get_my_user_id(),$module,$name));
+			DB::Execute('DELETE FROM base_user_settings WHERE user_login_id=%d AND module=%s AND variable=%s',array(Acl::get_user(),$module,$name));
 			if(isset(self::$user_variables)) unset(self::$user_variables[$module][$name]);
 		} else {
 			if(isset(self::$user_variables)) self::$user_variables[$module][$name]=$value;
 			$value = serialize($value);
-			$val = DB::GetOne('SELECT value FROM base_user_settings WHERE user_login_id=%d AND module=%s AND variable=%s',array(Base_UserCommon::get_my_user_id(),$module,$name));
+			$val = DB::GetOne('SELECT value FROM base_user_settings WHERE user_login_id=%d AND module=%s AND variable=%s',array(Acl::get_user(),$module,$name));
 			if ($val === false)
-				DB::Execute('INSERT INTO base_user_settings VALUES (%d,%s,%s,%s)',array(Base_UserCommon::get_my_user_id(),$module,$name,$value));
+				DB::Execute('INSERT INTO base_user_settings VALUES (%d,%s,%s,%s)',array(Acl::get_user(),$module,$name,$value));
 			else
-				DB::Execute('UPDATE base_user_settings SET value=%s WHERE user_login_id=%d AND module=%s AND variable=%s',array($value,Base_UserCommon::get_my_user_id(),$module,$name));
+				DB::Execute('UPDATE base_user_settings SET value=%s WHERE user_login_id=%d AND module=%s AND variable=%s',array($value,Acl::get_user(),$module,$name));
 		}
 		return true;
 	}

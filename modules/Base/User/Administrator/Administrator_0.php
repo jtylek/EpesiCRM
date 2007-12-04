@@ -106,7 +106,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 		$ret = $gb->query_order_limit($query, $query_qty);
 		if($ret)
 			while(($row=$ret->FetchRow())) {
-				$uid = Base_AclCommon::get_acl_user_id($row['login']);
+				$uid = Base_AclCommon::get_acl_user_id($row['id']);
 				if(!$uid) continue;
 				$groups = Base_AclCommon::get_user_groups_names($uid);
 				if($groups===false) continue; //skip if you don't have privileges
@@ -164,14 +164,12 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 
 			//set defaults
 			$ret = DB::Execute('SELECT u.login, p.mail, u.active FROM user_login u INNER JOIN user_password p ON (p.user_login_id=u.id) WHERE u.id=%d', $edit_id);
-			$username = '';
 			if($ret && ($row = $ret->FetchRow())) {
 				$form->setDefaults(array('username'=>$row['login'], 'mail'=>$row['mail'], 'active'=>$row['active']));
 				$form->freeze('username');
-				$username = $row['login'];
 			}
 
-			$uid = Base_AclCommon::get_acl_user_id($username);
+			$uid = Base_AclCommon::get_acl_user_id($edit_id);
 			if($uid === false) {
 				print('invalid user');
 				return;
@@ -212,7 +210,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 			}
 
 			$groups_new = $data['group'];
-			if(!Base_AclCommon::change_privileges($username, $groups_new)) {
+			if(!Base_AclCommon::change_privileges($edit_id, $groups_new)) {
 				print($this->lang->t('Unable to update account data (groups).'));
 				return false;
 			}
@@ -234,7 +232,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 			}
 
 			$groups_new = $data['group'];
-			if(!Base_AclCommon::change_privileges($username, $groups_new)) {
+			if(!Base_AclCommon::change_privileges($user_id, $groups_new)) {
 				print($this->lang->t('Unable to update account data (groups).'));
 				return false;
 			}

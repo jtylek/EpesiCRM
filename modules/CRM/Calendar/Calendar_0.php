@@ -47,8 +47,8 @@ class CRM_Calendar extends Module {
 		
 		$this->default_module = Base_User_SettingsCommon::get('CRM_Calendar', 'view_style');
 		$this->logged = 0;
-		if(Base_AclCommon::i_am_user())
-			$this->logged = Base_UserCommon::get_my_user_id();
+		if(Acl::is_user())
+			$this->logged = Acl::get_user();
 	}
 	
 	

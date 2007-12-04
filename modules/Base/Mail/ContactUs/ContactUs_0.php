@@ -44,10 +44,10 @@ class Base_Mail_ContactUs extends Module {
 	public function submit_body($data) {
 		$to = Variable::get('mail_from_addr');
 		if(Acl::is_user())
-		    $mail = DB::GetOne('SELECT mail FROM user_password WHERE user_login_id=%d',Base_UserCommon::get_my_user_id());
+		    $mail = DB::GetOne('SELECT mail FROM user_password WHERE user_login_id=%d',Acl::get_user());
 		else
 		    $mail = $data['mail'];
-		if(!Base_MailCommon::send($to, Acl::get_user().' comment ('.get_epesi_url().')', $data['body'],$mail,Acl::get_user())) {
+		if(!Base_MailCommon::send($to, Base_UserCommon::get_my_user_login().' comment ('.get_epesi_url().')', $data['body'],$mail,Base_UserCommon::get_my_user_login())) {
 			print($this->lang->t('Unable to send message. Invalid configuration.'));
 			return false;
 		}

@@ -22,7 +22,7 @@ class Apps_GalleryCommon extends ModuleCommon {
 	}
 
 	public function _applet_settings() {
-		$dir = $this->get_data_dir().Base_UserCommon::get_my_user_id().'/';
+		$dir = $this->get_data_dir().Acl::get_user().'/';
 		$images = array();
 		if(file_exists($dir) && is_dir($dir)) {
 			$images_tmp = ereg_tree($dir,'\.('.sql_regcase('jpg|jpeg|png|gif').')$');
