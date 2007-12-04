@@ -438,11 +438,11 @@ class Utils_RecordBrowser extends Module {
 					if ($hidden) continue;
 				}
 			switch ($args['type']) {
-				case 'integer':		$form->addElement('text', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
+				case 'integer':		$form->addElement('text', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id'], 'style'=>'width: 99%'));
 									$form->addRule($args['id'], $this->lang->t('Only numbers are allowed.'), 'numeric');
 									if ($mode!=='add') $form->setDefaults(array($args['id']=>$records[$id][$field]));
 									break;
-				case 'text':		if ($mode!=='view') $form->addElement('text', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id'], 'maxlength'=>$args['param']));
+				case 'text':		if ($mode!=='view') $form->addElement('text', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id'], 'maxlength'=>$args['param'], 'style'=>'width: 99%'));
 									else $form->addElement('static', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
 									$form->addRule($args['id'], $this->lang->t('Maximum length for this field is '.$args['param'].'.'), 'maxlength', $args['param']);
 									if ($mode!=='add') $form->setDefaults(array($args['id']=>$records[$id][$field]));

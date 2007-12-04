@@ -97,7 +97,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 	public static function QFfield_webaddress(&$form, $field, $label, $mode, $default) {
 		if ($mode=='add' || $mode=='edit') {
-			$form->addElement('text', $field, $label);
+			$form->addElement('text', $field, $label, array('style'=>'width: 99%'));
 			if ($mode=='edit') $form->setDefaults(array($field=>$default));
 		} else {
 			$form->addElement('static', $field, $label);
@@ -106,7 +106,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 	public static function QFfield_email(&$form, $field, $label, $mode, $default) {
 		if ($mode=='add' || $mode=='edit') {
-			$form->addElement('text', $field, $label);
+			$form->addElement('text', $field, $label, array('style'=>'width: 99%'));
 			if ($mode=='edit') $form->setDefaults(array($field=>$default));
 		} else {
 			$form->addElement('static', $field, $label);
