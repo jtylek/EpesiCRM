@@ -12,12 +12,12 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_RecordBrowser_RecordPicker extends Module {
 	private $lang;
 
-	public function body($tab, $element, $format, $filters=array()) {
+	public function body($tab, $element, $format, $crits=array(), $filters=array()) {
 		if (!isset($this->lang)) $this->lang = $this->init_module('Base/Lang');
 		$rb = $this->init_module('Utils/RecordBrowser', $tab, $tab.'_picker');
 
 		print('<div id="leightbox_'.$element.'" class="leightbox">');
-		$this->display_module($rb, array($element, $label, $format, $filters), 'recordpicker');
+		$this->display_module($rb, array($element, $format, $crits, $filters), 'recordpicker');
 		print('</div>');
 		
 	}
