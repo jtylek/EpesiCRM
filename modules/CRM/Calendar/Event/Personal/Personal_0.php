@@ -178,6 +178,7 @@ class CRM_Calendar_Event_Personal extends Module {
 			} else {
 				$def['timeless'] = 1;
 			}
+			$def['emp_id'] = array(Base_UserCommon::get_my_user_id());
 		// EDIT / PREVIEW:
 		} else if($action == 'edit' || $action == 'details') {
 			//print 'edit';
@@ -281,7 +282,6 @@ class CRM_Calendar_Event_Personal extends Module {
 		
 		// all day event?
 		$form->addElement('checkbox', 'timeless', $lang->t('Lasts whole day?'), null,'onClick="'.$form->get_submit_form_js(false).'"');
-		$form->getElement('timeless')->updateAttributes(array('id'=>'sadffhasdasd'));
 		switch ($form->getElement('timeless')->getValue()) {
 			case '1':
 				$timeless = 1;
@@ -303,26 +303,26 @@ class CRM_Calendar_Event_Personal extends Module {
 		$form->addElement('select', 'act_id', $lang->t('Activity'), $act, array('style'=>'width: 100%;'));
 		// event access
 		//$form->addElement('select', 'access', $lang->t('Access'), $access, array('style'=>'width: 100%;'));
-		$form->addElement('select', 'access', $lang->t('Access'), $access);
+		$form->addElement('select', 'access', $lang->t('Access'), $access, array('style'=>'width: 100%;'));
 		//$form->getElement('access')->updateAttributes(array('id'=>'sadffhsdfwdasd'));
 		// priority
-		$form->addElement('select', 'priority', $lang->t('Priority'), $priority);
+		$form->addElement('select', 'priority', $lang->t('Priority'), $priority, array('style'=>'width: 100%;'));
 		//$form->addElement('select', 'priority', $lang->t('Priority'), $priority, array('style'=>'width: 100%;'));
 		
 		// events participants
 		//employees
 		$mls = $form->addElement('multiselect', 'emp_id', $lang->t('Employees'), $emp, array('size'=>$size, 'style'=>'\'width: 100%\''));
 		$rb1 = $this->init_module('Utils/RecordBrowser/RecordPicker');
-		ob_start();
-		$this->display_module($rb1, array('contact' ,'emp_id','Add from table',array('CRM_Calendar_Event_PersonalCommon','decode_contact'), array('Company Name'=>true)));
-		$emp_click = ob_get_clean();
+		//ob_start();
+		$this->display_module($rb1, array('contact', 'emp_id', array('CRM_Calendar_Event_PersonalCommon','decode_contact'), array('Company Name'=>CRM_ContactsCommon::get_main_company())));
+		$emp_click = $rb1->open_link('emp_id', 'Add from table');//ob_get_clean();
 		
 		// customers
 		$mls = $form->addElement('multiselect', 'cus_id', $lang->t('Customers'), $cus, array('size'=>$size, 'style'=>'\'width: 100%\''));
 		$rb1 = $this->init_module('Utils/RecordBrowser/RecordPicker');
-		ob_start();
-		$this->display_module($rb1, array('contact' ,'cus_id','Add from table',array('CRM_Calendar_Event_PersonalCommon','decode_contact'), array('Company Name'=>true)));
-		$cus_click = ob_get_clean();
+		//ob_start();
+		$this->display_module($rb1, array('contact', 'cus_id', array('CRM_Calendar_Event_PersonalCommon','decode_contact'), array('Company Name'=>CRM_ContactsCommon::get_main_company())));
+		$cus_click = $rb1->open_link('emp_id', 'Add from table');///ob_get_clean();
 		//	eval_js( $mls->getElementJs() );
 		$form->addElement('text', 'rel_emp', $lang->t('Related Person'), array('style'=>'width: 100%;'));
 		
@@ -357,7 +357,6 @@ class CRM_Calendar_Event_Personal extends Module {
 				break;
 		}
 		// display form
-		
 		if($form->getSubmitValue('submited')) {
 			if($action == 'details' && ($event['created_by'] == Base_UserCommon::get_my_user_id() || $event['status'] == 0)) {
 				print 'frozen';
@@ -384,7 +383,7 @@ class CRM_Calendar_Event_Personal extends Module {
 			$theme->assign('timeless', $timeless);
 			$theme->assign('emp_click', $emp_click);
 			$theme->assign('cus_click', $cus_click);
-			$theme->assign('timeless', $timeless);
+			$theme->assign('tag', md5($this->get_path().microtime()));
 		$form->assign_theme('form', $theme, new HTML_QuickForm_Renderer_TCMSArraySmarty());
 		
 		$theme->display();

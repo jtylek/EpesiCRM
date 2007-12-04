@@ -1,4 +1,4 @@
-
+<span style='position: absolute; visibility: hidden;'>{$tag}</span>
 {if $view_style == 'new_event'}
 	{$form_open}
 
@@ -12,9 +12,7 @@
     <table name="CRMCalendar" class="form" cellspacing="0" cellpadding="0" border="0">
     	<tbody>
 			{if $form_data.title.error}
-			<tr>
-                      <td colspan="4"><span class="error">{$form_data.title.error}</span></td>
-                  </tr>
+				<tr><td colspan="4"><span class="error">{$form_data.title.error}</span></td></tr>
 			{/if}
 			<tr>
 				<td class="group_bottom label bold" align="left">{$form_data.title.label}</td>
@@ -23,24 +21,22 @@
 			{if $repeatable == 0}
 				{*** date and time for non-rep event ***}
 				{math assign="span" equation="x" x=2}
-				{if $form_data.date_s.error}
-			<tr>
-                      <td colspan="3"><span class="error">{$form_data.date_s.error}</span></td>
-                  </tr>
+                {if $form_data.date_s.error}
+					<tr><td colspan="3"><span class="error">{$form_data.date_s.error}</span></td></tr>
 				{/if}
 				{if $form_data.date_e.error}
 					{math assign="span" equation="x+1" x=$span}
 				{/if}
-                      <tr>
+				<tr>
 			  		<td class="nowrap label" align="left">{$form_data.date_s.label}</td>
 			 		<td class="nowrap data" align="left">{$form_data.date_s.html}</td>
-				  		{if $timeless == 0}
-					  		<td class="nowrap data" align="left">{$form_data.time_s.html}</td>
-					  		<td rowspan={$span} class="group_bottom data padd">{$form_data.timeless.html}{$form_data.timeless.label}</td>
-						{else}
-					  		<td colspan="2" rowspan={$span} class="group_bottom data padd">{$form_data.timeless.html}{$form_data.timeless.label}</td>
-					  	{/if}
-                      </tr>
+			  		{if $timeless == 0}
+				  		<td class="nowrap data" align="left">{$form_data.time_s.html}</td>
+				  		<td rowspan={$span} class="group_bottom data padd">{$form_data.timeless.html}{$form_data.timeless.label}</td>
+					{else}
+				  		<td colspan="2" rowspan={$span} class="group_bottom data padd">{$form_data.timeless.html}{$form_data.timeless.label}</td>
+				  	{/if}
+					</tr>
 				{if $form_data.date_e.error}
 					<tr><td colspan="3"><span class="error">{$form_data.date_e.error}</span></td></tr>
 				{/if}
