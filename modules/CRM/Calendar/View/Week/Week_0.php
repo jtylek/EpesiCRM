@@ -187,7 +187,7 @@ class CRM_Calendar_View_Week extends Module {
 				foreach($events[$day] as $key=>$EV) {
 					$g++;
 					$div_id = generate_password(4);
-					$div_id = sprintf('%s_%4d%2d%2d0000X%d', $div_id, $this->date['year'], $this->date['month'], $this->date['day'], $EV['id']);
+					$div_id = sprintf('%s_%04d%02d%02d0000X%d', $div_id, $this->date['year'], $this->date['month'], $this->date['day'], $EV['id']);
 
 					$event[$g] = array();
 					$event[$g]['full'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'full');
@@ -213,7 +213,7 @@ class CRM_Calendar_View_Week extends Module {
 
 					//$event[$g]['brief'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'brief');
 					$event[$g]['time'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'time');
-					$event[$g]['title'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'title');
+					$event[$g]['title'] = '<a '.$this->parent->create_callback_href(array($this, 'details_event'), array($module, $EV['id'])).'>'.call_user_func(array($module.'Common', 'get_text'), $EV, 'title').'</a> ';
 					$event[$g]['move'] = '<img  border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'grab.png').'>';
 
 					$event[$g]['div_id'] = $div_id;
@@ -268,7 +268,7 @@ class CRM_Calendar_View_Week extends Module {
 
 							//$event[$g]['brief'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'brief');
 							$event[$g]['time'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'time');
-							$event[$g]['title'] = '<a '.$this->parent->create_callback_href(array($this, 'edit_event'), array($module, $EV['id'])).'>'.call_user_func(array($module.'Common', 'get_text'), $EV, 'title').'</a> ';
+							$event[$g]['title'] = '<a '.$this->parent->create_callback_href(array($this, 'details_event'), array($module, $EV['id'])).'>'.call_user_func(array($module.'Common', 'get_text'), $EV, 'title').'</a> ';
 							$event[$g]['move'] = '<img  border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'grab.png').'>';
 							$event[$g]['div_id'] = $div_id;
 

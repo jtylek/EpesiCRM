@@ -311,19 +311,25 @@ class CRM_Calendar_Event_Personal extends Module {
 		
 		// events participants
 		//employees
-		$mls = $form->addElement('multiselect', 'emp_id', $lang->t('Employees'), $emp, array('size'=>$size, 'style'=>'\'width: 100%\''));
-		$rb1 = $this->init_module('Utils/RecordBrowser/RecordPicker');
-		//ob_start();
-		$this->display_module($rb1, array('contact', 'emp_id', array('CRM_Calendar_Event_PersonalCommon','decode_contact'), array('Company Name'=>CRM_ContactsCommon::get_main_company())));
-		$emp_click = $rb1->open_link('emp_id', 'Add from table');//ob_get_clean();
+		$mls1 = $form->addElement('multiselect', 'emp_id', $lang->t('Employees'), $emp, array('size'=>$size, 'style'=>'\'width: 100%\''));
 		
 		// customers
-		$mls = $form->addElement('multiselect', 'cus_id', $lang->t('Customers'), $cus, array('size'=>$size, 'style'=>'\'width: 100%\''));
-		$rb1 = $this->init_module('Utils/RecordBrowser/RecordPicker');
-		//ob_start();
-		$this->display_module($rb1, array('contact', 'cus_id', array('CRM_Calendar_Event_PersonalCommon','decode_contact'), array('Company Name'=>CRM_ContactsCommon::get_main_company())));
-		$cus_click = $rb1->open_link('emp_id', 'Add from table');///ob_get_clean();
-		//	eval_js( $mls->getElementJs() );
+		$mls2 = $form->addElement('multiselect', 'cus_id', $lang->t('Customers'), $cus, array('size'=>$size, 'style'=>'\'width: 100%\''));
+			
+		if($action != 'details') {$rb1 = $this->init_module('Utils/RecordBrowser/RecordPicker');
+			//ob_start();
+			$this->display_module($rb1, array('contact', 'emp_id', array('CRM_Calendar_Event_PersonalCommon','decode_contact'), array('Company Name'=>CRM_ContactsCommon::get_main_company())));
+			$emp_click = $rb1->open_link('emp_id', 'Add from table');//ob_get_clean();
+			
+			$rb1 = $this->init_module('Utils/RecordBrowser/RecordPicker');
+			//ob_start();
+			$this->display_module($rb1, array('contact', 'cus_id', array('CRM_Calendar_Event_PersonalCommon','decode_contact'), array('Company Name'=>CRM_ContactsCommon::get_main_company())));
+			$cus_click = $rb1->open_link('cus_id', 'Add from table');///ob_get_clean();
+			
+		} else {
+			$emp_click = ''; $cus_click = '';
+		}
+			//	eval_js( $mls->getElementJs() );
 		$form->addElement('text', 'rel_emp', $lang->t('Related Person'), array('style'=>'width: 100%;'));
 		
 			
