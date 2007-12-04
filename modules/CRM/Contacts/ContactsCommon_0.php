@@ -155,6 +155,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 						'address_1'=>$values['address_1'],
 						'address_2'=>$values['address_2'],
 						'country'=>$values['country'],
+						'city'=>$values['city'],
 						'zone'=>isset($values['zone'])?$values['zone']:'',
 						'postal_code'=>$values['postal_code'],
 						'phone'=>$values['phone'],
