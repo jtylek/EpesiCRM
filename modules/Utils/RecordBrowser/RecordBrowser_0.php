@@ -101,7 +101,7 @@ class Utils_RecordBrowser extends Module {
 		$this->set_module_variable('browse_mode', $mode);
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
-	public function show_filters($filters_set = array()) {
+	public function show_filters($filters_set = array(), $f_id='') {
 		$ret = DB::Execute('SELECT field FROM '.$this->tab.'_field WHERE filter=1');
 		$filters_all = array();
 		while($row = $ret->FetchRow())
@@ -148,6 +148,7 @@ class Utils_RecordBrowser extends Module {
 		$theme = $this->init_module('Base/Theme');
 		$form->assign_theme('form',$theme);
 		$theme->assign('filters', $filters);
+		$theme->assign('id', $f_id);
 		return $this->get_html_of_module($theme, 'Filter', 'display');
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
@@ -213,7 +214,7 @@ class Utils_RecordBrowser extends Module {
 			if ($special) { 
 				$func = $this->get_module_variable('format_func');
 				$element = $this->get_module_variable('element');
-				$row_data = array('<a href="javascript:addto_'.$element.'('.$row['id'].', \''.call_user_func($func, $row['id']).'\');"><img src="null"  border="0" name="leightbox_rpicker_'.$row['id'].'" /></a>');
+				$row_data = array('<a href="javascript:addto_'.$element.'('.$row['id'].', \''.call_user_func($func, $row['id']).'\');"><img src="null"  border="0" name="leightbox_rpicker_'.$element.'_'.$row['id'].'" /></a>');
 				$rpicker_ind[] = $row['id'];
 			}
 			
@@ -912,7 +913,7 @@ class Utils_RecordBrowser extends Module {
 	public function caption(){
 		return $this->caption.': '.$this->action;
 	}
-	public function recordpicker($element, $label, $format, $filters=array()) {
+	public function recordpicker($element, $label, $format, $filters=array(), $crits=array()) {
 		if (!isset($this->lang)) $this->lang = $this->init_module('Base/Lang');
 		$this->init();
 		$icon_on = Base_ThemeCommon::get_template_file('Utils_RecordBrowser','active-on.png');
@@ -921,18 +922,14 @@ class Utils_RecordBrowser extends Module {
 		$this->set_module_variable('format_func',$format);
 		$theme = $this->init_module('Base/Theme');
 		$theme->assign('header', $this->lang->t('Select records').': '.$this->caption);
-		$theme->assign('filters', $this->show_filters($filters));
-		$theme->assign('table', $this->show_data($this->crits, array(), array(), false, false, true));
+		$theme->assign('filters', $this->show_filters($filters, $element));
+		$theme->assign('table', $this->show_data($crits, array(), array(), false, false, true));
 		$theme->assign('close_button','<a href="javascript:leightbox_deactivate(\'leightbox_'.$element.'\')">Close</a>');
 
-/*		print('<a rel="leightbox_'.$element.'" class="lbOn" onmousedown="init_all_rpicker_'.$element.'();">'.$label.'</a>'.
-			'<div id="leightbox_'.$element.'" class="leightbox">'.
-			$this->get_html_of_module($theme, 'Record_picker', 'display').
-			'</div>');*/
 		$rpicker_ind = $this->get_module_variable('rpicker_ind');
 		eval_js(
 			'rpicker_init_'.$element.' = function(id){'.
-			'	img = document.getElementsByName(\'leightbox_rpicker_\'+id)[0];'.
+			'	img = document.getElementsByName(\'leightbox_rpicker_'.$element.'_\'+id)[0];'.
 			'	tolist = document.getElementsByName(\''.$element.'to[]\')[0];'.
 			'	k = 0;'.
 			'	img.src = "'.$icon_off.'";'.
@@ -953,7 +950,7 @@ class Utils_RecordBrowser extends Module {
 			'addto_'.$element.' = function(id, cstring){'.
 			'tolist = document.getElementsByName(\''.$element.'to[]\')[0];'.
 			'fromlist = document.getElementsByName(\''.$element.'from[]\')[0];'.
-			'img = document.getElementsByName(\'leightbox_rpicker_\'+id)[0];'.
+			'img = document.getElementsByName(\'leightbox_rpicker_'.$element.'_\'+id)[0];'.
 			'list = \'\';'.
 			'k = 0;'.
 			'while (k!=tolist.length) {'.
