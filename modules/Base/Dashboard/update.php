@@ -21,7 +21,7 @@ if($default && !Acl::check('Base_Dashboard','set default dashboard')) {
 }
 
 if(!$default)
-	$user = DB::GetOne('SELECT id FROM user_login WHERE login=%s',array(Acl::get_user()));
+	$user = Acl::get_user();
 
 parse_str($_POST['data'], $x);
 for($i=0; $i<3 && !isset($x['dashboard_applets_'.$i]); $i++);

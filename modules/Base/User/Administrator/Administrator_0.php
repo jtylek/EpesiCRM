@@ -55,7 +55,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 			}
 		} else {
 			//defaults
-			$ret = DB::Execute('SELECT p.mail FROM user_password p JOIN user_login u ON p.user_login_id=u.id WHERE u.login=%s', Acl::get_user());
+			$ret = DB::Execute('SELECT p.mail FROM user_password p  WHERE p.user_login_id=%d', Acl::get_user());
 			if(($row = $ret->FetchRow())) $form->setDefaults(array('mail'=>$row[0]));
 
 			$form->display();
@@ -70,8 +70,8 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 		$new_pass = $data['new_pass'];
 		$mail = $data['mail'];
 
-		$user_id = Base_UserCommon::get_user_id(Acl::get_user());
-		if($user_id===false) {
+		$user_id = Acl::get_user();
+		if($user_id===null) {
 			print($this->lang->t('No such user! Your account has been deleted after you logged in...'));
 			return false;
 		}
@@ -81,7 +81,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 
 
 	public function check_old_pass($pass) {
-		return Base_User_LoginCommon::check_login(Acl::get_user(), $pass);
+		return Base_User_LoginCommon::check_login(Base_UserCommon::get_my_user_login(), $pass);
 	}
 
 	public function admin() {

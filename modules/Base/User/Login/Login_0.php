@@ -27,8 +27,8 @@ class Base_User_Login extends Module {
 	}
 
 	private function new_autologin_id() {
-		$user = Acl::get_user();
 		$uid = Acl::get_user();
+		$user = Base_UserCommon::get_my_user_login();
 		$autologin_id = md5(mt_rand().(isset($_COOKIE['autologin_id'])?$_COOKIE['autologin_id']:md5($user.$uid)).mt_rand());
 		setcookie('autologin_id',$user.' '.$autologin_id,time()+60*60*24*30);
 		DB::Execute('UPDATE user_password SET autologin_id=%s WHERE user_login_id=%d',array($autologin_id,$uid));

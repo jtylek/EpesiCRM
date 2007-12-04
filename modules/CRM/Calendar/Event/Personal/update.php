@@ -7,7 +7,7 @@ session_commit();
 
 
 if(!Acl::is_user()) return;
-$user = DB::GetOne('SELECT id FROM user_login WHERE login=%s',array(Acl::get_user()));
+$user = Acl::get_user();
 
 parse_str($_POST['data'], $x);
 

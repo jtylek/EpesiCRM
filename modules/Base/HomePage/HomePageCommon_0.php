@@ -18,8 +18,8 @@ class Base_HomePageCommon extends ModuleCommon {
 	
 	public static function load() {
 		if(!Acl::is_user()) return;
-		$uid = Base_UserCommon::get_user_id(Acl::get_user());
-		if($uid == '')
+		$uid = Acl::get_user();
+		if($uid === null)
 			return;
 		$ret = DB::GetOne('SELECT url FROM home_page WHERE user_login_id=%d',$uid);
 		if(!$ret) {
@@ -32,7 +32,7 @@ class Base_HomePageCommon extends ModuleCommon {
 	
 	public static function save() {
 		if(!Acl::is_user()) return;
-		$uid = Base_UserCommon::get_user_id(Acl::get_user());
+		$uid = Acl::get_user();
 		$url = serialize($_SESSION['client']['__module_vars__']);
 		DB::Replace('home_page',array('user_login_id'=>$uid,'url'=>$url), 'user_login_id',true);
 	}

@@ -69,7 +69,7 @@ class Base_UserCommon extends ModuleCommon {
 			if(Acl::is_user())
 				$x = self::get_user_login(Acl::get_user());
 			else
-				$x = null;
+				$x = false;
 		}
 		return $x; 
 	}
