@@ -913,7 +913,7 @@ class Utils_RecordBrowser extends Module {
 	public function caption(){
 		return $this->caption.': '.$this->action;
 	}
-	public function recordpicker($element, $label, $format, $crits=array(), $filters=array()) {
+	public function recordpicker($element, $format, $crits=array(), $filters=array()) {
 		if (!isset($this->lang)) $this->lang = $this->init_module('Base/Lang');
 		$this->init();
 		$icon_on = Base_ThemeCommon::get_template_file('Utils_RecordBrowser','active-on.png');
