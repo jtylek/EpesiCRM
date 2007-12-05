@@ -4,9 +4,12 @@
 		<tr>
 			<td class="icon"><img src="{$icon}" width="32" height="32" border="0"></td>
 			<td class="name">{$caption}</td>
-    		<td class="filters">{$filters}</td>
+    		<td class="filters"></td>
     	</tr>
 	</tbody>
 </table>
 </div>
+
+<div style="padding-left: 20px; padding-top: 10px;">{$filters}</div>
+
 {$table}

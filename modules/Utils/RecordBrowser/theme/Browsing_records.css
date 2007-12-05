@@ -1,6 +1,5 @@
 #Browsing_records {
     vertical-align: middle;
-    
 }
 
 #Browsing_records .icon {
@@ -14,6 +13,7 @@
     font-weight: bold;
     color: #336699;
     padding-left: 20px;
+    padding-right: 20px;
 }
 
 #Browsing_records .filters {

@@ -25,14 +25,24 @@
 #Utils_RecordBrowser__View_entry .data {
     border-bottom: 1px solid #B3B3B3;
     border-right: 1px solid #B3B3B3;
-    padding-left: 5px;
-    padding-right: 5px;
+    padding-left: 2px;
+    padding-right: 2px;
 }
 
-#Utils_RecordBrowser__View_entry .data input {
+#Utils_RecordBrowser__View_entry .data input,
+#Utils_RecordBrowser__View_entry .data select,
+#Utils_RecordBrowser__View_entry .data textarea {
     border: 0px;
+    background-color: #e6ecf2;
+    width: 100%;
 }
 
+#Utils_RecordBrowser__View_entry .data input:hover,
+#Utils_RecordBrowser__View_entry .data select:hover,
+#Utils_RecordBrowser__View_entry .data textarea:hover {
+    background-color: #f2f2e6;
+    background-color: #e6e6cf;
+}
 /*
 #Utils_RecordBrowser__View_entry .data input {
     background-color: #336699;

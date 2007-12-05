@@ -22,7 +22,6 @@ p.event {
 
 #CRM_Calendar_Event_Personal .forms {
 	padding-bottom: 5px;
-	border-bottom: 2px solid #336699;
 }
 
 #CRM_Calendar_Event_Personal .forms td {
@@ -36,8 +35,7 @@ p.event {
 /* description */
 
 #CRM_Calendar_Event_Personal .description {
-	padding-top: 5px;
-	border-top: 2px solid #336699;
+	padding-bottom: 5px;
 }
 
 #CRM_Calendar_Event_Personal .description td {
@@ -66,14 +64,12 @@ p.event {
 
 #CRM_Calendar_Event_Personal .multiselect .left-td {
 	width: 50%;
-	padding-right: 3px;
-	border-right: 2px solid #336699;
+	padding-right: 5px;
 	background-color: #FFFFFF;
 }
 
 #CRM_Calendar_Event_Personal .multiselect .rigth-td {
 	width: 50%;
-	padding-left: 3px;
 	background-color: #FFFFFF;
 }
 
@@ -140,13 +136,15 @@ p.event {
 	text-align: left;
 	border-top: 1px solid #B3B3B3;
 	border-right: 1px solid #B3B3B3;
-	padding-left: 1px;
-	padding-right: 1px;
+	padding-left: 2px;
+	padding-right: 2px;
 }
 
-#CRM_Calendar_Event_Personal .forms .data input,
-#CRM_Calendar_Event_Personal .forms .data select {
+#CRM_Calendar_Event_Personal .data input,
+#CRM_Calendar_Event_Personal .data select,
+#CRM_Calendar_Event_Personal .data textarea {
 	border: 0px;
+	background-color: #e6ecf2;
 }
 
 #CRM_Calendar_Event_Personal .data a {

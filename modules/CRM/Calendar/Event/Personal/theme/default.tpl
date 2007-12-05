@@ -113,6 +113,14 @@
         </tbody>
     </table>
 
+    <!-- description -->
+    <table name="CRMCalendar" class="form description" cellspacing="0" cellpadding="0" border="0">
+    	<tbody>
+            <tr><td class="label">{$form_data.description.label}</td></tr>
+            <tr><td class="data">{$form_data.description.html}</td></tr>
+        </tbody>
+    </table>
+
     <!-- multiselect -->
     <table class="multiselect" cellspacing="0" cellpadding="0" border="0">
         <tbody>
@@ -164,14 +172,6 @@
                     </table>
                 </td>
             </tr>
-        </tbody>
-    </table>
-
-    <!-- description -->
-    <table name="CRMCalendar" class="form description" cellspacing="0" cellpadding="0" border="0">
-    	<tbody>
-            <tr><td class="label">{$form_data.description.label}</td></tr>
-            <tr><td class="data">{$form_data.description.html}</td></tr>
         </tbody>
     </table>
 
