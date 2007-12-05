@@ -1,0 +1,83 @@
+#Utils_RecordBrowser__View_entry {
+    width: 100%;
+    border-top: 1px solid #B3B3B3;
+    border-left: 1px solid #B3B3B3;
+}
+
+#Utils_RecordBrowser__View_entry table {
+    width: 100%;
+}
+
+#Utils_RecordBrowser__View_entry td.left-column  { width: 50%; vertical-align: top; }
+#Utils_RecordBrowser__View_entry td.right-column { width: 50%; vertical-align: top; }
+
+#Utils_RecordBrowser__View_entry .label {
+    background-color: #336699;
+    color: #FFFFFF;
+    border-bottom: 1px solid #B3B3B3;
+    border-right: 1px solid #B3B3B3;
+    height: 20px;
+    vertical-align: middle;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+#Utils_RecordBrowser__View_entry .data {
+    border-bottom: 1px solid #B3B3B3;
+    border-right: 1px solid #B3B3B3;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+#Utils_RecordBrowser__View_entry .data input {
+    border: 0px;
+}
+
+/*
+#Utils_RecordBrowser__View_entry .data input {
+    background-color: #336699;
+    color: #FFFFFF;
+    width: 40px;
+    height: 20px;
+    border: 0px
+}
+
+#Utils_RecordBrowser__View_entry .data input:hover {
+    background-color: #339933;
+}
+*/
+
+.Utils_RecordBrowser__table {
+    width: 100%;
+    vertical-align: middle;
+}
+
+.Utils_RecordBrowser__table .icon {
+    text-align: left;
+    padding-left: 20px;
+}
+
+.Utils_RecordBrowser__table .name {
+    text-align: left;
+    font-size: 14px;
+    font-weight: bold;
+    color: #336699;
+    padding-left: 20px;
+}
+
+.Utils_RecordBrowser__table .required {
+    width: 100%;
+    text-align: center;
+    color: #777777;
+    text-align: right;
+    padding-right: 10px;
+}
+
+.Utils_RecordBrowser__table .fav {
+    padding-right: 5px;
+    padding-left: 5px;
+}
+
+.Utils_RecordBrowser__table .info {
+    padding-right: 20px;
+}
