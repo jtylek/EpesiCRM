@@ -9,12 +9,72 @@ p.event {
 	margin: 4px 0px 2px 0px;
 }
 
-#CRM_Calendar_Event_Personal {
+#CRM_Calendar_Event_Personal table {
+	width: 100%;
 }
 
 #CRM_Calendar_Event_Personal table.form {
 	background-color: #FFFFFF;
 	padding: 5px;
+}
+
+/* forms */
+
+#CRM_Calendar_Event_Personal .forms {
+	padding-bottom: 5px;
+	border-bottom: 2px solid #336699;
+}
+
+#CRM_Calendar_Event_Personal .forms td {
+	width: 25%;
+}
+
+#CRM_Calendar_Event_Personal .forms .bb {
+	border-bottom: 1px solid #B3B3B3;
+}
+
+/* description */
+
+#CRM_Calendar_Event_Personal .description {
+	padding-top: 5px;
+	border-top: 2px solid #336699;
+}
+
+#CRM_Calendar_Event_Personal .description td {
+	border: 0px;
+}
+
+/* multiselect */
+
+#CRM_Calendar_Event_Personal .multiselect {
+	padding-left: 5px;
+	padding-right: 5px;
+	background-color: #FFFFFF;
+}
+
+#CRM_Calendar_Event_Personal .multiselect select {
+	width: 100%;
+}
+
+#CRM_Calendar_Event_Personal .multiselect table {
+	width: 100%;
+}
+
+#CRM_Calendar_Event_Personal .multiselect table td {
+	border: 0px;
+}
+
+#CRM_Calendar_Event_Personal .multiselect .left-td {
+	width: 50%;
+	padding-right: 3px;
+	border-right: 2px solid #336699;
+	background-color: #FFFFFF;
+}
+
+#CRM_Calendar_Event_Personal .multiselect .rigth-td {
+	width: 50%;
+	padding-left: 3px;
+	background-color: #FFFFFF;
 }
 
 #CRM_Calendar_Event_Personal .QForm_multiselect {
@@ -38,8 +98,9 @@ p.event {
 	white-space: nowrap;
 }
 
-#CRM_Calendar_Event_Personal table.form td.group_bottom {
-	/*border-bottom: 1px solid #B3B3B3;*/
+#CRM_Calendar_Event_Personal .group_bottom {
+	/*border-bottom: 1px solid #336699;
+	margin-bottom: 5px;*/
 }
 
 #CRM_Calendar_Event_Personal table.x_details td.x_show_details {
@@ -49,20 +110,6 @@ p.event {
 
 #CRM_Calendar_Event_Personal table.form span.error {
 	color: red;
-}
-
-#CRM_Calendar_Event_Personal table.form .left {
-	/*border-bottom: 1px solid #B3B3B3;
-	border-right: 1px solid #B3B3B3;
-	padding: 10px;*/
-	vertical-align: top;
-}
-
-#CRM_Calendar_Event_Personal table.form .right {
-	/*border-bottom: 1px solid #B3B3B3;
-	vertical-align: top;
-	padding: 10px;*/
-	vertical-align: top;
 }
 
 #CRM_Calendar_Event_Personal table.form .bottom {
@@ -79,7 +126,7 @@ p.event {
 	padding-left: 5px;
 	padding-right: 5px;
 	text-align: left;
-	border-bottom: 1px solid #B3B3B3;
+	border-top: 1px solid #B3B3B3;
 	border-left: 1px solid #B3B3B3;
 	border-right: 1px solid #B3B3B3;
 }
@@ -91,21 +138,29 @@ p.event {
 	vertical-align: middle;
 	background-color: #FFFFFF;
 	text-align: left;
-	border-bottom: 1px solid #B3B3B3;
+	border-top: 1px solid #B3B3B3;
 	border-right: 1px solid #B3B3B3;
 	padding-left: 1px;
 	padding-right: 1px;
 }
 
+#CRM_Calendar_Event_Personal .forms .data input,
+#CRM_Calendar_Event_Personal .forms .data select {
+	border: 0px;
+}
+
 #CRM_Calendar_Event_Personal .data a {
 	color: #FFFFFF;
 	background-color: #336699;
-	padding: 4px 5px 3px 5px;
+	background-image: url('images/header-blue.png');
+	background-repeat: repeat-x;
+	padding: 3px 5px 3px 5px;
+	margin-right: 8px;
 	border-bottom: 1px solid #B3B3B3;
 }
 
 #CRM_Calendar_Event_Personal .data a:hover {
-	background-color: #339933;
+	background-image: url('images/header-blue-hover.png');
 }
 
 #CRM_Calendar_Event_Personal .padd {
@@ -120,6 +175,8 @@ p.event {
 #CRM_Calendar_Event_Personal .arrows input {
 	border: 0px;
 	background-color: #336699;
+	background-image: url('images/header-blue.png');
+	background-repeat: repeat-x;
 	color: #FFFFFF;
 	width: 40px;
 	height: 20px;
@@ -128,7 +185,7 @@ p.event {
 }
 
 #CRM_Calendar_Event_Personal .arrows input:hover {
-	background-color: #339933;
+	background-image: url('images/header-blue-hover.png');
 }
 
 #CRM_Calendar_Event_Personal .bold,
