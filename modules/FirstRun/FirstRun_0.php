@@ -158,7 +158,7 @@ class FirstRun extends Module {
 			return false;
 		}
 
-		Acl::set_user($d['simple_user']['login']);
+		Acl::set_user($user_id);
 		Variable::set('anonymous_setup',false);
 
 		$method = $d['simple_mail']['mail_method'];

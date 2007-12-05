@@ -72,7 +72,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 
 		$user_id = Acl::get_user();
 		if($user_id===null) {
-			print($this->lang->t('No such user! Your account has been deleted after you logged in...'));
+			print($this->lang->t('Not logged in!'));
 			return false;
 		}
 

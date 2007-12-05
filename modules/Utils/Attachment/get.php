@@ -16,14 +16,14 @@ $private = Module::static_get_module_variable($path,'private',false);
 $key = Module::static_get_module_variable($path,'key',null);
 $local = Module::static_get_module_variable($path,'group',null);
 session_commit();
-if(!$key || $local===null)
+if(!$key || $local===null || !Acl::is_user())
     die('Permission denied');
 $row = DB::GetRow('SELECT uaf.original,ual.permission,ual.other_read,ual.permission_by FROM utils_attachment_file uaf INNER JOIN utils_attachment_link ual ON ual.id=uaf.attach_id WHERE ual.id='.DB::qstr($id).' AND uaf.revision='.DB::qstr($rev));
 $original = $row['original'];
 $filename = $local.'/'.$id.'_'.$rev;
 
 if(!$row['other_read'] && $row['permission_by']!=Acl::get_user()) {
-	if(($row['permission']==0 && !$public) || 
+	if(($row['permission']==0 && !$public) ||
 		($row['permission']==1 && !$protected) ||
 		($row['permission']==2 && !$private))
 		die('Permission denied');
@@ -56,6 +56,8 @@ function get_mime_type($filepath) {
     }
     return $output;
 }
+DB::Execute('INSERT INTO utils_attachment_download(attach_id,download_by,download_on) VALUES (%d,%d,%T)',array($id,Acl::get_user(),time()));
+
 $f_filename = 'data/Utils_Attachment/'.$filename;
 $buffer = file_get_contents($f_filename);
 header('Content-Type: '.get_mime_type($f_filename));

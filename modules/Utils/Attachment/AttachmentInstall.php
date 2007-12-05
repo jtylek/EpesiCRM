@@ -26,6 +26,17 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			print('Unable to create table utils_attachment_link.<br>');
 			return false;
 		}
+		$ret &= DB::CreateTable('utils_attachment_download','
+			id I4 AUTO KEY NOTNULL,
+			attach_id I4 NOTNULL,
+			download_by I4,
+			download_on T DEFTIMESTAMP,
+			remote I1 DEFAULT 0', //0-local,1-remote sent (mail sent),2-remote get (mail read)
+			array('constraints'=>', FOREIGN KEY (download_by) REFERENCES user_login(ID), FOREIGN KEY (attach_id) REFERENCES utils_attachment_link(id)'));
+		if(!$ret){
+			print('Unable to create table utils_attachment_download.<br>');
+			return false;
+		}
 		$ret &= DB::CreateTable('utils_attachment_file','
 			attach_id I4 NOTNULL,
 			original C(255) NOTNULL,
@@ -48,6 +59,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			print('Unable to create table utils_attachment_note.<br>');
 			return false;
 		}
+		$this->add_aco('view download history','Super administrator');
 		$this->create_data_dir();
 		Base_ThemeCommon::install_default_theme($this->get_type());
 		return $ret;
@@ -57,6 +69,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 		$ret = true;
 		$ret &= DB::DropTable('utils_attachment_note');
 		$ret &= DB::DropTable('utils_attachment_file');
+		$ret &= DB::DropTable('utils_attachment_download');
 		$ret &= DB::DropTable('utils_attachment_link');
 		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		return $ret;
