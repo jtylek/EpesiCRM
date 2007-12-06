@@ -160,5 +160,15 @@ class CRM_Calendar extends Module {
 		$this->display_module($this->menu_main_show_tb);
 		$this->menu_main_show_tb->tag();
 	}
+	
+	public function caption() {
+		return "Calendar";
+	}
+	
+	// Agenda Applet
+	public function applet() {  //available applet options: toggle,href,title,go,go_function,go_arguments,go_contruct_arguments
+		//$opts['href'] = $this->create_href(array('box_main_module'=>$this->get_type()));
+		print ('test');
+	}
 }
 ?>

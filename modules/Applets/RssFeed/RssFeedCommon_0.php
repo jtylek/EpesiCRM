@@ -22,7 +22,7 @@ class Applets_RssFeedCommon extends ModuleCommon {
 
 	public static function applet_settings() {
 		return array(
-			array('name'=>'rssfeed','label'=>'RSS Feed','type'=>'text','default'=>'http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/technology/rss.xml',
+			array('name'=>'rssfeed','label'=>'RSS Feed','type'=>'text','default'=>'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/front_page/rss.xml',
 				'rule'=>array(
 					array('message'=>'Field required', 'type'=>'required'),
 					array('message'=>'Invalid RSS feed', 'type'=>'callback', 'func'=>array('Applets_RssFeedCommon','check_feed')),

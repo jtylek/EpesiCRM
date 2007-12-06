@@ -86,7 +86,7 @@ class Base_RegionalSettingsInstall extends ModuleInstall {
 				array('type'=>'select','name'=>'date','label'=>'Date format',
 					'default'=>'%m/%d/%y','values'=>$date_formats),//strftime
 				array('type'=>'select','name'=>'time','label'=>'Time format',
-					'default'=>'%H:%M:%S','values'=>array('%I:%M:%S %p'=>'12h am/pm', '%H:%M:%S'=>'24h'),
+					'default'=>'%I:%M:%S %p','values'=>array('%I:%M:%S %p'=>'12h am/pm', '%H:%M:%S'=>'24h'),
 					'rule'=>array('type'=>'callback',
 						'func'=>array('Base_RegionalSettingsInstall','check_12h'),
 						'message'=>'This language does not support 12h clock',

@@ -130,7 +130,8 @@ class CRM_Calendar_Event_PersonalCommon extends ModuleCommon {
 		}
 		switch($style) {
 			case 'time':
-				return '<b>'.$time.$divider.$finish.'</b>';
+				//return $time.$divider.$finish;
+				return '<b>'.$time.'</b>';
 			case 'title':
 				if($row['created_by'] == Acl::get_user() || $row['access'] <= 1)
 					return $row['title'];

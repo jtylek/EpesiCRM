@@ -5,6 +5,7 @@ class CRM_CalendarCommon extends ModuleCommon {
 	public static function menu() {
 		return array('CRM'=>array('__submenu__'=>1,'Calendar'=>array()));
 	}
+
 	public static function user_settings() {
 		if(Base_AclCommon::i_am_user())
 			$ret = array(
@@ -39,6 +40,14 @@ class CRM_CalendarCommon extends ModuleCommon {
 
 	public static function caption() {
 		return 'Calendar';
+	}
+	
+	public static function applet_caption() {
+		return "Agenda";
+	}
+
+	public static function applet_info() {
+		return "Displays Clandar Agenda";
 	}
 }
 ?>

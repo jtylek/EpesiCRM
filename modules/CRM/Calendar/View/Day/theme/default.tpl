@@ -87,5 +87,3 @@
 		</div>
 	</div>
 <!-- -->
-
-<div style="text-align: center; padding-top: 10px; color: #777777;">Double click on cell to add event<div>
