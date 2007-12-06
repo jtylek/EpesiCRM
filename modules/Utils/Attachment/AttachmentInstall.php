@@ -26,18 +26,8 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			print('Unable to create table utils_attachment_link.<br>');
 			return false;
 		}
-		$ret &= DB::CreateTable('utils_attachment_download','
-			id I4 AUTO KEY NOTNULL,
-			attach_id I4 NOTNULL,
-			download_by I4,
-			download_on T DEFTIMESTAMP,
-			remote I1 DEFAULT 0', //0-local,1-remote sent (mail sent),2-remote get (mail read)
-			array('constraints'=>', FOREIGN KEY (download_by) REFERENCES user_login(ID), FOREIGN KEY (attach_id) REFERENCES utils_attachment_link(id)'));
-		if(!$ret){
-			print('Unable to create table utils_attachment_download.<br>');
-			return false;
-		}
 		$ret &= DB::CreateTable('utils_attachment_file','
+			id I4 AUTO KEY NOTNULL,
 			attach_id I4 NOTNULL,
 			original C(255) NOTNULL,
 			created_by I4,
@@ -46,6 +36,21 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			array('constraints'=>', UNIQUE(attach_id,revision), FOREIGN KEY (created_by) REFERENCES user_login(ID), FOREIGN KEY (attach_id) REFERENCES utils_attachment_link(id)'));
 		if(!$ret){
 			print('Unable to create table utils_attachment_file.<br>');
+			return false;
+		}
+		$ret &= DB::CreateTable('utils_attachment_download','
+			attach_file_id I4 NOTNULL,
+			created_by I4,
+			created_on T DEFTIMESTAMP,
+			remote I1 DEFAULT 0,
+			download_on T DEFTIMESTAMP,
+			ip_address C(32),
+			host_name C(64),
+			description C(128),
+			token C(32)',
+			array('constraints'=>', FOREIGN KEY (created_by) REFERENCES user_login(ID), FOREIGN KEY (attach_file_id) REFERENCES utils_attachment_file(id)'));
+		if(!$ret){
+			print('Unable to create table utils_attachment_download.<br>');
 			return false;
 		}
 		$ret &= DB::CreateTable('utils_attachment_note','
@@ -68,8 +73,8 @@ class Utils_AttachmentInstall extends ModuleInstall {
 	public function uninstall() {
 		$ret = true;
 		$ret &= DB::DropTable('utils_attachment_note');
-		$ret &= DB::DropTable('utils_attachment_file');
 		$ret &= DB::DropTable('utils_attachment_download');
+		$ret &= DB::DropTable('utils_attachment_file');
 		$ret &= DB::DropTable('utils_attachment_link');
 		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		return $ret;

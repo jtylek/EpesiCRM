@@ -1,9 +1,10 @@
 <?php
 if(!isset($_REQUEST['cid']) || !isset($_REQUEST['id']) || !isset($_REQUEST['path']))
-	die('Invalid usage');
+    die('Invalid usage');
 $cid = $_REQUEST['cid'];
 $path = $_REQUEST['path'];
 $id = $_REQUEST['id'];
+$rev = $_REQUEST['revision'];
 $disposition = (isset($_REQUEST['view']) && $_REQUEST['view'])?'inline':'attachment';
 
 define('CID', $cid);
@@ -16,11 +17,10 @@ $key = Module::static_get_module_variable($path,'key',null);
 $local = Module::static_get_module_variable($path,'group',null);
 session_commit();
 if(!$key || $local===null || !Acl::is_user())
-	die('Permission denied');
-$row = DB::GetRow('SELECT uaf.revision,uaf.id,uaf.original,ual.permission,ual.other_read,ual.permission_by FROM utils_attachment_file uaf INNER JOIN utils_attachment_link ual ON ual.id=uaf.attach_id WHERE uaf.id='.DB::qstr($id));
+    die('Permission denied');
+$row = DB::GetRow('SELECT uaf.id,uaf.original,ual.permission,ual.other_read,ual.permission_by FROM utils_attachment_file uaf INNER JOIN utils_attachment_link ual ON ual.id=uaf.attach_id WHERE ual.id='.DB::qstr($id).' AND uaf.revision='.DB::qstr($rev));
 $original = $row['original'];
 $file_id = $row['id'];
-$rev = $row['revision'];
 $filename = $local.'/'.$id.'_'.$rev;
 
 if(!$row['other_read'] && $row['permission_by']!=Acl::get_user()) {
@@ -32,30 +32,30 @@ if(!$row['other_read'] && $row['permission_by']!=Acl::get_user()) {
 
 
 if(headers_sent())
-	die('Some data has already been output to browser, can\'t send file');
+    die('Some data has already been output to browser, can\'t send file');
 
 function get_mime_type($filepath) {
-	//new method, but not compiled in by default
-	if(extension_loaded('fileinfo')) {
-        	$fff = new finfo(FILEINFO_MIME);
-	        $ret = $fff->file($filepath);
-        	$fff->close();
-	        return $ret;
-    	}
+    //new method, but not compiled in by default
+    if(extension_loaded('fileinfo')) {
+        $fff = new finfo(FILEINFO_MIME);
+        $ret = $fff->file($filepath);
+        $fff->close();
+        return $ret;
+    }
 
-	//deprecated method
-	if(function_exists('mime_content_type'))
-        	return mime_content_type($filepath);
+    //deprecated method
+    if(function_exists('mime_content_type'))
+        return mime_content_type($filepath);
 
-	//unix system
-	ob_start();
-	system("file -i -b {$filepath}");
-	$output = ob_get_clean();
-	$output = explode("; ",$output);
-	if ( is_array($output) ) {
-        	$output = $output[0];
-	}
-	return $output;
+    //unix system
+    ob_start();
+    system("file -i -b {$filepath}");
+    $output = ob_get_clean();
+    $output = explode("; ",$output);
+    if ( is_array($output) ) {
+        $output = $output[0];
+    }
+    return $output;
 }
 $t = time();
 $remote_address = $_SERVER['REMOTE_ADDR'];
