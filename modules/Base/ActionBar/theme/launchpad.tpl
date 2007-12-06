@@ -1,9 +1,8 @@
 <center>
 
 <div id="Launchpad_header">
-    <div class="left">&nbsp;</div>
-    <div class="center"><div style="position: absolute; left: 50%;">Launchpad</div></div>
-    <div class="right"><img src="{$theme_dir}/Base_ActionBar__close.png" width="14" height="14" alt="x" border="0"></div>
+    <div class="center"><div style="position: absolute; left: 45%;">{$header}</div></div>
+	<div class="right"><a class="lbAction" rel="deactivate" href="javascript:void(0)"><img src="{$theme_dir}/Base_ActionBar__close.png" width="14" height="14" alt="x" border="0"></a></div>
 </div>
 
 <table id="Base_ActionBar" cellspacing="0" cellpadding="0">

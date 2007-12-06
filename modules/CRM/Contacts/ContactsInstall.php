@@ -40,7 +40,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::install_new_recordset('contact', $fields);
 		Utils_RecordBrowserCommon::set_tpl('contact', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'Contact'));
 		Utils_RecordBrowserCommon::set_processing_method('contact', array('CRM_ContactsCommon', 'submit_contact'));
-		Utils_RecordBrowserCommon::new_filter('contact', 'Company Name');
+		// Utils_RecordBrowserCommon::new_filter('contact', 'Company Name');
 		Utils_RecordBrowserCommon::set_quickjump('contact', 'Last Name');
 		Utils_RecordBrowserCommon::set_favorites('contact', true);
 		Utils_RecordBrowserCommon::set_recent('contact', 15);
