@@ -1,9 +1,9 @@
 <?php
 /**
  * Lang class.
- * 
+ *
  * This class provides translations manipulation.
- * 
+ *
  * @author Paul Bukowski <pbukowski@telaxus.com> and Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
@@ -11,6 +11,9 @@
  * @package epesi-base-extra
  * @subpackage lang
  */
+
+define('_VALID_ACCESS',1);
+require_once('../../../include/magicquotes.php');
 
 /**
  * This class provides inline translation method.

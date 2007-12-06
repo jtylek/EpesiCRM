@@ -202,7 +202,7 @@ class Utils_GenericBrowser extends Module {
 	public function __add_row_action($num,$tag_attrs,$label,$tooltip,$icon) {
 		if (!isset($this->lang)) $this->lang = & $this->init_module('Base/Lang');
 		if (!isset($icon)) $icon = strtolower(trim($label));
-		$this->actions[$num][$icon] = array('tag_attrs'=>$tag_attrs,'label'=>$this->lang->t($label),'tooltip'=>$tooltip);
+		$this->actions[$num][$icon] = array('tag_attrs'=>$tag_attrs,'label'=>$this->lang->ht($label),'tooltip'=>$tooltip);
 		$this->en_actions = true;
 	}
 
