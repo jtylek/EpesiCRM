@@ -80,7 +80,10 @@ class Base_ActionBar extends Module {
 						$ii['open'] = '<a '.$this->create_href($v['link']).' id="'.$ii['link_id'].'">';
 						$ii['close'] = '</a>';
 						try {
-							$icon = Base_ThemeCommon::get_template_file($v['module'],'icon.png');
+							if(isset($v['link']['__icon__']))
+								$icon = Base_ThemeCommon::get_template_file($v['module'],$v['link']['__icon__']);
+							else
+								$icon = Base_ThemeCommon::get_template_file($v['module'],'icon.png');
 						} catch(Exception $e) {
 							$icon = Base_ThemeCommon::get_template_file($this->get_type(),'default_icon.png');
 						}
@@ -96,7 +99,10 @@ class Base_ActionBar extends Module {
 						$ii['open'] = '<a '.$this->create_href($v['link']).' id="'.$ii['link_id'].'">';
 						$ii['close'] = '</a>';
 						try {
-							$icon = Base_ThemeCommon::get_template_file($v['module'],'icon.png');
+							if(isset($v['link']['__icon__']))
+								$icon = Base_ThemeCommon::get_template_file($v['module'],$v['link']['__icon__']);
+							else
+								$icon = Base_ThemeCommon::get_template_file($v['module'],'icon.png');
 						} catch(Exception $e) {
 							$icon = Base_ThemeCommon::get_template_file($this->get_type(),'default_icon.png');
 						}

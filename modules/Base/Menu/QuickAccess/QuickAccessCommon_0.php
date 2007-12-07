@@ -1,9 +1,9 @@
 <?php
 /**
  * QuickAccess class.
- * 
- * This class provides functionality for QuickAccess class. 
- * 
+ *
+ * This class provides functionality for QuickAccess class.
+ *
  * @author Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
@@ -15,11 +15,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_Menu_QuickAccessCommon extends ModuleCommon {
 	private static $options = null;
-	
+
 	public static function user_settings_icon() {
 		return Base_ThemeCommon::get_template_file('Base_Menu_QuickAccess','icon.png');
 	}
-	
+
 	public static function user_settings() {
 		self::get_options();
 		$ret_opts = array();
@@ -47,13 +47,13 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 		//trigger_error(print_r($ret_opts,true));
 		if (Acl::is_user()) return array('Quick access'=>$ret_opts);
 		return array();
-	} 
-	
+	}
+
 	public static function get_options() {
 		if (isset(self::$options)) return self::$options;
 		self::$options = array();
 		$modules_menu = array();
-		
+
 		$menus = Base_MenuCommon::get_menus();
 		ksort($menus);
 		foreach($menus as $name=>$ret) {
@@ -89,7 +89,7 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 		foreach (self::$options as $v)
 			if (Base_User_SettingsCommon::get('Base_Menu_QuickAccess',$v['name'].'_m'))
 				$qa_menu[$v['label']] = $v['link'];
-			
+
 		if ($qa_menu == array('__submenu__'=>1)) return array();
 		return array('Quick Access'=>$qa_menu);
 	}

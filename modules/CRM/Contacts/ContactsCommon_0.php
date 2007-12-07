@@ -31,7 +31,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 
 	/*--------------------------------------------------------------------*/
 	public static function menu() {
-		return array('CRM'=>array('__submenu__'=>1,'Contacts'=>array('mode'=>'contact'),'Companies'=>array('mode'=>'company')));
+		return array('CRM'=>array('__submenu__'=>1,'Contacts'=>array('mode'=>'contact','__icon__'=>'contacts.png'),'Companies'=>array('mode'=>'company','__icon__'=>'companies.png')));
 	}
 	public static function caption() {
 		return 'Companies & Contacts';

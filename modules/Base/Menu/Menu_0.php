@@ -1,12 +1,12 @@
 <?php
 /**
  * Menu class.
- * 
+ *
  * Provides layout to Menu module.
- * 
- * 
+ *
+ *
  * ** Creating menu **
- * 
+ *
  * A module will use Menu module functionality if it defines at least one of three methods:
  * - menu() - Menu in 'Modules' section, each option will automatically link to the module body
  * - Each value is a menu option
@@ -33,7 +33,7 @@
  *  										'Label 2'=>array('variable2'=>'value3'),
  *  										'Label 3'=>array('variable3'=>'value4'),
  *  										'__submenu__'=>1));
- * 
+ *
  * @author Paul Bukowski <pbukowski@telaxus.com> and Kuba Slawinski <kslawinski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
@@ -49,18 +49,18 @@ class Base_Menu extends Module {
 	private static $menu_module = array();
 	private static $tmp_menu;
 	private $duplicate = false;
-	
+
 	private static function build_menu(& $menu, & $m) {
 		foreach($m as $k=>$arr) {
 			if($k=='__split__')
 				$menu->add_split();
 			else {
 				if(array_key_exists('__icon__',$arr)) {
-					$icon = "'".$arr['__icon__']."'";
+					$icon = Base_ThemeCommon::get_template_file($arr['box_main_module'], $arr['__icon__']);
 					unset($arr['__icon__']);
 				} else
-					$icon = 'null';
-	
+					$icon = '';
+
 				if(array_key_exists('__description__',$arr)) {
 					$description = "'".$arr['__description__']."'";
 					unset($arr['__description__']);
@@ -77,24 +77,22 @@ class Base_Menu extends Module {
 						$target = '_blank';
 				} else
 					$url = null;
-					
+
 				if(is_array($arr) && array_key_exists('__submenu__', $arr)) {
 					unset($arr['__submenu__']);
 					$menu->begin_submenu(Base_LangCommon::ts('Base_Menu',$k));
 					self::build_menu($menu, $arr);
 					$menu->end_submenu();
-//					$ret[] = "[$icon,'".Base_LangCommon::ts('Base_Menu',$k)."', null, null, $description, ".self::build_menu($arr)."]";
-				} else
+				} else {
 					if($url)
-//						$ret[] = "[$icon,'".Base_LangCommon::ts('Base_Menu',$k)."', $url, $target, $description]";
-						$menu->add_link(Base_LangCommon::ts('Base_Menu',$k), $url);
+						$menu->add_link(Base_LangCommon::ts('Base_Menu',$k), $url,$icon);
 					else
-						$menu->add_link(Base_LangCommon::ts('Base_Menu',$k), 'javascript:'.Module::create_href_js($arr) );
-//						$ret[] = "[$icon,'".Base_LangCommon::ts('Base_Menu',$k)."', 'javascript:".addslashes(Module::create_href_js($arr))."', null, $description]";
+						$menu->add_link(Base_LangCommon::ts('Base_Menu',$k), 'javascript:'.Module::create_href_js($arr) ,$icon);
+				}
 			}
 		}
 	}
-	
+
 	private static function add_menu(& $menu,$addon){
 		if(!is_array($addon)) return;
 		foreach($addon as $k=>$v){
@@ -114,14 +112,14 @@ class Base_Menu extends Module {
 						$menu[$k][str_replace('_',': ',$old['box_main_module'])] = $old;
 					} else
 						$menu[$k] = array(
-							str_replace('_',': ',$menu[$k]['box_main_module']) =>$menu[$k], 
+							str_replace('_',': ',$menu[$k]['box_main_module']) =>$menu[$k],
 							'__submenu__'=>1,
 							str_replace('_',': ',$v['box_main_module'])=>$v);
 				}
 			}
 		}
 	}
-	
+
 	public static function sort_menus_cmp($a, $b) {
 		$aw = isset(self::$tmp_menu[$a]['__weight__']) ? self::$tmp_menu[$a]['__weight__']:0;
 		$bw = isset(self::$tmp_menu[$b]['__weight__']) ? self::$tmp_menu[$b]['__weight__']:0;
@@ -132,7 +130,7 @@ class Base_Menu extends Module {
 //		trigger_error('='.$aw."=".print_r($bw,true).'=',E_USER_ERROR);
 		return $aw-$bw;
 	}
-	
+
 	private static function sort_menus(& $menu) {
 		self::$tmp_menu = $menu;
 		uksort($menu, array("Base_Menu","sort_menus_cmp"));
@@ -144,10 +142,10 @@ class Base_Menu extends Module {
 		}
 		unset($menu['__weight__']);
 	}
-	
+
 	public function body() {
 		$lang = & $this->init_module('Base/Lang');
-		
+
 		// preparing modules menu and tools menu
 		$modules_menu = array();
 		$menus = Base_MenuCommon::get_menus();
@@ -156,7 +154,7 @@ class Base_Menu extends Module {
 				self::add_menu($modules_menu,$module_menu);
 		}
 		if (!empty($modules_menu)) $modules_menu['__submenu__'] = 1;
-		
+
 		// preparing admin menu
 		if (array_key_exists('Base_Admin',ModuleManager::$modules)){
 			$admin_menu = call_user_func(array('Base_Admin','admin_menu'));
@@ -164,7 +162,7 @@ class Base_Menu extends Module {
 				Base_MenuCommon::add_default_menu($admin_menu, 'Base_Admin');
 			} else $admin_menu = array();
 		} else $admin_menu = array();
-		
+
 		// preparing quick access menu
 		if (array_key_exists('Base_Menu_QuickAccess',ModuleManager::$modules)){
 			$qaccess_menu = Base_Menu_QuickAccessCommon::quick_access_menu();
@@ -172,7 +170,7 @@ class Base_Menu extends Module {
 				Base_MenuCommon::add_default_menu($qaccess_menu, 'Base_Menu_QuickAccess');
 			} else $qaccess_menu = array();
 		} else $qaccess_menu = array();
-		
+
 		// preparing quick menu
 		$current_module_menu = array();
                 $qm = Base_MenuCommon::get_quick_menu();
@@ -186,7 +184,7 @@ class Base_Menu extends Module {
                     }
                     $curr[$r[count($r)-1]] = array('__url__'=>'javascript:('.$action.')');
                 }
-		
+
 		self::sort_menus($modules_menu);
 
 		// Home menu
@@ -206,17 +204,17 @@ class Base_Menu extends Module {
 		// preparing menu string
 		$menu_mod = & $this->init_module("Utils/Menu", "horizontal");
 		self::build_menu($menu_mod,$menu);
-//		self::$menu_module = $this->get_path();		
-				
+//		self::$menu_module = $this->get_path();
+
 //		$this->menu_name = $this->get_name().$this->get_instance_id().'menu';
-		
+
 		$theme = & $this->init_module('Base/Theme');
-		
+
 		$menu_mod->set_inline_display();
 		$theme->assign('menu', $this->get_html_of_module($menu_mod));
 
 		$theme->display();
-		
+
 	}
 }
 ?>

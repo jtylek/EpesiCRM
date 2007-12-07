@@ -2,7 +2,7 @@
 
 /**
  *  Calendar
- * 
+ *
  * Author: Kuba Slawinski
  */
 
@@ -19,46 +19,46 @@ class CRM_Calendar extends Module {
 	public $menu_main_tb;
 	public $menu_main_show_tb;
 	/////////////////////////////////////////////////////////////////////////////
-	// DATE-COUNTING RELATED FUNCTIONS 
+	// DATE-COUNTING RELATED FUNCTIONS
 	/////////////////////////////////////////////////////////////////////////////
 	/**
-	 * mode: 
+	 * mode:
 	 * 		0 - number (0 being Sunday, 1 - Monday)
 	 * 		1 - day
-	 * 		2 - abbr. day	
+	 * 		2 - abbr. day
 	 */
 	public function init() {
 		$this->lang = & $this->init_module('Base/Lang');
-		
+
 		$this->menu_main_show_tb = & $this->init_module('Utils/TabbedBrowser');
-		
-		
+
+
 		load_js('modules/CRM/Calendar/dnd.js');
-		
+
 		if(Base_RegionalSettingsCommon::time_12h())
 			eval_js('CRMCalendarDND.is_AM = true');
-		
+
 		// TODO: perhaps better to load modules when needed, not every time.
 		$this->modules['month'] 	= & $this->init_module('CRM/Calendar/View/Month', array($this));
 		$this->modules['week'] 		= & $this->init_module('CRM/Calendar/View/Week');
 		$this->modules['year'] 		= & $this->init_module('CRM/Calendar/View/Year');
 		$this->modules['day'] 		= & $this->init_module('CRM/Calendar/View/Day');
 		$this->modules['agenda'] 	= & $this->init_module('CRM/Calendar/View/Agenda');
-		
+
 		$this->default_module = Base_User_SettingsCommon::get('CRM_Calendar', 'view_style');
 		$this->logged = 0;
 		if(Acl::is_user())
 			$this->logged = Acl::get_user();
 	}
-	
-	
+
+
 	///////////////////////////////////////////////////////////////////////////////
 	//ADD EVENT
 	public function add_event($date, $time = null) {
 		$event = & $this->init_module('CRM/Calendar/Event');
 		return $event->add_event($date, $time);
 	}
-	
+
 	public function edit_event($event_type, $event_id) {
 		$event = & $this->init_module($event_type);
 		return $event->edit_event($event_id);
@@ -104,8 +104,8 @@ class CRM_Calendar extends Module {
 		$date = $this->get_unique_href_variable('date', '');
 		$this->display_module($this->modules['agenda'], array(array('date'=>$date)) );
 	}
-	
-	
+
+
 	// MENUS
 	public function menu_main_show() {
 		$this->menu_main_show_tb->set_tab( $this->lang->t('Agenda'),array($this, 'show_calendar_agenda') );
@@ -115,7 +115,7 @@ class CRM_Calendar extends Module {
 		$this->menu_main_show_tb->set_tab( $this->lang->t('Year'),array($this, 'show_calendar_year') );
 		$this->menu_main_show_tb->set_default_tab($this->default_module);
 	}
-	
+
 	public function parse_links() {
 		$action = $this->get_unique_href_variable('action', 'show');
 		switch($action) {
@@ -150,21 +150,22 @@ class CRM_Calendar extends Module {
 	}
 	///////////////////////////////////////////////////////////////////////////////
 	public function body($arg = null) {
+		$this->pack_module('CRM/Profiles');
 		$this->init();
 		$this->menu_main_show();
 		$this->parse_links();
-		
+
 		// quick fix
 		//$this->menu_main_show_tb->get_module_variable_or_unique_href_variable('page', 0);
-		
+
 		$this->display_module($this->menu_main_show_tb);
 		$this->menu_main_show_tb->tag();
 	}
-	
+
 	public function caption() {
 		return "Calendar";
 	}
-	
+
 	// Agenda Applet
 	public function applet() {  //available applet options: toggle,href,title,go,go_function,go_arguments,go_contruct_arguments
 		//$opts['href'] = $this->create_href(array('box_main_module'=>$this->get_type()));

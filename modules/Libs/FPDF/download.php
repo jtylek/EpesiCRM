@@ -1,7 +1,7 @@
 <?php
 /**
  * Download file
- * 
+ *
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
