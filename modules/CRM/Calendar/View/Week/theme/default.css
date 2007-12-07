@@ -279,12 +279,6 @@ p.event {
 	margin: 1px;
 }
 
-.crm_calendar_week .events_brief td {
-	height: 18px;
-	vertical-align: middle;
-	text-align: center;
-}
-
 .crm_calendar_week .events_icon {
 	border: 1px solid #336699;
 }
@@ -292,12 +286,19 @@ p.event {
 .crm_calendar_week .events_drag_handle {
 	cursor: move;
 	background-color: #339933;
-	padding-right: 2px;
+	display: block;
+	float: left;
+	padding: 0px 2px 2px 0px;
+	position: absolute;
+	top: 0px;
+	left: 0px;
 }
 
 .crm_calendar_week .events_brief_info_time {
 	background-color: #cfe6cf;
-	width: 100%;
+	display: block;
+	padding: 2px;
+	text-align: center;
 }
 
 .crm_calendar_week .events_brief_info_title {
@@ -305,6 +306,9 @@ p.event {
 	background-color: #cfe6cf;
 	background-image: url('images/header-light-green.png');
 	background-repeat: repeat-x;
+	display: block;
+	padding: 2px;
+	text-align: center;
 }
 
 .crm_calendar_week .events_brief_info_title:hover {
@@ -316,7 +320,12 @@ p.event {
 
 .crm_calendar_week .events_more {
 	background-color: #339933;
-	padding-left: 2px;
+	display: block;
+	float: right;
+	padding: 0px 0px 2px 2px;
+	position: absolute;
+	top: 0px;
+	right: 0px;
 }
 
 /* menu */

@@ -40,20 +40,12 @@
 				{/if}
 				{if $t_event.has_events != '0'}
 					{foreach item=event from=$t_event.event}
-					<div name="events_brief" class="events_brief" id="{$event.div_id}" >
-					<table cellpadding="0" cellspacing="0" border="0">
-						<tbody>
-							<tr>
-								<td class="events_drag_handle">{$event.move}</td>
-								<td class="events_brief_info_time" id="{$event.div_id}_time">{$event.time}</td>
-								<td class="events_more">{$event.more}</td>
-							</tr>
-							<tr>
-								<td colspan="3" class="events_brief_info_title" id="{$event.div_id}_title">{$event.title}</td>
-							</tr>
-						</tbody>
-					</table>
-					</div>
+						<div name="events_brief" class="events_brief" id="{$event.div_id}" >
+							<span class="events_brief_info_time" id="{$event.div_id}_time">{$event.time}</span>
+							<span class="events_brief_info_title" id="{$event.div_id}_title">{$event.title}</span>
+							<span class="events_drag_handle">{$event.move}</span>
+							<span class="events_more">{$event.more}</span>
+						</div>
 					{/foreach}
 				{else}
 					&nbsp;
@@ -81,18 +73,10 @@
 					{if $tt[tt].has_events != '0'}
 						{foreach item=event from=$tt[tt].event}
 						<div name="events_brief" class="events_brief" id="{$event.div_id}" >
-						<table cellpadding="0" cellspacing="0" border="0">
-							<tbody>
-								<tr>
-									<td class="events_drag_handle">{$event.move}</td>
-									<td class="events_brief_info_time" id="{$event.div_id}_time">{$event.time}</td>
-									<td class="events_more">{$event.more}</td>
-								</tr>
-								<tr>
-									<td colspan="3" class="events_brief_info_title" id="{$event.div_id}_title">{$event.title}</td>
-								</tr>
-							</tbody>
-						</table>
+							<span class="events_brief_info_time" id="{$event.div_id}_time">{$event.time}</span>
+							<span class="events_brief_info_title" id="{$event.div_id}_title">{$event.title}</span>
+							<span class="events_drag_handle">{$event.move}</span>
+							<span class="events_more">{$event.more}</span>
 						</div>
 						{/foreach}
 					{/if}
