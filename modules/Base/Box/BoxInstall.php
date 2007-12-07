@@ -1,9 +1,9 @@
 <?php
 /**
  * BoxInit class.
- * 
+ *
  * This class provides initialization of Box module.
- * 
+ *
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
@@ -17,7 +17,7 @@ class Base_BoxInstall extends ModuleInstall {
 
 	public function install() {
 		Base_ThemeCommon::install_default_theme('Base/Box');
-		
+
 		return true;
 	}
 
@@ -26,7 +26,7 @@ class Base_BoxInstall extends ModuleInstall {
 
 		return true;
 	}
-	
+
 	public function version() {
 		return array('1.0.0');
 	}
@@ -35,6 +35,7 @@ class Base_BoxInstall extends ModuleInstall {
 		return array (
 			array('name'=>'Base/Lang', 'version'=>0),
 			array('name'=>'Base/Setup', 'version'=>0),
+			array('name'=>'Utils/Tooltip', 'version'=>0),
 			array('name'=>'Base/Acl', 'version'=>0),
 			array('name'=>'Base/Theme/Administrator', 'version'=>0)
 		);

@@ -119,7 +119,7 @@ class Base_Box extends Module {
 
 
 		//main output
-		$theme->assign('version_no',EPESI_VERSION);
+		$theme->assign('version_no','<a href="http://www.epesi.org" '.Utils_TooltipCommon::open_tag_attrs($lang->ht('Check for new version')).' target="_blank">'.$lang->t('version&nbsp;%s',array(EPESI_VERSION)).'</a>');
 		$theme->display();
 
 

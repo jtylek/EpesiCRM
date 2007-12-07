@@ -18,7 +18,7 @@
 		<tbody>
 			<tr>
 				<td class="menu-bar">{$menu}</td>
-				<td class="version"><a href="http://sourceforge.net/project/showfiles.php?group_id=192918">&nbsp;version&nbsp;{$version_no}&nbsp;</a></td>
+				<td class="version">&nbsp;{$version_no}&nbsp;</td>
 				<td class="module-indicator">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</td>
 			</tr>
 		</tbody>
