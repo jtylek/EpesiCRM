@@ -42,7 +42,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			id I4 AUTO KEY NOTNULL,
 			attach_file_id I4 NOTNULL,
 			created_by I4,
-			created_on T DEFTIMESTAMP,
+			created_on T,
 			remote I1 DEFAULT 0,
 			download_on T DEFTIMESTAMP,
 			ip_address C(32),

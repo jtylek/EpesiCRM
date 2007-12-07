@@ -111,6 +111,7 @@ class Base_ActionBar extends Module {
 					$th->assign('display_icon',$display_icon);
 					$th->assign('display_text',$display_text);
 					$th->assign('header','Launchpad');
+					$th->assign('close','<a class="lbAction" rel="deactivate" href="javascript:void(0)">Close</a>');
 					usort($launchpad,array($this,'compare_launcher'));
 					$th->assign('icons',$launchpad);
 					eval_js_once('actionbar_launchpad_deactivate = function(){leightbox_deactivate(\'actionbar_launchpad\');}');

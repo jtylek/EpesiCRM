@@ -18,7 +18,7 @@ if((!Acl::is_user() || !Acl::check('Administration','Main','Users',Acl::get_user
 	$form->addElement('submit',null,'Ok');
 	if($form->validate()) {
 		$user = $form->exportValue('user');
-		Acl::set_user($user);
+		Acl::set_user(Base_UserCommon::get_user_id($username));
 	} else {
 		$form->display();
 		exit();
@@ -26,6 +26,6 @@ if((!Acl::is_user() || !Acl::check('Administration','Main','Users',Acl::get_user
 }
 
 function submit_login($username,$form) {
-	return ModuleManager::is_installed('Base_User_Login')>=0 && Base_User_LoginCommon::check_login($username, $form->exportValue('pass')) && Acl::check('Administration','Main','Users',$username);
+	return ModuleManager::is_installed('Base_User_Login')>=0 && Base_User_LoginCommon::check_login($username, $form->exportValue('pass')) && Acl::check('Administration','Main','Users',Base_UserCommon::get_user_id($username));
 }
 ?>

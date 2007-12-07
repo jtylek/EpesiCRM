@@ -2,7 +2,7 @@
 
 <div id="Launchpad_header">
     <div class="center"><div style="position: absolute; left: 45%;">{$header}</div></div>
-	<div class="right"><a class="lbAction" rel="deactivate" href="javascript:void(0)"><img src="{$theme_dir}/Base_ActionBar__close.png" width="14" height="14" alt="x" border="0"></a></div>
+	<div class="right">{$__link.close.open}<img src="{$theme_dir}/Base_ActionBar__close.png" width="14" height="14" alt="x" border="0">{$__link.close.close}</div>
 </div>
 
 <table id="Base_ActionBar" cellspacing="0" cellpadding="0">

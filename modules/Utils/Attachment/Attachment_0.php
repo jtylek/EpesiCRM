@@ -157,10 +157,12 @@ class Utils_Attachment extends Module {
 			else
 				$r->add_data($text,$file);
 		}
-		if($this->inline) {
-			print('<a '.$this->create_callback_href(array($this,'edit_note')).'>'.$this->lang->t('Attach note').'</a>');
-		} else {
-			Base_ActionBarCommon::add('folder','Attach note',$this->create_callback_href(array($this,'edit_note_queue')));
+		if($this->public_write) {
+			if($this->inline) {
+				print('<a '.$this->create_callback_href(array($this,'edit_note')).'>'.$this->lang->t('Attach note').'</a>');
+			} else {
+				Base_ActionBarCommon::add('folder','Attach note',$this->create_callback_href(array($this,'edit_note_queue')));
+			}
 		}
 
 		$this->display_module($gb);
@@ -185,7 +187,8 @@ class Utils_Attachment extends Module {
 		$th->assign('view','<a href="modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$row['file_id'],'path'=>$this->get_path(),'cid'=>CID,'view'=>1)).'" target="_blank" onClick="leightbox_deactivate(\''.$lid.'\')">'.$this->lang->t('View').'</a><br>');
 		$th->assign('download','<a href="modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$row['file_id'],'path'=>$this->get_path(),'cid'=>CID)).'" onClick="leightbox_deactivate(\''.$lid.'\')">'.$this->lang->t('Download').'</a><br>');
 		load_js('modules/Utils/Attachment/remote.js');
-		$th->assign('link','<a onClick="utils_attachment_get_link('.$row['file_id'].', '.CID.', \''.Epesi::escapeJS($this->get_path(),false).'\',\'get link\');leightbox_deactivate(\''.$lid.'\')">'.$this->lang->t('Get remote link').'</a><br>');
+		$th->assign('link','<a href="javascript:void(0)" onClick="utils_attachment_get_link('.$row['file_id'].', '.CID.', \''.Epesi::escapeJS($this->get_path(),false).'\',\'get link\');leightbox_deactivate(\''.$lid.'\')">'.$this->lang->t('Get remote link').'</a><br>');
+		$th->assign('close','<a class="lbAction" rel="deactivate" href="javascript:void(0)">Close</a>');
 
 		ob_start();
 		$th->display('download');
@@ -193,7 +196,7 @@ class Utils_Attachment extends Module {
 
 		print '<div class="leightbox" id="'.$lid.'">'.
 			$c.
-			'<a class="lbAction" rel="deactivate">Close</a></div>';
+			'</div>';
 		return 'class="lbOn" rel="'.$lid.'"';
 	}
 
@@ -205,7 +208,6 @@ class Utils_Attachment extends Module {
 
 		$row = DB::GetRow('SELECT uaf.id as file_id,ual.permission_by,ual.permission,ual.deleted,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text,uaf.original,uaf.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE uaf.created_by=l2.id) as upload_by FROM utils_attachment_link ual INNER JOIN (utils_attachment_note uac,utils_attachment_file uaf) ON (uac.attach_id=ual.id AND uaf.attach_id=ual.id) WHERE ual.id=%d AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id)',array($id));
 
-		$file = $this->get_file($row);
 		if($this->inline) {
 			if($row['permission_by']==Acl::get_user() ||
 			   ($row['permission']==0 && $this->public_write) ||
@@ -214,8 +216,6 @@ class Utils_Attachment extends Module {
 				print('<a '.$this->create_callback_href(array($this,'edit_note'),$id).'>'.$this->lang->t('Edit').'</a> :: ');
 				print('<a '.$this->create_confirm_callback_href($this->lang->ht('Delete this entry?'),array($this,'delete_back'),$id).'>'.$this->lang->t('Delete').'</a> :: ');
 			}
-			if($row['original'])
-				print('<a '.$file.'>'.$this->lang->t('attachment %s',array($row['original'])).'</a> :: ');
 			print('<a '.$this->create_callback_href(array($this,'edition_history'),$id).'>'.$this->lang->t('History').'</a> :: ');
 			print('<a '.$this->create_back_href().'>'.$this->lang->t('back').'</a><br>');
 		} else {
@@ -226,13 +226,18 @@ class Utils_Attachment extends Module {
 				Base_ActionBarCommon::add('edit','Edit',$this->create_callback_href(array($this,'edit_note_queue'),$id));
 				Base_ActionBarCommon::add('delete','Delete',$this->create_confirm_callback_href($this->lang->ht('Delete this entry?'),array($this,'delete_back'),$id));
 			}
-			if($row['original'])
-				Base_ActionBarCommon::add('folder',$row['original'],$file);
 			Base_ActionBarCommon::add('history','Edition history',$this->create_callback_href(array($this,'edition_history_queue'),$id));
 			Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 		}
 
-		print($row['text']);
+		$th = $this->init_module('Base/Theme');
+		$th->assign('note',$row['text']);
+		if($row['original']) {
+			$file = $this->get_file($row);
+			$th->assign('file','<a '.$file.'>'.$row['original'].'</a>');
+		} else
+			$th->assign('file','');
+		$th->display('view');
 		return true;
 	}
 
@@ -300,27 +305,33 @@ class Utils_Attachment extends Module {
 		}
 		$this->display_module($gb);
 
-		if($this->acl_check('view download history')) {
-			print('<h2>'.$this->lang->t('File access history').'</h2>');
-			$gb = $this->init_module('Utils/GenericBrowser',null,'hda'.$this->key);
-			$gb->set_table_columns(array(
-					array('name'=>'Create date', 'order'=>'created_on','width'=>15),
-					array('name'=>'Download date', 'order'=>'download_on','width'=>15),
-					array('name'=>'Who', 'order'=>'created_by','width'=>15),
-					array('name'=>'IP address', 'order'=>'ip_address', 'width'=>15),
-					array('name'=>'Host name', 'order'=>'host_name', 'width'=>15),
-					array('name'=>'Method description', 'order'=>'description', 'width'=>20),
-					array('name'=>'Revision', 'order'=>'revision', 'width'=>10),
-					array('name'=>'Remote', 'order'=>'remote', 'width'=>10),
-				));
+		print('<h2>'.$this->lang->t('File access history').'</h2>');
+		$gb = $this->init_module('Utils/GenericBrowser',null,'hda'.$this->key);
+		$gb->set_table_columns(array(
+				array('name'=>'Create date', 'order'=>'created_on','width'=>15),
+				array('name'=>'Download date', 'order'=>'download_on','width'=>15),
+				array('name'=>'Who', 'order'=>'created_by','width'=>15),
+				array('name'=>'IP address', 'order'=>'ip_address', 'width'=>15),
+				array('name'=>'Host name', 'order'=>'host_name', 'width'=>15),
+				array('name'=>'Method description', 'order'=>'description', 'width'=>20),
+				array('name'=>'Revision', 'order'=>'revision', 'width'=>10),
+				array('name'=>'Remote', 'order'=>'remote', 'width'=>10),
+			));
 
-			$ret = $gb->query_order_limit('SELECT uad.created_on,uad.download_on,(SELECT l.login FROM user_login l WHERE uad.created_by=l.id) as created_by,uad.remote,uad.ip_address,uad.host_name,uad.description,uaf.revision FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id='.$id);
-			while($row = $ret->FetchRow()) {
-				$r = $gb->get_new_row();
-				$r->add_data($row['created_on'],($row['remote']!=1?$row['download_on']:''),$row['created_by'], $row['ip_address'], $row['host_name'], $row['description'], $row['revision'], ($row['remote']==0?'no':'yes'));
-			}
-			$this->display_module($gb);
+		$query = 'SELECT uad.created_on,uad.download_on,(SELECT l.login FROM user_login l WHERE uad.created_by=l.id) as created_by,uad.remote,uad.ip_address,uad.host_name,uad.description,uaf.revision FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id='.$id;
+		$query_qty = 'SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id='.$id;
+		if($this->acl_check('view download history'))
+			$ret = $gb->query_order_limit($query, $query_qty);
+		else {
+			print('You are allowed to see only downloads created by your user');
+			$who = ' AND uad.created_by='.Acl::get_user();
+			$ret = $gb->query_order_limit($query.$who, $query_qty.$who);
 		}
+		while($row = $ret->FetchRow()) {
+			$r = $gb->get_new_row();
+			$r->add_data($row['created_on'],($row['remote']!=1?$row['download_on']:''),$row['created_by'], $row['ip_address'], $row['host_name'], $row['description'], $row['revision'], ($row['remote']==0?'no':'yes'));
+		}
+		$this->display_module($gb);
 
 		return true;
 	}
