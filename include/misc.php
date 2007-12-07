@@ -354,7 +354,7 @@ function recursive_copy($src, $dest) {
 function escapeJS($str,$double=true,$single=true) {return Epesi::escapeJS($str,$double,$single);}
 
 function get_epesi_url() {
-	$protocol = (isset($_SERVER['HTTPS']) AND strtolower($_SERVER['HTTPS'])=== "on") ? 'https://' : 'http://';
+	$protocol = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS'])!== "off") ? 'https://' : 'http://';
 	return $protocol.$_SERVER['HTTP_HOST'].str_replace('\\','/',dirname($_SERVER['PHP_SELF']));
 }
 
