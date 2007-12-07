@@ -3,7 +3,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_ContactsCommon extends ModuleCommon {
 	public static $paste_or_new = 'new';
-	
+
 	public static function get_contacts($crits = array()) {
 		return Utils_RecordBrowserCommon::get_records('contact', $crits);
 	}
@@ -97,7 +97,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 	public static function QFfield_webaddress(&$form, $field, $label, $mode, $default) {
 		if ($mode=='add' || $mode=='edit') {
-			$form->addElement('text', $field, $label, array('style'=>'width: 99%'));
+			$form->addElement('text', $field, $label);
 			if ($mode=='edit') $form->setDefaults(array($field=>$default));
 		} else {
 			$form->addElement('static', $field, $label);
@@ -106,7 +106,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 	public static function QFfield_email(&$form, $field, $label, $mode, $default) {
 		if ($mode=='add' || $mode=='edit') {
-			$form->addElement('text', $field, $label, array('style'=>'width: 99%'));
+			$form->addElement('text', $field, $label);
 			if ($mode=='edit') $form->setDefaults(array($field=>$default));
 		} else {
 			$form->addElement('static', $field, $label);
@@ -122,7 +122,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		}
 		$form->addElement('select', $field, $label, $users);
 		$form->setDefaults(array($field=>$default));
-		if (!Base_AclCommon::i_am_admin()) $form->freeze($field);  
+		if (!Base_AclCommon::i_am_admin()) $form->freeze($field);
 	}
 	public static function display_fname($v, $i) {
 		return Utils_RecordBrowserCommon::create_linked_label('contact', 'First Name', $i);

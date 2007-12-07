@@ -10,7 +10,7 @@
 {/if}
 {assign var=x value=0}
 
-<table class="Utils_RecordBrowser__table" border="0" cellpadding="0" cellspacing="0">
+<table class="CRM_Contacts__table" border="0" cellpadding="0" cellspacing="0">
 	<tbody>
 		<tr>
 			<td class="icon"><img src="{$theme_dir}/CRM_Contacts__companies.png" width="32" height="32" border="0"></td>
@@ -31,7 +31,7 @@
 <div style="padding: 2px 2px 2px 2px; background-color: #FFFFFF;">
 
 {* Outside table *}
-<table id="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
+<table id="CRM_Contacts__View_entry" cellpadding="0" cellspacing="0" border="0">
 	<tbody>
 		<tr>
 			<td class="left-column">
@@ -74,7 +74,7 @@
 						<td class="label" nowrap>
 							{$Form_data.create_company.label}
 						</td>
-						<td class="data">
+						<td class="data create-company">
 							{$Form_data.create_company.html}
 						</td>
 					</tr>

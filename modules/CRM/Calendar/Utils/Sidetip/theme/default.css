@@ -5,8 +5,8 @@
 	float: left;
 	z-index: 10001;
 	border: 2px solid #336699;
-	width: 200px;
+	padding: 5px;
 	background-color: #FFFFFF;
-	font-size: 10px;
+	font-size: 11px;
 	color: #336699;
 }

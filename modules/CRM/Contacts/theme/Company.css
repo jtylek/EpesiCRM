@@ -1,17 +1,17 @@
-#Utils_RecordBrowser__View_entry {
+#CRM_Contacts__View_entry {
     width: 100%;
     border-top: 1px solid #B3B3B3;
     border-left: 1px solid #B3B3B3;
 }
 
-#Utils_RecordBrowser__View_entry table {
+#CRM_Contacts__View_entry table {
     width: 100%;
 }
 
-#Utils_RecordBrowser__View_entry td.left-column  { width: 50%; vertical-align: top; }
-#Utils_RecordBrowser__View_entry td.right-column { width: 50%; vertical-align: top; }
+#CRM_Contacts__View_entry td.left-column  { width: 50%; vertical-align: top; }
+#CRM_Contacts__View_entry td.right-column { width: 50%; vertical-align: top; }
 
-#Utils_RecordBrowser__View_entry .label {
+#CRM_Contacts__View_entry .label {
     background-color: #336699;
     color: #FFFFFF;
     border-bottom: 1px solid #B3B3B3;
@@ -20,54 +20,43 @@
     vertical-align: middle;
     padding-left: 5px;
     padding-right: 5px;
+    width: 30%;
 }
 
-#Utils_RecordBrowser__View_entry .data {
+#CRM_Contacts__View_entry .data {
     border-bottom: 1px solid #B3B3B3;
     border-right: 1px solid #B3B3B3;
     padding-left: 2px;
     padding-right: 2px;
+    width: 70%;
 }
 
-#Utils_RecordBrowser__View_entry .data input,
-#Utils_RecordBrowser__View_entry .data select,
-#Utils_RecordBrowser__View_entry .data textarea {
+#CRM_Contacts__View_entry .data input,
+#CRM_Contacts__View_entry .data select,
+#CRM_Contacts__View_entry .data textarea {
     border: 0px;
     background-color: #e6ecf2;
     width: 100%;
 }
 
-#Utils_RecordBrowser__View_entry .data input:hover,
-#Utils_RecordBrowser__View_entry .data select:hover,
-#Utils_RecordBrowser__View_entry .data textarea:hover {
+#CRM_Contacts__View_entry .data input:focus,
+#CRM_Contacts__View_entry .data select:focus,
+#CRM_Contacts__View_entry .data textarea:focus {
     background-color: #f2f2e6;
     background-color: #e6e6cf;
 }
-/*
-#Utils_RecordBrowser__View_entry .data input {
-    background-color: #336699;
-    color: #FFFFFF;
-    width: 40px;
-    height: 20px;
-    border: 0px
-}
 
-#Utils_RecordBrowser__View_entry .data input:hover {
-    background-color: #339933;
-}
-*/
-
-.Utils_RecordBrowser__table {
+.CRM_Contacts__table {
     width: 100%;
     vertical-align: middle;
 }
 
-.Utils_RecordBrowser__table .icon {
+.CRM_Contacts__table .icon {
     text-align: left;
     padding-left: 20px;
 }
 
-.Utils_RecordBrowser__table .name {
+.CRM_Contacts__table .name {
     text-align: left;
     font-size: 14px;
     font-weight: bold;
@@ -75,7 +64,7 @@
     padding-left: 20px;
 }
 
-.Utils_RecordBrowser__table .required {
+.CRM_Contacts__table .required {
     width: 100%;
     text-align: center;
     color: #777777;
@@ -83,11 +72,15 @@
     padding-right: 10px;
 }
 
-.Utils_RecordBrowser__table .fav {
+.CRM_Contacts__table .fav {
     padding-right: 5px;
     padding-left: 5px;
 }
 
-.Utils_RecordBrowser__table .info {
+.CRM_Contacts__table .info {
     padding-right: 20px;
+}
+
+#CRM_Contacts__View_entry .create-company input {
+    width: auto;
 }
