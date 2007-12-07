@@ -113,10 +113,12 @@ class CRM_Calendar_View_Agenda extends Module {
 		global $database;
 		$gb = & $this->init_module('Utils/GenericBrowser', null, 'agenda');
 		$columns = array(
-			array('name'=>'Date', 'order'=>'datetime_start', 'width'=>1),
-			array('name'=>'Begins', 'order'=>'datetime_start', 'width'=>1),
-			array('name'=>'Ends', 'order'=>'datetime_end', 'width'=>1),
-			array('name'=>'Title', 'order'=>'details')
+			array('name'=>'Day', 'order'=>'datetime_start', 'width'=>5),
+			array('name'=>'Date', 'order'=>'datetime_start', 'width'=>6),
+			array('name'=>'Start', 'order'=>'datetime_start', 'width'=>5),
+			array('name'=>'End', 'order'=>'datetime_end', 'width'=>5),
+			array('name'=>'Title', 'order'=>'details','width'=>15),
+			array('name'=>'Description', 'order'=>'details','width'=>30)
 		);
 		$gb->set_table_columns( $columns );
 		$types = CRM_Calendar_EventCommon::get_event_types();
@@ -124,16 +126,20 @@ class CRM_Calendar_View_Agenda extends Module {
 			if(method_exists($module['module_name'].'Common', 'get_agenda')) {
 				$events = call_user_func(array($module['module_name'].'Common', 'get_agenda'), $datetime_start, $datetime_end);
 				
-				// regular events
+				
+				// timeless events
+				//foreach($events['0'] as $event) {
 				foreach($events['timeless'] as $event) {
 					$ev_id = sprintf('agendaev_%4d%2d%2d0000X%d', $this->date['year'], $this->date['month'], $this->date['day'], $event['id']);
 					$row = & $gb->get_new_row();
-					$row->add_data(
-						date('Y.m.d', strtotime($event['datetime_start'])), 
-						'-', 
-						'-', 
-						'<div id="'.$ev_id.'">'.call_user_func(array($module['module_name'].'Common', 'get_text'), $event, 'agenda').'</div>'
-					);
+					$e_day=date('l', strtotime($event['datetime_start']));
+					$e_date=date('Y.m.d', strtotime($event['datetime_start']));
+					$e_start='-';
+					$e_end='-';
+					$e_title='<b>'.$event['title'].'</b>';
+					$e_descr=$event['description'];
+					$row->add_data($e_day,$e_date,$e_start,$e_end,$e_title,$e_descr);
+
 					// details
 					if($event['access'] <= 1 || $event['created_by'] == $this->logged)
 						$row->add_action( $this->parent->create_callback_href(array($this, 'details_event'), array($module['module_name'], $event['id'])), $this->lang->t('View') );
@@ -148,15 +154,18 @@ class CRM_Calendar_View_Agenda extends Module {
 					CRM_Calendar_Utils_SidetipCommon::create($ev_id, $ev_id, $full, 'agenda');
 				}
 				
+				// regular events
 				foreach($events['regular'] as $event) {
 					$ev_id = sprintf('agendaev_%4d%2d%2d0000X%d', $this->date['year'], $this->date['month'], $this->date['day'], $event['id']);
 					$row = & $gb->get_new_row();
-					$row->add_data(
-						date('Y.m.d', strtotime($event['datetime_start'])), 
-						Base_RegionalSettingsCommon::time_12h() ? date('h:ia', strtotime($event['datetime_start'])) : date('H:i', strtotime($event['datetime_start'])), 
-						Base_RegionalSettingsCommon::time_12h() ? date('h:ia', strtotime($event['datetime_end'])) : date('H:i', strtotime($event['datetime_end'])), 
-						'<div id="'.$ev_id.'">'.call_user_func(array($module['module_name'].'Common', 'get_text'), $event, 'agenda').'</div>'
-					);
+					$e_day=date('l', strtotime($event['datetime_start']));
+					$e_date=Base_RegionalSettingsCommon::time_12h() ? date('M j, Y', strtotime($event['datetime_start'])) : date('Y.m.d', strtotime($event['datetime_start']));
+					$e_start=Base_RegionalSettingsCommon::time_12h() ? date('h:i a', strtotime($event['datetime_start'])) : date('H:i', strtotime($event['datetime_start']));
+					$e_end=Base_RegionalSettingsCommon::time_12h() ? date('h:i a', strtotime($event['datetime_end'])) : date('H:i', strtotime($event['datetime_end']));
+					$e_title='<b>'.$event['title'].'</b>';
+					$e_descr=$event['description'];
+					$row->add_data($e_day,$e_date,$e_start,$e_end,$e_title,$e_descr);
+					
 					if($event['access'] == 0 || $event['created_by'] == $this->logged || $event['uid'] == $this->logged) {
 						$row->add_action( $this->create_callback_href(array($this, 'edit_event'), array($module['module_name'], $event['id'])), $this->lang->t('Edit') );
 					}
