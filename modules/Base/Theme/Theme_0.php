@@ -14,13 +14,6 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
- * load Smarty library
- */
-define('SMARTY_DIR', 'modules/Base/Theme/smarty/');
-
-require_once(SMARTY_DIR.'Smarty.class.php');
-
-/**
  * Provides module templating.
  */
 class Base_Theme extends Module {
@@ -35,21 +28,12 @@ class Base_Theme extends Module {
 	 * For internal use only.
 	 */
 	public function construct() {
-		$this->smarty = new Smarty();
-
 		$this->set_inline_display();
 
-		if(!isset(self::$theme)) {
-			self::$theme = Variable::get('default_theme');
-			if(!is_dir(self::$themes_dir.self::$theme))
-				self::$theme = 'default';
-		}
+		if(!isset(self::$theme))
+			self::$theme = Base_ThemeCommon::get_default_template();
 
-		$this->smarty->template_dir = self::$themes_dir.self::$theme;
-		$this->smarty->compile_dir = 'data/Base_Theme/compiled/';
-		$this->smarty->compile_id = self::$theme;
-		$this->smarty->config_dir = 'data/Base_Theme/config/';
-		$this->smarty->cache_dir = 'data/Base_Theme/cache/';
+		$this->smarty = Base_ThemeCommon::init_smarty();
 
 		$this->load_css_cache();
 		$this->load_image_cache();
@@ -120,7 +104,9 @@ class Base_Theme extends Module {
 
 		$tpl = $module_name.'.tpl';
 		$css = $module_name.'.css';
-
+		
+		Base_ThemeCommon::display_smarty($this->smarty,$tpl,$css);
+/*
 		if($this->smarty->template_exists($tpl)) {
 			$this->smarty->assign('theme_dir',$this->smarty->template_dir);
 			$this->smarty->display($tpl);
@@ -146,7 +132,7 @@ class Base_Theme extends Module {
 			$this->smarty->template_dir = self::$themes_dir.self::$theme;
 			$this->smarty->compile_id = self::$theme;
 		}
-
+*/
 	}
 
 	/**

@@ -36,7 +36,11 @@ class Utils_TooltipCommon extends ModuleCommon {
 		if($help && !self::$help_tooltips) return '';
 		load_js('modules/Utils/Tooltip/js/Tooltip.js');
 		if(!isset($_SESSION['client']['utils_tooltip'])) {
-			load_css(Base_ThemeCommon::get_template_file('Utils_Tooltip','default.css'));
+			$smarty = Base_ThemeCommon::init_smarty();
+			$smarty->assign('tip','<span id="tooltip_text"></span>');
+			ob_start();
+			Base_ThemeCommon::display_smarty($smarty,Base_ThemeCommon::get_template_filename('Utils_Tooltip','default.tpl'),Base_ThemeCommon::get_template_filename('Utils_Tooltip','default.css'));
+			$tip = ob_get_clean();
 			$js = 'div = document.createElement(\'div\');'.
 				'div.id = \'tooltip_div\';'.
 				'div.style.position = \'absolute\';'.
@@ -45,7 +49,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 				'div.style.left = 0;'.
 				'div.style.top = 0;'.
 				'div.onmouseover = Utils_Toltip__hideTip;'.
-				'div.innerHTML = \'<span id="tooltip_text"></span>\';'.
+				'div.innerHTML = \''.Epesi::escapeJS($tip,false).'\';'.
 				'body = document.getElementsByTagName(\'body\');'.
 				'body = body[0];'.
 				'document.body.appendChild(div);';

@@ -13,7 +13,70 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
+/**
+ * load Smarty library
+ */
+define('SMARTY_DIR', 'modules/Base/Theme/smarty/');
+
+require_once(SMARTY_DIR.'Smarty.class.php');
+
+
 class Base_ThemeCommon extends ModuleCommon {
+	public static function init_smarty() {
+		$smarty = new Smarty();
+		
+		$theme = self::get_default_template();
+
+		$smarty->template_dir = 'data/Base_Theme/templates/'.$theme;
+		$smarty->compile_dir = 'data/Base_Theme/compiled/';
+		$smarty->compile_id = $theme;
+		$smarty->config_dir = 'data/Base_Theme/config/';
+		$smarty->cache_dir = 'data/Base_Theme/cache/';
+		return $smarty;
+	}
+	
+	public static function get_default_template() {
+		static $theme;
+		if(!isset($theme)) {
+			$theme = Variable::get('default_theme');
+			if(!is_dir('data/Base_Theme/templates/'.$theme))
+				$theme = 'default';
+		}
+		return $theme;
+	}
+	
+	public static function display_smarty($smarty, $tpl, $css=null) {
+		if($smarty->template_exists($tpl)) {
+			$smarty->assign('theme_dir',$smarty->template_dir);
+			$smarty->display($tpl);
+			if(isset($css)) {
+				$cssf = $smarty->template_dir.'/'.$css;
+				if(file_exists($cssf))
+			    		load_css($cssf);
+			}
+		} else {
+			$smarty->template_dir = 'data/Base_Theme/templates/default';
+			$smarty->compile_id = 'default';
+
+			if(!$smarty->template_exists($tpl)) {
+				trigger_error('Template not found: '.$tpl,E_USER_ERROR);
+			}
+
+			$smarty->assign('theme_dir',$smarty->template_dir);
+			$smarty->display($tpl);
+			if(isset($css)) {
+				$cssf = $smarty->template_dir.'/'.$css;
+				if(file_exists($cssf))
+					load_css($cssf);
+			}
+
+			$dt = self::get_default_template();
+			$smarty->template_dir = 'data/Base_Theme/templates/'.$dt;
+			$smarty->compile_id = $dt;
+		}
+	}
+
+
 	/**
 	 * Performs installation of default theme files for a module.
 	 * 
