@@ -91,6 +91,11 @@ hr.line {
 #multiselect .buttons .button input:hover {
     background-image: url('images/header-blue-hover.png');
 }
+
+#multiselect .buttons .button input:focus {
+    background-image: url('images/header-green.png');
+}
+
 /*** login ***/
 
 #Base_Box__login {
@@ -150,6 +155,8 @@ hr.line {
 
 #top_bar #top_bar_1 .version a {
 	color: #FFFFFF;
+    padding-left: 2px;
+    padding-right: 2px;
 }
 
 #top_bar #top_bar_1 .version a:hover {

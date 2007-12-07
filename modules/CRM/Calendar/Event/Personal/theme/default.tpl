@@ -16,8 +16,8 @@
 				<tr><td colspan="4"><span class="error">{$form_data.title.error}</span></td></tr>
 			{/if}
 			<tr>
-				<td class="group_bottom label bold" align="left">{$form_data.title.label}</td>
-				<td class="group_bottom data bold" align="left" colspan="3">{$form_data.title.html}</td>
+				<td class="group_bottom label" align="left">{$form_data.title.label}</td>
+				<td class="group_bottom data" align="left" colspan="3">{$form_data.title.html}</td>
 			</tr>
 			{if $repeatable == 0}
 				{*** date and time for non-rep event ***}

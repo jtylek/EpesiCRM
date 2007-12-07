@@ -147,6 +147,13 @@ p.event {
 	background-color: #e6ecf2;
 }
 
+#CRM_Calendar_Event_Personal .data input:focus,
+#CRM_Calendar_Event_Personal .data select:focus,
+#CRM_Calendar_Event_Personal .data textarea:focus {
+    background-color: #f2f2e6;
+    background-color: #e6e6cf;
+}
+
 #CRM_Calendar_Event_Personal .data a {
 	color: #FFFFFF;
 	background-color: #336699;
@@ -159,6 +166,10 @@ p.event {
 
 #CRM_Calendar_Event_Personal .data a:hover {
 	background-image: url('images/header-blue-hover.png');
+}
+
+#CRM_Calendar_Event_Personal .data a:focus {
+	background-image: url('images/header-green.png');
 }
 
 #CRM_Calendar_Event_Personal .padd {

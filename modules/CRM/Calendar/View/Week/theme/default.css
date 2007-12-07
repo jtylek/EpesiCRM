@@ -298,7 +298,10 @@ p.event {
 	background-color: #cfe6cf;
 	display: block;
 	padding: 2px;
+	min-height: 14px;
 	text-align: center;
+	/*background-image: url('images/header-light-green-hover.png');
+	background-repeat: repeat-x;*/
 }
 
 .crm_calendar_week .events_brief_info_title {
