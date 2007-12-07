@@ -8,7 +8,7 @@ utils_attachment_get_link = function(attach_file_id,cidd,pathh,desc) {
 			description: desc
 		},
 		onComplete: function(t) {
-			prompt('Url to this file',t.responseText);
+			prompt('Url to this file (valid for 1 week)',t.responseText);
 		},
 		onException: function(t,e) {
 			throw(e);

@@ -40,7 +40,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 			$smarty->assign('tip','<span id="tooltip_text"></span>');
 			ob_start();
 			Base_ThemeCommon::display_smarty($smarty,Base_ThemeCommon::get_template_filename('Utils_Tooltip','default.tpl'),Base_ThemeCommon::get_template_filename('Utils_Tooltip','default.css'));
-			$tip = ob_get_clean();
+			$tip_th = ob_get_clean();
 			$js = 'div = document.createElement(\'div\');'.
 				'div.id = \'tooltip_div\';'.
 				'div.style.position = \'absolute\';'.
@@ -49,7 +49,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 				'div.style.left = 0;'.
 				'div.style.top = 0;'.
 				'div.onmouseover = Utils_Toltip__hideTip;'.
-				'div.innerHTML = \''.Epesi::escapeJS($tip,false).'\';'.
+				'div.innerHTML = \''.Epesi::escapeJS($tip_th,false).'\';'.
 				'body = document.getElementsByTagName(\'body\');'.
 				'body = body[0];'.
 				'document.body.appendChild(div);';
