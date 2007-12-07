@@ -18,7 +18,7 @@ if((!Acl::is_user() || !Acl::check('Administration','Main','Users',Acl::get_user
 	$form->addElement('submit',null,'Ok');
 	if($form->validate()) {
 		$user = $form->exportValue('user');
-		Acl::set_user(Base_UserCommon::get_user_id($username));
+		Acl::set_user(Base_UserCommon::get_user_id($user));
 	} else {
 		$form->display();
 		exit();
