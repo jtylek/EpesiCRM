@@ -39,6 +39,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			return false;
 		}
 		$ret &= DB::CreateTable('utils_attachment_download','
+			id I4 AUTO KEY NOTNULL,
 			attach_file_id I4 NOTNULL,
 			created_by I4,
 			created_on T DEFTIMESTAMP,
@@ -54,6 +55,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			return false;
 		}
 		$ret &= DB::CreateTable('utils_attachment_note','
+			id I4 AUTO KEY NOTNULL,
 			attach_id I4 NOTNULL,
 			text X NOTNULL,
 			created_by I4,

@@ -12,15 +12,13 @@ require_once('../../../include.php');
 $public = Module::static_get_module_variable($path,'public',false);
 $protected = Module::static_get_module_variable($path,'protected',false);
 $private = Module::static_get_module_variable($path,'private',false);
-$key = Module::static_get_module_variable($path,'key',null);
-$local = Module::static_get_module_variable($path,'group',null);
 session_commit();
-if(!$key || $local===null || !Acl::is_user())
+if(!Acl::is_user())
 	die('Permission denied');
-$row = DB::GetRow('SELECT uaf.revision,uaf.id,uaf.original,ual.permission,ual.other_read,ual.permission_by FROM utils_attachment_file uaf INNER JOIN utils_attachment_link ual ON ual.id=uaf.attach_id WHERE uaf.id='.DB::qstr($id));
+$row = DB::GetRow('SELECT uaf.revision,uaf.original,ual.local,ual.permission,ual.other_read,ual.permission_by FROM utils_attachment_file uaf INNER JOIN utils_attachment_link ual ON ual.id=uaf.attach_id WHERE uaf.id='.DB::qstr($id));
 $original = $row['original'];
-$file_id = $row['id'];
 $rev = $row['revision'];
+$local = $row['local'];
 $filename = $local.'/'.$id.'_'.$rev;
 
 if(!$row['other_read'] && $row['permission_by']!=Acl::get_user()) {
@@ -34,33 +32,12 @@ if(!$row['other_read'] && $row['permission_by']!=Acl::get_user()) {
 if(headers_sent())
 	die('Some data has already been output to browser, can\'t send file');
 
-function get_mime_type($filepath) {
-	//new method, but not compiled in by default
-	if(extension_loaded('fileinfo')) {
-        	$fff = new finfo(FILEINFO_MIME);
-	        $ret = $fff->file($filepath);
-        	$fff->close();
-	        return $ret;
-    	}
+require_once('mime.php');
 
-	//deprecated method
-	if(function_exists('mime_content_type'))
-        	return mime_content_type($filepath);
-
-	//unix system
-	ob_start();
-	system("file -i -b {$filepath}");
-	$output = ob_get_clean();
-	$output = explode("; ",$output);
-	if ( is_array($output) ) {
-        	$output = $output[0];
-	}
-	return $output;
-}
 $t = time();
 $remote_address = $_SERVER['REMOTE_ADDR'];
 $remote_host = gethostbyaddr($_SERVER['REMOTE_ADDR']);
-DB::Execute('INSERT INTO utils_attachment_download(attach_file_id,created_by,created_on,download_on,description,ip_address,host_name) VALUES (%d,%d,%T,%T,%s,%s,%s)',array($file_id,Acl::get_user(),$t,$t,$disposition,$remote_address,$remote_host));
+DB::Execute('INSERT INTO utils_attachment_download(attach_file_id,created_by,created_on,download_on,description,ip_address,host_name) VALUES (%d,%d,%T,%T,%s,%s,%s)',array($id,Acl::get_user(),$t,$t,$disposition,$remote_address,$remote_host));
 
 $f_filename = 'data/Utils_Attachment/'.$filename;
 $buffer = file_get_contents($f_filename);

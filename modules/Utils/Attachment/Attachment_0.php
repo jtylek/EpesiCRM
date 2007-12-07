@@ -179,15 +179,13 @@ class Utils_Attachment extends Module {
 			$this->set_module_variable('public',$this->public_read);
 			$this->set_module_variable('protected',$this->protected_read);
 			$this->set_module_variable('private',$this->private_read);
-			$this->set_module_variable('key',$this->key);
-			$this->set_module_variable('group',$this->group);
 		}
 
 		$lid = 'get_file_'.md5($this->get_path().serialize($row));
 		$th->assign('view','<a href="modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$row['file_id'],'path'=>$this->get_path(),'cid'=>CID,'view'=>1)).'" target="_blank" onClick="leightbox_deactivate(\''.$lid.'\')">'.$this->lang->t('View').'</a><br>');
 		$th->assign('download','<a href="modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$row['file_id'],'path'=>$this->get_path(),'cid'=>CID)).'" onClick="leightbox_deactivate(\''.$lid.'\')">'.$this->lang->t('Download').'</a><br>');
 		load_js('modules/Utils/Attachment/remote.js');
-		$th->assign('link','<a onClick="leightbox_deactivate(\''.$lid.'\')">'.$this->lang->t('Get remote link').'</a><br>');
+		$th->assign('link','<a onClick="utils_attachment_get_link('.$row['file_id'].', '.CID.', \''.Epesi::escapeJS($this->get_path(),false).'\',\'get link\');leightbox_deactivate(\''.$lid.'\')">'.$this->lang->t('Get remote link').'</a><br>');
 
 		ob_start();
 		$th->display('download');
@@ -319,7 +317,7 @@ class Utils_Attachment extends Module {
 			$ret = $gb->query_order_limit('SELECT uad.created_on,uad.download_on,(SELECT l.login FROM user_login l WHERE uad.created_by=l.id) as created_by,uad.remote,uad.ip_address,uad.host_name,uad.description,uaf.revision FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id='.$id);
 			while($row = $ret->FetchRow()) {
 				$r = $gb->get_new_row();
-				$r->add_data($row['created_on'],$row['download_on'],$row['created_by'], $row['ip_address'], $row['host_name'], $row['description'], $row['revision'], ($row['remote']?'yes':'no'));
+				$r->add_data($row['created_on'],($row['remote']!=1?$row['download_on']:''),$row['created_by'], $row['ip_address'], $row['host_name'], $row['description'], $row['revision'], ($row['remote']==0?'no':'yes'));
 			}
 			$this->display_module($gb);
 		}
