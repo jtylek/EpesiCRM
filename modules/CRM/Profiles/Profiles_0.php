@@ -20,6 +20,8 @@ class CRM_Profiles extends Module {
 		Base_ActionBarCommon::add('folder','Profiles','class="lbOn" rel="crm_profiles"');
 		$qf = $this->init_module('Libs/QuickForm');
 		$th = $this->init_module('Base/Theme');
+		$th->assign('my','<a href="javascript:void(0)">My</a>');
+		$th->assign('all','<a href="javascript:void(0)">All</a>');
 		$th->assign('close','<a href="javascript:void(0)" rel="deactivate" class="lbAction">Close</a>');
 		print('<div id="crm_profiles" class="leightbox">');
 		$th->display();

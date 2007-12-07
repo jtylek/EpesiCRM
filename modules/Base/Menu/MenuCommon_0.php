@@ -21,15 +21,6 @@ class Base_MenuCommon extends ModuleCommon {
 					self::add_default_menu($m[$k], $name);
 				else {
 					$action = array();
-					if(array_key_exists('__icon__',$arr)) {
-						try {
-							$arr['__icon__'] = Base_ThemeCommon::get_template_file($name, $arr['__icon__']);
-						} catch(Exception $e) {}
-					} else {
-						try {
-							$arr['__icon__'] = Base_ThemeCommon::get_template_file($name, 'icon.png');
-						} catch(Exception $e) {}
-					}
 					if(array_key_exists('__module__',$arr)) {
 						$action = array('box_main_module'=>$arr['__module__']);
 						unset($arr['__module__']);

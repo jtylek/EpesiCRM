@@ -56,12 +56,22 @@ class Base_Menu extends Module {
 				$menu->add_split();
 			else {
 				if(array_key_exists('__icon__',$arr)) {
-					$icon = $arr['__icon__'];
+					try {
+						$icon = Base_ThemeCommon::get_template_file($arr['box_main_module'], $arr['__icon__']);
+					} catch(Exception $e) {
+						$icon = '';
+					}
 					unset($arr['__icon__']);
 				} else {
-					$icon = '';
+					try {
+						if(isset($arr['box_main_module']))
+							$icon = Base_ThemeCommon::get_template_file($arr['box_main_module'], 'icon.png');
+						else
+							$icon = '';
+					} catch(Exception $e) {
+						$icon = '';
+					}
 				}
-
 
 				if(array_key_exists('__description__',$arr)) {
 					$description = "'".$arr['__description__']."'";
