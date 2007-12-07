@@ -29,6 +29,7 @@ class CRM_ProfilesInstall extends ModuleInstall {
 			print('Unable to create table crm_profiles_contacts.<br>');
 			return false;
 		}
+		Base_ThemeCommon::install_default_theme($this -> get_type());
 		return $ret;
 	}
 
@@ -36,6 +37,7 @@ class CRM_ProfilesInstall extends ModuleInstall {
 		$ret = true;
 		$ret &= DB::DropTable('crm_profiles_contacts');
 		$ret &= DB::DropTable('crm_profiles_group');
+		Base_ThemeCommon::uninstall_default_theme($this -> get_type());
 		return $ret;
 	}
 

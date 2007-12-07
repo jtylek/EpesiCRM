@@ -29,7 +29,7 @@ class CRM_Profiles extends Module {
 	}
 
 	public function edit() {
-		print('ok');
+		print('edycja profili');
 	}
 
 }
