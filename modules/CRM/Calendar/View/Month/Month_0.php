@@ -93,13 +93,13 @@ class CRM_Calendar_View_Month extends Module {
 							$event[$g]['full'] .= '<br>';
 							// edit
 							if($EV['access'] == 0 || $EV['created_by'] == $this->logged)
-								$event[$g]['full'] .= '<a '.$this->parent->create_callback_href(array($this, 'edit_event'), array($module, $EV['id'])).' class=icon><img  border="0" width="14" height="14" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar', 'icon-edit.gif').'"></a> ';
+								$event[$g]['full'] .= '<a '.$this->parent->create_callback_href(array($this, 'edit_event'), array($module, $EV['id'])).' class=icon><img  border="0" width="14" height="14" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar', 'edit.png').'"></a> ';
 							// details
 							if($EV['access'] <= 1 || $EV['created_by'] == $this->logged)
-								$event[$g]['full'] .= '<a '.$this->parent->create_callback_href(array($this, 'details_event'), array($module, $EV['id'])).' class=icon><img  border="0" width="14" height="14" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar', "icon-view.gif").'"></a> ';
+								$event[$g]['full'] .= '<a '.$this->parent->create_callback_href(array($this, 'details_event'), array($module, $EV['id'])).' class=icon><img  border="0" width="14" height="14" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar', "view.png").'"></a> ';
 							// delete
 							if($EV['access'] == 0 || $EV['created_by'] == $this->logged)
-								$event[$g]['full'] .= '<a '.$this->parent->create_confirm_callback_href('Are you sure, you want to delete this event?', array($this, 'delete_event'), array($module, $EV['id'])).' class=icon><img  border="0" width="14" height="14" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar', 'icon-delete.gif').'"></a> ';
+								$event[$g]['full'] .= '<a '.$this->parent->create_confirm_callback_href('Are you sure, you want to delete this event?', array($this, 'delete_event'), array($module, $EV['id'])).' class=icon><img  border="0" width="14" height="14" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar', 'delete.png').'"></a> ';
 
 						}
 						$event[$g]['brief'] = call_user_func(array($module.'Common', 'get_text'), $EV, 'brief');

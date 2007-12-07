@@ -102,11 +102,23 @@ table#Base_User_Login td.footer a {
 	color: #336699;
 }
 
+table#Base_User_Login td.footer a:hover {
+	color: #993333;
+}
+
 table#Base_User_Login td.recover_password {
 	text-align: center;
 	color: #336699;
 	font-weight: bold;
 	height: 25px;
+}
+
+table#Base_User_Login td.recover_password a {
+	color: #777777;
+}
+
+table#Base_User_Login td.recover_password a:hover {
+	color: #000000;
 }
 
 table#Base_User_Login td.autologin {

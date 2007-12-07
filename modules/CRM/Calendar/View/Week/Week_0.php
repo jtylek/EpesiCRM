@@ -250,7 +250,7 @@ class CRM_Calendar_View_Week extends Module {
 							if($this->logged > 0) {
 								// edit
 								//if($EV['access'] == 0 || $EV['created_by'] == $this->logged)
-								//	$more .= '<a '.$this->parent->create_callback_href(array($this, 'edit_event'), array($module, $EV['id'])).' class=icon><img style="vertical-align: middle;" border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'icon-edit.gif').'></a> ';
+								//	$more .= '<a '.$this->parent->create_callback_href(array($this, 'edit_event'), array($module, $EV['id'])).' class=icon><img style="vertical-align: middle;" border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', 'edit.png').'></a> ';
 								// details
 								if($EV['access'] <= 1 || $EV['created_by'] == $this->logged)
 									$more .= '<a '.$this->parent->create_callback_href(array($this, 'details_event'), array($module, $EV['id'])).' class=icon><img style="vertical-align: middle;" border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('CRM_Calendar', "view.png").'></a> ';

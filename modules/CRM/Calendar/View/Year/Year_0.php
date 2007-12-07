@@ -129,13 +129,13 @@ class CRM_Calendar_View_Year extends Module {
 							$event[$g]['full'] .= '<br>';
 							// edit
 							if($EV['access'] == 0 || $EV['created_by'] == $this->logged || $EV['uid'] == $this->logged) {
-								$event[$g]['full'] .= '<a '.$this->create_callback_href(array($this, 'edit_event'), array($module, $EV['id']))." class=icon><img src=".Base_ThemeCommon::get_template_file('CRM_Calendar_View_Month', "mini_edit.gif")."></a> ";
+								$event[$g]['full'] .= '<a '.$this->create_callback_href(array($this, 'edit_event'), array($module, $EV['id']))." class=icon><img src=".Base_ThemeCommon::get_template_file('CRM_Calendar_View_Month', "edit.png")."></a> ";
 							}
 							// details
-							$event[$g]['full'] .= '<a '.$this->create_unique_href(array('type'=>$module, 'subject'=>$EV['id']))." class=icon><img src=".Base_ThemeCommon::get_template_file('CRM_Calendar_View_Month', "mini_details.gif")."></a>";
+							$event[$g]['full'] .= '<a '.$this->create_unique_href(array('type'=>$module, 'subject'=>$EV['id']))." class=icon><img src=".Base_ThemeCommon::get_template_file('CRM_Calendar_View_Month', "details.png")."></a>";
 							// delete
 							if($EV['access'] == 0 || $EV['created_by'] == $this->logged || $EV['uid'] == $this->logged) {
-								$event[$g]['full'] .= '<a '.$this->create_confirm_callback_href('Are you sure, you want to delete this event?', array($this, 'delete_event'), array($module, $EV['id']))." class=icon><img src=".Base_ThemeCommon::get_template_file('CRM_Calendar_View_Month', "mini_done.gif")."></a> ";
+								$event[$g]['full'] .= '<a '.$this->create_confirm_callback_href('Are you sure, you want to delete this event?', array($this, 'delete_event'), array($module, $EV['id']))." class=icon><img src=".Base_ThemeCommon::get_template_file('CRM_Calendar_View_Month', "done.png")."></a> ";
 							}
 						}
 						$event[$g]['brief'] = call_user_func(array($module.'Common', 'get_brief'), $EV);
