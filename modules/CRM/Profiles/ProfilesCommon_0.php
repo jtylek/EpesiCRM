@@ -11,7 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_ProfilesCommon extends ModuleCommon {
     public static function user_settings() {
-	if(Base_AclCommon::i_am_user()) return array('Account'=>'body');
+	if(Acl::is_user()) return array('Profiles'=>'edit');
 	return array();
     }
 

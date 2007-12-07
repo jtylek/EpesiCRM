@@ -28,6 +28,10 @@ class CRM_Profiles extends Module {
 		print('</div>');
 	}
 
+	public function edit() {
+		print('ok');
+	}
+
 }
 
 ?>
