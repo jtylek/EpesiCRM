@@ -56,10 +56,12 @@ class Base_Menu extends Module {
 				$menu->add_split();
 			else {
 				if(array_key_exists('__icon__',$arr)) {
-					$icon = Base_ThemeCommon::get_template_file($arr['box_main_module'], $arr['__icon__']);
+					$icon = $arr['__icon__'];
 					unset($arr['__icon__']);
-				} else
+				} else {
 					$icon = '';
+				}
+
 
 				if(array_key_exists('__description__',$arr)) {
 					$description = "'".$arr['__description__']."'";

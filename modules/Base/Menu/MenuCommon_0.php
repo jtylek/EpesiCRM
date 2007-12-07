@@ -1,9 +1,9 @@
 <?php
 /**
  * MenuCommon class.
- * 
- * This class provides functionality for MenuCommon class. 
- * 
+ *
+ * This class provides functionality for MenuCommon class.
+ *
  * @author Paul Bukowski <pbukowski@telaxus.com> and Kuba Slawinski <kslawinski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
@@ -17,9 +17,19 @@ class Base_MenuCommon extends ModuleCommon {
 	public static function add_default_menu(& $m, $name) {
 		foreach($m as $k=>$arr) {
 			if(is_array($arr)) {
-				if(array_key_exists('__submenu__', $arr)) 
+				if(array_key_exists('__submenu__', $arr))
 					self::add_default_menu($m[$k], $name);
 				else {
+					$action = array();
+					if(array_key_exists('__icon__',$arr)) {
+						try {
+							$arr['__icon__'] = Base_ThemeCommon::get_template_file($name, $arr['__icon__']);
+						} catch(Exception $e) {}
+					} else {
+						try {
+							$arr['__icon__'] = Base_ThemeCommon::get_template_file($name, 'icon.png');
+						} catch(Exception $e) {}
+					}
 					if(array_key_exists('__module__',$arr)) {
 						$action = array('box_main_module'=>$arr['__module__']);
 						unset($arr['__module__']);
@@ -42,8 +52,8 @@ class Base_MenuCommon extends ModuleCommon {
 			} elseif($k!='__icon__' && $k!='__description__' && $k!='__url__' && $k!='__target__' && $k!='__weight__' && $k!='__function__' && $k!='__function_arguments__' && $k!='__module__')
 				$m[$k] = null;
 		}
-	} 	
-	
+	}
+
 	public static function get_menus() {
 		static $menus;
 		if(!isset($menus)) { //here can be bug with caching and location
@@ -53,16 +63,16 @@ class Base_MenuCommon extends ModuleCommon {
 		}
 		return $menus;
 	}
-	
+
         private static $quick = array();
 	public static function add_quick_menu($name,$action) {
 		self::$quick[$name] = $action;
 	}
-	
+
 	public static function get_quick_menu() {
 		return self::$quick;
 	}
-	
+
 	public static function clean_quick_menu() {
 		self::$quick = array();
 	}
