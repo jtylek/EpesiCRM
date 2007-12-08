@@ -71,8 +71,11 @@ class CRM_Profiles extends Module {
 
 		if(is_numeric($prof)) {
 			DB::Execute('DELETE FROM crm_profiles_contacts WHERE (SELECT cd.value FROM contact_data cd WHERE cd.contact_id=contact_id AND cd.field=\'Company Name\')!=%d',CRM_ContactsCommon::get_main_company());
-			$c = DB::GetCol('SELECT p.contact_id FROM crm_profiles_contacts p WHERE p.group_id=1',array($prof));
-			$ret = '('.$this->tbl_contact_prefix.'.id='.implode(' OR '.$this->tbl_contact_prefix.'.id=',$c).')';
+			$c = DB::GetCol('SELECT p.contact_id FROM crm_profiles_contacts p WHERE p.group_id=%d',array($prof));
+			if($c)
+				$ret = '('.$this->tbl_contact_prefix.'.id='.implode(' OR '.$this->tbl_contact_prefix.'.id=',$c).')';
+			else
+				$ret = '0=1';
 		} elseif($prof=='my') {
 			$me = CRM_ContactsCommon::get_contact_by_user_id(Acl::get_user());
 			$ret = $this->tbl_contact_prefix.'.id='.$me['id'];
