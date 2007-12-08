@@ -67,6 +67,8 @@ function update_from_0_9_0_to_0_9_1() {
 		$aro_id = Acl::$gacl->get_object_id('Users', $row['login'], 'ARO');
 		Acl::$gacl->edit_object($aro_id,'Users', $row['id'], $row['id'], 1, 0, 'ARO');
 	}
+	
+	DB::Execute('UPDATE modules SET name="Utils_PopupCalendar" WHERE name="Utils_Calendar"');
 
 	themeup();
 }

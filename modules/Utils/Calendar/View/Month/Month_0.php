@@ -328,7 +328,7 @@ class Utils_Calendar_View_Month extends Module {
 	}
 	// BODY //////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function body($arg) {
-		$this->init();
+	/*$this->init();
 		if(!isset($arg['date'])) {
 			$this->date = $this->get_unique_href_variable('date', CRM_Calendar_Utils_FuncCommon::today());
 			if(!is_array($this->date))
@@ -340,7 +340,7 @@ class Utils_Calendar_View_Month extends Module {
 		$this->menu($this->date);
 		$this->parse_links($this->date);
 		Base_ActionBarCommon::add('add',$this->lang->t('Add Event'), $this->create_callback_href(array($this,'add_event'),array($this->date)));
-
+	*/
 	}
 
 }

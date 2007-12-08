@@ -1,35 +1,35 @@
 <?php
-
-/**
- *  Calendar
- *
- * Author: Kuba Slawinski
- * and Janusz Tylek
- */
-
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_Calendar extends Module {
 	private $lang;
-	
-	public function viewer($view, $date = null) {
-		$v = $this->init_module('Utils/Calendar/View/'.$view);
-		$this->display_module($v, array($date));
+	private static $views = array('Agenda','Day','Week','Month','Year');
+	private $settings = array('first_day_of_week'=>0,
+				  'default_view'=>'Agenda',
+				  'start_day'=>8,
+				  'end_day'=>17);
+
+	public function construct(array $settings) {
+		$this->lang = $this->init_module('Base/Lang');
+		$this->settings = array_merge($this->settings,$settings);
+	}
+
+	public function viewer($view) {
+		$v = $this->init_module('Utils/Calendar/View/'.$view,array($this->settings));
+		$this->display_module($v);
 	}
 
 	public function body($arg = null) {
 		$tb = $this->init_module('Utils/TabbedBrowser');
-		$this->lang = $this->init_module('Base/Lang');
 
-		$tb->set_tab($this->lang->t('Day'),array($this, 'viewer'), 'Day');
-		$tb->set_tab($this->lang->t('Week'),array($this, 'viewer'), 'Week');
-		$tb->set_tab($this->lang->t('Month'),array($this, 'viewer'), 'Month');
-		$tb->set_tab($this->lang->t('Year'),array($this, 'viewer'), 'Year');
-		$tb->set_tab($this->lang->t('Agenda'),array($this, 'viewer'), 'Agenda');
+		foreach(self::$views as $k=>$v) {
+			$tb->set_tab($this->lang->t($v),array($this, 'viewer'), $v);
+			if(strcasecmp($v,$this->settings['default_view'])==0)
+				$def_tab = $k;
+		}
+		if(isset($def_tab)) $tb->set_default_tab($k);
 
 		$this->display_module($tb);
-
-//		print($this->pack_module('CRM/Profiles',null,null,'xxx')->get());
 	}
 
 	public function caption() {

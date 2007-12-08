@@ -476,7 +476,7 @@ class Utils_Calendar_View_Week extends Module {
 	}
 	// BODY //////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function body($arg = null) {
-		$this->init();
+/*		$this->init();
 		if(!isset($arg['date'])) {
 			$def = CRM_Calendar_Utils_FuncCommon::begining_of_week_r(CRM_Calendar_Utils_FuncCommon::today());
 			if(Base_User_SettingsCommon::get('CRM/Calendar', 'default_today') == 1)
@@ -489,7 +489,7 @@ class Utils_Calendar_View_Week extends Module {
 		$this->navigation($this->date);
 		$this->parse_links($this->date);
 		Base_ActionBarCommon::add('add',$this->lang->t('Add Event'), $this->parent->create_callback_href(array($this,'add_event'),array($this->date)));
-
+*/
 	}
 
 }

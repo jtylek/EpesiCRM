@@ -28,6 +28,7 @@ class Utils_Calendar_View_DayInstall extends ModuleInstall {
 	}
 	public function requires($v) {
 		return array(
+			array('name'=>'Utils/GenericBrowser', 'version'=>0),
 			array('name'=>'Utils/Tooltip', 'version'=>0)
 		);
 	}

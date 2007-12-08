@@ -358,8 +358,8 @@ class Utils_Calendar_View_Year extends Module {
 		}
 	}
 	// BODY //////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function body($arg) {
-		$this->init();
+	public function body() {
+/*		$this->init();
 		if(!isset($arg['date'])) {
 			$this->date = $this->get_unique_href_variable('date', CRM_Calendar_Utils_FuncCommon::today());
 			if(!is_array($this->date))
@@ -370,7 +370,7 @@ class Utils_Calendar_View_Year extends Module {
 
 		$this->menu($this->date);
 		$this->parse_links($this->date);
-		Base_ActionBarCommon::add('add',$this->lang->t('Add Event'), $this->parent->create_callback_href(array($this,'add_event'),array(CRM_Calendar_Utils_FuncCommon::today())));
+		Base_ActionBarCommon::add('add',$this->lang->t('Add Event'), $this->parent->create_callback_href(array($this,'add_event'),array(CRM_Calendar_Utils_FuncCommon::today())));*/
 	}
 
 }

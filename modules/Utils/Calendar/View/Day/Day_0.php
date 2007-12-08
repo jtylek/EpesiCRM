@@ -9,52 +9,18 @@
  * @version 0.99
  * @package tcms-mini
  */
-
-/**
- * status: 0 - open; 1 - in progres; 3 - done; 4 - canceled
- * access: 0 - public; 1 - public, r/o; 2 - private (r/w for creator and related people)
- */
-
 defined("_VALID_ACCESS") || die();
 
 class Utils_Calendar_View_Day extends Module {
-	private $date;
-	private $name_of_month_abbr;
-	private $name_of_day_abbr;
-	private $available_view_style;
-	private $first_day;
-	private $view_style;
-	private $admin;
-	private $logged;
-	private $activities;
-	private $week;
 	private $lang;
-	private $event_access;
-	private $max_per_day;
-	private $nearest_delim;
 	private $settings;
-	private $func;
 
-	private function init() {
-		$this->first_day = 1;
-		$this->activities = array();
-		$this->max_per_day = 2;
-		$this->nearest_delim = 8;
-		$this->settings['start_day'] = Base_User_SettingsCommon::get('Utils/Calendar', 'start_day');
-		$this->settings['end_day'] = Base_User_SettingsCommon::get('Utils/Calendar', 'end_day');;
-		$this->settings['grid_morning'] = 1;
-		$this->settings['grid_day'] = 8;
-		$this->settings['grid_evening'] = 1;
-		$this->settings['display_type'] = 'per_day';
+	public function construct(array $settings) {
+		$this->settings = $settings;
 		$this->lang = $this->pack_module('Base/Lang');
-		if(Base_AclCommon::i_am_user()) {
-			$this->logged = 1;
-		} else {
-			$this->logged = -1;
-		}
 	}
 
-	public function add_event($date, $time = null) {
+/*	public function add_event($date, $time = null) {
 		$event = & $this->init_module('Utils/Calendar/Event');
 		return $event->add_event($date, $time);
 	}
@@ -71,7 +37,7 @@ class Utils_Calendar_View_Day extends Module {
 	public function delete_event($event_type, $event_id) {
 		$event = & $this->init_module('Utils/Calendar/Event');
 		return $event->delete_event($event_type, $event_id);
-	}
+	}*/
 
 
 	public function show_calendar_day($date) {
@@ -87,7 +53,7 @@ class Utils_Calendar_View_Day extends Module {
 			);
 
 
-			$cnt['info'] = Utils_TooltipCommon::create("<a ".$this->create_callback_href(array($this,'add_event'),array('date'=>$date))."><table width=100%><tr><td width=50% align=left><span class=day_number >".$date['day']."</span></td>".
+			$cnt['info'] = Utils_TooltipCommon::create("<a><table width=100%><tr><td width=50% align=left><span class=day_number >".$date['day']."</span></td>".
 				"<td width=50% align=right>"."Buuuu</td></tr></table></a>", "Click to add new event on ".$date['day']." ".$date['month'].".");
 			$header_day = array('info'=>$cnt['info'], 'class'=>'mwahaha');
 
@@ -127,14 +93,12 @@ class Utils_Calendar_View_Day extends Module {
 
 	} // calendar menu
 
-	public function body($arg = null) {
-		$this->init();
+	public function body() {
 		$date = array('year'=>date('y'), 'month'=>date('m'), 'day'=>date('d'), 'week'=>date('W'));
 		$this->menu($date);
 		$this->show_calendar_day($date);
-		Base_ActionBarCommon::add('add',$this->lang->t('Add Event'), $this->create_callback_href(array($this,'add_event'),array($this->date)));
+		//Base_ActionBarCommon::add('add',$this->lang->t('Add Event'), $this->create_callback_href(array($this,'add_event'),array($this->date)));
 
 	}
-
 }
 ?>
