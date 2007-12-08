@@ -1,0 +1,94 @@
+#Profiles_header,
+.Profiles_header {
+	color: #FFFFFF;
+	background-color: #336699;
+	background-image: url("images/header-blue.png");
+	background-repeat: repeat-x;
+	height: 20px;
+	text-align: center;
+	vertical-align: middle;
+	font-weight: bold;
+}
+
+#Profiles_header .left {
+	width: 17px;
+	display: block;
+	float: left;
+}
+
+#Profiles_header .center {
+	display: block;
+	float: left;
+	padding-top: 3px;
+	font-weight: bold;
+	text-align: center;
+}
+
+#Profiles_header .right {
+	width: 17px;
+	display: block;
+	float: right;
+	padding-top: 3px;
+	padding-right: 3px;
+}
+
+
+table#CRM_Profiles .label {
+}
+
+/* button and button-small */
+
+table#CRM_Profiles .button,
+table#CRM_Profiles .button-small {
+	background-color: #F0F0F0;
+	border: 1px solid #FFFFFF;
+	background-repeat: repeat-x;
+	vertical-align: middle;
+	text-align: center;
+	font-size: 11px;
+	display: block;
+	cursor: hand;
+}
+
+/* button */
+
+table#CRM_Profiles .button {
+	height: 60px;
+	background-image: url("images/big-button.png");
+	padding-top: 10px;
+}
+
+table#CRM_Profiles .button:hover {
+	background-color: #FFFFFF;
+	background-image: url("images/big-button-hover.png");
+}
+
+table#CRM_Profiles a .button {
+	color: #336699;
+	font-weight: bold;
+}
+
+/* button-small */
+
+table#CRM_Profiles .button-small {
+	height: 18px;
+	background-image: url("images/header-gray.png");
+	background-position: 0px 4px;
+	padding-top: 4px;
+}
+
+table#CRM_Profiles .button-small:hover {
+	background-color: #B3B3B3;
+	background-image: url("images/header-gray-hover.png");
+}
+
+table#CRM_Profiles a .button-small {
+	color: black;
+	font-weight: normal;
+}
+
+/* a */
+
+table#CRM_Profiles a:hover {
+	color: #993333;
+}
