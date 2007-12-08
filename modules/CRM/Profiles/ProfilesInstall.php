@@ -15,8 +15,9 @@ class CRM_ProfilesInstall extends ModuleInstall {
 		$ret = true;
 		$ret &= DB::CreateTable('crm_profiles_group','
 			id I4 AUTO KEY,
-			name C(128) NOTNULL',
-			array('constraints'=>', UNIQUE(name)'));
+			name C(128) NOTNULL,
+			user_login_id I4 NOTNULL',
+			array('constraints'=>', UNIQUE(name), FOREIGN KEY (user_login_id) REFERENCES user_login(ID)'));
 		if(!$ret){
 			print('Unable to create table crm_profiles_group.<br>');
 			return false;
@@ -30,6 +31,7 @@ class CRM_ProfilesInstall extends ModuleInstall {
 			return false;
 		}
 		Base_ThemeCommon::install_default_theme($this -> get_type());
+		$this->add_aco('manage','Employee');
 		return $ret;
 	}
 
@@ -51,6 +53,8 @@ class CRM_ProfilesInstall extends ModuleInstall {
 			array('name'=>'Base/Theme','version'=>0),
 			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'Base/User/Settings','version'=>0),
+			array('name'=>'Utils/RecordBrowser/RecordPicker','version'=>0),
+			array('name'=>'Utils/GenericBrowser','version'=>0),
 			array('name'=>'CRM/Contacts','version'=>0),
 			array('name'=>'Libs/QuickForm','version'=>0));
 	}
