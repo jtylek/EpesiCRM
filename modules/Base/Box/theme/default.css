@@ -135,6 +135,9 @@ hr.line {
 
 #EmptyDiv {
     height: 102px;
+    background-image: url('images/shadow/b.png');
+    background-repeat: repeat-x;
+    background-position: bottom;
 }
 
 /*** top_bar_1 ***/
