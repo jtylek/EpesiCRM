@@ -27,7 +27,7 @@ class Utils_Calendar extends Module {
 			if(strcasecmp($v,$this->settings['default_view'])==0)
 				$def_tab = $k;
 		}
-		if(isset($def_tab)) $tb->set_default_tab($k);
+		if(isset($def_tab)) $tb->set_default_tab($def_tab);
 
 		$this->display_module($tb);
 	}
