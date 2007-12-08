@@ -1,0 +1,169 @@
+@CHARSET "ISO-8859-1";
+.no_border {
+	border: none;
+}
+hr.small {
+	background: #000000;
+	height: 1px;
+}
+p.event {
+	font-size: 7px;
+	line-height: 11px;
+	margin: 4px 0px 2px 0px;
+	position: absolute;
+}
+/* classes for big table */
+
+#year {
+	border-left: 1px solid #B3B3B3;
+	border-top: 1px solid #B3B3B3;
+	background-color: #336699;
+	width: 240px;
+}
+
+#year td {
+	background: transparent;
+	width: 30px;
+	height: 20px;
+	text-align: right;
+}
+
+#year td.empty {
+}
+
+#year td.day {
+	border-right: 1px solid #B3B3B3;
+	border-bottom: 1px solid #B3B3B3;
+	background: #FFFFFF;
+}
+
+#year td.today {
+	color: #000000;
+	background-color: #E6ECF2;
+	font-weight: bold;
+	border: 1px solid #336699;
+}
+
+#year td.header {
+	vertical-align: middle;
+	text-align: center;
+	color: #FFFFFF;
+	background-color: #336699;
+	border-left: 1px solid #FFFFFF;
+}
+
+#year td.week-number {
+	color: #FFFFFF;
+	text-align: center;
+	vertical-align: middle;
+	background-color: #336699;
+	border-top: 1px solid #FFFFFF;
+}
+
+#year td.week-number a {
+	color: #FFFFFF;
+	display: block;
+	line-height: 20px;
+	width: 30px;
+}
+
+#year td.week-number a:hover {
+	background-color: #339933;
+}
+
+#year td.header-month {
+	background-color: #336699;
+	border-bottom: 1px solid #FFFFFF;
+}
+
+#year td.header-month a {
+	vertical-align: middle;
+	text-align: center;
+	color: #FFFFFF;
+	background-image: url('images/header-blue.png');
+	background-repeat: repeat-x;
+	display: block;
+	line-height: 20px;
+}
+
+#year td.header-month a:hover {
+	background-image: url('images/header-blue-hover.png');
+}
+
+
+.holiday {
+	font-weight: bold;
+	border: 1px dotted #999999;
+	background-color: #e3f7e5;
+}
+
+.holiday_today {
+	font-weight: bold;
+	border: 1px solid #000000;
+	background-color: #e3f7e5;
+}
+
+.weekend {
+	background: #fff3f5;
+}
+
+span.day_number {
+	font-size: 14pt;
+}
+
+a.new_event {
+	display: block;
+	line-height: 20px;
+	vertical-align: middle;
+	padding-right: 2px;
+}
+
+a.new_event:hover {
+	background-color: #e6cfcf
+}
+
+/* menu */
+
+div.year-menu {
+	padding-bottom: 0px;
+	/*border-bottom: 4px solid #B3B3B3;*/
+}
+
+div.year-menu img {
+	vertical-align: middle;
+}
+
+div.year-menu a.button {
+    font-weight: normal;
+    color: #FFFFFF;
+    width: 100px;
+    line-height: 20px;
+    display: block;
+	background-color: #336699;
+    /*background-image: url("images/header-blue.png");*/
+    background-image: none;
+    border: 0px;
+    text-align: center;
+}
+
+div.year-menu a.button:hover {
+	background-color: #339933;
+    /*background-image: url("images/header-blue-hover.png");*/
+}
+
+div.year-menu table {
+	width: 100%;
+}
+
+div.year-menu .empty {
+	width: 50%;
+}
+
+div.year-menu .add-info {
+	color: #777777;
+	padding-right: 20px;
+}
+
+div.year-menu .add-info:hover {
+	color: #000000;
+}
