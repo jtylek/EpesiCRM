@@ -203,6 +203,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function set_icon($tab_name, $value) {
 		DB::Execute('UPDATE recordbrowser_table_properties SET icon=%s WHERE tab=%s', array($value, $tab_name));
 	}
+	public static function set_access_callback($tab_name, $module, $func){
+		DB::Execute('UPDATE recordbrowser_table_properties SET access_callback=%s WHERE tab=%s', array($module.'::'.$func, $tab_name));
+	}
 	
 	public static function new_record( $tab_name = null, $values = array()) {
 		if (!$tab_name) return false;
@@ -246,7 +249,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					date('Y-m-d G:i:s')));
 		DB::CompleteTrans();
 	}
-	public static function get_records( $tab_name = null, $crits = null, $admin = false ) {
+	public static function get_records( $tab_name = null, $crits = null, $admin = false , $all = false) {
 		if (!$tab_name) return false;
 		self::init($tab_name, $admin);
 		$ret = null;
@@ -316,8 +319,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					if (!isset($records[$row['id']][$field]))
 						if (self::$table_rows[$field]['type'] == 'multiselect') $records[$row['id']][$field] = array();
 						else $records[$row['id']][$field] = '';
+				if (!$all && !self::get_access($tab_name, 'view', $records[$row['id']])) unset($records[$row['id']]);
 			}
 		return $records;
+	}
+	public static function get_access($tab_name, $action, $param=null){
+		$access_callback = explode('::', DB::GetOne('SELECT access_callback FROM recordbrowser_table_properties WHERE tab=%s', array($tab_name)));
+		if ($access_callback === '' || !is_callable($access_callback)) return true;
+		return call_user_func($access_callback, $action, $param);
 	}
 	public static function get_record_info($tab_name = null, $id = null) {
 		if (!$tab_name) return false;

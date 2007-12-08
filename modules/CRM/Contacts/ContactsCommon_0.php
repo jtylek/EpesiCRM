@@ -28,6 +28,25 @@ class CRM_ContactsCommon extends ModuleCommon {
 			return null;
 		}
 	}
+	public static function access_company($action, $param){
+		switch ($action) {
+		case 'browse':	return true;
+						break;
+		case 'view':	return false;
+						break;
+		}
+		return true;
+	}
+	public static function access_contact($action, $param){
+		switch ($action) {
+		case 'browse':	return true;
+		case 'view':	return true;
+		case 'delete':	return true;
+		case 'edit':	return true;
+		case 'edit_fields':	return array('Country'=>false);
+		}
+		return true;
+	}
 
 	/*--------------------------------------------------------------------*/
 	public static function menu() {
