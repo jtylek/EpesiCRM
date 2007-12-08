@@ -154,7 +154,7 @@ hr.line {
 	border-bottom: 4px solid #B3B3B3;
 }
 
-#top_bar #top_bar_1 .toggle {
+#top_bar #top_bar_1 .roll {
     padding-left: 3px;
     padding-top: 3px;
     width: 17px;
@@ -162,6 +162,14 @@ hr.line {
 	background-image: url('images/header-blue.png');
 	background-repeat: repeat-x;
 	border-right: 4px solid #B3B3B3;
+}
+
+#top_bar #top_bar_1 .roll {
+    cursor: pointer;
+}
+
+#top_bar #top_bar_1 .roll:hover {
+	background-image: url('images/header-blue-hover.png');
 }
 
 #top_bar #top_bar_1 .menu-bar {
