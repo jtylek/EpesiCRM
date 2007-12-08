@@ -41,7 +41,7 @@ class CRM_Contacts extends Module {
 		foreach($companies as $c)
 			$x[$c['id']] = $c['Company Name'].' ('.$c['Short Name'].')';
 		$qf->addElement('select','company',$l->t('Choose main company'),$x,array('onChange'=>$qf->get_submit_form_js()));
-		$qf->addElement('static',null,null,'Contacts assigned to this company are treated as employees.');
+		$qf->addElement('static',null,null,'Contacts assigned to this company are treated as employees. You should set it only once, before any data is entered. If you change it later, you may experience inappropriate behaviour.');
 		try {
 			$main_company = Variable::get('main_company');
 			$qf->setDefaults(array('company'=>$main_company));
