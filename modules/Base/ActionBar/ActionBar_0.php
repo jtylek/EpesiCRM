@@ -116,7 +116,7 @@ class Base_ActionBar extends Module {
 					$th = & $this->pack_module('Base/Theme');
 					$th->assign('display_icon',$display_icon);
 					$th->assign('display_text',$display_text);
-					$th->assign('header',$this->lang->t('Launchpad'));
+					$th->assign('header',$l->t('Launchpad'));
 					$th->assign('close','<a class="lbAction" rel="deactivate" href="javascript:void(0)">Close</a>');
 					usort($launchpad,array($this,'compare_launcher'));
 					$th->assign('icons',$launchpad);
