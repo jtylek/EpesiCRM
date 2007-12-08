@@ -14,6 +14,7 @@
 {/php}
 
 	<div id="top_bar">
+		<div id="MenuBar">
 		<table id="top_bar_1" cellspacing="0" cellpadding="0" border="0">
 		<tbody>
 			<tr>
@@ -24,6 +25,8 @@
 			</tr>
 		</tbody>
 		</table>
+		</div>
+		<div id="ShadowBar"></div>
 		<div id="ActionBar">
 		<table id="top_bar_2" cellspacing="0" cellpadding="0" border="0">
 		<tbody>

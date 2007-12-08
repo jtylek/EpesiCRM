@@ -33,9 +33,11 @@ function_roll = function() {
    if(document.getElementById("ActionBar").style.height == '0px' && document.getElementById("EmptyDiv").style.height == '34px') {
       document.getElementById("ActionBar").style.height = '78px';
       document.getElementById("EmptyDiv").style.height = '102px';
+      document.getElementById("ShadowBar").style.height = '0px';
    }
    else {
       document.getElementById("ActionBar").style.height = '0px';
       document.getElementById("EmptyDiv").style.height = '34px';
+      document.getElementById("ShadowBar").style.height = '10px';
    }
 }
