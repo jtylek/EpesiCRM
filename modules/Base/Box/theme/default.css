@@ -128,12 +128,31 @@ hr.line {
 	z-index: 10;
 }
 
+#ActionBar {
+    overflow: hidden;
+    height: 78px;
+}
+
+#EmptyDiv {
+    height: 102px;
+}
+
 /*** top_bar_1 ***/
 
 #top_bar #top_bar_1 {
 	width: 100%;
 	height: 20px;
 	border-bottom: 4px solid #B3B3B3;
+}
+
+#top_bar #top_bar_1 .toggle {
+    padding-left: 3px;
+    padding-top: 3px;
+    width: 17px;
+	background-color: #336699;
+	background-image: url('images/header-blue.png');
+	background-repeat: repeat-x;
+	border-right: 4px solid #B3B3B3;
 }
 
 #top_bar #top_bar_1 .menu-bar {

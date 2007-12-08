@@ -17,12 +17,14 @@
 		<table id="top_bar_1" cellspacing="0" cellpadding="0" border="0">
 		<tbody>
 			<tr>
+				<td class="toggle"><img id="roll" src="{$theme_dir}/Base_Box__roll-up.png" onClick="var x='{$theme_dir}/Base_Box__roll-';if(this.src.indexOf(x+'down.png')>=0)this.src=x+'up.png';else this.src=x+'down.png'; function_roll();" width="14" height="14" alt="=" border="0"></td>
 				<td class="menu-bar">{$menu}</td>
 				<td class="version">&nbsp;{$version_no}&nbsp;</td>
 				<td class="module-indicator">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</td>
 			</tr>
 		</tbody>
 		</table>
+		<div id="ActionBar">
 		<table id="top_bar_2" cellspacing="0" cellpadding="0" border="0">
 		<tbody>
 			<tr>
@@ -35,10 +37,11 @@
 			</tr>
 		</tbody>
 		</table>
+		</div>
 	</div>
 	<!-- -->
 	<div id="content">
-		<div style="height: 102px"></div>
+		<div id="EmptyDiv"></div>
 		<div id="content_body" style="padding: 0px; text-align: center;">
 			<center>{$main}</center>
 		</div>

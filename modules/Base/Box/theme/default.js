@@ -28,3 +28,14 @@ correctPNG = function() // correctly handle PNG transparency in Win IE 5.5 & 6.
    }
 };
 document.observe("e:load", correctPNG);
+
+function_roll = function() {
+   if(document.getElementById("ActionBar").style.height == '0px' && document.getElementById("EmptyDiv").style.height == '24px') {
+      document.getElementById("ActionBar").style.height = '78px';
+      document.getElementById("EmptyDiv").style.height = '102px';
+   }
+   else {
+      document.getElementById("ActionBar").style.height = '0px';
+      document.getElementById("EmptyDiv").style.height = '24px';
+   }
+}
