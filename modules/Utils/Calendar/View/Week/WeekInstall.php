@@ -16,14 +16,14 @@ defined("_VALID_ACCESS") || die();
  * @package tcms-extra
  * @subpackage test
  */
-class CRM_Calendar_View_WeekInstall extends ModuleInstall {
+class Utils_Calendar_View_WeekInstall extends ModuleInstall {
 	public function install() {
-		Base_ThemeCommon::install_default_theme('CRM/Calendar/View/Week');
+		Base_ThemeCommon::install_default_theme('Utils/Calendar/View/Week');
 		return true;
 	}
 	
 	public function uninstall() {
-		Base_ThemeCommon::uninstall_default_theme('CRM/Calendar/View/Week');
+		Base_ThemeCommon::uninstall_default_theme('Utils/Calendar/View/Week');
 		return true;
 	}
 	public function requires($v) {

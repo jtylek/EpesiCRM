@@ -16,14 +16,14 @@ defined("_VALID_ACCESS") || die();
  * @package tcms-extra
  * @subpackage test
  */
-class CRM_Calendar_View_YearInstall extends ModuleInstall {
+class Utils_Calendar_View_YearInstall extends ModuleInstall {
 	public function install() {
-		Base_ThemeCommon::install_default_theme('CRM/Calendar/View/Year');
+		Base_ThemeCommon::install_default_theme('Utils/Calendar/View/Year');
 		return true;
 	}
 	
 	public function uninstall() {
-		Base_ThemeCommon::uninstall_default_theme('CRM/Calendar/View/Year');
+		Base_ThemeCommon::uninstall_default_theme('Utils/Calendar/View/Year');
 		return true;
 	}
 	public function requires($v) {

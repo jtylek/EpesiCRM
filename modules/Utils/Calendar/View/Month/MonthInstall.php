@@ -16,20 +16,18 @@ defined("_VALID_ACCESS") || die();
  * @package tcms-extra
  * @subpackage test
  */
-class CRM_Calendar_View_MonthInstall extends ModuleInstall {
+class Utils_Calendar_View_MonthInstall extends ModuleInstall {
 	public function install() {
-		Base_ThemeCommon::install_default_theme('CRM/Calendar/View/Month');
+		Base_ThemeCommon::install_default_theme('Utils/Calendar/View/Month');
 		return true;
 	}
 	
 	public function uninstall() {
-		Base_ThemeCommon::uninstall_default_theme('CRM/Calendar/View/Month');
+		Base_ThemeCommon::uninstall_default_theme('Utils/Calendar/View/Month');
 		return true;
 	}
 	public function requires($v) {
-		return array(
-			array('name'=>'CRM/Calendar/Utils/Dropdown', 'version'=>0)
-		);
+		return array();
 	}
 }
 

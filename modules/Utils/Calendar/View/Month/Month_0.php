@@ -17,7 +17,7 @@
 
 defined("_VALID_ACCESS") || die();
 
-class CRM_Calendar_View_Month extends Module {
+class Utils_Calendar_View_Month extends Module {
 	private $date;
 	private $first_day;
 	private $view_style;

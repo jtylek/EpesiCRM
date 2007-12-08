@@ -2,9 +2,65 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_CalendarCommon extends ModuleCommon {
-	public static function menu() {
-		return array('CRM'=>array('__submenu__'=>1,'Calendar'=>array()));
-	}
+	private static $array_name_of_month = array(
+		1 => array(
+			1=>'Jan', 
+			2=>'Feb', 
+			3=>'Mar', 
+			4=>'Apr', 
+			5=>'May', 
+			6=>'Jun', 
+			7=>'Jul', 
+			8=>'Aug', 
+			9=>'Sep', 
+			10=>'Oct', 
+			11=>'Nov', 
+			12=>'Dec',
+			'01'=>'Jan', 
+			'02'=>'Feb', 
+			'03'=>'Mar', 
+			'04'=>'Apr', 
+			'05'=>'May', 
+			'06'=>'Jun', 
+			'07'=>'Jul', 
+			'08'=>'Aug', 
+			'09'=>'Sep'
+		),
+		2 => array(
+			1=>'January', 
+			2=>'February', 
+			3=>'March', 
+			4=>'April', 
+			5=>'May', 
+			6=>'June', 
+			7=>'July', 
+			8=>'August', 
+			9=>'September', 
+			10=>'October', 
+			11=>'November', 
+			12=>'December',
+			'01'=>'January', 
+			'02'=>'February', 
+			'03'=>'March', 
+			'04'=>'April', 
+			'05'=>'May', 
+			'06'=>'June', 
+			'07'=>'July', 
+			'08'=>'August', 
+			'09'=>'September'
+		)
+	);
+	private static $array_name_of_day = array(
+		0 => array(
+				0=>'S', 1=>'M', 2=>'T', 3=>'W', 4=>'T', 5=>'F', 6=>'S'
+			),
+		1 => array(
+				0=>'Sun', 1=>'Mon', 2=>'Tue', 3=>'Wed', 4=>'Thu', 5=>'Fri', 6=>'Sat'
+			),
+		2 => array(
+				0=>'Sunday', 1=>'Monday', 2=>'Tuesday', 3=>'Wednesday', 4=>'Thursday', 5=>'Friday', 6=>'Saturday'
+			)
+		);
 
 	public static function user_settings() {
 		if(Base_AclCommon::i_am_user())

@@ -18,12 +18,12 @@ defined("_VALID_ACCESS") || die();
  */
 class Utils_Calendar_View_AgendaInstall extends ModuleInstall {
 	public function install() {
-		Base_ThemeCommon::install_default_theme('CRM/Calendar/View/Agenda');
+		Base_ThemeCommon::install_default_theme('Utils/Calendar/View/Agenda');
 		return true;
 	}
 	
 	public function uninstall() {
-		Base_ThemeCommon::uninstall_default_theme('CRM/Calendar/View/Agenda');
+		Base_ThemeCommon::uninstall_default_theme('Utils/Calendar/View/Agenda');
 		return true;
 	}
 	public function requires($v) {
