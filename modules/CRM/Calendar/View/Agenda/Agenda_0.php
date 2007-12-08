@@ -121,11 +121,7 @@ class CRM_Calendar_View_Agenda extends Module {
 			array('name'=>'Description', 'order'=>'details','width'=>30)
 		);
 		$gb->set_table_columns( $columns );
-		$types = CRM_Calendar_EventCommon::get_event_types();
-		foreach($types as $module) {
-			if(method_exists($module['module_name'].'Common', 'get_agenda')) {
-				$events = call_user_func(array($module['module_name'].'Common', 'get_agenda'), $datetime_start, $datetime_end);
-				
+				$events = CRM_Calendar_EventCommon::get_agenda($datetime_start, $datetime_end);
 				
 				// timeless events
 				//foreach($events['0'] as $event) {
@@ -179,9 +175,7 @@ class CRM_Calendar_View_Agenda extends Module {
 					$full = call_user_func(array($module['module_name'].'Common', 'get_text'), $event, 'full');
 					CRM_Calendar_Utils_SidetipCommon::create($ev_id, $ev_id, $full, 'agenda');
 				}
-				
-			}
-		}
+
 		$this->display_module($gb);
 		CRM_Calendar_Utils_SidetipCommon::create_all();
 	}

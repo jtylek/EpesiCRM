@@ -231,6 +231,7 @@ class Utils_Attachment extends Module {
 		}
 
 		$th = $this->init_module('Base/Theme');
+		$th->assign('header',$this->add_header);
 		$th->assign('note',$row['text']);
 		if($row['original']) {
 			$file = $this->get_file($row);

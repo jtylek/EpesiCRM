@@ -30,8 +30,6 @@ class CRM_Calendar_View_Week extends Module {
 	private $week;
 	private $tmp;
 	private $event_access;
-	private $max_per_day;
-	private $nearest_delim;
 	private $settings;
 	private $lang;
 
@@ -40,8 +38,6 @@ class CRM_Calendar_View_Week extends Module {
 		$tmp;
 		$this->first_day = CRM_Calendar_Utils_FuncCommon::get_settings('first_day');
 		$this->activities = array();
-		$this->max_per_day = 2;
-		$this->nearest_delim = 8;
 		$this->settings['start_day'] = CRM_Calendar_Utils_FuncCommon::get_settings('start_day');
 		$this->settings['end_day'] = CRM_Calendar_Utils_FuncCommon::get_settings('end_day');
 		$this->settings['display_type'] = 'per_day';
@@ -299,7 +295,9 @@ class CRM_Calendar_View_Week extends Module {
 
 			eval_js('mini_calendar_week_visibleDetails = new Array();');
 			$start = $date;
-			$events = CRM_Calendar_EventCommon::get_7days($start);
+			// Modification by J. Tylek
+			//$events = CRM_Calendar_EventCommon::get_7days($start);
+			$events=array();
 			//$start = CRM_Calendar_Utils_FuncCommon::begining_of_week($date['year'], $date['week']);
 			$limit = CRM_Calendar_Utils_FuncCommon::days_in_month_r($start);
 			$i = CRM_Calendar_Utils_FuncCommon::day_of_week_r(CRM_Calendar_Utils_FuncCommon::today());
@@ -425,7 +423,7 @@ class CRM_Calendar_View_Week extends Module {
 	////////////////////////////////////////////////////////////////////////
 
 	/////////////////////////////////////////////////////////////////////////////
-	public function menu($date) {
+	public function navigation($date) {
 
 		print '<div class="week-menu">';
 		print '<table border="0"><tr>';
@@ -488,7 +486,7 @@ class CRM_Calendar_View_Week extends Module {
 		} else {
 			$this->date = $arg['date'];
 		}
-		$this->menu($this->date);
+		$this->navigation($this->date);
 		$this->parse_links($this->date);
 		Base_ActionBarCommon::add('add',$this->lang->t('Add Event'), $this->parent->create_callback_href(array($this,'add_event'),array($this->date)));
 

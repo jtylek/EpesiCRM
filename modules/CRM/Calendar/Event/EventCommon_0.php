@@ -31,7 +31,7 @@ class CRM_Calendar_EventCommon extends ModuleCommon {
 			'	edited_on, '.
 			'	access, '.
 			'	timeless '.
-			'from calendar_events';
+			'from calendar_events ';
 	}
 	
 	public static function is_dragable() {
@@ -99,7 +99,7 @@ class CRM_Calendar_EventCommon extends ModuleCommon {
 			$cuss = join(', ', $cuss);
 		else
 			$cuss = '';
-		$acts = CRM_Calendar_Event_PersonalCommon::decode_activity($row['act_id']);
+		$acts = CRM_Calendar_Event_Common::decode_activity($row['act_id']);
 		$time = substr($row['datetime_start'], 8, 2).':'.substr($row['datetime_start'], 10, 2);
 		$finish = substr($row['datetime_end'], 8, 2).':'.substr($row['datetime_end'], 10, 2);
 		
@@ -209,7 +209,7 @@ class CRM_Calendar_EventCommon extends ModuleCommon {
 		else
 			$ret = DB::Execute(
 				self::select_all().
-				"where round(datetime_start) like %s and (created_by=%d or access=0 or g.uid=%d) and status=1 order by datetime_start asc", 
+				"where round(datetime_start) like %s and (created_by=%d or access=0) and status=1 order by datetime_start asc", 
 			array(sprintf("%04d%02d%%", $date['year'], $date['month']), $logged, $logged));
 		
 		$events = array();
@@ -254,7 +254,7 @@ class CRM_Calendar_EventCommon extends ModuleCommon {
 			else
 				$ret = DB::Execute(
 					self::select_all().
-					" where (datetime_start between %T and %T) and (created_by=%d or access=0 or g.uid=%d) and timeless=0 and status=1", 
+					" where (datetime_start between %T and %T) and (created_by=%d or access=0) and timeless=0 and status=1", 
 					array($datetime_start, $datetime_end, $logged, $logged));
 			
 			$events = array();
@@ -273,7 +273,7 @@ class CRM_Calendar_EventCommon extends ModuleCommon {
 					array($datetime_start, $datetime_end));
 			else
 				$ret = DB::Execute(self::select_all().
-					" where (datetime_start between %T and %T) and (created_by=%d or access=0 or g.uid=%d) and timeless=1 and status=1", 
+					" where (datetime_start between %T and %T) and (created_by=%d or access=0) and timeless=1 and status=1 ", 
 					array($datetime_start, $datetime_end, $logged, $logged));
 			
 			$timeless = array();
@@ -303,7 +303,7 @@ class CRM_Calendar_EventCommon extends ModuleCommon {
 					"where (round(datetime_start)+0 like %s) and timeless=0 and status=1", 
 					array($datetime_start));
 			else
-				$ret = DB::Execute("select id, employees, contacts, round(datetime_start)+0 as datetime_start, round(datetime_end)+0 as datetime_end, title, description,  act_id, created_by, created_on, edited_by, edited_on,  access, timeless from calendar_event_personal where (round(datetime_start)+0 like %s) and (created_by=%d or access=0) and timeless=0 and status=1", array($datetime_start, $logged));
+				$ret = DB::Execute("select id, employees, contacts, round(datetime_start)+0 as datetime_start, round(datetime_end)+0 as datetime_end, title, description,  act_id, created_by, created_on, edited_by, edited_on,  access, timeless from calendar_events where (round(datetime_start)+0 like %s) and (created_by=%d or access=0) and timeless=0 and status=1", array($datetime_start, $logged));
 	
 			$events = array();
 			if($ret) {
@@ -321,9 +321,9 @@ class CRM_Calendar_EventCommon extends ModuleCommon {
 			}
 			
 			if(Base_AclCommon::i_am_admin() && CRM_Calendar_Utils_FuncCommon::get_settings('show_private'))
-				$ret = DB::Execute("select id, employees, contacts, round(datetime_start)+0 as datetime_start, round(datetime_end)+0 as datetime_end, title, description,  act_id, created_by, created_on, edited_by, edited_on,  access, timeless from calendar_event_personal where (round(datetime_start)+0 like %s) and timeless=1 and status=1", array($datetime_start));
+				$ret = DB::Execute("select id, employees, contacts, round(datetime_start)+0 as datetime_start, round(datetime_end)+0 as datetime_end, title, description,  act_id, created_by, created_on, edited_by, edited_on,  access, timeless from calendar_events where (round(datetime_start)+0 like %s) and timeless=1 and status=1", array($datetime_start));
 			else
-				$ret = DB::Execute("select id, employees, contacts, round(datetime_start)+0 as datetime_start, round(datetime_end)+0 as datetime_end, title, description,  act_id, created_by, created_on, edited_by, edited_on,  access, timeless from calendar_event_personal where (round(datetime_start)+0 like %s) and (created_by=%d or access=0) and timeless=1 and status=1", array($datetime_start, $logged));
+				$ret = DB::Execute("select id, employees, contacts, round(datetime_start)+0 as datetime_start, round(datetime_end)+0 as datetime_end, title, description,  act_id, created_by, created_on, edited_by, edited_on,  access, timeless from calendar_events where (round(datetime_start)+0 like %s) and (created_by=%d or access=0) and timeless=1 and status=1", array($datetime_start, $logged));
 			$timeless = array();
 			if($ret) {
 				while($row = $ret->FetchRow()) {
@@ -355,11 +355,11 @@ class CRM_Calendar_EventCommon extends ModuleCommon {
 				$ret = DB::Execute("select ".
 				"id, employees, contacts, round(datetime_start)+0 as datetime_start, round(datetime_end)+0 as datetime_end, ".
 				"title, description,  act_id, created_by, created_on, edited_by, edited_on,  access, timeless ".
-				"from calendar_event_personal as p join calendar_event_personal_group as g on p.employees=g.gid ".
+				"from calendar_events as p join calendar_event_personal_group as g on p.employees=g.gid ".
 				"where (datetime_start+0>=%s and datetime_start+0<=%s) and timeless=0 and status=1", 
 				array($datetime_start, $datetime_end));
 			else
-				$ret = DB::Execute("select id, employees, contacts, round(datetime_start)+0 as datetime_start, round(datetime_end)+0 as datetime_end, title, description,  act_id, created_by, created_on, edited_by, edited_on,  access, timeless from calendar_event_personal where (datetime_start+0>=%s and datetime_start+0<=%s) and (created_by=%d or access=0 or access=1) and timeless=0 and status=1", array($datetime_start, $datetime_end, $logged));
+				$ret = DB::Execute("select id, employees, contacts, round(datetime_start)+0 as datetime_start, round(datetime_end)+0 as datetime_end, title, description,  act_id, created_by, created_on, edited_by, edited_on,  access, timeless from calendar_events where (datetime_start+0>=%s and datetime_start+0<=%s) and (created_by=%d or access=0 or access=1) and timeless=0 and status=1", array($datetime_start, $datetime_end, $logged));
 			
 			if($ret) {
 				while($row = $ret->FetchRow()) {
@@ -377,9 +377,9 @@ class CRM_Calendar_EventCommon extends ModuleCommon {
 			
 			$ret = null;
 			if(Base_AclCommon::i_am_admin() && CRM_Calendar_Utils_FuncCommon::get_settings('show_private'))
-				$ret = DB::Execute("select id, employees, contacts, round(datetime_start)+0 as datetime_start, round(datetime_end)+0 as datetime_end, title, description,  act_id, created_by, created_on, edited_by, edited_on,  access, timeless from calendar_event_personal where (datetime_start+0>=%s and datetime_start+0<=%s) and timeless=1 and status=1", array($datetime_start, $datetime_end));
+				$ret = DB::Execute("select id, employees, contacts, round(datetime_start)+0 as datetime_start, round(datetime_end)+0 as datetime_end, title, description,  act_id, created_by, created_on, edited_by, edited_on,  access, timeless from calendar_events where (datetime_start+0>=%s and datetime_start+0<=%s) and timeless=1 and status=1", array($datetime_start, $datetime_end));
 			else
-				$ret = DB::Execute("select id, employees, contacts, round(datetime_start)+0 as datetime_start, round(datetime_end)+0 as datetime_end, title, description,  act_id, created_by, created_on, edited_by, edited_on,  access, timeless from calendar_event_personal where (datetime_start+0>=%s and datetime_start+0<=%s) and (created_by=%d or access=0 or access=1) and timeless=1 and status=1", array($datetime_start, $datetime_end, $logged));
+				$ret = DB::Execute("select id, employees, contacts, round(datetime_start)+0 as datetime_start, round(datetime_end)+0 as datetime_end, title, description,  act_id, created_by, created_on, edited_by, edited_on,  access, timeless from calendar_events where (datetime_start+0>=%s and datetime_start+0<=%s) and (created_by=%d or access=0 or access=1) and timeless=1 and status=1", array($datetime_start, $datetime_end, $logged));
 			
 			$timeless = array();
 			if($ret) {
@@ -410,7 +410,7 @@ class CRM_Calendar_EventCommon extends ModuleCommon {
 			$datetime_end = sprintf("%d%02d%02d999999", $end['year'],$end['month'],$end['day']);
 			
 			$logged = Acl::get_user();
-			$ret = DB::Execute("select id, employees, contacts, round(datetime_start)+0 as datetime_start, round(datetime_end)+0 as datetime_end, title, description,  act_id, created_by, created_on, edited_by, edited_on,  access, timeless from calendar_event_personal where (datetime_start+0>=%s and datetime_start+0<=%s) and (created_by=%d or access=0) and timeless=0 and status=1", array($datetime_start, $datetime_end, $logged));
+			$ret = DB::Execute("select id, employees, contacts, round(datetime_start)+0 as datetime_start, round(datetime_end)+0 as datetime_end, title, description,  act_id, created_by, created_on, edited_by, edited_on,  access, timeless from calendar_events where (datetime_start+0>=%s and datetime_start+0<=%s) and (created_by=%d or access=0) and timeless=0 and status=1", array($datetime_start, $datetime_end, $logged));
 			
 			$events = array();
 			if($ret) {
@@ -427,7 +427,7 @@ class CRM_Calendar_EventCommon extends ModuleCommon {
 				}
 			}
 			
-			$ret = DB::Execute("select id, employees, contacts, round(datetime_start)+0 as datetime_start, round(datetime_end)+0 as datetime_end, title, description,  act_id, created_by, created_on, edited_by, edited_on,  access, timeless from calendar_event_personal where (datetime_start+0>=%s and datetime_start+0<=%s) and (created_by=%d or access=0) and timeless=1 and status=1", array($datetime_start, $datetime_end, $logged));
+			$ret = DB::Execute("select id, employees, contacts, round(datetime_start)+0 as datetime_start, round(datetime_end)+0 as datetime_end, title, description,  act_id, created_by, created_on, edited_by, edited_on,  access, timeless from calendar_events where (datetime_start+0>=%s and datetime_start+0<=%s) and (created_by=%d or access=0) and timeless=1 and status=1", array($datetime_start, $datetime_end, $logged));
 			$timeless = array();
 			if($ret) {
 				while($row = $ret->FetchRow()) {

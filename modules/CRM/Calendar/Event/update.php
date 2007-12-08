@@ -31,7 +31,7 @@ foreach($x as $pos=>$id) {
 			$ev_new_start = substr($ev_new_start, 0, 4).'-'.substr($ev_new_start, 4, 2).'-'.substr($ev_new_start, 6, 2).' '.substr($ev_new_start, 8, 2). ':'.$min;
 			//DB::Execute('insert into t2(a) values(%s)',array($ev_new_start));
 			DB::Execute(
-				'update calendar_event_personal '.
+				'update calendar_events '.
 				' set '.
 					'datetime_end=addtime(datetime_end, timediff(%T, datetime_start)), '.
 					'datetime_start=%T, '.

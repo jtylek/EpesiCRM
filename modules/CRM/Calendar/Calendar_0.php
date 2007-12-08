@@ -4,6 +4,7 @@
  *  Calendar
  *
  * Author: Kuba Slawinski
+ * and Janusz Tylek
  */
 
 defined("_VALID_ACCESS") || die('Direct access forbidden');
@@ -30,8 +31,7 @@ class CRM_Calendar extends Module {
 	public function init() {
 		$this->lang = & $this->init_module('Base/Lang');
 
-		$this->menu_main_show_tb = & $this->init_module('Utils/TabbedBrowser');
-
+		$this->tabs = & $this->init_module('Utils/TabbedBrowser');
 
 		load_js('modules/CRM/Calendar/dnd.js');
 
@@ -59,47 +59,43 @@ class CRM_Calendar extends Module {
 		return $event->add_event($date, $time);
 	}
 
-	public function edit_event($event_type, $event_id) {
-		$event = & $this->init_module($event_type);
+	public function edit_event($event_id) {
 		return $event->edit_event($event_id);
-		/*$this->display_module($event, array(array('subject'=>$event_id, 'action'=>'edit')));
-		$tere = $this->last_returned();
-		$tere ? print 'ev true' : print 'ev false';
-		return $tere;*/
 	}
-	public function details_event($event_type, $event_id) {
-		//$event = & $this->init_module($event_type);
-		$this->pack_module($event_type, array(array('subject'=>$event_id, 'action'=>'details')));
+
+	public function details_event($event_id) {
+		//$this->pack_module(array(array('subject'=>$event_id, 'action'=>'details')));
+		$event = & $this->init_module('CRM/Calendar/Event');
 		if($this->is_back()) return false;
 		return true;
 	}
-	public function delete_event($event_type, $event_id) {
+	public function delete_event($event_id) {
 		$event = & $this->init_module('CRM/Calendar/Event');
-		return $event->delete_event($event_type, $event_id);
+		return $event->delete_event($event_id);
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////
 	// SHOW CALENDARS
-	public function show_calendar_month() {
+	public function show_month() {
 		$this->set_module_variable('view_style', 'month');
 		$date = $this->get_unique_href_variable('date', '');
 		$this->display_module($this->modules['month'], array(array('date'=>$date)) );
 	}
-	public function show_calendar_week() {
+	public function show_week() {
 		$this->set_module_variable('view_style', 'week');
 		$date = $this->get_unique_href_variable('date', '');
 		$this->display_module($this->modules['week'], array(array('date'=>$date)) );
 	}
-	public function show_calendar_year() {
+	public function show_year() {
 		$this->set_module_variable('view_style', 'year');
 		$date = $this->get_unique_href_variable('date', '');
 		$this->display_module($this->modules['year'], array(array('date'=>$date)) );
 	}
-	public function show_calendar_day() {
+	public function show_day() {
 		$this->set_module_variable('view_style', 'day');
 		$date = $this->get_unique_href_variable('date', '');
 		$this->display_module($this->modules['day'], array(array('date'=>$date)) );
 	}
-	public function show_calendar_agenda() {
+	public function show_agenda() {
 		$this->set_module_variable('view_style', 'agenda');
 		$date = $this->get_unique_href_variable('date', '');
 		$this->display_module($this->modules['agenda'], array(array('date'=>$date)) );
@@ -107,13 +103,13 @@ class CRM_Calendar extends Module {
 
 
 	// MENUS
-	public function menu_main_show() {
-		$this->menu_main_show_tb->set_tab( $this->lang->t('Agenda'),array($this, 'show_calendar_agenda') );
-		$this->menu_main_show_tb->set_tab( $this->lang->t('Day'),array($this, 'show_calendar_day') );
-		$this->menu_main_show_tb->set_tab( $this->lang->t('Week'),array($this, 'show_calendar_week') );
-		$this->menu_main_show_tb->set_tab( $this->lang->t('Month'),array($this, 'show_calendar_month') );
-		$this->menu_main_show_tb->set_tab( $this->lang->t('Year'),array($this, 'show_calendar_year') );
-		$this->menu_main_show_tb->set_default_tab($this->default_module);
+	public function show_tabs() {
+		$this->tabs->set_tab( $this->lang->t('Agenda'),array($this, 'show_agenda') );
+		$this->tabs->set_tab( $this->lang->t('Day'),array($this, 'show_day') );
+		$this->tabs->set_tab( $this->lang->t('Week'),array($this, 'show_week') );
+		$this->tabs->set_tab( $this->lang->t('Month'),array($this, 'show_month') );
+		$this->tabs->set_tab( $this->lang->t('Year'),array($this, 'show_year') );
+		$this->tabs->set_default_tab($this->default_module);
 	}
 
 	public function parse_links() {
@@ -121,7 +117,7 @@ class CRM_Calendar extends Module {
 		switch($action) {
 			case 'add':
 				print 'adding ';
-				$this->menu_main_tb->switch_tab(1);
+				$this->show_tabs->switch_tab(1);
 				//location(array());
 				break;
 			case 'show':
@@ -130,19 +126,19 @@ class CRM_Calendar extends Module {
 				$view_style = $this->get_module_variable_or_unique_href_variable('view_style', $this->default_module);
 				switch($view_style) {
 					case 'agenda':
-						$this->menu_main_show_tb->switch_tab(0);
+						$this->tabs->switch_tab(0);
 						break;
 					case 'day':
-						$this->menu_main_show_tb->switch_tab(1);
+						$this->tabs->switch_tab(1);
 						break;
 					case 'week':
-						$this->menu_main_show_tb->switch_tab(2);
+						$this->tabs->switch_tab(2);
 						break;
 					case 'month':
-						$this->menu_main_show_tb->switch_tab(3);
+						$this->tabs->switch_tab(3);
 						break;
 					case 'year':
-						$this->menu_main_show_tb->switch_tab(4);
+						$this->tabs->switch_tab(4);
 						break;
 				}
 				break;
@@ -152,24 +148,18 @@ class CRM_Calendar extends Module {
 	public function body($arg = null) {
 		$this->pack_module('CRM/Profiles');
 		$this->init();
-		$this->menu_main_show();
+		$this->show_tabs();
 		$this->parse_links();
 
 		// quick fix
 		//$this->menu_main_show_tb->get_module_variable_or_unique_href_variable('page', 0);
 
-		$this->display_module($this->menu_main_show_tb);
-		$this->menu_main_show_tb->tag();
+		$this->display_module($this->tabs);
+		$this->tabs->tag();
 	}
 
 	public function caption() {
 		return "Calendar";
-	}
-
-	// Agenda Applet
-	public function applet() {  //available applet options: toggle,href,title,go,go_function,go_arguments,go_contruct_arguments
-		//$opts['href'] = $this->create_href(array('box_main_module'=>$this->get_type()));
-		print ('test');
 	}
 }
 ?>

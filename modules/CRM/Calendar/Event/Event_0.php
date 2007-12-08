@@ -194,7 +194,7 @@ class CRM_Calendar_Event extends Module {
 		} else if($action == 'edit' || $action == 'details') {
 			//print 'edit';
 			$subject = $options['subject'];
-			$set = DB::Execute("select * from calendar_event_personal where id=%d", $subject);
+			$set = DB::Execute("select * from calendar_events where id=%d", $subject);
 			$event = array();
 			if($set)
 				if($row = $set->FetchRow())
@@ -217,12 +217,13 @@ class CRM_Calendar_Event extends Module {
 				'edited' => 'by '.Base_UserCommon::get_user_login($event['edited_by'])." on ".$event['edited_on']
 			);
 			$def_emps = array();
-			$set = DB::Execute("select uid from calendar_event_personal_group where gid=%d", $event['emp_gid']);
+			/*$set = DB::Execute("select uid from calendar_events where gid=%d", $event['emp_gid']);
 			if($set )
 				while($row_grp = $set->FetchRow()) {
 					array_push($def_emps, $row_grp['uid']);
 				}
 			$def['emp_id'] = $def_emps;
+			*/
 			
 		$timeless = $event['timeless'];
 		}
@@ -256,7 +257,8 @@ class CRM_Calendar_Event extends Module {
 		}
 		
 		$act = array();
-		$ret = DB::Execute("select id, name from calendar_event_personal_activity order by name");
+		//$ret = DB::Execute("select id, name from calendar_events order by name");
+		$ret = DB::Execute("select id, name from calendar_event_types order by name");
 		while($row = $ret->FetchRow()) {
 			$act[$row['id']] = $row['name'];
 		}
@@ -330,12 +332,12 @@ class CRM_Calendar_Event extends Module {
 		if($action != 'details') {
 			$rb1 = $this->init_module('Utils/RecordBrowser/RecordPicker');
 			//ob_start();
-			$this->display_module($rb1, array('contact', 'employees', array('CRM_Calendar_Event_PersonalCommon','decode_contact'), array('Company Name'=>CRM_ContactsCommon::get_main_company())));
+			$this->display_module($rb1, array('contact', 'employees', array('CRM_Calendar_Event_Common','decode_contact'), array('Company Name'=>CRM_ContactsCommon::get_main_company())));
 			$emp_click = $rb1->open_link('employees', 'Add from table');//ob_get_clean();
 			
 			$rb2 = $this->init_module('Utils/RecordBrowser/RecordPicker');
 			//ob_start();
-			$this->display_module($rb2, array('contact', 'contacts', array('CRM_Calendar_Event_PersonalCommon','decode_contact'), array('!Company Name'=>CRM_ContactsCommon::get_main_company())));
+			$this->display_module($rb2, array('contact', 'contacts', array('CRM_Calendar_Event_Common','decode_contact'), array('!Company Name'=>CRM_ContactsCommon::get_main_company())));
 			$cus_click = $rb2->open_link('contacts', 'Add from table');///ob_get_clean();
 			
 		} else {
@@ -462,9 +464,73 @@ class CRM_Calendar_Event extends Module {
 		}
 	}
 	
+// Leftover from old Event_0
+public function add_event($date, $time = null) {
+	        if($this->is_back())
+	            return false;
+	        $lang = & $this->pack_module('Base/Lang');
+	        $form = & $this->init_module('Libs/QuickForm');
+			$event = & $this->init_module('CRM/Calendar/Event');
+            //return $event->manage_event('new', array('date'=>$date, 'time'=>$time));
+
+
+            $event_names = array();
+            $event_type = '';
+            foreach($event_list as $event) {
+                $form->addElement('select', 'event_type', $lang->t('Event type').':', $event_names, 'onChange="'.$form->get_submit_form_js(false).'"');
+	            $form->setDefaults(array('event_type'=>$event_type));
+	            $event_type = $form->getElement('event_type')->getValue();
+	            $event_type = $event_type[0];
+	            // TODO:
+	            //  o Should not display form with event types, when event was successfully submited.
+	            //$form->display();
+	           
+	            $event = & $this->init_module($event_type);
+	            return $event->manage_event('new', array('date'=>$date, 'time'=>$time));
+		}
+		
+/*
+		public function edit_event($event_type, $event_id) {
+	        if($this->is_back())
+	            return false;
+	       
+	        $event = & $this->init_module($event_type);
+	        //return $event->edit_event($event_id);
+	        return $this->display_module($event, array('subject'=>$event_id, 'action'=>'edit'));
+	    }
+	    public function details_event($event_type, $event_id) {
+	        if($this->is_back())
+	            return false;
+	        print 'Adding';
+	        $event = & $this->init_module($event_type);
+	        return $event->details_event($event_id);
+	        //return $this->display_module($event, array(array('subject'=>$event_id, 'action'=>'details')));
+	    }
+	    public function delete_event($event_type, $event_id) {
+	        $event = & $this->init_module($event_type);
+	        return $event->delete_event($event_id);
+	    }
+	    public function body($action, $event_type, $event_id) {
+	        if($this->is_back())
+	            return false;
+	            print 'body';
+	        $event = & $this->init_module($event_type);
+	        switch($action) {
+	            case 'edit':
+	                return $this->display_module($event, array(array('subject'=>$event_id, 'action'=>'details')));
+	                //return $event->edit_event($event_id);
+	                break;
+	            case 'details':
+	                return $this->display_module($event, array(array('subject'=>$event_id, 'action'=>'details')));
+	                //return $event->details_event($event_id);
+	                break;
+	            default:
+	                return false;
+	        }
+	    }
+	}	
 	
-	
-	
+*/	
 }
 
 ?>
