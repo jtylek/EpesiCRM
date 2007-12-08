@@ -1,4 +1,4 @@
-var Utils_Calendar = function(link_proto, instance_id) {
+var Utils_PopupCalendar = function(link_proto, instance_id) {
 		this.monthName = new Array('January','February','March','April','May','June','July','August','September','October','November','December');
 		this.link_proto = link_proto;
 		this.instance_id = instance_id;

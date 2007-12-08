@@ -1,4 +1,4 @@
-var Utils_CalendarDatePicker = {
+var Utils_PopupCalendarDatePicker = {
 format:null,
 re:null,
 validate: function(ev,f) {

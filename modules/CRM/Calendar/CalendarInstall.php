@@ -30,7 +30,6 @@ class CRM_CalendarInstall extends ModuleInstall {
 		return array(
 			array('name'=>'Utils/TabbedBrowser', 'version'=>0),
 			array('name'=>'Utils/GenericBrowser', 'version'=>0),
-			array('name'=>'Utils/Calendar', 'version'=>0),
 			array('name'=>'Utils/Tooltip', 'version'=>0),
 			array('name'=>'CRM/Profiles', 'version'=>0),
 
