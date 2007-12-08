@@ -19,7 +19,7 @@ h1 {
     color: #336699;
 }
 
-input, select {
+input, select, textarea {
     border: 1px solid #B3B3B3;
     font-size: 11px;
 }

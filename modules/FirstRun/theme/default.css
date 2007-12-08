@@ -16,6 +16,14 @@ body#FirstRun {
     text-decoration: none;
 }
 
+#FirstRun input[type="text"],
+#FirstRun input[type="password"],
+#FirstRun select,
+#FirstRun textarea {
+    border: 1px solid #B3B3B3;
+    font-size: 11px;
+}
+
 #FirstRun a.button {
     color: #FFFFFF;
     line-height: 20px;
