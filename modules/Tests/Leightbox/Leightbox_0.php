@@ -11,7 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Tests_Leightbox extends Module{
 	public function body(){
-		print(Utils_CalendarCommon::show('test','alert(__DAY__+\'.\'+__MONTH__+\'.\'+__YEAR__ )'));
+		print(Utils_PopupCalendarCommon::show('test','alert(__DAY__+\'.\'+__MONTH__+\'.\'+__YEAR__ )'));
 
 		$form = $this->init_module('Libs/QuickForm', null, 'RBpicker_test');
 		$form->addElement('multiselect', 'test', 'Test', array(1=>0, 4=>1, 7=>2, 8=>3));
