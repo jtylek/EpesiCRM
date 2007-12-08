@@ -39,7 +39,7 @@ class CRM_Calendar extends Module {
 			eval_js('CRMCalendarDND.is_AM = true');
 
 		// TODO: perhaps better to load modules when needed, not every time.
-		$this->modules['month'] 	= & $this->init_module('CRM/Calendar/View/Month', array($this));
+/*		$this->modules['month'] 	= & $this->init_module('CRM/Calendar/View/Month', array($this));
 		$this->modules['week'] 		= & $this->init_module('CRM/Calendar/View/Week');
 		$this->modules['year'] 		= & $this->init_module('CRM/Calendar/View/Year');
 		$this->modules['day'] 		= & $this->init_module('CRM/Calendar/View/Day');
@@ -49,7 +49,7 @@ class CRM_Calendar extends Module {
 		$this->logged = 0;
 		if(Acl::is_user())
 			$this->logged = Acl::get_user();
-	}
+*/	}
 
 
 	///////////////////////////////////////////////////////////////////////////////
@@ -146,8 +146,8 @@ class CRM_Calendar extends Module {
 	}
 	///////////////////////////////////////////////////////////////////////////////
 	public function body($arg = null) {
-		$this->pack_module('CRM/Profiles');
-		$this->init();
+		print($this->pack_module('CRM/Profiles',null,null,'xxx')->get());
+		/*$this->init();
 		$this->show_tabs();
 		$this->parse_links();
 
@@ -155,7 +155,7 @@ class CRM_Calendar extends Module {
 		//$this->menu_main_show_tb->get_module_variable_or_unique_href_variable('page', 0);
 
 		$this->display_module($this->tabs);
-		$this->tabs->tag();
+		$this->tabs->tag();*/
 	}
 
 	public function caption() {

@@ -6,22 +6,22 @@ ADODB_Active_Record::SetDatabaseAdapter(DB::$ado);
 
 class CRM_Calendar_Event_Record extends ADODB_Active_Record {
 	var $_table = 'calendar_events';
-	
+
 }
 
 class CRM_Calendar_Event extends Module {
 
-	public $lang;	
+	public $lang;
 
 	public function construct() {
 		$this->lang = & $this->init_module('Base/Lang');
 	}
-		
+
 	public function add_event_submit($d) {
-		
+
 		if(!isset($d['timeless']))
 			$d['timeless'] = 0;
-		
+
 		$datetime_start;
 		$datetime_end;
 		$d['date_s'] = Base_RegionalSettingsCommon::server_date($d['date_s']);
@@ -45,7 +45,7 @@ class CRM_Calendar_Event extends Module {
 			$dt_end = 		$d['date_e']." "."23:59".":59";
 		}
 		// adding participants group
-		
+
 		//print $dt_start.' '.$dt_end.'<br>';
 		//return false;
 		/*
@@ -62,16 +62,16 @@ class CRM_Calendar_Event extends Module {
 		foreach( $d['emp_id'] as $key=>$val) {
 			DB::Execute("insert into calendar_event_personal_group(gid, uid) values(%d, %d)", array($emp_gid, $val));
 		}
-		
+
 		DB::Execute("INSERT INTO calendar_event_personal_gid_counter(something) VALUES(1)");
 		$cus_gid = DB::Insert_ID('calendar_event_personal_gid_counter', 'id');
 		foreach( $d['cus_id'] as $key=>$val) {
 			DB::Execute("insert into calendar_event_personal_group(gid, uid) values(%d, %d)", array($cus_gid, $val));
 		}
 		*/
-			
+
 		//DB::Execute("insert into calendar_event_personal(title,    act_id,       emp_gid,       description,       datetime_start, datetime_end, timeless,       priority,       access,       status, created_on, created_by, edited_on, edited_by) ".
-		//										"values(%s,        %d,           %d,            %s,                %d,             %d,           %d,             %d,             %d,           %s, %d, '%s', %d, '%s', %d)", 
+		//										"values(%s,        %d,           %d,            %s,                %d,             %d,           %d,             %d,             %d,           %s, %d, '%s', %d, '%s', %d)",
 		//										array($d['title'], $d['act_id'], $d['emp_gid'], $d['description'], $dt_start,      $dt_end,      $d['timeless'], $d['priority'], $d['access'], $d['status'], Acl::get_user(), date("Y.m.d H:i"), Acl::get_user(), date("Y.m.d H:i"), $data['timeless'])
 		//);
 		$record = new CRM_Calendar_Event_Record();
@@ -79,7 +79,7 @@ class CRM_Calendar_Event extends Module {
 		$record->act_id = $d['act_id'];
 		$record->employee = $employees;
 		$record->contact = $contacts;
-		
+
 		$record->description = $d['description'];
 		$record->datetime_start = $dt_start;
 		$record->datetime_end = $dt_end;
@@ -94,15 +94,15 @@ class CRM_Calendar_Event extends Module {
 		$record->save();
 		return true;
 	}
-	
+
 	public function edit_event_submit($d) {
-		
+
 		if(!isset($d['timeless']))
 			$d['timeless'] = 0;
-		
+
 		$datetime_start;
 		$datetime_end;
-		
+
 		$d['date_s'] = Base_RegionalSettingsCommon::server_date($d['date_s']);
 		$d['date_e'] = Base_RegionalSettingsCommon::server_date($d['date_e']);
 		if($d['timeless'] == 0){
@@ -122,18 +122,18 @@ class CRM_Calendar_Event extends Module {
 			$dt_end = 		$d['date_e']." "."23:59".":59";
 		}
 		// adding participants group
-		
+
 		// DB::Execute("delete from calendar_event_personal_group where gid=", array($gid));
 		//$d['emp_id'] = explode('__SEP__',$d['emp_id']);
         //array_shift($d['emp_id']);
-		
+
 		/*
 		foreach( $d['emp_id'] as $key=>$val) {
 			DB::Execute("insert into calendar_event_personal_group(gid, uid) values(%d, %d)", array($gid, $val));
 		}
 		*/
-		
-			
+
+
 		DB::Execute('update calendar_events set '.
 				'title=%s, '.
 				'act_id=%d, '.
@@ -153,12 +153,12 @@ class CRM_Calendar_Event extends Module {
 		);
 		return true;
 	}
-		
+
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	public function manage_event($action = 'new', array $options = array()) {
 		if($this->is_back())
 			return false;
-			
+
 		//print 'MANAGE';
 		$def = array('action'=>$action);
 		$subject = -1;
@@ -170,9 +170,9 @@ class CRM_Calendar_Event extends Module {
 			$repeatable = 0;
 			$repeat_forever = 0;
 			$def = array(
-				'date_s' => date("Y-m-d"), 
-				'date_e' => time(),//date("Y.m.d"), 
-				'time_s' => date("H:i"), 
+				'date_s' => date("Y-m-d"),
+				'date_e' => time(),//date("Y.m.d"),
+				'time_s' => date("H:i"),
 				'time_e' => date("H:i"),
 				'repeatable'=>0, 'repeat_forever'=>1, 'access'=>0,	'priority'=>0
 			);
@@ -200,11 +200,11 @@ class CRM_Calendar_Event extends Module {
 				if($row = $set->FetchRow())
 					$event = $row;
 			$def = array(
-				//'date_s' => str_replace('-', '.', substr($event['datetime_start'], 0, 10)), 
+				//'date_s' => str_replace('-', '.', substr($event['datetime_start'], 0, 10)),
 				'date_s' => Base_RegionalSettingsCommon::server_date(substr($event['datetime_start'], 0, 10)),
-				//'date_e' => str_replace('-', '.', substr($event['datetime_end'], 0, 10)), 
+				//'date_e' => str_replace('-', '.', substr($event['datetime_end'], 0, 10)),
 				'date_e' => Base_RegionalSettingsCommon::server_date(substr($event['datetime_end'], 0, 10)),
-				'time_s' => str_replace('-', '.', substr($event['datetime_start'], 11, 5)), 
+				'time_s' => str_replace('-', '.', substr($event['datetime_start'], 11, 5)),
 				'time_e' => str_replace('-', '.', substr($event['datetime_end'], 11, 5)),
 				'title'=>$event['title'],
 				'description'=>$event['description'],
@@ -224,17 +224,17 @@ class CRM_Calendar_Event extends Module {
 				}
 			$def['emp_id'] = $def_emps;
 			*/
-			
+
 		$timeless = $event['timeless'];
 		}
-		
-		
+
+
 		// begining
 		$lang = & $this->pack_module('Base/Lang');
 		$form = & $this->init_module('Libs/QuickForm');
 		if($action == 'edit' || $action == 'details')
 			$form->addElement('hidden', 'id', $subject);
-		
+
 		$lang = & $this->pack_module('Base/Lang');
 		$com = array();
 		//$ret = CRM_CompaniesCommon::get_companies();
@@ -255,33 +255,33 @@ class CRM_Calendar_Event extends Module {
 		foreach($ret as $id=>$data) {
 			$cus[$id] = $data['Last Name']. " " .$data['First Name'];
 		}
-		
+
 		$act = array();
 		//$ret = DB::Execute("select id, name from calendar_events order by name");
 		$ret = DB::Execute("select id, name from calendar_event_types order by name");
 		while($row = $ret->FetchRow()) {
 			$act[$row['id']] = $row['name'];
 		}
-		
+
 		$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
 		$priority = array(0=>'low', 1=>'medium', 2=>'high');
-		
+
 		////////////////////////////////////////////////////////////////////////////////////
 		// BUILD FORM
 		$form->addElement('header', null, $lang->t('Beginning of event'));
 		$asm = $form->addElement('text', 'title', $lang->t('Title'), array('style'=>'width: 100%;'));
 			$form->addRule('title', 'Field is required!', 'required');
-		
+
 		//start
 		$asm = $form->addElement('datepicker', 'date_s', $lang->t('Event start'));
 			$form->addRule('date_s', 'Field is required!', 'required');
-			//$form->registerRule('proper_date','regex','/^\d{4}\.\d{2}\.\d{2}$/'); 
+			//$form->registerRule('proper_date','regex','/^\d{4}\.\d{2}\.\d{2}$/');
 			//$form->addRule('date_e', 'Invalid date format, must be yyyy.mm.dd', 'proper_date');
 		if(Base_RegionalSettingsCommon::time_12h())
 			$form->addElement('date', 'time_s', $lang->t('Time'), array('format'=>'h:i:a'));
 		else
 			$form->addElement('date', 'time_s', $lang->t('Time'), array('format'=>'H:i'));
-			
+
 		// fin
 		$form->addElement('header', null, $lang->t('Ending of event'));
 		$form->addElement('datepicker', 'date_e', $lang->t('Event end'));
@@ -292,7 +292,7 @@ class CRM_Calendar_Event extends Module {
 			$form->addElement('date', 'time_e', $lang->t('Time'), array('format'=>'h:i:a'));
 		else
 			$form->addElement('date', 'time_e', $lang->t('Time'), array('format'=>'H:i'));
-		
+
 		// all day event?
 		$form->addElement('checkbox', 'timeless', $lang->t('Lasts whole day?'), null,'onClick="'.$form->get_submit_form_js(false).'"');
 		switch ($form->getElement('timeless')->getValue()) {
@@ -304,14 +304,14 @@ class CRM_Calendar_Event extends Module {
 				$timeless = 0;
 				break;
 		}
-		
+
 		// event doer
 		$form->addElement('header', null, $lang->t('Event itself'));
 		$size = 8;
-		
+
 		$form->addElement('select', 'rel_com_id', $lang->t('Company'), $com, array('style'=>'width: 100%;'));
 		// event type
-		
+
 		// event type
 		$form->addElement('select', 'act_id', $lang->t('Activity'), $act, array('style'=>'width: 100%;'));
 		// event access
@@ -321,52 +321,52 @@ class CRM_Calendar_Event extends Module {
 		// priority
 		$form->addElement('select', 'priority', $lang->t('Priority'), $priority, array('style'=>'width: 100%;'));
 		//$form->addElement('select', 'priority', $lang->t('Priority'), $priority, array('style'=>'width: 100%;'));
-		
+
 		// events participants
 		//employees
 
 		$mls1 = $form->addElement('multiselect', 'empployees', $lang->t('Employees'), $emp, array('size'=>$size, 'style'=>'\'width: 100%\''));
 		// customers
 		$mls2 = $form->addElement('multiselect', 'contacts', $lang->t('Customers'), $cus, array('size'=>$size, 'style'=>'\'width: 100%\''));
-			
+
 		if($action != 'details') {
 			$rb1 = $this->init_module('Utils/RecordBrowser/RecordPicker');
 			//ob_start();
 			$this->display_module($rb1, array('contact', 'employees', array('CRM_Calendar_Event_Common','decode_contact'), array('Company Name'=>CRM_ContactsCommon::get_main_company())));
-			$emp_click = $rb1->open_link('employees', 'Add from table');//ob_get_clean();
-			
+			$emp_click = $rb1->create_open_link('Add from table');//ob_get_clean();
+
 			$rb2 = $this->init_module('Utils/RecordBrowser/RecordPicker');
 			//ob_start();
 			$this->display_module($rb2, array('contact', 'contacts', array('CRM_Calendar_Event_Common','decode_contact'), array('!Company Name'=>CRM_ContactsCommon::get_main_company())));
-			$cus_click = $rb2->open_link('contacts', 'Add from table');///ob_get_clean();
-			
+			$cus_click = $rb2->create_open_link('Add from table');///ob_get_clean();
+
 		} else {
 			$emp_click = ''; $cus_click = '';
 		}
 			//	eval_js( $mls->getElementJs() );
 		$form->addElement('text', 'rel_emp', $lang->t('Related Person'), array('style'=>'width: 100%;'));
-		
-			
-		// description of event	
+
+
+		// description of event
 		$form->addElement('textarea', 'description',  $lang->t('Description'), array('rows'=>6, 'style'=>'width: 100%;'));
-			
+
 		// entry properities
 		$form->addElement('static', 'created',  $lang->t('Created'));
 		$form->addElement('static', 'edited',  $lang->t('Edited'));
-				
+
 		//buttons
 		//$form->addElement('button', 'cancel_button', $lang->ht('Cancel'), 'onClick="parent.location=\''.$this->create_href().'\'"');
-		
-			
-		
-		
+
+
+
+
 		if($action == 'details')
 			$form->addElement('submit', 'submit_button', $lang->ht('Edit'));
 		else
 			$form->addElement('submit', 'submit_button', $lang->ht('Save'));
 		$form->addElement('button', 'cancel_button', $lang->ht('Cancel'), $this->create_back_href());
 		$form->setDefaults($def);
-		
+
 		switch ($form->getElement('timeless')->getValue()) {
 			case '1':
 				$timeless = 1;
@@ -380,7 +380,7 @@ class CRM_Calendar_Event extends Module {
 		if($form->getSubmitValue('submited')) {
 			if($action == 'details' && ($event['created_by'] == Acl::get_user() || $event['status'] == 0)) {
 				print 'frozen';
-				return $this->manage_event($subject, 'edit');	
+				return $this->manage_event($subject, 'edit');
 			} else {
 				if($form->validate()) {
 					if($action == 'new' && $form->process(array(&$this, 'add_event_submit'))) {
@@ -391,10 +391,10 @@ class CRM_Calendar_Event extends Module {
 				}
 			}
 		}
-			
+
 		if($action == 'details')
 			$form->freeze();
-		
+
 		$theme =  & $this->pack_module('Base/Theme');
 		$theme->assign('view_style', 'new_event');
 			$theme->assign('repeatable', 0);
@@ -405,19 +405,19 @@ class CRM_Calendar_Event extends Module {
 			$theme->assign('cus_click', $cus_click);
 			$theme->assign('tag', md5($this->get_path().microtime()));
 		$form->assign_theme('form', $theme, new HTML_QuickForm_Renderer_TCMSArraySmarty());
-		
+
 		$theme->display();
-		
+
 		Base_ActionBarCommon::add('back',$this->lang->t('Back'), $this->create_back_href());
 		if($action == 'details') {
 			Base_ActionBarCommon::add('edit',$lang->t('Edit'), $this->create_callback_href(array($this, 'manage_event'), array('edit', array('subject'=>$subject))));
 		} else {
 			Base_ActionBarCommon::add('save','Save',' href="javascript:void(0)" onClick="'.addcslashes($form->get_submit_form_js(true),'"').'"');
 		}
-			
+
 		return true;
 	}
-	
+
 	public function edit_event($subject) {
 		return $this->manage_event('edit', array('subject'=>$subject));
 	}
@@ -428,20 +428,20 @@ class CRM_Calendar_Event extends Module {
 	public function delete_event($subject) {
 		DB::Execute("delete from calendar_events where id=", array($subject));
 	}
-	
+
 	// DETAILS /////////////////////
 
-	
+
 	public function body(array $args = array()) {
-		
+
 		if($this->is_back())
 			return false;
-			
+
 		if(!isset($args['action']) || !isset($args['subject']))
 			return false;
 		$action = $args['action'];
 		$subject = $args['subject'];
-		
+
 		switch($action) {
 			case 'edit':
 				return $this->manage_event('edit', array('subject'=>$subject));
@@ -457,13 +457,13 @@ class CRM_Calendar_Event extends Module {
 				}
 				return $this->manage_event('new', array('date'=>$args['date']));
 				break;
-			default: 
+			default:
 				print 'def';
 				return false;
-				
+
 		}
 	}
-	
+
 // Leftover from old Event_0
 public function add_event($date, $time = null) {
 	        if($this->is_back())
@@ -484,16 +484,16 @@ public function add_event($date, $time = null) {
 	            // TODO:
 	            //  o Should not display form with event types, when event was successfully submited.
 	            //$form->display();
-	           
+
 	            $event = & $this->init_module($event_type);
 	            return $event->manage_event('new', array('date'=>$date, 'time'=>$time));
 		}
-		
+
 /*
 		public function edit_event($event_type, $event_id) {
 	        if($this->is_back())
 	            return false;
-	       
+
 	        $event = & $this->init_module($event_type);
 	        //return $event->edit_event($event_id);
 	        return $this->display_module($event, array('subject'=>$event_id, 'action'=>'edit'));
@@ -528,10 +528,9 @@ public function add_event($date, $time = null) {
 	                return false;
 	        }
 	    }
-	}	
-	
-*/	
+	}
+
+*/
 }
-
+}
 ?>
-
