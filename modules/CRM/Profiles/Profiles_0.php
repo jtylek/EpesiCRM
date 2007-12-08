@@ -34,8 +34,13 @@ class CRM_Profiles extends Module {
 		$th->assign('all','<a '.$this->create_callback_href(array($this,'set_profile'),'all').' id="crm_profiles_all">'.$this->lang->t('All').'</a>');
 		eval_js('Event.observe(\'crm_profiles_all\',\'click\', crm_profiles_deactivate)');
 
-		//foreach($launchpad as $v)
-			//eval_js('Event.observe(\''.$v['link_id'].'\',\'click\', actionbar_launchpad_deactivate)');
+		$ret = DB::Execute('SELECT id,name FROM crm_profiles_group WHERE user_login_id=%d',array(Acl::get_user()));
+		$profiles = array();
+		while($row = $ret->FetchRow()) {
+			$profiles[] = '<a '.$this->create_callback_href(array($this,'set_profile'),$row['id']).' id="crm_profiles_'.$row['id'].'">'.$row['name'].'</a>';
+			eval_js('Event.observe(\'crm_profiles_'.$row['id'].'\',\'click\', crm_profiles_deactivate)');
+		}
+		$th->assign('profiles',$profiles);
 
 		$qf = $this->init_module('Libs/QuickForm');
 		$contacts = CRM_ContactsCommon::get_contacts(array('Company Name'=>CRM_ContactsCommon::get_main_company()));
@@ -58,11 +63,13 @@ class CRM_Profiles extends Module {
 		if(!isset($this->tbl_contact_prefix))
 			trigger_error('Contact table prefix not set',E_USER_ERROR);
 
-		if($prof=='all') $ret = '';
-		elseif($prof=='my') {
+		if(is_numeric($prof)) {
+			$c = DB::GetCol('SELECT contact_id FROM crm_profiles_contacts WHERE group_id=%d',array($prof));
+			$ret = '('.$this->tbl_contact_prefix.'.id='.implode(' OR '.$this->tbl_contact_prefix.'.id=',$c).')';
+		} elseif($prof=='my') {
 			$me = CRM_ContactsCommon::get_contact_by_user_id(Acl::get_user());
 			$ret = $this->tbl_contact_prefix.'.id='.$me['id'];
-		}
+		} else $ret = ''; //all and undefined
 		$this->set_module_variable('profile',$ret);
 	}
 
@@ -102,7 +109,6 @@ class CRM_Profiles extends Module {
 
 			$contacts_def = DB::GetCol('SELECT contact_id FROM crm_profiles_contacts WHERE group_id=%d',array($id));
 
-			//tutaj dopisz ustawianie contactow
 			$form->setDefaults(array('name'=>$name,'contacts'=>$contacts_def));
 		} else
 			$form->addElement('header',null,$this->lang->t('New group'));
@@ -129,7 +135,6 @@ class CRM_Profiles extends Module {
 			foreach($v['contacts'] as $p)
 				DB::Execute('INSERT INTO crm_profiles_contacts(group_id,contact_id) VALUES(%d,%d)',array($id,$p));
 
-			//update contactow
 			return false;
 		} else {
 			Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
