@@ -38,7 +38,7 @@ class CRM_CalendarInstall extends ModuleInstall {
 			array('name'=>'CRM/Calendar/Utils/Sidetip', 'version'=>0),
 
 			array('name'=>'CRM/Calendar/Event', 'version'=>0),
-			array('name'=>'CRM/Calendar/Event/Personal', 'version'=>0),
+			//array('name'=>'CRM/Calendar/Event/Personal', 'version'=>0),
 
 			array('name'=>'CRM/Calendar/View/Agenda', 'version'=>0),
 			array('name'=>'CRM/Calendar/View/Week', 'version'=>0),
