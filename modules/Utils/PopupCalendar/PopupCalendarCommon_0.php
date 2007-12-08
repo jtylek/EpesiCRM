@@ -4,7 +4,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_CalendarCommon extends ModuleCommon {
 	public static function show($name,$function = '',$fullscreen=true,$top=0,$left=0) {
 		Base_ThemeCommon::load_css('Utils_Calendar');
-		load_js('modules/Utils/Calendar/js/main.js');
+		load_js('modules/Utils/PopupCalendar/js/main.js');
 
 		$label = 'Select date';
 		$calendar = '<div id="Utils_Calendar">'.
@@ -17,7 +17,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 
 			$ret .= '<div id="'.$entry.'" class="leightbox">'.
 				$calendar .
-				'<br><a class="button lbAction" rel="deactivate" id="close_leightbox">Close&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img style="vertical-align: top; padding-top: 3px;" src="' . Base_ThemeCommon::get_template_file('Utils/Calendar','close.png') . '"> width="14" height="14" alt="x" border="0"></a>'.
+				'<br><a class="button lbAction" rel="deactivate" id="close_leightbox">Close&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img style="vertical-align: top; padding-top: 3px;" src="' . Base_ThemeCommon::get_template_file('Utils/PopupCalendar','close.png') . '"> width="14" height="14" alt="x" border="0"></a>'.
 				'</div>';
 
 			$function .= ';leightbox_deactivate(\''.$entry.'\');';
@@ -38,6 +38,6 @@ class Utils_CalendarCommon extends ModuleCommon {
 	}
 }
 
-$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['datepicker'] = array('modules/Utils/Calendar/datepicker.php','HTML_QuickForm_datepicker');
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['datepicker'] = array('modules/Utils/PopupCalendar/datepicker.php','HTML_QuickForm_datepicker');
 
 ?>
