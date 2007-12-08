@@ -4,12 +4,12 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 require_once('adodb/adodb-active-record.inc.php');
 ADODB_Active_Record::SetDatabaseAdapter(DB::$ado);
 
-class CRM_Calendar_Event_Record extends ADODB_Active_Record {
+class Utils_Calendar_Event_Record extends ADODB_Active_Record {
 	var $_table = 'calendar_events';
 
 }
 
-class CRM_Calendar_Event extends Module {
+class Utils_Calendar_Event extends Module {
 
 	public $lang;
 

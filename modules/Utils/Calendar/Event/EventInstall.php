@@ -1,7 +1,7 @@
 <?php
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class CRM_Calendar_EventInstall extends ModuleInstall {
+class Utils_Calendar_EventInstall extends ModuleInstall {
 
 	public function install() {
 

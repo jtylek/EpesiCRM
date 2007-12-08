@@ -1,7 +1,7 @@
 <?php
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class CRM_Calendar_EventCommon extends ModuleCommon {
+class Utils_Calendar_EventCommon extends ModuleCommon {
 
 	public static function make_containment_id($year, $month, $day, $hour = 'tt') {
 		if($hour === 'tt')
