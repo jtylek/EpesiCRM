@@ -106,33 +106,6 @@ class Base_Theme extends Module {
 		$css = $module_name.'.css';
 		
 		Base_ThemeCommon::display_smarty($this->smarty,$tpl,$css);
-/*
-		if($this->smarty->template_exists($tpl)) {
-			$this->smarty->assign('theme_dir',$this->smarty->template_dir);
-			$this->smarty->display($tpl);
-			$cssf = $this->smarty->template_dir.'/'.$css;
-			if(file_exists($cssf))
-		    		load_css($cssf);
-
-			//trigger_error($this->smarty->template_dir.$templ_name, E_USER_ERROR);
-		} else {
-			$this->smarty->template_dir = self::$themes_dir.'default';
-			$this->smarty->compile_id = 'default';
-
-			if(!$this->smarty->template_exists($tpl)) {
-				trigger_error('Template not found: '.$tpl,E_USER_ERROR);
-			}
-
-			$this->smarty->assign('theme_dir',$this->smarty->template_dir);
-			$this->smarty->display($tpl);
-			$cssf = $this->smarty->template_dir.'/'.$css;
-			if(file_exists($cssf))
-				load_css($cssf);
-
-			$this->smarty->template_dir = self::$themes_dir.self::$theme;
-			$this->smarty->compile_id = self::$theme;
-		}
-*/
 	}
 
 	/**

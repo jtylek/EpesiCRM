@@ -29,23 +29,37 @@ class CRM_ContactsCommon extends ModuleCommon {
 		}
 	}
 	public static function access_company($action, $param){
+		$i = self::Instance();
 		switch ($action) {
-		case 'browse':	return true;
-						break;
-		case 'view':	return false;
-						break;
+			case 'browse':	return $i->acl_check('browse companies');
+			case 'view':	static $me;
+					if(!isset($me)) {
+						$me = Utils_RecordBrowserCommon::get_records('contact', array('login'=>Acl::get_user()),false,true);
+						if (is_array($me) && !empty($me)) $me = array_shift($me);
+					}
+					if($me && in_array($param['id'],$me['Company Name'])) return true; //my company
+					return $i->acl_check('view company');
+			case 'edit':	return $i->acl_check('edit company');
+			case 'delete':	return $i->acl_check('delete company');
 		}
-		return true;
+		return false;
 	}
 	public static function access_contact($action, $param){
+		$i = self::Instance();
 		switch ($action) {
-		case 'browse':	return true;
-		case 'view':	return true;
-		case 'delete':	return true;
-		case 'edit':	return true;
-		case 'edit_fields':	return array('Country'=>false);
+			case 'browse':	return $i->acl_check('browse contacts');
+			case 'view':	static $me;
+					if(!isset($me)) {
+						$me = Utils_RecordBrowserCommon::get_records('contact', array('login'=>Acl::get_user()),false,true);
+						if (is_array($me) && !empty($me)) $me = array_shift($me);
+					}
+					if($me['id']==$param['id']) return true; //me
+					return $i->acl_check('view contact');
+			case 'delete':	return $i->acl_check('delete contact');
+			case 'edit':	return $i->acl_check('edit contact');
+			case 'edit_fields':	return array('Country'=>false);
 		}
-		return true;
+		return false;
 	}
 
 	/*--------------------------------------------------------------------*/
