@@ -25,16 +25,13 @@ class Utils_CalendarInstall extends ModuleInstall {
 	}
 	public function requires($v) {
 		return array(
+			array('name'=>'Base/User/Settings','version'=>0),
+
+			array('name'=>'Utils/Tooltip', 'version'=>0),
 			array('name'=>'Utils/TabbedBrowser', 'version'=>0),
 			array('name'=>'Utils/GenericBrowser', 'version'=>0),
-			array('name'=>'Utils/Calendar', 'version'=>0),
 			array('name'=>'Utils/Tooltip', 'version'=>0),
 			array('name'=>'CRM/Profiles', 'version'=>0),
-
-//			array('name'=>'CRM/Calendar/Utils/Func', 'version'=>0),
-//			array('name'=>'CRM/Calendar/Utils/Sidetip', 'version'=>0),
-
-//			array('name'=>'CRM/Calendar/Event', 'version'=>0),
 
 			array('name'=>'Utils/Calendar/View/Agenda', 'version'=>0),
 			array('name'=>'Utils/Calendar/View/Week', 'version'=>0),
