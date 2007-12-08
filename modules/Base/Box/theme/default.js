@@ -29,17 +29,10 @@ correctPNG = function() // correctly handle PNG transparency in Win IE 5.5 & 6.
 };
 document.observe("e:load", correctPNG);
 
-function_roll = function() {
-   if(document.getElementById("ActionBar").style.height == '0px' && document.getElementById("EmptyDiv").style.height == '34px') {
-      document.getElementById("ActionBar").style.height = '78px';
-      document.getElementById("EmptyDiv").style.height = '102px';
-      document.getElementById("ShadowBar").style.height = '0px';
-      document.getElementById("top_bar").style.height = '102px';
-   }
-   else {
-      document.getElementById("ActionBar").style.height = '0px';
-      document.getElementById("EmptyDiv").style.height = '34px';
-      document.getElementById("ShadowBar").style.height = '10px';
-      document.getElementById("top_bar").style.height = '34px';
-   }
+base_box_roll_topbar = function() {
+	Effect.toggle('ActionBar','slide',{duration:0.3});
+	if($('EmptyDiv').style.display == 'none')
+		$('EmptyDiv').show();
+	else
+		setTimeout('$(\'EmptyDiv\').hide()',300);
 }

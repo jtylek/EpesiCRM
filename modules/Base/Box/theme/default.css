@@ -137,11 +137,15 @@ hr.line {
 }
 
 #EmptyDiv {
-    height: 102px;
+    height: 72px;
+}
+
+#EmptyDivMenu {
+    height: 24px;
 }
 
 #ShadowBar {
-    height: 0px;
+    height: 10px;
     background-image: url('images/shadow/b.png');
     background-repeat: repeat-x;
 }
