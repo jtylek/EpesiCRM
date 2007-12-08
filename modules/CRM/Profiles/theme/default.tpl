@@ -98,7 +98,7 @@
     
 <table id="CRM_Profiles" cellspacing="0" cellpadding="0">
     <tr>
-        <td colspan="4" class="Profiles_header">Groups</td>
+        <td colspan="3" class="Profiles_header">&nbsp;&nbsp;Groups&nbsp;&nbsp;</td>
     </tr>
 	<tr>
 
@@ -114,7 +114,7 @@
 <!-- -->
 
 	    {$__link.profiles.$k.open}
-		<div class="button-small">
+		<div class="button">
             <span>{$__link.profiles.$k.text}</span>
         </div>
 	    {$__link.profiles.$k.close}
@@ -140,7 +140,7 @@
 
 	</td>
 
-	{if ($x%4)==0}
+	{if ($x%3)==0}
 	</tr>
 	<tr>
 	{/if}
