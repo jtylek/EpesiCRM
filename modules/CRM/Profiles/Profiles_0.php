@@ -64,7 +64,8 @@ class CRM_Profiles extends Module {
 			trigger_error('Contact table prefix not set',E_USER_ERROR);
 
 		if(is_numeric($prof)) {
-			$c = DB::GetCol('SELECT contact_id FROM crm_profiles_contacts WHERE group_id=%d',array($prof));
+			DB::Execute('DELETE FROM crm_profiles_contacts WHERE (SELECT cd.value FROM contact_data cd WHERE cd.contact_id=contact_id AND cd.field=\'Company Name\')!=%d',CRM_ContactsCommon::get_main_company());
+			$c = DB::GetCol('SELECT p.contact_id FROM crm_profiles_contacts p WHERE p.group_id=1',array($prof));
 			$ret = '('.$this->tbl_contact_prefix.'.id='.implode(' OR '.$this->tbl_contact_prefix.'.id=',$c).')';
 		} elseif($prof=='my') {
 			$me = CRM_ContactsCommon::get_contact_by_user_id(Acl::get_user());
