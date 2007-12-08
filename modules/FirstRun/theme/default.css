@@ -38,6 +38,14 @@ body#FirstRun {
     color: #777777;
 }
 
+#FirstRun span.footer a {
+    color: #336699;
+}
+
+#FirstRun span.footer a:hover {
+    color: #993333;
+}
+
 /*** table banner ***/
 
 #FirstRun #banner {

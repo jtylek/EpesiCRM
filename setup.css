@@ -47,6 +47,14 @@ span.footer {
     color: #777777;
 }
 
+span.footer a {
+    color: #336699;
+}
+
+span.footer a:hover {
+    color: #993333;
+}
+
 /*** table banner ***/
 
 #banner {

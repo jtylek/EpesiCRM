@@ -56,7 +56,7 @@ table#Base_ActionBar .button:hover {
 
 table#Base_ActionBar a {
 	color: #336699;
-	/*font-weight: bold;*/
+	font-weight: bold;
 }
 
 table#Base_ActionBar a:hover {
