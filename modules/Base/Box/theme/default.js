@@ -34,10 +34,12 @@ function_roll = function() {
       document.getElementById("ActionBar").style.height = '78px';
       document.getElementById("EmptyDiv").style.height = '102px';
       document.getElementById("ShadowBar").style.height = '0px';
+      document.getElementById("top_bar").style.height = '102px';
    }
    else {
       document.getElementById("ActionBar").style.height = '0px';
       document.getElementById("EmptyDiv").style.height = '34px';
       document.getElementById("ShadowBar").style.height = '10px';
+      document.getElementById("top_bar").style.height = '34px';
    }
 }
