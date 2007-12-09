@@ -24,7 +24,7 @@
 	<table cellspacing=0 class=week>
 {* shows month *}
 		<tr>
-			<td class="hours_header" rowspan="2"><img src="{$theme_dir}/Utils_Calendar__icon-day.png" width="32" height="32" border="0"><br>Day calendar</td>
+			<td class="hours_header" rowspan="2"><img src="{$theme_dir}/Utils_Calendar__icon-day.png" width="32" height="32" border="0"><br>{$day_view_label}</td>
 			<td class=header_month>{$header_month}</td>
 
 		</tr>
@@ -36,7 +36,7 @@
 
 {* this row contains timeless events *}
 		<tr>
-			<td class="hours_header_lower">Timeless</td>
+			<td class="hours_header_lower">{$timeless_label}</td>
 
 			<td class="header_timeless" id="timeless_eventid">
 				Timeless events here.

@@ -140,6 +140,9 @@ class Utils_Calendar extends Module {
 		$theme->assign('header_day', $header_day);
 		$theme->assign('timeline', $this->get_timeline());
 
+		$theme->assign('day_view_label', $this->lang->t('Day calendar'));
+		$theme->assign('timeless_label', $this->lang->t('Timeless'));
+
 		$theme->display('day');
 	}
 
@@ -217,6 +220,9 @@ class Utils_Calendar extends Module {
 			$day_headers[] = date('d D', $dis_week_from+$i*86400);
 		$theme->assign('header_month', $header_month);
 		$theme->assign('day_headers', $day_headers);
+
+		$theme->assign('week_view_label', $this->lang->t('Week calendar'));
+		$theme->assign('timeless_label', $this->lang->t('Timeless'));
 
 		$theme->display('week');
 	}
