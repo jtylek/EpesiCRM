@@ -1,11 +1,27 @@
-<!-- SHADIW BEGIN -->
+<div class="day-menu">
+	<table border="0"><tr>
+		<td style="padding-left: 180px;"></td>
+		<td class="empty"></td>
+		<td style="width: 10px;"></td>
+		<td><a class="button" {$prev_href}>{$prev_label}&nbsp;&nbsp;<img border="0" width="8" height="8" src="{$theme_dir}/Utils_Calendar__prev.png"></a></td>
+		<td><a class="button" {$today_href}>{$today_label}&nbsp;&nbsp;<img border="0" width="8" height="8" src="{$theme_dir}/Utils_Calendar__this.png"></a></td>
+		<td><a class="button" {$next_href}><img border="0" width="8" height="8" src="{$theme_dir}/Utils_Calendar__next.png">&nbsp;&nbsp;{$next_label}</a></td>
+		<td style="width: 10px;"></td>
+		<td>{$popup_calendar}</td>
+		<td class="empty"></td>
+		<td class="add-info">{$info}</td>
+	</tr></table>
+</div>
+
+
+<!-- SHADOW BEGIN -->
 	<div class="layer" style="padding: 9px; width: 60%;">
 		<div class="content_shadow">
 <!-- -->
 
 <div style="padding: 5px; background-color: #FFFFFF;">
 
-	<table name=CRMCalendar cellspacing=0 class=week>
+	<table cellspacing=0 class=week>
 {* shows month *}
 		<tr>
 			<td class="hours_header" rowspan="2"><img src="{$theme_dir}/Utils_Calendar__icon-day.png" width="32" height="32" border="0"><br>Day calendar</td>
@@ -30,7 +46,7 @@
 		<tr>
 		{foreach key=k item=stamp from=$timeline}
 			<tr>
-				<td class="hour">{$stamp}</td>
+				<td class="hour">{$stamp.start} - {$stamp.end}</td>
 				<td class="inter">...</td>
 			</tr>
 		{/foreach}

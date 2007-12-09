@@ -162,7 +162,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	}
 
 	public static function server_time($t) {
-		$t = strtotime($t);
+		if(!is_numeric($t) && is_string($t)) $t = strtotime($t);
 		$curr_tz = date_default_timezone_get();
 		date_default_timezone_set(SYSTEM_TIMEZONE);
 		$ret = DB::BindTimeStamp($t);
@@ -171,7 +171,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	}
 
 	public static function server_date($t) {
-		$t = strtotime($t);
+		if(!is_numeric($t) && is_string($t)) $t = strtotime($t);
 		$curr_tz = date_default_timezone_get();
 		date_default_timezone_set(SYSTEM_TIMEZONE);
 		$ret = DB::BindDate($t);
@@ -191,9 +191,13 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		return '%I:%M:%S %p'==Base_User_SettingsCommon::get('Base_RegionalSettings','time');
 	}
 
-	public static function convert_24h($in) {
-		$t = strtotime($in);
+	public static function convert_24h($t,$seconds=true) {
+		if(!is_numeric($t) && is_string($t)) $t = strtotime($t);
 		$format = Base_User_SettingsCommon::get('Base_RegionalSettings','time');
+		if(!$seconds) {
+			$p = strpos($format,':%S');
+			$format = substr($format,0,$p).substr($format,$p+3);
+		}
 		$ret = self::strftime($format,$t);
 		return $ret;
 	}
