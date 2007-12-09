@@ -67,7 +67,8 @@ class Utils_Calendar extends Module {
 		$tb->tag();
 	}
 
-	////////////////////////////////////////
+	//////////////////////////////////////////////
+	// agenda
 	public function agenda() {
 		$theme = $this->pack_module('Base/Theme');
 
@@ -114,6 +115,8 @@ class Utils_Calendar extends Module {
 		$theme->display('agenda');
 	}
 
+	////////////////////////////////////////////////////////////////////
+	// day
 	public function day() {
 		$theme = & $this->pack_module('Base/Theme');
 
@@ -125,9 +128,9 @@ class Utils_Calendar extends Module {
 		$theme->assign('prev_label', $this->lang->ht('Previous day'));
 		$theme->assign('info', $this->lang->t('Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event'));
 		if($this->isset_unique_href_variable('date'))
-			$this->date = strtotime($this->get_unique_href_variable('date'));
+			$this->set_date($this->get_unique_href_variable('date'));
 		$link_text = $this->create_unique_href_js(array('date'=>'__YEAR__-__MONTH__-__DAY__'));
-		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text));
+		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('day_selector', $link_text));
 
 		$header_month = '<a>'.date('M Y',$this->date).'</a>';
 		$header_day = Utils_TooltipCommon::create('<a><table width=100%><tr><td width=50% align=left><span class=day_number >'.date('d',$this->date).'</span></td>'.
@@ -140,8 +143,55 @@ class Utils_Calendar extends Module {
 		$theme->display('day');
 	}
 
-	public function week() {
+	///////////////////////////////////////////////////////
+	// week
+	public function shift_week_day($s) { //true=+1,false=-1
+		$sh = & $this->get_module_variable('week_shift',0);
+		if($s) {
+			$sh++;
+			if($sh==7) {
+				$sh=0;
+				$this->date+=604800; //next week
+			}
+		} else {
+			$sh--;
+			if($sh==-1) {
+				$sh=6;
+				$this->date-=604800; //prev week
+			}
+		}
+	}
+	public function set_week_date($d) {
+		$this->set_date($d);
+		$this->set_module_variable('week_shift',0);
+	}
 
+	public function week() {
+		$theme = & $this->pack_module('Base/Theme');
+
+		$theme->assign('next7_href', $this->create_callback_href(array($this,'set_date'),$this->date+604800));
+		$theme->assign('next7_label',$this->lang->ht('Next week'));
+		$theme->assign('next_href', $this->create_callback_href(array($this,'shift_week_day'),true));
+		$theme->assign('next_label',$this->lang->ht('Next day'));
+		$theme->assign('today_href', $this->create_callback_href(array($this,'set_week_date'),time()));
+		$theme->assign('today_label', $this->lang->ht('Today'));
+		$theme->assign('prev_href', $this->create_callback_href(array($this,'shift_week_day'),false));
+		$theme->assign('prev_label', $this->lang->ht('Previous day'));
+		$theme->assign('prev7_href', $this->create_callback_href(array($this,'set_date'),$this->date-604800));
+		$theme->assign('prev7_label', $this->lang->ht('Previous week'));
+		$theme->assign('info', $this->lang->t('Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event'));
+		if($this->isset_unique_href_variable('date'))
+			$this->set_week_date($this->get_unique_href_variable('date'));
+		$link_text = $this->create_unique_href_js(array('date'=>'__YEAR__-__MONTH__-__DAY__'));
+		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text));
+
+		$theme->assign('timeline', $this->get_timeline());
+
+		//get first day of the week $this->date and add shift
+		$week_shift = 86400*$this->get_module_variable('week_shift',0);
+		//oblicz pierwszy dzien na bazie funkcji date pobierajac numer dnia w tygodniu
+
+		$theme->display('week');
 	}
 
 	public function month() {
