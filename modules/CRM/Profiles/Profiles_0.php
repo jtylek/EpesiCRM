@@ -34,10 +34,10 @@ class CRM_Profiles extends Module {
 
 		eval_js_once('crm_profiles_deactivate = function(){leightbox_deactivate(\'crm_profiles\');}');
 
-		$th->assign('my','<a '.$this->create_callback_href(array($this,'set_profile'),'my').' id="crm_profiles_my">'.$this->lang->t('My').'</a>');
+		$th->assign('my','<a '.$this->create_callback_href(array($this,'set_profile'),'my').' id="crm_profiles_my">'.$this->lang->t('My profile').'</a>');
 		eval_js('Event.observe(\'crm_profiles_my\',\'click\', crm_profiles_deactivate)');
 
-		$th->assign('all','<a '.$this->create_callback_href(array($this,'set_profile'),'all').' id="crm_profiles_all">'.$this->lang->t('All').'</a>');
+		$th->assign('all','<a '.$this->create_callback_href(array($this,'set_profile'),'all').' id="crm_profiles_all">'.$this->lang->t('All profiles').'</a>');
 		eval_js('Event.observe(\'crm_profiles_all\',\'click\', crm_profiles_deactivate)');
 
 		$ret = DB::Execute('SELECT id,name FROM crm_profiles_group WHERE user_login_id=%d',array(Acl::get_user()));

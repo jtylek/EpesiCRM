@@ -10,6 +10,10 @@
 	font-weight: bold;
 }
 
+.Profiles_header {
+	font-weight: normal;
+}
+
 #Profiles_header .left {
 	width: 17px;
 	display: block;
@@ -47,7 +51,7 @@ table#CRM_Profiles .button-small {
 	text-align: center;
 	font-size: 11px;
 	display: block;
-	cursor: hand;
+	cursor: pointer;
 }
 
 /* button */
@@ -66,6 +70,24 @@ table#CRM_Profiles .button:hover {
 table#CRM_Profiles a .button {
 	color: #336699;
 	font-weight: bold;
+}
+
+table#CRM_Profiles a .button .desc {
+	font-weight: normal;
+}
+
+table#CRM_Profiles .button span {
+	display: block;
+}
+
+table#CRM_Profiles .button span.text {
+	padding-bottom: 5px;
+}
+
+table#CRM_Profiles .button span.desc {
+	width: 100px;
+	text-align: left;
+	margin-left: 10px;
 }
 
 /* button-small */
