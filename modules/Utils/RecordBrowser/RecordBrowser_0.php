@@ -426,7 +426,7 @@ class Utils_RecordBrowser extends Module {
 		$init_js = '';
 		foreach($this->table_rows as $field => $args){
 			if (isset($this->QFfield_callback_table[$field])) {
-				call_user_func($this->QFfield_callback_table[$field], $form, $args['id'], $this->lang->t($args['name']), $mode, $mode=='add'?0:$record[$field]);
+				call_user_func($this->QFfield_callback_table[$field], $form, $args['id'], $this->lang->t($args['name']), $mode, $mode=='add'?array():$record[$field]);
 				continue;
 			}
 			if ($mode!=='add' && $mode!=='edit') $record[$field] = $this->get_val($field, $record[$field], $id);
@@ -499,7 +499,6 @@ class Utils_RecordBrowser extends Module {
 											$comp = $comp+$data;
 										else {
 											$ret = DB::Execute('SELECT * FROM '.$tab.'_data WHERE field=%s ORDER BY value', array($col));
-											vprintf('SELECT * FROM '.$tab.'_data WHERE field=%s ORDER BY value', array($col));
 											while ($row = $ret->FetchRow()) $comp[$row[$tab.'_id']] = $row['value'];
 										}
 										$form->addElement($args['type'], $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', $comp, array('id'=>$args['id']));
