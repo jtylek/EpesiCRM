@@ -396,5 +396,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (!$nolink) return '<a '.Module::create_href(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($tab), 'tab'=>$tab, 'id'=>$id, 'action'=>'view')).'>'.$label.'</a>';
 		else return $label;
 	}
+
+	public function create_record_href($tab, $id){
+		return Module::create_href(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($tab), 'tab'=>$tab, 'id'=>$id, 'action'=>'view'));
+	}
 }
 ?>
