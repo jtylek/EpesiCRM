@@ -125,7 +125,7 @@ class Utils_Attachment extends Module {
 			}
 			$r = $gb->get_new_row();
 
-			$file = '<a '.$this->get_file($row).'>'.$row['original'].'</a>';
+			$file = '<a '.$this->get_file($row).' '.Utils_TooltipCommon::open_tag_attrs($row['original']).'><img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'attach.png').'" border=0></a>';
 			static $def_permissions = array('Public','Protected','Private');
 			$perm = $this->lang->t($def_permissions[$row['permission']]);
 			$info = $this->lang->t('Owner: %s',array($row['permission_owner'])).'<br>'.
@@ -197,7 +197,7 @@ class Utils_Attachment extends Module {
 		print '<div class="leightbox" id="'.$lid.'">'.
 			$c.
 			'</div>';
-		return 'class="lbOn" rel="'.$lid.'"';
+		return 'class="lbOn" rel="'.$lid.'" href="javascript:void(0)"';
 	}
 
 	public function view($id) {
@@ -301,7 +301,7 @@ class Utils_Attachment extends Module {
 			   ($row['permission']==1 && $this->protected_write) ||
 			   ($row['permission']==2 && $this->private_write))
 				$r->add_action($this->create_callback_href(array($this,'restore_file'),array($id,$row['file_revision'])),'restore');
-			$file = '<a '.$this->get_file($row).'>'.$row['original'].'</a>';
+			$file = '<a '.$this->get_file($row).' '.Utils_TooltipCommon::open_tag_attrs($row['original']).'><img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'attach.png').'" border=0></a>';
 			$r->add_data($row['file_revision'],$row['upload_on'],$row['upload_by'],$file);
 		}
 		$this->display_module($gb);
