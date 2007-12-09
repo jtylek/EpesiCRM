@@ -68,16 +68,6 @@
 							<td class="label">&nbsp;</td>
 						{/if}
 					</tr>
-					{if isset($Form_data.create_company)}
-					<tr>
-						<td class="label" nowrap>
-							{$Form_data.create_company.label}
-						</td>
-						<td class="data">
-							{$Form_data.create_company.html}
-						</td>
-					</tr>
-					{/if}
 				</table>
 			</td>
 		</tr>
