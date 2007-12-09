@@ -62,13 +62,13 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 			#epesiStatus {
   				/* Netscape 4, IE 4.x-5.0/Win and other lesser browsers will use this */
   				position: absolute;
-  				left: 40%; top: 45%;
+  				left: 50%; top: 30%;
+                margin-left: -280px;
   				/* all */
   				background-color: #e6ecf2;
 				border: 2px solid #336699;
 				visibility: hidden;
-				width: 300px;
-                min-height: 40px;
+				width: 560px;
 				text-align: center;
 				vertical-align: middle;
                 color: #336699;
@@ -78,7 +78,7 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 				font-weight: bold;
 				font-family: "Tahoma" "Verdana" "Vera-Sans" "DejaVu-Sans";
 				font-size: 11px;
-				border: 4px solid #FFFFFF;
+				border: 5px solid #FFFFFF;
             }
             body {
                 /*background-color: #5C5C5C;*/
@@ -91,11 +91,14 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 
 		<div id="epesiStatus">
 			<table cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
+                <tr>
+                    <td><img src="images/logo.png" width="550" height="200" border="0"></td>
+                </tr>
 				<tr>
-					<td style="text-align: center; vertical-align: center; height: 30px;"><span id="epesiStatusText">Starting epesi ...<span></td>
+					<td style="text-align: center; vertical-align: center; height: 40px;"><span id="epesiStatusText">Starting epesi ...<span></td>
                 </tr>
                 <tr>
-					<td style="text-align: center; vertical-align: center; height: 20px;"><img src="images/loader.gif" width="256" height="10" border="0"></td>
+					<td style="text-align: center; vertical-align: center; height: 30px;"><img src="images/loader.gif" width="256" height="10" border="0"></td>
 				</tr>
 			</table>
 		</div>
