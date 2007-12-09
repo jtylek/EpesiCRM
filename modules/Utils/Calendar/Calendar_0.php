@@ -287,7 +287,43 @@ class Utils_Calendar extends Module {
 	}
 
 	public function year() {
+		$theme = & $this->pack_module('Base/Theme');
 
+		$theme->assign('nextyear_href', $this->create_callback_href(array($this,'set_date'),strtotime((date('Y',$this->date)+1).date('-m-d',$this->date))));
+		$theme->assign('nextyear_label',$this->lang->ht('Next year'));
+		$theme->assign('today_href', $this->create_callback_href(array($this,'set_date'),time()));
+		$theme->assign('today_label', $this->lang->ht('Today'));
+		$theme->assign('prevyear_href', $this->create_callback_href(array($this,'set_date'),strtotime((date('Y',$this->date)-1).date('-m-d',$this->date))));
+		$theme->assign('prevyear_label', $this->lang->ht('Previous year'));
+		$theme->assign('info', $this->lang->t('Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event'));
+		
+		if ($this->isset_unique_href_variable('date'))
+			$this->set_date($this->get_unique_href_variable('date'));
+		
+		$link_text = $this->create_unique_href_js(array('date'=>'__YEAR__-__MONTH__-__DAY__'));
+		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text));
+
+	
+		$day_headers = array();
+		for ($i=0; $i<7; $i++)
+			$day_headers[] = date('D', strtotime('Sun')+86400*($i+$this->settings['first_day_of_week']));
+
+		$theme->assign('month_view_label', $this->lang->t('Year calendar'));
+		$theme->assign('timeless_label', $this->lang->t('Timeless'));
+
+		$year = array();
+		for ($i=1; $i<=12; $i++) {
+			$date = strtotime(date('Y',$this->date).'-'.str_pad($i, 2, "0", STR_PAD_LEFT).'-'.date('d',$this->date));
+			$month = $this->month_array($date);
+			$year[] = array('month' => $month,
+							'month_label' => date('F', $date),
+							'year_label' => date('Y', $date)
+							);
+		}
+		$theme->assign('year', $year);
+		$theme->assign('day_headers', $day_headers);
+
+		$theme->display('year');
 	}
 
 	////////////////////////////////////////

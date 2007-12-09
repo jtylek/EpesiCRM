@@ -393,7 +393,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}		
 	public function create_linked_label($tab, $col, $id, $nolink=false){
 		$label = DB::GetOne('SELECT value FROM '.$tab.'_data WHERE field=%s AND '.$tab.'_id=%d', array($col, $id));
-		if (!$nolink) return '<a '.Module::create_href(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($tab), 'tab'=>$tab, 'id'=>$id, 'action'=>'view')).'>'.$label.'</a>';
+		if (!$nolink) return '<a '.self::create_record_href($tab, $id).'>'.$label.'</a>';
 		else return $label;
 	}
 
