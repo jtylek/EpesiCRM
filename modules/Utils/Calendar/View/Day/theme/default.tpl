@@ -9,17 +9,13 @@
 {* shows month *}
 		<tr>
 			<td class="hours_header" rowspan="2"><img src="{$theme_dir}/Utils_Calendar__icon-day.png" width="32" height="32" border="0"><br>Day calendar</td>
-			<td class=header_month>{$header_month.info}</td>
+			<td class=header_month>{$header_month}</td>
 
 		</tr>
 
 {* this row contains days of month *}
 		<tr>
-			{if $header_day.class == 'today'}
-				<td class="header_day">{$header_day.info}</td>
-			{else}
-				<td class="header_day">{$header_day.info}</td>
-			{/if}
+			<td class="header_day">{$header_day}</td>
 		</tr>
 
 {* this row contains timeless events *}
@@ -32,13 +28,13 @@
 		</tr>
 
 		<tr>
-		{foreach key=k item=stamp from=$timetable}
+		{foreach key=k item=stamp from=$timeline}
 			<tr>
-				<td class="hour">{$stamp.hours}</td>
-				<td class="inter">Events here....</tr>
+				<td class="hour">{$stamp}</td>
+				<td class="inter">...</td>
 			</tr>
 		{/foreach}
-		
+
 	</table>
 
 </div>
