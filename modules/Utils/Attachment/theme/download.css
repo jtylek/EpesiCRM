@@ -1,6 +1,5 @@
-#Profiles_header,
-.Profiles_header {
-	color: #FFFFFF;
+#Attachment_header {
+    color: #FFFFFF;
 	background-color: #336699;
 	background-image: url("images/header-blue.png");
 	background-repeat: repeat-x;
@@ -10,17 +9,13 @@
 	font-weight: bold;
 }
 
-.Profiles_header {
-	font-weight: normal;
-}
-
-#Profiles_header .left {
+#Attachment_header .left {
 	width: 17px;
 	display: block;
 	float: left;
 }
 
-#Profiles_header .center {
+#Attachment_header .center {
 	display: block;
 	float: left;
 	padding-top: 3px;
@@ -28,7 +23,7 @@
 	text-align: center;
 }
 
-#Profiles_header .right {
+#Attachment_header .right {
 	width: 17px;
 	display: block;
 	float: right;
@@ -36,7 +31,7 @@
 	padding-right: 3px;
 }
 
-table#CRM_Profiles .button {
+table#Utils_Attachment__download .button {
 	background-color: #F0F0F0;
 	border: 1px solid #FFFFFF;
 	background-repeat: repeat-x;
@@ -50,36 +45,18 @@ table#CRM_Profiles .button {
 	padding-top: 10px;
 }
 
-table#CRM_Profiles .button:hover {
+table#Utils_Attachment__download .button:hover {
 	background-color: #FFFFFF;
 	background-image: url("images/big-button-hover.png");
 }
 
-table#CRM_Profiles a .button {
+table#Utils_Attachment__download a .button {
 	color: #336699;
 	font-weight: bold;
 }
 
-table#CRM_Profiles a .button .desc {
-	font-weight: normal;
-}
-
-table#CRM_Profiles .button span {
-	display: block;
-}
-
-table#CRM_Profiles .button span.text {
-	padding-bottom: 5px;
-}
-
-table#CRM_Profiles .button span.desc {
-	width: 100px;
-	text-align: left;
-	margin-left: 10px;
-}
-
 /* a */
 
-table#CRM_Profiles a:hover {
+table#Utils_Attachment__download a:hover {
 	color: #993333;
 }

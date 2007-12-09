@@ -1,6 +1,7 @@
 <center>
 
 <div id="Profiles_header">
+    <div class="left"></div>
     <div class="center"><div style="position: absolute; left: 45%;">{$header}</div></div>
 	<div class="right">{$__link.close.open}<img src="{$theme_dir}/CRM_Profiles__close.png" width="14" height="14" alt="x" border="0">{$__link.close.close}</div>
 </div>

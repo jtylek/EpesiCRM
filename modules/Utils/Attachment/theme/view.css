@@ -1,0 +1,34 @@
+#Utils_Attachment__view {
+    width: 100%;    
+}
+
+#Utils_Attachment__view .header {
+    color: #FFFFFF;
+	background-color: #336699;
+	background-image: url("images/header-blue.png");
+	background-repeat: repeat-x;
+	height: 20px;
+	text-align: center;
+	vertical-align: middle;
+	font-weight: bold;
+
+}
+
+#Utils_Attachment__view .note {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #B3B3B3;
+}
+
+#Utils_Attachment__view .file {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    text-align: center;
+}
+
+#Utils_Attachment__view .file span {
+}
+
+#Utils_Attachment__view .file a {
+    cursor: pointer;
+}
