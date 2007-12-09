@@ -4,9 +4,7 @@
 		<td class="empty"></td>
 		<td style="width: 10px;"></td>
 		<td><a class="button" {$prevyear_href}>{$prevyear_label}&nbsp;&nbsp;<img border="0" width="8" height="8" src="{$theme_dir}/Utils_Calendar__prev.png"></a></td>
-		<td><a class="button" {$prevmonth_href}>{$prevmonth_label}&nbsp;&nbsp;<img border="0" width="8" height="8" src="{$theme_dir}/Utils_Calendar__prev.png"></a></td>
 		<td><a class="button" {$today_href}>{$today_label}&nbsp;&nbsp;<img border="0" width="8" height="8" src="{$theme_dir}/Utils_Calendar__this.png"></a></td>
-		<td><a class="button" {$nextmonth_href}><img border="0" width="8" height="8" src="{$theme_dir}/Utils_Calendar__next.png">&nbsp;&nbsp;{$nextmonth_label}</a></td>
 		<td><a class="button" {$nextyear_href}><img border="0" width="8" height="8" src="{$theme_dir}/Utils_Calendar__next.png">&nbsp;&nbsp;{$nextyear_label}</a></td>
 		<td style="width: 10px;"></td>
 		<td>{$popup_calendar}</td>
@@ -23,10 +21,11 @@
 
 <div style="padding: 5px; background-color: #FFFFFF;">
 
+{foreach item=month from=$year}
 	<table name="CRMCalendar" class="crm_calendar_month" cellpadding="0" cellspacing="0" border="0">
 		<tr>
 			<td class="month-header" rowspan="2"><!-- <img src="{$theme_dir}/Utils_Calendar__icon.png" width="32" height="32" border="0"> --></td>
-			<td class="month-header" colspan="7">{$month_label} &bull; {$year_label}</td>
+			<td class="month-header" colspan="7">{$month.month_label} &bull; {$month.year_label}</td>
 		</tr>
 
 		<tr>
@@ -35,7 +34,7 @@
 			{/foreach}
 		</tr>
 
-		{foreach item=week from=$month}
+		{foreach item=week from=$month.month}
 			<tr>
 				<td>{$week.week_label}</td>
 				{foreach item=day from=$week.days}
@@ -44,6 +43,7 @@
 			</tr>
 		{/foreach}
 	</table>
+{/foreach}
 
 </div>
 
