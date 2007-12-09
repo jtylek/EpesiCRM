@@ -140,13 +140,14 @@ hr.line {
 }
 
 #EmptyDivMenu {
-    height: 24px;
+    height: 34px;
 }
 
 #ShadowBar {
     height: 10px;
     background-image: url('images/shadow/b.png');
     background-repeat: repeat-x;
+    display: none;
 }
 
 /*** top_bar_1 ***/

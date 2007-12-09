@@ -30,9 +30,13 @@ correctPNG = function() // correctly handle PNG transparency in Win IE 5.5 & 6.
 document.observe("e:load", correctPNG);
 
 base_box_roll_topbar = function() {
-	Effect.toggle('ActionBar','slide',{duration:0.3});
-	if($('EmptyDiv').style.display == 'none')
-		$('EmptyDiv').show();
-	else
-		setTimeout('$(\'EmptyDiv\').hide()',300);
+   Effect.toggle('ActionBar','slide',{duration:0.3});
+   if($('EmptyDiv').style.display == 'none') {
+      $('EmptyDiv').show();
+      document.getElementById("ShadowBar").style.display = 'none';
+   }
+   else {
+      setTimeout('$(\'EmptyDiv\').hide()',500);
+      document.getElementById("ShadowBar").style.display = 'block';
+   }
 }

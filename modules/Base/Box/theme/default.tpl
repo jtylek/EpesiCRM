@@ -26,6 +26,7 @@
 		</tbody>
 		</table>
 		</div>
+		<div id="ShadowBar"></div>
 		<div id="ActionBar">
 		<table id="top_bar_2" cellspacing="0" cellpadding="0" border="0">
 		<tbody>
@@ -44,7 +45,6 @@
 	<!-- -->
 	<div id="content">
 		<div id="EmptyDivMenu"></div>
-		<div id="ShadowBar"></div>
 		<div id="EmptyDiv"></div>
 		<div id="content_body" style="padding: 0px; text-align: center;">
 			<center>{$main}</center>
