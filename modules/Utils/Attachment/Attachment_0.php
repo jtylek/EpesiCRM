@@ -266,9 +266,9 @@ class Utils_Attachment extends Module {
 		print('<h2>'.$this->lang->t('Note edit history').'</h2>');
 		$gb = $this->init_module('Utils/GenericBrowser',null,'hn'.$this->key);
 		$gb->set_table_columns(array(
-				array('name'=>'Revision', 'order'=>'uac.revision','width'=>5),
-				array('name'=>'Date', 'order'=>'note_on','width'=>15),
-				array('name'=>'Who', 'order'=>'note_by','width'=>15),
+				array('name'=>'Revision', 'order'=>'uac.revision','width'=>10),
+				array('name'=>'Date', 'order'=>'note_on','width'=>25),
+				array('name'=>'Who', 'order'=>'note_by','width'=>25),
 				array('name'=>'Note', 'order'=>'uac.text')
 			));
 
@@ -287,9 +287,9 @@ class Utils_Attachment extends Module {
 		print('<h2>'.$this->lang->t('File uploads history').'</h2>');
 		$gb = $this->init_module('Utils/GenericBrowser',null,'hua'.$this->key);
 		$gb->set_table_columns(array(
-				array('name'=>'Revision', 'order'=>'file_revision','width'=>5),
-				array('name'=>'Date', 'order'=>'upload_on','width'=>15),
-				array('name'=>'Who', 'order'=>'upload_by','width'=>15),
+				array('name'=>'Revision', 'order'=>'file_revision','width'=>10),
+				array('name'=>'Date', 'order'=>'upload_on','width'=>25),
+				array('name'=>'Who', 'order'=>'upload_by','width'=>25),
 				array('name'=>'Attachment', 'order'=>'uaf.original')
 			));
 
@@ -301,7 +301,7 @@ class Utils_Attachment extends Module {
 			   ($row['permission']==1 && $this->protected_write) ||
 			   ($row['permission']==2 && $this->private_write))
 				$r->add_action($this->create_callback_href(array($this,'restore_file'),array($id,$row['file_revision'])),'restore');
-			$file = '<a '.$this->get_file($row).' '.Utils_TooltipCommon::open_tag_attrs($row['original']).'><img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'attach.png').'" border=0></a>';
+			$file = '<a '.$this->get_file($row).'>'.$row['original'].'</a>';
 			$r->add_data($row['file_revision'],$row['upload_on'],$row['upload_by'],$file);
 		}
 		$this->display_module($gb);
