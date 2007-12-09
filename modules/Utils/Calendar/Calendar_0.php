@@ -193,9 +193,7 @@ class Utils_Calendar extends Module {
 		$week_shift = 86400*$this->get_module_variable('week_shift',0);
 
 
-		$default_first_day_of_the_week = 1; // TODO 0..6, 0-sun, trzeba przeniesc do user_settings
-		
-		$first_day_of_displayed_week = date('w', $this->date)-$default_first_day_of_the_week;
+		$first_day_of_displayed_week = date('w', $this->date)-$this->settings['first_day_of_week'];
 		if ($first_day_of_displayed_week<0) $first_day_of_displayed_week += 7;
 		$first_day_of_displayed_week *= 86400;
 		$dis_week_from = $this->date+$week_shift-$first_day_of_displayed_week;
@@ -227,8 +225,65 @@ class Utils_Calendar extends Module {
 		$theme->display('week');
 	}
 
-	public function month() {
+	public function month_array($date) {
+		$first_day_of_month = strtotime(date('Y-m-', $date).'01');
+		$diff = date('w', $first_day_of_month)-$this->settings['first_day_of_week'];
+		if ($diff<0) $diff += 7;
+		$currday = $first_day_of_month-86400*($diff);
+		$curmonth = date('m', $date);
 
+		$month = array();
+		while (date('m', $currday) != ($curmonth)%12+1) {
+			$week = array();
+			$weekno = date('W',$currday);
+			for ($i=0; $i<7; $i++) {
+				$week[] = array(
+							'day'=>date('d', $currday),
+							'style'=>(date('m', $currday)==$curmonth)?'current':'other',
+							);
+				$currday += 86400;
+			}
+			$month[] = array('week_label'=>$weekno, 'days'=>$week);
+		}
+		return $month;
+	}
+
+	public function month() {
+		$theme = & $this->pack_module('Base/Theme');
+
+		$theme->assign('nextyear_href', $this->create_callback_href(array($this,'set_date'),strtotime((date('Y',$this->date)+1).date('-m-d',$this->date))));
+		$theme->assign('nextyear_label',$this->lang->ht('Next year'));
+		$theme->assign('nextmonth_href', $this->create_callback_href(array($this,'set_date'),$this->date+86400*date('t',$this->date)));
+		$theme->assign('nextmonth_label',$this->lang->ht('Next month'));
+		$theme->assign('today_href', $this->create_callback_href(array($this,'set_date'),time()));
+		$theme->assign('today_label', $this->lang->ht('Today'));
+		$theme->assign('prevmonth_href', $this->create_callback_href(array($this,'set_date'),$this->date-86400*date('t',$this->date-86400*(date('d', $this->date)+1))));
+		$theme->assign('prevmonth_label', $this->lang->ht('Previous month'));
+		$theme->assign('prevyear_href', $this->create_callback_href(array($this,'set_date'),strtotime((date('Y',$this->date)-1).date('-m-d',$this->date))));
+		$theme->assign('prevyear_label', $this->lang->ht('Previous year'));
+		$theme->assign('info', $this->lang->t('Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event'));
+		
+		if ($this->isset_unique_href_variable('date'))
+			$this->set_date($this->get_unique_href_variable('date'));
+		
+		$link_text = $this->create_unique_href_js(array('date'=>'__YEAR__-__MONTH__-__DAY__'));
+		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text));
+
+		$month = $this->month_array($this->date);
+	
+		$day_headers = array();
+		for ($i=0; $i<7; $i++)
+			$day_headers[] = date('D', strtotime('Sun')+86400*($i+$this->settings['first_day_of_week']));
+
+		$theme->assign('month_view_label', $this->lang->t('Month calendar'));
+		$theme->assign('timeless_label', $this->lang->t('Timeless'));
+
+		$theme->assign('day_headers', $day_headers);
+		$theme->assign('month', $month);
+		$theme->assign('month_label', date('F', $this->date));
+		$theme->assign('year_label', date('Y', $this->date));
+
+		$theme->display('month');
 	}
 
 	public function year() {
