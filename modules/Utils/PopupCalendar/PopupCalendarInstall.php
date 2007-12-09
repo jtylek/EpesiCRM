@@ -16,6 +16,7 @@ class Utils_PopupCalendarInstall extends ModuleInstall {
 	public function requires($v) {
 		return array(
 			array('name'=>'Base/Theme', 'version'=>0),
+			array('name'=>'Base/Lang', 'version'=>0),
 			array('name'=>'Utils/Tooltip', 'version'=>0),
 			array('name'=>'Libs/Leightbox', 'version'=>0),
 			array('name'=>'Libs/QuickForm', 'version'=>0)

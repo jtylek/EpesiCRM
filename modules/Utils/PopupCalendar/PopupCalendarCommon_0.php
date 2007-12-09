@@ -6,7 +6,7 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 		Base_ThemeCommon::load_css('Utils_PopupCalendar');
 		load_js('modules/Utils/PopupCalendar/js/main.js');
 
-		$label = 'Select date';
+		$label = Base_LangCommon::ts('Utils_PopupCalendarCommon','Select date');
 		$calendar = '<div id="Utils_PopupCalendar">'.
 			'<table cellspacing="0" cellpadding="0" border="0"><tr><td id="datepicker_'.$name.'_header">error</td></tr>'.
 			'<tr><td id="datepicker_'.$name.'_view">calendar not loaded</td></tr></table></div>';
@@ -23,7 +23,7 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 			$function .= ';leightbox_deactivate(\''.$entry.'\');';
 		} else {
 			$entry = 'datepicker_'.$name.'_calendar';
-			$ret = '<a onClick="$(\''.$entry.'\').toggle()" href="javascript:void(0)">'.$label.'</a>';
+			$ret = '<a onClick="$(\''.$entry.'\').toggle()" href="javascript:void(0)" class="button">'.$label.'</a>';
 			$ret .= '<div id="'.$entry.'" class="utils_popupcalendar_popup" style="top: '.Epesi::escapeJS($top,true,false).';left:'.Epesi::escapeJS($left,true,false).';display:none;z-index:1;position:absolute;">'.
 				$calendar.
 				'</div>';

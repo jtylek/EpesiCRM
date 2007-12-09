@@ -145,7 +145,7 @@ div.events_brief {
 
 /* Select date */
 
-#Agenda .data a {
+#Agenda .data a.button {
 	padding-left: 15px;
 	padding-right: 25px;
 	padding-top: 4px;
@@ -158,7 +158,7 @@ div.events_brief {
 }
 
 
-#Agenda .data a:hover {
+#Agenda .data a.button:hover {
 	background-color: #339933;
     /*background-image: url("images/header-blue-hover.png");*/
 }
