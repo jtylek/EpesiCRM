@@ -187,9 +187,36 @@ class Utils_Calendar extends Module {
 
 		$theme->assign('timeline', $this->get_timeline());
 
-		//get first day of the week $this->date and add shift
 		$week_shift = 86400*$this->get_module_variable('week_shift',0);
-		//oblicz pierwszy dzien na bazie funkcji date pobierajac numer dnia w tygodniu
+
+
+		$default_first_day_of_the_week = 1; // TODO 0..6, 0-sun, trzeba przeniesc do user_settings
+		
+		$first_day_of_displayed_week = date('w', $this->date)-$default_first_day_of_the_week;
+		if ($first_day_of_displayed_week<0) $first_day_of_displayed_week += 7;
+		$first_day_of_displayed_week *= 86400;
+		$dis_week_from = $this->date+$week_shift-$first_day_of_displayed_week;
+
+		$day_headers = array();
+		if (date('m',$dis_week_from)!=date('m',$dis_week_from+518400)) {
+			$second_span_width = date('d',$dis_week_from+518400);
+			$header_month = array('first_span'=>array(
+									'colspan'=>7-$second_span_width, 
+									'label'=>date('M Y',$dis_week_from)), 
+								'second_span'=>array(
+									'colspan'=>$second_span_width, 
+									'label'=>date('M Y',$dis_week_from+518400) 
+									)); 
+		} else {
+			$header_month = array('first_span'=>array(
+									'colspan'=>7, 
+									'label'=>date('M Y',$dis_week_from)
+									)); 
+		}
+		for ($i=0; $i<7; $i++)
+			$day_headers[] = date('d D', $dis_week_from+$i*86400);
+		$theme->assign('header_month', $header_month);
+		$theme->assign('day_headers', $day_headers);
 
 		$theme->display('week');
 	}
