@@ -36,7 +36,7 @@ class Apps_ProjectsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_favorites('projects', true);
 		Utils_RecordBrowserCommon::set_recent('projects', 15);
 		Utils_RecordBrowserCommon::set_caption('projects', 'Projects');
-		Utils_RecordBrowserCommon::set_icon('projects', Base_ThemeCommon::get_template_file('Apps/Projects', 'icon.png'));
+		//Utils_RecordBrowserCommon::set_icon('projects', Base_ThemeCommon::get_template_file('Apps/Projects', 'icon.png'));
 		Utils_RecordBrowserCommon::set_access_callback('projects', 'Apps_ProjectsCommon', 'access_projects');
 		
 // ************ addons ************** //
