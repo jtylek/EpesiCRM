@@ -16,10 +16,10 @@ class Tests_Calendar_EventInstall extends ModuleInstall {
 		$ret &= DB::CreateTable("tests_calendar_event",
 			"id I AUTO KEY," .
 
-			"title C(80) NO NULL, " .
-			"description C(250), " .
+			"title C(64) NO NULL, " .
+			"description X, " .
 
-			"start T NOT NULL, " .
+			"start I4 NOT NULL, " .
 			"duration I4 NOT NULL, " .
 			"timeless I DEFAULT 0, " .
 
