@@ -13,8 +13,8 @@
 <table class="Utils_RecordBrowser__table" border="0" cellpadding="0" cellspacing="0">
 	<tbody>
 		<tr>
-			{* <td class="icon"><img src="{$theme_dir}/icon.png" width="32" height="32" border="0"></td> *}
-			<td class="name">View Entry</td>
+			<td class="icon"><img src="{$icon}" width="32" height="32" border="0"></td>
+			<td class="name">{$caption}</td>
 			<td class="required">* {$required_note}</td>
 			<td class="fav">{if isset($fav_tooltip)}{$fav_tooltip}{/if}</td>
 			<td class="info">{if isset($info_tooltip)}{$info_tooltip}{/if}</td>

@@ -151,7 +151,8 @@ class Utils_Attachment extends Module {
 			}
 			$text = strip_tags($row['text']);
 			if(strlen($text)>160)
-				$text = array('value'=>substr($text,0,120).'...'.$this->lang->t('[more]'),'hint'=>$this->lang->t('Click on view icon to see full note'));
+				$text = array('value'=>substr($text,0,120).'<a'.$this->create_callback_href(array($this,'view'),array($row['id'])).'>...'.$this->lang->t('[more]'),'hint'=>$this->lang->t('Click on view icon to see full note'));
+
 			if($vd)
 				$r->add_data(($row['deleted']?'yes':'no'),$text,$file);
 			else

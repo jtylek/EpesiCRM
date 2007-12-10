@@ -56,6 +56,10 @@ class Utils_RecordBrowser extends Module {
 		$params = DB::GetRow('SELECT caption, icon, recent, favorites, full_history FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 		if ($params==false) trigger_error('There is no such recordSet as '.$this->tab.'.', E_USER_ERROR);
 		list($this->caption,$this->icon,$this->recent,$this->favorites,$this->full_history) = $params;
+
+		//If Caption or icon not specified assign default values
+		if ($this->caption=='') $this->caption='Record Browser';
+		if ($this->icon=='') $this->icon = Base_ThemeCommon::get_template_dir().'Base_ActionBar__icons/settings.png';
 		
 		$this->table_rows = Utils_RecordBrowserCommon::init($this->tab, $admin);
 		$this->requires = array();
@@ -87,7 +91,7 @@ class Utils_RecordBrowser extends Module {
 				return;
 			}
 			Base_ActionBarCommon::add('add',$this->lang->t('New'), $this->create_callback_href(array($this,'view_entry'),array('add')));
-			$this->browse_mode = $this->get_module_variable('browse_mode', 'all');
+			$this->browse_mode = $this->get_module_variable('browse_mode', 'recent');
 			if (($this->browse_mode=='recent' && $this->recent==0) || ($this->browse_mode=='favorites' && !$this->favorites)) $this->set_module_variable('browse_mode', $this->browse_mode='all'); 
 			if ($this->browse_mode!=='recent' && $this->recent>0) Base_ActionBarCommon::add('history',$this->lang->t('Recent'), $this->create_callback_href(array($this,'switch_view'),array('recent')));
 			if ($this->browse_mode!=='all') Base_ActionBarCommon::add('report',$this->lang->t('All'), $this->create_callback_href(array($this,'switch_view'),array('all')));
@@ -415,6 +419,10 @@ class Utils_RecordBrowser extends Module {
 		$theme->assign('fields', $fields);
 		$theme->assign('Form_data', $data);
 		$theme->assign('required_note', $this->lang->t('Indicates required fields.'));
+		
+		$theme->assign('caption',$this->caption);
+		$theme->assign('icon',$this->icon);
+
 		if ($main_page) $tpl = DB::GetOne('SELECT tpl FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 		else $tpl = '';
 		$theme->display(($tpl!=='')?$tpl:'View_entry', ($tpl!==''));

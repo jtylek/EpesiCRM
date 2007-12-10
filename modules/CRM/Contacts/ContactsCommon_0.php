@@ -72,16 +72,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	public function admin_caption() {
 		return 'Companies & Contacts';
 	}
-	public static function QFfield_country(&$form, $field, $label, $mode, $default) {
-		$form->addElement('commondata', $field, $label, 'Countries', array('empty_option'=>true), array('id'=>'country'));
-		if ($mode!=='add') $form->setDefaults(array($field=>$default));
-		else $form->setDefaults(array($field=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country')));
-	}
-	public static function QFfield_zone(&$form, $field, $label, $mode, $default) {
-		$form->addElement('commondata', $field, $label, array('Countries', 'country'), array('empty_option'=>true), array('id'=>'zone'));
-		if ($mode!=='add') $form->setDefaults(array($field=>$default));
-		else $form->setDefaults(array($field=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state')));
-	}
+	
 	public static function QFfield_company(&$form, $field, $label, $mode, $default) {
 		$comp = array();
 		if ($mode=='add' || $mode=='edit') {
@@ -128,6 +119,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$form->setDefaults(array($field=>$def));
 		}
 	}
+	
 	public static function QFfield_webaddress(&$form, $field, $label, $mode, $default) {
 		if ($mode=='add' || $mode=='edit') {
 			$form->addElement('text', $field, $label);
