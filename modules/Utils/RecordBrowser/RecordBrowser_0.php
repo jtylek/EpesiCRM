@@ -59,7 +59,8 @@ class Utils_RecordBrowser extends Module {
 
 		//If Caption or icon not specified assign default values
 		if ($this->caption=='') $this->caption='Record Browser';
-		if ($this->icon=='') $this->icon = Base_ThemeCommon::get_template_dir().'Base_ActionBar__icons/settings.png';
+		if ($this->icon=='') $this->icon = 'Base_ActionBar__icons/settings.png';
+		$this->icon = Base_ThemeCommon::get_template_dir().$this->icon;
 		
 		$this->table_rows = Utils_RecordBrowserCommon::init($this->tab, $admin);
 		$this->requires = array();
