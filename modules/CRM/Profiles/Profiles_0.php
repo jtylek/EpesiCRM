@@ -34,10 +34,10 @@ class CRM_Profiles extends Module {
 
 		eval_js_once('crm_profiles_deactivate = function(){leightbox_deactivate(\'crm_profiles\');}');
 
-		$th->assign('my','<a '.$this->create_callback_href(array($this,'set_profile'),'my').' id="crm_profiles_my">'.$this->lang->t('My profile').'</a>');
+		$th->assign('my','<a '.$this->create_callback_href(array($this,'set_profile'),'my').' id="crm_profiles_my">'.$this->lang->t('My records').'</a>');
 		eval_js('Event.observe(\'crm_profiles_my\',\'click\', crm_profiles_deactivate)');
 
-		$th->assign('all','<a '.$this->create_callback_href(array($this,'set_profile'),'all').' id="crm_profiles_all">'.$this->lang->t('All profiles').'</a>');
+		$th->assign('all','<a '.$this->create_callback_href(array($this,'set_profile'),'all').' id="crm_profiles_all">'.$this->lang->t('All records').'</a>');
 		eval_js('Event.observe(\'crm_profiles_all\',\'click\', crm_profiles_deactivate)');
 
 		$ret = DB::Execute('SELECT id,name FROM crm_profiles_group WHERE user_login_id=%d',array(Acl::get_user()));
@@ -53,7 +53,7 @@ class CRM_Profiles extends Module {
 		$contacts_select = array();
 		foreach($contacts as $v)
 			$contacts_select[$v['id']] = $v['First Name'].' '.$v['Last Name'];
-		$qf->addElement('select','contact',$this->lang->t('Choose person'),$contacts_select,array('onChange'=>$qf->get_submit_form_js().'crm_profiles_deactivate()'));
+		$qf->addElement('select','contact',$this->lang->t('Records of'),$contacts_select,array('onChange'=>$qf->get_submit_form_js().'crm_profiles_deactivate()'));
 		if($qf->validate()) {
 			$this->set_module_variable('profile',$this->tbl_contact_prefix.'.id='.$qf->exportValue('contact'));
 		}

@@ -91,9 +91,6 @@
         </td>
     </tr>
     <tr>
-        <td colspan="2" class="Profiles_header">Person select</td>
-    </tr>
-    <tr>
         <td colspan="2">{$contacts}</td>
     </tr>
 </table>
@@ -102,7 +99,7 @@
     
 <table id="CRM_Profiles" cellspacing="0" cellpadding="0">
     <tr>
-        <td colspan="4" class="Profiles_header">&nbsp;&nbsp;Groups&nbsp;&nbsp;</td>
+        <td colspan="4" class="Profiles_header">&nbsp;&nbsp;Filters&nbsp;&nbsp;</td>
     </tr>
 	<tr>
 
