@@ -5,7 +5,7 @@
  * @author msteczkiewicz@telaxus.com
  * @copyright msteczkiewicz@telaxus.com
  * @license SPL
- * @version 0.9
+ * @version 1.0
  * @package applets-google
  */
 
@@ -24,7 +24,7 @@ class Applets_GoogleInstall extends ModuleInstall {
 	}
 
 	public function version() {
-		return array("0.9");
+		return array("1.0");
 	}
 
 	public function requires($v) {
@@ -35,7 +35,7 @@ class Applets_GoogleInstall extends ModuleInstall {
 
 	public static function info() {
 		return array(
-			'Description' => '',
+			'Description' => 'Simple Google Search applet',
 			'Author' => 'msteczkiewicz@telaxus.com',
 			'License' => 'SPL');
 	}
