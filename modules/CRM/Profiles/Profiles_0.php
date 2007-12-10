@@ -23,14 +23,14 @@ class CRM_Profiles extends Module {
 		if(!isset($this->tbl_contact_prefix))
 			trigger_error('Contact table prefix not set',E_USER_ERROR);
 
-		Base_ActionBarCommon::add('folder','Profiles','class="lbOn" rel="crm_profiles"');
+		Base_ActionBarCommon::add('folder','Filters','class="lbOn" rel="crm_profiles"');
 		$th = $this->init_module('Base/Theme');
 		$display_settings = Base_User_SettingsCommon::get('Base/ActionBar','display');
 		$display_icon = ($display_settings == 'both' || $display_settings == 'icons only');
 		$display_text = ($display_settings == 'both' || $display_settings == 'text only');
 		$th->assign('display_icon',$display_icon);
 		$th->assign('display_text',$display_text);
-		$th->assign('header',$this->lang->t('Profiles'));
+		$th->assign('header',$this->lang->t('Filters'));
 
 		eval_js_once('crm_profiles_deactivate = function(){leightbox_deactivate(\'crm_profiles\');}');
 

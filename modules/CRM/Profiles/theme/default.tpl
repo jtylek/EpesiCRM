@@ -89,9 +89,49 @@
 <!-- -->
 
         </td>
+        
+        <!-- MANAGE FILTERS -->
+        <td>
+<!-- SHADIW BEGIN -->
+	<div class="layer" style="padding: 8px; width: 100px;">
+		<div class="content_shadow">
+<!-- -->
+
+        <a href="">
+		<div class="button">
+            {if $display_icon}
+            <img src="{$theme_dir}/CRM_Profiles__manage.png" alt="" align="middle" border="0" width="32" height="32">
+            {/if}
+            {if $display_text}
+                <div style="height: 5px;"></div>
+                <span>Manage filters</span>
+            {/if}
+        </div>
+        </a>
+
+<!-- SHADOW END -->
+ 		</div>
+		<div class="shadow-top">
+			<div class="left"></div>
+			<div class="center"></div>
+			<div class="right"></div>
+		</div>
+		<div class="shadow-middle">
+			<div class="left"></div>
+			<div class="right"></div>
+		</div>
+		<div class="shadow-bottom">
+			<div class="left"></div>
+			<div class="center"></div>
+			<div class="right"></div>
+		</div>
+	</div>
+<!-- -->
+            
+        </td>
     </tr>
     <tr>
-        <td colspan="2">{$contacts}</td>
+        <td colspan="3" style="text-align: center;">{$contacts}</td>
     </tr>
 </table>
 
@@ -99,7 +139,7 @@
     
 <table id="CRM_Profiles" cellspacing="0" cellpadding="0">
     <tr>
-        <td colspan="4" class="Profiles_header">&nbsp;&nbsp;Filters&nbsp;&nbsp;</td>
+        <td colspan="4" class="Profiles_header">&nbsp;&nbsp;Saved Filters&nbsp;&nbsp;</td>
     </tr>
 	<tr>
 
@@ -150,6 +190,7 @@
 {/foreach}
 
 	</tr>
+
 </table>
 
 </center>

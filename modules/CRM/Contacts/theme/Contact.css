@@ -1,17 +1,17 @@
-#CRM_Contacts__View_entry {
+#CRM_Contacts__Contact {
     width: 100%;
     border-top: 1px solid #B3B3B3;
     border-left: 1px solid #B3B3B3;
 }
 
-#CRM_Contacts__View_entry table {
+#CRM_Contacts__Contact table {
     width: 100%;
 }
 
-#CRM_Contacts__View_entry td.left-column  { width: 50%; vertical-align: top; }
-#CRM_Contacts__View_entry td.right-column { width: 50%; vertical-align: top; }
+#CRM_Contacts__Contact td.left-column  { width: 50%; vertical-align: top; }
+#CRM_Contacts__Contact td.right-column { width: 50%; vertical-align: top; }
 
-#CRM_Contacts__View_entry .label {
+#CRM_Contacts__Contact .label {
     background-color: #336699;
     color: #FFFFFF;
     border-bottom: 1px solid #B3B3B3;
@@ -23,7 +23,7 @@
     width: 30%;
 }
 
-#CRM_Contacts__View_entry .data {
+#CRM_Contacts__Contact .data {
     border-bottom: 1px solid #B3B3B3;
     border-right: 1px solid #B3B3B3;
     padding-left: 2px;
@@ -31,17 +31,17 @@
     width: 70%;
 }
 
-#CRM_Contacts__View_entry .data input,
-#CRM_Contacts__View_entry .data select,
-#CRM_Contacts__View_entry .data textarea {
+#CRM_Contacts__Contact .data input,
+#CRM_Contacts__Contact .data select,
+#CRM_Contacts__Contact .data textarea {
     border: 0px;
     background-color: #e6ecf2;
     width: 100%;
 }
 
-#CRM_Contacts__View_entry .data input:focus,
-#CRM_Contacts__View_entry .data select:focus,
-#CRM_Contacts__View_entry .data textarea:focus {
+#CRM_Contacts__Contact .data input:focus,
+#CRM_Contacts__Contact .data select:focus,
+#CRM_Contacts__Contact .data textarea:focus {
     background-color: #f2f2e6;
     background-color: #e6e6cf;
 }
@@ -81,6 +81,6 @@
     padding-right: 20px;
 }
 
-#CRM_Contacts__View_entry .create-company input {
+#CRM_Contacts__Contact .create-company input {
     width: auto;
 }

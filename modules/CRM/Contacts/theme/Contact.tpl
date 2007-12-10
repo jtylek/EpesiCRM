@@ -34,7 +34,7 @@
 <div style="padding: 2px 2px 2px 2px; background-color: #FFFFFF;">
 
 {* Outside table *}
-<table id="CRM_Contacts__View_entry" cellpadding="0" cellspacing="0" border="0">
+<table id="CRM_Contacts__Contact" cellpadding="0" cellspacing="0" border="0">
 	<tbody>
 		<tr>
 			<td class="left-column">
