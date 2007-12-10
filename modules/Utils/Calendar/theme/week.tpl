@@ -30,7 +30,7 @@
 			{if isset($header_month.second_span)}
 				<td class=header_month colspan="{$header_month.second_span.colspan}">{$header_month.second_span.label}</td>
 			{/if}
-			
+
 		</tr>
 
 {* this row contains days of month *}
@@ -40,30 +40,17 @@
 			{/foreach}
 		</tr>
 
-{* this row contains timeless events *}
-		<tr>
-			<td class="hours_header_lower">{$timeless_label}</td>
-
-			<td class="header_timeless" id="timeless_eventid">Timeless events here.</td>
-			<td class="header_timeless" id="timeless_eventid">Timeless events here.</td>
-			<td class="header_timeless" id="timeless_eventid">Timeless events here.</td>
-			<td class="header_timeless" id="timeless_eventid">Timeless events here.</td>
-			<td class="header_timeless" id="timeless_eventid">Timeless events here.</td>
-			<td class="header_timeless" id="timeless_eventid">Timeless events here.</td>
-			<td class="header_timeless" id="timeless_eventid">Timeless events here.</td>
-		</tr>
-
 		<tr>
 		{foreach key=k item=stamp from=$timeline}
 			<tr>
-				<td class="hour">{$stamp.start} - {$stamp.end}</td>
-				<td class="inter">...</td>
-				<td class="inter">...</td>
-				<td class="inter">...</td>
-				<td class="inter">...</td>
-				<td class="inter">...</td>
-				<td class="inter">...</td>
-				<td class="inter">...</td>
+				<td class="hour">{$stamp.label}</td>
+				<td class="inter" id="{$time_ids.0.$k}"></td>
+				<td class="inter" id="{$time_ids.1.$k}"></td>
+				<td class="inter" id="{$time_ids.2.$k}"></td>
+				<td class="inter" id="{$time_ids.3.$k}"></td>
+				<td class="inter" id="{$time_ids.4.$k}"></td>
+				<td class="inter" id="{$time_ids.5.$k}"></td>
+				<td class="inter" id="{$time_ids.6.$k}"></td>
 			</tr>
 		{/foreach}
 

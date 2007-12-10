@@ -34,20 +34,11 @@
 			<td class="header_day">{$header_day}</td>
 		</tr>
 
-{* this row contains timeless events *}
-		<tr>
-			<td class="hours_header_lower">{$timeless_label}</td>
-
-			<td class="header_timeless" id="timeless_eventid">
-				Timeless events here.
-			</td>
-		</tr>
-
 		<tr>
 		{foreach key=k item=stamp from=$timeline}
 			<tr>
-				<td class="hour">{$stamp.start} - {$stamp.end}</td>
-				<td class="inter">...</td>
+				<td class="hour">{$stamp.label}</td>
+				<td class="inter" id="{$stamp.id}"></td>
 			</tr>
 		{/foreach}
 

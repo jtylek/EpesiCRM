@@ -35,24 +35,37 @@ class Utils_Calendar extends Module {
 		$this->date = $d;
 	}
 
+	/**
+	 * Returns timeline array with keys:
+	 * - label - human readable start/end time
+	 * - time - time shift in seconds between 0:00 and current time, not set for timeless
+	 *
+	 * @return array
+	 */
 	private function get_timeline() {
 		static $timeline;
 		if(isset($timeline)) return $timeline;
 
 		$timeline = array();
+
+		//timeless
+		$timeline[] = array('label'=>$this->lang->t('Timeless'));
+
+		//other
 		$curr = strtotime($this->settings['start_day']);
 		$last = strtotime($this->settings['end_day']);
 		$interval = strtotime($this->settings['interval']);
+		$zero_t = strtotime('0:00');
 		if($last===false || $curr===false || $interval===false)
 			trigger_error('Invalid start/end_day or interval.',E_USER_ERROR);
-		$interval -= strtotime('0:00');
-		$timeline[] = array('start'=>Base_RegionalSettingsCommon::convert_24h('0:00',false),'end'=>Base_RegionalSettingsCommon::convert_24h($curr,false));
+		$interval -= $zero_t;
+		$timeline[] = array('label'=>Base_RegionalSettingsCommon::convert_24h($zero_t,false).' - '.Base_RegionalSettingsCommon::convert_24h($curr,false),'time'=>0);
 		while($curr<$last) {
 			$next = $curr+$interval;
-			$timeline[] = array('start'=>Base_RegionalSettingsCommon::convert_24h($curr,false),'end'=>Base_RegionalSettingsCommon::convert_24h($next,false));
+			$timeline[] = array('label'=>Base_RegionalSettingsCommon::convert_24h($curr,false).' - '.Base_RegionalSettingsCommon::convert_24h($next,false),'time'=>($curr-$zero_t));
 			$curr = $next;
 		}
-		$timeline[] = array('start'=>Base_RegionalSettingsCommon::convert_24h($curr,false),'end'=>Base_RegionalSettingsCommon::convert_24h('23:59',false));
+		$timeline[] = array('label'=>Base_RegionalSettingsCommon::convert_24h($curr,false).' - '.Base_RegionalSettingsCommon::convert_24h('23:59',false),'time'=>($curr-$zero_t));
 		return $timeline;
 	}
 
@@ -108,6 +121,18 @@ class Utils_Calendar extends Module {
 		call_user_func(array($this->event_module.'Common','delete'),$id);
 	}
 
+	/**
+	 * Get array of events between start and end time.
+	 * Array has keys:
+	 * - start - start time in seconds 1970
+	 * - duration - duration in seconds
+	 * - end - end time in seconds 1970
+	 * - timeless - please treat start and end time as date
+	 * - title
+	 * - description
+	 *
+	 * @return array
+	 */
 	private function get_events($start,$end) {
 		if(!is_numeric($start) && is_string($start)) $start = strtotime($start);
 		if(!is_numeric($end) && is_string($end)) $end = strtotime($end);
@@ -232,7 +257,11 @@ class Utils_Calendar extends Module {
 
 		$theme->assign('header_month', $header_month);
 		$theme->assign('header_day', $header_day);
-		$theme->assign('timeline', $this->get_timeline());
+		$timeline = $this->get_timeline();
+		$today_t = strtotime(date('Y-m-d',$this->date));
+		foreach($timeline as & $v)
+			$v['id'] = 'day_'.(isset($v['time'])?($today_t+$v['time']):$today_t.'_timeless');
+		$theme->assign('timeline', $timeline);
 
 		$theme->assign('day_view_label', $this->lang->t('Day calendar'));
 		$theme->assign('timeless_label', $this->lang->t('Timeless'));
@@ -241,7 +270,20 @@ class Utils_Calendar extends Module {
 
 		//data
 		$ret = $this->get_events(date('Y-m-d',$this->date),date('Y-m-d',$this->date+86400));
-		print_r($ret);
+		load_js($this->get_module_dir().'calendar.js');
+		foreach($ret as $ev) {
+			$ev_start = $ev['start']-$today_t;
+			if($ev['timeless'])
+				$dest_id = 'day_'.$today_t.'_timeless';
+			else {
+				$ct = count($timeline);
+				for($i=0, $j=1; $j<$ct; $i++,$j++)
+					if($timeline[$i]['time']<$ev_start && $ev_start<$timeline[$j]['time'])
+						break;
+				$dest_id = $timeline[$i]['id'];
+			}
+			$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\',\''.Epesi::escapeJS($ev['title'],false).'\')');
+		}
 
 	}
 
@@ -287,15 +329,14 @@ class Utils_Calendar extends Module {
 		$link_text = $this->create_unique_href_js(array('date'=>'__YEAR__-__MONTH__-__DAY__'));
 		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text));
 
-		$theme->assign('timeline', $this->get_timeline());
-
 		$week_shift = 86400*$this->get_module_variable('week_shift',0);
 
 		$first_day_of_displayed_week = date('w', $this->date)-$this->settings['first_day_of_week'];
 		if ($first_day_of_displayed_week<0) $first_day_of_displayed_week += 7;
 		$first_day_of_displayed_week *= 86400;
-		$dis_week_from = $this->date+$week_shift-$first_day_of_displayed_week;
+		$dis_week_from = strtotime(date('Y-m-d',$this->date+$week_shift-$first_day_of_displayed_week));
 
+		//headers
 		$day_headers = array();
 		if (date('m',$dis_week_from)!=date('m',$dis_week_from+518400)) {
 			$second_span_width = date('d',$dis_week_from+518400);
@@ -314,13 +355,48 @@ class Utils_Calendar extends Module {
 		}
 		for ($i=0; $i<7; $i++)
 			$day_headers[] = date('d D', $dis_week_from+$i*86400);
+
 		$theme->assign('header_month', $header_month);
 		$theme->assign('day_headers', $day_headers);
 
-		$theme->assign('week_view_label', $this->lang->t('Week calendar'));
-		$theme->assign('timeless_label', $this->lang->t('Timeless'));
+		//timeline and ids
+		$timeline = $this->get_timeline();
+		$time_ids = array();
+		for ($i=0; $i<7; $i++) {
+			$time_ids[$i] = array();
+			$today_t = strtotime(date('Y-m-d',$dis_week_from+$i*86400));
+			foreach($timeline as & $v) {
+				$time_ids[$i][] = 'week_'.(isset($v['time'])?($today_t+$v['time']):$today_t.'_timeless');
+			}
+		}
+		$theme->assign('time_ids', $time_ids);
+		$theme->assign('timeline', $timeline);
 
+		//ok, display
+		$theme->assign('week_view_label', $this->lang->t('Week calendar'));
 		$theme->display('week');
+
+		//data
+		$ret = $this->get_events($dis_week_from,$dis_week_from+7*86400);
+		load_js($this->get_module_dir().'calendar.js');
+		$today_t = strtotime(date('Y-m-d',$dis_week_from));
+		foreach($ret as $k=>$ev) {
+			if($ev['timeless']) {
+				$ev_start = date('Y-m-d',$ev['start']);
+				for($i=0; $i<7; $i++) {
+					$x = $dis_week_from+$i*86400;
+					if(date('Y-m-d',$x)==$ev_start)
+						$dest_id = 'week_'.$x.'_timeless';
+				}
+			} else {
+				$ct = count($timeline);
+				for($i=0, $j=1; $j<$ct; $i++,$j++)
+					if($timeline[$i]['time']<$ev_start && $ev_start<$timeline[$j]['time'])
+						break;
+				$dest_id = $timeline[$i]['id'];
+			}
+			$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\',\''.Epesi::escapeJS($ev['title'],false).'\')');
+		}
 	}
 
 	//////////////////////////////////////////////////////

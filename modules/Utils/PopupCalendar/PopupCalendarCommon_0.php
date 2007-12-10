@@ -24,7 +24,7 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 		} else {
 			$entry = 'datepicker_'.$name.'_calendar';
 			$ret = '<a onClick="$(\''.$entry.'\').toggle()" href="javascript:void(0)" class="button">'.$label.'</a>';
-			$ret .= '<div id="'.$entry.'" class="utils_popupcalendar_popup" style="top: '.Epesi::escapeJS($top,true,false).';left:'.Epesi::escapeJS($left,true,false).';display:none;z-index:1;position:absolute;">'.
+			$ret .= '<div id="'.$entry.'" class="utils_popupcalendar_popup" style="top: '.Epesi::escapeJS($top,true,false).';left:'.Epesi::escapeJS($left,true,false).';display:none;z-index:8;position:absolute;">'.
 				$calendar.
 				'</div>';
 			$function .= ';$(\''.$entry.'\').hide()';
