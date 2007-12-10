@@ -44,6 +44,12 @@ public function project_attachment_addon($arg){
 		$this->display_module($a);
 	}
 
+public function company_projects_addon($arg){
+		$rb = $this->init_module('Utils/RecordBrowser','projects');
+		$proj = array(array('Company Name'=>$arg['id']), array('Company Name'=>false), array('Fav'=>'DESC'), true);
+		$this->display_module($rb,$proj,'show_data');
+	}
+
 public function caption(){
 		if (isset($this->rb)) return $this->rb->caption();
 	}

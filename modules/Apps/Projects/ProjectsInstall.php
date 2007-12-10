@@ -41,6 +41,7 @@ class Apps_ProjectsInstall extends ModuleInstall {
 		
 // ************ addons ************** //
 		Utils_RecordBrowserCommon::new_addon('projects', 'Apps/Projects', 'project_attachment_addon', 'Notes');
+		Utils_RecordBrowserCommon::new_addon('company', 'Apps/Projects', 'company_projects_addon', 'Projects');
 
 // ************ other ************** //	
 		Utils_CommonDataCommon::new_array('Project_Status',array('New','Submitted','Awarded','Canceled','In Progress','Completed'));
