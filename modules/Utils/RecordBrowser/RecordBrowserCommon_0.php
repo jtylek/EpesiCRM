@@ -319,8 +319,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					if (!isset($records[$row['id']][$field]))
 						if (self::$table_rows[$field]['type'] == 'multiselect') $records[$row['id']][$field] = array();
 						else $records[$row['id']][$field] = '';
-				if (!$all && !self::get_access($tab_name, 'view', $records[$row['id']])) unset($records[$row['id']]);
 			}
+		foreach($records as $k=>$record)
+			if (!$all && !self::get_access($tab_name, 'view', $record)) unset($records[$k]);
 		return $records;
 	}
 	public static function get_access($tab_name, $action, $param=null){
