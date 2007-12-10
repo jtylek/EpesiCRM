@@ -150,8 +150,8 @@ class Utils_Attachment extends Module {
 				$r->add_action($this->create_callback_href(array($this,'edition_history_queue'),$row['id']),'history');
 			}
 			$text = strip_tags($row['text']);
-			if(strlen($text)>160)
-				$text = array('value'=>substr($text,0,120).'<a'.$this->create_callback_href(array($this,'view'),array($row['id'])).'>...'.$this->lang->t('[more]'),'hint'=>$this->lang->t('Click on view icon to see full note'));
+			if(strlen($text)>120)
+				$text = array('value'=>substr($text,0,120).'<a '.$this->create_callback_href(array($this,'view_queue'),array($row['id'])).'>...'.$this->lang->t('[more]').'</a>','hint'=>$this->lang->t('Click on view icon to see full note'));
 
 			if($vd)
 				$r->add_data(($row['deleted']?'yes':'no'),$text,$file);
