@@ -25,14 +25,14 @@ class Tests_Calendar_Event extends Utils_Calendar_Event {
 		$qf = $this->init_module('Libs/QuickForm',null,'addf');
 		$qf->addElement('datepicker','start','Start date');
 		$qf->addElement('datepicker','end','End date');
-		$qf->addElement('checkbox','timeless','Timeless');
+//		$qf->addElement('checkbox','timeless','Timeless'); //always
 		$qf->addElement('text','title','Title');
 		$qf->addElement('textarea','description','Description');
 		$qf->setDefaults(array('start'=>$def_date,'end'=>$def_date));
 		if($qf->validate()) {
 			$d = $qf->exportValues();
-			DB::Execute('INSERT INTO tests_calendar_event(start,end,timeless,title,description,created_on,created_by) VALUES(%T,%T,%b,%s,%s,%T,%d)',
-				array($d['start'],$d['end'],isset($d['timeless']) && $d['timeless'],$d['title'],$d['description'],time(),Acl::get_user()));
+			DB::Execute('INSERT INTO tests_calendar_event(start,duration,timeless,title,description,created_on,created_by) VALUES(%d,%d,%b,%s,%s,%T,%d)',
+				array(strtotime($d['start']),strtotime($d['end'])-strtotime($d['start'])+86400,true,$d['title'],$d['description'],time(),Acl::get_user()));
 			$this->back_to_calendar();
 		} else {
 			$qf->display();

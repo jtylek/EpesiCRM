@@ -13,10 +13,10 @@ class Epesi {
 	private static $load_jses = array();
 	private static $load_csses = array();
 	private static $txts = '';
-	
+
 	/**
 	 * Returns ajax temporary session.
-	 * 
+	 *
 	 * @return mixed ajax temporary session
 	 */
 	/**
@@ -44,13 +44,13 @@ class Epesi {
 		//file_put_contents('data/jses',implode(self::$jses,"\n\n\n"));
 		return $ret;
 	}
-	
+
 	public final static function clean() {
 		self::$txts = '';
 		self::$jses = array();
 		self::$load_jses = array();
 	}
-	
+
 	public final static function load_js($file) {
 		if(!is_string($file) || strlen($file)==0) return false;
 		if (!isset($_SESSION['client']['__loaded_jses__'][$file])) {
@@ -60,7 +60,7 @@ class Epesi {
 		}
 		return false;
 	}
-	
+
 	public final static function load_css($u) {
 		if(!is_string($u) || strlen($u)==0) return false;
 		if (is_string($u) && (!isset($_SESSION['client']['__loaded_csses__']) || !array_key_exists($u, $_SESSION['client']['__loaded_csses__']))) {
@@ -70,22 +70,22 @@ class Epesi {
 		}
 		return false;
 	}
-	
+
 	public final static function text($txt,$id,$type='instead') {
 		self::$txts .= 'Epesi.text(\''.self::escapeJS($txt,false).'\',\''.self::escapeJS($id,false).'\',\''.self::escapeJS($type{0},false).'\');';
 	}
-	
+
 	public final static function alert($txt) {
 		self::$jses[] = 'alert(\''.self::escapeJS($txt,false).'\')';
 	}
-	
+
 	public final static function redirect($addr='') {
 		self::$jses[] = 'document.location=\''.self::escapeJS($addr,false).'\'';
 	}
 
 	/**
 	 * Extends list of javascript commands to execute
-	 * 
+	 *
 	 * @param string javascript code
 	 */
 	public final static function js($js) {
@@ -97,10 +97,10 @@ class Epesi {
 			self::$jses[] = $js;
 		return true;
 	}
-	
+
 	/**
 	 * Escapes special characters in js code.
-	 * 
+	 *
 	 * @param string js code to escape
 	 * @return string escaped js code
 	 */
@@ -121,7 +121,7 @@ class Epesi {
 
 	//============================================
 	public static $content;
-	
+
 	private static function check_firstrun() {
 		$first_run = false;
 
@@ -157,7 +157,7 @@ class Epesi {
 		if(MODULE_TIMES)
 		    self::$content[$path]['time'] = microtime(true)-$time;
 	}
-	
+
 	public static function debug($msg=null) {
 		if(DEBUG) {
 			static $msgs = '';
@@ -165,13 +165,13 @@ class Epesi {
 			return $msgs;
 		}
 	}
-	
+
 	public static function process($url, $history_call=false,$refresh=false) {
-		if(MODULE_TIMES) 
+		if(MODULE_TIMES)
 			$time = microtime(true);
 
 		$url = str_replace('&amp;','&',$url);
-			
+
 		if($url) {
 			parse_str($url, $_POST);
 			$_GET = $_REQUEST = & $_POST;
@@ -184,33 +184,32 @@ class Epesi {
 		    History::clear();
 		elseif($history_call)
 		    History::set_id($history_call);
-		
+
 		//on init call methods...
 		$ret = on_init(null,null,null,true);
 		foreach($ret as $k)
 			call_user_func_array($k['func'],$k['args']);
-	
+
 		$root = & ModuleManager::create_root();
 		self::go($root);
-		
+
 		//on exit call methods...
 		$ret = on_exit(null,null,null,true);
 		foreach($ret as $k)
 			call_user_func_array($k['func'],$k['args']);
-		
+
 		//go somewhere else?
 		$loc = location(null,true);
 		if($loc!==false) {
 			if(isset($_REQUEST['__action_module__']))
 				$loc['__action_module__'] = $_REQUEST['__action_module__'];
-			
+
 			//clean up
 			foreach(self::$content as $k=>$v)
 				unset(self::$content[$k]);
-			
-//			unset(self::$jses);
-//			ModuleManager::load_modules();
-	
+
+			self::$jses = array();
+
 			//go
 			return self::process('__location&' . http_build_query($loc),false,true);
 		}
@@ -222,7 +221,7 @@ class Epesi {
 				$diff_renderer = &new Text_Diff_Renderer_inline();
 			}
 		}
-						
+
 		//clean up old modules
 		if(isset($_SESSION['client']['__module_content__'])) {
 			$to_cleanup = array_keys($_SESSION['client']['__module_content__']);
@@ -241,10 +240,10 @@ class Epesi {
 				}
 			}
 		}
-		
+
 		$reloaded = array();
 		foreach (self::$content as $k => $v) {
-			$reload = $v['module']->get_reload();			
+			$reload = $v['module']->get_reload();
 			$parent = $v['module']->get_parent_path();
 			if(DEBUG) {
 				$debug .= '<hr style="height: 3px; background-color:black">';
@@ -266,19 +265,19 @@ class Epesi {
 					}
 					$debug .= '<hr style="height: 5px; background-color:black">';
 				}
-				
+
 				if(isset($v['span']))
 					self::text($v['value'], $v['span']);
 				if($v['js'])
 					self::js(join(";",$v['js']));
 				$_SESSION['client']['__module_content__'][$k]['value'] = $v['value'];
-				$_SESSION['client']['__module_content__'][$k]['js'] = $v['js'];				
-				$_SESSION['client']['__module_content__'][$k]['parent'] = $parent;				
+				$_SESSION['client']['__module_content__'][$k]['js'] = $v['js'];
+				$_SESSION['client']['__module_content__'][$k]['parent'] = $parent;
 				$reloaded[$k] = true;
 				if(method_exists($v['module'],'reloaded')) $v['module']->reloaded();
 			}
 		}
-		
+
 		foreach($_SESSION['client']['__module_content__'] as $k=>$v)
 			if(!array_key_exists($k,self::$content) && isset($reloaded[$v['parent']])) {
 				if(DEBUG)
@@ -289,7 +288,7 @@ class Epesi {
 					self::js(join(";",$v['js']));
 				$reloaded[$k] = true;
 			}
-	
+
 		if(DEBUG) {
 			$debug .= 'vars '.CID.': '.print_r($_SESSION['client']['__module_vars__'],true).'<br>';
 			$debug .= 'user='.Acl::get_user().'<br>';
@@ -297,7 +296,7 @@ class Epesi {
 				$debug .= 'action module='.$_REQUEST['__action_module__'].'<br>';
 			$debug .= self::debug();
 		}
-		
+
 		if(MODULE_TIMES) {
 			foreach (self::$content as $k => $v)
 				$debug .= 'Time of loading module <b>'.$k.'</b>: <i>'.$v['time'].'</i><br>';
@@ -312,11 +311,11 @@ class Epesi {
 		}
 		if(DEBUG || MODULE_TIMES || SQL_TIMES)
 			self::text($debug,'debug');
-		
+
 		if(!$history_call && !History::soft_call()) {
 		        History::set();
 		}
-		
+
 		if(!$history_call) {
 			self::js('history_add('.History::get_id().')');
 		}
