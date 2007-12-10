@@ -32,7 +32,7 @@ class Tests_Calendar_Event extends Utils_Calendar_Event {
 		if($qf->validate()) {
 			$d = $qf->exportValues();
 			DB::Execute('INSERT INTO tests_calendar_event(start,duration,timeless,title,description,created_on,created_by) VALUES(%d,%d,%b,%s,%s,%T,%d)',
-				array(strtotime($d['start']),strtotime($d['end'])-strtotime($d['start'])+86400,true,$d['title'],$d['description'],time(),Acl::get_user()));
+				array(strtotime($d['start']),strtotime($d['end'])-strtotime($d['start'])+86399,true,$d['title'],$d['description'],time(),Acl::get_user()));
 			$this->back_to_calendar();
 		} else {
 			$qf->display();

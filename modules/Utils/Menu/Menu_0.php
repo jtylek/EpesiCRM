@@ -90,16 +90,16 @@ class Utils_Menu extends Module {
 		$this->menu_string .= 'writeOut(\''.$this->menu_id.'\');';
 		$this->menu_string .= '}; ';
 		$this->menu_string .= 'wait_while_null( "CustomMenubar", "load_menu_'.$this->menu_id.'(12)" );';
-
-	}
-
-	public function reloaded() {
 		$new_md5 = md5($this->menu_string);
 		$old_md5 = & $this->get_module_variable('old');
 		if($new_md5!=$old_md5) {
 			eval_js($this->menu_string);
 			$old_md5 = $new_md5;
 		}
+	}
+
+	public function reloaded() {
+		eval_js($this->menu_string);
 	}
 }
 
