@@ -1,63 +1,84 @@
 @CHARSET "ISO-8859-1";
-
-/* ???
+.no_border {
+	border: none;
+}
+hr.small {
+	background: #000000;
+	height: 1px;
+}
 p.event {
 	font-size: 7px;
 	line-height: 11px;
 	margin: 4px 0px 2px 0px;
 	position: absolute;
 }
-*/
+/* classes for big table */
 
-/* classes for crm_calendar_month table */
-
-table.crm_calendar_month {
-	width: 100%;
+#Utils_Calendar__year {
 	border-left: 1px solid #B3B3B3;
 	border-top: 1px solid #B3B3B3;
-	background-color: #336699;
 }
 
-table.crm_calendar_month td.empty {
-	border-top: 1px solid #B3B3B3;
-	border-left: 1px solid #B3B3B3;
-	background-color: #F0F0F0;
-}
-
-table.crm_calendar_month td.day {
-	vertical-align: top;
-	color: #000000;
-	border-bottom: 1px solid #B3B3B3;
-	border-right: 1px solid #B3B3B3;
-	text-align: left;
-	background-color: #FFFFFF;
-	width: 14%;
-	padding: 1px 2px 1px 2px;
-}
-
-table.crm_calendar_month td.today:hover,
-table.crm_calendar_month td.day:hover {
-	background-color: #e6cfcf
-}
-
-table.crm_calendar_month td.today {
-	/*background-color: #CFDAE6;*/
-	background-color: #E6ECF2;
-	border: 2px solid #336699;
-}
-
-table.crm_calendar_month td.header {
-	color: #FFFFFF;
+#Utils_Calendar__year td {
+	width: 30px;
 	height: 20px;
-	vertical-align: middle;
+	text-align: right;
+}
+
+#Utils_Calendar__year td.empty {
+}
+
+/* day */
+
+#Utils_Calendar__year td.day {
+	border-right: 1px solid #B3B3B3;
+	border-bottom: 1px solid #B3B3B3;
+}
+
+#Utils_Calendar__year .current {
+	background-color: #FFFFFF;
+}
+
+#Utils_Calendar__year .current a {
+	color: #336699;
+	display: block;
+	width: 30px;
+	line-height: 20px;
+}
+
+#Utils_Calendar__year .current a:hover {
+	color: #993333;
+	background-color: #e6cfcf;
+}
+
+#Utils_Calendar__year .other {
+	background-color: #F0F0F0;
+	color: #B3B3B3;
+}
+
+#Utils_Calendar__year .other {
+	color: #B3B3B3;
+}
+
+#Utils_Calendar__year td.today {
+	color: #000000;
+	background-color: #E6ECF2;
+	font-weight: bold;
+	border: 1px solid #336699;
+}
+
+/* header */
+
+#Utils_Calendar__year td.header {
+	text-align: center;
+	color: #FFFFFF;
 	background-color: #336699;
-	background-image: url('images/header-blue.png');
-	background-repeat: repeat-x;
-	padding-left: 5px;
 	border-left: 1px solid #FFFFFF;
 }
 
-table.crm_calendar_month td.week-number {
+/* week number */
+
+#Utils_Calendar__year td.week-number {
 	color: #FFFFFF;
 	text-align: center;
 	vertical-align: middle;
@@ -65,144 +86,82 @@ table.crm_calendar_month td.week-number {
 	border-top: 1px solid #FFFFFF;
 }
 
-table.crm_calendar_month td.week-number a {
+#Utils_Calendar__year td.week-number a {
 	color: #FFFFFF;
 	display: block;
-	line-height: 50px;
-	width: 20px;
+	line-height: 20px;
+	width: 30px;
 }
 
-table.crm_calendar_month td.week-number a:hover {
+#Utils_Calendar__year td.week-number a:hover {
 	background-color: #339933;
+}
+
+/* header month */
+
+#Utils_Calendar__year td.header-month {
+	background-color: #336699;
+	border-bottom: 1px solid #FFFFFF;
+}
+
+#Utils_Calendar__year td.header-month a {
+	vertical-align: middle;
+	text-align: center;
+	color: #FFFFFF;
+	background-image: url('images/header-blue.png');
+	background-repeat: repeat-x;
+	display: block;
+	line-height: 20px;
+}
+
+#Utils_Calendar__year td.header-month a:hover {
+	background-image: url('images/header-blue-hover.png');
+}
+
+
+.holiday {
+	font-weight: bold;
+	border: 1px dotted #999999;
+	background-color: #e3f7e5;
+}
+
+.holiday_today {
+	font-weight: bold;
+	border: 1px solid #000000;
+	background-color: #e3f7e5;
+}
+
+.weekend {
+	background: #fff3f5;
 }
 
 span.day_number {
-	font-size: 18px;
-	font-weight: bold;
+	font-size: 14pt;
 }
 
-/* ???
-	.holiday {
-		font-weight: bold;
-		border: 1px dotted #999999;
-		background-color: #e3f7e5;
-	}
-	.holiday_today {
-		font-weight: bold;
-		border: 1px solid #000000;
-		background-color: #e3f7e5;
-	}
-	.weekend {
-		background: #fff3f5;
-	}
-	a.new_event {
-		padding: 0px 4px 0px 4px;
-		border: 1px solid transparent;
-		margin: 15px;
-		text-decoration: none;
-	}
-*/
-
-/* event */
-
-table.crm_calendar_month div.events_brief {
-	height: 18px;
-	border: 2px solid #339933;
-	background-color: #cfe6cf;
-	color: #000000;
-	font-weight: normal;
-	padding: 0px;
-	margin: 1px;
-}
-
-table.crm_calendar_month div.events_brief span {
-	height: 18px;
-}
-
-table.crm_calendar_month .events_icon {
-	border: 1px solid #336699;
-}
-
-table.crm_calendar_month .events_drag_handle {
-	cursor: move;
-	background-color: #339933;
-	width: 18px;
+a.new_event {
 	display: block;
-	float: left;
-	padding-left: 1px;
-	padding-top: 1px;
-}
-
-table.crm_calendar_month .events_brief_info {
-	display: block;
-	float: left;
-	padding-left: 5px;
-	padding-right: 5px;
-	padding-top: 1px;
-}
-
-table.crm_calendar_month .events_more {
-	background-color: #339933;
-	display: block;
-	float: right;
-	padding-left: 4px;
+	line-height: 20px;
+	vertical-align: middle;
 	padding-right: 2px;
-	padding-top: 1px;
 }
 
-/* month-header */
-
-table.crm_calendar_month .month-header {
-	color: #FFFFFF;
-	vertical-align: middle;
-	background-color: #336699;
-	background-image: url('images/header-blue.png');
-	background-repeat: repeat-x;
-	height: 30px;
-	padding-left: 10px;
-	border-bottom: 1px solid #FFFFFF;
-	font-size: 14px;
-	font-weight: bold;
-	text-align: center;
-}
-
-table.crm_calendar_month .icon {
-	background-color: #FFFFFF;
-	color: #339933;
-	vertical-align: middle;
-	text-align: center;
-	width: 40px;
+a.new_event:hover {
+	background-color: #e6cfcf
 }
 
 /* menu */
 
-div.month-menu {
+div.year-menu {
 	padding-bottom: 0px;
 	/*border-bottom: 4px solid #B3B3B3;*/
 }
 
-div.month-menu table {
-	width: 100%;
-}
-
-div.month-menu img {
+div.year-menu img {
 	vertical-align: middle;
 }
 
-div.month-menu .empty {
-	width: 50%;
-}
-
-div.month-menu .add-info {
-	color: #777777;
-	padding-right: 20px;
-}
-
-div.month-menu .add-info:hover {
-	color: #000000;
-}
-
-div.month-menu a.button {
+div.year-menu a.button {
     font-weight: normal;
     color: #FFFFFF;
     width: 100px;
@@ -215,7 +174,24 @@ div.month-menu a.button {
     text-align: center;
 }
 
-div.month-menu a.button:hover {
+div.year-menu a.button:hover {
 	background-color: #339933;
     /*background-image: url("images/header-blue-hover.png");*/
+}
+
+div.year-menu table {
+	width: 100%;
+}
+
+div.year-menu .empty {
+	width: 50%;
+}
+
+div.year-menu .add-info {
+	color: #777777;
+	padding-right: 20px;
+}
+
+div.year-menu .add-info:hover {
+	color: #000000;
 }

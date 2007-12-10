@@ -16,13 +16,13 @@
 </div>
 
 <!-- SHADOW BEGIN -->
-	<div class="layer" style="padding: 9px; width: 60%;">
+	<div class="layer" style="padding: 9px; width: 98%;">
 		<div class="content_shadow">
 <!-- -->
 
 <div style="padding: 5px; background-color: #FFFFFF;">
 
-	<table cellspacing=0 class=week>
+	<table cellspacing=0 id="Utils_Calendar__week">
 {* shows month *}
 		<tr>
 			<td class="hours_header" rowspan="2"><img src="{$theme_dir}/Utils_Calendar__icon-week.png" width="32" height="32" border="0"><br>{$week_view_label}</td>
@@ -36,7 +36,7 @@
 {* this row contains days of month *}
 		<tr>
 			{foreach item=header from=$day_headers}
-				<td class="header_day">{$header}</td>
+				<td class="header_day"><a href="">{$header}</a></td>
 			{/foreach}
 		</tr>
 

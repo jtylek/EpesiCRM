@@ -11,22 +11,22 @@ p.event {
 
 /* CRM week calendar */
 
-.crm_calendar_week {
+#Utils_Calendar__week {
 	width: 100%;
 	border-right: 1px solid #B3B3B3;
 	border-bottom: 1px solid #B3B3B3;
 }
 
-.crm_calendar_week td {
+#Utils_Calendar__week td {
 	height: 25px;
 	vertical-align: middle;
 }
 
-.crm_calendar_week td.today {
+#Utils_Calendar__week td.today {
 	background-color: red;
 }
 
-.crm_calendar_week td.hours_header {
+#Utils_Calendar__week td.hours_header {
 	width: 9%;
 	border: 0px;
 	text-align: center;
@@ -36,7 +36,7 @@ p.event {
 	background-color: #FFFFFF;
 }
 
-.crm_calendar_week td.hours_header_lower {
+#Utils_Calendar__week td.hours_header_lower {
 	width: 9%;
 	vertical-align: top;
 	color: #FFFFFF;
@@ -47,9 +47,9 @@ p.event {
 	padding-top: 4px;
 }
 
-.crm_calendar_week td.header_day {
+#Utils_Calendar__week td.header_day {
 	height: 50px;
-	vertical-align: top;
+	vertical-align: middle;
 	border: 1px solid #B3B3B3;
 	border-right: 0px;
 	border-top: 0px;
@@ -63,17 +63,17 @@ p.event {
 	padding-right: 5px;
 }
 
-.crm_calendar_week td.header_day:hover {
+#Utils_Calendar__week td.header_day:hover {
 	background-image: url('images/day-header-hover.png');
 }
 
-.crm_calendar_week td.header_day a table {
+#Utils_Calendar__week td.header_day a {
 	font-weight: bold;
 	font-size: 14px;
 	height: 50px;
 }
 
-.crm_calendar_week td.header_day_today {
+#Utils_Calendar__week td.header_day_today {
 	vertical-align: top;
 	border: 1px solid #B3B3B3;
 	border-right: 0px;
@@ -91,25 +91,25 @@ p.event {
 	border-right: 2px solid #336699;
 }
 
-.crm_calendar_week td.header_day_today:hover {
+#Utils_Calendar__week td.header_day_today:hover {
 	background-image: url('images/day-header-today-hover.png');
 }
 
-.crm_calendar_week td.header_day_today a table {
+#Utils_Calendar__week td.header_day_today a table {
 	font-weight: bold;
 	font-size: 14px;
 	height: 50px;
 }
 
-.crm_calendar_week .weekend {
+#Utils_Calendar__week .weekend {
 	background-image: url('images/day-header-weekend.png');
 }
 
-.crm_calendar_week .weekend:hover {
+#Utils_Calendar__week .weekend:hover {
 	background-image: url('images/day-header-weekend-hover.png');
 }
 
-.crm_calendar_week td.header_timeless {
+#Utils_Calendar__week td.header_timeless {
 	vertical-align: top;
 	color: #000000;
 	border-left: 1px solid #B3B3B3;
@@ -122,11 +122,11 @@ p.event {
 	cursor: pointer;
 }
 
-.crm_calendar_week td.header_timeless:hover {
+#Utils_Calendar__week td.header_timeless:hover {
 	background-color: #e6cfcf
 }
 
-.crm_calendar_week td.header_timeless_today {
+#Utils_Calendar__week td.header_timeless_today {
 	vertical-align: top;
 	color: #000000;
 	border-left: 1px solid #B3B3B3;
@@ -142,11 +142,11 @@ p.event {
 	border-right: 2px solid #336699;
 }
 
-.crm_calendar_week td.header_timeless_today:hover {
+#Utils_Calendar__week td.header_timeless_today:hover {
 	background-color: #e6cfcf
 }
 
-.crm_calendar_week td.header_weekday {
+#Utils_Calendar__week td.header_weekday {
 	vertical-align: top;
 	color: #000000;
 	border: 1px solid #B3B3B3;
@@ -154,7 +154,7 @@ p.event {
 	background: #fcfffd;
 }
 
-.crm_calendar_week td.header_month {
+#Utils_Calendar__week td.header_month {
 	color: #FFFFFF;
 	vertical-align: middle;
 	background-color: #336699;
@@ -170,11 +170,11 @@ p.event {
 	text-align: center;
 }
 
-.crm_calendar_week td.header_month a {
+#Utils_Calendar__week td.header_month a {
 	color: #FFFFFF;
 }
 
-.crm_calendar_week td.hour {
+#Utils_Calendar__week td.hour {
 	width: 9%;
 	vertical-align: top;
 	color: #FFFFFF;
@@ -186,7 +186,7 @@ p.event {
 	padding-top: 2px;
 }
 
-.crm_calendar_week td.midday_hour {
+#Utils_Calendar__week td.midday_hour {
 	width: 9%;
 	vertical-align: top;
 	color: #FFFFFF;
@@ -198,7 +198,7 @@ p.event {
 	padding-top: 2px;
 }
 
-.crm_calendar_week td.inter {
+#Utils_Calendar__week td.inter {
 	vertical-align: top;
 	color: #000000;
 	border: 1px solid #B3B3B3;
@@ -210,11 +210,11 @@ p.event {
 	cursor: pointer;
 }
 
-.crm_calendar_week td.inter:hover {
+#Utils_Calendar__week td.inter:hover {
 	background-color: #e6cfcf
 }
 
-.crm_calendar_week td.inter_today {
+#Utils_Calendar__week td.inter_today {
 	vertical-align: top;
 	color: #000000;
 	border: 1px solid #B3B3B3;
@@ -229,11 +229,11 @@ p.event {
 	border-right: 2px solid #336699;
 }
 
-.crm_calendar_week td.inter_today:hover {
+#Utils_Calendar__week td.inter_today:hover {
 	background-color: #e6cfcf
 }
 
-.crm_calendar_week td.midday_inter {
+#Utils_Calendar__week td.midday_inter {
 	vertical-align: top;
 	color: #000000;
 	border: 1px solid #B3B3B3;
@@ -246,11 +246,11 @@ p.event {
 	cursor: pointer;
 }
 
-.crm_calendar_week td.midday_inter:hover {
+#Utils_Calendar__week td.midday_inter:hover {
 	background-color: #e6cfcf
 }
 
-.crm_calendar_week td.midday_inter_today {
+#Utils_Calendar__week td.midday_inter_today {
 	vertical-align: top;
 	color: #000000;
 	border: 1px solid #B3B3B3;
@@ -266,24 +266,24 @@ p.event {
 	border-right: 2px solid #336699;
 }
 
-.crm_calendar_week td.midday_inter_today:hover {
+#Utils_Calendar__week td.midday_inter_today:hover {
 	background-color: #e6cfcf
 }
 
 /* event */
 
-.crm_calendar_week .events_brief {
+#Utils_Calendar__week .events_brief {
 	border: 2px solid #339933;
 	background-color: #cfe6cf;
 	padding: 0px;
 	margin: 1px;
 }
 
-.crm_calendar_week .events_icon {
+#Utils_Calendar__week .events_icon {
 	border: 1px solid #336699;
 }
 
-.crm_calendar_week .events_drag_handle {
+#Utils_Calendar__week .events_drag_handle {
 	cursor: move;
 	background-color: #339933;
 	display: block;
@@ -294,7 +294,7 @@ p.event {
 	left: 0px;
 }
 
-.crm_calendar_week .events_brief_info_time {
+#Utils_Calendar__week .events_brief_info_time {
 	background-color: #cfe6cf;
 	display: block;
 	padding: 2px;
@@ -304,7 +304,7 @@ p.event {
 	background-repeat: repeat-x;*/
 }
 
-.crm_calendar_week .events_brief_info_title {
+#Utils_Calendar__week .events_brief_info_title {
 	vertical-align: middle;
 	background-color: #cfe6cf;
 	background-image: url('images/header-light-green.png');
@@ -314,14 +314,14 @@ p.event {
 	text-align: center;
 }
 
-.crm_calendar_week .events_brief_info_title:hover {
+#Utils_Calendar__week .events_brief_info_title:hover {
 }
 
-.crm_calendar_week .events_brief_info_title a {
+#Utils_Calendar__week .events_brief_info_title a {
 	color: #000000;
 }
 
-.crm_calendar_week .events_more {
+#Utils_Calendar__week .events_more {
 	background-color: #339933;
 	display: block;
 	float: right;

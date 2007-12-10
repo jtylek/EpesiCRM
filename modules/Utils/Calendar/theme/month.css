@@ -9,44 +9,66 @@ p.event {
 }
 */
 
-/* classes for crm_calendar_month table */
+/* Utils_Calendar__month */
 
-table.crm_calendar_month {
+table#Utils_Calendar__month {
 	width: 100%;
 	border-left: 1px solid #B3B3B3;
 	border-top: 1px solid #B3B3B3;
 	background-color: #336699;
 }
 
-table.crm_calendar_month td.empty {
+table#Utils_Calendar__month td.empty {
 	border-top: 1px solid #B3B3B3;
 	border-left: 1px solid #B3B3B3;
 	background-color: #F0F0F0;
 }
 
-table.crm_calendar_month td.day {
+/* day */
+
+table#Utils_Calendar__month td.day {
 	vertical-align: top;
-	color: #000000;
+	text-align: left;
+	width: 14%;
+	height: 50px;
+	padding: 1px 2px 1px 2px;
 	border-bottom: 1px solid #B3B3B3;
 	border-right: 1px solid #B3B3B3;
-	text-align: left;
-	background-color: #FFFFFF;
-	width: 14%;
-	padding: 1px 2px 1px 2px;
 }
 
-table.crm_calendar_month td.today:hover,
-table.crm_calendar_month td.day:hover {
+table#Utils_Calendar__month td.current {
+	color: #000000;
+	background-color: #FFFFFF;
+}
+
+table#Utils_Calendar__month td.current a {
+	font-size: 14px;
+}
+
+table#Utils_Calendar__month td.other {
+	color: #B3B3B3;
+	background-color: #F0F0F0;
+}
+
+table#Utils_Calendar__month td.other a {
+	font-size: 14px;
+	color: #B3B3B3;
+}
+
+table#Utils_Calendar__month td.today:hover,
+table#Utils_Calendar__month td.current:hover {
 	background-color: #e6cfcf
 }
 
-table.crm_calendar_month td.today {
+table#Utils_Calendar__month td.today {
 	/*background-color: #CFDAE6;*/
 	background-color: #E6ECF2;
 	border: 2px solid #336699;
 }
 
-table.crm_calendar_month td.header {
+/* header */
+
+table#Utils_Calendar__month td.header {
 	color: #FFFFFF;
 	height: 20px;
 	vertical-align: middle;
@@ -57,7 +79,7 @@ table.crm_calendar_month td.header {
 	border-left: 1px solid #FFFFFF;
 }
 
-table.crm_calendar_month td.week-number {
+table#Utils_Calendar__month td.week-number {
 	color: #FFFFFF;
 	text-align: center;
 	vertical-align: middle;
@@ -65,22 +87,21 @@ table.crm_calendar_month td.week-number {
 	border-top: 1px solid #FFFFFF;
 }
 
-table.crm_calendar_month td.week-number a {
+table#Utils_Calendar__month td.week-number a {
 	color: #FFFFFF;
 	display: block;
 	line-height: 50px;
 	width: 20px;
 }
 
-table.crm_calendar_month td.week-number a:hover {
+table#Utils_Calendar__month td.week-number a:hover {
 	background-color: #339933;
 }
-
-span.day_number {
-	font-size: 18px;
-	font-weight: bold;
+/*
+span.day-number {
+	font-size: 14px;
 }
-
+*/
 /* ???
 	.holiday {
 		font-weight: bold;
@@ -105,7 +126,7 @@ span.day_number {
 
 /* event */
 
-table.crm_calendar_month div.events_brief {
+table#Utils_Calendar__month div.events_brief {
 	height: 18px;
 	border: 2px solid #339933;
 	background-color: #cfe6cf;
@@ -115,15 +136,15 @@ table.crm_calendar_month div.events_brief {
 	margin: 1px;
 }
 
-table.crm_calendar_month div.events_brief span {
+table#Utils_Calendar__month div.events_brief span {
 	height: 18px;
 }
 
-table.crm_calendar_month .events_icon {
+table#Utils_Calendar__month .events_icon {
 	border: 1px solid #336699;
 }
 
-table.crm_calendar_month .events_drag_handle {
+table#Utils_Calendar__month .events_drag_handle {
 	cursor: move;
 	background-color: #339933;
 	width: 18px;
@@ -133,7 +154,7 @@ table.crm_calendar_month .events_drag_handle {
 	padding-top: 1px;
 }
 
-table.crm_calendar_month .events_brief_info {
+table#Utils_Calendar__month .events_brief_info {
 	display: block;
 	float: left;
 	padding-left: 5px;
@@ -141,7 +162,7 @@ table.crm_calendar_month .events_brief_info {
 	padding-top: 1px;
 }
 
-table.crm_calendar_month .events_more {
+table#Utils_Calendar__month .events_more {
 	background-color: #339933;
 	display: block;
 	float: right;
@@ -152,7 +173,7 @@ table.crm_calendar_month .events_more {
 
 /* month-header */
 
-table.crm_calendar_month .month-header {
+table#Utils_Calendar__month .month-header {
 	color: #FFFFFF;
 	vertical-align: middle;
 	background-color: #336699;
@@ -166,43 +187,35 @@ table.crm_calendar_month .month-header {
 	text-align: center;
 }
 
-table.crm_calendar_month .icon {
-	background-color: #FFFFFF;
-	color: #339933;
-	vertical-align: middle;
-	text-align: center;
-	width: 40px;
-}
+/* month-menu */
 
-/* menu */
-
-div.month-menu {
+#month-menu {
 	padding-bottom: 0px;
 	/*border-bottom: 4px solid #B3B3B3;*/
 }
 
-div.month-menu table {
+#month-menu table {
 	width: 100%;
 }
 
-div.month-menu img {
+#month-menu img {
 	vertical-align: middle;
 }
 
-div.month-menu .empty {
+#month-menu .empty {
 	width: 50%;
 }
 
-div.month-menu .add-info {
+#month-menu .add-info {
 	color: #777777;
 	padding-right: 20px;
 }
 
-div.month-menu .add-info:hover {
+#month-menu .add-info:hover {
 	color: #000000;
 }
 
-div.month-menu a.button {
+#month-menu a.button {
     font-weight: normal;
     color: #FFFFFF;
     width: 100px;
@@ -215,7 +228,7 @@ div.month-menu a.button {
     text-align: center;
 }
 
-div.month-menu a.button:hover {
+#month-menu a.button:hover {
 	background-color: #339933;
     /*background-image: url("images/header-blue-hover.png");*/
 }

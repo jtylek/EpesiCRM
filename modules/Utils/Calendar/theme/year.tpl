@@ -1,6 +1,5 @@
-<div class="month-menu">
+<div class="year-menu">
 	<table border="0"><tr>
-		<td style="padding-left: 180px;"></td>
 		<td class="empty"></td>
 		<td style="width: 10px;"></td>
 		<td><a class="button" {$prevyear_href}>{$prevyear_label}&nbsp;&nbsp;<img border="0" width="8" height="8" src="{$theme_dir}/Utils_Calendar__prev.png"></a></td>
@@ -9,43 +8,49 @@
 		<td style="width: 10px;"></td>
 		<td>{$popup_calendar}</td>
 		<td class="empty"></td>
-		<td class="add-info">{$info}</td>
 	</tr></table>
 </div>
 
 
 <!-- SHADIW BEGIN -->
-	<div class="layer" style="padding: 9px; width: 98%;">
+	<div class="layer" style="padding: 9px; width: 766px;">
 		<div class="content_shadow">
 <!-- -->
 
-<div style="padding: 5px; background-color: #FFFFFF;">
+{math assign="col" equation="x" x=3}
+
+<table border="0" cellpadding="0" cellspacing="5" style="background-color: #FFFFFF;">
 
 {foreach item=month from=$year}
-	<table name="CRMCalendar" class="crm_calendar_month" cellpadding="0" cellspacing="0" border="0">
-		<tr>
-			<td class="month-header" rowspan="2"><!-- <img src="{$theme_dir}/Utils_Calendar__icon.png" width="32" height="32" border="0"> --></td>
-			<td class="month-header" colspan="7">{$month.month_label} &bull; {$month.year_label}</td>
-		</tr>
+	{if $col % 3 == 0}<tr>{/if}
+		<td style="vertical-align: top">
+            <table name="CRMCalendar" id="Utils_Calendar__year" cellpadding="0" cellspacing="0" border="0">
+            	<tr>
+            		<td class="header-month" rowspan="2">&nbsp;</td>
+            		<td class="header-month" colspan="7"><a href="">{$month.month_label} &bull; {$month.year_label}</a></td>
+            	</tr>
+            	<tr>
+            		{foreach item=header from=$day_headers}
+            			<td class="header">{$header}</td>
+            		{/foreach}
+            	</tr>
+            	{foreach item=week from=$month.month}
+            		<tr>
+            			<td class="week-number"><a href="">{$week.week_label}</a></td>
+            			{foreach item=day from=$week.days}
+            				<td class="day {$day.style}"><a href="">{$day.day}</a></td>
+            			{/foreach}
+            		</tr>
+            	{/foreach}
+            </table>
+		</td>
+	{if $col % 3 == 3}</tr>{/if}
 
-		<tr>
-			{foreach item=header from=$day_headers}
-				<td class="header_day">{$header}</td>
-			{/foreach}
-		</tr>
+    {math assign="col" equation="x+1" x=$col}
 
-		{foreach item=week from=$month.month}
-			<tr>
-				<td>{$week.week_label}</td>
-				{foreach item=day from=$week.days}
-					<td>{$day.day}{$day.style}</td>
-				{/foreach}
-			</tr>
-		{/foreach}
-	</table>
 {/foreach}
 
-</div>
+</table>
 
 <!-- SHADOW END -->
  		</div>
