@@ -28,6 +28,8 @@ class Utils_CalendarInstall extends ModuleInstall {
 			array('name'=>'Utils/TabbedBrowser', 'version'=>0),
 			array('name'=>'Base/RegionalSettings', 'version'=>0),
 			array('name'=>'Base/Theme', 'version'=>0),
+			array('name'=>'Base/ActionBar', 'version'=>0),
+			array('name'=>'Base/Box', 'version'=>0),
 			array('name'=>'Utils/PopupCalendar', 'version'=>0),
 			array('name'=>'Base/Lang', 'version'=>0)
 		);

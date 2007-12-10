@@ -12,11 +12,17 @@ class Utils_Calendar extends Module {
 				  'interval'=>'1:00',
 				  'default_date'=>null);
 	private $date; //current date
+	private $event_module;
 
-	public function construct(array $settings) {
+	public function construct($ev_mod, array $settings=null) {
 		$this->lang = $this->init_module('Base/Lang');
 		$this->settings = array_merge($this->settings,$settings);
 
+		$this->event_module = str_replace('/','_',$ev_mod);
+		if(ModuleManager::is_installed($this->event_module)==-1)
+			trigger_error('Invalid event module', E_USER_ERROR);
+
+		//default views
 		if($this->settings['views']===null) $this->settings['views'] = & self::$views;
 
 		//default date
@@ -50,6 +56,27 @@ class Utils_Calendar extends Module {
 		return $timeline;
 	}
 
+	private function duration2str($duration) {
+		$sec = $duration%60;
+		$duration /= 60;
+		if($duration>0) {
+			$min = $duration%60;
+			$duration /= 60;
+			if($duration>0) {
+				$hour = $duration%24;
+				$duration /= 24;
+				if($duration>0) {
+					$days = $duration;
+					$duration_str = $this->lang->t('%d day(s) %d:%s',array($days, $hour,str_pad($min, 2, "0", STR_PAD_LEFT)));
+				} else
+					$duration_str = $this->lang->t('%d:%s',array($hour,str_pad($min, 2, "0", STR_PAD_LEFT)));
+			} else
+				$duration_str = $this->lang->t('00:%s',array(str_pad($min, 2, "0", STR_PAD_LEFT)));
+		} else
+			$duration_str = $this->lang->t('%d sec',array($sec));
+		return $duration_str;
+	}
+
 	public function body($arg = null) {
 		$tb = $this->init_module('Utils/TabbedBrowser');
 
@@ -65,6 +92,20 @@ class Utils_Calendar extends Module {
 
 		$this->display_module($tb);
 		$tb->tag();
+
+		Base_ActionBarCommon::add('add',$this->lang->t('Add event'),$this->create_callback_href(array($this,'push_event_action'),array('add',$this->date)));
+	}
+
+	///////////////////////////////////////////////
+	// event management
+	public function push_event_action($action,$arg=null) {
+		$x = ModuleManager::get_instance('/Base_Box|0');
+		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+		$x->push_main($this->event_module,$action,$arg);
+	}
+
+	public function delete_event($id) {
+		call_user_func(array($this->event_module.'Common','delete'),$id);
 	}
 
 	//////////////////////////////////////////////
@@ -96,20 +137,61 @@ class Utils_Calendar extends Module {
 		//////////////// data ////////////////////////
 		$gb = $this->init_module('Utils/GenericBrowser', null, 'agenda');
 		$columns = array(
-			array('name'=>$this->lang->t('Day'), 'order'=>'datetime_start', 'width'=>5),
-			array('name'=>$this->lang->t('Date'), 'order'=>'datetime_start', 'width'=>6),
-			array('name'=>$this->lang->t('Start'), 'order'=>'datetime_start', 'width'=>5),
-			array('name'=>$this->lang->t('End'), 'order'=>'datetime_end', 'width'=>5),
-			array('name'=>$this->lang->t('Title'), 'order'=>'details','width'=>15),
-			array('name'=>$this->lang->t('Description'), 'order'=>'details','width'=>30)
+			array('name'=>$this->lang->t('Start'), 'order'=>'start', 'width'=>15),
+			array('name'=>$this->lang->t('Duration'), 'order'=>'end', 'width'=>15),
+			array('name'=>$this->lang->t('Title'), 'order'=>'title','width'=>15),
+			array('name'=>$this->lang->t('Description'), 'order'=>'description','width'=>30)
 		);
 		$gb->set_table_columns( $columns );
 
-		//add data here
-		$gb->get_new_row()->add_data('x','y','z','1','2','3');
-		//use $start and $end as timestamps
+		//add data
+		$ret = call_user_func(array($this->event_module.'Common','get'),$start,$end);
+		if(!is_array($ret))
+			trigger_error('Invalid return of event method: get',E_USER_ERROR);
+		foreach($ret as $row) {
+			$r = $gb->get_new_row();
+			if(!isset($row['start']) || !isset($row['duration']) || !is_numeric($row['duration'])
+			   || !isset($row['title']) || !isset($row['description'])
+			   || !isset($row['timeless']) || !isset($row['id']))
+				trigger_error('Invalid return of event method: get',E_USER_ERROR);
 
-		$theme->assign('agenda',$this->get_html_of_module($gb));
+			$ev_start = $row['start'];
+			if(!is_numeric($ev_start) && is_string($ev_start)) $ev_start = strtotime($ev_start);
+			if($ev_start===false)
+				trigger_error('Invalid return of event method: get',E_USER_ERROR);
+
+			$ev_end = $ev_start+$row['duration'];
+			$oneday = (date('Y-m-d',$ev_end)==date('Y-m-d',$ev_start));
+
+			Base_RegionalSettingsCommon::set_locale();
+			$start_day = date('D',$ev_start);
+			if(!$oneday)
+				$end_day = date('D',$ev_end);
+			else
+				$end = Base_RegionalSettingsCommon::convert_24h($ev_end);
+			Base_RegionalSettingsCommon::restore_locale();
+
+			if($row['timeless']) {
+				$start = $start_day.', '.Base_RegionalSettingsCommon::time2reg($ev_start,false);
+				if($oneday)
+					$end = $start;
+				else
+					$end = $end_day.', '.Base_RegionalSettingsCommon::time2reg($ev_end,false);
+			} else {
+				$start = $start_day.', '.Base_RegionalSettingsCommon::time2reg($ev_start);
+				if(!$oneday)
+					$end = $end_day.', '.Base_RegionalSettingsCommon::time2reg($ev_end);
+			}
+
+			$duration_str = $this->duration2str($row['duration']);
+			$r->add_data($start,Utils_TooltipCommon::create($duration_str,$end),$row['title'],$row['description']);
+
+			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Delete this event?'),array($this,'delete_event'),$row['id']),'Delete');
+			$r->add_action($this->create_callback_href(array($this,'push_event_action'),array('edit',$row['id'])),'Edit');
+			$r->add_action($this->create_callback_href(array($this,'push_event_action'),array('view',$row['id'])),'View');
+		}
+
+		$theme->assign('agenda',$this->get_html_of_module($gb,array(false),'automatic_display'));
 
 		//////////////// display ///////////////
 		$theme->display('agenda');
@@ -192,7 +274,6 @@ class Utils_Calendar extends Module {
 
 		$week_shift = 86400*$this->get_module_variable('week_shift',0);
 
-
 		$first_day_of_displayed_week = date('w', $this->date)-$this->settings['first_day_of_week'];
 		if ($first_day_of_displayed_week<0) $first_day_of_displayed_week += 7;
 		$first_day_of_displayed_week *= 86400;
@@ -202,17 +283,17 @@ class Utils_Calendar extends Module {
 		if (date('m',$dis_week_from)!=date('m',$dis_week_from+518400)) {
 			$second_span_width = date('d',$dis_week_from+518400);
 			$header_month = array('first_span'=>array(
-									'colspan'=>7-$second_span_width, 
-									'label'=>date('M Y',$dis_week_from)), 
+									'colspan'=>7-$second_span_width,
+									'label'=>date('M Y',$dis_week_from)),
 								'second_span'=>array(
-									'colspan'=>$second_span_width, 
-									'label'=>date('M Y',$dis_week_from+518400) 
-									)); 
+									'colspan'=>$second_span_width,
+									'label'=>date('M Y',$dis_week_from+518400)
+									));
 		} else {
 			$header_month = array('first_span'=>array(
-									'colspan'=>7, 
+									'colspan'=>7,
 									'label'=>date('M Y',$dis_week_from)
-									)); 
+									));
 		}
 		for ($i=0; $i<7; $i++)
 			$day_headers[] = date('d D', $dis_week_from+$i*86400);
@@ -225,6 +306,8 @@ class Utils_Calendar extends Module {
 		$theme->display('week');
 	}
 
+	//////////////////////////////////////////////////////
+	// month and year
 	public function month_array($date) {
 		$first_day_of_month = strtotime(date('Y-m-', $date).'01');
 		$diff = date('w', $first_day_of_month)-$this->settings['first_day_of_week'];
@@ -262,15 +345,15 @@ class Utils_Calendar extends Module {
 		$theme->assign('prevyear_href', $this->create_callback_href(array($this,'set_date'),strtotime((date('Y',$this->date)-1).date('-m-d',$this->date))));
 		$theme->assign('prevyear_label', $this->lang->ht('Previous year'));
 		$theme->assign('info', $this->lang->t('Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event'));
-		
+
 		if ($this->isset_unique_href_variable('date'))
 			$this->set_date($this->get_unique_href_variable('date'));
-		
+
 		$link_text = $this->create_unique_href_js(array('date'=>'__YEAR__-__MONTH__-__DAY__'));
 		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text));
 
 		$month = $this->month_array($this->date);
-	
+
 		$day_headers = array();
 		for ($i=0; $i<7; $i++)
 			$day_headers[] = date('D', strtotime('Sun')+86400*($i+$this->settings['first_day_of_week']));
@@ -296,14 +379,14 @@ class Utils_Calendar extends Module {
 		$theme->assign('prevyear_href', $this->create_callback_href(array($this,'set_date'),strtotime((date('Y',$this->date)-1).date('-m-d',$this->date))));
 		$theme->assign('prevyear_label', $this->lang->ht('Previous year'));
 		$theme->assign('info', $this->lang->t('Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event'));
-		
+
 		if ($this->isset_unique_href_variable('date'))
 			$this->set_date($this->get_unique_href_variable('date'));
-		
+
 		$link_text = $this->create_unique_href_js(array('date'=>'__YEAR__-__MONTH__-__DAY__'));
 		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text));
 
-	
+
 		$day_headers = array();
 		for ($i=0; $i<7; $i++)
 			$day_headers[] = date('D', strtotime('Sun')+86400*($i+$this->settings['first_day_of_week']));

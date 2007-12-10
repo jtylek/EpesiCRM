@@ -25,7 +25,8 @@ class Tests_CalendarInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
-			array('name'=>'Utils/Calendar','version'=>0));
+			array('name'=>'Utils/Calendar','version'=>0),
+			array('name'=>'Tests/Calendar/Event','version'=>0));
 	}
 	
 	public static function info() {

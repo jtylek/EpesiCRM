@@ -22,7 +22,7 @@ class ModuleCommon extends ModulePrimitive {
 	 */
 	public static final function Instance($arg=null) {
 		static $obj;
-		if(!isset($obj) && isset($arg)) $obj = $arg;
+		if(isset($arg)) $obj = $arg;
 		elseif(is_string($obj)) {
 			$cl = $obj.'Common';
 			$obj = new $cl($obj);

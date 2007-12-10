@@ -123,7 +123,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		return $ret;
 	}
 
-	private static function set_locale() {
+	public static function set_locale() {
 		self::$curr_locale = setlocale(LC_TIME,0);
 		$lang_code = strtolower(Base_LangCommon::get_lang_code());
 		setlocale(LC_TIME,$lang_code.'_'.strtoupper($lang_code).'.utf8', //unixes
@@ -133,7 +133,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 				isset(self::$countries[$lang_code])?self::$countries[$lang_code]:null);//win32
 	}
 
-	private static function restore_locale() {
+	public static function restore_locale() {
 		setlocale(LC_TIME,self::$curr_locale);
 	}
 
