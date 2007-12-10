@@ -272,10 +272,10 @@ class Utils_Calendar extends Module {
 		$ret = $this->get_events(date('Y-m-d',$this->date),date('Y-m-d',$this->date+86400));
 		load_js($this->get_module_dir().'calendar.js');
 		foreach($ret as $ev) {
-			$ev_start = $ev['start']-$today_t;
 			if($ev['timeless'])
 				$dest_id = 'day_'.$today_t.'_timeless';
 			else {
+				$ev_start = $ev['start']-$today_t;
 				$ct = count($timeline);
 				for($i=0, $j=1; $j<$ct; $i++,$j++)
 					if($timeline[$i]['time']<$ev_start && $ev_start<$timeline[$j]['time'])
@@ -381,19 +381,23 @@ class Utils_Calendar extends Module {
 		load_js($this->get_module_dir().'calendar.js');
 		$today_t = strtotime(date('Y-m-d',$dis_week_from));
 		foreach($ret as $k=>$ev) {
-			if($ev['timeless']) {
-				$ev_start = date('Y-m-d',$ev['start']);
-				for($i=0; $i<7; $i++) {
-					$x = $dis_week_from+$i*86400;
-					if(date('Y-m-d',$x)==$ev_start)
-						$dest_id = 'week_'.$x.'_timeless';
+			$ev_start = date('Y-m-d',$ev['start']);
+			for($i=0; $i<7; $i++) {
+				$x = $dis_week_from+$i*86400;
+				if(date('Y-m-d',$x)==$ev_start) {
+					$today_t = $x;
+					break;
 				}
+			}
+			if($ev['timeless']) {
+				$dest_id = 'week_'.$today_t.'_timeless';
 			} else {
+				$ev_start = $ev['start']-$today_t;
 				$ct = count($timeline);
 				for($i=0, $j=1; $j<$ct; $i++,$j++)
 					if($timeline[$i]['time']<$ev_start && $ev_start<$timeline[$j]['time'])
 						break;
-				$dest_id = $timeline[$i]['id'];
+				$dest_id = 'week_'.($today_t+$timeline[$i]['time']);
 			}
 			$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\',\''.Epesi::escapeJS($ev['title'],false).'\')');
 		}
