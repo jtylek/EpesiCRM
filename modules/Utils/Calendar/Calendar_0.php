@@ -58,13 +58,13 @@ class Utils_Calendar extends Module {
 
 	private function duration2str($duration) {
 		$sec = $duration%60;
-		$duration /= 60;
+		$duration = floor($duration/60);
 		if($duration>0) {
 			$min = $duration%60;
-			$duration /= 60;
+			$duration = floor($duration/60);
 			if($duration>0) {
 				$hour = $duration%24;
-				$duration /= 24;
+				$duration = floor($duration/24);
 				if($duration>0) {
 					$days = $duration;
 					$duration_str = $this->lang->t('%d day(s) %d:%s',array($days, $hour,str_pad($min, 2, "0", STR_PAD_LEFT)));
@@ -108,6 +108,28 @@ class Utils_Calendar extends Module {
 		call_user_func(array($this->event_module.'Common','delete'),$id);
 	}
 
+	private function get_events($start,$end) {
+		if(!is_numeric($start) && is_string($start)) $start = strtotime($start);
+		if(!is_numeric($end) && is_string($end)) $end = strtotime($end);
+
+		$ret = call_user_func(array($this->event_module.'Common','get'),$start,$end);
+		if(!is_array($ret))
+			trigger_error('Invalid return of event method: get',E_USER_ERROR);
+		foreach($ret as &$row) {
+			if(!isset($row['start']) || !isset($row['duration']) || !is_numeric($row['duration'])
+			   || !isset($row['title']) || !isset($row['description'])
+			   || !isset($row['timeless']) || !isset($row['id']))
+				trigger_error('Invalid return of event method: get',E_USER_ERROR);
+
+			if(!is_numeric($row['start']) && is_string($row['start'])) $row['start'] = strtotime($row['start']);
+			if($row['start']===false)
+				trigger_error('Invalid return of event method: get',E_USER_ERROR);
+
+			$row['end'] = $row['start']+$row['duration'];
+		}
+		return $ret;
+	}
+
 	//////////////////////////////////////////////
 	// agenda
 	public function agenda() {
@@ -145,22 +167,12 @@ class Utils_Calendar extends Module {
 		$gb->set_table_columns( $columns );
 
 		//add data
-		$ret = call_user_func(array($this->event_module.'Common','get'),$start,$end);
-		if(!is_array($ret))
-			trigger_error('Invalid return of event method: get',E_USER_ERROR);
+		$ret = $this->get_events($start,$end);
 		foreach($ret as $row) {
 			$r = $gb->get_new_row();
-			if(!isset($row['start']) || !isset($row['duration']) || !is_numeric($row['duration'])
-			   || !isset($row['title']) || !isset($row['description'])
-			   || !isset($row['timeless']) || !isset($row['id']))
-				trigger_error('Invalid return of event method: get',E_USER_ERROR);
 
 			$ev_start = $row['start'];
-			if(!is_numeric($ev_start) && is_string($ev_start)) $ev_start = strtotime($ev_start);
-			if($ev_start===false)
-				trigger_error('Invalid return of event method: get',E_USER_ERROR);
-
-			$ev_end = $ev_start+$row['duration'];
+			$ev_end = $row['end'];
 			$oneday = (date('Y-m-d',$ev_end)==date('Y-m-d',$ev_start));
 
 			Base_RegionalSettingsCommon::set_locale();
@@ -226,6 +238,11 @@ class Utils_Calendar extends Module {
 		$theme->assign('timeless_label', $this->lang->t('Timeless'));
 
 		$theme->display('day');
+
+		//data
+		$ret = $this->get_events(date('Y-m-d',$this->date),date('Y-m-d',$this->date+86400));
+		print_r($ret);
+
 	}
 
 	///////////////////////////////////////////////////////
