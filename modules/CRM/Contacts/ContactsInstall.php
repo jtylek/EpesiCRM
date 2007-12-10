@@ -45,7 +45,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_favorites('contact', true);
 		Utils_RecordBrowserCommon::set_recent('contact', 15);
 		Utils_RecordBrowserCommon::set_caption('contact', 'Contacts');
-		Utils_RecordBrowserCommon::set_icon('contact', Base_ThemeCommon::get_template_file('CRM/Contacts', 'icon.png'));
+		Utils_RecordBrowserCommon::set_icon('contact', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'icon.png'));
 		Utils_RecordBrowserCommon::set_access_callback('contact', 'CRM_ContactsCommon', 'access_contact');
 // ************ companies ************** //
 		$fields = array(
@@ -68,7 +68,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_favorites('company', true);
 		Utils_RecordBrowserCommon::set_recent('company', 15);
 		Utils_RecordBrowserCommon::set_caption('company', 'Companies');
-		Utils_RecordBrowserCommon::set_icon('company', Base_ThemeCommon::get_template_file('CRM/Contacts', 'companies.png'));
+		Utils_RecordBrowserCommon::set_icon('company', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'companies.png'));
 		Utils_RecordBrowserCommon::set_access_callback('company', 'CRM_ContactsCommon', 'access_company');
 // ************ addons ************** //
 		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Contacts', 'company_addon', 'Contacts');

@@ -67,7 +67,7 @@ class CRM_Contacts extends Module {
 //		$theme->assign('add_contact', '<a '.$this->create_callback_href(array($this, 'company_addon_new_contact'), array($arg['id'])).'>'.Base_LangCommon::ts('CRM_Contacts','Add new contact').'</a>');
 		Base_ActionBarCommon::add('add',Base_LangCommon::ts('CRM_Contacts','Add contact'), $this->create_callback_href(array($this, 'company_addon_new_contact'), array($arg['id'])));
 		$rb = $this->init_module('Utils/RecordBrowser','contact','contact_addon');
-		$theme->assign('contacts', $this->get_html_of_module($rb, array(array('Company Name'=>$arg['id']), array('Company'=>false), array('Fav'=>'DESC'), true), 'show_data'));
+		$theme->assign('contacts', $this->get_html_of_module($rb, array(array('Company Name'=>$arg['id']), array('Company Name'=>false), array('Fav'=>'DESC'), true), 'show_data'));
 		$theme->display('Company_plugin');
 	}
 
