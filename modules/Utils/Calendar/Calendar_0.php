@@ -455,7 +455,7 @@ class Utils_Calendar extends Module {
 			$this->set_date($this->get_unique_href_variable('date'));
 
 		$link_text = $this->create_unique_href_js(array('date'=>'__YEAR__-__MONTH__-__DAY__'));
-		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text));
+		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text, 'month'));
 
 		$month = $this->month_array($this->date);
 
