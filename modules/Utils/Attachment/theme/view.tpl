@@ -1,31 +1,29 @@
+<div id="Utils_Attachment__view">
 
-<!-- SHADIW BEGIN -->
-	<div class="layer" style="padding: 9px; width: 500px;">
-		<div class="content_shadow">
-<!-- -->
-
-<div style="background-color: #FFFFFF; padding: 5px;">
-
-<table id="Utils_Attachment__view" cellpadding="0" cellspacing="0" border="0">
-    <tbody>
-        <tr>
-            <td class="header">{$header}</td>
-        </tr>
-        <tr>
-            <td class="note">{$note}</td>
-        </tr>
-        <tr>
-            <td class="file">
+<table border="0" cellpadding="0" cellspacing="0">
+	<tbody>
+		<tr>
+			<td class="file">
                 {$__link.file.open}
                     <img src="{$theme_dir}/Utils_Attachment__attach.png" alt="" align="middle" border="0" width="32" height="32">
                     <div style="height: 5px;"></div>
                     <span>{$__link.file.text}</span>
-                {$__link.file.close}
+                {$__link.file.close}                
             </td>
-        </tr>
-    </tbody>
+			<td class="header">{$header}</td>
+    	</tr>
+	</tbody>
 </table>
 
+<br>
+
+<!-- SHADIW BEGIN -->
+	<div class="layer" style="padding: 9px; width: 98%;">
+		<div class="content_shadow">
+<!-- -->
+
+<div style="background-color: #FFFFFF; padding: 5px;">
+    <div class="note">{$note}</div>
 </div>
 
 <!-- SHADOW END -->
@@ -46,3 +44,5 @@
 		</div>
 	</div>
 <!-- -->
+
+</div>
