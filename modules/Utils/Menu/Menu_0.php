@@ -93,7 +93,7 @@ class Utils_Menu extends Module {
 		$new_md5 = md5($this->menu_string);
 		$old_md5 = & $this->get_module_variable('old');
 		if($new_md5!=$old_md5) {
-			eval_js($this->menu_string,false);
+			eval_js($this->menu_string);
 			$old_md5 = $new_md5;
 		}
 	}

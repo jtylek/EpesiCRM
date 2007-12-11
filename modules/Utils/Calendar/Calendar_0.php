@@ -155,6 +155,13 @@ class Utils_Calendar extends Module {
 		return $ret;
 	}
 
+	private function print_event($ev) {
+		print('<div id="utils_calendar_event:'.$ev['id'].'" class="utils_calendar_event">'.
+			'<div class="handle">'.strip_tags($ev['title']).'</div>'.
+			'<div class="text">'.$ev['description'].'</div>'.
+			'</div>');
+	}
+
 	//////////////////////////////////////////////
 	// agenda
 	public function agenda() {
@@ -276,6 +283,7 @@ class Utils_Calendar extends Module {
 		$ret = $this->get_events(date('Y-m-d',$this->date),date('Y-m-d',$this->date+86400));
 		load_js($this->get_module_dir().'calendar.js');
 		foreach($ret as $ev) {
+			$this->print_event($ev);
 			if($ev['timeless'])
 				$dest_id = 'day_'.$today_t.'_timeless';
 			else {
@@ -303,8 +311,8 @@ class Utils_Calendar extends Module {
 			}
 		} else {
 			$sh--;
-			if($sh==-1) {
-				$sh=6;
+			if($sh==-7) {
+				$sh=0;
 				$this->date-=604800; //prev week
 			}
 		}
@@ -357,11 +365,18 @@ class Utils_Calendar extends Module {
 									'label'=>date('M Y',$dis_week_from)
 									));
 		}
-		for ($i=0; $i<7; $i++)
-			$day_headers[] = date('d D', $dis_week_from+$i*86400);
-
+		$today_t = strtotime(date('Y-m-d',time()));
+		$today_week_day = -1;
+		for ($i=0; $i<7; $i++) {
+			$x = $dis_week_from+$i*86400;
+			$day_headers[] = date('d D', $x);
+			if($today_t == $x)
+				$today_week_day = $i;
+		}
+		
 		$theme->assign('header_month', $header_month);
 		$theme->assign('day_headers', $day_headers);
+		$theme->assign('today', $today_week_day);
 
 		//timeline and ids
 		$timeline = $this->get_timeline();
@@ -386,12 +401,12 @@ class Utils_Calendar extends Module {
 		//data
 		$ret = $this->get_events($dis_week_from,$dis_week_from+7*86400);
 		load_js($this->get_module_dir().'calendar.js');
-		$today_t = strtotime(date('Y-m-d',$dis_week_from));
 		foreach($ret as $k=>$ev) {
-			$ev_start = date('Y-m-d',$ev['start']);
+			$this->print_event($ev);
+			$ev_start = strtotime(date('Y-m-d',$ev['start']));
 			for($i=0; $i<7; $i++) {
 				$x = $dis_week_from+$i*86400;
-				if(date('Y-m-d',$x)==$ev_start) {
+				if($x==$ev_start) {
 					$today_t = $x;
 					break;
 				}

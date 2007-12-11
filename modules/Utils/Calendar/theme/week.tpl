@@ -44,13 +44,13 @@
 		{foreach key=k item=stamp from=$timeline}
 			<tr>
 				<td class="hour">{$stamp.label}</td>
-				<td class="inter" id="{$time_ids.0.$k}"></td>
-				<td class="inter" id="{$time_ids.1.$k}"></td>
-				<td class="inter" id="{$time_ids.2.$k}"></td>
-				<td class="inter" id="{$time_ids.3.$k}"></td>
-				<td class="inter" id="{$time_ids.4.$k}"></td>
-				<td class="inter" id="{$time_ids.5.$k}"></td>
-				<td class="inter" id="{$time_ids.6.$k}"></td>
+				{foreach item=t key=j from=$time_ids}
+				{if $j==$today}
+				<td class="inter_today" id="{$t.$k}"></td>
+				{else}
+				<td class="inter" id="{$t.$k}"></td>
+				{/if}
+				{/foreach}
 			</tr>
 		{/foreach}
 
