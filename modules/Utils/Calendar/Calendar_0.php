@@ -13,6 +13,7 @@ class Utils_Calendar extends Module {
 				  'default_date'=>null);
 	private $date; //current date
 	private $event_module;
+	private $switch_view = null;
 
 	public function construct($ev_mod, array $settings=null) {
 		$this->lang = $this->init_module('Base/Lang');
@@ -101,7 +102,8 @@ class Utils_Calendar extends Module {
 			if(strcasecmp($v,$this->settings['default_view'])==0)
 				$def_tab = $k;
 		}
-		if(isset($def_tab)) $tb->set_default_tab($def_tab);
+		if (isset($def_tab)) $tb->set_default_tab($def_tab);
+		if ($this->switch_view!==null) $tb->switch_tab($this->switch_view);
 
 		$this->display_module($tb);
 		$tb->tag();
@@ -365,18 +367,13 @@ class Utils_Calendar extends Module {
 									'label'=>date('M Y',$dis_week_from)
 									));
 		}
-		$today_t = strtotime(date('Y-m-d',time()));
-		$today_week_day = -1;
 		for ($i=0; $i<7; $i++) {
-			$x = $dis_week_from+$i*86400;
-			$day_headers[] = date('d D', $x);
-			if($today_t == $x)
-				$today_week_day = $i;
+			$that_day = $dis_week_from+$i*86400;
+			$day_headers[] = array('date'=>date('d D', $that_day), 'style'=>(date('Y-m-d',$that_day)==date('Y-m-d')?'today':'other'));
 		}
-		
+
 		$theme->assign('header_month', $header_month);
 		$theme->assign('day_headers', $day_headers);
-		$theme->assign('today', $today_week_day);
 
 		//timeline and ids
 		$timeline = $this->get_timeline();
@@ -442,7 +439,7 @@ class Utils_Calendar extends Module {
 			for ($i=0; $i<7; $i++) {
 				$week[] = array(
 							'day'=>date('d', $currday),
-							'style'=>(date('m', $currday)==$curmonth)?'current':'other',
+							'style'=>(date('m', $currday)==$curmonth)?(date('Y-m-d',$currday)==date('Y-m-d')?'today':'current'):'other',
 							);
 				$currday += 86400;
 			}

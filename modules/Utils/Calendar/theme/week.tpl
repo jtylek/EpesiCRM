@@ -36,7 +36,7 @@
 {* this row contains days of month *}
 		<tr>
 			{foreach item=header from=$day_headers}
-				<td class="header_day"><a href="">{$header}</a></td>
+				<td class="header_day_{$header.style}"><a href="">{$header.date}</a></td>
 			{/foreach}
 		</tr>
 
@@ -44,13 +44,13 @@
 		{foreach key=k item=stamp from=$timeline}
 			<tr>
 				<td class="hour">{$stamp.label}</td>
-				{foreach item=t key=j from=$time_ids}
-				{if $j==$today}
-				<td class="inter_today" id="{$t.$k}"></td>
-				{else}
-				<td class="inter" id="{$t.$k}"></td>
-				{/if}
-				{/foreach}
+				<td class="inter_{$day_headers.0.style}" id="{$time_ids.0.$k}"></td>
+				<td class="inter_{$day_headers.1.style}" id="{$time_ids.1.$k}"></td>
+				<td class="inter_{$day_headers.2.style}" id="{$time_ids.2.$k}"></td>
+				<td class="inter_{$day_headers.3.style}" id="{$time_ids.3.$k}"></td>
+				<td class="inter_{$day_headers.4.style}" id="{$time_ids.4.$k}"></td>
+				<td class="inter_{$day_headers.5.style}" id="{$time_ids.5.$k}"></td>
+				<td class="inter_{$day_headers.6.style}" id="{$time_ids.6.$k}"></td>
 			</tr>
 		{/foreach}
 

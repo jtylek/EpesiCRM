@@ -47,7 +47,7 @@ p.event {
 	padding-top: 4px;
 }
 
-#Utils_Calendar__week td.header_day {
+#Utils_Calendar__week td.header_day_other {
 	height: 50px;
 	vertical-align: middle;
 	border: 1px solid #B3B3B3;
@@ -63,18 +63,19 @@ p.event {
 	padding-right: 5px;
 }
 
-#Utils_Calendar__week td.header_day:hover {
+#Utils_Calendar__week td.header_day_other:hover {
 	background-image: url('images/day-header-hover.png');
 }
 
-#Utils_Calendar__week td.header_day a {
+#Utils_Calendar__week td.header_day_other a {
 	font-weight: bold;
 	font-size: 14px;
 	height: 50px;
 }
 
 #Utils_Calendar__week td.header_day_today {
-	vertical-align: top;
+	vertical-align: middle;
+	font-size: 14px;
 	border: 1px solid #B3B3B3;
 	border-right: 0px;
 	border-top: 0px;
@@ -95,7 +96,7 @@ p.event {
 	background-image: url('images/day-header-today-hover.png');
 }
 
-#Utils_Calendar__week td.header_day_today a table {
+#Utils_Calendar__week td.header_day_today a {
 	font-weight: bold;
 	font-size: 14px;
 	height: 50px;
@@ -198,7 +199,7 @@ p.event {
 	padding-top: 2px;
 }
 
-#Utils_Calendar__week td.inter {
+#Utils_Calendar__week td.inter_other {
 	vertical-align: top;
 	color: #000000;
 	border: 1px solid #B3B3B3;
@@ -210,7 +211,7 @@ p.event {
 	cursor: pointer;
 }
 
-#Utils_Calendar__week td.inter:hover {
+#Utils_Calendar__week td.inter_other:hover {
 	background-color: #e6cfcf
 }
 
