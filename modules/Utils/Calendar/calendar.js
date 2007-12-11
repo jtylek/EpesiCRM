@@ -15,10 +15,9 @@ activate_dnd:function(ids_in) {
 	ids.each(function(id) {
 		Droppables.add(id, {
 			accept: 'utils_calendar_event',
-			onDrop: function(element,droppable) {
-					//alert(droppable.id);
-					droppable.appendChild(element);
-				}
+			onDrop: function(element,droppable,ev) {
+				droppable.appendChild(element);
+			}
 		});
 	});
 }

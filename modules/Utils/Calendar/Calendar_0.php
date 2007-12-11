@@ -173,10 +173,51 @@ class Utils_Calendar extends Module {
 	}
 
 	private function print_event($ev) {
-		print('<div id="utils_calendar_event:'.$ev['id'].'" class="utils_calendar_event">'.
-			'<div class="handle">'.strip_tags($ev['title']).'</div>'.
-			'<div class="text">'.$ev['description'].'</div>'.
-			'</div>');
+		$th = $this->init_module('Base/Theme');
+		$ex = $this->process_event($ev);
+		$th->assign('title',strip_tags($ev['title']));
+		$th->assign('description',$ev['description']);
+		$th->assign('start',$ex['start']);
+		$th->assign('end',$ex['end']);
+		$th->assign('duration',$ex['duration']);
+		ob_start();
+		$th->display('event_tip');
+		$tip = ob_get_clean();
+		$th->assign('tip_tag_attrs',Utils_TooltipCommon::open_tag_attrs($tip));
+		$th->assign('handle_class','handle');
+		$th->assign('view_action','onDblClick="'.$this->create_callback_href_js(array($this,'push_event_action'),array('view',$ev['id'])).'"');
+		$th->assign('open','<div id="utils_calendar_event:'.$ev['id'].'" class="utils_calendar_event">');
+		$th->assign('close','</div>');
+		$th->display('event');
+	}
+
+	private function process_event($row) {
+		$ev_start = $row['start'];
+		$ev_end = $row['end'];
+		$oneday = (date('Y-m-d',$ev_end)==date('Y-m-d',$ev_start));
+
+		Base_RegionalSettingsCommon::set_locale();
+		$start_day = date('D',$ev_start);
+		if(!$oneday)
+			$end_day = date('D',$ev_end);
+		else
+			$end_t = Base_RegionalSettingsCommon::convert_24h($ev_end);
+		Base_RegionalSettingsCommon::restore_locale();
+
+		if($row['timeless']) {
+			$start_t = $start_day.', '.Base_RegionalSettingsCommon::time2reg($ev_start,false);
+			if($oneday)
+				$end_t = $start_t;
+			else
+				$end_t = $end_day.', '.Base_RegionalSettingsCommon::time2reg($ev_end,false);
+		} else {
+			$start_t = $start_day.', '.Base_RegionalSettingsCommon::time2reg($ev_start);
+			if(!$oneday)
+				$end_t = $end_day.', '.Base_RegionalSettingsCommon::time2reg($ev_end);
+		}
+
+		$duration_str = $this->duration2str($row['duration']);
+		return array('duration'=>$duration_str,'start'=>$start_t,'end'=>$end_t);
 	}
 
 	//////////////////////////////////////////////
@@ -220,32 +261,9 @@ class Utils_Calendar extends Module {
 		foreach($ret as $row) {
 			$r = $gb->get_new_row();
 
-			$ev_start = $row['start'];
-			$ev_end = $row['end'];
-			$oneday = (date('Y-m-d',$ev_end)==date('Y-m-d',$ev_start));
+			$ex = $this->process_event($row);
 
-			Base_RegionalSettingsCommon::set_locale();
-			$start_day = date('D',$ev_start);
-			if(!$oneday)
-				$end_day = date('D',$ev_end);
-			else
-				$end_t = Base_RegionalSettingsCommon::convert_24h($ev_end);
-			Base_RegionalSettingsCommon::restore_locale();
-
-			if($row['timeless']) {
-				$start_t = $start_day.', '.Base_RegionalSettingsCommon::time2reg($ev_start,false);
-				if($oneday)
-					$end_t = $start_t;
-				else
-					$end_t = $end_day.', '.Base_RegionalSettingsCommon::time2reg($ev_end,false);
-			} else {
-				$start_t = $start_day.', '.Base_RegionalSettingsCommon::time2reg($ev_start);
-				if(!$oneday)
-					$end_t = $end_day.', '.Base_RegionalSettingsCommon::time2reg($ev_end);
-			}
-
-			$duration_str = $this->duration2str($row['duration']);
-			$r->add_data($start_t,Utils_TooltipCommon::create($duration_str,$end_t),$row['title'],$row['description']);
+			$r->add_data($ex['start'],Utils_TooltipCommon::create($ex['duration'],$ex['end']),$row['title'],$row['description']);
 
 			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Delete this event?'),array($this,'delete_event'),$row['id']),'Delete');
 			$r->add_action($this->create_callback_href(array($this,'push_event_action'),array('edit',$row['id'])),'Edit');
