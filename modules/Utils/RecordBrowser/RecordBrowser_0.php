@@ -107,7 +107,7 @@ class Utils_RecordBrowser extends Module {
 			$theme = $this->init_module('Base/Theme');
 			$theme->assign('filters', $filters);
 			$theme->assign('table', $table);
-			$theme->assign('caption', $this->caption);
+			$theme->assign('caption', $this->lang->t($this->caption).' - '.$this->lang->t(ucfirst($this->browse_mode)));
 			$theme->assign('icon', $this->icon);
 			$theme->display('Browsing_records');
 		}
@@ -344,7 +344,8 @@ class Utils_RecordBrowser extends Module {
 		}
 
 		if ($mode=='view') { 
-			Base_ActionBarCommon::add('edit', $this->lang->ht('Edit'), $this->create_callback_href(array($this,'view_entry'), array('edit',$id)));
+			if ($this->get_access('edit',$record)) Base_ActionBarCommon::add('edit', $this->lang->ht('Edit'), $this->create_callback_href(array($this,'view_entry'), array('edit',$id)));
+			if ($this->get_access('delete',$record)) Base_ActionBarCommon::add('delete', $this->lang->ht('Delete'), $this->create_confirm_callback_href($this->lang->t('Are you sure you want to delete this record?'),array('Utils_RecordBrowserCommon','delete_record'),array($this->tab, $id)));
 			Base_ActionBarCommon::add('back', $this->lang->ht('Back'), $this->create_back_href());
 		} else {
 			Base_ActionBarCommon::add('save', $this->lang->ht('Save'), $form->get_submit_form_href());
