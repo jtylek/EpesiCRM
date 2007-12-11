@@ -1,4 +1,66 @@
-#buttons input {
+#Utils_RecordBrowser__Filter {
+    width: 100%;
+    display: block;
+    height: 30px;
+}
+
+.Utils_RecordBrowser__Filter {
+    float: right;
+}
+
+.Utils_RecordBrowser__Filter {
+    padding-right: 20px;
+}
+
+/* label */
+
+.Utils_RecordBrowser__Filter .label {
+    background-color: #336699;
+    color: #FFFFFF;
+    border-top: 1px solid #B3B3B3;
+    border-bottom: 1px solid #B3B3B3;
+    border-right: 1px solid #B3B3B3;
+    height: 20px;
+    vertical-align: middle;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+/* data */
+
+.Utils_RecordBrowser__Filter .data {
+    border-top: 1px solid #B3B3B3;
+    border-bottom: 1px solid #B3B3B3;
+    border-right: 1px solid #B3B3B3;
+    padding-left: 2px;
+    padding-right: 2px;
+}
+
+.Utils_RecordBrowser__Filter .data input,
+.Utils_RecordBrowser__Filter .data select,
+.Utils_RecordBrowser__Filter .data textarea {
+    border: 0px;
+    background-color: #e6ecf2;
+    width: 100%;
+}
+
+.Utils_RecordBrowser__Filter .data input:focus,
+.Utils_RecordBrowser__Filter .data select:focus,
+.Utils_RecordBrowser__Filter .data textarea:focus {
+    background-color: #f2f2e6;
+    background-color: #e6e6cf;
+}
+
+/* buttons */
+
+#Utils_RecordBrowser__Filter .buttons {
+    display: block;
+    float: right;
+    padding-right: 20px;
+}
+
+.Utils_RecordBrowser__Filter .buttons input,
+#Utils_RecordBrowser__Filter .buttons input {
     color: #FFFFFF;
     background-color: #336699;
     background-image: url('images/header-blue.png');
@@ -7,6 +69,7 @@
     border: 0px;
 }
 
-#buttons input:hover {
+.Utils_RecordBrowser__Filter .buttons input:hover,
+#Utils_RecordBrowser__Filter .buttons input:hover {
     background-image: url('images/header-blue-hover.png');
 }
