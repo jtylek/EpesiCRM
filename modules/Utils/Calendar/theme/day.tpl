@@ -25,13 +25,19 @@
 {* shows month *}
 		<tr>
 			<td class="hours_header" rowspan="2"><img src="{$theme_dir}/Utils_Calendar__icon-day.png" width="32" height="32" border="0"><br>{$day_view_label}</td>
-			<td class=header_month>{$header_month}</td>
+			<td class=header_month>
+				<a {$link_month}>{$header_month}</a>
+				 &bull; 
+				<a {$link_year}>{$header_year}</a>
+			</td>
 
 		</tr>
 
 {* this row contains days of month *}
 		<tr>
-			<td class="header_day">{$header_day}</td>
+			<td class="header_day">
+				{$header_day.number} {$header_day.label}
+			</td>
 		</tr>
 
 		<tr>

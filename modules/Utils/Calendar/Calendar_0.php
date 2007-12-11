@@ -275,12 +275,17 @@ class Utils_Calendar extends Module {
 		$link_text = $this->create_unique_href_js(array('date'=>'__YEAR__-__MONTH__-__DAY__'));
 		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('day_selector', $link_text));
 
-		$header_month = '<a>'.date('M Y',$this->date).'</a>';
-		$header_day = Utils_TooltipCommon::create('<a><table width=100%><tr><td width=50% align=left><span class=day_number >'.date('d',$this->date).'</span></td>'.
-			'<td width=50% align=right>'.date('D',$this->date).'</td></tr></table></a>', "Click to add new event on ".date('d',$this->date)." ".date('m',$this->date).".");
+		$header_day = array('number'=>date('d',$this->date),
+							'label'=>date('l',$this->date),
+							'label_short'=>date('D',$this->date)
+							);
 
-		$theme->assign('header_month', $header_month);
+		$theme->assign('header_month', date('F',$this->date));
+		$theme->assign('link_month', $this->create_callback_href(array($this, 'view_date'), array($this->date, 'Month')));
+		$theme->assign('header_year', date('Y',$this->date));
+		$theme->assign('link_year', $this->create_callback_href(array($this, 'view_date'), array($this->date, 'Year')));
 		$theme->assign('header_day', $header_day);
+
 		$timeline = $this->get_timeline();
 		$today_t = strtotime(date('Y-m-d',$this->date));
 		$dnd = array();
