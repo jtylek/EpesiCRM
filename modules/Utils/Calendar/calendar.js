@@ -10,10 +10,10 @@ add_event:function(dest_id,ev_id,title) {
 		revert: true
 	});
 },
-activate_dnd:function(sec,ids_in,new_ev) {
+activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 	var ids = ids_in.evalJSON();
 	ids.each(function(id) {
-		var cell_id = sec+'_'+id[0];
+		var cell_id = 'UCcell_'+id[0];
 		var f = new_ev.replace('__TIME__',id[0]);
 		if(id.length==2) {
 			cell_id += '_timeless';
@@ -25,6 +25,25 @@ activate_dnd:function(sec,ids_in,new_ev) {
 			accept: 'utils_calendar_event',
 			onDrop: function(element,droppable,ev) {
 				droppable.appendChild(element);
+				new Ajax.Request('modules/Utils/Calendar/update.php',{
+					method:'post',
+					parameters:{
+						ev_id: element.id.substr(21),
+						cell_id: droppable.id.substr(7),
+						path: mpath,
+						cid: ecid
+					},
+					onComplete: function(t) {
+						eval(t.responseText);
+					},
+					onException: function(t,e) {
+						throw(e);
+					},
+					onFailure: function(t) {
+						alert('Failure ('+t.status+')');
+						Epesi.text(t.responseText,'error_box','p');
+					}
+				});
 			}
 		});
 		Event.observe(cell_id,'dblclick',function(e){eval(f)});

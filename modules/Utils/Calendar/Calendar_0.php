@@ -22,6 +22,7 @@ class Utils_Calendar extends Module {
 		$this->event_module = str_replace('/','_',$ev_mod);
 		if(ModuleManager::is_installed($this->event_module)==-1)
 			trigger_error('Invalid event module', E_USER_ERROR);
+		$this->set_module_variable('event_module',$this->event_module);
 
 		//default views
 		if($this->settings['views']===null) $this->settings['views'] = & self::$views;
@@ -312,7 +313,7 @@ class Utils_Calendar extends Module {
 		$today_t = strtotime(date('Y-m-d',$this->date));
 		$dnd = array();
 		foreach($timeline as & $v) {
-			$id = 'day_'.(isset($v['time'])?($today_t+$v['time']):$today_t.'_timeless');
+			$id = 'UCcell_'.(isset($v['time'])?($today_t+$v['time']):$today_t.'_timeless');
 			$v['id'] = $id;
 			if(isset($v['time']))
 				$dnd[] = array($today_t+$v['time']);
@@ -332,18 +333,21 @@ class Utils_Calendar extends Module {
 		foreach($ret as $ev) {
 			$this->print_event($ev);
 			if($ev['timeless'])
-				$dest_id = 'day_'.$today_t.'_timeless';
+				$dest_id = 'UCcell_'.$today_t.'_timeless';
 			else {
 				$ev_start = $ev['start']-$today_t;
 				$ct = count($timeline);
-				for($i=0, $j=1; $j<$ct; $i++,$j++)
-					if($timeline[$i]['time']<$ev_start && $ev_start<$timeline[$j]['time'])
+				for($i=1, $j=2; $j<$ct; $i++,$j++)
+					if($timeline[$i]['time']<=$ev_start && $ev_start<$timeline[$j]['time'])
 						break;
 				$dest_id = $timeline[$i]['id'];
 			}
 			$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\',\''.$ev['id'].'\' ,\''.Epesi::escapeJS($ev['title'],false).'\')');
 		}
-		$this->js('Utils_Calendar.activate_dnd(\'day\', \''.Epesi::escapeJS(json_encode($dnd),false).'\',\''.Epesi::escapeJS($this->create_unique_href_js(array('time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\')');
+		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
+				'\''.Epesi::escapeJS($this->create_unique_href_js(array('time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
+				'\''.Epesi::escapeJS($this->get_path(),false).'\','.
+				'\''.CID.'\')');
 	}
 
 	///////////////////////////////////////////////////////
@@ -441,7 +445,7 @@ class Utils_Calendar extends Module {
 			$time_ids[$i] = array();
 			$today_t = strtotime(date('Y-m-d',$dis_week_from+$i*86400));
 			foreach($timeline as & $v) {
-				$id = 'week_'.(isset($v['time'])?($today_t+$v['time']):$today_t.'_timeless');
+				$id = 'UCcell_'.(isset($v['time'])?($today_t+$v['time']):$today_t.'_timeless');
 				$time_ids[$i][] = $id;
 				if(isset($v['time']))
 					$dnd[] = array($today_t+$v['time']);
@@ -470,18 +474,21 @@ class Utils_Calendar extends Module {
 				}
 			}
 			if($ev['timeless']) {
-				$dest_id = 'week_'.$today_t.'_timeless';
+				$dest_id = 'UCcell_'.$today_t.'_timeless';
 			} else {
 				$ev_start = $ev['start']-$today_t;
 				$ct = count($timeline);
-				for($i=0, $j=1; $j<$ct; $i++,$j++)
-					if($timeline[$i]['time']<$ev_start && $ev_start<$timeline[$j]['time'])
+				for($i=1, $j=2; $j<$ct; $i++,$j++)
+					if($timeline[$i]['time']<=$ev_start && $ev_start<$timeline[$j]['time'])
 						break;
-				$dest_id = 'week_'.($today_t+$timeline[$i]['time']);
+				$dest_id = 'UCcell_'.($today_t+$timeline[$i]['time']);
 			}
 			$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\', \''.Epesi::escapeJS($ev['title'],false).'\')');
 		}
-		$this->js('Utils_Calendar.activate_dnd(\'week\', \''.Epesi::escapeJS(json_encode($dnd),false).'\',\''.Epesi::escapeJS($this->create_unique_href_js(array('time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\')');
+		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
+				'\''.Epesi::escapeJS($this->create_unique_href_js(array('time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
+				'\''.Epesi::escapeJS($this->get_path(),false).'\','.
+				'\''.CID.'\')');
 	}
 
 	//////////////////////////////////////////////////////
