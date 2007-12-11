@@ -125,7 +125,12 @@ class Utils_Attachment extends Module {
 			}
 			$r = $gb->get_new_row();
 
-			$file = '<a '.$this->get_file($row).' '.Utils_TooltipCommon::open_tag_attrs($row['original']).'><img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'attach.png').'" border=0></a>';
+			if($row['original']!=='') {
+				$file = '<a '.$this->get_file($row).' '.Utils_TooltipCommon::open_tag_attrs($row['original']).'><img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'attach.png').'" border=0></a>';
+			} else {
+				$file = '';
+			}
+			
 			static $def_permissions = array('Public','Protected','Private');
 			$perm = $this->lang->t($def_permissions[$row['permission']]);
 			$info = $this->lang->t('Owner: %s',array($row['permission_owner'])).'<br>'.
