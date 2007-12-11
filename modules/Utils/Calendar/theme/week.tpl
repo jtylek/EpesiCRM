@@ -26,9 +26,17 @@
 {* shows month *}
 		<tr>
 			<td class="hours_header" rowspan="2"><img src="{$theme_dir}/Utils_Calendar__icon-week.png" width="32" height="32" border="0"><br>{$week_view_label}</td>
-			<td class=header_month colspan="{$header_month.first_span.colspan}">{$header_month.first_span.label}</td>
+			<td class=header_month colspan="{$header_month.first_span.colspan}">
+				<a {$header_month.first_span.month_link}>{$header_month.first_span.month}</a>
+				 &bull; 
+				<a {$header_month.first_span.year_link}>{$header_month.first_span.year}</a>
+			</td>
 			{if isset($header_month.second_span)}
-				<td class=header_month colspan="{$header_month.second_span.colspan}">{$header_month.second_span.label}</td>
+				<td class=header_month colspan="{$header_month.second_span.colspan}">
+					<a {$header_month.second_span.month_link}>{$header_month.second_span.month}</a>
+					 &bull; 
+					<a {$header_month.second_span.year_link}>{$header_month.second_span.year}</a>
+				</td>
 			{/if}
 
 		</tr>
@@ -36,7 +44,7 @@
 {* this row contains days of month *}
 		<tr>
 			{foreach item=header from=$day_headers}
-				<td class="header_day_{$header.style}"><a href="">{$header.date}</a></td>
+				<td class="header_day_{$header.style}"><a {$header.link}>{$header.date}</a></td>
 			{/foreach}
 		</tr>
 
@@ -44,13 +52,9 @@
 		{foreach key=k item=stamp from=$timeline}
 			<tr>
 				<td class="hour">{$stamp.label}</td>
-				<td class="inter_{$day_headers.0.style}" id="{$time_ids.0.$k}"></td>
-				<td class="inter_{$day_headers.1.style}" id="{$time_ids.1.$k}"></td>
-				<td class="inter_{$day_headers.2.style}" id="{$time_ids.2.$k}"></td>
-				<td class="inter_{$day_headers.3.style}" id="{$time_ids.3.$k}"></td>
-				<td class="inter_{$day_headers.4.style}" id="{$time_ids.4.$k}"></td>
-				<td class="inter_{$day_headers.5.style}" id="{$time_ids.5.$k}"></td>
-				<td class="inter_{$day_headers.6.style}" id="{$time_ids.6.$k}"></td>
+				{foreach item=t key=j from=$time_ids} 
+                    <td class="inter_{$day_headers.$j.style}" id="{$t.$k}"></td> 
+	            {/foreach} 
 			</tr>
 		{/foreach}
 

@@ -25,7 +25,7 @@
 	<table name="CRMCalendar" id="Utils_Calendar__month" cellpadding="0" cellspacing="0" border="0">
 		<tr>
 			<td class="month-header" rowspan="2">&nbsp;<!-- <img src="{$theme_dir}/Utils_Calendar__icon.png" width="32" height="32" border="0"> --></td>
-			<td class="month-header" colspan="7">{$month_label} &bull; {$year_label}</td>
+			<td class="month-header" colspan="7">{$month_label} &bull; <a {$year_link}>{$year_label}</a></td>
 		</tr>
 
 		<tr>
@@ -36,9 +36,9 @@
 
 		{foreach item=week from=$month}
 			<tr>
-				<td class="week-number"><a href="">{$week.week_label}</a></td>
+				<td class="week-number"><a {$week.week_link}>{$week.week_label}</a></td>
 				{foreach item=day from=$week.days}
-					<td class="day {$day.style}"><a href="">{$day.day}</a></td>
+					<td class="day {$day.style}"><a {$day.day_link}>{$day.day}</a></td>
 				{/foreach}
 			</tr>
 		{/foreach}

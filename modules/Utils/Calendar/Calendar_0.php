@@ -103,7 +103,10 @@ class Utils_Calendar extends Module {
 				$def_tab = $k;
 		}
 		if (isset($def_tab)) $tb->set_default_tab($def_tab);
-		if ($this->switch_view!==null) $tb->switch_tab($this->switch_view);
+		if ($this->switch_view!==null) {
+			$tb->switch_tab($this->switch_view);
+			$this->switch_view = null;
+		}
 
 		$this->display_module($tb);
 		$tb->tag();
@@ -111,8 +114,20 @@ class Utils_Calendar extends Module {
 		Base_ActionBarCommon::add('add',$this->lang->t('Add event'),$this->create_callback_href(array($this,'push_event_action'),array('add',$this->date)));
 	}
 
-	///////////////////////////////////////////////
-	// event management
+	public function switch_view($view) {
+		$views = array_flip($this->settings['views']);
+		if (isset($views[$view])) $this->switch_view = $views[$view];
+		else $this->switch_view = null;
+		return false;
+	}
+
+	public function view_date($date, $view) {
+		$this->switch_view($view);
+		if ($this->switch_view == null) return false;
+		$this->date = $date;
+		return false;
+	}
+
 	public function push_event_action($action,$arg=null) {
 		$x = ModuleManager::get_instance('/Base_Box|0');
 		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
@@ -356,20 +371,33 @@ class Utils_Calendar extends Module {
 			$second_span_width = date('d',$dis_week_from+518400);
 			$header_month = array('first_span'=>array(
 									'colspan'=>7-$second_span_width,
-									'label'=>date('M Y',$dis_week_from)),
+									'month'=>date('M',$dis_week_from),
+									'month_link'=>$this->create_callback_href(array($this, 'view_date'), array($dis_week_from, 'Month')),
+									'year'=>date('Y',$dis_week_from),
+									'year_link'=>$this->create_callback_href(array($this, 'view_date'), array($dis_week_from, 'Year'))),
 								'second_span'=>array(
 									'colspan'=>$second_span_width,
-									'label'=>date('M Y',$dis_week_from+518400)
+									'month'=>date('M',$dis_week_from+518400),
+									'month_link'=>$this->create_callback_href(array($this, 'view_date'), array($dis_week_from+518400, 'Month')),
+									'year'=>date('Y',$dis_week_from+518400),
+									'year_link'=>$this->create_callback_href(array($this, 'view_date'), array($dis_week_from+518400, 'Year'))
 									));
 		} else {
 			$header_month = array('first_span'=>array(
 									'colspan'=>7,
-									'label'=>date('M Y',$dis_week_from)
-									));
+									'month'=>date('M',$dis_week_from),
+									'month_link'=>$this->create_callback_href(array($this, 'view_date'), array($dis_week_from, 'Month')),
+									'year'=>date('Y',$dis_week_from),
+									'year_link'=>$this->create_callback_href(array($this, 'view_date'), array($dis_week_from, 'Year'))),
+									);
 		}
 		for ($i=0; $i<7; $i++) {
 			$that_day = $dis_week_from+$i*86400;
-			$day_headers[] = array('date'=>date('d D', $that_day), 'style'=>(date('Y-m-d',$that_day)==date('Y-m-d')?'today':'other'));
+			$day_headers[] = array(
+						'date'=>date('d D', $that_day), 
+						'style'=>(date('Y-m-d',$that_day)==date('Y-m-d')?'today':'other'),
+						'link' => $this->create_callback_href(array($this, 'view_date'), array($that_day, 'Day'))
+						);
 		}
 
 		$theme->assign('header_month', $header_month);
@@ -436,14 +464,19 @@ class Utils_Calendar extends Module {
 		while (date('m', $currday) != ($curmonth)%12+1) {
 			$week = array();
 			$weekno = date('W',$currday);
+			$link = $this->create_callback_href(array($this, 'view_date'), array($currday, 'Week'));
 			for ($i=0; $i<7; $i++) {
 				$week[] = array(
 							'day'=>date('d', $currday),
+							'day_link' => $this->create_callback_href(array($this, 'view_date'), array($currday, 'Day')),
 							'style'=>(date('m', $currday)==$curmonth)?(date('Y-m-d',$currday)==date('Y-m-d')?'today':'current'):'other',
 							);
 				$currday += 86400;
 			}
-			$month[] = array('week_label'=>$weekno, 'days'=>$week);
+			$month[] = array(
+							'week_label'=>$weekno, 
+							'week_link' => $link,
+							'days'=>$week);
 		}
 		return $month;
 	}
@@ -482,7 +515,8 @@ class Utils_Calendar extends Module {
 		$theme->assign('month', $month);
 		$theme->assign('month_label', date('F', $this->date));
 		$theme->assign('year_label', date('Y', $this->date));
-
+		$theme->assign('year_link', $this->create_callback_href(array($this, 'view_date'), array($this->date, 'Year')));
+		
 		$theme->display('month');
 	}
 
@@ -513,9 +547,10 @@ class Utils_Calendar extends Module {
 
 		$year = array();
 		for ($i=1; $i<=12; $i++) {
-			$date = strtotime(date('Y',$this->date).'-'.str_pad($i, 2, "0", STR_PAD_LEFT).'-'.date('d',$this->date));
+			$date = strtotime(date('Y',$this->date).'-'.str_pad($i, 2, '0', STR_PAD_LEFT).'-'.date('d',$this->date));
 			$month = $this->month_array($date);
 			$year[] = array('month' => $month,
+							'month_link' => $this->create_callback_href(array($this, 'view_date'), array($date, 'Month')),
 							'month_label' => date('F', $date),
 							'year_label' => date('Y', $date)
 							);
