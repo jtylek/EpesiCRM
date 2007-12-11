@@ -4,7 +4,7 @@
 		<tr>
 			<td class="icon"><img src="{$icon}" width="32" height="32" border="0"></td>
 			<td class="name">{$caption}</td>
-    		<td class="filters">{$filters}</td>
+    		<td class="filters">&nbsp;{$filters}</td>
     	</tr>
 	</tbody>
 </table>
