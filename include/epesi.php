@@ -10,6 +10,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Epesi {
 	private static $jses = array();
+	private static $jses_force = array();
 	private static $load_jses = array();
 	private static $load_csses = array();
 	private static $txts = '';
@@ -34,7 +35,7 @@ class Epesi {
 			$ret .= 'Epesi.load_js(\''.self::escapeJS($f,false).'\');';
 		$ret .= self::$txts;
 		$jjj = '';
-		foreach(self::$jses as $cc) {
+		foreach(array_merge(self::$jses,self::$jses_force) as $cc) {
 			$x = rtrim($cc,';');
 			if($x) $jjj.=$x.';';
 		}
@@ -48,6 +49,7 @@ class Epesi {
 	public final static function clean() {
 		self::$txts = '';
 		self::$jses = array();
+		self::$jses_force = array();
 		self::$load_jses = array();
 	}
 
@@ -88,13 +90,17 @@ class Epesi {
 	 *
 	 * @param string javascript code
 	 */
-	public final static function js($js) {
+	public final static function js($js,$del_on_loc=true) {
 		if(!is_string($js) || strlen($js)==0) return false;
 		$js = rtrim($js,';');
-		if(STRIP_OUTPUT)
-			self::$jses[] = strip_js($js);
+		if($del_on_loc)
+			$dest = & self::$jses;
 		else
-			self::$jses[] = $js;
+			$dest = & self::$jses_force;
+		if(STRIP_OUTPUT)
+			$dest[] = strip_js($js);
+		else
+			$dest[] = $js;
 		return true;
 	}
 

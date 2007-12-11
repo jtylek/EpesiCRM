@@ -88,8 +88,8 @@ function load_js($u) {
  * 
  * @param string javascrpit code
  */
-function eval_js($u) {
-	Epesi::js($u);
+function eval_js($u,$del_on_loc=false) {
+	Epesi::js($u,$del_on_loc);
 }
 /**
  * Adds js block to eval. Given js will be evaluated only once.
@@ -101,7 +101,7 @@ function eval_js_once($u) {
 	if(!is_string($u) || strlen($u)==0) return false;
 	$md5 = md5($u);
 	if (!isset($_SESSION['client']['__evaled_jses__'][$md5])) {
-		Epesi::js($u);
+		Epesi::js($u,false);
 		$_SESSION['client']['__evaled_jses__'][$md5] = true;
 		return true;
 	}
