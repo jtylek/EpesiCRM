@@ -88,7 +88,7 @@ function load_js($u) {
  * 
  * @param string javascrpit code
  */
-function eval_js($u,$del_on_loc=false) {
+function eval_js($u,$del_on_loc=true) {
 	Epesi::js($u,$del_on_loc);
 }
 /**
@@ -97,11 +97,11 @@ function eval_js($u,$del_on_loc=false) {
  * @param string javascrpit code
  * @return bool true on success, false otherwise
  */
-function eval_js_once($u) {
+function eval_js_once($u,$del_on_loc=false) {
 	if(!is_string($u) || strlen($u)==0) return false;
 	$md5 = md5($u);
 	if (!isset($_SESSION['client']['__evaled_jses__'][$md5])) {
-		Epesi::js($u,false);
+		Epesi::js($u,$del_on_loc);
 		$_SESSION['client']['__evaled_jses__'][$md5] = true;
 		return true;
 	}

@@ -10,7 +10,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Epesi {
 	private static $jses = array();
-	private static $jses_force = array();
 	private static $load_jses = array();
 	private static $load_csses = array();
 	private static $txts = '';
@@ -35,8 +34,8 @@ class Epesi {
 			$ret .= 'Epesi.load_js(\''.self::escapeJS($f,false).'\');';
 		$ret .= self::$txts;
 		$jjj = '';
-		foreach(array_merge(self::$jses,self::$jses_force) as $cc) {
-			$x = rtrim($cc,';');
+		foreach(self::$jses as $cc) {
+			$x = rtrim($cc[0],';');
 			if($x) $jjj.=$x.';';
 		}
 		if($jjj!=='')
@@ -49,7 +48,6 @@ class Epesi {
 	public final static function clean() {
 		self::$txts = '';
 		self::$jses = array();
-		self::$jses_force = array();
 		self::$load_jses = array();
 	}
 
@@ -78,11 +76,11 @@ class Epesi {
 	}
 
 	public final static function alert($txt) {
-		self::$jses[] = 'alert(\''.self::escapeJS($txt,false).'\')';
+		self::js('alert(\''.self::escapeJS($txt,false).'\')');
 	}
 
 	public final static function redirect($addr='') {
-		self::$jses[] = 'document.location=\''.self::escapeJS($addr,false).'\'';
+		self::js('document.location=\''.self::escapeJS($addr,false).'\'');
 	}
 
 	/**
@@ -93,14 +91,9 @@ class Epesi {
 	public final static function js($js,$del_on_loc=true) {
 		if(!is_string($js) || strlen($js)==0) return false;
 		$js = rtrim($js,';');
-		if($del_on_loc)
-			$dest = & self::$jses;
-		else
-			$dest = & self::$jses_force;
 		if(STRIP_OUTPUT)
-			$dest[] = strip_js($js);
-		else
-			$dest[] = $js;
+			$js = strip_js($js);
+		self::$jses[] = array($js,$del_on_loc);
 		return true;
 	}
 
@@ -214,7 +207,8 @@ class Epesi {
 			foreach(self::$content as $k=>$v)
 				unset(self::$content[$k]);
 
-			self::$jses = array();
+			foreach(self::$jses as $k=>$v)
+				if($v[1]) unset(self::$jses[$k]);
 
 			//go
 			return self::process('__location&' . http_build_query($loc),false,true);
