@@ -259,8 +259,12 @@ class Utils_Calendar extends Module {
 		$theme->assign('header_day', $header_day);
 		$timeline = $this->get_timeline();
 		$today_t = strtotime(date('Y-m-d',$this->date));
-		foreach($timeline as & $v)
-			$v['id'] = 'day_'.(isset($v['time'])?($today_t+$v['time']):$today_t.'_timeless');
+		$dnd = array();
+		foreach($timeline as & $v) {
+			$id = 'day_'.(isset($v['time'])?($today_t+$v['time']):$today_t.'_timeless');
+			$v['id'] = $id;
+			$dnd[] = $id;
+		}
 		$theme->assign('timeline', $timeline);
 
 		$theme->assign('day_view_label', $this->lang->t('Day calendar'));
@@ -282,9 +286,9 @@ class Utils_Calendar extends Module {
 						break;
 				$dest_id = $timeline[$i]['id'];
 			}
-			$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\',\''.Epesi::escapeJS($ev['title'],false).'\')');
+			$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\',\''.$ev['id'].'\' ,\''.Epesi::escapeJS($ev['title'],false).'\')');
 		}
-
+		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd)).'\')');
 	}
 
 	///////////////////////////////////////////////////////
@@ -362,11 +366,14 @@ class Utils_Calendar extends Module {
 		//timeline and ids
 		$timeline = $this->get_timeline();
 		$time_ids = array();
+		$dnd = array();
 		for ($i=0; $i<7; $i++) {
 			$time_ids[$i] = array();
 			$today_t = strtotime(date('Y-m-d',$dis_week_from+$i*86400));
 			foreach($timeline as & $v) {
-				$time_ids[$i][] = 'week_'.(isset($v['time'])?($today_t+$v['time']):$today_t.'_timeless');
+				$id = 'week_'.(isset($v['time'])?($today_t+$v['time']):$today_t.'_timeless');
+				$time_ids[$i][] = $id;
+				$dnd[] = $id;
 			}
 		}
 		$theme->assign('time_ids', $time_ids);
@@ -399,8 +406,9 @@ class Utils_Calendar extends Module {
 						break;
 				$dest_id = 'week_'.($today_t+$timeline[$i]['time']);
 			}
-			$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\',\''.Epesi::escapeJS($ev['title'],false).'\')');
+			$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\', \''.Epesi::escapeJS($ev['title'],false).'\')');
 		}
+		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd)).'\')');
 	}
 
 	//////////////////////////////////////////////////////
