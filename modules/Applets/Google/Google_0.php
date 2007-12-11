@@ -27,7 +27,7 @@ class Applets_Google extends Module {
                     <center>
                     <table>
                         <tr>
-                            <td><input name="q" size="31" maxlength="255" value="" type="text" /></td>
+                            <td><input name="q" size="30" maxlength="255" value="" type="text" /></td>
                             <td><input class="button" name="sa" value="Search" type="submit" /></td>
                         </tr>
                     </table>
