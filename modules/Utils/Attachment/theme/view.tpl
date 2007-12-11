@@ -3,13 +3,15 @@
 <table border="0" cellpadding="0" cellspacing="0">
 	<tbody>
 		<tr>
+{if $file!=''}
 			<td class="file">
                 {$__link.file.open}
                     <img src="{$theme_dir}/Utils_Attachment__attach.png" alt="" align="middle" border="0" width="32" height="32">
                     <div style="height: 5px;"></div>
                     <span>{$__link.file.text}</span>
-                {$__link.file.close}                
+                {$__link.file.close}
             </td>
+{/if}
 			<td class="header">{$header}</td>
     	</tr>
 	</tbody>
