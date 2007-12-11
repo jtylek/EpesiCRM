@@ -3,13 +3,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_CalendarInstall extends ModuleInstall {
 	public function install() {
-		Base_ThemeCommon::install_default_theme('CRM/Calendar');
 		$ret = true;
 		return $ret;
 	}
 
 	public function uninstall() {
-		Base_ThemeCommon::uninstall_default_theme('CRM/Calendar');
 		$ret = true;
 
 		return $ret;
@@ -28,24 +26,6 @@ class CRM_CalendarInstall extends ModuleInstall {
 	}
 	public function requires($v) {
 		return array(
-			array('name'=>'Utils/TabbedBrowser', 'version'=>0),
-			array('name'=>'Utils/GenericBrowser', 'version'=>0),
-			array('name'=>'Utils/Tooltip', 'version'=>0),
-			array('name'=>'CRM/Profiles', 'version'=>0),
-
-			array('name'=>'CRM/Calendar/Utils/Func', 'version'=>0),
-			array('name'=>'CRM/Calendar/Utils/Sidetip', 'version'=>0),
-
-			array('name'=>'CRM/Calendar/Event', 'version'=>0),
-			//array('name'=>'CRM/Calendar/Event/Personal', 'version'=>0),
-
-			array('name'=>'CRM/Calendar/View/Agenda', 'version'=>0),
-			array('name'=>'CRM/Calendar/View/Week', 'version'=>0),
-			array('name'=>'CRM/Calendar/View/Month', 'version'=>0),
-			array('name'=>'CRM/Calendar/View/Day', 'version'=>0),
-			array('name'=>'CRM/Calendar/View/Year', 'version'=>0),
-
-			array('name'=>'CRM/Contacts', 'version'=>0)
 		);
 	}
 	public function version() {

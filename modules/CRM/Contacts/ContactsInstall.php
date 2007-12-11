@@ -81,11 +81,13 @@ class CRM_ContactsInstall extends ModuleInstall {
 		$this->add_aco('browse contacts',array('Employee','Customer'));
 		$this->add_aco('view contact',array('Employee'));
 		$this->add_aco('edit contact',array('Employee'));
+		$this->add_aco('edit my company contacts',array('Employee Administrator'));
 		$this->add_aco('delete contact',array('Employee Manager'));
 
 		$this->add_aco('browse companies',array('Employee','Customer'));
 		$this->add_aco('view company',array('Employee'));
 		$this->add_aco('edit company',array('Employee'));
+		$this->add_aco('edit my company',array('Employee Administrator'));
 		$this->add_aco('delete company',array('Employee Manager'));
 
 		$this->add_aco('view deleted notes','Employee Manager');

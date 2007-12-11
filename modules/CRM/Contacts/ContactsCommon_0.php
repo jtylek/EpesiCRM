@@ -28,19 +28,28 @@ class CRM_ContactsCommon extends ModuleCommon {
 			return null;
 		}
 	}
+	private static function get_my_record() {
+		static $me;
+		if(!isset($me)) {
+			$me = Utils_RecordBrowserCommon::get_records('contact', array('login'=>Acl::get_user()),false,true);
+			if (is_array($me) && !empty($me)) $me = array_shift($me);
+		}
+		return $me;
+	}
 	public static function access_company($action, $param){
 		$i = self::Instance();
 		switch ($action) {
 			case 'browse':	return $i->acl_check('browse companies');
-			case 'view':	static $me;
-					if(!isset($me)) {
-						$me = Utils_RecordBrowserCommon::get_records('contact', array('login'=>Acl::get_user()),false,true);
-						if (is_array($me) && !empty($me)) $me = array_shift($me);
-					}
+			case 'view':	$me = self::get_my_record();
 					if($me && in_array($param['id'],$me['Company Name'])) return true; //my company
 					return $i->acl_check('view company');
-			case 'edit':	return $i->acl_check('edit company');
+			case 'edit':	$me = self::get_my_record();
+					if($me && in_array($param['id'],$me['Company Name']) && $i->acl_check('edit my company')) return true; //my company
+					return $i->acl_check('edit company');
 			case 'delete':	return $i->acl_check('delete company');
+			case 'edit_fields':
+					if($i->acl_check('edit company')) return array();
+					return array('Company Name'=>false,'Short Name'=>false,'Group'=>false);
 		}
 		return false;
 	}
@@ -48,16 +57,21 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$i = self::Instance();
 		switch ($action) {
 			case 'browse':	return $i->acl_check('browse contacts');
-			case 'view':	static $me;
-					if(!isset($me)) {
-						$me = Utils_RecordBrowserCommon::get_records('contact', array('login'=>Acl::get_user()),false,true);
-						if (is_array($me) && !empty($me)) $me = array_shift($me);
-					}
+			case 'view':	$me = self::get_my_record();
 					if($me['id']==$param['id']) return true; //me
 					return $i->acl_check('view contact');
 			case 'delete':	return $i->acl_check('delete contact');
-			case 'edit':	return $i->acl_check('edit contact');
-			case 'edit_fields':	return array('Country'=>false);
+			case 'edit':
+					if($i->acl_check('edit contact')) return true;
+					$me = self::get_my_record();
+					if($me['id']==$param['id']) return true; //me
+					if($i->acl_check('edit my company contacts'))
+						foreach($param['Company Name'] as $cid)
+							if(in_array($cid,$me['Company Name'])) return true; //customer
+					return false;
+			case 'edit_fields':
+					if($i->acl_check('edit contact')) return array();
+					return array('Company Name'=>false,'Last Name'=>false,'First Name'=>false,'Group'=>false);
 		}
 		return false;
 	}
@@ -72,7 +86,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	public function admin_caption() {
 		return 'Companies & Contacts';
 	}
-	
+
 	public static function QFfield_company(&$form, $field, $label, $mode, $default) {
 		$comp = array();
 		if ($mode=='add' || $mode=='edit') {
@@ -119,7 +133,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$form->setDefaults(array($field=>$def));
 		}
 	}
-	
+
 	public static function QFfield_webaddress(&$form, $field, $label, $mode, $default) {
 		if ($mode=='add' || $mode=='edit') {
 			$form->addElement('text', $field, $label);

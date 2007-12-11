@@ -361,11 +361,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				else 
 					$record[$field['field']] = $field['value'];
 			}
+			$record['id'] = $id;
 			if ($admin) { 
 				$row = DB::Execute('SELECT active, created_by, created_on FROM '.$tab_name.' WHERE true'.($admin?'':' AND active=1'))->FetchRow();
 				foreach(array('active','created_by','created_on') as $v)
 					$record[$v] = $row[$v];
-				$record['id'] = $id;
 			}
 			foreach(self::$table_rows as $field=>$args)
 				if (!isset($record[$field]))
