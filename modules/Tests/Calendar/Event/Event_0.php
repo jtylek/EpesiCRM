@@ -23,9 +23,9 @@ class Tests_Calendar_Event extends Utils_Calendar_Event {
 		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 	}
 
-	public function add($def_date) {
+	public function add($def_date,$timeless=false) {
 		if($this->is_back()) $this->back_to_calendar();
-
+		
 		$qf = $this->init_module('Libs/QuickForm',null,'addf');
 		$qf->addElement('datepicker','start','Start date');
 		$qf->addElement('datepicker','end','End date');

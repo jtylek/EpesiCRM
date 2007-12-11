@@ -92,6 +92,10 @@ class Utils_Calendar extends Module {
 	}
 
 	public function body($arg = null) {
+		if($this->isset_unique_href_variable('time')) {
+			$this->call_callback_href(array($this,'push_event_action'),array('add',array($this->get_unique_href_variable('time'),$this->get_unique_href_variable('timeless'))));
+			return;
+		}
 		$tb = $this->init_module('Utils/TabbedBrowser');
 
 		foreach($this->settings['views'] as $k=>$v) {
@@ -310,7 +314,10 @@ class Utils_Calendar extends Module {
 		foreach($timeline as & $v) {
 			$id = 'day_'.(isset($v['time'])?($today_t+$v['time']):$today_t.'_timeless');
 			$v['id'] = $id;
-			$dnd[] = $id;
+			if(isset($v['time']))
+				$dnd[] = array($today_t+$v['time']);
+			else
+				$dnd[] = array($today_t,1);
 		}
 		$theme->assign('timeline', $timeline);
 
@@ -336,7 +343,7 @@ class Utils_Calendar extends Module {
 			}
 			$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\',\''.$ev['id'].'\' ,\''.Epesi::escapeJS($ev['title'],false).'\')');
 		}
-		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd)).'\')');
+		$this->js('Utils_Calendar.activate_dnd(\'day\', \''.Epesi::escapeJS(json_encode($dnd),false).'\',\''.Epesi::escapeJS($this->create_unique_href_js(array('time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\')');
 	}
 
 	///////////////////////////////////////////////////////
@@ -417,7 +424,7 @@ class Utils_Calendar extends Module {
 		for ($i=0; $i<7; $i++) {
 			$that_day = $dis_week_from+$i*86400;
 			$day_headers[] = array(
-						'date'=>date('d D', $that_day), 
+						'date'=>date('d D', $that_day),
 						'style'=>(date('Y-m-d',$that_day)==date('Y-m-d')?'today':'other'),
 						'link' => $this->create_callback_href(array($this, 'view_date'), array($that_day, 'Day'))
 						);
@@ -436,7 +443,10 @@ class Utils_Calendar extends Module {
 			foreach($timeline as & $v) {
 				$id = 'week_'.(isset($v['time'])?($today_t+$v['time']):$today_t.'_timeless');
 				$time_ids[$i][] = $id;
-				$dnd[] = $id;
+				if(isset($v['time']))
+					$dnd[] = array($today_t+$v['time']);
+				else
+					$dnd[] = array($today_t,1);
 			}
 		}
 		$theme->assign('time_ids', $time_ids);
@@ -471,7 +481,7 @@ class Utils_Calendar extends Module {
 			}
 			$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\', \''.Epesi::escapeJS($ev['title'],false).'\')');
 		}
-		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd)).'\')');
+		$this->js('Utils_Calendar.activate_dnd(\'week\', \''.Epesi::escapeJS(json_encode($dnd),false).'\',\''.Epesi::escapeJS($this->create_unique_href_js(array('time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\')');
 	}
 
 	//////////////////////////////////////////////////////
@@ -497,7 +507,7 @@ class Utils_Calendar extends Module {
 				$currday += 86400;
 			}
 			$month[] = array(
-							'week_label'=>$weekno, 
+							'week_label'=>$weekno,
 							'week_link' => $link,
 							'days'=>$week);
 		}
@@ -539,7 +549,7 @@ class Utils_Calendar extends Module {
 		$theme->assign('month_label', date('F', $this->date));
 		$theme->assign('year_label', date('Y', $this->date));
 		$theme->assign('year_link', $this->create_callback_href(array($this, 'view_date'), array($this->date, 'Year')));
-		
+
 		$theme->display('month');
 	}
 

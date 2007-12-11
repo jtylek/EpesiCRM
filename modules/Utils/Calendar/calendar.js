@@ -10,15 +10,24 @@ add_event:function(dest_id,ev_id,title) {
 		revert: true
 	});
 },
-activate_dnd:function(ids_in) {
+activate_dnd:function(sec,ids_in,new_ev) {
 	var ids = ids_in.evalJSON();
 	ids.each(function(id) {
-		Droppables.add(id, {
+		var cell_id = sec+'_'+id[0];
+		var f = new_ev.replace('__TIME__',id[0]);
+		if(id.length==2) {
+			cell_id += '_timeless';
+			f = f.replace('__TIMELESS__','1');
+		} else {
+			f = f.replace('__TIMELESS__','0');
+		}
+		Droppables.add(cell_id, {
 			accept: 'utils_calendar_event',
 			onDrop: function(element,droppable,ev) {
 				droppable.appendChild(element);
 			}
 		});
+		Event.observe(cell_id,'dblclick',function(e){eval(f)});
 	});
 }
 }
