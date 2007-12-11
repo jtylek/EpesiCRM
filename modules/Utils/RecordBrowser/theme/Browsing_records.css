@@ -15,6 +15,10 @@
     background-color: #336699;
 }
 
+#Browsing_records .icon img {
+    size: portrait;
+}
+
 #Browsing_records .name {
     width: 290px;
     text-align: left;
