@@ -10,6 +10,10 @@ ModuleManager::load_modules();
 $mod = Module::static_get_module_variable($_POST['path'],'event_module');
 if(!$mod)
 	die('alert(\'Invalid request!\')');
-$cc = explode('_',$_POST['cell_id']);
-call_user_func(array($mod.'Common','update'),$_POST['ev_id'],$cc[0],isset($cc[1]));
+if($_POST['cell_id']=='trash') {
+	call_user_func(array($mod.'Common','delete'),$_POST['ev_id']);
+} else {
+	$cc = explode('_',$_POST['cell_id']);
+	call_user_func(array($mod.'Common','update'),$_POST['ev_id'],$cc[0],isset($cc[1]));
+}
 ?>

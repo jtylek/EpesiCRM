@@ -48,5 +48,37 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 		});
 		Event.observe(cell_id,'dblclick',function(e){eval(f)});
 	});
+	
+	//activate trash
+	Droppables.add('UCtrash', {
+		accept: 'utils_calendar_event',
+		onDrop: function(element,droppable,ev) {
+			element.hide();
+			if(!confirm('Delete this event?')) {
+				element.show();
+				return;
+			}
+			droppable.appendChild(element);
+			new Ajax.Request('modules/Utils/Calendar/update.php',{
+					method:'post',
+					parameters:{
+						ev_id: element.id.substr(21),
+						cell_id: 'trash',
+						path: mpath,
+						cid: ecid
+					},
+					onComplete: function(t) {
+						eval(t.responseText);
+					},
+					onException: function(t,e) {
+						throw(e);
+					},
+					onFailure: function(t) {
+						alert('Failure ('+t.status+')');
+						Epesi.text(t.responseText,'error_box','p');
+					}
+			});
+		}
+	});
 }
 }

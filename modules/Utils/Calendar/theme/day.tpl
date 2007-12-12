@@ -1,6 +1,6 @@
 <div class="day-menu">
 	<table border="0"><tr>
-		<td style="padding-left: 180px;"></td>
+		<td class="add-info"><div style="width:180px;border: 1px solid gray" id="{$trash_id}">trash</div></td>
 		<td class="empty"></td>
 		<td style="width: 10px;"></td>
 		<td><a class="button" {$prev_href}>{$prev_label}&nbsp;&nbsp;<img border="0" width="8" height="8" src="{$theme_dir}/Utils_Calendar__prev.png"></a></td>
@@ -27,7 +27,7 @@
 			<td class="hours_header" rowspan="2"><img src="{$theme_dir}/Utils_Calendar__icon-day.png" width="32" height="32" border="0"><br>{$day_view_label}</td>
 			<td class=header_month>
 				<a {$link_month}>{$header_month}</a>
-				 &bull; 
+				 &bull;
 				<a {$link_year}>{$header_year}</a>
 			</td>
 

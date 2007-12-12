@@ -97,6 +97,9 @@ class Utils_Calendar extends Module {
 			$this->call_callback_href(array($this,'push_event_action'),array('add',array($this->get_unique_href_variable('time'),$this->get_unique_href_variable('timeless'))));
 			return;
 		}
+
+		load_js($this->get_module_dir().'calendar.js');
+
 		$tb = $this->init_module('Utils/TabbedBrowser');
 
 		foreach($this->settings['views'] as $k=>$v) {
@@ -325,11 +328,12 @@ class Utils_Calendar extends Module {
 		$theme->assign('day_view_label', $this->lang->t('Day calendar'));
 		$theme->assign('timeless_label', $this->lang->t('Timeless'));
 
+		$theme->assign('trash_id','UCtrash');
+
 		$theme->display('day');
 
 		//data
 		$ret = $this->get_events(date('Y-m-d',$this->date),date('Y-m-d',$this->date+86400));
-		load_js($this->get_module_dir().'calendar.js');
 		foreach($ret as $ev) {
 			$this->print_event($ev);
 			if($ev['timeless'])
@@ -456,13 +460,13 @@ class Utils_Calendar extends Module {
 		$theme->assign('time_ids', $time_ids);
 		$theme->assign('timeline', $timeline);
 
-		//ok, display
 		$theme->assign('week_view_label', $this->lang->t('Week calendar'));
+		$theme->assign('trash_id','UCtrash');
+		//ok, display
 		$theme->display('week');
 
 		//data
 		$ret = $this->get_events($dis_week_from,$dis_week_from+7*86400);
-		load_js($this->get_module_dir().'calendar.js');
 		foreach($ret as $k=>$ev) {
 			$this->print_event($ev);
 			$ev_start = strtotime(date('Y-m-d',$ev['start']));

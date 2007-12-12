@@ -60,7 +60,7 @@ class Base_Box extends Module {
 				$containers['main'] = & $main;
 			foreach($mains as $m)
 				if(ModuleManager::is_installed($m['module'])>=0)
-					$this->init_module(str_replace('/','_',$m['module']),(isset($m['constructor_arguments'])?$m['constructor_arguments']:null),(isset($m['name'])?$m['name']:null));
+					$this->freeze_module($m['module'],(isset($m['name'])?$m['name']:null));
 		} else $mains = array();
 
 

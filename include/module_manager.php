@@ -790,7 +790,7 @@ class ModuleManager {
 	 * Returns instance of module.
 	 *
 	 * @param string module name
-	 * @return bool false if module instance was not found, requested module object otherwise
+	 * @return bool null if module instance was not found, requested module object otherwise
 	 */
 	public static final function & get_instance($path) {
 		$xx = explode('/',$path);

@@ -26,6 +26,7 @@ abstract class Module extends ModulePrimitive {
 	private $path;
 	private $reload = null;
 	private $fast_process = false;
+	private $frozen_modules = array();
 	private $inline_display = false;
 	private $displayed = false;
 	private $clear_child_vars = false;
@@ -78,7 +79,7 @@ abstract class Module extends ModulePrimitive {
 	 * @return module object
 	 */
 	public final function & get_child($id) {
-		if($this->fast_process) {
+		if($this->fast_process || isset($this->frozen_modules[$id])) {
 			$x = false;
 			return $x;
 		}
@@ -894,6 +895,18 @@ abstract class Module extends ModulePrimitive {
 	 */
 	public final function create_unique_key($name) {
 		return $this->get_path() . '_' . $name;
+	}
+
+	/**
+	 * Makes child module to not loose its module variables
+	 *
+	 * @param string module
+	 */
+	public final function freeze_module($module_type,$name=null) {
+		if($this->clear_child_vars) return;
+		$module_type = str_replace('/','_',$module_type);
+		if(!isset($name)) $name = $this->get_new_child_instance_id($module_type);
+		$this->frozen_modules[$module_type.'|'.$name] = 1;
 	}
 }
 
