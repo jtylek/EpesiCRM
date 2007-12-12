@@ -4,7 +4,9 @@
     <div class="center"><div style="position: absolute; left: 45%;">Attachment</div></div>
 	<div class="right">{$__link.close.open}<img src="{$theme_dir}/Utils_Attachment__close.png" width="14" height="14" alt="x" border="0">{$__link.close.close}</div>
 </div>
-
+<br/>
+<h3>{$filename}</h3>
+<br/>
 
 <table id="Utils_Attachment__download" cellspacing="0" cellpadding="0">
 	<tr>

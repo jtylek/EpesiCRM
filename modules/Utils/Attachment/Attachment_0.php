@@ -125,17 +125,19 @@ class Utils_Attachment extends Module {
 			}
 			$r = $gb->get_new_row();
 
+
 			if($row['original']!=='') {
-				$file = '<a '.$this->get_file($row).' '.Utils_TooltipCommon::open_tag_attrs($row['original']).'><img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'attach.png').'" border=0></a>';
+				$filetooltip = $this->lang->t('Filename: %s',array($row['original'])).'<hr>'.$this->lang->t('Last uploaded by %s<br>on %s<br>Number of uploads: %d<br>Number of downloads: %d',array($row['upload_by'],Base_RegionalSettingsCommon::time2reg($row['upload_on']),$row['file_revision'],$row['downloads']));
+				$file = '<a '.$this->get_file($row).' '.Utils_TooltipCommon::open_tag_attrs($filetooltip).'><img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'attach.png').'" border=0></a>';
 			} else {
 				$file = '';
 			}
-			
+
 			static $def_permissions = array('Public','Protected','Private');
 			$perm = $this->lang->t($def_permissions[$row['permission']]);
 			$info = $this->lang->t('Owner: %s',array($row['permission_owner'])).'<br>'.
 				$this->lang->t('Permission: %s',array($perm)).'<hr>'.
-				$this->lang->t('Last note by %s<br>Last note on %s<br>Number of note edits: %d<br>Last file uploaded by %s<br>Last file uploaded on %s<br>Number of file uploads: %d<br>Number of downloads: %d',array($row['note_by'],Base_RegionalSettingsCommon::time2reg($row['note_on']),$row['note_revision'],$row['upload_by'],Base_RegionalSettingsCommon::time2reg($row['upload_on']),$row['file_revision'],$row['downloads']));
+				$this->lang->t('Last edited by %s<br>on %s<br>Number of edits: %d',array($row['note_by'],Base_RegionalSettingsCommon::time2reg($row['note_on']),$row['note_revision']));
 			$r->add_info($info);
 			if($row['permission_by']==Acl::get_user() ||
 			   ($row['permission']==0 && $this->public_write) ||
@@ -190,11 +192,13 @@ class Utils_Attachment extends Module {
 		}
 
 		$lid = 'get_file_'.md5($this->get_path().serialize($row));
+
 		$th->assign('view','<a href="modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$row['file_id'],'path'=>$this->get_path(),'cid'=>CID,'view'=>1)).'" target="_blank" onClick="leightbox_deactivate(\''.$lid.'\')">'.$this->lang->t('View').'</a><br>');
 		$th->assign('download','<a href="modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$row['file_id'],'path'=>$this->get_path(),'cid'=>CID)).'" onClick="leightbox_deactivate(\''.$lid.'\')">'.$this->lang->t('Download').'</a><br>');
 		load_js('modules/Utils/Attachment/remote.js');
 		$th->assign('link','<a href="javascript:void(0)" onClick="utils_attachment_get_link('.$row['file_id'].', '.CID.', \''.Epesi::escapeJS($this->get_path(),false).'\',\'get link\');leightbox_deactivate(\''.$lid.'\')">'.$this->lang->t('Get link').'</a><br>');
 		$th->assign('close','<a class="lbAction" rel="deactivate" href="javascript:void(0)">Close</a>');
+		$th->assign('filename',$row['original']);
 
 		ob_start();
 		$th->display('download');
