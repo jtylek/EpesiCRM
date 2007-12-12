@@ -1,6 +1,6 @@
 <div class="day-menu">
 	<table border="0"><tr>
-		<td class="add-info"><div style="width:180px;border: 1px solid gray" id="{$trash_id}">trash</div></td>
+		<td class="add-info"><div id="{$trash_id}" class="trash"><img border="0" width="32" height="32" src="{$theme_dir}/Utils_Calendar__trash.png"></div></td>
 		<td class="empty"></td>
 		<td style="width: 10px;"></td>
 		<td><a class="button" {$prev_href}>{$prev_label}&nbsp;&nbsp;<img border="0" width="8" height="8" src="{$theme_dir}/Utils_Calendar__prev.png"></a></td>
