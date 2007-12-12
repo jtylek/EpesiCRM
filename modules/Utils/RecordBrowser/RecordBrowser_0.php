@@ -407,18 +407,29 @@ class Utils_RecordBrowser extends Module {
 	public function view_entry_details($from, $to, $data, $theme=null, $main_page = false){
 		if ($theme==null) $theme = $this->init_module('Base/Theme');
 		$fields = array();
+		$longfields = array();
 		foreach($this->table_rows as $field => $args) 
 			if ($args['position'] >= $from && ($to == -1 || $args['position'] < $to)) 
 			{	
 				if (!isset($data[$args['id']])) $data[$args['id']] = array('label'=>'', 'html'=>'');
-				$fields[$args['id']] = array(	'label'=>$data[$args['id']]['label'],
+					if ($args['type']<>'long text') {
+						$fields[$args['id']] = array(	'label'=>$data[$args['id']]['label'],
 												'element'=>$args['id'],
 												'html'=>$data[$args['id']]['html'],
 												'error'=>isset($data[$args['id']]['error'])?$data[$args['id']]['error']:null,
 												'required'=>isset($args['required'])?$args['required']:null,
 												'type'=>$args['type']);
+					} else {
+						$longfields[$args['id']] = array(	'label'=>$data[$args['id']]['label'],
+												'element'=>$args['id'],
+												'html'=>$data[$args['id']]['html'],
+												'error'=>isset($data[$args['id']]['error'])?$data[$args['id']]['error']:null,
+												'required'=>isset($args['required'])?$args['required']:null,
+												'type'=>$args['type']);
+					}
 			}
 		$theme->assign('fields', $fields);
+		$theme->assign('longfields', $longfields);
 		$theme->assign('Form_data', $data);
 		$theme->assign('required_note', $this->lang->t('Indicates required fields.'));
 		

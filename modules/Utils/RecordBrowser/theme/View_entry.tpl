@@ -69,7 +69,20 @@
 							<td class="label">&nbsp;</td>
 						{/if}
 					</tr>
+					
 				</table>
+			</td>		
+		</tr>
+		<tr>
+			<td colspan="2">
+			<table cellpadding="0" cellspacing="0" border="0">
+				<tr>
+						{foreach key=k item=f from=$longfields name=fields}
+						<td class="label" nowrap>{$f.label}{if $f.required}*{/if}</td>
+						<td class="data">{if $f.error}{$f.error}{/if}{$f.html}</td>
+						{/foreach}
+				</tr>
+			</table>
 			</td>
 		</tr>
 	</tbody>
