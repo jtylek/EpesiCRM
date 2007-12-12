@@ -14,7 +14,6 @@ class Tests_Calendar_Event extends Utils_Calendar_Event {
 
 	public function view($id) {
 		if($this->is_back()) $this->back_to_calendar();
-		print('view...');
 		$this->view_event('view', $id);
 		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 	}
@@ -27,8 +26,10 @@ class Tests_Calendar_Event extends Utils_Calendar_Event {
 
 	public function add($def_date,$timeless=false) {
 		if($this->is_back()) $this->back_to_calendar();
+		$this->view_event('add');
+		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 		
-		$qf = $this->init_module('Libs/QuickForm',null,'addf');
+/*		$qf = $this->init_module('Libs/QuickForm',null,'addf');
 		$qf->addElement('datepicker','start','Start date');
 		$qf->addElement('datepicker','end','End date');
 //		$qf->addElement('checkbox','timeless','Timeless'); //always
@@ -45,6 +46,8 @@ class Tests_Calendar_Event extends Utils_Calendar_Event {
 			Base_ActionBarCommon::add('back','Cancel',$this->create_back_href());
 			Base_ActionBarCommon::add('save','Save',$qf->get_submit_form_href());
 		}
+*/ 
+
 	}
 
 	public function view_event($action, $id=null){
@@ -52,7 +55,7 @@ class Tests_Calendar_Event extends Utils_Calendar_Event {
 			return false;
 			
 		$subject = -1;
-		if($action == 'new') {
+		if($action == 'add') {
 			$def = array(
 				'date_s' => date('Y-m-d'), 
 				'date_e' => time(), 
@@ -62,7 +65,7 @@ class Tests_Calendar_Event extends Utils_Calendar_Event {
 				'repeat_forever'=>1, 
 				'access'=>0,
 				'priority'=>0,
-				'emp_id' => array(Base_UserCommon::get_my_user_id())
+				'emp_id' => array(Acl::get_user())
 			);
 		} else {
 //			$event = DB::GetRow('SELECT * FROM tests_calendar_event WHERE id=%d', $id);
@@ -150,12 +153,12 @@ class Tests_Calendar_Event extends Utils_Calendar_Event {
 			
 		if($action != 'view') {
 			$rb1 = $this->init_module('Utils/RecordBrowser/RecordPicker');
-			$this->display_module($rb1, array('contact', 'emp_id', array('CRM_Calendar_Event_PersonalCommon','decode_contact'), array('Company Name'=>CRM_ContactsCommon::get_main_company())));
-			$emp_click = $rb1->open_link('emp_id', 'Add from table');
+			$this->display_module($rb1, array('contact', 'emp_id', array('Tests_Calendar_EventCommon','decode_contact'), array('Company Name'=>CRM_ContactsCommon::get_main_company())));
+			$emp_click = $rb1->create_open_link('emp_id', 'Add from table');
 			
 			$rb2 = $this->init_module('Utils/RecordBrowser/RecordPicker');
-			$this->display_module($rb2, array('contact', 'cus_id', array('CRM_Calendar_Event_PersonalCommon','decode_contact'), array('!Company Name'=>CRM_ContactsCommon::get_main_company())));
-			$cus_click = $rb2->open_link('cus_id', 'Add from table');
+			$this->display_module($rb2, array('contact', 'cus_id', array('Tests_Calendar_EventCommon','decode_contact'), array('!Company Name'=>CRM_ContactsCommon::get_main_company())));
+			$cus_click = $rb2->create_open_link('cus_id', 'Add from table');
 		} else {
 			$emp_click = ''; $cus_click = '';
 		}
@@ -173,7 +176,7 @@ class Tests_Calendar_Event extends Utils_Calendar_Event {
 				return $this->manage_event($subject, 'edit');	
 			} else {
 				if($form->validate()) {
-					if($action == 'new' && $form->process(array(&$this, 'add_event_submit'))) {
+					if($action == 'add' && $form->process(array(&$this, 'add_event_submit'))) {
 						return false;
 					} else if($action == 'edit' && $form->process(array(&$this, 'edit_event_submit'))) {
 						return false;
@@ -186,7 +189,7 @@ class Tests_Calendar_Event extends Utils_Calendar_Event {
 		
 		$theme =  & $this->pack_module('Base/Theme');
 
-          $theme->assign('repeatable', 0); 
+         $theme->assign('repeatable', 0); 
          $theme->assign('repeat_forever', 0); 
          $theme->assign('edit_mode', 0); 
 
