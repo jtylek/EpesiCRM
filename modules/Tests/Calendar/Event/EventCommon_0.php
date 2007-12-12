@@ -10,8 +10,12 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Tests_Calendar_EventCommon extends Utils_Calendar_EventCommon {
-	public static function get($start,$end) {
+	public static function get_all($start,$end) {
 		return DB::GetAll('SELECT start,duration,title,description,id,timeless FROM tests_calendar_event WHERE ((start>=%d AND start<%d) OR (start+duration>=%d AND start+duration<%d))',array($start,$end,$start,$end));
+	}
+
+	public static function get($id) {
+		return DB::GetRow('SELECT start,duration,title,description,id,timeless FROM tests_calendar_event WHERE id=%d',array($id));
 	}
 
 	public static function delete($id) { //make sure that event owner is Acl::get_user....

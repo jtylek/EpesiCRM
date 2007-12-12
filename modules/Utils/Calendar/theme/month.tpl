@@ -1,6 +1,6 @@
 <div id="month-menu">
 	<table border="0"><tr>
-		<td style="padding-left: 180px;"></td>
+                <td class="add-info"><div style="width:180px;border: 1px solid gray" id="{$trash_id}">trash</div></td>
 		<td class="empty"></td>
 		<td style="width: 10px;"></td>
 		<td><a class="button" {$prevyear_href}><img border="0" width="8" height="8" src="{$theme_dir}/Utils_Calendar__prev.png">&nbsp;&nbsp;{$prevyear_label}</a></td>
@@ -38,7 +38,7 @@
 			<tr>
 				<td class="week-number"><a {$week.week_link}>{$week.week_label}</a></td>
 				{foreach item=day from=$week.days}
-					<td class="day {$day.style}"><a {$day.day_link}>{$day.day}</a></td>
+					<td class="day {$day.style}" id="{$day.id}"><a {$day.day_link}>{$day.day}</a></td>
 				{/foreach}
 			</tr>
 		{/foreach}

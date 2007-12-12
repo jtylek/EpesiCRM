@@ -16,7 +16,7 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 		var cell_id = 'UCcell_'+id[0];
 		var f = new_ev.replace('__TIME__',id[0]);
 		if(id.length==2) {
-			cell_id += '_timeless';
+			if(id[1]==1) cell_id += '_timeless';
 			f = f.replace('__TIMELESS__','1');
 		} else {
 			f = f.replace('__TIMELESS__','0');
@@ -31,7 +31,8 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 						ev_id: element.id.substr(21),
 						cell_id: droppable.id.substr(7),
 						path: mpath,
-						cid: ecid
+						cid: ecid,
+						month: (id.length==2 && id[1]==2)?1:0
 					},
 					onComplete: function(t) {
 						eval(t.responseText);

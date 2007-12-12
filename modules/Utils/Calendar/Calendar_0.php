@@ -162,7 +162,7 @@ class Utils_Calendar extends Module {
 		if(!is_numeric($start) && is_string($start)) $start = strtotime($start);
 		if(!is_numeric($end) && is_string($end)) $end = strtotime($end);
 
-		$ret = call_user_func(array($this->event_module.'Common','get'),$start,$end);
+		$ret = call_user_func(array($this->event_module.'Common','get_all'),$start,$end);
 		if(!is_array($ret))
 			trigger_error('Invalid return of event method: get',E_USER_ERROR);
 		foreach($ret as &$row) {
@@ -469,14 +469,7 @@ class Utils_Calendar extends Module {
 		$ret = $this->get_events($dis_week_from,$dis_week_from+7*86400);
 		foreach($ret as $k=>$ev) {
 			$this->print_event($ev);
-			$ev_start = strtotime(date('Y-m-d',$ev['start']));
-			for($i=0; $i<7; $i++) {
-				$x = $dis_week_from+$i*86400;
-				if($x==$ev_start) {
-					$today_t = $x;
-					break;
-				}
-			}
+			$today_t = strtotime(date('Y-m-d',$ev['start']));
 			if($ev['timeless']) {
 				$dest_id = 'UCcell_'.$today_t.'_timeless';
 			} else {
@@ -505,6 +498,7 @@ class Utils_Calendar extends Module {
 		$curmonth = date('m', $date);
 
 		$month = array();
+		$today = date('Y-m-d');
 		while (date('m', $currday) != ($curmonth)%12+1) {
 			$week = array();
 			$weekno = date('W',$currday);
@@ -513,7 +507,8 @@ class Utils_Calendar extends Module {
 				$week[] = array(
 							'day'=>date('d', $currday),
 							'day_link' => $this->create_callback_href(array($this, 'view_date'), array($currday, 'Day')),
-							'style'=>(date('m', $currday)==$curmonth)?(date('Y-m-d',$currday)==date('Y-m-d')?'today':'current'):'other',
+							'style'=>(date('m', $currday)==$curmonth)?(date('Y-m-d',$currday)==$today?'today':'current'):'other',
+							'time'=>$currday
 							);
 				$currday += 86400;
 			}
@@ -547,6 +542,13 @@ class Utils_Calendar extends Module {
 		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text, 'month'));
 
 		$month = $this->month_array($this->date);
+		$dnd = array();
+		foreach($month as & $week) {
+			foreach($week['days'] as & $day) {
+				$day['id'] = 'UCcell_'.$day['time'];
+				$dnd[] = array($day['time'],2);
+			}
+		}
 
 		$day_headers = array();
 		for ($i=0; $i<7; $i++)
@@ -560,8 +562,25 @@ class Utils_Calendar extends Module {
 		$theme->assign('month_label', date('F', $this->date));
 		$theme->assign('year_label', date('Y', $this->date));
 		$theme->assign('year_link', $this->create_callback_href(array($this, 'view_date'), array($this->date, 'Year')));
+		$theme->assign('trash_id','UCtrash');
 
 		$theme->display('month');
+
+
+		//data
+		$start_t = $month[0]['days'][0]['time'];
+		$end_t = $month[count($month)-1]['days'][6]['time'];
+		$ret = $this->get_events($start_t,$end_t);
+		foreach($ret as $k=>$ev) {
+			$this->print_event($ev);
+			$ev_start = strtotime(date('Y-m-d',$ev['start']));
+			$dest_id = 'UCcell_'.$ev_start;
+			$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\', \''.Epesi::escapeJS($ev['title'],false).'\')');
+		}
+		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
+				'\''.Epesi::escapeJS($this->create_unique_href_js(array('time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
+				'\''.Epesi::escapeJS($this->get_path(),false).'\','.
+				'\''.CID.'\')');
 	}
 
 	public function year() {
