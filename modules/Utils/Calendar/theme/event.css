@@ -1,0 +1,38 @@
+#Utils_Calendar__event {
+    display: block;
+    height: 18px;
+	margin: 1px;
+	border: 2px solid #339933;
+	background-color: #cfe6cf;
+	background-image: url('images/header-light-green.png');
+    background-repeat: repeat-x;
+}
+
+#Utils_Calendar__event .grab {
+    display: block;
+    float: left;
+    cursor: move;
+    padding-top: 2px;
+    padding-right: 2px;
+    background-color: #339933;
+}
+
+#Utils_Calendar__event .title {
+    display: block;
+    float: left;
+    color: black;
+    padding-top: 2px;
+    padding-left: 5px;
+}
+
+#Utils_Calendar__event .info {
+    display: block;
+    float: right;
+    padding-top: 2px;
+    padding-left: 2px;
+    background-color: #339933;
+    cursor: help;
+}
+
+#Utils_Calendar__event .info:hover {
+}

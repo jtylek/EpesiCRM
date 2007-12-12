@@ -100,14 +100,14 @@ div.events_brief {
 		padding: 1px 0px 0px 1px;
 	}
 
-#Agenda {
+#Utils_Calendar__agenda {
 }
 
-#Agenda td {
+#Utils_Calendar__agenda td {
 	height: 20px;
 }
 
-#Agenda .button input {
+#Utils_Calendar__agenda .button input {
 	background-color: #336699;
 	background-image: url('images/header-blue.png');
 	background-repeat: repeat-x;
@@ -117,11 +117,11 @@ div.events_brief {
 	width: 100px;
 }
 
-#Agenda .button input:hover {
+#Utils_Calendar__agenda .button input:hover {
 	background-image: url('images/header-blue-hover.png');
 }
 
-#Agenda .label {
+#Utils_Calendar__agenda .label {
 	background-color: #336699;
 	color: #FFFFFF;
 	padding-left: 10px;
@@ -130,34 +130,39 @@ div.events_brief {
 	vertical-align: top;
 }
 
-#Agenda .data {
+#Utils_Calendar__agenda .data {
 	background-color: #336699;
 	/*background-image: url('images/header-blue.png');*/
 	background-repeat: repeat-x;
 	/*border: 1px solid #B3B3B3;*/
 	height: 20px;
+	width: 220px;
 }
 
-#Agenda .data input {
+#Utils_Calendar__agenda .data input {
 	padding: 3px 2px 2px 2px;
 	width: 94px;
+	display: block;
+	float: left;
 }
 
 /* Select date */
 
-#Agenda .data a.button {
-	padding-left: 15px;
-	padding-right: 25px;
-	padding-top: 4px;
-	padding-bottom: 3px;
+#Utils_Calendar__agenda .data a.button {
+	/*padding-left: 15px;
+	padding-right: 25px;*/
+	padding-right: 20px;
 	color: #FFFFFF;
 	background-color: #336699;
 	background-image: url('images/select.png');
 	background-repeat: no-repeat;
-	background-position: 75px;
+	background-position: 85px;
+	width: 100px;
+	display: block;
+	float: left;
 }
 
 
-#Agenda .data a.button:hover {
+#Utils_Calendar__agenda .data a.button:hover {
 	background-color: #339933;
 }

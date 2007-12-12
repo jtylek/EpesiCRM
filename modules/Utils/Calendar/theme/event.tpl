@@ -1,6 +1,9 @@
 {$open}
-<span style="background-color: yellow;">
-<span style="padding-right: 30px" {$view_action} class="{$handle_class}">{$title}</span>
-<img {$tip_tag_attrs} border=0 src="{$theme_dir}/Utils_GenericBrowser__info.png">
+
+<span id="Utils_Calendar__event">
+    <span class="{$handle_class} grab"><img {$tip_tag_attrs} border=0 src="{$theme_dir}/Utils_Calendar__grab.png"></span>
+    <span {$view_action} class="title">{$title}</span>
+    <span class="info"><img {$tip_tag_attrs} border=0 src="{$theme_dir}/Utils_Calendar__info.png"></span>
 </span>
+
 {$close}
