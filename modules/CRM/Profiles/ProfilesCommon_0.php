@@ -5,13 +5,13 @@
  * @copyright pbukowski@telaxus.com
  * @license SPL
  * @version 0.1
- * @package crm-profiles
+ * @package crm-Filters
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class CRM_ProfilesCommon extends ModuleCommon {
+class CRM_FiltersCommon extends ModuleCommon {
     public static function user_settings() {
-	if(self::Instance()->acl_check('manage')) return array('Profiles'=>'edit');
+	if(self::Instance()->acl_check('manage')) return array('Filters'=>'edit');
 	return array();
     }
 

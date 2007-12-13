@@ -1,5 +1,5 @@
-#Profiles_header,
-.Profiles_header {
+#Filters_header,
+.Filters_header {
 	color: #FFFFFF;
 	background-color: #336699;
 	background-image: url("images/header-blue.png");
@@ -10,17 +10,17 @@
 	font-weight: bold;
 }
 
-.Profiles_header {
+.Filters_header {
 	font-weight: normal;
 }
 
-#Profiles_header .left {
+#Filters_header .left {
 	width: 20px;
 	display: block;
 	float: left;
 }
 
-#Profiles_header .center {
+#Filters_header .center {
 	display: block;
 	float: left;
 	padding-top: 3px;
@@ -28,7 +28,7 @@
 	text-align: center;
 }
 
-#Profiles_header .right {
+#Filters_header .right {
 	width: 17px;
 	display: block;
 	float: right;
@@ -38,7 +38,7 @@
 
 /* button */
 
-table#CRM_Profiles .button {
+table#CRM_Filters .button {
 	background-color: #F0F0F0;
 	border: 1px solid #FFFFFF;
 	background-repeat: repeat-x;
@@ -52,29 +52,29 @@ table#CRM_Profiles .button {
 	padding-top: 10px;
 }
 
-table#CRM_Profiles .button:hover {
+table#CRM_Filters .button:hover {
 	background-color: #FFFFFF;
 	background-image: url("images/big-button-hover.png");
 }
 
-table#CRM_Profiles a .button {
+table#CRM_Filters a .button {
 	color: #336699;
 	font-weight: bold;
 }
 
-table#CRM_Profiles a .button .desc {
+table#CRM_Filters a .button .desc {
 	font-weight: normal;
 }
 
-table#CRM_Profiles .button span {
+table#CRM_Filters .button span {
 	display: block;
 }
 
-table#CRM_Profiles .button span.text {
+table#CRM_Filters .button span.text {
 	padding-bottom: 5px;
 }
 
-table#CRM_Profiles .button span.desc {
+table#CRM_Filters .button span.desc {
 	width: 100px;
 	text-align: left;
 	margin-left: 10px;
@@ -82,7 +82,7 @@ table#CRM_Profiles .button span.desc {
 
 /* small button */
 
-table#CRM_Profiles .button-small {
+table#CRM_Filters .button-small {
 	display: block;
 	line-height: 20px;
 	width: 200px;
@@ -92,13 +92,13 @@ table#CRM_Profiles .button-small {
 	text-align: center;
 }
 
-table#CRM_Profiles .button-small:hover {
+table#CRM_Filters .button-small:hover {
 	background-color: #339933;
 	color: #FFFFFF;
 }
 
 /* a */
 
-table#CRM_Profiles a:hover {
+table#CRM_Filters a:hover {
 	color: #993333;
 }

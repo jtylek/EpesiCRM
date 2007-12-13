@@ -5,29 +5,29 @@
  * @copyright pbukowski@telaxus.com
  * @license SPL
  * @version 0.1
- * @package crm-profiles
+ * @package crm-Filters
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class CRM_ProfilesInstall extends ModuleInstall {
+class CRM_FiltersInstall extends ModuleInstall {
 
 	public function install() {
 		$ret = true;
-		$ret &= DB::CreateTable('crm_profiles_group','
+		$ret &= DB::CreateTable('crm_filters_group','
 			id I4 AUTO KEY,
 			name C(128) NOTNULL,
 			user_login_id I4 NOTNULL',
 			array('constraints'=>', UNIQUE(name), FOREIGN KEY (user_login_id) REFERENCES user_login(ID)'));
 		if(!$ret){
-			print('Unable to create table crm_profiles_group.<br>');
+			print('Unable to create table crm_filters_group.<br>');
 			return false;
 		}
-		$ret &= DB::CreateTable('crm_profiles_contacts','
+		$ret &= DB::CreateTable('crm_filters_contacts','
 			group_id I4 NOTNULL,
 			contact_id I4',
-			array('constraints'=>', FOREIGN KEY (group_id) REFERENCES crm_profiles_group(id), FOREIGN KEY (contact_id) REFERENCES contact(ID)'));
+			array('constraints'=>', FOREIGN KEY (group_id) REFERENCES crm_filters_group(id), FOREIGN KEY (contact_id) REFERENCES contact(ID)'));
 		if(!$ret){
-			print('Unable to create table crm_profiles_contacts.<br>');
+			print('Unable to create table crm_filters_contacts.<br>');
 			return false;
 		}
 		Base_ThemeCommon::install_default_theme($this -> get_type());
@@ -37,8 +37,8 @@ class CRM_ProfilesInstall extends ModuleInstall {
 
 	public function uninstall() {
 		$ret = true;
-		$ret &= DB::DropTable('crm_profiles_contacts');
-		$ret &= DB::DropTable('crm_profiles_group');
+		$ret &= DB::DropTable('crm_filters_contacts');
+		$ret &= DB::DropTable('crm_filters_group');
 		Base_ThemeCommon::uninstall_default_theme($this -> get_type());
 		return $ret;
 	}

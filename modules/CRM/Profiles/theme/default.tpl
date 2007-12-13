@@ -1,12 +1,12 @@
 <center>
 
-<div id="Profiles_header">
+<div id="Filters_header">
     <div class="left"></div>
     <div class="center"><div style="position: absolute; left: 45%;">{$header}</div></div>
-	<div class="right">{$__link.close.open}<img src="{$theme_dir}/CRM_Profiles__close.png" width="14" height="14" alt="x" border="0">{$__link.close.close}</div>
+	<div class="right">{$__link.close.open}<img src="{$theme_dir}/CRM_Filters__close.png" width="14" height="14" alt="x" border="0">{$__link.close.close}</div>
 </div>
 
-<table id="CRM_Profiles" cellspacing="0" cellpadding="0">
+<table id="CRM_Filters" cellspacing="0" cellpadding="0">
 	<tr>
         <!-- MY -->
         <td>
@@ -19,7 +19,7 @@
 	    {$__link.my.open}
 		<div class="button">
             {if $display_icon}
-            <img src="{$theme_dir}/CRM_Profiles__my.png" alt="" align="middle" border="0" width="32" height="32">
+            <img src="{$theme_dir}/CRM_Filters__my.png" alt="" align="middle" border="0" width="32" height="32">
             {/if}
             {if $display_text}
                 <div style="height: 5px;"></div>
@@ -60,7 +60,7 @@
 	    {$__link.all.open}
 		<div class="button">
             {if $display_icon}
-            <img src="{$theme_dir}/CRM_Profiles__all.png" alt="" align="middle" border="0" width="32" height="32">
+            <img src="{$theme_dir}/CRM_Filters__all.png" alt="" align="middle" border="0" width="32" height="32">
             {/if}
             {if $display_text}
                 <div style="height: 5px;"></div>
@@ -100,7 +100,7 @@
         <a href="">
 		<div class="button">
             {if $display_icon}
-            <img src="{$theme_dir}/CRM_Profiles__manage.png" alt="" align="middle" border="0" width="32" height="32">
+            <img src="{$theme_dir}/CRM_Filters__manage.png" alt="" align="middle" border="0" width="32" height="32">
             {/if}
             {if $display_text}
                 <div style="height: 5px;"></div>
@@ -137,14 +137,14 @@
 
 <br>
     
-<table id="CRM_Profiles" cellspacing="0" cellpadding="0">
+<table id="CRM_Filters" cellspacing="0" cellpadding="0">
     <tr>
-        <td colspan="4" class="Profiles_header">&nbsp;&nbsp;Saved Filters&nbsp;&nbsp;</td>
+        <td colspan="4" class="Filters_header">&nbsp;&nbsp;Saved Filters&nbsp;&nbsp;</td>
     </tr>
 	<tr>
 
 	{assign var=x value=0}
-    {foreach item=p key=k from=$profiles}
+    {foreach item=p key=k from=$filters}
 	{assign var=x value=$x+1}
 
 		<td>
@@ -154,12 +154,12 @@
 		<div class="content_shadow">
 <!-- -->
 
-	    {$__link.profiles.$k.open}
+	    {$__link.filters.$k.open}
 		<div class="button">
-            <span class="text">{$__link.profiles.$k.text}</span>
+            <span class="text">{$__link.filters.$k.text}</span>
             <span class="desc">This is description of the group</span>
         </div>
-	    {$__link.profiles.$k.close}
+	    {$__link.filters.$k.close}
 
 <!-- SHADOW END -->
  		</div>
