@@ -101,6 +101,11 @@
 
 #Utils_Calendar__week td.header_month a {
 	color: #FFFFFF;
+	padding: 5px;
+}
+
+#Utils_Calendar__week td.header_month a:hover {
+	background-color: #336699;
 }
 
 #Utils_Calendar__week td.hour {
