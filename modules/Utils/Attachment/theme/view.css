@@ -16,8 +16,11 @@
 
 #Utils_Attachment__view .file {
     vertical-align: top;
-    text-align: center;
+    text-align: left;
+    font-size: 14px;
+    font-weight: bold;
     padding: 5px;
+    background-color: #E3E3E3;
 }
 
 #Utils_Attachment__view .note {

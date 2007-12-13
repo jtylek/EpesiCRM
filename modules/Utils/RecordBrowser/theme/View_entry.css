@@ -22,7 +22,7 @@
 }
 
 #Utils_RecordBrowser__View_entry .long_label {
-    width: 15%;
+    width: 20%;
 }
 
 #Utils_RecordBrowser__View_entry .data {
@@ -33,7 +33,7 @@
 }
 
 #Utils_RecordBrowser__View_entry .long_data {
-    width: 85%;
+    width: 80%;
     border-right: 1px solid #B3B3B3;
 }
 
