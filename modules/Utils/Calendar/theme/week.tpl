@@ -1,6 +1,11 @@
 <div class="week-menu">
 	<table border="0"><tr>
-		<td class="add-info"><div id="{$trash_id}" class="trash"><img border="0" width="32" height="32" src="{$theme_dir}/Utils_Calendar__trash.png"></div></td>
+		<td class="add-info">
+			<div id="{$trash_id}" class="trash">
+				<div class="icon"><img border="0" width="32" height="32" src="{$theme_dir}/Utils_Calendar__trash.png"></div>
+				<div class="text">Put the object<br>to trash</div>
+			</div>
+		</td>
 		<td class="empty"></td>
 		<td style="width: 10px;"></td>
 		<td><a class="button" {$prev7_href}>{$prev7_label}&nbsp;&nbsp;<img border="0" width="8" height="8" src="{$theme_dir}/Utils_Calendar__prev.png"></a></td>
@@ -47,7 +52,6 @@
 				<td class="header_day_{$header.style}"><a {$header.link}>{$header.date}</a></td>
 			{/foreach}
 		</tr>
-
 		<tr>
 		{foreach key=k item=stamp from=$timeline}
 			<tr>
@@ -57,7 +61,6 @@
 	            {/foreach}
 			</tr>
 		{/foreach}
-
 	</table>
 
 </div>

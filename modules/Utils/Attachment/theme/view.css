@@ -1,28 +1,67 @@
 #Utils_Attachment__view {
-    text-align: left;    
+    width: 100%;
+    background-color: #FFFFFF;
 }
 
+
 #Utils_Attachment__view .header {
-    color: #336699;
-    font-size: 14px;
-    font-weight: bold;
-    padding-left: 10px;
+    height: 20px;
+    color: #FFFFFF;
     vertical-align: middle;
-    text-align: left;
+    text-align: center;
+    background-color: #336699;
+    background-image: url('images/header-blue.png');
+    background-repeat: repeat-x;
+}
+
+#Utils_Attachment__view .file {
+    vertical-align: top;
+    text-align: center;
+    padding-right: 10px;
 }
 
 #Utils_Attachment__view .note {
 }
 
-#Utils_Attachment__view .file {
+.Utils_Attachment__table {
+    width: 100%;
+    vertical-align: middle;
+    height: 31px;
+}
+
+.Utils_Attachment__table .icon {
+    width: 32px;
+    height: 27px;
+    text-align: left;
     padding-left: 20px;
     padding-right: 10px;
-    text-align: center;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    vertical-align: top;
+    background-color: #336699;
 }
 
-#Utils_Attachment__view .file span {
+.Utils_Attachment__table .icon img {
+    position: absolute;
+    clip: rect(0px 32px 28px 0px);
 }
 
-#Utils_Attachment__view .file a {
-    cursor: pointer;
+.Utils_Attachment__table .name {
+    width: 290px;
+    text-align: left;
+    font-size: 14px;
+    font-weight: bold;
+    color: #FFFFFF;
+    padding-left: 10px;
+    padding-top: 9px;
+    height: 22px;
+    vertical-align: top;
+    background-image: url('images/blue-gradient.png');
+    background-repeat: repeat-y;
+}
+
+.Utils_Attachment__table .required_fav_info {
+    color: #777777;
+    text-align: right;
+    padding-right: 20px;
 }

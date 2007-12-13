@@ -23,9 +23,8 @@
 /* header day other */
 
 #Utils_Calendar__week td.header_day_other {
-	height: 50px;
 	vertical-align: middle;
-	border-left: 1px solid #B3B3B3;
+	border-left: 1px solid #FFFFFF;
 	text-align: left;
 	background-color: #b3b3b3;
 	background-image: url('images/day-header.png');
@@ -41,9 +40,9 @@
 
 #Utils_Calendar__week td.header_day_other a {
 	display: block;
-	line-height: 50px;
 	font-weight: bold;
 	font-size: 14px;
+	line-height: 50px;
 }
 
 /* header day today */
@@ -68,9 +67,9 @@
 
 #Utils_Calendar__week td.header_day_today a {
 	display: block;
-	line-height: 50px;
 	font-weight: bold;
 	font-size: 14px;
+	line-height: 50px;
 }
 
 /* weekend */
@@ -95,7 +94,6 @@
 	border-left: 1px solid #FFFFFF;
 	/*border-right: 1px solid #FFFFFF;*/
 	padding-left: 10px;
-	border-top: 1px solid #B3B3B3;
 	font-size: 14px;
 	font-weight: bold;
 	text-align: center;
@@ -110,7 +108,6 @@
 	vertical-align: top;
 	color: #FFFFFF;
 	border-top: 1px solid #B3B3B3;
-	border-left: 1px solid #B3B3B3;
 	text-align: center;
 	/*background-color: #CFDAE6;*/
 	background-color: #336699;
@@ -201,12 +198,44 @@ div.week-menu .add-info:hover {
 /* trash */
 
 div.week-menu .trash {
+	display: block;
 	margin-left: 20px;
-	padding: 2px;
+	padding: 3px;
+	height: 32px;
+	width: 128px;
 	border: 1px solid #F0F0F0;
 }
 
+div.week-menu .trash .icon {
+	display: block;
+	float: left;
+	width: 32px;
+	height: 32px;
+}
+
+div.week-menu .trash .text {
+	display: block;
+	float: left;
+	width: 96px;
+	height: 32px;
+	color: #F0F0F0;
+	vertical-align: middle;
+	text-align: center;
+}
+
 div.week-menu .trash:hover {
-	background-color: white;
-	border: 1px solid #993333;
+	background-color: #F0F0F0;
+	border-top: 1px solid #B3B3B3;
+	border-left: 1px solid #B3B3B3;
+	border-right: 1px solid #FFFFFF;
+	border-bottom: 1px solid #FFFFFF;
+}
+
+div.week-menu .trash:hover .text {
+	color: #777777;
+}
+
+div.week-menu .trash:hover img {
+	padding-top: 1px;
+	padding-left: 1px;
 }
