@@ -35,10 +35,10 @@
     text-align: center;
 }
 
-#Utils_Calendar__event #event_menu {
+#Utils_Calendar__event .event_menu {
     width: 106px;
     height: 36px;
-    display: none;
+    display: block;
     position: absolute;
     top: 0px;
     left: 1px;

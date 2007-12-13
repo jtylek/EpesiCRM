@@ -6,7 +6,7 @@
 
 <span id="Utils_Calendar__event">
 
-    <span id="event_menu">
+    <span class="event_menu" id="event_menu_{$event_id}">
         <!-- SHADIW BEGIN -->
         <div class="layer" style="padding: 10px; width: 86px;">
         	<div class="content_shadow">
@@ -36,8 +36,8 @@
     
     <div class="row">
         <span id="event_grab" class="{$handle_class}"><img {$tip_tag_attrs} border=0 src="{$theme_dir}/Utils_Calendar__grab.png"></span>
-        <span id="event_time">time</span>
-        <span id="event_info"><img {$tip_tag_attrs} src="{$theme_dir}/Utils_Calendar__info.png" onClick="event_menu()" width="14" height="14" border="0"></span>
+        <span id="event_time">time {$event_id}</span>
+        <span id="event_info"><img {$tip_tag_attrs} src="{$theme_dir}/Utils_Calendar__info.png" onClick="event_menu('{$event_id}')" width="14" height="14" border="0"></span>
     </div>
      <div class="row">
         <span id="event_title" {$view_action}>{$title}</span>
