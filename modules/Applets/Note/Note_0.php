@@ -16,6 +16,7 @@ class Applets_Note extends Module {
 	}
 
 	public function applet($values, $opts) { //available applet options: toggle,href,title,go,go_function,go_arguments,go_contruct_arguments
+		Base_ThemeCommon::load_css($this->get_type());
 		$opts['title'] = $values['title'];
 		print ('<div id="Applets_Note"><div class="note-' . $values['bcolor'] . '">');
  		print (str_replace("\n",'<br>',$values['text']));
