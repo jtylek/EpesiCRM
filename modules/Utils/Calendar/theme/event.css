@@ -13,7 +13,7 @@
     height: 18px;
 }
 
-#Utils_Calendar__event .grab {
+#Utils_Calendar__event #event_grab {
     display: block;
     float: left;
     cursor: move;
@@ -22,7 +22,7 @@
     background-color: #339933;
 }
 
-#Utils_Calendar__event .time {
+#Utils_Calendar__event #event_time {
     display: block;
     float: left;
     padding-left: 5px;
@@ -36,17 +36,33 @@
 }
 
 #Utils_Calendar__event #event_menu {
+    width: 106px;
+    height: 36px;
     display: none;
-    padding-top: 2px;
-    text-align: center;
-	background-image: url('images/header-light-green-hover.png');
+    position: absolute;
+    top: 0px;
+    left: 1px;
+    z-index: 5;
 }
 
-#Utils_Calendar__event #event_menu img {
-    padding-left: 5px;
+#Utils_Calendar__event #event_menu_content {
+    display: block;
+    width: 80px;
+    height: 20px;
+	background-color: #e6ecf2;
+    padding-left: 3px;
+    padding-right: 3px;
 }
 
-#Utils_Calendar__event .info {
+#Utils_Calendar__event #event_menu_content img {
+    padding: 3px;
+}
+
+#Utils_Calendar__event #event_menu_content img:hover {
+    background-color: white;
+}
+
+#Utils_Calendar__event #event_info {
     display: block;
     float: right;
     padding-top: 2px;
@@ -55,5 +71,5 @@
     cursor: help;
 }
 
-#Utils_Calendar__event .info:hover {
+#Utils_Calendar__event #event_info:hover {
 }
