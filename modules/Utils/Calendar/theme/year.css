@@ -192,7 +192,7 @@ div.year-menu a.button:hover {
     /*background-image: url("images/header-blue-hover.png");*/
 }
 
-div.year-menu table {
+div.year-menu table.menu {
 	width: 100%;
 }
 

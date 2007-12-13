@@ -1,5 +1,5 @@
 <div class="year-menu">
-	<table border="0"><tr>
+	<table border="0" class="menu"><tr>
 		<td class="empty"></td>
 		<td style="width: 10px;"></td>
 		<td><a class="button" {$prevyear_href}>{$prevyear_label}&nbsp;&nbsp;<img border="0" width="8" height="8" src="{$theme_dir}/Utils_Calendar__prev.png"></a></td>
