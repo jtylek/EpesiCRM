@@ -183,6 +183,7 @@ class Utils_Calendar extends Module {
 	private function print_event($ev) {
 		$th = $this->init_module('Base/Theme');
 		$ex = $this->process_event($ev);
+		$th->assign('event_id',$ev['id']);
 		$th->assign('title',strip_tags($ev['title']));
 		$th->assign('description',$ev['description']);
 		$th->assign('start',$ex['start']);
