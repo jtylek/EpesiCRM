@@ -6,7 +6,7 @@
 
 <span id="Utils_Calendar__event">
 
-    <span class="event_menu" id="event_menu_{$event_id}">
+    <span class="event_menu" id="event_menu_{$event_id}" style="display: none;">
         <!-- SHADIW BEGIN -->
         <div class="layer" style="padding: 10px; width: 86px;">
         	<div class="content_shadow">
