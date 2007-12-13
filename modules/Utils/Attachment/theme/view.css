@@ -17,10 +17,12 @@
 #Utils_Attachment__view .file {
     vertical-align: top;
     text-align: center;
-    padding-right: 10px;
+    padding: 5px;
 }
 
 #Utils_Attachment__view .note {
+    width: 100%;
+    vertical-align: top;
 }
 
 .Utils_Attachment__table {
