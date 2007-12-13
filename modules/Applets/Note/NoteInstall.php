@@ -4,7 +4,7 @@
  * @author pbukowski@telaxus.com
  * @copyright pbukowski@telaxus.com
  * @license SPL
- * @version 0.1
+ * @version 1.1
  * @package applets-note
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
@@ -22,7 +22,7 @@ class Applets_NoteInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array("1.0");
+		return array("1.1");
 	}
 	
 	public function requires($v) {
