@@ -1,4 +1,4 @@
-<?php
+<?php 
 /**
  * Example event module
  * @author pbukowski@telaxus.com
@@ -13,31 +13,29 @@ class Tests_Calendar_EventInstall extends ModuleInstall {
 
 	public function install() {
 		$ret = true;
-		$ret &= DB::CreateTable('tests_calendar_event',
-			'id I AUTO KEY,' .
+		$ret &= DB::CreateTable("tests_calendar_event",
+			"id I AUTO KEY," .
 
-			'title C(64) NO NULL, ' .
-			'description X, ' .
+			"title C(64) NO NULL, " .
+			"description X, " .
 
-			'start I4 NOT NULL, ' .
-			'duration I4 NOT NULL, ' .
-			'timeless I DEFAULT 0, ' .
+			"start I4 NOT NULL, " .
+			"duration I4 NOT NULL, " .
+			"timeless I DEFAULT 0, " .
 
-			'created_on T NOT NULL,' .
-			'created_by I4 REFERENCES user_login(id),' .
-			'edited_on T NOT NULL DEFAULT 0,' .
-			'edited_by I4 REFERENCES user_login(id)'
+			"created_on T NOT NULL," .
+			"created_by I4 REFERENCES user_login(id)," .
+			"edited_on T NOT NULL DEFAULT 0," .
+			"edited_by I4 REFERENCES user_login(id)"
 		);
 		if(!$ret) {
 			print('Unable to create tests_calendar_event table');
 			return false;
 		}
-		Base_ThemeCommon::install_default_theme('Tests/Calendar/Event');
 		return $ret;
 	}
 	
 	public function uninstall() {
-		Base_ThemeCommon::uninstall_default_theme('Tests/Calendar/Event');
 		return DB::DropTable('tests_calendar_event');
 	}
 	

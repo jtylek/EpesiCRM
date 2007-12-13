@@ -25,11 +25,6 @@ class Tests_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 	public static function update($id,$start,$timeless) { //make sure that event owner is Acl::get_user....
 		DB::Execute('UPDATE tests_calendar_event SET start=%d, timeless=%b WHERE id=%d',array($start,$timeless,$id));
 	}
-
-	public static function decode_contact($id) {
-		$contact = CRM_ContactsCommon::get_contact($id);
-		return $contact['First Name']." ".$contact['Last Name'];
-	}
 }
 
 ?>
