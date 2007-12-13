@@ -299,7 +299,7 @@ class Utils_Calendar extends Module {
 		if($this->isset_unique_href_variable('date'))
 			$this->set_date($this->get_unique_href_variable('date'));
 		$link_text = $this->create_unique_href_js(array('date'=>'__YEAR__-__MONTH__-__DAY__'));
-		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('day_selector', $link_text));
+		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('day_selector', $link_text,false));
 
 		$header_day = array('number'=>date('d',$this->date),
 							'label'=>date('l',$this->date),
@@ -394,7 +394,7 @@ class Utils_Calendar extends Module {
 		if($this->isset_unique_href_variable('date'))
 			$this->set_week_date($this->get_unique_href_variable('date'));
 		$link_text = $this->create_unique_href_js(array('date'=>'__YEAR__-__MONTH__-__DAY__'));
-		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text));
+		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text,false));
 
 		$week_shift = 86400*$this->get_module_variable('week_shift',0);
 
@@ -539,7 +539,7 @@ class Utils_Calendar extends Module {
 			$this->set_date($this->get_unique_href_variable('date'));
 
 		$link_text = $this->create_unique_href_js(array('date'=>'__YEAR__-__MONTH__-__DAY__'));
-		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text, 'month'));
+		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text,false,'month'));
 
 		$month = $this->month_array($this->date);
 		$dnd = array();
@@ -598,7 +598,7 @@ class Utils_Calendar extends Module {
 			$this->set_date($this->get_unique_href_variable('date'));
 
 		$link_text = $this->create_unique_href_js(array('date'=>'__YEAR__-__MONTH__-__DAY__'));
-		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text));
+		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text,false,'year'));
 
 
 		$day_headers = array();

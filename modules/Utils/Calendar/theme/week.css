@@ -183,7 +183,7 @@ div.week-menu a.button:hover {
     /*background-image: url("images/header-blue-hover.png");*/
 }
 
-div.week-menu table {
+div.week-menu table.menu {
 	width: 100%;
 }
 

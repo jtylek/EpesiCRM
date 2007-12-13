@@ -194,7 +194,7 @@ table#Utils_Calendar__month .month-header {
 	/*border-bottom: 4px solid #B3B3B3;*/
 }
 
-#month-menu table {
+#month-menu table.menu {
 	width: 100%;
 }
 

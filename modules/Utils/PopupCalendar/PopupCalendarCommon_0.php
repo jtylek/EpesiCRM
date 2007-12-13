@@ -2,11 +2,21 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_PopupCalendarCommon extends ModuleCommon {
-	public static function show($name,$function = '',$fullscreen=true,$top=0,$left=0) {
+	public static function show($name,$function = '',$fullscreen=true,$mode=null,$top=null,$left=null) {
 		Base_ThemeCommon::load_css('Utils_PopupCalendar');
 		load_js('modules/Utils/PopupCalendar/js/main.js');
-
-		$label = Base_LangCommon::ts('Utils_PopupCalendarCommon','Select date');
+		
+		if(!isset($mode) || $mode=='day') {
+			$mode = 'month';
+			$label = Base_LangCommon::ts('Utils_PopupCalendarCommon','Select date');
+		} elseif($mode=='month') {
+			$mode = 'year';
+			$label = Base_LangCommon::ts('Utils_PopupCalendarCommon','Select month');
+		} else {
+			$mode = 'decade';
+			$label = Base_LangCommon::ts('Utils_PopupCalendarCommon','Select year');
+		}
+		
 		$calendar = '<div id="Utils_PopupCalendar">'.
 			'<table cellspacing="0" cellpadding="0" border="0"><tr><td id="datepicker_'.$name.'_header">error</td></tr>'.
 			'<tr><td id="datepicker_'.$name.'_view">calendar not loaded</td></tr></table></div>';
@@ -23,7 +33,10 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 			$function .= ';leightbox_deactivate(\''.$entry.'\');';
 		} else {
 			$entry = 'datepicker_'.$name.'_calendar';
-			$ret = '<a onClick="$(\''.$entry.'\').toggle()" href="javascript:void(0)" class="button">'.$label.'</a>';
+			$butt = 'datepicker_'.$name.'_button';
+			$ret = '<a onClick="$(\''.$entry.'\').toggle()" href="javascript:void(0)" class="button" id="'.$butt.'">'.$label.'</a>';
+			if(!isset($left)) $left = 'expression( ($(\''.$butt.'\').getStyle(\'left\') )+\'px\')';
+			if(!isset($top)) $top = 'expression( ($(\''.$butt.'\').getStyle(\'top\')+$(\''.$butt.'\').getStyle(\'height\') )+\'px\')';
 			$ret .= '<div id="'.$entry.'" class="utils_popupcalendar_popup" style="top: '.Epesi::escapeJS($top,true,false).';left:'.Epesi::escapeJS($left,true,false).';display:none;z-index:8;position:absolute;">'.
 				$calendar.
 				'</div>';
@@ -31,8 +44,8 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 		}
 
 		eval_js(
-			'var datepicker_'.$name.' = new Utils_PopupCalendar("'.Epesi::escapeJS($function,true,false).'", \''.$name.'\');'.
-			'datepicker_'.$name.'.show_month()'
+			'var datepicker_'.$name.' = new Utils_PopupCalendar("'.Epesi::escapeJS($function,true,false).'", \''.$name.'\',\''.$mode.'\');'.
+			'datepicker_'.$name.'.show_'.$mode.'()'
 		);
 		return $ret;
 	}

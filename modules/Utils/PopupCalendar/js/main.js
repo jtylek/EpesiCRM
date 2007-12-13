@@ -1,7 +1,9 @@
-var Utils_PopupCalendar = function(link_proto, instance_id) {
+var Utils_PopupCalendar = function(link_proto, instance_id, mode) {
 		this.monthName = new Array('January','February','March','April','May','June','July','August','September','October','November','December');
 		this.link_proto = link_proto;
 		this.instance_id = instance_id;
+		if(typeof mode == 'undefined') mode='month';
+		this.mode = mode;
 		// show a month
 		this.show_month = function( month, year ) {
 			var days = new Array('Mon','Tue','Wed','Thu','Fri','Sat','Sun');
@@ -99,7 +101,7 @@ var Utils_PopupCalendar = function(link_proto, instance_id) {
 		}
 
 		//show a year
-		this.show_year = function( year ) {
+		this.show_year = function( year, show_month_on_click ) {
 			// formatting constants
 			var TRstart = '<tr>';
 			var TRend = '</tr>';
@@ -120,7 +122,7 @@ var Utils_PopupCalendar = function(link_proto, instance_id) {
 			}
 
 			// filling header
-			var header_string = '<table cellspacing="0" cellpadding="0" border="0"><tr>';
+			var header_string = '<table class="menu" cellspacing="0" cellpadding="0" border="0"><tr>';
 			header_string += '<td align=left><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_year(\''+prev_year+'\')">&lt;&lt</a></td>';
 			header_string += '<td width=100% align=center><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_decade(\''+(year - (year%10))+'\')">'+ year_real+'</a></td>';
 			header_string += '<td align=right><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_year(\''+next_year+'\')">&gt;&gt</a></td>';
@@ -139,7 +141,15 @@ var Utils_PopupCalendar = function(link_proto, instance_id) {
 				} else {
 					cal += '>';
 				}
-				cal += '<div class="month"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_month('+index+', '+year+')">';
+				var prep_link;
+				if(this.mode!='year') {
+					prep_link = 'datepicker_'+this.instance_id+'.show_month('+index+', '+year+')';
+				} else {
+					prep_link = this.link_proto.replace("__YEAR__", year_real);
+					prep_link = prep_link.replace("__MONTH__", (index+1));
+					prep_link = prep_link.replace("__DAY__", '1');
+				}
+				cal += '<div class="month"><a href="javascript:void(0)" onClick="'+prep_link+'">';
 				cal += this.monthName[index];
 				cal += '</a></div>' + TDend;
 
@@ -172,7 +182,7 @@ var Utils_PopupCalendar = function(link_proto, instance_id) {
 			}
 
 			// filling header
-			var header_string = '<table cellspacing="0" cellpadding="0" border="0"><tr>';
+			var header_string = '<table class="menu"  cellspacing="0" cellpadding="0" border="0"><tr>';
 			header_string += '<td align=left><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_decade(\''+prev_decade+'\')">&lt;&lt</a></td>';
 			header_string += '<td width=100% align=center><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_century(\''+(decade - (decade%100))+'\')">'+ decade_real + ' - ' + (decade_real+10) + '</a></td>';
 			header_string += '<td align=right><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_decade(\''+next_decade+'\')">&gt;&gt</a></td>';
@@ -191,7 +201,15 @@ var Utils_PopupCalendar = function(link_proto, instance_id) {
 				} else {
 					cal += '>';
 				}
-				cal += '<div class="month"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_year(' + (decade + index - 1) + ')">';
+				var prep_link;
+				if(this.mode!='decade') {
+					prep_link = 'datepicker_'+this.instance_id+'.show_year('+(decade+index-1)+')';
+				} else {
+					prep_link = this.link_proto.replace("__YEAR__", (decade_real+index-1));
+					prep_link = prep_link.replace("__MONTH__", '1');
+					prep_link = prep_link.replace("__DAY__", '1');
+				}
+				cal += '<div class="month"><a href="javascript:void(0)" onClick="'+prep_link+'">';
 				cal += (decade_real + index - 1);
 				cal += '</a></div>' + TDend;
 

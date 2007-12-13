@@ -1,5 +1,5 @@
 <div class="week-menu">
-	<table border="0"><tr>
+	<table border="0" class="menu"><tr>
 		<td class="add-info">
 			<div id="{$trash_id}" class="trash">
 				<div class="icon"><img border="0" width="32" height="32" src="{$theme_dir}/Utils_Calendar__trash.png"></div>
