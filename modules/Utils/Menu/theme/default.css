@@ -58,7 +58,6 @@ a.root_item_link {
 	z-index: 1000;
 	padding-top: 4px;
 	padding-bottom: 3px;
-	/*background-image: url("images/button-background-empty.png");*/
 }
 
 table.root a:hover {
