@@ -44,7 +44,7 @@
 						{if !isset($focus) && $f.type=="text"}
 							{assign var=focus value=$f.element}
 						{/if}
-						<td class="label" nowrap>{$f.label}{if $f.required}*{/if}</td>
+						<td class="label">{$f.label}{if $f.required}*{/if}</td>
 						<td class="data">{if $f.error}{$f.error}{/if}{$f.html}</td>
 						{assign var=x value=$x+1}
 						{* If more than half records displayed start new table - second column table *}
@@ -77,10 +77,10 @@
 			<td colspan="2">
 			<table cellpadding="0" cellspacing="0" border="0">
 				<tr>
-						{foreach key=k item=f from=$longfields name=fields}
-						<td class="label" nowrap>{$f.label}{if $f.required}*{/if}</td>
-						<td class="data">{if $f.error}{$f.error}{/if}{$f.html}</td>
-						{/foreach}
+					{foreach key=k item=f from=$longfields name=fields}
+						<td class="label long_label">{$f.label}{if $f.required}*{/if}</td>
+						<td class="data long_data">{if $f.error}{$f.error}{/if}{$f.html}</td>
+					{/foreach}
 				</tr>
 			</table>
 			</td>

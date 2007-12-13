@@ -1,11 +1,16 @@
 #Utils_Calendar__event {
     display: block;
-    height: 18px;
+    height: 36px;
 	margin: 1px;
 	border: 2px solid #339933;
 	background-color: #cfe6cf;
 	background-image: url('images/header-light-green.png');
     background-repeat: repeat-x;
+}
+
+#Utils_Calendar__event div.row {
+    display: block;
+    height: 18px;
 }
 
 #Utils_Calendar__event .grab {
@@ -17,11 +22,27 @@
     background-color: #339933;
 }
 
-#Utils_Calendar__event .title {
+#Utils_Calendar__event .time {
     display: block;
     float: left;
+    padding-left: 5px;
+}
+
+#Utils_Calendar__event #event_title {
+    display: block;
     color: black;
     padding-top: 2px;
+    text-align: center;
+}
+
+#Utils_Calendar__event #event_menu {
+    display: none;
+    padding-top: 2px;
+    text-align: center;
+	background-image: url('images/header-light-green-hover.png');
+}
+
+#Utils_Calendar__event #event_menu img {
     padding-left: 5px;
 }
 

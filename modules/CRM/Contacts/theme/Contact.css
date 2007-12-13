@@ -49,35 +49,43 @@
 .CRM_Contacts__table {
     width: 100%;
     vertical-align: middle;
+    height: 31px;
 }
 
 .CRM_Contacts__table .icon {
+    width: 32px;
+    height: 27px;
     text-align: left;
     padding-left: 20px;
+    padding-right: 10px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    vertical-align: top;
+    background-color: #336699;
+}
+
+.CRM_Contacts__table .icon img {
+    position: absolute;
+    clip: rect(0px 32px 28px 0px);
 }
 
 .CRM_Contacts__table .name {
+    width: 290px;
     text-align: left;
     font-size: 14px;
     font-weight: bold;
-    color: #336699;
-    padding-left: 20px;
+    color: #FFFFFF;
+    padding-left: 10px;
+    padding-top: 9px;
+    height: 22px;
+    vertical-align: top;
+    background-image: url('images/blue-gradient.png');
+    background-repeat: repeat-y;
 }
 
-.CRM_Contacts__table .required {
-    width: 100%;
-    text-align: center;
+.CRM_Contacts__table .required_fav_info {
     color: #777777;
     text-align: right;
-    padding-right: 10px;
-}
-
-.CRM_Contacts__table .fav {
-    padding-right: 5px;
-    padding-left: 5px;
-}
-
-.CRM_Contacts__table .info {
     padding-right: 20px;
 }
 

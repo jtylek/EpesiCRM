@@ -5,7 +5,7 @@
 	{/php}
 	<div class="buttons">
 		<input type="button" onClick="document.getElementById('recordbrowser_filters_{$id}').style.display='block';this.style.display='none';document.getElementById('hide_filter_b_{$id}').style.display='block';show_filters=1;" id="show_filter_b_{$id}" value="Show filters">
-		<input type="button" style="display:none" onClick="document.getElementById('recordbrowser_filters_{$id}').style.display='none';this.style.display='none';document.getElementById('show_filter_b_{$id}').style.display='block';show_filters=0;" id="hide_filter_b_{$id}" value="Hide filters">
+		<input type="button" style="display: none;" onClick="document.getElementById('recordbrowser_filters_{$id}').style.display='none';this.style.display='none';document.getElementById('show_filter_b_{$id}').style.display='block';show_filters=0;" id="hide_filter_b_{$id}" value="Hide filters">
 	</div>
 </div>
 
