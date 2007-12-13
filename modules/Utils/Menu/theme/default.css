@@ -128,7 +128,10 @@ img.link_icon {
 	margin: 2px;
 	vertical-align: middle;
 	z-index: 1000;
+	position: absolute;
+	width: 16px;
 	height: 16px;
+	clip: rect(0px 16px 13px 0px);
 }
 
 table.root a.root_item_link_down:hover {
