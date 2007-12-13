@@ -497,6 +497,7 @@ class Utils_RecordBrowser extends Module {
 									if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$field]));
 									break;
 				case 'long text':	$form->addElement('textarea', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
+									$form->addRule($args['id'], $this->lang->t('Maximum length for this field is 255.'), 'maxlength', 255);
 									if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$field]));
 									break;
 				case 'date':		$form->addElement('datepicker', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));

@@ -1,4 +1,5 @@
 {* Get total number of fields to display *}
+{assign var=count value=0}
 {foreach key=k item=f from=$fields name=fields}
 	{assign var=count value=$smarty.foreach.fields.total}
 {/foreach}
@@ -87,7 +88,7 @@
 </table>
 
 {php}
-	eval_js('focus_by_id(\''.$this->_tpl_vars['focus'].'\');');
+	if (isset($this->_tpl_vars['focus'])) eval_js('focus_by_id(\''.$this->_tpl_vars['focus'].'\');');
 {/php}
 
 </div>
