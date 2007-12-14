@@ -53,7 +53,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 				'body = document.getElementsByTagName(\'body\');'.
 				'body = body[0];'.
 				'document.body.appendChild(div);';
-			eval_js($js);
+			eval_js($js,false);
 			$_SESSION['client']['utils_tooltip'] = true;
 		}
 		return ' onMouseMove="Utils_Toltip__showTip(\''.escapeJS(htmlspecialchars($tip)).'\', event)" onMouseOut="Utils_Toltip__hideTip()" onMouseUp="Utils_Toltip__hideTip()" ';
