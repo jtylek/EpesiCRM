@@ -1,7 +1,7 @@
 <table id="Utils_Calendar__event_tip" border="0">
     <tbody>
         <tr>
-            <td colspan="2" style="background-color: white; text-align: center;">Click to show menu</td>
+            <td colspan="2" style="background-color: white; text-align: center;">Click to show / hide menu</td>
         </tr>
         <tr>
             <td class="label">Start</td><td class="data">{$start}</td>
