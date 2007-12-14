@@ -16,7 +16,6 @@ class CRM_CalendarCommon extends ModuleCommon {
 				$end_day[$x.':00'] = Base_RegionalSettingsCommon::convert_24h($x.':00');
 			return array(
 				'Calendar'=>array(
-					array('name'=>'first_day','label'=>'First day of week', 'type'=>'select', 'values'=>array(0=>'Sunday', 1=>'Monday', 2=>'Tuesday', 3=>'Wednestday', 4=>'Thursday', 5=>'Friday', 6=>'Saturday'), 'default'=>0),
 					array('name'=>'default_view','label'=>'Default view', 'type'=>'select', 'values'=>array('agenda'=>'Agenda', 'day'=>'Day', 'week'=>'Week', 'month'=>'Month', 'year'=>'Year'), 'default'=>'agenda'),
 
 					array('name'=>'start_day','label'=>'Start day at', 'type'=>'select', 'values'=>$start_day, 'default'=>'8:00'),

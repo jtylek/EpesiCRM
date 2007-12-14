@@ -6,8 +6,12 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 		Base_ThemeCommon::load_css('Utils_PopupCalendar');
 		load_js('modules/Utils/PopupCalendar/js/main.js');
 		
-		if(!isset($first_day_of_week)) $first_day_of_week=0;
-		elseif(!is_numeric($first_day_of_week))
+		if(!isset($first_day_of_week)) {
+			if(Acl::is_user())
+				$first_day_of_week=self::get_first_day_of_week();
+			else
+				$first_day_of_week=0;
+		} elseif(!is_numeric($first_day_of_week))
 			trigger_error('Invalid first day of week',E_USER_ERROR);
 		
 		if($mode=='month') {
@@ -50,6 +54,22 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 		);
 		return $ret;
 	}
+
+	public static function user_settings() {
+		if(Acl::is_user()) {
+			return array(
+				'Calendar'=>array(
+					array('name'=>'first_day_of_week','label'=>'First day of week', 'type'=>'select', 'values'=>array(0=>'Sunday', 1=>'Monday', 2=>'Tuesday', 3=>'Wednestday', 4=>'Thursday', 5=>'Friday', 6=>'Saturday'), 'default'=>0),
+				)
+			);
+		}
+		return array();
+	}
+	
+	public static function get_first_day_of_week() {
+		return Base_User_SettingsCommon::get('Utils_PopupCalendar','first_day_of_week');
+	}
+
 }
 
 $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['datepicker'] = array('modules/Utils/PopupCalendar/datepicker.php','HTML_QuickForm_datepicker');
