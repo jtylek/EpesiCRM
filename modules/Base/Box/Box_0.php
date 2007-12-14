@@ -51,7 +51,7 @@ class Base_Box extends Module {
 			$containers[$tag]['name'] = 'b'.$name;
 		}
 
-		$pop_main = & $this->get_module_variable('pop_main');
+		$pop_main = isset($_REQUEST['base_box_pop_main']);
 		if($this->isset_module_variable('main')) {
 			$mains = $this->get_module_variable('main');
 			if($pop_main) array_pop($mains);
@@ -84,6 +84,7 @@ class Base_Box extends Module {
 		}
 		array_push($mains,$containers['main']);
 		//error_log(print_r($mains,true)."\n\n\n",3,'data/log');
+		$main_length = count($mains);
 		$this->set_module_variable('main', $mains);
 		//print_r($containers);
 
@@ -101,10 +102,8 @@ class Base_Box extends Module {
 				else
 					$this->modules[$k] = $this->init_module($module_type,(isset($v['constructor_arguments'])?$v['constructor_arguments']:null),$v['name']);
 
-				if($k=='main' && $pop_main) {
+				if($k=='main' && $pop_main)
 					$this->modules[$k]->set_reload(true);
-					$pop_main = false;
-				}
 
 				if(isset($v['function']))
 					$this->display_module($this->modules[$k],isset($v['arguments'])?$v['arguments']:null,$v['function']);
@@ -143,10 +142,8 @@ class Base_Box extends Module {
 
 	public function pop_main() {
 		$mains = & $this->get_module_variable('main');
-		if(count($mains)>1) {
-			$this->set_module_variable('pop_main',true);
-			location();
-		}
+		if(count($mains)>1)
+			location(array('base_box_pop_main'=>1));
 	}
 }
 ?>

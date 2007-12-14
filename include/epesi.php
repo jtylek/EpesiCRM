@@ -249,13 +249,17 @@ class Epesi {
 				$debug .= '<hr style="height: 3px; background-color:black">';
 				$debug .= '<b> Checking '.$k.', &nbsp;&nbsp;&nbsp; parent='.$v['module']->get_parent_path().'</b><ul>'.
 					'<li>Force - '.(isset($reload)?print_r($reload,true):'not set').'</li>'.
-					'<li>First display - '.(isset ($_SESSION['client']['__module_content__'][$k])?'no</li><li>Content changed - '.(($_SESSION['client']['__module_content__'][$k]['value'] !== $v['value'])?'yes':'no').'</li><li>JS changed - '.(($_SESSION['client']['__module_content__'][$k]['js'] !== $v['js'])?'yes':'no'):'yes').'</li>'.
+					'<li>First display - '.(isset ($_SESSION['client']['__module_content__'][$k])?'no</li>'.
+					'<li>Content changed - '.(($_SESSION['client']['__module_content__'][$k]['value'] !== $v['value'])?'yes':'no').'</li>'.
+					'<li>JS changed - '.(($_SESSION['client']['__module_content__'][$k]['js'] !== $v['js'])?'yes':'no'):'yes').'</li>'.
 					'<li>Parent reloaded - '.(isset($reloaded[$parent])?'yes':'no').'</li>'.
+					'<li>History call - '.(($history_call)?'yes':'no').'</li>'.
 					'</ul>';
 			}
 			if ((!isset($reload) && (!isset ($_SESSION['client']['__module_content__'][$k])
 				 || $_SESSION['client']['__module_content__'][$k]['value'] !== $v['value'] //content differs
 				 || $_SESSION['client']['__module_content__'][$k]['js'] !== $v['js']))
+				 || $history_call
 				 || $reload == true || isset($reloaded[$parent])) { //force reload or parent reloaded
 				if(DEBUG && isset($_SESSION['client']['__module_content__'])){
 					$debug .= '<b>Reloading: '.(isset($v['span'])?';&nbsp;&nbsp;&nbsp;&nbsp;span='.$v['span'].',':'').'&nbsp;&nbsp;&nbsp;&nbsp;triggered='.(($reload==true)?'force':'auto').',&nbsp;&nbsp;</b><hr><b>New value:</b><br><pre>'.htmlspecialchars($v['value']).'</pre>'.(isset($_SESSION['client']['__module_content__'][$k]['value'])?'<hr><b>Old value:</b><br><pre>'.htmlspecialchars($_SESSION['client']['__module_content__'][$k]['value']).'</pre>':'');
