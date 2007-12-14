@@ -12,9 +12,11 @@ add_event:function(dest_id,ev_id,title) {
 		revert: true
 	});
 },
+ids:null,
 activate_dnd:function(ids_in,new_ev,mpath,ecid) {
-	var ids = ids_in.evalJSON();
-	ids.each(function(id) {
+//	alert('act');
+	Utils_Calendar.ids = ids_in.evalJSON();
+	Utils_Calendar.ids.each(function(id) {
 		var cell_id = 'UCcell_'+id[0];
 		var f = new_ev.replace('__TIME__',id[0]);
 		if(id.length==2) {
@@ -89,5 +91,16 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 			});
 		}
 	});
+},
+destroy:function() {
+//	alert('destroy');
+	if(Utils_Calendar.ids==null) return;
+	Utils_Calendar.ids.each(function(id) {
+		var cell_id = 'UCcell_'+id[0];
+		Droppables.remove(cell_id);
+	});
+	
+	Droppables.remove('UCtrash');
 }
-}
+};
+document.observe('e:loading', Utils_Calendar.destroy);

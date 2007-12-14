@@ -46,6 +46,9 @@ var Epesi = {
 				Epesi.updateIndicator();
 				Epesi.append_js('Event.fire(document,\'e:load\');');
 			},
+			onSuccess: function(t) {
+				Event.fire(document,'e:loading');
+			},
 			onException: function(t,e) {
 				throw(e);
 			},
