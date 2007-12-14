@@ -2,19 +2,20 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_PopupCalendarCommon extends ModuleCommon {
-	public static function show($name,$function = '',$fullscreen=true,$mode=null,$top=null,$left=null) {
+	public static function show($name,$function = '',$fullscreen=true,$mode=null,$first_day_of_week=null,$top=null,$left=null) {
 		Base_ThemeCommon::load_css('Utils_PopupCalendar');
 		load_js('modules/Utils/PopupCalendar/js/main.js');
 		
-		if(!isset($mode) || $mode=='day') {
-			$mode = 'month';
-			$label = Base_LangCommon::ts('Utils_PopupCalendarCommon','Select date');
-		} elseif($mode=='month') {
-			$mode = 'year';
+		if(!isset($first_day_of_week)) $first_day_of_week=0;
+		elseif(!is_numeric($first_day_of_week))
+			trigger_error('Invalid first day of week',E_USER_ERROR);
+		
+		if($mode=='month') {
 			$label = Base_LangCommon::ts('Utils_PopupCalendarCommon','Select month');
-		} else {
-			$mode = 'decade';
+		} elseif($mode=='year') {
 			$label = Base_LangCommon::ts('Utils_PopupCalendarCommon','Select year');
+		} else {
+			$label = Base_LangCommon::ts('Utils_PopupCalendarCommon','Select date');
 		}
 		
 		$calendar = '<div id="Utils_PopupCalendar">'.
@@ -44,8 +45,8 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 		}
 
 		eval_js(
-			'var datepicker_'.$name.' = new Utils_PopupCalendar("'.Epesi::escapeJS($function,true,false).'", \''.$name.'\',\''.$mode.'\');'.
-			'datepicker_'.$name.'.show_'.$mode.'()'
+			'var datepicker_'.$name.' = new Utils_PopupCalendar("'.Epesi::escapeJS($function,true,false).'", \''.$name.'\',\''.$mode.'\',\''.$first_day_of_week.'\');'.
+			'datepicker_'.$name.'.show()'
 		);
 		return $ret;
 	}
