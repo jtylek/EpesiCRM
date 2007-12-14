@@ -430,7 +430,7 @@ class Utils_Calendar extends Module {
 			$link = $this->create_callback_href(array($this, 'view_date'), array($currday, 'Week'));
 			for ($i=0; $i<7; $i++) {
 				$week[] = array(
-							'day'=>date('d', $currday),
+							'day'=>date('j', $currday),
 							'day_link' => $this->create_callback_href(array($this, 'view_date'), array($currday, 'Day')),
 							'style'=>(date('m', $currday)==$curmonth)?(date('Y-m-d',$currday)==$today?'today':'current'):'other',
 							'time'=>$currday
