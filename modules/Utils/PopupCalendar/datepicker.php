@@ -33,7 +33,7 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 					'new Ajax.Request(\'modules/Utils/PopupCalendar/up.php\','.
 					'{method:\'post\', parameters:{date: __YEAR__+\'-\'+__MONTH__+\'-\'+__DAY__},'.
 					'onSuccess:function(t){$(\''.Epesi::escapeJS($id,false).'\').value=t.responseText;}})',
-					false,null,'expression( ($(\''.$id.'\').getStyle(\'top\') )+\'px\')','expression( ($(\''.$id.'\').getStyle(\'left\') )+\'px\')');
+					false,null,null,'expression( ($(\''.$id.'\').getStyle(\'top\') )+\'px\')','expression( ($(\''.$id.'\').getStyle(\'left\') )+\'px\')');
 				
 			load_js('modules/Utils/PopupCalendar/datepicker.js');
 			eval_js('Event.observe(\''.$id.'\',\'keypress\',Utils_PopupCalendarDatePicker.validate.bindAsEventListener(Utils_PopupCalendarDatePicker,\''.Epesi::escapeJS($date_format,false).'\'))');
