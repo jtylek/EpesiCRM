@@ -5,13 +5,13 @@
 
 
 #Utils_Attachment__view .header {
-    height: 20px;
+    height: 40px;
     color: #FFFFFF;
     vertical-align: middle;
     text-align: center;
-    background-color: #336699;
-    background-image: url('images/header-blue.png');
-    background-repeat: repeat-x;
+    font-size: 14px;
+    font-weight: bold;
+    background-color: #666666;
 }
 
 #Utils_Attachment__view .file {
@@ -26,6 +26,9 @@
 #Utils_Attachment__view .note {
     width: 100%;
     vertical-align: top;
+    min-height: 500px;
+    background-image: url('images/notebook.png');
+    background-repeat: repeat-y;
 }
 
 .Utils_Attachment__table {
@@ -43,7 +46,7 @@
     padding-top: 2px;
     padding-bottom: 2px;
     vertical-align: top;
-    background-color: #336699;
+    background-color: #666666;
 }
 
 .Utils_Attachment__table .icon img {
