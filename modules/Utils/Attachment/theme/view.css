@@ -1,34 +1,61 @@
 #Utils_Attachment__view {
     width: 100%;
     background-color: #FFFFFF;
+    height: 400px;
 }
 
 
 #Utils_Attachment__view .header {
+    color: #000000;
     height: 40px;
-    color: #FFFFFF;
+    background-color: #E3E3E3;
+    font-size: 12px;
+    font-weight: bold;
     vertical-align: middle;
     text-align: center;
-    font-size: 14px;
-    font-weight: bold;
-    background-color: #666666;
+    background-repeat: repeat-x;
 }
 
 #Utils_Attachment__view .file {
     vertical-align: top;
     text-align: left;
-    font-size: 14px;
-    font-weight: bold;
-    padding: 5px;
+    font-size: 12px;
+    height: 40px;
+    vertical-align: middle;
     background-color: #E3E3E3;
 }
 
-#Utils_Attachment__view .note {
+#Utils_Attachment__view .file a {
+    padding-left: 10px;
+    padding-right: 10px;
+    display: block;
+    line-height: 40px;
+    height: 40px;
+}
+
+#Utils_Attachment__view .file_icon a {
+    padding-top: 4px;
+    padding-bottom: 4px;
+    line-height: 32px;
+    height: 32px;
+}
+
+#Utils_Attachment__view .file a:hover {
+    background-color: #e6cfcf;
+}
+
+#Utils_Attachment__view .desc {
     width: 100%;
+    vertical-align: middle;
+    background-color: #E3E3E3;
+    padding-left: 10px;
+    color: #777777;
+}
+
+#Utils_Attachment__view .note {
+    padding-left: 10px;
+    padding-right: 10px;
     vertical-align: top;
-    min-height: 500px;
-    background-image: url('images/notebook.png');
-    background-repeat: repeat-y;
 }
 
 .Utils_Attachment__table {
@@ -64,7 +91,7 @@
     padding-top: 7px;
     height: 24px;
     vertical-align: top;
-    background-image: url('images/blue-gradient.png');
+    background-image: url('images/dark-gray-gradient.png');
     background-repeat: repeat-y;
 }
 
