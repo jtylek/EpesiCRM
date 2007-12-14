@@ -1,20 +1,9 @@
 @CHARSET "ISO-8859-1";
 
-/* ???
-p.event {
-	font-size: 7px;
-	line-height: 11px;
-	margin: 4px 0px 2px 0px;
-	position: absolute;
-}
-*/
-
 /* Utils_Calendar__month */
 
 table#Utils_Calendar__month {
 	width: 100%;
-	border-left: 1px solid #B3B3B3;
-	border-top: 1px solid #B3B3B3;
 	background-color: #336699;
 }
 
@@ -41,7 +30,7 @@ table#Utils_Calendar__month td.current {
 	background-color: #FFFFFF;
 }
 
-table#Utils_Calendar__month td.current a {
+table#Utils_Calendar__month a.day_link {
 	font-size: 14px;
 }
 
@@ -51,7 +40,6 @@ table#Utils_Calendar__month td.other {
 }
 
 table#Utils_Calendar__month td.other a {
-	font-size: 14px;
 	color: #B3B3B3;
 }
 
@@ -84,7 +72,7 @@ table#Utils_Calendar__month td.week-number {
 	text-align: center;
 	vertical-align: middle;
 	background-color: #336699;
-	border-top: 1px solid #FFFFFF;
+	border-bottom: 1px solid #FFFFFF;
 }
 
 table#Utils_Calendar__month td.week-number a {
@@ -97,32 +85,6 @@ table#Utils_Calendar__month td.week-number a {
 table#Utils_Calendar__month td.week-number a:hover {
 	background-color: #339933;
 }
-/*
-span.day-number {
-	font-size: 14px;
-}
-*/
-/* ???
-	.holiday {
-		font-weight: bold;
-		border: 1px dotted #999999;
-		background-color: #e3f7e5;
-	}
-	.holiday_today {
-		font-weight: bold;
-		border: 1px solid #000000;
-		background-color: #e3f7e5;
-	}
-	.weekend {
-		background: #fff3f5;
-	}
-	a.new_event {
-		padding: 0px 4px 0px 4px;
-		border: 1px solid transparent;
-		margin: 15px;
-		text-decoration: none;
-	}
-*/
 
 /* event */
 
@@ -187,6 +149,15 @@ table#Utils_Calendar__month .month-header {
 	text-align: center;
 }
 
+table#Utils_Calendar__month .month-header a {
+	color: #FFFFFF;
+	padding: 6px;
+}
+
+table#Utils_Calendar__month .month-header a:hover {
+	background-color: #336699;
+}
+
 /* month-menu */
 
 #month-menu {
@@ -231,4 +202,49 @@ table#Utils_Calendar__month .month-header {
 #month-menu a.button:hover {
 	background-color: #339933;
     /*background-image: url("images/header-blue-hover.png");*/
+}
+
+/* trash */
+
+#month-menu .trash {
+	display: block;
+	margin-left: 20px;
+	padding: 3px;
+	height: 32px;
+	width: 128px;
+	border: 1px solid #F0F0F0;
+}
+
+#month-menu .trash .icon {
+	display: block;
+	float: left;
+	width: 32px;
+	height: 32px;
+}
+
+#month-menu .trash .text {
+	display: block;
+	float: left;
+	width: 96px;
+	height: 32px;
+	color: #F0F0F0;
+	vertical-align: middle;
+	text-align: center;
+}
+
+#month-menu .trash:hover {
+	background-color: #F0F0F0;
+	border-top: 1px solid #B3B3B3;
+	border-left: 1px solid #B3B3B3;
+	border-right: 1px solid #FFFFFF;
+	border-bottom: 1px solid #FFFFFF;
+}
+
+#month-menu .trash:hover .text {
+	color: #777777;
+}
+
+#month-menu .trash:hover img {
+	padding-top: 1px;
+	padding-left: 1px;
 }

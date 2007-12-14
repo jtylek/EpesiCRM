@@ -15,8 +15,6 @@ p.event {
 /* classes for big table */
 
 #Utils_Calendar__year {
-	border-left: 1px solid #B3B3B3;
-	border-top: 1px solid #B3B3B3;
 }
 
 #Utils_Calendar__year td {
@@ -77,7 +75,19 @@ p.event {
 	color: #000000;
 	background-color: #E6ECF2;
 	font-weight: bold;
-	border: 1px solid #336699;
+	border: 2px solid #336699;
+}
+
+#Utils_Calendar__year td.today a {
+	display: block;
+	width: 28px;
+	line-height: 18px;
+	padding-top: 2px;
+	padding-right: 2px;
+}
+
+#Utils_Calendar__year td.today a:hover {
+	background-color: #e6cfcf;
 }
 
 /* header */
@@ -96,7 +106,7 @@ p.event {
 	text-align: center;
 	vertical-align: middle;
 	background-color: #336699;
-	border-top: 1px solid #FFFFFF;
+	border-bottom: 1px solid #FFFFFF;
 }
 
 #Utils_Calendar__year td.week-number a {

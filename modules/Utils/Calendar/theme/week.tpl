@@ -3,7 +3,7 @@
 		<td class="add-info">
 			<div id="{$trash_id}" class="trash">
 				<div class="icon"><img border="0" width="32" height="32" src="{$theme_dir}/Utils_Calendar__trash.png"></div>
-				<div class="text">Put the object<br>to trash</div>
+				<div class="text">Drag and drop<br>to delete</div>
 			</div>
 		</td>
 		<td class="empty"></td>
@@ -31,13 +31,13 @@
 {* shows month *}
 		<tr>
 			<td class="hours_header" rowspan="2"><img src="{$theme_dir}/Utils_Calendar__icon-week.png" width="32" height="32" border="0"><br>{$week_view_label}</td>
-			<td class=header_month colspan="{$header_month.first_span.colspan}">
+			<td class="header_month" colspan="{$header_month.first_span.colspan}">
 				<a {$header_month.first_span.month_link}>{$header_month.first_span.month}</a>
 				 &bull;
 				<a {$header_month.first_span.year_link}>{$header_month.first_span.year}</a>
 			</td>
 			{if isset($header_month.second_span)}
-				<td class=header_month colspan="{$header_month.second_span.colspan}">
+				<td class="header_month" colspan="{$header_month.second_span.colspan}">
 					<a {$header_month.second_span.month_link}>{$header_month.second_span.month}</a>
 					 &bull;
 					<a {$header_month.second_span.year_link}>{$header_month.second_span.year}</a>

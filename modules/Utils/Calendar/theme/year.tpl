@@ -13,7 +13,7 @@
 
 
 <!-- SHADIW BEGIN -->
-	<div class="layer" style="padding: 9px; width: 766px;">
+	<div class="layer" style="padding: 9px; width: 764px;">
 		<div class="content_shadow">
 <!-- -->
 
@@ -26,10 +26,10 @@
 		<td style="vertical-align: top">
             <table name="CRMCalendar" id="Utils_Calendar__year" cellpadding="0" cellspacing="0" border="0">
             	<tr>
-            		<td class="header-month" rowspan="2">&nbsp;</td>
-            		<td class="header-month" colspan="7"><a {$month.month_link}>{$month.month_label} &bull; {$month.year_label}</a></td>
+            		<td class="header-month" colspan="8"><a {$month.month_link}>{$month.month_label} &bull; {$month.year_label}</a></td>
             	</tr>
             	<tr>
+            		<td class="week-number">&nbsp;</td>
             		{foreach item=header from=$day_headers}
             			<td class="header">{$header}</td>
             		{/foreach}

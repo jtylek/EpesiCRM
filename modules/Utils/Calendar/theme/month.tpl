@@ -1,6 +1,11 @@
 <div id="month-menu">
 	<table border="0" class="menu"><tr>
-                <td class="add-info"><div id="{$trash_id}" class="trash"><img border="0" width="32" height="32" src="{$theme_dir}/Utils_Calendar__trash.png"></div></td>
+		<td class="add-info">
+			<div id="{$trash_id}" class="trash">
+				<div class="icon"><img border="0" width="32" height="32" src="{$theme_dir}/Utils_Calendar__trash.png"></div>
+				<div class="text">Drag and drop<br>to delete</div>
+			</div>
+		</td>
 		<td class="empty"></td>
 		<td style="width: 10px;"></td>
 		<td><a class="button" {$prevyear_href}><img border="0" width="8" height="8" src="{$theme_dir}/Utils_Calendar__prev.png">&nbsp;&nbsp;{$prevyear_label}</a></td>
@@ -24,11 +29,11 @@
 
 	<table name="CRMCalendar" id="Utils_Calendar__month" cellpadding="0" cellspacing="0" border="0">
 		<tr>
-			<td class="month-header" rowspan="2">&nbsp;<!-- <img src="{$theme_dir}/Utils_Calendar__icon.png" width="32" height="32" border="0"> --></td>
-			<td class="month-header" colspan="7">{$month_label} &bull; <a {$year_link}>{$year_label}</a></td>
+			<td class="month-header" colspan="8">{$month_label} &bull; <a {$year_link}>{$year_label}</a></td>
 		</tr>
 
 		<tr>
+			<td class="week-number">&nbsp;</td>
 			{foreach item=header from=$day_headers}
                 <td class="header">{$header}</td>
 			{/foreach}
@@ -38,7 +43,7 @@
 			<tr>
 				<td class="week-number"><a {$week.week_link}>{$week.week_label}</a></td>
 				{foreach item=day from=$week.days}
-					<td class="day {$day.style}" id="{$day.id}"><a {$day.day_link}>{$day.day}</a></td>
+					<td class="day {$day.style}" id="{$day.id}"><a class="day_link" {$day.day_link}>{$day.day}</a></td>
 				{/foreach}
 			</tr>
 		{/foreach}

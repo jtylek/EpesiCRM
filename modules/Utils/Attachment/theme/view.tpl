@@ -14,25 +14,27 @@
 		<div class="content_shadow">
 <!-- -->
 
-    <table id="Utils_Attachment__view" border="0" cellpadding="5" cellspacing="5">
+    <table id="Utils_Attachment__view" border="0" cellpadding="0" cellspacing="5">
     	<tbody>
     		<tr>
-    			<td class="header">{$header}</td>
+    			<td class="header" colspan="3">{$header}</td>
         	</tr>
             <tr>
-                <td class="note">{$note}</td>
+                <td class="note" colspan="3">{$note}</td>
             </tr>
 			{if $file!=''}
 			<tr>
-				<td class="file">
-                    <div>
+				<td class="file file_icon">
                     {$__link.file.open}
-                    <img src="{$theme_dir}/Utils_Attachment__attach.png" alt="" align="left" border="0" width="32" height="32">
-                    <div style="height: 5px;"></div>
-                    <span>{$__link.file.text}</span>
+                        <img src="{$theme_dir}/Utils_Attachment__attach.png" alt="" align="left" border="0" width="32" height="32">
                     {$__link.file.close}
-                    </div>
+                </td>            
+				<td class="file">
+                    {$__link.file.open}
+                        <span>{$__link.file.text}</span>
+                    {$__link.file.close}
                 </td>
+                <td class="desc">File size: 2000 KB<br>Created by: admin</td>
 			</tr>
 			{/if}
     	</tbody>

@@ -16,7 +16,6 @@
 	text-align: center;
 	color: #339933;
 	/*font-weight: bold;*/
-	border: 0px;
 	background-color: #FFFFFF;
 }
 
@@ -24,25 +23,25 @@
 
 #Utils_Calendar__week td.header_day_other {
 	vertical-align: middle;
-	border-left: 1px solid #FFFFFF;
-	text-align: left;
-	background-color: #b3b3b3;
-	background-image: url('images/day-header.png');
-	background-repeat: repeat-x;
+	border-right: 1px solid #FFFFFF;
+	border-left: 1px solid #B3B3B3;
 	width: 13%;
-	padding-left: 5px;
-	padding-right: 5px;
-}
-
-#Utils_Calendar__week td.header_day_other:hover {
-	background-image: url('images/day-header-hover.png');
+	padding: 0px;
 }
 
 #Utils_Calendar__week td.header_day_other a {
 	display: block;
 	font-weight: bold;
 	font-size: 14px;
+	background-image: url('images/day-header.png');
+	background-repeat: repeat-x;
 	line-height: 50px;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+#Utils_Calendar__week td.header_day_other a:hover {
+	background-image: url('images/day-header-hover.png');
 }
 
 /* header day today */
@@ -50,26 +49,26 @@
 #Utils_Calendar__week td.header_day_today {
 	vertical-align: middle;
 	font-size: 14px;
-	text-align: left;
-	background-color: #CFDAE6;
-	background-image: url('images/day-header-today.png');
-	background-repeat: repeat-x;
 	width: 13%;
-	padding-left: 5px;
-	padding-right: 5px;
 	border-left: 2px solid #336699;
 	border-right: 2px solid #336699;
-}
-
-#Utils_Calendar__week td.header_day_today:hover {
-	background-image: url('images/day-header-today-hover.png');
+	padding: 0px;
 }
 
 #Utils_Calendar__week td.header_day_today a {
 	display: block;
 	font-weight: bold;
 	font-size: 14px;
+	background-color: #CFDAE6;
+	background-image: url('images/day-header-today.png');
+	background-repeat: repeat-x;
 	line-height: 50px;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+#Utils_Calendar__week td.header_day_today a:hover {
+	background-image: url('images/day-header-today-hover.png');
 }
 
 /* weekend */
@@ -91,7 +90,6 @@
 	background-image: url('images/header-blue.png');
 	background-repeat: repeat-x;
 	height: 30px;
-	border-left: 1px solid #FFFFFF;
 	/*border-right: 1px solid #FFFFFF;*/
 	padding-left: 10px;
 	font-size: 14px;
@@ -108,9 +106,11 @@
 	background-color: #336699;
 }
 
+/* hour */
+
 #Utils_Calendar__week td.hour {
 	width: 9%;
-	vertical-align: top;
+	vertical-align: middle;
 	color: #FFFFFF;
 	border-top: 1px solid #B3B3B3;
 	text-align: center;
@@ -118,6 +118,12 @@
 	background-color: #336699;
 	padding-top: 2px;
 }
+
+#Utils_Calendar__week tr:hover td.hour {
+	background-color: #339933;
+}
+
+/* inter */
 
 #Utils_Calendar__week td.inter_other {
 	vertical-align: top;
@@ -142,7 +148,8 @@
 	border-right: 0px;
 	border-bottom: 0px;
 	text-align: left;
-	background-color: #CFDAE6;
+	/*background-color: #CFDAE6;*/
+	background-color: #e6ecf2;
 	padding: 0px;
 	cursor: pointer;
 
@@ -151,7 +158,7 @@
 }
 
 #Utils_Calendar__week td.inter_today:hover {
-	background-color: #e6cfcf
+	background-color: #e6cfcf;
 }
 
 /* menu */

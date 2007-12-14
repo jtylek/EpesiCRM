@@ -1,6 +1,11 @@
 <div class="day-menu">
 	<table border="0" class="menu"><tr>
-		<td class="add-info"><div id="{$trash_id}" class="trash"><img border="0" width="32" height="32" src="{$theme_dir}/Utils_Calendar__trash.png"></div></td>
+		<td class="add-info">
+			<div id="{$trash_id}" class="trash">
+				<div class="icon"><img border="0" width="32" height="32" src="{$theme_dir}/Utils_Calendar__trash.png"></div>
+				<div class="text">Drag and drop<br>to delete</div>
+			</div>
+		</td>
 		<td class="empty"></td>
 		<td style="width: 10px;"></td>
 		<td><a class="button" {$prev_href}>{$prev_label}&nbsp;&nbsp;<img border="0" width="8" height="8" src="{$theme_dir}/Utils_Calendar__prev.png"></a></td>
@@ -21,7 +26,7 @@
 
 <div style="padding: 5px; background-color: #FFFFFF;">
 
-	<table cellspacing=0 class=week>
+	<table cellspacing=0 id="Utils_Calendar__day">
 {* shows month *}
 		<tr>
 			<td class="hours_header" rowspan="2"><img src="{$theme_dir}/Utils_Calendar__icon-day.png" width="32" height="32" border="0"><br>{$day_view_label}</td>
