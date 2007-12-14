@@ -2,8 +2,6 @@
 	load_js('modules/Utils/Calendar/theme/event.js');
 {/php}
 
-{$open}
-
 <span id="Utils_Calendar__event">
 
     <span class="event_menu" id="event_menu_{$event_id}" style="display: none;">
@@ -35,13 +33,11 @@
     </span>
     
     <div class="row">
-        <span id="event_grab" class="{$handle_class}"><img {$tip_tag_attrs} border=0 src="{$theme_dir}/Utils_Calendar__grab.png"></span>
+        <span id="event_grab" class="{$handle_class}"><img border=0 src="{$theme_dir}/Utils_Calendar__grab.png"></span>
         <span id="event_time">time {$event_id}</span>
         <span id="event_info"><img {$tip_tag_attrs} src="{$theme_dir}/Utils_Calendar__info.png" onClick="event_menu('{$event_id}')" width="14" height="14" border="0"></span>
     </div>
      <div class="row">
-        <span id="event_title" {$view_action}>{$title}</span>
+        <span id="event_title">{$title}</span>
     </div>
 </span>
-
-{$close}

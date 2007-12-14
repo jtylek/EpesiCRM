@@ -94,18 +94,8 @@ class Base_Theme extends Module {
 		$this->smarty->assign('__link', $this->links);
 
 		$module_name = $this->parent->get_type();
-		if(isset($user_template)) {
-			if (!$fullname)
-				$module_name .= '__'.$user_template;
-			else
-				$module_name = $user_template;
-		} else
-			$module_name .= '__default';
 
-		$tpl = $module_name.'.tpl';
-		$css = $module_name.'.css';
-		
-		Base_ThemeCommon::display_smarty($this->smarty,$tpl,$css);
+		Base_ThemeCommon::display_smarty($this->smarty,$module_name,$user_template,$fullname);
 	}
 
 	/**

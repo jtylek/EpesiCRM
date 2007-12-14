@@ -5,7 +5,9 @@ add_event:function(dest_id,ev_id,title) {
 	if(!dest || !ev) return;
 
 	dest.appendChild(ev);
-	new Draggable(ev.id, {
+	ev.setAttribute('last_cell',dest_id);
+	
+	new Draggable(ev, {
 		handle: 'handle',
 		revert: true
 	});
@@ -24,7 +26,9 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 		Droppables.add(cell_id, {
 			accept: 'utils_calendar_event',
 			onDrop: function(element,droppable,ev) {
+				if(droppable.id==element.getAttribute('last_cell')) return;
 				droppable.appendChild(element);
+				element.setAttribute('last_cell',droppable.id);
 				new Ajax.Request('modules/Utils/Calendar/update.php',{
 					method:'post',
 					parameters:{
@@ -36,6 +40,10 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 					},
 					onComplete: function(t) {
 						eval(t.responseText);
+						new Draggable(element, {
+							handle: 'handle',
+							revert: true
+						});
 					},
 					onException: function(t,e) {
 						throw(e);

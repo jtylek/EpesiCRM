@@ -71,27 +71,6 @@ class Utils_Calendar extends Module {
 		return $timeline;
 	}
 
-	private function duration2str($duration) {
-		$sec = $duration%60;
-		$duration = floor($duration/60);
-		if($duration>0) {
-			$min = $duration%60;
-			$duration = floor($duration/60);
-			if($duration>0) {
-				$hour = $duration%24;
-				$duration = floor($duration/24);
-				if($duration>0) {
-					$days = $duration;
-					$duration_str = $this->lang->t('%d day(s) %d:%s',array($days, $hour,str_pad($min, 2, "0", STR_PAD_LEFT)));
-				} else
-					$duration_str = $this->lang->t('%d:%s',array($hour,str_pad($min, 2, "0", STR_PAD_LEFT)));
-			} else
-				$duration_str = $this->lang->t('00:%s',array(str_pad($min, 2, "0", STR_PAD_LEFT)));
-		} else
-			$duration_str = $this->lang->t('%d sec',array($sec));
-		return $duration_str;
-	}
-
 	public function body($arg = null) {
 		if($this->isset_unique_href_variable('time')) {
 			$this->call_callback_href(array($this,'push_event_action'),array('add',array($this->get_unique_href_variable('time'),$this->get_unique_href_variable('timeless'))));
@@ -165,68 +144,13 @@ class Utils_Calendar extends Module {
 		$ret = call_user_func(array($this->event_module.'Common','get_all'),$start,$end);
 		if(!is_array($ret))
 			trigger_error('Invalid return of event method: get',E_USER_ERROR);
-		foreach($ret as &$row) {
-			if(!isset($row['start']) || !isset($row['duration']) || !is_numeric($row['duration'])
-			   || !isset($row['title']) || !isset($row['description'])
-			   || !isset($row['timeless']) || !isset($row['id']))
-				trigger_error('Invalid return of event method: get',E_USER_ERROR);
-
-			if(!is_numeric($row['start']) && is_string($row['start'])) $row['start'] = strtotime($row['start']);
-			if($row['start']===false)
-				trigger_error('Invalid return of event method: get',E_USER_ERROR);
-
-			$row['end'] = $row['start']+$row['duration'];
-		}
 		return $ret;
 	}
 
 	private function print_event($ev) {
-		$th = $this->init_module('Base/Theme');
-		$ex = $this->process_event($ev);
-		$th->assign('event_id',$ev['id']);
-		$th->assign('title',strip_tags($ev['title']));
-		$th->assign('description',$ev['description']);
-		$th->assign('start',$ex['start']);
-		$th->assign('end',$ex['end']);
-		$th->assign('duration',$ex['duration']);
-		ob_start();
-		$th->display('event_tip');
-		$tip = ob_get_clean();
-		$th->assign('tip_tag_attrs',Utils_TooltipCommon::open_tag_attrs($tip));
-		$th->assign('handle_class','handle');
-		$th->assign('view_action','onDblClick="'.$this->create_callback_href_js(array($this,'push_event_action'),array('view',$ev['id'])).'"');
-		$th->assign('open','<div id="utils_calendar_event:'.$ev['id'].'" class="utils_calendar_event">');
-		$th->assign('close','</div>');
-		$th->display('event');
-	}
-
-	private function process_event($row) {
-		$ev_start = $row['start'];
-		$ev_end = $row['end'];
-		$oneday = (date('Y-m-d',$ev_end)==date('Y-m-d',$ev_start));
-
-		Base_RegionalSettingsCommon::set_locale();
-		$start_day = date('D',$ev_start);
-		if(!$oneday)
-			$end_day = date('D',$ev_end);
-		else
-			$end_t = Base_RegionalSettingsCommon::convert_24h($ev_end);
-		Base_RegionalSettingsCommon::restore_locale();
-
-		if($row['timeless']) {
-			$start_t = $start_day.', '.Base_RegionalSettingsCommon::time2reg($ev_start,false);
-			if($oneday)
-				$end_t = $start_t;
-			else
-				$end_t = $end_day.', '.Base_RegionalSettingsCommon::time2reg($ev_end,false);
-		} else {
-			$start_t = $start_day.', '.Base_RegionalSettingsCommon::time2reg($ev_start);
-			if(!$oneday)
-				$end_t = $end_day.', '.Base_RegionalSettingsCommon::time2reg($ev_end);
-		}
-
-		$duration_str = $this->duration2str($row['duration']);
-		return array('duration'=>$duration_str,'start'=>$start_t,'end'=>$end_t);
+		print('<div id="utils_calendar_event:'.$ev['id'].'" class="utils_calendar_event" onDblClick="'.$this->create_callback_href_js(array($this,'push_event_action'),array('view',$ev['id'])).'">');
+		Utils_CalendarCommon::print_event($ev);
+		print('</div>');
 	}
 
 	//////////////////////////////////////////////
@@ -270,7 +194,7 @@ class Utils_Calendar extends Module {
 		foreach($ret as $row) {
 			$r = $gb->get_new_row();
 
-			$ex = $this->process_event($row);
+			$ex = Utils_CalendarCommon::process_event($row);
 
 			$r->add_data($ex['start'],Utils_TooltipCommon::create($ex['duration'],$ex['end']),$row['title'],$row['description']);
 

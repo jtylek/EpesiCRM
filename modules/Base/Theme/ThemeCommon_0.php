@@ -45,7 +45,18 @@ class Base_ThemeCommon extends ModuleCommon {
 		return $theme;
 	}
 	
-	public static function display_smarty($smarty, $tpl, $css=null) {
+	public static function display_smarty($smarty, $module_name, $user_template=null, $fullname=false) {
+		if(isset($user_template)) {
+			if (!$fullname)
+				$module_name .= '__'.$user_template;
+			else
+				$module_name = $user_template;
+		} else
+			$module_name .= '__default';
+
+		$tpl = $module_name.'.tpl';
+		$css = $module_name.'.css';
+
 		if($smarty->template_exists($tpl)) {
 			$smarty->assign('theme_dir',$smarty->template_dir);
 			$smarty->display($tpl);

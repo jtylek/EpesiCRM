@@ -39,7 +39,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 			$smarty = Base_ThemeCommon::init_smarty();
 			$smarty->assign('tip','<span id="tooltip_text"></span>');
 			ob_start();
-			Base_ThemeCommon::display_smarty($smarty,Base_ThemeCommon::get_template_filename('Utils_Tooltip','default.tpl'),Base_ThemeCommon::get_template_filename('Utils_Tooltip','default.css'));
+			Base_ThemeCommon::display_smarty($smarty,'Utils_Tooltip');
 			$tip_th = ob_get_clean();
 			$js = 'div = document.createElement(\'div\');'.
 				'div.id = \'tooltip_div\';'.
