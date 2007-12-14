@@ -13,7 +13,7 @@
     padding-top: 2px;
     padding-bottom: 2px;
     vertical-align: top;
-    background-color: #336699;
+    background-color: #339933;
 }
 
 #Browsing_records .icon img {
@@ -31,7 +31,7 @@
     padding-top: 7px;
     height: 24px;
     vertical-align: top;
-    background-image: url('images/blue-gradient.png');
+    background-image: url('images/green-gradient.png');
     background-repeat: repeat-y;
 }
 
