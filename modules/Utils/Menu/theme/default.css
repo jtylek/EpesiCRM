@@ -32,7 +32,7 @@ table.root td.separator {
 	display: none;
 	z-index: 1000;
 	font-weight: normal;
-	background-color: #336699;
+	background-color: #336699;	
 }
 
 .submenu tr {
@@ -193,3 +193,18 @@ td.splitter {
 	height: 2px;
 	background-color: #B3B3B3;
 }
+
+/* ---------- */
+
+/*
+.submenu {
+	background-color: white;
+}
+
+a.root_item_link,
+a.root_item_link_down,
+a.root_item_link_none,
+a.root_item_link_right {
+	color: black;
+}
+*/
