@@ -59,14 +59,18 @@ table#Utils_Calendar__month td.today {
 /* header */
 
 table#Utils_Calendar__month td.header {
-	color: #FFFFFF;
-	height: 20px;
+	color: #336699;
+	font-weight: bold;
+	font-size: 12px;
+	height: 30px;
 	vertical-align: middle;
 	background-color: #336699;
-	background-image: url('images/header-blue.png');
+	background-image: url('images/header-gray-30px.png');
 	background-repeat: repeat-x;
 	padding-left: 5px;
 	border-left: 1px solid #FFFFFF;
+	border-right: 1px solid #B3B3B3;
+	border-bottom: 2px solid #FFFFFF;
 }
 
 table#Utils_Calendar__month td.week-number {
