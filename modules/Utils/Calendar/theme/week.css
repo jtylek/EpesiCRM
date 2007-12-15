@@ -11,7 +11,7 @@
 }
 
 #Utils_Calendar__week td.hours_header {
-	width: 9%;
+	width: 16%;
 	border: 0px;
 	text-align: center;
 	color: #339933;
@@ -25,7 +25,7 @@
 	vertical-align: middle;
 	border-right: 1px solid #FFFFFF;
 	border-left: 1px solid #B3B3B3;
-	width: 13%;
+	width: 12%;
 	padding: 0px;
 }
 

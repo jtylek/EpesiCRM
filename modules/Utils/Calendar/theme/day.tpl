@@ -41,7 +41,7 @@
 {* this row contains days of month *}
 		<tr>
 			<td class="header_day">
-				{$header_day.number} {$header_day.label}
+				{$header_day.label} &bull; {$header_day.number}
 			</td>
 		</tr>
 

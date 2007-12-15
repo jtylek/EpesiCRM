@@ -32,6 +32,7 @@ table#Utils_Calendar__month td.current {
 
 table#Utils_Calendar__month a.day_link {
 	font-size: 14px;
+	font-weight: bold;
 	padding-left: 2px;
 	padding-top: 2px;
 }
