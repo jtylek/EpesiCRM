@@ -52,6 +52,12 @@
     color: #777777;
 }
 
+#Utils_Attachment__view .notepad-left {
+    background-image: url('Utils_Attachment__hole.png');
+    background-repeat: repeat-y;
+    border-right: 2px solid #ff7bff;
+}
+
 #Utils_Attachment__view .note {
     padding-left: 10px;
     padding-right: 10px;

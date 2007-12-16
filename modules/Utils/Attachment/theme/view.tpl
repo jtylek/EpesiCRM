@@ -20,7 +20,8 @@
     			<td class="header" colspan="3">{$header}</td>
         	</tr>
             <tr>
-                <td class="note" colspan="3">{$note}</td>
+                <td colspan="2" class="notepad-left">&nbsp;</td>
+                <td class="note">{$note}</td>
             </tr>
 			{if $file!=''}
 			<tr>
