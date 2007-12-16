@@ -11,7 +11,6 @@
 }
 
 #Utils_Calendar__week td.hours_header {
-	width: 16%;
 	border: 0px;
 	text-align: center;
 	color: #339933;
@@ -25,7 +24,7 @@
 	vertical-align: middle;
 	border-right: 1px solid #FFFFFF;
 	border-left: 1px solid #B3B3B3;
-	width: 12%;
+	width: 14%;
 	padding: 0px;
 }
 
@@ -49,7 +48,7 @@
 #Utils_Calendar__week td.header_day_today {
 	vertical-align: middle;
 	font-size: 14px;
-	width: 13%;
+	width: 14%;
 	border-left: 2px solid #336699;
 	border-right: 2px solid #336699;
 	padding: 0px;
@@ -87,10 +86,10 @@
 	color: #FFFFFF;
 	vertical-align: middle;
 	background-color: #336699;
-	background-image: url('images/header-blue.png');
+	background-image: url('images/header-blue-30px.png');
 	background-repeat: repeat-x;
 	height: 30px;
-	/*border-right: 1px solid #FFFFFF;*/
+	border-right: 1px solid #FFFFFF;
 	padding-left: 10px;
 	font-size: 14px;
 	font-weight: bold;
@@ -109,7 +108,6 @@
 /* hour */
 
 #Utils_Calendar__week td.hour {
-	width: 9%;
 	vertical-align: middle;
 	color: #FFFFFF;
 	border-top: 1px solid #B3B3B3;
@@ -117,6 +115,8 @@
 	/*background-color: #CFDAE6;*/
 	background-color: #336699;
 	padding-top: 2px;
+	padding-left: 5px;
+	padding-right: 5px;
 }
 
 #Utils_Calendar__week tr:hover td.hour {
@@ -194,16 +194,21 @@ div.week-menu table.menu {
 	width: 100%;
 }
 
+div.week-menu table.menu td {
+	padding-left: 2px;
+	padding-right: 2px;
+}
+
 div.week-menu .empty {
 	width: 50%;
 }
 
-div.week-menu .add-info {
+div.week-menu table.menu .add-info {
 	color: #777777;
 	padding-right: 20px;
 }
 
-div.week-menu .add-info:hover {
+div.week-menu table.menu .add-info:hover {
 	color: #000000;
 }
 
@@ -212,7 +217,7 @@ div.week-menu .add-info:hover {
 div.week-menu .trash {
 	display: block;
 	margin-left: 20px;
-	padding: 3px;
+	padding: 4px;
 	height: 32px;
 	width: 128px;
 	border: 1px solid #F0F0F0;

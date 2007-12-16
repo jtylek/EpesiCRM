@@ -11,9 +11,6 @@
 		</td>
 	</tr>
 	<tr>
-		<td style="height: 5px;"></td>
-	</tr>
-	<tr>
 		<td>
 			<center>{$body}</center>
 		</td>

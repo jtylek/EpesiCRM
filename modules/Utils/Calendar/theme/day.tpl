@@ -1,5 +1,7 @@
+<div style="width: 900px;">
+
 <div class="day-menu">
-	<table border="0" class="menu"><tr>
+	<table class="menu" border="0" cellpadding="0" cellspacing="0"><tr>
 		<td class="add-info">
 			<div id="{$trash_id}" class="trash">
 				<div class="icon"><img border="0" width="32" height="32" src="{$theme_dir}/Utils_Calendar__trash.png"></div>
@@ -20,7 +22,7 @@
 
 
 <!-- SHADOW BEGIN -->
-	<div class="layer" style="padding: 9px; width: 60%;">
+	<div class="layer" style="padding: 9px; width: 100%;">
 		<div class="content_shadow">
 <!-- -->
 
@@ -48,7 +50,7 @@
 		<tr>
 		{foreach key=k item=stamp from=$timeline}
 			<tr>
-				<td class="hour">{$stamp.label}</td>
+				<td class="hour" nowrap >{$stamp.label}</td>
 				<td class="inter" id="{$stamp.id}"></td>
 			</tr>
 		{/foreach}
@@ -75,3 +77,5 @@
 		</div>
 	</div>
 <!-- -->
+
+</div>

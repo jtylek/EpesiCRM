@@ -1,5 +1,5 @@
 <div class="week-menu">
-	<table border="0" class="menu"><tr>
+	<table class="menu" border="0" cellpadding="0" cellspacing="0"><tr>
 		<td class="add-info">
 			<div id="{$trash_id}" class="trash">
 				<div class="icon"><img border="0" width="32" height="32" src="{$theme_dir}/Utils_Calendar__trash.png"></div>
@@ -55,7 +55,7 @@
 		<tr>
 		{foreach key=k item=stamp from=$timeline}
 			<tr>
-				<td class="hour">{$stamp.label}</td>
+				<td class="hour" nowrap >{$stamp.label}</td>
 				{foreach item=t key=j from=$time_ids}
                     <td class="inter_{$day_headers.$j.style}" id="{$t.$k}"></td>
 	            {/foreach}
