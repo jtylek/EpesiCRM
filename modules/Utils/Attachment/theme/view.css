@@ -38,6 +38,10 @@
     background-color: #e6cfcf;
 }
 
+#Utils_Attachment__view .file_icon {
+    width: 50px;
+}
+
 #Utils_Attachment__view .file_icon a {
     padding: 4px 9px 4px 9px;
     line-height: 32px;
@@ -62,6 +66,7 @@
     background-image: url('Utils_Attachment__hole.png');
     background-repeat: repeat-y;
     border-right: 2px solid #b3b3b3;
+    width: 50px;
 }
 
 #Utils_Attachment__view .note {

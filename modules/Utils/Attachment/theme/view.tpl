@@ -37,6 +37,12 @@
                 </td>
                 <td class="file_desc">File size: 2000 KB<br>Created by: admin</td>
 			</tr>
+            {else}
+			<tr>
+				<td class="file file_icon">&nbsp;</td>            
+				<td class="file file_name">&nbsp;</td>
+                <td class="file_desc">&nbsp;</td>
+			</tr>
 			{/if}
     	</tbody>
     </table>

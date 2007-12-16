@@ -158,8 +158,8 @@ class Utils_Attachment extends Module {
 			}
 			$text = strip_tags($row['text']);
 			if(strlen($text)>120)
-				$temp_row_id = $row['id'];
 				$text = array('value'=>substr($text,0,120).'<a '.$this->create_callback_href(array($this,'view_queue'),array($row['id'])).'>...'.$this->lang->t('[more]').'</a>','hint'=>$this->lang->t('Click on view icon to see full note'));
+				//$temp_row_id = $row['id'];
 				/* MS */ //$text = array('value'=>substr($text,0,120) . '<a onClick="document.getElementById(' . $temp_row_id . ').style.height=\'100px\'">...'.$this->lang->t('(more)').'</a>','hint'=>$this->lang->t('Click on view icon to see full note'));
 
 			if($vd)
