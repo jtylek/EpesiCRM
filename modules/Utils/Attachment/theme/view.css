@@ -6,10 +6,10 @@
 
 
 #Utils_Attachment__view .header {
-    color: #000000;
+    color: #ffffff;
     height: 40px;
-    background-color: #E3E3E3;
-    font-size: 12px;
+    background-color: #666666;
+    font-size: 13px;
     font-weight: bold;
     vertical-align: middle;
     text-align: center;
@@ -21,6 +21,7 @@
     text-align: left;
     font-size: 12px;
     height: 40px;
+    width: 50px;
     vertical-align: middle;
     background-color: #E3E3E3;
 }
@@ -33,29 +34,34 @@
     height: 40px;
 }
 
-#Utils_Attachment__view .file_icon a {
-    padding-top: 4px;
-    padding-bottom: 4px;
-    line-height: 32px;
-    height: 32px;
-}
-
 #Utils_Attachment__view .file a:hover {
     background-color: #e6cfcf;
 }
 
-#Utils_Attachment__view .desc {
-    width: 100%;
+#Utils_Attachment__view .file_icon a {
+    padding: 4px 9px 4px 9px;
+    line-height: 32px;
+    height: 32px;
+    width: 32px;
+}
+
+#Utils_Attachment__view .file_name {
+    width: auto;
+}
+
+#Utils_Attachment__view .file_desc {
     vertical-align: middle;
     background-color: #E3E3E3;
     padding-left: 10px;
+    padding-right: 10px;
+    width: 130px;
     color: #777777;
 }
 
 #Utils_Attachment__view .notepad-left {
     background-image: url('Utils_Attachment__hole.png');
     background-repeat: repeat-y;
-    border-right: 2px solid #ff7bff;
+    border-right: 2px solid #b3b3b3;
 }
 
 #Utils_Attachment__view .note {

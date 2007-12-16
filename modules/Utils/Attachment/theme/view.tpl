@@ -20,8 +20,8 @@
     			<td class="header" colspan="3">{$header}</td>
         	</tr>
             <tr>
-                <td colspan="2" class="notepad-left">&nbsp;</td>
-                <td class="note">{$note}</td>
+                <td class="notepad-left">&nbsp;</td>
+                <td class="note" colspan="2">{$note}</td>
             </tr>
 			{if $file!=''}
 			<tr>
@@ -30,12 +30,12 @@
                         <img src="{$theme_dir}/Utils_Attachment__attach.png" alt="" align="left" border="0" width="32" height="32">
                     {$__link.file.close}
                 </td>            
-				<td class="file">
+				<td class="file file_name">
                     {$__link.file.open}
                         <span>{$__link.file.text}</span>
                     {$__link.file.close}
                 </td>
-                <td class="desc">File size: 2000 KB<br>Created by: admin</td>
+                <td class="file_desc">File size: 2000 KB<br>Created by: admin</td>
 			</tr>
 			{/if}
     	</tbody>
