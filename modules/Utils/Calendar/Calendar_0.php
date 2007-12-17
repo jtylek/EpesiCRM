@@ -13,7 +13,6 @@ class Utils_Calendar extends Module {
 				  'default_date'=>null);
 	private $date; //current date
 	private $event_module;
-	private $switch_view = null;
 
 	public function construct($ev_mod, array $settings=null) {
 		$this->lang = $this->init_module('Base/Lang');
@@ -72,9 +71,29 @@ class Utils_Calendar extends Module {
 	}
 
 	public function body($arg = null) {
-		if($this->isset_unique_href_variable('time')) {
-			$this->call_callback_href(array($this,'push_event_action'),array('add',array($this->get_unique_href_variable('time'),$this->get_unique_href_variable('timeless'))));
-			return;
+		if($this->isset_unique_href_variable('action')) {
+			switch($this->get_unique_href_variable('action')) {
+				case 'add':
+					$this->push_event_action('add',array($this->get_unique_href_variable('time'),$this->get_unique_href_variable('timeless')));
+					return;
+				case 'switch':
+					$views = array_flip($this->settings['views']);
+					$view = $this->get_unique_href_variable('tab');
+					if (isset($views[$view])) $switch_view = $views[$view];
+						else break;
+					$this->date = $this->get_unique_href_variable('time');
+					break;
+			}
+		} elseif(isset($_REQUEST['UCaction']) && isset($_REQUEST['UCev_id']) && is_numeric($_REQUEST['UCev_id'])) {
+			switch($_REQUEST['UCaction']) {
+				case 'delete':
+					$this->delete_event($_REQUEST['UCev_id']);
+					break;
+				case 'view':
+				case 'edit':
+					$this->push_event_action($_REQUEST['UCaction'],array($_REQUEST['UCev_id']));
+					return;
+			}
 		}
 
 		load_js($this->get_module_dir().'calendar.js');
@@ -90,29 +109,13 @@ class Utils_Calendar extends Module {
 				$def_tab = $k;
 		}
 		if (isset($def_tab)) $tb->set_default_tab($def_tab);
-		if ($this->switch_view!==null) {
-			$tb->switch_tab($this->switch_view);
-			$this->switch_view = null;
-		}
+		if (isset($switch_view))
+			$tb->switch_tab($switch_view);
 
 		$this->display_module($tb);
 		$tb->tag();
 
-		Base_ActionBarCommon::add('add',$this->lang->t('Add event'),$this->create_callback_href(array($this,'push_event_action'),array('add',$this->date)));
-	}
-
-	public function switch_view($view) {
-		$views = array_flip($this->settings['views']);
-		if (isset($views[$view])) $this->switch_view = $views[$view];
-		else $this->switch_view = null;
-		return false;
-	}
-
-	public function view_date($date, $view) {
-		$this->switch_view($view);
-		if ($this->switch_view == null) return false;
-		$this->date = $date;
-		return false;
+		Base_ActionBarCommon::add('add',$this->lang->t('Add event'),$this->create_unique_href(array('action'=>'add','time'=>$this->date)));
 	}
 
 	public function push_event_action($action,$arg=null) {
@@ -148,7 +151,7 @@ class Utils_Calendar extends Module {
 	}
 
 	private function print_event($ev) {
-		print('<div id="utils_calendar_event:'.$ev['id'].'" class="utils_calendar_event" onDblClick="'.$this->create_callback_href_js(array($this,'push_event_action'),array('view',$ev['id'])).'">');
+		print('<div id="utils_calendar_event:'.$ev['id'].'" class="utils_calendar_event">');
 		Utils_CalendarCommon::print_event($ev);
 		print('</div>');
 	}
@@ -232,9 +235,9 @@ class Utils_Calendar extends Module {
 							);
 
 		$theme->assign('header_month', date('F',$this->date));
-		$theme->assign('link_month', $this->create_callback_href(array($this, 'view_date'), array($this->date, 'Month')));
+		$theme->assign('link_month', $this->create_unique_href(array('action'=>'switch','time'=>$this->date, 'tab'=>'Month')));
 		$theme->assign('header_year', date('Y',$this->date));
-		$theme->assign('link_year', $this->create_callback_href(array($this, 'view_date'), array($this->date, 'Year')));
+		$theme->assign('link_year', $this->create_unique_href(array('action'=>'switch','time'=>$this->date, 'tab'=>'Year')));
 		$theme->assign('header_day', $header_day);
 
 		$timeline = $this->get_timeline();
@@ -260,11 +263,14 @@ class Utils_Calendar extends Module {
 		//data
 		$ret = $this->get_events(date('Y-m-d',$this->date),date('Y-m-d',$this->date+86400));
 		foreach($ret as $ev) {
+			$ev_start = $ev['start']-$today_t;
+			if($ev_start<0 || $ev_start>=86400) continue;
+
 			$this->print_event($ev);
+
 			if($ev['timeless'])
 				$dest_id = 'UCcell_'.$today_t.'_timeless';
 			else {
-				$ev_start = $ev['start']-$today_t;
 				$ct = count($timeline);
 				for($i=1, $j=2; $j<$ct; $i++,$j++)
 					if($timeline[$i]['time']<=$ev_start && $ev_start<$timeline[$j]['time'])
@@ -274,7 +280,7 @@ class Utils_Calendar extends Module {
 			$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\',\''.$ev['id'].'\' ,\''.Epesi::escapeJS($ev['title'],false).'\')');
 		}
 		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
-				'\''.Epesi::escapeJS($this->create_unique_href_js(array('time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
+				'\''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
 				'\''.Epesi::escapeJS($this->get_path(),false).'\','.
 				'\''.CID.'\')');
 	}
@@ -335,23 +341,23 @@ class Utils_Calendar extends Module {
 			$header_month = array('first_span'=>array(
 									'colspan'=>7-$second_span_width,
 									'month'=>date('M',$dis_week_from),
-									'month_link'=>$this->create_callback_href(array($this, 'view_date'), array($dis_week_from, 'Month')),
+									'month_link'=>$this->create_unique_href(array('action'=>'switch','time'=>$dis_week_from, 'tab'=>'Month')),
 									'year'=>date('Y',$dis_week_from),
-									'year_link'=>$this->create_callback_href(array($this, 'view_date'), array($dis_week_from, 'Year'))),
+									'year_link'=>$this->create_unique_href(array('action'=>'switch','time'=>$dis_week_from, 'tab'=>'Year'))),
 								'second_span'=>array(
 									'colspan'=>$second_span_width,
 									'month'=>date('M',$dis_week_from+518400),
-									'month_link'=>$this->create_callback_href(array($this, 'view_date'), array($dis_week_from+518400, 'Month')),
+									'month_link'=>$this->create_unique_href(array('action'=>'switch','time'=>$dis_week_from+518400, 'tab'=>'Month')),
 									'year'=>date('Y',$dis_week_from+518400),
-									'year_link'=>$this->create_callback_href(array($this, 'view_date'), array($dis_week_from+518400, 'Year'))
+									'year_link'=>$this->create_unique_href(array('action'=>'switch','time'=>$dis_week_from+518400, 'tab'=>'Year'))
 									));
 		} else {
 			$header_month = array('first_span'=>array(
 									'colspan'=>7,
 									'month'=>date('M',$dis_week_from),
-									'month_link'=>$this->create_callback_href(array($this, 'view_date'), array($dis_week_from, 'Month')),
+									'month_link'=>$this->create_unique_href(array('action'=>'switch','time'=>$dis_week_from, 'tab'=>'Month')),
 									'year'=>date('Y',$dis_week_from),
-									'year_link'=>$this->create_callback_href(array($this, 'view_date'), array($dis_week_from, 'Year'))),
+									'year_link'=>$this->create_unique_href(array('action'=>'switch','time'=>$dis_week_from, 'tab'=>'Year'))),
 									);
 		}
 		for ($i=0; $i<7; $i++) {
@@ -359,7 +365,7 @@ class Utils_Calendar extends Module {
 			$day_headers[] = array(
 						'date'=>date('d D', $that_day),
 						'style'=>(date('Y-m-d',$that_day)==date('Y-m-d')?'today':'other'),
-						'link' => $this->create_callback_href(array($this, 'view_date'), array($that_day, 'Day'))
+						'link' => $this->create_unique_href(array('action'=>'switch','time'=>$that_day, 'tab'=>'Day'))
 						);
 		}
 
@@ -408,7 +414,7 @@ class Utils_Calendar extends Module {
 			$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\', \''.Epesi::escapeJS($ev['title'],false).'\')');
 		}
 		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
-				'\''.Epesi::escapeJS($this->create_unique_href_js(array('time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
+				'\''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
 				'\''.Epesi::escapeJS($this->get_path(),false).'\','.
 				'\''.CID.'\')');
 	}
@@ -427,11 +433,11 @@ class Utils_Calendar extends Module {
 		while (date('m', $currday) != ($curmonth)%12+1) {
 			$week = array();
 			$weekno = date('W',$currday);
-			$link = $this->create_callback_href(array($this, 'view_date'), array($currday, 'Week'));
+			$link = $this->create_unique_href(array('action'=>'switch','time'=>$currday, 'tab'=>'Week'));
 			for ($i=0; $i<7; $i++) {
 				$week[] = array(
 							'day'=>date('j', $currday),
-							'day_link' => $this->create_callback_href(array($this, 'view_date'), array($currday, 'Day')),
+							'day_link' => $this->create_unique_href(array('action'=>'switch', 'time'=>$currday, 'tab'=>'Day')),
 							'style'=>(date('m', $currday)==$curmonth)?(date('Y-m-d',$currday)==$today?'today':'current'):'other',
 							'time'=>$currday
 							);
@@ -486,7 +492,7 @@ class Utils_Calendar extends Module {
 		$theme->assign('month', $month);
 		$theme->assign('month_label', date('F', $this->date));
 		$theme->assign('year_label', date('Y', $this->date));
-		$theme->assign('year_link', $this->create_callback_href(array($this, 'view_date'), array($this->date, 'Year')));
+		$theme->assign('year_link', $this->create_unique_href(array('time'=>$this->date, 'tab'=>'Year','action'=>'switch')));
 		$theme->assign('trash_id','UCtrash');
 
 		$theme->display('month');
@@ -503,7 +509,7 @@ class Utils_Calendar extends Module {
 			$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\', \''.Epesi::escapeJS($ev['title'],false).'\')');
 		}
 		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
-				'\''.Epesi::escapeJS($this->create_unique_href_js(array('time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
+				'\''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
 				'\''.Epesi::escapeJS($this->get_path(),false).'\','.
 				'\''.CID.'\')');
 	}
@@ -538,7 +544,7 @@ class Utils_Calendar extends Module {
 			$date = strtotime(date('Y',$this->date).'-'.str_pad($i, 2, '0', STR_PAD_LEFT).'-'.date('d',$this->date));
 			$month = $this->month_array($date);
 			$year[] = array('month' => $month,
-							'month_link' => $this->create_callback_href(array($this, 'view_date'), array($date, 'Month')),
+							'month_link' => $this->create_unique_href(array('action'=>'switch','time'=>$date, 'tab'=>'Month')),
 							'month_label' => date('F', $date),
 							'year_label' => date('Y', $date)
 							);

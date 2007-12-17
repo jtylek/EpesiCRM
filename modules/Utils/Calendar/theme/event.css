@@ -44,7 +44,7 @@
     z-index: 5;
 }
 
-#Utils_Calendar__event #event_menu_content {
+#Utils_Calendar__event span.event_menu_content {
     display: block;
     width: 80px;
     height: 20px;
@@ -53,11 +53,11 @@
     padding-right: 3px;
 }
 
-#Utils_Calendar__event #event_menu_content img {
+#Utils_Calendar__event span.event_menu_content img {
     padding: 3px;
 }
 
-#Utils_Calendar__event #event_menu_content img:hover {
+#Utils_Calendar__event span.event_menu_content img:hover {
     background-color: white;
 }
 

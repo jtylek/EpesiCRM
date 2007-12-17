@@ -462,7 +462,7 @@ abstract class Module extends ModulePrimitive {
 	 */
 	public final function isset_unique_href_variable($key) {
 		$rkey = $this->create_unique_key($key);
-		return array_key_exists($rkey, $_REQUEST);
+		return isset($_REQUEST[$rkey]);
 	}
 
 	/**
@@ -546,7 +546,6 @@ abstract class Module extends ModulePrimitive {
 		}
 		if(!is_array($args)) $args = array($args);
 		$callbacks = & $this->get_module_variable('__callbacks__',array());
-		if(array_key_exists($name,$callbacks)) unset($callbacks[$name]);
 		$callbacks[$name] = array('func'=>$func,'args'=>$args);
 	}
 

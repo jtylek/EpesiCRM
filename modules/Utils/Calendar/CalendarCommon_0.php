@@ -14,7 +14,14 @@ class Utils_CalendarCommon extends ModuleCommon {
 		ob_start();
 		Base_ThemeCommon::display_smarty($th,'Utils_Calendar','event_tip');
 		$tip = ob_get_clean();
+		ob_start();
+		Base_ThemeCommon::display_smarty($th,'Utils_Calendar','event_tip2');
+		$tip2 = ob_get_clean();
 		$th->assign('tip_tag_attrs',Utils_TooltipCommon::open_tag_attrs($tip));
+		$th->assign('tip2_tag_attrs',Utils_TooltipCommon::open_tag_attrs($tip2));
+		$th->assign('view_href', Module::create_href(array('UCev_id'=>$ev['id'], 'UCaction'=>'view')));
+		$th->assign('edit_href', Module::create_href(array('UCev_id'=>$ev['id'], 'UCaction'=>'edit')));
+		$th->assign('delete_href', Module::create_confirm_href(Base_LangCommon::ts('Utils_Calendar','Delete this event?'),array('UCev_id'=>$ev['id'], 'UCaction'=>'delete')));
 		$th->assign('handle_class','handle');
 		Base_ThemeCommon::display_smarty($th,'Utils_Calendar','event');
 	}

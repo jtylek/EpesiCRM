@@ -63,9 +63,9 @@ class Epesi {
 
 	public final static function load_css($u) {
 		if(!is_string($u) || strlen($u)==0) return false;
-		if (is_string($u) && (!isset($_SESSION['client']['__loaded_csses__']) || !array_key_exists($u, $_SESSION['client']['__loaded_csses__']))) {
+		if (!isset($_SESSION['client']['__loaded_csses__'][$u])) {
 			self::$load_csses[] = $u;
-			$_SESSION['client']['__loaded_csses__'][$u] = 1;
+			$_SESSION['client']['__loaded_csses__'][$u] = true;
 			return true;
 		}
 		return false;

@@ -768,17 +768,21 @@ class ModuleManager {
 	 * @throws exception 'module not loaded' if the module is not registered
 	 */
 	public static final function & new_instance($mod,$parent,$name,$clear_vars=false) {
-		if (!array_key_exists($mod, self::$modules))
-			throw new Exception('module not loaded');
 		if(!array_key_exists($mod, self::$loaded_modules)) {
+			$loaded = false;
 			foreach(self::$not_loaded_modules as $i=>$v) {
 				$version = $v['version'];
 				$module = $v['name'];
 				ModuleManager :: include_main($module, $version);
 				unset(self::$not_loaded_modules[$i]);
 				self::$loaded_modules[$module] = true;
-				if($module==$mod) break;
+				if($module==$mod) {
+					$loaded=true;
+					break;
+				}
 			}
+			if (!$loaded)
+				throw new Exception('module not loaded');
 		}
 		if(!class_exists($mod))
 			trigger_error('Class not exists: '.$mod,E_USER_ERROR);
