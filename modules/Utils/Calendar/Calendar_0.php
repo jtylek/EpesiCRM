@@ -20,7 +20,7 @@ class Utils_Calendar extends Module {
 
 		$this->event_module = str_replace('/','_',$ev_mod);
 		if(ModuleManager::is_installed($this->event_module)==-1)
-			trigger_error('Invalid event module', E_USER_ERROR);
+			trigger_error('Invalid event module: '.$this->event_module, E_USER_ERROR);
 		$this->set_module_variable('event_module',$this->event_module);
 
 		//default views
