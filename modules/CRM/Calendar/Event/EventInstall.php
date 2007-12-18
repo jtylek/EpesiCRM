@@ -21,7 +21,7 @@ class CRM_Calendar_EventInstall extends ModuleInstall {
 		$ret &= DB::CreateTable('crm_calendar_event',
 			'id I AUTO KEY,' .
 
-			'title C(64) NO NULL, ' .
+			'title C(64) NOT NULL, ' .
 			'description X, ' .
 
 			'start I4 NOT NULL, ' .
@@ -40,8 +40,8 @@ class CRM_Calendar_EventInstall extends ModuleInstall {
 			'edited_by I4',
 			array('constraints'=>	', FOREIGN KEY (created_by) REFERENCES user_login(id)'.
 									', FOREIGN KEY (edited_by) REFERENCES user_login(id)'.
-									', FOREIGN KEY (employee) REFERENCES crm_calendar_groups(id)'.
-									', FOREIGN KEY (customer) REFERENCES crm_calendar_groups(id)')
+									', FOREIGN KEY (employee) REFERENCES crm_calendar_group(id)'.
+									', FOREIGN KEY (customer) REFERENCES crm_calendar_group(id)')
 		);
 		if(!$ret) {
 			print('Unable to create crm_calendar_event table');
