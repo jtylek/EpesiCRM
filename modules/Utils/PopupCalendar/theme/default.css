@@ -97,5 +97,6 @@
 }
 
 div.utils_popupcalendar_popup {
-	border: 1px solid gray;
+	/*border: 1px solid #b3b3b3;*/
+	width: 220px;
 }
