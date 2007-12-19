@@ -1,11 +1,16 @@
+{php}
+	load_js('data/Base_Theme/templates/default/Base_ActionBar__launchpad.js');
+{/php}
+
 <center>
 
 <div id="Launchpad_header">
-    <div class="center"><div style="position: absolute; left: 45%;">{$header}</div></div>
-	<div class="right">{$__link.close.open}<img src="{$theme_dir}/Base_ActionBar__close.png" width="14" height="14" alt="x" border="0">{$__link.close.close}</div>
+    <div class="left"><img src="{$theme_dir}/Base_ActionBar__resize.png" onClick="resize_launchpad();" onMouseOver="this.src='{$theme_dir}/Base_ActionBar__resize-hover.png';" onMouseOut="this.src='{$theme_dir}/Base_ActionBar__resize.png';" width="14" height="14" alt="R" border="0"></div>
+    <div class="center">{$header}</div>
+	<div class="right">{$__link.close.open}<img src="{$theme_dir}/Base_ActionBar__close.png" onMouseOver="this.src='{$theme_dir}/Base_ActionBar__close-hover.png';" onMouseOut="this.src='{$theme_dir}/Base_ActionBar__close.png';" width="14" height="14" alt="X" border="0">{$__link.close.close}</div>
 </div>
 
-<table id="Base_ActionBar" cellspacing="0" cellpadding="0">
+<table id="Base_ActionBar" cellspacing="0" cellpadding="0" style="margin: 10px;">
 	<tr>
 
 	{assign var=x value=0}

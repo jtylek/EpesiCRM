@@ -6,15 +6,16 @@
 
     <span class="event_menu" id="event_menu_{$event_id}" style="display: none;">
         <!-- SHADIW BEGIN -->
-        <div class="layer" style="padding: 10px; width: 86px;">
+        <div class="layer" style="padding: 10px; width: 95px;">
         	<div class="content_shadow">
         <!-- -->
 
         <span class="event_menu_content">
-		<a {$view_href}><img border=0 src="{$theme_dir}/Utils_Calendar__view.png"></a>
-		<a {$edit_href}><img border=0 src="{$theme_dir}/Utils_Calendar__edit.png"></a>
-		<a {$delete_href}><img border=0 src="{$theme_dir}/Utils_Calendar__delete.png"></a>
-	</span>
+		<a {$view_href}><img border="0" src="{$theme_dir}/Utils_Calendar__view.png"></a>
+		<a {$edit_href}><img border="0" src="{$theme_dir}/Utils_Calendar__edit.png"></a>
+		<a {$delete_href}><img border="0" src="{$theme_dir}/Utils_Calendar__delete.png"></a>
+        <a href=""><img border="0" src="{$theme_dir}/Utils_Calendar__select.png"></a>
+    </span>
 
         <!-- SHADOW END -->
  		</div>

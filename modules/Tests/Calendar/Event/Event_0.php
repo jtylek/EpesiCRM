@@ -32,7 +32,7 @@ class Tests_Calendar_Event extends Utils_Calendar_Event {
 //		$qf->addElement('checkbox','timeless','Timeless'); //always
 		$qf->addElement('text','title','Title');
 		$qf->addElement('textarea','description','Description');
-		$qf->addElement('select','color','Color',array('blue'=>'Blue', 'red'=>'Red', 'yellow'=>'Yellow', 'green'=>'Green', 'gray' => 'Gray', 'cyan' => 'Cyan', 'magenta' => 'Magenta'));
+		$qf->addElement('select','color','Color',array('blue'=>'&bull; Blue', 'red'=>'&bull; Red', 'yellow'=>'&bull; Yellow', 'green'=>'&bull; Green', 'gray' => '&bull; Gray', 'cyan' => '&bull; Cyan', 'magenta' => '&bull; Magenta'));
 		$qf->setDefaults(array('start'=>$def_date,'end'=>$def_date));
 		if($qf->validate()) {
 			$d = $qf->exportValues();

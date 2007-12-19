@@ -41,8 +41,8 @@
 }
 
 #Utils_Calendar__event .event_menu {
-    width: 106px;
-    height: 36px;
+    width: 95px;
+    height: 40px;
     position: absolute;
     top: 0px;
     left: 1px;
@@ -51,7 +51,7 @@
 
 #Utils_Calendar__event span.event_menu_content {
     display: block;
-    width: 80px;
+    width: 89px;
     height: 20px;
 	background-color: #e6ecf2;
     padding-left: 3px;
@@ -164,18 +164,18 @@
 /* gray */
 
 .event_gray {
-	border: 2px solid #b3b3b3;
+	border: 2px solid #808080;
 	background-color: #f0f0f0;
 	background-image: url('images/header-light-gray.png');
 }
 
 .event_gray #event_grab,
 .event_gray #event_info {
-    background-color: #b3b3b3;
+    background-color: #808080;
 }
 
 .event_gray #event_title a:hover {
-    color: #b3b3b3;
+    color: #808080;
     background-image: url('images/header-light-gray-hover.png');
 }
 

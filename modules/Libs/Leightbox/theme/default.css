@@ -1,4 +1,4 @@
-.leightbox {
+#actionbar_launchpad {
 	position: fixed;
 	color: #333;
 	display: none;
@@ -6,12 +6,12 @@
 	left: 25%;
 	width: 50%;
 	height: 50%;
-	padding: 1em;
-	border: 1em solid #B8B8B8;
+	padding: 10px;
+	border: 10px solid #b3b3b3;
 	background-color: white;
 	text-align: left;
 	z-index: 1001;
-	overflow: auto;	
+	overflow: auto;
 }
 
 .leightbox_overlay {
