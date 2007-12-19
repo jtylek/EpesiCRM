@@ -31,6 +31,16 @@ input, textarea, select {
 .green { color: #339933; }
 .blue  { color: #336699; }
 
+/* colors select */
+select[name=color] { color: white; background-color: #336699; }
+select[name=color] option[value=blue]    { background-color: #336699; }
+select[name=color] option[value=red]     { background-color: #993333; }
+select[name=color] option[value=yellow]  { background-color: #999933; }
+select[name=color] option[value=green]   { background-color: #339933; }
+select[name=color] option[value=gray]    { background-color: #b3b3b3; }
+select[name=color] option[value=cyan]    { background-color: #339999; }
+select[name=color] option[value=magenta] { background-color: #993399; }
+
 a.button {
     font-weight: normal;
     color: #FFFFFF;
