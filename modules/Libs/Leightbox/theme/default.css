@@ -14,6 +14,22 @@
 	overflow: auto;
 }
 
+.leightbox {
+	position: fixed;
+	color: #333;
+	display: none;
+	top: 25%;
+	left: 25%;
+	width: 50%;
+	height: 50%;
+	padding: 10px;
+	border: 10px solid #b3b3b3;
+	background-color: white;
+	text-align: left;
+	z-index: 1001;
+	overflow: auto;
+}
+
 .leightbox_overlay {
 	position: fixed;
 	display: none;

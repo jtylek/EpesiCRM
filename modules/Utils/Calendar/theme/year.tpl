@@ -7,6 +7,8 @@
 		<td><a class="button" {$nextyear_href}><img border="0" width="8" height="8" src="{$theme_dir}/Utils_Calendar__next.png">&nbsp;&nbsp;{$nextyear_label}</a></td>
 		<td style="width: 10px;"></td>
 		<td>{$popup_calendar}</td>
+		<!-- <td style="width: 10px;"></td>
+		<td><a class="button" style="width: 80px;"><img border="0" width="20" height="20" src="{$theme_dir}/Utils_Calendar__4x3.png" style="vertical-align: middle; padding: 0px; margin-left: 10px; display: block; float: left; width: 20px; height: 20px;">4 x 3</a></td> -->
 		<td class="empty"></td>
 	</tr></table>
 </div>
