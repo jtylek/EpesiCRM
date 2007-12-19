@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * Example event module
  * @author pbukowski@telaxus.com
@@ -25,18 +25,19 @@ class Tests_Calendar_Event extends Utils_Calendar_Event {
 
 	public function add($def_date,$timeless=false) {
 		if($this->is_back()) $this->back_to_calendar();
-		
+
 		$qf = $this->init_module('Libs/QuickForm',null,'addf');
 		$qf->addElement('datepicker','start','Start date');
 		$qf->addElement('datepicker','end','End date');
 //		$qf->addElement('checkbox','timeless','Timeless'); //always
 		$qf->addElement('text','title','Title');
 		$qf->addElement('textarea','description','Description');
+		$qf->addElement('select','color','Color',array('red'=>'Red','green'=>'Green','blue'=>'Blue','yellow'=>'Yellow'));
 		$qf->setDefaults(array('start'=>$def_date,'end'=>$def_date));
 		if($qf->validate()) {
 			$d = $qf->exportValues();
-			DB::Execute('INSERT INTO tests_calendar_event(start,duration,timeless,title,description,created_on,created_by) VALUES(%d,%d,%b,%s,%s,%T,%d)',
-				array(strtotime($d['start']),strtotime($d['end'])-strtotime($d['start'])+86400,true,$d['title'],$d['description'],time(),Acl::get_user()));
+			DB::Execute('INSERT INTO tests_calendar_event(start,duration,timeless,title,description,created_on,created_by,color) VALUES(%d,%d,%b,%s,%s,%T,%d,%s)',
+				array(strtotime($d['start']),strtotime($d['end'])-strtotime($d['start'])+86400,true,$d['title'],$d['description'],time(),Acl::get_user(),$d['color']));
 			$this->back_to_calendar();
 		} else {
 			$qf->display();

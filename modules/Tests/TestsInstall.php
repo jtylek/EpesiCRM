@@ -34,6 +34,7 @@ class TestsInstall extends ModuleInstall {
 	public function requires($v) {
 		return array(
 		    array('name'=>'Tests/BookmarkBrowser','version'=>0),
+		    array('name'=>'Tests/Calendar','version'=>0),
 		    array('name'=>'Tests/Callbacks','version'=>0),
 		    array('name'=>'Tests/Colorpicker','version'=>0),
 		    array('name'=>'Tests/Comment','version'=>0),

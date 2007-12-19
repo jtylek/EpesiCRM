@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * Example event module
  * @author pbukowski@telaxus.com
@@ -23,6 +23,8 @@ class Tests_Calendar_EventInstall extends ModuleInstall {
 			"duration I4 NOT NULL, " .
 			"timeless I DEFAULT 0, " .
 
+			"color C(16), " .
+
 			"created_on T NOT NULL," .
 			"created_by I4 REFERENCES user_login(id)," .
 			"edited_on T NOT NULL DEFAULT 0," .
@@ -34,33 +36,33 @@ class Tests_Calendar_EventInstall extends ModuleInstall {
 		}
 		return $ret;
 	}
-	
+
 	public function uninstall() {
 		return DB::DropTable('tests_calendar_event');
 	}
-	
+
 	public function version() {
 		return array("0.1");
 	}
-	
+
 	public function requires($v) {
 		return array(
 				array('name'=>'Utils/Calendar/Event','version'=>0),
 				array('name'=>'Utils/PopupCalendar','version'=>0),
 				array('name'=>'Libs/QuickForm','version'=>0));
 	}
-	
+
 	public static function info() {
 		return array(
 			'Description'=>'Example event module',
 			'Author'=>'pbukowski@telaxus.com',
 			'License'=>'SPL');
 	}
-	
+
 	public static function simple_setup() {
 		return false;
 	}
-	
+
 }
 
 ?>

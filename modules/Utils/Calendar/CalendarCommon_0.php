@@ -8,6 +8,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 		$th->assign('event_id',$ev['id']);
 		$th->assign('title',strip_tags($ev['title']));
 		$th->assign('description',$ev['description']);
+		$th->assign('color',$ev['color']);
 		$th->assign('start',$ex['start']);
 		$th->assign('end',$ex['end']);
 		$th->assign('duration',$ex['duration']);
