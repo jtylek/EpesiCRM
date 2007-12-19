@@ -17,7 +17,7 @@ class Utils_Attachment extends Module {
 	private $key;
 	private $real_key;
 	private $group;
-	private $persistant_deletion = false;
+	private $persistent_deletion = false;
 
 	private $private_read = false;
 	private $private_write = false;
@@ -38,7 +38,7 @@ class Utils_Attachment extends Module {
 		$this->real_key = $key;
 		$this->key = md5($key);
 
-		if(isset($pd)) $this->persistant_deletion = $pd;
+		if(isset($pd)) $this->persistent_deletion = $pd;
 		if(isset($in)) $this->inline = $in;
 		if(isset($priv_r)) $this->private_read = $priv_r;
 		if(isset($priv_w)) $this->private_write = $priv_w;
@@ -58,8 +58,8 @@ class Utils_Attachment extends Module {
 		$this->inline = $x;
 	}
 
-	public function set_persistant_delete($x=true) {
-		$this->persistant_deletion = $x;
+	public function set_persistent_delete($x=true) {
+		$this->persistent_deletion = $x;
 	}
 
 	public function allow_private($read,$write=null) {
@@ -90,7 +90,7 @@ class Utils_Attachment extends Module {
 
 	public function body() {
 		$vd = null;
-		if($this->view_deleted && !$this->persistant_deletion) {
+		if($this->view_deleted && !$this->persistent_deletion) {
 			$f = $this->init_module('Libs/QuickForm',null,'view_deleted');
 			$f->addElement('checkbox','view_del',$this->lang->t('View deleted attachments'),null,array('onClick'=>$f->get_submit_form_js()));
 			$vd = & $this->get_module_variable('view_deleted');
@@ -179,7 +179,7 @@ class Utils_Attachment extends Module {
 	}
 
 	public function view_queue($id) {
-		$this->push_box0('view',array($id),array($this->real_key,$this->group,$this->persistant_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->view_deleted,$this->add_header));
+		$this->push_box0('view',array($id),array($this->real_key,$this->group,$this->persistent_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->view_deleted,$this->add_header));
 	}
 
 	public function get_file($row) {
@@ -261,7 +261,7 @@ class Utils_Attachment extends Module {
 	}
 
 	public function edition_history_queue($id) {
-		$this->push_box0('edition_history',array($id),array($this->real_key,$this->group,$this->persistant_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->view_deleted,$this->add_header));
+		$this->push_box0('edition_history',array($id),array($this->real_key,$this->group,$this->persistent_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->view_deleted,$this->add_header));
 	}
 
 	public function edition_history($id) {
@@ -387,7 +387,7 @@ class Utils_Attachment extends Module {
 	}
 
 	public function edit_note_queue($id=null) {
-		$this->push_box0('edit_note',array($id),array($this->real_key,$this->group,$this->persistant_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->view_deleted,$this->add_header));
+		$this->push_box0('edit_note',array($id),array($this->real_key,$this->group,$this->persistent_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->view_deleted,$this->add_header));
 	}
 
 	public function edit_note($id=null) {
@@ -474,7 +474,7 @@ class Utils_Attachment extends Module {
 	}
 
 	public function delete($id) {
-		if($this->persistant_deletion) {
+		if($this->persistent_deletion) {
 			DB::Execute('DELETE FROM utils_attachment_note WHERE attach_id=%d',array($id));
 			$rev = DB::GetOne('SELECT count(*) FROM utils_attachment_file WHERE attach_id=%d',array($id));
 			$file_base = $this->get_data_dir().$this->group.'/'.$id.'_';
