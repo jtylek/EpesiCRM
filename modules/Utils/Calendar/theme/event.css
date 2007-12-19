@@ -79,29 +79,14 @@
 
 /* COLORS */
 
-.event_green  #event_title a,
-.event_blue   #event_title a,
-.event_red    #event_title a,
-.event_yellow #event_title a {
+.event_blue    #event_title a,
+.event_red     #event_title a,
+.event_yellow  #event_title a,
+.event_green   #event_title a,
+.event_gray    #event_title a,
+.event_cyan    #event_title a,
+.event_magenta #event_title a {
     color: black;
-}
-
-/* green */
-
-.event_green {
-	border: 2px solid #339933;
-	background-color: #cfe6cf;
-	background-image: url('images/header-light-green.png');
-}
-
-.event_green #event_grab,
-.event_green #event_info {
-    background-color: #339933;
-}
-
-.event_green #event_title a:hover {
-    color: #339933;
-    background-image: url('images/header-light-green-hover.png');
 }
 
 /* blue */
@@ -156,4 +141,76 @@
 .event_yellow #event_title a:hover {
     color: #999933;
     background-image: url('images/header-light-yellow-hover.png');
+}
+
+/* green */
+
+.event_green {
+	border: 2px solid #339933;
+	background-color: #cfe6cf;
+	background-image: url('images/header-light-green.png');
+}
+
+.event_green #event_grab,
+.event_green #event_info {
+    background-color: #339933;
+}
+
+.event_green #event_title a:hover {
+    color: #339933;
+    background-image: url('images/header-light-green-hover.png');
+}
+
+/* gray */
+
+.event_gray {
+	border: 2px solid #b3b3b3;
+	background-color: #f0f0f0;
+	background-image: url('images/header-light-gray.png');
+}
+
+.event_gray #event_grab,
+.event_gray #event_info {
+    background-color: #b3b3b3;
+}
+
+.event_gray #event_title a:hover {
+    color: #b3b3b3;
+    background-image: url('images/header-light-gray-hover.png');
+}
+
+/* cyan */
+
+.event_cyan {
+	border: 2px solid #339999;
+	background-color: #cfe6e6;
+	background-image: url('images/header-light-cyan.png');
+}
+
+.event_cyan #event_grab,
+.event_cyan #event_info {
+    background-color: #339999;
+}
+
+.event_cyan #event_title a:hover {
+    color: #339999;
+    background-image: url('images/header-light-cyan-hover.png');
+}
+
+/* magenta */
+
+.event_magenta {
+	border: 2px solid #993399;
+	background-color: #e6cfe6;
+	background-image: url('images/header-light-magenta.png');
+}
+
+.event_magenta #event_grab,
+.event_magenta #event_info {
+    background-color: #993399;
+}
+
+.event_magenta #event_title a:hover {
+    color: #993399;
+    background-image: url('images/header-light-magenta-hover.png');
 }
