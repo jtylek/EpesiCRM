@@ -29,12 +29,8 @@
 			<tr>
 			  	<td class="nowrap label" align="left">{$form_data.date_s.label}</td>
 			 	<td class="nowrap data" align="left">{$form_data.date_s.html}</td>
-				{if $timeless == 0}
-				  	<td class="nowrap data" align="left">{$form_data.time_s.html}</td>
-				  	<td rowspan={$span} class="group_bottom data padd">{$form_data.timeless.html}{$form_data.timeless.label}</td>
-				{else}
-				  	<td colspan="2" rowspan={$span} class="group_bottom data padd">{$form_data.timeless.html}{$form_data.timeless.label}</td>
-				{/if}
+			  	<td class="nowrap data" align="left" width=140><span id="time_s">{$form_data.time_s.html}</span></td>
+			  	<td rowspan={$span} class="group_bottom data padd">{$form_data.timeless.html}{$form_data.timeless.label}</td>
 			</tr>
 			{if $form_data.date_e.error}
 			<tr><td colspan="3"><span class="error">{$form_data.date_e.error}</span></td></tr>
@@ -42,15 +38,8 @@
 			<tr>
 			  	<td class="nowrap label">{$form_data.date_e.label}</td>
 			  	<td class="nowrap data">{$form_data.date_e.html}</td>
-				{if $timeless == 0}
-				 	<td class="nowrap data">{$form_data.time_e.html}</td>
-				{/if}
+			 	<td class="nowrap data"><span id="time_e">{$form_data.time_e.html}</span></td>
 		 	</tr>
-			{**********}
-			<tr>
-			  <td class="group_bottom label" align="left">{$form_data.act_id.label}</td>
-			  <td class="group_bottom data" align="left" colspan="3">{$form_data.act_id.html}</td>
-			</tr>
 			{*********}
 			<tr>
 				  <td class="label" align="left">{$form_data.access.label}</td>
@@ -74,7 +63,9 @@
 				<td class="data no-border arrows" colspan="2">{$form_data.cus_id.html}</td>
 			</tr>
 			<tr>
-				<td class="data no-border arrows" colspan="2">{$emp_click}</td>
+				<td class="data no-border arrows" colspan="2">
+				{* {$emp_click} *}
+				</td>
 				<td class="data no-border arrows" colspan="2">{$cus_click}</td>
 			</tr>
         {* description *}

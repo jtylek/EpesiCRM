@@ -31,11 +31,11 @@ class Utils_CalendarCommon extends ModuleCommon {
 		if(!isset($row['start']) || !isset($row['duration']) || !is_numeric($row['duration'])
 		   || !isset($row['title']) || !isset($row['description'])
 		   || !isset($row['timeless']) || !isset($row['id']))
-			trigger_error('Invalid return of event method: get',E_USER_ERROR);
+			trigger_error('Invalid return of event method: get (missing field: '.print_r($row, true).')',E_USER_ERROR);
 
 		if(!is_numeric($row['start']) && is_string($row['start'])) $row['start'] = strtotime($row['start']);
 		if($row['start']===false)
-			trigger_error('Invalid return of event method: get',E_USER_ERROR);
+			trigger_error('Invalid return of event method: get (start equal to null)',E_USER_ERROR);
 
 		$row['end'] = $row['start']+$row['duration'];
 

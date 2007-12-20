@@ -13,35 +13,35 @@ class CRM_Calendar_EventInstall extends ModuleInstall {
 
 	public function install() {
 		$ret = true;
-		$ret &= DB::CreateTable('crm_calendar_group',
+		$ret &= DB::CreateTable('crm_calendar_group_emp',
+			'id I AUTO KEY,'.
+			'contact I4 NUT NULL',
+			array('constraints'=>'')
+			);
+		$ret &= DB::CreateTable('crm_calendar_group_cus',
 			'id I AUTO KEY,'.
 			'contact I4 NUT NULL',
 			array('constraints'=>'')
 			);
 		$ret &= DB::CreateTable('crm_calendar_event',
-			'id I AUTO KEY,' .
+			'id I AUTO KEY,'.
 
-			'title C(64) NOT NULL, ' .
-			'description X, ' .
+			'title C(64) NOT NULL, '.
+			'description X, '.
 
-			'start I4 NOT NULL, ' .
-			'end I4 NOT NULL, ' .
-			'timeless I DEFAULT 0, ' .
+			'start I4 NOT NULL, '.
+			'end I4 NOT NULL, '.
+			'timeless I1 DEFAULT 0, '.
 
-			'access I1 DEFAULT 0, ' .
-			'priority I1 DEFAULT 0, ' .
+			'access I1 DEFAULT 0, '.
+			'priority I1 DEFAULT 0, '.
 
-			'employee I4, ' .
-			'customer I4, ' .
-
-			'created_on T NOT NULL,' .
-			'created_by I4,' .
-			'edited_on T NOT NULL DEFAULT 0,' .
-			'edited_by I4',
+			'created_on T NOT NULL,'.
+			'created_by I4,'.
+			'edited_on T DEFAULT 0,'.
+			'edited_by I4 DEFAULT -1',
 			array('constraints'=>	', FOREIGN KEY (created_by) REFERENCES user_login(id)'.
-									', FOREIGN KEY (edited_by) REFERENCES user_login(id)'.
-									', FOREIGN KEY (employee) REFERENCES crm_calendar_group(id)'.
-									', FOREIGN KEY (customer) REFERENCES crm_calendar_group(id)')
+									', FOREIGN KEY (edited_by) REFERENCES user_login(id)')
 		);
 		if(!$ret) {
 			print('Unable to create crm_calendar_event table');
@@ -54,7 +54,8 @@ class CRM_Calendar_EventInstall extends ModuleInstall {
 	public function uninstall() {
 		Base_ThemeCommon::uninstall_default_theme('CRM/Calendar/Event');
 		$ret = DB::DropTable('crm_calendar_event');
-		$ret &= DB::DropTable('crm_calendar_group');
+		$ret &= DB::DropTable('crm_calendar_group_emp');
+		$ret &= DB::DropTable('crm_calendar_group_cus');
 		return $ret;
 	}
 	
