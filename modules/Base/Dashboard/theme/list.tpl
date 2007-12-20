@@ -22,6 +22,7 @@
 				<img src="{$button.icon}" border="0" width="32" height="32" align="middle">&nbsp;&nbsp;
 				{/if}
 				{$__link.buttons.$key.link.text}
+				{$button.desc}
 			</div>
 			{$__link.buttons.$key.link.close}
 
