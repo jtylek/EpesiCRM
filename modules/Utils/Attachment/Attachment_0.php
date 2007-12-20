@@ -206,7 +206,7 @@ class Utils_Attachment extends Module {
 		$th->display('download');
 		$c = ob_get_clean();
 
-		print '<div class="leightbox" id="'.$lid.'">'.
+		print '<div class="leightbox" id="'.$lid.'">'. // id='leightbox_attachment'
 			$c.
 			'</div>';
 		return 'class="lbOn" rel="'.$lid.'" href="javascript:void(0)"';

@@ -4,15 +4,17 @@
 	background-image: url("images/header-blue.png");
 	background-repeat: repeat-x;
 	height: 20px;
-	text-align: center;
-	vertical-align: middle;
-	font-weight: bold;
 }
 
 #Attachment_header .left {
-	width: 17px;
+	width: 14px;
 	display: block;
 	float: left;
+	padding: 3px;
+}
+
+#Attachment_header .left img {
+	cursor: pointer;
 }
 
 #Attachment_header .center {
@@ -21,14 +23,16 @@
 	padding-top: 3px;
 	font-weight: bold;
 	text-align: center;
+	position: absolute;
+	left: 50%;
+	margin-left: -35px;
 }
 
 #Attachment_header .right {
-	width: 17px;
+	width: 14px;
 	display: block;
 	float: right;
-	padding-top: 3px;
-	padding-right: 3px;
+	padding: 3px;
 }
 
 table#Utils_Attachment__download .button {

@@ -1,8 +1,13 @@
+{php}
+	load_js('data/Base_Theme/templates/default/Utils_Attachment__download.js');
+{/php}
+
 <center>
 
 <div id="Attachment_header">
+    <div class="left"><img src="{$theme_dir}/Utils_Attachment__resize.png" onClick="resize_download();" onMouseOver="this.src='{$theme_dir}/Utils_Attachment__resize-hover.png';" onMouseOut="this.src='{$theme_dir}/Utils_Attachment__resize.png';" width="14" height="14" alt="R" border="0"></div>
     <div class="center"><div style="position: absolute; left: 45%;">Attachment</div></div>
-	<div class="right">{$__link.close.open}<img src="{$theme_dir}/Utils_Attachment__close.png" width="14" height="14" alt="x" border="0">{$__link.close.close}</div>
+	<div class="right">{$__link.close.open}<img src="{$theme_dir}/Utils_Attachment__close.png" onMouseOver="this.src='{$theme_dir}/Utils_Attachment__close-hover.png';" onMouseOut="this.src='{$theme_dir}/Utils_Attachment__close.png';" width="14" height="14" alt="X" border="0">{$__link.close.close}</div>
 </div>
 <br/>
 <h3>{$filename}</h3>

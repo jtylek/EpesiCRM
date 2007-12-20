@@ -224,3 +224,13 @@ a.root_item_link_right {
 	border-color: white;
 	border-color: #dbe6db;
 }
+
+/* ---------- */
+
+a.root_item_link:hover,
+a.root_item_link_none:hover,
+a.root_item_link_right:hover {
+	background-color: #669966;
+	background-image: url('images/menu-hover.png');
+	background-position: 0px 5px;
+}
