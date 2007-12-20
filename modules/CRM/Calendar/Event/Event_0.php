@@ -163,7 +163,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				$this->add_event($values);
 			else 
 				$this->update_event($id, $values);
-			return false;
+			$this->back_to_calendar();
 		}
 			
 		if($action == 'view') $form->freeze();
