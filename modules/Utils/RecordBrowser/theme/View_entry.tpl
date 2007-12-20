@@ -11,6 +11,7 @@
 {/if}
 {assign var=x value=0}
 
+{if $main_page}
 <table class="Utils_RecordBrowser__table" border="0" cellpadding="0" cellspacing="0">
 	<tbody>
 		<tr>
@@ -20,7 +21,7 @@
 		</tr>
 	</tbody>
 </table>
-
+{/if}
 
 <!-- SHADOW BEGIN -->
 	<div class="layer" style="padding: 9px; width: 98%;">

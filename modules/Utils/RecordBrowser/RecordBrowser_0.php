@@ -394,6 +394,7 @@ class Utils_RecordBrowser extends Module {
 			$ret = DB::Execute('SELECT * FROM '.$this->tab.'_addon');
 			while ($row = $ret->FetchRow()) {
 				$mod = $this->init_module($row['module']);
+				if (!is_callable(array($mod,$row['func']))) trigger_error('Invalid callback method '.$row['module'].'::'.$row['func'], E_USER_ERROR);
 				$tb->set_tab($this->lang->t($row['label']),array($this, 'display_module'), array($mod, array($record), $row['func']), $js);
 			}
 		}
@@ -435,6 +436,8 @@ class Utils_RecordBrowser extends Module {
 		
 		$theme->assign('caption',$this->caption);
 		$theme->assign('icon',$this->icon);
+
+		$theme->assign('main_page',$main_page);
 
 		if ($main_page) $tpl = DB::GetOne('SELECT tpl FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 		else $tpl = '';
