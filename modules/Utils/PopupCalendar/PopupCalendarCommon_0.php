@@ -2,10 +2,10 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_PopupCalendarCommon extends ModuleCommon {
-	public static function show($name,$function = '',$fullscreen=true,$mode=null,$first_day_of_week=null,$top=null,$left=null) {
+	public static function show($name,$function = '',$fullscreen=true,$mode=null,$first_day_of_week=null,$pos_js=null) {
 		Base_ThemeCommon::load_css('Utils_PopupCalendar');
 		load_js('modules/Utils/PopupCalendar/js/main.js');
-		
+
 		if(!isset($first_day_of_week)) {
 			if(Acl::is_user())
 				$first_day_of_week=self::get_first_day_of_week();
@@ -13,7 +13,7 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 				$first_day_of_week=0;
 		} elseif(!is_numeric($first_day_of_week))
 			trigger_error('Invalid first day of week',E_USER_ERROR);
-		
+
 		if($mode=='month') {
 			$label = Base_LangCommon::ts('Utils_PopupCalendarCommon','Select month');
 		} elseif($mode=='year') {
@@ -21,7 +21,7 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 		} else {
 			$label = Base_LangCommon::ts('Utils_PopupCalendarCommon','Select date');
 		}
-		
+
 		$calendar = '<div id="Utils_PopupCalendar">'.
 			'<table cellspacing="0" cellpadding="0" border="0"><tr><td id="datepicker_'.$name.'_header">error</td></tr>'.
 			'<tr><td id="datepicker_'.$name.'_view">calendar not loaded</td></tr></table></div>';
@@ -40,11 +40,21 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 			$entry = 'datepicker_'.$name.'_calendar';
 			$butt = 'datepicker_'.$name.'_button';
 			$ret = '<a onClick="$(\''.$entry.'\').toggle()" href="javascript:void(0)" class="button" id="'.$butt.'">'.$label.'</a>';
-			if(!isset($left)) $left = 'expression( ($(\''.$butt.'\').getStyle(\'left\') )+\'px\')';
-			if(!isset($top)) $top = 'expression( ($(\''.$butt.'\').getStyle(\'top\')+$(\''.$butt.'\').getStyle(\'height\') )+\'px\')';
-			$ret .= '<div id="'.$entry.'" class="utils_popupcalendar_popup" style="top: '.Epesi::escapeJS($top,true,false).';left:'.Epesi::escapeJS($left,true,false).';display:none;z-index:8;position:absolute;">'.
-				$calendar.
+
+			$smarty = Base_ThemeCommon::init_smarty();
+			$smarty->assign('calendar',$calendar);
+			ob_start();
+			Base_ThemeCommon::display_smarty($smarty,'Utils_PopupCalendar');
+			$cal_out = ob_get_clean();
+
+
+			$ret .= '<div id="'.$entry.'" class="utils_popupcalendar_popup" style="display:none;z-index:8;">'.
+				$cal_out.
 				'</div>';
+
+			if(!isset($pos_js)) $pos_js = 'popup.clonePosition(\''.$butt.'\',{setWidth:false,setHeight:false,offsetTop:$(\''.$butt.'\').getHeight()})';
+			eval_js('var popup=$(\''.$entry.'\');popup.absolutize();'.$pos_js);
+
 			$function .= ';$(\''.$entry.'\').hide()';
 		}
 
@@ -65,7 +75,7 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 		}
 		return array();
 	}
-	
+
 	public static function get_first_day_of_week() {
 		return Base_User_SettingsCommon::get('Utils_PopupCalendar','first_day_of_week');
 	}
