@@ -1,19 +1,21 @@
 table#Base_Dashboard .button {
 	/*width: 200px;*/
-	height: 60px;
+	height: 80px;
 	background-color: #F0F0F0;
 	border: 1px solid #FFFFFF;
 	background-image: url("images/big-button.png");
 	background-repeat: repeat-x;
-	vertical-align: middle;
-	text-align: left;
-	padding-left: 15px;
 	font-size: 11px;
 
 	display: block;
-	padding-top: 20px;
 	cursor: pointer;
 	cursor: pointer;
+}
+
+table#Base_Dashboard .button table {
+	margin-right: 20px;
+	width: 100%;
+	height: 100%;
 }
 
 table#Base_Dashboard .button:hover {
@@ -22,12 +24,31 @@ table#Base_Dashboard .button:hover {
 	background-repeat: repeat-x;
 }
 
-table#Base_Dashboard a {
+table#Base_Dashboard .button .icon {
+	text-align: center;
+	vertical-align: middle;
+	width: 60px;
+}
+
+table#Base_Dashboard .button .text {
+	text-align: center;
+	vertical-align: middle;
+	height: 40px;
+}
+
+table#Base_Dashboard .button .desc {
+	height: 40px;
+	vertical-align: top;
+	text-align: left;
+	color: #777777;
+}
+
+table#Base_Dashboard a .text {
 	color: #336699;
 	font-weight: bold;
 }
 
-table#Base_Dashboard a:hover {
+table#Base_Dashboard a:hover .text {
 	color: #993333;
 }
 

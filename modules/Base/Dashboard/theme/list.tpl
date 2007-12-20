@@ -18,11 +18,23 @@
 
 			{$__link.buttons.$key.link.open}
 			<div class="button">
-				{if isset($button.icon)}
-				<img src="{$button.icon}" border="0" width="32" height="32" align="middle">&nbsp;&nbsp;
-				{/if}
-				{$__link.buttons.$key.link.text}
-				{$button.desc}
+				<table border="0" cellpadding="0" cellspacing="0">
+					<tr>
+						<td class="icon" rowspan="2">
+							{if isset($button.icon)}
+							<img src="{$button.icon}" border="0" width="32" height="32" align="middle">
+							{/if}
+						</td>
+						<td class="text">
+							{$__link.buttons.$key.link.text}
+						</td>
+					</tr>
+					<tr>
+						<td class="desc">
+							{$button.desc}
+						</td>
+					</tr>
+				</table>
 			</div>
 			{$__link.buttons.$key.link.close}
 
