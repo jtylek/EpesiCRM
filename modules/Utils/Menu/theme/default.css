@@ -196,15 +196,31 @@ td.splitter {
 
 /* ---------- */
 
-/*
 .submenu {
-	background-color: white;
+	background-color: #339966;
+	background-color: #669966;
 }
 
 a.root_item_link,
-a.root_item_link_down,
 a.root_item_link_none,
 a.root_item_link_right {
 	color: black;
+	color: white;
 }
-*/
+
+/* ---------- */
+
+td.splitter {
+	background-color: #B3B3B3;
+	background-color: white;
+	background-color: #dbe6db;
+}
+
+.submenu,
+a.root_item_link,
+a.root_item_link_none,
+a.root_item_link_right {
+	border-color: #B3B3B3;
+	border-color: white;
+	border-color: #dbe6db;
+}

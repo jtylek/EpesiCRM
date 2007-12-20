@@ -237,7 +237,10 @@ CustomMenubar = function(id, _layout) {
 			menu_string[this.id] += '<table cellspacing=0 cellpadding=0 onmouseout="custom_hide(\''+this.id+'\','+this.submenu_number+')" onmouseover="custom_show(\''+this.id+'\','+this.submenu_number+')" class=custom_opener>';
 			menu_string[this.id] += '<tr>';
 			this.addLink_bullet( title, icon );
-			menu_string[this.id] += '<td class=item_sub><table cellspacing=0 cellpadding=0 id="'+sub_name(this.id, this.submenu_number)+'" class=submenu>';
+			menu_string[this.id] += '<td class="item_sub">';
+			// t2 begin
+			menu_string[this.id] += '<table cellspacing="0" cellpadding="0" class="submenu" id="'+sub_name(this.id, this.submenu_number)+'">';
+			// --
 		} else {
 			if(this.depth == 0 ) {
 				if(this.init == 0) {
@@ -263,7 +266,10 @@ CustomMenubar = function(id, _layout) {
 	this.endSubmenu = function() {
 		this.depth--;
 		if(layout[this.id] == 'vertical' || this.depth != 0) {
-			menu_string[this.id] += '</table></td></tr></table></td></tr>';
+			// --
+			menu_string[this.id] += '</table>';
+			// t2 end
+			menu_string[this.id] += '</td></tr></table></td></tr>';
 		} else {
 			if(this.depth == 0 ) {
 				menu_string[this.id] += '</table></td></tr></table></td>';
