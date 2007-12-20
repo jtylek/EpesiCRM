@@ -41,7 +41,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 			array('name'=>'Home Phone', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true),
 			array('name'=>'Home Address 1', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true),
 			array('name'=>'Home Address 2', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true),
-			array('name'=>'City', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true),
+			array('name'=>'Home City', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true),
 			array('name'=>'Home Country', 'type'=>'commondata', 'required'=>false, 'param'=>array('Countries'), 'extra'=>true,'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_country')),
 			array('name'=>'Home Zone', 'type'=>'commondata', 'required'=>false, 'param'=>array('Countries','Country'), 'extra'=>true, 'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_zone')),
 			array('name'=>'Home Postal Code', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true),
