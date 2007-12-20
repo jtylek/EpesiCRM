@@ -9,7 +9,9 @@ add_event:function(dest_id,ev_id,title) {
 	
 	new Draggable(ev, {
 		handle: 'handle',
-		revert: true
+		revert: true,
+		quiet: true
+//		endeffect: function(e){}
 	});
 },
 ids:null,
@@ -65,31 +67,34 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 		accept: 'utils_calendar_event',
 		onDrop: function(element,droppable,ev) {
 			element.hide();
-			if(!confirm('Delete this event?')) {
-				element.show();
-				return;
-			}
-			droppable.appendChild(element);
-			new Ajax.Request('modules/Utils/Calendar/update.php',{
-					method:'post',
-					parameters:{
-						ev_id: element.id.substr(21),
-						cell_id: 'trash',
-						path: mpath,
-						cid: ecid
-					},
-					onComplete: function(t) {
-						eval(t.responseText);
-					},
-					onException: function(t,e) {
-						throw(e);
-					},
-					onFailure: function(t) {
-						alert('Failure ('+t.status+')');
-						Epesi.text(t.responseText,'error_box','p');
-					}
-			});
+//			droppable.appendChild(element);
+			setTimeout('Utils_Calendar.delete_event(\''+element.id+'\', \''+mpath+'\', \''+ecid+'\')',1);
 		}
+	});
+},
+delete_event:function(eid,mpath,ecid) {
+	if(!confirm('Delete this event?')) {
+		$(eid).show();
+		return;
+	}
+	new Ajax.Request('modules/Utils/Calendar/update.php',{
+			method:'post',
+			parameters:{
+				ev_id: eid.substr(21),
+				cell_id: 'trash',
+				path: mpath,
+				cid: ecid
+			},
+			onComplete: function(t) {
+				eval(t.responseText);
+			},
+			onException: function(t,e) {
+				throw(e);
+			},
+			onFailure: function(t) {
+				alert('Failure ('+t.status+')');
+				Epesi.text(t.responseText,'error_box','p');
+			}
 	});
 },
 destroy:function() {

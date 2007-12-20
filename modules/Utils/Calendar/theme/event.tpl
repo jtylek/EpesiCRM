@@ -14,8 +14,7 @@
 		<a {$view_href}><img border="0" src="{$theme_dir}/Utils_Calendar__view.png"></a>
 		<a {$edit_href}><img border="0" src="{$theme_dir}/Utils_Calendar__edit.png"></a>
 		<a {$delete_href}><img border="0" src="{$theme_dir}/Utils_Calendar__delete.png"></a>
-        <a href=""><img border="0" src="{$theme_dir}/Utils_Calendar__select.png"></a>
-    </span>
+	</span>
 
         <!-- SHADOW END -->
  		</div>
