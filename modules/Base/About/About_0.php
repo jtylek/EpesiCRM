@@ -46,8 +46,8 @@ class Base_About extends Module {
 	}
 
 	public function body() {
-		print('<div id="aboutepesi" class="leightbox">'.$this->get_info().'<br><a class="lbAction" rel="deactivate">Close</a></div>');
-		print('<a rel="aboutepesi" class="lbOn" '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Base_About','Click to get more info')).'><img src="images/epesi-powered.png" border=0></a>');
+		Libs_LeightboxCommon::display('aboutepesi',$this->get_info(),'About');
+		print('<a '.Libs_LeightboxCommon::get_open_href('aboutepesi').' '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Base_About','Click to get more info')).'><img src="images/epesi-powered.png" border=0></a>');
 	}
 
 	public function caption() {

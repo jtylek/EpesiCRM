@@ -116,17 +116,16 @@ class Base_ActionBar extends Module {
 					$th = & $this->pack_module('Base/Theme');
 					$th->assign('display_icon',$display_icon);
 					$th->assign('display_text',$display_text);
-					$th->assign('header',$l->t('Launchpad'));
-					$th->assign('close','<a class="lbAction" rel="deactivate" href="javascript:void(0)">Close</a>');
 					usort($launchpad,array($this,'compare_launcher'));
 					$th->assign('icons',$launchpad);
 					eval_js_once('actionbar_launchpad_deactivate = function(){leightbox_deactivate(\'actionbar_launchpad\');}');
 					foreach($launchpad as $v)
 						eval_js('Event.observe(\''.$v['link_id'].'\',\'click\', actionbar_launchpad_deactivate)');
-					print('<div id="actionbar_launchpad" class="leightbox">');
+					ob_start();
 					$th->display('launchpad');
-					print('</div>');
-					$launcher[] = array('label'=>'Launchpad','description'=>'Quick modules launcher','open'=>'<a class="lbOn" rel="actionbar_launchpad" href="javascript:void(0)">','close'=>'</a>','icon'=>$icon);
+					$lp_out = ob_get_clean();
+					Libs_LeightboxCommon::display('actionbar_launchpad',$lp_out,$l->t('Launchpad'));
+					$launcher[] = array('label'=>'Launchpad','description'=>'Quick modules launcher','open'=>'<a '.Libs_LeightboxCommon::get_open_href('actionbar_launchpad').'>','close'=>'</a>','icon'=>$icon);
 				}
 			}
 		}

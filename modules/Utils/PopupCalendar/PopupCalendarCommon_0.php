@@ -15,11 +15,11 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 			trigger_error('Invalid first day of week',E_USER_ERROR);
 
 		if($mode=='month') {
-			$label = Base_LangCommon::ts('Utils_PopupCalendarCommon','Select month');
+			$label = Base_LangCommon::ts('Utils_PopupCalendar','Select month');
 		} elseif($mode=='year') {
-			$label = Base_LangCommon::ts('Utils_PopupCalendarCommon','Select year');
+			$label = Base_LangCommon::ts('Utils_PopupCalendar','Select year');
 		} else {
-			$label = Base_LangCommon::ts('Utils_PopupCalendarCommon','Select date');
+			$label = Base_LangCommon::ts('Utils_PopupCalendar','Select date');
 		}
 
 		$calendar = '<div id="Utils_PopupCalendar">'.
@@ -30,10 +30,7 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 			$entry = 'datepicker_'.$name.'_calendar';
 			$ret = '<a style="cursor: pointer;" rel="'.$entry.'" class="button lbOn">' . $label . '&nbsp;&nbsp;<img style="padding-bottom: 2px;" border="0" width="10" height="8" src=' . Base_ThemeCommon::get_template_file('Utils_PopupCalendar', 'select.png').'>' . '</a>';
 
-			$ret .= '<div id="'.$entry.'" class="leightbox">'.
-				$calendar .
-				'<br><a class="button lbAction" rel="deactivate" id="close_leightbox">Close&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img style="vertical-align: top; padding-top: 3px;" src="' . Base_ThemeCommon::get_template_file('Utils/PopupCalendar','close.png') . '"> width="14" height="14" alt="x" border="0"></a>'.
-				'</div>';
+			$ret .= Libs_LeightboxCommon::get($entry,'<br><center>'.$calendar.'</center>',Base_LangCommon::ts('Utils_PopupCalendar','Calendar'));
 
 			$function .= ';leightbox_deactivate(\''.$entry.'\');';
 		} else {

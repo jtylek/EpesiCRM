@@ -19,10 +19,9 @@ class Utils_RecordBrowser_RecordPicker extends Module {
 
 		$this->element = $element;
 
-		print('<div id="leightbox_'.$element.'" class="leightbox">');
-		$this->display_module($rb, array($element, $format, $crits, $filters), 'recordpicker');
-		print('</div>');
-
+		Libs_LeightboxCommon::display('leightbox_'.$element,
+			$this->get_html_of_module($rb, array($element, $format, $crits, $filters), 'recordpicker'),
+			$this->lang->t('Select'));
 	}
 
 	public function create_open_link($label) {

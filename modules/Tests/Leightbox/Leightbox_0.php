@@ -23,12 +23,11 @@ class Tests_Leightbox extends Module{
 		$this->display_module($rb1, array('contact' ,'test',array('Tests_LeightboxCommon','TEST'), array('Company Name'=>true)));
 		print($rb1->create_open_link('Click here!'));
 		
-		print('<hr><a rel="leightbox1" class="lbOn">leightbox container</a>
-		<div id="leightbox1" class="leightbox">
-			<h1>Leightbox</h1>
-			ble ble ble
-			<a href="#" class="lbAction" rel="deactivate">Close</a>
-			</div><hr>');
+		Libs_LeightboxCommon::display('leightbox1','<h1>Leightbox</h1>'.
+							'ble ble ble','Test header');
+
+		print('<hr><a '.Libs_LeightboxCommon::get_open_href('leightbox1').'>leightbox container</a>
+			</div>');
 		
 		//------------------------------ print out src
 		print('<hr><b>Install</b><br>');

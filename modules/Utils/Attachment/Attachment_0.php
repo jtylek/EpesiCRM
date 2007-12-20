@@ -199,17 +199,14 @@ class Utils_Attachment extends Module {
 		$th->assign('download','<a href="modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$row['file_id'],'path'=>$this->get_path(),'cid'=>CID)).'" onClick="leightbox_deactivate(\''.$lid.'\')">'.$this->lang->t('Download').'</a><br>');
 		load_js('modules/Utils/Attachment/remote.js');
 		$th->assign('link','<a href="javascript:void(0)" onClick="utils_attachment_get_link('.$row['file_id'].', '.CID.', \''.Epesi::escapeJS($this->get_path(),false).'\',\'get link\');leightbox_deactivate(\''.$lid.'\')">'.$this->lang->t('Get link').'</a><br>');
-		$th->assign('close','<a class="lbAction" rel="deactivate" href="javascript:void(0)">Close</a>');
 		$th->assign('filename',$row['original']);
 
 		ob_start();
 		$th->display('download');
 		$c = ob_get_clean();
 
-		print '<div class="leightbox" id="'.$lid.'">'. // id='leightbox_attachment'
-			$c.
-			'</div>';
-		return 'class="lbOn" rel="'.$lid.'" href="javascript:void(0)"';
+		Libs_LeightboxCommon::display($lid,$c,$this->lang->t('Attachment'));
+		return Libs_LeightboxCommon::get_open_href($lid);
 	}
 
 	public function view($id) {

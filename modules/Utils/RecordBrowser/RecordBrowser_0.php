@@ -972,7 +972,6 @@ class Utils_RecordBrowser extends Module {
 		$this->set_module_variable('element',$element);
 		$this->set_module_variable('format_func',$format);
 		$theme = $this->init_module('Base/Theme');
-		$theme->assign('header', $this->lang->t('Select records').': '.$this->caption);
 		$theme->assign('filters', $this->show_filters($filters, $element));
 		foreach	($crits as $k=>$v) {
 			if (!is_array($v)) $v = array($v);
@@ -981,7 +980,6 @@ class Utils_RecordBrowser extends Module {
 			} else $this->crits[$k] = $v;
 		}
 		$theme->assign('table', $this->show_data($this->crits, array(), array(), false, false, true));
-		$theme->assign('close_button','<a href="javascript:leightbox_deactivate(\'leightbox_'.$element.'\')">Close</a>');
 
 		$rpicker_ind = $this->get_module_variable('rpicker_ind');
 		eval_js(

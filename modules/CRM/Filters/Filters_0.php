@@ -30,7 +30,6 @@ class CRM_Filters extends Module {
 		$display_text = ($display_settings == 'both' || $display_settings == 'text only');
 		$th->assign('display_icon',$display_icon);
 		$th->assign('display_text',$display_text);
-		$th->assign('header',$this->lang->t('Filters'));
 
 		eval_js_once('crm_filters_deactivate = function(){leightbox_deactivate(\'crm_filters\');}');
 
@@ -59,10 +58,11 @@ class CRM_Filters extends Module {
 		}
 		$th->assign('contacts',$qf->toHtml());
 
-		$th->assign('close','<a href="javascript:void(0)" rel="deactivate" class="lbAction">Close</a>');
-		print('<div id="crm_filters" class="leightbox">');
+		ob_start();
 		$th->display();
-		print('</div>');
+		$profiles_out = ob_get_clean();
+
+		Libs_LeightboxCommon::display('crm_filters',$profiles_out,$this->lang->t('Filters'));
 	}
 
 	public function set_profile($prof) {
