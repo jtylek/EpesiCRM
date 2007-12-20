@@ -58,13 +58,13 @@ class CRM_ContactsCommon extends ModuleCommon {
 		switch ($action) {
 			case 'browse':	return $i->acl_check('browse contacts');
 			case 'view':	$me = self::get_my_record();
-					if($me['id']==$param['id']) return true; //me
+					if($me && $me['id']==$param['id']) return true; //me
 					return $i->acl_check('view contact');
 			case 'delete':	return $i->acl_check('delete contact');
 			case 'edit':
 					if($i->acl_check('edit contact')) return true;
 					$me = self::get_my_record();
-					if($me['id']==$param['id']) return true; //me
+					if($me && $me['id']==$param['id']) return true; //me
 					if($i->acl_check('edit my company contacts'))
 						foreach($param['Company Name'] as $cid)
 							if(in_array($cid,$me['Company Name'])) return true; //customer
