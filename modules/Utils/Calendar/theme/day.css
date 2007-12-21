@@ -150,11 +150,11 @@ div.day-menu {
 	padding-bottom: 0px;
 }
 
-div.day-menu table.menu {
+div.day-menu table.day-menu {
 	width: 100%;
 }
 
-div.day-menu table.menu td {
+div.day-menu table.day-menu td {
 	padding-left: 2px;
 	padding-right: 2px;
 }

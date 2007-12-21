@@ -54,13 +54,13 @@
 
 #Utils_RecordBrowser__View_entry .data input#due_date {
     display: block;
-    width: 100px;
+    /*width: 100px;*/
     margin-top: 2px;
     float: left;
 }
 
 #Utils_RecordBrowser__View_entry .data a.button {
-    margin-left: 102px;
+    /*margin-left: 102px;*/
     height: 19px;
 }
 

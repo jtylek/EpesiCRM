@@ -54,7 +54,7 @@
 }
 
 #Utils_PopupCalendar table.small {
-	border: 1px solid #336699;
+	/*border: 1px solid #336699;*/
 	width: 100%;
 	background-color: white;
 }
@@ -96,7 +96,6 @@
 #Utils_PopupCalendar table.small td.spacerTop {
 }
 
-div.utils_popupcalendar_popup {
-	/*border: 1px solid #b3b3b3;*/
-	width: 220px;
+#Utils_PopupCalendar table {
+	width: 100%;
 }

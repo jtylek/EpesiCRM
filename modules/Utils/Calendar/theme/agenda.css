@@ -1,4 +1,6 @@
 @CHARSET "ISO-8859-1";
+
+/*
 .no_border {
 	border: none;
 }
@@ -12,8 +14,9 @@ p.event {
 	margin: 4px 0px 2px 0px;
 	position: absolute;
 }
+*/
 /* classes for big table */
-
+/*
 	table.big {
 		width: 80%;
 		height: 100%;
@@ -86,6 +89,9 @@ p.event {
 		font-size: 14pt;
 	}
 
+*/
+
+/*
 div.events {
 	padding: 2px;
 	margin: 5px 0px 0px 20px;
@@ -99,6 +105,7 @@ div.events {
 div.events_brief {
 		padding: 1px 0px 0px 1px;
 	}
+*/
 
 #Utils_Calendar__agenda {
 }
@@ -161,7 +168,6 @@ div.events_brief {
 	display: block;
 	float: left;
 }
-
 
 #Utils_Calendar__agenda .data a.button:hover {
 	background-color: #339933;

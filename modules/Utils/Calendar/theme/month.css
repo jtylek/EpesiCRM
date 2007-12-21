@@ -172,11 +172,11 @@ table#Utils_Calendar__month .month-header a:hover {
 	/*border-bottom: 4px solid #B3B3B3;*/
 }
 
-#month-menu table.menu {
+#month-menu table.month-menu {
 	width: 100%;
 }
 
-#month-menu table.menu td {
+#month-menu table.month-menu td {
 	padding-left: 2px;
 	padding-right: 2px;
 }
@@ -189,12 +189,12 @@ table#Utils_Calendar__month .month-header a:hover {
 	width: 50%;
 }
 
-#month-menu table.menu .add-info {
+#month-menu table.month-menu .add-info {
 	color: #777777;
 	padding-right: 20px;
 }
 
-#month-menu table.menu .add-info:hover {
+#month-menu table.month-menu .add-info:hover {
 	color: #000000;
 }
 

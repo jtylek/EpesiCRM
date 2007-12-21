@@ -11,6 +11,11 @@ table.root {
 	border-right: 4px solid #B3B3B3;
 }
 
+a.root_item_link_down,
+a.root_item_link_down:hover {
+	color: white;
+}
+
 table.root td.separator {
 	width: 4px;
 	height: 20px;
@@ -49,7 +54,6 @@ a.root_item_link {
 	padding: 0px 25px 0px 25px;
 	display: block; /* for HTML standards... */
 	margin: 0px;
-	color: #FFFFFF;
 	font-size: 11px;
 	border-bottom: 1px solid #B3B3B3;
 	text-align: left;
@@ -60,14 +64,9 @@ a.root_item_link {
 	padding-bottom: 3px;
 }
 
-table.root a:hover {
-	color: #FFFFFF;
-}
-
 a.root_item_link_down {
 	display: block; /* for HTML standards... */
 	margin: 0px;
-	color: #FFFFFF;
 	font-size: 11px;
 	border: 0px;
 	text-align: left;
@@ -85,7 +84,6 @@ a.root_item_link_none {
 	padding: 0px 25px 0px 25px;
 	display: block; /* for HTML standards... */
 	margin: 0px;
-	color: #FFFFFF;
 	font-size: 11px;
 	border-bottom: 1px solid #B3B3B3;
 	text-align: left;
@@ -99,7 +97,6 @@ a.root_item_link_none {
 a.root_item_link_right {
 	display: block; /* for HTML standards... */
 	margin: 0px;
-	color: #FFFFFF;
 	font-size: 11px;
 	border-bottom: 1px solid #B3B3B3;
 	text-align: left;
@@ -196,41 +193,26 @@ td.splitter {
 
 /* ---------- */
 
-.submenu {
-	background-color: #339966;
-	background-color: #669966;
-}
-
-a.root_item_link,
-a.root_item_link_none,
-a.root_item_link_right {
-	color: black;
-	color: white;
-}
-
-/* ---------- */
-
 td.splitter {
-	background-color: #B3B3B3;
 	background-color: white;
-	background-color: #dbe6db;
 }
 
 .submenu,
 a.root_item_link,
 a.root_item_link_none,
 a.root_item_link_right {
-	border-color: #B3B3B3;
 	border-color: white;
-	border-color: #dbe6db;
+	background-color: #e6ecf2; 
+	background-color: #cfdbe6;
+	color: #000000;
 }
-
-/* ---------- */
 
 a.root_item_link:hover,
 a.root_item_link_none:hover,
 a.root_item_link_right:hover {
-	background-color: #669966;
-	background-image: url('images/menu-hover.png');
-	background-position: 0px 5px;
+	background-color: #e6ecf2;
+	background-color: #cfdbe6;
+	background-image: url('images/header-light-blue-hover.png');
+	background-position: 0px 2px;
+	color: black;
 }
