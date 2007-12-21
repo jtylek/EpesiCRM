@@ -129,9 +129,9 @@ class Base_Dashboard extends Module {
 			$gb_row->add_action($this->create_callback_href(array($this,'edit_tab'),$row['id']), 'Edit');
 			$gb_row->add_action($this->create_confirm_callback_href($this->lang->t('Delete this tab and all applets assigned to it?'),array($this,'delete_tab'),$row['id']), 'Delete');
 			if($row['pos']>0)
-				$gb_row->add_action($this->create_callback_href(array($this,'move_tab'),array($row['id'],$row['pos'],$row['pos']-1)), 'Up');
+				$gb_row->add_action($this->create_callback_href(array($this,'move_tab'),array($row['id'],$row['pos'],$row['pos']-1)), 'move-up');
 			if($row['pos']<count($ret)-1)
-				$gb_row->add_action($this->create_callback_href(array($this,'move_tab'),array($row['id'],$row['pos'],$row['pos']+1)), 'Down');
+				$gb_row->add_action($this->create_callback_href(array($this,'move_tab'),array($row['id'],$row['pos'],$row['pos']+1)), 'move-down');
 		}
 
 		$this->display_module($gb);
