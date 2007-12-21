@@ -43,7 +43,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 			array('name'=>'Home Address 2', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true),
 			array('name'=>'Home City', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true),
 			array('name'=>'Home Country', 'type'=>'commondata', 'required'=>false, 'param'=>array('Countries'), 'extra'=>true,'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_country')),
-			array('name'=>'Home Zone', 'type'=>'commondata', 'required'=>false, 'param'=>array('Countries','Country'), 'extra'=>true, 'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_zone')),
+			array('name'=>'Home Zone', 'type'=>'commondata', 'required'=>false, 'param'=>array('Countries','Home Country'), 'extra'=>true, 'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_zone')),
 			array('name'=>'Home Postal Code', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true),
 			array('name'=>'Birth Date', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>true)
 		);
@@ -214,7 +214,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 					'zone'=>isset($val['state'])?$val['state']:'',
 					'city'=>isset($val['city'])?$val['city']:'',
 					'postal_code'=>isset($val['postal'])?$val['postal']:'',
-					'phone'=>isset($val['phone'])?$val['phone']:'',
+					'work_phone'=>isset($val['phone'])?$val['phone']:'',
 					'fax'=>isset($val['fax'])?$val['fax']:'',
 					'web_address'=>isset($val['web'])?$val['web']:'',
 					'company_name'=>array($comp_id),

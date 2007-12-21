@@ -88,9 +88,11 @@
 	</tbody>
 </table>
 
+{if $main_page}
 {php}
 	if (isset($this->_tpl_vars['focus'])) eval_js('focus_by_id(\''.$this->_tpl_vars['focus'].'\');');
 {/php}
+{/if}
 
 </div>
 

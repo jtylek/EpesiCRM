@@ -450,7 +450,7 @@ class Utils_RecordBrowser extends Module {
 		$init_js = '';
 		foreach($this->table_rows as $field => $args){
 			if (isset($this->QFfield_callback_table[$field])) {
-				call_user_func($this->QFfield_callback_table[$field], $form, $args['id'], $this->lang->t($args['name']), $mode, $mode=='add'?array():$record[$field]);
+				call_user_func($this->QFfield_callback_table[$field], $form, $args['id'], $this->lang->t($args['name']), $mode, $mode=='add'?array():$record[$field], $args['param']);
 				continue;
 			}
 			if ($mode!=='add' && $mode!=='edit') $record[$field] = $this->get_val($field, $record[$field], $id);
