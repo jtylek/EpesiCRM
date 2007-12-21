@@ -9,7 +9,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Base_LoginAuditInstall extends ModuleInstall {
+class CRM_LoginAuditInstall extends ModuleInstall {
 
 	public function install() {
 		Base_ThemeCommon::install_default_theme($this -> get_type());
@@ -37,7 +37,7 @@ class Base_LoginAuditInstall extends ModuleInstall {
 			array('name'=>'Base/User', 'version'=>0));
 	}
 
-		public static function info() {
+	public static function info() {
 		return array('Author'=>'<a href="mailto:jtylek@telaxus.com">Janusz Tylek</a> and <a href="mailto:pbukowski@telaxus.com">Pawel Bukowski</a>
 					 (<a href="http://www.telaxus.com">Telaxus LLC</a>)',
 					 'License'=>'TL', 'Description'=>'Provides login audit log.');

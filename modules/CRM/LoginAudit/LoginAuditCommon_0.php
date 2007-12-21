@@ -9,7 +9,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Base_LoginAuditCommon extends ModuleCommon {
+class CRM_LoginAuditCommon extends ModuleCommon {
 
 	public static function admin_caption() {
 		return 'Login Audit';
@@ -32,5 +32,5 @@ class Base_LoginAuditCommon extends ModuleCommon {
 		}
 	}
 }
-on_init(array('Base_LoginAuditCommon','init'));
+on_init(array('CRM_LoginAuditCommon','init'));
 ?>

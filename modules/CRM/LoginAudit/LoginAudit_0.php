@@ -9,7 +9,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Base_LoginAudit extends Module {
+class CRM_LoginAudit extends Module {
 
     public function admin() {
 

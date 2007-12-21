@@ -348,7 +348,9 @@ class ModuleManager {
 			$up_func = array(self::$modules_install[$module], 'upgrade_'.$i);
 			if(!self::satisfy_dependencies($module,$i) || (is_callable($up_func)
 				&& !call_user_func($up_func))) {
-				print('Upgrading module \''.$module.'\' to version '.$to_version.': upgrade to version '.$i.' failed.<br>');
+				print('Upgrading module \''.$module.'\' to version '.$to_version.': upgrade to version '.$i.' failed, calling downgrade to revert changes<br>');
+				call_user_func(array(self::$modules_install[$module], 'downgrade_'.$i));
+				print('Upgrading module \''.$module.'\' to version '.$to_version.': downgraded to version '.($i-1).'<br>');
 				break;
 			}
 		}
@@ -495,7 +497,17 @@ class ModuleManager {
 		if(!call_user_func(array (
 			self::$modules_install[$module_to_install],
 			'install'
-		))) return false;
+		))) {
+			print('<b>' . $module_to_install . '</b>' . ': failed install, calling uninstall<br>');
+			call_user_func(array (
+				self::$modules_install[$module_to_install],
+				'uninstall'
+			));
+			Acl::del_aco_section($module_to_install);
+			self::remove_data_dir($module_to_install);
+			print('<b>' . $module_to_install . '</b>' . ': uninstalled<br>');
+			return false;
+		}
 
 		print('<b>' . $module_to_install . '</b>' . ': registering<br>');
 		$ret = DB::Execute('insert into modules(name, version) values(%s,0)', $module_to_install);

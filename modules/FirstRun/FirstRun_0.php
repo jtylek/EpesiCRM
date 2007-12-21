@@ -130,8 +130,7 @@ class FirstRun extends Module {
 		}
 		foreach($pkgs as $p)
 			if(!ModuleManager::install(str_replace('/','_',$p))) {
-				print('Unable to install '.str_replace('_','/',$p).' module.');
-				return false;
+				print('<b>Unable to install '.str_replace('_','/',$p).' module.</b>');
 			}
 
 		Base_SetupCommon::refresh_available_modules();
