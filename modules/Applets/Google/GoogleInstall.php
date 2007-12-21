@@ -5,7 +5,7 @@
  * @author msteczkiewicz@telaxus.com
  * @copyright msteczkiewicz@telaxus.com
  * @license SPL
- * @version 1.1
+ * @version 1.2
  * @package applets-google
  */
 
@@ -24,7 +24,7 @@ class Applets_GoogleInstall extends ModuleInstall {
 	}
 
 	public function version() {
-		return array("1.1");
+		return array("1.2");
 	}
 
 	public function requires($v) {

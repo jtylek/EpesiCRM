@@ -5,7 +5,7 @@
  * @author msteczkiewicz@telaxus.com
  * @copyright msteczkiewicz@telaxus.com
  * @license SPL
- * @version 1.1
+ * @version 1.2
  * @package applets-google
  */
 
