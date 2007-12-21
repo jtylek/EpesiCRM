@@ -1,3 +1,5 @@
+<center>
+
 <br/>
 <h3>{$filename}</h3>
 <br/>
@@ -114,3 +116,4 @@
         </td>
     </tr>
 </table>
+</center>
