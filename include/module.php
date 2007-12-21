@@ -546,7 +546,7 @@ abstract class Module extends ModulePrimitive {
 		}
 		if(!is_array($args)) $args = array($args);
 		$callbacks = & $this->get_module_variable('__callbacks__',array());
-		if(isset($callbacks[$name])) unset($callbacks[$name]);
+		if(isset($callbacks[$name])) unset($callbacks[$name]); //it is required, because we need to place [$name] at the end of array
 		$callbacks[$name] = array('func'=>$func,'args'=>$args);
 	}
 
