@@ -77,7 +77,7 @@ a.root_item_link_down {
 
 .root_item_link_down_arrow {
 	padding: 0px 25px 0px 25px;
-	background: url("Utils_Menu__arrow_down.gif") no-repeat center right;
+	background: url("Utils_Menu__arrow_down.png") no-repeat center right;
 }
 
 a.root_item_link_none {
@@ -109,7 +109,7 @@ a.root_item_link_right {
 
 .root_item_link_right_arrow {
 	padding: 0px 25px 0px 25px;
-	background: url("Utils_Menu__arrow.gif") no-repeat center right;
+	background: url("Utils_Menu__arrow.png") no-repeat center right;
 }
 
 img.link_bullet {
@@ -127,7 +127,7 @@ img.link_icon {
 	position: absolute;
 	width: 16px;
 	height: 16px;
-	clip: rect(0px 16px 13px 0px);
+	clip: rect(0px 16px 14px 0px);
 }
 
 table.root a.root_item_link_down:hover {
@@ -194,25 +194,46 @@ td.splitter {
 /* ---------- */
 
 td.splitter {
-	background-color: white;
+	background-color: #336699;
 }
 
 .submenu,
 a.root_item_link,
 a.root_item_link_none,
 a.root_item_link_right {
-	border-color: white;
-	background-color: #e6ecf2; 
+	/*border-color: #336699;
+	background-color: #e6ecf2;
 	background-color: #cfdbe6;
-	color: #000000;
+	color: black;*/
+	
+	background-color: #f1f3f5;
+	color: #333333;
+	border: 0px;
+	background-image: url('images/menu-icon-back.png');
+	background-repeat: no-repeat;
+}
+
+.submenu {
+	border: 1px solid #336699;
 }
 
 a.root_item_link:hover,
 a.root_item_link_none:hover,
 a.root_item_link_right:hover {
-	background-color: #e6ecf2;
-	background-color: #cfdbe6;
-	background-image: url('images/header-light-blue-hover.png');
-	background-position: 0px 2px;
-	color: black;
+	/*background-color: #e6ecf2;
+	background-color: #cfdbe6;*/
+	/*background-image: url('images/header-light-blue-hover.png');
+	background-position: 0px 2px;*/
+
+	background-color: #336699;
+	color: white;
+	background-image: url('images/menu-icon-back.png');
+	background-repeat: no-repeat;
+}
+
+a.root_item_link:hover .root_item_link_right_arrow,
+a.root_item_link_none:hover .root_item_link_right_arrow,
+a.root_item_link_right:hover .root_item_link_right_arrow {
+	padding: 0px 25px 0px 25px;
+	background: url("Utils_Menu__arrow_hover.png") no-repeat center right;
 }
