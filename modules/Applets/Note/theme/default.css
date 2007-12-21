@@ -8,16 +8,40 @@
 	padding: 5px;
 }
 
-#Applets_Note div.note-yellow {
-	background-color: #f2f2e6;
+#Applets_Note div.note-blue {
+	background-color: #cfdae6;
 }
 
 #Applets_Note div.note-red {
-	background-color: #f2e6e6;
+	background-color: #e6cfcf;
 }
 
-#Applets_Note div.note-blue {
-	background-color: #e6ecf2;
+#Applets_Note div.note-yellow {
+	background-color: #e6e6cf;
+}
+
+#Applets_Note div.note-green {
+	background-color: #cfe6cf;
+}
+
+#Applets_Note div.note-dark-blue {
+	background-color: #336699;
+	color: white;
+}
+
+#Applets_Note div.note-dark-red {
+	background-color: #993333;
+	color: white;
+}
+
+#Applets_Note div.note-dark-yellow {
+	background-color: #999933;
+	color: white;
+}
+
+#Applets_Note div.note-dark-green {
+	background-color: #339966;
+	color: white;
 }
 
 #Applets_Note div.note-white {
