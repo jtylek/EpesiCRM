@@ -102,12 +102,12 @@ class CRM_ContactsCommon extends ModuleCommon {
 					$paste_company_info =
 						'document.getElementsByName("address_1")[0].value="'.$comp['Address 1'].'";'.
 						'document.getElementsByName("address_2")[0].value="'.$comp['Address 2'].'";'.
-						'document.getElementsByName("phone")[0].value="'.$comp['Phone'].'";'.
+						'document.getElementsByName("work_phone")[0].value="'.$comp['Phone'].'";'.
 						'document.getElementsByName("fax")[0].value="'.$comp['Fax'].'";'.
 						'document.getElementsByName("city")[0].value="'.$comp['City'].'";'.
 						'document.getElementsByName("postal_code")[0].value="'.$comp['Postal Code'].'";'.
-						'country = $(\'country\');'.
-						'k = 0; while (k < country.options.length) if (country.options[k].value=="'.$comp['Country'].'") break; else k++;'.
+						'var country = $(\'country\');'.
+						'var k = 0; while (k < country.options.length) if (country.options[k].value=="'.$comp['Country'].'") break; else k++;'.
 						'country.selectedIndex = k;'.
 						'country.fire(\'e_u_cd:load\');'.
 						'zone = $(\'zone\');'.
