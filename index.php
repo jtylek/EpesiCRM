@@ -60,7 +60,8 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
   				left: 50%; top: 30%;
                 margin-left: -280px;
   				/* all */
-  				background-color: #e6ecf2;
+  				/*background-color: #e6ecf2;*/
+  				background-color: white;
 				border: 2px solid #336699;
 				visibility: hidden;
 				width: 560px;

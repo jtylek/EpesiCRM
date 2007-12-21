@@ -1,33 +1,3 @@
-#Launchpad_header {
-	color: #FFFFFF;
-	background-color: #336699;
-	background-image: url("images/header-blue.png");
-	background-repeat: repeat-x;
-	height: 20px;
-}
-
-#Launchpad_header .left {
-	width: 17px;
-	display: block;
-	float: left;
-}
-
-#Launchpad_header .center {
-	display: block;
-	float: left;
-	padding-top: 3px;
-	font-weight: bold;
-	text-align: center;
-}
-
-#Launchpad_header .right {
-	width: 17px;
-	display: block;
-	float: right;
-	padding-top: 3px;
-	padding-right: 3px;
-}
-
 table#Base_ActionBar .label {
 }
 
@@ -41,11 +11,9 @@ table#Base_ActionBar .button {
 	vertical-align: middle;
 	text-align: center;
 	font-size: 11px;
-
 	display: block;
 	padding-top: 10px;
 	cursor: pointer;
-	cursor: hand; /* css2 */
 }
 
 table#Base_ActionBar .button:hover {

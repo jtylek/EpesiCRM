@@ -1,10 +1,37 @@
+#Leightbox_header {
+	color: #FFFFFF;
+	background-color: #336699;
+	background-image: url("images/header-blue.png");
+	background-repeat: repeat-x;
+	height: 20px;
+}
+
+#Leightbox_header .left,
+#Leightbox_header .right {
+	width: 14px;
+	height: 14px;
+	padding: 3px;
+}
+
+#Leightbox_header .left img {
+	cursor: pointer;
+}
+
+#Leightbox_header .center {
+	width: 100%;
+	height: 20px;
+	font-weight: bold;
+	text-align: center;
+	vertical-align: middle;
+}
+
 #actionbar_launchpad {
 	position: fixed;
 	color: #333;
 	display: none;
 	top: 25%;
-	left: 25%;
-	width: 50%;
+	left: 20%;
+	width: 60%;
 	height: 50%;
 	padding: 10px;
 	border: 10px solid #b3b3b3;
@@ -19,8 +46,8 @@
 	color: #333;
 	display: none;
 	top: 25%;
-	left: 25%;
-	width: 50%;
+	left: 20%;
+	width: 60%;
 	height: 50%;
 	padding: 10px;
 	border: 10px solid #b3b3b3;
