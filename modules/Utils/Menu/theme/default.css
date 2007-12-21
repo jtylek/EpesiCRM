@@ -23,9 +23,6 @@ table.root td.separator {
 }
 
 .submenu {
-	border-top: 1px solid #B3B3B3;
-	border-left: 1px solid #B3B3B3;
-	border-right: 1px solid #B3B3B3;
 	margin-top: 2px;
 	margin-left: -1px;
 	list-style-type: none;
@@ -55,7 +52,6 @@ a.root_item_link {
 	display: block; /* for HTML standards... */
 	margin: 0px;
 	font-size: 11px;
-	border-bottom: 1px solid #B3B3B3;
 	text-align: left;
 	text-decoration: none;
 	white-space: nowrap;
@@ -85,7 +81,6 @@ a.root_item_link_none {
 	display: block; /* for HTML standards... */
 	margin: 0px;
 	font-size: 11px;
-	border-bottom: 1px solid #B3B3B3;
 	text-align: left;
 	text-decoration: none;
 	white-space: nowrap;
@@ -98,7 +93,6 @@ a.root_item_link_right {
 	display: block; /* for HTML standards... */
 	margin: 0px;
 	font-size: 11px;
-	border-bottom: 1px solid #B3B3B3;
 	text-align: left;
 	text-decoration: none;
 	white-space: nowrap;
@@ -131,24 +125,6 @@ img.link_icon {
 }
 
 table.root a.root_item_link_down:hover {
-	background-color: #6C99D7;
-	background-image: url("images/header-blue-hover.png");
-	background-repeat: repeat-x;
-}
-
-a.root_item_link:hover {
-	background-color: #6C99D7;
-	background-image: url("images/header-blue-hover.png");
-	background-repeat: repeat-x;
-}
-
-a.root_item_link_down:hover {
-	background-color: #6C99D7;
-	background-image: url("images/header-blue-hover.png");
-	background-repeat: repeat-x;
-}
-
-a.root_item_link_right:hover {
 	background-color: #6C99D7;
 	background-image: url("images/header-blue-hover.png");
 	background-repeat: repeat-x;
@@ -187,7 +163,7 @@ td.item_sub {
 td.splitter {
 	vertical-align: middle;
 	z-index: 1000;
-	height: 2px;
+	height: 1px;
 	background-color: #B3B3B3;
 }
 
