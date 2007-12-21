@@ -263,7 +263,7 @@ class Utils_RecordBrowser extends Module {
 						}
 					}
 					if ($args['type']=='commondata') {
-						if (!$row[$field]) {
+						if (!isset($row[$field]) || $row[$field]==='') {
 							$ret = '';
 						} else {
 							$arr = explode('::',$args['param']);
