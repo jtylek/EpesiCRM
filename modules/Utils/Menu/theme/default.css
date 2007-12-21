@@ -209,7 +209,7 @@ a.root_item_link_right {
 	background-color: #f1f3f5;
 	color: #333333;
 	border: 0px;
-	background-image: url('images/menu-icon-back.png');
+	background-image: url('Utils_Menu__menu-icon-back.png');
 	background-repeat: no-repeat;
 }
 
@@ -227,7 +227,7 @@ a.root_item_link_right:hover {
 
 	background-color: #336699;
 	color: white;
-	background-image: url('images/menu-icon-back.png');
+	background-image: url('Utils_Menu__menu-icon-back.png');
 	background-repeat: no-repeat;
 }
 
