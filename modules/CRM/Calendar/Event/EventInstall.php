@@ -40,8 +40,7 @@ class CRM_Calendar_EventInstall extends ModuleInstall {
 			'created_by I4,'.
 			'edited_on T DEFAULT 0,'.
 			'edited_by I4 DEFAULT -1',
-			array('constraints'=>	', FOREIGN KEY (created_by) REFERENCES user_login(id)'.
-									', FOREIGN KEY (edited_by) REFERENCES user_login(id)')
+			array('constraints'=>	', FOREIGN KEY (created_by) REFERENCES user_login(id)')
 		);
 		if(!$ret) {
 			print('Unable to create crm_calendar_event table');
