@@ -156,18 +156,28 @@ class Utils_RecordBrowser extends Module {
 			$filters[] = str_replace(' ','_',$filter);
 		}
 		$form->addElement('submit', 'submit', 'Show');
+		$def_filt = $this->get_module_variable('def_filter');
+		$form->setDefaults($def_filt);
 		$this->crits = array();
 		if ($form->validate()) {
 			$vals = $form->exportValues();
 			unset($vals['submit']);
 			unset($vals['submited']);
+			$def_filt = array();
 			foreach($vals as $k=>$v)
-				if ($v!=='__NULL__') $this->crits[str_replace('_',' ',$k)] = array($v);
+				if ($v!=='__NULL__') {
+					$this->crits[str_replace('_',' ',$k)] = array($v);
+					$def_filt[$k] = $v;
+				}
+			$this->set_module_variable('def_filter', $def_filt);
 		}
+		foreach($def_filt as $k=>$v)
+			$this->crits[str_replace('_',' ',$k)] = array($v);
 		$theme = $this->init_module('Base/Theme');
 		$form->assign_theme('form',$theme);
 		$theme->assign('filters', $filters);
 		$theme->assign('id', $f_id);
+		if (!empty($def_filt)) $theme->assign('dont_hide', true);
 		return $this->get_html_of_module($theme, 'Filter', 'display');
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
@@ -205,8 +215,9 @@ class Utils_RecordBrowser extends Module {
 		$gb->set_table_columns( $table_columns );
 		$gb->set_default_order( $order );
 		$crits = array_merge($crits, $gb->get_search_query(true));
+		$limit = $gb->get_limit(Utils_RecordBrowserCommon::get_records_limit($this->tab, $crits, $admin));
 
-		$records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, $admin);
+		$records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, $admin, false, $limit);
 		if ($admin) $this->browse_mode = 'all'; 
 		if ($this->browse_mode == 'recent') {
 			$rec_tmp = array();
@@ -299,8 +310,8 @@ class Utils_RecordBrowser extends Module {
 		}
 		if ($special) {
 			$this->set_module_variable('rpicker_ind',$rpicker_ind);
-			return $this->get_html_of_module($gb, null, 'automatic_display');
-		} else $this->display_module($gb, null, 'automatic_display');
+			return $this->get_html_of_module($gb);
+		} else $this->display_module($gb);
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
 	public function view_entry($mode='view', $id = null, $defaults = array()) {
@@ -565,12 +576,12 @@ class Utils_RecordBrowser extends Module {
 	public function update_record_data($id,$values) {
 		DB::StartTrans();	
 		$this->init();
-		$records = Utils_RecordBrowserCommon::get_records($this->tab, null, true);
+		$record = Utils_RecordBrowserCommon::get_record($this->tab, $id);
 		$diff = array();
 		foreach($this->table_rows as $field => $args){
 			if ($args['id']=='id') continue;
 			if (!isset($values[$args['id']])) $values[$args['id']] = '';
-			if ($records[$id][$field]!==$values[$args['id']]) {
+			if ($record[$field]!==$values[$args['id']]) {
 				DB::StartTrans();
 				$val = DB::GetOne('SELECT value FROM '.$this->tab.'_data WHERE '.$this->tab.'_id=%d AND field=%s',array($id, $field));
 				if ($val!==false) DB::Execute('DELETE FROM '.$this->tab.'_data WHERE '.$this->tab.'_id=%d AND field=%s',array($id, $field));
@@ -580,7 +591,7 @@ class Utils_RecordBrowser extends Module {
 						DB::Execute('INSERT INTO '.$this->tab.'_data(value, '.$this->tab.'_id, field) VALUES (%s, %d, %s)',array($v, $id, $field));
 				}
 				DB::CompleteTrans();
-				$diff[$field] = $records[$id][$field];
+				$diff[$field] = $record[$field];
 			}
 		}
 		if (!empty($diff)) {

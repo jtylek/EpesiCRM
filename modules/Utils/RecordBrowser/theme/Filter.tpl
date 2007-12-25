@@ -1,16 +1,21 @@
 <div id="Utils_RecordBrowser__Filter">
+{if isset($dont_hide)}
+	{php}
+		eval_js_once('show_filters = 1');
+	{/php}
+{else}
 	{php}
 		eval_js_once('show_filters = 0');
-//		eval_js('var b=document.getElementById(\'recordbrowser_filters_{$id}\');if(b){if(!show_filters){b.style.display=\'none\';document.getElementById(\'hide_filter_b\').style.display=\'none\';}else{document.getElementById(\'show_filter_b\').style.display=\'none\';}}');
 	{/php}
+{/if}
 	<div class="buttons">
-		<input type="button" onClick="document.getElementById('recordbrowser_filters_{$id}').style.display='block';this.style.display='none';document.getElementById('hide_filter_b_{$id}').style.display='block';show_filters=1;" id="show_filter_b_{$id}" value="Show filters">
-		<input type="button" style="display: none;" onClick="document.getElementById('recordbrowser_filters_{$id}').style.display='none';this.style.display='none';document.getElementById('show_filter_b_{$id}').style.display='block';show_filters=0;" id="hide_filter_b_{$id}" value="Hide filters">
+		<input type="button" {if isset($dont_hide)}style="display: none;"{/if} onClick="document.getElementById('recordbrowser_filters_{$id}').style.display='block';this.style.display='none';document.getElementById('hide_filter_b_{$id}').style.display='block';show_filters=1;" id="show_filter_b_{$id}" value="Show filters">
+		<input type="button" {if !isset($dont_hide)}style="display: none;"{/if} onClick="document.getElementById('recordbrowser_filters_{$id}').style.display='none';this.style.display='none';document.getElementById('show_filter_b_{$id}').style.display='block';show_filters=0;" id="hide_filter_b_{$id}" value="Hide filters">
 	</div>
 </div>
 
 {$form_open}
-<div id="recordbrowser_filters_{$id}" class="Utils_RecordBrowser__Filter" style="display: none;">
+<div id="recordbrowser_filters_{$id}" class="Utils_RecordBrowser__Filter" {if !isset($dont_hide)}style="display: none;"{/if}>
 	<table border="0" cellpadding="0" cellspacing="0">
 		<tr>
 			{foreach item=f from=$filters}

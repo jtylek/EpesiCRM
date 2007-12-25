@@ -249,79 +249,74 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					date('Y-m-d G:i:s')));
 		DB::CompleteTrans();
 	}
-	public static function get_records( $tab_name = null, $crits = null, $admin = false , $all = false) {
+	public static function get_records_limit( $tab_name = null, $crits = null, $admin = false) {
 		if (!$tab_name) return false;
 		self::init($tab_name, $admin);
-		$ret = null;
-		$where = '';
-		$vals = array();
+		$having = '';
+		$fields = '';
+		$final_tab = $tab_name.' AS r';
 		if (!$crits) $crits = array();
+		$iter = 0;
 		foreach($crits as $k=>$v){
-			if (empty($v)) break;
-			if ($k[0]=='!') {
-				$negative = true;
-				$k = ltrim($k, '!');
-			} else $negative = false;
-			if ($k == 'id') {
-				$where .= ' AND'.($negative?' NOT':'').' (';
-				if (!is_array($v)) $v = array($v);
-				$first = true;
-				foreach($v as $w) {
-					if (!$first) $where .= ' OR';
-					else $first = false;
-					$where .= ' x.id = %d';
-					$vals[] = $w;
-				}
-				$where .= ')';
-				continue;
-			}
-			$where .= ' AND (SELECT COUNT(*) FROM '.$tab_name.'_data WHERE x.id = '.$tab_name.'_id';
+			$fields .= ', concat( \'::\', group_concat( rd'.$iter.'.value ORDER BY rd'.$iter.'.value SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
+			$final_tab = '('.$final_tab.') LEFT JOIN '.$tab_name.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab_name.'_id AND rd'.$iter.'.field="'.$k.'"';
 			if (is_array($v)) {
-				if (empty($v)) {
-					$where .= ' AND 0)';
-					break;
-				}
-				$where .= ' AND field=%s AND (';
-				$vals[] = $k;
-				$first = true;
-				foreach($v as $w) {
-					if (!$first) $where .= ' OR';
-					else $first = false;
-					$where .= ' value LIKE %s';
-					$vals[] = $w;
-				}
-				$where .= ')';
-			} else {
-				$where .= ' AND field=%s AND value LIKE %s';
-				$vals[] = $k;
-				$vals[] = $v;
-			}
-			$where .= ') '.($negative?'':'!').'= 0';
+				$having .= ' AND (false';
+				foreach($v as $w)
+					$having .= ' OR val'.$iter.' LIKE '.DB::Concat(DB::qstr('%:'),DB::qstr($w),DB::qstr(':%'));
+				$having .= ')';
+			} else $having .= ' AND val'.$iter.'='.DB::Concat(DB::qstr('::'),DB::qstr($v),DB::qstr('::'));
+			$iter++;
 		}
-		
-		$ret = DB::Execute('SELECT id, active FROM '.$tab_name.' AS x WHERE true'.($admin?'':' AND active=1').$where, $vals);
+		if (!isset($limit['offset'])) $limit['offset'] = 0;
+		if (!isset($limit['numrows'])) $limit['numrows'] = -1;
+		return DB::GetOne('SELECT COUNT(*) FROM (SELECT COUNT(id), id, active'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?'':' AND active=1').' GROUP BY id HAVING true'.$having.') AS tmp');
+	}
+	public static function get_records( $tab_name = null, $crits = null, $admin = false , $all = false, $limit = array(), $order=array()) {
+		if (!$tab_name) return false;
+		self::init($tab_name, $admin);
+		$having = '';
+		$fields = '';
+		$orderby = '';
+		$final_tab = $tab_name.' AS r';
+		if (!$crits) $crits = array();
+		$iter = 0;
+		foreach($crits as $k=>$v){
+			$fields .= ', concat( \'::\', group_concat( rd'.$iter.'.value ORDER BY rd'.$iter.'.value SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
+			$final_tab = '('.$final_tab.') LEFT JOIN '.$tab_name.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab_name.'_id AND rd'.$iter.'.field="'.$k.'"';
+			if (is_array($v)) {
+				$having .= ' AND (false';
+				foreach($v as $w)
+					$having .= ' OR val'.$iter.' LIKE '.DB::Concat(DB::qstr('%:'),DB::qstr($w),DB::qstr(':%'));
+				$having .= ')';
+			} else $having .= ' AND val'.$iter.'='.DB::Concat(DB::qstr('::'),DB::qstr($v),DB::qstr('::'));
+			$iter++;
+		}
+		if (!isset($limit['offset'])) $limit['offset'] = 0;
+		if (!isset($limit['numrows'])) $limit['numrows'] = -1;
+		$ret = DB::SelectLimit('SELECT COUNT(id), id, active'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?'':' AND active=1').' GROUP BY id HAVING true'.$having.$orderby, $limit['numrows'], $limit['offset']);
 		$records = array();
-		if($ret)
-			while ($row = $ret->FetchRow()) {
-				$data = DB::Execute('SELECT * FROM '.$tab_name.'_data WHERE '.$tab_name.'_id=%d', array($row['id']));
-				$records[$row['id']] = array(	'id'=>$row['id'], 
-												'active'=>$row['active']);
-				while($field = $data->FetchRow()) {
-					if (!$admin && !self::check_if_value_valid($field)) continue;
-					if (self::$table_rows[$field['field']]['type'] == 'multiselect')
-						if (isset($records[$row['id']][$field['field']]))
-							$records[$row['id']][$field['field']][] = $field['value'];
-						else $records[$row['id']][$field['field']] = array($field['value']);
-					else 
-						$records[$row['id']][$field['field']] = $field['value'];
-				}
-				foreach(self::$table_rows as $field=>$args)
-					if (!isset($records[$row['id']][$field]))
-						if (self::$table_rows[$field]['type'] == 'multiselect') $records[$row['id']][$field] = array();
-						else $records[$row['id']][$field] = '';
+		while ($row = $ret->FetchRow()) {
+			$data = DB::Execute('SELECT * FROM '.$tab_name.'_data WHERE '.$tab_name.'_id=%d', array($row['id']));
+			$records[$row['id']] = array(	'id'=>$row['id'], 
+											'active'=>$row['active']);
+			while($field = $data->FetchRow()) {
+				if (!$admin && !self::check_if_value_valid($field)) continue;
+				if (self::$table_rows[$field['field']]['type'] == 'multiselect')
+					if (isset($records[$row['id']][$field['field']]))
+						$records[$row['id']][$field['field']][] = $field['value'];
+					else $records[$row['id']][$field['field']] = array($field['value']);
+				else 
+					$records[$row['id']][$field['field']] = $field['value'];
 			}
+			foreach(self::$table_rows as $field=>$args)
+				if (!isset($records[$row['id']][$field]))
+					if (self::$table_rows[$field]['type'] == 'multiselect') $records[$row['id']][$field] = array();
+					else $records[$row['id']][$field] = '';
+		}
 		foreach($records as $k=>$record)
 			if (!$all && !self::get_access($tab_name, 'view', $record)) unset($records[$k]);
+		// TODO: a miracle
 		return $records;
 	}
 	public static function get_access($tab_name, $action, $param=null){
