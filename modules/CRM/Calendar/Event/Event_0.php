@@ -77,7 +77,14 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				'edited by' => Base_UserCommon::get_user_login($event['edited_by']),
 				'edited on' => $event['edited_on']
 			);
+			$def['cus_id'] = array();
+			$ret = DB::Execute('SELECT contact FROM crm_calendar_group_cus WHERE id=%d', $id);
+			while ($row=$ret->FetchRow()) 
+				$def['cus_id'][] = $row['contact'];
 			$def['emp_id'] = array();
+			$ret = DB::Execute('SELECT contact FROM crm_calendar_group_emp WHERE id=%d', $id);
+			while ($row=$ret->FetchRow()) 
+				$def['emp_id'][] = $row['contact'];
 			$timeless = $event['timeless'];
 		}
 
@@ -90,11 +97,11 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$com[$id] = $data['Company Name'];
 		}
 		$emp = array();
-		$ret = CRM_ContactsCommon::get_contacts(array('Company Name'=>CRM_ContactsCommon::get_main_company()));
+		$ret = CRM_ContactsCommon::get_contacts(array('Company Name'=>array(CRM_ContactsCommon::get_main_company())));
 		foreach($ret as $id=>$data)
 			$emp[$id] = $data['Last Name'].' '.$data['First Name'];
 		$cus = array();
-		$ret = CRM_ContactsCommon::get_contacts(array('!Company Name'=>CRM_ContactsCommon::get_main_company()));
+		$ret = CRM_ContactsCommon::get_contacts(array('!Company Name'=>array(CRM_ContactsCommon::get_main_company()), ':Fav'=>true));
 		foreach($ret as $id=>$data)
 			$cus[$id] = $data['Last Name'].' '.$data['First Name'];
 		
@@ -238,6 +245,13 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 													Acl::get_user(),
 													date('Y-m-d H:i:s')
 													));
+		$id = DB::Insert_ID('crm_calendar_event', 'id');
+		foreach($vals['emp_id'] as $v) {
+			DB::Execute('INSERT INTO crm_calendar_group_emp (id,contact) VALUES (%d, %d)', array($id, $v));
+		}
+		foreach($vals['cus_id'] as $v) {
+			DB::Execute('INSERT INTO crm_calendar_group_cus (id,contact) VALUES (%d, %d)', array($id, $v));
+		}
 	}
 
 	public function update_event($id, $vals = array()){
@@ -264,6 +278,14 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 													date('Y-m-d H:i:s'),
 													$id
 													));
+		DB::Execute('DELETE FROM crm_calendar_group_emp WHERE id=%d', array($id));
+		DB::Execute('DELETE FROM crm_calendar_group_cus WHERE id=%d', array($id));
+		foreach($vals['emp_id'] as $v) {
+			DB::Execute('INSERT INTO crm_calendar_group_emp (id,contact) VALUES (%d, %d)', array($id, $v));
+		}
+		foreach($vals['cus_id'] as $v) {
+			DB::Execute('INSERT INTO crm_calendar_group_cus (id,contact) VALUES (%d, %d)', array($id, $v));
+		}
 	}
 
 }

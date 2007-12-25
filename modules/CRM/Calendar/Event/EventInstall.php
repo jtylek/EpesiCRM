@@ -14,12 +14,12 @@ class CRM_Calendar_EventInstall extends ModuleInstall {
 	public function install() {
 		$ret = true;
 		$ret &= DB::CreateTable('crm_calendar_group_emp',
-			'id I AUTO KEY,'.
+			'id I,'.
 			'contact I4 NOT NULL',
 			array('constraints'=>'')
 			);
 		$ret &= DB::CreateTable('crm_calendar_group_cus',
-			'id I AUTO KEY,'.
+			'id I,'.
 			'contact I4 NOT NULL',
 			array('constraints'=>'')
 			);
