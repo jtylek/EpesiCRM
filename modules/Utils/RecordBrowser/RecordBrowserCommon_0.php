@@ -254,7 +254,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		self::init($tab_name, $admin);
 		$having = '';
 		$fields = '';
+		$where = '';
 		$final_tab = $tab_name.' AS r';
+		$vals = array();
 		if (!$crits) $crits = array();
 		$access = self::get_access($tab_name, 'view');
 		if ($access===false) return array();
@@ -262,19 +264,33 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$crits = array_merge($crits, $access);
 		$iter = 0;
 		foreach($crits as $k=>$v){
-			$fields .= ', concat( \'::\', group_concat( rd'.$iter.'.value ORDER BY rd'.$iter.'.value SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
-			$final_tab = '('.$final_tab.') LEFT JOIN '.$tab_name.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab_name.'_id AND rd'.$iter.'.field="'.$k.'"';
-			if (is_array($v)) {
-				$having .= ' AND (false';
-				foreach($v as $w)
-					$having .= ' OR val'.$iter.' LIKE '.DB::Concat(DB::qstr('%:'),DB::qstr($w),DB::qstr(':%'));
-				$having .= ')';
-			} else $having .= ' AND val'.$iter.'='.DB::Concat(DB::qstr('::'),DB::qstr($v),DB::qstr('::'));
-			$iter++;
+			if ($k[0]==':') {
+				switch ($k) {
+					case ':Fav'	: $where .= ' AND (SELECT COUNT(*) FROM '.$tab_name.'_favorite WHERE '.$tab_name.'_id=r.id AND user_id=%d)!=0'; $vals[]=Acl::get_user(); break;
+					case ':Recent'	: $where .= ' AND (SELECT COUNT(*) FROM '.$tab_name.'_recent WHERE '.$tab_name.'_id=r.id AND user_id=%d)!=0'; $vals[]=Acl::get_user(); break;
+					default		: trigger_error('Unknow paramter given to get_records criteria: '.$k, E_USER_ERROR);
+				} 	
+			} else {
+				$negative = $k[0]=='!';
+				$k = trim($k, '!');
+				$fields .= ', concat( \'::\', group_concat( rd'.$iter.'.value ORDER BY rd'.$iter.'.value SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
+				$final_tab = '('.$final_tab.') LEFT JOIN '.$tab_name.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab_name.'_id AND rd'.$iter.'.field="'.$k.'"';
+				if (is_array($v)) {
+					$having .= ' AND (('.($negative?'true':'false');
+					foreach($v as $w)
+						$having .= ' '.($negative?'AND':'OR').' val'.$iter.' '.($negative?'NOT ':'').'LIKE '.DB::Concat(DB::qstr('%:'),DB::qstr($w),DB::qstr(':%'));
+					$having .= ')';
+					if ($negative) $having .= ' OR val'.$iter.' IS NULL)';
+					else $having .= ')';
+				} else {
+					$having .= ' AND val'.$iter.($negative?'!':'').'='.DB::Concat(DB::qstr('::'),DB::qstr($v),DB::qstr('::'));
+				}
+				$iter++;
+			}
 		}
 		if (!isset($limit['offset'])) $limit['offset'] = 0;
 		if (!isset($limit['numrows'])) $limit['numrows'] = -1;
-		return DB::GetOne('SELECT COUNT(*) FROM (SELECT id, active'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?'':' AND active=1').' GROUP BY id HAVING true'.$having.') AS tmp');
+		return DB::GetOne('SELECT COUNT(*) FROM (SELECT id, active'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?'':' AND active=1').$where.' GROUP BY id HAVING true'.$having.') AS tmp', $vals);
 	}
 	public static function get_records( $tab_name = null, $crits = null, $admin = false , $all = false, $limit = array(), $order=array()) {
 		if (!$tab_name) return false;
@@ -296,6 +312,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if ($k[0]==':') {
 				switch ($k) {
 					case ':Fav'	: $where .= ' AND (SELECT COUNT(*) FROM '.$tab_name.'_favorite WHERE '.$tab_name.'_id=r.id AND user_id=%d)!=0'; $vals[]=Acl::get_user(); break;
+					case ':Recent'	: $where .= ' AND (SELECT COUNT(*) FROM '.$tab_name.'_recent WHERE '.$tab_name.'_id=r.id AND user_id=%d)!=0'; $vals[]=Acl::get_user(); break;
 					default		: trigger_error('Unknow paramter given to get_records criteria: '.$k, E_USER_ERROR);
 				} 	
 			} else {

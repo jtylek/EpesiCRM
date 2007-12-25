@@ -224,9 +224,13 @@ class Utils_RecordBrowser extends Module {
 			$gb->set_custom_label($this->add_button);
 		}
 		$crits = array_merge($crits, $gb->get_search_query(true));
-		$limit = $gb->get_limit(Utils_RecordBrowserCommon::get_records_limit($this->tab, $crits, $admin));
+		if ($this->browse_mode == 'favorites')
+			$crits[':Fav'] = true;
+		if ($this->browse_mode == 'recent')
+			$crits[':Recent'] = true;
 		$order = $gb->get_order();
-		
+
+		$limit = $gb->get_limit(Utils_RecordBrowserCommon::get_records_limit($this->tab, $crits, $admin));
 		$records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, $admin, false, $limit, $order);
 		if ($admin) $this->browse_mode = 'all'; 
 		if ($this->browse_mode == 'recent') {
@@ -236,15 +240,6 @@ class Utils_RecordBrowser extends Module {
 				if (!isset($records[$row[$this->tab.'_id']])) continue;
 				$rec_tmp[$row[$this->tab.'_id']] = $records[$row[$this->tab.'_id']];
 				$rec_tmp[$row[$this->tab.'_id']]['visited_on'] = $row['visited_on'];
-			}
-			$records = $rec_tmp;
-		}
-		if ($this->browse_mode == 'favorites') {
-			$rec_tmp = array();
-			$ret = DB::Execute('SELECT * FROM '.$this->tab.'_favorite WHERE user_id=%d', array(Acl::get_user()));
-			while ($row = $ret->FetchRow()) {
-				if (!isset($records[$row[$this->tab.'_id']])) continue;
-				$rec_tmp[$row[$this->tab.'_id']] = $records[$row[$this->tab.'_id']];
 			}
 			$records = $rec_tmp;
 		}
