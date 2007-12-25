@@ -282,6 +282,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$vals = array();
 		$final_tab = $tab_name.' AS r';
 		if (!$crits) $crits = array();
+		if (!$order) $order = array();
 		$iter = 0;
 		foreach($crits as $k=>$v){
 			if ($k[0]==':') {
@@ -307,9 +308,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$iter++;
 			}
 		}
+		foreach($order as $v){
+			$fields .= ', concat( \'::\', group_concat( rd'.$iter.'.value ORDER BY rd'.$iter.'.value SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
+			$final_tab = '('.$final_tab.') LEFT JOIN '.$tab_name.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab_name.'_id AND rd'.$iter.'.field="'.$v['column'].'"';
+			if ($orderby=='') $orderby = ' ORDER BY';
+			else $orderby .= ', ';
+			$orderby .= ' val'.$iter.' '.$v['direction'];
+			$iter++;
+		}
 		if (!isset($limit['offset'])) $limit['offset'] = 0;
 		if (!isset($limit['numrows'])) $limit['numrows'] = -1;
-//		print('SELECT id, active'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?'':' AND active=1').$where.' GROUP BY id HAVING true'.$having.$orderby.'<hr>');
 		$ret = DB::SelectLimit('SELECT id, active'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?'':' AND active=1').$where.' GROUP BY id HAVING true'.$having.$orderby, $limit['numrows'], $limit['offset'], $vals);
 		$records = array();
 		while ($row = $ret->FetchRow()) {

@@ -208,7 +208,8 @@ class Utils_RecordBrowser extends Module {
 			if ($field === 'id') continue;
 			if (!$args['visible'] && (!isset($cols[$args['name']]) || $cols[$args['name']] === false)) continue;
 			if (isset($cols[$args['name']]) && $cols[$args['name']] === false) continue;
-			$arr = array('name'=>$args['name'], 'order'=>$field);
+			$arr = array('name'=>$args['name']);
+			if ($this->browse_mode!='recent') $arr['order'] = $field;
 			if ($quickjump!=='' && $args['name']===$quickjump) $arr['quickjump'] = $args['name'];
 			$table_columns[] = $arr;
 			array_push($table_columns_SQL, 'e.'.$field);
@@ -224,8 +225,9 @@ class Utils_RecordBrowser extends Module {
 		}
 		$crits = array_merge($crits, $gb->get_search_query(true));
 		$limit = $gb->get_limit(Utils_RecordBrowserCommon::get_records_limit($this->tab, $crits, $admin));
-
-		$records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, $admin, false, $limit);
+		$order = $gb->get_order();
+		
+		$records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, $admin, false, $limit, $order);
 		if ($admin) $this->browse_mode = 'all'; 
 		if ($this->browse_mode == 'recent') {
 			$rec_tmp = array();
