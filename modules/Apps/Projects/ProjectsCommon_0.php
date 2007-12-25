@@ -32,12 +32,13 @@ class Apps_ProjectsCommon extends ModuleCommon {
 		switch ($action) {
 			case 'browse':	return $i->acl_check('browse projects');
 			case 'view':	static $me;
+					if($i->acl_check('view projects')) return true;
 					if(!isset($me)) {
 						$me = Utils_RecordBrowserCommon::get_records('projects', array('login'=>Acl::get_user()),false,true);
 						if (is_array($me) && !empty($me)) $me = array_shift($me);
 					}
-					if($me && in_array($param['id'],$me['Project Name'])) return true; //my company
-					return $i->acl_check('view projects');
+					if ($me) return array('Project Name'=>$me['Project Name']);
+					return false;
 			case 'edit':	return $i->acl_check('edit projects');
 			case 'delete':	return $i->acl_check('delete projects');
 		}
