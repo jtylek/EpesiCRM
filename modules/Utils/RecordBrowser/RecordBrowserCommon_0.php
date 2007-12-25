@@ -256,6 +256,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$fields = '';
 		$final_tab = $tab_name.' AS r';
 		if (!$crits) $crits = array();
+		$access = self::get_access($tab_name, 'view');
+		if ($access===false) return array();
+		elseif ($access!==true && is_array($access))
+			$crits = array_merge($crits, $access);
 		$iter = 0;
 		foreach($crits as $k=>$v){
 			$fields .= ', concat( \'::\', group_concat( rd'.$iter.'.value ORDER BY rd'.$iter.'.value SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
@@ -282,6 +286,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$vals = array();
 		$final_tab = $tab_name.' AS r';
 		if (!$crits) $crits = array();
+		$access = self::get_access($tab_name, 'view');
+		if ($access===false) return array();
+		elseif ($access!==true && is_array($access))
+			$crits = array_merge($crits, $access);
 		if (!$order) $order = array();
 		$iter = 0;
 		foreach($crits as $k=>$v){
@@ -338,9 +346,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					if (self::$table_rows[$field]['type'] == 'multiselect') $records[$row['id']][$field] = array();
 					else $records[$row['id']][$field] = '';
 		}
-		foreach($records as $k=>$record)
-			if (!$all && !self::get_access($tab_name, 'view', $record)) unset($records[$k]);
-		// TODO: a miracle
 		return $records;
 	}
 	public static function get_access($tab_name, $action, $param=null){
