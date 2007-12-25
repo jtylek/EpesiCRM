@@ -29,20 +29,29 @@
 {if isset($order) || isset($letter_links)}
 
 <table id="letter-links">
-<tr>
-	<td class="letters">
-		{if isset($letter_links)}
-		{foreach key=k item=link from=$letter_links}
-		{$link}
-		{/foreach}
-		{/if}
-	</td>
-	<td class="reset">
-		{if isset($order)}
-		{$order}&nbsp;&nbsp;&nbsp;<b>{$reset}</b>
-		{/if}
-	</td>
-</tr>
+	<tr>
+		<td>
+			{$custom_label}
+		</td>
+		<td>
+			<table>
+			<tr>
+				<td class="letters">
+					{if isset($letter_links)}
+					{foreach key=k item=link from=$letter_links}
+					{$link}
+					{/foreach}
+					{/if}
+				</td>
+				<td class="reset">
+					{if isset($order)}
+					{$order}&nbsp;&nbsp;&nbsp;<b>{$reset}</b>
+					{/if}
+				</td>
+			</tr>
+			</table>
+		</td>
+	</tr>
 </table>
 
 {/if}

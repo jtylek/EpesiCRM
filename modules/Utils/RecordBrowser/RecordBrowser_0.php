@@ -28,6 +28,7 @@ class Utils_RecordBrowser extends Module {
 	private $crits = array();
 	private $access_callback;
 	private $noneditable_fields = array();
+	private $add_button = null;
 		
 	public function get_val($field, $val, $id) {
 		if (isset($this->display_callback_table[$field])) {
@@ -35,6 +36,10 @@ class Utils_RecordBrowser extends Module {
 		} else {
 			return $val;
 		}
+	}
+	
+	public function set_button($arg){
+		$this->add_button = $arg;
 	}
 	
 	public function get_access($action, $param=null){
@@ -214,6 +219,9 @@ class Utils_RecordBrowser extends Module {
 			$table_columns[] = array('name'=>$this->lang->t('Visited on')); 
 		$gb->set_table_columns( $table_columns );
 		$gb->set_default_order( $order );
+		if ($this->add_button!==null) {
+			$gb->set_custom_label($this->add_button);
+		}
 		$crits = array_merge($crits, $gb->get_search_query(true));
 		$limit = $gb->get_limit(Utils_RecordBrowserCommon::get_records_limit($this->tab, $crits, $admin));
 

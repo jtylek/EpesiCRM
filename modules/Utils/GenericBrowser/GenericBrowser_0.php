@@ -106,10 +106,15 @@ class Utils_GenericBrowser extends Module {
 	private $en_actions = false;
 	private $cur_row = -1;
 	private $per_page;
+	private $custom_label = '';
 
 	public function construct() {
 		if (is_numeric($this->get_instance_id()))
 			trigger_error('GenericBrowser did not receive string name for instance in module '.$this->get_parent_type().'.<br>Use $this->init_module(\'Utils/GenericBrowser\',<construct args>, \'instance name here\');',E_USER_ERROR);
+	}
+
+	public function set_custom_label($arg){
+		$this->custom_label = $arg;
 	}
 
 	/**
@@ -888,6 +893,7 @@ class Utils_GenericBrowser extends Module {
 		$theme->assign('prev', $this->gb_prev());
 		$theme->assign('next', $this->gb_next());
 		$theme->assign('last', $this->gb_last());
+		$theme->assign('custom_label', $this->custom_label);
 
 		if ($search_on) $theme->assign('adv_search','<a '.$this->create_unique_href(array('adv_search'=>!$this->is_adv_search_on())).'>'.($this->is_adv_search_on()?$this->lang->t('Simple Search'):$this->lang->t('Advanced Search')).'</a>');
 		else $theme->assign('adv_search','');
