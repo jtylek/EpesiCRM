@@ -156,7 +156,7 @@ class Utils_RecordBrowser extends Module {
 			$filters[] = str_replace(' ','_',$filter);
 		}
 		$form->addElement('submit', 'submit', 'Show');
-		$def_filt = $this->get_module_variable('def_filter');
+		$def_filt = $this->get_module_variable('def_filter', array());
 		$form->setDefaults($def_filt);
 		$this->crits = array();
 		if ($form->validate()) {
