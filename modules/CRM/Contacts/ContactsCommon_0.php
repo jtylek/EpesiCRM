@@ -42,15 +42,15 @@ class CRM_ContactsCommon extends ModuleCommon {
 			case 'browse':	return $i->acl_check('browse companies');
 			case 'view':	if ($i->acl_check('view company')) return true;
 							$me = self::get_my_record();
-							if ($me) return array('Company Name'=>$me['Company Name']);
+							if ($me) return array('company_name'=>$me['company_name']);
 							else return false;
 			case 'edit':	$me = self::get_my_record();
-					if($me && in_array($param['id'],$me['Company Name']) && $i->acl_check('edit my company')) return true; //my company
+					if ($me && in_array($param['id'],$me['company_name']) && $i->acl_check('edit my company')) return true; //my company
 					return $i->acl_check('edit company');
 			case 'delete':	return $i->acl_check('delete company');
 			case 'edit_fields':
 					if($i->acl_check('edit company')) return array();
-					return array('Company Name'=>false,'Short Name'=>false,'Group'=>false);
+					return array('company_name'=>false,'short_name'=>false,'group'=>false);
 		}
 		return false;
 	}
@@ -66,12 +66,12 @@ class CRM_ContactsCommon extends ModuleCommon {
 					$me = self::get_my_record();
 					if($me && $me['id']==$param['id']) return true; //me
 					if($i->acl_check('edit my company contacts'))
-						foreach($param['Company Name'] as $cid)
-							if(in_array($cid,$me['Company Name'])) return true; //customer
+						foreach($param['company_name'] as $cid)
+							if(in_array($cid,$me['company_name'])) return true; //customer
 					return false;
 			case 'edit_fields':
 					if($i->acl_check('edit contact')) return array();
-					return array('Company Name'=>false,'Last Name'=>false,'First Name'=>false,'Group'=>false);
+					return array('company_name'=>false,'last_name'=>false,'first_name'=>false,'group'=>false);
 		}
 		return false;
 	}
@@ -100,22 +100,22 @@ class CRM_ContactsCommon extends ModuleCommon {
 				else {
 					$comp = self::get_company(self::$paste_or_new);
 					$paste_company_info =
-						'document.getElementsByName("address_1")[0].value="'.$comp['Address 1'].'";'.
-						'document.getElementsByName("address_2")[0].value="'.$comp['Address 2'].'";'.
-						'document.getElementsByName("work_phone")[0].value="'.$comp['Phone'].'";'.
-						'document.getElementsByName("fax")[0].value="'.$comp['Fax'].'";'.
-						'document.getElementsByName("city")[0].value="'.$comp['City'].'";'.
-						'document.getElementsByName("postal_code")[0].value="'.$comp['Postal Code'].'";'.
+						'document.getElementsByName("address_1")[0].value="'.$comp['address_1'].'";'.
+						'document.getElementsByName("address_2")[0].value="'.$comp['address_2'].'";'.
+						'document.getElementsByName("work_phone")[0].value="'.$comp['phone'].'";'.
+						'document.getElementsByName("fax")[0].value="'.$comp['fax'].'";'.
+						'document.getElementsByName("city")[0].value="'.$comp['city'].'";'.
+						'document.getElementsByName("postal_code")[0].value="'.$comp['postal_code'].'";'.
 						'var country = $(\'country\');'.
-						'var k = 0; while (k < country.options.length) if (country.options[k].value=="'.$comp['Country'].'") break; else k++;'.
+						'var k = 0; while (k < country.options.length) if (country.options[k].value=="'.$comp['country'].'") break; else k++;'.
 						'country.selectedIndex = k;'.
 						'country.fire(\'e_u_cd:load\');'.
 						'zone = $(\'zone\');'.
 						'setTimeout("'.
-						'k = 0; while (k < zone.options.length) if (zone.options[k].value==\''.$comp['Zone'].'\') break; else k++;'.
+						'k = 0; while (k < zone.options.length) if (zone.options[k].value==\''.$comp['zone'].'\') break; else k++;'.
 						'zone.selectedIndex = k;'.
 						'",900);'.
-						'document.getElementsByName("web_address")[0].value="'.$comp['Web address'].'";';
+						'document.getElementsByName("web_address")[0].value="'.$comp['web_address'].'";';
 					;
 					$form->addElement('button', 'paste_company_info', 'Paste Company Info', array('onClick'=>$paste_company_info));
 				}
@@ -128,7 +128,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			foreach($default as $k=>$v){
 				if ($first) $first = false;
 				else $def .= '<br>';
-				$def .= Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $v);
+				$def .= Utils_RecordBrowserCommon::create_linked_label('company', 'company_name', $v);
 			}
 			$form->setDefaults(array($field=>$def));
 		}
@@ -164,13 +164,13 @@ class CRM_ContactsCommon extends ModuleCommon {
 		if (!Base_AclCommon::i_am_admin()) $form->freeze($field);
 	}
 	public static function display_fname($v, $i) {
-		return Utils_RecordBrowserCommon::create_linked_label('contact', 'First Name', $i);
+		return Utils_RecordBrowserCommon::create_linked_label('contact', 'first_name', $i);
 	}
 	public static function display_lname($v, $i) {
-		return Utils_RecordBrowserCommon::create_linked_label('contact', 'Last Name', $i);
+		return Utils_RecordBrowserCommon::create_linked_label('contact', 'last_name', $i);
 	}
 	public static function display_cname($v, $i) {
-		return Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $i);
+		return Utils_RecordBrowserCommon::create_linked_label('company', 'company_name', $i);
 	}
 	public static function display_webaddress($v) {
 		$v = trim($v, ' ');

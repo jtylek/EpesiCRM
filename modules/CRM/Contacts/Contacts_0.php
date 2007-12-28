@@ -39,7 +39,7 @@ class CRM_Contacts extends Module {
 		$companies = CRM_ContactsCommon::get_companies();
 		$x = array();
 		foreach($companies as $c)
-			$x[$c['id']] = $c['Company Name'].' ('.$c['Short Name'].')';
+			$x[$c['id']] = $c['company_name'].' ('.$c['short_name'].')';
 		$qf->addElement('select','company',$l->t('Choose main company'),$x,array('onChange'=>$qf->get_submit_form_js()));
 		$qf->addElement('static',null,null,'Contacts assigned to this company are treated as employees. You should set the main company only once.');
 		try {
@@ -80,7 +80,7 @@ class CRM_Contacts extends Module {
 
 	public function company_attachment_addon($arg){
 		$a = $this->init_module('Utils/Attachment',array($arg['id'],'CRM/Company/'.$arg['id']));
-		$a->additional_header($arg['Company Name']);
+		$a->additional_header($arg['company_name']);
 		$a->allow_view_deleted($this->acl_check('view deleted notes'));
 		$a->allow_protected($this->acl_check('view protected notes'),$this->acl_check('edit protected notes'));
 		$a->allow_public($this->acl_check('view public notes'),$this->acl_check('edit public notes'));
@@ -91,11 +91,11 @@ class CRM_Contacts extends Module {
 		$a = $this->init_module('Utils/Attachment',array($arg['id'],'CRM/Contact/'.$arg['id']));
 		$l = $this->init_module('Base/Lang');
 		$companies = array();
-		foreach($arg['Company Name'] as $comp) {
+		foreach($arg['company_name'] as $comp) {
 			$company = CRM_ContactsCommon::get_company($comp);
-			$companies[] = $company['Company Name'].($company['Short Name']?' ('.$company['Short Name'].')':'');
+			$companies[] = $company['company_name'].($company['short_name']?' ('.$company['short_name'].')':'');
 		}
-		$a->additional_header($l->t('%s %s from %s',array($arg['First Name'],$arg['Last Name'],implode(', ',$companies))));
+		$a->additional_header($l->t('%s %s from %s',array($arg['first_name'],$arg['last_name'],implode(', ',$companies))));
 		$a->allow_view_deleted($this->acl_check('view deleted notes'));
 		$a->allow_protected($this->acl_check('view protected notes'),$this->acl_check('edit protected notes'));
 		$a->allow_public($this->acl_check('view public notes'),$this->acl_check('edit public notes'));
