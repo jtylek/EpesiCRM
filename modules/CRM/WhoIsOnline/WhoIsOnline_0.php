@@ -16,7 +16,7 @@ class CRM_WhoIsOnline extends Module {
 		foreach($all as &$x) {
 			$c = CRM_ContactsCommon::get_contact_by_user_id(Base_UserCommon::get_user_id($x));
 			if($c)
-				$x = $c['First Name'].' '.$c['Last Name'];
+				$x = $c['first_name'].' '.$c['last_name'];
 		}
 		$th = $this->init_module('Base/Theme');
 		$th->assign('users',$all);

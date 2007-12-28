@@ -55,7 +55,7 @@ class CRM_LoginAudit extends Module {
                 $ulogin = Base_UserCommon::get_user_login($row['user_login_id']);
                 $uid = 'Contact not set';
                 if($c) {
-                        $uid = $c['First Name'].' '.$c['Last Name'];
+                        $uid = $c['first_name'].' '.$c['last_name'];
                         }
                 $offset=strtotime("1970-01-01 00:00:00");
                 $sess_time=date("G:i:s",strtotime($row['end_time'])-strtotime($row['start_time'])+$offset);

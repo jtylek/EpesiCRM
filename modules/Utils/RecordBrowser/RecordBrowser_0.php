@@ -206,8 +206,8 @@ class Utils_RecordBrowser extends Module {
 		$quickjump = DB::GetOne('SELECT quickjump FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 		foreach($this->table_rows as $field => $args) {
 			if ($field === 'id') continue;
-			if (!$args['visible'] && (!isset($cols[$args['name']]) || $cols[$args['name']] === false)) continue;
-			if (isset($cols[$args['name']]) && $cols[$args['name']] === false) continue;
+			if (!$args['visible'] && (!isset($cols[$args['id']]) || $cols[$args['id']] === false)) continue;
+			if (isset($cols[$args['id']]) && $cols[$args['id']] === false) continue;
 			$arr = array('name'=>$args['name']);
 			if ($this->browse_mode!='recent') $arr['order'] = $field;
 			if ($quickjump!=='' && $args['name']===$quickjump) $arr['quickjump'] = $args['name'];
@@ -258,7 +258,7 @@ class Utils_RecordBrowser extends Module {
 			}
 			
 			foreach($this->table_rows as $field => $args)
-				if (($args['visible'] && !isset($cols[$args['name']])) || (isset($cols[$args['name']]) && $cols[$args['name']] === true)) {
+				if (($args['visible'] && !isset($cols[$args['id']])) || (isset($cols[$args['id']]) && $cols[$args['id']] === true)) {
 					$ret = $row[$args['id']];
 					if ($args['type']=='select' || $args['type']=='multiselect') {
 						if (empty($row[$field])) {

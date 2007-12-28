@@ -54,7 +54,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 
 	public static function decode_contact($id) {
 		$contact = CRM_ContactsCommon::get_contact($id);
-		return $contact['First Name']." ".$contact['Last Name'];
+		return $contact['first_name']." ".$contact['last_name'];
 		//return '['.$contact['Company Name'][0].'] '.$contact['First Name']." ".$contact['Last Name'];
 	}
 }

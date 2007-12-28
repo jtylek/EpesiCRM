@@ -48,7 +48,7 @@ class CRM_Filters extends Module {
 		$th->assign('filters',$filters);
 
 		$qf = $this->init_module('Libs/QuickForm');
-		$contacts = CRM_ContactsCommon::get_contacts(array('Company Name'=>CRM_ContactsCommon::get_main_company()));
+		$contacts = CRM_ContactsCommon::get_contacts(array('company_name'=>CRM_ContactsCommon::get_main_company()));
 		$contacts_select = array();
 		foreach($contacts as $v)
 			$contacts_select[$v['id']] = $v['first_name'].' '.$v['last_name'];
@@ -126,10 +126,10 @@ class CRM_Filters extends Module {
 		$form->addRule('name',$this->lang->t('Field required'),'required');
 		$form->registerRule('unique','callback','check_group_name_exists', 'CRM_Filters');
 		$form->addRule('name',$this->lang->t('Group with this name already exists'),'unique',$id);
-		$contacts = CRM_ContactsCommon::get_contacts(array('Company Name'=>CRM_ContactsCommon::get_main_company()));
+		$contacts = CRM_ContactsCommon::get_contacts(array('company_name'=>CRM_ContactsCommon::get_main_company()));
 		$contacts_select = array();
 		foreach($contacts as $v)
-			$contacts_select[$v['id']] = $v['First Name'].' '.$v['Last Name'];
+			$contacts_select[$v['id']] = $v['first_name'].' '.$v['last_name'];
 		$form->addElement('multiselect', 'contacts', $this->lang->t('People'), $contacts_select);
 		if ($form->validate()) {
 			$v = $form->exportValues();
@@ -150,7 +150,7 @@ class CRM_Filters extends Module {
 			Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
 			Base_ActionBarCommon::add('back','Cancel',$this->create_back_href());
 
-			$rb1 = $this->pack_module('Utils/RecordBrowser/RecordPicker', array('contact' ,'contacts',array('CRM_Filters','edit_group_sel'), array('Company Name'=>CRM_ContactsCommon::get_main_company())));
+			$rb1 = $this->pack_module('Utils/RecordBrowser/RecordPicker', array('contact' ,'contacts',array('CRM_Filters','edit_group_sel'), array('company_name'=>CRM_ContactsCommon::get_main_company())));
 			Base_ActionBarCommon::add('folder','Detailed selection',$rb1->create_open_href());
 
 			$form->display();

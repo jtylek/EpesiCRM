@@ -46,7 +46,7 @@ public function project_attachment_addon($arg){
 
 public function company_projects_addon($arg){
 		$rb = $this->init_module('Utils/RecordBrowser','projects');
-		$proj = array(array('Company Name'=>$arg['id']), array('Company Name'=>false), array('Fav'=>'DESC'), true);
+		$proj = array(array('company_name'=>$arg['id']), array('company_name'=>false), array('Fav'=>'DESC'), true);
 		$this->display_module($rb,$proj,'show_data');
 	}
 
