@@ -206,7 +206,15 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function set_access_callback($tab_name, $module, $func){
 		DB::Execute('UPDATE recordbrowser_table_properties SET access_callback=%s WHERE tab=%s', array($module.'::'.$func, $tab_name));
 	}
-	
+	public static function set_record_properties( $tab_name, $id, $info = array()) {
+		foreach ($info as $k=>$v)
+			switch ($k) {
+				case 'created_on': 	DB::Execute('UPDATE '.$tab_name.' SET created_on=%s WHERE id=%d', array($v, $id));
+									break;
+				case 'created_by': 	DB::Execute('UPDATE '.$tab_name.' SET created_by=%s WHERE id=%d', array($v, $id));
+									break;
+			}
+	}
 	public static function new_record( $tab_name = null, $values = array()) {
 		if (!$tab_name) return false;
 		self::init($tab_name);
