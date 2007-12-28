@@ -94,16 +94,16 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$com = array();
 		$ret = CRM_ContactsCommon::get_companies();
 		foreach($ret as $id=>$data) {
-			$com[$id] = $data['Company Name'];
+			$com[$id] = $data['company_name'];
 		}
 		$emp = array();
-		$ret = CRM_ContactsCommon::get_contacts(array('Company Name'=>array(CRM_ContactsCommon::get_main_company())));
+		$ret = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())));
 		foreach($ret as $id=>$data)
-			$emp[$id] = $data['Last Name'].' '.$data['First Name'];
+			$emp[$id] = $data['last_name'].' '.$data['first_name'];
 		$cus = array();
-		$ret = CRM_ContactsCommon::get_contacts(array('!Company Name'=>array(CRM_ContactsCommon::get_main_company()), ':Fav'=>true));
+		$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company()), ':Fav'=>true));
 		foreach($ret as $id=>$data)
-			$cus[$id] = $data['Last Name'].' '.$data['First Name'];
+			$cus[$id] = $data['last_name'].' '.$data['first_name'];
 		
 		$act = array();
 
@@ -145,11 +145,11 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			
 		if($action != 'view') {
 			$rb1 = $this->init_module('Utils/RecordBrowser/RecordPicker');
-			$this->display_module($rb1, array('contact', 'emp_id', array('CRM_Calendar_EventCommon','decode_contact'), array('Company Name'=>CRM_ContactsCommon::get_main_company())));
+			$this->display_module($rb1, array('contact', 'emp_id', array('CRM_Calendar_EventCommon','decode_contact'), array('company_name'=>CRM_ContactsCommon::get_main_company())));
 			$emp_click = $rb1->create_open_link($this->lang->t('Advanced'));
 			
 			$rb2 = $this->init_module('Utils/RecordBrowser/RecordPicker');
-			$this->display_module($rb2, array('contact', 'cus_id', array('CRM_Calendar_EventCommon','decode_contact'), array('!Company Name'=>CRM_ContactsCommon::get_main_company())));
+			$this->display_module($rb2, array('contact', 'cus_id', array('CRM_Calendar_EventCommon','decode_contact'), array('!company_name'=>CRM_ContactsCommon::get_main_company())));
 			$cus_click = $rb2->create_open_link($this->lang->t('Advanced'));
 		} else {
 			$emp_click = ''; $cus_click = '';

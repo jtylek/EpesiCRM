@@ -316,6 +316,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$crits = array_merge($crits, $access);
 		if (!$order) $order = array();
 		$iter = 0;
+		foreach (self::$table_rows as $field=>$args)
+			if (isset($crits[$args['id']])) {
+				$crits[$field] = $crits[$args['id']];
+				unset($crits[$args['id']]);
+			} 
 		foreach($crits as $k=>$v){
 			if ($k[0]==':') {
 				switch ($k) {
@@ -359,17 +364,18 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 											'active'=>$row['active']);
 			while($field = $data->FetchRow()) {
 				if (!$admin && !self::check_if_value_valid($field)) continue;
+				$field_id = strtolower(str_replace(' ','_',$field['field']));
 				if (self::$table_rows[$field['field']]['type'] == 'multiselect')
-					if (isset($records[$row['id']][$field['field']]))
-						$records[$row['id']][$field['field']][] = $field['value'];
-					else $records[$row['id']][$field['field']] = array($field['value']);
+					if (isset($records[$row['id']][$field_id]))
+						$records[$row['id']][$field_id][] = $field['value'];
+					else $records[$row['id']][$field_id] = array($field['value']);
 				else 
-					$records[$row['id']][$field['field']] = $field['value'];
+					$records[$row['id']][$field_id] = $field['value'];
 			}
 			foreach(self::$table_rows as $field=>$args)
-				if (!isset($records[$row['id']][$field]))
-					if (self::$table_rows[$field]['type'] == 'multiselect') $records[$row['id']][$field] = array();
-					else $records[$row['id']][$field] = '';
+				if (!isset($records[$row['id']][$args['id']]))
+					if ($args['type'] == 'multiselect') $records[$row['id']][$args['id']] = array();
+					else $records[$row['id']][$args['id']] = '';
 		}
 		return $records;
 	}
@@ -403,12 +409,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$record = array();
 			while($field = $data->FetchRow()) {
 				if (!$admin && !self::check_if_value_valid($field)) continue;
+				$field_id = strtolower(str_replace(' ','_',$field['field']));
 				if (self::$table_rows[$field['field']]['type'] == 'multiselect')
-					if (isset($record[$field['field']]))
-						$record[$field['field']][] = $field['value'];
-					else $record[$field['field']] = array($field['value']);
+					if (isset($record[$field_id]))
+						$record[$field_id][] = $field['value'];
+					else $record[$field_id] = array($field['value']);
 				else 
-					$record[$field['field']] = $field['value'];
+					$record[$field_id] = $field['value'];
 			}
 			$record['id'] = $id;
 			if ($admin) { 
@@ -417,9 +424,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					$record[$v] = $row[$v];
 			}
 			foreach(self::$table_rows as $field=>$args)
-				if (!isset($record[$field]))
-					if (self::$table_rows[$field]['type'] == 'multiselect') $record[$field] = array();
-					else $record[$field] = '';
+				if (!isset($record[$args['id']]))
+					if ($args['type'] == 'multiselect') $record[$args['id']] = array();
+					else $record[$args['id']] = '';
 			return $record;
 		} else {
 			return null;
@@ -442,11 +449,15 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		DB::Execute('UPDATE '.$tab.' SET active=0 where id=%d', array($id));
 	}		
 	public function create_linked_label($tab, $col, $id, $nolink=false){
+		foreach (self::$table_rows as $field=>$args)
+			if ($col == $args['id']) {
+				$col = $field;
+				break;
+			} 
 		$label = DB::GetOne('SELECT value FROM '.$tab.'_data WHERE field=%s AND '.$tab.'_id=%d', array($col, $id));
 		if (!$nolink) return '<a '.self::create_record_href($tab, $id).'>'.$label.'</a>';
 		else return $label;
 	}
-
 	public function create_record_href($tab, $id){
 		return Module::create_href(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($tab), 'tab'=>$tab, 'id'=>$id, 'action'=>'view'));
 	}
