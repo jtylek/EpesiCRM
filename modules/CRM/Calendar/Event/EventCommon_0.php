@@ -48,8 +48,8 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		DB::Execute('DELETE FROM crm_calendar_event WHERE id=%d',array($id));
 	}
 
-	public static function update($id,$start,$timeless) { //make sure that event owner is Acl::get_user....
-		DB::Execute('UPDATE crm_calendar_event SET start=%d, timeless=%b WHERE id=%d',array($start,$timeless,$id));
+	public static function update($id,$start,$duration,$timeless) { //make sure that event owner is Acl::get_user....
+		DB::Execute('UPDATE crm_calendar_event SET start=%d, end=%d, timeless=%b WHERE id=%d',array($start,$start+$duration,$timeless,$id));
 	}
 
 	public static function decode_contact($id) {

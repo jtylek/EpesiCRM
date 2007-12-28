@@ -22,8 +22,8 @@ class Tests_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		DB::Execute('DELETE FROM tests_calendar_event WHERE id=%d',array($id));
 	}
 
-	public static function update($id,$start,$timeless) { //make sure that event owner is Acl::get_user....
-		DB::Execute('UPDATE tests_calendar_event SET start=%d, timeless=%b WHERE id=%d',array($start,$timeless,$id));
+	public static function update($id,$start,$duration,$timeless) { //make sure that event owner is Acl::get_user....
+		DB::Execute('UPDATE tests_calendar_event SET duration=%d, start=%d, timeless=%b WHERE id=%d',array($duration,$start,$timeless,$id));
 	}
 }
 

@@ -136,6 +136,7 @@ class Base_Box extends Module {
 		if(isset($func)) $arr['function'] = $func;
 		if(isset($args)) $arr['arguments'] = $args;
 		if(isset($constr_args)) $arr['constructor_arguments'] = $constr_args;
+		//error_log('dodaje:'."\n".print_r($arr,true)."\n\n\n",3,'data/log');
 		$mains[$x] = & $arr;
 		location(array());
 	}

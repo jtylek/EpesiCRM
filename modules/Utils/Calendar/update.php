@@ -20,13 +20,14 @@ if($_POST['cell_id']=='trash') {
 	
 	//update event
 	$cc = explode('_',$_POST['cell_id']);
+	$ev = call_user_func(array($mod.'Common','get'),$ev_id);
 	if($_POST['month']) {
 		$ev = call_user_func(array($mod.'Common','get'),$ev_id);
 		if($ev['timeless']) $cc[1]=1;
 		else $cc[0] += $ev['start']-strtotime(date('Y-m-d',$ev['start']));
 	}
 	
-	call_user_func(array($mod.'Common','update'),$_POST['ev_id'],$cc[0],isset($cc[1]));
+	call_user_func(array($mod.'Common','update'),$_POST['ev_id'],$cc[0],$ev['duration'],isset($cc[1]));
 	
 	//update content of event on page in client browser
 	$ev = call_user_func(array($mod.'Common','get'),$ev_id);
