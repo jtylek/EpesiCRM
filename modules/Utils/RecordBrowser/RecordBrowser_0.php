@@ -259,7 +259,7 @@ class Utils_RecordBrowser extends Module {
 			
 			foreach($this->table_rows as $field => $args)
 				if (($args['visible'] && !isset($cols[$args['name']])) || (isset($cols[$args['name']]) && $cols[$args['name']] === true)) {
-					$ret = $row[$field];
+					$ret = $row[$args['id']];
 					if ($args['type']=='select' || $args['type']=='multiselect') {
 						if (empty($row[$field])) {
 							$row_data[] = '--';
@@ -466,10 +466,10 @@ class Utils_RecordBrowser extends Module {
 		$init_js = '';
 		foreach($this->table_rows as $field => $args){
 			if (isset($this->QFfield_callback_table[$field])) {
-				call_user_func($this->QFfield_callback_table[$field], $form, $args['id'], $this->lang->t($args['name']), $mode, $mode=='add'?array():$record[$field], $args['param']);
+				call_user_func($this->QFfield_callback_table[$field], $form, $args['id'], $this->lang->t($args['name']), $mode, $mode=='add'?array():$record[$args['id']], $args['param']);
 				continue;
 			}
-			if ($mode!=='add' && $mode!=='edit') $record[$field] = $this->get_val($field, $record[$field], $id);
+			if ($mode!=='add' && $mode!=='edit') $record[$args['id']] = $this->get_val($field, $record[$args['id']], $id);
 			if (isset($this->requires[$field])) 
 				if ($mode=='add' || $mode=='edit') {
 					foreach($this->requires[$field] as $k=>$v) {
@@ -508,24 +508,24 @@ class Utils_RecordBrowser extends Module {
 			switch ($args['type']) {
 				case 'integer':		$form->addElement('text', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
 									$form->addRule($args['id'], $this->lang->t('Only numbers are allowed.'), 'numeric');
-									if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$field]));
+									if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 									break;
 				case 'text':		if ($mode!=='view') $form->addElement('text', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id'], 'maxlength'=>$args['param']));
 									else $form->addElement('static', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
 									$form->addRule($args['id'], $this->lang->t('Maximum length for this field is '.$args['param'].'.'), 'maxlength', $args['param']);
-									if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$field]));
+									if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 									break;
 				case 'long text':	$form->addElement('textarea', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
 									$form->addRule($args['id'], $this->lang->t('Maximum length for this field is 255.'), 'maxlength', 255);
-									if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$field]));
+									if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 									break;
 				case 'date':		$form->addElement('datepicker', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
-									if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$field]));
+									if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 									break;
 				case 'commondata':	$param = explode('::',$args['param']);
 									foreach ($param as $k=>$v) if ($k!==0) $param[$k] = strtolower(str_replace(' ','_',$v));
 									$form->addElement($args['type'], $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', $param, array('empty_option'=>$args['required'], 'id'=>$args['id']));
-									if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$field]));
+									if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 									break;
 				case 'select':		
 				case 'multiselect':	$comp = array();
@@ -543,20 +543,20 @@ class Utils_RecordBrowser extends Module {
 											while ($row = $ret->FetchRow()) $comp[$row[$tab.'_id']] = $row['value'];
 										}
 										$form->addElement($args['type'], $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', $comp, array('id'=>$args['id']));
-										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$field]));
+										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 									} else {
 										$form->addElement('static', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
 										if (isset($this->display_callback_table[$field])) {
 											$form->setDefaults(array($args['id']=>call_user_func($this->display_callback_table[$field], $record[$field])));
 											continue;
 										}
-										if (!is_array($record[$field])) {
-											if ($tab=='__COMMON__') $form->setDefaults(array($args['id']=>$data[$record[$field]]));
-											else $form->setDefaults(array($args['id']=>Utils_RecordBrowserCommon::create_linked_label($tab, $col, $record[$field])));
+										if (!is_array($record[$args['id']])) {
+											if ($tab=='__COMMON__') $form->setDefaults(array($args['id']=>$data[$record[$args['id']]]));
+											else $form->setDefaults(array($args['id']=>Utils_RecordBrowserCommon::create_linked_label($tab, $col, $record[$args['id']])));
 										} else {
 											$def = '';
 											$first = true;
-											foreach($record[$field] as $k=>$v){
+											foreach($record[$args['id']] as $k=>$v){
 												if ($first) $first = false;
 												else $def .= ', ';
 												if ($tab=='__COMMON__') $def .= $data[$v];
@@ -586,7 +586,7 @@ class Utils_RecordBrowser extends Module {
 		foreach($this->table_rows as $field => $args){
 			if ($args['id']=='id') continue;
 			if (!isset($values[$args['id']])) $values[$args['id']] = '';
-			if ($record[$field]!==$values[$args['id']]) {
+			if ($record[$args['id']]!==$values[$args['id']]) {
 				DB::StartTrans();
 				$val = DB::GetOne('SELECT value FROM '.$this->tab.'_data WHERE '.$this->tab.'_id=%d AND field=%s',array($id, $field));
 				if ($val!==false) DB::Execute('DELETE FROM '.$this->tab.'_data WHERE '.$this->tab.'_id=%d AND field=%s',array($id, $field));
@@ -596,7 +596,7 @@ class Utils_RecordBrowser extends Module {
 						DB::Execute('INSERT INTO '.$this->tab.'_data(value, '.$this->tab.'_id, field) VALUES (%s, %d, %s)',array($v, $id, $field));
 				}
 				DB::CompleteTrans();
-				$diff[$field] = $record[$field];
+				$diff[$args['id']] = $record[$args['id']];
 			}
 		}
 		if (!empty($diff)) {
