@@ -103,12 +103,15 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		return $ret;
 	}
 
-	public static function time2reg($t=null,$time=true) {
+	public static function time2reg($t=null,$time=true,$date=true) {
 		if(!isset($t)) $t = time();
 		elseif(!is_numeric($t) && is_string($t)) $t = strtotime($t);
-		$format = Base_User_SettingsCommon::get('Base_RegionalSettings','date');
+		$format = array();
+		if($date)
+			$format[] = Base_User_SettingsCommon::get('Base_RegionalSettings','date');
 		if($time)
-			$format .= ' '.Base_User_SettingsCommon::get('Base_RegionalSettings','time');
+			$format[] = Base_User_SettingsCommon::get('Base_RegionalSettings','time');
+		$format = implode(' ',$format);
 
 		self::set_locale();
 		$ret = self::strftime($format,$t);

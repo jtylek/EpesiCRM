@@ -10,6 +10,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 		$th->assign('description',$ev['description']);
 		$th->assign('color',$ev['color']);
 		$th->assign('start',$ex['start']);
+		$th->assign('start_short',$ex['start_short']);
 		$th->assign('end',$ex['end']);
 		$th->assign('duration',$ex['duration']);
 		ob_start();
@@ -27,7 +28,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 		Base_ThemeCommon::display_smarty($th,'Utils_Calendar','event');
 	}
 
-	public static function process_event($row) {
+	public static function process_event(& $row) {
 		if(!isset($row['start']) || !isset($row['duration']) || !is_numeric($row['duration'])
 		   || !isset($row['title']) || !isset($row['description'])
 		   || !isset($row['timeless']) || !isset($row['id']))
@@ -52,19 +53,21 @@ class Utils_CalendarCommon extends ModuleCommon {
 		Base_RegionalSettingsCommon::restore_locale();
 
 		if($row['timeless']) {
+			$start_short = Base_LangCommon::ts('Utils_Calendar','timeless');
 			$start_t = $start_day.', '.Base_RegionalSettingsCommon::time2reg($ev_start,false);
 			if($oneday)
 				$end_t = $start_t;
 			else
 				$end_t = $end_day.', '.Base_RegionalSettingsCommon::time2reg($ev_end,false);
 		} else {
+			$start_short = Base_RegionalSettingsCommon::time2reg($ev_start,true,false);
 			$start_t = $start_day.', '.Base_RegionalSettingsCommon::time2reg($ev_start);
 			if(!$oneday)
 				$end_t = $end_day.', '.Base_RegionalSettingsCommon::time2reg($ev_end);
 		}
 
 		$duration_str = self::duration2str($row['duration']);
-		return array('duration'=>$duration_str,'start'=>$start_t,'end'=>$end_t);
+		return array('duration'=>$duration_str,'start'=>$start_t,'end'=>$end_t,'start_short'=>$start_short);
 	}
 
 	private static function duration2str($duration) {
