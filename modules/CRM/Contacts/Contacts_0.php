@@ -19,9 +19,9 @@ class CRM_Contacts extends Module {
 		if (isset($_REQUEST['mode'])) $this->set_module_variable('mode', $_REQUEST['mode']);
 		$mode = $this->get_module_variable('mode');
 		if ($mode == 'contact') {
-			location(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array('contact')));
+			location(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array('contact'), 'box_main_arguments'=>array(array('last_name'=>'ASC'))));
 		} else {
-			location(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array('company')));
+			location(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array('company'), 'box_main_arguments'=>array(array('company_name'=>'ASC'))));
 		}
 	}
 

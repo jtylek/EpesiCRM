@@ -29,6 +29,7 @@ class Utils_RecordBrowser extends Module {
 	private $access_callback;
 	private $noneditable_fields = array();
 	private $add_button = null;
+	private $changed_view = false;
 		
 	public function get_val($field, $val, $id) {
 		if (isset($this->display_callback_table[$field])) {
@@ -86,7 +87,7 @@ class Utils_RecordBrowser extends Module {
 		}
 	}
 	// BODY //////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function body() {
+	public function body($def_order=array()) {
 		$this->init();
 		if (isset($_REQUEST['tab'])) {
 			$this->tab = $_REQUEST['tab'];
@@ -105,7 +106,7 @@ class Utils_RecordBrowser extends Module {
 
 			$filters = $this->show_filters();
 			ob_start();
-			$this->show_data($this->crits);
+			$this->show_data($this->crits, array(), $def_order);
 			$table = ob_get_contents();
 			ob_end_clean();
 
@@ -119,6 +120,7 @@ class Utils_RecordBrowser extends Module {
 	}
 	public function switch_view($mode){
 		$this->browse_mode = $mode;
+		$this->changed_view = true;
 		$this->set_module_variable('browse_mode', $mode);
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
@@ -205,6 +207,10 @@ class Utils_RecordBrowser extends Module {
 		$table_columns_SQL = array();
 		$quickjump = DB::GetOne('SELECT quickjump FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 		foreach($this->table_rows as $field => $args) {
+			if (isset($order[$args['id']])) {
+				$order[$field] = $order[$args['id']];
+				unset($order[$args['id']]);
+			}
 			if ($field === 'id') continue;
 			if (!$args['visible'] && (!isset($cols[$args['id']]) || $cols[$args['id']] === false)) continue;
 			if (isset($cols[$args['id']]) && $cols[$args['id']] === false) continue;
@@ -217,9 +223,13 @@ class Utils_RecordBrowser extends Module {
 
 		$table_columns_SQL = join(', ', $table_columns_SQL);
 		if ($this->browse_mode == 'recent')
-			$table_columns[] = array('name'=>$this->lang->t('Visited on')); 
+			$table_columns[] = array('name'=>$this->lang->t('Visited on'));
+			 
 		$gb->set_table_columns( $table_columns );
-		$gb->set_default_order( $order );
+
+		if ($this->browse_mode != 'recent')
+			$gb->set_default_order($order, $this->changed_view);
+
 		if ($this->add_button!==null) {
 			$gb->set_custom_label($this->add_button);
 		}
