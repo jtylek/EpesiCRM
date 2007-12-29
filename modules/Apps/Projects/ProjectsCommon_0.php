@@ -34,7 +34,7 @@ class Apps_ProjectsCommon extends ModuleCommon {
 			case 'view':	static $me;
 					if($i->acl_check('view projects')) return true;
 					if(!isset($me)) {
-						$me = Utils_RecordBrowserCommon::get_records('projects', array('login'=>Acl::get_user()),false,true);
+						$me = Utils_RecordBrowserCommon::get_records('projects', array('login'=>Acl::get_user()));
 						if (is_array($me) && !empty($me)) $me = array_shift($me);
 					}
 					if ($me) return array('Project Name'=>$me['Project Name']);

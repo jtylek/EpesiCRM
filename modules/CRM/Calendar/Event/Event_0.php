@@ -91,20 +91,15 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$this->lang = $this->pack_module('Base/Lang');
 		$form = $this->init_module('Libs/QuickForm');
 
-		$com = array();
-		$ret = CRM_ContactsCommon::get_companies();
-		foreach($ret as $id=>$data) {
-			$com[$id] = $data['company_name'];
-		}
 		$emp = array();
-		$ret = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())));
+/*		$ret = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())));
 		foreach($ret as $id=>$data)
 			$emp[$id] = $data['last_name'].' '.$data['first_name'];
-		$cus = array();
-		$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company()), ':Fav'=>true));
+*/		$cus = array();
+/*		$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company()), ':Fav'=>true));
 		foreach($ret as $id=>$data)
 			$cus[$id] = $data['last_name'].' '.$data['first_name'];
-		
+*/		
 		$act = array();
 
 		$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
@@ -134,7 +129,6 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 		$form->addElement('header', null, $this->lang->t('Event itself'));
 		
-		$form->addElement('select', 'rel_com_id', $this->lang->t('Company'), $com, array('style'=>'width: 100%;'));
 		$form->addElement('select', 'access', $this->lang->t('Access'), $access, array('style'=>'width: 100%;'));
 		$form->addElement('select', 'priority', $this->lang->t('Priority'), $priority, array('style'=>'width: 100%;'));
 		

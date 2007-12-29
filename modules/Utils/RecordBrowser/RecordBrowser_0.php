@@ -241,7 +241,7 @@ class Utils_RecordBrowser extends Module {
 		$order = $gb->get_order();
 
 		$limit = $gb->get_limit(Utils_RecordBrowserCommon::get_records_limit($this->tab, $crits, $admin));
-		$records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, $admin, false, $limit, $order);
+		$records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array(), $order, $limit, $admin);
 		if ($admin) $this->browse_mode = 'all'; 
 		if ($this->browse_mode == 'recent') {
 			$rec_tmp = array();
@@ -294,7 +294,7 @@ class Utils_RecordBrowser extends Module {
 						} else {
 							$arr = explode('::',$args['param']);
 							$path = array_shift($arr);
-							foreach($arr as $v) $path .= '/'.$row[$v];
+							foreach($arr as $v) $path .= '/'.$row[strtolower(str_replace(' ','_',$v))];
 							$path .= '/'.$row[$args['id']];
 							$ret = Utils_CommonDataCommon::get_value($path);
 						}

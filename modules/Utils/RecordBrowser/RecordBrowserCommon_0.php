@@ -242,12 +242,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					array($user_id,
 					$id));
 		$ret = DB::SelectLimit('SELECT visited_on FROM '.$tab_name.'_recent WHERE user_id = %d ORDER BY visited_on DESC',
-					$rec_size-1,
+					$rec_size,
 					-1,
 					array($user_id));
 		while($row_temp = $ret->FetchRow()) $row = $row_temp;
 		if (isset($row)) {
-			DB::Execute('DELETE FROM '.$tab_name.'_recent WHERE user_id = %d AND visited_on < %T',
+			DB::Execute('DELETE FROM '.$tab_name.'_recent WHERE user_id = %d AND visited_on <= %T',
 						array($user_id,	
 						$row['visited_on']));
 		}
@@ -300,7 +300,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (!isset($limit['numrows'])) $limit['numrows'] = -1;
 		return DB::GetOne('SELECT COUNT(*) FROM (SELECT id, active'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?'':' AND active=1').$where.' GROUP BY id HAVING true'.$having.') AS tmp', $vals);
 	}
-	public static function get_records( $tab_name = null, $crits = null, $admin = false , $all = false, $limit = array(), $order=array()) {
+	public static function get_records( $tab_name = null, $crits = array(), $cols = array(), $order = array(), $limit = array(), $admin = false) {
 		if (!$tab_name) return false;
 		self::init($tab_name, $admin);
 		$having = '';
@@ -358,25 +358,46 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (!isset($limit['numrows'])) $limit['numrows'] = -1;
 		$ret = DB::SelectLimit('SELECT id, active'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?'':' AND active=1').$where.' GROUP BY id HAVING true'.$having.$orderby, $limit['numrows'], $limit['offset'], $vals);
 		$records = array();
+		$where = ' WHERE true';
+		$vals = array(); 
+		if ($cols && !empty($cols)) {
+			$where .= ' AND (false';
+			foreach ($cols as $v) {
+				$where .= ' OR field=%s';
+				$vals[] = $v;
+			}
+			$where .= ')';
+		}
+		$where .= ' AND '.$tab_name.'_id IN (';
+		$first = true;
 		while ($row = $ret->FetchRow()) {
-			$data = DB::Execute('SELECT * FROM '.$tab_name.'_data WHERE '.$tab_name.'_id=%d', array($row['id']));
 			$records[$row['id']] = array(	'id'=>$row['id'], 
 											'active'=>$row['active']);
-			while($field = $data->FetchRow()) {
-				if (!$admin && !self::check_if_value_valid($field)) continue;
-				$field_id = strtolower(str_replace(' ','_',$field['field']));
-				if (self::$table_rows[$field['field']]['type'] == 'multiselect')
-					if (isset($records[$row['id']][$field_id]))
-						$records[$row['id']][$field_id][] = $field['value'];
-					else $records[$row['id']][$field_id] = array($field['value']);
-				else 
-					$records[$row['id']][$field_id] = $field['value'];
-			}
-			foreach(self::$table_rows as $field=>$args)
-				if (!isset($records[$row['id']][$args['id']]))
-					if ($args['type'] == 'multiselect') $records[$row['id']][$args['id']] = array();
-					else $records[$row['id']][$args['id']] = '';
+			if ($first) $first = false;			
+			else $where .= ', ';
+			$where .= '%d';
+			$vals[] = $row['id'];
 		}
+		$where .= ')';
+		//vprintf('SELECT * FROM '.$tab_name.'_data'.$where, $vals);
+		$data = DB::Execute('SELECT * FROM '.$tab_name.'_data'.$where, $vals);
+		while($field = $data->FetchRow()) {
+			if (!$admin && !self::check_if_value_valid($field)) continue;
+			$field_id = strtolower(str_replace(' ','_',$field['field']));
+			if (self::$table_rows[$field['field']]['type'] == 'multiselect')
+				if (isset($records[$field[$tab_name.'_id']][$field_id]))
+					$records[$field[$tab_name.'_id']][$field_id][] = $field['value'];
+				else $records[$field[$tab_name.'_id']][$field_id] = array($field['value']);
+			else 
+				$records[$field[$tab_name.'_id']][$field_id] = $field['value'];
+		}
+		array_flip($cols);
+		foreach(self::$table_rows as $field=>$args)
+			if (!$cols || $cols[$field])
+				foreach($records as $k=>$v)
+					if (!isset($records[$k][$args['id']]))
+						if ($args['type'] == 'multiselect') $records[$k][$args['id']] = array();
+						else $records[$k][$args['id']] = '';
 		return $records;
 	}
 	public static function get_access($tab_name, $action, $param=null){

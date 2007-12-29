@@ -31,7 +31,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	private static function get_my_record() {
 		static $me;
 		if(!isset($me)) {
-			$me = Utils_RecordBrowserCommon::get_records('contact', array('login'=>Acl::get_user()),false,true);
+			$me = Utils_RecordBrowserCommon::get_records('contact', array('login'=>Acl::get_user()));
 			if (is_array($me) && !empty($me)) $me = array_shift($me);
 		}
 		return $me;
