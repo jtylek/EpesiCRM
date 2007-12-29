@@ -10,7 +10,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
-	public static $filter = '1=1';
+	public static $filter;
 	
 	public static function get($id) {
 		$row = DB::Execute('SELECT start,end,title,description,id,timeless,priority,created_by,created_on,edited_by,edited_on FROM crm_calendar_event WHERE id=%d AND '.self::$filter,array($id))->FetchRow();

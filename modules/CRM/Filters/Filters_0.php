@@ -22,7 +22,7 @@ class CRM_Filters extends Module {
 	public function body() {
 		if(!isset($this->tbl_contact_prefix))
 			trigger_error('Contact table prefix not set',E_USER_ERROR);
-
+		
 		Base_ActionBarCommon::add('folder','Filters','class="lbOn" rel="crm_filters"');
 		$th = $this->init_module('Base/Theme');
 		$display_settings = Base_User_SettingsCommon::get('Base/ActionBar','display');

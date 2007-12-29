@@ -4,6 +4,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_CalendarInstall extends ModuleInstall {
 	public function install() {
 		Base_ThemeCommon::install_default_theme('CRM/Calendar');
+		$this->add_aco('filters','Employee Manager');
 		return true;
 	}
 
