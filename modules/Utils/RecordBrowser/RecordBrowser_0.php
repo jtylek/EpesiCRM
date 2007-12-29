@@ -352,7 +352,7 @@ class Utils_RecordBrowser extends Module {
 		if($mode=='add')
 			$form->setDefaults($defaults);
 
-		$this->prepare_view_entry_details($mode, $id, $form);
+		$this->prepare_view_entry_details($record, $mode, $id, $form);
 
 		if ($form->validate()) {
 			$values = $form->exportValues();
@@ -470,9 +470,7 @@ class Utils_RecordBrowser extends Module {
 		$theme->display(($tpl!=='')?$tpl:'View_entry', ($tpl!==''));
 	}
 
-	public function prepare_view_entry_details($mode, $id, $form){
-		static $record;
-		if ($mode!=='add' && !isset($record)) $record = Utils_RecordBrowserCommon::get_record($this->tab, $id);
+	public function prepare_view_entry_details($record, $mode, $id, $form){
 		$init_js = '';
 		foreach($this->table_rows as $field => $args){
 			if (isset($this->QFfield_callback_table[$field])) {
