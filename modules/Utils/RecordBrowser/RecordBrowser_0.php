@@ -271,12 +271,12 @@ class Utils_RecordBrowser extends Module {
 				if (($args['visible'] && !isset($cols[$args['id']])) || (isset($cols[$args['id']]) && $cols[$args['id']] === true)) {
 					$ret = $row[$args['id']];
 					if ($args['type']=='select' || $args['type']=='multiselect') {
-						if (empty($row[$field])) {
+						if (empty($row[$args['id']])) {
 							$row_data[] = '--';
 							continue;
 						}
 						list($tab, $col) = explode('::',$args['param']);
-						$arr = $row[$field];
+						$arr = $row[$args['id']];
 						if (!is_array($arr)) $arr = array($arr);
 						if ($tab=='__COMMON__') $data = Utils_CommonDataCommon::get_array($col);
 						$ret = '';
@@ -289,13 +289,13 @@ class Utils_RecordBrowser extends Module {
 						}
 					}
 					if ($args['type']=='commondata') {
-						if (!isset($row[$field]) || $row[$field]==='') {
+						if (!isset($row[$args['id']]) || $row[$args['id']]==='') {
 							$ret = '';
 						} else {
 							$arr = explode('::',$args['param']);
 							$path = array_shift($arr);
 							foreach($arr as $v) $path .= '/'.$row[$v];
-							$path .= '/'.$row[$field];
+							$path .= '/'.$row[$args['id']];
 							$ret = Utils_CommonDataCommon::get_value($path);
 						}
 					}
