@@ -170,7 +170,8 @@ td.splitter {
 /* ---------- */
 
 td.splitter {
-	background-color: #336699;
+	background-color: #b3b3b3;
+	height: 2px;
 }
 
 .submenu,
