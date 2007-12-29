@@ -272,8 +272,8 @@ class Utils_Attachment extends Module {
 		else
 			Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 
-		print('<div id="Attachment_header"><div class="center"><div style="position: absolute; left: 2%;">');
-		print($this->lang->t('Note edit history').'</div></div></div>');
+		print('<div id="Attachment_history_header">');
+		print($this->lang->t('Note edit history').'</div>');
 
 		$gb = $this->init_module('Utils/GenericBrowser',null,'hn'.$this->key);
 		$gb->set_table_columns(array(
@@ -295,8 +295,8 @@ class Utils_Attachment extends Module {
 		}
 		$this->display_module($gb);
 
-		print('<br/><div id="Attachment_header"><div class="center"><div style="position: absolute; left: 2%;">');
-		print($this->lang->t('File uploads history').'</div></div></div>');
+		print('<br/><div id="Attachment_history_header">');
+		print($this->lang->t('File uploads history').'</div>');
 
 		$gb = $this->init_module('Utils/GenericBrowser',null,'hua'.$this->key);
 		$gb->set_table_columns(array(
@@ -319,8 +319,8 @@ class Utils_Attachment extends Module {
 		}
 		$this->display_module($gb);
 
-		print('<br/><div id="Attachment_header"><div class="center"><div style="position: absolute; left: 2%;">');
-		print($this->lang->t('File access history').'</div></div></div>');
+		print('<br/><div id="Attachment_history_header">');
+		print($this->lang->t('File access history').'</div>');
 
 		$gb = $this->init_module('Utils/GenericBrowser',null,'hda'.$this->key);
 		$gb->set_table_columns(array(
