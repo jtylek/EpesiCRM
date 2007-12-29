@@ -81,6 +81,7 @@ class Base_Box extends Module {
 				unset($containers['main']['constructor_arguments']);
 
 			$mains = array();
+			$pop_main = true;
 		}
 		array_push($mains,$containers['main']);
 		//error_log(print_r($mains,true)."\n\n\n",3,'data/log');
@@ -102,7 +103,7 @@ class Base_Box extends Module {
 				else
 					$this->modules[$k] = $this->init_module($module_type,(isset($v['constructor_arguments'])?$v['constructor_arguments']:null),$v['name']);
 
-				if($k=='main' && ($pop_main || isset($href)))
+				if($k=='main' && $pop_main)
 					$this->modules[$k]->set_reload(true);
 
 				if(isset($v['function']))
