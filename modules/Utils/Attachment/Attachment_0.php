@@ -272,8 +272,8 @@ class Utils_Attachment extends Module {
 		else
 			Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 
-		print('<div id="Attachment_history_header">');
-		print($this->lang->t('Note edit history').'</div>');
+		$th = $this->init_module('Base/Theme');
+		$th->assign('note_edition_header', $this->lang->t('Note edit history'));
 
 		$gb = $this->init_module('Utils/GenericBrowser',null,'hn'.$this->key);
 		$gb->set_table_columns(array(
@@ -293,10 +293,9 @@ class Utils_Attachment extends Module {
 				$r->add_action($this->create_callback_href(array($this,'restore_note'),array($id,$row['revision'])),'restore');
 			$r->add_data($row['revision'],$row['note_on'],$row['note_by'],$row['text']);
 		}
-		$this->display_module($gb);
+		$th->assign('note_edition',$this->get_html_of_module($gb));
 
-		print('<br/><div id="Attachment_history_header">');
-		print($this->lang->t('File uploads history').'</div>');
+		$th->assign('file_uploads_header',$this->lang->t('File uploads history'));
 
 		$gb = $this->init_module('Utils/GenericBrowser',null,'hua'.$this->key);
 		$gb->set_table_columns(array(
@@ -317,10 +316,9 @@ class Utils_Attachment extends Module {
 			$file = '<a '.$this->get_file($row).'>'.$row['original'].'</a>';
 			$r->add_data($row['file_revision'],$row['upload_on'],$row['upload_by'],$file);
 		}
-		$this->display_module($gb);
+		$th->assign('file_uploads',$this->get_html_of_module($gb));
 
-		print('<br/><div id="Attachment_history_header">');
-		print($this->lang->t('File access history').'</div>');
+		$th->assign('file_access_header',$this->lang->t('File access history'));
 
 		$gb = $this->init_module('Utils/GenericBrowser',null,'hda'.$this->key);
 		$gb->set_table_columns(array(
@@ -347,7 +345,9 @@ class Utils_Attachment extends Module {
 			$r = $gb->get_new_row();
 			$r->add_data($row['created_on'],($row['remote']!=1?$row['download_on']:''),$row['created_by'], $row['ip_address'], $row['host_name'], $row['description'], $row['revision'], ($row['remote']==0?'no':'yes'));
 		}
-		$this->display_module($gb);
+		$th->assign('file_access',$this->get_html_of_module($gb));
+
+		$th->display('history');
 
 		return true;
 	}

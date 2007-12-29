@@ -31,7 +31,7 @@ class Utils_RecordBrowser_RecordPicker extends Module {
 	public function create_open_href() {
 		if(!isset($this->element))
 			trigger_error('Cannot get open link/href to record picker without packing firstly.',E_USER_ERROR);
-		return 'rel="leightbox_'.$this->element.'" class="lbOn" onmousedown="init_all_rpicker_'.$this->element.'();"';
+		return 'rel="leightbox_'.$this->element.'" class="lbOn button" onmousedown="init_all_rpicker_'.$this->element.'();"';
 	}
 }
 

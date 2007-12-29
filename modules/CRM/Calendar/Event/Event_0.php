@@ -27,7 +27,8 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$this->view_event('new', $def_date, $timeless);
 	}
 
-	public function view_event($action, $id=null){
+	public function view_event($action, $id=null, $timeless=false){
+		if($this->is_back()) return false;
 		$timeless = 0;
 
 		$emp = array();
@@ -145,7 +146,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		
 		$form->addElement('textarea', 'description',  $this->lang->t('Description'), array('rows'=>6, 'style'=>'width: 100%;'));
 
-		if($action != 'new') {
+		if($action === 'view') {
 			$form->addElement('static', 'created_by',  $this->lang->t('Created by'));
 			$form->addElement('static', 'created_on',  $this->lang->t('Created on'));
 			$form->addElement('static', 'edited_by',  $this->lang->t('Edited by'));
@@ -171,7 +172,6 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 		$theme->assign('view_style', 'new_event');
 		$theme->assign('cus_click', $cus_click);
-		$theme->assign('tag', md5($this->get_path().microtime()));
 		$form->assign_theme('form', $theme);
 		$theme->display();
 		

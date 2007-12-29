@@ -3,7 +3,7 @@
     <div id="CRM_Calendar_Event_Personal">
 
 <!-- SHADIW BEGIN-->
-	<div class="layer" style="padding: 9px; width: 990px; height: 500px;">
+	<div class="layer" style="padding: 12px; width: 990px; height: 400px;">
 		<div class="content_shadow">
 <!-- -->
 
@@ -29,26 +29,26 @@
         	        	<td class="label" colspan="2" width="25%"> {$form_data.cus_id.label}</td>
 			</tr>
 			<tr>
-			 	<td class="data no-border no-wrap" colspan="2"><span class="error">{$form_data.date_s.error}</span>{$form_data.date_s.html}<span id="time_s">{$form_data.time_s.html}</span></td>
-			 	<td class="data no-border no-wrap" colspan="2"><span class="error">{$form_data.date_e.error}</span>{$form_data.date_e.html}<span id="time_e">{$form_data.time_e.html}</span></td>
-				<td class="data no-border arrows" colspan="2"><span class="error">{$form_data.emp_id.error}</span>{$form_data.emp_id.html}</td>
-				<td class="data no-border arrows" colspan="2"><span class="error">{$form_data.cus_id.error}</span>{$form_data.cus_id.html}<br>{$cus_click}</td>
+			 	<td class="data no-wrap" colspan="2"><span class="error">{$form_data.date_s.error}</span>{$form_data.date_s.html}<span id="time_s">{$form_data.time_s.html}</span></td>
+			 	<td class="data no-wrap" colspan="2"><span class="error">{$form_data.date_e.error}</span>{$form_data.date_e.html}<span id="time_e">{$form_data.time_e.html}</span></td>
+				<td class="data arrows no-wrap" colspan="2"><span class="error">{$form_data.emp_id.error}</span>{$form_data.emp_id.html}</td>
+				<td class="data arrows no-wrap" colspan="2"><span class="error">{$form_data.cus_id.error}</span>{$form_data.cus_id.html}<br>{$cus_click}</td>
 			</tr>
         {* description *}
-		<tr><td class="bottom label no-border" colspan="8">{$form_data.description.label}</td></tr>
-		<tr><td class="bottom data no-border" colspan="8">{$form_data.description.html}</td></tr>
+		<tr><td class="bottom label" colspan="8">{$form_data.description.label}</td></tr>
+		<tr><td class="bottom data {if !isset($form_data.created_by)}no-border{/if}" colspan="8" style="height:100px">{$form_data.description.html}</td></tr>
 		{if isset($form_data.created_by)}
 		<tr>
-			<td class="bottom data no-border" colspan="2">{$form_data.created_by.label}</td>
-			<td class="bottom data no-border" colspan="2">{$form_data.created_by.html}</td>
-			<td class="bottom data no-border" colspan="2">{$form_data.edited_by.label}</td>
-			<td class="bottom data no-border" colspan="2">{$form_data.edited_by.html}</td>
+			<td class="label" colspan="2">{$form_data.created_by.label}</td>
+			<td class="data" colspan="2">{$form_data.created_by.html}</td>
+			<td class="label" colspan="2">{$form_data.edited_by.label}</td>
+			<td class="data" colspan="2">{$form_data.edited_by.html}</td>
 		</tr>
 		<tr>
-			<td class="bottom data no-border" colspan="2">{$form_data.created_on.label}</td>
-			<td class="bottom data no-border" colspan="2">{$form_data.created_on.html}</td>
-			<td class="bottom data no-border" colspan="2">{$form_data.edited_on.label}</td>
-			<td class="bottom data no-border" colspan="2">{$form_data.edited_on.html}</td>
+			<td class="label" colspan="2">{$form_data.created_on.label}</td>
+			<td class="data" colspan="2">{$form_data.created_on.html}</td>
+			<td class="label" colspan="2">{$form_data.edited_on.label}</td>
+			<td class="data" colspan="2">{$form_data.edited_on.html}</td>
 		</tr>
 		{/if}
 
