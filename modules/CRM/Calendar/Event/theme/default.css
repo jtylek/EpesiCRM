@@ -15,6 +15,7 @@ p.event {
 #CRM_Calendar_Event_Personal table.form {
 	background-color: #FFFFFF;
 	padding: 5px;
+	width: 970px;
 }
 
 #CRM_Calendar_Event_Personal .QForm_multiselect {

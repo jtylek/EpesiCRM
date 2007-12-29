@@ -31,18 +31,14 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 	}
 
 	public function view_event($action, $id=null){
-		if($this->is_back())
-			return false;
-		
 		$timeless = 0;
 		if($action == 'new') {
+			$tt = $id-$id%300;
 			$def = array(
-				'date_s' => date('Y-m-d'), 
-				'date_e' => time(), 
-				'time_s' => date('H:i'), 
-				'time_e' => date('H:i'),
-				'repeatable'=>0, 
-				'repeat_forever'=>1, 
+				'date_s' => date('Y-m-d',$id), 
+				'date_e' => date('Y-m-d',$id), 
+				'time_s' => date('H:i',$tt), 
+				'time_e' => date('H:i',$tt+3600),
 				'access'=>0,
 				'priority'=>0,
 				'emp_id' => array(Acl::get_user())
@@ -92,14 +88,14 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$form = $this->init_module('Libs/QuickForm');
 
 		$emp = array();
-/*		$ret = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())));
+		$ret = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())));
 		foreach($ret as $id=>$data)
 			$emp[$id] = $data['last_name'].' '.$data['first_name'];
-*/		$cus = array();
-/*		$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company()), ':Fav'=>true));
+		$cus = array();
+		$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company()), ':Fav'=>true));
 		foreach($ret as $id=>$data)
 			$cus[$id] = $data['last_name'].' '.$data['first_name'];
-*/		
+		
 		$act = array();
 
 		$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
@@ -112,11 +108,12 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 		$form->addElement('datepicker', 'date_s', $this->lang->t('Event start'));
 		$form->addRule('date_s', 'Field is required!', 'required');
-		$form->addElement('date', 'time_s', $this->lang->t('Time'), array('format'=>$time_format));
+		$lang_code = Base_LangCommon::get_lang_code();
+		$form->addElement('date', 'time_s', $this->lang->t('Time'), array('format'=>$time_format, 'optionIncrement'  => array('i' => 5),'language'=>$lang_code),array('size'=>'12'));
 
 		$form->addElement('datepicker', 'date_e', $this->lang->t('Event end'));
 		$form->addRule('date_e', 'Field is required!', 'required');
-		$form->addElement('date', 'time_e', $this->lang->t('Time'), array('format'=>$time_format));
+		$form->addElement('date', 'time_e', $this->lang->t('Time'), array('format'=>$time_format, 'optionIncrement'  => array('i' => 5), 'language'=>$lang_code),array('size'=>'12'));
 
 		$form->addElement('checkbox', 'timeless', $this->lang->t('Timeless'), null,'onClick="time_e = getElementById(\'time_e\'); time_s = getElementById(\'time_s\'); if (this.checked) cal_style = \'none\'; else cal_style = \'block\'; time_e.style.display=cal_style; time_s.style.display=cal_style;"');
 		if ($action=='view') $condition = $timeless;  
@@ -138,15 +135,11 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$form->addElement('multiselect', 'cus_id', $this->lang->t('Customers'), $cus);
 			
 		if($action != 'view') {
-			$rb1 = $this->init_module('Utils/RecordBrowser/RecordPicker');
-			$this->display_module($rb1, array('contact', 'emp_id', array('CRM_Calendar_EventCommon','decode_contact'), array('company_name'=>CRM_ContactsCommon::get_main_company())));
-			$emp_click = $rb1->create_open_link($this->lang->t('Advanced'));
-			
 			$rb2 = $this->init_module('Utils/RecordBrowser/RecordPicker');
 			$this->display_module($rb2, array('contact', 'cus_id', array('CRM_Calendar_EventCommon','decode_contact'), array('!company_name'=>CRM_ContactsCommon::get_main_company())));
 			$cus_click = $rb2->create_open_link($this->lang->t('Advanced'));
 		} else {
-			$emp_click = ''; $cus_click = '';
+			$cus_click = '';
 		}
 		$form->addElement('text', 'rel_emp', $this->lang->t('Related Person'), array('style'=>'width: 100%;'));
 		
@@ -171,13 +164,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		
 		$theme =  & $this->pack_module('Base/Theme');
 
-		$theme->assign('repeatable', 0); 
-		$theme->assign('repeat_forever', 0); 
-		$theme->assign('edit_mode', 0); 
-
 		$theme->assign('view_style', 'new_event');
-		$theme->assign('timeless', 0);
-		$theme->assign('emp_click', $emp_click);
 		$theme->assign('cus_click', $cus_click);
 		$theme->assign('tag', md5($this->get_path().microtime()));
 		$form->assign_theme('form', $theme);
