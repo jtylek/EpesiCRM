@@ -356,7 +356,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		if (!isset($limit['offset'])) $limit['offset'] = 0;
 		if (!isset($limit['numrows'])) $limit['numrows'] = -1;
-		$ret = DB::SelectLimit('SELECT id, active'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?'':' AND active=1').$where.' GROUP BY id HAVING true'.$having.$orderby, $limit['numrows'], $limit['offset'], $vals);
 		$records = array();
 		$where = ' WHERE true';
 		$vals = array(); 
@@ -370,6 +369,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		$where .= ' AND '.$tab_name.'_id IN (';
 		$first = true;
+		$ret = DB::SelectLimit('SELECT id, active'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?'':' AND active=1').$where.' GROUP BY id HAVING true'.$having.$orderby, $limit['numrows'], $limit['offset'], $vals);
+		if ($ret===false) return array();
 		while ($row = $ret->FetchRow()) {
 			$records[$row['id']] = array(	'id'=>$row['id'], 
 											'active'=>$row['active']);
