@@ -37,6 +37,20 @@
         {* description *}
 		<tr><td class="bottom label no-border" colspan="8">{$form_data.description.label}</td></tr>
 		<tr><td class="bottom data no-border" colspan="8">{$form_data.description.html}</td></tr>
+		{if isset($form_data.created_by)}
+		<tr>
+			<td class="bottom data no-border" colspan="2">{$form_data.created_by.label}</td>
+			<td class="bottom data no-border" colspan="2">{$form_data.created_by.html}</td>
+			<td class="bottom data no-border" colspan="2">{$form_data.edited_by.label}</td>
+			<td class="bottom data no-border" colspan="2">{$form_data.edited_by.html}</td>
+		</tr>
+		<tr>
+			<td class="bottom data no-border" colspan="2">{$form_data.created_on.label}</td>
+			<td class="bottom data no-border" colspan="2">{$form_data.created_on.html}</td>
+			<td class="bottom data no-border" colspan="2">{$form_data.edited_on.label}</td>
+			<td class="bottom data no-border" colspan="2">{$form_data.edited_on.html}</td>
+		</tr>
+		{/if}
 
     </tbody>
 	</table>

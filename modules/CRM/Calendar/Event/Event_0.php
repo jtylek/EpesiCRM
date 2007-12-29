@@ -15,23 +15,30 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 	public function view($id) {
 		if($this->is_back()) $this->back_to_calendar();
 		$this->view_event('view', $id);
-		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 	}
 
 	public function edit($id) {
 		if($this->is_back()) $this->back_to_calendar();
 		$this->view_event('edit',$id);
-		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 	}
 
 	public function add($def_date,$timeless=false) {
 		if($this->is_back()) $this->back_to_calendar();
 		$this->view_event('new', $def_date, $timeless);
-		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 	}
 
 	public function view_event($action, $id=null){
 		$timeless = 0;
+
+		$emp = array();
+		$ret = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())));
+		foreach($ret as $c_id=>$data)
+			$emp[$c_id] = $data['last_name'].' '.$data['first_name'];
+		$cus = array();
+		$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company()), ':Fav'=>true));
+		foreach($ret as $c_id=>$data)
+			$cus[$c_id] = $data['last_name'].' '.$data['first_name'];
+
 		if($action == 'new') {
 			$tt = $id-$id%300;
 			$def = array(
@@ -68,15 +75,17 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				'priority'=>$event['priority'],
 				'timeless'=>$event['timeless'],
 				'access'=>$event['access'],
-				'created by' => Base_UserCommon::get_user_login($event['created_by']),
-				'created on' => $event['created_on'],
-				'edited by' => Base_UserCommon::get_user_login($event['edited_by']),
-				'edited on' => $event['edited_on']
+				'created_by' => Base_UserCommon::get_user_login($event['created_by']),
+				'created_on' => $event['created_on'],
+				'edited_by' => $event['edited_by']==-1?'--':Base_UserCommon::get_user_login($event['edited_by']),
+				'edited_on' => $event['edited_by']==-1?'--':$event['edited_on']
 			);
 			$def['cus_id'] = array();
 			$ret = DB::Execute('SELECT contact FROM crm_calendar_group_cus WHERE id=%d', $id);
-			while ($row=$ret->FetchRow()) 
+			while ($row=$ret->FetchRow()) { 
 				$def['cus_id'][] = $row['contact'];
+				if (!isset($cus[$row['contact']])) $cus[$row['contact']] = CRM_Calendar_EventCommon::decode_contact($row['contact']);
+			}
 			$def['emp_id'] = array();
 			$ret = DB::Execute('SELECT contact FROM crm_calendar_group_emp WHERE id=%d', $id);
 			while ($row=$ret->FetchRow()) 
@@ -86,15 +95,6 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 		$this->lang = $this->pack_module('Base/Lang');
 		$form = $this->init_module('Libs/QuickForm');
-
-		$emp = array();
-		$ret = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())));
-		foreach($ret as $id=>$data)
-			$emp[$id] = $data['last_name'].' '.$data['first_name'];
-		$cus = array();
-		$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company()), ':Fav'=>true));
-		foreach($ret as $id=>$data)
-			$cus[$id] = $data['last_name'].' '.$data['first_name'];
 		
 		$act = array();
 
@@ -144,14 +144,19 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$form->addElement('text', 'rel_emp', $this->lang->t('Related Person'), array('style'=>'width: 100%;'));
 		
 		$form->addElement('textarea', 'description',  $this->lang->t('Description'), array('rows'=>6, 'style'=>'width: 100%;'));
-			
-		$form->addElement('static', 'created',  $this->lang->t('Created'));
-		$form->addElement('static', 'edited',  $this->lang->t('Edited'));
-				
+
+		if($action != 'new') {
+			$form->addElement('static', 'created_by',  $this->lang->t('Created by'));
+			$form->addElement('static', 'created_on',  $this->lang->t('Created on'));
+			$form->addElement('static', 'edited_by',  $this->lang->t('Edited by'));
+			$form->addElement('static', 'edited_on',  $this->lang->t('Edited on'));
+		}
+						
 		$form->setDefaults($def);
 		
 		if ($form->validate()) {
 			$values = $form->exportValues();
+			print_r($values);
 			if (!isset($values['timeless'])) $values['timeless'] = false;
 			if($action == 'new')
 				$this->add_event($values);
@@ -175,6 +180,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		} else {
 			Base_ActionBarCommon::add('save','Save',' href="javascript:void(0)" onClick="'.addcslashes($form->get_submit_form_js(true),'"').'"');
 		}
+		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 		return true;
 	}
 
