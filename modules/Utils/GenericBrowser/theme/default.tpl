@@ -31,10 +31,12 @@
 <table id="letter-links">
 	<tr>
 		<td>
+			{if isset($custom_label)}
 			{$custom_label}
+			{/if}
 		</td>
 		<td>
-			<table>
+			<table border="0" cellpadding="0" cellspacing="0">
 			<tr>
 				<td class="letters">
 					{if isset($letter_links)}

@@ -102,10 +102,19 @@ table#Utils_GenericBrowser__navigation .per_page select {
 #letter-links {
     width: 100%;
     padding-left: 20px;
+    padding-right: 20px;
+}
+
+#letter-links table {
+    width: 100%;
 }
 
 #letter-links .letters {
     text-align: left;
+}
+
+#letter-links .reset {
+    text-align: right;
 }
 
 #letter-links .letters .all {
