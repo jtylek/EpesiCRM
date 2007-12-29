@@ -18,6 +18,7 @@ class Tests_Callbacks extends Module {
 		print('<a '.$this->create_callback_href(array($this,'form1')).'>Form test</a> :: ');
 		print('<a '.$this->create_callback_href(array($this,'incr'),0).'>Incr test</a> :: ');
 		print('<a '.$this->create_callback_href(array($this,'a1')).'>Other module (this->a1)</a>');
+		print('<a '.$this->create_callback_href(array($this,'a1_stack')).'>Other module on stack (this->a1)</a>');
 	}
 	
 	public function incr($inc) {
@@ -30,6 +31,13 @@ class Tests_Callbacks extends Module {
 		if($this->is_back()) return false;
 		print('<a '.$this->create_callback_href(array($this,'a2')).'>Other module (this->a2 with pack a)</a> :: ');
 		print('<a '.$this->create_back_href().'>Back</a>');
+		return true;
+	}
+	
+	public function a1_stack() {
+		$x = ModuleManager::get_instance('/Base_Box|0');
+		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+		$x->push_main('Tests/Callbacks/a','body');
 		return true;
 	}
 	

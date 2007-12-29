@@ -39,6 +39,9 @@ class CRM_Filters extends Module {
 		$th->assign('all','<a '.$this->create_callback_href(array($this,'set_profile'),'all').' id="crm_filters_all">'.$this->lang->t('All records').'</a>');
 		eval_js('Event.observe(\'crm_filters_all\',\'click\', crm_filters_deactivate)');
 
+		$th->assign('manage','<a '.$this->create_callback_href(array($this,'manage_filters')).' id="crm_filters_manage">'.$this->lang->t('Manage filters').'</a>');
+		eval_js('Event.observe(\'crm_filters_manage\',\'click\', crm_filters_deactivate)');
+
 		$ret = DB::Execute('SELECT id,name FROM crm_filters_group WHERE user_login_id=%d',array(Acl::get_user()));
 		$filters = array();
 		while($row = $ret->FetchRow()) {
@@ -54,7 +57,7 @@ class CRM_Filters extends Module {
 			$contacts_select[$v['id']] = $v['first_name'].' '.$v['last_name'];
 		$qf->addElement('select','contact',$this->lang->t('Records of'),$contacts_select,array('onChange'=>$qf->get_submit_form_js().'crm_filters_deactivate()'));
 		if($qf->validate()) {
-			$this->set_module_variable('profile',$this->tbl_contact_prefix.'.id='.$qf->exportValue('contact'));
+			$this->set_module_variable('profile',$this->tbl_contact_prefix.'='.$qf->exportValue('contact'));
 		}
 		$th->assign('contacts',$qf->toHtml());
 
@@ -63,6 +66,12 @@ class CRM_Filters extends Module {
 		$profiles_out = ob_get_clean();
 
 		Libs_LeightboxCommon::display('crm_filters',$profiles_out,$this->lang->t('Filters'));
+	}
+	
+	public function manage_filters() {
+		$x = ModuleManager::get_instance('/Base_Box|0');
+		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+		$x->push_main($this->get_type(),'edit');
 	}
 
 	public function set_profile($prof) {
@@ -73,18 +82,24 @@ class CRM_Filters extends Module {
 			DB::Execute('DELETE FROM crm_filters_contacts WHERE (SELECT cd.value FROM contact_data cd WHERE cd.contact_id=contact_id AND cd.field=\'Company Name\')!=%d',CRM_ContactsCommon::get_main_company());
 			$c = DB::GetCol('SELECT p.contact_id FROM crm_filters_contacts p WHERE p.group_id=%d',array($prof));
 			if($c)
-				$ret = '('.$this->tbl_contact_prefix.'.id='.implode(' OR '.$this->tbl_contact_prefix.'.id=',$c).')';
+				$ret = '('.$this->tbl_contact_prefix.'='.implode(' OR '.$this->tbl_contact_prefix.'=',$c).')';
 			else
 				$ret = '0=1';
 		} elseif($prof=='my') {
 			$me = CRM_ContactsCommon::get_contact_by_user_id(Acl::get_user());
-			$ret = $this->tbl_contact_prefix.'.id='.$me['id'];
-		} else $ret = ''; //all and undefined
+			$ret = $this->tbl_contact_prefix.'='.$me['id'];
+		} else $ret = '1=1'; //all and undefined
 		$this->set_module_variable('profile',$ret);
 	}
 
 	public function get() {
-		return $this->get_module_variable('profile','');
+		if(!$this->isset_module_variable('profile')) {
+			$me = CRM_ContactsCommon::get_contact_by_user_id(Acl::get_user());
+			$ret = $this->tbl_contact_prefix.'='.$me['id'];
+			$this->set_module_variable('profile',$ret);
+			return $ret;
+		}
+		return $this->get_module_variable('profile');
 	}
 
 	public function edit() {

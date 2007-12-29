@@ -102,7 +102,7 @@ class Base_Box extends Module {
 				else
 					$this->modules[$k] = $this->init_module($module_type,(isset($v['constructor_arguments'])?$v['constructor_arguments']:null),$v['name']);
 
-				if($k=='main' && $pop_main)
+				if($k=='main' && ($pop_main || isset($href)))
 					$this->modules[$k]->set_reload(true);
 
 				if(isset($v['function']))

@@ -91,17 +91,20 @@
 		<div class="content_shadow">
 <!-- -->
 
-        <a href="">
+
+
+	    {$__link.manage.open}
 		<div class="button">
             {if $display_icon}
             <img src="{$theme_dir}/CRM_Filters__manage.png" alt="" align="middle" border="0" width="32" height="32">
             {/if}
             {if $display_text}
                 <div style="height: 5px;"></div>
-                <span>Manage filters</span>
+                <span>{$__link.manage.text}</span>
             {/if}
         </div>
-        </a>
+	    {$__link.manage.close}
+
 
 <!-- SHADOW END -->
  		</div>
