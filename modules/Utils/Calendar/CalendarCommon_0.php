@@ -13,6 +13,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 		$th->assign('start_short',$ex['start_short']);
 		$th->assign('end',$ex['end']);
 		$th->assign('duration',$ex['duration']);
+		$th->assign('additional_info',$ev['additional_info']);
 		ob_start();
 		Base_ThemeCommon::display_smarty($th,'Utils_Calendar','event_tip');
 		$tip = ob_get_clean();
