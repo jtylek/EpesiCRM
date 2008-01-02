@@ -10,7 +10,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
-	public static $filter;
+	public static $filter = '1 = 1';
 	
 	public static function get($id) {
 		$row = DB::Execute('SELECT start,end,title,description,id,timeless,priority,created_by,created_on,edited_by,edited_on FROM crm_calendar_event WHERE id=%d AND '.self::$filter,array($id))->FetchRow();
@@ -33,6 +33,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		return $result;	
 	}
 	public static function get_all($start,$end) {
+//		print('SELECT start,end,title,description,id,timeless,priority,created_by,created_on,edited_by,edited_on FROM crm_calendar_event WHERE ((start>=%d AND start<%d) OR (end>=%d AND end<%d)) AND '.self::$filter);
 		$ret = DB::Execute('SELECT start,end,title,description,id,timeless,priority,created_by,created_on,edited_by,edited_on FROM crm_calendar_event WHERE ((start>=%d AND start<%d) OR (end>=%d AND end<%d)) AND '.self::$filter,array($start,$end,$start,$end));
 		$result = array();
 		while ($row = $ret->FetchRow()) {
