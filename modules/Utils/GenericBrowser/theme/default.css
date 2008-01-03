@@ -2,6 +2,58 @@
 	font-weight: normal;
 }
 
+/* search */
+
+.Utils_GenericBrowser__search {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.Utils_GenericBrowser__search .label {
+    background-color: #336699;
+    color: white;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.Utils_GenericBrowser__search input {
+    background-color: #e6ecf2;
+    height: 16px;
+    padding-left: 2px;
+    padding-right: 2px;
+    vertical-align: middle;
+    width: 96px;
+}
+
+.Utils_GenericBrowser__search input:focus {
+    background-color: #e6e6cf;
+}
+
+.Utils_GenericBrowser__search .submit input {
+    width: 100px;
+    height: 20px;
+    border: 0px;
+    background-color: #336699;
+    background-image: url('images/header-blue.png');
+    background-repeat: repeat-x;
+    vertical-align: middle;
+    color: white;
+}
+
+.Utils_GenericBrowser__search .submit input:hover {
+    background-image: url('images/header-blue-hover.png');
+}
+
+.Utils_GenericBrowser__search .advanced {
+    padding-left: 20px;
+}
+
+.Utils_GenericBrowser__search .advanced a.button {
+    width: 140px;
+}
+
+/* */
+
 table#Utils_GenericBrowser {
     background-color: #FFFFFF;
     border-top: 1px solid #B3B3B3;
@@ -19,6 +71,7 @@ table#Utils_GenericBrowser th {
     border-right: 1px solid #FFFFFF;
     border-bottom: 1px solid #FFFFFF;
 	color: #FFFFFF;
+    vertical-align: top;
 }
 
 table#Utils_GenericBrowser th a {
@@ -32,6 +85,20 @@ table#Utils_GenericBrowser th a {
 table#Utils_GenericBrowser th a:hover {
     background-image: url('images/header-blue-hover.png');
     background-repeat: repeat-x;
+}
+
+table#Utils_GenericBrowser th input {
+    display: block;
+    background-color: #e6ecf2;
+    width: 100%;
+    border-left: 0px;
+    border-right: 1px solid #b3b3b3;
+    border-bottom: 1px solid #b3b3b3;
+    border-top: 1px solid #b3b3b3;
+}
+
+table#Utils_GenericBrowser th input:focus {
+    background-color: #e6e6cf;
 }
 
 table#Utils_GenericBrowser tbody {

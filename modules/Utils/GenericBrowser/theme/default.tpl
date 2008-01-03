@@ -6,8 +6,18 @@
 {$form_data.hidden}
 {/if}
 {if isset($form_data.search)}
-	<b>{$form_data.search.label}</b>{$form_data.search.html}
-	{$form_data.submit_search.html}{$adv_search}
+	<div style="padding-left: 20px; text-align: left;">
+	<table class="Utils_GenericBrowser__search" border="0" cellpadding="0" cellspacing="0">
+		<tbody>
+			<tr>
+				<td class="label">{$form_data.search.label}</td>
+				<td>{$form_data.search.html}</td>
+				<td class="submit">{$form_data.submit_search.html}</td>
+				<td class="advanced">{$adv_search}</td>
+			</tr>
+		</tbody>
+	</table>
+	</div>
 {else}
 	{php}
 		$cols = $this->get_template_vars('cols');
@@ -23,9 +33,20 @@
 		}
 		$this->assign('cols',$cols);
 	{/php}
-	{if isset($form_data.submit_search)}{$form_data.submit_search.html}{$adv_search}{/if}
+	{if isset($form_data.submit_search)}
+	<div style="padding-left: 20px; text-align: left;">
+	<table class="Utils_GenericBrowser__search" border="0" cellpadding="0" cellspacing="0">
+		<tbody>
+			<tr>
+				<td class="submit">{$form_data.submit_search.html}</td>
+				<td class="advanced">{$adv_search}</td>
+			</tr>
+		</tbody>
+	</table>
+	</div>
+	{/if}
 {/if}
-
+	
 {if isset($order) || isset($letter_links)}
 
 <table id="letter-links">
