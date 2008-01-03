@@ -1,15 +1,15 @@
 <?php
 /**
- * Example event module
+ * Calendar meeting module
  * @author pbukowski@telaxus.com
  * @copyright pbukowski@telaxus.com
  * @license SPL
  * @version 0.1
- * @package tests-calendar-event
+ * @package tests-calendar-meeting
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class CRM_Calendar_Event extends Utils_Calendar_Event {
+class CRM_Calendar_Meeting extends Utils_Calendar_Event {
 	private $lang;
 
 	public function view($id) {
@@ -52,7 +52,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				'emp_id' => array(Acl::get_user())
 			);
 		} else {
-			$event = DB::GetRow('SELECT * FROM crm_calendar_event WHERE id=%d', $id);
+			$event = DB::GetRow('SELECT * FROM crm_calendar_meeting_event WHERE id=%d', $id);
 			if (Base_RegionalSettingsCommon::time_12h()) {
 				$dtime_s = array('h'=>date('h',$event['start']),
 									'i'=>date('i',$event['start']),
@@ -78,17 +78,17 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				'access'=>$event['access'],
 				'created_by' => Base_UserCommon::get_user_login($event['created_by']),
 				'created_on' => $event['created_on'],
-				'edited_by' => $event['edited_by']==-1?'--':Base_UserCommon::get_user_login($event['edited_by']),
-				'edited_on' => $event['edited_by']==-1?'--':$event['edited_on']
+				'edited_by' => $event['edited_by']?Base_UserCommon::get_user_login($event['edited_by']):'--',
+				'edited_on' => $event['edited_by']?$event['edited_on']:'--'
 			);
 			$def['cus_id'] = array();
-			$ret = DB::Execute('SELECT contact FROM crm_calendar_group_cus WHERE id=%d', $id);
+			$ret = DB::Execute('SELECT contact FROM crm_calendar_meeting_group_cus WHERE id=%d', $id);
 			while ($row=$ret->FetchRow()) {
 				$def['cus_id'][] = $row['contact'];
-				if (!isset($cus[$row['contact']])) $cus[$row['contact']] = CRM_Calendar_EventCommon::decode_contact($row['contact']);
+				if (!isset($cus[$row['contact']])) $cus[$row['contact']] = CRM_Calendar_MeetingCommon::decode_contact($row['contact']);
 			}
 			$def['emp_id'] = array();
-			$ret = DB::Execute('SELECT contact FROM crm_calendar_group_emp WHERE id=%d', $id);
+			$ret = DB::Execute('SELECT contact FROM crm_calendar_meeting_group_emp WHERE id=%d', $id);
 			while ($row=$ret->FetchRow())
 				$def['emp_id'][] = $row['contact'];
 			$timeless = $event['timeless'];
@@ -107,12 +107,12 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 		$time_format = Base_RegionalSettingsCommon::time_12h()?'h:i:a':'H:i';
 
-		$form->addElement('datepicker', 'date_s', $this->lang->t('Event start'));
+		$form->addElement('datepicker', 'date_s', $this->lang->t('Meeting start'));
 		$form->addRule('date_s', 'Field is required!', 'required');
 		$lang_code = Base_LangCommon::get_lang_code();
 		$form->addElement('date', 'time_s', $this->lang->t('Time'), array('format'=>$time_format, 'optionIncrement'  => array('i' => 5),'language'=>$lang_code));
 
-		$form->addElement('datepicker', 'date_e', $this->lang->t('Event end'));
+		$form->addElement('datepicker', 'date_e', $this->lang->t('Meeting end'));
 		$form->addRule('date_e', 'Field is required!', 'required');
 		$form->addElement('date', 'time_e', $this->lang->t('Time'), array('format'=>$time_format, 'optionIncrement'  => array('i' => 5), 'language'=>$lang_code));
 
@@ -131,13 +131,13 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$form->addElement('select', 'priority', $this->lang->t('Priority'), $priority, array('style'=>'width: 100%;'));
 
 		$form->addElement('multiselect', 'emp_id', $this->lang->t('Employees'), $emp);
-		$form->addRule('emp_id', $this->lang->t('At least one employee must be assigned to an event.'), 'required');
+		$form->addRule('emp_id', $this->lang->t('At least one employee must be assigned to an meeting.'), 'required');
 
 		$form->addElement('multiselect', 'cus_id', $this->lang->t('Customers'), $cus);
 
 		if($action != 'view') {
 			$rb2 = $this->init_module('Utils/RecordBrowser/RecordPicker');
-			$this->display_module($rb2, array('contact', 'cus_id', array('CRM_Calendar_EventCommon','decode_contact'), array('!company_name'=>CRM_ContactsCommon::get_main_company())));
+			$this->display_module($rb2, array('contact', 'cus_id', array('CRM_Calendar_MeetingCommon','decode_contact'), array('!company_name'=>CRM_ContactsCommon::get_main_company())));
 			$cus_click = $rb2->create_open_link($this->lang->t('Advanced'));
 		} else {
 			$cus_click = '';
@@ -204,7 +204,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 	public function add_event($vals = array()){
 		$start = strtotime($vals['date_s']) + $this->recalculate_time($vals['time_s']);
 		$end = strtotime($vals['date_e']) + $this->recalculate_time($vals['time_e']);
-		DB::Execute('INSERT INTO crm_calendar_event (title,'.
+		DB::Execute('INSERT INTO crm_calendar_meeting_event (title,'.
 													'description,'.
 													'start,'.
 													'end,'.
@@ -232,19 +232,19 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 													Acl::get_user(),
 													date('Y-m-d H:i:s')
 													));
-		$id = DB::Insert_ID('crm_calendar_event', 'id');
+		$id = DB::Insert_ID('crm_calendar_meeting_event', 'id');
 		foreach($vals['emp_id'] as $v) {
-			DB::Execute('INSERT INTO crm_calendar_group_emp (id,contact) VALUES (%d, %d)', array($id, $v));
+			DB::Execute('INSERT INTO crm_calendar_meeting_group_emp (id,contact) VALUES (%d, %d)', array($id, $v));
 		}
 		foreach($vals['cus_id'] as $v) {
-			DB::Execute('INSERT INTO crm_calendar_group_cus (id,contact) VALUES (%d, %d)', array($id, $v));
+			DB::Execute('INSERT INTO crm_calendar_meeting_group_cus (id,contact) VALUES (%d, %d)', array($id, $v));
 		}
 	}
 
 	public function update_event($id, $vals = array()){
 		$start = strtotime($vals['date_s']) + $this->recalculate_time($vals['time_s']);
 		$end = strtotime($vals['date_e']) + $this->recalculate_time($vals['time_e']);
-		DB::Execute('UPDATE crm_calendar_event SET title=%s,'.
+		DB::Execute('UPDATE crm_calendar_meeting_event SET title=%s,'.
 													'description=%s,'.
 													'start=%d,'.
 													'end=%d,'.
@@ -265,13 +265,13 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 													date('Y-m-d H:i:s'),
 													$id
 													));
-		DB::Execute('DELETE FROM crm_calendar_group_emp WHERE id=%d', array($id));
-		DB::Execute('DELETE FROM crm_calendar_group_cus WHERE id=%d', array($id));
+		DB::Execute('DELETE FROM crm_calendar_meeting_group_emp WHERE id=%d', array($id));
+		DB::Execute('DELETE FROM crm_calendar_meeting_group_cus WHERE id=%d', array($id));
 		foreach($vals['emp_id'] as $v) {
-			DB::Execute('INSERT INTO crm_calendar_group_emp (id,contact) VALUES (%d, %d)', array($id, $v));
+			DB::Execute('INSERT INTO crm_calendar_meeting_group_emp (id,contact) VALUES (%d, %d)', array($id, $v));
 		}
 		foreach($vals['cus_id'] as $v) {
-			DB::Execute('INSERT INTO crm_calendar_group_cus (id,contact) VALUES (%d, %d)', array($id, $v));
+			DB::Execute('INSERT INTO crm_calendar_meeting_group_cus (id,contact) VALUES (%d, %d)', array($id, $v));
 		}
 	}
 
