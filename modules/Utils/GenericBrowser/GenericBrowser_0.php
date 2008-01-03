@@ -651,7 +651,7 @@ class Utils_GenericBrowser extends Module {
 		$form = & $this->init_module('Libs/QuickForm');
 		$pager_on = false;
 		if(isset($this->rows_qty) && $paging) {
-			$form->addElement('select','per_page',$this->lang->t('Number of rows per page'), array(5=>5,10=>10,25=>25,50=>50,100=>100), 'onChange="'.$form->get_submit_form_js(false).'"');
+			$form->addElement('select','per_page',$this->lang->t('Number of rows per page'), array(5=>5,10=>10,20=>20,50=>50,100=>100), 'onChange="'.$form->get_submit_form_js(false).'"');
 			$form->setDefaults(array('per_page'=>$per_page));
 			$pager_on = true;
 		}
