@@ -24,6 +24,8 @@ class Utils_CalendarCommon extends ModuleCommon {
 		$th->assign('tip2_tag_attrs',Utils_TooltipCommon::open_tag_attrs($tip2));
 		$th->assign('view_href', Module::create_href(array('UCev_id'=>$ev['id'], 'UCaction'=>'view')));
 		$th->assign('edit_href', Module::create_href(array('UCev_id'=>$ev['id'], 'UCaction'=>'edit')));
+		$link_text = Module::create_href_js(array('UCev_id'=>$ev['id'], 'UCaction'=>'move','UCdate'=>'__YEAR__-__MONTH__-__DAY__'));
+		$th->assign('move_href', Utils_PopupCalendarCommon::create_href('move_event', $link_text,false,'day'));
 		$th->assign('delete_href', Module::create_confirm_href(Base_LangCommon::ts('Utils_Calendar','Delete this event?'),array('UCev_id'=>$ev['id'], 'UCaction'=>'delete')));
 		$th->assign('handle_class','handle');
 		Base_ThemeCommon::display_smarty($th,'Utils_Calendar','event');

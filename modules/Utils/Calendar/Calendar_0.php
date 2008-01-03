@@ -89,6 +89,9 @@ class Utils_Calendar extends Module {
 				case 'delete':
 					$this->delete_event($_REQUEST['UCev_id']);
 					break;
+				case 'move':
+					$this->move_event($_REQUEST['UCev_id'],$_REQUEST['UCdate']);
+					break;
 				case 'view':
 				case 'edit':
 					$this->push_event_action($_REQUEST['UCaction'],array($_REQUEST['UCev_id']));
@@ -126,6 +129,14 @@ class Utils_Calendar extends Module {
 
 	public function delete_event($id) {
 		call_user_func(array($this->event_module.'Common','delete'),$id);
+	}
+
+	public function move_event($ev_id,$time) {
+		if(!is_numeric($time)) $time = strtotime($time);
+		$ev = call_user_func(array($this->event_module.'Common','get'),$ev_id);
+		if(!$ev['timeless'])
+			$time += $ev['start']-strtotime(date('Y-m-d',$ev['start']));
+		call_user_func(array($this->event_module.'Common','update'),$ev_id,$time,$ev['duration'],$ev['timeless']);
 	}
 
 	/**

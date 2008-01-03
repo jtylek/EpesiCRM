@@ -3,6 +3,18 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_PopupCalendarCommon extends ModuleCommon {
 	public static function show($name,$function = '',$fullscreen=true,$mode=null,$first_day_of_week=null,$pos_js=null) {
+		if($mode=='month') {
+			$label = Base_LangCommon::ts('Utils_PopupCalendar','Select month');
+		} elseif($mode=='year') {
+			$label = Base_LangCommon::ts('Utils_PopupCalendar','Select year');
+		} else {
+			$label = Base_LangCommon::ts('Utils_PopupCalendar','Select date');
+		}
+
+		return '<a class="button" '.self::create_href($name,$function,$fullscreen,$mode,$first_day_of_week,$pos_js).'>' . $label . '&nbsp;&nbsp;<img style="padding-bottom: 2px;" border="0" width="10" height="8" src=' . Base_ThemeCommon::get_template_file('Utils_PopupCalendar', 'select.png').'>' . '</a>';
+	}
+
+	public static function create_href($name,$function = '',$fullscreen=true,$mode=null,$first_day_of_week=null,$pos_js=null) {
 		Base_ThemeCommon::load_css('Utils_PopupCalendar');
 		load_js('modules/Utils/PopupCalendar/js/main.js');
 
@@ -14,29 +26,21 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 		} elseif(!is_numeric($first_day_of_week))
 			trigger_error('Invalid first day of week',E_USER_ERROR);
 
-		if($mode=='month') {
-			$label = Base_LangCommon::ts('Utils_PopupCalendar','Select month');
-		} elseif($mode=='year') {
-			$label = Base_LangCommon::ts('Utils_PopupCalendar','Select year');
-		} else {
-			$label = Base_LangCommon::ts('Utils_PopupCalendar','Select date');
-		}
-
 		$calendar = '<div id="Utils_PopupCalendar">'.
 			'<table cellspacing="0" cellpadding="0" border="0"><tr><td id="datepicker_'.$name.'_header">error</td></tr>'.
 			'<tr><td id="datepicker_'.$name.'_view">calendar not loaded</td></tr></table></div>';
-		$ret = '';
+
 		if($fullscreen) {
 			$entry = 'datepicker_'.$name.'_calendar';
-			$ret = '<a style="cursor: pointer;" rel="'.$entry.'" class="button lbOn">' . $label . '&nbsp;&nbsp;<img style="padding-bottom: 2px;" border="0" width="10" height="8" src=' . Base_ThemeCommon::get_template_file('Utils_PopupCalendar', 'select.png').'>' . '</a>';
+			$ret = 'style="cursor: pointer;" rel="'.$entry.'" class="button lbOn"';
 
-			$ret .= Libs_LeightboxCommon::get($entry,'<br><center>'.$calendar.'</center>',Base_LangCommon::ts('Utils_PopupCalendar','Calendar'));
+			print(Libs_LeightboxCommon::get($entry,'<br><center>'.$calendar.'</center>',Base_LangCommon::ts('Utils_PopupCalendar','Calendar')));
 
 			$function .= ';leightbox_deactivate(\''.$entry.'\');';
 		} else {
 			$entry = 'datepicker_'.$name.'_calendar';
 			$butt = 'datepicker_'.$name.'_button';
-			$ret = '<a onClick="$(\''.$entry.'\').toggle()" href="javascript:void(0)" class="button" id="'.$butt.'">'.$label.'</a>';
+			$ret = 'onClick="$(\''.$entry.'\').toggle()" href="javascript:void(0)" id="'.$butt.'"';
 
 			$smarty = Base_ThemeCommon::init_smarty();
 			$smarty->assign('calendar',$calendar);
@@ -45,9 +49,9 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 			$cal_out = ob_get_clean();
 
 
-			$ret .= '<div id="'.$entry.'" class="utils_popupcalendar_popup" style="display:none;z-index:8;">'.
+			print('<div id="'.$entry.'" class="utils_popupcalendar_popup" style="display:none;z-index:8;">'.
 				$cal_out.
-				'</div>';
+				'</div>');
 
 			if(!isset($pos_js)) $pos_js = 'popup.clonePosition(\''.$butt.'\',{setWidth:false,setHeight:false,offsetTop:$(\''.$butt.'\').getHeight()})';
 			eval_js('var popup=$(\''.$entry.'\');popup.absolutize();'.$pos_js);

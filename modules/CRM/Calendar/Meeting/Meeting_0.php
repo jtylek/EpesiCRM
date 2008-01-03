@@ -44,7 +44,7 @@ class CRM_Calendar_Meeting extends Utils_Calendar_Event {
 			$tt = $id-$id%300;
 			$def = array(
 				'date_s' => date('Y-m-d',$id),
-				'date_e' => date('Y-m-d',$id),
+				'date_e' => date('Y-m-d',$id+3600),
 				'time_s' => date('H:i',$tt),
 				'time_e' => date('H:i',$tt+3600),
 				'access'=>0,

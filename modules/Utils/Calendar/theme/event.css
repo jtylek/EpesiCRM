@@ -45,13 +45,13 @@
     height: 40px;
     position: absolute;
     top: 0px;
-    left: 1px;
+    right: 35px;
     z-index: 5;
 }
 
 #Utils_Calendar__event span.event_menu_content {
     display: block;
-    width: 89px;
+    width: 100%;
     height: 20px;
 	background-color: #e6ecf2;
     padding-left: 3px;
