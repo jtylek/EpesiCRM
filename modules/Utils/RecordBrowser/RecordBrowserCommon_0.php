@@ -274,12 +274,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					array($user_id,
 					$id));
 		$ret = DB::SelectLimit('SELECT visited_on FROM '.$tab_name.'_recent WHERE user_id = %d ORDER BY visited_on DESC',
-					$rec_size,
+					$rec_size-1,
 					-1,
 					array($user_id));
 		while($row_temp = $ret->FetchRow()) $row = $row_temp;
 		if (isset($row)) {
-			DB::Execute('DELETE FROM '.$tab_name.'_recent WHERE user_id = %d AND visited_on <= %T',
+			DB::Execute('DELETE FROM '.$tab_name.'_recent WHERE user_id = %d AND visited_on < %T',
 						array($user_id,
 						$row['visited_on']));
 		}
