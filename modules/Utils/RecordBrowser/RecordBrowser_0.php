@@ -30,6 +30,7 @@ class Utils_RecordBrowser extends Module {
 	private $noneditable_fields = array();
 	private $add_button = null;
 	private $changed_view = false;
+	public $adv_search = false;
 		
 	public function get_val($field, $val, $id) {
 		if (isset($this->display_callback_table[$field])) {
@@ -199,6 +200,7 @@ class Utils_RecordBrowser extends Module {
 			print($this->lang->t('You don\'t have permission to access this data.'));
 		}
 		$gb = $this->init_module('Utils/GenericBrowser', null, $this->tab);
+		$gb->set_module_variable('adv_search', $gb->get_module_variable('adv_search', $this->adv_search));
 		
 		if ($special)
 			$table_columns = array(array('name'=>'Add', 'width'=>1, 'order'=>'Add'));
@@ -217,6 +219,7 @@ class Utils_RecordBrowser extends Module {
 			$arr = array('name'=>$args['name']);
 			if ($this->browse_mode!='recent') $arr['order'] = $field;
 			if ($quickjump!=='' && $args['name']===$quickjump) $arr['quickjump'] = $args['name'];
+			$arr['search'] = str_replace(' ','_',$field);
 			$table_columns[] = $arr;
 			array_push($table_columns_SQL, 'e.'.$field);
 		}
@@ -233,7 +236,13 @@ class Utils_RecordBrowser extends Module {
 		if ($this->add_button!==null) {
 			$gb->set_custom_label($this->add_button);
 		}
-		$crits = array_merge($crits, $gb->get_search_query(true));
+		$search = $gb->get_search_query(true);
+		$search_res = array();
+		foreach ($search as $k=>$v) {
+			$search_res[str_replace('_',' ',$k)] = $v;
+		} 
+		$crits = array_merge($crits, $search_res);
+		//print_r($crits);
 		if ($this->browse_mode == 'favorites')
 			$crits[':Fav'] = true;
 		if ($this->browse_mode == 'recent')
@@ -364,7 +373,7 @@ class Utils_RecordBrowser extends Module {
 			if ($mode=='add') {
 				Utils_RecordBrowserCommon::new_record($this->tab, $values);
 			} else {
-				$this->update_record_data($id,$values);
+				$this->update_record($id,$values);
 			}
 			return false;
 		}
@@ -586,37 +595,8 @@ class Utils_RecordBrowser extends Module {
 	public function remove_from_favs($id) {
 		DB::Execute('DELETE FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%d', array(Acl::get_user(), $id));
 	}
-	public function update_record_data($id,$values) {
-		DB::StartTrans();	
-		$this->init();
-		$record = Utils_RecordBrowserCommon::get_record($this->tab, $id);
-		$diff = array();
-		foreach($this->table_rows as $field => $args){
-			if ($args['id']=='id') continue;
-			if (!isset($values[$args['id']])) $values[$args['id']] = '';
-			if ($record[$args['id']]!==$values[$args['id']]) {
-				DB::StartTrans();
-				$val = DB::GetOne('SELECT value FROM '.$this->tab.'_data WHERE '.$this->tab.'_id=%d AND field=%s',array($id, $field));
-				if ($val!==false) DB::Execute('DELETE FROM '.$this->tab.'_data WHERE '.$this->tab.'_id=%d AND field=%s',array($id, $field));
-				if ($values[$args['id']] !== '') {
-					if (!is_array($values[$args['id']])) $values[$args['id']] = array($values[$args['id']]);
-					foreach ($values[$args['id']] as $v) 
-						DB::Execute('INSERT INTO '.$this->tab.'_data(value, '.$this->tab.'_id, field) VALUES (%s, %d, %s)',array($v, $id, $field));
-				}
-				DB::CompleteTrans();
-				$diff[$args['id']] = $record[$args['id']];
-			}
-		}
-		if (!empty($diff)) {
-			DB::Execute('INSERT INTO '.$this->tab.'_edit_history(edited_on, edited_by, '.$this->tab.'_id) VALUES (%T,%d,%d)', array(date('Y-m-d G:i:s'), Acl::get_user(), $id));
-			$edit_id = DB::Insert_ID(''.$this->tab.'_edit_history','id');
-			foreach($diff as $k=>$v) {
-				if (!is_array($v)) $v = array($v);
-				foreach($v as $c)  
-					DB::Execute('INSERT INTO '.$this->tab.'_edit_history_data(edit_id, field, old_value) VALUES (%d,%s,%s)', array($edit_id, $k, $c));
-			}
-		}
-		DB::CompleteTrans();
+	public function update_record($id,$values) {
+		Utils_RecordBrowserCommon::update_record($this->tab, $id, $values, true);
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
 	public function admin() {
@@ -982,7 +962,7 @@ class Utils_RecordBrowser extends Module {
 			if ($field=='id') continue;
 			$values[$args['id']] = $data[$i++]['DBvalue'];
 		}
-		$this->update_record_data($id,$values);
+		$this->update_record($id,$values);
 		return false;
 	}
 	public function caption(){

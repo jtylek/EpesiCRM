@@ -426,12 +426,21 @@ class Utils_GenericBrowser extends Module {
 		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
 		if(!$this->is_adv_search_on()) {
 			foreach($this->columns as $k=>$v){
-				if (isset($v['search']) && isset($search['__keyword__'])) $where .= ($where?' OR':'').' '.$v['search'].' LIKE '.DB::Concat('\'%\'',sprintf('%s',DB::qstr($search['__keyword__'])),'\'%\'');
+				if (isset($v['search']) && isset($search['__keyword__'])) 
+		 			if (!$array)
+						$where .= ($where?' OR':'').' '.$v['search'].' LIKE '.DB::Concat('\'%\'',sprintf('%s',DB::qstr($search['__keyword__'])),'\'%\'');
+//					else
+//						$where[$v['search']] = '%'.$search[$v['search']].'%';
+// TODO: logic OR on crits
 			}
 		} else {
-			foreach($this->columns as $k=>$v){
-				if (isset($v['search']) && isset($search[$v['search']])) $where .= ($where?' AND':'').' '.$v['search'].' LIKE '.DB::Concat('\'%\'',sprintf('%s',DB::qstr($search[$v['search']])),'\'%\'');
-			}
+			foreach($this->columns as $k=>$v)
+				if (isset($v['search']) && isset($search[$v['search']])) {
+		 			if (!$array)
+						$where .= ($where?' AND':'').' '.$v['search'].' LIKE '.DB::Concat('\'%\'',sprintf('%s',DB::qstr($search[$v['search']])),'\'%\'');
+					else
+						$where[$v['search']][] = '%'.$search[$v['search']].'%';
+				} 
 		}
  		if (isset($quickjump) && $quickjump_to!='')
  			if (!$array) {
@@ -442,7 +451,7 @@ class Utils_GenericBrowser extends Module {
 							')';
 				if ($where) $where = ' ('.$where.')';
  			} else {
-				$where = array($quickjump=>array(sprintf('%s',$quickjump_to).'%',sprintf('%s',strtolower($quickjump_to).'%')));
+				$where[$quickjump] = array(sprintf('%s',$quickjump_to).'%',sprintf('%s',strtolower($quickjump_to).'%'));
  			}
 
 		return $where;
@@ -871,9 +880,17 @@ class Utils_GenericBrowser extends Module {
 		}
 		if (isset($quickjump)) {
 			$quickjump_to = $this->get_module_variable('quickjump_to');
-			$all = $this->lang->t('<span class="all">All</span>');
-			if (isset($quickjump_to) && $quickjump_to != '') $all = '<a class="all" '.$this->create_unique_href(array('quickjump_to'=>'')).'>All</a>';
+			$all = '<span class="all">'.$this->lang->t('All').'</span>';
+			if (isset($quickjump_to) && $quickjump_to != '') $all = '<a class="all" '.$this->create_unique_href(array('quickjump_to'=>'')).'>'.$this->lang->t('All').'</a>';
 			$letter_links = array(0 => $all);
+			$letter = '0';
+			while ($letter<='9') {
+				if ($quickjump_to != $letter)
+					$letter_links[] .= '<a class="letter" '.$this->create_unique_href(array('quickjump_to'=>$letter)).'>'.$letter.'</a>';
+				else
+					$letter_links[] .= '<span class="letter">' . $letter . '</span>';
+				$letter = chr(ord($letter)+1);
+			}
 			$letter = 'A';
 			while ($letter<='Z') {
 				if ($quickjump_to != $letter)

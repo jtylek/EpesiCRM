@@ -16,6 +16,7 @@ class Utils_RecordBrowser_RecordPicker extends Module {
 	public function body($tab, $element, $format, $crits=array(), $filters=array()) {
 		if (!isset($this->lang)) $this->lang = $this->init_module('Base/Lang');
 		$rb = $this->init_module('Utils/RecordBrowser', $tab, $tab.'_picker');
+		$rb->adv_search = true;
 
 		$this->element = $element;
 

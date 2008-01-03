@@ -234,6 +234,38 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		DB::CompleteTrans();
 		return $id;
 	}
+	public function update_record($tab,$id,$values,$all_fields = false) {
+		DB::StartTrans();
+		self::init($tab);
+		$record = Utils_RecordBrowserCommon::get_record($tab, $id);
+		$diff = array();
+		foreach(self::$table_rows as $field => $args){
+			if ($args['id']=='id') continue;
+			if (!isset($values[$args['id']])) if ($all_fields) $values[$args['id']] = ''; else continue;
+			if ($record[$args['id']]!==$values[$args['id']]) {
+				DB::StartTrans();
+				$val = DB::GetOne('SELECT value FROM '.$tab.'_data WHERE '.$tab.'_id=%d AND field=%s',array($id, $field));
+				if ($val!==false) DB::Execute('DELETE FROM '.$tab.'_data WHERE '.$tab.'_id=%d AND field=%s',array($id, $field));
+				if ($values[$args['id']] !== '') {
+					if (!is_array($values[$args['id']])) $values[$args['id']] = array($values[$args['id']]);
+					foreach ($values[$args['id']] as $v) 
+						DB::Execute('INSERT INTO '.$tab.'_data(value, '.$tab.'_id, field) VALUES (%s, %d, %s)',array($v, $id, $field));
+				}
+				DB::CompleteTrans();
+				$diff[$args['id']] = $record[$args['id']];
+			}
+		}
+		if (!empty($diff)) {
+			DB::Execute('INSERT INTO '.$tab.'_edit_history(edited_on, edited_by, '.$tab.'_id) VALUES (%T,%d,%d)', array(date('Y-m-d G:i:s'), Acl::get_user(), $id));
+			$edit_id = DB::Insert_ID(''.$tab.'_edit_history','id');
+			foreach($diff as $k=>$v) {
+				if (!is_array($v)) $v = array($v);
+				foreach($v as $c)  
+					DB::Execute('INSERT INTO '.$tab.'_edit_history_data(edit_id, field, old_value) VALUES (%d,%s,%s)', array($edit_id, $k, $c));
+			}
+		}
+		DB::CompleteTrans();
+	}
 	public function add_recent_entry($tab_name, $user_id ,$id){
 		DB::StartTrans();
 		static $rec_size;
