@@ -79,6 +79,22 @@ class DB {
 		return $ret==2;
 	}
 	
+	public static function DropIndex($name,$tab=null) {
+		$dict = &self::dict();
+		$arr = $dict->DropIndexSQL($name,$tab);
+		$ret = $dict->ExecuteSQLArray($arr);
+		return $ret==2;
+	}
+	
+	public static function CreateIndex($name, $tab, $cols, $opts=null) {
+		$dict = &self::dict();
+		$arr = $dict->CreateIndexSQL($name,$tab,$cols, $opts);
+		if($arr===false) return false;
+		$ret = $dict->ExecuteSQLArray($arr);
+		if($ret != 2) trigger_error(var_dump($arr).'\n'.self::ErrorMsg().'\n', E_USER_ERROR); 
+		return $ret==2;
+	}
+	
 
 
 	public static function TypeControl($sql, & $arr) {
