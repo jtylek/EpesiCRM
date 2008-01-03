@@ -912,7 +912,7 @@ class Utils_GenericBrowser extends Module {
 		$theme->assign('last', $this->gb_last());
 		$theme->assign('custom_label', $this->custom_label);
 
-		if ($search_on) $theme->assign('adv_search','<a class="button" '.$this->create_unique_href(array('adv_search'=>!$this->is_adv_search_on())).'>' . '<img src="' . Base_ThemeCommon::get_template_file($this -> get_type(), 'advanced.png') . '" width="8px" height="8px" border="0" style="vertical-align: middle;">&nbsp;&nbsp;&nbsp;' . ($this->is_adv_search_on()?$this->lang->t('Simple Search'):$this->lang->t('Advanced Search')).'</a>');
+		if ($search_on) $theme->assign('adv_search','<a class="button" '.$this->create_unique_href(array('adv_search'=>!$this->is_adv_search_on())).'>' . ($this->is_adv_search_on()?$this->lang->t('Simple Search'):$this->lang->t('Advanced Search')) . '&nbsp;&nbsp;&nbsp;<img src="' . Base_ThemeCommon::get_template_file($this -> get_type(), 'advanced.png') . '" width="8px" height="8px" border="0" style="vertical-align: middle;"></a>');
 		else $theme->assign('adv_search','');
 
 		if (Base_User_SettingsCommon::get('Utils/GenericBrowser','adv_history') && $is_order){

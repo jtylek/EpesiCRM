@@ -107,23 +107,23 @@
 
 <table id="Utils_GenericBrowser__navigation" border="0" cellspacing="0" cellpadding="0">
 	<tr>
-		<td style="width: 50%; text-align: left;">
+		<td nowrap style="width: 50%; text-align: left;">
 			{if isset($order)}
-				{$order}&nbsp;&nbsp;&nbsp;<b>{$reset}</b>
+				{$order}&nbsp;&nbsp;&nbsp;<b>{$reset}</b>&nbsp;&nbsp;&nbsp;
 			{/if}		
 		</td>
 	
-		<td>{if $first}<img src="{$theme_dir}/images/first.png">{/if}</td><td>{$first}</td>
-		<td>{if $prev}<img src="{$theme_dir}/images/prev.png">{/if}</td><td>{$prev}</td>
+		<td nowrap>{if $first}&nbsp;<img src="{$theme_dir}/images/first.png">&nbsp;{$first}&nbsp;{/if}</td>
+		<td nowrap>{if $prev}&nbsp;<img src="{$theme_dir}/images/prev.png">&nbsp;{$prev}&nbsp;{/if}</td>
 		
-		<td nowrap>{$summary}</td>
+		<td nowrap>&nbsp;&nbsp;&nbsp;{$summary}&nbsp;&nbsp;&nbsp;</td>
 		
-		<td>{$next}</td><td>{if $next}<img src="{$theme_dir}/images/next.png">{/if}</td>
-		<td>{$last}</td><td>{if $last}<img src="{$theme_dir}/images/last.png">{/if}</td>
+		<td nowrap>{if $next}&nbsp;{$next}&nbsp;<img src="{$theme_dir}/images/next.png">&nbsp;{/if}</td>
+		<td nowrap>{if $last}&nbsp;{$last}&nbsp;<img src="{$theme_dir}/images/last.png">&nbsp;{/if}</td>
 
-		<td style="width: 50%; text-align: right;">
+		<td nowrap style="width: 50%; text-align: right;">
 			{if isset($form_data.per_page)}
-				{$form_data.per_page.label}&nbsp;&nbsp;&nbsp;{$form_data.per_page.html}
+				&nbsp;&nbsp;&nbsp;{$form_data.per_page.label}&nbsp;&nbsp;&nbsp;{$form_data.per_page.html}
 			{/if}
 		</td>
 	</tr>

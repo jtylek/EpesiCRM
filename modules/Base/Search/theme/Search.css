@@ -43,12 +43,12 @@ table#Base_Search__Search input.mini_submit {
 	border: 0px;
 	width: 100px;
 	height: 20px;
-	background-image: url("images/header-blue.png");
+    background-image: url('images/search.png');
 	font-size: 11px;
 }
 
 table#Base_Search__Search input.mini_submit:hover {
-	background-image: url("images/header-blue-hover.png");
+    background-image: url('images/search-hover.png');
 }
 
 table#Base_Search__Search input.submit {
@@ -56,12 +56,12 @@ table#Base_Search__Search input.submit {
 	border: 0px;
 	width: 100px;
 	height: 20px;
-	background-image: url("images/header-blue.png");
+    background-image: url('images/search.png');
 	font-size: 11px;
 }
 
 table#Base_Search__Search input.submit:hover {
-	background-image: url("images/header-blue-hover.png");
+    background-image: url('images/search-hover.png');
 }
 
 table#Base_Search__Search .label {

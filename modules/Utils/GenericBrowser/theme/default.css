@@ -34,14 +34,13 @@
     height: 20px;
     border: 0px;
     background-color: #336699;
-    background-image: url('images/header-blue.png');
-    background-repeat: repeat-x;
+    background-image: url('images/search.png');
     vertical-align: middle;
     color: white;
 }
 
 .Utils_GenericBrowser__search .submit input:hover {
-    background-image: url('images/header-blue-hover.png');
+    background-image: url('images/search-hover.png');
 }
 
 .Utils_GenericBrowser__search .advanced {
@@ -128,6 +127,10 @@ table#Utils_GenericBrowser__navigation {
     width: 100%;
     padding-left: 20px;
     padding-right: 20px;
+}
+
+table#Utils_GenericBrowser__navigation img {
+    vertical-align: middle;
 }
 
 /* letter links */
