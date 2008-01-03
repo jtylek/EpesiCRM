@@ -49,7 +49,7 @@
 }
 
 .Utils_GenericBrowser__search .advanced a.button {
-    width: 140px;
+    width: 120px;
 }
 
 /* */
@@ -125,76 +125,39 @@ table#Utils_GenericBrowser td {
 /* Navigation */
 
 table#Utils_GenericBrowser__navigation {
-	text-align: center;
-}
-
-table#Utils_GenericBrowser__navigation .first, .prev, .next, .last {
-	width: 50px;
-	text-align: center;
-	font-weight: bold;
-	vertical-align: middle;
-}
-
-table#Utils_GenericBrowser__navigation .next, .last {
-	text-align: right;
-}
-
-table#Utils_GenericBrowser__navigation .first, .prev {
-	text-align: left;
-}
-
-table#Utils_GenericBrowser__navigation .arrow {
-	width: 20px;
-	vertical-align: middle;
-}
-
-table#Utils_GenericBrowser__navigation .summary {
-	width: 200px;
-	height: 20px;
-	text-align: center;
-}
-
-table#Utils_GenericBrowser__navigation .per_page {
-	width: 245px;
-	height: 20px;
-	text-align: right;
-}
-
-table#Utils_GenericBrowser__navigation .per_page select {
-	font-size: 11px;
-}
-
-/* letter links */
-
-#letter-links {
     width: 100%;
     padding-left: 20px;
     padding-right: 20px;
 }
 
-#letter-links table {
+/* letter links */
+
+#letters-search {
+    width: 100%;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+#letters-search .letters {
+    text-align: left;
     width: 100%;
 }
 
-#letter-links .letters {
+#letters-search .reset {
     text-align: left;
 }
 
-#letter-links .reset {
-    text-align: right;
-}
-
-#letter-links .letters .all {
+#letters-search .letters .all {
     width: 20px;
     padding-right: 5px;
 }
 
-#letter-links .letters .letter {
+#letters-search .letters .letter {
     width: 14px;
 }
 
-#letter-links .letters a,
-#letter-links .letters span {
+#letters-search .letters a,
+#letters-search .letters span {
     margin: 2px;
     display: block;
     float: left;
@@ -204,13 +167,13 @@ table#Utils_GenericBrowser__navigation .per_page select {
     text-align: center;
 }
 
-#letter-links .letters a                { color: #FFFFFF; }
-#letter-links .letters a span           { color: #FFFFFF; }
-#letter-links .letters a.letter         { background-image: url('images/char-back.png'); }
-#letter-links .letters a.letter:hover   { background-image: url('images/char-back-hover.png'); }
-#letter-links .letters a.all            { background-image: url('images/all-back.png'); }
-#letter-links .letters a.all:hover      { background-image: url('images/all-back-hover.png'); }
+#letters-search .letters a                { color: #FFFFFF; }
+#letters-search .letters a span           { color: #FFFFFF; }
+#letters-search .letters a.letter         { background-image: url('images/char-back.png'); }
+#letters-search .letters a.letter:hover   { background-image: url('images/char-back-hover.png'); }
+#letters-search .letters a.all            { background-image: url('images/all-back.png'); }
+#letters-search .letters a.all:hover      { background-image: url('images/all-back-hover.png'); }
 
-#letter-links .letters span             { color: #336699; }
-#letter-links .letters span.letter      { background-image: url('images/char-back-sel.png'); }
-#letter-links .letters span.all         { background-image: url('images/all-back-sel.png'); }
+#letters-search .letters span             { color: #336699; }
+#letters-search .letters span.letter      { background-image: url('images/char-back-sel.png'); }
+#letters-search .letters span.all         { background-image: url('images/all-back-sel.png'); }

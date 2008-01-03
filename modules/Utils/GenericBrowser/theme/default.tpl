@@ -5,76 +5,72 @@
 <form {$form_data.attributes}>
 {$form_data.hidden}
 {/if}
-{if isset($form_data.search)}
-	<div style="padding-left: 20px; text-align: left;">
-	<table class="Utils_GenericBrowser__search" border="0" cellpadding="0" cellspacing="0">
-		<tbody>
-			<tr>
-				<td class="label">{$form_data.search.label}</td>
-				<td>{$form_data.search.html}</td>
-				<td class="submit">{$form_data.submit_search.html}</td>
-				<td class="advanced">{$adv_search}</td>
-			</tr>
-		</tbody>
-	</table>
-	</div>
-{else}
-	{php}
-		$cols = $this->get_template_vars('cols');
-		$search_fields = $this->get_template_vars('search_fields');
-		$i=0;
-		foreach($cols as $k=>$v){
-			if(!isset($search_fields[$i])) {
-				$i++;
-				continue;
-			}
-			$cols[$k]['label'] = $cols[$k]['label'].$search_fields[$i];
-			$i++;
-		}
-		$this->assign('cols',$cols);
-	{/php}
-	{if isset($form_data.submit_search)}
-	<div style="padding-left: 20px; text-align: left;">
-	<table class="Utils_GenericBrowser__search" border="0" cellpadding="0" cellspacing="0">
-		<tbody>
-			<tr>
-				<td class="submit">{$form_data.submit_search.html}</td>
-				<td class="advanced">{$adv_search}</td>
-			</tr>
-		</tbody>
-	</table>
-	</div>
-	{/if}
-{/if}
 	
 {if isset($order) || isset($letter_links)}
 
-<table id="letter-links">
-	<tr>
-		<td>
-			{if isset($custom_label)}
-			{$custom_label}
-			{/if}
-		</td>
-		<td>
-			<table border="0" cellpadding="0" cellspacing="0">
-			<tr>
-				<td class="letters">
-					{if isset($letter_links)}
-					{foreach key=k item=link from=$letter_links}
-					{$link}
-					{/foreach}
+<table id="letters-search">
+	<tbody>
+		<tr>
+			<!-- Custom label -->
+			<td>
+				{if isset($custom_label)}
+				{$custom_label}
+				{/if}
+			</td>
+			<!-- QuickJump -->
+			<td class="letters">
+				{if isset($letter_links)}
+				{foreach key=k item=link from=$letter_links}
+				{$link}
+				{/foreach}
+				{/if}
+			</td>
+			<!-- Advanced / Simple Search -->
+			<td style="text-align: right;">
+				{if isset($form_data.search)}
+					<div>
+					<table class="Utils_GenericBrowser__search" border="0" cellpadding="0" cellspacing="0">
+						<tbody>
+							<tr>
+								{*<td class="label">{$form_data.search.label}</td>*}
+								<td>{$form_data.search.html}</td>
+								<td class="submit">{$form_data.submit_search.html}</td>
+								<td class="advanced">{$adv_search}</td>
+							</tr>
+						</tbody>
+					</table>
+					</div>
+				{else}
+					{php}
+						$cols = $this->get_template_vars('cols');
+						$search_fields = $this->get_template_vars('search_fields');
+						$i=0;
+						foreach($cols as $k=>$v){
+							if(!isset($search_fields[$i])) {
+								$i++;
+								continue;
+							}
+							$cols[$k]['label'] = $cols[$k]['label'].$search_fields[$i];
+							$i++;
+						}
+						$this->assign('cols',$cols);
+					{/php}
+					{if isset($form_data.submit_search)}
+					<div style="padding-left: 20px; text-align: left;">
+					<table class="Utils_GenericBrowser__search" border="0" cellpadding="0" cellspacing="0">
+						<tbody>
+							<tr>
+								<td class="submit">{$form_data.submit_search.html}</td>
+								<td class="advanced">{$adv_search}</td>
+							</tr>
+						</tbody>
+					</table>
+					</div>
 					{/if}
-				</td>
-				<td class="reset">
-					{if isset($order)}
-					{$order}&nbsp;&nbsp;&nbsp;<b>{$reset}</b>
-					{/if}
-				</td>
-			</tr>
-			</table>
-		</td>
-	</tr>
+				{/if}
+			</td>
+		</tr>
+	</tbody>
 </table>
 
 {/if}
@@ -111,17 +107,25 @@
 
 <table id="Utils_GenericBrowser__navigation" border="0" cellspacing="0" cellpadding="0">
 	<tr>
-		{if isset($form_data.per_page)}
-		<td class="per_page"></td>
-		{/if}
-		<td class="arrow">{if $first}<img src="{$theme_dir}/images/first.png">{/if}</td><td class="first">{$first}</td>
-		<td class="arrow">{if $prev}<img src="{$theme_dir}/images/prev.png">{/if}</td><td class="prev">{$prev}</td>
-		<td class="summary">{$summary}</td>
-		<td class="next">{$next}</td><td class="arrow">{if $next}<img src="{$theme_dir}/images/next.png"></td>{/if}
-		<td class="last">{$last}</td><td class="arrow">{if $last}<img src="{$theme_dir}/images/last.png">{/if}</td>
-		{if isset($form_data.per_page)}
-		<td class="per_page">{$form_data.per_page.label}&nbsp;{$form_data.per_page.html}</td>
-		{/if}
+		<td style="width: 50%; text-align: left;">
+			{if isset($order)}
+				{$order}&nbsp;&nbsp;&nbsp;<b>{$reset}</b>
+			{/if}		
+		</td>
+	
+		<td>{if $first}<img src="{$theme_dir}/images/first.png">{/if}</td><td>{$first}</td>
+		<td>{if $prev}<img src="{$theme_dir}/images/prev.png">{/if}</td><td>{$prev}</td>
+		
+		<td nowrap>{$summary}</td>
+		
+		<td>{$next}</td><td>{if $next}<img src="{$theme_dir}/images/next.png">{/if}</td>
+		<td>{$last}</td><td>{if $last}<img src="{$theme_dir}/images/last.png">{/if}</td>
+
+		<td style="width: 50%; text-align: right;">
+			{if isset($form_data.per_page)}
+				{$form_data.per_page.label}&nbsp;&nbsp;&nbsp;{$form_data.per_page.html}
+			{/if}
+		</td>
 	</tr>
 </table>
 
