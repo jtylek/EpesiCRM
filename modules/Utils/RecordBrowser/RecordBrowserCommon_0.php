@@ -3,22 +3,22 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_RecordBrowserCommon extends ModuleCommon {
 	private static $table_rows = array();
-	
+
 	public static function init($tab, $admin=false) {
 		self::$table_rows = array();
 		$ret = DB::Execute('SELECT * FROM '.$tab.'_field'.($admin?'':' WHERE active=1 AND type!=\'page_split\'').' ORDER BY position');
 		while($row = $ret->FetchRow()) {
 			if ($row['field']=='id') continue;
-			self::$table_rows[$row['field']] = 
-				array(	'name'=>$row['field'], 
-						'id'=>strtolower(str_replace(' ','_',$row['field'])), 
-						'type'=>$row['type'], 
-						'visible'=>$row['visible'], 
-						'required'=>$row['required'], 
-						'extra'=>$row['extra'], 
-						'active'=>$row['active'], 
-						'position'=>$row['position'], 
-						'filter'=>$row['filter'], 
+			self::$table_rows[$row['field']] =
+				array(	'name'=>$row['field'],
+						'id'=>strtolower(str_replace(' ','_',$row['field'])),
+						'type'=>$row['type'],
+						'visible'=>$row['visible'],
+						'required'=>$row['required'],
+						'extra'=>$row['extra'],
+						'active'=>$row['active'],
+						'position'=>$row['position'],
+						'filter'=>$row['filter'],
 						'param'=>$row['param']);
 		}
 		return self::$table_rows;
@@ -37,7 +37,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		DB::CreateTable($tab_name.'_data',
 					$tab_name.'_id I,'.
 					'field C(32) NOT NULL,'.
-					'value C(256) NOT NULL',			
+					'value C(256) NOT NULL',
 					array('constraints'=>', FOREIGN KEY ('.$tab_name.'_id) REFERENCES '.$tab_name.'(id)'));
 		DB::CreateTable($tab_name.'_field',
 					'field C(32) UNIQUE NOT NULL,'.
@@ -96,18 +96,18 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if (!isset($v['param'])) $v['param'] = '';
 			if (!isset($v['extra'])) $v['extra'] = true;
 			if (!isset($v['visible'])) $v['visible'] = false;
-			Utils_RecordBrowserCommon::new_record_field($tab_name, $v['name'], $v['type'], $v['visible'], $v['required'], $v['param'], $v['extra']);			
+			Utils_RecordBrowserCommon::new_record_field($tab_name, $v['name'], $v['type'], $v['visible'], $v['required'], $v['param'], $v['extra']);
 			if (isset($v['display_callback'])) self::set_display_method($tab_name, $v['name'], $v['display_callback'][0], $v['display_callback'][1]);
 			if (isset($v['QFfield_callback'])) self::set_QFfield_method($tab_name, $v['name'], $v['QFfield_callback'][0], $v['QFfield_callback'][1]);
 			if (isset($v['requires']))
 				foreach($v['requires'] as $k=>$w) {
-					if (!is_array($w)) $w = array($w); 
+					if (!is_array($w)) $w = array($w);
 					foreach($w as $c)
 						self::field_requires($tab_name, $v['name'], $k, $c);
 				}
 		}
 		return true;
-	}	
+	}
 	public function field_requires($tab_name = null, $field, $req_field, $val) {
 		if (!$tab_name) return false;
 		DB::Execute('INSERT INTO '.$tab_name.'_require (field, req_field, value) VALUES(%s, %s, %s)', array($field, $req_field, $val));
@@ -120,7 +120,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (!$tab_name) return false;
 		DB::Execute('INSERT INTO '.$tab_name.'_callback (field, module, func, freezed) VALUES(%s, %s, %s, 0)', array($field, $module, $func));
 	}
-	
+
 	public function uninstall_recordset($tab_name = null) {
 		if (!$tab_name) return false;
 		DB::DropTable($tab_name.'_callback');
@@ -136,7 +136,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		DB::Execute('DELETE FROM recordbrowser_table_properties WHERE tab=%s', array($tab_name));
 		return true;
 	}
-	
+
 	public function new_record_field($tab_name, $field, $type, $visible, $required, $param='', $extra = true){
 		if ($extra) {
 			$pos = DB::GetOne('SELECT MAX(position) FROM '.$tab_name.'_field')+1;
@@ -209,23 +209,23 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function set_record_properties( $tab_name, $id, $info = array()) {
 		foreach ($info as $k=>$v)
 			switch ($k) {
-				case 'created_on': 	DB::Execute('UPDATE '.$tab_name.' SET created_on=%s WHERE id=%d', array($v, $id));
+				case 'created_on': 	DB::Execute('UPDATE '.$tab_name.' SET created_on=%T WHERE id=%d', array($v, $id));
 									break;
-				case 'created_by': 	DB::Execute('UPDATE '.$tab_name.' SET created_by=%s WHERE id=%d', array($v, $id));
+				case 'created_by': 	DB::Execute('UPDATE '.$tab_name.' SET created_by=%d WHERE id=%d', array($v, $id));
 									break;
 			}
 	}
 	public static function new_record( $tab_name = null, $values = array()) {
 		if (!$tab_name) return false;
 		self::init($tab_name);
-		DB::StartTrans();	
+		DB::StartTrans();
 		$SQLcols = array();
 		DB::Execute('INSERT INTO '.$tab_name.' (created_on, created_by, active) VALUES (%T, %d, %d)',array(date('Y-m-d G:i:s'), Acl::get_user(), 1));
 		$id = DB::Insert_ID($tab_name, 'id');
 		self::add_recent_entry($tab_name, Acl::get_user(), $id);
 		foreach(self::$table_rows as $field => $args) {
 			if (!isset($values[$args['id']]) || $values[$args['id']]=='') continue;
-			if (!is_array($values[$args['id']])) 
+			if (!is_array($values[$args['id']]))
 				DB::Execute('INSERT INTO '.$tab_name.'_data ('.$tab_name.'_id, field, value) VALUES (%d, %s, %s)',array($id, $field, $values[$args['id']]));
 			else
 				foreach($values[$args['id']] as $v)
@@ -280,7 +280,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		while($row_temp = $ret->FetchRow()) $row = $row_temp;
 		if (isset($row)) {
 			DB::Execute('DELETE FROM '.$tab_name.'_recent WHERE user_id = %d AND visited_on <= %T',
-						array($user_id,	
+						array($user_id,
 						$row['visited_on']));
 		}
 		DB::Execute('INSERT INTO '.$tab_name.'_recent VALUES (%d, %d, %T)',
@@ -309,7 +309,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					case ':Fav'	: $where .= ' AND (SELECT COUNT(*) FROM '.$tab_name.'_favorite WHERE '.$tab_name.'_id=r.id AND user_id=%d)!=0'; $vals[]=Acl::get_user(); break;
 					case ':Recent'	: $where .= ' AND (SELECT COUNT(*) FROM '.$tab_name.'_recent WHERE '.$tab_name.'_id=r.id AND user_id=%d)!=0'; $vals[]=Acl::get_user(); break;
 					default		: trigger_error('Unknow paramter given to get_records criteria: '.$k, E_USER_ERROR);
-				} 	
+				}
 			} else {
 				$negative = $k[0]=='!';
 				$k = trim($k, '!');
@@ -352,14 +352,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if (isset($crits[$args['id']])) {
 				$crits[$field] = $crits[$args['id']];
 				unset($crits[$args['id']]);
-			} 
+			}
 		foreach($crits as $k=>$v){
 			if ($k[0]==':') {
 				switch ($k) {
 					case ':Fav'	: $where .= ' AND (SELECT COUNT(*) FROM '.$tab_name.'_favorite WHERE '.$tab_name.'_id=r.id AND user_id=%d)!=0'; $vals[]=Acl::get_user(); break;
 					case ':Recent'	: $where .= ' AND (SELECT COUNT(*) FROM '.$tab_name.'_recent WHERE '.$tab_name.'_id=r.id AND user_id=%d)!=0'; $vals[]=Acl::get_user(); break;
 					default		: trigger_error('Unknow paramter given to get_records criteria: '.$k, E_USER_ERROR);
-				} 	
+				}
 			} else {
 				$negative = $k[0]=='!';
 				$k = trim($k, '!');
@@ -391,7 +391,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$ret = DB::SelectLimit('SELECT id, active'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?'':' AND active=1').$where.' GROUP BY id HAVING true'.$having.$orderby, $limit['numrows'], $limit['offset'], $vals);
 		$records = array();
 		$where = ' WHERE true';
-		$vals = array(); 
+		$vals = array();
 		if ($cols && !empty($cols)) {
 			$where .= ' AND (false';
 			foreach ($cols as $v) {
@@ -403,9 +403,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$where .= ' AND '.$tab_name.'_id IN (';
 		$first = true;
 		while ($row = $ret->FetchRow()) {
-			$records[$row['id']] = array(	'id'=>$row['id'], 
+			$records[$row['id']] = array(	'id'=>$row['id'],
 											'active'=>$row['active']);
-			if ($first) $first = false;			
+			if ($first) $first = false;
 			else $where .= ', ';
 			$where .= '%d';
 			$vals[] = $row['id'];
@@ -421,7 +421,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				if (isset($records[$field[$tab_name.'_id']][$field_id]))
 					$records[$field[$tab_name.'_id']][$field_id][] = $field['value'];
 				else $records[$field[$tab_name.'_id']][$field_id] = array($field['value']);
-			else 
+			else
 				$records[$field[$tab_name.'_id']][$field_id] = $field['value'];
 		}
 		array_flip($cols);
@@ -468,11 +468,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					if (isset($record[$field_id]))
 						$record[$field_id][] = $field['value'];
 					else $record[$field_id] = array($field['value']);
-				else 
+				else
 					$record[$field_id] = $field['value'];
 			}
 			$record['id'] = $id;
-			if ($admin) { 
+			if ($admin) {
 				$row = DB::Execute('SELECT active, created_by, created_on FROM '.$tab_name.' WHERE true'.($admin?'':' AND active=1'))->FetchRow();
 				foreach(array('active','created_by','created_on') as $v)
 					$record[$v] = $row[$v];
@@ -492,7 +492,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			 case 'select':
 			 			list($tab,$col) = explode('::', self::$table_rows[$field['field']]['param']);
 			 			if ($tab!='__COMMON__') {
-			 				if ($field['value']!=='') 
+			 				if ($field['value']!=='')
 			 					if (!DB::GetOne('SELECT active FROM '.$tab.' WHERE id=%d', array($field['value'])))
 			 						return false;
 			 			}
@@ -501,13 +501,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 	public function delete_record($tab, $id) {
 		DB::Execute('UPDATE '.$tab.' SET active=0 where id=%d', array($id));
-	}		
+	}
 	public function create_linked_label($tab, $col, $id, $nolink=false){
 		foreach (self::$table_rows as $field=>$args)
 			if ($col == $args['id']) {
 				$col = $field;
 				break;
-			} 
+			}
 		$label = DB::GetOne('SELECT value FROM '.$tab.'_data WHERE field=%s AND '.$tab.'_id=%d', array($col, $id));
 		if (!$nolink) return '<a '.self::create_record_href($tab, $id).'>'.$label.'</a>';
 		else return $label;

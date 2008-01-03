@@ -43,9 +43,9 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		if($action == 'new') {
 			$tt = $id-$id%300;
 			$def = array(
-				'date_s' => date('Y-m-d',$id), 
-				'date_e' => date('Y-m-d',$id), 
-				'time_s' => date('H:i',$tt), 
+				'date_s' => date('Y-m-d',$id),
+				'date_e' => date('Y-m-d',$id),
+				'time_s' => date('H:i',$tt),
 				'time_e' => date('H:i',$tt+3600),
 				'access'=>0,
 				'priority'=>0,
@@ -69,7 +69,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$def = array(
 				'date_s' => Base_RegionalSettingsCommon::server_date(substr($event['start'], 0, 10)),
 				'date_e' => Base_RegionalSettingsCommon::server_date(substr($event['end'], 0, 10)),
-				'time_s' => $dtime_s, 
+				'time_s' => $dtime_s,
 				'time_e' => $dtime_e,
 				'title'=>$event['title'],
 				'description'=>$event['description'],
@@ -83,58 +83,58 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			);
 			$def['cus_id'] = array();
 			$ret = DB::Execute('SELECT contact FROM crm_calendar_group_cus WHERE id=%d', $id);
-			while ($row=$ret->FetchRow()) { 
+			while ($row=$ret->FetchRow()) {
 				$def['cus_id'][] = $row['contact'];
 				if (!isset($cus[$row['contact']])) $cus[$row['contact']] = CRM_Calendar_EventCommon::decode_contact($row['contact']);
 			}
 			$def['emp_id'] = array();
 			$ret = DB::Execute('SELECT contact FROM crm_calendar_group_emp WHERE id=%d', $id);
-			while ($row=$ret->FetchRow()) 
+			while ($row=$ret->FetchRow())
 				$def['emp_id'][] = $row['contact'];
 			$timeless = $event['timeless'];
 		}
 
 		$this->lang = $this->pack_module('Base/Lang');
 		$form = $this->init_module('Libs/QuickForm');
-		
+
 		$act = array();
 
 		$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
 		$priority = array(0=>'low', 1=>'medium', 2=>'high');
-		
+
 		$form->addElement('text', 'title', $this->lang->t('Title'), array('style'=>'width: 100%;'));
 		$form->addRule('title', 'Field is required!', 'required');
-		
+
 		$time_format = Base_RegionalSettingsCommon::time_12h()?'h:i:a':'H:i';
 
 		$form->addElement('datepicker', 'date_s', $this->lang->t('Event start'));
 		$form->addRule('date_s', 'Field is required!', 'required');
 		$lang_code = Base_LangCommon::get_lang_code();
-		$form->addElement('date', 'time_s', $this->lang->t('Time'), array('format'=>$time_format, 'optionIncrement'  => array('i' => 5),'language'=>$lang_code),array('size'=>'12'));
+		$form->addElement('date', 'time_s', $this->lang->t('Time'), array('format'=>$time_format, 'optionIncrement'  => array('i' => 5),'language'=>$lang_code));
 
 		$form->addElement('datepicker', 'date_e', $this->lang->t('Event end'));
 		$form->addRule('date_e', 'Field is required!', 'required');
-		$form->addElement('date', 'time_e', $this->lang->t('Time'), array('format'=>$time_format, 'optionIncrement'  => array('i' => 5), 'language'=>$lang_code),array('size'=>'12'));
+		$form->addElement('date', 'time_e', $this->lang->t('Time'), array('format'=>$time_format, 'optionIncrement'  => array('i' => 5), 'language'=>$lang_code));
 
 		$form->addElement('checkbox', 'timeless', $this->lang->t('Timeless'), null,'onClick="time_e = getElementById(\'time_e\'); time_s = getElementById(\'time_s\'); if (this.checked) cal_style = \'none\'; else cal_style = \'block\'; time_e.style.display=cal_style; time_s.style.display=cal_style;"');
-		if ($action=='view') $condition = $timeless;  
+		if ($action=='view') $condition = $timeless;
 		else $condition = 'document.getElementsByName(\'timeless\')[0].checked';
 		eval_js('time_e = document.getElementById(\'time_e\'); time_s = document.getElementById(\'time_s\'); if ('.$condition.') cal_style = \'none\'; else cal_style = \'block\'; time_e.style.display=cal_style; time_s.style.display=cal_style;');
 
 		$form->registerRule('check_dates', 'callback', 'check_dates', $this);
 		$form->addRule(array('date_e', 'time_e', 'date_s', 'time_s', 'timeless'), 'End date must be after begin date...', 'check_dates');
-		
+
 
 		$form->addElement('header', null, $this->lang->t('Event itself'));
-		
+
 		$form->addElement('select', 'access', $this->lang->t('Access'), $access, array('style'=>'width: 100%;'));
 		$form->addElement('select', 'priority', $this->lang->t('Priority'), $priority, array('style'=>'width: 100%;'));
-		
+
 		$form->addElement('multiselect', 'emp_id', $this->lang->t('Employees'), $emp);
 		$form->addRule('emp_id', $this->lang->t('At least one employee must be assigned to an event.'), 'required');
-		
+
 		$form->addElement('multiselect', 'cus_id', $this->lang->t('Customers'), $cus);
-			
+
 		if($action != 'view') {
 			$rb2 = $this->init_module('Utils/RecordBrowser/RecordPicker');
 			$this->display_module($rb2, array('contact', 'cus_id', array('CRM_Calendar_EventCommon','decode_contact'), array('!company_name'=>CRM_ContactsCommon::get_main_company())));
@@ -143,7 +143,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$cus_click = '';
 		}
 		$form->addElement('text', 'rel_emp', $this->lang->t('Related Person'), array('style'=>'width: 100%;'));
-		
+
 		$form->addElement('textarea', 'description',  $this->lang->t('Description'), array('rows'=>6, 'style'=>'width: 100%;'));
 
 		if($action === 'view') {
@@ -152,29 +152,29 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$form->addElement('static', 'edited_by',  $this->lang->t('Edited by'));
 			$form->addElement('static', 'edited_on',  $this->lang->t('Edited on'));
 		}
-						
+
 		$form->setDefaults($def);
-		
+
 		if ($form->validate()) {
 			$values = $form->exportValues();
 			print_r($values);
 			if (!isset($values['timeless'])) $values['timeless'] = false;
 			if($action == 'new')
 				$this->add_event($values);
-			else 
+			else
 				$this->update_event($id, $values);
 			$this->back_to_calendar();
 		}
-			
+
 		if($action == 'view') $form->freeze();
-		
+
 		$theme =  & $this->pack_module('Base/Theme');
 
 		$theme->assign('view_style', 'new_event');
 		$theme->assign('cus_click', $cus_click);
 		$form->assign_theme('form', $theme);
 		$theme->display();
-		
+
 		if($action == 'view') {
 			Base_ActionBarCommon::add('edit',$this->lang->t('Edit'), $this->create_callback_href(array($this, 'view_event'), array('edit', $id)));
 		} else {
