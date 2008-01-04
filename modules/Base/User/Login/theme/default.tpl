@@ -1,8 +1,11 @@
 {if $is_logged_in}
 {$logged_as}
+{*
 {$__link.logout.open}
-	{$__link.logout.text}&nbsp;<img border="0" width="10" height="10" src="{$theme_dir}/images/logout.gif">
+	{$__link.logout.text}
 {$__link.logout.close}
+*}
+{$logout}
 {else}
 	{$form_data.javascript}
 
