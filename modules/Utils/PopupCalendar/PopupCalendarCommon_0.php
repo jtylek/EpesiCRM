@@ -17,6 +17,8 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 	public static function create_href($name,$function = '',$fullscreen=true,$mode=null,$first_day_of_week=null,$pos_js=null) {
 		Base_ThemeCommon::load_css('Utils_PopupCalendar');
 		load_js('modules/Utils/PopupCalendar/js/main.js');
+		
+		if(!isset($mode)) $mode='day';
 
 		if(!isset($first_day_of_week)) {
 			if(Acl::is_user())
@@ -40,7 +42,6 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 		} else {
 			$entry = 'datepicker_'.$name.'_calendar';
 			$butt = 'datepicker_'.$name.'_button';
-			$ret = 'onClick="$(\''.$entry.'\').toggle()" href="javascript:void(0)" id="'.$butt.'"';
 
 			$smarty = Base_ThemeCommon::init_smarty();
 			$smarty->assign('calendar',$calendar);
@@ -54,8 +55,9 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 				'</div>');
 
 			if(!isset($pos_js)) $pos_js = 'popup.clonePosition(\''.$butt.'\',{setWidth:false,setHeight:false,offsetTop:$(\''.$butt.'\').getHeight()})';
-			eval_js('var popup=$(\''.$entry.'\');popup.absolutize();'.$pos_js);
+			eval_js('$(\''.$entry.'\').absolutize();');
 
+			$ret = 'onClick="var popup=$(\''.$entry.'\');'.$pos_js.';$(\''.$entry.'\').toggle()" href="javascript:void(0)" id="'.$butt.'"';
 			$function .= ';$(\''.$entry.'\').hide()';
 		}
 

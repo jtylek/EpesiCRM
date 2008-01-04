@@ -2,7 +2,7 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 		this.monthName = new Array('January','February','March','April','May','June','July','August','September','October','November','December');
 		this.link_proto = link_proto;
 		this.instance_id = instance_id;
-		if(typeof mode == 'undefined') mode='month';
+		if(typeof mode == 'undefined') mode='day';
 		this.mode = mode;
 		this.first_day_of_week = first_day_of_week;
 		if(typeof first_day_of_week == 'undefined')
