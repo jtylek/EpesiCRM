@@ -135,6 +135,12 @@
     background-color: #e6e6cf;
 }
 
+#CRM_Calendar_Event_Personal #multiselect .form-element select,
+#CRM_Calendar_Event_Personal #multiselect .to-element select {
+    width: 150px;
+    height: 100px;
+}
+
 #CRM_Calendar_Event_Personal .data input#due_date {
     display: block;
     margin-top: 1px;

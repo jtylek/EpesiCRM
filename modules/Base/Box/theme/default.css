@@ -82,9 +82,18 @@ hr.line {
     height: 100%;
 }
 
+#multiselect .form-element {
+    text-align: right;
+}
+
+#multiselect .to-element {
+    text-align: left;
+}
+
 #multiselect .form-element select,
 #multiselect .to-element select {
-    min-height: 90px;
+    width: 150px;
+    height: 100px;
 }
 
 #multiselect .buttons {

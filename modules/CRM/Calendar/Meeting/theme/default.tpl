@@ -3,7 +3,7 @@
     <div id="CRM_Calendar_Event_Personal">
 
 <!-- SHADIW BEGIN-->
-	<div class="layer" style="padding: 9px; width: 760px;">
+	<div class="layer" style="padding: 9px; width: 780px;">
 		<div class="content_shadow">
 <!-- -->
 

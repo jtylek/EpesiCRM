@@ -46,6 +46,12 @@
     background-color: #e6e6cf;
 }
 
+#CRM_Contacts__Contact #multiselect .form-element select,
+#CRM_Contacts__Contact #multiselect .to-element select {
+    width: 150px;
+    height: 100px;
+}
+
 .CRM_Contacts__table {
     width: 100%;
     vertical-align: middle;

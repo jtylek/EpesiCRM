@@ -52,6 +52,12 @@
     background-color: #e6e6cf;
 }
 
+#Utils_RecordBrowser__View_entry #multiselect .form-element select,
+#Utils_RecordBrowser__View_entry #multiselect .to-element select {
+    width: 150px;
+    height: 100px;
+}
+
 #Utils_RecordBrowser__View_entry .data input#due_date {
     display: block;
     margin-top: 1px;
