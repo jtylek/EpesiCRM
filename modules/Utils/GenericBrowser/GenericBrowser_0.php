@@ -437,9 +437,9 @@ class Utils_GenericBrowser extends Module {
 			foreach($this->columns as $k=>$v)
 				if (isset($v['search']) && isset($search[$v['search']])) {
 		 			if (!$array)
-						$where .= ($where?' AND':'').' '.$v['search'].' LIKE '.DB::Concat('\'%\'',sprintf('%s',DB::qstr($search[$v['search']])),'\'%\'');
+						$where .= ($where?' AND':'').' '.$v['search'].' LIKE '.DB::Concat(DB::qstr('%'),sprintf('%s',DB::qstr($search[$v['search']])),DB::qstr('%'));
 					else
-						$where[$v['search']][] = '%'.$search[$v['search']].'%';
+						$where[$v['search']][] = DB::Concat(DB::qstr('%'),DB::qstr($search[$v['search']]),DB::qstr('%'));
 				} 
 		}
  		if (isset($quickjump) && $quickjump_to!='')
