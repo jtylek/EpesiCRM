@@ -180,3 +180,27 @@ table#Utils_GenericBrowser__navigation img {
 #letters-search .letters span             { color: #336699; }
 #letters-search .letters span.letter      { background-image: url('images/char-back-sel.png'); }
 #letters-search .letters span.all         { background-image: url('images/all-back-sel.png'); }
+
+/* */
+
+#quick_jump_letters {
+    z-index: 1005;
+    position: absolute;
+    margin-left: 34px;
+    margin-top: -12px;
+}
+
+#letters-search .letters .abc {
+    width: 22px;
+    height: 14px;
+    padding-left: 2px;
+    color: white;
+    background-image: url('images/abc-back.png');
+    cursor: pointer;
+    float: left;
+    margin: 2px;
+}
+
+#letters-search .letters .abc:hover {
+    background-image: url('images/abc-back-hover.png');
+}

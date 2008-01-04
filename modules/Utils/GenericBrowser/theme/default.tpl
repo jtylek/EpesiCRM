@@ -1,3 +1,7 @@
+{php}
+	load_js('data/Base_Theme/templates/default/Utils_GenericBrowser__default.js');
+{/php}
+
 <div>
 {if isset($form_data)}
 {$form_data.javascript}
@@ -19,11 +23,40 @@
 			</td>
 			<!-- QuickJump -->
 			<td class="letters">
-				{if isset($letter_links)}
-				{foreach key=k item=link from=$letter_links}
-				{$link}
-				{/foreach}
-				{/if}
+				<div class="abc" onclick="quick_jump_letters();">ABC</div>
+				<div id="quick_jump_letters" style="display: none;">
+					<!-- SHADOW BEGIN -->
+						<div class="layer" style="padding: 10px; width: 530px;">
+							<div class="content_shadow">
+					<!-- -->
+					
+						<div style="background-color: white; height: 20px; padding-top: 2px; padding-left: 2px;">
+							{if isset($letter_links)}
+							{foreach key=k item=link from=$letter_links}
+							{$link}
+							{/foreach}
+							{/if}
+						</div>
+					
+					<!-- SHADOW END -->
+							</div>
+							<div class="shadow-top">
+								<div class="left"></div>
+								<div class="center"></div>
+								<div class="right"></div>
+							</div>
+							<div class="shadow-middle">
+								<div class="left"></div>
+								<div class="right"></div>
+							</div>
+							<div class="shadow-bottom">
+								<div class="left"></div>
+								<div class="center"></div>
+								<div class="right"></div>
+							</div>
+						</div>
+					<!-- -->
+				</div>
 			</td>
 			<!-- Advanced / Simple Search -->
 			<td style="text-align: right;">
