@@ -465,7 +465,7 @@ class Utils_GenericBrowser extends Module {
 								')';
 					if ($where) $where = ' ('.$where.')';
 	 			} else {
-					$where[$quickjump] = array(sprintf('%s',$quickjump_to).'%',sprintf('%s',strtolower($quickjump_to).'%'));
+					$where[$quickjump] = array(DB::qstr(sprintf('%s',$quickjump_to).'%'),DB::qstr(sprintf('%s',strtolower($quickjump_to).'%')));
 	 			}
  			}
 		return $where;
