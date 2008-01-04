@@ -101,22 +101,29 @@ class Utils_Calendar extends Module {
 
 		load_js($this->get_module_dir().'calendar.js');
 
-		$tb = $this->init_module('Utils/TabbedBrowser');
+		if(count($this->settings['views'])>1) {
+			$tb = $this->init_module('Utils/TabbedBrowser');
 
-		foreach($this->settings['views'] as $k=>$v) {
+			foreach($this->settings['views'] as $k=>$v) {
+				if(!in_array($v,self::$views))
+					trigger_error('Invalid view: '.$v,E_USER_ERROR);
+
+				$tb->set_tab($this->lang->t($v),array($this, strtolower($v)));
+				if(strcasecmp($v,$this->settings['default_view'])==0)
+					$def_tab = $k;
+			}
+			if (isset($def_tab)) $tb->set_default_tab($def_tab);
+			if (isset($switch_view))
+				$tb->switch_tab($switch_view);
+
+			$this->display_module($tb);
+			$tb->tag();
+		} else {
+			$v = array_pop($this->settings['views']);
 			if(!in_array($v,self::$views))
 				trigger_error('Invalid view: '.$v,E_USER_ERROR);
-
-			$tb->set_tab($this->lang->t($v),array($this, strtolower($v)));
-			if(strcasecmp($v,$this->settings['default_view'])==0)
-				$def_tab = $k;
+			call_user_func(array($this,strtolower($v)));
 		}
-		if (isset($def_tab)) $tb->set_default_tab($def_tab);
-		if (isset($switch_view))
-			$tb->switch_tab($switch_view);
-
-		$this->display_module($tb);
-		$tb->tag();
 
 		Base_ActionBarCommon::add('add',$this->lang->t('Add event'),$this->create_unique_href(array('action'=>'add','time'=>$this->date)));
 	}

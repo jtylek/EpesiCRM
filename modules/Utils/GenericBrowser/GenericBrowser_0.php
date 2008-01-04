@@ -556,7 +556,7 @@ class Utils_GenericBrowser extends Module {
 	/**
 	 * For internal use only.
 	 */
-	public function simple_table($header, $data, $page_split = true, $template, $order=true) {
+	public function simple_table($header, $data, $page_split = true, $template=null, $order=true) {
 		$len = count($header);
 		foreach($header as $i=>$h) {
 			if(is_string($h)) $header[$i]=array('name'=>$h);
@@ -567,7 +567,10 @@ class Utils_GenericBrowser extends Module {
 		}
 		$this->set_table_columns($header);
 
-		if($order) $this->sort_data($data);
+		if($order) {
+			if(is_array($order)) $this->set_default_order($order);
+			$this->sort_data($data);
+		}
 
 		if ($page_split){
 			$cd = count($data);
