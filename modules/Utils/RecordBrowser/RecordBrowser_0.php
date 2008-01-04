@@ -203,7 +203,7 @@ class Utils_RecordBrowser extends Module {
 		$gb->set_module_variable('adv_search', $gb->get_module_variable('adv_search', $this->adv_search));
 		
 		if ($special)
-			$table_columns = array(array('name'=>'Add', 'width'=>1, 'order'=>'Add'));
+			$table_columns = array(array('name'=>'Select', 'width'=>1));
 		elseif (!$admin && $this->favorites)
 			$table_columns = array(array('name'=>'Fav', 'width'=>1, 'order'=>'Fav'));
 		$table_columns_SQL = array();
@@ -314,23 +314,26 @@ class Utils_RecordBrowser extends Module {
 			if ($this->browse_mode == 'recent')
 				$row_data[] = $row['visited_on'];
 			$gb_row->add_data_array($row_data);
-			if (!$special) {
-				if ($fs_links===false) {
-					$gb_row->add_action($this->create_callback_href(array($this,'view_entry'),array('view',$row['id'])),$this->lang->t('View'));
-					if ($this->get_access('edit',$row)) $gb_row->add_action($this->create_callback_href(array($this,'view_entry'),array('edit',$row['id'])),$this->lang->t('Edit'));
-					if ($admin) {
-						if (!$row['active']) $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],true)),$this->lang->t('Activate'), null, 'active-off');
-						else $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],false)),$this->lang->t('Deactivate'), null, 'active-on');
-						$gb_row->add_action($this->create_callback_href(array($this,'view_edit_history'),array($row['id'])),$this->lang->t('View edit history'),null,'history');
-					} else 
-					if ($this->get_access('delete',$row)) $gb_row->add_action($this->create_confirm_callback_href($this->lang->t('Are you sure you want to delete this record?'),array('Utils_RecordBrowserCommon','delete_record'),array($this->tab, $row['id'])),$this->lang->t('Delete'));
-				} else {
-					$gb_row->add_action($this->create_href(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($this->tab), 'tab'=>$this->tab, 'id'=>$row['id'], 'action'=>'view')),$this->lang->t('View'));
-					if ($this->get_access('edit',$row)) $gb_row->add_action($this->create_href(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($this->tab), 'tab'=>$this->tab, 'id'=>$row['id'], 'action'=>'edit')),$this->lang->t('Edit'));
-					if ($this->get_access('delete',$row)) $gb_row->add_action($this->create_confirm_callback_href($this->lang->t('Are you sure you want to delete this record?'),array('Utils_RecordBrowserCommon','delete_record'),array($this->tab, $row['id'])),$this->lang->t('Delete'));
+			if (!isset($cols['Actions']) || $cols['Actions'])
+			{
+				if (!$special) {
+					if ($fs_links===false) {
+						$gb_row->add_action($this->create_callback_href(array($this,'view_entry'),array('view',$row['id'])),$this->lang->t('View'));
+						if ($this->get_access('edit',$row)) $gb_row->add_action($this->create_callback_href(array($this,'view_entry'),array('edit',$row['id'])),$this->lang->t('Edit'));
+						if ($admin) {
+							if (!$row['active']) $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],true)),$this->lang->t('Activate'), null, 'active-off');
+							else $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],false)),$this->lang->t('Deactivate'), null, 'active-on');
+							$gb_row->add_action($this->create_callback_href(array($this,'view_edit_history'),array($row['id'])),$this->lang->t('View edit history'),null,'history');
+						} else 
+						if ($this->get_access('delete',$row)) $gb_row->add_action($this->create_confirm_callback_href($this->lang->t('Are you sure you want to delete this record?'),array('Utils_RecordBrowserCommon','delete_record'),array($this->tab, $row['id'])),$this->lang->t('Delete'));
+					} else {
+						$gb_row->add_action($this->create_href(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($this->tab), 'tab'=>$this->tab, 'id'=>$row['id'], 'action'=>'view')),$this->lang->t('View'));
+						if ($this->get_access('edit',$row)) $gb_row->add_action($this->create_href(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($this->tab), 'tab'=>$this->tab, 'id'=>$row['id'], 'action'=>'edit')),$this->lang->t('Edit'));
+						if ($this->get_access('delete',$row)) $gb_row->add_action($this->create_confirm_callback_href($this->lang->t('Are you sure you want to delete this record?'),array('Utils_RecordBrowserCommon','delete_record'),array($this->tab, $row['id'])),$this->lang->t('Delete'));
+					}
 				}
+				$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info($this->tab, $row['id']));
 			}
-			$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info($this->tab, $row['id']));
 		}
 		if ($special) {
 			$this->set_module_variable('rpicker_ind',$rpicker_ind);
@@ -968,7 +971,7 @@ class Utils_RecordBrowser extends Module {
 	public function caption(){
 		return $this->caption.': '.$this->action;
 	}
-	public function recordpicker($element, $format, $crits=array(), $filters=array()) {
+	public function recordpicker($element, $format, $crits=array(), $cols=array(), $filters=array()) {
 		if (!isset($this->lang)) $this->lang = $this->init_module('Base/Lang');
 		$this->init();
 		$icon_on = Base_ThemeCommon::get_template_file('Utils_RecordBrowser','active-on.png');
@@ -983,7 +986,7 @@ class Utils_RecordBrowser extends Module {
 				foreach ($v as $w) if (!in_array($w, $this->crits[$k])) $this->crits[$k][] = $w;
 			} else $this->crits[$k] = $v;
 		}
-		$theme->assign('table', $this->show_data($this->crits, array(), array(), false, false, true));
+		$theme->assign('table', $this->show_data($this->crits, $cols, array(), false, false, true));
 
 		$rpicker_ind = $this->get_module_variable('rpicker_ind');
 		eval_js(

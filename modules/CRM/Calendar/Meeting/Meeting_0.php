@@ -137,7 +137,7 @@ class CRM_Calendar_Meeting extends Utils_Calendar_Event {
 
 		if($action != 'view') {
 			$rb2 = $this->init_module('Utils/RecordBrowser/RecordPicker');
-			$this->display_module($rb2, array('contact', 'cus_id', array('CRM_Calendar_MeetingCommon','decode_contact'), array('!company_name'=>CRM_ContactsCommon::get_main_company())));
+			$this->display_module($rb2, array('contact', 'cus_id', array('CRM_Calendar_MeetingCommon','decode_contact'), array('!company_name'=>CRM_ContactsCommon::get_main_company()), array('work_phone'=>false, 'mobile_phone'=>false, 'zone'=>false, 'Actions'=>false)));
 			$cus_click = $rb2->create_open_link($this->lang->t('Advanced'));
 		} else {
 			$cus_click = '';
