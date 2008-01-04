@@ -3,13 +3,13 @@
     <div id="CRM_Calendar_Event_Personal">
 
 <!-- SHADIW BEGIN-->
-	<div class="layer" style="padding: 9px; width: 760px;">
+	<div class="layer" style="padding: 9px; width: 740px;">
 		<div class="content_shadow">
 <!-- -->
 
 <div style="background-color: white; padding: 5px;">
 
-    <table name="CRMCalendar" class="form no-border" cellspacing="0" cellpadding="0" border="0">
+    <table name="CRMCalendar" class="form" cellspacing="0" cellpadding="0" border="0">
     	<tbody>
 			<tr>
 				<td class="group_bottom label bold" align="left">{$form_data.title.label}</td>
@@ -57,7 +57,7 @@
                 <td class="label">{$form_data.description.label}</td>
             </tr>
         	<tr>
-                <td class="data" colspan="4" style="height: 100px; vertical-align: top;">{$form_data.description.html}</td>
+                <td class="data" colspan="4" style="height: 100px; vertical-align: top; padding-top: 2px;">{$form_data.description.html}</td>
             </tr>
         </tbody>
     </table>
