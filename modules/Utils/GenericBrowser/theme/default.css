@@ -187,20 +187,21 @@ table#Utils_GenericBrowser__navigation img {
     z-index: 1005;
     position: absolute;
     margin-left: 34px;
-    margin-top: -12px;
+    margin-top: -11px;
 }
 
 #letters-search .letters .abc {
-    width: 22px;
-    height: 14px;
-    padding-left: 2px;
+    height: 17px;
+    padding-top: 3px;
+    padding-left: 5px;
+    padding-right: 5px;
     color: white;
-    background-image: url('images/abc-back.png');
+    background-image: url('images/header-blue.png');
+    background-repeat: repeat-x;
     cursor: pointer;
     float: left;
-    margin: 2px;
 }
 
 #letters-search .letters .abc:hover {
-    background-image: url('images/abc-back-hover.png');
+    background-image: url('images/header-blue-hover.png');
 }
