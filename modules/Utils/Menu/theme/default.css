@@ -170,7 +170,8 @@ td.splitter {
 /* ---------- */
 
 td.splitter {
-	background-color: #b3b3b3;
+	/*background-color: #b3b3b3;*/
+	background-color: #336699;
 	height: 2px;
 }
 

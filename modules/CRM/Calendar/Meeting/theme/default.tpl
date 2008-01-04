@@ -13,7 +13,12 @@
     	<tbody>
 			<tr>
 				<td class="group_bottom label bold" align="left">{$form_data.title.label}</td>
-				<td class="group_bottom data bold" align="left" colspan="5"><span class="error">{$form_data.title.error}</span>{$form_data.title.html}</td>
+				<td class="group_bottom data bold" align="left" colspan="5"><span class="error">{$form_data.title.error}</span>
+                {if !isset($focus) && $form_data.title.type == "text"}
+                    {assign var = focus value = $form_data.title}
+				{/if}
+                {$form_data.title.html}
+                </td>
 			</tr>
 			<tr>
 			  	<td class="label" align="left">{$form_data.timeless.label}</td>
@@ -32,16 +37,16 @@
 			  	<td class="label" style="width: 50%;">{$form_data.date_e.label}</td>
             </tr>
 			<tr>
-			 	<td class="data short_input no-wrap" style="border-right: 1px solid #b3b3b3;"><span class="error">{$form_data.date_s.error}</span>{$form_data.date_s.html}<span id="time_s">{$form_data.time_s.html}</span></td>
-			 	<td class="data short_input no-wrap"><span class="error">{$form_data.date_e.error}</span>{$form_data.date_e.html}<span id="time_e">{$form_data.time_e.html}</span></td>
+			 	<td class="data short_input" style="border-right: 1px solid #b3b3b3;"><span class="error">{$form_data.date_s.error}</span><div style="float: left">{$form_data.date_s.html}</div><span id="time_s">{$form_data.time_s.html}</span></td>
+			 	<td class="data short_input"><span class="error">{$form_data.date_e.error}</span><div style="float: left">{$form_data.date_e.html}</div><span id="time_e">{$form_data.time_e.html}</span></td>
             </tr>
             <tr>
 	        	<td class="label" style="border-right: 1px solid #b3b3b3;">{$form_data.emp_id.label}</td>
-        	    <td class="label">{$form_data.cus_id.label}</td>
+        	    <td class="label" style="padding-right: 0px;"><div style="float: left; padding-top: 3px;">{$form_data.cus_id.label}</div><div style="float: right; border-left: 1px solid #b3b3b3;">{$cus_click}</div></td>
 			</tr>
             <tr>
-				<td class="data arrows no-wrap" style="border-right: 1px solid #b3b3b3; vertical-align: top;"><span class="error">{$form_data.emp_id.error}</span>{$form_data.emp_id.html}</td>
-				<td class="data arrows no-wrap" style="vertical-align: top;"><span class="error">{$form_data.cus_id.error}</span>{$form_data.cus_id.html}{$cus_click}</td>
+				<td class="data arrows" style="border-right: 1px solid #b3b3b3; vertical-align: top;"><span class="error">{$form_data.emp_id.error}</span>{$form_data.emp_id.html}</td>
+				<td class="data arrows" style="vertical-align: top;"><span class="error">{$form_data.cus_id.error}</span>{$form_data.cus_id.html}</td>
 			</tr>
         </tbody>
     </table>

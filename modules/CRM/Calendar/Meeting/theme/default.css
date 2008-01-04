@@ -152,3 +152,10 @@
 #CRM_Calendar_Event_Personal table.no-border {
 	border-bottom: none;
 }
+
+#CRM_Calendar_Event_Personal #time_s,
+#CRM_Calendar_Event_Personal #time_e {
+	display: block;
+	float: right;
+	padding-top: 2px;
+}
