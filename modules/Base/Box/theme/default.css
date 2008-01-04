@@ -51,6 +51,7 @@ a.button {
     background-image: url("images/header-blue.png");
     border: 0px;
     text-align: center;
+    cursor: pointer;
 }
 
 a.button:hover {

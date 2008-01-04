@@ -682,16 +682,16 @@ class Utils_GenericBrowser extends Module {
 		if(!$this->is_adv_search_on()) {
 			foreach($this->columns as $k=>$v)
 				if (isset($v['search'])) {
-					$form->addElement('text','search',$this->lang->ht('Keyword'), array('onfocus'=>'if (this.value=="'.$this->lang->ht('search keyword').'") this.value="";','onblur'=>'if (this.value=="") this.value="'.$this->lang->ht('search keyword').'";'));
-					$form->setDefaults(array('search'=>isset($search['__keyword__'])?$search['__keyword__']:$this->lang->ht('search keyword')));
+					$form->addElement('text','search',$this->lang->ht('Keyword'), array('onfocus'=>'if (this.value=="'.$this->lang->ht('search keyword...').'") this.value="";','onblur'=>'if (this.value=="") this.value="'.$this->lang->ht('search keyword...').'";'));
+					$form->setDefaults(array('search'=>isset($search['__keyword__'])?$search['__keyword__']:$this->lang->ht('search keyword...')));
 					$search_on=true;
 					break;
 				}
 		} else {
 			foreach($this->columns as $k=>$v)
 				if (isset($v['search'])) {
-					$form->addElement('text','search__'.$v['search'],'',array('onfocus'=>'if (this.value=="'.$this->lang->ht('search keyword').'") this.value="";','onblur'=>'if (this.value=="") this.value="'.$this->lang->ht('search keyword').'";'));
-					$form->setDefaults(array('search__'.$v['search']=>isset($search[$v['search']])?$search[$v['search']]:$this->lang->ht('search keyword')));
+					$form->addElement('text','search__'.$v['search'],'',array('onfocus'=>'if (this.value=="'.$this->lang->ht('search keyword...').'") this.value="";','onblur'=>'if (this.value=="") this.value="'.$this->lang->ht('search keyword...').'";'));
+					$form->setDefaults(array('search__'.$v['search']=>isset($search[$v['search']])?$search[$v['search']]:$this->lang->ht('search keyword...')));
 					$search_on=true;
 				}
 		}
@@ -712,13 +712,13 @@ class Utils_GenericBrowser extends Module {
 				$search = array();
 				foreach ($values as $k=>$v){
 					if ($k=='search') {
-						if ($v!=$this->lang->ht('search keyword'))
+						if ($v!=$this->lang->ht('search keyword...'))
 							$search['__keyword__'] = $v;
 						break;
 					}
 					if (substr($k,0,8)=='search__') {
 						$val = substr($k,8);
-						if ($v!=$this->lang->ht('search keyword') && $v!='') $search[$val] = $v;
+						if ($v!=$this->lang->ht('search keyword...') && $v!='') $search[$val] = $v;
 					}
 				}
 				$this->set_module_variable('search',$search);
