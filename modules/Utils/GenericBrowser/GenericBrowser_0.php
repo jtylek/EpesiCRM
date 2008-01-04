@@ -454,7 +454,7 @@ class Utils_GenericBrowser extends Module {
 	 			} else {
 					$where[$quickjump] = array();
 					foreach(range(0,9) as $v)
-						$where[$quickjump][] = $v.'%';
+						$where[$quickjump][] = DB::qstr($v.'%');
 	 			}
  			} else {
 	 			if (!$array) {
