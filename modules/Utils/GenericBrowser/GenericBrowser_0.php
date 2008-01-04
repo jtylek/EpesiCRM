@@ -443,17 +443,31 @@ class Utils_GenericBrowser extends Module {
 				} 
 		}
  		if (isset($quickjump) && $quickjump_to!='')
- 			if (!$array) {
-				$where = ($where?'('.$where.') AND':'').' ('
-							.$quickjump.' LIKE '.DB::Concat(sprintf('%s',DB::qstr($quickjump_to)),'\'%\'')
-							.' OR '
-							.$quickjump.' LIKE '.DB::Concat(sprintf('%s',DB::qstr(strtolower($quickjump_to))),'\'%\'').
-							')';
-				if ($where) $where = ' ('.$where.')';
+ 			if ($quickjump_to=='0') {
+	 			if (!$array) {
+					$where = ($where?'('.$where.') AND':'').' (false';
+					foreach(range(0,9) as $v)
+						$where .= 	' OR '
+									.$quickjump.' LIKE '.DB::Concat(sprintf('%s',DB::qstr($v)),'\'%\'');
+					$where .= 	')';
+					if ($where) $where = ' ('.$where.')';
+	 			} else {
+					$where[$quickjump] = array();
+					foreach(range(0,9) as $v)
+						$where[$quickjump][] = $v.'%';
+	 			}
  			} else {
-				$where[$quickjump] = array(sprintf('%s',$quickjump_to).'%',sprintf('%s',strtolower($quickjump_to).'%'));
+	 			if (!$array) {
+					$where = ($where?'('.$where.') AND':'').' ('
+								.$quickjump.' LIKE '.DB::Concat(sprintf('%s',DB::qstr($quickjump_to)),'\'%\'')
+								.' OR '
+								.$quickjump.' LIKE '.DB::Concat(sprintf('%s',DB::qstr(strtolower($quickjump_to))),'\'%\'').
+								')';
+					if ($where) $where = ' ('.$where.')';
+	 			} else {
+					$where[$quickjump] = array(sprintf('%s',$quickjump_to).'%',sprintf('%s',strtolower($quickjump_to).'%'));
+	 			}
  			}
-
 		return $where;
 	}
 
@@ -883,14 +897,10 @@ class Utils_GenericBrowser extends Module {
 			$all = '<span class="all">'.$this->lang->t('All').'</span>';
 			if (isset($quickjump_to) && $quickjump_to != '') $all = '<a class="all" '.$this->create_unique_href(array('quickjump_to'=>'')).'>'.$this->lang->t('All').'</a>';
 			$letter_links = array(0 => $all);
-			$letter = '0';
-			while ($letter<='9') {
-				if ($quickjump_to != $letter)
-					$letter_links[] .= '<a class="letter" '.$this->create_unique_href(array('quickjump_to'=>$letter)).'>'.$letter.'</a>';
-				else
-					$letter_links[] .= '<span class="letter">' . $letter . '</span>';
-				$letter = chr(ord($letter)+1);
-			}
+			if ($quickjump_to != '0')
+				$letter_links[] .= '<a class="all" '.$this->create_unique_href(array('quickjump_to'=>'0')).'>'.'123'.'</a>';
+			else
+				$letter_links[] .= '<span class="all">' . '123' . '</span>';
 			$letter = 'A';
 			while ($letter<='Z') {
 				if ($quickjump_to != $letter)
