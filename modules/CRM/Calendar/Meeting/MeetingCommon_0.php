@@ -10,10 +10,14 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_Calendar_MeetingCommon extends Utils_Calendar_EventCommon {
-	public static $filter = '1 = 1';
+	public static $filter = null;
 	
 	public static function get($id) {
-		$row = DB::Execute('SELECT start,end,title,description,id,timeless,priority,created_by,created_on,edited_by,edited_on FROM crm_calendar_meeting_event WHERE id=%d AND '.self::$filter,array($id))->FetchRow();
+		if(self::$filter)
+			$fil = ' AND created_by in '.self::$filter;
+		else
+			$fil = '';
+		$row = DB::Execute('SELECT start,end,title,description,id,timeless,priority,created_by,created_on,edited_by,edited_on FROM crm_calendar_meeting_event WHERE id=%d'.$fil,array($id))->FetchRow();
 		$result = array();
 		if ($row) {
 			foreach (array('start','id','title','description','timeless') as $v)
@@ -33,8 +37,12 @@ class CRM_Calendar_MeetingCommon extends Utils_Calendar_EventCommon {
 		return $result;	
 	}
 	public static function get_all($start,$end) {
-//		print('SELECT start,end,title,description,id,timeless,priority,created_by,created_on,edited_by,edited_on FROM crm_calendar_meeting_event WHERE ((start>=%d AND start<%d) OR (end>=%d AND end<%d)) AND '.self::$filter);
-		$ret = DB::Execute('SELECT start,end,title,description,id,timeless,priority,created_by,created_on,edited_by,edited_on FROM crm_calendar_meeting_event WHERE ((start>=%d AND start<%d) OR (end>=%d AND end<%d)) AND '.self::$filter,array($start,$end,$start,$end));
+		if(self::$filter)
+			$fil = ' AND created_by in '.self::$filter;
+		else
+			$fil = '';
+//		print('SELECT start,end,title,description,id,timeless,priority,created_by,created_on,edited_by,edited_on FROM crm_calendar_meeting_event WHERE ((start>=%d AND start<%d) OR (end>=%d AND end<%d)) '.$fil);
+		$ret = DB::Execute('SELECT start,end,title,description,id,timeless,priority,created_by,created_on,edited_by,edited_on FROM crm_calendar_meeting_event WHERE ((start>=%d AND start<%d) OR (end>=%d AND end<%d)) '.$fil,array($start,$end,$start,$end));
 		$result = array();
 		while ($row = $ret->FetchRow()) {
 			$next_result = array();

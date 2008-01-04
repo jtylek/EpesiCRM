@@ -151,12 +151,12 @@
 		<div class="content_shadow">
 <!-- -->
 
-	    {$__link.filters.$k.open}
+	    {$p.open}
 		<div class="button">
-            <span class="text">{$__link.filters.$k.text}</span>
-            <span class="desc">This is description of the group</span>
+            <span class="text">{$p.title}</span>
+            <span class="desc">{$p.description}</span>
         </div>
-	    {$__link.filters.$k.close}
+	    {$p.close}
 
 <!-- SHADOW END -->
  		</div>
