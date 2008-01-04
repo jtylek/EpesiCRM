@@ -3,7 +3,7 @@
     <div id="CRM_Calendar_Event_Personal">
 
 <!-- SHADIW BEGIN-->
-	<div class="layer" style="padding: 9px; width: 780px;">
+	<div class="layer" style="padding: 9px; width: 760px;">
 		<div class="content_shadow">
 <!-- -->
 
@@ -26,7 +26,7 @@
 				<td class="label" align="left">{$form_data.access.label}</td>
 				<td class="data" align="left">{$form_data.access.html}</td>
 			  	<td class="label" align="left">{$form_data.priority.label}</td>
-				<td class="data" align="left">{$form_data.priority.html}</td>
+				<td class="data priority" align="left">{$form_data.priority.html}</td>
 			</tr>
         </tbody>
     </table>

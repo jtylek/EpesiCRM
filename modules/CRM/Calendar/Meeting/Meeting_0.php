@@ -100,7 +100,7 @@ class CRM_Calendar_Meeting extends Utils_Calendar_Event {
 		$act = array();
 
 		$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
-		$priority = array(0=>'low', 1=>'medium', 2=>'high');
+		$priority = array(0 => 'none', 1 => 'low', 2 => 'medium', 3 => 'high'); // MS
 
 		$form->addElement('text', 'title', $this->lang->t('Title'), array('style'=>'width: 100%;'));
 		$form->addRule('title', 'Field is required!', 'required');

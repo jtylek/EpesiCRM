@@ -165,3 +165,31 @@
 	float: right;
 	padding-top: 2px;
 }
+
+#CRM_Calendar_Event_Personal .priority select option[value="0"] {
+	background-color: white;
+	padding-left: 30px;
+	background-image: url('CRM_Calendar_Meeting__priority-none.png');
+	background-repeat: no-repeat;
+}
+
+#CRM_Calendar_Event_Personal .priority select option[value="1"] {
+	background-color: white;
+	padding-left: 30px;
+	background-image: url('CRM_Calendar_Meeting__priority-low.png');
+	background-repeat: no-repeat;
+}
+
+#CRM_Calendar_Event_Personal .priority select option[value="2"] {
+	background-color: white;
+	padding-left: 30px;
+	background-image: url('CRM_Calendar_Meeting__priority-medium.png');
+	background-repeat: no-repeat;
+}
+
+#CRM_Calendar_Event_Personal .priority select option[value="3"] {
+	background-color: white;
+	padding-left: 30px;
+	background-image: url('CRM_Calendar_Meeting__priority-high.png');
+	background-repeat: no-repeat;
+}
