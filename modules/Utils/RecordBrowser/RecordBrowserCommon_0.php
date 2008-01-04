@@ -379,12 +379,26 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			}
 		}
 		foreach($order as $v){
-			$fields .= ', concat( \'::\', group_concat( rd'.$iter.'.value ORDER BY rd'.$iter.'.value SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
-			$final_tab = '('.$final_tab.') LEFT JOIN '.$tab_name.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab_name.'_id AND rd'.$iter.'.field="'.$v['column'].'"';
 			if ($orderby=='') $orderby = ' ORDER BY';
 			else $orderby .= ', ';
-			$orderby .= ' val'.$iter.' '.$v['direction'];
-			$iter++;
+			if ($v['order'][0]==':') {
+				switch ($v['order']) {
+					case ':Fav'	: 
+						$fields .= ', (SELECT COUNT(*) FROM '.$tab_name.'_favorite WHERE '.$tab_name.'_id=r.id AND user_id=%d) AS _fav_order';
+						$orderby .= ' _fav_order '.$v['direction'];
+						$vals[]=Acl::get_user();
+						break;
+					case ':Recent'	: 
+						//$where .= ' AND (SELECT COUNT(*) FROM '.$tab_name.'_recent WHERE '.$tab_name.'_id=r.id AND user_id=%d)!=0'; $vals[]=Acl::get_user(); break;
+						break;
+					default		: trigger_error('Unknow paramter given to get_records criteria: '.$k, E_USER_ERROR);
+				}
+			} else {
+				$fields .= ', concat( \'::\', group_concat( rd'.$iter.'.value ORDER BY rd'.$iter.'.value SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
+				$final_tab = '('.$final_tab.') LEFT JOIN '.$tab_name.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab_name.'_id AND rd'.$iter.'.field="'.$v['column'].'"';
+				$orderby .= ' val'.$iter.' '.$v['direction'];
+				$iter++;
+			}
 		}
 		if (!isset($limit['offset'])) $limit['offset'] = 0;
 		if (!isset($limit['numrows'])) $limit['numrows'] = -1;

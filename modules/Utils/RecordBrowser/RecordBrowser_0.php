@@ -205,7 +205,7 @@ class Utils_RecordBrowser extends Module {
 		if ($special)
 			$table_columns = array(array('name'=>'Select', 'width'=>1));
 		elseif (!$admin && $this->favorites)
-			$table_columns = array(array('name'=>'Fav', 'width'=>1, 'order'=>'Fav'));
+			$table_columns = array(array('name'=>'Fav', 'width'=>1, 'order'=>':Fav'));
 		$table_columns_SQL = array();
 		$quickjump = DB::GetOne('SELECT quickjump FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 		foreach($this->table_rows as $field => $args) {
