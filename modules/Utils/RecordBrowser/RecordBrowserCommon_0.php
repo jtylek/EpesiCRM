@@ -453,7 +453,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$records[$field[$tab_name.'_id']][$field_id] = $field['value'];
 		}
 		foreach(self::$table_rows as $field=>$args)
-			if (!empty($cols) && isset($cols[$field]))
+			if (empty($cols) || isset($cols[$field]))
 				foreach($records as $k=>$v)
 					if (!isset($records[$k][$args['id']]))
 						if ($args['type'] == 'multiselect') $records[$k][$args['id']] = array();
