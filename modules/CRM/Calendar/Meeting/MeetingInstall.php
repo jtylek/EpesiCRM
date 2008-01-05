@@ -35,6 +35,7 @@ class CRM_Calendar_MeetingInstall extends ModuleInstall {
 
 			'access I1 DEFAULT 0, '.
 			'priority I1 DEFAULT 0, '.
+			'color I1 DEFAULT 0, '.
 
 			'created_on T NOT NULL,'.
 			'created_by I4,'.

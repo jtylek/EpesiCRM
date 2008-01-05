@@ -13,7 +13,7 @@
     	<tbody>
 			<tr>
 				<td class="group_bottom label bold" align="left">{$form_data.title.label}</td>
-				<td class="group_bottom data bold" align="left" colspan="5"><span class="error">{$form_data.title.error}</span>
+				<td class="group_bottom data bold" align="left" colspan="7"><span class="error">{$form_data.title.error}</span>
                 {$form_data.title.html}
                 </td>
 			</tr>
@@ -24,6 +24,8 @@
 				<td class="data access" align="left">{$form_data.access.html}</td>
 			  	<td class="label" align="left">{$form_data.priority.label}</td>
 				<td class="data priority" align="left">{$form_data.priority.html}</td>
+				<td class="label" align="left">{$form_data.color.label}</td>
+				<td class="data" align="left">{$form_data.color.html}</td>
 			</tr>
         </tbody>
     </table>

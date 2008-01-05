@@ -76,6 +76,7 @@ class CRM_Calendar_Meeting extends Utils_Calendar_Event {
 				'priority'=>$event['priority'],
 				'timeless'=>$event['timeless'],
 				'access'=>$event['access'],
+				'color'=>$event['color'],
 				'created_by' => Base_UserCommon::get_user_login($event['created_by']),
 				'created_on' => $event['created_on'],
 				'edited_by' => $event['edited_by']?Base_UserCommon::get_user_login($event['edited_by']):'--',
@@ -98,9 +99,6 @@ class CRM_Calendar_Meeting extends Utils_Calendar_Event {
 		$form = $this->init_module('Libs/QuickForm');
 
 		$act = array();
-
-		$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
-		$priority = array(0 => 'none', 1 => 'low', 2 => 'medium', 3 => 'high'); // MS
 
 		$form->addElement('text', 'title', $this->lang->t('Title'), array('style'=>'width: 100%;', 'id'=>'meeting_title'));
 		$form->addRule('title', 'Field is required!', 'required');
@@ -127,8 +125,14 @@ class CRM_Calendar_Meeting extends Utils_Calendar_Event {
 
 		$form->addElement('header', null, $this->lang->t('Event itself'));
 
+		$access = array(0=>$this->lang->t('Public'), 1=>$this->lang->t('Public, read-only'), 2=>$this->lang->t('Private'));
+		$priority = array(0 => $this->lang->t('None'), 1 => $this->lang->t('Low'), 2 => $this->lang->t('Medium'), 3 => $this->lang->t('High'));
+		$color = array(0 => '', 1 => $this->lang->t('Green'), 2 => $this->lang->t('Yellow'), 3 => $this->lang->t('Red'), 4 => $this->lang->t('Blue'), 5=> $this->lang->t('Gray'));
+		$color[0] = $this->lang->t('Default').': '.$this->lang->t($color[Base_User_SettingsCommon::get('CRM_Calendar','default_color')]);
+
 		$form->addElement('select', 'access', $this->lang->t('Access'), $access, array('style'=>'width: 100%;'));
 		$form->addElement('select', 'priority', $this->lang->t('Priority'), $priority, array('style'=>'width: 100%;'));
+		$form->addElement('select', 'color', $this->lang->t('Color'), $color, array('style'=>'width: 100%;'));
 
 		$form->addElement('multiselect', 'emp_id', $this->lang->t('Employees'), $emp);
 		$form->addRule('emp_id', $this->lang->t('At least one employee must be assigned to an meeting.'), 'required');
@@ -211,10 +215,12 @@ class CRM_Calendar_Meeting extends Utils_Calendar_Event {
 													'timeless,'.
 													'access,'.
 													'priority,'.
+													'color,'.
 													'created_by,'.
 													'created_on) VALUES ('.
 													'%s,'.
 													'%s,'.
+													'%d,'.
 													'%d,'.
 													'%d,'.
 													'%d,'.
@@ -229,6 +235,7 @@ class CRM_Calendar_Meeting extends Utils_Calendar_Event {
 													($vals['timeless']?1:0),
 													$vals['access'],
 													$vals['priority'],
+													$vals['color'],
 													Acl::get_user(),
 													date('Y-m-d H:i:s')
 													));
@@ -251,6 +258,7 @@ class CRM_Calendar_Meeting extends Utils_Calendar_Event {
 													'timeless=%d,'.
 													'access=%d,'.
 													'priority=%d,'.
+													'color=%d,'.
 													'edited_by=%d,'.
 													'edited_on=%T WHERE id=%d',
 													array(
@@ -261,6 +269,7 @@ class CRM_Calendar_Meeting extends Utils_Calendar_Event {
 													($vals['timeless']?1:0),
 													$vals['access'],
 													$vals['priority'],
+													$vals['color'],
 													Acl::get_user(),
 													date('Y-m-d H:i:s'),
 													$id
