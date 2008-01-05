@@ -414,11 +414,17 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$records = array();
 		$where = ' WHERE true';
 		$vals = array();
-		if ($cols && !empty($cols)) {
+		$cols = array_flip($cols);
+		if (!empty($cols)) {
+			foreach(self::$table_rows as $field=>$args)
+				if (isset($cols[$args['id']])) {
+					unset($cols[$args['id']]);
+					$cols[$field] = true;
+				}
 			$where .= ' AND (false';
-			foreach ($cols as $v) {
+			foreach ($cols as $k=>$v) {
 				$where .= ' OR field=%s';
-				$vals[] = $v;
+				$vals[] = $k;
 			}
 			$where .= ')';
 		}
@@ -446,9 +452,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			else
 				$records[$field[$tab_name.'_id']][$field_id] = $field['value'];
 		}
-		array_flip($cols);
 		foreach(self::$table_rows as $field=>$args)
-			if (!$cols || $cols[$field])
+			if (!empty($cols) && isset($cols[$field]))
 				foreach($records as $k=>$v)
 					if (!isset($records[$k][$args['id']]))
 						if ($args['type'] == 'multiselect') $records[$k][$args['id']] = array();

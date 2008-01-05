@@ -4,11 +4,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_ContactsCommon extends ModuleCommon {
 	public static $paste_or_new = 'new';
 
-	public static function get_contacts($crits = array()) {
-		return Utils_RecordBrowserCommon::get_records('contact', $crits);
+	public static function get_contacts($crits = array(), $cols = array()) {
+		return Utils_RecordBrowserCommon::get_records('contact', $crits, $cols);
 	}
-	public static function get_companies($crits = array()) {
-		return Utils_RecordBrowserCommon::get_records('company', $crits);
+	public static function get_companies($crits = array(), $cols = array()) {
+		return Utils_RecordBrowserCommon::get_records('company', $crits, $cols);
 	}
 	public static function get_contact_by_user_id($uid) {
 		$rec = Utils_RecordBrowserCommon::get_records('contact', array('login'=>$uid));
