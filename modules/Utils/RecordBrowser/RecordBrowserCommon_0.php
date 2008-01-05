@@ -312,18 +312,22 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				}
 			} else {
 				$negative = $k[0]=='!';
-				$k = trim($k, '!');
+				$noquotes = $k[0]=='"';
+				$k = trim($k, '!"');
 				$fields .= ', concat( \'::\', group_concat( rd'.$iter.'.value ORDER BY rd'.$iter.'.value SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
 				$final_tab = '('.$final_tab.') LEFT JOIN '.$tab_name.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab_name.'_id AND rd'.$iter.'.field="'.$k.'"';
 				if (is_array($v)) {
 					$having .= ' AND (('.($negative?'true':'false');
-					foreach($v as $w)
+					foreach($v as $w) {
+						if (!$noquotes) $w = DB::qstr($w);
 						$having .= ' '.($negative?'AND':'OR').' val'.$iter.' '.($negative?'NOT ':'').'LIKE '.DB::Concat(DB::qstr('%:'),$w,DB::qstr(':%'));
+					}
 					$having .= ')';
 					if ($negative) $having .= ' OR val'.$iter.' IS NULL)';
 					else $having .= ')';
 				} else {
-					$having .= ' AND val'.$iter.($negative?'!':'').'='.DB::Concat('\'::\'',DB::qstr($v),'\'::\'');
+					if (!$noquotes) $v = DB::qstr($v);
+					$having .= ' AND val'.$iter.($negative?'!':'').'='.DB::Concat('\'::\'',$v,'\'::\'');
 				}
 				$iter++;
 			}
@@ -362,18 +366,22 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				}
 			} else {
 				$negative = $k[0]=='!';
-				$k = trim($k, '!');
+				$noquotes = $k[0]=='"';
+				$k = trim($k, '!"');
 				$fields .= ', concat( \'::\', group_concat( rd'.$iter.'.value ORDER BY rd'.$iter.'.value SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
 				$final_tab = '('.$final_tab.') LEFT JOIN '.$tab_name.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab_name.'_id AND rd'.$iter.'.field="'.$k.'"';
 				if (is_array($v)) {
 					$having .= ' AND (('.($negative?'true':'false');
-					foreach($v as $w)
-						$having .= ' '.($negative?'AND':'OR').' val'.$iter.' '.($negative?'NOT ':'').'LIKE '.DB::Concat(DB::qstr('%:'),DB::qstr($w),DB::qstr(':%'));
+					foreach($v as $w) {
+						if (!$noquotes) $w = DB::qstr($w);
+						$having .= ' '.($negative?'AND':'OR').' val'.$iter.' '.($negative?'NOT ':'').'LIKE '.DB::Concat(DB::qstr('%:'),$w,DB::qstr(':%'));
+					}
 					$having .= ')';
 					if ($negative) $having .= ' OR val'.$iter.' IS NULL)';
 					else $having .= ')';
 				} else {
-					$having .= ' AND val'.$iter.($negative?'!':'').'='.DB::Concat('\'::\'',DB::qstr($v),'\'::\'');
+					if (!$noquotes) $v = DB::qstr($v);
+					$having .= ' AND val'.$iter.($negative?'!':'').'='.DB::Concat('\'::\'',$v,'\'::\'');
 				}
 				$iter++;
 			}

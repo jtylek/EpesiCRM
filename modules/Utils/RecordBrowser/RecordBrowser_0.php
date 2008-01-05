@@ -218,8 +218,8 @@ class Utils_RecordBrowser extends Module {
 			if (isset($cols[$args['id']]) && $cols[$args['id']] === false) continue;
 			$arr = array('name'=>$args['name']);
 			if ($this->browse_mode!='recent') $arr['order'] = $field;
-			if ($quickjump!=='' && $args['name']===$quickjump) $arr['quickjump'] = $args['name'];
-			$arr['search'] = str_replace(' ','_',$field);
+			if ($quickjump!=='' && $args['name']===$quickjump) $arr['quickjump'] = '"'.$args['name'];
+			if ($args['type']!='multiselect' && $args['type']!='select') $arr['search'] = '"'.str_replace(' ','_',$field);
 			$table_columns[] = $arr;
 			array_push($table_columns_SQL, 'e.'.$field);
 		}
