@@ -21,6 +21,8 @@
 				<td class="roll"><img id="roll" src="{$theme_dir}/Base_Box__roll-up.png" onClick="var x='{$theme_dir}/Base_Box__roll-';if(this.src.indexOf(x+'down.png')>=0)this.src=x+'up.png';else this.src=x+'down.png'; base_box_roll_topbar();" width="14" height="14" alt="=" border="0"></td>
 				<td class="menu-bar">{$menu}</td>
 				<td class="version">&nbsp;{$version_no}&nbsp;</td>
+				<td id="clock_td"><div id="digitalclock" style="display: none;"></div></td>
+				<td class="clock_icon" onclick="show_hide_clock();"><img border="0" src="{$theme_dir}/Base_Box__clock.png" width="16" height="16"></td>
 				<td class="module-indicator">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</td>
 			</tr>
 		</tbody>

@@ -40,3 +40,50 @@ base_box_roll_topbar = function() {
       document.getElementById("ShadowBar").style.display = 'block';
    }
 }
+
+
+function show_hide_clock() {
+   var s1 = document.getElementById("digitalclock").style;
+   var s2 = document.getElementById("clock_td").style;
+   if(s1.display == 'none') {
+      s1.display = 'block';
+      s2.width = '100px';
+   }
+   else {
+      s1.display = 'none';
+      s2.width = '0px';
+   }
+}
+
+
+function calctime() {
+   
+   var currenttime = new Date();
+   var hours = currenttime.getHours();
+   var minutes = currenttime.getMinutes();
+   var seconds = currenttime.getSeconds();
+   var timesuffix = "AM";
+   
+   if(hours > 11) {
+      timesuffix = "PM";
+      hours = hours - 12;
+   }
+   if(hours == 0) {
+      hours = 12;
+   }
+   if(hours < 10) {
+      hours = "0" + hours;
+   }
+   if(minutes < 10) {
+      minutes = "0" + minutes;
+   }
+   if(seconds < 10) {
+      seconds = "0" + seconds;
+   }
+   
+   var clocklocation = document.getElementById("digitalclock");
+   clocklocation.innerHTML = hours + ":" + minutes + ":" + seconds + " " + timesuffix;
+   setTimeout("calctime()", 1000);
+}
+
+calctime();

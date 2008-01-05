@@ -211,6 +211,7 @@ hr.line {
 	background-repeat: repeat-x;
 	text-align: center;
 	font-size: 9px;
+    border-right: 4px solid #b3b3b3;
 }
 
 #top_bar #top_bar_1 .version a {
@@ -355,3 +356,38 @@ hr.line {
 .layer .shadow-bottom	.center	{ background-image: url('images/shadow/b.png' ); }
 .layer .shadow-middle	.left	{ background-image: url('images/shadow/l.png' ); }
 .layer .shadow-middle	.right	{ background-image: url('images/shadow/r.png' ); }
+
+
+/* clock */
+
+#top_bar #top_bar_1 #clock_td {
+    background-color: #336699;
+    background-image: url('images/header-blue.png');
+    background-repeat: repeat-x;
+    width: 100px;
+    height: 20px;
+    width: 0px;
+}
+
+#top_bar #top_bar_1 .clock_icon {
+    background-color: #336699;
+    background-image: url('images/header-blue.png');
+    background-repeat: repeat-x;
+    width: 16px;
+    height: 16px;
+    padding-left: 2px;
+    padding-top: 1px;
+    padding-right: 1px;
+    cursor: pointer;
+}
+
+#top_bar #top_bar_1 .clock_icon:hover {
+    background-image: url('images/header-blue-hover.png');
+}
+
+#digitalclock {
+    width: 100px;
+    color: white;
+    text-align: center;
+    background: transparent;
+}
