@@ -14,9 +14,6 @@
 			<tr>
 				<td class="group_bottom label bold" align="left">{$form_data.title.label}</td>
 				<td class="group_bottom data bold" align="left" colspan="5"><span class="error">{$form_data.title.error}</span>
-                {if !isset($focus) && $form_data.title.type == "text"}
-                    {assign var = focus value = $form_data.title}
-				{/if}
                 {$form_data.title.html}
                 </td>
 			</tr>
@@ -82,6 +79,10 @@
 	</table>
 
 </div>
+
+{php}
+	eval_js('focus_by_id(\'meeting_title\');');
+{/php}
 
 <!-- SHADOW END-->
  		</div>
