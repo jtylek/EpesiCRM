@@ -19,36 +19,39 @@ class CRM_Calendar extends Module {
 	}
 	
 	public function applet() {
+		$l = $this->init_module('Base/Lang');
+
+		$gb = $this->init_module('Utils/GenericBrowser', null, 'agenda');
+		$columns = array(
+			array('name'=>$l->t('Start'), 'order'=>'start', 'width'=>50),
+			array('name'=>$l->t('Title'), 'order'=>'title','width'=>50),
+		);
+		$gb->set_table_columns($columns);
+
 		$start = time();
 		$end = $start + (7 * 24 * 60 * 60);
 
-		//////////////// data ////////////////////////
-//		$gb = $this->init_module('Utils/GenericBrowser', null, 'agenda');
-		$l = $this->init_module('Base/Lang');
-		$columns = array(
-			array('name'=>$l->t('Start'), 'order'=>'start', 'width'=>15),
-			array('name'=>$l->t('Title'), 'order'=>'title','width'=>15),
-		);
-//		$gb->set_table_columns( $columns );
-
-		//add data
-		$ret = CRM_Calendar_MeetingCommon::get_all($start,$end);
+		$gb->set_default_order(array($l->t('Start')=>'ASC'));
+		$ret = CRM_Calendar_MeetingCommon::get_all($start,$end,$gb->get_query_order());
 		$data = array();
 		foreach($ret as $row) {
-//			$r = $gb->get_new_row();
-
 			$ex = Utils_CalendarCommon::process_event($row);
-			
+			$view_action = '<a '.$this->create_callback_href(array($this,'view_event'),$row['id']).'>';
 			//TODO: on click view event
-//			$r->add_data(Utils_TooltipCommon::create($ex['start'],$l->t('Duration: %s<br>End: %s',array($ex['duration'],$ex['end']))),Utils_TooltipCommon::create($row['title'],$row['description']));
-			$data[] = array(Utils_TooltipCommon::create($ex['start'],$l->t('Duration: %s<br>End: %s',array($ex['duration'],$ex['end']))),Utils_TooltipCommon::create($row['title'],$row['description']));
+			if($row['description'])
+				$title = Utils_TooltipCommon::create($row['title'],$row['description']);
+			else
+				$title = $row['title'];
+			$gb->add_row($view_action.Utils_TooltipCommon::create($ex['start'],$l->t('Duration: %s<br>End: %s',array($ex['duration'],$ex['end']))).'</a>',$view_action.$title.'</a>');
 		}
-		//TODO: default order by start
-		//no paging
 
-//		$this->display_module($gb,array(false),'automatic_display');
-		$gb = $this->init_module('Utils/GenericBrowser', null, 'agenda');
-		$this->display_module($gb,array($columns,$data,false,null,array($l->t('Start')=>'DESC')),'simple_table');
+		$this->display_module($gb);
+	}
+	
+	public function view_event($id) {
+		$x = ModuleManager::get_instance('/Base_Box|0');
+		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+		$x->push_main('CRM_Calendar_Meeting','view',$id);
 	}
 
 	public function caption() {

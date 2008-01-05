@@ -36,13 +36,13 @@ class CRM_Calendar_MeetingCommon extends Utils_Calendar_EventCommon {
 		}
 		return $result;	
 	}
-	public static function get_all($start,$end) {
+	public static function get_all($start,$end,$order='') {
 		if(self::$filter)
 			$fil = ' AND created_by in '.self::$filter;
 		else
 			$fil = '';
 //		print('SELECT start,end,title,description,id,timeless,priority,created_by,created_on,edited_by,edited_on FROM crm_calendar_meeting_event WHERE ((start>=%d AND start<%d) OR (end>=%d AND end<%d)) '.$fil);
-		$ret = DB::Execute('SELECT start,end,title,description,id,timeless,priority,created_by,created_on,edited_by,edited_on FROM crm_calendar_meeting_event WHERE ((start>=%d AND start<%d) OR (end>=%d AND end<%d)) '.$fil,array($start,$end,$start,$end));
+		$ret = DB::Execute('SELECT start,end,title,description,id,timeless,priority,created_by,created_on,edited_by,edited_on FROM crm_calendar_meeting_event WHERE ((start>=%d AND start<%d) OR (end>=%d AND end<%d)) '.$fil.$order,array($start,$end,$start,$end));
 		$result = array();
 		while ($row = $ret->FetchRow()) {
 			$next_result = array();
