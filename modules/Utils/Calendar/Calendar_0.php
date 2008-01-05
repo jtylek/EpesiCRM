@@ -74,7 +74,7 @@ class Utils_Calendar extends Module {
 		if($this->isset_unique_href_variable('action')) {
 			switch($this->get_unique_href_variable('action')) {
 				case 'add':
-					$this->push_event_action('add',array($this->get_unique_href_variable('time'),$this->get_unique_href_variable('timeless')));
+					$this->push_event_action('add',array($this->get_unique_href_variable('time'),$this->get_unique_href_variable('timeless')=='1'));
 					return;
 				case 'switch':
 					$views = array_flip($this->settings['views']);

@@ -29,7 +29,6 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 	public function view_event($action, $id=null, $timeless=false){
 		if($this->is_back()) return false;
-		$timeless = 0;
 
 		$emp = array();
 		$ret = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())));
@@ -49,7 +48,8 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				'time_e' => date('H:i',$tt+3600),
 				'access'=>0,
 				'priority'=>0,
-				'emp_id' => array(Acl::get_user())
+				'emp_id' => array(Acl::get_user()),
+				'timeless'=>($timeless?1:0)
 			);
 		} else {
 			$event = DB::GetRow('SELECT * FROM crm_calendar_event WHERE id=%d', $id);
@@ -97,6 +97,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 		$this->lang = $this->pack_module('Base/Lang');
 		$form = $this->init_module('Libs/QuickForm');
+		$theme =  $this->pack_module('Base/Theme');
 
 		$act = array();
 
@@ -114,10 +115,16 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$form->addRule('date_e', 'Field is required!', 'required');
 		$form->addElement('date', 'time_e', $this->lang->t('Time'), array('format'=>$time_format, 'optionIncrement'  => array('i' => 5), 'language'=>$lang_code));
 
-		$form->addElement('checkbox', 'timeless', $this->lang->t('Timeless'), null,'onClick="time_e = getElementById(\'time_e\'); time_s = getElementById(\'time_s\'); if (this.checked) cal_style = \'none\'; else cal_style = \'block\'; time_e.style.display=cal_style; time_s.style.display=cal_style;"');
+		$theme->assign('time_block_id','crm_calendar_time_block');
+		eval_js_once('crm_calendar_event_timeless = function(val) {'.
+				'var cal_style;'.
+				'if(val) cal_style = \'none\'; else cal_style = \'block\';'.
+				'$(\'crm_calendar_time_block\').style.display = cal_style;'.
+			'}');
+		$form->addElement('checkbox', 'timeless', $this->lang->t('Timeless'), null,array('onClick'=>'crm_calendar_event_timeless(this.checked)'));
 		if ($action=='view') $condition = $timeless;
 		else $condition = 'document.getElementsByName(\'timeless\')[0].checked';
-		eval_js('time_e = document.getElementById(\'time_e\'); time_s = document.getElementById(\'time_s\'); if ('.$condition.') cal_style = \'none\'; else cal_style = \'block\'; time_e.style.display=cal_style; time_s.style.display=cal_style;');
+		eval_js('crm_calendar_event_timeless('.$timeless.')');
 
 		$form->registerRule('check_dates', 'callback', 'check_dates', $this);
 		$form->addRule(array('date_e', 'time_e', 'date_s', 'time_s', 'timeless'), 'End date must be after begin date...', 'check_dates');
@@ -171,8 +178,6 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		}
 
 		if($action == 'view') $form->freeze();
-
-		$theme =  & $this->pack_module('Base/Theme');
 
 		$theme->assign('view_style', 'new_event');
 		$theme->assign('cus_click', $cus_click);
