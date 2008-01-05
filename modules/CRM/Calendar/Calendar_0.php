@@ -18,7 +18,9 @@ class CRM_Calendar extends Module {
 		$this->display_module($c);
 	}
 	
-	public function applet() {
+	public function applet($conf,$opts) {
+		$opts['go'] = true;
+
 		$l = $this->init_module('Base/Lang');
 
 		$gb = $this->init_module('Utils/GenericBrowser', null, 'agenda');
@@ -29,7 +31,7 @@ class CRM_Calendar extends Module {
 		$gb->set_table_columns($columns);
 
 		$start = time();
-		$end = $start + (7 * 24 * 60 * 60);
+		$end = $start + ($conf['days'] * 24 * 60 * 60);
 
 		$gb->set_default_order(array($l->t('Start')=>'ASC'));
 		$ret = CRM_Calendar_MeetingCommon::get_all($start,$end,$gb->get_query_order());
