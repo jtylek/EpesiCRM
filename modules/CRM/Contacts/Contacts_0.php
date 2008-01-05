@@ -80,7 +80,7 @@ class CRM_Contacts extends Module {
 
 	public function company_attachment_addon($arg){
 		$a = $this->init_module('Utils/Attachment',array($arg['id'],'CRM/Company/'.$arg['id']));
-		$a->additional_header($arg['company_name']);
+		$a->additional_header('Company: '.$arg['company_name']);
 		$a->allow_view_deleted($this->acl_check('view deleted notes'));
 		$a->allow_protected($this->acl_check('view protected notes'),$this->acl_check('edit protected notes'));
 		$a->allow_public($this->acl_check('view public notes'),$this->acl_check('edit public notes'));
