@@ -25,8 +25,8 @@ class CRM_Calendar extends Module {
 
 		$gb = $this->init_module('Utils/GenericBrowser', null, 'agenda');
 		$columns = array(
-			array('name'=>$l->t('Start'), 'order'=>'start', 'width'=>50),
-			array('name'=>$l->t('Title'), 'order'=>'title','width'=>50),
+			array('name'=>$l->t('Start'), 'order'=>'e.start', 'width'=>50),
+			array('name'=>$l->t('Title'), 'order'=>'e.title','width'=>50),
 		);
 		$gb->set_table_columns($columns);
 
@@ -39,7 +39,6 @@ class CRM_Calendar extends Module {
 		foreach($ret as $row) {
 			$ex = Utils_CalendarCommon::process_event($row);
 			$view_action = '<a '.$this->create_callback_href(array($this,'view_event'),$row['id']).'>';
-			//TODO: on click view event
 			if($row['description'])
 				$title = Utils_TooltipCommon::create($row['title'],$row['description']);
 			else
