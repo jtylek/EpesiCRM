@@ -6,5 +6,8 @@
         <tr>
             <td class="description">{$description}</td>
         </tr>
+	<tr>
+	   <td>{$additional_info2}</td>
+	</tr>
     </tbody>
 </table>

@@ -201,7 +201,9 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 			$p = strpos($format,':%S');
 			$format = substr($format,0,$p).substr($format,$p+3);
 		}
+		self::set_locale();
 		$ret = self::strftime($format,$t);
+		self::restore_locale();
 		return $ret;
 	}
 }

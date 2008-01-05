@@ -17,7 +17,7 @@ class CRM_Calendar_MeetingCommon extends Utils_Calendar_EventCommon {
 			$fil = ' AND created_by in '.self::$filter;
 		else
 			$fil = '';
-		$row = DB::Execute('SELECT start,end,title,description,id,timeless,priority,created_by,created_on,edited_by,edited_on FROM crm_calendar_meeting_event WHERE id=%d'.$fil,array($id))->FetchRow();
+		$row = DB::GetRow('SELECT access,start,end,title,description,id,timeless,priority,created_by,created_on,edited_by,edited_on FROM crm_calendar_meeting_event WHERE id=%d'.$fil,array($id));
 		$result = array();
 		if ($row) {
 			foreach (array('start','id','title','description','timeless') as $v)
@@ -33,6 +33,8 @@ class CRM_Calendar_MeetingCommon extends Utils_Calendar_EventCommon {
 											(($row['edited_by'])?(
 											Base_LangCommon::ts('CRM_Calendar_Meeting','Edited by').' '.Base_UserCommon::get_user_login($row['edited_by']). '<br>'.
 											Base_LangCommon::ts('CRM_Calendar_Meeting','Edited on').' '.$row['edited_on']. '<br>'):'');
+			$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
+			$row['additional_info2'] =  Base_LangCommon::ts('CRM_Calendar_Meeting','Access: ').Base_LangCommon::ts('CRM_Calendar_Meeting',$access[$row['access']]);
 		}
 		return $result;	
 	}
@@ -42,7 +44,7 @@ class CRM_Calendar_MeetingCommon extends Utils_Calendar_EventCommon {
 		else
 			$fil = '';
 //		print('SELECT start,end,title,description,id,timeless,priority,created_by,created_on,edited_by,edited_on FROM crm_calendar_meeting_event WHERE ((start>=%d AND start<%d) OR (end>=%d AND end<%d)) '.$fil);
-		$ret = DB::Execute('SELECT start,end,title,description,id,timeless,priority,created_by,created_on,edited_by,edited_on FROM crm_calendar_meeting_event WHERE ((start>=%d AND start<%d) OR (end>=%d AND end<%d)) '.$fil.$order,array($start,$end,$start,$end));
+		$ret = DB::Execute('SELECT access,start,end,title,description,id,timeless,priority,created_by,created_on,edited_by,edited_on FROM crm_calendar_meeting_event WHERE ((start>=%d AND start<%d) OR (end>=%d AND end<%d)) '.$fil.$order,array($start,$end,$start,$end));
 		$result = array();
 		while ($row = $ret->FetchRow()) {
 			$next_result = array();
@@ -59,6 +61,8 @@ class CRM_Calendar_MeetingCommon extends Utils_Calendar_EventCommon {
 												(($row['edited_by'])?(
 												Base_LangCommon::ts('CRM_Calendar_Meeting','Edited by').' '.Base_UserCommon::get_user_login($row['edited_by']). '<br>'.
 												Base_LangCommon::ts('CRM_Calendar_Meeting','Edited on').' '.$row['edited_on']. '<br>'):'');
+			$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
+			$next_result['additional_info2'] =  Base_LangCommon::ts('CRM_Calendar_Meeting','Access: ').Base_LangCommon::ts('CRM_Calendar_Meeting',$access[$row['access']]);
 			$result[] = $next_result;
 		}
 		return $result;

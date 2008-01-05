@@ -43,6 +43,6 @@
         <span id="event_info"><img {$tip_tag_attrs} src="{$theme_dir}/Utils_Calendar__info.png" onClick="event_menu('{$event_id}')" width="14" height="14" border="0"></span>
     </div>
      <div class="row">
-        <span id="event_title"><a {$view_href} {$tip2_tag_attrs}>{$title}</a></span>
+        <span id="event_title"><a {$view_href}>{$title}</a></span>
     </div>
 </span>

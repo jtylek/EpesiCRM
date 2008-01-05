@@ -14,6 +14,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 		$th->assign('end',$ex['end']);
 		$th->assign('duration',$ex['duration']);
 		$th->assign('additional_info',$ev['additional_info']);
+		$th->assign('additional_info2',$ev['additional_info2']);
 		ob_start();
 		Base_ThemeCommon::display_smarty($th,'Utils_Calendar','event_tip');
 		$tip = ob_get_clean();
@@ -63,7 +64,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 			else
 				$end_t = $end_day.', '.Base_RegionalSettingsCommon::time2reg($ev_end,false);
 		} else {
-			$start_short = Base_RegionalSettingsCommon::time2reg($ev_start,true,false);
+			$start_short = Base_RegionalSettingsCommon::convert_24h($ev_start,false);
 			$start_t = $start_day.', '.Base_RegionalSettingsCommon::time2reg($ev_start);
 			if(!$oneday)
 				$end_t = $end_day.', '.Base_RegionalSettingsCommon::time2reg($ev_end);
