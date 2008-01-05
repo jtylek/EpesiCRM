@@ -16,7 +16,7 @@ class CRM_FiltersInstall extends ModuleInstall {
 		$ret &= DB::CreateTable('crm_filters_group','
 			id I4 AUTO KEY,
 			name C(128) NOTNULL,
-			description C(128),
+			description C(256),
 			user_login_id I4 NOTNULL',
 			array('constraints'=>', UNIQUE(name,description), FOREIGN KEY (user_login_id) REFERENCES user_login(ID)'));
 		if(!$ret){

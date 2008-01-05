@@ -143,7 +143,7 @@ class CRM_Filters extends Module {
 		$form->addElement('text','name',$this->lang->t('Name'));
 		$form->addElement('text','description',$this->lang->t('Description'));
 		$form->addRule('name',$this->lang->t('Max length of field exceeded'),'maxlength',128);
-		$form->addRule('description',$this->lang->t('Max length of field exceeded'),'maxlength',512);
+		$form->addRule('description',$this->lang->t('Max length of field exceeded'),'maxlength',256);
 		$form->addRule('name',$this->lang->t('Field required'),'required');
 		$form->registerRule('unique','callback','check_group_name_exists', 'CRM_Filters');
 		$form->addRule(array('name','description'),$this->lang->t('Group with this name and description already exists'),'unique',$id);
