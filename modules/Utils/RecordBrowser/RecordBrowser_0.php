@@ -219,7 +219,7 @@ class Utils_RecordBrowser extends Module {
 			$arr = array('name'=>$args['name']);
 			if ($this->browse_mode!='recent') $arr['order'] = $field;
 			if ($quickjump!=='' && $args['name']===$quickjump) $arr['quickjump'] = '"'.$args['name'];
-			if ($args['type']!='multiselect' && $args['type']!='select') $arr['search'] = '"'.str_replace(' ','_',$field);
+			if ($args['type']!='multiselect' && $args['type']!='select') $arr['search'] = str_replace(' ','_',$field);
 			$table_columns[] = $arr;
 			array_push($table_columns_SQL, 'e.'.$field);
 		}
@@ -239,7 +239,7 @@ class Utils_RecordBrowser extends Module {
 		$search = $gb->get_search_query(true);
 		$search_res = array();
 		foreach ($search as $k=>$v) {
-			$search_res[str_replace('_',' ',$k)] = $v;
+			$search_res['"'.str_replace('_',' ',$k)] = $v;
 		} 
 		$crits = array_merge($crits, $search_res);
 		//print_r($crits);
