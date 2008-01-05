@@ -323,7 +323,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					if ($negative) $having .= ' OR val'.$iter.' IS NULL)';
 					else $having .= ')';
 				} else {
-					$having .= ' AND val'.$iter.($negative?'!':'').'='.DB::Concat(DB::qstr('::'),$v,DB::qstr('::'));
+					$having .= ' AND val'.$iter.($negative?'!':'').'='.DB::Concat('\'::\'',DB::qstr($v),'\'::\'');
 				}
 				$iter++;
 			}
@@ -368,12 +368,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				if (is_array($v)) {
 					$having .= ' AND (('.($negative?'true':'false');
 					foreach($v as $w)
-						$having .= ' '.($negative?'AND':'OR').' val'.$iter.' '.($negative?'NOT ':'').'LIKE '.DB::Concat(DB::qstr('%:'),$w,DB::qstr(':%'));
+						$having .= ' '.($negative?'AND':'OR').' val'.$iter.' '.($negative?'NOT ':'').'LIKE '.DB::Concat(DB::qstr('%:'),DB::qstr($w),DB::qstr(':%'));
 					$having .= ')';
 					if ($negative) $having .= ' OR val'.$iter.' IS NULL)';
 					else $having .= ')';
 				} else {
-					$having .= ' AND val'.$iter.($negative?'!':'').'='.DB::Concat(DB::qstr('::'),$v,DB::qstr('::'));
+					$having .= ' AND val'.$iter.($negative?'!':'').'='.DB::Concat('\'::\'',DB::qstr($v),'\'::\'');
 				}
 				$iter++;
 			}
