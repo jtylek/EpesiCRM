@@ -83,7 +83,7 @@
 </div>
 
 {php}
-	eval_js('focus_by_id(\'meeting_title\');');
+	eval_js('focus_by_id(\'event_title\');');
 {/php}
 
 <!-- SHADOW END-->

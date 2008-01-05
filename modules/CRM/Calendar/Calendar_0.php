@@ -5,11 +5,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_Calendar extends Module {
 
 	public function body() {
-		if($this->acl_check('filters'))
-			CRM_Calendar_MeetingCommon::$filter = $this->pack_module('CRM/Filters')->get();
+		if($this->acl_check('manage others'))
+			CRM_Calendar_EventCommon::$filter = $this->pack_module('CRM/Filters')->get();
 		else
-			CRM_Calendar_MeetingCommon::$filter = Acl::get_user();
-		$c = $this->init_module('Utils/Calendar',array('CRM/Calendar/Meeting',array('default_view'=>Base_User_SettingsCommon::get('CRM_Calendar','default_view'),
+			CRM_Calendar_EventCommon::$filter = Acl::get_user();
+		$c = $this->init_module('Utils/Calendar',array('CRM/Calendar/Event',array('default_view'=>Base_User_SettingsCommon::get('CRM_Calendar','default_view'),
 			'first_day_of_week'=>Utils_PopupCalendarCommon::get_first_day_of_week(),
 			'start_day'=>Base_User_SettingsCommon::get('CRM_Calendar','start_day'),
 			'end_day'=>Base_User_SettingsCommon::get('CRM_Calendar','end_day'),
@@ -34,7 +34,7 @@ class CRM_Calendar extends Module {
 		$end = $start + ($conf['days'] * 24 * 60 * 60);
 
 		$gb->set_default_order(array($l->t('Start')=>'ASC'));
-		$ret = CRM_Calendar_MeetingCommon::get_all($start,$end,$gb->get_query_order());
+		$ret = CRM_Calendar_EventCommon::get_all($start,$end,$gb->get_query_order());
 		$data = array();
 		foreach($ret as $row) {
 			$ex = Utils_CalendarCommon::process_event($row);
@@ -52,7 +52,7 @@ class CRM_Calendar extends Module {
 	public function view_event($id) {
 		$x = ModuleManager::get_instance('/Base_Box|0');
 		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-		$x->push_main('CRM_Calendar_Meeting','view',$id);
+		$x->push_main('CRM_Calendar_Event','view',$id);
 	}
 
 	public function caption() {

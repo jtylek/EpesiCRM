@@ -2,8 +2,16 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_CalendarCommon extends ModuleCommon {
+
+	public static function body_access() {
+		return self::Instance()->acl_check('access');
+	}
+	
 	public static function menu() {
-		return array('CRM'=>array('__submenu__'=>1,'Calendar'=>array()));
+		if(self::Instance()->acl_check('access'))
+			return array('CRM'=>array('__submenu__'=>1,'Calendar'=>array()));
+		else
+			return array();
 	}
 
 	public static function user_settings() {
