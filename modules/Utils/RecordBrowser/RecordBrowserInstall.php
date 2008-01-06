@@ -43,6 +43,7 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 	public function requires($v) {
 		return array(
 			array('name'=>'Utils/CommonData', 'version'=>0), 
+			array('name'=>'Utils/CurrencyField', 'version'=>0), 
 			array('name'=>'Utils/Tooltip', 'version'=>0), 
 			array('name'=>'Utils/BookmarkBrowser', 'version'=>0), 
 			array('name'=>'Utils/GenericBrowser', 'version'=>0), 

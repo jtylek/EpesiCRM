@@ -308,6 +308,9 @@ class Utils_RecordBrowser extends Module {
 							$ret = Utils_CommonDataCommon::get_value($path);
 						}
 					}
+					if ($args['type']=='currency') {
+						$ret = Utils_CurrencyFieldCommon::format($ret);
+					}
 					if ($special) $row_data[] = $ret;
 					else $row_data[] = $this->get_val($field, $ret, $row['id']);
 				}
@@ -530,6 +533,9 @@ class Utils_RecordBrowser extends Module {
 									$form->addRule($args['id'], $this->lang->t('Only numbers are allowed.'), 'numeric');
 									if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 									break;
+				case 'currency':	$form->addElement('currency', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
+									if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
+									break;
 				case 'text':		if ($mode!=='view') $form->addElement('text', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id'], 'maxlength'=>$args['param']));
 									else $form->addElement('static', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
 									$form->addRule($args['id'], $this->lang->t('Maximum length for this field is '.$args['param'].'.'), 'maxlength', $args['param']);
@@ -741,6 +747,7 @@ class Utils_RecordBrowser extends Module {
 		if ($this->is_back()) return false;
 
 		$data_type = array(
+			'currency'=>'currency', 
 			'date'=>'date', 
 			'integer'=>'integer', 
 			'text'=>'text',

@@ -19,14 +19,7 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 	} //end constructor
 
 	function getFrozenHtml() {
-		$val = $this->getValue();
-		if (!$val) $val = '0';
-		if (!strrchr($val,$this->dec_delimiter)) $val .= $this->dec_delimiter; 
-		$cur = explode($this->dec_delimiter, $val);
-		if (!isset($cur[1])) $cur[1] = ''; 
-		$cur[1] = str_pad($cur[1], $this->dec_digits, '0');
-		$val = $cur[0].'.'.$cur[1];
-		return number_format($val, $this->dec_digits, $this->dec_delimiter, $this->thou_delimiter).'&nbsp;'.$this->currency;
+		return Utils_CurrencyFieldCommon::format($this->getValue());
 	}
 
 	function toHtml() {
