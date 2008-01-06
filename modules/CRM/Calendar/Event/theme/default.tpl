@@ -29,20 +29,19 @@
 			</tr>
         </tbody>
     </table>
-    <div id="{$time_block_id}">
     <table name="CRMCalendar" class="form no-border" cellspacing="0" cellpadding="0" border="0">
         <tbody>
 			<tr>
 			  	<td class="label" style="border-right: 1px solid #b3b3b3; width: 50%;">{$form_data.date_s.label}</td>
-			  	<td class="label" style="width: 50%;">{$form_data.date_e.label}</td>
+			  	<td class="label" style="width: 50%;padding-right: 0px;"><div style="float: left; padding-top: 3px;">{$form_data.duration.label}/{$form_data.date_e.label}</div><div style="float: right; border-left: 1px solid #b3b3b3;">{$toggle_duration}</div></td>
             </tr>
 			<tr>
 			 	<td class="data short_input" style="border-right: 1px solid #b3b3b3;"><span class="error">{$form_data.date_s.error}</span><div style="float: left">{$form_data.date_s.html}</div><span id="time_s">{$form_data.time_s.html}</span></td>
-			 	<td class="data short_input"><span class="error">{$form_data.date_e.error}</span><div style="float: left">{$form_data.date_e.html}</div><span id="time_e">{$form_data.time_e.html}</span></td>
+			 	<td class="data short_input">
+					<div id="{$duration_block_id}"><span class="error">{$form_data.duration.error}</span><div style="float: left">{$form_data.duration.html}</div></div>
+					<div id="{$event_end_block_id}"><span class="error">{$form_data.date_e.error}</span><div style="float: left">{$form_data.date_e.html}</div><span id="time_e">{$form_data.time_e.html}</span></div>
+				</td>
             </tr>
-    </table>
-    </div>
-    <table name="CRMCalendar" class="form no-border" cellspacing="0" cellpadding="0" border="0">
             <tr>
 	        	<td class="label" style="border-right: 1px solid #b3b3b3;">{$form_data.emp_id.label}</td>
         	    <td class="label" style="padding-right: 0px;"><div style="float: left; padding-top: 3px;">{$form_data.cus_id.label}</div><div style="float: right; border-left: 1px solid #b3b3b3;">{$cus_click}</div></td>

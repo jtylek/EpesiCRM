@@ -40,12 +40,14 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$cus[$c_id] = $data['last_name'].' '.$data['first_name'];
 
 		if($action == 'new') {
+			$duration_switch = '1';
 			$tt = $id-$id%300;
 			$def = array(
 				'date_s' => date('Y-m-d',$id),
 				'date_e' => date('Y-m-d',$id+3600),
 				'time_s' => date('H:i',$tt),
 				'time_e' => date('H:i',$tt+3600),
+				'duration'=>3600,
 				'access'=>0,
 				'priority'=>0,
 				'emp_id' => array(Acl::get_user()),
@@ -53,24 +55,19 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			);
 		} else {
 			$event = DB::GetRow('SELECT * FROM crm_calendar_event WHERE id=%d', $id);
-			if (Base_RegionalSettingsCommon::time_12h()) {
-				$dtime_s = array('h'=>date('h',$event['start']),
-									'i'=>date('i',$event['start']),
-									'a'=>date('a',$event['start']));
-				$dtime_e = array('h'=>date('h',$event['end']),
-									'i'=>date('i',$event['end']),
-									'a'=>date('a',$event['end']));
-			} else {
-				$dtime_s = array('H'=>date('H',$event['start']),
-									'i'=>date('i',$event['start']));
-				$dtime_e = array('H'=>date('H',$event['end']),
-									'i'=>date('i',$event['end']));
+			$x = $event['end']-$event['start'];
+			if(in_array($x,array(300,900,1800,3600,7200,14400,28800)))
+				$duration_switch='1';
+			else {
+				$duration_switch='0';
+				$x = '-1';
 			}
 			$def = array(
-				'date_s' => Base_RegionalSettingsCommon::server_date(substr($event['start'], 0, 10)),
-				'date_e' => Base_RegionalSettingsCommon::server_date(substr($event['end'], 0, 10)),
-				'time_s' => $dtime_s,
-				'time_e' => $dtime_e,
+				'date_s' => $event['start'],
+				'date_e' => $event['end'],
+				'time_s' => $event['start'],
+				'time_e' => $event['end'],
+				'duration' => $x,
 				'title'=>$event['title'],
 				'description'=>$event['description'],
 				'priority'=>$event['priority'],
@@ -111,25 +108,51 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$lang_code = Base_LangCommon::get_lang_code();
 		$form->addElement('date', 'time_s', $this->lang->t('Time'), array('format'=>$time_format, 'optionIncrement'  => array('i' => 5),'language'=>$lang_code));
 
-		$dur = array(300=>$this->lang->ht('5 minutes'),
+		$dur = array(
+			-1=>$this->lang->ht('---'),
+			300=>$this->lang->ht('5 minutes'),
 			900=>$this->lang->ht('15 minutes'),
 			1800=>$this->lang->ht('30 minutes'),
 			3600=>$this->lang->ht('1 hour'),
 			7200=>$this->lang->ht('2 hours'),
 			14400=>$this->lang->ht('4 hours'),
-			'all'=>$this->lang->ht('All day'),
-			'adv'=>$this->lang->ht('Advanced selection'));
+			28800=>$this->lang->ht('8 hours'));
+		eval_js_once('crm_calendar_duration_switcher = function(x) {'.
+			'var sw = $(\'duration_switch\');'.
+			'if((!x && sw.value==\'0\') || (x && sw.value==\'1\')) {'.
+			'$(\'crm_calendar_event_end_block\').hide();'.
+			'$(\'crm_calendar_duration_block\').show();'.
+			'sw.value=\'1\';'.
+			'} else {'.
+			'$(\'crm_calendar_event_end_block\').show();'.
+			'$(\'crm_calendar_duration_block\').hide();'.
+			'sw.value=\'0\';'.
+			'}}');
+		$theme->assign('toggle_duration','<a class="button" href="javascript:void(0)" onClick="crm_calendar_duration_switcher()" id="toggle_duration_button">'.$this->lang->t('Toggle').'</a>');
+		$theme->assign('duration_block_id','crm_calendar_duration_block');
+		$theme->assign('event_end_block_id','crm_calendar_event_end_block');
+		$form->addElement('hidden','duration_switch',$duration_switch,array('id'=>'duration_switch'));
+		eval_js('crm_calendar_duration_switcher(1)');
 		$form->addElement('select', 'duration', $this->lang->t('Duration'),$dur);
+		$form->addRule('duration',$this->lang->t('Duration not selected'),'neq','-1');
 		
 		$form->addElement('datepicker', 'date_e', $this->lang->t('Event end'));
 		$form->addRule('date_e', 'Field is required!', 'required');
 		$form->addElement('date', 'time_e', $this->lang->t('Time'), array('format'=>$time_format, 'optionIncrement'  => array('i' => 5), 'language'=>$lang_code));
 
-		$theme->assign('time_block_id','crm_calendar_time_block');
 		eval_js_once('crm_calendar_event_timeless = function(val) {'.
 				'var cal_style;'.
-				'if(val) cal_style = \'none\'; else cal_style = \'block\';'.
-				'$(\'crm_calendar_time_block\').style.display = cal_style;'.
+				'if(val){'.
+				'cal_style = \'none\';'.
+				'$(\'duration_switch\').value=\'0\';'.
+				'}else{'.
+				'cal_style = \'block\';'.
+				'$(\'duration_switch\').value=\'1\';'.
+				'}'.
+				'$(\'time_e\').style.display = cal_style;'.
+				'$(\'time_s\').style.display = cal_style;'.
+				'$(\'toggle_duration_button\').style.display = cal_style;'.
+				'crm_calendar_duration_switcher(1);'.
 			'}');
 		$form->addElement('checkbox', 'timeless', $this->lang->t('Timeless'), null,array('onClick'=>'crm_calendar_event_timeless(this.checked)'));
 		if ($action=='view') $condition = $timeless;
@@ -137,7 +160,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		eval_js('crm_calendar_event_timeless('.$timeless.')');
 
 		$form->registerRule('check_dates', 'callback', 'check_dates', $this);
-		$form->addRule(array('date_e', 'time_e', 'date_s', 'time_s', 'timeless'), 'End date must be after begin date...', 'check_dates');
+		$form->addRule(array('date_e', 'time_e', 'date_s', 'time_s', 'timeless','duration_switch'), 'End date must be after begin date...', 'check_dates');
 
 
 		$form->addElement('header', null, $this->lang->t('Event itself'));
@@ -178,7 +201,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 		if ($form->validate()) {
 			$values = $form->exportValues();
-			print_r($values);
+			//print_r($values);
 			if (!isset($values['timeless'])) $values['timeless'] = false;
 			if($action == 'new')
 				$this->add_event($values);
@@ -204,6 +227,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 	}
 
 	public function check_dates($arg) {
+		if($arg[5]) return true;
 		$start = strtotime($arg[2]) + ($arg[4]==true?0:1)*$this->recalculate_time($arg[3]);
 		$end = strtotime($arg[0]) + ($arg[4]==true?0:1)*$this->recalculate_time($arg[1]);
 		return $end >= $start;
@@ -222,7 +246,10 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 	public function add_event($vals = array()){
 		$start = strtotime($vals['date_s']) + $this->recalculate_time($vals['time_s']);
-		$end = strtotime($vals['date_e']) + $this->recalculate_time($vals['time_e']);
+		if($vals['duration_switch'])
+			$end = $start + $vals['duration'];
+		else
+			$end = strtotime($vals['date_e']) + $this->recalculate_time($vals['time_e']);
 		DB::Execute('INSERT INTO crm_calendar_event (title,'.
 													'description,'.
 													'start,'.
@@ -265,7 +292,10 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 	public function update_event($id, $vals = array()){
 		$start = strtotime($vals['date_s']) + $this->recalculate_time($vals['time_s']);
-		$end = strtotime($vals['date_e']) + $this->recalculate_time($vals['time_e']);
+		if($vals['duration_switch'])
+			$end = $start + $vals['duration'];
+		else
+			$end = strtotime($vals['date_e']) + $this->recalculate_time($vals['time_e']);
 		DB::Execute('UPDATE crm_calendar_event SET title=%s,'.
 													'description=%s,'.
 													'start=%d,'.
