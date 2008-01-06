@@ -111,14 +111,14 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$lang_code = Base_LangCommon::get_lang_code();
 		$form->addElement('date', 'time_s', $this->lang->t('Time'), array('format'=>$time_format, 'optionIncrement'  => array('i' => 5),'language'=>$lang_code));
 
-		$dur = array(300=>$this->lant->ht('5 minutes'),
-			900=>$this->lant->ht('15 minutes'),
-			1800=>$this->lant->ht('30 minutes'),
-			3600=>$this->lant->ht('1 hour'),
-			7200=>$this->lant->ht('2 hours'),
-			14400=>$this->lant->ht('4 hours'),
-			'all'=>$this->lant->ht('All day'),
-			'adv'=>$this->lant->ht('Advanced selection'));
+		$dur = array(300=>$this->lang->ht('5 minutes'),
+			900=>$this->lang->ht('15 minutes'),
+			1800=>$this->lang->ht('30 minutes'),
+			3600=>$this->lang->ht('1 hour'),
+			7200=>$this->lang->ht('2 hours'),
+			14400=>$this->lang->ht('4 hours'),
+			'all'=>$this->lang->ht('All day'),
+			'adv'=>$this->lang->ht('Advanced selection'));
 		$form->addElement('select', 'duration', $this->lang->t('Duration'),$dur);
 		
 		$form->addElement('datepicker', 'date_e', $this->lang->t('Event end'));
