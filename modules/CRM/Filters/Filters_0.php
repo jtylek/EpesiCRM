@@ -172,7 +172,7 @@ class CRM_Filters extends Module {
 			Base_ActionBarCommon::add('back','Cancel',$this->create_back_href());
 
 			$rb1 = $this->pack_module('Utils/RecordBrowser/RecordPicker', array('contact' ,'contacts',array('CRM_Filters','edit_group_sel'), array('company_name'=>CRM_ContactsCommon::get_main_company())));
-			Base_ActionBarCommon::add('folder','Detailed selection',$rb1->create_open_href());
+			Base_ActionBarCommon::add('folder','Detailed selection',$rb1->create_open_href(false));
 
 			$form->display();
 		}
