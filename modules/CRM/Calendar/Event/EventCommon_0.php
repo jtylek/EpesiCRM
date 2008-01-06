@@ -32,7 +32,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 											Base_LangCommon::ts('CRM_Calendar_Event','Edited by').' '.Base_UserCommon::get_user_login($row['edited_by']). '<br>'.
 											Base_LangCommon::ts('CRM_Calendar_Event','Edited on').' '.$row['edited_on']. '<br>'):'');
 			$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
-			$row['additional_info2'] =  Base_LangCommon::ts('CRM_Calendar_Event','Access: ').Base_LangCommon::ts('CRM_Calendar_Event',$access[$row['access']]);
+			$result['additional_info2'] = Base_LangCommon::ts('CRM_Calendar_Event','Access: ').Base_LangCommon::ts('CRM_Calendar_Event',$access[$row['access']]);
 		}
 		return $result;	
 	}
