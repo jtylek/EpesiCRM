@@ -61,7 +61,8 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 			$ret = $cur[0]+$cur[1]/pow(10,$this->dec_digits);
 		}
 		if($assoc) {
-			return array($this->getName() => $ret);
+			$val[$this->getName()] = $ret;
+			return $val;
 		} else {
 			return $ret;
 		}
