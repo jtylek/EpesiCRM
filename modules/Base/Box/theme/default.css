@@ -194,8 +194,18 @@ hr.line {
 	background-repeat: repeat-x;
 }
 
+#top_bar #top_bar_1 .powered {
+    text-align: right;
+    vertical-align: middle;
+	background-color: #336699;
+	background-image: url("images/header-blue.png");
+	background-repeat: repeat-x;
+    font-size: 9px;
+    color: white;
+}
+
 #top_bar #top_bar_1 .version {
-	width: 120px;
+	width: 80px;
 	background-color: #336699;
 	background-image: url("images/header-blue.png");
 	background-repeat: repeat-x;
