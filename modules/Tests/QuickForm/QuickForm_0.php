@@ -14,7 +14,9 @@ class Tests_QuickForm extends Module{
 		$f = $this->init_module('Libs/QuickForm');
 
 		$x = $f->addElement('datepicker','xxxy','Date picker');
+		$x = $f->addElement('currency','cur','Currency');
 		$f->setDefaults(array('xxxy'=>time()));
+		$f->setDefaults(array('cur'=>'1252341.22'));
 //		print($x->getValue().'<br>');
 
 //		$f->addElement('commondata_group','xxx2','commondata_group', 'Countries',array('depth'=>2,'separator'=>'<br>','empty_option'=>true));
