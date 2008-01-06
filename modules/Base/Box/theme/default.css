@@ -364,7 +364,7 @@ hr.line {
     background-color: #336699;
     background-image: url('images/header-blue.png');
     background-repeat: repeat-x;
-    width: 100px;
+    width: 200px;
     height: 20px;
     width: 0px;
 }
@@ -386,7 +386,7 @@ hr.line {
 }
 
 #digitalclock {
-    width: 100px;
+    width: 200px;
     color: white;
     text-align: center;
     background: transparent;

@@ -47,7 +47,7 @@ function show_hide_clock() {
    var s2 = document.getElementById("clock_td").style;
    if(s1.display == 'none') {
       s1.display = 'block';
-      s2.width = '100px';
+      s2.width = '200px';
    }
    else {
       s1.display = 'none';
@@ -57,11 +57,24 @@ function show_hide_clock() {
 
 
 function calctime() {
+
+   var weekday=new Array(7);
+   weekday[0]="Sunday";
+   weekday[1]="Monday";
+   weekday[2]="Tuesday";
+   weekday[3]="Wednesday";
+   weekday[4]="Thursday";
+   weekday[5]="Friday";
+   weekday[6]="Saturday";
    
    var currenttime = new Date();
    var hours = currenttime.getHours();
    var minutes = currenttime.getMinutes();
    var seconds = currenttime.getSeconds();
+   var day = currenttime.getDay();
+   var date = currenttime.getDate();
+   var month = currenttime.getMonth();
+   var year = currenttime.getFullYear();
    var timesuffix = "AM";
    
    if(hours > 11) {
@@ -80,9 +93,16 @@ function calctime() {
    if(seconds < 10) {
       seconds = "0" + seconds;
    }
+   month++;
+   if(month < 10) {
+      month = "0" + month;
+   }
+   if(date < 10) {
+      date = "0" + date;
+   }
    
    var clocklocation = document.getElementById("digitalclock");
-   clocklocation.innerHTML = hours + ":" + minutes + ":" + seconds + " " + timesuffix;
+   clocklocation.innerHTML = hours + ":" + minutes + ":" + seconds + " " + timesuffix + "&nbsp;&nbsp;&nbsp;" + weekday[day] + " " + date + "." + month + "." + year;
    setTimeout("calctime()", 1000);
 }
 
