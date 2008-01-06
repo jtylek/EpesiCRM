@@ -55,7 +55,10 @@ class Base_ActionBar extends Module {
 			$i['label'] = $l->ht($i['label']);
 			$i['description'] = $l->ht($i['description']);
 			if($display_text)
-				$t = Utils_TooltipCommon::open_tag_attrs((($i['description'])?$i['description']:$i['label']));
+				if($i['description'])
+					$t = Utils_TooltipCommon::open_tag_attrs($i['description']);
+				else
+					$t = '';
 			else
 				$t = Utils_TooltipCommon::open_tag_attrs($i['label'].(($i['description'])?' - '.$i['description']:''),false);
 			$i['open'] = '<a '.$i['action'].' '.$t.'>';
