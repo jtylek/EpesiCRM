@@ -31,16 +31,6 @@ input, textarea, select {
 .green { color: #339933; }
 .blue  { color: #336699; }
 
-/* colors select */
-select[name="color"] { color: #336699; }
-select[name="color"] option[value="blue"]    { color: #336699; }
-select[name="color"] option[value="red"]     { color: #993333; }
-select[name="color"] option[value="yellow"]  { color: #999933; }
-select[name="color"] option[value="green"]   { color: #339933; }
-select[name="color"] option[value="gray"]    { color: #808080; }
-select[name="color"] option[value="cyan"]    { color: #339999; }
-select[name="color"] option[value="magenta"] { color: #993399; }
-
 a.button {
     font-weight: normal;
     color: #FFFFFF;

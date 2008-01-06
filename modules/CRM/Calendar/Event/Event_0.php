@@ -167,7 +167,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 		$access = array(0=>$this->lang->t('Public'), 1=>$this->lang->t('Public, read-only'), 2=>$this->lang->t('Private'));
 		$priority = array(0 => $this->lang->t('None'), 1 => $this->lang->t('Low'), 2 => $this->lang->t('Medium'), 3 => $this->lang->t('High'));
-		$color = array(0 => '', 1 => $this->lang->t('Green'), 2 => $this->lang->t('Yellow'), 3 => $this->lang->t('Red'), 4 => $this->lang->t('Blue'), 5=> $this->lang->t('Gray'));
+		$color = array(0 => '', 1 => $this->lang->t('&bull; Green'), 2 => $this->lang->t('&bull; Yellow'), 3 => $this->lang->t('&bull; Red'), 4 => $this->lang->t('&bull; Blue'), 5=> $this->lang->t('&bull; Gray'), 6 => $this->lang->t('&bull; Cyan'), 7 => $this->lang->t('&bull; Magenta'));
 		$color[0] = $this->lang->t('Default').': '.$this->lang->t($color[Base_User_SettingsCommon::get('CRM_Calendar','default_color')]);
 
 		$form->addElement('select', 'access', $this->lang->t('Access'), $access, array('style'=>'width: 100%;'));

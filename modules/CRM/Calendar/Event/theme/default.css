@@ -187,3 +187,13 @@
 #CRM_Calendar_Event_Personal .access select option[value="0"] { background-image: url('CRM_Calendar_Event__access-public.png');    }
 #CRM_Calendar_Event_Personal .access select option[value="1"] { background-image: url('CRM_Calendar_Event__access-read-only.png'); }
 #CRM_Calendar_Event_Personal .access select option[value="2"] { background-image: url('CRM_Calendar_Event__access-private.png');   }
+
+/* colors select */
+select[name="color"] option[value="0"] { color: #339933; background-color: white; }
+select[name="color"] option[value="1"] { color: #339933; background-color: white; }
+select[name="color"] option[value="2"] { color: #999933; background-color: white; }
+select[name="color"] option[value="3"] { color: #993333; background-color: white; }
+select[name="color"] option[value="4"] { color: #336699; background-color: white; }
+select[name="color"] option[value="5"] { color: #808080; background-color: white; }
+select[name="color"] option[value="6"] { color: #339999; background-color: white; }
+select[name="color"] option[value="7"] { color: #993399; background-color: white; }
