@@ -30,13 +30,13 @@ class Apps_ProjectsInstall extends ModuleInstall {
 			array('name'=>'Due Date', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>false),
 			array('name'=>'Start Date', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>false),
 			array('name'=>'Description', 'type'=>'long text', 'required'=>false, 'param'=>'64', 'extra'=>false),
-			array('name'=>'Labor Cost', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Labor Burden', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Material Cost', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Equipment Cost', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Paint Man-Days', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'WC Man-Days', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Misc Man-Days', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false)
+			array('name'=>'Labor Cost', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Labor Burden', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Material Cost', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Equipment Cost', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Paint Man-Days', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'WC Man-Days', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Misc Man-Days', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false)
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('projects', $fields);
 		//Utils_RecordBrowserCommon::set_tpl('contact', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'Contact'));

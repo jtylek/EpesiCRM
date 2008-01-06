@@ -14,7 +14,7 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 		if (!isset($cur[1])) $cur[1] = ''; 
 		$cur[1] = str_pad($cur[1], self::$dec_digits, '0');
 		$val = $cur[0].'.'.$cur[1];
-		return number_format($val, self::$dec_digits, self::$dec_delimiter, self::$thou_delimiter).'&nbsp;'.self::$currency;
+		return self::$currency.'&nbsp;'.number_format($val, self::$dec_digits, self::$dec_delimiter, self::$thou_delimiter);
 	}
 
 }

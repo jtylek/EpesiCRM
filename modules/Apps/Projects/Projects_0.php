@@ -15,12 +15,14 @@ class Apps_Projects extends Module {
 		location(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array('projects')));
 	}
 
+/*
 public function admin() {
 		$tb = $this->init_module('Utils/TabbedBrowser');
 		$tb->set_tab('Projects', array($this, 'projects_admin'));
 		$this->display_module($tb);
 		$tb->tag();
 	}
+*/
 
 public function new_project($project){
 		Apps_ProjectsCommon::$paste_or_new = $project;
