@@ -12,12 +12,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Apps_ProjectsCommon extends ModuleCommon {
     public static $paste_or_new = 'new';
     
-    /*
-	public static function get_projects($crits = array()) {
-		return Utils_RecordBrowserCommon::get_records('projects', $crits);
-	}
-	*/
-    
     public static function get_project($id) {
 		return Utils_RecordBrowserCommon::get_record('projects', $id);
     }
@@ -26,6 +20,29 @@ class Apps_ProjectsCommon extends ModuleCommon {
 		return Utils_RecordBrowserCommon::create_linked_label('projects', 'Project Name', $i);
 	}
 	
+	public static function qfield_projmanager(&$form, $field, $label, $mode, $default) {
+				
+		if ($mode=='add' || $mode=='edit') {
+			$emp = array();
+			$ret = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())));
+			foreach($ret as $c_id=>$data)
+				$emp[$c_id] = $data['last_name'].' '.$data['first_name'];
+		
+			/*
+			$cus = array();
+			$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company())));
+			foreach($ret as $c_id=>$data)
+			$cus[$c_id] = $data['last_name'].' '.$data['first_name'];
+			*/
+			
+			$form->addElement('select', $field, $label, $emp);
+			$form->setDefaults(array($field=>$default));
+		} else {
+			$projman = CRM_ContactsCommon::get_contact('1');
+			//return $projman['last_name']." ".$projman['first_name'];
+			$form->addElement('select', $field, $label, $projman);
+		}
+	}
 
     public static function access_projects($action, $param){
 		$i = self::Instance();

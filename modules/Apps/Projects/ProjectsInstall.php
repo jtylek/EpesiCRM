@@ -16,10 +16,10 @@ class Apps_ProjectsInstall extends ModuleInstall {
 		// Base_ThemeCommon::install_default_theme('Apps/Projects');
 		$fields = array(
 			array('name'=>'Project Name', 'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true,'display_callback'=>array('Apps_ProjectsCommon', 'display_proj_name')),	
+			array('name'=>'Project Manager', 'type'=>'select', 'required'=>true, 'param'=>array('contact'=>'Last Name'), 'extra'=>false, 'visible'=>true, 'QFfield_callback'=>array('Apps_ProjectsCommon', 'qfield_projmanager')),	
 			array('name'=>'Company Name', 'type'=>'select', 'required'=>true, 'param'=>array('company'=>'Company Name'), 'extra'=>false, 'visible'=>true),
-			array('name'=>'Project Manager', 'type'=>'select', 'required'=>true, 'param'=>array('contact'=>'Last Name'), 'extra'=>false, 'visible'=>true),
+			array('name'=>'GC Project Manager', 'type'=>'select', 'required'=>true, 'param'=>array('contact'=>'Last Name'), 'extra'=>false, 'visible'=>true),
 			array('name'=>'Reference No', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>true),
-			
 			array('name'=>'Address 1', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
 			array('name'=>'Address 2', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
 			array('name'=>'City', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>false),
@@ -37,6 +37,11 @@ class Apps_ProjectsInstall extends ModuleInstall {
 			array('name'=>'Paint Man-Days', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
 			array('name'=>'WC Man-Days', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
 			array('name'=>'Misc Man-Days', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false)
+			/*
+			array('name'=>'Contract', 'type'=>'select', 'required'=>true, 'param'=>array(1=>'Yes', 0=>'No'), 'extra'=>true, 'visible'=>false)
+			array('name'=>'PO', 'type'=>'select', 'required'=>true, 'param'=>array(1=>'Yes', 0=>'No'), 'extra'=>true, 'visible'=>false),
+			array('name'=>'Signed Proposal', 'type'=>'select', 'required'=>true, 'param'=>array(1=>'Yes', 0=>'No'), 'extra'=>true, 'visible'=>false)
+			*/
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('projects', $fields);
 		//Utils_RecordBrowserCommon::set_tpl('contact', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'Contact'));

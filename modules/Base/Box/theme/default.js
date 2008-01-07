@@ -102,7 +102,7 @@ function calctime() {
    }
    
    var clocklocation = document.getElementById("digitalclock");
-   clocklocation.innerHTML = hours + ":" + minutes + ":" + seconds + " " + timesuffix + "&nbsp;&nbsp;&nbsp;" + weekday[day] + " " + date + "." + month + "." + year;
+    clocklocation.innerHTML = hours + ":" + minutes + ":" + seconds + " " + timesuffix + "&nbsp;&nbsp;&nbsp;" + weekday[day] + " " + month + "/" + date + "/" + year;
    setTimeout("calctime()", 1000);
 }
 
