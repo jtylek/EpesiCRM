@@ -41,7 +41,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$fil = ' AND (SELECT id FROM crm_calendar_event_group_emp cg WHERE cg.id=e.id AND cg.contact IN '.self::$filter.' LIMIT 1) IS NOT NULL';
 		else
 			$fil = '';
-		//print('SELECT start,end,title,description,id,timeless,priority,created_by,created_on,edited_by,edited_on FROM crm_calendar_meeting_event WHERE ((start>=%d AND start<%d) OR (end>=%d AND end<%d)) '.$fil);
+		print('SELECT start,end,title,description,id,timeless,priority,created_by,created_on,edited_by,edited_on FROM crm_calendar_meeting_event WHERE ((start>=%d AND start<%d) OR (end>=%d AND end<%d)) '.$fil);
 		$ret = DB::Execute('SELECT e.color,e.access,e.start,e.end,e.title,e.description,e.id,e.timeless,e.priority,e.created_by,e.created_on,e.edited_by,e.edited_on FROM crm_calendar_event e WHERE ((e.start>=%d AND e.start<%d) OR (e.end>=%d AND e.end<%d)) '.$fil.$order,array($start,$end,$start,$end));
 		$result = array();
 		while ($row = $ret->FetchRow()) {
