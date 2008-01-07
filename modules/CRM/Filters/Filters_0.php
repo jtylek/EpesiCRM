@@ -17,7 +17,6 @@ class CRM_Filters extends Module {
 	}
 
 	public function body() {
-		Base_ActionBarCommon::add('folder','Filters','class="lbOn" rel="crm_filters"');
 		$th = $this->init_module('Base/Theme');
 		$display_settings = Base_User_SettingsCommon::get('Base/ActionBar','display');
 		$display_icon = ($display_settings == 'both' || $display_settings == 'icons only');
@@ -51,7 +50,9 @@ class CRM_Filters extends Module {
 			$contacts_select[$v['id']] = $v['first_name'].' '.$v['last_name'];
 		$qf->addElement('select','contact',$this->lang->t('Records of'),$contacts_select,array('onChange'=>$qf->get_submit_form_js().'crm_filters_deactivate()'));
 		if($qf->validate()) {
-			$this->set_module_variable('profile',$qf->exportValue('contact'));
+			$c = $qf->exportValue('contact');
+			$this->set_module_variable('profile',$c);
+			$this->set_module_variable('profile_desc',$contacts_select[$c]);
 		}
 		$th->assign('contacts',$qf->toHtml());
 
@@ -60,6 +61,7 @@ class CRM_Filters extends Module {
 		$profiles_out = ob_get_clean();
 
 		Libs_LeightboxCommon::display('crm_filters',$profiles_out,$this->lang->t('Filters'));
+		Base_ActionBarCommon::add('folder','Filters','class="lbOn" rel="crm_filters"',$this->get_module_variable('profile_desc',$this->lang->t('My records')));
 	}
 	
 	public function manage_filters() {
@@ -76,9 +78,11 @@ class CRM_Filters extends Module {
 				$ret = implode(',',$c);
 			else
 				$ret = '-1';
+			$this->set_module_variable('profile_desc',DB::GetOne('SELECT name FROM crm_filters_group WHERE id=%d',array($prof)));
 		} elseif($prof=='my') {
 			$me = CRM_ContactsCommon::get_contact_by_user_id(Acl::get_user());
 			$ret = $me['id'];
+			$this->set_module_variable('profile_desc',$this->lang->t('My records'));
 		} else {//all and undefined
 			$contacts = Utils_RecordBrowserCommon::get_records('contact', array('company_name'=>CRM_ContactsCommon::get_main_company()));
 			$contacts_select = array();
@@ -89,6 +93,7 @@ class CRM_Filters extends Module {
 			else
 				$ret = '-1';
 
+			$this->set_module_variable('profile_desc',$this->lang->t('All records'));
 		}
 		$this->set_module_variable('profile',$ret);
 	}
