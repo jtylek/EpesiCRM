@@ -18,6 +18,15 @@ class CRM_FiltersCommon extends ModuleCommon {
     public static function body_access() {
         return self::Instance()->acl_check('manage');
     }
+
+	public static function get_my_profile() {
+		$me = CRM_ContactsCommon::get_contacts(array('login'=>Acl::get_user()),array('id'));
+		$ret = array();
+		foreach($me as $v)
+			$ret[] = $v['id'];
+		return implode(',',$ret);
+	}
+
 }
 
 ?>

@@ -34,6 +34,7 @@ class CRM_Calendar extends Module {
 		$end = $start + ($conf['days'] * 24 * 60 * 60);
 
 		$gb->set_default_order(array($l->t('Start')=>'ASC'));
+		CRM_Calendar_EventCommon::$filter = '('.CRM_FiltersCommon::get_my_profile().')';
 		$ret = CRM_Calendar_EventCommon::get_all($start,$end,$gb->get_query_order());
 		$data = array();
 		foreach($ret as $row) {
