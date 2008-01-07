@@ -12,7 +12,7 @@
     <table name="CRMCalendar" class="form" cellspacing="0" cellpadding="0" border="0">
     	<tbody>
     		<tr>
-    			<td class="header-day"><span class="green">Monday</span> <span class="dark-gray">&bull;</span> <span class="blue">07 January 2008</span> <span class="dark-gray">&bull;</span> <span class="red">07:15 PM - 10:30 PM</span> <span class="dark-gray">&bull;</span> <span class="dark-gray">(02:15 hr)</span></td>
+    			<td class="header-day"><span class="green">Monday</span> <span class="dark-gray">&bull;</span> <span class="blue">07 January 2008</span> <span class="dark-gray">&bull;</span> <span class="black">07:15 PM - 10:30 PM</span> <span class="dark-gray">&bull;</span> <span class="dark-gray">(02:15 hr)</span></td>
     		</tr>
         </tbody>
     </table>

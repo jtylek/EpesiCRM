@@ -32,6 +32,7 @@ input, textarea, select {
 .blue    { color: #336699; }
 .yellow  { color: #999933; }
 .gray    { color: #b3b3b3; }
+.black   { color: #000000; }
 .dark-gray { color: #777777; }
 
 a.button {
