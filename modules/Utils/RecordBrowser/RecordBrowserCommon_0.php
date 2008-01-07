@@ -289,9 +289,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					date('Y-m-d G:i:s')));
 		DB::CompleteTrans();
 	}
-	public static function get_records_limit( $tab_name = null, $crits = null, $admin = false) {
+	public static function build_query( $tab_name = null, $crits = null, $admin = false, $order = array()) {
 		if (!$tab_name) return false;
 		self::init($tab_name, $admin);
+		// TODO: caching?
 		$having = '';
 		$fields = '';
 		$where = '';
@@ -302,55 +303,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if ($access===false) return array();
 		elseif ($access!==true && is_array($access))
 			$crits = array_merge($crits, $access);
-		$iter = 0;
-		foreach($crits as $k=>$v){
-			if ($k[0]==':') {
-				switch ($k) {
-					case ':Fav'	: $where .= ' AND (SELECT COUNT(*) FROM '.$tab_name.'_favorite WHERE '.$tab_name.'_id=r.id AND user_id=%d)!=0'; $vals[]=Acl::get_user(); break;
-					case ':Recent'	: $where .= ' AND (SELECT COUNT(*) FROM '.$tab_name.'_recent WHERE '.$tab_name.'_id=r.id AND user_id=%d)!=0'; $vals[]=Acl::get_user(); break;
-					default		: trigger_error('Unknow paramter given to get_records criteria: '.$k, E_USER_ERROR);
-				}
-			} else {
-				$negative = $k[0]=='!';
-				$noquotes = $k[0]=='"';
-				$k = trim($k, '!"');
-				$fields .= ', concat( \'::\', group_concat( rd'.$iter.'.value ORDER BY rd'.$iter.'.value SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
-				$final_tab = '('.$final_tab.') LEFT JOIN '.$tab_name.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab_name.'_id AND rd'.$iter.'.field="'.$k.'"';
-				if (is_array($v)) {
-					$having .= ' AND (('.($negative?'true':'false');
-					foreach($v as $w) {
-						if (!$noquotes) $w = DB::qstr($w);
-						$having .= ' '.($negative?'AND':'OR').' val'.$iter.' '.($negative?'NOT ':'').'LIKE '.DB::Concat(DB::qstr('%:'),$w,DB::qstr(':%'));
-					}
-					$having .= ')';
-					if ($negative) $having .= ' OR val'.$iter.' IS NULL)';
-					else $having .= ')';
-				} else {
-					if (!$noquotes) $v = DB::qstr($v);
-					$having .= ' AND val'.$iter.($negative?'!':'').'='.DB::Concat('\'::\'',$v,'\'::\'');
-				}
-				$iter++;
-			}
-		}
-		if (!isset($limit['offset'])) $limit['offset'] = 0;
-		if (!isset($limit['numrows'])) $limit['numrows'] = -1;
-		return DB::GetOne('SELECT COUNT(*) FROM (SELECT id, active'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?'':' AND active=1').$where.' GROUP BY id HAVING true'.$having.') AS tmp', $vals);
-	}
-	public static function get_records( $tab_name = null, $crits = array(), $cols = array(), $order = array(), $limit = array(), $admin = false) {
-		if (!$tab_name) return false;
-		self::init($tab_name, $admin);
-		$having = '';
-		$fields = '';
-		$orderby = '';
-		$where = '';
-		$vals = array();
-		$final_tab = $tab_name.' AS r';
-		if (!$crits) $crits = array();
-		$access = self::get_access($tab_name, 'view');
-		if ($access===false) return array();
-		elseif ($access!==true && is_array($access))
-			$crits = array_merge($crits, $access);
-		if (!$order) $order = array();
 		$iter = 0;
 		foreach (self::$table_rows as $field=>$args)
 			if (isset($crits[$args['id']])) {
@@ -386,6 +338,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$iter++;
 			}
 		}
+		$orderby = '';
 		foreach($order as $v){
 			if ($orderby=='') $orderby = ' ORDER BY';
 			else $orderby .= ', ';
@@ -408,9 +361,20 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$iter++;
 			}
 		}
+		$ret = array('sql'=>'SELECT id, active'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?'':' AND active=1').$where.' GROUP BY id HAVING true'.$having.$orderby,'vals'=>$vals);
+		return $ret;
+	}
+	public static function get_records_limit( $tab_name = null, $crits = null, $admin = false) {
+		$par = self::build_query($tab_name, $crits, $admin);
+		return DB::GetOne('SELECT COUNT(*) FROM ('.$par['sql'].') AS tmp', $par['vals']);
+	}
+	public static function get_records( $tab_name = null, $crits = array(), $cols = array(), $order = array(), $limit = array(), $admin = false) {
+		if (!$tab_name) return false;
 		if (!isset($limit['offset'])) $limit['offset'] = 0;
 		if (!isset($limit['numrows'])) $limit['numrows'] = -1;
-		$ret = DB::SelectLimit('SELECT id, active'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?'':' AND active=1').$where.' GROUP BY id HAVING true'.$having.$orderby, $limit['numrows'], $limit['offset'], $vals);
+		if (!$order) $order = array();
+		$par = self::build_query($tab_name, $crits, $admin, $order);
+		$ret = DB::SelectLimit($par['sql'], $limit['numrows'], $limit['offset'], $par['vals']);
 		$records = array();
 		$where = ' WHERE true';
 		$vals = array();
