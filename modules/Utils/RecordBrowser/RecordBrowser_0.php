@@ -311,6 +311,9 @@ class Utils_RecordBrowser extends Module {
 					if ($args['type']=='currency') {
 						$ret = Utils_CurrencyFieldCommon::format($ret);
 					}
+					if ($args['type']=='checkbox') {
+						$ret = $ret?$this->lang->t('Yes'):$this->lang->t('No');
+					}
 					if ($special) $row_data[] = $ret;
 					else $row_data[] = $this->get_val($field, $ret, $row['id']);
 				}
@@ -533,6 +536,9 @@ class Utils_RecordBrowser extends Module {
 									$form->addRule($args['id'], $this->lang->t('Only numbers are allowed.'), 'numeric');
 									if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 									break;
+				case 'checkbox':	$form->addElement('checkbox', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', '', array('id'=>$args['id']));
+									if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
+									break;
 				case 'currency':	$form->addElement('currency', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
 									if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 									break;
@@ -748,6 +754,7 @@ class Utils_RecordBrowser extends Module {
 
 		$data_type = array(
 			'currency'=>'currency', 
+			'checkbox'=>'checkbox', 
 			'date'=>'date', 
 			'integer'=>'integer', 
 			'text'=>'text',
