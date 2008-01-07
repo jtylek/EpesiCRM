@@ -8,15 +8,24 @@
 <!-- -->
 
 <div style="background-color: white; padding: 5px;">
-
+    
     <table name="CRMCalendar" class="form" cellspacing="0" cellpadding="0" border="0">
     	<tbody>
+    		<tr>
+    			<td class="header-day"><span class="green">Monday</span> <span class="dark-gray">&bull;</span> <span class="blue">07 January 2008</span> <span class="dark-gray">&bull;</span> <span class="red">07:15 PM - 10:30 PM</span> <span class="dark-gray">&bull;</span> <span class="dark-gray">(02:15 hr)</span></td>
+    		</tr>
+        </tbody>
+    </table>
+
+    <table name="CRMCalendar" class="form no-border" cellspacing="0" cellpadding="0" border="0">
+    	<tbody>
 			<tr>
-				<td class="group_bottom label bold" align="left">{$form_data.title.label}</td>
-				<td class="group_bottom data bold" align="left" colspan="7"><span class="error">{$form_data.title.error}</span>
+				<td class="group_bottom label title" align="left">{$form_data.title.label}</td>
+				<td class="group_bottom data title" align="left" colspan="7"><span class="error">{$form_data.title.error}</span>
                 {$form_data.title.html}
                 </td>
 			</tr>
+			<tr><td colspan="8" class="data" style="height: 10px;"></td></tr>
 			<tr>
 			  	<td class="label" align="left">{$form_data.timeless.label}</td>
 				<td class="data short_input" align="left">{$form_data.timeless.html}</td>

@@ -89,11 +89,15 @@
 	background-color: #339933;
 }
 
-#CRM_Calendar_Event_Personal .bold,
-#CRM_Calendar_Event_Personal .bold input {
-	font-weight: bold;
+#CRM_Calendar_Event_Personal .title,
+#CRM_Calendar_Event_Personal .title input {
+	font-size: 13px;
 }
 
+#CRM_Calendar_Event_Personal .title input {
+	margin-top: 2px;
+	margin-bottom: 2px;
+}
 
 
 
@@ -189,6 +193,7 @@
 #CRM_Calendar_Event_Personal .access select option[value="2"] { background-image: url('CRM_Calendar_Event__access-private.png');   }
 
 /* colors select */
+
 select[name="color"] option[value="0"] { color: #339933; background-color: white; }
 select[name="color"] option[value="1"] { color: #339933; background-color: white; }
 select[name="color"] option[value="2"] { color: #999933; background-color: white; }
@@ -197,3 +202,19 @@ select[name="color"] option[value="4"] { color: #336699; background-color: white
 select[name="color"] option[value="5"] { color: #808080; background-color: white; }
 select[name="color"] option[value="6"] { color: #339999; background-color: white; }
 select[name="color"] option[value="7"] { color: #993399; background-color: white; }
+
+/* header day */
+
+#CRM_Calendar_Event_Personal .header-day {
+	height: 50px;
+	text-align: center;
+	background-color: #B3B3B3;
+	background-image: url('images/day-header.png');
+	background-repeat: repeat-x;
+	padding-left: 5px;
+	padding-right: 5px;
+	font-weight: bold;
+	font-size: 16px;
+	color: black;
+	vertical-align: middle;
+}

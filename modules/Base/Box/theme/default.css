@@ -27,9 +27,12 @@ input, textarea, select {
 	border: 1px solid #B3B3B3;
 }
 
-.red   { color: #993333; }
-.green { color: #339933; }
-.blue  { color: #336699; }
+.red     { color: #993333; }
+.green   { color: #339933; }
+.blue    { color: #336699; }
+.yellow  { color: #999933; }
+.gray    { color: #b3b3b3; }
+.dark-gray { color: #777777; }
 
 a.button {
     font-weight: normal;
