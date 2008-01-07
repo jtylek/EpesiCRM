@@ -42,6 +42,10 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		if($action == 'new') {
 			$duration_switch = '1';
 			$tt = $id-$id%300;
+			$me = CRM_ContactsCommon::get_contacts(array('login'=>Acl::get_user()),array('id'));
+			$my_emp = array();
+			foreach($me as $v)
+				$my_emp[] = $v['id'];
 			$def = array(
 				'date_s' => date('Y-m-d',$id),
 				'date_e' => date('Y-m-d',$id+3600),
@@ -50,7 +54,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				'duration'=>3600,
 				'access'=>0,
 				'priority'=>0,
-				'emp_id' => array(Acl::get_user()),
+				'emp_id' => $my_emp,
 				'timeless'=>($timeless?1:0)
 			);
 		} else {
