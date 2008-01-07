@@ -208,9 +208,10 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 			if(!Base_User_LoginCommon::add_user($username, $mail, $pass)) {
 				return false;
 			}
+			$user_id = Base_UserCommon::get_user_id($username);
 
 			$groups_new = $data['group'];
-			if(!Base_AclCommon::change_privileges($edit_id, $groups_new)) {
+			if(!Base_AclCommon::change_privileges($user_id, $groups_new)) {
 				print($this->lang->t('Unable to update account data (groups).'));
 				return false;
 			}
