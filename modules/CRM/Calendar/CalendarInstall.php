@@ -11,7 +11,7 @@ class CRM_CalendarInstall extends ModuleInstall {
 
 	public function uninstall() {
 		Base_ThemeCommon::uninstall_default_theme('CRM/Calendar');
-		return $true;
+		return true;
 	}
 
 	public function provides($v) {
