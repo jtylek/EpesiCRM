@@ -78,10 +78,10 @@ class CRM_Filters extends Module {
 				$ret = implode(',',$c);
 			else
 				$ret = '-1';
-			$this->set_module_variable('profile_desc',DB::GetOne('SELECT name FROM crm_filters_group WHERE id=%d',array($prof)));
+			$desc = DB::GetOne('SELECT name FROM crm_filters_group WHERE id=%d',array($prof));
 		} elseif($prof=='my') {
-			$this->set_module_variable('profile',CRM_FiltersCommon::get_my_profile());
-			$this->set_module_variable('profile_desc',$this->lang->t('My records'));
+			$ret = CRM_FiltersCommon::get_my_profile();
+			$desc = $this->lang->t('My records');
 		} else {//all and undefined
 			$contacts = Utils_RecordBrowserCommon::get_records('contact', array('company_name'=>CRM_ContactsCommon::get_main_company()));
 			$contacts_select = array();
@@ -92,9 +92,10 @@ class CRM_Filters extends Module {
 			else
 				$ret = '-1';
 
-			$this->set_module_variable('profile_desc',$this->lang->t('All records'));
+			$desc = $this->lang->t('All records');
 		}
 		$this->set_module_variable('profile',$ret);
+		$this->set_module_variable('profile_desc',$desc);
 	}
 	
 	public function get() {
