@@ -105,6 +105,7 @@ class Utils_Attachment extends Module {
 		$cols = array();
 		if($vd)
 			$cols[] = array('name'=>'Deleted','order'=>'ual.deleted','width'=>5);
+		$cols[] = array('name'=>'Created on', 'order'=>'note_on','width'=>0,'display'=>0);
 		$cols[] = array('name'=>'Note', 'order'=>'uac.text','width'=>80);
 		$cols[] = array('name'=>'Attachment', 'order'=>'ual.original','width'=>5);
 		$gb->set_table_columns($cols);
@@ -114,7 +115,9 @@ class Utils_Attachment extends Module {
 		else
 			$query = 'SELECT uaf.id as file_id,(SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id=ual.id) as downloads,ual.other_read,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text,uaf.original,uaf.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE uaf.created_by=l2.id) as upload_by FROM utils_attachment_link ual INNER JOIN (utils_attachment_note uac,utils_attachment_file uaf) ON (uac.attach_id=ual.id AND ual.id=uaf.attach_id) WHERE ual.attachment_key=\''.$this->key.'\' AND ual.local='.DB::qstr($this->group).' AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id) AND ual.deleted=0';
 
+		$gb->set_default_order(array('Created on'=>'DESC'));
 		$query_order = $gb->get_query_order();
+
 		$ret = DB::Execute($query.$query_order);
 
 		while($row = $ret->FetchRow()) {
@@ -165,7 +168,7 @@ class Utils_Attachment extends Module {
 			if($vd)
 				$r->add_data(($row['deleted']?'yes':'no'),$text,$file);
 			else
-				$r->add_data($text,$file);
+				$r->add_data('',$text,$file);
 		}
 		if($this->public_write) {
 			if($this->inline) {

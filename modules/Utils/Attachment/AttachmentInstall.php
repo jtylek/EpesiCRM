@@ -21,7 +21,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			permission I2 DEFAULT 0,
 			permission_by I4,
 			attachment_key C(32) NOTNULL',
-			array('constraints'=>', FOREIGN KEY (permission_by) REFERENCES user_login(ID)'));
+			array('constraints'=>', INDEX(attachment_key,local), FOREIGN KEY (permission_by) REFERENCES user_login(ID)'));
 		if(!$ret){
 			print('Unable to create table utils_attachment_link.<br>');
 			return false;
@@ -33,7 +33,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			created_by I4,
 			created_on T DEFTIMESTAMP,
 			revision I4 NOTNULL',
-			array('constraints'=>', UNIQUE(attach_id,revision), FOREIGN KEY (created_by) REFERENCES user_login(ID), FOREIGN KEY (attach_id) REFERENCES utils_attachment_link(id)'));
+			array('constraints'=>', INDEX(revision), UNIQUE(attach_id,revision), FOREIGN KEY (created_by) REFERENCES user_login(ID), FOREIGN KEY (attach_id) REFERENCES utils_attachment_link(id)'));
 		if(!$ret){
 			print('Unable to create table utils_attachment_file.<br>');
 			return false;
@@ -61,7 +61,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			created_by I4,
 			created_on T DEFTIMESTAMP,
 			revision I4 NOTNULL',
-			array('constraints'=>', UNIQUE(attach_id,revision), FOREIGN KEY (created_by) REFERENCES user_login(ID), FOREIGN KEY (attach_id) REFERENCES utils_attachment_link(id)'));
+			array('constraints'=>', INDEX(revision), UNIQUE(attach_id,revision), FOREIGN KEY (created_by) REFERENCES user_login(ID), FOREIGN KEY (attach_id) REFERENCES utils_attachment_link(id)'));
 		if(!$ret){
 			print('Unable to create table utils_attachment_note.<br>');
 			return false;
