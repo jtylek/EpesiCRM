@@ -258,7 +258,8 @@ class Utils_RecordBrowser extends Module {
 			while ($row = $ret->FetchRow()) {
 				if (!isset($records[$row[$this->tab.'_id']])) continue;
 				$rec_tmp[$row[$this->tab.'_id']] = $records[$row[$this->tab.'_id']];
-				$rec_tmp[$row[$this->tab.'_id']]['visited_on'] = $row['visited_on'];
+				$date_format = Base_RegionalSettingsCommon::date_format();
+				$rec_tmp[$row[$this->tab.'_id']]['visited_on'] = strftime($date_format,strtotime($row['visited_on']));
 			}
 			$records = $rec_tmp;
 		}

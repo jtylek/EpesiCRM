@@ -16,9 +16,10 @@ class Apps_ProjectsInstall extends ModuleInstall {
 		// Base_ThemeCommon::install_default_theme('Apps/Projects');
 		$fields = array(
 			array('name'=>'Project Name', 'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true,'display_callback'=>array('Apps_ProjectsCommon', 'display_proj_name')),	
-			array('name'=>'Project Manager', 'type'=>'select', 'required'=>true, 'param'=>array('contact'=>'Last Name'), 'extra'=>false, 'visible'=>true, 'QFfield_callback'=>array('Apps_ProjectsCommon', 'qfield_projmanager')),	
+			array('name'=>'Estimator', 'type'=>'select', 'required'=>true, 'param'=>array('contact'=>'Last Name'), 'extra'=>false, 'visible'=>true, 'QFfield_callback'=>array('Apps_ProjectsCommon', 'qfield_estimator'),'display_callback'=>array('Apps_ProjectsCommon', 'display_estimator')),	
 			array('name'=>'Company Name', 'type'=>'select', 'required'=>true, 'param'=>array('company'=>'Company Name'), 'extra'=>false, 'visible'=>true),
 			array('name'=>'GC Project Manager', 'type'=>'select', 'required'=>true, 'param'=>array('contact'=>'Last Name'), 'extra'=>false, 'visible'=>true),
+			array('name'=>'GC Supervisor', 'type'=>'select', 'required'=>true, 'param'=>array('contact'=>'Last Name'), 'extra'=>false, 'visible'=>true),
 			array('name'=>'Reference No', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>true),
 			array('name'=>'Address 1', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
 			array('name'=>'Address 2', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
@@ -28,20 +29,27 @@ class Apps_ProjectsInstall extends ModuleInstall {
 			array('name'=>'Postal Code', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
 			array('name'=>'Status', 'type'=>'commondata', 'required'=>true, 'visible'=>true, 'param'=>'Project_Status', 'extra'=>false),
 			array('name'=>'Due Date', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>false),
+			array('name'=>'FollowUp Date', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>false),	
 			array('name'=>'Start Date', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>false),
 			array('name'=>'Description', 'type'=>'long text', 'required'=>false, 'param'=>'64', 'extra'=>false),
-			array('name'=>'Labor Cost', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Labor Burden', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Material Cost', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Equipment Cost', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Paint Man-Days', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'WC Man-Days', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Misc Man-Days', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false)
-			/*
-			array('name'=>'Contract', 'type'=>'select', 'required'=>true, 'param'=>array(1=>'Yes', 0=>'No'), 'extra'=>true, 'visible'=>false)
-			array('name'=>'PO', 'type'=>'select', 'required'=>true, 'param'=>array(1=>'Yes', 0=>'No'), 'extra'=>true, 'visible'=>false),
-			array('name'=>'Signed Proposal', 'type'=>'select', 'required'=>true, 'param'=>array(1=>'Yes', 0=>'No'), 'extra'=>true, 'visible'=>false)
-			*/
+			array('name'=>'Est Labor Cost', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Est Labor Burden', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Est Material Cost', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Est Equipment Cost', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Est Paint Man-Days', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Est WC Man-Days', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Est Misc Man-Days', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Project Manager', 'type'=>'select', 'required'=>true, 'param'=>array('contact'=>'Last Name'), 'extra'=>true, 'visible'=>true, 'QFfield_callback'=>array('Apps_ProjectsCommon', 'qfield_projmanager'),'display_callback'=>array('Apps_ProjectsCommon', 'display_projmanager')),
+			array('name'=>'Contract', 'type'=>'checkbox', 'required'=>false, 'extra'=>true, 'visible'=>false),
+			array('name'=>'Act Labor Cost', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Act Labor Burden', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Act Material Cost', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Act Equipment Cost', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Act Paint Man-Days', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Act WC Man-Days', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Act Misc Man-Days', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'PO', 'type'=>'checkbox', 'required'=>false, 'extra'=>true, 'visible'=>false),
+			array('name'=>'Signed Proposal', 'type'=>'checkbox', 'required'=>false, 'extra'=>true, 'visible'=>false)
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('projects', $fields);
 		//Utils_RecordBrowserCommon::set_tpl('contact', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'Contact'));

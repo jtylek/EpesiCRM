@@ -19,6 +19,16 @@ class Apps_ProjectsCommon extends ModuleCommon {
     public static function display_proj_name($v, $i) {
 		return Utils_RecordBrowserCommon::create_linked_label('projects', 'Project Name', $i);
 	}
+
+	public static function display_projmanager($v, $i) {
+		return;
+		//return Utils_RecordBrowserCommon::create_linked_label('contacts', 'Last Name', $i);
+	}
+
+	public static function display_estimator($v, $i) {
+		return;
+		//return Utils_RecordBrowserCommon::create_linked_label('contacts', 'Last Name', $i);
+	}
 	
 	public static function qfield_projmanager(&$form, $field, $label, $mode, $default) {
 				
@@ -42,6 +52,23 @@ class Apps_ProjectsCommon extends ModuleCommon {
 			//return $projman['last_name']." ".$projman['first_name'];
 			$form->addElement('select', $field, $label, $projman);
 		}
+	} // end of function
+
+	public static function qfield_estimator(&$form, $field, $label, $mode, $default) {
+				
+		if ($mode=='add' || $mode=='edit') {
+			$emp = array();
+			$ret = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())));
+			foreach($ret as $c_id=>$data)
+				$emp[$c_id] = $data['last_name'].' '.$data['first_name'];
+					
+			$form->addElement('select', $field, $label, $emp);
+			$form->setDefaults(array($field=>$default));
+		} else {
+			$estimator = CRM_ContactsCommon::get_contact('1');
+			//return $projman['last_name']." ".$projman['first_name'];
+			$form->addElement('select', $field, $label, $estimator);
+		}
 	}
 
     public static function access_projects($action, $param){
@@ -61,27 +88,7 @@ class Apps_ProjectsCommon extends ModuleCommon {
 		}
 		return false;
     }
-    
-    /* Not needed if not processing before writing
-	public static function submit_project($values, $mode) {
-		if (isset($values['create_project'])) {
-			$proj_id = Utils_RecordBrowserCommon::new_record('projects',
-				array(	'company_name'=>$values['first_name'].' '.$values['last_name'],
-						'address_1'=>$values['address_1'],
-						'address_2'=>$values['address_2'],
-						'country'=>$values['country'],
-						'city'=>$values['city'],
-						'zone'=>isset($values['zone'])?$values['zone']:'',
-						'postal_code'=>$values['postal_code'],
-						'phone'=>$values['phone'],
-						'fax'=>$values['fax'],
-						'web_address'=>$values['web_address'])
-			);
-			$values['project_name'] = array($proj_id);
-		}
-	}
-	*/
-    
+        
     public static function menu() {
 		return array('Projects'=>array('__submenu__'=>1,'Projects'=>array()));
 	}
