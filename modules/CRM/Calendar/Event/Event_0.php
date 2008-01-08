@@ -30,6 +30,11 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 	public function view_event($action, $id=null, $timeless=false){
 		if($this->is_back()) return false;
 
+		$this->lang = $this->pack_module('Base/Lang');
+		$form = $this->init_module('Libs/QuickForm');
+		$theme =  $this->pack_module('Base/Theme');
+		$theme->assign('action',$action);
+
 		$emp = array();
 		$ret = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())));
 		foreach($ret as $c_id=>$data)
@@ -58,7 +63,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				'timeless'=>($timeless?1:0)
 			);
 		} else {
-			$event = DB::GetRow('SELECT * FROM crm_calendar_event WHERE id=%d', $id);
+			$event = DB::GetRow('SELECT *,end-start as duration FROM crm_calendar_event WHERE id=%d', $id);
 			$x = $event['end']-$event['start'];
 			if(in_array($x,array(300,900,1800,3600,7200,14400,28800)))
 				$duration_switch='1';
@@ -66,6 +71,10 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				$duration_switch='0';
 				$x = '-1';
 			}
+			$evx = Utils_CalendarCommon::process_event($event);
+			$theme->assign('start_date',$evx['start']);
+			$theme->assign('end_date',$evx['end']);
+			$theme->assign('duration',$evx['duration']);
 			$def = array(
 				'date_s' => $event['start'],
 				'date_e' => $event['end'],
@@ -96,9 +105,6 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$timeless = $event['timeless'];
 		}
 
-		$this->lang = $this->pack_module('Base/Lang');
-		$form = $this->init_module('Libs/QuickForm');
-		$theme =  $this->pack_module('Base/Theme');
 
 		$act = array();
 

@@ -8,14 +8,15 @@
 <!-- -->
 
 <div style="background-color: white; padding: 5px;">
-    
+    {if $action=='view'}
     <table name="CRMCalendar" class="form" cellspacing="0" cellpadding="0" border="0">
     	<tbody>
     		<tr>
-    			<td class="header-day"><span class="green">Monday</span> <span class="dark-gray">&bull;</span> <span class="blue">07 January 2008</span> <span class="dark-gray">&bull;</span> <span class="black">07:15 PM - 10:30 PM</span> <span class="dark-gray">&bull;</span> <span class="dark-gray">(02:15 hr)</span></td>
+    			<td class="header-day"><span class="blue">{$start_date}</span> <span class="dark-gray">-</span> <span class="black">{$end_date}</span> <span class="dark-gray">&bull;</span> <span class="dark-gray">{$duration}</span></td>
     		</tr>
         </tbody>
     </table>
+    {/if}
 
     <table name="CRMCalendar" class="form no-border" cellspacing="0" cellpadding="0" border="0">
     	<tbody>
