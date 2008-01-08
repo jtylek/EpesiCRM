@@ -42,7 +42,7 @@ table#Utils_Calendar__month td.other {
 	background-color: #F0F0F0;
 }
 
-table#Utils_Calendar__month td.other a {
+table#Utils_Calendar__month td.other a.day_link {
 	color: #B3B3B3;
 }
 
