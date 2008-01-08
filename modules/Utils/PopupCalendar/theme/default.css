@@ -63,17 +63,18 @@
 	border: 0px;
 	text-align: center;
 	vertical-align: middle;
-	padding: 3px;
 }
 
 #Utils_PopupCalendar table.small td a {
 	display: block;
 	text-align: center;
 	vertical-align: middle;
+	line-height: 20px;
+	width: 30px;
 }
 
 #Utils_PopupCalendar table.small td a:hover {
-	background-color: #e6cfcf
+	background-color: #e6cfcf;
 }
 
 #Utils_PopupCalendar table.small td.daysHeader {
@@ -86,11 +87,14 @@
 }
 
 #Utils_PopupCalendar table.small td.empty {
+	background-color: white;
+	border: none;
 }
 
 #Utils_PopupCalendar table.small td.today {
 	background-color: #E6ECF2;
 	font-weight: bold;
+	border: none;
 }
 
 #Utils_PopupCalendar table.small td.spacerTop {
