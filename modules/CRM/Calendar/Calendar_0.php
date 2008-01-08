@@ -5,17 +5,19 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_Calendar extends Module {
 
 	public function body() {
-		if($this->acl_check('manage others'))
-			CRM_Calendar_EventCommon::$filter = $this->pack_module('CRM/Filters')->get();
-		else
-			CRM_Calendar_EventCommon::$filter = '('.Acl::get_user().')';
+		$f = $this->pack_module('CRM/Filters');
+		CRM_Calendar_EventCommon::$filter = $f->get();
+		
+		$theme = $this->init_module('Base/Theme');
+		$theme->assign('filter_description',$f->get_description());
 		$c = $this->init_module('Utils/Calendar',array('CRM/Calendar/Event',array('default_view'=>Base_User_SettingsCommon::get('CRM_Calendar','default_view'),
 			'first_day_of_week'=>Utils_PopupCalendarCommon::get_first_day_of_week(),
 			'start_day'=>Base_User_SettingsCommon::get('CRM_Calendar','start_day'),
 			'end_day'=>Base_User_SettingsCommon::get('CRM_Calendar','end_day'),
 			'interval'=>Base_User_SettingsCommon::get('CRM_Calendar','interval'),
 			)));
-		$this->display_module($c);
+		$theme->assign('calendar',$this->get_html_of_module($c));
+		$theme->display();
 	}
 	
 	public function applet($conf,$opts) {

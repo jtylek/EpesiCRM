@@ -104,6 +104,10 @@ class CRM_Filters extends Module {
 		return '('.$ret.')';
 	}
 
+	public function get_description() {
+		return $this->get_module_variable('profile_desc');
+	}
+
 	public function edit() {
 		Base_ActionBarCommon::add('add',$this->lang->ht('Add group'),$this->create_callback_href(array($this,'edit_group')));
 
