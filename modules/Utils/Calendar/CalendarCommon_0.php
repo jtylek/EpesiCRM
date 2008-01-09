@@ -10,7 +10,12 @@ class Utils_CalendarCommon extends ModuleCommon {
 		$th->assign('description',$ev['description']);
 		$th->assign('color',$ev['color']);
 		$th->assign('start',$ex['start']);
-		$th->assign('start_short',$ex['start_short']);
+		$th->assign('start_time',$ex['start_time']);
+		$th->assign('end_time',$ex['end_time']);
+		$th->assign('start_date',$ex['start_date']);
+		$th->assign('end_date',$ex['end_date']);
+		$th->assign('start_day',$ex['start_day']);
+		$th->assign('end_day',$ex['end_day']);
 		$th->assign('end',$ex['end']);
 		$th->assign('duration',$ex['duration']);
 		$th->assign('additional_info',$ev['additional_info']);
@@ -50,28 +55,32 @@ class Utils_CalendarCommon extends ModuleCommon {
 
 		Base_RegionalSettingsCommon::set_locale();
 		$start_day = date('D',$ev_start);
-		if(!$oneday)
-			$end_day = date('D',$ev_end);
-		else
-			$end_t = Base_RegionalSettingsCommon::convert_24h($ev_end);
+		$end_day = date('D',$ev_end);
 		Base_RegionalSettingsCommon::restore_locale();
+		
+		if($oneday)
+			$end_t = Base_RegionalSettingsCommon::convert_24h($ev_end);
+		$start_date = Base_RegionalSettingsCommon::time2reg($ev_start,false);
+		$end_date = Base_RegionalSettingsCommon::time2reg($ev_end,false);
 
 		if($row['timeless']) {
-			$start_short = Base_LangCommon::ts('Utils_Calendar','timeless');
-			$start_t = $start_day.', '.Base_RegionalSettingsCommon::time2reg($ev_start,false);
+			$start_time = Base_LangCommon::ts('Utils_Calendar','timeless');
+			$end_time = $start_time;
+			$start_t = $start_day.', '.$start_date;
 			if($oneday)
 				$end_t = $start_t;
 			else
-				$end_t = $end_day.', '.Base_RegionalSettingsCommon::time2reg($ev_end,false);
+				$end_t = $end_day.', '.$end_date;
 		} else {
-			$start_short = Base_RegionalSettingsCommon::convert_24h($ev_start,false);
-			$start_t = $start_day.', '.Base_RegionalSettingsCommon::time2reg($ev_start);
+			$start_time = Base_RegionalSettingsCommon::convert_24h($ev_start,false);
+			$end_time = Base_RegionalSettingsCommon::convert_24h($ev_end,false);
+			$start_t = $start_day.', '.$start_date.' '.$start_time;
 			if(!$oneday)
-				$end_t = $end_day.', '.Base_RegionalSettingsCommon::time2reg($ev_end);
+				$end_t = $end_day.', '.$end_date.' '.$end_time;
 		}
 
 		$duration_str = self::duration2str($row['duration']);
-		return array('duration'=>$duration_str,'start'=>$start_t,'end'=>$end_t,'start_short'=>$start_short);
+		return array('duration'=>$duration_str,'start'=>$start_t,'end'=>$end_t,'start_time'=>$start_time,'end_time'=>$end_time,'start_date'=>$start_date,'end_date'=>$end_date,'start_day'=>$start_day,'end_day'=>$end_day);
 	}
 
 	private static function duration2str($duration) {

@@ -12,7 +12,12 @@
     <table name="CRMCalendar" class="form" cellspacing="0" cellpadding="0" border="0">
     	<tbody>
     		<tr>
-    			<td class="header-day"><span class="blue">{$start_date}</span> <span class="dark-gray">-</span> <span class="black">{$end_date}</span> <span class="dark-gray">&bull;</span> <span class="dark-gray">{$duration}</span></td>
+    			<td class="header-day"><span class="blue">{$event_info.start_day}, {$event_info.start_date}</span> <span class="dark-gray">&bull;</span> <span class="blue">{$event_info.start_time}</span> <span class="dark-gray">-</span> 
+			{if $event_info.start_date!=$event_info.end_date}
+			<span class="black">{$event_info.end_date}</span> <span class="dark-gray">&bull;</span>
+			{/if}
+			<span class="black">{$event_info.end_time}</span> 
+			<span class="dark-gray">&bull;</span> <span class="dark-gray">{$event_info.duration}</span></td>
     		</tr>
         </tbody>
     </table>

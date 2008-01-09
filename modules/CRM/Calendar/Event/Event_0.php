@@ -72,9 +72,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				$x = '-1';
 			}
 			$evx = Utils_CalendarCommon::process_event($event);
-			$theme->assign('start_date',$evx['start']);
-			$theme->assign('end_date',$evx['end']);
-			$theme->assign('duration',$evx['duration']);
+			$theme->assign('event_info',$evx);
 			$def = array(
 				'date_s' => $event['start'],
 				'date_e' => $event['end'],
