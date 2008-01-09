@@ -22,14 +22,14 @@
                         <span class="dark-gray">-</span>&nbsp;
                     {/if}
                     {if $event_info.start_date != $event_info.end_date}
-                        <span class="black">{$event_info.end_date}</span>&nbsp;
+                        <span class="blue">{$event_info.end_date}</span>&nbsp;
                         <span class="dark-gray">&bull;</span>&nbsp;
                     {/if}
                     {if $event_info.end_time != "timeless"}
                         <span class="black">{$event_info.end_time}</span>&nbsp;
                         <span class="dark-gray">&bull;</span>&nbsp;
                     {/if}
-                    <span class="dark-gray">({$event_info.duration} hr)</span>
+                    <span class="dark-gray">{$event_info.duration} hr(s)</span>
                 </td>
     		</tr>
         </tbody>
@@ -66,7 +66,7 @@
 			<tr>
 			 	<td class="data" style="border-right: 1px solid #b3b3b3;"><span class="error">{$form_data.date_s.error}</span><div style="float: left; width: 200px;">{$form_data.date_s.html}</div><span id="time_s">{$form_data.time_s.html}</span></td>
 			 	<td class="data">
-					<div id="{$duration_block_id}"><span class="error">{$form_data.duration.error}</span><div style="float: left">{$form_data.duration.html}</div></div>
+					<div id="{$duration_block_id}"><span class="error">{$form_data.duration.error}</span><div style="float: left; width: 200px;">{$form_data.duration.html}</div></div>
 					<div id="{$event_end_block_id}"><span class="error">{$form_data.date_e.error}</span><div style="float: left; width: 200px;">{$form_data.date_e.html}</div><span id="time_e">{$form_data.time_e.html}</span></div>
 				</td>
             </tr>
