@@ -71,6 +71,8 @@
 	height: 14px;
     margin-top: 2px;
     margin-left: 2px;
+	display: block;
+	float: left;
 }
 
 .checkbox_on  { background-image: url('images/checkbox_on.png');  }
