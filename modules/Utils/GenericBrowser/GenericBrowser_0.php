@@ -932,6 +932,7 @@ class Utils_GenericBrowser extends Module {
 			$theme->assign('reset', '<a '.$this->create_unique_href(array('action'=>'reset_order')).'>'.$this->lang->t('Reset Order').'</a>');
 			$theme->assign('order',$this->get_module_variable('order_history_display'));
 		}
+		$theme->assign('id',md5($this->get_path()));
 		if(isset($template))
 			$theme->display($template,true);
 		else
