@@ -18,7 +18,7 @@
     </table>
     {/if}
 
-    <table name="CRMCalendar" class="form no-border" cellspacing="0" cellpadding="0" border="0">
+    <table name="CRMCalendar" class="form" cellspacing="0" cellpadding="0" border="0">
     	<tbody>
 			<tr>
 				<td class="group_bottom label title" align="left">{$form_data.title.label}</td>
