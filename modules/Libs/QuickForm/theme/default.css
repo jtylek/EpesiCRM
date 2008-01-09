@@ -59,3 +59,21 @@
 #quickform .element_submit input:hover, .element_button input:hover {
 	background-image: url("images/header-blue-hover.png");
 }
+
+/* checkbox and radio */
+
+.checkbox_on,
+.checkbox_off,
+.radio_on,
+.radio_off {
+    color: white;
+    background-repeat: no-repeat;
+    padding-left: 16px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+.checkbox_on  { background-image: url('images/checkbox_on.png');  }
+.checkbox_off { background-image: url('images/checkbox_off.png'); }
+.radio_on     { background-image: url('images/radio_on.png');     }
+.radio_off    { background-image: url('images/radio_off.png');    }

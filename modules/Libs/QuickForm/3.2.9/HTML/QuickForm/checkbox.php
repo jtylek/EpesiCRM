@@ -146,10 +146,10 @@ class HTML_QuickForm_checkbox extends HTML_QuickForm_input
     function getFrozenHtml()
     {
         if ($this->getChecked()) {
-            return '<tt>[x]</tt>' .
+            return '<tt class="checkbox_on">[x]</tt>' .
                    $this->_getPersistantData();
         } else {
-            return '<tt>[ ]</tt>';
+            return '<tt class="checkbox_off">[ ]</tt>';
         }
     } //end func getFrozenHtml
 
