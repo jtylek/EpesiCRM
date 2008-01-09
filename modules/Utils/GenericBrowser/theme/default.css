@@ -183,7 +183,7 @@ table#Utils_GenericBrowser__navigation img {
 
 /* */
 
-#quick_jump_letters {
+.quick_jump_letters {
     z-index: 1005;
     position: absolute;
     margin-left: 34px;

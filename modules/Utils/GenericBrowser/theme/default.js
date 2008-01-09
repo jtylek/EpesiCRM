@@ -1,3 +1,3 @@
-function quick_jump_letters() {
-    Effect.toggle('quick_jump_letters', 'appear', {duration:0.3});
+function quick_jump_letters(id) {
+   Effect.toggle('quick_jump_letters_' + id, 'appear', {duration:0.3});
 }
