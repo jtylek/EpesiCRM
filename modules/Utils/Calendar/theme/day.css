@@ -183,14 +183,6 @@ div.day-menu a.button:hover {
 	background-color: #339933;
 }
 
-div.day-menu .add-info {
-	color: #777777;
-}
-
-div.day-menu .add-info:hover {
-	color: #000000;
-}
-
 /* trash */
 
 div.day-menu .trash {

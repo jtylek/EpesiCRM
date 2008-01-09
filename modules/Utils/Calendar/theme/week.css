@@ -203,15 +203,6 @@ div.week-menu .empty {
 	width: 50%;
 }
 
-div.week-menu table.week-menu .add-info {
-	color: #777777;
-	padding-right: 20px;
-}
-
-div.week-menu table.week-menu .add-info:hover {
-	color: #000000;
-}
-
 /* trash */
 
 div.week-menu .trash {

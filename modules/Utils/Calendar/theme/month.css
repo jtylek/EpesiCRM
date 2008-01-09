@@ -189,15 +189,6 @@ table#Utils_Calendar__month .month-header a:hover {
 	width: 50%;
 }
 
-#month-menu table.month-menu .add-info {
-	color: #777777;
-	padding-right: 20px;
-}
-
-#month-menu table.month-menu .add-info:hover {
-	color: #000000;
-}
-
 #month-menu a.button {
     font-weight: normal;
     color: #FFFFFF;
