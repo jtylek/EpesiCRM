@@ -166,10 +166,12 @@ class Utils_Attachment extends Module {
 				//$temp_row_id = $row['id'];
 				/* MS */ //$text = array('value'=>substr($text,0,120) . '<a onClick="document.getElementById(' . $temp_row_id . ').style.height=\'100px\'">...'.$this->lang->t('(more)').'</a>','hint'=>$this->lang->t('Click on view icon to see full note'));
 
+			$date_format = Base_RegionalSettingsCommon::date_format();
+			$regional_note_on = strftime($date_format,strtotime($note_on));
 			if($vd)
-				$r->add_data(($row['deleted']?'yes':'no'),$text,$file);
+				$r->add_data(($row['deleted']?'yes':'no'),$regional_note_on,$text,$file);
 			else
-				$r->add_data($note_on,$text,$file);
+				$r->add_data($regional_note_on,$text,$file);
 		}
 		if($this->public_write) {
 			if($this->inline) {
