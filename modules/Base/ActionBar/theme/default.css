@@ -36,6 +36,11 @@
 	border: 1px solid #FFFFFF;
 }
 
+#Base_ActionBar table.ActionBar #panel {
+	height: 68px;
+	overflow: hidden;
+}
+
 #Base_ActionBar table.ActionBar #panel div.icon a:link {
 	color: #336699;
 }
