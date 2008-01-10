@@ -23,7 +23,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			foreach (array('start','id','title','description','timeless') as $v)
 				$result[$v] = $row[$v];
 			$result['duration'] = $row['end']-$row['start'];
-			$color = array(0 => '', 1 => 'green', 2 => 'yellow', 3 => 'red', 4 => 'blue', 5=> 'gray');
+			$color = array(0 => '', 1 => 'green', 2 => 'yellow', 3 => 'red', 4 => 'blue', 5=> 'gray', 6 => 'cyan', 7 =>'magenta');
 			$color[0] = $color[Base_User_SettingsCommon::get('CRM_Calendar','default_color')];
 			$result['color'] = $color[$row['color']];
 			$result['additional_info'] = 	Base_LangCommon::ts('CRM_Calendar_Event','Created by').' '.Base_UserCommon::get_user_login($row['created_by']). '<br>'.
