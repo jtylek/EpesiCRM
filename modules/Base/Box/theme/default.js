@@ -48,12 +48,12 @@ base_box_roll_search_login_bar = function() {
       $('search-login-bar').style.display = 'block';
       $('login-search-td').style.width = '297px';
       $('quick-logout').style.display = 'none';
-      $('module-indicator').style.width = '263px';
+      $('module-indicator').style.width = '287px';
    }
    else {
       $('search-login-bar').style.display = 'none';
       $('login-search-td').style.width = '10px';
-      $('module-indicator').style.width = '239px';
+      $('module-indicator').style.width = '263px';
       $('quick-logout').style.display = 'block';
    }
 }

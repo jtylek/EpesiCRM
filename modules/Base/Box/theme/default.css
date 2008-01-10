@@ -240,7 +240,7 @@ hr.line {
 }
 
 #top_bar #top_bar_1 .module-indicator {
-	width: 263px;
+	width: 287px;
     height: 20px;
 	background-color: #336699;
 	background-image: url("images/header-blue.png");
@@ -254,7 +254,7 @@ hr.line {
 }
 
 #top_bar #top_bar_1 .module-indicator #module-indicator {
-	width: 263px;
+	width: 287px;
     text-align: center;
     display: block;
     float: left;
