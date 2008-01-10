@@ -172,23 +172,33 @@ hr.line {
 	border-bottom: 4px solid #B3B3B3;
 }
 
-#top_bar #top_bar_1 .roll {
+/* roll */
+
+#top_bar #top_bar_1 .roll-left,
+#top_bar #top_bar_1 .roll-right {
     padding-left: 3px;
     padding-top: 3px;
     width: 17px;
 	background-color: #336699;
 	background-image: url('images/header-blue.png');
 	background-repeat: repeat-x;
-	border-right: 4px solid #B3B3B3;
-}
-
-#top_bar #top_bar_1 .roll {
     cursor: pointer;
 }
 
-#top_bar #top_bar_1 .roll:hover {
+#top_bar #top_bar_1 .roll-left {
+	border-right: 4px solid #B3B3B3;
+}
+
+#top_bar #top_bar_1 .roll-right {
+	border-left: 4px solid #B3B3B3;
+}
+
+#top_bar #top_bar_1 .roll-left:hover,
+#top_bar #top_bar_1 .roll-right:hover {
 	background-image: url('images/header-blue-hover.png');
 }
+
+/* menu bar */
 
 #top_bar #top_bar_1 .menu-bar {
 	height: 20px;
@@ -230,7 +240,8 @@ hr.line {
 }
 
 #top_bar #top_bar_1 .module-indicator {
-	width: 287px;
+	width: 263px;
+    height: 20px;
 	background-color: #336699;
 	background-image: url("images/header-blue.png");
 	background-repeat: repeat-x;
@@ -238,6 +249,30 @@ hr.line {
 	text-align: center;
 	border-left: 4px solid #B3B3B3;
 	color: #FFFFFF;
+    vertical-align: top;
+    text-align: center;
+}
+
+#top_bar #top_bar_1 .module-indicator #module-indicator {
+	width: 263px;
+    text-align: center;
+    display: block;
+    float: left;
+    padding-top: 3px;
+}
+
+#top_bar #top_bar_1 .module-indicator #quick-logout {
+    width: 20px;
+    height: 20px;
+    float: right;
+    border-left: 4px solid #b3b3b3;
+    background-image: url('Base_Box__logout.png');
+    background-repeat: no-repeat;
+    background-position: 3px 3px;
+}
+
+#top_bar #top_bar_1 .module-indicator #quick-logout:hover {
+    background-image: url('Base_Box__logout-hover.png');
 }
 
 /*** top_bar_2 ***/
@@ -268,7 +303,7 @@ hr.line {
 	background-repeat: repeat-x;
 }
 
-#top_bar #top_bar_2 .login-search {
+#top_bar #top_bar_2 #login-search-td {
 	width: 297px;
 	height: 78px;
 	background-image: url('images/action-bar-right.png');

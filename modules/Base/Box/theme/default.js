@@ -43,6 +43,20 @@ base_box_roll_topbar = function() {
    }
 }
 
+base_box_roll_search_login_bar = function() {
+   if($('search-login-bar').style.display == 'none') {
+      $('search-login-bar').style.display = 'block';
+      $('login-search-td').style.width = '297px';
+      $('quick-logout').style.display = 'none';
+      $('module-indicator').style.width = '263px';
+   }
+   else {
+      $('search-login-bar').style.display = 'none';
+      $('login-search-td').style.width = '10px';
+      $('module-indicator').style.width = '239px';
+      $('quick-logout').style.display = 'block';
+   }
+}
 
 function show_hide_clock() {
    var s1 = document.getElementById("digitalclock").style;

@@ -18,13 +18,14 @@
 		<table id="top_bar_1" cellspacing="0" cellpadding="0" border="0">
 		<tbody>
 			<tr>
-				<td class="roll"><img id="roll" src="{$theme_dir}/Base_Box__roll-up.png" onClick="var x='{$theme_dir}/Base_Box__roll-';if(this.src.indexOf(x+'down.png')>=0)this.src=x+'up.png';else this.src=x+'down.png'; base_box_roll_topbar();" width="14" height="14" alt="=" border="0"></td>
+				<td class="roll-left"><img id="roll" src="{$theme_dir}/Base_Box__roll-up.png" onClick="var x='{$theme_dir}/Base_Box__roll-';if(this.src.indexOf(x+'down.png')>=0)this.src=x+'up.png';else this.src=x+'down.png'; base_box_roll_topbar();" width="14" height="14" alt="=" border="0"></td>
 				<td class="menu-bar">{$menu}</td>
 				<td class="powered"><b>epesi</b> powered</td>
 				<td class="version">{$version_no}</td>
 				<td id="clock_td"><div id="digitalclock" style="display: none;"></div></td>
 				<td class="clock_icon" onclick="show_hide_clock();"><img border="0" src="{$theme_dir}/Base_Box__clock.png" width="16" height="16"></td>
-				<td class="module-indicator">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</td>
+				<td class="module-indicator"><div id="module-indicator">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</div><div id="quick-logout" style="display: none;"></div></td>
+				<td class="roll-right"><img id="roll" src="{$theme_dir}/Base_Box__roll-right.png" onClick="var x='{$theme_dir}/Base_Box__roll-';if(this.src.indexOf(x+'left.png')>=0)this.src=x+'right.png';else this.src=x+'left.png'; base_box_roll_search_login_bar();" width="14" height="14" alt="=" border="0"></td>
 			</tr>
 		</tbody>
 		</table>
@@ -36,9 +37,11 @@
 			<tr>
 				<td class="logo"><a href="#"><img border="0" src="{$theme_dir}/images/logo-small.png" width="193" height="68"></a></td>
 				<td class="icons">{$actionbar}</td>
-				<td class="login-search">
-					<div class="login"><br>{$login}</div>
-					<div class="search"><center>{$search}</center></div>
+				<td id="login-search-td">
+					<div id="search-login-bar">
+						<div class="login"><br>{$login}</div>
+						<div class="search"><center>{$search}</center></div>
+					</div>
 				</td>
 			</tr>
 		</tbody>
