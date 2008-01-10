@@ -135,8 +135,9 @@
 #CRM_Calendar_Event_Personal .data input:focus,
 #CRM_Calendar_Event_Personal .data select:focus,
 #CRM_Calendar_Event_Personal .data textarea:focus {
-    background-color: #f2f2e6;
-    background-color: #e6e6cf;
+    /*background-color: #f2f2e6;
+    background-color: #e6e6cf;*/
+    background-color: #ffffa5;
 }
 
 #CRM_Calendar_Event_Personal #multiselect .form-element select,

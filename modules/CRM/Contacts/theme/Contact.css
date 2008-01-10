@@ -42,8 +42,9 @@
 #CRM_Contacts__Contact .data input:focus,
 #CRM_Contacts__Contact .data select:focus,
 #CRM_Contacts__Contact .data textarea:focus {
-    background-color: #f2f2e6;
-    background-color: #e6e6cf;
+    /*background-color: #f2f2e6;
+    background-color: #e6e6cf;*/
+    background-color: #ffffa5;
 }
 
 #CRM_Contacts__Contact #multiselect .form-element select,
