@@ -49,9 +49,19 @@
 			  	<td class="label" align="left">{$form_data.timeless.label}</td>
 				<td class="data short_input" align="left">{$form_data.timeless.html}</td>
 				<td class="label" align="left">{$form_data.access.label}</td>
-				<td class="data access" align="left">{$form_data.access.html}</td>
+				<td class="data access" align="left">
+                    {if $action=='view'}
+                        <div class="icon"></div>
+                    {/if}
+                    {$form_data.access.html}
+                </td>
 			  	<td class="label" align="left">{$form_data.priority.label}</td>
-				<td class="data priority" align="left">{$form_data.priority.html}</td>
+				<td class="data priority" align="left">
+                    {if $action=='view'}
+                        <div class="icon"></div>
+                    {/if}
+                    {$form_data.priority.html}
+                </td>
 				<td class="label" align="left">{$form_data.color.label}</td>
 				<td class="data" align="left">{$form_data.color.html}</td>
 			</tr>

@@ -192,6 +192,16 @@
 #CRM_Calendar_Event_Personal .access select option[value="1"] { background-image: url('CRM_Calendar_Event__access-read-only.png'); }
 #CRM_Calendar_Event_Personal .access select option[value="2"] { background-image: url('CRM_Calendar_Event__access-private.png');   }
 
+#CRM_Calendar_Event_Personal .access .icon,
+#CRM_Calendar_Event_Personal .priority .icon {
+	width: 24px;
+	height: 12px;
+	margin-top: 2px;
+	margin-left: 2px;
+	margin-right: 2px;
+	display: block;
+	float: left;
+}
 /* colors select */
 
 select[name="color"] option[value="0"] { color: #339933; background-color: white; }
