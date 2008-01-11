@@ -34,7 +34,7 @@
 		<tr>
 			<td class="left-column">
 				{* First column table *}
-				<table cellpadding="0" cellspacing="0" border="0">
+				<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
 					<tr>
 						{assign var=i value=0}
 						{assign var=j value=0}
@@ -51,8 +51,8 @@
 				</table>
 			</td>
 			{* First table closed - start second column*}
-			<td class="right-column">
-				<table cellpadding="0" cellspacing="0" border="0">
+			<td class="right-column right-column-{if $action == 'view'}view{else}edit{/if}">
+				<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
 					<tr>
 						{assign var=i value=1}
 						{else}

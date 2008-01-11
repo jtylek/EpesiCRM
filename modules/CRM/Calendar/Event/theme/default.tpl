@@ -8,7 +8,7 @@
 <!-- -->
 
 <div style="background-color: white; padding: 5px;">
-    {if $action=='view'}
+    {if $action == 'view'}
     <table name="CRMCalendar" class="form" cellspacing="0" cellpadding="0" border="0">
     	<tbody>
     		<tr>
@@ -36,7 +36,7 @@
     </table>
     {/if}
 
-    <table name="CRMCalendar" class="form" cellspacing="0" cellpadding="0" border="0">
+    <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if}" cellspacing="0" cellpadding="0" border="0">
     	<tbody>
 			<tr>
 				<td class="group_bottom label title" align="left">{$form_data.title.label}</td>
@@ -44,7 +44,7 @@
                 {$form_data.title.html}
                 </td>
 			</tr>
-			<tr><td colspan="8" class="data" style="height: 10px;"></td></tr>
+			{*<tr><td colspan="8" class="data" style="height: 10px;"></td></tr>*}
 			<tr>
 			  	<td class="label" align="left">{$form_data.timeless.label}</td>
 				<td class="data" align="left">{$form_data.timeless.html}</td>
@@ -67,7 +67,7 @@
 			</tr>
         </tbody>
     </table>
-    <table name="CRMCalendar" class="form no-border" cellspacing="0" cellpadding="0" border="0">
+    <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if} no-border" cellspacing="0" cellpadding="0" border="0">
         <tbody>
 			<tr>
 			  	<td class="label" style="border-right: 1px solid #b3b3b3; width: 50%; height: 21px;">{$form_data.date_s.label}</td>
@@ -90,7 +90,7 @@
 			</tr>
         </tbody>
     </table>
-    <table name="CRMCalendar" class="form no-border" cellspacing="0" cellpadding="0" border="0">
+    <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if} no-border" cellspacing="0" cellpadding="0" border="0">
         <tbody>
             {* description *}
         	<tr>
@@ -101,7 +101,7 @@
             </tr>
         </tbody>
     </table>
-    <table name="CRMCalendar" class="form" cellspacing="0" cellpadding="0" border="0">
+    <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if} no-border" cellspacing="0" cellpadding="0" border="0">
         <tbody>
         	{* created by *}
             {if isset($form_data.created_by)}
