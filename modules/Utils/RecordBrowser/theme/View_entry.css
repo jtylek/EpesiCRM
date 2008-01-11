@@ -45,6 +45,10 @@
     width: 70%;
 }
 
+#Utils_RecordBrowser__View_entry .currency {
+    text-align: right;
+}
+
 #Utils_RecordBrowser__View_entry table.view .data {
     border-bottom: 1px solid #B3B3B3;
     padding-left: 5px;
