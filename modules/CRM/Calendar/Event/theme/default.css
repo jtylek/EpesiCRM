@@ -126,10 +126,9 @@
     width: 100%;
 }
 
-#CRM_Calendar_Event_Personal .short_input input,
-#CRM_Calendar_Event_Personal .short_input select,
-#CRM_Calendar_Event_Personal .short_input textarea {
-	width: auto;
+#CRM_Calendar_Event_Personal .data input[type="checkbox"],
+#CRM_Calendar_Event_Personal .data input[type="radio"] {
+    width: auto;
 }
 
 #CRM_Calendar_Event_Personal .data input:focus,

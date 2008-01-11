@@ -47,7 +47,7 @@
 			<tr><td colspan="8" class="data" style="height: 10px;"></td></tr>
 			<tr>
 			  	<td class="label" align="left">{$form_data.timeless.label}</td>
-				<td class="data short_input" align="left">{$form_data.timeless.html}</td>
+				<td class="data" align="left">{$form_data.timeless.html}</td>
 				<td class="label" align="left">{$form_data.access.label}</td>
 				<td class="data access" align="left">
                     {if $action=='view'}

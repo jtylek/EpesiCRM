@@ -39,6 +39,11 @@
     width: 100%;
 }
 
+#CRM_Contacts__View_entry .data input[type="checkbox"],
+#CRM_Contacts__View_entry .data input[type="radio"] {
+    width: auto;
+}
+
 #CRM_Contacts__View_entry .data input:focus,
 #CRM_Contacts__View_entry .data select:focus,
 #CRM_Contacts__View_entry .data textarea:focus {

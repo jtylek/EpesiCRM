@@ -45,6 +45,11 @@
     width: 100%;
 }
 
+#Utils_RecordBrowser__View_entry .data input[type="checkbox"],
+#Utils_RecordBrowser__View_entry .data input[type="radio"] {
+    width: auto;
+}
+
 #Utils_RecordBrowser__View_entry .data input:focus,
 #Utils_RecordBrowser__View_entry .data select:focus,
 #Utils_RecordBrowser__View_entry .data textarea:focus {
