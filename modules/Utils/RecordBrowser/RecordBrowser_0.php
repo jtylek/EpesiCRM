@@ -20,6 +20,7 @@ class Utils_RecordBrowser extends Module {
 	private $QFfield_callback_table = array();
 	private $requires = array();
 	private $recent = 0;
+	private $mode = 'view';
 	private $caption = '';
 	private $icon = '';
 	private $favorites = false;
@@ -421,6 +422,7 @@ class Utils_RecordBrowser extends Module {
 
 		$last_page = DB::GetOne('SELECT MIN(position) FROM '.$this->tab.'_field WHERE type = \'page_split\' AND field != \'General\'');
 		$label = DB::GetOne('SELECT field FROM '.$this->tab.'_field WHERE position=%s', array($last_page));
+		$this->mode = $mode;
 		$this->view_entry_details(1, $last_page, $data, $theme, true);
 		$ret = DB::Execute('SELECT position, field FROM '.$this->tab.'_field WHERE type = \'page_split\' AND position > %d', array($last_page));
 		$row = true;
@@ -476,6 +478,7 @@ class Utils_RecordBrowser extends Module {
 			}
 		$theme->assign('fields', $fields);
 		$theme->assign('longfields', $longfields);
+		$theme->assign('action', $this->mode);
 		$theme->assign('Form_data', $data);
 		$theme->assign('required_note', $this->lang->t('Indicates required fields.'));
 		
