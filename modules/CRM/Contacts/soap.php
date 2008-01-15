@@ -15,18 +15,10 @@ class EpesiContacts
 
 	public function __construct() {
 		global $namespace;
-		$this->__dispatch_map['get_contacts']=array (
+		$this->__dispatch_map['get_data']=array (
 					'in' =>array ('user' =>'string','pass'=>'string','newer_then'=>'int'),
-					'out' =>array ('return' => '{urn:'.$namespace.'}GetContactsResult'),
+					'out' =>array ('return' => '{urn:'.$namespace.'}GetDataResult'),
 			 	);
-		$this->__dispatch_map['get_companies']=array (
-					'in' =>array ('user' =>'string','pass'=>'string','newer_then'=>'int'),
-					'out' =>array ('return' => '{urn:'.$namespace.'}GetCompaniesResult'),
-			 	);
-/*		$this->__dispatch_map['get_contact']=array (
-					'in' =>array (),
-					'out' =>array ('return' => '{urn:'.$namespace.'}Contact'),
-			 	);*/
 		$this->__typedef['Contact'] = array(
 					'id'=>'int',
 					'first' => 'string',
@@ -47,18 +39,12 @@ class EpesiContacts
 						'itemc' => '{urn:'.$namespace.'}Company'
 					)
 				);
-		$this->__typedef['GetContactsResult'] = array(
+		$this->__typedef['GetDataResult'] = array(
 					'contacts' => '{urn:'.$namespace.'}ArrayOfContacts',
-					'error' => 'string'
-				);
-		$this->__typedef['GetCompaniesResult'] = array(
 					'companies' => '{urn:'.$namespace.'}ArrayOfCompanies',
 					'error' => 'string'
 				);
 	}
-//	public function get_contact() {
-//		return new SOAP_Value('return','{urn:'.$namespace.'}Contact',array('first'=>new SOAP_Value("first","string",'dupa'),'last'=>'los'));
-//	}
 	
 	private function auth($user,$pass) {
 		$error = '';
@@ -88,14 +74,15 @@ class EpesiContacts
 		return $error;
 	}
 
-	public function get_contacts($user,$pass,$newer_then){
+	public function get_data($user,$pass,$newer_then=0){
 		global $namespace;
 		
 		$error = $this->auth($user,$pass);
 		
 		$contacts = array();
+		$companies = array();
 		if($error==='') {
-			$c = CRM_ContactsCommon::get_contacts();
+			$c = CRM_ContactsCommon::get_contacts(array(':Edited_on'=>' is null'));
 			foreach($c as $row) {
 				$contacts[] = new SOAP_Value('item',
       					'{urn:'.$namespace.'}Contact',array(
@@ -105,21 +92,7 @@ class EpesiContacts
 					'company'=> new SOAP_Value("company","int",(int)$row['company_name'])
 					));
 			}
-		}
-		return new SOAP_Value('return','{urn:'.$namespace.'}GetContactsResult',array(
-				'contacts'=>new SOAP_Value('contacts','{urn:'.$namespace.'}ArrayOfContacts',$contacts),
-				'error'=>new SOAP_Value('error','string',$error),
-				));
-	}
-
-	public function get_companies($user,$pass,$newer_then){
-		global $namespace;
-		
-		$error = $this->auth($user,$pass);
-		
-		$companies = array();
-		if($error==='') {
-			$c = CRM_ContactsCommon::get_companies();
+			$c = CRM_ContactsCommon::get_companies(array(':Edited_on'=>'>'.DB::DBTimeStamp($newer_then)));
 			foreach($c as $row) {
 				$companies[] = new SOAP_Value('item',
       					'{urn:'.$namespace.'}Company',array(
@@ -128,8 +101,9 @@ class EpesiContacts
 					));
 			}
 		}
-		return new SOAP_Value('return','{urn:'.$namespace.'}GetCompaniesResult',array(
+		return new SOAP_Value('return','{urn:'.$namespace.'}GetDataResult',array(
 				'companies'=>new SOAP_Value('companies','{urn:'.$namespace.'}ArrayOfCompanies',$companies),
+				'contacts'=>new SOAP_Value('contacts','{urn:'.$namespace.'}ArrayOfContacts',$contacts),
 				'error'=>new SOAP_Value('error','string',$error),
 				));
 	}
