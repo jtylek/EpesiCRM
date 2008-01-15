@@ -314,6 +314,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				switch ($k) {
 					case ':Fav'	: $where .= ' AND (SELECT COUNT(*) FROM '.$tab_name.'_favorite WHERE '.$tab_name.'_id=r.id AND user_id=%d)!=0'; $vals[]=Acl::get_user(); break;
 					case ':Recent'	: $where .= ' AND (SELECT COUNT(*) FROM '.$tab_name.'_recent WHERE '.$tab_name.'_id=r.id AND user_id=%d)!=0'; $vals[]=Acl::get_user(); break;
+					case ':Created_on'	: $where .= ' AND created_on '.$v; break;
+					case ':Edited_on'	: $where .= ' AND (SELECT MAX(edited_on) FROM '.$tab_name.'_edit_history WHERE '.$tab_name.'_id=r.id) '.$v; break;
 					default		: trigger_error('Unknow paramter given to get_records criteria: '.$k, E_USER_ERROR);
 				}
 			} else {
