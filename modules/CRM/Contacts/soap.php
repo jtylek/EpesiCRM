@@ -23,7 +23,7 @@ class EpesiContacts
 					'id'=>'int',
 					'first' => 'string',
 					'last' => 'string', 
-					'company' => 'int'
+					'company' => '{urn:'.$namespace.'}ArrayOfInt'
 				);
 		$this->__typedef['Company'] = array(
 					'id'=>'int',
@@ -32,6 +32,11 @@ class EpesiContacts
 		$this->__typedef['ArrayOfContacts'] = array(
 					array(
 						'item' => '{urn:'.$namespace.'}Contact'
+					)
+				);
+		$this->__typedef['ArrayOfInt'] = array(
+					array(
+						'item' => 'int'
 					)
 				);
 		$this->__typedef['ArrayOfCompanies'] = array(
@@ -84,20 +89,22 @@ class EpesiContacts
 		if($error==='') {
 			$c = CRM_ContactsCommon::get_contacts(array(':Edited_on'=>' is null'));
 			foreach($c as $row) {
+				foreach($row['company_name'] as &$v)
+					$v = (int)$v;
 				$contacts[] = new SOAP_Value('item',
       					'{urn:'.$namespace.'}Contact',array(
 					'id'=> new SOAP_Value("id","int",(int)$row['id']),
 					'first'=> new SOAP_Value("first","string",$row['first_name']),
 					'last'=> new SOAP_Value("last","string",$row['last_name']),
-					'company'=> new SOAP_Value("company","int",(int)$row['company_name'])
+					'company'=> new SOAP_Value("company",'{urn:'.$namespace.'}ArrayOfInt',$row['company_name'])
 					));
 			}
 			$c = CRM_ContactsCommon::get_companies(array(':Edited_on'=>'>'.DB::DBTimeStamp($newer_then)));
 			foreach($c as $row) {
 				$companies[] = new SOAP_Value('item',
       					'{urn:'.$namespace.'}Company',array(
-					'id'=> new SOAP_Value("id","int",(int)$row['id']),
-					'name'=> new SOAP_Value("name","string",$row['company_name'])
+					'id'=> new SOAP_Value("id",'int',(int)$row['id']),
+					'name'=> new SOAP_Value("name",'string',$row['company_name'])
 					));
 			}
 		}
@@ -118,7 +125,7 @@ $server->addObjectMap ($webservice,'http://schemas.xmlsoap.org/soap/envelope/');
 if (isset ($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
 	ob_start();
 	$server->service ($HTTP_RAW_POST_DATA);
-//	error_log(ob_get_contents()."\n\n\n",3,'data/log');
+	error_log(ob_get_contents()."\n\n\n",3,'data/log');
 	ob_end_flush();
 } else { //else discovery query
 	require_once ('SOAP/Disco.php'); //automatic WSDL
