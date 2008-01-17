@@ -20,7 +20,7 @@ class Utils_MessengerInstall extends ModuleInstall {
 			created_by I4 NOTNULL,
 			created_on T NOTNULL,
 			alert_on T,
-			key C(32) NOTNULL',
+			page_id C(32) NOTNULL',
 			array('constraints'=>', FOREIGN KEY (created_by) REFERENCES user_login(ID)'));
 		if(!$ret){
 			print('Unable to create table utils_messenger_message.<br>');
