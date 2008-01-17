@@ -87,7 +87,7 @@ class EpesiContacts
 		$contacts = array();
 		$companies = array();
 		if($error==='') {
-			$c = CRM_ContactsCommon::get_contacts(array(':Edited_on'=>' is null'));
+			$c = CRM_ContactsCommon::get_contacts(array(':Edited_on'=>'>'.DB::DBTimeStamp($newer_then)));
 			foreach($c as $row) {
 				foreach($row['company_name'] as &$v)
 					$v = (int)$v;
