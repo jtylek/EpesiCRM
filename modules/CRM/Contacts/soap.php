@@ -23,11 +23,41 @@ class EpesiContacts
 					'id'=>'int',
 					'first' => 'string',
 					'last' => 'string', 
-					'company' => '{urn:'.$namespace.'}ArrayOfInt'
+					'company' => '{urn:'.$namespace.'}ArrayOfInt',
+					'title' => 'string',
+					'work_phone' => 'string',
+					'mobile_phone' => 'string',
+					'fax'=>'string',
+					'mail'=>'string',
+					'web_address'=>'string',
+					'address1'=>'string',
+					'address2'=>'string',
+					'city'=>'string',
+					'country'=>'string',
+					'zone'=>'string',
+					'postal'=>'string',
+					'home_phone'=>'string',
+					'home_address1'=>'string',
+					'home_address2'=>'string',
+					'home_city'=>'string',
+					'home_country'=>'string',
+					'home_zone'=>'string',
+					'home_postal'=>'string',
+					'birth'=>'string'
 				);
 		$this->__typedef['Company'] = array(
 					'id'=>'int',
-					'name' => 'string'
+					'name' => 'string',
+					'short'=>'string',
+					'phone'=>'string',
+					'fax'=>'string',
+					'web_address'=>'string',
+					'address1'=>'string',
+					'address2'=>'string',
+					'city'=>'string',
+					'country'=>'string',
+					'zone'=>'string',
+					'postal'=>'string'
 				);
 		$this->__typedef['ArrayOfContacts'] = array(
 					array(
@@ -96,6 +126,26 @@ class EpesiContacts
 					'id'=> new SOAP_Value("id","int",(int)$row['id']),
 					'first'=> new SOAP_Value("first","string",$row['first_name']),
 					'last'=> new SOAP_Value("last","string",$row['last_name']),
+					'title'=> new SOAP_Value("title","string",$row['title']),
+					'work_phone'=> new SOAP_Value("work_phone","string",$row['work_phone']),
+					'mobile_phone'=> new SOAP_Value("mobile_phone","string",$row['mobile_phone']),
+					'fax'=> new SOAP_Value("fax","string",$row['fax']),
+					'mail'=> new SOAP_Value("mail","string",$row['mail']),
+					'web_address'=> new SOAP_Value("web_address","string",$row['web_address']),
+					'address1'=> new SOAP_Value("address1","string",$row['address_1']),
+					'address2'=> new SOAP_Value("address2","string",$row['address_2']),
+					'city'=> new SOAP_Value("city","string",$row['city']),
+					'country'=> new SOAP_Value("country","string",$row['country']),
+					'zone'=> new SOAP_Value("zone","string",$row['zone']),
+					'postal'=> new SOAP_Value("postal","string",$row['postal_code']),
+					'home_phone'=> new SOAP_Value("home_phone","string",$row['home_phone']),
+					'home_address1'=> new SOAP_Value("home_address1","string",$row['home_address_1']),
+					'home_address2'=> new SOAP_Value("home_address2","string",$row['home_address_2']),
+					'home_city'=> new SOAP_Value("home_city","string",$row['home_city']),
+					'home_zone'=> new SOAP_Value("home_zone","string",$row['home_zone']),
+					'home_country'=> new SOAP_Value("home_country","string",$row['home_country']),
+					'home_postal'=> new SOAP_Value("home_postal","string",$row['home_postal_code']),
+					'birth'=> new SOAP_Value("birth","string",$row['birth']),
 					'company'=> new SOAP_Value("company",'{urn:'.$namespace.'}ArrayOfInt',$row['company_name'])
 					));
 			}
@@ -104,7 +154,17 @@ class EpesiContacts
 				$companies[] = new SOAP_Value('item',
       					'{urn:'.$namespace.'}Company',array(
 					'id'=> new SOAP_Value("id",'int',(int)$row['id']),
-					'name'=> new SOAP_Value("name",'string',$row['company_name'])
+					'name'=> new SOAP_Value("name",'string',$row['company_name']),
+					'short'=> new SOAP_Value("short",'string',$row['short_name']),
+					'phone'=> new SOAP_Value("phone",'string',$row['phone']),
+					'fax'=> new SOAP_Value("fax",'string',$row['fax']),
+					'web_address'=> new SOAP_Value("web_address",'string',$row['web_address']),
+					'address1'=> new SOAP_Value("address1",'string',$row['address_1']),
+					'address2'=> new SOAP_Value("address2",'string',$row['address_2']),
+					'city'=> new SOAP_Value("city",'string',$row['city']),
+					'country'=> new SOAP_Value("country",'string',$row['country']),
+					'zone'=> new SOAP_Value("zone",'string',$row['zone']),
+					'postal'=> new SOAP_Value("postal",'string',$row['postal_code'])
 					));
 			}
 		}
