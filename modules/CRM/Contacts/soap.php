@@ -4,6 +4,9 @@ define('CID',false);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 
+set_time_limit(0);
+
+
 require_once ('SOAP/Server.php'); 
 
 global $namespace;
@@ -130,7 +133,7 @@ class EpesiContacts
 					'work_phone'=> new SOAP_Value("work_phone","string",$row['work_phone']),
 					'mobile_phone'=> new SOAP_Value("mobile_phone","string",$row['mobile_phone']),
 					'fax'=> new SOAP_Value("fax","string",$row['fax']),
-					'mail'=> new SOAP_Value("mail","string",$row['mail']),
+					'mail'=> new SOAP_Value("mail","string",$row['email']),
 					'web_address'=> new SOAP_Value("web_address","string",$row['web_address']),
 					'address1'=> new SOAP_Value("address1","string",$row['address_1']),
 					'address2'=> new SOAP_Value("address2","string",$row['address_2']),
@@ -145,7 +148,7 @@ class EpesiContacts
 					'home_zone'=> new SOAP_Value("home_zone","string",$row['home_zone']),
 					'home_country'=> new SOAP_Value("home_country","string",$row['home_country']),
 					'home_postal'=> new SOAP_Value("home_postal","string",$row['home_postal_code']),
-					'birth'=> new SOAP_Value("birth","string",$row['birth']),
+					'birth'=> new SOAP_Value("birth","string",$row['birth_date']),
 					'company'=> new SOAP_Value("company",'{urn:'.$namespace.'}ArrayOfInt',$row['company_name'])
 					));
 			}
