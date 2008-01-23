@@ -50,6 +50,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		//print('SELECT start,end,title,description,id,timeless,priority,created_by,created_on,edited_by,edited_on FROM crm_calendar_event WHERE ((start>=%d AND start<%d) OR (end>=%d AND end<%d)) '.$fil);
 		$ret = DB::Execute('SELECT e.color,e.access,e.start,e.end,e.title,e.description,e.id,e.timeless,e.priority,e.created_by,e.created_on,e.edited_by,e.edited_on FROM crm_calendar_event e WHERE ((e.start>=%d AND e.start<%d) OR (e.end>=%d AND e.end<%d)) '.$fil.$order,array($start,$end,$start,$end));
 		$result = array();
+		$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
 		while ($row = $ret->FetchRow()) {
 			$next_result = array();
 			foreach (array('start','id','title','description','timeless') as $v)
@@ -62,7 +63,6 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 												(($row['edited_by'])?(
 												Base_LangCommon::ts('CRM_Calendar_Event','Edited by').' '.Base_UserCommon::get_user_login($row['edited_by']). '<br>'.
 												Base_LangCommon::ts('CRM_Calendar_Event','Edited on').' '.$row['edited_on']. '<br>'):'');
-			$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
 			$next_result['additional_info2'] =  Base_LangCommon::ts('CRM_Calendar_Event','Access: ').Base_LangCommon::ts('CRM_Calendar_Event',$access[$row['access']]);
 			$result[] = $next_result;
 		}

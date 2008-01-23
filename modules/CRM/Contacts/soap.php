@@ -51,7 +51,7 @@ class EpesiContacts
 		$this->__typedef['Company'] = array(
 					'id'=>'int',
 					'name' => 'string',
-					'short'=>'string',
+					'short_name'=>'string',
 					'phone'=>'string',
 					'fax'=>'string',
 					'web_address'=>'string',
@@ -158,7 +158,7 @@ class EpesiContacts
       					'{urn:'.$namespace.'}Company',array(
 					'id'=> new SOAP_Value("id",'int',(int)$row['id']),
 					'name'=> new SOAP_Value("name",'string',$row['company_name']),
-					'short'=> new SOAP_Value("short",'string',$row['short_name']),
+					'short_name'=> new SOAP_Value("short_name",'string',$row['short_name']),
 					'phone'=> new SOAP_Value("phone",'string',$row['phone']),
 					'fax'=> new SOAP_Value("fax",'string',$row['fax']),
 					'web_address'=> new SOAP_Value("web_address",'string',$row['web_address']),

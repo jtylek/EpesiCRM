@@ -1,7 +1,7 @@
 <?php
 define('_VALID_ACCESS',true);
 define('CID',false);
-require_once('../../../include.php');
+require_once('../../../../include.php');
 ModuleManager::load_modules();
 
 set_time_limit(0);
@@ -30,7 +30,14 @@ class EpesiCalendar
 					'end_time'=>'int',
 					'timeless'=>'boolean',
 					'priority'=>'int',
-					'color'=>'int'
+					'color'=>'int',
+					'customers' => '{urn:'.$namespace.'}ArrayOfInt',
+					'employees' => '{urn:'.$namespace.'}ArrayOfInt'
+				);
+		$this->__typedef['ArrayOfInt'] = array(
+					array(
+						'item' => 'int'
+					)
 				);
 		$this->__typedef['ArrayOfEvents'] = array(
 					array(
@@ -77,6 +84,21 @@ class EpesiCalendar
 		$error = $this->auth($user,$pass);
 		
 		$events = array();
+		$ret = DB::Execute('SELECT e.color,e.start,e.end,e.title,e.description,e.id,e.timeless,e.priority FROM crm_calendar_event e WHERE ((e.edited_on>%d OR e.created_on>%d) AND (e.access<2 OR e.created_on=%d))',array($newer_then,$newer_then,Acl::get_user()));
+		while($row = $ret->FetchRow()) {
+			$events[] = new SOAP_Value('item','{urn:'.$namespace.'}Event',array(
+				'id'=>new SOAP_Value('id','int',$row['id']),
+				'title'=>new SOAP_Value('title','string',$row['title']),
+				'description'=>new SOAP_Value('description','string',$row['description']),
+				'start_time'=>new SOAP_Value('start_time','int',$row['start']),
+				'end_time'=>new SOAP_Value('end_time','int',$row['end']),
+				'timeless'=>new SOAP_Value('timeless','boolean',($row['timeless']==1)),
+				'priority'=>new SOAP_Value('priority','int',$row['priority']),
+				'employees'=>new Soap_Value('employees','{urn:'.$namespace.'}ArrayOfInt',DB::GetCol('SELECT contact FROM crm_calendar_event_group_emp WHERE id=%d',array($row['id']))),
+				'customers'=>new Soap_Value('customers','{urn:'.$namespace.'}ArrayOfInt',DB::GetCol('SELECT contact FROM crm_calendar_event_group_cus WHERE id=%d',array($row['id']))),
+				'color'=>new SOAP_Value('color','int',$row['color'])
+			));
+		}
 		
 		return new SOAP_Value('return','{urn:'.$namespace.'}GetDataResult',array(
 				'events'=>new SOAP_Value('events','{urn:'.$namespace.'}ArrayOfEvents',$events),
@@ -94,7 +116,7 @@ $server->addObjectMap ($webservice,'http://schemas.xmlsoap.org/soap/envelope/');
 if (isset ($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
 	ob_start();
 	$server->service ($HTTP_RAW_POST_DATA);
-//	error_log(ob_get_contents()."\n\n\n",3,'data/log');
+	error_log(ob_get_contents()."\n\n\n",3,'data/log');
 	ob_end_flush();
 } else { //else discovery query
 	require_once ('SOAP/Disco.php'); //automatic WSDL
