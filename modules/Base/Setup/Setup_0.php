@@ -93,7 +93,7 @@ class Base_Setup extends Module {
 					$path = explode('_',$entry);
 					$c = & $structure;
 					for($i=0, $path_count = count($path)-1;$i<$path_count;$i++){
-						if(!key_exists($path[$i], $c)) {
+						if(!array_key_exists($path[$i], $c)) {
 							$c[$path[$i]] = array();
 							$c[$path[$i]]['name'] = $path[$i];
 							$c[$path[$i]]['sub'] = array();

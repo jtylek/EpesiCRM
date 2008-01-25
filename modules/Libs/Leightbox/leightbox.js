@@ -126,6 +126,11 @@ leightbox.prototype = {
 		    if(tag) {
 			tag.parentNode.insertBefore(c,tag);
 			tag.parentNode.removeChild(tag);
+		    } else {
+		    	c.id = this.content+"__bak";
+			var c2 = $(this.content);
+			if(c2) c2.parentNode.removeChild(c2);
+		    	c.id = this.content;
 		    }
 		} else {
 		    var tag = document.createElement('div');

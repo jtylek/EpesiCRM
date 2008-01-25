@@ -79,8 +79,7 @@ class Base_ActionBar extends Module {
 						$trimmed_label = substr(strrchr($v['label'],':'),1);
 						$ii['label'] = $trimmed_label?$trimmed_label:$v['label'];
 						$ii['description'] = $v['label'];
-						$ii['link_id'] = 'actionbar_launchpad_'.$k;
-						$ii['open'] = '<a '.$this->create_href($v['link']).' id="'.$ii['link_id'].'">';
+						$ii['open'] = '<a '.$this->create_href($v['link']).'>';
 						$ii['close'] = '</a>';
 						try {
 							if(isset($v['link']['__icon__']))
@@ -98,8 +97,7 @@ class Base_ActionBar extends Module {
 						$trimmed_label = substr(strrchr($v['label'],':'),1);
 						$ii['label'] = $trimmed_label?$trimmed_label:$v['label'];
 						$ii['description'] = $v['label'];
-						$ii['link_id'] = 'actionbar_launchpad_'.$k;
-						$ii['open'] = '<a '.$this->create_href($v['link']).' id="'.$ii['link_id'].'">';
+						$ii['open'] = '<a onClick="actionbar_launchpad_deactivate();'.$this->create_href_js($v['link']).'" href="javascript:void(0)">';
 						$ii['close'] = '</a>';
 						try {
 							if(isset($v['link']['__icon__']))
@@ -122,8 +120,6 @@ class Base_ActionBar extends Module {
 					usort($launchpad,array($this,'compare_launcher'));
 					$th->assign('icons',$launchpad);
 					eval_js_once('actionbar_launchpad_deactivate = function(){leightbox_deactivate(\'actionbar_launchpad\');}');
-					foreach($launchpad as $v)
-						eval_js('Event.observe(\''.$v['link_id'].'\',\'click\', actionbar_launchpad_deactivate)');
 					ob_start();
 					$th->display('launchpad');
 					$lp_out = ob_get_clean();

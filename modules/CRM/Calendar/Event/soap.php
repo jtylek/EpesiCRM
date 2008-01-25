@@ -83,19 +83,30 @@ class EpesiCalendar
 		
 		$error = $this->auth($user,$pass);
 		
+		$t = time();
+		$newer_then = $newer_then + ($t-gmdate('U',$t));
+		
 		$events = array();
 		$ret = DB::Execute('SELECT e.color,e.start,e.end,e.title,e.description,e.id,e.timeless,e.priority FROM crm_calendar_event e WHERE ((e.edited_on>%d OR e.created_on>%d) AND (e.access<2 OR e.created_on=%d))',array($newer_then,$newer_then,Acl::get_user()));
 		while($row = $ret->FetchRow()) {
+			$empl = array();
+			$empl_ret = DB::Execute('SELECT contact FROM crm_calendar_event_group_emp WHERE id=%d',array($row['id']));
+			while($empl_row = $empl_ret->FetchRow())
+				$empl[] = (int)($empl_row['contact']);
+			$cust = array();
+			$cust_ret = DB::Execute('SELECT contact FROM crm_calendar_event_group_cus WHERE id=%d',array($row['id']));
+			while($cust_row = $cust_ret->FetchRow())
+				$cust[] = (int)($cust_row['contact']);
 			$events[] = new SOAP_Value('item','{urn:'.$namespace.'}Event',array(
 				'id'=>new SOAP_Value('id','int',$row['id']),
 				'title'=>new SOAP_Value('title','string',$row['title']),
 				'description'=>new SOAP_Value('description','string',$row['description']),
-				'start_time'=>new SOAP_Value('start_time','int',$row['start']),
-				'end_time'=>new SOAP_Value('end_time','int',$row['end']),
+				'start_time'=>new SOAP_Value('start_time','int',gmdate('U',$row['start'])),
+				'end_time'=>new SOAP_Value('end_time','int',gmdate('U',$row['end'])),
 				'timeless'=>new SOAP_Value('timeless','boolean',($row['timeless']==1)),
 				'priority'=>new SOAP_Value('priority','int',$row['priority']),
-				'employees'=>new Soap_Value('employees','{urn:'.$namespace.'}ArrayOfInt',DB::GetCol('SELECT contact FROM crm_calendar_event_group_emp WHERE id=%d',array($row['id']))),
-				'customers'=>new Soap_Value('customers','{urn:'.$namespace.'}ArrayOfInt',DB::GetCol('SELECT contact FROM crm_calendar_event_group_cus WHERE id=%d',array($row['id']))),
+				'employees'=>new Soap_Value('employees','{urn:'.$namespace.'}ArrayOfInt',$empl),
+				'customers'=>new Soap_Value('customers','{urn:'.$namespace.'}ArrayOfInt',$cust),
 				'color'=>new SOAP_Value('color','int',$row['color'])
 			));
 		}
