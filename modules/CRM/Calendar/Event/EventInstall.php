@@ -48,11 +48,19 @@ class CRM_Calendar_EventInstall extends ModuleInstall {
 			return false;
 		}
 		Base_ThemeCommon::install_default_theme('CRM/Calendar/Event');
+
+		$this->add_aco('view deleted notes','Employee Manager');
+		$this->add_aco('view protected notes','Employee');
+		$this->add_aco('view public notes','Employee');
+		$this->add_aco('edit protected notes','Employee Administrator');
+		$this->add_aco('edit public notes','Employee');
+
 		return $ret;
 	}
 
 	public function uninstall() {
 		Base_ThemeCommon::uninstall_default_theme('CRM/Calendar/Event');
+		Utils_AttachmentCommon::persistent_mass_delete(null,'CRM/Calendar/Event');
 		$ret = DB::DropTable('crm_calendar_event');
 		$ret &= DB::DropTable('crm_calendar_event_group_emp');
 		$ret &= DB::DropTable('crm_calendar_event_group_cus');
@@ -67,6 +75,7 @@ class CRM_Calendar_EventInstall extends ModuleInstall {
 		return array(
 				array('name'=>'Utils/Calendar/Event','version'=>0),
 				array('name'=>'Utils/PopupCalendar','version'=>0),
+				array('name'=>'Utils/Attachment','version'=>0),
 				array('name'=>'Libs/QuickForm','version'=>0));
 	}
 

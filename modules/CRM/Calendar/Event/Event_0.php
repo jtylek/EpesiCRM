@@ -220,7 +220,16 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$this->back_to_calendar();
 		}
 
-		if($action == 'view') $form->freeze();
+		if($action == 'view') {
+			$form->freeze();
+			//attachments
+			$a = $this->init_module('Utils/Attachment',array($id,'CRM/Calendar/Event/'.$id));
+			$a->additional_header('Event: '.$event['title']);
+			$a->allow_view_deleted($this->acl_check('view deleted notes'));
+			$a->allow_protected($this->acl_check('view protected notes'),$this->acl_check('edit protected notes'));
+			$a->allow_public($this->acl_check('view public notes'),$this->acl_check('edit public notes'));
+			$theme->assign('attachments', $this->get_html_of_module($a));
+		}
 
 		$theme->assign('view_style', 'new_event');
 		$theme->assign('cus_click', $cus_click);

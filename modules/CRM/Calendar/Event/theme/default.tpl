@@ -121,7 +121,11 @@
         </tbody>
 	</table>
 
+<br><br>
+{$attachments}
+
 </div>
+
 
 {php}
 	eval_js('focus_by_id(\'event_title\');');
