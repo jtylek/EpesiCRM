@@ -8,6 +8,11 @@ class CRM_Calendar extends Module {
 		$f = $this->pack_module('CRM/Filters');
 		CRM_Calendar_EventCommon::$filter = $f->get();
 		
+		if(isset($_REQUEST['search_date']))
+			$default_date = (int)$_REQUEST['search_date'];
+		else
+			$default_date = null;
+		
 		$theme = $this->init_module('Base/Theme');
 		$theme->assign('filter_description',$f->get_description());
 		$c = $this->init_module('Utils/Calendar',array('CRM/Calendar/Event',array('default_view'=>Base_User_SettingsCommon::get('CRM_Calendar','default_view'),
@@ -15,6 +20,7 @@ class CRM_Calendar extends Module {
 			'start_day'=>Base_User_SettingsCommon::get('CRM_Calendar','start_day'),
 			'end_day'=>Base_User_SettingsCommon::get('CRM_Calendar','end_day'),
 			'interval'=>Base_User_SettingsCommon::get('CRM_Calendar','interval'),
+			'default_date'=>$default_date
 			)));
 		$theme->assign('calendar',$this->get_html_of_module($c));
 		$theme->display();

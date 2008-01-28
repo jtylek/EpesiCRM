@@ -48,5 +48,26 @@ class CRM_CalendarCommon extends ModuleCommon {
 	public static function applet_settings() {
 		return array(array('name'=>'days', 'label'=>'Look for events in', 'type'=>'select', 'default'=>'7', 'values'=>array('1'=>'1 day','2'=>'2 days','3'=>'3 days','5'=>'5 days','7'=>'1 week','14'=>'2 weeks')));
 	}
+
+	public static function search($word){
+		if(!self::Instance()->acl_check('access'))
+			return array();
+		$query = 'SELECT ev.start,ev.title,ev.id FROM crm_calendar_event ev '.
+					'WHERE (ev.title LIKE '.DB::Concat('\'%\'',DB::qstr($word),'\'%\'').
+ 					' OR ev.description LIKE '.DB::Concat('\'%\'',DB::qstr($word),'\'%\'').
+ 					')';
+ 		$recordSet = DB::Execute($query);
+ 		$result = array();
+
+ 		while (!$recordSet->EOF){
+ 			$row = $recordSet->FetchRow();
+ 			$result['Event #'.$row['id'].', '.$row['title']] = array('search_date'=>$row['start']);
+ 		}
+ 		
+		return $result;
+	}
+
+
+
 }
 ?>
