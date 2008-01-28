@@ -304,11 +304,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		elseif ($access!==true && is_array($access))
 			$crits = array_merge($crits, $access);
 		$iter = 0;
+		$hash = array();
 		foreach (self::$table_rows as $field=>$args)
-			if (isset($crits[$args['id']])) {
-				$crits[$field] = $crits[$args['id']];
-				unset($crits[$args['id']]);
-			}
+			$hash[$args['id']] = $field;
+		$old_crits = $crits;
+		$crits = array();
+		foreach($old_crits as $k=>$v) {
+			$tk = trim($k, '"!~');
+			$crits[str_replace($tk, $hash[$tk], $k)] = $v;
+		}
+		print_r($crits);
 		foreach($crits as $k=>$v){
 			if ($k[0]==':') {
 				switch ($k) {
