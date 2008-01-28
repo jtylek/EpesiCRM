@@ -1,5 +1,5 @@
 Utils_Calendar = {
-add_event:function(dest_id,ev_id,title) {
+add_event:function(dest_id,ev_id) {
 	var dest = $(dest_id);
 	var ev = $('utils_calendar_event:'+ev_id);
 	if(!dest || !ev) return;

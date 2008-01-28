@@ -295,7 +295,7 @@ class Utils_Calendar extends Module {
 						break;
 				$dest_id = $timeline[$i]['id'];
 			}
-			$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\',\''.$ev['id'].'\' ,\''.Epesi::escapeJS($ev['title'],false).'\')');
+			$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\',\''.$ev['id'].'\')');
 		}
 		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
 				'\''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
@@ -429,7 +429,7 @@ class Utils_Calendar extends Module {
 						break;
 				$dest_id = 'UCcell_'.($today_t+$timeline[$i]['time']);
 			}
-			$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\', \''.Epesi::escapeJS($ev['title'],false).'\')');
+			$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\')');
 		}
 		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
 				'\''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
@@ -524,7 +524,7 @@ class Utils_Calendar extends Module {
 			$this->print_event($ev);
 			$ev_start = strtotime(date('Y-m-d',$ev['start']));
 			$dest_id = 'UCcell_'.$ev_start;
-			$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\', \''.Epesi::escapeJS($ev['title'],false).'\')');
+			$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\')');
 		}
 		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
 				'\''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.

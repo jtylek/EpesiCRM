@@ -122,7 +122,7 @@
 	</table>
 
 <br><br>
-{$attachments}
+{$attachments|default:''}
 
 </div>
 
