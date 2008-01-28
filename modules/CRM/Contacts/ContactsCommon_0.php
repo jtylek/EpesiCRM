@@ -207,5 +207,19 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$values['email'] = DB::GetOne('SELECT mail FROM user_password WHERE user_login_id=%d', array($values['login']));
 		return $values;
 	}
+
+	public static function search($word){
+		$ret = array();
+		if(self::Instance()->acl_check('browse contacts')) {
+			$result = self::get_contacts(array('"~first_name'=>DB::Concat('\'%\'',DB::qstr($word),'\'%\'')));
+
+	 		foreach ($result as $row){
+ 				$ret['Contact #'.$row['id'].', '.$row['first_name'].' '.$row['last_name']] = array('search_contact'=>$row['id']);
+	 		}
+ 		}
+		return $ret;
+	}
+
+
 }
 ?>

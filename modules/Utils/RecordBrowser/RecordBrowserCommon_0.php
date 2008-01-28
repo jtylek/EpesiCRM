@@ -336,9 +336,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					default		: trigger_error('Unknow paramter given to get_records criteria: '.$k, E_USER_ERROR);
 				}
 			} else {
-				$negative = $k[0]=='!';
-				$noquotes = $k[0]=='"';
-				$k = trim($k, '!"');
+				$negative = ($k[0]=='!' || $k[1]=='!' || $k[2]=='!');
+				$noquotes = ($k[0]=='"' || $k[1]=='"' || $k[2]=='"');
+				$force_like = ($k[0]=='~' || $k[1]=='~' || $k[2]=='~');
+				$k = trim($k, '!"~');
 				$fields .= ', concat( \'::\', group_concat( rd'.$iter.'.value ORDER BY rd'.$iter.'.value SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
 				$final_tab = '('.$final_tab.') LEFT JOIN '.$tab_name.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab_name.'_id AND rd'.$iter.'.field="'.$k.'"';
 				if (is_array($v)) {
@@ -352,7 +353,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					else $having .= ')';
 				} else {
 					if (!$noquotes) $v = DB::qstr($v);
-					$having .= ' AND val'.$iter.($negative?'!':'').'='.DB::Concat('\'::\'',$v,'\'::\'');
+					$having .= ' AND val'.$iter.($negative?'!':'').($force_like?' LIKE ':'=').DB::Concat('\'::\'',$v,'\'::\'');
 				}
 				$iter++;
 			}
@@ -381,6 +382,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			}
 		}
 		$ret = array('sql'=>'SELECT id, active'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?'':' AND active=1').$where.' GROUP BY id HAVING true'.$having.$orderby,'vals'=>$vals);
+		print_r($ret);
 		return $ret;
 	}
 	public static function get_records_limit( $tab_name = null, $crits = null, $admin = false) {
