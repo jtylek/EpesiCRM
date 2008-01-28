@@ -313,7 +313,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$tk = trim($k, '"!~');
 			$crits[str_replace($tk, $hash[$tk], $k)] = $v;
 		}
-		print_r($crits);
 		foreach($crits as $k=>$v){
 			if ($k[0]==':') {
 				switch ($k) {
