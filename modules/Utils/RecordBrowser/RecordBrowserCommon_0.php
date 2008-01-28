@@ -311,7 +311,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$crits = array();
 		foreach($old_crits as $k=>$v) {
 			$tk = trim($k, '"!~');
-			$crits[str_replace($tk, $hash[$tk], $k)] = $v;
+			if (isset($hash[$tk])) $crits[str_replace($tk, $hash[$tk], $k)] = $v;
+			else $crits[$k] = $v;
 		}
 		foreach($crits as $k=>$v){
 			if ($k[0]==':') {
