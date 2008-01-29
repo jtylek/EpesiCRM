@@ -123,6 +123,7 @@
 
 <br><br>
 {$attachments|default:''}
+{$messages|default:''}
 
 </div>
 

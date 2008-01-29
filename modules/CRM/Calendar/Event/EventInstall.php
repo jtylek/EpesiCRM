@@ -76,6 +76,7 @@ class CRM_Calendar_EventInstall extends ModuleInstall {
 				array('name'=>'Utils/Calendar/Event','version'=>0),
 				array('name'=>'Utils/PopupCalendar','version'=>0),
 				array('name'=>'Utils/Attachment','version'=>0),
+				array('name'=>'Utils/Messenger','version'=>0),
 				array('name'=>'Libs/QuickForm','version'=>0));
 	}
 

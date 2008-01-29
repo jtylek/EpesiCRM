@@ -9,8 +9,9 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Utils_MessengerCommon extends ModuleCommon {
+eval_js_once('utils_messenger_refresh = function(){'.
+			'new Ajax.Request(\'modules/Utils/Messenger/refresh.php\',{method:\'get\'});'.
+			'};setInterval(\'utils_messenger_refresh()\',30000);utils_messenger_refresh()');
 
-}
 
 ?>

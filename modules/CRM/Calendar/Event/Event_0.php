@@ -52,10 +52,10 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			foreach($me as $v)
 				$my_emp[] = $v['id'];
 			$def = array(
-				'date_s' => date('Y-m-d',$id),
-				'date_e' => date('Y-m-d',$id+3600),
-				'time_s' => date('H:i',$tt),
-				'time_e' => date('H:i',$tt+3600),
+				'date_s' => $id,
+				'date_e' => $id+3600,
+				'time_s' => $tt,
+				'time_e' => $tt+3600,
 				'duration'=>3600,
 				'access'=>0,
 				'priority'=>0,
@@ -229,6 +229,8 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$a->allow_protected($this->acl_check('view protected notes'),$this->acl_check('edit protected notes'));
 			$a->allow_public($this->acl_check('view public notes'),$this->acl_check('edit public notes'));
 			$theme->assign('attachments', $this->get_html_of_module($a));
+			$mes = $this->init_module('Utils/Messenger',array('CRM_Calendar_Event:'.$id,$event['title'],$event['description'],$event['start']));
+			$theme->assign('messages', $this->get_html_of_module($mes));
 		}
 
 		$theme->assign('view_style', 'new_event');
