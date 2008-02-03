@@ -20,30 +20,37 @@ class CRM_ContactsInstall extends ModuleInstall {
 	public function install() {
 // ************ contacts ************** //
 		Base_ThemeCommon::install_default_theme('CRM/Contacts');
+		Utils_RecordBrowserCommon::register_datatype('crm_company', 'CRM_ContactsCommon', 'crm_company_datatype');
+		Utils_RecordBrowserCommon::register_datatype('crm_contact', 'CRM_ContactsCommon', 'crm_contact_datatype');
+		ModuleManager::include_common('CRM_Contacts',0);
 		$fields = array(
-			array('name'=>'Login', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>false, 'display_callback'=>array('CRM_ContactsCommon', 'display_login'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_login')),
-			array('name'=>'Last Name', 'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_lname')),
-			array('name'=>'First Name', 'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_fname')),
-			array('name'=>'Company Name', 'type'=>'multiselect', 'required'=>false, 'param'=>array('company'=>'Company Name'), 'extra'=>false, 'visible'=>true, 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_company')),
-			array('name'=>'Title', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
-			array('name'=>'Work Phone', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>true),
-			array('name'=>'Mobile Phone', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>true),
-			array('name'=>'Fax', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
-			array('name'=>'Email', 'type'=>'text', 'required'=>false, 'param'=>'128', 'extra'=>false, 'visible'=>false, 'display_callback'=>array('CRM_ContactsCommon', 'display_email'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_email')),
-			array('name'=>'Web address', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'display_callback'=>array('CRM_ContactsCommon', 'display_webaddress'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_webaddress')),
-			array('name'=>'Address 1', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
-			array('name'=>'Address 2', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
-			array('name'=>'City', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>true),
-			array('name'=>'Country', 'type'=>'commondata', 'required'=>true, 'param'=>array('Countries'), 'extra'=>false, 'visible'=>false, 'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_country')),
-			array('name'=>'Zone', 'type'=>'commondata', 'required'=>false, 'param'=>array('Countries','Country'), 'extra'=>false, 'visible'=>true, 'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_zone')),
-			array('name'=>'Postal Code', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
-			array('name'=>'Group', 'type'=>'multiselect', 'required'=>false, 'param'=>'Contacts_groups', 'extra'=>false),
-			array('name'=>'Home Phone', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true),
+			array('name'=>'Login', 			'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>false, 'display_callback'=>array('CRM_ContactsCommon', 'display_login'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_login')),
+			array('name'=>'Last Name', 		'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_lname')),
+			array('name'=>'First Name', 	'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_fname')),
+			array('name'=>'Company Name', 	'type'=>'crm_company', 'param'=>array('field_type'=>'multiselect'), 'required'=>false, 'extra'=>false, 'visible'=>true),
+//			array('name'=>'Company Test', 'type'=>'crm_company', 'param'=>array('field_type'=>'select'), 'required'=>false, 'extra'=>false, 'visible'=>true),
+//			array('name'=>'Company Test 2', 'type'=>'crm_company', 'param'=>array('field_type'=>'multiselect'), 'required'=>false, 'extra'=>false, 'visible'=>true),
+//			array('name'=>'Contact Test', 'type'=>'crm_contact', 'param'=>array('field_type'=>'select'), 'required'=>false, 'extra'=>false, 'visible'=>true),
+//			array('name'=>'Contact Test 2', 'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect'), 'required'=>false, 'extra'=>false, 'visible'=>true),
+			array('name'=>'Title', 			'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
+			array('name'=>'Work Phone', 	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>true),
+			array('name'=>'Mobile Phone', 	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>true),
+			array('name'=>'Fax', 			'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
+			array('name'=>'Email', 			'type'=>'text', 'required'=>false, 'param'=>'128', 'extra'=>false, 'visible'=>false, 'display_callback'=>array('CRM_ContactsCommon', 'display_email'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_email')),
+			array('name'=>'Web address', 	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'display_callback'=>array('CRM_ContactsCommon', 'display_webaddress'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_webaddress')),
+			array('name'=>'Address 1', 		'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
+			array('name'=>'Address 2', 		'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
+			array('name'=>'City', 			'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>true),
+			array('name'=>'Country', 		'type'=>'commondata', 'required'=>true, 'param'=>array('Countries'), 'extra'=>false, 'visible'=>false, 'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_country')),
+			array('name'=>'Zone', 			'type'=>'commondata', 'required'=>false, 'param'=>array('Countries','Country'), 'extra'=>false, 'visible'=>true, 'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_zone')),
+			array('name'=>'Postal Code', 	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
+			array('name'=>'Group', 			'type'=>'multiselect', 'required'=>false, 'param'=>'__COMMON__::Contacts_groups', 'extra'=>false),
+			array('name'=>'Home Phone', 	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true),
 			array('name'=>'Home Address 1', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true),
 			array('name'=>'Home Address 2', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true),
-			array('name'=>'Home City', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true),
-			array('name'=>'Home Country', 'type'=>'commondata', 'required'=>false, 'param'=>array('Countries'), 'extra'=>true,'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_country')),
-			array('name'=>'Home Zone', 'type'=>'commondata', 'required'=>false, 'param'=>array('Countries','Home Country'), 'extra'=>true, 'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_zone')),
+			array('name'=>'Home City', 		'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true),
+			array('name'=>'Home Country', 	'type'=>'commondata', 'required'=>false, 'param'=>array('Countries'), 'extra'=>true,'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_country')),
+			array('name'=>'Home Zone', 		'type'=>'commondata', 'required'=>false, 'param'=>array('Countries','Home Country'), 'extra'=>true, 'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_zone')),
 			array('name'=>'Home Postal Code', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true),
 			array('name'=>'Birth Date', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>true)
 		);
@@ -110,6 +117,8 @@ class CRM_ContactsInstall extends ModuleInstall {
 
 	public function uninstall() {
 		Base_ThemeCommon::uninstall_default_theme('CRM/Contacts');
+		Utils_RecordBrowserCommon::unregister_datatype('crm_company');
+		Utils_RecordBrowserCommon::unregister_datatype('crm_contact');
 		Utils_RecordBrowserCommon::delete_addon('company', 'CRM/Contacts', 'company_addon');
 		Utils_RecordBrowserCommon::delete_addon('company', 'CRM/Contacts', 'company_attachment_addon');
 		Utils_AttachmentCommon::persistent_mass_delete(null,'CRM/Contact/');

@@ -18,16 +18,16 @@ class Data_CountriesCommon extends Base_AdminModuleCommon {
 		return Utils_CommonDataCommon::get_array('Countries');
 	}
 
-	public static function QFfield_country(&$form, $field, $label, $mode, $default, $param) {
-		$param = explode('::',$param);
+	public static function QFfield_country(&$form, $field, $label, $mode, $default, $desc) {
+		$param = explode('::',$desc['param']);
 		foreach ($param as $k=>$v) if ($k!==0) $param[$k] = strtolower(str_replace(' ','_',$v));
 		$form->addElement('commondata', $field, $label, $param, array('empty_option'=>true), array('id'=>$field));
 		if ($mode!=='add') $form->setDefaults(array($field=>$default));
 		else $form->setDefaults(array($field=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country')));
 	}
 
-	public static function QFfield_zone(&$form, $field, $label, $mode, $default, $param) {
-		$param = explode('::',$param);
+	public static function QFfield_zone(&$form, $field, $label, $mode, $default, $desc) {
+		$param = explode('::',$desc['param']);
 		foreach ($param as $k=>$v) if ($k!==0) $param[$k] = strtolower(str_replace(' ','_',$v));
 		$form->addElement('commondata', $field, $label, $param, array('empty_option'=>true), array('id'=>$field));
 		if ($mode!=='add') $form->setDefaults(array($field=>$default));

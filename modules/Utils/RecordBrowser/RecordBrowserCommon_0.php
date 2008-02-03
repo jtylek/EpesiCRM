@@ -92,10 +92,15 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		DB::Execute('INSERT INTO '.$tab_name.'_field(field, type, extra, visible, position) VALUES(\'id\', \'foreign index\', 0, 0, 1)');
 		DB::Execute('INSERT INTO '.$tab_name.'_field(field, type, extra, position) VALUES(\'General\', \'page_split\', 0, 2)');
 		DB::Execute('INSERT INTO '.$tab_name.'_field(field, type, extra, position) VALUES(\'Details\', \'page_split\', 0, 3)');
+		$datatypes = array();
+		$ret = DB::Execute('SELECT * FROM recordbrowser_datatype');
+		while ($row = $ret->FetchRow())
+			$datatypes[$row['type']] = array($row['module'], $row['func']);
 		foreach ($fields as $v) {
 			if (!isset($v['param'])) $v['param'] = '';
 			if (!isset($v['extra'])) $v['extra'] = true;
 			if (!isset($v['visible'])) $v['visible'] = false;
+			if (isset($datatypes[$v['type']])) $v = call_user_func($datatypes[$v['type']], $v);
 			Utils_RecordBrowserCommon::new_record_field($tab_name, $v['name'], $v['type'], $v['visible'], $v['required'], $v['param'], $v['extra']);
 			if (isset($v['display_callback'])) self::set_display_method($tab_name, $v['name'], $v['display_callback'][0], $v['display_callback'][1]);
 			if (isset($v['QFfield_callback'])) self::set_QFfield_method($tab_name, $v['name'], $v['QFfield_callback'][0], $v['QFfield_callback'][1]);
@@ -158,9 +163,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				foreach ($param as $k=>$v) $tmp .= $k.'::'.$v;
 				$param = $tmp;
 			}
-		} else {
-			if ($type=='select' || $type=='multiselect')
-				$param = '__COMMON__::'.$param;
 		}
 		DB::Execute('INSERT INTO '.$tab_name.'_field(field, type, visible, param, position, extra, required) VALUES(%s, %s, %d, %s, %d, %d, %d)', array($field, $type, $visible?1:0, $param, $pos, $extra?1:0, $required?1:0));
 	}
@@ -172,6 +174,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function delete_addon($tab_name, $module, $func) {
 		$module = str_replace('/','_',$module);
 		DB::Execute('DELETE FROM '.$tab_name.'_addon WHERE module=%s AND func=%s', array($module, $func));
+	}
+	public static function register_datatype($type, $module, $func) {
+		DB::Execute('INSERT INTO recordbrowser_datatype (type, module, func) VALUES (%s, %s, %s)', array($type, $module, $func));
+	}
+	public static function unregister_datatype($type) {
+		DB::Execute('DELETE FROM recordbrowser_datatype WHERE type=%s', array($type));
 	}
 	public static function new_filter($tab_name, $col_name) {
 		DB::Execute('UPDATE '.$tab_name.'_field SET filter=1 WHERE field=%s', array($col_name));
@@ -387,7 +395,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			}
 		}
 		$ret = array('sql'=>'SELECT id, active'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?'':' AND active=1').$where.' GROUP BY id HAVING true'.$having.$orderby,'vals'=>$vals);
-//		print_r($ret);
 		return $ret;
 	}
 	public static function get_records_limit( $tab_name = null, $crits = null, $admin = false) {
@@ -505,14 +512,20 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 	private static function check_if_value_valid($field) {
 		switch (self::$table_rows[$field['field']]['type']) {
-			 case 'multiselect':
-			 case 'select':
-			 			list($tab,$col) = explode('::', self::$table_rows[$field['field']]['param']);
-			 			if ($tab!='__COMMON__') {
-			 				if ($field['value']!=='')
-			 					if (!DB::GetOne('SELECT active FROM '.$tab.' WHERE id=%d', array($field['value'])))
-			 						return false;
-			 			}
+			case 'multiselect':
+			case 'select':
+			 			$arr = explode('::', self::$table_rows[$field['field']]['param']);
+			 			if (isset($arr[0])) {
+			 				$tab = $arr[0];
+				 			if (isset($arr[1])) {
+				 				$col = $arr[1];
+					 			if ($tab!='__COMMON__') {
+					 				if ($field['value']!=='')
+					 					if (!DB::GetOne('SELECT active FROM '.$tab.' WHERE id=%d', array($field['value'])))
+					 						return false;
+					 			}
+				 			}
+				 		}
 		}
 		return true;
 	}

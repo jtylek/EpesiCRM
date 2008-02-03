@@ -33,9 +33,9 @@ class Utils_RecordBrowser extends Module {
 	private $changed_view = false;
 	public $adv_search = false;
 		
-	public function get_val($field, $val, $id) {
+	public function get_val($field, $val, $id, $links_not_recommended = false) {
 		if (isset($this->display_callback_table[$field])) {
-			return call_user_func($this->display_callback_table[$field], $val, $id);
+			return call_user_func($this->display_callback_table[$field], $val, $id, $links_not_recommended, $this->table_rows[$field]);
 		} else {
 			return $val;
 		}
@@ -147,7 +147,7 @@ class Utils_RecordBrowser extends Module {
 		$form = $this->init_module('Libs/QuickForm', null, $this->tab.'filters');
 		$filters = array();
 		foreach ($filters_all as $filter) {
-			if ($this->table_rows[$filter]['type'] == 'select' || $this->table_rows[$filter]['type'] == 'multiselect') {
+			if (!isset($this->QFfield_callback_table[$filter]) && ($this->table_rows[$filter]['type'] == 'select' || $this->table_rows[$filter]['type'] == 'multiselect')) {
 				$arr = array('__NULL__'=>'--');
 				list($tab, $col) = explode('::',$this->table_rows[$filter]['param']);
 				if ($tab=='__COMMON__') {
@@ -157,9 +157,9 @@ class Utils_RecordBrowser extends Module {
 					while ($row2 = $ret2->FetchRow()) $arr[$row2[$tab.'_id']] = $row2['value'];
 				}
 			} else {
-				$ret2 = DB::Execute('SELECT value FROM '.$this->tab.'_data WHERE field=%s ORDER BY value', array($filter));
+				$ret2 = DB::Execute('SELECT '.$this->tab.'_id, value FROM '.$this->tab.'_data WHERE field=%s ORDER BY value', array($filter));
 				$arr = array('__NULL__'=>'--');
-				while ($row2 = $ret2->FetchRow()) $arr[$row2['value']] = $row2['value'];
+				while ($row2 = $ret2->FetchRow()) $arr[$row2['value']] = $this->get_val($filter, $row2['value'], $row2[$this->tab.'_id'], true);
 			}
 			$form->addElement('select', str_replace(' ','_',$filter), $filter, $arr);
 			$filters[] = str_replace(' ','_',$filter);
@@ -281,43 +281,45 @@ class Utils_RecordBrowser extends Module {
 			foreach($this->table_rows as $field => $args)
 				if (($args['visible'] && !isset($cols[$args['id']])) || (isset($cols[$args['id']]) && $cols[$args['id']] === true)) {
 					$ret = $row[$args['id']];
-					if ($args['type']=='select' || $args['type']=='multiselect') {
-						if (empty($row[$args['id']])) {
-							$row_data[] = '--';
-							continue;
-						}
-						list($tab, $col) = explode('::',$args['param']);
-						$arr = $row[$args['id']];
-						if (!is_array($arr)) $arr = array($arr);
-						if ($tab=='__COMMON__') $data = Utils_CommonDataCommon::get_array($col);
-						$ret = '';
-						$first = true;
-						foreach ($arr as $k=>$v){
-							if ($first) $first = false;
-							else $ret .= ', ';
-							if ($tab=='__COMMON__') $ret .= $data[$v];
-							else $ret .= Utils_RecordBrowserCommon::create_linked_label($tab, $col, $v, $special);
-						}
-					}
-					if ($args['type']=='commondata') {
-						if (!isset($row[$args['id']]) || $row[$args['id']]==='') {
+					if (isset($this->display_callback_table[$field])) $row_data[] = $this->get_val($field, $ret, $row['id'], $special);
+					else {
+						if ($args['type']=='select' || $args['type']=='multiselect') {
+							if (empty($row[$args['id']])) {
+								$row_data[] = '--';
+								continue;
+							}
+							list($tab, $col) = explode('::',$args['param']);
+							$arr = $row[$args['id']];
+							if (!is_array($arr)) $arr = array($arr);
+							if ($tab=='__COMMON__') $data = Utils_CommonDataCommon::get_array($col);
 							$ret = '';
-						} else {
-							$arr = explode('::',$args['param']);
-							$path = array_shift($arr);
-							foreach($arr as $v) $path .= '/'.$row[strtolower(str_replace(' ','_',$v))];
-							$path .= '/'.$row[$args['id']];
-							$ret = Utils_CommonDataCommon::get_value($path);
+							$first = true;
+							foreach ($arr as $k=>$v){
+								if ($first) $first = false;
+								else $ret .= ', ';
+								if ($tab=='__COMMON__') $ret .= $data[$v];
+								else $ret .= Utils_RecordBrowserCommon::create_linked_label($tab, $col, $v, $special);
+							}
 						}
+						if ($args['type']=='commondata') {
+							if (!isset($row[$args['id']]) || $row[$args['id']]==='') {
+								$ret = '';
+							} else {
+								$arr = explode('::',$args['param']);
+								$path = array_shift($arr);
+								foreach($arr as $v) $path .= '/'.$row[strtolower(str_replace(' ','_',$v))];
+								$path .= '/'.$row[$args['id']];
+								$ret = Utils_CommonDataCommon::get_value($path);
+							}
+						}
+						if ($args['type']=='currency') {
+							$ret = Utils_CurrencyFieldCommon::format($ret);
+						}
+						if ($args['type']=='checkbox') {
+							$ret = $ret?$this->lang->t('Yes'):$this->lang->t('No');
+						}
+						$row_data[] = $ret;
 					}
-					if ($args['type']=='currency') {
-						$ret = Utils_CurrencyFieldCommon::format($ret);
-					}
-					if ($args['type']=='checkbox') {
-						$ret = $ret?$this->lang->t('Yes'):$this->lang->t('No');
-					}
-					if ($special) $row_data[] = $ret;
-					else $row_data[] = $this->get_val($field, $ret, $row['id']);
 				}
 			if ($this->browse_mode == 'recent')
 				$row_data[] = $row['visited_on'];
@@ -496,7 +498,7 @@ class Utils_RecordBrowser extends Module {
 		$init_js = '';
 		foreach($this->table_rows as $field => $args){
 			if (isset($this->QFfield_callback_table[$field])) {
-				call_user_func($this->QFfield_callback_table[$field], $form, $args['id'], $this->lang->t($args['name']), $mode, $mode=='add'?array():$record[$args['id']], $args['param']);
+				call_user_func($this->QFfield_callback_table[$field], $form, $args['id'], $this->lang->t($args['name']), $mode, $mode=='add'?array():$record[$args['id']], $args);
 				continue;
 			}
 			if ($mode!=='add' && $mode!=='edit') $record[$args['id']] = $this->get_val($field, $record[$args['id']], $id);

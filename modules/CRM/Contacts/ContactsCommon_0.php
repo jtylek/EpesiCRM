@@ -86,50 +86,111 @@ class CRM_ContactsCommon extends ModuleCommon {
 	public function admin_caption() {
 		return 'Companies & Contacts';
 	}
+	public static function crm_company_datatype($field = array()) {
+		$field['QFfield_callback'] = array('CRM_ContactsCommon', 'QFfield_company');
+		$field['display_callback'] = array('CRM_ContactsCommon', 'display_company');
+		$field['type'] = $field['param']['field_type'];
+		unset($field['param']['field_type']);
+		return $field;
+	}
+	public static function crm_contact_datatype($field = array()) {
+		$field['QFfield_callback'] = array('CRM_ContactsCommon', 'QFfield_contact');
+		$field['display_callback'] = array('CRM_ContactsCommon', 'display_contact');
+		$field['type'] = $field['param']['field_type'];
+		unset($field['param']['field_type']);
+		if (isset($field['param']['format'])) $field['param'] = $field['param']['format'][0].'::'.$field['param']['format'][1];
+		else $field['param'] = '';
+		return $field;
+	}
 
-	public static function QFfield_company(&$form, $field, $label, $mode, $default) {
-		$comp = array();
+	public static function display_contact($v, $i, $nolink, $desc) {
+		$def = '';
+		$first = true;
+		if ($desc['param'] == '') {
+			$callback = array('CRM_ContactsCommon', 'contact_format_default');
+		} else {
+			$callback = explode('::', $desc['param']);
+		}
+		if (!is_array($v)) $v = array($v);
+		foreach($v as $k=>$w){
+			if ($w=='') break;
+			if ($first) $first = false;
+			else $def .= ', ';
+			$label = call_user_func($callback, self::get_contact($w));
+			if (!$nolink) $label = '<a '.Utils_RecordBrowserCommon::create_record_href('contact', $w).'>'.$label.'</a>';
+			$def .= $label;
+		}
+		if (!$def) 	$def = '--';
+		return $def;
+	}
+	public static function contact_format_default($record){
+		return $record['last_name'].' '.$record['first_name'];
+	}
+	public static function QFfield_contact(&$form, $field, $label, $mode, $default, $desc) {
+		$cont = array();
 		if ($mode=='add' || $mode=='edit') {
-			$ret = DB::Execute('SELECT * FROM company_data WHERE field=%s ORDER BY value', array('Company Name'));
-			while ($row = $ret->FetchRow()) $comp[$row['company_id']] = $row['value'];
-			$form->addElement('multiselect', $field, $label, $comp);
-			if ($mode!=='add') $form->setDefaults(array($field=>$default));
-			else {
-				if (self::$paste_or_new=='new')
-					$form->addElement('checkbox', 'create_company', 'Create new company', null, array('onClick'=>'document.getElementsByName("company_namefrom[]")[0].disabled=document.getElementsByName("company_nameto[]")[0].disabled=this.checked;'));
-				else {
-					$comp = self::get_company(self::$paste_or_new);
-					$paste_company_info =
-						'document.getElementsByName("address_1")[0].value="'.$comp['address_1'].'";'.
-						'document.getElementsByName("address_2")[0].value="'.$comp['address_2'].'";'.
-						'document.getElementsByName("work_phone")[0].value="'.$comp['phone'].'";'.
-						'document.getElementsByName("fax")[0].value="'.$comp['fax'].'";'.
-						'document.getElementsByName("city")[0].value="'.$comp['city'].'";'.
-						'document.getElementsByName("postal_code")[0].value="'.$comp['postal_code'].'";'.
-						'var country = $(\'country\');'.
-						'var k = 0; while (k < country.options.length) if (country.options[k].value=="'.$comp['country'].'") break; else k++;'.
-						'country.selectedIndex = k;'.
-						'country.fire(\'e_u_cd:load\');'.
-						'zone = $(\'zone\');'.
-						'setTimeout("'.
-						'k = 0; while (k < zone.options.length) if (zone.options[k].value==\''.$comp['zone'].'\') break; else k++;'.
-						'zone.selectedIndex = k;'.
-						'",900);'.
-						'document.getElementsByName("web_address")[0].value="'.$comp['web_address'].'";';
-					;
-					$form->addElement('button', 'paste_company_info', 'Paste Company Info', array('onClick'=>$paste_company_info));
-				}
+			$contacts = self::get_contacts();
+			if ($desc['param'] == '') {
+				$callback = array('CRM_ContactsCommon', 'contact_format_default');
+			} else {
+				$callback = explode('::', $desc['param']);
 			}
+			if (!$desc['required'] && $desc['type']!='multiselect') $cont[''] = '--';
+			foreach ($contacts as $v) $cont[$v['id']] = call_user_func($callback, $v);
+			asort($cont);
+			$form->addElement($desc['type'], $field, $label, $cont);
+			if ($mode!=='add') $form->setDefaults(array($field=>$default));
 		} else {
 			$form->addElement('static', $field, $label, array('id'=>$field));
 
 			$def = '';
 			$first = true;
+			if (!is_array($default)) $default = array($default);
 			foreach($default as $k=>$v){
+				if ($v=='') break;
 				if ($first) $first = false;
 				else $def .= '<br>';
 				$def .= Utils_RecordBrowserCommon::create_linked_label('company', 'company_name', $v);
 			}
+			if (!$def) 	$def = '--';
+			$form->setDefaults(array($field=>$def));
+		}
+	}
+
+	public static function display_company($v, $i, $nolink) {
+		$def = '';
+		$first = true;
+		if (!is_array($v)) $v = array($v);
+		foreach($v as $k=>$w){
+			if ($w=='') break;
+			if ($first) $first = false;
+			else $def .= ', ';
+			$def .= Utils_RecordBrowserCommon::create_linked_label('company', 'company_name', $w, $nolink);
+		}
+		if (!$def) 	$def = '--';
+		return $def;
+	}
+	public static function QFfield_company(&$form, $field, $label, $mode, $default, $desc) {
+		$comp = array();
+		if ($mode=='add' || $mode=='edit') {
+			$ret = DB::Execute('SELECT * FROM company_data WHERE field=%s ORDER BY value', array('Company Name'));
+			if (!$desc['required'] && $desc['type']!='multiselect') $comp[''] = '--';
+			while ($row = $ret->FetchRow()) $comp[$row['company_id']] = $row['value'];
+			$form->addElement($desc['type'], $field, $label, $comp);
+			if ($mode!=='add') $form->setDefaults(array($field=>$default));
+		} else {
+			$form->addElement('static', $field, $label, array('id'=>$field));
+
+			$def = '';
+			$first = true;
+			if (!is_array($default)) $default = array($default);
+			foreach($default as $k=>$v){
+				if ($v=='') break;
+				if ($first) $first = false;
+				else $def .= '<br>';
+				$def .= Utils_RecordBrowserCommon::create_linked_label('company', 'company_name', $v);
+			}
+			if (!$def) 	$def = '--';
 			$form->setDefaults(array($field=>$def));
 		}
 	}
@@ -153,6 +214,32 @@ class CRM_ContactsCommon extends ModuleCommon {
 		}
 	}
 	public static function QFfield_login(&$form, $field, $label, $mode, $default) {
+		if ($mode=='add'){
+			if (self::$paste_or_new=='new')
+				$form->addElement('checkbox', 'create_company', 'Create new company', null, array('onClick'=>'document.getElementsByName("company_namefrom[]")[0].disabled=document.getElementsByName("company_nameto[]")[0].disabled=this.checked;'));
+			else {
+				$comp = self::get_company(self::$paste_or_new);
+				$paste_company_info =
+					'document.getElementsByName("address_1")[0].value="'.$comp['address_1'].'";'.
+					'document.getElementsByName("address_2")[0].value="'.$comp['address_2'].'";'.
+					'document.getElementsByName("work_phone")[0].value="'.$comp['phone'].'";'.
+					'document.getElementsByName("fax")[0].value="'.$comp['fax'].'";'.
+					'document.getElementsByName("city")[0].value="'.$comp['city'].'";'.
+					'document.getElementsByName("postal_code")[0].value="'.$comp['postal_code'].'";'.
+					'var country = $(\'country\');'.
+					'var k = 0; while (k < country.options.length) if (country.options[k].value=="'.$comp['country'].'") break; else k++;'.
+					'country.selectedIndex = k;'.
+					'country.fire(\'e_u_cd:load\');'.
+					'zone = $(\'zone\');'.
+					'setTimeout("'.
+					'k = 0; while (k < zone.options.length) if (zone.options[k].value==\''.$comp['zone'].'\') break; else k++;'.
+					'zone.selectedIndex = k;'.
+					'",900);'.
+					'document.getElementsByName("web_address")[0].value="'.$comp['web_address'].'";';
+				;
+				$form->addElement('button', 'paste_company_info', 'Paste Company Info', array('onClick'=>$paste_company_info));
+			}
+		}
 		$ret = DB::Execute('SELECT id, login FROM user_login ORDER BY login');
 		$users = array(''=>'--');
 		while ($row=$ret->FetchRow()) {
@@ -163,14 +250,14 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$form->setDefaults(array($field=>$default));
 		if (!Base_AclCommon::i_am_admin()) $form->freeze($field);
 	}
-	public static function display_fname($v, $i) {
-		return Utils_RecordBrowserCommon::create_linked_label('contact', 'first_name', $i);
+	public static function display_fname($v, $i, $nolink) {
+		return Utils_RecordBrowserCommon::create_linked_label('contact', 'first_name', $i, $nolink);
 	}
-	public static function display_lname($v, $i) {
-		return Utils_RecordBrowserCommon::create_linked_label('contact', 'last_name', $i);
+	public static function display_lname($v, $i, $nolink) {
+		return Utils_RecordBrowserCommon::create_linked_label('contact', 'last_name', $i, $nolink);
 	}
-	public static function display_cname($v, $i) {
-		return Utils_RecordBrowserCommon::create_linked_label('company', 'company_name', $i);
+	public static function display_cname($v, $i, $nolink) {
+		return Utils_RecordBrowserCommon::create_linked_label('company', 'company_name', $i, $nolink);
 	}
 	public static function display_webaddress($v) {
 		$v = trim($v, ' ');

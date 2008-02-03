@@ -31,11 +31,17 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 						'access_callback C(128) DEFAULT \'\','.
 						'data_process_method C(256) DEFAULT \'\'',
 						array('constraints'=>''));
+		DB::CreateTable('recordbrowser_datatype',
+						'type C(32) KEY,'.
+						'module C(64),'.
+						'func C(128)',
+						array('constraints'=>''));
 		return true;
 	}
 	
 	public function uninstall() {
 		DB::DropTable('recordbrowser_table_properties');
+		DB::DropTable('recordbrowser_datatype');
 		Base_ThemeCommon::uninstall_default_theme('Utils/RecordBrowser');
 		return true;
 	}
