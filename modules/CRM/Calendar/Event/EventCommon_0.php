@@ -27,7 +27,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		$row = DB::GetRow('SELECT e.color,e.access,e.start,e.end,e.title,e.description,e.id,e.timeless,e.priority,e.created_by,e.created_on,e.edited_by,e.edited_on FROM crm_calendar_event e WHERE e.id=%d'.$fil,array($id));
 		$result = array();
 		if ($row) {
-			foreach (array('start','id','title','description','timeless') as $v)
+			foreach (array('start','id','title','description','timeless','end') as $v)
 				$result[$v] = $row[$v];
 			$result['duration'] = $row['end']-$row['start'];
 			$color = self::get_available_colors();
@@ -81,6 +81,17 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		$contact = CRM_ContactsCommon::get_contact($id);
 		return $contact['last_name']." ".$contact['first_name'];
 		//return '['.$contact['Company Name'][0].'] '.$contact['First Name']." ".$contact['Last Name'];
+	}
+	
+	public static function get_alarm($id) {
+		$a = self::get($id);
+
+		if($a['timeless'])
+			$date = Base_LangCommon::ts('CRM_Calendar_Event','Timeless event: %s',array(Base_RegionalSettingsCommon::time2reg($a['start'],false)));
+		else
+			$date = Base_LangCommon::ts('CRM_Calendar_Event',"Start: %s\nEnd: %s",array(Base_RegionalSettingsCommon::time2reg($a['start']), Base_RegionalSettingsCommon::time2reg($a['end'])));
+		
+		return $date."\n".Base_LangCommon::ts('CRM_Calendar_Event',"Title: %s",array($a['title']));
 	}
 }
 

@@ -36,9 +36,13 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$theme->assign('action',$action);
 
 		$emp = array();
+		$emp_alarm = array();
 		$ret = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())));
-		foreach($ret as $c_id=>$data)
+		foreach($ret as $c_id=>$data) {
 			$emp[$c_id] = $data['last_name'].' '.$data['first_name'];
+			if(is_numeric($data['login']))
+				$emp_alarm[$c_id] = $data['login'];
+		}
 		$cus = array();
 		$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company()), ':Fav'=>true));
 		foreach($ret as $c_id=>$data)
@@ -229,7 +233,12 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$a->allow_protected($this->acl_check('view protected notes'),$this->acl_check('edit protected notes'));
 			$a->allow_public($this->acl_check('view public notes'),$this->acl_check('edit public notes'));
 			$theme->assign('attachments', $this->get_html_of_module($a));
-			$mes = $this->init_module('Utils/Messenger',array('CRM_Calendar_Event:'.$id,$event['title'],$event['description'],$event['start']));
+
+			$mes_users = array();
+			foreach ($def['emp_id'] as $r)
+				if(isset($emp_alarm[$r]))
+					$mes_users[$emp_alarm[$r]] = $emp[$r];
+			$mes = $this->init_module('Utils/Messenger',array('CRM_Calendar_Event:'.$id,array('CRM_Calendar_EventCommon','get_alarm'),array($id),$event['start'],$mes_users));
 			$theme->assign('messages', $this->get_html_of_module($mes));
 		}
 

@@ -15,7 +15,8 @@ class Utils_MessengerInstall extends ModuleInstall {
 		$ret = true;
 		$ret &= DB::CreateTable('utils_messenger_message','
 			id I4 AUTO KEY,
-			topic C(128) NOTNULL,
+			callback_method C(256) NOTNULL,
+			callback_args X,
 			message X,
 			created_by I4 NOTNULL,
 			created_on T NOTNULL,
