@@ -171,8 +171,9 @@ class Utils_Messenger extends Module {
 		foreach($data as $row) {
 			$r = & $gb->get_new_row();
 			$us = '';
-			foreach($row['users'] as $rr) 
-				$us .= $this->users[$rr].'<br>';
+			foreach($row['users'] as $rr)
+				if(isset($this->users[$rr])) 
+					$us .= $this->users[$rr].'<br>';
 			$r->add_data(Base_RegionalSettingsCommon::time2reg($row['alert_on']),$row['message'],$us);
 			$r->add_action($this->create_callback_href(array($this,'push_box0'),array('edit',array($row),array($this->real_id,$this->callback_method,$this->callback_args,$this->def_date,$this->users,$this->autosave))),'Edit');
 			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Are you sure?'),array($this,'delete_entry'),$row['id']),'Delete');
