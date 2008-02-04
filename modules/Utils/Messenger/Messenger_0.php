@@ -32,19 +32,20 @@ class Utils_Messenger extends Module {
 		$x->push_main('Utils/Messenger',$func,$args,$const_args);
 	}
 
-	public function construct($id,$callback_method,$callback_args,$def_date=null,$users=null, $autosave=true) {
+	public function construct($id=null,$callback_method=null,$callback_args=null,$def_date=null,$users=null, $autosave=true) {
 		$this->lang = & $this->init_module('Base/Lang');
-		if(!isset($id)) {
-			print($this->lang->t('Messenger: no ID given - unable to attach messages editor'));
+		if(!isset($id))
+			//applet mode
 			return;
-		}
-		
+		if(!isset($callback_method))
+			trigger_error('Callback not set.',E_USER_ERROR);
+			
 		$this->mid = md5($id);
 		$this->real_id = $id;
 		$this->autosave = $autosave;
 		$this->users = (isset($users) && (is_numeric($users) || (is_array($users) && !empty($users))))?$users:Acl::get_user();
 		$this->callback_method = $callback_method;
-		$this->callback_args = (is_array($callback_args))?$callback_args:array($callback_args);
+		$this->callback_args = isset($callback_args)?((is_array($callback_args))?$callback_args:array($callback_args)):array();
 		$this->def_date = ($def_date!=null)?$def_date:time();
 		
 		if($autosave || !$this->isset_module_variable('data')) {
@@ -179,6 +180,33 @@ class Utils_Messenger extends Module {
 		$this->display_module($gb);
 		
 		Base_ActionBarCommon::add('add','New message',$this->create_callback_href(array($this,'push_box0'),array('edit',array(false),array($this->real_id,$this->callback_method,$this->callback_args,$this->def_date,$this->users,$this->autosave))));	
+	}
+
+	/////////////////////////////////////////////////////////////
+	public function applet() {
+
+		$gb = $this->init_module('Utils/GenericBrowser', null, 'agenda');
+		$columns = array(
+			array('name'=>$this->lang->t('Done'), 'order'=>'done', 'width'=>5),
+			array('name'=>$this->lang->t('Start'), 'order'=>'alert_on', 'width'=>45),
+			array('name'=>$this->lang->t('Message'), 'order'=>'description','width'=>50),
+		);
+		$gb->set_table_columns($columns);
+
+		$gb->set_default_order(array($this->lang->t('Start')=>'ASC'));
+
+		$t = time();
+		$ret = DB::Execute('(SELECT m.alert_on,u.done,m.message FROM utils_messenger_message m INNER JOIN utils_messenger_users u ON u.message_id=m.id WHERE u.user_login_id=%d AND u.done=0 AND m.alert_on<%T)'.
+					' UNION '.
+				'(SELECT m.alert_on,u.done,m.message FROM utils_messenger_message m INNER JOIN utils_messenger_users u ON u.message_id=m.id WHERE u.user_login_id=%d AND m.alert_on<%T ORDER BY m.alert_on DESC LIMIT 5)'.
+					' UNION '.
+				'(SELECT m.alert_on,\'\' as done,m.message FROM utils_messenger_message m INNER JOIN utils_messenger_users u ON u.message_id=m.id WHERE u.user_login_id=%d AND m.alert_on>=%T ORDER BY m.alert_on ASC LIMIT 5)'.$gb->get_query_order(),array(Acl::get_user(),$t,Acl::get_user(),$t,Acl::get_user(),$t));
+
+		while($row = $ret->FetchRow()) {
+			$gb->add_row(($row['done']==='')?'':($row['done']?'<span class="checkbox_on" />':'<span class="checkbox_off" />'),$row['alert_on'],$row['message']);
+		}
+
+		$this->display_module($gb);
 	}
 }
 
