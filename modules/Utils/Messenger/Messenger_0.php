@@ -188,22 +188,24 @@ class Utils_Messenger extends Module {
 		$gb = $this->init_module('Utils/GenericBrowser', null, 'agenda');
 		$columns = array(
 			array('name'=>$this->lang->t('Done'), 'order'=>'done', 'width'=>5),
-			array('name'=>$this->lang->t('Start'), 'order'=>'alert_on', 'width'=>45),
-			array('name'=>$this->lang->t('Message'), 'order'=>'description','width'=>50),
+			array('name'=>$this->lang->t('Start'), 'order'=>'alert_on', 'width'=>15),
+			array('name'=>$this->lang->t('Info'), 'width'=>80)
 		);
 		$gb->set_table_columns($columns);
 
 		$gb->set_default_order(array($this->lang->t('Start')=>'ASC'));
 
 		$t = time();
-		$ret = DB::Execute('(SELECT m.alert_on,u.done,m.message FROM utils_messenger_message m INNER JOIN utils_messenger_users u ON u.message_id=m.id WHERE u.user_login_id=%d AND u.done=0 AND m.alert_on<%T)'.
+		$ret = DB::Execute('(SELECT u.done,m.* FROM utils_messenger_message m INNER JOIN utils_messenger_users u ON u.message_id=m.id WHERE u.user_login_id=%d AND u.done=0 AND m.alert_on<%T)'.
 					' UNION '.
-				'(SELECT m.alert_on,u.done,m.message FROM utils_messenger_message m INNER JOIN utils_messenger_users u ON u.message_id=m.id WHERE u.user_login_id=%d AND m.alert_on<%T ORDER BY m.alert_on DESC LIMIT 5)'.
+				'(SELECT u.done,m.* FROM utils_messenger_message m INNER JOIN utils_messenger_users u ON u.message_id=m.id WHERE u.user_login_id=%d AND m.alert_on<%T ORDER BY m.alert_on DESC LIMIT 3)'.
 					' UNION '.
-				'(SELECT m.alert_on,\'\' as done,m.message FROM utils_messenger_message m INNER JOIN utils_messenger_users u ON u.message_id=m.id WHERE u.user_login_id=%d AND m.alert_on>=%T ORDER BY m.alert_on ASC LIMIT 5)'.$gb->get_query_order(),array(Acl::get_user(),$t,Acl::get_user(),$t,Acl::get_user(),$t));
+				'(SELECT \'\' as done,m.* FROM utils_messenger_message m INNER JOIN utils_messenger_users u ON u.message_id=m.id WHERE u.user_login_id=%d AND m.alert_on>=%T ORDER BY m.alert_on ASC LIMIT 5)'.$gb->get_query_order(),array(Acl::get_user(),$t,Acl::get_user(),$t,Acl::get_user(),$t));
 
 		while($row = $ret->FetchRow()) {
-			$gb->add_row(($row['done']==='')?'':($row['done']?'<span class="checkbox_on" />':'<span class="checkbox_off" />'),$row['alert_on'],$row['message']);
+			$info = call_user_func_array(unserialize($row['callback_method']),unserialize($row['callback_args']));
+			$info = str_replace("\n",'<br>',$info);
+			$gb->add_row(($row['done']==='')?'':($row['done']?'<span class="checkbox_on" />':'<span class="checkbox_off" />'),$row['alert_on'],$info.'<br>'.($row['message']?$this->lang->t("Alarm comment: %s",array($row['message'])):''));
 		}
 
 		$this->display_module($gb);
