@@ -70,7 +70,12 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 	}
 
 	public static function delete($id) { //make sure that event owner is Acl::get_user....
+		DB::Execute('DELETE FROM crm_calendar_event_group_emp WHERE id=%d', array($id));
+		DB::Execute('DELETE FROM crm_calendar_event_group_cus WHERE id=%d', array($id));
 		DB::Execute('DELETE FROM crm_calendar_event WHERE id=%d',array($id));
+		Utils_AttachmentCommon::persistent_mass_delete($id,'CRM/Calendar/Event/'.$id);
+		Utils_MessengerCommon::delete_by_id('CRM_Calendar_Event:'.$id);
+
 	}
 
 	public static function update($id,$start,$duration,$timeless) { //make sure that event owner is Acl::get_user....

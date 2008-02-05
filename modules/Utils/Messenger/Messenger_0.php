@@ -64,7 +64,7 @@ class Utils_Messenger extends Module {
 		DB::Execute('DELETE FROM utils_messenger_message WHERE page_id=\''.$this->mid.'\'');
 		$data = $this->get_module_variable('data');
 		foreach($data as $row) {
-			DB::Execute('INSERT INTO utils_messenger_message(page_id) VALUES(%s)',array($this->mid));		
+			DB::Execute('INSERT INTO utils_messenger_message(page_id,parent_module,message,callback_method,callback_args,created_on,created_by,alert_on) VALUES(%s,%s,%s,%s,%T,%d,%T)',array($this->mid,$this->get_type(),$row['message'],serialize($this->callback_method),serialize($this->callback_args),time(),Acl::get_user(),$row['alert_on']));
 			$id = DB::Insert_ID('utils_messenger_message','id');
 			if(is_array($this->users)) {
 				foreach($row['users'] as $r)
@@ -116,7 +116,7 @@ class Utils_Messenger extends Module {
 					$id = $row['id'];
 					DB::Execute('DELETE FROM utils_messenger_users WHERE message_id=%d',array($id));
 				} else {
-					DB::Execute('INSERT INTO utils_messenger_message(page_id,message,callback_method,callback_args,created_on,created_by,alert_on) VALUES(%s,%s,%s,%s,%T,%d,%T)',array($this->mid,$ret['message'],serialize($this->callback_method),serialize($this->callback_args),time(),Acl::get_user(),$ret['alert_on']));
+					DB::Execute('INSERT INTO utils_messenger_message(page_id,parent_module,message,callback_method,callback_args,created_on,created_by,alert_on) VALUES(%s,%s,%s,%s,%T,%d,%T)',array($this->mid,$this->get_type(),$ret['message'],serialize($this->callback_method),serialize($this->callback_args),time(),Acl::get_user(),$ret['alert_on']));
 					$id = DB::Insert_ID('utils_messenger_message','id');
 				}
 				if(is_array($this->users)) {

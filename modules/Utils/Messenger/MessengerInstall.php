@@ -21,6 +21,7 @@ class Utils_MessengerInstall extends ModuleInstall {
 			created_by I4 NOTNULL,
 			created_on T NOTNULL,
 			alert_on T,
+			parent_module C(32) NOTNULL,
 			page_id C(32) NOTNULL',
 			array('constraints'=>', FOREIGN KEY (created_by) REFERENCES user_login(ID)'));
 		if(!$ret){
@@ -54,6 +55,7 @@ class Utils_MessengerInstall extends ModuleInstall {
 		return array(
 			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'Base/RegionalSettings','version'=>0),
+			array('name'=>'Base/ActionBar','version'=>0),
 			array('name'=>'Utils/GenericBrowser','version'=>0),
 			array('name'=>'Utils/PopupCalendar','version'=>0));
 	}
