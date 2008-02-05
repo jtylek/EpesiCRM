@@ -72,7 +72,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 			array('name'=>'Phone', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>true),
 			array('name'=>'Fax', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
 			array('name'=>'Web address', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'display_callback'=>array('CRM_ContactsCommon', 'display_webaddress'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_webaddress')),
-			array('name'=>'Group', 'type'=>'multiselect', 'required'=>false, 'visible'=>true, 'param'=>'Companies_groups', 'extra'=>false),
+			array('name'=>'Group', 'type'=>'multiselect', 'required'=>false, 'visible'=>true, 'param'=>'__COMMON__::Companies_groups', 'extra'=>false),
 			array('name'=>'Address 1', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
 			array('name'=>'Address 2', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
 			array('name'=>'City', 'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true),
