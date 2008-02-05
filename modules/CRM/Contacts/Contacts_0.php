@@ -16,8 +16,6 @@ class CRM_Contacts extends Module {
 	private $rb = null;
 
 	public function body() {
-		if(isset($_REQUEST['search_company'])) return;
-		if(isset($_REQUEST['search_contact'])) return;
 		if (isset($_REQUEST['mode'])) $this->set_module_variable('mode', $_REQUEST['mode']);
 		$mode = $this->get_module_variable('mode');
 		if ($mode == 'contact') {

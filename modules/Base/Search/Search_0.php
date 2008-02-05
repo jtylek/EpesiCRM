@@ -84,7 +84,7 @@ class Base_Search extends Module {
 								$warning = $this->lang->t('Only 100 results are displayed.');
 								break;
 							}
-							$links[] = '<a '.$this->create_href(array_merge($rv,array('box_main_module'=>$k))).'>'.$rk.'</a>';
+							$links[] = '<a '.$this->create_href(array_merge(array('box_main_module'=>$k),$rv)).'>'.$rk.'</a>';
 						}
 				}
 				$qs_theme =  & $this->pack_module('Base/Theme');

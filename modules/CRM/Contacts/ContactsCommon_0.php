@@ -320,12 +320,12 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$result = self::get_companies(array('"~company_name'=>DB::Concat('\'%\'',DB::qstr($word),'\'%\'')));
 
 	 		foreach ($result as $row)
- 				$ret['Company #'.$row['id'].', '.$row['company_name']] = array('search_company'=>$row['id']);
+ 				$ret['Company #'.$row['id'].', '.$row['company_name']] = Utils_RecordBrowserCommon::get_record_href_array('company',$row['id']);
 	 		
 			$result = self::get_companies(array('"~short_name'=>DB::Concat('\'%\'',DB::qstr($word),'\'%\'')));
 
 	 		foreach ($result as $row)
- 				$ret['Company #'.$row['id'].', '.$row['company_name']] = array('search_company'=>$row['id']);
+ 				$ret['Company #'.$row['id'].', '.$row['company_name']] = Utils_RecordBrowserCommon::get_record_href_array('company',$row['id']);
  		}
 		return $ret;
 	}
