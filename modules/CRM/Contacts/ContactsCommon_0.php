@@ -91,6 +91,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$field['display_callback'] = array('CRM_ContactsCommon', 'display_company');
 		$field['type'] = $field['param']['field_type'];
 		unset($field['param']['field_type']);
+		if (isset($field['param']['crits'])) $field['param'] = implode($field['param']['crits']);
+		else $field['param'] = '';
 		return $field;
 	}
 	public static function crm_contact_datatype($field = array()) {
@@ -98,8 +100,11 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$field['display_callback'] = array('CRM_ContactsCommon', 'display_contact');
 		$field['type'] = $field['param']['field_type'];
 		unset($field['param']['field_type']);
-		if (isset($field['param']['format'])) $field['param'] = $field['param']['format'][0].'::'.$field['param']['format'][1];
-		else $field['param'] = '';
+		if (isset($field['param']['format'])) $param = implode('::',$field['param']['format']);
+		else $param = '::';
+		if (isset($field['param']['crits'])) $param .= ';'.implode('::',$field['param']['crits']);
+		else $param .= ';::';
+		$field['param'] = $param;
 		return $field;
 	}
 
@@ -126,15 +131,18 @@ class CRM_ContactsCommon extends ModuleCommon {
 	public static function contact_format_default($record){
 		return $record['last_name'].' '.$record['first_name'];
 	}
+//	public static function contact_crits_test(){
+//		return array(':Fav'=>1);
+//	}
 	public static function QFfield_contact(&$form, $field, $label, $mode, $default, $desc) {
 		$cont = array();
+		$param = explode(';',$desc['param']);
 		if ($mode=='add' || $mode=='edit') {
-			$contacts = self::get_contacts();
-			if ($desc['param'] == '') {
-				$callback = array('CRM_ContactsCommon', 'contact_format_default');
-			} else {
-				$callback = explode('::', $desc['param']);
-			}
+			if ($param[0] == '::') $callback = array('CRM_ContactsCommon', 'contact_format_default');
+			else $callback = explode('::', $param);
+			if ($param[1] != '::') $crits = call_user_func(explode('::',$param[1]));
+			else $crits = array();
+			$contacts = self::get_contacts($crits);
 			if (!$desc['required'] && $desc['type']!='multiselect') $cont[''] = '--';
 			foreach ($contacts as $v) $cont[$v['id']] = call_user_func($callback, $v);
 			asort($cont);
