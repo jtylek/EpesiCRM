@@ -17,7 +17,7 @@ class CRM_Tasks extends Module {
 	
 	public function applet($conf,$opts) {
 		$opts['go'] = true;
-		$this->pack_module('Utils/Tasks',null,'body',array('crm_tasks',null,true,false));
+		$this->pack_module('Utils/Tasks',null,'body',array('crm_tasks',false,true,false));
 	}
 
 	public function caption() {

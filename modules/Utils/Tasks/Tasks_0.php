@@ -15,6 +15,10 @@ class Utils_Tasks extends Module {
 	private $display_longterm;
 	private $mid;
 	private $real_id;
+	private $lang;
+	private $priorities;
+	private $statuses;
+	private $permissions;
 
 	public function construct($id, $allow_add=null,$display_shortterm=null,$display_longterm=null) {
 		$this->mid = md5($id);
@@ -22,6 +26,12 @@ class Utils_Tasks extends Module {
 		$this->allow_add_task = is_bool($allow_add)?$allow_add:true;
 		$this->display_shortterm = is_bool($display_shortterm)?$display_shortterm:true;
 		$this->display_longterm = is_bool($display_longterm)?$display_longterm:true;
+		
+		$this->lang = $this->init_module('Base/Lang');
+		$this->priorities = array(0 => $this->lang->ht('Low'), 1 => $this->lang->ht('Medium'), 2 => $this->lang->ht('High'));
+		$this->statuses = array(0=> $this->lang->ht('Open'), 1 => $this->lang->ht('Closed'));
+		$this->permissions = array($this->lang->ht('Public'),$this->lang->ht('Protected'),$this->lang->ht('Private'));
+
 	}
 
 	public function body() {
@@ -52,7 +62,7 @@ class Utils_Tasks extends Module {
 			$ass_arr = CRM_ContactsCommon::get_contacts(array('id'=>array_keys($viewed)));
 			print_r($ass_arr);
 			$rel = '';
-			$r->add_data($row['title'],$ass,$rel,$row['status'],$row['priority'],Base_RegionalSettingsCommon::time2reg($row['deadline']));
+			$r->add_data($row['title'],$ass,$rel,$this->statuses[$row['status']],$this->priorities[$row['priority']],Base_RegionalSettingsCommon::time2reg($row['deadline']));
 			$r->add_action($this->create_callback_href(array($this,'push_box0'),array('edit',array($row['id']),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm))),'Edit');
 //			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Are you sure?'),array($this,'delete_entry'),$row['id']),'Delete');
 		}
@@ -60,11 +70,69 @@ class Utils_Tasks extends Module {
 		$this->display_module($gb);
 		
 		if($this->allow_add_task)
-			Base_ActionBarCommon::add('add','New task',$this->create_callback_href(array($this,'push_box0'),array('edit',array(false),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm))));
+			Base_ActionBarCommon::add('add','New task',$this->create_callback_href(array($this,'push_box0'),array('edit',null,array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm))));
 	}
 	
-	public function edit($id=null) {
+	public function deadline_callback($name, $args, & $def_js) {
+		return HTML_QuickForm::createElement('datepicker',$name,$this->lang->t('Deadline date'),array('id'=>'deadline_date'));
+	}
 	
+	public function edit($id=null,$edit=true) {
+		if($this->is_back()) {
+			$this->pop_box0();
+		} else {
+			$form = & $this->init_module('Libs/QuickForm',null,'fff');
+			
+			if(isset($id)) {
+				$row = DB::GetRow('SELECT * FROM utils_tasks_task WHERE id=%d',array($id));
+				$form->setDefaults($row);
+			}
+
+			$form->addElement('checkbox','is_deadline',$this->lang->t('Deadline'),false,array('onChange'=>'var x =$(\'deadline_date\');if(this.checked)x.enable();else x.disable();'));
+			if(!$form->exportValue('is_deadline'))
+				eval_js('$(\'deadline_date\').disable()');
+			
+			$form->add_table('utils_tasks_task',array(
+				array('name'=>'title','label'=>$this->lang->t('Title')),
+				array('name'=>'priority','label'=>$this->lang->t('Priority'), 'type'=>'select', 'values'=>$this->priorities),
+				array('name'=>'deadline', 'type'=>'callback','func'=>array($this,'deadline_callback')),
+				array('name'=>'status','label'=>$this->lang->t('Status'), 'type'=>'select','values'=>$this->statuses),
+				array('name'=>'longterm','label'=>$this->lang->t('Longterm')),
+				array('name'=>'permission','label'=>$this->lang->t('Permission'), 'type'=>'select','values'=>$this->permissions),
+				array('name'=>'description','label'=>$this->lang->t('Description'))
+			));
+
+			$emp = array();
+			$ret = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())));
+			foreach($ret as $c_id=>$data)
+				$emp[$c_id] = $data['last_name'].' '.$data['first_name'];
+			$cus = array();
+			$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company()), ':Fav'=>true));
+			foreach($ret as $c_id=>$data)
+				$cus[$c_id] = $data['last_name'].' '.$data['first_name'];
+				
+			$form->addElement('multiselect', 'emp_id', $this->lang->t('Employees'), $emp);
+			$form->addRule('emp_id', $this->lang->t('At least one employee must be assigned to an event.'), 'required');
+
+			$form->addElement('multiselect', 'cus_id', $this->lang->t('Customers'), $cus);
+			if($edit) {
+				$rb2 = $this->init_module('Utils/RecordBrowser/RecordPicker');
+				$this->display_module($rb2, array('contact', 'cus_id', array('CRM_Calendar_EventCommon','decode_contact'), array('!company_name'=>CRM_ContactsCommon::get_main_company()), array('work_phone'=>false, 'mobile_phone'=>false, 'zone'=>false, 'Actions'=>false)));
+				$cus_click = $rb2->create_open_link($this->lang->t('Advanced'));
+			} else {
+				$cus_click = '';
+			}
+//			print($cus_click);
+
+			if($form->validate()) {
+				
+				$this->pop_box0();
+			} else {
+				$form->display();
+				Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
+				Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+			}
+		}
 	}
 
 	public function pop_box0() {
