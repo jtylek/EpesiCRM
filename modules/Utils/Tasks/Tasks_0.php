@@ -82,7 +82,9 @@ class Utils_Tasks extends Module {
 			$this->pop_box0();
 		} else {
 			$form = & $this->init_module('Libs/QuickForm',null,'fff');
-			
+			$theme =  $this->pack_module('Base/Theme');
+			$theme->assign('action',$edit?(isset($id)?'edit':'new'):'view');
+
 			if(isset($id)) {
 				$row = DB::GetRow('SELECT * FROM utils_tasks_task WHERE id=%d',array($id));
 				$form->setDefaults($row);
@@ -121,14 +123,29 @@ class Utils_Tasks extends Module {
 				$cus_click = $rb2->create_open_link($this->lang->t('Advanced'));
 			} else {
 				$cus_click = '';
+				$form->freeze();
 			}
-//			print($cus_click);
+			$theme->assign('cus_click',$cus_click);
 
 			if($form->validate()) {
-				
+				$r = $form->exportValues();
+				if(isset($id)) {
+					if(isset($r['is_deadline']) && $r['is_deadline'])
+						DB::Execute('UPDATE utils_tasks_task SET title=%s,description=%s,permission=%d,priority=%d,status=%d,longterm=%b,deadline=%D,edited_by=%d,edited_on=%T WHERE id=%d',array($r['title'],$r['description'],$r['permission'],$r['priority'],$r['status'],isset($r['longterm']) && $r['longterm'],Base_RegionalSettingsCommon::server_date($r['deadline']),Acl::get_user(),time(),$id));
+					else
+						DB::Execute('UPDATE utils_tasks_task SET title=%s,description=%s,permission=%d,priority=%d,status=%d,longterm=%b,deadline=null,edited_by=%d,edited_on=%T WHERE id=%d',array($r['title'],$r['description'],$r['permission'],$r['priority'],$r['status'],isset($r['longterm']) && $r['longterm'],Acl::get_user(),time(),$id));
+				} else {
+					if(isset($r['is_deadline']) && $r['is_deadline'])
+						DB::Execute('INSERT INTO utils_tasks_task(title,description,permission,priority,status,longterm,deadline,created_by,created_on) VALUES (%s,%s,%d,%d,%d,%b,%D,%d,%T)',array($r['title'],$r['description'],$r['permission'],$r['priority'],$r['status'],isset($r['longterm']) && $r['longterm'],Base_RegionalSettingsCommon::server_date($r['deadline']),Acl::get_user(),time()));
+					else
+						DB::Execute('INSERT INTO utils_tasks_task(title,description,permission,priority,status,longterm,created_by,created_on) VALUES (%s,%s,%d,%d,%d,%b,%d,%T)',array($r['title'],$r['description'],$r['permission'],$r['priority'],$r['status'],isset($r['longterm']) && $r['longterm'],Acl::get_user(),time()));
+					$id = DB::Insert_ID('utils_tasks_task','id');
+				}
 				$this->pop_box0();
 			} else {
-				$form->display();
+				$form->assign_theme('form', $theme);
+				$theme->display();
+
 				Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
 				Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 			}
