@@ -396,6 +396,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			}
 		}
 		$ret = array('sql'=>'SELECT id, active'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?'':' AND active=1').$where.' GROUP BY id HAVING true'.$having.$orderby,'vals'=>$vals);
+//		print_r($ret);
 		return $ret;
 	}
 	public static function get_records_limit( $tab_name = null, $crits = null, $admin = false) {

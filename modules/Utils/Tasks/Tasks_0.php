@@ -63,9 +63,13 @@ class Utils_Tasks extends Module {
 			$ass_arr = CRM_ContactsCommon::get_contacts(array('id'=>array_keys($viewed)));
 			print_r($ass_arr);
 			$rel = '';
-			$r->add_data($row['title'],$ass,$rel,$this->statuses[$row['status']],$this->priorities[$row['priority']],Base_RegionalSettingsCommon::time2reg($row['deadline']));
+			$stat = $this->statuses[$row['status']];
+			if($row['status']==0)
+				$stat = '<a '.$this->create_callback_href(array($this,'close_task'),array($row['id'])).'>'.$stat.'</a>';
+			$r->add_data($row['title'],$ass,$rel,$stat,$this->priorities[$row['priority']],Base_RegionalSettingsCommon::time2reg($row['deadline']));
 			$r->add_action($this->create_callback_href(array($this,'push_box0'),array('edit',array($row['id']),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm))),'Edit');
-//			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Are you sure?'),array($this,'delete_entry'),$row['id']),'Delete');
+			$r->add_action($this->create_callback_href(array($this,'push_box0'),array('edit',array($row['id'],false),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm))),'View');
+			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Are you sure?'),array($this,'delete_task'),$row['id']),'Delete');
 		}
 		
 		$this->display_module($gb);
@@ -74,11 +78,24 @@ class Utils_Tasks extends Module {
 			Base_ActionBarCommon::add('add','New task',$this->create_callback_href(array($this,'push_box0'),array('edit',null,array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm))));
 	}
 	
+	public function delete_task($id) {
+		DB::Execute('DELETE FROM utils_tasks_assigned_contacts WHERE task_id=%d',array($id));
+		DB::Execute('DELETE FROM utils_tasks_related_contacts WHERE task_id=%d',array($id));
+		DB::Execute('DELETE FROM utils_tasks_task WHERE id=%d',array($id));
+	}
+	
+	public function close_task($id) {
+		DB::Execute('UPDATE utils_tasks_task SET status=1 WHERE id=%d',array($id));
+	}
+	
 	public function deadline_callback($name, $args, & $def_js) {
 		return HTML_QuickForm::createElement('datepicker',$name,$this->lang->t('Deadline date'),array('id'=>'deadline_date'));
 	}
 	
 	public function edit($id=null,$edit=true) {
+		$me = CRM_ContactsCommon::get_contact_by_user_id(Acl::get_user());
+		if($me!==null && isset($id))
+			DB::Execute('UPDATE utils_tasks_assigned_contacts SET viewed=1 WHERE contact_id=%d AND task_id=%d',array($me['id'],$id));
 		if($this->is_back()) {
 			$this->pop_box0();
 		} else {
@@ -86,13 +103,6 @@ class Utils_Tasks extends Module {
 			$theme =  $this->pack_module('Base/Theme');
 			$theme->assign('action',$edit?(isset($id)?'edit':'new'):'view');
 
-			if(isset($id)) {
-				$row = DB::GetRow('SELECT * FROM utils_tasks_task WHERE id=%d',array($id));
-				$form->setDefaults($row);
-				$related = DB::GetCol('SELECT contact_id FROM utils_tasks_related_contacts WHERE task_id=%d',array($id));
-				$assigned = DB::GetAssoc('SELECT contact_id,viewed FROM utils_tasks_assigned_contacts WHERE task_id=%d',array($id));
-				$form->setDefaults(array('cus_id'=>$related,'emp_id'=>array_keys($assigned)));
-			}
 
 			$form->addElement('checkbox','is_deadline',$this->lang->t('Deadline'),false,array('onChange'=>'var x =$(\'deadline_date\');if(this.checked)x.enable();else x.disable();'));
 			if(!$form->exportValue('is_deadline'))
@@ -102,18 +112,34 @@ class Utils_Tasks extends Module {
 				array('name'=>'title','label'=>$this->lang->t('Title'),'param'=>array('id'=>'task_title')),
 				array('name'=>'priority','label'=>$this->lang->t('Priority'), 'type'=>'select', 'values'=>$this->priorities),
 				array('name'=>'deadline', 'type'=>'callback','func'=>array($this,'deadline_callback')),
-				array('name'=>'status','label'=>$this->lang->t('Status'), 'type'=>'select','values'=>$this->statuses),
+				array('name'=>'status','label'=>$this->lang->t('Status'), 'type'=>($edit?'select':'static'),'values'=>($edit?$this->statuses:'')),
 				array('name'=>'longterm','label'=>$this->lang->t('Longterm')),
 				array('name'=>'permission','label'=>$this->lang->t('Permission'), 'type'=>'select','values'=>$this->permissions),
 				array('name'=>'description','label'=>$this->lang->t('Description'))
 			));
+
+			if(isset($id)) {
+				$defaults = DB::GetRow('SELECT * FROM utils_tasks_task WHERE id=%d',array($id));
+				if(!$edit) {
+					if($defaults['status']==1)
+						$defaults['status'] = $this->statuses[$defaults['status']];
+					else
+						$defaults['status'] = '<a'.$this->create_callback_href(array($this,'close_task'),array($id)).'>'.$this->statuses[$defaults['status']].'</a>';
+				}
+				$form->setDefaults($defaults);
+				$related = DB::GetCol('SELECT contact_id FROM utils_tasks_related_contacts WHERE task_id=%d',array($id));
+				$assigned = DB::GetAssoc('SELECT contact_id,viewed FROM utils_tasks_assigned_contacts WHERE task_id=%d',array($id));
+				$form->setDefaults(array('cus_id'=>$related,'emp_id'=>array_keys($assigned)));
+			} elseif($edit && $me!==null) {
+				$form->setDefaults(array('emp_id'=>array($me['id'])));
+			}
 
 			$emp = array();
 			$ret = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())));
 			foreach($ret as $c_id=>$data) {
 				$emp[$c_id] = $data['last_name'].' '.$data['first_name'];
 				if(!$edit)
-					$emp[$c_id] .= '<span class="'.($row['done']==='')?'':($assigned[$c_id]?'checkbox_on':'checkbox_off').'" />';
+					$emp[$c_id] .= '<span class="'.($assigned[$c_id]?'checkbox_on':'checkbox_off').'" />';
 			}
 			$cus = array();
 			$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company()), ':Fav'=>true));
@@ -133,6 +159,7 @@ class Utils_Tasks extends Module {
 				$form->freeze();
 			}
 			$theme->assign('cus_click',$cus_click);
+			$theme->assign('close_task',$this->create_callback_href(array($this,'close_task'),array($id)));
 
 			if($form->validate()) {
 				$r = $form->exportValues();
@@ -165,8 +192,11 @@ class Utils_Tasks extends Module {
 			} else {
 				$form->assign_theme('form', $theme);
 				$theme->display();
-
-				Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
+				
+				if($edit)
+					Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
+				else
+					Base_ActionBarCommon::add('edit','Edit',$this->create_callback_href(array($this,'push_box0'),array('edit',array($id),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm))));
 				Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 			}
 		}
