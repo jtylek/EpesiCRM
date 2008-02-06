@@ -206,7 +206,7 @@ class Utils_Messenger extends Module {
 		while($row = $ret->FetchRow()) {
 			$info = call_user_func_array(unserialize($row['callback_method']),unserialize($row['callback_args']));
 			$info = str_replace("\n",'<br>',$info);
-			$gb->add_row(($row['done']==='')?'':($row['done']?'<span class="checkbox_on" />':'<span class="checkbox_off" />'),$row['alert_on'],$info.'<br>'.($row['message']?$this->lang->t("Alarm comment: %s",array($row['message'])):''));
+			$gb->add_row('<span class="'.($row['done']==='')?'':($row['done']?'checkbox_on':'checkbox_off').'" />',$row['alert_on'],$info.'<br>'.($row['message']?$this->lang->t("Alarm comment: %s",array($row['message'])):''));
 		}
 
 		$this->display_module($gb);

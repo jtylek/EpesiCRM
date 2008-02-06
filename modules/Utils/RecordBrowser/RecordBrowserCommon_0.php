@@ -349,9 +349,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					default		: trigger_error('Unknow paramter given to get_records criteria: '.$k, E_USER_ERROR);
 				}
 			} else {
-				$negative = ($k[0]=='!' || $k[1]=='!' || $k[2]=='!');
-				$noquotes = ($k[0]=='"' || $k[1]=='"' || $k[2]=='"');
-				$force_like = ($k[0]=='~' || $k[1]=='~' || $k[2]=='~');
+				$len = strlen($k);
+				$negative = (($len && $k[0]=='!') || ($len>1 && $k[1]=='!') || ($len>2 && $k[2]=='!'));
+				$noquotes = (($len && $k[0]=='"') || ($len>1 && $k[1]=='"') || ($len>2 && $k[2]=='"'));
+				$force_like = (($len && $k[0]=='~') || ($len>1 && $k[1]=='~') || ($len>2 && $k[2]=='~'));
 				$k = trim($k, '!"~');
 				$fields .= ', concat( \'::\', group_concat( rd'.$iter.'.value ORDER BY rd'.$iter.'.value SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
 				$final_tab = '('.$final_tab.') LEFT JOIN '.$tab_name.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab_name.'_id AND rd'.$iter.'.field="'.$k.'"';

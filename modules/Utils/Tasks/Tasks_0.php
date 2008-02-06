@@ -59,6 +59,7 @@ class Utils_Tasks extends Module {
 			$r = & $gb->get_new_row();
 			$ass='';
 			$viewed = DB::GetAssoc('SELECT contact_id,viewed FROM utils_tasks_assigned_contacts WHERE task_id=%d',array($row['id']));
+			print_r($viewed);
 			$ass_arr = CRM_ContactsCommon::get_contacts(array('id'=>array_keys($viewed)));
 			print_r($ass_arr);
 			$rel = '';
@@ -88,6 +89,9 @@ class Utils_Tasks extends Module {
 			if(isset($id)) {
 				$row = DB::GetRow('SELECT * FROM utils_tasks_task WHERE id=%d',array($id));
 				$form->setDefaults($row);
+				$related = DB::GetCol('SELECT contact_id FROM utils_tasks_related_contacts WHERE task_id=%d',array($id));
+				$assigned = DB::GetAssoc('SELECT contact_id,viewed FROM utils_tasks_assigned_contacts WHERE task_id=%d',array($id));
+				$form->setDefaults(array('cus_id'=>$related,'emp_id'=>array_keys($assigned)));
 			}
 
 			$form->addElement('checkbox','is_deadline',$this->lang->t('Deadline'),false,array('onChange'=>'var x =$(\'deadline_date\');if(this.checked)x.enable();else x.disable();'));
@@ -95,7 +99,7 @@ class Utils_Tasks extends Module {
 				eval_js('$(\'deadline_date\').disable()');
 			
 			$form->add_table('utils_tasks_task',array(
-				array('name'=>'title','label'=>$this->lang->t('Title')),
+				array('name'=>'title','label'=>$this->lang->t('Title'),'param'=>array('id'=>'task_title')),
 				array('name'=>'priority','label'=>$this->lang->t('Priority'), 'type'=>'select', 'values'=>$this->priorities),
 				array('name'=>'deadline', 'type'=>'callback','func'=>array($this,'deadline_callback')),
 				array('name'=>'status','label'=>$this->lang->t('Status'), 'type'=>'select','values'=>$this->statuses),
@@ -106,8 +110,11 @@ class Utils_Tasks extends Module {
 
 			$emp = array();
 			$ret = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())));
-			foreach($ret as $c_id=>$data)
+			foreach($ret as $c_id=>$data) {
 				$emp[$c_id] = $data['last_name'].' '.$data['first_name'];
+				if(!$edit)
+					$emp[$c_id] .= '<span class="'.($row['done']==='')?'':($assigned[$c_id]?'checkbox_on':'checkbox_off').'" />';
+			}
 			$cus = array();
 			$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company()), ':Fav'=>true));
 			foreach($ret as $c_id=>$data)
@@ -136,11 +143,24 @@ class Utils_Tasks extends Module {
 						DB::Execute('UPDATE utils_tasks_task SET title=%s,description=%s,permission=%d,priority=%d,status=%d,longterm=%b,deadline=null,edited_by=%d,edited_on=%T WHERE id=%d',array($r['title'],$r['description'],$r['permission'],$r['priority'],$r['status'],isset($r['longterm']) && $r['longterm'],Acl::get_user(),time(),$id));
 				} else {
 					if(isset($r['is_deadline']) && $r['is_deadline'])
-						DB::Execute('INSERT INTO utils_tasks_task(title,description,permission,priority,status,longterm,deadline,created_by,created_on) VALUES (%s,%s,%d,%d,%d,%b,%D,%d,%T)',array($r['title'],$r['description'],$r['permission'],$r['priority'],$r['status'],isset($r['longterm']) && $r['longterm'],Base_RegionalSettingsCommon::server_date($r['deadline']),Acl::get_user(),time()));
+						DB::Execute('INSERT INTO utils_tasks_task(title,description,permission,priority,status,longterm,deadline,created_by,created_on,page_id) VALUES (%s,%s,%d,%d,%d,%b,%D,%d,%T,%s)',array($r['title'],$r['description'],$r['permission'],$r['priority'],$r['status'],isset($r['longterm']) && $r['longterm'],Base_RegionalSettingsCommon::server_date($r['deadline']),Acl::get_user(),time(),$this->mid));
 					else
-						DB::Execute('INSERT INTO utils_tasks_task(title,description,permission,priority,status,longterm,created_by,created_on) VALUES (%s,%s,%d,%d,%d,%b,%d,%T)',array($r['title'],$r['description'],$r['permission'],$r['priority'],$r['status'],isset($r['longterm']) && $r['longterm'],Acl::get_user(),time()));
+						DB::Execute('INSERT INTO utils_tasks_task(title,description,permission,priority,status,longterm,created_by,created_on,page_id) VALUES (%s,%s,%d,%d,%d,%b,%d,%T,%s)',array($r['title'],$r['description'],$r['permission'],$r['priority'],$r['status'],isset($r['longterm']) && $r['longterm'],Acl::get_user(),time(),$this->mid));
 					$id = DB::Insert_ID('utils_tasks_task','id');
 				}
+				foreach($r['emp_id'] as $em) {
+					if(isset($assigned[$em]))
+						unset($assigned[$em]);
+					else
+						DB::Execute('INSERT INTO utils_tasks_assigned_contacts(contact_id,task_id) VALUES(%d,%d)',array($em,$id));
+				}
+				if(isset($assigned))
+					foreach($assigned as $k=>$v) {
+						DB::Execute('DELETE FROM utils_tasks_assigned_contacts WHERE task_id=%d AND contact_id=%d',array($id,$k));
+					}
+				DB::Execute('DELETE FROM utils_tasks_related_contacts WHERE task_id=%d',array($id));
+				foreach($r['cus_id'] as $cu)
+					DB::Execute('INSERT INTO utils_tasks_related_contacts(task_id,contact_id) VALUES(%d,%d)',array($id,$cu));
 				$this->pop_box0();
 			} else {
 				$form->assign_theme('form', $theme);
