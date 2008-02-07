@@ -27,6 +27,7 @@ class CRM_TasksInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
+			array('name'=>'CRM/Filters','version'=>0),
 			array('name'=>'Libs/QuickForm','version'=>0),
 			array('name'=>'Utils/Tasks','version'=>0));
 	}

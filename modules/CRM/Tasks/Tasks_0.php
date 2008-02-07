@@ -12,6 +12,9 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_Tasks extends Module {
 
 	public function body() {
+		$f = $this->pack_module('CRM/Filters');
+		$filter = $f->get();
+	
 		$term = & $this->get_module_variable('term','s');
 		$closed = & $this->get_module_variable('closed',false);
 
@@ -28,13 +31,14 @@ class CRM_Tasks extends Module {
 			$closed = isset($v['closed']) && $v['closed'];
 		}
 		$f->display();
-		$this->pack_module('Utils/Tasks',null,null,array('crm_tasks',true,($term=='s' || $term=='b'),($term=='l' || $term=='b'),$closed));
+		$this->pack_module('Utils/Tasks',null,null,array('crm_tasks',true,($term=='s' || $term=='b'),($term=='l' || $term=='b'),$closed,$filter));
 	}
 	
 	public function applet($conf,$opts) {
 		$opts['go'] = true;
 		$opts['title'] = 'Tasks'.($conf['term']=='s'?' - short term':($conf['term']=='l'?' - long term':''));
-		$this->pack_module('Utils/Tasks',null,'applet',array('crm_tasks',false,($conf['term']=='s' || $conf['term']=='b'),($conf['term']=='l' || $conf['term']=='b'),(isset($conf['closed']) && $conf['closed'])));
+		$me = CRM_ContactsCommon::get_contact_by_user_id(Acl::get_user());
+		$this->pack_module('Utils/Tasks',null,'applet',array('crm_tasks',false,($conf['term']=='s' || $conf['term']=='b'),($conf['term']=='l' || $conf['term']=='b'),(isset($conf['closed']) && $conf['closed']),'('.$me['id'].')'));
 	}
 
 	public function caption() {
