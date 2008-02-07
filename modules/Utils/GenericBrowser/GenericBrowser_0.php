@@ -428,10 +428,9 @@ class Utils_GenericBrowser extends Module {
 			foreach($this->columns as $k=>$v){
 				if (isset($v['search']) && isset($search['__keyword__'])) 
 		 			if (!$array)
-						$where .= ($where?' OR':'').' '.$v['search'].' LIKE '.DB::Concat('\'%\'',sprintf('%s',DB::qstr($search['__keyword__'])),'\'%\'');
-//					else
-//						$where[$v['search']] = '%'.$search[$v['search']].'%';
-// TODO: logic OR on crits
+						$where .= ($where?' OR':'').' '.$v['search'].' LIKE '.DB::Concat(DB::qstr('%'),sprintf('%s',DB::qstr($search['__keyword__'])),DB::qstr('%'));
+					else
+						$where['|'.$v['search']][] = DB::Concat(DB::qstr('%'),sprintf('%s',DB::qstr($search['__keyword__'])),DB::qstr('%'));
 			}
 		} else {
 			foreach($this->columns as $k=>$v)

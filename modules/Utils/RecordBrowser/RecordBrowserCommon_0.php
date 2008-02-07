@@ -318,10 +318,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$old_crits = $crits;
 		$crits = array();
 		foreach($old_crits as $k=>$v) {
-			$tk = trim($k, '"!~');
+			$tk = trim($k, '"!|');
 			if (isset($hash[$tk])) $crits[str_replace($tk, $hash[$tk], $k)] = $v;
 			else $crits[$k] = $v;
 		}
+		$or_started = false;
 		foreach($crits as $k=>$v){
 			if ($k[0]==':') {
 				switch ($k) {
@@ -353,7 +354,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					$len = strlen($k);
 					$negative = (($len && $k[0]=='!') || ($len>1 && $k[1]=='!') || ($len>2 && $k[2]=='!'));
 					$noquotes = (($len && $k[0]=='"') || ($len>1 && $k[1]=='"') || ($len>2 && $k[2]=='"'));
-					$k = trim($k, '!"~');
+					$k = trim($k, '!"|');
 					if (!is_array($v)) $v = array($v);
 					$having .= ' AND ('.($negative?'true':'false');
 					foreach($v as $w) {
@@ -365,22 +366,33 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					$len = strlen($k);
 					$negative = (($len && $k[0]=='!') || ($len>1 && $k[1]=='!') || ($len>2 && $k[2]=='!'));
 					$noquotes = (($len && $k[0]=='"') || ($len>1 && $k[1]=='"') || ($len>2 && $k[2]=='"'));
-					$k = trim($k, '!"~');
+					$or = (($len && $k[0]=='|') || ($len>1 && $k[1]=='|') || ($len>2 && $k[2]=='|'));
+					$k = trim($k, '!"|');
 					$fields .= ', concat( \'::\', group_concat( rd'.$iter.'.value ORDER BY rd'.$iter.'.value SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
 					$final_tab = '('.$final_tab.') LEFT JOIN '.$tab_name.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab_name.'_id AND rd'.$iter.'.field="'.$k.'"';
 					if (!is_array($v)) $v = array($v);
-					$having .= ' AND (('.($negative?'true':'false');
+					if ($or) {
+						if (!$or_started) $having .= ' AND (';
+						else $having .= ' OR ';
+						$or_started = true;
+					} else {
+						if ($or_started) $having .= ')';
+						$or_started = false;
+						$having .= ' AND ';
+					}
+					if ($negative) $having .= '(';
+					$having .= '('.($negative?'true':'false');
 					foreach($v as $w) {
 						if (!$noquotes) $w = DB::qstr($w);
 						$having .= ' '.($negative?'AND':'OR').' val'.$iter.' '.($negative?'NOT ':'').'LIKE '.DB::Concat(DB::qstr('%::'),$w,DB::qstr('::%'));
 					}
 					$having .= ')';
 					if ($negative) $having .= ' OR val'.$iter.' IS NULL)';
-					else $having .= ')';
 					$iter++;
 				}
 			}
 		}
+		if ($or_started) $having .= ')';
 		$orderby = '';
 		foreach($order as $v){
 			if ($orderby=='') $orderby = ' ORDER BY';
@@ -406,7 +418,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		$ret = array('sql'=>'SELECT id, active'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?'':' AND active=1').$where.' GROUP BY id HAVING true'.$having.$orderby,'vals'=>$vals);
 //		print('<hr>');
-//		print_r($ret);
+//		print_r($ret['sql']);
 //		print('<hr>');
 		return $ret;
 	}
