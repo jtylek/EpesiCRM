@@ -73,7 +73,7 @@ class Utils_Tasks extends Module {
 			}
 			$stat = $this->statuses[$row['status']];
 			if($row['status']==0)
-				$stat = '<a '.$this->create_callback_href(array($this,'close_task'),array($row['id'])).'>'.$stat.'</a>';
+				$stat = '<a '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('Click here to close this task')).' '.$this->create_callback_href(array($this,'close_task'),array($row['id'])).'>'.$stat.'</a>';
 			$r->add_data($row['title'],$ass,$rel,$stat,$this->priorities[$row['priority']],$row['deadline']?Base_RegionalSettingsCommon::time2reg($row['deadline']):'--');
 			$r->add_action($this->create_callback_href(array($this,'push_box0'),array('edit',array($row['id']),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm,$this->display_closed))),'Edit');
 			$r->add_action($this->create_callback_href(array($this,'push_box0'),array('edit',array($row['id'],false),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm,$this->display_closed))),'View');
@@ -113,7 +113,7 @@ class Utils_Tasks extends Module {
 			$r = & $gb->get_new_row();
 			$stat = $this->statuses[$row['status']];
 			if($row['status']==0)
-				$stat = '<a '.$this->create_callback_href(array($this,'close_task'),array($row['id'])).'>'.$stat.'</a>';
+				$stat = '<a '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('Click here to close this task')).' '.$this->create_callback_href(array($this,'close_task'),array($row['id'])).'>'.$stat.'</a>';
 			$r->add_data('<a '.$this->create_callback_href(array($this,'push_box0'),array('edit',array($row['id'],false),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm,$this->display_closed))).'>'.$row['title'].'</a>',$stat,$this->priorities[$row['priority']],$row['deadline']?Base_RegionalSettingsCommon::time2reg($row['deadline']):'--');
 		}
 		
@@ -171,7 +171,7 @@ class Utils_Tasks extends Module {
 					if($defaults['status']==1)
 						$defaults['status'] = $this->statuses[$defaults['status']];
 					else
-						$defaults['status'] = '<a'.$this->create_callback_href(array($this,'close_task'),array($id)).'>'.$this->statuses[$defaults['status']].'</a>';
+						$defaults['status'] = '<a '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('Click here to close this task')).' '.$this->create_callback_href(array($this,'close_task'),array($id)).'>'.$this->statuses[$defaults['status']].'</a>';
 					$defaults['created_by'] = Base_UserCommon::get_user_login($defaults['created_by']);
 					$defaults['created_on'] = Base_RegionalSettingsCommon::time2reg($defaults['created_on']);
 					$defaults['edited_by'] = $defaults['edited_by']?Base_UserCommon::get_user_login($defaults['edited_by']):'--';

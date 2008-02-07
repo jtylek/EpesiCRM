@@ -73,6 +73,7 @@ class Utils_TasksInstall extends ModuleInstall {
 			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'Base/Theme','version'=>0),
 			array('name'=>'Utils/PopupCalendar','version'=>0),
+			array('name'=>'Utils/Tooltip','version'=>0),
 			array('name'=>'CRM/Contacts','version'=>0),
 			array('name'=>'Libs/QuickForm','version'=>0),
 			array('name'=>'Utils/GenericBrowser','version'=>0));
