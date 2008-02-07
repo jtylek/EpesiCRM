@@ -250,6 +250,10 @@ class Utils_Tasks extends Module {
 				DB::Execute('DELETE FROM utils_tasks_related_contacts WHERE task_id=%d',array($id));
 				foreach($r['cus_id'] as $cu)
 					DB::Execute('INSERT INTO utils_tasks_related_contacts(task_id,contact_id) VALUES(%d,%d)',array($id,$cu));
+		
+				if($me!==null && isset($id))
+					DB::Execute('UPDATE utils_tasks_assigned_contacts SET viewed=1 WHERE contact_id=%d AND task_id=%d',array($me['id'],$id));
+		
 				$this->pop_box0();
 			} else {
 				$form->assign_theme('form', $theme);
