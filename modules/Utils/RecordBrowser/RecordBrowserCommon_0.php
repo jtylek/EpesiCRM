@@ -349,27 +349,36 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					default		: trigger_error('Unknow paramter given to get_records criteria: '.$k, E_USER_ERROR);
 				}
 			} else {
-				$len = strlen($k);
-				$negative = (($len && $k[0]=='!') || ($len>1 && $k[1]=='!') || ($len>2 && $k[2]=='!'));
-				$noquotes = (($len && $k[0]=='"') || ($len>1 && $k[1]=='"') || ($len>2 && $k[2]=='"'));
-				$force_like = (($len && $k[0]=='~') || ($len>1 && $k[1]=='~') || ($len>2 && $k[2]=='~'));
-				$k = trim($k, '!"~');
-				$fields .= ', concat( \'::\', group_concat( rd'.$iter.'.value ORDER BY rd'.$iter.'.value SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
-				$final_tab = '('.$final_tab.') LEFT JOIN '.$tab_name.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab_name.'_id AND rd'.$iter.'.field="'.$k.'"';
-				if (is_array($v)) {
+				if ($k == 'id') {
+					$len = strlen($k);
+					$negative = (($len && $k[0]=='!') || ($len>1 && $k[1]=='!') || ($len>2 && $k[2]=='!'));
+					$noquotes = (($len && $k[0]=='"') || ($len>1 && $k[1]=='"') || ($len>2 && $k[2]=='"'));
+					$k = trim($k, '!"~');
+					if (!is_array($v)) $v = array($v);
+					$having .= ' AND ('.($negative?'true':'false');
+					foreach($v as $w) {
+						if (!$noquotes) $w = DB::qstr($w);
+						$having .= ' '.($negative?'AND':'OR').' id '.($negative?'NOT ':'').'LIKE '.$w;
+					}
+					$having .= ')';
+				} else {
+					$len = strlen($k);
+					$negative = (($len && $k[0]=='!') || ($len>1 && $k[1]=='!') || ($len>2 && $k[2]=='!'));
+					$noquotes = (($len && $k[0]=='"') || ($len>1 && $k[1]=='"') || ($len>2 && $k[2]=='"'));
+					$k = trim($k, '!"~');
+					$fields .= ', concat( \'::\', group_concat( rd'.$iter.'.value ORDER BY rd'.$iter.'.value SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
+					$final_tab = '('.$final_tab.') LEFT JOIN '.$tab_name.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab_name.'_id AND rd'.$iter.'.field="'.$k.'"';
+					if (!is_array($v)) $v = array($v);
 					$having .= ' AND (('.($negative?'true':'false');
 					foreach($v as $w) {
 						if (!$noquotes) $w = DB::qstr($w);
-						$having .= ' '.($negative?'AND':'OR').' val'.$iter.' '.($negative?'NOT ':'').'LIKE '.DB::Concat(DB::qstr('%:'),$w,DB::qstr(':%'));
+						$having .= ' '.($negative?'AND':'OR').' val'.$iter.' '.($negative?'NOT ':'').'LIKE '.DB::Concat(DB::qstr('%::'),$w,DB::qstr('::%'));
 					}
 					$having .= ')';
 					if ($negative) $having .= ' OR val'.$iter.' IS NULL)';
 					else $having .= ')';
-				} else {
-					if (!$noquotes) $v = DB::qstr($v);
-					$having .= ' AND val'.$iter.($negative?'!':'').($force_like?' LIKE ':'=').DB::Concat('\'::\'',$v,'\'::\'');
+					$iter++;
 				}
-				$iter++;
 			}
 		}
 		$orderby = '';
@@ -396,7 +405,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			}
 		}
 		$ret = array('sql'=>'SELECT id, active'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?'':' AND active=1').$where.' GROUP BY id HAVING true'.$having.$orderby,'vals'=>$vals);
+//		print('<hr>');
 //		print_r($ret);
+//		print('<hr>');
 		return $ret;
 	}
 	public static function get_records_limit( $tab_name = null, $crits = null, $admin = false) {
