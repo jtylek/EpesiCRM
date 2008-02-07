@@ -306,23 +306,23 @@ class CRM_ContactsCommon extends ModuleCommon {
 	public static function search($word){
 		$ret = array();
 		if(self::Instance()->acl_check('browse contacts')) {
-			$result = self::get_contacts(array('"~first_name'=>DB::Concat('\'%\'',DB::qstr($word),'\'%\'')));
+			$result = self::get_contacts(array('"first_name'=>DB::Concat('\'%\'',DB::qstr($word),'\'%\'')));
 
 	 		foreach ($result as $row)
  				$ret['Contact #'.$row['id'].', '.$row['first_name'].' '.$row['last_name']] = Utils_RecordBrowserCommon::get_record_href_array('contact',$row['id']);
 	 		
-			$result = self::get_contacts(array('"~last_name'=>DB::Concat('\'%\'',DB::qstr($word),'\'%\'')));
+			$result = self::get_contacts(array('"last_name'=>DB::Concat('\'%\'',DB::qstr($word),'\'%\'')));
 
 	 		foreach ($result as $row)
  				$ret['Contact #'.$row['id'].', '.$row['first_name'].' '.$row['last_name']] = Utils_RecordBrowserCommon::get_record_href_array('contact',$row['id']);
  		}
 		if(self::Instance()->acl_check('browse companies')) {
-			$result = self::get_companies(array('"~company_name'=>DB::Concat('\'%\'',DB::qstr($word),'\'%\'')));
+			$result = self::get_companies(array('"company_name'=>DB::Concat('\'%\'',DB::qstr($word),'\'%\'')));
 
 	 		foreach ($result as $row)
  				$ret['Company #'.$row['id'].', '.$row['company_name']] = Utils_RecordBrowserCommon::get_record_href_array('company',$row['id']);
 	 		
-			$result = self::get_companies(array('"~short_name'=>DB::Concat('\'%\'',DB::qstr($word),'\'%\'')));
+			$result = self::get_companies(array('"short_name'=>DB::Concat('\'%\'',DB::qstr($word),'\'%\'')));
 
 	 		foreach ($result as $row)
  				$ret['Company #'.$row['id'].', '.$row['company_name']] = Utils_RecordBrowserCommon::get_record_href_array('company',$row['id']);

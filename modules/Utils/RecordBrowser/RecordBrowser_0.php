@@ -151,9 +151,9 @@ class Utils_RecordBrowser extends Module {
 				$arr = array('__NULL__'=>'--');
 				list($tab, $col) = explode('::',$this->table_rows[$filter]['param']);
 				if ($tab=='__COMMON__') {
-					$arr = Utils_CommonDataCommon::get_array($col);
+					$arr = array_merge($arr, Utils_CommonDataCommon::get_array($col));
 				} else {
-					$ret2 = DB::Execute('SELECT '.$tab.'_id, value FROM '.$tab.'_data WHERE field=%s', array($col));
+					$ret2 = DB::Execute('SELECT '.$tab.'_id, value FROM '.$tab.'_data WHERE field=%s ORDER BY value', array($col));
 					while ($row2 = $ret2->FetchRow()) $arr[$row2[$tab.'_id']] = $row2['value'];
 				}
 			} else {
@@ -899,18 +899,18 @@ class Utils_RecordBrowser extends Module {
 						array('value'=>'--','style'=>'border-top: 1px solid black;'),
 						array('value'=>'--','style'=>'border-top: 1px solid black;'),
 						array('value'=>$this->lang->t('Current'),'style'=>'border-top: 1px solid black;')
-						);
+						);	
 		foreach($this->table_rows as $field => $args) {
 			if ($field=='id') continue;
-			if (!isset($created[$field])) $created[$field] = '';
-			if (is_array($created[$field])) {
+			if (!isset($created[$args['id']])) $created[$args['id']] = '';
+			if (is_array($created[$args['id']])) {
 				$val = '';
-				foreach($created[$field] as $v)
+				foreach($created[$args['id']] as $v)
 					$val .= ($val==''?'':', ').$v;
 			} else {
-				$val = $created[$field];
+				$val = $created[$args['id']];
 			}
-			$row_data[] = array('DBvalue'=>$created[$field],'value'=>$val,'style'=>'font-weight: bold; border-top: 1px solid black;','hint'=>$val);
+			$row_data[] = array('DBvalue'=>$created[$args['id']],'value'=>$val,'style'=>'font-weight: bold; border-top: 1px solid black;','hint'=>$val);
 		}
 		$edit_history = array($row_data);
 		$ret = DB::Execute('SELECT ul.login, c.id, c.edited_on, c.edited_by FROM '.$this->tab.'_edit_history AS c LEFT JOIN user_login AS ul ON ul.id=c.edited_by WHERE c.'.$this->tab.'_id=%d ORDER BY edited_on DESC',array($id));
@@ -945,7 +945,7 @@ class Utils_RecordBrowser extends Module {
 			}
 			foreach($this->table_rows as $field => $args) {
 				if ($field=='id') continue;
-				$row_data[] = $new_created[$field];
+				$row_data[] = $new_created[$args['id']];
 			}
 			array_unshift($edit_history, $row_data);
 			$counter++;
@@ -953,12 +953,12 @@ class Utils_RecordBrowser extends Module {
 		$row_data = array('Created',$created['created_by_login'],$created['created_on']);
 		foreach($this->table_rows as $field => $args) {
 			if ($field=='id') continue;
-			if (is_array($created[$field])) {
+			if (is_array($created[$args['id']])) {
 				$v = '';
-				foreach($created[$field] as $c)
+				foreach($created[$args['id']] as $c)
 					$v .= ($v==''?'':', ').$c;
-			} else $v = $created[$field];
-			$row_data[] = array('DBvalue'=>$created[$field],'value'=>$v,'style'=>'font-weight: bold;','hint'=>$v);
+			} else $v = $created[$args['id']];
+			$row_data[] = array('DBvalue'=>$created[$args['id']],'value'=>$v,'style'=>'font-weight: bold;','hint'=>$v);
 		}
 		array_unshift($edit_history, $row_data);
 		foreach($edit_history as $row_data) {

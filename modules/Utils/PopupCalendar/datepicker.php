@@ -56,7 +56,8 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 	}
 
 	function setValue($value) {
-		$this->updateAttributes(array('value'=>Base_RegionalSettingsCommon::time2reg($value,false)));
+		if ($value) $this->updateAttributes(array('value'=>Base_RegionalSettingsCommon::time2reg($value,false)));
+		else $this->updateAttributes(array('value'=>''));
 	} // end func setValue
 
 
