@@ -12,12 +12,29 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_Tasks extends Module {
 
 	public function body() {
-		$this->pack_module('Utils/Tasks',null,null,array('crm_tasks'));
+		$term = & $this->get_module_variable('term','s');
+		$closed = & $this->get_module_variable('closed',false);
+
+		//ustawiacz long, short term, oraz closed
+		$l = $this->init_module('Base/Lang');
+		$f = $this->init_module('Libs/QuickForm',null,'filters');
+		$f->addElement('select','term',$l->t('Display tasks marked as'),array('s'=>'Short term','l'=>'Long term','b'=>'Both'));
+		$f->addElement('checkbox','closed',$l->t('Display closed tasks'));
+		$f->addElement('submit',null,$l->ht('OK'));
+		$f->setDefaults(array('term'=>$term,'closed'=>$closed));
+		if($f->validate()) {
+			$v = $f->exportValues();
+			$term = $v['term'];
+			$closed = isset($v['closed']) && $v['closed'];
+		}
+		$f->display();
+		$this->pack_module('Utils/Tasks',null,null,array('crm_tasks',true,($term=='s' || $term=='b'),($term=='l' || $term=='b'),$closed));
 	}
 	
 	public function applet($conf,$opts) {
 		$opts['go'] = true;
-		$this->pack_module('Utils/Tasks',null,'body',array('crm_tasks',false,true,false));
+		$opts['title'] = 'Tasks'.($conf['term']=='s'?' - short term':($conf['term']=='l'?' - long term':''));
+		$this->pack_module('Utils/Tasks',null,'applet',array('crm_tasks',false,($conf['term']=='s' || $conf['term']=='b'),($conf['term']=='l' || $conf['term']=='b'),(isset($conf['closed']) && $conf['closed'])));
 	}
 
 	public function caption() {

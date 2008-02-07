@@ -13,6 +13,7 @@ class Utils_Tasks extends Module {
 	private $allow_add_task;
 	private $display_shortterm;
 	private $display_longterm;
+	private $display_closed;
 	private $mid;
 	private $real_id;
 	private $lang;
@@ -20,12 +21,13 @@ class Utils_Tasks extends Module {
 	private $statuses;
 	private $permissions;
 
-	public function construct($id, $allow_add=null,$display_shortterm=null,$display_longterm=null) {
+	public function construct($id, $allow_add=null,$display_shortterm=null,$display_longterm=null,$display_closed=null) {
 		$this->mid = md5($id);
 		$this->real_id = $id;
 		$this->allow_add_task = is_bool($allow_add)?$allow_add:true;
 		$this->display_shortterm = is_bool($display_shortterm)?$display_shortterm:true;
 		$this->display_longterm = is_bool($display_longterm)?$display_longterm:true;
+		$this->display_closed = is_bool($display_closed)?$display_closed:false;
 		
 		$this->lang = $this->init_module('Base/Lang');
 		$this->priorities = array(0 => $this->lang->ht('Low'), 1 => $this->lang->ht('Medium'), 2 => $this->lang->ht('High'));
@@ -52,36 +54,81 @@ class Utils_Tasks extends Module {
 			$term = ' AND t.longterm=0';
 		else 
 			$term = ' AND 1=0';
-		$query = 'SELECT t.id,t.title,t.status,t.priority,t.deadline FROM utils_tasks_task t WHERE t.status=0 AND t.page_id=\''.$this->mid.'\''.$term;
-		$query_limit = 'SELECT count(t.id) FROM utils_tasks_task t WHERE t.status=0 AND t.page_id=\''.$this->mid.'\''.$term;
+		$query = 'SELECT t.id,t.title,t.status,t.priority,t.deadline FROM utils_tasks_task t WHERE '.($this->display_closed?'':'t.status=0 AND').' t.page_id=\''.$this->mid.'\''.$term;
+		$query_limit = 'SELECT count(t.id) FROM utils_tasks_task t WHERE '.($this->display_closed?'':'t.status=0 AND').' t.page_id=\''.$this->mid.'\''.$term;
 		$ret = $gb->query_order_limit($query,$query_limit);
 		while($row = $ret->FetchRow()) {
 			$r = & $gb->get_new_row();
 			$ass='';
 			$viewed = DB::GetAssoc('SELECT contact_id,viewed FROM utils_tasks_assigned_contacts WHERE task_id=%d',array($row['id']));
-			print_r($viewed);
 			$ass_arr = CRM_ContactsCommon::get_contacts(array('id'=>array_keys($viewed)));
-			print_r($ass_arr);
+			foreach($ass_arr as $c_id=>$v) {
+				$ass .= $v['first_name'].' '.$v['last_name'].'<span class="'.($viewed[$c_id]?'checkbox_on':'checkbox_off').'" /><br>';
+			}
 			$rel = '';
+			$related = DB::GetCol('SELECT contact_id FROM utils_tasks_related_contacts WHERE task_id=%d',array($row['id']));
+			$rel_arr = CRM_ContactsCommon::get_contacts(array('id'=>$related));
+			foreach($rel_arr as $c_id=>$v) {
+				$rel .= $v['first_name'].' '.$v['last_name'].'<br>';
+			}
 			$stat = $this->statuses[$row['status']];
 			if($row['status']==0)
 				$stat = '<a '.$this->create_callback_href(array($this,'close_task'),array($row['id'])).'>'.$stat.'</a>';
-			$r->add_data($row['title'],$ass,$rel,$stat,$this->priorities[$row['priority']],Base_RegionalSettingsCommon::time2reg($row['deadline']));
-			$r->add_action($this->create_callback_href(array($this,'push_box0'),array('edit',array($row['id']),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm))),'Edit');
-			$r->add_action($this->create_callback_href(array($this,'push_box0'),array('edit',array($row['id'],false),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm))),'View');
+			$r->add_data($row['title'],$ass,$rel,$stat,$this->priorities[$row['priority']],$row['deadline']?Base_RegionalSettingsCommon::time2reg($row['deadline']):'--');
+			$r->add_action($this->create_callback_href(array($this,'push_box0'),array('edit',array($row['id']),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm,$this->display_closed))),'Edit');
+			$r->add_action($this->create_callback_href(array($this,'push_box0'),array('edit',array($row['id'],false),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm,$this->display_closed))),'View');
 			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Are you sure?'),array($this,'delete_task'),$row['id']),'Delete');
 		}
 		
 		$this->display_module($gb);
 		
 		if($this->allow_add_task)
-			Base_ActionBarCommon::add('add','New task',$this->create_callback_href(array($this,'push_box0'),array('edit',null,array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm))));
+			Base_ActionBarCommon::add('add','New task',$this->create_callback_href(array($this,'push_box0'),array('edit',null,array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm,$this->display_closed))));
+	}
+	
+	public function applet() {
+		$me = CRM_ContactsCommon::get_contact_by_user_id(Acl::get_user());
+		if($me===null) {
+			print('You don\'t have contact assigned to login. If you are employee please contact administrator.');
+			return;
+		}
+		$gb = & $this->init_module('Utils/GenericBrowser',null,'applet_tasks'.$this->mid);
+		$gb->set_table_columns(array(
+			array('name'=>$this->lang->t('Title'), 'order'=>'title', 'width'=>30),
+			array('name'=>$this->lang->t('Status'), 'order'=>'status', 'width'=>10),
+			array('name'=>$this->lang->t('Priority'), 'order'=>'priority', 'width'=>10),
+			array('name'=>$this->lang->t('Deadline'), 'order'=>'deadline', 'width'=>15),
+				));
+		if($this->display_longterm && $this->display_shortterm) 
+			$term = '';
+		elseif($this->display_longterm)
+			$term = ' AND t.longterm=1';
+		elseif($this->display_shortterm) 
+			$term = ' AND t.longterm=0';
+		else 
+			$term = ' AND 1=0';
+		$query = 'SELECT t.id,t.title,t.status,t.priority,t.deadline FROM utils_tasks_task t INNER JOIN utils_tasks_assigned_contacts ass ON ass.task_id=t.id WHERE '.($this->display_closed?'':'t.status=0 AND').' ass.contact_id='.$me['id'].' AND t.page_id=\''.$this->mid.'\''.$term;
+		$ret = DB::Execute($query);
+		while($row = $ret->FetchRow()) {
+			$r = & $gb->get_new_row();
+			$stat = $this->statuses[$row['status']];
+			if($row['status']==0)
+				$stat = '<a '.$this->create_callback_href(array($this,'close_task'),array($row['id'])).'>'.$stat.'</a>';
+			$r->add_data('<a '.$this->create_callback_href(array($this,'push_box0'),array('edit',array($row['id'],false),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm,$this->display_closed))).'>'.$row['title'].'</a>',$stat,$this->priorities[$row['priority']],$row['deadline']?Base_RegionalSettingsCommon::time2reg($row['deadline']):'--');
+		}
+		
+		$this->display_module($gb);
 	}
 	
 	public function delete_task($id) {
 		DB::Execute('DELETE FROM utils_tasks_assigned_contacts WHERE task_id=%d',array($id));
 		DB::Execute('DELETE FROM utils_tasks_related_contacts WHERE task_id=%d',array($id));
 		DB::Execute('DELETE FROM utils_tasks_task WHERE id=%d',array($id));
+	}
+	
+	public function delete_task_pop($id) {
+		$this->delete_task($id);
+		$this->pop_box0();
 	}
 	
 	public function close_task($id) {
@@ -125,6 +172,10 @@ class Utils_Tasks extends Module {
 						$defaults['status'] = $this->statuses[$defaults['status']];
 					else
 						$defaults['status'] = '<a'.$this->create_callback_href(array($this,'close_task'),array($id)).'>'.$this->statuses[$defaults['status']].'</a>';
+					$defaults['created_by'] = Base_UserCommon::get_user_login($defaults['created_by']);
+					$defaults['created_on'] = Base_RegionalSettingsCommon::time2reg($defaults['created_on']);
+					$defaults['edited_by'] = $defaults['edited_by']?Base_UserCommon::get_user_login($defaults['edited_by']):'--';
+					$defaults['edited_on'] = $defaults['edited_on']?Base_RegionalSettingsCommon::time2reg($defaults['edited_on']):'--';
 				}
 				$form->setDefaults($defaults);
 				$related = DB::GetCol('SELECT contact_id FROM utils_tasks_related_contacts WHERE task_id=%d',array($id));
@@ -159,7 +210,12 @@ class Utils_Tasks extends Module {
 				$form->freeze();
 			}
 			$theme->assign('cus_click',$cus_click);
-			$theme->assign('close_task',$this->create_callback_href(array($this,'close_task'),array($id)));
+			if(!$edit) {
+				$form->addElement('static', 'created_by',  $this->lang->t('Created by'));
+				$form->addElement('static', 'created_on',  $this->lang->t('Created on'));
+				$form->addElement('static', 'edited_by',  $this->lang->t('Edited by'));
+				$form->addElement('static', 'edited_on',  $this->lang->t('Edited on'));
+			}
 
 			if($form->validate()) {
 				$r = $form->exportValues();
@@ -170,9 +226,9 @@ class Utils_Tasks extends Module {
 						DB::Execute('UPDATE utils_tasks_task SET title=%s,description=%s,permission=%d,priority=%d,status=%d,longterm=%b,deadline=null,edited_by=%d,edited_on=%T WHERE id=%d',array($r['title'],$r['description'],$r['permission'],$r['priority'],$r['status'],isset($r['longterm']) && $r['longterm'],Acl::get_user(),time(),$id));
 				} else {
 					if(isset($r['is_deadline']) && $r['is_deadline'])
-						DB::Execute('INSERT INTO utils_tasks_task(title,description,permission,priority,status,longterm,deadline,created_by,created_on,page_id,parent_module) VALUES (%s,%s,%d,%d,%d,%b,%D,%d,%T,%s)',array($r['title'],$r['description'],$r['permission'],$r['priority'],$r['status'],isset($r['longterm']) && $r['longterm'],Base_RegionalSettingsCommon::server_date($r['deadline']),Acl::get_user(),time(),$this->mid,$this->get_type()));
+						DB::Execute('INSERT INTO utils_tasks_task(title,description,permission,priority,status,longterm,deadline,created_by,created_on,page_id,parent_module) VALUES (%s,%s,%d,%d,%d,%b,%D,%d,%T,%s,%s)',array($r['title'],$r['description'],$r['permission'],$r['priority'],$r['status'],isset($r['longterm']) && $r['longterm'],Base_RegionalSettingsCommon::server_date($r['deadline']),Acl::get_user(),time(),$this->mid,$this->get_type()));
 					else
-						DB::Execute('INSERT INTO utils_tasks_task(title,description,permission,priority,status,longterm,created_by,created_on,page_id,parent_module) VALUES (%s,%s,%d,%d,%d,%b,%d,%T,%s)',array($r['title'],$r['description'],$r['permission'],$r['priority'],$r['status'],isset($r['longterm']) && $r['longterm'],Acl::get_user(),time(),$this->mid,$this->get_type()));
+						DB::Execute('INSERT INTO utils_tasks_task(title,description,permission,priority,status,longterm,created_by,created_on,page_id,parent_module) VALUES (%s,%s,%d,%d,%d,%b,%d,%T,%s,%s)',array($r['title'],$r['description'],$r['permission'],$r['priority'],$r['status'],isset($r['longterm']) && $r['longterm'],Acl::get_user(),time(),$this->mid,$this->get_type()));
 					$id = DB::Insert_ID('utils_tasks_task','id');
 				}
 				foreach($r['emp_id'] as $em) {
@@ -195,8 +251,10 @@ class Utils_Tasks extends Module {
 				
 				if($edit)
 					Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
-				else
-					Base_ActionBarCommon::add('edit','Edit',$this->create_callback_href(array($this,'push_box0'),array('edit',array($id),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm))));
+				else {
+					Base_ActionBarCommon::add('edit','Edit',$this->create_callback_href(array($this,'push_box0'),array('edit',array($id),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm,$this->display_closed))));
+					Base_ActionBarCommon::add('delete','Delete',$this->create_confirm_callback_href($this->lang->ht('Are you sure?'),array($this,'delete_task_pop'),$id));
+				}
 				Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 			}
 		}
