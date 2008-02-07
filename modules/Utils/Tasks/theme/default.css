@@ -186,10 +186,9 @@
 	background-position: 1px 0px;
 }
 
-#Utils_Tasks .priority select option[value="0"] { background-image: url('Utils_Tasks__priority-none.png');   }
-#Utils_Tasks .priority select option[value="1"] { background-image: url('Utils_Tasks__priority-low.png');    }
-#Utils_Tasks .priority select option[value="2"] { background-image: url('Utils_Tasks__priority-medium.png'); }
-#Utils_Tasks .priority select option[value="3"] { background-image: url('Utils_Tasks__priority-high.png');   }
+#Utils_Tasks .priority select option[value="0"] { background-image: url('Utils_Tasks__priority-low.png');    }
+#Utils_Tasks .priority select option[value="1"] { background-image: url('Utils_Tasks__priority-medium.png'); }
+#Utils_Tasks .priority select option[value="2"] { background-image: url('Utils_Tasks__priority-high.png');   }
 
 #Utils_Tasks .permission select option[value="0"] { background-image: url('Utils_Tasks__access-public.png');    }
 #Utils_Tasks .permission select option[value="1"] { background-image: url('Utils_Tasks__access-read-only.png'); }
