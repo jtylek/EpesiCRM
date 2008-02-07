@@ -28,7 +28,7 @@ class Utils_TasksInstall extends ModuleInstall {
 			page_id C(32) NOTNULL,
 			parent_module C(32) NOTNULL,
 			permission I1 DEFAULT 0',
-			array('constraints'=>', UNIQUE(page_id), FOREIGN KEY (created_by) REFERENCES user_login(ID), FOREIGN KEY (edited_by) REFERENCES user_login(ID)'));
+			array('constraints'=>', FOREIGN KEY (created_by) REFERENCES user_login(ID), FOREIGN KEY (edited_by) REFERENCES user_login(ID)'));
 		if(!$ret){
 			print('Unable to create table utils_tasks_task.<br>');
 			return false;
