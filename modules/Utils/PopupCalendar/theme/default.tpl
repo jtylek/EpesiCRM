@@ -3,6 +3,8 @@
 		<div class="content_shadow">
 <!-- -->
 
+<!--<iframe style="border: 0px; width: 220px; background-color: white;"></iframe>-->
+
 {$calendar}
 
 <!-- SHADOW END -->

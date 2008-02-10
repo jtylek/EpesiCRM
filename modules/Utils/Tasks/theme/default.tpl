@@ -1,6 +1,6 @@
 {$form_open}
 
-    <div id="Utils_Tasks">
+<div id="Utils_Tasks">
 
 <!-- SHADIW BEGIN-->
 	<div class="layer" style="padding: 9px; width: 740px;">
@@ -20,7 +20,7 @@
 			  	<td class="label" align="left">{$form_data.status.label}</td>
 				<td class="data" align="left">{$form_data.status.html}</td>
 				<td class="label" align="left">{$form_data.permission.label}</td>
-				<td class="data access" align="left">
+				<td class="data permission" align="left">
                     {if $action=='view'}
                         <div class="icon"></div>
                     {/if}
@@ -38,7 +38,8 @@
 				<td class="data" align="left">{$form_data.longterm.html}</td>
 			  	<td class="label" align="left">{$form_data.is_deadline.label}</td>
 				<td class="data" align="left">{$form_data.is_deadline.html}</td>
-				<td class="data" align="left" colspan=2>{$form_data.deadline.html}</td>
+			  	<td class="label" align="left">Deadline date</td>
+				<td class="data" align="left">{$form_data.deadline.html}</td>
 			</tr>
         </tbody>
     </table>
@@ -84,8 +85,6 @@
         	{/if}
         </tbody>
 	</table>
-
-<br><br>
 </div>
 
 

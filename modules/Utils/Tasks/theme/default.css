@@ -136,6 +136,10 @@
     width: 100%;
 }
 
+#Utils_Tasks .data textarea {
+	height: 100%;
+}
+
 #Utils_Tasks .data input[type="checkbox"],
 #Utils_Tasks .data input[type="radio"] {
     width: auto;
