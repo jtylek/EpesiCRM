@@ -170,8 +170,11 @@ class Base_ThemeCommon extends ModuleCommon {
 	 * @param string path and filename (path relative to specified module)
 	 * @return mixed path and name of a file, false if no such file was found
 	 */
-	public static function get_template_file($modulename,$filename) {
-		$filename = self::get_template_filename($modulename,$filename);
+	public static function get_template_file($modulename,$filename=null) {
+		if(!isset($filename)) 
+			$filename = $modulename;
+		else
+			$filename = self::get_template_filename($modulename,$filename);
 		$f = self::get_template_dir().$filename;
 		if(!is_readable($f)) {
 			$f = 'data/Base_Theme/templates/default/'.$filename;

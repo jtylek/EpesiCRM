@@ -14,10 +14,12 @@ class CRM_TasksInstall extends ModuleInstall {
 	public function install() {
 //		$this->add_aco('manage others','Employee Manager');
 		$this->add_aco('access','Employee');
+		Base_ThemeCommon::install_default_theme('CRM/Tasks');
 		return true;
 	}
 	
 	public function uninstall() {
+		Base_ThemeCommon::uninstall_default_theme('CRM/Tasks');
 		return true;
 	}
 	
@@ -29,6 +31,7 @@ class CRM_TasksInstall extends ModuleInstall {
 		return array(
 			array('name'=>'CRM/Filters','version'=>0),
 			array('name'=>'Libs/QuickForm','version'=>0),
+			array('name'=>'Base/Theme','version'=>0),
 			array('name'=>'Utils/Tasks','version'=>0));
 	}
 	

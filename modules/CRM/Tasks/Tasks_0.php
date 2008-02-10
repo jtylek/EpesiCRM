@@ -23,15 +23,21 @@ class CRM_Tasks extends Module {
 		$f = $this->init_module('Libs/QuickForm',null,'filters');
 		$f->addElement('select','term',$l->t('Display tasks marked as'),array('s'=>'Short term','l'=>'Long term','b'=>'Both'));
 		$f->addElement('checkbox','closed',$l->t('Display closed tasks'));
-		$f->addElement('submit',null,$l->ht('OK'));
+		$f->addElement('submit','submit',$l->ht('OK'));
 		$f->setDefaults(array('term'=>$term,'closed'=>$closed));
 		if($f->validate()) {
 			$v = $f->exportValues();
 			$term = $v['term'];
 			$closed = isset($v['closed']) && $v['closed'];
 		}
-		$f->display();
-		$this->pack_module('Utils/Tasks',null,null,array('crm_tasks',true,($term=='s' || $term=='b'),($term=='l' || $term=='b'),$closed,$filter));
+
+		$theme = $this->init_module('Base/Theme');
+
+		$f->assign_theme('form',$theme);
+		
+		$tasks = $this->init_module('Utils/Tasks',array('crm_tasks',true,($term=='s' || $term=='b'),($term=='l' || $term=='b'),$closed,$filter));
+		$theme->assign('tasks',$this->get_html_of_module($tasks));
+		$theme->display();
 	}
 	
 	public function applet($conf,$opts) {

@@ -47,7 +47,8 @@ class Utils_Tasks extends Module {
 			array('name'=>$this->lang->t('Related with'), 'width'=>15),
 			array('name'=>$this->lang->t('Status'), 'order'=>'status', 'width'=>10),
 			array('name'=>$this->lang->t('Priority'), 'order'=>'priority', 'width'=>10),
-			array('name'=>$this->lang->t('Deadline'), 'order'=>'deadline', 'width'=>15),
+			array('name'=>$this->lang->t('Longterm'), 'order'=>'longterm', 'width'=>5, 'enabled'=>($this->display_longterm && $this->display_shortterm)),
+			array('name'=>$this->lang->t('Deadline'), 'order'=>'deadline', 'width'=>10),
 				));
 		if($this->display_longterm && $this->display_shortterm) 
 			$term = '';
@@ -61,7 +62,7 @@ class Utils_Tasks extends Module {
 			$userf = ' AND (SELECT uta.task_id FROM utils_tasks_assigned_contacts uta WHERE uta.task_id=t.id AND uta.contact_id IN '.$this->user_filter.' LIMIT 1) is not null';
 		} else
 			$userf = '';
-		$query = 'SELECT t.id,t.title,t.status,t.priority,t.deadline FROM utils_tasks_task t WHERE '.($this->display_closed?'':'t.status=0 AND').' t.page_id=\''.$this->mid.'\''.$term.$userf;
+		$query = 'SELECT t.* FROM utils_tasks_task t WHERE '.($this->display_closed?'':'t.status=0 AND').' t.page_id=\''.$this->mid.'\''.$term.$userf;
 		$query_limit = 'SELECT count(t.id) FROM utils_tasks_task t WHERE '.($this->display_closed?'':'t.status=0 AND').' t.page_id=\''.$this->mid.'\''.$term.$userf;
 		$ret = $gb->query_order_limit($query,$query_limit);
 		while($row = $ret->FetchRow()) {
@@ -70,7 +71,7 @@ class Utils_Tasks extends Module {
 			$viewed = DB::GetAssoc('SELECT contact_id,viewed FROM utils_tasks_assigned_contacts WHERE task_id=%d',array($row['id']));
 			$ass_arr = CRM_ContactsCommon::get_contacts(array('id'=>array_keys($viewed)));
 			foreach($ass_arr as $c_id=>$v) {
-				$ass .= $v['first_name'].' '.$v['last_name'].'<span class="'.($viewed[$c_id]?'checkbox_on':'checkbox_off').'" /><br>';
+				$ass .= $v['first_name'].' '.$v['last_name'].'<img src="'.Base_ThemeCommon::get_template_file('images/'.($viewed[$c_id]?'checkbox_on':'checkbox_off').'.png').'"><br>';
 			}
 			$rel = '';
 			$related = DB::GetCol('SELECT contact_id FROM utils_tasks_related_contacts WHERE task_id=%d',array($row['id']));
@@ -81,10 +82,19 @@ class Utils_Tasks extends Module {
 			$stat = $this->statuses[$row['status']];
 			if($row['status']==0)
 				$stat = '<a '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('Click here to close this task')).' '.$this->create_callback_href(array($this,'close_task'),array($row['id'])).'>'.$stat.'</a>';
-			$r->add_data($row['title'],$ass,$rel,$stat,$this->priorities[$row['priority']],$row['deadline']?Base_RegionalSettingsCommon::time2reg($row['deadline']):'--');
+			$r->add_data('<a '.($row['description']!==''?Utils_TooltipCommon::open_tag_attrs($row['description']):'').' '.$this->create_callback_href(array($this,'push_box0'),array('edit',array($row['id'],false),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm,$this->display_closed))).'>'.$row['title'].'</a>',
+					$ass,$rel,$stat,
+					$this->priorities[$row['priority']],
+					'<img src="'.Base_ThemeCommon::get_template_file('images/'.($row['longterm']?'checkbox_on':'checkbox_off').'.png').'">',
+					$row['deadline']?Base_RegionalSettingsCommon::time2reg($row['deadline']):'--');
 			$r->add_action($this->create_callback_href(array($this,'push_box0'),array('edit',array($row['id']),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm,$this->display_closed))),'Edit');
 			$r->add_action($this->create_callback_href(array($this,'push_box0'),array('edit',array($row['id'],false),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm,$this->display_closed))),'View');
 			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Are you sure?'),array($this,'delete_task'),$row['id']),'Delete');
+			$info = $this->lang->t('Created on: %s',array(Base_RegionalSettingsCommon::time2reg($row['created_on']))).'<br>'.
+				$this->lang->t('Created by: %s',array(Base_UserCommon::get_user_login($row['created_by']))).'<br>'.
+				($row['edited_by']?$this->lang->t('Edited on: %s',array(Base_RegionalSettingsCommon::time2reg($row['edited_on']))).'<br>'.
+				$this->lang->t('Edited by: %s',array(Base_UserCommon::get_user_login($row['edited_by']))).'<br>':'');
+			$r->add_info($info);
 		}
 		
 		$this->display_module($gb);
@@ -96,10 +106,8 @@ class Utils_Tasks extends Module {
 	public function applet() {
 		$gb = & $this->init_module('Utils/GenericBrowser',null,'applet_tasks'.$this->mid);
 		$gb->set_table_columns(array(
-			array('name'=>$this->lang->t('Title'), 'order'=>'title', 'width'=>30),
-			array('name'=>$this->lang->t('Status'), 'order'=>'status', 'width'=>10),
-			array('name'=>$this->lang->t('Priority'), 'order'=>'priority', 'width'=>10),
-			array('name'=>$this->lang->t('Deadline'), 'order'=>'deadline', 'width'=>15),
+			array('name'=>$this->lang->t('Title'), 'order'=>'title', 'width'=>80),
+			array('name'=>$this->lang->t('Status'), 'order'=>'status', 'width'=>20)
 				));
 		if($this->display_longterm && $this->display_shortterm) 
 			$term = '';
@@ -113,14 +121,38 @@ class Utils_Tasks extends Module {
 			$userf = ' AND (SELECT uta.task_id FROM utils_tasks_assigned_contacts uta WHERE uta.task_id=t.id AND uta.contact_id IN '.$this->user_filter.' LIMIT 1) is not null';
 		} else
 			$userf = '';
-		$query = 'SELECT t.id,t.title,t.status,t.priority,t.deadline FROM utils_tasks_task t WHERE '.($this->display_closed?'':'t.status=0 AND').' t.page_id=\''.$this->mid.'\''.$term.$userf;
+		$query = 'SELECT t.* FROM utils_tasks_task t WHERE '.($this->display_closed?'':'t.status=0 AND').' t.page_id=\''.$this->mid.'\''.$term.$userf;
 		$ret = DB::Execute($query);
 		while($row = $ret->FetchRow()) {
 			$r = & $gb->get_new_row();
+			$ass='';
+			$viewed = DB::GetAssoc('SELECT contact_id,viewed FROM utils_tasks_assigned_contacts WHERE task_id=%d',array($row['id']));
+			$ass_arr = CRM_ContactsCommon::get_contacts(array('id'=>array_keys($viewed)));
+			foreach($ass_arr as $c_id=>$v)
+				$ass .= $v['first_name'].' '.$v['last_name'].'<img src="'.Base_ThemeCommon::get_template_file('images/'.($viewed[$c_id]?'checkbox_on':'checkbox_off').'.png').'"><br>';
+		
+			$rel = '';
+			$related = DB::GetCol('SELECT contact_id FROM utils_tasks_related_contacts WHERE task_id=%d',array($row['id']));
+			$rel_arr = CRM_ContactsCommon::get_contacts(array('id'=>$related));
+			foreach($rel_arr as $c_id=>$v) {
+				$rel .= $v['first_name'].' '.$v['last_name'].'<br>';
+			}
 			$stat = $this->statuses[$row['status']];
 			if($row['status']==0)
 				$stat = '<a '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('Click here to close this task')).' '.$this->create_callback_href(array($this,'close_task'),array($row['id'])).'>'.$stat.'</a>';
-			$r->add_data('<a '.$this->create_callback_href(array($this,'push_box0'),array('edit',array($row['id'],false),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm,$this->display_closed))).'>'.$row['title'].'</a>',$stat,$this->priorities[$row['priority']],$row['deadline']?Base_RegionalSettingsCommon::time2reg($row['deadline']):'--');
+			$r->add_data('<a '.($row['description']!==''?Utils_TooltipCommon::open_tag_attrs($row['description']):'').' '.$this->create_callback_href(array($this,'push_box0'),array('edit',array($row['id'],false),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm,$this->display_closed))).'>'.$row['title'].'</a>',$stat);
+			$r->add_action($this->create_callback_href(array($this,'push_box0'),array('edit',array($row['id'],false),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm,$this->display_closed))),'View');
+			$info = $this->lang->t('Priority: %s',array($this->priorities[$row['priority']])).'<br>'.
+				$this->lang->t('Assigned to: %s',array($ass)).'<br>'.
+				$this->lang->t('Related with: %s',array($rel)).'<br>'.
+				$this->lang->t('Longterm: %s',array($row['longterm']?'yes':'no')).'<br>'.
+				$this->lang->t('Deadline: %s',array($row['deadline']?Base_RegionalSettingsCommon::time2reg($row['deadline']):'--')).'<hr>'.
+				$this->lang->t('Created on: %s',array(Base_RegionalSettingsCommon::time2reg($row['created_on']))).'<br>'.
+				$this->lang->t('Created by: %s',array(Base_UserCommon::get_user_login($row['created_by']))).'<br>'.
+				($row['edited_by']?$this->lang->t('Edited on: %s',array(Base_RegionalSettingsCommon::time2reg($row['edited_on']))).'<br>'.
+				$this->lang->t('Edited by: %s',array(Base_UserCommon::get_user_login($row['edited_by']))).'<br>':'');
+			$r->add_info($info);
+
 		}
 		
 		$this->display_module($gb);
@@ -196,7 +228,7 @@ class Utils_Tasks extends Module {
 			foreach($ret as $c_id=>$data) {
 				$emp[$c_id] = $data['last_name'].' '.$data['first_name'];
 				if(!$edit)
-					$emp[$c_id] .= '<span class="'.((isset($assigned[$c_id]) && $assigned[$c_id])?'checkbox_on':'checkbox_off').'" />';
+					$emp[$c_id] .= '<img src="'.Base_ThemeCommon::get_template_file('images/'.((isset($assigned[$c_id]) && $assigned[$c_id])?'checkbox_on':'checkbox_off').'.png').'">';
 			}
 			$cus = array();
 			$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company()), ':Fav'=>true));
