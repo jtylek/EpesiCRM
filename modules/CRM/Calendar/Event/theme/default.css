@@ -228,6 +228,7 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
 #CRM_Calendar_Event_Personal .header-day {
 	height: 50px;
 	text-align: center;
+	background-color: white;
 	background-color: #B3B3B3;
 	background-image: url('images/day-header.png');
 	background-repeat: repeat-x;
@@ -237,4 +238,38 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
 	font-size: 18px;
 	color: black;
 	vertical-align: middle;
+}
+
+/* Additional Info Button */
+
+.AdditionalInfoButton {
+	width: 120px;
+	height: 20px;
+	background-color: #336699;
+	background-image: url('images/header-blue.png');
+	background-repeat: repeat-x;
+	color: white;
+	cursor: pointer;
+	vertical-align: middle;
+	text-align: center;
+	margin-right: 610px;
+}
+
+.AdditionalInfoButton:hover {
+	background-image: url('images/header-blue-hover.png');
+}
+
+.AdditionalInfoButton img {
+	vertical-align: middle;
+	padding: 3px;
+}
+
+/* */
+
+.timeless_access_priority_color td.label {
+	width: 10%;
+}
+
+.timeless_access_priority_color td.data {
+	width: 15%;
 }
