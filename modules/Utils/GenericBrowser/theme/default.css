@@ -121,6 +121,10 @@ table#Utils_GenericBrowser td {
     padding-right: 3px;
 }
 
+table#Utils_GenericBrowser td img {
+	vertical-align: middle;
+}
+
 /* Navigation */
 
 table#Utils_GenericBrowser__navigation {
