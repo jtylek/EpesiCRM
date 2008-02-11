@@ -31,7 +31,7 @@ class Utils_Tasks extends Module {
 		$this->display_closed = is_bool($display_closed)?$display_closed:false;
 		$me = CRM_ContactsCommon::get_contact_by_user_id(Acl::get_user());
 		$this->user_filter = is_string($user_filter)?$user_filter:null;
-		
+
 		$this->lang = $this->init_module('Base/Lang');
 		$this->priorities = array(0 => $this->lang->ht('Low'), 1 => $this->lang->ht('Medium'), 2 => $this->lang->ht('High'));
 		$this->statuses = array(0=> $this->lang->ht('Open'), 1 => $this->lang->ht('Closed'));
@@ -50,13 +50,13 @@ class Utils_Tasks extends Module {
 			array('name'=>$this->lang->t('Longterm'), 'order'=>'longterm', 'width'=>5, 'enabled'=>($this->display_longterm && $this->display_shortterm)),
 			array('name'=>$this->lang->t('Deadline'), 'order'=>'deadline', 'width'=>10),
 				));
-		if($this->display_longterm && $this->display_shortterm) 
+		if($this->display_longterm && $this->display_shortterm)
 			$term = '';
 		elseif($this->display_longterm)
 			$term = ' AND t.longterm=1';
-		elseif($this->display_shortterm) 
+		elseif($this->display_shortterm)
 			$term = ' AND t.longterm=0';
-		else 
+		else
 			$term = ' AND 1=0';
 		if($this->user_filter) {
 			$userf = ' AND (SELECT uta.task_id FROM utils_tasks_assigned_contacts uta WHERE uta.task_id=t.id AND uta.contact_id IN '.$this->user_filter.' LIMIT 1) is not null';
@@ -71,7 +71,7 @@ class Utils_Tasks extends Module {
 			$viewed = DB::GetAssoc('SELECT contact_id,viewed FROM utils_tasks_assigned_contacts WHERE task_id=%d',array($row['id']));
 			$ass_arr = CRM_ContactsCommon::get_contacts(array('id'=>array_keys($viewed)));
 			foreach($ass_arr as $c_id=>$v) {
-				$ass .= $v['first_name'].' '.$v['last_name'].'<img src="'.Base_ThemeCommon::get_template_file('images/'.($viewed[$c_id]?'checkbox_on':'checkbox_off').'.png').'"><br>';
+				$ass .= '<img src="'.Base_ThemeCommon::get_template_file('images/'.($viewed[$c_id]?'checkbox_on':'checkbox_off').'.png').'">&nbsp;&nbsp;' . $v['first_name'].' '.$v['last_name'] . '<br>';
 			}
 			$rel = '';
 			$related = DB::GetCol('SELECT contact_id FROM utils_tasks_related_contacts WHERE task_id=%d',array($row['id']));
@@ -96,26 +96,26 @@ class Utils_Tasks extends Module {
 				$this->lang->t('Edited by: %s',array(Base_UserCommon::get_user_login($row['edited_by']))).'<br>':'');
 			$r->add_info($info);
 		}
-		
+
 		$this->display_module($gb);
-		
+
 		if($this->allow_add_task)
 			Base_ActionBarCommon::add('add','New task',$this->create_callback_href(array($this,'push_box0'),array('edit',null,array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm,$this->display_closed))));
 	}
-	
+
 	public function applet() {
 		$gb = & $this->init_module('Utils/GenericBrowser',null,'applet_tasks'.$this->mid);
 		$gb->set_table_columns(array(
 			array('name'=>$this->lang->t('Title'), 'order'=>'title', 'width'=>80),
 			array('name'=>$this->lang->t('Status'), 'order'=>'status', 'width'=>20)
 				));
-		if($this->display_longterm && $this->display_shortterm) 
+		if($this->display_longterm && $this->display_shortterm)
 			$term = '';
 		elseif($this->display_longterm)
 			$term = ' AND t.longterm=1';
-		elseif($this->display_shortterm) 
+		elseif($this->display_shortterm)
 			$term = ' AND t.longterm=0';
-		else 
+		else
 			$term = ' AND 1=0';
 		if($this->user_filter) {
 			$userf = ' AND (SELECT uta.task_id FROM utils_tasks_assigned_contacts uta WHERE uta.task_id=t.id AND uta.contact_id IN '.$this->user_filter.' LIMIT 1) is not null';
@@ -129,8 +129,8 @@ class Utils_Tasks extends Module {
 			$viewed = DB::GetAssoc('SELECT contact_id,viewed FROM utils_tasks_assigned_contacts WHERE task_id=%d',array($row['id']));
 			$ass_arr = CRM_ContactsCommon::get_contacts(array('id'=>array_keys($viewed)));
 			foreach($ass_arr as $c_id=>$v)
-				$ass .= $v['first_name'].' '.$v['last_name'].'<img src="'.Base_ThemeCommon::get_template_file('images/'.($viewed[$c_id]?'checkbox_on':'checkbox_off').'.png').'"><br>';
-		
+				$ass .= '<img src="'.Base_ThemeCommon::get_template_file('images/'.($viewed[$c_id]?'checkbox_on':'checkbox_off').'.png').'">&nbsp;&nbsp;' . $v['first_name'].' '.$v['last_name'] . '<br>';
+
 			$rel = '';
 			$related = DB::GetCol('SELECT contact_id FROM utils_tasks_related_contacts WHERE task_id=%d',array($row['id']));
 			$rel_arr = CRM_ContactsCommon::get_contacts(array('id'=>$related));
@@ -154,29 +154,29 @@ class Utils_Tasks extends Module {
 			$r->add_info($info);
 
 		}
-		
+
 		$this->display_module($gb);
 	}
-	
+
 	public function delete_task($id) {
 		DB::Execute('DELETE FROM utils_tasks_assigned_contacts WHERE task_id=%d',array($id));
 		DB::Execute('DELETE FROM utils_tasks_related_contacts WHERE task_id=%d',array($id));
 		DB::Execute('DELETE FROM utils_tasks_task WHERE id=%d',array($id));
 	}
-	
+
 	public function delete_task_pop($id) {
 		$this->delete_task($id);
 		$this->pop_box0();
 	}
-	
+
 	public function close_task($id) {
 		DB::Execute('UPDATE utils_tasks_task SET status=1 WHERE id=%d',array($id));
 	}
-	
+
 	public function deadline_callback($name, $args, & $def_js) {
 		return HTML_QuickForm::createElement('datepicker',$name,$this->lang->t('Deadline date'),array('id'=>'deadline_date'));
 	}
-	
+
 	public function edit($id=null,$edit=true) {
 		$me = CRM_ContactsCommon::get_contact_by_user_id(Acl::get_user());
 		if($me!==null && isset($id))
@@ -192,7 +192,7 @@ class Utils_Tasks extends Module {
 			$form->addElement('checkbox','is_deadline',$this->lang->t('Deadline'),false,array('onChange'=>'var x =$(\'deadline_date\');if(this.checked)x.enable();else x.disable();'));
 			if(!$form->exportValue('is_deadline'))
 				eval_js('$(\'deadline_date\').disable()');
-			
+
 			$form->add_table('utils_tasks_task',array(
 				array('name'=>'title','label'=>$this->lang->t('Title'),'param'=>array('id'=>'task_title')),
 				array('name'=>'priority','label'=>$this->lang->t('Priority'), 'type'=>'select', 'values'=>$this->priorities),
@@ -228,13 +228,13 @@ class Utils_Tasks extends Module {
 			foreach($ret as $c_id=>$data) {
 				$emp[$c_id] = $data['last_name'].' '.$data['first_name'];
 				if(!$edit)
-					$emp[$c_id] .= '<img src="'.Base_ThemeCommon::get_template_file('images/'.((isset($assigned[$c_id]) && $assigned[$c_id])?'checkbox_on':'checkbox_off').'.png').'">';
+					$emp[$c_id] = '<img src="'.Base_ThemeCommon::get_template_file('images/'.((isset($assigned[$c_id]) && $assigned[$c_id])?'checkbox_on':'checkbox_off').'.png').'">&nbsp;&nbsp;' . $emp[$c_id];
 			}
 			$cus = array();
 			$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company()), ':Fav'=>true));
 			foreach($ret as $c_id=>$data)
 				$cus[$c_id] = $data['last_name'].' '.$data['first_name'];
-				
+
 			$form->addElement('multiselect', 'emp_id', $this->lang->t('Employees'), $emp);
 			$form->addRule('emp_id', $this->lang->t('At least one employee must be assigned to an event.'), 'required');
 
@@ -282,15 +282,15 @@ class Utils_Tasks extends Module {
 				DB::Execute('DELETE FROM utils_tasks_related_contacts WHERE task_id=%d',array($id));
 				foreach($r['cus_id'] as $cu)
 					DB::Execute('INSERT INTO utils_tasks_related_contacts(task_id,contact_id) VALUES(%d,%d)',array($id,$cu));
-		
+
 				if($me!==null && isset($id))
 					DB::Execute('UPDATE utils_tasks_assigned_contacts SET viewed=1 WHERE contact_id=%d AND task_id=%d',array($me['id'],$id));
-		
+
 				$this->pop_box0();
 			} else {
 				$form->assign_theme('form', $theme);
 				$theme->display();
-				
+
 				if($edit)
 					Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
 				else {

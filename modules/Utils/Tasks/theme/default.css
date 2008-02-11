@@ -100,7 +100,9 @@
 }
 
 
-
+#Utils_Tasks td img {
+	vertical-align: middle;
+}
 
 #Utils_Tasks .label {
     background-color: #336699;
