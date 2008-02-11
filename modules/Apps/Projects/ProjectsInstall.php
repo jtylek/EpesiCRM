@@ -108,7 +108,7 @@ class Apps_ProjectsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::new_addon('company', 'Apps/Projects', 'company_projects_addon', 'Projects');
 
 // ************ other ************** //	
-		Utils_CommonDataCommon::new_array('Project_Status',array('ITB Received','Proposal Submitted','Job Canceled','Job Lost','Job Awarded','On Hold','In Progress','Completed Unpaid','Paid'));
+		Utils_CommonDataCommon::new_array('Project_Status',array('itb_received'=>'ITB Received','proposal_submited'=>'Proposal Submitted','job_canceled'=>'Job Canceled','job_lost'=>'Job Lost','job_awarded'=>'Job Awarded','on_hold'=>'On Hold','in_progress'=>'In Progress','completed_unpaid'=>'Completed Unpaid','paid'=>'Paid'));
 		Utils_CommonDataCommon::new_array('Job_Type',array('Commercial','Residential','Maintenance'));
 		
 		$this->add_aco('browse projects',array('Employee'));

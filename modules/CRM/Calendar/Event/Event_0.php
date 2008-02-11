@@ -222,6 +222,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			else
 				$this->update_event($id, $values);
 			$this->back_to_calendar();
+			return;
 		}
 
 		if($action == 'view') {
@@ -242,7 +243,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$theme->assign('messages', $this->get_html_of_module($mes));
 		}
 
-		$theme->assign('view_style', 'new_event');
+//		$theme->assign('view_style', 'new_event');
 		$theme->assign('cus_click', $cus_click);
 		$form->assign_theme('form', $theme);
 		$theme->display();

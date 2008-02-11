@@ -16,6 +16,11 @@ class Apps_ProjectsCommon extends ModuleCommon {
 		return Utils_RecordBrowserCommon::get_record('projects', $id);
     }
     
+	public static function get_projects($crits=array(),$cols=array()) {
+    		return Utils_RecordBrowserCommon::get_records('projects', $crits, $cols);
+	}
+
+    
     public static function display_proj_name($v, $i) {
 		return Utils_RecordBrowserCommon::create_linked_label('projects', 'Project Name', $i);
 	}
@@ -93,9 +98,6 @@ class Apps_ProjectsCommon extends ModuleCommon {
 		return array('Projects'=>array('__submenu__'=>1,'Projects'=>array()));
 	}
     
-    public static function caption() {
-		return 'Projects';
-	}
 	public function admin_caption() {
 		return 'Projects';
 	}
