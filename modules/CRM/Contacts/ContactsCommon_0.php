@@ -28,7 +28,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			return null;
 		}
 	}
-	private static function get_my_record() {
+	public static function get_my_record() {
 		static $me;
 		if(!isset($me)) {
 			$me = Utils_RecordBrowserCommon::get_records('contact', array('login'=>Acl::get_user()));
@@ -91,7 +91,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$field['display_callback'] = array('CRM_ContactsCommon', 'display_company');
 		$field['type'] = $field['param']['field_type'];
 		unset($field['param']['field_type']);
-		if (isset($field['param']['crits'])) $field['param'] = implode($field['param']['crits']);
+		if (isset($field['param']['crits'])) $field['param'] = implode('::',$field['param']['crits']);
 		else $field['param'] = '';
 		return $field;
 	}
@@ -111,11 +111,9 @@ class CRM_ContactsCommon extends ModuleCommon {
 	public static function display_contact($v, $i, $nolink, $desc) {
 		$def = '';
 		$first = true;
-		if ($desc['param'] == '') {
-			$callback = array('CRM_ContactsCommon', 'contact_format_default');
-		} else {
-			$callback = explode('::', $desc['param']);
-		}
+		$param = explode(';',$desc['param']);
+		if ($param[0] == '::') $callback = array('CRM_ContactsCommon', 'contact_format_default');
+		else $callback = explode('::', $desc['param']);
 		if (!is_array($v)) $v = array($v);
 		foreach($v as $k=>$w){
 			if ($w=='') break;
@@ -146,7 +144,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			if (!$desc['required'] && $desc['type']!='multiselect') $cont[''] = '--';
 			foreach ($contacts as $v) $cont[$v['id']] = call_user_func($callback, $v);
 			asort($cont);
-			$form->addElement($desc['type'], $field, $label, $cont);
+			$form->addElement($desc['type'], $field, $label, $cont, array('id'=>$field));
 			if ($mode!=='add') $form->setDefaults(array($field=>$default));
 		} else {
 			$form->addElement('static', $field, $label, array('id'=>$field));
@@ -180,11 +178,22 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 	public static function QFfield_company(&$form, $field, $label, $mode, $default, $desc) {
 		$comp = array();
+		$param = explode(';',$desc['param']);
 		if ($mode=='add' || $mode=='edit') {
-			$ret = DB::Execute('SELECT * FROM company_data WHERE field=%s ORDER BY value', array('Company Name'));
+
+			if ($desc['param'] != '') $crits = call_user_func(explode('::',$desc['param']));
+			else $crits = array();
+			$companies = self::get_companies($crits);
 			if (!$desc['required'] && $desc['type']!='multiselect') $comp[''] = '--';
-			while ($row = $ret->FetchRow()) $comp[$row['company_id']] = $row['value'];
-			$form->addElement($desc['type'], $field, $label, $comp);
+			foreach ($companies as $v) $comp[$v['id']] = $v['company_name'];
+			asort($comp);
+			$form->addElement($desc['type'], $field, $label, $comp, array('id'=>$field));
+
+//			$ret = DB::Execute('SELECT * FROM company_data WHERE field=%s ORDER BY value', array('Company Name'));
+//			if (!$desc['required'] && $desc['type']!='multiselect') $comp[''] = '--';
+//			while ($row = $ret->FetchRow()) $comp[$row['company_id']] = $row['value'];
+//			$form->addElement($desc['type'], $field, $label, $comp, array('id'=>$field));
+
 			if ($mode!=='add') $form->setDefaults(array($field=>$default));
 		} else {
 			$form->addElement('static', $field, $label, array('id'=>$field));

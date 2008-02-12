@@ -543,8 +543,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			 			if (isset($arr[0])) {
 			 				$tab = $arr[0];
 				 			if (isset($arr[1])) {
-				 				$col = $arr[1];
-					 			if ($tab!='__COMMON__') {
+					 			if ($tab!='__COMMON__' && $tab!='') {
 					 				if ($field['value']!=='')
 					 					if (!DB::GetOne('SELECT active FROM '.$tab.' WHERE id=%d', array($field['value'])))
 					 						return false;

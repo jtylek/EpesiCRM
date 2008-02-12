@@ -13,7 +13,6 @@ defined("_VALID_ACCESS") || die();
 class Utils_RecordBrowser extends Module {
 	private $table_rows = array();
 	private $lang;
-	private $SQL_chars = array('text'=>'%s', 'long text'=>'%s', 'date'=>'%D', 'integer'=>'%d');
 	private $tab;
 	private $browse_mode;
 	private $display_callback_table = array();
@@ -46,9 +45,7 @@ class Utils_RecordBrowser extends Module {
 	}
 	
 	public function get_access($action, $param=null){
-		if (!isset($this->access_callback)) {
-			$this->access_callback = explode('::', DB::GetOne('SELECT access_callback FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab)));
-		}
+		if (!isset($this->access_callback)) $this->access_callback = explode('::', DB::GetOne('SELECT access_callback FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab)));
 		if ($this->access_callback === '' || !is_callable($this->access_callback)) return true;
 		return call_user_func($this->access_callback, $action, $param);
 	}
@@ -151,7 +148,7 @@ class Utils_RecordBrowser extends Module {
 				$arr = array('__NULL__'=>'--');
 				list($tab, $col) = explode('::',$this->table_rows[$filter]['param']);
 				if ($tab=='__COMMON__') {
-					$arr = array_merge($arr, Utils_CommonDataCommon::get_array($col));
+					$arr = array_merge($arr, Utils_CommonDataCommon::get_array($col, true));
 				} else {
 					$ret2 = DB::Execute('SELECT '.$tab.'_id, value FROM '.$tab.'_data WHERE field=%s ORDER BY value', array($col));
 					while ($row2 = $ret2->FetchRow()) $arr[$row2[$tab.'_id']] = $row2['value'];
@@ -284,14 +281,15 @@ class Utils_RecordBrowser extends Module {
 					if (isset($this->display_callback_table[$field])) $row_data[] = $this->get_val($field, $ret, $row['id'], $special);
 					else {
 						if ($args['type']=='select' || $args['type']=='multiselect') {
-							if (empty($row[$args['id']])) {
+							$tmp = $row[$args['id']];
+							if ((is_array($tmp) && empty($tmp)) || (!is_array($tmp) && $tmp=='')) {
 								$row_data[] = '--';
 								continue;
 							}
 							list($tab, $col) = explode('::',$args['param']);
 							$arr = $row[$args['id']];
 							if (!is_array($arr)) $arr = array($arr);
-							if ($tab=='__COMMON__') $data = Utils_CommonDataCommon::get_array($col);
+							if ($tab=='__COMMON__') $data = Utils_CommonDataCommon::get_array($col, true);
 							$ret = '';
 							$first = true;
 							foreach ($arr as $k=>$v){
@@ -317,6 +315,9 @@ class Utils_RecordBrowser extends Module {
 						}
 						if ($args['type']=='checkbox') {
 							$ret = $ret?$this->lang->t('Yes'):$this->lang->t('No');
+						}
+						if ($args['type']=='date') {
+							$ret = Base_RegionalSettingsCommon::time2reg($ret, false);
 						}
 						$row_data[] = $ret;
 					}
@@ -560,6 +561,9 @@ class Utils_RecordBrowser extends Module {
 				case 'date':		$form->addElement('datepicker', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
 									if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 									break;
+				case 'timestamp':	$form->addElement('datepicker', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
+									if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
+									break;
 				case 'commondata':	$param = explode('::',$args['param']);
 									foreach ($param as $k=>$v) if ($k!==0) $param[$k] = strtolower(str_replace(' ','_',$v));
 									$form->addElement($args['type'], $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', $param, array('empty_option'=>$args['required'], 'id'=>$args['id']));
@@ -570,7 +574,7 @@ class Utils_RecordBrowser extends Module {
 									if (!$args['required'] && $args['type']==='select') $comp[''] = '--';
 									list($tab, $col) = explode('::',$args['param']);
 									if ($tab=='__COMMON__') {
-										$data = Utils_CommonDataCommon::get_array($col);
+										$data = Utils_CommonDataCommon::get_array($col, true);
 										if (!is_array($data)) $data = array();
 									}
 									if ($mode=='add' || $mode=='edit') {
@@ -585,7 +589,8 @@ class Utils_RecordBrowser extends Module {
 									} else {
 										$form->addElement('static', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
 										if (isset($this->display_callback_table[$field])) {
-											$form->setDefaults(array($args['id']=>call_user_func($this->display_callback_table[$field], $record[$field])));
+//											$form->setDefaults(array($args['id']=>call_user_func($this->display_callback_table[$field], $record[$args['id']], $record['id'], false, $args)));
+											$form->setDefaults(array($args['id']=>$record[$args['id']]));
 											continue;
 										}
 										if (!is_array($record[$args['id']])) {
