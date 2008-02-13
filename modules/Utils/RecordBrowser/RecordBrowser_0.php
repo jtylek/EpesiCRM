@@ -319,6 +319,9 @@ class Utils_RecordBrowser extends Module {
 						if ($args['type']=='date') {
 							$ret = Base_RegionalSettingsCommon::time2reg($ret, false);
 						}
+						if ($args['type']=='timestamp') {
+							$ret = Base_RegionalSettingsCommon::time2reg($ret, true);
+						}
 						$row_data[] = $ret;
 					}
 				}
@@ -561,7 +564,7 @@ class Utils_RecordBrowser extends Module {
 				case 'date':		$form->addElement('datepicker', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
 									if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 									break;
-				case 'timestamp':	$form->addElement('datepicker', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
+				case 'timestamp':	$form->addElement('datepicker', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id'], 'time'=>true));
 									if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 									break;
 				case 'commondata':	$param = explode('::',$args['param']);

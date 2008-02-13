@@ -119,19 +119,20 @@ class CRM_ContactsCommon extends ModuleCommon {
 			if ($w=='') break;
 			if ($first) $first = false;
 			else $def .= ', ';
-			$label = call_user_func($callback, self::get_contact($w));
-			if (!$nolink) $label = '<a '.Utils_RecordBrowserCommon::create_record_href('contact', $w).'>'.$label.'</a>';
+			$label = call_user_func($callback, self::get_contact($w), $nolink);
 			$def .= $label;
 		}
 		if (!$def) 	$def = '--';
 		return $def;
 	}
-	public static function contact_format_default($record){
-		return $record['last_name'].' '.$record['first_name'];
+	public static function contact_format_default($record, $nolink){
+		$ret = '';
+		if (!$nolink) $ret .= '<a '.Utils_RecordBrowserCommon::create_record_href('contact', $record['id']).'>';
+		$ret .= $record['last_name'].' '.$record['first_name'][0].'.';
+		if (!$nolink) $ret .= '</a>';
+		if (isset($record['company_name'][0])) $ret .= ' ['.Utils_RecordBrowserCommon::create_linked_label('company', 'company_name', $record['company_name'][0], $nolink).']';
+		return $ret;
 	}
-//	public static function contact_crits_test(){
-//		return array(':Fav'=>1);
-//	}
 	public static function QFfield_contact(&$form, $field, $label, $mode, $default, $desc) {
 		$cont = array();
 		$param = explode(';',$desc['param']);
@@ -142,13 +143,12 @@ class CRM_ContactsCommon extends ModuleCommon {
 			else $crits = array();
 			$contacts = self::get_contacts($crits);
 			if (!$desc['required'] && $desc['type']!='multiselect') $cont[''] = '--';
-			foreach ($contacts as $v) $cont[$v['id']] = call_user_func($callback, $v);
+			foreach ($contacts as $v) $cont[$v['id']] = call_user_func($callback, $v, true);
 			asort($cont);
 			$form->addElement($desc['type'], $field, $label, $cont, array('id'=>$field));
 			if ($mode!=='add') $form->setDefaults(array($field=>$default));
 		} else {
 			$form->addElement('static', $field, $label, array('id'=>$field));
-
 			$def = '';
 			$first = true;
 			if (!is_array($default)) $default = array($default);
@@ -156,7 +156,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 				if ($v=='') break;
 				if ($first) $first = false;
 				else $def .= '<br>';
-				$def .= Utils_RecordBrowserCommon::create_linked_label('company', 'company_name', $v);
+				$def .= self::display_contact($v, $v, false, $desc);
 			}
 			if (!$def) 	$def = '--';
 			$form->setDefaults(array($field=>$def));
@@ -188,16 +188,9 @@ class CRM_ContactsCommon extends ModuleCommon {
 			foreach ($companies as $v) $comp[$v['id']] = $v['company_name'];
 			asort($comp);
 			$form->addElement($desc['type'], $field, $label, $comp, array('id'=>$field));
-
-//			$ret = DB::Execute('SELECT * FROM company_data WHERE field=%s ORDER BY value', array('Company Name'));
-//			if (!$desc['required'] && $desc['type']!='multiselect') $comp[''] = '--';
-//			while ($row = $ret->FetchRow()) $comp[$row['company_id']] = $row['value'];
-//			$form->addElement($desc['type'], $field, $label, $comp, array('id'=>$field));
-
 			if ($mode!=='add') $form->setDefaults(array($field=>$default));
 		} else {
 			$form->addElement('static', $field, $label, array('id'=>$field));
-
 			$def = '';
 			$first = true;
 			if (!is_array($default)) $default = array($default);
