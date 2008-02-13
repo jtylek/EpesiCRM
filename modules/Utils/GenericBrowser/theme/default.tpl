@@ -29,7 +29,7 @@
 						<div class="layer" style="padding: 10px; width: 530px;">
 							<div class="content_shadow">
 					<!-- -->
-					
+
 						<div style="background-color: white; height: 20px; padding-top: 2px; padding-left: 2px;">
 							{if isset($letter_links)}
 							{foreach key=k item=link from=$letter_links}
@@ -37,7 +37,7 @@
 							{/foreach}
 							{/if}
 						</div>
-					
+
 					<!-- SHADOW END -->
 							</div>
 							<div class="shadow-top">
@@ -109,11 +109,11 @@
 {/if}
 
 <!-- SHADOW BEGIN -->
-	<div class="layer" style="padding: 9px; width: 98%;">
+	<div class="layer">
 		<div class="content_shadow">
 <!-- -->
 
-<div style="padding: 2px; background-color: #FFFFFF;">
+<div class="margin2px">
 
 {html_table_epesi table_attr='id="Utils_GenericBrowser" cellspacing="0" cellpadding="0" style="width:100%;"' loop=$data cols=$cols}
 
@@ -143,14 +143,14 @@
 		<td nowrap style="width: 50%; text-align: left;">
 			{if isset($order)}
 				{$order}&nbsp;&nbsp;&nbsp;<b>{$reset}</b>&nbsp;&nbsp;&nbsp;
-			{/if}		
+			{/if}
 		</td>
-	
+
 		<td nowrap>{if $first}&nbsp;<img src="{$theme_dir}/images/first.png">&nbsp;{$first}&nbsp;{/if}</td>
 		<td nowrap>{if $prev}&nbsp;<img src="{$theme_dir}/images/prev.png">&nbsp;{$prev}&nbsp;{/if}</td>
-		
+
 		<td nowrap>&nbsp;&nbsp;&nbsp;{$summary}&nbsp;&nbsp;&nbsp;</td>
-		
+
 		<td nowrap>{if $next}&nbsp;{$next}&nbsp;<img src="{$theme_dir}/images/next.png">&nbsp;{/if}</td>
 		<td nowrap>{if $last}&nbsp;{$last}&nbsp;<img src="{$theme_dir}/images/last.png">&nbsp;{/if}</td>
 

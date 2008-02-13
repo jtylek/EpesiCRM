@@ -209,3 +209,15 @@ table#Utils_GenericBrowser__navigation img {
 #letters-search .letters .abc:hover {
     background-image: url('images/header-blue-hover.png');
 }
+
+
+
+.layer {
+    padding: 9px;
+    width: 98%;
+}
+
+.layer .margin2px {
+    padding: 2px;
+    background-color: #FFFFFF;
+}
