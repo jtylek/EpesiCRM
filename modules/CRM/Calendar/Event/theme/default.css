@@ -229,9 +229,9 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
 	height: 50px;
 	text-align: center;
 	background-color: white;
-	background-color: #B3B3B3;
+	/*background-color: #B3B3B3;
 	background-image: url('images/day-header.png');
-	background-repeat: repeat-x;
+	background-repeat: repeat-x;*/
 	padding-left: 5px;
 	padding-right: 5px;
 	font-weight: bold;
