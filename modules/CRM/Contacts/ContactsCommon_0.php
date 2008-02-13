@@ -128,7 +128,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	public static function contact_format_default($record, $nolink){
 		$ret = '';
 		if (!$nolink) $ret .= '<a '.Utils_RecordBrowserCommon::create_record_href('contact', $record['id']).'>';
-		$ret .= $record['last_name'].' '.$record['first_name'][0].'.';
+		$ret .= $record['last_name'].(isset($record['first_name'][0])?' '.$record['first_name'][0].'.':'');
 		if (!$nolink) $ret .= '</a>';
 		if (isset($record['company_name'][0])) $ret .= ' ['.Utils_RecordBrowserCommon::create_linked_label('company', 'company_name', $record['company_name'][0], $nolink).']';
 		return $ret;
