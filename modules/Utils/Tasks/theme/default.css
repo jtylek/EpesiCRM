@@ -226,3 +226,30 @@ select[name="color"] option[value="4"] { color: #336699; background-color: white
 select[name="color"] option[value="5"] { color: #808080; background-color: white; }
 select[name="color"] option[value="6"] { color: #339999; background-color: white; }
 select[name="color"] option[value="7"] { color: #993399; background-color: white; }
+
+
+/* Additional Info Button */
+
+.AdditionalInfoButton {
+	width: 120px;
+	height: 20px;
+	background-color: #336699;
+	background-image: url('images/header-blue.png');
+	background-repeat: repeat-x;
+	color: white;
+	cursor: pointer;
+	vertical-align: middle;
+	text-align: center;
+	margin-right: 620px;
+}
+
+.AdditionalInfoButton:hover {
+	background-image: url('images/header-blue-hover.png');
+}
+
+.AdditionalInfoButton img {
+	vertical-align: middle;
+	padding: 3px;
+}
+
+/* */
