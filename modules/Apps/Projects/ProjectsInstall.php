@@ -16,7 +16,7 @@ class Apps_ProjectsInstall extends ModuleInstall {
 		// Base_ThemeCommon::install_default_theme('Apps/Projects');
 		$fields = array(
 			array('name'=>'Project Name', 'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true,'display_callback'=>array('Apps_ProjectsCommon', 'display_proj_name')),	
-			array('name'=>'Company Name', 'type'=>'select', 'required'=>true, 'param'=>array('company'=>'Company Name'), 'extra'=>false, 'visible'=>true),
+			array('name'=>'Company Name', 'type'=>'crm_company', 'param'=>array('field_type'=>'select','crits'=>array('Apps_ProjectsCommon','company_crits')), 'required'=>true, 'extra'=>false, 'visible'=>true),	
 			array('name'=>'Address 1', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
 			array('name'=>'Address 2', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
 			array('name'=>'City', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>false),
@@ -26,8 +26,8 @@ class Apps_ProjectsInstall extends ModuleInstall {
 			array('name'=>'TIM Job No', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>true),
 			array('name'=>'Contract Amount', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>false),
 			array('name'=>'Status', 'type'=>'commondata', 'required'=>true, 'visible'=>true, 'param'=>'Project_Status', 'extra'=>false),
-			array('name'=>'ZSI Estimator','type'=>'text', 'required'=>true, 'param'=>'64','extra'=>false, 'visible'=>true),
-			array('name'=>'ZSI Project Manager','type'=>'text', 'required'=>true, 'param'=>'64','extra'=>false, 'visible'=>true),
+			array('name'=>'ZSI Estimator', 'type'=>'crm_contact', 'param'=>array('field_type'=>'select','crits'=>array('Apps_ProjectsCommon','employees_crits')), 'required'=>false, 'extra'=>false, 'visible'=>true),
+			array('name'=>'ZSI Project Manager','type'=>'crm_contact', 'param'=>array('field_type'=>'select','crits'=>array('Apps_ProjectsCommon','employees_crits')),'required'=>false, 'extra'=>false, 'visible'=>true),
 			array('name'=>'Start Date', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>false),
 			array('name'=>'Est End Date', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>false),
 			array('name'=>'Description', 'type'=>'long text', 'required'=>false, 'param'=>'64', 'extra'=>false),
@@ -130,6 +130,7 @@ class Apps_ProjectsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::delete_addon('projects', 'Apps/Projects', 'project_attachment_addon');
 		Utils_RecordBrowserCommon::uninstall_recordset('projects');
 		Utils_CommonDataCommon::remove('Project_Status');
+		// Utils_AttachmentCommon::persistent_mass_delete(null,'Apps/Projects/');
 		return true;
 	}
 	
