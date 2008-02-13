@@ -324,10 +324,24 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		$or_started = false;
 		foreach($crits as $k=>$v){
+			$len = strlen($k);
+			$negative = (($len && $k[0]=='!') || ($len>1 && $k[1]=='!') || ($len>2 && $k[2]=='!'));
+			$noquotes = (($len && $k[0]=='"') || ($len>1 && $k[1]=='"') || ($len>2 && $k[2]=='"'));
+			$or = (($len && $k[0]=='|') || ($len>1 && $k[1]=='|') || ($len>2 && $k[2]=='|'));
+			$k = trim($k, '!"|');
+			if ($or) {
+				if (!$or_started) $having .= ' AND (';
+				else $having .= ' OR ';
+				$or_started = true;
+			} else {
+				if ($or_started) $having .= ')';
+				$or_started = false;
+				$having .= ' AND ';
+			}
 			if ($k[0]==':') {
 				switch ($k) {
-					case ':Fav'	: $where .= ' AND (SELECT COUNT(*) FROM '.$tab_name.'_favorite WHERE '.$tab_name.'_id=r.id AND user_id=%d)!=0'; $vals[]=Acl::get_user(); break;
-					case ':Recent'	: $where .= ' AND (SELECT COUNT(*) FROM '.$tab_name.'_recent WHERE '.$tab_name.'_id=r.id AND user_id=%d)!=0'; $vals[]=Acl::get_user(); break;
+					case ':Fav'	: $having .= ' (SELECT COUNT(*) FROM '.$tab_name.'_favorite WHERE '.$tab_name.'_id=r.id AND user_id=%d)!=0'; $vals[]=Acl::get_user(); break;
+					case ':Recent'	: $having .= ' (SELECT COUNT(*) FROM '.$tab_name.'_recent WHERE '.$tab_name.'_id=r.id AND user_id=%d)!=0'; $vals[]=Acl::get_user(); break;
 					case ':Created_on'	: 
 							$inj = '';
 							if(is_array($v))
@@ -335,7 +349,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							elseif(is_string($v))
 								$inj = $v;
 							if($inj)
-								$where .= ' AND created_on '.$inj; 
+								$having .= ' created_on '.$inj; 
 							break;
 					case ':Edited_on'	: 
 							$inj = '';
@@ -344,17 +358,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							elseif(is_string($v))
 								$inj = $v;
 							if($inj)
-								$where .= ' AND (((SELECT MAX(edited_on) FROM '.$tab_name.'_edit_history WHERE '.$tab_name.'_id=r.id) '.$inj.') OR'.
+								$having .= ' (((SELECT MAX(edited_on) FROM '.$tab_name.'_edit_history WHERE '.$tab_name.'_id=r.id) '.$inj.') OR'.
 										'((SELECT MAX(edited_on) FROM '.$tab_name.'_edit_history WHERE '.$tab_name.'_id=r.id) IS NULL AND created_on '.$inj.'))'; 
 							break;
 					default		: trigger_error('Unknow paramter given to get_records criteria: '.$k, E_USER_ERROR);
 				}
 			} else {
 				if ($k == 'id') {
-					$len = strlen($k);
-					$negative = (($len && $k[0]=='!') || ($len>1 && $k[1]=='!') || ($len>2 && $k[2]=='!'));
-					$noquotes = (($len && $k[0]=='"') || ($len>1 && $k[1]=='"') || ($len>2 && $k[2]=='"'));
-					$k = trim($k, '!"|');
 					if (!is_array($v)) $v = array($v);
 					$having .= ' AND ('.($negative?'true':'false');
 					foreach($v as $w) {
@@ -363,23 +373,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					}
 					$having .= ')';
 				} else {
-					$len = strlen($k);
-					$negative = (($len && $k[0]=='!') || ($len>1 && $k[1]=='!') || ($len>2 && $k[2]=='!'));
-					$noquotes = (($len && $k[0]=='"') || ($len>1 && $k[1]=='"') || ($len>2 && $k[2]=='"'));
-					$or = (($len && $k[0]=='|') || ($len>1 && $k[1]=='|') || ($len>2 && $k[2]=='|'));
-					$k = trim($k, '!"|');
 					$fields .= ', concat( \'::\', group_concat( rd'.$iter.'.value ORDER BY rd'.$iter.'.value SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
 					$final_tab = '('.$final_tab.') LEFT JOIN '.$tab_name.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab_name.'_id AND rd'.$iter.'.field="'.$k.'"';
 					if (!is_array($v)) $v = array($v);
-					if ($or) {
-						if (!$or_started) $having .= ' AND (';
-						else $having .= ' OR ';
-						$or_started = true;
-					} else {
-						if ($or_started) $having .= ')';
-						$or_started = false;
-						$having .= ' AND ';
-					}
 					if ($negative) $having .= '(';
 					$having .= '('.($negative?'true':'false');
 					foreach($v as $w) {

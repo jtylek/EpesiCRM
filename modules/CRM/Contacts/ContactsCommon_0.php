@@ -133,12 +133,19 @@ class CRM_ContactsCommon extends ModuleCommon {
 		if (isset($record['company_name'][0])) $ret .= ' ['.Utils_RecordBrowserCommon::create_linked_label('company', 'company_name', $record['company_name'][0], $nolink).']';
 		return $ret;
 	}
+	public static function contact_format_no_company($record, $nolink){
+		$ret = '';
+		if (!$nolink) $ret .= '<a '.Utils_RecordBrowserCommon::create_record_href('contact', $record['id']).'>';
+		$ret .= $record['last_name'].(($record['first_name']!=='')?' '.$record['first_name']:'');
+		if (!$nolink) $ret .= '</a>';
+		return $ret;
+	}
 	public static function QFfield_contact(&$form, $field, $label, $mode, $default, $desc) {
 		$cont = array();
 		$param = explode(';',$desc['param']);
 		if ($mode=='add' || $mode=='edit') {
 			if ($param[0] == '::') $callback = array('CRM_ContactsCommon', 'contact_format_default');
-			else $callback = explode('::', $param);
+			else $callback = explode('::', $param[0]);
 			if ($param[1] != '::') $crits = call_user_func(explode('::',$param[1]));
 			else $crits = array();
 			$contacts = self::get_contacts($crits);
@@ -147,6 +154,11 @@ class CRM_ContactsCommon extends ModuleCommon {
 			asort($cont);
 			$form->addElement($desc['type'], $field, $label, $cont, array('id'=>$field));
 			if ($mode!=='add') $form->setDefaults(array($field=>$default));
+			else if ($desc['type']=='multiselect') {
+				$me = self::get_my_record();
+				$form->setDefaults(array($field=>$me['id']));
+				// TODO: to reconsider
+			}
 		} else {
 			$form->addElement('static', $field, $label, array('id'=>$field));
 			$def = '';

@@ -999,7 +999,7 @@ class Utils_RecordBrowser extends Module {
 	public function caption(){
 		return $this->caption.': '.$this->action;
 	}
-	public function recordpicker($element, $format, $crits=array(), $cols=array(), $filters=array()) {
+	public function recordpicker($element, $format, $crits=array(), $cols=array(), $order=array(), $filters=array()) {
 		if (!isset($this->lang)) $this->lang = $this->init_module('Base/Lang');
 		$this->init();
 		$icon_on = Base_ThemeCommon::get_template_file('Utils_RecordBrowser','active-on.png');
@@ -1014,7 +1014,7 @@ class Utils_RecordBrowser extends Module {
 				foreach ($v as $w) if (!in_array($w, $this->crits[$k])) $this->crits[$k][] = $w;
 			} else $this->crits[$k] = $v;
 		}
-		$theme->assign('table', $this->show_data($this->crits, $cols, array(), false, false, true));
+		$theme->assign('table', $this->show_data($this->crits, $cols, $order, false, false, true));
 
 		$rpicker_ind = $this->get_module_variable('rpicker_ind');
 		eval_js(

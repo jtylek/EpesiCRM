@@ -231,7 +231,7 @@ class Utils_Tasks extends Module {
 					$emp[$c_id] = '<img src="'.Base_ThemeCommon::get_template_file('images/'.((isset($assigned[$c_id]) && $assigned[$c_id])?'checkbox_on':'checkbox_off').'.png').'">&nbsp;&nbsp;' . $emp[$c_id];
 			}
 			$cus = array();
-			$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company()), ':Fav'=>true));
+			$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company()), '|:Fav'=>true, '|:Recent'=>true));
 			foreach($ret as $c_id=>$data)
 				$cus[$c_id] = $data['last_name'].' '.$data['first_name'];
 
@@ -241,7 +241,7 @@ class Utils_Tasks extends Module {
 			$form->addElement('multiselect', 'cus_id', $this->lang->t('Customers'), $cus);
 			if($edit) {
 				$rb2 = $this->init_module('Utils/RecordBrowser/RecordPicker');
-				$this->display_module($rb2, array('contact', 'cus_id', array('CRM_Calendar_EventCommon','decode_contact'), array('!company_name'=>CRM_ContactsCommon::get_main_company()), array('work_phone'=>false, 'mobile_phone'=>false, 'zone'=>false, 'Actions'=>false)));
+				$this->display_module($rb2, array('contact', 'cus_id', array('CRM_Calendar_EventCommon','decode_contact'), array('!company_name'=>CRM_ContactsCommon::get_main_company()), array('work_phone'=>false, 'mobile_phone'=>false, 'zone'=>false, 'Actions'=>false), array('last_name'=>'ASC')));
 				$cus_click = $rb2->create_open_link($this->lang->t('Advanced'));
 			} else {
 				$cus_click = '';

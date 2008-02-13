@@ -29,10 +29,10 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 			array('name'=>'Permission', 	'type'=>'select', 'required'=>true, 'param'=>'__COMMON__::Permissions', 'extra'=>false),
 			array('name'=>'Priority', 		'type'=>'select', 'required'=>true, 'param'=>'__COMMON__::Priorities', 'extra'=>false),
 
-			array('name'=>'Employees', 		'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect','crits'=>array('CRM_PhoneCallCommon','phonecall_employees_crits')), 'required'=>false, 'extra'=>false),
+			array('name'=>'Employees', 		'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('CRM_PhoneCallCommon','phonecall_employees_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>false, 'extra'=>false),
 			array('name'=>'Contact', 		'type'=>'crm_contact', 'param'=>array('field_type'=>'select','crits'=>array('CRM_PhoneCallCommon','phonecall_contact_crits')), 'required'=>false, 'extra'=>false, 'visible'=>true),
 			
-			array('name'=>'Description', 	'type'=>'textarea', 'required'=>false, 'param'=>'255', 'extra'=>false)
+			array('name'=>'Description', 	'type'=>'long text', 'required'=>false, 'param'=>'255', 'extra'=>false)
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('phonecall', $fields);
 //		Utils_RecordBrowserCommon::set_tpl('contact', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'Contact'));
