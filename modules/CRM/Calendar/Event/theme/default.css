@@ -273,3 +273,21 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
 .timeless_access_priority_color td.data {
 	width: 15%;
 }
+
+
+/* no shadow in tables */
+
+#CRM_Calendar_Event_Personal .attachments_messages .shadow-top,
+#CRM_Calendar_Event_Personal .attachments_messages .shadow-middle,
+#CRM_Calendar_Event_Personal .attachments_messages .shadow-bottom {
+	display: none;
+}
+
+#CRM_Calendar_Event_Personal .attachments_messages .layer {
+	padding: 0px;
+	width: 100%;
+}
+
+#CRM_Calendar_Event_Personal .attachments_messages .layer .margin2px {
+	padding: 0px;
+}

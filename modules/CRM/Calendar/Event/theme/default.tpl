@@ -145,9 +145,12 @@
         </table>
     </div>
     {if isset($attachments) || isset($messages)}
-        <br><br>
-        {$attachments|default:''}
-        {$messages|default:''}
+        <div class="attachments_messages">
+            <br><br>
+            {$attachments|default:''}
+            <br>
+            {$messages|default:''}
+        </div>
     {/if}
 
 </div>
