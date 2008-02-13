@@ -19,8 +19,7 @@ defined("_VALID_ACCESS") || die();
 class CRM_PhoneCallInstall extends ModuleInstall {
 	public function install() {
 // ************ contacts ************** //
-		Base_ThemeCommon::install_default_theme('CRM/PhoneCall');
-		Base_ThemeCommon::install_default_theme('CRM/Contacts');
+//		Base_ThemeCommon::install_default_theme('CRM/PhoneCall');
 		$fields = array(
 			array('name'=>'Subject', 		'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true),
 			array('name'=>'Date and Time',	'type'=>'timestamp', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true),
@@ -62,7 +61,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 	}
 
 	public function uninstall() {
-		Base_ThemeCommon::uninstall_default_theme('CRM/PhoneCall');
+//		Base_ThemeCommon::uninstall_default_theme('CRM/PhoneCall');
 //		Utils_RecordBrowserCommon::delete_addon('company', 'CRM/Contacts', 'company_addon');
 //		Utils_RecordBrowserCommon::delete_addon('company', 'CRM/Contacts', 'company_attachment_addon');
 //		Utils_AttachmentCommon::persistent_mass_delete(null,'CRM/Contact/');
