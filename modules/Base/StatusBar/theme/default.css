@@ -9,7 +9,7 @@
 
 .Base_StatusBar {
 	z-index: 2001;
-	width: 100%;
+	width: 300px;
   	position: fixed;
 	left: 50%;
 	top: 30%;
