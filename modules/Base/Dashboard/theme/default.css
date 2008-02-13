@@ -45,3 +45,22 @@
 	height: 20px;
 	background-image: url('images/header-blue.png');
 }
+
+
+/* no shadow in tables */
+#dashboard .content_td .shadow-top,
+#dashboard .content_td .shadow-middle,
+#dashboard .content_td .shadow-bottom {
+	display: none;
+}
+
+#dashboard .content_td .layer {
+	padding: 0px;
+	width: 100%;
+}
+
+#dashboard .content_td .layer .margin2px {
+	padding: 0px;
+}
+
+/* */
