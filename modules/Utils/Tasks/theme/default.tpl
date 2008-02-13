@@ -3,7 +3,7 @@
 <div id="Utils_Tasks">
 
 <!-- SHADIW BEGIN-->
-	<div class="layer" style="padding: 9px; width: 740px;">
+	<div class="layer" style="padding: 9px; width: 750px;">
 		<div class="content_shadow">
 <!-- -->
 
@@ -17,41 +17,38 @@
                 </td>
 			</tr>
 			<tr>
-			  	<td class="label" align="left">{$form_data.status.label}</td>
-				<td class="data" align="left">{$form_data.status.html}</td>
-				<td class="label" align="left">{$form_data.permission.label}</td>
-				<td class="data permission" align="left">
+			  	<td class="label" align="left" style="width: 10%;">{$form_data.status.label}</td>
+				<td class="data status" align="left" style="width: 15%;">{$form_data.status.html}</td>
+				<td class="label" align="left" style="width: 10%;">{$form_data.permission.label}</td>
+				<td class="data permission" align="left" style="width: 15%;">
                     {if $action=='view'}
                         <div class="icon"></div>
                     {/if}
                     {$form_data.permission.html}
                 </td>
-			  	<td class="label" align="left">{$form_data.priority.label}</td>
-				<td class="data priority" align="left">
+			  	<td class="label" align="left" style="width: 20%;">{$form_data.priority.label}</td>
+				<td class="data priority" align="left" style="width: 30%;">
                     {if $action=='view'}
                         <div class="icon"></div>
                     {/if}
                     {$form_data.priority.html}
                 </td>
-		</tr><tr>
+            </tr>
+            <tr>
 				<td class="label" align="left">{$form_data.longterm.label}</td>
 				<td class="data" align="left">{$form_data.longterm.html}</td>
 			  	<td class="label" align="left">{$form_data.is_deadline.label}</td>
 				<td class="data" align="left">{$form_data.is_deadline.html}</td>
 			  	<td class="label" align="left">Deadline date</td>
-				<td class="data" align="left">{$form_data.deadline.html}</td>
-			</tr>
-        </tbody>
-    </table>
-    <table name="UtilsTasks" class="form {if $action == 'view'}view{else}edit{/if} no-border" cellspacing="0" cellpadding="0" border="0">
-        <tbody>
-            <tr>
-	        	<td class="label" style="border-right: 1px solid #b3b3b3;">{$form_data.emp_id.label}</td>
-        	    <td class="label" style="padding-right: 0px;"><div style="float: left; padding-top: 3px;">{$form_data.cus_id.label}</div><div style="float: right; border-left: 1px solid #b3b3b3;">{$cus_click}</div></td>
+				<td class="data" align="right" style="padding-right: 0px;">{$form_data.deadline.html}</td>
 			</tr>
             <tr>
-				<td class="data arrows" style="border-right: 1px solid #b3b3b3; vertical-align: top;"><span class="error">{$form_data.emp_id.error}</span>{$form_data.emp_id.html}</td>
-				<td class="data arrows" style="vertical-align: top;"><span class="error">{$form_data.cus_id.error}</span>{$form_data.cus_id.html}</td>
+	        	<td class="label" style="border-right: 1px solid #b3b3b3;" colspan="4">{$form_data.emp_id.label}</td>
+        	    <td class="label" style="padding-right: 0px;" colspan="2"><div style="float: left; padding-top: 3px;">{$form_data.cus_id.label}</div><div style="float: right; border-left: 1px solid #b3b3b3;">{$cus_click}</div></td>
+			</tr>
+            <tr>
+				<td class="data arrows" style="border-right: 1px solid #b3b3b3; vertical-align: top;" colspan="4"><span class="error">{$form_data.emp_id.error}</span>{$form_data.emp_id.html}</td>
+				<td class="data arrows" style="vertical-align: top;" colspan="2"><span class="error">{$form_data.cus_id.error}</span>{$form_data.cus_id.html}</td>
 			</tr>
         </tbody>
     </table>
