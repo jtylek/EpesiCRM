@@ -1,1 +1,57 @@
+/* label */
 
+#CRM_Tasks .label {
+    color: white;
+    background-color: #336699;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+/* data */
+
+#CRM_Tasks .data {
+    padding-left: 2px;
+    padding-right: 2px;
+    background-color: white;
+}
+
+#CRM_Tasks .data input,
+#CRM_Tasks .data select,
+#CRM_Tasks .data textarea {
+    border: 0px;
+    background-color: #e6ecf2;
+    /*width: 100%;*/
+}
+
+#CRM_Tasks .data input[type="checkbox"],
+#CRM_Tasks .data input[type="radio"] {
+    width: auto;
+}
+
+#CRM_Tasks .data input:focus,
+#CRM_Tasks .data select:focus,
+#CRM_Tasks .data textarea:focus {
+    background-color: #ffffa5;
+}
+
+/* submit button */
+
+#CRM_Tasks .submit input {
+    color: white;
+    width: 100px;
+    height: 20px;
+    border: none;
+    background-color: #336699;
+    background-image: url('images/header-blue.png');
+    background-repeat: repeat-x;
+}
+
+#CRM_Tasks .submit input:hover {
+    background-image: url('images/header-blue-hover.png');
+}
+
+/* empty */
+
+#CRM_Tasks .empty {
+    width: 20px;
+}
