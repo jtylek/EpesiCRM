@@ -1,5 +1,5 @@
 table#Base_Dashboard .button {
-	/*width: 200px;*/
+	width: 218px;
 	height: 80px;
 	background-color: #F0F0F0;
 	border: 1px solid #FFFFFF;
@@ -9,13 +9,11 @@ table#Base_Dashboard .button {
 
 	display: block;
 	cursor: pointer;
-	cursor: pointer;
 }
 
 table#Base_Dashboard .button table {
-	margin-right: 20px;
-	width: 100%;
-	height: 100%;
+	margin-right: 18px;
+	width: 200px;
 }
 
 table#Base_Dashboard .button:hover {
