@@ -536,6 +536,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 	}
 	private static function check_if_value_valid($field) {
+		return true;
 		switch (self::$table_rows[$field['field']]['type']) {
 			case 'multiselect':
 			case 'select':
