@@ -366,7 +366,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			} else {
 				if ($k == 'id') {
 					if (!is_array($v)) $v = array($v);
-					$having .= ' AND ('.($negative?'true':'false');
+					$having .= '('.($negative?'true':'false');
 					foreach($v as $w) {
 						if (!$noquotes) $w = DB::qstr($w);
 						$having .= ' '.($negative?'AND':'OR').' id '.($negative?'NOT ':'').'LIKE '.$w;
