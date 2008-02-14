@@ -7,11 +7,11 @@
 			</div>
 		</td>
 		<td style="width: 10px;"></td>
-		<td><a class="button" {$prevyear_href}><img border="0" width="8" height="8" src="{$theme_dir}/Utils_Calendar__prev.png">&nbsp;&nbsp;{$prevyear_label}</a></td>
-		<td><a class="button" {$prevmonth_href}><img border="0" width="8" height="8" src="{$theme_dir}/Utils_Calendar__prev.png">&nbsp;&nbsp;{$prevmonth_label}</a></td>
-		<td><a class="button" {$today_href}>{$today_label}&nbsp;&nbsp;<img border="0" width="8" height="8" src="{$theme_dir}/Utils_Calendar__this.png"></a></td>
-		<td><a class="button" {$nextmonth_href}>{$nextmonth_label}&nbsp;&nbsp;<img border="0" width="8" height="8" src="{$theme_dir}/Utils_Calendar__next.png"></a></td>
-		<td><a class="button" {$nextyear_href}>{$nextyear_label}&nbsp;&nbsp;<img border="0" width="8" height="8" src="{$theme_dir}/Utils_Calendar__next.png"></a></td>
+		<td><a class="button" {$prevyear_href}><img border="0" width="8" height="20" src="{$theme_dir}/Utils_Calendar__prev.png">&nbsp;&nbsp;{$prevyear_label}</a></td>
+		<td><a class="button" {$prevmonth_href}><img border="0" width="8" height="20" src="{$theme_dir}/Utils_Calendar__prev.png">&nbsp;&nbsp;{$prevmonth_label}</a></td>
+		<td><a class="button" {$today_href}>{$today_label}&nbsp;&nbsp;<img border="0" width="8" height="20" src="{$theme_dir}/Utils_Calendar__this.png"></a></td>
+		<td><a class="button" {$nextmonth_href}>{$nextmonth_label}&nbsp;&nbsp;<img border="0" width="8" height="20" src="{$theme_dir}/Utils_Calendar__next.png"></a></td>
+		<td><a class="button" {$nextyear_href}>{$nextyear_label}&nbsp;&nbsp;<img border="0" width="8" height="20" src="{$theme_dir}/Utils_Calendar__next.png"></a></td>
 		<td style="width: 10px;"></td>
 		<td>{$popup_calendar}</td>
 		<td class="empty"></td>

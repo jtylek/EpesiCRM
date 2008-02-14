@@ -9,9 +9,9 @@
 			</div>
 		</td>
 		<td style="width: 10px;"></td>
-		<td><a class="button" {$prev_href}>{$prev_label}&nbsp;&nbsp;<img border="0" width="8" height="8" src="{$theme_dir}/Utils_Calendar__prev.png"></a></td>
-		<td><a class="button" {$today_href}>{$today_label}&nbsp;&nbsp;<img border="0" width="8" height="8" src="{$theme_dir}/Utils_Calendar__this.png"></a></td>
-		<td><a class="button" {$next_href}><img border="0" width="8" height="8" src="{$theme_dir}/Utils_Calendar__next.png">&nbsp;&nbsp;{$next_label}</a></td>
+		<td><a class="button" {$prev_href}>{$prev_label}&nbsp;&nbsp;<img border="0" width="8" height="20" src="{$theme_dir}/Utils_Calendar__prev.png"></a></td>
+		<td><a class="button" {$today_href}>{$today_label}&nbsp;&nbsp;<img border="0" width="8" height="20" src="{$theme_dir}/Utils_Calendar__this.png"></a></td>
+		<td><a class="button" {$next_href}><img border="0" width="8" height="20" src="{$theme_dir}/Utils_Calendar__next.png">&nbsp;&nbsp;{$next_label}</a></td>
 		<td style="width: 10px;"></td>
 		<td>{$popup_calendar}</td>
 		<td class="empty"></td>

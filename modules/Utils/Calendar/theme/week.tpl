@@ -4,14 +4,14 @@
 			<div id="{$trash_id}" class="trash">
 				<div class="icon"><img border="0" width="32" height="32" src="{$theme_dir}/Utils_Calendar__trash.png"></div>
 				<div class="text">Drag and drop<br>to delete</div>
-			</div>			
+			</div>
 		</td>
 		<td style="width: 10px;"></td>
-		<td><a class="button" {$prev7_href}>{$prev7_label}&nbsp;&nbsp;<img border="0" width="8" height="8" src="{$theme_dir}/Utils_Calendar__prev.png"></a></td>
-		<td><a class="button" {$prev_href}>{$prev_label}&nbsp;&nbsp;<img border="0" width="8" height="8" src="{$theme_dir}/Utils_Calendar__prev.png"></a></td>
-		<td><a class="button" {$today_href}>{$today_label}&nbsp;&nbsp;<img border="0" width="8" height="8" src="{$theme_dir}/Utils_Calendar__this.png"></a></td>
-		<td><a class="button" {$next_href}><img border="0" width="8" height="8" src="{$theme_dir}/Utils_Calendar__next.png">&nbsp;&nbsp;{$next_label}</a></td>
-		<td><a class="button" {$next7_href}><img border="0" width="8" height="8" src="{$theme_dir}/Utils_Calendar__next.png">&nbsp;&nbsp;{$next7_label}</a></td>
+		<td><a class="button" {$prev7_href}>{$prev7_label}&nbsp;&nbsp;<img border="0" width="8" height="20" src="{$theme_dir}/Utils_Calendar__prev.png"></a></td>
+		<td><a class="button" {$prev_href}>{$prev_label}&nbsp;&nbsp;<img border="0" width="8" height="20" src="{$theme_dir}/Utils_Calendar__prev.png"></a></td>
+		<td><a class="button" {$today_href}>{$today_label}&nbsp;&nbsp;<img border="0" width="8" height="20" src="{$theme_dir}/Utils_Calendar__this.png"></a></td>
+		<td><a class="button" {$next_href}><img border="0" width="8" height="20" src="{$theme_dir}/Utils_Calendar__next.png">&nbsp;&nbsp;{$next_label}</a></td>
+		<td><a class="button" {$next7_href}><img border="0" width="8" height="20" src="{$theme_dir}/Utils_Calendar__next.png">&nbsp;&nbsp;{$next7_label}</a></td>
 		<td style="width: 10px;"></td>
 		<td>{$popup_calendar}</td>
 		<td class="empty"></td>
@@ -55,7 +55,7 @@
 			<tr>
 				<td class="hour" nowrap >{$stamp.label}</td>
 				{foreach item=t key=j from=$time_ids}
-                    <td class="inter_{$day_headers.$j.style}" id="{$t.$k}"></td>
+                    <td class="inter_{$day_headers.$j.style}" id="{$t.$k}">&nbsp;</td>
 	            {/foreach}
 			</tr>
 		{/foreach}
