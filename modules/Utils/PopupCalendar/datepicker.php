@@ -31,13 +31,13 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 				$this->updateAttributes(array('id'=>$id));
 			}
 			$value = $this->getAttribute('value');
-			$this->updateAttributes(array('value'=>Base_RegionalSettingsCommon::time2reg($value, false)));
+			if ($value!='') $this->updateAttributes(array('value'=>Base_RegionalSettingsCommon::time2reg($value, false)));
 			
 			if (isset($this->_time)) {
 				$time_format = Base_RegionalSettingsCommon::time_12h()?'h:i:a':'H:i';
 				$lang_code = Base_LangCommon::get_lang_code();
 	            $this->_time_element = new HTML_QuickForm_date('__'.$name.'__time', '__'.$name.'__time', array('format'=>$time_format, 'optionIncrement'  => array('i' => 5), 'language'=>$lang_code));
-	            $this->_time_element->setValue(date('H:i:s', strtotime($value)));
+	            if ($value!='') $this->_time_element->setValue(date('H:i:s', strtotime($value)));
 			}
 						
 			$ex_date = Base_RegionalSettingsCommon::time2reg(null,false);

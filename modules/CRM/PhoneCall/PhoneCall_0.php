@@ -16,7 +16,7 @@ class CRM_PhoneCall extends Module {
 	private $rb = null;
 
 	public function body() {
-		location(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array('phonecall'), 'box_main_arguments'=>array(array('Date'=>'ASC'))));
+		location(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array('phonecall'), 'box_main_arguments'=>array(array('Date and Time'=>'ASC'))));
 	}
 
 	public function admin() {
