@@ -89,7 +89,7 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
     {
         $value = $this->getValue();
 		if ($this->_time) $value .= ' ';
-        return ('' != $value? htmlspecialchars(Base_RegionalSettingsCommon::time2reg($value)): '&nbsp;') .
+        return ('' != $value? htmlspecialchars(Base_RegionalSettingsCommon::time2reg($value, $this->_time)): '&nbsp;') .
                $this->_getPersistantData();
     } //end func getFrozenHtml
 
