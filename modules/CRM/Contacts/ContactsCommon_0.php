@@ -113,14 +113,13 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$first = true;
 		$param = explode(';',$desc['param']);
 		if ($param[0] == '::') $callback = array('CRM_ContactsCommon', 'contact_format_default');
-		else $callback = explode('::', $desc['param']);
+		else $callback = explode('::', $param[0]);
 		if (!is_array($v)) $v = array($v);
 		foreach($v as $k=>$w){
 			if ($w=='') break;
 			if ($first) $first = false;
 			else $def .= ', ';
-			$label = call_user_func($callback, self::get_contact($w), $nolink);
-			$def .= $label;
+			$def .= call_user_func($callback, self::get_contact($w), $nolink);
 		}
 		if (!$def) 	$def = '--';
 		return $def;
