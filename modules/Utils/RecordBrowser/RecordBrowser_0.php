@@ -564,7 +564,7 @@ class Utils_RecordBrowser extends Module {
 				case 'date':		$form->addElement('datepicker', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
 									if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 									break;
-				case 'timestamp':	$form->addElement('datepicker', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id'], 'time'=>true));
+				case 'timestamp':	$form->addElement('timestamp', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
 									if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 									break;
 				case 'commondata':	$param = explode('::',$args['param']);

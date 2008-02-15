@@ -14,6 +14,7 @@ require_once('Renderer/TCMSDefault.php');
 
 $GLOBALS['_HTML_QuickForm_default_renderer'] = new HTML_QuickForm_Renderer_TCMSDefault();
 $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['multiselect'] = array('modules/Libs/QuickForm/multiselect.php','HTML_QuickForm_multiselect');
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['timestamp'] = array('modules/Libs/QuickForm/timestamp.php','HTML_QuickForm_timestamp');
 $GLOBALS['_HTML_QuickForm_registered_rules']['comparestring'] = array('HTML_QuickForm_Rule_CompareString', 'Rule/CompareString.php');
 
 /**

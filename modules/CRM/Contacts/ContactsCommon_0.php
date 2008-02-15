@@ -189,9 +189,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 	public static function QFfield_company(&$form, $field, $label, $mode, $default, $desc) {
 		$comp = array();
-		$param = explode(';',$desc['param']);
 		if ($mode=='add' || $mode=='edit') {
-
 			if ($desc['param'] != '') $crits = call_user_func(explode('::',$desc['param']));
 			else $crits = array();
 			$companies = self::get_companies($crits);
