@@ -18,8 +18,7 @@ class CRM_ProjectPlanner_EmployeeEventCommon extends Utils_Calendar_EventCommon 
 		return $result;
 	}
 	public static function get_all($start,$end,$order='') {
-		$result = array();
-		return $result;
+		return DB::GetAll('SELECT \'\' as additional_info,\'\' as additional_info2, \'\' as color,start,end-start as duration,project_id as title,\'\' as description,id,0 as timeless FROM crm_projectplanner_work WHERE ((start>=%d AND start<%d))',array($start,$end));
 	}
 
 	public static function delete($id) {
