@@ -10,9 +10,12 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_ProjectPlanner_EmployeeEventCommon extends Utils_Calendar_EventCommon {
+	public static $employee;
+	public static $project;
+
 	public static function get($id) {
 		$result = array();
-		return $result;	
+		return $result;
 	}
 	public static function get_all($start,$end,$order='') {
 		$result = array();

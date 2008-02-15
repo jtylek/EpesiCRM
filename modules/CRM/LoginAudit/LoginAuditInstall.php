@@ -27,7 +27,7 @@ class CRM_LoginAuditInstall extends ModuleInstall {
 	}
 
 	public function version() {
-		return array("0.1");
+		return array("0.6");
 	}
 
 	public function requires($v) {

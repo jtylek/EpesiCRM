@@ -45,7 +45,7 @@ class CRM_FiltersInstall extends ModuleInstall {
 	}
 
 	public function version() {
-		return array("0.1");
+		return array("0.8");
 	}
 
 	public function requires($v) {

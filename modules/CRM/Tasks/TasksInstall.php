@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @author pbukowski@telaxus.com
  * @copyright pbukowski@telaxus.com
  * @license SPL
@@ -17,16 +17,16 @@ class CRM_TasksInstall extends ModuleInstall {
 		Base_ThemeCommon::install_default_theme('CRM/Tasks');
 		return true;
 	}
-	
+
 	public function uninstall() {
 		Base_ThemeCommon::uninstall_default_theme('CRM/Tasks');
 		return true;
 	}
-	
+
 	public function version() {
-		return array("0.1");
+		return array("0.8");
 	}
-	
+
 	public function requires($v) {
 		return array(
 			array('name'=>'CRM/Filters','version'=>0),
@@ -34,18 +34,18 @@ class CRM_TasksInstall extends ModuleInstall {
 			array('name'=>'Base/Theme','version'=>0),
 			array('name'=>'Utils/Tasks','version'=>0));
 	}
-	
+
 	public static function info() {
 		return array(
 			'Description'=>'',
 			'Author'=>'pbukowski@telaxus.com',
 			'License'=>'SPL');
 	}
-	
+
 	public static function simple_setup() {
 		return true;
 	}
-	
+
 }
 
 ?>

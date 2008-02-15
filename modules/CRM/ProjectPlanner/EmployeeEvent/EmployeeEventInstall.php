@@ -12,10 +12,14 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_ProjectPlanner_EmployeeEventInstall extends ModuleInstall {
 
 	public function install() {
+		Variable::set('CRM_ProjectsPlanner__start_day','9:00');
+		Variable::set('CRM_ProjectsPlanner__end_day','17:00');
 		return true;
 	}
 
 	public function uninstall() {
+		Variable::delete('CRM_ProjectsPlanner__start_day');
+		Variable::delete('CRM_ProjectsPlanner__end_day');
 		return true;
 	}
 
@@ -25,11 +29,12 @@ class CRM_ProjectPlanner_EmployeeEventInstall extends ModuleInstall {
 
 	public function requires($v) {
 		return array(
-//				array('name'=>'Utils/Calendar/Event','version'=>0),
+				array('name'=>'CRM/ProjectPlanner/EmployeeEvent','version'=>0),
 //				array('name'=>'Utils/PopupCalendar','version'=>0),
 //				array('name'=>'Utils/Attachment','version'=>0),
 //				array('name'=>'Utils/Messenger','version'=>0),
-//				array('name'=>'CRM/Contacts','version'=>0),
+				array('name'=>'Base/Lang','version'=>0),
+				array('name'=>'CRM/Contacts','version'=>0),
 				array('name'=>'Libs/QuickForm','version'=>0));
 	}
 
