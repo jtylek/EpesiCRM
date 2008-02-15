@@ -14,10 +14,12 @@ class CRM_ProjectPlanner_EmployeeEventInstall extends ModuleInstall {
 	public function install() {
 		Variable::set('CRM_ProjectsPlanner__start_day','9:00');
 		Variable::set('CRM_ProjectsPlanner__end_day','17:00');
+		Base_ThemeCommon::install_default_theme('CRM/ProjectPlanner/EmployeeEvent');
 		return true;
 	}
 
 	public function uninstall() {
+		Base_ThemeCommon::uninstall_default_theme('CRM/ProjectPlanner/EmployeeEvent');
 		Variable::delete('CRM_ProjectsPlanner__start_day');
 		Variable::delete('CRM_ProjectsPlanner__end_day');
 		return true;
