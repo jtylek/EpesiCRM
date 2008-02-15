@@ -103,7 +103,7 @@ class Apps_ProjectsCommon extends ModuleCommon {
 	}
 	
 // Filter criteria for Company Name
-	public static function company_crits(){
+	public static function projects_company_crits(){
 //  	   return array(':Fav'=>1);
 // gc= GC (General Contractor), res=Residential
 	   return array('Group'=>array('gc','res'));
@@ -111,9 +111,13 @@ class Apps_ProjectsCommon extends ModuleCommon {
 
 // Filter criteria for Epmloyees
 // Used in ZSI Estimator, ZSI Project Manager
-	public static function employees_crits(){
-	   return array('Company Name'=>array(CRM_ContactsCommon::get_main_company()));
+	public static function projects_employees_crits(){
+	   return array('company_name'=>array(CRM_ContactsCommon::get_main_company()));
    }
+
+	public static function projects_contact_crits(){
+		return array('Group'=>array('gc','res'));
+	}
 
 }
 
