@@ -30,6 +30,12 @@ class Tests_QuickForm extends Module{
 //		$f->addRule('cd_city','required','required');
 //		print($x->getValue().'<br>');
 //		$f->freeze();
+		$f->addElement('select','sel1','sel1', array('x'=>'x','y'=>'y'),array('id'=>'sel1'));
+		$f->addElement('select','sel2','sel2', array(),array('id'=>'sel2'));
+		$f->addElement('select','sel3','sel3', array(),array('id'=>'sel3'));
+		eval_js('new ChainedSelect("sel2",new Array("sel1"),"modules/Tests/QuickForm/update_sel.php")');
+		eval_js('new ChainedSelect("sel3",new Array("sel1","sel2"),"modules/Tests/QuickForm/update_sel.php")');
+		
 
 		$c1 = $f->createElement('checkbox','c1','c1_l','c1_t');
 		$c2 = $f->createElement('checkbox','c2','c2_l','c2_t');
