@@ -31,7 +31,6 @@ class CRM_ProjectPlanner_EmployeeEventInstall extends ModuleInstall {
 
 	public function requires($v) {
 		return array(
-				array('name'=>'CRM/ProjectPlanner/EmployeeEvent','version'=>0),
 //				array('name'=>'Utils/PopupCalendar','version'=>0),
 //				array('name'=>'Utils/Attachment','version'=>0),
 //				array('name'=>'Utils/Messenger','version'=>0),
