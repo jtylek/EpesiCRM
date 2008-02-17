@@ -144,8 +144,8 @@ class Utils_RecordBrowser extends Module {
 		$form = $this->init_module('Libs/QuickForm', null, $this->tab.'filters');
 		$filters = array();
 		foreach ($filters_all as $filter) {
+			$arr = array();
 			if (!isset($this->QFfield_callback_table[$filter]) && ($this->table_rows[$filter]['type'] == 'select' || $this->table_rows[$filter]['type'] == 'multiselect')) {
-				$arr = array('__NULL__'=>'--');
 				list($tab, $col) = explode('::',$this->table_rows[$filter]['param']);
 				if ($tab=='__COMMON__') {
 					$arr = array_merge($arr, Utils_CommonDataCommon::get_array($col, true));
@@ -155,9 +155,16 @@ class Utils_RecordBrowser extends Module {
 				}
 			} else {
 				$ret2 = DB::Execute('SELECT '.$this->tab.'_id, value FROM '.$this->tab.'_data WHERE field=%s ORDER BY value', array($filter));
-				$arr = array('__NULL__'=>'--');
 				while ($row2 = $ret2->FetchRow()) $arr[$row2['value']] = $this->get_val($filter, $row2['value'], $row2[$this->tab.'_id'], true);
 			}
+			if ($this->table_rows[$filter]['type']=='commondata') {
+				 $cddata = Utils_CommonDataCommon::get_array(str_replace('::','/',$this->table_rows[$filter]['param']), true);
+				 foreach ($arr as $k=>$v) {
+				 	$arr[$k] = $cddata[$v];
+				 }
+			}
+			natcasesort($arr);
+			$arr = array('__NULL__'=>'--')+$arr;
 			$form->addElement('select', str_replace(' ','_',$filter), $filter, $arr);
 			$filters[] = str_replace(' ','_',$filter);
 		}
@@ -568,7 +575,7 @@ class Utils_RecordBrowser extends Module {
 									if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 									break;
 				case 'commondata':	$param = explode('::',$args['param']);
-									foreach ($param as $k=>$v) if ($k!==0) $param[$k] = strtolower(str_replace(' ','_',$v));
+									foreach ($param as $k=>$v) if ($k!=0) $param[$k] = strtolower(str_replace(' ','_',$v));
 									$form->addElement($args['type'], $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', $param, array('empty_option'=>$args['required'], 'id'=>$args['id']));
 									if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 									break;
