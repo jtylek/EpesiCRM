@@ -13,6 +13,8 @@ class CRM_ProjectPlannerInstall extends ModuleInstall {
 
 	public function install() {
 		$ret = true;
+		Variable::set('CRM_ProjectsPlanner__start_day','9:00');
+		Variable::set('CRM_ProjectsPlanner__end_day','17:00');
 		$ret &= DB::CreateTable('crm_projectplanner_work','
 			id I4 AUTO KEY,
 			employee_id I4 NOTNULL,
@@ -28,6 +30,8 @@ class CRM_ProjectPlannerInstall extends ModuleInstall {
 	}
 
 	public function uninstall() {
+		Variable::delete('CRM_ProjectsPlanner__start_day');
+		Variable::delete('CRM_ProjectsPlanner__end_day');
 		$ret = true;
 		$ret &= DB::DropTable('crm_projectplanner_work');
 		return $ret;
@@ -43,6 +47,8 @@ class CRM_ProjectPlannerInstall extends ModuleInstall {
 			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'CRM/Contacts','version'=>0),
 			array('name'=>'CRM/ProjectPlanner/EmployeeEvent','version'=>0),
+			array('name'=>'CRM/ProjectPlanner/OverviewEvent','version'=>0),
+			array('name'=>'CRM/ProjectPlanner/ProjectEvent','version'=>0),
 			array('name'=>'Libs/QuickForm','version'=>0),
 			array('name'=>'Libs/ScriptAculoUs','version'=>0),
 			array('name'=>'Utils/Calendar','version'=>0),

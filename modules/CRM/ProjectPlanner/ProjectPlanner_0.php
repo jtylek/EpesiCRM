@@ -27,11 +27,58 @@ class CRM_ProjectPlanner extends Module {
 	}
 
 	public function overview() {
+		$projs_tmp = Apps_ProjectsCommon::get_projects(array('status'=>'in_progress'),array('id','project_name'));
+		$projs = array();
+		foreach($projs_tmp as $v)
+			$projs['p'.$v['id']]=$v['project_name'];
+		unset($projs_tmp);
+		if(empty($projs)) {
+			print($this->lang->t('There is no defined projects'));
+			return;
+		}
 
+		$c = $this->init_module('Utils/Calendar',array('CRM/ProjectPlanner/OverviewEvent',array('default_view'=>'week',
+			'first_day_of_week'=>Utils_PopupCalendarCommon::get_first_day_of_week(),
+			'views'=>array('Day','Week','Month'),
+			'additional_rows'=>$projs,
+			'timeline'=>false,
+//			'interval'=>Base_User_SettingsCommon::get('CRM_Calendar','interval'),
+			'default_date'=>time()
+			)));
+		$this->display_module($c);
 	}
 
 	public function project_view() {
+		$form = $this->init_module('Libs/QuickForm',null,'project_chooser');
+		$projs_tmp = Apps_ProjectsCommon::get_projects(array('status'=>'in_progress'),array('id','project_name'));
+		$projs = array();
+		foreach($projs_tmp as $v)
+			$projs[$v['id']]=$v['project_name'];
+		unset($projs_tmp);
+		if(empty($projs)) {
+			print($this->lang->t('There is no defined projects'));
+			return;
+		}
+		$form->addElement('select','proj',$this->lang->t('Project'),$projs);
+		$ids = array_keys($projs);
+		$sel_proj = & $this->get_module_variable('project',$ids[0]);
+		if($form->validate()) {
+			$sel_proj = $form->exportValue('proj');
+		}
+		$form->display();
+		CRM_ProjectPlanner_ProjectEventCommon::$project = $sel_proj;
 
+
+		$c = $this->init_module('Utils/Calendar',array('CRM/ProjectPlanner/ProjectEvent',array('default_view'=>'week',
+			'first_day_of_week'=>Utils_PopupCalendarCommon::get_first_day_of_week(),
+			'views'=>array('Day','Week','Month'),
+			'start_day'=>Variable::get('CRM_ProjectsPlanner__start_day'),
+			'end_day'=>Variable::get('CRM_ProjectsPlanner__end_day'),
+			'additional_rows'=>array('allday'=>'All day'),
+//			'interval'=>Base_User_SettingsCommon::get('CRM_Calendar','interval'),
+			'default_date'=>time()
+			)));
+		$this->display_module($c);
 	}
 
 	public function employee_view() {
@@ -59,6 +106,7 @@ class CRM_ProjectPlanner extends Module {
 			'views'=>array('Day','Week','Month'),
 			'start_day'=>Variable::get('CRM_ProjectsPlanner__start_day'),
 			'end_day'=>Variable::get('CRM_ProjectsPlanner__end_day'),
+			'additional_rows'=>array('allday'=>'All day'),
 //			'interval'=>Base_User_SettingsCommon::get('CRM_Calendar','interval'),
 			'default_date'=>time()
 			)));

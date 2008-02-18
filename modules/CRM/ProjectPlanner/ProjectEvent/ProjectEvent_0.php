@@ -9,7 +9,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class CRM_ProjectPlanner_EmployeeEvent extends Utils_Calendar_Event {
+class CRM_ProjectPlanner_ProjectEvent extends Utils_Calendar_Event {
 	private $lang;
 
 	public function view($id) {
@@ -49,39 +49,39 @@ class CRM_ProjectPlanner_EmployeeEvent extends Utils_Calendar_Event {
 				'date_s' => $x['start'],
 				'time_s' => $x['start'],
 				'time_e' => $x['end'],
-				'proj' => $x['project_id']);
+				'emp' => $x['employee_id']);
 		}
 		$form->setDefaults($defs);
 
-		$emp_id = $this->get_module_variable('employee',CRM_ProjectPlanner_EmployeeEventCommon::$employee);
+		$proj_id = $this->get_module_variable('project',CRM_ProjectPlanner_ProjectEventCommon::$project);
 
-		if(!isset($emp_id)) {
-			$emp = array();
-			$emp_tmp = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())));
-			foreach($emp_tmp as $c_id=>$data)
-				$emp[$c_id] = $data['last_name'].' '.$data['first_name'];
-			unset($emp_tmp);
-			if(empty($emp)) {
-				print($this->lang->t('There is no defined employees'));
-				return;
-			}
-			$form->addElement('select','emp',$this->lang->t('Employee'),$emp);
-		} else {
-			$emp = CRM_ContactsCommon::get_contact($emp_id);
-			$form->addElement('static','emp',$this->lang->t('Employee'),$emp['last_name'].' '.$emp['first_name']);
-		}
-
-
-		$projs_tmp = Apps_ProjectsCommon::get_projects(array('status'=>'in_progress'),array('id','project_name'));
-		$projs = array();
-		foreach($projs_tmp as $v)
-			$projs[$v['id']]=$v['project_name'];
-		unset($projs_tmp);
-		if(empty($projs)) {
-			print($this->lang->t('There is no defined projects'));
+		$emp = array();
+		$emp_tmp = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())));
+		foreach($emp_tmp as $c_id=>$data)
+			$emp[$c_id] = $data['last_name'].' '.$data['first_name'];
+		unset($emp_tmp);
+		if(empty($emp)) {
+			print($this->lang->t('There is no defined employees'));
 			return;
 		}
-		$form->addElement('select','proj',$this->lang->t('Project'),$projs);
+		$form->addElement('select','emp',$this->lang->t('Employee'),$emp);
+
+
+		if(!isset($proj_id)) {
+			$projs_tmp = Apps_ProjectsCommon::get_projects(array('status'=>'in_progress'),array('id','project_name'));
+			$projs = array();
+			foreach($projs_tmp as $v)
+				$projs[$v['id']]=$v['project_name'];
+			unset($projs_tmp);
+			if(empty($projs)) {
+				print($this->lang->t('There is no defined projects'));
+				return;
+			}
+			$form->addElement('select','proj',$this->lang->t('Project'),$projs);
+		} else {
+			$proj = Apps_ProjectsCommon::get_project($proj_id);
+			$form->addElement('static','proj',$this->lang->t('Project'),$proj['project_name']);
+		}
 
 		$time_format = Base_RegionalSettingsCommon::time_12h()?'h:i:a':'H:i';
 
@@ -115,9 +115,9 @@ class CRM_ProjectPlanner_EmployeeEvent extends Utils_Calendar_Event {
 		if($form->validate()) {
 			$v = $form->exportValues();
 			//trigger_error(print_r($v,true));
-			if(!isset($emp_id))
-				$emp_id = $v['emp'];
-			$proj_id = $v['proj'];
+			$emp_id = $v['emp'];
+			if(!isset($proj_id))
+				$proj_id = $v['proj'];
 			if(isset($v['allday']) && $v['allday']) {
 				$start = strtotime($v['date_s'].' '.Variable::get('CRM_ProjectsPlanner__start_day'));
 				$end = strtotime($v['date_s'].' '.Variable::get('CRM_ProjectsPlanner__end_day'));

@@ -9,24 +9,18 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class CRM_ProjectPlanner_EmployeeEventCommon extends Utils_Calendar_EventCommon {
-	public static $employee;
-
+class CRM_ProjectPlanner_OverviewEventCommon extends Utils_Calendar_EventCommon {
 	public static function get($id) {
 		$result = DB::GetRow('SELECT \'blue\' as color,start,(end-start) as duration,project_id,id,0 as timeless FROM crm_projectplanner_work WHERE id=%d',array($id));
 		self::add_info($result);
 		return $result;
 	}
 	public static function get_all($start,$end,$order='') {
-		$ret = DB::GetAll('SELECT \'blue\' as color,start,end,(end-start) as duration,project_id,id,0 as timeless FROM crm_projectplanner_work WHERE ((start>=%d AND start<%d) AND employee_id=%d)',array($start,$end,self::$employee));
-		$sd = Variable::get('CRM_ProjectsPlanner__start_day');
-		$ed = Variable::get('CRM_ProjectsPlanner__end_day');
+		$ret = DB::GetAll('SELECT \'blue\' as color,start,end,(end-start) as duration,project_id,id,0 as timeless FROM crm_projectplanner_work WHERE (start>=%d AND start<%d)',array($start,$end));
 		foreach($ret as &$v) {
 			self::add_info($v);
-			if(date('G:i',$v['start'])==$sd && date('G:i',$v['end'])==$ed) {
-				$v['timeless'] = 1;
-				$v['timeless_key'] = 'allday';
-			}
+			$v['timeless'] = 1;
+			$v['timeless_key'] = 'p'.$v['project_id'];
 		}
 		return $ret;
 	}

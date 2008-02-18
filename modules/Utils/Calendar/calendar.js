@@ -2,11 +2,13 @@ Utils_Calendar = {
 add_event:function(dest_id,ev_id) {
 	var dest = $(dest_id);
 	var ev = $('utils_calendar_event:'+ev_id);
-	if(!dest || !ev) return;
+	if(!dest || !ev) {
+		return;
+	}
 
 	dest.appendChild(ev);
 	ev.setAttribute('last_cell',dest_id);
-	
+
 	new Draggable(ev, {
 		handle: 'handle',
 		revert: true,
@@ -15,14 +17,13 @@ add_event:function(dest_id,ev_id) {
 	});
 },
 ids:null,
-activate_dnd:function(ids_in,new_ev,mpath,ecid) {
+activate_dnd:function(ids_in,new_ev,mpath,ecid,page_type) {
 //	alert('act');
 	Utils_Calendar.ids = ids_in.evalJSON();
 	Utils_Calendar.ids.each(function(id) {
-		var cell_id = 'UCcell_'+id[0];
-		var f = new_ev.replace('__TIME__',id[0]);
-		if(id.length==2) {
-			if(id[1]==1) cell_id += '_timeless';
+		var cell_id = 'UCcell_'+id;
+		var f = new_ev.replace('__TIME__',id);
+		if(typeof id=='string' && id.indexOf('_')>=0) {
 			f = f.replace('__TIMELESS__','1');
 		} else {
 			f = f.replace('__TIMELESS__','0');
@@ -40,7 +41,7 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 						cell_id: droppable.id.substr(7),
 						path: mpath,
 						cid: ecid,
-						month: (id.length==2 && id[1]==2)?1:0
+						month: (page_type=='month')?1:0
 					},
 					onComplete: function(t) {
 						eval(t.responseText);
@@ -61,7 +62,7 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 		});
 		Event.observe(cell_id,'dblclick',function(e){eval(f)});
 	});
-	
+
 	//activate trash
 	Droppables.add('UCtrash', {
 		accept: 'utils_calendar_event',
@@ -104,7 +105,7 @@ destroy:function() {
 		var cell_id = 'UCcell_'+id[0];
 		Droppables.remove(cell_id);
 	});
-	
+
 	Droppables.remove('UCtrash');
 }
 };
