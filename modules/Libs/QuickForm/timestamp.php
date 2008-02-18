@@ -115,7 +115,8 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
         $value = $this->_findValue($submitValues);
         if (is_null($value)) {
             $value = $this->getValue();
-        } 
+        }
+        if ($value['__'.$this->_elementName.'__datepicker']=='') return $this->_prepareValue('', $assoc);
         $time = $value['date'];
 		if (isset($time['a'])) {
 			$result = 60*($time['i']+60*($time['h']));

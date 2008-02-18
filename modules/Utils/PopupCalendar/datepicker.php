@@ -50,7 +50,8 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
         if (is_null($value)) {
             $value = $this->getValue();
         } 
-		$cleanValue = strftime('%Y-%m-%d',Base_RegionalSettingsCommon::reg2time($value));
+		if ($value!='') $cleanValue = strftime('%Y-%m-%d',Base_RegionalSettingsCommon::reg2time($value));
+		else $cleanValue = '';
         return $this->_prepareValue($cleanValue, $assoc);
 	}
 
