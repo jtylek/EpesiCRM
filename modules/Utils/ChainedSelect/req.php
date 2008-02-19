@@ -3,7 +3,8 @@ if(!isset($_POST['values']) || !isset($_POST['req_url']))
 	die('alert(\'Invalid request\')');
 	
 define('JS_OUTPUT',1);
-define('SET_SESSION',0);
+define('CID',false); 
+//define('SET_SESSION',0);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 
