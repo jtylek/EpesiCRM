@@ -11,25 +11,25 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_ProjectPlanner_OverviewEventCommon extends Utils_Calendar_EventCommon {
 	public static function get($id) {
-		$result = DB::GetRow('SELECT \'blue\' as color,start,(end-start) as duration,project_id,id,0 as timeless FROM crm_projectplanner_work WHERE id=%d',array($id));
+		$result = DB::GetRow('SELECT \'blue\' as color,start,(end-start) as duration,project_id,employee_id,id,0 as timeless FROM crm_projectplanner_work WHERE id=%d',array($id));
 		self::add_info($result);
 		return $result;
 	}
 	public static function get_all($start,$end,$order='') {
-		$ret = DB::GetAll('SELECT \'blue\' as color,start,end,(end-start) as duration,project_id,id,0 as timeless FROM crm_projectplanner_work WHERE (start>=%d AND start<%d)',array($start,$end));
+		$ret = DB::GetAll('SELECT \'blue\' as color,start,end,(end-start) as duration,project_id,employee_id,id,0 as timeless FROM crm_projectplanner_work WHERE (start>=%d AND start<%d)',array($start,$end));
 		foreach($ret as &$v) {
 			self::add_info($v);
-			$v['timeless'] = 1;
-			$v['timeless_key'] = 'p'.$v['project_id'];
 		}
 		return $ret;
 	}
 
 	private static function add_info(& $v) {
-		$proj_info = Apps_ProjectsCommon::get_project($v['project_id']);
-		$v['title'] = $proj_info['project_name'];
-		$v['description'] = 'Address 1: '.$proj_info['address_1'].'<br>Address 2: '.$proj_info['address_2'].'<br>City: '.$proj_info['city'];
+		$proj_info = CRM_ContactsCommon::get_contact($v['employee_id']);
+		$v['title'] = 'data godzina_zespolona';//grupuj dniami
+		$v['description'] = $proj_info['last_name'].' '.$proj_info['first_name']; //imiona pracownikow i godziny pracy
 		$v['additional_info'] = $v['additional_info2'] = '';
+		$v['timeless'] = 1;
+		$v['timeless_key'] = 'p'.$v['project_id'];
 	}
 
 	public static function delete($id) {
