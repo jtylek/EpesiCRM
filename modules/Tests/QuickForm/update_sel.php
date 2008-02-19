@@ -1,4 +1,6 @@
 <?php
+defined("_VALID_ACCESS") || die('Direct access forbidden');
+
 $ret = '';
 $values = $_POST['values'];
 foreach($values as $v) {
