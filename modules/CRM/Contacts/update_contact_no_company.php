@@ -13,5 +13,6 @@ $res = array();
 foreach($contacts as $k=>$v){
 	$res[$v['id']] = CRM_ContactsCommon::contact_format_no_company($v, true);
 }
+asort($res);
 print(json_encode($res));
 ?>

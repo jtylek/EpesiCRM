@@ -16,7 +16,7 @@ class Apps_ProjectsInstall extends ModuleInstall {
 		// Base_ThemeCommon::install_default_theme('Apps/Projects');
 		$fields = array(
 			array('name'=>'Project Name', 'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true,'display_callback'=>array('Apps_ProjectsCommon', 'display_proj_name')),	
-			array('name'=>'Company Name', 'type'=>'crm_company', 'param'=>array('field_type'=>'select','crits'=>array('Apps_ProjectsCommon','projects_company_crits')), 'required'=>true, 'extra'=>false, 'visible'=>true),	
+			array('name'=>'Company Name', 'type'=>'crm_company', 'param'=>array('field_type'=>'select','crits'=>array('Apps_ProjectsCommon','projects_company_crits')), 'filter'=>true, 'required'=>true, 'extra'=>false, 'visible'=>true),	
 			array('name'=>'Project Address 1', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
 			array('name'=>'Project Address 2', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
 			array('name'=>'City', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>false),
@@ -25,8 +25,10 @@ class Apps_ProjectsInstall extends ModuleInstall {
 			array('name'=>'Postal Code', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
 			array('name'=>'TIM Job No', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>true),
 			array('name'=>'Contract Amount', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>false),
-			array('name'=>'Status', 'type'=>'commondata', 'required'=>true, 'visible'=>true, 'param'=>'Project_Status', 'extra'=>false),
-			array('name'=>'ZSI Estimator','type'=>'crm_contact', 'param'=>array('field_type'=>'select', 'crits'=>array('Apps_ProjectsCommon','projects_employees_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>false, 'extra'=>false),
+			array('name'=>'Status', 'type'=>'commondata', 'required'=>true, 'visible'=>true, 'filter'=>true, 'param'=>'Project_Status', 'extra'=>false),
+			
+			//array('name'=>'ZSI Estimator','type'=>'crm_contact', 'param'=>array('field_type'=>'select', 'crits'=>array('Apps_ProjectsCommon','projects_employees_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>false, 'extra'=>false),
+			array('name'=>'ZSI Estimator','type'=>'crm_contact', 'param'=>array('field_type'=>'select', 'crits'=>array('Apps_ProjectsCommon','projects_employees_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>false, 'extra'=>false),	
 			array('name'=>'ZSI Project Manager','type'=>'crm_contact', 'param'=>array('field_type'=>'select', 'crits'=>array('Apps_ProjectsCommon','projects_employees_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>false, 'extra'=>false),
 		
 			array('name'=>'Start Date', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>false),
@@ -37,8 +39,10 @@ class Apps_ProjectsInstall extends ModuleInstall {
 			array('name'=>'Estimating', 'type'=>'page_split', 'required'=>true, 'param'=>'64', 'extra'=>true, 'visible'=>false),
 			array('name'=>'Job Type', 'type'=>'commondata', 'required'=>true, 'visible'=>false, 'param'=>'Job_Type', 'extra'=>true),
 			array('name'=>'GC Job No', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'GC Estimator','type'=>'crm_contact', 'param'=>array('field_type'=>'select','crits'=>array('Apps_ProjectsCommon','projects_contact_crits')), 'required'=>false, 'extra'=>true, 'visible'=>false),
+			// array('name'=>'GC Estimator','type'=>'crm_contact', 'param'=>array('field_type'=>'select','crits'=>array('Apps_ProjectsCommon','projects_contact_crits')), 'required'=>false, 'extra'=>true, 'visible'=>false),
+			array('name'=>'GC Estimator','type'=>'crm_contact', 'param'=>array('field_type'=>'select', 'crits'=>array('Apps_ProjectsCommon','projects_contacts_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>false, 'extra'=>true, 'visible'=>true),
 			
+
 			array('name'=>'GC Project Manager','type'=>'text', 'required'=>false, 'param'=>'64','extra'=>true, 'visible'=>false),
 			array('name'=>'GC Supt.','type'=>'text', 'required'=>false, 'param'=>'64','extra'=>true, 'visible'=>false),
 

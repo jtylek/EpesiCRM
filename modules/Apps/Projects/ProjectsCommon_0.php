@@ -112,13 +112,15 @@ class Apps_ProjectsCommon extends ModuleCommon {
 // Filter criteria for Epmloyees
 // Used in ZSI Estimator, ZSI Project Manager
 	public static function projects_employees_crits(){
-		Utils_ChainedSelectCommon::create('zsi_estimator',array('company_name'),'modules/CRM/Contacts/update_contact.php');
-		return array();
+		// Utils_ChainedSelectCommon::create('zsi_estimator',array('company_name'),'modules/CRM/Contacts/update_contact.php');
+		// return array();
 		return array('company_name'=>array(CRM_ContactsCommon::get_main_company()));
    }
 
-	public static function projects_contact_crits(){
-		return array('Group'=>array('gc','res'));
+	public static function projects_contacts_crits(){
+		Utils_ChainedSelectCommon::create('gc_estimator',array('company_name'),'modules/CRM/Contacts/update_contact_no_company.php');
+		return array();
+		//return array('Group'=>array('gc','res'));
 	}
 
 }
