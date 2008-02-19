@@ -23,6 +23,7 @@ class Apps_ProjectsInstall extends ModuleInstall {
 			array('name'=>'Country', 'type'=>'commondata', 'required'=>true, 'param'=>array('Countries'), 'extra'=>false, 'visible'=>false, 'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_country')),
 			array('name'=>'State', 'type'=>'commondata', 'required'=>false, 'param'=>array('Countries','Country'), 'extra'=>false, 'visible'=>false, 'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_zone')),
 			array('name'=>'Postal Code', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
+			array('name'=>'Job Type', 'type'=>'commondata', 'required'=>true, 'visible'=>false, 'param'=>'Job_Type', 'extra'=>false),
 			array('name'=>'TIM Job No', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>true),
 			array('name'=>'Contract Amount', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>false),
 			array('name'=>'Status', 'type'=>'commondata', 'required'=>true, 'visible'=>true, 'filter'=>true, 'param'=>'Project_Status', 'extra'=>false),
@@ -37,15 +38,10 @@ class Apps_ProjectsInstall extends ModuleInstall {
 
 			// Extra Tab
 			array('name'=>'Estimating', 'type'=>'page_split', 'required'=>true, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Job Type', 'type'=>'commondata', 'required'=>true, 'visible'=>false, 'param'=>'Job_Type', 'extra'=>true),
 			array('name'=>'GC Job No', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
 			// array('name'=>'GC Estimator','type'=>'crm_contact', 'param'=>array('field_type'=>'select','crits'=>array('Apps_ProjectsCommon','projects_contact_crits')), 'required'=>false, 'extra'=>true, 'visible'=>false),
 			array('name'=>'GC Estimator','type'=>'crm_contact', 'param'=>array('field_type'=>'select', 'crits'=>array('Apps_ProjectsCommon','projects_contacts_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>false, 'extra'=>true, 'visible'=>true),
 			
-
-			array('name'=>'GC Project Manager','type'=>'text', 'required'=>false, 'param'=>'64','extra'=>true, 'visible'=>false),
-			array('name'=>'GC Supt.','type'=>'text', 'required'=>false, 'param'=>'64','extra'=>true, 'visible'=>false),
-
 			array('name'=>'Bid Invitation Recvd', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>true),
 			array('name'=>'Bid Due Date', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>true),
 			array('name'=>'Drawings Recvd', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>true),
@@ -57,7 +53,12 @@ class Apps_ProjectsInstall extends ModuleInstall {
 			array('name'=>'FollowUp Date', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>true),
 			array('name'=>'Award Date', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>true),
 
+			// Job details tab
 			array('name'=>'Job Details', 'type'=>'page_split', 'required'=>true, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+
+			array('name'=>'GC Project Manager','type'=>'crm_contact', 'param'=>array('field_type'=>'select', 'crits'=>array('Apps_ProjectsCommon','projects_contacts_pm_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>false, 'extra'=>true, 'visible'=>false),
+			array('name'=>'GC Supt.','type'=>'crm_contact', 'param'=>array('field_type'=>'select', 'crits'=>array('Apps_ProjectsCommon','projects_contacts_supt_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>false, 'extra'=>true, 'visible'=>false),
+
 			array('name'=>'ZSI Roadman','type'=>'crm_contact', 'param'=>array('field_type'=>'select', 'crits'=>array('Apps_ProjectsCommon','projects_employees_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>false, 'extra'=>true),
 			array('name'=>'ZSI Foreman','type'=>'crm_contact', 'param'=>array('field_type'=>'select', 'crits'=>array('Apps_ProjectsCommon','projects_employees_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>false, 'extra'=>true),
 			array('name'=>'Painting', 'type'=>'checkbox', 'required'=>false, 'extra'=>true, 'visible'=>false),
@@ -66,15 +67,18 @@ class Apps_ProjectsInstall extends ModuleInstall {
 
 			array('name'=>'Submittal Package Sent', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>true),
 			array('name'=>'MSDS Product Data', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>true),
-			array('name'=>'Drawdowns', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>true),
-			array('name'=>'Matl Samples Ordered', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>true),
-			array('name'=>'Matl Samples Sent', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>true),
+			array('name'=>'Samples Ordered', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>true),
+			array('name'=>'Samples Received', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>true),
+			array('name'=>'Samples Sent', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>true),
+			array('name'=>'Samples Approved', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>true),
 			array('name'=>'Finish Schedule Recvd', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>true),
 			array('name'=>'Scope of Work Completed', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>true),
 			array('name'=>'Job Start Review', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>true),
 			array('name'=>'Pre Job Visit', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>true),
+			array('name'=>'Job Conditions', 'type'=>'checkbox', 'required'=>false, 'extra'=>true, 'visible'=>false),
 
-			array('name'=>'Accounting', 'type'=>'page_split', 'required'=>true, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			// Admin tab
+			array('name'=>'Admin', 'type'=>'page_split', 'required'=>true, 'param'=>'64', 'extra'=>true, 'visible'=>false),
 			array('name'=>'Contract Recvd', 'type'=>'checkbox', 'required'=>false, 'extra'=>true, 'visible'=>false),
 			array('name'=>'Bonding Required', 'type'=>'checkbox', 'required'=>false, 'extra'=>true, 'visible'=>false),
 			array('name'=>'Proposal to Acctg', 'type'=>'checkbox', 'required'=>false, 'extra'=>true, 'visible'=>false),
@@ -85,42 +89,46 @@ class Apps_ProjectsInstall extends ModuleInstall {
 			array('name'=>'Bonus', 'type'=>'checkbox', 'required'=>false, 'extra'=>true, 'visible'=>false),
 			array('name'=>'Paid in Full', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>true),
 			
-			// P&L Tab
-			array('name'=>'P&L', 'type'=>'page_split', 'required'=>true, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Est Labor Cost Paint', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Est Labor Burden Paint', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Est Labor Cost WC', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Est Labor Burden WC', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Est Labor Cost Acoust', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Est Labor Burden Acoust', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-
-			array('name'=>'Est Material Cost Paint', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Est Material Cost WC', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Est Material Cost Acoust', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-
-			array('name'=>'Est Equipment Cost', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Est Manhours Paint', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Est Manhours WC', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Est Manhours Acoust', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Est Manhours Misc', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			// Accounting Tab
+			array('name'=>'Accounting', 'type'=>'page_split', 'required'=>true, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Paint Est Labor', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Paint Est LB', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Paint Est Material', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Paint Est Mandays', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+						
+			array('name'=>'WC Est Labor', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'WC Est LB', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'WC Est Material', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'WC Est Mandays', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			
+			array('name'=>'Acoust Est Labor', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Acoust Est LB', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Acoust Est Material', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Acoust Est Mandays', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			
+			array('name'=>'Equipment Est Cost', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Misc Est Cost', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Misc Est Manhours', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
 
 			// Actual Cost
-			array('name'=>'Act Labor Cost Paint', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Act Labor Burden Paint', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Act Labor Cost WC', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Act Labor Burden WC', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Act Labor Cost Acoust', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Act Labor Burden Acoust', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-
-			array('name'=>'Act Material Cost Paint', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Act Material Cost WC', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Act Material Cost Acoust', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-
-			array('name'=>'Act Equipment Cost', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Act Manhours Paint', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Act Manhours WC', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Act Manhours Acoust', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
-			array('name'=>'Act Manhours Misc', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false)	
+			array('name'=>'Paint Act Labor', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Paint Act LB', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Paint Act Material', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Paint Act Mandays', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+						
+			array('name'=>'WC Act Labor', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'WC Act LB', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'WC Act Material', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'WC Act Mandays', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			
+			array('name'=>'Acoust Act Labor', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Acoust Act LB', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Acoust Act Material', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Acoust Act Mandays', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			
+			array('name'=>'Equipment Act Cost', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Misc Act Cost', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Misc Act Manhours', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
 		);
 
 		Utils_RecordBrowserCommon::install_new_recordset('projects', $fields);

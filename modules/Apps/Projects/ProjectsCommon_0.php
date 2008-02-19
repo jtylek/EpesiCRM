@@ -123,6 +123,16 @@ class Apps_ProjectsCommon extends ModuleCommon {
 		//return array('Group'=>array('gc','res'));
 	}
 
+public static function projects_contacts_pm_crits(){
+		Utils_ChainedSelectCommon::create('gc_project_manager',array('company_name'),'modules/CRM/Contacts/update_contact_no_company.php');
+		return array();
+	}
+
+public static function projects_contacts_supt_crits(){
+		Utils_ChainedSelectCommon::create('gc_supt.',array('company_name'),'modules/CRM/Contacts/update_contact_no_company.php');
+		return array();
+	}
+
 }
 
 ?>
