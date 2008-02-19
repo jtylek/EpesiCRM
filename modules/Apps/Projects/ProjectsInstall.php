@@ -168,6 +168,7 @@ class Apps_ProjectsInstall extends ModuleInstall {
 	public function requires($v) {
 		return array(
 			array('name'=>'Base','version'=>0),
+			array('name'=>'Utils/ChainedSelect', 'version'=>0), 
 			array('name'=>'CRM/Contacts','version'=>0));
 	}
 	
