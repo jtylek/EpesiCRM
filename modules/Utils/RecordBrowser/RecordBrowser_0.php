@@ -327,7 +327,7 @@ class Utils_RecordBrowser extends Module {
 							$ret = Base_RegionalSettingsCommon::time2reg($ret, false);
 						}
 						if ($args['type']=='timestamp') {
-							$ret = Base_RegionalSettingsCommon::time2reg($ret, true);
+							$ret = Base_RegionalSettingsCommon::time2reg($ret);
 						}
 						$row_data[] = $ret;
 					}

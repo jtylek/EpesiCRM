@@ -153,5 +153,29 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 
     // }}}
     
+    function setValue($value)
+    {
+        $this->_createElementsIfNotExist();
+        foreach (array_keys($this->_elements) as $key) {
+            if (!$this->_appendName) {
+                $v = $this->_elements[$key]->_findValue($value);
+                if (null !== $v) {
+                    $this->_elements[$key]->onQuickFormEvent('setGroupValue', Base_RegionalSettingsCommon::time2reg($v), $this);
+                }
+
+            } else {
+                $elementName = $this->_elements[$key]->getName();
+                $index       = strlen($elementName) ? $elementName : $key;
+                if (is_array($value)) {
+                    if (isset($value[$index])) {
+                        $this->_elements[$key]->onQuickFormEvent('setGroupValue', Base_RegionalSettingsCommon::time2reg($value[$index]), $this);
+                    }
+                } elseif (isset($value)) {
+                    $this->_elements[$key]->onQuickFormEvent('setGroupValue', Base_RegionalSettingsCommon::time2reg($value), $this);
+                }
+            }
+        }
+    } //end func setValue
+    
 }
 ?>
