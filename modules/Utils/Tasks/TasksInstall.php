@@ -56,6 +56,7 @@ class Utils_TasksInstall extends ModuleInstall {
 	
 	public function uninstall() {
 		$ret = true;
+		Utils_AttachmentCommon::persistent_mass_delete(null,'CRM/Tasks/');
 		$ret &= DB::DropTable('utils_tasks_related_contacts');
 		$ret &= DB::DropTable('utils_tasks_assigned_contacts');
 		$ret &= DB::DropTable('utils_tasks_task');
@@ -76,6 +77,7 @@ class Utils_TasksInstall extends ModuleInstall {
 			array('name'=>'Utils/Tooltip','version'=>0),
 			array('name'=>'CRM/Contacts','version'=>0),
 			array('name'=>'Libs/QuickForm','version'=>0),
+			array('name'=>'Utils/Attachment','version'=>0),
 			array('name'=>'Utils/GenericBrowser','version'=>0));
 	}
 	

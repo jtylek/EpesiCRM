@@ -13,14 +13,7 @@ class Tests_Attachment extends Module{
 	public function body(){
 		print('This is an example Attachment page.');
 		$com = & $this->init_module('Utils/Attachment',array('test','grupa'));
-/*		$com -> set_moderator(true);
-		$com -> set_per_page(3);
-		$com -> reply_on_Attachment_page(false);
-		$com -> tree_structure(true);
-*/
 		$this -> display_module($com);
-		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Contacts', 'company_attachment_addon', 'Notes & docs');
-		Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Contacts', 'contact_attachment_addon', 'Notes & docs');
 
 		//------------------------------ print out src
 		print('<hr><b>Install</b><br>');

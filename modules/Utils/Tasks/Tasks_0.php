@@ -159,6 +159,7 @@ class Utils_Tasks extends Module {
 	}
 
 	public function delete_task($id) {
+		Utils_AttachmentCommon::persistent_mass_delete('Task:'.$id);
 		DB::Execute('DELETE FROM utils_tasks_assigned_contacts WHERE task_id=%d',array($id));
 		DB::Execute('DELETE FROM utils_tasks_related_contacts WHERE task_id=%d',array($id));
 		DB::Execute('DELETE FROM utils_tasks_task WHERE id=%d',array($id));
@@ -254,6 +255,10 @@ class Utils_Tasks extends Module {
 				$form->addElement('static', 'edited_by',  $this->lang->t('Edited by'));
 				$form->addElement('static', 'edited_on',  $this->lang->t('Edited on'));
 			}
+			
+			if($edit && isset($id)) {
+				$form->addElement('checkbox', 'notify', $this->lang->t('Notify assigned users'));
+			}
 
 			if($form->validate()) {
 				$r = $form->exportValues();
@@ -268,6 +273,10 @@ class Utils_Tasks extends Module {
 					else
 						DB::Execute('INSERT INTO utils_tasks_task(title,description,permission,priority,status,longterm,created_by,created_on,page_id,parent_module) VALUES (%s,%s,%d,%d,%d,%b,%d,%T,%s,%s)',array($r['title'],$r['description'],$r['permission'],$r['priority'],$r['status'],isset($r['longterm']) && $r['longterm'],Acl::get_user(),time(),$this->mid,$this->get_type()));
 					$id = DB::Insert_ID('utils_tasks_task','id');
+				}
+				if(isset($r['notify']) && $r['notify']) {
+					$assigned = array();
+					DB::Execute('DELETE FROM utils_tasks_assigned_contacts WHERE task_id=%d',array($id));
 				}
 				foreach($r['emp_id'] as $em) {
 					if(isset($assigned[$em]))
@@ -289,15 +298,20 @@ class Utils_Tasks extends Module {
 				$this->pop_box0();
 			} else {
 				$form->assign_theme('form', $theme);
-				$theme->display();
 
-				if($edit)
+				if($edit) {
 					Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
-				else {
+					$theme->assign('attachments','');
+				} else {
 					Base_ActionBarCommon::add('edit','Edit',$this->create_callback_href(array($this,'push_box0'),array('edit',array($id),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm,$this->display_closed))));
 					Base_ActionBarCommon::add('delete','Delete',$this->create_confirm_callback_href($this->lang->ht('Are you sure?'),array($this,'delete_task_pop'),$id));
+					$a = $this->init_module('Utils/Attachment',array('Task:'.$id,'CRM/Tasks/'.$this->mid));
+					$a->additional_header($this->lang->t('Task: %s',array($defaults['title'])));
+					$theme->assign('attachments',$this ->get_html_of_module($a));
 				}
 				Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+
+				$theme->display();
 			}
 		}
 	}

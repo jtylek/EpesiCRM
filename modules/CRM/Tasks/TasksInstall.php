@@ -20,6 +20,7 @@ class CRM_TasksInstall extends ModuleInstall {
 
 	public function uninstall() {
 		Base_ThemeCommon::uninstall_default_theme('CRM/Tasks');
+		Utils_TasksCommon::delete_page('crm_tasks');
 		return true;
 	}
 

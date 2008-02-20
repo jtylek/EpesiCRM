@@ -26,13 +26,16 @@ class Utils_AttachmentCommon extends ModuleCommon {
 			else
 				$wh[] = 'ual.local='.DB::qstr($group);
 		}
-		$ret = DB::GetCol('SELECT ual.id FROM utils_attachment_link ual WHERE '.implode(' AND ',$wh));
-		foreach($ret as $id) {
+		$ret = DB::Execute('SELECT ual.id,ual.local FROM utils_attachment_link ual WHERE '.implode(' AND ',$wh));
+		while($row = $ret->FetchRow()) {
+			$id = $row['id'];
+			$local = $row['local'];
 			DB::Execute('DELETE FROM utils_attachment_note WHERE attach_id=%d',array($id));
 			$rev = DB::GetOne('SELECT count(*) FROM utils_attachment_file WHERE attach_id=%d',array($id));
-			$file_base = self::Instance()->get_data_dir().$group.'/'.$id.'_';
-			for($i=0; $i<$rev; $i++)
-			    @unlink($file_base.$i);
+			$file_base = self::Instance()->get_data_dir().$local.'/'.$id.'_';
+			for($i=0; $i<$rev; $i++) {
+				@unlink($file_base.$i);
+			}
 			DB::Execute('DELETE FROM utils_attachment_file WHERE attach_id=%d',array($id));
 			DB::Execute('DELETE FROM utils_attachment_link WHERE id=%d',array($id));
 		}
