@@ -42,7 +42,7 @@ class Utils_RecordBrowser extends Module {
 			if ($args['type']=='select' || $args['type']=='multiselect') {
 				if ((is_array($val) && empty($val)) || (!is_array($val) && $val=='')) {
 					$ret = '--';
-					break;
+					return $ret;
 				}
 				list($tab, $col) = explode('::',$args['param']);
 				if (!is_array($val)) $val = array($val);
