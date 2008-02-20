@@ -32,12 +32,55 @@ class Utils_RecordBrowser extends Module {
 	private $changed_view = false;
 	public $adv_search = false;
 		
-	public function get_val($field, $val, $id, $links_not_recommended = false) {
+	public function get_val($field, $record, $id, $links_not_recommended = false, $args = null) {
+		$val = $record[$args['id']];
 		if (isset($this->display_callback_table[$field])) {
-			return call_user_func($this->display_callback_table[$field], $val, $id, $links_not_recommended, $this->table_rows[$field]);
+			$ret = call_user_func($this->display_callback_table[$field], $val, $id, $links_not_recommended, $this->table_rows[$field]);
 		} else {
-			return $val;
+			$ret = $val;
+			if ($args['type']=='select' || $args['type']=='multiselect') {
+				if ((is_array($val) && empty($val)) || (!is_array($val) && $val=='')) {
+					$ret = '--';
+					break;
+				}
+				list($tab, $col) = explode('::',$args['param']);
+				if (!is_array($val)) $val = array($val);
+				if ($tab=='__COMMON__') $data = Utils_CommonDataCommon::get_array($col, true);
+				$ret = '';
+				$first = true;
+				foreach ($val as $k=>$v){
+					if ($first) $first = false;
+					else $ret .= ', ';
+					if ($tab=='__COMMON__') $ret .= $data[$v];
+					else $ret .= Utils_RecordBrowserCommon::create_linked_label($tab, $col, $v, $links_not_recommended);
+				}
+			}
+			if ($args['type']=='commondata') {
+				if (!isset($val) || $val==='') {
+					$ret = '';
+				} else {
+					$arr = explode('::',$args['param']);
+					$path = array_shift($arr);
+					foreach($arr as $v) $path .= '/'.$record[strtolower(str_replace(' ','_',$v))];
+					$path .= '/'.$record[$args['id']];
+					$ret = Utils_CommonDataCommon::get_value($path);
+				}
+			}
+			if ($args['type']=='currency') {
+				$ret = Utils_CurrencyFieldCommon::format($val);
+			}
+			if ($args['type']=='checkbox') {
+				$ret = $ret?$this->lang->t('Yes'):$this->lang->t('No');
+			}
+			if ($args['type']=='date') {
+				if ($val!='') $ret = Base_RegionalSettingsCommon::time2reg($val, false);
+			}
+			if ($args['type']=='timestamp') {
+				if ($val!='') $ret = Base_RegionalSettingsCommon::time2reg($val);
+			}
 		}
+//		if (is_array($ret)) $ret = implode(', ', $ret);
+		return $ret;
 	}
 	
 	public function set_button($arg){
@@ -155,12 +198,12 @@ class Utils_RecordBrowser extends Module {
 				}
 			} else {
 				$ret2 = DB::Execute('SELECT '.$this->tab.'_id, value FROM '.$this->tab.'_data WHERE field=%s ORDER BY value', array($filter));
-				while ($row2 = $ret2->FetchRow()) $arr[$row2['value']] = $this->get_val($filter, $row2['value'], $row2[$this->tab.'_id'], true);
+				while ($row2 = $ret2->FetchRow()) $arr[$row2['value']] = $this->get_val($filter, array($this->table_rows[$filter]['id']=>$row2['value']), $row2[$this->tab.'_id'], true, $this->table_rows[$filter]);
 			}
 			if ($this->table_rows[$filter]['type']=='commondata') {
 				 $cddata = Utils_CommonDataCommon::get_array(str_replace('::','/',$this->table_rows[$filter]['param']), true);
 				 foreach ($arr as $k=>$v) {
-				 	$arr[$k] = $cddata[$v];
+//				 	$arr[$k] = $cddata[$v];
 				 }
 			}
 			natcasesort($arr);
@@ -284,53 +327,8 @@ class Utils_RecordBrowser extends Module {
 			
 			foreach($this->table_rows as $field => $args)
 				if (($args['visible'] && !isset($cols[$args['id']])) || (isset($cols[$args['id']]) && $cols[$args['id']] === true)) {
-					$ret = $row[$args['id']];
-					if (isset($this->display_callback_table[$field])) $row_data[] = $this->get_val($field, $ret, $row['id'], $special);
-					else {
-						if ($args['type']=='select' || $args['type']=='multiselect') {
-							$tmp = $row[$args['id']];
-							if ((is_array($tmp) && empty($tmp)) || (!is_array($tmp) && $tmp=='')) {
-								$row_data[] = '--';
-								continue;
-							}
-							list($tab, $col) = explode('::',$args['param']);
-							$arr = $row[$args['id']];
-							if (!is_array($arr)) $arr = array($arr);
-							if ($tab=='__COMMON__') $data = Utils_CommonDataCommon::get_array($col, true);
-							$ret = '';
-							$first = true;
-							foreach ($arr as $k=>$v){
-								if ($first) $first = false;
-								else $ret .= ', ';
-								if ($tab=='__COMMON__') $ret .= $data[$v];
-								else $ret .= Utils_RecordBrowserCommon::create_linked_label($tab, $col, $v, $special);
-							}
-						}
-						if ($args['type']=='commondata') {
-							if (!isset($row[$args['id']]) || $row[$args['id']]==='') {
-								$ret = '';
-							} else {
-								$arr = explode('::',$args['param']);
-								$path = array_shift($arr);
-								foreach($arr as $v) $path .= '/'.$row[strtolower(str_replace(' ','_',$v))];
-								$path .= '/'.$row[$args['id']];
-								$ret = Utils_CommonDataCommon::get_value($path);
-							}
-						}
-						if ($args['type']=='currency') {
-							$ret = Utils_CurrencyFieldCommon::format($ret);
-						}
-						if ($args['type']=='checkbox') {
-							$ret = $ret?$this->lang->t('Yes'):$this->lang->t('No');
-						}
-						if ($args['type']=='date') {
-							$ret = Base_RegionalSettingsCommon::time2reg($ret, false);
-						}
-						if ($args['type']=='timestamp') {
-							$ret = Base_RegionalSettingsCommon::time2reg($ret);
-						}
-						$row_data[] = $ret;
-					}
+//					$ret = $row[$args['id']];
+					$row_data[] = $this->get_val($field, $row, $row['id'], $special, $args);
 				}
 			if ($this->browse_mode == 'recent')
 				$row_data[] = $row['visited_on'];
@@ -419,6 +417,8 @@ class Utils_RecordBrowser extends Module {
 			
 			if ($this->favorites)
 				$theme -> assign('fav_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(($isfav?$this->lang->t('This item is on your favourites list<br>Click to remove it from your favorites'):$this->lang->t('Click to add this item to favorites'))).' '.$this->create_callback_href(array($this,($isfav?'remove_from_favs':'add_to_favs')), array($id)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','star_'.($isfav==false?'no':'').'fav.png').'" /></a>');
+			if ($this->full_history)
+				$theme -> assign('history_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('Click to view edit history of currently displayed record')).' '.$this->create_callback_href(array($this,'view_edit_history'), array($id)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','history.png').'" /></a>');
 		}
 		if ($mode=='edit') 
 			foreach($this->table_rows as $field => $args) 
@@ -512,7 +512,14 @@ class Utils_RecordBrowser extends Module {
 				call_user_func($this->QFfield_callback_table[$field], $form, $args['id'], $this->lang->t($args['name']), $mode, $mode=='add'?array():$record[$args['id']], $args);
 				continue;
 			}
-			if ($mode!=='add' && $mode!=='edit') $record[$args['id']] = $this->get_val($field, $record[$args['id']], $id);
+			if ($mode!=='add' && $mode!=='edit') {
+				if ($args['type']!='checkbox' && $args['type']!='commondata') {
+					$record[$args['id']] = $this->get_val($field, $record, $id, false, $args);
+					$form->addElement('static', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
+					$form->setDefaults(array($args['id']=>$record[$args['id']]));
+					continue;
+				}
+			}
 			if (isset($this->requires[$field])) 
 				if ($mode=='add' || $mode=='edit') {
 					foreach($this->requires[$field] as $k=>$v) {
@@ -598,25 +605,7 @@ class Utils_RecordBrowser extends Module {
 										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 									} else {
 										$form->addElement('static', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
-										if (isset($this->display_callback_table[$field])) {
-//											$form->setDefaults(array($args['id']=>call_user_func($this->display_callback_table[$field], $record[$args['id']], $record['id'], false, $args)));
-											$form->setDefaults(array($args['id']=>$record[$args['id']]));
-											continue;
-										}
-										if (!is_array($record[$args['id']])) {
-											if ($tab=='__COMMON__') $form->setDefaults(array($args['id']=>$data[$record[$args['id']]]));
-											else $form->setDefaults(array($args['id']=>Utils_RecordBrowserCommon::create_linked_label($tab, $col, $record[$args['id']])));
-										} else {
-											$def = '';
-											$first = true;
-											foreach($record[$args['id']] as $k=>$v){
-												if ($first) $first = false;
-												else $def .= ', ';
-												if ($tab=='__COMMON__') $def .= $data[$v];
-												else $def .= Utils_RecordBrowserCommon::create_linked_label($tab, $col, $v);
-											}
-											$form->setDefaults(array($args['id']=>$def));
-										}
+										$form->setDefaults(array($args['id']=>$record[$args['id']]));
 									}
 									break;
 			}
@@ -893,97 +882,79 @@ class Utils_RecordBrowser extends Module {
 	public function view_edit_history($id){
 		if ($this->is_back()) return false;
 		$this->init();
-		$gb = $this->init_module('Utils/GenericBrowser', null, $this->tab);
+		$gb_cur = $this->init_module('Utils/GenericBrowser', null, $this->tab.'__current');
+		$gb_cha = $this->init_module('Utils/GenericBrowser', null, $this->tab.'__changes');
+		$gb_ori = $this->init_module('Utils/GenericBrowser', null, $this->tab.'__original');
 		
-		$table_columns = array(	array('name'=>$this->lang->t('Action'), 'width'=>1, 'wrapmode'=>'nowrap'),
-								array('name'=>$this->lang->t('User'), 'width'=>1, 'wrapmode'=>'nowrap'),
-								array('name'=>$this->lang->t('Date'), 'width'=>1, 'wrapmode'=>'nowrap'));
+		$table_columns = array(	array('name'=>$this->lang->t('Field'), 'width'=>1, 'wrapmode'=>'nowrap'),
+								array('name'=>$this->lang->t('Value'), 'width'=>1, 'wrapmode'=>'nowrap'));
+		$table_columns_changes = array(	array('name'=>$this->lang->t('Date'), 'width'=>1, 'wrapmode'=>'nowrap'),
+										array('name'=>$this->lang->t('Username'), 'width'=>1, 'wrapmode'=>'nowrap'),
+										array('name'=>$this->lang->t('Field'), 'width'=>1, 'wrapmode'=>'nowrap'),
+										array('name'=>$this->lang->t('Old value'), 'width'=>1, 'wrapmode'=>'nowrap'),
+										array('name'=>$this->lang->t('New value'), 'width'=>1, 'wrapmode'=>'nowrap'));
 		
-		$table_columns_SQL = array();
+/*		$table_columns_SQL = array();
 		foreach($this->table_rows as $field => $args) {
 			if ($field=='id') continue;
 			$table_columns[] = array('name'=>$args['name']);
 			array_push($table_columns_SQL, 'c.'.$field);
 		}
 		$table_columns_SQL = join(', ', $table_columns_SQL);
-		$gb->set_table_columns( $table_columns );
+*/
+		$gb_cur->set_table_columns( $table_columns );
+		$gb_ori->set_table_columns( $table_columns );
+		$gb_cha->set_table_columns( $table_columns_changes );
 		
-		$created = Utils_RecordBrowserCommon::get_record($this->tab, $id, true);
-		$created['created_by_login'] = DB::GetOne('SELECT login FROM user_login WHERE id=%d',array($created['created_by']));
-		$row_data = array(
-						array('value'=>'--','style'=>'border-top: 1px solid black;'),
-						array('value'=>'--','style'=>'border-top: 1px solid black;'),
-						array('value'=>$this->lang->t('Current'),'style'=>'border-top: 1px solid black;')
-						);	
+		$original = Utils_RecordBrowserCommon::get_record($this->tab, $id, true);
+		$created = $original;
+		$created['created_by_login'] = Base_UserCommon::get_user_login($created['created_by']);
+		$field_hash = array();
 		foreach($this->table_rows as $field => $args) {
-			if ($field=='id') continue;
-			if (!isset($created[$args['id']])) $created[$args['id']] = '';
-			if (is_array($created[$args['id']])) {
-				$val = '';
-				foreach($created[$args['id']] as $v)
-					$val .= ($val==''?'':', ').$v;
-			} else {
-				$val = $created[$args['id']];
-			}
-			$row_data[] = array('DBvalue'=>$created[$args['id']],'value'=>$val,'style'=>'font-weight: bold; border-top: 1px solid black;','hint'=>$val);
+			$field_hash[$args['id']] = $field;
+			$val = $this->get_val($field, $created, $created['id'], false, $args);
+			if ($created[$args['id']] !== '') $gb_cur->add_row($field, $val);
 		}
-		$edit_history = array($row_data);
+
 		$ret = DB::Execute('SELECT ul.login, c.id, c.edited_on, c.edited_by FROM '.$this->tab.'_edit_history AS c LEFT JOIN user_login AS ul ON ul.id=c.edited_by WHERE c.'.$this->tab.'_id=%d ORDER BY edited_on DESC',array($id));
-		$no_edits = true;
-		$counter = 0;
-		while ($row=$ret->FetchRow()) {
-			$no_edits = false;
-			foreach($created as $k=>$c) {
-				if (is_array($c)) {
-					$v = '';
-					foreach($c as $c2)
-						$v .= ($v==''?'':', ').$c2;
-				} else $v = $c;
-				$new_created[$k] = array('DBvalue'=>$c,'value'=>$v,'style'=>'color: #CCCCCC;','hint'=>$v);
-			}
-			$row_data = array('Edited',$row['login'],$row['edited_on']);
-			$ret2 = DB::Execute('SELECT * FROM '.$this->tab.'_edit_history_data WHERE edit_id=%d',array($row['id']));
+		while ($row = $ret->FetchRow()) {
 			$changed = array();
+			$ret2 = DB::Execute('SELECT * FROM '.$this->tab.'_edit_history_data WHERE edit_id=%d',array($row['id']));
 			while($row2 = $ret2->FetchRow()) {
 				if (isset($changed[$row2['field']])) {
-					if (is_array($created[$row2['field']]))
-						array_unshift($created[$row2['field']], $row2['old_value']);
+					if (is_array($changed[$row2['field']]))
+						array_unshift($changed[$row2['field']], $row2['old_value']);
 					else
-						$created[$row2['field']] = array($row2['old_value'], $created[$row2['field']]);
+						$changed[$row2['field']] = array($row2['old_value'], $changed[$row2['field']]);
 				} else {
-					$changed[$row2['field']] = true;
-					$new_created[$row2['field']]['style'] = 'font-weight: bold; background-color: #EFEFFF;';
-					$created[$row2['field']] = $row2['old_value'];
+					$changed[$row2['field']] = $row2['old_value'];
 				}
-				if (is_array($created[$row2['field']]))
-					sort($created[$row2['field']]);
+				if (is_array($changed[$row2['field']]))
+					sort($changed[$row2['field']]);
 			}
-			foreach($this->table_rows as $field => $args) {
-				if ($field=='id') continue;
-				$row_data[] = $new_created[$args['id']];
+			foreach($changed as $k=>$v) {
+				$new = $this->get_val($field_hash[$k], $created, $created['id'], false, $this->table_rows[$field_hash[$k]]);
+				$created[$k] = $v;
+				$old = $this->get_val($field_hash[$k], $created, $created['id'], false, $this->table_rows[$field_hash[$k]]);
+				$gb_cha->add_row($row['edited_on'], Base_UserCommon::get_user_login($row['edited_by']), $field_hash[$k], $old, $new);
 			}
-			array_unshift($edit_history, $row_data);
-			$counter++;
 		}
-		$row_data = array('Created',$created['created_by_login'],$created['created_on']);
 		foreach($this->table_rows as $field => $args) {
-			if ($field=='id') continue;
-			if (is_array($created[$args['id']])) {
-				$v = '';
-				foreach($created[$args['id']] as $c)
-					$v .= ($v==''?'':', ').$c;
-			} else $v = $created[$args['id']];
-			$row_data[] = array('DBvalue'=>$created[$args['id']],'value'=>$v,'style'=>'font-weight: bold;','hint'=>$v);
+			$val = $this->get_val($field, $created, $created['id'], false, $args);
+			if ($created[$args['id']] !== '') $gb_ori->add_row($field, $val);
 		}
-		array_unshift($edit_history, $row_data);
-		foreach($edit_history as $row_data) {
-			$gb_row = $gb->get_new_row();
-			$gb_row->add_data_array($row_data);
-			if ($counter > 0) $gb_row->add_action($this->create_callback_href(array($this, 'restore_record'), array($row_data, $id)),'Restore');
-			$counter--;
-		}
-		
-		$this->display_module($gb);
+		$theme = $this->init_module('Base/Theme');
+		$theme->assign('table',$this->get_html_of_module($gb_cur));
+		$theme->assign('label',$this->lang->t('Current Record'));
+		$theme->display('View_history');
+		$theme = $this->init_module('Base/Theme');
+		$theme->assign('table',$this->get_html_of_module($gb_cha));
+		$theme->assign('label',$this->lang->t('Changes History'));
+		$theme->display('View_history');
+		$theme = $this->init_module('Base/Theme');
+		$theme->assign('table',$this->get_html_of_module($gb_ori));
+		$theme->assign('label',$this->lang->t('Original Record'));
+		$theme->display('View_history');
 		Base_ActionBarCommon::add('back',$this->lang->t('Back'),$this->create_back_href());
 		return true;
 	}

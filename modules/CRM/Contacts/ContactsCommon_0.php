@@ -166,7 +166,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			foreach($default as $k=>$v){
 				if ($v=='') break;
 				if ($first) $first = false;
-				else $def .= '<br>';
+				else $def .= ', ';
 				$def .= self::display_contact($v, $v, false, $desc);
 			}
 			if (!$def) 	$def = '--';
@@ -206,7 +206,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			foreach($default as $k=>$v){
 				if ($v=='') break;
 				if ($first) $first = false;
-				else $def .= '<br>';
+				else $def .= ', ';
 				$def .= Utils_RecordBrowserCommon::create_linked_label('company', 'company_name', $v);
 			}
 			if (!$def) 	$def = '--';

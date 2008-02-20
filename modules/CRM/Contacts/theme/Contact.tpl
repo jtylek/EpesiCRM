@@ -18,7 +18,18 @@
 		<tr>
 			<td class="icon"><img src="{$theme_dir}/CRM_Contacts__contacts.png" width="32" height="32" border="0"></td>
 			<td class="name">Contacts</td>
-			<td class="required_fav_info">&nbsp;*&nbsp;{$required_note}&nbsp;&nbsp;&nbsp;{if isset($fav_tooltip)}{$fav_tooltip}{/if}&nbsp;&nbsp;&nbsp;{if isset($info_tooltip)}{$info_tooltip}{/if}</td>
+			<td class="required_fav_info">
+				&nbsp;*&nbsp;{$required_note}
+				{if isset($fav_tooltip)}
+					&nbsp;&nbsp;&nbsp;{$fav_tooltip}
+				{/if}
+				{if isset($info_tooltip)}
+					&nbsp;&nbsp;&nbsp;{$info_tooltip}
+				{/if}
+				{if isset($history_tooltip)}
+					&nbsp;&nbsp;&nbsp;{$history_tooltip}
+				{/if}
+			</td>
 		</tr>
 	</tbody>
 </table>
