@@ -134,7 +134,9 @@ class Apps_ProjectsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::install_new_recordset('projects', $fields);
 		//Utils_RecordBrowserCommon::set_tpl('contact', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'Contact'));
 		//Utils_RecordBrowserCommon::set_processing_method('projects', array('Apps_ProjectsCommon', 'submit_project'));
-		//Utils_RecordBrowserCommon::new_filter('projects', 'Company Name');
+		Utils_RecordBrowserCommon::new_filter('projects', 'Company Name');
+		Utils_RecordBrowserCommon::new_filter('projects', 'Status');
+		
 		Utils_RecordBrowserCommon::set_quickjump('projects', 'Project Name');
 		Utils_RecordBrowserCommon::set_favorites('projects', true);
 		Utils_RecordBrowserCommon::set_recent('projects', 15);
@@ -168,6 +170,7 @@ class Apps_ProjectsInstall extends ModuleInstall {
 	public function uninstall() {
 		//Base_ThemeCommon::uninstall_default_theme('Apps/Projects');
 		Utils_RecordBrowserCommon::delete_addon('projects', 'Apps/Projects', 'project_attachment_addon');
+		Utils_RecordBrowserCommon::delete_addon('company', 'Apps/Projects', 'company_projects_addon');
 		Utils_RecordBrowserCommon::uninstall_recordset('projects');
 		Utils_CommonDataCommon::remove('Project_Status');
 		// Utils_AttachmentCommon::persistent_mass_delete(null,'Apps/Projects/');

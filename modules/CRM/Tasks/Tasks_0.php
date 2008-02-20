@@ -12,6 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_Tasks extends Module {
 
 	public function body() {
+
 		$f = $this->pack_module('CRM/Filters');
 		$filter = $f->get();
 	
