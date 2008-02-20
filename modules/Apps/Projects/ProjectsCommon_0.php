@@ -19,8 +19,7 @@ class Apps_ProjectsCommon extends ModuleCommon {
 	public static function get_projects($crits=array(),$cols=array()) {
     		return Utils_RecordBrowserCommon::get_records('projects', $crits, $cols);
 	}
-
-    
+   
     public static function display_proj_name($v, $i) {
 		return Utils_RecordBrowserCommon::create_linked_label('projects', 'Project Name', $i);
 	}
@@ -33,47 +32,6 @@ class Apps_ProjectsCommon extends ModuleCommon {
 	public static function display_estimator($v, $i) {
 		return;
 		//return Utils_RecordBrowserCommon::create_linked_label('contacts', 'Last Name', $i);
-	}
-	
-	public static function qfield_projmanager(&$form, $field, $label, $mode, $default) {
-				
-		if ($mode=='add' || $mode=='edit') {
-			$emp = array();
-			$ret = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())));
-			foreach($ret as $c_id=>$data)
-				$emp[$c_id] = $data['last_name'].' '.$data['first_name'];
-		
-			/*
-			$cus = array();
-			$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company())));
-			foreach($ret as $c_id=>$data)
-			$cus[$c_id] = $data['last_name'].' '.$data['first_name'];
-			*/
-			
-			$form->addElement('select', $field, $label, $emp);
-			$form->setDefaults(array($field=>$default));
-		} else {
-			$projman = CRM_ContactsCommon::get_contact('1');
-			//return $projman['last_name']." ".$projman['first_name'];
-			$form->addElement('select', $field, $label, $projman);
-		}
-	} // end of function
-
-	public static function qfield_estimator(&$form, $field, $label, $mode, $default) {
-				
-		if ($mode=='add' || $mode=='edit') {
-			$emp = array();
-			$ret = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())));
-			foreach($ret as $c_id=>$data)
-				$emp[$c_id] = $data['last_name'].' '.$data['first_name'];
-					
-			$form->addElement('select', $field, $label, $emp);
-			$form->setDefaults(array($field=>$default));
-		} else {
-			$estimator = CRM_ContactsCommon::get_contact('1');
-			//return $projman['last_name']." ".$projman['first_name'];
-			$form->addElement('select', $field, $label, $estimator);
-		}
 	}
 
     public static function access_projects($action, $param){
@@ -97,11 +55,11 @@ class Apps_ProjectsCommon extends ModuleCommon {
     public static function menu() {
 		return array('Projects'=>array('__submenu__'=>1,'Projects'=>array()));
 	}
-    
+
 	public function admin_caption() {
 		return 'Projects';
 	}
-	
+    	
 // Filter criteria for Company Name
 	public static function projects_company_crits(){
 //  	   return array(':Fav'=>1);
@@ -111,13 +69,13 @@ class Apps_ProjectsCommon extends ModuleCommon {
 
 // Filter criteria for Epmloyees
 // Used in ZSI Estimator, ZSI Project Manager
-	public static function projects_employees_crits(){
+public static function projects_employees_crits(){
 		// Utils_ChainedSelectCommon::create('zsi_estimator',array('company_name'),'modules/CRM/Contacts/update_contact.php');
 		// return array();
 		return array('company_name'=>array(CRM_ContactsCommon::get_main_company()));
    }
 
-	public static function projects_contacts_crits(){
+public static function projects_contacts_crits(){
 		Utils_ChainedSelectCommon::create('gc_estimator',array('company_name'),'modules/CRM/Contacts/update_contact_no_company.php');
 		return array();
 		//return array('Group'=>array('gc','res'));

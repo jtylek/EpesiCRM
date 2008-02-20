@@ -11,18 +11,14 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Apps_Projects extends Module {
 
-	public function body() {
+public function body() {
 		location(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array('projects')));
 	}
 
-/*
 public function admin() {
-		$tb = $this->init_module('Utils/TabbedBrowser');
-		$tb->set_tab('Projects', array($this, 'projects_admin'));
-		$this->display_module($tb);
-		$tb->tag();
+		$rb = $this->init_module('Utils/RecordBrowser','projects','projects');
+		$this->display_module($rb, null, 'admin');
 	}
-*/
 
 public function new_project($project){
 		Apps_ProjectsCommon::$paste_or_new = $project;
