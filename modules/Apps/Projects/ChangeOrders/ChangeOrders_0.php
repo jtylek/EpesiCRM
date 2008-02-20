@@ -15,15 +15,6 @@ class Apps_Projects_ChangeOrders extends Module {
 		location(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array('changeorders')));
 	}
 
-/*
-public function admin() {
-		$tb = $this->init_module('Utils/TabbedBrowser');
-		$tb->set_tab('Projects', array($this, 'projects_admin'));
-		$this->display_module($tb);
-		$tb->tag();
-	}
-*/
-
 public function new_changeorder($changeorder){
 		Apps_ProjectsCommon::$paste_or_new = $project;
 		$rb = $this->init_module('Utils/RecordBrowser','changeorders','changeorders');
@@ -37,19 +28,11 @@ public function new_changeorder($changeorder){
 		}
 }
 
-public function project_attachment_addon($arg){
-		$a = $this->init_module('Utils/Attachment',array($arg['id'],'Apps/Projects/'.$arg['id']));
-		$a->additional_header('Project: '.$arg['project_name']); // Field is 'Project Name' but it is converted to lowercase and spec replcaed with '_'
-		$a->allow_view_deleted($this->acl_check('view deleted notes'));
-		$a->allow_protected($this->acl_check('view protected notes'),$this->acl_check('edit protected notes'));
-		$a->allow_public($this->acl_check('view public notes'),$this->acl_check('edit public notes'));
-		$this->display_module($a);
-	}
-
-public function company_projects_addon($arg){
-		$rb = $this->init_module('Utils/RecordBrowser','projects');
-		$proj = array(array('company_name'=>$arg['id']), array('company_name'=>false), array('Fav'=>'DESC'), true);
-		$this->display_module($rb,$proj,'show_data');
+public function project_changeorders_addon($arg){
+		$rb = $this->init_module('Utils/RecordBrowser','changeorders');
+		// $changeorder = array(array('project_name'=>$arg['id']), array('project_name'=>false), array('Fav'=>'DESC'), true);
+		$changeorder = array(array('project_name'=>$arg['id']));
+		$this->display_module($rb,$changeorder,'show_data');
 	}
 
 public function caption(){
