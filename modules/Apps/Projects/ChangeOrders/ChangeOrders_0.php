@@ -1,6 +1,6 @@
 <?php
 /**
- * Projects Manager
+ * Projects Manager - Change Orders
  * @author jtylek@telaxus.com
  * @copyright jtylek@telaxus.com
  * @license SPL
@@ -9,10 +9,10 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Apps_Projects extends Module {
+class Apps_Projects_ChangeOrders extends Module {
 
 	public function body() {
-		location(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array('projects')));
+		location(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array('changeorders')));
 	}
 
 /*
@@ -24,9 +24,9 @@ public function admin() {
 	}
 */
 
-public function new_project($project){
+public function new_changeorder($changeorder){
 		Apps_ProjectsCommon::$paste_or_new = $project;
-		$rb = $this->init_module('Utils/RecordBrowser','projects','projects');
+		$rb = $this->init_module('Utils/RecordBrowser','changeorders','changeorders');
 		$this->rb = $rb;
 		$ret = $rb->view_entry('add', null, array('project_name'=>array($project)));
 		$this->set_module_variable('view_or_add', 'add');

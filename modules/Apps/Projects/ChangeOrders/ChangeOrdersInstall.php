@@ -9,17 +9,19 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Apps_ChangeOrders_Install extends ModuleInstall {
+class Apps_Projects_ChangeOrdersInstall extends ModuleInstall {
 
 	public function install() {
 		
 		$fields = array(
 			array('name'=>'Project', 'type'=>'select', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true,'display_callback'=>array('Apps_ProjectsCommon', 'display_proj_name')),
 			array('name'=>'Date', 'type'=>'date', 'required'=>true, 'param'=>64, 'extra'=>false, 'visible'=>true),
-			array('name'=>'Type', 'type'=>'commondata', 'required'=>true, 'visible'=>true, 'param'=>'ChangeOrder_Type', 'extra'=>false),
+			array('name'=>'CO Type', 'type'=>'commondata', 'required'=>true, 'visible'=>true, 'param'=>'ChangeOrder_Type', 'extra'=>false),
+			array('name'=>'CO Job Type', 'type'=>'commondata', 'required'=>true, 'visible'=>true, 'param'=>'ChangeOrder_JobType', 'extra'=>false),
 			array('name'=>'Description', 'type'=>'long text', 'required'=>false, 'param'=>'254', 'extra'=>false),
-			array('name'=>'Labor', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>false),
-			array('name'=>'Material', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>false),
+			array('name'=>'Est Labor', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>false),
+			array('name'=>'Est Material', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>false),
+			array('name'=>'Est Mandays', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),	
 			array('name'=>'GC CO No','type'=>'text', 'required'=>true, 'param'=>'64','extra'=>false, 'visible'=>true),
 			array('name'=>'Approved', 'type'=>'checkbox', 'required'=>false, 'extra'=>false, 'visible'=>true),
 			array('name'=>'Approved Date', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>false),
@@ -42,28 +44,18 @@ class Apps_ChangeOrders_Install extends ModuleInstall {
 
 // ************ other ************** //	
 		Utils_CommonDataCommon::new_array('ChangeOrder_Type',array('CO','COP'));
-		
-/*
-		$this->add_aco('browse projects',array('Employee'));
-		$this->add_aco('view projects',array('Employee'));
-		$this->add_aco('edit projects',array('Employee'));
-		$this->add_aco('delete projects',array('Employee Manager'));
-
-		$this->add_aco('view deleted notes','Employee Manager');
-		$this->add_aco('view protected notes','Employee');
-		$this->add_aco('view public notes','Employee');
-		$this->add_aco('edit protected notes','Employee Administrator');
-		$this->add_aco('edit public notes','Employee');
-*/		
+		Utils_CommonDataCommon::new_array('ChangeOrder_JobType',array('wc'=>'WC','paint'='Painting','acoust'=>'Acoustic'));
+			
 		return true;
 	}
 	
 	public function uninstall() {
 		//Base_ThemeCommon::uninstall_default_theme('Apps/Projects');
 		Utils_RecordBrowserCommon::delete_addon('projects', 'Apps/Projects', 'project_attachment_addon');
-		Utils_RecordBrowserCommon::uninstall_recordset('projects');
-		Utils_CommonDataCommon::remove('Project_Status');
-		Utils_AttachmentCommon::persistent_mass_delete(null,'Apps/Projects/');
+		Utils_RecordBrowserCommon::uninstall_recordset('changeorders');
+		Utils_CommonDataCommon::remove('ChangeOrder_Type');
+		Utils_CommonDataCommon::remove('ChangeOrder_JobType');
+		Utils_AttachmentCommon::persistent_mass_delete(null,'Apps/Projects/ChangeOrders');
 		return true;
 	}
 	
