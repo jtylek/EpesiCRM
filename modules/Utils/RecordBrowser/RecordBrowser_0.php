@@ -920,6 +920,9 @@ class Utils_RecordBrowser extends Module {
 		$created = $original;
 		$created['created_by_login'] = Base_UserCommon::get_user_login($created['created_by']);
 		$field_hash = array();
+		$edited = DB::GetRow('SELECT ul.login, c.edited_on FROM '.$this->tab.'_edit_history AS c LEFT JOIN user_login AS ul ON ul.id=c.edited_by WHERE c.'.$this->tab.'_id=%d ORDER BY edited_on DESC',array($id));
+		$gb_cur->add_row($this->lang->t('Edited by'), $edited['login']);
+		$gb_cur->add_row($this->lang->t('Edited on'), $edited['edited_on']);
 		foreach($this->table_rows as $field => $args) {
 			$field_hash[$args['id']] = $field;
 			$val = $this->get_val($field, $created, $created['id'], false, $args);
@@ -949,6 +952,8 @@ class Utils_RecordBrowser extends Module {
 				$gb_cha->add_row($row['edited_on'], Base_UserCommon::get_user_login($row['edited_by']), $field_hash[$k], $old, $new);
 			}
 		}
+		$gb_ori->add_row($this->lang->t('Created by'), $created['created_by_login']);
+		$gb_ori->add_row($this->lang->t('Created on'), $created['created_on']);
 		foreach($this->table_rows as $field => $args) {
 			$val = $this->get_val($field, $created, $created['id'], false, $args);
 			if ($created[$args['id']] !== '') $gb_ori->add_row($field, $val);
