@@ -30,6 +30,7 @@ class Utils_RecordBrowser extends Module {
 	private $noneditable_fields = array();
 	private $add_button = null;
 	private $changed_view = false;
+	private $is_on_main_page = false;
 	public $adv_search = false;
 		
 	public function get_val($field, $record, $id, $links_not_recommended = false, $args = null) {
@@ -139,12 +140,8 @@ class Utils_RecordBrowser extends Module {
 				print($this->lang->t('You are not authorised to browse this data.'));
 				return;
 			}
+			$this->is_on_main_page = true;
 			Base_ActionBarCommon::add('add',$this->lang->t('New'), $this->create_callback_href(array($this,'view_entry'),array('add')));
-			$this->browse_mode = $this->get_module_variable('browse_mode', 'recent');
-			if (($this->browse_mode=='recent' && $this->recent==0) || ($this->browse_mode=='favorites' && !$this->favorites)) $this->set_module_variable('browse_mode', $this->browse_mode='all'); 
-			if ($this->browse_mode!=='recent' && $this->recent>0) Base_ActionBarCommon::add('history',$this->lang->t('Recent'), $this->create_callback_href(array($this,'switch_view'),array('recent')));
-			if ($this->browse_mode!=='all') Base_ActionBarCommon::add('report',$this->lang->t('All'), $this->create_callback_href(array($this,'switch_view'),array('all')));
-			if ($this->browse_mode!=='favorites' && $this->favorites) Base_ActionBarCommon::add('favorites',$this->lang->t('Favorites'), $this->create_callback_href(array($this,'switch_view'),array('favorites')));
 
 			$filters = $this->show_filters();
 			ob_start();
@@ -249,6 +246,19 @@ class Utils_RecordBrowser extends Module {
 		}
 		$gb = $this->init_module('Utils/GenericBrowser', null, $this->tab);
 		$gb->set_module_variable('adv_search', $gb->get_module_variable('adv_search', $this->adv_search));
+		$is_searching = $gb->get_module_variable('search','');
+		if ($is_searching!='') {
+			$this->set_module_variable('browse_mode','all');
+			$gb->set_module_variable('quickjump_to',null);
+		}
+
+		if ($this->is_on_main_page) {
+			$this->browse_mode = $this->get_module_variable('browse_mode', 'recent');
+			if (($this->browse_mode=='recent' && $this->recent==0) || ($this->browse_mode=='favorites' && !$this->favorites)) $this->set_module_variable('browse_mode', $this->browse_mode='all'); 
+			if ($this->browse_mode!=='recent' && $this->recent>0) Base_ActionBarCommon::add('history',$this->lang->t('Recent'), $this->create_callback_href(array($this,'switch_view'),array('recent')));
+			if ($this->browse_mode!=='all') Base_ActionBarCommon::add('report',$this->lang->t('All'), $this->create_callback_href(array($this,'switch_view'),array('all')));
+			if ($this->browse_mode!=='favorites' && $this->favorites) Base_ActionBarCommon::add('favorites',$this->lang->t('Favorites'), $this->create_callback_href(array($this,'switch_view'),array('favorites')));
+		}
 		
 		if ($special)
 			$table_columns = array(array('name'=>'Select', 'width'=>1));
