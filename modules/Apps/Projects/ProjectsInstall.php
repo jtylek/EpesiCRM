@@ -149,6 +149,7 @@ class Apps_ProjectsInstall extends ModuleInstall {
 // ************ other ************** //	
 		Utils_CommonDataCommon::new_array('Project_Status',array('itb_received'=>'ITB Received','proposal_submited'=>'Proposal Submitted','job_canceled'=>'Job Canceled','job_lost'=>'Job Lost','job_awarded'=>'Job Awarded','on_hold'=>'On Hold','in_progress'=>'In Progress','completed_unpaid'=>'Completed Unpaid','paid'=>'Paid'));
 		Utils_CommonDataCommon::new_array('Job_Type',array('Commercial','Residential','Maintenance'));
+		Utils_CommonDataCommon::extend_array('Companies_Groups',array('gc'=>'General Contractor','res'=>'Residential'));
 		
 		$this->add_aco('browse projects',array('Employee'));
 		$this->add_aco('view projects',array('Employee'));
