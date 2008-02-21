@@ -27,7 +27,7 @@ class Apps_ProjectsInstall extends ModuleInstall {
 			array('name'=>'TIM Job No', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>true),
 			array('name'=>'Contract Amount', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>false),
 			array('name'=>'Status', 'type'=>'commondata', 'required'=>true, 'visible'=>true, 'filter'=>true, 'param'=>'Project_Status', 'extra'=>false),
-			array('name'=>'Change Order', 'type'=>'calculated', 'visible'=>true, 'extra'=>false, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
+			//array('name'=>'Change Order', 'type'=>'calculated', 'visible'=>true, 'extra'=>false, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
 			
 			//array('name'=>'ZSI Estimator','type'=>'crm_contact', 'param'=>array('field_type'=>'select', 'crits'=>array('Apps_ProjectsCommon','projects_employees_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>false, 'extra'=>false),
 			array('name'=>'ZSI Estimator','type'=>'crm_contact', 'param'=>array('field_type'=>'select', 'crits'=>array('Apps_ProjectsCommon','projects_employees_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>false, 'extra'=>false),	
@@ -129,6 +129,27 @@ class Apps_ProjectsInstall extends ModuleInstall {
 			array('name'=>'Equipment Act Cost', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
 			array('name'=>'Misc Act Cost', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
 			array('name'=>'Misc Act Manhours', 'type'=>'integer', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+
+			//Difference
+			//array('name'=>'Change Order', 'type'=>'calculated', 'visible'=>true, 'extra'=>false, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
+			array('name'=>'Paint Diff Labor', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true,'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
+			array('name'=>'Paint Diff LB', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
+			array('name'=>'Paint Diff Material', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
+			array('name'=>'Paint Diff Mandays', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
+						
+			array('name'=>'WC Diff Labor', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
+			array('name'=>'WC Diff LB', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
+			array('name'=>'WC Diff Material', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
+			array('name'=>'WC Diff Mandays', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
+			
+			array('name'=>'Acoust Diff Labor', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
+			array('name'=>'Acoust Diff LB', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
+			array('name'=>'Acoust Diff Material', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
+			array('name'=>'Acoust Diff Mandays', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
+			
+			array('name'=>'Equipment Diff Cost', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
+			array('name'=>'Misc Diff Cost', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
+			array('name'=>'Misc Diff Manhours', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order'))
 		);
 
 		Utils_RecordBrowserCommon::install_new_recordset('projects', $fields);
