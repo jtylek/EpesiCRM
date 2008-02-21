@@ -487,6 +487,7 @@ class Utils_RecordBrowser extends Module {
 		foreach($this->table_rows as $field => $args) 
 			if ($args['position'] >= $from && ($to == -1 || $args['position'] < $to)) 
 			{	
+				if ($args['type']=='calculated' && $this->mode!='view') continue;
 				if (!isset($data[$args['id']])) $data[$args['id']] = array('label'=>'', 'html'=>'');
 					if ($args['type']<>'long text') {
 						$fields[$args['id']] = array(	'label'=>$data[$args['id']]['label'],

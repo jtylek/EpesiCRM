@@ -67,6 +67,10 @@ class Apps_ProjectsCommon extends ModuleCommon {
 		return array('Group'=>array('gc','res'));
    }
 
+	public static function display_change_order(){
+		return 10;
+   }
+
 // Filter criteria for Epmloyees
 // Used in ZSI Estimator, ZSI Project Manager
 public static function projects_employees_crits(){
