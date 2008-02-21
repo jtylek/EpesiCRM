@@ -17,7 +17,7 @@ class Apps_Projects_ChangeOrdersInstall extends ModuleInstall {
 			array('name'=>'CO Number', 'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true),
 			array('name'=>'ZSI Estimator','type'=>'crm_contact', 'param'=>array('field_type'=>'select', 'crits'=>array('Apps_ProjectsCommon','projects_employees_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>true, 'extra'=>false),
 			// Project should be select
-			array('name'=>'Project Name', 'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true),
+			array('name'=>'Project Name', 'type'=>'select','param'=>array('projects'=>'Project Name'), 'required'=>true, 'visible'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_proj_name')),
 			// Default date needed to be set to today.
 			array('name'=>'Date', 'type'=>'date', 'required'=>true, 'param'=>64, 'extra'=>false, 'visible'=>false),
 			array('name'=>'CO Type', 'type'=>'commondata', 'required'=>true, 'visible'=>true, 'param'=>'ChangeOrder_Type', 'extra'=>false),

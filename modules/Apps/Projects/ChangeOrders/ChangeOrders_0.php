@@ -28,12 +28,24 @@ public function new_changeorder($changeorder){
 		}
 }
 
+/*
+public function project_attachment_addon($arg){
+		$a = $this->init_module('Utils/Attachment',array($arg['id'],'Apps/Projects/'.$arg['id']));
+		$a->additional_header('Project: '.$arg['project_name']); // Field is 'Project Name' but it is converted to lowercase and spec replcaed with '_'
+		$a->allow_view_deleted($this->acl_check('view deleted notes'));
+		$a->allow_protected($this->acl_check('view protected notes'),$this->acl_check('edit protected notes'));
+		$a->allow_public($this->acl_check('view public notes'),$this->acl_check('edit public notes'));
+		$this->display_module($a);
+	}
+
+
 public function project_changeorders_addon($arg){
-		$rb = $this->init_module('Utils/RecordBrowser','changeorders');
+		$a = $this->init_module('Apps/Projects/ChangeOrders',array($arg['id'],'Apps/Projects/'.$arg['id']));
 		// $changeorder = array(array('project_name'=>$arg['id']), array('project_name'=>false), array('Fav'=>'DESC'), true);
 		$changeorder = array(array('project_name'=>$arg['id']));
-		$this->display_module($rb,$changeorder,'show_data');
+		$this->display_module($a);
 	}
+*/
 
 public function caption(){
 		if (isset($this->rb)) return $this->rb->caption();
