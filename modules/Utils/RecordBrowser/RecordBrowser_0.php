@@ -489,7 +489,6 @@ class Utils_RecordBrowser extends Module {
 		foreach($this->table_rows as $field => $args) 
 			if ($args['position'] >= $from && ($to == -1 || $args['position'] < $to)) 
 			{	
-				if ($args['type']=='calculated' && $this->mode!='view') continue;
 				if (!isset($data[$args['id']])) $data[$args['id']] = array('label'=>'', 'html'=>'');
 					if ($args['type']<>'long text') {
 						$fields[$args['id']] = array(	'label'=>$data[$args['id']]['label'],
@@ -576,6 +575,9 @@ class Utils_RecordBrowser extends Module {
 					if ($hidden) continue;
 				}
 			switch ($args['type']) {
+				case 'calculated':	$form->addElement('static', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
+									$form->setDefaults(array($args['id']=>'['.$this->lang->t('formula').']'));
+									break;
 				case 'integer':		$form->addElement('text', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
 									$form->addRule($args['id'], $this->lang->t('Only numbers are allowed.'), 'numeric');
 									if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
