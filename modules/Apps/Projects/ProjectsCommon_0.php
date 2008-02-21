@@ -87,7 +87,7 @@ public static function projects_contacts_pm_crits($default){
 	}
 
 public static function projects_contacts_supt_crits($default){
-		Utils_ChainedSelectCommon::create('gc_supt.',array('company_name'),'modules/CRM/Contacts/update_contact.php', array('no_company'=>true), $default);
+		Utils_ChainedSelectCommon::create('gc_supt',array('company_name'),'modules/CRM/Contacts/update_contact.php', array('no_company'=>true), $default);
 		return array();
 	}
 
