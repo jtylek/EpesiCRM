@@ -79,7 +79,8 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			$form->setDefaults(array($field=>$default));
 		}
 	}
-	public static function display_status($v, $id, $nolink, $desc) {
+	public static function display_status($record, $id, $nolink, $desc) {
+		$v = $record[$desc['id']];
 		$status = Utils_CommonDataCommon::get_array('Ticket_Status');
 		if (isset($_REQUEST['increase_phonecall_status'])) {
 			if ($_REQUEST['increase_phonecall_status']==$id) $v++;

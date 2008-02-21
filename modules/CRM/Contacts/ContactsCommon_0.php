@@ -108,7 +108,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return $field;
 	}
 
-	public static function display_contact($v, $i, $nolink, $desc) {
+	public static function display_contact($record, $i, $nolink, $desc) {
+		$v = $record[$desc['id']];
 		$def = '';
 		$first = true;
 		$param = explode(';',$desc['param']);
@@ -167,14 +168,15 @@ class CRM_ContactsCommon extends ModuleCommon {
 				if ($v=='') break;
 				if ($first) $first = false;
 				else $def .= ', ';
-				$def .= self::display_contact($v, $v, false, $desc);
+				$def .= self::display_contact(array($desc['id']=>$v), $v, false, $desc);
 			}
 			if (!$def) 	$def = '--';
 			$form->setDefaults(array($field=>$def));
 		}
 	}
 
-	public static function display_company($v, $i, $nolink) {
+	public static function display_company($record, $i, $nolink, $desc) {
+		$v = $record[$desc['id']];
 		$def = '';
 		$first = true;
 		if (!is_array($v)) $v = array($v);
@@ -220,7 +222,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			if ($mode=='edit') $form->setDefaults(array($field=>$default));
 		} else {
 			$form->addElement('static', $field, $label);
-			$form->setDefaults(array($field=>self::display_webaddress($default)));
+			$form->setDefaults(array($field=>self::display_webaddress(array('webaddress'=>$default), null, null, array('id'=>'webaddress'))));
 		}
 	}
 	public static function QFfield_email(&$form, $field, $label, $mode, $default) {
@@ -229,7 +231,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			if ($mode=='edit') $form->setDefaults(array($field=>$default));
 		} else {
 			$form->addElement('static', $field, $label);
-			$form->setDefaults(array($field=>self::display_email($default)));
+			$form->setDefaults(array($field=>self::display_email(array('email'=>$default), null, null, array('id'=>'email'))));
 		}
 	}
 	public static function QFfield_login(&$form, $field, $label, $mode, $default) {
@@ -278,16 +280,19 @@ class CRM_ContactsCommon extends ModuleCommon {
 	public static function display_cname($v, $i, $nolink) {
 		return Utils_RecordBrowserCommon::create_linked_label('company', 'company_name', $i, $nolink);
 	}
-	public static function display_webaddress($v) {
+	public static function display_webaddress($record, $i, $nolink, $desc) {
+		$v = $record[$desc['id']];
 		$v = trim($v, ' ');
 		if ($v=='') return '';
 		if (strpos($v, 'http://')==false && $v) $v = 'http://'.$v;
 		return '<a href="'.$v.'" target="_blank">'.$v.'</a>';
 	}
-	public static function display_email($v) {
+	public static function display_email($record, $i, $nolink, $desc) {
+		$v = $record[$desc['id']];
 		return '<a href="mailto:'.$v.'">'.$v.'</a>';
 	}
-	public static function display_login($v) {
+	public static function display_login($record, $i, $nolink, $desc) {
+		$v = $record[$desc['id']];
 		if (!$v)
 			return '--';
 		else

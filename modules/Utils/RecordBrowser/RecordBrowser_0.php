@@ -36,7 +36,7 @@ class Utils_RecordBrowser extends Module {
 	public function get_val($field, $record, $id, $links_not_recommended = false, $args = null) {
 		$val = $record[$args['id']];
 		if (isset($this->display_callback_table[$field])) {
-			$ret = call_user_func($this->display_callback_table[$field], $val, $id, $links_not_recommended, $this->table_rows[$field]);
+			$ret = call_user_func($this->display_callback_table[$field], $record, $id, $links_not_recommended, $this->table_rows[$field]);
 		} else {
 			$ret = $val;
 			if ($args['type']=='select' || $args['type']=='multiselect') {
