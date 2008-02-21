@@ -132,24 +132,24 @@ class Apps_ProjectsInstall extends ModuleInstall {
 
 			//Difference
 			//array('name'=>'Change Order', 'type'=>'calculated', 'visible'=>true, 'extra'=>false, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
-			array('name'=>'Paint Diff Labor', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true,'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
-			array('name'=>'Paint Diff LB', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
-			array('name'=>'Paint Diff Material', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
-			array('name'=>'Paint Diff Mandays', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
+			array('name'=>'Paint Diff Labor', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true,'display_callback'=>array('Apps_ProjectsCommon', 'display_difference_currency')),
+			array('name'=>'Paint Diff LB', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_difference_currency')),
+			array('name'=>'Paint Diff Material', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_difference_currency')),
+			array('name'=>'Paint Diff Mandays', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_difference')),
 						
-			array('name'=>'WC Diff Labor', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
-			array('name'=>'WC Diff LB', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
-			array('name'=>'WC Diff Material', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
-			array('name'=>'WC Diff Mandays', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
+			array('name'=>'WC Diff Labor', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_difference_currency')),
+			array('name'=>'WC Diff LB', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_difference_currency')),
+			array('name'=>'WC Diff Material', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_difference_currency')),
+			array('name'=>'WC Diff Mandays', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_difference')),
 			
-			array('name'=>'Acoust Diff Labor', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
-			array('name'=>'Acoust Diff LB', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
-			array('name'=>'Acoust Diff Material', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
-			array('name'=>'Acoust Diff Mandays', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
+			array('name'=>'Acoust Diff Labor', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_difference_currency')),
+			array('name'=>'Acoust Diff LB', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_difference_currency')),
+			array('name'=>'Acoust Diff Material', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_difference_currency')),
+			array('name'=>'Acoust Diff Mandays', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_difference')),
 			
-			array('name'=>'Equipment Diff Cost', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
-			array('name'=>'Misc Diff Cost', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order')),
-			array('name'=>'Misc Diff Manhours', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_change_order'))
+			array('name'=>'Equipment Diff Cost', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_difference_currency')),
+			array('name'=>'Misc Diff Cost', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_difference_currency')),
+			array('name'=>'Misc Diff Manhours', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_difference'))
 		);
 
 		Utils_RecordBrowserCommon::install_new_recordset('projects', $fields);

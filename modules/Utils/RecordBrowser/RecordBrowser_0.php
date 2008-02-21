@@ -533,9 +533,9 @@ class Utils_RecordBrowser extends Module {
 			}
 			if ($mode!=='add' && $mode!=='edit') {
 				if ($args['type']!='checkbox' && $args['type']!='commondata') {
-					$record[$args['id']] = $this->get_val($field, $record, $id, false, $args);
+					$def = $this->get_val($field, $record, $id, false, $args);
 					$form->addElement('static', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
-					$form->setDefaults(array($args['id']=>$record[$args['id']]));
+					$form->setDefaults(array($args['id']=>$def));
 					continue;
 				}
 			}

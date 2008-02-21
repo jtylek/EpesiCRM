@@ -67,8 +67,11 @@ class Apps_ProjectsCommon extends ModuleCommon {
 		return array('Group'=>array('gc','res'));
    }
 
-	public static function display_change_order(){
-		return 10;
+	public static function display_difference_currency($record, $id, $nolink, $desc){
+		return Utils_CurrencyFieldCommon::format(self::display_difference($record, $id, $nolink, $desc));
+   }
+	public static function display_difference($record, $id, $nolink, $desc){
+		return $record[str_replace('_diff_','_est_',$desc['id'])] - $record[str_replace('_diff_','_act_',$desc['id'])];
    }
 
 // Filter criteria for Epmloyees
