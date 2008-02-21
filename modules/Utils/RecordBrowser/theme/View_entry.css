@@ -15,8 +15,8 @@
     width: 100%;
 }
 
-#Utils_RecordBrowser__View_entry td.left-column  { width: 50%; vertical-align: top; }
-#Utils_RecordBrowser__View_entry td.right-column { width: 50%; vertical-align: top; }
+#Utils_RecordBrowser__View_entry td.left-column  { vertical-align: top; }
+#Utils_RecordBrowser__View_entry td.right-column { vertical-align: top; }
 
 #Utils_RecordBrowser__View_entry td.right-column-view {
     border-right: 1px solid #b3b3b3;

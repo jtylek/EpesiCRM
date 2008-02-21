@@ -37,7 +37,7 @@ class Apps_ProjectsInstall extends ModuleInstall {
 			array('name'=>'Est End Date', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>false),
 			array('name'=>'Description', 'type'=>'long text', 'required'=>false, 'param'=>'64', 'extra'=>false),
 			// Extra Tab
-			array('name'=>'Estimating', 'type'=>'page_split', 'required'=>true, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Estimating', 'type'=>'page_split', 'required'=>true, 'extra'=>true, 'visible'=>false),
 			array('name'=>'GC Job No', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
 			// array('name'=>'GC Estimator','type'=>'crm_contact', 'param'=>array('field_type'=>'select','crits'=>array('Apps_ProjectsCommon','projects_contact_crits')), 'required'=>false, 'extra'=>true, 'visible'=>false),
 			array('name'=>'GC Estimator','type'=>'crm_contact', 'param'=>array('field_type'=>'select', 'crits'=>array('Apps_ProjectsCommon','projects_contacts_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>false, 'extra'=>true, 'visible'=>true),
@@ -54,7 +54,7 @@ class Apps_ProjectsInstall extends ModuleInstall {
 			array('name'=>'Award Date', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>true),
 
 			// Job details tab
-			array('name'=>'Job Details', 'type'=>'page_split', 'required'=>true, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Job Details', 'type'=>'page_split', 'required'=>true, 'extra'=>true, 'visible'=>false),
 
 			array('name'=>'GC Project Manager','type'=>'crm_contact', 'param'=>array('field_type'=>'select', 'crits'=>array('Apps_ProjectsCommon','projects_contacts_pm_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>false, 'extra'=>true, 'visible'=>false),
 			array('name'=>'GC Supt','type'=>'crm_contact', 'param'=>array('field_type'=>'select', 'crits'=>array('Apps_ProjectsCommon','projects_contacts_supt_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>false, 'extra'=>true, 'visible'=>false),
@@ -78,7 +78,7 @@ class Apps_ProjectsInstall extends ModuleInstall {
 			array('name'=>'Job Conditions', 'type'=>'checkbox', 'required'=>false, 'extra'=>true, 'visible'=>false),
 
 			// Admin tab
-			array('name'=>'Admin', 'type'=>'page_split', 'required'=>true, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Admin', 'type'=>'page_split', 'required'=>true, 'extra'=>true, 'visible'=>false),
 			array('name'=>'Contract Recvd', 'type'=>'checkbox', 'required'=>false, 'extra'=>true, 'visible'=>false),
 			array('name'=>'Bonding Required', 'type'=>'checkbox', 'required'=>false, 'extra'=>true, 'visible'=>false),
 			array('name'=>'Proposal to Acctg', 'type'=>'checkbox', 'required'=>false, 'extra'=>true, 'visible'=>false),
@@ -90,7 +90,7 @@ class Apps_ProjectsInstall extends ModuleInstall {
 			array('name'=>'Paid in Full', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>true),
 			
 			// Accounting Tab
-			array('name'=>'Accounting', 'type'=>'page_split', 'required'=>true, 'param'=>'64', 'extra'=>true, 'visible'=>false),
+			array('name'=>'Accounting', 'type'=>'page_split', 'required'=>true, 'param'=>'3', 'extra'=>true, 'visible'=>false),
 			array('name'=>'Paint Est Labor', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
 			array('name'=>'Paint Est LB', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
 			array('name'=>'Paint Est Material', 'type'=>'currency', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),

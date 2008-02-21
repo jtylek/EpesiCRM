@@ -3,13 +3,11 @@
 {foreach key=k item=f from=$fields name=fields}
 	{assign var=count value=$smarty.foreach.fields.total}
 {/foreach}
-{if $count is not even}
-	{assign var=rows value=$count+1}
-	{assign var=rows value=$rows/2}
-{else}
-	{assign var=rows value=$count/2}
-{/if}
-{assign var=x value=0}
+{php}
+	$this->_tpl_vars['rows'] = ceil($this->_tpl_vars['count']/$this->_tpl_vars['cols']);
+	$this->_tpl_vars['no_empty'] = $this->_tpl_vars['count']-floor($this->_tpl_vars['count']/$this->_tpl_vars['cols'])*$this->_tpl_vars['cols'];
+	if ($this->_tpl_vars['no_empty']==0) $this->_tpl_vars['no_empty'] = $this->_tpl_vars['cols']+1;
+{/php}
 
 {if $main_page}
 <table class="Utils_RecordBrowser__table" border="0" cellpadding="0" cellspacing="0">
@@ -45,44 +43,37 @@
 <table id="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
 	<tbody>
 		<tr>
+			{assign var=x value=1}
+			{assign var=y value=1}
+			{foreach key=k item=f from=$fields name=fields}
+			{if !isset($focus) && $f.type=="text"}
+				{assign var=focus value=$f.element}
+			{/if}
+			{* First column table *}
+			{if $y==1}
 			<td class="left-column">
-				{* First column table *}
 				<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+			{/if}	
 					<tr>
-						{assign var=i value=0}
-						{assign var=j value=0}
-						{foreach key=k item=f from=$fields name=fields}
-						{if !isset($focus) && $f.type=="text"}
-							{assign var=focus value=$f.element}
-						{/if}
 						<td class="label">{$f.label}{if $f.required}*{/if}</td>
 						<td class="data {if $f.type == 'currency'}currency{/if}">{if $f.error}{$f.error}{/if}{$f.html}</td>
-						{assign var=x value=$x+1}
-						{* If more than half records displayed start new table - second column table *}
-						{if $x >= $rows and $i==0}
 					</tr>
+			{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
+				{if $x>$no_empty}
+					<tr>
+						<td class="label">&nbsp;</td>
+						<td class="label">&nbsp;</td>
+					</tr>
+				{/if}
+				{assign var=y value=1}
+				{assign var=x value=$x+1}
 				</table>
 			</td>
+			{else}
+				{assign var=y value=$y+1}
+			{/if}
 			{* First table closed - start second column*}
-			<td class="right-column right-column-{if $action == 'view'}view{else}edit{/if}">
-				<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
-					<tr>
-						{assign var=i value=1}
-						{else}
-					</tr>
-					<tr>
-						{/if}
-						{assign var=j value=$j+1}
-						{/foreach}
-						{* Fill empty row if number of records is not even *}
-						{if $j is not even}
-							<td class="label">&nbsp;</td>
-							<td class="label">&nbsp;</td>
-						{/if}
-					</tr>
-					
-				</table>
-			</td>		
+			{/foreach}
 		</tr>
 		<tr>
 			<td colspan="2">

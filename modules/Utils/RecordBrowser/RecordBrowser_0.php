@@ -452,15 +452,17 @@ class Utils_RecordBrowser extends Module {
 		$label = DB::GetOne('SELECT field FROM '.$this->tab.'_field WHERE position=%s', array($last_page));
 		$this->mode = $mode;
 		$this->view_entry_details(1, $last_page, $data, $theme, true);
-		$ret = DB::Execute('SELECT position, field FROM '.$this->tab.'_field WHERE type = \'page_split\' AND position > %d', array($last_page));
+		$ret = DB::Execute('SELECT position, field, param FROM '.$this->tab.'_field WHERE type = \'page_split\' AND position > %d', array($last_page));
 		$row = true;
 		if ($mode=='view')
 			print("</form>\n");
+		$cols = 2; //TODO: fix!
 		while ($row) {
 			$row = $ret->FetchRow();
 			if ($row) $pos = $row['position'];
 			else $pos = DB::GetOne('SELECT MAX(position) FROM '.$this->tab.'_field')+1;
-			if ($pos - $last_page>1) $tb->set_tab($this->lang->t($label),array($this,'view_entry_details'), array($last_page, $pos+1, $data), $js);
+			if ($pos - $last_page>1) $tb->set_tab($this->lang->t($label),array($this,'view_entry_details'), array($last_page, $pos+1, $data, null, false, $cols), $js);
+			$cols = $row['param'];
 			$last_page = $pos;
 			if ($row) $label = $row['field'];
 		}
@@ -480,7 +482,7 @@ class Utils_RecordBrowser extends Module {
 		return true;
 	} //view_entry
 	
-	public function view_entry_details($from, $to, $data, $theme=null, $main_page = false){
+	public function view_entry_details($from, $to, $data, $theme=null, $main_page = false, $cols = 2){
 		if ($theme==null) $theme = $this->init_module('Base/Theme');
 		$fields = array();
 		$longfields = array();
@@ -505,7 +507,9 @@ class Utils_RecordBrowser extends Module {
 												'type'=>$args['type']);
 					}
 			}
+		if ($cols==0) $cols=2;
 		$theme->assign('fields', $fields);
+		$theme->assign('cols', $cols);
 		$theme->assign('longfields', $longfields);
 		$theme->assign('action', $this->mode);
 		$theme->assign('Form_data', $data);
