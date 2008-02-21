@@ -292,7 +292,8 @@ class Utils_RecordBrowser extends Module {
 			$gb->set_default_order($order, $this->changed_view);
 
 		if ($this->add_button!==null) {
-			$gb->set_custom_label($this->add_button);
+			$label = '<a '.$this->add_button.'><img border="0" src="'.Base_ThemeCommon::get_template_file('Base/ActionBar','icons/add.png').'" /></a>';
+			$gb->set_custom_label($label);
 		}
 		$search = $gb->get_search_query(true);
 		$search_res = array();
