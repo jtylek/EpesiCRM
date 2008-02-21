@@ -145,7 +145,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		if ($mode=='add' || $mode=='edit') {
 			if ($param[0] == '::') $callback = array('CRM_ContactsCommon', 'contact_format_default');
 			else $callback = explode('::', $param[0]);
-			if ($param[1] != '::') $crits = call_user_func(explode('::',$param[1]));
+			if ($param[1] != '::') $crits = call_user_func(explode('::',$param[1]), $default);
 			else $crits = array();
 			$contacts = self::get_contacts($crits);
 			if (!$desc['required'] && $desc['type']!='multiselect') $cont[''] = '--';
