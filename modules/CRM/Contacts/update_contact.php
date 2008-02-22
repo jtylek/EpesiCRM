@@ -25,6 +25,6 @@ if (isset($params['no_company']) && $params['no_company']) {
 }
 asort($res);
 if (!isset($params['required']) || !$params['required'])
-	$res = array(' '=>'--')+$res;
+	$res = array(''=>'--')+$res;
 print(json_encode($res));
 ?>
