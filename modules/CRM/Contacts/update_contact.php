@@ -7,10 +7,14 @@ foreach($values as $v) {
 	$ret = $v;
 	break;
 }
+$params = array();
+foreach($_POST['parameters'] as $k=>$v) {
+	$params[$k] = $v;
+}
 $contacts = CRM_ContactsCommon::get_contacts(array('company_name'=>array($ret)));
 
 $res = array();
-if (isset($_POST['parameters']['no_company']) && $_POST['parameters']['no_company']) {
+if (isset($params['no_company']) && $params['no_company']) {
 	foreach($contacts as $k=>$v){
 		$res[$v['id']] = CRM_ContactsCommon::contact_format_no_company($v, true);
 	}
@@ -20,7 +24,7 @@ if (isset($_POST['parameters']['no_company']) && $_POST['parameters']['no_compan
 	}
 }
 asort($res);
-if (!isset($_POST['parameters']['required']) || !$_POST['parameters']['required'])
+if (!isset($params['required']) || !$params['required'])
 	$res = array(' '=>'--')+$res;
 print(json_encode($res));
 ?>
