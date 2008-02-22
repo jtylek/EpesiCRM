@@ -84,18 +84,18 @@ public static function projects_employees_crits(){
 
 public static function projects_contacts_crits($default){
 		Utils_ChainedSelectCommon::create('gc_estimator',array('company_name'),'modules/CRM/Contacts/update_contact.php', array('no_company'=>true), $default);
-		return array();
+		return array('id'=>-1);
 		//return array('Group'=>array('gc','res'));
 	}
 
 public static function projects_contacts_pm_crits($default){
 		Utils_ChainedSelectCommon::create('gc_project_manager',array('company_name'),'modules/CRM/Contacts/update_contact.php', array('no_company'=>true), $default);
-		return array();
+		return array('id'=>-1);
 	}
 
 public static function projects_contacts_supt_crits($default){
 		Utils_ChainedSelectCommon::create('gc_supt',array('company_name'),'modules/CRM/Contacts/update_contact.php', array('no_company'=>true), $default);
-		return array();
+		return array('id'=>-1);
 	}
 
 }
