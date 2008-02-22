@@ -88,6 +88,12 @@ public static function projects_contacts_crits($default, $desc){
 		//return array('Group'=>array('gc','res'));
 	}
 
+// $default - value for ChainedSelect
+// $desc - field description
+// Usage:
+// array('no_company'=>true, 'required'=>$desc['required']), $default);
+// array('no_company'=>false, 'required'=>$desc['required']), $default);
+
 public static function projects_contacts_pm_crits($default, $desc){
 		Utils_ChainedSelectCommon::create('gc_project_manager',array('company_name'),'modules/CRM/Contacts/update_contact.php', array('no_company'=>true, 'required'=>$desc['required']), $default);
 		return null;
