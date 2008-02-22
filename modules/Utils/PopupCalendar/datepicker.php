@@ -30,7 +30,7 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 			$date_format = Base_RegionalSettingsCommon::date_format();
 			$str .= $this->_getTabs() . '<table style="border:0;padding:0;" cellpadding="0" cellspacing="0"><tr>'.
 				'<td><input ' . $this->_getAttrString($this->_attributes) . ' '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils/PopupCalendar','Example date: %s',array($ex_date)), false ).' /></td>'.
-				'<td>'.	Utils_PopupCalendarCommon::show($name,
+				'<td>'.	Utils_PopupCalendarCommon::show(md5($id),
 					'new Ajax.Request(\'modules/Utils/PopupCalendar/up.php\','.
 					'{method:\'post\', parameters:{date: __YEAR__+\'-\'+__MONTH__+\'-\'+__DAY__},'.
 					'onSuccess:function(t){$(\''.Epesi::escapeJS($id,false).'\').value=t.responseText;}})',
