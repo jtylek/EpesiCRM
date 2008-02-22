@@ -146,12 +146,14 @@ class CRM_ContactsCommon extends ModuleCommon {
 		if ($mode=='add' || $mode=='edit') {
 			if ($param[0] == '::') $callback = array('CRM_ContactsCommon', 'contact_format_default');
 			else $callback = explode('::', $param[0]);
-			if ($param[1] != '::') $crits = call_user_func(explode('::',$param[1]), $default);
+			if ($param[1] != '::') $crits = call_user_func(explode('::',$param[1]), $default, $desc);
 			else $crits = array();
-			$contacts = self::get_contacts($crits);
-			if (!$desc['required'] && $desc['type']!='multiselect') $cont[''] = '--';
-			foreach ($contacts as $v) $cont[$v['id']] = call_user_func($callback, $v, true);
-			asort($cont);
+			if ($crits!==null) {
+				$contacts = self::get_contacts($crits);
+				if (!$desc['required'] && $desc['type']!='multiselect') $cont[''] = '--';
+				foreach ($contacts as $v) $cont[$v['id']] = call_user_func($callback, $v, true);
+				asort($cont);
+			} else $cont = array();
 			$form->addElement($desc['type'], $field, $label, $cont, array('id'=>$field));
 			if ($mode!=='add') $form->setDefaults(array($field=>$default));
 			else if ($desc['type']=='multiselect') {
