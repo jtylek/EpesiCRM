@@ -33,10 +33,10 @@ class Tests_QuickForm extends Module{
 		$f->addElement('select','sel1','sel1', array('x'=>'x','y'=>'y'),array('id'=>'sel1'));
 		$f->addElement('select','sel2','sel2', array(),array('id'=>'sel2'));
 		$f->addElement('select','sel3','sel3', array(),array('id'=>'sel3'));
+
 		$f->setDefaults(array('sel2'=>'y'));
 		Utils_ChainedSelectCommon::create('sel2',array('sel1'),'modules/Tests/QuickForm/update_sel.php',null,$f->exportValue('sel2'));
-		Utils_ChainedSelectCommon::create('sel3',array('sel1','sel2',),'modules/Tests/QuickForm/update_sel.php',array('test'=>'finito '));
-		
+		Utils_ChainedSelectCommon::create('sel3',array('sel1','sel2',),'modules/Tests/QuickForm/update_sel.php',array('test'=>'finito '),$f->exportValue('sel3'));
 		
 
 		$c1 = $f->createElement('checkbox','c1','c1_l','c1_t');

@@ -4,16 +4,23 @@ ChainedSelect.prototype = {
 	req_url:'',
 	dest_id:null,
 	params:null,
+	default_val:null,
 	initialize:function(dest_id,prev_ids,req_url,params,def_val) {
+		if($(dest_id)==null)return;
 		this.prev_ids = prev_ids;
 		this.req_url = req_url;
 		this.dest_id = dest_id;
 		this.params = params;
+		this.default_val = def_val;
 		var prev_obj = prev_ids[prev_ids.length-1];
-		this.request(def_val);
 		Event.observe(prev_obj,'change',this.request.bindAsEventListener(this));
 		Event.observe(prev_obj,'e_cs:load',this.request.bindAsEventListener(this));
 		Event.observe(prev_obj,'e_cs:clear',this.clear.bindAsEventListener(this));
+		if(prev_ids.length==1)
+			Event.observe(document,'e:load',this.load_def.bindAsEventListener(this));
+	},
+	load_def:function() {
+		this.request(this.default_val);
 	},
 	clear:function(){
 		obj.options.length=0;
