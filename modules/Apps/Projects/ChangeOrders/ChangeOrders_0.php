@@ -38,14 +38,16 @@ public function project_attachment_addon($arg){
 		$this->display_module($a);
 	}
 
+*/
 
 public function project_changeorders_addon($arg){
-		$a = $this->init_module('Apps/Projects/ChangeOrders',array($arg['id'],'Apps/Projects/'.$arg['id']));
-		// $changeorder = array(array('project_name'=>$arg['id']), array('project_name'=>false), array('Fav'=>'DESC'), true);
-		$changeorder = array(array('project_name'=>$arg['id']));
-		$this->display_module($a);
+		// always 'Utils/RecordBrowser','table','unique_internal_name' - can be anything
+		$rb = $this->init_module('Utils/RecordBrowser','changeorders','changeorder_addon');
+		// Base_ActionBarCommon::add('add',Base_LangCommon::ts('CRM_Contacts','Add contact'), $this->create_callback_href(array($this, 'company_addon_new_contact'), array($arg['id'])));
+		// $rb->set_button($this->create_callback_href(array($this, 'company_addon_new_contact'), array($arg['id'])));
+		// array with arguments: first-criteria, column names to hide (or to force to show), sorting - any column visible (from right to left), true=always
+		$this->display_module($rb, array(array('project_name'=>array($arg['id'])), array('company_name'=>false), array('Fav'=>'DESC', 'CO Number'=>'ASC'), true), 'show_data');
 	}
-*/
 
 public function caption(){
 		if (isset($this->rb)) return $this->rb->caption();

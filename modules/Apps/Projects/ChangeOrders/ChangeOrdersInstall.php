@@ -14,10 +14,10 @@ class Apps_Projects_ChangeOrdersInstall extends ModuleInstall {
 	public function install() {
 		
 		$fields = array(
-			array('name'=>'CO Number', 'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true),
-			array('name'=>'ZSI Estimator','type'=>'crm_contact', 'param'=>array('field_type'=>'select', 'crits'=>array('Apps_ProjectsCommon','projects_employees_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>true, 'extra'=>false),
+			array('name'=>'CO Number', 'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('Apps_Projects_ChangeOrdersCommon', 'changeorder_callback')),
+			array('name'=>'ZSI Estimator','type'=>'crm_contact', 'param'=>array('field_type'=>'select', 'crits'=>array('Apps_ProjectsCommon','projects_employees_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>true, 'extra'=>false, 'visible'=>true),
 			// Project should be select
-			array('name'=>'Project Name', 'type'=>'select','param'=>array('projects'=>'Project Name'), 'required'=>true, 'visible'=>true, 'display_callback'=>array('Apps_ProjectsCommon', 'display_proj_name')),
+			array('name'=>'Project Name', 'type'=>'select','param'=>array('projects'=>'Project Name'), 'required'=>true, 'extra'=>false, 'visible'=>true, 'display_callback'=>array('Apps_Projects_ChangeOrdersCommon', 'proj_name_callback')),
 			// Default date needed to be set to today.
 			array('name'=>'Date', 'type'=>'date', 'required'=>true, 'param'=>64, 'extra'=>false, 'visible'=>false),
 			array('name'=>'CO Type', 'type'=>'commondata', 'required'=>true, 'visible'=>true, 'param'=>'ChangeOrder_Type', 'extra'=>false),
@@ -30,11 +30,10 @@ class Apps_Projects_ChangeOrdersInstall extends ModuleInstall {
 			array('name'=>'Approved', 'type'=>'checkbox', 'required'=>false, 'extra'=>false, 'visible'=>false),
 			array('name'=>'Approved Date', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>false, 'visible'=>true),
 			array('name'=>'Billed', 'type'=>'checkbox', 'required'=>false, 'extra'=>false, 'visible'=>false),
-			array('name'=>'Billed Date', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>false, 'visible'=>true)
+			array('name'=>'Billed Date', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>false, 'visible'=>false)
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('changeorders', $fields);
 		//Utils_RecordBrowserCommon::set_tpl('contact', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'Contact'));
-		//Utils_RecordBrowserCommon::set_processing_method('projects', array('Apps_ProjectsCommon', 'submit_project'));
 		//Utils_RecordBrowserCommon::set_quickjump('changeorders', 'Change Order');
 		Utils_RecordBrowserCommon::set_recent('changeorders', 15);
 		Utils_RecordBrowserCommon::set_caption('changeorders', 'Change Orders');
@@ -42,12 +41,15 @@ class Apps_Projects_ChangeOrdersInstall extends ModuleInstall {
 //		Utils_RecordBrowserCommon::set_access_callback('changeorders', 'Apps_ProjectsCommon', 'access_projects');
 		
 // ************ addons ************** //
+//	Parameters: ('table','ModuleLocation','function','Label');
 		Utils_RecordBrowserCommon::new_addon('projects', 'Apps/Projects/ChangeOrders', 'project_changeorders_addon', 'Change Orders');
 //
 // ************ other ************** //	
 		Utils_CommonDataCommon::new_array('ChangeOrder_Type',array('CO','COP'));
 		Utils_CommonDataCommon::new_array('ChangeOrder_JobType',array('wc'=>'WC','paint'=>'Painting','acoust'=>'Acoustic'));
-			
+		
+		Utils_RecordBrowserCommon::set_favorites('changeorders', true);
+
 		return true;
 	}
 	
