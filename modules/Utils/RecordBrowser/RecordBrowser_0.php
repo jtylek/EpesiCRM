@@ -472,8 +472,8 @@ class Utils_RecordBrowser extends Module {
 			$ret = DB::Execute('SELECT * FROM '.$this->tab.'_addon');
 			while ($row = $ret->FetchRow()) {
 				$mod = $this->init_module($row['module']);
-				if (!is_callable(array($mod,$row['func']))) trigger_error('Invalid callback method '.$row['module'].'::'.$row['func'], E_USER_ERROR);
-				$tb->set_tab($this->lang->t($row['label']),array($this, 'display_module'), array($mod, array($record), $row['func']), $js);
+				if (!is_callable(array($mod,$row['func']))) $tb->set_tab($this->lang->t($row['label']),array($this, 'broken_addon'), $js);
+				else $tb->set_tab($this->lang->t($row['label']),array($this, 'display_module'), array($mod, array($record), $row['func']), $js);
 			}
 		}
 		$this->display_module($tb);
@@ -482,6 +482,10 @@ class Utils_RecordBrowser extends Module {
 
 		return true;
 	} //view_entry
+	
+	public function broken_addon(){
+		print('Addon is broken, please contact system administrator.');
+	}
 	
 	public function view_entry_details($from, $to, $data, $theme=null, $main_page = false, $cols = 2){
 		if ($theme==null) $theme = $this->init_module('Base/Theme');
