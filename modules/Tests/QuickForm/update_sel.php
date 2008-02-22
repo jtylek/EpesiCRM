@@ -7,8 +7,8 @@ foreach($values as $v) {
 	$ret .= $v;
 }
 
-if(isset($_POST['parameters'][0]))
-	$ret = $_POST['parameters'][0].$ret;
+if(isset($_POST['parameters']->test))
+	$ret = $_POST['parameters']->test.$ret;
 
 print(json_encode(array('x'=>$ret.'x','y'=>$ret.'y')));
 ?>

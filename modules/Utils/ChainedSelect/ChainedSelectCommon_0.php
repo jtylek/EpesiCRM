@@ -16,7 +16,10 @@ class Utils_ChainedSelectCommon extends ModuleCommon {
 			trigger_error('Chained select can exists only with previous selects',E_USER_ERROR);
 		if($params===null) $params=array();
 		if($default_val===null) $default_val='';
-		eval_js('new ChainedSelect("'.$dest_id.'",new Array("'.implode('","',$prev_ids).'"),"'.$req_url.'",new Array("'.implode('","',$params).'"), "'.$default_val.'")');
+		$js = 'var params = new Hash();';
+		foreach($params as $k=>$v)
+			$js.='params.set("'.$k.'","'.$v.'");';
+		eval_js($js.'new ChainedSelect("'.$dest_id.'",new Array("'.implode('","',$prev_ids).'"),"'.$req_url.'",params, "'.$default_val.'")');
 	}
 }
 
