@@ -111,20 +111,25 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
         return $renderer->toHtml();
     }
 
-	function exportValue(&$submitValues, $assoc = false) {
-        $value = $this->_findValue($submitValues);
-        if (is_null($value)) {
-            $value = $this->getValue();
-        }
-        if ($value['__'.$this->_elementName.'__datepicker']=='') return $this->_prepareValue('', $assoc);
-        $time = $value['date'];
+	function recalculate_time($time) {
 		if (isset($time['a'])) {
 			$result = 60*($time['i']+60*($time['h']));
 			if ($time['a']=='pm') $result += 43200;
 			if ($time['h']==12) {
 				if ($time['a']=='pm') $result -= 43200; else $result -= 43200;
 			}
-		} else $result = 60*($time['i']+60*($time['H']-1));
+		} else $result = 60*($time['i']+60*($time['H']));
+		$result -= 60*60;
+		return $result;
+	}
+
+	function exportValue(&$submitValues, $assoc = false) {
+        $value = $this->_findValue($submitValues);
+        if (is_null($value)) {
+            $value = $this->getValue();
+        }
+        if ($value['__'.$this->_elementName.'__datepicker']=='') return $this->_prepareValue('', $assoc);
+		$result = $this->recalculate_time($value['date']);
 		$cleanValue = strftime('%Y-%m-%d',Base_RegionalSettingsCommon::reg2time($value['__'.$this->_elementName.'__datepicker'])).' '.strftime('%H:%M:%S',Base_RegionalSettingsCommon::reg2time(date('H:i:s', $result), true, false));
         return $this->_prepareValue($cleanValue, $assoc);
 	}
@@ -157,23 +162,17 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
     {
         $this->_createElementsIfNotExist();
         foreach (array_keys($this->_elements) as $key) {
-            if (!$this->_appendName) {
-                $v = $this->_elements[$key]->_findValue($value);
-                if (null !== $v) {
-                    $this->_elements[$key]->onQuickFormEvent('setGroupValue', Base_RegionalSettingsCommon::time2reg($v), $this);
-                }
-
+            $elementName = $this->_elements[$key]->getName();
+            $index       = strlen($elementName) ? $elementName : $key;
+            if (is_array($value)) {
+            	$v = $value[$index];
             } else {
-                $elementName = $this->_elements[$key]->getName();
-                $index       = strlen($elementName) ? $elementName : $key;
-                if (is_array($value)) {
-                    if (isset($value[$index])) {
-                        $this->_elements[$key]->onQuickFormEvent('setGroupValue', Base_RegionalSettingsCommon::time2reg($value[$index]), $this);
-                    }
-                } elseif (isset($value)) {
-                    $this->_elements[$key]->onQuickFormEvent('setGroupValue', Base_RegionalSettingsCommon::time2reg($value), $this);
-                }
+            	$v = $value;
             }
+            if (is_array($v)) $v = $this->recalculate_time($v);
+            else $v = strtotime($v);
+            if ($key==0) $this->_elements[$key]->onQuickFormEvent('setGroupValue', Base_RegionalSettingsCommon::time2reg($v), $this);
+            else $this->_elements[$key]->onQuickFormEvent('setGroupValue', Base_RegionalSettingsCommon::time2reg($v), $this);
         }
     } //end func setValue
     
