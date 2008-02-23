@@ -68,13 +68,13 @@ class Utils_Calendar extends Module {
 			if($last===false || $curr===false || $interval===false)
 				trigger_error('Invalid start/end_day or interval.',E_USER_ERROR);
 			$interval -= $zero_t;
-			$timeline[] = array('label'=>Base_RegionalSettingsCommon::convert_24h($zero_t,false).' - '.Base_RegionalSettingsCommon::convert_24h($curr,false),'time'=>0);
+			$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($zero_t,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($curr,2,false,false),'time'=>0);
 			while($curr<$last) {
 				$next = $curr+$interval;
-				$timeline[] = array('label'=>Base_RegionalSettingsCommon::convert_24h($curr,false).' - '.Base_RegionalSettingsCommon::convert_24h($next,false),'time'=>($curr-$zero_t));
+				$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($next,2,false,false),'time'=>($curr-$zero_t));
 				$curr = $next;
 			}
-			$timeline[] = array('label'=>Base_RegionalSettingsCommon::convert_24h($curr,false).' - '.Base_RegionalSettingsCommon::convert_24h('23:59',false),'time'=>($curr-$zero_t));
+			$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg('23:59',2,false,false),'time'=>($curr-$zero_t));
 		}
 		return $timeline;
 	}

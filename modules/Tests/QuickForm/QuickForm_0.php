@@ -13,8 +13,8 @@ class Tests_QuickForm extends Module{
 	public function body(){
 		$f = $this->init_module('Libs/QuickForm');
 
-		$x = $f->addElement('datepicker','xxxy','Date picker');
-//		$x = $f->addElement('timestamp','xxxyss','Timestamp picker');
+//		$x = $f->addElement('datepicker','xxxy','Date picker');
+		$x = $f->addElement('timestamp','xxxyss','Timestamp picker');
 		$x = $f->addElement('currency','cur','Currency');
 		$f->setDefaults(array('xxxy'=>time()));
 		$f->setDefaults(array('cur'=>'1252341.22'));

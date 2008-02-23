@@ -59,7 +59,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 		Base_RegionalSettingsCommon::restore_locale();
 		
 		if($oneday)
-			$end_t = Base_RegionalSettingsCommon::convert_24h($ev_end);
+			$end_t = Base_RegionalSettingsCommon::time2reg($ev_end,2,false);
 		$start_date = Base_RegionalSettingsCommon::time2reg($ev_start,false);
 		$end_date = Base_RegionalSettingsCommon::time2reg($ev_end,false);
 
@@ -72,8 +72,8 @@ class Utils_CalendarCommon extends ModuleCommon {
 			else
 				$end_t = $end_day.', '.$end_date;
 		} else {
-			$start_time = Base_RegionalSettingsCommon::convert_24h($ev_start,false);
-			$end_time = Base_RegionalSettingsCommon::convert_24h($ev_end,false);
+			$start_time = Base_RegionalSettingsCommon::time2reg($ev_start,2,false);
+			$end_time = Base_RegionalSettingsCommon::time2reg($ev_end,2,false);
 			$start_t = $start_day.', '.$start_date.' '.$start_time;
 			if(!$oneday)
 				$end_t = $end_day.', '.$end_date.' '.$end_time;

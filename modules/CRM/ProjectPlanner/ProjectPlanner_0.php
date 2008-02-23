@@ -129,10 +129,10 @@ class CRM_ProjectPlanner extends Module {
 
 		$start_day = array();
 		foreach(range(0, 11) as $x)
-				$start_day[$x.':00'] = Base_RegionalSettingsCommon::convert_24h($x.':00');
+				$start_day[$x.':00'] = Base_RegionalSettingsCommon::time2reg($x.':00',2,false,false);
 		$end_day = array();
-		foreach(range(12, 24) as $x)
-			$end_day[$x.':00'] = Base_RegionalSettingsCommon::convert_24h($x.':00');
+		foreach(range(12, 23) as $x)
+			$end_day[$x.':00'] = Base_RegionalSettingsCommon::time2reg($x.':00',2,false,false);
 
 		$f->addElement('select', 'start_day', $this->lang->t('Start day at'), $start_day);
 		$f->addElement('select', 'end_day', $this->lang->t('End day at'), $end_day);

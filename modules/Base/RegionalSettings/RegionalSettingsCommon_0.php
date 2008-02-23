@@ -82,6 +82,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		return array(0=>$country,'country'=>$country,'state'=>$state,1=>$state);
 	}
 
+	//method used by user settings
 	public static function check_12h($v,$form) {
 		$t = strtotime('2010-01-01 20:00');
 
@@ -103,19 +104,34 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		return $ret;
 	}
 
-	public static function time2reg($t=null,$time=true,$date=true) {
+	/**
+	 * Convert local time to client format and timezone(optional)
+	 *
+	 * @param mixed string-strtotime recognizable string, null-current time, int-unix time
+	 * @param mixed {0,false,null,''}-no time,{1,true,'with_seconds'}-time with seconds,{2,'without_seconds'}-time without seconds
+	 * @param mixed {0,false,null,''}-no date,{1,true}-with date
+	 * @param boolean true-convert to client time
+	 * @return string
+	 */
+	public static function time2reg($t=null,$time=true,$date=true,$tz=true) {
 		if(!isset($t)) $t = time();
 		elseif(!is_numeric($t) && is_string($t)) $t = strtotime($t);
 		$format = array();
 		if($date)
 			$format[] = Base_User_SettingsCommon::get('Base_RegionalSettings','date');
-		if($time)
-			$format[] = Base_User_SettingsCommon::get('Base_RegionalSettings','time');
+		if($time) {
+			$sec = Base_User_SettingsCommon::get('Base_RegionalSettings','time');
+			if($time==2 || strcasecmp($time,'without_seconds')==0)
+				$sec = str_replace(':%S','',$sec);
+			$format[] = $sec;
+		}
 		$format = implode(' ',$format);
 
-		self::set_locale();
+		if($tz)
+			self::set_locale();
 		$ret = self::strftime($format,$t);
-		self::restore_locale();
+		if($tz)
+			self::restore_locale();
 		return $ret;
 	}
 
@@ -140,6 +156,12 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		setlocale(LC_TIME,self::$curr_locale);
 	}
 
+	/**
+	 * Convert regional time format to unix time
+	 *
+	 * @param string
+	 * @return int
+	 */
 	public static function reg2time($t) {
 		$datef = Base_User_SettingsCommon::get('Base_RegionalSettings','date');
 
@@ -164,6 +186,12 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		return strtotime($t);
 	}
 
+	/**
+	 * Convert time to local server time and prepare timestamp using DB::BindTimeStamp
+	 *
+	 * @param mixed string,int
+	 * @return string
+	 */
 	public static function server_time($t) {
 		if(!is_numeric($t) && is_string($t)) $t = strtotime($t);
 		$curr_tz = date_default_timezone_get();
@@ -173,6 +201,12 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		return $ret;
 	}
 
+	/**
+	 * Convert time to local server time and prepare date using DB::BindDate
+	 *
+	 * @param mixed string,int
+	 * @return string
+	 */
 	public static function server_date($t) {
 		if(!is_numeric($t) && is_string($t)) $t = strtotime($t);
 		$curr_tz = date_default_timezone_get();
@@ -182,19 +216,34 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		return $ret;
 	}
 
+	/**
+	 * Get date format (strftime).
+	 *
+	 * @return string
+	 */
 	public static function date_format() {
 		return Base_User_SettingsCommon::get('Base_RegionalSettings','date');
 	}
 
-	public static function timestamp_format() {
+	/**
+	 * Get time format (strftime).
+	 *
+	 * @return string
+	 */
+	public static function time_format() {
 		return Base_User_SettingsCommon::get('Base_RegionalSettings','date').' '.Base_User_SettingsCommon::get('Base_RegionalSettings','time');
 	}
 
+	/**
+	 * Is user clock 12h?
+	 *
+	 * @return boolean
+	 */
 	public static function time_12h() {
 		return '%I:%M:%S %p'==Base_User_SettingsCommon::get('Base_RegionalSettings','time');
 	}
 
-	public static function convert_24h($t,$seconds=true) {
+/*	public static function convert_24h($t,$seconds=true) {
 		if(!is_numeric($t) && is_string($t)) $t = strtotime($t);
 		$format = Base_User_SettingsCommon::get('Base_RegionalSettings','time');
 		if(!$seconds) {
@@ -205,7 +254,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		$ret = self::strftime($format,$t);
 		self::restore_locale();
 		return $ret;
-	}
+	}*/
 }
 
 if(Acl::is_user())
