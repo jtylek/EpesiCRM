@@ -82,28 +82,6 @@ public static function projects_employees_crits(){
 		return array('company_name'=>array(CRM_ContactsCommon::get_main_company()));
    }
 
-public static function projects_contacts_crits($default, $desc){
-		Utils_ChainedSelectCommon::create('gc_estimator',array('company_name'),'modules/CRM/Contacts/update_contact.php', array('no_company'=>true, 'required'=>$desc['required']), $default);
-		return null;
-		//return array('Group'=>array('gc','res'));
-	}
-
-// $default - value for ChainedSelect
-// $desc - field description
-// Usage:
-// array('no_company'=>true, 'required'=>$desc['required']), $default);
-// array('no_company'=>false, 'required'=>$desc['required']), $default);
-
-public static function projects_contacts_pm_crits($default, $desc){
-		Utils_ChainedSelectCommon::create('gc_project_manager',array('company_name'),'modules/CRM/Contacts/update_contact.php', array('no_company'=>true, 'required'=>$desc['required']), $default);
-		return null;
-	}
-
-public static function projects_contacts_supt_crits($default, $desc){
-		Utils_ChainedSelectCommon::create('gc_supt',array('company_name'),'modules/CRM/Contacts/update_contact.php', array('no_company'=>true, 'required'=>$desc['required']), $default);
-		return null;
-	}
-
 }
 
 ?>

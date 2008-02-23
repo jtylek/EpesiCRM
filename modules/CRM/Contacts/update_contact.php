@@ -14,14 +14,8 @@ foreach($_POST['parameters'] as $k=>$v) {
 $contacts = CRM_ContactsCommon::get_contacts(array('company_name'=>array($ret)));
 
 $res = array();
-if (isset($params['no_company']) && $params['no_company']) {
-	foreach($contacts as $k=>$v){
-		$res[$v['id']] = CRM_ContactsCommon::contact_format_no_company($v, true);
-	}
-} else {
-	foreach($contacts as $k=>$v){
-		$res[$v['id']] = CRM_ContactsCommon::contact_format_default($v, true);
-	}
+foreach($contacts as $k=>$v){
+	$res[$v['id']] = call_user_func(explode('::', $params['format']), $v, true);
 }
 asort($res);
 if (!isset($params['required']) || !$params['required'])

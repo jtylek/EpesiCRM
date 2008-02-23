@@ -140,14 +140,23 @@ class CRM_ContactsCommon extends ModuleCommon {
 		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_close_tag();
 		return $ret;
 	}
+	public static function contacts_chainedselect_crits($default, $desc, $format_func, $ref_field){
+		Utils_ChainedSelectCommon::create($desc['id'],array($ref_field),'modules/CRM/Contacts/update_contact.php', array('format'=>implode('::', $format_func), 'required'=>$desc['required']), $default);
+		return null;
+	}
 	public static function QFfield_contact(&$form, $field, $label, $mode, $default, $desc) {
 		$cont = array();
 		$param = explode(';',$desc['param']);
 		if ($mode=='add' || $mode=='edit') {
 			if ($param[0] == '::') $callback = array('CRM_ContactsCommon', 'contact_format_default');
 			else $callback = explode('::', $param[0]);
-			if ($param[1] != '::') $crits = call_user_func(explode('::',$param[1]), $default, $desc);
-			else $crits = array();
+			if ($param[1] != '::') {
+				$crit_callback = explode('::',$param[1]);
+				if ($crit_callback[0]=='ChainedSelect') {
+					$crits = null;
+					self::contacts_chainedselect_crits($default, $desc, $callback, $crit_callback[1]);
+				} else $crits = call_user_func($crit_callback);
+			} else $crits = array();
 			if ($crits!==null) {
 				$contacts = self::get_contacts($crits);
 				if (!$desc['required'] && $desc['type']!='multiselect') $cont[''] = '--';
