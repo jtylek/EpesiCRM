@@ -625,7 +625,7 @@ class Utils_RecordBrowser extends Module {
 										if ($tab=='__COMMON__')
 											$comp = $comp+$data;
 										else {
-											$ret = DB::Execute('SELECT * FROM '.$tab.'_data WHERE field=%s ORDER BY value', array($col));
+											$ret = DB::Execute('SELECT * FROM '.$tab.'_data AS rd LEFT JOIN '.$tab.' AS r ON rd.'.$tab.'_id = r.id WHERE rd.field=%s AND r.active=1 ORDER BY value', array($col));
 											while ($row = $ret->FetchRow()) $comp[$row[$tab.'_id']] = $row['value'];
 										}
 										$form->addElement($args['type'], $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', $comp, array('id'=>$args['id']));
