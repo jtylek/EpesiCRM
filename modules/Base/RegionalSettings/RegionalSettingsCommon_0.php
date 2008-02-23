@@ -157,12 +157,13 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	}
 
 	/**
-	 * Convert regional time format to unix time
+	 * Convert regional time format to unix time (and server timezone)
 	 *
 	 * @param string
+	 * @param mixed {0,false,''} - don't convert to server timezone, {1,true,'timestamp'} - convert to server timestamp, {2,'date'} - convert to server date
 	 * @return int
 	 */
-	public static function reg2time($t) {
+	public static function reg2time($t,$to_local=false) {
 		$datef = Base_User_SettingsCommon::get('Base_RegionalSettings','date');
 
 		if(strpos($datef,'%B')>=0) {
@@ -183,7 +184,18 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 			$t = str_replace($months,self::$months_en_short,$t);
 		}
 
-		return strtotime($t);
+		$tt = strtotime($t);
+		if($to_local) {
+			$curr_tz = date_default_timezone_get();
+			date_default_timezone_set(SYSTEM_TIMEZONE);
+			if($to_local==2 || $to_local=='date') {
+				$tt = DB::BindDate($tt);
+			} elseif($to_local==1 || $to_local=='timestamp') {
+				$tt = DB::BindTimeStamp($tt);
+			}
+			date_default_timezone_set($curr_tz);
+		}
+		return $tt;
 	}
 
 	/**
