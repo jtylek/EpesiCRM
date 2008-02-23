@@ -17,7 +17,7 @@ class Apps_Projects_ChangeOrdersCommon extends ModuleCommon {
 // $i - id of the record of the current table (changeorders)
 // field_name can be either 'Field Name' or 'filed_name' - it is evaluated
 public static function changeorder_callback($v, $i) {
-		return Utils_RecordBrowserCommon::create_linked_label('changeorders', 'co_number', $i);
+		return Utils_RecordBrowserCommon::create_linked_label('changeorders', 'CO Number', $i);
 	}
 
 // display project callback
@@ -28,7 +28,7 @@ public static function changeorder_callback($v, $i) {
 // $records[$desc['id']] = $record['project_name']
 // $records[$desc['id']] - more flexible, substitutes field name
 public static function proj_name_callback($record, $i, $nolink, $desc) {
-return Utils_RecordBrowserCommon::create_linked_label('projects', 'project_name', $record[$desc['id']], $nolink);
+return Utils_RecordBrowserCommon::create_linked_label('projects', 'Project Name', $record[$desc['id']], $nolink);
 }
 
 /* usage example of $nolink

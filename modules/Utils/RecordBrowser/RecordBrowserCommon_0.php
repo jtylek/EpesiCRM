@@ -3,6 +3,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_RecordBrowserCommon extends ModuleCommon {
 	private static $table_rows = array();
+	private static $del_or_a = '';
 
 	public static function init($tab, $admin=false) {
 		self::$table_rows = array();
@@ -462,7 +463,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		//vprintf('SELECT * FROM '.$tab_name.'_data'.$where, $vals);
 		$data = DB::Execute('SELECT * FROM '.$tab_name.'_data'.$where, $vals);
 		while($field = $data->FetchRow()) {
-			if (!$admin && !self::check_if_value_valid($field)) continue;
 			$field_id = strtolower(str_replace(' ','_',$field['field']));
 			if (self::$table_rows[$field['field']]['type'] == 'multiselect')
 				if (isset($records[$field[$tab_name.'_id']][$field_id]))
@@ -508,7 +508,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$data = DB::Execute('SELECT * FROM '.$tab_name.'_data WHERE '.$tab_name.'_id=%d', array($id));
 			$record = array();
 			while($field = $data->FetchRow()) {
-				if (!$admin && !self::check_if_value_valid($field)) continue;
 				$field_id = strtolower(str_replace(' ','_',$field['field']));
 				if (self::$table_rows[$field['field']]['type'] == 'multiselect')
 					if (isset($record[$field_id]))
@@ -532,44 +531,31 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			return null;
 		}
 	}
-	private static function check_if_value_valid($field) {
-		return true;
-		switch (self::$table_rows[$field['field']]['type']) {
-			case 'multiselect':
-			case 'select':
-			 			$arr = explode('::', self::$table_rows[$field['field']]['param']);
-			 			if (isset($arr[0])) {
-			 				$tab = $arr[0];
-				 			if (isset($arr[1])) {
-					 			if ($tab!='__COMMON__' && $tab!='') {
-					 				if ($field['value']!=='')
-					 					if (!DB::GetOne('SELECT active FROM '.$tab.' WHERE id=%d', array($field['value'])))
-					 						return false;
-					 			}
-				 			}
-				 		}
-		}
-		return true;
-	}
 	public function delete_record($tab, $id) {
 		DB::Execute('UPDATE '.$tab.' SET active=0 where id=%d', array($id));
 	}
-	public function create_linked_label($tab, $col, $id, $nolink=false){
-		foreach (self::$table_rows as $field=>$args)
-			if ($col == $args['id']) {
-				$col = $field;
-				break;
-			}
-		$label = DB::GetOne('SELECT value FROM '.$tab.'_data WHERE field=%s AND '.$tab.'_id=%d', array($col, $id));
-		if (!$nolink) return '<a '.self::create_record_href($tab, $id).'>'.$label.'</a>';
-		else return $label;
-	}
-
-	public function get_record_href_array($tab, $id){
+	private function get_record_href_array($tab, $id){
 		return array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($tab), 'tab'=>$tab, 'id'=>$id, 'action'=>'view');
 	}
-	public function create_record_href($tab, $id){
+	private function create_record_href($tab, $id){
 		return Module::create_href(self::get_record_href_array($tab,$id));
+	}
+	public function record_link_open_tag($tab, $id, $nolink=false){
+		if (!DB::GetOne('SELECT active FROM '.$tab.' WHERE id=%d',array($id))) {
+			self::$del_or_a = '</del>';
+			return '<del>';
+		}
+		self::$del_or_a = '</a>';
+		if (!$nolink) return '<a '.self::create_record_href($tab, $id).'>';
+		self::$del_or_a = '';
+		return '';
+	}
+	public function record_link_close_tag(){
+		return self::$del_or_a;
+	}
+	public function create_linked_label($tab, $col, $id, $nolink=false){
+		$label = DB::GetOne('SELECT value FROM '.$tab.'_data WHERE field=%s AND '.$tab.'_id=%d', array($col, $id));
+		return self::record_link_open_tag($tab, $id, $nolink).$label.self::record_link_close_tag();
 	}
 }
 ?>

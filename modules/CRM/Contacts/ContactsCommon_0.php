@@ -127,17 +127,17 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 	public static function contact_format_default($record, $nolink){
 		$ret = '';
-		if (!$nolink) $ret .= '<a '.Utils_RecordBrowserCommon::create_record_href('contact', $record['id']).'>';
+		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_open_tag('contact', $record['id']);
 		$ret .= $record['last_name'].(isset($record['first_name'][0])?' '.$record['first_name'][0].'.':'');
-		if (!$nolink) $ret .= '</a>';
-		if (isset($record['company_name'][0])) $ret .= ' ['.Utils_RecordBrowserCommon::create_linked_label('company', 'company_name', $record['company_name'][0], $nolink).']';
+		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_close_tag();
+		if (isset($record['company_name'][0])) $ret .= ' ['.Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $record['company_name'][0], $nolink).']';
 		return $ret;
 	}
 	public static function contact_format_no_company($record, $nolink){
 		$ret = '';
-		if (!$nolink) $ret .= '<a '.Utils_RecordBrowserCommon::create_record_href('contact', $record['id']).'>';
+		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_open_tag('contact', $record['id']);
 		$ret .= $record['last_name'].(($record['first_name']!=='')?' '.$record['first_name']:'');
-		if (!$nolink) $ret .= '</a>';
+		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_close_tag();
 		return $ret;
 	}
 	public static function QFfield_contact(&$form, $field, $label, $mode, $default, $desc) {
@@ -186,7 +186,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			if ($w=='') break;
 			if ($first) $first = false;
 			else $def .= ', ';
-			$def .= Utils_RecordBrowserCommon::create_linked_label('company', 'company_name', $w, $nolink);
+			$def .= Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $w, $nolink);
 		}
 		if (!$def) 	$def = '--';
 		return $def;
@@ -211,7 +211,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 				if ($v=='') break;
 				if ($first) $first = false;
 				else $def .= ', ';
-				$def .= Utils_RecordBrowserCommon::create_linked_label('company', 'company_name', $v);
+				$def .= Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $v);
 			}
 			if (!$def) 	$def = '--';
 			$form->setDefaults(array($field=>$def));
@@ -274,13 +274,13 @@ class CRM_ContactsCommon extends ModuleCommon {
 		if (!Base_AclCommon::i_am_admin()) $form->freeze($field);
 	}
 	public static function display_fname($v, $i, $nolink) {
-		return Utils_RecordBrowserCommon::create_linked_label('contact', 'first_name', $i, $nolink);
+		return Utils_RecordBrowserCommon::create_linked_label('contact', 'First Name', $i, $nolink);
 	}
 	public static function display_lname($v, $i, $nolink) {
-		return Utils_RecordBrowserCommon::create_linked_label('contact', 'last_name', $i, $nolink);
+		return Utils_RecordBrowserCommon::create_linked_label('contact', 'Last Name', $i, $nolink);
 	}
 	public static function display_cname($v, $i, $nolink) {
-		return Utils_RecordBrowserCommon::create_linked_label('company', 'company_name', $i, $nolink);
+		return Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $i, $nolink);
 	}
 	public static function display_webaddress($record, $i, $nolink, $desc) {
 		$v = $record[$desc['id']];
