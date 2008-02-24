@@ -1,6 +1,6 @@
 <?php
 /**
- * Projects Manager
+ * Projects Manager - Equipment
  * @author jtylek@telaxus.com
  * @copyright jtylek@telaxus.com
  * @license SPL
@@ -9,15 +9,15 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Apps_Projects_ChangeOrdersCommon extends ModuleCommon {
+class Apps_Projects_EquipmentCommon extends ModuleCommon {
     public static $paste_or_new = 'new';
     
 
 // create_linked_label ('table','field_name',$i)
-// $i - id of the record of the current table (changeorders)
-// field_name can be either 'Field Name' or 'filed_name' - it is evaluated
-public static function changeorder_callback($v, $i) {
-		return Utils_RecordBrowserCommon::create_linked_label('changeorders', 'CO Number', $i);
+// $i - id of the record of the current table (equipment)
+// field_name format 'Field Name' (not 'field_name')
+public static function equipment_callback($v, $i) {
+		return Utils_RecordBrowserCommon::create_linked_label('equipment', 'Lift Eq No', $i);
 	}
 
 // display project callback
@@ -45,23 +45,14 @@ return $ret;
 
 */
 
-	public static function display_co_total($record, $id, $nolink, $desc){
-		//print_r($record);
-		//return;
-		return $record['est_material'] + $record['est_labor'];
-   }
 		
     public static function menu() {
-		return array('Projects'=>array('__submenu__'=>1,'Change Orders'=>array()));
+		return array('Projects'=>array('__submenu__'=>1,'Equipment'=>array()));
 	}
     
     public static function caption() {
-		return 'Change Orders';
+		return 'Equipment';
 	}
-
-	public function admin_caption() {
-		return 'Change Orders';
-	}
-
 }
+
 ?>

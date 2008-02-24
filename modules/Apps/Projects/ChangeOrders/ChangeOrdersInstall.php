@@ -26,6 +26,7 @@ class Apps_Projects_ChangeOrdersInstall extends ModuleInstall {
 			array('name'=>'GC CO No','type'=>'text', 'required'=>false, 'param'=>'64','extra'=>false, 'visible'=>true),
 			array('name'=>'Est Labor', 'type'=>'currency', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>false),
 			array('name'=>'Est Material', 'type'=>'currency', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>false),
+			array('name'=>'CO Cost', 'type'=>'calculated', 'required'=>false, 'param'=>'64', 'visible'=>true, 'extra'=>false,'display_callback'=>array('Apps_Projects_ChangeOrdersCommon', 'display_co_total')),
 			array('name'=>'Est Mandays', 'type'=>'integer', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>false),	
 			array('name'=>'Approved', 'type'=>'checkbox', 'required'=>false, 'extra'=>false, 'visible'=>false),
 			array('name'=>'Approved Date', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>false, 'visible'=>true),
@@ -37,18 +38,21 @@ class Apps_Projects_ChangeOrdersInstall extends ModuleInstall {
 		//Utils_RecordBrowserCommon::set_quickjump('changeorders', 'Change Order');
 		Utils_RecordBrowserCommon::set_recent('changeorders', 15);
 		Utils_RecordBrowserCommon::set_caption('changeorders', 'Change Orders');
-		Utils_RecordBrowserCommon::set_icon('changeorders', Base_ThemeCommon::get_template_filename('Apps/Projects', 'icon.png'));
+		Utils_RecordBrowserCommon::set_icon('changeorders', Base_ThemeCommon::get_template_filename('Apps/Projects/ChangeOrders', 'icon.png'));
 //		Utils_RecordBrowserCommon::set_access_callback('changeorders', 'Apps_ProjectsCommon', 'access_projects');
 		
 // ************ addons ************** //
 //	Parameters: ('table','ModuleLocation','function','Label');
 		Utils_RecordBrowserCommon::new_addon('projects', 'Apps/Projects/ChangeOrders', 'project_changeorders_addon', 'Change Orders');
+		Utils_RecordBrowserCommon::new_addon('changeorders', 'Apps/Projects/ChangeOrders', 'changeorder_attachment_addon', 'Notes');
 //
 // ************ other ************** //	
 		Utils_CommonDataCommon::new_array('ChangeOrder_Type',array('CO','COP'));
 		Utils_CommonDataCommon::new_array('ChangeOrder_JobType',array('wc'=>'WC','paint'=>'Painting','acoust'=>'Acoustic'));
-		
+		Utils_RecordBrowserCommon::set_icon('projects', Base_ThemeCommon::get_template_filename('Apps/Projects', 'icon.png'));
 		Utils_RecordBrowserCommon::set_favorites('changeorders', true);
+		Utils_RecordBrowserCommon::new_filter('changeorders', 'CO Type');
+		Utils_RecordBrowserCommon::new_filter('changeorders', 'Project Name');
 
 		return true;
 	}
@@ -56,15 +60,16 @@ class Apps_Projects_ChangeOrdersInstall extends ModuleInstall {
 	public function uninstall() {
 		//Base_ThemeCommon::uninstall_default_theme('Apps/Projects');
 		Utils_RecordBrowserCommon::delete_addon('projects', 'Apps/Projects/ChangeOrders', 'project_changeorders_addon');
+		Utils_RecordBrowserCommon::delete_addon('changeorders', 'Apps/Projects/ChangeOrders', 'changeorder_attachment_addon');
 		Utils_RecordBrowserCommon::uninstall_recordset('changeorders');
 		Utils_CommonDataCommon::remove('ChangeOrder_Type');
 		Utils_CommonDataCommon::remove('ChangeOrder_JobType');
-		//Utils_AttachmentCommon::persistent_mass_delete(null,'Apps/Projects/ChangeOrders');
+		Utils_AttachmentCommon::persistent_mass_delete(null,'Apps/Projects/ChangeOrders');
 		return true;
 	}
 	
 	public function version() {
-		return array("0.2");
+		return array("0.3");
 	}
 	
 	public function requires($v) {
