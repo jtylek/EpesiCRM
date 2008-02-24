@@ -31,6 +31,7 @@ class Utils_RecordBrowser extends Module {
 	private $add_button = null;
 	private $changed_view = false;
 	private $is_on_main_page = false;
+	private $custom_defaults = array();
 	public $adv_search = false;
 		
 	public function get_val($field, $record, $id, $links_not_recommended = false, $args = null) {
@@ -141,7 +142,7 @@ class Utils_RecordBrowser extends Module {
 				return;
 			}
 			$this->is_on_main_page = true;
-			Base_ActionBarCommon::add('add',$this->lang->t('New'), $this->create_callback_href(array($this,'view_entry'),array('add')));
+			Base_ActionBarCommon::add('add',$this->lang->t('New'), $this->create_callback_href(array($this,'view_entry'),array('add', null, $this->custom_defaults)));
 
 			$filters = $this->show_filters();
 			ob_start();
@@ -291,10 +292,9 @@ class Utils_RecordBrowser extends Module {
 		if ($this->browse_mode != 'recent')
 			$gb->set_default_order($order, $this->changed_view);
 
-		if ($this->add_button!==null) {
-			$label = '<a '.$this->add_button.'><img border="0" src="'.Base_ThemeCommon::get_template_file('Base/ActionBar','icons/add.png').'" /></a>';
-			$gb->set_custom_label($label);
-		}
+		if ($this->add_button!==null) $label = $this->add_button;
+		else $label = $this->create_callback_href(array($this, 'view_entry'), array('add', null, $this->custom_defaults));
+		$gb->set_custom_label('<a '.$label.'><img border="0" src="'.Base_ThemeCommon::get_template_file('Base/ActionBar','icons/add.png').'" /></a>');
 		$search = $gb->get_search_query(true);
 		$search_res = array();
 		foreach ($search as $k=>$v) {
@@ -1007,6 +1007,9 @@ class Utils_RecordBrowser extends Module {
 		}
 		$this->update_record($id,$values);
 		return false;
+	}
+	public function set_defaults($arg){
+		return $this->custom_defaults = $arg;
 	}
 	public function caption(){
 		return $this->caption.': '.$this->action;

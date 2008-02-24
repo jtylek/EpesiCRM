@@ -76,6 +76,19 @@ class CRM_Contacts extends Module {
 		return false;
 	}
 
+	public function new_contact($company){
+		CRM_ContactsCommon::$paste_or_new = $company;
+		$rb = $this->init_module('Utils/RecordBrowser','contact','contact');
+		$this->rb = $rb;
+		$ret = $rb->view_entry('add', null, array('company_name'=>array($company)));
+		$this->set_module_variable('view_or_add', 'add');
+		if ($ret==false) {
+			$x = ModuleManager::get_instance('/Base_Box|0');
+			if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+			return $x->pop_main();
+		}
+	}
+
 	public function company_attachment_addon($arg){
 		$a = $this->init_module('Utils/Attachment',array($arg['id'],'CRM/Company/'.$arg['id']));
 		$a->additional_header('Company: '.$arg['company_name']);
@@ -100,18 +113,6 @@ class CRM_Contacts extends Module {
 		$this->display_module($a);
 	}
 
-	public function new_contact($company){
-		CRM_ContactsCommon::$paste_or_new = $company;
-		$rb = $this->init_module('Utils/RecordBrowser','contact','contact');
-		$this->rb = $rb;
-		$ret = $rb->view_entry('add', null, array('company_name'=>array($company)));
-		$this->set_module_variable('view_or_add', 'add');
-		if ($ret==false) {
-			$x = ModuleManager::get_instance('/Base_Box|0');
-			if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-			return $x->pop_main();
-		}
-	}
 	public function caption(){
 		if (isset($this->rb)) return $this->rb->caption();
 	}

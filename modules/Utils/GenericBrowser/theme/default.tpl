@@ -10,8 +10,6 @@
 {$form_data.hidden}
 {/if}
 
-{if isset($order) || isset($letter_links)}
-
 <table id="letters-search">
 	<tbody>
 		<tr>
@@ -23,6 +21,7 @@
 			</td>
 			<!-- QuickJump -->
 			<td class="letters">
+				{if isset($letter_links)}
 				<div class="abc" onclick="quick_jump_letters('{$id}');">ABC</div>
 				<div id="quick_jump_letters_{$id}" class="quick_jump_letters" style="display: none;">
 					<!-- SHADOW BEGIN -->
@@ -57,6 +56,7 @@
 						</div>
 					<!-- -->
 				</div>
+				{/if}
 			</td>
 			<!-- Advanced / Simple Search -->
 			<td style="text-align: right;">
@@ -105,8 +105,6 @@
 		</tr>
 	</tbody>
 </table>
-
-{/if}
 
 <!-- SHADOW BEGIN -->
 	<div class="layer">

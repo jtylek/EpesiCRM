@@ -16,12 +16,14 @@ class CRM_PhoneCall extends Module {
 	private $rb = null;
 
 	public function body() {
-		location(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array('phonecall'), 'box_main_arguments'=>array(array('Date and Time'=>'ASC'))));
+		$this->rb = $this->init_module('Utils/RecordBrowser','phonecall','phonecall');
+		$this->rb->set_defaults(array('date_and_time'=>date('Y-m-d H:i:s')));
+		$this->display_module($this->rb);
 	}
 
 	public function admin() {
-		$rb = $this->init_module('Utils/RecordBrowser','phonecall','phonecall');
-		$this->display_module($rb, null, 'admin');
+		$this->rb = $this->init_module('Utils/RecordBrowser','phonecall','phonecall');
+		$this->display_module($this->rb, null, 'admin');
 	}
 
 	public function company_addon($arg){
