@@ -74,22 +74,6 @@ class Base_Admin extends Module {
 		$theme->display();
 	}
 	
-	public static function admin_menu() {
-		if(!Base_AclCommon::i_am_admin()) return array();
-		
-		$mod_cpy = ModuleManager::call_common_methods('admin_caption');
-		foreach($mod_cpy as $name=>$caption) {
-			if(!ModuleManager::check_access($name,'admin') || $name=='Base_Admin') continue;
-			if(!isset($caption)) $caption = $name.' module';
-			$mod_ok[$caption] = array('admin_href'=>$name);
-		}
-		$mod_ok['__submenu__']=1;
-		
-		ksort($mod_ok);
-		//return array();
-		return array('Administrator'=>array_merge(array('Control panel'=>array(), '__split__'=>1), $mod_ok));
-	}
-	
 	public function caption() {
 		$module = $this->get_module_variable('href');
 		if ($module===null) return 'Administration: Control Panel';

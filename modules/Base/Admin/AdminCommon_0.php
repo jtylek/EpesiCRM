@@ -25,6 +25,11 @@ class Base_AdminCommon extends ModuleCommon {
 	public static function body_access() {
 		return Base_AclCommon::i_am_admin();
 	}
+	
+	public static function menu() {
+		if(!Base_AclCommon::i_am_admin()) return array();
+		return array('__split__'=>array('__weight__'=>2000),'Administrator'=>array('__weight__'=>2001));
+	}
 }
 
 /**

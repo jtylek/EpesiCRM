@@ -167,14 +167,6 @@ class Base_Menu extends Module {
 		}
 		if (!empty($modules_menu)) $modules_menu['__submenu__'] = 1;
 
-		// preparing admin menu
-		if (array_key_exists('Base_Admin',ModuleManager::$modules)){
-			$admin_menu = call_user_func(array('Base_Admin','admin_menu'));
-			if(is_array($admin_menu)) {
-				Base_MenuCommon::add_default_menu($admin_menu, 'Base_Admin');
-			} else $admin_menu = array();
-		} else $admin_menu = array();
-
 		// preparing quick access menu
 		if (array_key_exists('Base_Menu_QuickAccess',ModuleManager::$modules)){
 			$qaccess_menu = Base_Menu_QuickAccessCommon::quick_access_menu();
@@ -201,10 +193,6 @@ class Base_Menu extends Module {
 
 		// Home menu
 		$home_menu = array();
-		if(!empty($admin_menu)) {
-			$admin_menu['__submenu__'] = 1;
-			$modules_menu = array_merge($modules_menu,array('__split__'=>1),$admin_menu);
-		}
 		$home_menu[$lang->ht('Menu')] = $modules_menu;
 
 		// putting all menus into menu array
