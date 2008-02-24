@@ -50,10 +50,6 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	public static function caption() {
 		return 'Phone Calls';
 	}
-	public function admin_caption() {
-		return 'Phone Calls';
-	}
-
 	public static function QFfield_phone(&$form, $field, $label, $mode, $default) {
 		if ($mode=='add' || $mode=='edit') {
 			$phone_numbers = CRM_ContactsCommon::get_contacts(array(), array('Work Phone', 'Home Phone', 'Mobile Phone'));

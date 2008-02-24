@@ -21,11 +21,6 @@ class CRM_PhoneCall extends Module {
 		$this->display_module($this->rb);
 	}
 
-	public function admin() {
-		$this->rb = $this->init_module('Utils/RecordBrowser','phonecall','phonecall');
-		$this->display_module($this->rb, null, 'admin');
-	}
-
 	public function company_addon($arg){
 		$theme = $this->init_module('Base/Theme');
 //		$theme->assign('add_contact', '<a '.$this->create_callback_href(array($this, 'company_addon_new_contact'), array($arg['id'])).'>'.Base_LangCommon::ts('CRM_Contacts','Add new contact').'</a>');

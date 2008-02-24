@@ -96,8 +96,8 @@ class Utils_RecordBrowser extends Module {
 	}
 
 	public function construct($tab = null) {
-		if (!isset($tab))
-			trigger_error('RecordBrowser did not receive string name for the table '.$this->get_parent_type().'.<br>Use $this->init_module(\'Utils/RecordBrowser\',\'table name here\');',E_USER_ERROR);
+//		if (!isset($tab))
+//			trigger_error('RecordBrowser did not receive string name for the table '.$this->get_parent_type().'.<br>Use $this->init_module(\'Utils/RecordBrowser\',\'table name here\');',E_USER_ERROR);
 		$this->tab = $tab;
 	}
 	
@@ -651,7 +651,7 @@ class Utils_RecordBrowser extends Module {
 		Utils_RecordBrowserCommon::update_record($this->tab, $id, $values, true);
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
-	public function admin() {
+	public function administrator_panel() {
 		$this->init();
 		$tb = $this->init_module('Utils/TabbedBrowser');
 		
@@ -1088,6 +1088,21 @@ class Utils_RecordBrowser extends Module {
 			'add_selected_'.$element.'();'.
 			'};');
 		$theme->display('Record_picker');
+	}
+	public function admin() {
+		$ret = DB::Execute('SELECT tab FROM recordbrowser_table_properties');
+		$tb = $this->init_module('Utils/TabbedBrowser');
+		while ($row=$ret->FetchRow()) {
+			$tb->set_tab(ucfirst(str_replace('_',' ',$row['tab'])), array($this, 'record_management'), array($row['tab']));
+		}
+		$this->display_module($tb);
+		$tb->tag();
+	}
+	public function record_management($table){
+//		$this->tab = $table;
+//		$this->administrator_panel();
+		$rb = $this->init_module('Utils/RecordBrowser',$table,$table);
+		$this->display_module($rb, null, 'administrator_panel');
 	}
 
 }

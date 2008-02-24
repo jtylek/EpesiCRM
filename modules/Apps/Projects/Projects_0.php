@@ -15,11 +15,6 @@ public function body() {
 		location(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array('projects')));
 	}
 
-public function admin() {
-		$rb = $this->init_module('Utils/RecordBrowser','projects','projects');
-		$this->display_module($rb, null, 'admin');
-	}
-
 public function new_project($project){
 		Apps_ProjectsCommon::$paste_or_new = $project;
 		$rb = $this->init_module('Utils/RecordBrowser','projects','projects');

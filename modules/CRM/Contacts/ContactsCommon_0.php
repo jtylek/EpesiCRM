@@ -83,9 +83,6 @@ class CRM_ContactsCommon extends ModuleCommon {
 	public static function caption() {
 		return 'Companies & Contacts';
 	}
-	public function admin_caption() {
-		return 'Companies & Contacts';
-	}
 	public static function crm_company_datatype($field = array()) {
 		$field['QFfield_callback'] = array('CRM_ContactsCommon', 'QFfield_company');
 		$field['display_callback'] = array('CRM_ContactsCommon', 'display_company');

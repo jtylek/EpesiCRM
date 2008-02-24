@@ -59,9 +59,5 @@ return $ret;
 		return 'Change Orders';
 	}
 
-	public function admin_caption() {
-		return 'Change Orders';
-	}
-
 }
 ?>

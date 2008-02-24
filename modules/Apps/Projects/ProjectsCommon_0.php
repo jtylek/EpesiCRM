@@ -56,10 +56,6 @@ class Apps_ProjectsCommon extends ModuleCommon {
 		return array('Projects'=>array('__submenu__'=>1,'Projects'=>array()));
 	}
 
-	public function admin_caption() {
-		return 'Projects';
-	}
-    	
 // Filter criteria for Company Name
 	public static function projects_company_crits(){
 //  	   return array(':Fav'=>1);

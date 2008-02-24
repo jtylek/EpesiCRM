@@ -25,14 +25,6 @@ class CRM_Contacts extends Module {
 		}
 	}
 
-	public function admin() {
-		$tb = $this->init_module('Utils/TabbedBrowser');
-		$tb->set_tab('Contacts', array($this, 'contact_admin'));
-		$tb->set_tab('Companies', array($this, 'company_admin'));
-		$tb->set_tab('Main company', array($this, 'main_company_admin'));
-		$this->display_module($tb);
-		$tb->tag();
-	}
 	public function main_company_admin(){
 		$qf = $this->init_module('Libs/QuickForm','my_company');
 		$l = $this->init_module('Base/Lang');
@@ -53,15 +45,6 @@ class CRM_Contacts extends Module {
 		}
 		$qf->display();
 	}
-	public function contact_admin(){
-		$rb = $this->init_module('Utils/RecordBrowser','contact','contact');
-		$this->display_module($rb, null, 'admin');
-	}
-	public function company_admin(){
-		$rb = $this->init_module('Utils/RecordBrowser','company','company');
-		$this->display_module($rb, null, 'admin');
-	}
-
 	public function company_addon($arg){
 		$rb = $this->init_module('Utils/RecordBrowser','contact','contact_addon');
 		Base_ActionBarCommon::add('add',Base_LangCommon::ts('CRM_Contacts','Add contact'), $this->create_callback_href(array($this, 'company_addon_new_contact'), array($arg['id'])));

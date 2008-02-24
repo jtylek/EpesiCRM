@@ -15,11 +15,6 @@ class Apps_Projects_ChangeOrders extends Module {
 		location(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array('changeorders')));
 	}
 
-public function admin() {
-		$rb = $this->init_module('Utils/RecordBrowser','changeorders','changeorders');
-		$this->display_module($rb, null, 'admin');
-	}
-
 public function new_changeorder($changeorder){
 		Apps_ProjectsCommon::$paste_or_new = $project;
 		$rb = $this->init_module('Utils/RecordBrowser','changeorders','changeorders');

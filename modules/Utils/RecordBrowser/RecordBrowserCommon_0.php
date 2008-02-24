@@ -5,6 +5,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	private static $table_rows = array();
 	private static $del_or_a = '';
 
+	public function admin_caption() {
+		return 'Records Sets';
+	}
 	public static function init($tab, $admin=false) {
 		self::$table_rows = array();
 		$ret = DB::Execute('SELECT * FROM '.$tab.'_field'.($admin?'':' WHERE active=1 AND type!=\'page_split\'').' ORDER BY position');
