@@ -162,11 +162,11 @@ class CRM_ContactsCommon extends ModuleCommon {
 			} else $cont = array();
 			$form->addElement($desc['type'], $field, $label, $cont, array('id'=>$field));
 			if ($mode!=='add') $form->setDefaults(array($field=>$default));
-			else if ($desc['type']=='multiselect') {
+/*			else if ($desc['type']=='multiselect') {
 				$me = self::get_my_record();
 				$form->setDefaults(array($field=>$me['id']));
 				// TODO: to reconsider
-			}
+			}*/
 		} else {
 			$form->addElement('static', $field, $label, array('id'=>$field));
 			$def = '';
