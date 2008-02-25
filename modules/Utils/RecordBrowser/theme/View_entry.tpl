@@ -7,7 +7,7 @@
 	$this->_tpl_vars['rows'] = ceil($this->_tpl_vars['count']/$this->_tpl_vars['cols']);
 	$this->_tpl_vars['no_empty'] = $this->_tpl_vars['count']-floor($this->_tpl_vars['count']/$this->_tpl_vars['cols'])*$this->_tpl_vars['cols'];
 	if ($this->_tpl_vars['no_empty']==0) $this->_tpl_vars['no_empty'] = $this->_tpl_vars['cols']+1;
-	$this->_tpl_vars['cols_percent'] = 100 / $this->_tpl_vars['rows'];
+	$this->_tpl_vars['cols_percent'] = 100 / $this->_tpl_vars['cols'];
 {/php}
 
 {if $main_page}
