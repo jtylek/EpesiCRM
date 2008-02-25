@@ -470,7 +470,7 @@ class Utils_RecordBrowser extends Module {
 		}
 		if ($mode!='add' && $mode!='edit') {
 			$record = Utils_RecordBrowserCommon::get_record($this->tab, $id, true);
-			$ret = DB::Execute('SELECT * FROM '.$this->tab.'_addon');
+			$ret = DB::Execute('SELECT * FROM recordbrowser_addon WHERE tab=%s', array($this->tab));
 			while ($row = $ret->FetchRow()) {
 				$mod = $this->init_module($row['module']);
 				if (!is_callable(array($mod,$row['func']))) $tb->set_tab($this->lang->t($row['label']),array($this, 'broken_addon'), $js);

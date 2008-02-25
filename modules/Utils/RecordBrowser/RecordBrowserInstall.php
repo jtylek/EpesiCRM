@@ -36,10 +36,17 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 						'module C(64),'.
 						'func C(128)',
 						array('constraints'=>''));
+		DB::CreateTable('recordbrowser_addon',
+					'tab C(64),'.
+					'module C(128),'.
+					'func C(128),'.
+					'label C(64)',
+					array('constraints'=>', PRIMARY KEY(module, func)'));
 		return true;
 	}
 	
 	public function uninstall() {
+		DB::DropTable('recordbrowser_addon');
 		DB::DropTable('recordbrowser_table_properties');
 		DB::DropTable('recordbrowser_datatype');
 		Base_ThemeCommon::uninstall_default_theme('Utils/RecordBrowser');

@@ -77,11 +77,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					'visited_on T',
 					array('constraints'=>', FOREIGN KEY (user_id) REFERENCES user_login(id)'.
 										', FOREIGN KEY ('.$tab_name.'_id) REFERENCES '.$tab_name.'(id)'));
-		DB::CreateTable($tab_name.'_addon',
-					'module C(128),'.
-					'func C(128),'.
-					'label C(64)',
-					array('constraints'=>', PRIMARY KEY(module, func)'));
 		DB::CreateTable($tab_name.'_callback',
 					'field C(32),'.
 					'module C(64),'.
@@ -135,7 +130,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (!$tab_name) return false;
 		DB::DropTable($tab_name.'_callback');
 		DB::DropTable($tab_name.'_require');
-		DB::DropTable($tab_name.'_addon');
 		DB::DropTable($tab_name.'_recent');
 		DB::DropTable($tab_name.'_favorite');
 		DB::DropTable($tab_name.'_edit_history_data');
@@ -174,11 +168,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function new_addon($tab_name, $module, $func, $label) {
 		$module = str_replace('/','_',$module);
 		self::delete_addon($tab_name, $module, $func);
-		DB::Execute('INSERT INTO '.$tab_name.'_addon (module, func, label) VALUES (%s, %s, %s)', array($module, $func, $label));
+		DB::Execute('INSERT INTO recordbrowser_addon (tab, module, func, label) VALUES (%s, %s, %s, %s)', array($tab_name, $module, $func, $label));
 	}
 	public static function delete_addon($tab_name, $module, $func) {
 		$module = str_replace('/','_',$module);
-		DB::Execute('DELETE FROM '.$tab_name.'_addon WHERE module=%s AND func=%s', array($module, $func));
+		DB::Execute('DELETE FROM recordbrowser_addon WHERE tab=%s AND module=%s AND func=%s', array($tab_name, $module, $func));
 	}
 	public static function register_datatype($type, $module, $func) {
 		DB::Execute('INSERT INTO recordbrowser_datatype (type, module, func) VALUES (%s, %s, %s)', array($type, $module, $func));
