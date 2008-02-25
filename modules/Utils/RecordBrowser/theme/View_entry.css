@@ -15,12 +15,7 @@
     width: 100%;
 }
 
-#Utils_RecordBrowser__View_entry td.left-column  { vertical-align: top; }
-#Utils_RecordBrowser__View_entry td.right-column { vertical-align: top; }
-
-#Utils_RecordBrowser__View_entry td.right-column-view {
-    border-right: 1px solid #b3b3b3;
-}
+#Utils_RecordBrowser__View_entry td.column  { vertical-align: top; }
 
 #Utils_RecordBrowser__View_entry .label {
     background-color: #336699;
@@ -81,6 +76,11 @@
     border: 0px;
     background-color: #e6ecf2;
     width: 100%;
+}
+
+#Utils_RecordBrowser__View_entry .timestamp input,
+#Utils_RecordBrowser__View_entry .timestamp select {
+    width: auto;
 }
 
 #Utils_RecordBrowser__View_entry .data input[type="checkbox"],
