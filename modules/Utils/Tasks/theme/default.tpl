@@ -2,6 +2,17 @@
 	load_js('data/Base_Theme/templates/default/Utils_Tasks__default.js');
 {/php}
 
+<table class="Utils_Tasks__table" border="0" cellpadding="0" cellspacing="0">
+	<tbody>
+		<tr>
+			<td class="icon"><img src="{$theme_dir}/Utils_Tasks__icon.png" width="32" height="32" border="0"></td>
+			<td class="name">Tasks - {if $action == 'view'}view{else}edit{/if}</td>
+			<td class="required_fav_info">
+			</td>
+		</tr>
+	</tbody>
+</table>
+
 {$form_open}
 
 <div id="Utils_Tasks">
