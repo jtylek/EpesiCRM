@@ -450,7 +450,7 @@ class Utils_RecordBrowser extends Module {
 		print($data['javascript'].'<form '.$data['attributes'].'>'.$data['hidden']."\n");
 
 		$last_page = DB::GetOne('SELECT MIN(position) FROM '.$this->tab.'_field WHERE type = \'page_split\' AND field != \'General\'');
-		$label = DB::GetAll('SELECT field, param FROM '.$this->tab.'_field WHERE position=%s', array($last_page));
+		$label = DB::GetRow('SELECT field, param FROM '.$this->tab.'_field WHERE position=%s', array($last_page));
 		$cols = $label['param'];
 		$label = $label['field'];
 		$this->mode = $mode;
