@@ -67,8 +67,8 @@ session_set_save_handler(array('DBSession','open'),
                              array('DBSession','destroy'),
                              array('DBSession','gc'));
 
-$subdir = substr(getcwd(),strlen(dirname(dirname(__FILE__))));
-$fulldir = dirname($_SERVER['SCRIPT_NAME']);
+$subdir = str_replace('\\','/',substr(getcwd(),strlen(dirname(dirname(__FILE__)))));
+$fulldir = str_replace('\\','/',dirname($_SERVER['SCRIPT_NAME']));
 $document_root = substr($fulldir,0,strlen($fulldir)-strlen($subdir));
 $document_root = trim($document_root,'/');
 if($document_root) $document_root = '/'.$document_root.'/';
