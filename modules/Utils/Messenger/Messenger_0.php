@@ -109,7 +109,7 @@ class Utils_Messenger extends Module {
 				$ret['alert_on'] = strtotime($ret['alert_date'])+($ret['alert_time']['h']%12)*3600+(($ret['alert_time']['a']=='pm')?(3600*12):0)+$ret['alert_time']['i']*60;
 			else
 				$ret['alert_on'] = strtotime($ret['alert_date'])+$ret['alert_time']['H']*3600+$ret['alert_time']['i']*60;
-			$ret['alert_on'] = Base_RegionalSettingsCommon::server_time($ret['alert_on']);
+			$ret['alert_on'] = Base_RegionalSettingsCommon::reg2time($ret['alert_on']);
 			if($this->autosave) {
 				if($row) {
 					DB::Execute('UPDATE utils_messenger_message SET message=%s,alert_on=%T WHERE page_id=\''.$this->mid.'\' AND id=%d',array($ret['message'],$ret['alert_on'],$row['id']));
