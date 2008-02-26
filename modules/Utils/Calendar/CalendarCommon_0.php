@@ -53,10 +53,10 @@ class Utils_CalendarCommon extends ModuleCommon {
 		$ev_end = $row['end'];
 		$oneday = (date('Y-m-d',$ev_end)==date('Y-m-d',$ev_start));
 
-		Base_RegionalSettingsCommon::set_locale();
+		Base_RegionalSettingsCommon::set();
 		$start_day = date('D',$ev_start);
 		$end_day = date('D',$ev_end);
-		Base_RegionalSettingsCommon::restore_locale();
+		Base_RegionalSettingsCommon::restore();
 		
 		if($oneday)
 			$end_t = Base_RegionalSettingsCommon::time2reg($ev_end,2,false);

@@ -81,7 +81,11 @@ class Utils_Messenger extends Module {
 		$f = &$this->init_module('Libs/QuickForm');
 		
 		if($row) {
-			$f->setDefaults(array_merge($row,array('alert_date'=>$row['alert_on'],'alert_time'=>$row['alert_on'])));
+			$a = strtotime($row['alert_on']);
+			Base_RegionalSettingsCommon::set_tz();
+			$a = date('Y-m-d H:i:s',$a);
+			Base_RegionalSettingsCommon::restore_tz();
+			$f->setDefaults(array_merge($row,array('alert_date'=>$a,'alert_time'=>$a)));
 		} else {
 			$tt = $this->def_date;
 			$tt = $tt-$tt%300;
@@ -109,14 +113,14 @@ class Utils_Messenger extends Module {
 				$ret['alert_on'] = strtotime($ret['alert_date'])+($ret['alert_time']['h']%12)*3600+(($ret['alert_time']['a']=='pm')?(3600*12):0)+$ret['alert_time']['i']*60;
 			else
 				$ret['alert_on'] = strtotime($ret['alert_date'])+$ret['alert_time']['H']*3600+$ret['alert_time']['i']*60;
-			$ret['alert_on'] = Base_RegionalSettingsCommon::reg2time($ret['alert_on']);
+			$ret['alert_on'] = Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$ret['alert_on']));
 			if($this->autosave) {
 				if($row) {
 					DB::Execute('UPDATE utils_messenger_message SET message=%s,alert_on=%T WHERE page_id=\''.$this->mid.'\' AND id=%d',array($ret['message'],$ret['alert_on'],$row['id']));
 					$id = $row['id'];
 					DB::Execute('DELETE FROM utils_messenger_users WHERE message_id=%d',array($id));
 				} else {
-					DB::Execute('INSERT INTO utils_messenger_message(page_id,parent_module,message,callback_method,callback_args,created_on,created_by,alert_on) VALUES(%s,%s,%s,%s,%T,%d,%T)',array($this->mid,$this->get_type(),$ret['message'],serialize($this->callback_method),serialize($this->callback_args),time(),Acl::get_user(),$ret['alert_on']));
+					DB::Execute('INSERT INTO utils_messenger_message(page_id,parent_module,message,callback_method,callback_args,created_on,created_by,alert_on) VALUES(%s,%s,%s,%s,%s,%T,%d,%T)',array($this->mid,$this->get_type(),$ret['message'],serialize($this->callback_method),serialize($this->callback_args),time(),Acl::get_user(),$ret['alert_on']));
 					$id = DB::Insert_ID('utils_messenger_message','id');
 				}
 				if(is_array($this->users)) {

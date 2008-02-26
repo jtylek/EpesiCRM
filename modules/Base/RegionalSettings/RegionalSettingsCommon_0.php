@@ -128,9 +128,13 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		}
 		$format = implode(' ',$format);
 
-		self::set_locale($tz);
+		self::set_locale();
+		if($tz)
+			self::set_tz();
 		$ret = self::strftime($format,$t);
 		self::restore_locale();
+		if($tz)
+			self::restore_tz();
 		return $ret;
 	}
 
@@ -149,18 +153,34 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 				$lang_code.'.utf8',
 				$lang_code.'.UTF-8',
 				isset(self::$countries[$lang_code])?self::$countries[$lang_code]:null);//win32
-		if($tz && Acl::is_user()) {
+	}
+	
+	public static function set_tz() {
+		if(Acl::is_user()) {
 			self::$curr_tz = date_default_timezone_get();
 			date_default_timezone_set(Base_User_SettingsCommon::get('Base_RegionalSettings','tz'));
 		}
 	}
 
-	public static function restore_locale() {
+	public static function restore_tz() {
 		if(self::$curr_tz!==null) {
 			date_default_timezone_set(self::$curr_tz);
 			self::$curr_tz=null;
 		}
+	}
+
+	public static function restore_locale() {
 		setlocale(LC_TIME,self::$curr_locale);
+	}
+	
+	public static function set() {
+		self::set_tz();
+		self::set_locale();
+	}
+
+	public static function restore() {
+		self::restore_tz();
+		self::restore_locale();
 	}
 
 	/**
@@ -174,6 +194,8 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		$datef = Base_User_SettingsCommon::get('Base_RegionalSettings','date');
 
 		self::set_locale($from_local);
+		if($from_local)
+			self::set_tz();
 		if(strpos($datef,'%B')>=0) {
 			$months = array();
 			for($i=1; $i<=12; $i++)
@@ -188,8 +210,9 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 			$t = str_replace($months,self::$months_en_short,$t);
 		}
 
-		
 		$tt = strtotime($t);
+		if($from_local)
+			self::restore_tz();
 		self::restore_locale();
 		return $tt;
 	}
@@ -220,18 +243,5 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	public static function time_12h() {
 		return '%I:%M:%S %p'==Base_User_SettingsCommon::get('Base_RegionalSettings','time');
 	}
-
-/*	public static function convert_24h($t,$seconds=true) {
-		if(!is_numeric($t) && is_string($t)) $t = strtotime($t);
-		$format = Base_User_SettingsCommon::get('Base_RegionalSettings','time');
-		if(!$seconds) {
-			$p = strpos($format,':%S');
-			$format = substr($format,0,$p).substr($format,$p+3);
-		}
-		self::set_locale();
-		$ret = self::strftime($format,$t);
-		self::restore_locale();
-		return $ret;
-	}*/
 }
 ?>
