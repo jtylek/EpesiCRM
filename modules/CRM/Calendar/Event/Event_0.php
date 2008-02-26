@@ -132,12 +132,12 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		eval_js_once('crm_calendar_duration_switcher = function(x) {'.
 			'var sw = $(\'duration_switch\');'.
 			'if((!x && sw.value==\'0\') || (x && sw.value==\'1\')) {'.
-			'$(\'crm_calendar_event_end_block\').hide();'.
-			'$(\'crm_calendar_duration_block\').show();'.
+			'var end_b=$(\'crm_calendar_event_end_block\');if(end_b)end_b.hide();'.
+			'var dur_b=$(\'crm_calendar_duration_block\');if(dur_b)dur_b.show();'.
 			'sw.value=\'1\';'.
 			'} else {'.
-			'$(\'crm_calendar_event_end_block\').show();'.
-			'$(\'crm_calendar_duration_block\').hide();'.
+			'var end_b=$(\'crm_calendar_event_end_block\');if(end_b)end_b.show();'.
+			'var dur_b=$(\'crm_calendar_duration_block\');if(dur_b)dur_b.hide();'.
 			'sw.value=\'0\';'.
 			'}}');
 		$theme->assign('toggle_duration','<a class="button" href="javascript:void(0)" onClick="crm_calendar_duration_switcher()" id="toggle_duration_button">'.$this->lang->t('Toggle').'</a>');

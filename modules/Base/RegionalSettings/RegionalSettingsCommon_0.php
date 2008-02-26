@@ -111,22 +111,27 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	 * @param mixed string-strtotime recognizable string, null-current time, int-unix time
 	 * @param mixed {0,false,null,''}-no time,{1,true,'with_seconds'}-time with seconds,{2,'without_seconds'}-time without seconds
 	 * @param mixed {0,false,null,''}-no date,{1,true}-with date
-	 * @param boolean true-convert to client time
+	 * @param boolean convert to client time
+	 * @param boolean use regional user format
 	 * @return string
 	 */
-	public static function time2reg($t=null,$time=true,$date=true,$tz=true) {
+	public static function time2reg($t=null,$time=true,$date=true,$tz=true,$reg_format=true) {
 		if(!isset($t)) $t = time();
 		elseif(!is_numeric($t) && is_string($t)) $t = strtotime($t);
-		$format = array();
-		if($date)
-			$format[] = Base_User_SettingsCommon::get('Base_RegionalSettings','date');
-		if($time) {
-			$sec = Base_User_SettingsCommon::get('Base_RegionalSettings','time');
-			if($time==2 || strcasecmp($time,'without_seconds')==0)
-				$sec = str_replace(':%S','',$sec);
-			$format[] = $sec;
+		if($reg_format) {
+			$format = array();
+			if($date)
+				$format[] = Base_User_SettingsCommon::get('Base_RegionalSettings','date');
+			if($time) {
+				$sec = Base_User_SettingsCommon::get('Base_RegionalSettings','time');
+				if($time==2 || strcasecmp($time,'without_seconds')==0)
+					$sec = str_replace(':%S','',$sec);
+				$format[] = $sec;
+			}
+			$format = implode(' ',$format);
+		} else {
+			$format = '%Y-%m-%d %H:%M:%S';
 		}
-		$format = implode(' ',$format);
 
 		self::set_locale();
 		if($tz)
@@ -137,7 +142,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 			self::restore_tz();
 		return $ret;
 	}
-
+	
 	private static function strftime($format,$timestamp) {
 		$ret = strftime($format,$timestamp);
 		if ( strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' )

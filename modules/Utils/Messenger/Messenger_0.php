@@ -81,10 +81,7 @@ class Utils_Messenger extends Module {
 		$f = &$this->init_module('Libs/QuickForm');
 		
 		if($row) {
-			$a = strtotime($row['alert_on']);
-			Base_RegionalSettingsCommon::set_tz();
-			$a = date('Y-m-d H:i:s',$a);
-			Base_RegionalSettingsCommon::restore_tz();
+			$a = Base_RegionalSettingsCommon::time2reg($row['alert_on'],false,false,true,false);
 			$f->setDefaults(array_merge($row,array('alert_date'=>$a,'alert_time'=>$a)));
 		} else {
 			$tt = $this->def_date;
