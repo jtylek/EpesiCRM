@@ -86,7 +86,7 @@ class Utils_Tasks extends Module {
 					$ass,$rel,$stat,
 					$this->priorities[$row['priority']],
 					'<img src="'.Base_ThemeCommon::get_template_file('images/'.($row['longterm']?'checkbox_on':'checkbox_off').'.png').'">',
-					$row['deadline']?Base_RegionalSettingsCommon::time2reg($row['deadline']):'--');
+					$row['deadline']?Base_RegionalSettingsCommon::time2reg($row['deadline'],false):'--');
 			$r->add_action($this->create_callback_href(array($this,'push_box0'),array('edit',array($row['id']),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm,$this->display_closed))),'Edit');
 			$r->add_action($this->create_callback_href(array($this,'push_box0'),array('edit',array($row['id'],false),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm,$this->display_closed))),'View');
 			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Are you sure?'),array($this,'delete_task'),$row['id']),'Delete');
@@ -146,7 +146,7 @@ class Utils_Tasks extends Module {
 				$this->lang->t('Assigned to: %s',array($ass)).'<br>'.
 				$this->lang->t('Related with: %s',array($rel)).'<br>'.
 				$this->lang->t('Longterm: %s',array($row['longterm']?'yes':'no')).'<br>'.
-				$this->lang->t('Deadline: %s',array($row['deadline']?Base_RegionalSettingsCommon::time2reg($row['deadline']):'--')).'<hr>'.
+				$this->lang->t('Deadline: %s',array($row['deadline']?Base_RegionalSettingsCommon::time2reg($row['deadline'],false):'--')).'<hr>'.
 				$this->lang->t('Created on: %s',array(Base_RegionalSettingsCommon::time2reg($row['created_on']))).'<br>'.
 				$this->lang->t('Created by: %s',array(Base_UserCommon::get_user_login($row['created_by']))).'<br>'.
 				($row['edited_by']?$this->lang->t('Edited on: %s',array(Base_RegionalSettingsCommon::time2reg($row['edited_on']))).'<br>'.
@@ -191,9 +191,6 @@ class Utils_Tasks extends Module {
 
 
 			$form->addElement('checkbox','is_deadline',$this->lang->t('Deadline'),false,array('onChange'=>'var x =$(\'deadline_date\');if(this.checked)x.enable();else x.disable();'));
-			if(!$form->exportValue('is_deadline'))
-				eval_js('$(\'deadline_date\').disable()');
-
 			$form->add_table('utils_tasks_task',array(
 				array('name'=>'title','label'=>$this->lang->t('Title'),'param'=>array('id'=>'task_title')),
 				array('name'=>'priority','label'=>$this->lang->t('Priority'), 'type'=>'select', 'values'=>$this->priorities),
@@ -217,12 +214,17 @@ class Utils_Tasks extends Module {
 					$defaults['created_on'] = Base_RegionalSettingsCommon::time2reg($defaults['created_on']);
 					$defaults['edited_by'] = $defaults['edited_by']?Base_UserCommon::get_user_login($defaults['edited_by']):'--';
 					$defaults['edited_on'] = $defaults['edited_on']?Base_RegionalSettingsCommon::time2reg($defaults['edited_on']):'--';
+				} else {
+					$defaults['is_deadline'] = ($defaults['deadline']==true);
 				}
 				$form->setDefaults($defaults);
 				$form->setDefaults(array('cus_id'=>$related,'emp_id'=>array_keys($assigned)));
 			} elseif($edit && $me!==null) {
 				$form->setDefaults(array('emp_id'=>array($me['id'])));
 			}
+
+			if(!$form->exportValue('is_deadline'))
+				eval_js('$(\'deadline_date\').disable()');
 
 			$emp = array();
 			$ret = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())));
