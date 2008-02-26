@@ -195,11 +195,11 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	 * @param boolean convert from local time to server time
 	 * @return int
 	 */
-	public static function reg2time($t,$from_local=true) {
+	public static function reg2time($t,$tz=true) {
 		$datef = Base_User_SettingsCommon::get('Base_RegionalSettings','date');
 
-		self::set_locale($from_local);
-		if($from_local)
+		self::set_locale();
+		if($tz)
 			self::set_tz();
 		if(strpos($datef,'%B')>=0) {
 			$months = array();
@@ -216,7 +216,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		}
 
 		$tt = strtotime($t);
-		if($from_local)
+		if($tz)
 			self::restore_tz();
 		self::restore_locale();
 		return $tt;

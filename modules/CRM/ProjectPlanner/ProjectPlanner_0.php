@@ -64,7 +64,7 @@ class CRM_ProjectPlanner extends Module {
 			print($this->lang->t('There is no defined projects'));
 			return;
 		}
-		$form->addElement('select','proj',$this->lang->t('Project'),$projs);
+		$form->addElement('select','proj',$this->lang->t('Project'),$projs,array('onChange'=>$form->get_submit_form_js()));
 		$ids = array_keys($projs);
 		$sel_proj = & $this->get_module_variable('project',$ids[0]);
 		if($form->validate()) {
@@ -96,7 +96,7 @@ class CRM_ProjectPlanner extends Module {
 			print($this->lang->t('There is no defined employees'));
 			return;
 		}
-		$form->addElement('select','emp',$this->lang->t('Employee'),$emp);
+		$form->addElement('select','emp',$this->lang->t('Employee'),$emp,array('onChange'=>$form->get_submit_form_js()));
 		$ids = array_keys($emp);
 		$sel_emp = & $this->get_module_variable('employee',$ids[0]);
 		if($form->validate()) {
