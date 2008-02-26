@@ -11,12 +11,12 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_ProjectPlanner_OverviewEventCommon extends Utils_Calendar_EventCommon {
 	public static function get($id) {
-		$result = DB::GetRow('SELECT \'blue\' as color,start,(end-start) as duration,project_id,employee_id,id,0 as timeless FROM crm_projectplanner_work WHERE id=%d',array($id));
+		$result = DB::GetRow('SELECT \'blue\' as color,start,project_id,employee_id,id,0 as timeless FROM crm_projectplanner_work WHERE id=%d',array($id));
 		self::add_info($result);
 		return $result;
 	}
 	public static function get_all($start,$end,$order='') {
-		$ret = DB::GetAll('SELECT \'blue\' as color,start,end,(end-start) as duration,project_id,employee_id,id,0 as timeless FROM crm_projectplanner_work WHERE (start>=%d AND start<%d)',array($start,$end));
+		$ret = DB::GetAll('SELECT \'blue\' as color,MIN(start) as min_start,MAX(end) as max_end,start,end,project_id,GROUP_CONCAT(DISTINCT employee_id SEPARATOR \',\') as employees,id,0 as timeless FROM crm_projectplanner_work WHERE (start>=%T AND start<%T) GROUP BY YEAR(start),MONTH(start),DAY(start)',array($start,$end));
 		foreach($ret as &$v) {
 			self::add_info($v);
 		}
@@ -24,12 +24,21 @@ class CRM_ProjectPlanner_OverviewEventCommon extends Utils_Calendar_EventCommon 
 	}
 
 	private static function add_info(& $v) {
-		$proj_info = CRM_ContactsCommon::get_contact($v['employee_id']);
-		$v['title'] = 'data godzina_zespolona';//grupuj dniami
-		$v['description'] = $proj_info['last_name'].' '.$proj_info['first_name']; //imiona pracownikow i godziny pracy
+		$v['title'] = Base_RegionalSettingsCommon::time2reg($v['min_start'],true,false).' - '.Base_RegionalSettingsCommon::time2reg($v['max_end'],true,false);
+
+		$emps = CRM_ContactsCommon::get_contacts(array('id'=>explode(',',$v['employees'])),array('first_name','last_name'));
+		$emps2 = array();
+		foreach($emps as $x) {
+			$emps2[] = $x['last_name'].' '.$x['first_name'];
+		}
+		$v['description'] = implode('<br>',$emps2);
+
 		$v['additional_info'] = $v['additional_info2'] = '';
 		$v['timeless'] = 1;
 		$v['timeless_key'] = 'p'.$v['project_id'];
+		$v['end'] = strtotime($v['end']);
+		$v['start'] = strtotime($v['start']);
+		$v['duration'] = $v['end'] - $v['start'];
 	}
 
 	public static function delete($id) {
@@ -43,7 +52,7 @@ class CRM_ProjectPlanner_OverviewEventCommon extends Utils_Calendar_EventCommon 
 		} else {
 			$end = $start+$duration;
 		}
-		DB::Execute('UPDATE crm_projectplanner_work SET start=%d,end=%d WHERE id=%d',array($start,$end,$id));
+		DB::Execute('UPDATE crm_projectplanner_work SET start=%T,end=%T WHERE id=%d',array($start,$end,$id));
 	}
 }
 

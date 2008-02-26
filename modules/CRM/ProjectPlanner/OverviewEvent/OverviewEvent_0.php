@@ -13,24 +13,21 @@ class CRM_ProjectPlanner_OverviewEvent extends Utils_Calendar_Event {
 	private $lang;
 
 	public function view($id) {
-		if($this->is_back()) $this->back_to_calendar();
-		$this->view_event('view', $id);
+		$this->go_to_project(DB::GetOne('SELECT project_id FROM crm_projectplanner_work WHERE id=%d',array($id)));
 	}
 
 	public function edit($id) {
-		if($this->is_back()) $this->back_to_calendar();
-		$this->view_event('edit',$id);
+		$this->go_to_project(DB::GetOne('SELECT project_id FROM crm_projectplanner_work WHERE id=%d',array($id)));
 	}
 
 	public function add($def_date,$timeless=false) {
-		if($this->is_back()) $this->back_to_calendar();
-		$this->view_event('new', $def_date, $timeless);
+		$this->go_to_project(substr($timeless,1));
 	}
 
-	public function view_event($action, $id=null, $timeless=false){
+	private function go_to_project($id) {
+		location(array('crm_projectplanner_project'=>$id));
+		$this->back_to_calendar();
 
-
-		return true;
 	}
 
 }

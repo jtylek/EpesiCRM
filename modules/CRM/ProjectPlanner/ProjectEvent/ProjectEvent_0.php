@@ -127,9 +127,9 @@ class CRM_ProjectPlanner_ProjectEvent extends Utils_Calendar_Event {
 				$end = $date+$this->recalculate_time($v['time_e']);
 			}
 			if($action=='new') {
-				DB::Execute('INSERT INTO crm_projectplanner_work(employee_id,project_id,start,end) VALUES(%d,%d,%d,%d)',array($emp_id,$proj_id,$start,$end));
+				DB::Execute('INSERT INTO crm_projectplanner_work(employee_id,project_id,start,end) VALUES(%d,%d,%T,%T)',array($emp_id,$proj_id,$start,$end));
 			} else {
-				DB::Execute('UPDATE crm_projectplanner_work SET project_id=%d,start=%d,end=%d WHERE id=%d',array($proj_id,$start,$end,$id));
+				DB::Execute('UPDATE crm_projectplanner_work SET project_id=%d,start=%T,end=%T WHERE id=%d',array($proj_id,$start,$end,$id));
 			}
 			$this->back_to_calendar();
 			return;

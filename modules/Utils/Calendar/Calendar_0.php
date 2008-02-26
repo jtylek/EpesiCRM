@@ -63,18 +63,19 @@ class Utils_Calendar extends Module {
 			//other
 			$curr = strtotime($this->settings['start_day']);
 			$last = strtotime($this->settings['end_day']);
+			if($last<$curr) $last+=3600*24; //add one day
 			$interval = strtotime($this->settings['interval']);
 			$zero_t = strtotime('0:00');
 			if($last===false || $curr===false || $interval===false)
 				trigger_error('Invalid start/end_day or interval.',E_USER_ERROR);
 			$interval -= $zero_t;
-			$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($zero_t,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($curr,2,false,false),'time'=>0);
+			$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($zero_t,2,false).' - '.Base_RegionalSettingsCommon::time2reg($curr,2,false),'time'=>0);
 			while($curr<$last) {
 				$next = $curr+$interval;
-				$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($next,2,false,false),'time'=>($curr-$zero_t));
+				$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false).' - '.Base_RegionalSettingsCommon::time2reg($next,2,false),'time'=>($curr-$zero_t));
 				$curr = $next;
 			}
-			$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg('23:59',2,false,false),'time'=>($curr-$zero_t));
+			$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false).' - '.Base_RegionalSettingsCommon::time2reg('23:59',2,false),'time'=>($curr-$zero_t));
 		}
 		return $timeline;
 	}
@@ -83,7 +84,7 @@ class Utils_Calendar extends Module {
 		if($this->isset_unique_href_variable('action')) {
 			switch($this->get_unique_href_variable('action')) {
 				case 'add':
-					$this->push_event_action('add',array($this->get_unique_href_variable('time'),$this->get_unique_href_variable('timeless')=='1'));
+					$this->push_event_action('add',array($this->get_unique_href_variable('time'),($this->get_unique_href_variable('timeless')=='0')?false:$this->get_unique_href_variable('timeless')));
 					return;
 				case 'switch':
 					$views = array_flip($this->settings['views']);

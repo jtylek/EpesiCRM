@@ -22,6 +22,11 @@ class CRM_ProjectPlanner extends Module {
 		$tb->set_tab('Project',array($this,'project_view'));
 		$tb->set_tab('Employee',array($this,'employee_view'));
 
+		if(isset($_REQUEST['crm_projectplanner_project'])) {
+			$tb->switch_tab(1);
+			$this->set_module_variable('project',intval($_REQUEST['crm_projectplanner_project']));
+		}
+
 		$this->display_module($tb);
 		$tb->tag();
 	}
@@ -128,11 +133,9 @@ class CRM_ProjectPlanner extends Module {
 		$f->addElement('header', 'module_header', $this->lang->t('Work hours'));
 
 		$start_day = array();
-		foreach(range(0, 11) as $x)
-				$start_day[$x.':00'] = Base_RegionalSettingsCommon::time2reg($x.':00',2,false,false);
-		$end_day = array();
-		foreach(range(12, 23) as $x)
-			$end_day[$x.':00'] = Base_RegionalSettingsCommon::time2reg($x.':00',2,false,false);
+		foreach(range(0, 23) as $x)
+				$start_day[$x.':00'] = Base_RegionalSettingsCommon::time2reg($x.':00',2,false);
+		$end_day = $start_day;
 
 		$f->addElement('select', 'start_day', $this->lang->t('Start day at'), $start_day);
 		$f->addElement('select', 'end_day', $this->lang->t('End day at'), $end_day);

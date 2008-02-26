@@ -127,18 +127,12 @@ class DB {
 					$ret .= '?';
 					break;
 				case '%D' :
-					$curr_tz = date_default_timezone_get();
-					date_default_timezone_set(SYSTEM_TIMEZONE);
 					$arr[$j] = self::BindDate($arr[$j]);
-					date_default_timezone_set($curr_tz);
 					$j++;
 					$ret .= '?';
 					break;
 				case '%T' :
-					$curr_tz = date_default_timezone_get();
-					date_default_timezone_set(SYSTEM_TIMEZONE);
 					$arr[$j] = self::BindTimeStamp($arr[$j]);
-					date_default_timezone_set($curr_tz);
 					$j++;
 					$ret .= '?';
 					break;

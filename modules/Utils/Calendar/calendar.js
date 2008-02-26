@@ -24,7 +24,7 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid,page_type) {
 		var cell_id = 'UCcell_'+id;
 		var f = new_ev.replace('__TIME__',id);
 		if(typeof id=='string' && id.indexOf('_')>=0) {
-			f = f.replace('__TIMELESS__','1');
+			f = f.replace('__TIMELESS__',id.substr(id.indexOf('_')+1));
 		} else {
 			f = f.replace('__TIMELESS__','0');
 		}

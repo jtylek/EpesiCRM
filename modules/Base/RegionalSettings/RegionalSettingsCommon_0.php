@@ -11,6 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_RegionalSettingsCommon extends ModuleCommon {
 	private static $curr_locale;
+	private static $curr_tz=null;
 	private static $months_en_short = array('Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec');
 	private static $months_en = array('January','February','March','April','May','June','July','August','September','October','November','December');
 	private static $countries = array(
@@ -127,11 +128,9 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		}
 		$format = implode(' ',$format);
 
-		if($tz)
-			self::set_locale();
+		self::set_locale($tz);
 		$ret = self::strftime($format,$t);
-		if($tz)
-			self::restore_locale();
+		self::restore_locale();
 		return $ret;
 	}
 
@@ -142,7 +141,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		return $ret;
 	}
 
-	public static function set_locale() {
+	public static function set_locale($tz = true) {
 		self::$curr_locale = setlocale(LC_TIME,0);
 		$lang_code = strtolower(Base_LangCommon::get_lang_code());
 		setlocale(LC_TIME,$lang_code.'_'.strtoupper($lang_code).'.utf8', //unixes
@@ -150,9 +149,17 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 				$lang_code.'.utf8',
 				$lang_code.'.UTF-8',
 				isset(self::$countries[$lang_code])?self::$countries[$lang_code]:null);//win32
+		if($tz && Acl::is_user()) {
+			self::$curr_tz = date_default_timezone_get();
+			date_default_timezone_set(Base_User_SettingsCommon::get('Base_RegionalSettings','tz'));
+		}
 	}
 
 	public static function restore_locale() {
+		if(self::$curr_tz!==null) {
+			date_default_timezone_set(self::$curr_tz);
+			self::$curr_tz=null;
+		}
 		setlocale(LC_TIME,self::$curr_locale);
 	}
 
@@ -160,72 +167,31 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	 * Convert regional time format to unix time (and server timezone)
 	 *
 	 * @param string
-	 * @param mixed {0,false,''} - don't convert to server timezone, {1,true,'timestamp'} - convert to server timestamp, {2,'date'} - convert to server date
+	 * @param boolean convert from local time to server time
 	 * @return int
 	 */
-	public static function reg2time($t,$to_local=false) {
+	public static function reg2time($t,$from_local=true) {
 		$datef = Base_User_SettingsCommon::get('Base_RegionalSettings','date');
 
+		self::set_locale($from_local);
 		if(strpos($datef,'%B')>=0) {
 			$months = array();
-			self::set_locale();
 			for($i=1; $i<=12; $i++)
 				$months[] = self::strftime('%B',strtotime($i.'/'.$i));
-			self::restore_locale();
 			$t = str_replace($months,self::$months_en,$t);
 		}
 
 		if(strpos($datef,'%b')>=0) {
 			$months = array();
-			self::set_locale();
 			for($i=1; $i<=12; $i++)
 				$months[] = self::strftime('%b',strtotime($i.'/'.$i));
-			self::restore_locale();
 			$t = str_replace($months,self::$months_en_short,$t);
 		}
 
+		
 		$tt = strtotime($t);
-		if($to_local) {
-			$curr_tz = date_default_timezone_get();
-			date_default_timezone_set(SYSTEM_TIMEZONE);
-			if($to_local==2 || $to_local=='date') {
-				$tt = DB::BindDate($tt);
-			} elseif($to_local==1 || $to_local=='timestamp') {
-				$tt = DB::BindTimeStamp($tt);
-			}
-			date_default_timezone_set($curr_tz);
-		}
+		self::restore_locale();
 		return $tt;
-	}
-
-	/**
-	 * Convert time to local server time and prepare timestamp using DB::BindTimeStamp
-	 *
-	 * @param mixed string,int
-	 * @return string
-	 */
-	public static function server_time($t) {
-		if(!is_numeric($t) && is_string($t)) $t = strtotime($t);
-		$curr_tz = date_default_timezone_get();
-		date_default_timezone_set(SYSTEM_TIMEZONE);
-		$ret = DB::BindTimeStamp($t);
-		date_default_timezone_set($curr_tz);
-		return $ret;
-	}
-
-	/**
-	 * Convert time to local server time and prepare date using DB::BindDate
-	 *
-	 * @param mixed string,int
-	 * @return string
-	 */
-	public static function server_date($t) {
-		if(!is_numeric($t) && is_string($t)) $t = strtotime($t);
-		$curr_tz = date_default_timezone_get();
-		date_default_timezone_set(SYSTEM_TIMEZONE);
-		$ret = DB::BindDate($t);
-		date_default_timezone_set($curr_tz);
-		return $ret;
 	}
 
 	/**
@@ -268,8 +234,4 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		return $ret;
 	}*/
 }
-
-if(Acl::is_user())
-	date_default_timezone_set(Base_User_SettingsCommon::get('Base_RegionalSettings','tz'));
-
 ?>

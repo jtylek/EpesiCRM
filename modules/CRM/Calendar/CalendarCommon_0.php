@@ -16,12 +16,17 @@ class CRM_CalendarCommon extends ModuleCommon {
 
 	public static function user_settings() {
 		if(Acl::is_user()) {
-			$start_day = array();
+/*			$start_day = array();
 			foreach(range(0, 11) as $x)
 				$start_day[$x.':00'] = Base_RegionalSettingsCommon::time2reg($x.':00',2,false,false);
 			$end_day = array();
 			foreach(range(12, 23) as $x)
-				$end_day[$x.':00'] = Base_RegionalSettingsCommon::time2reg($x.':00',2,false,false);
+				$end_day[$x.':00'] = Base_RegionalSettingsCommon::time2reg($x.':00',2,false,false);*/
+			$start_day = array();
+			foreach(range(0, 23) as $x)
+				$start_day[$x.':00'] = Base_RegionalSettingsCommon::time2reg($x.':00',2,false);
+			$end_day = $start_day;
+
 			$color = array(1 => 'Green', 2 => 'Yellow', 3 => 'Red', 4 => 'Blue', 5=> 'Black');
 			return array(
 				'Calendar'=>array(
