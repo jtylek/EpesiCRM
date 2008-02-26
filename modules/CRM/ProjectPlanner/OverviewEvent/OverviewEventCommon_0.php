@@ -36,8 +36,8 @@ class CRM_ProjectPlanner_OverviewEventCommon extends Utils_Calendar_EventCommon 
 		$v['additional_info'] = $v['additional_info2'] = '';
 		$v['timeless'] = 1;
 		$v['timeless_key'] = 'p'.$v['project_id'];
-		$v['end'] = strtotime($v['end']);
-		$v['start'] = strtotime($v['start']);
+		$v['end'] = strtotime($v['max_end']);
+		$v['start'] = strtotime($v['min_start']);
 		$v['duration'] = $v['end'] - $v['start'];
 	}
 
