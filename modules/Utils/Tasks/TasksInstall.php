@@ -26,7 +26,6 @@ class Utils_TasksInstall extends ModuleInstall {
 			edited_on T,
 			longterm I1 DEFAULT 0,
 			page_id C(32) NOTNULL,
-			parent_module C(32) NOTNULL,
 			permission I1 DEFAULT 0',
 			array('constraints'=>', FOREIGN KEY (created_by) REFERENCES user_login(ID), FOREIGN KEY (edited_by) REFERENCES user_login(ID)'));
 		if(!$ret){

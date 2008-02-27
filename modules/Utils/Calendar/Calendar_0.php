@@ -69,13 +69,13 @@ class Utils_Calendar extends Module {
 			if($last===false || $curr===false || $interval===false)
 				trigger_error('Invalid start/end_day or interval.',E_USER_ERROR);
 			$interval -= $zero_t;
-			$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($zero_t,2,false).' - '.Base_RegionalSettingsCommon::time2reg($curr,2,false),'time'=>0);
+			$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($zero_t,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($curr,2,false,false),'time'=>0);
 			while($curr<$last) {
 				$next = $curr+$interval;
-				$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false).' - '.Base_RegionalSettingsCommon::time2reg($next,2,false),'time'=>($curr-$zero_t));
+				$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($next,2,false,false),'time'=>($curr-$zero_t));
 				$curr = $next;
 			}
-			$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false).' - '.Base_RegionalSettingsCommon::time2reg('23:59',2,false),'time'=>($curr-$zero_t));
+			$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg('23:59',2,false,false),'time'=>($curr-$zero_t));
 		}
 		return $timeline;
 	}
@@ -269,7 +269,7 @@ class Utils_Calendar extends Module {
 		$theme->assign('header_day', $header_day);
 
 		$timeline = $this->get_timeline();
-		$today_t = strtotime(date('Y-m-d',$this->date));
+		$today_t = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$this->date));
 		$dnd = array();
 		foreach($timeline as & $v) {
 			if(is_string($v['time'])) {
@@ -411,7 +411,7 @@ class Utils_Calendar extends Module {
 		$dnd = array();
 		for ($i=0; $i<7; $i++) {
 			$time_ids[$i] = array();
-			$today_t = strtotime(date('Y-m-d',$dis_week_from+$i*86400));
+			$today_t = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$dis_week_from+$i*86400));
 			foreach($timeline as & $v) {
 				if(is_string($v['time'])) {
 					$dnd[] = $today_t.'_'.$v['time'];
@@ -434,7 +434,7 @@ class Utils_Calendar extends Module {
 		$ret = $this->get_events($dis_week_from,$dis_week_from+7*86400);
 		$timeless_keys = $this->settings['additional_rows'];
 		foreach($ret as $k=>$ev) {
-			$today_t = strtotime(date('Y-m-d',$ev['start']));
+			$today_t = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$ev['start']));
 			if($ev['timeless']) {
 				if(!isset($ev['timeless_key']))
 					$ev['timeless_key'] = 'timeless';

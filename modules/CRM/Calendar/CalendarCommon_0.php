@@ -24,7 +24,7 @@ class CRM_CalendarCommon extends ModuleCommon {
 				$end_day[$x.':00'] = Base_RegionalSettingsCommon::time2reg($x.':00',2,false,false);*/
 			$start_day = array();
 			foreach(range(0, 23) as $x)
-				$start_day[$x.':00'] = Base_RegionalSettingsCommon::time2reg($x.':00',2,false);
+				$start_day[$x.':00'] = Base_RegionalSettingsCommon::time2reg($x.':00',2,false,false);
 			$end_day = $start_day;
 
 			$color = array(1 => 'Green', 2 => 'Yellow', 3 => 'Red', 4 => 'Blue', 5=> 'Black');
