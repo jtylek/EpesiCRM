@@ -25,7 +25,7 @@ class CRM_Contacts extends Module {
 		}
 	}
 
-	public function main_company_admin(){
+	public function admin(){
 		$qf = $this->init_module('Libs/QuickForm','my_company');
 		$l = $this->init_module('Base/Lang');
 		$companies = CRM_ContactsCommon::get_companies();
