@@ -419,6 +419,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 	public static function get_records_limit( $tab_name = null, $crits = null, $admin = false) {
 		$par = self::build_query($tab_name, $crits, $admin);
+		if (empty($par)) return 0;
 		return DB::GetOne('SELECT COUNT(*) FROM ('.$par['sql'].') AS tmp', $par['vals']);
 	}
 	public static function get_records( $tab_name = null, $crits = array(), $cols = array(), $order = array(), $limit = array(), $admin = false) {
@@ -427,6 +428,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (!isset($limit['numrows'])) $limit['numrows'] = -1;
 		if (!$order) $order = array();
 		$par = self::build_query($tab_name, $crits, $admin, $order);
+		if (empty($par)) return array();
 		$ret = DB::SelectLimit($par['sql'], $limit['numrows'], $limit['offset'], $par['vals']);
 		$records = array();
 		$where = ' WHERE true';
