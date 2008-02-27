@@ -61,21 +61,38 @@ class Utils_Calendar extends Module {
 
 		if($this->settings['timeline']) {
 			//other
-			$curr = strtotime($this->settings['start_day']);
-			$last = strtotime($this->settings['end_day']);
-			if($last<$curr) $last+=3600*24; //add one day
 			$interval = strtotime($this->settings['interval']);
 			$zero_t = strtotime('0:00');
-			if($last===false || $curr===false || $interval===false)
+			$start = strtotime($this->settings['start_day']);
+			$end = strtotime($this->settings['end_day']);
+			if($end===false || $start===false || $interval===false)
 				trigger_error('Invalid start/end_day or interval.',E_USER_ERROR);
 			$interval -= $zero_t;
-			$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($zero_t,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($curr,2,false,false),'time'=>0);
-			while($curr<$last) {
-				$next = $curr+$interval;
-				$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($next,2,false,false),'time'=>($curr-$zero_t));
-				$curr = $next;
+			if($end<$start) {
+				$curr = $zero_t;
+				while($curr<$end) {
+					$next = $curr+$interval;
+					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($next,2,false,false),'time'=>($curr-$zero_t));
+					$curr = $next;
+				}
+				$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($start,2,false,false),'time'=>($curr-$zero_t));
+				$day_end = strtotime('23:59')-$interval;
+				$curr = $start;
+				while($curr<$day_end) {
+					$next = $curr+$interval;
+					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($next,2,false,false),'time'=>($curr-$zero_t));
+					$curr = $next;
+				}
+				$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg('23:59',2,false,false),'time'=>($curr-$zero_t));
+			} else {
+				$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($zero_t,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($start,2,false,false),'time'=>0);
+				while($start<$end) {
+					$next = $start+$interval;
+					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($start,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($next,2,false,false),'time'=>($start-$zero_t));
+					$start = $next;
+				}
+				$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($start,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg('23:59',2,false,false),'time'=>($start-$zero_t));
 			}
-			$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg('23:59',2,false,false),'time'=>($curr-$zero_t));
 		}
 		return $timeline;
 	}
