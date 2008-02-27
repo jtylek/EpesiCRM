@@ -52,8 +52,14 @@ class Apps_Forum extends Module {
 			$comment = & $this->init_module('Utils/Comment','apps_forum_'.$this->key.'_'.$row['id']);
 			$posts = $comment->fetch_posts();
 			$post_count = count($posts);
-			$last_post = $posts[$post_count-1];
-			$threads[str_pad(strtotime($last_post['date']), 16, "0", STR_PAD_LEFT).'_'.$row['id']] = 
+			if ($post_count==0) {
+				$last_post = array('date'=>'--', 'user'=>'--');
+				$time_int = '0000000000000000';
+			} else {
+				$last_post = $posts[$post_count-1];
+				$time_int = str_pad(strtotime($last_post['date']), 16, "0", STR_PAD_LEFT);
+			}
+			$threads[$time_int.'_'.$row['id']] = 
 				array(	'topic' => '<a '.$this->create_callback_href(array($this,'view_thread'),array($board,$row['id'])).'>'.$row['topic'].'</a>',
 						'posted_on' =>  $this->lang->t('Posted on %s',array($last_post['date'])),
 						'posted_by' =>  $this->lang->t('Posted by %s',array($last_post['user'])),
