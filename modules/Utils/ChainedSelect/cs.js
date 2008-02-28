@@ -30,7 +30,9 @@ ChainedSelect.prototype = {
 	request:function(def_val) {
 		var vals = new Hash();
 		for(x in this.prev_ids) {
-			vals.set(this.prev_ids[x],$(this.prev_ids[x]).value);
+			var p = $(this.prev_ids[x]);
+			if(p==null) return;
+			vals.set(this.prev_ids[x],p.value);
 		}
 		var dest_id = this.dest_id;
 		new Ajax.Request('modules/Utils/ChainedSelect/req.php', {
