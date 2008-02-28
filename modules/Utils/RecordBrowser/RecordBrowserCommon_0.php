@@ -542,7 +542,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public function record_link_open_tag($tab, $id, $nolink=false){
 		if (!DB::GetOne('SELECT active FROM '.$tab.' WHERE id=%d',array($id))) {
 			self::$del_or_a = '</del>';
-			return '<del>';
+			return '<del '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_RecordBrowser','This record was deleted from the system, please edit current record or contact system administrator')).'>';
 		}
 		self::$del_or_a = '</a>';
 		if (!$nolink) return '<a '.self::create_record_href($tab, $id).'>';
