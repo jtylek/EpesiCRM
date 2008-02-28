@@ -57,7 +57,7 @@
 			{/if}
 					<tr>
 						<td class="label">{$f.label}{if $f.required}*{/if}</td>
-						<td class="data {if $f.type == 'currency'}currency{/if} {if $f.type == 'timestamp'}timestamp{/if}">{if $f.error}{$f.error}{/if}{$f.html}</td>
+						<td class="data {$f.style}">{if $f.error}{$f.error}{/if}{$f.html}</td>
 					</tr>
 			{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
 				{if $x>$no_empty}

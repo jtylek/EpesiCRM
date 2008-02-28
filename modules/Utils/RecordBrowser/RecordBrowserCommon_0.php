@@ -23,6 +23,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						'active'=>$row['active'],
 						'position'=>$row['position'],
 						'filter'=>$row['filter'],
+						'style'=>$row['style'],
 						'param'=>$row['param']);
 		}
 		return self::$table_rows;
@@ -52,7 +53,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					'active I1 DEFAULT 1,'.
 					'position I,'.
 					'filter I1 DEFAULT 0,'.
-					'param C(256)',
+					'param C(256),'.
+					'style C(64)',
 					array('constraints'=>''));
 		DB::CreateTable($tab_name.'_edit_history',
 					'id I AUTO KEY,'.
@@ -97,11 +99,17 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$datatypes[$row['type']] = array($row['module'], $row['func']);
 		foreach ($fields as $v) {
 			if (!isset($v['param'])) $v['param'] = '';
+			if (!isset($v['style'])) { 
+				if (in_array($v['type'], array('timestamp','currency','integer')))
+					$v['style'] = $v['type'];
+				else 
+					$v['style'] = '';
+			}
 			if (!isset($v['extra'])) $v['extra'] = true;
 			if (!isset($v['visible'])) $v['visible'] = false;
 			if (!isset($v['required'])) $v['required'] = false;
 			if (isset($datatypes[$v['type']])) $v = call_user_func($datatypes[$v['type']], $v);
-			Utils_RecordBrowserCommon::new_record_field($tab_name, $v['name'], $v['type'], $v['visible'], $v['required'], $v['param'], $v['extra']);
+			Utils_RecordBrowserCommon::new_record_field($tab_name, $v['name'], $v['type'], $v['visible'], $v['required'], $v['param'], $v['style'], $v['extra']);
 			if (isset($v['display_callback'])) self::set_display_method($tab_name, $v['name'], $v['display_callback'][0], $v['display_callback'][1]);
 			if (isset($v['QFfield_callback'])) self::set_QFfield_method($tab_name, $v['name'], $v['QFfield_callback'][0], $v['QFfield_callback'][1]);
 			if (isset($v['requires']))
@@ -141,7 +149,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return true;
 	}
 
-	public function new_record_field($tab_name, $field, $type, $visible, $required, $param='', $extra = true){
+	public function new_record_field($tab_name, $field, $type, $visible, $required, $param='', $style='', $extra = true){
 		if ($extra) {
 			$pos = DB::GetOne('SELECT MAX(position) FROM '.$tab_name.'_field')+1;
 		} else {
@@ -163,7 +171,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$param = $tmp;
 			}
 		}
-		DB::Execute('INSERT INTO '.$tab_name.'_field(field, type, visible, param, position, extra, required) VALUES(%s, %s, %d, %s, %d, %d, %d)', array($field, $type, $visible?1:0, $param, $pos, $extra?1:0, $required?1:0));
+		DB::Execute('INSERT INTO '.$tab_name.'_field(field, type, visible, param, style, position, extra, required) VALUES(%s, %s, %d, %s, %s, %d, %d, %d)', array($field, $type, $visible?1:0, $param, $style, $pos, $extra?1:0, $required?1:0));
 	}
 	public static function new_addon($tab_name, $module, $func, $label) {
 		$module = str_replace('/','_',$module);
@@ -299,7 +307,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function build_query( $tab_name = null, $crits = null, $admin = false, $order = array()) {
 		if (!$tab_name) return false;
 		self::init($tab_name, $admin);
-		// TODO: caching?
 		$having = '';
 		$fields = '';
 		$where = '';
@@ -378,8 +385,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					if ($negative) $having .= '(';
 					$having .= '('.($negative?'true':'false');
 					foreach($v as $w) {
-						if (!$noquotes) $w = DB::qstr($w);
-						$having .= ' '.($negative?'AND':'OR').' val'.$iter.' '.($negative?'NOT ':'').'LIKE '.DB::Concat(DB::qstr('%::'),$w,DB::qstr('::%'));
+						if ($w=='') $having .= ' '.($negative?'AND':'OR').' val'.$iter.' IS '.($negative?'NOT ':'').'NULL';
+						else {
+							if (!$noquotes) $w = DB::qstr($w);
+							$having .= ' '.($negative?'AND':'OR').' val'.$iter.' '.($negative?'NOT ':'').'LIKE '.DB::Concat(DB::qstr('%::'),$w,DB::qstr('::%'));
+						}
 					}
 					$having .= ')';
 					if ($negative) $having .= ' OR val'.$iter.' IS NULL)';

@@ -3,11 +3,11 @@
 {/php}
 
 <div>
-{if isset($form_data)}
-{$form_data.javascript}
+{if isset($form_data_search)}
+{$form_data_search.javascript}
 
-<form {$form_data.attributes}>
-{$form_data.hidden}
+<form {$form_data_search.attributes}>
+{$form_data_search.hidden}
 {/if}
 
 <table id="letters-search">
@@ -60,14 +60,14 @@
 			</td>
 			<!-- Advanced / Simple Search -->
 			<td style="text-align: right;">
-				{if isset($form_data.search)}
+				{if isset($form_data_search.search)}
 					<div>
 					<table class="Utils_GenericBrowser__search" border="0" cellpadding="0" cellspacing="0">
 						<tbody>
 							<tr>
-								{*<td class="label">{$form_data.search.label}</td>*}
-								<td>{$form_data.search.html}</td>
-								<td class="submit">{$form_data.submit_search.html}</td>
+								{*<td class="label">{$form_data_search.search.label}</td>*}
+								<td>{$form_data_search.search.html}</td>
+								<td class="submit">{$form_data_search.submit_search.html}</td>
 								<td class="advanced">{$adv_search}</td>
 							</tr>
 						</tbody>
@@ -88,12 +88,12 @@
 						}
 						$this->assign('cols',$cols);
 					{/php}
-					{if isset($form_data.submit_search)}
+					{if isset($form_data_search.submit_search)}
 					<div style="padding-left: 20px; text-align: left;">
 					<table class="Utils_GenericBrowser__search" border="0" cellpadding="0" cellspacing="0">
 						<tbody>
 							<tr>
-								<td class="submit">{$form_data.submit_search.html}</td>
+								<td class="submit">{$form_data_search.submit_search.html}</td>
 								<td class="advanced">{$adv_search}</td>
 							</tr>
 						</tbody>
@@ -105,6 +105,12 @@
 		</tr>
 	</tbody>
 </table>
+
+{if isset($form_data_search)}
+</form>
+{/if}
+
+{$table_prefix}
 
 <!-- SHADOW BEGIN -->
 	<div class="layer">
@@ -136,6 +142,15 @@
 	</div>
 <!-- -->
 
+{$table_postfix}
+
+{if isset($form_data_paging)}
+{$form_data_paging.javascript}
+
+<form {$form_data_paging.attributes}>
+{$form_data_paging.hidden}
+{/if}
+
 <table id="Utils_GenericBrowser__navigation" border="0" cellspacing="0" cellpadding="0">
 	<tr>
 		<td nowrap style="width: 50%; text-align: left;">
@@ -153,14 +168,14 @@
 		<td nowrap>{if $last}&nbsp;{$last}&nbsp;<img src="{$theme_dir}/images/last.png">&nbsp;{/if}</td>
 
 		<td nowrap style="width: 50%; text-align: right;">
-			{if isset($form_data.per_page)}
-				&nbsp;&nbsp;&nbsp;{$form_data.per_page.label}&nbsp;&nbsp;&nbsp;{$form_data.per_page.html}
+			{if isset($form_data_paging.per_page)}
+				&nbsp;&nbsp;&nbsp;{$form_data_paging.per_page.label}&nbsp;&nbsp;&nbsp;{$form_data_paging.per_page.html}
 			{/if}
 		</td>
 	</tr>
 </table>
 
-{if isset($form_data)}
+{if isset($form_data_paging)}
 </form>
 {/if}
 </div>

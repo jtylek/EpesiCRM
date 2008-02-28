@@ -72,8 +72,8 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 		$this->_options['optionIncrement'] = array('i' => 5);
 		$this->_options['language'] = $lang_code;
 
-        $this->_elements[] =& new HTML_QuickForm_datepicker('__'.$this->_elementName.'__datepicker', null, array(), $this->getAttributes());
-        $this->_elements[] =& new HTML_QuickForm_date('date', null, $this->_options, $this->getAttributes());
+        $this->_elements['datepicker'] =& new HTML_QuickForm_datepicker('datepicker', null, array(), $this->getAttributes());
+        $this->_elements['date'] =& new HTML_QuickForm_date('date', null, $this->_options, $this->getAttributes());
     }
 
     // }}}
@@ -128,9 +128,9 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
         if (is_null($value)) {
             $value = $this->getValue();
         }
-        if ($value['__'.$this->_elementName.'__datepicker']=='') return $this->_prepareValue('', $assoc);
+        if ($value['datepicker']=='') return $this->_prepareValue('', $assoc);
 		$result = $this->recalculate_time($value['date']);
-		$cleanValue = strftime('%Y-%m-%d',Base_RegionalSettingsCommon::reg2time($value['__'.$this->_elementName.'__datepicker'])).' '.strftime('%H:%M:%S',Base_RegionalSettingsCommon::reg2time(date('H:i:s', $result), true, false));
+		$cleanValue = strftime('%Y-%m-%d',Base_RegionalSettingsCommon::reg2time($value['datepicker'])).' '.strftime('%H:%M:%S',Base_RegionalSettingsCommon::reg2time(date('H:i:s', $result), true, false));
         return $this->_prepareValue($cleanValue, $assoc);
 	}
 
@@ -171,8 +171,7 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
             }
             if (is_array($v)) $v = $this->recalculate_time($v);
             else $v = strtotime($v);
-            if ($key==0) $this->_elements[$key]->onQuickFormEvent('setGroupValue', Base_RegionalSettingsCommon::time2reg($v), $this);
-            else $this->_elements[$key]->onQuickFormEvent('setGroupValue', Base_RegionalSettingsCommon::time2reg($v), $this);
+            $this->_elements[$key]->onQuickFormEvent('setGroupValue', Base_RegionalSettingsCommon::time2reg($v), $this);
         }
     } //end func setValue
     

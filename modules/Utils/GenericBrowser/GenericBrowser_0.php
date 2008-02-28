@@ -107,6 +107,8 @@ class Utils_GenericBrowser extends Module {
 	private $cur_row = -1;
 	private $per_page;
 	private $custom_label = '';
+	private $table_prefix = '';
+	private $table_postfix = '';
 
 	public function construct() {
 		if (is_numeric($this->get_instance_id()))
@@ -673,44 +675,57 @@ class Utils_GenericBrowser extends Module {
 		$search = $this->get_module_variable('search');
 
 		$renderer =& new HTML_QuickForm_Renderer_TCMSArraySmarty();
-		$form = & $this->init_module('Libs/QuickForm');
+		$form_s = & $this->init_module('Libs/QuickForm');
+		$form_p = & $this->init_module('Libs/QuickForm');
 		$pager_on = false;
 		if(isset($this->rows_qty) && $paging) {
-			$form->addElement('select','per_page',$this->lang->t('Number of rows per page'), array(5=>5,10=>10,20=>20,50=>50,100=>100), 'onChange="'.$form->get_submit_form_js(false).'"');
-			$form->setDefaults(array('per_page'=>$per_page));
+			$form_p->addElement('select','per_page',$this->lang->t('Number of rows per page'), array(5=>5,10=>10,20=>20,50=>50,100=>100), 'onChange="'.$form_p->get_submit_form_js(false).'"');
+			$form_p->setDefaults(array('per_page'=>$per_page));
 			$pager_on = true;
 		}
 		$search_on=false;
 		if(!$this->is_adv_search_on()) {
 			foreach($this->columns as $k=>$v)
 				if (isset($v['search'])) {
-					$form->addElement('text','search',$this->lang->ht('Keyword'), array('onfocus'=>'if (this.value=="'.$this->lang->ht('search keyword...').'") this.value="";','onblur'=>'if (this.value=="") this.value="'.$this->lang->ht('search keyword...').'";'));
-					$form->setDefaults(array('search'=>isset($search['__keyword__'])?$search['__keyword__']:$this->lang->ht('search keyword...')));
+					$form_s->addElement('text','search',$this->lang->ht('Keyword'), array('onfocus'=>'if (this.value=="'.$this->lang->ht('search keyword...').'") this.value="";','onblur'=>'if (this.value=="") this.value="'.$this->lang->ht('search keyword...').'";'));
+					$form_s->setDefaults(array('search'=>isset($search['__keyword__'])?$search['__keyword__']:$this->lang->ht('search keyword...')));
 					$search_on=true;
 					break;
 				}
 		} else {
 			foreach($this->columns as $k=>$v)
 				if (isset($v['search'])) {
-					$form->addElement('text','search__'.$v['search'],'',array('onfocus'=>'if (this.value=="'.$this->lang->ht('search keyword...').'") this.value="";','onblur'=>'if (this.value=="") this.value="'.$this->lang->ht('search keyword...').'";'));
-					$form->setDefaults(array('search__'.$v['search']=>isset($search[$v['search']])?$search[$v['search']]:$this->lang->ht('search keyword...')));
+					$form_s->addElement('text','search__'.$v['search'],'',array('onfocus'=>'if (this.value=="'.$this->lang->ht('search keyword...').'") this.value="";','onblur'=>'if (this.value=="") this.value="'.$this->lang->ht('search keyword...').'";'));
+					$form_s->setDefaults(array('search__'.$v['search']=>isset($search[$v['search']])?$search[$v['search']]:$this->lang->ht('search keyword...')));
 					$search_on=true;
 				}
 		}
-		if ($search_on) $form->addElement('submit','submit_search',$this->lang->ht('Search'));
-		if ($pager_on || $search_on) {
-			$form->accept($renderer);
+		if ($search_on) $form_s->addElement('submit','submit_search',$this->lang->ht('Search'));
+		if ($pager_on) {
+			$form_p->accept($renderer);
 			$form_array = $renderer->toArray();
-			$theme->assign('form_data', $form_array);
-			$theme->assign('form_name', $form->getAttribute('name'));
+			$theme->assign('form_data_paging', $form_array);
+			$theme->assign('form_name_paging', $form_p->getAttribute('name'));
 
 			// form processing
-			if($form->validate()) {
-				$values = $form->exportValues();
+			if($form_p->validate()) {
+				$values = $form_p->exportValues();
 				if(isset($values['per_page'])) {
 					$this->set_module_variable('per_page',$values['per_page']);
 					Base_User_SettingsCommon::save('Utils/GenericBrowser','per_page',$values['per_page']);
 				}
+				location(array());
+			}
+		}
+		if ($search_on) {
+			$form_s->accept($renderer);
+			$form_array = $renderer->toArray();
+			$theme->assign('form_data_search', $form_array);
+			$theme->assign('form_name_search', $form_s->getAttribute('name'));
+
+			// form processing
+			if($form_s->validate()) {
+				$values = $form_s->exportValues();
 				$search = array();
 				foreach ($values as $k=>$v){
 					if ($k=='search') {
@@ -917,6 +932,9 @@ class Utils_GenericBrowser extends Module {
 		$theme->assign('data', $out_data);
 		$theme->assign('cols', $out_headers);
 
+		$theme->assign('table_prefix', $this->table_prefix);
+		$theme->assign('table_postfix', $this->table_postfix);
+
 		$theme->assign('summary', $this->summary());
 		$theme->assign('first', $this->gb_first());
 		$theme->assign('prev', $this->gb_prev());
@@ -966,6 +984,14 @@ class Utils_GenericBrowser extends Module {
 	private function gb_last() {
 		if($this->get_module_variable('offset')+$this->get_module_variable('per_page')<$this->rows_qty)
       		return '<a '.$this->create_unique_href(array('last'=>1)).'>'.$this->lang->t('Last').'</a>';
+	}
+
+	public function set_prefix($arg) {
+		$this->table_prefix = $arg;
+	}
+
+	public function set_postfix($arg) {
+		$this->table_postfix = $arg;
 	}
 
 }
