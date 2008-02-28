@@ -87,6 +87,7 @@ class Base_Box extends Module {
 		//error_log(print_r($mains,true)."\n\n\n",3,'data/log');
 		$main_length = count($mains);
 		$this->set_module_variable('main', $mains);
+		$containers['main']['name'] .= '_'.$main_length;
 		//print_r($containers);
 
 		$this->modules = array();
