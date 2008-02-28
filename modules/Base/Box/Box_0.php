@@ -30,7 +30,7 @@ class Base_Box extends Module {
 		$logged = Acl::is_user();
 		$theme->assign('logged',$logged);
 		$containers = array();
-		$containers['main'] = array('module'=>null); //so 'main' is first in array
+		$containers['main'] = array('module'=>null,'name'=>''); //so 'main' is first in array
 
 		$name = 0;
 		foreach($ini_file as $tag=>$opts) {
@@ -50,7 +50,7 @@ class Base_Box extends Module {
 				trigger_error('No module specified.',E_USER_ERROR);
 			$containers[$tag]['name'] = 'b'.$name;
 		}
-
+		
 		$pop_main = isset($_REQUEST['base_box_pop_main']);
 		if($this->isset_module_variable('main')) {
 			$mains = $this->get_module_variable('main');
