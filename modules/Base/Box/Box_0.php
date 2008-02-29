@@ -48,8 +48,11 @@ class Base_Box extends Module {
 				$containers[$tag]['module'] = $opts['module'];
 			else
 				trigger_error('No module specified.',E_USER_ERROR);
-			$containers[$tag]['name'] = 'b'.$name;
+			$containers[$tag]['name'] = $tag;
 		}
+		
+		if(isset($containers['main']))
+		    $containers['main']['name'] = 'main_0';
 		
 		$pop_main = isset($_REQUEST['base_box_pop_main']);
 		if($this->isset_module_variable('main')) {
@@ -58,9 +61,11 @@ class Base_Box extends Module {
 			$main = array_pop($mains);
 			if(isset($main['module']) && $main['module']!=null)
 				$containers['main'] = & $main;
-			foreach($mains as $m)
-				if(ModuleManager::is_installed($m['module'])>=0)
+			foreach($mains as $k=>$m)
+				if(ModuleManager::is_installed($m['module'])>=0) {
 					$this->freeze_module($m['module'],(isset($m['name'])?$m['name']:null));
+//					error_log('freezing '.$m['name']."\n",3,'data/log2');
+				}
 		} else $mains = array();
 
 
@@ -84,10 +89,10 @@ class Base_Box extends Module {
 			$pop_main = true;
 		}
 		array_push($mains,$containers['main']);
-		//error_log(print_r($mains,true)."\n\n\n",3,'data/log');
+//		error_log(print_r($mains,true)."\n\n\n",3,'data/log');
 		$main_length = count($mains);
 		$this->set_module_variable('main', $mains);
-		$containers['main']['name'] .= '_'.$main_length;
+//		$containers['main']['name'] .= '_'.$main_length;
 		//print_r($containers);
 
 		$this->modules = array();
@@ -134,6 +139,7 @@ class Base_Box extends Module {
 		$mains = & $this->get_module_variable('main');
 		$x = count($mains);
 		$arr = $mains[$x-1];
+		$arr['name'] = 'main_'.$x;
 		if(isset($module)) $arr['module'] = $module;
 		if(isset($func)) $arr['function'] = $func;
 		if(isset($args)) $arr['arguments'] = $args;

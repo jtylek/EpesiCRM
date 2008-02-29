@@ -17,13 +17,14 @@ class Tests_Callbacks extends Module {
 		print('<a '.$this->create_callback_href(array($this,'src')).'>Source of this example</a> :: ');
 		print('<a '.$this->create_callback_href(array($this,'form1')).'>Form test</a> :: ');
 		print('<a '.$this->create_callback_href(array($this,'incr'),0).'>Incr test</a> :: ');
-		print('<a '.$this->create_callback_href(array($this,'a1')).'>Other module (this->a1)</a>');
+		print('<a '.$this->create_callback_href(array($this,'a1')).'>Other module (this->a1)</a> :: ');
 		print('<a '.$this->create_callback_href(array($this,'a1_stack')).'>Other module on stack (this->a1)</a>');
 	}
 	
 	public function incr($inc) {
 		print($inc.'<br>');
-		print('<a '.$this->create_callback_href(array($this,'incr'),$inc+1).'>Incr test</a>');
+		print('<a '.$this->create_callback_href(array($this,'incr'),$inc+1).'>Incr test</a> :: ');
+		print('<a '.$this->create_callback_href(array($this,'this_stack')).'>This on stack (this)</a>');
 		return true;
 	}
 
@@ -38,6 +39,13 @@ class Tests_Callbacks extends Module {
 		$x = ModuleManager::get_instance('/Base_Box|0');
 		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 		$x->push_main('Tests/Callbacks/a','body');
+		return true;
+	}
+	
+	public function this_stack() {
+		$x = ModuleManager::get_instance('/Base_Box|0');
+		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+		$x->push_main('Tests/Callbacks','body');
 		return true;
 	}
 	
