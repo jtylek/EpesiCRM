@@ -59,6 +59,7 @@ class Base_User_Login extends Module {
 		if($t>0) {
 			$fails = DB::GetOne('SELECT count(*) FROM user_login_ban WHERE failed_on>%d AND from_addr=%s',array(time()-$t,$_SERVER['REMOTE_ADDR']));
 			if($fails>=3) {
+				print $this->lang->t('You have exceeded the number of allowed login attempts.<BR>');
 				print('<a href="'.get_epesi_url().'">'.$this->lang->t('Host banned. Click here to refresh.').'</a>');
 				return;
 			}
