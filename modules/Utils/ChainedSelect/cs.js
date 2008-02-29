@@ -5,6 +5,11 @@ ChainedSelect.prototype = {
 	dest_id:null,
 	params:null,
 	default_val:null,
+	request_f:null,
+	clear_f:null,
+	load_def_f:null,
+	stop_f:null,
+	loads:0,
 	initialize:function(dest_id,prev_ids,req_url,params,def_val) {
 		if($(dest_id)==null)return;
 		this.prev_ids = prev_ids;
@@ -13,11 +18,17 @@ ChainedSelect.prototype = {
 		this.params = params;
 		this.default_val = def_val;
 		var prev_obj = prev_ids[prev_ids.length-1];
-		Event.observe(prev_obj,'change',this.request.bindAsEventListener(this));
-		Event.observe(prev_obj,'e_cs:load',this.request.bindAsEventListener(this));
-		Event.observe(prev_obj,'e_cs:clear',this.clear.bindAsEventListener(this));
-		if(prev_ids.length==1)
-			Event.observe(document,'e:load',this.load_def.bindAsEventListener(this));
+		this.request_f = this.request.bindAsEventListener(this);
+		this.clear_f = this.clear.bindAsEventListener(this);
+		Event.observe(prev_obj,'change',this.request_f);
+		Event.observe(prev_obj,'e_cs:load',this.request_f);
+		Event.observe(prev_obj,'e_cs:clear',this.clear_f);
+		if(prev_ids.length==1) {
+			this.load_def_f = this.load_def.bindAsEventListener(this);
+			Event.observe(document,'e:load',this.load_def_f);
+		}
+		this.stop_f = this.stop.bindAsEventListener(this);
+		Event.observe(document,'e:load',this.stop_f);
 	},
 	load_def:function() {
 		this.request(this.default_val);
@@ -26,6 +37,18 @@ ChainedSelect.prototype = {
 		obj.options.length=0;
 		obj.fire('e_cs:clear');
 		obj.disabled=true;
+	},
+	stop:function(){
+		this.loads++;
+		if(this.loads==2) {
+			var prev_obj = this.prev_ids[this.prev_ids.length-1];
+			Event.stopObserving(prev_obj,'change',this.request_f);
+			Event.stopObserving(prev_obj,'e_cs:load',this.request_f);
+			Event.stopObserving(prev_obj,'e_cs:clear',this.clear_f);
+			if(this.prev_ids.length==1)
+				Event.stopObserving(document,'e:load',this.load_def_f);
+			Event.stopObserving(document,'e:load',this.stop_f);
+		}
 	},
 	request:function(def_val) {
 		var vals = new Hash();
