@@ -84,6 +84,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 			array('name'=>'CRM/Acl', 'version'=>0),
 			array('name'=>'Base/Lang', 'version'=>0),
 			array('name'=>'Base/Acl', 'version'=>0),
+			array('name'=>'Utils/ChainedSelect', 'version'=>0),
 			array('name'=>'Data/Countries', 'version'=>0)
 		);
 	}
