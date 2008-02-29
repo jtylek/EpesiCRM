@@ -37,6 +37,7 @@ public function equipment_attachment_addon($arg){
 public function project_equipment_addon($arg){
 		// always 'Utils/RecordBrowser','table','unique_internal_name' - can be anything
 		$rb = $this->init_module('Utils/RecordBrowser','equipment','equipment_addon');
+		$rb->enable_quick_new_records();
 		// Base_ActionBarCommon::add('add',Base_LangCommon::ts('CRM_Contacts','Add contact'), $this->create_callback_href(array($this, 'company_addon_new_contact'), array($arg['id'])));
 		// $rb->set_button($this->create_callback_href(array($this, 'company_addon_new_contact'), array($arg['id'])));
 		// array with arguments: first-criteria, column names to hide (or to force to show), sorting - any column visible (from right to left), true=always

@@ -50,30 +50,38 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	public static function caption() {
 		return 'Phone Calls';
 	}
-	public static function QFfield_phone(&$form, $field, $label, $mode, $default) {
+	public static function QFfield_phone(&$form, $field, $label, $mode, $default, $desc) {
 		if ($mode=='add' || $mode=='edit') {
 			$phone_numbers = CRM_ContactsCommon::get_contacts(array(), array('Work Phone', 'Home Phone', 'Mobile Phone'));
-			$js = 	'Event.observe(\'contact\',\'change\', onchange_contact_phone);'.
-					'function onchange_contact_phone() {'.
-					'contact = document.forms[\''.$form->getAttribute('name').'\'].contact.value;'.
-					'phone = \'\';'.
-					'switch(contact){';
-			foreach($phone_numbers as $k=>$v) {
-				$phone = $v['mobile_phone'];
-				if (!$phone) $phone = $v['work_phone'];
-				if (!$phone) $phone = $v['home_phone'];
-				if ($phone) $js .= 'case"'.$k.'":phone=\''.$phone.'\';break;';
-			}
-			$js .= 	'}'.
-					'document.forms[\''.$form->getAttribute('name').'\'].phone.value = phone;'.
-					'};';
+			$js = 	
+					'Event.observe(\'other_phone\',\'change\', onchange_other_phone);'.
+					'function onchange_other_phone() {'.
+					'phone = document.forms[\''.$form->getAttribute('name').'\'].phone;'.
+					'o_phone = document.forms[\''.$form->getAttribute('name').'\'].other_phone_number;'.
+					'c_phone = document.forms[\''.$form->getAttribute('name').'\'].other_phone;'.
+					'if (c_phone.checked) {phone.disable();o_phone.enable();} else {phone.enable();o_phone.disable();}'.
+					'};'.
+					'onchange_other_phone();';
 			eval_js($js);
-			$form->addElement('text', $field, $label);
+			$form->addElement('select', $field, $label, array(), array('id'=>$field));
+			Utils_ChainedSelectCommon::create($field, array('company_name','contact'),'modules/CRM/PhoneCall/update_phones.php',null,$default);
 			if ($mode=='edit') $form->setDefaults(array($field=>$default));
 		} else {
 			$form->addElement('static', $field, $label);
-			$form->setDefaults(array($field=>$default));
+			$form->setDefaults(array($field=>self::display_phone(array($desc['id']=>$default), null, false, $desc)));
 		}
+	}
+	public static function display_phone($record, $id, $nolink, $desc) {
+		if ($record[$desc['id']]=='') return '';
+		list($ret, $num) = explode('::',$record[$desc['id']]);
+		$contact = CRM_ContactsCommon::get_contact($ret);
+		switch ($num) {
+			case 1: $nr = 'Mobile Phone'; break;
+			case 2: $nr = 'Work Phone'; break;
+			case 3: $nr = 'Home Phone'; break;
+		}
+		$id = strtolower(str_replace(' ','_',$nr));
+		return '['.Base_LangCommon::ts('CRM/PhoneCall',$nr).'] '.$contact[$id];
 	}
 	public static function display_status($record, $id, $nolink, $desc) {
 		$v = $record[$desc['id']];
@@ -87,25 +95,9 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 					Module::create_href(array('increase_phonecall_status'=>$id)).
 					'>'.$status[$v].'</a>';
 	}
-
 	public static function submit_phonecall($values, $mode) {
-		if (isset($values['create_company'])) {
-			$comp_id = Utils_RecordBrowserCommon::new_record('company',
-				array(	'company_name'=>$values['first_name'].' '.$values['last_name'],
-						'address_1'=>$values['address_1'],
-						'address_2'=>$values['address_2'],
-						'country'=>$values['country'],
-						'city'=>$values['city'],
-						'zone'=>isset($values['zone'])?$values['zone']:'',
-						'postal_code'=>$values['postal_code'],
-						'phone'=>$values['work_phone'],
-						'fax'=>$values['fax'],
-						'web_address'=>$values['web_address'])
-			);
-			$values['company_name'] = array($comp_id);
-		}
-		if ($values['email']=='' && $values['login']!=0 && $mode=='add')
-			$values['email'] = DB::GetOne('SELECT mail FROM user_password WHERE user_login_id=%d', array($values['login']));
+		if (isset($values['other_phone'])) $values['phone']='';
+		else $values['other_phone_number']='';
 		return $values;
 	}
 }

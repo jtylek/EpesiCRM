@@ -155,7 +155,10 @@ class CRM_ContactsCommon extends ModuleCommon {
 				if ($crit_callback[0]=='ChainedSelect') {
 					$crits = null;
 					self::contacts_chainedselect_crits($default, $desc, $callback, $crit_callback[1]);
-				} else $crits = call_user_func($crit_callback);
+				} else {
+					$crits = call_user_func($crit_callback, false);
+//					$adv_crits = call_user_func($crit_callback, true);
+				}
 			} else $crits = array();
 			if ($crits!==null) {
 				$contacts = self::get_contacts($crits);
@@ -163,13 +166,13 @@ class CRM_ContactsCommon extends ModuleCommon {
 				foreach ($contacts as $v) $cont[$v['id']] = call_user_func($callback, $v, true);
 				asort($cont);
 			} else $cont = array();
+/*			if ($adv_crits!==null) {
+				$rpicker = $this->init_module('Utils/RecordBrowser/RecordPicker');
+				$this->display_module($rpicker, array('contact', $field, $callback, $adv_crits, array('work_phone'=>false, 'mobile_phone'=>false, 'zone'=>false), array('last_name'=>'ASC')));
+				$label .= $rpicker->create_open_link($this->lang->t('More..'));
+			}*/
 			$form->addElement($desc['type'], $field, $label, $cont, array('id'=>$field));
 			if ($mode!=='add') $form->setDefaults(array($field=>$default));
-/*			else if ($desc['type']=='multiselect') {
-				$me = self::get_my_record();
-				$form->setDefaults(array($field=>$me['id']));
-				// TODO: to reconsider
-			}*/
 		} else {
 			$form->addElement('static', $field, $label, array('id'=>$field));
 			$def = '';
