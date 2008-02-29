@@ -42,9 +42,11 @@ ChainedSelect.prototype = {
 		this.loads++;
 		if(this.loads==2) {
 			var prev_obj = this.prev_ids[this.prev_ids.length-1];
-			Event.stopObserving(prev_obj,'change',this.request_f);
-			Event.stopObserving(prev_obj,'e_cs:load',this.request_f);
-			Event.stopObserving(prev_obj,'e_cs:clear',this.clear_f);
+			if($(prev_obj)!=null) {
+				Event.stopObserving(prev_obj,'change',this.request_f);
+				Event.stopObserving(prev_obj,'e_cs:load',this.request_f);
+				Event.stopObserving(prev_obj,'e_cs:clear',this.clear_f);
+			}
 			if(this.prev_ids.length==1)
 				Event.stopObserving(document,'e:load',this.load_def_f);
 			Event.stopObserving(document,'e:load',this.stop_f);
