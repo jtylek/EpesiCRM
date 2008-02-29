@@ -31,7 +31,7 @@ ChainedSelect.prototype = {
 		Event.observe(document,'e:load',this.stop_f);
 	},
 	load_def:function() {
-		this.request(this.default_val);
+		this.request();
 	},
 	clear:function(){
 		obj.options.length=0;
@@ -52,8 +52,12 @@ ChainedSelect.prototype = {
 			Event.stopObserving(document,'e:load',this.stop_f);
 		}
 	},
-	request:function(def_val) {
+	request:function() {
 		var vals = new Hash();
+		if(this.default_val!=null) {
+			var def_val = this.default_val;
+			this.default_val = null;
+		}
 		for(x in this.prev_ids) {
 			var p = $(this.prev_ids[x]);
 			if(p==null) return;
@@ -81,10 +85,10 @@ ChainedSelect.prototype = {
 					for(y in new_opts) {
 						opts[opts.length] = new Option(new_opts[y],y);
 					}
+					if(typeof def_val != 'undefined')
+						obj.value = def_val;
 					setTimeout(obj.fire.bind(obj,'e_cs:load'),1);
 				}
-				if(typeof def_val != 'undefined')
-					obj.value = def_val;
 			}
 		});
 	}
