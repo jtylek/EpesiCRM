@@ -33,7 +33,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 			array('name'=>'Permission', 	'type'=>'select', 'required'=>true, 'param'=>'__COMMON__::Permissions', 'extra'=>false),
 			array('name'=>'Priority', 		'type'=>'select', 'required'=>true, 'param'=>'__COMMON__::Priorities', 'extra'=>false),
 
-			array('name'=>'Employees', 		'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('CRM_PhoneCallCommon','phonecall_employees_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>false, 'extra'=>false),
+			array('name'=>'Employees', 		'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('CRM_PhoneCallCommon','phonecall_employees_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>true, 'extra'=>false),
 			
 			array('name'=>'Description', 	'type'=>'long text', 'required'=>false, 'param'=>'255', 'extra'=>false)
 		);
