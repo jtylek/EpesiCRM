@@ -277,7 +277,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
     		$name = $element->getName();
 		$value = '';
 		if(!$element->isFrozen()) {
-			if($type == 'text' || $type=='textarea') {
+			if($type == 'text' || $type=='textarea' || $type=='hidden') {
 				$value = $element->getValue();
 	        	    	$element->setValue('');
 	        		if($value!==null) {

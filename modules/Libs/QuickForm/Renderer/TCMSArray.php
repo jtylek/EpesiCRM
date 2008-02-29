@@ -218,6 +218,12 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
 
     function renderHidden(&$element)
     {
+	$value = $element->getValue();
+	$name = $element->getName();
+    	$element->setValue('');
+	if($value!==null) {
+		eval_js('settextvalue(\''.$this->_formName.'\',\''.$name.'\',"'.str_replace("\n",'\n',addslashes(addslashes($value))).'")');
+	}
         if ($this->_collectHidden) {
             $this->_ary['hidden'] .= $element->toHtml() . "\n";
         } else {
@@ -253,9 +259,40 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
     */
     function _elementToArray(&$element, $required, $error)
     {
-		$type = $element->getType();
+	$type = $element->getType();
         $name = $element->getName();
     	$err_id = 'error_' . $this->_formName . "_" . $name . "_" . $type;
+	
+	
+	$value = '';
+	if(!$element->isFrozen()) {
+		if($type == 'text' || $type=='textarea') {
+			$value = $element->getValue();
+        	    	$element->setValue('');
+        		if($value!==null) {
+				eval_js('settextvalue(\''.$this->_formName.'\',\''.$name.'\',"'.str_replace("\n",'\n',addslashes(addslashes($value))).'")');
+    			}
+		} elseif($type == 'select') {
+			$value = $element->getValue();
+			$element->setValue(array());
+			if($element->getMultiple()) $name .= '[]'; 
+			if($value!==null)
+				foreach($value as $v) {
+					eval_js('setselectvalue(\''.$this->_formName.'\',\''.$name.'\',\''.str_replace("\n",'\n',addslashes(addslashes($v))).'\')');
+				}
+		} elseif($type == 'checkbox' || $type=='radio') {
+	    		$value = $element->getAttribute('checked');
+	        	$element->removeAttribute('checked');
+    			if($value!==null) {
+			    if($type=='checkbox')
+				eval_js('setcheckvalue(\''.$this->_formName.'\',\''.$name.'\',\''.addslashes(addslashes($value)).'\')');
+			    else
+				eval_js('setradiovalue(\''.$this->_formName.'\',\''.$name.'\',\''.str_replace("\n",'\n',addslashes(addslashes($element->getValue()))).'\')');
+	    		}
+		}
+	}
+
+	
         $ret = array(
             'name'      => $element->getName(),
             'value'     => $element->getValue(),
@@ -265,8 +302,6 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
            	'error'		=> '<span style="color: #ff0000" id="'.htmlspecialchars($err_id).'"></span>'
         );
         
-		 if (!$element->getAttribute('id') || $type=='checkbox' || $type == 'radio')
-	    	$element->updateAttributes(array('id' => 'id' .$this->_formName.$name));
         // render label(s)
         $labels = $element->getLabel();
         if (is_array($labels) && $this->_staticLabels) {
