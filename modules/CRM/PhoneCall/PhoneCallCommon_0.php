@@ -65,6 +65,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			eval_js($js);
 			$form->addElement('select', $field, $label, array(), array('id'=>$field));
 			Utils_ChainedSelectCommon::create($field, array('company_name','contact'),'modules/CRM/PhoneCall/update_phones.php',null,$default);
+			print($default);
 			if ($mode=='edit') $form->setDefaults(array($field=>$default));
 		} else {
 			$form->addElement('static', $field, $label);
@@ -73,7 +74,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	}
 	public static function display_phone($record, $id, $nolink, $desc) {
 		if ($record[$desc['id']]=='') return '';
-		list($ret, $num) = explode('::',$record[$desc['id']]);
+		list($ret, $num) = explode('__',$record[$desc['id']]);
 		$contact = CRM_ContactsCommon::get_contact($ret);
 		switch ($num) {
 			case 1: $nr = 'Mobile Phone'; break;
