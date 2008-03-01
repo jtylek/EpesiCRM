@@ -264,7 +264,7 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
     	$err_id = 'error_' . $this->_formName . "_" . $name . "_" . $type;
 	
 	
-	$value = '';
+/*	$value = '';
 	if(!$element->isFrozen()) {
 		if($type == 'text' || $type=='textarea') {
 			$value = $element->getValue();
@@ -291,7 +291,7 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
 	    		}
 		}
 	}
-
+*/
 	
         $ret = array(
             'name'      => $element->getName(),
