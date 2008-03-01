@@ -109,12 +109,28 @@ class CRM_ProjectPlanner extends Module {
 		$c = $this->init_module('Utils/Calendar',array('CRM/ProjectPlanner/EmployeeEvent',array('default_view'=>'week',
 			'first_day_of_week'=>Utils_PopupCalendarCommon::get_first_day_of_week(),
 			'views'=>array('Day','Week','Month'),
-			'start_day'=>Variable::get('CRM_ProjectsPlanner__start_day'),
-			'end_day'=>Variable::get('CRM_ProjectsPlanner__end_day'),
-			'additional_rows'=>array('allday'=>'All day'),
+			'timeline'=>false,
+//			'start_day'=>Variable::get('CRM_ProjectsPlanner__start_day'),
+//			'end_day'=>Variable::get('CRM_ProjectsPlanner__end_day'),
+//			'additional_rows'=>array('allday'=>'All day'),
 //			'interval'=>Base_User_SettingsCommon::get('CRM_Calendar','interval'),
 			'default_date'=>time()
 			)));
+		
+		$date = $c->get_week_start_date();
+		
+		$pids = DB::GetCol('SELECT project_id FROM crm_projectplanner_work WHERE start>=%T AND start<%T AND employee_id=%d',array($date,$date+86400*7,$sel_emp));
+		
+		$projs_tmp = Apps_ProjectsCommon::get_projects(array('status'=>'in_progress','id'=>$pids),array('id','project_name'));
+		$projs = array('add'=>$this->lang->t('Add project'),'vacations'=>$this->lang->t('Vacations'));
+		foreach($projs_tmp as $v)
+			$projs['p'.$v['id']]=$v['project_name'];
+		unset($projs_tmp);
+		if(empty($projs)) {
+			print($this->lang->t('There is no defined projects'));
+			return;
+		}
+		$c->settings('additional_rows',$projs);
 		$this->display_module($c);
 	}
 

@@ -18,9 +18,11 @@ class CRM_ProjectPlannerInstall extends ModuleInstall {
 		$ret &= DB::CreateTable('crm_projectplanner_work','
 			id I4 AUTO KEY,
 			employee_id I4 NOTNULL,
-			project_id I4 NOTNULL,
+			project_id I4,
+			vacations I1,
+			allday I1,
 			start T NOTNULL,
-			end T NOTNULL',
+			end T',
 			array('constraints'=>', FOREIGN KEY (employee_id) REFERENCES contact(ID), FOREIGN KEY (project_id) REFERENCES projects(id)'));
 		if(!$ret){
 			print('Unable to create table crm_projectplanner_employee_work.<br>');

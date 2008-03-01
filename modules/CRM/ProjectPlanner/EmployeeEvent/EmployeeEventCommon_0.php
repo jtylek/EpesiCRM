@@ -13,12 +13,12 @@ class CRM_ProjectPlanner_EmployeeEventCommon extends Utils_Calendar_EventCommon 
 	public static $employee;
 
 	public static function get($id) {
-		$result = DB::GetRow('SELECT \'blue\' as color,start,end,project_id,id,0 as timeless FROM crm_projectplanner_work WHERE id=%d',array($id));
+		$result = DB::GetRow('SELECT start,end,project_id,id,vacations,allday FROM crm_projectplanner_work WHERE id=%d',array($id));
 		self::add_info($result);
 		return $result;
 	}
 	public static function get_all($start,$end,$order='') {
-		$ret = DB::GetAll('SELECT \'blue\' as color,start,end,project_id,id,0 as timeless FROM crm_projectplanner_work WHERE ((start>=%T AND start<%T) AND employee_id=%d)',array($start,$end,self::$employee));
+		$ret = DB::GetAll('SELECT start,end,project_id,id,vacations,allday FROM crm_projectplanner_work WHERE ((start>=%T AND start<%T) AND employee_id=%d)',array($start,$end,self::$employee));
 		foreach($ret as &$v) {
 			self::add_info($v);
 		}
@@ -31,17 +31,28 @@ class CRM_ProjectPlanner_EmployeeEventCommon extends Utils_Calendar_EventCommon 
 			$sd = Variable::get('CRM_ProjectsPlanner__start_day');
 			$ed = Variable::get('CRM_ProjectsPlanner__end_day');
 		}
-		$proj_info = Apps_ProjectsCommon::get_project($v['project_id']);
-		$v['title'] = $proj_info['project_name'];
-		$v['description'] = 'Address 1: '.$proj_info['address_1'].'<br>Address 2: '.$proj_info['address_2'].'<br>City: '.$proj_info['city'];
-		$v['additional_info'] = $v['additional_info2'] = '';
-		$v['end'] = strtotime($v['end']);
-		$v['start'] = strtotime($v['start']);
-		$v['duration'] = $v['end'] - $v['start'];
-		if(date('G:i',strtotime($v['start']))==$sd && date('G:i',strtotime($v['end']))==$ed) {
-			$v['timeless'] = 1;
-			$v['timeless_key'] = 'allday';
+		if($v['vacations']) {
+			$v['title'] = 'vacations';
+			$v['description'] = '';
+			$v['timeless_key'] = 'vacations';
+		} else {
+			$proj_info = Apps_ProjectsCommon::get_project($v['project_id']);
+			$v['title'] = $proj_info['project_name'];
+			$v['description'] = 'Address 1: '.(isset($proj_info['address_1'])?$proj_info['address_1']:'').'<br>Address 2: '.(isset($proj_info['address_2'])?$proj_info['address_2']:'').'<br>City: '.(isset($proj_info['city'])?$proj_info['city']:'');
+			$v['timeless_key'] = 'p'.$v['project_id'];
 		}
+		$v['additional_info'] = $v['additional_info2'] = '';
+		if($v['allday']) {
+			$v['color'] = 'blue';
+			$v['start'] = strtotime(date('Y-m-d',strtotime($v['start'])).' '.$sd);
+			$v['end'] = strtotime(date('Y-m-d',strtotime($v['start'])).' '.$ed);
+		} else {
+			$v['color'] = 'red';
+			$v['end'] = strtotime($v['end']);
+			$v['start'] = strtotime($v['start']);
+		}
+		$v['duration'] = $v['end'] - $v['start'];
+		$v['timeless'] = 1;
 	}
 
 	public static function delete($id) {
