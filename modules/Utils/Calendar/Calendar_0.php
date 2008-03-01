@@ -35,6 +35,57 @@ class Utils_Calendar extends Module {
 			$this->settings['additional_rows'] = array('timeless'=>$this->lang->t('Timeless'));
 
 		$this->date = & $this->get_module_variable('date',$this->settings['default_date']);
+
+
+		if($this->isset_unique_href_variable('action')) {
+			switch($this->get_unique_href_variable('action')) {
+				case 'add':
+					$this->push_event_action('add',array($this->get_unique_href_variable('time'),($this->get_unique_href_variable('timeless')=='0')?false:$this->get_unique_href_variable('timeless')));
+					return;
+				case 'switch':
+					$views = array_flip($this->settings['views']);
+					$view = $this->get_unique_href_variable('tab');
+					if (isset($views[$view])) $switch_view = $views[$view];
+						else break;
+					$this->date = $this->get_unique_href_variable('time');
+					break;
+			}
+		} elseif(isset($_REQUEST['UCaction']) && isset($_REQUEST['UCev_id']) && is_numeric($_REQUEST['UCev_id'])) {
+			switch($_REQUEST['UCaction']) {
+				case 'delete':
+					$this->delete_event($_REQUEST['UCev_id']);
+					break;
+				case 'move':
+					$this->move_event($_REQUEST['UCev_id'],$_REQUEST['UCdate']);
+					break;
+				case 'view':
+				case 'edit':
+					$this->push_event_action($_REQUEST['UCaction'],array($_REQUEST['UCev_id']));
+					return;
+			}
+		}
+		if($this->isset_unique_href_variable('date'))
+			$this->set_date($this->get_unique_href_variable('date'));
+		if($this->isset_unique_href_variable('week_date'))
+			$this->set_week_date($this->get_unique_href_variable('week_date'));
+		if($this->isset_unique_href_variable('shift_week_day'))
+			$this->shift_week_day($this->get_unique_href_variable('shift_week_day'));
+	}
+	
+	public function settings($key,$val) {
+		$this->settings[$key] = $val;
+	}
+	
+	public function get_date() {
+		return $this->date;
+	}
+
+	public function get_week_start_date() {
+		$week_shift = 86400*$this->get_module_variable('week_shift',0);
+		$first_day_of_displayed_week = date('w', $this->date)-$this->settings['first_day_of_week'];
+		if ($first_day_of_displayed_week<0) $first_day_of_displayed_week += 7;
+		$first_day_of_displayed_week *= 86400;
+		return strtotime(date('Y-m-d',$this->date+$week_shift-$first_day_of_displayed_week));
 	}
 
 	public function set_date($d) {
@@ -98,33 +149,6 @@ class Utils_Calendar extends Module {
 	}
 
 	public function body($arg = null) {
-		if($this->isset_unique_href_variable('action')) {
-			switch($this->get_unique_href_variable('action')) {
-				case 'add':
-					$this->push_event_action('add',array($this->get_unique_href_variable('time'),($this->get_unique_href_variable('timeless')=='0')?false:$this->get_unique_href_variable('timeless')));
-					return;
-				case 'switch':
-					$views = array_flip($this->settings['views']);
-					$view = $this->get_unique_href_variable('tab');
-					if (isset($views[$view])) $switch_view = $views[$view];
-						else break;
-					$this->date = $this->get_unique_href_variable('time');
-					break;
-			}
-		} elseif(isset($_REQUEST['UCaction']) && isset($_REQUEST['UCev_id']) && is_numeric($_REQUEST['UCev_id'])) {
-			switch($_REQUEST['UCaction']) {
-				case 'delete':
-					$this->delete_event($_REQUEST['UCev_id']);
-					break;
-				case 'move':
-					$this->move_event($_REQUEST['UCev_id'],$_REQUEST['UCdate']);
-					break;
-				case 'view':
-				case 'edit':
-					$this->push_event_action($_REQUEST['UCaction'],array($_REQUEST['UCev_id']));
-					return;
-			}
-		}
 
 		load_js($this->get_module_dir().'calendar.js');
 
@@ -262,15 +286,13 @@ class Utils_Calendar extends Module {
 	public function day() {
 		$theme = & $this->pack_module('Base/Theme');
 
-		$theme->assign('next_href', $this->create_callback_href(array($this,'set_date'),$this->date+86400));
+		$theme->assign('next_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date+86400))));
 		$theme->assign('next_label',$this->lang->ht('Next day'));
-		$theme->assign('today_href', $this->create_callback_href(array($this,'set_date'),time()));
+		$theme->assign('today_href', $this->create_unique_href(array('date'=>date('Y-m-d'))));
 		$theme->assign('today_label', $this->lang->ht('Today'));
-		$theme->assign('prev_href', $this->create_callback_href(array($this,'set_date'),$this->date-86400));
+		$theme->assign('prev_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date-86400))));
 		$theme->assign('prev_label', $this->lang->ht('Previous day'));
 		$theme->assign('info', $this->lang->t('Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event'));
-		if($this->isset_unique_href_variable('date'))
-			$this->set_date($this->get_unique_href_variable('date'));
 		$link_text = $this->create_unique_href_js(array('date'=>'__YEAR__-__MONTH__-__DAY__'));
 		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('day_selector', $link_text,false,'day',$this->settings['first_day_of_week']));
 
@@ -361,20 +383,18 @@ class Utils_Calendar extends Module {
 	public function week() {
 		$theme = & $this->pack_module('Base/Theme');
 
-		$theme->assign('next7_href', $this->create_callback_href(array($this,'set_date'),$this->date+604800));
+		$theme->assign('next7_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date+604800))));
 		$theme->assign('next7_label',$this->lang->ht('Next week'));
-		$theme->assign('next_href', $this->create_callback_href(array($this,'shift_week_day'),true));
+		$theme->assign('next_href', $this->create_unique_href(array('shift_week_day'=>1)));
 		$theme->assign('next_label',$this->lang->ht('Next day'));
-		$theme->assign('today_href', $this->create_callback_href(array($this,'set_week_date'),time()));
+		$theme->assign('today_href', $this->create_unique_href(array('date'=>date('Y-m-d'))));
 		$theme->assign('today_label', $this->lang->ht('Today'));
-		$theme->assign('prev_href', $this->create_callback_href(array($this,'shift_week_day'),false));
+		$theme->assign('prev_href', $this->create_unique_href(array('shift_week_day'=>0)));
 		$theme->assign('prev_label', $this->lang->ht('Previous day'));
-		$theme->assign('prev7_href', $this->create_callback_href(array($this,'set_date'),$this->date-604800));
+		$theme->assign('prev7_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date-604800))));
 		$theme->assign('prev7_label', $this->lang->ht('Previous week'));
 		$theme->assign('info', $this->lang->t('Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event'));
-		if($this->isset_unique_href_variable('date'))
-			$this->set_week_date($this->get_unique_href_variable('date'));
-		$link_text = $this->create_unique_href_js(array('date'=>'__YEAR__-__MONTH__-__DAY__'));
+		$link_text = $this->create_unique_href_js(array('week_date'=>'__YEAR__-__MONTH__-__DAY__'));
 		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text,false,'day',$this->settings['first_day_of_week']));
 
 		$week_shift = 86400*$this->get_module_variable('week_shift',0);
@@ -511,15 +531,15 @@ class Utils_Calendar extends Module {
 	public function month() {
 		$theme = & $this->pack_module('Base/Theme');
 
-		$theme->assign('nextyear_href', $this->create_callback_href(array($this,'set_date'),strtotime((date('Y',$this->date)+1).date('-m-d',$this->date))));
+		$theme->assign('nextyear_href', $this->create_unique_href(array('date'=>(date('Y',$this->date)+1).date('-m-d',$this->date))));
 		$theme->assign('nextyear_label',$this->lang->ht('Next year'));
-		$theme->assign('nextmonth_href', $this->create_callback_href(array($this,'set_date'),$this->date+86400*date('t',$this->date)));
+		$theme->assign('nextmonth_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date+86400*date('t',$this->date)))));
 		$theme->assign('nextmonth_label',$this->lang->ht('Next month'));
-		$theme->assign('today_href', $this->create_callback_href(array($this,'set_date'),time()));
+		$theme->assign('today_href', $this->create_unique_href(array('date'=>date('Y-m-d'))));
 		$theme->assign('today_label', $this->lang->ht('Today'));
-		$theme->assign('prevmonth_href', $this->create_callback_href(array($this,'set_date'),$this->date-86400*date('t',$this->date-86400*(date('d', $this->date)+1))));
+		$theme->assign('prevmonth_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date-86400*date('t',$this->date-86400*(date('d', $this->date)+1))))));
 		$theme->assign('prevmonth_label', $this->lang->ht('Previous month'));
-		$theme->assign('prevyear_href', $this->create_callback_href(array($this,'set_date'),strtotime((date('Y',$this->date)-1).date('-m-d',$this->date))));
+		$theme->assign('prevyear_href', $this->create_unique_href(array('date'=>(date('Y',$this->date)-1).date('-m-d',$this->date))));
 		$theme->assign('prevyear_label', $this->lang->ht('Previous year'));
 		$theme->assign('info', $this->lang->t('Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event'));
 
@@ -573,16 +593,13 @@ class Utils_Calendar extends Module {
 	public function year() {
 		$theme = & $this->pack_module('Base/Theme');
 
-		$theme->assign('nextyear_href', $this->create_callback_href(array($this,'set_date'),strtotime((date('Y',$this->date)+1).date('-m-d',$this->date))));
+		$theme->assign('nextyear_href', $this->create_unique_href(array('date'=>(date('Y',$this->date)+1).date('-m-d',$this->date))));
 		$theme->assign('nextyear_label',$this->lang->ht('Next year'));
-		$theme->assign('today_href', $this->create_callback_href(array($this,'set_date'),time()));
+		$theme->assign('today_href', $this->create_unique_href(array('date'=>date('Y-m-d'))));
 		$theme->assign('today_label', $this->lang->ht('Today'));
-		$theme->assign('prevyear_href', $this->create_callback_href(array($this,'set_date'),strtotime((date('Y',$this->date)-1).date('-m-d',$this->date))));
+		$theme->assign('prevyear_href', $this->create_unique_href(array('date'=>(date('Y',$this->date)-1).date('-m-d',$this->date))));
 		$theme->assign('prevyear_label', $this->lang->ht('Previous year'));
 		$theme->assign('info', $this->lang->t('Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event'));
-
-		if ($this->isset_unique_href_variable('date'))
-			$this->set_date($this->get_unique_href_variable('date'));
 
 		$link_text = $this->create_unique_href_js(array('date'=>'__YEAR__-__MONTH__-__DAY__'));
 		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text,false,'year'));

@@ -22,10 +22,13 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid,page_type) {
 	Utils_Calendar.ids = ids_in.evalJSON();
 	Utils_Calendar.ids.each(function(id) {
 		var cell_id = 'UCcell_'+id;
-		var f = new_ev.replace('__TIME__',id);
+		var f = '';
 		if(typeof id=='string' && id.indexOf('_')>=0) {
-			f = f.replace('__TIMELESS__',id.substr(id.indexOf('_')+1));
+			var kkk = id.indexOf('_');
+			f = new_ev.replace('__TIME__',id.substr(0,kkk));
+			f = f.replace('__TIMELESS__',id.substr(kkk+1));
 		} else {
+			f = new_ev.replace('__TIME__',id);
 			f = f.replace('__TIMELESS__','0');
 		}
 		Droppables.add(cell_id, {

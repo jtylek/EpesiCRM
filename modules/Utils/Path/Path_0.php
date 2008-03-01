@@ -101,3 +101,4 @@ class Utils_Path extends Module {
 		print $this->toHtml();
 	}
 }
+?>

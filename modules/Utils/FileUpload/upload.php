@@ -16,7 +16,6 @@ if(!isset($_REQUEST['form_name']) || !isset($_REQUEST['required']))
 	exit();
 $form_name = $_REQUEST['form_name'];
 $doc = $_FILES['file'];
-print_r($doc);
 $dest_filename  = 'tmp_'.microtime(true);
 $dest_path  = 'data/Utils_FileUpload/'.$dest_filename;
 $dest_doc = '../../../'.$dest_path;
@@ -88,10 +87,11 @@ if($doc['error']==UPLOAD_ERR_INI_SIZE || $doc['error']==UPLOAD_ERR_FORM_SIZE) {
 	//parent.document.forms['<?php print($form_name); ?>'].button.disabled=false;
 <?php
 	if($ok) {
-		if(get_magic_quotes_gpc())
+//		if(get_magic_quotes_gpc())
+	//force strip slashes?
 			print(stripslashes($_REQUEST['submit_js'])."\n");
-		else
-			print($_REQUEST['submit_js']."\n");
+//		else
+//			print($_REQUEST['submit_js']."\n");
 	}
 ?>
 	-->
