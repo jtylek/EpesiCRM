@@ -449,7 +449,7 @@ class Utils_RecordBrowser extends Module {
 		return $this->back();
 	}
 	public function view_entry($mode='view', $id = null, $defaults = array()) {
-		$js = true;
+		$js = ($mode!='view');
 		if ($this->is_back())
 			return $this->back();
 		$this->init();
