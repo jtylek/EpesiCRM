@@ -112,6 +112,8 @@
 
 {$table_prefix}
 
+<div class="table">
+
 <!-- SHADOW BEGIN -->
 	<div class="layer">
 		<div class="content_shadow">
@@ -141,6 +143,8 @@
 		</div>
 	</div>
 <!-- -->
+
+</div>
 
 {$table_postfix}
 

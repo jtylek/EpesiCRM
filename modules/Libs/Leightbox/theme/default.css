@@ -75,18 +75,18 @@
 
 
 /* no shadow in tables */
-#Leightbox_content .shadow-top,
-#Leightbox_content .shadow-middle,
-#Leightbox_content .shadow-bottom {
+#Leightbox_content .table .shadow-top,
+#Leightbox_content .table .shadow-middle,
+#Leightbox_content .table .shadow-bottom {
 	display: none;
 }
 
-#Leightbox_content .layer {
+#Leightbox_content .table .layer {
 	padding: 0px;
 	width: 100%;
 }
 
-#Leightbox_content .layer .margin2px {
+#Leightbox_content .table .layer .margin2px {
 	padding: 0px;
 }
 
