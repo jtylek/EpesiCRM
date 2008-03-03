@@ -444,6 +444,10 @@ class Utils_RecordBrowser extends Module {
 //		if ($this->add_in_table) print("</form>\n");
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
+	public function delete_record($id) {
+		Utils_RecordBrowserCommon::delete_record($this->tab, $id);
+		return $this->back();
+	}
 	public function view_entry($mode='view', $id = null, $defaults = array()) {
 		$js = true;
 		if ($this->is_back())
@@ -485,8 +489,8 @@ class Utils_RecordBrowser extends Module {
 		}
 
 		if ($mode=='view') { 
-			if ($this->get_access('edit',$record)) Base_ActionBarCommon::add('edit', $this->lang->ht('Edit'), $this->create_callback_href(array($this,'view_entry'), array('edit',$id)));
-			if ($this->get_access('delete',$record)) Base_ActionBarCommon::add('delete', $this->lang->ht('Delete'), $this->create_confirm_callback_href($this->lang->t('Are you sure you want to delete this record?'),array('Utils_RecordBrowserCommon','delete_record'),array($this->tab, $id)));
+			if ($this->get_access('edit',$record)) Base_ActionBarCommon::add('edit', $this->lang->ht('Edit'), $this->create_callback_href(array($this,'navigate'), array('view_entry','edit',$id)));
+			if ($this->get_access('delete',$record)) Base_ActionBarCommon::add('delete', $this->lang->ht('Delete'), $this->create_confirm_callback_href($this->lang->t('Are you sure you want to delete this record?'),array($this,'delete_record'),array($id)));
 			Base_ActionBarCommon::add('back', $this->lang->ht('Back'), $this->create_back_href());
 		} else {
 			Base_ActionBarCommon::add('save', $this->lang->ht('Save'), $form->get_submit_form_href());
