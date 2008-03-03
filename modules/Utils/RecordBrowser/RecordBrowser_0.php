@@ -302,17 +302,19 @@ class Utils_RecordBrowser extends Module {
 
 		$table_columns_SQL = join(', ', $table_columns_SQL);
 		if ($this->browse_mode == 'recent')
-			$table_columns[] = array('name'=>$this->lang->t('Visited on'));
+			$table_columns[] = array('name'=>$this->lang->t('Visited on'), 'wrapmode'=>'nowrap');
 			 
 		$gb->set_table_columns( $table_columns );
 
 		if ($this->browse_mode != 'recent')
 			$gb->set_default_order($order, $this->changed_view);
 
-		if ($this->add_button!==null) $label = $this->add_button;
-		else $label = $this->create_callback_href(array($this, 'navigate'), array('view_entry', 'add', null, $this->custom_defaults));
-//		else $label = $this->create_callback_href(array($this, 'view_entry'), array('add', null, $this->custom_defaults));
-		$gb->set_custom_label('<a '.$label.'><img border="0" src="'.Base_ThemeCommon::get_template_file('Base/ActionBar','icons/add.png').'" /></a>');
+		if (!$special) {
+			if ($this->add_button!==null) $label = $this->add_button;
+			else $label = $this->create_callback_href(array($this, 'navigate'), array('view_entry', 'add', null, $this->custom_defaults));
+	//		else $label = $this->create_callback_href(array($this, 'view_entry'), array('add', null, $this->custom_defaults));
+			$gb->set_custom_label('<a '.$label.'><img border="0" src="'.Base_ThemeCommon::get_template_file('Base/ActionBar','icons/add.png').'" /></a>');
+		}
 		$search = $gb->get_search_query(true);
 		$search_res = array();
 		foreach ($search as $k=>$v) {

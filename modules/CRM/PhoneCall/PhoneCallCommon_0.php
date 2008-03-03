@@ -133,7 +133,8 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			case 3: $nr = 'Home Phone'; break;
 		}
 		$id = strtolower(str_replace(' ','_',$nr));
-		return '['.Base_LangCommon::ts('CRM/PhoneCall',$nr).'] '.$contact[$id];
+		$l = Base_LangCommon::ts('CRM/PhoneCall',$nr);
+		return $l[0].': '.$contact[$id];
 	}
 	public static function display_status($record, $id, $nolink, $desc) {
 		$v = $record[$desc['id']];
