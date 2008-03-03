@@ -70,3 +70,24 @@
 	opacity:.80;
 	filter: alpha(opacity=80);
 }
+
+
+
+
+/* no shadow in tables */
+#Leightbox_content .shadow-top,
+#Leightbox_content .shadow-middle,
+#Leightbox_content .shadow-bottom {
+	display: none;
+}
+
+#Leightbox_content .layer {
+	padding: 0px;
+	width: 100%;
+}
+
+#Leightbox_content .layer .margin2px {
+	padding: 0px;
+}
+
+/* */

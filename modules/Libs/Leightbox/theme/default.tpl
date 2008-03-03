@@ -14,4 +14,6 @@
     </table>
 </div>
 
-{$content}
+<div id="Leightbox_content">
+    {$content}
+</div>
