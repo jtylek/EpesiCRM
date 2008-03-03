@@ -110,12 +110,16 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			$form->setDefaults(array($field=>self::display_phone(array($desc['id']=>$default), null, false, $desc)));
 		}
 	}
+    public static function display_subject($v, $i) {
+		return Utils_RecordBrowserCommon::create_linked_label('phonecall', 'Subject', $i);
+	}
 	public static function display_phone_number($record, $id, $nolink, $desc) {
 		if ($record['other_phone']) return $record['other_phone_number'];
 		else return self::display_phone(array('phone'=>$record['phone']),null,null,array('id'=>'phone'));
 	}
 	public static function display_contact_name($record, $id, $nolink, $desc) {
 		if ($record['other_contact']) return $record['other_contact_name'];
+		if ($record['contact']=='') return '--';
 		$ret = '';
 		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_open_tag('contact', $record['contact']);
 		$cont = CRM_ContactsCommon::get_contact($record['contact']);
