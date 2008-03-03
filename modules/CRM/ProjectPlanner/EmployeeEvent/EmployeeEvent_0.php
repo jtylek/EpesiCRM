@@ -30,7 +30,6 @@ class CRM_ProjectPlanner_EmployeeEvent extends Utils_Calendar_Event {
 	public function view_event($action, $id=null, $timeless=false){
 		if($this->is_back()) return false;
 		
-
 		$this->lang = $this->pack_module('Base/Lang');
 		$form = $this->init_module('Libs/QuickForm');
 		$theme =  $this->pack_module('Base/Theme');
@@ -98,7 +97,7 @@ class CRM_ProjectPlanner_EmployeeEvent extends Utils_Calendar_Event {
 		} else
 			$form->addElement('static','allday');
 
-		$form->addElement('static', 'date_s', $this->lang->t('Date'), Base_RegionalSettingsCommon::time2reg($id));
+		$form->addElement('static', 'date_s', $this->lang->t('Date'), Base_RegionalSettingsCommon::time2reg($id,false));
 		if(!$defs['allday'] || $action!='view') {
 			$lang_code = Base_LangCommon::get_lang_code();
 			$form->addElement('date', 'time_s', $this->lang->t('Start time'), array('format'=>$time_format, 'optionIncrement'  => array('i' => 5),'language'=>$lang_code));
@@ -118,7 +117,7 @@ class CRM_ProjectPlanner_EmployeeEvent extends Utils_Calendar_Event {
 			if($timeless=='add')
 				$proj_id = $v['proj'];
 			elseif(!$vacations)
-				$proj_id = ltrim('p',$timeless);
+				$proj_id = ltrim($timeless,'p');
 			$allday = isset($v['allday']) && $v['allday'];
 			$time = ($action=='edit')?$x['start']:$id;
 			if($allday) {

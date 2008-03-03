@@ -35,8 +35,6 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid,page_type) {
 			accept: 'utils_calendar_event',
 			onDrop: function(element,droppable,ev) {
 				if(droppable.id==element.getAttribute('last_cell')) return;
-				droppable.appendChild(element);
-				element.setAttribute('last_cell',droppable.id);
 				new Ajax.Request('modules/Utils/Calendar/update.php',{
 					method:'post',
 					parameters:{
@@ -47,7 +45,11 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid,page_type) {
 						month: (page_type=='month')?1:0
 					},
 					onComplete: function(t) {
+						var reject=false;
 						eval(t.responseText);
+						if(reject) return;
+						droppable.appendChild(element);
+						element.setAttribute('last_cell',droppable.id);
 						new Draggable(element, {
 							handle: 'handle',
 							revert: true

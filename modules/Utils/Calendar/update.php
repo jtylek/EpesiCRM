@@ -26,7 +26,11 @@ if($_POST['cell_id']=='trash') {
 		else $cc[0] += $ev['start']-strtotime(date('Y-m-d',$ev['start']));
 	}
 
-	call_user_func(array($mod.'Common','update'),$_POST['ev_id'],$cc[0],$ev['duration'],isset($cc[1])?$cc[1]:null);
+	$ret = call_user_func(array($mod.'Common','update'),$_POST['ev_id'],$cc[0],$ev['duration'],isset($cc[1])?$cc[1]:null);
+	if(!$ret) {
+		print('reject=true;');
+		exit();
+	}
 
 	//update content of event on page in client browser
 	$ev = call_user_func(array($mod.'Common','get'),$ev_id);

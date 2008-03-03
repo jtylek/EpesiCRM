@@ -60,13 +60,21 @@ class CRM_ProjectPlanner_EmployeeEventCommon extends Utils_Calendar_EventCommon 
 	}
 
 	public static function update($id,$start,$duration,$timeless) {
+		if($timeless=='add')
+			return false;
+
 		if($timeless) {
 			$start = strtotime(date('Y-m-d',$start).' '.Variable::get('CRM_ProjectsPlanner__start_day'));
 			$end = strtotime(date('Y-m-d',$start).' '.Variable::get('CRM_ProjectsPlanner__end_day'));
 		} else {
 			$end = $start+$duration;
 		}
-		DB::Execute('UPDATE crm_projectplanner_work SET start=%T,end=%T WHERE id=%d',array($start,$end,$id));
+
+		if($timeless=='vacations')
+			DB::Execute('UPDATE crm_projectplanner_work SET project_id=null,vacations=1,start=%T,end=%T WHERE id=%d',array($start,$end,$id));
+		else
+			DB::Execute('UPDATE crm_projectplanner_work SET project_id=%d,vacations=0,start=%T,end=%T WHERE id=%d',array(ltrim($timeless,'p'),$start,$end,$id));
+		return true;
 	}
 }
 
