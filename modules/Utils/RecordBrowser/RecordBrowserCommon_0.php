@@ -544,7 +544,19 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		DB::Execute('UPDATE '.$tab.' SET active=0 where id=%d', array($id));
 	}
 	private function get_record_href_array($tab, $id){
-		return array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($tab), 'tab'=>$tab, 'id'=>$id, 'action'=>'view');
+		if (isset($_REQUEST['__jump_to_RB_table']) && 
+			($tab==$_REQUEST['__jump_to_RB_table']) &&
+			($id==$_REQUEST['__jump_to_RB_record'])) {
+			unset($_REQUEST['__jump_to_RB_record']);
+			unset($_REQUEST['__jump_to_RB_table']);
+			$x = ModuleManager::get_instance('/Base_Box|0');
+			if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+			$x->push_main('Utils/RecordBrowser','view_entry',array('view', $id),array($tab));
+			return array();
+		}
+		return array('__jump_to_RB_table'=>$tab, '__jump_to_RB_record'=>$id);
+//		Old solution:
+//		return array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($tab), 'tab'=>$tab, 'id'=>$id, 'action'=>'view');
 	}
 	private function create_record_href($tab, $id){
 		return Module::create_href(self::get_record_href_array($tab,$id));
