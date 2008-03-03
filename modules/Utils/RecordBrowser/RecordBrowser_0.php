@@ -563,7 +563,8 @@ class Utils_RecordBrowser extends Module {
 		if ($theme==null) $theme = $this->init_module('Base/Theme');
 		$fields = array();
 		$longfields = array();
-		foreach($this->table_rows as $field => $args) 
+		foreach($this->table_rows as $field => $args) { 
+			if ($args['type']=='hidden') continue;
 			if ($args['position'] >= $from && ($to == -1 || $args['position'] < $to)) 
 			{	
 				if (!isset($data[$args['id']])) $data[$args['id']] = array('label'=>'', 'html'=>'');
@@ -576,6 +577,7 @@ class Utils_RecordBrowser extends Module {
 									'type'=>$args['type']);
 					if ($args['type']<>'long text') $fields[$args['id']] = $arr; else $longfields[$args['id']] = $arr;
 			}
+		}
 		if ($cols==0) $cols=2;
 		$theme->assign('fields', $fields);
 		$theme->assign('cols', $cols);
@@ -598,8 +600,9 @@ class Utils_RecordBrowser extends Module {
 		$init_js = '';
 		foreach($this->table_rows as $field => $args){
 			if ($visible_cols!==null && !isset($visible_cols[$args['id']])) continue;
+			if ($args['type']=='hidden') continue;
 			if (isset($this->QFfield_callback_table[$field])) {
-				call_user_func($this->QFfield_callback_table[$field], $form, $args['id'], $this->lang->t($args['name']), $mode, $mode=='add'?array():$record[$args['id']], $args);
+				call_user_func($this->QFfield_callback_table[$field], $form, $args['id'], $this->lang->t($args['name']), $mode, $mode=='add'?null:$record[$args['id']], $args);
 				continue;
 			}
 			if ($mode!=='add' && $mode!=='edit') {

@@ -21,21 +21,27 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 // ************ contacts ************** //
 //		Base_ThemeCommon::install_default_theme('CRM/PhoneCall');
 		$fields = array(
-			array('name'=>'Subject', 		'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true),
-			array('name'=>'Company Name', 	'type'=>'crm_company', 'param'=>array('field_type'=>'select'), 'filter'=>true, 'required'=>true, 'extra'=>false, 'visible'=>true),	
-			array('name'=>'Contact', 		'type'=>'crm_contact', 'param'=>array('field_type'=>'select','crits'=>array('ChainedSelect','company_name'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>true, 'extra'=>false, 'visible'=>true),
-			array('name'=>'Phone', 			'type'=>'select', 'extra'=>false, 'QFfield_callback'=>array('CRM_PhoneCallCommon','QFfield_phone'), 'display_callback'=>array('CRM_PhoneCallCommon','display_phone')),
-			array('name'=>'Other Phone',	'type'=>'checkbox', 'extra'=>false),
-			array('name'=>'Other Phone Number','type'=>'text', 'param'=>'64', 'extra'=>false),
-			array('name'=>'Date and Time',	'type'=>'timestamp', 'required'=>true, 'extra'=>false, 'visible'=>true),
+			array('name'=>'Subject', 			'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true),
+			array('name'=>'Company Name', 		'type'=>'crm_company', 'param'=>array('field_type'=>'select'), 'filter'=>true, 'required'=>false, 'extra'=>false, 'visible'=>true),	
+			array('name'=>'Contact', 			'type'=>'crm_contact', 'param'=>array('field_type'=>'select','crits'=>array('ChainedSelect','company_name'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>true, 'extra'=>false, 'visible'=>true),
+			array('name'=>'Other Contact',		'type'=>'checkbox', 'extra'=>false, 'QFfield_callback'=>array('CRM_PhoneCallCommon','QFfield_other_contact')),
+			array('name'=>'Other Contact Name',	'type'=>'text', 'param'=>'64', 'extra'=>false),
 
-			array('name'=>'Status',			'type'=>'select', 'required'=>true, 'param'=>'__COMMON__::Ticket_Status', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_PhoneCallCommon','display_status')),
-			array('name'=>'Permission', 	'type'=>'select', 'required'=>true, 'param'=>'__COMMON__::Permissions', 'extra'=>false),
-			array('name'=>'Priority', 		'type'=>'select', 'required'=>true, 'param'=>'__COMMON__::Priorities', 'extra'=>false),
+			array('name'=>'Permission', 		'type'=>'select', 'required'=>true, 'param'=>'__COMMON__::Permissions', 'extra'=>false),
+			array('name'=>'Employees', 			'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('CRM_PhoneCallCommon','phonecall_employees_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>true, 'extra'=>false),
 
-			array('name'=>'Employees', 		'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('CRM_PhoneCallCommon','phonecall_employees_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>true, 'extra'=>false),
+			array('name'=>'Status',				'type'=>'select', 'required'=>true, 'param'=>'__COMMON__::Ticket_Status', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_PhoneCallCommon','display_status')),
+			array('name'=>'Priority', 			'type'=>'select', 'required'=>true, 'param'=>'__COMMON__::Priorities', 'extra'=>false),
+
+			array('name'=>'Phone', 				'type'=>'select', 'extra'=>false, 'QFfield_callback'=>array('CRM_PhoneCallCommon','QFfield_phone'), 'display_callback'=>array('CRM_PhoneCallCommon','display_phone')),
+			array('name'=>'Other Phone',		'type'=>'checkbox', 'extra'=>false, 'QFfield_callback'=>array('CRM_PhoneCallCommon','QFfield_other_phone')),
+			array('name'=>'Other Phone Number',	'type'=>'text', 'param'=>'64', 'extra'=>false),
+			array('name'=>'Date and Time',		'type'=>'timestamp', 'required'=>true, 'extra'=>false, 'visible'=>true),
+
+			array('name'=>'Phone Number', 		'type'=>'hidden', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_PhoneCallCommon','display_phone_number')),
+			array('name'=>'Contact Name', 		'type'=>'hidden', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_PhoneCallCommon','display_contact_name')),
 			
-			array('name'=>'Description', 	'type'=>'long text', 'required'=>false, 'param'=>'255', 'extra'=>false)
+			array('name'=>'Description', 		'type'=>'long text', 'required'=>false, 'param'=>'255', 'extra'=>false)
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('phonecall', $fields);
 //		Utils_RecordBrowserCommon::set_tpl('contact', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'Contact'));
