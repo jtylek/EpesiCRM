@@ -1183,6 +1183,42 @@ class Utils_RecordBrowser extends Module {
 	public function enable_quick_new_records() {
 		$this->add_in_table = true;
 	}
+	public function mini_view($cols, $crits, $order, $info, $limit=null){
+		$this->init();
+		$gb = $this->init_module('Utils/GenericBrowser',$this->tab,$this->tab);
+		$field_hash = array();
+		foreach($this->table_rows as $field => $args)
+			$field_hash[$args['id']] = $field;
+		$header = array();
+		foreach($cols as $k=>$v) {
+			if (is_array($v)) {
+				$header[] = array('name'=>$field_hash[$v['field']], 'width'=>$v['width'], 'wrapmode'=>'nowrap');
+				$cols[$k] = $v['field']; 
+			} else {
+				$header[] = array('name'=>$field_hash[$v], 'wrapmode'=>'nowrap');
+				$cols[$k] = $v; 
+			}
+		}
+		$gb->set_table_columns($header);
 
+		$clean_order = array();
+		foreach($order as $k=>$v) {
+			$clean_order[] = array('column'=>$field_hash[$k],'order'=>$field_hash[$k],'direction'=>$v);
+		}
+		if ($limit!=null) $limit = array('offset'=>0, 'numrows'=>$limit);
+		$records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array(), $clean_order, $limit);
+		foreach($records as $v) {
+			$gb_row = $gb->get_new_row();
+			$arr = array();
+			foreach($cols as $w) $arr[] = $this->get_val($field_hash[$w], $v, $v['id'], true, $this->table_rows[$field_hash[$w]]);
+			$gb_row->add_data_array($arr);
+			if (is_callable($info)) {
+				$additional_info = call_user_func($info, $v).'<hr>';
+			} else $additional_info = '';
+			$gb_row->add_info($additional_info.Utils_RecordBrowserCommon::get_html_record_info($this->tab, $v['id']));
+			$gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'view',$v['id'])),$this->lang->t('View'));
+		}
+		$this->display_module($gb);
+	}
 }
 ?>

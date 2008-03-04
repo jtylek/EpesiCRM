@@ -385,7 +385,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					if ($negative) $having .= '(';
 					$having .= '('.($negative?'true':'false');
 					foreach($v as $w) {
-						if ($w=='') $having .= ' '.($negative?'AND':'OR').' val'.$iter.' IS '.($negative?'NOT ':'').'NULL';
+						if ($w==='') $having .= ' '.($negative?'AND':'OR').' val'.$iter.' IS '.($negative?'NOT ':'').'NULL';
 						else {
 							if (!$noquotes) $w = DB::qstr($w);
 							$having .= ' '.($negative?'AND':'OR').' val'.$iter.' '.($negative?'NOT ':'').'LIKE '.DB::Concat(DB::qstr('%::'),$w,DB::qstr('::%'));
@@ -505,11 +505,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 	public static function get_html_record_info($tab_name = null, $id = null){
 			$info = Utils_RecordBrowserCommon::get_record_info($tab_name, $id);
-			return Base_LangCommon::ts('Utils_RecordBrowser','Created by').' '.Base_UserCommon::get_user_login($info['created_by']). '<br>'.
-					Base_LangCommon::ts('Utils_RecordBrowser','Created on').' '.$info['created_on']. '<br>'.
+			return Base_LangCommon::ts('Utils_RecordBrowser','Created on:').' '.Base_RegionalSettingsCommon::time2reg($info['created_on']). '<br>'.
+					Base_LangCommon::ts('Utils_RecordBrowser','Created by:').' '.Base_UserCommon::get_user_login($info['created_by']). '<br>'.
 					(($info['edited_by']!=null)?(
-					Base_LangCommon::ts('Utils_RecordBrowser','Edited by').' '.Base_UserCommon::get_user_login($info['edited_by']). '<br>'.
-					Base_LangCommon::ts('Utils_RecordBrowser','Edited on').' '.$info['edited_on']. '<br>'):'');
+					Base_LangCommon::ts('Utils_RecordBrowser','Edited on:').' '.Base_RegionalSettingsCommon::time2reg($info['edited_on']). '<br>'.
+					Base_LangCommon::ts('Utils_RecordBrowser','Edited by:').' '.Base_UserCommon::get_user_login($info['edited_by'])):'');
 	}
 	public static function get_record( $tab_name, $id, $admin = false) {
 		self::init($tab_name, $admin);

@@ -2,6 +2,36 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_PhoneCallCommon extends ModuleCommon {
+	public static function applet_caption() {
+		return 'Phone Calls';
+	}
+	public static function applet_info() {
+		return 'List of phone calls to do';
+	}
+	public static function applet_info_format($r){
+		if (isset($r['contact']) && $r['contact']!='') {
+			$c = CRM_ContactsCommon::get_contact($r['contact']);
+			$contact = $c['last_name'].' '.$c['first_name'];
+			if (isset($r['phone']) && $r['phone']!='') {
+				list($ret, $num) = explode('__',$r['phone']);
+				switch ($num) {
+					case 1: $nr = 'Mobile Phone'; break;
+					case 2: $nr = 'Work Phone'; break;
+					case 3: $nr = 'Home Phone'; break;
+				}
+				$id = strtolower(str_replace(' ','_',$nr));
+				$l = Base_LangCommon::ts('CRM/PhoneCall',$nr);
+				$phone = $l.': '.$c[$id];
+			} else $phone = $r['other_phone_number'];
+		} else {
+			$contact = $r['other_contact_name'];
+			$phone = $r['other_phone_number'];
+		}
+		return 	Base_LangCommon::ts('CRM_PhoneCall','Description: %s', array($r['description'])).'<br>'.
+				Base_LangCommon::ts('CRM_PhoneCall','Contact: %s', array($contact)).'<br>'.
+				Base_LangCommon::ts('CRM_PhoneCall','Phone: %s', array($phone)).'<br>'.
+				Base_LangCommon::ts('CRM_PhoneCall','Date and Time: %s', array(Base_RegionalSettingsCommon::time2reg($r['date_and_time'])));
+	}
 	public static function get_phonecalls($crits = array(), $cols = array()) {
 		return Utils_RecordBrowserCommon::get_records('phonecall', $crits, $cols);
 	}
@@ -112,7 +142,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	}
     public static function display_subject($record, $i) {
 		$ret = Utils_RecordBrowserCommon::create_linked_label('phonecall', 'Subject', $i);
-		if ($record['description']!='') $ret = '<span '.Utils_TooltipCommon::open_tag_attrs($record['description'], false).'>'.$ret.'</span>';
+		if (isset($record['description']) && $record['description']!='') $ret = '<span '.Utils_TooltipCommon::open_tag_attrs($record['description'], false).'>'.$ret.'</span>';
 		return $ret;
 	}
 	public static function display_phone_number($record, $id, $nolink, $desc) {
@@ -148,6 +178,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		if (isset($_REQUEST['increase_phonecall_status'])) {
 			if ($_REQUEST['increase_phonecall_status']==$id) $v++;
 			Utils_RecordBrowserCommon::update_record('phonecall', $id, array('status'=>$v));
+			location(array());
 		}
 		if ($v==2 || !self::access_phonecall('edit', self::get_phonecall($id))) return $status[$v];
 		else return '<a '.
