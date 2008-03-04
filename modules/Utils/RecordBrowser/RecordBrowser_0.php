@@ -589,7 +589,7 @@ class Utils_RecordBrowser extends Module {
 		$theme->assign('cols', $cols);
 		$theme->assign('longfields', $longfields);
 		$theme->assign('action', $this->mode);
-		$theme->assign('Form_data', $data);
+		$theme->assign('form_data', $data);
 		$theme->assign('required_note', $this->lang->t('Indicates required fields.'));
 		
 		$theme->assign('caption',$this->caption);

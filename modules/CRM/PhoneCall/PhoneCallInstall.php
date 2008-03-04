@@ -19,7 +19,7 @@ defined("_VALID_ACCESS") || die();
 class CRM_PhoneCallInstall extends ModuleInstall {
 	public function install() {
 // ************ contacts ************** //
-//		Base_ThemeCommon::install_default_theme('CRM/PhoneCall');
+		Base_ThemeCommon::install_default_theme('CRM/PhoneCall');
 		$fields = array(
 			array('name'=>'Subject', 			'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_PhoneCallCommon','display_subject')),
 			array('name'=>'Company Name', 		'type'=>'crm_company', 'param'=>array('field_type'=>'select'), 'filter'=>true, 'required'=>false, 'extra'=>false, 'visible'=>true),	
@@ -44,7 +44,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 			array('name'=>'Description', 		'type'=>'long text', 'required'=>false, 'param'=>'255', 'extra'=>false)
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('phonecall', $fields);
-//		Utils_RecordBrowserCommon::set_tpl('contact', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'Contact'));
+		Utils_RecordBrowserCommon::set_tpl('phonecall', Base_ThemeCommon::get_template_filename('CRM/PhoneCall', 'View_entry'));
 		Utils_RecordBrowserCommon::set_processing_method('phonecall', array('CRM_PhoneCallCommon', 'submit_phonecall'));
 // 		Utils_RecordBrowserCommon::new_filter('contact', 'Company Name');
 //		Utils_RecordBrowserCommon::set_quickjump('contact', 'Last Name');
@@ -70,7 +70,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 	}
 
 	public function uninstall() {
-//		Base_ThemeCommon::uninstall_default_theme('CRM/PhoneCall');
+		Base_ThemeCommon::uninstall_default_theme('CRM/PhoneCall');
 //		Utils_RecordBrowserCommon::delete_addon('company', 'CRM/Contacts', 'company_addon');
 //		Utils_RecordBrowserCommon::delete_addon('company', 'CRM/Contacts', 'company_attachment_addon');
 //		Utils_AttachmentCommon::persistent_mass_delete(null,'CRM/Contact/');

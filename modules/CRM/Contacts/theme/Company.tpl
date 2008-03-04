@@ -78,13 +78,13 @@
 							<td class="label">&nbsp;</td>
 						{/if}
 					</tr>
-					{if isset($Form_data.create_company)}
+					{if isset($form_data.create_company)}
 					<tr>
 						<td class="label" nowrap>
-							{$Form_data.create_company.label}
+							{$form_data.create_company.label}
 						</td>
 						<td class="data create-company">
-							{$Form_data.create_company.html}
+							{$form_data.create_company.html}
 						</td>
 					</tr>
 					{/if}
