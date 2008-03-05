@@ -191,6 +191,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 
 	public static function display_company($record, $i, $nolink, $desc) {
 		$v = $record[$desc['id']];
+		if (!is_numeric($v)) return '--';
 		$def = '';
 		$first = true;
 		if (!is_array($v)) $v = array($v);
@@ -200,7 +201,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			else $def .= ', ';
 			$def .= Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $w, $nolink);
 		}
-		if (!$def) 	$def = '--';
+		if (!$def) return '--';
 		return $def;
 	}
 	public static function QFfield_company(&$form, $field, $label, $mode, $default, $desc) {
@@ -215,19 +216,26 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$companies = self::get_companies($crits);
 			foreach ($companies as $v) $comp[$v['id']] = $v['company_name'];
 			asort($comp);
-			if (!$desc['required'] && $desc['type']!='multiselect') if ($no_company_option) $comp = array(''=>'['.Base_LangCommon::ts('CRM_Contacts','w/o company').']') + $comp; else $comp = array('' => '--') + $comp;
+			$key = '';
+			if ($no_company_option) {
+				$comp = array(''=>'['.Base_LangCommon::ts('CRM_Contacts','w/o company').']') + $comp;
+				$key = '_no_company';
+			}
+			if (!$desc['required'] && $desc['type']!='multiselect') $comp = array($key => '--') + $comp;
 			$form->addElement($desc['type'], $field, $label, $comp, array('id'=>$field));
 			if ($mode!=='add') $form->setDefaults(array($field=>$default));
 		} else {
 			$form->addElement('static', $field, $label, array('id'=>$field));
 			$def = '';
 			$first = true;
-			if (!is_array($default)) $default = array($default);
-			foreach($default as $k=>$v){
-				if ($v=='') break;
-				if ($first) $first = false;
-				else $def .= ', ';
-				$def .= Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $v);
+			if (is_numeric($default)) {
+				if (!is_array($default)) $default = array($default);
+				foreach($default as $k=>$v){
+					if ($v=='') break;
+					if ($first) $first = false;
+					else $def .= ', ';
+					$def .= Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $v);
+				}
 			}
 			if (!$def) 	$def = '--';
 			$form->setDefaults(array($field=>$def));
