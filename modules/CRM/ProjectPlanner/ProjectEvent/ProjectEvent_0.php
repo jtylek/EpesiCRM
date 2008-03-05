@@ -34,6 +34,7 @@ class CRM_ProjectPlanner_ProjectEvent extends Utils_Calendar_Event {
 		$form = $this->init_module('Libs/QuickForm');
 		$theme =  $this->pack_module('Base/Theme');
 		$theme->assign('action',$action);
+
 		if($action=='new') {
 			$defs = array(
 				'time_s' => strtotime(Base_RegionalSettingsCommon::time2reg(Variable::get('CRM_ProjectsPlanner__start_day'),true,true,true,false)),
@@ -41,6 +42,8 @@ class CRM_ProjectPlanner_ProjectEvent extends Utils_Calendar_Event {
 				'date_s' => Base_RegionalSettingsCommon::time2reg($id,false),
 				'allday' => true
 				);
+			if($timeless!='add')
+				$defs['emp'] = ltrim($timeless,'e');
 		} else {
 			$x = DB::GetRow('SELECT * FROM crm_projectplanner_work WHERE id=%d',array($id));
 			$defs = array(

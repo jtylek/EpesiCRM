@@ -119,8 +119,6 @@ class CRM_ProjectPlanner extends Module {
 		}
 		$form->display();
 		CRM_ProjectPlanner_EmployeeEventCommon::$employee = $sel_emp;
-		error_log(CRM_ProjectPlanner_EmployeeEventCommon::$employee."\n",3,'data/log');
-
 
 		$c = $this->init_module('Utils/Calendar',array('CRM/ProjectPlanner/EmployeeEvent',array('default_view'=>'week',
 			'first_day_of_week'=>Utils_PopupCalendarCommon::get_first_day_of_week(),

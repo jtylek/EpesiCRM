@@ -47,6 +47,8 @@ class CRM_ProjectPlanner_EmployeeEvent extends Utils_Calendar_Event {
 				'allday' => true
 				);
 			$vacations = ($timeless=='vacations');
+			if($timeless!='vacations' && $timeless!='add')
+				$defs['proj'] = ltrim($timeless,'p');
 		} else {
 			$x = DB::GetRow('SELECT * FROM crm_projectplanner_work WHERE id=%d',array($id));
 			$defs = array(

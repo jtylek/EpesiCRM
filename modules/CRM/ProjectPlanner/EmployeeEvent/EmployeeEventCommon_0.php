@@ -36,9 +36,8 @@ class CRM_ProjectPlanner_EmployeeEventCommon extends Utils_Calendar_EventCommon 
 			$v['description'] = '';
 			$v['custom_row_key'] = 'vacations';
 		} else {
-			$proj_info = Apps_ProjectsCommon::get_project($v['project_id']);
-			$v['title'] = $proj_info['project_name'];
-			$v['description'] = 'Address 1: '.(isset($proj_info['address_1'])?$proj_info['address_1']:'').'<br>Address 2: '.(isset($proj_info['address_2'])?$proj_info['address_2']:'').'<br>City: '.(isset($proj_info['city'])?$proj_info['city']:'');
+			$v['title'] = '';
+			$v['description'] = '';
 			$v['custom_row_key'] = 'p'.$v['project_id'];
 		}
 		$v['additional_info'] = $v['additional_info2'] = '';
