@@ -41,11 +41,10 @@ class CRM_ProjectPlanner_ProjectEvent extends Utils_Calendar_Event {
 				'date_s' => Base_RegionalSettingsCommon::time2reg($id,false),
 				'allday' => true
 				);
-			$vacations = ($timeless=='vacations');
 		} else {
 			$x = DB::GetRow('SELECT * FROM crm_projectplanner_work WHERE id=%d',array($id));
 			$defs = array(
-				'proj' => $x['project_id'],
+				'emp' => $x['employee_id'],
 				'date_s' => Base_RegionalSettingsCommon::time2reg($x['start'],false),
 				'allday' => $x['allday']);
 			if($x['allday']) {
@@ -57,29 +56,24 @@ class CRM_ProjectPlanner_ProjectEvent extends Utils_Calendar_Event {
 				$defs['time_s'] = Base_RegionalSettingsCommon::time2reg($x['start'],true,true,true,false);
 				$defs['time_e'] = Base_RegionalSettingsCommon::time2reg($x['end'],true,true,true,false);
 			}
-			$vacations = $x['vacations'];
 		}
 		$form->setDefaults($defs);
 
-		$emp_id = $this->get_module_variable('employee',CRM_ProjectPlanner_EmployeeEventCommon::$employee);
+		$proj_id = $this->get_module_variable('project',CRM_ProjectPlanner_ProjectEventCommon::$project);
 
-		$emp = CRM_ContactsCommon::get_contact($emp_id);
-		$form->addElement('static','emp',$this->lang->t('Employee'),$emp['last_name'].' '.$emp['first_name']);
+		$proj = Apps_ProjectsCommon::get_project($proj_id);
+		$form->addElement('static','proj',$this->lang->t('Project'),$proj['project_name']);
 		
-		if($vacations)
-			$form->addElement('static','proj',$this->lang->t('Vacations'));
-		else {
-			$projs_tmp = Apps_ProjectsCommon::get_projects(array('status'=>'in_progress'),array('id','project_name'));
-			$projs = array();
-			foreach($projs_tmp as $v)
-				$projs[$v['id']]=$v['project_name'];
-			unset($projs_tmp);
-			if(empty($projs)) {
-				print($this->lang->t('There is no defined projects'));
-				return;
-			}
-			$form->addElement('select','proj',$this->lang->t('Project'),$projs);
+		$emps_tmp = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())),array('id','first_name','last_name'));
+		$emps = array();
+		foreach($emps_tmp as $v)
+			$emps[$v['id']] = $v['last_name'].' '.$v['first_name'];
+		unset($emps_tmp);
+		if(empty($emps)) {
+			print($this->lang->t('There is no employees'));
+			return;
 		}
+		$form->addElement('select','emp',$this->lang->t('Employee'),$emps);
 
 		$time_format = Base_RegionalSettingsCommon::time_12h()?'h:i:a':'H:i';
 
@@ -117,9 +111,9 @@ class CRM_ProjectPlanner_ProjectEvent extends Utils_Calendar_Event {
 		if($form->validate()) {
 			$v = $form->exportValues();
 			if($timeless=='add')
-				$proj_id = $v['proj'];
-			elseif(!$vacations)
-				$proj_id = ltrim($timeless,'p');
+				$emp_id = $v['emp'];
+			else
+				$emp_id = ltrim($timeless,'e');
 			$allday = isset($v['allday']) && $v['allday'];
 			$time = ($action=='edit')?strtotime($x['start']):$id;
 			if($allday) {
@@ -129,11 +123,9 @@ class CRM_ProjectPlanner_ProjectEvent extends Utils_Calendar_Event {
 				$start = $time+$this->recalculate_time($v['time_s']);
 				$end = $time+$this->recalculate_time($v['time_e']);
 			}
+			print($proj_id);
 			if($action=='new') {
-				if($vacations)
-					DB::Execute('INSERT INTO crm_projectplanner_work(employee_id,project_id,start,end,allday,vacations) VALUES(%d,null,%T,%T,%b,1)',array($emp_id,$start,$end,$allday));
-				else
-					DB::Execute('INSERT INTO crm_projectplanner_work(employee_id,project_id,start,end,allday,vacations) VALUES(%d,%d,%T,%T,%b,0)',array($emp_id,$proj_id,$start,$end,$allday));
+				DB::Execute('INSERT INTO crm_projectplanner_work(employee_id,project_id,start,end,allday,vacations) VALUES(%d,%d,%T,%T,%b,0)',array($emp_id,$proj_id,$start,$end,$allday));
 			} else {
 				DB::Execute('UPDATE crm_projectplanner_work SET start=%T,end=%T,allday=%b WHERE id=%d',array($start,$end,$allday,$id));
 			}

@@ -18,7 +18,7 @@ class CRM_ProjectPlanner_ProjectEventCommon extends Utils_Calendar_EventCommon {
 		return $result;
 	}
 	public static function get_all($start,$end,$order='') {
-		$ret = DB::GetAll('SELECT start,end,employee_id,id,vacations,allday FROM crm_projectplanner_work WHERE ((start>=%T AND start<%T) AND employee_id=%d)',array($start,$end,self::$project));
+		$ret = DB::GetAll('SELECT start,end,employee_id,id,vacations,allday FROM crm_projectplanner_work WHERE ((start>=%T AND start<%T) AND project_id=%d)',array($start,$end,self::$project));
 		foreach($ret as &$v) {
 			self::add_info($v);
 		}
