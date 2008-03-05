@@ -13,17 +13,22 @@ class CRM_ProjectPlanner_EmployeeEvent extends Utils_Calendar_Event {
 	private $lang;
 
 	public function view($id) {
-		if($this->is_back()) $this->back_to_calendar();
+		if($this->is_back()) return $this->back_to_calendar();
 		$this->view_event('view', $id);
 	}
 
 	public function edit($id) {
-		if($this->is_back()) $this->back_to_calendar();
+		if($this->is_back()) return $this->back_to_calendar();
 		$this->view_event('edit',$id);
 	}
 
 	public function add($def_date,$timeless=false) {
-		if($this->is_back()) $this->back_to_calendar();
+		$emp = $this->get_module_variable('employee',CRM_ProjectPlanner_EmployeeEventCommon::$employee);
+		$ret = DB::GetRow('SELECT * FROM crm_projectplanner_work WHERE DATE(start)=DATE(%T) AND allday=1 AND employee_id=%d',array($def_date,$emp));
+		if($this->is_back() || $ret) {
+			if($ret) eval_js('alert(\'Employee already busy\')',false);
+			return $this->back_to_calendar();
+		}
 		$this->view_event('new', $def_date, $timeless);
 	}
 

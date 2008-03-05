@@ -13,17 +13,17 @@ class CRM_ProjectPlanner_ProjectEvent extends Utils_Calendar_Event {
 	private $lang;
 
 	public function view($id) {
-		if($this->is_back()) $this->back_to_calendar();
+		if($this->is_back()) return $this->back_to_calendar();
 		$this->view_event('view', $id);
 	}
 
 	public function edit($id) {
-		if($this->is_back()) $this->back_to_calendar();
+		if($this->is_back()) return $this->back_to_calendar();
 		$this->view_event('edit',$id);
 	}
 
 	public function add($def_date,$timeless=false) {
-		if($this->is_back()) $this->back_to_calendar();
+		if($this->is_back()) return $this->back_to_calendar();
 		$this->view_event('new', $def_date, $timeless);
 	}
 
@@ -64,13 +64,16 @@ class CRM_ProjectPlanner_ProjectEvent extends Utils_Calendar_Event {
 		$proj = Apps_ProjectsCommon::get_project($proj_id);
 		$form->addElement('static','proj',$this->lang->t('Project'),$proj['project_name']);
 		
-		$emps_tmp = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())),array('id','first_name','last_name'));
+		$form->addElement('static', 'date_s', $this->lang->t('Date'));
+
+		$busy = DB::GetCol('SELECT employee_id FROM crm_projectplanner_work WHERE DATE(start)=DATE(%T) AND allday=1',array(($action=='new')?$id:$x['start']));
+		$emps_tmp = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company()),'!id'=>$busy),array('id','first_name','last_name'));
 		$emps = array();
 		foreach($emps_tmp as $v)
 			$emps[$v['id']] = $v['last_name'].' '.$v['first_name'];
 		unset($emps_tmp);
 		if(empty($emps)) {
-			print($this->lang->t('There is no employees'));
+			print($this->lang->t('There is no free employees'));
 			return;
 		}
 		$form->addElement('select','emp',$this->lang->t('Employee'),$emps);
@@ -93,7 +96,6 @@ class CRM_ProjectPlanner_ProjectEvent extends Utils_Calendar_Event {
 		} else
 			$form->addElement('static','allday');
 
-		$form->addElement('static', 'date_s', $this->lang->t('Date'));
 		if(!$defs['allday'] || $action!='view') {
 			$lang_code = Base_LangCommon::get_lang_code();
 			$form->addElement('date', 'time_s', $this->lang->t('Start time'), array('format'=>$time_format, 'optionIncrement'  => array('i' => 5),'language'=>$lang_code));

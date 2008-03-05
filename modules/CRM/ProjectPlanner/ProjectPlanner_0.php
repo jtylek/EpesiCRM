@@ -67,6 +67,7 @@ class CRM_ProjectPlanner extends Module {
 		$form->addElement('select','proj',$this->lang->t('Project'),$projs,array('onChange'=>$form->get_submit_form_js()));
 		$ids = array_keys($projs);
 		$sel_proj = & $this->get_module_variable('project',$ids[0]);
+		$form->setDefaults(array('proj'=>$sel_proj));
 		if($form->validate()) {
 			$sel_proj = $form->exportValue('proj');
 		}
@@ -112,11 +113,13 @@ class CRM_ProjectPlanner extends Module {
 		$form->addElement('select','emp',$this->lang->t('Employee'),$emp,array('onChange'=>$form->get_submit_form_js()));
 		$ids = array_keys($emp);
 		$sel_emp = & $this->get_module_variable('employee',$ids[0]);
+		$form->setDefaults(array('emp'=>$sel_emp));
 		if($form->validate()) {
 			$sel_emp = $form->exportValue('emp');
 		}
 		$form->display();
 		CRM_ProjectPlanner_EmployeeEventCommon::$employee = $sel_emp;
+		error_log(CRM_ProjectPlanner_EmployeeEventCommon::$employee."\n",3,'data/log');
 
 
 		$c = $this->init_module('Utils/Calendar',array('CRM/ProjectPlanner/EmployeeEvent',array('default_view'=>'week',
