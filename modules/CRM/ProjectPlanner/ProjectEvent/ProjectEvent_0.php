@@ -29,45 +29,46 @@ class CRM_ProjectPlanner_ProjectEvent extends Utils_Calendar_Event {
 
 	public function view_event($action, $id=null, $timeless=false){
 		if($this->is_back()) return false;
-
+		
 		$this->lang = $this->pack_module('Base/Lang');
 		$form = $this->init_module('Libs/QuickForm');
 		$theme =  $this->pack_module('Base/Theme');
 		$theme->assign('action',$action);
 		if($action=='new') {
-			$tt = $id-$id%300;
 			$defs = array(
-				'date_s' => $id,
-				'time_s' => $tt,
-				'time_e' => $tt+3600,
-				'allday' => $timeless
+				'time_s' => strtotime(Base_RegionalSettingsCommon::time2reg(Variable::get('CRM_ProjectsPlanner__start_day'),true,true,true,false)),
+				'time_e' => strtotime(Base_RegionalSettingsCommon::time2reg(Variable::get('CRM_ProjectsPlanner__end_day'),true,true,true,false)),
+				'date_s' => Base_RegionalSettingsCommon::time2reg($id,false),
+				'allday' => true
 				);
-
+			$vacations = ($timeless=='vacations');
 		} else {
 			$x = DB::GetRow('SELECT * FROM crm_projectplanner_work WHERE id=%d',array($id));
 			$defs = array(
-				'date_s' => $x['start'],
-				'time_s' => $x['start'],
-				'time_e' => $x['end'],
-				'emp' => $x['employee_id']);
+				'proj' => $x['project_id'],
+				'date_s' => Base_RegionalSettingsCommon::time2reg($x['start'],false),
+				'allday' => $x['allday']);
+			if($x['allday']) {
+				if($action=='edit') {
+					$defs['time_s'] = strtotime(Base_RegionalSettingsCommon::time2reg(Variable::get('CRM_ProjectsPlanner__start_day'),true,true,true,false));
+					$defs['time_e'] = strtotime(Base_RegionalSettingsCommon::time2reg(Variable::get('CRM_ProjectsPlanner__end_day'),true,true,true,false));
+				}
+			} else {
+				$defs['time_s'] = Base_RegionalSettingsCommon::time2reg($x['start'],true,true,true,false);
+				$defs['time_e'] = Base_RegionalSettingsCommon::time2reg($x['end'],true,true,true,false);
+			}
+			$vacations = $x['vacations'];
 		}
 		$form->setDefaults($defs);
 
-		$proj_id = $this->get_module_variable('project',CRM_ProjectPlanner_ProjectEventCommon::$project);
+		$emp_id = $this->get_module_variable('employee',CRM_ProjectPlanner_EmployeeEventCommon::$employee);
 
-		$emp = array();
-		$emp_tmp = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())));
-		foreach($emp_tmp as $c_id=>$data)
-			$emp[$c_id] = $data['last_name'].' '.$data['first_name'];
-		unset($emp_tmp);
-		if(empty($emp)) {
-			print($this->lang->t('There is no defined employees'));
-			return;
-		}
-		$form->addElement('select','emp',$this->lang->t('Employee'),$emp);
-
-
-		if(!isset($proj_id)) {
+		$emp = CRM_ContactsCommon::get_contact($emp_id);
+		$form->addElement('static','emp',$this->lang->t('Employee'),$emp['last_name'].' '.$emp['first_name']);
+		
+		if($vacations)
+			$form->addElement('static','proj',$this->lang->t('Vacations'));
+		else {
 			$projs_tmp = Apps_ProjectsCommon::get_projects(array('status'=>'in_progress'),array('id','project_name'));
 			$projs = array();
 			foreach($projs_tmp as $v)
@@ -78,22 +79,11 @@ class CRM_ProjectPlanner_ProjectEvent extends Utils_Calendar_Event {
 				return;
 			}
 			$form->addElement('select','proj',$this->lang->t('Project'),$projs);
-		} else {
-			$proj = Apps_ProjectsCommon::get_project($proj_id);
-			$form->addElement('static','proj',$this->lang->t('Project'),$proj['project_name']);
 		}
 
 		$time_format = Base_RegionalSettingsCommon::time_12h()?'h:i:a':'H:i';
 
-		$form->addElement('datepicker', 'date_s', $this->lang->t('Date'));
-		$form->addRule('date_s', $this->lang->t('Field is required!'), 'required');
-		$lang_code = Base_LangCommon::get_lang_code();
-		$form->addElement('date', 'time_s', $this->lang->t('Start time'), array('format'=>$time_format, 'optionIncrement'  => array('i' => 5),'language'=>$lang_code));
-		$form->addElement('date', 'time_e', $this->lang->t('End time'), array('format'=>$time_format, 'optionIncrement'  => array('i' => 5), 'language'=>$lang_code));
-		$theme->assign('time_s_id','time_s');
-		$theme->assign('time_e_id','time_e');
-
-		if($action=='new') {
+		if($action!='view') {
 			eval_js_once('crm_projectplanner_allday = function(val) {'.
 					'var cal_style;'.
 					'if(val){'.
@@ -105,31 +95,47 @@ class CRM_ProjectPlanner_ProjectEvent extends Utils_Calendar_Event {
 					'$(\'time_s\').style.display = cal_style;'.
 				'}');
 			$form->addElement('checkbox', 'allday', $this->lang->t('All day'), null,array('onClick'=>'crm_projectplanner_allday(this.checked)'));
-			eval_js('crm_projectplanner_allday('.$timeless.')');
+			eval_js('crm_projectplanner_allday('.$defs['allday'].')');
 		} else
 			$form->addElement('static','allday');
+
+		$form->addElement('static', 'date_s', $this->lang->t('Date'));
+		if(!$defs['allday'] || $action!='view') {
+			$lang_code = Base_LangCommon::get_lang_code();
+			$form->addElement('date', 'time_s', $this->lang->t('Start time'), array('format'=>$time_format, 'optionIncrement'  => array('i' => 5),'language'=>$lang_code));
+			$form->addElement('date', 'time_e', $this->lang->t('End time'), array('format'=>$time_format, 'optionIncrement'  => array('i' => 5), 'language'=>$lang_code));
+		} else {
+			$form->addElement('static', 'time_s');
+			$form->addElement('static', 'time_e');
+		}
+		$theme->assign('time_s_id','time_s');
+		$theme->assign('time_e_id','time_e');
 
 		$form->registerRule('check_dates', 'callback', 'check_dates', $this);
 		$form->addRule(array('time_e', 'time_s', 'allday'), 'End date must be after begin date...', 'check_dates');
 
 		if($form->validate()) {
 			$v = $form->exportValues();
-			//trigger_error(print_r($v,true));
-			$emp_id = $v['emp'];
-			if(!isset($proj_id))
+			if($timeless=='add')
 				$proj_id = $v['proj'];
-			if(isset($v['allday']) && $v['allday']) {
-				$start = strtotime($v['date_s'].' '.Variable::get('CRM_ProjectsPlanner__start_day'));
-				$end = strtotime($v['date_s'].' '.Variable::get('CRM_ProjectsPlanner__end_day'));
+			elseif(!$vacations)
+				$proj_id = ltrim($timeless,'p');
+			$allday = isset($v['allday']) && $v['allday'];
+			$time = ($action=='edit')?strtotime($x['start']):$id;
+			if($allday) {
+				$start = $time;
+				$end = $time;
 			} else {
-				$date = strtotime($v['date_s']);
-				$start = $date+$this->recalculate_time($v['time_s']);
-				$end = $date+$this->recalculate_time($v['time_e']);
+				$start = $time+$this->recalculate_time($v['time_s']);
+				$end = $time+$this->recalculate_time($v['time_e']);
 			}
 			if($action=='new') {
-				DB::Execute('INSERT INTO crm_projectplanner_work(employee_id,project_id,start,end) VALUES(%d,%d,%T,%T)',array($emp_id,$proj_id,$start,$end));
+				if($vacations)
+					DB::Execute('INSERT INTO crm_projectplanner_work(employee_id,project_id,start,end,allday,vacations) VALUES(%d,null,%T,%T,%b,1)',array($emp_id,$start,$end,$allday));
+				else
+					DB::Execute('INSERT INTO crm_projectplanner_work(employee_id,project_id,start,end,allday,vacations) VALUES(%d,%d,%T,%T,%b,0)',array($emp_id,$proj_id,$start,$end,$allday));
 			} else {
-				DB::Execute('UPDATE crm_projectplanner_work SET project_id=%d,start=%T,end=%T WHERE id=%d',array($proj_id,$start,$end,$id));
+				DB::Execute('UPDATE crm_projectplanner_work SET start=%T,end=%T,allday=%b WHERE id=%d',array($start,$end,$allday,$id));
 			}
 			$this->back_to_calendar();
 			return;
@@ -168,8 +174,6 @@ class CRM_ProjectPlanner_ProjectEvent extends Utils_Calendar_Event {
 		} else $result = 60*($time['i']+60*($time['H']));
 		return $result;
 	}
-
-
 }
 
 ?>

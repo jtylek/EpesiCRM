@@ -94,8 +94,8 @@
 		{if $action=='edit'}
                 <td class="label" align="left" style="width: 20%;">{$form_data.notify.label}</td>
 				<td class="data" align="left">{$form_data.notify.html}</td>
-			</tr>
 		{/if}
+        	</tr>
         </tbody>
     </table>
     {if $action == 'view'}

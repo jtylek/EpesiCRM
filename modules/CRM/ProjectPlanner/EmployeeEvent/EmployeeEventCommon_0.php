@@ -34,46 +34,42 @@ class CRM_ProjectPlanner_EmployeeEventCommon extends Utils_Calendar_EventCommon 
 		if($v['vacations']) {
 			$v['title'] = 'vacations';
 			$v['description'] = '';
-			$v['timeless_key'] = 'vacations';
+			$v['custom_row_key'] = 'vacations';
 		} else {
 			$proj_info = Apps_ProjectsCommon::get_project($v['project_id']);
 			$v['title'] = $proj_info['project_name'];
 			$v['description'] = 'Address 1: '.(isset($proj_info['address_1'])?$proj_info['address_1']:'').'<br>Address 2: '.(isset($proj_info['address_2'])?$proj_info['address_2']:'').'<br>City: '.(isset($proj_info['city'])?$proj_info['city']:'');
-			$v['timeless_key'] = 'p'.$v['project_id'];
+			$v['custom_row_key'] = 'p'.$v['project_id'];
 		}
 		$v['additional_info'] = $v['additional_info2'] = '';
 		if($v['allday']) {
 			$v['color'] = 'blue';
-			$v['start'] = strtotime(date('Y-m-d',strtotime($v['start'])).' '.$sd);
-			$v['end'] = strtotime(date('Y-m-d',strtotime($v['start'])).' '.$ed);
+			$x = strtotime($v['start']);
+			$v['start'] = strtotime(date('Y-m-d',$x).' '.$sd);
+			$v['end'] = strtotime(date('Y-m-d',$x).' '.$ed);
 		} else {
 			$v['color'] = 'red';
 			$v['end'] = strtotime($v['end']);
 			$v['start'] = strtotime($v['start']);
 		}
 		$v['duration'] = $v['end'] - $v['start'];
-		$v['timeless'] = 1;
+		$v['timeless'] = 0;
 	}
 
 	public static function delete($id) {
 		DB::Execute('DELETE FROM crm_projectplanner_work WHERE id=%d',array($id));
 	}
 
-	public static function update($id,$start,$duration,$timeless) {
-		if($timeless=='add')
+	public static function update($id,$start,$duration,$custom_row_key) {
+		if($custom_row_key=='add')
 			return false;
+			
+		$end = $start+$duration;
 
-		if($timeless) {
-			$start = strtotime(date('Y-m-d',$start).' '.Variable::get('CRM_ProjectsPlanner__start_day'));
-			$end = strtotime(date('Y-m-d',$start).' '.Variable::get('CRM_ProjectsPlanner__end_day'));
-		} else {
-			$end = $start+$duration;
-		}
-
-		if($timeless=='vacations')
+		if($custom_row_key=='vacations')
 			DB::Execute('UPDATE crm_projectplanner_work SET project_id=null,vacations=1,start=%T,end=%T WHERE id=%d',array($start,$end,$id));
 		else
-			DB::Execute('UPDATE crm_projectplanner_work SET project_id=%d,vacations=0,start=%T,end=%T WHERE id=%d',array(ltrim($timeless,'p'),$start,$end,$id));
+			DB::Execute('UPDATE crm_projectplanner_work SET project_id=%d,vacations=0,start=%T,end=%T WHERE id=%d',array(ltrim($custom_row_key,'p'),$start,$end,$id));
 		return true;
 	}
 }

@@ -11,12 +11,12 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_ProjectPlanner_OverviewEventCommon extends Utils_Calendar_EventCommon {
 	public static function get($id) {
-		$result = DB::GetRow('SELECT \'blue\' as color,start,project_id,employee_id,id,0 as timeless FROM crm_projectplanner_work WHERE id=%d',array($id));
+		$result = DB::GetRow('SELECT \'blue\' as color,MIN(start) as min_start,MAX(end) as max_end,start,end,project_id,GROUP_CONCAT(DISTINCT employee_id SEPARATOR \',\') as employees,GROUP_CONCAT(DISTINCT id SEPARATOR \',\') as id,0 as timeless FROM crm_projectplanner_work WHERE id in ('.$id.') GROUP BY project_id,DATE(start)');
 		self::add_info($result);
 		return $result;
 	}
 	public static function get_all($start,$end,$order='') {
-		$ret = DB::GetAll('SELECT \'blue\' as color,MIN(start) as min_start,MAX(end) as max_end,start,end,project_id,GROUP_CONCAT(DISTINCT employee_id SEPARATOR \',\') as employees,id,0 as timeless FROM crm_projectplanner_work WHERE (start>=%T AND start<%T) GROUP BY YEAR(start),MONTH(start),DAY(start)',array($start,$end));
+		$ret = DB::GetAll('SELECT \'blue\' as color,MIN(start) as min_start,MAX(end) as max_end,start,end,project_id,GROUP_CONCAT(DISTINCT employee_id SEPARATOR \',\') as employees,GROUP_CONCAT(DISTINCT id SEPARATOR \',\') as id,0 as timeless FROM crm_projectplanner_work WHERE (start>=%T AND start<%T) GROUP BY project_id,DATE(start)',array($start,$end));
 		foreach($ret as &$v) {
 			self::add_info($v);
 		}
@@ -34,25 +34,19 @@ class CRM_ProjectPlanner_OverviewEventCommon extends Utils_Calendar_EventCommon 
 		$v['description'] = implode('<br>',$emps2);
 
 		$v['additional_info'] = $v['additional_info2'] = '';
-		$v['timeless'] = 1;
-		$v['timeless_key'] = 'p'.$v['project_id'];
+		$v['timeless'] = 0;
+		$v['custom_row_key'] = 'p'.$v['project_id'];
 		$v['end'] = strtotime($v['max_end']);
 		$v['start'] = strtotime($v['min_start']);
 		$v['duration'] = $v['end'] - $v['start'];
 	}
 
 	public static function delete($id) {
-		DB::Execute('DELETE FROM crm_projectplanner_work WHERE id=%d',array($id));
+		DB::Execute('DELETE FROM crm_projectplanner_work WHERE id in ('.$id.')');
 	}
 
 	public static function update($id,$start,$duration,$timeless) {
-		if($timeless) {
-			$start = strtotime(date('Y-m-d',$start).' '.Variable::get('CRM_ProjectsPlanner__start_day'));
-			$end = strtotime(date('Y-m-d',$start).' '.Variable::get('CRM_ProjectsPlanner__end_day'));
-		} else {
-			$end = $start+$duration;
-		}
-		DB::Execute('UPDATE crm_projectplanner_work SET start=%T,end=%T WHERE id=%d',array($start,$end,$id));
+		return false;
 	}
 }
 

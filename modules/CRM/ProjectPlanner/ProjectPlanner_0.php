@@ -45,7 +45,7 @@ class CRM_ProjectPlanner extends Module {
 		$c = $this->init_module('Utils/Calendar',array('CRM/ProjectPlanner/OverviewEvent',array('default_view'=>'week',
 			'first_day_of_week'=>Utils_PopupCalendarCommon::get_first_day_of_week(),
 			'views'=>array('Day','Week','Month'),
-			'additional_rows'=>$projs,
+			'custom_rows'=>$projs,
 			'timeline'=>false,
 //			'interval'=>Base_User_SettingsCommon::get('CRM_Calendar','interval'),
 			'default_date'=>time()
@@ -77,12 +77,25 @@ class CRM_ProjectPlanner extends Module {
 		$c = $this->init_module('Utils/Calendar',array('CRM/ProjectPlanner/ProjectEvent',array('default_view'=>'week',
 			'first_day_of_week'=>Utils_PopupCalendarCommon::get_first_day_of_week(),
 			'views'=>array('Day','Week','Month'),
-			'start_day'=>Variable::get('CRM_ProjectsPlanner__start_day'),
-			'end_day'=>Variable::get('CRM_ProjectsPlanner__end_day'),
-			'additional_rows'=>array('allday'=>'All day'),
-//			'interval'=>Base_User_SettingsCommon::get('CRM_Calendar','interval'),
+			'timeline'=>false,
 			'default_date'=>time()
 			)));
+
+		$date = $c->get_week_start_date();
+		
+		$pids = DB::GetCol('SELECT employee_id FROM crm_projectplanner_work WHERE start>=%T AND start<%T AND project_id=%d',array($date,$date+86400*7,$sel_proj));
+		
+		$emps_tmp = CRM_ContactsCommon::get_contacts(array('id'=>$pids),array('id','last_name','first_name'));
+		$emps = array('add'=>$this->lang->t('Add employee'));
+		foreach($emps_tmp as $v)
+			$emps['e'.$v['id']]=$v['last_name'].' '.$v['first_name'];
+		unset($emps_tmp);
+		if(empty($emps)) {
+			print($this->lang->t('There is no defined projects'));
+			return;
+		}
+		$c->settings('custom_rows',$emps);
+
 		$this->display_module($c);
 	}
 
@@ -110,10 +123,6 @@ class CRM_ProjectPlanner extends Module {
 			'first_day_of_week'=>Utils_PopupCalendarCommon::get_first_day_of_week(),
 			'views'=>array('Day','Week','Month'),
 			'timeline'=>false,
-//			'start_day'=>Variable::get('CRM_ProjectsPlanner__start_day'),
-//			'end_day'=>Variable::get('CRM_ProjectsPlanner__end_day'),
-//			'additional_rows'=>array('allday'=>'All day'),
-//			'interval'=>Base_User_SettingsCommon::get('CRM_Calendar','interval'),
 			'default_date'=>time()
 			)));
 		
@@ -121,7 +130,7 @@ class CRM_ProjectPlanner extends Module {
 		
 		$pids = DB::GetCol('SELECT project_id FROM crm_projectplanner_work WHERE start>=%T AND start<%T AND employee_id=%d',array($date,$date+86400*7,$sel_emp));
 		
-		$projs_tmp = Apps_ProjectsCommon::get_projects(array('status'=>'in_progress','id'=>$pids),array('id','project_name'));
+		$projs_tmp = Apps_ProjectsCommon::get_projects(array('id'=>$pids),array('id','project_name'));
 		$projs = array('add'=>$this->lang->t('Add project'),'vacations'=>$this->lang->t('Vacations'));
 		foreach($projs_tmp as $v)
 			$projs['p'.$v['id']]=$v['project_name'];
@@ -130,7 +139,7 @@ class CRM_ProjectPlanner extends Module {
 			print($this->lang->t('There is no defined projects'));
 			return;
 		}
-		$c->settings('additional_rows',$projs);
+		$c->settings('custom_rows',$projs);
 		$this->display_module($c);
 	}
 
@@ -150,7 +159,7 @@ class CRM_ProjectPlanner extends Module {
 
 		$start_day = array();
 		foreach(range(0, 23) as $x)
-				$start_day[$x.':00'] = Base_RegionalSettingsCommon::time2reg($x.':00',2,false);
+				$start_day[$x.':00'] = Base_RegionalSettingsCommon::time2reg($x.':00',2,false,false);
 		$end_day = $start_day;
 
 		$f->addElement('select', 'start_day', $this->lang->t('Start day at'), $start_day);

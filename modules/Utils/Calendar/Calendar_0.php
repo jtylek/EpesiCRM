@@ -6,7 +6,7 @@ class Utils_Calendar extends Module {
 	private static $views = array('Agenda','Day','Week','Month','Year');
 	private $settings = array('first_day_of_week'=>0,
 				  'default_view'=>'Agenda',
-				  'additional_rows'=>null,
+				  'custom_rows'=>null,
 				  'timeline'=>true,
 				  'views'=>null,
 				  'start_day'=>'8:00',
@@ -31,8 +31,8 @@ class Utils_Calendar extends Module {
 		//default date
 		if($this->settings['default_date']===null) $this->settings['default_date']=time();
 
-		if(!is_array($this->settings['additional_rows']))
-			$this->settings['additional_rows'] = array('timeless'=>$this->lang->t('Timeless'));
+		if(!is_array($this->settings['custom_rows']))
+			$this->settings['custom_rows'] = array('timeless'=>$this->lang->t('Timeless'));
 
 		$this->date = & $this->get_module_variable('date',$this->settings['default_date']);
 
@@ -107,7 +107,7 @@ class Utils_Calendar extends Module {
 		$timeline = array();
 
 		//timeless
-		foreach($this->settings['additional_rows'] as $key=>$label)
+		foreach($this->settings['custom_rows'] as $key=>$label)
 			$timeline[] = array('label'=>$label,'time'=>$key);
 
 		if($this->settings['timeline']) {
@@ -329,16 +329,16 @@ class Utils_Calendar extends Module {
 
 		//data
 		$ret = $this->get_events(date('Y-m-d',$this->date),date('Y-m-d',$this->date+86400));
-		$timeless_keys = $this->settings['additional_rows'];
+		$custom_keys = $this->settings['custom_rows'];
 		foreach($ret as $ev) {
 			$ev_start = $ev['start']-$today_t;
 			if($ev_start<0 || $ev_start>=86400) continue;
 
-			if($ev['timeless']) {
-				if(!isset($ev['timeless_key']))
-					$ev['timeless_key'] = 'timeless';
-				if(isset($timeless_keys[$ev['timeless_key']]))
-					$dest_id = 'UCcell_'.$today_t.'_'.$ev['timeless_key'];
+			if(isset($ev['timeless']) && $ev['timeless']) {
+				$ev['custom_row_key'] = 'timeless';
+			}
+			if(isset($custom_keys[$ev['custom_row_key']])) {
+				$dest_id = 'UCcell_'.$today_t.'_'.$ev['custom_row_key'];
 			} elseif($this->settings['timeline']) {
 				$ct = count($timeline);
 				for($i=1, $j=2; $j<$ct; $i++,$j++)
@@ -469,14 +469,14 @@ class Utils_Calendar extends Module {
 
 		//data
 		$ret = $this->get_events($dis_week_from,$dis_week_from+7*86400);
-		$timeless_keys = $this->settings['additional_rows'];
+		$custom_keys = $this->settings['custom_rows'];
 		foreach($ret as $k=>$ev) {
 			$today_t = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$ev['start']));
-			if($ev['timeless']) {
-				if(!isset($ev['timeless_key']))
-					$ev['timeless_key'] = 'timeless';
-				if(isset($timeless_keys[$ev['timeless_key']]))
-					$dest_id = 'UCcell_'.$today_t.'_'.$ev['timeless_key'];
+			if(isset($ev['timeless']) && $ev['timeless']) {
+				$ev['custom_row_key'] = 'timeless';
+			}
+			if(isset($custom_keys[$ev['custom_row_key']])) {
+				$dest_id = 'UCcell_'.$today_t.'_'.$ev['custom_row_key'];
 			} else {
 				$ev_start = $ev['start']-$today_t;
 				$ct = count($timeline);
