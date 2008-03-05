@@ -21,25 +21,44 @@ class CRM_ProjectPlanner_OverviewEventCommon extends Utils_Calendar_EventCommon 
 			self::add_info($v);
 		}
 
-		//TODO: zabronic usuwania takich eventow
-/*		$ret2 = DB::GetAll('SELECT \'unassigned\' as custom_row_key,\'green\' as color,start,0 as duration,GROUP_CONCAT(DISTINCT employee_id SEPARATOR \',\') as employees,GROUP_CONCAT(DISTINCT id SEPARATOR \'_\') as id,1 as timeless FROM crm_projectplanner_work WHERE (start>=%T AND start<%T) GROUP BY DATE(start)',array($start,$end));
+		$ret2 = DB::GetAll('SELECT \'unassigned\' as custom_row_key,\'yellow\' as color,start,0 as duration,GROUP_CONCAT(DISTINCT employee_id SEPARATOR \',\') as employees,1 as timeless FROM crm_projectplanner_work WHERE (start>=%T AND start<%T) GROUP BY DATE(start)',array($start,$end));
+		$uns = array();
 		foreach($ret2 as $vv) {
-			$busy = explode(',',$v['employees']);
+			$busy = explode(',',$vv['employees']);
 			$emps_tmp = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company()),'!id'=>$busy),array('id','first_name','last_name'));
 			if(empty($emps_tmp)) continue;
 			$desc = array();
 			foreach($emps_tmp as $k)
 				$desc[] = $k['last_name'].' '.$k['first_name'];
-			$vv['title'] = '';
+			$vv['title'] = count($emps_tmp);
 			$vv['description'] = implode('<br>',$desc);
 			$vv['additional_info'] = $vv['additional_info2'] = '';
 			$vv['start'] = strtotime($vv['start']);
-//			$vv['id'] = 'dupa';
-//			print_r($vv);
+			$vv['id'] = 'un'.$vv['start'];
+//			print($vv['start'].'<hr>');
 			$ret[] = $vv;
-//			break;
-		}*/
-
+			$uns[date('Y-m-d',$vv['start'])] = 1;
+		}
+		
+		$emps_tmp = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())),array('id','first_name','last_name'));
+		$desc = array();
+		foreach($emps_tmp as $k)
+			$desc[] = $k['last_name'].' '.$k['first_name'];
+		$vv = array('title'=>count($emps_tmp),
+				'description'=>implode('<br>',$desc),
+				'additional_info'=>'',
+				'additional_info2'=>'',
+				'color'=>'green',
+				'custom_row_key'=>'unassigned',
+				'duration'=>0,
+				'timeless'=>1);
+		for($i=Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$start)); $i<$end; $i+=86400) {
+			if(isset($uns[date('Y-m-d',$i)])) continue;
+			$vv['start'] = $i;
+			$vv['id'] = 'un'.$i;
+			$ret[] = $vv;
+		}
+//		print_r($ret);
 		return $ret;
 	}
 
@@ -62,7 +81,9 @@ class CRM_ProjectPlanner_OverviewEventCommon extends Utils_Calendar_EventCommon 
 	}
 
 	public static function delete($id) {
+		if(ereg('^un',$id)) return false;
 		DB::Execute('DELETE FROM crm_projectplanner_work WHERE id in ('.str_replace('_',',',$id).')');
+		return true;
 	}
 
 	public static function update($id,$start,$duration,$timeless) {

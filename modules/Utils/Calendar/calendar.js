@@ -92,7 +92,9 @@ delete_event:function(eid,mpath,ecid) {
 				cid: ecid
 			},
 			onComplete: function(t) {
+				var reject=false;
 				eval(t.responseText);
+				if(reject) $(eid).show();
 			},
 			onException: function(t,e) {
 				throw(e);

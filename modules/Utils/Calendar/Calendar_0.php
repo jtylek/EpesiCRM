@@ -331,14 +331,19 @@ class Utils_Calendar extends Module {
 		$ret = $this->get_events(date('Y-m-d',$this->date),date('Y-m-d',$this->date+86400));
 		$custom_keys = $this->settings['custom_rows'];
 		foreach($ret as $ev) {
-			$ev_start = $ev['start']-$today_t;
+			$ev_start = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$ev['start']))-$today_t;
+//			print_r($ev_start);
 			if($ev_start<0 || $ev_start>=86400) continue;
 
-			if(isset($ev['timeless']) && $ev['timeless']) {
+			if(isset($ev['timeless']) && $ev['timeless'] && !isset($ev['custom_row_key'])) {
 				$ev['custom_row_key'] = 'timeless';
 			}
-			if(isset($custom_keys[$ev['custom_row_key']])) {
-				$dest_id = 'UCcell_'.$today_t.'_'.$ev['custom_row_key'];
+			if(isset($ev['custom_row_key'])) {
+				if(isset($custom_keys[$ev['custom_row_key']])) {
+					$dest_id = 'UCcell_'.$today_t.'_'.$ev['custom_row_key'];
+				} else {
+					trigger_error('Invalid custom_row_key:'.$ev['custom_row_key'],E_USER_ERROR);
+				}
 			} elseif($this->settings['timeline']) {
 				$ct = count($timeline);
 				for($i=1, $j=2; $j<$ct; $i++,$j++)
@@ -472,11 +477,15 @@ class Utils_Calendar extends Module {
 		$custom_keys = $this->settings['custom_rows'];
 		foreach($ret as $k=>$ev) {
 			$today_t = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$ev['start']));
-			if(isset($ev['timeless']) && $ev['timeless']) {
+			if(isset($ev['timeless']) && $ev['timeless'] && !isset($ev['custom_row_key'])) {
 				$ev['custom_row_key'] = 'timeless';
 			}
-			if(isset($custom_keys[$ev['custom_row_key']])) {
-				$dest_id = 'UCcell_'.$today_t.'_'.$ev['custom_row_key'];
+			if(isset($ev['custom_row_key'])) {
+				if(isset($custom_keys[$ev['custom_row_key']])) {
+					$dest_id = 'UCcell_'.$today_t.'_'.$ev['custom_row_key'];
+				} else {
+					trigger_error('Invalid custom_row_key:'.$ev['custom_row_key'],E_USER_ERROR);
+				}
 			} else {
 				$ev_start = $ev['start']-$today_t;
 				$ct = count($timeline);
@@ -486,6 +495,7 @@ class Utils_Calendar extends Module {
 				$dest_id = 'UCcell_'.($today_t+$timeline[$i]['time']);
 			}
 			if(isset($dest_id)) {
+//				print($ev['title'].' '.$ev['start'].'<hr>');
 				$this->print_event($ev);
 				$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\')');
 			}

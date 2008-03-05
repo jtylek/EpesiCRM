@@ -13,7 +13,9 @@ $ev_id = $_POST['ev_id'];
 if(!$mod)
 	die('alert(\'Invalid request!\')');
 if($_POST['cell_id']=='trash') {
-	call_user_func(array($mod.'Common','delete'),$ev_id);
+	$ret = call_user_func(array($mod.'Common','delete'),$ev_id);
+	if(!$ret)
+		print('reject=true;');
 } else {
 	if(!isset($_POST['month']))
 		die('alert(\'Invalid request\')');
