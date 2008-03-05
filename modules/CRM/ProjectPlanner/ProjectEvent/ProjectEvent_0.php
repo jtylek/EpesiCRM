@@ -115,10 +115,7 @@ class CRM_ProjectPlanner_ProjectEvent extends Utils_Calendar_Event {
 
 		if($form->validate()) {
 			$v = $form->exportValues();
-			if($timeless=='add')
-				$emp_id = $v['emp'];
-			else
-				$emp_id = ltrim($timeless,'e');
+			$emp_id = $v['emp'];
 			$allday = isset($v['allday']) && $v['allday'];
 			$time = ($action=='edit')?strtotime($x['start']):$id;
 			if($allday) {
@@ -128,7 +125,6 @@ class CRM_ProjectPlanner_ProjectEvent extends Utils_Calendar_Event {
 				$start = $time+$this->recalculate_time($v['time_s']);
 				$end = $time+$this->recalculate_time($v['time_e']);
 			}
-			print($proj_id);
 			if($action=='new') {
 				DB::Execute('INSERT INTO crm_projectplanner_work(employee_id,project_id,start,end,allday,vacations) VALUES(%d,%d,%T,%T,%b,0)',array($emp_id,$proj_id,$start,$end,$allday));
 			} else {

@@ -123,10 +123,7 @@ class CRM_ProjectPlanner_EmployeeEvent extends Utils_Calendar_Event {
 
 		if($form->validate()) {
 			$v = $form->exportValues();
-			if($timeless=='add')
-				$proj_id = $v['proj'];
-			elseif(!$vacations)
-				$proj_id = ltrim($timeless,'p');
+			$proj_id = $v['proj'];
 			$allday = isset($v['allday']) && $v['allday'];
 			$time = ($action=='edit')?strtotime($x['start']):$id;
 			if($allday) {
