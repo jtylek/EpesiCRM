@@ -208,10 +208,14 @@ class CRM_ContactsCommon extends ModuleCommon {
 		if ($mode=='add' || $mode=='edit') {
 			if ($desc['param'] != '') $crits = call_user_func(explode('::',$desc['param']));
 			else $crits = array();
+			if (isset($crits['_no_company_option'])) {
+				$no_company_option = true;
+				unset($crits['_no_company_option']);
+			} else $no_company_option = false;
 			$companies = self::get_companies($crits);
-			if (!$desc['required'] && $desc['type']!='multiselect') $comp[''] = '--';
 			foreach ($companies as $v) $comp[$v['id']] = $v['company_name'];
 			asort($comp);
+			if (!$desc['required'] && $desc['type']!='multiselect') if ($no_company_option) $comp = array(''=>'['.Base_LangCommon::ts('CRM_Contacts','w/o company').']') + $comp; else $comp = array('' => '--') + $comp;
 			$form->addElement($desc['type'], $field, $label, $comp, array('id'=>$field));
 			if ($mode!=='add') $form->setDefaults(array($field=>$default));
 		} else {

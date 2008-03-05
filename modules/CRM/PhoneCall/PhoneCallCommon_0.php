@@ -68,11 +68,11 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		return false;
 	}
 	/*--------------------------------------------------------------------*/
-	public static function phonecall_employees_crits(){
+	public static function employees_crits(){
 		return array('company_name'=>array(CRM_ContactsCommon::get_main_company()));
 	}
-	public static function phonecall_contact_crits(){
-		return array('|:Fav'=>true, '|:Recent'=>true);
+	public static function company_crits(){
+		return array('_no_company_option'=>true);
 	}
 	public static function menu() {
 		return array('CRM'=>array('__submenu__'=>1,'Phone Calls'=>array()));
