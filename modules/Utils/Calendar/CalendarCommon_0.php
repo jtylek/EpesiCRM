@@ -38,10 +38,18 @@ class Utils_CalendarCommon extends ModuleCommon {
 	}
 
 	public static function process_event(& $row) {
-		if(!isset($row['start']) || !isset($row['duration']) || !is_numeric($row['duration'])
-		   || !isset($row['title']) || !isset($row['description'])
-		   || !isset($row['timeless']) || !isset($row['id']))
-			trigger_error('Invalid return of event method: get (missing field: '.print_r($row, true).')',E_USER_ERROR);
+		if(!isset($row['start']))
+			trigger_error('Invalid return of event method: get(_all) (missing field \'start\' in '.print_r($row, true).')',E_USER_ERROR);
+		if(!isset($row['duration']) || !is_numeric($row['duration']))
+			trigger_error('Invalid return of event method: get(_all) (missing or not numeric field \'duration\' in '.print_r($row, true).')',E_USER_ERROR);
+		if(!isset($row['title']))
+			trigger_error('Invalid return of event method: get(_all) (missing field \'title\' in '.print_r($row, true).')',E_USER_ERROR);
+		if(!isset($row['description']))
+			trigger_error('Invalid return of event method: get(_all) (missing field \'description\' in '.print_r($row, true).')',E_USER_ERROR);
+		if(!isset($row['timeless']))
+			trigger_error('Invalid return of event method: get(_all) (missing field \'timeless\' in '.print_r($row, true).')',E_USER_ERROR);
+		if(!isset($row['id']))
+			trigger_error('Invalid return of event method: get(_all) (missing field \'id\' in '.print_r($row, true).')',E_USER_ERROR);
 
 		if(!is_numeric($row['start']) && is_string($row['start'])) $row['start'] = strtotime($row['start']);
 		if($row['start']===false)

@@ -33,7 +33,7 @@ class CRM_ProjectPlanner extends Module {
 
 	public function overview() {
 		$projs_tmp = Apps_ProjectsCommon::get_projects(array('status'=>'in_progress'),array('id','project_name'));
-		$projs = array();
+		$projs = array('unassigned'=>$this->lang->t('Unassigned employees'));
 		foreach($projs_tmp as $v)
 			$projs['p'.$v['id']]=$v['project_name'];
 		unset($projs_tmp);
