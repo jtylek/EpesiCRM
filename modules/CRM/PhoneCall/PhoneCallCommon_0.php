@@ -41,11 +41,11 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	public static function access_phonecall($action, $param){
 		$i = self::Instance();
 		switch ($action) {
-			case 'browse':	
+			case 'browse':
 							return $i->acl_check('browse phonecalls');
-			case 'view':	
+			case 'view':
 							if ($i->acl_check('view phonecall')) return true;
-			case 'edit':	
+			case 'edit':
 							if ($i->acl_check('edit phonecall')) return true;
 							$me = CRM_ContactsCommon::get_my_record();
 							if (in_array($me['id'], $param['employees'])) return true;
@@ -53,7 +53,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 							$info = Utils_RecordBrowserCommon::get_record_info('phonecall',$param['id']);
 							if ($me['login']==$info['created_by']) return true;
 							return false;
-			case 'delete':	
+			case 'delete':
 							if ($i->acl_check('delete phonecall')) return true;
 							$me = CRM_ContactsCommon::get_my_record();
 							if (in_array($me['id'], $param['employees'])) return true;
@@ -69,7 +69,8 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	}
 	/*--------------------------------------------------------------------*/
 	public static function employees_crits(){
-		return array('company_name'=>array(CRM_ContactsCommon::get_main_company()));
+		// Select only main company contacts and only office staff employees
+		return array('company_name'=>array(CRM_ContactsCommon::get_main_company()),'Group'=>array('off'));
 	}
 	public static function company_crits(){
 		return array('_no_company_option'=>true);
@@ -82,7 +83,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	}
 	public static function QFfield_other_phone(&$form, $field, $label, $mode, $default, $desc) {
 		if ($mode=='add' || $mode=='edit') {
-			$js = 	
+			$js =
 					'Event.observe(\'other_phone\',\'change\', onchange_other_phone);'.
 //					'Event.observe(\'phone\',\'change\', onchange_other_phone);'.
 					'function enable_disable_phone(arg) {'.
@@ -105,7 +106,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	}
 	public static function QFfield_other_contact(&$form, $field, $label, $mode, $default, $desc) {
 		if ($mode=='add' || $mode=='edit') {
-			$js = 	
+			$js =
 					'Event.observe(\'other_contact\',\'change\', onchange_other_contact);'.
 //					'Event.observe(\'phone\',\'change\', onchange_other_phone);'.
 					'function enable_disable_contact(arg) {'.
