@@ -1,5 +1,5 @@
 Utils_Calendar = {
-add_event:function(dest_id,ev_id) {
+add_event:function(dest_id,ev_id,draggable) {
 	var dest = $(dest_id);
 	var ev = $('utils_calendar_event:'+ev_id);
 	if(!dest || !ev) {
@@ -9,12 +9,12 @@ add_event:function(dest_id,ev_id) {
 	dest.appendChild(ev);
 	ev.setAttribute('last_cell',dest_id);
 
-	new Draggable(ev, {
-		handle: 'handle',
-		revert: true,
-		quiet: true
-//		endeffect: function(e){}
-	});
+	if(draggable)
+		new Draggable(ev, {
+			handle: 'handle',
+			revert: true,
+			quiet: true
+		});
 },
 ids:null,
 activate_dnd:function(ids_in,new_ev,mpath,ecid,page_type) {

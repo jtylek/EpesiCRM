@@ -51,6 +51,7 @@ class CRM_ProjectPlanner_ProjectEventCommon extends Utils_Calendar_EventCommon {
 
 	public static function delete($id) {
 		DB::Execute('DELETE FROM crm_projectplanner_work WHERE id=%d',array($id));
+		return true;
 	}
 
 	public static function update($id,$start,$duration,$custom_row_key) {

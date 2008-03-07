@@ -6,6 +6,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 		$th = Base_ThemeCommon::init_smarty();
 		$ex = self::process_event($ev);
 		$th->assign('event_id',$ev['id']);
+		$th->assign('draggable',!isset($ev['draggable']) || $ev['draggable']===true);
 		$th->assign('title',strip_tags($ev['title']));
 		$th->assign('description',$ev['description']);
 		$th->assign('color',$ev['color']);
@@ -28,11 +29,15 @@ class Utils_CalendarCommon extends ModuleCommon {
 		$tip2 = ob_get_clean();
 		$th->assign('tip_tag_attrs',Utils_TooltipCommon::open_tag_attrs($tip));
 		$th->assign('tip2_tag_attrs',Utils_TooltipCommon::open_tag_attrs($tip2));
-		$th->assign('view_href', Module::create_href(array('UCev_id'=>$ev['id'], 'UCaction'=>'view')));
-		$th->assign('edit_href', Module::create_href(array('UCev_id'=>$ev['id'], 'UCaction'=>'edit')));
+		if(!isset($ev['view_action']) || $ev['view_action']==true)
+			$th->assign('view_href', Module::create_href(array('UCev_id'=>$ev['id'], 'UCaction'=>'view')));
+		if(!isset($ev['edit_action']) || $ev['edit_action']==true)
+			$th->assign('edit_href', Module::create_href(array('UCev_id'=>$ev['id'], 'UCaction'=>'edit')));
 		$link_text = Module::create_href_js(array('UCev_id'=>$ev['id'], 'UCaction'=>'move','UCdate'=>'__YEAR__-__MONTH__-__DAY__'));
-		$th->assign('move_href', Utils_PopupCalendarCommon::create_href('move_event'.$ev['id'], $link_text,false,null,null,'popup.clonePosition(\'utils_calendar_event:'.$ev['id'].'\',{setWidth:false,setHeight:false,offsetTop:$(\'utils_calendar_event:'.$ev['id'].'\').getHeight()})'));
-		$th->assign('delete_href', Module::create_confirm_href(Base_LangCommon::ts('Utils_Calendar','Delete this event?'),array('UCev_id'=>$ev['id'], 'UCaction'=>'delete')));
+		if(!isset($ev['move_action']) || $ev['move_action']==true)
+			$th->assign('move_href', Utils_PopupCalendarCommon::create_href('move_event'.$ev['id'], $link_text,false,null,null,'popup.clonePosition(\'utils_calendar_event:'.$ev['id'].'\',{setWidth:false,setHeight:false,offsetTop:$(\'utils_calendar_event:'.$ev['id'].'\').getHeight()})'));
+		if(!isset($ev['delete_action']) || $ev['delete_action']==true)
+			$th->assign('delete_href', Module::create_confirm_href(Base_LangCommon::ts('Utils_Calendar','Delete this event?'),array('UCev_id'=>$ev['id'], 'UCaction'=>'delete')));
 		$th->assign('handle_class','handle');
 		Base_ThemeCommon::display_smarty($th,'Utils_Calendar','event');
 	}

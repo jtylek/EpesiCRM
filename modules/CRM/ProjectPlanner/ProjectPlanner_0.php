@@ -29,6 +29,23 @@ class CRM_ProjectPlanner extends Module {
 
 		$this->display_module($tb);
 		$tb->tag();
+
+		if(!isset($_SESSION['client']['crm_projectplanner_drag_action']))
+			$_SESSION['client']['crm_projectplanner_drag_action']='move';
+		if($this->isset_unique_href_variable('drag_action'))
+			$_SESSION['client']['crm_projectplanner_drag_action']=$this->get_unique_href_variable('drag_action');
+		switch($_SESSION['client']['crm_projectplanner_drag_action']) {
+			case 'copy':
+				Base_ActionBarCommon::add('favorites','Copy one on drag',$this->create_unique_href(array('drag_action'=>'copyX')));
+				break;
+			case 'copyX':
+				Base_ActionBarCommon::add('favorites','Copy multiple on drag',$this->create_unique_href(array('drag_action'=>'move')));
+				break;
+			case 'move':
+			default:
+				Base_ActionBarCommon::add('favorites','Move on drag',$this->create_unique_href(array('drag_action'=>'copy')));
+				break;
+		}	
 	}
 
 	public function overview() {

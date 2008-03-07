@@ -35,6 +35,10 @@ class CRM_ProjectPlanner_OverviewEventCommon extends Utils_Calendar_EventCommon 
 			$vv['additional_info'] = $vv['additional_info2'] = '';
 			$vv['start'] = strtotime($vv['start']);
 			$vv['id'] = 'un'.$vv['start'];
+			$vv['draggable'] = false;
+			$vv['delete_action'] = false;
+			$vv['view_action'] = false;
+			$vv['edit_action'] = false;
 //			print($vv['start'].'<hr>');
 			$ret[] = $vv;
 			$uns[date('Y-m-d',$vv['start'])] = 1;
@@ -51,6 +55,10 @@ class CRM_ProjectPlanner_OverviewEventCommon extends Utils_Calendar_EventCommon 
 				'color'=>'green',
 				'custom_row_key'=>'unassigned',
 				'duration'=>0,
+				'draggable'=>false,
+				'delete_action'=>false,
+				'view_action'=>false,
+				'edit_action'=>false,
 				'timeless'=>1);
 		for($i=Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$start)); $i<$end; $i+=86400) {
 			if(isset($uns[date('Y-m-d',$i)])) continue;
@@ -78,16 +86,47 @@ class CRM_ProjectPlanner_OverviewEventCommon extends Utils_Calendar_EventCommon 
 		$v['end'] = strtotime($v['max_end']);
 		$v['start'] = strtotime($v['min_start']);
 		$v['duration'] = $v['end'] - $v['start'];
+		$v['edit_action'] = false;
 	}
 
 	public static function delete($id) {
 		if(ereg('^un',$id)) return false;
 		DB::Execute('DELETE FROM crm_projectplanner_work WHERE id in ('.str_replace('_',',',$id).')');
+		print('Epesi.updateIndicatorText("updating calendar");Epesi.request("");');
 		return true;
 	}
 
 	public static function update($id,$start,$duration,$timeless) {
-		return false;
+		if(ereg('^un',$id)) return false;
+		$old = DB::GetAll('SELECT * FROM crm_projectplanner_work WHERE id in ('.str_replace('_',',',$id).')');
+		if(count($old)==0)
+			return false;
+			
+		switch($_SESSION['client']['crm_projectplanner_drag_action']) {
+			case 'move':
+				self::delete($id);
+			case 'copy':
+				$interval = 1;
+				$begin = $start;
+				break;
+			case 'copyX':
+				$interval = 86400;
+				$et = strtotime(date('Y-m-d',strtotime($old[0]['start'])));
+				if($start>$et)
+					$begin = $et+86400;
+				else {
+					$begin = $start;
+					$start = $et;
+				}
+				break;
+		}
+		$zero_t = strtotime('0:00');
+		for($ttt=$begin; $ttt<=$start; $ttt+=$interval)
+			foreach($old as $v)
+				DB::Execute('INSERT INTO crm_projectplanner_work(employee_id,project_id,allday,start,end,vacations) VALUES(%d,%d,%b,%T,%T,0)',
+					array($v['employee_id'],$v['project_id'],$v['allday'],strtotime(date('H:i:s',strtotime($v['start'])))-$zero_t+$ttt,strtotime(date('H:i:s',strtotime($v['end'])))-$zero_t+$ttt));
+		print('Epesi.updateIndicatorText("updating calendar");Epesi.request("");');
+		return true;
 	}
 }
 
