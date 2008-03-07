@@ -22,6 +22,7 @@ if($_POST['cell_id']=='trash') {
 
 	//update event
 	$cc = explode('_',$_POST['cell_id']);
+	//$cc[0] = Base_RegionalSettingsCommon::reg2time($cc[0]);
 	$ev = call_user_func(array($mod.'Common','get'),$ev_id);
 	if($_POST['month']) {
 		if($ev['timeless']) $cc[1]=(isset($ev['timeless_key'])?$ev['timeless_key']:'timeless');
