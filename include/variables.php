@@ -25,7 +25,7 @@ class Variable {
 	public static function get($name) {
 		self::load();
 		if(!array_key_exists($name,self::$variables))
-			throw new NoSuchVariableException('No such variable in database('.var_export(self::$variables,true).'): ' . $name);
+			throw new NoSuchVariableException('No such variable in database: ' . $name);
 		return unserialize(self::$variables[$name]);
 	}
 
@@ -45,7 +45,7 @@ class Variable {
 	public static function delete($name) {
 		self::load();
 		if(!array_key_exists($name,self::$variables)) {
-			throw new NoSuchVariableException('No such variable in database('.var_export(self::$variables,true).'): ' . $name);
+			throw new NoSuchVariableException('No such variable in database: ' . $name);
 		} else {
 			unset(self::$variables[$name]);;
 			return DB::Execute("DELETE FROM variables WHERE name=%s", $name);
