@@ -73,6 +73,7 @@ table#Utils_GenericBrowser th {
     vertical-align: top;
 }
 
+table#Utils_GenericBrowser th span,
 table#Utils_GenericBrowser th a {
     padding-left: 3px;
     padding-right: 3px;
