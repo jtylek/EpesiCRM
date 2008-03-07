@@ -1,0 +1,206 @@
+#CRM_PhoneCall table.view {
+    border-top: 1px solid #B3B3B3;
+    border-right:  1px solid #B3B3B3;
+}
+
+#CRM_PhoneCall table.edit {
+    border-top: none;
+}
+
+#CRM_PhoneCall table {
+    width: 100%;
+}
+
+#CRM_PhoneCall td.column  { vertical-align: top; }
+
+#CRM_PhoneCall .label {
+    background-color: #336699;
+    color: #FFFFFF;
+    border-bottom: 1px solid #B3B3B3;
+    height: 20px;
+    vertical-align: middle;
+    padding-left: 5px;
+    padding-right: 5px;
+    width: 150px;
+}
+
+#CRM_PhoneCall td.no-border,
+#CRM_PhoneCall table.no-border {
+	border-bottom: none;
+	border-top: none;
+}
+
+/*
+#CRM_PhoneCall table.edit .label {
+    border: 2px solid white;
+}
+*/
+#CRM_PhoneCall .long_label {
+    width: 20%;
+}
+
+#CRM_PhoneCall .data {
+    /*
+	width: 60%;
+	*/
+}
+
+#CRM_PhoneCall .currency {
+    text-align: right;
+}
+
+#CRM_PhoneCall table.view .data {
+    border-bottom: 1px solid #B3B3B3;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+#CRM_PhoneCall table.edit .data {
+    border-bottom: none;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+#CRM_PhoneCall .long_data {
+    width: 80%;
+}
+
+#CRM_PhoneCall table.view .long_data {
+    border-right: 1px solid #B3B3B3;
+}
+
+#CRM_PhoneCall table.edit .long_data {
+    border-right: none;
+}
+
+#CRM_PhoneCall .data input,
+#CRM_PhoneCall .data select,
+#CRM_PhoneCall .data textarea {
+    border: 0px;
+    background-color: #e6ecf2;
+    width: 100%;
+}
+
+#CRM_PhoneCall .timestamp input,
+#CRM_PhoneCall .timestamp select {
+    width: auto;
+}
+
+#CRM_PhoneCall .data input[type="checkbox"],
+#CRM_PhoneCall .data input[type="radio"] {
+    width: auto;
+}
+
+#CRM_PhoneCall .data input:focus,
+#CRM_PhoneCall .data select:focus,
+#CRM_PhoneCall .data textarea:focus {
+    /*background-color: #f2f2e6;
+    background-color: #e6e6cf;*/
+    background-color: #ffffa5;
+}
+
+#CRM_PhoneCall #multiselect .form-element select,
+#CRM_PhoneCall #multiselect .to-element select {
+    width: 150px;
+    height: 100px;
+}
+
+#CRM_PhoneCall .data input#due_date {
+    display: block;
+    margin-top: 1px;
+    float: left;
+}
+
+#CRM_PhoneCall .data a.button {
+    height: 19px;
+    display: block;
+    float: right;
+}
+
+.CRM_PhoneCall__table {
+    width: 100%;
+    vertical-align: middle;
+    height: 31px;
+}
+
+.CRM_PhoneCall__table .icon {
+    width: 32px;
+    height: 27px;
+    text-align: left;
+    padding-left: 20px;
+    padding-right: 10px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    vertical-align: top;
+    background-color: #666666;
+}
+
+.CRM_PhoneCall__table .icon img {
+    position: absolute;
+    clip: rect(0px 32px 28px 0px);
+}
+
+.CRM_PhoneCall__table .name {
+    width: 290px;
+    text-align: left;
+    font-size: 14px;
+    font-weight: bold;
+    color: #FFFFFF;
+    padding-left: 10px;
+    padding-top: 7px;
+    height: 24px;
+    vertical-align: top;
+    background-image: url('images/dark-gray-gradient.png');
+    background-repeat: repeat-y;
+}
+
+.CRM_PhoneCall__table .required_fav_info {
+    color: #777777;
+    text-align: right;
+    padding-right: 20px;
+}
+
+
+
+
+
+
+#CRM_PhoneCall .status 		select option[value="0"],
+#CRM_PhoneCall .status 		select option[value="1"],
+#CRM_PhoneCall .status 		select option[value="2"],
+#CRM_PhoneCall .priority 	select option[value="0"],
+#CRM_PhoneCall .priority 	select option[value="1"],
+#CRM_PhoneCall .priority 	select option[value="2"],
+#CRM_PhoneCall .permission	select option[value="0"],
+#CRM_PhoneCall .permission  select option[value="1"],
+#CRM_PhoneCall .permission  select option[value="2"],
+#CRM_PhoneCall .priority 	select option[value="3"] {
+	background-color: white;
+	padding-left: 30px;
+	background-repeat: no-repeat;
+	background-position: 1px 0px;
+}
+
+#CRM_PhoneCall .priority select option[value="0"] { background-image: url('CRM_PhoneCall__priority-low.png');    }
+#CRM_PhoneCall .priority select option[value="1"] { background-image: url('CRM_PhoneCall__priority-medium.png'); }
+#CRM_PhoneCall .priority select option[value="2"] { background-image: url('CRM_PhoneCall__priority-high.png');   }
+
+#CRM_PhoneCall .permission select option[value="0"] { background-image: url('CRM_PhoneCall__access-public.png');    }
+#CRM_PhoneCall .permission select option[value="1"] { background-image: url('CRM_PhoneCall__access-read-only.png'); }
+#CRM_PhoneCall .permission select option[value="2"] { background-image: url('CRM_PhoneCall__access-private.png');   }
+
+#CRM_PhoneCall .status select option[value="0"] { background-image: url('CRM_PhoneCall__access-public.png');    }
+#CRM_PhoneCall .status select option[value="1"] { background-image: url('CRM_PhoneCall__access-read-only.png');   }
+#CRM_PhoneCall .status select option[value="2"] { background-image: url('CRM_PhoneCall__access-private.png');   }
+
+#CRM_PhoneCall .status .icon,
+#CRM_PhoneCall .permission .icon,
+#CRM_PhoneCall .priority .icon {
+	width: 24px;
+	height: 12px;
+	margin-top: 2px;
+	margin-left: 2px;
+	margin-right: 2px;
+	display: block;
+	float: left;
+}

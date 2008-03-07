@@ -1,6 +1,4 @@
-{* Get total number of fields to display *}
-
-<table class="Utils_RecordBrowser__table" border="0" cellpadding="0" cellspacing="0">
+<table class="CRM_PhoneCall__table" border="0" cellpadding="0" cellspacing="0">
 	<tbody>
 		<tr>
 			<td class="icon"><img src="{$icon}" width="32" height="32" border="0"></td>
@@ -22,14 +20,14 @@
 </table>
 
 <!-- SHADOW BEGIN -->
-	<div class="layer" style="padding: 9px; width: 750px;">
+	<div class="layer" style="padding: 9px; width: 760px;">
 		<div class="content_shadow">
 <!-- -->
 
 
-<div style="background-color: white; padding: 5px;">
+<div id="CRM_PhoneCall" style="background-color: white; padding: 5px;">
 
-<table id="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
+<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
 	<tbody>
 		<tr>
 			<td class="label" align="left" style="width: 10%;">{$form_data.subject.label}</td>
@@ -42,16 +40,17 @@
 		</tr>
     </tbody>
 </table>
+
 {* description *}
-<table id="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
+<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if} no-border" style="{if $action == 'view'}border-left: 1px solid #b3b3b3;{/if}">
 	<tbody>
         {if $action != 'view'}
     	<tr>
-            <td class="label">{$form_data.description.label}</td>
+            <td class="label no-border">{$form_data.description.label}</td>
         </tr>
         {/if}
     	<tr>
-            <td class="data" colspan="4" style="vertical-align: top; padding-top: 2px;">
+            <td class="data no-border" style="vertical-align: top; padding-top: 2px; padding-bottom: 2px;">
                 {if $action == 'view'}<div style="height: 50px; white-space: normal; overflow: auto;">{/if}
                     {$form_data.description.html}
                 {if $action == 'view'}</div>{/if}
@@ -59,15 +58,16 @@
         </tr>
     </tbody>
 </table>
+
 {* employees contact *}
-<table id="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
+<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if} no-border">
 	<tbody>
         <tr>
-        	<td style="width: 50%;" colspan="2">
-				<table id="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
+        	<td style="width: 50%; vertical-align: top; {if $action == 'view'}border-right: 1px solid #b3b3b3;{/if}">
+				<table cellpadding="0" cellspacing="0" border="0">
 					<tr>
-			    	    <td class="label" style="width: 40%; padding-right: 0px;">{$form_data.company_name.label}</td>
-			    	    <td class="data" style="width: 60%; padding-right: 0px;" colspan="2">
+			    	    <td class="label" style="width: 35%;">{$form_data.company_name.label}</td>
+			    	    <td class="data" style="width: 65%;" colspan="2">
 			    	    	<span class="error">
 								{$form_data.company_name.error}
 							</span>
@@ -75,8 +75,8 @@
 						</td>
 					</tr>
 			        <tr>
-			    	    <td class="label" style="padding-right: 0px;">{$form_data.contact.label}</td>
-			    	    <td class="data" style="padding-right: 0px;" colspan="2">
+			    	    <td class="label">{$form_data.contact.label}</td>
+			    	    <td class="data" colspan="2">
 			    	    	<span class="error">
 								{$form_data.contact.error}
 							</span>
@@ -84,11 +84,11 @@
 						</td>
 					</tr>
 			        <tr>
-			    	    <td class="label" style="padding-right: 0px;">{$form_data.other_contact.label}</td>
-			    	    <td class="data" style="padding-right: 0px;">
+			    	    <td class="label">{$form_data.other_contact.label}</td>
+			    	    <td class="data">
 							{$form_data.other_contact.html}
 						</td>
-			    	    <td class="data" style="padding-right: 0px;">
+			    	    <td class="data">
 			    	    	<span class="error">
 								{$form_data.other_contact_name.error}
 							</span>
@@ -96,8 +96,8 @@
 						</td>
 					</tr>
 			        <tr>
-			    	    <td class="label" style="padding-right: 0px;">{$form_data.phone.label}</td>
-			    	    <td class="data" style="padding-right: 0px;" colspan="2">
+			    	    <td class="label">{$form_data.phone.label}</td>
+			    	    <td class="data" colspan="2">
 			    	    	<span class="error">
 								{$form_data.phone.error}
 							</span>
@@ -105,21 +105,25 @@
 						</td>
 					</tr>
 			        <tr>
-			    	    <td class="label" style="padding-right: 0px;">{$form_data.other_phone.label}</td>
-			    	    <td class="data" style="padding-right: 0px;">
+			    	    <td class="label">{$form_data.other_phone.label}</td>
+			    	    <td class="data">
 							{$form_data.other_phone.html}
 						</td>
-			    	    <td class="data" style="padding-right: 0px;">
+			    	    <td class="data">
 			    	    	<span class="error">
 								{$form_data.other_phone_number.error}
 							</span>
 							{$form_data.other_phone_number.html}
 						</td>
 					</tr>
+                    <tr>
+                        <td class="label" align="left" style="{if $action == 'view'}border-bottom: none;{/if}">{$form_data.date_and_time.label}</td>
+                        <td class="data timestamp" align="left" colspan="2" style="padding-bottom: 2px; {if $action == 'view'}border-bottom: none;{/if}">{$form_data.date_and_time.html}</td>
+                    </tr>
 				</table>
         	</td>
-        	<td style="width: 50%;" colspan="6">
-				<table id="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
+        	<td style="width: 50%; vertical-align: top;">
+				<table id="CRM_PhoneCall" cellpadding="0" cellspacing="0" border="0">
 					<tr>
 			        	<td class="label" style="border-right: 1px solid #b3b3b3;">{$form_data.employees.label}</td>
 			        </tr>
@@ -129,14 +133,16 @@
 				</table>
         	</td>
         </tr>
-		<tr>
-		  	<td class="label" align="left">{$form_data.date_and_time.label}</td>
-			<td class="data timestamp" align="left">{$form_data.date_and_time.html}</td>
+    </tbody>
+</table>
 
-		  	<td class="label" align="left">{$form_data.status.label}</td>
+<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+    <tbody>
+        <tr>
+		  	<td class="label" align="left" style="width: 100px;">{$form_data.status.label}</td>
 			<td class="data status" align="left">{$form_data.status.html}</td>
 
-            <td class="label" align="left">{$form_data.permission.label}</td>
+            <td class="label" align="left" style="width: 100px;">{$form_data.permission.label}</td>
 			<td class="data permission" align="left">
                 {if $action=='view'}
                     <div class="icon"></div>
@@ -144,7 +150,7 @@
                 {$form_data.permission.html}
             </td>
 
-            <td class="label" align="left">{$form_data.priority.label}</td>
+            <td class="label" align="left" style="width: 100px;">{$form_data.priority.label}</td>
 			<td class="data priority" align="left">
                 {if $action=='view'}
                     <div class="icon"></div>
