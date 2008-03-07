@@ -5,19 +5,19 @@
  * @copyright pbukowski@telaxus.com
  * @license SPL
  * @version 0.1
- * @package crm-calendar-event
+ * @package custom-projects-planner-projectevent
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class CRM_ProjectPlanner_ProjectEventInstall extends ModuleInstall {
+class Custom_Projects_Planner_ProjectEventInstall extends ModuleInstall {
 
 	public function install() {
-		Base_ThemeCommon::install_default_theme('CRM/ProjectPlanner/ProjectEvent');
+		Base_ThemeCommon::install_default_theme($this->get_type());
 		return true;
 	}
 
 	public function uninstall() {
-		Base_ThemeCommon::uninstall_default_theme('CRM/ProjectPlanner/ProjectEvent');
+		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		return true;
 	}
 

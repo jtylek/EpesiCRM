@@ -5,20 +5,20 @@
  * @copyright pbukowski@telaxus.com
  * @license SPL
  * @version 0.1
- * @package crm-calendar-event
+ * @package custom-projects-planner-projectevent
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class CRM_ProjectPlanner_ProjectEventCommon extends Utils_Calendar_EventCommon {
+class Custom_Projects_Planner_ProjectEventCommon extends Utils_Calendar_EventCommon {
 	public static $project;
 
 	public static function get($id) {
-		$result = DB::GetRow('SELECT start,end,employee_id,id,vacations,allday FROM crm_projectplanner_work WHERE id=%d',array($id));
+		$result = DB::GetRow('SELECT start,end,employee_id,id,vacations,allday FROM custom_projects_planner_work WHERE id=%d',array($id));
 		self::add_info($result);
 		return $result;
 	}
 	public static function get_all($start,$end,$order='') {
-		$ret = DB::GetAll('SELECT start,end,employee_id,id,vacations,allday FROM crm_projectplanner_work WHERE ((start>=%T AND start<%T) AND project_id=%d)',array($start,$end,self::$project));
+		$ret = DB::GetAll('SELECT start,end,employee_id,id,vacations,allday FROM custom_projects_planner_work WHERE ((start>=%T AND start<%T) AND project_id=%d)',array($start,$end,self::$project));
 		foreach($ret as &$v) {
 			self::add_info($v);
 		}
@@ -28,8 +28,8 @@ class CRM_ProjectPlanner_ProjectEventCommon extends Utils_Calendar_EventCommon {
 	private static function add_info(& $v) {
 		static $sd,$ed;
 		if(!isset($sd)) {
-			$sd = Variable::get('CRM_ProjectsPlanner__start_day');
-			$ed = Variable::get('CRM_ProjectsPlanner__end_day');
+			$sd = Variable::get('Custom_Projects_Planner__start_day');
+			$ed = Variable::get('Custom_Projects_Planner__end_day');
 		}
 		$v['title'] = '';
 		$v['description'] = '';
@@ -50,7 +50,7 @@ class CRM_ProjectPlanner_ProjectEventCommon extends Utils_Calendar_EventCommon {
 	}
 
 	public static function delete($id) {
-		DB::Execute('DELETE FROM crm_projectplanner_work WHERE id=%d',array($id));
+		DB::Execute('DELETE FROM custom_projects_planner_work WHERE id=%d',array($id));
 		return true;
 	}
 
@@ -60,7 +60,7 @@ class CRM_ProjectPlanner_ProjectEventCommon extends Utils_Calendar_EventCommon {
 			
 		$end = $start+$duration;
 
-		DB::Execute('UPDATE crm_projectplanner_work SET employee_id=%d,start=%T,end=%T WHERE id=%d',array(ltrim($custom_row_key,'e'),$start,$end,$id));
+		DB::Execute('UPDATE custom_projects_planner_work SET employee_id=%d,start=%T,end=%T WHERE id=%d',array(ltrim($custom_row_key,'e'),$start,$end,$id));
 		return true;
 	}
 }

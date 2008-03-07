@@ -5,23 +5,23 @@
  * @copyright pbukowski@telaxus.com
  * @license SPL
  * @version 0.1
- * @package crm-calendar-event
+ * @package custom-projects-planner-overviewevent
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class CRM_ProjectPlanner_OverviewEventCommon extends Utils_Calendar_EventCommon {
+class Custom_Projects_Planner_OverviewEventCommon extends Utils_Calendar_EventCommon {
 	public static function get($id) {
-		$result = DB::GetRow('SELECT \'blue\' as color,MIN(start) as min_start,MAX(end) as max_end,start,end,project_id,GROUP_CONCAT(DISTINCT employee_id SEPARATOR \',\') as employees,GROUP_CONCAT(DISTINCT id SEPARATOR \'_\') as id,0 as timeless FROM crm_projectplanner_work WHERE id in ('.str_replace('_',',',$id).') GROUP BY project_id,DATE(start)');
+		$result = DB::GetRow('SELECT \'blue\' as color,MIN(start) as min_start,MAX(end) as max_end,start,end,project_id,GROUP_CONCAT(DISTINCT employee_id SEPARATOR \',\') as employees,GROUP_CONCAT(DISTINCT id SEPARATOR \'_\') as id,0 as timeless FROM custom_projects_planner_work WHERE id in ('.str_replace('_',',',$id).') GROUP BY project_id,DATE(start)');
 		self::add_info($result);
 		return $result;
 	}
 	public static function get_all($start,$end,$order='') {
-		$ret = DB::GetAll('SELECT \'blue\' as color,MIN(start) as min_start,MAX(end) as max_end,start,end,project_id,GROUP_CONCAT(DISTINCT employee_id SEPARATOR \',\') as employees,GROUP_CONCAT(DISTINCT id SEPARATOR \'_\') as id,0 as timeless FROM crm_projectplanner_work WHERE (start>=%T AND start<%T) GROUP BY project_id,DATE(start)',array($start,$end));
+		$ret = DB::GetAll('SELECT \'blue\' as color,MIN(start) as min_start,MAX(end) as max_end,start,end,project_id,GROUP_CONCAT(DISTINCT employee_id SEPARATOR \',\') as employees,GROUP_CONCAT(DISTINCT id SEPARATOR \'_\') as id,0 as timeless FROM custom_projects_planner_work WHERE (start>=%T AND start<%T) GROUP BY project_id,DATE(start)',array($start,$end));
 		foreach($ret as &$v) {
 			self::add_info($v);
 		}
 
-		$ret2 = DB::GetAll('SELECT \'unassigned\' as custom_row_key,\'yellow\' as color,start,0 as duration,GROUP_CONCAT(DISTINCT employee_id SEPARATOR \',\') as employees,1 as timeless FROM crm_projectplanner_work WHERE (start>=%T AND start<%T) GROUP BY DATE(start)',array($start,$end));
+		$ret2 = DB::GetAll('SELECT \'unassigned\' as custom_row_key,\'yellow\' as color,start,0 as duration,GROUP_CONCAT(DISTINCT employee_id SEPARATOR \',\') as employees,1 as timeless FROM custom_projects_planner_work WHERE (start>=%T AND start<%T) GROUP BY DATE(start)',array($start,$end));
 		$uns = array();
 		foreach($ret2 as $vv) {
 			$busy = explode(',',$vv['employees']);
@@ -91,18 +91,18 @@ class CRM_ProjectPlanner_OverviewEventCommon extends Utils_Calendar_EventCommon 
 
 	public static function delete($id) {
 		if(ereg('^un',$id)) return false;
-		DB::Execute('DELETE FROM crm_projectplanner_work WHERE id in ('.str_replace('_',',',$id).')');
+		DB::Execute('DELETE FROM custom_projects_planner_work WHERE id in ('.str_replace('_',',',$id).')');
 		print('Epesi.updateIndicatorText("updating calendar");Epesi.request("");');
 		return true;
 	}
 
 	public static function update($id,$start,$duration,$timeless) {
 		if(ereg('^un',$id)) return false;
-		$old = DB::GetAll('SELECT * FROM crm_projectplanner_work WHERE id in ('.str_replace('_',',',$id).')');
+		$old = DB::GetAll('SELECT * FROM custom_projects_planner_work WHERE id in ('.str_replace('_',',',$id).')');
 		if(count($old)==0)
 			return false;
 			
-		switch($_SESSION['client']['crm_projectplanner_drag_action']) {
+		switch($_SESSION['client']['custom_projects_planner_drag_action']) {
 			case 'move':
 				self::delete($id);
 			case 'copy':
@@ -123,7 +123,7 @@ class CRM_ProjectPlanner_OverviewEventCommon extends Utils_Calendar_EventCommon 
 		$zero_t = strtotime('0:00');
 		for($ttt=$begin; $ttt<=$start; $ttt+=$interval)
 			foreach($old as $v)
-				DB::Execute('INSERT INTO crm_projectplanner_work(employee_id,project_id,allday,start,end,vacations) VALUES(%d,%d,%b,%T,%T,0)',
+				DB::Execute('INSERT INTO custom_projects_planner_work(employee_id,project_id,allday,start,end,vacations) VALUES(%d,%d,%b,%T,%T,0)',
 					array($v['employee_id'],$v['project_id'],$v['allday'],strtotime(date('H:i:s',strtotime($v['start'])))-$zero_t+$ttt,strtotime(date('H:i:s',strtotime($v['end'])))-$zero_t+$ttt));
 		print('Epesi.updateIndicatorText("updating calendar");Epesi.request("");');
 		return true;

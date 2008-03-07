@@ -5,11 +5,11 @@
  * @copyright pbukowski@telaxus.com
  * @license SPL
  * @version 0.1
- * @package crm-projectplanner
+ * @package custom-projects-planner
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class CRM_ProjectPlanner extends Module {
+class Custom_Projects_Planner extends Module {
 	private $lang;
 
 	public function construct() {
@@ -22,19 +22,19 @@ class CRM_ProjectPlanner extends Module {
 		$tb->set_tab('Project',array($this,'project_view'));
 		$tb->set_tab('Employee',array($this,'employee_view'));
 
-		if(isset($_REQUEST['crm_projectplanner_project'])) {
+		if(isset($_REQUEST['custom_projects_planner_project'])) {
 			$tb->switch_tab(1);
-			$this->set_module_variable('project',intval($_REQUEST['crm_projectplanner_project']));
+			$this->set_module_variable('project',intval($_REQUEST['custom_projects_planner_project']));
 		}
 
 		$this->display_module($tb);
 		$tb->tag();
 
-		if(!isset($_SESSION['client']['crm_projectplanner_drag_action']))
-			$_SESSION['client']['crm_projectplanner_drag_action']='move';
+		if(!isset($_SESSION['client']['custom_projects_planner_drag_action']))
+			$_SESSION['client']['custom_projects_planner_drag_action']='move';
 		if($this->isset_unique_href_variable('drag_action'))
-			$_SESSION['client']['crm_projectplanner_drag_action']=$this->get_unique_href_variable('drag_action');
-		switch($_SESSION['client']['crm_projectplanner_drag_action']) {
+			$_SESSION['client']['custom_projects_planner_drag_action']=$this->get_unique_href_variable('drag_action');
+		switch($_SESSION['client']['custom_projects_planner_drag_action']) {
 			case 'copy':
 				Base_ActionBarCommon::add('favorites','Copy one on drag',$this->create_unique_href(array('drag_action'=>'copyX')));
 				break;
@@ -49,7 +49,7 @@ class CRM_ProjectPlanner extends Module {
 	}
 
 	public function overview() {
-		$projs_tmp = Apps_ProjectsCommon::get_projects(array('status'=>'in_progress'),array('id','project_name'));
+		$projs_tmp = Custom_ProjectsCommon::get_projects(array('status'=>'in_progress'),array('id','project_name'));
 		$projs = array('unassigned'=>$this->lang->t('Unassigned employees'));
 		foreach($projs_tmp as $v)
 			$projs['p'.$v['id']]=$v['project_name'];
@@ -59,12 +59,11 @@ class CRM_ProjectPlanner extends Module {
 			return;
 		}
 
-		$c = $this->init_module('Utils/Calendar',array('CRM/ProjectPlanner/OverviewEvent',array('default_view'=>'week',
+		$c = $this->init_module('Utils/Calendar',array('Custom/Projects/Planner/OverviewEvent',array('default_view'=>'week',
 			'first_day_of_week'=>Utils_PopupCalendarCommon::get_first_day_of_week(),
 			'views'=>array('Day','Week','Month'),
 			'custom_rows'=>$projs,
 			'timeline'=>false,
-//			'interval'=>Base_User_SettingsCommon::get('CRM_Calendar','interval'),
 			'default_date'=>time()
 			)));
 		$this->display_module($c);
@@ -72,7 +71,7 @@ class CRM_ProjectPlanner extends Module {
 
 	public function project_view() {
 		$form = $this->init_module('Libs/QuickForm',null,'project_chooser');
-		$projs_tmp = Apps_ProjectsCommon::get_projects(array('status'=>'in_progress'),array('id','project_name'));
+		$projs_tmp = Custom_ProjectsCommon::get_projects(array('status'=>'in_progress'),array('id','project_name'));
 		$projs = array();
 		foreach($projs_tmp as $v)
 			$projs[$v['id']]=$v['project_name'];
@@ -89,10 +88,10 @@ class CRM_ProjectPlanner extends Module {
 			$sel_proj = $form->exportValue('proj');
 		}
 		$form->display();
-		CRM_ProjectPlanner_ProjectEventCommon::$project = $sel_proj;
+		Custom_Projects_Planner_ProjectEventCommon::$project = $sel_proj;
 
 
-		$c = $this->init_module('Utils/Calendar',array('CRM/ProjectPlanner/ProjectEvent',array('default_view'=>'week',
+		$c = $this->init_module('Utils/Calendar',array('Custom/Projects/Planner/ProjectEvent',array('default_view'=>'week',
 			'first_day_of_week'=>Utils_PopupCalendarCommon::get_first_day_of_week(),
 			'views'=>array('Day','Week','Month'),
 			'timeline'=>false,
@@ -101,7 +100,7 @@ class CRM_ProjectPlanner extends Module {
 
 		$date = $c->get_week_start_date();
 		
-		$pids = DB::GetCol('SELECT employee_id FROM crm_projectplanner_work WHERE start>=%T AND start<%T AND project_id=%d',array($date,$date+86400*7,$sel_proj));
+		$pids = DB::GetCol('SELECT employee_id FROM custom_projects_planner_work WHERE start>=%T AND start<%T AND project_id=%d',array($date,$date+86400*7,$sel_proj));
 		
 		$emps_tmp = CRM_ContactsCommon::get_contacts(array('id'=>$pids),array('id','last_name','first_name'));
 		$emps = array('add'=>$this->lang->t('Add employee'));
@@ -135,9 +134,9 @@ class CRM_ProjectPlanner extends Module {
 			$sel_emp = $form->exportValue('emp');
 		}
 		$form->display();
-		CRM_ProjectPlanner_EmployeeEventCommon::$employee = $sel_emp;
+		Custom_Projects_Planner_EmployeeEventCommon::$employee = $sel_emp;
 
-		$c = $this->init_module('Utils/Calendar',array('CRM/ProjectPlanner/EmployeeEvent',array('default_view'=>'week',
+		$c = $this->init_module('Utils/Calendar',array('Custom/Projects/Planner/EmployeeEvent',array('default_view'=>'week',
 			'first_day_of_week'=>Utils_PopupCalendarCommon::get_first_day_of_week(),
 			'views'=>array('Day','Week','Month'),
 			'timeline'=>false,
@@ -146,9 +145,9 @@ class CRM_ProjectPlanner extends Module {
 		
 		$date = $c->get_week_start_date();
 		
-		$pids = DB::GetCol('SELECT project_id FROM crm_projectplanner_work WHERE start>=%T AND start<%T AND employee_id=%d',array($date,$date+86400*7,$sel_emp));
+		$pids = DB::GetCol('SELECT project_id FROM custom_projects_planner_work WHERE start>=%T AND start<%T AND employee_id=%d',array($date,$date+86400*7,$sel_emp));
 		
-		$projs_tmp = Apps_ProjectsCommon::get_projects(array('id'=>$pids),array('id','project_name'));
+		$projs_tmp = Custom_ProjectsCommon::get_projects(array('id'=>$pids),array('id','project_name'));
 		$projs = array('add'=>$this->lang->t('Add project'),'vacations'=>$this->lang->t('Vacations'));
 		foreach($projs_tmp as $v)
 			$projs['p'.$v['id']]=$v['project_name'];
@@ -183,12 +182,12 @@ class CRM_ProjectPlanner extends Module {
 		$f->addElement('select', 'start_day', $this->lang->t('Start day at'), $start_day);
 		$f->addElement('select', 'end_day', $this->lang->t('End day at'), $end_day);
 
-		$f->setDefaults(array('start_day'=>Variable::get('CRM_ProjectsPlanner__start_day'),'end_day'=>Variable::get('CRM_ProjectsPlanner__end_day')));
+		$f->setDefaults(array('start_day'=>Variable::get('Custom_Projects_Planner__start_day'),'end_day'=>Variable::get('Custom_Projects_Planner__end_day')));
 
 		if($f->validate()) {
 			$r = $f->exportValues();
-			Variable::set('CRM_ProjectsPlanner__start_day',$r['start_day']);
-			Variable::set('CRM_ProjectsPlanner__end_day',$r['end_day']);
+			Variable::set('Custom_Projects_Planner__start_day',$r['start_day']);
+			Variable::set('Custom_Projects_Planner__end_day',$r['end_day']);
 			$this->parent->reset();
 		} else {
 			$f->display();

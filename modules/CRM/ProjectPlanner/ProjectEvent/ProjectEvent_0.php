@@ -5,11 +5,11 @@
  * @copyright pbukowski@telaxus.com
  * @license SPL
  * @version 0.1
- * @package crm-calendar-event
+ * @package custom-projects-planner-projectevent
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class CRM_ProjectPlanner_ProjectEvent extends Utils_Calendar_Event {
+class Custom_Projects_Planner_ProjectEvent extends Utils_Calendar_Event {
 	private $lang;
 
 	public function view($id) {
@@ -37,23 +37,23 @@ class CRM_ProjectPlanner_ProjectEvent extends Utils_Calendar_Event {
 
 		if($action=='new') {
 			$defs = array(
-				'time_s' => strtotime(Base_RegionalSettingsCommon::time2reg(Variable::get('CRM_ProjectsPlanner__start_day'),true,true,true,false)),
-				'time_e' => strtotime(Base_RegionalSettingsCommon::time2reg(Variable::get('CRM_ProjectsPlanner__end_day'),true,true,true,false)),
+				'time_s' => strtotime(Base_RegionalSettingsCommon::time2reg(Variable::get('Custom_Projects_Planner__start_day'),true,true,true,false)),
+				'time_e' => strtotime(Base_RegionalSettingsCommon::time2reg(Variable::get('Custom_Projects_Planner__end_day'),true,true,true,false)),
 				'date_s' => Base_RegionalSettingsCommon::time2reg($id,false),
 				'allday' => true
 				);
 			if($timeless!='add')
 				$defs['emp'] = ltrim($timeless,'e');
 		} else {
-			$x = DB::GetRow('SELECT * FROM crm_projectplanner_work WHERE id=%d',array($id));
+			$x = DB::GetRow('SELECT * FROM custom_projects_planner_work WHERE id=%d',array($id));
 			$defs = array(
 				'emp' => $x['employee_id'],
 				'date_s' => Base_RegionalSettingsCommon::time2reg($x['start'],false),
 				'allday' => $x['allday']);
 			if($x['allday']) {
 				if($action=='edit') {
-					$defs['time_s'] = strtotime(Base_RegionalSettingsCommon::time2reg(Variable::get('CRM_ProjectsPlanner__start_day'),true,true,true,false));
-					$defs['time_e'] = strtotime(Base_RegionalSettingsCommon::time2reg(Variable::get('CRM_ProjectsPlanner__end_day'),true,true,true,false));
+					$defs['time_s'] = strtotime(Base_RegionalSettingsCommon::time2reg(Variable::get('Custom_Projects_Planner__start_day'),true,true,true,false));
+					$defs['time_e'] = strtotime(Base_RegionalSettingsCommon::time2reg(Variable::get('Custom_Projects_Planner__end_day'),true,true,true,false));
 				}
 			} else {
 				$defs['time_s'] = Base_RegionalSettingsCommon::time2reg($x['start'],true,true,true,false);
@@ -62,14 +62,14 @@ class CRM_ProjectPlanner_ProjectEvent extends Utils_Calendar_Event {
 		}
 		$form->setDefaults($defs);
 
-		$proj_id = $this->get_module_variable('project',CRM_ProjectPlanner_ProjectEventCommon::$project);
+		$proj_id = $this->get_module_variable('project',Custom_Projects_Planner_ProjectEventCommon::$project);
 
-		$proj = Apps_ProjectsCommon::get_project($proj_id);
+		$proj = Custom_ProjectsCommon::get_project($proj_id);
 		$form->addElement('static','proj',$this->lang->t('Project'),$proj['project_name']);
 		
 		$form->addElement('static', 'date_s', $this->lang->t('Date'));
 
-		$busy = DB::GetCol('SELECT employee_id FROM crm_projectplanner_work WHERE DATE(start)=DATE(%T) AND allday=1',array(($action=='new')?$id:$x['start']));
+		$busy = DB::GetCol('SELECT employee_id FROM custom_projects_planner_work WHERE DATE(start)=DATE(%T) AND allday=1',array(($action=='new')?$id:$x['start']));
 		$emps_tmp = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company()),'!id'=>$busy),array('id','first_name','last_name'));
 		$emps = array();
 		foreach($emps_tmp as $v)
@@ -84,7 +84,7 @@ class CRM_ProjectPlanner_ProjectEvent extends Utils_Calendar_Event {
 		$time_format = Base_RegionalSettingsCommon::time_12h()?'h:i:a':'H:i';
 
 		if($action!='view') {
-			eval_js_once('crm_projectplanner_allday = function(val) {'.
+			eval_js_once('custom_projects_planner_allday = function(val) {'.
 					'var cal_style;'.
 					'if(val){'.
 					'cal_style = \'none\';'.
@@ -94,8 +94,8 @@ class CRM_ProjectPlanner_ProjectEvent extends Utils_Calendar_Event {
 					'$(\'time_e\').style.display = cal_style;'.
 					'$(\'time_s\').style.display = cal_style;'.
 				'}');
-			$form->addElement('checkbox', 'allday', $this->lang->t('All day'), null,array('onClick'=>'crm_projectplanner_allday(this.checked)'));
-			eval_js('crm_projectplanner_allday('.$defs['allday'].')');
+			$form->addElement('checkbox', 'allday', $this->lang->t('All day'), null,array('onClick'=>'custom_projects_planner_allday(this.checked)'));
+			eval_js('custom_projects_planner_allday('.$defs['allday'].')');
 		} else
 			$form->addElement('static','allday');
 
@@ -126,9 +126,9 @@ class CRM_ProjectPlanner_ProjectEvent extends Utils_Calendar_Event {
 				$end = $time+$this->recalculate_time($v['time_e']);
 			}
 			if($action=='new') {
-				DB::Execute('INSERT INTO crm_projectplanner_work(employee_id,project_id,start,end,allday,vacations) VALUES(%d,%d,%T,%T,%b,0)',array($emp_id,$proj_id,$start,$end,$allday));
+				DB::Execute('INSERT INTO custom_projects_planner_work(employee_id,project_id,start,end,allday,vacations) VALUES(%d,%d,%T,%T,%b,0)',array($emp_id,$proj_id,$start,$end,$allday));
 			} else {
-				DB::Execute('UPDATE crm_projectplanner_work SET start=%T,end=%T,allday=%b WHERE id=%d',array($start,$end,$allday,$id));
+				DB::Execute('UPDATE custom_projects_planner_work SET start=%T,end=%T,allday=%b WHERE id=%d',array($start,$end,$allday,$id));
 			}
 			$this->back_to_calendar();
 			return;

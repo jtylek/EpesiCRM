@@ -5,11 +5,11 @@
  * @copyright pbukowski@telaxus.com
  * @license SPL
  * @version 0.1
- * @package crm-calendar-event
+ * @package custom-projects-planner-overviewevent
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class CRM_ProjectPlanner_OverviewEventInstall extends ModuleInstall {
+class Custom_Projects_Planner_OverviewEventInstall extends ModuleInstall {
 
 	public function install() {
 		return true;

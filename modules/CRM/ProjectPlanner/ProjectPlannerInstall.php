@@ -5,17 +5,17 @@
  * @copyright pbukowski@telaxus.com
  * @license SPL
  * @version 0.1
- * @package crm-projectplanner
+ * @package custom-projects-planner
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class CRM_ProjectPlannerInstall extends ModuleInstall {
+class Custom_Projects_PlannerInstall extends ModuleInstall {
 
 	public function install() {
 		$ret = true;
-		Variable::set('CRM_ProjectsPlanner__start_day','9:00');
-		Variable::set('CRM_ProjectsPlanner__end_day','17:00');
-		$ret &= DB::CreateTable('crm_projectplanner_work','
+		Variable::set('Custom_Projects_Planner__start_day','9:00');
+		Variable::set('Custom_Projects_Planner__end_day','17:00');
+		$ret &= DB::CreateTable('custom_projects_planner_work','
 			id I4 AUTO KEY,
 			employee_id I4 NOTNULL,
 			project_id I4,
@@ -23,19 +23,19 @@ class CRM_ProjectPlannerInstall extends ModuleInstall {
 			allday I1,
 			start T NOTNULL,
 			end T',
-			array('constraints'=>', FOREIGN KEY (employee_id) REFERENCES contact(ID), FOREIGN KEY (project_id) REFERENCES projects(id)'));
+			array('constraints'=>', FOREIGN KEY (employee_id) REFERENCES contact(ID), FOREIGN KEY (project_id) REFERENCES custom_projects(id)'));
 		if(!$ret){
-			print('Unable to create table crm_projectplanner_employee_work.<br>');
+			print('Unable to create table custom_projects_planner_employee_work.<br>');
 			return false;
 		}
 		return $ret;
 	}
 
 	public function uninstall() {
-		Variable::delete('CRM_ProjectsPlanner__start_day');
-		Variable::delete('CRM_ProjectsPlanner__end_day');
+		Variable::delete('Custom_Projects_Planner__start_day');
+		Variable::delete('Custom_Projects_Planner__end_day');
 		$ret = true;
-		$ret &= DB::DropTable('crm_projectplanner_work');
+		$ret &= DB::DropTable('custom_projects_planner_work');
 		return $ret;
 	}
 
@@ -45,12 +45,12 @@ class CRM_ProjectPlannerInstall extends ModuleInstall {
 
 	public function requires($v) {
 		return array(
-			array('name'=>'Apps/Projects','version'=>0),
+			array('name'=>'Custom/Projects','version'=>0),
 			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'CRM/Contacts','version'=>0),
-			array('name'=>'CRM/ProjectPlanner/EmployeeEvent','version'=>0),
-			array('name'=>'CRM/ProjectPlanner/OverviewEvent','version'=>0),
-			array('name'=>'CRM/ProjectPlanner/ProjectEvent','version'=>0),
+			array('name'=>'Custom/Projects/Planner/EmployeeEvent','version'=>0),
+			array('name'=>'Custom/Projects/Planner/OverviewEvent','version'=>0),
+			array('name'=>'Custom/Projects/Planner/ProjectEvent','version'=>0),
 			array('name'=>'Libs/QuickForm','version'=>0),
 			array('name'=>'Libs/ScriptAculoUs','version'=>0),
 			array('name'=>'Utils/Calendar','version'=>0),
