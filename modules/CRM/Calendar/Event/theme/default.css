@@ -198,20 +198,38 @@
 #CRM_Calendar_Event_Personal .priority select option[value="2"] { background-image: url('CRM_Calendar_Event__priority-medium.png'); }
 #CRM_Calendar_Event_Personal .priority select option[value="3"] { background-image: url('CRM_Calendar_Event__priority-high.png');   }
 
+#CRM_Calendar_Event_Personal .priority_0 { background-image: url('CRM_Calendar_Event__priority-none.png');   }
+#CRM_Calendar_Event_Personal .priority_1 { background-image: url('CRM_Calendar_Event__priority-low.png');    }
+#CRM_Calendar_Event_Personal .priority_2 { background-image: url('CRM_Calendar_Event__priority-medium.png'); }
+#CRM_Calendar_Event_Personal .priority_3 { background-image: url('CRM_Calendar_Event__priority-high.png');   }
+
 #CRM_Calendar_Event_Personal .access select option[value="0"] { background-image: url('CRM_Calendar_Event__access-public.png');    }
 #CRM_Calendar_Event_Personal .access select option[value="1"] { background-image: url('CRM_Calendar_Event__access-read-only.png'); }
 #CRM_Calendar_Event_Personal .access select option[value="2"] { background-image: url('CRM_Calendar_Event__access-private.png');   }
 
+#CRM_Calendar_Event_Personal .access_0 { background-image: url('CRM_Calendar_Event__access-public.png');    }
+#CRM_Calendar_Event_Personal .access_1 { background-image: url('CRM_Calendar_Event__access-read-only.png'); }
+#CRM_Calendar_Event_Personal .access_2 { background-image: url('CRM_Calendar_Event__access-private.png');   }
+
 #CRM_Calendar_Event_Personal .access .icon,
 #CRM_Calendar_Event_Personal .priority .icon {
-	width: 24px;
 	height: 12px;
 	margin-top: 2px;
 	margin-left: 2px;
-	margin-right: 2px;
+	margin-right: 6px;
 	display: block;
 	float: left;
+	background-repeat: no-repeat;
 }
+
+#CRM_Calendar_Event_Personal .access .icon {
+	width: 12px;
+}
+
+#CRM_Calendar_Event_Personal .priority .icon {
+	width: 24px;
+}
+
 /* colors select */
 
 select[name="color"] option[value="0"] { color: #339933; background-color: white; }
@@ -222,6 +240,15 @@ select[name="color"] option[value="4"] { color: #336699; background-color: white
 select[name="color"] option[value="5"] { color: #808080; background-color: white; }
 select[name="color"] option[value="6"] { color: #339999; background-color: white; }
 select[name="color"] option[value="7"] { color: #993399; background-color: white; }
+
+#CRM_Calendar_Event_Personal .color_0 { color: #339933; }
+#CRM_Calendar_Event_Personal .color_1 { color: #339933; }
+#CRM_Calendar_Event_Personal .color_2 { color: #999933; }
+#CRM_Calendar_Event_Personal .color_3 { color: #993333; }
+#CRM_Calendar_Event_Personal .color_4 { color: #336699; }
+#CRM_Calendar_Event_Personal .color_5 { color: #808080; }
+#CRM_Calendar_Event_Personal .color_6 { color: #339999; }
+#CRM_Calendar_Event_Personal .color_7 { color: #993399; }
 
 /* header day */
 
@@ -267,11 +294,11 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
 /* */
 
 .timeless_access_priority_color td.label {
-	width: 10%;
+	width: 8%;
 }
 
 .timeless_access_priority_color td.data {
-	width: 15%;
+	width: 16%;
 }
 
 

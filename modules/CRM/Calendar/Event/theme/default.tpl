@@ -108,19 +108,23 @@
 				<td class="label" align="left">{$form_data.access.label}</td>
 				<td class="data access" align="left">
                     {if $action=='view'}
-                        <div class="icon"></div>
+                        <div class="icon access_{$access_id}"></div>
                     {/if}
                     {$form_data.access.html}
                 </td>
 			  	<td class="label" align="left">{$form_data.priority.label}</td>
 				<td class="data priority" align="left">
                     {if $action=='view'}
-                        <div class="icon"></div>
+                        <div class="icon priority_{$priority_id}"></div>
                     {/if}
                     {$form_data.priority.html}
                 </td>
 				<td class="label" align="left">{$form_data.color.label}</td>
-				<td class="data" align="left">{$form_data.color.html}</td>
+				<td class="data" align="left">
+                    <span class="color_{$color_id}">
+                        {$form_data.color.html}
+                    </span>
+                </td>
 			</tr>
         </tbody>
     </table>
