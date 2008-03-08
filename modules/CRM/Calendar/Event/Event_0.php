@@ -185,8 +185,11 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$color[$k] = '&bull; '.$this->lang->ht(ucfirst($color[$k]));
 
 		$form->addElement('select', 'access', $this->lang->t('Access'), $access, array('style'=>'width: 100%;'));
+		$theme->assign('access_id',$form->exportValue('access'));
 		$form->addElement('select', 'priority', $this->lang->t('Priority'), $priority, array('style'=>'width: 100%;'));
+		$theme->assign('priority_id',$form->exportValue('priority'));
 		$form->addElement('select', 'color', $this->lang->t('Color'), $color, array('style'=>'width: 100%;'));
+		$theme->assign('color_id',$form->exportValue('color'));
 
 		$form->addElement('multiselect', 'emp_id', $this->lang->t('Employees'), $emp);
 		$form->addRule('emp_id', $this->lang->t('At least one employee must be assigned to an event.'), 'required');
