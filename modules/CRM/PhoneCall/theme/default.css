@@ -189,9 +189,9 @@
 #CRM_PhoneCall .permission select option[value="1"] { background-image: url('CRM_PhoneCall__access-read-only.png'); }
 #CRM_PhoneCall .permission select option[value="2"] { background-image: url('CRM_PhoneCall__access-private.png');   }
 
-#CRM_PhoneCall .status select option[value="0"] { background-image: url('CRM_PhoneCall__access-public.png');    }
-#CRM_PhoneCall .status select option[value="1"] { background-image: url('CRM_PhoneCall__access-read-only.png');   }
-#CRM_PhoneCall .status select option[value="2"] { background-image: url('CRM_PhoneCall__access-private.png');   }
+#CRM_PhoneCall .status select option[value="0"] { background-image: url('CRM_PhoneCall__status-open.png');    }
+#CRM_PhoneCall .status select option[value="1"] { background-image: url('CRM_PhoneCall__status-in-progress.png');   }
+#CRM_PhoneCall .status select option[value="2"] { background-image: url('CRM_PhoneCall__status-closed.png');   }
 
 #CRM_PhoneCall .status .icon,
 #CRM_PhoneCall .permission .icon,
