@@ -124,7 +124,9 @@
             </tbody>
         </table>
     </div>
-    {$attachments}
+    <div class="attachments">
+        {$attachments}
+    </div>
 </div>
 
 

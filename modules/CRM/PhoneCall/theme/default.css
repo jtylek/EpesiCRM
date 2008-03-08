@@ -99,6 +99,11 @@
     background-color: #ffffa5;
 }
 
+#CRM_PhoneCall .data select[disabled="disabled"],
+#CRM_PhoneCall .data input[disabled="disabled"] {
+    background-color: white;
+}
+
 #CRM_PhoneCall #multiselect .form-element select,
 #CRM_PhoneCall #multiselect .to-element select {
     width: 150px;
@@ -133,6 +138,7 @@
     padding-bottom: 2px;
     vertical-align: top;
     background-color: #666666;
+    background-image: url('images/dark-gray.png');
 }
 
 .CRM_PhoneCall__table .icon img {

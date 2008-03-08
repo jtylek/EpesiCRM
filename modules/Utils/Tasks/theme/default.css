@@ -272,6 +272,7 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
     padding-bottom: 2px;
     vertical-align: top;
     background-color: #666666;
+    background-image: url('images/dark-gray.png');
 }
 
 .Utils_Tasks__table .icon img {
@@ -297,4 +298,23 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
     color: #777777;
     text-align: right;
     padding-right: 20px;
+}
+
+
+
+/* no shadow in tables */
+
+#Utils_Tasks .attachments .shadow-top,
+#Utils_Tasks .attachments .shadow-middle,
+#Utils_Tasks .attachments .shadow-bottom {
+	display: none;
+}
+
+#Utils_Tasks .attachments .layer {
+	padding: 0px;
+	width: 100%;
+}
+
+#Utils_Tasks .attachments .layer .margin2px {
+	padding: 0px;
 }
