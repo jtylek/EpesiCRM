@@ -2,8 +2,8 @@
 <div id="{$statusbar_id}" class="Base_StatusBar">
 
 <!-- SHADIW BEGIN -->
-	<div class="layer" style="padding: 10px; width: 300px;">
-		<div class="content_shadow" style="border: 4px solid #FFFFFF;">
+	<div class="layer" style="width: 300px; height: 60px;">
+		<div class="content_shadow">
 <!-- -->
 
 <!-- TEMP
@@ -11,13 +11,15 @@
 			<td class="text"><span id="{$text_id}">Loading...</span></td>
 -->
 
-	<table>
-		<tr>
-			<td class="text"><span id="{$text_id}">Loading...</span></td>
-        </tr>
-        <tr>
-			<td class="image"><img src="{$theme_dir}/Base_StatusBar__loader.gif" width="256" height="10" border="0"></td>
-		</tr>
+	<table border="0" cellpadding="0" cellspacing="0">
+        <tbody>
+            <tr>
+                <td class="text"><span id="{$text_id}">Loading...</span></td>
+            </tr>
+            <tr>
+                <td class="image"><img src="{$theme_dir}/Base_StatusBar__loader.gif" width="256" height="10" border="0"></td>
+            </tr>
+        </tbody>
 	</table>
 
 <!-- SHADOW END -->
@@ -47,6 +49,9 @@
 .Base_StatusBar {
 	position: absolute;
   	top: expression( ignoreMe = (document.documentElement.scrollTop + document.body.clientHeight/4) + 'px' );
+}
+.Base_StatusBar div.layer {
+    padding-bottom: 8px;
 }
 </style>
 <![endif]><![endif]-->

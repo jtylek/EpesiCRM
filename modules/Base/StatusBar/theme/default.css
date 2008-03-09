@@ -18,6 +18,10 @@
 	vertical-align: middle;
 }
 
+.Base_StatusBar div.layer {
+    padding: 10px;
+}
+
 .Base_StatusBar table {
     width: 100%;
 	font-family: "Tahoma" "Verdana" "Vera-Sans" "DejaVu-Sans";
@@ -26,7 +30,8 @@
 	/*color: #339933;*/
 	color: #336699;
 	/*border: 1px solid #339933;*/
-    border: 0px solid #7fb37f;
+    /*border: 0px solid #7fb37f;*/
+    border: 5px solid white;
     /*background-color: #cfe6cf;
     background-color: #e6f2e6;*/
 	background-color: #e6ecf2;
