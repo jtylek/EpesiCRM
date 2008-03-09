@@ -49,7 +49,7 @@
 		{foreach key=k item=stamp from=$timeline}
 			<tr>
 				<td class="hour" nowrap >{$stamp.label}</td>
-				<td class="inter" id="{$stamp.id}"></td>
+				<td class="inter" id="{$stamp.id}">&nbsp;</td>
 			</tr>
 		{/foreach}
 
