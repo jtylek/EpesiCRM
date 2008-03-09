@@ -22,6 +22,7 @@
     padding-left: 5px;
     padding-right: 5px;
     width: 150px;
+    text-align: left;
 }
 
 #CRM_PhoneCall td.no-border,
@@ -40,6 +41,7 @@
 }
 
 #CRM_PhoneCall .data {
+    text-align: left;
     /*
 	width: 60%;
 	*/

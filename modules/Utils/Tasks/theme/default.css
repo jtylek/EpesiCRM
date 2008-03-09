@@ -112,18 +112,21 @@
     vertical-align: middle;
     padding-left: 5px;
     padding-right: 5px;
+    text-align: left;
 }
 
 #Utils_Tasks table.view .data {
     border-bottom: 1px solid #B3B3B3;
     padding-left: 5px;
     padding-right: 5px;
+    text-align: left;
 }
 
 #Utils_Tasks table.edit .data {
     border-bottom: none;
     padding-left: 4px;
     padding-right: 4px;
+    text-align: left;
 }
 
 #Utils_Tasks table.edit {
