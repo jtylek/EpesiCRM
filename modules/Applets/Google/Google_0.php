@@ -33,7 +33,7 @@ class Applets_Google extends Module {
                     </table>
                     </center>
                 </fieldset>
-            </form>               
+            </form>
         ');
 		print ('</div>');
 	}
