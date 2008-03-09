@@ -126,7 +126,7 @@ body { height: 100%; max-height: 100%; border: 0; }
 .layer .shadow-middle .right	{ filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="modules/Base/Theme/images/shadow/r.png",  sizingMethod="scale"); }
 
 .layer .shadow-bottom div.center {
-	bottom: -2px;
+	bottom: -3px;
 }
 
 .layer .shadow-top div.center {
