@@ -18,6 +18,23 @@ class Utils_TabbedBrowser extends Module {
 	private $c_func;
 	private $c_caption;
 	private $tag;
+	private $page;
+	
+	public function construct() {
+		if ($this->isset_unique_href_variable('page') || !$this->get_module_variable('force'))
+			$this->page = $this->get_module_variable_or_unique_href_variable('page', 0);
+		else {
+			$this->page = $this->get_module_variable('page', 0);
+			$this->unset_module_variable('force');
+		}	
+		$lpage = $this->get_module_variable('last_page', -1);
+		
+		if($lpage!=$this->page && is_callable($this->c_func)) {
+			call_user_func($this->c_func,$this->page, $lpage);
+			$this->set_module_variable('last_page', $this->page);
+			$this->parent->set_reload(true);
+		}
+	}
 	
 	/**
 	 * Displays tabs.
@@ -28,15 +45,9 @@ class Utils_TabbedBrowser extends Module {
 	
 	public function body($template=null) {
 		if (empty($this->tabs)) return;
-		$theme = & $this->pack_module('Base/Theme');
+		$theme = $this->init_module('Base/Theme');
 		
 		$captions = array();
-		if ($this->isset_unique_href_variable('page') || !$this->get_module_variable('force'))
-			$page = $this->get_module_variable_or_unique_href_variable('page', 0);
-		else {
-			$page = $this->get_module_variable('page', 0);
-			$this->unset_module_variable('force');
-		}
 		
 		load_js($this->get_module_dir().'tb.js');
 				
@@ -45,14 +56,14 @@ class Utils_TabbedBrowser extends Module {
 		$path = escapeJS($this->get_path());
 		$body = '';
 		foreach($this->tabs as $caption=>$val) {
-			if($page==$i) $selected = ' class="tabbed_browser_selected"';
+			if($this->page==$i) $selected = ' class="tabbed_browser_selected"';
 				else $selected = ' class="tabbed_browser_unselected"';
 			if($val['js'])
 				$captions[$caption] = '<a id="'.escapeJS($this->get_path(),true,false).'_c'.$i.'" href="javascript:void(0)" onClick="tabbed_browser_switch('.$i.','.$max.',this,\''.$path.'\')"'.$selected.'>'.$caption.'</a>';
 			else
 				$captions[$caption] = '<a id="'.escapeJS($this->get_path(),true,false).'_c'.$i.'" href="javascript:void(0)" onClick="tabbed_browser_switch('.$i.','.$max.',this,\''.$path.'\')"'.$selected.' original_action="'.$this->create_unique_href_js(array('page'=>$i)).'">'.$caption.'</a>';
-			if($page==$i || $val['js']) {
-				$body .= '<div id="'.escapeJS($this->get_path(),true,false).'_d'.$i.'" '.($page==$i?'':'style="display:none"').'>';
+			if($this->page==$i || $val['js']) {
+				$body .= '<div id="'.escapeJS($this->get_path(),true,false).'_d'.$i.'" '.($this->page==$i?'':'style="display:none"').'>';
 				if (isset($val['func'])){
 					ob_start();
 					call_user_func_array($val['func'],$val['args']);
@@ -66,17 +77,9 @@ class Utils_TabbedBrowser extends Module {
 			$i++;
 		}
 		
-		$lpage = $this->get_module_variable('last_page', -1);
+		$this->tag = md5($body.$this->page); 
 		
-		if($lpage!=$page && is_callable($this->c_func)) {
-			call_user_func($this->c_func,$page, $lpage);
-			$this->set_module_variable('last_page', $page);
-			$this->parent->set_reload(true);
-		}
-		
-		$this->tag = md5($body.$page); 
-		
-		$theme->assign('selected', $page);
+		$theme->assign('selected', $this->page);
 		$theme->assign('captions', $captions);
 		$theme->assign('body', $body);
 		$theme->display($template);
@@ -127,7 +130,12 @@ class Utils_TabbedBrowser extends Module {
 	public function switch_tab($i) {
 		if(!isset($i)) $i = count($this->tabs)-1;
 		$this->set_module_variable('page',$i);
+		$this->page = $i;
 		$this->set_module_variable('force',true);
+	}
+	
+	public function get_tab() {
+		return $this->page;
 	}
 	
 	/**
@@ -137,9 +145,11 @@ class Utils_TabbedBrowser extends Module {
 	 * @param intereger tab number
 	 */
 	public function set_default_tab($i) {
-		if($this->isset_module_variable('page')) return;
+		if($this->isset_module_variable('default_tab')) return;
 		if(!isset($i)) $i = count($this->tabs)-1;
 		$this->set_module_variable('page',$i);
+		$this->set_module_variable('default_tab',true);
+		$this->page = $i;
 	}
 
 	//always JS

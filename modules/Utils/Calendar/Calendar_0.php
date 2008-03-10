@@ -15,6 +15,7 @@ class Utils_Calendar extends Module {
 				  'default_date'=>null);
 	private $date; //current date
 	private $event_module;
+	private $tb;
 
 	public function construct($ev_mod, array $settings=null) {
 		$this->lang = $this->init_module('Base/Lang');
@@ -70,6 +71,30 @@ class Utils_Calendar extends Module {
 			$this->set_week_date($this->get_unique_href_variable('week_date'));
 		if($this->isset_unique_href_variable('shift_week_day'))
 			$this->shift_week_day($this->get_unique_href_variable('shift_week_day'));
+
+
+		if(count($this->settings['views'])>1) {
+			$this->tb = $this->init_module('Utils/TabbedBrowser');
+
+			foreach($this->settings['views'] as $k=>$v) {
+				if(!in_array($v,self::$views))
+					trigger_error('Invalid view: '.$v,E_USER_ERROR);
+
+				$this->tb->set_tab($this->lang->t($v),array($this, strtolower($v)));
+				if(strcasecmp($v,$this->settings['default_view'])==0)
+					$def_tab = $k;
+			}
+			if (isset($def_tab)) $this->tb->set_default_tab($def_tab);
+			if (isset($switch_view))
+				$this->tb->switch_tab($switch_view);
+
+		} else {
+			$v = array_pop($this->settings['views']);
+			if(!in_array($v,self::$views))
+				trigger_error('Invalid view: '.$v,E_USER_ERROR);
+			call_user_func(array($this,strtolower($v)));
+		}
+
 	}
 	
 	public function settings($key,$val) {
@@ -79,13 +104,61 @@ class Utils_Calendar extends Module {
 	public function get_date() {
 		return $this->date;
 	}
+	
+	public function get_view() {
+		return $this->settings['views'][$this->tb->get_tab()];
+	}
 
-	public function get_week_start_date() {
+	public function get_week_start_time() {
 		$week_shift = 86400*$this->get_module_variable('week_shift',0);
 		$first_day_of_displayed_week = date('w', $this->date)-$this->settings['first_day_of_week'];
 		if ($first_day_of_displayed_week<0) $first_day_of_displayed_week += 7;
 		$first_day_of_displayed_week *= 86400;
 		return strtotime(date('Y-m-d',$this->date+$week_shift-$first_day_of_displayed_week));
+	}
+
+	public function get_week_end_time() {
+		return $this->get_week_start_time() + 7*86400;
+	}
+	
+	public function get_day_start_time() {
+		return strtotime(date('Y-m-d',$this->date));
+	}
+	
+	public function get_day_end_time() {
+		return $this->get_day_start_time() + 86400;
+	}
+
+	public function get_month_start_time() {
+		return strtotime(date('Y-m-01',$this->date));
+	}
+	
+	public function get_month_end_time() {
+		return $this->get_day_start_time() + date('t',$this->date)*86400;
+	}
+	
+	public function get_start_time() {
+		switch($this->get_view()) {
+			case 'Day':
+				return $this->get_day_start_time();
+			case 'Week':
+				return $this->get_week_start_time();
+			case 'Month':
+				return $this->get_month_start_time();
+			default: return 0;
+		}
+	}
+
+	public function get_end_time() {
+		switch($this->get_view()) {
+			case 'Day':
+				return $this->get_day_end_time();
+			case 'Week':
+				return $this->get_week_end_time();
+			case 'Month':
+				return $this->get_month_end_time();
+			default: return 0;
+		}
 	}
 
 	public function set_date($d) {
@@ -151,30 +224,8 @@ class Utils_Calendar extends Module {
 	public function body($arg = null) {
 
 		load_js($this->get_module_dir().'calendar.js');
-
-		if(count($this->settings['views'])>1) {
-			$tb = $this->init_module('Utils/TabbedBrowser');
-
-			foreach($this->settings['views'] as $k=>$v) {
-				if(!in_array($v,self::$views))
-					trigger_error('Invalid view: '.$v,E_USER_ERROR);
-
-				$tb->set_tab($this->lang->t($v),array($this, strtolower($v)));
-				if(strcasecmp($v,$this->settings['default_view'])==0)
-					$def_tab = $k;
-			}
-			if (isset($def_tab)) $tb->set_default_tab($def_tab);
-			if (isset($switch_view))
-				$tb->switch_tab($switch_view);
-
-			$this->display_module($tb);
-			$tb->tag();
-		} else {
-			$v = array_pop($this->settings['views']);
-			if(!in_array($v,self::$views))
-				trigger_error('Invalid view: '.$v,E_USER_ERROR);
-			call_user_func(array($this,strtolower($v)));
-		}
+		$this->display_module($this->tb);
+		$this->tb->tag();
 
 		Base_ActionBarCommon::add('add',$this->lang->t('Add event'),$this->create_unique_href(array('action'=>'add','time'=>$this->date)));
 	}
