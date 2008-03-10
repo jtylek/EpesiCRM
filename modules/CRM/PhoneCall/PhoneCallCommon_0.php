@@ -70,7 +70,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	/*--------------------------------------------------------------------*/
 	public static function employees_crits(){
 		// Select only main company contacts and only office staff employees
-		return array('company_name'=>array(CRM_ContactsCommon::get_main_company()),'Group'=>array('off'));
+		return array('company_name'=>array(CRM_ContactsCommon::get_main_company()),'Group'=>array('office'));
 	}
 	public static function company_crits(){
 		return array('_no_company_option'=>true);
