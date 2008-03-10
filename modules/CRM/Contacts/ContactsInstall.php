@@ -94,7 +94,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Contacts', 'contact_attachment_addon', 'Notes');
 // ************ other ************** //
 		Utils_CommonDataCommon::new_array('Companies_Groups',array('Customer','Vendor','Other'));
-		Utils_CommonDataCommon::new_array('Contacts_Groups',array('off'=>'Office Staff','fld'=>'Field Staff','cst'=>'Customer'));
+		Utils_CommonDataCommon::new_array('Contacts_Groups',array('office'=>'Office Staff','field'=>'Field Staff','custm'=>'Customer'));
 
 		$this->add_aco('browse contacts',array('Employee','Customer'));
 		$this->add_aco('view contact',array('Employee'));
