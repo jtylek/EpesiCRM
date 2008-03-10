@@ -841,7 +841,8 @@ class Utils_GenericBrowser extends Module {
 			else $sort = '';
 			$headers[$col_pos[$i]['pos']]['label'] .= isset($v['order'])?'<a '.$this->create_unique_href(array('change_order'=>$v['name'])).'>' . '<div '.$sort.'>' . $v['name'] . '</div></a>':'<span>'.$v['name'].'</span>';
 			//if ($v['search']) $headers[$col_pos[$i]['pos']] .= $form_array['search__'.$v['search']]['label'].$form_array['search__'.$v['search']]['html'];
-			$headers[$col_pos[$i]['pos']]['attrs'] = 'style="width: '.intval(100*$v['width']/$all_width).'%"';
+			$headers[$col_pos[$i]['pos']]['attrs'] = 'style="width: '.intval(100*$v['width']/$all_width).'%" ';
+			$headers[$col_pos[$i]['pos']]['attrs'] .= 'nowrap="1" ';
 			$i++;
 		}
 		ksort($headers);

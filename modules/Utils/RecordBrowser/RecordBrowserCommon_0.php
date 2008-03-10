@@ -504,12 +504,23 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						'edited_on'=>$edited['edited_on'],'edited_by'=>$edited['edited_by']);
 	}
 	public static function get_html_record_info($tab_name = null, $id = null){
-			$info = Utils_RecordBrowserCommon::get_record_info($tab_name, $id);
-			return Base_LangCommon::ts('Utils_RecordBrowser','Created on:').' '.Base_RegionalSettingsCommon::time2reg($info['created_on']). '<br>'.
-					Base_LangCommon::ts('Utils_RecordBrowser','Created by:').' '.Base_UserCommon::get_user_login($info['created_by']). '<br>'.
-					(($info['edited_by']!=null)?(
-					Base_LangCommon::ts('Utils_RecordBrowser','Edited on:').' '.Base_RegionalSettingsCommon::time2reg($info['edited_on']). '<br>'.
-					Base_LangCommon::ts('Utils_RecordBrowser','Edited by:').' '.Base_UserCommon::get_user_login($info['edited_by'])):'');
+		$info = Utils_RecordBrowserCommon::get_record_info($tab_name, $id);
+		if (ModuleManager::is_installed('CRM_Contacts')>=0) {
+			$contact = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact($info['created_by']),true);
+			$created_by = $contact;
+			if ($info['edited_by']!=null) {
+				if ($info['edited_by']!=$info['created_by']) $contact = CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::contact_format_no_company($info['edited_by']),true);
+				$edited_by = $contact;
+			}
+		} else {
+			if ($info['edited_by']!=null) $edited_by = Base_UserCommon::get_user_login($info['edited_by']);
+			$created_by = Base_UserCommon::get_user_login($info['created_by']);
+		}
+		return Base_LangCommon::ts('Utils_RecordBrowser','Created on:').' '.Base_RegionalSettingsCommon::time2reg($info['created_on']). '<br>'.
+				Base_LangCommon::ts('Utils_RecordBrowser','Created by:').' '.$created_by. '<br>'.
+				(($info['edited_by']!=null)?(
+				Base_LangCommon::ts('Utils_RecordBrowser','Edited on:').' '.Base_RegionalSettingsCommon::time2reg($info['edited_on']). '<br>'.
+				Base_LangCommon::ts('Utils_RecordBrowser','Edited by:').' '.$edited_by):'');
 	}
 	public static function get_record( $tab_name, $id, $admin = false) {
 		self::init($tab_name, $admin);

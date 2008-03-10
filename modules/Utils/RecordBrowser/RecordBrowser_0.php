@@ -1190,14 +1190,19 @@ class Utils_RecordBrowser extends Module {
 		foreach($this->table_rows as $field => $args)
 			$field_hash[$args['id']] = $field;
 		$header = array();
+		$cut = array();
 		foreach($cols as $k=>$v) {
+			if (isset($v['cut'])) $cut[] = $v['cut'];
+			else $cut[] = -1;
 			if (is_array($v)) {
-				$header[] = array('name'=>$field_hash[$v['field']], 'width'=>$v['width'], 'wrapmode'=>'nowrap');
+				$arr = array('name'=>$field_hash[$v['field']], 'width'=>$v['width']);
 				$cols[$k] = $v['field']; 
 			} else {
-				$header[] = array('name'=>$field_hash[$v], 'wrapmode'=>'nowrap');
+				$arr = array('name'=>$field_hash[$v]);
 				$cols[$k] = $v; 
 			}
+			$arr['wrapmode'] = 'nowrap';
+			$header[] = $arr;
 		}
 		$gb->set_table_columns($header);
 
@@ -1210,7 +1215,11 @@ class Utils_RecordBrowser extends Module {
 		foreach($records as $v) {
 			$gb_row = $gb->get_new_row();
 			$arr = array();
-			foreach($cols as $w) $arr[] = $this->get_val($field_hash[$w], $v, $v['id'], true, $this->table_rows[$field_hash[$w]]);
+			foreach($cols as $k=>$w) {
+				$s = $this->get_val($field_hash[$w], $v, $v['id'], true, $this->table_rows[$field_hash[$w]]);
+				if ($cut[$k]!=-1) if (strlen($s)>$cut[$k]) $s = '<span '.Utils_TooltipCommon::open_tag_attrs($s).'>'.substr($s, 0, $cut[$k]).'...</span>';
+				$arr[] = $s;
+			}
 			$gb_row->add_data_array($arr);
 			if (is_callable($info)) {
 				$additional_info = call_user_func($info, $v).'<hr>';
