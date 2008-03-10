@@ -659,11 +659,30 @@ class Utils_GenericBrowser extends Module {
 	 */
 	public function body($template=null,$paging=true){
 		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
+		$md5_id = md5($this->get_path());
 		$this->set_module_variable('first_display','done');
 		if (!$this->lang) $this->lang = & $this->init_module('Base/Lang');
 		$theme = & $this->init_module('Base/Theme');
 		$per_page = $this->get_module_variable('per_page');
 		$order = $this->get_module_variable('order');
+		if ($this->en_actions) $actions_position = Base_User_SettingsCommon::get('Utils/GenericBrowser','actions_position');
+
+		$col_pos = array();
+		$ret = DB::Execute('SELECT column_id, column_pos, display FROM generic_browser WHERE name=%s',$md5_id);
+		if($ret)
+			while($row = $ret->FetchRow()) {
+				$col_pos[$row['column_id']] = array('pos'=>$row['column_pos'], 'display'=>$row['display']);
+			}
+		if (count($col_pos)!=$this->columns_qty) {
+			$col_pos = null;
+			DB::Execute('DELETE FROM generic_browser WHERE name=%s', $md5_id);
+		}
+		if (!$col_pos) {
+			foreach(range(0, $this->columns_qty-1) as $v) {
+				$col_pos[] = array('pos'=>$v, 'display'=>1);
+				DB::Execute('INSERT INTO generic_browser(name,column_id, column_pos, display) VALUES(%s,%d,%d,1)',array($md5_id, $v, $v));
+			}
+		}
 
 		$ch_adv_search = $this->get_unique_href_variable('adv_search');
 		if (isset($ch_adv_search)) {
@@ -693,12 +712,19 @@ class Utils_GenericBrowser extends Module {
 					break;
 				}
 		} else {
+			$search_fields = array();
+			if ($this->en_actions && $actions_position==0) $mov = 1;
+			else $mov=0;
 			foreach($this->columns as $k=>$v)
 				if (isset($v['search'])) {
-					$form_s->addElement('text','search__'.$v['search'],'',array('onfocus'=>'if (this.value=="'.$this->lang->ht('search keyword...').'") this.value="";','onblur'=>'if (this.value=="") this.value="'.$this->lang->ht('search keyword...').'";'));
-					$form_s->setDefaults(array('search__'.$v['search']=>isset($search[$v['search']])?$search[$v['search']]:$this->lang->ht('search keyword...')));
+					$form_s->addElement('hidden','search__'.$v['search'],'');
+					$default = isset($search[$v['search']])?$search[$v['search']]:$this->lang->ht('search keyword...');
+					$form_s->setDefaults(array('search__'.$v['search']=>$default));
+					$in = '<input value="'.$default.'" name="search__textbox_'.$v['search'].'" onfocus="if (this.value==\''.$this->lang->ht('search keyword...').'\') this.value=\'\';" onblur="if (this.value==\'\') this.value=\''.$this->lang->ht('search keyword...').'\';   document.forms[\''.$form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;" />';
+					$search_fields[$col_pos[$k]['pos']+$mov] = $in;
 					$search_on=true;
 				}
+			$theme->assign('search_fields', $search_fields);
 		}
 		if ($search_on) $form_s->addElement('submit','submit_search',$this->lang->ht('Search'));
 		if ($pager_on) {
@@ -744,7 +770,6 @@ class Utils_GenericBrowser extends Module {
 		}
 
 		// maintance mode -> action
-		$md5_id = md5($this->get_path());
 		if($this->isset_unique_href_variable('action'))
 			switch($this->get_unique_href_variable('action')) {
 				case 'reset_order':
@@ -774,30 +799,10 @@ class Utils_GenericBrowser extends Module {
 					break;
 			}
 
-		$col_pos = array();
-		$ret = DB::Execute('SELECT column_id, column_pos, display FROM generic_browser WHERE name=%s',$md5_id);
-		if($ret)
-			while($row = $ret->FetchRow()) {
-				$col_pos[$row['column_id']] = array('pos'=>$row['column_pos'], 'display'=>$row['display']);
-			}
-
-		if (count($col_pos)!=$this->columns_qty) {
-			$col_pos = null;
-			DB::Execute('DELETE FROM generic_browser WHERE name=%s', $md5_id);
-		}
-
-		if (!$col_pos) {
-			foreach(range(0, $this->columns_qty-1) as $v) {
-				$col_pos[] = array('pos'=>$v, 'display'=>1);
-				DB::Execute('INSERT INTO generic_browser(name,column_id, column_pos, display) VALUES(%s,%d,%d,1)',array($md5_id, $v, $v));
-			}
-		}
-
 		$headers = array();
 		if ($this->en_actions) {
-			$actions_position = Base_User_SettingsCommon::get('Utils/GenericBrowser','actions_position');
-			if ($actions_position==0)	$headers[-1] = array('label'=>$this->lang->t('Actions'),'attrs'=>'style="width: 0%"');
-			else		$headers[count($this->columns)] = array('label'=>$this->lang->t('Actions'),'attrs'=>'style="width: 0%"');
+			if ($actions_position==0) $headers[-1] = array('label'=>$this->lang->t('Actions'),'attrs'=>'style="width: 0%"');
+			else $headers[count($this->columns)] = array('label'=>$this->lang->t('Actions'),'attrs'=>'style="width: 0%"');
 		}
 
 		if(Base_AclCommon::i_am_sa() && Base_MaintenanceModeCommon::get_mode()) {
@@ -812,22 +817,6 @@ class Utils_GenericBrowser extends Module {
 				if(!isset($headers[$col_pos[$i]['pos']])) $headers[$col_pos[$i]['pos']] = array();
 				$headers[$col_pos[$i]['pos']]['label'] = $left.$enabled.$right.'<hr>';
 			}
-		}
-
-		if($this->is_adv_search_on()) {
-			$search_fields = array();
-			foreach ($form_array as $k=>$v)
-				if (substr($k,0,8)=='search__') {
-					if ($this->en_actions && $actions_position==0) $mov = 1;
-					else $mov=0;
-					foreach($this->columns as $g=>$u){
-						if (isset($u['search']) && 'search__'.$u['search']==$k) {
-							$search_fields[$col_pos[$g]['pos']+$mov] = $v['html'];
-							break;
-						}
-					}
-				}
-			$theme->assign('search_fields', $search_fields);
 		}
 
 		$all_width = 0;
