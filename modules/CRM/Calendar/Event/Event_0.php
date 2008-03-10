@@ -166,7 +166,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				'$(\'toggle_duration_button\').style.display = cal_style;'.
 				'crm_calendar_duration_switcher(1);'.
 			'}');
-		$form->addElement('checkbox', 'timeless', $this->lang->t('Timeless'), null,array('onClick'=>'crm_calendar_event_timeless(this.checked)'));
+		$form->addElement('checkbox', 'timeless', $this->lang->t('Timeless'), null,array('onClick'=>'crm_calendar_event_timeless(this.checked)','id'=>'timeless'));
 		if ($action=='view') $condition = $timeless;
 		else $condition = 'document.getElementsByName(\'timeless\')[0].checked';
 		eval_js('crm_calendar_event_timeless('.$timeless.')');
