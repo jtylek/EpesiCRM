@@ -262,6 +262,10 @@ class Utils_Tasks extends Module {
 				$form->addElement('checkbox', 'notify', $this->lang->t('Notify assigned users'));
 			}
 
+			$theme->assign('permission_id',$form->exportValue('permission'));
+			$theme->assign('priority_id',$form->exportValue('priority'));
+			$theme->assign('color_id',$form->exportValue('color'));
+
 			if($form->validate()) {
 				$r = $form->exportValues();
 				if(isset($id)) {
