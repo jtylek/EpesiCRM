@@ -88,11 +88,6 @@ class Utils_Calendar extends Module {
 			if (isset($switch_view))
 				$this->tb->switch_tab($switch_view);
 
-		} else {
-			$v = array_pop($this->settings['views']);
-			if(!in_array($v,self::$views))
-				trigger_error('Invalid view: '.$v,E_USER_ERROR);
-			call_user_func(array($this,strtolower($v)));
 		}
 
 	}
@@ -106,7 +101,9 @@ class Utils_Calendar extends Module {
 	}
 	
 	public function get_view() {
-		return $this->settings['views'][$this->tb->get_tab()];
+		if(isset($this->tb))
+			return $this->settings['views'][$this->tb->get_tab()];
+		return null;
 	}
 
 	public function get_week_start_time() {
@@ -224,8 +221,15 @@ class Utils_Calendar extends Module {
 	public function body($arg = null) {
 
 		load_js($this->get_module_dir().'calendar.js');
-		$this->display_module($this->tb);
-		$this->tb->tag();
+		if(isset($this->tb)) {
+			$this->display_module($this->tb);
+			$this->tb->tag();
+		} else {
+			$v = array_pop($this->settings['views']);
+			if(!in_array($v,self::$views))
+				trigger_error('Invalid view: '.$v,E_USER_ERROR);
+			call_user_func(array($this,strtolower($v)));
+		}
 
 		Base_ActionBarCommon::add('add',$this->lang->t('Add event'),$this->create_unique_href(array('action'=>'add','time'=>$this->date)));
 	}
