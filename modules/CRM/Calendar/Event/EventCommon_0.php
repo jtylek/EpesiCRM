@@ -78,7 +78,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		return true;
 	}
 
-	public static function update($id,$start,$duration,$timeless) { //make sure that event owner is Acl::get_user....
+	public static function update(&$id,$start,$duration,$timeless) { //make sure that event owner is Acl::get_user....
 		DB::Execute('UPDATE crm_calendar_event SET start=%d, end=%d, timeless=%b WHERE id=%d',array($start,$start+$duration,$timeless,$id));
 		return true;
 	}

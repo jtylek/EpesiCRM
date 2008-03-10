@@ -24,22 +24,29 @@ if($_POST['cell_id']=='trash') {
 	$cc = explode('_',$_POST['cell_id']);
 	//$cc[0] = Base_RegionalSettingsCommon::reg2time($cc[0]);
 	$ev = call_user_func(array($mod.'Common','get'),$ev_id);
+	error_log($ev_id."\n",3,'data/log2');
 	if($_POST['month']) {
 		if($ev['timeless']) $cc[1]=(isset($ev['timeless_key'])?$ev['timeless_key']:'timeless');
 		else $cc[0] += $ev['start']-strtotime(date('Y-m-d',$ev['start']));
 	}
 
-	$ret = call_user_func(array($mod.'Common','update'),$_POST['ev_id'],$cc[0],$ev['duration'],isset($cc[1])?$cc[1]:null);
+	$ret = call_user_func_array(array($mod.'Common','update'),array(& $ev_id,$cc[0],$ev['duration'],isset($cc[1])?$cc[1]:null));
 	if(!$ret) {
 		print('reject=true;');
 		exit();
 	}
 
 	//update content of event on page in client browser
+	error_log('x='.$ev_id."\n",3,'data/log2');
 	$ev = call_user_func(array($mod.'Common','get'),$ev_id);
-	ob_start();
-	Utils_CalendarCommon::print_event($ev);
-	$ret = ob_get_clean();
-	print('$(\'utils_calendar_event:'.$ev_id.'\').innerHTML=\''.Epesi::escapeJS($ret,false).'\';');
+	if(!$ev) return;
+	if(isset($ev['title']))
+		$ev = array($ev);
+	foreach($ev as $e) {
+		ob_start();
+		Utils_CalendarCommon::print_event($e);
+		$ret = ob_get_clean();
+		print('$(\'utils_calendar_event:'.$e['id'].'\').innerHTML=\''.Epesi::escapeJS($ret,false).'\';');
+	}
 }
 ?>
