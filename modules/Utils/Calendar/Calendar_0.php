@@ -225,9 +225,10 @@ class Utils_Calendar extends Module {
 			$this->display_module($this->tb);
 			$this->tb->tag();
 		} else {
-			$v = array_pop($this->settings['views']);
-//			if(!in_array($v,self::$views))
-//				trigger_error('Invalid view: '.$v.' - '.print_r(self::$views,true),E_USER_ERROR);
+			$kk = array_keys($this->settings['views']);
+			$v = $this->settings['views'][$kk[0]];
+			if(!in_array($v,self::$views))
+				trigger_error('Invalid view: '.$v.' - '.print_r(self::$views,true),E_USER_ERROR);
 			call_user_func(array($this,strtolower($v)));
 		}
 
