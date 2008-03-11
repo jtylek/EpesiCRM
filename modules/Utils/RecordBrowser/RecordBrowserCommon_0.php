@@ -323,7 +323,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$hash[$args['id']] = $field;
 		foreach($order as $k=>$v) {
 			if (!is_string($k)) break;
-			$order[] = array('column'=>$hash[$k], 'direction'=>$v);
+			$order[] = array('column'=>$hash[$k], 'order'=>$hash[$k], 'direction'=>$v);
 			unset($order[$k]);
 		}
 		$old_crits = $crits;
