@@ -321,6 +321,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$hash = array();
 		foreach (self::$table_rows as $field=>$args)
 			$hash[$args['id']] = $field;
+		foreach($order as $k=>$v) {
+			if (!is_string($k)) break;
+			$order[] = array('column'=>$hash[$k], 'direction'=>$v);
+			unset($order[$k]);
+		}
 		$old_crits = $crits;
 		$crits = array();
 		foreach($old_crits as $k=>$v) {
