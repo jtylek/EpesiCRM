@@ -509,7 +509,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$contact = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact($info['created_by']),true);
 			$created_by = $contact;
 			if ($info['edited_by']!=null) {
-				if ($info['edited_by']!=$info['created_by']) $contact = CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::contact_format_no_company($info['edited_by']),true);
+				if ($info['edited_by']!=$info['created_by']) $contact = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact($info['edited_by']),true);
 				$edited_by = $contact;
 			}
 		} else {
