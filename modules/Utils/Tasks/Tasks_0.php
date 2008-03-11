@@ -218,7 +218,8 @@ class Utils_Tasks extends Module {
 					$defaults['is_deadline'] = ($defaults['deadline']==true);
 				}
 				$form->setDefaults($defaults);
-				$form->setDefaults(array('cus_id'=>$related,'emp_id'=>array_keys($assigned)));
+				if($edit)
+					$form->setDefaults(array('cus_id'=>$related,'emp_id'=>array_keys($assigned)));
 			} elseif($edit && $me!==null) {
 				$form->setDefaults(array('emp_id'=>array($me['id'])));
 			}
@@ -226,37 +227,48 @@ class Utils_Tasks extends Module {
 			if(!$form->exportValue('is_deadline'))
 				eval_js('$(\'deadline_date\').disable()');
 
-			$emp = array();
-			$ret = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())));
-			foreach($ret as $c_id=>$data) {
-				$emp[$c_id] = $data['last_name'].' '.$data['first_name'];
-				if(!$edit)
-					$emp[$c_id] = '<img src="'.Base_ThemeCommon::get_template_file('images/'.((isset($assigned[$c_id]) && $assigned[$c_id])?'active_on':'active_off').'.png').'">&nbsp;&nbsp;' . $emp[$c_id];
-			}
-			$cus = array();
-			$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company()), '|:Fav'=>true, '|:Recent'=>true));
-			foreach($ret as $c_id=>$data)
-				$cus[$c_id] = $data['last_name'].' '.$data['first_name'];
-
-			$form->addElement('multiselect', 'emp_id', $this->lang->t('Employees'), $emp);
-			$form->addRule('emp_id', $this->lang->t('At least one employee must be assigned to an event.'), 'required');
-
-			$form->addElement('multiselect', 'cus_id', $this->lang->t('Customers'), $cus);
 			if($edit) {
+				$emp = array();
+				$ret = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())));
+				foreach($ret as $c_id=>$data) {
+					$emp[$c_id] = $data['last_name'].' '.$data['first_name'];
+					if(!$edit)
+						$emp[$c_id] = '<img src="'.Base_ThemeCommon::get_template_file('images/'.((isset($assigned[$c_id]) && $assigned[$c_id])?'active_on':'active_off').'.png').'">&nbsp;&nbsp;' . $emp[$c_id];
+				}
+				$form->addElement('multiselect', 'emp_id', $this->lang->t('Employees'), $emp);
+				$form->addRule('emp_id', $this->lang->t('At least one employee must be assigned to an event.'), 'required');
+
+				$cus = array();
+				$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company()), '|:Fav'=>true, '|:Recent'=>true));
+				foreach($ret as $c_id=>$data)
+					$cus[$c_id] = $data['last_name'].' '.$data['first_name'];
+
+				$form->addElement('multiselect', 'cus_id', $this->lang->t('Customers'), $cus);
 				$rb2 = $this->init_module('Utils/RecordBrowser/RecordPicker');
 				$this->display_module($rb2, array('contact', 'cus_id', array('CRM_Calendar_EventCommon','decode_contact'), array('!company_name'=>CRM_ContactsCommon::get_main_company()), array('work_phone'=>false, 'mobile_phone'=>false, 'zone'=>false, 'Actions'=>false), array('last_name'=>'ASC')));
 				$cus_click = $rb2->create_open_link($this->lang->t('Advanced'));
 			} else {
 				$cus_click = '';
-				$form->freeze();
-			}
-			$theme->assign('cus_click',$cus_click);
-			if(!$edit) {
+				
+				$emp = array();
+				$ret = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company()), 'id'=>$assigned));
+				foreach($ret as $c_id=>$data) {
+					$emp[] = '<img src="'.Base_ThemeCommon::get_template_file('images/'.((isset($assigned[$c_id]) && $assigned[$c_id])?'active_on':'active_off').'.png').'">&nbsp;&nbsp;' .$data['last_name'].' '.$data['first_name'];
+				}
+				$form->addElement('static', 'emp_id', $this->lang->t('Employees'), implode($emp,'<br>'));
+				
+				$cus = array();
+				$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company()), 'id'=>$related));
+				foreach($ret as $c_id=>$data)
+					$cus[] = $data['last_name'].' '.$data['first_name'].'<br>';
+				$form->addElement('static', 'cus_id', $this->lang->t('Customers'), implode($cus,'<br>'));
 				$form->addElement('static', 'created_by',  $this->lang->t('Created by'));
 				$form->addElement('static', 'created_on',  $this->lang->t('Created on'));
 				$form->addElement('static', 'edited_by',  $this->lang->t('Edited by'));
 				$form->addElement('static', 'edited_on',  $this->lang->t('Edited on'));
+				$form->freeze();
 			}
+			$theme->assign('cus_click',$cus_click);
 
 			if($edit && isset($id)) {
 				$form->addElement('checkbox', 'notify', $this->lang->t('Notify assigned users'));
