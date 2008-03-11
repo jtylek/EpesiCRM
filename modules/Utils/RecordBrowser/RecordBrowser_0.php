@@ -135,31 +135,26 @@ class Utils_RecordBrowser extends Module {
 	// BODY //////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function body($def_order=array()) {
 		$this->init();
-		if (isset($_REQUEST['tab'])) {
-			$this->tab = $_REQUEST['tab'];
-			$this->call_callback_href(array($this,'view_entry'),array($_REQUEST['action'], $_REQUEST['id'], isset($_REQUEST['defaults'])?$_REQUEST['defaults']:array()));
-		} else {
-			if ($this->get_access('browse')===false) {
-				print($this->lang->t('You are not authorised to browse this data.'));
-				return;
-			}
-			$this->is_on_main_page = true;
-//			Base_ActionBarCommon::add('add',$this->lang->t('New'), $this->create_callback_href(array($this,'view_entry'),array('add', null, $this->custom_defaults)));
-			Base_ActionBarCommon::add('add',$this->lang->t('New'), $this->create_callback_href(array($this,'navigate'),array('view_entry', 'add', null, $this->custom_defaults)));
-
-			$filters = $this->show_filters();
-			ob_start();
-			$this->show_data($this->crits, array(), $def_order);
-			$table = ob_get_contents();
-			ob_end_clean();
-
-			$theme = $this->init_module('Base/Theme');
-			$theme->assign('filters', $filters);
-			$theme->assign('table', $table);
-			$theme->assign('caption', $this->lang->t($this->caption).' - '.$this->lang->t(ucfirst($this->browse_mode)));
-			$theme->assign('icon', $this->icon);
-			$theme->display('Browsing_records');
+		if ($this->get_access('browse')===false) {
+			print($this->lang->t('You are not authorised to browse this data.'));
+			return;
 		}
+		$this->is_on_main_page = true;
+//			Base_ActionBarCommon::add('add',$this->lang->t('New'), $this->create_callback_href(array($this,'view_entry'),array('add', null, $this->custom_defaults)));
+		Base_ActionBarCommon::add('add',$this->lang->t('New'), $this->create_callback_href(array($this,'navigate'),array('view_entry', 'add', null, $this->custom_defaults)));
+
+		$filters = $this->show_filters();
+		ob_start();
+		$this->show_data($this->crits, array(), $def_order);
+		$table = ob_get_contents();
+		ob_end_clean();
+
+		$theme = $this->init_module('Base/Theme');
+		$theme->assign('filters', $filters);
+		$theme->assign('table', $table);
+		$theme->assign('caption', $this->lang->t($this->caption).' - '.$this->lang->t(ucfirst($this->browse_mode)));
+		$theme->assign('icon', $this->icon);
+		$theme->display('Browsing_records');
 	}
 	public function switch_view($mode){
 		$this->browse_mode = $mode;

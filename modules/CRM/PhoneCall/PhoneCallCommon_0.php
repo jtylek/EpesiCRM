@@ -176,13 +176,14 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	public static function display_status($record, $id, $nolink, $desc) {
 		$v = $record[$desc['id']];
 		$status = Utils_CommonDataCommon::get_array('Ticket_Status');
+		if (!self::access_phonecall('edit', self::get_phonecall($id))) return $status[$v];
 		if (isset($_REQUEST['increase_phonecall_status'])) {
 			if ($_REQUEST['increase_phonecall_status']==$id) $v++;
 			Utils_RecordBrowserCommon::update_record('phonecall', $id, array('status'=>$v));
 			location(array());
 		}
-		if ($v==2 || !self::access_phonecall('edit', self::get_phonecall($id))) return $status[$v];
-		else return '<a '.
+		if ($v==2) return $status[$v];
+		return '<a '.
 					Module::create_href(array('increase_phonecall_status'=>$id)).
 					'>'.$status[$v].'</a>';
 	}
