@@ -228,7 +228,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$form->addElement('static', $field, $label, array('id'=>$field));
 			$def = '';
 			$first = true;
-			if (is_numeric($default)) {
+			if (is_numeric($default) || is_array($default)) {
 				if (!is_array($default)) $default = array($default);
 				foreach($default as $k=>$v){
 					if ($v=='') break;
