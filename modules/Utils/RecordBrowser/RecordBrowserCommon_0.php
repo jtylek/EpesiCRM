@@ -479,6 +479,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		//vprintf('SELECT * FROM '.$tab_name.'_data'.$where, $vals);
 		$data = DB::Execute('SELECT * FROM '.$tab_name.'_data'.$where, $vals);
 		while($field = $data->FetchRow()) {
+			if (!isset(self::$table_rows[$field['field']])) continue;
 			$field_id = strtolower(str_replace(' ','_',$field['field']));
 			if (self::$table_rows[$field['field']]['type'] == 'multiselect')
 				if (isset($records[$field[$tab_name.'_id']][$field_id]))
@@ -536,6 +537,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$data = DB::Execute('SELECT * FROM '.$tab_name.'_data WHERE '.$tab_name.'_id=%d', array($id));
 			$record = array();
 			while($field = $data->FetchRow()) {
+				if (!isset(self::$table_rows[$field['field']])) continue;
 				$field_id = strtolower(str_replace(' ','_',$field['field']));
 				if (self::$table_rows[$field['field']]['type'] == 'multiselect')
 					if (isset($record[$field_id]))

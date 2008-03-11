@@ -591,8 +591,12 @@ class Utils_RecordBrowser extends Module {
 		if ($main_page) {
 			$tpl = DB::GetOne('SELECT tpl FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 			$theme->assign('raw_data',$this->record);
-		} else $tpl = '';
+		} else {
+			$tpl = '';
+			if ($this->mode=='view') print('<form>');
+		}
 		$theme->display(($tpl!=='')?$tpl:'View_entry', ($tpl!==''));
+		if (!$main_page && $this->mode=='view') print('</form>');
 	}
 
 	public function prepare_view_entry_details($record, $mode, $id, $form, $visible_cols = null){
