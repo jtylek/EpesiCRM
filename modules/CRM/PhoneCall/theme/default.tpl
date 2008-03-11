@@ -153,7 +153,7 @@
             <td class="label" align="left" style="width: 100px;">{$form_data.priority.label}</td>
 			<td class="data priority" align="left">
                 {if $action=='view'}
-                    <div class="icon"></div>
+                    <div class="icon {$raw_data.priority}"></div>
                 {/if}
                 {$form_data.priority.html}
             </td>

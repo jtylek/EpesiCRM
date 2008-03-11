@@ -511,7 +511,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						'edited_on'=>$edited['edited_on'],'edited_by'=>$edited['edited_by']);
 	}
 	public static function get_html_record_info($tab_name = null, $id = null){
-		$info = Utils_RecordBrowserCommon::get_record_info($tab_name, $id);
+		if (is_numeric($id))$info = Utils_RecordBrowserCommon::get_record_info($tab_name, $id);
+		else $info = $id;
 		if (ModuleManager::is_installed('CRM_Contacts')>=0) {
 			$contact = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact($info['created_by']),true);
 			$created_by = $contact;
