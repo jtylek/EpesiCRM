@@ -24,9 +24,9 @@ if($_POST['cell_id']=='trash') {
 	$cc = explode('_',$_POST['cell_id']);
 	//$cc[0] = Base_RegionalSettingsCommon::reg2time($cc[0]);
 	$ev = call_user_func(array($mod.'Common','get'),$ev_id);
-	error_log($ev_id."\n",3,'data/log2');
+//	error_log($ev_id."\n",3,'data/log2');
 	if($_POST['month']) {
-		if($ev['timeless']) $cc[1]=(isset($ev['timeless_key'])?$ev['timeless_key']:'timeless');
+		if($ev['timeless']) $cc[1]=(isset($ev['custom_row_key'])?$ev['custom_row_key']:'timeless');
 		else $cc[0] += $ev['start']-strtotime(date('Y-m-d',$ev['start']));
 	}
 
@@ -37,7 +37,7 @@ if($_POST['cell_id']=='trash') {
 	}
 
 	//update content of event on page in client browser
-	error_log('x='.$ev_id."\n",3,'data/log2');
+//	error_log('x='.$ev_id."\n",3,'data/log2');
 	$ev = call_user_func(array($mod.'Common','get'),$ev_id);
 	if(!$ev) return;
 	if(isset($ev['title']))

@@ -249,7 +249,9 @@ class Utils_Calendar extends Module {
 		$ev = call_user_func(array($this->event_module.'Common','get'),$ev_id);
 		if(!$ev['timeless'])
 			$time += $ev['start']-strtotime(date('Y-m-d',$ev['start']));
-		call_user_func(array($this->event_module.'Common','update'),$ev_id,$time,$ev['duration'],$ev['timeless']);
+		elseif(!isset($ev['custom_row_key']))
+			$ev['custom_row_key'] = 'timeless';
+		call_user_func(array($this->event_module.'Common','update'),$ev_id,$time,$ev['duration'],isset($ev['custom_row_key'])?$ev['custom_row_key']:null);
 	}
 
 	/**

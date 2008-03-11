@@ -229,7 +229,8 @@ class CRM_ContactsInstall extends ModuleInstall {
 					'web_address'=>isset($val['web'])?$val['web']:'',
 					'company_name'=>array($comp_id),
 					'login'=>$user['id'],
-					'email'=>$user['mail']
+					'email'=>$user['mail'],
+					'group'=>array('office','field')
 					));
 		}
 	}
