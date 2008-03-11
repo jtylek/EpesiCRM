@@ -9,6 +9,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return 'Records Sets';
 	}
 	public static function init($tab, $admin=false) {
+		static $cache = array();
+		if (isset($cache[$tab.'__'.$admin])) return self::$table_rows = $cache[$tab.'__'.$admin];
 		self::$table_rows = array();
 		$ret = DB::Execute('SELECT * FROM '.$tab.'_field'.($admin?'':' WHERE active=1 AND type!=\'page_split\'').' ORDER BY position');
 		while($row = $ret->FetchRow()) {
@@ -26,7 +28,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						'style'=>$row['style'],
 						'param'=>$row['param']);
 		}
-		return self::$table_rows;
+		return $cache[$tab.'__'.$admin] = self::$table_rows;
 	}
 
 	public function install_new_recordset($tab_name = null, $fields) {
@@ -305,6 +307,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		DB::CompleteTrans();
 	}
 	public static function build_query( $tab_name = null, $crits = null, $admin = false, $order = array()) {
+		$key=$tab_name.'__'.serialize($crits).'__'.$admin.'__'.serialize($order);
+		static $cache = array();
+		if (isset($cache[$key])) return $cache[$key];
 		if (!$tab_name) return false;
 		self::init($tab_name, $admin);
 		$having = '';
@@ -427,10 +432,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			}
 		}
 		$ret = array('sql'=>'SELECT id, active'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?'':' AND active=1').$where.' GROUP BY id HAVING true'.$having.$orderby,'vals'=>$vals);
-//		print('<hr>');
-//		print_r($ret['sql']);
-//		print('<hr>');
-		return $ret;
+		return $cache[$key] = $ret;
 	}
 	public static function get_records_limit( $tab_name = null, $crits = null, $admin = false) {
 		$par = self::build_query($tab_name, $crits, $admin);

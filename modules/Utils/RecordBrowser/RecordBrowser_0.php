@@ -546,7 +546,6 @@ class Utils_RecordBrowser extends Module {
 			if ($row) $label = $row['field'];
 		}
 		if ($mode!='add' && $mode!='edit') {
-			$record = Utils_RecordBrowserCommon::get_record($this->tab, $id, true);
 			$ret = DB::Execute('SELECT * FROM recordbrowser_addon WHERE tab=%s', array($this->tab));
 			while ($row = $ret->FetchRow()) {
 				$mod = $this->init_module($row['module']);
@@ -572,7 +571,7 @@ class Utils_RecordBrowser extends Module {
 		foreach($this->table_rows as $field => $args) { 
 			if ($args['type']=='hidden') continue;
 			if ($args['position'] >= $from && ($to == -1 || $args['position'] < $to)) 
-			{	
+			{
 				if (!isset($data[$args['id']])) $data[$args['id']] = array('label'=>'', 'html'=>'');
 					$arr = array(	'label'=>$data[$args['id']]['label'],
 									'element'=>$args['id'],
