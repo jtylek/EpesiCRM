@@ -226,8 +226,8 @@ class Utils_Calendar extends Module {
 			$this->tb->tag();
 		} else {
 			$v = array_pop($this->settings['views']);
-			if(!in_array($v,self::$views))
-				trigger_error('Invalid view: '.$v,E_USER_ERROR);
+//			if(!in_array($v,self::$views))
+//				trigger_error('Invalid view: '.$v.' - '.print_r(self::$views,true),E_USER_ERROR);
 			call_user_func(array($this,strtolower($v)));
 		}
 
