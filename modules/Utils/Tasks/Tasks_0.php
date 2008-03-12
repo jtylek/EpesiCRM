@@ -40,6 +40,7 @@ class Utils_Tasks extends Module {
 	}
 
 	public function body() {
+		$this->caption = '';
 		$gb = & $this->init_module('Utils/GenericBrowser',null,'tasks');
 		$gb->set_table_columns(array(
 			array('name'=>$this->lang->t('Title'), 'order'=>'title', 'width'=>30),
@@ -179,6 +180,7 @@ class Utils_Tasks extends Module {
 	}
 
 	public function edit($id=null,$edit=true) {
+		$this->caption = ': '.$this->lang->t($id===null?'new':($edit?'edit':'view'));
 		$me = CRM_ContactsCommon::get_contact_by_user_id(Acl::get_user());
 		if($me!==null && isset($id))
 			DB::Execute('UPDATE utils_tasks_assigned_contacts SET viewed=1 WHERE contact_id=%d AND task_id=%d',array($me['id'],$id));
@@ -346,6 +348,9 @@ class Utils_Tasks extends Module {
 		$x->push_main('Utils/Tasks',$func,$args,$const_args);
 	}
 
+	public function caption() {
+		return 'Tasks'.$this->caption;
+	}
 }
 
 ?>
