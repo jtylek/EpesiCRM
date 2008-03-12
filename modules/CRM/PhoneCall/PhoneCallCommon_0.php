@@ -27,7 +27,8 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			$contact = $r['other_contact_name'];
 			$phone = $r['other_phone_number'];
 		}
-		return 	Base_LangCommon::ts('CRM_PhoneCall','Description: %s', array($r['description'])).'<br>'.
+		return 	Base_LangCommon::ts('CRM_PhoneCall','Subject: %s', array($r['subject'])).'<br>'.
+				Base_LangCommon::ts('CRM_PhoneCall','Description: %s', array($r['description'])).'<br>'.
 				Base_LangCommon::ts('CRM_PhoneCall','Contact: %s', array($contact)).'<br>'.
 				Base_LangCommon::ts('CRM_PhoneCall','Phone: %s', array($phone)).'<br>'.
 				Base_LangCommon::ts('CRM_PhoneCall','Date and Time: %s', array(Base_RegionalSettingsCommon::time2reg($r['date_and_time'])));
