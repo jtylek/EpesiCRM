@@ -110,8 +110,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if (!isset($v['extra'])) $v['extra'] = true;
 			if (!isset($v['visible'])) $v['visible'] = false;
 			if (!isset($v['required'])) $v['required'] = false;
+			if (!isset($v['filter'])) $v['filter'] = true;
 			if (isset($datatypes[$v['type']])) $v = call_user_func($datatypes[$v['type']], $v);
-			Utils_RecordBrowserCommon::new_record_field($tab_name, $v['name'], $v['type'], $v['visible'], $v['required'], $v['param'], $v['style'], $v['extra']);
+			Utils_RecordBrowserCommon::new_record_field($tab_name, $v['name'], $v['type'], $v['visible'], $v['required'], $v['param'], $v['style'], $v['extra'], $v['filter']);
 			if (isset($v['display_callback'])) self::set_display_method($tab_name, $v['name'], $v['display_callback'][0], $v['display_callback'][1]);
 			if (isset($v['QFfield_callback'])) self::set_QFfield_method($tab_name, $v['name'], $v['QFfield_callback'][0], $v['QFfield_callback'][1]);
 			if (isset($v['requires']))
@@ -151,7 +152,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return true;
 	}
 
-	public function new_record_field($tab_name, $field, $type, $visible, $required, $param='', $style='', $extra = true){
+	public function new_record_field($tab_name, $field, $type, $visible, $required, $param='', $style='', $extra = true, $filter){
 		if ($extra) {
 			$pos = DB::GetOne('SELECT MAX(position) FROM '.$tab_name.'_field')+1;
 		} else {
@@ -173,7 +174,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$param = $tmp;
 			}
 		}
-		DB::Execute('INSERT INTO '.$tab_name.'_field(field, type, visible, param, style, position, extra, required) VALUES(%s, %s, %d, %s, %s, %d, %d, %d)', array($field, $type, $visible?1:0, $param, $style, $pos, $extra?1:0, $required?1:0));
+		DB::Execute('INSERT INTO '.$tab_name.'_field(field, type, visible, param, style, position, extra, required, filter) VALUES(%s, %s, %d, %s, %s, %d, %d, %d, %d)', array($field, $type, $visible?1:0, $param, $style, $pos, $extra?1:0, $required?1:0, $filter?1:0));
 	}
 	public static function new_addon($tab_name, $module, $func, $label) {
 		$module = str_replace('/','_',$module);
