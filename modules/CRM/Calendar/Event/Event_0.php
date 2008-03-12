@@ -35,19 +35,6 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$theme =  $this->pack_module('Base/Theme');
 		$theme->assign('action',$action);
 
-		$emp = array();
-		$emp_alarm = array();
-		$ret = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())));
-		foreach($ret as $c_id=>$data) {
-			$emp[$c_id] = $data['last_name'].' '.$data['first_name'];
-			if(is_numeric($data['login']))
-				$emp_alarm[$c_id] = $data['login'];
-		}
-		$cus = array();
-		$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company()), '|:Fav'=>true, '|:Recent'=>true));
-		foreach($ret as $c_id=>$data)
-			$cus[$c_id] = $data['last_name'].' '.$data['first_name'];
-
 		if($action == 'new') {
 			$duration_switch = '1';
 			$tt = $id-$id%300;
@@ -96,14 +83,13 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			);
 			$def['cus_id'] = array();
 			$ret = DB::Execute('SELECT contact FROM crm_calendar_event_group_cus WHERE id=%d', $id);
-			while ($row=$ret->FetchRow()) {
+			while ($row=$ret->FetchRow())
 				$def['cus_id'][] = $row['contact'];
-				if (!isset($cus[$row['contact']])) $cus[$row['contact']] = CRM_Calendar_EventCommon::decode_contact($row['contact']);
-			}
 			$def['emp_id'] = array();
 			$ret = DB::Execute('SELECT contact FROM crm_calendar_event_group_emp WHERE id=%d', $id);
 			while ($row=$ret->FetchRow())
 				$def['emp_id'][] = $row['contact'];
+			$def_emp_id = $def['emp_id'];
 			$timeless = $event['timeless'];
 		}
 
@@ -187,11 +173,41 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$form->addElement('select', 'access', $this->lang->t('Access'), $access, array('style'=>'width: 100%;'));
 		$form->addElement('select', 'priority', $this->lang->t('Priority'), $priority, array('style'=>'width: 100%;'));
 		$form->addElement('select', 'color', $this->lang->t('Color'), $color, array('style'=>'width: 100%;'));
+		
+		if ($action=='view') {
+			$form->addElement('static', 'emp_id', $this->lang->t('Employees'));
+			$form->addElement('static', 'cus_id', $this->lang->t('Customers'));
+			$cus_id = '';
+			$emp_id = '';
+			foreach ($def['cus_id'] as $v)
+				$cus_id .= CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact($v)).'<br>';
+			foreach ($def['emp_id'] as $v) {
+				$emp_id .= '<img src="'.Base_ThemeCommon::get_template_file('images/'.((isset($assigned[$v]) && $assigned[$v])?'active_on':'active_off').'.png').'">&nbsp;&nbsp;';
+				$emp_id .= CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact($v)).'<br>';
+			}
+			$def['cus_id'] = $cus_id;
+			$def['emp_id'] = $emp_id;
+		} else {
+			$emp = array();
+			$emp_alarm = array();
+			$ret = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())));
+			foreach($ret as $c_id=>$data) {
+				$emp[$c_id] = $data['last_name'].' '.$data['first_name'];
+				if(is_numeric($data['login']))
+					$emp_alarm[$c_id] = $data['login'];
+			}
+			$cus = array();
+			$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company()), '|:Fav'=>true, '|:Recent'=>true, '|id'=>$def['cus_id']));
+			foreach($ret as $c_id=>$data)
+			$cus[$c_id] = $data['last_name'].' '.$data['first_name'];
 
-		$form->addElement('multiselect', 'emp_id', $this->lang->t('Employees'), $emp);
-		$form->addRule('emp_id', $this->lang->t('At least one employee must be assigned to an event.'), 'required');
+			$form->addElement('multiselect', 'emp_id', $this->lang->t('Employees'), $emp);
+			$form->addRule('emp_id', $this->lang->t('At least one employee must be assigned to an event.'), 'required');
+	
+			$form->addElement('multiselect', 'cus_id', $this->lang->t('Customers'), $cus);
+		}
 
-		$form->addElement('multiselect', 'cus_id', $this->lang->t('Customers'), $cus);
+
 
 		if($action != 'view') {
 			$rb2 = $this->init_module('Utils/RecordBrowser/RecordPicker');
@@ -240,7 +256,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$theme->assign('attachments', $this->get_html_of_module($a));
 
 			$mes_users = array();
-			foreach ($def['emp_id'] as $r)
+			foreach ($def_emp_id as $r)
 				if(isset($emp_alarm[$r]))
 					$mes_users[$emp_alarm[$r]] = $emp[$r];
 			$mes = $this->init_module('Utils/Messenger',array('CRM_Calendar_Event:'.$id,array('CRM_Calendar_EventCommon','get_alarm'),array($id),$event['start'],$mes_users));
