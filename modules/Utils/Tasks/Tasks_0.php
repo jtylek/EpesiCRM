@@ -72,13 +72,15 @@ class Utils_Tasks extends Module {
 			$viewed = DB::GetAssoc('SELECT contact_id,viewed FROM utils_tasks_assigned_contacts WHERE task_id=%d',array($row['id']));
 			$ass_arr = CRM_ContactsCommon::get_contacts(array('id'=>array_keys($viewed)));
 			foreach($ass_arr as $c_id=>$v) {
-				$ass .= '<img src="'.Base_ThemeCommon::get_template_file('images/'.($viewed[$c_id]?'active_on':'active_off').'.png').'">&nbsp;&nbsp;' . $v['first_name'].' '.$v['last_name'] . '<br>';
+				$ass .= '<img src="'.Base_ThemeCommon::get_template_file('images/'.($viewed[$c_id]?'active_on':'active_off').'.png').'">&nbsp;&nbsp;';
+				$ass .= CRM_ContactsCommon::contact_format_no_company($v).'<br>';
 			}
 			$rel = '';
 			$related = DB::GetCol('SELECT contact_id FROM utils_tasks_related_contacts WHERE task_id=%d',array($row['id']));
 			$rel_arr = CRM_ContactsCommon::get_contacts(array('id'=>$related));
+
 			foreach($rel_arr as $c_id=>$v) {
-				$rel .= $v['first_name'].' '.$v['last_name'].'<br>';
+				$rel .= CRM_ContactsCommon::contact_format_no_company($v).'<br>';
 			}
 			$stat = $this->statuses[$row['status']];
 			if($row['status']==0)
@@ -237,7 +239,7 @@ class Utils_Tasks extends Module {
 						$emp[$c_id] = '<img src="'.Base_ThemeCommon::get_template_file('images/'.((isset($assigned[$c_id]) && $assigned[$c_id])?'active_on':'active_off').'.png').'">&nbsp;&nbsp;' . $emp[$c_id];
 				}
 				$cus = array();
-				$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company()), '|:Fav'=>true, '|:Recent'=>true));
+				$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company()), '|:Fav'=>true, '|:Recent'=>true, '|id'=>$related));
 				foreach($ret as $c_id=>$data)
 					$cus[$c_id] = $data['last_name'].' '.$data['first_name'];
 	
