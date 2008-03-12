@@ -6,6 +6,7 @@ Utils_CommonData.prototype = {
 	def_val:'',
 	initialize: function(id,val,cd,ae) {
 		this.obj = $(id);
+		if(this.obj==null) return;
 		this.path = cd.evalJSON();
 		this.add_empty = ae;
 		this.def_val = val;
@@ -82,6 +83,7 @@ Utils_CommonData_freeze.prototype = {
 	initialize: function(id,cd) {
 		this.id = id;
 		this.obj = $(id);
+		if(this.obj==null) return;
 		this.path = cd.evalJSON();
 		var obj = this.obj;
 		var prev_obj = eval('obj.form.'+this.path[this.path.length-1]);
