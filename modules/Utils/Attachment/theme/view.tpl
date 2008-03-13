@@ -35,7 +35,7 @@
                         <span>{$__link.file.text}</span>
                     {$__link.file.close}
                 </td>
-                <td class="file_desc">File size: 2000 KB<br>Created by: admin</td>
+                <td class="file_desc">File size: {$file_size}<br>Created by: {$upload_by}<br>Created on: {$upload_on}</td>
 			</tr>
             {else}
 			<tr>

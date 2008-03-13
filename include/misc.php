@@ -358,6 +358,19 @@ function get_epesi_url() {
 	return $protocol.$_SERVER['HTTP_HOST'].str_replace('\\','/',dirname($_SERVER['PHP_SELF']));
 }
 
+function filesize_hr($size) {
+	if(!is_numeric($size)) $size = filesize($size);
+	$bytes = array('B','KB','MB','GB','TB');
+	foreach($bytes as $val) {
+		if($size > 1024){
+			$size = $size / 1024;
+		}else{
+			break;
+		}
+  	}
+	return round($size, 2)." ".$val;
+}
+
 if ( !function_exists('json_decode') ){
 	function json_decode($content, $assoc=false){
 		if((@include_once('Services/JSON.php'))===false)
