@@ -130,7 +130,7 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
         }
         if ($value['datepicker']=='') return $this->_prepareValue('', $assoc);
 		$result = $this->recalculate_time($value['date']);
-		$cleanValue = strftime('%Y-%m-%d',Base_RegionalSettingsCommon::reg2time($value['datepicker'])).' '.strftime('%H:%M:%S',Base_RegionalSettingsCommon::reg2time(date('H:i:s', $result), true, false));
+		$cleanValue = strftime('%Y-%m-%d %H:%M:%S',Base_RegionalSettingsCommon::reg2time($value['datepicker'].' '.date('H:i:s', $result)));
         return $this->_prepareValue($cleanValue, $assoc);
 	}
 
