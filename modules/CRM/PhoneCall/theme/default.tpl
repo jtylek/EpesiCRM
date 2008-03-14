@@ -140,12 +140,17 @@
     <tbody>
         <tr>
 		  	<td class="label" align="left" style="width: 100px;">{$form_data.status.label}</td>
-			<td class="data status" align="left">{$form_data.status.html}</td>
+			<td class="data status" align="left">
+                {if $action=='view'}
+                    <div class="icon status_{$raw_data.status}"></div>
+                {/if}
+				{$form_data.status.html}
+			</td>
 
             <td class="label" align="left" style="width: 100px;">{$form_data.permission.label}</td>
 			<td class="data permission" align="left">
                 {if $action=='view'}
-                    <div class="icon"></div>
+                    <div class="icon permission_{$raw_data.permission}"></div>
                 {/if}
                 {$form_data.permission.html}
             </td>
@@ -153,7 +158,7 @@
             <td class="label" align="left" style="width: 100px;">{$form_data.priority.label}</td>
 			<td class="data priority" align="left">
                 {if $action=='view'}
-                    <div class="icon {$raw_data.priority}"></div>
+                    <div class="icon priority_{$raw_data.priority}"></div>
                 {/if}
                 {$form_data.priority.html}
             </td>
