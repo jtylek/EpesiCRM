@@ -110,7 +110,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if (!isset($v['extra'])) $v['extra'] = true;
 			if (!isset($v['visible'])) $v['visible'] = false;
 			if (!isset($v['required'])) $v['required'] = false;
-			if (!isset($v['filter'])) $v['filter'] = true;
+			if (!isset($v['filter'])) $v['filter'] = false;
 			if (isset($datatypes[$v['type']])) $v = call_user_func($datatypes[$v['type']], $v);
 			Utils_RecordBrowserCommon::new_record_field($tab_name, $v['name'], $v['type'], $v['visible'], $v['required'], $v['param'], $v['style'], $v['extra'], $v['filter']);
 			if (isset($v['display_callback'])) self::set_display_method($tab_name, $v['name'], $v['display_callback'][0], $v['display_callback'][1]);
