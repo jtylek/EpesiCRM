@@ -51,7 +51,9 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				'access'=>0,
 				'priority'=>0,
 				'emp_id' => $my_emp,
-				'timeless'=>($timeless?1:0)
+				'timeless'=>($timeless?1:0),
+				'cus_id'=>array(),
+				'emp_id'=>array()
 			);
 		} else {
 			$event = DB::GetRow('SELECT *,end-start as duration FROM crm_calendar_event WHERE id=%d', $id);
@@ -147,8 +149,10 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				'cal_style = \'block\';'.
 				'$(\'duration_switch\').value=\'1\';'.
 				'}'.
-				'$(\'time_e\').style.display = cal_style;'.
-				'$(\'time_s\').style.display = cal_style;'.
+				'var te = $(\'time_e\');'.
+				'if(te) te.style.display = cal_style;'.
+				'var ts = $(\'time_s\');'.
+				'if(ts) ts.style.display = cal_style;'.
 				'$(\'toggle_duration_button\').style.display = cal_style;'.
 				'crm_calendar_duration_switcher(1);'.
 			'}');
