@@ -20,9 +20,9 @@ class Tests_Callbacks extends Module {
 		print('<a '.$this->create_callback_href(array($this,'a1')).'>Other module (this->a1)</a> :: ');
 		print('<a '.$this->create_callback_href(array($this,'a1_stack')).'>Other module on stack (this->a1)</a>');
 		$x = microtime(true);
-		for($i=0; $i<10000; $i++)
+		for($i=0; $i<1000; $i++)
 			$this->create_callback_href(array($this,'a1_stack'),array($i));
-		print('<hr>Generation time: '.(microtime(true)-$x));
+		print('<hr>Generation time of 1000 callbacks: '.(microtime(true)-$x));
 	}
 	
 	public function incr($inc) {
