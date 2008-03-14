@@ -223,8 +223,11 @@ class Utils_Tasks extends Module {
 				}
 				$form->setDefaults($defaults);
 				if ($edit) $form->setDefaults(array('cus_id'=>$related,'emp_id'=>array_keys($assigned)));
-			} elseif($edit && $me!==null) {
-				$form->setDefaults(array('emp_id'=>array($me['id'])));
+			} elseif($edit) { //new task
+				if($me!==null)
+					$form->setDefaults(array('emp_id'=>array($me['id'])));
+				$related = array();
+				$assigned = array();
 			}
 
 			if(!$form->exportValue('is_deadline'))

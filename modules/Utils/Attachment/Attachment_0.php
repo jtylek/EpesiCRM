@@ -298,6 +298,7 @@ class Utils_Attachment extends Module {
 				array('name'=>'Who', 'order'=>'note_by','width'=>25),
 				array('name'=>'Note', 'order'=>'uac.text')
 			));
+		$gb->set_default_order(array($this->lang->t('Date')=>'DESC'));
 
 		$ret = $gb->query_order_limit('SELECT ual.permission_by,ual.permission,uac.revision,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text FROM utils_attachment_note uac INNER JOIN utils_attachment_link ual ON ual.id=uac.attach_id WHERE uac.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_note uac WHERE uac.attach_id='.$id);
 		while($row = $ret->FetchRow()) {
@@ -320,6 +321,7 @@ class Utils_Attachment extends Module {
 				array('name'=>'Who', 'order'=>'upload_by','width'=>25),
 				array('name'=>'Attachment', 'order'=>'uaf.original')
 			));
+		$gb->set_default_order(array($this->lang->t('Date')=>'DESC'));
 
 		$ret = $gb->query_order_limit('SELECT uaf.id as file_id,ual.permission_by,ual.permission,uaf.attach_id as id,uaf.revision as file_revision,uaf.created_on as upload_on,(SELECT l.login FROM user_login l WHERE uaf.created_by=l.id) as upload_by,uaf.original FROM utils_attachment_file uaf INNER JOIN utils_attachment_link ual ON ual.id=uaf.attach_id WHERE uaf.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_file uaf WHERE uaf.attach_id='.$id);
 		while($row = $ret->FetchRow()) {
@@ -347,6 +349,7 @@ class Utils_Attachment extends Module {
 				array('name'=>'Revision', 'order'=>'revision', 'width'=>10),
 				array('name'=>'Remote', 'order'=>'remote', 'width'=>10),
 			));
+		$gb->set_default_order(array($this->lang->t('Create date')=>'DESC'));
 
 		$query = 'SELECT uad.created_on,uad.download_on,(SELECT l.login FROM user_login l WHERE uad.created_by=l.id) as created_by,uad.remote,uad.ip_address,uad.host_name,uad.description,uaf.revision FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id='.$id;
 		$query_qty = 'SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id='.$id;
