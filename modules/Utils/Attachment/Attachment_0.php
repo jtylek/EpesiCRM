@@ -30,6 +30,8 @@ class Utils_Attachment extends Module {
 
 	private $inline = false;
 	private $add_header = '';
+	
+	private $caption = '';
 
 	public function construct($key,$group='',$pd=null,$in=null,$priv_r=null,$priv_w=null,$prot_r=null,$prot_w=null,$pub_r=null,$pub_w=null,$vd=null,$header=null) {
 		if(!isset($key)) trigger_error('Key not given to attachment module',E_USER_ERROR);
@@ -264,6 +266,9 @@ class Utils_Attachment extends Module {
 		} else
 			$th->assign('file','');
 		$th->display('view');
+
+		$this->caption = $this->lang->t('View note');
+
 		return true;
 	}
 
@@ -367,6 +372,8 @@ class Utils_Attachment extends Module {
 		$th->assign('file_access',$this->get_html_of_module($gb));
 
 		$th->display('history');
+		
+		$this->caption = $this->lang->t('Note history');
 
 		return true;
 	}
@@ -449,6 +456,8 @@ class Utils_Attachment extends Module {
 			$this->ret_attach = false;
 		}
 
+		$this->caption = $this->lang->t('Edit note');
+		
 		if($this->inline)
 			return $this->ret_attach;
 		elseif(!$this->ret_attach)
@@ -501,6 +510,10 @@ class Utils_Attachment extends Module {
 		} else {
 			DB::Execute('UPDATE utils_attachment_link SET deleted=1 WHERE id=%d',array($id));
 		}
+	}
+	
+	public function caption() {
+		return $this->caption;
 	}
 }
 
