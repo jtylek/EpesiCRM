@@ -4,8 +4,8 @@ function libs_leightbox_resize(elem) {
 
 	if(s.width == '100%') {
 		s.top = '25%';
-		s.left = '20%';
-		s.width = '60%';
+		s.left = '15%';
+		s.width = '70%';
 		s.height = '50%';
 		s.border = '10px solid #b3b3b3';
 		s.padding = '0px';
