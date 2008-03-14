@@ -64,7 +64,12 @@
             {* *}
 			<tr>
 			  	<td class="label" align="left" style="width: 10%;">{$form_data.status.label}</td>
-				<td class="data status" align="left" style="width: 15%;">{$form_data.status.html}</td>
+				<td class="data status" align="left" style="width: 15%;">
+                    {if $action == 'view'}
+                        <div class="icon status_{$status_id}"></div>
+                    {/if}
+                    {$form_data.status.html}
+                </td>
 
                 <td class="label" align="left">{$form_data.is_deadline.label}</td>
 				<td class="data" align="left">{$form_data.is_deadline.html}</td>
@@ -79,7 +84,7 @@
                 <td class="label" align="left" style="width: 10%;">{$form_data.permission.label}</td>
 				<td class="data permission" align="left" style="width: 15%;">
                     {if $action=='view'}
-                        <div class="icon"></div>
+                        <div class="icon permission_{$permission_id}"></div>
                     {/if}
                     {$form_data.permission.html}
                 </td>
@@ -87,7 +92,7 @@
                 <td class="label" align="left" style="width: 20%;">{$form_data.priority.label}</td>
 				<td class="data priority" align="left" style="width: 30%;" {if $action!='edit'}colspan=3{/if}>
                     {if $action=='view'}
-                        <div class="icon"></div>
+                        <div class="icon priority_{$priority_id}"></div>
                     {/if}
                     {$form_data.priority.html}
                 </td>

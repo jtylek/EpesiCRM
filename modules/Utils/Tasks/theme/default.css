@@ -200,25 +200,39 @@
 #Utils_Tasks .priority select option[value="0"] { background-image: url('Utils_Tasks__priority-low.png');    }
 #Utils_Tasks .priority select option[value="1"] { background-image: url('Utils_Tasks__priority-medium.png'); }
 #Utils_Tasks .priority select option[value="2"] { background-image: url('Utils_Tasks__priority-high.png');   }
+#Utils_Tasks .priority_0 { background-image: url('Utils_Tasks__priority-low.png');    }
+#Utils_Tasks .priority_1 { background-image: url('Utils_Tasks__priority-medium.png'); }
+#Utils_Tasks .priority_2 { background-image: url('Utils_Tasks__priority-high.png');   }
 
 #Utils_Tasks .permission select option[value="0"] { background-image: url('Utils_Tasks__access-public.png');    }
 #Utils_Tasks .permission select option[value="1"] { background-image: url('Utils_Tasks__access-read-only.png'); }
 #Utils_Tasks .permission select option[value="2"] { background-image: url('Utils_Tasks__access-private.png');   }
+#Utils_Tasks .permission_0 { background-image: url('Utils_Tasks__access-public.png');    }
+#Utils_Tasks .permission_1 { background-image: url('Utils_Tasks__access-read-only.png'); }
+#Utils_Tasks .permission_2 { background-image: url('Utils_Tasks__access-private.png');   }
 
-#Utils_Tasks .status select option[value="0"] { background-image: url('Utils_Tasks__access-public.png');    }
-#Utils_Tasks .status select option[value="1"] { background-image: url('Utils_Tasks__access-private.png');   }
+#Utils_Tasks .status select option[value="0"] { background-image: url('Utils_Tasks__status-open.png');    }
+#Utils_Tasks .status select option[value="1"] { background-image: url('Utils_Tasks__status-closed.png');   }
+#Utils_Tasks .status_0 { background-image: url('Utils_Tasks__status-open.png');    }
+#Utils_Tasks .status_1 { background-image: url('Utils_Tasks__status-closed.png');   }
 
 #Utils_Tasks .status .icon,
 #Utils_Tasks .permission .icon,
 #Utils_Tasks .priority .icon {
-	width: 24px;
+	width: 12px;
 	height: 12px;
 	margin-top: 2px;
 	margin-left: 2px;
-	margin-right: 2px;
+	margin-right: 6px;
 	display: block;
 	float: left;
+	background-repeat: no-repeat;
 }
+
+#Utils_Tasks .priority .icon {
+	width: 24px;
+}
+
 /* colors select */
 
 select[name="color"] option[value="0"] { color: #339933; background-color: white; }
