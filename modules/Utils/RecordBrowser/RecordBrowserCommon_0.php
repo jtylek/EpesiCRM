@@ -532,8 +532,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				Base_LangCommon::ts('Utils_RecordBrowser','Edited on:').' '.Base_RegionalSettingsCommon::time2reg($info['edited_on']). '<br>'.
 				Base_LangCommon::ts('Utils_RecordBrowser','Edited by:').' '.$edited_by):'');
 	}
-	public static function get_record( $tab_name, $id, $admin = false) {
-		self::init($tab_name, $admin);
+	public static function get_record( $tab_name, $id) {
+		self::init($tab_name);
 		if( isset($id) ) {
 			$data = DB::Execute('SELECT * FROM '.$tab_name.'_data WHERE '.$tab_name.'_id=%d', array($id));
 			$record = array();
@@ -548,11 +548,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					$record[$field_id] = $field['value'];
 			}
 			$record['id'] = $id;
-			if ($admin) {
-				$row = DB::Execute('SELECT active, created_by, created_on FROM '.$tab_name.' WHERE true'.($admin?'':' AND active=1'))->FetchRow();
-				foreach(array('active','created_by','created_on') as $v)
-					$record[$v] = $row[$v];
-			}
+			$row = DB::Execute('SELECT active, created_by, created_on FROM '.$tab_name.' WHERE id=%d', array($id))->FetchRow();
+			foreach(array('active','created_by','created_on') as $v)
+				$record[$v] = $row[$v];
 			foreach(self::$table_rows as $field=>$args)
 				if (!isset($record[$args['id']]))
 					if ($args['type'] == 'multiselect') $record[$args['id']] = array();
