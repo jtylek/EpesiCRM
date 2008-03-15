@@ -310,7 +310,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function build_query( $tab_name = null, $crits = null, $admin = false, $order = array()) {
 		$key=$tab_name.'__'.serialize($crits).'__'.$admin.'__'.serialize($order);
 		static $cache = array();
-//		if (isset($cache[$key])) return $cache[$key];
+		if (isset($cache[$key])) return $cache[$key];
 		if (!$tab_name) return false;
 		self::init($tab_name, $admin);
 		$having = '';

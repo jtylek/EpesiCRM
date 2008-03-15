@@ -148,7 +148,6 @@ class Utils_RecordBrowser extends Module {
 			return;
 		}
 		$this->is_on_main_page = true;
-//			Base_ActionBarCommon::add('add',$this->lang->t('New'), $this->create_callback_href(array($this,'view_entry'),array('add', null, $this->custom_defaults)));
 		Base_ActionBarCommon::add('add',$this->lang->t('New'), $this->create_callback_href(array($this,'navigate'),array('view_entry', 'add', null, $this->custom_defaults)));
 
 		$filters = $this->show_filters();
@@ -324,7 +323,6 @@ class Utils_RecordBrowser extends Module {
 		if (!$special) {
 			if ($this->add_button!==null) $label = $this->add_button;
 			else $label = $this->create_callback_href(array($this, 'navigate'), array('view_entry', 'add', null, $this->custom_defaults));
-	//		else $label = $this->create_callback_href(array($this, 'view_entry'), array('add', null, $this->custom_defaults));
 			$gb->set_custom_label('<a '.$label.'><img border="0" src="'.Base_ThemeCommon::get_template_file('Base/ActionBar','icons/add.png').'" /></a>');
 		}
 		$search = $gb->get_search_query(true);
@@ -454,6 +452,7 @@ class Utils_RecordBrowser extends Module {
 	}
 	public function view_entry($mode='view', $id = null, $defaults = array()) {
 		$js = ($mode!='view');
+		$time = microtime(true);
 		if ($this->is_back())
 			return $this->back();
 		$this->init();
@@ -486,11 +485,17 @@ class Utils_RecordBrowser extends Module {
 			}
 			if ($mode=='add') {
 				Utils_RecordBrowserCommon::new_record($this->tab, $values);
-			} else {
-				$this->update_record($id,$values);
+				return $this->back();
 			}
-			return $this->back();
-		}
+			$time_from = date('Y-m-d H:i:s', $this->get_module_variable('edit_start_time'));
+			$ret = DB::Execute('SELECT * FROM '.$this->tab.'_edit_history WHERE edited_on>=%T AND '.$this->tab.'_id=%d',array($time_from, $id));
+			if ($ret->EOF) {
+				$this->update_record($id,$values);
+				return $this->back();
+			}
+			$this->dirty_read_changes($id, $time_from);
+		} 
+		if ($mode=='edit') $this->set_module_variable('edit_start_time',$time);
 
 		if ($mode=='view') { 
 			if ($this->get_access('edit',$this->record)) Base_ActionBarCommon::add('edit', $this->lang->ht('Edit'), $this->create_callback_href(array($this,'navigate'), array('view_entry','edit',$id)));
@@ -989,6 +994,52 @@ class Utils_RecordBrowser extends Module {
 		DB::CompleteTrans();
 		return true;
 	} //submit_add_field
+	public function dirty_read_changes($id, $time_from) {
+		print('<b>'.$this->lang->t('The following changes were applied to this record while you were editing it.<br>Please revise this data and make sure to keep this record most accurate.').'</b><br>');
+		$gb_cha = $this->init_module('Utils/GenericBrowser', null, $this->tab.'__changes');
+		$table_columns_changes = array(	array('name'=>$this->lang->t('Date'), 'width'=>1, 'wrapmode'=>'nowrap'),
+										array('name'=>$this->lang->t('Username'), 'width'=>1, 'wrapmode'=>'nowrap'),
+										array('name'=>$this->lang->t('Field'), 'width'=>1, 'wrapmode'=>'nowrap'),
+										array('name'=>$this->lang->t('Old value'), 'width'=>1, 'wrapmode'=>'nowrap'),
+										array('name'=>$this->lang->t('New value'), 'width'=>1, 'wrapmode'=>'nowrap'));
+		$gb_cha->set_table_columns( $table_columns_changes );
+		
+		$created = Utils_RecordBrowserCommon::get_record($this->tab, $id, true);
+		$created['created_by_login'] = Base_UserCommon::get_user_login($created['created_by']);
+		$field_hash = array();
+		foreach($this->table_rows as $field => $args)
+			$field_hash[$args['id']] = $field;
+		$ret = DB::Execute('SELECT ul.login, c.id, c.edited_on, c.edited_by FROM '.$this->tab.'_edit_history AS c LEFT JOIN user_login AS ul ON ul.id=c.edited_by WHERE c.edited_on>=%T AND c.'.$this->tab.'_id=%d ORDER BY edited_on DESC',array($time_from,$id));
+		while ($row = $ret->FetchRow()) {
+			$changed = array();
+			$ret2 = DB::Execute('SELECT * FROM '.$this->tab.'_edit_history_data WHERE edit_id=%d',array($row['id']));
+			while($row2 = $ret2->FetchRow()) {
+				if (isset($changed[$row2['field']])) {
+					if (is_array($changed[$row2['field']]))
+						array_unshift($changed[$row2['field']], $row2['old_value']);
+					else
+						$changed[$row2['field']] = array($row2['old_value'], $changed[$row2['field']]);
+				} else {
+					$changed[$row2['field']] = $row2['old_value'];
+				}
+				if (is_array($changed[$row2['field']]))
+					sort($changed[$row2['field']]);
+			}
+			foreach($changed as $k=>$v) {
+				$new = $this->get_val($field_hash[$k], $created, $created['id'], false, $this->table_rows[$field_hash[$k]]);
+				$created[$k] = $v;
+				$old = $this->get_val($field_hash[$k], $created, $created['id'], false, $this->table_rows[$field_hash[$k]]);
+				$gb_row = $gb_cha->get_new_row();
+//				eval_js('apply_changes_to_'.$k.'=function(){element = document.getElementsByName(\''.$k.'\')[0].value=\''.$v.'\';};');
+//				$gb_row->add_action('href="javascript:apply_changes_to_'.$k.'()"', 'Apply', null, 'apply');
+				$gb_row->add_data($row['edited_on'], Base_UserCommon::get_user_login($row['edited_by']), $field_hash[$k], $old, $new);
+			}
+		}
+		$theme = $this->init_module('Base/Theme');
+		$theme->assign('table',$this->get_html_of_module($gb_cha));
+		$theme->assign('label',$this->lang->t('Recent Changes'));
+		$theme->display('View_history');
+	}
 	public function view_edit_history($id){
 		if ($this->is_back()) 
 			return $this->back();
@@ -1009,8 +1060,7 @@ class Utils_RecordBrowser extends Module {
 		$gb_ori->set_table_columns( $table_columns );
 		$gb_cha->set_table_columns( $table_columns_changes );
 		
-		$original = Utils_RecordBrowserCommon::get_record($this->tab, $id, true);
-		$created = $original;
+		$created = Utils_RecordBrowserCommon::get_record($this->tab, $id, true);
 		$created['created_by_login'] = Base_UserCommon::get_user_login($created['created_by']);
 		$field_hash = array();
 		$edited = DB::GetRow('SELECT ul.login, c.edited_on FROM '.$this->tab.'_edit_history AS c LEFT JOIN user_login AS ul ON ul.id=c.edited_by WHERE c.'.$this->tab.'_id=%d ORDER BY edited_on DESC',array($id));
