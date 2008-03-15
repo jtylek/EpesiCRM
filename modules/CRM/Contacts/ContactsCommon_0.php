@@ -93,18 +93,19 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$field['QFfield_callback'] = array('CRM_ContactsCommon', 'QFfield_company');
 		$field['display_callback'] = array('CRM_ContactsCommon', 'display_company');
 		$field['type'] = $field['param']['field_type'];
-		unset($field['param']['field_type']);
-		if (isset($field['param']['crits'])) $field['param'] = implode('::',$field['param']['crits']);
-		else $field['param'] = '';
+		$param = 'company::Company Name';
+		if (isset($field['param']['crits'])) $param .= ';'.implode('::',$field['param']['crits']);
+		else $param .= ';::';
+		$field['param'] = $param;
 		return $field;
 	}
 	public static function crm_contact_datatype($field = array()) {
 		$field['QFfield_callback'] = array('CRM_ContactsCommon', 'QFfield_contact');
 		$field['display_callback'] = array('CRM_ContactsCommon', 'display_contact');
 		$field['type'] = $field['param']['field_type'];
-		unset($field['param']['field_type']);
-		if (isset($field['param']['format'])) $param = implode('::',$field['param']['format']);
-		else $param = '::';
+		$param = 'contact::First Name|Last Name';
+		if (isset($field['param']['format'])) $param .= ';'.implode('::',$field['param']['format']);
+		else $param .= ';::';
 		if (isset($field['param']['crits'])) $param .= ';'.implode('::',$field['param']['crits']);
 		else $param .= ';::';
 		$field['param'] = $param;
@@ -116,8 +117,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$def = '';
 		$first = true;
 		$param = explode(';',$desc['param']);
-		if ($param[0] == '::') $callback = array('CRM_ContactsCommon', 'contact_format_default');
-		else $callback = explode('::', $param[0]);
+		if ($param[1] == '::') $callback = array('CRM_ContactsCommon', 'contact_format_default');
+		else $callback = explode('::', $param[1]);
 		if (!is_array($v)) $v = array($v);
 		foreach($v as $k=>$w){
 			if ($w=='') break;
@@ -151,10 +152,10 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$cont = array();
 		$param = explode(';',$desc['param']);
 		if ($mode=='add' || $mode=='edit') {
-			if ($param[0] == '::') $callback = array('CRM_ContactsCommon', 'contact_format_default');
-			else $callback = explode('::', $param[0]);
-			if ($param[1] != '::') {
-				$crit_callback = explode('::',$param[1]);
+			if ($param[1] == '::') $callback = array('CRM_ContactsCommon', 'contact_format_default');
+			else $callback = explode('::', $param[1]);
+			if ($param[2] != '::') {
+				$crit_callback = explode('::',$param[2]);
 				if ($crit_callback[0]=='ChainedSelect') {
 					$crits = null;
 					self::contacts_chainedselect_crits($default, $desc, $callback, $crit_callback[1]);
@@ -204,8 +205,9 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 	public static function QFfield_company(&$form, $field, $label, $mode, $default, $desc) {
 		$comp = array();
+		$param = explode(';',$desc['param']);
 		if ($mode=='add' || $mode=='edit') {
-			if ($desc['param'] != '') $crits = call_user_func(explode('::',$desc['param']));
+			if ($param[1] != '::') $crits = call_user_func(explode('::',$param[1]));
 			else $crits = array();
 			if (isset($crits['_no_company_option'])) {
 				$no_company_option = true;

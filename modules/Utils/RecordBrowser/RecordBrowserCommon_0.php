@@ -310,7 +310,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function build_query( $tab_name = null, $crits = null, $admin = false, $order = array()) {
 		$key=$tab_name.'__'.serialize($crits).'__'.$admin.'__'.serialize($order);
 		static $cache = array();
-		if (isset($cache[$key])) return $cache[$key];
+//		if (isset($cache[$key])) return $cache[$key];
 		if (!$tab_name) return false;
 		self::init($tab_name, $admin);
 		$having = '';
@@ -381,7 +381,30 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								$having .= ' (((SELECT MAX(edited_on) FROM '.$tab_name.'_edit_history WHERE '.$tab_name.'_id=r.id) '.$inj.') OR'.
 										'((SELECT MAX(edited_on) FROM '.$tab_name.'_edit_history WHERE '.$tab_name.'_id=r.id) IS NULL AND created_on '.$inj.'))'; 
 							break;
-					default		: trigger_error('Unknow paramter given to get_records criteria: '.$k, E_USER_ERROR);
+					default		: 
+						if (substr($k,0,4)==':Ref')	{
+							$params = explode(':', $k);
+							$ref = $params[2];
+							$param = explode(';', self::$table_rows[$ref]['param']);
+							$param = explode('::',$param[0]);
+							
+							if (!isset($param[1])) $cols = $param[0];
+							else {
+								$tab = $param[0];
+								$cols= $param[1];
+							}
+							if ($params[1]=='RefCD' || $tab=='__COMMON__') {
+								$where .= ' AND EXISTS (SELECT cd1.id FROM utils_commondata_tree AS cd1 LEFT JOIN utils_commondata_tree AS cd2 ON cd1.parent_id=cd2.id WHERE cd1.value LIKE '.$v[0].' AND cd2.akey='.DB::qstr($cols).')';
+								$having .= true;
+								break;
+							}
+							$cols = explode('|', $cols);
+							foreach($cols as $j=>$w) $cols[$j] = DB::qstr($w); 
+							$cols = implode(' OR field=', $cols);
+							$having .= ' cond'.$iter.'!=0';
+							$fields .= ', (SELECT COUNT(value) FROM '.$tab.'_data AS rd'.$iter.' WHERE (field='.$cols.') AND value LIKE '.$v[0].' AND EXISTS (SELECT value FROM '.$tab_name.'_data WHERE field='.DB::qstr($ref).' AND rd'.$iter.'.'.$tab.'_id)) AS cond'.$iter;
+							$iter++;
+						} else trigger_error('Unknow paramter given to get_records criteria: '.$k, E_USER_ERROR);
 				}
 			} else {
 				if ($k == 'id') {
@@ -593,8 +616,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			return array();
 		}
 		return array('__jump_to_RB_table'=>$tab, '__jump_to_RB_record'=>$id);
-//		Old solution:
-//		return array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array($tab), 'tab'=>$tab, 'id'=>$id, 'action'=>'view');
 	}
 	private function create_record_href($tab, $id){
 		return Module::create_href(self::get_record_href_array($tab,$id));

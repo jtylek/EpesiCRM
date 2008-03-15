@@ -92,6 +92,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 // ************ other ************** //
 		Utils_CommonDataCommon::new_array('Companies_Groups',array('Customer','Vendor','Other'));
 		Utils_CommonDataCommon::new_array('Contacts_Groups',array('office'=>'Office Staff','field'=>'Field Staff','custm'=>'Customer'));
+		Utils_CommonDataCommon::new_array('Permissions',array('Public','Protected','Private'), true);
 
 		$this->add_aco('browse contacts',array('Employee','Customer'));
 		$this->add_aco('view contact',array('Employee'));

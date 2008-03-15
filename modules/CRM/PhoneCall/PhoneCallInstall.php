@@ -22,7 +22,8 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 		Base_ThemeCommon::install_default_theme('CRM/PhoneCall');
 		$fields = array(
 			array('name'=>'Subject', 			'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_PhoneCallCommon','display_subject')),
-			array('name'=>'Contact Name', 		'type'=>'hidden', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_PhoneCallCommon','display_contact_name')),	
+
+			array('name'=>'Contact Name', 		'type'=>'hidden', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_PhoneCallCommon','display_contact_name')),
 			array('name'=>'Phone Number', 		'type'=>'hidden', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_PhoneCallCommon','display_phone_number')),
 
 			array('name'=>'Company Name', 		'type'=>'crm_company', 'param'=>array('field_type'=>'select','crits'=>array('CRM_PhoneCallCommon','company_crits')), 'filter'=>true, 'required'=>false, 'extra'=>false, 'visible'=>true),
@@ -51,7 +52,6 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 //		Utils_RecordBrowserCommon::set_favorites('contact', true);
 		Utils_RecordBrowserCommon::set_recent('phonecall', 5);
 		Utils_RecordBrowserCommon::set_caption('phonecall', 'Phone Calls');
-//		Utils_RecordBrowserCommon::set_icon('contact', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'icon.png'));
 		Utils_RecordBrowserCommon::set_access_callback('phonecall', 'CRM_PhoneCallCommon', 'access_phonecall');
 // ************ addons ************** //
 //		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Contacts', 'company_addon', 'Contacts');
@@ -63,9 +63,9 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 		$this->add_aco('edit phonecall',array('Employee'));
 		$this->add_aco('delete phonecall',array('Employee Manager'));
 
-		Utils_CommonDataCommon::new_array('Ticket_Status',array('Open','In Progress','Closed'));
-		Utils_CommonDataCommon::new_array('Permissions',array('Public','Protected','Private'));
-		Utils_CommonDataCommon::new_array('Priorities',array('Low','Medium','High'));
+		Utils_CommonDataCommon::new_array('Ticket_Status',array('Open','In Progress','Closed'), true);
+		Utils_CommonDataCommon::new_array('Permissions',array('Public','Protected','Private'), true);
+		Utils_CommonDataCommon::new_array('Priorities',array('Low','Medium','High'), true);
 		return true;
 	}
 
@@ -88,6 +88,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 			array('name'=>'Utils/RecordBrowser', 'version'=>0),
 			array('name'=>'Utils/Attachment', 'version'=>0),
 			array('name'=>'CRM/Acl', 'version'=>0),
+			array('name'=>'CRM/Contacts', 'version'=>0),
 			array('name'=>'Base/Lang', 'version'=>0),
 			array('name'=>'Base/Acl', 'version'=>0),
 			array('name'=>'Utils/ChainedSelect', 'version'=>0),

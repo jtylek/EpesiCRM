@@ -101,7 +101,7 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 				self::extend_array($name,$array);
 				return true;
 			} else {
-				self::remove_array($name);
+				self::remove($name);
 			}
 		}
 		$id = self::new_id($name);
