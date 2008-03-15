@@ -361,7 +361,7 @@ class Utils_Attachment extends Module {
 		if($this->acl_check('view download history'))
 			$ret = $gb->query_order_limit($query, $query_qty);
 		else {
-			print('You are allowed to see only downloads created by your user');
+			print('You are allowed to see your own downloads only');
 			$who = ' AND uad.created_by='.Acl::get_user();
 			$ret = $gb->query_order_limit($query.$who, $query_qty.$who);
 		}
