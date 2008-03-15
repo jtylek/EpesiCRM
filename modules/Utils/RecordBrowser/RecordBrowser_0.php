@@ -354,7 +354,7 @@ class Utils_RecordBrowser extends Module {
 			if ($special) { 
 				$func = $this->get_module_variable('format_func');
 				$element = $this->get_module_variable('element');
-				$row_data = array('<a href="javascript:addto_'.$element.'('.$row['id'].', \''.call_user_func($func, $row['id']).'\');"><img src="null"  border="0" name="leightbox_rpicker_'.$element.'_'.$row['id'].'" /></a>');
+				$row_data = array('<a href="javascript:rpicker_addto(\''.$element.'\','.$row['id'].',\''.Base_ThemeCommon::get_template_file('images/active_on.png').'\',\''.Base_ThemeCommon::get_template_file('images/active_off2.png').'\',\''.call_user_func($func, $row['id']).'\');"><img src="null"  border="0" name="leightbox_rpicker_'.$element.'_'.$row['id'].'" /></a>');
 				$rpicker_ind[] = $row['id'];
 			}
 			
@@ -990,14 +990,6 @@ class Utils_RecordBrowser extends Module {
 										array('name'=>$this->lang->t('Old value'), 'width'=>1, 'wrapmode'=>'nowrap'),
 										array('name'=>$this->lang->t('New value'), 'width'=>1, 'wrapmode'=>'nowrap'));
 		
-/*		$table_columns_SQL = array();
-		foreach($this->table_rows as $field => $args) {
-			if ($field=='id') continue;
-			$table_columns[] = array('name'=>$args['name']);
-			array_push($table_columns_SQL, 'c.'.$field);
-		}
-		$table_columns_SQL = join(', ', $table_columns_SQL);
-*/
 		$gb_cur->set_table_columns( $table_columns );
 		$gb_ori->set_table_columns( $table_columns );
 		$gb_cha->set_table_columns( $table_columns_changes );
@@ -1086,8 +1078,6 @@ class Utils_RecordBrowser extends Module {
 	public function recordpicker($element, $format, $crits=array(), $cols=array(), $order=array(), $filters=array()) {
 		if (!isset($this->lang)) $this->lang = $this->init_module('Base/Lang');
 		$this->init();
-		$icon_on = Base_ThemeCommon::get_template_file('Utils_RecordBrowser','active-on.png');
-		$icon_off = Base_ThemeCommon::get_template_file('Utils_RecordBrowser','active-off.png');
 		$this->set_module_variable('element',$element);
 		$this->set_module_variable('format_func',$format);
 		$theme = $this->init_module('Base/Theme');
@@ -1099,63 +1089,14 @@ class Utils_RecordBrowser extends Module {
 			} else $this->crits[$k] = $v;
 		}
 		$theme->assign('table', $this->show_data($this->crits, $cols, $order, false, false, true));
-
+		load_js('modules/Utils/RecordBrowser/rpicker.js');
+			
 		$rpicker_ind = $this->get_module_variable('rpicker_ind');
-		eval_js(
-			'rpicker_init_'.$element.' = function(id){'.
-			'	img = document.getElementsByName(\'leightbox_rpicker_'.$element.'_\'+id)[0];'.
-			'	tolist = document.getElementsByName(\''.$element.'to[]\')[0];'.
-			'	k = 0;'.
-			'	img.src = "'.$icon_off.'";'.
-			'	while (k!=tolist.length) {'.
-			'		if (tolist.options[k].value == id) {'.
-			'			img.src = "'.$icon_on.'";'.
-			'			break;'.
-			' 		}'. 
-			'		k++;'.
-			'	}'.
-			'}');
 		$init_func = 'init_all_rpicker_'.$element.' = function(id, cstring){';
 		foreach($rpicker_ind as $v)
-			$init_func .= 'rpicker_init_'.$element.'('.$v.');';
+			$init_func .= 'rpicker_init(\''.$element.'\','.$v.',\''.Base_ThemeCommon::get_template_file('images/active_on.png').'\',\''.Base_ThemeCommon::get_template_file('images/active_off2.png').'\');';
 		$init_func .= '}';
 		eval_js($init_func.';init_all_rpicker_'.$element.'();');
-		eval_js(
-			'addto_'.$element.' = function(id, cstring){'.
-			'tolist = document.getElementsByName(\''.$element.'to[]\')[0];'.
-			'fromlist = document.getElementsByName(\''.$element.'from[]\')[0];'.
-			'img = document.getElementsByName(\'leightbox_rpicker_'.$element.'_\'+id)[0];'.
-			'list = \'\';'.
-			'k = 0;'.
-			'while (k!=tolist.length) {'.
-			'	if (tolist.options[k].value == id) {'.
-			'		x = 0;'.
-			'		while (x!=tolist.length) tolist.options[x].selected = (k==x++);'.
-			'		remove_selected_'.$element.'();'.
-			'		img.src = "'.$icon_off.'";'.
-			'		return;'.
-			' 	}'. 
-			'	k++;'.
-			'}'.
-			'k = 0;'.
-			'i = false;'.
-			'while (k!=fromlist.length) {'.
-			'	fromlist.options[k].selected = false;'.
-			'	if (fromlist.options[k].value == id) {'.
-			'		fromlist.options[k].selected = true;'.
-			'		i = true;'.
-			' 	}'. 
-			'	k++;'.
-			'}'.
-			'if (!i) {'.
-			'	fromlist.options[k] = new Option();'.
-			'	fromlist.options[k].selected = true;'.
-			'	fromlist.options[k].text = cstring;'.
-			'	fromlist.options[k].value = id;'.
-			'}'.
-			'img.src = "'.$icon_on.'";'.
-			'add_selected_'.$element.'();'.
-			'};');
 		$theme->display('Record_picker');
 	}
 	public function admin() {
