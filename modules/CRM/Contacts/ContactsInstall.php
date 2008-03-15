@@ -41,6 +41,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 			array('name'=>'Zone', 			'type'=>'commondata', 'required'=>false, 'param'=>array('Countries','Country'), 'extra'=>false, 'visible'=>true, 'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_zone')),
 			array('name'=>'Postal Code', 	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
 			array('name'=>'Group', 			'type'=>'multiselect', 'required'=>false, 'param'=>'__COMMON__::Contacts_groups', 'extra'=>false),
+			array('name'=>'Permission', 	'type'=>'select', 'required'=>true, 'param'=>'__COMMON__::Permissions', 'extra'=>false),
 			array('name'=>'Home Phone', 	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true),
 			array('name'=>'Home Address 1', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true),
 			array('name'=>'Home Address 2', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true),
@@ -48,7 +49,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 			array('name'=>'Home Country', 	'type'=>'commondata', 'required'=>false, 'param'=>array('Countries'), 'extra'=>true,'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_country')),
 			array('name'=>'Home Zone', 		'type'=>'commondata', 'required'=>false, 'param'=>array('Countries','Home Country'), 'extra'=>true, 'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_zone')),
 			array('name'=>'Home Postal Code', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true),
-			array('name'=>'Birth Date', 'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>true)
+			array('name'=>'Birth Date', 	'type'=>'date', 'required'=>false, 'param'=>64, 'extra'=>true)
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('contact', $fields);
 		Utils_RecordBrowserCommon::set_tpl('contact', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'Contact'));
@@ -62,18 +63,19 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_access_callback('contact', 'CRM_ContactsCommon', 'access_contact');
 // ************ companies ************** //
 		$fields = array(
-			array('name'=>'Company Name', 'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_cname')),
-			array('name'=>'Short Name', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>false),
-			array('name'=>'Phone', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>true),
-			array('name'=>'Fax', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
-			array('name'=>'Web address', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'display_callback'=>array('CRM_ContactsCommon', 'display_webaddress'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_webaddress')),
-			array('name'=>'Group', 'type'=>'multiselect', 'required'=>false, 'visible'=>true, 'param'=>'__COMMON__::Companies_groups', 'extra'=>false),
-			array('name'=>'Address 1', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
-			array('name'=>'Address 2', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
-			array('name'=>'City', 'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true),
-			array('name'=>'Country', 'type'=>'commondata', 'required'=>true, 'param'=>array('Countries'), 'extra'=>false, 'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_country')),
-			array('name'=>'Zone', 'type'=>'commondata', 'required'=>false, 'param'=>array('Countries','Country'), 'extra'=>false, 'visible'=>true, 'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_zone')),
-			array('name'=>'Postal Code', 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false)
+			array('name'=>'Company Name',	'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_cname')),
+			array('name'=>'Short Name',		'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>false),
+			array('name'=>'Phone', 			'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>true),
+			array('name'=>'Fax', 			'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
+			array('name'=>'Web address',	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'display_callback'=>array('CRM_ContactsCommon', 'display_webaddress'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_webaddress')),
+			array('name'=>'Group', 			'type'=>'multiselect', 'required'=>false, 'visible'=>true, 'param'=>'__COMMON__::Companies_groups', 'extra'=>false),
+			array('name'=>'Permission',		'type'=>'select', 'required'=>true, 'param'=>'__COMMON__::Permissions', 'extra'=>false),
+			array('name'=>'Address 1',		'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
+			array('name'=>'Address 2',		'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
+			array('name'=>'City',			'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true),
+			array('name'=>'Country',		'type'=>'commondata', 'required'=>true, 'param'=>array('Countries'), 'extra'=>false, 'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_country')),
+			array('name'=>'Zone',			'type'=>'commondata', 'required'=>false, 'param'=>array('Countries','Country'), 'extra'=>false, 'visible'=>true, 'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_zone')),
+			array('name'=>'Postal Code',	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false)
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('company', $fields);
 		Utils_RecordBrowserCommon::set_tpl('company', Base_ThemeCommon::get_template_filename('CRM/Contacts', 'Company'));
@@ -198,6 +200,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 				'postal_code'=>isset($val['postal'])?$val['postal']:'',
 				'phone'=>isset($val['phone'])?$val['phone']:'',
 				'fax'=>isset($val['fax'])?$val['fax']:'',
+				'permission'=>0,
 				'web_address'=>isset($val['web'])?$val['web']:''
 				));
 		Variable::set('main_company',$comp_id);
@@ -224,6 +227,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 					'web_address'=>isset($val['web'])?$val['web']:'',
 					'company_name'=>array($comp_id),
 					'login'=>$user['id'],
+					'permission'=>0,
 					'email'=>$user['mail'],
 					'group'=>array('office','field')
 					));

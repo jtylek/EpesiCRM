@@ -40,13 +40,14 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$i = self::Instance();
 		switch ($action) {
 			case 'browse':	return $i->acl_check('browse companies');
-			case 'view':	if ($i->acl_check('view company')) return true;
+			case 'view':	if ($i->acl_check('view company')) return array('|!permission'=>2, '|:Created_by'=>Acl::get_user());
 							$me = self::get_my_record();
 							if ($me) return array('company_name'=>$me['company_name']);
 							else return false;
-			case 'edit':	$me = self::get_my_record();
-					if ($me && in_array($param['id'],$me['company_name']) && $i->acl_check('edit my company')) return true; //my company
-					return $i->acl_check('edit company');
+			case 'edit':	if ($param['permission']>=1 && $param['created_by']!=Acl::get_user()) return false;
+							$me = self::get_my_record();
+							if ($me && in_array($param['id'],$me['company_name']) && $i->acl_check('edit my company')) return true; //my company
+							return $i->acl_check('edit company');
 			case 'delete':	return $i->acl_check('delete company');
 			case 'edit_fields':
 					if($i->acl_check('edit company')) return array();
@@ -58,19 +59,21 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$i = self::Instance();
 		switch ($action) {
 			case 'browse':	return $i->acl_check('browse contacts');
-			case 'view':	if ($i->acl_check('view contact')) return true;
+			case 'view':	if ($i->acl_check('view contact')) return array('|!permission'=>2, '|login'=>Acl::get_user(), '|:Created_by'=>Acl::get_user());
 							else return array('login'=>Acl::get_user());
 			case 'delete':	return $i->acl_check('delete contact');
 			case 'edit':
-					if($i->acl_check('edit contact')) return true;
-					$me = self::get_my_record();
-					if($me && $me['id']==$param['id']) return true; //me
-					if($i->acl_check('edit my company contacts'))
+					if ($param['login']==Acl::get_user()) return true; //me
+					if ($param['permission']>=1 && $param['created_by']!=Acl::get_user()) return false;
+					if ($i->acl_check('edit contact')) return true;
+					if ($i->acl_check('edit my company contacts')) {
+						$me = self::get_my_record();
 						foreach($param['company_name'] as $cid)
 							if(in_array($cid,$me['company_name'])) return true; //customer
+					}
 					return false;
 			case 'edit_fields':
-					if($i->acl_check('edit contact')) return array();
+					if ($i->acl_check('edit contact')) return array();
 					return array('company_name'=>false,'last_name'=>false,'first_name'=>false,'group'=>false);
 		}
 		return false;
@@ -166,11 +169,6 @@ class CRM_ContactsCommon extends ModuleCommon {
 				foreach ($contacts as $v) $cont[$v['id']] = call_user_func($callback, $v, true);
 				asort($cont);
 			} else $cont = array();
-/*			if ($adv_crits!==null) {
-				$rpicker = $this->init_module('Utils/RecordBrowser/RecordPicker');
-				$this->display_module($rpicker, array('contact', $field, $callback, $adv_crits, array('work_phone'=>false, 'mobile_phone'=>false, 'zone'=>false), array('last_name'=>'ASC')));
-				$label .= $rpicker->create_open_link($this->lang->t('More..'));
-			}*/
 			$form->addElement($desc['type'], $field, $label, $cont, array('id'=>$field));
 			if ($mode!=='add') $form->setDefaults(array($field=>$default));
 		} else {
@@ -287,15 +285,21 @@ class CRM_ContactsCommon extends ModuleCommon {
 				$form->addElement('button', 'paste_company_info', 'Paste Company Info', array('onClick'=>$paste_company_info));
 			}
 		}
-		$ret = DB::Execute('SELECT id, login FROM user_login ORDER BY login');
-		$users = array(''=>'--');
-		while ($row=$ret->FetchRow()) {
-			if (DB::GetOne('SELECT contact_id FROM contact_data WHERE field=\'Login\' AND value=%d', array($row['id']))===false || $row['id']===$default)
-				$users[$row['id']] = $row['login'];
+		if ($default!==Acl::get_user() && $default!=='' && !Base_AclCommon::i_am_admin()) {
+			$form->addElement('select', $field, $label, array($default=>($default!=='')?Base_UserCommon::get_user_login($default):'--'));
+			$form->setDefaults(array($field=>$default));
+			$form->freeze($field);
+		} else {
+			$ret = DB::Execute('SELECT id, login FROM user_login ORDER BY login');
+			$users = array(''=>'--');
+			while ($row=$ret->FetchRow()) {
+				if (DB::GetOne('SELECT contact_id FROM contact_data WHERE field=\'Login\' AND value=%d', array($row['id']))===false || $row['id']===$default)
+					if (Base_AclCommon::i_am_admin() || $row['id']==Acl::get_user())
+						$users[$row['id']] = $row['login'];
+			}
+			$form->addElement('select', $field, $label, $users);
+			$form->setDefaults(array($field=>$default));
 		}
-		$form->addElement('select', $field, $label, $users);
-		$form->setDefaults(array($field=>$default));
-		if (!Base_AclCommon::i_am_admin()) $form->freeze($field);
 	}
 	public static function display_fname($v, $i, $nolink) {
 		return Utils_RecordBrowserCommon::create_linked_label('contact', 'First Name', $i, $nolink);

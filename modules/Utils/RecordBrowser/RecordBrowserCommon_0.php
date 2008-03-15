@@ -368,6 +368,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							if($inj)
 								$having .= ' created_on '.$inj; 
 							break;
+					case ':Created_by'	: 
+							$having .= ' created_by = '.$v; 
+							break;
 					case ':Edited_on'	: 
 							$inj = '';
 							if(is_array($v))
@@ -432,7 +435,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$iter++;
 			}
 		}
-		$ret = array('sql'=>'SELECT id, active'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?'':' AND active=1').$where.' GROUP BY id HAVING true'.$having.$orderby,'vals'=>$vals);
+		$ret = array('sql'=>'SELECT id, active, created_by, created_on'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?'':' AND active=1').$where.' GROUP BY id HAVING true'.$having.$orderby,'vals'=>$vals);
 		return $cache[$key] = $ret;
 	}
 	public static function get_records_limit( $tab_name = null, $crits = null, $admin = false) {
@@ -469,7 +472,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$first = true;
 		while ($row = $ret->FetchRow()) {
 			$records[$row['id']] = array(	'id'=>$row['id'],
-											'active'=>$row['active']);
+											'active'=>$row['active'],
+											'created_by'=>$row['created_by'],
+											'created_on'=>$row['created_on']);
 			if ($first) $first = false;
 			else $where .= ', ';
 			$where .= '%d';
@@ -497,7 +502,20 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						else $records[$k][$args['id']] = '';
 		return $records;
 	}
+	public static function check_record_against_crits($tab_name, $id, $crits) {
+		if ($crits===true || empty($crits)) return true;
+		$r = self::get_records($tab_name, array_merge($crits, array('id'=>$id)));
+		return !empty($r);
+	}
 	public static function get_access($tab_name, $action, $param=null){
+		if (Base_AclCommon::i_am_admin())
+			switch ($action) {
+				case 'browse':	
+				case 'view':	
+				case 'edit':	
+				case 'delete': return true;
+				case 'edit_fields': return array();
+			}
 		$access_callback = explode('::', DB::GetOne('SELECT access_callback FROM recordbrowser_table_properties WHERE tab=%s', array($tab_name)));
 		if ($access_callback === '' || !is_callable($access_callback)) return true;
 		return call_user_func($access_callback, $action, $param);
@@ -515,16 +533,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function get_html_record_info($tab_name = null, $id = null){
 		if (is_numeric($id))$info = Utils_RecordBrowserCommon::get_record_info($tab_name, $id);
 		else $info = $id;
+		$contact='';
 		if (ModuleManager::is_installed('CRM_Contacts')>=0) {
 			$contact = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact($info['created_by']),true);
-			$created_by = $contact;
+			if ($contact!='') $created_by = $contact;
+			else $created_by = Base_UserCommon::get_user_login($info['created_by']);
 			if ($info['edited_by']!=null) {
 				if ($info['edited_by']!=$info['created_by']) $contact = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact($info['edited_by']),true);
-				$edited_by = $contact;
+				if ($contact!='') $edited_by = $contact;
+				else $edited_by = Base_UserCommon::get_user_login($info['edited_by']);
 			}
-		} else {
-			if ($info['edited_by']!=null) $edited_by = Base_UserCommon::get_user_login($info['edited_by']);
-			$created_by = Base_UserCommon::get_user_login($info['created_by']);
 		}
 		return Base_LangCommon::ts('Utils_RecordBrowser','Created on:').' '.Base_RegionalSettingsCommon::time2reg($info['created_on']). '<br>'.
 				Base_LangCommon::ts('Utils_RecordBrowser','Created by:').' '.$created_by. '<br>'.
@@ -585,6 +603,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (!DB::GetOne('SELECT active FROM '.$tab.' WHERE id=%d',array($id))) {
 			self::$del_or_a = '</del>';
 			return '<del '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_RecordBrowser','This record was deleted from the system, please edit current record or contact system administrator')).'>';
+		}
+		if (!self::check_record_against_crits($tab, $id, self::get_access($tab, 'view'))) {
+			self::$del_or_a = '</span>';
+			return '<span '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_RecordBrowser','You don\'t have permission to view this record.')).'>';
 		}
 		self::$del_or_a = '</a>';
 		if (!$nolink) return '<a '.self::create_record_href($tab, $id).'>';
