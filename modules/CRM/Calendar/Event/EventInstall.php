@@ -49,7 +49,6 @@ class CRM_Calendar_EventInstall extends ModuleInstall {
 		}
 		Base_ThemeCommon::install_default_theme('CRM/Calendar/Event');
 
-		$this->add_aco('view deleted notes','Employee Manager');
 		$this->add_aco('view protected notes','Employee');
 		$this->add_aco('view public notes','Employee');
 		$this->add_aco('edit protected notes','Employee Administrator');

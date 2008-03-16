@@ -106,7 +106,6 @@ class CRM_ContactsInstall extends ModuleInstall {
 		$this->add_aco('edit my company',array('Employee Administrator'));
 		$this->add_aco('delete company',array('Employee Manager'));
 
-		$this->add_aco('view deleted notes','Employee Manager');
 		$this->add_aco('view protected notes','Employee');
 		$this->add_aco('view public notes','Employee');
 		$this->add_aco('edit protected notes','Employee Administrator');

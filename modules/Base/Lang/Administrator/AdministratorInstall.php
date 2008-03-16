@@ -17,13 +17,13 @@ class Base_Lang_AdministratorInstall extends ModuleInstall {
 	}
 
 	public function install() {
-		return Variable::set('allow_lang_change',true);
 		Base_ThemeCommon::install_default_theme($this->get_type());
+		return Variable::set('allow_lang_change',true);
 	}
 
 	public function uninstall() {
-		return Variable::delete('allow_lang_change');
 		Base_ThemeCommon::uninstall_default_theme($this->get_type());
+		return Variable::delete('allow_lang_change');
 	}
 	public function requires($v) {
 		return array(

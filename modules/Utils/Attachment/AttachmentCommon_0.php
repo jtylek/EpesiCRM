@@ -53,6 +53,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		}
 		return $id;
 	}
+
 }
 
 ?>

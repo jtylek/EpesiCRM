@@ -25,7 +25,6 @@ class Utils_Attachment extends Module {
 	private $protected_write = true;
 	private $public_read = true;
 	private $public_write = true;
-	private $view_deleted = true;
 	private $other_read = false;
 
 	private $inline = false;
@@ -33,7 +32,7 @@ class Utils_Attachment extends Module {
 	
 	private $caption = '';
 
-	public function construct($key,$group='',$pd=null,$in=null,$priv_r=null,$priv_w=null,$prot_r=null,$prot_w=null,$pub_r=null,$pub_w=null,$vd=null,$header=null) {
+	public function construct($key,$group='',$pd=null,$in=null,$priv_r=null,$priv_w=null,$prot_r=null,$prot_w=null,$pub_r=null,$pub_w=null,$header=null) {
 		if(!isset($key)) trigger_error('Key not given to attachment module',E_USER_ERROR);
 		$this->lang = & $this->init_module('Base/Lang');
 		$this->group = $group;
@@ -48,7 +47,6 @@ class Utils_Attachment extends Module {
 		if(isset($prot_w)) $this->protected_write = $prot_w;
 		if(isset($pub_r)) $this->public_read = $pub_r;
 		if(isset($pub_w)) $this->public_write = $pub_w;
-		if(isset($vd)) $this->view_deleted = $vd;
 		if(isset($header)) $this->add_header = $header;
 	}
 
@@ -82,26 +80,14 @@ class Utils_Attachment extends Module {
 		$this->public_write = $write;
 	}
 
-	public function allow_view_deleted($x=true) {
-		$this->view_deleted = $x;
-	}
-
 	public function allow_other($x=true) {
 		$this->other_read = $x;
 	}
 
 	public function body() {
 		$vd = null;
-		if($this->view_deleted && !$this->persistent_deletion) {
-			$f = $this->init_module('Libs/QuickForm',null,'view_deleted');
-			$f->addElement('checkbox','view_del',$this->lang->t('View deleted attachments'),null,array('onClick'=>$f->get_submit_form_js()));
-			$vd = & $this->get_module_variable('view_deleted');
-			$f->setDefaults(array('view_del'=>$vd));
-			if($f->validate()) {
-				$vd = $f->exportValue('view_del');
-			}
-			$f->display();
-		}
+		if(!$this->persistent_deletion)
+			$vd = Variable::get('view_deleted_attachments');
 
 		$gb = $this->init_module('Utils/GenericBrowser',null,$this->key);
 		$cols = array();
@@ -191,7 +177,7 @@ class Utils_Attachment extends Module {
 	}
 
 	public function view_queue($id) {
-		$this->push_box0('view',array($id),array($this->real_key,$this->group,$this->persistent_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->view_deleted,$this->add_header));
+		$this->push_box0('view',array($id),array($this->real_key,$this->group,$this->persistent_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header));
 	}
 
 	public function get_file($row) {
@@ -282,7 +268,7 @@ class Utils_Attachment extends Module {
 	}
 
 	public function edition_history_queue($id) {
-		$this->push_box0('edition_history',array($id),array($this->real_key,$this->group,$this->persistent_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->view_deleted,$this->add_header));
+		$this->push_box0('edition_history',array($id),array($this->real_key,$this->group,$this->persistent_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header));
 	}
 
 	public function edition_history($id) {
@@ -413,7 +399,7 @@ class Utils_Attachment extends Module {
 	}
 
 	public function edit_note_queue($id=null) {
-		$this->push_box0('edit_note',array($id),array($this->real_key,$this->group,$this->persistent_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->view_deleted,$this->add_header));
+		$this->push_box0('edit_note',array($id),array($this->real_key,$this->group,$this->persistent_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header));
 	}
 
 	public function edit_note($id=null) {

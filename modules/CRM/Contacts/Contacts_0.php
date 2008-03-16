@@ -75,7 +75,6 @@ class CRM_Contacts extends Module {
 	public function company_attachment_addon($arg){
 		$a = $this->init_module('Utils/Attachment',array($arg['id'],'CRM/Company/'.$arg['id']));
 		$a->additional_header('Company: '.$arg['company_name']);
-		$a->allow_view_deleted($this->acl_check('view deleted notes'));
 		$a->allow_protected($this->acl_check('view protected notes'),$this->acl_check('edit protected notes'));
 		$a->allow_public($this->acl_check('view public notes'),$this->acl_check('edit public notes'));
 		$this->display_module($a);
@@ -90,7 +89,6 @@ class CRM_Contacts extends Module {
 			$companies[] = $company['company_name'].($company['short_name']?' ('.$company['short_name'].')':'');
 		}
 		$a->additional_header($l->t('%s %s from %s',array($arg['first_name'],$arg['last_name'],implode(', ',$companies))));
-		$a->allow_view_deleted($this->acl_check('view deleted notes'));
 		$a->allow_protected($this->acl_check('view protected notes'),$this->acl_check('edit protected notes'));
 		$a->allow_public($this->acl_check('view public notes'),$this->acl_check('edit public notes'));
 		$this->display_module($a);
