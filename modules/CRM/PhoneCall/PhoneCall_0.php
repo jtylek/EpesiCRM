@@ -18,7 +18,7 @@ class CRM_PhoneCall extends Module {
 	public function body() {
 		$this->rb = $this->init_module('Utils/RecordBrowser','phonecall','phonecall');
 		$me = CRM_ContactsCommon::get_my_record();
-		$this->rb->set_defaults(array('date_and_time'=>date('Y-m-d H:i:s'), 'employees'=>array($me['id'])));
+		$this->rb->set_defaults(array('date_and_time'=>Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s')), 'employees'=>array($me['id'])));
 		$this->display_module($this->rb);
 	}
 

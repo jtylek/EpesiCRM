@@ -347,8 +347,7 @@ class Utils_RecordBrowser extends Module {
 			while ($row = $ret->FetchRow()) {
 				if (!isset($records[$row[$this->tab.'_id']])) continue;
 				$rec_tmp[$row[$this->tab.'_id']] = $records[$row[$this->tab.'_id']];
-				$time_format = Base_RegionalSettingsCommon::time_format();
-				$rec_tmp[$row[$this->tab.'_id']]['visited_on'] = strftime($time_format,strtotime($row['visited_on']));
+				$rec_tmp[$row[$this->tab.'_id']]['visited_on'] = Base_RegionalSettingsCommon::time2reg(strtotime($row['visited_on']));
 			}
 			$records = $rec_tmp;
 		}
