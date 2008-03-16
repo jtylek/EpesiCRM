@@ -129,7 +129,7 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
         }
         if ($value['datepicker']=='') return $this->_prepareValue('', $assoc);
 		$result = $this->recalculate_time($value['date']);
-		$cleanValue = strftime('%Y-%m-%d %H:%M:%S',Base_RegionalSettingsCommon::reg2time($value['datepicker'].' '.date('H:i:s', $result)));
+		$cleanValue = strftime('%Y-%m-%d %H:%M:%S',Base_RegionalSettingsCommon::reg2time($value['datepicker'].' '.date('H:i:s', $result),false));
         return $this->_prepareValue($cleanValue, $assoc);
 	}
 
@@ -171,7 +171,7 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
             if (is_array($v)) $v = $this->recalculate_time($v);
             elseif (!is_numeric($v)) $v = strtotime($v);
             $v -= (date('i',$v) % $this->_options['optionIncrement'])*60;
-            $this->_elements[$key]->onQuickFormEvent('setGroupValue', Base_RegionalSettingsCommon::time2reg($v), $this);
+            $this->_elements[$key]->onQuickFormEvent('setGroupValue', Base_RegionalSettingsCommon::time2reg($v,true,true,false), $this);
         }
     } //end func setValue
     
