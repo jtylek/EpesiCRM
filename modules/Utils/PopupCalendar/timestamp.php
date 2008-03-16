@@ -123,10 +123,8 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 		$dpv = $this->_elements['datepicker']->exportValue($submitValues);
 		$dv = $this->_elements['date']->exportValue($submitValues);
 	        if ($dpv=='') return $this->_prepareValue('', $assoc);
-		var_dump($dv);
 		$result = $this->recalculate_time($dv);
 		$cleanValue = date('Y-m-d H:i:s',Base_RegionalSettingsCommon::reg2time($dpv.' '.date('H:i:s', strtotime(date('Y-m-d'))+$result),false));
-		print($cleanValue.'<hr>');
 	        return $this->_prepareValue($cleanValue, $assoc);
 	}
 
