@@ -59,8 +59,11 @@ class Utils_Tasks extends Module {
 			$term = ' AND t.longterm=0';
 		else
 			$term = ' AND 1=0';
-		if($this->user_filter && $this->user_filter!='()') {
-			$userf = ' AND (SELECT uta.task_id FROM utils_tasks_assigned_contacts uta WHERE uta.task_id=t.id AND uta.contact_id IN '.$this->user_filter.' LIMIT 1) is not null';
+		if($this->user_filter) {
+			if($this->user_filter!='()')
+				$userf = ' AND (SELECT uta.task_id FROM utils_tasks_assigned_contacts uta WHERE uta.task_id=t.id AND uta.contact_id IN '.$this->user_filter.' LIMIT 1) is not null';
+			else
+				$userf = ' AND 1=0';
 		} else
 			$userf = '';
 		$query = 'SELECT t.* FROM utils_tasks_task t WHERE '.($this->display_closed?'':'t.status=0 AND').' t.page_id=\''.$this->mid.'\''.$term.$userf;
@@ -120,8 +123,11 @@ class Utils_Tasks extends Module {
 			$term = ' AND t.longterm=0';
 		else
 			$term = ' AND 1=0';
-		if($this->user_filter && $this->user_filter!='()') {
-			$userf = ' AND (SELECT uta.task_id FROM utils_tasks_assigned_contacts uta WHERE uta.task_id=t.id AND uta.contact_id IN '.$this->user_filter.' LIMIT 1) is not null';
+		if($this->user_filter) {
+			if($this->user_filter!='()')
+				$userf = ' AND (SELECT uta.task_id FROM utils_tasks_assigned_contacts uta WHERE uta.task_id=t.id AND uta.contact_id IN '.$this->user_filter.' LIMIT 1) is not null';
+			else
+				$userf = ' AND 1=0';
 		} else
 			$userf = '';
 		$query = 'SELECT t.* FROM utils_tasks_task t WHERE '.($this->display_closed?'':'t.status=0 AND').' t.page_id=\''.$this->mid.'\''.$term.$userf;
