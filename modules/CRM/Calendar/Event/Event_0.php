@@ -201,7 +201,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 					$emp_alarm[$c_id] = $data['login'];
 			}
 			$cus = array();
-			$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company()), '|:Fav'=>true, '|:Recent'=>true, '|id'=>$def['cus_id']));
+			$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company()), '(:Fav'=>true, '|:Recent'=>true, '|id'=>$def['cus_id']));
 			foreach($ret as $c_id=>$data)
 			$cus[$c_id] = $data['last_name'].' '.$data['first_name'];
 

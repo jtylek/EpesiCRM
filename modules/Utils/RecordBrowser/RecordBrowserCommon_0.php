@@ -335,18 +335,24 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$old_crits = $crits;
 		$crits = array();
 		foreach($old_crits as $k=>$v) {
-			$tk = trim($k, '"!|');
+			$tk = trim($k, '"!|(');
 			if (isset($hash[$tk])) $crits[str_replace($tk, $hash[$tk], $k)] = $v;
 			else $crits[$k] = $v;
 		}
 		$or_started = false;
 		foreach($crits as $k=>$v){
 			$len = strlen($k);
-			$negative = (($len && $k[0]=='!') || ($len>1 && $k[1]=='!') || ($len>2 && $k[2]=='!'));
-			$noquotes = (($len && $k[0]=='"') || ($len>1 && $k[1]=='"') || ($len>2 && $k[2]=='"'));
-			$or = (($len && $k[0]=='|') || ($len>1 && $k[1]=='|') || ($len>2 && $k[2]=='|'));
-			$k = trim($k, '!"|');
+			$negative 	= (($len && $k[0]=='!') || ($len>1 && $k[1]=='!') || ($len>2 && $k[2]=='!') || ($len>3 && $k[3]=='!'));
+			$noquotes 	= (($len && $k[0]=='"') || ($len>1 && $k[1]=='"') || ($len>2 && $k[2]=='"') || ($len>3 && $k[3]=='"'));
+			$or_start 	= (($len && $k[0]=='(') || ($len>1 && $k[1]=='(') || ($len>2 && $k[2]=='(') || ($len>3 && $k[3]=='('));
+			$or 		= (($len && $k[0]=='|') || ($len>1 && $k[1]=='|') || ($len>2 && $k[2]=='|') || ($len>3 && $k[3]=='|'));
+			$or |= $or_start;
+			$k = trim($k, '!"|(');
 			if ($or) {
+				if ($or_start && $or_started) {
+					$having .= ')';
+					$or_started = false;
+				}
 				if (!$or_started) $having .= ' AND (';
 				else $having .= ' OR ';
 				$or_started = true;

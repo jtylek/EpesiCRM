@@ -248,7 +248,7 @@ class Utils_Tasks extends Module {
 						$emp[$c_id] = '<img src="'.Base_ThemeCommon::get_template_file('images/'.((isset($assigned[$c_id]) && $assigned[$c_id])?'active_on':'active_off').'.png').'">&nbsp;&nbsp;' . $emp[$c_id];
 				}
 				$cus = array();
-				$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company()), '|:Fav'=>true, '|:Recent'=>true, '|id'=>$related));
+				$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company()), '(:Fav'=>true, '|:Recent'=>true, '|id'=>$related));
 				foreach($ret as $c_id=>$data)
 					$cus[$c_id] = $data['last_name'].' '.$data['first_name'];
 	

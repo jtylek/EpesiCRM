@@ -432,7 +432,7 @@ class Utils_GenericBrowser extends Module {
 		 			if (!$array)
 						$where .= ($where?' OR':'').' '.$v['search'].' LIKE '.DB::Concat(DB::qstr('%'),sprintf('%s',DB::qstr($search['__keyword__'])),DB::qstr('%'));
 					else
-						$where['|'.$v['search']][] = DB::Concat(DB::qstr('%'),sprintf('%s',DB::qstr($search['__keyword__'])),DB::qstr('%'));
+						$where[(empty($where)?'(':'|').$v['search']][] = DB::Concat(DB::qstr('%'),sprintf('%s',DB::qstr($search['__keyword__'])),DB::qstr('%'));
 			}
 		} else {
 			foreach($this->columns as $k=>$v)

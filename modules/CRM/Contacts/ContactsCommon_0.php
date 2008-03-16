@@ -40,7 +40,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$i = self::Instance();
 		switch ($action) {
 			case 'browse':	return $i->acl_check('browse companies');
-			case 'view':	if ($i->acl_check('view company')) return array('|!permission'=>2, '|:Created_by'=>Acl::get_user());
+			case 'view':	if ($i->acl_check('view company')) return array('(!permission'=>2, '|:Created_by'=>Acl::get_user());
 							$me = self::get_my_record();
 							if ($me) return array('company_name'=>$me['company_name']);
 							else return false;
@@ -59,7 +59,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$i = self::Instance();
 		switch ($action) {
 			case 'browse':	return $i->acl_check('browse contacts');
-			case 'view':	if ($i->acl_check('view contact')) return array('|!permission'=>2, '|login'=>Acl::get_user(), '|:Created_by'=>Acl::get_user());
+			case 'view':	if ($i->acl_check('view contact')) return array('(!permission'=>2, '|login'=>Acl::get_user(), '|:Created_by'=>Acl::get_user());
 							else return array('login'=>Acl::get_user());
 			case 'delete':	return $i->acl_check('delete contact');
 			case 'edit':
