@@ -171,7 +171,7 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
             if (is_array($v)) $v = $this->recalculate_time($v);
             elseif (!is_numeric($v)) $v = strtotime($v);
             $v -= (date('i',$v) % $this->_options['optionIncrement'])*60;
-            $this->_elements[$key]->onQuickFormEvent('setGroupValue', Base_RegionalSettingsCommon::time2reg($v,true,true,false), $this);
+            $this->_elements[$key]->onQuickFormEvent('setGroupValue', $v, $this);
         }
     } //end func setValue
     
