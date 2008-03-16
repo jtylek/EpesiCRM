@@ -112,26 +112,22 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 
 	function recalculate_time($time) {
 		if (isset($time['a'])) {
-			$result = 60*($time['i']+60*($time['h']));
+			$result = 60*($time['i']+60*($time['h']%12));
 			if ($time['a']=='pm') $result += 43200;
-			if ($time['h']==12) {
-				if ($time['a']=='pm') $result -= 43200; else $result -= 43200;
-			}
 		} else $result = 60*($time['i']+60*($time['H']));
-		$result -= 60*60;
+
 		return $result;
 	}
 
 	function exportValue(&$submitValues, $assoc = false) {
-        $value = $this->_findValue($submitValues);
-        if (is_null($value)) {
-            $value = $this->getValue();
-        }
-        if ($value['datepicker']=='') return $this->_prepareValue('', $assoc);
-		$result = $this->recalculate_time($value['date']);
-		$cleanValue = date('Y-m-d H:i:s',Base_RegionalSettingsCommon::reg2time($value['datepicker'].' '.date('H:i:s', $result),false));
+		$dpv = $this->_elements['datepicker']->exportValue($submitValues);
+		$dv = $this->_elements['date']->exportValue($submitValues);
+	        if ($dpv=='') return $this->_prepareValue('', $assoc);
+		var_dump($dv);
+		$result = $this->recalculate_time($dv);
+		$cleanValue = date('Y-m-d H:i:s',Base_RegionalSettingsCommon::reg2time($dpv.' '.date('H:i:s', strtotime(date('Y-m-d'))+$result),false));
 		print($cleanValue.'<hr>');
-        return $this->_prepareValue($cleanValue, $assoc);
+	        return $this->_prepareValue($cleanValue, $assoc);
 	}
 
     // }}}
@@ -142,27 +138,11 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
         $renderer->renderElement($this, $required, $error);
     }
 
-    // }}}
-    // {{{ onQuickFormEvent()
-
-    function onQuickFormEvent($event, $arg, &$caller)
-    {
-        if ('updateValue' == $event) {
-            // we need to call setValue(), 'cause the default/constant value
-            // may be in fact a timestamp, not an array
-            return HTML_QuickForm_element::onQuickFormEvent($event, $arg, $caller);
-        } else {
-            return parent::onQuickFormEvent($event, $arg, $caller);
-        }
-    }
-
-    // }}}
-    
     function setValue($value)
     {
         $this->_createElementsIfNotExist();
         foreach ($value as $key=>$v) {
-            $this->_elements[$key]->onQuickFormEvent('setGroupValue', $v, $this);
+            $this->_elements[$key]->setValue($v);
         }
     } //end func setValue
     

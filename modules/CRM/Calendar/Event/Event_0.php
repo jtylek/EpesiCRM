@@ -288,11 +288,8 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 	private function recalculate_time($time) {
 		if (isset($time['a'])) {
-			$result = 60*($time['i']+60*($time['h']));
+			$result = 60*($time['i']+60*($time['h']%12));
 			if ($time['a']=='pm') $result += 43200;
-			if ($time['h']==12) {
-				if ($time['a']=='pm') $result -= 43200; else $result -= 43200;
-			}
 		} else $result = 60*($time['i']+60*($time['H']));
 		return $result;
 	}
