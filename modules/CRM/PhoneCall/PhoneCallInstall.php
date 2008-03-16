@@ -111,7 +111,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 	public function version() {
 		return array('0.9');
 	}
-
+/*
 	public static function post_install() {
 		$loc = Base_RegionalSettingsCommon::get_default_location();
 		$count = DB::GetOne('SELECT count(ul.id) FROM user_login ul');
@@ -144,7 +144,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 	public static function state_element($name, $args, & $def_js) {
 		return HTML_QuickForm::createElement('commondata',$name,'State',array('Countries',self::$country_elem_name),array('empty_option'=>true));
 	}
-
+*/
 }
 
 ?>

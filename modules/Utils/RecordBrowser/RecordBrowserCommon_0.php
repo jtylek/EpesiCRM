@@ -304,7 +304,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		DB::Execute('INSERT INTO '.$tab_name.'_recent VALUES (%d, %d, %T)',
 					array($id,
 					$user_id,
-					date('Y-m-d H:i:s',Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s')))));
+					date('Y-m-d H:i:s')));
 		DB::CompleteTrans();
 	}
 	public static function build_query( $tab_name = null, $crits = null, $admin = false, $order = array()) {
