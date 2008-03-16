@@ -127,6 +127,7 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
         if (is_null($value)) {
             $value = $this->getValue();
         }
+	var_dump($value);
         if ($value['datepicker']=='') return $this->_prepareValue('', $assoc);
 		$result = $this->recalculate_time($value['date']);
 		$cleanValue = $value['datepicker'].' '.date('H:i:s', $result);
@@ -160,17 +161,7 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
     function setValue($value)
     {
         $this->_createElementsIfNotExist();
-        foreach (array_keys($this->_elements) as $key) {
-            $elementName = $this->_elements[$key]->getName();
-            $index       = strlen($elementName) ? $elementName : $key;
-            if (is_array($value)) {
-            	$v = $value[$index];
-            } else {
-            	$v = $value;
-            }
-            if (is_array($v)) $v = $this->recalculate_time($v);
-            elseif (!is_numeric($v)) $v = strtotime($v);
-            $v -= (date('i',$v) % $this->_options['optionIncrement'])*60;
+        foreach ($value as $key=>$v) {
             $this->_elements[$key]->onQuickFormEvent('setGroupValue', $v, $this);
         }
     } //end func setValue
