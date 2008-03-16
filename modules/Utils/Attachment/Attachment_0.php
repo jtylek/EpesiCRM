@@ -135,7 +135,8 @@ class Utils_Attachment extends Module {
 
 
 			if($row['original']!=='') {
-				$filetooltip = $this->lang->t('Filename: %s',array($row['original'])).'<hr>'.$this->lang->t('Last uploaded by %s<br>on %s<br>Number of uploads: %d<br>Number of downloads: %d',array($row['upload_by'],Base_RegionalSettingsCommon::time2reg($row['upload_on']),$row['file_revision'],$row['downloads']));
+				$f_filename = 'data/Utils_Attachment/'.$row['local'].'/'.$row['file_id'].'_'.$row['file_revision'];
+				$filetooltip = $this->lang->t('Filename: %s<br>File size: %s',array($row['original'],filesize_hr($f_filename))).'<hr>'.$this->lang->t('Last uploaded by %s<br>on %s<br>Number of uploads: %d<br>Number of downloads: %d',array($row['upload_by'],Base_RegionalSettingsCommon::time2reg($row['upload_on']),$row['file_revision'],$row['downloads']));
 				$file = '<a '.$this->get_file($row).' '.Utils_TooltipCommon::open_tag_attrs($filetooltip).'><img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'attach.png').'" border=0></a>';
 			} else {
 				$file = '';
@@ -211,6 +212,8 @@ class Utils_Attachment extends Module {
 		load_js('modules/Utils/Attachment/remote.js');
 		$th->assign('link','<a href="javascript:void(0)" onClick="utils_attachment_get_link('.$row['file_id'].', '.CID.', \''.Epesi::escapeJS($this->get_path(),false).'\',\'get link\');leightbox_deactivate(\''.$lid.'\')">'.$this->lang->t('Get link').'</a><br>');
 		$th->assign('filename',$row['original']);
+		$f_filename = 'data/Utils_Attachment/'.$row['local'].'/'.$row['file_id'].'_'.$row['file_revision'];
+		$th->assign('file_size',$this->lang->t('File size: %s',array(filesize_hr($f_filename))));
 
 		ob_start();
 		$th->display('download');

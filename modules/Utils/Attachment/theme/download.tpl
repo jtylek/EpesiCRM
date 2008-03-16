@@ -2,6 +2,7 @@
 
 <br/>
 <h3>{$filename}</h3>
+{$file_size}
 <br/>
 
 <table id="Utils_Attachment__download" cellspacing="0" cellpadding="0">

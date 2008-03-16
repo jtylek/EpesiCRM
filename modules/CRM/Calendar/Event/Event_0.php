@@ -52,8 +52,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				'priority'=>0,
 				'emp_id' => $my_emp,
 				'timeless'=>($timeless?1:0),
-				'cus_id'=>array(),
-				'emp_id'=>array()
+				'cus_id'=>array()
 			);
 		} else {
 			$event = DB::GetRow('SELECT *,end-start as duration FROM crm_calendar_event WHERE id=%d', $id);
@@ -142,6 +141,8 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 		eval_js_once('crm_calendar_event_timeless = function(val) {'.
 				'var cal_style;'.
+				'var tdb=$(\'toggle_duration_button\');'.
+				'if(tdb==null) return;'.
 				'if(val){'.
 				'cal_style = \'none\';'.
 				'$(\'duration_switch\').value=\'0\';'.
@@ -153,7 +154,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				'if(te) te.style.display = cal_style;'.
 				'var ts = $(\'time_s\');'.
 				'if(ts) ts.style.display = cal_style;'.
-				'$(\'toggle_duration_button\').style.display = cal_style;'.
+				'tdb.style.display = cal_style;'.
 				'crm_calendar_duration_switcher(1);'.
 			'}');
 		$form->addElement('checkbox', 'timeless', $this->lang->t('Timeless'), null,array('onClick'=>'crm_calendar_event_timeless(this.checked)','id'=>'timeless'));
@@ -185,10 +186,8 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$emp_id = '';
 			foreach ($def['cus_id'] as $v)
 				$cus_id .= CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact($v)).'<br>';
-			foreach ($def['emp_id'] as $v) {
-				$emp_id .= '<img src="'.Base_ThemeCommon::get_template_file('images/'.((isset($assigned[$v]) && $assigned[$v])?'active_on':'active_off').'.png').'">&nbsp;&nbsp;';
+			foreach ($def['emp_id'] as $v)
 				$emp_id .= CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact($v)).'<br>';
-			}
 			$def['cus_id'] = $cus_id;
 			$def['emp_id'] = $emp_id;
 		} else {
