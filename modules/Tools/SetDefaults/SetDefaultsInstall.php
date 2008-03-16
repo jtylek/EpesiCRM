@@ -14,16 +14,16 @@ class Tools_SetDefaultsInstall extends ModuleInstall {
 	public function install() {
 		
 		// Setting default AB icons and launchpad
-		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) VALUES (%s, %s, %s)', array('Base_Menu_QuickAccess', '465e51c2b6eba36161f0115442e7406c_d', 's:1:\"1\";'));
-		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) VALUES (%s, %s, %s)', array('Base_Menu_QuickAccess', '465e51c2b6eba36161f0115442e7406c_l', 's:1:\"1\";'));
-		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) VALUES (%s, %s, %s)', array('Base_Menu_QuickAccess', '4fe4700ae455ac705d9d5efa1292298b_d', 's:1:\"1\";'));
-		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) VALUES (%s, %s, %s)', array('Base_Menu_QuickAccess', '4fe4700ae455ac705d9d5efa1292298b_l', 's:1:\"1\";'));
-		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) VALUES (%s, %s, %s)', array('Base_Menu_QuickAccess', '5ee46bef4c047bd8816ac3810270cc73_d', 's:1:\"1\";'));
-		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) VALUES (%s, %s, %s)', array('Base_Menu_QuickAccess', '5ee46bef4c047bd8816ac3810270cc73_l', 's:1:\"1\";'));
-		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) VALUES (%s, %s, %s)', array('Base_Menu_QuickAccess', '7b3558122283d2a14051c96a7da1fb1b_d', 's:1:\"1\";'));
-		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) VALUES (%s, %s, %s)', array('Base_Menu_QuickAccess', '7b3558122283d2a14051c96a7da1fb1b_l', 's:1:\"1\";'));
-		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) VALUES (%s, %s, %s)', array('Base_Menu_QuickAccess', 'b34db58caa3e6a8b933deca655640047_d', 's:1:\"1\";'));
-		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) VALUES (%s, %s, %s)', array('Base_Menu_QuickAccess', 'b34db58caa3e6a8b933deca655640047_l', 's:1:\"1\";'));
+		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) VALUES (%s, %s, %s)', array('Base_Menu_QuickAccess', '465e51c2b6eba36161f0115442e7406c_d', 's:1:"1";'));
+		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) VALUES (%s, %s, %s)', array('Base_Menu_QuickAccess', '465e51c2b6eba36161f0115442e7406c_l', 's:1:"1";'));
+		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) VALUES (%s, %s, %s)', array('Base_Menu_QuickAccess', '4fe4700ae455ac705d9d5efa1292298b_d', 's:1:"1";'));
+		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) VALUES (%s, %s, %s)', array('Base_Menu_QuickAccess', '4fe4700ae455ac705d9d5efa1292298b_l', 's:1:"1";'));
+		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) VALUES (%s, %s, %s)', array('Base_Menu_QuickAccess', '5ee46bef4c047bd8816ac3810270cc73_d', 's:1:"1";'));
+		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) VALUES (%s, %s, %s)', array('Base_Menu_QuickAccess', '5ee46bef4c047bd8816ac3810270cc73_l', 's:1:"1";'));
+		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) VALUES (%s, %s, %s)', array('Base_Menu_QuickAccess', '7b3558122283d2a14051c96a7da1fb1b_d', 's:1:"1";'));
+		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) VALUES (%s, %s, %s)', array('Base_Menu_QuickAccess', '7b3558122283d2a14051c96a7da1fb1b_l', 's:1:"1";'));
+		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) VALUES (%s, %s, %s)', array('Base_Menu_QuickAccess', 'b34db58caa3e6a8b933deca655640047_d', 's:1:"1";'));
+		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) VALUES (%s, %s, %s)', array('Base_Menu_QuickAccess', 'b34db58caa3e6a8b933deca655640047_l', 's:1:"1";'));
 
 		// default applets
 		DB::Execute('INSERT INTO base_dashboard_default_applets (id, module_name, col, pos, tab) VALUES (%d, %s, %d, %d, %d)', array(1,'Applets_Clock',0,0,1));
