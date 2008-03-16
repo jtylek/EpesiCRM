@@ -28,8 +28,7 @@ require_once 'HTML/QuickForm/group.php';
 /**
  * Class for <select></select> elements
  */
-require_once 'modules/Utils/PopupCalendar/PopupCalendarCommon_0.php';
-require_once 'modules/Utils/PopupCalendar/datepicker.php';
+require_once 'datepicker.php';
 require_once 'HTML/QuickForm/date.php';
 
 /**
