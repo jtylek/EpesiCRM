@@ -34,6 +34,7 @@ class Utils_RecordBrowser extends Module {
 	private $is_on_main_page = false;
 	private $custom_defaults = array();
 	private $add_in_table = false;
+	private $custom_filters = array();
 	public $adv_search = false;
 		
 	public function get_val($field, $record, $id, $links_not_recommended = false, $args = null) {
@@ -190,6 +191,15 @@ class Utils_RecordBrowser extends Module {
 		$form = $this->init_module('Libs/QuickForm', null, $this->tab.'filters');
 		$filters = array();
 		foreach ($filters_all as $filter) {
+			$filter_id = strtolower(str_replace(' ','_',$filter));
+			if (isset($this->custom_filters[$filter_id])) {
+				$f = $this->custom_filters[$filter_id];
+				if (!isset($f['label'])) $f['label'] = $filter;
+				if (!isset($f['args'])) $f['args'] = null;
+				$form->addElement($f['type'], $filter_id, $f['label'], $f['args']);
+				$filters[] = $filter_id;
+				continue;
+			}
 			$arr = array();
 			if (!isset($this->QFfield_callback_table[$filter]) && ($this->table_rows[$filter]['type'] == 'select' || $this->table_rows[$filter]['type'] == 'multiselect')) {
 				list($tab, $col) = explode('::',$this->table_rows[$filter]['param']);
@@ -201,41 +211,34 @@ class Utils_RecordBrowser extends Module {
 				}
 			} else {
 				$ret2 = DB::Execute('SELECT '.$this->tab.'_id, value FROM '.$this->tab.'_data WHERE field=%s ORDER BY value', array($filter));
-				while ($row2 = $ret2->FetchRow()) $arr[$row2['value']] = $this->get_val($filter, array($this->table_rows[$filter]['id']=>$row2['value']), $row2[$this->tab.'_id'], true, $this->table_rows[$filter]);
+				while ($row2 = $ret2->FetchRow()) if($row2['value'][0]!='_') $arr[$row2['value']] = $this->get_val($filter, array($this->table_rows[$filter]['id']=>$row2['value']), $row2[$this->tab.'_id'], true, $this->table_rows[$filter]);
 			}
-/*			if ($this->table_rows[$filter]['type']=='commondata') {
-				 $cddata = Utils_CommonDataCommon::get_array(str_replace('::','/',$this->table_rows[$filter]['param']), true);
-				 foreach ($arr as $k=>$v) {
-				 	$arr[$k] = $cddata[$v];
-				 }
-			}*/
 			if ($this->table_rows[$filter]['type']=='checkbox') $arr = array(''=>$this->lang->ht('No'), 1=>$this->lang->ht('Yes'));
 			natcasesort($arr);
 			$arr = array('__NULL__'=>'--')+$arr;
-			$form->addElement('select', str_replace(' ','_',$filter), $filter, $arr);
-			$filters[] = str_replace(' ','_',$filter);
+			$form->addElement('select', $filter_id, $filter, $arr);
+			$filters[] = $filter_id;
 		}
 		$form->addElement('submit', 'submit', 'Show');
 		$def_filt = $this->get_module_variable('def_filter', array());
 		$form->setDefaults($def_filt);
 		$this->crits = array();
-		if ($form->validate()) {
-			$vals = $form->exportValues();
-			unset($vals['submit']);
-			unset($vals['submited']);
-			$def_filt = array();
-			foreach($vals as $k=>$v)
-				if ($v!=='__NULL__')
-					$def_filt[$k] = $v;
-			$this->set_module_variable('def_filter', $def_filt);
+		$vals = $form->exportValues();
+		foreach ($filters_all as $filter) {
+			$filter_id = strtolower(str_replace(' ','_',$filter));
+			if (!isset($vals[$filter_id])) $vals[$filter_id]='__NULL__';
+			if (isset($this->custom_filters[$filter_id])) {
+				if (isset($this->custom_filters[$filter_id]['trans'][$vals[$filter_id]]))
+					foreach($this->custom_filters[$filter_id]['trans'][$vals[$filter_id]] as $k=>$v)
+						$this->crits[$k] = $v;
+			} elseif ($vals[$filter_id]!=='__NULL__') $this->crits[$filter_id] = $vals[$filter_id];
 		}
-		foreach($def_filt as $k=>$v)
-			$this->crits[str_replace('_',' ',$k)] = array($v);
+		$this->set_module_variable('def_filter', $this->crits);
 		$theme = $this->init_module('Base/Theme');
 		$form->assign_theme('form',$theme);
 		$theme->assign('filters', $filters);
 		$theme->assign('id', $f_id);
-		if (!empty($def_filt)) $theme->assign('dont_hide', true);
+		if (!empty($this->crits)) $theme->assign('dont_hide', true);
 		return $this->get_html_of_module($theme, 'Filter', 'display');
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
@@ -1177,6 +1180,9 @@ class Utils_RecordBrowser extends Module {
 	
 	public function enable_quick_new_records() {
 		$this->add_in_table = true;
+	}
+	public function set_custom_filter($arg, $spec){
+		$this->custom_filters[$arg] = $spec;
 	}
 	public function mini_view($cols, $crits, $order, $info, $limit=null){
 		$this->init();
