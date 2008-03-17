@@ -225,10 +225,8 @@ class Utils_RecordBrowser extends Module {
 			unset($vals['submited']);
 			$def_filt = array();
 			foreach($vals as $k=>$v)
-				if ($v!=='__NULL__') {
-					$this->crits[str_replace('_',' ',$k)] = array($v);
+				if ($v!=='__NULL__')
 					$def_filt[$k] = $v;
-				}
 			$this->set_module_variable('def_filter', $def_filt);
 		}
 		foreach($def_filt as $k=>$v)
