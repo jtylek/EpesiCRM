@@ -310,9 +310,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function build_query( $tab_name = null, $crits = null, $admin = false, $order = array()) {
 		$key=$tab_name.'__'.serialize($crits).'__'.$admin.'__'.serialize($order);
 		static $cache = array();
+		self::init($tab_name, $admin);
 		if (isset($cache[$key])) return $cache[$key];
 		if (!$tab_name) return false;
-		self::init($tab_name, $admin);
 		$having = '';
 		$fields = '';
 		$where = '';
@@ -516,11 +516,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		while($field = $data->FetchRow()) {
 			if (!isset(self::$table_rows[$field['field']])) continue;
 			$field_id = strtolower(str_replace(' ','_',$field['field']));
-			if (self::$table_rows[$field['field']]['type'] == 'multiselect')
+			if (self::$table_rows[$field['field']]['type'] == 'multiselect') {
 				if (isset($records[$field[$tab_name.'_id']][$field_id]))
 					$records[$field[$tab_name.'_id']][$field_id][] = $field['value'];
 				else $records[$field[$tab_name.'_id']][$field_id] = array($field['value']);
-			else
+			} else
 				$records[$field[$tab_name.'_id']][$field_id] = $field['value'];
 		}
 		foreach(self::$table_rows as $field=>$args)
