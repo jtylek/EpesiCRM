@@ -31,6 +31,12 @@ class Tools_SetDefaultsInstall extends ModuleInstall {
 		DB::Execute('INSERT INTO base_dashboard_default_applets (id, module_name, col, pos, tab) VALUES (%d, %s, %d, %d, %d)', array(3,'CRM_Tasks',1,0,1));
 		DB::Execute('INSERT INTO base_dashboard_default_applets (id, module_name, col, pos, tab) VALUES (%d, %s, %d, %d, %d)', array(4,'CRM_PhoneCall',1,1,1));
 		DB::Execute('INSERT INTO base_dashboard_default_applets (id, module_name, col, pos, tab) VALUES (%d, %s, %d, %d, %d)', array(5,'CRM_Calendar',1,2,1));
+		DB::Execute('INSERT INTO base_dashboard_default_applets (id, module_name, col, pos, tab) VALUES (%d, %s, %d, %d, %d)', array(6,'Applets_Note',0,1,1));
+
+		//default note
+		DB::Execute('INSERT INTO base_dashboard_default_settings (applet_id,name,value) VALUES (%d, %s, %s)', array(6,'bcolor','nice-yellow'));
+		DB::Execute('INSERT INTO base_dashboard_default_settings (applet_id,name,value) VALUES (%d, %s, %s)',  array(6,'text','<p><strong>Congratulations!</strong><br />You just installed epesi BIM - Business Information Manager.</p><p>For more information, help and support please visit <a href="http://www.epesibim.com" target="_blank">www.epesibim.com</a></p>'));
+		DB::Execute('INSERT INTO base_dashboard_default_settings (applet_id,name,value) VALUES (%d, %s, %s)', array(6,'title','Welcome'));
 
 		return true;
 	}
