@@ -1137,6 +1137,9 @@ class Utils_RecordBrowser extends Module {
 	public function set_defaults($arg){
 		return $this->custom_defaults = $arg;
 	}
+	public function set_filters_defaults($arg){
+		if (!$this->isset_module_variable('def_filter')) $this->set_module_variable('def_filter', $arg);
+	}	
 	public function caption(){
 		return $this->caption.': '.$this->action;
 	}
