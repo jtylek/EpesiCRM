@@ -401,7 +401,8 @@ class Utils_Calendar extends Module {
 				if(isset($custom_keys[$ev['custom_row_key']])) {
 					$dest_id = 'UCcell_'.$today_t.'_'.$ev['custom_row_key'];
 				} else {
-					trigger_error('Invalid custom_row_key:'.$ev['custom_row_key'],E_USER_ERROR);
+//					trigger_error('Invalid custom_row_key:'.$ev['custom_row_key'],E_USER_ERROR);
+					continue;
 				}
 			} elseif($this->settings['timeline']) {
 				$ct = count($timeline);
@@ -543,7 +544,8 @@ class Utils_Calendar extends Module {
 				if(isset($custom_keys[$ev['custom_row_key']])) {
 					$dest_id = 'UCcell_'.$today_t.'_'.$ev['custom_row_key'];
 				} else {
-					trigger_error('Invalid custom_row_key:'.$ev['custom_row_key'],E_USER_ERROR);
+//					trigger_error('Invalid custom_row_key:'.$ev['custom_row_key'],E_USER_ERROR);
+					continue;
 				}
 			} else {
 				$ev_start = $ev['start']-$today_t;
