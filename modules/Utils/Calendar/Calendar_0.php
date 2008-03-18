@@ -315,7 +315,7 @@ class Utils_Calendar extends Module {
 			array('name'=>$this->lang->t('Start'), 'order'=>'start', 'width'=>15),
 			array('name'=>$this->lang->t('Duration'), 'order'=>'end', 'width'=>15),
 			array('name'=>$this->lang->t('Title'), 'order'=>'title','width'=>15),
-			array('name'=>$this->lang->t('Description'), 'order'=>'description','width'=>30)
+			array('name'=>$this->lang->t('Additional info'), 'order'=>'additional_info','width'=>30)
 		);
 		$gb->set_table_columns( $columns );
 
@@ -323,14 +323,15 @@ class Utils_Calendar extends Module {
 		$ret = $this->get_events($start,$end);
 		foreach($ret as $row) {
 			$r = $gb->get_new_row();
+			$view_h = $this->create_callback_href(array($this,'push_event_action'),array('view',$row['id']));
 
 			$ex = Utils_CalendarCommon::process_event($row);
 
-			$r->add_data($ex['start'],Utils_TooltipCommon::create($ex['duration'],$ex['end']),$row['title'],$row['description']);
+			$r->add_data($ex['start'],Utils_TooltipCommon::create($ex['duration'],$ex['end']),'<a '.$view_h.'>'.$row['title'].'</a>',Utils_TooltipCommon::create($row['additional_info'],$row['additional_info2']));
 
 			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Delete this event?'),array($this,'delete_event'),$row['id']),'Delete');
 			$r->add_action($this->create_callback_href(array($this,'push_event_action'),array('edit',$row['id'])),'Edit');
-			$r->add_action($this->create_callback_href(array($this,'push_event_action'),array('view',$row['id'])),'View');
+			$r->add_action($view_h,'View');
 		}
 
 		$theme->assign('agenda',$this->get_html_of_module($gb,array(false),'automatic_display'));

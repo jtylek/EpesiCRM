@@ -13,11 +13,8 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_AttachmentCommon extends ModuleCommon {
-	/**
-	 * Example usage:
-	 * Utils_AttachmentCommon::persistent_mass_delete(null,'CRM/Contact'); // deletes all entries located in CRM/Contact*** group
-	 */
-	public static function persistent_mass_delete($key=null,$group=null,$group_starts_with=true) {
+
+	private static function get_where($key=null,$group=null,$group_starts_with=true) {
 		$wh = array();
 		if(isset($key)) $wh[] = 'ual.attachment_key=\''.md5($key).'\'';
 		if(isset($group)) {
@@ -26,7 +23,14 @@ class Utils_AttachmentCommon extends ModuleCommon {
 			else
 				$wh[] = 'ual.local='.DB::qstr($group);
 		}
-		$ret = DB::Execute('SELECT ual.id,ual.local FROM utils_attachment_link ual WHERE '.implode(' AND ',$wh));
+		return implode(' AND ',$wh);
+	}
+	/**
+	 * Example usage:
+	 * Utils_AttachmentCommon::persistent_mass_delete(null,'CRM/Contact'); // deletes all entries located in CRM/Contact*** group
+	 */
+	public static function persistent_mass_delete($key=null,$group=null,$group_starts_with=true) {
+		$ret = DB::Execute('SELECT ual.id,ual.local FROM utils_attachment_link ual WHERE '.self::get_where($key,$group,$group_starts_with));
 		while($row = $ret->FetchRow()) {
 			$id = $row['id'];
 			$local = $row['local'];
@@ -54,6 +58,9 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		return $id;
 	}
 
+	public static function count($key=null,$group=null,$group_starts_with=true) {
+		return DB::GetOne('SELECT count(ual.id) FROM utils_attachment_link ual WHERE ual.deleted=0 AND '.self::get_where($key,$group,$group_starts_with));
+	}
 }
 
 ?>

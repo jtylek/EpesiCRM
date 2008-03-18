@@ -7,7 +7,7 @@
             <td class="description">{$description}</td>
         </tr>
 	<tr>
-	   <td>{$additional_info2}</td>
+	   <td>{$additional_info}</td>
 	</tr>
     </tbody>
 </table>

@@ -69,7 +69,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 	 */
 	public function create( $text, $tip, $help=true) {
 		self::show_help();
-		if(!$help || self::$help_tooltips)
+		if((!$help || self::$help_tooltips) && is_string($tip) && $tip!=='')
 			return '<span '.self::open_tag_attrs($tip,$help).'>'.$text.'</span>';
 		else
 			return $text;

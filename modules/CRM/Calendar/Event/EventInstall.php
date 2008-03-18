@@ -13,16 +13,6 @@ class CRM_Calendar_EventInstall extends ModuleInstall {
 
 	public function install() {
 		$ret = true;
-		$ret &= DB::CreateTable('crm_calendar_event_group_emp',
-			'id I,'.
-			'contact I4 NOT NULL',
-			array('constraints'=>'')
-			);
-		$ret &= DB::CreateTable('crm_calendar_event_group_cus',
-			'id I,'.
-			'contact I4 NOT NULL',
-			array('constraints'=>'')
-			);
 		$ret &= DB::CreateTable('crm_calendar_event',
 			'id I AUTO KEY,'.
 
@@ -43,6 +33,16 @@ class CRM_Calendar_EventInstall extends ModuleInstall {
 			'edited_by I4',
 			array('constraints'=>	' , INDEX(start), INDEX(end), FOREIGN KEY (edited_by) REFERENCES user_login(id), FOREIGN KEY (created_by) REFERENCES user_login(id)')
 		);
+		$ret &= DB::CreateTable('crm_calendar_event_group_emp',
+			'id I,'.
+			'contact I4 NOT NULL',
+			array('constraints'=>' , FOREIGN KEY (id) REFERENCES crm_calendar_event(id)')
+			);
+		$ret &= DB::CreateTable('crm_calendar_event_group_cus',
+			'id I,'.
+			'contact I4 NOT NULL',
+			array('constraints'=>' , FOREIGN KEY (id) REFERENCES crm_calendar_event(id)')
+			);
 		if(!$ret) {
 			print('Unable to create crm_calendar_event table');
 			return false;
@@ -61,9 +61,10 @@ class CRM_Calendar_EventInstall extends ModuleInstall {
 		Base_ThemeCommon::uninstall_default_theme('CRM/Calendar/Event');
 		Utils_AttachmentCommon::persistent_mass_delete(null,'CRM/Calendar/Event');
 		Utils_MessengerCommon::delete_by_parent_module($this->get_type());
-		$ret = DB::DropTable('crm_calendar_event');
+		$ret = true;
 		$ret &= DB::DropTable('crm_calendar_event_group_emp');
 		$ret &= DB::DropTable('crm_calendar_event_group_cus');
+		$ret &= DB::DropTable('crm_calendar_event');
 		return $ret;
 	}
 

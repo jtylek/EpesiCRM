@@ -55,6 +55,10 @@ class Utils_CalendarCommon extends ModuleCommon {
 			trigger_error('Invalid return of event method: get(_all) (missing field \'timeless\' in '.print_r($row, true).')',E_USER_ERROR);
 		if(!isset($row['id']))
 			trigger_error('Invalid return of event method: get(_all) (missing field \'id\' in '.print_r($row, true).')',E_USER_ERROR);
+		if(!isset($row['additional_info']))
+			$row['additional_info'] = '';
+		if(!isset($row['additional_info2']))
+			$row['additional_info2'] = '';
 
 		if(!is_numeric($row['start']) && is_string($row['start'])) $row['start'] = strtotime($row['start']);
 		if($row['start']===false)
@@ -87,9 +91,9 @@ class Utils_CalendarCommon extends ModuleCommon {
 		} else {
 			$start_time = Base_RegionalSettingsCommon::time2reg($ev_start,2,false);
 			$end_time = Base_RegionalSettingsCommon::time2reg($ev_end,2,false);
-			$start_t = $start_day.', '.$start_date.' '.$start_time;
+			$start_t = $start_day.': '.$start_date.' '.$start_time;
 			if(!$oneday)
-				$end_t = $end_day.', '.$end_date.' '.$end_time;
+				$end_t = $end_day.': '.$end_date.' '.$end_time;
 		}
 
 		$duration_str = self::duration2str($row['duration']);
