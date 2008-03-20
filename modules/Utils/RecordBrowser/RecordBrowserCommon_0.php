@@ -545,9 +545,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				case 'delete': return true;
 				case 'edit_fields': return array();
 			}
-		$access_callback = explode('::', DB::GetOne('SELECT access_callback FROM recordbrowser_table_properties WHERE tab=%s', array($tab_name)));
+		static $cache = array();
+		if (!isset($cache[$tab_name])) $cache[$tab_name] = $access_callback = explode('::', DB::GetOne('SELECT access_callback FROM recordbrowser_table_properties WHERE tab=%s', array($tab_name)));
+		else $access_callback = $cache[$tab_name];
 		if ($access_callback === '' || !is_callable($access_callback)) return true;
-		return call_user_func($access_callback, $action, $param);
+		$ret = call_user_func($access_callback, $action, $param);
+		if ($action==='delete') $ret &= call_user_func($access_callback, 'edit', $param);
+		return $ret;
 	}
 	public static function get_record_info($tab_name = null, $id = null) {
 		if (!$tab_name) return false;

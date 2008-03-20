@@ -94,17 +94,7 @@ class Utils_RecordBrowser extends Module {
 	}
 	
 	public function get_access($action, $param=null){
-		if (Base_AclCommon::i_am_admin())
-			switch ($action) {
-				case 'browse':	
-				case 'view':	
-				case 'edit':	
-				case 'delete': return true;
-				case 'edit_fields': return array();
-			}
-		if (!isset($this->access_callback)) $this->access_callback = explode('::', DB::GetOne('SELECT access_callback FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab)));
-		if ($this->access_callback === '' || !is_callable($this->access_callback)) return true;
-		return call_user_func($this->access_callback, $action, $param);
+		return Utils_RecordBrowserCommon::get_access($this->tab, $action, $param);
 	}
 
 	public function construct($tab = null) {
