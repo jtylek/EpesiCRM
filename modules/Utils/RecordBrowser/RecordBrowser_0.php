@@ -742,7 +742,7 @@ class Utils_RecordBrowser extends Module {
 		$this->init();
 		$tb = $this->init_module('Utils/TabbedBrowser');
 		
-		$tb->set_tab($this->lang->t('Manage Records'),array($this, 'show_data'), array(array(), array(), array(), false, true) );
+		$tb->set_tab($this->lang->t('Manage Records'),array($this, 'show_data'), array(array(), array(), array(), true) );
 		$tb->set_tab($this->lang->t('Manage Fields'),array($this, 'setup_loader') );
 		
 		$tb->body();
@@ -1156,7 +1156,7 @@ class Utils_RecordBrowser extends Module {
 				foreach ($v as $w) if (!in_array($w, $this->crits[$k])) $this->crits[$k][] = $w;
 			} else $this->crits[$k] = $v;
 		}
-		$theme->assign('table', $this->show_data($this->crits, $cols, $order, false, false, true));
+		$theme->assign('table', $this->show_data($this->crits, $cols, $order, false, true));
 		load_js('modules/Utils/RecordBrowser/rpicker.js');
 			
 		$rpicker_ind = $this->get_module_variable('rpicker_ind');
