@@ -87,7 +87,7 @@ class Utils_Tasks extends Module {
 			$rel_arr = CRM_ContactsCommon::get_contacts(array('id'=>$related));
 
 			foreach($rel_arr as $c_id=>$v) {
-				$rel .= CRM_ContactsCommon::contact_format_no_company($v).'<br>';
+				$rel .= CRM_ContactsCommon::contact_format_default($v).'<br>';
 			}
 			$stat = $this->statuses[$row['status']];
 			if($row['status']==0)
@@ -263,7 +263,7 @@ class Utils_Tasks extends Module {
 				$cus = array();
 				$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company()), '(:Fav'=>true, '|:Recent'=>true, '|id'=>$related));
 				foreach($ret as $c_id=>$data)
-					$cus[$c_id] = $data['last_name'].' '.$data['first_name'];
+					$cus[$c_id] = CRM_ContactsCommon::contact_format_default($data);
 	
 				$form->addElement('multiselect', 'emp_id', $this->lang->t('Employees'), $emp);
 				$form->addRule('emp_id', $this->lang->t('At least one employee must be assigned to an event.'), 'required');
@@ -279,7 +279,7 @@ class Utils_Tasks extends Module {
 				$cus_id = '';
 				$emp_id = '';
 				foreach ($related as $v)
-					$cus_id .= CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact($v)).'<br>';
+					$cus_id .= CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($v)).'<br>';
 				foreach (array_keys($assigned) as $v) {
 					$emp_id .= '<img src="'.Base_ThemeCommon::get_template_file('images/'.((isset($assigned[$v]) && $assigned[$v])?'active_on':'active_off').'.png').'">&nbsp;&nbsp;';
 					$emp_id .= CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact($v)).'<br>';

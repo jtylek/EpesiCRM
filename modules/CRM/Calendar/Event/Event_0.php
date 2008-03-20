@@ -185,7 +185,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$cus_id = '';
 			$emp_id = '';
 			foreach ($def['cus_id'] as $v)
-				$cus_id .= CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact($v)).'<br>';
+				$cus_id .= CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($v)).'<br>';
 			foreach ($def['emp_id'] as $v)
 				$emp_id .= CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact($v)).'<br>';
 			$def['cus_id'] = $cus_id;
@@ -202,7 +202,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$cus = array();
 			$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company()), '(:Fav'=>true, '|:Recent'=>true, '|id'=>$def['cus_id']));
 			foreach($ret as $c_id=>$data)
-			$cus[$c_id] = $data['last_name'].' '.$data['first_name'];
+				$cus[$c_id] = CRM_ContactsCommon::contact_format_default($data);
 
 			$form->addElement('multiselect', 'emp_id', $this->lang->t('Employees'), $emp);
 			$form->addRule('emp_id', $this->lang->t('At least one employee must be assigned to an event.'), 'required');
