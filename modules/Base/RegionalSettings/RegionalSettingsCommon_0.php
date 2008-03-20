@@ -109,7 +109,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	 * Convert local time to client format and timezone(optional)
 	 *
 	 * @param mixed string-strtotime recognizable string, null-current time, int-unix time
-	 * @param mixed {0,false,null,''}-no time,{1,true,'with_seconds'}-time with seconds,{2,'without_seconds'}-time without seconds
+	 * @param mixed {0,false,null,''}-no time (you probably don't want to set it!),{1,true,'with_seconds'}-time with seconds,{2,'without_seconds'}-time without seconds
 	 * @param mixed {0,false,null,''}-no date,{1,true}-with date
 	 * @param boolean convert to client time
 	 * @param boolean use regional user format

@@ -17,7 +17,7 @@ class Tests_QuickForm extends Module{
 		$x = $f->addElement('timestamp','xxxyss','Timestamp picker');
 		$x = $f->addElement('currency','cur','Currency');
 		$f->setDefaults(array('xxxyss'=>time()));
-		$f->freeze(array('xxxyss'));
+//		$f->freeze(array('xxxyss'));
 		$f->setDefaults(array('cur'=>'1252341.22'));
 //		print($x->getValue().'<br>');
 
