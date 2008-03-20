@@ -98,10 +98,11 @@ class Utils_Tasks extends Module {
 					$this->priorities[$row['priority']],
 					'<img src="'.Base_ThemeCommon::get_template_file('images/'.($row['longterm']?'checkbox_on':'checkbox_off').'.png').'">',
 					$row['deadline']?Base_RegionalSettingsCommon::time2reg($row['deadline'],false):'--');
-			if($row['permission']==0 || $row['created_by']==Acl::get_user())
-				$r->add_action($this->create_callback_href(array($this,'push_box0'),array('edit',array($row['id']),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm,$this->display_closed))),'Edit');
 			$r->add_action($this->create_callback_href(array($this,'push_box0'),array('edit',array($row['id'],false),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm,$this->display_closed))),'View');
-			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Are you sure?'),array($this,'delete_task'),$row['id']),'Delete');
+			if($row['permission']==0 || $row['created_by']==Acl::get_user()) {
+				$r->add_action($this->create_callback_href(array($this,'push_box0'),array('edit',array($row['id']),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm,$this->display_closed))),'Edit');
+				$r->add_action($this->create_confirm_callback_href($this->lang->ht('Are you sure?'),array($this,'delete_task'),$row['id']),'Delete');
+			}
 			$info = $this->lang->t('Created on: %s',array(Base_RegionalSettingsCommon::time2reg($row['created_on']))).'<br>'.
 				$this->lang->t('Created by: %s',array(Base_UserCommon::get_user_login($row['created_by']))).'<br>'.
 				($row['edited_by']?$this->lang->t('Edited on: %s',array(Base_RegionalSettingsCommon::time2reg($row['edited_on']))).'<br>'.
@@ -353,9 +354,10 @@ class Utils_Tasks extends Module {
 					Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
 					$theme->assign('attachments','');
 				} else {
-					if($defaults['permission']==0 || $my_task)
+					if($defaults['permission']==0 || $my_task) {
 						Base_ActionBarCommon::add('edit','Edit',$this->create_callback_href(array($this,'push_box0'),array('edit',array($id),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm,$this->display_closed))));
-					Base_ActionBarCommon::add('delete','Delete',$this->create_confirm_callback_href($this->lang->ht('Are you sure?'),array($this,'delete_task_pop'),$id));
+						Base_ActionBarCommon::add('delete','Delete',$this->create_confirm_callback_href($this->lang->ht('Are you sure?'),array($this,'delete_task_pop'),$id));
+					}
 					$a = $this->init_module('Utils/Attachment',array('Task:'.$id,'CRM/Tasks/'.$this->mid));
 					$a->additional_header($this->lang->t('Task: %s',array($defaults['title'])));
 					$theme->assign('attachments',$this ->get_html_of_module($a));

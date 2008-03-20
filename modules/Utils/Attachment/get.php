@@ -29,16 +29,15 @@ if(!$row['other_read'] && $row['permission_by']!=Acl::get_user()) {
 }
 
 
+require_once('mime.php');
+
 if(headers_sent())
 	die('Some data has already been output to browser, can\'t send file');
-
-require_once('mime.php');
 
 $t = time();
 $remote_address = $_SERVER['REMOTE_ADDR'];
 $remote_host = gethostbyaddr($_SERVER['REMOTE_ADDR']);
 DB::Execute('INSERT INTO utils_attachment_download(attach_file_id,created_by,created_on,download_on,description,ip_address,host_name) VALUES (%d,%d,%T,%T,%s,%s,%s)',array($id,Acl::get_user(),$t,$t,$disposition,$remote_address,$remote_host));
-
 $f_filename = 'data/Utils_Attachment/'.$filename;
 $buffer = file_get_contents($f_filename);
 header('Content-Type: '.get_mime_type($f_filename));
