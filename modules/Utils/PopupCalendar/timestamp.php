@@ -134,7 +134,7 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 		$dv = $this->_elements['date']->exportValue($submitValues);
 	        if ($dpv=='') return $this->_prepareValue('', $assoc);
 		$result = $this->recalculate_time($dv);
-		$cleanValue = date('Y-m-d H:i:s',Base_RegionalSettingsCommon::reg2time($dpv.' '.date('H:i:s', strtotime(date('Y-m-d'))+$result),true)); //tz trans - last arg changed from false to true
+		$cleanValue = date('Y-m-d H:i:s',Base_RegionalSettingsCommon::reg2time($dpv.' '.date('H:i:s', strtotime(date('Y-m-d'))+$result),!isset($this->_options['regional_settings_tz']) || $this->_options['regional_settings_tz']==true)); //tz trans - last arg changed from false...
 	        return $this->_prepareValue($cleanValue, $assoc);
 	}
 
@@ -156,7 +156,8 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 		if (!is_numeric($value)) $value = Base_RegionalSettingsCommon::reg2time($value,false);
 		$value -= (date('i',$value) % $this->_options['optionIncrement']['i'])*60;
 		//tz trans begin
-		$value = Base_RegionalSettingsCommon::time2reg($value,true,true,true,false);
+		if(!isset($this->_options['regional_settings_tz']) || $this->_options['regional_settings_tz']==true)
+			$value = Base_RegionalSettingsCommon::time2reg($value,true,true,true,false);
 		//tz trans end
 	        foreach ($this->_elements as & $v)
 			$v->setValue($value);
