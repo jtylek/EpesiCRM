@@ -630,7 +630,7 @@ class Utils_RecordBrowser extends Module {
 			if ($visible_cols!==null && !isset($visible_cols[$args['id']])) continue;
 			if ($args['type']=='hidden') continue;
 			if (isset($this->QFfield_callback_table[$field])) {
-				call_user_func($this->QFfield_callback_table[$field], $form, $args['id'], $this->lang->t($args['name']), $mode, $mode=='add'?null:$record[$args['id']], $args);
+				call_user_func($this->QFfield_callback_table[$field], $form, $args['id'], $this->lang->t($args['name']), $mode, $mode=='add'?'':$record[$args['id']], $args);
 				continue;
 			}
 			if ($mode!=='add' && $mode!=='edit') {
