@@ -30,7 +30,7 @@ class CRM_PhoneCall extends Module {
 		$rb = $this->init_module('Utils/RecordBrowser','phonecall','phonecall');
 		$me = CRM_ContactsCommon::get_my_record();
 		$conds = array(
-									array(	array('field'=>'contact_name', 'width'=>20, 'cut'=>16),
+									array(	array('field'=>'contact_name', 'width'=>20, 'cut'=>14),
 											array('field'=>'phone_number', 'width'=>1),
 											array('field'=>'status', 'width'=>1)
 										),

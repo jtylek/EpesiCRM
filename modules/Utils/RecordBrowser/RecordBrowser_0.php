@@ -1223,9 +1223,12 @@ class Utils_RecordBrowser extends Module {
 			$gb_row = $gb->get_new_row();
 			$arr = array();
 			foreach($cols as $k=>$w) {
-				$s = $this->get_val($field_hash[$w], $v, $v['id'], true, $this->table_rows[$field_hash[$w]]);
-				if ($cut[$k]!=-1) if (strlen($s)>$cut[$k]) $s = '<span '.Utils_TooltipCommon::open_tag_attrs($s).'>'.substr($s, 0, $cut[$k]).'...</span>';
-				$arr[] = $s;
+				$s = $this->get_val($field_hash[$w], $v, $v['id'], false, $this->table_rows[$field_hash[$w]]);
+				$content = strip_tags($s);
+				if ($cut[$k]!=-1 && strlen($content)>$cut[$k]) {
+					$label = '<span '.Utils_TooltipCommon::open_tag_attrs($content).'>'.substr($content, 0, $cut[$k]).'...</span>';
+					$arr[] = str_replace($content, $label, $s);
+				} else $arr[] = $s;
 			}
 			$gb_row->add_data_array($arr);
 			if (is_callable($info)) {
