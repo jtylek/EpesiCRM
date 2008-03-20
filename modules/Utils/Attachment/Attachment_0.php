@@ -87,7 +87,7 @@ class Utils_Attachment extends Module {
 	public function body() {
 		$vd = null;
 		if(!$this->persistent_deletion)
-			$vd = Variable::get('view_deleted_attachments');
+			$vd = isset($_SESSION['view_deleted_attachments']) && $_SESSION['view_deleted_attachments'];
 
 		$gb = $this->init_module('Utils/GenericBrowser',null,$this->key);
 		$cols = array();

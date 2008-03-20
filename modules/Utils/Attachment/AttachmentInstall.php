@@ -68,7 +68,6 @@ class Utils_AttachmentInstall extends ModuleInstall {
 		}
 		$this->add_aco('view download history','Super administrator');
 		$this->create_data_dir();
-		Variable::set('view_deleted_attachments',false);
 		Base_ThemeCommon::install_default_theme($this->get_type());
 		return $ret;
 	}
@@ -79,7 +78,6 @@ class Utils_AttachmentInstall extends ModuleInstall {
 		$ret &= DB::DropTable('utils_attachment_download');
 		$ret &= DB::DropTable('utils_attachment_file');
 		$ret &= DB::DropTable('utils_attachment_link');
-		Variable::delete('view_deleted_attachments');
 		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		return $ret;
 	}

@@ -29,14 +29,14 @@ class Utils_Attachment_Administrator extends Module {
 		
 		$form->addElement('checkbox','view_deleted',$this->lang->t('View deleted'));
 		
-		$form->setDefaults(array('view_deleted'=>Variable::get('view_deleted_attachments')));
+		$form->setDefaults(array('view_deleted'=>isset($_SESSION['view_deleted_attachments']) && $_SESSION['view_deleted_attachments']));
 		
 		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
 		Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
 		
 		if($form->validate()) {
 			$v = $form->exportValues();
-			Variable::set('view_deleted_attachments',isset($v['view_deleted']) && $v['view_deleted']);
+			$_SESSION['view_deleted_attachments'] = isset($v['view_deleted']) && $v['view_deleted'];
 			$this->parent->reset();
 		} else $form->display();		
 	}
