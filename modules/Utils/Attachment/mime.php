@@ -14,7 +14,7 @@ function get_mime_type($filepath) {
 
 	//unix system
 	ob_start();
-	system("file -i -b {$filepath}");
+	passthru("file -i -b {$filepath}");
 	$output = ob_get_clean();
 	$output = explode("; ",$output);
 	if ( is_array($output) ) {
