@@ -86,9 +86,10 @@ class Utils_Tasks extends Module {
 			$related = DB::GetCol('SELECT contact_id FROM utils_tasks_related_contacts WHERE task_id=%d',array($row['id']));
 			$rel_arr = CRM_ContactsCommon::get_contacts(array('id'=>$related));
 
-			foreach($rel_arr as $c_id=>$v) {
-				$rel .= CRM_ContactsCommon::contact_format_default($v).'<br>';
+			foreach($related as $v) {
+				$rel .= CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($v)).'<br>';
 			}
+
 			$stat = $this->statuses[$row['status']];
 			if($row['status']==0)
 				$stat = '<a '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('Click here to close this task')).' '.$this->create_callback_href(array($this,'close_task'),array($row['id'])).'>'.$stat.'</a>';

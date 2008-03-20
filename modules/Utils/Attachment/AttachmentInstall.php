@@ -93,6 +93,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			     array('name'=>'Libs/FCKeditor', 'version'=>0),
 			     array('name'=>'Libs/Leightbox', 'version'=>0),
 			     array('name'=>'Utils/Tooltip', 'version'=>0),
+			     array('name'=>'Utils/Attachment/Administrator', 'version'=>0),
 			     array('name'=>'Base/RegionalSettings', 'version'=>0),
 			     array('name'=>'Base/Box', 'version'=>0),
 			     array('name'=>'Base/Theme', 'version'=>0),
