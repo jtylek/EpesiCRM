@@ -35,6 +35,7 @@ class Utils_RecordBrowser extends Module {
 	private $custom_defaults = array();
 	private $add_in_table = false;
 	private $custom_filters = array();
+	private $filter_field;
 	public $adv_search = false;
 		
 	public function get_val($field, $record, $id, $links_not_recommended = false, $args = null) {
@@ -152,6 +153,13 @@ class Utils_RecordBrowser extends Module {
 		Base_ActionBarCommon::add('add',$this->lang->t('New'), $this->create_callback_href(array($this,'navigate'),array('view_entry', 'add', null, $this->custom_defaults)));
 
 		$filters = $this->show_filters();
+
+		if (isset($this->filter_field)) {
+			$f = $this->pack_module('CRM/Filters');
+			$ff = explode(',',trim($f->get(),'()'));
+			$this->crits[$this->filter_field] = $ff;
+		}
+
 		ob_start();
 		$this->show_data($this->crits, array(), $def_order);
 		$table = ob_get_contents();
@@ -1186,6 +1194,9 @@ class Utils_RecordBrowser extends Module {
 	}
 	public function set_custom_filter($arg, $spec){
 		$this->custom_filters[$arg] = $spec;
+	}
+	public function set_crm_filter($field){
+		$this->filter_field = $field;
 	}
 	public function mini_view($cols, $crits, $order, $info, $limit=null){
 		$this->init();
