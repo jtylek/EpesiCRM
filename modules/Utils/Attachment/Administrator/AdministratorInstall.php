@@ -12,12 +12,10 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_Attachment_AdministratorInstall extends ModuleInstall {
 
 	public function install() {
-		Variable::set('view_deleted_attachments',false);
 		return true;
 	}
 	
 	public function uninstall() {
-		Variable::delete('view_deleted_attachments');
 		return true;
 	}
 	
