@@ -266,7 +266,7 @@ class Utils_RecordBrowser extends Module {
 		return $x->pop_main();
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
-	public function show_data($crits = array(), $cols = array(), $order = array(), $fs_links = false, $admin = false, $special = false) {
+	public function show_data($crits = array(), $cols = array(), $order = array(), $admin = false, $special = false) {
 		if ($this->get_access('browse')===false) {
 			print($this->lang->t('You are not authorised to browse this data.'));
 			return;
