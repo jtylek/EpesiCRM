@@ -70,7 +70,7 @@ class Utils_Tasks extends Module {
 				$userf = ' AND 1=0';
 		} else
 			$userf = '';
-		$query = 'SELECT t.* FROM utils_tasks_task t WHERE '.($this->display_closed?'':'t.status=0 AND').' t.page_id=\''.$this->mid.'\''.$term.$userf;
+		$query = 'SELECT t.* FROM utils_tasks_task t WHERE '.($this->display_closed?'':'t.status=0 AND').' t.page_id=\''.$this->mid.'\' AND (t.permission<2 OR t.created_by='.Acl::get_user().')'.$term.$userf;
 		$query_limit = 'SELECT count(t.id) FROM utils_tasks_task t WHERE '.($this->display_closed?'':'t.status=0 AND').' t.page_id=\''.$this->mid.'\' AND (t.permission<2 OR t.created_by='.Acl::get_user().')'.$term.$userf;
 		$ret = $gb->query_order_limit($query,$query_limit);
 		while($row = $ret->FetchRow()) {
@@ -97,7 +97,8 @@ class Utils_Tasks extends Module {
 					$this->priorities[$row['priority']],
 					'<img src="'.Base_ThemeCommon::get_template_file('images/'.($row['longterm']?'checkbox_on':'checkbox_off').'.png').'">',
 					$row['deadline']?Base_RegionalSettingsCommon::time2reg($row['deadline'],false):'--');
-			$r->add_action($this->create_callback_href(array($this,'push_box0'),array('edit',array($row['id']),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm,$this->display_closed))),'Edit');
+			if($row['permission']==0 || $row['created_by']==Acl::get_user())
+				$r->add_action($this->create_callback_href(array($this,'push_box0'),array('edit',array($row['id']),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm,$this->display_closed))),'Edit');
 			$r->add_action($this->create_callback_href(array($this,'push_box0'),array('edit',array($row['id'],false),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm,$this->display_closed))),'View');
 			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Are you sure?'),array($this,'delete_task'),$row['id']),'Delete');
 			$info = $this->lang->t('Created on: %s',array(Base_RegionalSettingsCommon::time2reg($row['created_on']))).'<br>'.
@@ -224,6 +225,10 @@ class Utils_Tasks extends Module {
 				$related = DB::GetCol('SELECT contact_id FROM utils_tasks_related_contacts WHERE task_id=%d',array($id));
 				$assigned = DB::GetAssoc('SELECT contact_id,viewed FROM utils_tasks_assigned_contacts WHERE task_id=%d',array($id));
 				$my_task = $defaults['created_by']==Acl::get_user();
+				if($defaults['permission']==2 && !$my_task) {
+					print($this->lang->t('You are not allowed to view this task'));
+					return;
+				}
 				if(!$edit) {
 					if($defaults['status']==1/* || $me===null || !isset($assigned[$me['id']])*/)
 						$defaults['status'] = $this->statuses[$defaults['status']];
@@ -235,7 +240,7 @@ class Utils_Tasks extends Module {
 					$defaults['edited_on'] = $defaults['edited_on']?Base_RegionalSettingsCommon::time2reg($defaults['edited_on']):'--';
 				} else {
 					$defaults['is_deadline'] = ($defaults['deadline']==true);
-					if($defaults['permission']==2 && !$my_task) {
+					if($defaults['permission']==1 && !$my_task) {
 						print($this->lang->t('You are not allowed to edit this task'));
 						return;
 					}
