@@ -289,6 +289,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		}
 		if ($default!==Acl::get_user() && $default!=='' && !Base_AclCommon::i_am_admin()) {
 			$form->addElement('select', $field, $label, array($default=>($default!=='')?Base_UserCommon::get_user_login($default):'--'));
+			$form->addElement('select', $field, $label, array($default=>($default!=='')?'!'.$default.'!':'--'));
 			$form->setDefaults(array($field=>$default));
 			$form->freeze($field);
 		} else {
