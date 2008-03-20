@@ -153,7 +153,7 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 	        foreach ($value as $key=>$v)
         	    $this->_elements[$key]->setValue($v);
 	} else {
-		if (!is_numeric($value)) $value = strtotime($value);
+		if (!is_numeric($value)) $value = Base_RegionalSettingsCommon::reg2time($value,false);
 		$value -= (date('i',$value) % $this->_options['optionIncrement']['i'])*60;
 	        foreach ($this->_elements as & $v)
 			$v->setValue($value);
