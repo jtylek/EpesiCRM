@@ -100,7 +100,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$form->addElement('text', 'title', $this->lang->t('Title'), array('style'=>'width: 100%;', 'id'=>'event_title'));
 		$form->addRule('title', 'Field is required!', 'required');
 
-		$time_format = Base_RegionalSettingsCommon::time_12h()?'h:i:a':'H:i';
+		$time_format = Base_RegionalSettingsCommon::time_12h()?'h:i a':'H:i';
 
 		$form->addElement('datepicker', 'date_s', $this->lang->t('Event start'));
 		$form->addRule('date_s', 'Field is required!', 'required');

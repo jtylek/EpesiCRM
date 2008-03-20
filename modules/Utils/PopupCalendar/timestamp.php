@@ -65,7 +65,7 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 
     function _createElements()
     {
-		$time_format = Base_RegionalSettingsCommon::time_12h()?'h:i:a':'H:i';
+		$time_format = Base_RegionalSettingsCommon::time_12h()?'h:i a':'H:i';
 		$lang_code = Base_LangCommon::get_lang_code();
 		$this->_options['format'] = $time_format;
 		$this->_options['optionIncrement'] = array('i' => 5);
@@ -118,6 +118,16 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 
 		return $result;
 	}
+	
+	function onQuickFormEvent($event, $arg, &$caller) {
+		if ('updateValue' == $event) {
+				// we need to call setValue(), 'cause the default/constant value
+				// may be in fact a timestamp, not an array
+			return HTML_QuickForm_element::onQuickFormEvent($event, $arg, $caller);
+		} else {
+			return parent::onQuickFormEvent($event, $arg, $caller);
+		}
+	}
 
 	function exportValue(&$submitValues, $assoc = false) {
 		$dpv = $this->_elements['datepicker']->exportValue($submitValues);
@@ -139,9 +149,16 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
     function setValue($value)
     {
         $this->_createElementsIfNotExist();
-        foreach ($value as $key=>$v) {
-            $this->_elements[$key]->setValue($v);
-        }
+	if(is_array($value)) {
+	        foreach ($value as $key=>$v)
+        	    $this->_elements[$key]->setValue($v);
+	} else {
+		if (!is_numeric($value)) $value = strtotime($value);
+		$value -= (date('i',$value) % $this->_options['optionIncrement']['i'])*60;
+	        foreach ($this->_elements as & $v)
+			$v->setValue($value);
+
+	}
     } //end func setValue
     
 }

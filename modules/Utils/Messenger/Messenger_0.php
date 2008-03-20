@@ -94,7 +94,7 @@ class Utils_Messenger extends Module {
 		$f->addElement('textarea', 'message', $this->lang->t('Message'));
 		$f->addElement('datepicker', 'alert_date', $this->lang->t('Alert date'));
 		$lang_code = Base_LangCommon::get_lang_code();
-		$time_format = Base_RegionalSettingsCommon::time_12h()?'h:i:a':'H:i';
+		$time_format = Base_RegionalSettingsCommon::time_12h()?'h:i a':'H:i';
 		$f->addElement('date', 'alert_time', $this->lang->t('Alert time'), array('format'=>$time_format, 'optionIncrement'  => array('i' => 5), 'language'=>$lang_code));
 		
 		if(is_array($this->users)) {
