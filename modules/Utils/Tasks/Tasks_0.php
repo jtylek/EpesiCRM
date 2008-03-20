@@ -40,6 +40,10 @@ class Utils_Tasks extends Module {
 	}
 
 	public function body() {
+		if(!Acl::is_user()) {
+			print($this->lang->t('Please log in'));
+			return;
+		}
 		$this->caption = '';
 		$gb = & $this->init_module('Utils/GenericBrowser',null,'tasks');
 		$gb->set_table_columns(array(
@@ -67,7 +71,7 @@ class Utils_Tasks extends Module {
 		} else
 			$userf = '';
 		$query = 'SELECT t.* FROM utils_tasks_task t WHERE '.($this->display_closed?'':'t.status=0 AND').' t.page_id=\''.$this->mid.'\''.$term.$userf;
-		$query_limit = 'SELECT count(t.id) FROM utils_tasks_task t WHERE '.($this->display_closed?'':'t.status=0 AND').' t.page_id=\''.$this->mid.'\''.$term.$userf;
+		$query_limit = 'SELECT count(t.id) FROM utils_tasks_task t WHERE '.($this->display_closed?'':'t.status=0 AND').' t.page_id=\''.$this->mid.'\' AND (t.permission<2 OR t.created_by='.Acl::get_user().')'.$term.$userf;
 		$ret = $gb->query_order_limit($query,$query_limit);
 		while($row = $ret->FetchRow()) {
 			$r = & $gb->get_new_row();
@@ -110,6 +114,10 @@ class Utils_Tasks extends Module {
 	}
 
 	public function applet() {
+		if(!Acl::is_user()) {
+			print($this->lang->t('Please log in'));
+			return;
+		}
 		$gb = & $this->init_module('Utils/GenericBrowser',null,'applet_tasks'.$this->mid);
 		$gb->set_table_columns(array(
 			array('name'=>$this->lang->t('Title'), 'order'=>'title', 'width'=>80),
@@ -130,7 +138,7 @@ class Utils_Tasks extends Module {
 				$userf = ' AND 1=0';
 		} else
 			$userf = '';
-		$query = 'SELECT t.* FROM utils_tasks_task t WHERE '.($this->display_closed?'':'t.status=0 AND').' t.page_id=\''.$this->mid.'\''.$term.$userf;
+		$query = 'SELECT t.* FROM utils_tasks_task t WHERE '.($this->display_closed?'':'t.status=0 AND').' t.page_id=\''.$this->mid.'\' AND (t.permission<2 OR t.created_by='.Acl::get_user().')'.$term.$userf;
 		$ret = DB::Execute($query);
 		while($row = $ret->FetchRow()) {
 			$r = & $gb->get_new_row();
@@ -215,6 +223,7 @@ class Utils_Tasks extends Module {
 				$defaults = DB::GetRow('SELECT * FROM utils_tasks_task WHERE id=%d',array($id));
 				$related = DB::GetCol('SELECT contact_id FROM utils_tasks_related_contacts WHERE task_id=%d',array($id));
 				$assigned = DB::GetAssoc('SELECT contact_id,viewed FROM utils_tasks_assigned_contacts WHERE task_id=%d',array($id));
+				$my_task = $defaults['created_by']==Acl::get_user();
 				if(!$edit) {
 					if($defaults['status']==1/* || $me===null || !isset($assigned[$me['id']])*/)
 						$defaults['status'] = $this->statuses[$defaults['status']];
@@ -226,6 +235,10 @@ class Utils_Tasks extends Module {
 					$defaults['edited_on'] = $defaults['edited_on']?Base_RegionalSettingsCommon::time2reg($defaults['edited_on']):'--';
 				} else {
 					$defaults['is_deadline'] = ($defaults['deadline']==true);
+					if($defaults['permission']==2 && !$my_task) {
+						print($this->lang->t('You are not allowed to edit this task'));
+						return;
+					}
 				}
 				$form->setDefaults($defaults);
 				if ($edit) $form->setDefaults(array('cus_id'=>$related,'emp_id'=>array_keys($assigned)));
@@ -334,7 +347,8 @@ class Utils_Tasks extends Module {
 					Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
 					$theme->assign('attachments','');
 				} else {
-					Base_ActionBarCommon::add('edit','Edit',$this->create_callback_href(array($this,'push_box0'),array('edit',array($id),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm,$this->display_closed))));
+					if($defaults['permission']==0 || $my_task)
+						Base_ActionBarCommon::add('edit','Edit',$this->create_callback_href(array($this,'push_box0'),array('edit',array($id),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm,$this->display_closed))));
 					Base_ActionBarCommon::add('delete','Delete',$this->create_confirm_callback_href($this->lang->ht('Are you sure?'),array($this,'delete_task_pop'),$id));
 					$a = $this->init_module('Utils/Attachment',array('Task:'.$id,'CRM/Tasks/'.$this->mid));
 					$a->additional_header($this->lang->t('Task: %s',array($defaults['title'])));
