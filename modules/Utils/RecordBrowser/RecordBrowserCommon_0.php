@@ -584,6 +584,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				Base_LangCommon::ts('Utils_RecordBrowser','Edited by:').' '.$edited_by):'');
 	}
 	public static function get_record( $tab_name, $id) {
+		if (!is_numeric($id)) return null;
 		self::init($tab_name);
 		if( isset($id) ) {
 			$data = DB::Execute('SELECT * FROM '.$tab_name.'_data WHERE '.$tab_name.'_id=%d', array($id));
