@@ -282,9 +282,15 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 	public static function QFfield_login(&$form, $field, $label, $mode, $default) {
 		if ($mode=='add'){
-			if (self::$paste_or_new=='new')
-				$form->addElement('checkbox', 'create_company', 'Create new company', null, array('onClick'=>'document.getElementsByName("company_namefrom[]")[0].disabled=document.getElementsByName("company_nameto[]")[0].disabled=this.checked;'));
-			else {
+			if (self::$paste_or_new=='new') {
+				$form->addElement('checkbox', 'create_company', 'Create new company', null, array('onClick'=>'document.getElementsByName("company_namefrom[]")[0].disabled=document.getElementsByName("company_nameto[]")[0].disabled=this.checked;document.getElementsByName("create_company_name")[0].disabled=!this.checked;'));
+				$form->addElement('text', 'create_company_name', 'New company name', array('disabled'=>1));
+				eval_js('Event.observe(\'last_name\',\'change\', update_create_company_name_field);'.
+						'Event.observe(\'first_name\',\'change\', update_create_company_name_field);'.
+						'function update_create_company_name_field() {'.
+						'document.forms[\''.$form->getAttribute('name').'\'].create_company_name.value = document.forms[\''.$form->getAttribute('name').'\'].last_name.value+" "+document.forms[\''.$form->getAttribute('name').'\'].first_name.value;'.
+						'}');
+			} else {
 				$comp = self::get_company(self::$paste_or_new);
 				$paste_company_info =
 					'document.getElementsByName("address_1")[0].value="'.$comp['address_1'].'";'.
@@ -353,7 +359,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	public static function submit_contact($values, $mode) {
 		if (isset($values['create_company'])) {
 			$comp_id = Utils_RecordBrowserCommon::new_record('company',
-				array(	'company_name'=>$values['first_name'].' '.$values['last_name'],
+				array(	'company_name'=>$values['create_company_name'],
 						'address_1'=>$values['address_1'],
 						'address_2'=>$values['address_2'],
 						'country'=>$values['country'],
