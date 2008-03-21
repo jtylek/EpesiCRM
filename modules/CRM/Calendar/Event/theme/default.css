@@ -183,6 +183,16 @@
 	padding-top: 2px;
 }
 
+#CRM_Calendar_Event_Personal .time_s input,
+#CRM_Calendar_Event_Personal .time_e input {
+	width: 100px;
+}
+
+#CRM_Calendar_Event_Personal #time_s select,
+#CRM_Calendar_Event_Personal #time_e select {
+	width: auto;
+}
+
 #CRM_Calendar_Event_Personal .priority select option[value="0"],
 #CRM_Calendar_Event_Personal .priority select option[value="1"],
 #CRM_Calendar_Event_Personal .priority select option[value="2"],
