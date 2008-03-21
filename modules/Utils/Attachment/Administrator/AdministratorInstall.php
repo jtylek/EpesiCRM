@@ -24,8 +24,7 @@ class Utils_Attachment_AdministratorInstall extends ModuleInstall {
 	}
 	
 	public function requires($v) {
-		return array(
-			array('name'=>'Utils/Attachment','version'=>0));
+		return array();
 	}
 	
 	public static function info() {
