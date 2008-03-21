@@ -23,7 +23,6 @@ class Data_CountriesCommon extends Base_AdminModuleCommon {
 		foreach ($param as $k=>$v) if ($k!==0) $param[$k] = strtolower(str_replace(' ','_',$v));
 		$form->addElement('commondata', $field, $label, $param, array('empty_option'=>true), array('id'=>$field));
 		if ($mode!=='add') $form->setDefaults(array($field=>$default));
-		else $form->setDefaults(array($field=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country')));
 	}
 
 	public static function QFfield_zone(&$form, $field, $label, $mode, $default, $desc) {
@@ -31,7 +30,6 @@ class Data_CountriesCommon extends Base_AdminModuleCommon {
 		foreach ($param as $k=>$v) if ($k!==0) $param[$k] = strtolower(str_replace(' ','_',$v));
 		$form->addElement('commondata', $field, $label, $param, array('empty_option'=>true), array('id'=>$field));
 		if ($mode!=='add') $form->setDefaults(array($field=>$default));
-		else $form->setDefaults(array($field=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state')));
 	}
 
 }

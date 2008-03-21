@@ -450,6 +450,9 @@ class Utils_RecordBrowser extends Module {
 		Utils_RecordBrowserCommon::delete_record($this->tab, $id);
 		return $this->back();
 	}
+	public function clone_record($id) {
+		return $this->navigate('view_entry', 'add', null, Utils_RecordBrowserCommon::get_record($this->tab, $id));
+	}
 	public function view_entry($mode='view', $id = null, $defaults = array()) {
 		$js = ($mode!='view');
 		$time = microtime(true);
@@ -500,6 +503,7 @@ class Utils_RecordBrowser extends Module {
 		if ($mode=='view') { 
 			if ($this->get_access('edit',$this->record)) Base_ActionBarCommon::add('edit', $this->lang->ht('Edit'), $this->create_callback_href(array($this,'navigate'), array('view_entry','edit',$id)));
 			if ($this->get_access('delete',$this->record)) Base_ActionBarCommon::add('delete', $this->lang->ht('Delete'), $this->create_confirm_callback_href($this->lang->t('Are you sure you want to delete this record?'),array($this,'delete_record'),array($id)));
+			Base_ActionBarCommon::add('settings',$this->lang->t('Clone'), $this->create_confirm_callback_href($this->lang->ht('You are about to create a copy of this record. Do you want to continue?'),array($this,'clone_record'),array($id)));
 			Base_ActionBarCommon::add('back', $this->lang->ht('Back'), $this->create_back_href());
 		} else {
 			Base_ActionBarCommon::add('save', $this->lang->ht('Save'), $form->get_submit_form_href());
@@ -1151,7 +1155,8 @@ class Utils_RecordBrowser extends Module {
 		return false;
 	}
 	public function set_defaults($arg){
-		return $this->custom_defaults = $arg;
+		foreach ($arg as $k=>$v)
+			$this->custom_defaults[$k] = $v;
 	}
 	public function set_filters_defaults($arg){
 		if (!$this->isset_module_variable('def_filter')) $this->set_module_variable('def_filter', $arg);

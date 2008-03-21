@@ -16,13 +16,16 @@ class CRM_Contacts extends Module {
 	private $rb = null;
 
 	public function body() {
-		if (isset($_REQUEST['mode'])) $this->set_module_variable('mode', $_REQUEST['mode']);
+		if (isset($_REQUEST['mode']) && ($_REQUEST['mode']=='contact' || $_REQUEST['mode']=='company')) $this->set_module_variable('mode', $_REQUEST['mode']);
 		$mode = $this->get_module_variable('mode');
-		if ($mode == 'contact') {
-			location(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array('contact'), 'box_main_arguments'=>array(array('last_name'=>'ASC'))));
-		} else {
-			location(array('box_main_module'=>'Utils_RecordBrowser', 'box_main_constructor_arguments'=>array('company'), 'box_main_arguments'=>array(array('company_name'=>'ASC'))));
-		}
+
+		$this->rb = $this->init_module('Utils/RecordBrowser',$mode,$mode);
+		$this->rb->set_defaults(array(	'country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
+										'zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state')));
+		if ($mode=='contact')
+			$this->rb->set_defaults(array(	'home_country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
+											'home_zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state')));
+		$this->display_module($this->rb);
 	}
 
 	public function admin(){
