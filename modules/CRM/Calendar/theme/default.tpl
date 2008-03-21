@@ -1,10 +1,10 @@
 <div id="CRM_Calendar__filter">
     <!-- SHADOW BEGIN -->
-        <div class="layer" style="padding: 10px; min-width: 120px;">
+        <div class="layer" style="padding: 10px;">
             <div class="content_shadow">
     <!-- -->
 
-        <div style="background-color: white; padding: 4px; text-align: center;" nowrap>Filter: <b class="red">{$filter_description}</b></div>
+        <div class="filter" style="background-color: white; padding: 4px; text-align: center;" nowrap>Filter: <b class="red">{$filter_description}</b></div>
 
     <!-- SHADOW END -->
             </div>
