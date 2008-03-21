@@ -17,3 +17,20 @@
 	height: 1px;
 	width: 100%;
 }
+
+/* only for IE */
+
+#tooltip_div .shadow-top,
+#tooltip_div .shadow-middle,
+#tooltip_div .shadow-bottom {
+	_display: none;
+}
+
+#tooltip_div .layer {
+	_padding: 0px;
+	_width: 100%;
+}
+
+#tooltip_div .border2 {
+	_border: 1px solid #336699;
+}

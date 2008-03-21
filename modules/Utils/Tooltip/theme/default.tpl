@@ -3,8 +3,10 @@
 		<div class="content_shadow">
 <!-- -->
 
+<div class="border2">
 <div class="border">
 {$tip}
+</div>
 </div>
 
 <!-- SHADOW END -->
