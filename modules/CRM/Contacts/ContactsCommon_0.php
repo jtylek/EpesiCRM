@@ -160,15 +160,23 @@ class CRM_ContactsCommon extends ModuleCommon {
 				if ($crit_callback[0]=='ChainedSelect') {
 					$crits = null;
 					self::contacts_chainedselect_crits($default, $desc, $callback, $crit_callback[1]);
-				} else {
-					$crits = call_user_func($crit_callback, false);
-//					$adv_crits = call_user_func($crit_callback, true);
-				}
+				} else $crits = call_user_func($crit_callback, false);
 			} else $crits = array();
 			if ($crits!==null) {
 				$contacts = self::get_contacts($crits);
 				if (!$desc['required'] && $desc['type']!='multiselect') $cont[''] = '--';
-				foreach ($contacts as $v) $cont[$v['id']] = call_user_func($callback, $v, true);
+				if (!is_array($default)) {
+					if ($default!='') $default = array($default); else $default=array();
+				} 
+				$ext_rec = array_flip($default);
+				foreach ($contacts as $v) { 
+					$cont[$v['id']] = call_user_func($callback, $v, true);
+					unset($ext_rec[$v['id']]);
+				}
+				foreach($ext_rec as $k=>$v) {
+					$c = CRM_ContactsCommon::get_contact($k);
+					$cont[$k] = call_user_func($callback, $c, true);
+				}
 				asort($cont);
 			} else $cont = array();
 			$form->addElement($desc['type'], $field, $label, $cont, array('id'=>$field));
@@ -215,7 +223,18 @@ class CRM_ContactsCommon extends ModuleCommon {
 				unset($crits['_no_company_option']);
 			} else $no_company_option = false;
 			$companies = self::get_companies($crits);
-			foreach ($companies as $v) $comp[$v['id']] = $v['company_name'];
+			if (!is_array($default)) {
+				if ($default!='') $default = array($default); else $default=array();
+			} 
+			$ext_rec = array_flip($default);
+			foreach ($companies as $v) {
+				$comp[$v['id']] = $v['company_name'];
+				unset($ext_rec[$v['id']]);
+			}
+			foreach($ext_rec as $k=>$v) {
+				$c = CRM_ContactsCommon::get_company($k);
+				$comp[$k] = $c['company_name'];
+			}
 			asort($comp);
 			$key = '';
 			if ($no_company_option) {

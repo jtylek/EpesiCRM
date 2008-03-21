@@ -712,8 +712,24 @@ class Utils_RecordBrowser extends Module {
 										if ($tab=='__COMMON__')
 											$comp = $comp+$data;
 										else {
-											$ret = DB::Execute('SELECT * FROM '.$tab.'_data AS rd LEFT JOIN '.$tab.' AS r ON rd.'.$tab.'_id = r.id WHERE rd.field=%s AND r.active=1 ORDER BY value', array($col));
-											while ($row = $ret->FetchRow()) $comp[$row[$tab.'_id']] = $row['value'];
+/*
+ *											$ret = DB::Execute('SELECT * FROM '.$tab.'_data AS rd LEFT JOIN '.$tab.' AS r ON rd.'.$tab.'_id = r.id WHERE rd.field=%s AND r.active=1 ORDER BY value', array($col));
+ *											while ($row = $ret->FetchRow()) $comp[$row[$tab.'_id']] = $row['value'];
+ **/
+											$records = Utils_RecordBrowserCommon::get_records($tab, array(), array($col));
+											$col_id = strtolower(str_replace(' ','_',$col));
+											if (!is_array($record[$args['id']])) {
+												if ($record[$args['id']]!='') $record[$args['id']] = array($record[$args['id']]); else $record[$args['id']] = array();
+											} 
+											$ext_rec = array_flip($record[$args['id']]);
+											foreach ($records as $k=>$v) {
+												$comp[$k] = $v[$col_id];
+												unset($ext_rec[$v['id']]);
+											}
+											foreach($ext_rec as $k=>$v) {
+												$c = Utils_RecordBrowserCommon::get_record($tab, $k);
+												$comp[$k] = $c[$col_id];
+											}
 										}
 										$form->addElement($args['type'], $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', $comp, array('id'=>$args['id']));
 										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
