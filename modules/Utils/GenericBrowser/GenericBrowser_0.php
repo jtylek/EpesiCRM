@@ -428,7 +428,7 @@ class Utils_GenericBrowser extends Module {
 		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
 		if(!$this->is_adv_search_on()) {
 			foreach($this->columns as $k=>$v){
-				if (isset($v['search']) && isset($search['__keyword__'])) 
+				if (isset($v['search']) && isset($search['__keyword__']))
 		 			if (!$array)
 						$where .= ($where?' OR':'').' '.$v['search'].' LIKE '.DB::Concat(DB::qstr('%'),sprintf('%s',DB::qstr($search['__keyword__'])),DB::qstr('%'));
 					else
@@ -441,7 +441,7 @@ class Utils_GenericBrowser extends Module {
 						$where .= ($where?' AND':'').' '.$v['search'].' LIKE '.DB::Concat(DB::qstr('%'),sprintf('%s',DB::qstr($search[$v['search']])),DB::qstr('%'));
 					else
 						$where[$v['search']][] = DB::Concat(DB::qstr('%'),DB::qstr($search[$v['search']]),DB::qstr('%'));
-				} 
+				}
 		}
  		if (isset($quickjump) && $quickjump_to!='')
  			if ($quickjump_to=='0') {
@@ -932,7 +932,7 @@ class Utils_GenericBrowser extends Module {
 		$theme->assign('last', $this->gb_last());
 		$theme->assign('custom_label', $this->custom_label);
 
-		if ($search_on) $theme->assign('adv_search','<a class="button" '.$this->create_unique_href(array('adv_search'=>!$this->is_adv_search_on())).'>' . ($this->is_adv_search_on()?$this->lang->t('Simple Search'):$this->lang->t('Advanced Search')) . '&nbsp;&nbsp;&nbsp;<img src="' . Base_ThemeCommon::get_template_file($this -> get_type(), 'advanced.png') . '" width="8px" height="8px" border="0" style="vertical-align: middle;"></a>');
+		if ($search_on) $theme->assign('adv_search','<a class="button" '.$this->create_unique_href(array('adv_search'=>!$this->is_adv_search_on())).'>' . ($this->is_adv_search_on()?$this->lang->t('Simple Search'):$this->lang->t('Advanced Search')) . '&nbsp;&nbsp;&nbsp;<img src="' . Base_ThemeCommon::get_template_file($this -> get_type(), 'advanced.png') . '" width="8px" height="20px" border="0" style="vertical-align: middle;"></a>');
 		else $theme->assign('adv_search','');
 
 		if (Base_User_SettingsCommon::get('Utils/GenericBrowser','adv_history') && $is_order){
