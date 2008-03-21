@@ -25,7 +25,7 @@
 				<div class="abc" onclick="quick_jump_letters('{$id}');">ABC</div>
 				<div id="quick_jump_letters_{$id}" class="quick_jump_letters" style="display: none;">
 					<!-- SHADOW BEGIN -->
-						<div class="layer" style="padding: 10px; width: 530px;">
+						<div class="layer" style="padding: 10px; width: 540px;">
 							<div class="content_shadow">
 					<!-- -->
 
