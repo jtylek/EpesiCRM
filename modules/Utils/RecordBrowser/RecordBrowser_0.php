@@ -36,6 +36,7 @@ class Utils_RecordBrowser extends Module {
 	private $add_in_table = false;
 	private $custom_filters = array();
 	private $filter_field;
+	private static $clone_result = null;	
 	public $adv_search = false;
 		
 	public function get_val($field, $record, $id, $links_not_recommended = false, $args = null) {
@@ -451,13 +452,22 @@ class Utils_RecordBrowser extends Module {
 		return $this->back();
 	}
 	public function clone_record($id) {
-		return $this->navigate('view_entry', 'add', null, Utils_RecordBrowserCommon::get_record($this->tab, $id));
+		if (self::$clone_result!==null) {
+			if (is_numeric(self::$clone_result)) $this->navigate('view_entry', 'view', self::$clone_result);
+			self::$clone_result = null;
+			return false;
+		}
+		$this->navigate('view_entry', 'add', null, Utils_RecordBrowserCommon::get_record($this->tab, $id));
+		return true;
 	}
 	public function view_entry($mode='view', $id = null, $defaults = array()) {
 		$js = ($mode!='view');
 		$time = microtime(true);
-		if ($this->is_back())
+		if ($this->is_back()) {
+			file_put_contents('C:\test!.txt', 'ble');
+			self::$clone_result = 'canceled';
 			return $this->back();
+		}
 		$this->init();
 		$this->record = Utils_RecordBrowserCommon::get_record($this->tab, $id);
 		switch ($mode) {
@@ -487,7 +497,8 @@ class Utils_RecordBrowser extends Module {
 				if (is_callable($method)) $values = call_user_func($method, $values, $mode);
 			}
 			if ($mode=='add') {
-				Utils_RecordBrowserCommon::new_record($this->tab, $values);
+				$id = Utils_RecordBrowserCommon::new_record($this->tab, $values);
+				self::$clone_result = $id;
 				return $this->back();
 			}
 			$time_from = date('Y-m-d H:i:s', $this->get_module_variable('edit_start_time'));
