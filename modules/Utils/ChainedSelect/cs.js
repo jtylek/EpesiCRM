@@ -70,6 +70,7 @@ ChainedSelect.prototype = {
 				values:Object.toJSON(vals),
 				req_url:this.req_url,
 				parameters:Object.toJSON(this.params),
+				defaults:Object.toJSON(def_val),
 				cid: Epesi.client_id
 			},
 			onSuccess:function(t) {
