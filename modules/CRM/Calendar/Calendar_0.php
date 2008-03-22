@@ -20,7 +20,8 @@ class CRM_Calendar extends Module {
 			'start_day'=>Base_User_SettingsCommon::get('CRM_Calendar','start_day'),
 			'end_day'=>Base_User_SettingsCommon::get('CRM_Calendar','end_day'),
 			'interval'=>Base_User_SettingsCommon::get('CRM_Calendar','interval'),
-			'default_date'=>$default_date
+			'default_date'=>$default_date,
+			'custom_agenda_cols'=>array('Description','Assigned to')
 			)));
 		$theme->assign('calendar',$this->get_html_of_module($c));
 		$theme->display();

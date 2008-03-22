@@ -7,6 +7,7 @@ class Utils_Calendar extends Module {
 	private $settings = array('first_day_of_week'=>0,
 				  'default_view'=>'Agenda',
 				  'custom_rows'=>null,
+				  'custom_agenda_cols'=>null,
 				  'timeline'=>true,
 				  'views'=>null,
 				  'start_day'=>'8:00',
@@ -312,11 +313,18 @@ class Utils_Calendar extends Module {
 		//////////////// data ////////////////////////
 		$gb = $this->init_module('Utils/GenericBrowser', null, 'agenda');
 		$columns = array(
-			array('name'=>$this->lang->t('Start'), 'order'=>'start', 'width'=>15),
-			array('name'=>$this->lang->t('Duration'), 'order'=>'end', 'width'=>15),
-			array('name'=>$this->lang->t('Title'), 'order'=>'title','width'=>15),
-			array('name'=>$this->lang->t('Additional info'), 'order'=>'additional_info','width'=>30)
-		);
+			array('name'=>$this->lang->t('Start'), 'order'=>'start', 'width'=>10),
+			array('name'=>$this->lang->t('Duration'), 'order'=>'end', 'width'=>5),
+			array('name'=>$this->lang->t('Title'), 'order'=>'title','width'=>10));
+		$add_cols = array();
+		if(is_array($this->settings['custom_agenda_cols'])) {
+			$w = 50/count($this->settings['custom_agenda_cols']);
+			foreach($this->settings['custom_agenda_cols'] as $k=>$col) {
+				$columns[] = array('name'=>$this->lang->t($col), 'order'=>'cus_col_'.$k,'width'=>$w);
+				$add_cols[] = $k;
+			}
+		}
+		
 		$gb->set_table_columns( $columns );
 
 		//add data
@@ -326,8 +334,12 @@ class Utils_Calendar extends Module {
 			$view_h = $this->create_callback_href(array($this,'push_event_action'),array('view',$row['id']));
 
 			$ex = Utils_CalendarCommon::process_event($row);
+			
+			$rrr = array($ex['start'],Utils_TooltipCommon::create($ex['duration'],$ex['end']),'<a '.$view_h.'>'.$row['title'].'</a>');
+			foreach($add_cols as $a)
+				$rrr[] = $row['custom_agenda_col_'.$a];
 
-			$r->add_data($ex['start'],Utils_TooltipCommon::create($ex['duration'],$ex['end']),'<a '.$view_h.'>'.$row['title'].'</a>',Utils_TooltipCommon::create($row['additional_info'],$row['additional_info2']));
+			$r->add_data_array($rrr);
 
 			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Delete this event?'),array($this,'delete_event'),$row['id']),'Delete');
 			$r->add_action($this->create_callback_href(array($this,'push_event_action'),array('edit',$row['id'])),'Edit');

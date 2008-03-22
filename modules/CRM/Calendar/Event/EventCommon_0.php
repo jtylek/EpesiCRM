@@ -99,6 +99,8 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 						implode('<br>',$emps).
 					(empty($cuss)?'':'<br>'.Base_LangCommon::ts('CRM_Calendar_Event','Customers:').'<br>'.
 						implode('<br>',$cuss));
+			$next_result['custom_agenda_col_0'] = $row['description'];
+			$next_result['custom_agenda_col_1'] = implode('<br>',$emps);
 			$result[] = $next_result;
 		}
 		return $result;
