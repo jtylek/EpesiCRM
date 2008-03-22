@@ -340,6 +340,9 @@ class Utils_Calendar extends Module {
 				$rrr[] = $row['custom_agenda_col_'.$a];
 
 			$r->add_data_array($rrr);
+			
+			if($row['additional_info']!=='' || $row['additional_info2'])
+				$r->add_info($row['additional_info'].(($row['additional_info']!=='' && $row['additional_info2']!=='')?'<hr>':'').$row['additional_info2']);
 
 			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Delete this event?'),array($this,'delete_event'),$row['id']),'Delete');
 			$r->add_action($this->create_callback_href(array($this,'push_event_action'),array('edit',$row['id'])),'Edit');

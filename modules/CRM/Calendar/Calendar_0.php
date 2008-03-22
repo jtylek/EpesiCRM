@@ -21,7 +21,7 @@ class CRM_Calendar extends Module {
 			'end_day'=>Base_User_SettingsCommon::get('CRM_Calendar','end_day'),
 			'interval'=>Base_User_SettingsCommon::get('CRM_Calendar','interval'),
 			'default_date'=>$default_date,
-			'custom_agenda_cols'=>array('Description','Assigned to')
+			'custom_agenda_cols'=>array('Description','Assigned to','Related with')
 			)));
 		$theme->assign('calendar',$this->get_html_of_module($c));
 		$theme->display();

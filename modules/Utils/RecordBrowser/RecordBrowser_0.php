@@ -464,7 +464,6 @@ class Utils_RecordBrowser extends Module {
 		$js = ($mode!='view');
 		$time = microtime(true);
 		if ($this->is_back()) {
-			file_put_contents('C:\test!.txt', 'ble');
 			self::$clone_result = 'canceled';
 			return $this->back();
 		}
