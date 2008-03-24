@@ -246,10 +246,10 @@ class Utils_Attachment extends Module {
 		$th->assign('upload_by',$row['upload_by']);
 		$th->assign('upload_on',Base_RegionalSettingsCommon::time2reg($row['upload_on']));
 
-		$f_filename = 'data/Utils_Attachment/'.$row['local'].'/'.$row['id'].'_'.$row['file_revision'];
-		$th->assign('file_size',filesize_hr($f_filename));
 
 		if($row['original']) {
+			$f_filename = 'data/Utils_Attachment/'.$row['local'].'/'.$row['id'].'_'.$row['file_revision'];
+			$th->assign('file_size',filesize_hr($f_filename));
 			$file = $this->get_file($row);
 			$th->assign('file','<a '.$file.'>'.$row['original'].'</a>');
 		} else
