@@ -49,6 +49,21 @@
 			<td class="left-column">
 				{* First column table *}
 				<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+					{if isset($form_data.create_company)}
+					<tr>
+						<td class="label" nowrap>
+							{$form_data.create_company.label}
+						</td>
+						<td class="data create-company" style="width:1px">
+							{$form_data.create_company.html}
+						</td>
+						<td class="data">
+							{$form_data.create_company_name.html}
+						</td>
+					</tr>
+					{/if}
+					
+					
 					<tr>
 						{assign var=i value=0}
 						{assign var=j value=0}
@@ -81,19 +96,6 @@
 							<td class="label" colspan="2">&nbsp;</td>
 						{/if}
 					</tr>
-					{if isset($form_data.create_company)}
-					<tr>
-						<td class="label" nowrap>
-							{$form_data.create_company.label}
-						</td>
-						<td class="data create-company" style="width:1px">
-							{$form_data.create_company.html}
-						</td>
-						<td class="data">
-							{$form_data.create_company_name.html}
-						</td>
-					</tr>
-					{/if}
 				</table>
 			</td>
 		</tr>
