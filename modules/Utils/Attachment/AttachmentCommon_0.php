@@ -61,6 +61,12 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	public static function count($key=null,$group=null,$group_starts_with=true) {
 		return DB::GetOne('SELECT count(ual.id) FROM utils_attachment_link ual WHERE ual.deleted=0 AND '.self::get_where($key,$group,$group_starts_with));
 	}
+
+	public static function search($word){
+		$ret = array();
+		return $ret;
+	}
+
 }
 
 ?>

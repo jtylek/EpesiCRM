@@ -184,13 +184,15 @@ class Utils_Attachment extends Module {
 		static $th;
 		if(!isset($th)) $th = $this->init_module('Base/Theme');
 
+		if($row['original']==='') return '';
+
 		//tag for get.php
 		if(!$this->isset_module_variable('public')) {
 			$this->set_module_variable('public',$this->public_read);
 			$this->set_module_variable('protected',$this->protected_read);
 			$this->set_module_variable('private',$this->private_read);
 		}
-
+		
 		$lid = 'get_file_'.md5($this->get_path().serialize($row));
 
 		$th->assign('view','<a href="modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$row['file_id'],'path'=>$this->get_path(),'cid'=>CID,'view'=>1)).'" target="_blank" onClick="leightbox_deactivate(\''.$lid.'\')">'.$this->lang->t('View').'</a><br>');
