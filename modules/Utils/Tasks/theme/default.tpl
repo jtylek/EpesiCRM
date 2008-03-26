@@ -8,6 +8,9 @@
 			<td class="icon"><img src="{$theme_dir}/Utils_Tasks__icon.png" width="32" height="32" border="0"></td>
 			<td class="name">Tasks - {if $action == 'view'}view{else}edit{/if}</td>
 			<td class="required_fav_info">
+				{if isset($info_tooltip)}
+					&nbsp;&nbsp;&nbsp;{$info_tooltip}
+				{/if}
 			</td>
 		</tr>
 	</tbody>
@@ -103,32 +106,6 @@
         	</tr>
         </tbody>
     </table>
-    {if $action == 'view'}
-        <div class="AdditionalInfoButton" onclick="additional_info_roll('{$theme_dir}')">
-            Additional Info&nbsp;&nbsp;&nbsp;<img id="AdditionalInfoImg" src="{$theme_dir}/Utils_Tasks__roll-down.png" width="14" height="14" alt="=" border="0">
-        </div>
-    {/if}
-    <div id="AdditionalInfo" style="display: none;">
-        <table name="UtilsTasks" class="form {if $action == 'view'}view{else}edit{/if}" cellspacing="0" cellpadding="0" border="0">
-            <tbody>
-                {* created by *}
-                {if isset($form_data.created_by)}
-                <tr>
-                    <td class="label" style="width: 25%;">{$form_data.created_by.label}</td>
-                    <td class="data" style="width: 25%;">{$form_data.created_by.html}</td>
-                    <td class="label" style="width: 25%;">{$form_data.edited_by.label}</td>
-                    <td class="data" style="width: 25%;">{$form_data.edited_by.html}</td>
-                </tr>
-                <tr>
-                    <td class="label">{$form_data.created_on.label}</td>
-                    <td class="data">{$form_data.created_on.html}</td>
-                    <td class="label">{$form_data.edited_on.label}</td>
-                    <td class="data">{$form_data.edited_on.html}</td>
-                </tr>
-                {/if}
-            </tbody>
-        </table>
-    </div>
     <div class="attachments">
         {$attachments}
     </div>
