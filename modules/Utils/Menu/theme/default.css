@@ -1,7 +1,7 @@
 table.root {
 	border: 0px;
-	background-color: #336699;
-	background-image: url("images/header-blue.png");
+	background-color: black;
+	background-image: url("images/header-black.png");
 	background-repeat: repeat-x;
 	list-style-type: none;
 	padding: 0px;
@@ -128,7 +128,8 @@ img.link_icon {
 
 table.root a.root_item_link_down:hover {
 	background-color: #6C99D7;
-	background-image: url("images/header-blue-hover.png");
+	background-color: black;
+	background-image: url("images/header-black-hover.png");
 	background-repeat: repeat-x;
 }
 
