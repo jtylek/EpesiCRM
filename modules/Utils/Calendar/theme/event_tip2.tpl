@@ -3,6 +3,9 @@
         <tr>
             <td class="title">{$title}</td>
         </tr>
+        <tr> 
+            <td class="description">{$description}</td> 
+	</tr> 
 	<tr>
 	   <td>{$additional_info}</td>
 	</tr>

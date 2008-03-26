@@ -27,8 +27,9 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		$row = DB::GetRow('SELECT e.color,e.access,e.start,e.end,e.title,e.description,e.id,e.timeless,e.priority,e.created_by,e.created_on,e.edited_by,e.edited_on,GROUP_CONCAT(DISTINCT emp.contact SEPARATOR \',\') as employees,GROUP_CONCAT(DISTINCT cus.contact SEPARATOR \',\') as customers FROM crm_calendar_event e LEFT JOIN crm_calendar_event_group_emp emp ON emp.id=e.id LEFT JOIN crm_calendar_event_group_cus cus ON cus.id=e.id WHERE e.id=%d'.$fil.' GROUP BY e.id',array($id));
 		$result = array();
 		if ($row) {
-			foreach (array('start','id','title','description','timeless','end') as $v)
+			foreach (array('start','id','title','timeless','end') as $v)
 				$result[$v] = $row[$v];
+			$result['description'] = '';
 			$result['duration'] = $row['end']-$row['start'];
 			$color = self::get_available_colors();
 			$result['color'] = $color[$row['color']];
@@ -56,6 +57,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 						implode('<br>',$emps).
 					(empty($cuss)?'':'<br>'.Base_LangCommon::ts('CRM_Calendar_Event','Customers:').'<br>'.
 						implode('<br>',$cuss));
+			
 		}
 		return $result;	
 	}
@@ -74,8 +76,9 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		$priority = array(0 =>'None', 1 => 'Low', 2 => 'Medium', 3 => 'High');
 		while ($row = $ret->FetchRow()) {
 			$next_result = array();
-			foreach (array('start','id','title','description','timeless') as $v)
+			foreach (array('start','id','title','timeless') as $v)
 				$next_result[$v] = $row[$v];
+			$next_result['description'] = '';
 			$next_result['duration'] = $row['end']-$row['start'];
 			$color = self::get_available_colors();
 			$next_result['color'] = $color[$row['color']];
