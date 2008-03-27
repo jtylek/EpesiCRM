@@ -35,9 +35,10 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$result['color'] = $color[$row['color']];
 			$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
 			$priority = array(0 =>'None', 1 => 'Low', 2 => 'Medium', 3 => 'High');
-			$result['additional_info2'] = 	Base_LangCommon::ts('CRM_Calendar_Event','Access').': '.Base_LangCommon::ts('CRM_Calendar_Event',$access[$row['access']]).'<br>'.
-								Base_LangCommon::ts('CRM_Calendar_Event','Priority').': '.Base_LangCommon::ts('CRM_Calendar_Event',$priority[$row['priority']]). '<br>'.
-								Base_LangCommon::ts('CRM_Calendar_Event','Notes').': '.Utils_AttachmentCommon::count($row['id'],'CRM/Calendar/Event/'.$row['id']). '<br>'.
+			$result['additional_info2'] = 	
+					'<table border=0><tr><td style="font-weight: bold;">'.Base_LangCommon::ts('CRM_Calendar_Event','Access').'</td><td>'.Base_LangCommon::ts('CRM_Calendar_Event',$access[$row['access']]).'</td></tr>'.
+								'<tr><td style="font-weight: bold;">'.Base_LangCommon::ts('CRM_Calendar_Event','Priority').'</td><td>'.Base_LangCommon::ts('CRM_Calendar_Event',$priority[$row['priority']]). '</td></tr>'.
+								'<tr><td style="font-weight: bold;">'.Base_LangCommon::ts('CRM_Calendar_Event','Notes').'</td><td>'.Utils_AttachmentCommon::count($row['id'],'CRM/Calendar/Event/'.$row['id']). '</td></tr></table><br>'.
 											Base_LangCommon::ts('CRM_Calendar_Event','Created on').' '.$row['created_on']. '<br>'.
 											(($row['edited_by'])?(
 											Base_LangCommon::ts('CRM_Calendar_Event','Edited by').' '.Base_UserCommon::get_user_login($row['edited_by']). '<br>'.
@@ -82,9 +83,9 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$next_result['duration'] = $row['end']-$row['start'];
 			$color = self::get_available_colors();
 			$next_result['color'] = $color[$row['color']];
-			$next_result['additional_info2'] = 	Base_LangCommon::ts('CRM_Calendar_Event','Access').': '.Base_LangCommon::ts('CRM_Calendar_Event',$access[$row['access']]).'<br>'.
-								Base_LangCommon::ts('CRM_Calendar_Event','Priority').': '.Base_LangCommon::ts('CRM_Calendar_Event',$priority[$row['priority']]). '<br>'.
-								Base_LangCommon::ts('CRM_Calendar_Event','Notes').': '.Utils_AttachmentCommon::count($row['id'],'CRM/Calendar/Event/'.$row['id']). '<br>'.
+			$next_result['additional_info2'] = 	'<table border=0><tr><td style="font-weight: bold;">'.Base_LangCommon::ts('CRM_Calendar_Event','Access').'</td><td>'.Base_LangCommon::ts('CRM_Calendar_Event',$access[$row['access']]).'</td></tr>'.
+								'<tr><td style="font-weight: bold;">'.Base_LangCommon::ts('CRM_Calendar_Event','Priority').'</td><td>'.Base_LangCommon::ts('CRM_Calendar_Event',$priority[$row['priority']]). '</td></tr>'.
+								'<tr><td style="font-weight: bold;">'.Base_LangCommon::ts('CRM_Calendar_Event','Notes').'</td><td>'.Utils_AttachmentCommon::count($row['id'],'CRM/Calendar/Event/'.$row['id']). '</td></tr></table><br>'.
 								Base_LangCommon::ts('CRM_Calendar_Event','Created by').' '.Base_UserCommon::get_user_login($row['created_by']). '<br>'.
 												Base_LangCommon::ts('CRM_Calendar_Event','Created on').' '.$row['created_on']. '<br>'.
 												(($row['edited_by'])?(
