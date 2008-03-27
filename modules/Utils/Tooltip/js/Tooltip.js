@@ -13,6 +13,7 @@ Utils_Toltip__showTip = function(tip, my_event) {
 		div_tip.style.left = pos + 'px';
 	} else {
 		var pos = document.body.scrollLeft + curPosx - (dimensions.width) - 10;
+		if(pos<0) pos=0;
 		div_tip.style.left = pos + 'px';//$('ev').style.width;
 	}
 
@@ -29,6 +30,7 @@ Utils_Toltip__showTip = function(tip, my_event) {
 		div_tip.style.top = pos + "px";
 	} else {
 		var pos = scrollTop + curPosy - (dimensions.height) - 10;
+		if(pos<0) pos=0;
 		div_tip.style.top = pos + "px";
 	}
 
