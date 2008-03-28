@@ -278,9 +278,9 @@ class Utils_Calendar extends Module {
 		return $ret;
 	}
 
-	private function print_event($ev) {
+	private function print_event($ev,$mode='') {
 		print('<div id="utils_calendar_event:'.$ev['id'].'" class="utils_calendar_event">');
-		Utils_CalendarCommon::print_event($ev);
+		Utils_CalendarCommon::print_event($ev,$mode);
 		print('</div>');
 	}
 
@@ -427,7 +427,7 @@ class Utils_Calendar extends Module {
 				$dest_id = $timeline[$i]['id'];
 			}
 			if(isset($dest_id)) {
-				$this->print_event($ev);
+				$this->print_event($ev,'day');
 				$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\',\''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).')');
 			}
 		}

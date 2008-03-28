@@ -2,7 +2,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_CalendarCommon extends ModuleCommon {
-	public static function print_event($ev) {
+	public static function print_event($ev,$mode='') {
 		$th = Base_ThemeCommon::init_smarty();
 		$ex = self::process_event($ev);
 		$th->assign('event_id',$ev['id']);
@@ -39,7 +39,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 		if(!isset($ev['delete_action']) || $ev['delete_action']==true)
 			$th->assign('delete_href', Module::create_confirm_href(Base_LangCommon::ts('Utils_Calendar','Delete this event?'),array('UCev_id'=>$ev['id'], 'UCaction'=>'delete')));
 		$th->assign('handle_class','handle');
-		Base_ThemeCommon::display_smarty($th,'Utils_Calendar','event');
+		Base_ThemeCommon::display_smarty($th,'Utils_Calendar','event'.($mode?'_'.$mode:''));
 	}
 
 	public static function process_event(& $row) {
