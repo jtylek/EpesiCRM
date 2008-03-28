@@ -51,7 +51,8 @@ class Base_User_SettingsCommon extends ModuleCommon {
 		if(method_exists($module.'Common', 'user_settings')) {
 			$menu = call_user_func(array($module.'Common','user_settings'));
 			if(is_array($menu))
-				foreach($menu as $v)
+				foreach($menu as $v) {
+					if(!is_array($v)) continue;
 					foreach($v as $v2) {
 						if(!isset($v2['type'])) trigger_error('Type not defined in array: '.print_r($v2,true),E_USER_ERROR);
 						if ($v2['type']=='group') {
@@ -67,6 +68,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 								$ret=$v2['default'];
 						}
 					}
+				}
 			if(isset($ret)) return $ret;
 			return null;
 		} else {

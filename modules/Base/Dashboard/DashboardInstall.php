@@ -39,6 +39,7 @@ class Base_DashboardInstall extends ModuleInstall {
 			module_name C(128),
 			col I2 DEFAULT 0,
 			pos I2 DEFAULT 0,
+			color I2 DEFAULT 0,
 			tab I4',
 			array('constraints'=>', FOREIGN KEY (user_login_id) REFERENCES user_login(ID), FOREIGN KEY (tab) REFERENCES base_dashboard_tabs(ID)'));
 		if(!$ret){
@@ -59,6 +60,7 @@ class Base_DashboardInstall extends ModuleInstall {
 			module_name C(128),
 			col I2 DEFAULT 0,
 			pos I2 DEFAULT 0,
+			color I2 DEFAULT 0,
 			tab I4',
 			array('constraints'=>', FOREIGN KEY (tab) REFERENCES base_dashboard_default_tabs(ID)'));
 		if(!$ret){

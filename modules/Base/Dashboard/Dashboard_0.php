@@ -51,14 +51,15 @@ class Base_Dashboard extends Module {
 		Base_ActionBarCommon::add('add','Add applet',$this->create_callback_href(array($this,'applets_list'),$tab_id));
 
 		$default_dash = $this->get_module_variable('default');
+		$colors = Base_DashboardCommon::get_available_colors();
 		print('<div id="dashboard" style="width: 100%">');
 		for($j=0; $j<3; $j++) {
 			print('<div id="dashboard_applets_'.$j.'" style="width:33%;min-height:100px;vertical-align:top;float:left">');
 
 			if($default_dash)
-				$ret = DB::GetAll('SELECT id,module_name FROM base_dashboard_default_applets WHERE col=%d AND tab=%d ORDER BY pos',array($j,$tab_id));
+				$ret = DB::GetAll('SELECT id,module_name,color FROM base_dashboard_default_applets WHERE col=%d AND tab=%d ORDER BY pos',array($j,$tab_id));
 			else
-				$ret = DB::GetAll('SELECT id,module_name FROM base_dashboard_applets WHERE col=%d AND user_login_id=%d AND tab=%d ORDER BY pos',array($j,Acl::get_user(),$tab_id));
+				$ret = DB::GetAll('SELECT id,module_name,color FROM base_dashboard_applets WHERE col=%d AND user_login_id=%d AND tab=%d ORDER BY pos',array($j,Acl::get_user(),$tab_id));
 			foreach($ret as $row) {
 				if(ModuleManager::is_installed($row['module_name'])==-1) {//if its invalid entry
 					$this->delete_applets($row['module_name']);
@@ -96,6 +97,7 @@ class Base_Dashboard extends Module {
 				$th->assign('configure','<a class="configure" '.Utils_TooltipCommon::open_tag_attrs($this->lang->ht('Configure')).' '.$this->create_callback_href(array($this,'configure_applet'),array($row['id'],$row['module_name'])).'>c</a>');
 
 				$th->assign('caption',$opts['title']);
+				$th->assign('color',$colors[$row['color']]);
 
 				print('<div class="applet" id="ab_item_'.$row['id'].'">');
 				$th->display();
@@ -339,18 +341,27 @@ class Base_Dashboard extends Module {
 				trigger_error('Invalid applet settings function: '.$mod,E_USER_ERROR);
 		}
 
-		$f->addElement('header',null,$this->lang->t($caption.' position'));
+		$f->addElement('header',null,$this->lang->t($caption.' display settings'));
+
+		$color = Base_DashboardCommon::get_available_colors();
+		$color[0] = $this->lang->t('Default').': '.$this->lang->ht(ucfirst($color[0]));
+		for($k=1; $k<count($color); $k++)
+			$color[$k] = '&bull; '.$this->lang->ht(ucfirst($color[$k]));
+		$f->addElement('select', '__color', $this->lang->t('Color'), $color, array('style'=>'width: 100%;'));
+
 		$default_dash = $this->get_module_variable('default');
 		$table_tabs = 'base_dashboard_'.($default_dash?'default_':'').'tabs';
 		$table_applets = 'base_dashboard_'.($default_dash?'default_':'').'applets';
 		$tabs = DB::GetAssoc('SELECT id,name FROM '.$table_tabs);
 		$f->addElement('select','__tab',$this->lang->t('Tab'),$tabs);
-		$f->setDefaults(array('__tab'=>DB::GetOne('SELECT tab FROM '.$table_applets.' WHERE id=%d',array($id))));
+		$dfs = DB::GetRow('SELECT tab,color FROM '.$table_applets.' WHERE id=%d',array($id));
+		$f->setDefaults(array('__tab'=>$dfs['tab'],'__color'=>$dfs['color']));
 
 		if($f->validate()) {
 			//$f->process(array(& $this, 'submit_settings'));
 			$submited = $f->exportValues();
 			DB::Execute('UPDATE '.$table_applets.' SET tab=%d WHERE id=%d',array($submited['__tab'],$id));
+			DB::Execute('UPDATE '.$table_applets.' SET color=%d WHERE id=%d',array($submited['__color'],$id));
 
 			$defaults = $this->get_default_values($mod);
 			$old = $this->get_values($id,$mod);
