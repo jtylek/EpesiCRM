@@ -51,7 +51,7 @@
 	{else}
         <span id="event_grab"></span>
 	{/if}
-        <span id="event_time" {$tip2_tag_attrs}>{$start_time} - {$end_time}</span>
+        <span id="event_time" {$tip2_tag_attrs}>{$start_time} - {$end_time} ({$duration})</span>
         <span id="event_info"><img {$tip_tag_attrs} src="{$theme_dir}/Utils_Calendar__info.png" onClick="event_menu('{$event_id}')" width="14" height="14" border="0"></span>
     </div>
      <div class="row">
