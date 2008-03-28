@@ -32,15 +32,17 @@ class Base_DashboardCommon extends ModuleCommon {
 	public static function user_settings() {
 		$color = array(1 => 'black',
                        2 => 'blue',
-                       3 => 'gray-dark',
-                       4 => 'green',
-                       5 => 'green-dark',
-                       6 => 'red',
-                       7 => 'red-dark',
-                       8 => 'yellow');
+                       3 => 'blue-dark',
+                       4 => 'gray-dark',
+                       5 => 'green',
+                       6 => 'green-dark',
+                       7 => 'red',
+                       8 => 'red-dark',
+                       9 => 'yellow',
+                      10 => 'yellow-dark');
 		return array('Manage dashboard tabs'=>'tabs_list',
 				'Misc'=>array(
-					array('name'=>'default_color','label'=>'Default dashboard applet color', 'type'=>'select', 'values'=>$color, 'default'=>'3')
+					array('name'=>'default_color','label'=>'Default dashboard applet color', 'type'=>'select', 'values'=>$color, 'default'=>'4')
 //			array('name'=>'display','label'=>'zAction bar displays','type'=>'select','values'=>array('icons only'=>'icons only','text only'=>'text only','both'=>'both'),'default'=>'both','reload'=>true)
 				)
 				);
@@ -50,12 +52,14 @@ class Base_DashboardCommon extends ModuleCommon {
 		static $color = array(0 => '',
                               1 => 'black',
                               2 => 'blue',
-                              3 => 'gray-dark',
-                              4 => 'green',
-                              5 => 'green-dark',
-                              6 => 'red',
-                              7 => 'red-dark',
-                              8 => 'yellow');
+                              3 => 'blue-dark',
+                              4 => 'gray-dark',
+                              5 => 'green',
+                              6 => 'green-dark',
+                              7 => 'red',
+                              8 => 'red-dark',
+                              9 => 'yellow',
+                             10 => 'yellow-dark');
 		$color[0] = $color[Base_User_SettingsCommon::get('Base_Dashboard','default_color')];
 		return $color;
 	}
