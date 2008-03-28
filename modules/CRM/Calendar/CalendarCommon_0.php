@@ -57,17 +57,32 @@ class CRM_CalendarCommon extends ModuleCommon {
 	public static function search($word){
 		if(!self::Instance()->acl_check('access'))
 			return array();
+		
+		$attachs = Utils_AttachmentCommon::search_group('CRM/Calendar/Event',$word);
+		$attach_ev_ids = array();
+		foreach($attachs as $x) {
+			if(ereg('CRM/Calendar/Event/([0-9]+)',$x['group'],$reqs))
+				$attach_ev_ids[$reqs[1]] = true;
+		}
+		$attach_ev_ids2 = array_keys($attach_ev_ids);
+		
+		
 		$query = 'SELECT ev.start,ev.title,ev.id FROM crm_calendar_event ev '.
 					'WHERE (ev.title LIKE '.DB::Concat('\'%\'',DB::qstr($word),'\'%\'').
  					' OR ev.description LIKE '.DB::Concat('\'%\'',DB::qstr($word),'\'%\'').
- 					')';
+ 					(empty($attach_ev_ids)?'':' OR ev.id IN ('.implode(',',$attach_ev_ids2).')').
+					')';
  		$recordSet = DB::Execute($query);
  		$result = array();
 
  		while (!$recordSet->EOF){
  			$row = $recordSet->FetchRow();
- 			$result['Event #'.$row['id'].', '.$row['title']] = array('search_date'=>$row['start']);
+			if(isset($attach_ev_ids[$row['id']]))
+ 				$result['Event (attachment)#'.$row['id'].', '.$row['title']] = array('search_date'=>$row['start']);
+			else
+	 			$result['Event #'.$row['id'].', '.$row['title']] = array('search_date'=>$row['start']);
  		}
+		
  		
 		return $result;
 	}
