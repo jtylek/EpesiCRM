@@ -1,7 +1,3 @@
-{php}
-	load_js('data/Base_Theme/templates/default/Utils_Tasks__default.js');
-{/php}
-
 <table class="Utils_Tasks__table" border="0" cellpadding="0" cellspacing="0">
 	<tbody>
 		<tr>

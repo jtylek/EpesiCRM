@@ -228,6 +228,10 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$form->addElement('static', 'created_on',  $this->lang->t('Created on'));
 			$form->addElement('static', 'edited_by',  $this->lang->t('Edited by'));
 			$form->addElement('static', 'edited_on',  $this->lang->t('Edited on'));
+			$theme->assign('info_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_RecordBrowser','Created on:').' '.$def['created_on']. '<br>'.
+					Base_LangCommon::ts('Utils_RecordBrowser','Created by:').' '.$def['created_by']. '<br>'.
+					Base_LangCommon::ts('Utils_RecordBrowser','Edited on:').' '.$def['edited_on']. '<br>'.
+					Base_LangCommon::ts('Utils_RecordBrowser','Edited by:').' '.$def['edited_by']).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','info.png').'" /></a>');
 		}
 
 		$form->setDefaults($def);

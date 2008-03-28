@@ -23,6 +23,7 @@ class CRM_Calendar extends Module {
 			'default_date'=>$default_date,
 			'custom_agenda_cols'=>array('Description','Assigned to','Related with')
 			)));
+		CRM_Calendar_EventCommon::$view = $c->get_view();
 		$theme->assign('calendar',$this->get_html_of_module($c));
 		$theme->display();
 	}
