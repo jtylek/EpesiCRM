@@ -322,7 +322,8 @@ class Base_Dashboard extends Module {
 
 		$sett_fn = array($mod.'Common','applet_settings');
 		$is_conf = is_callable($sett_fn);
-		if(!$is_conf) {
+		$fc = $this->get_module_variable('first_conf');
+		if(!$is_conf && $fc) {
 			$ok=true;
 			return false;
 		}
