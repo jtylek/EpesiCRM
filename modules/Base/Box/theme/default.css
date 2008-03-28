@@ -180,8 +180,8 @@ hr.line {
     padding-left: 3px;
     padding-top: 3px;
     width: 17px;
-	background-color: black;
-	background-image: url('images/header-black.png');
+	background-color: gray;
+	background-image: url('images/header-gray-dark.png');
 	background-repeat: repeat-x;
     cursor: pointer;
 }
@@ -196,7 +196,7 @@ hr.line {
 
 #top_bar #top_bar_1 .roll-left:hover,
 #top_bar #top_bar_1 .roll-right:hover {
-	background-image: url('images/header-black-hover.png');
+	background-image: url('images/header-gray-dark-hover.png');
 }
 
 /* menu bar */
@@ -204,16 +204,16 @@ hr.line {
 #top_bar #top_bar_1 .menu-bar {
 	height: 20px;
 	text-align: left;
-	background-color: black;
-	background-image: url('images/header-black.png');
+	background-color: gray;
+	background-image: url('images/header-gray-dark.png');
 	background-repeat: repeat-x;
 }
 
 #top_bar #top_bar_1 .powered {
     text-align: right;
     vertical-align: middle;
-	background-color: black;
-	background-image: url("images/header-black.png");
+	background-color: gray;
+	background-image: url("images/header-gray-dark.png");
 	background-repeat: repeat-x;
     font-size: 9px;
     color: white;
@@ -221,8 +221,8 @@ hr.line {
 
 #top_bar #top_bar_1 .version {
 	width: 100px;
-	background-color: black;
-	background-image: url("images/header-black.png");
+	background-color: gray;
+	background-image: url("images/header-gray-dark.png");
 	background-repeat: repeat-x;
 	text-align: center;
 	font-size: 9px;
@@ -236,15 +236,15 @@ hr.line {
 }
 
 #top_bar #top_bar_1 .version a:hover {
-	color: black;
+	color: gray;
 	background-color: #FFFFFF;
 }
 
 #top_bar #top_bar_1 .module-indicator {
 	width: 287px;
     height: 20px;
-	background-color: black;
-	background-image: url("images/header-black.png");
+	background-color: gray;
+	background-image: url("images/header-gray-dark.png");
 	background-repeat: repeat-x;
 	font-weight: bold;
 	text-align: center;
@@ -401,8 +401,8 @@ hr.line {
 /* clock */
 
 #top_bar #top_bar_1 #clock_td {
-    background-color: black;
-    background-image: url('images/header-black.png');
+    background-color: gray;
+    background-image: url('images/header-gray-dark.png');
     background-repeat: repeat-x;
     width: 200px;
     height: 20px;
@@ -410,8 +410,8 @@ hr.line {
 }
 
 #top_bar #top_bar_1 .clock_icon {
-    background-color: black;
-    background-image: url('images/header-black.png');
+    background-color: gray;
+    background-image: url('images/header-gray-dark.png');
     background-repeat: repeat-x;
     width: 16px;
     height: 16px;
@@ -422,7 +422,7 @@ hr.line {
 }
 
 #top_bar #top_bar_1 .clock_icon:hover {
-    background-image: url('images/header-black-hover.png');
+    background-image: url('images/header-gray-dark-hover.png');
 }
 
 #digitalclock {
