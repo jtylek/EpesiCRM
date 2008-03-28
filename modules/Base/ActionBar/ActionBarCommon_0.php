@@ -31,8 +31,9 @@ class Base_ActionBarCommon extends ModuleCommon {
 			'add'=>10,
 			'delete'=>11,
 			'save'=>12,
-			'settings'=>13,
-			'print'=>14);
+			'clone'=>13,
+			'settings'=>14,
+			'print'=>15);
 
 	public static function user_settings(){
 		return array('Misc'=>array(
