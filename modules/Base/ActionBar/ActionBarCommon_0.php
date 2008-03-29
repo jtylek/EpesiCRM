@@ -1,9 +1,9 @@
 <?php
 /**
  * ActionBar
- * 
+ *
  * This class provides action bar component.
- * 
+ *
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2007, Telaxus LLC
  * @version 1.0
@@ -15,7 +15,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_ActionBarCommon extends ModuleCommon {
 	private static $icons = array();
-	
+
 	public static $available_icons = array(
 			'home'=>0,
 			'back'=>1,
@@ -33,24 +33,25 @@ class Base_ActionBarCommon extends ModuleCommon {
 			'save'=>12,
 			'clone'=>13,
 			'settings'=>14,
-			'print'=>15);
+			'print'=>15,
+			'scan'=>16);
 
 	public static function user_settings(){
 		return array('Misc'=>array(
 			array('name'=>'display','label'=>'Action bar displays','type'=>'select','values'=>array('icons only'=>'icons only','text only'=>'text only','both'=>'both'),'default'=>'both','reload'=>true)
 			));
 	}
-	
+
 	public static function add($type, $text, $action, $description=null) {
 		if(!array_key_exists($type,self::$available_icons)) trigger_error('Invalid action '.$type,E_USER_ERROR);
 
 		self::$icons[] = array('icon'=>$type,'label'=>$text,'action'=>$action,'description'=>$description);
 	}
-	
+
 	public static function get() {
 		return self::$icons;
 	}
-	
+
 	public static function clean() {
 		self::$icons = array();
 	}
