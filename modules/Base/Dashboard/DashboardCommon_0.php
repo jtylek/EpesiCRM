@@ -32,14 +32,14 @@ class Base_DashboardCommon extends ModuleCommon {
 	public static function user_settings() {
 		$color = array(1 => 'black',
                        2 => 'blue',
-                       3 => 'blue-dark',
-                       4 => 'gray-dark',
+                       3 => 'dark-blue',
+                       4 => 'dark-gray',
                        5 => 'green',
-                       6 => 'green-dark',
+                       6 => 'dark-green',
                        7 => 'red',
-                       8 => 'red-dark',
+                       8 => 'dark-red',
                        9 => 'yellow',
-                      10 => 'yellow-dark');
+                      10 => 'dark-yellow');
 		return array('Manage dashboard tabs'=>'tabs_list',
 				'Misc'=>array(
 					array('name'=>'default_color','label'=>'Default dashboard applet color', 'type'=>'select', 'values'=>$color, 'default'=>'4')
@@ -52,14 +52,14 @@ class Base_DashboardCommon extends ModuleCommon {
 		static $color = array(0 => '',
                               1 => 'black',
                               2 => 'blue',
-                              3 => 'blue-dark',
-                              4 => 'gray-dark',
+                              3 => 'dark-blue',
+                              4 => 'dark-gray',
                               5 => 'green',
-                              6 => 'green-dark',
+                              6 => 'dark-green',
                               7 => 'red',
-                              8 => 'red-dark',
+                              8 => 'dark-red',
                               9 => 'yellow',
-                             10 => 'yellow-dark');
+                             10 => 'dark-yellow');
 		$color[0] = $color[Base_User_SettingsCommon::get('Base_Dashboard','default_color')];
 		return $color;
 	}

@@ -464,9 +464,9 @@ class Base_Dashboard extends Module {
 			DB::Execute('INSERT INTO base_dashboard_tabs(user_login_id,pos,name) VALUES(%d,%d,%s)',array(Acl::get_user(),$tab['pos'],$tab['name']));
 			$id = DB::Insert_ID('base_dashboard_tabs','id');
 
-			$ret = DB::GetAll('SELECT id,module_name,col,tab FROM base_dashboard_default_applets WHERE tab=%d ORDER BY pos',array($tab['id']));
+			$ret = DB::GetAll('SELECT id,module_name,col,color,tab FROM base_dashboard_default_applets WHERE tab=%d ORDER BY pos',array($tab['id']));
 			foreach($ret as $row) {
-				DB::Execute('INSERT INTO base_dashboard_applets(module_name,col,user_login_id,tab) VALUES(%s,%d,%d,%d)',array($row['module_name'],$row['col'],Acl::get_user(),$id));
+				DB::Execute('INSERT INTO base_dashboard_applets(module_name,col,user_login_id,color,tab) VALUES(%s,%d,%d,%d,%d)',array($row['module_name'],$row['col'],Acl::get_user(),$row['color'],$id));
 				$ins_id = DB::Insert_ID('base_dashboard_applets','id');
 				$ret_set = DB::GetAll('SELECT name,value FROM base_dashboard_default_settings WHERE applet_id=%d',array($row['id']));
 				foreach($ret_set as $row_set)
