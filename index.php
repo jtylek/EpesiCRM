@@ -33,7 +33,10 @@ $tables = DB::MetaTables();
 if(!in_array('modules',$tables) || !in_array('variables',$tables) || !in_array('session',$tables))
 	die('Database structure you are using is apparently out of date or damaged. If you didn\'t perform application update recently you should try to restore the database. Otherwise, please refer to epesi documentation in order to perform database update.');
 
-define('CID',false); //i know that i won't access $_SESSION['client']
+if(defined('CID')) {
+	if(constant('CID')!==false) die('Invalid update script defined custom CID. Please try to refresh site manually.');
+} else
+	define('CID',false); //i know that i won't access $_SESSION['client']
 require_once('include/session.php');
 
 $client_id = isset($_SESSION['num_of_clients'])?$_SESSION['num_of_clients']:0;

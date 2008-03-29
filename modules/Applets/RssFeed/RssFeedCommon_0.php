@@ -40,6 +40,10 @@ class Applets_RssFeedCommon extends ModuleCommon {
 	}
 	
 	public static function check_feed($feed) {
+		if(!function_exists('curl_init')) {
+			//take care about it later...
+			return true;
+		}
 		// Check if RSS can be read
 		$rss = curl_init();
 		curl_setopt($rss, CURLOPT_URL, $feed);
