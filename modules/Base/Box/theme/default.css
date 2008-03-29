@@ -21,6 +21,10 @@ a:hover {
 	color: #993333;
 }
 
+.button a:hover {
+	color: white;
+}
+
 input, textarea, select {
 	font-family: "Tahoma" "Verdana" "Vera-Sans" "DejaVu-Sans";
 	font-size: 11px;
@@ -179,8 +183,9 @@ hr.line {
 #top_bar #top_bar_1 .roll-right {
     padding-left: 3px;
     padding-top: 3px;
+    padding-bottom: 3px;
     width: 17px;
-	background-color: gray;
+	background-color: #595959;
 	background-image: url('images/header-gray-dark.png');
 	background-repeat: repeat-x;
     cursor: pointer;
@@ -199,12 +204,18 @@ hr.line {
 	background-image: url('images/header-gray-dark-hover.png');
 }
 
+#top_bar #top_bar_1 .roll-left img,
+#top_bar #top_bar_1 .roll-right img {
+    display: block;
+    margin: 0px;
+    padding: 0px;
+}
 /* menu bar */
 
 #top_bar #top_bar_1 .menu-bar {
 	height: 20px;
 	text-align: left;
-	background-color: gray;
+	background-color: #595959;
 	background-image: url('images/header-gray-dark.png');
 	background-repeat: repeat-x;
 }
@@ -212,7 +223,7 @@ hr.line {
 #top_bar #top_bar_1 .powered {
     text-align: right;
     vertical-align: middle;
-	background-color: gray;
+	background-color: #595959;
 	background-image: url("images/header-gray-dark.png");
 	background-repeat: repeat-x;
     font-size: 9px;
@@ -221,7 +232,7 @@ hr.line {
 
 #top_bar #top_bar_1 .version {
 	width: 100px;
-	background-color: gray;
+	background-color: #595959;
 	background-image: url("images/header-gray-dark.png");
 	background-repeat: repeat-x;
 	text-align: center;
@@ -243,7 +254,7 @@ hr.line {
 #top_bar #top_bar_1 .module-indicator {
 	width: 287px;
     height: 20px;
-	background-color: gray;
+	background-color: #595959;
 	background-image: url("images/header-gray-dark.png");
 	background-repeat: repeat-x;
 	font-weight: bold;
@@ -325,6 +336,7 @@ hr.line {
 
 #top_bar #top_bar_2 .login a:hover {
     background-image: url('images/logout-hover.png');
+    color: white;
 }
 
 #top_bar #top_bar_2 .search {
@@ -401,7 +413,7 @@ hr.line {
 /* clock */
 
 #top_bar #top_bar_1 #clock_td {
-    background-color: gray;
+    background-color: #595959;
     background-image: url('images/header-gray-dark.png');
     background-repeat: repeat-x;
     width: 200px;
@@ -410,7 +422,7 @@ hr.line {
 }
 
 #top_bar #top_bar_1 .clock_icon {
-    background-color: gray;
+    background-color: #595959;
     background-image: url('images/header-gray-dark.png');
     background-repeat: repeat-x;
     width: 16px;
