@@ -353,7 +353,7 @@ class Base_Dashboard extends Module {
 		$default_dash = $this->get_module_variable('default');
 		$table_tabs = 'base_dashboard_'.($default_dash?'default_':'').'tabs';
 		$table_applets = 'base_dashboard_'.($default_dash?'default_':'').'applets';
-		$tabs = DB::GetAssoc('SELECT id,name FROM '.$table_tabs);
+		$tabs = DB::GetAssoc('SELECT id,name FROM '.$table_tabs.($default_dash?'':' WHERE user_login_id='.Acl::get_user()));
 		$f->addElement('select','__tab',$this->lang->t('Tab'),$tabs);
 		$dfs = DB::GetRow('SELECT tab,color FROM '.$table_applets.' WHERE id=%d',array($id));
 		$f->setDefaults(array('__tab'=>$dfs['tab'],'__color'=>$dfs['color']));
