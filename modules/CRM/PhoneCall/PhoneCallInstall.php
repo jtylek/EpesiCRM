@@ -47,6 +47,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::install_new_recordset('phonecall', $fields);
 		Utils_RecordBrowserCommon::set_tpl('phonecall', Base_ThemeCommon::get_template_filename('CRM/PhoneCall', 'default'));
 		Utils_RecordBrowserCommon::set_processing_method('phonecall', array('CRM_PhoneCallCommon', 'submit_phonecall'));
+		Utils_RecordBrowserCommon::set_icon('phonecall', Base_ThemeCommon::get_template_filename('CRM/PhoneCall', 'icon.png'));
 // 		Utils_RecordBrowserCommon::new_filter('contact', 'Company Name');
 //		Utils_RecordBrowserCommon::set_quickjump('contact', 'Last Name');
 //		Utils_RecordBrowserCommon::set_favorites('contact', true);
