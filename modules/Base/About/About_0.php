@@ -11,18 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_About extends Module {
 	private function get_info() {
-		self::credits();
-		return;
-	}
-
-	
-	public function credits() {
-		$fp = @fopen($this->get_module_dir().'/credits.html', 'r');
-		if ($fp){
-				$credits_txt = fread($fp,filesize($this->get_module_dir().'/credits.html'));
-		}
-		fclose($fp);
-	print $credits_txt;
+		return @file_get_contents($this->get_module_dir().'/credits.html');
 	}
 
 	public function info() {
