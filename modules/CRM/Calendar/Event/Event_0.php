@@ -37,6 +37,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 		if($action == 'new') {
 			$duration_switch = '1';
+			$id = strtotime(Base_RegionalSettingsCommon::time2reg($id,true,true,true,false));
 			$tt = $id-$id%300;
 			$me = CRM_ContactsCommon::get_contacts(array('login'=>Acl::get_user()),array('id'));
 			$my_emp = array();
@@ -64,6 +65,8 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				$x = '-1';
 			}
 			$evx = Utils_CalendarCommon::process_event($event);
+			$event['start'] = strtotime(Base_RegionalSettingsCommon::time2reg($event['start'],true,true,true,false));
+			$event['end'] = strtotime(Base_RegionalSettingsCommon::time2reg($event['end'],true,true,true,false));
 			$theme->assign('event_info',$evx);
 			$def = array(
 				'date_s' => $event['start'],
@@ -304,6 +307,8 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$end = $start + $vals['duration'];
 		else
 			$end = strtotime($vals['date_e']) + $this->recalculate_time($vals['time_e']);
+		$start = Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$start),true);
+		$end = Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$end),true);
 		DB::Execute('INSERT INTO crm_calendar_event (title,'.
 													'description,'.
 													'start,'.
@@ -350,6 +355,8 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$end = $start + $vals['duration'];
 		else
 			$end = strtotime($vals['date_e']) + $this->recalculate_time($vals['time_e']);
+		$start = Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$start),true);
+		$end = Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$end),true);
 		DB::Execute('UPDATE crm_calendar_event SET title=%s,'.
 													'description=%s,'.
 													'start=%d,'.
