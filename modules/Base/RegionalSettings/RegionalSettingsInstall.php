@@ -120,7 +120,7 @@ class Base_RegionalSettingsInstall extends ModuleInstall {
 		Base_User_SettingsCommon::save_admin('Base_RegionalSettings','time',$val['time']);
 		Base_User_SettingsCommon::save_admin('Base_RegionalSettings','tz',$val['tz']);
 		Base_User_SettingsCommon::save_admin('Base_RegionalSettings','default_country',$val['default_country']);
-		Base_User_SettingsCommon::save_admin('Base_RegionalSettings','default_state',$val['default_state']);
+		Base_User_SettingsCommon::save_admin('Base_RegionalSettings','default_state',isset($val['default_state'])?$val['default_state']:'');
 	}
 }
 

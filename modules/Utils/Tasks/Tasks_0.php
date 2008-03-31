@@ -97,7 +97,7 @@ class Utils_Tasks extends Module {
 					$ass,$rel,$stat,
 					$this->priorities[$row['priority']],
 					'<img src="'.Base_ThemeCommon::get_template_file('images/'.($row['longterm']?'checkbox_on':'checkbox_off').'.png').'">',
-					$row['deadline']?Base_RegionalSettingsCommon::time2reg($row['deadline'],false):'--');
+					$row['deadline']?Base_RegionalSettingsCommon::time2reg($row['deadline'],false,true,false):'--');
 			$r->add_action($this->create_callback_href(array($this,'push_box0'),array('edit',array($row['id'],false),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm,$this->display_closed))),'View');
 			if($row['permission']==0 || $row['created_by']==Acl::get_user()) {
 				$r->add_action($this->create_callback_href(array($this,'push_box0'),array('edit',array($row['id']),array($this->real_id,$this->allow_add_task,$this->display_shortterm,$this->display_longterm,$this->display_closed))),'Edit');
@@ -166,7 +166,7 @@ class Utils_Tasks extends Module {
 				$this->lang->t('Assigned to: %s',array($ass)).'<br>'.
 				$this->lang->t('Related with: %s',array($rel)).'<br>'.
 				$this->lang->t('Longterm: %s',array($row['longterm']?'yes':'no')).'<br>'.
-				$this->lang->t('Deadline: %s',array($row['deadline']?Base_RegionalSettingsCommon::time2reg($row['deadline'],false):'--')).'<hr>'.
+				$this->lang->t('Deadline: %s',array($row['deadline']?Base_RegionalSettingsCommon::time2reg($row['deadline'],false,true,false):'--')).'<hr>'.
 				$this->lang->t('Created on: %s',array(Base_RegionalSettingsCommon::time2reg($row['created_on']))).'<br>'.
 				$this->lang->t('Created by: %s',array(Base_UserCommon::get_user_login($row['created_by']))).'<br>'.
 				($row['edited_by']?$this->lang->t('Edited on: %s',array(Base_RegionalSettingsCommon::time2reg($row['edited_on']))).'<br>'.
