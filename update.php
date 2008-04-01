@@ -67,6 +67,7 @@ function update_from_0_9_9beta2_to_1_0_0rc1() {
 	require_once('include.php');
 	//attachment
 	ob_start();
+	ModuleManager::load_modules();
 	ModuleManager::install('Utils_Attachment_Administrator');
 	ob_end_clean();
 	//RB 1.01
