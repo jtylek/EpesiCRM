@@ -49,7 +49,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			case 'edit':
 							if ($i->acl_check('edit phonecall')) return true;
 							$me = CRM_ContactsCommon::get_my_record();
-							if (in_array($me['id'], $param['employees'])) return true;
+							if (is_array($param['employees']) && in_array($me['id'], $param['employees'])) return true;
 							if ($me['id']==$param['contact']) return true;
 							$info = Utils_RecordBrowserCommon::get_record_info('phonecall',$param['id']);
 							if ($me['login']==$info['created_by']) return true;

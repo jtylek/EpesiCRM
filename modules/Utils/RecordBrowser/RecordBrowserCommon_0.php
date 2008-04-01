@@ -628,7 +628,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		return array('__jump_to_RB_table'=>$tab, '__jump_to_RB_record'=>$id);
 	}
-	private function create_record_href($tab, $id){
+	public function create_record_href($tab, $id){
 		return Module::create_href(self::get_record_href_array($tab,$id));
 	}
 	public function record_link_open_tag($tab, $id, $nolink=false){
