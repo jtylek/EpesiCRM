@@ -63,7 +63,7 @@ function update_from_0_9_9beta1_to_0_9_9beta2() {
 }
 
 function update_from_0_9_9beta2_to_1_0_0rc1() {
-/*	define('CID',false);
+	define('CID',false);
 	require_once('include.php');
 	//attachment
 	ob_start();
@@ -98,7 +98,7 @@ function update_from_0_9_9beta2_to_1_0_0rc1() {
 	$q = DB::dict()->AddColumnSQL('base_dashboard_default_applets','color I2 DEFAULT 0');
 	DB::Execute($q[0]);
 	
-	themeup();*/
+	themeup();
 }
 
 //=========================================================================
