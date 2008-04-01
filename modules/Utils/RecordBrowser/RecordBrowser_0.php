@@ -383,16 +383,16 @@ class Utils_RecordBrowser extends Module {
 			if (!isset($cols['Actions']) || $cols['Actions'])
 			{
 				if (!$special) {
-					$gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'view',$row['id'])),$this->lang->t('View'));
-					if ($this->get_access('edit',$row)) $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'edit',$row['id'])),$this->lang->t('Edit'));
+					$gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'view',$row['id'])),'View');
+					if ($this->get_access('edit',$row)) $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'edit',$row['id'])),'Edit');
 					if ($admin) {
-						if (!$row['active']) $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],true)),$this->lang->t('Activate'), null, 'active-off');
-						else $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],false)),$this->lang->t('Deactivate'), null, 'active-on');
+						if (!$row['active']) $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],true)),'Activate', null, 'active-off');
+						else $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],false)),'Deactivate', null, 'active-on');
 						$info = Utils_RecordBrowserCommon::get_record_info($this->tab, $row['id']);
-						if ($info['edited_by']===null) $gb_row->add_action('',$this->lang->t('This record was never edited'),null,'history_inactive');
-						else $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_edit_history', $row['id'])),$this->lang->t('View edit history'),null,'history');
+						if ($info['edited_by']===null) $gb_row->add_action('','This record was never edited',null,'history_inactive');
+						else $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_edit_history', $row['id'])),'View edit history',null,'history');
 					} else
-					if ($this->get_access('delete',$row)) $gb_row->add_action($this->create_confirm_callback_href($this->lang->t('Are you sure you want to delete this record?'),array('Utils_RecordBrowserCommon','delete_record'),array($this->tab, $row['id'])),$this->lang->t('Delete'));
+					if ($this->get_access('delete',$row)) $gb_row->add_action($this->create_confirm_callback_href($this->lang->t('Are you sure you want to delete this record?'),array('Utils_RecordBrowserCommon','delete_record'),array($this->tab, $row['id'])),'Delete');
 				}
 				$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info($this->tab, isset($info)?$info:$row['id']));
 			}
