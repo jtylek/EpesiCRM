@@ -615,7 +615,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public function delete_record($tab, $id) {
 		DB::Execute('UPDATE '.$tab.' SET active=0 where id=%d', array($id));
 	}
-	private function get_record_href_array($tab, $id){
+	public function get_record_href_array($tab, $id){
 		if (isset($_REQUEST['__jump_to_RB_table']) && 
 			($tab==$_REQUEST['__jump_to_RB_table']) &&
 			($id==$_REQUEST['__jump_to_RB_record'])) {
