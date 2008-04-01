@@ -50,14 +50,14 @@
 
 #dashboard .black			{ background-image: url('images/header-black.png'); }
 #dashboard .blue			{ background-image: url('images/header-blue.png'); }
-#dashboard .blue-dark		{ background-image: url('images/header-blue-dark.png'); }
-#dashboard .gray-dark		{ background-image: url('images/header-gray-dark.png'); }
+#dashboard .dark-blue		{ background-image: url('images/header-blue-dark.png'); }
+#dashboard .dark-gray		{ background-image: url('images/header-gray-dark.png'); }
 #dashboard .green			{ background-image: url('images/header-green.png'); }
-#dashboard .green-dark		{ background-image: url('images/header-green-dark.png'); }
+#dashboard .dark-green		{ background-image: url('images/header-green-dark.png'); }
 #dashboard .red				{ background-image: url('images/header-red.png'); }
-#dashboard .red-dark		{ background-image: url('images/header-red-dark.png'); }
+#dashboard .dark-red		{ background-image: url('images/header-red-dark.png'); }
 #dashboard .yellow			{ background-image: url('images/header-yellow.png'); }
-#dashboard .yellow-dark		{ background-image: url('images/header-yellow-dark.png'); }
+#dashboard .dark-yellow		{ background-image: url('images/header-yellow-dark.png'); }
 
 /*
   not in use
