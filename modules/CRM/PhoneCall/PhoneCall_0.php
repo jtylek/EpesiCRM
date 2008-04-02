@@ -25,6 +25,10 @@ class CRM_PhoneCall extends Module {
 		$this->display_module($this->rb);
 	}
 
+	public function caption(){
+		if (isset($this->rb)) return $this->rb->caption();
+	}
+
 	public function applet($conf,$opts) {
 		$opts['go'] = true;
 		$rb = $this->init_module('Utils/RecordBrowser','phonecall','phonecall');
@@ -41,8 +45,5 @@ class CRM_PhoneCall extends Module {
 		$this->display_module($rb, $conds, 'mini_view');
 	}
 
-	public function caption(){
-		if (isset($this->rb)) return $this->rb->caption();
-	}
 }
 ?>
