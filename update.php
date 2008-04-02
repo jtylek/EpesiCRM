@@ -98,6 +98,12 @@ function update_from_0_9_9beta2_to_1_0_0rc1() {
 	DB::Execute($q[0]);
 	$q = DB::dict()->AddColumnSQL('base_dashboard_default_applets','color I2 DEFAULT 0');
 	DB::Execute($q[0]);
+
+	//tasks
+	if(ModuleManager::is_installed('Utils_Tasks')>=0) {
+		$q = DB::dict()->DropColumnSQL('utils_tasks_task','parent_module');
+		DB::Execute($q[0]);
+	}
 	
 	themeup();
 }
