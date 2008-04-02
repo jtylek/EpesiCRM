@@ -68,7 +68,7 @@ class History {
 		$c = DB::GetOne('SELECT count(*) FROM history WHERE session_name=%s AND client_id=%d',array(session_id(),CID));
 		if($id<1) $id = 1;
 		elseif($id>$c) $id=$c;
-		$_SESSION['client']['__history_id__']=$id;
+		$_SESSION['client']['__history_id__']=intval($id);
 		$data = DB::GetOne('SELECT data FROM history WHERE session_name=%s AND client_id=%d AND page_id=%d',array(session_id(),CID,$_SESSION['client']['__history_id__']-1));
 		if($data===false) return;
 		if(GZIP_HISTORY && function_exists('gzuncompress')) $data = gzuncompress($data);
