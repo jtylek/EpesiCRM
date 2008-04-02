@@ -45,13 +45,13 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 		$form->addRule('old_pass', $this->lang->t('Old password incorrect'), 'check_old_pass');
 		$form->addRule('old_pass', $this->lang->t('Field required'), 'required');
 
-		Base_ActionBarCommon::add('back',$this->lang->t('Back'),$this->create_href(array('box_main_module'=>'Base_User_Settings')));
+		Base_ActionBarCommon::add('back',$this->lang->t('Back'),$this->create_main_href('Base_User_Settings'));
 		Base_ActionBarCommon::add('save',$this->lang->t('Save'),$form->get_submit_form_href());
 		#$form->addElement('submit', 'submit_button', $this->lang->ht('OK'));
 
 		if($form->validate_with_message('Setting saved','Problem encountered')) {
 			if($form->process(array(&$this, 'submit_user_preferences'))){
-				location(array('box_main_module'=>'Base_User_Settings'));
+				Base_BoxCommon::location('Base_User_Settings');
 			}
 		} else {
 			//defaults

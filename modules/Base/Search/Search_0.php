@@ -84,7 +84,7 @@ class Base_Search extends Module {
 								$warning = $this->lang->t('Only 100 results are displayed.');
 								break;
 							}
-							$links[] = '<a '.$this->create_href(array_merge(array('box_main_module'=>$k),$rv)).'>'.$rk.'</a>';
+							$links[] = '<a '.$this->create_main_href($k,null,null,null,$rv).'>'.$rk.'</a>';
 						}
 				}
 				$qs_theme =  & $this->pack_module('Base/Theme');
@@ -125,7 +125,7 @@ class Base_Search extends Module {
 
 		if($form->validate()) {
 			$search = $form->exportValues();
-			location(array('box_main_module'=>'Base_Search','quick_search'=>$search['quick_search'],'advanced_search'=>0));
+			$this->main_location('Base_Search',array('quick_search'=>$search['quick_search'],'advanced_search'=>0));
 		}
 	}
 

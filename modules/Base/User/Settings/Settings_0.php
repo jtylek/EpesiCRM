@@ -154,7 +154,7 @@ class Base_User_Settings extends Module {
 					else trigger_error('You cannot override this key: '.$k,E_USER_ERROR);
 				} else {
 					if (!is_string($v)) $modules[$k] = array('action'=>$this->create_unique_href(array('settings_branch'=>$k)),'module_names'=>array($name));
-					elseif(!$admin_settings) $modules[$k] = array('action'=>$this->create_href(array('box_main_module'=>$name,'box_main_function'=>$v)),'module_names'=>array($name),'external'=>true);
+					elseif(!$admin_settings) $modules[$k] = array('action'=>$this->create_main_href($name,$v),'module_names'=>array($name),'external'=>true);
 				}
 			}
 		}

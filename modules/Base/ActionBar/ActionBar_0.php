@@ -79,7 +79,8 @@ class Base_ActionBar extends Module {
 						$trimmed_label = substr(strrchr($v['label'],':'),1);
 						$ii['label'] = $trimmed_label?$trimmed_label:$v['label'];
 						$ii['description'] = $v['label'];
-						$ii['open'] = '<a '.$this->create_href($v['link']).'>';
+						$arr = $v['link'];
+						$ii['open'] = '<a '.$this->create_main_href($arr['box_main_module'],isset($arr['box_main_function'])?$arr['box_main_function']:null,isset($arr['box_main_arguments'])?$arr['box_main_arguments']:null,isset($arr['box_main_constructor_arguments'])?$arr['box_main_constructor_arguments']:null,$arr).'>';
 						$ii['close'] = '</a>';
 						try {
 							if(isset($v['link']['__icon__']))
@@ -97,7 +98,8 @@ class Base_ActionBar extends Module {
 						$trimmed_label = substr(strrchr($v['label'],':'),1);
 						$ii['label'] = $trimmed_label?$trimmed_label:$v['label'];
 						$ii['description'] = $v['label'];
-						$ii['open'] = '<a onClick="actionbar_launchpad_deactivate();'.$this->create_href_js($v['link']).'" href="javascript:void(0)">';
+						$arr = $v['link'];
+						$ii['open'] = '<a onClick="actionbar_launchpad_deactivate();'.$this->create_main_href_js($arr['box_main_module'],isset($arr['box_main_function'])?$arr['box_main_function']:null,isset($arr['box_main_arguments'])?$arr['box_main_arguments']:null,isset($arr['box_main_constructor_arguments'])?$arr['box_main_constructor_arguments']:null,$arr).'" href="javascript:void(0)">';
 						$ii['close'] = '</a>';
 						try {
 							if(isset($v['link']['__icon__']))

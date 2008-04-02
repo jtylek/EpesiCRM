@@ -908,6 +908,22 @@ abstract class Module extends ModulePrimitive {
 		if(!isset($name)) $name = $this->get_new_child_instance_id($module_type);
 		$this->frozen_modules[$module_type.'|'.$name] = 1;
 	}
+	
+	/////////////////////////
+	// registered methods
+	private static $registered_methods = array();
+	
+	public static function register_method($name, $func) {
+		self::$registered_methods[$name] = $func;
+	}
+	
+	public function & __call($func_name, array $args=array()) {
+		if(isset(self::$registered_methods[$func_name]))
+			$ret = & call_user_func_array(self::$registered_methods[$func_name], array_merge(array($this),$args));
+		else
+			$ret = false;
+		return $ret;
+	}
 }
 
 ?>

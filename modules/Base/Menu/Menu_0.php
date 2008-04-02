@@ -50,7 +50,7 @@ class Base_Menu extends Module {
 	private static $tmp_menu;
 	private $duplicate = false;
 
-	private static function build_menu(& $menu, & $m) {
+	private function build_menu(& $menu, & $m) {
 		foreach($m as $k=>$arr) {
 			if($k=='__split__')
 				$menu->add_split();
@@ -93,13 +93,13 @@ class Base_Menu extends Module {
 				if(is_array($arr) && array_key_exists('__submenu__', $arr)) {
 					unset($arr['__submenu__']);
 					$menu->begin_submenu(Base_LangCommon::ts('Base_Menu',$k));
-					self::build_menu($menu, $arr);
+					$this->build_menu($menu, $arr);
 					$menu->end_submenu();
 				} else {
 					if($url)
 						$menu->add_link(Base_LangCommon::ts('Base_Menu',$k), $url,$icon);
 					else
-						$menu->add_link(Base_LangCommon::ts('Base_Menu',$k), 'javascript:'.Module::create_href_js($arr) ,$icon);
+						$menu->add_link(Base_LangCommon::ts('Base_Menu',$k), 'javascript:'.$this->create_main_href_js($arr['box_main_module'],isset($arr['box_main_function'])?$arr['box_main_function']:null,isset($arr['box_main_arguments'])?$arr['box_main_arguments']:null,isset($arr['box_main_constructor_arguments'])?$arr['box_main_constructor_arguments']:null,$arr) ,$icon);
 				}
 			}
 		}
@@ -203,7 +203,7 @@ class Base_Menu extends Module {
 
 		// preparing menu string
 		$menu_mod = & $this->init_module("Utils/Menu", "horizontal");
-		self::build_menu($menu_mod,$menu);
+		$this->build_menu($menu_mod,$menu);
 //		self::$menu_module = $this->get_path();
 
 //		$this->menu_name = $this->get_name().$this->get_instance_id().'menu';

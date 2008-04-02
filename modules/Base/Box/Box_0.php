@@ -69,24 +69,41 @@ class Base_Box extends Module {
 		} else $mains = array();
 
 
-		if (isset($_REQUEST['box_main_module'])) {
-			$href = $_REQUEST['box_main_module'];
-			$containers['main']['module'] = $href;
-			if(isset($_REQUEST['box_main_function']))
-				$containers['main']['function'] = $_REQUEST['box_main_function'];
-			else
-				unset($containers['main']['function']);
-			if(isset($_REQUEST['box_main_arguments']))
-				$containers['main']['arguments'] = $_REQUEST['box_main_arguments'];
-			else
-				unset($containers['main']['arguments']);
-			if(isset($_REQUEST['box_main_constructor_arguments']))
-				$containers['main']['constructor_arguments'] = $_REQUEST['box_main_constructor_arguments'];
-			else
-				unset($containers['main']['constructor_arguments']);
+		if (isset($_REQUEST['box_main_href'])) {
+			if(!isset($_SESSION['client']['base_box_hrefs']))
+				$_SESSION['client']['base_box_hrefs'] = array();
+			$hs = & $_SESSION['client']['base_box_hrefs'];
+			$hs_gc = & $this->get_module_variable('__hrefs_gc__',0);
+			if(isset($hs[$_REQUEST['box_main_href']])) {
+				$rh = $hs[$_REQUEST['box_main_href']];
+				$href = $rh['m'];
+				$containers['main']['module'] = $href;
+				if(isset($rh['f']))
+					$containers['main']['function'] = $rh['f'];
+				else
+					unset($containers['main']['function']);
+				if(isset($rh['a']))
+					$containers['main']['arguments'] = $rh['a'];
+				else
+					unset($containers['main']['arguments']);
+				if(isset($rh['c']))
+					$containers['main']['constructor_arguments'] = $rh['c'];
+				else
+					unset($containers['main']['constructor_arguments']);
 
-			$mains = array();
-			$pop_main = true;
+				$mains = array();
+				$pop_main = true;
+			}
+			$hs_gc++;
+			if($hs_gc>4) {
+				foreach($hs as $k=>$v) {
+					if(!ModuleManager::get_instance($v['p'])) {
+						unset($hs[$k]);
+//						error_log($k." ".print_r($v,true)."\n",3,'data/gc.log');
+					}
+				}
+				$hs_gc=0;
+			}
 		}
 		array_push($mains,$containers['main']);
 //		error_log(print_r($mains,true)."\n\n\n",3,'data/log');
@@ -94,12 +111,13 @@ class Base_Box extends Module {
 		$this->set_module_variable('main', $mains);
 //		$containers['main']['name'] .= '_'.$main_length;
 		//print_r($containers);
+		error_log(print_r($containers['main'],true)."\n\n",3,'data/bx.log');
 
 		$this->modules = array();
 		foreach ($containers as $k => $v) {
 			ob_start();
 			if(ModuleManager::is_installed($v['module'])==-1) {
-				if(Base_AclCommon::i_am_sa()) print($lang->t("Please install %s module or choose another theme!",array($v['module']))."<br><a ".$this->create_href(array('box_main_module'=>'Base/Setup')).">".$lang->t('Manage modules').'</a><br><a '.$this->create_href(array('box_main_module'=>'Base/Theme/Administrator')).'>'.$lang->t("Choose another theme").'</a>');
+				if(Base_AclCommon::i_am_sa()) print($lang->t("Please install %s module or choose another theme!",array($v['module']))."<br><a ".$this->create_main_href('Base/Setup').">".$lang->t('Manage modules').'</a><br><a '.$this->create_main_href('Base/Theme/Administrator').'>'.$lang->t("Choose another theme").'</a>');
 			} else {
 				$module_type = str_replace('/','_',$v['module']);
 				if (!isset($v['name'])) $v['name'] = null;

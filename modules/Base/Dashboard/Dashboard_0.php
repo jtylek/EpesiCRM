@@ -88,7 +88,7 @@ class Base_Dashboard extends Module {
 					$th->assign('toggle','<a class="toggle" '.Utils_TooltipCommon::open_tag_attrs($this->lang->ht('Toggle')).'>=</a>');
 
 				if($opts['go'])
-					$opts['href']=Module::create_href(array('box_main_module'=>$row['module_name'],'box_main_function'=>$opts['go_function'],'box_main_arguments'=>$opts['go_arguments'],'box_main_constructor_arguments'=>$opts['go_constructor_arguments']));
+					$opts['href']=$this->create_main_href($row['module_name'],$opts['go_function'],$opts['go_arguments'],$opts['go_constructor_arguments']);
 				if($opts['href'])
 					$th->assign('href','<a class="href" '.$opts['href'].'>G</a>');
 

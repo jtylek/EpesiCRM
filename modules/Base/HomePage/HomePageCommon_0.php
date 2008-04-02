@@ -23,7 +23,7 @@ class Base_HomePageCommon extends ModuleCommon {
 			return;
 		$ret = DB::GetOne('SELECT url FROM home_page WHERE user_login_id=%d',$uid);
 		if(!$ret) {
-			$_REQUEST['box_main_module'] = Base_BoxCommon::get_main_module_name();
+			$_REQUEST = array_merge($_REQUEST,Base_BoxCommon::create_href_array(null,Base_BoxCommon::get_main_module_name()));
 			return;
 		}
 		$_SESSION['client']['__module_vars__'] = unserialize($ret);
@@ -51,7 +51,7 @@ class Base_HomePageCommon extends ModuleCommon {
 		$after = Acl::is_user();
 		if($after!==self::$logged) {
 			if($after) Base_HomePageCommon::load();
-				else location(array('box_main_module'=>Base_BoxCommon::get_main_module_name()));
+				else Base_BoxCommon::location(Base_BoxCommon::get_main_module_name());
 		}
 	}
 	
@@ -64,10 +64,10 @@ if(isset($_REQUEST['Base_HomePage_load'])) {
 	if(Acl::is_user())
 		Base_HomePageCommon::load();
 	else
-		$_REQUEST['box_main_module'] = Base_BoxCommon::get_main_module_name();
+		$_REQUEST = array_merge($_REQUEST,Base_BoxCommon::create_href_array(null,Base_BoxCommon::get_main_module_name()));
 } elseif(isset($_REQUEST['Base_HomePage_save'])) {
 	Base_HomePageCommon::save();
-	unset($_REQUEST['box_main_module']);
+	unset($_REQUEST['box_main_href']);
 	Base_StatusBarCommon::message(Base_LangCommon::ts('Base_HomePage','Home page saved'));
 }
 

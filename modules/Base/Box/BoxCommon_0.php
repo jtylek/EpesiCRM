@@ -23,6 +23,46 @@ class Base_BoxCommon extends ModuleCommon {
 		$containers = parse_ini_file($ini,true);
 		return $containers['main']['module'];
 	}
+	
+	public static function create_href_array($parent_module,$module,$function=null,array $arguments=null, array $constructor_args=null) {
+		if(!isset($_SESSION['client']['base_box_hrefs']))
+			$_SESSION['client']['base_box_hrefs'] = array();
+		$hs = & $_SESSION['client']['base_box_hrefs'];
+
+		$r=array('m'=>$module, 'p'=>(!$parent_module)?'':$parent_module->get_path());
+		if(isset($arguments))
+			$r['a']=$arguments;
+		if(isset($constructor_args))
+			$r['c']=$constructor_args;
+		if(isset($function))
+			$r['f']=$function;
+			
+		$md = md5(serialize($r));
+		$hs[$md] = $r;
+
+		return array('box_main_href'=>$md);
+	}
+	
+	public static function create_href($parent_module,$module,$function=null,array $arguments=null,array $constructor_args=null,array $other_href_args=array()) {
+		return Module::create_href(array_merge($other_href_args,Base_BoxCommon::create_href_array($parent_module, $module, $function, $arguments, $constructor_args)));
+	}
+
+	public static function create_href_js($parent_module,$module,$function=null,array $arguments=null,array $constructor_args=null,array $other_href_args=array()) {
+		return Module::create_href_js(array_merge($other_href_args,Base_BoxCommon::create_href_array($parent_module, $module, $function, $arguments, $constructor_args)));
+	}
+	
+	public static function location_embed($parent_module,$module,$function=null,array $arguments=null,array $constructor_args=null,array $other_href_args=array()) {
+		return location(array_merge($other_href_args,Base_BoxCommon::create_href_array($parent_module, $module, $function, $arguments, $constructor_args)));	
+	}
+	
+	public static function location($module,$function=null,array $arguments=null,array $constructor_args=null,array $other_href_args=array()) {
+		return location(array_merge($other_href_args,Base_BoxCommon::create_href_array(null, $module, $function, $arguments, $constructor_args)));	
+	}
 }
+
+Module::register_method("create_main_href",array("Base_BoxCommon","create_href"));
+Module::register_method("create_main_href_js",array("Base_BoxCommon","create_href_js"));
+
+Module::register_method("main_location",array("Base_BoxCommon","location_embed"));
 
 ?>
