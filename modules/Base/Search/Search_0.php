@@ -125,7 +125,7 @@ class Base_Search extends Module {
 
 		if($form->validate()) {
 			$search = $form->exportValues();
-			$this->main_location('Base_Search',array('quick_search'=>$search['quick_search'],'advanced_search'=>0));
+			Base_BoxCommon::location('Base_Search',null,null,null,array('quick_search'=>$search['quick_search'],'advanced_search'=>0));
 		}
 	}
 

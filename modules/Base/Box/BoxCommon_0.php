@@ -51,10 +51,6 @@ class Base_BoxCommon extends ModuleCommon {
 		return Module::create_href_js(array_merge($other_href_args,Base_BoxCommon::create_href_array($parent_module, $module, $function, $arguments, $constructor_args)));
 	}
 	
-	public static function location_embed($parent_module,$module,$function=null,array $arguments=null,array $constructor_args=null,array $other_href_args=array()) {
-		return location(array_merge($other_href_args,Base_BoxCommon::create_href_array($parent_module, $module, $function, $arguments, $constructor_args)));	
-	}
-	
 	public static function location($module,$function=null,array $arguments=null,array $constructor_args=null,array $other_href_args=array()) {
 		return location(array_merge($other_href_args,Base_BoxCommon::create_href_array(null, $module, $function, $arguments, $constructor_args)));	
 	}
@@ -62,7 +58,5 @@ class Base_BoxCommon extends ModuleCommon {
 
 Module::register_method("create_main_href",array("Base_BoxCommon","create_href"));
 Module::register_method("create_main_href_js",array("Base_BoxCommon","create_href_js"));
-
-Module::register_method("main_location",array("Base_BoxCommon","location_embed"));
 
 ?>

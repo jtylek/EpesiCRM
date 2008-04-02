@@ -111,7 +111,7 @@ class Base_Box extends Module {
 		$this->set_module_variable('main', $mains);
 //		$containers['main']['name'] .= '_'.$main_length;
 		//print_r($containers);
-		error_log(print_r($containers['main'],true)."\n\n",3,'data/bx.log');
+//		error_log(print_r($containers['main'],true)."\n\n",3,'data/bx.log');
 
 		$this->modules = array();
 		foreach ($containers as $k => $v) {
