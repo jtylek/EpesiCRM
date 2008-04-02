@@ -97,7 +97,7 @@ class Base_User_Settings extends Module {
 		}
 		
 		Base_StatusBarCommon::message($this->lang->ht('Setting saved'.($reload?' - reloading page':'')));
-		if ($reload) eval_js('setTimeout(\'document.location=\\\'index.php\\\'\',\'3000\')');
+		if ($reload) eval_js('setTimeout(\'document.location=\\\'index.php\\\'\',\'3000\')',false);
 		return true;
 	}
 	
