@@ -99,9 +99,8 @@ class Utils_RecordBrowser extends Module {
 	}
 
 	public function construct($tab = null) {
-//		if (!isset($tab))
-//			trigger_error('RecordBrowser did not receive string name for the table '.$this->get_parent_type().'.<br>Use $this->init_module(\'Utils/RecordBrowser\',\'table name here\');',E_USER_ERROR);
 		$this->tab = $tab;
+		Utils_RecordBrowserCommon::check_table_name($tab);
 	}
 
 	public function init($admin=false) {
@@ -205,6 +204,7 @@ class Utils_RecordBrowser extends Module {
 				if ($tab=='__COMMON__') {
 					$arr = array_merge($arr, Utils_CommonDataCommon::get_array($col, true));
 				} else {
+					Utils_RecordBrowserCommon::check_table_name($tab);
 					$ret2 = DB::Execute('SELECT '.$tab.'_id, value FROM '.$tab.'_data WHERE field=%s ORDER BY value', array($col));
 					while ($row2 = $ret2->FetchRow()) $arr[$row2[$tab.'_id']] = $row2['value'];
 				}
@@ -725,10 +725,6 @@ class Utils_RecordBrowser extends Module {
 											if ($tab=='__COMMON__')
 												$comp = $comp+$data;
 											else {
-	/*
-	 *											$ret = DB::Execute('SELECT * FROM '.$tab.'_data AS rd LEFT JOIN '.$tab.' AS r ON rd.'.$tab.'_id = r.id WHERE rd.field=%s AND r.active=1 ORDER BY value', array($col));
-	 *											while ($row = $ret->FetchRow()) $comp[$row[$tab.'_id']] = $row['value'];
-	 **/
 												$records = Utils_RecordBrowserCommon::get_records($tab, array(), array($col));
 												$col_id = strtolower(str_replace(' ','_',$col));
 												if (!is_array($record[$args['id']])) {
