@@ -78,12 +78,10 @@ class CRM_CalendarCommon extends ModuleCommon {
  		while (!$recordSet->EOF){
  			$row = $recordSet->FetchRow();
 			if(isset($attach_ev_ids[$row['id']]))
- 				$result['Event (attachment)#'.$row['id'].', '.$row['title']] = array('search_date'=>$row['start'],'ev_id'=>$row['id']);
+ 				$result['a_'.$row['id']] = '<a '.Base_BoxCommon::create_href(null, 'CRM_Calendar', null, array(), array(), array('search_date'=>$row['start'],'ev_id'=>$row['id'])).'>'.Base_LangCommon::ts('CRM_Calendar','Event (attachment) #%d, %s',array($row['id'], $row['title'])).'</a>';
 			else
-	 			$result['Event #'.$row['id'].', '.$row['title']] = array('search_date'=>$row['start'],'ev_id'=>$row['id']);
- 		}
-		
- 		
+ 				$result[$row['id']] = '<a '.Base_BoxCommon::create_href(null, 'CRM_Calendar', null, array(), array(), array('search_date'=>$row['start'],'ev_id'=>$row['id'])).'>'.Base_LangCommon::ts('CRM_Calendar','Event #%d, %s',array($row['id'], $row['title'])).'</a>';
+ 		} 		
 		return $result;
 	}
 
