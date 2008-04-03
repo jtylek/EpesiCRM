@@ -8,9 +8,10 @@ class CRM_Calendar extends Module {
 		$f = $this->pack_module('CRM/Filters');
 		CRM_Calendar_EventCommon::$filter = $f->get();
 		
-		if(isset($_REQUEST['search_date']))
-			$default_date = (int)$_REQUEST['search_date'];
-		else
+		if(isset($_REQUEST['search_date']) && is_numeric($_REQUEST['search_date']) && isset($_REQUEST['ev_id']) && is_numeric($_REQUEST['ev_id'])) {
+			$default_date = intval($_REQUEST['search_date']);
+			$this->view_event(intval($_REQUEST['ev_id']));
+		} else
 			$default_date = null;
 		
 		$theme = $this->init_module('Base/Theme');

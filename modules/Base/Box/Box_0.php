@@ -97,8 +97,7 @@ class Base_Box extends Module {
 			$hs_gc++;
 			if($hs_gc>4) {
 				foreach($hs as $k=>$v) {
-//					error_log($v['p']." ".print_r($v,true)."\n",3,'data/gc.log');
-					if(!ModuleManager::get_instance($v['p'])) {
+					if(!$v['p'] || !ModuleManager::get_instance($v['p'])) {
 						unset($hs[$k]);
 					}
 				}
