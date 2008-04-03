@@ -5,7 +5,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	private static $table_rows = array();
 	private static $del_or_a = '';
 
-	public function admin_caption() {
+	public static function admin_caption() {
 		return 'Records Sets';
 	}
 	public static function init($tab, $admin=false) {
@@ -31,7 +31,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return $cache[$tab.'__'.$admin] = self::$table_rows;
 	}
 
-	public function install_new_recordset($tab_name = null, $fields) {
+	public static function install_new_recordset($tab_name = null, $fields) {
 		if (!$tab_name) return false;
 		DB::Execute('INSERT INTO recordbrowser_table_properties (tab) VALUES (%s)', array($tab_name));
 		DB::CreateTable($tab_name,
@@ -124,20 +124,20 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		return true;
 	}
-	public function field_requires($tab_name = null, $field, $req_field, $val) {
+	public static function field_requires($tab_name = null, $field, $req_field, $val) {
 		if (!$tab_name) return false;
 		DB::Execute('INSERT INTO '.$tab_name.'_require (field, req_field, value) VALUES(%s, %s, %s)', array($field, $req_field, $val));
 	}
-	public function set_display_method($tab_name = null, $field, $module, $func) {
+	public static function set_display_method($tab_name = null, $field, $module, $func) {
 		if (!$tab_name) return false;
 		DB::Execute('INSERT INTO '.$tab_name.'_callback (field, module, func, freezed) VALUES(%s, %s, %s, 1)', array($field, $module, $func));
 	}
-	public function set_QFfield_method($tab_name = null, $field, $module, $func) {
+	public static function set_QFfield_method($tab_name = null, $field, $module, $func) {
 		if (!$tab_name) return false;
 		DB::Execute('INSERT INTO '.$tab_name.'_callback (field, module, func, freezed) VALUES(%s, %s, %s, 0)', array($field, $module, $func));
 	}
 
-	public function uninstall_recordset($tab_name = null) {
+	public static function uninstall_recordset($tab_name = null) {
 		if (!$tab_name) return false;
 		DB::DropTable($tab_name.'_callback');
 		DB::DropTable($tab_name.'_require');
@@ -152,7 +152,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return true;
 	}
 
-	public function new_record_field($tab_name, $field, $type, $visible, $required, $param='', $style='', $extra = true, $filter){
+	public static function new_record_field($tab_name, $field, $type, $visible, $required, $param='', $style='', $extra = true, $filter){
 		if ($extra) {
 			$pos = DB::GetOne('SELECT MAX(position) FROM '.$tab_name.'_field')+1;
 		} else {
@@ -252,7 +252,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		DB::CompleteTrans();
 		return $id;
 	}
-	public function update_record($tab,$id,$values,$all_fields = false) {
+	public static function update_record($tab,$id,$values,$all_fields = false) {
 		DB::StartTrans();
 		self::init($tab);
 		$record = Utils_RecordBrowserCommon::get_record($tab, $id);
@@ -284,7 +284,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		DB::CompleteTrans();
 	}
-	public function add_recent_entry($tab_name, $user_id ,$id){
+	public static function add_recent_entry($tab_name, $user_id ,$id){
 		DB::StartTrans();
 		static $rec_size;
 		if (!isset($rec_size)) $rec_size = DB::GetOne('SELECT recent FROM recordbrowser_table_properties WHERE tab=%s', array($tab_name));
@@ -612,10 +612,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			return null;
 		}
 	}
-	public function delete_record($tab, $id) {
+	public static function delete_record($tab, $id) {
 		DB::Execute('UPDATE '.$tab.' SET active=0 where id=%d', array($id));
 	}
-	public function get_record_href_array($tab, $id){
+	public static function get_record_href_array($tab, $id){
 		if (isset($_REQUEST['__jump_to_RB_table']) && 
 			($tab==$_REQUEST['__jump_to_RB_table']) &&
 			($id==$_REQUEST['__jump_to_RB_record'])) {
@@ -628,10 +628,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		return array('__jump_to_RB_table'=>$tab, '__jump_to_RB_record'=>$id);
 	}
-	public function create_record_href($tab, $id){
+	private static function create_record_href($tab, $id){
 		return Module::create_href(self::get_record_href_array($tab,$id));
 	}
-	public function record_link_open_tag($tab, $id, $nolink=false){
+	public static function record_link_open_tag($tab, $id, $nolink=false){
 		if (!DB::GetOne('SELECT active FROM '.$tab.' WHERE id=%d',array($id))) {
 			self::$del_or_a = '</del>';
 			return '<del '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_RecordBrowser','This record was deleted from the system, please edit current record or contact system administrator')).'>';
@@ -645,10 +645,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		self::$del_or_a = '';
 		return '';
 	}
-	public function record_link_close_tag(){
+	public static function record_link_close_tag(){
 		return self::$del_or_a;
 	}
-	public function create_linked_label($tab, $col, $id, $nolink=false){
+	public static function create_linked_label($tab, $col, $id, $nolink=false){
 		$label = DB::GetOne('SELECT value FROM '.$tab.'_data WHERE field=%s AND '.$tab.'_id=%d', array($col, $id));
 		return self::record_link_open_tag($tab, $id, $nolink).$label.self::record_link_close_tag();
 	}

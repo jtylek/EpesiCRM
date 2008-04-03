@@ -17,8 +17,9 @@ class Base_Search extends Module {
 	private $lang;
 
 	public function body() {
-		$qs_keyword = isset($_REQUEST['quick_search'])?$_REQUEST['quick_search']:null;
-
+		$qs_keyword = $this->get_module_variable('qs_keyword', '');
+		if (isset($_REQUEST['quick_search'])) $qs_keyword=$_REQUEST['quick_search'];
+		$this->set_module_variable('qs_keyword', $qs_keyword);
 
 		$this->lang = & $this->init_module('Base/Lang');
 
@@ -84,7 +85,7 @@ class Base_Search extends Module {
 								$warning = $this->lang->t('Only 100 results are displayed.');
 								break;
 							}
-							$links[] = '<a '.$this->create_main_href($k,null,null,null,$rv).'>'.$rk.'</a>';
+							$links[] = $rv;
 						}
 				}
 				$qs_theme =  & $this->pack_module('Base/Theme');
