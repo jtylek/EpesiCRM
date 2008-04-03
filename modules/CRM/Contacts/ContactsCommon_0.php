@@ -389,6 +389,18 @@ class CRM_ContactsCommon extends ModuleCommon {
 
 	 		foreach ($result as $row)
  				$ret['Contact #'.$row['id'].', '.$row['first_name'].' '.$row['last_name']] = Utils_RecordBrowserCommon::get_record_href_array('contact',$row['id']);
+
+			$attachs = Utils_AttachmentCommon::search_group('CRM/Contact',$word);
+			$attach_contact_ids = array();
+			foreach($attachs as $x) {
+				if(ereg('CRM/Contact/([0-9]+)',$x['group'],$reqs))
+					$attach_contact_ids[$reqs[1]] = true;
+			}
+			$attach_contact_ids2 = array_keys($attach_contact_ids);
+			$result = self::get_contacts(array('id'=>$attach_contact_ids2));
+
+	 		foreach ($result as $row)
+				$ret['Contact (attachment)#'.$row['id'].', '.$row['first_name'].' '.$row['last_name']] = Utils_RecordBrowserCommon::get_record_href_array('contact',$row['id']);
  		}
 		if(self::Instance()->acl_check('browse companies')) {
 			$result = self::get_companies(array('"company_name'=>DB::Concat('\'%\'',DB::qstr($word),'\'%\'')));
@@ -400,7 +412,20 @@ class CRM_ContactsCommon extends ModuleCommon {
 
 	 		foreach ($result as $row)
  				$ret['Company #'.$row['id'].', '.$row['company_name']] = Utils_RecordBrowserCommon::get_record_href_array('company',$row['id']);
+
+			$attachs = Utils_AttachmentCommon::search_group('CRM/Company',$word);
+			$attach_company_ids = array();
+			foreach($attachs as $x) {
+				if(ereg('CRM/Company/([0-9]+)',$x['group'],$reqs))
+					$attach_company_ids[$reqs[1]] = true;
+			}
+			$attach_company_ids2 = array_keys($attach_company_ids);
+			$result = self::get_companies(array('id'=>$attach_company_ids2));
+
+	 		foreach ($result as $row)
+				$ret['Company (attachment)#'.$row['id'].', '.$row['company_name']] = Utils_RecordBrowserCommon::get_record_href_array('company',$row['id']);
  		}
+		
 		return $ret;
 	}
 
