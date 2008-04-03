@@ -91,6 +91,8 @@ function update_from_0_9_9beta2_to_1_0_0rc1() {
 	while($row = $ret->FetchRow()) {
 		DB::Execute('ALTER TABLE '.$row['tab'].'_field ADD COLUMN style VARCHAR(64)');
 		DB::Execute('UPDATE '.$row['tab'].'_field SET style=type WHERE type=%s or type=%s', array('timestamp','currency'));
+		if ($row['tab']=='contact') DB::Execute('UPDATE '.$row['tab'].'_field SET param=\'company::Company Name;::\' WHERE field=\'Company Name\'');
+		if ($row['tab']=='phonecall') DB::Execute('UPDATE '.$row['tab'].'_field SET param=\'company::Company Name;::\' WHERE field=\'Company Name\'');
 	}
 	
 	//dashboard colors
