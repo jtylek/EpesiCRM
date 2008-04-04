@@ -34,12 +34,14 @@ base_box_roll_topbar = function() {
    if($('EmptyDiv').style.display == 'none') {
       $('EmptyDiv').show();
       document.getElementById("ShadowBar").style.display = 'none';
-      document.getElementById("CRM_Calendar__filter").style.top = '149px';
+      document.getElementById("gray_transparent").style.display = 'block';
+      //document.getElementById("CRM_Calendar__filter").style.top = '149px';
    }
    else {
       setTimeout('$(\'EmptyDiv\').hide()',500);
       document.getElementById("ShadowBar").style.display = 'block';
-      document.getElementById("CRM_Calendar__filter").style.top = '74px';
+      document.getElementById("gray_transparent").style.display = 'none';
+      //document.getElementById("CRM_Calendar__filter").style.top = '74px';
    }
 }
 
@@ -82,7 +84,7 @@ function calctime() {
    weekday[4]="Thursday";
    weekday[5]="Friday";
    weekday[6]="Saturday";
-   
+
    var currenttime = new Date();
    var hours = currenttime.getHours();
    var minutes = currenttime.getMinutes();
@@ -92,7 +94,7 @@ function calctime() {
    var month = currenttime.getMonth();
    var year = currenttime.getFullYear();
    var timesuffix = "AM";
-   
+
    if(hours > 11) {
       timesuffix = "PM";
       hours = hours - 12;
@@ -116,7 +118,7 @@ function calctime() {
    if(date < 10) {
       date = "0" + date;
    }
-   
+
    var clocklocation = document.getElementById("digitalclock");
     clocklocation.innerHTML = hours + ":" + minutes + ":" + seconds + " " + timesuffix + "&nbsp;&nbsp;&nbsp;" + weekday[day] + " " + month + "/" + date + "/" + year;
    setTimeout("calctime()", 1000);

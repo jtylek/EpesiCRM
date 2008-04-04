@@ -346,6 +346,12 @@ hr.line {
 	padding-left: 5px;
 }
 
+#top_bar #gray_transparent {
+    height: 10px;
+    background-image: url('images/gray-transparent.png');
+    background-repeat: repeat-x;
+}
+
 /*	=layer
 ---------------------------------------------------------------------------- */
 

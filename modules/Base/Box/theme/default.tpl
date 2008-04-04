@@ -47,6 +47,8 @@
 		</tbody>
 		</table>
 		</div>
+		<div id="gray_transparent">
+		</div>
 	</div>
 	<!-- -->
 	<div id="content">
