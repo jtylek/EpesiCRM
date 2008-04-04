@@ -71,7 +71,7 @@ leightbox.prototype = {
 		Event.observe(ctrl, 'click', this.activate.bindAsEventListener(this), false);
 		ctrl.onclick = function(){return false;};
 	},
-	
+
 	// Turn everything on - mainly the IE fixes
 	activate: function(){
 		if (browser == 'Internet Explorer'){
@@ -82,18 +82,18 @@ leightbox.prototype = {
 		}
 		this.displayLeightbox("block");
 	},
-	
+
 	// Ie requires height to 100% and overflow hidden or else you can scroll down past the leightbox
 	prepareIE: function(height, overflow){
 		bod = document.getElementsByTagName('body')[0];
 		bod.style.height = height;
 		bod.style.overflow = overflow;
-  
+
 		htm = document.getElementsByTagName('html')[0];
 		htm.style.height = height;
-		htm.style.overflow = overflow; 
+		htm.style.overflow = overflow;
 	},
-	
+
 	// In IE, select elements hover on top of the leightbox
 	hideSelects: function(visibility){
 		selects = document.getElementsByTagName('select');
@@ -101,22 +101,22 @@ leightbox.prototype = {
 			selects[i].style.visibility = visibility;
 		}
 	},
-	
+
 	// Taken from leightbox implementation found at http://www.huddletogether.com/projects/lightbox/
 	getScroll: function(){
 		if (self.pageYOffset) {
 			this.yPos = self.pageYOffset;
 		} else if (document.documentElement && document.documentElement.scrollTop){
-			this.yPos = document.documentElement.scrollTop; 
+			this.yPos = document.documentElement.scrollTop;
 		} else if (document.body) {
 			this.yPos = document.body.scrollTop;
 		}
 	},
-	
+
 	setScroll: function(x, y){
-		window.scrollTo(x, y); 
+		window.scrollTo(x, y);
 	},
-	
+
 	displayLeightbox: function(display){
 		var c = $(this.content);
 		var co = $('leightbox_overlay');
@@ -142,16 +142,16 @@ leightbox.prototype = {
 			co.style.height = (document.documentElement.clientHeight < document.body.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight) + 'px';
 			c.style.position="absolute";
 			c.style.top = (document.documentElement.scrollTop + document.documentElement.clientHeight/4) + 'px';
-			c.style.left = (document.documentElement.scrollLeft + document.documentElement.clientWidth/4) + 'px';
+			c.style.left = (document.documentElement.scrollLeft + document.documentElement.clientWidth/6) + 'px';
 			c.style.height = (document.documentElement.clientHeight/2) + 'px';
-			c.style.width = (document.documentElement.clientWidth/2) + 'px';
+			c.style.width = (document.documentElement.clientWidth/1.5) + 'px';
 		    }
 		}
 		co.style.display = display;
 		c.style.display = display;
-		if(display != 'none') this.actions();		
+		if(display != 'none') this.actions();
 	},
-	
+
 	// Search through new links within the lightbox, and attach click event
 	actions: function(){
 		lbActions = document.getElementsByClassName('lbAction');
@@ -162,7 +162,7 @@ leightbox.prototype = {
 		}
 
 	},
-	
+
 	// Example of creating your own functionality once lightbox is initiated
 	deactivate: function(){
 		if (browser == "Internet Explorer"){
@@ -170,7 +170,7 @@ leightbox.prototype = {
 			this.prepareIE("auto", "auto");
 			this.hideSelects("visible");
 		}
-		
+
 		this.displayLeightbox("none");
 	}
 }
