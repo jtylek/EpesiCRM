@@ -38,7 +38,9 @@
 	background-color: white;
 	text-align: left;
 	z-index: 1001;
-	overflow: auto;
+	/*overflow: auto;*/
+	overflow-x: hidden;
+	overflow-y: auto;
 }
 
 .leightbox {
@@ -54,7 +56,9 @@
 	background-color: white;
 	text-align: left;
 	z-index: 1001;
-	overflow: auto;
+	/*overflow: auto;*/
+	overflow-x: hidden;
+	overflow-y: auto;
 }
 
 .leightbox_overlay {
