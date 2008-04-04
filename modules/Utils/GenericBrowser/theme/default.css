@@ -222,3 +222,8 @@ table#Utils_GenericBrowser__navigation img {
     padding: 2px;
     background-color: #FFFFFF;
 }
+
+
+.IEfix {
+    _height: 0px;
+}

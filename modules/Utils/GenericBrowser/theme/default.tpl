@@ -3,11 +3,14 @@
 {/php}
 
 <div>
+
 {if isset($form_data_search)}
 {$form_data_search.javascript}
 
+<div class="IEfix">
 <form {$form_data_search.attributes}>
 {$form_data_search.hidden}
+</div>
 {/if}
 
 <table id="letters-search">
@@ -106,9 +109,11 @@
 	</tbody>
 </table>
 
+<div style="height: 0px;">
 {if isset($form_data_search)}
 </form>
 {/if}
+</div>
 
 {$table_prefix}
 
