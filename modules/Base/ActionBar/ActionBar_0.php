@@ -80,7 +80,10 @@ class Base_ActionBar extends Module {
 						$ii['label'] = $trimmed_label?$trimmed_label:$v['label'];
 						$ii['description'] = $v['label'];
 						$arr = $v['link'];
-						$ii['open'] = '<a '.$this->create_main_href($arr['box_main_module'],isset($arr['box_main_function'])?$arr['box_main_function']:null,isset($arr['box_main_arguments'])?$arr['box_main_arguments']:null,isset($arr['box_main_constructor_arguments'])?$arr['box_main_constructor_arguments']:null,$arr).'>';
+						if(isset($arr['__url__']))
+							$ii['open'] = '<a href="'.$arr['__url__'].'">';
+						else
+							$ii['open'] = '<a '.$this->create_main_href($arr['box_main_module'],isset($arr['box_main_function'])?$arr['box_main_function']:null,isset($arr['box_main_arguments'])?$arr['box_main_arguments']:null,isset($arr['box_main_constructor_arguments'])?$arr['box_main_constructor_arguments']:null,$arr).'>';
 						$ii['close'] = '</a>';
 						try {
 							if(isset($v['link']['__icon__']))
@@ -99,7 +102,10 @@ class Base_ActionBar extends Module {
 						$ii['label'] = $trimmed_label?$trimmed_label:$v['label'];
 						$ii['description'] = $v['label'];
 						$arr = $v['link'];
-						$ii['open'] = '<a onClick="actionbar_launchpad_deactivate();'.$this->create_main_href_js($arr['box_main_module'],isset($arr['box_main_function'])?$arr['box_main_function']:null,isset($arr['box_main_arguments'])?$arr['box_main_arguments']:null,isset($arr['box_main_constructor_arguments'])?$arr['box_main_constructor_arguments']:null,$arr).'" href="javascript:void(0)">';
+						if(isset($arr['__url__']))
+							$ii['open'] = '<a href="'.$arr['__url__'].'" onClick="actionbar_launchpad_deactivate()">';
+						else
+							$ii['open'] = '<a onClick="actionbar_launchpad_deactivate();'.$this->create_main_href_js($arr['box_main_module'],isset($arr['box_main_function'])?$arr['box_main_function']:null,isset($arr['box_main_arguments'])?$arr['box_main_arguments']:null,isset($arr['box_main_constructor_arguments'])?$arr['box_main_constructor_arguments']:null,$arr).'" href="javascript:void(0)">';
 						$ii['close'] = '</a>';
 						try {
 							if(isset($v['link']['__icon__']))

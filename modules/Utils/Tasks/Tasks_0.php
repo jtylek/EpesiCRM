@@ -304,7 +304,7 @@ class Utils_Tasks extends Module {
 				$theme->assign('info_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_RecordBrowser','Created on:').' '.$defaults['created_on']. '<br>'.
 					Base_LangCommon::ts('Utils_RecordBrowser','Created by:').' '.$defaults['created_by']. '<br>'.
 					Base_LangCommon::ts('Utils_RecordBrowser','Edited on:').' '.$defaults['edited_on']. '<br>'.
-					Base_LangCommon::ts('Utils_RecordBrowser','Edited by:').' '.$defaults['edited_by']).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','info.png').'" /></a>');
+					Base_LangCommon::ts('Utils_RecordBrowser','Edited by:').' '.$defaults['edited_by'],false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','info.png').'" /></a>');
 				
 			}
 
