@@ -155,7 +155,8 @@ hr.line {
 }
 
 #EmptyDiv {
-    height: 75px;
+    /*height: 75px;*/
+    height: 85px;
 }
 
 #EmptyDivMenu {
@@ -346,7 +347,7 @@ hr.line {
 	padding-left: 5px;
 }
 
-#top_bar #gray_transparent {
+#gray-transparent {
     height: 10px;
     background-image: url('images/gray-transparent.png');
     background-repeat: repeat-x;
