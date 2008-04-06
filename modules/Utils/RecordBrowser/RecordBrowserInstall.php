@@ -22,14 +22,14 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 		DB::CreateTable('recordbrowser_table_properties',
 						'tab C(64) KEY,'.
 						'quickjump C(64) DEFAULT \'\','.
-						'tpl C(256) DEFAULT \'\','.
+						'tpl C(255) DEFAULT \'\','.
 						'favorites I1 DEFAULT 0,'.
 						'recent I2 DEFAULT 0,'.
 						'full_history I1 DEFAULT 1,'.
 						'caption C(32) DEFAULT \'\','.
-						'icon C(256) DEFAULT \'\','.
+						'icon C(255) DEFAULT \'\','.
 						'access_callback C(128) DEFAULT \'\','.
-						'data_process_method C(256) DEFAULT \'\'',
+						'data_process_method C(255) DEFAULT \'\'',
 						array('constraints'=>''));
 		DB::CreateTable('recordbrowser_datatype',
 						'type C(32) KEY,'.

@@ -15,7 +15,7 @@ class Utils_TasksInstall extends ModuleInstall {
 		$ret = true;
 		$ret &= DB::CreateTable('utils_tasks_task','
 			id I4 AUTO KEY,
-			title C(256) NOTNULL,
+			title C(255) NOTNULL,
 			description X,
 			priority I1 DEFAULT 0,
 			deadline D,

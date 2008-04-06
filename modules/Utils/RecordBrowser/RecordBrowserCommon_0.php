@@ -56,7 +56,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		DB::CreateTable($tab.'_data',
 					$tab.'_id I,'.
 					'field C(32) NOT NULL,'.
-					'value C(256) NOT NULL',
+					'value C(255) NOT NULL',
 					array('constraints'=>', FOREIGN KEY ('.$tab.'_id) REFERENCES '.$tab.'(id)'));
 		DB::CreateTable($tab.'_field',
 					'field C(32) UNIQUE NOT NULL,'.
@@ -67,7 +67,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					'active I1 DEFAULT 1,'.
 					'position I,'.
 					'filter I1 DEFAULT 0,'.
-					'param C(256),'.
+					'param C(255),'.
 					'style C(64)',
 					array('constraints'=>''));
 		DB::CreateTable($tab.'_edit_history',
@@ -80,7 +80,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		DB::CreateTable($tab.'_edit_history_data',
 					'edit_id I,'.
 					'field C(32),'.
-					'old_value C(256)',
+					'old_value C(255)',
 					array('constraints'=>', FOREIGN KEY (edit_id) REFERENCES '.$tab.'_edit_history(id)'));
 		DB::CreateTable($tab.'_favorite',
 					$tab.'_id I,'.
