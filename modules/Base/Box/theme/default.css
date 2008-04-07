@@ -351,6 +351,7 @@ hr.line {
     height: 10px;
     background-image: url('images/gray-transparent.png');
     background-repeat: repeat-x;
+    _background-image: none; /* no bg in IE */
 }
 
 /*	=layer
