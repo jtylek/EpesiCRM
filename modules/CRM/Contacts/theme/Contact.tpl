@@ -55,15 +55,15 @@
 							{$form_data.create_company.label}
 						</td>
 						<td class="data create-company" style="width:1px">
-							{$form_data.create_company.html}
+							{$form_data.create_company.html}&nbsp;
 						</td>
 						<td class="data">
-							{$form_data.create_company_name.html}
+							{$form_data.create_company_name.html}&nbsp;
 						</td>
 					</tr>
 					{/if}
-					
-					
+
+
 					<tr>
 						{assign var=i value=0}
 						{assign var=j value=0}
@@ -72,7 +72,7 @@
 							{assign var=focus value=$f.element}
 						{/if}
 						<td class="label" nowrap>{$f.label}{if $f.required}*{/if}</td>
-						<td class="data" colspan="2">{if $f.error}{$f.error}{/if}{$f.html}</td>
+						<td class="data" colspan="2">{if $f.error}{$f.error}{/if}{$f.html}&nbsp;</td>
 						{assign var=x value=$x+1}
 						{* If more than half records displayed start new table - second column table *}
 						{if $x >= $rows and $i==0}

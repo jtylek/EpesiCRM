@@ -35,7 +35,7 @@
 				<span class="error">
 					{$form_data.subject.error}
 				</span>
-	            {$form_data.subject.html}
+	            {$form_data.subject.html}&nbsp;
             </td>
 		</tr>
     </tbody>
@@ -52,7 +52,7 @@
     	<tr>
             <td class="data no-border" style="vertical-align: top; padding-top: 2px; padding-bottom: 2px;">
                 {if $action == 'view'}<div style="height: 50px; white-space: normal; overflow: auto;">{/if}
-                    {$form_data.description.html}
+                    {$form_data.description.html}&nbsp;
                 {if $action == 'view'}</div>{/if}
             </td>
         </tr>
@@ -71,7 +71,7 @@
 			    	    	<span class="error">
 								{$form_data.company_name.error}
 							</span>
-							{$form_data.company_name.html}
+							{$form_data.company_name.html}&nbsp;
 						</td>
 					</tr>
 			        <tr>
@@ -80,19 +80,19 @@
 			    	    	<span class="error">
 								{$form_data.contact.error}
 							</span>
-							{$form_data.contact.html}
+							{$form_data.contact.html}&nbsp;
 						</td>
 					</tr>
 			        <tr>
 			    	    <td class="label">{$form_data.other_contact.label}</td>
 			    	    <td class="data">
-							{$form_data.other_contact.html}
+							{$form_data.other_contact.html}&nbsp;
 						</td>
 			    	    <td class="data">
 			    	    	<span class="error">
 								{$form_data.other_contact_name.error}
 							</span>
-							{$form_data.other_contact_name.html}
+							{$form_data.other_contact_name.html}&nbsp;
 						</td>
 					</tr>
 			        <tr>
@@ -101,24 +101,24 @@
 			    	    	<span class="error">
 								{$form_data.phone.error}
 							</span>
-							{$form_data.phone.html}
+							{$form_data.phone.html}&nbsp;
 						</td>
 					</tr>
 			        <tr>
 			    	    <td class="label">{$form_data.other_phone.label}</td>
 			    	    <td class="data">
-							{$form_data.other_phone.html}
+							{$form_data.other_phone.html}&nbsp;
 						</td>
 			    	    <td class="data">
 			    	    	<span class="error">
 								{$form_data.other_phone_number.error}
 							</span>
-							{$form_data.other_phone_number.html}
+							{$form_data.other_phone_number.html}&nbsp;
 						</td>
 					</tr>
                     <tr>
                         <td class="label" align="left" style="{if $action == 'view'}border-bottom: none;{/if}">{$form_data.date_and_time.label}</td>
-                        <td class="data timestamp" align="left" colspan="2" style="padding-bottom: 2px; {if $action == 'view'}border-bottom: none;{/if}">{$form_data.date_and_time.html}</td>
+                        <td class="data timestamp" align="left" colspan="2" style="padding-bottom: 2px; {if $action == 'view'}border-bottom: none;{/if}">{$form_data.date_and_time.html}&nbsp;</td>
                     </tr>
 				</table>
         	</td>
@@ -128,7 +128,7 @@
 			        	<td class="label" style="border-right: 1px solid #b3b3b3;">{$form_data.employees.label}</td>
 			        </tr>
 					<tr>
-						<td class="data" style="vertical-align: top;"><span class="error">{$form_data.employees.error}</span>{$form_data.employees.html}</td>
+						<td class="data" style="vertical-align: top;"><span class="error">{$form_data.employees.error}</span>{$form_data.employees.html}&nbsp;</td>
 					</tr>
 				</table>
         	</td>
@@ -144,7 +144,7 @@
                 {if $action=='view'}
                     <div class="icon status_{$raw_data.status}"></div>
                 {/if}
-				{$form_data.status.html}
+				{$form_data.status.html}&nbsp;
 			</td>
 
             <td class="label" align="left" style="width: 100px;">{$form_data.permission.label}</td>
@@ -152,7 +152,7 @@
                 {if $action=='view'}
                     <div class="icon permission_{$raw_data.permission}"></div>
                 {/if}
-                {$form_data.permission.html}
+                {$form_data.permission.html}&nbsp;
             </td>
 
             <td class="label" align="left" style="width: 100px;">{$form_data.priority.label}</td>
@@ -160,7 +160,7 @@
                 {if $action=='view'}
                     <div class="icon priority_{$raw_data.priority}"></div>
                 {/if}
-                {$form_data.priority.html}
+                {$form_data.priority.html}&nbsp;
             </td>
 		</tr>
     </tbody>
