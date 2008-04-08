@@ -44,7 +44,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
 	public static function install_new_recordset($tab = null, $fields) {
 		if (!$tab) return false;
-		if (!preg_match('/^[a-zA-Z_]$/',$tab)) trigger_error('Invalid table name given to install_new_recordset.',E_USER_ERROR);
+		if (!preg_match('/^[a-zA-Z_]+$/',$tab)) trigger_error('Invalid table name ('.$tab.') given to install_new_recordset.',E_USER_ERROR);
 		DB::Execute('INSERT INTO recordbrowser_table_properties (tab) VALUES (%s)', array($tab));
 		DB::CreateTable($tab,
 					'id I AUTO KEY,'.
