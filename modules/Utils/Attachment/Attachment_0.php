@@ -95,7 +95,7 @@ class Utils_Attachment extends Module {
 			$cols[] = array('name'=>$this->lang->t('Deleted'),'order'=>'ual.deleted','width'=>5);
 		$cols[] = array('name'=>$this->lang->t('Date'), 'order'=>'note_on','width'=>10);
 		$cols[] = array('name'=>$this->lang->t('Note'), 'order'=>'uac.text','width'=>70);
-		$cols[] = array('name'=>$this->lang->t('Attachment'), 'order'=>'ual.original','width'=>5);
+		$cols[] = array('name'=>$this->lang->t('Attachment'), 'order'=>'uaf.original','width'=>5);
 		$gb->set_table_columns($cols);
 
 		if($vd) {
