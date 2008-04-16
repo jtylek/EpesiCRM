@@ -74,7 +74,7 @@ This e-mail was automatically generated and you do not need to respond to it.", 
 	 * @param string password
  	 * @return bool everything is ok? 
 	 */
-	public static function add_user($username, $mail, $pass = null) {
+	public static function add_user($username, $mail, $pass = null, $send_mail=true) {
 		
 		if($pass==null)
 			$pass = generate_password();
@@ -90,8 +90,10 @@ This e-mail was automatically generated and you do not need to respond to it.", 
 		}
 		$ret = DB::Execute('INSERT INTO user_password(user_login_id,password,mail) VALUES(%d,%s, %s)', array($user_id, md5($pass), $mail));
 		
-		if(!self::send_mail_with_password($username, $pass, $mail)) {
-			print(Base_LangCommon::ts('Base/User/Login','Warning: Unable to send e-mail with password. Check Mail module configuration.'));
+		if($send_mail) {
+			if(!self::send_mail_with_password($username, $pass, $mail)) {
+				print(Base_LangCommon::ts('Base/User/Login','Warning: Unable to send e-mail with password. Check Mail module configuration.'));
+			}
 		}
 
 		return ($ret!==false);
@@ -113,6 +115,10 @@ This e-mail was automatically generated and you do not need to respond to it.", 
 			return false;
 		
 		return true;
+	}
+	
+	public static function get_mail($id) {
+		return DB::GetOne('SELECT mail FROM user_password WHERE user_login_id=%d',array($id));
 	}
 	
 }
