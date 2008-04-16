@@ -17,7 +17,7 @@ class CRM_Import extends Module {
 	}
 
 	public function body() {
-		print('<h2>This process can take some time, please be patient... Time limit is disabled.</h2><hr>');
+		print('<h2>This process can take some time, please be patient... Time limit has been disabled.</h2><hr>');
 		$f = $this->init_module('Utils/FileUpload');
 		$f->addElement('header',null,$this->lang->t('Contacts & Companies'));
 		$this->display_module($f,array(array($this,'upload_contacts')));
