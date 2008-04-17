@@ -5,15 +5,15 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	private static $table_rows = array();
 	private static $del_or_a = '';
 
-	public static function check_table_name($tab){
+	public static function check_table_name($tab, $flush=false){
 		static $tables = null;
-		if ($tables===null) {
+		if ($tables===null || $flush) {
 			$r = DB::GetAll('SELECT tab FROM recordbrowser_table_properties');
 			$tables = array();
 			foreach($r as $v)
 				$tables[$v['tab']] = true;
 		}
-		if (!isset($tables[$tab])) trigger_error('RecordBrowser critical failure, terminating. (Requested '.$tab.', available '.print_r($tables, true).')', E_USER_ERROR);
+		if (!isset($tables[$tab]) && !$flush) trigger_error('RecordBrowser critical failure, terminating. (Requested '.$tab.', available '.print_r($tables, true).')', E_USER_ERROR);
 	}
 	public static function admin_caption() {
 		return 'Records Sets';
@@ -46,6 +46,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (!$tab) return false;
 		if (!preg_match('/^[a-zA-Z_]+$/',$tab)) trigger_error('Invalid table name ('.$tab.') given to install_new_recordset.',E_USER_ERROR);
 		DB::Execute('INSERT INTO recordbrowser_table_properties (tab) VALUES (%s)', array($tab));
+		self::check_table_name(null, true);
 		DB::CreateTable($tab,
 					'id I AUTO KEY,'.
 					'created_on T NOT NULL,'.
