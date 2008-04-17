@@ -18,16 +18,34 @@ class CRM_Import extends Module {
 
 	public function body() {
 		print('<h2>This process can take some time, please be patient... Time limit has been disabled.</h2><hr>');
-		$f = $this->init_module('Utils/FileUpload');
+		$f = $this->init_module('Utils/FileUpload',null,'cc');
 		$f->addElement('header',null,$this->lang->t('Contacts & Companies'));
+		$i = DB::GetOne('SELECT count(*) FROM crm_import_contact');
+		$i2 = DB::GetOne('SELECT count(*) FROM crm_import_company');
+		$f->addElement('static',null,$this->lang->t('Imported contact records'),($i?$i:$this->lang->t('none')));
+		$f->addElement('static',null,$this->lang->t('Imported company records'),($i2?$i2:$this->lang->t('none')));
 		$this->display_module($f,array(array($this,'upload_contacts')));
+
+		$f2 = $this->init_module('Utils/FileUpload',null,'hist');
+		$f2->addElement('header',null,$this->lang->t('History'));
+		$i = DB::GetOne('SELECT count(*) FROM crm_import_history');
+		$f2->addElement('static',null,$this->lang->t('Imported records'),($i?$i:$this->lang->t('none')));
+		$this->display_module($f2,array(array($this,'upload_history')));
+
+		$f2 = $this->init_module('Utils/FileUpload',null,'notes');
+		$f2->addElement('header',null,$this->lang->t('Notes'));
+		$i = DB::GetOne('SELECT count(*) FROM crm_import_note');
+		$f2->addElement('static',null,$this->lang->t('Imported records'),($i?$i:$this->lang->t('none')));
+		$this->display_module($f2,array(array($this,'upload_note')));
+		
+
 	}
-	
+
 	private function get_add_user($name) {
 		static $mail;
 		if(!isset($mail))
 			$mail = Base_User_LoginCommon::get_mail(Acl::get_user());
-		$name = str_replace(array(' ','\''),array('_',''), strtolower($name));
+		$name = str_replace(array(' ','\'','.'),array('_','',''), strtolower($name));
 		$id = Base_UserCommon::get_user_id($name);
 		if($id===false) {
 			Base_User_LoginCommon::add_user($name,$mail,$name,false);
@@ -35,7 +53,7 @@ class CRM_Import extends Module {
 		}
 		return $id;
 	}
-	
+
 	public function upload_contacts($file, $oryginal_file) {
 		set_time_limit(0);
 		ini_set("memory_limit","512M");
@@ -54,34 +72,17 @@ class CRM_Import extends Module {
 			if(!isset($created_map[$x[$header['CREATEUSERID']]]))
 				$created_map[$x[$header['CREATEUSERID']]] = $this->get_add_user($x[$header['CREATEUSERID']]);
 		}
-		
+
 		fclose($f);
-		
+
+		if(function_exists('memory_get_usage'))
+			print($this->lang->t("Memory usage: %s",array(filesize_hr(memory_get_usage(true)))).'<br>');
+
 		foreach($contacts as $x) {
 			//companies
 			$time = strtotime($x[$header['Edit Date']]?$x[$header['Edit Date']]:$x[$header['Create Date']]);
 			if($x[$header['Company']]) {
 				if(!$x[$header['City']]) $x[$header['City']] = 'n/a';
-				$kk = DB::GetRow('SELECT cic.created_on,cic.id FROM crm_import_company cic WHERE cic.original=%s',array($x[$header['CONTACTID']]));
-				if(!$kk) {
-					$kk = CRM_ContactsCommon::get_companies(array('company_name'=>$x[$header['Company']],'city'=>$x[$header['City']]));
-					if(empty($kk))
-						$kk = CRM_ContactsCommon::get_companies(array('company_name'=>$x[$header['Company']]));
-					if(!empty($kk)) {
-						$kk = array_pop($kk);
-						$ccc = $kk['id'];
-						unset($kk);
-					}
-					$imported_on = 0;
-				} else {
-					$imported_on = strtotime($kk['created_on']);
-					$ccc = $kk['id'];
-					unset($kk);
-				}
-				if(isset($ccc)) {
-					$r = Utils_RecordBrowserCommon::get_record_info('company',$ccc);
-					$edited_on = isset($r['edited_on'])?$r['edited_on']:0;
-				}
 				$v = array('company_name'=>$x[$header['Company']],
 						'short_name'=>$x[$header['Company']],
 						'city'=>$x[$header['City']],
@@ -92,24 +93,45 @@ class CRM_Import extends Module {
 						'address_1'=>$x[$header['Address']],
 						'address_2'=>$x[$header['Address 2']].($x[$header['Address 3']]?' '.$x[$header['Address 3']]:''),
 						'postal_code'=>$x[$header['Zip Code -1-']]
-						);
+					);
 
+				$kk = DB::GetRow('SELECT cic.created_on,cic.id FROM crm_import_company cic WHERE cic.original=%s',array($x[$header['CONTACTID']]));
+				if(!$kk) {
+					$kk = CRM_ContactsCommon::get_companies(array('company_name'=>$x[$header['Company']],'city'=>$x[$header['City']]));
+					if(empty($kk))
+						$kk = CRM_ContactsCommon::get_companies(array('company_name'=>$x[$header['Company']]));
+					if(!empty($kk)) {
+						$kk = array_pop($kk);
+						$ccc = $kk['id'];
+						unset($kk);
 
-				if($imported_on == 0 && !isset($ccc)) { //it wasn't imported and there is no such company
-					$ccc = Utils_RecordBrowserCommon::new_record('company', $v);
-					DB::Replace('crm_import_company',array('created_on'=>DB::DBTimeStamp($time),'id'=>$ccc,'original'=>DB::qstr($x[$header['CONTACTID']])),'id');
-				} else if($imported_on == 0 && isset($ccc)) {//not imported but company exists
-					if($edited_on>$time) //it was edited locally later then in act!
-						print('Skipping company: "'.$x[$header['Company']].'" because it was edited in epesi.<br>');
-					else {
-						Utils_RecordBrowserCommon::update_record('company', $ccc, $v,true);
-						DB::Replace('crm_import_company',array('created_on'=>DB::DBTimeStamp($time),'id'=>$ccc),'id');				
+						$r = Utils_RecordBrowserCommon::get_record_info('company',$ccc);
+						$edited_on = isset($r['edited_on'])?$r['edited_on']:0;
+
+						if($edited_on>$time) //it was edited locally later then in act!
+							print('Skipping company: "'.$x[$header['Company']].'" because it was edited in epesi.<br>');
+						else {
+							Utils_RecordBrowserCommon::update_record('company', $ccc, $v,true);
+							DB::Replace('crm_import_company',array('created_on'=>DB::DBTimeStamp($time),'id'=>$ccc),'id');
+						}
+					} else {
+						$ccc = Utils_RecordBrowserCommon::new_record('company', $v);
+						DB::Replace('crm_import_company',array('created_on'=>DB::DBTimeStamp($time),'id'=>$ccc,'original'=>DB::qstr($x[$header['CONTACTID']])),'id');
 					}
-				} else if($edited_on>$imported_on || $edited_on>$time) { //it was imported and later edited in epesi
-					print('Skipping company: "'.$x[$header['Company']].'" because it was edited in epesi.<br>');
-				} else if($imported_on<$time) { //it was imported and import edit time is newer then last import time
-					Utils_RecordBrowserCommon::update_record('company', $ccc, $v,true);
-					DB::Replace('crm_import_company',array('created_on'=>DB::DBTimeStamp($time),'id'=>$ccc),'id');
+				} else {
+					$imported_on = strtotime($kk['created_on']);
+					$ccc = $kk['id'];
+					unset($kk);
+
+					$r = Utils_RecordBrowserCommon::get_record_info('company',$ccc);
+					$edited_on = isset($r['edited_on'])?$r['edited_on']:0;
+
+					if($edited_on>$imported_on || $imported_on>=$time) { //it was imported and later edited in epesi or imported file is older then last import
+						print('Skipping company: "'.$x[$header['Company']].'" because it was edited in epesi.<br>');
+					} else {
+						Utils_RecordBrowserCommon::update_record('company', $ccc, $v,true);
+						DB::Replace('crm_import_company',array('created_on'=>DB::DBTimeStamp($time),'id'=>$ccc),'id');
+					}
 				}
 			} else {
 				$ccc = null;
@@ -121,8 +143,8 @@ class CRM_Import extends Module {
 				if(!$x[$header['User '.$kk]]) continue;
 				if(!isset($groups[$x[$header['User '.$kk]]])) {
 					$key = strtolower($x[$header['User '.$kk]]);
-					$path = "/Contacts_Groups/".$key;
-					Utils_CommonDataCommon::set_value($path,$x[$header['User '.$kk]]);
+					Utils_CommonDataCommon::set_value("/Contacts_Groups/".$key,$x[$header['User '.$kk]]);
+					Utils_CommonDataCommon::set_value("/Companies_Groups/".$key,$x[$header['User '.$kk]]);
 					$groups[$x[$header['User '.$kk]]] = $key;
 				}
 				$gg[] = $groups[$x[$header['User '.$kk]]];
@@ -186,11 +208,77 @@ class CRM_Import extends Module {
 				}
 
 			}
-			
+
 			$created_by = $created_map[$x[$header['CREATEUSERID']]];
 			$create_date = strtotime($x[$header['Create Date']]);
 			Utils_RecordBrowserCommon::set_record_properties('contact',$id,array('created_by'=>$created_by,'created_on'=>$create_date));
 		}
+
+//		print($this->lang->t("Data imported. ").'<a '.$this->create_href(array()).'>'.$this->lang->t("Back").'</a>');
+		Epesi::alert($this->lang->t("Data imported. "));
+		location(array());
+	}
+
+	public function upload_history($file, $oryginal_file) {
+		set_time_limit(0);
+		ini_set("memory_limit","512M");
+		$f = fopen($file,'r');
+		$header = fgetcsv($f);
+		if(!$header) {
+			Epesi::alert("Invalid csv file");
+			return 0;
+		}
+		$header = array_flip($header);
+		while($x=fgetcsv($f)) {
+			$cid = DB::GetOne('SELECT id FROM crm_import_contact WHERE original=%s',array($x[$header['CONTACTID']]));
+			if($cid===false) continue;
+			DB::Replace('crm_import_history',array('id'=>DB::qstr($x[$header['HISTORYID']]),'contact_id'=>$cid,'created_on'=>DB::DBTimeStamp($x[$header['Create Date']]),'created_by'=>$this->get_add_user($x[$header['CREATEUSERID']])),'id');
+		}
+		fclose($f);
+
+		Epesi::alert($this->lang->t("Data imported. "));
+		location(array());
+	}
+
+	public function upload_note($file, $oryginal_file) {
+		set_time_limit(0);
+		ini_set("memory_limit","512M");
+		$f = fopen($file,'r');
+		$header = fgetcsv($f);
+		if(!$header) {
+			Epesi::alert("Invalid csv file");
+			return 0;
+		}
+		$header = array_flip($header);
+		while($v=fgetcsv($f)) {
+			$time = strtotime($v[$header['Edit Date']]?$v[$header['Edit Date']]:$v[$header['Create Date']]);
+			$last_import_time = DB::GetOne('SELECT created_on FROM crm_import_note WHERE original=%s',array($v[$header['NOTEID']]));
+			if($v[$header['CONTACTID']]=='' || ($last_import_time!==false && $time<$last_import_time))
+				continue;
+
+			$user_note = DB::GetOne('SELECT id FROM crm_import_contact WHERE original=%s',array($v[$header['CONTACTID']]));
+			$key = md5($user_note);
+			$group = 'CRM/Contact/'.$user_note;
+			$created_by = $this->get_add_user($v[$header['CREATEUSERID']]);
+			$created_on = strtotime($v[$header['Create Date']]);
+
+			if($v[$header['Private Note']])
+				$permission = '2';
+			else
+				$permission = '0';
+			$other_read = false;
+			$note = $v[$header['Note']];
+			
+			DB::Execute('INSERT INTO utils_attachment_link(attachment_key,local,permission,permission_by,other_read) VALUES(%s,%s,%d,%d,%b)',array($key,$group,$permission,$created_by,$other_read));
+			$id = DB::Insert_ID('utils_attachment_link','id');
+			DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,created_on,revision) VALUES(%d,%s,%d,%T,0)',array($id,'',$created_by,$created_on));
+			DB::Execute('INSERT INTO utils_attachment_note(attach_id,text,created_by,created_on,revision) VALUES(%d,%s,%d,%T,0)',array($id,$note,$created_by,$created_on));
+			DB::Replace('crm_import_note',array('id'=>$id,'original'=>DB::qstr($v[$header['NOTEID']]),'contact_id'=>$user_note,'created_on'=>$created_on,'created_by'=>$created_by),'id');
+		}
+		fclose($f);
+
+		Epesi::alert($this->lang->t("Data imported. "));
+		location(array());
 	}
 
 }

@@ -22,6 +22,7 @@ class Utils_FileUpload extends Module {
 	 * Module constructor.
 	 */
 	public function construct($req=true) {
+		$this->added_upload_elem = false;
 		$this->lang = & $this->init_module('Base/Lang');
 		$this->form = & $this->init_module('Libs/QuickForm', array($this->lang->ht('Uploading file...'),'modules/Utils/FileUpload/upload.php','upload_iframe',''),'file_chooser');
 		$this->form->addElement('static',null,null,'<iframe frameborder="0" id="upload_iframe", name="upload_iframe" src="" style="display:none"></iframe>');
@@ -89,9 +90,8 @@ class Utils_FileUpload extends Module {
 	}
 
 	public function add_upload_element() {
-		static $added_upload_elem = false;
-		if($added_upload_elem) return;
-		$added_upload_elem = true;
+		if($this->added_upload_elem) return;
+		$this->added_upload_elem = true;
 
 		$this->form->addElement('hidden','uploaded_file');
 		$this->form->addElement('hidden','original_file');
@@ -104,12 +104,13 @@ class Utils_FileUpload extends Module {
 
 		$this->form->addElement('hidden','submit_js',$s);
 		$this->form->addElement('file', 'file', $this->lang->ht('Specify file'));
-		$this->form->addElement('static',null,$this->lang->t('Upload status'),'<div id="upload_status"></div>');
+		$this->form->addElement('static',null,$this->lang->t('Upload status'),'<div id="upload_status_'.$form_name.'"></div>');
 	}
 
 	public function get_submit_form_js() {
 		$this->submit_button=false;
-		return "$('upload_status').innerHTML='uploading...'; document.forms['".$this->form->getAttribute('name')."'].submit();";
+		$form_name = $this->form->getAttribute('name');
+		return "$('upload_status_".$form_name."').innerHTML='uploading...'; document.forms['".$this->form->getAttribute('name')."'].submit();";
 	}
 
 	public function get_submit_form_href() {

@@ -25,7 +25,7 @@ if($doc['error']==UPLOAD_ERR_INI_SIZE || $doc['error']==UPLOAD_ERR_FORM_SIZE) {
 	?>
 	<script type="text/javascript">
 	<!--
-	parent.$('upload_status').innerHTML='Specified file too big';
+	parent.$('upload_status_<?php print($form_name);?>').innerHTML='Specified file too big';
 	-->
 	</script>
 	<?php
@@ -33,7 +33,7 @@ if($doc['error']==UPLOAD_ERR_INI_SIZE || $doc['error']==UPLOAD_ERR_FORM_SIZE) {
 	?>
 	<script type="text/javascript">
 	<!--
-	parent.$('upload_status').innerHTML='Upload failed';
+	parent.$('upload_status_<?php print($form_name);?>').innerHTML='Upload failed';
 	-->
 	</script>
 	<?php
@@ -41,7 +41,7 @@ if($doc['error']==UPLOAD_ERR_INI_SIZE || $doc['error']==UPLOAD_ERR_FORM_SIZE) {
 	?>
 	<script type="text/javascript">
 	<!--
-	parent.$('upload_status').innerHTML='Invalid server setup: cannot write to temporary directory';
+	parent.$('upload_status_<?php print($form_name);?>').innerHTML='Invalid server setup: cannot write to temporary directory';
 	-->
 	</script>
 	<?php
@@ -50,7 +50,7 @@ if($doc['error']==UPLOAD_ERR_INI_SIZE || $doc['error']==UPLOAD_ERR_FORM_SIZE) {
 	?>
 	<script type="text/javascript">
 	<!--
-	parent.$('upload_status').innerHTML='Please specify file to upload';
+	parent.$('upload_status_<?php print($form_name);?>').innerHTML='Please specify file to upload';
 	-->
 	</script>
 	<?php
@@ -59,7 +59,7 @@ if($doc['error']==UPLOAD_ERR_INI_SIZE || $doc['error']==UPLOAD_ERR_FORM_SIZE) {
 	?>
 	<script type="text/javascript">
 	<!--
-	parent.$('upload_status').innerHTML='File not specified';
+	parent.$('upload_status_<?php print($form_name);?>').innerHTML='File not specified';
 	-->
 	</script>
 	<?php
@@ -70,7 +70,7 @@ if($doc['error']==UPLOAD_ERR_INI_SIZE || $doc['error']==UPLOAD_ERR_FORM_SIZE) {
 	?>
 	<script type="text/javascript">
 	<!--
-	parent.$('upload_status').innerHTML='uploaded <?php print($doc['name']); ?>';
+	parent.$('upload_status_<?php print($form_name);?>').innerHTML='uploaded <?php print($doc['name']); ?>';
 	parent.document.forms['<?php print($form_name); ?>'].uploaded_file.value='<?php print($dest_path); ?>';
 	parent.document.forms['<?php print($form_name); ?>'].original_file.value='<?php print($doc['name']); ?>';
 	-->
@@ -86,7 +86,7 @@ if($doc['error']==UPLOAD_ERR_INI_SIZE || $doc['error']==UPLOAD_ERR_FORM_SIZE) {
 	orig.value='';
 	//parent.document.forms['<?php print($form_name); ?>'].button.disabled=false;
 <?php
-	if($ok) {
+	if(isset($ok) && $ok) {
 		$sjs = stripslashes($_REQUEST['submit_js']);
 		if(get_magic_quotes_gpc())
 			$sjs = stripslashes($sjs);
