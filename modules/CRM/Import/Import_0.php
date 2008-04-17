@@ -120,9 +120,10 @@ class CRM_Import extends Module {
 			for($kk=1; $kk<5; $kk++) {
 				if(!$x[$header['User '.$kk]]) continue;
 				if(!isset($groups[$x[$header['User '.$kk]]])) {
-					$path = "/Contacts_Groups/".strtolower($x[$header['User '.$kk]]);
+					$key = strtolower($x[$header['User '.$kk]]);
+					$path = "/Contacts_Groups/".$key;
 					Utils_CommonDataCommon::set_value($path,$x[$header['User '.$kk]]);
-					$groups[$x[$header['User '.$kk]]] = Utils_CommonDataCommon::get_id($path);
+					$groups[$x[$header['User '.$kk]]] = $key;
 				}
 				$gg[] = $groups[$x[$header['User '.$kk]]];
 			}
