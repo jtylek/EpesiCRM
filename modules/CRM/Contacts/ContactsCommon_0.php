@@ -91,8 +91,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return 'Main Company';
 	}
 	public static function crm_company_datatype($field = array()) {
-		$field['QFfield_callback'] = array('CRM_ContactsCommon', 'QFfield_company');
-		$field['display_callback'] = array('CRM_ContactsCommon', 'display_company');
+		if (!isset($field['QFfield_callback'])) $field['QFfield_callback'] = array('CRM_ContactsCommon', 'QFfield_company');
+		if (!isset($field['display_callback'])) $field['display_callback'] = array('CRM_ContactsCommon', 'display_company');
 		$field['type'] = $field['param']['field_type'];
 		$param = 'company::Company Name';
 		if (isset($field['param']['crits'])) $param .= ';'.implode('::',$field['param']['crits']);
@@ -101,8 +101,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return $field;
 	}
 	public static function crm_contact_datatype($field = array()) {
-		$field['QFfield_callback'] = array('CRM_ContactsCommon', 'QFfield_contact');
-		$field['display_callback'] = array('CRM_ContactsCommon', 'display_contact');
+		if (!isset($field['QFfield_callback'])) $field['QFfield_callback'] = array('CRM_ContactsCommon', 'QFfield_contact');
+		if (!isset($field['display_callback'])) $field['display_callback'] = array('CRM_ContactsCommon', 'display_contact');
 		$field['type'] = $field['param']['field_type'];
 		$param = 'contact::First Name|Last Name';
 		if (isset($field['param']['format'])) $param .= ';'.implode('::',$field['param']['format']);
@@ -283,8 +283,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 	public static function QFfield_login(&$form, $field, $label, $mode, $default) {
 		if ($mode=='add'){
 			if (self::$paste_or_new=='new') {
-				$form->addElement('checkbox', 'create_company', 'Create new company', null, array('onClick'=>'document.getElementsByName("company_namefrom[]")[0].disabled=document.getElementsByName("company_nameto[]")[0].disabled=this.checked;document.getElementsByName("create_company_name")[0].disabled=!this.checked;'));
-				$form->addElement('text', 'create_company_name', 'New company name', array('disabled'=>1));
+				$form->addElement('checkbox', 'create_company', Base_LangCommon::ts('CRM/Contacts','Create new company'), null, array('onClick'=>'document.getElementsByName("company_namefrom[]")[0].disabled=document.getElementsByName("company_nameto[]")[0].disabled=this.checked;document.getElementsByName("create_company_name")[0].disabled=!this.checked;'));
+				$form->addElement('text', 'create_company_name', Base_LangCommon::ts('CRM/Contacts','New company name'), array('disabled'=>1));
 				eval_js('Event.observe(\'last_name\',\'change\', update_create_company_name_field);'.
 						'Event.observe(\'first_name\',\'change\', update_create_company_name_field);'.
 						'function update_create_company_name_field() {'.
@@ -357,6 +357,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			return Base_UserCommon::get_user_login($v);
 	}
 	public static function submit_contact($values, $mode) {
+		if ($mode=='view') return null;
 		if (isset($values['create_company'])) {
 			$comp_id = Utils_RecordBrowserCommon::new_record('company',
 				array(	'company_name'=>$values['create_company_name'],

@@ -189,6 +189,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 					'>'.$status[$v].'</a>';
 	}
 	public static function submit_phonecall($values, $mode) {
+		if ($mode=='view') return null;
 		if (isset($values['other_contact'])) {
 			$values['other_phone']=1;
 			$values['contact']='';
