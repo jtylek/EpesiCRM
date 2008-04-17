@@ -13,7 +13,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			foreach($r as $v)
 				$tables[$v['tab']] = true;
 		}
-		if (!isset($tables[$tab])) trigger_error('RecordBrowser critical failure, terminating.', E_USER_ERROR);
+		if (!isset($tables[$tab])) trigger_error('RecordBrowser critical failure, terminating. (Requested '.$tab.', available '.print_r($tables, true).')', E_USER_ERROR);
 	}
 	public static function admin_caption() {
 		return 'Records Sets';
@@ -350,7 +350,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$hash[$args['id']] = $field;
 		foreach($order as $k=>$v) {
 			if (!is_string($k)) break;
-			$order[] = array('column'=>$hash[$k], 'order'=>$hash[$k], 'direction'=>$v);
+ 			if ($k[0]==':') $order[] = array('column'=>$k, 'order'=>$k, 'direction'=>$v);
+ 			else $order[] = array('column'=>$hash[$k], 'order'=>$hash[$k], 'direction'=>$v);
 			unset($order[$k]);
 		}
 		$old_crits = $crits;
@@ -473,8 +474,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						$orderby .= ' _fav_order '.$v['direction'];
 						$vals[]=Acl::get_user();
 						break;
-					case ':Recent'	: 
-						//$where .= ' AND (SELECT COUNT(*) FROM '.$tab.'_recent WHERE '.$tab.'_id=r.id AND user_id=%d)!=0'; $vals[]=Acl::get_user(); break;
+					case ':Visited_on'	: 
+						$fields .= ', (SELECT visited_on FROM '.$tab.'_recent WHERE '.$tab.'_id=r.id AND user_id=%d) AS _rec_order';
+						$orderby .= ' _rec_order '.$v['direction'];
+						$vals[]=Acl::get_user();
 						break;
 					default		: trigger_error('Unknow paramter given to get_records criteria: '.$k, E_USER_ERROR);
 				}

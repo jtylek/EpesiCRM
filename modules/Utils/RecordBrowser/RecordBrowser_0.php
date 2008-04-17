@@ -332,12 +332,14 @@ class Utils_RecordBrowser extends Module {
 		foreach ($search as $k=>$v)
 			$search_res['"'.str_replace(array('__','_'),array(':',' '),$k)] = $v;
 
+		$order = $gb->get_order();
 		$crits = array_merge($crits, $search_res);
 		if ($this->browse_mode == 'favorites')
 			$crits[':Fav'] = true;
-		if ($this->browse_mode == 'recent')
+		if ($this->browse_mode == 'recent') {
 			$crits[':Recent'] = true;
-		$order = $gb->get_order();
+			$order = array(':Visited_on'=>'DESC');
+		}
 
 		$limit = $gb->get_limit(Utils_RecordBrowserCommon::get_records_limit($this->tab, $crits, $admin));
 		$records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array(), $order, $limit, $admin);
