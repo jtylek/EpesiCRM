@@ -471,6 +471,19 @@ class Utils_RecordBrowser extends Module {
 		}
 		$this->init();
 		$this->record = Utils_RecordBrowserCommon::get_record($this->tab, $id);
+		$theme = $this->init_module('Base/Theme');
+		if ($mode=='view') {
+			$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
+			if ($dpm!=='') {
+				$method = explode('::',$dpm);
+				if (is_callable($method)) {
+					$theme_stuff = call_user_func($method, $this->record, 'view');
+					if (is_array($theme_stuff)) 
+						foreach ($theme_stuff as $k=>$v)
+							$theme->assign($k, $v);
+				} 
+			}
+		}
 		switch ($mode) {
 			case 'add': $this->action = 'New record'; break;
 			case 'edit': $this->action = 'Edit record';
@@ -478,7 +491,6 @@ class Utils_RecordBrowser extends Module {
 						break;
 			case 'view': $this->action = 'View record'; break;
 		}
-		$theme = $this->init_module('Base/Theme');
 
 		if($mode!='add')
 			Utils_RecordBrowserCommon::add_recent_entry($this->tab, Acl::get_user(),$id);
@@ -492,6 +504,7 @@ class Utils_RecordBrowser extends Module {
 
 		if ($form->validate()) {
 			$values = $form->exportValues();
+			$values['id'] = $id;
 			$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 			if ($dpm!=='') {
 				$method = explode('::',$dpm);
