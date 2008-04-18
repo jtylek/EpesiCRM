@@ -353,8 +353,8 @@ class CRM_Import extends Module {
 					continue;
 				else {
 					$rev = DB::GetOne('SELECT max(revision)+1 FROM utils_attachment_file WHERE attach_id=%d',array($id));
-					DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,created_on,revision) VALUES(%d,%s,%d,%T,%d)',array($id,$oryg,$created_by,$created_on,$rev));
 					if($file && file_exists($file)) {
+						DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,created_on,revision) VALUES(%d,%s,%d,%T,%d)',array($id,$oryg,$created_by,$created_on,$rev));
 						$local = 'data/Utils_Attachment/'.$group;
 						@mkdir($local,0777,true);
 						rename($file,$local.'/'.$id.'_'.$rev);
@@ -376,9 +376,9 @@ class CRM_Import extends Module {
 				if(empty($kk)) {
 					DB::Execute('INSERT INTO utils_attachment_link(attachment_key,local,permission,permission_by,other_read) VALUES(%s,%s,%d,%d,%b)',array($key,$group,$permission,$created_by,$other_read));
 					$id = DB::Insert_ID('utils_attachment_link','id');
-					DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,created_on,revision) VALUES(%d,%s,%d,%T,0)',array($id,$oryg,$created_by,$created_on));
 					DB::Execute('INSERT INTO utils_attachment_note(attach_id,text,created_by,created_on,revision) VALUES(%d,%s,%d,%T,0)',array($id,$note,$created_by,$created_on));
 					if($file && file_exists($file)) {
+						DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,created_on,revision) VALUES(%d,%s,%d,%T,0)',array($id,$oryg,$created_by,$created_on));
 						$local = 'data/Utils_Attachment/'.$group;
 						@mkdir($local,0777,true);
 						rename($file,$local.'/'.$id.'_0');
@@ -390,9 +390,9 @@ class CRM_Import extends Module {
 						continue;
 					else if($kk['created_on']<$time) {
 						$rev = DB::GetOne('SELECT max(revision)+1 FROM utils_attachment_file WHERE attach_id=%d',array($id));
-						DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,created_on,revision) VALUES(%d,%s,%d,%T,%d)',array($id,$oryg,$created_by,$created_on,$rev));
 						DB::Execute('UPDATE utils_attachment_link SET attachment_key=%s,local=%s,permission=%d,permission_by=%d,other_read=%b WHERE id=%d',array($key,$group,$permission,$created_by,$other_read,$id));
 						if($file && file_exists($file)) {
+							DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,created_on,revision) VALUES(%d,%s,%d,%T,%d)',array($id,$oryg,$created_by,$created_on,$rev));
 							$local = 'data/Utils_Attachment/'.$group;
 							@mkdir($local,0777,true);
 							rename($file,$local.'/'.$id.'_'.$rev);
