@@ -32,9 +32,10 @@ class CRM_ImportInstall extends ModuleInstall {
 			return false;
 		}
 		$ret &= DB::CreateTable('crm_import_history','
-			id C(64) KEY NOTNULL,
+			original C(64) KEY NOTNULL,
 			contact_id I4 NOTNULL,
 			created_on T DEFTIMESTAMP,
+			edited_on T DEFTIMESTAMP,
 			created_by I4 NOTNULL',
 			array('constraints'=>', FOREIGN KEY (created_by) REFERENCES user_login(id), FOREIGN KEY (contact_id) REFERENCES contact(ID)'));
 		if(!$ret){
@@ -47,9 +48,18 @@ class CRM_ImportInstall extends ModuleInstall {
 			contact_id I4 NOTNULL,
 			created_on T DEFTIMESTAMP,
 			created_by I4 NOTNULL',
-			array('constraints'=>', FOREIGN KEY (created_by) REFERENCES user_login(id), FOREIGN KEY (contact_id) REFERENCES contact(ID), UNIQUE(original)'));
+			array('constraints'=>', FOREIGN KEY (id) REFERENCES utils_attachment_link(ID), FOREIGN KEY (created_by) REFERENCES user_login(id), FOREIGN KEY (contact_id) REFERENCES contact(ID), UNIQUE(original)'));
 		if(!$ret){
 			print('Unable to create table crm_import_history.<br>');
+			return false;
+		}
+		$ret &= DB::CreateTable('crm_import_attach','
+			id I4 KEY NOTNULL,
+			original C(64),
+			created_on T DEFTIMESTAMP',
+			array('constraints'=>', FOREIGN KEY (id) REFERENCES utils_attachment_link(ID), UNIQUE(original)'));
+		if(!$ret){
+			print('Unable to create table crm_import_attach.<br>');
 			return false;
 		}
 
@@ -64,6 +74,7 @@ class CRM_ImportInstall extends ModuleInstall {
 		$ret &= DB::DropTable('crm_import_note');
 		$ret &= DB::DropTable('crm_import_contact');
 		$ret &= DB::DropTable('crm_import_company');
+		$ret &= DB::DropTable('crm_import_attach');
 		return $ret;
 	}
 
