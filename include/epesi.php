@@ -75,8 +75,8 @@ class Epesi {
 		self::$txts .= 'Epesi.text(\''.self::escapeJS($txt,false).'\',\''.self::escapeJS($id,false).'\',\''.self::escapeJS($type{0},false).'\');';
 	}
 
-	public final static function alert($txt) {
-		self::js('alert(\''.self::escapeJS($txt,false).'\')');
+	public final static function alert($txt,$del = true) {
+		self::js('alert(\''.self::escapeJS($txt,false).'\')',$del);
 	}
 
 	public final static function redirect($addr='') {

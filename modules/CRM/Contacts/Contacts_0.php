@@ -29,12 +29,12 @@ class CRM_Contacts extends Module {
 	}
 
 	public function admin(){
-		$qf = $this->init_module('Libs/QuickForm','my_company');
+		$qf = $this->init_module('Libs/QuickForm',null,'my_company');
 		$l = $this->init_module('Base/Lang');
 		$companies = CRM_ContactsCommon::get_companies();
 		$x = array();
 		foreach($companies as $c)
-			$x[$c['id']] = $c['company_name'].' ('.$c['short_name'].')';
+			$x[$c['id']] = htmlentities($c['company_name'].' ('.$c['short_name'].')');
 		$qf->addElement('select','company',$l->t('Choose main company'),$x,array('onChange'=>$qf->get_submit_form_js()));
 		$qf->addElement('static',null,null,'Contacts assigned to this company are treated as employees. You should set the main company only once.');
 		try {

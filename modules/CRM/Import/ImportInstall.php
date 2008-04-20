@@ -62,6 +62,26 @@ class CRM_ImportInstall extends ModuleInstall {
 			print('Unable to create table crm_import_attach.<br>');
 			return false;
 		}
+		$ret &= DB::CreateTable('crm_import_task','
+			id I4 KEY NOTNULL,
+			original C(64),
+			created_on T DEFTIMESTAMP',
+			array('constraints'=>', FOREIGN KEY (id) REFERENCES utils_tasks_task(ID), UNIQUE(original)'));
+		if(!$ret){
+			print('Unable to create table crm_import_task.<br>');
+			return false;
+		}
+		$ret &= DB::CreateTable('crm_import_event','
+			id I4 KEY NOTNULL,
+			original C(64),
+			created_on T DEFTIMESTAMP',
+			array('constraints'=>', FOREIGN KEY (id) REFERENCES crm_calendar_event(ID), UNIQUE(original)'));
+		if(!$ret){
+			print('Unable to create table crm_import_event.<br>');
+			return false;
+		}
+
+		$this->create_data_dir();
 
 		$this->add_aco('import',array('Super administrator'));
 
@@ -70,6 +90,8 @@ class CRM_ImportInstall extends ModuleInstall {
 
 	public function uninstall() {
 		$ret = true;
+		$ret &= DB::DropTable('crm_import_event');
+		$ret &= DB::DropTable('crm_import_task');
 		$ret &= DB::DropTable('crm_import_history');
 		$ret &= DB::DropTable('crm_import_note');
 		$ret &= DB::DropTable('crm_import_contact');
@@ -89,6 +111,7 @@ class CRM_ImportInstall extends ModuleInstall {
 			array('name'=>'CRM/PhoneCall','version'=>0),
 			array('name'=>'CRM/Tasks','version'=>0),
 			array('name'=>'Libs/QuickForm','version'=>0),
+			array('name'=>'Utils/TabbedBrowser','version'=>0),
 			array('name'=>'Utils/Attachment','version'=>0));
 	}
 
