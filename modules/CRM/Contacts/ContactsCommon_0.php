@@ -167,9 +167,9 @@ class CRM_ContactsCommon extends ModuleCommon {
 				if (!$desc['required'] && $desc['type']!='multiselect') $cont[''] = '--';
 				if (!is_array($default)) {
 					if ($default!='') $default = array($default); else $default=array();
-				} 
+				}
 				$ext_rec = array_flip($default);
-				foreach ($contacts as $v) { 
+				foreach ($contacts as $v) {
 					$cont[$v['id']] = call_user_func($callback, $v, true);
 					unset($ext_rec[$v['id']]);
 				}
@@ -225,7 +225,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$companies = self::get_companies($crits);
 			if (!is_array($default)) {
 				if ($default!='') $default = array($default); else $default=array();
-			} 
+			}
 			$ext_rec = array_flip($default);
 			foreach ($companies as $v) {
 				$comp[$v['id']] = $v['company_name'];
@@ -385,7 +385,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 
 	 		foreach ($result as $row)
  				$ret[$row['id']] = Utils_RecordBrowserCommon::record_link_open_tag('contact', $row['id']).Base_LangCommon::ts('CRM_Contacts', 'Contact #%d, %s %s', array($row['id'], $row['first_name'], $row['last_name'])).Utils_RecordBrowserCommon::record_link_close_tag();
-	 		
+
 			$result = self::get_contacts(array('"last_name'=>DB::Concat('\'%\'',DB::qstr($word),'\'%\'')));
 
 	 		foreach ($result as $row)
@@ -408,7 +408,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 
 	 		foreach ($result as $row)
  				$ret[$row['id']] = Utils_RecordBrowserCommon::record_link_open_tag('company', $row['id']).Base_LangCommon::ts('CRM_Contacts', 'Company #%d, %s', array($row['id'], $row['company_name'])).Utils_RecordBrowserCommon::record_link_close_tag();
-	 		
+
 			$result = self::get_companies(array('"short_name'=>DB::Concat('\'%\'',DB::qstr($word),'\'%\'')));
 
 	 		foreach ($result as $row)
@@ -426,7 +426,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	 		foreach ($result as $row)
  				$ret['a_'.$row['id']] = Utils_RecordBrowserCommon::record_link_open_tag('company', $row['id']).Base_LangCommon::ts('CRM_Contacts', 'Company (attachment) #%d, %s', array($row['id'], $row['company_name'])).Utils_RecordBrowserCommon::record_link_close_tag();
  		}
-		
+
 		return $ret;
 	}
 
