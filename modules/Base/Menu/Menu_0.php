@@ -65,7 +65,7 @@ class Base_Menu extends Module {
 				} else {
 					try {
 						if(isset($arr['box_main_module']))
-							$icon = Base_ThemeCommon::get_template_file($arr['box_main_module'], 'icon.png');
+							$icon = Base_ThemeCommon::get_template_file($arr['box_main_module'], 'icon-small.png');
 						else
 							$icon = '';
 					} catch(Exception $e) {

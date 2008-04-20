@@ -117,13 +117,15 @@ img.link_bullet {
 
 img.link_icon {
 	float: left;
-	margin: 2px;
+	margin: 3px;
 	vertical-align: middle;
 	z-index: 1000;
 	position: absolute;
-	width: 16px;
+	/*width: 16px;
 	height: 16px;
-	clip: rect(0px 16px 14px 0px);
+	clip: rect(0px 16px 14px 0px);*/
+	width: 14px;
+	height: 14px;
 }
 
 table.root a.root_item_link_down:hover {
@@ -209,8 +211,9 @@ a.root_item_link_right:hover {
 
 	background-color: #336699;
 	color: white;
-	background-image: url('Utils_Menu__menu-icon-back.png');
-	background-repeat: no-repeat;
+	/*background-image: url('Utils_Menu__menu-icon-back.png');
+	background-repeat: no-repeat;*/
+	background-image: none;
 }
 
 a.root_item_link:hover .root_item_link_right_arrow,
