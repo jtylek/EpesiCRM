@@ -273,7 +273,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		DB::CompleteTrans();
 		return $id;
 	}
-	public static function update_record($tab,$id,$values,$all_fields = false) {
+	public static function update_record($tab,$id,$values,$all_fields = false, $date = null) {
 		DB::StartTrans();
 		self::init($tab);
 		$record = Utils_RecordBrowserCommon::get_record($tab, $id);
@@ -295,7 +295,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			}
 		}
 		if (!empty($diff)) {
-			DB::Execute('INSERT INTO '.$tab.'_edit_history(edited_on, edited_by, '.$tab.'_id) VALUES (%T,%d,%d)', array(date('Y-m-d G:i:s'), Acl::get_user(), $id));
+			DB::Execute('INSERT INTO '.$tab.'_edit_history(edited_on, edited_by, '.$tab.'_id) VALUES (%T,%d,%d)', array((($date==null)?date('Y-m-d G:i:s'):$date), Acl::get_user(), $id));
 			$edit_id = DB::Insert_ID(''.$tab.'_edit_history','id');
 			foreach($diff as $k=>$v) {
 				if (!is_array($v)) $v = array($v);
