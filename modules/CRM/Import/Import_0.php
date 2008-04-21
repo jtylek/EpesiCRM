@@ -693,13 +693,26 @@ class CRM_Import extends Module {
 				case 'To-do':
 					$kk = DB::GetRow('SELECT created_on,id FROM crm_import_task WHERE original=%s',array($v[$header['ACTIVITYID']]));
 					if(empty($kk)) {
-						DB::Execute('INSERT INTO utils_tasks_task(title,description,permission,priority,status,longterm,deadline,created_by,created_on,page_id) VALUES (%s,%s,%d,%d,%d,%b,%D,%d,%T,%s)',array($title,$desc,$access,$prio,($stat==0)?0:1,false,$end,$created_by,$created_on,$mid));
-						$id = DB::Insert_ID('utils_tasks_task','id');
+						$rec = array(	'title'=>$title,
+										'description'=>$desc,
+										'priority'=>$prio,
+										'deadline'=>$end,
+										'is_deadline'=>($end!=null),
+										'status'=>($stat==0)?0:2,
+										'longterm'=>false,
+										'page_id'=>$mid,
+										'permission'=>$access,
+										'employees'=>array($created_by_contact),
+										'customers'=>$contact!=false?array($contact):array()
+									);
+						$id = Utils_RecordBrowserCommon::new_record('task', $rec); 
+						Utils_RecordBrowserCommon::set_record_properties('task', $id, array('created_by'=>$created_by,'created_on'=>$created_on));					
 						$this->logit('Adding.');
 						$added_tasks++;
 					} else {
 						$id = $kk['id'];
-						$edited_on = DB::GetOne('SELECT edited_on FROM utils_tasks_task WHERE id=%d',array($id));
+						$info = Utils_RecordBrowserCommon::get_record_info('task',$id);
+						$edited_on = $info['edited_on'];
 						if($edited_on)
 							$this->logit('Edited in epesi: '.$edited_on);
 						else
@@ -711,16 +724,23 @@ class CRM_Import extends Module {
 						} else {
 							$this->logit('Updating.');
 							$updated_tasks++;
-							DB::Execute('UPDATE utils_tasks_task SET title=%s,description=%s,permission=%d,priority=%d,status=%d,longterm=%b,deadline=%D,created_by=%d,created_on=%T,page_id=%s,edited_on=%T,edited_by=%d WHERE id=%d',array($title,$desc,$access,$prio,($stat==0)?0:1,false,$end,$created_by,$created_on,$mid,$time,$created_by,$id));
-							DB::Execute('DELETE FROM utils_tasks_assigned_contacts WHERE task_id=%d',array($id));
-							DB::Execute('DELETE FROM utils_tasks_related_contacts WHERE task_id=%d',array($id));
+							$rec = array(	'title'=>$title,
+											'description'=>$desc,
+											'priority'=>$prio,
+											'deadline'=>$end,
+											'is_deadline'=>($end!=null),
+											'status'=>($stat==0)?0:2,
+											'longterm'=>false,
+											'page_id'=>$mid,
+											'permission'=>$access,
+											'employees'=>array($created_by_contact),
+											'customers'=>$contact!=false?array($contact):array()
+										);
+							Utils_RecordBrowserCommon::update_record('task', $id, $rec, false, $time); 
+							Utils_RecordBrowserCommon::set_record_properties('task', $id, array('created_by'=>$created_by,'created_on'=>$created_on));					
 						}
 					}
 
-					DB::Execute('INSERT INTO utils_tasks_assigned_contacts(contact_id,task_id,viewed) VALUES(%d,%d,1)',array($created_by_contact,$id));
-					if($contact!==false)
-						DB::Execute('INSERT INTO utils_tasks_related_contacts(contact_id,task_id) VALUES(%d,%d)',array($contact,$id));
-					
 					DB::Replace('crm_import_task',array('created_on'=>DB::DBTimeStamp($time),'id'=>$id,'original'=>DB::qstr($v[$header['ACTIVITYID']])),'id');
 					break;
 				case 'Vacation':
