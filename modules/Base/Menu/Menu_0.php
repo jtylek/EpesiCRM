@@ -55,23 +55,32 @@ class Base_Menu extends Module {
 			if($k=='__split__')
 				$menu->add_split();
 			else {
-				if(array_key_exists('__icon__',$arr)) {
+				if(array_key_exists('__icon_small__',$arr)) {
 					try {
-						$icon = Base_ThemeCommon::get_template_file($arr['box_main_module'], $arr['__icon__']);
+						$icon = Base_ThemeCommon::get_template_file($arr['parent_module'], $arr['__icon_small__']);
+					} catch(Exception $e) {
+						$icon = '';
+					}
+					unset($arr['__icon_small__']);
+					unset($arr['__icon__']);
+				} else if(array_key_exists('__icon__',$arr)) {
+					try {
+						$icon = Base_ThemeCommon::get_template_file($arr['parent_module'], $arr['__icon__']);
 					} catch(Exception $e) {
 						$icon = '';
 					}
 					unset($arr['__icon__']);
 				} else {
 					try {
-						if(isset($arr['box_main_module']))
-							$icon = Base_ThemeCommon::get_template_file($arr['box_main_module'], 'icon-small.png');
+						if(isset($arr['parent_module']) && is_string($arr['parent_module']))
+							$icon = Base_ThemeCommon::get_template_file($arr['parent_module'], 'icon-small.png');
 						else
 							$icon = '';
 					} catch(Exception $e) {
 						$icon = '';
 					}
 				}
+				unset($arr['parent_module']);
 
 				if(array_key_exists('__description__',$arr)) {
 					$description = "'".$arr['__description__']."'";

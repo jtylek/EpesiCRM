@@ -82,7 +82,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 
 	/*--------------------------------------------------------------------*/
 	public static function menu() {
-		return array('CRM'=>array('__submenu__'=>1,'Contacts'=>array('mode'=>'contact','__icon__'=>'contacts.png'),'Companies'=>array('mode'=>'company','__icon__'=>'companies.png')));
+		return array('CRM'=>array('__submenu__'=>1,'Contacts'=>array('mode'=>'contact','__icon__'=>'contacts.png','__icon_small__'=>'contacts-small.png'),'Companies'=>array('mode'=>'company','__icon__'=>'companies.png','__icon_small__'=>'companies-small.png')));
 	}
 	public static function caption() {
 		return 'Companies & Contacts';

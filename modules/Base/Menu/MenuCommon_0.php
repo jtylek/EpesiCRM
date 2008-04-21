@@ -26,6 +26,7 @@ class Base_MenuCommon extends ModuleCommon {
 						unset($arr['__module__']);
 					} else
 						$action = array('box_main_module'=>$name);
+					$action['parent_module'] = $name;
 					if(array_key_exists('__function__',$arr)) {
 						$action['box_main_function']=$arr['__function__'];
 						unset($arr['__function__']);
