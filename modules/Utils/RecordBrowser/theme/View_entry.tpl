@@ -57,7 +57,7 @@
 			{/if}
 					<tr>
 						<td class="label">{$f.label}{if $f.required}*{/if}</td>
-						<td class="data {$f.style}">{if $f.error}{$f.error}{/if}{$f.html}&nbsp;</td>
+						<td class="data {$f.style}">{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
 					</tr>
 			{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
 				{if $x>$no_empty}
@@ -82,7 +82,7 @@
 				<tr>
 					{foreach key=k item=f from=$longfields name=fields}
 						<td class="label long_label">{$f.label}{if $f.required}*{/if}</td>
-						<td class="data long_data {if $f.type == 'currency'}currency{/if}">{if $f.error}{$f.error}{/if}{$f.html}&nbsp;</td>
+						<td class="data long_data {if $f.type == 'currency'}currency{/if}">{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
 					{/foreach}
 				</tr>
 			</table>
