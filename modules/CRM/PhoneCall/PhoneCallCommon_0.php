@@ -151,7 +151,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	}
 	public static function display_phone_number($record, $nolink) {
 		if ($record['other_phone']) return $record['other_phone_number'];
-		else return self::display_phone(array('phone'=>$record['phone']),null,null,array('id'=>'phone'));
+		else return self::display_phone(array('phone'=>$record['phone']),false,array('id'=>'phone'));
 	}
 	public static function display_contact_name($record, $nolink) {
 		if ($record['other_contact']) return $record['other_contact_name'];
