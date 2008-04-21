@@ -250,10 +250,11 @@ class CRM_Import extends Module {
 				}
 				$gg[] = $groups[$x[$header['User '.$kk]]];
 			}
+			$gg = array_unique($gg);
 
 			if(isset($ccc)) {
 				$comp = Utils_RecordBrowserCommon::get_record('company', $ccc);
-				Utils_RecordBrowserCommon::update_record('company',$ccc,array('group'=>array_merge($comp['group'],$gg)),false,$time);
+				Utils_RecordBrowserCommon::update_record('company',$ccc,array('group'=>array_unique(array_merge($comp['group'],$gg))),false,$time);
 				$gg = array();
 				$ccc2 = array($ccc);
 			} else
