@@ -37,8 +37,9 @@ class Utils_Tasks extends Module {
 	}
 
 	public function task_attachment_addon($arg){
+		$lang = $this->init_module('Base/Lang');
 		$a = $this->init_module('Utils/Attachment',array('Task:'.$arg['id'],'CRM/Tasks/'.$arg['page_id']));
-		$a->additional_header($this->lang->t('Task: %s',array($arg['title'])));
+		$a->additional_header($lang->t('Task: %s',array($arg['title'])));
 		$a->allow_protected($this->acl_check('view protected notes'),$this->acl_check('edit protected notes'));
 		$a->allow_public($this->acl_check('view public notes'),$this->acl_check('edit public notes'));
 		$this->display_module($a);
