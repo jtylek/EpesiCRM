@@ -22,7 +22,7 @@ class Utils_Tasks extends Module {
 		$me = CRM_ContactsCommon::get_my_record();
 		$this->rb->set_custom_filter('status',array('type'=>'checkbox','label'=>$lang->t('Display closed tasks'),'trans'=>array('__NULL__'=>array('!status'=>2),1=>array('status'=>array(0,1,2)))));
 		$this->rb->set_custom_filter('longterm',array('type'=>'select','label'=>$lang->t('Display tasks marked as'),'args'=>array('__NULL__'=>$lang->t('Short term'),1=>$lang->t('Long term'),2=>$lang->t('Both')),'trans'=>array('__NULL__'=>array('!longterm'=>1),1=>array('longterm'=>1),2=>array('!longterm'=>array(2)))));
-		$this->rb->set_crm_filter('employees');
+//		$this->rb->set_crm_filter('employees');
 		$this->rb->set_defaults(array('page_id'=>$mid, 'employees'=>array($me['id'])));
 		$this->rb->set_default_order(array('deadline'=>'ASC', 'title'=>'ASC'));
 		if (is_numeric(Utils_RecordBrowser::$clone_result)) {

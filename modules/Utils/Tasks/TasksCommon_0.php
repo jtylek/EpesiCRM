@@ -29,7 +29,6 @@ class Utils_TasksCommon extends ModuleCommon {
 							if ($i->acl_check('edit phonecall')) return true;
 							$me = CRM_ContactsCommon::get_my_record();
 							if (is_array($param['employees']) && in_array($me['id'], $param['employees'])) return true;
-//							if ($me['id']==$param['contact']) return true;
 							$info = Utils_RecordBrowserCommon::get_record_info('task',$param['id']);
 							if ($me['login']==$info['created_by']) return true;
 							return false;
@@ -83,8 +82,7 @@ class Utils_TasksCommon extends ModuleCommon {
 		$ret = '<span id="contact_confirmed_'.$record['id'].'"></span>';
 		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_open_tag('contact', $record['id']);
 		$ret .= $record['last_name'].(($record['first_name']!=='')?' '.$record['first_name']:'');
-		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_close_tag();
-		return $ret;
+		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_close_tag();		return $ret;
 	}
     public static function display_title($record, $nolink) {
 		$ret = Utils_RecordBrowserCommon::create_linked_label('task', 'Title', $record['id'], $nolink);
@@ -118,8 +116,9 @@ class Utils_TasksCommon extends ModuleCommon {
 	}
 	public static function display_status($record, $nolink, $desc) {
 		$v = $record[$desc['id']];
+		if (!$v) $v = 0;
 		$status = Utils_CommonDataCommon::get_array('Ticket_Status');
-		if (!self::access_task('edit', self::get_task($record['id']))) return $status[$v];
+		if (!self::access_task('edit', $record) && !Base_AclCommon::i_am_admin()) return $status[$v];
 		if (isset($_REQUEST['increase_task_status'])) {
 			if ($_REQUEST['increase_task_status']==$record['id']) $v++;
 			Utils_RecordBrowserCommon::update_record('task', $record['id'], array('status'=>$v));

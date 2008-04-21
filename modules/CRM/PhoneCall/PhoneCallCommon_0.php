@@ -180,7 +180,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		$id = $record['id'];
 		$v = $record[$desc['id']];
 		$status = Utils_CommonDataCommon::get_array('Ticket_Status');
-		if (!self::access_phonecall('edit', self::get_phonecall($id))) return $status[$v];
+		if (!self::access_phonecall('edit', $record) && !Base_AclCommon::i_am_admin()) return $status[$v];
 		if (isset($_REQUEST['increase_phonecall_status'])) {
 			if ($_REQUEST['increase_phonecall_status']==$id) $v++;
 			Utils_RecordBrowserCommon::update_record('phonecall', $id, array('status'=>$v));
