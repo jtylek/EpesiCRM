@@ -1,21 +1,16 @@
 <?php
 /**
- * CRMHRInstall class.
+ * ContactsInstall class.
  *
  * This class provides initialization data for CRMHR module.
  *
- * @author Kuba SĹawiĹski <ruud@o2.pl>, Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
  * @package tcms-extra
  */
 defined("_VALID_ACCESS") || die();
 
-/**
- * This class provides initialization data for Test module.
- * @package tcms-extra
- * @subpackage test
- */
 class CRM_ContactsInstall extends ModuleInstall {
 	public function install() {
 		Base_ThemeCommon::install_default_theme('CRM/Contacts');

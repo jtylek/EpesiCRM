@@ -36,13 +36,14 @@ class Utils_RecordBrowser extends Module {
 	private $add_in_table = false;
 	private $custom_filters = array();
 	private $filter_field;
-	private static $clone_result = null;
+	private $default_order = array();
+	public static $clone_result = null;
 	public $adv_search = false;
 
 	public function get_val($field, $record, $id, $links_not_recommended = false, $args = null) {
 		$val = $record[$args['id']];
 		if (isset($this->display_callback_table[$field])) {
-			$ret = call_user_func($this->display_callback_table[$field], $record, $id, $links_not_recommended, $this->table_rows[$field]);
+			$ret = call_user_func($this->display_callback_table[$field], $record, $links_not_recommended, $this->table_rows[$field]);
 		} else {
 			$ret = $val;
 			if ($args['type']=='select' || $args['type']=='multiselect') {
@@ -56,11 +57,13 @@ class Utils_RecordBrowser extends Module {
 				$ret = '';
 				$first = true;
 				foreach ($val as $k=>$v){
+					if ($tab=='__COMMON__' && !isset($data[$v])) continue;
 					if ($first) $first = false;
 					else $ret .= ', ';
 					if ($tab=='__COMMON__') $ret .= $data[$v];
 					else $ret .= Utils_RecordBrowserCommon::create_linked_label($tab, $col, $v, $links_not_recommended);
 				}
+				if ($ret=='') $ret = '--';
 			}
 			if ($args['type']=='commondata') {
 				if (!isset($val) || $val==='') {
@@ -133,7 +136,7 @@ class Utils_RecordBrowser extends Module {
 		}
 	}
 	// BODY //////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function body($def_order=array()) {
+	public function body($def_order=array(), $crits=array()) {
 		$this->init();
 		if ($this->get_access('browse')===false) {
 			print($this->lang->t('You are not authorised to browse this data.'));
@@ -149,9 +152,9 @@ class Utils_RecordBrowser extends Module {
 			$ff = explode(',',trim($f->get(),'()'));
 			$this->crits[$this->filter_field] = $ff;
 		}
-
+		$this->crits = $this->crits+$crits;
 		ob_start();
-		$this->show_data($this->crits, array(), $def_order);
+		$this->show_data($this->crits, array(), array_merge($def_order, $this->default_order));
 		$table = ob_get_contents();
 		ob_end_clean();
 
@@ -290,11 +293,9 @@ class Utils_RecordBrowser extends Module {
 		$table_columns_SQL = array();
 		$quickjump = DB::GetOne('SELECT quickjump FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 
+		$hash = array();
 		foreach($this->table_rows as $field => $args) {
-			if (isset($order[$args['id']])) {
-				$order[$field] = $order[$args['id']];
-				unset($order[$args['id']]);
-			}
+			$hash[$args['id']] = $field;
 			if ($field === 'id') continue;
 			if (!$args['visible'] && (!isset($cols[$args['id']]) || $cols[$args['id']] === false)) continue;
 			if (isset($cols[$args['id']]) && $cols[$args['id']] === false) continue;
@@ -312,7 +313,10 @@ class Utils_RecordBrowser extends Module {
 			$table_columns[] = $arr;
 			array_push($table_columns_SQL, 'e.'.$field);
 		}
-
+		$clean_order = array();
+		foreach ($order as $k => $v) {
+				$clean_order[$hash[$k]] = $v;
+		}
 		$table_columns_SQL = join(', ', $table_columns_SQL);
 		if ($this->browse_mode == 'recent')
 			$table_columns[] = array('name'=>$this->lang->t('Visited on'), 'wrapmode'=>'nowrap');
@@ -320,7 +324,7 @@ class Utils_RecordBrowser extends Module {
 		$gb->set_table_columns( $table_columns );
 
 		if ($this->browse_mode != 'recent')
-			$gb->set_default_order($order, $this->changed_view);
+			$gb->set_default_order($clean_order, $this->changed_view);
 
 		if (!$special) {
 			if ($this->add_button!==null) $label = $this->add_button;
@@ -385,7 +389,7 @@ class Utils_RecordBrowser extends Module {
 			if (!isset($cols['Actions']) || $cols['Actions'])
 			{
 				if (!$special) {
-					$gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'view',$row['id'])),'View');
+					$gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'view', $row['id'])),'View');
 					if ($this->get_access('edit',$row)) $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'edit',$row['id'])),'Edit');
 					if ($admin) {
 						if (!$row['active']) $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],true)),'Activate', null, 'active-off');
@@ -605,7 +609,10 @@ class Utils_RecordBrowser extends Module {
 		$fields = array();
 		$longfields = array();
 		foreach($this->table_rows as $field => $args) {
-			if ($args['type']=='hidden') continue;
+/*			if ($args['type']=='hidden') {
+				$form->addElement('hidden', $args['id']);
+				continue;
+			}*/
 			if ($args['position'] >= $from && ($to == -1 || $args['position'] < $to))
 			{
 				if (!isset($data[$args['id']])) $data[$args['id']] = array('label'=>'', 'html'=>'');
@@ -647,9 +654,13 @@ class Utils_RecordBrowser extends Module {
 		$init_js = '';
 		foreach($this->table_rows as $field => $args){
 			if ($visible_cols!==null && !isset($visible_cols[$args['id']])) continue;
-			if ($args['type']=='hidden') continue;
+			if ($args['type']=='hidden') { 
+				$form->addElement('hidden', $args['id']);
+				$form->setDefaults(array($args['id']=>$record[$args['id']]));
+				continue;
+			}
 			if (isset($this->QFfield_callback_table[$field])) {
-				call_user_func($this->QFfield_callback_table[$field], $form, $args['id'], $this->lang->t($args['name']), $mode, $mode=='add'?'':$record[$args['id']], $args);
+				call_user_func($this->QFfield_callback_table[$field], $form, $args['id'], $this->lang->t($args['name']), $mode, $mode=='add'?'':$record[$args['id']], $args, $this);
 			} else {
 				if ($mode!=='add' && $mode!=='edit') {
 					if ($args['type']!='checkbox' && $args['type']!='commondata') {
@@ -1181,6 +1192,10 @@ class Utils_RecordBrowser extends Module {
 	}
 	public function set_filters_defaults($arg){
 		if (!$this->isset_module_variable('def_filter')) $this->set_module_variable('def_filter', $arg);
+	}
+	public function set_default_order($arg){
+		foreach ($arg as $k=>$v)
+			$this->default_order[$k] = $v;
 	}
 	public function caption(){
 		return $this->caption.': '.$this->action;

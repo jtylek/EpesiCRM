@@ -4,7 +4,7 @@
  *
  * This class is just my first module, test only.
  *
- * @author Kuba Sławiński <ruud@o2.pl>, Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.99
  * @package tcms-extra
@@ -22,9 +22,13 @@ class CRM_Contacts extends Module {
 		$this->rb = $this->init_module('Utils/RecordBrowser',$mode,$mode);
 		$this->rb->set_defaults(array(	'country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
 										'zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state')));
-		if ($mode=='contact')
+		if ($mode=='contact') {
 			$this->rb->set_defaults(array(	'home_country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
 											'home_zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state')));
+			$this->rb->set_default_order(array('last_name'=>'ASC', 'first_name'=>'ASC'));
+		} else {
+			$this->rb->set_default_order(array('company_name'=>'ASC'));
+		}
 		$this->display_module($this->rb);
 	}
 

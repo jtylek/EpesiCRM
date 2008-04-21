@@ -1,18 +1,23 @@
-<table class="Utils_Tasks__table" border="0" cellpadding="0" cellspacing="0">
+<table class="CRM_PhoneCall__table" border="0" cellpadding="0" cellspacing="0">
 	<tbody>
 		<tr>
-			<td class="icon"><img src="{$theme_dir}/Utils_Tasks__icon.png" width="32" height="32" border="0"></td>
-			<td class="name">Tasks - {if $action == 'view'}view{else}edit{/if}</td>
+			<td class="icon"><img src="{$icon}" width="32" height="32" border="0"></td>
+			<td class="name">{$caption}</td>
 			<td class="required_fav_info">
+				&nbsp;*&nbsp;{$required_note}
+				{if isset($fav_tooltip)}
+					&nbsp;&nbsp;&nbsp;{$fav_tooltip}
+				{/if}
 				{if isset($info_tooltip)}
 					&nbsp;&nbsp;&nbsp;{$info_tooltip}
+				{/if}
+				{if isset($history_tooltip)}
+					&nbsp;&nbsp;&nbsp;{$history_tooltip}
 				{/if}
 			</td>
 		</tr>
 	</tbody>
 </table>
-
-{$form_open}
 
 <div id="Utils_Tasks">
 
@@ -53,19 +58,19 @@
     <table name="UtilsTasks" class="form {if $action == 'view'}view{else}edit{/if} no-border" cellspacing="0" cellpadding="0" border="0">
     	<tbody>
             <tr>
-	        	<td class="label" style="width: 50%; border-right: 1px solid #b3b3b3;" colspan="4">{$form_data.emp_id.label}</td>
-        	    <td class="label" style="width: 50%; padding-right: 0px;" colspan="4"><div style="float: left; padding-top: 3px;">{$form_data.cus_id.label}</div><div style="float: right; border-left: 1px solid #b3b3b3;">{$cus_click}</div></td>
+	        	<td class="label" style="width: 50%; border-right: 1px solid #b3b3b3;" colspan="4">{$form_data.employees.label}</td>
+        	    <td class="label" style="width: 50%; padding-right: 0px;" colspan="4"><div style="float: left; padding-top: 3px;">{$form_data.customers.label}</div><div style="float: right; border-left: 1px solid #b3b3b3;">{if isset($form_data.customers_rpicker_advanced.html)}{$form_data.customers_rpicker_advanced.html}{/if}</div></td>
 			</tr>
             <tr>
-				<td class="data arrows" style="border-right: 1px solid #b3b3b3; vertical-align: top;" colspan="4"><span class="error">{$form_data.emp_id.error}</span>{$form_data.emp_id.html}</td>
-				<td class="data arrows" style="vertical-align: top;" colspan="4"><span class="error">{$form_data.cus_id.error}</span>{$form_data.cus_id.html}</td>
+				<td class="data arrows" style="border-right: 1px solid #b3b3b3; vertical-align: top;" colspan="4"><span class="error">{$form_data.employees.error}</span>{$form_data.employees.html}</td>
+				<td class="data arrows" style="vertical-align: top;" colspan="4"><span class="error">{$form_data.customers.error}</span>{$form_data.customers.html}</td>
 			</tr>
             {* *}
 			<tr>
 			  	<td class="label" align="left" style="width: 10%;">{$form_data.status.label}</td>
 				<td class="data status" align="left" style="width: 15%;">
                     {if $action == 'view'}
-                        <div class="icon status_{$status_id}"></div>
+                        <div class="icon status_{$raw_data.status}"></div>
                     {/if}
                     {$form_data.status.html}
                 </td>
@@ -83,7 +88,7 @@
                 <td class="label" align="left" style="width: 10%;">{$form_data.permission.label}</td>
 				<td class="data permission" align="left" style="width: 15%;">
                     {if $action=='view'}
-                        <div class="icon permission_{$permission_id}"></div>
+                        <div class="icon permission_{$raw_data.permission}"></div>
                     {/if}
                     {$form_data.permission.html}
                 </td>
@@ -91,7 +96,7 @@
                 <td class="label" align="left" style="width: 20%;">{$form_data.priority.label}</td>
 				<td class="data priority" align="left" style="width: 30%;" {if $action!='edit'}colspan=3{/if}>
                     {if $action=='view'}
-                        <div class="icon priority_{$priority_id}"></div>
+                        <div class="icon priority_{$raw_data.priority}"></div>
                     {/if}
                     {$form_data.priority.html}
                 </td>
@@ -102,14 +107,11 @@
         	</tr>
         </tbody>
     </table>
-    <div class="attachments">
-        {$attachments}
-    </div>
 </div>
 
 
 {php}
-	eval_js('focus_by_id(\'task_title\');');
+	eval_js('focus_by_id(\'title\');');
 {/php}
 
 <!-- SHADOW END-->

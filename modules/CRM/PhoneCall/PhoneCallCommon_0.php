@@ -96,7 +96,8 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 					'c_phone = document.forms[\''.$form->getAttribute('name').'\'].other_phone;'.
 					'enable_disable_phone(c_phone.checked);'.
 					'};'.
-					'enable_disable_phone('.$default.');';
+					'c_phone = document.forms[\''.$form->getAttribute('name').'\'].other_phone;'.
+					'enable_disable_phone('.($default?'1':'0').' || c_phone.checked);';
 			eval_js($js);
 			$form->addElement('checkbox', $field, $label, null, array('id'=>$field));
 			if ($mode=='edit') $form->setDefaults(array($field=>$default));
@@ -123,7 +124,8 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 					'c_phone.checked = c_contact.checked;'.
 					'enable_disable_contact(c_contact.checked);'.
 					'};'.
-					'enable_disable_contact('.$default.');';
+					'c_contact = document.forms[\''.$form->getAttribute('name').'\'].other_contact;'.
+					'enable_disable_contact('.($default?'1':'0').' || c_contact.checked);';
 			eval_js($js);
 			$form->addElement('checkbox', $field, $label, null, array('id'=>$field));
 			if ($mode=='edit') $form->setDefaults(array($field=>$default));
@@ -139,19 +141,19 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			if ($mode=='edit') $form->setDefaults(array($field=>$default));
 		} else {
 			$form->addElement('static', $field, $label);
-			$form->setDefaults(array($field=>self::display_phone(array($desc['id']=>$default), null, false, $desc)));
+			$form->setDefaults(array($field=>self::display_phone(array($desc['id']=>$default), false, $desc)));
 		}
 	}
-    public static function display_subject($record, $i) {
-		$ret = Utils_RecordBrowserCommon::create_linked_label('phonecall', 'Subject', $i);
+    public static function display_subject($record, $nolink = false) {
+		$ret = Utils_RecordBrowserCommon::create_linked_label('phonecall', 'Subject', $record['id'], $nolink);
 		if (isset($record['description']) && $record['description']!='') $ret = '<span '.Utils_TooltipCommon::open_tag_attrs($record['description'], false).'>'.$ret.'</span>';
 		return $ret;
 	}
-	public static function display_phone_number($record, $id, $nolink, $desc) {
+	public static function display_phone_number($record, $nolink) {
 		if ($record['other_phone']) return $record['other_phone_number'];
 		else return self::display_phone(array('phone'=>$record['phone']),null,null,array('id'=>'phone'));
 	}
-	public static function display_contact_name($record, $id, $nolink, $desc) {
+	public static function display_contact_name($record, $nolink) {
 		if ($record['other_contact']) return $record['other_contact_name'];
 		if ($record['contact']=='') return '--';
 		$ret = '';
@@ -161,7 +163,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_close_tag();
 		return $ret;
 	}
-	public static function display_phone($record, $id, $nolink, $desc) {
+	public static function display_phone($record, $nolink, $desc) {
 		if ($record[$desc['id']]=='') return '';
 		list($ret, $num) = explode('__',$record[$desc['id']]);
 		$contact = CRM_ContactsCommon::get_contact($ret);
@@ -174,7 +176,8 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		$l = Base_LangCommon::ts('CRM/PhoneCall',$nr);
 		return $l[0].': '.$contact[$id];
 	}
-	public static function display_status($record, $id, $nolink, $desc) {
+	public static function display_status($record, $nolink, $desc) {
+		$id = $record['id'];
 		$v = $record[$desc['id']];
 		$status = Utils_CommonDataCommon::get_array('Ticket_Status');
 		if (!self::access_phonecall('edit', self::get_phonecall($id))) return $status[$v];

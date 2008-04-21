@@ -258,7 +258,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (!$tab) return false;
 		self::init($tab);
 		DB::StartTrans();
-		$SQLcols = array();
 		DB::Execute('INSERT INTO '.$tab.' (created_on, created_by, active) VALUES (%T, %d, %d)',array(date('Y-m-d G:i:s'), Acl::get_user(), 1));
 		$id = DB::Insert_ID($tab, 'id');
 		self::add_recent_entry($tab, Acl::get_user(), $id);

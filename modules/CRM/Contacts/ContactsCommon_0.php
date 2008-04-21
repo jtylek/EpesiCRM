@@ -113,7 +113,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return $field;
 	}
 
-	public static function display_contact($record, $i, $nolink, $desc) {
+	public static function display_contact($record, $nolink, $desc) {
 		$v = $record[$desc['id']];
 		$def = '';
 		$first = true;
@@ -149,7 +149,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		Utils_ChainedSelectCommon::create($desc['id'],array($ref_field),'modules/CRM/Contacts/update_contact.php', array('format'=>implode('::', $format_func), 'required'=>$desc['required']), $default);
 		return null;
 	}
-	public static function QFfield_contact(&$form, $field, $label, $mode, $default, $desc) {
+	public static function QFfield_contact(&$form, $field, $label, $mode, $default, $desc, $rb_obj = null) {
 		$cont = array();
 		$param = explode(';',$desc['param']);
 		if ($mode=='add' || $mode=='edit') {
@@ -160,16 +160,27 @@ class CRM_ContactsCommon extends ModuleCommon {
 				if ($crit_callback[0]=='ChainedSelect') {
 					$crits = null;
 					self::contacts_chainedselect_crits($default, $desc, $callback, $crit_callback[1]);
-				} else $crits = call_user_func($crit_callback, false);
+				} else {
+					$crits = call_user_func($crit_callback, false);
+					$adv_crits = call_user_func($crit_callback, true);
+					if ($adv_crits === $crits) $adv_crits = null;
+//					if (!isset($crits['|id']) && $default!='') $crits['|id'] = $default;
+					if ($adv_crits !== null) {
+						$rp = $rb_obj->init_module('Utils/RecordBrowser/RecordPicker');
+						$rb_obj->display_module($rp, array('contact', $field, array('CRM_Calendar_EventCommon','decode_contact'), $adv_crits, array('work_phone'=>false, 'mobile_phone'=>false, 'zone'=>false, 'Actions'=>false), array('last_name'=>'ASC')));
+						$form->addElement('static', $field.'_rpicker_advanced', null, $rp->create_open_link(Base_LangCommon::ts('CRM_Contacts','Advanced')));
+					}
+				}
 			} else $crits = array();
+
 			if ($crits!==null) {
 				$contacts = self::get_contacts($crits);
 				if (!$desc['required'] && $desc['type']!='multiselect') $cont[''] = '--';
 				if (!is_array($default)) {
 					if ($default!='') $default = array($default); else $default=array();
-				}
+				} 
 				$ext_rec = array_flip($default);
-				foreach ($contacts as $v) {
+				foreach ($contacts as $v) { 
 					$cont[$v['id']] = call_user_func($callback, $v, true);
 					unset($ext_rec[$v['id']]);
 				}
@@ -190,14 +201,14 @@ class CRM_ContactsCommon extends ModuleCommon {
 				if ($v=='') break;
 				if ($first) $first = false;
 				else $def .= ', ';
-				$def .= self::display_contact(array($desc['id']=>$v), $v, false, $desc);
+				$def .= self::display_contact(array($desc['id']=>$v), false, $desc);
 			}
 			if (!$def) 	$def = '--';
 			$form->setDefaults(array($field=>$def));
 		}
 	}
 
-	public static function display_company($record, $i, $nolink, $desc) {
+	public static function display_company($record, $nolink, $desc) {
 		$v = $record[$desc['id']];
 		if (!is_numeric($v) && !is_array($v)) return '--';
 		$def = '';
@@ -225,7 +236,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$companies = self::get_companies($crits);
 			if (!is_array($default)) {
 				if ($default!='') $default = array($default); else $default=array();
-			}
+			} 
 			$ext_rec = array_flip($default);
 			foreach ($companies as $v) {
 				$comp[$v['id']] = $v['company_name'];
@@ -268,7 +279,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			if ($mode=='edit') $form->setDefaults(array($field=>$default));
 		} else {
 			$form->addElement('static', $field, $label);
-			$form->setDefaults(array($field=>self::display_webaddress(array('webaddress'=>$default), null, null, array('id'=>'webaddress'))));
+			$form->setDefaults(array($field=>self::display_webaddress(array('webaddress'=>$default), null, array('id'=>'webaddress'))));
 		}
 	}
 	public static function QFfield_email(&$form, $field, $label, $mode, $default) {
@@ -277,7 +288,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			if ($mode=='edit') $form->setDefaults(array($field=>$default));
 		} else {
 			$form->addElement('static', $field, $label);
-			$form->setDefaults(array($field=>self::display_email(array('email'=>$default), null, null, array('id'=>'email'))));
+			$form->setDefaults(array($field=>self::display_email(array('email'=>$default), null, array('id'=>'email'))));
 		}
 	}
 	public static function QFfield_login(&$form, $field, $label, $mode, $default) {
@@ -329,27 +340,27 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$form->setDefaults(array($field=>$default));
 		}
 	}
-	public static function display_fname($v, $i, $nolink) {
-		return Utils_RecordBrowserCommon::create_linked_label('contact', 'First Name', $i, $nolink);
+	public static function display_fname($v, $nolink) {
+		return Utils_RecordBrowserCommon::create_linked_label('contact', 'First Name', $v['id'], $nolink);
 	}
-	public static function display_lname($v, $i, $nolink) {
-		return Utils_RecordBrowserCommon::create_linked_label('contact', 'Last Name', $i, $nolink);
+	public static function display_lname($v, $nolink) {
+		return Utils_RecordBrowserCommon::create_linked_label('contact', 'Last Name', $v['id'], $nolink);
 	}
-	public static function display_cname($v, $i, $nolink) {
-		return Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $i, $nolink);
+	public static function display_cname($v, $nolink) {
+		return Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $v['id'], $nolink);
 	}
-	public static function display_webaddress($record, $i, $nolink, $desc) {
+	public static function display_webaddress($record, $nolink, $desc) {
 		$v = $record[$desc['id']];
 		$v = trim($v, ' ');
 		if ($v=='') return '';
 		if (strpos($v, 'http://')==false && $v) $v = 'http://'.$v;
 		return '<a href="'.$v.'" target="_blank">'.$v.'</a>';
 	}
-	public static function display_email($record, $i, $nolink, $desc) {
+	public static function display_email($record, $nolink, $desc) {
 		$v = $record[$desc['id']];
 		return '<a href="mailto:'.$v.'">'.$v.'</a>';
 	}
-	public static function display_login($record, $i, $nolink, $desc) {
+	public static function display_login($record, $nolink, $desc) {
 		$v = $record[$desc['id']];
 		if (!$v)
 			return '--';
@@ -385,7 +396,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 
 	 		foreach ($result as $row)
  				$ret[$row['id']] = Utils_RecordBrowserCommon::record_link_open_tag('contact', $row['id']).Base_LangCommon::ts('CRM_Contacts', 'Contact #%d, %s %s', array($row['id'], $row['first_name'], $row['last_name'])).Utils_RecordBrowserCommon::record_link_close_tag();
-
+	 		
 			$result = self::get_contacts(array('"last_name'=>DB::Concat('\'%\'',DB::qstr($word),'\'%\'')));
 
 	 		foreach ($result as $row)
@@ -408,7 +419,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 
 	 		foreach ($result as $row)
  				$ret[$row['id']] = Utils_RecordBrowserCommon::record_link_open_tag('company', $row['id']).Base_LangCommon::ts('CRM_Contacts', 'Company #%d, %s', array($row['id'], $row['company_name'])).Utils_RecordBrowserCommon::record_link_close_tag();
-
+	 		
 			$result = self::get_companies(array('"short_name'=>DB::Concat('\'%\'',DB::qstr($word),'\'%\'')));
 
 	 		foreach ($result as $row)
@@ -426,7 +437,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	 		foreach ($result as $row)
  				$ret['a_'.$row['id']] = Utils_RecordBrowserCommon::record_link_open_tag('company', $row['id']).Base_LangCommon::ts('CRM_Contacts', 'Company (attachment) #%d, %s', array($row['id'], $row['company_name'])).Utils_RecordBrowserCommon::record_link_close_tag();
  		}
-
+		
 		return $ret;
 	}
 

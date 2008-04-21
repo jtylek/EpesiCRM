@@ -25,6 +25,17 @@ class CRM_TasksCommon extends ModuleCommon {
 			return array();
 	}
 
+	public static function get_tasks($crits = array(), $cols = array()) {
+		$crits['page_id'] = md5('crm_tasks');
+		return Utils_RecordBrowserCommon::get_records('task', $crits, $cols);
+	}
+
+	public static function get_task($id) {
+		$r = Utils_RecordBrowserCommon::get_record('task', $id);
+		if ($r['page_id']!=md5('crm_tasks')) return null;
+		else return $r;
+	}
+
 	public static function applet_settings() {
 		return array(
 			array('label'=>'Display tasks marked as','name'=>'term','type'=>'select','values'=>array('s'=>'Short term','l'=>'Long term','b'=>'Both'),'default'=>'s','rule'=>array(array('message'=>'Field required', 'type'=>'required'))),
