@@ -315,7 +315,8 @@ class Utils_RecordBrowser extends Module {
 		}
 		$clean_order = array();
 		foreach ($order as $k => $v) {
-				$clean_order[$hash[$k]] = $v;
+			if (isset($hash[$k])) $clean_order[$hash[$k]] = $v;
+			else $clean_order[$k] = $v;
 		}
 		$table_columns_SQL = join(', ', $table_columns_SQL);
 		if ($this->browse_mode == 'recent')
