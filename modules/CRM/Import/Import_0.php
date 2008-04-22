@@ -238,6 +238,9 @@ class CRM_Import extends Module {
 				$ccc = null;
 			}
 
+			//'ID/Status' jako grupa!!!
+			//'General  contractors' => 'GC'
+
 			//groups
 			$gg = array();
 			for($kk=1; $kk<5; $kk++) {
