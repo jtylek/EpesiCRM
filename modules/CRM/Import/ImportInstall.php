@@ -106,6 +106,7 @@ class CRM_ImportInstall extends ModuleInstall {
 		$ret &= DB::DropTable('crm_import_contact');
 		$ret &= DB::DropTable('crm_import_company');
 		$ret &= DB::DropTable('crm_import_attach');
+		$ret &= DB::DropTable('crm_import_phonecall');
 		return $ret;
 	}
 
