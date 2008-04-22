@@ -5,6 +5,7 @@
 <div>
 
 {if isset($form_data_search)}
+	<div class="IEfix">
 	{$form_data_search.javascript}
 
 	<form {$form_data_search.attributes}>
@@ -110,6 +111,7 @@
 <div style="height: 0px;">
 {if isset($form_data_search)}
 	</form>
+	</div>
 {/if}
 </div>
 
