@@ -780,7 +780,7 @@ class CRM_Import extends Module {
 
 					DB::Replace('crm_import_phonecall',array('created_on'=>DB::DBTimeStamp($time),'id'=>$id,'original'=>DB::qstr($v[$header['ACTIVITYID']])),'id');
 					break;
-				case 'To-do': break;
+				case 'To-do':
 					$kk = DB::GetRow('SELECT created_on,id FROM crm_import_task WHERE original=%s',array($v[$header['ACTIVITYID']]));
 					$rec = array(	'title'=>$title,
 							'description'=>$desc,
@@ -825,7 +825,7 @@ class CRM_Import extends Module {
 				case 'Seminar-Training':
 				case 'Personal Activity':
 					break;
-				case 'Meeting':break;
+				case 'Meeting':
 				default:
 					$kk = DB::GetRow('SELECT created_on,id FROM crm_import_event WHERE original=%s',array($v[$header['ACTIVITYID']]));
 					if(empty($kk)) {
