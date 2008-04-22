@@ -486,7 +486,7 @@ class CRM_Import extends Module {
 					DB::Execute('UPDATE utils_attachment_link SET attachment_key=%s,local=%s,permission=%d,permission_by=%d,other_read=%b WHERE id=%d',array($key,$group,$permission,$created_by,$other_read,$id));
 				}
 			}
-			DB::Replace('crm_import_note',array('id'=>$id,'original'=>DB::qstr($v[$header['NOTEID']]),'contact_id'=>$user_note,'created_on'=>DB::DBTimeStamp($created_on),'created_by'=>DB::DBTimeStamp($created_by)),'id');
+			DB::Replace('crm_import_note',array('id'=>$id,'original'=>DB::qstr($v[$header['NOTEID']]),'contact_id'=>$user_note,'created_on'=>DB::DBTimeStamp($created_on),'created_by'=>$created_by),'id');
 		}
 		fclose($f);
 
