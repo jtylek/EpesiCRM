@@ -154,7 +154,7 @@ class CRM_Import extends Module {
 			$time = strtotime($timeh);
 			$timeh = date('Y-m-d H:i:s',$time);
 			$created_by = $created_map[$x[$header['CREATEUSERID']]];
-			$create_date = strtotime($x[$header['Create Date']]);
+			$create_date = date('Y-m-d H:i:s',strtotime($x[$header['Create Date']]));
 			if($x[$header['Company']]) {
 				if(!$x[$header['City']]) $x[$header['City']] = 'n/a';
 				$v = array('company_name'=>$x[$header['Company']],
@@ -194,11 +194,11 @@ class CRM_Import extends Module {
 							} else
 								$edited_on = 0;
 
-							if($edited_on<$time) {
+							if($edited_on<$timeh) {
 								$this->logit('Updating.');
 								$updated_companies++;
-								Utils_RecordBrowserCommon::update_record('company', $ccc, $v,false,$time);
-								DB::Replace('crm_import_company',array('created_on'=>DB::DBTimeStamp($time),'id'=>$ccc,'original'=>DB::qstr($x[$header['CONTACTID']])),'id');
+								Utils_RecordBrowserCommon::update_record('company', $ccc, $v,false,$timeh);
+								DB::Replace('crm_import_company',array('created_on'=>DB::DBTimeStamp($timeh),'id'=>$ccc,'original'=>DB::qstr($x[$header['CONTACTID']])),'id');
 								Utils_RecordBrowserCommon::set_record_properties('company',$ccc,array('created_by'=>$created_by,'created_on'=>$create_date));
 							} else {
 								$this->logit('Skipping.');
@@ -210,12 +210,12 @@ class CRM_Import extends Module {
 						$added_companies++;
 						$ccc = Utils_RecordBrowserCommon::new_record('company', $v);
 						Utils_RecordBrowserCommon::set_record_properties('company',$ccc,array('created_by'=>$created_by,'created_on'=>$create_date));
-						DB::Replace('crm_import_company',array('created_on'=>DB::DBTimeStamp($time),'id'=>$ccc,'original'=>DB::qstr($x[$header['CONTACTID']])),'id');
+						DB::Replace('crm_import_company',array('created_on'=>DB::DBTimeStamp($timeh),'id'=>$ccc,'original'=>DB::qstr($x[$header['CONTACTID']])),'id');
 					}
 				} else {
 					$this->logit('Imported before: '.$kk['created_on']);
 
-					$imported_on = strtotime($kk['created_on']);
+					$imported_on = date('Y-m-d H:i:s',strtotime($kk['created_on']));
 					$ccc = $kk['id'];
 					unset($kk);
 
@@ -226,14 +226,14 @@ class CRM_Import extends Module {
 					} else
 						$edited_on = 0;
 
-					if($edited_on>=$imported_on || $edited_on>=$time || $imported_on>=$time) { //it was imported and later edited in epesi or imported file is older then last import
+					if($edited_on>=$imported_on || $edited_on>=$timeh || $imported_on>=$timeh) { //it was imported and later edited in epesi or imported file is older then last import
 						$this->logit('Skipping.');
 						$skipped_companies++;
 					} else {
 						$this->logit('Updating.');
 						$updated_companies++;
-						Utils_RecordBrowserCommon::update_record('company', $ccc, $v,false,$time);
-						DB::Replace('crm_import_company',array('created_on'=>DB::DBTimeStamp($time),'id'=>$ccc,'original'=>DB::qstr($x[$header['CONTACTID']])),'id');
+						Utils_RecordBrowserCommon::update_record('company', $ccc, $v,false,$timeh);
+						DB::Replace('crm_import_company',array('created_on'=>DB::DBTimeStamp($timeh),'id'=>$ccc,'original'=>DB::qstr($x[$header['CONTACTID']])),'id');
 						Utils_RecordBrowserCommon::set_record_properties('company',$ccc,array('created_by'=>$created_by,'created_on'=>$create_date));
 					}
 				}
@@ -331,10 +331,10 @@ class CRM_Import extends Module {
 				$this->logit('Adding.');
 				$added_contacts++;
 				$id = Utils_RecordBrowserCommon::new_record('contact',$this_contact);
-				DB::Replace('crm_import_contact',array('created_on'=>DB::DBTimeStamp($time),'id'=>$id,'original'=>DB::qstr($x[$header['CONTACTID']])),'id');
+				DB::Replace('crm_import_contact',array('created_on'=>DB::DBTimeStamp($timeh),'id'=>$id,'original'=>DB::qstr($x[$header['CONTACTID']])),'id');
 			} else {
 				$this->logit('Imported before: '.$kk['created_on']);
-				$imported_on  = strtotime($kk['created_on']);
+				$imported_on  = date('Y-m-d H:i:s',strtotime($kk['created_on']));
 				$id = $kk['id'];
 				$r = Utils_RecordBrowserCommon::get_record_info('contact',$kk['id']);
 				if(isset($r['edited_on'])) {
@@ -344,15 +344,15 @@ class CRM_Import extends Module {
 					$edited_on = 0;
 
 //				$this->logit('imported_on='.$imported_on.' time='.$time);
-				if($edited_on>=$time || $imported_on>=$time || $edited_on>=$imported_on) {
+				if($edited_on>=$timeh || $imported_on>=$timeh || $edited_on>=$imported_on) {
 					$this->logit('Skipping.');
 					$skipped_contacts++;
 					continue;
-				} else if($kk['created_on']<$time) {
+				} else if($kk['created_on']<$timeh) {
 					$this->logit('Updating.');
 					$updated_contacts++;
-					Utils_RecordBrowserCommon::update_record('contact',$kk['id'],$this_contact,false,$time);
-					DB::Replace('crm_import_contact',array('created_on'=>DB::DBTimeStamp($time),'id'=>$kk['id'],'original'=>DB::qstr($x[$header['CONTACTID']])),'id');
+					Utils_RecordBrowserCommon::update_record('contact',$kk['id'],$this_contact,false,$timeh);
+					DB::Replace('crm_import_contact',array('created_on'=>DB::DBTimeStamp($timeh),'id'=>$kk['id'],'original'=>DB::qstr($x[$header['CONTACTID']])),'id');
 				}
 
 			}
@@ -394,7 +394,7 @@ class CRM_Import extends Module {
 				continue;
 			}
 			$updated++;
-			$edit_date = DB::DBTimeStamp(strtotime($x[$header['Edit Date']])?date('Y-m-d H:i:s',strtotime($x[$header['Edit Date']])):date('Y-m-d H:i:s',strtotime($x[$header['Create Date']])));
+			$edit_date = DB::DBTimeStamp(date('Y-m-d H:i:s',strtotime(strtotime($x[$header['Edit Date']])?$x[$header['Edit Date']]:$x[$header['Create Date']])));
 			DB::Replace('crm_import_history',array('original'=>DB::qstr($x[$header['HISTORYID']]),'contact_id'=>$cid,'created_on'=>DB::DBTimeStamp(date('Y-m-d H:i:s',strtotime($x[$header['Create Date']]))),'edited_on'=>$edit_date,'created_by'=>$this->get_add_user($x[$header['CREATEUSERID']])),'original');
 		}
 		fclose($f);
@@ -446,7 +446,7 @@ class CRM_Import extends Module {
 			$key = md5($user_note);
 			$group = 'CRM/Contact/'.$user_note;
 			$created_by = $this->get_add_user($v[$header['CREATEUSERID']]);
-			$created_on = strtotime($v[$header['Create Date']]);
+			$created_on = date('Y-m-d H:i:s',strtotime($v[$header['Create Date']]));
 
 			if($v[$header['Private Note']])
 				$permission = '2';
@@ -455,7 +455,7 @@ class CRM_Import extends Module {
 			$other_read = false;
 			$note = $v[$header['Note']];
 
-			$this->logit('Note "'.$note.'" created by "'.Base_UserCommon::get_user_login($created_by).'", on "'.date('Y-m-d H:i:s',$created_on).'" to user with id '.$user_note);
+			$this->logit('Note "'.$note.'" created by "'.Base_UserCommon::get_user_login($created_by).'", on "'.$created_on.'" to user with id '.$user_note);
 			
 			$kk = DB::GetRow('SELECT created_on,id FROM crm_import_note WHERE original=%s',array($v[$header['NOTEID']]));
 			if(empty($kk)) {
@@ -475,7 +475,7 @@ class CRM_Import extends Module {
 					$this->logit('Edited in epesi: '.$edited_on);				
 				}
 				
-				if($edited_on>=$time || $edited_on>=$kk['created_on'] || $time<=$kk['created_on']) {
+				if($edited_on>=$timeh || $edited_on>=$kk['created_on'] || $timeh<=$kk['created_on']) {
 					$this->logit('Skipping.');
 					$skipped++;
 					continue;
@@ -539,6 +539,7 @@ class CRM_Import extends Module {
 			if($r===false || empty($r)) $time = 999999999999999;
 				else $time = strtotime($r['edited_on']?$r['edited_on']:$r['created_on']);
 			$this->logit('File named "'.$oryg.'", '.($time==999999999999999?'without edition history.':'last edited on '.date('Y-m-d H:i:s',$time).'.'));
+			$time = date('Y-m-d H:i:s',$time);
 			if($v[$header['NOTEID']]!=='') {
 				$this->logit('Attached to note ('.$v[$header['NOTEID']].').');
 				$r = DB::GetRow('SELECT * FROM crm_import_note WHERE original=%s',array($v[$header['NOTEID']]));
@@ -683,17 +684,17 @@ class CRM_Import extends Module {
 			$stat = $v[$header['STATUSNUM']];
 			$desc = $v[$header['Details']].($v[$header['Location']]?"\n Location: ".$v[$header['Location']]:'');
 			$title = $v[$header['Regarding']];
-			$start = strtotime($v[$header['Start Date/Time']]);
-			$end = strtotime($v[$header['End Date/Time']]);
+			$start = date('Y-m-d H:i:s',strtotime($v[$header['Start Date/Time']]));
+			$end = date('Y-m-d H:i:s',strtotime($v[$header['End Date/Time']]));
 			$timeless = $v[$header['Timeless']];
 			$access = ($v[$header['Private Activity']]?2:0);
 			$created_by = $this->get_add_user($v[$header['CREATEUSERID']]);
 			$created_by_contact = CRM_ContactsCommon::get_contact_by_user_id($created_by);
-			$time = strtotime($v[$header['Edit Date']]?$v[$header['Edit Date']]:$v[$header['Create Date']]);
-			$created_on = strtotime($v[$header['Create Date']]);
+			$time = date('Y-m-d H:i:s',strtotime($v[$header['Edit Date']]?$v[$header['Edit Date']]:$v[$header['Create Date']]));
+			$created_on = date('Y-m-d H:i:s',strtotime($v[$header['Create Date']]));
 			$contact = DB::GetOne('SELECT id FROM crm_import_contact WHERE original=%s',array($v[$header['CONTACTID']]));
 
-			$this->logit($v[$header['ACTIVITY_NAME']].' on '.date('Y-m-d H:i:s',$start).' regarding "'.$title.'" ('.date('Y-m-d H:i:s',$time).').');
+			$this->logit($v[$header['ACTIVITY_NAME']].' on '.$start.' regarding "'.$title.'" ('.$time.').');
 
 			if($created_by_contact===null) {
 				$this->logit('Contact for user "'.$v[$header['CREATEUSERID']].'" not found. Skipping.');
