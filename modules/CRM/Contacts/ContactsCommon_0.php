@@ -11,9 +11,18 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return Utils_RecordBrowserCommon::get_records('company', $crits, $cols, $order);
 	}
 	public static function get_contact_by_user_id($uid) {
+		static $cache = array();
+		if (isset($cache[$uid])) { 
+			if ($cache[$uid] == -1) return null; 
+			else return $cache[$uid]; 
+		}
 		$rec = Utils_RecordBrowserCommon::get_records('contact', array('login'=>$uid));
-		if (is_array($rec) && !empty($rec)) return array_shift($rec);
-		else return null;
+		if (is_array($rec) && !empty($rec)) $cache[$uid] = $ret = array_shift($rec);
+		else {
+			$ret = null;
+			$cache[$uid] = -1;
+		}
+		return $ret;
 	}
 	public static function get_contact($id) {
 		return Utils_RecordBrowserCommon::get_record('contact', $id);
