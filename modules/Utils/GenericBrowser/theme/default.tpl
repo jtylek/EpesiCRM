@@ -5,12 +5,10 @@
 <div>
 
 {if isset($form_data_search)}
-{$form_data_search.javascript}
+	{$form_data_search.javascript}
 
-<div class="IEfix">
-<form {$form_data_search.attributes}>
-{$form_data_search.hidden}
-</div>
+	<form {$form_data_search.attributes}>
+	{$form_data_search.hidden}
 {/if}
 
 <table id="letters-search">
@@ -111,7 +109,7 @@
 
 <div style="height: 0px;">
 {if isset($form_data_search)}
-</form>
+	</form>
 {/if}
 </div>
 
