@@ -33,24 +33,40 @@ class CRM_Contacts extends Module {
 	}
 
 	public function admin(){
+		if($this->is_back()) {
+			if($this->parent->get_type()=='Base_Admin')
+				$this->parent->reset();
+			else
+				location(array());
+			return;
+		}
+
 		$qf = $this->init_module('Libs/QuickForm',null,'my_company');
 		$l = $this->init_module('Base/Lang');
 		$companies = CRM_ContactsCommon::get_companies();
 		$x = array();
 		foreach($companies as $c)
-			$x[$c['id']] = htmlentities($c['company_name'].' ('.$c['short_name'].')');
-		$qf->addElement('select','company',$l->t('Choose main company'),$x,array('onChange'=>$qf->get_submit_form_js()));
+			$x['s'.$c['id']] = htmlentities($c['company_name']);//.' ('.$c['short_name'].')'
+		$qf->addElement('select','company',$l->t('Choose main company'),$x);
 		$qf->addElement('static',null,null,'Contacts assigned to this company are treated as employees. You should set the main company only once.');
 		try {
 			$main_company = Variable::get('main_company');
-			$qf->setDefaults(array('company'=>$main_company));
+			$qf->setDefaults(array('company'=>'s'.$main_company));
 		} catch(NoSuchVariableException $e) {
 		}
 
 		if($qf->validate()) {
-			Variable::set('main_company',$qf->exportValue('company'));
+			Variable::set('main_company',trim($qf->exportValue('company'),'s'));
+			if($this->parent->get_type()=='Base_Admin')
+				$this->parent->reset();
+			else
+				location(array());
+			return;
 		}
 		$qf->display();
+
+		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+		Base_ActionBarCommon::add('save', 'Save', $qf->get_submit_form_href());
 	}
 	public function company_addon($arg){
 		$rb = $this->init_module('Utils/RecordBrowser','contact','contact_addon');
