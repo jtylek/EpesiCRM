@@ -394,7 +394,7 @@ class CRM_Import extends Module {
 				continue;
 			}
 			$updated++;
-			DB::Replace('crm_import_history',array('original'=>DB::qstr($x[$header['HISTORYID']]),'contact_id'=>$cid,'created_on'=>DB::DBTimeStamp($x[$header['Create Date']]),'edited_on'=>DB::DBTimeStamp($x[$header['Edit Date']]),'created_by'=>$this->get_add_user($x[$header['CREATEUSERID']])),'original');
+			DB::Replace('crm_import_history',array('original'=>DB::qstr($x[$header['HISTORYID']]),'contact_id'=>$cid,'created_on'=>DB::DBTimeStamp(date('Y-m-d H:i:s',strtotime($x[$header['Create Date']]))),'edited_on'=>DB::DBTimeStamp(date('Y-m-d H:i:s',strtotime($x[$header['Edit Date']]))),'created_by'=>$this->get_add_user($x[$header['CREATEUSERID']])),'original');
 		}
 		fclose($f);
 
