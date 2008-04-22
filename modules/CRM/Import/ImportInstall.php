@@ -71,6 +71,15 @@ class CRM_ImportInstall extends ModuleInstall {
 			print('Unable to create table crm_import_task.<br>');
 			return false;
 		}
+		$ret &= DB::CreateTable('crm_import_phonecall','
+			id I4 KEY NOTNULL,
+			original C(64),
+			created_on T DEFTIMESTAMP',
+			array('constraints'=>', FOREIGN KEY (id) REFERENCES phonecall(ID), UNIQUE(original)'));
+		if(!$ret){
+			print('Unable to create table crm_import_phonecall.<br>');
+			return false;
+		}
 		$ret &= DB::CreateTable('crm_import_event','
 			id I4 KEY NOTNULL,
 			original C(64),

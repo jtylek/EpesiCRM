@@ -80,8 +80,10 @@ class CRM_Import extends Module {
 //		$f2->addElement('header',null,$this->lang->t('Activities'));
 		$i = DB::GetOne('SELECT count(*) FROM crm_import_task');
 		$i2 = DB::GetOne('SELECT count(*) FROM crm_import_event');
+		$i3 = DB::GetOne('SELECT count(*) FROM crm_import_phonecall');
 		$f2->addElement('static',null,$this->lang->t('Imported tasks'),($i?$i:$this->lang->t('none')));
 		$f2->addElement('static',null,$this->lang->t('Imported calendar events'),($i2?$i2:$this->lang->t('none')));
+		$f2->addElement('static',null,$this->lang->t('Imported phone calls'),($i3?$i3:$this->lang->t('none')));
 		$this->display_module($f2,array(array($this,'upload_activities')));
 	}
 
@@ -652,7 +654,6 @@ class CRM_Import extends Module {
 
 		$adir = $this->get_data_dir().'attachments/';
 		$num_rec = 0;
-		$num_call = 0;
 
 		$added_tasks = 0;
 		$skipped_tasks = 0;
@@ -661,6 +662,10 @@ class CRM_Import extends Module {
 		$added_events = 0;
 		$skipped_events = 0;
 		$updated_events = 0;
+
+		$added_phonecalls = 0;
+		$skipped_phonecalls = 0;
+		$updated_phonecalls = 0;
 
 		$this->set_log_file('activities');
 		$this->logit('=========================== upload ==========================');
@@ -693,7 +698,7 @@ class CRM_Import extends Module {
 				$this->logit('Contact for user "'.$v[$header['CREATEUSERID']].'" not found. Skipping.');
 				switch($v[$header['ACTIVITY_NAME']]) {
 					case 'Call':
-						$num_call++;
+						$skipped_phonecalls++;
 						break;
 					case 'To-do':
 						$skipped_tasks++;
@@ -713,12 +718,69 @@ class CRM_Import extends Module {
 		
 			switch($v[$header['ACTIVITY_NAME']]) {
 				case 'Call':
-		//			$id = Utils_RecordBrowserCommon::new_record('phonecall',array('subject'=>$title,'description'=>$desc,''));
-		//			Utils_RecordBrowserCommon::set_record_properties('phonecall',$id,array('created_by'=>$created_by,'created_on'=>$created_on));
-					$this->logit('Skipping.');
-					$num_call++;
+					$kk = DB::GetRow('SELECT created_on,id FROM crm_import_phonecall WHERE original=%s',array($v[$header['ACTIVITYID']]));
+					if(empty($kk)) {
+						$company_name = DB::GetOne('SELECT value FROM contact_data WHERE contact_id=%s AND field=\'Company Name\'',array($contact));
+						$phone = DB::GetOne('SELECT field FROM contact_data WHERE contact_id=%s AND (field=\'Work Phone\' OR field=\'Mobile Phone\' OR field=\'Home Phone\')',array($contact));
+						$phone_number = 0;
+						if ($phone=='Mobile Phone') $phone_number = 1;
+						if ($phone=='Work Phone') $phone_number = 2;
+						if ($phone=='Home Phone') $phone_number = 3;
+						$rec = array(	'subject'=>$title,
+										'company_name'=>$company_name,
+										'descripton'=>$desc,
+										'priority'=>$prio,
+										'date_and_time'=>$start,
+										'status'=>($stat==0)?0:2,
+										'permission'=>$access,
+										'contact'=>$contact,
+										'phone'=>$phone_number?$contact.'__'.$phone_number:'',
+										'employees'=>array($created_by_contact)
+									);
+						$id = Utils_RecordBrowserCommon::new_record('phonecall', $rec); 
+						Utils_RecordBrowserCommon::set_record_properties('phonecall', $id, array('created_by'=>$created_by,'created_on'=>$created_on));
+						$this->logit('Adding.');
+						$added_phonecalls++;
+					} else {
+						$id = $kk['id'];
+						$info = Utils_RecordBrowserCommon::get_record_info('phonecall',$id);
+						$edited_on = $info['edited_on'];
+						if($edited_on)
+							$this->logit('Edited in epesi: '.$edited_on);
+						else
+							$edited_on = 0;
+						if($edited_on>=$time || $edited_on>=$kk['created_on'] || $kk['created_on']>=$time) {
+							$this->logit('Skipping.');
+							$skipped_phonecalls++;
+							continue;
+						} else {
+							$this->logit('Updating.');
+							$updated_phonecalls++;
+							$company_name = DB::GetOne('SELECT value FROM contact_data WHERE contact_id=%s AND field=\'Company Name\'',array($contact));
+							$phone = DB::GetOne('SELECT field FROM contact_data WHERE contact_id=%s AND (field=\'Work Phone\' OR field=\'Mobile Phone\' OR field=\'Home Phone\')',array($contact));
+							$phone_number = 0;
+							if ($phone=='Mobile Phone') $phone_number = 1;
+							if ($phone=='Work Phone') $phone_number = 2;
+							if ($phone=='Home Phone') $phone_number = 3;
+							$rec = array(	'subject'=>$title,
+											'company_name'=>$company_name,
+											'descripton'=>$desc,
+											'priority'=>$prio,
+											'date_and_time'=>$start,
+											'status'=>($stat==0)?0:2,
+											'permission'=>$access,
+											'contact'=>$contact,
+											'phone'=>$phone_number?$contact.'__'.$phone_number:'',
+											'employees'=>array($created_by_contact)
+										);
+							Utils_RecordBrowserCommon::update_record('phonecall', $id, $rec, false, $time); 
+							Utils_RecordBrowserCommon::set_record_properties('phonecall', $id, array('created_by'=>$created_by,'created_on'=>$created_on));					
+						}
+					}
+
+					DB::Replace('crm_import_phonecall',array('created_on'=>DB::DBTimeStamp($time),'id'=>$id,'original'=>DB::qstr($v[$header['ACTIVITYID']])),'id');
 					break;
-				case 'To-do':
+				case 'To-do': break;
 					$kk = DB::GetRow('SELECT created_on,id FROM crm_import_task WHERE original=%s',array($v[$header['ACTIVITYID']]));
 					$rec = array(	'title'=>$title,
 							'description'=>$desc,
@@ -763,7 +825,7 @@ class CRM_Import extends Module {
 				case 'Seminar-Training':
 				case 'Personal Activity':
 					break;
-				case 'Meeting':
+				case 'Meeting':break;
 				default:
 					$kk = DB::GetRow('SELECT created_on,id FROM crm_import_event WHERE original=%s',array($v[$header['ACTIVITYID']]));
 					if(empty($kk)) {
