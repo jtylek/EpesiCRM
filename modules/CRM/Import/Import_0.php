@@ -120,7 +120,8 @@ class CRM_Import extends Module {
 		$this->set_log_file('contacts');
 		$this->logit('=========================== upload ==========================');
 		$header = array_flip($header);
-		$groups = Utils_CommonDataCommon::get_array("/Contacts_Groups");
+		$groups_cont = Utils_CommonDataCommon::get_array("/Contacts_Groups");
+		$groups_comp = Utils_CommonDataCommon::get_array("/Companies_Groups");
 		$contacts = array();
 		$created_map = array();
 		$login_in_user = array();
@@ -238,12 +239,12 @@ class CRM_Import extends Module {
 				$ccc = null;
 			}
 
-			//'ID/Status' jako grupa!!!
+			//'ID/Status' jako grupa!!! olac 'User X'
 			//'General  contractors' => 'GC'
 
 			//groups
-			$gg = array();
-			for($kk=1; $kk<5; $kk++) {
+			$gg_cont = array();
+/*			for($kk=1; $kk<5; $kk++) {
 				if(!$x[$header['User '.$kk]]) continue;
 				if(!isset($groups[$x[$header['User '.$kk]]])) {
 					$key = strtolower($x[$header['User '.$kk]]);
@@ -253,13 +254,29 @@ class CRM_Import extends Module {
 				}
 				$gg[] = $groups[$x[$header['User '.$kk]]];
 			}
-			$gg = array_unique($gg);
+			$gg = array_unique($gg);*/
+			if($x[$header['ID/Status']]) {
+				$key = str_replace('/','_',strtolower($x[$header['ID/Status']]));
+				if($key=='general  contractors' || $key=='general contractors') $key = 'gc';
+				if(!isset($groups_cont[$key])) {
+					Utils_CommonDataCommon::set_value("/Contacts_Groups/".$key,$x[$header['ID/Status']]);
+					$groups_cont[$key] = $x[$header['ID/Status']];
+				}
+				$gg_cont[] = $key;
+			}
 
 			if(isset($ccc)) {
 				$comp = Utils_RecordBrowserCommon::get_record('company', $ccc);
 				$r = Utils_RecordBrowserCommon::get_record_info('company',$ccc);
-				Utils_RecordBrowserCommon::update_record('company',$ccc,array('group'=>array_unique(array_merge($comp['group'],$gg))),false,$r['edited_on']?$r['edited_on']:$r['created_on']);
-				$gg = array();
+				if(!empty($gg_cont)) {
+					if(!isset($groups_comp[$gg_cont[0]])) {
+						Utils_CommonDataCommon::set_value("/Companies_Groups/".$gg_cont[0],$groups_cont[$gg_cont[0]]);
+						$groups_comp[$gg_cont[0]] = $groups_cont[$gg_cont[0]];
+					}
+					$gg_comp = array($gg_cont[0]);
+				
+					Utils_RecordBrowserCommon::update_record('company',$ccc,array('group'=>array_unique(array_merge($comp['group'],$gg_comp))),false,$r['edited_on']?$r['edited_on']:$r['created_on']);
+				}
 				
 				if($comp['phone']=='') {
 					$phone = ($x[$header['Phone']].($x[$header['Phone Ext-']]?' ext '.$x[$header['Phone Ext-']]:''));
@@ -286,7 +303,7 @@ class CRM_Import extends Module {
 				'address_1'=>$x[$header['Address']],
 				'address_2'=>$x[$header['Address 2']].($x[$header['Address 3']]?' '.$x[$header['Address 3']]:''),
 				'postal_code'=>$x[$header['Zip Code -1-']],
-				'group'=>$gg,
+				'group'=>$gg_cont,
 				'home_phone'=>$x[$header['Home Phone']],
 				'home_city'=>$x[$header['Home City']],
 				'home_postal_code'=>$x[$header['Home Zip']],
