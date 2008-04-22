@@ -332,7 +332,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$key=$tab.'__'.serialize($crits).'__'.$admin.'__'.serialize($order);
 		static $cache = array();
 		self::init($tab, $admin);
-		if (isset($cache[$key])) return $cache[$key];
+//		if (isset($cache[$key])) return $cache[$key];
 		if (!$tab) return false;
 		$having = '';
 		$fields = '';
@@ -418,19 +418,39 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							
 							if (!isset($param[1])) $cols = $param[0];
 							else {
-								$tab = $param[0];
-								$cols= $param[1];
+								$tab2 = $param[0];
+								$cols2 = $param[1];
 							}
-							if ($params[1]=='RefCD' || $tab=='__COMMON__') {
-								$where .= ' AND EXISTS (SELECT cd1.id FROM utils_commondata_tree AS cd1 LEFT JOIN utils_commondata_tree AS cd2 ON cd1.parent_id=cd2.id WHERE cd1.value LIKE '.$v[0].' AND cd2.akey='.DB::qstr($cols).')';
-								$having .= true;
+							if ($params[1]=='RefCD' || $tab2=='__COMMON__') {
+								$ret = DB::Execute('SELECT cd1.akey AS id FROM utils_commondata_tree AS cd1 LEFT JOIN utils_commondata_tree AS cd2 ON cd1.parent_id=cd2.id WHERE cd1.value LIKE '.implode(' OR cd1.value LIKE ',$v).' AND cd2.akey='.DB::qstr($cols2));
+								$allowed_cd = array();
+								while ($row = $ret->FetchRow()) $allowed_cd[] = $row['id'];
+								$fields .= ', concat( \'::\', group_concat( rd'.$iter.'.value ORDER BY rd'.$iter.'.value SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
+								$final_tab = '('.$final_tab.') LEFT JOIN '.$tab.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab.'_id AND rd'.$iter.'.field="'.$ref.'"';
+								$having .= 'val'.$iter.' LIKE concat(\'%\',\''.implode('\',\'%\') OR val'.$iter.' LIKE concat(\'%\',\'',$allowed_cd).'\',\'%\')';
+								$iter++;
 								break;
 							}
-							$cols = explode('|', $cols);
-							foreach($cols as $j=>$w) $cols[$j] = DB::qstr($w); 
-							$cols = implode(' OR field=', $cols);
-							$having .= ' cond'.$iter.'!=0';
-							$fields .= ', (SELECT COUNT(value) FROM '.$tab.'_data AS rd'.$iter.' WHERE (field='.$cols.') AND value LIKE '.$v[0].' AND EXISTS (SELECT value FROM '.$tab.'_data WHERE field='.DB::qstr($ref).' AND rd'.$iter.'.'.$tab.'_id)) AS cond'.$iter;
+							$cols2 = explode('|', $cols2);
+							foreach($cols2 as $j=>$w) $cols2[$j] = DB::qstr($w); 
+							$cols2 = implode(' OR field=', $cols2);
+
+							$fields .= ', concat( \'::\', group_concat(( SELECT rdt'.$iter.'.value FROM '.$tab2.'_data AS rdt'.$iter.' WHERE rdt'.$iter.'.field='.$cols2.' AND rdt'.$iter.'.'.$tab2.'_id=rd'.$iter.'.value) SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
+							$final_tab = '('.$final_tab.') LEFT JOIN '.$tab.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab.'_id AND rd'.$iter.'.field="'.$ref.'"';
+
+							if (!is_array($v)) $v = array($v);
+							if ($negative) $having .= '(';
+							$having .= '('.($negative?'true':'false');
+							foreach($v as $w) {
+								if ($w==='') $having .= ' '.($negative?'AND':'OR').' val'.$iter.' IS '.($negative?'NOT ':'').'NULL';
+								else {
+									if (!$noquotes) $w = DB::qstr($w);
+									$having .= ' '.($negative?'AND':'OR').' val'.$iter.' '.($negative?'NOT ':'').'LIKE '.DB::Concat(DB::qstr('%::'),$w,DB::qstr('::%'));
+								}
+							}
+							$having .= ')';
+							if ($negative) $having .= ' OR val'.$iter.' IS NULL)';
+
 							$iter++;
 						} else trigger_error('Unknow paramter given to get_records criteria: '.$k, E_USER_ERROR);
 				}
@@ -497,6 +517,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return DB::GetOne('SELECT COUNT(*) FROM ('.$par['sql'].') AS tmp', $par['vals']);
 	}
 	public static function get_records( $tab = null, $crits = array(), $cols = array(), $order = array(), $limit = array(), $admin = false) {
+//		print_r($crits);
 		if (!$tab) return false;
 		if (!isset($limit['offset'])) $limit['offset'] = 0;
 		if (!isset($limit['numrows'])) $limit['numrows'] = -1;
@@ -535,7 +556,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		if ($first) return array();
 		$where .= ')';
-		//vprintf('SELECT * FROM '.$tab.'_data'.$where, $vals);
+//		vprintf('SELECT * FROM '.$tab.'_data'.$where, $vals);
+//		return array();
 		$data = DB::Execute('SELECT * FROM '.$tab.'_data'.$where, $vals);
 		while($field = $data->FetchRow()) {
 			if (!isset(self::$table_rows[$field['field']])) continue;
