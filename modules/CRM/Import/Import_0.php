@@ -254,8 +254,16 @@ class CRM_Import extends Module {
 
 			if(isset($ccc)) {
 				$comp = Utils_RecordBrowserCommon::get_record('company', $ccc);
-				Utils_RecordBrowserCommon::update_record('company',$ccc,array('group'=>array_unique(array_merge($comp['group'],$gg))),false,$time);
+				$r = Utils_RecordBrowserCommon::get_record_info('company',$ccc);
+				Utils_RecordBrowserCommon::update_record('company',$ccc,array('group'=>array_unique(array_merge($comp['group'],$gg))),false,$r['edited_on']?$r['edited_on']:$r['created_on']);
 				$gg = array();
+				
+				if($comp['phone']=='') {
+					$phone = ($x[$header['Phone']].($x[$header['Phone Ext-']]?' ext '.$x[$header['Phone Ext-']]:''));
+					if($phone!='')
+						Utils_RecordBrowserCommon::update_record('company',$ccc,array('phone'=>$phone),false,$r['edited_on']?$r['edited_on']:$r['created_on']);
+				}
+				
 				$ccc2 = array($ccc);
 			} else
 				$ccc2 = array();
@@ -692,19 +700,19 @@ class CRM_Import extends Module {
 					break;
 				case 'To-do':
 					$kk = DB::GetRow('SELECT created_on,id FROM crm_import_task WHERE original=%s',array($v[$header['ACTIVITYID']]));
+					$rec = array(	'title'=>$title,
+							'description'=>$desc,
+							'priority'=>$prio,
+							'deadline'=>$end,
+							'is_deadline'=>($end!=null),
+							'status'=>($stat==0)?0:2,
+							'longterm'=>false,
+							'page_id'=>$mid,
+							'permission'=>$access,
+							'employees'=>array($created_by_contact),
+							'customers'=>$contact!=false?array($contact):array()
+						);
 					if(empty($kk)) {
-						$rec = array(	'title'=>$title,
-										'description'=>$desc,
-										'priority'=>$prio,
-										'deadline'=>$end,
-										'is_deadline'=>($end!=null),
-										'status'=>($stat==0)?0:2,
-										'longterm'=>false,
-										'page_id'=>$mid,
-										'permission'=>$access,
-										'employees'=>array($created_by_contact),
-										'customers'=>$contact!=false?array($contact):array()
-									);
 						$id = Utils_RecordBrowserCommon::new_record('task', $rec); 
 						Utils_RecordBrowserCommon::set_record_properties('task', $id, array('created_by'=>$created_by,'created_on'=>$created_on));					
 						$this->logit('Adding.');
@@ -724,18 +732,6 @@ class CRM_Import extends Module {
 						} else {
 							$this->logit('Updating.');
 							$updated_tasks++;
-							$rec = array(	'title'=>$title,
-											'description'=>$desc,
-											'priority'=>$prio,
-											'deadline'=>$end,
-											'is_deadline'=>($end!=null),
-											'status'=>($stat==0)?0:2,
-											'longterm'=>false,
-											'page_id'=>$mid,
-											'permission'=>$access,
-											'employees'=>array($created_by_contact),
-											'customers'=>$contact!=false?array($contact):array()
-										);
 							Utils_RecordBrowserCommon::update_record('task', $id, $rec, false, $time); 
 							Utils_RecordBrowserCommon::set_record_properties('task', $id, array('created_by'=>$created_by,'created_on'=>$created_on));					
 						}

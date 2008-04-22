@@ -66,7 +66,7 @@ class CRM_ImportInstall extends ModuleInstall {
 			id I4 KEY NOTNULL,
 			original C(64),
 			created_on T DEFTIMESTAMP',
-			array('constraints'=>', FOREIGN KEY (id) REFERENCES utils_tasks_task(ID), UNIQUE(original)'));
+			array('constraints'=>', FOREIGN KEY (id) REFERENCES task(ID), UNIQUE(original)'));
 		if(!$ret){
 			print('Unable to create table crm_import_task.<br>');
 			return false;

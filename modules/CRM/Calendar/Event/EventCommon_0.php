@@ -20,7 +20,9 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 
 	
 	public static function get($id) {
-		if(self::$filter && self::$filter!='()')
+		if(self::$filter=='()')
+			$fil = ' AND 1=0';
+		else if(self::$filter)
 			$fil = ' AND (SELECT id FROM crm_calendar_event_group_emp cg WHERE cg.id=e.id AND cg.contact IN '.self::$filter.' LIMIT 1) IS NOT NULL';
 		else
 			$fil = '';
@@ -62,7 +64,9 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		return $result;	
 	}
 	public static function get_all($start,$end,$order='') {
-		if(self::$filter && self::$filter!='()')
+		if(self::$filter=='()')
+			$fil = ' AND 1=0';
+		else if(self::$filter)
 			$fil = ' AND (SELECT id FROM crm_calendar_event_group_emp cg WHERE cg.id=e.id AND cg.contact IN '.self::$filter.' LIMIT 1) IS NOT NULL';
 		else
 			$fil = '';
