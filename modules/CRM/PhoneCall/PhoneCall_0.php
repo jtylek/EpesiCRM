@@ -22,6 +22,7 @@ class CRM_PhoneCall extends Module {
 		$this->rb->set_custom_filter('status',array('type'=>'checkbox','label'=>$lang->t('Display closed records'),'trans'=>array('__NULL__'=>array('!status'=>2),1=>array('status'=>array(0,1,2)))));
 		$this->rb->set_crm_filter('employees');
 		$this->rb->set_defaults(array('date_and_time'=>date('Y-m-d H:i:s'), 'employees'=>array($me['id'])));
+		$this->rb->set_default_order(array('date_and_time'=>'ASC'));
 		$this->display_module($this->rb);
 	}
 
