@@ -46,7 +46,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 							return $i->acl_check('browse phonecalls');
 			case 'view':	if ($i->acl_check('view phonecall')) return array('(!permission'=>2, '|:Created_by'=>Acl::get_user());
 							else return false;
-			case 'edit':
+			case 'edit':	if ($param['permission']>=1 && $param['created_by']!=Acl::get_user()) return false;
 							if ($i->acl_check('edit phonecall')) return true;
 							$me = CRM_ContactsCommon::get_my_record();
 							if (is_array($param['employees']) && in_array($me['id'], $param['employees'])) return true;

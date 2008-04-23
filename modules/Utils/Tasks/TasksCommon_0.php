@@ -25,7 +25,7 @@ class Utils_TasksCommon extends ModuleCommon {
 							return $i->acl_check('browse tasks');
 			case 'view':	if ($i->acl_check('view task')) return array('(!permission'=>2, '|:Created_by'=>Acl::get_user());
 							else return false;
-			case 'edit':
+			case 'edit':	if ($param['permission']>=1 && $param['created_by']!=Acl::get_user()) return false;
 							if ($i->acl_check('edit task')) return true;
 							$me = CRM_ContactsCommon::get_my_record();
 							if (is_array($param['employees']) && in_array($me['id'], $param['employees'])) return true;
