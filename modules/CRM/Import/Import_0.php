@@ -682,8 +682,8 @@ class CRM_Import extends Module {
 
 			$prio = (2-$v[$header['PRIORITYID']]);
 			$stat = $v[$header['STATUSNUM']];
-			$desc = $v[$header['Details']].($v[$header['Location']]?"\n Location: ".$v[$header['Location']]:'');
-			$title = $v[$header['Regarding']];
+			$desc = substr($v[$header['Details']].($v[$header['Location']]?"\n Location: ".$v[$header['Location']]:''),0,254);
+			$title = substr($v[$header['Regarding']],0,127);
 			$start = strtotime($v[$header['Start Date/Time']]);
 			$end = strtotime($v[$header['End Date/Time']]);
 			$timeless = $v[$header['Timeless']];
