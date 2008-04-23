@@ -44,8 +44,8 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		switch ($action) {
 			case 'browse':
 							return $i->acl_check('browse phonecalls');
-			case 'view':
-							if ($i->acl_check('view phonecall')) return true;
+			case 'view':	if ($i->acl_check('view phonecall')) return array('(!permission'=>2, '|:Created_by'=>Acl::get_user());
+							else return false;
 			case 'edit':
 							if ($i->acl_check('edit phonecall')) return true;
 							$me = CRM_ContactsCommon::get_my_record();
@@ -57,7 +57,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			case 'delete':
 							if ($i->acl_check('delete phonecall')) return true;
 							$me = CRM_ContactsCommon::get_my_record();
-							if (in_array($me['id'], $param['employees'])) return true;
+							if (is_array($param['employees']) && in_array($me['id'], $param['employees'])) return true;
 							if ($me['id']==$param['contact']) return true;
 							$info = Utils_RecordBrowserCommon::get_record_info('phonecall',$param['id']);
 							if ($me['login']==$info['created_by']) return true;

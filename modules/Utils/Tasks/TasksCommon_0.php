@@ -8,9 +8,9 @@ class Utils_TasksCommon extends ModuleCommon {
 		DB::Execute('UPDATE task SET active=0 WHERE page_id=%s',array($mid));
 	}
 	public static function applet_info_format($r){
-		return 	Base_LangCommon::ts('CRM_PhoneCall','Title: %s', array($r['title'])).'<br>'.
-				Base_LangCommon::ts('CRM_PhoneCall','Description: %s', array($r['description'])).'<br>'.
-				Base_LangCommon::ts('CRM_PhoneCall','Deadline: %s', array(Base_RegionalSettingsCommon::time2reg($r['deadline'])));
+		return 	Base_LangCommon::ts('Utils_Tasks','Title: %s', array($r['title'])).'<br>'.
+				Base_LangCommon::ts('Utils_Tasks','Description: %s', array($r['description'])).'<br>'.
+				Base_LangCommon::ts('Utils_Tasks','Deadline: %s', array(Base_RegionalSettingsCommon::time2reg($r['deadline'])));
 	}
 	public static function get_tasks($crits = array(), $cols = array()) {
 		return Utils_RecordBrowserCommon::get_records('task', $crits, $cols);
@@ -22,26 +22,25 @@ class Utils_TasksCommon extends ModuleCommon {
 		$i = self::Instance(); // TODO: adjust rights
 		switch ($action) {
 			case 'browse':
-							return $i->acl_check('browse phonecalls');
+							return $i->acl_check('browse tasks');
 			case 'view':
-							if ($i->acl_check('view phonecall')) return true;
+							if ($i->acl_check('view task')) return true;
 			case 'edit':
-							if ($i->acl_check('edit phonecall')) return true;
+							if ($i->acl_check('edit task')) return true;
 							$me = CRM_ContactsCommon::get_my_record();
 							if (is_array($param['employees']) && in_array($me['id'], $param['employees'])) return true;
 							$info = Utils_RecordBrowserCommon::get_record_info('task',$param['id']);
 							if ($me['login']==$info['created_by']) return true;
 							return false;
 			case 'delete':
-							if ($i->acl_check('delete phonecall')) return true;
+							if ($i->acl_check('delete task')) return true;
 							$me = CRM_ContactsCommon::get_my_record();
-							if (in_array($me['id'], $param['employees'])) return true;
-							if ($me['id']==$param['contact']) return true;
+							if (is_array($param['employees']) && in_array($me['id'], $param['employees'])) return true;
 							$info = Utils_RecordBrowserCommon::get_record_info('task',$param['id']);
 							if ($me['login']==$info['created_by']) return true;
 							return false;
 			case 'edit_fields':
-							if ($i->acl_check('edit phonecall')) return array();
+							if ($i->acl_check('edit task')) return array();
 							return array();
 		}
 		return false;
