@@ -16,7 +16,7 @@ class CRM_Calendar_EventInstall extends ModuleInstall {
 		$ret &= DB::CreateTable('crm_calendar_event',
 			'id I AUTO KEY,'.
 
-			'title C(64) NOT NULL, '.
+			'title C(128) NOT NULL, '.
 			'description X, '.
 
 			'start I4 NOT NULL, '.
