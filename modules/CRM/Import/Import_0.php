@@ -689,6 +689,7 @@ class CRM_Import extends Module {
 			$start = strtotime($v[$header['Start Date/Time']]);
 			$end = strtotime($v[$header['End Date/Time']]);
 			$timeless = $v[$header['Timeless']];
+			$timeless = ($timeless && $timeless!='FALSE');
 			$access = ($v[$header['Private Activity']]?2:0);
 			$created_by = $this->get_add_user($v[$header['CREATEUSERID']]);
 			$created_by_contact = CRM_ContactsCommon::get_contact_by_user_id($created_by);
