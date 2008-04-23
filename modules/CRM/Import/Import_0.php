@@ -684,8 +684,8 @@ class CRM_Import extends Module {
 			$stat = $v[$header['STATUSNUM']];
 			$desc = $v[$header['Details']].($v[$header['Location']]?"\n Location: ".$v[$header['Location']]:'');
 			$title = $v[$header['Regarding']];
-			$start = date('Y-m-d H:i:s',strtotime($v[$header['Start Date/Time']]));
-			$end = date('Y-m-d H:i:s',strtotime($v[$header['End Date/Time']]));
+			$start = strtotime($v[$header['Start Date/Time']]);
+			$end = strtotime($v[$header['End Date/Time']]);
 			$timeless = $v[$header['Timeless']];
 			$access = ($v[$header['Private Activity']]?2:0);
 			$created_by = $this->get_add_user($v[$header['CREATEUSERID']]);
@@ -694,7 +694,7 @@ class CRM_Import extends Module {
 			$created_on = date('Y-m-d H:i:s',strtotime($v[$header['Create Date']]));
 			$contact = DB::GetOne('SELECT id FROM crm_import_contact WHERE original=%s',array($v[$header['CONTACTID']]));
 
-			$this->logit($v[$header['ACTIVITY_NAME']].' on '.$start.' regarding "'.$title.'" ('.$time.').');
+			$this->logit($v[$header['ACTIVITY_NAME']].' on '.date('Y-m-d H:i:s',$start).' regarding "'.$title.'" ('.$time.').');
 
 			if($created_by_contact===null) {
 				$this->logit('Contact for user "'.$v[$header['CREATEUSERID']].'" not found. Skipping.');
@@ -732,7 +732,7 @@ class CRM_Import extends Module {
 										'company_name'=>$company_name,
 										'descripton'=>$desc,
 										'priority'=>$prio,
-										'date_and_time'=>$start,
+										'date_and_time'=>date('Y-m-d H:i:s',$start),
 										'status'=>($stat==0)?0:2,
 										'permission'=>$access,
 										'contact'=>$contact,
@@ -768,7 +768,7 @@ class CRM_Import extends Module {
 											'company_name'=>$company_name,
 											'descripton'=>$desc,
 											'priority'=>$prio,
-											'date_and_time'=>$start,
+											'date_and_time'=>date('Y-m-d H:i:s',$start),
 											'status'=>($stat==0)?0:2,
 											'permission'=>$access,
 											'contact'=>$contact,
@@ -787,7 +787,7 @@ class CRM_Import extends Module {
 					$rec = array(	'title'=>$title,
 							'description'=>$desc,
 							'priority'=>$prio,
-							'deadline'=>$end,
+							'deadline'=>date('Y-m-d H:i:s',$end),
 							'is_deadline'=>($end!=null),
 							'status'=>($stat==0)?0:2,
 							'longterm'=>false,
