@@ -44,7 +44,7 @@ class CRM_Filters extends Module {
 		$th->assign('filters',$filters);
 
 		$qf = $this->init_module('Libs/QuickForm');
-		$contacts = CRM_ContactsCommon::get_contacts(array('company_name'=>CRM_ContactsCommon::get_main_company()));
+		$contacts = CRM_ContactsCommon::get_contacts(array('company_name'=>CRM_ContactsCommon::get_main_company()),array('first_name','last_name'),array('last_name'=>'ASC','first_name'=>'ASC'));
 		$contacts_select = array();
 		foreach($contacts as $v)
 			$contacts_select[$v['id']] = $v['first_name'].' '.$v['last_name'];
