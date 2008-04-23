@@ -682,8 +682,10 @@ class CRM_Import extends Module {
 
 			$prio = (2-$v[$header['PRIORITYID']]);
 			$stat = $v[$header['STATUSNUM']];
-			$desc = substr($v[$header['Details']].($v[$header['Location']]?"\n Location: ".$v[$header['Location']]:''),0,254);
-			$title = substr($v[$header['Regarding']],0,127);
+			$desc = $v[$header['Details']].($v[$header['Location']]?"\n Location: ".$v[$header['Location']]:'');
+			$title = $v[$header['Regarding']];
+			$desc_s = substr($desc,0,254);
+			$title_s = substr($title,0,127);
 			$start = strtotime($v[$header['Start Date/Time']]);
 			$end = strtotime($v[$header['End Date/Time']]);
 			$timeless = $v[$header['Timeless']];
@@ -721,16 +723,15 @@ class CRM_Import extends Module {
 			switch($v[$header['ACTIVITY_NAME']]) {
 				case 'Call':
 					$kk = DB::GetRow('SELECT created_on,id FROM crm_import_phonecall WHERE original=%s',array($v[$header['ACTIVITYID']]));
-					if(empty($kk)) {
-						$company_name = DB::GetOne('SELECT value FROM contact_data WHERE contact_id=%s AND field=\'Company Name\'',array($contact));
-						$phone = DB::GetOne('SELECT field FROM contact_data WHERE contact_id=%s AND (field=\'Work Phone\' OR field=\'Mobile Phone\' OR field=\'Home Phone\')',array($contact));
-						$phone_number = 0;
-						if ($phone=='Mobile Phone') $phone_number = 1;
-						if ($phone=='Work Phone') $phone_number = 2;
-						if ($phone=='Home Phone') $phone_number = 3;
-						$rec = array(	'subject'=>$title,
+					$company_name = DB::GetOne('SELECT value FROM contact_data WHERE contact_id=%s AND field=\'Company Name\'',array($contact));
+					$phone = DB::GetOne('SELECT field FROM contact_data WHERE contact_id=%s AND (field=\'Work Phone\' OR field=\'Mobile Phone\' OR field=\'Home Phone\')',array($contact));
+					$phone_number = 0;
+					if ($phone=='Mobile Phone') $phone_number = 1;
+					if ($phone=='Work Phone') $phone_number = 2;
+					if ($phone=='Home Phone') $phone_number = 3;
+					$rec = array(	'subject'=>$title_s,
 										'company_name'=>$company_name,
-										'descripton'=>$desc,
+										'descripton'=>$desc_s,
 										'priority'=>$prio,
 										'date_and_time'=>date('Y-m-d H:i:s',$start),
 										'status'=>($stat==0)?0:2,
@@ -739,6 +740,7 @@ class CRM_Import extends Module {
 										'phone'=>$phone_number?$contact.'__'.$phone_number:'',
 										'employees'=>array($created_by_contact)
 									);
+					if(empty($kk)) {
 						$id = Utils_RecordBrowserCommon::new_record('phonecall', $rec); 
 						Utils_RecordBrowserCommon::set_record_properties('phonecall', $id, array('created_by'=>$created_by,'created_on'=>$created_on));
 						$this->logit('Adding.');
@@ -758,23 +760,6 @@ class CRM_Import extends Module {
 						} else {
 							$this->logit('Updating.');
 							$updated_phonecalls++;
-							$company_name = DB::GetOne('SELECT value FROM contact_data WHERE contact_id=%s AND field=\'Company Name\'',array($contact));
-							$phone = DB::GetOne('SELECT field FROM contact_data WHERE contact_id=%s AND (field=\'Work Phone\' OR field=\'Mobile Phone\' OR field=\'Home Phone\')',array($contact));
-							$phone_number = 0;
-							if ($phone=='Mobile Phone') $phone_number = 1;
-							if ($phone=='Work Phone') $phone_number = 2;
-							if ($phone=='Home Phone') $phone_number = 3;
-							$rec = array(	'subject'=>$title,
-											'company_name'=>$company_name,
-											'descripton'=>$desc,
-											'priority'=>$prio,
-											'date_and_time'=>date('Y-m-d H:i:s',$start),
-											'status'=>($stat==0)?0:2,
-											'permission'=>$access,
-											'contact'=>$contact,
-											'phone'=>$phone_number?$contact.'__'.$phone_number:'',
-											'employees'=>array($created_by_contact)
-										);
 							Utils_RecordBrowserCommon::update_record('phonecall', $id, $rec, false, $time); 
 							Utils_RecordBrowserCommon::set_record_properties('phonecall', $id, array('created_by'=>$created_by,'created_on'=>$created_on));					
 						}
@@ -784,8 +769,8 @@ class CRM_Import extends Module {
 					break;
 				case 'To-do':
 					$kk = DB::GetRow('SELECT created_on,id FROM crm_import_task WHERE original=%s',array($v[$header['ACTIVITYID']]));
-					$rec = array(	'title'=>$title,
-							'description'=>$desc,
+					$rec = array(	'title'=>$title_s,
+							'description'=>$desc_s,
 							'priority'=>$prio,
 							'deadline'=>date('Y-m-d H:i:s',$end),
 							'is_deadline'=>($end!=null),
@@ -832,7 +817,7 @@ class CRM_Import extends Module {
 					$kk = DB::GetRow('SELECT created_on,id FROM crm_import_event WHERE original=%s',array($v[$header['ACTIVITYID']]));
 					if(empty($kk)) {
 						DB::Execute('INSERT INTO crm_calendar_event(title,description,start,end,timeless,access,priority,created_on,created_by) VALUES'.
-								'(%s,%s,%d,%d,%b,%d,%d,%T,%d)',array($title,$desc,$start,$end,$timeless,$access,$prio,$created_on,$created_by));
+								'(%s,%s,%d,%d,%b,%d,%d,%T,%d)',array($title_s,$desc,$start,$end,$timeless,$access,$prio,$created_on,$created_by));
 	
 						$id = DB::Insert_ID('crm_calendar_event','id');
 						$this->logit('Adding.');
@@ -851,7 +836,7 @@ class CRM_Import extends Module {
 						} else {
 							$this->logit('Updating.');
 							$updated_tasks++;
-							DB::Execute('UPDATE crm_calendar_event SET title=%s,description=%s,start=%d,end=%d,timeless=%b,access=%d,priority=%d,created_on=%T,created_by=%d,edited_on=%T,edited_by=%d WHERE id=%d',array($title,$desc,$start,$end,$timeless,$access,$prio,$created_on,$created_by,$time,$created_by,$id));
+							DB::Execute('UPDATE crm_calendar_event SET title=%s,description=%s,start=%d,end=%d,timeless=%b,access=%d,priority=%d,created_on=%T,created_by=%d,edited_on=%T,edited_by=%d WHERE id=%d',array($title_s,$desc,$start,$end,$timeless,$access,$prio,$created_on,$created_by,$time,$created_by,$id));
 							DB::Execute('DELETE FROM crm_calendar_event_group_emp WHERE id=%d',array($id));
 							DB::Execute('DELETE FROM crm_calendar_event_group_cus WHERE id=%d',array($id));
 						}
