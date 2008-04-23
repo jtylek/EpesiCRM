@@ -690,7 +690,7 @@ class CRM_Import extends Module {
 			$access = ($v[$header['Private Activity']]?2:0);
 			$created_by = $this->get_add_user($v[$header['CREATEUSERID']]);
 			$created_by_contact = CRM_ContactsCommon::get_contact_by_user_id($created_by);
-			$time = date('Y-m-d H:i:s',strtotime($v[$header['Edit Date']]?$v[$header['Edit Date']]:$v[$header['Create Date']]));
+			$time = date('Y-m-d H:i:s',strtotime(strtotime($v[$header['Edit Date']])?$v[$header['Edit Date']]:$v[$header['Create Date']]));
 			$created_on = date('Y-m-d H:i:s',strtotime($v[$header['Create Date']]));
 			$contact = DB::GetOne('SELECT id FROM crm_import_contact WHERE original=%s',array($v[$header['CONTACTID']]));
 
