@@ -22,7 +22,7 @@ class Utils_TasksInstall extends ModuleInstall {
 			array('name'=>'Description', 		'type'=>'long text', 'extra'=>false, 'param'=>'255', 'visible'=>false),
 
 			array('name'=>'Employees', 			'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('Utils_TasksCommon','employees_crits'), 'format'=>array('Utils_TasksCommon','contact_format_with_balls')), 'display_callback'=>array('Utils_TasksCommon','display_employees'), 'required'=>true, 'extra'=>false, 'visible'=>true),
-			array('name'=>'Customers', 			'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('Utils_TasksCommon','customers_crits')), 'required'=>true, 'extra'=>false, 'visible'=>true),
+			array('name'=>'Customers', 			'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('Utils_TasksCommon','customers_crits')), 'extra'=>false, 'visible'=>true),
 
 			array('name'=>'Status',				'type'=>'select', 'required'=>true, 'visible'=>true, 'filter'=>true, 'param'=>'__COMMON__::Ticket_Status', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('Utils_TasksCommon','display_status')),
 			array('name'=>'Priority', 			'type'=>'select', 'required'=>true, 'visible'=>true, 'param'=>'__COMMON__::Priorities', 'extra'=>false),
