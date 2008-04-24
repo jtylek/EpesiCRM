@@ -621,11 +621,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		else $info = $id;
 		$contact='';
 		if (ModuleManager::is_installed('CRM_Contacts')>=0) {
-			$contact = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact($info['created_by']),true);
+			$contact = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact_by_user_id($info['created_by']),true);
 			if ($contact!='') $created_by = $contact;
 			else $created_by = Base_UserCommon::get_user_login($info['created_by']);
 			if ($info['edited_by']!=null) {
-				if ($info['edited_by']!=$info['created_by']) $contact = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact($info['edited_by']),true);
+				if ($info['edited_by']!=$info['created_by']) $contact = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact_by_user_id($info['edited_by']),true);
 				if ($contact!='') $edited_by = $contact;
 				else $edited_by = Base_UserCommon::get_user_login($info['edited_by']);
 			}
