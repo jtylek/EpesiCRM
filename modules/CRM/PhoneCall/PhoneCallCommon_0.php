@@ -33,8 +33,8 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 				Base_LangCommon::ts('CRM_PhoneCall','Phone: %s', array($phone)).'<br>'.
 				Base_LangCommon::ts('CRM_PhoneCall','Date and Time: %s', array(Base_RegionalSettingsCommon::time2reg($r['date_and_time'])));
 	}
-	public static function get_phonecalls($crits = array(), $cols = array()) {
-		return Utils_RecordBrowserCommon::get_records('phonecall', $crits, $cols);
+	public static function get_phonecalls($crits = array(), $cols = array(), $order = array()) {
+		return Utils_RecordBrowserCommon::get_records('phonecall', $crits, $cols, $order);
 	}
 	public static function get_phonecall($id) {
 		return Utils_RecordBrowserCommon::get_record('phonecall', $id);

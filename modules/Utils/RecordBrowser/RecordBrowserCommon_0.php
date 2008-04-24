@@ -517,7 +517,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return DB::GetOne('SELECT COUNT(*) FROM ('.$par['sql'].') AS tmp', $par['vals']);
 	}
 	public static function get_records( $tab = null, $crits = array(), $cols = array(), $order = array(), $limit = array(), $admin = false) {
-//		print_r($crits);
+	/*	
+		print($tab.'<br>');
+		print_r($crits);
+		print('<br>');
+		print_r($order);
+		print('<hr>');
+	*/
 		if (!$tab) return false;
 		if (!isset($limit['offset'])) $limit['offset'] = 0;
 		if (!isset($limit['numrows'])) $limit['numrows'] = -1;

@@ -25,9 +25,11 @@ class CRM_Contacts_Activities extends Module {
 		$events = null;
 		$tasks = null;
 		$phonecalls = null;
-		if (isset($this->display['events'])) $events = DB::GetAll('SELECT * FROM crm_calendar_event AS cce WHERE EXISTS (SELECT contact FROM crm_calendar_event_group_emp AS ccegp WHERE ccegp.id=cce.id AND (false'.$db_string.')) OR EXISTS (SELECT contact FROM crm_calendar_event_group_cus AS ccegc WHERE ccegc.id=cce.id AND (false'.$db_string.')) ORDER BY start', array_merge($ids, $ids));
-		if (isset($this->display['tasks'])) $tasks = CRM_TasksCommon::get_tasks(array('(employees'=>$ids, '|customers'=>$ids));
-		if (isset($this->display['phonecalls'])) $phonecalls = CRM_PhoneCallCommon::get_phonecalls(array('(employees'=>$ids, '|customers'=>$ids));
+		if ($this->display['events']) $events = DB::GetAll('SELECT * FROM crm_calendar_event AS cce WHERE EXISTS (SELECT contact FROM crm_calendar_event_group_emp AS ccegp WHERE ccegp.id=cce.id AND (false'.$db_string.')) OR EXISTS (SELECT contact FROM crm_calendar_event_group_cus AS ccegc WHERE ccegc.id=cce.id AND (false'.$db_string.')) ORDER BY start', array_merge($ids, $ids));
+		$crits = array('(employees'=>$ids, '|customers'=>$ids);
+		if (!$this->display['closed']) $crits['!status'] = 2;
+		if ($this->display['tasks']) $tasks = CRM_TasksCommon::get_tasks($crits, array(), array('deadline'=>'ASC'));
+		if ($this->display['phonecalls']) $phonecalls = CRM_PhoneCallCommon::get_phonecalls($crits, array(), array('date_and_time'=>'ASC'));
 		$this->display_activities($events, $tasks, $phonecalls);
 	}
 
@@ -36,9 +38,11 @@ class CRM_Contacts_Activities extends Module {
 		$events = null;
 		$tasks = null;
 		$phonecalls = null;
-		if (isset($this->display['events'])) $events = DB::GetAll('SELECT * FROM crm_calendar_event AS cce WHERE EXISTS (SELECT contact FROM crm_calendar_event_group_emp AS ccegp WHERE ccegp.id=cce.id AND contact=%d) OR EXISTS (SELECT contact FROM crm_calendar_event_group_cus AS ccegc WHERE ccegc.id=cce.id AND contact=%d) ORDER BY start', array($me['id'], $me['id']));
-		if (isset($this->display['tasks'])) $tasks = CRM_TasksCommon::get_tasks(array('(employees'=>$me['id'], '|customers'=>$me['id']));
-		if (isset($this->display['phonecalls'])) $phonecalls = CRM_PhoneCallCommon::get_phonecalls(array('(employees'=>$me['id'], '|customers'=>$me['id']));
+		if ($this->display['events']) $events = DB::GetAll('SELECT * FROM crm_calendar_event AS cce WHERE EXISTS (SELECT contact FROM crm_calendar_event_group_emp AS ccegp WHERE ccegp.id=cce.id AND contact=%d) OR EXISTS (SELECT contact FROM crm_calendar_event_group_cus AS ccegc WHERE ccegc.id=cce.id AND contact=%d) ORDER BY start', array($me['id'], $me['id']));
+		$crits = array('(employees'=>$me['id'], '|customers'=>$me['id']);
+		if (!$this->display['closed']) $crits['!status'] = 2;
+		if ($this->display['tasks']) $tasks = CRM_TasksCommon::get_tasks($crits, array(), array('deadline'=>'ASC'));
+		if ($this->display['phonecalls']) $phonecalls = CRM_PhoneCallCommon::get_phonecalls($crits, array(), array('date_and_time'=>'ASC'));
 		$this->display_activities($events, $tasks, $phonecalls);
 	}
 	
@@ -50,10 +54,14 @@ class CRM_Contacts_Activities extends Module {
 		$form->addElement('checkbox', 'events', $this->lang->t('Events'), null, array('onchange'=>$form->get_submit_form_js()));
 		$form->addElement('checkbox', 'tasks', $this->lang->t('Tasks'), null, array('onchange'=>$form->get_submit_form_js()));
 		$form->addElement('checkbox', 'phonecalls', $this->lang->t('Phone Calls'), null, array('onchange'=>$form->get_submit_form_js()));
-		$form->setDefaults(array('events'=>1, 'tasks'=>1, 'phonecalls'=>1));
+		$form->addElement('checkbox', 'closed', $this->lang->t('Closed'), null, array('onchange'=>$form->get_submit_form_js()));
+		$old_display = $this->get_module_variable('display_options', array('events'=>1, 'tasks'=>1, 'phonecalls'=>1, 'closed'=>0));
+		$form->setDefaults($old_display);
 		$form->assign_theme('form',$theme);
 		$theme->display();
 		$this->display = $form->exportValues();
+		foreach(array('events', 'tasks', 'phonecalls', 'closed') as $v) if (!isset($this->display[$v])) $this->display[$v] = false;
+		$this->set_module_variable('display_options', $this->display);
 	}
 	
 	public function display_activities($events, $tasks, $phonecalls){
@@ -64,7 +72,15 @@ class CRM_Contacts_Activities extends Module {
 										array('name'=>$this->lang->t('Employees'), 'width'=>11),
 										array('name'=>$this->lang->t('Customers'), 'width'=>11)
 										));
-		if (isset($this->display['events'])) foreach($events as $v) {
+		$amount = 0;
+		if ($this->display['events']) $amount += count($events);
+		if ($this->display['tasks']) $amount += count($tasks);
+		if ($this->display['phonecalls']) $amount += count($phonecalls);
+		$limit = $gb->get_limit($amount);
+		$counter = 0;
+		if ($this->display['events']) foreach($events as $v) {
+			$counter++;
+			if (!($counter>$limit['offset'] && $counter<=$limit['offset']+$limit['numrows'])) continue; 
 			$employees = DB::GetAssoc('SELECT contact, contact FROM crm_calendar_event_group_emp AS ccegp WHERE ccegp.id=%d', array($v['id']));
 			$customers = DB::GetAssoc('SELECT contact, contact FROM crm_calendar_event_group_cus AS ccegc WHERE ccegc.id=%d', array($v['id']));
 
@@ -78,17 +94,21 @@ class CRM_Contacts_Activities extends Module {
 								CRM_ContactsCommon::display_contact(array('customers'=>$customers), false, array('id'=>'customers', 'param'=>';::')) 
 							);
 		}
-		if (isset($this->display['tasks'])) foreach($tasks as $v) {
+		if ($this->display['tasks']) foreach($tasks as $v) {
+			$counter++;
+			if (!($counter>$limit['offset'] && $counter<=$limit['offset']+$limit['numrows'])) continue; 
 			$gb_row = $gb->get_new_row();
 			$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info('task', isset($info)?$info:$v['id']));
 			$gb_row->add_data(	$this->lang->t('Task'), 
 								Utils_TasksCommon::display_title($v, false), 
-								(!$v['is_deadline'])?$this->lang->t('No deadline'):Base_RegionalSettingsCommon::time2reg($v['deadline']), 
+								(!isset($v['is_deadline']) || !$v['is_deadline'])?$this->lang->t('No deadline'):Base_RegionalSettingsCommon::time2reg($v['deadline']), 
 								CRM_ContactsCommon::display_contact($v, false, array('id'=>'employees', 'param'=>';CRM_ContactsCommon::contact_format_no_company')), 
 								CRM_ContactsCommon::display_contact($v, false, array('id'=>'customers', 'param'=>';::')) 
 							);
 		}
-		if (isset($this->display['phonecalls'])) foreach($phonecalls as $v) {
+		if ($this->display['phonecalls']) foreach($phonecalls as $v) {
+			$counter++;
+			if (!($counter>$limit['offset'] && $counter<=$limit['offset']+$limit['numrows'])) continue; 
 			$gb_row = $gb->get_new_row();
 			$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info('phonecall', isset($info)?$info:$v['id']));
 			$gb_row->add_data(	$this->lang->t('Phone Call'), 

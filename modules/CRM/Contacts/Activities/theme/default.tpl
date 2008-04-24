@@ -17,6 +17,10 @@
 			{$form_data.phonecalls.label}
 			{$form_data.phonecalls.html}
 		</td>
+		<td>
+			{$form_data.closed.label}
+			{$form_data.closed.html}
+		</td>
 	</tr>
 </table>
 

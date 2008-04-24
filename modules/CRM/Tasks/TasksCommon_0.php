@@ -25,9 +25,9 @@ class CRM_TasksCommon extends ModuleCommon {
 			return array();
 	}
 
-	public static function get_tasks($crits = array(), $cols = array()) {
+	public static function get_tasks($crits = array(), $cols = array(), $order = array()) {
 		$crits['page_id'] = md5('crm_tasks');
-		return Utils_RecordBrowserCommon::get_records('task', $crits, $cols);
+		return Utils_RecordBrowserCommon::get_records('task', $crits, $cols, $order);
 	}
 
 	public static function get_task($id) {

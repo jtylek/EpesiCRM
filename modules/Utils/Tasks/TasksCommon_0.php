@@ -12,8 +12,8 @@ class Utils_TasksCommon extends ModuleCommon {
 				Base_LangCommon::ts('Utils_Tasks','Description: %s', array($r['description'])).'<br>'.
 				Base_LangCommon::ts('Utils_Tasks','Deadline: %s', array(Base_RegionalSettingsCommon::time2reg($r['deadline'])));
 	}
-	public static function get_tasks($crits = array(), $cols = array()) {
-		return Utils_RecordBrowserCommon::get_records('task', $crits, $cols);
+	public static function get_tasks($crits = array(), $cols = array(), $order=array()) {
+		return Utils_RecordBrowserCommon::get_records('task', $crits, $cols, $order);
 	}
 	public static function get_task($id) {
 		return Utils_RecordBrowserCommon::get_record('task', $id);
