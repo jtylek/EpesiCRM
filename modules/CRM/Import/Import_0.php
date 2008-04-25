@@ -829,7 +829,11 @@ class CRM_Import extends Module {
 					} else {
 						$id = $kk['id'];
 						$edited_on = DB::GetOne('SELECT edited_on FROM crm_calendar_event WHERE id=%d',array($id));
-						if($edited_on)
+						if($edited_on === false) {
+							$this->logit('Deleted in epesi. Skipping.');
+							$skipped_events++;
+							continue;
+						} else if($edited_on)
 							$this->logit('Edited in epesi: '.$edited_on);
 						else
 							$edited_on = 0;

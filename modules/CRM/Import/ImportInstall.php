@@ -84,7 +84,7 @@ class CRM_ImportInstall extends ModuleInstall {
 			id I4 KEY NOTNULL,
 			original C(64),
 			created_on T DEFTIMESTAMP',
-			array('constraints'=>', FOREIGN KEY (id) REFERENCES crm_calendar_event(ID), UNIQUE(original)'));
+			array('constraints'=>', UNIQUE(original)'));
 		if(!$ret){
 			print('Unable to create table crm_import_event.<br>');
 			return false;
