@@ -59,7 +59,8 @@ class Utils_Tasks extends Module {
 										),
 									$crits,
 									array('title'=>'DESC'),
-									array('Utils_TasksCommon','applet_info_format')
+									array('Utils_TasksCommon','applet_info_format'),
+									15
 				);
 		$this->display_module($rb, $conds, 'mini_view');
 	}
