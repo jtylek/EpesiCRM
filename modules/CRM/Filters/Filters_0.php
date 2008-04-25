@@ -47,7 +47,7 @@ class CRM_Filters extends Module {
 		$contacts = CRM_ContactsCommon::get_contacts(array('company_name'=>CRM_ContactsCommon::get_main_company()),array('first_name','last_name'),array('last_name'=>'ASC','first_name'=>'ASC'));
 		$contacts_select = array();
 		foreach($contacts as $v)
-			$contacts_select[$v['id']] = $v['first_name'].' '.$v['last_name'];
+			$contacts_select[$v['id']] = $v['last_name'].' '.$v['first_name'];
 		$qf->addElement('select','contact',$this->lang->t('Records of'),$contacts_select,array('onChange'=>$qf->get_submit_form_js().'crm_filters_deactivate()'));
 		if($qf->validate()) {
 			$c = $qf->exportValue('contact');
