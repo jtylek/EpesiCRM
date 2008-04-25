@@ -15,6 +15,10 @@ class CRM_ImportCommon extends ModuleCommon {
 			return array('CRM'=>array('__submenu__'=>1,'Import'=>array()));
 		return array();
 	}
+	
+	public static function body_access() {
+		return self::Instance()->acl_check('import');
+	}
 }
 
 ?>
