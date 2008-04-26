@@ -97,13 +97,17 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 
 		$gb->set_table_columns(array(
 						array('name'=>$this->lang->t('Login'), 'order'=>'u.login', 'width'=>30),
-						array('name'=>$this->lang->t('Mail'), 'order'=>'p.mail', 'width'=>40),
+						array('name'=>$this->lang->t('Active'), 'order'=>'u.active', 'width'=>5),
+						array('name'=>$this->lang->t('Mail'), 'order'=>'p.mail', 'width'=>35),
 						array('name'=>$this->lang->t('Access'),'width'=>30)));
 
-		$query = 'SELECT u.login, p.mail, u.id FROM user_login u INNER JOIN user_password p on p.user_login_id=u.id';
+		$query = 'SELECT u.login, p.mail, u.id, u.active FROM user_login u INNER JOIN user_password p on p.user_login_id=u.id';
 		$query_qty = 'SELECT count(u.id) FROM user_login u INNER JOIN user_password p on p.user_login_id=u.id';
 
 		$ret = $gb->query_order_limit($query, $query_qty);
+		
+		$yes = '<span style="color:green;">'.$this->lang->t('yes').'</span>';
+		$no = '<span style="color:red;">'.$this->lang->t('no').'</span>';
 		if($ret)
 			while(($row=$ret->FetchRow())) {
 				$uid = Base_AclCommon::get_acl_user_id($row['id']);
@@ -111,7 +115,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 				$groups = Base_AclCommon::get_user_groups_names($uid);
 				if($groups===false) continue; //skip if you don't have privileges
 
-				$gb->add_row('<a '.$this->create_unique_href(array('edit_user'=>$row['id'])).'>'.$row['login'].'</a>',$row['mail'],$groups);
+				$gb->add_row('<a '.$this->create_unique_href(array('edit_user'=>$row['id'])).'>'.$row['login'].'</a>',$row['active']?$yes:$no,$row['mail'],$groups);
 			}
 
 		$this->display_module($gb);
