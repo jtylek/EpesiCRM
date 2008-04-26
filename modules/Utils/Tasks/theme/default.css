@@ -91,7 +91,7 @@
 
 #Utils_Tasks .title,
 #Utils_Tasks .title input {
-	font-size: 14px;
+	/*font-size: 14px;*/
 }
 
 #Utils_Tasks .title input {
@@ -142,7 +142,7 @@
 }
 
 #Utils_Tasks .data textarea {
-	height: 100%;
+	height: 72px;
 }
 
 #Utils_Tasks .data input[type="checkbox"],
@@ -334,4 +334,11 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
 
 #Utils_Tasks .attachments .layer .margin2px {
 	padding: 0px;
+}
+
+/* multiselect 100% width */
+
+#Utils_Tasks #multiselect .form-element select,
+#Utils_Tasks #multiselect .to-element select {
+	width: 100%;
 }
