@@ -67,12 +67,13 @@ class Utils_TasksCommon extends ModuleCommon {
 		if ($param[1] == '::') $callback = array('CRM_ContactsCommon', 'contact_format_default');
 		else $callback = explode('::', $param[1]);
 		if (!is_array($v)) $v = array($v);
+		$ret = DB::GetAssoc('SELECT contact_id, 1 FROM task_employees_notified WHERE task_id=%d', array($record['id']));
+		print_r($ret);
 		foreach($v as $k=>$w){
 			if ($w=='') break;
 			if ($first) $first = false;
 			else $def .= ', ';
-			$ret = DB::GetAssoc('SELECT contact_id, 1 FROM task_employees_notified WHERE task_id=%d', array($record['id']));
-			$def .= '<img src="'.(isset($ret[$w['id']])?$icon_on:$icon_off).'" />'.call_user_func($callback, CRM_ContactsCommon::get_contact($w), $nolink);
+			$def .= '<img src="'.(isset($ret[$w])?$icon_on:$icon_off).'" />'.call_user_func($callback, CRM_ContactsCommon::get_contact($w), $nolink);
 		}
 		if (!$def) 	$def = '--';
 		return $def;
