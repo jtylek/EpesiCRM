@@ -68,7 +68,6 @@ class Utils_TasksCommon extends ModuleCommon {
 		else $callback = explode('::', $param[1]);
 		if (!is_array($v)) $v = array($v);
 		$ret = DB::GetAssoc('SELECT contact_id, 1 FROM task_employees_notified WHERE task_id=%d', array($record['id']));
-		print_r($ret);
 		foreach($v as $k=>$w){
 			if ($w=='') break;
 			if ($first) $first = false;
