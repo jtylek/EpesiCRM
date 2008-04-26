@@ -148,10 +148,12 @@ class Utils_TasksCommon extends ModuleCommon {
 			}
 			return null;
 		}
-		if ($values['id']!=null)
-			foreach($values['employees'] as $v)
-				if ($v==$me['id'])
+		if ($values['id']!=null) {
+			foreach($values['employees'] as $v) {
+				if ($v==$me['id']) 
 					self::set_notified($me['id'],$values['id']);
+			}
+		}
 		if (!isset($values['is_deadline'])) {
 			$values['deadline']='';
 		}

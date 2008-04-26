@@ -58,6 +58,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 //		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Contacts', 'company_addon', 'Contacts');
 //		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Contacts', 'company_attachment_addon', 'Notes');
 //		Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Contacts', 'contact_attachment_addon', 'Notes');
+		Utils_RecordBrowserCommon::new_addon('phonecall', 'CRM/PhoneCall', 'phonecall_attachment_addon', 'Notes');
 // ************ other ************** //
 		$this->add_aco('browse phonecalls',array('Employee'));
 		$this->add_aco('view phonecall',array('Employee'));
@@ -67,12 +68,18 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 		Utils_CommonDataCommon::new_array('Ticket_Status',array('Open','In Progress','Closed'), true);
 		Utils_CommonDataCommon::new_array('Permissions',array('Public','Protected','Private'), true);
 		Utils_CommonDataCommon::new_array('Priorities',array('Low','Medium','High'), true);
+
+		$this->add_aco('view protected notes','Employee');
+		$this->add_aco('view public notes','Employee');
+		$this->add_aco('edit protected notes','Employee Administrator');
+		$this->add_aco('edit public notes','Employee');
 		return true;
 	}
 
 	public function uninstall() {
 		Base_ThemeCommon::uninstall_default_theme('CRM/PhoneCall');
-//		Utils_RecordBrowserCommon::delete_addon('company', 'CRM/Contacts', 'company_addon');
+		Utils_RecordBrowserCommon::delete_addon('phonecall', 'CRM/PhoneCall', 'phonecall_attachment_addon');
+		Utils_AttachmentCommon::persistent_mass_delete(null,'CRM/PhoneCall/');
 //		Utils_RecordBrowserCommon::delete_addon('company', 'CRM/Contacts', 'company_attachment_addon');
 //		Utils_AttachmentCommon::persistent_mass_delete(null,'CRM/Contact/');
 //		Utils_AttachmentCommon::persistent_mass_delete(null,'CRM/Company/');

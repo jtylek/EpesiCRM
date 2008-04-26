@@ -70,6 +70,10 @@ class Utils_TasksInstall extends ModuleInstall {
 			return false;
 		}
 
+		$this->add_aco('view protected notes','Employee');
+		$this->add_aco('view public notes','Employee');
+		$this->add_aco('edit protected notes','Employee Administrator');
+		$this->add_aco('edit public notes','Employee');
 		return true;
 	}
 

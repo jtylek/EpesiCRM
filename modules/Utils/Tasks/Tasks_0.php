@@ -27,7 +27,8 @@ class Utils_Tasks extends Module {
 		$this->rb->set_default_order(array('deadline'=>'ASC', 'longterm'=>'ASC', 'title'=>'ASC'));
 		if (is_numeric(Utils_RecordBrowser::$clone_result)) {
 			$me = CRM_ContactsCommon::get_my_record();
-			Utils_TasksCommon::set_notified($me['id'], Utils_RecordBrowser::$clone_result);
+			$task = Utils_TasksCommon::get_task(Utils_RecordBrowser::$clone_result);
+			if (in_array($me['id'], $task['employees'])) Utils_TasksCommon::set_notified($me['id'], Utils_RecordBrowser::$clone_result);
 		}
 		$this->display_module($this->rb, array(array(), array('page_id'=>$mid)));
 	}

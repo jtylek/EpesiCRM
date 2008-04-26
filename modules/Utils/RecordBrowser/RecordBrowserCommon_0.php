@@ -332,7 +332,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$key=$tab.'__'.serialize($crits).'__'.$admin.'__'.serialize($order);
 		static $cache = array();
 		self::init($tab, $admin);
-//		if (isset($cache[$key])) return $cache[$key];
+		if (isset($cache[$key])) return $cache[$key];
 		if (!$tab) return false;
 		$having = '';
 		$fields = '';
@@ -425,6 +425,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								$ret = DB::Execute('SELECT cd1.akey AS id FROM utils_commondata_tree AS cd1 LEFT JOIN utils_commondata_tree AS cd2 ON cd1.parent_id=cd2.id WHERE cd1.value LIKE '.implode(' OR cd1.value LIKE ',$v).' AND cd2.akey='.DB::qstr($cols2));
 								$allowed_cd = array();
 								while ($row = $ret->FetchRow()) $allowed_cd[] = $row['id'];
+								if (empty($allowed_cd)) {
+									$having .= $or_started?'0':'1';
+									break;
+								}
 								$fields .= ', concat( \'::\', group_concat( rd'.$iter.'.value ORDER BY rd'.$iter.'.value SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
 								$final_tab = '('.$final_tab.') LEFT JOIN '.$tab.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab.'_id AND rd'.$iter.'.field="'.$ref.'"';
 								$having .= 'val'.$iter.' LIKE concat(\'%\',\''.implode('\',\'%\') OR val'.$iter.' LIKE concat(\'%\',\'',$allowed_cd).'\',\'%\')';
