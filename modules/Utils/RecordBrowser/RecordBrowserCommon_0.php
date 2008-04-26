@@ -626,13 +626,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$contact='';
 		if (ModuleManager::is_installed('CRM_Contacts')>=0) {
 			$contact = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact_by_user_id($info['created_by']),true);
-			if ($contact!='') $created_by = $contact;
+			if ($contact!=' ') $created_by = $contact;
 			else $created_by = Base_UserCommon::get_user_login($info['created_by']);
 			if ($info['edited_by']!=null) {
 				if ($info['edited_by']!=$info['created_by']) $contact = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact_by_user_id($info['edited_by']),true);
-				if ($contact!='') $edited_by = $contact;
+				if ($contact!=' ') $edited_by = $contact;
 				else $edited_by = Base_UserCommon::get_user_login($info['edited_by']);
 			}
+		} else {
+			$created_by = Base_UserCommon::get_user_login($info['created_by']);
+			$edited_by = Base_UserCommon::get_user_login($info['edited_by']);
 		}
 		return Base_LangCommon::ts('Utils_RecordBrowser','Created on:').' '.Base_RegionalSettingsCommon::time2reg($info['created_on']). '<br>'.
 				Base_LangCommon::ts('Utils_RecordBrowser','Created by:').' '.$created_by. '<br>'.
