@@ -63,7 +63,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		}
 		return $result;	
 	}
-	public static function get_all($start,$end,$order='') {
+	public static function get_all($start,$end,$order=' ORDER BY e.start') {
 		if(self::$filter=='()')
 			$fil = ' AND 1=0';
 		else if(self::$filter)
