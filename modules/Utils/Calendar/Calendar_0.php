@@ -405,7 +405,7 @@ class Utils_Calendar extends Module {
 		$ret = $this->get_events(date('Y-m-d',$this->date),date('Y-m-d',$this->date+86400));
 		$custom_keys = $this->settings['custom_rows'];
 		foreach($ret as $ev) {
-			$ev_start = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$ev['start']))-$today_t;
+			$ev_start = $ev['start']-$today_t;//Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$ev['start']))
 //			print_r($ev_start);
 			if($ev_start<0 || $ev_start>=86400) continue;
 
