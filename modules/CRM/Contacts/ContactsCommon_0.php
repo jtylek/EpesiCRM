@@ -133,8 +133,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 		foreach($v as $k=>$w){
 			if ($w=='') break;
 			if ($first) $first = false;
-			else $def .= ', ';
-			$def .= call_user_func($callback, self::get_contact($w), $nolink);
+			else $def .= '<br>';
+			$def .= Utils_RecordBrowserCommon::no_wrap(call_user_func($callback, self::get_contact($w), $nolink));
 		}
 		if (!$def) 	$def = '--';
 		return $def;
@@ -209,8 +209,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 			foreach($default as $k=>$v){
 				if ($v=='') break;
 				if ($first) $first = false;
-				else $def .= ', ';
-				$def .= self::display_contact(array($desc['id']=>$v), false, $desc);
+				else $def .= '<br>';
+				$def .= Utils_RecordBrowserCommon::no_wrap(self::display_contact(array($desc['id']=>$v), false, $desc));
 			}
 			if (!$def) 	$def = '--';
 			$form->setDefaults(array($field=>$def));
@@ -226,8 +226,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 		foreach($v as $k=>$w){
 			if ($w=='') break;
 			if ($first) $first = false;
-			else $def .= ', ';
-			$def .= Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $w, $nolink);
+			else $def .= '<br>';
+			$def .= Utils_RecordBrowserCommon::no_wrap(Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $w, $nolink));
 		}
 		if (!$def) return '--';
 		return $def;
@@ -273,8 +273,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 				foreach($default as $k=>$v){
 					if ($v=='') break;
 					if ($first) $first = false;
-					else $def .= ', ';
-					$def .= Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $v);
+					else $def .= '<br>';
+					$def .= Utils_RecordBrowserCommon::no_wrap(Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $v));
 				}
 			}
 			if (!$def) 	$def = '--';

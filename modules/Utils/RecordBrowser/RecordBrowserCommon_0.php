@@ -674,6 +674,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		self::check_table_name($tab);
 		DB::Execute('UPDATE '.$tab.' SET active=0 where id=%d', array($id));
 	}
+	public static function no_wrap($s) {
+		$content_no_wrap = $s;
+		preg_match_all('/>([^\<\>]*)</', $s, $match);
+		foreach($match[1] as $v) $content_no_wrap = str_replace($v, str_replace(' ','&nbsp;', $v), $content_no_wrap);
+		return $content_no_wrap;
+	}
 	public static function get_record_href_array($tab, $id){
 		self::check_table_name($tab);
 		if (isset($_REQUEST['__jump_to_RB_table']) && 

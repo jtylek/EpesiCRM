@@ -71,8 +71,8 @@ class Utils_TasksCommon extends ModuleCommon {
 		foreach($v as $k=>$w){
 			if ($w=='') break;
 			if ($first) $first = false;
-			else $def .= ', ';
-			$def .= '<img src="'.(isset($ret[$w])?$icon_on:$icon_off).'" />'.call_user_func($callback, CRM_ContactsCommon::get_contact($w), $nolink);
+			else $def .= '<br>';
+			$def .= '<img src="'.(isset($ret[$w])?$icon_on:$icon_off).'" />'.Utils_RecordBrowserCommon::no_wrap(call_user_func($callback, CRM_ContactsCommon::get_contact($w), $nolink));
 		}
 		if (!$def) 	$def = '--';
 		return $def;

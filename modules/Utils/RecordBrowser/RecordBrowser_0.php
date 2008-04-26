@@ -59,8 +59,8 @@ class Utils_RecordBrowser extends Module {
 				foreach ($val as $k=>$v){
 					if ($tab=='__COMMON__' && !isset($data[$v])) continue;
 					if ($first) $first = false;
-					else $ret .= ', ';
-					if ($tab=='__COMMON__') $ret .= $data[$v];
+					else $ret .= '<br>';
+					if ($tab=='__COMMON__') $ret .= Utils_RecordBrowserCommon::no_wrap($data[$v]);
 					else $ret .= Utils_RecordBrowserCommon::create_linked_label($tab, $col, $v, $links_not_recommended);
 				}
 				if ($ret=='') $ret = '--';
@@ -303,6 +303,10 @@ class Utils_RecordBrowser extends Module {
 			if ($this->browse_mode!='recent') $arr['order'] = $field;
 			if ($quickjump!=='' && $args['name']===$quickjump) $arr['quickjump'] = '"'.$args['name'];
 			if ($args['type']=='text' || $args['type']=='currency') $arr['search'] = str_replace(' ','_',$field);
+			if ($args['type']=='checkbox' || $args['type']=='date' || $args['type']=='timestamp' || $args['type']=='commondata') {
+				$arr['wrapmode'] = 'nowrap';
+				$arr['width'] = 1;
+			}
 			$str = explode(';', $args['param']);
 			$ref = explode('::', $str[0]);
 			if ($ref[0]!='' && isset($ref[1])) $arr['search'] = '__Ref__'.str_replace(' ','_',$field);
@@ -320,7 +324,7 @@ class Utils_RecordBrowser extends Module {
 		}
 		$table_columns_SQL = join(', ', $table_columns_SQL);
 		if ($this->browse_mode == 'recent')
-			$table_columns[] = array('name'=>$this->lang->t('Visited on'), 'wrapmode'=>'nowrap');
+			$table_columns[] = array('name'=>$this->lang->t('Visited on'), 'wrapmode'=>'nowrap', 'width'=>1);
 
 		$gb->set_table_columns( $table_columns );
 

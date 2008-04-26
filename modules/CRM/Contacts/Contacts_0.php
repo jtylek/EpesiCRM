@@ -43,7 +43,7 @@ class CRM_Contacts extends Module {
 
 		$qf = $this->init_module('Libs/QuickForm',null,'my_company');
 		$l = $this->init_module('Base/Lang');
-		$companies = CRM_ContactsCommon::get_companies();
+		$companies = CRM_ContactsCommon::get_companies(array(), array(), array('company_name'=>'ASC'));
 		$x = array();
 		foreach($companies as $c)
 			$x['s'.$c['id']] = htmlentities($c['company_name']);//.' ('.$c['short_name'].')'
