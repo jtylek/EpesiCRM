@@ -106,6 +106,7 @@ class Utils_GenericBrowser extends Module {
 	private $en_actions = false;
 	private $cur_row = -1;
 	private $per_page;
+	private $offset;
 	private $custom_label = '';
 	private $table_prefix = '';
 	private $table_postfix = '';
@@ -303,6 +304,8 @@ class Utils_GenericBrowser extends Module {
 		$this->unset_unique_href_variable('last');
 		$this->set_module_variable('offset', $offset);
 		$this->set_module_variable('per_page', $per_page);
+		$this->per_page = $per_page;
+		$this->offset = $offset;
 		return array(	'numrows'=>$per_page,
 						'offset'=>$offset);
 	}
@@ -699,7 +702,10 @@ class Utils_GenericBrowser extends Module {
 		$pager_on = false;
 		if(isset($this->rows_qty) && $paging) {
 			$form_p->addElement('select','per_page',$this->lang->t('Number of rows per page'), array(5=>5,10=>10,20=>20,50=>50,100=>100), 'onChange="'.$form_p->get_submit_form_js(false).'"');
-			$form_p->setDefaults(array('per_page'=>$per_page));
+			$pages = array();
+			foreach (range(1, ceil($this->rows_qty/$this->per_page)) as $v) $pages[($v-1)*$this->per_page] = $v;
+			$form_p->addElement('select','page',$this->lang->t('Page'), $pages, 'onChange="'.$form_p->get_submit_form_js(false).'"');
+			$form_p->setDefaults(array('per_page'=>$per_page, 'page'=>$this->offset));
 			$pager_on = true;
 		}
 		$search_on=false;
@@ -740,6 +746,8 @@ class Utils_GenericBrowser extends Module {
 					$this->set_module_variable('per_page',$values['per_page']);
 					Base_User_SettingsCommon::save('Utils/GenericBrowser','per_page',$values['per_page']);
 				}
+				if(isset($values['page']))
+					$this->set_module_variable('offset',$values['page']);
 				location(array());
 			}
 		}
@@ -963,7 +971,7 @@ class Utils_GenericBrowser extends Module {
 
 	private function gb_prev() {
 		if($this->get_module_variable('offset')>0)
-    		return '</a><a '.$this->create_unique_href(array('prev'=>1)).'>'.$this->lang->t('Prev').'</a>';
+    		return '<a '.$this->create_unique_href(array('prev'=>1)).'>'.$this->lang->t('Prev').'</a>';
 	}
 
 	private function gb_next() {
