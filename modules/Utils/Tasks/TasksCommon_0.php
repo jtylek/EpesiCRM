@@ -54,8 +54,8 @@ class Utils_TasksCommon extends ModuleCommon {
 		return array('company_name'=>array(CRM_ContactsCommon::get_main_company()));
 	}
 	public static function customers_crits($arg){
-		if (!$arg) return array('!company_name'=>array(CRM_ContactsCommon::get_main_company()), '(:Fav'=>true, '|:Recent'=>true);
-		else return array('!company_name'=>array(CRM_ContactsCommon::get_main_company()));
+		if (!$arg) return array('(:Fav'=>true, '|:Recent'=>true);
+		else return array();
 	}
 	public static function display_employees($record, $nolink, $desc) {
 		$icon_on = Base_ThemeCommon::get_template_file('images/active_on.png');
