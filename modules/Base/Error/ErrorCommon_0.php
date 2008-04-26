@@ -23,7 +23,7 @@ class EpesiErrorObserver extends ErrorObserver {
 			$d = ModuleManager::get_data_dir('Base/Error').md5($x).'.txt';
 			file_put_contents($d,$x);
 			$url = get_epesi_url();
-			Base_MailCommon::send($mail,'Epesi Error - '.$url,$url.'/'.$d);
+			Base_MailCommon::send($mail,'Epesi Error - '.$url,substr($x,0,strpos($x,"error backtrace"))."\n".$url.'/'.$d);
 		}
 		return true;
 	}
