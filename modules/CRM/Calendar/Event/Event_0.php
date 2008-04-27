@@ -203,7 +203,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 					$emp_alarm[$c_id] = $data['login'];
 			}
 			$cus = array();
-			$ret = CRM_ContactsCommon::get_contacts(array('!company_name'=>array(CRM_ContactsCommon::get_main_company()), '(:Fav'=>true, '|:Recent'=>true, '|id'=>$def['cus_id']));
+			$ret = CRM_ContactsCommon::get_contacts(array('(:Fav'=>true, '|:Recent'=>true, '|id'=>$def['cus_id']));
 			foreach($ret as $c_id=>$data)
 				$cus[$c_id] = CRM_ContactsCommon::contact_format_default($data);
 
@@ -217,7 +217,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 		if($action != 'view') {
 			$rb2 = $this->init_module('Utils/RecordBrowser/RecordPicker');
-			$this->display_module($rb2, array('contact', 'cus_id', array('CRM_Calendar_EventCommon','decode_contact'), array('!company_name'=>CRM_ContactsCommon::get_main_company()), array('work_phone'=>false, 'mobile_phone'=>false, 'zone'=>false, 'Actions'=>false), array('last_name'=>'ASC')));
+			$this->display_module($rb2, array('contact', 'cus_id', array('CRM_Calendar_EventCommon','decode_contact'), array(), array('work_phone'=>false, 'mobile_phone'=>false, 'zone'=>false, 'Actions'=>false), array('last_name'=>'ASC')));
 			$cus_click = $rb2->create_open_link($this->lang->t('Advanced'));
 		} else {
 			$cus_click = '';
