@@ -726,7 +726,7 @@ class Utils_GenericBrowser extends Module {
 					$form_s->addElement('hidden','search__'.$v['search'],'');
 					$default = isset($search[$v['search']])?$search[$v['search']]:$this->lang->ht('search keyword...');
 					$form_s->setDefaults(array('search__'.$v['search']=>$default));
-					$in = '<input value="'.$default.'" name="search__textbox_'.$v['search'].'" onfocus="if (this.value==\''.$this->lang->ht('search keyword...').'\') this.value=\'\';" onblur="if (this.value==\'\') this.value=\''.$this->lang->ht('search keyword...').'\';   document.forms[\''.$form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;" />';
+					$in = '<input value="'.$default.'" name="search__textbox_'.$v['search'].'" onfocus="if (this.value==\''.$this->lang->ht('search keyword...').'\') this.value=\'\';" onblur="if (this.value==\'\') this.value=\''.$this->lang->ht('search keyword...').'\'; document.forms[\''.$form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;" onkeydown="if (event.keyCode==13) {document.forms[\''.$form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;'.$form_s->get_submit_form_js().';}" />';
 					$search_fields[$col_pos[$k]['pos']+$mov] = $in;
 					$search_on=true;
 				}
