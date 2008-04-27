@@ -464,6 +464,18 @@ abstract class Module extends ModulePrimitive {
 		$rkey = $this->create_unique_key($key);
 		return isset($_REQUEST[$rkey]);
 	}
+	
+	private final function create_callback_name($func, $args) {
+		if(is_string($func))
+			return md5(serialize(array($func,$args)));
+		if(!is_array($func) || count($func)!=2)
+			trigger_error('Invalid function passed to create_callback_{*}.',E_USER_ERROR);
+		if(is_string($func[0]))
+			return md5(serialize(array($func,$args)));
+		if(!($func[0] instanceof Module))
+			trigger_error('Invalid function passed to create_callback_{*}.',E_USER_ERROR);
+		return md5(serialize(array(array($func[0]->get_path(),$func[1]),$args)));
+	}
 
 	/**
 	 * Creates link similar to link created with create_href.
@@ -481,7 +493,7 @@ abstract class Module extends ModulePrimitive {
 	 * @return string href string
 	 */
 	public final function create_callback_href($func,$args=null,$indicator=null,$mode=null) {
-		$name = md5(serialize(array($func,$args)));
+		$name = $this->create_callback_name($func,$args);
 		return $this->create_callback_href_with_id($name,$func,$args,$indicator,$mode);
 	}
 
@@ -500,12 +512,12 @@ abstract class Module extends ModulePrimitive {
 	 * @return string href string
 	 */
 	public final function create_callback_href_js($func,$args=null,$indicator=null,$mode=null) {
-		$name = md5(serialize(array($func,$args)));
+		$name = $this->create_callback_name($func,$args);
 		return $this->create_callback_href_with_id_js($name,$func,$args,$indicator,$mode);
 	}
 
 	public final function call_callback_href($func,$args=null) {
-		$name = 'callback_'.md5(serialize(array($func,$args)));
+		$name = 'callback_'.$this->create_callback_name($func,$args);
 		$this->set_callback($name,$func,$args);
 		location(array($this->create_unique_key($name)=>1));
 	}
@@ -530,7 +542,7 @@ abstract class Module extends ModulePrimitive {
 	 * @return string href string
 	 */
 	public final function create_confirm_callback_href($confirm, $func, $args=null,$indicator=null,$mode=null) {
-		$name = md5(serialize(array($func,$args)));
+		$name = $this->create_callback_name($func,$args);
 		return $this->create_confirm_callback_href_with_id($name, $confirm, $func,$args,$indicator,$mode);
 	}
 
