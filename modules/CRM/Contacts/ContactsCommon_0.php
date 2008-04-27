@@ -158,6 +158,9 @@ class CRM_ContactsCommon extends ModuleCommon {
 		Utils_ChainedSelectCommon::create($desc['id'],array($ref_field),'modules/CRM/Contacts/update_contact.php', array('format'=>implode('::', $format_func), 'required'=>$desc['required']), $default);
 		return null;
 	}
+	public function compare_names($a, $b) {
+		return strip_tags($a)>strip_tags($b);
+	}
 	public static function QFfield_contact(&$form, $field, $label, $mode, $default, $desc, $rb_obj = null) {
 		$cont = array();
 		$param = explode(';',$desc['param']);
@@ -197,7 +200,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 					$c = CRM_ContactsCommon::get_contact($k);
 					$cont[$k] = call_user_func($callback, $c, true);
 				}
-				asort($cont);
+				uasort($cont, array('CRM_ContactsCommon', 'compare_names'));
 			} else $cont = array();
 			$form->addElement($desc['type'], $field, $label, $cont, array('id'=>$field));
 			if ($mode!=='add') $form->setDefaults(array($field=>$default));
