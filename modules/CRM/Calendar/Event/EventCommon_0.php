@@ -97,16 +97,16 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$emps = array();
 			foreach($emps_tmp as $k)
 				if(is_numeric($k))
-					$emps[] = CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($k));
+					$emps[] = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact($k));
 			$cuss_tmp = explode(',',$row['customers']);
 			$cuss = array();
 			foreach($cuss_tmp as $k)
 				if(is_numeric($k))
 					$cuss[] = CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($k));
 			$next_result['additional_info'] =  $row['description'].	'<hr>'.
-					Base_LangCommon::ts('CRM_Calendar_Event','Employees:').'<br>'.
+					'<b>'.Base_LangCommon::ts('CRM_Calendar_Event','Employees:').'</b><br>'.
 						implode('<br>',$emps).
-					(empty($cuss)?'':'<br>'.Base_LangCommon::ts('CRM_Calendar_Event','Customers:').'<br>'.
+					(empty($cuss)?'':'<br><b>'.Base_LangCommon::ts('CRM_Calendar_Event','Customers:').'</b><br>'.
 						implode('<br>',$cuss));
 			$next_result['custom_agenda_col_0'] = $row['description'];
 			$next_result['custom_agenda_col_1'] = implode(', ',$emps);
@@ -130,12 +130,6 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		return true;
 	}
 
-	public static function decode_contact($id) {
-		$contact = CRM_ContactsCommon::get_contact($id);
-		return $contact['last_name']." ".$contact['first_name'];
-		//return '['.$contact['Company Name'][0].'] '.$contact['First Name']." ".$contact['Last Name'];
-	}
-	
 	public static function get_alarm($id) {
 		$a = self::get($id);
 
