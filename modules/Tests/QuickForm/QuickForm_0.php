@@ -15,6 +15,7 @@ class Tests_QuickForm extends Module{
 
 //		$x = $f->addElement('datepicker','xxxy','Date picker');
 		$x = $f->addElement('timestamp','xxxyss','Timestamp picker');
+		$x = $f->addElement('text','ble','Test');
 		$x = $f->addElement('currency','cur','Currency');
 		$f->setDefaults(array('xxxyss'=>time()));
 //		$f->freeze(array('xxxyss'));
