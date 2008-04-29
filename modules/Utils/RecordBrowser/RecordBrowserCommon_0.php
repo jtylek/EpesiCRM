@@ -425,7 +425,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								$ret = DB::Execute('SELECT cd1.akey AS id FROM utils_commondata_tree AS cd1 LEFT JOIN utils_commondata_tree AS cd2 ON cd1.parent_id=cd2.id WHERE cd1.value LIKE '.implode(' OR cd1.value LIKE ',$v).' AND cd2.akey='.DB::qstr($cols2));
 								$allowed_cd = array();
 								while ($row = $ret->FetchRow()) $allowed_cd[] = DB::qstr($row['id']);
-								print_r($allowed_cd);
 								if (empty($allowed_cd)) {
 									$having .= $or_started?'1':'0';
 									break;
