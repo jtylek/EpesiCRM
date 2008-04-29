@@ -431,7 +431,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								}
 								$fields .= ', concat( \'::\', group_concat( rd'.$iter.'.value ORDER BY rd'.$iter.'.value SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
 								$final_tab = '('.$final_tab.') LEFT JOIN '.$tab.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab.'_id AND rd'.$iter.'.field="'.$ref.'"';
-								$having .= 'val'.$iter.' LIKE concat(\'%\','.implode(',\'%\') OR val'.$iter.' LIKE concat(\'%\',',$allowed_cd).',\'%\')';
+								$having .= '(val'.$iter.' LIKE concat(\'%\','.implode(',\'%\') OR val'.$iter.' LIKE concat(\'%\',',$allowed_cd).',\'%\'))';
 								$iter++;
 								break;
 							}
