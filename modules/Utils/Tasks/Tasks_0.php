@@ -56,10 +56,11 @@ class Utils_Tasks extends Module {
 		if (!$short && $long) $crits['longterm'] = 1;
 		$conds = array(
 									array(	array('field'=>'title', 'width'=>20, 'cut'=>20),
+											array('field'=>'deadline', 'width'=>1),
 											array('field'=>'status', 'width'=>1)
 										),
 									$crits,
-									array('title'=>'DESC'),
+									array('deadline'=>'ASC'),
 									array('Utils_TasksCommon','applet_info_format'),
 									15
 				);

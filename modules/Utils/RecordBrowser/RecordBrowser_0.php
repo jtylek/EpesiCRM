@@ -1288,8 +1288,11 @@ class Utils_RecordBrowser extends Module {
 				$s = $this->get_val($field_hash[$w], $v, $v['id'], false, $this->table_rows[$field_hash[$w]]);
 				$content = strip_tags($s);
 				if ($cut[$k]!=-1 && strlen($content)>$cut[$k]) {
-					$label = '<span '.Utils_TooltipCommon::open_tag_attrs($content).'>'.substr($content, 0, $cut[$k]).'...</span>';
-					$arr[] = str_replace($content, $label, $s);
+					$label = substr($content, 0, $cut[$k]).'...';
+					$label = str_replace($content, $label, $s);
+					if (!strpos($s, 'Utils_Toltip__showTip(')) $label = '<span '.Utils_TooltipCommon::open_tag_attrs($content).'>'.$label.'</span>';
+					else $label = preg_replace('/Utils_Toltip__showTip\(\'(.*?)\'/', 'Utils_Toltip__showTip(\''.$content.'<hr>$1\'', $label);
+					$arr[] = $label;
 				} else $arr[] = $s;
 			}
 			$gb_row->add_data_array($arr);
