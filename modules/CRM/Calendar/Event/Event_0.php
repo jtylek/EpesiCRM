@@ -196,14 +196,14 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		} else {
 			$emp = array();
 			$emp_alarm = array();
-			$ret = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())));
+			$ret = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())), array(), array('last_name'=>'ASC', 'first_name'=>'ASC'));
 			foreach($ret as $c_id=>$data) {
 				$emp[$c_id] = $data['last_name'].' '.$data['first_name'];
 				if(is_numeric($data['login']))
 					$emp_alarm[$c_id] = $data['login'];
 			}
 			$cus = array();
-			$ret = CRM_ContactsCommon::get_contacts(array('(:Fav'=>true, '|:Recent'=>true, '|id'=>$def['cus_id']));
+			$ret = CRM_ContactsCommon::get_contacts(array('(:Fav'=>true, '|:Recent'=>true, '|id'=>$def['cus_id']), array(), array('last_name'=>'ASC', 'first_name'=>'ASC'));
 			foreach($ret as $c_id=>$data)
 				$cus[$c_id] = CRM_ContactsCommon::contact_format_default($data);
 
