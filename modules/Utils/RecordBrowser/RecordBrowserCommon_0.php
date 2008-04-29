@@ -424,14 +424,15 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							if ($params[1]=='RefCD' || $tab2=='__COMMON__') {
 								$ret = DB::Execute('SELECT cd1.akey AS id FROM utils_commondata_tree AS cd1 LEFT JOIN utils_commondata_tree AS cd2 ON cd1.parent_id=cd2.id WHERE cd1.value LIKE '.implode(' OR cd1.value LIKE ',$v).' AND cd2.akey='.DB::qstr($cols2));
 								$allowed_cd = array();
-								while ($row = $ret->FetchRow()) $allowed_cd[] = $row['id'];
+								while ($row = $ret->FetchRow()) $allowed_cd[] = DB::qstr($row['id']);
+								print_r($allowed_cd);
 								if (empty($allowed_cd)) {
-									$having .= $or_started?'0':'1';
+									$having .= $or_started?'1':'0';
 									break;
 								}
 								$fields .= ', concat( \'::\', group_concat( rd'.$iter.'.value ORDER BY rd'.$iter.'.value SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
 								$final_tab = '('.$final_tab.') LEFT JOIN '.$tab.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab.'_id AND rd'.$iter.'.field="'.$ref.'"';
-								$having .= 'val'.$iter.' LIKE concat(\'%\',\''.implode('\',\'%\') OR val'.$iter.' LIKE concat(\'%\',\'',$allowed_cd).'\',\'%\')';
+								$having .= 'val'.$iter.' LIKE concat(\'%\','.implode(',\'%\') OR val'.$iter.' LIKE concat(\'%\',',$allowed_cd).',\'%\')';
 								$iter++;
 								break;
 							}
