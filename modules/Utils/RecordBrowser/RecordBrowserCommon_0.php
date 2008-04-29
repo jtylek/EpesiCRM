@@ -426,7 +426,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								$allowed_cd = array();
 								while ($row = $ret->FetchRow()) $allowed_cd[] = DB::qstr($row['id']);
 								if (empty($allowed_cd)) {
-									$having .= $or_started?'1':'0';
+									$having .= $negative?'1':'0';
 									break;
 								}
 								$fields .= ', concat( \'::\', group_concat( rd'.$iter.'.value ORDER BY rd'.$iter.'.value SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
