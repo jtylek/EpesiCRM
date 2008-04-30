@@ -439,7 +439,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							foreach($cols2 as $j=>$w) $cols2[$j] = DB::qstr($w); 
 							$cols2 = implode(' OR field=', $cols2);
 
-							$fields .= ', concat( \'::\', group_concat(( SELECT rdt'.$iter.'.value FROM '.$tab2.'_data AS rdt'.$iter.' WHERE rdt'.$iter.'.field='.$cols2.' AND rdt'.$iter.'.'.$tab2.'_id=rd'.$iter.'.value) SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
+							$fields .= ', concat( \'::\', (SELECT group_concat(rdt'.$iter.'.value SEPARATOR \'::\' ) FROM '.$tab2.'_data AS rdt'.$iter.' WHERE (rdt'.$iter.'.field='.$cols2.') AND rdt'.$iter.'.'.$tab2.'_id=rd'.$iter.'.value) , \'::\' ) AS val'.$iter;
 							$final_tab = '('.$final_tab.') LEFT JOIN '.$tab.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab.'_id AND rd'.$iter.'.field="'.$ref.'"';
 
 							if (!is_array($v)) $v = array($v);
