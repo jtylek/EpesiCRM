@@ -222,7 +222,7 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
 	$name = $element->getName();
     	$element->setValue('');
 	if($value!==null) {
-		eval_js('settextvalue(\''.$this->_formName.'\',\''.$name.'\',"'.str_replace("\n",'\n',addslashes(addslashes($value))).'")');
+		eval_js('settextvalue(\''.$this->_formName.'\',\''.$name.'\',"'.str_replace("\n",'\n',addslashes($value)).'")');
 	}
         if ($this->_collectHidden) {
             $this->_ary['hidden'] .= $element->toHtml() . "\n";
