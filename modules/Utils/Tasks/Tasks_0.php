@@ -55,7 +55,7 @@ class Utils_Tasks extends Module {
 		if ($short && !$long) $crits['!longterm'] = 1;
 		if (!$short && $long) $crits['longterm'] = 1;
 		$conds = array(
-									array(	array('field'=>'title', 'width'=>20, 'cut'=>20),
+									array(	array('field'=>'title', 'width'=>20, 'cut'=>16),
 											array('field'=>'deadline', 'width'=>1),
 											array('field'=>'status', 'width'=>1)
 										),
