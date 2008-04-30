@@ -279,7 +279,7 @@ class Utils_RecordBrowser extends Module {
 		}
 
 		if ($this->is_on_main_page) {
-			$this->browse_mode = $this->get_module_variable('browse_mode', 'recent');
+			$this->browse_mode = $this->get_module_variable('browse_mode', 'all');
 			if (($this->browse_mode=='recent' && $this->recent==0) || ($this->browse_mode=='favorites' && !$this->favorites)) $this->set_module_variable('browse_mode', $this->browse_mode='all');
 			if ($this->browse_mode!=='recent' && $this->recent>0) Base_ActionBarCommon::add('history',$this->lang->t('Recent'), $this->create_callback_href(array($this,'switch_view'),array('recent')));
 			if ($this->browse_mode!=='all') Base_ActionBarCommon::add('all',$this->lang->t('All'), $this->create_callback_href(array($this,'switch_view'),array('all')));
