@@ -27,7 +27,7 @@ foreach($ext_rec as $k=>$v) {
 	$c = CRM_ContactsCommon::get_contact($k);
 	$res[$k] = call_user_func($callback, $c, true);
 }
-asort($res);
+natcasesort($res);
 if (!isset($params['required']) || !$params['required'])
 	$res = array(''=>'--')+$res;
 print(json_encode($res));

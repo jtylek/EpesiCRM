@@ -159,7 +159,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return null;
 	}
 	public function compare_names($a, $b) {
-		return strip_tags($a)>strip_tags($b);
+		return strcasecmp(strip_tags($a),strip_tags($b));
 	}
 	public static function QFfield_contact(&$form, $field, $label, $mode, $default, $desc, $rb_obj = null) {
 		$cont = array();
@@ -258,7 +258,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 				$c = CRM_ContactsCommon::get_company($k);
 				$comp[$k] = $c['company_name'];
 			}
-			asort($comp);
+			natcasesort($comp);
 			$key = '';
 			if ($no_company_option) {
 				$comp = array(''=>'['.Base_LangCommon::ts('CRM_Contacts','w/o company').']') + $comp;

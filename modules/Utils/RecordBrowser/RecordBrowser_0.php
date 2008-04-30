@@ -770,6 +770,7 @@ class Utils_RecordBrowser extends Module {
 													$c = Utils_RecordBrowserCommon::get_record($tab, $k);
 													$comp[$k] = $c[$col_id];
 												}
+												natcasesort($comp);
 											}
 											$form->addElement($args['type'], $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', $comp, array('id'=>$args['id']));
 											if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
@@ -942,7 +943,7 @@ class Utils_RecordBrowser extends Module {
 			'text'=>'text',
 			'long text'=>'long text'
 		);
-		asort($data_type);
+		natcasesort($data_type);
 
 		if (!isset($this->lang)) $this->lang = $this->init_module('Base/Lang');
 		$form = $this->init_module('Libs/QuickForm');
