@@ -41,21 +41,52 @@ class CRM_Contacts extends Module {
 			return;
 		}
 		
-		$c = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())),array('first_name','last_name','login'));
+		$l = $this->init_module('Base/Lang');
+		
+		$filter = $this->get_module_variable_or_unique_href_variable('filter',1);
+		
+		if($filter) {
+			$c = CRM_ContactsCommon::get_company(CRM_ContactsCommon::get_main_company());
+			print('<h2>'.$l->t('"%s" contacts',array($c['company_name'])).'</h2>');
+		} else
+			print('<h2>'.$l->t('Epesi users').'</h2>');
+
+		$logins = DB::GetAssoc('SELECT id,login FROM user_login');
+		$ccc = CRM_ContactsCommon::get_contacts(array('login'=>array_keys($logins)),array('login','first_name','last_name','company_name'));
+
+		if($filter)
+			$c = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())),array('first_name','last_name','login'));
+		else
+			$c = & $ccc;
 		$gb = $this->init_module('Utils/GenericBrowser',null,'my_contacts');
 		$gb->set_table_columns(array(
-			array('name'=>'Login','search'=>1,'order'=>'l'),
-			array('name'=>'Contact','search'=>1,'order'=>'c')
-			
+			array('name'=>$l->t('Login'),'search'=>1,'order'=>'l'),
+			array('name'=>$l->t('Contact'),'search'=>1,'order'=>'c')
 			));
-
+			
 		foreach($c as $r) {
-			$gb->add_row(is_numeric($r['login'])?Base_UserCommon::get_user_login($r['login']):'--',CRM_ContactsCommon::contact_format_no_company($r));
+			if(isset($logins[$r['login']])) {
+				$login = $logins[$r['login']];
+			} else $login = '--';
+			if($filter) 
+				$contact = CRM_ContactsCommon::contact_format_no_company($r);
+			else
+				$contact = CRM_ContactsCommon::contact_format_default($r);
+			$gb->add_row($login,$contact);
 		}
 		$this->display_module($gb,array(true),'automatic_display');
+		
+		foreach($ccc as $v) {
+			unset($logins[$v['login']]);
+		}
+		print($l->t('Users without contact: %s.',array(implode(', ',$logins))));
 
 
 		Base_ActionBarCommon::add('settings', 'Change main company', $this->create_callback_href(array($this,'admin_main_company')));
+		if($filter)
+			Base_ActionBarCommon::add('view', 'Show all users', $this->create_unique_href(array('filter'=>0)));
+		else
+			Base_ActionBarCommon::add('view', 'Show main company contacts', $this->create_unique_href(array('filter'=>1)));
 	}
 	
 	public function admin_main_company() {
