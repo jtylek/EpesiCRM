@@ -40,7 +40,28 @@ class CRM_Contacts extends Module {
 				location(array());
 			return;
 		}
+		
+		$c = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())),array('first_name','last_name','login'));
+		$gb = $this->init_module('Utils/GenericBrowser',null,'my_contacts');
+		$gb->set_table_columns(array(
+			array('name'=>'Login','search'=>1,'order'=>'l'),
+			array('name'=>'Contact','search'=>1,'order'=>'c')
+			
+			));
 
+		foreach($c as $r) {
+			$gb->add_row(is_numeric($r['login'])?Base_UserCommon::get_user_login($r['login']):'--',CRM_ContactsCommon::contact_format_no_company($r));
+		}
+		$this->display_module($gb,array(true),'automatic_display');
+
+
+		Base_ActionBarCommon::add('settings', 'Change main company', $this->create_callback_href(array($this,'admin_main_company')));
+	}
+	
+	public function admin_main_company() {
+		if($this->is_back()) {
+			return false;
+		}
 		$qf = $this->init_module('Libs/QuickForm',null,'my_company');
 		$l = $this->init_module('Base/Lang');
 		$companies = CRM_ContactsCommon::get_companies(array(), array(), array('company_name'=>'ASC'));
@@ -57,17 +78,15 @@ class CRM_Contacts extends Module {
 
 		if($qf->validate()) {
 			Variable::set('main_company',trim($qf->exportValue('company'),'s'));
-			if($this->parent->get_type()=='Base_Admin')
-				$this->parent->reset();
-			else
-				location(array());
-			return;
+			return false;
 		}
 		$qf->display();
 
 		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
 		Base_ActionBarCommon::add('save', 'Save', $qf->get_submit_form_href());
+		return true;
 	}
+	
 	public function company_addon($arg){
 		$rb = $this->init_module('Utils/RecordBrowser','contact','contact_addon');
 		Base_ActionBarCommon::add('add',Base_LangCommon::ts('CRM_Contacts','Add contact'), $this->create_callback_href(array($this, 'company_addon_new_contact'), array($arg['id'])));
