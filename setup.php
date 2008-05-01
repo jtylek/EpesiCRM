@@ -271,17 +271,17 @@ function install_base() {
 		die('Invalid SQL query - Setup module (modules table)');
 
 	$ret = DB::CreateTable('session',"name C(32) NOTNULL," .
-			"expires I NOTNULL DEFAULT 0, data X",array('constraints'=>', PRIMARY KEY(name)'));
+			"expires I NOTNULL DEFAULT 0, data B",array('constraints'=>', PRIMARY KEY(name)'));
 	if($ret===false)
 		die('Invalid SQL query - Database module (session table)');
 
 	$ret = DB::CreateTable('session_client',"session_name C(32) NOTNULL, client_id I2," .
-			"data X2",array('constraints'=>', FOREIGN KEY(session_name) REFERENCES session(name)'));
+			"data B",array('constraints'=>', FOREIGN KEY(session_name) REFERENCES session(name), PRIMARY_KEY(client_id,session_name)'));
 	if($ret===false)
 		die('Invalid SQL query - Database module (session_client table)');
 
 	$ret = DB::CreateTable('history',"session_name C(32) NOTNULL, page_id I, client_id I2," .
-			"data X2",array('constraints'=>', FOREIGN KEY(session_name) REFERENCES session(name)'));
+			"data B",array('constraints'=>', FOREIGN KEY(session_name) REFERENCES session(name), PRIMARY_KEY(client_id,session_name,page_id), INDEX(session_name,client_id)'));
 	if($ret===false)
 		die('Invalid SQL query - Database module (history table)');
 
