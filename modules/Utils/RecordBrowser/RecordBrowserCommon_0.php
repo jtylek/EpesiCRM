@@ -169,8 +169,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return true;
 	}
 
-	public static function new_record_field($tab, $field, $type, $visible, $required, $param='', $style='', $extra = true, $filter){
+	public static function delete_record_field($tab, $field){
 		self::check_table_name($tab);
+		DB::Execute('DELETE FROM '.$tab.'_field WHERE field=%s', array($field));
+	}
+	public static function new_record_field($tab, $field, $type, $visible, $required, $param='', $style='', $extra = true, $filter = false){
+		self::check_table_name($tab);
+		$exists = DB::GetOne('SELECT field FROM '.$tab.'_field WHERE field=%s', array($field));
+		if ($exists) return;
 		if ($extra) {
 			$pos = DB::GetOne('SELECT MAX(position) FROM '.$tab.'_field')+1;
 		} else {
@@ -682,6 +688,24 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		preg_match_all('/>([^\<\>]*)</', $s, $match);
 		foreach($match[1] as $v) $content_no_wrap = str_replace($v, str_replace(' ','&nbsp;', $v), $content_no_wrap);
 		return $content_no_wrap;
+	}
+	public static function get_new_record_href($tab, $def, $id='none'){
+		self::check_table_name($tab);
+		if (isset($_REQUEST['__add_record_to_RB_table']) &&
+			isset($_REQUEST['__add_record_id']) && 
+			($tab==$_REQUEST['__add_record_to_RB_table']) &&
+			($id==$_REQUEST['__add_record_id'])) {
+			unset($_REQUEST['__add_record_to_RB_table']);
+			unset($_REQUEST['__add_record_id']);
+			$x = ModuleManager::get_instance('/Base_Box|0');
+			if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+			$x->push_main('Utils/RecordBrowser','view_entry',array('add', null, $def), array($tab));
+			return array();
+		}
+		return array('__add_record_to_RB_table'=>$tab, '__add_record_id'=>$id);
+	}
+	public static function create_new_record_href($tab, $def, $id='none'){
+		return Module::create_href(self::get_new_record_href($tab,$def, $id));
 	}
 	public static function get_record_href_array($tab, $id){
 		self::check_table_name($tab);

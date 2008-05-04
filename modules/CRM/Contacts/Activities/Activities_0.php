@@ -12,9 +12,12 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_Contacts_Activities extends Module {
 	private $lang;
 	private $display;
+	private $theme;
 
 	public function company_activities($me) {
+		$this->theme = $this->pack_module('Base/Theme');
 		$this->filters();
+		$this->theme->display();
 		$cont = CRM_ContactsCommon::get_contacts(array('company_name'=>$me['id']), array('id'));
 		$ids = array();
 		$db_string = '';
@@ -29,12 +32,24 @@ class CRM_Contacts_Activities extends Module {
 		$crits = array('(employees'=>$ids, '|customers'=>$ids);
 		if (!$this->display['closed']) $crits['!status'] = 2;
 		if ($this->display['tasks']) $tasks = CRM_TasksCommon::get_tasks($crits, array(), array('deadline'=>'DESC'));
+		$crits = array('(employees'=>$ids, '|contact'=>$ids);
+		if (!$this->display['closed']) $crits['!status'] = 2;
 		if ($this->display['phonecalls']) $phonecalls = CRM_PhoneCallCommon::get_phonecalls($crits, array(), array('date_and_time'=>'DESC'));
 		$this->display_activities($events, $tasks, $phonecalls);
 	}
 
 	public function contact_activities($me) {
+		$is_employee = false;
+		if (is_array($me['company_name']) && in_array(CRM_ContactsCommon::get_main_company(), $me['company_name'])) $is_employee = true;
+		$this->theme = $this->pack_module('Base/Theme');
 		$this->filters();
+		$this->theme->assign('new_event', '<a '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('New Event')).' '.CRM_CalendarCommon::get_new_event_href(array(($is_employee?'emp_id':'cus_id')=>$me['id'])).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'"></a>');
+		$this->theme->assign('new_task', '<a '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('page_id'=>md5('crm_tasks'),'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),($is_employee?'employees':'customers')=>$me['id'])).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>');
+		$this->theme->assign('new_phonecall', '<a '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'contact'=>$me['id'],'company_name'=>(isset($me['company_name'][0])?$me['company_name'][0]:''))).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>');
+//		print('<a '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'contact'=>$me['id'],'company_name'=>(isset($me['company_name'][0])?$me['company_name'][0]:''))).'>New Phonecall</a>');
+//		print('<a '.Utils_RecordBrowserCommon::create_new_record_href('task', array('page_id'=>md5('crm_tasks'),'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),($is_employee?'employees':'customers')=>$me['id'])).'>New Task</a>');
+//		print('<a '.CRM_CalendarCommon::get_new_event_href(array(($is_employee?'emp_id':'cus_id')=>$me['id'])).'>New Event</a>');
+		$this->theme->display();
 		$events = null;
 		$tasks = null;
 		$phonecalls = null;
@@ -42,6 +57,8 @@ class CRM_Contacts_Activities extends Module {
 		$crits = array('(employees'=>$me['id'], '|customers'=>$me['id']);
 		if (!$this->display['closed']) $crits['!status'] = 2;
 		if ($this->display['tasks']) $tasks = CRM_TasksCommon::get_tasks($crits, array(), array('deadline'=>'DESC'));
+		$crits = array('(employees'=>$me['id'], '|contact'=>$me['id']);
+		if (!$this->display['closed']) $crits['!status'] = 2;
 		if ($this->display['phonecalls']) $phonecalls = CRM_PhoneCallCommon::get_phonecalls($crits, array(), array('date_and_time'=>'DESC'));
 		$this->display_activities($events, $tasks, $phonecalls);
 	}
@@ -49,7 +66,6 @@ class CRM_Contacts_Activities extends Module {
 	public function filters() {	
 		$this->lang = $this->init_module('Base/Lang');
 		$form = $this->init_module('Libs/QuickForm');
-		$theme = $this->pack_module('Base/Theme');
 		$form->addElement('header', 'display', $this->lang->t('Display'));
 		$form->addElement('checkbox', 'events', $this->lang->t('Events'), null, array('onchange'=>$form->get_submit_form_js()));
 		$form->addElement('checkbox', 'tasks', $this->lang->t('Tasks'), null, array('onchange'=>$form->get_submit_form_js()));
@@ -57,8 +73,7 @@ class CRM_Contacts_Activities extends Module {
 		$form->addElement('checkbox', 'closed', $this->lang->t('Closed'), null, array('onchange'=>$form->get_submit_form_js()));
 		$old_display = $this->get_module_variable('display_options', array('events'=>1, 'tasks'=>1, 'phonecalls'=>1, 'closed'=>0));
 		$form->setDefaults($old_display);
-		$form->assign_theme('form',$theme);
-		$theme->display();
+		$form->assign_theme('form',$this->theme);
 		$this->display = $form->exportValues();
 		foreach(array('events', 'tasks', 'phonecalls', 'closed') as $v) if (!isset($this->display[$v])) $this->display[$v] = false;
 		$this->set_module_variable('display_options', $this->display);

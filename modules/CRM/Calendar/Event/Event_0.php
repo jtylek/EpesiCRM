@@ -11,6 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_Calendar_Event extends Utils_Calendar_Event {
 	private $lang;
+	private $custom_defaults = array();
 
 	public function view($id) {
 		if($this->is_back()) $this->back_to_calendar();
@@ -22,8 +23,9 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$this->view_event('edit',$id);
 	}
 
-	public function add($def_date,$timeless=false) {
+	public function add($def_date,$timeless=false,$def=array()) {
 		if($this->is_back()) $this->back_to_calendar();
+		$this->custom_defaults = $def;
 		$this->view_event('new', $def_date, $timeless);
 	}
 
@@ -55,6 +57,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				'timeless'=>($timeless?1:0),
 				'cus_id'=>array()
 			);
+			foreach($this->custom_defaults as $k=>$v) $def[$k] = $v;
 		} else {
 			$event = DB::GetRow('SELECT *,end-start as duration FROM crm_calendar_event WHERE id=%d', $id);
 			$x = $event['end']-$event['start'];

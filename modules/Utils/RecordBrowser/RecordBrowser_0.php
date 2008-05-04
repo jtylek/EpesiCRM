@@ -326,6 +326,7 @@ class Utils_RecordBrowser extends Module {
 		if ($this->browse_mode == 'recent')
 			$table_columns[] = array('name'=>$this->lang->t('Visited on'), 'wrapmode'=>'nowrap', 'width'=>1);
 
+
 		$gb->set_table_columns( $table_columns );
 
 		if ($this->browse_mode != 'recent')
@@ -506,8 +507,11 @@ class Utils_RecordBrowser extends Module {
 
 		$tb = $this->init_module('Utils/TabbedBrowser');
 		$form = $this->init_module('Libs/QuickForm',null, $mode);
-		if($mode=='add')
+		if($mode=='add') {
 			$form->setDefaults($defaults);
+			foreach ($defaults as $k=>$v)
+				$this->custom_defaults[$k] = $v;
+		}
 
 		$this->prepare_view_entry_details($this->record, $mode, $id, $form);
 
@@ -665,7 +669,7 @@ class Utils_RecordBrowser extends Module {
 				continue;
 			}
 			if (isset($this->QFfield_callback_table[$field])) {
-				call_user_func($this->QFfield_callback_table[$field], $form, $args['id'], $this->lang->t($args['name']), $mode, $mode=='add'?'':$record[$args['id']], $args, $this);
+				call_user_func($this->QFfield_callback_table[$field], $form, $args['id'], $this->lang->t($args['name']), $mode, $mode=='add'?(isset($this->custom_defaults[$args['id']])?$this->custom_defaults[$args['id']]:''):$record[$args['id']], $args, $this);
 			} else {
 				if ($mode!=='add' && $mode!=='edit') {
 					if ($args['type']!='checkbox' && $args['type']!='commondata') {

@@ -14,6 +14,22 @@ class CRM_CalendarCommon extends ModuleCommon {
 			return array();
 	}
 
+	public static function new_event($def) {
+		$x = ModuleManager::get_instance('/Base_Box|0');
+		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+		$x->push_main('CRM_Calendar_Event','add',array(date('Y-m-d H:i:s'), false, $def));
+	}
+
+	public static function get_new_event_href($def, $id='none'){
+		if (isset($_REQUEST['__add_event']) &&
+			($id==$_REQUEST['__add_event'])) {
+			unset($_REQUEST['__add_event']);
+			self::new_event($def);
+			return array();
+		}
+		return Module::create_href(array('__add_event'=>$id));
+	}
+
 	public static function user_settings() {
 		if(Acl::is_user()) {
 /*			$start_day = array();
