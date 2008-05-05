@@ -1,4 +1,4 @@
-<?php
+<?php 
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_Calendar extends Module {
@@ -179,7 +179,7 @@ class Utils_Calendar extends Module {
 
 		//timeless
 		foreach($this->settings['custom_rows'] as $key=>$label)
-			$timeline[] = array('label'=>$label,'time'=>$key, 'join'=>false);
+			$timeline[] = array('label'=>$label,'time'=>$key);
 
 		if($this->settings['timeline']) {
 			//other
@@ -192,55 +192,28 @@ class Utils_Calendar extends Module {
 			$interval -= $zero_t;
 			if($end<$start) {
 				$curr = $zero_t;
-				$join = false;
 				while($curr<$end) {
 					$next = $curr+$interval;
-					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($next,2,false,false),'time'=>($curr-$zero_t),'join'=>$join);
-					if(!$join) {
-						$join = true;
-						$i = count($timeline)-1;
-						$j = 0;
-					}
-					$j++;
+					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($next,2,false,false),'time'=>($curr-$zero_t));
 					$curr = $next;
 				}
-				$timeline[$i]['rowspan'] = $j;
-				$timeline[$i]['time_end'] = $curr-$zero_t-$timeline[$i]['time'];
-				$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($start,2,false,false),'time'=>($curr-$zero_t), 'join'=>false);
+				$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($start,2,false,false),'time'=>($curr-$zero_t));
 				$day_end = strtotime('23:59')-$interval;
 				$curr = $start;
-				$join = false;
 				while($curr<$day_end) {
 					$next = $curr+$interval;
-					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($next,2,false,false),'time'=>($curr-$zero_t),'join'=>$join);
-					if(!$join) {
-						$join = true;
-						$i = count($timeline)-1;
-						$j = 0;
-					}
-					$j++;
+					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($next,2,false,false),'time'=>($curr-$zero_t));
 					$curr = $next;
 				}
-				$timeline[$i]['rowspan'] = $j;
-				$timeline[$i]['time_end'] = $curr-$zero_t-$timeline[$i]['time'];
-				$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg('23:59',2,false,false),'time'=>($curr-$zero_t), 'join'=>false);
+				$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg('23:59',2,false,false),'time'=>($curr-$zero_t));
 			} else {
-				$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($zero_t,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($start,2,false,false),'time'=>0, 'join'=>false);
-				$join = false;
+				$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($zero_t,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($start,2,false,false),'time'=>0);
 				while($start<$end) {
 					$next = $start+$interval;
-					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($start,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($next,2,false,false),'time'=>($start-$zero_t),'join'=>$join);
-					if(!$join) {
-						$join = true;
-						$i = count($timeline)-1;
-						$j = 0;
-					}
-					$j++;
+					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($start,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($next,2,false,false),'time'=>($start-$zero_t));
 					$start = $next;
 				}
-				$timeline[$i]['rowspan'] = $j;
-				$timeline[$i]['time_end'] = $start-$zero_t-$timeline[$i]['time'];
-				$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($start,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg('23:59',2,false,false),'time'=>($start-$zero_t), 'join'=>false);
+				$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($start,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg('23:59',2,false,false),'time'=>($start-$zero_t));
 			}
 		}
 		return $timeline;
@@ -411,21 +384,13 @@ class Utils_Calendar extends Module {
 		$timeline = $this->get_timeline();
 		$today_t = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$this->date));
 		$dnd = array();
-		$dnd_ext = array();
 		foreach($timeline as & $v) {
 			if(is_string($v['time'])) {
 				$dnd[] = $today_t.'_'.$v['time'];
 				$v['id'] = 'UCcell_'.$today_t.'_'.$v['time'];
 			} else {
-				if(!isset($v['join']) || !$v['join']) {
-					$y = $today_t+$v['time'];
-					$v['id'] = 'UCcell_'.$y;
-					if(isset($v['rowspan']) && $v['rowspan']>1)
-						$dnd_ext[] = array($y,$v['time_end']);
-					else
-						$dnd[] = $y;
-				} else
-					$v['id'] = null;
+				$dnd[] = $today_t+$v['time'];
+				$v['id'] = 'UCcell_'.($today_t+$v['time']);
 			}
 		}
 		$theme->assign('timeline', $timeline);
@@ -466,7 +431,7 @@ class Utils_Calendar extends Module {
 				$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\',\''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).')');
 			}
 		}
-		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\', \''.Epesi::escapeJS(json_encode($dnd_ext),false).'\','.
+		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
 				'\''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
 				'\''.Epesi::escapeJS($this->get_path(),false).'\','.
 				'\''.CID.'\',\'day\')');
@@ -561,24 +526,16 @@ class Utils_Calendar extends Module {
 		$timeline = $this->get_timeline();
 		$time_ids = array();
 		$dnd = array();
-		$dnd_ext = array();
 		for ($i=0; $i<7; $i++) {
 			$time_ids[$i] = array();
 			$today_t = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$dis_week_from+$i*86400));
-			foreach($timeline as $k=>$v) {
+			foreach($timeline as & $v) {
 				if(is_string($v['time'])) {
 					$dnd[] = $today_t.'_'.$v['time'];
 					$time_ids[$i][] = 'UCcell_'.$today_t.'_'.$v['time'];
 				} else {
-					if(!isset($v['join']) || !$v['join']) {
-						$y = $today_t+$v['time'];
-						$time_ids[$i][] = 'UCcell_'.$y;
-						if(isset($v['rowspan']) && $v['rowspan']>1)
-							$dnd_ext[] = array($y,$v['time_end']);
-						else
-							$dnd[] = $y;
-					} else
-						$time_ids[$i][] = null;
+					$dnd[] = $today_t+$v['time'];
+					$time_ids[$i][] = 'UCcell_'.($today_t+$v['time']);
 				}
 			}
 		}
@@ -619,7 +576,7 @@ class Utils_Calendar extends Module {
 				$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).')');
 			}
 		}
-		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\',\''.Epesi::escapeJS(json_encode($dnd_ext),false).'\','.
+		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
 				'\''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
 				'\''.Epesi::escapeJS($this->get_path(),false).'\','.
 				'\''.CID.'\',\'week\')');
@@ -713,7 +670,7 @@ class Utils_Calendar extends Module {
 			$dest_id = 'UCcell_'.$ev_start;
 			$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).')');
 		}
-		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\',\''.Epesi::escapeJS(json_encode(array()),false).'\','.
+		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
 				'\''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
 				'\''.Epesi::escapeJS($this->get_path(),false).'\','.
 				'\''.CID.'\',\'month\')');

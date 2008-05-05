@@ -17,7 +17,7 @@
 		<td class="empty"></td>
 	</tr></table>
 </div>
-
+ 
 <!-- SHADOW BEGIN -->
 	<div class="layer" style="padding: 9px; width: 98%;">
 		<div class="content_shadow">
@@ -54,11 +54,9 @@
 		{foreach key=k item=stamp from=$timeline}
 			<tr>
 				<td class="hour" nowrap >{$stamp.label}</td>
-				{if !$stamp.join}
-					{foreach item=t key=j from=$time_ids}
-			                    <td class="inter_{$day_headers.$j.style}" id="{$t.$k}" rowspan="{$stamp.rowspan|default:1}">&nbsp;</td>
-	        			{/foreach}
-				{/if}
+				{foreach item=t key=j from=$time_ids}
+                    <td class="inter_{$day_headers.$j.style}" id="{$t.$k}">&nbsp;</td>
+	            {/foreach}
 			</tr>
 		{/foreach}
 	</table>

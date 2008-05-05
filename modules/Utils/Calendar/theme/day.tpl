@@ -1,5 +1,5 @@
 <div style="width: 900px;">
-
+ 
 <div class="day-menu">
 	<table class="day-menu" border="0" cellpadding="0" cellspacing="0"><tr>
 		<td class="empty">
@@ -49,9 +49,7 @@
 		{foreach key=k item=stamp from=$timeline}
 			<tr>
 				<td class="hour" nowrap >{$stamp.label}</td>
-				{if !$stamp.join}
-					<td class="inter" id="{$stamp.id}" rowspan="{$stamp.rowspan|default:1}">&nbsp;</td>
-				{/if}
+				<td class="inter" id="{$stamp.id}">&nbsp;</td>
 			</tr>
 		{/foreach}
 
