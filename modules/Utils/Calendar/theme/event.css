@@ -1,6 +1,6 @@
 #Utils_Calendar__event {
     display: block;
-    height: 36px;
+    height: 100%;
 	margin: 1px;
     background-repeat: repeat-x;
 }

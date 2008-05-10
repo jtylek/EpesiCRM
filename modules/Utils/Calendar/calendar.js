@@ -1,13 +1,16 @@
 Utils_Calendar = { 
-add_event:function(dest_id,ev_id,draggable) {
+add_event:function(dest_id,ev_id,draggable,duration) {
 	var dest = $(dest_id);
 	var ev = $('utils_calendar_event:'+ev_id);
 	if(!dest || !ev) {
 		return;
 	}
-
-	dest.appendChild(ev);
-	ev.setAttribute('last_cell',dest_id);
+	ev.absolutize();
+	ev.setAttribute('duration',duration);
+	ev.style.overflow = 'hidden';
+	ev.style.width = '100px';
+	
+	Utils_Calendar.add_event_tag(dest,ev);
 
 	if(draggable)
 		new Draggable(ev, {
@@ -16,7 +19,74 @@ add_event:function(dest_id,ev_id,draggable) {
 			quiet: true
 		});
 },
+remove_event_tag:function(prev_node,ev) {
+	var duration = ev.getAttribute('duration');
+	var cell = prev_node;
+	var prev_ch;
+	var reload = new Array();
+	do {
+		prev_ch = cell.getAttribute('events_children').evalJSON().without(ev.id);
+		if(prev_ch.length==0) {
+			cell.removeAttribute('events_children');
+		} else {
+			reload = reload.concat(prev_ch);
+			cell.setAttribute('events_children',prev_ch.toJSON());
+		}
+
+		if(cell.hasAttribute('join_rows')) {
+			duration -= cell.getAttribute('join_rows');
+			cell = $(cell.getAttribute('next_row'));
+		} else
+			duration = 0;
+	} while(duration>0);
+	
+/*	reload.each(function(id) {
+		var element = $(id);
+		Utils_Calendar.remove_event_tag($(element.getAttribute('last_cell')),element);
+	});
+	reload.each(function(id) {
+		var element = $(id);
+		Utils_Calendar.add_event_tag($(element.getAttribute('last_cell')),element);
+	});*/
+},
+add_event_tag:function(dest,ev) {
+	var ch;
+	var offset = 0;
+	var duration = ev.getAttribute('duration');
+	var h=0;
+	var cell = dest;
+	do {
+		if(cell.hasAttribute('events_children')) {
+			ch = cell.getAttribute('events_children').evalJSON();;
+		} else {
+			ch = new Array();
+		}
+		if(offset<ch.length) offset = ch.length;
+		ch.push(ev.id);
+		cell.setAttribute('events_children',ch.toJSON());
+
+		if(cell.hasAttribute('join_rows')) {
+			duration -= cell.getAttribute('join_rows');
+			cell = $(cell.getAttribute('next_row'));
+		} else
+			duration = 0;
+		h++;
+	} while(duration>0);
+	ev.style.height = (h * dest.getHeight())+'px';
+
+	ev.style.zIndex=5+offset;
+	ev.clonePosition(dest, {setHeight: false, setWidth: false, offsetLeft: (40*offset)});
+	ev.setAttribute('last_cell',dest.id);
+},
 ids:null,
+join_rows:function(ids_in) {
+	var ids = ids_in.evalJSON();
+	ids.each(function(x) {
+		var y = $('UCcell_'+x[0]);
+		y.setAttribute('join_rows',x[1]);
+		y.setAttribute('next_row','UCcell_'+x[2]);
+	});
+},
 activate_dnd:function(ids_in,new_ev,mpath,ecid,page_type) {
 //	alert('act');
 	Utils_Calendar.ids = ids_in.evalJSON();
@@ -35,6 +105,9 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid,page_type) {
 			accept: 'utils_calendar_event',
 			onDrop: function(element,droppable,ev) {
 				if(droppable.id==element.getAttribute('last_cell')) return;
+				Epesi.updateIndicatorText("Moving event");
+				Epesi.procOn++;
+				Epesi.updateIndicator();
 				new Ajax.Request('modules/Utils/Calendar/update.php',{
 					method:'post',
 					parameters:{
@@ -48,12 +121,16 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid,page_type) {
 						var reject=false;
 						eval(t.responseText);
 						if(reject) return;
-						droppable.appendChild(element);
-						element.setAttribute('last_cell',droppable.id);
+						
+						Utils_Calendar.remove_event_tag($(element.getAttribute('last_cell')),element);
+						Utils_Calendar.add_event_tag(droppable,element);
+						
 						new Draggable(element, {
 							handle: 'handle',
 							revert: true
 						});
+						Epesi.procOn--;
+						Epesi.updateIndicator();
 					},
 					onException: function(t,e) {
 						throw(e);
@@ -83,6 +160,9 @@ delete_event:function(eid,mpath,ecid) {
 		$(eid).show();
 		return;
 	}
+	Epesi.updateIndicatorText("Deleting event");
+	Epesi.procOn++;
+	Epesi.updateIndicator();
 	new Ajax.Request('modules/Utils/Calendar/update.php',{
 			method:'post',
 			parameters:{
@@ -94,7 +174,11 @@ delete_event:function(eid,mpath,ecid) {
 			onComplete: function(t) {
 				var reject=false;
 				eval(t.responseText);
-				if(reject) $(eid).show();
+				var element = $(eid);
+				if(reject) element.show();
+				else Utils_Calendar.remove_event_tag($(element.getAttribute('last_cell')));
+				Epesi.procOn--;
+				Epesi.updateIndicator();
 			},
 			onException: function(t,e) {
 				throw(e);

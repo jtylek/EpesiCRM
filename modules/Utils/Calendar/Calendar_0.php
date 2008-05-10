@@ -194,23 +194,23 @@ class Utils_Calendar extends Module {
 				$curr = $zero_t;
 				while($curr<$end) {
 					$next = $curr+$interval;
-					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($next,2,false,false),'time'=>($curr-$zero_t));
+					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($next,2,false,false),'time'=>($curr-$zero_t),'join_rows'=>1);
 					$curr = $next;
 				}
-				$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($start,2,false,false),'time'=>($curr-$zero_t));
+				$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($start,2,false,false),'time'=>($curr-$zero_t),'join_rows'=>ceil(($start-$curr)/$interval));
 				$day_end = strtotime('23:59')-$interval;
 				$curr = $start;
 				while($curr<$day_end) {
 					$next = $curr+$interval;
-					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($next,2,false,false),'time'=>($curr-$zero_t));
+					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($next,2,false,false),'time'=>($curr-$zero_t),'join_rows'=>1);
 					$curr = $next;
 				}
 				$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg('23:59',2,false,false),'time'=>($curr-$zero_t));
 			} else {
-				$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($zero_t,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($start,2,false,false),'time'=>0);
+				$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($zero_t,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($start,2,false,false),'time'=>0,'join_rows'=>ceil(($start-$zero_t)/$interval));
 				while($start<$end) {
 					$next = $start+$interval;
-					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($start,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($next,2,false,false),'time'=>($start-$zero_t));
+					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($start,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($next,2,false,false),'time'=>($start-$zero_t),'join_rows'=>1);
 					$start = $next;
 				}
 				$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($start,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg('23:59',2,false,false),'time'=>($start-$zero_t));
@@ -384,15 +384,28 @@ class Utils_Calendar extends Module {
 		$timeline = $this->get_timeline();
 		$today_t = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$this->date));
 		$dnd = array();
+		$joins = array();
+		$prev = null;
 		foreach($timeline as & $v) {
 			if(is_string($v['time'])) {
-				$dnd[] = $today_t.'_'.$v['time'];
-				$v['id'] = 'UCcell_'.$today_t.'_'.$v['time'];
+				$ii = $today_t.'_'.$v['time'];
+				$dnd[] = $ii;
+				if($prev && isset($prev['join_rows'])) $joins[count($joins)-1][2] = $ii;
+				if(isset($v['join_rows']))
+					$joins[] = array($ii,$v['join_rows'],0);
+				$v['id'] = 'UCcell_'.$ii;
 			} else {
-				$dnd[] = $today_t+$v['time'];
-				$v['id'] = 'UCcell_'.($today_t+$v['time']);
+				$ii = $today_t+$v['time'];
+				$dnd[] = $ii;
+				if($prev && isset($prev['join_rows'])) $joins[count($joins)-1][2] = $ii;
+				if(isset($v['join_rows']))
+					$joins[] = array($ii,$v['join_rows'],0);
+				$v['id'] = 'UCcell_'.$ii;
 			}
+			$prev = & $v;
 		}
+		$this->js('Utils_Calendar.join_rows(\''.Epesi::escapeJS(json_encode($joins),false).'\')');
+		
 		$theme->assign('timeline', $timeline);
 
 		$theme->assign('day_view_label', $this->lang->t('Day calendar'));
@@ -428,7 +441,7 @@ class Utils_Calendar extends Module {
 			}
 			if(isset($dest_id)) {
 				$this->print_event($ev,'day');
-				$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\',\''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).')');
+				$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\',\''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).', '.ceil($ev['duration']/(strtotime($this->settings['interval'])-strtotime('0:00'))).')');
 			}
 		}
 		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
@@ -526,19 +539,31 @@ class Utils_Calendar extends Module {
 		$timeline = $this->get_timeline();
 		$time_ids = array();
 		$dnd = array();
+		$joins = array();
 		for ($i=0; $i<7; $i++) {
 			$time_ids[$i] = array();
 			$today_t = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$dis_week_from+$i*86400));
+			$prev = null;
 			foreach($timeline as & $v) {
 				if(is_string($v['time'])) {
-					$dnd[] = $today_t.'_'.$v['time'];
-					$time_ids[$i][] = 'UCcell_'.$today_t.'_'.$v['time'];
+					$ii = $today_t.'_'.$v['time'];
+					$dnd[] = $ii;
+					if($prev && isset($prev['join_rows'])) $joins[count($joins)-1][2] = $ii;
+					if(isset($v['join_rows']))
+						$joins[] = array($ii,$v['join_rows'],0);
+					$time_ids[$i][] = 'UCcell_'.$ii;
 				} else {
-					$dnd[] = $today_t+$v['time'];
-					$time_ids[$i][] = 'UCcell_'.($today_t+$v['time']);
+					$ii = $today_t+$v['time'];
+					$dnd[] = $ii;
+					if($prev && isset($prev['join_rows'])) $joins[count($joins)-1][2] = $ii;
+					if(isset($v['join_rows']))
+						$joins[] = array($ii,$v['join_rows'],0);
+					$time_ids[$i][] = 'UCcell_'.$ii;
 				}
+				$prev = $v;
 			}
 		}
+		$this->js('Utils_Calendar.join_rows(\''.Epesi::escapeJS(json_encode($joins),false).'\')');
 		$theme->assign('time_ids', $time_ids);
 		$theme->assign('timeline', $timeline);
 
@@ -573,7 +598,7 @@ class Utils_Calendar extends Module {
 			if(isset($dest_id)) {
 //				print($ev['title'].' '.$ev['start'].'<hr>');
 				$this->print_event($ev);
-				$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).')');
+				$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).', '.ceil($ev['duration']/(strtotime($this->settings['interval'])-strtotime('0:00'))).')');
 			}
 		}
 		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
@@ -668,7 +693,7 @@ class Utils_Calendar extends Module {
 			$this->print_event($ev);
 			$ev_start = strtotime(date('Y-m-d',$ev['start']));
 			$dest_id = 'UCcell_'.$ev_start;
-			$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).')');
+			$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).', 1)');
 		}
 		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
 				'\''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
