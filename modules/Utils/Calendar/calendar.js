@@ -144,17 +144,17 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid,page_type) {
 					onComplete: function(t) {
 						var reject=false;
 						eval(t.responseText);
-						if(reject) return;
-						
-						Utils_Calendar.init_reload_event_tag();
-						Utils_Calendar.remove_event_tag($(element.getAttribute('last_cell')),element);
-						Utils_Calendar.add_event_tag(droppable,element);
-						Utils_Calendar.flush_reload_event_tag();
-						
-						new Draggable(element, {
-							handle: 'handle',
-							revert: true
-						});
+						if(!reject) {
+							Utils_Calendar.init_reload_event_tag();
+							Utils_Calendar.remove_event_tag($(element.getAttribute('last_cell')),element);
+							Utils_Calendar.add_event_tag(droppable,element);
+							Utils_Calendar.flush_reload_event_tag();
+							
+							new Draggable(element, {
+								handle: 'handle',
+								revert: true
+							});
+						}
 						Epesi.procOn--;
 						Epesi.updateIndicator();
 					},

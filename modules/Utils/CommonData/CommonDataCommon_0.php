@@ -88,6 +88,19 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 	}
 	
 	/**
+	 * Gets nodes by keys.
+	 * 
+	 * @param string array name
+	 * @return mixed false on invalid name
+	 */
+	public static function get_nodes($root, array $names){
+		$val = false;
+		$id = self::get_id($root);
+		if($id===false) return false;
+		return DB::GetAssoc('SELECT id,value FROM utils_commondata_tree WHERE parent_id=%d AND (akey=\''.implode($names,'\' OR akey=\'').'\')',array($id));
+	}
+	
+	/**
 	 * Creates new array for common use.
 	 * 
 	 * @param string array name
