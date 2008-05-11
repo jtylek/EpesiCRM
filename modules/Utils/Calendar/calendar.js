@@ -40,14 +40,15 @@ remove_event_tag:function(prev_node,ev) {
 			duration = 0;
 	} while(duration>0);
 	
-/*	reload.each(function(id) {
+	reload = reload.uniq();
+	reload.each(function(id) {
 		var element = $(id);
 		Utils_Calendar.remove_event_tag($(element.getAttribute('last_cell')),element);
 	});
 	reload.each(function(id) {
 		var element = $(id);
 		Utils_Calendar.add_event_tag($(element.getAttribute('last_cell')),element);
-	});*/
+	});
 },
 add_event_tag:function(dest,ev) {
 	var ch;
