@@ -10,7 +10,9 @@ add_event:function(dest_id,ev_id,draggable,duration) {
 	ev.style.overflow = 'hidden';
 	ev.style.width = '100px';
 	
+	Utils_Calendar.init_reload_event_tag();
 	Utils_Calendar.add_event_tag(dest,ev);
+	Utils_Calendar.flush_reload_event_tag();
 
 	if(draggable)
 		new Draggable(ev, {
@@ -19,6 +21,7 @@ add_event:function(dest_id,ev_id,draggable,duration) {
 			quiet: true
 		});
 },
+reload_events:null,
 remove_event_tag:function(prev_node,ev) {
 	var duration = ev.getAttribute('duration');
 	var cell = prev_node;
@@ -40,15 +43,31 @@ remove_event_tag:function(prev_node,ev) {
 			duration = 0;
 	} while(duration>0);
 	
-	reload = reload.uniq();
+	Utils_Calendar.reload_event_tag(reload);
+},
+init_reload_event_tag:function() {
+	Utils_Calendar.reload_events = new Array();
+},
+reload_event_tag:function(reload) {	
 	reload.each(function(id) {
+		if(Utils_Calendar.reload_events.indexOf(id)>=0) return;
 		var element = $(id);
+		Utils_Calendar.reload_events.push(id);
 		Utils_Calendar.remove_event_tag($(element.getAttribute('last_cell')),element);
 	});
-	reload.each(function(id) {
+},
+flush_reload_event_tag:function() {
+	Utils_Calendar.reload_events = Utils_Calendar.reload_events.sortBy(function(id) {
+		var element = $(id);
+		var cell = element.getAttribute('last_cell');
+		var dur = element.getAttribute('duration');
+		return parseInt(cell.substr(7))-parseInt(dur);
+	});
+	Utils_Calendar.reload_events.each(function(id) {
 		var element = $(id);
 		Utils_Calendar.add_event_tag($(element.getAttribute('last_cell')),element);
 	});
+	delete(Utils_Calendar.reload_events);
 },
 add_event_tag:function(dest,ev) {
 	var ch;
@@ -56,9 +75,11 @@ add_event_tag:function(dest,ev) {
 	var duration = ev.getAttribute('duration');
 	var h=0;
 	var cell = dest;
+	var reload = new Array(ev.id);
 	do {
 		if(cell.hasAttribute('events_children')) {
 			ch = cell.getAttribute('events_children').evalJSON();;
+			reload = reload.concat(ch);
 		} else {
 			ch = new Array();
 		}
@@ -78,6 +99,8 @@ add_event_tag:function(dest,ev) {
 	ev.style.zIndex=5+offset;
 	ev.clonePosition(dest, {setHeight: false, setWidth: false, offsetLeft: (40*offset)});
 	ev.setAttribute('last_cell',dest.id);
+
+	Utils_Calendar.reload_event_tag(reload);
 },
 ids:null,
 join_rows:function(ids_in) {
@@ -123,8 +146,10 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid,page_type) {
 						eval(t.responseText);
 						if(reject) return;
 						
+						Utils_Calendar.init_reload_event_tag();
 						Utils_Calendar.remove_event_tag($(element.getAttribute('last_cell')),element);
 						Utils_Calendar.add_event_tag(droppable,element);
+						Utils_Calendar.flush_reload_event_tag();
 						
 						new Draggable(element, {
 							handle: 'handle',
@@ -177,7 +202,11 @@ delete_event:function(eid,mpath,ecid) {
 				eval(t.responseText);
 				var element = $(eid);
 				if(reject) element.show();
-				else Utils_Calendar.remove_event_tag($(element.getAttribute('last_cell')));
+				else {
+					Utils_Calendar.init_reload_event_tag();
+					Utils_Calendar.remove_event_tag($(element.getAttribute('last_cell')),element);
+					Utils_Calendar.flush_reload_event_tag();
+				}
 				Epesi.procOn--;
 				Epesi.updateIndicator();
 			},
