@@ -537,7 +537,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (!isset($limit['offset'])) $limit['offset'] = 0;
 		if (!isset($limit['numrows'])) $limit['numrows'] = -1;
 		if (!$order) $order = array();
-		if (count($crits)==1 && isset($crits['id'])) {
+/*		if (count($crits)==1 && isset($crits['id'])) {
 			$first = true;
 			$where = '';
 			$vals = array();
@@ -547,12 +547,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$where .= '%d';
 				$vals[] = $v;
 			}
-			$ret = DB::Select('SELECT id, active, created_by, created_on FROM '.$tab.' WHERE id IN ('.$where.')', $vals);
-		} else {
+			$ret = DB::Execute('SELECT id, active, created_by, created_on FROM '.$tab.' WHERE id IN ('.$where.')', $vals);
+		} else {*/
 			$par = self::build_query($tab, $crits, $admin, $order);
 			if (empty($par)) return array();
 			$ret = DB::SelectLimit($par['sql'], $limit['numrows'], $limit['offset'], $par['vals']);
-		}
+//		}
 		$records = array();
 		$where = ' WHERE true';
 		$vals = array();

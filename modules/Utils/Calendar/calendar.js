@@ -112,7 +112,7 @@ add_event_tag:function(dest,ev) {
 			b.id = 'tooManyEventsCell_'+date;
 			var i = date.indexOf('_');
 			if(i>0) date = date.substr(0,i);
-			b.href = 'javascript:Utils_Calendar.go_to_day('+date+')';
+			b.href = 'javascript:Utils_Calendar.go_to_day("'+date+'")';
 			b.innerHTML = 'too many events - please see daily view';
 			b.style.position = 'absolute';
 			b.style.backgroundColor='red';
