@@ -39,13 +39,8 @@ class CRM_Contacts_Activities extends Module {
 	}
 
 	public function contact_activities($me) {
-		$is_employee = false;
-		if (is_array($me['company_name']) && in_array(CRM_ContactsCommon::get_main_company(), $me['company_name'])) $is_employee = true;
 		$this->theme = $this->pack_module('Base/Theme');
 		$this->filters();
-		$this->theme->assign('new_event', '<a '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('New Event')).' '.CRM_CalendarCommon::get_new_event_href(array(($is_employee?'emp_id':'cus_id')=>$me['id'])).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'"></a>');
-		$this->theme->assign('new_task', '<a '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('page_id'=>md5('crm_tasks'),'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),($is_employee?'employees':'customers')=>$me['id'])).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>');
-		$this->theme->assign('new_phonecall', '<a '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'contact'=>$me['id'],'company_name'=>(isset($me['company_name'][0])?$me['company_name'][0]:''))).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>');
 //		print('<a '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'contact'=>$me['id'],'company_name'=>(isset($me['company_name'][0])?$me['company_name'][0]:''))).'>New Phonecall</a>');
 //		print('<a '.Utils_RecordBrowserCommon::create_new_record_href('task', array('page_id'=>md5('crm_tasks'),'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),($is_employee?'employees':'customers')=>$me['id'])).'>New Task</a>');
 //		print('<a '.CRM_CalendarCommon::get_new_event_href(array(($is_employee?'emp_id':'cus_id')=>$me['id'])).'>New Event</a>');

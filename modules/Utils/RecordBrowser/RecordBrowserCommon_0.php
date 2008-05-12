@@ -527,8 +527,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return DB::GetOne('SELECT COUNT(*) FROM ('.$par['sql'].') AS tmp', $par['vals']);
 	}
 	public static function get_records( $tab = null, $crits = array(), $cols = array(), $order = array(), $limit = array(), $admin = false) {
-	/*	
-		print($tab.'<br>');
+	/*	print($tab.'<br>');
 		print_r($crits);
 		print('<br>');
 		print_r($order);
@@ -538,9 +537,22 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (!isset($limit['offset'])) $limit['offset'] = 0;
 		if (!isset($limit['numrows'])) $limit['numrows'] = -1;
 		if (!$order) $order = array();
-		$par = self::build_query($tab, $crits, $admin, $order);
-		if (empty($par)) return array();
-		$ret = DB::SelectLimit($par['sql'], $limit['numrows'], $limit['offset'], $par['vals']);
+		if (count($crits)==1 && isset($crits['id'])) {
+			$first = true;
+			$where = '';
+			$vals = array();
+			foreach($crits['id'] as $v) { 
+				if ($first) $first = false;
+				else $where .= ', ';
+				$where .= '%d';
+				$vals[] = $v;
+			}
+			$ret = DB::Select('SELECT id, active, created_by, created_on FROM '.$tab.' WHERE id IN ('.$where.')', $vals);
+		} else {
+			$par = self::build_query($tab, $crits, $admin, $order);
+			if (empty($par)) return array();
+			$ret = DB::SelectLimit($par['sql'], $limit['numrows'], $limit['offset'], $par['vals']);
+		}
 		$records = array();
 		$where = ' WHERE true';
 		$vals = array();

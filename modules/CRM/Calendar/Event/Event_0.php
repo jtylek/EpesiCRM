@@ -60,6 +60,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			foreach($this->custom_defaults as $k=>$v) $def[$k] = $v;
 		} else {
 			$event = DB::GetRow('SELECT *,end-start as duration FROM crm_calendar_event WHERE id=%d', $id);
+			if ($event['priority']==2) $event['priority']=1;
 			$x = $event['end']-$event['start'];
 			if(in_array($x,array(300,900,1800,3600,7200,14400,28800)))
 				$duration_switch='1';
@@ -98,6 +99,12 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				$def['emp_id'][] = $row['contact'];
 			$def_emp_id = $def['emp_id'];
 			$timeless = $event['timeless'];
+			$tmp = $def['title'];
+			$def['title'] = Base_LangCommon::ts('CRM/Calendar/Event','Follow up: ').$def['title'];
+			$theme->assign('new_event','<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Calendar/Event','New Event')).' '.CRM_CalendarCommon::get_new_event_href($def).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'"></a>');
+			$theme->assign('new_task','<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Calendar/Event','New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('page_id'=>md5('crm_tasks'),'title'=>$def['title'],'permission'=>$def['access'],'priority'=>$def['priority'],'description'=>$def['description'],'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),'employees'=>$def['emp_id'], 'customers'=>$def['cus_id'])).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>');
+			$theme->assign('new_phonecall','<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Calendar/Event','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('subject'=>$def['title'],'permission'=>$def['access'],'priority'=>$def['priority'],'description'=>$def['description'],'date_and_time'=>date('Y-m-d H:i:s'),'employees'=>$def['emp_id'], 'contact'=>isset($def['cus_id'])?$def['cus_id']:'')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>');
+			$def['title'] = $tmp;
 		}
 
 
@@ -175,7 +182,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$form->addElement('header', null, $this->lang->t('Event itself'));
 
 		$access = array(0=>$this->lang->t('Public'), 1=>$this->lang->t('Public, read-only'), 2=>$this->lang->t('Private'));
-		$priority = array(0 => $this->lang->t('None'), 1 => $this->lang->t('Low'), 2 => $this->lang->t('Medium'), 3 => $this->lang->t('High'));
+		$priority = array(0 => $this->lang->t('Low'), 1 => $this->lang->t('Medium'), 2 => $this->lang->t('High'));
 		$color = CRM_Calendar_EventCommon::get_available_colors();
 		$color[0] = $this->lang->t('Default').': '.$this->lang->ht(ucfirst($color[0]));
 		for($k=1; $k<count($color); $k++)

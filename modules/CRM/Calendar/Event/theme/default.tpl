@@ -31,9 +31,18 @@
                         <span class="dark-gray">&bull;</span>&nbsp;
                     {/if}
                     <span class="dark-gray">{$event_info.duration} hr(s)</span>
-	{if isset($info_tooltip)}
-		&nbsp;&nbsp;&nbsp;{$info_tooltip}
-	{/if}
+					{if isset($info_tooltip)}
+						&nbsp;&nbsp;&nbsp;{$info_tooltip}
+					{/if}
+					{if isset($__link.new_event.open)}
+						&nbsp;&nbsp;&nbsp;{$new_event}
+					{/if}
+					{if isset($__link.new_task.open)}
+						&nbsp;&nbsp;&nbsp;{$new_task}
+					{/if}
+					{if isset($__link.new_phonecall.open)}
+						&nbsp;&nbsp;&nbsp;{$new_phonecall}
+					{/if}
                 </td>
     		</tr>
         </tbody>
