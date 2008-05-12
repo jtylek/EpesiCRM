@@ -12,6 +12,12 @@
         <tr>
             <td class="label">Duration</td><td class="data">{$duration}</td>
         </tr>
+	<tr>
+            <td class="title" colspan="2">{$title}</td>
+        </tr>
+	<tr>
+	   <td colspan="2">{$additional_info}</td>
+        </tr>
         <tr>
             <td colspan="2">{$additional_info2}</td>
         </tr>

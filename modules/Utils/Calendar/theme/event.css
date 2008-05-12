@@ -1,7 +1,9 @@
 #Utils_Calendar__event {
     display: block;
     height: 100%;
+    width: 100px;
 	margin: 1px;
+    cursor: move;
     background-repeat: repeat-x;
 }
 
@@ -10,10 +12,10 @@
     height: 18px;
 }
 
-#Utils_Calendar__event #event_grab {
+#Utils_Calendar__event #event_info {
     display: block;
     float: left;
-    cursor: move;
+    cursor: help;
     padding-top: 2px;
     padding-right: 2px;
 }
@@ -64,14 +66,6 @@
 
 #Utils_Calendar__event span.event_menu_content img:hover {
     background-color: white;
-}
-
-#Utils_Calendar__event #event_info {
-    display: block;
-    float: right;
-    padding-top: 2px;
-    padding-left: 2px;
-    cursor: help;
 }
 
 #Utils_Calendar__event #event_info:hover {

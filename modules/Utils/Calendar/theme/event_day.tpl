@@ -2,7 +2,7 @@
 	load_js('modules/Utils/Calendar/theme/event.js');
 {/php}
 
-<span id="Utils_Calendar__event" class="event_{$color}">
+<span id="Utils_Calendar__event_day" class="event_{$color}">
 
     <span class="event_menu" id="event_menu_{$event_id}" style="display: none;">
         <!-- SHADIW BEGIN -->
@@ -46,15 +46,10 @@
     </span>
 
     <div class="row">
-    	{if $draggable}
-        <span id="event_grab" class="{$handle_class}"><img border=0 src="{$theme_dir}/Utils_Calendar__grab.png"></span>
-	{else}
-        <span id="event_grab"></span>
-	{/if}
-        <span id="event_time" {$tip2_tag_attrs}>{$start_time} - {$end_time} ({$duration})</span>
-        <span id="event_info"><img {$tip_tag_attrs} src="{$theme_dir}/Utils_Calendar__info.png" onClick="event_menu('{$event_id}')" width="14" height="14" border="0"></span>
+        <span id="event_info"><img {$tip_tag_attrs} src="{$theme_dir}/Utils_Calendar__info.png" onClick="event_menu('{$event_id}')" width="10" height="10" border="0"></span>
+        <span id="event_time" {if $draggable}class="{$handle_class}"{/if}>{$start_time} - {$end_time} ({$duration})</span>
     </div>
-     <div class="row">
+     <div class="row{if $draggable} {$handle_class}{/if}">
         <span id="event_title">{if isset($view_href)}<a {$view_href}>{/if}{$title}{if $description!=''} - {$description|truncate:100:"..."}{/if}{if isset($view_href)}</a>{/if}</span>
     </div>
 </span>

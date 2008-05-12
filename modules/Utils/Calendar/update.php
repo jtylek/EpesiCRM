@@ -21,7 +21,7 @@ if($_POST['cell_id']=='trash') {
 	if(!$ret)
 		print('reject=true;');
 } else {
-	if(!isset($_POST['month']))
+	if(!isset($_POST['page_type']))
 		die('alert(\'Invalid request\')');
 
 	//update event
@@ -29,7 +29,7 @@ if($_POST['cell_id']=='trash') {
 	//$cc[0] = Base_RegionalSettingsCommon::reg2time($cc[0]);
 	$ev = call_user_func(array($mod.'Common','get'),$ev_id);
 //	error_log($ev_id."\n",3,'data/log2');
-	if($_POST['month']) {
+	if($_POST['page_type']=='month') {
 		if($ev['timeless']) $cc[1]=(isset($ev['custom_row_key'])?$ev['custom_row_key']:'timeless');
 		else $cc[0] += $ev['start']-strtotime(date('Y-m-d',$ev['start']));
 	}
@@ -50,7 +50,7 @@ if($_POST['cell_id']=='trash') {
 		$ev = array($ev);
 	foreach($ev as $e) {
 		ob_start();
-		Utils_CalendarCommon::print_event($e);
+		Utils_CalendarCommon::print_event($e,($_POST['page_type']=='day')?'day':null);
 		$ret = ob_get_clean();
 		print('$(\'utils_calendar_event:'.$e['id'].'\').innerHTML=\''.Epesi::escapeJS($ret,false).'\';');
 	}

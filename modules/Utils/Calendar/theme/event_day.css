@@ -1,47 +1,41 @@
-#Utils_Calendar__event {
+#Utils_Calendar__event_day {
     display: block;
     height: 100%;
+    width: 200px;
 	margin: 1px;
     background-repeat: repeat-x;
+    cursor: move;
 }
 
-#Utils_Calendar__event div.row {
+#Utils_Calendar__event_day div.row {
     display: block;
     height: 18px;
 }
 
-#Utils_Calendar__event #event_grab {
-    display: block;
-    float: left;
-    cursor: move;
-    padding-top: 2px;
-    padding-right: 2px;
-}
-
-#Utils_Calendar__event #event_time {
+#Utils_Calendar__event_day #event_time {
     display: block;
     float: left;
     padding-left: 5px;
     color: black;
 }
 
-#Utils_Calendar__event #event_title {
+#Utils_Calendar__event_day #event_title {
     display: block;
     color: black;
     text-align: center;
 }
 
-#Utils_Calendar__event #event_title a {
+#Utils_Calendar__event_day #event_title a {
     display: block;
     line-height: 18px;
     vertical-align: middle;
 }
 
-#Utils_Calendar__event #event_title a:hover {
+#Utils_Calendar__event_day #event_title a:hover {
     background-repeat: repeat-x;
 }
 
-#Utils_Calendar__event .event_menu {
+#Utils_Calendar__event_day .event_menu {
     width: 120px;
     height: 40px;
     position: absolute;
@@ -50,7 +44,7 @@
     z-index: 5;
 }
 
-#Utils_Calendar__event span.event_menu_content {
+#Utils_Calendar__event_day span.event_menu_content {
     display: block;
     height: 20px;
 	background-color: #e6ecf2;
@@ -58,23 +52,23 @@
     padding-right: 3px;
 }
 
-#Utils_Calendar__event span.event_menu_content img {
+#Utils_Calendar__event_day span.event_menu_content img {
     padding: 3px;
 }
 
-#Utils_Calendar__event span.event_menu_content img:hover {
+#Utils_Calendar__event_day span.event_menu_content img:hover {
     background-color: white;
 }
 
-#Utils_Calendar__event #event_info {
+#Utils_Calendar__event_day #event_info {
     display: block;
-    float: right;
+    float: left;
     padding-top: 2px;
-    padding-left: 2px;
+    padding-right: 2px;
     cursor: help;
 }
 
-#Utils_Calendar__event #event_info:hover {
+#Utils_Calendar__event_day #event_info:hover {
 }
 
 /* COLORS */

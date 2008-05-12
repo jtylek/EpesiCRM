@@ -222,6 +222,7 @@ class Utils_Calendar extends Module {
 	public function body($arg = null) {
 
 		load_js($this->get_module_dir().'calendar.js');
+		$this->js('Utils_Calendar.day_href = \''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'switch','time'=>'__DATE__', 'tab'=>'Day')),false).'\'');
 		if(isset($this->tb)) {
 			$this->display_module($this->tb);
 			$this->tb->tag();
@@ -417,6 +418,7 @@ class Utils_Calendar extends Module {
 		//data
 		$ret = $this->get_events(date('Y-m-d',$this->date),date('Y-m-d',$this->date+86400));
 		$custom_keys = $this->settings['custom_rows'];
+		$ev_out = 'function() {';
 		foreach($ret as $ev) {
 			$ev_start = $ev['start']-$today_t;//Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$ev['start']))
 //			print_r($ev_start);
@@ -441,9 +443,11 @@ class Utils_Calendar extends Module {
 			}
 			if(isset($dest_id)) {
 				$this->print_event($ev,'day');
-				$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\',\''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).', '.ceil($ev['duration']/(strtotime($this->settings['interval'])-strtotime('0:00'))).')');
+				$ev_out .= 'Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\',\''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).', '.ceil($ev['duration']/(strtotime($this->settings['interval'])-strtotime('0:00'))).');';
 			}
 		}
+		$ev_out.='}';
+		$this->js('setTimeout('.$ev_out.',300)');
 		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
 				'\''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
 				'\''.Epesi::escapeJS($this->get_path(),false).'\','.
@@ -575,6 +579,7 @@ class Utils_Calendar extends Module {
 		//data
 		$ret = $this->get_events($dis_week_from,$dis_week_from+7*86400);
 		$custom_keys = $this->settings['custom_rows'];
+		$ev_out = 'function() {';
 		foreach($ret as $k=>$ev) {
 			$today_t = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$ev['start']));
 			if(isset($ev['timeless']) && $ev['timeless'] && !isset($ev['custom_row_key'])) {
@@ -598,9 +603,12 @@ class Utils_Calendar extends Module {
 			if(isset($dest_id)) {
 //				print($ev['title'].' '.$ev['start'].'<hr>');
 				$this->print_event($ev);
-				$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).', '.ceil($ev['duration']/(strtotime($this->settings['interval'])-strtotime('0:00'))).')');
+//				$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).', '.ceil($ev['duration']/(strtotime($this->settings['interval'])-strtotime('0:00'))).')');
+				$ev_out .= 'Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).', '.ceil($ev['duration']/(strtotime($this->settings['interval'])-strtotime('0:00'))).');';
 			}
 		}
+		$ev_out.='}';
+		$this->js('setTimeout('.$ev_out.',300)');
 		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
 				'\''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
 				'\''.Epesi::escapeJS($this->get_path(),false).'\','.
@@ -689,12 +697,15 @@ class Utils_Calendar extends Module {
 		$start_t = $month[0]['days'][0]['time'];
 		$end_t = $month[count($month)-1]['days'][6]['time'];
 		$ret = $this->get_events($start_t,$end_t);
+		$ev_out = 'function() {';
 		foreach($ret as $k=>$ev) {
 			$this->print_event($ev);
 			$ev_start = strtotime(date('Y-m-d',$ev['start']));
 			$dest_id = 'UCcell_'.$ev_start;
-			$this->js('Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).', 1)');
+			$ev_out .= 'Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).', 1);';
 		}
+		$ev_out.='}';
+		$this->js('setTimeout('.$ev_out.',300)');
 		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
 				'\''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
 				'\''.Epesi::escapeJS($this->get_path(),false).'\','.

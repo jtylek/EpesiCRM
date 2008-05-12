@@ -1,14 +1,17 @@
 Utils_Calendar = { 
+day_href:null,
+go_to_day:function(date) {
+	eval(Utils_Calendar.day_href.replace('__DATE__',date));
+},
 add_event:function(dest_id,ev_id,draggable,duration) {
 	var dest = $(dest_id);
 	var ev = $('utils_calendar_event:'+ev_id);
 	if(!dest || !ev) {
 		return;
 	}
-	ev.absolutize();
 	ev.setAttribute('duration',duration);
+	ev.style.position = 'absolute';
 	ev.style.overflow = 'hidden';
-	ev.style.width = '100px';
 	
 	Utils_Calendar.init_reload_event_tag();
 	Utils_Calendar.add_event_tag(dest,ev);
@@ -95,10 +98,33 @@ add_event_tag:function(dest,ev) {
 		h++;
 	} while(duration>0);
 	ev.style.height = (h * dest.getHeight())+'px';
+	
+	var ev_w = ev.getWidth();
+	var offset_step = ev_w/5;
 
-	ev.style.zIndex=5+offset;
-	ev.clonePosition(dest, {setHeight: false, setWidth: false, offsetLeft: (40*offset)});
+	if(offset_step*offset+ev_w>dest.getWidth()) {
+		if(!dest.hasAttribute("too_many_events")){
+			var b = document.createElement('a');
+			var date = dest.id.substr(7);
+			var i = date.indexOf('_');
+			if(i>0) date = date.substr(0,i);
+			b.href = 'javascript:Utils_Calendar.go_to_day('+date+')';
+			b.innerHTML = 'too many events - please see daily view';
+			b.style.position = 'absolute';
+			b.style.backgroundColor='red';
+			b.setOpacity(0.6);
+			b.style.zIndex=20;
+			ev.parentNode.appendChild(b);
+			b.clonePosition(dest);
+			dest.setAttribute("too_many_events",1);
+		}
+		ev.style.display='none';
+	} else {
+		ev.style.zIndex=5+offset;
+		ev.clonePosition(dest, {setHeight: false, setWidth: false, offsetLeft: (offset_step*offset)});
+	}
 	ev.setAttribute('last_cell',dest.id);
+	
 
 	Utils_Calendar.reload_event_tag(reload);
 },
@@ -139,7 +165,7 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid,page_type) {
 						cell_id: droppable.id.substr(7),
 						path: mpath,
 						cid: ecid,
-						month: (page_type=='month')?1:0
+						page_type: page_type
 					},
 					onComplete: function(t) {
 						var reject=false;
