@@ -147,6 +147,7 @@ class Utils_TasksCommon extends ModuleCommon {
 				eval_js('document.getElementById("contact_confirmed_'.$v.'").innerHTML = "<img src=\"'.(isset($ret[$v])?$icon_on:$icon_off).'\" />";');
 			}
 			if ($values['page_id'] == md5('crm_tasks')) {
+				// TODO: move this code (somehow?) to CRM/Tasks instead
 				$values['date_and_time'] = date('Y-m-d H:i:s');
 				$values['title'] = Base_LangCommon::ts('Utils/Tasks','Follow up: ').$values['title'];
 				unset($values['status']);

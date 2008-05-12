@@ -635,6 +635,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$edited = DB::GetRow('SELECT edited_on, edited_by FROM '.$tab.'_edit_history WHERE '.$tab.'_id=%d ORDER BY edited_on DESC', array($id));
 		if (!isset($edited['edited_on'])) $edited['edited_on'] = null;
 		if (!isset($edited['edited_by'])) $edited['edited_by'] = null;
+		if (!isset($created['created_on'])) trigger_error('There is no such record as '.$id.' in table '.$tab, E_USER_ERROR);
 		return array(	'created_on'=>$created['created_on'],'created_by'=>$created['created_by'],
 						'edited_on'=>$edited['edited_on'],'edited_by'=>$edited['edited_by']);
 	}
@@ -703,14 +704,18 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 	public static function get_new_record_href($tab, $def, $id='none'){
 		self::check_table_name($tab);
+		$x = ModuleManager::get_instance('/Base_Box|0');
+		if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+		if (Utils_RecordBrowser::$clone_result!==null) {
+			if (is_numeric(Utils_RecordBrowser::$clone_result)) $x->push_main('Utils/RecordBrowser','view_entry',array('view', Utils_RecordBrowser::$clone_result), array(Utils_RecordBrowser::$clone_tab));
+			Utils_RecordBrowser::$clone_result = null;
+		}
 		if (isset($_REQUEST['__add_record_to_RB_table']) &&
 			isset($_REQUEST['__add_record_id']) && 
 			($tab==$_REQUEST['__add_record_to_RB_table']) &&
 			($id==$_REQUEST['__add_record_id'])) {
 			unset($_REQUEST['__add_record_to_RB_table']);
 			unset($_REQUEST['__add_record_id']);
-			$x = ModuleManager::get_instance('/Base_Box|0');
-			if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 			$x->push_main('Utils/RecordBrowser','view_entry',array('add', null, $def), array($tab));
 			return array();
 		}

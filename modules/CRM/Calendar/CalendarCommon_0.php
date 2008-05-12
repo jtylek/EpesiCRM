@@ -2,6 +2,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_CalendarCommon extends ModuleCommon {
+	public static $last_added = null;
 
 	public static function body_access() {
 		return self::Instance()->acl_check('access');
@@ -14,17 +15,22 @@ class CRM_CalendarCommon extends ModuleCommon {
 			return array();
 	}
 
-	public static function new_event($def) {
+	public static function view_event($func, $def) {
 		$x = ModuleManager::get_instance('/Base_Box|0');
-		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-		$x->push_main('CRM_Calendar_Event','add',array(date('Y-m-d H:i:s'), false, $def));
+		if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+		if ($func=='add') $def = array(date('Y-m-d H:i:s'), false, $def);
+		$x->push_main('CRM_Calendar_Event',$func,$def);
 	}
 
 	public static function get_new_event_href($def, $id='none'){
+		if (self::$last_added!==null) {
+			if (is_numeric(self::$last_added)) self::view_event('view', self::$last_added);
+			self::$last_added = null;
+		}
 		if (isset($_REQUEST['__add_event']) &&
 			($id==$_REQUEST['__add_event'])) {
 			unset($_REQUEST['__add_event']);
-			self::new_event($def);
+			self::view_event('add',$def);
 			return array();
 		}
 		return Module::create_href(array('__add_event'=>$id));

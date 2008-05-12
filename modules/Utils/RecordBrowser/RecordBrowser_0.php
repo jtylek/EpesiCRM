@@ -38,6 +38,7 @@ class Utils_RecordBrowser extends Module {
 	private $filter_field;
 	private $default_order = array();
 	public static $clone_result = null;
+	public static $clone_tab = null;
 	public $adv_search = false;
 
 	public function get_val($field, $record, $id, $links_not_recommended = false, $args = null) {
@@ -138,6 +139,10 @@ class Utils_RecordBrowser extends Module {
 	// BODY //////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function body($def_order=array(), $crits=array()) {
 		$this->init();
+		if (self::$clone_result!==null) {
+			if (is_numeric(self::$clone_result)) $this->navigate('view_entry', 'view', self::$clone_result);
+			self::$clone_result = null;
+		}
 		if ($this->get_access('browse')===false) {
 			print($this->lang->t('You are not authorised to browse this data.'));
 			return;
@@ -526,6 +531,7 @@ class Utils_RecordBrowser extends Module {
 			if ($mode=='add') {
 				$id = Utils_RecordBrowserCommon::new_record($this->tab, $values);
 				self::$clone_result = $id;
+				self::$clone_tab = $this->tab;
 				return $this->back();
 			}
 			$time_from = date('Y-m-d H:i:s', $this->get_module_variable('edit_start_time'));

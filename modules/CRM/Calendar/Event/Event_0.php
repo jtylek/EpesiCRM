@@ -258,7 +258,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			//print_r($values);
 			if (!isset($values['timeless'])) $values['timeless'] = false;
 			if($action == 'new')
-				$this->add_event($values);
+				CRM_CalendarCommon::$last_added = $this->add_event($values);
 			else
 				$this->update_event($id, $values);
 			$this->back_to_calendar();
@@ -357,6 +357,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		foreach($vals['cus_id'] as $v) {
 			DB::Execute('INSERT INTO crm_calendar_event_group_cus (id,contact) VALUES (%d, %d)', array($id, $v));
 		}
+		return $id;
 	}
 
 	public function update_event($id, $vals = array()){
