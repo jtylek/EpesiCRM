@@ -268,6 +268,8 @@ destroy:function() {
 		var cell_id = 'UCcell_'+id[0];
 		Droppables.remove(cell_id);
 	});
+	delete(Utils_Calendar.ids);
+	Utils_Calendar.ids=null;
 
 	Droppables.remove('UCtrash');
 }
