@@ -40,8 +40,8 @@
     height: 40px;
     position: absolute;
     top: 0px;
-    right: 20px;
-    z-index: 5;
+    left: 10px;
+    z-index: 21;
 }
 
 #Utils_Calendar__event_day span.event_menu_content {

@@ -46,10 +46,6 @@
 #Utils_Calendar__event .event_menu {
     width: 120px;
     height: 40px;
-    position: absolute;
-    top: 0px;
-    right: 20px;
-    z-index: 5;
 }
 
 #Utils_Calendar__event span.event_menu_content {
