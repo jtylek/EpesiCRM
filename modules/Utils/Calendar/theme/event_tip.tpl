@@ -1,7 +1,7 @@
 <table id="Utils_Calendar__event_tip" border="0">
     <tbody>
-        <tr>
-            <td class="info" colspan="2">Click to show / hide menu</td>
+	<tr>
+            <td class="title" colspan="2">{$title}</td>
         </tr>
         <tr>
             <td class="label">Start</td><td class="data">{$start}</td>
@@ -13,13 +13,13 @@
             <td class="label">Duration</td><td class="data">{$duration}</td>
         </tr>
 	<tr>
-            <td class="title" colspan="2">{$title}</td>
-        </tr>
-	<tr>
 	   <td colspan="2">{$additional_info}</td>
         </tr>
         <tr>
             <td colspan="2">{$additional_info2}</td>
+        </tr>
+        <tr>
+            <td class="info" colspan="2">Click to show / hide menu</td>
         </tr>
     </tbody>
 </table>

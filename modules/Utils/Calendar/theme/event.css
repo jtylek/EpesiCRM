@@ -1,7 +1,7 @@
 #Utils_Calendar__event {
     display: block;
     height: 100%;
-    width: 100px;
+    width: 80px;
 	margin: 1px;
     background-repeat: repeat-x;
 }
