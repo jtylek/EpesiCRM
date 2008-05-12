@@ -3,8 +3,11 @@
     height: 100%;
     width: 100px;
 	margin: 1px;
-    cursor: move;
     background-repeat: repeat-x;
+}
+
+#Utils_Calendar__event .handle {
+    cursor: move;
 }
 
 #Utils_Calendar__event div.row {

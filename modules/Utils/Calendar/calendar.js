@@ -103,9 +103,13 @@ add_event_tag:function(dest,ev) {
 	var offset_step = ev_w/5;
 
 	if(offset_step*offset+ev_w>dest.getWidth()) {
-		if(!dest.hasAttribute("too_many_events")){
+		var err_evs;
+		if(dest.hasAttribute("too_many_events")){
+			err_evs = dest.getAttribute("too_many_events").evalJSON();
+		} else {
 			var b = document.createElement('a');
 			var date = dest.id.substr(7);
+			b.id = 'tooManyEventsCell_'+date;
 			var i = date.indexOf('_');
 			if(i>0) date = date.substr(0,i);
 			b.href = 'javascript:Utils_Calendar.go_to_day('+date+')';
@@ -116,10 +120,22 @@ add_event_tag:function(dest,ev) {
 			b.style.zIndex=20;
 			ev.parentNode.appendChild(b);
 			b.clonePosition(dest);
-			dest.setAttribute("too_many_events",1);
+			err_evs = new Array();
 		}
+		err_evs.push(ev.id);
+		dest.setAttribute("too_many_events",err_evs.toJSON());
 		ev.style.display='none';
 	} else {
+		if(dest.hasAttribute("too_many_events")) {
+			var err_evs = dest.getAttribute("too_many_events").evalJSON();
+			dest.removeAttribute("too_many_events");
+			var date = dest.id.substr(7);
+			var err = $('tooManyEventsCell_'+date);
+			err.parentNode.removeChild(err);
+			err_evs.each(function(id) {
+				$(id).style.display='block';
+			});
+		}
 		ev.style.zIndex=5+offset;
 		ev.clonePosition(dest, {setHeight: false, setWidth: false, offsetLeft: (offset_step*offset)});
 	}

@@ -4,6 +4,9 @@
     width: 200px;
 	margin: 1px;
     background-repeat: repeat-x;
+}
+
+#Utils_Calendar__event_day .handle {
     cursor: move;
 }
 
