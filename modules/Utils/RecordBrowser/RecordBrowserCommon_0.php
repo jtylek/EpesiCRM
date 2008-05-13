@@ -531,7 +531,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (!isset($limit['offset'])) $limit['offset'] = 0;
 		if (!isset($limit['numrows'])) $limit['numrows'] = -1;
 		if (!$order) $order = array();
-		if (count($crits)==1 && isset($crits['id'])) {
+		if (count($crits)==1 && isset($crits['id']) && empty($order)) {
 			self::init($tab);
 			if (empty($crits['id'])) return array();
 			$first = true;

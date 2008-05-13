@@ -256,7 +256,7 @@ class Utils_RecordBrowser extends Module {
 		if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 		$args = func_get_args();
 		array_shift($args);
-		$x->push_main('Utils/RecordBrowser',$func,$args,array($this->tab));
+		$x->push_main('Utils/RecordBrowser',$func,$args,array(self::$clone_result!==null?self::$clone_tab:$this->tab));
 		return false;
 	}
 	public function back(){

@@ -33,7 +33,10 @@ class CRM_CalendarCommon extends ModuleCommon {
 			self::view_event('add',$def);
 			return array();
 		}
-		return Module::create_href(array('__add_event'=>$id));
+		return array('__add_event'=>$id);
+	}
+	public static function create_new_event_href($def, $id='none'){
+		return Module::create_href(self::get_new_event_href($def, $id));
 	}
 
 	public static function user_settings() {

@@ -41,9 +41,6 @@ class CRM_Contacts_Activities extends Module {
 	public function contact_activities($me) {
 		$this->theme = $this->pack_module('Base/Theme');
 		$this->filters();
-//		print('<a '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'contact'=>$me['id'],'company_name'=>(isset($me['company_name'][0])?$me['company_name'][0]:''))).'>New Phonecall</a>');
-//		print('<a '.Utils_RecordBrowserCommon::create_new_record_href('task', array('page_id'=>md5('crm_tasks'),'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),($is_employee?'employees':'customers')=>$me['id'])).'>New Task</a>');
-//		print('<a '.CRM_CalendarCommon::get_new_event_href(array(($is_employee?'emp_id':'cus_id')=>$me['id'])).'>New Event</a>');
 		$this->theme->display();
 		$events = null;
 		$tasks = null;
