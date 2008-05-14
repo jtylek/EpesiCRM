@@ -7,6 +7,8 @@ define('SET_SESSION',0);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 
-print(json_encode(Utils_CommonDataCommon::get_array($_POST['value'])));
+$ret = Utils_CommonDataCommon::get_array($_POST['value']);
+if(!$ret) $ret = array();
+print(json_encode($ret));
 
 ?>
