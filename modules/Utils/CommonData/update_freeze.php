@@ -9,6 +9,6 @@ ModuleManager::load_modules();
 
 $ret = Utils_CommonDataCommon::get_value($_POST['value']);
 if(!$ret) $ret = '';
-print($ret);
+print(json_encode($ret));
 
 ?>
