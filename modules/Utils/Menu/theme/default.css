@@ -16,6 +16,14 @@ a.root_item_link_down:hover {
 	color: white;
 }
 
+.root img {
+	display: none;
+}
+
+.submenu img {
+	display: block;
+}
+
 table.root td.separator {
 	width: 4px;
 	height: 20px;
