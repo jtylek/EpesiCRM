@@ -267,7 +267,7 @@ hr.line {
 }
 
 #top_bar #top_bar_1 .module-indicator #module-indicator {
-	width: 287px;
+	width: 263px;
     text-align: center;
     display: block;
     float: left;
@@ -286,6 +286,22 @@ hr.line {
 
 #top_bar #top_bar_1 .module-indicator #quick-logout:hover {
     background-image: url('Base_Box__logout-hover.png');
+}
+
+#top_bar #top_bar_1 .module-indicator #search-icon {
+    float: right;
+    border-left: 4px solid #b3b3b3;
+    background-color: #595959;
+    background-image: url('images/header-gray-dark.png');
+    background-repeat: repeat-x;
+    width: 16px;
+    height: 16px;
+    padding: 2px;
+    cursor: pointer;
+}
+
+#top_bar #top_bar_1 .module-indicator #search-icon:hover {
+    background-image: url('images/header-gray-dark-hover.png');
 }
 
 /*** top_bar_2 ***/
@@ -345,6 +361,18 @@ hr.line {
 	vertical-align: top;
 	text-align: center;
 	padding-left: 5px;
+}
+
+#top_bar #top_bar_2 .filter {
+	height: 34px;
+	vertical-align: top;
+	text-align: center;
+	padding-left: 5px;
+}
+
+#top_bar #top_bar_2 .filter span {
+    color: #993333;
+    font-weight: bold;
 }
 
 #gray-transparent {

@@ -50,7 +50,7 @@ base_box_roll_search_login_bar = function() {
       $('search-login-bar').style.display = 'block';
       $('login-search-td').style.width = '297px';
       $('quick-logout').style.display = 'none';
-      $('module-indicator').style.width = '287px';
+      $('module-indicator').style.width = '263px';
    }
    else {
       $('search-login-bar').style.display = 'none';
@@ -73,6 +73,19 @@ function show_hide_clock() {
    }
 }
 
+function show_hide_search_box() {
+   var s1 = document.getElementById("search_box").style;
+   var s2 = document.getElementById("filter_box").style;
+   if(s1.display == 'none') {
+      s1.display = 'block';
+      s2.display = 'none';
+   }
+   else {
+      s1.display = 'none';
+      s2.display = 'block';
+   }
+
+}
 
 function calctime() {
 
