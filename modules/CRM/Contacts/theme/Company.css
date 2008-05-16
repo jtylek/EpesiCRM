@@ -115,6 +115,11 @@
     color: #777777;
     text-align: right;
     padding-right: 20px;
+    vertical-align: middle;
+}
+
+.CRM_Contacts__table .required_fav_info img {
+    vertical-align: middle;
 }
 
 #CRM_Contacts__View_entry .create-company input {
