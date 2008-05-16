@@ -1,6 +1,5 @@
 #Utils_Calendar__event_day {
     display: block;
-    height: 100%;
     width: 200px;
 	margin: 1px;
     background-repeat: repeat-x;
@@ -12,7 +11,7 @@
 
 #Utils_Calendar__event_day div.row {
     display: block;
-    height: 18px;
+    height: 13px;
 }
 
 #Utils_Calendar__event_day #event_time {
@@ -30,7 +29,7 @@
 
 #Utils_Calendar__event_day #event_title a {
     display: block;
-    line-height: 18px;
+    line-height: 13px;
     vertical-align: middle;
 }
 
@@ -66,8 +65,8 @@
 #Utils_Calendar__event_day #event_info {
     display: block;
     float: left;
-    padding-top: 2px;
-    padding-right: 2px;
+    padding-top: 1px;
+    padding-right: 1px;
     cursor: help;
 }
 
@@ -89,7 +88,7 @@
 /* blue */
 
 .event_blue {
-	border: 2px solid #336699;
+	border: 1px solid #336699;
 	background-color: #cfdbe6;
 	background-image: url('images/header-light-blue.png');
 }
@@ -107,7 +106,7 @@
 /* red */
 
 .event_red {
-	border: 2px solid #993333;
+	border: 1px solid #993333;
 	background-color: #e6cfcf;
 	background-image: url('images/header-light-red.png');
 }
@@ -125,7 +124,7 @@
 /* yellow */
 
 .event_yellow {
-	border: 2px solid #999933;
+	border: 1px solid #999933;
 	background-color: #e6e6cf;
 	background-image: url('images/header-light-yellow.png');
 }
@@ -143,7 +142,7 @@
 /* green */
 
 .event_green {
-	border: 2px solid #339933;
+	border: 1px solid #339933;
 	background-color: #cfe6cf;
 	background-image: url('images/header-light-green.png');
 }
@@ -161,7 +160,7 @@
 /* gray */
 
 .event_gray {
-	border: 2px solid #808080;
+	border: 1px solid #808080;
 	background-color: #f0f0f0;
 	background-image: url('images/header-light-gray.png');
 }
@@ -179,7 +178,7 @@
 /* cyan */
 
 .event_cyan {
-	border: 2px solid #339999;
+	border: 1px solid #339999;
 	background-color: #cfe6e6;
 	background-image: url('images/header-light-cyan.png');
 }
@@ -197,7 +196,7 @@
 /* magenta */
 
 .event_magenta {
-	border: 2px solid #993399;
+	border: 1px solid #993399;
 	background-color: #e6cfe6;
 	background-image: url('images/header-light-magenta.png');
 }

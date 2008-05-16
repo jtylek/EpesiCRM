@@ -11,7 +11,7 @@
 
 #Utils_Calendar__event div.row {
     display: block;
-    height: 11px;
+    height: 13px;
 }
 
 #Utils_Calendar__event #event_info {
@@ -20,7 +20,7 @@
     cursor: help;
     padding-top: 1px;
     padding-right: 1px;
-    font-size: 9px;
+    font-size: 11px;
 }
 
 #Utils_Calendar__event #event_time {
@@ -28,19 +28,19 @@
     float: left;
     padding-left: 5px;
     color: black;
-    font-size: 9px;
+    font-size: 11px;
 }
 
 #Utils_Calendar__event #event_title {
     display: block;
     color: black;
     text-align: center;
-    font-size: 9px;
+    font-size: 11px;
 }
 
 #Utils_Calendar__event #event_title a {
     display: block;
-    line-height: 10px;
+    line-height: 11px;
     vertical-align: middle;
 }
 

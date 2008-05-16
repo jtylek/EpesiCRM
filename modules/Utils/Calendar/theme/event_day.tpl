@@ -46,7 +46,7 @@
     </span>
 
     <div class="row">
-        <span id="event_info"><img {$tip_tag_attrs} src="{$theme_dir}/Utils_Calendar__info.png" onClick="event_menu('{$event_id}')" width="10" height="10" border="0"></span>
+        <span id="event_info"><img {$tip_tag_attrs} src="{$theme_dir}/Utils_Calendar__info.png" onClick="event_menu('{$event_id}')" width="11" height="11" border="0"></span>
         <span id="event_time" {if $draggable}class="{$handle_class}"{/if}>{$start_time} - {$end_time} ({$duration})</span>
     </div>
      <div class="row">
