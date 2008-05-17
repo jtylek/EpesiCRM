@@ -360,6 +360,7 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
             $myName = $this->getName();
 			$mod = $myName;
 			$this->setName($myName . 'from[]');
+			$this->_attributes['id'] = $myName . '__from';
 			$attrString = $this->_getAttrString($this->_attributes);
 			$attrArray = $this->getAttributes();
 			$leave_selected = isset($attrArray['leave_selected']) ? $attrArray['leave_selected'] : 0;
@@ -386,6 +387,7 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 
 			$toElement = '';
 			$this->setName($myName . 'to[]');
+			$this->_attributes['id'] = $myName . '__to';
 			$attrString = $this->_getAttrString($this->_attributes);
 			$toElement .= $tabs . '<select' . $attrString . ' ondblclick="remove_selected_'.$mod.'();">'."\n";
 			$list = '';
@@ -518,7 +520,7 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 									'while (k!=tolist.length) { list += \''.$this->list_sep.'\'+tolist.options[k].value; k++; }'.
 									'document.getElementsByName(\''.$myName.'\')[0].value=list; '.
 									'}');
-				$buttons['remove_all'] = '<input align=center type=button value="<<" onclick="'.
+				$buttons['remove_all'] = '<input id="'.$myName.'__remove_all" align=center type=button value="<<" onclick="'.
 									'tolist = document.getElementsByName(\''.$myName.'to[]\')[0];'.
 									'fromlist = document.getElementsByName(\''.$myName.'from[]\')[0];'.
 									'list = \'\';'.
@@ -541,13 +543,13 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 									'}'.
 									'document.getElementsByName(\''.$myName.'\')[0].value=list;'.
 									'"/>';
-				$buttons['remove_selected'] = '<input type=button value="<" onclick="'.
+				$buttons['remove_selected'] = '<input id="'.$myName.'__remove_selected" type=button value="<" onclick="'.
 									'remove_selected_'.$mod.'();'.
 									'"/>';
-				$buttons['add_selected'] = '<input type=button value=">" onclick="'.
+				$buttons['add_selected'] = '<input id="'.$myName.'__add_selected" type=button value=">" onclick="'.
 									'add_selected_'.$mod.'();'.
 									'"/>';
-				$buttons['add_all'] = '<input type=button value=">>" onclick="'.
+				$buttons['add_all'] = '<input id="'.$myName.'__add_all" type=button value=">>" onclick="'.
 									'tolist = document.getElementsByName(\''.$myName.'to[]\')[0];'.
 									'fromlist = document.getElementsByName(\''.$myName.'from[]\')[0];'.
 									'list = \'\';'.

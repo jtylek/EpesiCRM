@@ -86,7 +86,6 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		if ($mode=='add' || $mode=='edit') {
 			$js =
 					'Event.observe(\'other_phone\',\'change\', onchange_other_phone);'.
-//					'Event.observe(\'phone\',\'change\', onchange_other_phone);'.
 					'function enable_disable_phone(arg) {'.
 					'phone = document.forms[\''.$form->getAttribute('name').'\'].phone;'.
 					'o_phone = document.forms[\''.$form->getAttribute('name').'\'].other_phone_number;'.

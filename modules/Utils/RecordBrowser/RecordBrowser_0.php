@@ -14,7 +14,6 @@ class Utils_RecordBrowser extends Module {
 	private $table_rows = array();
 	private $lang;
 	private $tab;
-	private $record;
 	private $browse_mode;
 	private $display_callback_table = array();
 	private $QFfield_callback_table = array();
@@ -39,6 +38,7 @@ class Utils_RecordBrowser extends Module {
 	private $default_order = array();
 	public static $clone_result = null;
 	public static $clone_tab = null;
+	public $record;
 	public $adv_search = false;
 
 	public function get_val($field, $record, $id, $links_not_recommended = false, $args = null) {
@@ -624,10 +624,7 @@ class Utils_RecordBrowser extends Module {
 		$fields = array();
 		$longfields = array();
 		foreach($this->table_rows as $field => $args) {
-/*			if ($args['type']=='hidden') {
-				$form->addElement('hidden', $args['id']);
-				continue;
-			}*/
+			if (!isset($data[$args['id']]) || $data[$args['id']]['type']=='hidden')	continue;
 			if ($args['position'] >= $from && ($to == -1 || $args['position'] < $to))
 			{
 				if (!isset($data[$args['id']])) $data[$args['id']] = array('label'=>'', 'html'=>'');
