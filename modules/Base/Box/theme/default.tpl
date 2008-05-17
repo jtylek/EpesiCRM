@@ -25,7 +25,7 @@
 				<td id="clock_td"><div id="digitalclock" style="display: none;"></div></td>
 				<td class="clock_icon" onclick="show_hide_clock();"><img border="0" src="{$theme_dir}/Base_Box__clock.png" width="16" height="16"></td>
 				<td class="roll-right"><img id="roll" src="{$theme_dir}/Base_Box__roll-right.png" onClick="var x='{$theme_dir}/Base_Box__roll-';if(this.src.indexOf(x+'left.png')>=0)this.src=x+'right.png';else this.src=x+'left.png'; base_box_roll_search_login_bar();" width="14" height="14" alt="=" border="0"></td>
-				<td class="module-indicator"><div id="module-indicator">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</div><div id="search-icon" onclick="show_hide_search_box();"><img border="0" src="{$theme_dir}/Base_Box__search.png" width="16" height="16"></div><div id="quick-logout" style="display: none;"></div></td>
+				<td class="module-indicator"><div id="module-indicator">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</div><div id="quick-logout" style="display: none;"></div></td>
 			</tr>
 		</tbody>
 		</table>
@@ -39,9 +39,9 @@
 					<td class="icons">{$actionbar}</td>
 					<td id="login-search-td">
 						<div id="search-login-bar">
-							<div class="login"><br>{$login}</div>
+							<div class="login">{$login}</div>
+							<div class="filter" id="filter_box"><center>Filter: {if isset($filter_description)}<span class="red">{$filter_description}</span>{else}<span class="gray">no filter</span>{/if}</center></div>
 							<div class="search" id="search_box"><center>{$search}</center></div>
-							<div class="filter" id="filter_box" style="display: none;"><center>Filter: <span>My filter</span></center></div>
 						</div>
 					</td>
 				</tr>
