@@ -144,6 +144,10 @@
                         {$form_data.color.html}
                     </span>
                 </td>
+		<td class="label" align="left">{$form_data.status.label}</td>
+				<td class="data" align="left">
+                        {$form_data.status.html}
+                </td>
 			</tr>
         </tbody>
     </table>

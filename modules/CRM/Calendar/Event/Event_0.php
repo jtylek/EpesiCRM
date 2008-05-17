@@ -77,6 +77,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				'date_e' => $event['end'],
 				'time_s' => $event['start'],
 				'time_e' => $event['end'],
+				'status' => $event['status'],
 				'duration' => $x,
 				'title'=>$event['title'],
 				'description'=>$event['description'],
@@ -112,6 +113,8 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 		$form->addElement('text', 'title', $this->lang->t('Title'), array('style'=>'width: 100%;', 'id'=>'event_title'));
 		$form->addRule('title', 'Field is required!', 'required');
+
+		$form->addElement('commondata', 'status', $this->lang->t('Status'),'Ticket_Status');
 
 		$time_format = Base_RegionalSettingsCommon::time_12h()?'h:i a':'H:i';
 
@@ -327,10 +330,12 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 													'access,'.
 													'priority,'.
 													'color,'.
+													'status,'.
 													'created_by,'.
 													'created_on) VALUES ('.
 													'%s,'.
 													'%s,'.
+													'%d,'.
 													'%d,'.
 													'%d,'.
 													'%d,'.
@@ -347,6 +352,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 													$vals['access'],
 													$vals['priority'],
 													$vals['color'],
+													$vals['status'],
 													Acl::get_user(),
 													date('Y-m-d H:i:s')
 													));
@@ -376,6 +382,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 													'access=%d,'.
 													'priority=%d,'.
 													'color=%d,'.
+													'status=%d,'.
 													'edited_by=%d,'.
 													'edited_on=%T WHERE id=%d',
 													array(
@@ -387,6 +394,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 													$vals['access'],
 													$vals['priority'],
 													$vals['color'],
+													$vals['status'],
 													Acl::get_user(),
 													date('Y-m-d H:i:s'),
 													$id

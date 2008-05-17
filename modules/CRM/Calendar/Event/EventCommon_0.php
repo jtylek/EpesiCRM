@@ -27,14 +27,17 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		else
 			$fil = '';
 		$t = microtime(true);
-		$row = DB::GetRow('SELECT e.color,e.access,e.start,e.end,e.title,e.description,e.id,e.timeless,e.priority,e.created_by,e.created_on,e.edited_by,e.edited_on,GROUP_CONCAT(DISTINCT emp.contact SEPARATOR \',\') as employees,GROUP_CONCAT(DISTINCT cus.contact SEPARATOR \',\') as customers FROM crm_calendar_event e LEFT JOIN crm_calendar_event_group_emp emp ON emp.id=e.id LEFT JOIN crm_calendar_event_group_cus cus ON cus.id=e.id WHERE e.id=%d'.$fil.' GROUP BY e.id',array($id));
+		$row = DB::GetRow('SELECT e.status,e.color,e.access,e.start,e.end,e.title,e.description,e.id,e.timeless,e.priority,e.created_by,e.created_on,e.edited_by,e.edited_on,GROUP_CONCAT(DISTINCT emp.contact SEPARATOR \',\') as employees,GROUP_CONCAT(DISTINCT cus.contact SEPARATOR \',\') as customers FROM crm_calendar_event e LEFT JOIN crm_calendar_event_group_emp emp ON emp.id=e.id LEFT JOIN crm_calendar_event_group_cus cus ON cus.id=e.id WHERE e.id=%d'.$fil.' GROUP BY e.id',array($id));
 		$result = array();
 		if ($row) {
 			foreach (array('start','id','title','timeless','end','description') as $v)
 				$result[$v] = $row[$v];
 			$result['duration'] = $row['end']-$row['start'];
 			$color = self::get_available_colors();
-			$result['color'] = $color[$row['color']];
+			if($row['status']>=2)
+				$result['color'] = 'gray';
+			else
+				$result['color'] = $color[$row['color']];
 			$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
 			$priority = array(0 =>'None', 1 => 'Low', 2 => 'Medium', 3 => 'High');
 			$result['additional_info2'] = 	Base_LangCommon::ts('CRM_Calendar_Event','Access').': '.Base_LangCommon::ts('CRM_Calendar_Event',$access[$row['access']]).'<br>'.
@@ -77,7 +80,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		if($count>50) {
 			Epesi::alert(Base_LangCommon::ts('CRM_Calendar_Event','Displaying only 50 of %d events',array($count)));
 		}
-		$ret = DB::Execute('SELECT e.color,e.access,e.start,e.end,e.title,e.description,e.id,e.timeless,e.priority,e.created_by,e.created_on,e.edited_by,e.edited_on,(SELECT GROUP_CONCAT(DISTINCT emp.contact SEPARATOR \',\') FROM crm_calendar_event_group_emp emp WHERE emp.id=e.id GROUP BY emp.id) as employees,(SELECT GROUP_CONCAT(DISTINCT cus.contact SEPARATOR \',\') FROM crm_calendar_event_group_cus cus WHERE cus.id=e.id GROUP BY cus.id) as customers FROM crm_calendar_event e WHERE ((e.start>=%d AND e.start<%d) OR (e.end>=%d AND e.end<%d)) '.$fil.$order.' LIMIT 50',array($start,$end,$start,$end));
+		$ret = DB::Execute('SELECT e.status,e.color,e.access,e.start,e.end,e.title,e.description,e.id,e.timeless,e.priority,e.created_by,e.created_on,e.edited_by,e.edited_on,(SELECT GROUP_CONCAT(DISTINCT emp.contact SEPARATOR \',\') FROM crm_calendar_event_group_emp emp WHERE emp.id=e.id GROUP BY emp.id) as employees,(SELECT GROUP_CONCAT(DISTINCT cus.contact SEPARATOR \',\') FROM crm_calendar_event_group_cus cus WHERE cus.id=e.id GROUP BY cus.id) as customers FROM crm_calendar_event e WHERE ((e.start>=%d AND e.start<%d) OR (e.end>=%d AND e.end<%d)) '.$fil.$order.' LIMIT 50',array($start,$end,$start,$end));
 		$result = array();
 		$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
 		$priority = array(0 =>'None', 1 => 'Low', 2 => 'Medium', 3 => 'High');
@@ -87,7 +90,10 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 				$next_result[$v] = $row[$v];
 			$next_result['duration'] = $row['end']-$row['start'];
 			$color = self::get_available_colors();
-			$next_result['color'] = $color[$row['color']];
+			if($row['status']>=2)
+				$next_result['color'] = 'gray';
+			else
+				$next_result['color'] = $color[$row['color']];
 
 			$next_result['additional_info2'] = 	Base_LangCommon::ts('CRM_Calendar_Event','Access').': '.Base_LangCommon::ts('CRM_Calendar_Event',$access[$row['access']]).'<br>'.
 								Base_LangCommon::ts('CRM_Calendar_Event','Priority').': '.Base_LangCommon::ts('CRM_Calendar_Event',$priority[$row['priority']]). '<br>'.

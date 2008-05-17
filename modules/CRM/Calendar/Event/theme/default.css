@@ -304,11 +304,11 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
 /* */
 
 .timeless_access_priority_color td.label {
-	width: 8%;
+	width: 6%;
 }
 
 .timeless_access_priority_color td.data {
-	width: 16%;
+	width: 14%;
 }
 
 
