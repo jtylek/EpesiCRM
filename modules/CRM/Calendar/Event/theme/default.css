@@ -328,3 +328,54 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
 #CRM_Calendar_Event_Personal .attachments_messages .layer .margin2px {
 	padding: 0px;
 }
+
+/* header */
+
+.CRM_Calendar_Event__header {
+    width: 100%;
+    vertical-align: middle;
+    height: 31px;
+}
+
+.CRM_Calendar_Event__header .icon {
+    width: 32px;
+    height: 27px;
+    text-align: left;
+    padding-left: 20px;
+    padding-right: 10px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    vertical-align: top;
+    background-color: #666666;
+    background-image: url('images/dark-gray.png');
+}
+
+.CRM_Calendar_Event__header .icon img {
+    position: absolute;
+    clip: rect(0px 32px 28px 0px);
+}
+
+.CRM_Calendar_Event__header .name {
+    width: 290px;
+    text-align: left;
+    font-size: 14px;
+    font-weight: bold;
+    color: #FFFFFF;
+    padding-left: 10px;
+    padding-top: 7px;
+    height: 24px;
+    vertical-align: top;
+    background-image: url('images/dark-gray-gradient.png');
+    background-repeat: repeat-y;
+}
+
+.CRM_Calendar_Event__header .required_fav_info {
+    color: #777777;
+    text-align: right;
+    padding-right: 20px;
+    vertical-align: middle;
+}
+
+.CRM_Calendar_Event__header .required_fav_info img {
+    vertical-align: middle;
+}

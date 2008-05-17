@@ -1,9 +1,32 @@
-	{$form_open}
+<table class="CRM_Calendar_Event__header" border="0" cellpadding="0" cellspacing="0">
+	<tbody>
+		<tr>
+			<td class="icon"><img src="{$theme_dir}/CRM_Calendar__icon.png" width="32" height="32" border="0"></td>
+			<td class="name">{if $action == 'view'}View{else}Edit{/if} Event</td>
+			<td class="required_fav_info">
+                {if isset($info_tooltip)}
+                    &nbsp;&nbsp;&nbsp;{$info_tooltip}
+                {/if}
+                {if isset($__link.new_event.open)}
+                    &nbsp;&nbsp;&nbsp;{$new_event}
+                {/if}
+                {if isset($__link.new_task.open)}
+                    &nbsp;&nbsp;&nbsp;{$new_task}
+                {/if}
+                {if isset($__link.new_phonecall.open)}
+                    &nbsp;&nbsp;&nbsp;{$new_phonecall}
+                {/if}
+			</td>
+		</tr>
+	</tbody>
+</table>
 
-    <div id="CRM_Calendar_Event_Personal">
+{$form_open}
+
+<div id="CRM_Calendar_Event_Personal">
 
 <!-- SHADIW BEGIN-->
-	<div class="layer" style="padding: 9px; width: 740px;">
+	<div class="layer" style="padding: 9px; width: 98%;">
 		<div class="content_shadow">
 <!-- -->
 
@@ -31,18 +54,6 @@
                         <span class="dark-gray">&bull;</span>&nbsp;
                     {/if}
                     <span class="dark-gray">{$event_info.duration} hr(s)</span>
-					{if isset($info_tooltip)}
-						&nbsp;&nbsp;&nbsp;{$info_tooltip}
-					{/if}
-					{if isset($__link.new_event.open)}
-						&nbsp;&nbsp;&nbsp;{$new_event}
-					{/if}
-					{if isset($__link.new_task.open)}
-						&nbsp;&nbsp;&nbsp;{$new_task}
-					{/if}
-					{if isset($__link.new_phonecall.open)}
-						&nbsp;&nbsp;&nbsp;{$new_phonecall}
-					{/if}
                 </td>
     		</tr>
         </tbody>
@@ -136,15 +147,6 @@
 			</tr>
         </tbody>
     </table>
-    {if isset($attachments) || isset($messages)}
-        <div class="attachments_messages">
-            <br><br>
-            {$attachments|default:''}
-            <br>
-            {$messages|default:''}
-        </div>
-    {/if}
-
 </div>
 
 
@@ -171,5 +173,16 @@
 	</div>
 <!-- -->
 </div>
+
+
+    {if isset($attachments) || isset($messages)}
+        <div class="attachments_messages">
+            <br><br>
+            {$attachments|default:''}
+            <br>
+            {$messages|default:''}
+        </div>
+    {/if}
+
 
 </form>
