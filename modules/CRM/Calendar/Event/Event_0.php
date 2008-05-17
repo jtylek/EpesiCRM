@@ -86,8 +86,8 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				'color'=>$event['color'],
 				'created_by' => Base_UserCommon::get_user_login($event['created_by']),
 				'created_on' => $event['created_on'],
-				'edited_by' => $event['edited_by']?Base_UserCommon::get_user_login($event['edited_by']):'--',
-				'edited_on' => $event['edited_by']?$event['edited_on']:'--'
+				'edited_by' => $event['edited_by']?Base_UserCommon::get_user_login($event['edited_by']):'---',
+				'edited_on' => $event['edited_by']?$event['edited_on']:'---'
 			);
 			$def['cus_id'] = array();
 			$ret = DB::Execute('SELECT contact FROM crm_calendar_event_group_cus WHERE id=%d', $id);

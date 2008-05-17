@@ -74,7 +74,7 @@ class Utils_TasksCommon extends ModuleCommon {
 			else $def .= '<br>';
 			$def .= '<img src="'.(isset($ret[$w])?$icon_on:$icon_off).'" />'.Utils_RecordBrowserCommon::no_wrap(call_user_func($callback, CRM_ContactsCommon::get_contact($w), $nolink));
 		}
-		if (!$def) 	$def = '--';
+		if (!$def) 	$def = '---';
 		return $def;
 	}
 	public static function contact_format_with_balls($record, $nolink=false){
@@ -119,7 +119,7 @@ class Utils_TasksCommon extends ModuleCommon {
 			$events = (ModuleManager::is_installed('CRM/Calendar')>=0);
 			$phonecall = (ModuleManager::is_installed('CRM/PhoneCall')>=0);
 			static $b_location = false;
-			if (!$leightbox_ready || isset($_REQUEST['__location'])) {
+			if (!$leightbox_ready || (isset($_REQUEST['__location']) && !$b_location)) {
 				if (isset($_REQUEST['__location'])) $b_location = true;
 				$theme = Base_ThemeCommon::init_smarty();
 				eval_js_once('crm_tasks_followups_deactivate = function(){leightbox_deactivate(\'crm_tasks_followups\');}');
@@ -133,12 +133,17 @@ class Utils_TasksCommon extends ModuleCommon {
 				if ($phonecall) $theme->assign('new_phonecall',array('open'=>'<a id="new_phonecall_leightbox_button" href="javascript:void(0)">','text'=>Base_LangCommon::ts('CRM/Tasks', 'New Phone Call'),'close'=>'</a>'));
 				eval_js('Event.observe(\'new_phonecall_leightbox_button\',\'click\', crm_tasks_followups_deactivate)');
 
-				$theme->assign('just_close',array('open'=>'<a id="task_leightbox_just_close_button" '.Module::create_href(array('increase_task_status'=>$record['id'])).'>','text'=>Base_LangCommon::ts('CRM/Tasks', 'Close Record'),'close'=>'</a>'));
+				$theme->assign('just_close',array('open'=>'<a id="task_leightbox_just_close_button" '.Module::create_href(array('increase_task_status'=>$record['id'])).'>','text'=>Base_LangCommon::ts('CRM/Tasks', 'Close Task'),'close'=>'</a>'));
 				eval_js('Event.observe(\'task_leightbox_just_close_button\',\'click\', crm_tasks_followups_deactivate)');
+
+				$theme->assign('just_cancel',array('open'=>'<a id="task_leightbox_just_cancel_button" '.Module::create_href(array('set_task_status_canceled'=>$record['id'])).'>','text'=>Base_LangCommon::ts('CRM/Tasks', 'Task Canceled'),'close'=>'</a>'));
+				eval_js('Event.observe(\'task_leightbox_just_cancel_button\',\'click\', crm_tasks_followups_deactivate)');
 	
-				eval_js('set_leightbox_links = function (f_event, f_task, f_phonecall) {'.
+				eval_js('set_leightbox_links = function (f_event, f_task, f_phonecall, f_just_close, f_just_cancel) {'.
 							($events?'document.getElementById("new_event_leightbox_button").onclick = f_event;':'').
 							'document.getElementById("new_task_leightbox_button").onclick = f_task;'.
+							'document.getElementById("task_leightbox_just_close_button").onclick = f_just_close;'.
+							'document.getElementById("task_leightbox_just_cancel_button").onclick = f_just_cancel;'.
 							($phonecall?'document.getElementById("new_phonecall_leightbox_button").onclick = f_phonecall;':'').
 						'}');
 				
@@ -153,10 +158,14 @@ class Utils_TasksCommon extends ModuleCommon {
 			if (!$v) $v = 0;
 			$status = Utils_CommonDataCommon::get_array('Ticket_Status');
 			if (!self::access_task('edit', $record) && !Base_AclCommon::i_am_admin()) return $status[$v];
-			if ($v==2) return $status[$v];
-			if (isset($_REQUEST['increase_task_status'])) {
-				if ($_REQUEST['increase_task_status']==$record['id']) $v++;
+			if ($v>=2) return $status[$v];
+			if (isset($_REQUEST['increase_task_status']) && $_REQUEST['increase_task_status']==$record['id']) {
+				$v++;
 				Utils_RecordBrowserCommon::update_record('task', $record['id'], array('status'=>$v));
+				location(array());
+			}
+			if (isset($_REQUEST['set_task_status_canceled']) && $_REQUEST['set_task_status_canceled']==$record['id']) {
+				Utils_RecordBrowserCommon::update_record('task', $record['id'], array('status'=>3));
 				location(array());
 			}
 			if ($v==0) {
@@ -178,19 +187,30 @@ class Utils_TasksCommon extends ModuleCommon {
 						'},'.
 						($phonecall?'function onclick_phonecall(event) {'.
 						Module::create_href_js(Utils_RecordBrowserCommon::get_new_record_href('phonecall', array('subject'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date_and_time'=>date('Y-m-d H:i:s'),'employees'=>$values['employees'], 'contact'=>isset($values['customers'][0])?$values['customers'][0]:''), 'task_'.$record['id'])+array('increase_task_status'=>$record['id'])).
-						'}':'null').')};');
+						'}':'null').','.
+						'function onclick_close(event) {'.
+						Module::create_href_js(array('increase_task_status'=>$record['id'])).
+						'},'.
+						'function onclick_cancel(event) {'.
+						Module::create_href_js(array('set_task_status_canceled'=>$record['id'])).
+						'}'.
+						')};');
 			return '<a href="javascript:void(0)" class="lbOn" rel="crm_tasks_followups" onMouseDown="set_to_record_'.$values['id'].'();'.'">'.$status[$v].'</a>';
 		} else {
 			$v = $record[$desc['id']];
 			if (!$v) $v = 0;
 			$status = Utils_CommonDataCommon::get_array('Ticket_Status');
 			if (!self::access_task('edit', $record) && !Base_AclCommon::i_am_admin()) return $status[$v];
-			if (isset($_REQUEST['increase_task_status'])) {
-				if ($_REQUEST['increase_task_status']==$record['id']) $v++;
+			if (isset($_REQUEST['increase_task_status']) && $_REQUEST['increase_task_status']==$record['id']) {
+				$v++;
 				Utils_RecordBrowserCommon::update_record('task', $record['id'], array('status'=>$v));
 				location(array());
 			}
-			if ($v==2) return $status[$v];
+			if (isset($_REQUEST['set_task_status_canceled']) && $_REQUEST['set_task_status_canceled']==$record['id']) {
+				Utils_RecordBrowserCommon::update_record('task', $record['id'], array('status'=>3));
+				location(array());
+			}
+			if ($v>=2) return $status[$v];
 			return '<a '.
 						Module::create_href(array('increase_task_status'=>$record['id'])).
 						'>'.$status[$v].'</a>';

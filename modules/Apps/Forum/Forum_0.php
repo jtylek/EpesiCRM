@@ -53,7 +53,7 @@ class Apps_Forum extends Module {
 			$posts = $comment->fetch_posts();
 			$post_count = count($posts);
 			if ($post_count==0) {
-				$last_post = array('date'=>'--', 'user'=>'--');
+				$last_post = array('date'=>'---', 'user'=>'---');
 				$time_int = '0000000000000000';
 			} else {
 				$last_post = $posts[$post_count-1];

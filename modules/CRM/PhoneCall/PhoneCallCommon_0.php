@@ -155,7 +155,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	}
 	public static function display_contact_name($record, $nolink) {
 		if ($record['other_contact']) return $record['other_contact_name'];
-		if ($record['contact']=='') return '--';
+		if ($record['contact']=='') return '---';
 		$ret = '';
 		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_open_tag('contact', $record['contact']);
 		$cont = CRM_ContactsCommon::get_contact($record['contact']);
@@ -198,9 +198,14 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			$theme->assign('just_close',array('open'=>'<a id="phonecall_leightbox_just_close_button" '.Module::create_href(array('increase_phonecall_status'=>$record['id'])).'>','text'=>Base_LangCommon::ts('CRM/PhoneCall', 'Close Record'),'close'=>'</a>'));
 			eval_js('Event.observe(\'phonecall_leightbox_just_close_button\',\'click\', crm_phonecall_followups_deactivate)');
 
-			eval_js('set_phonecall_leightbox_links = function (f_event, f_task, f_phonecall) {'.
+			$theme->assign('just_cancel',array('open'=>'<a id="phonecall_leightbox_just_cancel_button" '.Module::create_href(array('set_phonecall_status_canceled'=>$record['id'])).'>','text'=>Base_LangCommon::ts('CRM/PhoneCall', 'Phone Call Canceled'),'close'=>'</a>'));
+			eval_js('Event.observe(\'phonecall_leightbox_just_cancel_button\',\'click\', crm_phonecall_followups_deactivate)');
+	
+			eval_js('set_phonecall_leightbox_links = function (f_event, f_task, f_phonecall, f_just_close, f_just_cancel) {'.
 						($events?'document.getElementById("phonecall_new_event_leightbox_button").onclick = f_event;':'').
 						($tasks?'document.getElementById("phonecall_new_task_leightbox_button").onclick = f_task;':'').
+						'document.getElementById("phonecall_leightbox_just_close_button").onclick = f_just_close;'.
+						'document.getElementById("phonecall_leightbox_just_cancel_button").onclick = f_just_cancel;'.
 						'document.getElementById("phonecall_new_phonecall_leightbox_button").onclick = f_phonecall;'.
 					'}');
 			
@@ -215,10 +220,14 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		if (!$v) $v = 0;
 		$status = Utils_CommonDataCommon::get_array('Ticket_Status');
 		if (!self::access_phonecall('edit', $record) && !Base_AclCommon::i_am_admin()) return $status[$v];
-		if ($v==2) return $status[$v];
-		if (isset($_REQUEST['increase_phonecall_status'])) {
-			if ($_REQUEST['increase_phonecall_status']==$record['id']) $v++;
+		if ($v>=2) return $status[$v];
+		if (isset($_REQUEST['increase_phonecall_status']) && $_REQUEST['increase_phonecall_status']==$record['id']) {
+			$v++;
 			Utils_RecordBrowserCommon::update_record('phonecall', $record['id'], array('status'=>$v));
+			location(array());
+		}
+		if (isset($_REQUEST['set_phonecall_status_canceled']) && $_REQUEST['set_phonecall_status_canceled']==$record['id']) {
+			Utils_RecordBrowserCommon::update_record('phonecall', $record['id'], array('status'=>3));
 			location(array());
 		}
 		if ($v==0) {
@@ -240,7 +249,14 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 					'},':'null,').
 					'function onclick_phonecall(event) {'.
 					Module::create_href_js(Utils_RecordBrowserCommon::get_new_record_href('phonecall', $values, 'phonecall_'.$record['id'])+array('increase_phonecall_status'=>$record['id'])).
-					'})};');
+					'},'.
+					'function onclick_close(event) {'.
+					Module::create_href_js(array('increase_phonecall_status'=>$record['id'])).
+					'},'.
+					'function onclick_cancel(event) {'.
+					Module::create_href_js(array('set_phonecall_status_canceled'=>$record['id'])).
+					'}'.
+					')};');
 		return '<a href="javascript:void(0)" class="lbOn" rel="crm_phonecall_followups" onMouseDown="phonecall_set_to_record_'.$values['id'].'();'.'">'.$status[$v].'</a>';
 	}
 	public static function submit_phonecall($values, $mode) {

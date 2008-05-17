@@ -67,7 +67,7 @@ class CRM_Contacts extends Module {
 		foreach($c as $r) {
 			if(isset($logins[$r['login']])) {
 				$login = $logins[$r['login']];
-			} else $login = '--';
+			} else $login = '---';
 			if($filter) 
 				$contact = CRM_ContactsCommon::contact_format_no_company($r);
 			else

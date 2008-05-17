@@ -29,6 +29,6 @@ foreach($ext_rec as $k=>$v) {
 }
 natcasesort($res);
 if (!isset($params['required']) || !$params['required'])
-	$res = array(''=>'--')+$res;
+	$res = array(''=>'---')+$res;
 print(json_encode($res));
 ?>

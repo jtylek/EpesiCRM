@@ -49,7 +49,7 @@ class Utils_RecordBrowser extends Module {
 			$ret = $val;
 			if ($args['type']=='select' || $args['type']=='multiselect') {
 				if ((is_array($val) && empty($val)) || (!is_array($val) && $val=='')) {
-					$ret = '--';
+					$ret = '---';
 					return $ret;
 				}
 				list($tab, $col) = explode('::',$args['param']);
@@ -64,7 +64,7 @@ class Utils_RecordBrowser extends Module {
 					if ($tab=='__COMMON__') $ret .= Utils_RecordBrowserCommon::no_wrap($data[$v]);
 					else $ret .= Utils_RecordBrowserCommon::create_linked_label($tab, $col, $v, $links_not_recommended);
 				}
-				if ($ret=='') $ret = '--';
+				if ($ret=='') $ret = '---';
 			}
 			if ($args['type']=='commondata') {
 				if (!isset($val) || $val==='') {
@@ -222,7 +222,7 @@ class Utils_RecordBrowser extends Module {
 			}
 			if ($this->table_rows[$filter]['type']=='checkbox') $arr = array(''=>$this->lang->ht('No'), 1=>$this->lang->ht('Yes'));
 			natcasesort($arr);
-			$arr = array('__NULL__'=>'--')+$arr;
+			$arr = array('__NULL__'=>'---')+$arr;
 			$form->addElement('select', $filter_id, $filter, $arr);
 			$filters[] = $filter_id;
 		}
@@ -675,7 +675,7 @@ class Utils_RecordBrowser extends Module {
 				continue;
 			}
 			if (isset($this->QFfield_callback_table[$field])) {
-				call_user_func($this->QFfield_callback_table[$field], $form, $args['id'], $this->lang->t($args['name']), $mode, $mode=='add'?(isset($this->custom_defaults[$args['id']])?$this->custom_defaults[$args['id']]:''):$record[$args['id']], $args, $this);
+				call_user_func($this->QFfield_callback_table[$field], $form, $args['id'], $this->lang->t($args['name']), $mode, $mode=='add'?(isset($this->custom_defaults[$args['id']])?$this->custom_defaults[$args['id']]:''):$record[$args['id']], $args, $this, $this->display_callback_table);
 			} else {
 				if ($mode!=='add' && $mode!=='edit') {
 					if ($args['type']!='checkbox' && $args['type']!='commondata') {
@@ -756,7 +756,7 @@ class Utils_RecordBrowser extends Module {
 										break;
 					case 'select':
 					case 'multiselect':	$comp = array();
-										if (!$args['required'] && $args['type']==='select') $comp[''] = '--';
+										if (!$args['required'] && $args['type']==='select') $comp[''] = '---';
 										list($tab, $col) = explode('::',$args['param']);
 										if ($tab=='__COMMON__') {
 											$data = Utils_CommonDataCommon::get_array($col, true);

@@ -60,6 +60,9 @@
         {/if}
     	<tr>
             <td class="data no-border" style="vertical-align: top; padding-top: 2px; padding-bottom: 2px;">
+                {if isset($form_data.description.error)}
+                    {$form_data.description.error}
+                {/if}
                 {if $action == 'view'}<div style="height: 50px; white-space: normal; overflow: auto;">{/if}
                     {$form_data.description.html}{if $action == 'view'}&nbsp;{/if}
                 {if $action == 'view'}</div>{/if}

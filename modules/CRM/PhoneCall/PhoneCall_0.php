@@ -19,7 +19,7 @@ class CRM_PhoneCall extends Module {
 		$lang = $this->init_module('Base/Lang');
 		$this->rb = $this->init_module('Utils/RecordBrowser','phonecall','phonecall');
 		$me = CRM_ContactsCommon::get_my_record();
-		$this->rb->set_custom_filter('status',array('type'=>'checkbox','label'=>$lang->t('Display closed records'),'trans'=>array('__NULL__'=>array('!status'=>2),1=>array('status'=>array(0,1,2)))));
+		$this->rb->set_custom_filter('status',array('type'=>'checkbox','label'=>$lang->t('Display closed records'),'trans'=>array('__NULL__'=>array('!status'=>array(2,3)),1=>array('status'=>array(0,1,2,3)))));
 		$this->rb->set_crm_filter('employees');
 		$this->rb->set_defaults(array('date_and_time'=>date('Y-m-d H:i:s'), 'employees'=>array($me['id'])));
 		$this->rb->set_default_order(array('status'=>'ASC', 'date_and_time'=>'ASC', 'subject'=>'ASC'));
@@ -48,8 +48,8 @@ class CRM_PhoneCall extends Module {
 											array('field'=>'phone_number', 'width'=>1),
 											array('field'=>'status', 'width'=>1)
 										),
-									array('employees'=>array($me['id']), '!status'=>2),
-									array('date_and_time'=>'ASC'),
+									array('employees'=>array($me['id']), '!status'=>array(2,3)),
+									array('status'=>'ASC','date_and_time'=>'ASC'),
 									array('CRM_PhoneCallCommon','applet_info_format'),
 									15
 				);

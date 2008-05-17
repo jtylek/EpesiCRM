@@ -30,10 +30,10 @@ class CRM_Contacts_Activities extends Module {
 		$phonecalls = null;
 		if ($this->display['events']) $events = DB::GetAll('SELECT * FROM crm_calendar_event AS cce WHERE EXISTS (SELECT contact FROM crm_calendar_event_group_emp AS ccegp WHERE ccegp.id=cce.id AND (false'.$db_string.')) OR EXISTS (SELECT contact FROM crm_calendar_event_group_cus AS ccegc WHERE ccegc.id=cce.id AND (false'.$db_string.')) ORDER BY start DESC', array_merge($ids, $ids));
 		$crits = array('(employees'=>$ids, '|customers'=>$ids);
-		if (!$this->display['closed']) $crits['!status'] = 2;
+		if (!$this->display['closed']) $crits['!status'] = array(2,3);
 		if ($this->display['tasks']) $tasks = CRM_TasksCommon::get_tasks($crits, array(), array('deadline'=>'DESC'));
 		$crits = array('(employees'=>$ids, '|contact'=>$ids);
-		if (!$this->display['closed']) $crits['!status'] = 2;
+		if (!$this->display['closed']) $crits['!status'] = array(2,3);
 		if ($this->display['phonecalls']) $phonecalls = CRM_PhoneCallCommon::get_phonecalls($crits, array(), array('date_and_time'=>'DESC'));
 		$this->display_activities($events, $tasks, $phonecalls);
 	}
@@ -47,10 +47,10 @@ class CRM_Contacts_Activities extends Module {
 		$phonecalls = null;
 		if ($this->display['events']) $events = DB::GetAll('SELECT * FROM crm_calendar_event AS cce WHERE EXISTS (SELECT contact FROM crm_calendar_event_group_emp AS ccegp WHERE ccegp.id=cce.id AND contact=%d) OR EXISTS (SELECT contact FROM crm_calendar_event_group_cus AS ccegc WHERE ccegc.id=cce.id AND contact=%d) ORDER BY start DESC', array($me['id'], $me['id']));
 		$crits = array('(employees'=>$me['id'], '|customers'=>$me['id']);
-		if (!$this->display['closed']) $crits['!status'] = 2;
+		if (!$this->display['closed']) $crits['!status'] = array(2,3);
 		if ($this->display['tasks']) $tasks = CRM_TasksCommon::get_tasks($crits, array(), array('deadline'=>'DESC'));
 		$crits = array('(employees'=>$me['id'], '|contact'=>$me['id']);
-		if (!$this->display['closed']) $crits['!status'] = 2;
+		if (!$this->display['closed']) $crits['!status'] = array(2,3);
 		if ($this->display['phonecalls']) $phonecalls = CRM_PhoneCallCommon::get_phonecalls($crits, array(), array('date_and_time'=>'DESC'));
 		$this->display_activities($events, $tasks, $phonecalls);
 	}

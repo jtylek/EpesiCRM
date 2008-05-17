@@ -45,7 +45,7 @@ class CRM_Filters extends Module {
 
 		$qf = $this->init_module('Libs/QuickForm');
 		$contacts = CRM_ContactsCommon::get_contacts(array('company_name'=>CRM_ContactsCommon::get_main_company()),array('first_name','last_name'),array('last_name'=>'ASC','first_name'=>'ASC'));
-		$contacts_select = array(''=>'--');
+		$contacts_select = array(''=>'---');
 		foreach($contacts as $v)
 			$contacts_select[$v['id']] = $v['last_name'].' '.$v['first_name'];
 		$qf->addElement('select','contact',$this->lang->t('Records of'),$contacts_select,array('onChange'=>'if(this.value!=\'\'){'.$qf->get_submit_form_js().'crm_filters_deactivate();}'));

@@ -136,7 +136,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			else $def .= '<br>';
 			$def .= Utils_RecordBrowserCommon::no_wrap(call_user_func($callback, self::get_contact($w), $nolink));
 		}
-		if (!$def) 	$def = '--';
+		if (!$def) 	$def = '---';
 		return $def;
 	}
 	public static function contact_format_default($record, $nolink=false){
@@ -187,7 +187,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 
 			if ($crits!==null) {
 				$contacts = self::get_contacts($crits);
-				if (!$desc['required'] && $desc['type']!='multiselect') $cont[''] = '--';
+				if (!$desc['required'] && $desc['type']!='multiselect') $cont[''] = '---';
 				if (!is_array($default)) {
 					if ($default!='') $default = array($default); else $default=array();
 				} 
@@ -215,14 +215,14 @@ class CRM_ContactsCommon extends ModuleCommon {
 				else $def .= '<br>';
 				$def .= Utils_RecordBrowserCommon::no_wrap(self::display_contact(array($desc['id']=>$v), false, $desc));
 			}
-			if (!$def) 	$def = '--';
+			if (!$def) 	$def = '---';
 			$form->setDefaults(array($field=>$def));
 		}
 	}
 
 	public static function display_company($record, $nolink, $desc) {
 		$v = $record[$desc['id']];
-		if (!is_numeric($v) && !is_array($v)) return '--';
+		if (!is_numeric($v) && !is_array($v)) return '---';
 		$def = '';
 		$first = true;
 		if (!is_array($v)) $v = array($v);
@@ -232,10 +232,10 @@ class CRM_ContactsCommon extends ModuleCommon {
 			else $def .= '<br>';
 			$def .= Utils_RecordBrowserCommon::no_wrap(Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $w, $nolink));
 		}
-		if (!$def) return '--';
+		if (!$def) return '---';
 		return $def;
 	}
-	public static function QFfield_company(&$form, $field, $label, $mode, $default, $desc) {
+	public static function QFfield_company(&$form, $field, $label, $mode, $default, $desc, $rb, $display_callbacks) {
 		$comp = array();
 		$param = explode(';',$desc['param']);
 		if ($mode=='add' || $mode=='edit') {
@@ -264,12 +264,12 @@ class CRM_ContactsCommon extends ModuleCommon {
 				$comp = array(''=>'['.Base_LangCommon::ts('CRM_Contacts','w/o company').']') + $comp;
 				$key = '_no_company';
 			}
-			if (!$desc['required'] && $desc['type']!='multiselect') $comp = array($key => '--') + $comp;
+			if (!$desc['required'] && $desc['type']!='multiselect') $comp = array($key => '---') + $comp;
 			$form->addElement($desc['type'], $field, $label, $comp, array('id'=>$field));
 			if ($mode!=='add') $form->setDefaults(array($field=>$default));
 		} else {
 			$form->addElement('static', $field, $label, array('id'=>$field));
-			$def = '';
+			/*$def = '';
 			$first = true;
 			if (is_numeric($default) || is_array($default)) {
 				if (!is_array($default)) $default = array($default);
@@ -280,8 +280,11 @@ class CRM_ContactsCommon extends ModuleCommon {
 					$def .= Utils_RecordBrowserCommon::no_wrap(Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $v));
 				}
 			}
-			if (!$def) 	$def = '--';
-			$form->setDefaults(array($field=>$def));
+			if (!$def) 	$def = '---';
+			$form->setDefaults(array($field=>$def));*/
+			if (isset($display_callbacks[$desc['name']])) $callback = $display_callbacks[$desc['name']];
+			else $callback = array('CRM_ContactsCommon', 'display_company');
+			$form->setDefaults(array($field=>call_user_func($callback, array('company'=>$default), false, array('id'=>'company'))));
 		}
 	}
 
@@ -337,12 +340,12 @@ class CRM_ContactsCommon extends ModuleCommon {
 			}
 		}
 		if ($default!==Acl::get_user() && $default!=='' && !Base_AclCommon::i_am_admin()) {
-			$form->addElement('select', $field, $label, array($default=>($default!=='')?Base_UserCommon::get_user_login($default):'--'));
+			$form->addElement('select', $field, $label, array($default=>($default!=='')?Base_UserCommon::get_user_login($default):'---'));
 			$form->setDefaults(array($field=>$default));
 			$form->freeze($field);
 		} else {
 			$ret = DB::Execute('SELECT id, login FROM user_login ORDER BY login');
-			$users = array(''=>'--');
+			$users = array(''=>'---');
 			while ($row=$ret->FetchRow()) {
 				if (DB::GetOne('SELECT contact_id FROM contact_data WHERE field=\'Login\' AND value=%d', array($row['id']))===false || $row['id']===$default)
 					if (Base_AclCommon::i_am_admin() || $row['id']==Acl::get_user())
@@ -375,7 +378,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	public static function display_login($record, $nolink, $desc) {
 		$v = $record[$desc['id']];
 		if (!$v)
-			return '--';
+			return '---';
 		else
 			return Base_UserCommon::get_user_login($v);
 	}
@@ -383,9 +386,14 @@ class CRM_ContactsCommon extends ModuleCommon {
 		if ($mode=='view') {
 			$is_employee = false;
 			if (is_array($values['company_name']) && in_array(CRM_ContactsCommon::get_main_company(), $values['company_name'])) $is_employee = true;
-			return array(	'new_event'=>'<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Event')).' '.CRM_CalendarCommon::create_new_event_href(array(($is_employee?'emp_id':'cus_id')=>$values['id'])).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'"></a>',
-							'new_task'=>'<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('page_id'=>md5('crm_tasks'),'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),($is_employee?'employees':'customers')=>$values['id'])).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>',
-							'new_phonecall'=>'<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'contact'=>$values['id'],'company_name'=>(isset($values['company_name'][0])?$values['company_name'][0]:''))).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>');
+			$me = CRM_ContactsCommon::get_my_record();
+			$emp = array($me['id']);
+			$cus = array();
+			if ($is_employee) $emp[] = $values['id'];
+			else $cus[] = $values['id'];
+			return array(	'new_event'=>'<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Event')).' '.CRM_CalendarCommon::create_new_event_href(array('emp_id'=>$emp,'cus_id'=>$cus)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'"></a>',
+							'new_task'=>'<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('page_id'=>md5('crm_tasks'),'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),'employees'=>$emp,'customers'=>$cus)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>',
+							'new_phonecall'=>'<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'contact'=>$values['id'],'employees'=>$me['id'],'company_name'=>((isset($values['company_name'][0]))?$values['company_name'][0]:''))).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>');
 		}
 		if (isset($values['create_company'])) {
 			$comp_id = Utils_RecordBrowserCommon::new_record('company',

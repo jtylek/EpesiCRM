@@ -65,7 +65,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 		$this->add_aco('edit phonecall',array('Employee'));
 		$this->add_aco('delete phonecall',array('Employee Manager'));
 
-		Utils_CommonDataCommon::new_array('Ticket_Status',array('Open','In Progress','Closed'), true);
+		Utils_CommonDataCommon::new_array('Ticket_Status',array('Open','In Progress','Closed','Canceled'), true);
 		Utils_CommonDataCommon::new_array('Permissions',array('Public','Protected','Private'), true);
 		Utils_CommonDataCommon::new_array('Priorities',array('Low','Medium','High'), true);
 
