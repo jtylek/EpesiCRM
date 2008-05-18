@@ -40,7 +40,7 @@
 					<td id="login-search-td">
 						<div id="search-login-bar">
 							<div class="login">{$login}</div>
-							<div class="filter" id="filter_box"><center>Filter: {if isset($filter_description)}<span class="red">{$filter_description}</span>{else}<span class="gray">no filter</span>{/if}</center></div>
+							<div class="filter" id="filter_box"><center>{$filter}</center></div>
 							<div class="search" id="search_box"><center>{$search}</center></div>
 						</div>
 					</td>

@@ -26,6 +26,12 @@ class CRM_FiltersCommon extends ModuleCommon {
 			$ret[] = $v['id'];
 		return implode(',',$ret);
 	}
+	
+   public static function get() {
+	if(!isset($_SESSION['filter']))
+		$_SESSION['filter'] = CRM_FiltersCommon::get_my_profile();
+	return '('.$_SESSION['filter'].')';
+   }
 
 }
 

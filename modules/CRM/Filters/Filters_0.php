@@ -51,8 +51,10 @@ class CRM_Filters extends Module {
 		$qf->addElement('select','contact',$this->lang->t('Records of'),$contacts_select,array('onChange'=>'if(this.value!=\'\'){'.$qf->get_submit_form_js().'crm_filters_deactivate();}'));
 		if($qf->validate()) {
 			$c = $qf->exportValue('contact');
-			$this->set_module_variable('profile',$c);
+//			$this->set_module_variable('profile',$c);
+			$_SESSION['filter'] = $c;
 			$this->set_module_variable('profile_desc',$contacts_select[$c]);
+			location(array());
 		}
 		$th->assign('contacts',$qf->toHtml());
 
@@ -61,7 +63,8 @@ class CRM_Filters extends Module {
 		$profiles_out = ob_get_clean();
 
 		Libs_LeightboxCommon::display('crm_filters',$profiles_out,$this->lang->t('Filters'));
-		Base_ActionBarCommon::add('folder','Filters','class="lbOn" rel="crm_filters"',$this->get_module_variable('profile_desc',$this->lang->t('My records')));
+		//Base_ActionBarCommon::add('folder','Filters','class="lbOn" rel="crm_filters"',$this->get_module_variable('profile_desc',$this->lang->t('My records')));
+		print('<a class="lbOn" rel="crm_filters">'.$this->lang->t('Filter: %s',array($this->get_module_variable('profile_desc',$this->lang->t('My records')))).'</a>');
 	}
 	
 	public function manage_filters() {
@@ -94,11 +97,13 @@ class CRM_Filters extends Module {
 
 			$desc = $this->lang->t('All records');
 		}
-		$this->set_module_variable('profile',$ret);
+//		$this->set_module_variable('profile',$ret);
+		$_SESSION['filter'] = $ret;
 		$this->set_module_variable('profile_desc',$desc);
+		location(array());
 	}
 	
-	public function get() {
+/*	public function get() {
 		if(!$this->isset_module_variable('profile'))
 			$this->set_module_variable('profile',CRM_FiltersCommon::get_my_profile());
 		$ret = $this->get_module_variable('profile');
@@ -107,7 +112,7 @@ class CRM_Filters extends Module {
 
 	public function get_description() {
 		return $this->get_module_variable('profile_desc');
-	}
+	}*/
 
 	public function edit() {
 		Base_ActionBarCommon::add('add',$this->lang->ht('Add group'),$this->create_callback_href(array($this,'edit_group')));

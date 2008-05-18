@@ -153,8 +153,7 @@ class Utils_RecordBrowser extends Module {
 		$filters = $this->show_filters();
 
 		if (isset($this->filter_field)) {
-			$f = $this->pack_module('CRM/Filters');
-			$ff = explode(',',trim($f->get(),'()'));
+			$ff = explode(',',trim(CRM_FiltersCommon::get(),'()'));
 			$this->crits[$this->filter_field] = $ff;
 		}
 		$this->crits = $this->crits+$crits;
