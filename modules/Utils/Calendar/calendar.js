@@ -17,7 +17,7 @@ add_event:function(dest_id,ev_id,draggable,duration) {
 	} else {
 		ev.setAttribute('duration',duration);
 		ev.style.position = 'absolute';
-		ev.style.overflow = 'hidden';
+//		ev.style.overflow = 'hidden';
 	
 		Utils_Calendar.init_reload_event_tag();
 		Utils_Calendar.add_event_tag(dest,ev);
