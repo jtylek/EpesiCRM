@@ -270,19 +270,29 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 		if($action == 'view') {
 			$form->freeze();
+			
+			$tb = $this->init_module('Utils/TabbedBrowser');
+			$tb->start_tab('Notes');
 			//attachments
 			$a = $this->init_module('Utils/Attachment',array($id,'CRM/Calendar/Event/'.$id));
+			$a->set_inline_display();
 			$a->additional_header('Event: '.$event['title']);
 			$a->allow_protected($this->acl_check('view protected notes'),$this->acl_check('edit protected notes'));
 			$a->allow_public($this->acl_check('view public notes'),$this->acl_check('edit public notes'));
-			$theme->assign('attachments', $this->get_html_of_module($a));
-
+			$this->display_module($a);
+			$tb->end_tab();
+		
+			$tb->start_tab('Alerts');
 			$mes_users = array();
 			foreach ($def_emp_id as $r)
 				if(isset($emp_alarm[$r]))
 					$mes_users[$emp_alarm[$r]] = $emp[$r];
 			$mes = $this->init_module('Utils/Messenger',array('CRM_Calendar_Event:'.$id,array('CRM_Calendar_EventCommon','get_alarm'),array($id),$event['start'],$mes_users));
-			$theme->assign('messages', $this->get_html_of_module($mes));
+			$mes->set_inline_display();
+			$this->display_module($mes);
+			$tb->end_tab();
+			$tb->tag();
+			$theme->assign('tabs', $this->get_html_of_module($tb));
 		}
 
 //		$theme->assign('view_style', 'new_event');

@@ -179,12 +179,9 @@
 </div>
 
 
-    {if isset($attachments) || isset($messages)}
+    {if isset($tabs)}
         <div class="attachments_messages">
-            <br><br>
-            {$attachments|default:''}
-            <br>
-            {$messages|default:''}
+		{$tabs}
         </div>
     {/if}
 
