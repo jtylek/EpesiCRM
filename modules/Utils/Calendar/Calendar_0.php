@@ -418,6 +418,7 @@ class Utils_Calendar extends Module {
 		//data
 		$ret = $this->get_events(date('Y-m-d',$this->date),date('Y-m-d',$this->date+86400));
 		$custom_keys = $this->settings['custom_rows'];
+		$this->js('Utils_Calendar.page_type=\'day\'');
 		$ev_out = 'function() {';
 		foreach($ret as $ev) {
 			$ev_start = $ev['start']-$today_t;//Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$ev['start']))
@@ -451,7 +452,7 @@ class Utils_Calendar extends Module {
 		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
 				'\''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
 				'\''.Epesi::escapeJS($this->get_path(),false).'\','.
-				'\''.CID.'\',\'day\')');
+				'\''.CID.'\')');
 	}
 
 	///////////////////////////////////////////////////////
@@ -579,6 +580,7 @@ class Utils_Calendar extends Module {
 		//data
 		$ret = $this->get_events($dis_week_from,$dis_week_from+7*86400);
 		$custom_keys = $this->settings['custom_rows'];
+		$this->js('Utils_Calendar.page_type=\'week\'');
 		$ev_out = 'function() {';
 		foreach($ret as $k=>$ev) {
 			$today_t = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$ev['start']));
@@ -612,7 +614,7 @@ class Utils_Calendar extends Module {
 		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
 				'\''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
 				'\''.Epesi::escapeJS($this->get_path(),false).'\','.
-				'\''.CID.'\',\'week\')');
+				'\''.CID.'\')');
 	}
 
 	//////////////////////////////////////////////////////
@@ -697,6 +699,7 @@ class Utils_Calendar extends Module {
 		$start_t = $month[0]['days'][0]['time'];
 		$end_t = $month[count($month)-1]['days'][6]['time'];
 		$ret = $this->get_events($start_t,$end_t);
+		$this->js('Utils_Calendar.page_type=\'month\'');
 		$ev_out = 'function() {';
 		foreach($ret as $k=>$ev) {
 			$this->print_event($ev);
@@ -709,7 +712,7 @@ class Utils_Calendar extends Module {
 		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
 				'\''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
 				'\''.Epesi::escapeJS($this->get_path(),false).'\','.
-				'\''.CID.'\',\'month\')');
+				'\''.CID.'\')');
 	}
 
 	public function year() {

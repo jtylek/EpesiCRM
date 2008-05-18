@@ -1,5 +1,6 @@
 Utils_Calendar = { 
 day_href:null,
+page_type:null,
 go_to_day:function(date) {
 	eval(Utils_Calendar.day_href.replace('__DATE__',date));
 },
@@ -9,14 +10,20 @@ add_event:function(dest_id,ev_id,draggable,duration) {
 	if(!dest || !ev) {
 		return;
 	}
-	ev.setAttribute('duration',duration);
-	ev.style.position = 'absolute';
-	ev.style.overflow = 'hidden';
-	
-	Utils_Calendar.init_reload_event_tag();
-	Utils_Calendar.add_event_tag(dest,ev);
-	Utils_Calendar.flush_reload_event_tag();
 
+	if(Utils_Calendar.page_type=='month') {
+		dest.appendChild(ev);
+		ev.setAttribute('last_cell',dest_id);
+	} else {
+		ev.setAttribute('duration',duration);
+		ev.style.position = 'absolute';
+		ev.style.overflow = 'hidden';
+	
+		Utils_Calendar.init_reload_event_tag();
+		Utils_Calendar.add_event_tag(dest,ev);
+		Utils_Calendar.flush_reload_event_tag();
+	}
+	
 	if(draggable)
 		new Draggable(ev, {
 			handle: 'handle',
@@ -153,7 +160,7 @@ join_rows:function(ids_in) {
 		y.setAttribute('next_row','UCcell_'+x[2]);
 	});
 },
-activate_dnd:function(ids_in,new_ev,mpath,ecid,page_type) {
+activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 //	alert('act');
 	Utils_Calendar.ids = ids_in.evalJSON();
 	Utils_Calendar.ids.each(function(id) {
@@ -181,16 +188,21 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid,page_type) {
 						cell_id: droppable.id.substr(7),
 						path: mpath,
 						cid: ecid,
-						page_type: page_type
+						page_type: Utils_Calendar.page_type
 					},
 					onComplete: function(t) {
 						var reject=false;
 						eval(t.responseText);
 						if(!reject) {
-							Utils_Calendar.init_reload_event_tag();
-							Utils_Calendar.remove_event_tag($(element.getAttribute('last_cell')),element);
-							Utils_Calendar.add_event_tag(droppable,element);
-							Utils_Calendar.flush_reload_event_tag();
+							if(Utils_Calendar.page_type=='month') {
+								droppable.appendChild(element);
+		                                                element.setAttribute('last_cell',droppable.id);
+							} else {
+								Utils_Calendar.init_reload_event_tag();
+								Utils_Calendar.remove_event_tag($(element.getAttribute('last_cell')),element);
+								Utils_Calendar.add_event_tag(droppable,element);
+								Utils_Calendar.flush_reload_event_tag();
+							}
 							
 							new Draggable(element, {
 								handle: 'handle',
@@ -245,9 +257,11 @@ delete_event:function(eid,mpath,ecid) {
 				var element = $(eid);
 				if(reject) element.show();
 				else {
-					Utils_Calendar.init_reload_event_tag();
-					Utils_Calendar.remove_event_tag($(element.getAttribute('last_cell')),element);
-					Utils_Calendar.flush_reload_event_tag();
+					if(Utils_Calendar.page_type!='month') {
+						Utils_Calendar.init_reload_event_tag();
+						Utils_Calendar.remove_event_tag($(element.getAttribute('last_cell')),element);
+						Utils_Calendar.flush_reload_event_tag();
+					}
 				}
 				Epesi.procOn--;
 				Epesi.updateIndicator();
