@@ -62,7 +62,7 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 	 * @param array initialization value
 	 * @param bool whether method should overwrite if array already exists, otherwise the data will be appended
 	 */
-	public static function set_value($name,$value,$overwrite=true){
+	public static function set_value($name,$value,$overwrite=true,$readonly=false){
 		$id = self::get_id($name);
 		if ($id===false){
 			$id = self::new_id($name);
@@ -70,7 +70,7 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 		} else {
 			if (!$overwrite) return false;
 		}
-		DB::Execute('UPDATE utils_commondata_tree SET value=%s WHERE id=%d',array($value,$id));
+		DB::Execute('UPDATE utils_commondata_tree SET value=%s,readonly=%b WHERE id=%d',array($value,$readonly,$id));
 		return true;
 	}
 
@@ -107,7 +107,7 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 	 * @param array initialization value
 	 * @param bool whether method should overwrite if array already exists, otherwise the data will be appended
 	 */
-	public static function new_array($name,$array,$overwrite=false){
+	public static function new_array($name,$array,$overwrite=false,$readonly=false){
 		$id = self::get_id($name);
 		if ($id!==false){
 			if (!$overwrite) {
@@ -119,8 +119,10 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 		}
 		$id = self::new_id($name);
 		if($id===false) return false;
+		if($overwrite)
+			DB::Execute('UPDATE utils_commondata_tree SET readonly=%b WHERE id=%d',array($readonly,$id));
 		foreach($array as $k=>$v)
-			DB::Execute('INSERT INTO utils_commondata_tree (parent_id, akey, value) VALUES (%d,%s,%s)',array($id,$k,$v));
+			DB::Execute('INSERT INTO utils_commondata_tree (parent_id, akey, value, readonly) VALUES (%d,%s,%s,%b)',array($id,$k,$v,$readonly));
 		return true;
 	}
 
@@ -131,19 +133,19 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 	 * @param array values to insert
 	 * @param bool whether method should overwrite data if array key already exists, otherwise the data will be preserved
 	 */
-	public static function extend_array($name,$array,$overwrite=false){
+	public static function extend_array($name,$array,$overwrite=false,$readonly=false){
 		$id = self::get_id($name);
 		if ($id===false){
-			self::new_array($name,$array);
+			self::new_array($name,$array,$overwrite,$readonly);
 			return;
 		}
 		$in_db = DB::GetCol('SELECT akey FROM utils_commondata_tree WHERE parent_id=%s',array($id));
 		foreach($array as $k=>$v){
 			if (in_array($k,$in_db)) {
 				if (!$overwrite) continue;
-				DB::Execute('UPDATE utils_commondata_tree SET value=%s WHERE akey=%s AND parent_id=%d',array($v,$k,$id));
+				DB::Execute('UPDATE utils_commondata_tree SET value=%s,readonly=%b WHERE akey=%s AND parent_id=%d',array($v,$readonly,$k,$id));
 			} else {
-				DB::Execute('INSERT INTO utils_commondata_tree (parent_id, akey, value) VALUES (%d,%s,%s)',array($id,$k,$v));
+				DB::Execute('INSERT INTO utils_commondata_tree (parent_id, akey, value, readonly) VALUES (%d,%s,%s,%b)',array($id,$k,$v,$readonly));
 			}
 		}
 	}
@@ -180,13 +182,15 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 	 * @param boolean order by key instead of value
 	 * @return mixed returns an array if such array exists, false otherwise 
 	 */
-	public static function get_array($name, $order_by_key=false){
+	public static function get_array($name, $order_by_key=false, $readinfo=false){
 		$id = self::get_id($name);
 		if($id===false) return false;
 		if($order_by_key)
 			$order_by = 'akey';
 		else
 			$order_by = 'value';
+		if($readinfo)
+			return DB::GetAssoc('SELECT akey, value, readonly FROM utils_commondata_tree WHERE parent_id=%d ORDER BY '.$order_by,array($id),true);
 		return DB::GetAssoc('SELECT akey, value FROM utils_commondata_tree WHERE parent_id=%d ORDER BY '.$order_by,array($id));
 	}
 

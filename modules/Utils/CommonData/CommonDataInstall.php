@@ -17,7 +17,8 @@ class Utils_CommonDataInstall extends ModuleInstall {
 			id I4 AUTO KEY,
 			parent_id I4 DEFAULT -1,
 			akey C(64) NOTNULL,
-			value X',
+			value X,
+			readonly I1 DEFAULT 0',
 			array('constraints'=>', UNIQUE(parent_id,akey)'));
 		if(!$ret){
 			print('Unable to create table utils_commondata_tree.<br>');

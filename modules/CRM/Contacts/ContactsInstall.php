@@ -86,9 +86,9 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Contacts', 'company_attachment_addon', 'Notes');
 		Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Contacts', 'contact_attachment_addon', 'Notes');
 // ************ other ************** //
-		Utils_CommonDataCommon::new_array('Companies_Groups',array('customer'=>'Customer','vendor'=>'Vendor','other'=>'Other'));
-		Utils_CommonDataCommon::new_array('Contacts_Groups',array('office'=>'Office Staff','field'=>'Field Staff','custm'=>'Customer'));
-		Utils_CommonDataCommon::new_array('Permissions',array('Public','Protected','Private'), true);
+		Utils_CommonDataCommon::new_array('Companies_Groups',array('customer'=>'Customer','vendor'=>'Vendor','other'=>'Other'),true,true);
+		Utils_CommonDataCommon::new_array('Contacts_Groups',array('office'=>'Office Staff','field'=>'Field Staff','custm'=>'Customer'),true,true);
+		Utils_CommonDataCommon::new_array('Permissions',array('Public','Protected','Private'), true,true);
 
 		$this->add_aco('browse contacts',array('Employee','Customer'));
 		$this->add_aco('view contact',array('Employee'));
@@ -121,6 +121,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::uninstall_recordset('company');
 		Utils_RecordBrowserCommon::uninstall_recordset('contact');
 		Utils_CommonDataCommon::remove('Contacts_Groups');
+		Utils_CommonDataCommon::remove('Companies_Groups');
 		return true;
 	}
 

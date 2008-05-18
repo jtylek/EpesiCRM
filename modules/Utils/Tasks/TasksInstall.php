@@ -57,9 +57,9 @@ class Utils_TasksInstall extends ModuleInstall {
 		$this->add_aco('edit task',array('Employee'));
 		$this->add_aco('delete task',array('Employee Manager'));
 
-		Utils_CommonDataCommon::new_array('Ticket_Status',array('Open','In Progress','Closed','Canceled'), true); // TODO: move to common module
-		Utils_CommonDataCommon::new_array('Permissions',array('Public','Protected','Private'), true);
-		Utils_CommonDataCommon::new_array('Priorities',array('Low','Medium','High'), true);
+		Utils_CommonDataCommon::new_array('Ticket_Status',array('Open','In Progress','Closed','Canceled'), true,true); // TODO: move to common module
+		Utils_CommonDataCommon::new_array('Permissions',array('Public','Protected','Private'), true,true);
+		Utils_CommonDataCommon::new_array('Priorities',array('Low','Medium','High'), true,true);
 
 		$ret = DB::CreateTable('task_employees_notified','
 			task_id I4 NOTNULL,

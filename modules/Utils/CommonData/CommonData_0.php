@@ -85,13 +85,15 @@ class Utils_CommonData extends Module {
 					));
 		
 		print('<h2>'.$name.'</h2><br>');
-		$ret = Utils_CommonDataCommon::get_array($name);
+		$ret = Utils_CommonDataCommon::get_array($name,false,true);
 		foreach($ret as $k=>$v) {
 			$gb_row = $gb->get_new_row();
-			$gb_row->add_data($k,$v);
+			$gb_row->add_data($k,$v['value']);
 			$gb_row->add_action($this->create_callback_href(array($this,'browse'),array($name.'/'.$k,false)),'View');
-			$gb_row->add_action($this->create_callback_href(array($this,'edit'),array($name,$k)),'Edit');
-			$gb_row->add_action($this->create_confirm_callback_href($this->lang->t('Delete array').' \''.Epesi::escapeJS($name.'/'.$k,false).'\'?',array('Utils_CommonData','remove_array'), array($name.'/'.$k)),'Delete');
+			if(!$v['readonly']) {
+				$gb_row->add_action($this->create_callback_href(array($this,'edit'),array($name,$k)),'Edit');
+				$gb_row->add_action($this->create_confirm_callback_href($this->lang->t('Delete array').' \''.Epesi::escapeJS($name.'/'.$k,false).'\'?',array('Utils_CommonData','remove_array'), array($name.'/'.$k)),'Delete');
+			}
 		}
 		//$this->display_module($gb);
 		$this->display_module($gb,array(true),'automatic_display');
