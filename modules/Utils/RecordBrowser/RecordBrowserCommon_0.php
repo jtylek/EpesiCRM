@@ -369,13 +369,22 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		$or_started = false;
 		foreach($crits as $k=>$v){
-			$len = strlen($k);
-			$negative 	= (($len && $k[0]=='!') || ($len>1 && $k[1]=='!') || ($len>2 && $k[2]=='!') || ($len>3 && $k[3]=='!'));
-			$noquotes 	= (($len && $k[0]=='"') || ($len>1 && $k[1]=='"') || ($len>2 && $k[2]=='"') || ($len>3 && $k[3]=='"'));
-			$or_start 	= (($len && $k[0]=='(') || ($len>1 && $k[1]=='(') || ($len>2 && $k[2]=='(') || ($len>3 && $k[3]=='('));
-			$or 		= (($len && $k[0]=='|') || ($len>1 && $k[1]=='|') || ($len>2 && $k[2]=='|') || ($len>3 && $k[3]=='|'));
+			$negative = $noquotes = $or_start = $or = false;
+			$operator = 'LIKE';
+			while (($k[0]<'a' || $k[0]>'z') && ($k[0]<'A' || $k[0]>'Z')) {
+				if ($k[0]=='!') $negative = true;
+				if ($k[0]=='"') $noquotes = true;
+				if ($k[0]=='(') $or_start = true;
+				if ($k[0]=='|') $or = true;
+				if ($k[0]=='<') $operator = '<';
+				if ($k[0]=='>') $operator = '>';
+				if ($k[1]=='=' && $operator!='LIKE') {
+					$operator .= '=';
+					$k = substr($k, 2);
+				} else $k = substr($k, 1);
+				if (!isset($k[0])) trigger_error('Invalid criteria in build query: missing word.', E_USER_ERROR);
+			}
 			$or |= $or_start;
-			$k = trim($k, '!"|(');
 			if ($or) {
 				if ($or_start && $or_started) {
 					$having .= ')';
@@ -455,7 +464,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								if ($w==='') $having .= ' '.($negative?'AND':'OR').' val'.$iter.' IS '.($negative?'NOT ':'').'NULL';
 								else {
 									if (!$noquotes) $w = DB::qstr($w);
-									$having .= ' '.($negative?'AND':'OR').' val'.$iter.' '.($negative?'NOT ':'').'LIKE '.DB::Concat(DB::qstr('%::'),$w,DB::qstr('::%'));
+									$having .= ' '.($negative?'AND':'OR').' val'.$iter.' '.($negative?'NOT ':'').$operator.' '.DB::Concat(DB::qstr('%::'),$w,DB::qstr('::%'));
 								}
 							}
 							$having .= ')';
@@ -470,7 +479,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					$having .= '('.($negative?'true':'false');
 					foreach($v as $w) {
 						if (!$noquotes) $w = DB::qstr($w);
-						$having .= ' '.($negative?'AND':'OR').' id '.($negative?'NOT ':'').'LIKE '.$w;
+						$having .= ' '.($negative?'AND':'OR').' id '.($negative?'NOT ':'').$operator.' '.$w;
 					}
 					$having .= ')';
 				} else {
@@ -483,7 +492,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						if ($w==='') $having .= ' '.($negative?'AND':'OR').' val'.$iter.' IS '.($negative?'NOT ':'').'NULL';
 						else {
 							if (!$noquotes) $w = DB::qstr($w);
-							$having .= ' '.($negative?'AND':'OR').' val'.$iter.' '.($negative?'NOT ':'').'LIKE '.DB::Concat(DB::qstr('%::'),$w,DB::qstr('::%'));
+							$having .= ' '.($negative?'AND':'OR').' val'.$iter.' '.($negative?'NOT ':'').$operator.' '.DB::Concat(DB::qstr('%::'),$w,DB::qstr('::%'));
 						}
 					}
 					$having .= ')';
