@@ -64,9 +64,9 @@ class CRM_Filters extends Module {
 
 		Libs_LeightboxCommon::display('crm_filters',$profiles_out,$this->lang->t('Filters'));
 		//Base_ActionBarCommon::add('folder','Filters','class="lbOn" rel="crm_filters"',$this->get_module_variable('profile_desc',$this->lang->t('My records')));
-		print('<a class="lbOn" rel="crm_filters">'.$this->lang->t('Filter: %s',array($this->get_module_variable('profile_desc',$this->lang->t('My records')))).'</a>');
+		print('Filter: <a class="lbOn" rel="crm_filters">'.$this->lang->t('%s',array($this->get_module_variable('profile_desc',$this->lang->t('My records')))).'</a>');
 	}
-	
+
 	public function manage_filters() {
 		$x = ModuleManager::get_instance('/Base_Box|0');
 		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
@@ -102,7 +102,7 @@ class CRM_Filters extends Module {
 		$this->set_module_variable('profile_desc',$desc);
 		location(array());
 	}
-	
+
 /*	public function get() {
 		if(!$this->isset_module_variable('profile'))
 			$this->set_module_variable('profile',CRM_FiltersCommon::get_my_profile());
