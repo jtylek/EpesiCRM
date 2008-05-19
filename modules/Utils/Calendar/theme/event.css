@@ -38,6 +38,8 @@
     text-align: center;
     font-size: 11px;
     overflow: none;
+    width:100%;
+    height:13px;
 }
 
 #Utils_Calendar__event #event_title a {
