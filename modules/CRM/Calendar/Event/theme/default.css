@@ -91,7 +91,6 @@
 
 #CRM_Calendar_Event_Personal .title,
 #CRM_Calendar_Event_Personal .title input {
-	font-size: 14px;
 }
 
 #CRM_Calendar_Event_Personal .title input {
@@ -137,6 +136,10 @@
     border: 0px;
     background-color: #e6ecf2;
     width: 100%;
+}
+
+#CRM_Calendar_Event_Personal .data textarea {
+	height: 115px;
 }
 
 #CRM_Calendar_Event_Personal .data input[type="checkbox"],
@@ -378,4 +381,11 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
 
 .CRM_Calendar_Event__header .required_fav_info img {
     vertical-align: middle;
+}
+
+/* multiselect 100% width */
+
+#CRM_Calendar_Event_Personal #multiselect .form-element select,
+#CRM_Calendar_Event_Personal #multiselect .to-element select {
+	width: 100%;
 }
