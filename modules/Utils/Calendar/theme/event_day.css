@@ -26,6 +26,7 @@
     display: block;
     color: black;
     text-align: center;
+    overflow: none;
 }
 
 #Utils_Calendar__event_day #event_title a {

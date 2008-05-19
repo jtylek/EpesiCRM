@@ -37,6 +37,7 @@
     color: black;
     text-align: center;
     font-size: 11px;
+    overflow: none;
 }
 
 #Utils_Calendar__event #event_title a {
