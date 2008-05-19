@@ -32,6 +32,10 @@ class CRM_FiltersCommon extends ModuleCommon {
 		$_SESSION['client']['filter'] = CRM_FiltersCommon::get_my_profile();
 	return '('.$_SESSION['client']['filter'].')';
    }
+   
+   public static function add_action_bar_icon() {
+   	Base_ActionBarCommon::add('folder','Filters','class="lbOn" rel="crm_filters"');
+   }
 
 }
 

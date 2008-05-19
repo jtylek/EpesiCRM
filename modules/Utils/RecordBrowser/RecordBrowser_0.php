@@ -153,6 +153,7 @@ class Utils_RecordBrowser extends Module {
 		$filters = $this->show_filters();
 
 		if (isset($this->filter_field)) {
+			CRM_FiltersCommon::add_action_bar_icon();
 			$ff = explode(',',trim(CRM_FiltersCommon::get(),'()'));
 			$this->crits[$this->filter_field] = $ff;
 		}

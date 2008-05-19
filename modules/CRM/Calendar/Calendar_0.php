@@ -6,6 +6,7 @@ class CRM_Calendar extends Module {
 
 	public function body() {
 		CRM_Calendar_EventCommon::$filter = CRM_FiltersCommon::get();
+		CRM_FiltersCommon::add_action_bar_icon();
 		
 		if(isset($_REQUEST['search_date']) && is_numeric($_REQUEST['search_date']) && isset($_REQUEST['ev_id']) && is_numeric($_REQUEST['ev_id'])) {
 			$default_date = intval($_REQUEST['search_date']);
