@@ -28,9 +28,9 @@ class CRM_FiltersCommon extends ModuleCommon {
 	}
 	
    public static function get() {
-	if(!isset($_SESSION['filter']))
-		$_SESSION['filter'] = CRM_FiltersCommon::get_my_profile();
-	return '('.$_SESSION['filter'].')';
+	if(!isset($_SESSION['client']['filter']))
+		$_SESSION['client']['filter'] = CRM_FiltersCommon::get_my_profile();
+	return '('.$_SESSION['client']['filter'].')';
    }
 
 }
