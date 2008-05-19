@@ -42,7 +42,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		if(!isset($me)) {
 			$me = Utils_RecordBrowserCommon::get_records('contact', array('login'=>Acl::get_user()));
 			if (is_array($me) && !empty($me)) $me = array_shift($me);
-				else $me = array('id'=>-1, 'first_name'=>'', 'last_name'=>'', 'company_name'=>'', 'login'=>-1);
+				else $me = array('id'=>-1, 'first_name'=>'', 'last_name'=>'', 'company_name'=>array(), 'login'=>-1);
 		}
 		return $me;
 	}
