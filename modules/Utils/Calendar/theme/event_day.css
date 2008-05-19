@@ -13,6 +13,7 @@
 #Utils_Calendar__event_day div.row {
     display: block;
     height: 13px;
+    overflow: hidden;
 }
 
 #Utils_Calendar__event_day #event_time {
@@ -26,9 +27,7 @@
     display: block;
     color: black;
     text-align: center;
-    overflow: none;
-    width:100%;
-    height:13px;
+    font-size: 11px;
 }
 
 #Utils_Calendar__event_day #event_title a {
