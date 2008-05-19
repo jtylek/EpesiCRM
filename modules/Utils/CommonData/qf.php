@@ -9,6 +9,7 @@ require_once('HTML/QuickForm/select.php');
 class HTML_QuickForm_commondata extends HTML_QuickForm_select {
 	var $_cd = null;
 	var $_add_empty_fields = false;
+	var $_order_by_key = false;
 
 	function HTML_QuickForm_commondata($elementName=null, $elementLabel=null, $commondata=null, $options=null, $attributes=null) {
 		$this->HTML_QuickForm_select($elementName, $elementLabel, array(), $attributes);
@@ -25,8 +26,10 @@ class HTML_QuickForm_commondata extends HTML_QuickForm_select {
 
 		if (isset($options['empty_option']))
 			$this->_add_empty_fields = $options['empty_option'];
+		if (isset($options['order_by_key']))
+			$this->_order_by_key = $options['order_by_key'];
 		if(count($this->_cd)==1) {
-			$root_data = Utils_CommonDataCommon::get_array($this->_cd[0]);
+			$root_data = Utils_CommonDataCommon::get_array($this->_cd[0],$this->_order_by_key);
 			if($this->_add_empty_fields)
 				$root_data = array_merge(array(''=>'---'),$root_data);
 			$this->loadArray($root_data);
