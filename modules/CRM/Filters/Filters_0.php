@@ -75,7 +75,7 @@ class CRM_Filters extends Module {
 
 	public function set_profile($prof) {
 		if(is_numeric($prof)) {
-			DB::Execute('DELETE FROM crm_filters_contacts WHERE (SELECT cd.value FROM contact_data cd WHERE cd.contact_id=contact_id AND cd.field=\'Company Name\')!=%d',CRM_ContactsCommon::get_main_company());
+			DB::Execute('DELETE FROM crm_filters_contacts WHERE (SELECT count(cd.value) FROM contact_data cd WHERE cd.contact_id=contact_id AND cd.field=\'Company Name\' AND cd.value=%d)=0',CRM_ContactsCommon::get_main_company());
 			$c = DB::GetCol('SELECT p.contact_id FROM crm_filters_contacts p WHERE p.group_id=%d',array($prof));
 			if($c)
 				$ret = implode(',',$c);
@@ -201,7 +201,7 @@ class CRM_Filters extends Module {
 
 	public static function check_group_name_exists($name,$id) {
 		if(isset($id))
-			return (DB::GetOne('SELECT id FROM crm_filters_group WHERE id!=%d AND name=%s AND description=%s',array($id,$name[0],$description[1]))===false);
+			return (DB::GetOne('SELECT id FROM crm_filters_group WHERE id!=%d AND name=%s AND description=%s',array($id,$name[0],$name[1]))===false);
 		else
 			return (DB::GetOne('SELECT id FROM crm_filters_group WHERE name=%s AND description=%s',array($name[0],$name[1]))===false);
 	}
