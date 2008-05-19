@@ -82,8 +82,8 @@
                                 <td class="label" style="border-bottom: none;">{$form_data.description.label}</td>
                             </tr>
                             <tr>
-                                <td class="data" style="vertical-align: top; padding: 3px 4px 3px 0px; height: 123px;">
-                                    {if $action == 'view'}<div style="height: 70px; white-space: normal; overflow: auto;">{/if}
+                                <td class="data" style="vertical-align: top; padding: 3px 4px 3px 0px; height: 143px;">
+                                    {if $action == 'view'}<div style="height: 90px; white-space: normal; overflow: auto;">{/if}
                                         {$form_data.description.html}
                                     {if $action == 'view'}</div>{/if}
                                 </td>
@@ -158,6 +158,15 @@
                                     <span class="color_{$color_id}">
                                         {$form_data.color.html}
                                     </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label" align="left">{$form_data.status.label}</td>
+                                <td class="data status" align="left">
+                                    {if $action=='view'}
+                                        <div class="icon status_{$status_id}"></div>
+                                    {/if}
+                                    {$form_data.status.html}
                                 </td>
                             </tr>
                         </tbody>

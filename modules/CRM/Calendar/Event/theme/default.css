@@ -139,7 +139,7 @@
 }
 
 #CRM_Calendar_Event_Personal .data textarea {
-	height: 115px;
+	height: 135px;
 }
 
 #CRM_Calendar_Event_Personal .data input[type="checkbox"],
@@ -196,6 +196,10 @@
 	width: auto;
 }
 
+#CRM_Calendar_Event_Personal .status   select option[value="0"],
+#CRM_Calendar_Event_Personal .status   select option[value="1"],
+#CRM_Calendar_Event_Personal .status   select option[value="2"],
+#CRM_Calendar_Event_Personal .status   select option[value="3"],
 #CRM_Calendar_Event_Personal .priority select option[value="0"],
 #CRM_Calendar_Event_Personal .priority select option[value="1"],
 #CRM_Calendar_Event_Personal .priority select option[value="2"],
@@ -207,6 +211,11 @@
 	background-repeat: no-repeat;
 	background-position: 1px 0px;
 }
+
+#CRM_Calendar_Event_Personal .status select option[value="0"] { background-image: url('CRM_Calendar_Event__status-canceled.png');    }
+#CRM_Calendar_Event_Personal .status select option[value="1"] { background-image: url('CRM_Calendar_Event__status-closed.png');      }
+#CRM_Calendar_Event_Personal .status select option[value="2"] { background-image: url('CRM_Calendar_Event__status-in-progress.png'); }
+#CRM_Calendar_Event_Personal .status select option[value="3"] { background-image: url('CRM_Calendar_Event__status-open.png');        }
 
 #CRM_Calendar_Event_Personal .priority select option[value="0"] { background-image: url('CRM_Calendar_Event__priority-low.png');    }
 #CRM_Calendar_Event_Personal .priority select option[value="1"] { background-image: url('CRM_Calendar_Event__priority-medium.png'); }
@@ -225,7 +234,8 @@
 #CRM_Calendar_Event_Personal .access_2 { background-image: url('CRM_Calendar_Event__access-private.png');   }
 
 #CRM_Calendar_Event_Personal .access .icon,
-#CRM_Calendar_Event_Personal .priority .icon {
+#CRM_Calendar_Event_Personal .priority .icon,
+#CRM_Calendar_Event_Personal .status .icon {
 	height: 12px;
 	margin-top: 2px;
 	margin-left: 2px;
@@ -235,7 +245,8 @@
 	background-repeat: no-repeat;
 }
 
-#CRM_Calendar_Event_Personal .access .icon {
+#CRM_Calendar_Event_Personal .access .icon,
+#CRM_Calendar_Event_Personal .status .icon {
 	width: 12px;
 }
 
