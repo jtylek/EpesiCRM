@@ -212,10 +212,15 @@
 	background-position: 1px 0px;
 }
 
-#CRM_Calendar_Event_Personal .status select option[value="0"] { background-image: url('CRM_Calendar_Event__status-canceled.png');    }
-#CRM_Calendar_Event_Personal .status select option[value="1"] { background-image: url('CRM_Calendar_Event__status-closed.png');      }
-#CRM_Calendar_Event_Personal .status select option[value="2"] { background-image: url('CRM_Calendar_Event__status-in-progress.png'); }
-#CRM_Calendar_Event_Personal .status select option[value="3"] { background-image: url('CRM_Calendar_Event__status-open.png');        }
+#CRM_Calendar_Event_Personal .status select option[value="3"] { background-image: url('CRM_Calendar_Event__status-canceled.png');    }
+#CRM_Calendar_Event_Personal .status select option[value="2"] { background-image: url('CRM_Calendar_Event__status-closed.png');      }
+#CRM_Calendar_Event_Personal .status select option[value="1"] { background-image: url('CRM_Calendar_Event__status-in-progress.png'); }
+#CRM_Calendar_Event_Personal .status select option[value="0"] { background-image: url('CRM_Calendar_Event__status-open.png');        }
+
+#CRM_Calendar_Event_Personal .status_3 { background-image: url('CRM_Calendar_Event__status-canceled.png');    }
+#CRM_Calendar_Event_Personal .status_2 { background-image: url('CRM_Calendar_Event__status-closed.png');      }
+#CRM_Calendar_Event_Personal .status_1 { background-image: url('CRM_Calendar_Event__status-in-progress.png'); }
+#CRM_Calendar_Event_Personal .status_0 { background-image: url('CRM_Calendar_Event__status-open.png');        }
 
 #CRM_Calendar_Event_Personal .priority select option[value="0"] { background-image: url('CRM_Calendar_Event__priority-low.png');    }
 #CRM_Calendar_Event_Personal .priority select option[value="1"] { background-image: url('CRM_Calendar_Event__priority-medium.png'); }
