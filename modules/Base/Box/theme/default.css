@@ -330,7 +330,7 @@ hr.line {
     padding-top: 1px;
 	vertical-align: top;
 	text-align: left;
-    padding-left: 19px;
+    padding-left: 20px;
 }
 
 #top_bar #top_bar_2 .login a {
@@ -351,13 +351,14 @@ hr.line {
 
 #top_bar #top_bar_2 .filter {
 	height: 19px;
-	text-align: center;
-	padding-left: 5px;
+	text-align: left;
     vertical-align: top;
     padding-top: 4px;
+    padding-left: 20px;
 }
 
-#top_bar #top_bar_2 .filter span {
+#top_bar #top_bar_2 .filter a {
+    cursor: pointer;
     font-weight: bold;
 }
 
