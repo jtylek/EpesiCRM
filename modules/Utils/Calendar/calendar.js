@@ -123,7 +123,7 @@ add_event_tag:function(dest,ev) {
 			b.innerHTML = 'too many events - please see daily view';
 			b.style.position = 'absolute';
 			b.style.backgroundColor='red';
-			b.setOpacity(0.6);
+//			b.setOpacity(0.6);
 			b.style.zIndex=20;
 			ev.parentNode.appendChild(b);
 			b.clonePosition(dest);
