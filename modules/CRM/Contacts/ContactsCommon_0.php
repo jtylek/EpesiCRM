@@ -38,12 +38,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 		}
 	}
 	public static function get_my_record() {
-		static $me;
-		if(!isset($me)) {
-			$me = Utils_RecordBrowserCommon::get_records('contact', array('login'=>Acl::get_user()));
-			if (is_array($me) && !empty($me)) $me = array_shift($me);
-				else $me = array('id'=>-1, 'first_name'=>'', 'last_name'=>'', 'company_name'=>array(), 'login'=>-1);
-		}
+		$me = self::get_contact_by_user_id(Acl::get_user());
+		if ($me===null) $me = array('id'=>-1, 'first_name'=>'', 'last_name'=>'', 'company_name'=>array(), 'login'=>-1);
 		return $me;
 	}
 	public static function access_company($action, $param){
@@ -339,7 +335,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 				$form->addElement('button', 'paste_company_info', 'Paste Company Info', array('onClick'=>$paste_company_info));
 			}
 		}
-		if ($default!==Acl::get_user() && $default!=='' && !Base_AclCommon::i_am_admin()) {
+		if (($default!==Acl::get_user() && $default!=='' && !Base_AclCommon::i_am_admin()) || $mode=='view') {
 			$form->addElement('select', $field, $label, array($default=>($default!=='')?Base_UserCommon::get_user_login($default):'---'));
 			$form->setDefaults(array($field=>$default));
 			$form->freeze($field);
