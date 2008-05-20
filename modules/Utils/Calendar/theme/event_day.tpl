@@ -47,9 +47,9 @@
 
     <div class="row">
         <span id="event_info"><img {$tip_tag_attrs} src="{$theme_dir}/Utils_Calendar__info.png" onClick="event_menu('{$event_id}')" width="11" height="11" border="0"></span>
-        <span id="event_time" {if $draggable}class="{$handle_class}"{/if}>{$start_time} - {$end_time} ({$duration})</span>
+        <span id="event_time">{if isset($view_href)}<a {$view_href}>{/if}{$start_time} - {$end_time} ({$duration}){if isset($view_href)}</a>{/if}</span>
     </div>
-     <div class="row">
-        <span id="event_title">{if isset($view_href)}<a {$view_href}>{/if}{$title}{if $description!=''} - {$description|truncate:100:"..."}{/if}{if isset($view_href)}</a>{/if}</span>
+     <div class="row {if $draggable}{$handle_class}{/if}">
+        <span id="event_title">{$title}{if $description!=''} - {$description|truncate:100:"..."}{/if}</span>
     </div>
 </span>
