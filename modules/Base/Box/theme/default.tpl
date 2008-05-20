@@ -40,8 +40,8 @@
 					<td id="login-search-td">
 						<div id="search-login-bar">
 							<div class="login">{$login}</div>
-							<div class="filter" id="filter_box">{$filter}</div>
 							<div class="search" id="search_box"><center>{$search}</center></div>
+							<div class="filter" id="filter_box">{$filter}</div>
 						</div>
 					</td>
 				</tr>
