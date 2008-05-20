@@ -23,6 +23,9 @@
 	    	{if isset($move_href)}
                 <a {$move_href}><img border="0" src="{$theme_dir}/Utils_Calendar__move.png"></a>
 		{/if}
+		{foreach from=$custom_actions item=action}
+		<a {$action.href}><img border="0" src="{$theme_dir}/{$action.icon}"></a>
+		{/foreach}
             </span>
 
         <!-- SHADOW END -->

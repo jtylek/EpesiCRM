@@ -122,6 +122,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$next_result['custom_agenda_col_0'] = $row['description'];
 			$next_result['custom_agenda_col_1'] = implode(', ',$emps);
 			$next_result['custom_agenda_col_2'] = implode(', ',$cuss);
+			//TODO: $next_result['actions'] = array(array('icon'=>'','href'=>''),array());
 			$result[] = $next_result;
 		}
 		return $result;

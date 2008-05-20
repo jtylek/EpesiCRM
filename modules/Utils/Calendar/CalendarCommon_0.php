@@ -39,6 +39,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 		if(!isset($ev['delete_action']) || $ev['delete_action']==true)
 			$th->assign('delete_href', Module::create_confirm_href(Base_LangCommon::ts('Utils_Calendar','Delete this event?'),array('UCev_id'=>$ev['id'], 'UCaction'=>'delete')));
 		$th->assign('handle_class','handle');
+		$th->assign('custom_actions',$ev['actions']);
 		Base_ThemeCommon::display_smarty($th,'Utils_Calendar','event'.($mode?'_'.$mode:''));
 	}
 
@@ -59,6 +60,8 @@ class Utils_CalendarCommon extends ModuleCommon {
 			$row['additional_info'] = '';
 		if(!isset($row['additional_info2']))
 			$row['additional_info2'] = '';
+		if(!isset($row['actions']))
+			$row['actions'] = array();
 
 		if(!is_numeric($row['start']) && is_string($row['start'])) $row['start'] = strtotime($row['start']);
 		if($row['start']===false)
