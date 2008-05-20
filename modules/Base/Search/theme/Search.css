@@ -25,13 +25,13 @@ table#Base_Search__Search td.header_tail span.header {
 table#Base_Search__Search input {
 	color: #000000;
 	border: 1px solid #B3B3B3;
-	width: 158px;
+	width: 173px;
 	height: 16px;
 	font-size: 11px;
 }
 
 table#Base_Search__Search td.input {
-	padding-right: 2px;
+	padding-right: 0px;
 }
 
 table#Base_Search__Search td.submit {

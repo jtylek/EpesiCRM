@@ -334,6 +334,7 @@ hr.line {
 }
 
 #top_bar #top_bar_2 .login a {
+    margin-left: 7px;
     background-image: url('images/logout.png');
 }
 
@@ -345,8 +346,8 @@ hr.line {
 #top_bar #top_bar_2 .search {
 	height: 20px;
 	vertical-align: top;
-	text-align: center;
-	padding-left: 5px;
+	text-align: left;
+	padding-left: 13px;
     padding-top: 2px;
 }
 
@@ -355,7 +356,7 @@ hr.line {
 	text-align: left;
     vertical-align: top;
     padding-top: 2px;
-    padding-left: 19px;
+    padding-left: 13px;
 }
 
 #top_bar #top_bar_2 .filter a {
@@ -363,7 +364,7 @@ hr.line {
     cursor: pointer;
     display: block;
     height: 17px;
-    width: 264px;
+    width: 277px;
     padding-top: 3px;
     text-align: center;
     vertical-align: middle;
