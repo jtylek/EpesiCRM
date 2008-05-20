@@ -371,7 +371,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		foreach($crits as $k=>$v){
 			$negative = $noquotes = $or_start = $or = false;
 			$operator = 'LIKE';
-			while (($k[0]<'a' || $k[0]>'z') && ($k[0]<'A' || $k[0]>'Z')) {
+			while (($k[0]<'a' || $k[0]>'z') && ($k[0]<'A' || $k[0]>'Z') && $k[0]!=':') {
 				if ($k[0]=='!') $negative = true;
 				if ($k[0]=='"') $noquotes = true;
 				if ($k[0]=='(') $or_start = true;
@@ -610,18 +610,59 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 	public static function check_record_against_crits($tab, $id, $crits) {
 		if ($crits===true || empty($crits)) return true;
-		$r = self::get_records($tab, array_merge($crits, array('id'=>$id)));
-		return !empty($r);
+		static $cache = array();
+		if (isset($cache[$tab.'__'.$id])) return $cache[$tab.'__'.$id];
+		$r = self::get_record($tab, $id);
+		$or_started = false;
+		$or_result = false;
+		foreach ($crits as $k=>$v) {
+			$negative = $noquotes = $or_start = $or = false;
+			$operator = '==';
+			while (($k[0]<'a' || $k[0]>'z') && ($k[0]<'A' || $k[0]>'Z')) {
+				if ($k[0]=='!') $negative = true;
+				if ($k[0]=='"') $noquotes = true;
+				if ($k[0]=='(') $or_start = true;
+				if ($k[0]=='|') $or = true;
+				if ($k[0]=='<') $operator = '<';
+				if ($k[0]=='>') $operator = '>';
+				if ($k[1]=='=' && $operator!='==') {
+					$operator .= '=';
+					$k = substr($k, 2);
+				} else $k = substr($k, 1);
+				if (!isset($k[0])) trigger_error('Invalid criteria in build query: missing word.', E_USER_ERROR);
+			}
+			$or |= $or_start;
+			if ($or) {
+				if ($or_start && $or_started) {
+					if (!$or_result) return $cache[$tab.'__'.$id] = false;
+					$or_result = false;
+				}
+				if (!$or_started) $or_result = false;
+				$or_started = true;
+			} else {
+				if ($or_started && !$or_result) return $cache[$tab.'__'.$id] = false;
+				$or_started = false;
+			}
+			$result = false;
+			$k = strtolower($k);
+			if (!isset($r[$k])) trigger_error($k.'<br><br>'.print_r($r,true), E_USER_ERROR);
+			if (is_array($r[$k])) $result = in_array($v, $r[$k]); 
+			else switch ($operator) {
+				case '>': $result = ($r[$k] > $v); break;
+				case '>=': $result = ($r[$k] >= $v); break;
+				case '<': $result = ($r[$k] < $v); break;
+				case '<=': $result = ($r[$k] <= $v); break;
+				case '==': $result = stristr((string)$r[$k],(string)$v);
+			}
+			if ($negative) $result = !$result;
+			if ($or_started) $or_result |= $result;
+			else if (!$result) return $cache[$tab.'__'.$id] = false; 
+		}
+		if ($or_started && !$or_result) return $cache[$tab.'__'.$id] = false;
+		return $cache[$tab.'__'.$id] = true;
 	}
 	public static function get_access($tab, $action, $param=null){
-		if (Base_AclCommon::i_am_admin())
-			switch ($action) {
-				case 'browse':	
-				case 'view':	
-				case 'edit':	
-				case 'delete': return true;
-				case 'edit_fields': return array();
-			}
+		if (Base_AclCommon::i_am_admin()) return true;
 		static $cache = array();
 		if (!isset($cache[$tab])) $cache[$tab] = $access_callback = explode('::', DB::GetOne('SELECT access_callback FROM recordbrowser_table_properties WHERE tab=%s', array($tab)));
 		else $access_callback = $cache[$tab];
