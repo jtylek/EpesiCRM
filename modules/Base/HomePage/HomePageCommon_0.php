@@ -27,7 +27,7 @@ class Base_HomePageCommon extends ModuleCommon {
 			return;
 		}
 		$_SESSION['client']['__module_vars__'] = unserialize($ret);
-		location(array());
+		location(array('__homepage__'=>1));
 	}
 
 	public static function save() {

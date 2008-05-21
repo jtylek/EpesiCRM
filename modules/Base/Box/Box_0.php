@@ -17,7 +17,7 @@ class Base_Box extends Module {
 	private $modules;
 	
 	public function construct() {
-		if(isset($_REQUEST['Base_HomePage_load']))
+		if(isset($_REQUEST['__homepage__']))
 			$this->set_reload(true);
 	}
 
