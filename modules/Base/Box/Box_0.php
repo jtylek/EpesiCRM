@@ -15,6 +15,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_Box extends Module {
 	private $modules;
+	
+	public function construct() {
+		if(isset($_REQUEST['Base_HomePage_load']))
+			$this->set_reload(true);
+	}
 
 	public function body() {
 		$theme = & $this->pack_module('Base/Theme');

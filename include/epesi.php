@@ -139,6 +139,13 @@ class Epesi {
 	private static function go(& $m) {
 		//define key so it's first in array
 		$path = $m->get_path();
+
+		if(method_exists($m,'construct')) {
+			ob_start();
+			call_user_func_array(array($m,'construct'),array());
+			ob_end_clean();
+		}
+
 		self::$content[$path]['span'] = 'main_content';
 		self::$content[$path]['module'] = & $m;
 		if(MODULE_TIMES)
