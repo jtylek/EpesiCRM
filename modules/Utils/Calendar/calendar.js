@@ -277,14 +277,16 @@ delete_event:function(eid,mpath,ecid) {
 },
 destroy:function() {
 	if(Utils_Calendar.ids==null) return;
-//	alert('destroy');
-	Utils_Calendar.ids.each(function(id) {
-		Droppables.remove('UCcell_'+id[0]);
-	});
+
+	delete(Droppables.drops);
+	Droppables.drops = [];
+//	Utils_Calendar.ids.each(function(id) {
+//		Droppables.remove('UCcell_'+id[0]);
+//	});
 	delete(Utils_Calendar.ids);
 	Utils_Calendar.ids=null;
 
-	Droppables.remove('UCtrash');
+//	Droppables.remove('UCtrash');
 }
 };
 document.observe('e:loading', Utils_Calendar.destroy);
