@@ -18,6 +18,36 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		return $color;
 	}
 
+	public function get_followup_leightbox_href($id, $def){
+		$prefix = 'crm_event_leightbox';
+		CRM_FollowupCommon::drawLeightbox($prefix);
+		$v = $def['status'];
+		if (!$v) $v = 0;
+		if (isset($_REQUEST['form_name']) && $_REQUEST['form_name']==$prefix.'_follow_up_form' && $_REQUEST['id']==$id) {
+			$v = $_REQUEST['closecancel'];
+			$action  = $_REQUEST['action'];
+			if ($action == 'set_in_progress') $v = 1;
+			DB::Execute('UPDATE crm_calendar_event SET status=%d WHERE id=%d',array($v,$id));
+			if ($action == 'set_in_progress') location(array());
+
+			$values = $def;
+			$values['date_and_time'] = date('Y-m-d H:i:s');
+			$values['title'] = Base_LangCommon::ts('CRM/Calendar/Event','Follow up: ').$values['title'];
+			unset($values['status']);
+
+			if ($action != 'none') {		
+				$x = ModuleManager::get_instance('/Base_Box|0');
+				if ($action == 'new_task') $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, array('page_id'=>md5('crm_tasks'),'title'=>$values['title'],'permission'=>$values['access'],'priority'=>$values['priority'],'description'=>$values['description'],'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),'employees'=>$values['emp_id'], 'customers'=>$values['cus_id'])), array('task'));
+				if ($action == 'new_phonecall') $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, array('subject'=>$values['title'],'permission'=>$values['access'],'priority'=>$values['priority'],'description'=>$values['description'],'date_and_time'=>date('Y-m-d H:i:s'),'employees'=>$values['emp_id'], 'contact'=>isset($values['cus_id'][0])?$values['cus_id'][0]:'')), array('phonecall'));
+				if ($action == 'new_event') CRM_CalendarCommon::view_event('add',$values);
+				return false;
+			}
+
+			location(array());
+		}
+		return 'href="javascript:void(0)" class="lbOn" rel="'.$prefix.'_followups_leightbox" onMouseDown="'.$prefix.'_set_id('.$id.');"';
+	}
+
 	
 	public static function get($id) {
 		if(self::$filter=='()')
@@ -122,7 +152,8 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$next_result['custom_agenda_col_0'] = $row['description'];
 			$next_result['custom_agenda_col_1'] = implode(', ',$emps);
 			$next_result['custom_agenda_col_2'] = implode(', ',$cuss);
-			//TODO: $next_result['actions'] = array(array('icon'=>'','href'=>''),array());
+			$next_result['actions'] = array(array('icon'=>Base_ThemeCommon::get_template_file('Utils/Calendar','edit.png'),'href'=>CRM_Calendar_EventCommon::get_followup_leightbox_href($row['id'], $row)));
+			// TODO: change icon
 			$result[] = $next_result;
 		}
 		return $result;

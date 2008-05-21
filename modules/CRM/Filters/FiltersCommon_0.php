@@ -20,11 +20,8 @@ class CRM_FiltersCommon extends ModuleCommon {
     }
 
 	public static function get_my_profile() {
-		$me = CRM_ContactsCommon::get_contacts(array('login'=>Acl::get_user()),array('id'));
-		$ret = array();
-		foreach($me as $v)
-			$ret[] = $v['id'];
-		return implode(',',$ret);
+		$me = CRM_ContactsCommon::get_my_record();
+		return $me['id'];
 	}
 	
    public static function get() {

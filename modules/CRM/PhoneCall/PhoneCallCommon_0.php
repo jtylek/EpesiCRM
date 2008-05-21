@@ -176,88 +176,41 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		return $l[0].': '.$contact[$id];
 	}
 	public static function display_status($record, $nolink, $desc) {
-		static $leightbox_ready = null;
-		$events = (ModuleManager::is_installed('CRM/Calendar')>=0);
-		$tasks = (ModuleManager::is_installed('CRM/Tasks')>=0);
-		static $b_location = false;
-		if (!$leightbox_ready || (isset($_REQUEST['__location']) && !$b_location)) {
-			if (isset($_REQUEST['__location'])) $b_location = true;
-			$theme = Base_ThemeCommon::init_smarty();
-			eval_js_once('crm_phonecall_followups_deactivate = function(){leightbox_deactivate(\'crm_phonecall_followups\');}');
-	
-			if ($events) $theme->assign('new_event',array('open'=>'<a id="phonecall_new_event_leightbox_button" href="javascript:void(0)">','text'=>Base_LangCommon::ts('CRM/PhoneCall', 'New Event'),'close'=>'</a>'));
-			eval_js('Event.observe(\'phonecall_new_event_leightbox_button\',\'click\', crm_phonecall_followups_deactivate)');
-
-			if ($tasks) $theme->assign('new_task',array('open'=>'<a id="phonecall_new_task_leightbox_button" href="javascript:void(0)">','text'=>Base_LangCommon::ts('CRM/PhoneCall', 'New Task'),'close'=>'</a>'));
-			eval_js('Event.observe(\'phonecall_new_task_leightbox_button\',\'click\', crm_phonecall_followups_deactivate)');
-
-			$theme->assign('new_phonecall',array('open'=>'<a id="phonecall_new_phonecall_leightbox_button" href="javascript:void(0)">','text'=>Base_LangCommon::ts('CRM/PhoneCall', 'New Phone Call'),'close'=>'</a>'));
-			eval_js('Event.observe(\'phonecall_new_phonecall_leightbox_button\',\'click\', crm_phonecall_followups_deactivate)');
-
-			$theme->assign('just_close',array('open'=>'<a id="phonecall_leightbox_just_close_button" '.Module::create_href(array('increase_phonecall_status'=>$record['id'])).'>','text'=>Base_LangCommon::ts('CRM/PhoneCall', 'Close Record'),'close'=>'</a>'));
-			eval_js('Event.observe(\'phonecall_leightbox_just_close_button\',\'click\', crm_phonecall_followups_deactivate)');
-
-			$theme->assign('just_cancel',array('open'=>'<a id="phonecall_leightbox_just_cancel_button" '.Module::create_href(array('set_phonecall_status_canceled'=>$record['id'])).'>','text'=>Base_LangCommon::ts('CRM/PhoneCall', 'Phone Call Canceled'),'close'=>'</a>'));
-			eval_js('Event.observe(\'phonecall_leightbox_just_cancel_button\',\'click\', crm_phonecall_followups_deactivate)');
-	
-			eval_js('set_phonecall_leightbox_links = function (f_event, f_task, f_phonecall, f_just_close, f_just_cancel) {'.
-						($events?'document.getElementById("phonecall_new_event_leightbox_button").onclick = f_event;':'').
-						($tasks?'document.getElementById("phonecall_new_task_leightbox_button").onclick = f_task;':'').
-						'document.getElementById("phonecall_leightbox_just_close_button").onclick = f_just_close;'.
-						'document.getElementById("phonecall_leightbox_just_cancel_button").onclick = f_just_cancel;'.
-						'document.getElementById("phonecall_new_phonecall_leightbox_button").onclick = f_phonecall;'.
-					'}');
-			
-			ob_start();
-			Base_ThemeCommon::display_smarty($theme,'CRM_PhoneCall','leightbox');
-			$profiles_out = ob_get_clean();
-
-			Libs_LeightboxCommon::display('crm_phonecall_followups',$profiles_out,Base_LangCommon::ts('CRM/PhoneCall', 'Follow up'));
-		}
-		$leightbox_ready = true;
+		$prefix = 'crm_phonecall_leightbox';
+		CRM_FollowupCommon::drawLeightbox($prefix);
 		$v = $record[$desc['id']];
 		if (!$v) $v = 0;
 		$status = Utils_CommonDataCommon::get_array('Ticket_Status');
 		if (!self::access_phonecall('edit', $record) && !Base_AclCommon::i_am_admin()) return $status[$v];
 		if ($v>=2) return $status[$v];
-		if (isset($_REQUEST['increase_phonecall_status']) && $_REQUEST['increase_phonecall_status']==$record['id']) {
-			$v++;
+		if (isset($_REQUEST['form_name']) && $_REQUEST['form_name']==$prefix.'_follow_up_form' && $_REQUEST['id']==$record['id']) {
+			$v = $_REQUEST['closecancel'];
+			$action  = $_REQUEST['action'];
+			if ($action == 'set_in_progress') $v = 1;
 			Utils_RecordBrowserCommon::update_record('phonecall', $record['id'], array('status'=>$v));
-			location(array());
-		}
-		if (isset($_REQUEST['set_phonecall_status_canceled']) && $_REQUEST['set_phonecall_status_canceled']==$record['id']) {
-			Utils_RecordBrowserCommon::update_record('phonecall', $record['id'], array('status'=>3));
+			if ($action == 'set_in_progress') location(array());
+
+			$values = $record;
+			$values['date_and_time'] = date('Y-m-d H:i:s');
+			$values['title'] = Base_LangCommon::ts('CRM/PhoneCall','Follow up: ').$values['subject'];
+			unset($values['status']);
+
+			if ($action != 'none') {		
+				$x = ModuleManager::get_instance('/Base_Box|0');
+				if ($action == 'new_task') $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, array('page_id'=>md5('crm_tasks'),'title'=>$values['subject'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),'employees'=>$values['employees'], 'customers'=>$values['contact'])), array('task'));
+				if ($action == 'new_phonecall') $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, $values), array('phonecall'));
+				if ($action == 'new_event') CRM_CalendarCommon::view_event('add',array('title'=>$values['title'],'access'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'emp_id'=>$values['employees'],'cus_id'=>$values['contact']));
+				return false;
+			}
+
 			location(array());
 		}
 		if ($v==0) {
-			return '<a '.
-						Module::create_href(array('increase_phonecall_status'=>$record['id'])).
-						'>'.$status[$v].'</a>';
+			return '<a href="javascript:void(0)" onclick="'.$prefix.'_set_action(\'set_in_progress\');'.$prefix.'_set_id(\''.$record['id'].'\');'.$prefix.'_submit_form();">'.$status[$v].'</a>';
 		}
-		$values = $record;
-		$values['date_and_time'] = date('Y-m-d H:i:s');
-		$values['title'] = Base_LangCommon::ts('Utils/PhoneCall','Follow up: ').$values['subject'];
-		unset($values['status']);
-		eval_js('phonecall_set_to_record_'.$values['id'].' = function () {'.
-					'set_phonecall_leightbox_links('.
-					($events?'function onclick_event(event) {'.
-					Module::create_href_js(CRM_CalendarCommon::get_new_event_href(array('title'=>$values['title'],'access'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'emp_id'=>$values['employees'],'cus_id'=>$values['contact']), 'phonecall_'.$record['id'])+array('increase_phonecall_status'=>$record['id'])).
-					'},':'null,').
-					($tasks?'function onclick_task(event) {'.
-					Module::create_href_js(Utils_RecordBrowserCommon::get_new_record_href('task', array('page_id'=>md5('crm_tasks'),'title'=>$values['subject'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),'employees'=>$values['employees'], 'customers'=>$values['contact']), 'phonecall_'.$record['id'])+array('increase_phonecall_status'=>$record['id'])).
-					'},':'null,').
-					'function onclick_phonecall(event) {'.
-					Module::create_href_js(Utils_RecordBrowserCommon::get_new_record_href('phonecall', $values, 'phonecall_'.$record['id'])+array('increase_phonecall_status'=>$record['id'])).
-					'},'.
-					'function onclick_close(event) {'.
-					Module::create_href_js(array('increase_phonecall_status'=>$record['id'])).
-					'},'.
-					'function onclick_cancel(event) {'.
-					Module::create_href_js(array('set_phonecall_status_canceled'=>$record['id'])).
-					'}'.
-					')};');
-		return '<a href="javascript:void(0)" class="lbOn" rel="crm_phonecall_followups" onMouseDown="phonecall_set_to_record_'.$values['id'].'();'.'">'.$status[$v].'</a>';
+		return '<a href="javascript:void(0)" class="lbOn" rel="'.$prefix.'_followups_leightbox" onMouseDown="'.$prefix.'_set_id('.$record['id'].');">'.$status[$v].'</a>';
 	}
+
 	public static function submit_phonecall($values, $mode) {
 		if ($mode=='view') {
 			$values['date_and_time'] = date('Y-m-d H:i:s');

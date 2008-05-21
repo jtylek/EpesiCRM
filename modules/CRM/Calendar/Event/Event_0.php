@@ -114,7 +114,22 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$form->addElement('text', 'title', $this->lang->t('Title'), array('style'=>'width: 100%;', 'id'=>'event_title'));
 		$form->addRule('title', 'Field is required!', 'required');
 
-		$form->addElement('commondata', 'status', $this->lang->t('Status'),'Ticket_Status',array('order_by_key'=>true));
+		if ($action=='view') {
+			$form->addElement('static', 'status', $this->lang->t('Status'));
+			$status = Utils_CommonDataCommon::get_array('Ticket_Status');
+			$prefix = 'crm_event_leightbox';
+
+			$lgb = CRM_Calendar_EventCommon::get_followup_leightbox_href($id, $def);
+			if ($def['status']>=2) {
+				$def['status'] = $status[$def['status']];
+			} elseif ($def['status']==0) {
+				$def['status'] = '<a href="javascript:void(0)" onclick="'.$prefix.'_set_action(\'set_in_progress\');'.$prefix.'_set_id(\''.$id.'\');'.$prefix.'_submit_form();">'.$status[$def['status']].'</a>';
+			} else {
+				$def['status'] = '<a '.$lgb.'>'.$status[$def['status']].'</a>';
+			}
+		} else {
+			$form->addElement('commondata', 'status', $this->lang->t('Status'),'Ticket_Status',array('order_by_key'=>true));
+		}
 
 		$time_format = Base_RegionalSettingsCommon::time_12h()?'h:i a':'H:i';
 
