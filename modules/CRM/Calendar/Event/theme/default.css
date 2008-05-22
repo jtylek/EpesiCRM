@@ -139,7 +139,7 @@
 }
 
 #CRM_Calendar_Event_Personal .data textarea {
-	height: 135px;
+	height: 134px;
 }
 
 #CRM_Calendar_Event_Personal .data input[type="checkbox"],
@@ -322,15 +322,6 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
 
 /* */
 
-.timeless_access_priority_color td.label {
-	width: 6%;
-}
-
-.timeless_access_priority_color td.data {
-	width: 14%;
-}
-
-
 /* no shadow in tables */
 
 #CRM_Calendar_Event_Personal .attachments_messages .shadow-top,
@@ -404,4 +395,8 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
 #CRM_Calendar_Event_Personal #multiselect .form-element select,
 #CRM_Calendar_Event_Personal #multiselect .to-element select {
 	width: 100%;
+}
+
+.employees {
+	border-right: 1px solid #b3b3b3;
 }

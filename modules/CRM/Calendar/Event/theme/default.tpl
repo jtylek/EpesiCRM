@@ -68,8 +68,8 @@
                     <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if}" cellspacing="0" cellpadding="0" border="0">
                         <tbody>
                             <tr>
-                                <td class="group_bottom label title" align="left" style="width: 10%;">{$form_data.title.label}</td>
-                                <td class="group_bottom data title" align="left" style="width: 90%"><span class="error">{$form_data.title.error}</span>
+                                <td class="group_bottom label title" align="left" style="width: 20%;">{$form_data.title.label}</td>
+                                <td class="group_bottom data title" align="left" style="width: 80%"><span class="error">{$form_data.title.error}</span>
                                     {$form_data.title.html}
                                 </td>
                             </tr>
@@ -79,11 +79,11 @@
                     <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if} no-border" cellspacing="0" cellpadding="0" border="0">
                         <tbody>
                             <tr>
-                                <td class="label" style="border-bottom: none;">{$form_data.description.label}</td>
+                                <td class="label" style="border-bottom: none; border-right: none;">{$form_data.description.label}</td>
                             </tr>
                             <tr>
-                                <td class="data" style="vertical-align: top; padding: 3px 4px 3px 0px; height: 143px;">
-                                    {if $action == 'view'}<div style="height: 90px; white-space: normal; overflow: auto;">{/if}
+                                <td class="data" style="vertical-align: top; border-right: none; padding: 3px 4px 3px 0px; height: {if $action == 'view'}53px;{else}142px;{/if}">
+                                    {if $action == 'view'}<div style="height: {if $action == 'view'}53px;{else}142px;{/if} padding-left: 2px; white-space: normal; overflow: auto;">{/if}
                                         {$form_data.description.html}
                                     {if $action == 'view'}</div>{/if}
                                 </td>
@@ -91,13 +91,13 @@
                         </tbody>
                     </table>
                     {* employees *}
-                    <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if} no-border" cellspacing="0" cellpadding="0" border="0">
+                    <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if} no-border" style="border-right: 1px solid #b3b3b3;" cellspacing="0" cellpadding="0" border="0">
                         <tbody>
                             <tr>
-                                <td class="label" style="border-right: 1px solid #b3b3b3;">{$form_data.emp_id.label}</td>
+                                <td class="label" style="border-bottom: none;">{$form_data.emp_id.label}</td>
                             </tr>
                             <tr>
-                                <td class="data arrows" style="border-right: 1px solid #b3b3b3; vertical-align: top;"><span class="error">{$form_data.emp_id.error}</span>{$form_data.emp_id.html}</td>
+                                <td class="data arrows" style="vertical-align: top;"><span class="error">{$form_data.emp_id.error}</span>{$form_data.emp_id.html}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -128,11 +128,11 @@
                     </table>
                     {/if}
                     {* timeless access priority color *}
-                    <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if} no-border timeless_access_priority_color" cellspacing="0" cellpadding="0" border="0">
+                    <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if}" style="border-left: none;" cellspacing="0" cellpadding="0" border="0">
                         <tbody>
                             <tr>
-                                <td class="label" align="left">{$form_data.timeless.label}</td>
-                                <td class="data" align="left">{$form_data.timeless.html}</td>
+                                <td class="label" align="left" style="width: 20%;">{$form_data.timeless.label}</td>
+                                <td class="data" align="left" style="width: 80%;">{$form_data.timeless.html}</td>
                             </tr>
                             <tr>
                                 <td class="label" align="left">{$form_data.access.label}</td>
@@ -172,10 +172,10 @@
                         </tbody>
                     </table>
                     {* customers *}
-                    <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if} no-border" cellspacing="0" cellpadding="0" border="0">
+                    <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if} no-border" style="border-left: none;" cellspacing="0" cellpadding="0" border="0">
                         <tbody>
                             <tr>
-                                <td class="label" style="padding-right: 0px;"><div style="float: left; padding-top: 3px;">{$form_data.cus_id.label}</div><div style="float: right; border-left: 1px solid #b3b3b3;">{$cus_click}</div></td>
+                                <td class="label" style="padding-right: 0px; border-bottom: none;"><div style="float: left; padding-top: 3px;">{$form_data.cus_id.label}</div><div style="float: right; border-left: 1px solid #b3b3b3;">{$cus_click}</div></td>
                             </tr>
                             <tr>
                                 <td class="data arrows" style="vertical-align: top;"><span class="error">{$form_data.cus_id.error}</span>{$form_data.cus_id.html}</td>
