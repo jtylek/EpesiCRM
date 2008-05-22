@@ -368,13 +368,13 @@ hr.line {
     padding-top: 3px;
     text-align: center;
     vertical-align: middle;
-    /*background-image: url('images/header-blue.png');*/
-	background-image: url("images/header-gray-dark.png");
+    background-image: url('images/header-blue.png');
+	/*background-image: url("images/header-gray-dark.png");*/
 }
 
 #top_bar #top_bar_2 .filter a:hover {
-    /*background-image: url('images/header-blue-hover.png');*/
-	background-image: url("images/header-gray-dark-hover.png");
+    background-image: url('images/header-blue-hover.png');
+	/*background-image: url("images/header-gray-dark-hover.png");*/
 }
 
 #gray-transparent {
