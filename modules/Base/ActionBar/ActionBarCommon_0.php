@@ -35,7 +35,8 @@ class Base_ActionBarCommon extends ModuleCommon {
 			'clone'=>14,
 			'settings'=>15,
 			'print'=>16,
-			'scan'=>17);
+			'scan'=>17,
+			'filter'=>18);
 
 	public static function user_settings(){
 		return array('Misc'=>array(

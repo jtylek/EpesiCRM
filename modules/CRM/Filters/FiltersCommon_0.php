@@ -23,15 +23,15 @@ class CRM_FiltersCommon extends ModuleCommon {
 		$me = CRM_ContactsCommon::get_my_record();
 		return $me['id'];
 	}
-	
+
    public static function get() {
 	if(!isset($_SESSION['client']['filter']))
 		$_SESSION['client']['filter'] = CRM_FiltersCommon::get_my_profile();
 	return '('.$_SESSION['client']['filter'].')';
    }
-   
+
    public static function add_action_bar_icon() {
-   	Base_ActionBarCommon::add('folder','Filters','class="lbOn" rel="crm_filters"');
+   	Base_ActionBarCommon::add('filter','Filters','class="lbOn" rel="crm_filters"');
    }
 
 }
