@@ -28,11 +28,11 @@
                 <a><img border="0" src="{$theme_dir}/Utils_Calendar__calendar.png" style="padding: 3px;"></a>
                 <a><img border="0" src="{$theme_dir}/Utils_Calendar__task.png" style="padding: 3px;"></a>
                 <a><img border="0" src="{$theme_dir}/Utils_Calendar__phone.png" style="padding: 3px;"></a>
-<!--
+
                 {foreach from=$custom_actions item=action}
-                    <a {$action.href}><img border="0" src="{$action.icon}" style="padding: 3px;"></a>
+                    <a {$action.href}><img border="0" src="{$theme_dir}/{$action.icon}" style="padding: 3px;"></a>
                 {/foreach}
--->
+
             </span>
 
         <!-- SHADOW END -->

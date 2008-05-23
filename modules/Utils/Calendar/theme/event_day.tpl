@@ -10,22 +10,28 @@
         	<div class="content_shadow">
         <!-- -->
 
-            <span class="event_menu_content">
-	    	{if isset($view_href)}
-                <a {$view_href}><img border="0" src="{$theme_dir}/Utils_Calendar__view.png"></a>
-		{/if}
-	    	{if isset($edit_href)}
-                <a {$edit_href}><img border="0" src="{$theme_dir}/Utils_Calendar__edit.png"></a>
-		{/if}
-	    	{if isset($delete_href)}
-                <a {$delete_href}><img border="0" src="{$theme_dir}/Utils_Calendar__delete.png"></a>
-		{/if}
-	    	{if isset($move_href)}
-                <a {$move_href}><img border="0" src="{$theme_dir}/Utils_Calendar__move.png"></a>
-		{/if}
-		{foreach from=$custom_actions item=action}
-		<a {$action.href}><img border="0" src="{$theme_dir}/{$action.icon}"></a>
-		{/foreach}
+            <span class="event_menu_content" style="background-color: #e6ecf2; heigth: 20px; vertical-align: middle; display: block; padding-left: 5px; padding-right: 3px;">
+                {if isset($view_href)}
+                    <a {$view_href}><img border="0" src="{$theme_dir}/Utils_Calendar__view.png" style="padding: 3px;"></a>
+                {/if}
+                {if isset($edit_href)}
+                    <a {$edit_href}><img border="0" src="{$theme_dir}/Utils_Calendar__edit.png" style="padding: 3px;"></a>
+                {/if}
+                {if isset($delete_href)}
+                    <a {$delete_href}><img border="0" src="{$theme_dir}/Utils_Calendar__delete.png" style="padding: 3px;"></a>
+                {/if}
+                {if isset($move_href)}
+                    <a {$move_href}><img border="0" src="{$theme_dir}/Utils_Calendar__move.png" style="padding: 3px;"></a>
+                {/if}
+
+                <a><img border="0" src="{$theme_dir}/Utils_Calendar__close.png" style="padding: 3px;"></a>
+                <a><img border="0" src="{$theme_dir}/Utils_Calendar__calendar.png" style="padding: 3px;"></a>
+                <a><img border="0" src="{$theme_dir}/Utils_Calendar__task.png" style="padding: 3px;"></a>
+                <a><img border="0" src="{$theme_dir}/Utils_Calendar__phone.png" style="padding: 3px;"></a>
+
+                {foreach from=$custom_actions item=action}
+                    <a {$action.href}><img border="0" src="{$theme_dir}/{$action.icon}"></a>
+                {/foreach}
             </span>
 
         <!-- SHADOW END -->
