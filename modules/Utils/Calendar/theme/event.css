@@ -51,8 +51,10 @@
 }
 
 #Utils_Calendar__event .event_menu {
+    display: block;
     width: 120px;
     height: 40px;
+    z-index: 6;
 }
 
 #Utils_Calendar__event span.event_menu_content {
@@ -76,13 +78,13 @@
 
 /* COLORS */
 
-.event_blue    #event_title a,
-.event_red     #event_title a,
-.event_yellow  #event_title a,
-.event_green   #event_title a,
-.event_gray    #event_title a,
-.event_cyan    #event_title a,
-.event_magenta #event_title a {
+.event_blue    #event_time a,
+.event_red     #event_time a,
+.event_yellow  #event_time a,
+.event_green   #event_time a,
+.event_gray    #event_time a,
+.event_cyan    #event_time a,
+.event_magenta #event_time a {
     color: black;
 }
 
@@ -99,7 +101,7 @@
     background-color: #336699;
 }
 
-.event_blue #event_title a:hover {
+.event_blue #event_time a:hover {
     color: #336699;
     background-image: url('images/header-light-blue-hover.png');
 }
@@ -117,7 +119,7 @@
     background-color: #993333;
 }
 
-.event_red #event_title a:hover {
+.event_red #event_time a:hover {
     color: #993333;
     background-image: url('images/header-light-red-hover.png');
 }
@@ -135,7 +137,7 @@
     background-color: #999933;
 }
 
-.event_yellow #event_title a:hover {
+.event_yellow #event_time a:hover {
     color: #999933;
     background-image: url('images/header-light-yellow-hover.png');
 }
@@ -153,7 +155,7 @@
     background-color: #339933;
 }
 
-.event_green #event_title a:hover {
+.event_green #event_time a:hover {
     color: #339933;
     background-image: url('images/header-light-green-hover.png');
 }
@@ -171,7 +173,7 @@
     background-color: #808080;
 }
 
-.event_gray #event_title a:hover {
+.event_gray #event_time a:hover {
     color: #808080;
     background-image: url('images/header-light-gray-hover.png');
 }
@@ -189,7 +191,7 @@
     background-color: #339999;
 }
 
-.event_cyan #event_title a:hover {
+.event_cyan #event_time a:hover {
     color: #339999;
     background-image: url('images/header-light-cyan-hover.png');
 }
@@ -207,7 +209,7 @@
     background-color: #993399;
 }
 
-.event_magenta #event_title a:hover {
+.event_magenta #event_time a:hover {
     color: #993399;
     background-image: url('images/header-light-magenta-hover.png');
 }
