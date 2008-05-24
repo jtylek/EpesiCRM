@@ -77,8 +77,8 @@ if($document_root) $document_root = '/'.$document_root.'/';
 	else $document_root = '/';
 
 if(!defined('CID')) {
-	if(isset($_SERVER['HTTP_X_CLIENT_ID']))
-		define('CID', $_SERVER['HTTP_X_CLIENT_ID']);
+	if(isset($_SERVER['HTTP_X_CLIENT_ID']) && is_numeric($_SERVER['HTTP_X_CLIENT_ID']))
+		define('CID', (int)$_SERVER['HTTP_X_CLIENT_ID']);
 	else
 		trigger_error('Invalid request without client id');
 }
