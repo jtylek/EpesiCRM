@@ -2,7 +2,7 @@
 
 <table id="CRM_Filters" cellspacing="0" cellpadding="0">
 	<tr>
-        <td>
+        <td style="text-align: center;" colspan="4">
         	{$form_open}{$form_closecancel}{$form_close}
         </td>
 	</tr>

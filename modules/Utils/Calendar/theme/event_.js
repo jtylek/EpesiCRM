@@ -4,7 +4,7 @@ function event_menu(event_id) {
 	if(menu.parentNode.id=='Utils_Calendar__event' || menu.parentNode.id=='Utils_Calendar__event_day') {
 		menu.style.position = 'absolute';
 		menu.style.zIndex = 21;
-		ev.parentNode.appendChild(menu);
+//		ev.parentNode.appendChild(menu);
 	}
 	menu.clonePosition(ev,{setHeight: false, setWidth: false, offsetLeft: 10});
 

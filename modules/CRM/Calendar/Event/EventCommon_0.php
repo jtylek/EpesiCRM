@@ -152,8 +152,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$next_result['custom_agenda_col_0'] = $row['description'];
 			$next_result['custom_agenda_col_1'] = implode(', ',$emps);
 			$next_result['custom_agenda_col_2'] = implode(', ',$cuss);
-			$next_result['actions'] = array(array('icon'=>Base_ThemeCommon::get_template_file('Utils/Calendar','edit.png'),'href'=>CRM_Calendar_EventCommon::get_followup_leightbox_href($row['id'], $row)));
-			// TODO: change icon
+			$next_result['actions'] = array(array('icon'=>Base_ThemeCommon::get_template_file('CRM_Calendar_Event','access-private.png'),'href'=>CRM_Calendar_EventCommon::get_followup_leightbox_href($row['id'], $row)));
 			$result[] = $next_result;
 		}
 		return $result;
