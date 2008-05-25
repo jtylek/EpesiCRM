@@ -39,6 +39,31 @@ class Utils_Calendar extends Module {
 		$this->date = & $this->get_module_variable('date',$this->settings['default_date']);
 
 
+		if($this->isset_unique_href_variable('date'))
+			$this->set_date($this->get_unique_href_variable('date'));
+		if($this->isset_unique_href_variable('week_date'))
+			$this->set_week_date($this->get_unique_href_variable('week_date'));
+		if($this->isset_unique_href_variable('shift_week_day'))
+			$this->shift_week_day($this->get_unique_href_variable('shift_week_day'));
+
+
+		if(count($this->settings['views'])>1) {
+			$this->tb = $this->init_module('Utils/TabbedBrowser');
+
+			foreach($this->settings['views'] as $k=>$v) {
+				if(!in_array($v,self::$views))
+					trigger_error('Invalid view: '.$v,E_USER_ERROR);
+
+				$this->tb->set_tab($this->lang->t($v),array($this, strtolower($v)));
+				if(strcasecmp($v,$this->settings['default_view'])==0)
+					$def_tab = $k;
+			}
+			if (isset($def_tab)) $this->tb->set_default_tab($def_tab);
+			if (isset($switch_view))
+				$this->tb->switch_tab($switch_view);
+
+		}
+
 		if($this->isset_unique_href_variable('action')) {
 			switch($this->get_unique_href_variable('action')) {
 				case 'add':
@@ -65,30 +90,6 @@ class Utils_Calendar extends Module {
 					$this->push_event_action($_REQUEST['UCaction'],array($_REQUEST['UCev_id']));
 					return;
 			}
-		}
-		if($this->isset_unique_href_variable('date'))
-			$this->set_date($this->get_unique_href_variable('date'));
-		if($this->isset_unique_href_variable('week_date'))
-			$this->set_week_date($this->get_unique_href_variable('week_date'));
-		if($this->isset_unique_href_variable('shift_week_day'))
-			$this->shift_week_day($this->get_unique_href_variable('shift_week_day'));
-
-
-		if(count($this->settings['views'])>1) {
-			$this->tb = $this->init_module('Utils/TabbedBrowser');
-
-			foreach($this->settings['views'] as $k=>$v) {
-				if(!in_array($v,self::$views))
-					trigger_error('Invalid view: '.$v,E_USER_ERROR);
-
-				$this->tb->set_tab($this->lang->t($v),array($this, strtolower($v)));
-				if(strcasecmp($v,$this->settings['default_view'])==0)
-					$def_tab = $k;
-			}
-			if (isset($def_tab)) $this->tb->set_default_tab($def_tab);
-			if (isset($switch_view))
-				$this->tb->switch_tab($switch_view);
-
 		}
 
 	}
@@ -220,7 +221,6 @@ class Utils_Calendar extends Module {
 	}
 
 	public function body($arg = null) {
-
 		load_js($this->get_module_dir().'calendar.js');
 		$this->js('Utils_Calendar.day_href = \''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'switch','time'=>'__DATE__', 'tab'=>'Day')),false).'\'');
 		if(isset($this->tb)) {

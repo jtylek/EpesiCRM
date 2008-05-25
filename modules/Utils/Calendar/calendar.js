@@ -7,7 +7,11 @@ go_to_day:function(date) {
 add_event:function(dest_id,ev_id,draggable,duration) {
 	var dest = $(dest_id);
 	var ev = $('utils_calendar_event:'+ev_id);
-	if(!dest || !ev) {
+	if(!dest) {
+		ev.hide();
+		return;
+	}
+	if(!ev) {
 		return;
 	}
 
