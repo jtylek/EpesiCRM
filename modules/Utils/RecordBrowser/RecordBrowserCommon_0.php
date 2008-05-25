@@ -363,10 +363,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$old_crits = $crits;
 		$crits = array();
 		foreach($old_crits as $k=>$v) {
-			$tk = trim($k, '"!|(');
+			$tk = trim($k, '"!|(<=>');
 			if (isset($hash[$tk])) $crits[str_replace($tk, $hash[$tk], $k)] = $v;
 			else $crits[$k] = $v;
 		}
+		
 		$or_started = false;
 		foreach($crits as $k=>$v){
 			$negative = $noquotes = $or_start = $or = false;
