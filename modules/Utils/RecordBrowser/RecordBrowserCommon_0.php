@@ -483,7 +483,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					}
 					$having .= ')';
 				} else {
-					$fields .= ', concat( \'::\', group_concat( rd'.$iter.'.value ORDER BY rd'.$iter.'.value SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
+					if ($operator=='LIKE') $fields .= ', concat( \'::\', group_concat( rd'.$iter.'.value ORDER BY rd'.$iter.'.value SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
+					else $fields .= ', MAX(rd'.$iter.'.value) AS val'.$iter;
 					$final_tab = '('.$final_tab.') LEFT JOIN '.$tab.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab.'_id AND rd'.$iter.'.field="'.$k.'"';
 					if (!is_array($v)) $v = array($v);
 					if ($negative) $having .= '(';
@@ -492,7 +493,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						if ($w==='') $having .= ' '.($negative?'AND':'OR').' val'.$iter.' IS '.($negative?'NOT ':'').'NULL';
 						else {
 							if (!$noquotes) $w = DB::qstr($w);
-							$having .= ' '.($negative?'AND':'OR').' val'.$iter.' '.($negative?'NOT ':'').$operator.' '.DB::Concat(DB::qstr('%::'),$w,DB::qstr('::%'));
+							$having .= ' '.($negative?'AND':'OR').' val'.$iter.' '.($negative?'NOT ':'').$operator.' '.($operator=='LIKE'?DB::Concat(DB::qstr('%::'),$w,DB::qstr('::%')):$w);
 						}
 					}
 					$having .= ')';
