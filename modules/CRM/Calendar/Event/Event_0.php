@@ -72,6 +72,16 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$event['start'] = strtotime(Base_RegionalSettingsCommon::time2reg($event['start'],true,true,true,false));
 			$event['end'] = strtotime(Base_RegionalSettingsCommon::time2reg($event['end'],true,true,true,false));
 			$theme->assign('event_info',$evx);
+			$theme->assign('day_details',array('start'=>	array(	'day'=>date('j',$event['start']),
+																	'weekday'=>date('l',$event['start']),
+																	'month'=>date('F',$event['start']),
+																	'year'=>date('Y',$event['start']),
+																	),
+											array('end'=>	array(	'day'=>date('j',$event['end']),
+																	'weekday'=>date('l',$event['end']),
+																	'month'=>date('F',$event['end']),
+																	'year'=>date('Y',$event['end']),
+																	))));
 			$def = array(
 				'date_s' => $event['start'],
 				'date_e' => $event['end'],
