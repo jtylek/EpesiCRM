@@ -77,11 +77,11 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 																	'month'=>date('F',$event['start']),
 																	'year'=>date('Y',$event['start']),
 																	),
-											array('end'=>	array(	'day'=>date('j',$event['end']),
+												'end'=>		array(	'day'=>date('j',$event['end']),
 																	'weekday'=>date('l',$event['end']),
 																	'month'=>date('F',$event['end']),
 																	'year'=>date('Y',$event['end']),
-																	))));
+																	)));
 			$def = array(
 				'date_s' => $event['start'],
 				'date_e' => $event['end'],
