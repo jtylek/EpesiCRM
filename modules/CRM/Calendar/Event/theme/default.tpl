@@ -31,6 +31,7 @@
 <!-- -->
 
 <div style="background-color: white; padding: 5px;">
+    <!--
     {* header *}
     {if $action == 'view'}
     <table name="CRMCalendar" class="form" cellspacing="0" cellpadding="0" border="0">
@@ -59,9 +60,48 @@
         </tbody>
     </table>
     {/if}
+    -->
     <table cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
         <tbody>
             <tr>
+                {if $action == 'view'}
+                <!-- NEW HEADER -->
+                <td>
+                    <table border="0" class="header-new">
+                        <tbody>
+                            <tr>
+                                <td class="weekday green">{$day_details.start.weekday}</td>
+                                <td></td>
+                                <td class="weekday green">{if $event_info.start_date != $event_info.end_date}{$day_details.end.weekday}{/if}</td>
+                            </tr>
+                            <tr>
+                                <td class="day black">{$day_details.start.day}</td>
+                                <td class="day black">{if $event_info.start_date != $event_info.end_date}&nbsp;-&nbsp;{/if}</td>
+                                <td class="day black">{if $event_info.start_date != $event_info.end_date}{$day_details.end.day}{/if}</td>
+                            </tr>
+                            <tr>
+                                <td class="month blue">{$day_details.start.month}&nbsp;{$day_details.start.year}</td>
+                                <td></td>
+                                <td class="month blue">{if $event_info.start_date != $event_info.end_date}{$day_details.end.month}&nbsp;{$day_details.start.year}{/if}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="time black">
+                                    {if $event_info.start_time != "timeless"}
+                                        <span class="black">{$event_info.start_time}</span>&nbsp;
+                                        <span class="dark-gray">-</span>&nbsp;
+                                    {/if}
+                                    {if $event_info.end_time != "timeless"}
+                                        <span class="black">{$event_info.end_time}</span>&nbsp;
+                                    {/if}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="duration dark-gray">{$event_info.duration} hr(s)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+                {/if}
                 <!-- LEFT -->
                 <td style="width: 50%; vertical-align: top;">
                     {* title *}
