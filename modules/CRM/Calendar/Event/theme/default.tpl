@@ -75,7 +75,7 @@
                 </td>
                 {/if}
                 <!-- LEFT -->
-                <td style="width: 50%; height: 100px; vertical-align: top;">
+                <td style="width: 50%; height: 101px; vertical-align: top;">
                     {* title *}
                     <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if}" cellspacing="0" cellpadding="0" border="0">
                         <tbody>
@@ -105,7 +105,7 @@
                 </td>
                 <!-- -->
                 <!-- RIGHT -->
-                <td style="width: 50%; height: 100px; vertical-align: top;">
+                <td style="width: 50%; height: 101px; vertical-align: top;">
                     {* start - end *}
                     {if $action != 'view'}
                     <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if} no-border" cellspacing="0" cellpadding="0" border="0">
