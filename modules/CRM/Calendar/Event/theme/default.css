@@ -89,6 +89,12 @@
 	background-color: #339933;
 }
 
+/* multiselect links */
+
+#CRM_Calendar_Event_Personal .arrows {
+	line-height: 16px;
+}
+
 #CRM_Calendar_Event_Personal .title,
 #CRM_Calendar_Event_Personal .title input {
 }
@@ -309,9 +315,16 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
 }
 
 #CRM_Calendar_Event_Personal .header-new .weekday,
+#CRM_Calendar_Event_Personal .header-new .day,
 #CRM_Calendar_Event_Personal .header-new .month,
+#CRM_Calendar_Event_Personal .header-new .time,
 #CRM_Calendar_Event_Personal .header-new .duration {
 	font-weight: bold;
+}
+
+#CRM_Calendar_Event_Personal .header-new .weekday,
+#CRM_Calendar_Event_Personal .header-new .month {
+	font-size: 13px;
 }
 
 #CRM_Calendar_Event_Personal .header-new .day {

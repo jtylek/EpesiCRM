@@ -31,42 +31,12 @@
 <!-- -->
 
 <div style="background-color: white; padding: 5px;">
-    <!--
-    {* header *}
-    {if $action == 'view'}
-    <table name="CRMCalendar" class="form" cellspacing="0" cellpadding="0" border="0">
-    	<tbody>
-    		<tr>
-    			<td class="header-day">
-                    <span class="green">{$event_info.start_day}</span>&nbsp;
-                    <span class="dark-gray">&bull;</span>&nbsp;
-                    <span class="blue">{$event_info.start_date}</span>&nbsp;
-                    <span class="dark-gray">&bull;</span>&nbsp;
-                    {if $event_info.start_time != "timeless"}
-                        <span class="black">{$event_info.start_time}</span>&nbsp;
-                        <span class="dark-gray">-</span>&nbsp;
-                    {/if}
-                    {if $event_info.start_date != $event_info.end_date}
-                        <span class="blue">{$event_info.end_date}</span>&nbsp;
-                        <span class="dark-gray">&bull;</span>&nbsp;
-                    {/if}
-                    {if $event_info.end_time != "timeless"}
-                        <span class="black">{$event_info.end_time}</span>&nbsp;
-                        <span class="dark-gray">&bull;</span>&nbsp;
-                    {/if}
-                    <span class="dark-gray">{$event_info.duration} hr(s)</span>
-                </td>
-    		</tr>
-        </tbody>
-    </table>
-    {/if}
-    -->
     <table cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
         <tbody>
             <tr>
                 {if $action == 'view'}
                 <!-- NEW HEADER -->
-                <td>
+                <td rowspan="2">
                     <table border="0" class="header-new">
                         <tbody>
                             <tr>
@@ -87,23 +57,25 @@
                             <tr>
                                 <td colspan="3" class="time black">
                                     {if $event_info.start_time != "timeless"}
-                                        <span class="black">{$event_info.start_time}</span>&nbsp;
-                                        <span class="dark-gray">-</span>&nbsp;
-                                    {/if}
-                                    {if $event_info.end_time != "timeless"}
-                                        <span class="black">{$event_info.end_time}</span>&nbsp;
+                                        {$event_info.start_time}&nbsp;-&nbsp;{$event_info.end_time}
+                                    {else}
+                                        timeless
                                     {/if}
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="3" class="duration dark-gray">{$event_info.duration} hr(s)</td>
+                                <td colspan="3" class="duration dark-gray">
+                                    {if $event_info.start_time != "timeless"}
+                                        {$event_info.duration} hr(s)
+                                    {/if}
+                                </td>
                             </tr>
                         </tbody>
                     </table>
                 </td>
                 {/if}
                 <!-- LEFT -->
-                <td style="width: 50%; vertical-align: top;">
+                <td style="width: 50%; height: 100px; vertical-align: top;">
                     {* title *}
                     <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if}" cellspacing="0" cellpadding="0" border="0">
                         <tbody>
@@ -130,21 +102,10 @@
                             </tr>
                         </tbody>
                     </table>
-                    {* employees *}
-                    <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if} no-border" style="border-right: 1px solid #b3b3b3;" cellspacing="0" cellpadding="0" border="0">
-                        <tbody>
-                            <tr>
-                                <td class="label" style="border-bottom: none;">{$form_data.emp_id.label}</td>
-                            </tr>
-                            <tr>
-                                <td class="data arrows" style="vertical-align: top;"><span class="error">{$form_data.emp_id.error}</span>{$form_data.emp_id.html}</td>
-                            </tr>
-                        </tbody>
-                    </table>
                 </td>
                 <!-- -->
                 <!-- RIGHT -->
-                <td style="width: 50%; vertical-align: top;">
+                <td style="width: 50%; height: 100px; vertical-align: top;">
                     {* start - end *}
                     {if $action != 'view'}
                     <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if} no-border" cellspacing="0" cellpadding="0" border="0">
@@ -211,19 +172,23 @@
                             </tr>
                         </tbody>
                     </table>
-                    {* customers *}
-                    <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if} no-border" style="border-left: none;" cellspacing="0" cellpadding="0" border="0">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="vertical-align: top;">
+                    <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if} no-border" style="border-right: 1px solid #b3b3b3;" cellspacing="0" cellpadding="0" border="0">
                         <tbody>
                             <tr>
-                                <td class="label" style="padding-right: 0px; border-bottom: none;"><div style="float: left; padding-top: 3px;">{$form_data.cus_id.label}</div><div style="float: right; border-left: 1px solid #b3b3b3;">{$cus_click}</div></td>
+                                <td class="label" style="width: 50%; border-bottom: none; border-right: 1px solid #b3b3b3;">{$form_data.emp_id.label}</td>
+                                <td class="label" style="width: 50%; padding-right: 0px; border-bottom: none;"><div style="float: left; padding-top: 3px;">{$form_data.cus_id.label}</div><div style="float: right; border-left: 1px solid #b3b3b3;">{$cus_click}</div></td>
                             </tr>
                             <tr>
+                                <td class="data arrows" style="vertical-align: top; border-right: 1px solid #b3b3b3;"><span class="error">{$form_data.emp_id.error}</span>{$form_data.emp_id.html}</td>
                                 <td class="data arrows" style="vertical-align: top;"><span class="error">{$form_data.cus_id.error}</span>{$form_data.cus_id.html}</td>
                             </tr>
                         </tbody>
                     </table>
                 </td>
-                <!-- -->
             </tr>
         </tbody>
     </table>
