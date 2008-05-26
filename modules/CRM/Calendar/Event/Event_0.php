@@ -280,7 +280,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$theme->assign('access_id',$form->exportValue('access'));
 		$theme->assign('priority_id',$form->exportValue('priority'));
 		$theme->assign('color_id',$form->exportValue('color'));
-		$theme->assign('status_id',isset($def['status'])?$def['status']:0);
+		$theme->assign('status_id',isset($event['status'])?$event['status']:0);
 
 		if ($form->validate()) {
 			$values = $form->exportValues();
