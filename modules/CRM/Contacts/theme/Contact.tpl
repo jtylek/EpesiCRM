@@ -71,6 +71,14 @@
 								{$form_data.create_company_name.html}{if $action == 'view'}&nbsp;{/if}
 							</td>
 						</tr>
+						{else}
+							{if $action == 'edit'}
+								{* empty *}
+								<tr>
+									<td class="label" align="left">&nbsp;</td>
+									<td class="data" colspan="2" align="left">&nbsp;</td>
+								</tr>
+							{/if}
 						{/if}
 						{* login *}
 						<tr>
