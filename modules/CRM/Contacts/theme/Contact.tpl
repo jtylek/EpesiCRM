@@ -130,7 +130,7 @@
 						{* company name - multiselect *}
 						<tr>
 							<td class="label" align="left">{$form_data.company_name.label}</td>
-							<td class="data" colspan="2" align="left">{if isset($form_data.company_name.error)}<span class="error">{$form_data.company_name.error}</span>{/if}{$form_data.company_name.html}</td>
+							<td class="data" colspan="2" align="left" style="line-height: 16px;">{if isset($form_data.company_name.error)}<span class="error">{$form_data.company_name.error}</span>{/if}{$form_data.company_name.html}</td>
 						</tr>
 					</tbody>
 				</table>
@@ -186,7 +186,7 @@
 						{* group - multiselect *}
 						<tr>
 							<td class="label" align="left">{$form_data.group.label}</td>
-							<td class="data" align="left">{if isset($form_data.group.error)}<span class="error">{$form_data.group.error}</span>{/if}{$form_data.group.html}</td>
+							<td class="data" align="left" style="line-height: 16px;">{if isset($form_data.group.error)}<span class="error">{$form_data.group.error}</span>{/if}{$form_data.group.html}</td>
 						</tr>
 					</tbody>
 				</table>
