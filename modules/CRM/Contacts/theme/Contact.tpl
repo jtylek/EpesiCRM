@@ -56,63 +56,140 @@
 	<tbody>
 		<tr>
 			<td class="left-column">
-				{* First column table *}
-				<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
-					{if isset($form_data.create_company)}
-					<tr>
-						<td class="label" nowrap>
-							{$form_data.create_company.label}
-						</td>
-						<td class="data create-company" style="width:1px">
-							{$form_data.create_company.html}{if $action == 'view'}&nbsp;{/if}
-						</td>
-						<td class="data">
-							{$form_data.create_company_name.html}{if $action == 'view'}&nbsp;{/if}
-						</td>
-					</tr>
-					{/if}
-
-
-					<tr>
-						{assign var=i value=0}
-						{assign var=j value=0}
-						{foreach key=k item=f from=$fields name=fields}
-						{if !isset($focus) && $f.type=="text"}
-							{assign var=focus value=$f.element}
+				<table border="0" cellpadding="0" cellspacing="0" class="{if $action == 'view'}view{else}edit{/if}">
+					<tbody>
+						{* create new company *}
+						{if isset($form_data.create_company)}
+						<tr>
+							<td class="label" nowrap>
+								{$form_data.create_company.label}
+							</td>
+							<td class="data create-company" style="width:1px">
+								{$form_data.create_company.html}{if $action == 'view'}&nbsp;{/if}
+							</td>
+							<td class="data">
+								{$form_data.create_company_name.html}{if $action == 'view'}&nbsp;{/if}
+							</td>
+						</tr>
 						{/if}
-						<td class="label" nowrap>{$f.label}{if $f.required}*{/if}</td>
-						<td class="data" colspan="2">{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
-						{assign var=x value=$x+1}
-						{* If more than half records displayed start new table - second column table *}
-						{if $x >= $rows and $i==0}
-					</tr>
+						{* login *}
+						<tr>
+							<td class="label" align="left">{$form_data.login.label}</td>
+							<td class="data" colspan="2" align="left">{if isset($form_data.login.error)}<span class="error">{$form_data.login.error}</span>{/if}{$form_data.login.html}</td>
+						</tr>
+						{* last name *}
+						<tr>
+							<td class="label" align="left">{$form_data.last_name.label}*</td>
+							<td class="data" colspan="2" align="left">{if isset($form_data.last_name.error)}<span class="error">{$form_data.last_name.error}</span>{/if}{$form_data.last_name.html}</td>
+						</tr>
+						{* first name *}
+						<tr>
+							<td class="label" align="left">{$form_data.first_name.label}*</td>
+							<td class="data" colspan="2" align="left">{if isset($form_data.first_name.error)}<span class="error">{$form_data.first_name.error}</span>{/if}{$form_data.first_name.html}</td>
+						</tr>
+						{* title *}
+						<tr>
+							<td class="label" align="left">{$form_data.title.label}</td>
+							<td class="data" colspan="2" align="left">{if isset($form_data.title.error)}<span class="error">{$form_data.title.error}</span>{/if}{$form_data.title.html}</td>
+						</tr>
+						{* work phone *}
+						<tr>
+							<td class="label" align="left">{$form_data.work_phone.label}</td>
+							<td class="data" colspan="2" align="left">{if isset($form_data.work_phone.error)}<span class="error">{$form_data.work_phone.error}</span>{/if}{$form_data.work_phone.html}</td>
+						</tr>
+						{* mobile phone *}
+						<tr>
+							<td class="label" align="left">{$form_data.mobile_phone.label}</td>
+							<td class="data" colspan="2" align="left">{if isset($form_data.mobile_phone.error)}<span class="error">{$form_data.mobile_phone.error}</span>{/if}{$form_data.mobile_phone.html}</td>
+						</tr>
+						{* fax *}
+						<tr>
+							<td class="label" align="left">{$form_data.fax.label}</td>
+							<td class="data" colspan="2" align="left">{if isset($form_data.fax.error)}<span class="error">{$form_data.fax.error}</span>{/if}{$form_data.fax.html}</td>
+						</tr>
+						{* empty *}
+						<tr>
+							<td class="label" align="left">&nbsp;</td>
+							<td class="data" colspan="2" align="left">&nbsp;</td>
+						</tr>
+						{if $action == 'view'}
+							{* empty *}
+							<tr>
+								<td class="label" align="left">&nbsp;</td>
+								<td class="data" colspan="2" align="left">&nbsp;</td>
+							</tr>
+						{/if}
+						{* company name - multiselect *}
+						<tr>
+							<td class="label" align="left">{$form_data.company_name.label}</td>
+							<td class="data" colspan="2" align="left">{if isset($form_data.company_name.error)}<span class="error">{$form_data.company_name.error}</span>{/if}{$form_data.company_name.html}</td>
+						</tr>
+					</tbody>
 				</table>
 			</td>
-			{* First table closed - start second column*}
 			<td class="right-column right-column-{if $action == 'view'}view{else}edit{/if}">
-				<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
-					<tr>
-						{assign var=i value=1}
-						{else}
-					</tr>
-					<tr>
-						{/if}
-						{assign var=j value=$j+1}
-						{/foreach}
-						{* Fill empty row if number of records is not even *}
-						{if $j is not even}
-							<td class="label">&nbsp;</td>
-							<td class="label" colspan="2">&nbsp;</td>
-						{/if}
-					</tr>
+				<table border="0" cellpadding="0" cellspacing="0" class="{if $action == 'view'}view{else}edit{/if}">
+					<tbody>
+						{* email *}
+						<tr>
+							<td class="label" align="left">{$form_data.email.label}</td>
+							<td class="data" align="left">{if isset($form_data.email.error)}<span class="error">{$form_data.email.error}</span>{/if}{$form_data.email.html}</td>
+						</tr>
+						{* web address *}
+						<tr>
+							<td class="label" align="left">{$form_data.web_address.label}</td>
+							<td class="data" align="left">{if isset($form_data.web_address.error)}<span class="error">{$form_data.web_address.error}</span>{/if}{$form_data.web_address.html}</td>
+						</tr>
+						{* address 1 *}
+						<tr>
+							<td class="label" align="left">{$form_data.address_1.label}</td>
+							<td class="data" align="left">{if isset($form_data.address_1.error)}<span class="error">{$form_data.address_1.error}</span>{/if}{$form_data.address_1.html}</td>
+						</tr>
+						{* address 2 *}
+						<tr>
+							<td class="label" align="left">{$form_data.address_2.label}</td>
+							<td class="data" align="left">{if isset($form_data.address_2.error)}<span class="error">{$form_data.address_2.error}</span>{/if}{$form_data.address_2.html}</td>
+						</tr>
+						{* city *}
+						<tr>
+							<td class="label" align="left">{$form_data.city.label}</td>
+							<td class="data" align="left">{if isset($form_data.city.error)}<span class="error">{$form_data.city.error}</span>{/if}{$form_data.city.html}</td>
+						</tr>
+						{* country *}
+						<tr>
+							<td class="label" align="left">{$form_data.country.label}*</td>
+							<td class="data" align="left">{if isset($form_data.country.error)}<span class="error">{$form_data.country.error}</span>{/if}{$form_data.country.html}</td>
+						</tr>
+						{* zone *}
+						<tr>
+							<td class="label" align="left">{$form_data.zone.label}</td>
+							<td class="data" align="left">{if isset($form_data.zone.error)}<span class="error">{$form_data.zone.error}</span>{/if}{$form_data.zone.html}</td>
+						</tr>
+						{* postal code *}
+						<tr>
+							<td class="label" align="left">{$form_data.postal_code.label}</td>
+							<td class="data" align="left">{if isset($form_data.postal_code.error)}<span class="error">{$form_data.postal_code.error}</span>{/if}{$form_data.postal_code.html}</td>
+						</tr>
+						{* permission *}
+						<tr>
+							<td class="label" align="left">{$form_data.permission.label}*</td>
+							<td class="data" align="left">{if isset($form_data.permission.error)}<span class="error">{$form_data.permission.error}</span>{/if}{$form_data.permission.html}</td>
+						</tr>
+						{* group - multiselect *}
+						<tr>
+							<td class="label" align="left">{$form_data.group.label}</td>
+							<td class="data" align="left">{if isset($form_data.group.error)}<span class="error">{$form_data.group.error}</span>{/if}{$form_data.group.html}</td>
+						</tr>
+					</tbody>
 				</table>
 			</td>
 		</tr>
 	</tbody>
 </table>
 
+
 {php}
-	eval_js('focus_by_id(\''.$this->_tpl_vars['focus'].'\');');
+	eval_js('focus_by_id(\'last_name\');');
 {/php}
 
 </div>
