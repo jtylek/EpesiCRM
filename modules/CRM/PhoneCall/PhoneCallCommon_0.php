@@ -184,6 +184,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		if (!self::access_phonecall('edit', $record) && !Base_AclCommon::i_am_admin()) return $status[$v];
 		if ($v>=2) return $status[$v];
 		if (isset($_REQUEST['form_name']) && $_REQUEST['form_name']==$prefix.'_follow_up_form' && $_REQUEST['id']==$record['id']) {
+			unset($_REQUEST['form_name']);
 			$v = $_REQUEST['closecancel'];
 			$action  = $_REQUEST['action'];
 			if ($action == 'set_in_progress') $v = 1;

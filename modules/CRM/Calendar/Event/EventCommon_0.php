@@ -24,6 +24,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		$v = $def['status'];
 		if (!$v) $v = 0;
 		if (isset($_REQUEST['form_name']) && $_REQUEST['form_name']==$prefix.'_follow_up_form' && $_REQUEST['id']==$id) {
+			unset($_REQUEST['form_name']);
 			$v = $_REQUEST['closecancel'];
 			$action  = $_REQUEST['action'];
 			if ($action == 'set_in_progress') $v = 1;
