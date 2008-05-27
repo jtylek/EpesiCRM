@@ -36,10 +36,15 @@ class Utils_RecordBrowser extends Module {
 	private $custom_filters = array();
 	private $filter_field;
 	private $default_order = array();
+	private $cut = array();
 	public static $clone_result = null;
 	public static $clone_tab = null;
 	public $record;
 	public $adv_search = false;
+
+	public function set_cut_lengths($ar) {
+		$this->cut = $ar;
+	}
 
 	public function get_val($field, $record, $id, $links_not_recommended = false, $args = null) {
 		$val = $record[$args['id']];
@@ -391,7 +396,11 @@ class Utils_RecordBrowser extends Module {
 
 			foreach($this->table_rows as $field => $args)
 				if (($args['visible'] && !isset($cols[$args['id']])) || (isset($cols[$args['id']]) && $cols[$args['id']] === true)) {
-					$row_data[] = $this->get_val($field, $row, $row['id'], $special, $args);
+					$value = $this->get_val($field, $row, $row['id'], $special, $args);
+					if (isset($this->cut[$args['id']])) {
+						$value = $this->cut_string($value,$this->cut[$args['id']]);
+					}
+					$row_data[] = $value;
 				}
 			if ($this->browse_mode == 'recent')
 				$row_data[] = $row['visited_on'];
@@ -1260,6 +1269,26 @@ class Utils_RecordBrowser extends Module {
 	public function set_crm_filter($field){
 		$this->filter_field = $field;
 	}
+	public function cut_string($str, $len) {
+		if ($len==-1) return $str;
+		$ret = '';
+		$strings = explode('<br>',$str);
+		foreach ($strings as $str) {
+			if ($ret) $ret .= '<br>';
+			$oldc = $content = strip_tags($str);
+			$content = str_replace('&nbsp;',' ',$content);
+			if (strlen($content)>$len) {
+				$label = substr($content, 0, $len).'...';
+				$label = str_replace(' ','&nbsp;',$label);
+				$label = str_replace($oldc, $label, $str);
+				if (!strpos($str, 'Utils_Toltip__showTip(')) $label = '<span '.Utils_TooltipCommon::open_tag_attrs($content).'>'.$label.'</span>';
+				else $label = preg_replace('/Utils_Toltip__showTip\(\'(.*?)\'/', 'Utils_Toltip__showTip(\''.$content.'<hr>$1\'', $label);
+				$ret .= $label;
+			} else $ret .= $str;
+		}
+		return $ret;
+	}
+	
 	public function mini_view($cols, $crits, $order, $info, $limit=null){
 		$this->init();
 		$gb = $this->init_module('Utils/GenericBrowser',$this->tab,$this->tab);
@@ -1294,14 +1323,7 @@ class Utils_RecordBrowser extends Module {
 			$arr = array();
 			foreach($cols as $k=>$w) {
 				$s = $this->get_val($field_hash[$w], $v, $v['id'], false, $this->table_rows[$field_hash[$w]]);
-				$content = strip_tags($s);
-				if ($cut[$k]!=-1 && strlen($content)>$cut[$k]) {
-					$label = substr($content, 0, $cut[$k]).'...';
-					$label = str_replace($content, $label, $s);
-					if (!strpos($s, 'Utils_Toltip__showTip(')) $label = '<span '.Utils_TooltipCommon::open_tag_attrs($content).'>'.$label.'</span>';
-					else $label = preg_replace('/Utils_Toltip__showTip\(\'(.*?)\'/', 'Utils_Toltip__showTip(\''.$content.'<hr>$1\'', $label);
-					$arr[] = $label;
-				} else $arr[] = $s;
+				$arr[] = $this->cut_string($s, $cut[$k]);
 			}
 			$gb_row->add_data_array($arr);
 			if (is_callable($info)) {

@@ -22,6 +22,7 @@ class CRM_Contacts extends Module {
 		$this->rb = $this->init_module('Utils/RecordBrowser',$mode,$mode);
 		$this->rb->set_defaults(array(	'country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
 										'zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state')));
+//		$this->rb->set_cut_lengths(array('company_name'=>30));
 		if ($mode=='contact') {
 			$this->rb->set_defaults(array(	'home_country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
 											'home_zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state')));
