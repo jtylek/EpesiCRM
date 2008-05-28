@@ -3,6 +3,9 @@
 	<tr>
             <td class="title" colspan="2">{$title}</td>
         </tr>
+	<tr>
+	   <td colspan="2">{$description}</td>
+        </tr>
         <tr>
             <td class="label">Start</td><td class="data">{$start}</td>
         </tr>
