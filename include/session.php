@@ -37,10 +37,12 @@ class DBSession {
 
     public static function write($name, $data) {
 	$ret = true;
+    	DB::StartTrans();
 	if(CID!==false && isset($_SESSION['client']))
 		$ret &= DB::Replace('session_client',array('data'=>serialize($_SESSION['client']),'session_name'=>$name,'client_id'=>CID),array('session_name','client_id'),true);
 	if(isset($_SESSION['client'])) unset($_SESSION['client']);
 	$ret &= DB::Replace('session',array('expires'=>time(),'data'=>serialize($_SESSION),'name'=>$name),'name',true);
+	DB::CompleteTrans();
 	return ($ret>0)?true:false;
     }
     
