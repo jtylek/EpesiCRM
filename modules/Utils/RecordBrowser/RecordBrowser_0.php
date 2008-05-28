@@ -37,6 +37,7 @@ class Utils_RecordBrowser extends Module {
 	private $filter_field;
 	private $default_order = array();
 	private $cut = array();
+	private $more_table_properties = array();
 	public static $admin_filter = '';
 	public static $tab_param = '';
 	public static $clone_result = null;
@@ -103,6 +104,10 @@ class Utils_RecordBrowser extends Module {
 
 	public function set_button($arg){
 		$this->add_button = $arg;
+	}
+	
+	public function set_header_properties($ar) {
+		$this->more_table_properties = $ar;
 	}
 
 	public function get_access($action, $param=null){
@@ -318,6 +323,10 @@ class Utils_RecordBrowser extends Module {
 			if ($args['type']=='checkbox' || $args['type']=='date' || $args['type']=='timestamp' || $args['type']=='commondata') {
 				$arr['wrapmode'] = 'nowrap';
 				$arr['width'] = 1;
+			}
+			if (isset($this->more_table_properties[$args['id']])) {
+				foreach (array('name','wrapmode','width') as $v)
+					if (isset($this->more_table_properties[$args['id']][$v])) $arr[$v] = $this->more_table_properties[$args['id']][$v]; 
 			}
 			$str = explode(';', $args['param']);
 			$ref = explode('::', $str[0]);
