@@ -38,7 +38,7 @@ class Utils_RecordBrowser extends Module {
 	private $default_order = array();
 	private $cut = array();
 	public static $admin_filter = '';
-	public $tab_param = '';
+	public static $tab_param = '';
 	public static $clone_result = null;
 	public static $clone_tab = null;
 	public $record;
@@ -515,6 +515,10 @@ class Utils_RecordBrowser extends Module {
 		}
 		$this->init();
 		$this->record = Utils_RecordBrowserCommon::get_record($this->tab, $id);
+
+		$tb = $this->init_module('Utils/TabbedBrowser');
+		self::$tab_param = $tb->get_path();
+
 		$theme = $this->init_module('Base/Theme');
 		if ($mode=='view') {
 			$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
@@ -539,14 +543,12 @@ class Utils_RecordBrowser extends Module {
 		if($mode!='add')
 			Utils_RecordBrowserCommon::add_recent_entry($this->tab, Acl::get_user(),$id);
 
-		$tb = $this->init_module('Utils/TabbedBrowser');
 		$form = $this->init_module('Libs/QuickForm',null, $mode);
 		if($mode=='add') {
 			$form->setDefaults($defaults);
 			foreach ($defaults as $k=>$v)
 				$this->custom_defaults[$k] = $v;
 		}
-		$this->tab_param = $tb->get_path();
 
 		$this->prepare_view_entry_details($this->record, $mode, $id, $form);
 
