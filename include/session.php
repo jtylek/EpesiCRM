@@ -22,7 +22,7 @@ class DBSession {
     }
 
     public static function close() {
-        self::gc(self::$lifetime);
+        //self::gc(self::$lifetime);
         return true;
     }
     
