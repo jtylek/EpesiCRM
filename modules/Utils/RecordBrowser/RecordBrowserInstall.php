@@ -1,21 +1,15 @@
 <?php
 /**
- * CRMHRInstall class.
- * 
- * This class provides initialization data for CRMHR module.
- * 
- * @author Kuba SĹawiĹski <ruud@o2.pl>, Arkadiusz Bisaga <abisaga@telaxus.com>
+ * RecordBrowser install class.
+ *
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
+ * @version 0.99
  * @package tcms-extra
  */
+
 defined("_VALID_ACCESS") || die();
 
-/**
- * This class provides initialization data for Test module.
- * @package tcms-extra
- * @subpackage test
- */
 class Utils_RecordBrowserInstall extends ModuleInstall {
 	public function install() {
 		Base_ThemeCommon::install_default_theme('Utils/RecordBrowser');

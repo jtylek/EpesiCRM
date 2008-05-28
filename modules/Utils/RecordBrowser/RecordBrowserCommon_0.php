@@ -1,4 +1,13 @@
 <?php
+/**
+ * RecordBrowserCommon class.
+ *
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @copyright Copyright &copy; 2006, Telaxus LLC
+ * @version 0.99
+ * @package tcms-extra
+ */
+
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_RecordBrowserCommon extends ModuleCommon {
@@ -545,6 +554,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (count($crits)==1 && isset($crits['id']) && empty($order)) {
 			self::init($tab);
 			if (empty($crits['id'])) return array();
+			if (!is_array($crits['id'])) $crits['id'] = array($crits['id']);
 			$first = true;
 			$where = '';
 			$vals = array();
