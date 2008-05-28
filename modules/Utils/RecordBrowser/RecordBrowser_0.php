@@ -2,7 +2,7 @@
 /**
  * RecordBrowser class.
  *
- * @author Kuba Sławiński <ruud@o2.pl>, Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.99
  * @package tcms-extra
@@ -37,6 +37,7 @@ class Utils_RecordBrowser extends Module {
 	private $filter_field;
 	private $default_order = array();
 	private $cut = array();
+	public $tab_param = '';
 	public static $clone_result = null;
 	public static $clone_tab = null;
 	public $record;
@@ -526,6 +527,7 @@ class Utils_RecordBrowser extends Module {
 			foreach ($defaults as $k=>$v)
 				$this->custom_defaults[$k] = $v;
 		}
+		$this->tab_param = $tb->get_path();
 
 		$this->prepare_view_entry_details($this->record, $mode, $id, $form);
 
@@ -1163,12 +1165,16 @@ class Utils_RecordBrowser extends Module {
 				}
 				if (is_array($changed[$row2['field']]))
 					sort($changed[$row2['field']]);
+				$last_row = $row2;
 			}
 			foreach($changed as $k=>$v) {
-				$new = $this->get_val($field_hash[$k], $created, $created['id'], false, $this->table_rows[$field_hash[$k]]);
-				$created[$k] = $v;
-				$old = $this->get_val($field_hash[$k], $created, $created['id'], false, $this->table_rows[$field_hash[$k]]);
-				$gb_cha->add_row($row['edited_on'], Base_UserCommon::get_user_login($row['edited_by']), $field_hash[$k], $old, $new);
+				if ($k=='id') $gb_cha->add_row($row['edited_on'], Base_UserCommon::get_user_login($row['edited_by']), '', '', $last_row['old_value']);
+				else {
+					$new = $this->get_val($field_hash[$k], $created, $created['id'], false, $this->table_rows[$field_hash[$k]]);
+					$created[$k] = $v;
+					$old = $this->get_val($field_hash[$k], $created, $created['id'], false, $this->table_rows[$field_hash[$k]]);
+					$gb_cha->add_row($row['edited_on'], Base_UserCommon::get_user_login($row['edited_by']), $field_hash[$k], $old, $new);
+				}
 			}
 		}
 		$gb_ori->add_row($this->lang->t('Created by'), $created['created_by_login']);
@@ -1194,7 +1200,12 @@ class Utils_RecordBrowser extends Module {
 	}
 
 	public function set_active($id, $state=true){
+		DB::StartTrans();
 		DB::Execute('UPDATE '.$this->tab.' SET active=%d WHERE id=%d',array($state?1:0,$id));
+		DB::Execute('INSERT INTO '.$this->tab.'_edit_history(edited_on, edited_by, '.$this->tab.'_id) VALUES (%T,%d,%d)', array(date('Y-m-d G:i:s'), Acl::get_user(), $id));
+		$edit_id = DB::Insert_ID($this->tab.'_edit_history','id');
+		DB::Execute('INSERT INTO '.$this->tab.'_edit_history_data(edit_id, field, old_value) VALUES (%d,%s,%s)', array($edit_id, 'id', ($state?'REVERTED':'DELETED')));
+		DB::CompleteTrans();
 		return false;
 	}
 	public function restore_record($data, $id) {
