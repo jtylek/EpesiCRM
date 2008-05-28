@@ -37,6 +37,7 @@ class Utils_RecordBrowser extends Module {
 	private $filter_field;
 	private $default_order = array();
 	private $cut = array();
+	public static $admin_filter = '';
 	public $tab_param = '';
 	public static $clone_result = null;
 	public static $clone_tab = null;
@@ -360,6 +361,24 @@ class Utils_RecordBrowser extends Module {
 		if ($this->browse_mode == 'recent') {
 			$crits[':Recent'] = true;
 			$order = array(':Visited_on'=>'DESC');
+		}
+
+		if ($admin) {
+			$order = array(':Edited_on'=>'DESC');
+			$form = $this->init_module('Libs/QuickForm', null, $this->tab.'_admin_filter');
+			$form->addElement('select', 'show_records', 'Show records', array(0=>'all',1=>'active',2=>'deactivated'));
+			$form->addElement('submit', 'submit', 'Show');
+			$f = $this->get_module_variable('admin_filter', 0);
+			$form->setDefaults(array('show_records'=>$f));
+//			$theme = $this->init_module('Base/Theme');
+//			$form->assign_theme('form',$theme);
+//			$this->display_module($theme, 'Filter');
+			self::$admin_filter = $form->exportValue('show_records');
+			$this->set_module_variable('admin_filter', self::$admin_filter);
+			if (self::$admin_filter==0) self::$admin_filter = '';
+			if (self::$admin_filter==1) self::$admin_filter = ' AND active=1';
+			if (self::$admin_filter==2) self::$admin_filter = ' AND active=0';
+			$form->display();
 		}
 
 		$limit = $gb->get_limit(Utils_RecordBrowserCommon::get_records_limit($this->tab, $crits, $admin));

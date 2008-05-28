@@ -529,6 +529,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						$orderby .= ' _rec_order '.$v['direction'];
 						$vals[]=Acl::get_user();
 						break;
+					case ':Edited_on'	: 
+						$fields .= ', (SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) AS _edited_on';
+						$orderby .= ' _edited_on '.$v['direction'];
+						break;
 					default		: trigger_error('Unknow paramter given to get_records criteria: '.$k, E_USER_ERROR);
 				}
 			} else {
@@ -538,7 +542,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$iter++;
 			}
 		}
-		$ret = array('sql'=>'SELECT id, active, created_by, created_on'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?'':' AND active=1').$where.' GROUP BY id HAVING true'.$having.$orderby,'vals'=>$vals);
+		$ret = array('sql'=>'SELECT id, active, created_by, created_on'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?Utils_RecordBrowser::$admin_filter:' AND active=1').$where.' GROUP BY id HAVING true'.$having.$orderby,'vals'=>$vals);
 		return $cache[$key] = $ret;
 	}
 	public static function get_records_limit( $tab = null, $crits = null, $admin = false) {
