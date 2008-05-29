@@ -41,9 +41,11 @@ class History {
 		if(!isset($_SESSION['client']['__history_id__'])) $_SESSION['client']['__history_id__']=0;
 		$data = serialize($_SESSION['client']['__module_vars__']);
 		if(GZIP_HISTORY && function_exists('gzcompress')) $data = gzcompress($data);
+		DB::StartTrans();
 		DB::Replace('history',array('data'=>$data,'page_id'=>$_SESSION['client']['__history_id__'], 'session_name'=>session_id(), 'client_id'=>CID),array('session_name','page_id'),true);
 		$_SESSION['client']['__history_id__']++;
-		DB::Execute('DELETE FROM history WHERE session_name=%s AND page_id>=%d AND client_id=%d',array(session_id(),$_SESSION['client']['__history_id__'],CID));
+		DB::Execute('DELETE FROM history WHERE session_name=%s AND (page_id>=%d OR page_id<%d) AND client_id=%d',array(session_id(),$_SESSION['client']['__history_id__'],$_SESSION['client']['__history_id__']-20,CID));
+		DB::CompleteTrans();
 	}
 	
 	public static function is_back() {
@@ -70,7 +72,10 @@ class History {
 		elseif($id>$c) $id=$c;
 		$_SESSION['client']['__history_id__']=intval($id);
 		$data = DB::GetOne('SELECT data FROM history WHERE session_name=%s AND client_id=%d AND page_id=%d',array(session_id(),CID,$_SESSION['client']['__history_id__']-1));
-		if($data===false) return;
+		if($data===false) {
+			Epesi::alert('History expired.');
+			return;
+		}
 		if(GZIP_HISTORY && function_exists('gzuncompress')) $data = gzuncompress($data);
 		$_SESSION['client']['__module_vars__'] = unserialize($data);
 	}
