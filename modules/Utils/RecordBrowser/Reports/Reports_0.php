@@ -105,22 +105,17 @@ class Utils_RecordBrowser_Reports extends Module {
 					$data_recs[] = $row[$dv.'_id'];
 				$data_recs = Utils_RecordBrowserCommon::get_records($dv, array('id'=>$data_recs));
 			}
-			$cell = 0;
-			$results = array();
-			foreach ($this->gb_captions as $v) {
-				$res = call_user_func($this->display_cell_callback, $cell, $r, $data_recs);
-				if (empty($this->categories)) {
-					$res = $this->format_cell($this->format, $res);
+			$results = call_user_func($this->display_cell_callback, $r, $data_recs);
+			if (empty($this->categories))
+				foreach ($results as & $res_ref) {
+					$res_ref = $this->format_cell($this->format, $res_ref);
 				}
-				$results[] = $res;
-				$cell++;
-			}
 			$first = true;
 			if (!empty($this->categories)) {
 				foreach ($this->categories as $c) {
 					$gb_row = $gb->get_new_row();
-					if ($first) $grow = array(array('value'=>call_user_func($this->ref_record_display_callback, $r)));
-					else $grow = array('');
+					if ($first) $grow = array(array('attrs'=>'rowspan="4" ','value'=>call_user_func($this->ref_record_display_callback, $r)));
+					else $grow = array(array('dummy'=>1, 'value'=>'!'));
 					$grow[] = $c;
 					$first = false;
 					foreach ($results as $v) {

@@ -880,14 +880,16 @@ class Utils_GenericBrowser extends Module {
 				$col[$column_no]['attrs'] = 'nowrap="nowrap"';
 			}
 			foreach($r as $k=>$v) {
+				if (is_array($v) && isset($v['dummy'])) $v['style'] = 'display:none;';
 				if((!Base_AclCommon::i_am_sa() || !Base_MaintenanceModeCommon::get_mode()) && ((array_key_exists('display',$this->columns[$k]) && $this->columns[$k]['display']==false) || !$col_pos[$k]['display'])) continue;
-				$col[$col_pos[$k]['pos']]['attrs'] = '';
+				if (is_array($v) && isset($v['attrs'])) $col[$col_pos[$k]['pos']]['attrs'] = $v['attrs'];
+				else $col[$col_pos[$k]['pos']]['attrs'] = '';
 				if (!is_array($v)) $v = array('value'=>$v);
 				if (trim(strip_tags($v['value']),' ')=='')
 					$col[$col_pos[$k]['pos']]['label'] = $v['value'].'&nbsp;';
 				else
 					$col[$col_pos[$k]['pos']]['label'] = $v['value'];
-				$col[$col_pos[$k]['pos']]['attrs'] = isset($v['style'])? 'style="'.$v['style'].'"':'';
+				$col[$col_pos[$k]['pos']]['attrs'] .= isset($v['style'])? 'style="'.$v['style'].'"':'';
 				if (isset($quickjump_col) && $k==$quickjump_col) $col[$col_pos[$k]['pos']]['attrs'] .= ' class="Utils_GenericBrowser__quickjump"';
 				if ((!isset($this->columns[$k]['wrapmode']) || $this->columns[$k]['wrapmode']!='cut') && isset($v['hint'])) $col[$col_pos[$k]['pos']]['attrs'] .= ' title="'.$v['hint'].'"';
 				$col[$col_pos[$k]['pos']]['attrs'] .= (isset($this->columns[$k]['wrapmode']) && $this->columns[$k]['wrapmode']=='nowrap')?' nowrap':'';
