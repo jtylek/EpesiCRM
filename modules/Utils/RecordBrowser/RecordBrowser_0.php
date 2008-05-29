@@ -1338,9 +1338,12 @@ class Utils_RecordBrowser extends Module {
 			$field_hash[$args['id']] = $field;
 		$header = array();
 		$cut = array();
+		$callbacks = array();
 		foreach($cols as $k=>$v) {
 			if (isset($v['cut'])) $cut[] = $v['cut'];
 			else $cut[] = -1;
+			if (isset($v['callback'])) $callbacks[] = $v['callback'];
+			else $callbacks[] = null;
 			if (is_array($v)) {
 				$arr = array('name'=>$field_hash[$v['field']], 'width'=>$v['width']);
 				$cols[$k] = $v['field'];
@@ -1363,7 +1366,8 @@ class Utils_RecordBrowser extends Module {
 			$gb_row = $gb->get_new_row();
 			$arr = array();
 			foreach($cols as $k=>$w) {
-				$s = $this->get_val($field_hash[$w], $v, $v['id'], false, $this->table_rows[$field_hash[$w]]);
+				if (!isset($callbacks[$k])) $s = $this->get_val($field_hash[$w], $v, $v['id'], false, $this->table_rows[$field_hash[$w]]);
+				else $s = call_user_func($callbacks[$k], $v);
 				$arr[] = $this->cut_string($s, $cut[$k]);
 			}
 			$gb_row->add_data_array($arr);

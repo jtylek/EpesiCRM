@@ -88,6 +88,13 @@ class Utils_TasksCommon extends ModuleCommon {
 		if (isset($record['description']) && $record['description']!='') $ret = '<span '.Utils_TooltipCommon::open_tag_attrs($record['description'], false).'>'.$ret.'</span>';
 		return $ret;
 	}
+    public static function display_title_with_mark($record) {
+		$me = CRM_ContactsCommon::get_my_record();
+		$notified = DB::GetOne('SELECT 1 FROM task_employees_notified WHERE contact_id=%d AND task_id=%d', array($me['id'],$record['id']));
+		$ret = self::display_title($record, false);
+		if ($notified===false) $ret = '<b>!</b> '.$ret;
+		return $ret;
+	}
 	public static function QFfield_is_deadline(&$form, $field, $label, $mode, $default, $desc) {
 		if ($mode=='add' || $mode=='edit') {
 			$js =
