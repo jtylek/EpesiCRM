@@ -20,6 +20,9 @@ class Utils_RecordBrowser_Reports extends Module {
 	private $display_cell_callback = array();
 	private $categories = array();
 	private $format = null;
+	private $row_summary = false;
+	private $col_summary = false;
+	private $first = false;
 
 	public function set_reference_record($rr) {
 		$this->ref_record = $rr;
@@ -55,6 +58,11 @@ class Utils_RecordBrowser_Reports extends Module {
 		$this->ref_record_display_callback = $rrdc;
 	}
 	
+	public function set_summary($colrow, $action) {
+		if ($colrow=='col') $this->col_summary = $action;
+		if ($colrow=='row') $this->row_summary = $action;
+	}
+	
 	public function set_table_header($arg) {
 		$cap = array();
 		foreach($arg as $v) $cap[] = array('name'=>$v, 'wrapmode'=>'nowrap'); 
@@ -84,17 +92,29 @@ class Utils_RecordBrowser_Reports extends Module {
 	}
 
 	public function format_cell($format, $str) {
+		if (!is_array($format)) $format = array($format=>'');
+		else $format = array_flip($format);
 		$ret = $str;
-		if ($format=='currency') $ret = '$&nbsp;'.number_format($str,2,'.',',');
-		return array('value'=>$ret, 'style'=>'text-align: right;'.($str=='0'?'color: #AAAAAA;':''));
+		$style = '';
+		if (isset($format['currency'])) $ret = '$&nbsp;'.number_format($str,2,'.',',');
+		if ($this->first) $style .= 'border-top:1px solid #555555;';
+		if (isset($format['total'])) $style .= 'background-color:#EFEFEF;';
+		if (isset($format['currency']) || isset($format['numeric'])) {
+			if (strip_tags($str)==0) $style .= 'color: #AAAAAA;';
+			$style .= 'text-align:right;';
+		}
+		return array('value'=>$ret, 'style'=>$style);
 	}
 
 	public function body() {
 		$gb = $this->init_module('Utils_GenericBrowser',null,$this->ref_record.'_report');
+		if ($this->row_summary!==false) {
+			$this->gb_captions[] = array('name'=>$this->row_summary['label']);
+		}
 		$gb->set_table_columns($this->gb_captions);
-		array_shift($this->gb_captions);
-		if (!empty($this->categories)) array_shift($this->gb_captions);
 		$records = Utils_RecordBrowserCommon::get_records($this->ref_record, $this->ref_record_crits);
+		$cols_total = array();
+		/***** MAIN TABLE *****/
 		foreach($records as $k=>$r) {
 			foreach ($this->data_record as $dv) {
 				$vals = array();
@@ -106,27 +126,87 @@ class Utils_RecordBrowser_Reports extends Module {
 				$data_recs = Utils_RecordBrowserCommon::get_records($dv, array('id'=>$data_recs));
 			}
 			$results = call_user_func($this->display_cell_callback, $r, $data_recs);
-			if (empty($this->categories))
+			if (empty($this->categories)) {
+				$total = 0;
+				$i = 0;
 				foreach ($results as & $res_ref) {
+					$val = strip_tags($res_ref);
+					if ($this->row_summary!==false) $total += $val;
+					if ($this->col_summary!==false) {
+						if (!isset($cols_total[$i])) $cols_total[$i] = 0;  
+						$cols_total[$i] += $val;
+						$i++;
+					}
 					$res_ref = $this->format_cell($this->format, $res_ref);
 				}
-			$first = true;
-			if (!empty($this->categories)) {
+				$gb_row = $gb->get_new_row();
+				array_unshift($results, $this->format_cell(array(), call_user_func($this->ref_record_display_callback, $r)));
+				if ($this->row_summary!==false) $results[] = $this->format_cell($this->format, $total);
+				$gb_row->add_data_array($results);
+			} else {
+				$this->first = true;
+				$count = count($this->categories);
 				foreach ($this->categories as $c) {
 					$gb_row = $gb->get_new_row();
-					if ($first) $grow = array(array('attrs'=>'rowspan="4" ','value'=>call_user_func($this->ref_record_display_callback, $r)));
-					else $grow = array(array('dummy'=>1, 'value'=>'!'));
-					$grow[] = $c;
-					$first = false;
+					if ($this->first) {
+						$grow = array(0=>$this->format_cell(array(), call_user_func($this->ref_record_display_callback, $r)));
+						$grow[0]['attrs'] = 'rowspan="'.$count.'" ';
+					} else $grow = array(0=>array('dummy'=>1, 'value'=>''));
+					$grow[] = $this->format_cell(array(), $c);
+					$total = 0;
+					$i = 0;  
+					if (!isset($cols_total[$c])) $cols_total[$c] = array();
+					$format = array($this->format[$c]);
 					foreach ($results as $v) {
-						$grow[] = $this->format_cell($this->format[$c], $v[$c]);
+						$val = strip_tags($v[$c]);
+						if ($this->row_summary!==false) $total += $val;
+						if ($this->col_summary!==false) {
+							if (!isset($cols_total[$c][$i])) $cols_total[$c][$i] = 0;  
+							$cols_total[$c][$i] += $val;
+							$i++;
+						}
+						$grow[] = $this->format_cell($format, $v[$c]);
 					}
+					$format[] = 'total';
+					if ($this->row_summary!==false) $grow[] = $this->format_cell($format, $total);
+					$this->first = false;
 					$gb_row->add_data_array($grow);
 				}
-			} else {
+			}
+		}
+		/***** BOTTOM SUMMARY *****/
+		if ($this->col_summary!==false) {
+			if (empty($this->categories)) {
+				$total = 0;
+				foreach ($cols_total as & $res_ref) {
+					if ($this->row_summary!==false) $total += $res_ref;
+					$res_ref = $this->format_cell($this->format, $res_ref);
+				}
 				$gb_row = $gb->get_new_row();
-				array_unshift($results, array('value'=>call_user_func($this->ref_record_display_callback, $r)));
-				$gb_row->add_data_array($results);
+				array_unshift($cols_total, array('value'=>$this->row_summary['label']));
+				if ($this->row_summary!==false) $cols_total[] = $this->format_cell($this->format, $total);
+				$gb_row->add_data_array($cols_total);
+			} else {
+				$this->first = true;
+				$count = count($this->categories);
+				foreach ($this->categories as $c) {
+					$gb_row = $gb->get_new_row();
+					if ($this->first) {
+						$grow = array(0=>$this->format_cell(array(), $this->row_summary['label']));
+						$grow[0]['attrs'] = 'rowspan="'.$count.'" ';
+					} else $grow = array(0=>array('dummy'=>1, 'value'=>''));
+					$grow[] = $this->format_cell(array(), $c);
+					$total = 0;
+					if (!isset($cols_total[$c])) $cols_total[$c] = array();
+					$format = array($this->format[$c], 'total');
+					foreach ($cols_total[$c] as $v) {
+						if ($this->row_summary!==false) $total += $v;
+						$grow[] = $this->format_cell($format, $v);
+					}
+					if ($this->row_summary!==false) $grow[] = $this->format_cell($format, $total);
+					$this->first = false;
+					$gb_row->add_data_array($grow);
+				}
 			}
 		}
 		$this->display_module($gb);
