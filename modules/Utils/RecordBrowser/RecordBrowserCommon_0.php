@@ -540,20 +540,22 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$param = explode('::',$param[0]);
 				if (isset($param[1]) && $param[1]!='') {
 					if (self::$table_rows[$v['order']]['type']!='commondata') {
-					if (!isset($param[1])) $cols = $param[0];
-					else {
-						$tab2 = $param[0];
-						$cols2 = $param[1];
-					}
-						$cols2 = explode('|', $cols2);
-						foreach($cols2 as $j=>$w) $cols2[$j] = DB::qstr($w); 
-						$cols2 = implode(' OR field=', $cols2);
-	
-						$fields .= ', concat( \'::\', (SELECT group_concat(rdt'.$iter.'.value SEPARATOR \'::\' ) FROM '.$tab2.'_data AS rdt'.$iter.' WHERE (rdt'.$iter.'.field='.$cols2.') AND rdt'.$iter.'.'.$tab2.'_id=rd'.$iter.'.value) , \'::\' ) AS val'.$iter;
-						$final_tab = '('.$final_tab.') LEFT JOIN '.$tab.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab.'_id AND rd'.$iter.'.field="'.$v['order'].'"';
-						$orderby .= ' val'.$iter.' '.$v['direction'];
-						$iter++;
-						continue;
+						if (!isset($param[1])) $cols = $param[0];
+						else {
+							$tab2 = $param[0];
+							$cols2 = $param[1];
+						}
+						if ($tab2!='__COMMON__') {
+							$cols2 = explode('|', $cols2);
+							foreach($cols2 as $j=>$w) $cols2[$j] = DB::qstr($w); 
+							$cols2 = implode(' OR field=', $cols2);
+		
+							$fields .= ', concat( \'::\', (SELECT group_concat(rdt'.$iter.'.value SEPARATOR \'::\' ) FROM '.$tab2.'_data AS rdt'.$iter.' WHERE (rdt'.$iter.'.field='.$cols2.') AND rdt'.$iter.'.'.$tab2.'_id=rd'.$iter.'.value) , \'::\' ) AS val'.$iter;
+							$final_tab = '('.$final_tab.') LEFT JOIN '.$tab.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab.'_id AND rd'.$iter.'.field="'.$v['order'].'"';
+							$orderby .= ' val'.$iter.' '.$v['direction'];
+							$iter++;
+							continue;
+						}
 					}
 				} 
 				$fields .= ', concat( \'::\', group_concat( rd'.$iter.'.value ORDER BY rd'.$iter.'.value SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
