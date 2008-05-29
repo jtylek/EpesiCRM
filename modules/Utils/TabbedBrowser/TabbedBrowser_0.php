@@ -49,7 +49,7 @@ class Utils_TabbedBrowser extends Module {
 		
 		$captions = array();
 		
-		load_js($this->get_module_dir().'tb.js');
+		load_js($this->get_module_dir().'tb_.js');
 				
 		$i = 0;
 		$max = count($this->tabs);
