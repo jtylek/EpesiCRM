@@ -96,22 +96,29 @@ class Utils_RecordBrowser_Reports extends Module {
 		else $format = array_flip($format);
 		$ret = $str;
 		$style = '';
+		$attrs = '';
 		if (isset($format['currency'])) $ret = '$&nbsp;'.number_format($str,2,'.',',');
 		if ($this->first) $style .= 'border-top:1px solid #555555;';
-		if (isset($format['total'])) $style .= 'background-color:#EFEFEF;';
+		if (isset($format['total'])) $style .= 'background-color:#DFFFDF;';
 		if (isset($format['currency']) || isset($format['numeric'])) {
 			if (strip_tags($str)==0) $style .= 'color: #AAAAAA;';
 			$style .= 'text-align:right;';
 		}
-		return array('value'=>$ret, 'style'=>$style);
+		return array('value'=>$ret, 'style'=>$style, 'attrs'=>$attrs);
 	}
 
+	public function create_tooltip($ref_rec, $col, $value, $c='') {
+		return Utils_TooltipCommon::open_tag_attrs($ref_rec.'<hr>'.$col.'<br>'.($c!=''?$c.':':'').$value, false).' ';
+	}	
+	
 	public function body() {
 		$gb = $this->init_module('Utils_GenericBrowser',null,$this->ref_record.'_report');
 		if ($this->row_summary!==false) {
 			$this->gb_captions[] = array('name'=>$this->row_summary['label']);
 		}
 		$gb->set_table_columns($this->gb_captions);
+		array_shift($this->gb_captions);
+		if (!empty($this->categories)) array_shift($this->gb_captions);
 		$records = Utils_RecordBrowserCommon::get_records($this->ref_record, $this->ref_record_crits);
 		$cols_total = array();
 		/***** MAIN TABLE *****/
@@ -129,19 +136,25 @@ class Utils_RecordBrowser_Reports extends Module {
 			if (empty($this->categories)) {
 				$total = 0;
 				$i = 0;
+				$ref_rec = call_user_func($this->ref_record_display_callback, $r);
 				foreach ($results as & $res_ref) {
 					$val = strip_tags($res_ref);
 					if ($this->row_summary!==false) $total += $val;
 					if ($this->col_summary!==false) {
 						if (!isset($cols_total[$i])) $cols_total[$i] = 0;  
 						$cols_total[$i] += $val;
-						$i++;
 					}
 					$res_ref = $this->format_cell($this->format, $res_ref);
+					$res_ref['attrs'] .= $this->create_tooltip($ref_rec, $this->gb_captions[$i]['name'], $res_ref['value']);
+					$i++;
 				}
 				$gb_row = $gb->get_new_row();
-				array_unshift($results, $this->format_cell(array(), call_user_func($this->ref_record_display_callback, $r)));
-				if ($this->row_summary!==false) $results[] = $this->format_cell($this->format, $total);
+				array_unshift($results, $this->format_cell(array(), $ref_rec));
+				if ($this->row_summary!==false) {
+					$next = $this->format_cell($this->format, $total);
+					$next['attrs'] .= $this->create_tooltip($ref_rec, $this->row_summary['label'], $next['value']);
+					$results[] = $next;
+				}
 				$gb_row->add_data_array($results);
 			} else {
 				$this->first = true;
@@ -149,7 +162,8 @@ class Utils_RecordBrowser_Reports extends Module {
 				foreach ($this->categories as $c) {
 					$gb_row = $gb->get_new_row();
 					if ($this->first) {
-						$grow = array(0=>$this->format_cell(array(), call_user_func($this->ref_record_display_callback, $r)));
+						$ref_rec = call_user_func($this->ref_record_display_callback, $r);
+						$grow = array(0=>$this->format_cell(array(), $ref_rec));
 						$grow[0]['attrs'] = 'rowspan="'.$count.'" ';
 					} else $grow = array(0=>array('dummy'=>1, 'value'=>''));
 					$grow[] = $this->format_cell(array(), $c);
@@ -163,12 +177,18 @@ class Utils_RecordBrowser_Reports extends Module {
 						if ($this->col_summary!==false) {
 							if (!isset($cols_total[$c][$i])) $cols_total[$c][$i] = 0;  
 							$cols_total[$c][$i] += $val;
-							$i++;
 						}
-						$grow[] = $this->format_cell($format, $v[$c]);
+						$next = $this->format_cell($format, $v[$c]);
+						$next['attrs'] .= $this->create_tooltip($ref_rec, $this->gb_captions[$i]['name'], $next['value'], $c);
+						$grow[] = $next;
+						$i++;
 					}
 					$format[] = 'total';
-					if ($this->row_summary!==false) $grow[] = $this->format_cell($format, $total);
+					if ($this->row_summary!==false) {
+						$next = $this->format_cell($format, $total);
+						$next['attrs'] .= $this->create_tooltip($ref_rec, $this->row_summary['label'], $next['value'], $c);
+						$grow[] = $next;
+					}
 					$this->first = false;
 					$gb_row->add_data_array($grow);
 				}
@@ -209,7 +229,19 @@ class Utils_RecordBrowser_Reports extends Module {
 				}
 			}
 		}
-		$this->display_module($gb);
+		$gb->set_inline_display();
+		$table = $this->get_html_of_module($gb);
+		print($table);
+		/*
+		$pdf = $this->init_module('Libs/FPDF', 'L');
+		$pdf->fpdf->AddPage();
+		$pdf->fpdf->UseTableHeader(true);
+//		$table = '<table border="1">';
+//		$table .= '<tr><th>Header 1</th><th>Header 2</th></tr>';
+//		for ($i=0;$i<100;$i++) $table .= '<tr><td>Row '.$i.' Col 1<br>!<br>?</td><td>Col 2</td></tr>';
+//		$table .= '</table>';
+		$pdf->fpdf->WriteHTML('<span style="font-size:4px">'.$table.'</span>');
+		print('<a href="'.$pdf->get_href().'">Here!</a>');*/
 	}
 
 }
