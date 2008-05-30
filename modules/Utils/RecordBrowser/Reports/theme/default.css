@@ -21,7 +21,7 @@ table#Utils_GenericBrowser .total-all {
     font-weight: bold;
 }
 
-table#Utils_GenericBrowser .fade-oyt-zero {
+table#Utils_GenericBrowser .fade-out-zero {
     color: #AAAAAA;
 }
 
@@ -38,4 +38,12 @@ table#Utils_GenericBrowser tr:hover .total {
 table#Utils_GenericBrowser tr:hover .total-all {
     /*background-color: #a3b8cc;*/
     background-color: #8fa7bf;
+}
+
+table#Utils_GenericBrowser tr:hover .row-desc {
+    background-color: white;
+}
+
+table#Utils_GenericBrowser tr:hover .total .row-desc {
+    background-color: #e6ecf2;
 }
