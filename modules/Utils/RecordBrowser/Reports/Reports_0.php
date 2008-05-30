@@ -95,15 +95,24 @@ class Utils_RecordBrowser_Reports extends Module {
 		if (!is_array($format)) $format = array($format=>'');
 		else $format = array_flip($format);
 		$ret = $str;
+		$css_class = '';
 		$style = '';
 		$attrs = '';
 		if (isset($format['currency'])) $ret = '$&nbsp;'.number_format($str,2,'.',',');
-		if ($this->first) $style .= 'border-top:1px solid #555555;';
-		if (isset($format['total'])) $style .= 'background-color:#DFFFDF;';
+//		if ($this->first) $style .= 'border-top:1px solid #555555;';
+//		if (isset($format['total'])) $style .= 'background-color:#DFFFDF;';
+//		if (isset($format['currency']) || isset($format['numeric'])) {
+//			if (strip_tags($str)==0) $style .= 'color: #AAAAAA;';
+//			$style .= 'text-align:right;';
+//		}
+		if ($this->first) $css_class .= ' top-row';
+		if (isset($format['total_all'])) $css_class .= ' total-all';
+		elseif (isset($format['total'])) $css_class .= ' total';
 		if (isset($format['currency']) || isset($format['numeric'])) {
-			if (strip_tags($str)==0) $style .= 'color: #AAAAAA;';
-			$style .= 'text-align:right;';
+			if (strip_tags($str)==0) $css_class .= ' fade-out-zero';
+			$css_class .= ' number';
 		}
+		$attrs .= ' class="'.$css_class.'"';
 		return array('value'=>$ret, 'style'=>$style, 'attrs'=>$attrs);
 	}
 
@@ -112,6 +121,7 @@ class Utils_RecordBrowser_Reports extends Module {
 	}	
 	
 	public function body() {
+		Base_ThemeCommon::load_css('Utils/RecordBrowser/Reports');
 		$gb = $this->init_module('Utils_GenericBrowser',null,$this->ref_record.'_report');
 		if ($this->row_summary!==false) {
 			$this->gb_captions[] = array('name'=>$this->row_summary['label']);
@@ -122,7 +132,7 @@ class Utils_RecordBrowser_Reports extends Module {
 		$records = Utils_RecordBrowserCommon::get_records($this->ref_record, $this->ref_record_crits);
 		if (empty($records)) {
 			print('There were no records to display report for.');
-			return;	
+			return;
 		}
 		$cols_total = array();
 		/***** MAIN TABLE *****/
@@ -227,6 +237,7 @@ class Utils_RecordBrowser_Reports extends Module {
 						if ($this->row_summary!==false) $total += $v;
 						$grow[] = $this->format_cell($format, $v);
 					}
+					$format = array($this->format[$c], 'total_all');
 					if ($this->row_summary!==false) $grow[] = $this->format_cell($format, $total);
 					$this->first = false;
 					$gb_row->add_data_array($grow);
