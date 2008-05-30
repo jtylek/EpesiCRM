@@ -1,0 +1,29 @@
+/*
+
+top-row (chodzi o linie nad nim, border-top: 1px)
+total (jakis lekki kolorek, moze odcien niebieskiego lepiej?)
+total-all (jakis jeszcze troche ciemniejszy lekki odcien ;))
+fade-out-zero (kolor na jakies AAAAAA, zeby zera byly blade)
+number (wyrownanie do prawej)
+
+*/
+
+table#Utils_GenericBrowser .top-row {
+    border-top: 1px solid black;
+}
+
+table#Utils_GenericBrowser .total {
+    background-color: #e6e6cf;
+}
+
+table#Utils_GenericBrowser .total-all {
+    background-color: #999933;
+}
+
+table#Utils_GenericBrowser .fade-oyt-zero {
+    color: #AAAAAA;
+}
+
+table#Utils_GenericBrowser .number {
+    text-align: right;
+}
