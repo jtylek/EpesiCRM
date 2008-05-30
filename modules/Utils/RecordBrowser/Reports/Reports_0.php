@@ -215,10 +215,16 @@ class Utils_RecordBrowser_Reports extends Module {
 				foreach ($cols_total as & $res_ref) {
 					if ($this->row_summary!==false) $total += $res_ref;
 					$res_ref = $this->format_cell($this->format, $res_ref);
+					$res_ref['attrs'] .= $this->create_tooltip($this->col_summary['label'], $this->gb_captions[$i]['name'], $res_ref['value']);
+					$i++;
 				}
 				$gb_row = $gb->get_new_row();
-				array_unshift($cols_total, array('value'=>$this->row_summary['label']));
-				if ($this->row_summary!==false) $cols_total[] = $this->format_cell($this->format, $total);
+				array_unshift($cols_total, $this->format_cell(array('total'), $this->col_summary['label']));
+				if ($this->row_summary!==false) {
+					$next = $this->format_cell($this->format, $total);
+					$next['attrs'] .= $this->create_tooltip($this->col_summary['label'], $this->row_summary['label'], $next['value']);
+					$cols_total[] = $next;
+				}
 				$gb_row->add_data_array($cols_total);
 			} else {
 				$this->first = true;
@@ -226,19 +232,27 @@ class Utils_RecordBrowser_Reports extends Module {
 				foreach ($this->categories as $c) {
 					$gb_row = $gb->get_new_row();
 					if ($this->first) {
-						$grow = array(0=>$this->format_cell(array(), $this->row_summary['label']));
-						$grow[0]['attrs'] = 'rowspan="'.$count.'" ';
+						$grow = array(0=>$this->format_cell(array('total'), $this->col_summary['label']));
+						$grow[0]['attrs'] .= 'rowspan="'.$count.'" ';
 					} else $grow = array(0=>array('dummy'=>1, 'value'=>''));
-					$grow[] = $this->format_cell(array(), $c);
+					$grow[] = $this->format_cell(array('total'), $c);
 					$total = 0;
 					if (!isset($cols_total[$c])) $cols_total[$c] = array();
 					$format = array($this->format[$c], 'total');
+					$i=0;
 					foreach ($cols_total[$c] as $v) {
 						if ($this->row_summary!==false) $total += $v;
-						$grow[] = $this->format_cell($format, $v);
+						$next = $this->format_cell($format, $v);
+						$next['attrs'] .= $this->create_tooltip($this->col_summary['label'], $this->gb_captions[$i]['name'], $next['value'], $c);
+						$grow[] = $next;
+						$i++;
 					}
 					$format = array($this->format[$c], 'total_all');
-					if ($this->row_summary!==false) $grow[] = $this->format_cell($format, $total);
+					if ($this->row_summary!==false) {
+						$next = $this->format_cell($format, $total);
+						$next['attrs'] .= $this->create_tooltip($this->col_summary['label'], $this->row_summary['label'], $next['value'], $c);
+						$grow[] = $next;
+					}
 					$this->first = false;
 					$gb_row->add_data_array($grow);
 				}
