@@ -120,6 +120,10 @@ class Utils_RecordBrowser_Reports extends Module {
 		array_shift($this->gb_captions);
 		if (!empty($this->categories)) array_shift($this->gb_captions);
 		$records = Utils_RecordBrowserCommon::get_records($this->ref_record, $this->ref_record_crits);
+		if (empty($records)) {
+			print('There were no records to display report for.');
+			return;	
+		}
 		$cols_total = array();
 		/***** MAIN TABLE *****/
 		foreach($records as $k=>$r) {
