@@ -9,8 +9,12 @@
 			<td class="icon"><img src="{$icon}" width="32" height="32" border="0"></td>
 			<td class="name">{$caption}</td>
     		<td class="filters">
-                <div class="button"><img id="roll" src="{$theme_dir}/Utils_RecordBrowser__roll-down.png" onClick="var x='{$theme_dir}/Utils_RecordBrowser__roll-';if(this.src.indexOf(x+'up.png')>=0)this.src=x+'down.png';else this.src=x+'up.png'; filters_roll();" width="14" height="14" alt="=" border="0"></div>
-				<div style="display: block; float: right; padding-right: 10px; white-space: nowrap; padding: 4px;">Click to show / hide filters</div>
+                {if $filters}
+                    <div class="button"><img id="roll" src="{$theme_dir}/Utils_RecordBrowser__roll-down.png" onClick="var x='{$theme_dir}/Utils_RecordBrowser__roll-';if(this.src.indexOf(x+'up.png')>=0)this.src=x+'down.png';else this.src=x+'up.png'; filters_roll();" width="14" height="14" alt="=" border="0"></div>
+                    <div style="display: block; float: right; padding-right: 10px; white-space: nowrap; padding: 4px;">Click to show / hide <b>filters</b></div>
+                {else}
+                    &nbsp;
+                {/if}
             </td>
         </tr>
         <tr>
