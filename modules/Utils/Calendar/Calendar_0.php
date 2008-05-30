@@ -173,9 +173,6 @@ class Utils_Calendar extends Module {
 	 * @return array
 	 */
 	private function get_timeline() {
-		static $timeline;
-		if(isset($timeline)) return $timeline;
-
 		$timeline = array();
 
 		//timeless
@@ -448,8 +445,8 @@ class Utils_Calendar extends Module {
 			}
 		}
 		$ev_out.='}';
-		$this->js('setTimeout('.$ev_out.',300)');
-		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
+		eval_js('setTimeout('.$ev_out.',300)');
+		eval_js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
 				'\''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
 				'\''.Epesi::escapeJS($this->get_path(),false).'\','.
 				'\''.CID.'\')');
@@ -610,8 +607,8 @@ class Utils_Calendar extends Module {
 			}
 		}
 		$ev_out.='}';
-		$this->js('setTimeout('.$ev_out.',300)');
-		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
+		eval_js('setTimeout('.$ev_out.',300)');
+		eval_js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
 				'\''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
 				'\''.Epesi::escapeJS($this->get_path(),false).'\','.
 				'\''.CID.'\')');
@@ -708,8 +705,8 @@ class Utils_Calendar extends Module {
 			$ev_out .= 'Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).', 1);';
 		}
 		$ev_out.='}';
-		$this->js('setTimeout('.$ev_out.',300)');
-		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
+		eval_js('setTimeout('.$ev_out.',300)');
+		eval_js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
 				'\''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
 				'\''.Epesi::escapeJS($this->get_path(),false).'\','.
 				'\''.CID.'\')');

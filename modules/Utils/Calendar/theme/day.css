@@ -76,6 +76,10 @@
 
 /* hour */
 
+#Utils_Calendar__day td.hour span a {
+	color: #FFFFFF;
+}
+
 #Utils_Calendar__day td.hour {
 	vertical-align: middle;
 	color: #FFFFFF;

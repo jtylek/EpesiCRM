@@ -52,6 +52,7 @@ class Utils_TabbedBrowser extends Module {
 		load_js($this->get_module_dir().'tb_.js');
 				
 		$i = 0;
+		if($this->page>=count($this->tabs)) $this->page=0;
 		$max = count($this->tabs);
 		$path = escapeJS($this->get_path());
 		$body = '';
@@ -135,6 +136,7 @@ class Utils_TabbedBrowser extends Module {
 	}
 	
 	public function get_tab() {
+		if($this->page>=count($this->tabs)) $this->page=0;
 		return $this->page;
 	}
 	

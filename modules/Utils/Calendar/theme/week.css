@@ -107,6 +107,10 @@
 
 /* hour */
 
+#Utils_Calendar__week td.hour span a {
+	color: #FFFFFF;
+}
+
 #Utils_Calendar__week td.hour {
 	vertical-align: middle;
 	color: #FFFFFF;
