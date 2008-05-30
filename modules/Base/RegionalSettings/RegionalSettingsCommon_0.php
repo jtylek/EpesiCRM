@@ -39,8 +39,8 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 
 
 	public static function user_settings() {
-		$now = time();
-		$date_formats_proto = array('%Y-%m-%d','%y-%m-%d','%m/%d/%y','%d %B %Y','%d %B %y','%d %b %Y','%d %b %y','%b %d, %Y');
+		$now = strtotime('2008-02-15');
+		$date_formats_proto = array('%Y-%m-%d','%m/%d/%Y','%d %B %Y','%d %b %Y','%b %d, %Y');
 		$date_formats = array();
 		self::set_locale();
 		foreach($date_formats_proto as $f)
@@ -52,7 +52,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		return array('Regional settings'=>array(
 				//array('type'=>'select','name'=>'currency','label'=>'Currency') //google X pln in usd????
 				array('type'=>'select','name'=>'date','label'=>'Date format',
-					'default'=>'%m/%d/%y','values'=>$date_formats),//strftime
+					'default'=>'%m/%d/%Y','values'=>$date_formats),//strftime
 				array('type'=>'select','name'=>'time','label'=>'Time format',
 					'default'=>'%H:%M:%S','values'=>array('%I:%M:%S %p'=>'12h am/pm', '%H:%M:%S'=>'24h'),
 					'rule'=>array('type'=>'callback',
