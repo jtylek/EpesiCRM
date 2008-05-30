@@ -12,7 +12,8 @@ table#Utils_GenericBrowser .top-row {
     border-top: 1px solid #336699;
 }
 
-table#Utils_GenericBrowser .total {
+table#Utils_GenericBrowser .total,
+table#Utils_GenericBrowser .total-row_desc {
     background-color: #e6ecf2;
 }
 
@@ -40,10 +41,10 @@ table#Utils_GenericBrowser tr:hover .total-all {
     background-color: #8fa7bf;
 }
 
-table#Utils_GenericBrowser tr:hover .row-desc {
-    background-color: white;
+table#Utils_GenericBrowser tr:hover .total-row_desc {
+    background-color: #e6ecf2;
 }
 
-table#Utils_GenericBrowser tr:hover .total .row-desc {
-    background-color: #e6ecf2;
+table#Utils_GenericBrowser tr:hover .row-desc {
+    background-color: white;
 }
