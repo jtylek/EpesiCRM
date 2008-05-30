@@ -106,6 +106,7 @@ class Utils_RecordBrowser_Reports extends Module {
 //			$style .= 'text-align:right;';
 //		}
 		if ($this->first) $css_class .= ' top-row';
+		if (isset($format['total-row_desc'])) $css_class .= ' total-row_desc';
 		if (isset($format['row_desc'])) $css_class .= ' row-desc';
 		if (isset($format['total_all'])) $css_class .= ' total-all';
 		elseif (isset($format['total'])) $css_class .= ' total';
@@ -220,7 +221,7 @@ class Utils_RecordBrowser_Reports extends Module {
 					$i++;
 				}
 				$gb_row = $gb->get_new_row();
-				array_unshift($cols_total, $this->format_cell(array('total','row_desc'), $this->col_summary['label']));
+				array_unshift($cols_total, $this->format_cell(array('total-row_desc'), $this->col_summary['label']));
 				if ($this->row_summary!==false) {
 					$next = $this->format_cell($this->format, $total);
 					$next['attrs'] .= $this->create_tooltip($this->col_summary['label'], $this->row_summary['label'], $next['value']);
@@ -233,7 +234,7 @@ class Utils_RecordBrowser_Reports extends Module {
 				foreach ($this->categories as $c) {
 					$gb_row = $gb->get_new_row();
 					if ($this->first) {
-						$grow = array(0=>$this->format_cell(array('total','row_desc'), $this->col_summary['label']));
+						$grow = array(0=>$this->format_cell(array('total-row_desc'), $this->col_summary['label']));
 						$grow[0]['attrs'] .= 'rowspan="'.$count.'" ';
 					} else $grow = array(0=>array('dummy'=>1, 'value'=>''));
 					$grow[] = $this->format_cell(array('total'), $c);
