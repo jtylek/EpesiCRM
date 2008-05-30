@@ -31,7 +31,11 @@ table#Utils_GenericBrowser .number {
 
 /* row hover */
 
-table#Utils_GenericBrowser tr:hover .total,
-table#Utils_GenericBrowser tr:hover .total-all {
+table#Utils_GenericBrowser tr:hover .total {
     background-color: #cfdae6;
+}
+
+table#Utils_GenericBrowser tr:hover .total-all {
+    /*background-color: #a3b8cc;*/
+    background-color: #8fa7bf;
 }
