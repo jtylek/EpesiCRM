@@ -49,4 +49,9 @@
     padding: 3px;
     background-image: url('images/header-blue.png');
     margin-right: 20px;
+    cursor: pointer;
+}
+
+#Browsing_records .button:hover {
+    background-image: url('images/header-blue-hover.png');
 }

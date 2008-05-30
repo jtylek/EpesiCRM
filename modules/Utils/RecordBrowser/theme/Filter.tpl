@@ -1,5 +1,5 @@
-<div id="Utils_RecordBrowser__Filter">
 {*
+<div id="Utils_RecordBrowser__Filter">
 {if isset($dont_hide)}
 	{php}
 		eval_js_once('show_filters = 1');
@@ -15,7 +15,9 @@
 	</div>
 </div>
 *}
+
 {$form_open}
+
 {*<div id="recordbrowser_filters_{$id}" class="Utils_RecordBrowser__Filter" {if !isset($dont_hide)}style="display: none;"{/if}>*}
 <div id="recordbrowser_filters_{$id}" class="Utils_RecordBrowser__Filter">
 	<table border="0" cellpadding="0" cellspacing="0">
@@ -28,4 +30,5 @@
 		</tr>
 	</table>
 </div>
+
 {$form_close}

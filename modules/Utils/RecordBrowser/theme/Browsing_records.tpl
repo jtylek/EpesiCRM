@@ -14,7 +14,7 @@
             </td>
         </tr>
         <tr>
-            <td colspan="3"><div id="filters_box" style="display: none;">{if $filters}{$filters}{else}&nbsp;{/if}</div></td>
+            <td colspan="3" class="filters"><div id="filters_box" style="display: none;">{if $filters}{$filters}{else}&nbsp;{/if}</div></td>
     	</tr>
 	</tbody>
 </table>
