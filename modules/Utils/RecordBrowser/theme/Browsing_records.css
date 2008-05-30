@@ -6,7 +6,7 @@
 
 #Browsing_records .icon {
     width: 32px;
-    height: 27px;
+    height: 32px;
     text-align: left;
     padding-left: 20px;
     padding-right: 10px;
@@ -39,4 +39,14 @@
 #Browsing_records .filters {
     text-align: right;
     vertical-align: top;
+}
+
+#Browsing_records .button {
+    display: block;
+    float: right;
+    width: 14px;
+    height: 14px;
+    padding: 3px;
+    background-image: url('images/header-blue.png');
+    margin-right: 20px;
 }
