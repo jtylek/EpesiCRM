@@ -5,10 +5,12 @@
 #Utils_RecordBrowser__View_entry table.view {
     border-top: 1px solid #B3B3B3;
     border-right:  1px solid #B3B3B3;
+    width: 100%;
 }
 
 #Utils_RecordBrowser__View_entry table.edit {
     border-top: none;
+    width: 100%;
 }
 
 #Utils_RecordBrowser__View_entry table {

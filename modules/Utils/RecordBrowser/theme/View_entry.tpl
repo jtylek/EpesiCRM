@@ -63,7 +63,7 @@
 				{if $x>$no_empty}
 					<tr>
 						<td class="label">&nbsp;</td>
-						<td class="label">&nbsp;</td>
+						<td class="data">&nbsp;</td>
 					</tr>
 				{/if}
 				{assign var=y value=1}
