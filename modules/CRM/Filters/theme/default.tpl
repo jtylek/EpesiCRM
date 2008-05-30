@@ -136,7 +136,7 @@
     
 <table id="CRM_Filters" cellspacing="0" cellpadding="0">
     <tr>
-        <td colspan="4" class="Filters_header">&nbsp;&nbsp;Saved Filters&nbsp;&nbsp;</td>
+        <td colspan="4" class="Filters_header">&nbsp;&nbsp;{$saved_filters}&nbsp;&nbsp;</td>
     </tr>
 	<tr>
 

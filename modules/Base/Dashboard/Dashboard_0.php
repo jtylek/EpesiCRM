@@ -69,7 +69,7 @@ class Base_Dashboard extends Module {
 				$m = $this->init_module($row['module_name'],null,$row['id']);
 
 				$opts = array();
-				$opts['title'] = call_user_func(array($row['module_name'].'Common', 'applet_caption'));
+				$opts['title'] = $this->lang->t(call_user_func(array($row['module_name'].'Common', 'applet_caption')));
 				$opts['toggle'] = true;
 				$opts['href'] = null;
 				$opts['go'] = false;

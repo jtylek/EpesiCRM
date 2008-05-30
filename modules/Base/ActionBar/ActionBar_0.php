@@ -77,7 +77,7 @@ class Base_ActionBar extends Module {
 					if($dash && Base_User_SettingsCommon::get('Base_Menu_QuickAccess',$v['name'].'_d')) {
 						$ii = array();
 						$trimmed_label = substr(strrchr($v['label'],':'),1);
-						$ii['label'] = $trimmed_label?$trimmed_label:$v['label'];
+						$ii['label'] = $l->ht($trimmed_label?$trimmed_label:$v['label']);
 						$ii['description'] = $v['label'];
 						$arr = $v['link'];
 						if(isset($arr['__url__']))
@@ -99,7 +99,7 @@ class Base_ActionBar extends Module {
 					if (Base_User_SettingsCommon::get('Base_Menu_QuickAccess',$v['name'].'_l')) {
 						$ii = array();
 						$trimmed_label = substr(strrchr($v['label'],':'),1);
-						$ii['label'] = $trimmed_label?$trimmed_label:$v['label'];
+						$ii['label'] = $l->ht($trimmed_label?$trimmed_label:$v['label']);
 						$ii['description'] = $v['label'];
 						$arr = $v['link'];
 						if(isset($arr['__url__']))
@@ -132,7 +132,7 @@ class Base_ActionBar extends Module {
 					$th->display('launchpad');
 					$lp_out = ob_get_clean();
 					Libs_LeightboxCommon::display('actionbar_launchpad',$lp_out,$l->t('Launchpad'));
-					$launcher[] = array('label'=>'Launchpad','description'=>'Quick modules launcher','open'=>'<a '.Libs_LeightboxCommon::get_open_href('actionbar_launchpad').'>','close'=>'</a>','icon'=>$icon);
+					$launcher[] = array('label'=>$l->ht('Launchpad'),'description'=>'Quick modules launcher','open'=>'<a '.Libs_LeightboxCommon::get_open_href('actionbar_launchpad').'>','close'=>'</a>','icon'=>$icon);
 				}
 			}
 		}

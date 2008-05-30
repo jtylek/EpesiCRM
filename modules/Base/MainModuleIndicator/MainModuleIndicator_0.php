@@ -16,11 +16,12 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_MainModuleIndicator extends Module {
 
 	public function body() {
+		$lang = $this->init_module('Base/Lang');
 		$box_module = ModuleManager::get_instance('/Base_Box|0');
 		if($box_module)
 			$active_module = $box_module->get_main_module();
 		if($active_module && is_callable(array($active_module,'caption'))) {
-			$caption = $active_module->caption();
+			$caption = $lang->t($active_module->caption());
 			if(Variable::get('show_module_indicator')) {
 				$t = & $this->pack_module('Base/Theme');
 				$t->assign('text', $caption);

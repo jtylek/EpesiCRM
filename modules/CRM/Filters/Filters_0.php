@@ -56,6 +56,7 @@ class CRM_Filters extends Module {
 			$this->set_module_variable('profile_desc',$contacts_select[$c]);
 			location(array());
 		}
+		$th->assign('saved_filters',$this->lang->t('Saved Filters'));
 		$th->assign('contacts',$qf->toHtml());
 
 		ob_start();
@@ -64,7 +65,7 @@ class CRM_Filters extends Module {
 
 		Libs_LeightboxCommon::display('crm_filters',$profiles_out,$this->lang->t('Filters'));
 		//Base_ActionBarCommon::add('folder','Filters','class="lbOn" rel="crm_filters"',$this->get_module_variable('profile_desc',$this->lang->t('My records')));
-		print($this->lang->t('%s',array('<a class="lbOn" rel="crm_filters">Filters: <b>'.$this->get_module_variable('profile_desc',$this->lang->t('My records')).'</b></a>')));
+		print($this->lang->t('%s',array('<a class="lbOn" rel="crm_filters">'.$this->lang->ht('Filters: ').'<b>'.$this->get_module_variable('profile_desc',$this->lang->t('My records')).'</b></a>')));
 	}
 
 	public function manage_filters() {

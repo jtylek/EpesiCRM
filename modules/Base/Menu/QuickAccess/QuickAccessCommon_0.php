@@ -32,7 +32,7 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 						'reload'=>true,
 						'default'=>0
 						));
-			$ret_opts[] = array('type'=>'group', 'label'=>$opt['label'], 'elems'=>array(
+			$ret_opts[] = array('type'=>'group', 'label'=>Base_LangCommon::ts('Base/Menu/QuickAccess',$opt['label']), 'elems'=>array(
 						array_merge($opt,array(
 							'values'=>'',
 							'name'=>$name.'_m')),
@@ -40,7 +40,7 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 							'values'=>'',
 							'name'=>$name.'_d')),
 						array_merge($opt,array(
-							'values'=>'Menu &bull; Dashboard &bull; Launchpad',
+							'values'=>Base_LangCommon::ts('Base/Menu/QuickAccess','Menu').' &bull; '.Base_LangCommon::ts('Base/Menu/QuickAccess','Dashboard').' &bull; '.Base_LangCommon::ts('Base/Menu/QuickAccess','Launchpad'),
 							'name'=>$name.'_l'))
 					));
 		}

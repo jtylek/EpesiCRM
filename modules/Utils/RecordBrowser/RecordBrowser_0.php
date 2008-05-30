@@ -316,7 +316,7 @@ class Utils_RecordBrowser extends Module {
 			if ($field === 'id') continue;
 			if (!$args['visible'] && (!isset($cols[$args['id']]) || $cols[$args['id']] === false)) continue;
 			if (isset($cols[$args['id']]) && $cols[$args['id']] === false) continue;
-			$arr = array('name'=>$args['name']);
+			$arr = array('name'=>$this->lang->t($args['name']));
 			if ($this->browse_mode!='recent') $arr['order'] = $field;
 			if ($quickjump!=='' && $args['name']===$quickjump) $arr['quickjump'] = '"'.$args['name'];
 			if ($args['type']=='text' || $args['type']=='currency') $arr['search'] = str_replace(' ','_',$field);
