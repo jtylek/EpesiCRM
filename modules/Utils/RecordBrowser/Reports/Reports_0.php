@@ -178,7 +178,7 @@ class Utils_RecordBrowser_Reports extends Module {
 					if ($this->first) {
 						$ref_rec = call_user_func($this->ref_record_display_callback, $r);
 						$grow = array(0=>$this->format_cell(array(), $ref_rec));
-						$grow[0]['attrs'] = 'rowspan="'.$count.'" ';
+						$grow[0]['attrs'] .= ' rowspan="'.$count.'" ';
 					} else $grow = array(0=>array('dummy'=>1, 'value'=>''));
 					$grow[] = $this->format_cell(array(), $c);
 					$total = 0;
