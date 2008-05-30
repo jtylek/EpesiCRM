@@ -9,15 +9,16 @@ number (wyrownanie do prawej)
 */
 
 table#Utils_GenericBrowser .top-row {
-    border-top: 1px solid black;
+    border-top: 1px solid #336699;
 }
 
 table#Utils_GenericBrowser .total {
-    background-color: #e6e6cf;
+    background-color: #e6ecf2;
 }
 
 table#Utils_GenericBrowser .total-all {
-    background-color: #999933;
+    background-color: #b8c8d9;
+    font-weight: bold;
 }
 
 table#Utils_GenericBrowser .fade-oyt-zero {
@@ -26,4 +27,11 @@ table#Utils_GenericBrowser .fade-oyt-zero {
 
 table#Utils_GenericBrowser .number {
     text-align: right;
+}
+
+/* row hover */
+
+table#Utils_GenericBrowser tr:hover .total,
+table#Utils_GenericBrowser tr:hover .total-all {
+    background-color: #cfdae6;
 }
