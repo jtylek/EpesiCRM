@@ -7,11 +7,13 @@ filters_roll = function() {
       $('filters_box').show();
       $('filters').show();
       $('filters_button_text').innerHTML = 'Hide filters';
+      $('filters_button_icon_down').id = 'filters_button_icon_up';
    }
    else {
       //setTimeout('$(\'filters_box\').hide()', 500);
       $('filters').hide();
       $('filters_box').hide();
       $('filters_button_text').innerHTML = 'Show filters';
+      $('filters_button_icon_up').id = 'filters_button_icon_down';
    }
 }

@@ -11,7 +11,7 @@
     		<td class="filters">
                 {if $filters}
                     <div class="filters_button" onClick="filters_roll();">
-                        <div id="filters_button_icon"></div>
+                        <div id="filters_button_icon_down"></div>
                         <div id="filters_button_text">Show filters</span>
                     </div>
                 {else}

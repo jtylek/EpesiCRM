@@ -50,6 +50,10 @@
     cursor: pointer;
 }
 
+#Browsing_records .filters_button:hover {
+    background-image: url('images/header-blue-hover.png');
+}
+
 #Browsing_records .filters_button #filters_button_text {
     display: block;
     float: right;
@@ -59,21 +63,28 @@
     color: white;
 }
 
-#Browsing_records .filters_button #filters_button_icon {
+#Browsing_records .filters_button #filters_button_icon_up,
+#Browsing_records .filters_button #filters_button_icon_down {
     display: block;
     float: right;
     width: 14px;
     height: 14px;
     margin: 3px;
-    background-image: url('images/roll-down.png');
     background-repeat: no-repeat;
 }
 
-#Browsing_records .filters_button:hover {
-    background-image: url('images/header-blue-hover.png');
+#Browsing_records .filters_button #filters_button_icon_up {
+    background-image: url('images/roll-up.png');
 }
 
+#Browsing_records .filters_button:hover #filters_button_icon_up {
+    background-image: url('images/roll-up-hover.png');
+}
 
-#Browsing_records .filters_button:hover #filters_button_icon {
+#Browsing_records .filters_button #filters_button_icon_down {
+    background-image: url('images/roll-down.png');
+}
+
+#Browsing_records .filters_button:hover #filters_button_icon_down {
     background-image: url('images/roll-down-hover.png');
 }
