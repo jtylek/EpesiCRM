@@ -10,8 +10,10 @@
 			<td class="name">{$caption}</td>
     		<td class="filters">
                 {if $filters}
-                    <div class="button"><img id="roll" src="{$theme_dir}/Utils_RecordBrowser__roll-down.png" onClick="var x='{$theme_dir}/Utils_RecordBrowser__roll-';if(this.src.indexOf(x+'up.png')>=0)this.src=x+'down.png';else this.src=x+'up.png'; filters_roll();" width="14" height="14" alt="=" border="0"></div>
-                    <div style="display: block; float: right; padding-right: 10px; white-space: nowrap; padding: 4px;">Click to show / hide <b>filters</b></div>
+                    <div class="filters_button" onClick="filters_roll();">
+                        <div id="filters_button_icon"></div>
+                        <div id="filters_button_text">Show filters</span>
+                    </div>
                 {else}
                     &nbsp;
                 {/if}

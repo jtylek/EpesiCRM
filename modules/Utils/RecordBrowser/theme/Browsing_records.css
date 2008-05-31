@@ -41,17 +41,39 @@
     vertical-align: top;
 }
 
-#Browsing_records .button {
-    display: block;
+#Browsing_records .filters_button {
     float: right;
-    width: 14px;
-    height: 14px;
-    padding: 3px;
+    width: 100px;
+    height: 20px;
     background-image: url('images/header-blue.png');
     margin-right: 20px;
     cursor: pointer;
 }
 
-#Browsing_records .button:hover {
+#Browsing_records .filters_button #filters_button_text {
+    display: block;
+    float: right;
+    width: 80px;
+    padding-top: 4px;
+    text-align: center;
+    color: white;
+}
+
+#Browsing_records .filters_button #filters_button_icon {
+    display: block;
+    float: right;
+    width: 14px;
+    height: 14px;
+    margin: 3px;
+    background-image: url('images/roll-down.png');
+    background-repeat: no-repeat;
+}
+
+#Browsing_records .filters_button:hover {
     background-image: url('images/header-blue-hover.png');
+}
+
+
+#Browsing_records .filters_button:hover #filters_button_icon {
+    background-image: url('images/roll-down-hover.png');
 }
