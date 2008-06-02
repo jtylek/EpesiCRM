@@ -8,7 +8,7 @@ dashboard_activate = function(default_dash) {
 			});
 		}});
 
-	var applets = document.getElementsByClassName('applet', 'dashboard');
+	var applets = $A(document.getElementsByClassName('applet', 'dashboard'));
 	applets.each(function (appl) {
 			var content = document.getElementsByClassName('content',appl)[0];
 			var toggle = document.getElementsByClassName('toggle',appl)[0];
