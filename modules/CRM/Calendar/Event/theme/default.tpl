@@ -117,12 +117,12 @@
                                     <td class="data" style="border-right: 1px solid #b3b3b3;"><span class="error">{$form_data.date_s.error}</span><div class="time_s" style="float: left; width: 200px; border-bottom: 1px solid #b3b3b3; text-align: center;">{$form_data.date_s.html}</div><span id="time_s">{$form_data.time_s.html}</span></td>
                                 </tr>
                                 <tr>
-                                    <td class="label" style="width: 60%; padding-right: 0px; height: 21px; vertical-align: top;"><div style="float: left; margin-top: 3px;">{$form_data.duration.label} / {$form_data.date_e.label}</div><div style="float: right; border-left: 1px solid #b3b3b3;">{$toggle_duration}</div></td>
+                                    <td class="label" style="width: 60%; padding-right: 0px; height: 21px; vertical-align: top;"><div style="float: left; margin-top: 3px;">{$form_data.duration.label} / {$form_data.time_e.label}</div><div style="float: right; border-left: 1px solid #b3b3b3;">{$toggle_duration}</div></td>
                                 </tr>
                                 <tr>
                                     <td class="data" style="height: 20px;">
                                         <div id="{$duration_block_id}"><span class="error">{$form_data.duration.error}</span><div style="float: left; width: 200px;">{$form_data.duration.html}</div></div>
-                                        <div id="{$event_end_block_id}"><span class="error">{$form_data.date_e.error}</span><div class="time_e" style="float: left; width: 200px; border-bottom: 1px solid #b3b3b3;">{$form_data.date_e.html}</div><span id="time_e">{$form_data.time_e.html}</span></div>
+                                        <div id="{$event_end_block_id}"><span class="error">{$form_data.time_e.error}</span><span id="time_e">{$form_data.time_e.html}</span></div>
                                     </td>
                                 </tr>
                         </tbody>

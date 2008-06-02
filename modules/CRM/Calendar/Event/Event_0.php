@@ -47,7 +47,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				$my_emp[] = $v['id'];
 			$def = array(
 				'date_s' => $id,
-				'date_e' => $id+3600,
+//				'date_e' => $id+3600,
 				'time_s' => $tt,
 				'time_e' => $tt+3600,
 				'duration'=>3600,
@@ -84,7 +84,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 																	)));
 			$def = array(
 				'date_s' => $event['start'],
-				'date_e' => $event['end'],
+//				'date_e' => $event['end'],
 				'time_s' => $event['start'],
 				'time_e' => $event['end'],
 				'status' => $event['status'],
@@ -175,10 +175,11 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		eval_js('crm_calendar_duration_switcher(1)');
 		$form->addElement('select', 'duration', $this->lang->t('Duration'),$dur);
 		$form->addRule('duration',$this->lang->t('Duration not selected'),'neq','-1');
-		
-		$form->addElement('datepicker', 'date_e', $this->lang->t('Event end'));
-		$form->addRule('date_e', 'Field is required!', 'required');
-		$form->addElement('date', 'time_e', $this->lang->t('Time'), array('format'=>$time_format, 'optionIncrement'  => array('i' => 5), 'language'=>$lang_code));
+
+		//$form->addElement('datepicker', 'date_e', $this->lang->t('Event end'));
+		//$form->addRule('date_e', 'Field is required!', 'required');
+		$form->addElement('date', 'time_e', $this->lang->t('Event end'), array('format'=>$time_format, 'optionIncrement'  => array('i' => 5), 'language'=>$lang_code));
+		$form->addRule('time_e', 'Field is required!', 'required');
 
 		eval_js_once('crm_calendar_event_timeless = function(val) {'.
 				'var cal_style;'.
@@ -204,7 +205,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		eval_js('crm_calendar_event_timeless('.$timeless.')');
 
 		$form->registerRule('check_dates', 'callback', 'check_dates', $this);
-		$form->addRule(array('date_e', 'time_e', 'date_s', 'time_s', 'timeless','duration_switch'), 'End date must be after begin date...', 'check_dates');
+		$form->addRule(array('date_s','time_e', 'date_s', 'time_s', 'timeless','duration_switch'), 'End date must be after begin date...', 'check_dates');
 
 
 		$form->addElement('header', null, $this->lang->t('Event itself'));
@@ -219,7 +220,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$form->addElement('select', 'access', $this->lang->t('Access'), $access, array('style'=>'width: 100%;'));
 		$form->addElement('select', 'priority', $this->lang->t('Priority'), $priority, array('style'=>'width: 100%;'));
 		$form->addElement('select', 'color', $this->lang->t('Color'), $color, array('style'=>'width: 100%;'));
-		
+
 		if ($action=='view') {
 			$form->addElement('static', 'emp_id', $this->lang->t('Employees'));
 			$form->addElement('static', 'cus_id', $this->lang->t('Customers'));
@@ -247,7 +248,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 			$form->addElement('multiselect', 'emp_id', $this->lang->t('Employees'), $emp);
 			$form->addRule('emp_id', $this->lang->t('At least one employee must be assigned to an event.'), 'required');
-	
+
 			$form->addElement('multiselect', 'cus_id', $this->lang->t('Customers'), $cus);
 		}
 
@@ -296,7 +297,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 		if($action == 'view') {
 			$form->freeze();
-			
+
 			$tb = $this->init_module('Utils/TabbedBrowser');
 			$tb->start_tab('Notes');
 			//attachments
@@ -307,7 +308,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$a->allow_public($this->acl_check('view public notes'),$this->acl_check('edit public notes'));
 			$this->display_module($a);
 			$tb->end_tab();
-		
+
 			$tb->start_tab('Alerts');
 			$mes_users = array();
 			foreach ($def_emp_id as $r)
@@ -352,10 +353,12 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 	public function add_event($vals = array()){
 		$start = strtotime($vals['date_s']) + $this->recalculate_time($vals['time_s']);
-		if($vals['duration_switch'])
+		if($vals['duration_switch']) {
 			$end = $start + $vals['duration'];
-		else
-			$end = strtotime($vals['date_e']) + $this->recalculate_time($vals['time_e']);
+			if(date('Y-m-d',$start)!=date('Y-m-d',$end))
+				$end = strtotime(date('Y-m-d',$start).' 23:59');
+		} else
+			$end = strtotime($vals['date_s']) + $this->recalculate_time($vals['time_e']);
 		$start = Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$start),true);
 		$end = Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$end),true);
 		DB::Execute('INSERT INTO crm_calendar_event (title,'.
@@ -404,10 +407,12 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 	public function update_event($id, $vals = array()){
 		$start = strtotime($vals['date_s']) + $this->recalculate_time($vals['time_s']);
-		if($vals['duration_switch'])
+		if($vals['duration_switch']) {
 			$end = $start + $vals['duration'];
-		else
-			$end = strtotime($vals['date_e']) + $this->recalculate_time($vals['time_e']);
+			if(date('Y-m-d',$start)!=date('Y-m-d',$end))
+				$end = strtotime(date('Y-m-d',$start).' 23:59');
+		} else
+			$end = strtotime($vals['date_s']) + $this->recalculate_time($vals['time_e']);
 		$start = Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$start),true);
 		$end = Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$end),true);
 		DB::Execute('UPDATE crm_calendar_event SET title=%s,'.

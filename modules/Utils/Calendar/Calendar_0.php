@@ -1,4 +1,4 @@
-<?php 
+<?php
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_Calendar extends Module {
@@ -59,9 +59,6 @@ class Utils_Calendar extends Module {
 					$def_tab = $k;
 			}
 			if (isset($def_tab)) $this->tb->set_default_tab($def_tab);
-			if (isset($switch_view))
-				$this->tb->switch_tab($switch_view);
-
 		}
 
 		if($this->isset_unique_href_variable('action')) {
@@ -72,7 +69,7 @@ class Utils_Calendar extends Module {
 				case 'switch':
 					$views = array_flip($this->settings['views']);
 					$view = $this->get_unique_href_variable('tab');
-					if (isset($views[$view])) $switch_view = $views[$view];
+					if (isset($views[$view])) $this->tb->switch_tab($views[$view]);
 						else break;
 					$this->date = $this->get_unique_href_variable('time');
 					break;
@@ -93,15 +90,15 @@ class Utils_Calendar extends Module {
 		}
 
 	}
-	
+
 	public function settings($key,$val) {
 		$this->settings[$key] = $val;
 	}
-	
+
 	public function get_date() {
 		return $this->date;
 	}
-	
+
 	public function get_view() {
 		if(isset($this->tb))
 			return $this->settings['views'][$this->tb->get_tab()];
@@ -119,11 +116,11 @@ class Utils_Calendar extends Module {
 	public function get_week_end_time() {
 		return $this->get_week_start_time() + 7*86400;
 	}
-	
+
 	public function get_day_start_time() {
 		return strtotime(date('Y-m-d',$this->date));
 	}
-	
+
 	public function get_day_end_time() {
 		return $this->get_day_start_time() + 86400;
 	}
@@ -131,11 +128,11 @@ class Utils_Calendar extends Module {
 	public function get_month_start_time() {
 		return strtotime(date('Y-m-01',$this->date));
 	}
-	
+
 	public function get_month_end_time() {
 		return $this->get_day_start_time() + date('t',$this->date)*86400;
 	}
-	
+
 	public function get_start_time() {
 		switch($this->get_view()) {
 			case 'Day':
@@ -322,7 +319,7 @@ class Utils_Calendar extends Module {
 				$add_cols[] = $k;
 			}
 		}
-		
+
 		$gb->set_table_columns( $columns );
 
 		//add data
@@ -332,13 +329,13 @@ class Utils_Calendar extends Module {
 			$view_h = $this->create_callback_href(array($this,'push_event_action'),array('view',$row['id']));
 
 			$ex = Utils_CalendarCommon::process_event($row);
-			
+
 			$rrr = array($ex['start'],Utils_TooltipCommon::create($ex['duration'],$ex['end'],false),'<a '.$view_h.'>'.$row['title'].'</a>');
 			foreach($add_cols as $a)
 				$rrr[] = $row['custom_agenda_col_'.$a];
 
 			$r->add_data_array($rrr);
-			
+
 			if($row['additional_info']!=='' || $row['additional_info2'])
 				$r->add_info($row['additional_info'].(($row['additional_info']!=='' && $row['additional_info2']!=='')?'<hr>':'').$row['additional_info2']);
 
@@ -403,7 +400,7 @@ class Utils_Calendar extends Module {
 			$prev = & $v;
 		}
 		$this->js('Utils_Calendar.join_rows(\''.Epesi::escapeJS(json_encode($joins),false).'\')');
-		
+
 		$theme->assign('timeline', $timeline);
 
 		$theme->assign('day_view_label', $this->lang->t('Day calendar'));
