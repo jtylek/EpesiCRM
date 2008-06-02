@@ -340,8 +340,10 @@ class Utils_RecordBrowser extends Module {
 		}
 		$clean_order = array();
 		foreach ($order as $k => $v) {
-			if (isset($hash[$k])) $clean_order[$hash[$k]] = $v;
-			else $clean_order[$k] = $v;
+			if (isset($this->more_table_properties[$k]) && isset($this->more_table_properties[$k]['name'])) $key = $this->more_table_properties[$k]['name']; 
+			elseif (isset($hash[$k])) $key = $hash[$k];
+			else $key = $k;
+			$clean_order[$key] = $v;
 		}
 		$table_columns_SQL = join(', ', $table_columns_SQL);
 		if ($this->browse_mode == 'recent')
@@ -429,6 +431,7 @@ class Utils_RecordBrowser extends Module {
 					if (isset($this->cut[$args['id']])) {
 						$value = $this->cut_string($value,$this->cut[$args['id']]);
 					}
+					if ($args['type']=='currency') $value = array('style'=>'text-align:right;','value'=>$value);
 					$row_data[] = $value;
 				}
 			if ($this->browse_mode == 'recent')

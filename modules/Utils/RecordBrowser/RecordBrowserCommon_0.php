@@ -13,6 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_RecordBrowserCommon extends ModuleCommon {
 	private static $table_rows = array();
 	private static $del_or_a = '';
+	public static $cols_order = array();
 
 	public static function check_table_name($tab, $flush=false){
 		static $tables = null;
@@ -29,10 +30,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 	public static function init($tab, $admin=false) {
 		static $cache = array();
-		if (isset($cache[$tab.'__'.$admin])) return self::$table_rows = $cache[$tab.'__'.$admin];
+		if (!isset(self::$cols_order[$tab])) self::$cols_order[$tab] = array();
+		if (isset($cache[$tab.'__'.$admin.'__'.md5(serialize(self::$cols_order[$tab]))])) return self::$table_rows = $cache[$tab.'__'.$admin.'__'.md5(serialize(self::$cols_order[$tab]))];
 		self::$table_rows = array();
 		self::check_table_name($tab);
 		$ret = DB::Execute('SELECT * FROM '.$tab.'_field'.($admin?'':' WHERE active=1 AND type!=\'page_split\'').' ORDER BY position');
+		if (!empty(self::$cols_order[$tab])) $hash = array();
 		while($row = $ret->FetchRow()) {
 			if ($row['field']=='id') continue;
 			self::$table_rows[$row['field']] =
@@ -47,8 +50,19 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						'filter'=>$row['filter'],
 						'style'=>$row['style'],
 						'param'=>$row['param']);
+			if (!empty(self::$cols_order[$tab])) $hash[self::$table_rows[$row['field']]['id']] = $row['field'];
 		}
-		return $cache[$tab.'__'.$admin] = self::$table_rows;
+		if (!empty(self::$cols_order[$tab])) {
+			$rows = array();
+			foreach (self::$cols_order[$tab] as $v) {
+				$rows[$hash[$v]] = self::$table_rows[$hash[$v]];
+				unset(self::$table_rows[$hash[$v]]);
+			}
+			foreach(self::$table_rows as $k=>$v)
+				$rows[$k] = $v;
+			self::$table_rows = $rows;
+		}
+		return $cache[$tab.'__'.$admin.'__'.md5(serialize(self::$cols_order[$tab]))] = self::$table_rows;
 	}
 
 	public static function install_new_recordset($tab = null, $fields) {
@@ -559,7 +573,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					}
 				} 
 				$fields .= ', concat( \'::\', group_concat( rd'.$iter.'.value ORDER BY rd'.$iter.'.value SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
-				$final_tab = '('.$final_tab.') LEFT JOIN '.$tab.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab.'_id AND rd'.$iter.'.field="'.$v['column'].'"';
+				$final_tab = '('.$final_tab.') LEFT JOIN '.$tab.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab.'_id AND rd'.$iter.'.field="'.$v['order'].'"';
 				$orderby .= ' val'.$iter.' '.$v['direction'];
 				$iter++;
 			}
