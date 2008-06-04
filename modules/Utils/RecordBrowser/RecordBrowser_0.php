@@ -44,9 +44,14 @@ class Utils_RecordBrowser extends Module {
 	public static $clone_tab = null;
 	public $record;
 	public $adv_search = false;
+	private $col_order = array();
 
 	public function set_cut_lengths($ar) {
 		$this->cut = $ar;
+	}
+
+	public function set_table_column_order($arg) {
+		$this->col_order = $arg;
 	}
 
 	public function get_val($field, $record, $id, $links_not_recommended = false, $args = null) {
@@ -278,6 +283,7 @@ class Utils_RecordBrowser extends Module {
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
 	public function show_data($crits = array(), $cols = array(), $order = array(), $admin = false, $special = false) {
+		Utils_RecordBrowserCommon::$cols_order = $this->col_order;
 		if ($this->get_access('browse')===false) {
 			print($this->lang->t('You are not authorised to browse this data.'));
 			return;
@@ -519,6 +525,7 @@ class Utils_RecordBrowser extends Module {
 		return true;
 	}
 	public function view_entry($mode='view', $id = null, $defaults = array()) {
+		Utils_RecordBrowserCommon::$cols_order = array();
 		$js = ($mode!='view');
 		$time = microtime(true);
 		if ($this->is_back()) {
@@ -792,7 +799,7 @@ class Utils_RecordBrowser extends Module {
 										break;
 					case 'commondata':	$param = explode('::',$args['param']);
 										foreach ($param as $k=>$v) if ($k!=0) $param[$k] = strtolower(str_replace(' ','_',$v));
-										$form->addElement($args['type'], $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', $param, array('empty_option'=>$args['required'], 'id'=>$args['id']));
+										$form->addElement($args['type'], $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', $param, ,array('order_by_key'=>true, 'empty_option'=>$args['required'], 'id'=>$args['id']));
 										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 										break;
 					case 'select':
