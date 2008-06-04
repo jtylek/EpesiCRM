@@ -6,7 +6,7 @@ abstract class Utils_Calendar_Event extends Module {
 	abstract public function edit($id);
 	abstract public function add($def_date,$timeless=false);
 	
-	protected function back_to_calendar() {
+	public function back_to_calendar() {
 		$x = ModuleManager::get_instance('/Base_Box|0');
 		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 		$x->pop_main();
