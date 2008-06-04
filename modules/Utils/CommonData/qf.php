@@ -31,7 +31,7 @@ class HTML_QuickForm_commondata extends HTML_QuickForm_select {
 		if(count($this->_cd)==1) {
 			$root_data = Utils_CommonDataCommon::get_array($this->_cd[0],$this->_order_by_key);
 			if($this->_add_empty_fields)
-				$root_data = array_merge(array(''=>'---'),$root_data);
+				$root_data = array(''=>'---')+$root_data;
 			$this->loadArray($root_data);
 		}
 	} //end constructor
