@@ -287,7 +287,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$values = $form->exportValues();
 			//print_r($values);
 			if (!isset($values['timeless'])) $values['timeless'] = false;
-			if($action == 'new')
+			if($action == 'new' || $action=='clone')
 				CRM_CalendarCommon::$last_added = $this->add_event($values);
 			else
 				$this->update_event($id, $values);
@@ -329,6 +329,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 		if($action == 'view') {
 			Base_ActionBarCommon::add('edit',$this->lang->t('Edit'), $this->create_callback_href(array($this, 'view_event'), array('edit', $id)));
+			Base_ActionBarCommon::add('clone',$this->lang->t('Clone'), $this->create_confirm_callback_href($this->lang->ht('You are about to create a copy of this record. Do you want to continue?'),array($this,'clone_event'),array($id)));
 		} else {
 			Base_ActionBarCommon::add('save','Save',' href="javascript:void(0)" onClick="'.addcslashes($form->get_submit_form_js(true),'"').'"');
 		}
@@ -448,6 +449,12 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		foreach($vals['cus_id'] as $v) {
 			DB::Execute('INSERT INTO crm_calendar_event_group_cus (id,contact) VALUES (%d, %d)', array($id, $v));
 		}
+	}
+	
+	public function clone_event($id) {
+		if(!$this->view_event('clone',$id))
+			$this->back_to_calendar();
+		return true;
 	}
 
 }
