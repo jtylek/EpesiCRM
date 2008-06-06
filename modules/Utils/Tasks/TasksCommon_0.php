@@ -90,8 +90,9 @@ class Utils_TasksCommon extends ModuleCommon {
 	}
     public static function display_title_with_mark($record) {
 		$me = CRM_ContactsCommon::get_my_record();
-		$notified = DB::GetOne('SELECT 1 FROM task_employees_notified WHERE contact_id=%d AND task_id=%d', array($me['id'],$record['id']));
 		$ret = self::display_title($record, false);
+		if (!in_array($me['id'], $record['employees'])) return $ret;
+		$notified = DB::GetOne('SELECT 1 FROM task_employees_notified WHERE contact_id=%d AND task_id=%d', array($me['id'],$record['id']));
 		if ($notified===false) $ret = '<b>!</b> '.$ret;
 		return $ret;
 	}
