@@ -46,14 +46,20 @@ class Utils_Tasks extends Module {
 		$this->display_module($a);
 	}
 
-	public function applet($page_id=null,$short=true,$long=true,$closed=false) {
+	public function applet($page_id=null,$short=true,$long=true,$closed=false,$related=0) {
 		$opts['go'] = true;
 		$rb = $this->init_module('Utils/RecordBrowser','task','task');
 		$me = CRM_ContactsCommon::get_my_record();
-		$crits = array('employees'=>array($me['id']), 'page_id'=>md5($page_id));
+		$crits = array('page_id'=>md5($page_id));
 		if (!$closed) $crits['!status'] = array(2,3);
 		if ($short && !$long) $crits['!longterm'] = 1;
 		if (!$short && $long) $crits['longterm'] = 1;
+		if ($related==0) $crits['employees'] = array($me['id']);
+		if ($related==1) $crits['customers'] = array($me['id']);
+		if ($related==2) {
+			$crits['(employees'] = array($me['id']);
+			$crits['|customers'] = array($me['id']);
+		}
 		$conds = array(
 									array(	array('field'=>'title', 'width'=>20, 'cut'=>16, 'callback'=>array('Utils_TasksCommon','display_title_with_mark')),
 											array('field'=>'deadline', 'width'=>1),
