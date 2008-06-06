@@ -24,7 +24,7 @@ class CRM_Tasks extends Module {
 			printf($l->t('Your user doesn\'t have contact, please assign one'));
 			return;
 		}
-		$this->pack_module('Utils/Tasks',array('crm_tasks',($conf['term']=='s' || $conf['term']=='b'),($conf['term']=='l' || $conf['term']=='b'),(isset($conf['closed']) && $conf['closed'])),'applet');
+		$this->pack_module('Utils/Tasks',array('crm_tasks',($conf['term']=='s' || $conf['term']=='b'),($conf['term']=='l' || $conf['term']=='b'),(isset($conf['closed']) && $conf['closed']),$conf['related']),'applet');
 	}
 
 	public function caption() {
