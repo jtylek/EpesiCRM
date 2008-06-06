@@ -302,15 +302,16 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$form->setDefaults(array($field=>self::display_email(array('email'=>$default), null, array('id'=>'email'))));
 		}
 	}
-	public static function QFfield_login(&$form, $field, $label, $mode, $default) {
-		if ($mode=='add'){
+	public static function QFfield_login(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
+		if ($mode=='add' || $mode=='edit'){
 			if (self::$paste_or_new=='new') {
 				$form->addElement('checkbox', 'create_company', Base_LangCommon::ts('CRM/Contacts','Create new company'), null, array('onClick'=>'document.getElementsByName("company_namefrom[]")[0].disabled=document.getElementsByName("company_nameto[]")[0].disabled=this.checked;document.getElementsByName("create_company_name")[0].disabled=!this.checked;'));
 				$form->addElement('text', 'create_company_name', Base_LangCommon::ts('CRM/Contacts','New company name'), array('disabled'=>1));
+				if (isset($rb)) $form->setDefaults(array('create_company_name'=>$rb->record['last_name'].' '.$rb->record['first_name']));
 				eval_js('Event.observe(\'last_name\',\'change\', update_create_company_name_field);'.
 						'Event.observe(\'first_name\',\'change\', update_create_company_name_field);'.
 						'function update_create_company_name_field() {'.
-						'document.forms[\''.$form->getAttribute('name').'\'].create_company_name.value = document.forms[\''.$form->getAttribute('name').'\'].last_name.value+" "+document.forms[\''.$form->getAttribute('name').'\'].first_name.value;'.
+							'document.forms[\''.$form->getAttribute('name').'\'].create_company_name.value = document.forms[\''.$form->getAttribute('name').'\'].last_name.value+" "+document.forms[\''.$form->getAttribute('name').'\'].first_name.value;'.
 						'}');
 			} else {
 				$comp = self::get_company(self::$paste_or_new);
@@ -404,7 +405,9 @@ class CRM_ContactsCommon extends ModuleCommon {
 						'fax'=>$values['fax'],
 						'web_address'=>$values['web_address'])
 			);
-			$values['company_name'] = array($comp_id);
+			if (!isset($values['company_name'])) $values['company_name'] = array(); 
+			if (!is_array($values['company_name'])) $values['company_name'] = array($values['company_name']);
+			$values['company_name'][] = $comp_id;
 		}
 		if ($values['email']=='' && $values['login']!=0 && $mode=='add')
 			$values['email'] = DB::GetOne('SELECT mail FROM user_password WHERE user_login_id=%d', array($values['login']));

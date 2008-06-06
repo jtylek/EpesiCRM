@@ -116,7 +116,7 @@ class CRM_Filters extends Module {
 	}*/
 
 	public function edit() {
-		Base_ActionBarCommon::add('add',$this->lang->ht('Add group'),$this->create_callback_href(array($this,'edit_group')));
+		Base_ActionBarCommon::add('add','Add group',$this->create_callback_href(array($this,'edit_group')));
 
 		$gb = $this->init_module('Utils/GenericBrowser',null,'edit');
 

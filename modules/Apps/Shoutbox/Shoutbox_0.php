@@ -19,7 +19,7 @@ class Apps_Shoutbox extends Module {
 	public function body() {
 		//if i am admin add "clear shoutbox" actionbar button
 		if(Base_AclCommon::i_am_admin())
-			Base_ActionBarCommon::add('delete',$this->lang->ht('Clear shoutbox'),$this->create_callback_href(array($this,'delete_all')));
+			Base_ActionBarCommon::add('delete','Clear shoutbox',$this->create_callback_href(array($this,'delete_all')));
 
 		$this->applet();
 	}

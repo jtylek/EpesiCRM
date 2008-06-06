@@ -98,8 +98,8 @@ class CRM_LoginAudit extends Module {
             }
         }
 
-        Base_ActionBarCommon::add('back',$this->lang->t('Back'),$this->create_back_href());
-        Base_ActionBarCommon::add('delete',$this->lang->t('Purge Log File'),'href="javascript:void(0)" onClick="if(confirm(\''.Epesi::escapeJS($this->lang->t('Log will be purgd!')).'\')){'.$form->get_submit_form_js().'}"');
+        Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+        Base_ActionBarCommon::add('delete','Purge Log File','href="javascript:void(0)" onClick="if(confirm(\''.Epesi::escapeJS($this->lang->t('Log will be purgd!')).'\')){'.$form->get_submit_form_js().'}"');
         return true;
     }
 }

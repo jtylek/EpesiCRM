@@ -228,7 +228,7 @@ class Utils_Calendar extends Module {
 			call_user_func(array($this,strtolower($v)));
 		}
 
-		Base_ActionBarCommon::add('add',$this->lang->t('Add event'),$this->create_unique_href(array('action'=>'add','time'=>$this->date)));
+		Base_ActionBarCommon::add('add','Add event',$this->create_unique_href(array('action'=>'add','time'=>$this->date)));
 	}
 
 	public function push_event_action($action,$arg=null) {

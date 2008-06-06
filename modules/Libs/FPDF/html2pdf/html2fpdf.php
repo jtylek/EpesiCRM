@@ -348,9 +348,10 @@ function WriteHTML($html)
   //Explode the string in order to parse the HTML code
 	$a=preg_split('/<(.*?)>/ms',$html,-1,PREG_SPLIT_DELIM_CAPTURE);
 
+	$version = phpversion();
+	$version = str_replace('.','',$version);
 	foreach($a as $i => $e)
 	{
-
 		if($i%2==0)
 		{
 			//TEXT
@@ -362,8 +363,6 @@ function WriteHTML($html)
 			{
         if (strpos($e,"#") !== false) $e = value_entity_decode($e); // Decode value entities
         //Avoid crashing the script on PHP 4.0
-        $version = phpversion();
-        $version = str_replace('.','',$version);
         if ($version >= 430) $e = html_entity_decode($e,ENT_QUOTES,'cp1252'); // changes &nbsp; and the like by their respective char
         else $e = lesser_entity_decode($e);
       }
@@ -1752,6 +1751,8 @@ function printbuffer($arrayaux,$outofblock=false,$is_table=false)
     for($i=0;$i < $array_size; $i++)
     {
       $vetor = $arrayaux[$i];
+      print_r($vetor);
+      print('<hr>');
       if ($i == 0 and $vetor[0] != "\n") $vetor[0] = ltrim($vetor[0]);
       if (empty($vetor[0]) and empty($vetor[7])) continue; //Ignore empty text and not carrying an internal link
       //Activating buffer properties

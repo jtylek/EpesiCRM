@@ -917,6 +917,7 @@ function newFlowingBlock( $w, $h, $b = 0, $a = 'J', $f = 0 , $is_table = false )
 
 function finishFlowingBlock($outofblock=false)
 {
+   $currentx = 0; //EDITEI - in order to make the Cell method work better
    if (!$outofblock) $currentx = $this->x; //EDITEI - in order to make the Cell method work better
    //prints out the last chunk
    $is_table = $this->flowingBlockAttr[ 'is_table' ];
@@ -955,7 +956,7 @@ function finishFlowingBlock($outofblock=false)
       case 'R':
           foreach ( $content as $k => $chunk )
           {
-//              $this->restoreFont( $font[ $k ] );
+              $this->restoreFont( $font[ $k ] );
               $stringWidth = $this->GetStringWidth( $chunk ) + ( $this->ws * substr_count( $chunk, ' ' ) / $this->k );
               // determine which borders should be used
               $b = '';
@@ -975,7 +976,7 @@ function finishFlowingBlock($outofblock=false)
       case 'J':
           foreach ( $content as $k => $chunk )
           {
-//              $this->restoreFont( $font[ $k ] );
+              $this->restoreFont( $font[ $k ] );
               $stringWidth = $this->GetStringWidth( $chunk ) + ( $this->ws * substr_count( $chunk, ' ' ) / $this->k );
               // determine which borders should be used
               $b = '';
@@ -996,7 +997,7 @@ function finishFlowingBlock($outofblock=false)
       case 'C':
           foreach ( $content as $k => $chunk )
           {
-//              $this->restoreFont( $font[ $k ] );
+              if (isset($font[$k])) $this->restoreFont( $font[ $k ] );
               $stringWidth = $this->GetStringWidth( $chunk ) + ( $this->ws * substr_count( $chunk, ' ' ) / $this->k );
               // determine which borders should be used
               $b = '';
@@ -1093,7 +1094,7 @@ function WriteFlowingBlock( $s , $outofblock = false )
            $contentWidth = 0;
            foreach ( $content as $k => $chunk )
            {
-//              $this->restoreFont( $font[ $k ] );
+              if (isset($font[$k])) $this->restoreFont( $font[ $k ] );
               $contentWidth += $this->GetStringWidth( $chunk ) * $this->k;
            }
            $cutoffWidth = $contentWidth;
@@ -1148,7 +1149,7 @@ function WriteFlowingBlock( $s , $outofblock = false )
              case 'R':
                  foreach ( $content as $k => $chunk )
                  {
-//                     $this->restoreFont( $font[ $k ] );
+                     $this->restoreFont( $font[ $k ] );
                      $stringWidth = $this->GetStringWidth( $chunk ) + ( $this->ws * substr_count( $chunk, ' ' ) / $this->k );
                      // determine which borders should be used
                      $b = '';
@@ -1165,7 +1166,7 @@ function WriteFlowingBlock( $s , $outofblock = false )
              case 'J':
                  foreach ( $content as $k => $chunk )
                  {
-//                     $this->restoreFont( $font[ $k ] );
+                     $this->restoreFont( $font[ $k ] );
                      $stringWidth = $this->GetStringWidth( $chunk ) + ( $this->ws * substr_count( $chunk, ' ' ) / $this->k );
                      // determine which borders should be used
                      $b = '';
@@ -1194,7 +1195,7 @@ function WriteFlowingBlock( $s , $outofblock = false )
              case 'C':
                  foreach ( $content as $k => $chunk )
                  {
-//                     $this->restoreFont( $font[ $k ] );
+                     if (isset($font[$k])) $this->restoreFont( $font[ $k ] );
                      $stringWidth = $this->GetStringWidth( $chunk ) + ( $this->ws * substr_count( $chunk, ' ' ) / $this->k );
                      // determine which borders should be used
                      $b = '';
@@ -1287,7 +1288,7 @@ function WordWrap(&$text, $maxwidth)
 * @see SetTextOutline() 
 */ 
 //This function is not being currently used
-function _SetTextRendering($mode) { 
+function _setTextRendering($mode) { 
 if (!(($mode == 0) || ($mode == 1) || ($mode == 2))) 
 $this->Error("Text rendering mode should be 0, 1 or 2 (value : $mode)"); 
 $this->_out($mode.' Tr'); 

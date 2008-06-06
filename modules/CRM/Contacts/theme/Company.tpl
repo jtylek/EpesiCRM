@@ -14,7 +14,7 @@
 	<tbody>
 		<tr>
 			<td class="icon"><img src="{$theme_dir}/CRM_Contacts__companies.png" width="32" height="32" border="0"></td>
-			<td class="name">Companies</td>
+			<td class="name">{$caption}</td>
 			<td class="required_fav_info">
 				&nbsp;*&nbsp;{$required_note}
 				{if isset($fav_tooltip)}

@@ -328,8 +328,8 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$theme->display();
 
 		if($action == 'view') {
-			Base_ActionBarCommon::add('edit',$this->lang->t('Edit'), $this->create_callback_href(array($this, 'view_event'), array('edit', $id)));
-			Base_ActionBarCommon::add('clone',$this->lang->t('Clone'), $this->create_confirm_callback_href($this->lang->ht('You are about to create a copy of this record. Do you want to continue?'),array($this,'clone_event'),array($id)));
+			Base_ActionBarCommon::add('edit','Edit', $this->create_callback_href(array($this, 'view_event'), array('edit', $id)));
+			Base_ActionBarCommon::add('clone','Clone', $this->create_confirm_callback_href($this->lang->ht('You are about to create a copy of this record. Do you want to continue?'),array($this,'clone_event'),array($id)));
 		} else {
 			Base_ActionBarCommon::add('save','Save',' href="javascript:void(0)" onClick="'.addcslashes($form->get_submit_form_js(true),'"').'"');
 		}

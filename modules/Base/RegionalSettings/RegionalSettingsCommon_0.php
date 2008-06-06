@@ -70,11 +70,11 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	private static $country_elem_name;
 	public static function default_country_elem($name, $args, & $def_js) {
 		self::$country_elem_name = $name;
-		return HTML_QuickForm::createElement('commondata',$name,'Country','Countries');
+		return HTML_QuickForm::createElement('commondata',$name,Base_LangCommon::ts('Base_RegionalSettings','Country'),'Countries');
 	}
 
 	public static function default_state_elem($name, $args, & $def_js) {
-		return HTML_QuickForm::createElement('commondata',$name,'State',array('Countries',self::$country_elem_name),array('empty_option'=>true));
+		return HTML_QuickForm::createElement('commondata',$name,Base_LangCommon::ts('Base_RegionalSettings','State'),array('Countries',self::$country_elem_name),array('empty_option'=>true));
 	}
 
 	public static function get_default_location() {

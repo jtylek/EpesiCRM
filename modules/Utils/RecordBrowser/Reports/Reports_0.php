@@ -261,17 +261,16 @@ class Utils_RecordBrowser_Reports extends Module {
 			}
 		}
 		$gb->set_inline_display();
-		$table = $this->get_html_of_module($gb);
+		$table = $this->get_html_of_module($gb, array(Base_ThemeCommon::get_template_filename('Utils_RecordBrowser_Reports','generic_browser')));
 		print($table);
-		/*
-		$pdf = $this->init_module('Libs/FPDF', 'L');
+/*		$pdf = $this->init_module('Libs/FPDF', 'P');
 		$pdf->fpdf->AddPage();
 		$pdf->fpdf->UseTableHeader(true);
 //		$table = '<table border="1">';
 //		$table .= '<tr><th>Header 1</th><th>Header 2</th></tr>';
 //		for ($i=0;$i<100;$i++) $table .= '<tr><td>Row '.$i.' Col 1<br>!<br>?</td><td>Col 2</td></tr>';
 //		$table .= '</table>';
-		$pdf->fpdf->WriteHTML('<span style="font-size:4px">'.$table.'</span>');
+		$pdf->fpdf->WriteHTML($table);
 		print('<a href="'.$pdf->get_href().'">Here!</a>');*/
 	}
 
