@@ -55,7 +55,7 @@ function themeup(){
 	install_default_theme_common_files('modules/Base/Theme/','images');
 }
 
-$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1','0.9.9beta1','0.9.9beta2','1.0.0rc1');
+$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1','0.9.9beta1','0.9.9beta2','1.0.0rc1','1.0.0rc2');
 
 /****************** 0.8.5 to 0.8.6 **********************/
 function update_from_0_9_9beta1_to_0_9_9beta2() {
@@ -85,7 +85,7 @@ function update_from_0_9_9beta2_to_1_0_0rc1() {
 		}
 		DB::DropTable($row['tab'].'_addon');
 	}
-	
+
 	//RB 1.02
 	$ret = DB::Execute('SELECT tab FROM recordbrowser_table_properties');
 	while($row = $ret->FetchRow()) {
@@ -94,7 +94,7 @@ function update_from_0_9_9beta2_to_1_0_0rc1() {
 		if ($row['tab']=='contact') DB::Execute('UPDATE '.$row['tab'].'_field SET param=\'company::Company Name;::\' WHERE field=\'Company Name\'');
 		if ($row['tab']=='phonecall') DB::Execute('UPDATE '.$row['tab'].'_field SET param=\'company::Company Name;::\' WHERE field=\'Company Name\'');
 	}
-	
+
 	//dashboard colors
 	$q = DB::dict()->AddColumnSQL('base_dashboard_applets','color I2 DEFAULT 0');
 	DB::Execute($q[0]);
@@ -106,7 +106,188 @@ function update_from_0_9_9beta2_to_1_0_0rc1() {
 		$q = DB::dict()->DropColumnSQL('utils_tasks_task','parent_module');
 		DB::Execute($q[0]);
 	}
-	
+
+	themeup();
+}
+
+function update_from_1_0_0rc1_to_1_0_0rc2() {
+/*	DB::DropTable('history');
+	DB::DropTable('session_client');
+	DB::DropTable('session');
+	DB::CreateTable('session',"name C(32) NOTNULL," .
+			"expires I NOTNULL DEFAULT 0, data B",array('constraints'=>', PRIMARY KEY(name)'));
+	DB::CreateTable('session_client',"session_name C(32) NOTNULL, client_id I2," .
+			"data B",array('constraints'=>', FOREIGN KEY(session_name) REFERENCES session(name), PRIMARY KEY(client_id,session_name)'));
+	DB::CreateTable('history',"session_name C(32) NOTNULL, page_id I, client_id I2," .
+			"data B",array('constraints'=>', FOREIGN KEY(session_name) REFERENCES session(name), PRIMARY KEY(client_id,session_name,page_id), INDEX(session_name,client_id), INDEX(session_name)'));
+
+	$q = DB::dict()->AddColumnSQL('utils_commondata_tree','readonly I1 DEFAULT 0');
+	DB::Execute($q[0]);
+
+	define('CID',false);
+	require_once('include.php');
+	ob_start();
+	ModuleManager::load_modules();
+	if(ModuleManager::is_installed('CRM/Contacts')>=0)
+		ModuleManager::install('CRM_Followup');
+	ob_end_clean();
+
+	if(ModuleManager::is_installed('CRM/Calendar')>=0) {
+		$q = DB::dict()->AddColumnSQL('crm_calendar_event','status I2 DEFAULT 0');
+		DB::Execute($q[0]);
+	}
+
+	Utils_CommonDataCommon::new_array('Ticket_Status',array('Open','In Progress','Closed','Canceled'), true,true);
+	Utils_CommonDataCommon::extend_array('Companies_Groups',array('rental company'=>'Rental Company'));
+
+	$id = Utils_CommonDataCommon::get_id('Project_Status');
+	if($id!==false)
+		Utils_CommonDataCommon::extend_array('Project_Status',array('itb_received'=>'ITB Received','proposal_submited'=>'Proposal Submitted','job_canceled'=>'Job Canceled','job_lost'=>'Job Lost','job_awarded'=>'Job Awarded','on_hold'=>'On Hold','in_progress'=>'In Progress','completed_unpaid'=>'Completed Unpaid','paid'=>'Paid'),true,true);
+	$id = Utils_CommonDataCommon::get_id('Job_Type');
+	if($id!==false)
+		Utils_CommonDataCommon::extend_array('Job_Type',array('Commercial','Residential','Maintenance'),true,true);
+	$id = Utils_CommonDataCommon::get_id('Companies_Groups');
+	if($id!==false) {
+		Utils_CommonDataCommon::extend_array('Companies_Groups',array('customer'=>'Customer','vendor'=>'Vendor','other'=>'Other'),true,true);
+		Utils_CommonDataCommon::extend_array('Companies_Groups',array('gc'=>'General Contractor','res'=>'Residential'),true,true);
+	}
+	$id = Utils_CommonDataCommon::get_id('Contacts_Groups');
+	if($id!==false)
+		Utils_CommonDataCommon::extend_array('Contacts_Groups',array('office'=>'Office Staff','field'=>'Field Staff','custm'=>'Customer'),true,true);
+	$id = Utils_CommonDataCommon::get_id('Permissions');
+	if($id!==false)
+		Utils_CommonDataCommon::extend_array('Permissions',array('Public','Protected','Private'), true,true);
+	$id = Utils_CommonDataCommon::get_id('Ticket_Status');
+	if($id!==false)
+		Utils_CommonDataCommon::extend_array('Ticket_Status',array('Open','In Progress','Closed','Canceled'), true,true);
+	$id = Utils_CommonDataCommon::get_id('Priorities');
+	if($id!==false)
+		Utils_CommonDataCommon::extend_array('Priorities',array('Low','Medium','High'), true,true);
+	$id = Utils_CommonDataCommon::get_id('Bugtrack_Status');
+	if($id!==false)
+		Utils_CommonDataCommon::extend_array('Bugtrack_Status',array('new'=>'New','inprog'=>'In Progress','cl'=>'Closed'),true,true);
+
+
+	if(ModuleManager::is_installed('CRM_PhoneCall')>=0) {
+		Acl::add_aco('CRM_PhoneCall','view protected notes','Employee');
+		Acl::add_aco('CRM_PhoneCall','view public notes','Employee');
+		Acl::add_aco('CRM_PhoneCall','edit protected notes','Employee Administrator');
+		Acl::add_aco('CRM_PhoneCall','edit public notes','Employee');
+	}
+	//tasks
+	if(ModuleManager::is_installed('Utils_Tasks')>=0) {
+		Acl::add_aco('Utils_Tasks','view protected notes','Employee');
+		Acl::add_aco('Utils_Tasks','view public notes','Employee');
+		Acl::add_aco('Utils_Tasks','edit protected notes','Employee Administrator');
+		Acl::add_aco('Utils_Tasks','edit public notes','Employee');
+
+		$fields = array(
+			array('name'=>'Title', 				'type'=>'text', 'required'=>true, 'param'=>'255', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('Utils_TasksCommon','display_title')),
+
+			array('name'=>'Description', 		'type'=>'long text', 'extra'=>false, 'param'=>'255', 'visible'=>false),
+
+			array('name'=>'Employees', 			'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('Utils_TasksCommon','employees_crits'), 'format'=>array('Utils_TasksCommon','contact_format_with_balls')), 'display_callback'=>array('Utils_TasksCommon','display_employees'), 'required'=>true, 'extra'=>false, 'visible'=>true),
+			array('name'=>'Customers', 			'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('Utils_TasksCommon','customers_crits')), 'required'=>true, 'extra'=>false, 'visible'=>true),
+
+			array('name'=>'Status',				'type'=>'select', 'required'=>true, 'visible'=>true, 'filter'=>true, 'param'=>'__COMMON__::Ticket_Status', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('Utils_TasksCommon','display_status')),
+			array('name'=>'Priority', 			'type'=>'select', 'required'=>true, 'visible'=>true, 'param'=>'__COMMON__::Priorities', 'extra'=>false),
+			array('name'=>'Permission', 		'type'=>'select', 'required'=>true, 'param'=>'__COMMON__::Permissions', 'extra'=>false),
+
+			array('name'=>'Longterm',			'type'=>'checkbox', 'extra'=>false, 'filter'=>true, 'visible'=>true),
+
+			array('name'=>'Is Deadline',		'type'=>'checkbox', 'extra'=>false, 'QFfield_callback'=>array('Utils_TasksCommon','QFfield_is_deadline')),
+			array('name'=>'Deadline',			'type'=>'date', 'extra'=>false, 'visible'=>true),
+
+			array('name'=>'Page id',			'type'=>'hidden', 'extra'=>false)
+
+		);
+		Utils_RecordBrowserCommon::install_new_recordset('task', $fields);
+		Utils_RecordBrowserCommon::set_tpl('task', Base_ThemeCommon::get_template_filename('Utils/Tasks', 'default'));
+		Utils_RecordBrowserCommon::set_processing_method('task', array('Utils_TasksCommon', 'submit_task'));
+		Utils_RecordBrowserCommon::set_icon('task', Base_ThemeCommon::get_template_filename('Utils/Tasks', 'icon.png'));
+		Utils_RecordBrowserCommon::set_recent('task', 5);
+		Utils_RecordBrowserCommon::set_caption('task', 'Tasks');
+		Utils_RecordBrowserCommon::set_access_callback('task', 'Utils_TasksCommon', 'access_task');
+		Utils_RecordBrowserCommon::new_addon('task', 'Utils/Tasks', 'task_attachment_addon', 'Notes');
+
+		Utils_CommonDataCommon::new_array('Ticket_Status',array('Open','In Progress','Closed'), true);
+		Utils_CommonDataCommon::new_array('Permissions',array('Public','Protected','Private'), true);
+		Utils_CommonDataCommon::new_array('Priorities',array('Low','Medium','High'), true);
+
+		$ret = DB::CreateTable('task_employees_notified','
+			task_id I4 NOTNULL,
+			contact_id I4 NOTNULL',
+			array('constraints'=>', FOREIGN KEY (task_id) REFERENCES task(ID), FOREIGN KEY (contact_id) REFERENCES contact(ID)'));
+
+		//**************  move data ******************
+
+		$tab = 'task';
+		$table_rows = array();
+		$ret = DB::Execute('SELECT * FROM '.$tab.'_field WHERE active=1 AND type!=\'page_split\' ORDER BY position');
+		while($row = $ret->FetchRow()) {
+			if ($row['field']=='id') continue;
+			$table_rows[$row['field']] =
+				array(	'name'=>$row['field'],
+						'id'=>strtolower(str_replace(' ','_',$row['field'])),
+						'type'=>$row['type'],
+						'visible'=>$row['visible'],
+						'required'=>$row['required'],
+						'extra'=>$row['extra'],
+						'active'=>$row['active'],
+						'position'=>$row['position'],
+						'filter'=>$row['filter'],
+						'style'=>$row['style'],
+						'param'=>$row['param']);
+		}
+
+		if(DATABASE_DRIVER=='mysqlt' || DATABASE_DRIVER=='mysqli')
+			DB::Execute('SET FOREIGN_KEY_CHECKS=0');
+		$ret = DB::Execute('SELECT * FROM utils_tasks_task');
+		while ($row = $ret->FetchRow()) {
+			$employees = DB::GetAssoc('SELECT contact, contact FROM crm_calendar_event_group_emp AS ccegp WHERE ccegp.id=%d', array($row['id']));
+			$customers = DB::GetAssoc('SELECT contact, contact FROM crm_calendar_event_group_cus AS ccegc WHERE ccegc.id=%d', array($row['id']));
+				$values = array(	'title'=>$row['title'],
+									'description'=>$row['description'],
+									'priority'=>$row['priority'],
+									'deadline'=>$row['deadline'],
+									'is_deadline'=>($row['deadline']!=null),
+									'status'=>$row['status'],
+									'longterm'=>$row['longterm'],
+									'page_id'=>$row['page_id'],
+									'permission'=>$row['permission'],
+									'employees'=>$employees,
+									'customers'=>$customers
+								);
+		//	$id = Utils_RecordBrowserCommon::new_record('task', $rec);
+				DB::StartTrans();
+				$id = $row['id'];
+				DB::Execute('INSERT INTO '.$tab.' (id, created_on, created_by, active) VALUES (%d, %T, %d, %d)',array($id, $row['created_on'], $row['created_by'], 1));
+				foreach($table_rows as $field => $args) {
+					if (!isset($values[$args['id']]) || $values[$args['id']]=='') continue;
+					if (!is_array($values[$args['id']]))
+						DB::Execute('INSERT INTO '.$tab.'_data ('.$tab.'_id, field, value) VALUES (%d, %s, %s)',array($id, $field, $values[$args['id']]));
+					else
+						foreach($values[$args['id']] as $v)
+							DB::Execute('INSERT INTO '.$tab.'_data ('.$tab.'_id, field, value) VALUES (%d, %s, %s)',array($id, $field, $v));
+				}
+				DB::CompleteTrans();
+		}
+
+		$ret = DB::Execute('SELECT * FROM utils_tasks_assigned_contacts WHERE viewed=1');
+		while ($row = $ret->FetchRow()) {
+			DB::Execute('INSERT INTO task_employees_notified (task_id, contact_id) VALUES (%d, %d)', array($row['task_id'], $row['contact_id']));
+		}
+
+		//************* delete old tables ******************
+		DB::DropTable('utils_tasks_related_contacts');
+		DB::DropTable('utils_tasks_assigned_contacts');
+		DB::DropTable('utils_tasks_task');
+
+		if(DATABASE_DRIVER=='mysqlt' || DATABASE_DRIVER=='mysqli')
+			DB::Execute('SET FOREIGN_KEY_CHECKS=1');
+
+	}
+*/
 	themeup();
 }
 

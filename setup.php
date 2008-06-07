@@ -252,12 +252,12 @@ function clean_database() {
 	require_once('include/database.php');
 	$tables_db = DB::MetaTables();
 	$tables = array();
-	if(DATABASE_DRIVER=='mysqlt')
+	if(DATABASE_DRIVER=='mysqlt' || DATABASE_DRIVER=='mysqli')
 		DB::Execute('SET FOREIGN_KEY_CHECKS=0');
 	foreach($tables_db as $t) {
 		DB::DropTable($t);
 	}
-	if(DATABASE_DRIVER=='mysqlt')
+	if(DATABASE_DRIVER=='mysqlt' || DATABASE_DRIVER=='mysqli')
 		DB::Execute('SET FOREIGN_KEY_CHECKS=1');
 }
 
