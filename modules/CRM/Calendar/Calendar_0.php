@@ -46,7 +46,9 @@ class CRM_Calendar extends Module {
 		CRM_Calendar_EventCommon::$filter = '('.CRM_FiltersCommon::get_my_profile().')';
 		$ret = CRM_Calendar_EventCommon::get_all($start,$end,$gb->get_query_order());
 		$data = array();
+		$colors = CRM_Calendar_EventCommon::get_available_colors();
 		foreach($ret as $row) {
+			if ($conf['color']!=0 && $colors[$conf['color']]!=$row['color']) continue; 
 			$ex = Utils_CalendarCommon::process_event($row);
 			$view_action = '<a '.$this->create_callback_href(array($this,'view_event'),$row['id']).'>';
 			if($row['description'])
