@@ -261,7 +261,8 @@ class Utils_RecordBrowser_Reports extends Module {
 			}
 		}
 		$gb->set_inline_display();
-		$table = $this->get_html_of_module($gb, array(Base_ThemeCommon::get_template_filename('Utils_RecordBrowser_Reports','generic_browser')));
+		$table = $this->get_html_of_module($gb);
+//		$table = $this->get_html_of_module($gb, array(Base_ThemeCommon::get_template_filename('Utils_RecordBrowser_Reports','generic_browser')));
 		print($table);
 /*		$pdf = $this->init_module('Libs/FPDF', 'P');
 		$pdf->fpdf->AddPage();
