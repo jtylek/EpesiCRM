@@ -143,7 +143,7 @@ class Utils_RecordBrowser_Reports extends Module {
 				$vals = array();
 				$data_recs = array();
 				foreach ($this->data_record_relation[$dv] as $k2=>$v2) $vals = array($k2, $r['id']);
-				$ret = DB::Execute('SELECT '.$dv.'_id FROM '.$dv.'_data WHERE field=%s AND value=%s', $vals);
+				$ret = DB::Execute('SELECT '.$dv.'_id FROM '.$dv.'_data AS rd LEFT JOIN '.$dv.' AS r ON r.id=rd.'.$dv.'_id WHERE rd.field=%s AND rd.value=%s AND r.active=1', $vals);
 				while ($row = $ret->FetchRow())
 					$data_recs[] = $row[$dv.'_id'];
 				$data_recs = Utils_RecordBrowserCommon::get_records($dv, array('id'=>$data_recs));
