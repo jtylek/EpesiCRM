@@ -412,15 +412,10 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$end = $start + $vals['duration'];
 			if(date('Y-m-d',$start)!=date('Y-m-d',$end))
 				$end = strtotime(date('Y-m-d',$start).' 23:59');
-		} else
+		} else 
 			$end = strtotime($vals['date_s']) + $this->recalculate_time($vals['time_e']);
-		if ($vals['timeless']) {
-			$start = strtotime(date('Y-m-d 00:00:00', $start));
-			$end = strtotime(date('Y-m-d 00:00:00', $end));
-		} else {
-			$start = Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$start),true);
-			$end = Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$end),true);
-		}
+		$start = Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$start),true);
+		$end = Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$end),true);
 		DB::Execute('UPDATE crm_calendar_event SET title=%s,'.
 													'description=%s,'.
 													'start=%d,'.

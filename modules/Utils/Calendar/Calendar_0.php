@@ -545,13 +545,13 @@ class Utils_Calendar extends Module {
 			$prev = null;
 			foreach($timeline as & $v) {
 				if(is_string($v['time'])) {
-					$ii = ($dis_week_from+$i*86400).'_'.$v['time'];
+					$ii = $today_t.'_'.$v['time'];
 					$dnd[] = $ii;
 					if($prev && isset($prev['join_rows'])) $joins[count($joins)-1][2] = $ii;
 					if(isset($v['join_rows']))
 						$joins[] = array($ii,$v['join_rows'],0);
 					$time_ids[$i][] = 'UCcell_'.$ii;
-				} else {
+				} else { 
 					$ii = $today_t+$v['time'];
 					$dnd[] = $ii;
 					if($prev && isset($prev['join_rows'])) $joins[count($joins)-1][2] = $ii;
@@ -583,7 +583,7 @@ class Utils_Calendar extends Module {
 			}
 			if(isset($ev['custom_row_key'])) {
 				if(isset($custom_keys[$ev['custom_row_key']])) {
-					$dest_id = 'UCcell_'.$ev['start'].'_'.$ev['custom_row_key'];
+					$dest_id = 'UCcell_'.$today_t.'_'.$ev['custom_row_key'];
 				} else {
 //					trigger_error('Invalid custom_row_key:'.$ev['custom_row_key'],E_USER_ERROR);
 					continue;
