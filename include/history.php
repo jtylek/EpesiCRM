@@ -67,9 +67,9 @@ class History {
 	}
 
 	public static function set_id($id) {
-		$c = DB::GetOne('SELECT count(*) FROM history WHERE session_name=%s AND client_id=%d',array(session_id(),CID));
-		if($id<1) $id = 1;
-		elseif($id>$c) $id=$c;
+		$c = DB::GetRow('SELECT max(page_id) as max,min(page_id) as min FROM history WHERE session_name=%s AND client_id=%d',array(session_id(),CID));
+		if($id<1 || $id<$c['min']) $id = $c['min'];
+		elseif($id>$c['max']) $id=$c['max'];
 		$_SESSION['client']['__history_id__']=intval($id);
 		$data = DB::GetOne('SELECT data FROM history WHERE session_name=%s AND client_id=%d AND page_id=%d',array(session_id(),CID,$_SESSION['client']['__history_id__']-1));
 		if($data===false) {
