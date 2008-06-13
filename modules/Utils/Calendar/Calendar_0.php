@@ -583,7 +583,7 @@ class Utils_Calendar extends Module {
 			}
 			if(isset($ev['custom_row_key'])) {
 				if(isset($custom_keys[$ev['custom_row_key']])) {
-					$dest_id = 'UCcell_'.$today_t.'_'.$ev['custom_row_key'];
+					$dest_id = 'UCcell_'.$ev['start'].'_'.$ev['custom_row_key'];
 				} else {
 //					trigger_error('Invalid custom_row_key:'.$ev['custom_row_key'],E_USER_ERROR);
 					continue;
