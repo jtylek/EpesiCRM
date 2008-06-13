@@ -545,7 +545,7 @@ class Utils_Calendar extends Module {
 			$prev = null;
 			foreach($timeline as & $v) {
 				if(is_string($v['time'])) {
-					$ii = $today_t.'_'.$v['time'];
+					$ii = ($dis_week_from+$i*86400).'_'.$v['time'];
 					$dnd[] = $ii;
 					if($prev && isset($prev['join_rows'])) $joins[count($joins)-1][2] = $ii;
 					if(isset($v['join_rows']))
