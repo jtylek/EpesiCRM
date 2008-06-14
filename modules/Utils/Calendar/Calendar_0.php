@@ -413,7 +413,7 @@ class Utils_Calendar extends Module {
 		$ret = $this->get_events(date('Y-m-d',$this->date),date('Y-m-d',$this->date+86400));
 		$custom_keys = $this->settings['custom_rows'];
 		$this->js('Utils_Calendar.page_type=\'day\'');
-		$ev_out = 'function() {';
+		$ev_out = 'function() {Utils_Calendar.init_reload_event_tag();';
 		foreach($ret as $ev) {
 			$ev_start = $ev['start']-$today_t;//Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$ev['start']))
 //			print_r($ev_start);
@@ -441,7 +441,7 @@ class Utils_Calendar extends Module {
 				$ev_out .= 'Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\',\''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).', '.ceil($ev['duration']/(strtotime($this->settings['interval'])-strtotime('0:00'))).');';
 			}
 		}
-		$ev_out.='}';
+		$ev_out.='Utils_Calendar.flush_reload_event_tag();}';
 		eval_js('setTimeout('.$ev_out.',300)');
 		eval_js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
 				'\''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
@@ -551,7 +551,7 @@ class Utils_Calendar extends Module {
 					if(isset($v['join_rows']))
 						$joins[] = array($ii,$v['join_rows'],0);
 					$time_ids[$i][] = 'UCcell_'.$ii;
-				} else { 
+				} else {
 					$ii = $today_t+$v['time'];
 					$dnd[] = $ii;
 					if($prev && isset($prev['join_rows'])) $joins[count($joins)-1][2] = $ii;
@@ -575,7 +575,7 @@ class Utils_Calendar extends Module {
 		$ret = $this->get_events($dis_week_from,$dis_week_from+7*86400);
 		$custom_keys = $this->settings['custom_rows'];
 		$this->js('Utils_Calendar.page_type=\'week\'');
-		$ev_out = 'function() {';
+		$ev_out = 'function() {Utils_Calendar.init_reload_event_tag();';
 		foreach($ret as $k=>$ev) {
 			$today_t = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$ev['start']));
 			if(isset($ev['timeless']) && $ev['timeless'] && !isset($ev['custom_row_key'])) {
@@ -603,7 +603,7 @@ class Utils_Calendar extends Module {
 				$ev_out .= 'Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).', '.ceil($ev['duration']/(strtotime($this->settings['interval'])-strtotime('0:00'))).');';
 			}
 		}
-		$ev_out.='}';
+		$ev_out.='Utils_Calendar.flush_reload_event_tag();}';
 		eval_js('setTimeout('.$ev_out.',300)');
 		eval_js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
 				'\''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.

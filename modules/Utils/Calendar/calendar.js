@@ -15,17 +15,18 @@ add_event:function(dest_id,ev_id,draggable,duration) {
 		return;
 	}
 
+	ev.setAttribute('last_cell',dest_id);
 	if(Utils_Calendar.page_type=='month') {
 		dest.appendChild(ev);
-		ev.setAttribute('last_cell',dest_id);
 	} else {
 		ev.setAttribute('duration',duration);
 		ev.style.position = 'absolute';
 //		ev.style.overflow = 'hidden';
 
-		Utils_Calendar.init_reload_event_tag();
+		Utils_Calendar.reload_events.push(ev.id);
+/*		Utils_Calendar.init_reload_event_tag();
 		Utils_Calendar.add_event_tag(dest,ev);
-		Utils_Calendar.flush_reload_event_tag();
+		Utils_Calendar.flush_reload_event_tag();*/
 	}
 
 	if(draggable)
@@ -203,9 +204,12 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
                                 element.setAttribute('last_cell',droppable.id);
 							} else {
 								Utils_Calendar.init_reload_event_tag();
-								Utils_Calendar.remove_event_tag($(element.getAttribute('last_cell')),element);
-								Utils_Calendar.add_event_tag(droppable,element);
-								Utils_Calendar.flush_reload_event_tag();
+								Utils_Calendar.reload_event_tag(new Array(element.id));
+								//Utils_Calendar.remove_event_tag($(element.getAttribute('last_cell')),element);
+								//Utils_Calendar.add_event_tag(droppable,element);
+								element.setAttribute('last_cell',droppable.id);
+								setTimeout(Utils_Calendar.flush_reload_event_tag,300);
+								//Utils_Calendar.flush_reload_event_tag();
 							}
 
 							new Draggable(element, {
