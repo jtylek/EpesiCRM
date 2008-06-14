@@ -49,13 +49,20 @@ class Base_ThemeCommon extends ModuleCommon {
 		if(isset($user_template)) {
 			if (!$fullname)
 				$module_name .= '__'.$user_template;
-			else
-				$module_name = $user_template;
+			else {
+				if(ereg(".tpl$",$user_template)) {
+					$tpl = $user_template;
+					$css = str_replace('.tpl','.css',$tpl);
+				} else
+					$module_name = $user_template;
+			}
 		} else
 			$module_name .= '__default';
-
-		$tpl = $module_name.'.tpl';
-		$css = $module_name.'.css';
+		
+		if(!isset($tpl)) {
+			$tpl = $module_name.'.tpl';
+			$css = $module_name.'.css';
+		}
 
 		if($smarty->template_exists($tpl)) {
 			$smarty->assign('theme_dir',$smarty->template_dir);
