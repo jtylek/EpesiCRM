@@ -763,6 +763,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		self::init($tab);
 		if (isset($id)) {
 			self::check_table_name($tab);
+			$row = DB::Execute('SELECT active, created_by, created_on FROM '.$tab.' WHERE id=%d', array($id))->FetchRow();
+			if ($row===false) return null;
 			$data = DB::Execute('SELECT * FROM '.$tab.'_data WHERE '.$tab.'_id=%d', array($id));
 			$record = array();
 			while($field = $data->FetchRow()) {
@@ -776,7 +778,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					$record[$field_id] = $field['value'];
 			}
 			$record['id'] = $id;
-			$row = DB::Execute('SELECT active, created_by, created_on FROM '.$tab.' WHERE id=%d', array($id))->FetchRow();
 			foreach(array('active','created_by','created_on') as $v)
 				$record[$v] = $row[$v];
 			foreach(self::$table_rows as $field=>$args)

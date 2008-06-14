@@ -194,6 +194,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 				}
 				foreach($ext_rec as $k=>$v) {
 					$c = CRM_ContactsCommon::get_contact($k);
+					if ($c===null) continue;
 					$cont[$k] = call_user_func($callback, $c, true);
 				}
 				uasort($cont, array('CRM_ContactsCommon', 'compare_names'));
