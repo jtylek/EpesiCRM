@@ -1,4 +1,4 @@
-Utils_Calendar = { 
+Utils_Calendar = {
 day_href:null,
 page_type:null,
 go_to_day:function(date) {
@@ -22,12 +22,12 @@ add_event:function(dest_id,ev_id,draggable,duration) {
 		ev.setAttribute('duration',duration);
 		ev.style.position = 'absolute';
 //		ev.style.overflow = 'hidden';
-	
+
 		Utils_Calendar.init_reload_event_tag();
 		Utils_Calendar.add_event_tag(dest,ev);
 		Utils_Calendar.flush_reload_event_tag();
 	}
-	
+
 	if(draggable)
 		new Draggable(ev, {
 			handle: 'handle',
@@ -56,13 +56,13 @@ remove_event_tag:function(prev_node,ev) {
 		} else
 			duration = 0;
 	} while(duration>0);
-	
+
 	Utils_Calendar.reload_event_tag(reload);
 },
 init_reload_event_tag:function() {
 	Utils_Calendar.reload_events = new Array();
 },
-reload_event_tag:function(reload) {	
+reload_event_tag:function(reload) {
 	reload.each(function(id) {
 		if(Utils_Calendar.reload_events.indexOf(id)>=0) return;
 		var element = $(id);
@@ -109,7 +109,7 @@ add_event_tag:function(dest,ev) {
 		h++;
 	} while(duration>0);
 	ev.style.height = (h * dest.getHeight())+'px';
-	
+
 	var ev_w = ev.getWidth();
 	var offset_step = ev_w/5;
 
@@ -151,7 +151,7 @@ add_event_tag:function(dest,ev) {
 		ev.clonePosition(dest, {setHeight: false, setWidth: false, offsetLeft: (offset_step*offset)});
 	}
 	ev.setAttribute('last_cell',dest.id);
-	
+
 
 	Utils_Calendar.reload_event_tag(reload);
 },
@@ -200,14 +200,14 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 						if(!reject) {
 							if(Utils_Calendar.page_type=='month') {
 								droppable.appendChild(element);
-		                                                element.setAttribute('last_cell',droppable.id);
+                                element.setAttribute('last_cell',droppable.id);
 							} else {
 								Utils_Calendar.init_reload_event_tag();
 								Utils_Calendar.remove_event_tag($(element.getAttribute('last_cell')),element);
 								Utils_Calendar.add_event_tag(droppable,element);
 								Utils_Calendar.flush_reload_event_tag();
 							}
-							
+
 							new Draggable(element, {
 								handle: 'handle',
 								revert: true
