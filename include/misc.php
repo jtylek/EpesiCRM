@@ -2,7 +2,7 @@
 
 /**
  * This file defines all other base functionality.
- * 
+ *
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
@@ -13,7 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
  * Generates random string of specified length.
- * 
+ *
  * @param integer length
  * @return string random string
  */
@@ -45,19 +45,20 @@ function generate_password($length = 8) {
 /**
  * Redirects to specified url. First parameter is array of variables to pass with redirection.
  * If no argument is specified returns saved redirect url.
- * 
+ *
  * @param array
  * @return string saved url
  */
-function location($u = null,$ret = false) {
+function location($u = null,$ret = false, $clear = true) {
 	static $variables = false;
 
 	if($ret) {
 		$ret = $variables;
-		$variables = false;
+		if($clear)
+			$variables = false;
 		return $ret;
 	}
-	
+
 	if($variables==false) $variables=array();
 
 	if (is_array($u))
@@ -66,7 +67,7 @@ function location($u = null,$ret = false) {
 
 /**
  * Requests css loading.
- * 
+ *
  * @param string css file path and name
  */
 function load_css($u) {
@@ -75,7 +76,7 @@ function load_css($u) {
 
 /**
  * Adds js to load.
- * 
+ *
  * @param string javascript file
  * @param boolean append contents of js file instead of use src tag?
  */
@@ -85,7 +86,7 @@ function load_js($u) {
 
 /**
  * Adds js block to eval. If no argument is specified returns saved jses.
- * 
+ *
  * @param string javascrpit code
  */
 function eval_js($u,$del_on_loc=true) {
@@ -93,7 +94,7 @@ function eval_js($u,$del_on_loc=true) {
 }
 /**
  * Adds js block to eval. Given js will be evaluated only once.
- * 
+ *
  * @param string javascrpit code
  * @return bool true on success, false otherwise
  */
@@ -110,7 +111,7 @@ function eval_js_once($u,$del_on_loc=false) {
 
 /**
  * Adds method to call on exit.
- * 
+ *
  * @param mixed function to call
  * @param mixed list of arguments
  * @param bool if set to false the function will be called only once, location() doesn't affect with double call
@@ -119,7 +120,7 @@ function eval_js_once($u,$del_on_loc=false) {
  */
 function on_exit($u = null, $args = null, $stable=true, $ret = false) {
 	static $headers = array ();
-	
+
 	if($ret) {
 		$ret = $headers;
 		$headers = array ();
@@ -136,7 +137,7 @@ function on_exit($u = null, $args = null, $stable=true, $ret = false) {
 }
 /**
  * Adds method to call on init.
- * 
+ *
  * @param mixed function to call
  * @param mixed list of arguments
  * @param bool if set to false the function will be called only once, location() doesn't affect with double call
@@ -145,7 +146,7 @@ function on_exit($u = null, $args = null, $stable=true, $ret = false) {
  */
 function on_init($u = null, $args = null, $stable=true, $ret = false) {
 	static $headers = array ();
-	
+
 	if($ret) {
 		$ret = $headers;
 		$headers = array ();
@@ -236,7 +237,7 @@ if (STRIP_OUTPUT) {
 }
 /**
  * Returns directory tree starting at given directory.
- * 
+ *
  * @param string starting directory
  * @param integer maximum depth of the tree
  * @param integer depth counter, for internal use
@@ -268,7 +269,7 @@ function dir_tree($path, $maxdepth = -1, $d = 0) {
 
 /**
  * Returns files tree matching pattern starting at given directory.
- * 
+ *
  * @param string starting directory
  * @param string glob pattern
  * @param mixed glob flags
@@ -300,7 +301,7 @@ function ereg_tree($path, $pattern, $maxdepth = -1, $d = 0) {
 
 /**
  * Removes directory recursively, deleteing all files stored under this directory
- * 
+ *
  * @param string directory to remove
  */
 function recursive_rmdir($path) {
@@ -324,7 +325,7 @@ function recursive_rmdir($path) {
 /**
  * Copies directory recursively, along with all files stored under source directory.
  * If destination directory doesn't exist it will be created.
- * 
+ *
  * @param string source directory
  * @param string destination directory
  */
@@ -382,7 +383,7 @@ if ( !function_exists('json_decode') ){
 		}
 		return $json->decode($content);
 	}
-}											
+}
 if ( !function_exists('json_encode') ){
 	function json_encode($content){
 		if((@include_once('Services/JSON.php'))===false)

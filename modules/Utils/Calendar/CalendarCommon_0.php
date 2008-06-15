@@ -77,7 +77,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 		$start_day = date('D',$ev_start);
 		$end_day = date('D',$ev_end);
 		Base_RegionalSettingsCommon::restore();
-		
+
 		if($oneday)
 			$end_t = Base_RegionalSettingsCommon::time2reg($ev_end,2,false);
 		$start_date = Base_RegionalSettingsCommon::time2reg($ev_start,false);
