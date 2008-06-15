@@ -14,7 +14,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	private static $table_rows = array();
 	private static $del_or_a = '';
 	public static $cols_order = array();
-
+	
 	public static function check_table_name($tab, $flush=false){
 		static $tables = null;
 		if ($tables===null || $flush) {
@@ -24,6 +24,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$tables[$v['tab']] = true;
 		}
 		if (($tab!=null && !isset($tables[$tab])) && !$flush) trigger_error('RecordBrowser critical failure, terminating. (Requested '.$tab.', available '.print_r($tables, true).')', E_USER_ERROR);
+	}
+	public static function get_value($tab, $id, $field) {
+		self::check_table_name($tab);
+		return DB::GetOne('SELECT value FROM '.$tab.'_data WHERE field=%s AND '.$tab.'_id=%d', array($field, $id));
 	}
 	public static function admin_caption() {
 		return 'Records Sets';
@@ -544,7 +548,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						$vals[]=Acl::get_user();
 						break;
 					case ':Edited_on'	: 
-						$fields .= ', (SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) AS _edited_on';
+						$fields .= ', (CASE WHEN (SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) THEN (SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) ELSE created_on END) AS _edited_on';
 						$orderby .= ' _edited_on '.$v['direction'];
 						break;
 					default		: trigger_error('Unknow paramter given to get_records criteria: '.$k, E_USER_ERROR);

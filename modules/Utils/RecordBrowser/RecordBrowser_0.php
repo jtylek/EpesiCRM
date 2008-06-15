@@ -1389,6 +1389,11 @@ class Utils_RecordBrowser extends Module {
 			if (isset($icons['view'])) $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'view',$v['id'])),'View');
 			if (isset($icons['edit'])) if ($this->get_access('edit',$v)) $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'edit',$v['id'])),'Edit');
 			if (isset($icons['delete'])) if ($this->get_access('delete',$v)) $gb_row->add_action($this->create_confirm_callback_href($this->lang->t('Are you sure you want to delete this record?'),array('Utils_RecordBrowserCommon','delete_record'),array($this->tab, $v['id'])),'Delete');
+			if (isset($icons['history'])) {
+				$r_info = Utils_RecordBrowserCommon::get_record_info($this->tab, $v['id']);
+				if ($r_info['edited_by']===null) $gb_row->add_action('','This record was never edited',null,'history_inactive');
+				else $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_edit_history', $v['id'])),'View edit history',null,'history');
+			}
 		}
 		$this->display_module($gb);
 	}
