@@ -613,7 +613,7 @@ class Utils_Calendar extends Module {
 
 	//////////////////////////////////////////////////////
 	// month and year
-	public function month_array($date) {
+	public function month_array($date, $mark = array(), & $it = 0) {
 		$first_day_of_month = strtotime(date('Y-m-', $date).'01');
 		$diff = date('w', $first_day_of_month)-$this->settings['first_day_of_week'];
 		if ($diff<0) $diff += 7;
@@ -627,12 +627,19 @@ class Utils_Calendar extends Module {
 			$weekno = date('W',$currday);
 			$link = $this->create_unique_href(array('action'=>'switch','time'=>$currday, 'tab'=>'Week'));
 			for ($i=0; $i<7; $i++) {
-				$week[] = array(
+				$next = array(
 							'day'=>date('j', $currday),
 							'day_link' => $this->create_unique_href(array('action'=>'switch', 'time'=>$currday, 'tab'=>'Day')),
 							'style'=>(date('m', $currday)==$curmonth)?(date('Y-m-d',$currday)==$today?'today':'current'):'other',
 							'time'=>$currday
 							);
+//				print(($currday-$mark[$it]).'<br>');
+//				print(date('Y-m-d H:i:s',$currday).'-'.date('Y-m-d H:i:s',$mark[$it]).'<br>');
+				if (isset($mark[$it]) && $currday == $mark[$it]) {
+					$it++;
+					$next['style'].= ' event';
+				}
+				$week[] = $next;
 				$currday += 86400;
 			}
 			$month[] = array(
@@ -731,9 +738,13 @@ class Utils_Calendar extends Module {
 		$theme->assign('month_view_label', $this->lang->t('Year calendar'));
 
 		$year = array();
+		
+		$ret = call_user_func(array($this->event_module.'Common','get_event_days'),date('Y-01-01',$this->date),date('Y-12-31',$this->date));
+		
+		$it = 0;
 		for ($i=1; $i<=12; $i++) {
-			$date = strtotime(date('Y',$this->date).'-'.str_pad($i, 2, '0', STR_PAD_LEFT).'-'.date('d',$this->date));
-			$month = $this->month_array($date);
+			$date = strtotime(date('Y',$this->date).'-'.str_pad($i, 2, '0', STR_PAD_LEFT).'-15');
+			$month = $this->month_array($date, $ret, $it);
 			$year[] = array('month' => $month,
 							'month_link' => $this->create_unique_href(array('action'=>'switch','time'=>$date, 'tab'=>'Month')),
 							'month_label' => date('F', $date),

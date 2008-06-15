@@ -100,6 +100,27 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		}
 		return $result;	
 	}
+	public static function get_event_days($start,$end) {
+		if (!is_numeric($start)) $start = strtotime($start);
+		if (!is_numeric($end)) $end = strtotime($end);
+		if(self::$filter=='()')
+			$fil = ' AND 1=0';
+		else if(self::$filter)
+			$fil = ' AND (SELECT id FROM crm_calendar_event_group_emp cg WHERE cg.id=e.id AND cg.contact IN '.self::$filter.' LIMIT 1) IS NOT NULL';
+		else
+			$fil = '';
+		$ret = DB::Execute('SELECT e.start FROM crm_calendar_event AS e WHERE e.start>=%d AND e.start<%d '.$fil.' ORDER BY e.start', array($start, $end));
+		$rs = array();
+		$last = '';
+		while ($row = $ret->FetchRow()) {
+			$next = date('Y-m-d',$row['start']);
+			if ($next==$last) continue;
+			$rs[] = strtotime($next);
+			$last = $next;
+		}
+		return $rs;
+	}
+	
 	public static function get_all($start,$end,$order=' ORDER BY e.start') {
 		if(self::$filter=='()')
 			$fil = ' AND 1=0';

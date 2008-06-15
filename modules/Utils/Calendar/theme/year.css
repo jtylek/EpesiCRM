@@ -78,6 +78,14 @@ p.event {
 	border: 2px solid #336699;
 }
 
+#Utils_Calendar__year td.event {
+	background-color: #D0FFD0;
+}
+
+#Utils_Calendar__year td.event a {
+	color: #139313;
+}
+
 #Utils_Calendar__year td.today a {
 	display: block;
 	width: 28px;
