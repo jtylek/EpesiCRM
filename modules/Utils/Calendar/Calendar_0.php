@@ -633,14 +633,17 @@ class Utils_Calendar extends Module {
 							'style'=>(date('m', $currday)==$curmonth)?(date('Y-m-d',$currday)==$today?'today':'current'):'other',
 							'time'=>$currday
 							);
-//				print(($currday-$mark[$it]).'<br>');
-//				print(date('Y-m-d H:i:s',$currday).'-'.date('Y-m-d H:i:s',$mark[$it]).'<br>');
+				if (isset($mark[$it])) {
+					print(($currday-$mark[$it]).'<br>');
+					print(date('Y-m-d H:i:s',$currday).'-'.date('Y-m-d H:i:s',$mark[$it]).'<br>');
+				}
 				if (isset($mark[$it]) && $currday == $mark[$it]) {
 					$it++;
 					$next['style'].= ' event';
 				}
 				$week[] = $next;
 				$currday += 86400;
+				$currday = strtotime(date('Y-m-d 00:00:00', $currday+60*60*12));
 			}
 			$month[] = array(
 							'week_label'=>$weekno,
