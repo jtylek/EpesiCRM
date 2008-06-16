@@ -21,10 +21,6 @@ class Applets_MonthViewInstall extends ModuleInstall {
 		return true;
 	}
 	
-	public function uninstall() {
-		return true;
-	}
-	
 	public function version() {
 		return array("0.1");
 	}
