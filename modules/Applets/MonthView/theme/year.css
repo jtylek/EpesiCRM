@@ -184,46 +184,43 @@ a.new_event:hover {
 
 /* menu */
 
-div.year-menu {
+div.month-applet {
 	padding-bottom: 0px;
 	/*border-bottom: 4px solid #B3B3B3;*/
 }
 
-div.year-menu img {
+div.month-applet img {
 	vertical-align: middle;
 }
 
-div.year-menu a.button {
+div.month-applet-menu a.button {
     font-weight: normal;
     color: #FFFFFF;
-    width: 100px;
+    width: 25px;
     line-height: 20px;
     display: block;
 	background-color: #336699;
-    /*background-image: url("images/header-blue.png");*/
-    background-image: none;
     border: 0px;
     text-align: center;
 }
 
-div.year-menu a.button:hover {
+div.month-applet-menu a.button:hover {
 	background-color: #339933;
-    /*background-image: url("images/header-blue-hover.png");*/
 }
 
-div.year-menu table.year-menu {
+div.month-applet table.month-applet {
 	width: 100%;
 }
 
-div.year-menu .empty {
+div.month-applet .empty {
 	width: 50%;
 }
 
-div.year-menu .add-info {
+div.month-applet .add-info {
 	color: #777777;
 	padding-right: 20px;
 }
 
-div.year-menu .add-info:hover {
+div.month-applet .add-info:hover {
 	color: #000000;
 }

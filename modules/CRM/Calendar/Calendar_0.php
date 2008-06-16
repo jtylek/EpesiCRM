@@ -13,16 +13,23 @@ class CRM_Calendar extends Module {
 			$this->view_event(intval($_REQUEST['ev_id']));
 		} else
 			$default_date = null;
-		
-		$theme = $this->init_module('Base/Theme');
-		$c = $this->init_module('Utils/Calendar',array('CRM/Calendar/Event',array('default_view'=>Base_User_SettingsCommon::get('CRM_Calendar','default_view'),
+
+		$args = array('default_view'=>Base_User_SettingsCommon::get('CRM_Calendar','default_view'),
 			'first_day_of_week'=>Utils_PopupCalendarCommon::get_first_day_of_week(),
 			'start_day'=>Base_User_SettingsCommon::get('CRM_Calendar','start_day'),
 			'end_day'=>Base_User_SettingsCommon::get('CRM_Calendar','end_day'),
 			'interval'=>Base_User_SettingsCommon::get('CRM_Calendar','interval'),
 			'default_date'=>$default_date,
 			'custom_agenda_cols'=>array('Description','Assigned to','Related with')
-			)));
+			);
+		
+		if (isset($_REQUEST['jump_to_date']) && is_numeric($_REQUEST['jump_to_date']) && isset($_REQUEST['switch_to_tab']) && is_string($_REQUEST['switch_to_tab'])) {
+			$args['default_date'] = $_REQUEST['jump_to_date'];
+			$args['default_view'] = $_REQUEST['switch_to_tab'];
+		}
+		
+		$theme = $this->init_module('Base/Theme');
+		$c = $this->init_module('Utils/Calendar',array('CRM/Calendar/Event',$args));
 		$theme->assign('calendar',$this->get_html_of_module($c));
 		$theme->display();
 	}

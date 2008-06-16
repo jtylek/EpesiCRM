@@ -2,13 +2,15 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_PopupCalendarCommon extends ModuleCommon {
-	public static function show($name,$function = '',$fullscreen=true,$mode=null,$first_day_of_week=null,$pos_js=null) {
-		if($mode=='month') {
-			$label = Base_LangCommon::ts('Utils_PopupCalendar','Select month');
-		} elseif($mode=='year') {
-			$label = Base_LangCommon::ts('Utils_PopupCalendar','Select year');
-		} else {
-			$label = Base_LangCommon::ts('Utils_PopupCalendar','Select date');
+	public static function show($name,$function = '',$fullscreen=true,$mode=null,$first_day_of_week=null,$pos_js=null,$label=null) {
+		if ($label===null) {
+			if($mode=='month') {
+				$label = Base_LangCommon::ts('Utils_PopupCalendar','Select month');
+			} elseif($mode=='year') {
+				$label = Base_LangCommon::ts('Utils_PopupCalendar','Select year');
+			} else {
+				$label = Base_LangCommon::ts('Utils_PopupCalendar','Select date');
+			}
 		}
 
 		return '<a class="button" '.self::create_href($name,$function,$fullscreen,$mode,$first_day_of_week,$pos_js).'>' . $label . '&nbsp;&nbsp;<img style="vertical-align: middle;" border="0" width="10" height="16" src=' . Base_ThemeCommon::get_template_file('Utils_PopupCalendar', 'select.gif').'>' . '</a>';
