@@ -1,4 +1,3 @@
-{*
 <div id="Utils_RecordBrowser__Filter">
 {if isset($dont_hide)}
 	{php}
@@ -14,12 +13,16 @@
 		<input type="button" {if !isset($dont_hide)}style="display: none;"{/if} onClick="document.getElementById('recordbrowser_filters_{$id}').style.display='none';this.style.display='none';document.getElementById('show_filter_b_{$id}').style.display='block';show_filters=0;" id="hide_filter_b_{$id}" value="Hide filters">
 	</div>
 </div>
-*}
+
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3" class="filters">
 
 {$form_open}
 
-{*<div id="recordbrowser_filters_{$id}" class="Utils_RecordBrowser__Filter" {if !isset($dont_hide)}style="display: none;"{/if}>*}
-<div id="recordbrowser_filters_{$id}" class="Utils_RecordBrowser__Filter">
+<div id="recordbrowser_filters_{$id}" class="Utils_RecordBrowser__Filter" {if !isset($dont_hide)}style="display: none;"{/if}>
+{*<div id="recordbrowser_filters_{$id}" class="Utils_RecordBrowser__Filter">*}
 	<table border="0" cellpadding="0" cellspacing="0">
 		<tr>
 			{assign var=x value=0}
@@ -48,3 +51,8 @@
 </div>
 
 {$form_close}
+            </td>
+    	</tr>
+	</tbody>
+</table>
+</div>

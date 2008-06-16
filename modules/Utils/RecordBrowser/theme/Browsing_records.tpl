@@ -10,24 +10,13 @@
 			<td class="name">{$caption}</td>
     		<td class="filters">
                 {if $filters}
-                    <div class="filters_button" onClick="filters_roll();">
-                        <div id="filters_button_icon_down"></div>
-                        <div id="filters_button_text">Show filters</span>
-                    </div>
+	                {$filters}
                 {else}
-                    &nbsp;
-                {/if}
             </td>
         </tr>
-        <tr>
-            <td colspan="3" class="filters">
-                <div id="filters_box" style="display: none;">
-                    <div id="filters" style="display: none;">{if $filters}{$filters}{else}&nbsp;{/if}</div>
-                </div>
-            </td>
-    	</tr>
 	</tbody>
 </table>
 </div>
+                {/if}
 
 {$table}
