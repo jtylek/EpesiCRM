@@ -633,10 +633,10 @@ class Utils_Calendar extends Module {
 							'style'=>(date('m', $currday)==$curmonth)?(date('Y-m-d',$currday)==$today?'today':'current'):'other',
 							'time'=>$currday
 							);
-				if (isset($mark[$it])) {
+/*				if (isset($mark[$it])) {
 					print(($currday-$mark[$it]).'<br>');
 					print(date('Y-m-d H:i:s',$currday).'-'.date('Y-m-d H:i:s',$mark[$it]).'<br>');
-				}
+				}*/
 				if (isset($mark[$it]) && $currday == $mark[$it]) {
 					$it++;
 					$next['style'].= ' event';
