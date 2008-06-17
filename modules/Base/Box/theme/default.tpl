@@ -13,7 +13,7 @@
 	eval_js_once('document.body.id=null');
 {/php}
 
-	<div id="top_bar">
+	<div id="top_bar" style="width:100%">
 		<div id="MenuBar">
 		<table id="top_bar_1" cellspacing="0" cellpadding="0" border="0">
 		<tbody>
