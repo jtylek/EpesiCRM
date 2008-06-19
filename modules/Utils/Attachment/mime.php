@@ -24,15 +24,18 @@ function get_mime_type($filepath,$original) {
 */
 	preg_match("/\.(.*?)$/", $original, $m);    # Get File extension for a better match
 	switch(strtolower($m[1])){
-       case "js": return "application/javascript";
-       case "json": return "application/json";
+       // case "js": return "application/javascript";
+       // case "json": return "application/json";
        case "jpg": case "jpeg": case "jpe": return "image/jpg";
+	   case "xls": return "application/vnd.ms-excel";
+	   case "doc": return "application/msword";
+   	   case "pdf": return "application/pdf";
        case "png": case "gif": case "bmp": return "image/".strtolower($m[1]);
-       case "css": return "text/css";
-       case "xml": return "application/xml";
+       // case "css": return "text/css";
+       // case "xml": return "application/xml";
        case "html": case "htm": case "php": return "text/html";
        default:
-           return "";
+           return "application/octet-stream";
    } 
 }
 ?>
