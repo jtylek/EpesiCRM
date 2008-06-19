@@ -45,7 +45,7 @@ class CRM_PhoneCall extends Module {
 		$me = CRM_ContactsCommon::get_my_record();
 		$conds = array(
 									array(	array('field'=>'contact_name', 'width'=>20, 'cut'=>14),
-											array('field'=>'phone_number', 'width'=>1),
+											array('field'=>'phone_number', 'width'=>1, 'cut'=>15),
 											array('field'=>'status', 'width'=>1)
 										),
 									array('employees'=>array($me['id']), '!status'=>array(2,3)),
