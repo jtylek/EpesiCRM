@@ -74,7 +74,7 @@ class Utils_Calendar extends Module {
 					$this->date = $this->get_unique_href_variable('time');
 					break;
 			}
-		} elseif(isset($_REQUEST['UCaction']) && isset($_REQUEST['UCev_id']) && is_numeric($_REQUEST['UCev_id'])) {
+		} elseif(isset($_REQUEST['UCaction']) && isset($_REQUEST['UCev_id'])) {
 			switch($_REQUEST['UCaction']) {
 				case 'delete':
 					$this->delete_event($_REQUEST['UCev_id']);
