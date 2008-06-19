@@ -1,5 +1,5 @@
 <?php
-function get_mime_type($filepath) {
+function get_mime_type($filepath,$original) {
 	//new method, but not compiled in by default
 	if(extension_loaded('fileinfo')) {
         	$fff = new finfo(FILEINFO_MIME);
@@ -13,7 +13,7 @@ function get_mime_type($filepath) {
         	return mime_content_type($filepath);
 
 	//unix system
-	ob_start();
+/*	ob_start();
 	passthru("file -i -b {$filepath}");
 	$output = ob_get_clean();
 	$output = explode("; ",$output);
@@ -21,5 +21,18 @@ function get_mime_type($filepath) {
         	$output = $output[0];
 	}
 	return $output;
+*/
+	preg_match("/\.(.*?)$/", $original, $m);    # Get File extension for a better match
+	switch(strtolower($m[1])){
+       case "js": return "application/javascript";
+       case "json": return "application/json";
+       case "jpg": case "jpeg": case "jpe": return "image/jpg";
+       case "png": case "gif": case "bmp": return "image/".strtolower($m[1]);
+       case "css": return "text/css";
+       case "xml": return "application/xml";
+       case "html": case "htm": case "php": return "text/html";
+       default:
+           return "";
+   } 
 }
 ?>
