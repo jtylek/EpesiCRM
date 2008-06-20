@@ -15,7 +15,7 @@ function get_mime_type($filepath,$original) {
 	//unix system
 	$ret = 0;
 	ob_start();
-	passthru("file -bi {$filepath}",$ret);
+	@passthru("file -bi {$filepath}",$ret);
 	$output = ob_get_clean();
 	if($ret==0) {
 		$output = explode("; ",$output);
