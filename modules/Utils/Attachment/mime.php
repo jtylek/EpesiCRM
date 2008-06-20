@@ -13,16 +13,19 @@ function get_mime_type($filepath,$original) {
         	return mime_content_type($filepath);
 
 	//unix system
-/*	ob_start();
-	passthru("file -i -b {$filepath}");
+	$ret = 0;
+	ob_start();
+	passthru("file -bi {$filepath}",$ret);
 	$output = ob_get_clean();
-	$output = explode("; ",$output);
-	if ( is_array($output) ) {
+	if($ret==0) {
+		$output = explode("; ",$output);
+		if ( is_array($output) ) {
         	$output = $output[0];
+		}
+		return $output;
 	}
-	return $output;
-*/
-	preg_match("/\.(.*?)$/", $original, $m);    # Get File extension for a better match
+
+	preg_match("/\.(.*?)$/", $original, $m);
 	switch(strtolower($m[1])){
        // case "js": return "application/javascript";
        // case "json": return "application/json";
