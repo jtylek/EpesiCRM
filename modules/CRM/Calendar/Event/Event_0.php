@@ -37,6 +37,8 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$theme =  $this->pack_module('Base/Theme');
 		$theme->assign('action',$action);
 
+		$def = array();
+
 		if($action == 'new') {
 			$duration_switch = '1';
 			$id = strtotime(Base_RegionalSettingsCommon::time2reg($id,true,true,true,false));
@@ -328,8 +330,11 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$theme->display();
 
 		if($action == 'view') {
-			Base_ActionBarCommon::add('edit','Edit', $this->create_callback_href(array($this, 'view_event'), array('edit', $id)));
-			Base_ActionBarCommon::add('clone','Clone', $this->create_confirm_callback_href($this->lang->ht('You are about to create a copy of this record. Do you want to continue?'),array($this,'clone_event'),array($id)));
+			$my_id = CRM_FiltersCommon::get_my_profile();
+			if($def['access']==0 || in_array($my_id,$def_emp_id) || Base_AclCommon::i_am_admin()) {
+				Base_ActionBarCommon::add('edit','Edit', $this->create_callback_href(array($this, 'view_event'), array('edit', $id)));
+				Base_ActionBarCommon::add('clone','Clone', $this->create_confirm_callback_href($this->lang->ht('You are about to create a copy of this record. Do you want to continue?'),array($this,'clone_event'),array($id)));
+			}
 		} else {
 			Base_ActionBarCommon::add('save','Save',' href="javascript:void(0)" onClick="'.addcslashes($form->get_submit_form_js(true),'"').'"');
 		}
@@ -412,7 +417,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$end = $start + $vals['duration'];
 			if(date('Y-m-d',$start)!=date('Y-m-d',$end))
 				$end = strtotime(date('Y-m-d',$start).' 23:59');
-		} else 
+		} else
 			$end = strtotime($vals['date_s']) + $this->recalculate_time($vals['time_e']);
 		$start = Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$start),true);
 		$end = Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$end),true);
@@ -450,7 +455,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			DB::Execute('INSERT INTO crm_calendar_event_group_cus (id,contact) VALUES (%d, %d)', array($id, $v));
 		}
 	}
-	
+
 	public function clone_event($id) {
 		if(!$this->view_event('clone',$id))
 			$this->back_to_calendar();

@@ -36,7 +36,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$values['title'] = Base_LangCommon::ts('CRM/Calendar/Event','Follow up: ').$values['title'];
 			unset($values['status']);
 
-			if ($action != 'none') {		
+			if ($action != 'none') {
 				$x = ModuleManager::get_instance('/Base_Box|0');
 				if ($action == 'new_task') $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, array('page_id'=>md5('crm_tasks'),'title'=>$values['title'],'permission'=>$values['access'],'priority'=>$values['priority'],'description'=>$values['description'],'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),'employees'=>$values['emp_id'], 'customers'=>$values['cus_id'])), array('task'));
 				if ($action == 'new_phonecall') $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, array('subject'=>$values['title'],'permission'=>$values['access'],'priority'=>$values['priority'],'description'=>$values['description'],'date_and_time'=>date('Y-m-d H:i:s'),'employees'=>$values['emp_id'], 'contact'=>isset($values['cus_id'][0])?$values['cus_id'][0]:'')), array('phonecall'));
@@ -49,7 +49,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		return 'href="javascript:void(0)" class="lbOn" rel="'.$prefix.'_followups_leightbox" onMouseDown="'.$prefix.'_set_id('.$id.');"';
 	}
 
-	
+
 	public static function get($id) {
 		if(self::$filter=='()')
 			$fil = ' AND 1=0';
@@ -57,7 +57,10 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$fil = ' AND (SELECT id FROM crm_calendar_event_group_emp cg WHERE cg.id=e.id AND cg.contact IN '.self::$filter.' LIMIT 1) IS NOT NULL';
 		else
 			$fil = '';
+		if(!Base_AclCommon::i_am_admin())
+			$fil .= ' AND (e.access<2 OR (SELECT id FROM crm_calendar_event_group_emp cg2 WHERE cg2.id=e.id AND cg2.contact='.CRM_FiltersCommon::get_my_profile().' LIMIT 1) IS NOT NULL)';
 		$t = microtime(true);
+		$my_id = CRM_FiltersCommon::get_my_profile();
 		$row = DB::GetRow('SELECT e.status,e.color,e.access,e.start,e.end,e.title,e.description,e.id,e.timeless,e.priority,e.created_by,e.created_on,e.edited_by,e.edited_on,GROUP_CONCAT(DISTINCT emp.contact SEPARATOR \',\') as employees,GROUP_CONCAT(DISTINCT cus.contact SEPARATOR \',\') as customers FROM crm_calendar_event e LEFT JOIN crm_calendar_event_group_emp emp ON emp.id=e.id LEFT JOIN crm_calendar_event_group_cus cus ON cus.id=e.id WHERE e.id=%d'.$fil.' GROUP BY e.id',array($id));
 		$result = array();
 		if ($row) {
@@ -96,9 +99,14 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 						implode('<br>',$emps).
 					(empty($cuss)?'':'<br>'.Base_LangCommon::ts('CRM_Calendar_Event','Customers:').'<br>'.
 						implode('<br>',$cuss));
-			
+			if($row['access']>0 && !in_array($my_id,$emps_tmp) && !Base_AclCommon::i_am_admin()) {
+				$result['edit_action'] = false;
+				$result['delete_action'] = false;
+			} elseif($row['status']<2)
+					$result['actions'] = array(array('icon'=>Base_ThemeCommon::get_template_file('CRM_Calendar_Event','access-private.png'),'href'=>CRM_Calendar_EventCommon::get_followup_leightbox_href($row['id'], $row)));
+
 		}
-		return $result;	
+		return $result;
 	}
 	public static function get_event_days($start,$end) {
 		if (!is_numeric($start)) $start = strtotime($start);
@@ -109,6 +117,8 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$fil = ' AND (SELECT id FROM crm_calendar_event_group_emp cg WHERE cg.id=e.id AND cg.contact IN '.self::$filter.' LIMIT 1) IS NOT NULL';
 		else
 			$fil = '';
+		if(!Base_AclCommon::i_am_admin())
+			$fil .= ' AND (e.access<2 OR (SELECT id FROM crm_calendar_event_group_emp cg2 WHERE cg2.id=e.id AND cg2.contact='.CRM_FiltersCommon::get_my_profile().' LIMIT 1) IS NOT NULL)';
 		$ret = DB::Execute('SELECT e.start FROM crm_calendar_event AS e WHERE e.start>=%d AND e.start<%d '.$fil.' ORDER BY e.start', array($start, $end));
 		$rs = array();
 		$last = '';
@@ -120,7 +130,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		}
 		return $rs;
 	}
-	
+
 	public static function get_all($start,$end,$order=' ORDER BY e.start') {
 		if(self::$filter=='()')
 			$fil = ' AND 1=0';
@@ -128,6 +138,9 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$fil = ' AND (SELECT id FROM crm_calendar_event_group_emp cg WHERE cg.id=e.id AND cg.contact IN '.self::$filter.' LIMIT 1) IS NOT NULL';
 		else
 			$fil = '';
+		$my_id = CRM_FiltersCommon::get_my_profile();
+		if(!Base_AclCommon::i_am_admin())
+			$fil .= ' AND (e.access<2 OR (SELECT id FROM crm_calendar_event_group_emp cg2 WHERE cg2.id=e.id AND cg2.contact='.$my_id.' LIMIT 1) IS NOT NULL)';
 		$count = DB::GetOne('SELECT count(e.id) FROM crm_calendar_event e WHERE ((e.start>=%d AND e.start<%d) OR (e.end>=%d AND e.end<%d)) '.$fil.$order,array($start,$end,$start,$end));
 		if($count>50) {
 			Epesi::alert(Base_LangCommon::ts('CRM_Calendar_Event','Displaying only 50 of %d events',array($count)));
@@ -174,7 +187,13 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$next_result['custom_agenda_col_0'] = $row['description'];
 			$next_result['custom_agenda_col_1'] = implode(', ',$emps);
 			$next_result['custom_agenda_col_2'] = implode(', ',$cuss);
-			$next_result['actions'] = array(array('icon'=>Base_ThemeCommon::get_template_file('CRM_Calendar_Event','access-private.png'),'href'=>CRM_Calendar_EventCommon::get_followup_leightbox_href($row['id'], $row)));
+			//$next_result['actions'] = array();
+			if($row['access']>0 && !in_array($my_id,$emps_tmp) && !Base_AclCommon::i_am_admin()) {
+				$next_result['edit_action'] = false;
+				$next_result['delete_action'] = false;
+			} elseif($row['status']<2)
+					$next_result['actions'] = array(array('icon'=>Base_ThemeCommon::get_template_file('CRM_Calendar_Event','access-private.png'),'href'=>CRM_Calendar_EventCommon::get_followup_leightbox_href($row['id'], $row)));
+
 			$result[] = $next_result;
 		}
 		return $result;
@@ -201,7 +220,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$date = Base_LangCommon::ts('CRM_Calendar_Event','Timeless event: %s',array(Base_RegionalSettingsCommon::time2reg($a['start'],false)));
 		else
 			$date = Base_LangCommon::ts('CRM_Calendar_Event',"Start: %s\nEnd: %s",array(Base_RegionalSettingsCommon::time2reg($a['start']), Base_RegionalSettingsCommon::time2reg($a['end'])));
-		
+
 		return $date."\n".Base_LangCommon::ts('CRM_Calendar_Event',"Title: %s",array($a['title']));
 	}
 }
