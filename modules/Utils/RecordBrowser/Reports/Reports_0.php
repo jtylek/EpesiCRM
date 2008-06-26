@@ -23,6 +23,12 @@ class Utils_RecordBrowser_Reports extends Module {
 	private $row_summary = false;
 	private $col_summary = false;
 	private $first = false;
+	private $lang;
+	private $date_range;
+
+	public function construct(){
+		$this->lang = $this->init_module('Base/Lang');	
+	}
 
 	public function set_reference_record($rr) {
 		$this->ref_record = $rr;
@@ -118,11 +124,105 @@ class Utils_RecordBrowser_Reports extends Module {
 		return array('value'=>$ret, 'style'=>$style, 'attrs'=>$attrs);
 	}
 
-	public function create_tooltip($ref_rec, $col, $value, $c='') {
+	private function create_tooltip($ref_rec, $col, $value, $c='') {
 		return Utils_TooltipCommon::open_tag_attrs($ref_rec.'<hr>'.$col.'<br>'.($c!=''?$c.':':'').$value, false).' ';
 	}	
 	
+	public function check_dates($arg) {
+		$idx = 0;
+		switch ($arg[0]) {
+			case 'year': $idx+=2;	
+			case 'month': $idx+=2;	
+			case 'week': $idx+=2;	
+		}
+		$st = $this->get_date($arg[0], $arg[1+$idx]);
+		$nd = $this->get_date($arg[0], $arg[2+$idx]);
+		return $st<=$nd;
+	}
+	
+	public function display_date_picker() {
+		$form = $this->init_module('Libs/QuickForm');
+		$theme = $this->init_module('Base/Theme');
+		$display_stuff_js = 'document.getElementById(\'day_elements\').style.display=\'none\';document.getElementById(\'month_elements\').style.display=\'none\';document.getElementById(\'week_elements\').style.display=\'none\';document.getElementById(\'year_elements\').style.display=\'none\';document.getElementById(this.value+\'_elements\').style.display=\'block\';';
+		$form->addElement('select', 'date_range_type', $this->lang->t('Display report'), array('day'=>$this->lang->t('Days'), 'week'=>$this->lang->t('Weeks'), 'month'=>$this->lang->t('Months'), 'year'=>$this->lang->t('Years')), array('onChange'=>$display_stuff_js, 'onKeyUp'=>$display_stuff_js));
+		$form->addElement('datepicker', 'from_day', $this->lang->t('From date'));
+		$form->addElement('datepicker', 'to_day', $this->lang->t('To date'));
+		$form->addElement('date', 'from_week', $this->lang->t('From week'), array('format'=>'Y W','language'=>Base_LangCommon::get_lang_code()));
+		$form->addElement('date', 'to_week', $this->lang->t('To week'), array('format'=>'Y W','language'=>Base_LangCommon::get_lang_code()));
+		$form->addElement('date', 'from_month', $this->lang->t('From month'), array('format'=>'Y m','language'=>Base_LangCommon::get_lang_code()));
+		$form->addElement('date', 'to_month', $this->lang->t('To month'), array('format'=>'Y m','language'=>Base_LangCommon::get_lang_code()));
+		$form->addElement('date', 'from_year', $this->lang->t('From year'), array('format'=>'Y','language'=>Base_LangCommon::get_lang_code()));
+		$form->addElement('date', 'to_year', $this->lang->t('To year'), array('format'=>'Y','language'=>Base_LangCommon::get_lang_code()));
+		if ($this->isset_module_variable('vals')) {
+			$vals = $this->get_module_variable('vals');
+			unset($vals['submited']);
+			$form->setDefaults($vals);
+		} else {
+			foreach(array('week'=>5,'day'=>15,'month'=>12,'year'=>5) as $v=>$k) {
+				$form->setDefaults(array('from_'.$v=>date('Y-m-d H:i:s', strtotime('-'.$k.' '.$v))));
+				$form->setDefaults(array('to_'.$v=>date('Y-m-d H:i:s')));
+			}
+			$form->setDefaults(array('date_range_type'=>'day'));
+		}
+		$form->addElement('submit', 'submit', $this->lang->t('Show'));
+
+		$form->registerRule('check_dates', 'callback', 'check_dates', $this);
+		$form->addRule(array('date_range_type','from_day','to_day','from_week','to_week','from_month','to_month','from_year','to_year'), $this->lang->t('\'From\' date must be earlier than \'To\' date'), 'check_dates');
+		
+		$failed = false;		
+		$vals = $form->exportValues();
+		$this->set_module_variable('vals',$vals);
+		if ($vals['submited'] && !$form->validate()) {
+			$this->date_range = 'error';
+			$failed = true;
+		}
+
+		$form->assign_theme('form',$theme);
+		$theme->display('date_picker');
+		$type = $vals['date_range_type'];
+		foreach(array('week','day','year','month') as $v) 
+			if ($v!=$type) eval_js('document.getElementById(\''.$v.'_elements\').style.display=\'none\';');
+
+		if ($failed) {
+			return array('type'=>'day', 'dates'=>array());
+		}
+
+		$this->date_range = array();
+		foreach (array('date_range_type','from_'.$type,'to_'.$type) as $v)
+			$this->date_range[$v] = $vals[$v];
+		$header = array();
+		$start 	= $this->get_date($type, $this->date_range['from_'.$type]);
+		$end	= $this->get_date($type, $this->date_range['to_'.$type]);		
+		$header[] = $start;
+		while (true) {
+			switch ($type) {
+				case 'day': $start = strtotime(date('Y-m-d 12:00:00', $start+86400)); break;
+				case 'week': $start = strtotime(date('Y-m-d 12:00:00', $start+604800)); break;
+				case 'month': $start = strtotime(date('Y-m-15 12:00:00', $start+2592000)); break;
+				case 'year': $start = strtotime(date('Y-06-15 12:00:00', $start+2592000*12)); break;
+			}
+			if ($start>$end) break;
+			$header[] = $start;			
+		}
+		return array('type'=>$type, 'dates'=>$header);
+	}
+	
+	public function get_date($type, $arg) {
+		switch ($type) {
+			case 'day': $arg = strtotime($arg.' 12:00:00'); break;
+			case 'week': $narg = strtotime($arg['Y'].'-01-01 12:00:00')+604800*($arg['W']-1);
+						 while (date('W', $narg)!=$arg['W'])
+						 	$narg += 604800;
+						 $arg = $narg;
+						 break;
+ 			case 'month': $arg = strtotime($arg['Y'].'-'.$arg['m'].'-15 12:00:00'); break;
+			case 'year': $arg = strtotime($arg['Y'].'-06-15 12:00:00'); break;
+		}
+		return $arg;
+	}
+	
 	public function body() {
+		if ($this->date_range=='error') return;
 		Base_ThemeCommon::load_css('Utils/RecordBrowser/Reports');
 		$gb = $this->init_module('Utils_GenericBrowser',null,$this->ref_record.'_report');
 		if ($this->row_summary!==false) {
@@ -261,7 +361,8 @@ class Utils_RecordBrowser_Reports extends Module {
 			}
 		}
 		$gb->set_inline_display();
-		$table = $this->get_html_of_module($gb);
+//		$table = $this->get_html_of_module($gb);
+		$table = $this->get_html_of_module($gb, array(Base_ThemeCommon::get_template_filename('Utils_GenericBrowser','no_shadow')));
 //		$table = $this->get_html_of_module($gb, array(Base_ThemeCommon::get_template_filename('Utils_RecordBrowser_Reports','generic_browser')));
 		print($table);
 /*		$pdf = $this->init_module('Libs/FPDF', 'P');

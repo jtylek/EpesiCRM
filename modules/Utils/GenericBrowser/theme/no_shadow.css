@@ -1,0 +1,229 @@
+.Utils_GenericBrowser__quickjump {
+	font-weight: normal;
+}
+
+/* search */
+
+.Utils_GenericBrowser__search {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.Utils_GenericBrowser__search .label {
+    background-color: #336699;
+    color: white;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.Utils_GenericBrowser__search input {
+    background-color: #e6ecf2;
+    height: 16px;
+    padding-left: 2px;
+    padding-right: 2px;
+    vertical-align: middle;
+    width: 96px;
+}
+
+.Utils_GenericBrowser__search input:focus {
+    background-color: #e6e6cf;
+}
+
+.Utils_GenericBrowser__search .submit input {
+    width: 100px;
+    height: 20px;
+    border: 0px;
+    background-color: #336699;
+    background-image: url('images/search.png');
+    vertical-align: middle;
+    color: white;
+}
+
+.Utils_GenericBrowser__search .submit input:hover {
+    background-image: url('images/search-hover.png');
+}
+
+.Utils_GenericBrowser__search .advanced {
+    padding-left: 20px;
+}
+
+.Utils_GenericBrowser__search .advanced a.button {
+    width: 120px;
+}
+
+/* */
+
+table#Utils_GenericBrowser {
+    background-color: #FFFFFF;
+    /*border-top: 1px solid #B3B3B3;*/
+    border-left: 1px solid #B3B3B3;
+}
+
+table#Utils_GenericBrowser th {
+    background-color: #336699;
+    background-image: url("images/header-blue.png");
+    font-weight: normal;
+    background-repeat: repeat-x;
+    text-align: center;
+    height: 20px;
+    /*border-top: 1px solid #B3B3B3;*/
+    border-right: 1px solid #FFFFFF;
+    border-bottom: 1px solid #FFFFFF;
+	color: #FFFFFF;
+    vertical-align: top;
+}
+
+table#Utils_GenericBrowser th span,
+table#Utils_GenericBrowser th a {
+    padding-left: 3px;
+    padding-right: 3px;
+	color: #FFFFFF;
+    display: block;
+    line-height: 20px;
+}
+
+table#Utils_GenericBrowser th a:hover {
+    background-image: url('images/header-blue-hover.png');
+    background-repeat: repeat-x;
+}
+
+table#Utils_GenericBrowser th input {
+    display: block;
+    background-color: #e6ecf2;
+    width: 100%;
+    border-left: 0px;
+    border-right: 1px solid #b3b3b3;
+    border-bottom: 1px solid #b3b3b3;
+    border-top: 1px solid #b3b3b3;
+}
+
+table#Utils_GenericBrowser th input:focus {
+    background-color: #e6e6cf;
+}
+
+table#Utils_GenericBrowser tbody {
+	overflow: auto;
+}
+
+table#Utils_GenericBrowser tr {
+	background-color: #FFFFFF;
+}
+
+table#Utils_GenericBrowser tr:hover {
+	background-color: #F0F0F0;
+}
+
+table#Utils_GenericBrowser td {
+    text-align: left;
+    border-right: 1px solid #B3B3B3;
+    border-bottom: 1px solid #B3B3B3;
+    height: 18px;
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+table#Utils_GenericBrowser td img {
+	vertical-align: middle;
+}
+
+/* Navigation */
+
+table#Utils_GenericBrowser__navigation {
+    width: 100%;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+table#Utils_GenericBrowser__navigation img {
+    vertical-align: middle;
+}
+
+/* letter links */
+
+#letters-search {
+    width: 100%;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+#letters-search .letters {
+    text-align: left;
+    width: 100%;
+}
+
+#letters-search .reset {
+    text-align: left;
+}
+
+#letters-search .letters .all {
+    width: 20px;
+    padding-right: 5px;
+}
+
+#letters-search .letters .letter {
+    width: 14px;
+}
+
+#letters-search .letters a,
+#letters-search .letters span {
+    margin: 2px;
+    display: block;
+    float: left;
+    line-height: 14px;
+    background-repeat: no-repeat;
+    vertical-align: middle;
+    text-align: center;
+}
+
+#letters-search .letters a                { color: #FFFFFF; }
+#letters-search .letters a span           { color: #FFFFFF; }
+#letters-search .letters a.letter         { background-image: url('images/char-back.png'); }
+#letters-search .letters a.letter:hover   { background-image: url('images/char-back-hover.png'); }
+#letters-search .letters a.all            { background-image: url('images/all-back.png'); }
+#letters-search .letters a.all:hover      { background-image: url('images/all-back-hover.png'); }
+
+#letters-search .letters span             { color: #336699; }
+#letters-search .letters span.letter      { background-image: url('images/char-back-sel.png'); }
+#letters-search .letters span.all         { background-image: url('images/all-back-sel.png'); }
+
+/* */
+
+.quick_jump_letters {
+    z-index: 1005;
+    position: absolute;
+    margin-left: 34px;
+    margin-top: -11px;
+}
+
+#letters-search .letters .abc {
+    height: 17px;
+    padding-top: 3px;
+    padding-left: 5px;
+    padding-right: 5px;
+    color: white;
+    background-image: url('images/header-blue.png');
+    background-repeat: repeat-x;
+    cursor: pointer;
+    float: left;
+}
+
+#letters-search .letters .abc:hover {
+    background-image: url('images/header-blue-hover.png');
+}
+
+
+
+.layer {
+    padding: 9px;
+    width: 98%;
+}
+
+.layer .margin2px {
+    padding: 2px;
+    background-color: #FFFFFF;
+}
+
+
+.IEfix {
+    _height: 0px;
+}

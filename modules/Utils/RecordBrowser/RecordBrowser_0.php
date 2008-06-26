@@ -97,7 +97,7 @@ class Utils_RecordBrowser extends Module {
 				$ret = $ret?$this->lang->t('Yes'):$this->lang->t('No');
 			}
 			if ($args['type']=='date') {
-				if ($val!='') $ret = Base_RegionalSettingsCommon::time2reg($val, false);
+				if ($val!='') $ret = Base_RegionalSettingsCommon::time2reg($val, false,true,false);
 			}
 			if ($args['type']=='timestamp') {
 				if ($val!='') $ret = Base_RegionalSettingsCommon::time2reg($val);
