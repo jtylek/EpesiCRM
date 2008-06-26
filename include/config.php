@@ -24,6 +24,7 @@ if(!defined('DISPLAY_ERRORS')) define("DISPLAY_ERRORS",0);
 if(!defined('REPORT_ALL_ERRORS')) define("REPORT_ALL_ERRORS",0);
 if(!defined('GZIP_OUTPUT')) define("GZIP_OUTPUT",0);
 if(!defined('GZIP_HISTORY')) define("GZIP_HISTORY",0);
+if(!defined('REDUCING_TRANSFER')) define("REDUCING_TRANSFER",1);
 
 if(!defined('JS_OUTPUT')) define('JS_OUTPUT',0);
 if(!defined('SET_SESSION')) define('SET_SESSION',1);

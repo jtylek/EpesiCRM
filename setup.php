@@ -185,6 +185,11 @@ define("DATABASE_NAME","'.$dbname.'");
 define("DATABASE_DRIVER","'.$engine.'");
 
 /*
+ * Turns on transfer reduction: not everything is sent to the client
+ */
+define("REDUCING_TRANSFER",1);
+
+/*
  * A lot of debug info, starting with what modules are changed, what module variables are set... etc.
  */
 define("DEBUG",0);

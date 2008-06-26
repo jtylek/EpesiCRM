@@ -749,7 +749,8 @@ abstract class Module extends ModulePrimitive {
 		}
 		Epesi::$content[$path]['module'] = & $m;
 
-		if(!$m->is_fast_process() || (isset($_REQUEST['__action_module__']) && strpos($_REQUEST['__action_module__'],$path)===0) || !isset($_SESSION['client']['__module_content__'][$path])) {
+		if(!REDUCING_TRANSFER || 
+			(!$m->is_fast_process() || (isset($_REQUEST['__action_module__']) && strpos($_REQUEST['__action_module__'],$path)===0) || !isset($_SESSION['client']['__module_content__'][$path]))) {
 			if(isset($args) && !is_array($args)) $args = array($args);
 
 			ob_start();

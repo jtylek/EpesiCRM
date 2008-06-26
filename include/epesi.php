@@ -252,7 +252,7 @@ class Epesi {
 		foreach (self::$content as $k => $v) {
 			$reload = $v['module']->get_reload();
 			$parent = $v['module']->get_parent_path();
-			if(DEBUG) {
+			if(DEBUG && REDUCING_TRANSFER) {
 				$debug .= '<hr style="height: 3px; background-color:black">';
 				$debug .= '<b> Checking '.$k.', &nbsp;&nbsp;&nbsp; parent='.$v['module']->get_parent_path().'</b><ul>'.
 					'<li>Force - '.(isset($reload)?print_r($reload,true):'not set').'</li>'.
@@ -263,11 +263,12 @@ class Epesi {
 					'<li>History call - '.(($history_call)?'yes':'no').'</li>'.
 					'</ul>';
 			}
-			if ((!isset($reload) && (!isset ($_SESSION['client']['__module_content__'][$k])
+			if (!REDUCING_TRANSFER
+				 || ((!isset($reload) && (!isset ($_SESSION['client']['__module_content__'][$k])
 				 || $_SESSION['client']['__module_content__'][$k]['value'] !== $v['value'] //content differs
 				 || $_SESSION['client']['__module_content__'][$k]['js'] !== $v['js']))
 				 || $history_call
-				 || $reload == true || isset($reloaded[$parent])) { //force reload or parent reloaded
+				 || $reload == true || isset($reloaded[$parent]))) { //force reload or parent reloaded
 				if(DEBUG && isset($_SESSION['client']['__module_content__'])){
 					$debug .= '<b>Reloading: '.(isset($v['span'])?';&nbsp;&nbsp;&nbsp;&nbsp;span='.$v['span'].',':'').'&nbsp;&nbsp;&nbsp;&nbsp;triggered='.(($reload==true)?'force':'auto').',&nbsp;&nbsp;</b><hr><b>New value:</b><br><pre>'.htmlspecialchars($v['value']).'</pre>'.(isset($_SESSION['client']['__module_content__'][$k]['value'])?'<hr><b>Old value:</b><br><pre>'.htmlspecialchars($_SESSION['client']['__module_content__'][$k]['value']).'</pre>':'');
 					if($debug_diff && isset($_SESSION['client']['__module_content__'][$k]['value'])) {
@@ -281,8 +282,10 @@ class Epesi {
 					self::text($v['value'], $v['span']);
 				if($v['js'])
 					self::js(join(";",$v['js']));
-				$_SESSION['client']['__module_content__'][$k]['value'] = $v['value'];
-				$_SESSION['client']['__module_content__'][$k]['js'] = $v['js'];
+				if (REDUCING_TRANSFER) {
+					$_SESSION['client']['__module_content__'][$k]['value'] = $v['value'];
+					$_SESSION['client']['__module_content__'][$k]['js'] = $v['js'];
+				}
 				$_SESSION['client']['__module_content__'][$k]['parent'] = $parent;
 				$reloaded[$k] = true;
 				if(method_exists($v['module'],'reloaded')) $v['module']->reloaded();
