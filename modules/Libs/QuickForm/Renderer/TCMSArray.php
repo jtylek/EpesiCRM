@@ -329,7 +329,7 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
         }
         //*** The New Error JS
 //        $js = "HTML_QuickForm_Renderer_TCMSArray_error(\"".htmlspecialchars($err_id)."\", \"".$error."\")";
-  	eval_js('seterror(\''.$err_id.'\',\''.addslashes(addslashes($error)).'\')');
+  	eval_js('seterror(\''.$err_id.'\',\''.addslashes($error).'\')');
         return $ret;
     }
 

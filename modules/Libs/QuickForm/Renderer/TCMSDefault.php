@@ -257,7 +257,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
             $html = preg_replace("/([ \t\n\r]*)?<!-- BEGIN required -->(\s|\S)*<!-- END required -->([ \t\n\r]*)?/iU", '', $html);
         }
         $html = str_replace('{error_id}', 'error'.$this->_formName.$name, $html);
-  		eval_js('seterror(\'error'.$this->_formName.$name.'\',\''.addslashes(addslashes($error)).'\')');
+  		eval_js('seterror(\'error'.$this->_formName.$name.'\',\''.addslashes($error).'\')');
         if (is_array($label)) {
             foreach($label as $key => $text) {
                 $key  = is_int($key)? $key + 2: $key;
