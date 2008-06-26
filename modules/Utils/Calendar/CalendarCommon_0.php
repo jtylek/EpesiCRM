@@ -99,7 +99,10 @@ class Utils_CalendarCommon extends ModuleCommon {
 				$end_t = $end_day.': '.$end_date.' '.$end_time;
 		}
 
-		$duration_str = self::duration2str($row['duration']);
+		if(isset($row['fake_duration']))
+			$duration_str = self::duration2str($row['fake_duration']);
+		else
+			$duration_str = self::duration2str($row['duration']);
 		return array('duration'=>$duration_str,'start'=>$start_t,'end'=>$end_t,'start_time'=>$start_time,'end_time'=>$end_time,'start_date'=>$start_date,'end_date'=>$end_date,'start_day'=>$start_day,'end_day'=>$end_day);
 	}
 
