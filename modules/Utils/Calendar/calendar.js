@@ -99,7 +99,7 @@ add_event_tag:function(dest,ev) {
 			ch = new Array();
 		}
 		if(offset<ch.length) offset = ch.length;
-		if(ch.indexOf(ev.id)>=0) ch.push(ev.id);
+		if(ch.indexOf(ev.id)<0) ch.push(ev.id);
 		cell.setAttribute('events_children',ch.toJSON());
 
 		if(cell.hasAttribute('join_rows')) {
