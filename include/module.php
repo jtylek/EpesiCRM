@@ -837,7 +837,7 @@ abstract class Module extends ModulePrimitive {
 	 * @return true if this module instance is displayed inline, false otherwise
 	 */
 	public final function is_inline_display() {
-		return $this->inline_display;
+		return $this->inline_display || !REDUCING_TRANSFER;
 	}
 
 	/**
