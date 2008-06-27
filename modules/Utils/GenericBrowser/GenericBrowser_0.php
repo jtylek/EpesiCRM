@@ -889,7 +889,7 @@ class Utils_GenericBrowser extends Module {
 					$col[$col_pos[$k]['pos']]['label'] = $v['value'].'&nbsp;';
 				else
 					$col[$col_pos[$k]['pos']]['label'] = $v['value'];
-				$col[$col_pos[$k]['pos']]['attrs'] .= isset($v['style'])? 'style="'.$v['style'].'"':'';
+				$col[$col_pos[$k]['pos']]['attrs'] .= isset($v['style'])? ' style="'.$v['style'].'"':'';
 				if (isset($quickjump_col) && $k==$quickjump_col) $col[$col_pos[$k]['pos']]['attrs'] .= ' class="Utils_GenericBrowser__quickjump"';
 				if ((!isset($this->columns[$k]['wrapmode']) || $this->columns[$k]['wrapmode']!='cut') && isset($v['hint'])) $col[$col_pos[$k]['pos']]['attrs'] .= ' title="'.$v['hint'].'"';
 				$col[$col_pos[$k]['pos']]['attrs'] .= (isset($this->columns[$k]['wrapmode']) && $this->columns[$k]['wrapmode']=='nowrap')?' nowrap':'';
