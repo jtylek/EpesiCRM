@@ -72,7 +72,7 @@ class CRM_CalendarCommon extends ModuleCommon {
 	}
 
 	public static function applet_info() {
-		return "Displays Clandar Agenda";
+		return "Displays Calendar Agenda";
 	}
 
 	public static function applet_settings() {
