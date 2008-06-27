@@ -18,7 +18,7 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 
 	public static function create_href($name,$function = '',$fullscreen=true,$mode=null,$first_day_of_week=null,$pos_js=null) {
 		Base_ThemeCommon::load_css('Utils_PopupCalendar');
-		load_js('modules/Utils/PopupCalendar/js/main.js');
+		load_js('modules/Utils/PopupCalendar/js/main2.js');
 
 		if(!isset($mode)) $mode='day';
 

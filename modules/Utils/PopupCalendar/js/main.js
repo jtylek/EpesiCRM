@@ -24,11 +24,15 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 					this.show_month();
 			}
 		}
-		
+
 		// show a month
 		this.show_month = function( month, year ) {
 			var days = new Array('Sun', 'Mon','Tue','Wed','Thu','Fri','Sat');
-			var daysInMonth = new Array(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
+            var daysInMonth = null;
+            if(year%400==0 || (year%100!=0 && year%4==0))
+                    daysInMonth = new Array(31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
+            else
+                    daysInMonth = new Array(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
 			var daysInWeek = 7;
 
 			// formatting constants
