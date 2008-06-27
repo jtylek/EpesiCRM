@@ -191,8 +191,8 @@ class CRM_Filters extends Module {
 		return true;
 	}
 
-	public static function edit_group_sel($id) {
-		return $id;
+	public static function edit_group_sel($r) {
+		return $r['last_name'].' '.$r['first_name'];
 	}
 
 	public static function delete_group($id) {
