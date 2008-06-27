@@ -32,6 +32,7 @@ class Utils_RecordBrowser_Reports extends Module {
 	private $height = 14;
 	private $pdf_title = '';
 	private $pdf_subject = '';
+	private static $pdf_ready = 0;
 
 	public function construct(){
 		$this->lang = $this->init_module('Base/Lang');	
@@ -464,11 +465,12 @@ class Utils_RecordBrowser_Reports extends Module {
 
 		if ($this->pdf){
 			Base_ActionBarCommon::add('save','Download PDF','href="'.$this->pdf_ob->get_href().'"');
-		} elseif ($this->pdf_title!='') {
+			self::$pdf_ready = 1;
+		} elseif ($this->pdf_title!='' && self::$pdf_ready == 0) {
 			if (count($this->gb_captions)<20)
-				Base_ActionBarCommon::add('print','Prepare PDF',$this->create_callback_href(array($this, 'body'), array(true)));
+				Base_ActionBarCommon::add('print','Create PDF',$this->create_callback_href(array($this, 'body'), array(true)));
 			else
-				Base_ActionBarCommon::add('print','Prepare PDF','','Too many columns to prepare printable version - please narrow date range');
+				Base_ActionBarCommon::add('print','Create PDF','','Too many columns to prepare printable version - please narrow date range');
 		}
 	}
 
