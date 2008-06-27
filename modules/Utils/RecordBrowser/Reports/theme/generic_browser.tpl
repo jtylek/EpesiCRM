@@ -1,15 +1,12 @@
-<span style="font-size:4 pt;">TEST{*{$row.label}*}</span>
-<span style="font-size:8 pt;">TEST{*{$row.label}*}</span>
-<span style="font-size:12 pt;">TEST{*{$row.label}*}</span>
-<span style="font-size:16 pt;">TEST{*{$row.label}*}</span>
-
-<table border=1 repreat_header=1>
+<table cellpadding="0" cellspacing="0" border="1">
 	<tr>
-		{foreach item=row from=$cols}
-			<th><span style="font-size:2 pt;color:red;">TEST{*{$row.label}*}</span></th>
+		{assign var=x value=0}
+		{foreach item=row from=$cols}			
+			<th width="{$table_prefix.widths.$x}" align="center" valign="middle" bgcolor="#888888" height="{$table_prefix.height}"><font color="#FFFFFF">{$row.label}</color></th>
+			{assign var=x value=$x+1}
 		{/foreach}
 	</tr>
-{*	<tr>
+	<tr>
 		{assign var=x value=0}
 		{foreach item=row from=$data}
 			{if $x==count($cols)}
@@ -17,8 +14,30 @@
 				<tr>
 				{assign var=x value=0}
 			{/if}
+			<td width="{$table_prefix.widths.$x}"
+				{if strpos($row.attrs,' total-all')}
+					bgcolor="#BBBBBB"
+				{else}
+					{if strpos($row.attrs,' total')}
+						bgcolor="#DDDDDD"
+					{/if} 
+				{/if} 
+				{if strpos($row.attrs,' number')}
+					align="right"
+				{/if}
+				{if strpos($row.attrs,' top-row')}
+					border="10"
+				{/if}
+				valign="middle" height="{$table_prefix.height}">
+				<font 
+					{if strpos($row.attrs,' fade-out-zero')}
+						color="#B0B0B0"
+					{/if}
+					>
+					{$row.label}
+				</font>
+			</td>
 			{assign var=x value=$x+1}
-			<td><span style="font-size:9px;">!{$row.label}</span></td>
 		{/foreach}
-	</tr>*}
+	</tr>
 </table>
