@@ -761,7 +761,11 @@ abstract class Module extends ModulePrimitive {
 				$ret = $m->get_module_variable_or_unique_href_variable($name);
 				if($ret=='1') {
 					$func = $c['func'];
-					if(is_array($func) && $func[0]===null) $func[0] = & $m;
+					if(is_array($func)) {
+						if($func[0]===null)
+							$func[0] = & $m;
+						if(!method_exists($func[0],$func[1])) trigger_error('Invalid method passed as callback',E_USER_ERROR);
+					}
 					$r = call_user_func_array($func,$c['args']);
 					if($r) {
 						$skip_display = true;
