@@ -16,10 +16,12 @@ class Libs_TCPDF extends Module {
 	private static $lifetime = '-12 hours';
 	private $lang;
 	private $steps = array();
+	private $pdf_ready = 0;
 
 	public function construct($orientation='P',$unit='mm',$format='A4') {
 		$this->lang = $this->init_module('Base/Lang');
 		require_once('tcpdf/tcpdf.php');
+		
 		$this->tcpdf = new TCPDF($orientation, $unit, $format);
 
 		$this->tcpdf->SetCreator(PDF_CREATOR);
@@ -49,13 +51,13 @@ class Libs_TCPDF extends Module {
 		$this->tcpdf->WriteHTML($html);
 	}
 	
-	public function & __call($func_name, array $args=array()) {
+/*	public function & __call($func_name, array $args=array()) {
 		if(is_callable(array(&$this->tcpdf,$func_name)))
 			$ret = & call_user_func_array(array(&$this->tcpdf,$func_name), $args);
 		else
 			$ret = false;
 		return $ret;
-	}
+	}*/
 
 	public function set_title($str) {
 		$this->steps['title'] = $str;
@@ -67,10 +69,6 @@ class Libs_TCPDF extends Module {
 		$this->tcpdf->SetSubject($str);
 	}
 
-	public function body() {
-		
-	}
-	
 	public function clean_up_old_pdfs() {
 		$time = date('Y-m-d H:i:s', strtotime(self::$lifetime));
 		$ret = DB::Execute('SELECT filename FROM libs_tcpdf_pdf_index WHERE created_on<%T', array($time));
@@ -104,6 +102,27 @@ class Libs_TCPDF extends Module {
 		
 		//initialize document
 		$this->tcpdf->AliasNbPages();
+	}
+
+	public function start_preparing_pdf() {
+		$this->pdf_ready = 1;
+		print('BLEEEEEEEEEEEEEEEEEEEEEEEEE!');
+		return false;
+	}
+
+	public function prepare() {
+		return $this->pdf_ready;
+	}
+	
+	public function body($filename) {
+		if ($this->pdf_ready){
+			Base_ActionBarCommon::add('save','Download PDF','href="'.$this->get_href($filename).'"');
+		} else {
+			Base_ActionBarCommon::add('print','Create PDF',$this->create_callback_href(array($this, 'bleeee')));
+		}
+	}
+	
+	public function action_bar_icon() {
 	}
 
 	public function get_href($dlfilename=null) {

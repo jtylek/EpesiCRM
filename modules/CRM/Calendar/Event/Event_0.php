@@ -28,9 +28,26 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$this->custom_defaults = $def;
 		$this->view_event('new', $def_date, $timeless);
 	}
+	
+	public function makePDF(){
+		$pdf = $this->init_module('Libs/TCPDF', 'L');
+
+/*		if ($pdf->prepare()) {
+			$pdf->set_title('Title');
+			$pdf->set_subject('Subject');
+			$pdf->prepare_header();
+			print('PDF ready!');
+		}*/
+		
+		$this->display_module($pdf, array('Event'));
+	}
 
 	public function view_event($action, $id=null, $timeless=false){
 		if($this->is_back()) return false;
+		
+		if ($action=='view') {
+			$this->makePDF();	
+		}
 
 		$this->lang = $this->pack_module('Base/Lang');
 		$form = $this->init_module('Libs/QuickForm');

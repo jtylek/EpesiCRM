@@ -80,7 +80,8 @@ class CRM_Calendar_EventInstall extends ModuleInstall {
 				array('name'=>'Utils/Attachment','version'=>0),
 				array('name'=>'Utils/Messenger','version'=>0),
 				array('name'=>'CRM/Contacts','version'=>0),
-				array('name'=>'Libs/QuickForm','version'=>0));
+				array('name'=>'Libs/QuickForm','version'=>0),
+				array('name'=>'Libs/TCPDF','version'=>0));
 	}
 
 	public static function info() {
