@@ -32,6 +32,7 @@ class Utils_RecordBrowser_Reports extends Module {
 	private $height = 14;
 	private $pdf_title = '';
 	private $pdf_subject = '';
+	private $pdf_filename = '';
 	private static $pdf_ready = 0;
 
 	public function construct(){
@@ -449,6 +450,10 @@ class Utils_RecordBrowser_Reports extends Module {
 		$this->pdf_subject = $arg;
 	}
 	
+	public function set_pdf_filename($arg) {
+		$this->pdf_filename = $arg;
+	}
+	
 	public function body($pdf=false) {
 		if ($this->is_back()) return false;
 		if ($this->date_range=='error') return;
@@ -464,7 +469,7 @@ class Utils_RecordBrowser_Reports extends Module {
 		$this->make_table();
 
 		if ($this->pdf){
-			Base_ActionBarCommon::add('save','Download PDF','href="'.$this->pdf_ob->get_href().'"');
+			Base_ActionBarCommon::add('save','Download PDF','href="'.$this->pdf_ob->get_href($this->pdf_filename).'"');
 			self::$pdf_ready = 1;
 		} elseif ($this->pdf_title!='' && self::$pdf_ready == 0) {
 			if (count($this->gb_captions)<20)

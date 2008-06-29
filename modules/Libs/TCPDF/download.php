@@ -29,6 +29,6 @@ if (!file_exists($fn))
 $buffer = file_get_contents($fn);
 header('Content-Type: application/pdf');
 header('Content-Length: '.strlen($buffer));
-header('Content-disposition: attachement; flename="'.$filename.'"');
+header('Content-disposition: attachement; filename="'.$filename.'"');
 echo $buffer;
 ?>

@@ -99,7 +99,7 @@ class Libs_TCPDF extends Module {
 		$l['a_meta_charset'] = "UTF-8";
 		$l['a_meta_dir'] = "ltr";
 		$l['a_meta_language'] = "en";
-		$l['w_page'] = $this->lang->t("page");
+		$l['w_page'] = $this->lang->ht("page");
 		$this->tcpdf->setLanguageArray($l); 
 		
 		//initialize document
@@ -116,8 +116,8 @@ class Libs_TCPDF extends Module {
 		$filename = $this->full_path($filename);
 		file_put_contents($filename, $s);
 		$this->set_module_variable('pdf', $filename);
-		if(!isset($dlfilename)) $dlfilename='download.pdf';
-		return 'modules/Libs/TCPDF/download.php?'.http_build_query(array('id'=>CID,'pdf'=>$pdf_id,'filename'=>$dlfilename));
+		if(!isset($dlfilename)) $dlfilename='download';
+		return 'modules/Libs/TCPDF/download.php?'.http_build_query(array('id'=>CID,'pdf'=>$pdf_id,'filename'=>$dlfilename.'.pdf'));
 	}
 }
 
