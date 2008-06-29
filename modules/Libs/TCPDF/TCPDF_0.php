@@ -118,7 +118,7 @@ class Libs_TCPDF extends Module {
 		if ($this->pdf_ready){
 			Base_ActionBarCommon::add('save','Download PDF','href="'.$this->get_href($filename).'"');
 		} else {
-			Base_ActionBarCommon::add('print','Create PDF',$this->create_callback_href(array($this, 'bleeee')));
+			Base_ActionBarCommon::add('print','Create PDF',$this->create_callback_href(array($this, 'start_preparing')));
 		}
 	}
 	
