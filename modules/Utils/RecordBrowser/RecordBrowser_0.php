@@ -1208,7 +1208,7 @@ class Utils_RecordBrowser extends Module {
 				$last_row = $row2;
 			}
 			foreach($changed as $k=>$v) {
-				if ($k=='id') $gb_cha->add_row($row['edited_on'], Base_UserCommon::get_user_login($row['edited_by']), '', '', $last_row['old_value']);
+				if ($k=='') $gb_cha->add_row($row['edited_on'], Base_UserCommon::get_user_login($row['edited_by']), '', '', $last_row['old_value']);
 				else {
 					$new = $this->get_val($field_hash[$k], $created, $created['id'], false, $this->table_rows[$field_hash[$k]]);
 					$created[$k] = $v;
