@@ -2,12 +2,12 @@
 /**
  * FPDF class.
  * 
- * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
  * @license SPL
  * @package epesi-libs
- * @subpackage fpdf
+ * @subpackage tcpdf
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -42,7 +42,6 @@ class Libs_TCPDF extends Module {
 		
 		//set image scale factor
 		$this->tcpdf->setImageScale(PDF_IMAGE_SCALE_RATIO); 
-		
 	}
 	
 	public function writeHTML($html) {
@@ -51,13 +50,13 @@ class Libs_TCPDF extends Module {
 		$this->tcpdf->WriteHTML($html);
 	}
 	
-/*	public function & __call($func_name, array $args=array()) {
+	public function & __call($func_name, array $args=array()) {
 		if(is_callable(array(&$this->tcpdf,$func_name)))
 			$ret = & call_user_func_array(array(&$this->tcpdf,$func_name), $args);
 		else
 			$ret = false;
 		return $ret;
-	}*/
+	}
 
 	public function set_title($str) {
 		$this->steps['title'] = $str;
@@ -106,7 +105,6 @@ class Libs_TCPDF extends Module {
 
 	public function start_preparing_pdf() {
 		$this->pdf_ready = 1;
-		print('BLEEEEEEEEEEEEEEEEEEEEEEEEE!');
 		return false;
 	}
 
@@ -114,11 +112,14 @@ class Libs_TCPDF extends Module {
 		return $this->pdf_ready;
 	}
 	
-	public function body($filename) {
+	public function body() {
+	}
+		
+	public function add_actionbar_icon($filename) {
 		if ($this->pdf_ready){
 			Base_ActionBarCommon::add('save','Download PDF','href="'.$this->get_href($filename).'"');
 		} else {
-			Base_ActionBarCommon::add('print','Create PDF',$this->create_callback_href(array($this, 'start_preparing')));
+			Base_ActionBarCommon::add('print','Create PDF',$this->create_callback_href(array($this, 'start_preparing_pdf')));
 		}
 	}
 	

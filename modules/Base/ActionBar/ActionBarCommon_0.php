@@ -32,9 +32,9 @@ class Base_ActionBarCommon extends ModuleCommon {
 			'add'=>11,
 			'delete'=>12,
 			'save'=>13,
-			'clone'=>14,
-			'settings'=>15,
-			'print'=>16,
+			'print'=>14,
+			'clone'=>15,
+			'settings'=>16,
 			'scan'=>17,
 			'filter'=>18);
 

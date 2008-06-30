@@ -12,6 +12,12 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_Calendar_Event extends Utils_Calendar_Event {
 	private $lang;
 	private $custom_defaults = array();
+	private static $access;
+	private static $priority;
+	
+	public function construct() {
+		$this->lang = $this->pack_module('Base/Lang');
+	}
 
 	public function view($id) {
 		if($this->is_back()) $this->back_to_calendar();
@@ -29,27 +35,135 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$this->view_event('new', $def_date, $timeless);
 	}
 	
-	public function makePDF(){
-		$pdf = $this->init_module('Libs/TCPDF', 'L');
+	public function make_event_PDF($id){
+		$pdf = $this->pack_module('Libs/TCPDF', 'L');
 
-/*		if ($pdf->prepare()) {
-			$pdf->set_title('Title');
-			$pdf->set_subject('Subject');
+		if ($pdf->prepare()) {
+			$ev = DB::GetRow('SELECT * FROM crm_calendar_event WHERE id=%d', array($id));
+			$pdf->set_title($this->lang->t('Event').': '.$ev['title']);
+			if (!$ev['timeless']) $pdf->set_subject(Base_RegionalSettingsCommon::time2reg($ev['start']).' - '.Base_RegionalSettingsCommon::time2reg($ev['end']));
+			else $pdf->set_subject(Base_RegionalSettingsCommon::time2reg($ev['start'],false));
 			$pdf->prepare_header();
-			print('PDF ready!');
-		}*/
+			$pdf->AddPage();
+			$pdf->SetFont("dejavusans", "", 9);
+			Base_ThemeCommon::install_default_theme($this->get_type()); // TODO: delete this, just develop tool
+			$pdf_theme = $this->pack_module('Base/Theme');
+			$ev['status'] = Utils_CommonDataCommon::get_value('Ticket_Status/'.$ev['status']);
+			$ev['access'] = self::$access[$ev['access']];
+			$ev['priority'] = self::$priority[$ev['priority']];
+			foreach (array('description', 'access', 'priority', 'status') as $v)
+				$pdf_theme->assign($v, array('label'=>$this->lang->t(ucfirst($v)), 'value'=>str_replace("\n",'<br>',htmlspecialchars($ev[$v]))));
+			$created_by = CRM_ContactsCommon::get_contact_by_user_id($ev['created_by']);
+			if ($created_by!==null) $created_by = $created_by['last_name'].' '.$created_by['first_name'];
+			else $created_by = Base_UserCommon::get_user_login($ev['created_by']);
+			$created_on = Base_RegionalSettingsCommon::time2reg($ev['created_on'],false);
+			$pdf_theme->assign('created_on', array('label'=>$this->lang->t('Created on'), 'value'=>$created_on));
+			$pdf_theme->assign('created_by', array('label'=>$this->lang->t('Created by'), 'value'=>$created_by));
+			if ($ev['edited_by']!=null) {
+				$edited_by = CRM_ContactsCommon::get_contact_by_user_id($ev['edited_by']);
+				if ($edited_by!==null) $edited_by = $edited_by['last_name'].' '.$edited_by['first_name'];
+				else $edited_by = Base_UserCommon::get_user_login($ev['edited_by']);
+				$edited_on = Base_RegionalSettingsCommon::time2reg($ev['edited_on'],false);
+				$pdf_theme->assign('edited_on', array('label'=>$this->lang->t('Edited on'), 'value'=>$edited_on));
+				$pdf_theme->assign('edited_by', array('label'=>$this->lang->t('Edited by'), 'value'=>$edited_by));
+			}
+			$defec = $this->get_emp_and_cus($id);
+			$emps = array();
+			foreach ($defec['emp_id'] as $v) {
+				$c = CRM_ContactsCommon::get_contact($v);
+				$emps[] = array('name'=>$c['last_name'].' '.$c['first_name'],
+								'mphone'=>$c['mobile_phone'],
+								'wphone'=>$c['work_phone'],
+								'hphone'=>$c['home_phone']);
+			}
+			$cuss = array();
+			foreach ($defec['cus_id'] as $v) {
+				$c = CRM_ContactsCommon::get_contact($v);
+				if (isset($c['company_name'][0]) && is_numeric($c['company_name'][0])) {
+					$company_name = Utils_RecordBrowserCommon::get_value('company', $c['company_name'][0], 'Company Name');
+					$cphone = Utils_RecordBrowserCommon::get_value('company', $c['company_name'][0], 'Phone');
+				} else {
+					$company_name = '';
+					$cphone = '';
+				}
+				$cuss[] = array('name'=>$c['last_name'].' '.$c['first_name'],
+								'mphone'=>$c['mobile_phone'],
+								'wphone'=>$c['work_phone'],
+								'hphone'=>$c['home_phone'],
+								'company_name'=>$company_name,
+								'cphone'=>$cphone);
+			}
+			$pdf_theme->assign('employees', array(	'main_label'=>$this->lang->t('Employees'),
+													'name_label'=>$this->lang->t('Name'),
+													'mphone_label'=>$this->lang->t('Mobile Phone'),
+													'wphone_label'=>$this->lang->t('Work Phone'),
+													'hphone_label'=>$this->lang->t('Home Phone'),
+													'lp_label'=>$this->lang->t('Lp'),
+													'data'=>$emps
+													));
+			$pdf_theme->assign('customers', array(	'main_label'=>$this->lang->t('Customers'),
+													'name_label'=>$this->lang->t('Name'),
+													'mphone_label'=>$this->lang->t('Mobile Phone'),
+													'wphone_label'=>$this->lang->t('Work Phone'),
+													'hphone_label'=>$this->lang->t('Home Phone'),
+													'company_name'=>$this->lang->t('Company Name'),
+													'company_phone'=>$this->lang->t('Comp. Phone'),
+													'lp_label'=>$this->lang->t('Lp'),
+													'data'=>$cuss
+													));
+			$pdf_theme->assign('title', array(	'label'=>$this->lang->t('Title'),
+												'value'=>$ev['title']));
+			$pdf_theme->assign('start_date', array(	'label'=>$this->lang->t('Start date'),
+													'value'=>Base_RegionalSettingsCommon::time2reg($ev['start'],false)));
+			if (!$ev['timeless'])
+				$pdf_theme->assign('start_time', array(	'label'=>$this->lang->t('Start time'),
+														'value'=>Base_RegionalSettingsCommon::time2reg($ev['start'],true,false)));
+			if (!$ev['timeless'] && date('Y-m-d',$ev['start'])!=date('Y-m-d',$ev['end']))
+				$pdf_theme->assign('end_date', array(	'label'=>$this->lang->t('End date'),
+														'value'=>Base_RegionalSettingsCommon::time2reg($ev['end'],false)));
+			if (!$ev['timeless'])
+				$pdf_theme->assign('end_time', array(	'label'=>$this->lang->t('End time'),
+														'value'=>Base_RegionalSettingsCommon::time2reg($ev['end'],true,false)));
+			if (!$ev['timeless']) {
+				$duration = array(floor(($ev['end']-$ev['start'])/3600));
+				$format = '%d hours';
+				$minutes = ($ev['end']-$ev['start'])%3600;
+				if ($minutes!=0) {
+					if ($duration[0]==0) {
+						$duration = array();
+						$format = '';
+					} else $format.= ', ';
+					$duration[] = $minutes/60; 
+					$format .= '%d minutes';
+				}
+				$pdf_theme->assign('duration', array(	'label'=>$this->lang->t('Duration'),
+														'value'=>$this->lang->t($format,$duration)));
+			}
+			ob_start();
+			$pdf_theme->display('pdf_version');
+			$cont = ob_get_clean();
+			$pdf->writeHTML($cont);
+		}
 		
-		$this->display_module($pdf, array('Event'));
+		$pdf->add_actionbar_icon('Event');
+	}
+
+	public function get_emp_and_cus($id){
+		$def = array();
+		$def['cus_id'] = array();
+		$ret = DB::Execute('SELECT contact FROM crm_calendar_event_group_cus WHERE id=%d', $id);
+		while ($row=$ret->FetchRow())
+			$def['cus_id'][] = $row['contact'];
+		$def['emp_id'] = array();
+		$ret = DB::Execute('SELECT contact FROM crm_calendar_event_group_emp WHERE id=%d', $id);
+		while ($row=$ret->FetchRow())
+			$def['emp_id'][] = $row['contact'];
+		return $def;
 	}
 
 	public function view_event($action, $id=null, $timeless=false){
 		if($this->is_back()) return false;
 		
-		if ($action=='view') {
-			$this->makePDF();	
-		}
-
-		$this->lang = $this->pack_module('Base/Lang');
 		$form = $this->init_module('Libs/QuickForm');
 		$theme =  $this->pack_module('Base/Theme');
 		$theme->assign('action',$action);
@@ -119,14 +233,17 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				'edited_by' => $event['edited_by']?Base_UserCommon::get_user_login($event['edited_by']):'---',
 				'edited_on' => $event['edited_by']?$event['edited_on']:'---'
 			);
-			$def['cus_id'] = array();
+			$defec = $this->get_emp_and_cus($id);
+			$def['cus_id'] = $defec['cus_id'];
+			$def['emp_id'] = $defec['emp_id'];
+/*			$def['cus_id'] = array();
 			$ret = DB::Execute('SELECT contact FROM crm_calendar_event_group_cus WHERE id=%d', $id);
 			while ($row=$ret->FetchRow())
 				$def['cus_id'][] = $row['contact'];
 			$def['emp_id'] = array();
 			$ret = DB::Execute('SELECT contact FROM crm_calendar_event_group_emp WHERE id=%d', $id);
 			while ($row=$ret->FetchRow())
-				$def['emp_id'][] = $row['contact'];
+				$def['emp_id'][] = $row['contact'];*/
 			$def_emp_id = $def['emp_id'];
 			$timeless = $event['timeless'];
 			$tmp = $def['title'];
@@ -229,15 +346,15 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 		$form->addElement('header', null, $this->lang->t('Event itself'));
 
-		$access = array(0=>$this->lang->t('Public'), 1=>$this->lang->t('Public, read-only'), 2=>$this->lang->t('Private'));
-		$priority = array(0 => $this->lang->t('Low'), 1 => $this->lang->t('Medium'), 2 => $this->lang->t('High'));
+		self::$access = array(0=>$this->lang->t('Public'), 1=>$this->lang->t('Public, read-only'), 2=>$this->lang->t('Private'));
+		self::$priority = array(0 => $this->lang->t('Low'), 1 => $this->lang->t('Medium'), 2 => $this->lang->t('High'));
 		$color = CRM_Calendar_EventCommon::get_available_colors();
 		$color[0] = $this->lang->t('Default').': '.$this->lang->ht(ucfirst($color[0]));
 		for($k=1; $k<count($color); $k++)
 			$color[$k] = '&bull; '.$this->lang->ht(ucfirst($color[$k]));
 
-		$form->addElement('select', 'access', $this->lang->t('Access'), $access, array('style'=>'width: 100%;'));
-		$form->addElement('select', 'priority', $this->lang->t('Priority'), $priority, array('style'=>'width: 100%;'));
+		$form->addElement('select', 'access', $this->lang->t('Access'), self::$access, array('style'=>'width: 100%;'));
+		$form->addElement('select', 'priority', $this->lang->t('Priority'), self::$priority, array('style'=>'width: 100%;'));
 		$form->addElement('select', 'color', $this->lang->t('Color'), $color, array('style'=>'width: 100%;'));
 
 		if ($action=='view') {
@@ -344,7 +461,11 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 //		$theme->assign('view_style', 'new_event');
 		$theme->assign('cus_click', $cus_click);
 		$form->assign_theme('form', $theme);
+
 		$theme->display();
+
+		if ($action=='view')
+			$this->make_event_PDF($id);
 
 		if($action == 'view') {
 			$my_id = CRM_FiltersCommon::get_my_profile();
