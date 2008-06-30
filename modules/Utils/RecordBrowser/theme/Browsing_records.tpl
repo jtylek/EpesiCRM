@@ -1,7 +1,3 @@
-{php}
-	load_js('data/Base_Theme/templates/default/Utils_RecordBrowser__Browsing_records.js');
-{/php}
-
 <div style="text-align: left; padding-bottom: 3px;">
 <table id="Browsing_records" border="0" cellpadding="0" cellspacing="0">
 	<tbody>
