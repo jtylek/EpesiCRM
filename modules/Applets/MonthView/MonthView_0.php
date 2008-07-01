@@ -26,6 +26,7 @@ class Applets_MonthView extends Module {
 
 		$month = array();
 		$today = date('Y-m-d');
+		$colors = CRM_Calendar_EventCommon::get_available_colors();
 		while (date('m', $currday) != ($curmonth)%12+1) {
 			$week = array();
 			$weekno = date('W',$currday);
@@ -39,9 +40,9 @@ class Applets_MonthView extends Module {
 							);
 //				print(($currday-$mark[$it]).'<br>');
 //				print(date('Y-m-d H:i:s',$currday).'-'.date('Y-m-d H:i:s',$mark[$it]).'<br>');
-				if (isset($mark[$it]) && $currday == $mark[$it]) {
+				if (isset($mark[$it]) && $currday == $mark[$it]['time']) {
+					$next['style'].= ' event-'.$colors[$mark[$it]['color']];
 					$it++;
-					$next['style'].= ' event';
 				}
 				$week[] = $next;
 				$currday += 86400;
@@ -56,8 +57,9 @@ class Applets_MonthView extends Module {
 
 	public function applet($conf,$opts) {
 		$opts['go'] = true;
-		$this->date = $this->get_unique_href_variable('date');
+		$this->date = $this->get_module_variable_or_unique_href_variable('date');
 		if ($this->date==null) $this->date = date('Y-m-15');
+		$this->set_module_variable('date', $this->date);
 		$this->date = strtotime($this->date);
 		$theme = $this->pack_module('Base/Theme');
 		$this->lang = $this->pack_module('Base/Lang');
@@ -83,7 +85,7 @@ class Applets_MonthView extends Module {
 		
 		$me = CRM_ContactsCommon::get_my_record(); 
 		CRM_Calendar_EventCommon::$filter = '('.$me['id'].')';
-		$ret = call_user_func(array('CRM_Calendar_EventCommon','get_event_days'),date('Y-m-01',$this->date),date('Y-m-t', $this->date));
+		$ret = call_user_func(array('CRM_Calendar_EventCommon','get_event_days'),date('Y-m-01 00:00:00',$this->date),date('Y-m-t 23:59:59', $this->date));
 		
 		$it = 0;
 

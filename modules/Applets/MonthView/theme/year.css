@@ -78,14 +78,21 @@ p.event {
 	border: 2px solid #336699;
 }
 
-#Utils_Calendar__year td.event {
-	background-color: #D0FFD0;
-}
+#Utils_Calendar__year td.event-green 	{ background-color: #D0FFD0; }
+#Utils_Calendar__year td.event-yellow 	{ background-color: #FFFFD0; }
+#Utils_Calendar__year td.event-red 		{ background-color: #FFD0D0; }
+#Utils_Calendar__year td.event-blue 	{ background-color: #D0D0FF; }
+#Utils_Calendar__year td.event-gray 	{ background-color: #D0D0D0; }
+#Utils_Calendar__year td.event-cyan 	{ background-color: #D0FFFF; }
+#Utils_Calendar__year td.event-magenta 	{ background-color: #FFD0FF; }
 
-#Utils_Calendar__year td.event a {
-	color: #139313;
-	font-weight: bold;
-}
+#Utils_Calendar__year td.event-green a 		{ color: #139313; font-weight: bold; }
+#Utils_Calendar__year td.event-yellow a 	{ color: #939313; font-weight: bold; }
+#Utils_Calendar__year td.event-red a 		{ color: #931313; font-weight: bold; }
+#Utils_Calendar__year td.event-blue a 		{ color: #131393; font-weight: bold; }
+#Utils_Calendar__year td.event-gray a 		{ color: #131313; font-weight: bold; }
+#Utils_Calendar__year td.event-cyan a 		{ color: #139393; font-weight: bold; }
+#Utils_Calendar__year td.event-magenta a 	{ color: #931393; font-weight: bold; }
 
 #Utils_Calendar__year td.today a {
 	display: block;

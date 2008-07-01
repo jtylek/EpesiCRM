@@ -119,13 +119,13 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$fil = '';
 		if(!Base_AclCommon::i_am_admin())
 			$fil .= ' AND (e.access<2 OR (SELECT id FROM crm_calendar_event_group_emp cg2 WHERE cg2.id=e.id AND cg2.contact='.CRM_FiltersCommon::get_my_profile().' LIMIT 1) IS NOT NULL)';
-		$ret = DB::Execute('SELECT e.start FROM crm_calendar_event AS e WHERE e.start>=%d AND e.start<%d '.$fil.' ORDER BY e.start', array($start, $end));
+		$ret = DB::Execute('SELECT color, e.start FROM crm_calendar_event AS e WHERE e.start>=%d AND e.start<=%d AND status<2 '.$fil.' ORDER BY e.start', array($start, $end));
 		$rs = array();
 		$last = '';
 		while ($row = $ret->FetchRow()) {
 			$next = date('Y-m-d',$row['start']);
 			if ($next==$last) continue;
-			$rs[] = strtotime($next);
+			$rs[] = array('time'=>strtotime($next),'color'=>$row['color']);
 			$last = $next;
 		}
 		return $rs;
