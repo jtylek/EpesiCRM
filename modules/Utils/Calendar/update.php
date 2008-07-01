@@ -27,7 +27,9 @@ if($_POST['cell_id']=='trash') {
 	//update event
 	$cc = explode('_',$_POST['cell_id']);
 	//$cc[0] = Base_RegionalSettingsCommon::reg2time($cc[0]);
+	ob_start();
 	$ev = call_user_func(array($mod.'Common','get'),$ev_id);
+	ob_clean();
 //	error_log($ev_id."\n",3,'data/log2');
 	if($_POST['page_type']=='month') {
 		if($ev['timeless']) $cc[1]=(isset($ev['custom_row_key'])?$ev['custom_row_key']:'timeless');
@@ -45,7 +47,9 @@ if($_POST['cell_id']=='trash') {
 
 	//update content of event on page in client browser
 //	error_log('2,5: '.(microtime(true)-$t)."\n",3,'data/log');
+	ob_start();
 	$ev = call_user_func(array($mod.'Common','get'),$ev_id);
+	$ret_ev = ob_get_clean();
 //	error_log('3: '.(microtime(true)-$t)."\n",3,'data/log');
 	if(!$ev) return;
 	if(isset($ev['title']))
@@ -54,7 +58,7 @@ if($_POST['cell_id']=='trash') {
 		ob_start();
 		Utils_CalendarCommon::print_event($e,($_POST['page_type']=='day')?'day':null);
 		$ret = ob_get_clean();
-		print('$(\'utils_calendar_event:'.$e['id'].'\').innerHTML=\''.Epesi::escapeJS($ret,false).'\';');
+		print('$(\'utils_calendar_event:'.$e['id'].'\').innerHTML=\''.Epesi::escapeJS($ret_ev,false).Epesi::escapeJS($ret,false).'\';');
 	}
 //	error_log('4: '.(microtime(true)-$t)."\n",3,'data/log');
 }
