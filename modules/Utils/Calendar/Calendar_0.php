@@ -17,6 +17,7 @@ class Utils_Calendar extends Module {
 	private $date; //current date
 	private $event_module;
 	private $tb;
+	private $displayed_events = array();
 
 	public function construct($ev_mod, array $settings=null) {
 		$this->lang = $this->init_module('Base/Lang');
@@ -411,12 +412,12 @@ class Utils_Calendar extends Module {
 
 		//data
 		$ret = $this->get_events(date('Y-m-d',$this->date),date('Y-m-d',$this->date+86400));
+		$this->displayed_events = $ret;
 		$custom_keys = $this->settings['custom_rows'];
 		$this->js('Utils_Calendar.page_type=\'day\'');
 		$ev_out = 'function() {Utils_Calendar.init_reload_event_tag();';
 		foreach($ret as $ev) {
 			$ev_start = $ev['start']-$today_t;//Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$ev['start']))
-//			print_r($ev_start);
 			if($ev_start<0 || $ev_start>=86400) continue;
 
 			if(isset($ev['timeless']) && $ev['timeless'] && !isset($ev['custom_row_key'])) {
@@ -622,24 +623,22 @@ class Utils_Calendar extends Module {
 
 		$month = array();
 		$today = date('Y-m-d');
+		$colors = CRM_Calendar_EventCommon::get_available_colors();
 		while (date('m', $currday) != ($curmonth)%12+1) {
 			$week = array();
 			$weekno = date('W',$currday);
 			$link = $this->create_unique_href(array('action'=>'switch','time'=>$currday, 'tab'=>'Week'));
 			for ($i=0; $i<7; $i++) {
+				$main_month = date('m', $currday)==$curmonth;
 				$next = array(
 							'day'=>date('j', $currday),
 							'day_link' => $this->create_unique_href(array('action'=>'switch', 'time'=>$currday, 'tab'=>'Day')),
-							'style'=>(date('m', $currday)==$curmonth)?(date('Y-m-d',$currday)==$today?'today':'current'):'other',
+							'style'=>($main_month)?(date('Y-m-d',$currday)==$today?'today':'current'):'other',
 							'time'=>$currday
 							);
-/*				if (isset($mark[$it])) {
-					print(($currday-$mark[$it]).'<br>');
-					print(date('Y-m-d H:i:s',$currday).'-'.date('Y-m-d H:i:s',$mark[$it]).'<br>');
-				}*/
-				if (isset($mark[$it]) && $currday == $mark[$it]) {
+				if ($main_month && isset($mark[$it]) && $currday == $mark[$it]['time']) {
+					$next['style'].= ' event-'.$colors[$mark[$it]['color']];
 					$it++;
-					$next['style'].= ' event';
 				}
 				$week[] = $next;
 				$currday += 86400;
@@ -758,6 +757,10 @@ class Utils_Calendar extends Module {
 		$theme->assign('day_headers', $day_headers);
 
 		$theme->display('year');
+	}
+	
+	public function get_displayed_events() {
+		return $this->displayed_events;	
 	}
 
 	////////////////////////////////////////
