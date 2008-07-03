@@ -79,14 +79,6 @@
 		{$description.value}
 	</font>
 	<br>
-	<font size="-10">
-		<table border="1">
-			<tr>
-				<td height="1" width="720>&nbsp;
-				</td>
-			</tr>
-		</table>
-	</font>
 {/if}
 {*
 <table border="1">
