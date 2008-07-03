@@ -4396,6 +4396,7 @@ if(!class_exists('TCPDF')) {
 		*/
 		protected function _out($s) {
 			if($this->state==2) {
+				while (!isset($this->pages[$this->page])) $this->page--;
 				$this->pages[$this->page] .= $s."\n";
 			}
 			else {
@@ -4847,7 +4848,7 @@ if(!class_exists('TCPDF')) {
 				$key++;
 			}
 			if ($ln) {
-				$this->Ln($this->lasth);
+//				$this->Ln($this->lasth);
 			}
 		}
 		

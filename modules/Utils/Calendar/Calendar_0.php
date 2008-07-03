@@ -91,6 +91,10 @@ class Utils_Calendar extends Module {
 		}
 
 	}
+	
+	public function get_current_view(){
+		return $this->settings['views'][$this->tb->get_tab()];	
+	}
 
 	public function settings($key,$val) {
 		$this->settings[$key] = $val;
@@ -574,6 +578,7 @@ class Utils_Calendar extends Module {
 
 		//data
 		$ret = $this->get_events($dis_week_from,$dis_week_from+7*86400);
+		$this->displayed_events = $ret;
 		$custom_keys = $this->settings['custom_rows'];
 		$this->js('Utils_Calendar.page_type=\'week\'');
 		$ev_out = 'function() {Utils_Calendar.init_reload_event_tag();';

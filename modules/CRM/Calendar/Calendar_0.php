@@ -3,6 +3,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_Calendar extends Module {
+	private $lang;
 
 	public function body() {
 		CRM_Calendar_EventCommon::$filter = CRM_FiltersCommon::get();
@@ -32,6 +33,34 @@ class CRM_Calendar extends Module {
 		$c = $this->init_module('Utils/Calendar',array('CRM/Calendar/Event',$args));
 		$theme->assign('calendar',$this->get_html_of_module($c));
 		$theme->display();
+		$events = $c->get_displayed_events();
+		if (!empty($events)) {
+			switch ($c->get_current_view()) {
+				case 'Day': $view = 'Daily'; break;
+				case 'Month': $view = 'Monthly'; break;
+				case 'Week': $view = 'Weekly'; break;
+			}
+			if (isset($view)) {
+				$this->lang = $this->init_module('Base/Lang');
+				$pdf = $this->pack_module('Libs/TCPDF', 'L');
+				if ($pdf->prepare()) {
+					$ev_mod = $this->init_module('CRM/Calendar/Event');
+					$pdf->set_title($this->lang->t($view.' agenda'));
+					$filter = CRM_FiltersCommon::get();
+					$me = CRM_ContactsCommon::get_my_record();
+					if (trim($filter,'()')==$me['id']) $desc=$me['last_name'].' '.$me['first_name'];
+					else $desc = CRM_FiltersCommon::get_profile_desc();
+					$pdf->set_subject($this->lang->t('CRM Filters: %s',array($desc)));
+					$pdf->prepare_header();
+					$pdf->AddPage();
+					foreach($events as $v) {
+						$ev_mod->make_event_PDF($pdf,$v['id'],true,$c->get_current_view());
+						$pdf->Ln(8);
+					}
+				}
+				$pdf->add_actionbar_icon($this->lang->t($view.'_agenda'));
+			}
+		}
 	}
 	
 	public function applet($conf,$opts) {

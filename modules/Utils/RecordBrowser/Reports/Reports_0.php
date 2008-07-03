@@ -250,7 +250,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			$gb->set_inline_display();
 			$gb->set_prefix(array('widths'=>$this->widths, 'height'=>$this->height));
 			$table = $this->get_html_of_module($gb, array(Base_ThemeCommon::get_template_filename('Utils_RecordBrowser_Reports','generic_browser')));
-			$this->pdf_ob->tcpdf->SetFont("freeserif", "", $this->fontsize);
+			$this->pdf_ob->tcpdf->SetFont("helvetica", "", $this->fontsize);
 			$this->pdf_ob->writeHTML($table);
 		} else {
 			$this->display_module($gb, array(Base_ThemeCommon::get_template_filename('Utils_GenericBrowser','no_shadow')));

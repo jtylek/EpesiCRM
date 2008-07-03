@@ -22,7 +22,7 @@ class Libs_TCPDF extends Module {
 		$this->lang = $this->init_module('Base/Lang');
 		require_once('tcpdf/tcpdf.php');
 		
-		$this->tcpdf = new TCPDF($orientation, $unit, $format);
+		$this->tcpdf = new TCPDF($orientation, $unit, $format);//, false, "ISO-8859-1");
 
 		$this->tcpdf->SetCreator(PDF_CREATOR);
 		$this->tcpdf->SetAuthor("Powered by epesi");
@@ -31,6 +31,8 @@ class Libs_TCPDF extends Module {
 		// set header and footer fonts
 		$this->tcpdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
 		$this->tcpdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
+//		$this->tcpdf->setHeaderFont(Array('arial', '', PDF_FONT_SIZE_MAIN));
+//		$this->tcpdf->setFooterFont(Array('arial', '', PDF_FONT_SIZE_DATA));
 		
 		//set margins
 		$this->tcpdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
@@ -43,13 +45,50 @@ class Libs_TCPDF extends Module {
 		//set image scale factor
 		$this->tcpdf->setImageScale(PDF_IMAGE_SCALE_RATIO); 
 	}
-	
-	public function writeHTML($html) {
+
+	public function prepare_header() {
+		foreach (array('title', 'subject') as $v)
+			if (!isset($this->steps[$v])) trigger_error('PDF '.$v.' was not set, use $tcpdf->set_'.$v.'();',E_USER_ERROR);
+		$this->tcpdf->SetHeaderData(Base_ThemeCommon::get_template_file('Libs/TCPDF','logo-small.png'), PDF_HEADER_LOGO_WIDTH, $this->steps['title'], $this->steps['subject']);
+
+		//set some language-dependent strings
+		$l=array();
+		$l['a_meta_charset'] = "UTF-8";
+//		$l['a_meta_charset'] = "ISO-8859-1";
+		$l['a_meta_dir'] = "ltr";
+		$l['a_meta_language'] = "en";
+		
+		$who = CRM_ContactsCommon::get_contact_by_user_id(Acl::get_user());
+		if ($who!==null) $who = $who['last_name'].' '.$who['first_name'];
+		else $who= Base_UserCommon::get_user_login(Acl::get_user());
+		$when = date('Y-m-d H:i:s');
+		$l['w_page'] = $this->lang->ht('Printed by %s, on %s, ',array($who,$when)).$this->lang->ht("Page");
+		$this->tcpdf->setLanguageArray($l); 
+		
+		//initialize document
+		$this->tcpdf->AliasNbPages();
+
+		$this->tcpdf->SetFont("dejavusans", "", 9);
+	}
+
+	public function stripHTML($html) {
 		$html = str_replace(array("\n", "\t", "\r"), '', $html);
 		$html = preg_replace('/\<\/?[aA][^\>]*\>/', '', $html);
-		$this->tcpdf->WriteHTML($html);
+		return $html;
 	}
-	
+
+	public function writeHTML($html) {
+		$html = $this->stripHTML($html);
+		$pages = $this->tcpdf->getNumPages();
+		$tmppdf = clone($this->tcpdf);
+		$this->tcpdf->WriteHTML($html);
+		if ($pages!=$this->tcpdf->getNumPages()) {
+			$this->tcpdf = $tmppdf;
+			$this->tcpdf->AddPage();
+			$this->tcpdf->WriteHTML($html,false,0,true);
+		}
+	}
+
 	public function & __call($func_name, array $args=array()) {
 		if(is_callable(array(&$this->tcpdf,$func_name)))
 			$ret = & call_user_func_array(array(&$this->tcpdf,$func_name), $args);
@@ -86,23 +125,6 @@ class Libs_TCPDF extends Module {
 		return $this->get_data_dir().$filename.'.pdf';
 	}
 	
-	public function prepare_header() {
-		foreach (array('title', 'subject') as $v)
-			if (!isset($this->steps[$v])) trigger_error('PDF '.$v.' was not set, use $tcpdf->set_'.$v.'();',E_USER_ERROR);
-		$this->tcpdf->SetHeaderData(Base_ThemeCommon::get_template_file('Libs/TCPDF','logo-small.png'), PDF_HEADER_LOGO_WIDTH, $this->steps['title'], $this->steps['subject']);
-
-		//set some language-dependent strings
-		$l=array();
-		$l['a_meta_charset'] = "UTF-8";
-		$l['a_meta_dir'] = "ltr";
-		$l['a_meta_language'] = "en";
-		$l['w_page'] = $this->lang->ht("page");
-		$this->tcpdf->setLanguageArray($l); 
-		
-		//initialize document
-		$this->tcpdf->AliasNbPages();
-	}
-
 	public function start_preparing_pdf() {
 		$this->pdf_ready = 1;
 		return false;
@@ -137,6 +159,7 @@ class Libs_TCPDF extends Module {
 		file_put_contents($filename, $s);
 		$this->set_module_variable('pdf', $filename);
 		if(!isset($dlfilename)) $dlfilename='download';
+		$this->tcpdf = null;
 		return 'modules/Libs/TCPDF/download.php?'.http_build_query(array('id'=>CID,'pdf'=>$pdf_id,'filename'=>$dlfilename.'.pdf'));
 	}
 }
