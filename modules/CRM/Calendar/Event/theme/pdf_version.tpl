@@ -204,7 +204,7 @@
 			{php}
 				$this->_tpl_vars['address'] = '';
 				$tmp = '';
-				foreach (array('address_1','address_2','city','state','postal_code') as $v)
+				foreach (array('address_1','address_2','city','zone','postal_code') as $v)
 					if (isset($this->_tpl_vars['c'][$v]) && $this->_tpl_vars['c'][$v]!='') {
 						$this->_tpl_vars['address'] .= $tmp.$this->_tpl_vars['c'][$v];
 						$tmp = ', ';
