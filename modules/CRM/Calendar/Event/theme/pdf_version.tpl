@@ -9,7 +9,11 @@
 				<font color="#FFFFFF">{$title.value}</font>
 			</td>
 			<td width="360" height="10" bgcolor="#000000" align="right">
-				<font color="#FFFFFF">{$start_time.value}</font>
+				{if isset($start_time)}
+					<font color="#FFFFFF">{$start_time.value}</font>
+				{else}
+					<font color="#FFFFFF">{$timeless.label}</font>
+				{/if}
 			</td>
 		</tr>
 	{else}
@@ -21,7 +25,7 @@
 				{if isset($start_time)}
 					<font color="#FFFFFF">{$start_time.value}</font>
 				{else}
-					&nbsp;
+					<font color="#FFFFFF">{$timeless.label}</font>
 				{/if}
 			</td>
 		</tr>
