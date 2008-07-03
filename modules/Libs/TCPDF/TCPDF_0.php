@@ -85,7 +85,7 @@ class Libs_TCPDF extends Module {
 		if ($pages!=$this->tcpdf->getNumPages()) {
 			$this->tcpdf = $tmppdf;
 			$this->tcpdf->AddPage();
-			$this->tcpdf->WriteHTML($html,false,0,true);
+			$this->tcpdf->WriteHTML($html,false,0,false);
 		}
 	}
 

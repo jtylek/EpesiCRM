@@ -81,10 +81,10 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$cus_cmps = array();
 		foreach ($defec['cus_id'] as $v) {
 			$c = CRM_ContactsCommon::get_contact($v);
-			if (isset($c['company_name'][0]) && is_numeric($c['company_name'][0]))
-				$company_name = Utils_RecordBrowserCommon::get_value('company', $c['company_name'][0], 'Company Name');
-			else
-				$company_name = '';
+			$company_name = array();
+			if (is_array($c['company_name']))
+				foreach ($c['company_name'] as $vv)
+					$company_name[] = Utils_RecordBrowserCommon::get_value('company', $vv, 'Company Name');
 			$cuss[] = array('name'=>$c['last_name'].' '.$c['first_name'],
 							'mphone'=>$c['mobile_phone'],
 							'wphone'=>$c['work_phone'],

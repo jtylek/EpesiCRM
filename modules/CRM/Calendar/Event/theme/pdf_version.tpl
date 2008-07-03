@@ -156,17 +156,27 @@
 		{assign var=count value=0}
 		{foreach item=c from=$customers.data}
 			{assign var=count value=$count+1}
-			{if strlen($c.company_name)>36}
-				{assign var=height value=23}
-			{else}
-				{assign var=height value=11}
+			{assign var=height value=0}
+			{foreach item=cmp from=$c.company_name}
+				{if strlen($cmp)>36}
+					{assign var=height value=$height+22}
+				{else}
+					{assign var=height value=$height+11}
+				{/if}
+			{if $height==0}
+				{assign var=height value=12}
 			{/if}
+			{/foreach}
 			<tr>
 				<td width="180" height="{$height}" {if $count%2==0}bgcolor="#F7F7F7"{/if}>
 					<font size="-1">{$c.name}</font>
 				</td>
 				<td width="240" height="{$height}" {if $count%2==0}bgcolor="#F7F7F7"{/if}>
-					<font size="-1">{$c.company_name}</font>
+					<font size="-1">
+						{foreach item=cmp from=$c.company_name}
+							{$cmp}<br>
+						{/foreach}
+					</font>
 				</td>
 				<td width="150" height="{$height}" {if $count%2==0}bgcolor="#F7F7F7"{/if}>
 					<font size="-1">{$c.mphone}</font>
