@@ -329,6 +329,7 @@ class Utils_Calendar extends Module {
 
 		//add data
 		$ret = $this->get_events($start,$end);
+		$this->displayed_events = array('start'=>$start, 'end'=>$end,'events'=>$ret);
 		foreach($ret as $row) {
 			$r = $gb->get_new_row();
 			$view_h = $this->create_callback_href(array($this,'push_event_action'),array('view',$row['id']));
@@ -415,8 +416,10 @@ class Utils_Calendar extends Module {
 		$theme->display('day');
 
 		//data
-		$ret = $this->get_events(date('Y-m-d',$this->date),date('Y-m-d',$this->date+86400));
-		$this->displayed_events = $ret;
+		$start = $this->date;
+		$end = $this->date+86400;
+		$ret = $this->get_events($start, $end);
+		$this->displayed_events = array('start'=>$start, 'end'=>$end,'events'=>$ret);
 		$custom_keys = $this->settings['custom_rows'];
 		$this->js('Utils_Calendar.page_type=\'day\'');
 		$ev_out = 'function() {Utils_Calendar.init_reload_event_tag();';
@@ -577,8 +580,9 @@ class Utils_Calendar extends Module {
 		$theme->display('week');
 
 		//data
-		$ret = $this->get_events($dis_week_from,$dis_week_from+7*86400);
-		$this->displayed_events = $ret;
+		$dis_week_to = $dis_week_from+7*86400-1;
+		$ret = $this->get_events($dis_week_from,$dis_week_to);
+		$this->displayed_events = array('start'=>$dis_week_from, 'end'=>$dis_week_to,'events'=>$ret);
 		$custom_keys = $this->settings['custom_rows'];
 		$this->js('Utils_Calendar.page_type=\'week\'');
 		$ev_out = 'function() {Utils_Calendar.init_reload_event_tag();';
