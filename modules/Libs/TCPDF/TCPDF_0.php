@@ -17,22 +17,30 @@ class Libs_TCPDF extends Module {
 	private $lang;
 	private $steps = array();
 	private $pdf_ready = 0;
+	private static $using_custom_fonts = false;
 
-	public function construct($orientation='P',$unit='mm',$format='A4') {
+	public function construct($orientation='P',$unit='mm',$format='LETTER') {
 		$this->lang = $this->init_module('Base/Lang');
-		require_once('tcpdf/tcpdf.php');
+		require_once('tcpdf4/tcpdf.php');
 		
-		$this->tcpdf = new TCPDF($orientation, $unit, $format);//, false, "ISO-8859-1");
+		if (self::$using_custom_fonts) {
+			$this->tcpdf = new TCPDF($orientation, $unit, $format);
+		} else {
+			$this->tcpdf = new TCPDF($orientation, $unit, $format, false, "ISO-8859-1");
+		}
 
 		$this->tcpdf->SetCreator(PDF_CREATOR);
 		$this->tcpdf->SetAuthor("Powered by epesi");
 		$this->tcpdf->SetKeywords("PDF");
 				
 		// set header and footer fonts
-		$this->tcpdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
-		$this->tcpdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
-//		$this->tcpdf->setHeaderFont(Array('arial', '', PDF_FONT_SIZE_MAIN));
-//		$this->tcpdf->setFooterFont(Array('arial', '', PDF_FONT_SIZE_DATA));
+		if (self::$using_custom_fonts) {
+			$this->tcpdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
+			$this->tcpdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
+		} else {
+			$this->tcpdf->setHeaderFont(Array('Helvetica', '', PDF_FONT_SIZE_MAIN));
+			$this->tcpdf->setFooterFont(Array('Helvetica', '', PDF_FONT_SIZE_DATA));
+		}
 		
 		//set margins
 		$this->tcpdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
@@ -53,8 +61,10 @@ class Libs_TCPDF extends Module {
 
 		//set some language-dependent strings
 		$l=array();
-		$l['a_meta_charset'] = "UTF-8";
-//		$l['a_meta_charset'] = "ISO-8859-1";
+		if (self::$using_custom_fonts)
+			$l['a_meta_charset'] = "UTF-8";
+		else 
+			$l['a_meta_charset'] = "ISO-8859-1";
 		$l['a_meta_dir'] = "ltr";
 		$l['a_meta_language'] = "en";
 		
@@ -68,7 +78,7 @@ class Libs_TCPDF extends Module {
 		//initialize document
 		$this->tcpdf->AliasNbPages();
 
-		$this->tcpdf->SetFont("dejavusans", "", 9);
+		$this->SetFont("dejavusans", "", 9);
 	}
 
 	public function stripHTML($html) {
@@ -87,6 +97,12 @@ class Libs_TCPDF extends Module {
 			$this->tcpdf->AddPage();
 			$this->tcpdf->WriteHTML($html,false,0,false);
 		}
+	}
+
+	public function SetFont($family, $style='', $size=0) {
+		if (!self::$using_custom_fonts)
+			$family = 'Helvetica';
+		$this->tcpdf->SetFont($family, $style, $size);
 	}
 
 	public function & __call($func_name, array $args=array()) {

@@ -112,17 +112,17 @@ if (!defined("K_TCPDF_EXTERNAL_CONFIG")) {
 	/**
 	 * document author
 	 */
-	define ("PDF_AUTHOR", "TCPDF");
+	define ("PDF_AUTHOR", "epesi");
 	
 	/**
 	 * header title
 	 */
-	define ("PDF_HEADER_TITLE", "TCPDF Example");
+	define ("PDF_HEADER_TITLE", "none");
 	
 	/**
 	 * header description string
 	 */
-	define ("PDF_HEADER_STRING", "by Nicola Asuni - Tecnick.com\nwww.tcpdf.org");
+	define ("PDF_HEADER_STRING", "none");
 	
 	/**
 	 * image logo
@@ -172,7 +172,7 @@ if (!defined("K_TCPDF_EXTERNAL_CONFIG")) {
 	/**
 	 * main font name
 	 */
-	define ("PDF_FONT_NAME_MAIN", "dejavusans");
+	define ("PDF_FONT_NAME_MAIN", "helvetica");
 	
 	/**
 	 * main font size
@@ -182,7 +182,7 @@ if (!defined("K_TCPDF_EXTERNAL_CONFIG")) {
 	/**
 	 * data font name
 	 */
-	define ("PDF_FONT_NAME_DATA", "dejavusans");
+	define ("PDF_FONT_NAME_DATA", "helvetica");
 	
 	/**
 	 * data font size
