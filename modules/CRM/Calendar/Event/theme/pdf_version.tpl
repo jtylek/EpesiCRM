@@ -174,19 +174,14 @@
 						$tmp = ', ';
 					}
 			{/php}
-			{if strlen($c.company_name)>30 || strlen($address)>55}
-				{assign var=height value=23}
-			{else}
-				{assign var=height value=11}
-			{/if}
 			<tr>
-				<td width="155" height="{$height}" {if $count%2==0}bgcolor="#F7F7F7"{/if}>
+				<td width="155" {if $count%2==0}bgcolor="#F7F7F7"{/if}>
 					<font size="-1">{$c.company_name}</font>
 				</td>
-				<td width="245" height="{$height}" {if $count%2==0}bgcolor="#F7F7F7"{/if}>
+				<td width="245" {if $count%2==0}bgcolor="#F7F7F7"{/if}>
 					<font size="-1">{$address}</font>
 				</td>
-				<td width="110" height="{$height}" {if $count%2==0}bgcolor="#F7F7F7"{/if}>
+				<td width="110" {if $count%2==0}bgcolor="#F7F7F7"{/if}>
 					<font size="-1">{$c.phone}</font>
 				</td>
 			</tr>
