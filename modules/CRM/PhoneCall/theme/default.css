@@ -83,6 +83,10 @@
     width: 100%;
 }
 
+#CRM_PhoneCall .data textarea {
+	height: 276px;
+}
+
 #CRM_PhoneCall .timestamp input,
 #CRM_PhoneCall .timestamp select {
     width: auto;
@@ -225,4 +229,11 @@
 
 #CRM_PhoneCall .priority .icon {
 	width: 24px;
+}
+
+/* multiselect 100% width */
+
+#CRM_PhoneCall #multiselect .form-element select,
+#CRM_PhoneCall #multiselect .to-element select {
+	width: 100%;
 }
