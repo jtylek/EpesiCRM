@@ -56,7 +56,7 @@ class Applets_MonthView extends Module {
 	}
 
 	public function applet($conf,$opts) {
-		$opts['go'] = true;
+		$opts['go'] = false;
 		$this->date = $this->get_module_variable_or_unique_href_variable('date');
 		if ($this->date==null) $this->date = date('Y-m-15');
 		$this->set_module_variable('date', $this->date);
