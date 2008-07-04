@@ -1,8 +1,8 @@
-<table cellpadding="0" cellspacing="0" border="1">
+<table border="1">
 	<tr>
 		{assign var=x value=0}
 		{foreach item=row from=$cols}			
-			<th width="{$table_prefix.widths.$x}" align="center" valign="middle" bgcolor="#888888" height="{$table_prefix.height}"><font color="#FFFFFF">{$row.label}</color></th>
+			<td width="{$table_prefix.widths.$x}" align="center" bgcolor="#888888"><font color="#FFFFFF">{$row.label}</font></td>
 			{assign var=x value=$x+1}
 		{/foreach}
 	</tr>
@@ -14,24 +14,21 @@
 				<tr>
 				{assign var=x value=0}
 			{/if}
-			<td width="{$table_prefix.widths.$x}"
+			<td width="{$table_prefix.widths.$x}" 
 				{if strpos($row.attrs,' total-all')}
-					bgcolor="#BBBBBB"
+					bgcolor="#BBBBBB" 
 				{else}
 					{if strpos($row.attrs,' total')}
-						bgcolor="#DDDDDD"
+						bgcolor="#DDDDDD" 
 					{/if} 
 				{/if} 
 				{if strpos($row.attrs,' number')}
-					align="right"
+					align="right" 
 				{/if}
-				{if strpos($row.attrs,' top-row')}
-					border="10"
-				{/if}
-				valign="middle" height="{$table_prefix.height}">
+				height="{$table_prefix.height}">
 				<font 
 					{if strpos($row.attrs,' fade-out-zero')}
-						color="#B0B0B0"
+						color="#B0B0B0" 
 					{/if}
 					>
 					{$row.label}

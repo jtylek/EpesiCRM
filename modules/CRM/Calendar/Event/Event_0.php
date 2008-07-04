@@ -41,7 +41,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$ev = DB::GetRow('SELECT * FROM crm_calendar_event WHERE id=%d', array($id));
 //		Base_ThemeCommon::install_default_theme($this->get_type()); // TODO: delete this, just develop tool
 		$pdf_theme = $this->pack_module('Base/Theme');
-		$pdf_theme->assign('description', array('label'=>$this->lang->t('Description'), 'value'=>str_replace("\n",'<br>',htmlspecialchars($ev['description']))));
+		$pdf_theme->assign('description', array('label'=>$this->lang->t('Description'), 'value'=>str_replace("\n",'<br/>',htmlspecialchars($ev['description']))));
 		if (!$no_details) {
 			$ev['status'] = Utils_CommonDataCommon::get_value('Ticket_Status/'.$ev['status']);
 			$ev['access'] = self::$access[$ev['access']];
@@ -68,7 +68,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$pdf_theme->assign('printed_on', array(	'label'=>$this->lang->t('Printed on'),
 													'value'=>Base_RegionalSettingsCommon::time2reg(time())));
 		}
-		$defec = $this->get_emp_and_cus($id);
+		$defec = CRM_Calendar_EventCommon::get_emp_and_cus($id);
 		$emps = array();
 		foreach ($defec['emp_id'] as $v) {
 			$c = CRM_ContactsCommon::get_contact($v);
@@ -157,19 +157,6 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$pdf->writeHTML($cont);
 	}
 
-	public function get_emp_and_cus($id){
-		$def = array();
-		$def['cus_id'] = array();
-		$ret = DB::Execute('SELECT contact FROM crm_calendar_event_group_cus WHERE id=%d', $id);
-		while ($row=$ret->FetchRow())
-			$def['cus_id'][] = $row['contact'];
-		$def['emp_id'] = array();
-		$ret = DB::Execute('SELECT contact FROM crm_calendar_event_group_emp WHERE id=%d', $id);
-		while ($row=$ret->FetchRow())
-			$def['emp_id'][] = $row['contact'];
-		return $def;
-	}
-
 	public function view_event($action, $id=null, $timeless=false){
 		if($this->is_back()) return false;
 		
@@ -242,7 +229,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				'edited_by' => $event['edited_by']?Base_UserCommon::get_user_login($event['edited_by']):'---',
 				'edited_on' => $event['edited_by']?$event['edited_on']:'---'
 			);
-			$defec = $this->get_emp_and_cus($id);
+			$defec = CRM_Calendar_EventCommon::get_emp_and_cus($id);
 			$def['cus_id'] = $defec['cus_id'];
 			$def['emp_id'] = $defec['emp_id'];
 /*			$def['cus_id'] = array();

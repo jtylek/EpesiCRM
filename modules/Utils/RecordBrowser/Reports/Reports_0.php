@@ -262,10 +262,13 @@ class Utils_RecordBrowser_Reports extends Module {
 
 		if ($this->pdf) {
 			$cols = count($this->gb_captions);
-			// 1068 - total width for landscape page
-			$this->widths = array(1030/$cols+38);
+			// 760 - total width for landscape page
+			$this->widths = array(floor(695/$cols+15));
 			for ($i=1;$i<$cols;$i++)
-				$this->widths[] = 1030/$cols;
+				$this->widths[] = floor(695/$cols);
+			$sum = 0;
+			foreach($this->widths as $v) $sum+=$v;
+			$this->widths[0]+= 720-$sum;
 			$this->fontsize = 12;
 			switch (true) {
 				case ($cols>16): $this->fontsize -=1;
@@ -455,6 +458,7 @@ class Utils_RecordBrowser_Reports extends Module {
 	}
 	
 	public function body($pdf=false) {
+		Base_ThemeCommon::install_default_theme($this->get_type()); // TODO: delete this, just develop tool
 		if ($this->is_back()) return false;
 		if ($this->date_range=='error') return;
 		Base_ThemeCommon::load_css('Utils/RecordBrowser/Reports');

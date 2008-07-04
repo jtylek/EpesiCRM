@@ -34,18 +34,22 @@ class CRM_Calendar extends Module {
 		$theme->assign('calendar',$this->get_html_of_module($c));
 		$theme->display();
 		$events = $c->get_displayed_events();
-		if (!empty($events)) {
-			switch ($c->get_current_view()) {
-				case 'Day': $view = 'Daily'; break;
-				case 'Month': $view = 'Monthly'; break;
-				case 'Week': $view = 'Weekly'; break;
+		if (!empty($events['events'])) {
+			$view_type = $c->get_current_view();
+			switch ($view_type) {
+				case 'Day': $view = 'Daily agenda'; break;
+				case 'Month': $view = 'Monthly agenda'; break;
+				case 'Week': $view = 'Weekly agenda'; break;
+				case 'Agenda': $view = 'Agenda'; break;
 			}
 			if (isset($view)) {
 				$this->lang = $this->init_module('Base/Lang');
 				$pdf = $this->pack_module('Libs/TCPDF', 'L');
 				if ($pdf->prepare()) {
 					$ev_mod = $this->init_module('CRM/Calendar/Event');
-					$pdf->set_title($this->lang->t($view.' agenda'));
+					$start = date('d F Y',$events['start']);
+					$end = date('d F Y',$events['end']);
+					$pdf->set_title($this->lang->t($view).', '.$start.($view_type!='Day'?' - '.$end:''));
 					$filter = CRM_FiltersCommon::get();
 					$me = CRM_ContactsCommon::get_my_record();
 					if (trim($filter,'()')==$me['id']) $desc=$me['last_name'].' '.$me['first_name'];
@@ -53,12 +57,11 @@ class CRM_Calendar extends Module {
 					$pdf->set_subject($this->lang->t('CRM Filters: %s',array($desc)));
 					$pdf->prepare_header();
 					$pdf->AddPage();
-					foreach($events as $v) {
-						$ev_mod->make_event_PDF($pdf,$v['id'],true,$c->get_current_view());
-						$pdf->Ln(8);
+					foreach($events['events'] as $v) {
+						$ev_mod->make_event_PDF($pdf,$v['id'],true,$view_type);
 					}
 				}
-				$pdf->add_actionbar_icon($this->lang->t($view.'_agenda'));
+				$pdf->add_actionbar_icon($this->lang->t(str_replace(' ','_',$view)));
 			}
 		}
 	}
