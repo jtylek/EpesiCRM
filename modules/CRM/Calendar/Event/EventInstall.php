@@ -31,7 +31,8 @@ class CRM_Calendar_EventInstall extends ModuleInstall {
 			'created_on T NOT NULL,'.
 			'created_by I4,'.
 			'edited_on T,'.
-			'edited_by I4',
+			'edited_by I4,'.
+			'recurrence_id I4',
 			array('constraints'=>	' , INDEX(start), INDEX(end), FOREIGN KEY (edited_by) REFERENCES user_login(id), FOREIGN KEY (created_by) REFERENCES user_login(id)')
 		);
 		$ret &= DB::CreateTable('crm_calendar_event_group_emp',

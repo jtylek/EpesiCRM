@@ -154,6 +154,7 @@ class Libs_TCPDF extends Module {
 	}
 		
 	public function add_actionbar_icon($filename) {
+		print('BODY');
 		if ($this->pdf_ready){
 			Base_ActionBarCommon::add('save','Download PDF','href="'.$this->get_href($filename).'"');
 		} else {

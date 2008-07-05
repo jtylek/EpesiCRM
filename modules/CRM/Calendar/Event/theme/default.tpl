@@ -227,4 +227,13 @@
     {/if}
 
 
+{$form_data.recurrence.label} {$form_data.recurrence.html}<br>
+{if $action=='new'}
+<div id="{$recurrence_block}">
+	{$form_data.recurrence_interval.label} {$form_data.recurrence_interval.html}<br>
+	{$form_data.recurrence_end_date.label} {$form_data.recurrence_end_date.error} {$form_data.recurrence_end_date.html}<br>
+	<span id="{$recurrence_custom_days}">{$form_data.custom_days.html}</span>
+</div>
+{/if}
+
 </form>

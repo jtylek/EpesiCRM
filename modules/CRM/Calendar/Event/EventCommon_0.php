@@ -225,7 +225,14 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 	}
 
 	public static function update(&$id,$start,$duration,$timeless) { //make sure that event owner is Acl::get_user....
-		DB::Execute('UPDATE crm_calendar_event SET start=%d, end=%d, timeless=%b WHERE id=%d',array($start,$start+$duration,$timeless,$id));
+		$prev = DB::GetRow('SELECT * FROM crm_calendar_event WHERE id=%d',array($id));
+		if(isset($prev['recurrence_id']) && $prev['recurrence_id']!==null) {
+			$start_diff = $prev['start']-$start;
+			$end_diff = $prev['end']-$start-$duration;
+			DB::Execute('UPDATE crm_calendar_event SET start=start-%d, end=end-%d, timeless=%b WHERE recurrence_id=%d',array($start_diff,$end_diff,$timeless,$prev['recurrence_id']));
+			print('Epesi.updateIndicatorText("updating calendar");Epesi.request("");');
+		} else
+			DB::Execute('UPDATE crm_calendar_event SET start=%d, end=%d, timeless=%b WHERE id=%d',array($start,$start+$duration,$timeless,$id));
 		return true;
 	}
 
