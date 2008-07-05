@@ -14,7 +14,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 	private $custom_defaults = array();
 	private static $access;
 	private static $priority;
-	
+
 	public function construct() {
 		$this->lang = $this->pack_module('Base/Lang');
 		self::$access = array(0=>$this->lang->t('Public'), 1=>$this->lang->t('Public, read-only'), 2=>$this->lang->t('Private'));
@@ -36,7 +36,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$this->custom_defaults = $def;
 		$this->view_event('new', $def_date, $timeless);
 	}
-	
+
 	public function make_event_PDF($pdf, $id, $no_details = false,$type='Event'){
 		$ev = DB::GetRow('SELECT * FROM crm_calendar_event WHERE id=%d', array($id));
 //		Base_ThemeCommon::install_default_theme($this->get_type()); // TODO: delete this, just develop tool
@@ -90,7 +90,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 							'wphone'=>$c['work_phone'],
 							'hphone'=>$c['home_phone'],
 							'company_name'=>$company_name);
-			if (is_array($c['company_name'])) 
+			if (is_array($c['company_name']))
 				foreach ($c['company_name'] as $v2)
 					if (!isset($cus_cmps[$v2]))
 						$cus_cmps[$v2] = CRM_ContactsCommon::get_company($v2);
@@ -140,7 +140,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 					$duration = array();
 					$format = '';
 				} else $format.= ', ';
-				$duration[] = $minutes/60; 
+				$duration[] = $minutes/60;
 				$format .= '%d minutes';
 			}
 			$pdf_theme->assign('duration', array(	'label'=>$this->lang->t('Duration'),
@@ -159,7 +159,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 	public function view_event($action, $id=null, $timeless=false){
 		if($this->is_back()) return false;
-		
+
 		$form = $this->init_module('Libs/QuickForm');
 		$theme =  $this->pack_module('Base/Theme');
 		$theme->assign('action',$action);
@@ -335,7 +335,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$form->addElement('checkbox', 'timeless', $this->lang->t('Timeless'), null,array('onClick'=>'crm_calendar_event_timeless(this.checked)','id'=>'timeless'));
 		if ($action=='view') $condition = $timeless;
 		else $condition = 'document.getElementsByName(\'timeless\')[0].checked';
-		eval_js('crm_calendar_event_timeless('.$timeless.')');
+		eval_js('crm_calendar_event_timeless('.($timeless || $timeless==='timeless').')');
 
 		$form->registerRule('check_dates', 'callback', 'check_dates', $this);
 		$form->addRule(array('date_s','time_e', 'date_s', 'time_s', 'timeless','duration_switch'), 'End date must be after begin date...', 'check_dates');
@@ -401,13 +401,14 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$custom_week[] = $form->createElement('checkbox','6',null,$this->lang->t('Sunday'));
 			$form->addGroup($custom_week,'custom_days');
 			$form->addElement('datepicker','recurrence_end_date',$this->lang->t('End date'));
-			$form->addRule('recurrence_end_date', $this->lang->t('Field required.'), 'required');
+			if($form->exportValue('recurrence'))
+				$form->addRule('recurrence_end_date', $this->lang->t('Field required.'), 'required');
 			$form->registerRule('check_recurrence', 'callback', 'check_recurrence', $this);
 			$form->addRule(array('recurrence_end_date','recurrence','date_s'), $this->lang->t('You cannot create recurrence event for more than one year period.'), 'check_recurrence');
 			$form->registerRule('check_recurrence2', 'callback', 'check_recurrence2', $this);
 			$form->addRule(array('recurrence_end_date','recurrence','date_s'), $this->lang->t('End date cannot be before start date.'), 'check_recurrence2');
 		} else {
-			$form->addElement('checkbox','recurrence',$this->lang->t('Recurrence event'))->freeze();			
+			$form->addElement('checkbox','recurrence',$this->lang->t('Recurrence event'))->freeze();
 		}
 
 
@@ -495,7 +496,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				if (!$ev['timeless']) $pdf->set_subject(Base_RegionalSettingsCommon::time2reg($ev['start']).' - '.Base_RegionalSettingsCommon::time2reg($ev['end']));
 				else $pdf->set_subject(Base_RegionalSettingsCommon::time2reg($ev['start'],false));
 				$pdf->prepare_header();
-				
+
 				$pdf->AddPage();
 				$this->make_event_PDF($pdf,$id);
 				$filename = $this->lang->t('Event_%s', array($ev['title']));
@@ -651,7 +652,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 					$end = strtotime(date('Y-'.$month.'-d H:i:s',$end));
 					break;
 			}
-			if($start>strtotime($vals['recurrence_end_date'])+24*3600)
+			if($start>strtotime($vals['recurrence_end_date'])+24*3600-1)
 				break;
 		}
 		return $ret_id;
@@ -667,7 +668,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$end = strtotime($vals['date_s']) + $this->recalculate_time($vals['time_e']);
 		$start = Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$start),true);
 		$end = Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$end),true);
-		
+
 		$prev = DB::GetRow('SELECT * FROM crm_calendar_event WHERE id=%d',array($id));
 		if(isset($prev['recurrence_id']) && $prev['recurrence_id']!==null) {
 			$start_diff = $prev['start']-$start;
