@@ -84,7 +84,7 @@
 }
 
 #CRM_PhoneCall .data textarea {
-	height: 276px;
+	height: 90px;
 }
 
 #CRM_PhoneCall .timestamp input,
@@ -236,4 +236,8 @@
 #CRM_PhoneCall #multiselect .form-element select,
 #CRM_PhoneCall #multiselect .to-element select {
 	width: 100%;
+}
+
+#CRM_PhoneCall .multiselect {
+	line-height: 19px;
 }

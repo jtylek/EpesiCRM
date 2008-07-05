@@ -68,12 +68,20 @@
                                     {if isset($form_data.description.error)}
                                         {$form_data.description.error}
                                     {/if}
-                                    {if $action == 'view'}<div style="height: 284px; white-space: normal; overflow: auto;">{/if}
+                                    {if $action == 'view'}<div style="height: 115px; white-space: normal; overflow: auto;">{/if}
                                         {$form_data.description.html}{if $action == 'view'}&nbsp;{/if}
                                     {if $action == 'view'}</div>{/if}
                                 </td>
                             </tr>
                         </tbody>
+                    </table>
+                    <table id="CRM_PhoneCall" cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                            <td class="label" style="border-right: 1px solid #b3b3b3;">{$form_data.employees.label}</td>
+                        </tr>
+                        <tr>
+                            <td class="data multiselect" style="vertical-align: top; {if $action == 'view'}border-left: 1px solid #b3b3b3; border-right: 1px solid #b3b3b3; border-bottom: 1px solid #b3b3b3; padding-left: 4px;{/if}"><span class="error">{$form_data.employees.error}</span>{$form_data.employees.html}{if $action == 'view'}&nbsp;{/if}</td>
+                        </tr>
                     </table>
                 </td>
                 {* RIGHT column *}
@@ -160,14 +168,6 @@
                                 {/if}
                                 {$form_data.priority.html}{if $action == 'view'}&nbsp;{/if}
                             </td>
-                        </tr>
-                    </table>
-                    <table id="CRM_PhoneCall" cellpadding="0" cellspacing="0" border="0">
-                        <tr>
-                            <td class="label" style="border-right: 1px solid #b3b3b3;">{$form_data.employees.label}</td>
-                        </tr>
-                        <tr>
-                            <td class="data" style="vertical-align: top;"><span class="error">{$form_data.employees.error}</span>{$form_data.employees.html}{if $action == 'view'}&nbsp;{/if}</td>
                         </tr>
                     </table>
                 </td>
