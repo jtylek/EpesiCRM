@@ -155,7 +155,6 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$pdf_theme->display('pdf_version');
 		$cont = ob_get_clean();
 		$pdf->writeHTML($cont);
-		print('<hr>');
 	}
 
 	public function view_event($action, $id=null, $timeless=false){
