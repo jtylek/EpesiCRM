@@ -91,9 +91,9 @@ class Utils_Calendar extends Module {
 		}
 
 	}
-	
+
 	public function get_current_view(){
-		return $this->settings['views'][$this->tb->get_tab()];	
+		return $this->settings['views'][$this->tb->get_tab()];
 	}
 
 	public function settings($key,$val) {
@@ -749,9 +749,9 @@ class Utils_Calendar extends Module {
 		$theme->assign('month_view_label', $this->lang->t('Year calendar'));
 
 		$year = array();
-		
+
 		$ret = call_user_func(array($this->event_module.'Common','get_event_days'),date('Y-01-01',$this->date),date('Y-12-31',$this->date));
-		
+
 		$it = 0;
 		for ($i=1; $i<=12; $i++) {
 			$date = strtotime(date('Y',$this->date).'-'.str_pad($i, 2, '0', STR_PAD_LEFT).'-15');
@@ -767,9 +767,9 @@ class Utils_Calendar extends Module {
 
 		$theme->display('year');
 	}
-	
+
 	public function get_displayed_events() {
-		return $this->displayed_events;	
+		return $this->displayed_events;
 	}
 
 	////////////////////////////////////////

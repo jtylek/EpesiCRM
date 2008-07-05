@@ -142,7 +142,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 			self::restore_tz();
 		return $ret;
 	}
-	
+
 	private static function strftime($format,$timestamp) {
 		$ret = strftime($format,$timestamp);
 		if ( strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' )
@@ -159,7 +159,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 				$lang_code.'.UTF-8',
 				isset(self::$countries[$lang_code])?self::$countries[$lang_code]:null);//win32
 	}
-	
+
 	public static function set_tz() {
 		if(Acl::is_user()) {
 			self::$curr_tz = date_default_timezone_get();
@@ -177,7 +177,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	public static function restore_locale() {
 		setlocale(LC_TIME,self::$curr_locale);
 	}
-	
+
 	public static function set() {
 		self::set_tz();
 		self::set_locale();
@@ -197,6 +197,8 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	 */
 	public static function reg2time($t,$tz=true) {
 		$datef = Base_User_SettingsCommon::get('Base_RegionalSettings','date');
+
+		if(is_numeric($t)) $t = date('Y-m-d H:i:s',$t);
 
 		self::set_locale();
 		if($tz)
