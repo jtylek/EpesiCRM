@@ -10,8 +10,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_RecordBrowser_Reports extends Module {
-	private $ref_record = null;
-	private $ref_record_crits = array();
+	private $ref_records = array();
 	private $ref_record_display_callback = null;
 	private $gb_captions = null;
 	private $calc_field_callback = null;
@@ -39,18 +38,14 @@ class Utils_RecordBrowser_Reports extends Module {
 		$this->lang = $this->init_module('Base/Lang');	
 	}
 
-	public function set_reference_record($rr) {
-		$this->ref_record = $rr;
-	}
-
 	public function set_data_records($dr) {
 		if (!is_array($dr)) $dr = array($dr);
 		foreach ($dr as $v) Utils_RecordBrowserCommon::check_table_name($v);
 		$this->data_record = $dr;
 	}
 
-	public function set_reference_record_crits($rrc) {
-		$this->ref_record_crits = $rrc;
+	public function set_reference_records($rr) {
+		$this->ref_records = $rr;
 	}
 
 	public function set_data_record_relation($dr, $drr) {
@@ -114,6 +109,7 @@ class Utils_RecordBrowser_Reports extends Module {
 		$style = '';
 		$attrs = '';
 		if (isset($format['currency'])) $ret = '$&nbsp;'.number_format($str,2,'.',',');
+		if (isset($format['numeric'])) $ret = round($str*100)/100;
 //		if ($this->first) $style .= 'border-top:1px solid #555555;';
 //		if (isset($format['total'])) $style .= 'background-color:#DFFFDF;';
 //		if (isset($format['currency']) || isset($format['numeric'])) {
@@ -169,11 +165,11 @@ class Utils_RecordBrowser_Reports extends Module {
 			unset($vals['submited']);
 			$form->setDefaults($vals);
 		} else {
-			foreach(array('week'=>5,'day'=>15,'month'=>12,'year'=>5) as $v=>$k) {
+			foreach(array('week'=>3,'day'=>13,'month'=>5,'year'=>5) as $v=>$k) {
 				$form->setDefaults(array('from_'.$v=>date('Y-m-d H:i:s', strtotime('-'.$k.' '.$v))));
 				$form->setDefaults(array('to_'.$v=>date('Y-m-d H:i:s')));
 			}
-			$form->setDefaults(array('date_range_type'=>'day'));
+			$form->setDefaults(array('date_range_type'=>'month'));
 		}
 		$form->addElement('submit', 'submit', $this->lang->t('Show'));
 
@@ -202,7 +198,7 @@ class Utils_RecordBrowser_Reports extends Module {
 		foreach (array('date_range_type','from_'.$type,'to_'.$type) as $v)
 			$this->date_range[$v] = $vals[$v];
 		$header = array();
-		$start 	= $this->get_date($type, $this->date_range['from_'.$type]);
+		$start_p = $start = $this->get_date($type, $this->date_range['from_'.$type]);
 		$end	= $this->get_date($type, $this->date_range['to_'.$type]);		
 		$header[] = $start;
 		while (true) {
@@ -215,7 +211,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			if ($start>$end) break;
 			$header[] = $start;			
 		}
-		return array('type'=>$type, 'dates'=>$header);
+		return array('type'=>$type, 'dates'=>$header, 'start'=>date('Y-m-d',$start_p), 'end'=>date('Y-m-d',$end));
 	}
 	
 	public function get_date($type, $arg) {
@@ -234,7 +230,7 @@ class Utils_RecordBrowser_Reports extends Module {
 	
 	public function new_table_page() {
 		static $page_count = 0;
-		$gb = $this->init_module('Utils_GenericBrowser',null,$this->ref_record.'_report_page'.$page_count);
+		$gb = $this->init_module('Utils_GenericBrowser',null,'report_page'.$page_count);
 		if ($page_count==0)
 			if ($this->row_summary!==false)
 				$this->gb_captions[] = array('name'=>$this->row_summary['label']);
@@ -281,8 +277,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			$this->height = $this->fontsize+2;
 		}
 
-		$records = Utils_RecordBrowserCommon::get_records($this->ref_record, $this->ref_record_crits);
-		if (empty($records)) {
+		if (empty($this->ref_records)) {
 			print('There were no records to display report for.');
 			return;
 		}
@@ -292,15 +287,16 @@ class Utils_RecordBrowser_Reports extends Module {
 		$gb_captions = $this->gb_captions;
 		array_shift($gb_captions);
 		if (!empty($this->categories)) array_shift($gb_captions);
-		foreach($records as $k=>$r) {
+		foreach($this->ref_records as $k=>$r) {
+			$data_recs = array();
 			foreach ($this->data_record as $dv) {
 				$vals = array();
-				$data_recs = array();
+				$data_ids = array();
 				foreach ($this->data_record_relation[$dv] as $k2=>$v2) $vals = array($k2, $r['id']);
 				$ret = DB::Execute('SELECT '.$dv.'_id FROM '.$dv.'_data AS rd LEFT JOIN '.$dv.' AS r ON r.id=rd.'.$dv.'_id WHERE rd.field=%s AND rd.value=%s AND r.active=1', $vals);
 				while ($row = $ret->FetchRow())
-					$data_recs[] = $row[$dv.'_id'];
-				$data_recs = Utils_RecordBrowserCommon::get_records($dv, array('id'=>$data_recs));
+					$data_ids[] = $row[$dv.'_id'];
+				$data_recs[] = Utils_RecordBrowserCommon::get_records($dv, array('id'=>$data_ids));
 			}
 			$results = call_user_func($this->display_cell_callback, $r, $data_recs);
 			if (empty($this->categories)) {
@@ -321,7 +317,7 @@ class Utils_RecordBrowser_Reports extends Module {
 				$gb_row = $gb->get_new_row();
 				array_unshift($results, $this->format_cell(array('row_desc'), $ref_rec));
 				if ($this->row_summary!==false) {
-					$next = $this->format_cell($this->format, $total);
+					$next = $this->format_cell(array($this->format,'total'), $total);
 					$next['attrs'] .= $this->create_tooltip($ref_rec, $this->row_summary['label'], $next['value']);
 					$results[] = $next;
 				}
@@ -375,16 +371,17 @@ class Utils_RecordBrowser_Reports extends Module {
 		if ($this->col_summary!==false) {
 			if (empty($this->categories)) {
 				$total = 0;
+				$i=0;
 				foreach ($cols_total as & $res_ref) {
 					if ($this->row_summary!==false) $total += $res_ref;
-					$res_ref = $this->format_cell($this->format, $res_ref);
+					$res_ref = $this->format_cell(array($this->format,'total'), $res_ref);
 					$res_ref['attrs'] .= $this->create_tooltip($this->col_summary['label'], $gb_captions[$i]['name'], $res_ref['value']);
 					$i++;
 				}
 				$gb_row = $gb->get_new_row();
 				array_unshift($cols_total, $this->format_cell(array('total-row_desc'), $this->col_summary['label']));
 				if ($this->row_summary!==false) {
-					$next = $this->format_cell($this->format, $total);
+					$next = $this->format_cell(array($this->format,'total_all'), $total);
 					$next['attrs'] .= $this->create_tooltip($this->col_summary['label'], $this->row_summary['label'], $next['value']);
 					$cols_total[] = $next;
 				}
@@ -458,7 +455,7 @@ class Utils_RecordBrowser_Reports extends Module {
 	}
 	
 	public function body($pdf=false) {
-		Base_ThemeCommon::install_default_theme($this->get_type()); // TODO: delete this, just develop tool
+//		Base_ThemeCommon::install_default_theme($this->get_type()); // TODO: delete this, just develop tool
 		if ($this->is_back()) return false;
 		if ($this->date_range=='error') return;
 		Base_ThemeCommon::load_css('Utils/RecordBrowser/Reports');
