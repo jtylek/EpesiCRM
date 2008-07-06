@@ -114,7 +114,7 @@ class Utils_RecordBrowser_Reports extends Module {
 		$style = '';
 		$attrs = '';
 		if (isset($format['currency'])) $ret = '$&nbsp;'.number_format($str,2,'.',',');
-		if (isset($format['numeric'])) $ret = round($str*100)/100;
+//		if (isset($format['numeric'])) $ret = round($str*100)/100;
 //		if ($this->first) $style .= 'border-top:1px solid #555555;';
 //		if (isset($format['total'])) $style .= 'background-color:#DFFFDF;';
 //		if (isset($format['currency']) || isset($format['numeric'])) {
@@ -266,14 +266,18 @@ class Utils_RecordBrowser_Reports extends Module {
 	}
 
 	public function display_pdf_row($grow) {
-		$theme = $this->init_module('Base/Theme');
-		$theme->assign('row',$grow);
-		$theme->assign('params',array('widths'=>$this->widths,'height'=>$this->height));
-		ob_start();
-		$theme->display('pdf_row');
-		$table = ob_get_clean();
-		$table = $this->pdf_ob->stripHTML($table);
+		$table = '';
+		// TODO: put inside tpl
+		foreach ($grow as $row) {
+			$theme = $this->init_module('Base/Theme');
+			$theme->assign('row',$row);
+			$theme->assign('params',array('widths'=>$this->widths,'height'=>$this->height));
+			ob_start();
+			$theme->display('pdf_row');
+			$table .= ob_get_clean();
+		}
 
+		$table = $this->pdf_ob->stripHTML($table);
 		$pages = $this->pdf_ob->getNumPages();
 		$tmppdf = clone($this->pdf_ob->tcpdf);
 		$tmppdf->WriteHTML($table,false,0,false);
@@ -355,7 +359,7 @@ class Utils_RecordBrowser_Reports extends Module {
 					$next['attrs'] .= $this->create_tooltip($ref_rec, $this->row_summary['label'], $next['value']);
 					$results[] = $next;
 				}
-				$grow = $results;
+				$ggrow = array($results);
 			} else {
 				$this->first = true;
 				$count = count($this->categories);
@@ -389,13 +393,16 @@ class Utils_RecordBrowser_Reports extends Module {
 						$grow[] = $next;
 					}
 					$this->first = false;
+					$ggrow[] = $grow;
 				}
 			}
 			if ($this->pdf) {
-				$this->display_pdf_row($grow);
+				$this->display_pdf_row($ggrow);
 			} else {
-				$gb_row = $gb->get_new_row();
-				$gb_row->add_data_array($grow);
+				foreach ($ggrow as $grow) {
+					$gb_row = $gb->get_new_row();
+					$gb_row->add_data_array($grow);
+				}
 			}
 		}
 		/***** BOTTOM SUMMARY *****/
@@ -415,10 +422,11 @@ class Utils_RecordBrowser_Reports extends Module {
 					$next['attrs'] .= $this->create_tooltip($this->col_summary['label'], $this->row_summary['label'], $next['value']);
 					$cols_total[] = $next;
 				}
-				$grow = $cols_total;
+				$ggrow = array($cols_total);
 			} else {
 				$this->first = true;
 				$count = count($this->categories);
+				$ggrow = array();
 				foreach ($this->categories as $c) {
 					if ($this->first) {
 						$grow = array(0=>$this->format_cell(array('total-row_desc'), $this->col_summary['label']));
@@ -443,14 +451,17 @@ class Utils_RecordBrowser_Reports extends Module {
 						$grow[] = $next;
 					}
 					$this->first = false;
+					$ggrow[] = $grow;
 				}
 			}
 		}
 		if ($this->pdf) {
-			$this->display_pdf_row($grow,true);
+			$this->display_pdf_row($ggrow,true);
 		} else { 
-			$gb_row = $gb->get_new_row();
-			$gb_row->add_data_array($grow);
+			foreach ($ggrow as $grow) {
+				$gb_row = $gb->get_new_row();
+				$gb_row->add_data_array($grow);
+			}
 			$this->display_module($gb, array(Base_ThemeCommon::get_template_filename('Utils_GenericBrowser','no_shadow')));
 		}
 	}

@@ -10,7 +10,7 @@
 						bgcolor="#DDDDDD" 
 					{/if} 
 				{/if} 
-				{if isset($field.style.numeric)}
+				{if isset($field.style.numeric) || isset($field.style.currency)}
 					align="right" 
 				{/if}
 				{if isset($field.style.header)}
