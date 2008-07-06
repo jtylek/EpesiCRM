@@ -361,6 +361,7 @@ class Utils_RecordBrowser_Reports extends Module {
 				}
 				$ggrow = array($results);
 			} else {
+				$ggrow = array();
 				$this->first = true;
 				$count = count($this->categories);
 				foreach ($this->categories as $c) {
