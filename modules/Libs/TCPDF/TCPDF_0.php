@@ -87,16 +87,19 @@ class Libs_TCPDF extends Module {
 		return $html;
 	}
 
-	public function writeHTML($html) {
+	public function writeHTML($html, $autobreak=true) {
 		$html = $this->stripHTML($html);
-		$pages = $this->tcpdf->getNumPages();
-		$tmppdf = clone($this->tcpdf);
-		$this->tcpdf->WriteHTML($html);
-		if ($pages!=$this->tcpdf->getNumPages()) {
-			$this->tcpdf = $tmppdf;
-			$this->tcpdf->AddPage();
+		if ($autobreak) {
+			$pages = $this->tcpdf->getNumPages();
+			$tmppdf = clone($this->tcpdf);
 			$this->tcpdf->WriteHTML($html,false,0,false);
-		}
+			if ($pages!=$this->tcpdf->getNumPages()) {
+				$this->tcpdf = $tmppdf;
+				$this->tcpdf->AddPage();
+				$this->tcpdf->WriteHTML($html,false,0,false);
+			}
+		} else
+			$this->tcpdf->WriteHTML($html,false,0,false);
 	}
 
 	public function SetFont($family, $style='', $size=0) {

@@ -33,9 +33,14 @@ class Utils_RecordBrowser_Reports extends Module {
 	private $pdf_subject = '';
 	private $pdf_filename = '';
 	private static $pdf_ready = 0;
+	private $bonus_width = 15;
 
 	public function construct(){
 		$this->lang = $this->init_module('Base/Lang');	
+	}
+
+	public function set_bonus_width($arg){
+		$this->bonus_width = $arg;	
 	}
 
 	public function set_data_records($dr) {
@@ -122,16 +127,20 @@ class Utils_RecordBrowser_Reports extends Module {
 		if (isset($format['total_all'])) $css_class .= ' total-all';
 		elseif (isset($format['total'])) $css_class .= ' total';
 		if (isset($format['currency']) || isset($format['numeric'])) {
-			if (strip_tags($str)==0) $css_class .= ' fade-out-zero';
+			if (strip_tags($str)==0) {
+				$css_class .= ' fade-out-zero';
+				$format['fade_out_zero'] = 1;
+			}
 			$css_class .= ' number';
 		}
 		$attrs .= ' class="'.$css_class.'"';
-//		if ($this->pdf) $attrs = array_flip(explode(' ',$css_class));		
-		$ret = array('value'=>$ret, 'style'=>$style, 'attrs'=>$attrs);
+		if ($this->pdf) $ret = array('value'=>$ret, 'style'=>$format, 'attrs'=>'');
+		else $ret = array('value'=>$ret, 'style'=>$style, 'attrs'=>$attrs);
 		return $ret;
 	}
 
 	private function create_tooltip($ref_rec, $col, $value, $c='') {
+		if ($this->pdf) return '';
 		return Utils_TooltipCommon::open_tag_attrs($ref_rec.'<hr>'.$col.'<br>'.($c!=''?$c.':':'').$value, false).' ';
 	}	
 	
@@ -147,7 +156,7 @@ class Utils_RecordBrowser_Reports extends Module {
 		return $st<=$nd;
 	}
 	
-	public function display_date_picker() {
+	public function display_date_picker($datepicker_defaults = array()) {
 		$form = $this->init_module('Libs/QuickForm');
 		$theme = $this->init_module('Base/Theme');
 		$display_stuff_js = 'document.getElementById(\'day_elements\').style.display=\'none\';document.getElementById(\'month_elements\').style.display=\'none\';document.getElementById(\'week_elements\').style.display=\'none\';document.getElementById(\'year_elements\').style.display=\'none\';document.getElementById(this.value+\'_elements\').style.display=\'block\';';
@@ -170,6 +179,7 @@ class Utils_RecordBrowser_Reports extends Module {
 				$form->setDefaults(array('to_'.$v=>date('Y-m-d H:i:s')));
 			}
 			$form->setDefaults(array('date_range_type'=>'month'));
+			$form->setDefaults($datepicker_defaults);
 		}
 		$form->addElement('submit', 'submit', $this->lang->t('Show'));
 
@@ -229,39 +239,62 @@ class Utils_RecordBrowser_Reports extends Module {
 	}
 	
 	public function new_table_page() {
-		static $page_count = 0;
-		$gb = $this->init_module('Utils_GenericBrowser',null,'report_page'.$page_count);
-		if ($page_count==0)
+		static $call_once=false;
+		if (!$call_once)
 			if ($this->row_summary!==false)
 				$this->gb_captions[] = array('name'=>$this->row_summary['label']);
-		$gb->set_table_columns($this->gb_captions);
-		$page_count++;
-		if ($this->pdf)
-			$this->pdf_ob->AddPage();
-		return $gb;
+		$call_once = true;
+		if (!$this->pdf) {
+			$gb = $this->init_module('Utils_GenericBrowser',null,'report_page');
+			$gb->set_table_columns($this->gb_captions);
+			$gb->set_inline_display();
+			return $gb;
+		}
 	}
 	
-	public function display_table_page($gb) {
-		if ($this->pdf) {
-			$gb->set_inline_display();
-			$gb->set_prefix(array('widths'=>$this->widths, 'height'=>$this->height));
-			$table = $this->get_html_of_module($gb, array(Base_ThemeCommon::get_template_filename('Utils_RecordBrowser_Reports','generic_browser')));
-			$this->pdf_ob->tcpdf->SetFont("helvetica", "", $this->fontsize);
-			$this->pdf_ob->writeHTML($table);
-		} else {
-			$this->display_module($gb, array(Base_ThemeCommon::get_template_filename('Utils_GenericBrowser','no_shadow')));
+	public function display_pdf_header() {
+		$theme = $this->init_module('Base/Theme');
+		$grow = array();
+		foreach ($this->gb_captions as $k=>$v)
+			$grow[] = array('value'=>$v['name'], 'style'=>array('header'=>1));
+		$theme->assign('row',$grow);
+		$theme->assign('params',array('widths'=>$this->widths,'height'=>$this->height));
+		ob_start();
+		$theme->display('pdf_row');
+		$table = ob_get_clean();
+		$this->pdf_ob->writeHTML($table);
+	}
+
+	public function display_pdf_row($grow) {
+		$theme = $this->init_module('Base/Theme');
+		$theme->assign('row',$grow);
+		$theme->assign('params',array('widths'=>$this->widths,'height'=>$this->height));
+		ob_start();
+		$theme->display('pdf_row');
+		$table = ob_get_clean();
+		$table = $this->pdf_ob->stripHTML($table);
+
+		$pages = $this->pdf_ob->getNumPages();
+		$tmppdf = clone($this->pdf_ob->tcpdf);
+		$tmppdf->WriteHTML($table,false,0,false);
+		if ($pages==$tmppdf->getNumPages()) {
+			$this->pdf_ob->writeHTML($table,false);
+			return;
 		}
+		$this->pdf_ob->AddPage();
+		$this->display_pdf_header();
+		$this->pdf_ob->writeHTML($table,false);
 	}
 	
 	public function make_table() {
 		$gb = $this->new_table_page();
-
+		
 		if ($this->pdf) {
 			$cols = count($this->gb_captions);
 			// 760 - total width for landscape page
-			$this->widths = array(floor(695/$cols+15));
+			$this->widths = array(floor((710-$this->bonus_width)/$cols+$this->bonus_width));
 			for ($i=1;$i<$cols;$i++)
-				$this->widths[] = floor(695/$cols);
+				$this->widths[] = floor((710-$this->bonus_width)/$cols);
 			$sum = 0;
 			foreach($this->widths as $v) $sum+=$v;
 			$this->widths[0]+= 720-$sum;
@@ -275,7 +308,9 @@ class Utils_RecordBrowser_Reports extends Module {
 				case ($cols>5): $this->fontsize -=2;
 			}
 			$this->height = $this->fontsize+2;
+			$this->display_pdf_header();
 		}
+
 
 		if (empty($this->ref_records)) {
 			print('There were no records to display report for.');
@@ -314,19 +349,17 @@ class Utils_RecordBrowser_Reports extends Module {
 					$res_ref['attrs'] .= $this->create_tooltip($ref_rec, $gb_captions[$i]['name'], $res_ref['value']);
 					$i++;
 				}
-				$gb_row = $gb->get_new_row();
 				array_unshift($results, $this->format_cell(array('row_desc'), $ref_rec));
 				if ($this->row_summary!==false) {
 					$next = $this->format_cell(array($this->format,'total'), $total);
 					$next['attrs'] .= $this->create_tooltip($ref_rec, $this->row_summary['label'], $next['value']);
 					$results[] = $next;
 				}
-				$gb_row->add_data_array($results);
+				$grow = $results;
 			} else {
 				$this->first = true;
 				$count = count($this->categories);
 				foreach ($this->categories as $c) {
-					$gb_row = $gb->get_new_row();
 					if ($this->first) {
 						$ref_rec = call_user_func($this->ref_record_display_callback, $r);
 						$grow = array(0=>$this->format_cell(array('row_desc'), $ref_rec));
@@ -356,15 +389,13 @@ class Utils_RecordBrowser_Reports extends Module {
 						$grow[] = $next;
 					}
 					$this->first = false;
-					$gb_row->add_data_array($grow);
 				}
 			}
-			// I have 430 pixels to distribute
-			$row_count++;
-			if ($this->pdf && ($this->height*$row_count*count($this->categories)>430)) {
-				$this->display_table_page($gb);
-				$gb = $this->new_table_page();
-				$row_count=1;
+			if ($this->pdf) {
+				$this->display_pdf_row($grow);
+			} else {
+				$gb_row = $gb->get_new_row();
+				$gb_row->add_data_array($grow);
 			}
 		}
 		/***** BOTTOM SUMMARY *****/
@@ -378,19 +409,17 @@ class Utils_RecordBrowser_Reports extends Module {
 					$res_ref['attrs'] .= $this->create_tooltip($this->col_summary['label'], $gb_captions[$i]['name'], $res_ref['value']);
 					$i++;
 				}
-				$gb_row = $gb->get_new_row();
 				array_unshift($cols_total, $this->format_cell(array('total-row_desc'), $this->col_summary['label']));
 				if ($this->row_summary!==false) {
 					$next = $this->format_cell(array($this->format,'total_all'), $total);
 					$next['attrs'] .= $this->create_tooltip($this->col_summary['label'], $this->row_summary['label'], $next['value']);
 					$cols_total[] = $next;
 				}
-				$gb_row->add_data_array($cols_total);
+				$grow = $cols_total;
 			} else {
 				$this->first = true;
 				$count = count($this->categories);
 				foreach ($this->categories as $c) {
-					$gb_row = $gb->get_new_row();
 					if ($this->first) {
 						$grow = array(0=>$this->format_cell(array('total-row_desc'), $this->col_summary['label']));
 						$grow[0]['attrs'] .= 'rowspan="'.$count.'" ';
@@ -414,11 +443,16 @@ class Utils_RecordBrowser_Reports extends Module {
 						$grow[] = $next;
 					}
 					$this->first = false;
-					$gb_row->add_data_array($grow);
 				}
 			}
 		}
-		$this->display_table_page($gb);
+		if ($this->pdf) {
+			$this->display_pdf_row($grow,true);
+		} else { 
+			$gb_row = $gb->get_new_row();
+			$gb_row->add_data_array($grow);
+			$this->display_module($gb, array(Base_ThemeCommon::get_template_filename('Utils_GenericBrowser','no_shadow')));
+		}
 	}
 	
 	public function from_to_date() { 
@@ -455,7 +489,7 @@ class Utils_RecordBrowser_Reports extends Module {
 	}
 	
 	public function body($pdf=false) {
-//		Base_ThemeCommon::install_default_theme($this->get_type()); // TODO: delete this, just develop tool
+		Base_ThemeCommon::install_default_theme($this->get_type()); // TODO: delete this, just develop tool
 		if ($this->is_back()) return false;
 		if ($this->date_range=='error') return;
 		Base_ThemeCommon::load_css('Utils/RecordBrowser/Reports');
@@ -465,6 +499,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			$this->pdf_ob->set_title($this->pdf_title);
 			$this->pdf_ob->set_subject($this->pdf_subject);
 			$this->pdf_ob->prepare_header();
+			$this->pdf_ob->AddPage();
 		}	
 
 		$this->make_table();
@@ -478,6 +513,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			else
 				Base_ActionBarCommon::add('print','Create PDF','','Too many columns to prepare printable version - please narrow date range');
 		}
+		return false;
 	}
 
 }
