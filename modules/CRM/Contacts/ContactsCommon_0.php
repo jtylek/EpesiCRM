@@ -11,8 +11,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return Utils_RecordBrowserCommon::get_records('company', $crits, $cols, $order);
 	}
 	public static function no_contact_message() {
-		$l = $this->init_module('Base/Lang');
-		print($l->t('Your user doesn\'t have contact, please assign one'));
+		print(Base_LangCommon::ts('CRM_Contacts','Your user doesn\'t have contact, please assign one'));
 	}
 	public static function get_contact_by_user_id($uid) {
 		static $cache = array();
