@@ -68,7 +68,7 @@
                                     {if isset($form_data.description.error)}
                                         {$form_data.description.error}
                                     {/if}
-                                    {if $action == 'view'}<div style="height: 115px; white-space: normal; overflow: auto;">{/if}
+                                    {if $action == 'view'}<div style="height: 55px; white-space: normal; overflow: auto;">{/if}
                                         {$form_data.description.html}{if $action == 'view'}&nbsp;{/if}
                                     {if $action == 'view'}</div>{/if}
                                 </td>
