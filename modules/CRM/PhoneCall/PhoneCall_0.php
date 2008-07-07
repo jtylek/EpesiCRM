@@ -43,6 +43,10 @@ class CRM_PhoneCall extends Module {
 		$opts['go'] = true;
 		$rb = $this->init_module('Utils/RecordBrowser','phonecall','phonecall');
 		$me = CRM_ContactsCommon::get_my_record();
+		if ($me['id']==-1) {
+			CRM_ContactsCommon::no_contact_message();
+			return;
+		}
 		$conds = array(
 									array(	array('field'=>'contact_name', 'width'=>20, 'cut'=>14),
 											array('field'=>'phone_number', 'width'=>1, 'cut'=>15),

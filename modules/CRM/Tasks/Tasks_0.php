@@ -18,10 +18,9 @@ class CRM_Tasks extends Module {
 	public function applet($conf,$opts) {
 		$opts['go'] = true;
 		$opts['title'] = 'Tasks'.($conf['related']==0?' - Todo':'').($conf['related']==1?' - Related':'').($conf['term']=='s'?' - short term':($conf['term']=='l'?' - long term':''));
-		$me = CRM_ContactsCommon::get_contact_by_user_id(Acl::get_user());
-		if(!$me || !isset($me['id']) || !is_numeric($me['id'])) {
-			$l = $this->init_module('Base/Lang');
-			printf($l->t('Your user doesn\'t have contact, please assign one'));
+		$me = CRM_ContactsCommon::get_my_record();
+		if ($me['id']==-1) {
+			CRM_ContactsCommon::no_contact_message();
 			return;
 		}
 		$this->pack_module('Utils/Tasks',array('crm_tasks',($conf['term']=='s' || $conf['term']=='b'),($conf['term']=='l' || $conf['term']=='b'),(isset($conf['closed']) && $conf['closed']),$conf['related']),'applet');
