@@ -34,8 +34,8 @@ class Utils_TasksCommon extends ModuleCommon {
 								!in_array($me['id'],$param['customers'])) return false;
 							if ($i->acl_check('edit task')) return true;
 							return false;
-			case 'delete':
-							if ($i->acl_check('delete task')) return true;
+			case 'delete':	if ($i->acl_check('delete task')) return true;
+							$me = CRM_ContactsCommon::get_my_record();
 							$info = Utils_RecordBrowserCommon::get_record_info('task',$param['id']);
 							if ($me['login']==$info['created_by']) return true;
 							return false;
