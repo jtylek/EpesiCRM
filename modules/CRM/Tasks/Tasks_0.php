@@ -24,7 +24,7 @@ class CRM_Tasks extends Module {
 		if (is_numeric(Utils_RecordBrowser::$clone_result)) {
 			$me = CRM_ContactsCommon::get_my_record();
 			$task = CRM_TasksCommon::get_task(Utils_RecordBrowser::$clone_result);
-			if (in_array($me['id'], $task['employees'])) CRM_TasksCommon::set_notified($me['id'], CRM_RecordBrowser::$clone_result);
+			if (in_array($me['id'], $task['employees'])) CRM_TasksCommon::set_notified($me['id'], Utils_RecordBrowser::$clone_result);
 		}
 		$this->display_module($this->rb);
 	}
