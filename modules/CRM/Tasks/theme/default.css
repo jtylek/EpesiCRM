@@ -1,20 +1,136 @@
+@CHARSET "ISO-8859-1";
+
+/*
+#CRM_Tasks .QForm_multiselect {
+	border: 1px solid #B3B3B3;
+}
+
+#CRM_Tasks .QForm_multiselect_left {
+}
+
+#CRM_Tasks .QForm_multiselect_right {
+}
+*/
+
+#CRM_Tasks table.form {
+	background-color: #FFFFFF;
+	width: 100%;
+	background-color: white;
+	white-space: nowrap;
+	border-top: 1px solid #b3b3b3;
+	border-left: 1px solid #b3b3b3;
+	border-right: 1px solid #b3b3b3;
+}
+
+#CRM_Tasks table.form td.nowrap {
+	white-space: nowrap;
+}
+
+#CRM_Tasks table.x_details td.x_show_details {
+	background: #BEbEbE;
+	color: blue;
+}
+
+#CRM_Tasks table.form span.error {
+	color: red;
+}
+
 /* label */
+/*
+#CRM_Tasks .label {
+	background-color: #336699;
+	color: #FFFFFF;
+	height: 20px;
+	vertical-align: middle;
+	padding-left: 5px;
+	padding-right: 5px;
+	text-align: left;
+	border-bottom: 1px solid #B3B3B3;
+	border-left: 1px solid #B3B3B3;
+	border-right: 1px solid #B3B3B3;
+}
+*/
+/* data */
+/*
+#CRM_Tasks .data {
+	height: 20px;
+	vertical-align: middle;
+	background-color: #FFFFFF;
+	text-align: left;
+	border-bottom: 1px solid #B3B3B3;
+	border-right: 1px solid #B3B3B3;
+	padding-left: 1px;
+	padding-right: 1px;
+}
+
+#CRM_Tasks .data a.button {
+	color: #FFFFFF;
+	background-color: #336699;
+	padding: 4px 5px 3px 5px;
+	border-bottom: 1px solid #B3B3B3;
+}
+
+#CRM_Tasks .data a.button:hover {
+	background-color: #339933;
+}
+*/
+
+#CRM_Tasks .arrows input {
+	border: 0px;
+	background-color: #336699;
+	color: #FFFFFF;
+	width: 40px;
+	height: 20px;
+	vertical-align: middle;
+	text-align: center;
+}
+
+#CRM_Tasks .arrows input:hover {
+	background-color: #339933;
+}
+
+#CRM_Tasks .title,
+#CRM_Tasks .title input {
+	/*font-size: 14px;*/
+}
+
+#CRM_Tasks .title input {
+	margin-top: 2px;
+	margin-bottom: 2px;
+}
+
+
+#CRM_Tasks td img {
+	vertical-align: middle;
+}
 
 #CRM_Tasks .label {
-    color: white;
     background-color: #336699;
+    color: #FFFFFF;
+    border-bottom: 1px solid #B3B3B3;
+    height: 20px;
+    vertical-align: middle;
     padding-left: 5px;
     padding-right: 5px;
     text-align: left;
 }
 
-/* data */
-
-#CRM_Tasks .data {
-    padding-left: 2px;
-    padding-right: 2px;
-    background-color: white;
+#CRM_Tasks table.view .data {
+    border-bottom: 1px solid #B3B3B3;
+    padding-left: 5px;
+    padding-right: 5px;
     text-align: left;
+}
+
+#CRM_Tasks table.edit .data {
+    border-bottom: none;
+    padding-left: 4px;
+    padding-right: 4px;
+    text-align: left;
+}
+
+#CRM_Tasks table.edit {
+	border: none;
 }
 
 #CRM_Tasks .data input,
@@ -22,7 +138,11 @@
 #CRM_Tasks .data textarea {
     border: 0px;
     background-color: #e6ecf2;
-    /*width: 100%;*/
+    width: 100%;
+}
+
+#CRM_Tasks .data textarea {
+	height: 72px;
 }
 
 #CRM_Tasks .data input[type="checkbox"],
@@ -33,31 +153,123 @@
 #CRM_Tasks .data input:focus,
 #CRM_Tasks .data select:focus,
 #CRM_Tasks .data textarea:focus {
+    /*background-color: #f2f2e6;
+    background-color: #e6e6cf;*/
     background-color: #ffffa5;
 }
 
-/* submit button */
-
-#CRM_Tasks .submit input {
-    color: white;
-    width: 100px;
-    height: 20px;
-    border: none;
-    background-color: #336699;
-    background-image: url('images/header-blue.png');
-    background-repeat: repeat-x;
+#CRM_Tasks #multiselect .form-element select,
+#CRM_Tasks #multiselect .to-element select {
+    width: 150px;
+    height: 100px;
 }
 
-#CRM_Tasks .submit input:hover {
-    background-image: url('images/header-blue-hover.png');
+#CRM_Tasks .data input#due_date {
+    display: block;
+    margin-top: 1px;
+    float: left;
 }
 
-/* empty */
-
-#CRM_Tasks .empty {
-    width: 20px;
+#CRM_Tasks .data a.button {
+    height: 19px;
+    display: block;
+    float: right;
 }
 
+
+#CRM_Tasks .no-border,
+#CRM_Tasks table.no-border {
+	border-top: none;
+}
+
+#CRM_Tasks .status 		select option[value="0"],
+#CRM_Tasks .status 		select option[value="1"],
+#CRM_Tasks .priority 		select option[value="0"],
+#CRM_Tasks .priority 		select option[value="1"],
+#CRM_Tasks .priority 		select option[value="2"],
+#CRM_Tasks .permission	select option[value="0"],
+#CRM_Tasks .permission    select option[value="1"],
+#CRM_Tasks .permission    select option[value="2"],
+#CRM_Tasks .priority 		select option[value="3"] {
+	background-color: white;
+	padding-left: 30px;
+	background-repeat: no-repeat;
+	background-position: 1px 0px;
+}
+
+#CRM_Tasks .priority select option[value="0"] { background-image: url('CRM_Tasks__priority-low.png');    }
+#CRM_Tasks .priority select option[value="1"] { background-image: url('CRM_Tasks__priority-medium.png'); }
+#CRM_Tasks .priority select option[value="2"] { background-image: url('CRM_Tasks__priority-high.png');   }
+#CRM_Tasks .priority_0 { background-image: url('CRM_Tasks__priority-low.png');    }
+#CRM_Tasks .priority_1 { background-image: url('CRM_Tasks__priority-medium.png'); }
+#CRM_Tasks .priority_2 { background-image: url('CRM_Tasks__priority-high.png');   }
+
+#CRM_Tasks .permission select option[value="0"] { background-image: url('CRM_Tasks__access-public.png');    }
+#CRM_Tasks .permission select option[value="1"] { background-image: url('CRM_Tasks__access-read-only.png'); }
+#CRM_Tasks .permission select option[value="2"] { background-image: url('CRM_Tasks__access-private.png');   }
+#CRM_Tasks .permission_0 { background-image: url('CRM_Tasks__access-public.png');    }
+#CRM_Tasks .permission_1 { background-image: url('CRM_Tasks__access-read-only.png'); }
+#CRM_Tasks .permission_2 { background-image: url('CRM_Tasks__access-private.png');   }
+
+#CRM_Tasks .status select option[value="0"] { background-image: url('CRM_Tasks__status-open.png');    }
+#CRM_Tasks .status select option[value="1"] { background-image: url('CRM_Tasks__status-closed.png');   }
+#CRM_Tasks .status_0 { background-image: url('CRM_Tasks__status-open.png');    }
+#CRM_Tasks .status_1 { background-image: url('CRM_Tasks__status-closed.png');   }
+
+#CRM_Tasks .status .icon,
+#CRM_Tasks .permission .icon,
+#CRM_Tasks .priority .icon {
+	width: 12px;
+	height: 12px;
+	margin-top: 2px;
+	margin-left: 2px;
+	margin-right: 6px;
+	display: block;
+	float: left;
+	background-repeat: no-repeat;
+}
+
+#CRM_Tasks .priority .icon {
+	width: 24px;
+}
+
+/* colors select */
+
+select[name="color"] option[value="0"] { color: #339933; background-color: white; }
+select[name="color"] option[value="1"] { color: #339933; background-color: white; }
+select[name="color"] option[value="2"] { color: #999933; background-color: white; }
+select[name="color"] option[value="3"] { color: #993333; background-color: white; }
+select[name="color"] option[value="4"] { color: #336699; background-color: white; }
+select[name="color"] option[value="5"] { color: #808080; background-color: white; }
+select[name="color"] option[value="6"] { color: #339999; background-color: white; }
+select[name="color"] option[value="7"] { color: #993399; background-color: white; }
+
+
+/* Additional Info Button */
+
+.AdditionalInfoButton {
+	width: 120px;
+	height: 20px;
+	background-color: #336699;
+	background-image: url('images/header-blue.png');
+	background-repeat: repeat-x;
+	color: white;
+	cursor: pointer;
+	vertical-align: middle;
+	text-align: center;
+	margin-right: 620px;
+}
+
+.AdditionalInfoButton:hover {
+	background-image: url('images/header-blue-hover.png');
+}
+
+.AdditionalInfoButton img {
+	vertical-align: middle;
+	padding: 3px;
+}
+
+/* */
 
 
 
@@ -103,4 +315,30 @@
     color: #777777;
     text-align: right;
     padding-right: 20px;
+}
+
+
+
+/* no shadow in tables */
+
+#CRM_Tasks .attachments .shadow-top,
+#CRM_Tasks .attachments .shadow-middle,
+#CRM_Tasks .attachments .shadow-bottom {
+	display: none;
+}
+
+#CRM_Tasks .attachments .layer {
+	padding: 0px;
+	width: 100%;
+}
+
+#CRM_Tasks .attachments .layer .margin2px {
+	padding: 0px;
+}
+
+/* multiselect 100% width */
+
+#CRM_Tasks #multiselect .form-element select,
+#CRM_Tasks #multiselect .to-element select {
+	width: 100%;
 }

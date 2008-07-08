@@ -393,7 +393,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			if ($is_employee) $emp[] = $values['id'];
 			else $cus[] = $values['id'];
 			return array(	'new_event'=>'<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Event')).' '.CRM_CalendarCommon::create_new_event_href(array('emp_id'=>$emp,'cus_id'=>$cus)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'"></a>',
-							'new_task'=>'<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('page_id'=>md5('crm_tasks'),'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),'employees'=>$emp,'customers'=>$cus)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>',
+							'new_task'=>'<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),'employees'=>$emp,'customers'=>$cus)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>',
 							'new_phonecall'=>'<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'contact'=>$values['id'],'employees'=>$me['id'],'company_name'=>((isset($values['company_name'][0]))?$values['company_name'][0]:''))).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>');
 		}
 		if (isset($values['create_company'])) {

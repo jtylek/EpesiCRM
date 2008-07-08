@@ -54,7 +54,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 				$ec = CRM_Calendar_EventCommon::get_emp_and_cus($values['id']);
 				$values['emp_id'] = $ec['emp_id'];
 				$values['cus_id'] = $ec['cus_id'];
-				if ($action == 'new_task') $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, array('page_id'=>md5('crm_tasks'),'title'=>$values['title'],'permission'=>$values['access'],'priority'=>$values['priority'],'description'=>$values['description'],'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),'employees'=>$values['emp_id'], 'customers'=>$values['cus_id'])), array('task'));
+				if ($action == 'new_task') $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, array('title'=>$values['title'],'permission'=>$values['access'],'priority'=>$values['priority'],'description'=>$values['description'],'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),'employees'=>$values['emp_id'], 'customers'=>$values['cus_id'])), array('task'));
 				if ($action == 'new_phonecall') $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, array('subject'=>$values['title'],'permission'=>$values['access'],'priority'=>$values['priority'],'description'=>$values['description'],'date_and_time'=>date('Y-m-d H:i:s'),'employees'=>$values['emp_id'], 'contact'=>isset($values['cus_id'][0])?$values['cus_id'][0]:'')), array('phonecall'));
 				if ($action == 'new_event') CRM_CalendarCommon::view_event('add',$values);
 				return false;

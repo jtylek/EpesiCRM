@@ -652,7 +652,6 @@ class CRM_Import extends Module {
 		}
 		$header = array_flip($header);
 		$ch = count($header);
-		$mid = md5('crm_tasks');
 
 		$adir = $this->get_data_dir().'attachments/';
 		$num_rec = 0;
@@ -780,7 +779,6 @@ class CRM_Import extends Module {
 							'is_deadline'=>($end!=null),
 							'status'=>($stat==0)?0:2,
 							'longterm'=>false,
-							'page_id'=>$mid,
 							'permission'=>$access,
 							'employees'=>array($created_by_contact),
 							'customers'=>$contact!=false?array($contact):array()

@@ -107,7 +107,7 @@ class CRM_Contacts_Activities extends Module {
 			$gb_row = $gb->get_new_row();
 			$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info('task', isset($info)?$info:$v['id']));
 			$gb_row->add_data(	$this->lang->t('Task'), 
-								Utils_TasksCommon::display_title($v, false), 
+								CRM_TasksCommon::display_title($v, false), 
 								(!isset($v['is_deadline']) || !$v['is_deadline'])?$this->lang->t('No deadline'):Base_RegionalSettingsCommon::time2reg($v['deadline']), 
 								CRM_ContactsCommon::display_contact($v, false, array('id'=>'employees', 'param'=>';CRM_ContactsCommon::contact_format_no_company')), 
 								CRM_ContactsCommon::display_contact($v, false, array('id'=>'customers', 'param'=>';::')) 

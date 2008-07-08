@@ -10,9 +10,23 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_Tasks extends Module {
+	private $rb = null;
 
 	public function body() {
-		$this->pack_module('Utils/Tasks', 'crm_tasks');
+		$lang = $this->init_module('Base/Lang');
+		$this->rb = $this->init_module('Utils/RecordBrowser','task','task');
+		$me = CRM_ContactsCommon::get_my_record();
+		$this->rb->set_custom_filter('status',array('type'=>'checkbox','label'=>$lang->t('Display closed tasks'),'trans'=>array('__NULL__'=>array('!status'=>array(2,3)),1=>array('status'=>array(0,1,2,3)))));
+		$this->rb->set_custom_filter('longterm',array('type'=>'select','label'=>$lang->t('Display tasks marked as'),'args'=>array('__NULL__'=>$lang->t('Short term'),1=>$lang->t('Long term'),2=>$lang->t('Both')),'trans'=>array('__NULL__'=>array('!longterm'=>1),1=>array('longterm'=>1),2=>array('!longterm'=>array(2)))));
+		$this->rb->set_crm_filter('employees');
+		$this->rb->set_defaults(array('employees'=>array($me['id'])));
+		$this->rb->set_default_order(array('deadline'=>'ASC', 'longterm'=>'ASC', 'priority'=>'ASC', 'title'=>'ASC'));
+		if (is_numeric(Utils_RecordBrowser::$clone_result)) {
+			$me = CRM_ContactsCommon::get_my_record();
+			$task = CRM_TasksCommon::get_task(Utils_RecordBrowser::$clone_result);
+			if (in_array($me['id'], $task['employees'])) CRM_TasksCommon::set_notified($me['id'], CRM_RecordBrowser::$clone_result);
+		}
+		$this->display_module($this->rb);
 	}
 	
 	public function applet($conf,$opts) {
@@ -23,13 +37,48 @@ class CRM_Tasks extends Module {
 			CRM_ContactsCommon::no_contact_message();
 			return;
 		}
-		$this->pack_module('Utils/Tasks',array('crm_tasks',($conf['term']=='s' || $conf['term']=='b'),($conf['term']=='l' || $conf['term']=='b'),(isset($conf['closed']) && $conf['closed']),$conf['related']),'applet');
+		$short = ($conf['term']=='s' || $conf['term']=='b');
+		$long = ($conf['term']=='l' || $conf['term']=='b');
+		$closed = (isset($conf['closed']) && $conf['closed']);
+		$related = $conf['related'];
+		$rb = $this->init_module('Utils/RecordBrowser','task','task');
+		$crits = array();
+		if (!$closed) $crits['!status'] = array(2,3);
+		if ($short && !$long) $crits['!longterm'] = 1;
+		if (!$short && $long) $crits['longterm'] = 1;
+		if ($related==0) $crits['employees'] = array($me['id']);
+		if ($related==1) $crits['customers'] = array($me['id']);
+		if ($related==2) {
+			$crits['(employees'] = array($me['id']);
+			$crits['|customers'] = array($me['id']);
+		}
+		$conds = array(
+									array(	array('field'=>'title', 'width'=>20, 'cut'=>16, 'callback'=>array('CRM_TasksCommon','display_title_with_mark')),
+											array('field'=>'deadline', 'width'=>1),
+											array('field'=>'status', 'width'=>1)
+										),
+									$crits,
+									array('status'=>'ASC','deadline'=>'ASC','priority'=>'ASC'),
+									array('CRM_TasksCommon','applet_info_format'),
+									15
+				);
+		$this->display_module($rb, $conds, 'mini_view');
 	}
 
-	public function caption() {
-		return "Tasks";
+
+
+	public function task_attachment_addon($arg){
+		$lang = $this->init_module('Base/Lang');
+		$a = $this->init_module('Utils/Attachment',array('Task:'.$arg['id'],'CRM/Tasks/'.md5('crm_tasks')));
+		$a->additional_header($lang->t('Task: %s',array($arg['title'])));
+		$a->allow_protected($this->acl_check('view protected notes'),$this->acl_check('edit protected notes'));
+		$a->allow_public($this->acl_check('view public notes'),$this->acl_check('edit public notes'));
+		$this->display_module($a);
 	}
 
+	public function caption(){
+		if (isset($this->rb)) return $this->rb->caption();
+	}
 }
 
 ?>
