@@ -25,21 +25,17 @@ class Utils_TasksCommon extends ModuleCommon {
 		switch ($action) {
 			case 'browse':
 							return $i->acl_check('browse tasks');
-			case 'view':	if ($i->acl_check('view task')) return array('(!permission'=>2, '|:Created_by'=>Acl::get_user());
-							else return false;
-			case 'edit':	if ($param['permission']>=1 && $param['created_by']!=Acl::get_user()) return false;
-							if ($i->acl_check('edit task')) return true;
+			case 'view':	if (!$i->acl_check('view task')) return false;
 							$me = CRM_ContactsCommon::get_my_record();
-							if (is_array($param['employees']) && in_array($me['id'], $param['employees'])) return true;
-							$info = Utils_RecordBrowserCommon::get_record_info('task',$param['id']);
-							if ($me['login']==$info['created_by']) return true;
+							return array('(!permission'=>2, '|employees'=>$me['id'], '|customers'=>$me['id']);
+			case 'edit':	$me = CRM_ContactsCommon::get_my_record();
+							if ($param['permission']>=1 &&
+								!in_array($me['id'],$param['employees']) &&
+								!in_array($me['id'],$param['customers'])) return false;
+							if ($i->acl_check('edit task')) return true;
 							return false;
 			case 'delete':
 							if ($i->acl_check('delete task')) return true;
-							$me = CRM_ContactsCommon::get_my_record();
-							if (is_array($param['employees']) && in_array($me['id'], $param['employees'])) return true;
-							$info = Utils_RecordBrowserCommon::get_record_info('task',$param['id']);
-							if ($me['login']==$info['created_by']) return true;
 							return false;
 			case 'edit_fields':
 							if ($i->acl_check('edit task')) return array();
