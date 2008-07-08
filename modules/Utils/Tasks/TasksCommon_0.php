@@ -36,6 +36,8 @@ class Utils_TasksCommon extends ModuleCommon {
 							return false;
 			case 'delete':
 							if ($i->acl_check('delete task')) return true;
+							$info = Utils_RecordBrowserCommon::get_record_info('task',$param['id']);
+							if ($me['login']==$info['created_by']) return true;
 							return false;
 			case 'edit_fields':
 							if ($i->acl_check('edit task')) return array();
