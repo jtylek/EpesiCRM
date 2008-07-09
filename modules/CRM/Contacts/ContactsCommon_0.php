@@ -59,7 +59,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 							return $i->acl_check('edit company');
 			case 'delete':	return $i->acl_check('delete company');
 			case 'fields':	if($i->acl_check('edit company')) return array();
-							return array('company_name'=>'read_only','short_name'=>'read_only','group'=>'read_only');
+							return array('company_name'=>'read-only','short_name'=>'read-only','group'=>'read-only');
 		}
 		return false;
 	}
