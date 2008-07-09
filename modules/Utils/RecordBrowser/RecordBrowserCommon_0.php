@@ -308,9 +308,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function update_record($tab,$id,$values,$all_fields = false, $date = null) {
 		DB::StartTrans();
 		self::init($tab);
-		$record = Utils_RecordBrowserCommon::get_record($tab, $id);
+		$record = self::get_record($tab, $id);
+		$access = self::get_access($tab, 'fields', $record);
 		$diff = array();
 		foreach(self::$table_rows as $field => $args){
+			if (isset($access[$args['id']]) && $access[$args['id']]=='hide') continue;
 			if ($args['id']=='id') continue;
 			if (!isset($values[$args['id']])) if ($all_fields) $values[$args['id']] = ''; else continue;
 			if ($record[$args['id']]!=$values[$args['id']]) {
@@ -724,7 +726,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		else $access_callback = $cache[$tab];
 		if ($access_callback === '' || !is_callable($access_callback)) return true;
 		$ret = call_user_func($access_callback, $action, $param);
-		if ($action==='delete') $ret &= call_user_func($access_callback, 'edit', $param);
+		if ($action==='delete' && $ret) $ret = call_user_func($access_callback, 'edit', $param);
+		if ($action==='fields') {
+			self::init($tab);
+			
+			foreach (self::$table_rows as $field=>$args)
+				if (!isset($ret[$args['id']])) $ret[$args['id']] = 'full';
+		}
 		return $ret;
 	}
 	public static function get_record_info($tab = null, $id = null) {

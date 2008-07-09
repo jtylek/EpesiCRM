@@ -317,10 +317,11 @@ class Utils_RecordBrowser extends Module {
 		$quickjump = DB::GetOne('SELECT quickjump FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 
 		$hash = array();
+		$access = $this->get_access('fields', null);
 		foreach($this->table_rows as $field => $args) {
 			$hash[$args['id']] = $field;
 			if ($field === 'id') continue;
-			if (!$args['visible'] && (!isset($cols[$args['id']]) || $cols[$args['id']] === false)) continue;
+			if ((!$args['visible'] && (!isset($cols[$args['id']]) || $cols[$args['id']] === false)) || $access[$args['id']]=='hide') continue;
 			if (isset($cols[$args['id']]) && $cols[$args['id']] === false) continue;
 			$arr = array('name'=>$this->lang->t($args['name']));
 			if ($this->browse_mode!='recent') $arr['order'] = $field;
@@ -431,7 +432,8 @@ class Utils_RecordBrowser extends Module {
 				$rpicker_ind[] = $row['id'];
 			}
 
-			foreach($this->table_rows as $field => $args)
+			foreach($this->table_rows as $field => $args) {
+				if ($access[$args['id']]=='hide') continue;
 				if (($args['visible'] && !isset($cols[$args['id']])) || (isset($cols[$args['id']]) && $cols[$args['id']] === true)) {
 					$value = $this->get_val($field, $row, $row['id'], $special, $args);
 					if (isset($this->cut[$args['id']])) {
@@ -440,6 +442,7 @@ class Utils_RecordBrowser extends Module {
 					if ($args['type']=='currency') $value = array('style'=>'text-align:right;','value'=>$value);
 					$row_data[] = $value;
 				}
+			}
 			if ($this->browse_mode == 'recent')
 				$row_data[] = $row['visited_on'];
 
@@ -552,12 +555,11 @@ class Utils_RecordBrowser extends Module {
 			}
 		}
 		switch ($mode) {
-			case 'add': $this->action = 'New record'; break;
-			case 'edit': $this->action = 'Edit record';
-						$this->noneditable_fields = $this->get_access('edit_fields', $this->record);
-						break;
-			case 'view': $this->action = 'View record'; break;
+			case 'add':		$this->action = 'New record'; break;
+			case 'edit':	$this->action = 'Edit record'; break;
+			case 'view':	$this->action = 'View record'; break;
 		}
+		$this->fields_permission = $this->get_access('fields', isset($this->record)?$this->record:null);
 
 		if($mode!='add')
 			Utils_RecordBrowserCommon::add_recent_entry($this->tab, Acl::get_user(),$id);
@@ -621,9 +623,8 @@ class Utils_RecordBrowser extends Module {
 		}
 		if ($mode=='edit')
 			foreach($this->table_rows as $field => $args)
-				if (isset($this->noneditable_fields[$field]) && !$this->noneditable_fields[$field]) {
+				if ($this->fields_permission[$args['id']]==='read-only')
 					$form->freeze($args['id']);
-				}
 
 		if ($mode=='view') $form->freeze();
 		$renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
@@ -716,6 +717,7 @@ class Utils_RecordBrowser extends Module {
 	public function prepare_view_entry_details($record, $mode, $id, $form, $visible_cols = null){
 		$init_js = '';
 		foreach($this->table_rows as $field => $args){
+			if ($this->fields_permission[$args['id']]==='hide') continue;
 			if ($visible_cols!==null && !isset($visible_cols[$args['id']])) continue;
 			if ($args['type']=='hidden') { 
 				$form->addElement('hidden', $args['id']);
@@ -1177,6 +1179,7 @@ class Utils_RecordBrowser extends Module {
 		$gb_cha->set_table_columns( $table_columns_changes );
 
 		$created = Utils_RecordBrowserCommon::get_record($this->tab, $id, true);
+		$access = $this->get_access('fields', $created);
 		$created['created_by_login'] = Base_UserCommon::get_user_login($created['created_by']);
 		$field_hash = array();
 		$edited = DB::GetRow('SELECT ul.login, c.edited_on FROM '.$this->tab.'_edit_history AS c LEFT JOIN user_login AS ul ON ul.id=c.edited_by WHERE c.'.$this->tab.'_id=%d ORDER BY edited_on DESC',array($id));
@@ -1185,6 +1188,7 @@ class Utils_RecordBrowser extends Module {
 		$gb_cur->add_row($this->lang->t('Edited by'), $edited['login']);
 		$gb_cur->add_row($this->lang->t('Edited on'), $edited['edited_on']);
 		foreach($this->table_rows as $field => $args) {
+			if ($access[$args['id']] == 'hide') continue;
 			$field_hash[$args['id']] = $field;
 			$val = $this->get_val($field, $created, $created['id'], false, $args);
 			if ($created[$args['id']] !== '') $gb_cur->add_row($this->lang->t($field), $val);
@@ -1195,6 +1199,7 @@ class Utils_RecordBrowser extends Module {
 			$changed = array();
 			$ret2 = DB::Execute('SELECT * FROM '.$this->tab.'_edit_history_data WHERE edit_id=%d',array($row['id']));
 			while($row2 = $ret2->FetchRow()) {
+				if ($access[$row2['field']] == 'hide') continue;
 				if (isset($changed[$row2['field']])) {
 					if (is_array($changed[$row2['field']]))
 						array_unshift($changed[$row2['field']], $row2['old_value']);
@@ -1220,6 +1225,7 @@ class Utils_RecordBrowser extends Module {
 		$gb_ori->add_row($this->lang->t('Created by'), $created['created_by_login']);
 		$gb_ori->add_row($this->lang->t('Created on'), $created['created_on']);
 		foreach($this->table_rows as $field => $args) {
+			if ($access[$args['id']] == 'hide') continue;
 			$val = $this->get_val($field, $created, $created['id'], false, $args);
 			if ($created[$args['id']] !== '') $gb_ori->add_row($this->lang->t($field), $val);
 		}

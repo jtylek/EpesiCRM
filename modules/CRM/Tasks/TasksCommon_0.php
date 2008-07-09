@@ -59,7 +59,7 @@ class CRM_TasksCommon extends ModuleCommon {
 							$info = Utils_RecordBrowserCommon::get_record_info('task',$param['id']);
 							if ($me['login']==$info['created_by']) return true;
 							return false;
-			case 'edit_fields':
+			case 'fields':
 							if ($i->acl_check('edit task')) return array();
 							return array();
 		}

@@ -62,7 +62,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 							$info = Utils_RecordBrowserCommon::get_record_info('phonecall',$param['id']);
 							if ($me['login']==$info['created_by']) return true;
 							return false;
-			case 'edit_fields':
+			case 'fields':
 							if ($i->acl_check('edit phonecall')) return array();
 							return array();
 		}

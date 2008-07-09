@@ -58,9 +58,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 							if ($me && in_array($param['id'],$me['company_name']) && $i->acl_check('edit my company')) return true; //my company
 							return $i->acl_check('edit company');
 			case 'delete':	return $i->acl_check('delete company');
-			case 'edit_fields':
-					if($i->acl_check('edit company')) return array();
-					return array('company_name'=>false,'short_name'=>false,'group'=>false);
+			case 'fields':	if($i->acl_check('edit company')) return array();
+							return array('company_name'=>'read_only','short_name'=>'read_only','group'=>'read_only');
 		}
 		return false;
 	}
@@ -71,19 +70,17 @@ class CRM_ContactsCommon extends ModuleCommon {
 			case 'view':	if ($i->acl_check('view contact')) return array('(!permission'=>2, '|login'=>Acl::get_user(), '|:Created_by'=>Acl::get_user());
 							else return array('login'=>Acl::get_user());
 			case 'delete':	return $i->acl_check('delete contact');
-			case 'edit':
-					if ($param['login']==Acl::get_user()) return true; //me
-					if ($param['permission']>=1 && $param['created_by']!=Acl::get_user()) return false;
-					if ($i->acl_check('edit contact')) return true;
-					if ($i->acl_check('edit my company contacts')) {
-						$me = self::get_my_record();
-						foreach($param['company_name'] as $cid)
-							if(in_array($cid,$me['company_name'])) return true; //customer
-					}
-					return false;
-			case 'edit_fields':
-					if ($i->acl_check('edit contact')) return array();
-					return array('company_name'=>false,'last_name'=>false,'first_name'=>false,'group'=>false);
+			case 'edit':	if ($param['login']==Acl::get_user()) return true; //me
+							if ($param['permission']>=1 && $param['created_by']!=Acl::get_user()) return false;
+							if ($i->acl_check('edit contact')) return true;
+							if ($i->acl_check('edit my company contacts')) {
+								$me = self::get_my_record();
+								foreach($param['company_name'] as $cid)
+									if(in_array($cid,$me['company_name'])) return true; //customer
+							}
+							return false;
+			case 'fields':	if ($i->acl_check('edit contact')) return array();
+							return array('company_name'=>'read-only','last_name'=>'read-only','first_name'=>'read-only','group'=>'read-only');
 		}
 		return false;
 	}
