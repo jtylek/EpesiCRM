@@ -60,7 +60,7 @@ class CRM_TasksCommon extends ModuleCommon {
 							if ($me['login']==$info['created_by']) return true;
 							return false;
 			case 'fields':
-							if ($i->acl_check('edit task')) return array();
+							//if ($i->acl_check('edit task')) return array();
 							return array();
 		}
 		return false;

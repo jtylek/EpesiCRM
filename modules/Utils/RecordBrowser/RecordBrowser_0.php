@@ -317,7 +317,7 @@ class Utils_RecordBrowser extends Module {
 		$quickjump = DB::GetOne('SELECT quickjump FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 
 		$hash = array();
-		$access = $this->get_access('fields', null);
+		$access = $this->get_access('fields', 'browse');
 		foreach($this->table_rows as $field => $args) {
 			$hash[$args['id']] = $field;
 			if ($field === 'id') continue;
@@ -559,7 +559,7 @@ class Utils_RecordBrowser extends Module {
 			case 'edit':	$this->action = 'Edit record'; break;
 			case 'view':	$this->action = 'View record'; break;
 		}
-		$this->fields_permission = $this->get_access('fields', isset($this->record)?$this->record:null);
+		$this->fields_permission = $this->get_access('fields', isset($this->record)?$this->record:'new');
 
 		if($mode!='add')
 			Utils_RecordBrowserCommon::add_recent_entry($this->tab, Acl::get_user(),$id);
