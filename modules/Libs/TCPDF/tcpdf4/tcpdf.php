@@ -1,10 +1,10 @@
-<?php
+<?php 
 //============================================================+
 // File name   : tcpdf.php
 // Begin       : 2002-08-03
-// Last Update : 2008-07-03
+// Last Update : 2008-07-09
 // Author      : Nicola Asuni - info@tecnick.com - http://www.tcpdf.org
-// Version     : 4.0.000
+// Version     : 4.0.004
 // License     : GNU LGPL (http://www.gnu.org/copyleft/lesser.html)
 // 	----------------------------------------------------------------------------
 //  Copyright (C) 2002-2008  Nicola Asuni - Tecnick.com S.r.l.
@@ -66,7 +66,7 @@
 // dullus for text Justification.
 // Bob Vincent (pillarsdotnet@users.sourceforge.net) for <li> value attribute.
 // Patrick Benny for text stretch suggestion on Cell().
-// Johannes Gï¿½ntert for JavaScript support.
+// Johannes Güntert for JavaScript support.
 // Denis Van Nuffelen for Dynamic Form.
 // Jacek Czekaj for multibyte justification
 // Anthony Ferrara for the reintroduction of legacy image methods.
@@ -114,7 +114,7 @@
  * @copyright 2004-2008 Nicola Asuni - Tecnick.com S.r.l (www.tecnick.com) Via Della Pace, 11 - 09044 - Quartucciu (CA) - ITALY - www.tecnick.com - info@tecnick.com
  * @link http://www.tcpdf.org
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
- * @version 4.0.000
+ * @version 4.0.004
  */
 
 /**
@@ -144,14 +144,14 @@ if (!class_exists('TCPDF')) {
 	/**
 	 * define default PDF document producer
 	 */ 
-	define('PDF_PRODUCER','TCPDF 4.0.000 (http://www.tcpdf.org)');
+	define('PDF_PRODUCER','TCPDF 4.0.004 (http://www.tcpdf.org)');
 	
 	/**
 	* This is a PHP class for generating PDF documents without requiring external extensions.<br>
 	* TCPDF project (http://www.tcpdf.org) has been originally derived in 2002 from the Public Domain FPDF class by Olivier Plathey (http://www.fpdf.org), but now is almost entirely rewritten.<br>
 	* @name TCPDF
 	* @package com.tecnick.tcpdf
-	* @version 4.0.000
+	* @version 4.0.004
 	* @author Nicola Asuni - info@tecnick.com
 	* @link http://www.tcpdf.org
 	* @license http://www.gnu.org/copyleft/lesser.html LGPL
@@ -2907,15 +2907,18 @@ if (!class_exists('TCPDF')) {
 			if (($this->lasth - $this->FontSize) < $this->LineWidth) {
 				$this->y += $this->LineWidth/2;
 			}
+			// add top padding
+			$this->y += $this->cMargin;
 			if ($ishtml) {
 				// Write HTML text
 				$this->writeHTML($txt, true, 0, $reseth, true, $align);
-				$this->y += $this->cMargin;
 				$nl = 1;
 			} else {
 				// Write text
 				$nl = $this->Write($this->lasth, $txt, '', 0, $align, true, $stretch, false);
 			}
+			// add bottom padding
+			$this->y += $this->cMargin;
 			// Add bottom space if needed
 			if (($this->lasth - $this->FontSize) < $this->LineWidth) {
 				$this->y += $this->LineWidth / 2;
@@ -3717,8 +3720,10 @@ if (!class_exists('TCPDF')) {
 				$dest = $dest ? 'D' : 'F';
 			}
 			$dest = strtoupper($dest);
-			$name = str_replace("+", "%20", urlencode($name));
-			$name = preg_replace('/[\r\n]+\s*/', '' , $name);
+			if ($dest != 'F') {
+				$name = str_replace("+", "%20", urlencode($name));
+				$name = preg_replace('/[\r\n]+\s*/', '' , $name);
+			}
 			switch($dest) {
 				case 'I': {
 					//Send to standard output
@@ -3732,9 +3737,8 @@ if (!class_exists('TCPDF')) {
 							$this->Error('Some data has already been output to browser, can\'t send PDF file');
 						}
 						// Disable caching
-						header('Cache-Control: no-cache, no-store, max-age=0, must-revalidate');
-						header('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
-						header('Pragma: no-cache');
+						header('Cache-Control: private, must-revalidate');
+						header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');	
 						header('Content-Length: '.strlen($this->buffer));
 						header('Content-Disposition: inline; filename="'.basename($name).'";');
 					}
@@ -3749,11 +3753,9 @@ if (!class_exists('TCPDF')) {
 					header('Content-Description: File Transfer');
 					if (headers_sent()) {
 						$this->Error('Some data has already been output to browser, can\'t send PDF file');
-					}	
-					// Disable caching
-					header('Cache-Control: no-cache, no-store, max-age=0, must-revalidate');
+					}
+					header('Cache-Control: private, must-revalidate');
 					header('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
-					header('Pragma: no-cache');
 					// always modified
 					header("Last-Modified: ".gmdate("D, d M Y H:i:s")." GMT");
 					// force download dialog
@@ -6433,7 +6435,7 @@ if (!class_exists('TCPDF')) {
 			
 			// X8. All explicit directional embeddings and overrides are completely terminated at the end of each paragraph. Paragraph separators are not included in the embedding.
 			// X9. Remove all RLE, LRE, RLO, LRO, PDF, and BN codes.
-			// X10. The remaining rules are applied to each run of characters at the same level. For each run, determine the start-of-level-run (sor) and end-of-level-run (eor) type, either L or R. This depends on the higher of the two levels on either side of the boundary (at the start or end of the paragraph, the level of the ï¿½otherï¿½ run is the base embedding level). If the higher level is odd, the type is R; otherwise, it is L.
+			// X10. The remaining rules are applied to each run of characters at the same level. For each run, determine the start-of-level-run (sor) and end-of-level-run (eor) type, either L or R. This depends on the higher of the two levels on either side of the boundary (at the start or end of the paragraph, the level of the “other” run is the base embedding level). If the higher level is odd, the type is R; otherwise, it is L.
 			
 			// 3.3.3 Resolving Weak Types
 			// Weak types are now resolved one level run at a time. At level run boundaries where the type of the character on the other side of the boundary is required, the type assigned to sor or eor is used.
@@ -6932,7 +6934,7 @@ if (!class_exists('TCPDF')) {
 		/*
 		* Adds a javascript
 		* @access public
-		* @author Johannes Gï¿½ntert, Nicola Asuni
+		* @author Johannes Güntert, Nicola Asuni
 		* @since 2.1.002 (2008-02-12)
 		*/
 		public function IncludeJS($script) {
@@ -6942,7 +6944,7 @@ if (!class_exists('TCPDF')) {
 		/*
 		* Create a javascript PDF string.
 		* @access protected
-		* @author Johannes Gï¿½ntert, Nicola Asuni
+		* @author Johannes Güntert, Nicola Asuni
 		* @since 2.1.002 (2008-02-12)
 		*/
 		protected function _putjavascript() {
@@ -7417,7 +7419,7 @@ if (!class_exists('TCPDF')) {
 		* @param array $col1 first color (RGB components).
 		* @param array $col2 second color (RGB components).
 		* @param array $coords array of the form (x1, y1, x2, y2) which defines the gradient vector (see linear_gradient_coords.jpg). The default value is from left to right (x1=0, y1=0, x2=1, y2=0).
-		* @author Andreas Wï¿½rmser, Nicola Asuni
+		* @author Andreas Würmser, Nicola Asuni
 		* @since 3.1.000 (2008-06-09)
 		* @access public
 		*/
@@ -7435,7 +7437,7 @@ if (!class_exists('TCPDF')) {
 		* @param array $col1 first color (RGB components).
 		* @param array $col2 second color (RGB components).
 		* @param array $coords array of the form (fx, fy, cx, cy, r) where (fx, fy) is the starting point of the gradient with color1, (cx, cy) is the center of the circle with color2, and r is the radius of the circle (see radial_gradient_coords.jpg). (fx, fy) should be inside the circle, otherwise some areas will not be defined.
-		* @author Andreas Wï¿½rmser, Nicola Asuni
+		* @author Andreas Würmser, Nicola Asuni
 		* @since 3.1.000 (2008-06-09)
 		* @access public
 		*/
@@ -7454,10 +7456,10 @@ if (!class_exists('TCPDF')) {
 		* @param array $col2 second color (lower right corner) (RGB components).
 		* @param array $col3 third color (upper right corner) (RGB components).
 		* @param array $col4 fourth color (upper left corner) (RGB components).
-		* @param array $coords <ul><li>for one patch mesh: array(float x1, float y1, .... float x12, float y12): 12 pairs of coordinates (normally from 0 to 1) which specify the Bï¿½zier control points that define the patch. First pair is the lower left edge point, next is its right control point (control point 2). Then the other points are defined in the order: control point 1, edge point, control point 2 going counter-clockwise around the patch. Last (x12, y12) is the first edge point's left control point (control point 1).</li><li>for two or more patch meshes: array[number of patches]: arrays with the following keys for each patch: f: where to put that patch (0 = first patch, 1, 2, 3 = right, top and left of precedent patch - I didn't figure this out completely - just try and error ;-) points: 12 pairs of coordinates of the Bï¿½zier control points as above for the first patch, 8 pairs of coordinates for the following patches, ignoring the coordinates already defined by the precedent patch (I also didn't figure out the order of these - also: try and see what's happening) colors: must be 4 colors for the first patch, 2 colors for the following patches</li></ul>
+		* @param array $coords <ul><li>for one patch mesh: array(float x1, float y1, .... float x12, float y12): 12 pairs of coordinates (normally from 0 to 1) which specify the Bézier control points that define the patch. First pair is the lower left edge point, next is its right control point (control point 2). Then the other points are defined in the order: control point 1, edge point, control point 2 going counter-clockwise around the patch. Last (x12, y12) is the first edge point's left control point (control point 1).</li><li>for two or more patch meshes: array[number of patches]: arrays with the following keys for each patch: f: where to put that patch (0 = first patch, 1, 2, 3 = right, top and left of precedent patch - I didn't figure this out completely - just try and error ;-) points: 12 pairs of coordinates of the Bézier control points as above for the first patch, 8 pairs of coordinates for the following patches, ignoring the coordinates already defined by the precedent patch (I also didn't figure out the order of these - also: try and see what's happening) colors: must be 4 colors for the first patch, 2 colors for the following patches</li></ul>
 		* @param array $coords_min minimum value used by the coordinates. If a coordinate's value is smaller than this it will be cut to coords_min. default: 0
 		* @param array $coords_max maximum value used by the coordinates. If a coordinate's value is greater than this it will be cut to coords_max. default: 1
-		* @author Andreas Wï¿½rmser, Nicola Asuni
+		* @author Andreas Würmser, Nicola Asuni
 		* @since 3.1.000 (2008-06-09)
 		* @access public
 		*/
@@ -7534,7 +7536,7 @@ if (!class_exists('TCPDF')) {
 		* @param float $y ordinate of the top left corner of the rectangle.
 		* @param float $w width of the rectangle.
 		* @param float $h height of the rectangle.
-		* @author Andreas Wï¿½rmser, Nicola Asuni
+		* @author Andreas Würmser, Nicola Asuni
 		* @since 3.1.000 (2008-06-09)
 		* @access protected
 		*/
@@ -7557,7 +7559,7 @@ if (!class_exists('TCPDF')) {
 		* @param array $col1 first color (RGB components).
 		* @param array $col2 second color (RGB components).
 		* @param array $coords array of coordinates.
-		* @author Andreas Wï¿½rmser, Nicola Asuni
+		* @author Andreas Würmser, Nicola Asuni
 		* @since 3.1.000 (2008-06-09)
 		* @access protected
 		*/
@@ -7581,7 +7583,7 @@ if (!class_exists('TCPDF')) {
 		
 		/**
 		* Output shaders.
-		* @author Andreas Wï¿½rmser, Nicola Asuni
+		* @author Andreas Würmser, Nicola Asuni
 		* @since 3.1.000 (2008-06-09)
 		* @access protected
 		*/
@@ -8528,7 +8530,7 @@ if (!class_exists('TCPDF')) {
 		 * @param boolean $cell if true add the default cMargin space to each Write (default false).
 		 * @param string $align Allows to center or align the text. Possible values are:<ul><li>L : left align</li><li>C : center</li><li>R : right align</li><li>'' : empty string : left for LTR or right for RTL</li></ul>
 		 */
-		public function WriteHTML($html, $ln=true, $fill=false, $reseth=false, $cell=false, $align='') {
+		public function writeHTML($html, $ln=true, $fill=false, $reseth=false, $cell=false, $align='') {
 			// store current values
 			$prevFontFamily = $this->FontFamily;
 			$prevFontStyle = $this->FontStyle;
@@ -8543,20 +8545,19 @@ if (!class_exists('TCPDF')) {
 			$startlinepos = strlen($this->pages[$this->page]);
 			$lalign = $align;
 			$plalign = $align;
-			if ($cell) {
-				$this->y += $this->cMargin;
-				if ($this->rtl) {
-					$this->x -= $this->cMargin;
-				} else {
-					$this->x += $this->cMargin;
-				}
-			}
 			if ($this->rtl) {
 				$w = $this->x - $this->lMargin;
 			} else {
 				$w = $this->w - $this->rMargin - $this->x;
 			}
 			$w -= (2 * $this->cMargin);
+			if ($cell) {
+				if ($this->rtl) {
+					$this->x -= $this->cMargin;
+				} else {
+					$this->x += $this->cMargin;
+				}
+			}
 			$this->listindent = $this->GetStringWidth("0000");
 			$this->listnum = 0;
 			if ((empty($this->lasth))OR ($reseth)) {
@@ -8621,7 +8622,7 @@ if (!class_exists('TCPDF')) {
 								$pend = "";
 							}
 							// calculate shifting amount
-							$mdiff = abs($w - $linew - $this->cMargin);
+							$mdiff = abs($w - $linew);
 							if ($plalign == "C") {
 								if ($this->rtl) {
 									$t_x = -($mdiff / 2);
@@ -8678,6 +8679,8 @@ if (!class_exists('TCPDF')) {
 							if (isset($dom[($dom[$trid]['parent'])]['attribute']['cellpadding'])) {
 								$currentcmargin = $this->pixelsToUnits($dom[($dom[$trid]['parent'])]['attribute']['cellpadding']);
 								$this->cMargin = $currentcmargin;
+							} else {
+								$currentcmargin = 0;
 							}
 							if (isset($dom[($dom[$trid]['parent'])]['attribute']['cellspacing'])) {
 								$cellspacing = $this->pixelsToUnits($dom[($dom[$trid]['parent'])]['attribute']['cellspacing']);
@@ -8749,13 +8752,12 @@ if (!class_exists('TCPDF')) {
 							}
 							// write the cell content
 							$this->MultiCell($cellw, 0, $cell_content, false, $lalign, false, 2, '', '', true, 0, true);
-							if (!isset($currentcmargin)) $currentcmargin=0;
 							$this->cMargin = $currentcmargin;
 							$dom[$trid]['cellpos'][($cellid - 1)]['endx'] = $this->x;
 							if ($rowspan > 1) {
 								$dom[$table_el]['rowspans'][($trsid - 1)]['endx'] = $this->x;
-								$dom[$table_el]['rowspans'][($trsid - 1)]['endy'] = max($this->y, isset($dom[$trid]['endy'])?$dom[$trid]['endy']:0);
-								$dom[$table_el]['rowspans'][($trsid - 1)]['endpage'] = max($this->page, isset($dom[$trid]['endpage'])?$dom[$trid]['endpage']:0);
+								$dom[$table_el]['rowspans'][($trsid - 1)]['endy'] = max($this->y, $dom[$trid]['endy']);
+								$dom[$table_el]['rowspans'][($trsid - 1)]['endpage'] = max($this->page, $dom[$trid]['endpage']);
 							} else {
 								if (!isset($dom[$trid]['endy'])) {
 									$dom[$trid]['endy'] = $this->y;
@@ -8791,9 +8793,7 @@ if (!class_exists('TCPDF')) {
 						$strrest = $this->addHtmlLink($this->HREF, $dom[$key]['value'], $wfill, true);
 					} else {
 						$ctmpmargin = $this->cMargin;
-						if (!$cell) {
-							$this->cMargin = 0;
-						}
+						$this->cMargin = 0;
 						// write only the first line and get the rest
 						$strrest = $this->Write($this->lasth, $dom[$key]['value'], '', $wfill, "", false, 0, true);
 						$this->cMargin = $ctmpmargin;
@@ -8837,7 +8837,7 @@ if (!class_exists('TCPDF')) {
 						$pend = "";
 					}
 					// calculate shifting amount
-					$mdiff = abs($w - $linew - $this->cMargin);
+					$mdiff = abs($w - $linew);
 					if ($plalign == "C") {
 						if ($this->rtl) {
 							$t_x = -($mdiff / 2);
@@ -9097,6 +9097,8 @@ if (!class_exists('TCPDF')) {
 					if ((isset($table_el['attribute']['border']) AND ($table_el['attribute']['border'] > 0)) 
 						OR (isset($table_el['style']['border']) AND ($table_el['style']['border'] > 0))) {
 							$border = 1;
+					} else {
+						$border = 0;
 					}
 					$this->y = $parent['starty'];
 					$restspace = $this->getPageHeight() - $this->y - $this->getBreakMargin();
@@ -9155,7 +9157,6 @@ if (!class_exists('TCPDF')) {
 							$this->x = $cellpos['startx'];
 							$this->y = $parent['starty'];
 							// design a cell around the text
-							if (!isset($border)) $border=0;
 							$ccode = $this->FillColor."\n".$this->getCellCode($cw, $ch, "", $border, 1, '', $fill);
 							$pstart = substr($this->pages[$this->page], 0, $this->intmrk[$this->page]);
 							$pend = substr($this->pages[$this->page], $this->intmrk[$this->page]);
