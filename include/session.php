@@ -15,6 +15,7 @@ require_once('database.php');
 class DBSession {
     private static $lifetime;
     private static $name;
+	private static $gc_sem = false;
 
     public static function open($path, $name) {
         self::$lifetime = ini_get("session.gc_maxlifetime");
@@ -22,7 +23,7 @@ class DBSession {
     }
 
     public static function close() {
-        //self::gc(self::$lifetime);
+        self::gc(self::$lifetime);
         return true;
     }
     
@@ -47,21 +48,25 @@ class DBSession {
     }
     
     public static function destroy($name) {
+		if(self::$gc_sem) return;
+		self::$gc_sem=true;
     	DB::StartTrans();
     	DB::Execute('DELETE FROM history WHERE session_name=%s',array($name));
     	DB::Execute('DELETE FROM session_client WHERE session_name=%s',array($name));
     	DB::Execute('DELETE FROM session WHERE name=%s',array($name));
-	DB::CompleteTrans();
+		DB::CompleteTrans();
     	return true;
     }
 
     public static function gc($lifetime) {
+		if(self::$gc_sem) return;
+		self::$gc_sem=true;
     	$t = time()-$lifetime;
     	DB::StartTrans();
-	DB::Execute('DELETE FROM history WHERE session_name IN (SELECT name FROM session WHERE expires < %d)',array($t));
+		DB::Execute('DELETE FROM history WHERE session_name IN (SELECT name FROM session WHERE expires < %d)',array($t));
     	DB::Execute('DELETE FROM session_client WHERE session_name IN (SELECT name FROM session WHERE expires < %d)',array($t));
-   	DB::Execute('DELETE FROM session WHERE expires < %d',array($t));
-	DB::CompleteTrans();
+	   	DB::Execute('DELETE FROM session WHERE expires < %d',array($t));
+		DB::CompleteTrans();
         return true;
     }
 }
