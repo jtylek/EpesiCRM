@@ -35,6 +35,8 @@ if($duplicate)
 else
 	DB::Execute('UPDATE utils_attachment_download SET remote=2, download_on=%T, ip_address=%s, host_name=%s WHERE id=%d',array($t,$remote_address,$remote_host,$id));
 $f_filename = 'data/Utils_Attachment/'.$filename;
+if(!file_exists($f_filename))
+	die('File doesn\'t exists');
 $buffer = file_get_contents($f_filename);
 header('Content-Type: '.get_mime_type($f_filename,$original));
 header('Content-Length: '.strlen($buffer));
