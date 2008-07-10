@@ -501,7 +501,7 @@ class Utils_RecordBrowser_Reports extends Module {
 	}
 	
 	public function body($pdf=false) {
-		Base_ThemeCommon::install_default_theme($this->get_type()); // TODO: delete this, just develop tool
+//		Base_ThemeCommon::install_default_theme($this->get_type()); // TODO: delete this, just develop tool
 		if ($this->is_back()) return false;
 		if ($this->date_range=='error') return;
 		Base_ThemeCommon::load_css('Utils/RecordBrowser/Reports');
