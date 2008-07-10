@@ -1376,7 +1376,11 @@ class Utils_RecordBrowser extends Module {
 		foreach($order as $k=>$v) {
 			$clean_order[] = array('column'=>$field_hash[$k],'order'=>$field_hash[$k],'direction'=>$v);
 		}
-		if ($limit!=null) $limit = array('offset'=>0, 'numrows'=>$limit);
+		if ($limit!=null) {
+			$limit = array('offset'=>0, 'numrows'=>$limit);
+			$records_qty = Utils_RecordBrowserCommon::get_records_limit($this->tab, $crits);
+			if ($records_qty['numrows']>$limit['numrows']) print($this->lang->t('Displaying %s of %s records', array($limit['numrows'], $records_qty['numrows'])));
+		}
 		$records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array(), $clean_order, $limit);
 		$icons = array_flip($icons);
 		foreach($records as $v) {
