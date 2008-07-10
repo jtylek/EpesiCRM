@@ -312,7 +312,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$access = self::get_access($tab, 'fields', $record);
 		$diff = array();
 		foreach(self::$table_rows as $field => $args){
-			if (isset($access[$args['id']]) && $access[$args['id']]=='hide') continue;
+			if ($access[$args['id']]=='hide' || $access[$args['id']]=='read-only') continue;
 			if ($args['id']=='id') continue;
 			if (!isset($values[$args['id']])) if ($all_fields) $values[$args['id']] = ''; else continue;
 			if ($record[$args['id']]!=$values[$args['id']]) {
