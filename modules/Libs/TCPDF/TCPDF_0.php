@@ -43,6 +43,7 @@ class Libs_TCPDF extends Module {
 			$this->tcpdf->setHeaderFont(Array('Helvetica', '', PDF_FONT_SIZE_MAIN));
 			$this->tcpdf->setFooterFont(Array('Helvetica', '', PDF_FONT_SIZE_DATA));
 		}
+
 		
 		//set margins
 		$this->tcpdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
@@ -59,7 +60,9 @@ class Libs_TCPDF extends Module {
 	public function prepare_header() {
 		foreach (array('title', 'subject') as $v)
 			if (!isset($this->steps[$v])) trigger_error('PDF '.$v.' was not set, use $tcpdf->set_'.$v.'();',E_USER_ERROR);
-		$this->tcpdf->SetHeaderData(Base_ThemeCommon::get_template_file('Libs/TCPDF','logo-small.png'), PDF_HEADER_LOGO_WIDTH, $this->steps['title'], $this->steps['subject']);
+		$logo_filename = Libs_TCPDFCommon::get_logo_filename();
+		if (!file_exists($logo_filename)) $logo_filename = Base_ThemeCommon::get_template_file('Libs/TCPDF','logo-small.png'); 
+		$this->tcpdf->SetHeaderData($logo_filename, PDF_HEADER_LOGO_WIDTH, $this->steps['title'], $this->steps['subject']);
 
 		//set some language-dependent strings
 		$l=array();
@@ -182,6 +185,29 @@ class Libs_TCPDF extends Module {
 		if(!isset($dlfilename)) $dlfilename='download';
 		$this->tcpdf = null;
 		return 'modules/Libs/TCPDF/download.php?'.http_build_query(array('id'=>CID,'pdf'=>$pdf_id,'filename'=>$dlfilename.'.pdf'));
+	}
+	
+	public function admin() {
+		if($this->is_back()) $this->parent->reset();
+		$form = & $this->init_module('Utils/FileUpload',array(false));
+		$form->addElement('header', 'upload', $this->lang->t('Upload company logo'));
+		$form->add_upload_element();
+		$form->addElement('button',null,$this->lang->t('Upload'),$form->get_submit_form_href());
+		$this->display_module($form, array( array($this,'upload_logo') ));
+		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+	}
+
+	public function upload_logo($file,$oryg,$data) {
+		$fp = fopen($file, "r");
+		$ext = strrchr($oryg,'.');
+		if($ext==='' || $ext!=='.png') {
+			print($this->lang->t('Invalid extension. Only *.png is allowed.'));
+			return;
+		}
+		$target_filename = Libs_TCPDFCommon::get_logo_filename();
+		if (file_exists($target_filename)) unlink($target_filename);
+		copy($file, $target_filename);
+		print($this->lang->t('Upload successful.'));
 	}
 }
 

@@ -15,5 +15,14 @@ class Libs_TCPDFCommon extends ModuleCommon {
 			array('name'=>'page_format','label'=>'Page format','type'=>'select','values'=>array('A4'=>'A4','LETTER'=>'LETTER'),'default'=>'LETTER')
 			));
 	}
+	
+	public static function admin_caption(){
+		return 'Printing options';	
+	}
+	
+	public static function get_logo_filename(){
+		$i = self::Instance();
+		return $i->get_data_dir().'company_logo.png';	
+	}
 }
 ?>
