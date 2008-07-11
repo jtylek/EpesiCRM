@@ -218,8 +218,9 @@ table#Utils_GenericBrowser__navigation img {
     width: 98%;
 }
 
-.layer .margin2px {
-    padding: 2px;
+.margin2px {
+    margin-left: 10px;
+    margin-right: 10px;
     background-color: #FFFFFF;
 }
 

@@ -1,5 +1,5 @@
 {$form_open}
-<div style="text-align:left">
+<div style="text-align:left; padding-left: 10px; padding-right: 10px;">
 <table cellpadding="0" cellspacing="0">
 	<tr>
 		<td style="text-align:center;font-weight:bold" colspan="6">
