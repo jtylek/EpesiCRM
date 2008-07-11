@@ -15,6 +15,19 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	private static $del_or_a = '';
 	public static $cols_order = array();
 	
+	public static function user_settings(){
+		$ret = DB::Execute('SELECT tab, caption, icon, recent, favorites, full_history FROM recordbrowser_table_properties');
+		$settings = array(); 
+		while ($row = $ret->FetchRow()) {
+			if (!$row['favorites'] && !$row['recent']) continue;
+			if (!self::get_access($row['tab'],'browse')) continue;
+			$options = array('all'=>'All');
+			if ($row['favorites']) $options['favorites'] = 'Favorites';
+			if ($row['recent']) $options['recent'] = 'Recent';
+			$settings[] = array('name'=>$row['tab'].'_default_view','label'=>$row['caption'].' - default view','type'=>'select','values'=>$options,'default'=>'all');
+		}
+		return array('Browsing data'=>$settings);
+	}
 	public static function check_table_name($tab, $flush=false){
 		static $tables = null;
 		if ($tables===null || $flush) {
