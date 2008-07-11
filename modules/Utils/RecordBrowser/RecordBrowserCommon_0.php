@@ -26,7 +26,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if ($row['recent']) $options['recent'] = 'Recent';
 			$settings[] = array('name'=>$row['tab'].'_default_view','label'=>$row['caption'].' - default view','type'=>'select','values'=>$options,'default'=>'all');
 		}
-		return array('Browsing data'=>$settings);
+		return array('Default data view'=>$settings);
 	}
 	public static function check_table_name($tab, $flush=false){
 		static $tables = null;
