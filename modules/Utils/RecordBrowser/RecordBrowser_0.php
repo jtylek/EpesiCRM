@@ -257,7 +257,7 @@ class Utils_RecordBrowser extends Module {
 						$this->crits[$k] = $v;
 			} elseif ($vals[$filter_id]!=='__NULL__') $this->crits[$filter_id] = $vals[$filter_id];
 		}
-		$this->set_module_variable('def_filter', $this->crits);
+		$this->set_module_variable('def_filter', $vals);
 		$theme = $this->init_module('Base/Theme');
 		$form->assign_theme('form',$theme);
 		$theme->assign('filters', $filters);

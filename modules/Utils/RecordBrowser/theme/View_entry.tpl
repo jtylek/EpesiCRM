@@ -18,7 +18,7 @@
 	$this->_tpl_vars['no_empty'] = $this->_tpl_vars['count']-floor($this->_tpl_vars['count']/$this->_tpl_vars['cols'])*$this->_tpl_vars['cols'];
 	if ($this->_tpl_vars['no_empty']==0) $this->_tpl_vars['no_empty'] = $this->_tpl_vars['cols']+1;
 	$this->_tpl_vars['mss_no_empty'] = count($this->_tpl_vars['multiselects'])-floor(count($this->_tpl_vars['multiselects'])/$this->_tpl_vars['cols'])*$this->_tpl_vars['cols'];
-	if ($this->_tpl_vars['mss_no_empty']==0) $this->_tpl_vars['no_empty'] = $this->_tpl_vars['cols']+1;
+	if ($this->_tpl_vars['mss_no_empty']==0) $this->_tpl_vars['mss_no_empty'] = $this->_tpl_vars['cols']+1;
 	$this->_tpl_vars['cols_percent'] = 100 / $this->_tpl_vars['cols'];
 {/php}
 
