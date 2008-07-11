@@ -42,6 +42,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	public static function access_phonecall($action, $param){
 		$i = self::Instance();
 		switch ($action) {
+			case 'add':
 			case 'browse':
 							return $i->acl_check('browse phonecalls');
 			case 'view':	if ($i->acl_check('view phonecall')) return array('(!permission'=>2, '|:Created_by'=>Acl::get_user());

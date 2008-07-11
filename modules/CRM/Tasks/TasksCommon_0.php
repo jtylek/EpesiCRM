@@ -44,6 +44,7 @@ class CRM_TasksCommon extends ModuleCommon {
 	public static function access_task($action, $param){
 		$i = self::Instance();
 		switch ($action) {
+			case 'add':
 			case 'browse':	return $i->acl_check('browse tasks');
 			case 'view':	if (!$i->acl_check('view task')) return false;
 							$me = CRM_ContactsCommon::get_my_record();

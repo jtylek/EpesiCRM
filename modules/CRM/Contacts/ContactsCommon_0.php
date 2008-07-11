@@ -48,6 +48,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	public static function access_company($action, $param){
 		$i = self::Instance();
 		switch ($action) {
+			case 'add':
 			case 'browse':	return $i->acl_check('browse companies');
 			case 'view':	if ($i->acl_check('view company')) return array('(!permission'=>2, '|:Created_by'=>Acl::get_user());
 							$me = self::get_my_record();
@@ -66,6 +67,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	public static function access_contact($action, $param){
 		$i = self::Instance();
 		switch ($action) {
+			case 'add':
 			case 'browse':	return $i->acl_check('browse contacts');
 			case 'view':	if ($i->acl_check('view contact')) return array('(!permission'=>2, '|login'=>Acl::get_user(), '|:Created_by'=>Acl::get_user());
 							else return array('login'=>Acl::get_user());

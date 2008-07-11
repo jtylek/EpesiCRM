@@ -728,8 +728,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$ret = call_user_func($access_callback, $action, $param);
 		if ($action==='delete' && $ret) $ret = call_user_func($access_callback, 'edit', $param);
 		if ($action==='fields') {
-			self::init($tab);
-			
+			self::init($tab);			
 			foreach (self::$table_rows as $field=>$args)
 				if (!isset($ret[$args['id']])) $ret[$args['id']] = 'full';
 		}

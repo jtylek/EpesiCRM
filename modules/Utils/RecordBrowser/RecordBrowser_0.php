@@ -165,7 +165,8 @@ class Utils_RecordBrowser extends Module {
 			return;
 		}
 		$this->is_on_main_page = true;
-		Base_ActionBarCommon::add('add','New', $this->create_callback_href(array($this,'navigate'),array('view_entry', 'add', null, $this->custom_defaults)));
+		if ($this->get_access('add')!==false)
+			Base_ActionBarCommon::add('add','New', $this->create_callback_href(array($this,'navigate'),array('view_entry', 'add', null, $this->custom_defaults)));
 
 		$filters = $this->show_filters();
 
@@ -464,7 +465,7 @@ class Utils_RecordBrowser extends Module {
 				$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info($this->tab, isset($info)?$info:$row['id']));
 			}
 		}
-		if (!$special && $this->add_in_table) {
+		if (!$special && $this->add_in_table && $this->get_access('add')) {
 			$form = $this->init_module('Libs/QuickForm',null, 'add_in_table__'.$this->tab);
 			$form->setDefaults($this->custom_defaults);
 
