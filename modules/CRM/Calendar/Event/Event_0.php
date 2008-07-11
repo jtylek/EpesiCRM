@@ -604,7 +604,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			if(!isset($vals['recurrence'])) break;
 			if($rec_id===null)
 				$rec_id = DB::GetOne('SELECT MAX(recurrence_id) FROM crm_calendar_event')+1;
-			DB::Execute('UPDATE crm_calendar_event SET recurrence_id=%d',array($rec_id));
+			DB::Execute('UPDATE crm_calendar_event SET recurrence_id=%d WHERE id=%d',array($rec_id,$id));
 			switch($vals['recurrence_interval']) {
 				case 'everyday':
 					$start+=3600*24;
