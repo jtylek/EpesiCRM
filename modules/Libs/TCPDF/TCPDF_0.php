@@ -19,10 +19,12 @@ class Libs_TCPDF extends Module {
 	private $pdf_ready = 0;
 	private static $using_custom_fonts = false;
 
-	public function construct($orientation='P',$unit='mm',$format='LETTER') {
+	public function construct($orientation='P',$unit='mm',$format=null) {
 		$this->lang = $this->init_module('Base/Lang');
 		require_once('tcpdf4/tcpdf.php');
 		
+		if ($format===null) $format = Base_User_SettingsCommon::get('Libs/TCPDF','page_format');
+
 		if (self::$using_custom_fonts) {
 			$this->tcpdf = new TCPDF($orientation, $unit, $format);
 		} else {
