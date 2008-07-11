@@ -1339,7 +1339,7 @@ class Utils_RecordBrowser extends Module {
 				$label = str_replace(' ','&nbsp;',$label);
 				$label = str_replace($oldc, $label, $str);
 				if (!strpos($str, 'Utils_Toltip__showTip(')) $label = '<span '.Utils_TooltipCommon::open_tag_attrs($content).'>'.$label.'</span>';
-				else $label = preg_replace('/Utils_Toltip__showTip\(\'(.*?)\'/', 'Utils_Toltip__showTip(\''.$content.'<hr>$1\'', $label);
+				else $label = preg_replace('/Utils_Toltip__showTip\(\'(.*?)\'/', 'Utils_Toltip__showTip(\''.escapeJS(htmlspecialchars($content)).'<hr>$1\'', $label);
 				$ret .= $label;
 			} else $ret .= $str;
 		}
