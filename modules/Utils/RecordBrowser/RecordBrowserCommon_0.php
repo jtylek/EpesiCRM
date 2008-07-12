@@ -13,6 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_RecordBrowserCommon extends ModuleCommon {
 	private static $table_rows = array();
 	private static $del_or_a = '';
+	private static $hash = array();
 	public static $cols_order = array();
 	
 	public static function user_settings(){
@@ -48,11 +49,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function init($tab, $admin=false) {
 		static $cache = array();
 		if (!isset(self::$cols_order[$tab])) self::$cols_order[$tab] = array();
-		if (isset($cache[$tab.'__'.$admin.'__'.md5(serialize(self::$cols_order[$tab]))])) return self::$table_rows = $cache[$tab.'__'.$admin.'__'.md5(serialize(self::$cols_order[$tab]))];
+		if (isset($cache[$tab.'__'.$admin.'__'.md5(serialize(self::$cols_order[$tab]))])) {
+			self::$hash = $cache[$tab.'__'.$admin.'__'.md5(serialize(self::$cols_order[$tab]))]['hash'];
+			return self::$table_rows = $cache[$tab.'__'.$admin.'__'.md5(serialize(self::$cols_order[$tab]))]['rows'];
+		}
 		self::$table_rows = array();
 		self::check_table_name($tab);
 		$ret = DB::Execute('SELECT * FROM '.$tab.'_field'.($admin?'':' WHERE active=1 AND type!=\'page_split\'').' ORDER BY position');
-		if (!empty(self::$cols_order[$tab])) $hash = array();
+		self::$hash = array();
 		while($row = $ret->FetchRow()) {
 			if ($row['field']=='id') continue;
 			self::$table_rows[$row['field']] =
@@ -67,19 +71,20 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						'filter'=>$row['filter'],
 						'style'=>$row['style'],
 						'param'=>$row['param']);
-			if (!empty(self::$cols_order[$tab])) $hash[self::$table_rows[$row['field']]['id']] = $row['field'];
+			self::$hash[self::$table_rows[$row['field']]['id']] = $row['field'];
 		}
 		if (!empty(self::$cols_order[$tab])) {
 			$rows = array();
 			foreach (self::$cols_order[$tab] as $v) {
-				$rows[$hash[$v]] = self::$table_rows[$hash[$v]];
-				unset(self::$table_rows[$hash[$v]]);
+				$rows[self::$hash[$v]] = self::$table_rows[self::$hash[$v]];
+				unset(self::$table_rows[self::$hash[$v]]);
 			}
 			foreach(self::$table_rows as $k=>$v)
 				$rows[$k] = $v;
 			self::$table_rows = $rows;
 		}
-		return $cache[$tab.'__'.$admin.'__'.md5(serialize(self::$cols_order[$tab]))] = self::$table_rows;
+		$cache[$tab.'__'.$admin.'__'.md5(serialize(self::$cols_order[$tab]))] = array('rows'=>self::$table_rows,'hash'=>self::$hash);
+		return self::$table_rows;
 	}
 
 	public static function install_new_recordset($tab = null, $fields) {
@@ -888,6 +893,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function create_linked_label($tab, $col, $id, $nolink=false){
 		if (!is_numeric($id)) return '';
 		self::check_table_name($tab);
+		self::init($tab);
+		if (isset(self::$hash[$col])) $col = self::$hash[$col];
 		$label = DB::GetOne('SELECT value FROM '.$tab.'_data WHERE field=%s AND '.$tab.'_id=%d', array($col, $id));
 		return self::record_link_open_tag($tab, $id, $nolink).$label.self::record_link_close_tag();
 	}

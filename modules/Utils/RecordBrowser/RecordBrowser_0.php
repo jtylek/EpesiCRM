@@ -173,6 +173,7 @@ class Utils_RecordBrowser extends Module {
 		if (isset($this->filter_field)) {
 			CRM_FiltersCommon::add_action_bar_icon();
 			$ff = explode(',',trim(CRM_FiltersCommon::get(),'()'));
+			$ff[] = '';
 			$this->crits[$this->filter_field] = $ff;
 		}
 		$this->crits = $this->crits+$crits;
@@ -329,7 +330,7 @@ class Utils_RecordBrowser extends Module {
 			$arr = array('name'=>$this->lang->t($args['name']));
 			if ($this->browse_mode!='recent') $arr['order'] = $field;
 			if ($quickjump!=='' && $args['name']===$quickjump) $arr['quickjump'] = '"'.$args['name'];
-			if ($args['type']=='text' || $args['type']=='currency') $arr['search'] = str_replace(' ','_',$field);
+			if ($args['type']=='text' || $args['type']=='currency' || $args['type']=='calculated') $arr['search'] = str_replace(' ','_',$field);
 			if ($args['type']=='checkbox' || $args['type']=='date' || $args['type']=='timestamp' || $args['type']=='commondata') {
 				$arr['wrapmode'] = 'nowrap';
 				$arr['width'] = 1;
@@ -540,6 +541,7 @@ class Utils_RecordBrowser extends Module {
 		}
 		$this->init();
 		$this->record = Utils_RecordBrowserCommon::get_record($this->tab, $id);
+		if (!$this->record['active'] && !Base_AclCommon::i_am_admin()) return $this->back();
 
 		$tb = $this->init_module('Utils/TabbedBrowser');
 		self::$tab_param = $tb->get_path();
@@ -775,7 +777,10 @@ class Utils_RecordBrowser extends Module {
 					}
 				switch ($args['type']) {
 					case 'calculated':	$form->addElement('static', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
-										$form->setDefaults(array($args['id']=>'['.$this->lang->t('formula').']'));
+										if ($args['param'] == 'display_in_edit' && $mode=='edit')
+											$form->setDefaults(array($args['id']=>$this->get_val($field, $record, $record['id'], false, $args)));
+										else
+											$form->setDefaults(array($args['id']=>'['.$this->lang->t('formula').']'));
 										break;
 					case 'integer':		$form->addElement('text', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
 										$form->addRule($args['id'], $this->lang->t('Only numbers are allowed.'), 'numeric');
@@ -952,7 +957,7 @@ class Utils_RecordBrowser extends Module {
 				if ($field!='General' && $args['type']=='page_split')
 					$gb_row->add_action($this->create_callback_href(array($this, 'edit_page'),array($field)),'Edit');
 			}
-			if ($args['type']!=='page_split'){
+			if ($args['type']!=='page_split' && $args['extra']){
 				if ($args['active']) $gb_row->add_action($this->create_callback_href(array($this, 'set_field_active'),array($field, false)),'Deactivate', null, 'active-on');
 				else $gb_row->add_action($this->create_callback_href(array($this, 'set_field_active'),array($field, true)),'Activate', null, 'active-off');
 			}
