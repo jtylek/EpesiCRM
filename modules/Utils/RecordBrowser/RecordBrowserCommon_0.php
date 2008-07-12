@@ -15,6 +15,25 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	private static $del_or_a = '';
 	private static $hash = array();
 	public static $cols_order = array();
+
+	public static function format_long_text_array($tab,$records){
+		self::init($tab);
+		foreach(self::$table_rows as $field => $args) {
+			if ($args['type']!='long text') continue;
+			foreach ($records as $k=>$v) {
+				$records[$k][$args['id']] = str_replace("\n",'<br>',htmlspecialchars($v[$args['id']]));
+			}
+		}
+		return $records;
+	}
+	public static function format_long_text($tab,$record){
+		self::init($tab);
+		foreach(self::$table_rows as $field => $args) {
+			if ($args['type']!='long text') continue;
+			$record[$args['id']] = str_replace("\n",'<br>',htmlspecialchars($record[$args['id']]));
+		}
+		return $record;
+	}
 	
 	public static function user_settings(){
 		$ret = DB::Execute('SELECT tab, caption, icon, recent, favorites, full_history FROM recordbrowser_table_properties');

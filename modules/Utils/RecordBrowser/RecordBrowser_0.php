@@ -543,6 +543,9 @@ class Utils_RecordBrowser extends Module {
 		$this->record = Utils_RecordBrowserCommon::get_record($this->tab, $id);
 		if (!$this->record['active'] && !Base_AclCommon::i_am_admin()) return $this->back();
 
+		if ($mode=='view')
+			$this->record = Utils_RecordBrowserCommon::format_long_text($this->tab,$this->record);
+
 		$tb = $this->init_module('Utils/TabbedBrowser');
 		self::$tab_param = $tb->get_path();
 
@@ -1390,6 +1393,7 @@ class Utils_RecordBrowser extends Module {
 			if ($records_qty['numrows']>$limit['numrows']) print($this->lang->t('Displaying %s of %s records', array($limit['numrows'], $records_qty['numrows'])));
 		}
 		$records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array(), $clean_order, $limit);
+		$records = Utils_RecordBrowserCommon::format_long_text_array($this->tab,$records);
 		$icons = array_flip($icons);
 		foreach($records as $v) {
 			$gb_row = $gb->get_new_row();
