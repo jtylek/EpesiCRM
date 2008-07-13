@@ -265,7 +265,7 @@ class Utils_GenericBrowser extends Module {
 	 */
 	public function add_row_array($arg) {
 		if (!is_array($arg))
-			trigger_error('Invalid argument 2 for add_row_array, aborting.<br>',E_USER_ERROR);
+			trigger_error('Invalid argument for add_row_array, aborting.<br>',E_USER_ERROR);
 		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
 		if (count($arg)!=$this->columns_qty)
 			trigger_error('Invalid size of array for argument 2 while adding data, was '.count($arg).', should be '.$this->columns_qty.'. Aborting.<br>',E_USER_ERROR);
