@@ -506,6 +506,7 @@ class Utils_Calendar extends Module {
 
 		//headers
 		$day_headers = array();
+		$today = date('Y-m-d',strtotime(Base_RegionalSettingsCommon::time2reg(null,false)));
 		if (date('m',$dis_week_from)!=date('m',$dis_week_from+518400)) {
 			$second_span_width = date('d',$dis_week_from+518400);
 			$header_month = array('first_span'=>array(
@@ -534,7 +535,7 @@ class Utils_Calendar extends Module {
 			$that_day = $dis_week_from+$i*86400;
 			$day_headers[] = array(
 						'date'=>date('d D', $that_day),
-						'style'=>(date('Y-m-d',$that_day)==date('Y-m-d')?'today':'other'),
+						'style'=>(date('Y-m-d',$that_day)==$today?'today':'other'),
 						'link' => $this->create_unique_href(array('action'=>'switch','time'=>$that_day, 'tab'=>'Day'))
 						);
 		}
@@ -631,7 +632,7 @@ class Utils_Calendar extends Module {
 		$curmonth = date('m', $date);
 
 		$month = array();
-		$today = date('Y-m-d');
+		$today = date('Y-m-d',strtotime(Base_RegionalSettingsCommon::time2reg(null,false)));
 		$colors = CRM_Calendar_EventCommon::get_available_colors();
 		while (date('m', $currday) != ($curmonth)%12+1) {
 			$week = array();
