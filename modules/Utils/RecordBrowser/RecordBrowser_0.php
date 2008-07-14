@@ -817,7 +817,7 @@ class Utils_RecordBrowser extends Module {
 										break;
 					case 'select':
 					case 'multiselect':	$comp = array();
-										if (!$args['required'] && $args['type']==='select') $comp[''] = '---';
+										if ($args['type']==='select') $comp[''] = '---';
 										list($tab, $col) = explode('::',$args['param']);
 										if ($tab=='__COMMON__') {
 											$data = Utils_CommonDataCommon::get_array($col, true);
