@@ -25,7 +25,7 @@ class Applets_MonthView extends Module {
 		$curmonth = date('m', $date);
 
 		$month = array();
-		$today = date('Y-m-d');
+		$today = date('Y-m-d',strtotime(Base_RegionalSettingsCommon::time2reg(null,false)));
 		$colors = CRM_Calendar_EventCommon::get_available_colors();
 		while (date('m', $currday) != ($curmonth)%12+1) {
 			$week = array();
