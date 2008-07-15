@@ -48,3 +48,71 @@ table#Utils_GenericBrowser tr:hover .total-row_desc {
 table#Utils_GenericBrowser tr:hover .row-desc {
     background-color: white;
 }
+
+
+
+
+
+
+.Utils_RecordBrowser_Reports__date_picker .label {
+    background-color: #336699;
+    color: #FFFFFF;
+    height: 20px;
+    vertical-align: middle;
+    padding-left: 5px;
+    padding-right: 5px;
+    text-align: left;
+}
+
+.Utils_RecordBrowser_Reports__date_picker .data {
+    background-color: white;
+    text-align: left;
+    border-bottom: none;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+/*
+.Utils_RecordBrowser_Reports__date_picker div.label,
+.Utils_RecordBrowser_Reports__date_picker div.data {
+    display: block;
+    float: left;
+}
+*/
+.Utils_RecordBrowser_Reports__date_picker .data input,
+.Utils_RecordBrowser_Reports__date_picker .data select,
+.Utils_RecordBrowser_Reports__date_picker .data textarea {
+    border: 0px;
+    background-color: #e6ecf2;
+    /*width: 100%;*/
+}
+
+.Utils_RecordBrowser_Reports__date_picker .data input[type="checkbox"],
+.Utils_RecordBrowser_Reports__date_picker .data input[type="radio"] {
+    width: auto;
+}
+
+.Utils_RecordBrowser_Reports__date_picker .data input:focus,
+.Utils_RecordBrowser_Reports__date_picker .data select:focus,
+.Utils_RecordBrowser_Reports__date_picker .data textarea:focus {
+    background-color: #ffffa5;
+}
+
+.Utils_RecordBrowser_Reports__date_picker .data select[disabled="disabled"],
+.Utils_RecordBrowser_Reports__date_picker .data input[disabled="disabled"] {
+    background-color: white;
+}
+
+
+.Utils_RecordBrowser_Reports__date_picker .button input {
+    border: none;
+    background-color: #336699;
+    color: white;
+    background-image: url("images/header-blue.png");
+    background-repeat: repeat-x;
+    width: 100px;
+    height: 20px;
+}
+
+.Utils_RecordBrowser_Reports__date_picker .button input:hover {
+    background-image: url("images/header-blue-hover.png");
+}
