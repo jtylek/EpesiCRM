@@ -119,7 +119,7 @@
 
 <div class="table">
 
-<div class="margin2px">
+<div class="margin2px" style="margin: 10px; border: 1px solid #336699;">
 
 {html_table_epesi table_attr='id="Utils_GenericBrowser" cellspacing="0" cellpadding="0" style="width:100%;"' loop=$data cols=$cols}
 
