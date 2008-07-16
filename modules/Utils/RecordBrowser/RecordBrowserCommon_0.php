@@ -401,6 +401,17 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					date('Y-m-d H:i:s')));
 		DB::CompleteTrans();
 	}
+	public static function merge_crits($a = array(), $b = array()) {
+		foreach ($a as $k=>$v){
+			$nk = $k;
+			while (isset($b[$nk])) $nk = '_'.$nk;
+			if ($nk!=$k) {
+				$a[$nk] = $a[$k];
+				unset($a[$k]);
+			}
+		}
+		return array_merge($a, $b);
+	}
 	public static function build_query( $tab = null, $crits = null, $admin = false, $order = array()) {
 		$key=$tab.'__'.serialize($crits).'__'.$admin.'__'.serialize($order);
 		static $cache = array();
@@ -415,8 +426,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (!$crits) $crits = array();
 		$access = self::get_access($tab, 'view');
 		if ($access===false) return array();
-		elseif ($access!==true && is_array($access))
-			$crits = array_merge($crits, $access);
+		elseif ($access!==true && is_array($access)) {
+			$crits = self::merge_crits($crits, $access);
+		}
 		$iter = 0;
 		$hash = array();
 		foreach (self::$table_rows as $field=>$args)
@@ -430,7 +442,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$old_crits = $crits;
 		$crits = array();
 		foreach($old_crits as $k=>$v) {
-			$tk = trim($k, '"!|(<=>');
+			$tk = trim($k, '"!|(<=>_');
 			if (isset($hash[$tk])) $crits[str_replace($tk, $hash[$tk], $k)] = $v;
 			else $crits[$k] = $v;
 		}
