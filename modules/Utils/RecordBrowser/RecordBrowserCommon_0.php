@@ -59,7 +59,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (($tab!=null && !isset($tables[$tab])) && !$flush) trigger_error('RecordBrowser critical failure, terminating. (Requested '.$tab.', available '.print_r($tables, true).')', E_USER_ERROR);
 	}
 	public static function get_value($tab, $id, $field) {
-		self::check_table_name($tab);
+		self::init($tab);
+		if (isset(self::$hash[$field])) $field = self::$hash[$field];
 		return DB::GetOne('SELECT value FROM '.$tab.'_data WHERE field=%s AND '.$tab.'_id=%d', array($field, $id));
 	}
 	public static function admin_caption() {
