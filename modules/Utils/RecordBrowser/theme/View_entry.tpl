@@ -100,7 +100,7 @@
 					{/if}
 							<tr>
 								<td class="label">{$f.label}{if $f.required}*{/if}</td>
-								<td class="data {$f.style}">{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
+								<td class="data {$f.style}">{if isset($f.error)}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
 							</tr>
 					{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
 						{if $x>$mss_no_empty}

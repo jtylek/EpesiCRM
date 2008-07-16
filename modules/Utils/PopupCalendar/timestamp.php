@@ -12,13 +12,13 @@
  * the PHP License and are unable to obtain it through the web, please
  * send a note to license@php.net so we can mail you a copy immediately.
  *
- * @category    HTML
- * @package     HTML_QuickForm
- * @author      Alexey Borzov <avb@php.net>
+ * @category	HTML
+ * @package	 HTML_QuickForm
+ * @author	  Alexey Borzov <avb@php.net>
  * @copyright   2001-2007 The PHP Group
- * @license     http://www.php.net/license/3_01.txt PHP License 3.01
- * @version     CVS: $Id: date.php,v 1.60 2007/06/04 19:22:23 avb Exp $
- * @link        http://pear.php.net/package/HTML_QuickForm
+ * @license	 http://www.php.net/license/3_01.txt PHP License 3.01
+ * @version	 CVS: $Id: date.php,v 1.60 2007/06/04 19:22:23 avb Exp $
+ * @link		http://pear.php.net/package/HTML_QuickForm
  */
 
 /**
@@ -37,78 +37,74 @@ require_once 'HTML/QuickForm/date.php';
  * Inspired by original 'date' element but reimplemented as a subclass
  * of HTML_QuickForm_group
  * 
- * @category    HTML
- * @package     HTML_QuickForm
- * @author      Alexey Borzov <avb@php.net>
- * @version     Release: 3.2.9
- * @since       3.1
+ * @category	HTML
+ * @package	 HTML_QuickForm
+ * @author	  Alexey Borzov <avb@php.net>
+ * @version	 Release: 3.2.9
+ * @since	   3.1
  */
 class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 {
 	private $_elementName;
 	
-    // }}}
-    // {{{ constructor
+	// }}}
+	// {{{ constructor
 
-    function HTML_QuickForm_timestamp($elementName = null, $elementLabel = null, $options = array(), $attributes = null)
-    {
-        $this->HTML_QuickForm_element($elementName, $elementLabel, $attributes);
-        $this->_elementName = $elementName;
-        $this->_persistantFreeze = true;
-        $this->_appendName = true;
-        $this->_type = 'timestamp';
-        $this->_options = $options;
-    }
+	function HTML_QuickForm_timestamp($elementName = null, $elementLabel = null, $options = array(), $attributes = null) {
+		$this->HTML_QuickForm_element($elementName, $elementLabel, $attributes);
+		$this->_elementName = $elementName;
+		$this->_persistantFreeze = true;
+		$this->_appendName = true;
+		$this->_type = 'timestamp';
+		$this->_options = $options;
+	}
 
-    // }}}
-    // {{{ _createElements()
+	// }}}
+	// {{{ _createElements()
 
-    function _createElements()
-    {
+	function _createElements() {
 		$time_format = Base_RegionalSettingsCommon::time_12h()?'h:i a':'H:i';
 		$lang_code = Base_LangCommon::get_lang_code();
 		$this->_options['format'] = $time_format;
 		$this->_options['optionIncrement'] = array('i' => 5);
 		$this->_options['language'] = $lang_code;
 
-        $this->_elements['datepicker'] =& new HTML_QuickForm_datepicker('datepicker', null, array(), $this->getAttributes());
-        $this->_elements['date'] =& new HTML_QuickForm_date('date', null, $this->_options, $this->getAttributes());
-    }
+		$this->_elements['datepicker'] =& new HTML_QuickForm_datepicker('datepicker', null, array(), $this->getAttributes());
+		$this->_elements['date'] =& new HTML_QuickForm_date('date', null, $this->_options, $this->getAttributes());
+	}
 
-    // }}}
-    // {{{ _createOptionList()
+	// }}}
+	// {{{ _createOptionList()
 
    /**
-    * Creates an option list containing the numbers from the start number to the end, inclusive
-    *
-    * @param    int     The start number
-    * @param    int     The end number
-    * @param    int     Increment by this value
-    * @access   private
-    * @return   array   An array of numeric options.
-    */
-    function _createOptionList($start, $end, $step = 1)
-    {
-        for ($i = $start, $options = array(); $start > $end? $i >= $end: $i <= $end; $i += $step) {
-            $options[$i] = sprintf('%02d', $i);
-        }
-        return $options;
-    }
+	* Creates an option list containing the numbers from the start number to the end, inclusive
+	*
+	* @param	int	 The start number
+	* @param	int	 The end number
+	* @param	int	 Increment by this value
+	* @access   private
+	* @return   array   An array of numeric options.
+	*/
+	function _createOptionList($start, $end, $step = 1) {
+		for ($i = $start, $options = array(); $start > $end? $i >= $end: $i <= $end; $i += $step) {
+			$options[$i] = sprintf('%02d', $i);
+		}
+		return $options;
+	}
 
-    // }}}
-    // {{{ setValue()
+	// }}}
+	// {{{ setValue()
 
-    // }}}
-    // {{{ toHtml()
+	// }}}
+	// {{{ toHtml()
 
-    function toHtml()
-    {
-        include_once('HTML/QuickForm/Renderer/Default.php');
-        $renderer =& new HTML_QuickForm_Renderer_Default();
-        $renderer->setElementTemplate('{element}');
-        parent::accept($renderer);
-        return $renderer->toHtml();
-    }
+	function toHtml() {
+		include_once('HTML/QuickForm/Renderer/Default.php');
+		$renderer =& new HTML_QuickForm_Renderer_Default();
+		$renderer->setElementTemplate('{element}');
+		parent::accept($renderer);
+		return $renderer->toHtml();
+	}
 
 	function recalculate_time($time) {
 		if (isset($time['a'])) {
@@ -131,39 +127,37 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 
 	function exportValue(&$submitValues, $assoc = false) {
 		$dpv = $this->_elements['datepicker']->exportValue($submitValues);
+		if ($dpv=='') return $this->_prepareValue('', $assoc);
 		$dv = $this->_elements['date']->exportValue($submitValues);
-	        if ($dpv=='') return $this->_prepareValue('', $assoc);
 		$result = $this->recalculate_time($dv);
 		$cleanValue = date('Y-m-d H:i:s',Base_RegionalSettingsCommon::reg2time($dpv.' '.date('H:i:s', strtotime(date('Y-m-d'))+$result),!isset($this->_options['regional_settings_tz']) || $this->_options['regional_settings_tz']==true)); //tz trans - last arg changed from false...
-	        return $this->_prepareValue($cleanValue, $assoc);
+		return $this->_prepareValue($cleanValue, $assoc);
 	}
 
-    // }}}
-    // {{{ accept()
+	// }}}
+	// {{{ accept()
 
-    function accept(&$renderer, $required = false, $error = null)
-    {
-        $renderer->renderElement($this, $required, $error);
-    }
+	function accept(&$renderer, $required = false, $error = null) {
+		$renderer->renderElement($this, $required, $error);
+	}
 
-    function setValue($value)
-    {
-        $this->_createElementsIfNotExist();
-	if(is_array($value)) {
-	        foreach ($value as $key=>$v)
-        	    $this->_elements[$key]->setValue($v);
-	} else {
-		if (!is_numeric($value)) $value = Base_RegionalSettingsCommon::reg2time($value,false);
-		$value -= (date('i',$value) % $this->_options['optionIncrement']['i'])*60;
-		//tz trans begin
-		if(!isset($this->_options['regional_settings_tz']) || $this->_options['regional_settings_tz']==true)
-			$value = Base_RegionalSettingsCommon::time2reg($value,true,true,true,false);
-		//tz trans end
-	        foreach ($this->_elements as & $v)
+	function setValue($value)
+	{
+		$this->_createElementsIfNotExist();
+		if(is_array($value)) {
+			foreach ($value as $key=>$v)
+				$this->_elements[$key]->setValue($v);
+		} else {
+			if (!is_numeric($value)) $value = Base_RegionalSettingsCommon::reg2time($value,false);
+			$value -= (date('i',$value) % $this->_options['optionIncrement']['i'])*60;
+			//tz trans begin
+			if(!isset($this->_options['regional_settings_tz']) || $this->_options['regional_settings_tz']==true)
+				$value = Base_RegionalSettingsCommon::time2reg($value,true,true,true,false);
+			//tz trans end
+			foreach ($this->_elements as & $v)
 			$v->setValue($value);
-
-	}
-    } //end func setValue
-    
+		}
+	} //end func setValue
+	
 }
 ?>
