@@ -402,15 +402,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		DB::CompleteTrans();
 	}
 	public static function merge_crits($a = array(), $b = array()) {
-		foreach ($a as $k=>$v){
+		foreach ($b as $k=>$v){
 			$nk = $k;
-			while (isset($b[$nk])) $nk = '_'.$nk;
-			if ($nk!=$k) {
-				$a[$nk] = $a[$k];
-				unset($a[$k]);
-			}
+			while (isset($a[$nk])) $nk = '_'.$nk;
+			$b[$nk] = $v;
 		}
-		return array_merge($a, $b);
+		return $b;
 	}
 	public static function build_query( $tab = null, $crits = null, $admin = false, $order = array()) {
 		$key=$tab.'__'.serialize($crits).'__'.$admin.'__'.serialize($order);
