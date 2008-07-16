@@ -138,7 +138,7 @@
 						</tr>
 						<tr>
 							<td class="label" align="left">{$form_data.date_and_time.label}{if $form_data.date_and_time.required}*{/if}</td>
-							<td class="data timestamp" align="left" colspan="2" style="padding-bottom: 2px;">{$form_data.date_and_time.html}{if $action == 'view'}&nbsp;{/if}</td>
+							<td class="data timestamp" align="left" colspan="2" style="padding-bottom: 2px;"><span class="error">{$form_data.date_and_time.error}</span>{$form_data.date_and_time.html}{if $action == 'view'}&nbsp;{/if}</td>
 						</tr>
 						<tr>
 							<td class="label" align="left">{$form_data.status.label}{if $form_data.status.required}*{/if}</td>
