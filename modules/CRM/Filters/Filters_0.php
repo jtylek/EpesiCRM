@@ -52,7 +52,7 @@ class CRM_Filters extends Module {
 		if($qf->validate()) {
 			$c = $qf->exportValue('contact');
 //			$this->set_module_variable('profile',$c);
-			$_SESSION['client']['filter'] = $c;
+			$_SESSION['client']['filter_'.Acl::get_user()] = $c;
 			$this->set_module_variable('profile_desc',$contacts_select[$c]);
 			location(array());
 		}
@@ -99,7 +99,7 @@ class CRM_Filters extends Module {
 			$desc = $this->lang->t('All records');
 		}
 //		$this->set_module_variable('profile',$ret);
-		$_SESSION['client']['filter'] = $ret;
+		$_SESSION['client']['filter_'.Acl::get_user()] = $ret;
 		$this->set_module_variable('profile_desc',$desc);
 		location(array());
 	}

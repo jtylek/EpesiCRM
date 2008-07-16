@@ -31,9 +31,9 @@ class CRM_FiltersCommon extends ModuleCommon {
 	}
 
 	public static function get() {
-		if(!isset($_SESSION['client']['filter']))
-		$_SESSION['client']['filter'] = CRM_FiltersCommon::get_my_profile();
-		return '('.$_SESSION['client']['filter'].')';
+		if(!isset($_SESSION['client']['filter_'.Acl::get_user()]))
+		$_SESSION['client']['filter_'.Acl::get_user()] = CRM_FiltersCommon::get_my_profile();
+		return '('.$_SESSION['client']['filter_'.Acl::get_user()].')';
 	}
 
 	public static function add_action_bar_icon() {
