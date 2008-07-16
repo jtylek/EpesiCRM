@@ -722,6 +722,10 @@ class Utils_RecordBrowser extends Module {
 		if (!$main_page && $this->mode=='view') print('</form>');
 	}
 
+	public function timestamp_required($v) {
+		return strtotime($v['datepicker'])!==false;
+	}	
+
 	public function prepare_view_entry_details($record, $mode, $id, $form, $visible_cols = null){
 		$init_js = '';
 		foreach($this->table_rows as $field => $args){
@@ -808,6 +812,10 @@ class Utils_RecordBrowser extends Module {
 										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 										break;
 					case 'timestamp':	$form->addElement('timestamp', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
+										static $rule_defined = false;
+										if (!$rule_defined) $form->registerRule('timestamp_required', 'callback', 'timestamp_required', $this);
+										$rule_defined = true;
+										if (isset($args['required']) && $args['required']) $form->addRule($args['id'], Base_LangCommon::ts('Utils_RecordBrowser','Field required'), 'timestamp_required');
 										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 										break;
 					case 'commondata':	$param = explode('::',$args['param']);
