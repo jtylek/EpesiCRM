@@ -405,9 +405,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		foreach ($b as $k=>$v){
 			$nk = $k;
 			while (isset($a[$nk])) $nk = '_'.$nk;
-			$b[$nk] = $v;
+			$a[$nk] = $v;
 		}
-		return $b;
+		return $a;
 	}
 	public static function build_query( $tab = null, $crits = null, $admin = false, $order = array()) {
 		$key=$tab.'__'.serialize($crits).'__'.$admin.'__'.serialize($order);
