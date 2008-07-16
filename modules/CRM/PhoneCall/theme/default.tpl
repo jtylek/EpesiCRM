@@ -45,7 +45,7 @@
 					<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
 						<tbody>
 							<tr>
-								<td class="label" align="left" style="width: 10%;">{$form_data.subject.label}</td>
+								<td class="label" align="left" style="width: 10%;">{$form_data.subject.label}{if $form_data.subject.required}*{/if}</td>
 								<td class="data" align="left">
 									<span class="error">{$form_data.subject.error}</span>
 									{$form_data.subject.html}

@@ -134,11 +134,30 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			$form->setDefaults(array($field=>$default));//self::display_phone(array($desc['id']=>$default), null, false, $desc)));
 		}
 	}
+	public static function check_contact_not_empty($v) {
+		$ret = array();
+		if ((isset($v['other_phone']) && $v['other_phone']) || (isset($v['other_contact']) && $v['other_contact'])) {
+			if (!isset($v['other_phone_number']) || !$v['other_phone_number']) 
+				$ret['other_phone_number'] = Base_LangCommon::ts('CRM_PhoneCall','Field required');
+		} else {
+			if (!isset($v['phone']) || !$v['phone']) 
+				$ret['phone'] = Base_LangCommon::ts('CRM_PhoneCall','Field required');
+		}
+		if (!isset($v['other_contact']) || !$v['other_contact']) {
+			if (!isset($v['contact']) || !$v['contact']) 
+				$ret['contact'] = Base_LangCommon::ts('CRM_PhoneCall','Field required');
+		} else {
+			if (!isset($v['other_contact_name']) || !$v['other_contact_name']) 
+				$ret['other_contact_name'] = Base_LangCommon::ts('CRM_PhoneCall','Field required');
+		}
+		return empty($ret)?true:$ret;
+	}
 	public static function QFfield_phone(&$form, $field, $label, $mode, $default, $desc) {
 		if ($mode=='add' || $mode=='edit') {
 			$form->addElement('select', $field, $label, array(), array('id'=>$field));
 			Utils_ChainedSelectCommon::create($field, array('company_name','contact'),'modules/CRM/PhoneCall/update_phones.php',null,$default);
 			if ($mode=='edit') $form->setDefaults(array($field=>$default));
+			$form->addFormRule(array('CRM_PhoneCallCommon','check_contact_not_empty'));
 		} else {
 			$form->addElement('static', $field, $label);
 			$form->setDefaults(array($field=>self::display_phone(array($desc['id']=>$default), false, $desc)));
