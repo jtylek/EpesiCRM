@@ -93,7 +93,7 @@ add_event_tag:function(dest,ev) {
 	var reload = new Array(ev.id);
 	do {
 		if(cell.hasAttribute('events_children')) {
-			ch = cell.getAttribute('events_children').evalJSON();;
+			ch = cell.getAttribute('events_children').evalJSON();
 			reload = reload.concat(ch);
 		} else {
 			ch = new Array();
@@ -288,9 +288,11 @@ destroy:function() {
 
 	delete(Droppables.drops);
 	Droppables.drops = [];
-//	Utils_Calendar.ids.each(function(id) {
+	Utils_Calendar.ids.each(function(id) {
 //		Droppables.remove('UCcell_'+id[0]);
-//	});
+		var cell = $('UCcell_'+id);
+		if(cell) cell.removeAttribute('events_children');
+	});
 	delete(Utils_Calendar.ids);
 	Utils_Calendar.ids=null;
 
