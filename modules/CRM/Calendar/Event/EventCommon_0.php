@@ -161,8 +161,8 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		if($count>50) {
 			Epesi::alert(Base_LangCommon::ts('CRM_Calendar_Event','Displaying only 50 of %d events',array($count)));
 		}
-		//print('SELECT e.status,e.color,e.access,e.start,e.end,e.title,e.description,e.id,e.timeless,e.priority,e.created_by,e.created_on,e.edited_by,e.edited_on,(SELECT GROUP_CONCAT(DISTINCT emp.contact SEPARATOR \',\') FROM crm_calendar_event_group_emp emp WHERE emp.id=e.id GROUP BY emp.id) as employees,(SELECT GROUP_CONCAT(DISTINCT cus.contact SEPARATOR \',\') FROM crm_calendar_event_group_cus cus WHERE cus.id=e.id GROUP BY cus.id) as customers FROM crm_calendar_event e WHERE (e.timeless=1 AND DATE(FROM_UNIXTIME(start))>="'.Base_RegionalSettingsCommon::reg2time($start).'" AND DATE(FROM_UNIXTIME(start))<"'.Base_RegionalSettingsCommon::reg2time($end).'") '.$fil.$order.' LIMIT 50');
-		$ret = DB::Execute('SELECT e.status,e.color,e.access,e.start,e.end,e.title,e.description,e.id,e.timeless,e.priority,e.created_by,e.created_on,e.edited_by,e.edited_on,(SELECT GROUP_CONCAT(DISTINCT emp.contact SEPARATOR \',\') FROM crm_calendar_event_group_emp emp WHERE emp.id=e.id GROUP BY emp.id) as employees,(SELECT GROUP_CONCAT(DISTINCT cus.contact SEPARATOR \',\') FROM crm_calendar_event_group_cus cus WHERE cus.id=e.id GROUP BY cus.id) as customers FROM crm_calendar_event e WHERE ((((e.start>=%d AND e.start<%d) OR (e.end>=%d AND e.end<%d)) AND e.timeless=0) OR (e.timeless=1 AND DATE(FROM_UNIXTIME(start))>=%D AND DATE(FROM_UNIXTIME(start))<%D)) '.$fil.$order.' LIMIT 50',array($start,$end,$start,$end,Base_RegionalSettingsCommon::reg2time($start),Base_RegionalSettingsCommon::reg2time($end)));
+		//print('SELECT e.status,e.color,e.access,e.start,e.end,e.title,e.description,e.id,e.timeless,e.priority,e.created_by,e.created_on,e.edited_by,e.edited_on,(SELECT GROUP_CONCAT(DISTINCT emp.contact SEPARATOR \',\') FROM crm_calendar_event_group_emp emp WHERE emp.id=e.id GROUP BY emp.id) as employees,(SELECT GROUP_CONCAT(DISTINCT cus.contact SEPARATOR \',\') FROM crm_calendar_event_group_cus cus WHERE cus.id=e.id GROUP BY cus.id) as customers FROM crm_calendar_event e WHERE (e.timeless=1 AND DATE(FROM_UNIXTIME(start))>="'.date('Y-m-d',$start).'" AND DATE(FROM_UNIXTIME(start))<="'.date('Y-m-d',$end).'") '.$fil.$order.' LIMIT 50');
+		$ret = DB::Execute('SELECT e.status,e.color,e.access,e.start,e.end,e.title,e.description,e.id,e.timeless,e.priority,e.created_by,e.created_on,e.edited_by,e.edited_on,(SELECT GROUP_CONCAT(DISTINCT emp.contact SEPARATOR \',\') FROM crm_calendar_event_group_emp emp WHERE emp.id=e.id GROUP BY emp.id) as employees,(SELECT GROUP_CONCAT(DISTINCT cus.contact SEPARATOR \',\') FROM crm_calendar_event_group_cus cus WHERE cus.id=e.id GROUP BY cus.id) as customers FROM crm_calendar_event e WHERE ((((e.start>=%d AND e.start<%d) OR (e.end>=%d AND e.end<%d)) AND e.timeless=0) OR (e.timeless=1 AND DATE(FROM_UNIXTIME(start))>=%D AND DATE(FROM_UNIXTIME(start))<=%D)) '.$fil.$order.' LIMIT 50',array($start,$end,$start,$end,$start,$end));
 		$result = array();
 		$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
 		$priority = array(0 =>'None', 1 => 'Low', 2 => 'Medium', 3 => 'High');
@@ -170,8 +170,8 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$next_result = array();
 			foreach (array('start','id','title','timeless','description') as $v)
 				$next_result[$v] = $row[$v];
-			if($next_result['timeless'])
-				$next_result['start'] = strtotime(Base_RegionalSettingsCommon::time2reg($next_result['start']));
+//			if($next_result['timeless'])
+//				$next_result['start'] = $next_result['start'];
 			$next_result['duration'] = $row['end']-$row['start'];
 			$color = self::get_available_colors();
 			if($row['status']>=2)
@@ -234,8 +234,13 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$end_diff = $prev['end']-$start-$duration;
 			DB::Execute('UPDATE crm_calendar_event SET start=start-%d, end=end-%d, timeless=%b WHERE recurrence_id=%d',array($start_diff,$end_diff,$timeless,$prev['recurrence_id']));
 			print('Epesi.updateIndicatorText("updating calendar");Epesi.request("");');
-		} else
+		} else {
+			//error_log($start.' = direct '.date('Y-m-d H:i:s',$start)."\n",3,'data/log2');
+			//error_log($start.' = '.date('Y-m-d',strtotime(Base_RegionalSettingsCommon::time2reg($start,false,true,true,false)))."\n",3,'data/log2');
+			if($timeless)
+				$start = strtotime(date('Y-m-d',$start));
 			DB::Execute('UPDATE crm_calendar_event SET start=%d, end=%d, timeless=%b WHERE id=%d',array($start,$start+$duration,$timeless,$id));
+		}
 		return true;
 	}
 

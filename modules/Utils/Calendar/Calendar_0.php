@@ -550,11 +550,12 @@ class Utils_Calendar extends Module {
 		$joins = array();
 		for ($i=0; $i<7; $i++) {
 			$time_ids[$i] = array();
+			$today_t_timeless = strtotime(date('Y-m-d',$dis_week_from+$i*86400));
 			$today_t = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$dis_week_from+$i*86400));
 			$prev = null;
 			foreach($timeline as & $v) {
 				if(is_string($v['time'])) {
-					$ii = $today_t.'_'.$v['time'];
+					$ii = $today_t_timeless.'_'.$v['time'];
 					$dnd[] = $ii;
 					if($prev && isset($prev['join_rows'])) $joins[count($joins)-1][2] = $ii;
 					if(isset($v['join_rows']))
@@ -588,18 +589,19 @@ class Utils_Calendar extends Module {
 		$this->js('Utils_Calendar.page_type=\'week\'');
 		$ev_out = 'function() {Utils_Calendar.init_reload_event_tag();';
 		foreach($ret as $k=>$ev) {
-			$today_t = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$ev['start']));
 			if(isset($ev['timeless']) && $ev['timeless'] && !isset($ev['custom_row_key'])) {
 				$ev['custom_row_key'] = 'timeless';
 			}
 			if(isset($ev['custom_row_key'])) {
+				$today_t_timeless = strtotime(date('Y-m-d',$ev['start']));
 				if(isset($custom_keys[$ev['custom_row_key']])) {
-					$dest_id = 'UCcell_'.$today_t.'_'.$ev['custom_row_key'];
+					$dest_id = 'UCcell_'.$today_t_timeless.'_'.$ev['custom_row_key'];
 				} else {
 //					trigger_error('Invalid custom_row_key:'.$ev['custom_row_key'],E_USER_ERROR);
 					continue;
 				}
 			} else {
+				$today_t = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$ev['start']));
 				$ev_start = $ev['start']-$today_t;
 				$ct = count($timeline);
 				for($i=1, $j=2; $j<$ct; $i++,$j++)
@@ -716,7 +718,10 @@ class Utils_Calendar extends Module {
 		$ev_out = 'function() {';
 		foreach($ret as $k=>$ev) {
 			$this->print_event($ev);
-			$ev_start = strtotime(date('Y-m-d',$ev['start']));
+			if(isset($ev['timeless']) && $ev['timeless'])
+				$ev_start = strtotime(date('Y-m-d',$ev['start']));
+			else
+				$ev_start = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$ev['start']));
 			$dest_id = 'UCcell_'.$ev_start;
 			$ev_out .= 'Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).', 1);';
 		}

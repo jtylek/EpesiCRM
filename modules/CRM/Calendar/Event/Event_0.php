@@ -554,8 +554,13 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				$end = strtotime(date('Y-m-d',$start).' 23:59');
 		} else
 			$end = strtotime($vals['date_s']) + $this->recalculate_time($vals['time_e']);
-		$start = Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$start),true);
-		$end = Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$end),true);
+		if($vals['timeless']) {
+			$start = strtotime(date('Y-m-d',$start));
+			$end = strtotime(date('Y-m-d',$end));
+		} else {
+			$start = Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$start),true);
+			$end = Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$end),true);
+		}
 		$ret_id = null;
 		$rec_id = null;
 		while(1) {
@@ -666,8 +671,13 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				$end = strtotime(date('Y-m-d',$start).' 23:59');
 		} else
 			$end = strtotime($vals['date_s']) + $this->recalculate_time($vals['time_e']);
-		$start = Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$start),true);
-		$end = Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$end),true);
+		if($vals['timeless']) {
+			$start = strtotime(date('Y-m-d',$start));
+			$end = strtotime(date('Y-m-d',$end));
+		} else {
+			$start = Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$start),true);
+			$end = Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$end),true);
+		}
 
 		$prev = DB::GetRow('SELECT * FROM crm_calendar_event WHERE id=%d',array($id));
 		if(isset($prev['recurrence_id']) && $prev['recurrence_id']!==null) {
