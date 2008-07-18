@@ -94,7 +94,7 @@ class CRM_Calendar extends Module {
 				$title = Utils_TooltipCommon::create($row['title'],$row['description']);
 			else
 				$title = $row['title'];
-			$gb->add_row($view_action.((!isset($ev['timeless']) || !$ev['timeless'])?Utils_TooltipCommon::create($ex['start'],$l->t('Duration: %s<br>End: %s',array($ex['duration'],$ex['end']))):$ex['start']).'</a>',$view_action.$title.'</a>');
+			$gb->add_row($view_action.((!isset($ev['timeless']) || !$ev['timeless'])?Utils_TooltipCommon::create($ex['timeless'].$ex['start'],$l->t('Duration: %s<br>End: %s',array($ex['duration'],$ex['end']))):$ex['start']).'</a>',$view_action.$title.'</a>');
 		}
 
 		$this->display_module($gb);
