@@ -94,9 +94,9 @@ class Utils_CalendarCommon extends ModuleCommon {
 		} else {
 			$start_time = Base_RegionalSettingsCommon::time2reg($ev_start,2,false);
 			$end_time = Base_RegionalSettingsCommon::time2reg($ev_end,2,false);
-			$start_t = $start_day.': '.$start_date.' '.$start_time;
+			$start_t = $start_day.', '.$start_date.' '.$start_time;
 			if(!$oneday)
-				$end_t = $end_day.': '.$end_date.' '.$end_time;
+				$end_t = $end_day.', '.$end_date.' '.$end_time;
 		}
 
 		if(isset($row['fake_duration']))
