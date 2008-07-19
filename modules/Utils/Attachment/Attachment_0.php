@@ -192,7 +192,7 @@ class Utils_Attachment extends Module {
 		}
 
 		if(!empty($expandable))
-			print('<a href="javascript:void(0)" onClick=\'utils_attachment_expand_all('.Epesi::escapeJS(json_encode($expandable),false,true).')\'>Expand all</a> <a href="javascript:void(0)" onClick=\'utils_attachment_collapse_all('.Epesi::escapeJS(json_encode($expandable),false,true).')\'>Collapse all</a>');
+			print('<a href="javascript:void(0)" onClick=\'utils_attachment_expand_all('.Epesi::escapeJS(json_encode($expandable),false,true).')\'>'.$this->lang->t('Expand all').'</a> <a href="javascript:void(0)" onClick=\'utils_attachment_collapse_all('.Epesi::escapeJS(json_encode($expandable),false,true).')\'>'.$this->lang->t('Collapse all').'</a>');
 
 		$this->display_module($gb);
 	}
