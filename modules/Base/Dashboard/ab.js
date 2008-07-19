@@ -10,8 +10,8 @@ dashboard_activate = function(default_dash) {
 
 	var applets = $A(document.getElementsByClassName('applet', 'dashboard'));
 	applets.each(function (appl) {
-			var content = document.getElementsByClassName('content',appl)[0];
-			var toggle = document.getElementsByClassName('toggle',appl)[0];
+			var content = appl.getElementsByClassName('content')[0]
+			var toggle = appl.getElementsByClassName('toggle')[0];
 			if(toggle)
 				Event.observe(toggle, 'click', function (e) { Effect.toggle(content, 'slide', {duration:0.3}); },false);
 	});
