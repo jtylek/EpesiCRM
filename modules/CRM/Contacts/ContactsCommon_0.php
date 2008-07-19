@@ -383,7 +383,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 			return Base_UserCommon::get_user_login($v);
 	}
 	public static function submit_contact($values, $mode) {
-		if ($mode=='view') {
+		switch ($mode) {
+		case 'view':
 			$is_employee = false;
 			if (is_array($values['company_name']) && in_array(CRM_ContactsCommon::get_main_company(), $values['company_name'])) $is_employee = true;
 			$me = CRM_ContactsCommon::get_my_record();
@@ -394,26 +395,27 @@ class CRM_ContactsCommon extends ModuleCommon {
 			return array(	'new_event'=>'<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Event')).' '.CRM_CalendarCommon::create_new_event_href(array('emp_id'=>$emp,'cus_id'=>$cus)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'"></a>',
 							'new_task'=>'<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),'employees'=>$emp,'customers'=>$cus)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>',
 							'new_phonecall'=>'<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'contact'=>$values['id'],'employees'=>$me['id'],'company_name'=>((isset($values['company_name'][0]))?$values['company_name'][0]:''))).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>');
-		}
-		if (isset($values['create_company'])) {
-			$comp_id = Utils_RecordBrowserCommon::new_record('company',
-				array(	'company_name'=>$values['create_company_name'],
-						'address_1'=>$values['address_1'],
-						'address_2'=>$values['address_2'],
-						'country'=>$values['country'],
-						'city'=>$values['city'],
-						'zone'=>isset($values['zone'])?$values['zone']:'',
-						'postal_code'=>$values['postal_code'],
-						'phone'=>$values['work_phone'],
-						'fax'=>$values['fax'],
-						'web_address'=>$values['web_address'])
-			);
-			if (!isset($values['company_name'])) $values['company_name'] = array(); 
-			if (!is_array($values['company_name'])) $values['company_name'] = array($values['company_name']);
-			$values['company_name'][] = $comp_id;
-		}
-		if ($values['email']=='' && $values['login']!=0 && $mode=='add')
-			$values['email'] = DB::GetOne('SELECT mail FROM user_password WHERE user_login_id=%d', array($values['login']));
+		case 'add':
+			if (isset($values['create_company'])) {
+				$comp_id = Utils_RecordBrowserCommon::new_record('company',
+					array(	'company_name'=>$values['create_company_name'],
+							'address_1'=>$values['address_1'],
+							'address_2'=>$values['address_2'],
+							'country'=>$values['country'],
+							'city'=>$values['city'],
+							'zone'=>isset($values['zone'])?$values['zone']:'',
+							'postal_code'=>$values['postal_code'],
+							'phone'=>$values['work_phone'],
+							'fax'=>$values['fax'],
+							'web_address'=>$values['web_address'])
+				);
+				if (!isset($values['company_name'])) $values['company_name'] = array(); 
+				if (!is_array($values['company_name'])) $values['company_name'] = array($values['company_name']);
+				$values['company_name'][] = $comp_id;
+			}
+			if ($values['email']=='' && $values['login']!=0 && $mode=='add')
+				$values['email'] = DB::GetOne('SELECT mail FROM user_password WHERE user_login_id=%d', array($values['login']));
+		}		
 		return $values;
 	}
 

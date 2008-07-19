@@ -252,15 +252,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		if (is_array($param)) {
 			if ($type=='commondata') {
-				$tmp = '';
-				foreach ($param as $v) {
-					$tmp .= ($tmp==''?'':'::').$v;
-				}
-				$param = $tmp;
+				$param = implode('::',$param);
 			} else {
-				$tmp = '';
-				foreach ($param as $k=>$v) $tmp .= $k.'::'.$v;
-				$param = $tmp;
+				$tmp = array();
+				foreach ($param as $k=>$v) $tmp[] = $k.'::'.$v;
+				$param = implode(';',$tmp);
 			}
 		}
 		DB::Execute('INSERT INTO '.$tab.'_field(field, type, visible, param, style, position, extra, required, filter) VALUES(%s, %s, %d, %s, %s, %d, %d, %d, %d)', array($field, $type, $visible?1:0, $param, $style, $pos, $extra?1:0, $required?1:0, $filter?1:0));

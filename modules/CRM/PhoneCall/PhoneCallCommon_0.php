@@ -233,7 +233,8 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	}
 
 	public static function submit_phonecall($values, $mode) {
-		if ($mode=='view') {
+		switch ($mode) {
+		case 'view':
 			$values['date_and_time'] = date('Y-m-d H:i:s');
 			$values['subject'] = Base_LangCommon::ts('CRM/PhoneCall','Follow up: ').$values['subject'];
 			unset($values['status']);
@@ -242,13 +243,15 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			if (ModuleManager::is_installed('CRM/Tasks')>=0) $ret['new_task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/PhoneCall','New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('title'=>$values['subject'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),'employees'=>$values['employees'], 'customers'=>$values['contact'])).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
 			$ret['new_phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/PhoneCall','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', $values).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
 			return $ret;
+		case 'add':
+		case 'edit':
+			if (isset($values['other_contact'])) {
+				$values['other_phone']=1;
+				$values['contact']='';
+			} else $values['other_contact_name']='';
+			if (isset($values['other_phone'])) $values['phone']='';
+			else $values['other_phone_number']='';
 		}
-		if (isset($values['other_contact'])) {
-			$values['other_phone']=1;
-			$values['contact']='';
-		} else $values['other_contact_name']='';
-		if (isset($values['other_phone'])) $values['phone']='';
-		else $values['other_phone_number']='';
 		return $values;
 	}
 }

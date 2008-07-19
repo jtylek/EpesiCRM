@@ -192,7 +192,8 @@ class CRM_TasksCommon extends ModuleCommon {
 	}
 	public static function submit_task($values, $mode) {
 		$me = CRM_ContactsCommon::get_my_record();
-		if ($mode=='view') {
+		switch ($mode) {
+		case 'view':
 			$ret = DB::GetAssoc('SELECT contact_id, 1 FROM task_employees_notified WHERE task_id=%d', array($values['id']));
 			$icon_on = Base_ThemeCommon::get_template_file('images/active_on.png');
 			$icon_off = Base_ThemeCommon::get_template_file('images/active_off.png');
@@ -212,18 +213,19 @@ class CRM_TasksCommon extends ModuleCommon {
 			$ret['new_task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_Tasks','New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', $values).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
 			if (ModuleManager::is_installed('CRM/PhoneCall')>=0) $ret['new_phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_Tasks','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('subject'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date_and_time'=>date('Y-m-d H:i:s'),'employees'=>$values['employees'], 'contact'=>isset($values['customers'][0])?$values['customers'][0]:'')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
 			return $ret;
-		}
-		if ($values['id']!=null) {
-			foreach($values['employees'] as $v) {
-				if ($v==$me['id']) 
+		case 'added':
+			if (in_array($me['id'],$values['employees']))
 					self::set_notified($me['id'],$values['id']);
+			break;
+		case 'add':
+		case 'edit':
+			if (!isset($values['is_deadline'])) {
+				$values['deadline']='';
 			}
-		}
-		if (!isset($values['is_deadline'])) {
-			$values['deadline']='';
-		}
-		if (isset($values['notify'])) {
-			DB::Execute('DELETE FROM task_employees_notified WHERE task_id=%s', array($values['id']));
+			if (isset($values['notify'])) {
+				DB::Execute('DELETE FROM task_employees_notified WHERE task_id=%s', array($values['id']));
+			}
+			return $values;
 		}
 		return $values;
 	}

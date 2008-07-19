@@ -481,11 +481,16 @@ class Utils_RecordBrowser extends Module {
 			if ($form->validate()) {
 				$values = $form->exportValues();
 				$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
+				$method = '';
 				if ($dpm!=='') {
 					$method = explode('::',$dpm);
 					if (is_callable($method)) $values = call_user_func($method, $values, 'add');
+					else $dpm = '';
 				}
-				Utils_RecordBrowserCommon::new_record($this->tab, $values);
+				$id = Utils_RecordBrowserCommon::new_record($this->tab, $values);
+				$values['id'] = $id;
+				if ($dpm!=='')
+					call_user_func($method, $values, 'added');
 				location(array());
 			}
 
@@ -585,6 +590,7 @@ class Utils_RecordBrowser extends Module {
 			$values = $form->exportValues();
 			$values['id'] = $id;
 			$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
+			$method = '';
 			if ($dpm!=='') {
 				$method = explode('::',$dpm);
 				if (is_callable($method)) $values = call_user_func($method, $values, $mode);
@@ -593,6 +599,9 @@ class Utils_RecordBrowser extends Module {
 				$id = Utils_RecordBrowserCommon::new_record($this->tab, $values);
 				self::$clone_result = $id;
 				self::$clone_tab = $this->tab;
+				$values['id'] = $id;
+				if ($dpm!=='')
+					call_user_func($method, $values, 'added');
 				return $this->back();
 			}
 			$time_from = date('Y-m-d H:i:s', $this->get_module_variable('edit_start_time'));
@@ -826,7 +835,10 @@ class Utils_RecordBrowser extends Module {
 					case 'select':
 					case 'multiselect':	$comp = array();
 										if ($args['type']==='select') $comp[''] = '---';
-										list($tab, $col) = explode('::',$args['param']);
+										$ref = explode(';',$args['param']);
+										if (isset($ref[1])) $crits_callback = $ref[1];
+										$ref = $ref[0];
+										list($tab, $col) = explode('::',$ref);
 										if ($tab=='__COMMON__') {
 											$data = Utils_CommonDataCommon::get_array($col, true);
 											if (!is_array($data)) $data = array();
@@ -835,7 +847,9 @@ class Utils_RecordBrowser extends Module {
 											if ($tab=='__COMMON__')
 												$comp = $comp+$data;
 											else {
-												$records = Utils_RecordBrowserCommon::get_records($tab, array(), array($col));
+												if (isset($crits_callback)) $crits = call_user_func(explode('::',$crits_callback));
+												else $crits = array();
+												$records = Utils_RecordBrowserCommon::get_records($tab, $crits, array($col));
 												$col_id = strtolower(str_replace(' ','_',$col));
 												if (!is_array($record[$args['id']])) {
 													if ($record[$args['id']]!='') $record[$args['id']] = array($record[$args['id']]); else $record[$args['id']] = array();
