@@ -227,7 +227,8 @@ class Utils_RecordBrowser extends Module {
 			}
 			$arr = array();
 			if (!isset($this->QFfield_callback_table[$filter]) && ($this->table_rows[$filter]['type'] == 'select' || $this->table_rows[$filter]['type'] == 'multiselect')) {
-				list($tab, $col) = explode('::',$this->table_rows[$filter]['param']);
+				$param = explode(';',$this->table_rows[$filter]['param']);
+				list($tab, $col) = explode('::',$param[0]);
 				if ($tab=='__COMMON__') {
 					$arr = array_merge($arr, Utils_CommonDataCommon::get_array($col, true));
 				} else {
