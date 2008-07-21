@@ -45,6 +45,7 @@ class Utils_RecordBrowser extends Module {
 	public $record;
 	public $adv_search = false;
 	private $col_order = array();
+	private $advanced = array();
 
 	public function set_cut_lengths($ar) {
 		$this->cut = $ar;
@@ -433,7 +434,7 @@ class Utils_RecordBrowser extends Module {
 			if ($special) {
 				$func = $this->get_module_variable('format_func');
 				$element = $this->get_module_variable('element');
-				$row_data = array('<a href="javascript:rpicker_addto(\''.$element.'\','.$row['id'].',\''.Base_ThemeCommon::get_template_file('images/active_on.png').'\',\''.Base_ThemeCommon::get_template_file('images/active_off2.png').'\',\''.strip_tags(call_user_func($func, $row, true)).'\');"><img src="null"  border="0" name="leightbox_rpicker_'.$element.'_'.$row['id'].'" /></a>');
+				$row_data = array('<a href="javascript:rpicker_addto(\''.$element.'\','.$row['id'].',\''.Base_ThemeCommon::get_template_file('images/active_on.png').'\',\''.Base_ThemeCommon::get_template_file('images/active_off2.png').'\',\''.(is_callable($func)?strip_tags(call_user_func($func, $row, true)):'').'\');"><img src="null"  border="0" name="leightbox_rpicker_'.$element.'_'.$row['id'].'" /></a>');
 				$rpicker_ind[] = $row['id'];
 			}
 
@@ -700,6 +701,7 @@ class Utils_RecordBrowser extends Module {
 				if (!isset($data[$args['id']])) $data[$args['id']] = array('label'=>'', 'html'=>'');
 					$arr = array(	'label'=>$data[$args['id']]['label'],
 									'element'=>$args['id'],
+									'advanced'=>isset($this->advanced[$args['id']])?$this->advanced[$args['id']]:'',
 									'html'=>$data[$args['id']]['html'],
 									'style'=>$args['style'],
 									'error'=>isset($data[$args['id']]['error'])?$data[$args['id']]['error']:null,
@@ -838,6 +840,11 @@ class Utils_RecordBrowser extends Module {
 										if ($args['type']==='select') $comp[''] = '---';
 										$ref = explode(';',$args['param']);
 										if (isset($ref[1])) $crits_callback = $ref[1];
+										if (isset($ref[2])) $multi_adv_params = call_user_func(explode('::',$ref[2]));
+										if (!isset($multi_adv_params) || !is_array($multi_adv_params)) $multi_adv_params = array();
+										if (!isset($multi_adv_params['order'])) $multi_adv_params['order'] = array();
+										if (!isset($multi_adv_params['cols'])) $multi_adv_params['cols'] = array();
+										if (!isset($multi_adv_params['format_callback'])) $multi_adv_params['format_callback'] = array();
 										$ref = $ref[0];
 										list($tab, $col) = explode('::',$ref);
 										if ($tab=='__COMMON__') {
@@ -848,9 +855,18 @@ class Utils_RecordBrowser extends Module {
 											if ($tab=='__COMMON__')
 												$comp = $comp+$data;
 											else {
-												if (isset($crits_callback)) $crits = call_user_func(explode('::',$crits_callback));
-												else $crits = array();
-												$records = Utils_RecordBrowserCommon::get_records($tab, $crits, array($col));
+												if (isset($crits_callback)) {
+													$crit_callback = explode('::',$crits_callback);
+													$crits = call_user_func($crit_callback, false, $record);
+													$adv_crits = call_user_func($crit_callback, true, $record);
+													if ($adv_crits === $crits) $adv_crits = null;
+													if ($adv_crits !== null) {
+														$rp = $this->init_module('Utils/RecordBrowser/RecordPicker');
+														$this->display_module($rp, array($tab, $args['id'], $multi_adv_params['format_callback'], $adv_crits, $multi_adv_params['cols'], $multi_adv_params['order']));
+														$this->advanced[$args['id']] = $rp->create_open_link($this->lang->t('Advanced'));
+													}
+												} else $crits = array();
+												$records = Utils_RecordBrowserCommon::get_records($tab, $crits, empty($multi_adv_params['format_callback'])?array($col):array());
 												$col_id = strtolower(str_replace(' ','_',$col));
 												$ext_rec = array();
 												if (isset($record[$args['id']])) {
@@ -860,11 +876,15 @@ class Utils_RecordBrowser extends Module {
 													$ext_rec = array_flip($record[$args['id']]);
 													foreach($ext_rec as $k=>$v) {
 														$c = Utils_RecordBrowserCommon::get_record($tab, $k);
-														$comp[$k] = $c[$col_id];
+														if (!empty($multi_adv_params['format_callback'])) $n = call_user_func($multi_adv_params['format_callback'], $c);
+														else $n = $v[$col_id];
+														$comp[$k] = $n;
 													}
 												}
 												foreach ($records as $k=>$v) {
-													$comp[$k] = $v[$col_id];
+													if (!empty($multi_adv_params['format_callback'])) $n = call_user_func($multi_adv_params['format_callback'], $v);
+													else $n = $v[$col_id];
+													$comp[$k] = $n;
 													unset($ext_rec[$v['id']]);
 												}
 												natcasesort($comp);

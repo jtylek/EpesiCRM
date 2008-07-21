@@ -99,7 +99,7 @@
 						<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
 					{/if}
 							<tr>
-								<td class="label">{$f.label}{if $f.required}*{/if}</td>
+								<td class="label">{$f.label}{if $f.required}*{/if}{$f.advanced}</td>
 								<td class="data {$f.style}">{if isset($f.error)}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
 							</tr>
 					{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}

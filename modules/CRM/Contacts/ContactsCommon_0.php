@@ -138,6 +138,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return $def;
 	}
 	public static function contact_format_default($record, $nolink=false){
+		return 'Ok...';
 		$ret = '';
 		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_open_tag('contact', $record['id']);
 		$ret .= $record['last_name'].(isset($record['first_name'][0])?' '.$record['first_name'][0].'.':'');
@@ -174,7 +175,6 @@ class CRM_ContactsCommon extends ModuleCommon {
 					$crits = call_user_func($crit_callback, false);
 					$adv_crits = call_user_func($crit_callback, true);
 					if ($adv_crits === $crits) $adv_crits = null;
-//					if (!isset($crits['|id']) && $default!='') $crits['|id'] = $default;
 					if ($adv_crits !== null) {
 						$rp = $rb_obj->init_module('Utils/RecordBrowser/RecordPicker');
 						$rb_obj->display_module($rp, array('contact', $field, $callback, $adv_crits, array('work_phone'=>false, 'mobile_phone'=>false, 'zone'=>false, 'Actions'=>false), array('last_name'=>'ASC')));
