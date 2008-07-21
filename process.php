@@ -8,6 +8,7 @@ if(!isset($_POST['url']) || !isset($_SERVER['HTTP_X_CLIENT_ID']))
 	die('alert(\'Invalid request\');');
 
 define('JS_OUTPUT',1);
+define('EPESI_PROCESS',1);
 require_once('include.php');
 
 if(!isset($_SESSION['num_of_clients'])) {

@@ -66,8 +66,12 @@ class DBSession {
     }
 }
 
-ini_set('session.gc_divisor', 100);
-ini_set('session.gc_probability', 20);
+if(defined('EPESI_PROCESS')) {
+	ini_set('session.gc_divisor', 100);
+	ini_set('session.gc_probability', 50);
+} else {
+	ini_set('session.gc_probability', 0);
+}
 ini_set('session.save_handler', 'user');
 
 session_set_save_handler(array('DBSession','open'),
