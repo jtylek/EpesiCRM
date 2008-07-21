@@ -74,7 +74,7 @@ class DBSession {
 
 if(defined('EPESI_PROCESS')) {
 	ini_set('session.gc_divisor', 100);
-	ini_set('session.gc_probability', 30);
+	ini_set('session.gc_probability', 30); // FIXDEADLOCK - set to 1
 } else {
 	ini_set('session.gc_probability', 0);
 }
