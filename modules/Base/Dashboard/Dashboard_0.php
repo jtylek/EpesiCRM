@@ -41,6 +41,14 @@ class Base_Dashboard extends Module {
 		if(count($tabs)>1) {
 			foreach($tabs as $tab)
 				$this->tb->set_tab($tab['name'], array($this,'display_dashboard'),$tab['id']);
+
+			$remember_tab = Base_User_SettingsCommon::get('Base_Dashboard','remember_tab');
+			if($remember_tab) {
+				if(isset($_SESSION['client']['dashboard_tab']))
+					$this->tb->set_default_tab($_SESSION['client']['dashboard_tab']);
+				$_SESSION['client']['dashboard_tab'] = $this->tb->get_tab();
+			}
+
 			$this->display_module($this->tb);
 			$this->tb->tag();
 		} else

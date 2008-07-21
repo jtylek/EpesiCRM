@@ -15,7 +15,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_TabbedBrowser extends Module {
 	private $tabs = array();
-	private $c_func;
 	private $c_caption;
 	private $tag;
 	private $page;
@@ -28,12 +27,6 @@ class Utils_TabbedBrowser extends Module {
 			$this->unset_module_variable('force');
 		}	
 		$lpage = $this->get_module_variable('last_page', -1);
-		
-		if($lpage!=$this->page && is_callable($this->c_func)) {
-			call_user_func($this->c_func,$this->page, $lpage);
-			$this->set_module_variable('last_page', $this->page);
-			$this->parent->set_reload(true);
-		}
 	}
 	
 	/**
@@ -84,20 +77,6 @@ class Utils_TabbedBrowser extends Module {
 		$theme->assign('captions', $captions);
 		$theme->assign('body', $body);
 		$theme->display($template);
-	}
-	
-	/**
-	 * Allows you to set a function 
-	 * that will be called each time user switches tabs.
-	 * 
-	 * This function must accept two arguments:
-	 * tab to which user just switched
-	 * tab that was displayed when user have chosen to switch
-	 * 
-	 * @param method method that will be called on switch
-	 */
-	public function set_change_tab_callback(array $func) {
-		$this->c_func = $func;
 	}
 	
 	/**

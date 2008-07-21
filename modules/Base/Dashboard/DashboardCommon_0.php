@@ -42,7 +42,8 @@ class Base_DashboardCommon extends ModuleCommon {
                       10 => 'dark-yellow');
 		return array('Manage dashboard tabs'=>'tabs_list',
 				'Misc'=>array(
-					array('name'=>'default_color','label'=>'Default dashboard applet color', 'type'=>'select', 'values'=>$color, 'default'=>'4')
+					array('name'=>'default_color','label'=>'Default dashboard applet color', 'type'=>'select', 'values'=>$color, 'default'=>'4'),
+					array('name'=>'remember_tab','label'=>'Remember last visited dashboard tab', 'type'=>'checkbox', 'default'=>false)
 //			array('name'=>'display','label'=>'zAction bar displays','type'=>'select','values'=>array('icons only'=>'icons only','text only'=>'text only','both'=>'both'),'default'=>'both','reload'=>true)
 				)
 				);
