@@ -852,17 +852,20 @@ class Utils_RecordBrowser extends Module {
 												else $crits = array();
 												$records = Utils_RecordBrowserCommon::get_records($tab, $crits, array($col));
 												$col_id = strtolower(str_replace(' ','_',$col));
-												if (!is_array($record[$args['id']])) {
-													if ($record[$args['id']]!='') $record[$args['id']] = array($record[$args['id']]); else $record[$args['id']] = array();
+												$ext_rec = array();
+												if (isset($record[$args['id']])) {
+													if (!is_array($record[$args['id']])) {
+														if ($record[$args['id']]!='') $record[$args['id']] = array($record[$args['id']]); else $record[$args['id']] = array();
+													}
+													$ext_rec = array_flip($record[$args['id']]);
+													foreach($ext_rec as $k=>$v) {
+														$c = Utils_RecordBrowserCommon::get_record($tab, $k);
+														$comp[$k] = $c[$col_id];
+													}
 												}
-												$ext_rec = array_flip($record[$args['id']]);
 												foreach ($records as $k=>$v) {
 													$comp[$k] = $v[$col_id];
 													unset($ext_rec[$v['id']]);
-												}
-												foreach($ext_rec as $k=>$v) {
-													$c = Utils_RecordBrowserCommon::get_record($tab, $k);
-													$comp[$k] = $c[$col_id];
 												}
 												natcasesort($comp);
 											}

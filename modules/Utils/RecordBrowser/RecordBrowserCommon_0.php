@@ -63,6 +63,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (isset(self::$hash[$field])) $field = self::$hash[$field];
 		return DB::GetOne('SELECT value FROM '.$tab.'_data WHERE field=%s AND '.$tab.'_id=%d', array($field, $id));
 	}
+	public static function is_active($tab, $id) {
+		self::init($tab);
+		return DB::GetOne('SELECT active FROM '.$tab.' WHERE id=%d', array($id));
+	}
 	public static function admin_caption() {
 		return 'Records Sets';
 	}
