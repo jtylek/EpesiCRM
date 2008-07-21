@@ -23,10 +23,10 @@ class DBSession {
     }
 
     public static function close() {
-        self::gc(self::$lifetime);
+        //self::gc(self::$lifetime);
         return true;
     }
-    
+
     public static function read($name) {
     	$ret = DB::GetOne('SELECT data FROM session WHERE name = %s AND expires > %d', array($name, time()-self::$lifetime));
 	if($ret)
@@ -46,7 +46,7 @@ class DBSession {
 	DB::CompleteTrans();
 	return ($ret>0)?true:false;
     }
-    
+
     public static function destroy($name) {
 		if(self::$gc_sem) return;
 		self::$gc_sem=true;
@@ -70,6 +70,10 @@ class DBSession {
         return true;
     }
 }
+
+ini_set('session.gc_divisor', 100);
+ini_set('session.gc_probability', 50);
+ini_set('session.save_handler', 'user');
 
 session_set_save_handler(array('DBSession','open'),
                              array('DBSession','close'),
