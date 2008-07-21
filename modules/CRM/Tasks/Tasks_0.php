@@ -58,7 +58,7 @@ class CRM_Tasks extends Module {
 											array('field'=>'status', 'width'=>1)
 										),
 									$crits,
-									array('status'=>'ASC','deadline'=>'ASC','priority'=>'ASC'),
+									array('deadline'=>'DESC','status'=>'ASC','priority'=>'ASC'),
 									array('CRM_TasksCommon','applet_info_format'),
 									15
 				);
