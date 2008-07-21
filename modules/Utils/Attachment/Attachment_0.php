@@ -168,7 +168,7 @@ class Utils_Attachment extends Module {
 				$r->add_action($this->create_callback_href(array($this,'view_queue'),array($row['id'])),'view');
 				$r->add_action($this->create_callback_href(array($this,'edition_history_queue'),$row['id']),'history');
 			}
-			$text = strip_tags($row['text']);
+			$text = strip_tags($row['text'],'<br><br/>');
 			if(strlen($text)>120) {
 				$text = array('value'=>substr($text,0,120).'<a href="javascript:void(0)" onClick="utils_attachment_expand('.$row['id'].')" id="utils_attachment_more_'.$row['id'].'">...'.$this->lang->t('[more]').'</a><span style="display:none" id="utils_attachment_text_'.$row['id'].'">'.substr($text,120).' <a href="javascript:void(0)" onClick="utils_attachment_collapse('.$row['id'].')">'.$this->lang->t('[less]').'</a></span>','hint'=>$this->lang->t('Click on view icon to see full note'));
 				//$temp_row_id = $row['id'];
