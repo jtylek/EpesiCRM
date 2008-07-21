@@ -57,18 +57,24 @@ class DBSession {
 
     public static function gc($lifetime) {
     	$t = time()-$lifetime;
-    	DB::StartTrans();
-		DB::Execute('DELETE FROM history WHERE session_name IN (SELECT name FROM session WHERE expires < %d)',array($t));
+		$ret = DB::Execute('SELECT name FROM session WHERE expires < %d',array($t));
+		while($row = $ret->FetchRow()) {
+	    	DB::StartTrans();
+			DB::Execute('DELETE FROM history WHERE session_name=%s',array($row['name']));
+			DB::Execute('DELETE FROM session_client WHERE session_name=%s',array($row['name']));
+			DB::Execute('DELETE FROM session WHERE name=%s',array($row['name']));
+			DB::CompleteTrans();
+		}
+/*		DB::Execute('DELETE FROM history WHERE session_name IN (SELECT name FROM session WHERE expires < %d)',array($t));
     	DB::Execute('DELETE FROM session_client WHERE session_name IN (SELECT name FROM session WHERE expires < %d)',array($t));
-	   	DB::Execute('DELETE FROM session WHERE expires < %d',array($t));
-		DB::CompleteTrans();
+	   	DB::Execute('DELETE FROM session WHERE expires < %d',array($t));*/
         return true;
     }
 }
 
 if(defined('EPESI_PROCESS')) {
 	ini_set('session.gc_divisor', 100);
-	ini_set('session.gc_probability', 50);
+	ini_set('session.gc_probability', 30);
 } else {
 	ini_set('session.gc_probability', 0);
 }

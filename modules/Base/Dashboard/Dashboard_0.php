@@ -46,6 +46,8 @@ class Base_Dashboard extends Module {
 			if($remember_tab) {
 				if(isset($_SESSION['client']['dashboard_tab']))
 					$this->tb->set_default_tab($_SESSION['client']['dashboard_tab']);
+				else
+					$this->tb->set_default_tab($this->tb->get_tab());
 				$_SESSION['client']['dashboard_tab'] = $this->tb->get_tab();
 			}
 
