@@ -365,7 +365,7 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 			$attrArray = $this->getAttributes();
 			$leave_selected = isset($attrArray['leave_selected']) ? $attrArray['leave_selected'] : 0;
 			$fromElement = '';
-            $fromElement .= $tabs . '<select' . $attrString . ' ondblclick="add_selected_'.$mod.'()">'."\n";
+            $fromElement .= $tabs . '<select' . $attrString . ' onkeypress="var key=event.which || event.keyCode;if(key==32)add_selected_'.$mod.'();" ondblclick="add_selected_'.$mod.'()">'."\n";
 //			print_r($this->_values);
 			if (isset($this->_values[0]) && eregi($this->list_sep,$this->_values[0])) {
 		        $this->_values = explode($this->list_sep,$this->_values[0]);
@@ -389,7 +389,7 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 			$this->setName($myName . 'to[]');
 			$this->_attributes['id'] = $myName . '__to';
 			$attrString = $this->_getAttrString($this->_attributes);
-			$toElement .= $tabs . '<select' . $attrString . ' ondblclick="remove_selected_'.$mod.'();">'."\n";
+			$toElement .= $tabs . '<select' . $attrString . ' onkeypress="var key=event.which || event.keyCode;if(key==32)remove_selected_'.$mod.'();" ondblclick="remove_selected_'.$mod.'();">'."\n";
 			$list = '';
 			foreach ($this->_options as $option) {
                 if (is_array($this->_values) && in_array((string)$option['attr']['value'], $this->_values)) {
@@ -443,10 +443,10 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 									'while (tolist.options.length!=0)'.
 									'	tolist.options[0] = null;'.
 									'"/></td>';
-				$buttons['remove_selected'] = '<input type=button value="<" onclick="'.
+				$buttons['remove_selected'] = '<input onFocus="focus_by_id(\''.$myName.'__from\');" type=button value="<" onclick="'.
 									'remove_selected_'.$mod.'();'.
 									'"/>';
-				$buttons['add_selected'] = '<input type=button value=">" onclick="'.
+				$buttons['add_selected'] = '<input onFocus="focus_by_id(\''.$myName.'_to\');" type=button value=">" onclick="'.
 									'add_selected_'.$mod.'();'.
 									'"/>';
 				$buttons['add_all'] = '<input type=button value=">>" onclick="'.
@@ -543,10 +543,10 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 									'}'.
 									'document.getElementsByName(\''.$myName.'\')[0].value=list;'.
 									'"/>';
-				$buttons['remove_selected'] = '<input id="'.$myName.'__remove_selected" type=button value="<" onclick="'.
+				$buttons['remove_selected'] = '<input onFocus="focus_by_id(\''.$myName.'__from\');" id="'.$myName.'__remove_selected" type=button value="<" onclick="'.
 									'remove_selected_'.$mod.'();'.
 									'"/>';
-				$buttons['add_selected'] = '<input id="'.$myName.'__add_selected" type=button value=">" onclick="'.
+				$buttons['add_selected'] = '<input onFocus="focus_by_id(\''.$myName.'__to\');" id="'.$myName.'__add_selected" type=button value=">" onclick="'.
 									'add_selected_'.$mod.'();'.
 									'"/>';
 				$buttons['add_all'] = '<input id="'.$myName.'__add_all" type=button value=">>" onclick="'.
