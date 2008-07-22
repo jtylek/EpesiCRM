@@ -26,6 +26,7 @@ class Utils_Attachment extends Module {
 	private $public_read = true;
 	private $public_write = true;
 	private $other_read = false;
+	private $author = false;
 
 	private $inline = false;
 	private $add_header = '';
@@ -84,6 +85,10 @@ class Utils_Attachment extends Module {
 		$this->other_read = $x;
 	}
 
+	public function display_author_column($x=true) {
+		$this->author = $x;
+	}
+
 	public function body() {
 		$vd = null;
 		if(!$this->persistent_deletion)
@@ -93,6 +98,8 @@ class Utils_Attachment extends Module {
 		$cols = array();
 		if($vd)
 			$cols[] = array('name'=>$this->lang->t('Deleted'),'order'=>'ual.deleted','width'=>5);
+		if($this->author)
+			$cols[] = array('name'=>$this->lang->t('Last Author'), 'order'=>'note_by','width'=>10);
 		$cols[] = array('name'=>$this->lang->t('Date'), 'order'=>'note_on','width'=>10);
 		$cols[] = array('name'=>$this->lang->t('Note'), 'order'=>'uac.text','width'=>70);
 		$cols[] = array('name'=>$this->lang->t('Attachment'), 'order'=>'uaf.original','width'=>5);
@@ -178,10 +185,15 @@ class Utils_Attachment extends Module {
 
 			$date_format = Base_RegionalSettingsCommon::date_format();
 			$regional_note_on = strftime($date_format,strtotime($note_on));
+			$arr = array();
 			if($vd)
-				$r->add_data(($row['deleted']?'yes':'no'),$regional_note_on,$text,$file);
-			else
-				$r->add_data($regional_note_on,$text,$file);
+				$arr[] = ($row['deleted']?'yes':'no');
+			if($this->author)
+				$arr[] = $row['note_by'];
+			$arr[] = $regional_note_on;
+			$arr[] = $text;
+			$arr[] = $file;
+			$r->add_data_array($arr);
 		}
 		if($this->public_write) {
 			if($this->inline) {
