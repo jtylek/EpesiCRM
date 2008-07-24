@@ -113,7 +113,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 	}
 
 	public function submit_admin($data) {
-		return Variable::set('default_lang',$data['lang_code']) && Variable::set('allow_lang_change',$data['allow_lang_change']);	
+		return Variable::set('default_lang',$data['lang_code']) && Variable::set('allow_lang_change',(isset($data['allow_lang_change']) && $data['allow_lang_change'])?1:0);	
 	}
 	
 	private function translate($module, $original) {
