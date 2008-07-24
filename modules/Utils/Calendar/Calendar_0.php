@@ -718,10 +718,11 @@ class Utils_Calendar extends Module {
 		$ev_out = 'function() {';
 		foreach($ret as $k=>$ev) {
 			$this->print_event($ev);
-			if(isset($ev['timeless']) && $ev['timeless'])
-				$ev_start = strtotime(date('Y-m-d',$ev['start']));
+			if(!isset($ev['timeless']) || !$ev['timeless'])
+				$ev_start = strtotime(Base_RegionalSettingsCommon::time2reg($ev['start'],true,true,true,false));
 			else
-				$ev_start = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$ev['start']));
+				$ev_start = $ev['start'];
+			$ev_start = strtotime(date('Y-m-d',$ev_start));
 			$dest_id = 'UCcell_'.$ev_start;
 			$ev_out .= 'Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).', 1);';
 		}
