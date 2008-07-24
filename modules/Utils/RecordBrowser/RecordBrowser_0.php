@@ -244,7 +244,7 @@ class Utils_RecordBrowser extends Module {
 			if ($this->table_rows[$filter]['type']=='checkbox') $arr = array(''=>$this->lang->ht('No'), 1=>$this->lang->ht('Yes'));
 			natcasesort($arr);
 			$arr = array('__NULL__'=>'---')+$arr;
-			$form->addElement('select', $filter_id, $filter, $arr);
+			$form->addElement('select', $filter_id, $this->lang->t($filter), $arr);
 			$filters[] = $filter_id;
 		}
 		$form->addElement('submit', 'submit', 'Show');
