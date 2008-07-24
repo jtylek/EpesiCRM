@@ -267,6 +267,8 @@ class Utils_RecordBrowser extends Module {
 		$theme = $this->init_module('Base/Theme');
 		$form->assign_theme('form',$theme);
 		$theme->assign('filters', $filters);
+		$theme->assign('show_filters', $this->lang->t('Show filters'));
+		$theme->assign('hide_filters', $this->lang->t('Hide filters'));
 		$theme->assign('id', $f_id);
 		if (!$this->isset_module_variable('filters_defaults'))
 		$this->set_module_variable('filters_defaults', $this->crits);

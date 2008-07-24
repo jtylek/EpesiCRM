@@ -9,8 +9,8 @@
 	{/php}
 {/if}
 	<div class="buttons">
-		<input type="button" {if isset($dont_hide)}style="display: none;"{/if} onClick="document.getElementById('recordbrowser_filters_{$id}').style.display='block';this.style.display='none';document.getElementById('hide_filter_b_{$id}').style.display='block';show_filters=1;" id="show_filter_b_{$id}" value="Show filters">
-		<input type="button" {if !isset($dont_hide)}style="display: none;"{/if} onClick="document.getElementById('recordbrowser_filters_{$id}').style.display='none';this.style.display='none';document.getElementById('show_filter_b_{$id}').style.display='block';show_filters=0;" id="hide_filter_b_{$id}" value="Hide filters">
+		<input type="button" {if isset($dont_hide)}style="display: none;"{/if} onClick="document.getElementById('recordbrowser_filters_{$id}').style.display='block';this.style.display='none';document.getElementById('hide_filter_b_{$id}').style.display='block';show_filters=1;" id="show_filter_b_{$id}" value="{$show_filters}">
+		<input type="button" {if !isset($dont_hide)}style="display: none;"{/if} onClick="document.getElementById('recordbrowser_filters_{$id}').style.display='none';this.style.display='none';document.getElementById('show_filter_b_{$id}').style.display='block';show_filters=0;" id="hide_filter_b_{$id}" value="{$hide_filters}">
 	</div>
 </div>
 
