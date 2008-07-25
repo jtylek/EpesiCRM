@@ -57,7 +57,7 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 
 	/**
 	 * Creates new node with value.
-	 * 
+	 *
 	 * @param string array name
 	 * @param array initialization value
 	 * @param bool whether method should overwrite if array already exists, otherwise the data will be appended
@@ -76,20 +76,24 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 
 	/**
 	 * Gets node value.
-	 * 
+	 *
 	 * @param string array name
+	 * @param boolean translate?
 	 * @return mixed false on invalid name
 	 */
-	public static function get_value($name){
+	public static function get_value($name,$translate=false){
 		$val = false;
 		$id = self::get_id($name);
 		if($id===false) return false;
-		return DB::GetOne('SELECT value FROM utils_commondata_tree WHERE id=%d',array($id));
+		$ret = DB::GetOne('SELECT value FROM utils_commondata_tree WHERE id=%d',array($id));
+		if($translate)
+			$ret = Base_LangCommon::ts('Utils_CommonData',$ret);
+		return $ret;
 	}
-	
+
 	/**
 	 * Gets nodes by keys.
-	 * 
+	 *
 	 * @param string array name
 	 * @return mixed false on invalid name
 	 */
@@ -99,10 +103,10 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 		if($id===false) return false;
 		return DB::GetAssoc('SELECT id,value FROM utils_commondata_tree WHERE parent_id=%d AND (akey=\''.implode($names,'\' OR akey=\'').'\')',array($id));
 	}
-	
+
 	/**
 	 * Creates new array for common use.
-	 * 
+	 *
 	 * @param string array name
 	 * @param array initialization value
 	 * @param bool whether method should overwrite if array already exists, otherwise the data will be appended
@@ -128,7 +132,7 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 
 	/**
 	 * Extends common data array.
-	 * 
+	 *
 	 * @param string array name
 	 * @param array values to insert
 	 * @param bool whether method should overwrite data if array key already exists, otherwise the data will be preserved
@@ -149,10 +153,10 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 			}
 		}
 	}
-	
+
 	/**
 	 * Removes common data array or entry.
-	 * 
+	 *
 	 * @param string entry name
 	 * @return true on success, false otherwise
 	 */
@@ -161,10 +165,10 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 		if ($id===false) return false;
 		self::remove_by_id($id);
 	}
-	
+
 	/**
 	 * Removes common data array or entry using id.
-	 * 
+	 *
 	 * @param integer entry id
 	 * @return true on success, false otherwise
 	 */
@@ -174,13 +178,13 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 			self::remove_by_id($r);
 		DB::Execute('DELETE FROM utils_commondata_tree WHERE id=%d',array($id));
 	}
-	
+
 	/**
 	 * Returns common data array.
-	 * 
+	 *
 	 * @param string array name
 	 * @param boolean order by key instead of value
-	 * @return mixed returns an array if such array exists, false otherwise 
+	 * @return mixed returns an array if such array exists, false otherwise
 	 */
 	public static function get_array($name, $order_by_key=false, $readinfo=false){
 		$id = self::get_id($name);
@@ -194,18 +198,29 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 		return DB::GetAssoc('SELECT akey, value FROM utils_commondata_tree WHERE parent_id=%d ORDER BY '.$order_by,array($id));
 	}
 
+	public static function get_translated_array($name,$order_by_key=false,$readinfo=false) {
+		return self::translate_array(self::get_array($name,$order_by_key,$readinfo));
+	}
+
+	public static function translate_array(& $arr) {
+		foreach($arr as $k=>&$v) {
+			$v = Base_LangCommon::ts('Utils_CommonData',$v);
+		}
+		return $arr;
+	}
+
 	/**
 	 * Counts elements in common data array.
-	 * 
+	 *
 	 * @param string array name
-	 * @return mixed returns an array if such array exists, false otherwise 
+	 * @return mixed returns an array if such array exists, false otherwise
 	 */
 	public static function get_array_count($name){
 		$id = self::get_id($name);
 		if($id===false) return false;
 		return DB::GetAssoc('SELECT count(akey) FROM utils_commondata_tree WHERE parent_id=%d',array($id));
 	}
-	
+
 	public static function rename_key($parent,$old,$new) {
 		$id = self::get_id($parent.'/'.$old);
 		if($id===false) return false;

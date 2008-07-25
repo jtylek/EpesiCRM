@@ -65,34 +65,34 @@ class Utils_CommonData extends Module {
 		$f->display();
 		return true;
 	}
-	
+
 	public function check_key($new_key,$arr) {
 		if($arr[1]==$new_key) return true;
 		return Utils_CommonDataCommon::get_id($arr[0].'/'.$new_key)===false;
 	}
-	
+
 	/**
 	 * For internal use only.
 	 */
 	public function browse($name='',$root=true){
 		if($this->is_back()) return false;
-		
+
 		$gb = & $this->init_module('Utils/GenericBrowser',null,'browse'.md5($name));
 
 		$gb->set_table_columns(array(
-						array('name'=>'Key','width'=>20, 'order'=>'akey','search'=>1,'quickjump'=>'akey'),
-						array('name'=>'Value','width'=>20, 'order'=>'value','search'=>1)
+						array('name'=>$this->lang->t('Key'),'width'=>20, 'order'=>'akey','search'=>1,'quickjump'=>'akey'),
+						array('name'=>$this->lang->t('Value'),'width'=>20, 'order'=>'value','search'=>1)
 					));
-		
+
 		print('<h2>'.$name.'</h2><br>');
 		$ret = Utils_CommonDataCommon::get_array($name,false,true);
 		foreach($ret as $k=>$v) {
 			$gb_row = $gb->get_new_row();
-			$gb_row->add_data($k,$v['value']);
+			$gb_row->add_data($k,$this->lang->t($v['value']));
 			$gb_row->add_action($this->create_callback_href(array($this,'browse'),array($name.'/'.$k,false)),'View');
 			if(!$v['readonly']) {
 				$gb_row->add_action($this->create_callback_href(array($this,'edit'),array($name,$k)),'Edit');
-				$gb_row->add_action($this->create_confirm_callback_href($this->lang->t('Delete array').' \''.Epesi::escapeJS($name.'/'.$k,false).'\'?',array('Utils_CommonData','remove_array'), array($name.'/'.$k)),'Delete');
+				$gb_row->add_action($this->create_confirm_callback_href($this->lang->ht('Delete array').' \''.Epesi::escapeJS($name.'/'.$k,false).'\'?',array('Utils_CommonData','remove_array'), array($name.'/'.$k)),'Delete');
 			}
 		}
 		//$this->display_module($gb);
@@ -103,7 +103,7 @@ class Utils_CommonData extends Module {
 			Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 		return true;
 	}
-	
+
 	/**
 	 * For internal use only.
 	 */
