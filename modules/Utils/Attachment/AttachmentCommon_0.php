@@ -46,6 +46,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	}
 	
 	public static function add($key,$group,$permission,$user,$other_read,$note=null,$oryg=null,$file=null) {
+		$key = md5($key);
 		DB::Execute('INSERT INTO utils_attachment_link(attachment_key,local,permission,permission_by,other_read) VALUES(%s,%s,%d,%d,%b)',array($key,$group,$permission,$user,$other_read));
 		$id = DB::Insert_ID('utils_attachment_link','id');
 		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$oryg,$user));
