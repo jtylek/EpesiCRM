@@ -338,7 +338,7 @@ class Utils_Attachment extends Module {
 			   ($row['permission']==1 && $this->protected_write) ||
 			   ($row['permission']==2 && $this->private_write))
 				$r->add_action($this->create_callback_href(array($this,'restore_note'),array($id,$row['revision'])),'restore');
-			$r->add_data($row['revision'],$row['note_on'],$row['note_by'],$row['text']);
+			$r->add_data($row['revision'],Base_RegionalSettingsCommon::time2reg($row['note_on']),$row['note_by'],$row['text']);
 		}
 		$th->assign('note_edition',$this->get_html_of_module($gb));
 
@@ -362,7 +362,7 @@ class Utils_Attachment extends Module {
 			   ($row['permission']==2 && $this->private_write))
 				$r->add_action($this->create_callback_href(array($this,'restore_file'),array($id,$row['file_revision'])),'restore');
 			$file = '<a '.$this->get_file($row).'>'.$row['original'].'</a>';
-			$r->add_data($row['file_revision'],$row['upload_on'],$row['upload_by'],$file);
+			$r->add_data($row['file_revision'],Base_RegionalSettingsCommon::time2reg($row['upload_on']),$row['upload_by'],$file);
 		}
 		$th->assign('file_uploads',$this->get_html_of_module($gb));
 
@@ -392,7 +392,7 @@ class Utils_Attachment extends Module {
 		}
 		while($row = $ret->FetchRow()) {
 			$r = $gb->get_new_row();
-			$r->add_data($row['created_on'],($row['remote']!=1?$row['download_on']:''),$row['created_by'], $row['ip_address'], $row['host_name'], $row['description'], $row['revision'], ($row['remote']==0?'no':'yes'));
+			$r->add_data(Base_RegionalSettingsCommon::time2reg($row['created_on']),($row['remote']!=1?Base_RegionalSettingsCommon::time2reg($row['download_on']):''),$row['created_by'], $row['ip_address'], $row['host_name'], $row['description'], $row['revision'], ($row['remote']==0?'no':'yes'));
 		}
 		$th->assign('file_access',$this->get_html_of_module($gb));
 
