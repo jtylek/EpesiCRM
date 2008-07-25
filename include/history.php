@@ -44,7 +44,9 @@ class History {
 		DB::StartTrans();
 		DB::Replace('history',array('data'=>$data,'page_id'=>$_SESSION['client']['__history_id__'], 'session_name'=>session_id(), 'client_id'=>CID),array('session_name','page_id'),true);
 		$_SESSION['client']['__history_id__']++;
-		DB::Execute('DELETE FROM history WHERE session_name=%s AND (page_id>=%d OR page_id<%d) AND client_id=%d',array(session_id(),$_SESSION['client']['__history_id__'],$_SESSION['client']['__history_id__']-20,CID));
+		$ret = DB::Execute('SELECT page_id FROM history WHERE session_name=%s AND (page_id>=%d OR page_id<%d) AND client_id=%d',array(session_id(),$_SESSION['client']['__history_id__'],$_SESSION['client']['__history_id__']-20,CID));
+		while($row = $ret->FetchRow())
+			DB::Execute('DELETE FROM history WHERE session_name=%s AND page_id=%d AND client_id=%d',array(session_id(),$row['page_id'],CID));
 		DB::CompleteTrans();
 	}
 	
