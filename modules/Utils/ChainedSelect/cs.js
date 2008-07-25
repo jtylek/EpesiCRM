@@ -1,7 +1,6 @@
 var ChainedSelect = Class.create();
 ChainedSelect.prototype = {
 	prev_ids:null,
-	req_url:'',
 	dest_id:null,
 	params:null,
 	default_val:null,
@@ -10,10 +9,9 @@ ChainedSelect.prototype = {
 	load_def_f:null,
 	stop_f:null,
 	loads:0,
-	initialize:function(dest_id,prev_ids,req_url,params,def_val) {
+	initialize:function(dest_id,prev_ids,params,def_val) {
 		if($(dest_id)==null)return;
 		this.prev_ids = prev_ids;
-		this.req_url = req_url;
 		this.dest_id = dest_id;
 		this.params = params;
 		this.default_val = def_val;
@@ -68,7 +66,7 @@ ChainedSelect.prototype = {
 			method: 'post',
 			parameters:{
 				values:Object.toJSON(vals),
-				req_url:this.req_url,
+				dest_id:dest_id,
 				parameters:Object.toJSON(this.params),
 				defaults:Object.toJSON(def_val),
 				cid: Epesi.client_id

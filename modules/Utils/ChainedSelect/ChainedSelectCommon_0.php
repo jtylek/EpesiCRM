@@ -17,9 +17,10 @@ class Utils_ChainedSelectCommon extends ModuleCommon {
 		if($params===null) $params=array();
 		if($default_val===null) $default_val='';
 		$js = 'var params = new Hash();';
+		$_SESSION['client']['utils_chainedselect'][$dest_id] = $req_url;
 		foreach($params as $k=>$v)
 			$js.='params.set("'.$k.'","'.$v.'");';
-		eval_js($js.'new ChainedSelect("'.$dest_id.'",new Array("'.implode('","',$prev_ids).'"),"'.$req_url.'",params, "'.$default_val.'")');
+		eval_js($js.'new ChainedSelect("'.$dest_id.'",new Array("'.implode('","',$prev_ids).'"),params, "'.$default_val.'")');
 	}
 }
 

@@ -1,5 +1,5 @@
 <?php
-if(!isset($_POST['values']) || !isset($_POST['req_url']) || !isset($_POST['cid']))
+if(!isset($_POST['values']) || !isset($_POST['dest_id']) || !isset($_POST['cid']))
 	die('alert(\'Invalid request\')');
 	
 define('JS_OUTPUT',1);
@@ -15,6 +15,5 @@ $_REQUEST['values'] = $_GET['values'] = $_POST['values'];
 $_REQUEST['defaults'] = $_GET['defaults'] = $_POST['defaults'];
 $_REQUEST['parameters'] = $_GET['parameters'] = $_POST['parameters'];
 
-require_once($_POST['req_url']);
-
+require_once($_SESSION['client']['utils_chainedselect'][$_POST['dest_id']]);
 ?>
