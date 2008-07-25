@@ -178,7 +178,7 @@ class Utils_Attachment extends Module {
 			$text = strip_tags(str_replace('</p>','<br>',$row['text']),'<br><br/>');
 			$max_len = 120;
 			if(strlen($text)>$max_len) {
-				$br = strpos('<br',$text,$max_len-3);
+				$br = strpos($text,'<br',$max_len-3);
 				if($br!==false && $br<$max_len) $max_len=$br;
 				$text = array('value'=>substr($text,0,$max_len).'<a href="javascript:void(0)" onClick="utils_attachment_expand('.$row['id'].')" id="utils_attachment_more_'.$row['id'].'">...'.$this->lang->t('[more]').'</a><span style="display:none" id="utils_attachment_text_'.$row['id'].'">'.substr($text,$max_len).' <a href="javascript:void(0)" onClick="utils_attachment_collapse('.$row['id'].')">'.$this->lang->t('[less]').'</a></span>','hint'=>$this->lang->t('Click on view icon to see full note'));
 				$expandable[] = $row['id'];
