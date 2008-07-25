@@ -13,7 +13,11 @@ $arr = DB::GetAll('SELECT m.* FROM utils_messenger_message m INNER JOIN utils_me
 //print it out
 print('utils_messenger_on=false;');
 foreach($arr as $row) {
-	print('if(confirm(\''.Epesi::escapeJS(call_user_func_array(unserialize($row['callback_method']),unserialize($row['callback_args']))."\n".($row['message']?Base_LangCommon::ts('Utils/Messenger',"Alarm comment: %s",array($row['message'])):'')."\n\n".Base_LangCommon::ts('Utils/Messenger',"Turn off alarm?"),false).'\')) new Ajax.Request(\'modules/Utils/Messenger/turnoff.php\',{method:\'get\',parameters:{id:'.$row['id'].'}});');
+	ob_start();
+	$ret = call_user_func_array(unserialize($row['callback_method']),unserialize($row['callback_args']));
+	ob_clean();
+
+	print('if(confirm(\''.Epesi::escapeJS($ret."\n".($row['message']?Base_LangCommon::ts('Utils/Messenger',"Alarm comment: %s",array($row['message'])):'')."\n\n".Base_LangCommon::ts('Utils/Messenger',"Turn off alarm?"),false).'\')) new Ajax.Request(\'modules/Utils/Messenger/turnoff.php\',{method:\'get\',parameters:{id:'.$row['id'].'}});');
 }
 print('utils_messenger_on=true;');
 ?>
