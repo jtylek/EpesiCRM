@@ -323,10 +323,10 @@ class Utils_Attachment extends Module {
 
 		$gb = $this->init_module('Utils/GenericBrowser',null,'hn'.$this->key);
 		$gb->set_table_columns(array(
-				array('name'=>'Revision', 'order'=>'uac.revision','width'=>10),
-				array('name'=>'Date', 'order'=>'note_on','width'=>25),
-				array('name'=>'Who', 'order'=>'note_by','width'=>25),
-				array('name'=>'Note', 'order'=>'uac.text')
+				array('name'=>$this->lang->t('Revision'), 'order'=>'uac.revision','width'=>10),
+				array('name'=>$this->lang->t('Date'), 'order'=>'note_on','width'=>25),
+				array('name'=>$this->lang->t('Who'), 'order'=>'note_by','width'=>25),
+				array('name'=>$this->lang->t('Note'), 'order'=>'uac.text')
 			));
 		$gb->set_default_order(array($this->lang->t('Date')=>'DESC'));
 
@@ -346,10 +346,10 @@ class Utils_Attachment extends Module {
 
 		$gb = $this->init_module('Utils/GenericBrowser',null,'hua'.$this->key);
 		$gb->set_table_columns(array(
-				array('name'=>'Revision', 'order'=>'file_revision','width'=>10),
-				array('name'=>'Date', 'order'=>'upload_on','width'=>25),
-				array('name'=>'Who', 'order'=>'upload_by','width'=>25),
-				array('name'=>'Attachment', 'order'=>'uaf.original')
+				array('name'=>$this->lang->t('Revision'), 'order'=>'file_revision','width'=>10),
+				array('name'=>$this->lang->t('Date'), 'order'=>'upload_on','width'=>25),
+				array('name'=>$this->lang->t('Who'), 'order'=>'upload_by','width'=>25),
+				array('name'=>$this->lang->t('Attachment'), 'order'=>'uaf.original')
 			));
 		$gb->set_default_order(array($this->lang->t('Date')=>'DESC'));
 
@@ -370,14 +370,14 @@ class Utils_Attachment extends Module {
 
 		$gb = $this->init_module('Utils/GenericBrowser',null,'hda'.$this->key);
 		$gb->set_table_columns(array(
-				array('name'=>'Create date', 'order'=>'created_on','width'=>15),
-				array('name'=>'Download date', 'order'=>'download_on','width'=>15),
-				array('name'=>'Who', 'order'=>'created_by','width'=>15),
-				array('name'=>'IP address', 'order'=>'ip_address', 'width'=>15),
-				array('name'=>'Host name', 'order'=>'host_name', 'width'=>15),
-				array('name'=>'Method description', 'order'=>'description', 'width'=>20),
-				array('name'=>'Revision', 'order'=>'revision', 'width'=>10),
-				array('name'=>'Remote', 'order'=>'remote', 'width'=>10),
+				array('name'=>$this->lang->t('Create date'), 'order'=>'created_on','width'=>15),
+				array('name'=>$this->lang->t('Download date'), 'order'=>'download_on','width'=>15),
+				array('name'=>$this->lang->t('Who'), 'order'=>'created_by','width'=>15),
+				array('name'=>$this->lang->t('IP address'), 'order'=>'ip_address', 'width'=>15),
+				array('name'=>$this->lang->t('Host name'), 'order'=>'host_name', 'width'=>15),
+				array('name'=>$this->lang->t('Method description'), 'order'=>'description', 'width'=>20),
+				array('name'=>$this->lang->t('Revision'), 'order'=>'revision', 'width'=>10),
+				array('name'=>$this->lang->t('Remote'), 'order'=>'remote', 'width'=>10),
 			));
 		$gb->set_default_order(array($this->lang->t('Create date')=>'DESC'));
 
