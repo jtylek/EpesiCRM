@@ -175,11 +175,12 @@ class Utils_Attachment extends Module {
 				$r->add_action($this->create_callback_href(array($this,'view_queue'),array($row['id'])),'view');
 				$r->add_action($this->create_callback_href(array($this,'edition_history_queue'),$row['id']),'history');
 			}
-			$text = strip_tags($row['text'],'<p><br><br/>');
-			if(strlen($text)>120) {
-				$text = array('value'=>substr($text,0,120).'<a href="javascript:void(0)" onClick="utils_attachment_expand('.$row['id'].')" id="utils_attachment_more_'.$row['id'].'">...'.$this->lang->t('[more]').'</a><span style="display:none" id="utils_attachment_text_'.$row['id'].'">'.substr($text,120).' <a href="javascript:void(0)" onClick="utils_attachment_collapse('.$row['id'].')">'.$this->lang->t('[less]').'</a></span>','hint'=>$this->lang->t('Click on view icon to see full note'));
-				//$temp_row_id = $row['id'];
-				/* MS */ //$text = array('value'=>substr($text,0,120) . '<a onClick="document.getElementById(' . $temp_row_id . ').style.height=\'100px\'">...'.$this->lang->t('(more)').'</a>','hint'=>$this->lang->t('Click on view icon to see full note'));
+			$text = strip_tags(str_replace('</p>','<br>',$row['text']),'<br><br/>');
+			$max_len = 120;
+			if(strlen($text)>$max_len) {
+				$br = strpos('<br',$text,$max_len-3);
+				if($br!==false && $br<$max_len) $max_len=$br;
+				$text = array('value'=>substr($text,0,$max_len).'<a href="javascript:void(0)" onClick="utils_attachment_expand('.$row['id'].')" id="utils_attachment_more_'.$row['id'].'">...'.$this->lang->t('[more]').'</a><span style="display:none" id="utils_attachment_text_'.$row['id'].'">'.substr($text,$max_len).' <a href="javascript:void(0)" onClick="utils_attachment_collapse('.$row['id'].')">'.$this->lang->t('[less]').'</a></span>','hint'=>$this->lang->t('Click on view icon to see full note'));
 				$expandable[] = $row['id'];
 			}
 
