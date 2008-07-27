@@ -64,7 +64,7 @@ class Utils_Messenger extends Module {
 		DB::Execute('DELETE FROM utils_messenger_message WHERE page_id=\''.$this->mid.'\'');
 		$data = $this->get_module_variable('data');
 		foreach($data as $row) {
-			DB::Execute('INSERT INTO utils_messenger_message(page_id,parent_module,message,callback_method,callback_args,created_on,created_by,alert_on) VALUES(%s,%s,%s,%s,%T,%d,%T)',array($this->mid,$this->get_type(),$row['message'],serialize($this->callback_method),serialize($this->callback_args),time(),Acl::get_user(),$row['alert_on']));
+			DB::Execute('INSERT INTO utils_messenger_message(page_id,parent_module,message,callback_method,callback_args,created_on,created_by,alert_on) VALUES(%s,%s,%s,%s,%T,%d,%T)',array($this->mid,$this->parent->get_type(),$row['message'],serialize($this->callback_method),serialize($this->callback_args),time(),Acl::get_user(),$row['alert_on']));
 			$id = DB::Insert_ID('utils_messenger_message','id');
 			if(is_array($this->users)) {
 				foreach($row['users'] as $r)
@@ -117,7 +117,7 @@ class Utils_Messenger extends Module {
 					$id = $row['id'];
 					DB::Execute('DELETE FROM utils_messenger_users WHERE message_id=%d',array($id));
 				} else {
-					DB::Execute('INSERT INTO utils_messenger_message(page_id,parent_module,message,callback_method,callback_args,created_on,created_by,alert_on) VALUES(%s,%s,%s,%s,%s,%T,%d,%T)',array($this->mid,$this->get_type(),$ret['message'],serialize($this->callback_method),serialize($this->callback_args),time(),Acl::get_user(),$ret['alert_on']));
+					DB::Execute('INSERT INTO utils_messenger_message(page_id,parent_module,message,callback_method,callback_args,created_on,created_by,alert_on) VALUES(%s,%s,%s,%s,%s,%T,%d,%T)',array($this->mid,$this->parent->get_type(),$ret['message'],serialize($this->callback_method),serialize($this->callback_args),time(),Acl::get_user(),$ret['alert_on']));
 					$id = DB::Insert_ID('utils_messenger_message','id');
 				}
 				if(is_array($this->users)) {
@@ -171,10 +171,14 @@ class Utils_Messenger extends Module {
 				));
 		foreach($data as $row) {
 			$r = & $gb->get_new_row();
-			$us = '';
-			foreach($row['users'] as $rr)
-				if(isset($this->users[$rr])) 
-					$us .= $this->users[$rr].'<br>';
+			if(is_array($this->users)) {
+				$us = '';
+				foreach($row['users'] as $rr)
+					if(isset($this->users[$rr])) 
+						$us .= Base_UserCommon::get_user_login($this->users[$rr]).'<br>';
+			} else
+				$us = Base_UserCommon::get_user_login($this->users);
+				
 			$r->add_data(Base_RegionalSettingsCommon::time2reg($row['alert_on']),$row['message'],$us);
 			$r->add_action($this->create_callback_href(array($this,'push_box0'),array('edit',array($row),array($this->real_id,$this->callback_method,$this->callback_args,$this->def_date,$this->users,$this->autosave))),'Edit');
 			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Are you sure?'),array($this,'delete_entry'),$row['id']),'Delete');
@@ -207,7 +211,7 @@ class Utils_Messenger extends Module {
 		while($row = $ret->FetchRow()) {
 			$info = call_user_func_array(unserialize($row['callback_method']),unserialize($row['callback_args']));
 			$info = str_replace("\n",'<br>',$info);
-			$gb->add_row('<span class="'.($row['done']==='')?'':($row['done']?'checkbox_on':'checkbox_off').'" />',$row['alert_on'],$info.'<br>'.($row['message']?$this->lang->t("Alarm comment: %s",array($row['message'])):''));
+			$gb->add_row('<span class="'.($row['done']?'checkbox_on':'checkbox_off').'" />',Base_RegionalSettingsCommon::time2reg($row['alert_on']),$info.'<br>'.($row['message']?$this->lang->t("Alarm comment: %s",array($row['message'])):''));
 		}
 
 		$this->display_module($gb);

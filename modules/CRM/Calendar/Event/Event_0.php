@@ -407,6 +407,14 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$form->addRule(array('recurrence_end_date','recurrence','date_s'), $this->lang->t('You cannot create recurrence event for more than one year period.'), 'check_recurrence');
 			$form->registerRule('check_recurrence2', 'callback', 'check_recurrence2', $this);
 			$form->addRule(array('recurrence_end_date','recurrence','date_s'), $this->lang->t('End date cannot be before start date.'), 'check_recurrence2');
+
+			eval_js_once('crm_calendar_event_messenger = function(v) {if(v){$("messenger_before").enable();$("messenger_message").enable();}else{$("messenger_before").disable();$("messenger_message").disable();}}');
+			$form->addElement('select','messenger_before',$this->lang->t('Popup alert before'),array(0=>$this->lang->ht('on event start'), 1=>$this->lang->ht('1 hour'), 2=>$this->lang->ht('2 hours'), 3=>$this->lang->ht('3 hours'), 4=>$this->lang->ht('4 hours'), 8=>$this->lang->ht('8 hours'), 12=>$this->lang->ht('12 hours'), 24=>$this->lang->ht('24 hours')),array('id'=>'messenger_before'));
+			$form->addElement('textarea','messenger_message',$this->lang->t('Popup message'),array('id'=>'messenger_message'));
+			$form->addElement('checkbox','messenger_on',$this->lang->t('Alert me'),null,array('onClick'=>'crm_calendar_event_messenger(this.checked)'));
+			eval_js('crm_calendar_event_messenger('.($form->exportValue('messenger_before')?1:0).')');
+			$form->registerRule('check_my_user', 'callback', 'check_my_user', $this);
+			$form->addRule(array('messenger_on','emp_id'), $this->lang->t('You have to select your contact to set alarm on it'), 'check_my_user');
 		} else {
 			$form->addElement('checkbox','recurrence',$this->lang->t('Recurrence event'))->freeze();
 		}
@@ -516,6 +524,13 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 		return true;
 	}
+	
+	public function check_my_user($arg) {
+		if(!$arg[0]) return true;
+		$sub = array_filter(explode('__SEP__',$arg[1]));
+		$me = CRM_ContactsCommon::get_my_record();
+		return in_array($me['id'],$sub);
+	}
 
 	public function check_dates($arg) {
 		if($arg[5]) return true;
@@ -599,6 +614,10 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 													date('Y-m-d H:i:s')
 													));
 			$id = DB::Insert_ID('crm_calendar_event', 'id');
+
+			if(isset($vals['messenger_on']) && $vals['messenger_on']) 
+				Utils_MessengerCommon::add('CRM_Calendar_Event:'.$id,$this->get_type(),$vals['messenger_message'],$start-$vals['messenger_before']*3600, array('CRM_Calendar_EventCommon','get_alarm'),array($id));
+
 			foreach($vals['emp_id'] as $v) {
 				DB::Execute('INSERT INTO crm_calendar_event_group_emp (id,contact) VALUES (%d, %d)', array($id, $v));
 			}

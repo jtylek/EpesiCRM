@@ -234,6 +234,9 @@
 	{$form_data.recurrence_end_date.label} {$form_data.recurrence_end_date.error} {$form_data.recurrence_end_date.html}<br>
 	<span id="{$recurrence_custom_days}">{$form_data.custom_days.html}</span>
 </div>
+{$form_data.messenger_on.label} {$form_data.messenger_on.error} {$form_data.messenger_on.html}<br>
+{$form_data.messenger_before.label} {$form_data.messenger_before.error} {$form_data.messenger_before.html}<br>
+{$form_data.messenger_message.label} {$form_data.messenger_message.error} {$form_data.messenger_message.html}<br>
 {/if}
 
 </form>

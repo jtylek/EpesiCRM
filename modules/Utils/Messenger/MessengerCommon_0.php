@@ -33,6 +33,18 @@ class Utils_MessengerCommon extends ModuleCommon {
 		DB::Execute('DELETE FROM utils_messenger_message WHERE page_id=\''.$mid.'\'');
 
 	}
+	
+	public static function add($id,$parent_type,$message,$alert_on, $callback_method,$callback_args=null,$users=null) {
+		$callback_args = isset($callback_args)?((is_array($callback_args))?$callback_args:array($callback_args)):array();
+		if(!isset($users)) $users = Acl::get_user();
+		DB::Execute('INSERT INTO utils_messenger_message(page_id,parent_module,message,callback_method,callback_args,created_on,created_by,alert_on) VALUES(%s,%s,%s,%s,%s,%T,%d,%T)',array(md5($id),$parent_type,$message,serialize($callback_method),serialize($callback_args),time(),Acl::get_user(),$alert_on));
+		$id = DB::Insert_ID('utils_messenger_message','id');
+		if(is_array($users)) {
+			foreach($users as $r)
+				DB::Execute('INSERT INTO utils_messenger_users(message_id,user_login_id) VALUES (%d,%d)',array($id,$r));
+		} else
+			DB::Execute('INSERT INTO utils_messenger_users(message_id,user_login_id) VALUES (%d,%d)',array($id,$users));
+	}
 
 }
 
