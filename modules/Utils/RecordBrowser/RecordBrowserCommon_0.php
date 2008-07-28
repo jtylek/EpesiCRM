@@ -517,10 +517,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 									$v[$kkk] = substr($vvv,12,-6);
 								$ret = Utils_CommonDataCommon::get_translated_array(isset($cols2)?$cols2:$cols);
 								$allowed_cd = array();
-//								error_log(print_r($ret,true)."\n".print_r($v,true)."\n--------\n",3,'data/text.txt');
 								foreach ($ret as $kkk=>$vvv) 
 									foreach ($v as $w) {
-//										error_log($vvv."\n".$w."\n==========\n",3,'data/text.txt');
 										if (strpos($vvv,$w)!==false) {
 											$allowed_cd[] = DB::qstr($kkk);
 											break;
