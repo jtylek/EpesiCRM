@@ -155,8 +155,8 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	public static function QFfield_phone(&$form, $field, $label, $mode, $default, $desc) {
 		if ($mode=='add' || $mode=='edit') {
 			$form->addElement('select', $field, $label, array(), array('id'=>$field));
-			Utils_ChainedSelectCommon::create($field, array('company_name','contact'),'modules/CRM/PhoneCall/update_phones.php',null,$default);
 			if ($mode=='edit') $form->setDefaults(array($field=>$default));
+			Utils_ChainedSelectCommon::create($field, array('company_name','contact'),'modules/CRM/PhoneCall/update_phones.php',null,$form->exportValue($field));
 			$form->addFormRule(array('CRM_PhoneCallCommon','check_contact_not_empty'));
 		} else {
 			$form->addElement('static', $field, $label);
