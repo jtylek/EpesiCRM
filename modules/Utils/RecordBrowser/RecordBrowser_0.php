@@ -537,7 +537,12 @@ class Utils_RecordBrowser extends Module {
 			self::$clone_result = null;
 			return false;
 		}
-		$this->navigate('view_entry', 'add', null, Utils_RecordBrowserCommon::get_record($this->tab, $id));
+		$record = Utils_RecordBrowserCommon::get_record($this->tab, $id);
+		$access = $this->get_access('fields',$record);
+		if (is_array($access)) 
+			foreach ($access as $k=>$v)
+				if ($v=='hide') unset($record[$k]);
+		$this->navigate('view_entry', 'add', null, $record);
 		return true;
 	}
 	public function view_entry($mode='view', $id = null, $defaults = array()) {
