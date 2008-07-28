@@ -169,7 +169,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 				$crit_callback = explode('::',$param[2]);
 				if ($crit_callback[0]=='ChainedSelect') {
 					$crits = null;
-					self::contacts_chainedselect_crits($default, $desc, $callback, $crit_callback[1]);
+//					self::contacts_chainedselect_crits($form->exportValue($field), $desc, $callback, $crit_callback[1]);
 				} else {
 					$crits = call_user_func($crit_callback, false);
 					$adv_crits = call_user_func($crit_callback, true);
@@ -201,7 +201,10 @@ class CRM_ContactsCommon extends ModuleCommon {
 				uasort($cont, array('CRM_ContactsCommon', 'compare_names'));
 			} else $cont = array();
 			$form->addElement($desc['type'], $field, $label, $cont, array('id'=>$field));
-			if ($mode!=='add') $form->setDefaults(array($field=>$default));
+			$form->setDefaults(array($field=>$default));
+			if ($param[2] != '::')
+				if ($crit_callback[0]=='ChainedSelect')
+					self::contacts_chainedselect_crits($form->exportValue($field), $desc, $callback, $crit_callback[1]);
 		} else {
 			$form->addElement('static', $field, $label, array('id'=>$field));
 			$def = '';
