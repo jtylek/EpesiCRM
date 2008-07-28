@@ -105,7 +105,8 @@
 
 #Utils_RecordBrowser__View_entry #multiselect .form-element select,
 #Utils_RecordBrowser__View_entry #multiselect .to-element select {
-    width: 150px;
+    /*width: 150px;*/
+    width: 100%;
     height: 100px;
 }
 

@@ -4,7 +4,7 @@
 	$this->_tpl_vars['multiselects'] = array();
 {/php}
 {foreach key=k item=f from=$fields name=fields}
-	{if $f.type!="multiselect"}	
+	{if $f.type!="multiselect"}
 		{assign var=count value=$count+1}
 	{else}
 		{php}
@@ -59,11 +59,11 @@
 			{assign var=x value=1}
 			{assign var=y value=1}
 			{foreach key=k item=f from=$fields name=fields}
-				{if $f.type!="multiselect"}	
+				{if $f.type!="multiselect"}
 					{if !isset($focus) && $f.type=="text"}
 						{assign var=focus value=$f.element}
 					{/if}
-		
+
 					{if $y==1}
 					<td class="column" style="width: {$cols_percent}%;">
 						<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
@@ -96,7 +96,7 @@
 				{foreach key=k item=f from=$multiselects name=fields}
 					{if $y==1}
 					<td class="column" style="width: {$cols_percent}%;">
-						<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+						<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
 					{/if}
 							<tr>
 								<td class="label">{$f.label}{if $f.required}*{/if}{$f.advanced}</td>
