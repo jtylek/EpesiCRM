@@ -508,15 +508,24 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							$param = explode(';', self::$table_rows[$ref]['param']);
 							$param = explode('::',$param[0]);
 							
-							if (!isset($param[1])) $cols = $param[0];
-							else {
+							if (isset($param[1])) {
 								$tab2 = $param[0];
 								$cols2 = $param[1];
-							}
+							} else $cols = $param[0];
 							if ($params[1]=='RefCD' || $tab2=='__COMMON__') {
-								$ret = DB::Execute('SELECT cd1.akey AS id FROM utils_commondata_tree AS cd1 LEFT JOIN utils_commondata_tree AS cd2 ON cd1.parent_id=cd2.id WHERE cd1.value LIKE '.implode(' OR cd1.value LIKE ',$v).' AND cd2.akey='.DB::qstr($cols2));
+								foreach ($v as $kkk=>$vvv)
+									$v[$kkk] = substr($vvv,12,-6);
+								$ret = Utils_CommonDataCommon::get_translated_array(isset($cols2)?$cols2:$cols);
 								$allowed_cd = array();
-								while ($row = $ret->FetchRow()) $allowed_cd[] = DB::qstr($row['id']);
+//								error_log(print_r($ret,true)."\n".print_r($v,true)."\n--------\n",3,'data/text.txt');
+								foreach ($ret as $kkk=>$vvv) 
+									foreach ($v as $w) {
+//										error_log($vvv."\n".$w."\n==========\n",3,'data/text.txt');
+										if (strpos($vvv,$w)!==false) {
+											$allowed_cd[] = DB::qstr($kkk);
+											break;
+										}
+									}
 								if (empty($allowed_cd)) {
 									$having .= $negative?'1':'0';
 									break;
