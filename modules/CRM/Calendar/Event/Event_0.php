@@ -43,7 +43,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$pdf_theme = $this->pack_module('Base/Theme');
 		$pdf_theme->assign('description', array('label'=>$this->lang->t('Description'), 'value'=>str_replace("\n",'<br/>',htmlspecialchars($ev['description']))));
 		if (!$no_details) {
-			$ev['status'] = Utils_CommonDataCommon::get_value('Ticket_Status/'.$ev['status']);
+			$ev['status'] = Utils_CommonDataCommon::get_value('Ticket_Status/'.$ev['status'],true);
 			$ev['access'] = self::$access[$ev['access']];
 			$ev['priority'] = self::$priority[$ev['priority']];
 			foreach (array('access', 'priority', 'status') as $v)
@@ -259,7 +259,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 		if ($action=='view') {
 			$form->addElement('static', 'status', $this->lang->t('Status'));
-			$status = Utils_CommonDataCommon::get_array('Ticket_Status');
+			$status = Utils_CommonDataCommon::get_translated_array('Ticket_Status');
 			$prefix = 'crm_event_leightbox';
 
 			$lgb = CRM_Calendar_EventCommon::get_followup_leightbox_href($id, $def);

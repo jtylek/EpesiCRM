@@ -68,7 +68,7 @@ class Utils_RecordBrowser extends Module {
 				}
 				list($tab, $col) = explode('::',$args['param']);
 				if (!is_array($val)) $val = array($val);
-				if ($tab=='__COMMON__') $data = Utils_CommonDataCommon::get_array($col, true);
+				if ($tab=='__COMMON__') $data = Utils_CommonDataCommon::get_translated_array($col, true);
 				$ret = '';
 				$first = true;
 				foreach ($val as $k=>$v){
@@ -88,7 +88,7 @@ class Utils_RecordBrowser extends Module {
 					$path = array_shift($arr);
 					foreach($arr as $v) $path .= '/'.$record[strtolower(str_replace(' ','_',$v))];
 					$path .= '/'.$record[$args['id']];
-					$ret = Utils_CommonDataCommon::get_value($path);
+					$ret = Utils_CommonDataCommon::get_value($path,true);
 				}
 			}
 			if ($args['type']=='currency') {
@@ -231,7 +231,7 @@ class Utils_RecordBrowser extends Module {
 				$param = explode(';',$this->table_rows[$filter]['param']);
 				list($tab, $col) = explode('::',$param[0]);
 				if ($tab=='__COMMON__') {
-					$arr = array_merge($arr, Utils_CommonDataCommon::get_array($col, true));
+					$arr = array_merge($arr, Utils_CommonDataCommon::get_translated_array($col, true));
 				} else {
 					Utils_RecordBrowserCommon::check_table_name($tab);
 					$ret2 = DB::Execute('SELECT '.$tab.'_id, value FROM '.$tab.'_data WHERE field=%s ORDER BY value', array($col));
@@ -850,7 +850,7 @@ class Utils_RecordBrowser extends Module {
 										$ref = $ref[0];
 										list($tab, $col) = explode('::',$ref);
 										if ($tab=='__COMMON__') {
-											$data = Utils_CommonDataCommon::get_array($col, true);
+											$data = Utils_CommonDataCommon::get_translated_array($col, true);
 											if (!is_array($data)) $data = array();
 										}
 										if ($mode=='add' || $mode=='edit') {

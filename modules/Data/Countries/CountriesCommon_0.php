@@ -15,7 +15,7 @@ class Data_CountriesCommon extends Base_AdminModuleCommon {
 	}
 	
 	public static function get() {
-		return Utils_CommonDataCommon::get_array('Countries');
+		return Utils_CommonDataCommon::get_translated_array('Countries');
 	}
 
 	public static function QFfield_country(&$form, $field, $label, $mode, $default, $desc) {
