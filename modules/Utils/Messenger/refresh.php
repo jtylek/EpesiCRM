@@ -9,7 +9,7 @@ require_once('../../../include.php');
 ModuleManager::load_modules();
 
 if(!Acl::is_user()) return;
-error_log('SELECT m.* FROM utils_messenger_message m INNER JOIN utils_messenger_users u ON u.message_id=m.id WHERE u.user_login_id='.Acl::get_user().' AND u.done=0 AND m.alert_on<"'.Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s')).'"',3,'data/logT');
+//error_log('SELECT m.* FROM utils_messenger_message m INNER JOIN utils_messenger_users u ON u.message_id=m.id WHERE u.user_login_id='.Acl::get_user().' AND u.done=0 AND m.alert_on<"'.Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s')).'"',3,'data/logT');
 $arr = DB::GetAll('SELECT m.* FROM utils_messenger_message m INNER JOIN utils_messenger_users u ON u.message_id=m.id WHERE u.user_login_id=%d AND u.done=0 AND m.alert_on<%T',array(Acl::get_user(),Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s'))));
 //print it out
 print('utils_messenger_on=false;');
