@@ -135,7 +135,7 @@ class Utils_Attachment extends Module {
 		$expandable = array();
 
 		while($row = $ret->FetchRow()) {
-			if(!$row['other_read'] && $row['permission_by']!=Acl::get_user()) {
+			if(!Base_AclCommon::i_am_admin() && !$row['other_read'] && $row['permission_by']!=Acl::get_user()) {
 				if($row['permission']==0 && !$this->public_read) continue;//protected
 				elseif($row['permission']==1 && !$this->protected_read) continue;//protected
 				elseif($row['permission']==2 && !$this->private_read) continue;//private
@@ -158,7 +158,8 @@ class Utils_Attachment extends Module {
 				$this->lang->t('Permission: %s',array($perm)).'<hr>'.
 				$this->lang->t('Last edited by %s<br>on %s<br>Number of edits: %d',array($row['note_by'],$note_on,$row['note_revision']));
 			$r->add_info($info);
-			if($row['permission_by']==Acl::get_user() ||
+			if(Base_AclCommon::i_am_admin() ||
+			 	$row['permission_by']==Acl::get_user() ||
 			   ($row['permission']==0 && $this->public_write) ||
 			   ($row['permission']==1 && $this->protected_write) ||
 			   ($row['permission']==2 && $this->private_write)) {
@@ -254,7 +255,8 @@ class Utils_Attachment extends Module {
 		$row = DB::GetRow('SELECT uaf.id as file_id,ual.permission_by,ual.permission,ual.deleted,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text,uaf.original,uaf.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE uaf.created_by=l2.id) as upload_by FROM utils_attachment_link ual INNER JOIN (utils_attachment_note uac,utils_attachment_file uaf) ON (uac.attach_id=ual.id AND uaf.attach_id=ual.id) WHERE ual.id=%d AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id)',array($id));
 
 		if($this->inline) {
-			if($row['permission_by']==Acl::get_user() ||
+			if(Base_AclCommon::i_am_admin() ||
+				$row['permission_by']==Acl::get_user() ||
 			   ($row['permission']==0 && $this->public_write) ||
 			   ($row['permission']==1 && $this->protected_write) ||
 			   ($row['permission']==2 && $this->private_write)) {
@@ -264,7 +266,8 @@ class Utils_Attachment extends Module {
 			print('<a '.$this->create_callback_href(array($this,'edition_history'),$id).'>'.$this->lang->t('History').'</a> :: ');
 			print('<a '.$this->create_back_href().'>'.$this->lang->t('back').'</a><br>');
 		} else {
-			if($row['permission_by']==Acl::get_user() ||
+			if(Base_AclCommon::i_am_admin() ||
+				$row['permission_by']==Acl::get_user() ||
 			   ($row['permission']==0 && $this->public_write) ||
 			   ($row['permission']==1 && $this->protected_write) ||
 			   ($row['permission']==2 && $this->private_write)) {
@@ -333,7 +336,8 @@ class Utils_Attachment extends Module {
 		$ret = $gb->query_order_limit('SELECT ual.permission_by,ual.permission,uac.revision,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text FROM utils_attachment_note uac INNER JOIN utils_attachment_link ual ON ual.id=uac.attach_id WHERE uac.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_note uac WHERE uac.attach_id='.$id);
 		while($row = $ret->FetchRow()) {
 			$r = $gb->get_new_row();
-			if($row['permission_by']==Acl::get_user() ||
+			if(Base_AclCommon::i_am_admin() || 
+				$row['permission_by']==Acl::get_user() ||
 			   ($row['permission']==0 && $this->public_write) ||
 			   ($row['permission']==1 && $this->protected_write) ||
 			   ($row['permission']==2 && $this->private_write))
@@ -356,7 +360,8 @@ class Utils_Attachment extends Module {
 		$ret = $gb->query_order_limit('SELECT uaf.id as file_id,ual.local,ual.permission_by,ual.permission,uaf.attach_id as id,uaf.revision as file_revision,uaf.created_on as upload_on,(SELECT l.login FROM user_login l WHERE uaf.created_by=l.id) as upload_by,uaf.original FROM utils_attachment_file uaf INNER JOIN utils_attachment_link ual ON ual.id=uaf.attach_id WHERE uaf.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_file uaf WHERE uaf.attach_id='.$id);
 		while($row = $ret->FetchRow()) {
 			$r = $gb->get_new_row();
-			if($row['permission_by']==Acl::get_user() ||
+			if(Base_AclCommon::i_am_admin() || 
+				$row['permission_by']==Acl::get_user() ||
 			   ($row['permission']==0 && $this->public_write) ||
 			   ($row['permission']==1 && $this->protected_write) ||
 			   ($row['permission']==2 && $this->private_write))

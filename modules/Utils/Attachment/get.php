@@ -21,7 +21,7 @@ $rev = $row['revision'];
 $local = $row['local'];
 $filename = $local.'/'.$row['attach_id'].'_'.$rev;
 
-if(!$row['other_read'] && $row['permission_by']!=Acl::get_user()) {
+if(!Base_AclCommon::i_am_admin() && !$row['other_read'] && $row['permission_by']!=Acl::get_user()) {
 	if(($row['permission']==0 && !$public) ||
 		($row['permission']==1 && !$protected) ||
 		($row['permission']==2 && !$private))
