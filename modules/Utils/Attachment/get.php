@@ -8,6 +8,7 @@ $disposition = (isset($_REQUEST['view']) && $_REQUEST['view'])?'inline':'attachm
 
 define('CID', $cid);
 require_once('../../../include.php');
+ModuleManager::load_modules();
 
 $public = Module::static_get_module_variable($path,'public',false);
 $protected = Module::static_get_module_variable($path,'protected',false);
