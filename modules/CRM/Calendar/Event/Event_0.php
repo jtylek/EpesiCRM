@@ -188,9 +188,9 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			);
 			foreach($this->custom_defaults as $k=>$v) $def[$k] = $v;
 		} else {
-			$event = DB::GetRow('SELECT *,end-start as duration FROM crm_calendar_event WHERE id=%d', $id);
+			$event = DB::GetRow('SELECT *,starts as start,ends as end,ends-starts as duration FROM crm_calendar_event WHERE id=%d', $id);
 			if ($event['priority']==2) $event['priority']=1;
-			$x = $event['end']-$event['start'];
+			$x = $event['duration'];
 			if(in_array($x,array(300,900,1800,3600,7200,14400,28800)))
 				$duration_switch='1';
 			else {
@@ -581,8 +581,8 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		while(1) {
 			DB::Execute('INSERT INTO crm_calendar_event (title,'.
 													'description,'.
-													'start,'.
-													'end,'.
+													'starts,'.
+													'ends,'.
 													'timeless,'.
 													'access,'.
 													'priority,'.
@@ -704,8 +704,8 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$end_diff = $prev['end']-$end;
 			DB::Execute('UPDATE crm_calendar_event SET title=%s,'.
 													'description=%s,'.
-													'start=start-%d,'.
-													'end=end-%d,'.
+													'starts=starts-%d,'.
+													'ends=ends-%d,'.
 													'timeless=%b,'.
 													'access=%d,'.
 													'priority=%d,'.
@@ -739,8 +739,8 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		} else {
 			DB::Execute('UPDATE crm_calendar_event SET title=%s,'.
 													'description=%s,'.
-													'start=%d,'.
-													'end=%d,'.
+													'starts=%d,'.
+													'ends=%d,'.
 													'timeless=%d,'.
 													'access=%d,'.
 													'priority=%d,'.

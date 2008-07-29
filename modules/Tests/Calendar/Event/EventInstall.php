@@ -27,7 +27,7 @@ class Tests_Calendar_EventInstall extends ModuleInstall {
 
 			"created_on T NOT NULL," .
 			"created_by I4 REFERENCES user_login(id)," .
-			"edited_on T NOT NULL DEFAULT 0," .
+			"edited_on T," .
 			"edited_by I4 REFERENCES user_login(id)"
 		);
 		if(!$ret) {

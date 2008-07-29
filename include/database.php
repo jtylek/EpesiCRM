@@ -137,7 +137,7 @@ class DB {
 					$ret .= '?';
 					break;
 				case '%b' :
-					$arr[$j] = (boolean) $arr[$j];
+					$arr[$j] = (boolean) $arr[$j]?1:0;
 					$j++;
 					$ret .= '?';
 					break;

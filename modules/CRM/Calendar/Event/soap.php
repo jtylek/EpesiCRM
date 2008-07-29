@@ -87,7 +87,7 @@ class EpesiCalendar
 		$newer_then = $newer_then + ($t-gmdate('U',$t));
 		
 		$events = array();
-		$ret = DB::Execute('SELECT e.color,e.start,e.end,e.title,e.description,e.id,e.timeless,e.priority FROM crm_calendar_event e WHERE ((e.edited_on>%d OR e.created_on>%d) AND (e.access<2 OR e.created_on=%d))',array($newer_then,$newer_then,Acl::get_user()));
+		$ret = DB::Execute('SELECT e.color,e.starts as start,e.ends as end,e.title,e.description,e.id,e.timeless,e.priority FROM crm_calendar_event e WHERE ((e.edited_on>%d OR e.created_on>%d) AND (e.access<2 OR e.created_on=%d))',array($newer_then,$newer_then,Acl::get_user()));
 		while($row = $ret->FetchRow()) {
 			$empl = array();
 			$empl_ret = DB::Execute('SELECT contact FROM crm_calendar_event_group_emp WHERE id=%d',array($row['id']));

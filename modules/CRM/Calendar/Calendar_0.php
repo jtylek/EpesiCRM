@@ -73,7 +73,7 @@ class CRM_Calendar extends Module {
 
 		$gb = $this->init_module('Utils/GenericBrowser', null, 'agenda');
 		$columns = array(
-			array('name'=>$l->t('Start'), 'order'=>'e.start', 'width'=>50),
+			array('name'=>$l->t('Start'), 'order'=>'e.starts', 'width'=>50),
 			array('name'=>$l->t('Title'), 'order'=>'e.title','width'=>50),
 		);
 		$gb->set_table_columns($columns);
@@ -94,7 +94,7 @@ class CRM_Calendar extends Module {
 				$title = Utils_TooltipCommon::create($row['title'],$row['description']);
 			else
 				$title = $row['title'];
-			$gb->add_row($view_action.($ex['start_time']!='timeless'?Utils_TooltipCommon::create($ex['start'],$l->t('Duration: %s<br>End: %s',array($ex['duration'],$ex['end']))):$ex['start']).'</a>',$view_action.$title.'</a>');
+			$gb->add_row($view_action.($ex['start_time']!='timeless'?Utils_TooltipCommon::create($ex['start'],$l->t('Duration: %s<br>End: %s',array($ex['duration'],$ex['end']))):$ex['starts']).'</a>',$view_action.$title.'</a>');
 		}
 
 		$this->display_module($gb);

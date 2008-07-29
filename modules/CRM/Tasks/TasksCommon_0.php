@@ -121,7 +121,7 @@ class CRM_TasksCommon extends ModuleCommon {
 		$ret = self::display_title($record, false);
 		if (!in_array($me['id'], $record['employees'])) return $ret;
 		$notified = DB::GetOne('SELECT 1 FROM task_employees_notified WHERE contact_id=%d AND task_id=%d', array($me['id'],$record['id']));
-		if ($notified===false) $ret = '<img src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','notice.png').'">'.$ret;
+		if ($notified===false || $notified===null) $ret = '<img src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','notice.png').'">'.$ret;
 		return $ret;
 	}
 	public static function QFfield_is_deadline(&$form, $field, $label, $mode, $default, $desc) {

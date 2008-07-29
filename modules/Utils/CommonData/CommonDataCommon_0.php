@@ -32,7 +32,7 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 		foreach($pcs as $v) {
 			if($v==='') continue; //ignore emtpy paths
 			$id = DB::GetOne('SELECT id FROM utils_commondata_tree WHERE parent_id=%d AND akey=%s',array($id,$v));
-			if($id===false)
+			if($id===false || $id===null)
 				return false;
 		}
 		return $id;
@@ -46,7 +46,7 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 		foreach($pcs as $v) {
 			if($v==='') continue;
 			$id2 = DB::GetOne('SELECT id FROM utils_commondata_tree WHERE parent_id=%d AND akey=%s',array($id,$v));
-			if($id2===false) {
+			if($id2===false || $id2===null) {
 				DB::Execute('INSERT INTO utils_commondata_tree(parent_id,akey) VALUES(%d,%s)',array($id,$v));
 				$id = DB::Insert_ID('utils_commondata_tree','id');
 			} else

@@ -21,11 +21,12 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			permission I2 DEFAULT 0,
 			permission_by I4,
 			attachment_key C(32) NOTNULL',
-			array('constraints'=>', INDEX(attachment_key,local), FOREIGN KEY (permission_by) REFERENCES user_login(ID)'));
+			array('constraints'=>', FOREIGN KEY (permission_by) REFERENCES user_login(ID)'));
 		if(!$ret){
 			print('Unable to create table utils_attachment_link.<br>');
 			return false;
 		}
+		DB::CreateIndex('utils_attachment_link__attachment_key__local__idx', 'utils_attachment_link', 'attachment_key,local');
 		$ret &= DB::CreateTable('utils_attachment_file','
 			id I4 AUTO KEY NOTNULL,
 			attach_id I4 NOTNULL,
@@ -33,11 +34,12 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			created_by I4,
 			created_on T DEFTIMESTAMP,
 			revision I4 NOTNULL',
-			array('constraints'=>', INDEX(revision), UNIQUE(attach_id,revision), FOREIGN KEY (created_by) REFERENCES user_login(ID), FOREIGN KEY (attach_id) REFERENCES utils_attachment_link(id)'));
+			array('constraints'=>', UNIQUE(attach_id,revision), FOREIGN KEY (created_by) REFERENCES user_login(ID), FOREIGN KEY (attach_id) REFERENCES utils_attachment_link(id)'));
 		if(!$ret){
 			print('Unable to create table utils_attachment_file.<br>');
 			return false;
 		}
+		DB::CreateIndex('utils_attachment_file__revision__idx', 'utils_attachment_file', 'revision');
 		$ret &= DB::CreateTable('utils_attachment_download','
 			id I4 AUTO KEY NOTNULL,
 			attach_file_id I4 NOTNULL,
@@ -61,11 +63,12 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			created_by I4,
 			created_on T DEFTIMESTAMP,
 			revision I4 NOTNULL',
-			array('constraints'=>', INDEX(revision), UNIQUE(attach_id,revision), FOREIGN KEY (created_by) REFERENCES user_login(ID), FOREIGN KEY (attach_id) REFERENCES utils_attachment_link(id)'));
+			array('constraints'=>', UNIQUE(attach_id,revision), FOREIGN KEY (created_by) REFERENCES user_login(ID), FOREIGN KEY (attach_id) REFERENCES utils_attachment_link(id)'));
 		if(!$ret){
 			print('Unable to create table utils_attachment_note.<br>');
 			return false;
 		}
+		DB::CreateIndex('utils_attachment_note__revision__idx', 'utils_attachment_note', 'revision');
 		$this->add_aco('view download history','Super administrator');
 		$this->create_data_dir();
 		Base_ThemeCommon::install_default_theme($this->get_type());

@@ -356,7 +356,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if ($record[$args['id']]!=$values[$args['id']]) {
 				DB::StartTrans();
 				$val = DB::GetOne('SELECT value FROM '.$tab.'_data WHERE '.$tab.'_id=%d AND field=%s',array($id, $field));
-				if ($val!==false) DB::Execute('DELETE FROM '.$tab.'_data WHERE '.$tab.'_id=%d AND field=%s',array($id, $field));
+				if ($val!==false && $val!==null) DB::Execute('DELETE FROM '.$tab.'_data WHERE '.$tab.'_id=%d AND field=%s',array($id, $field));
 				if ($values[$args['id']] !== '') {
 					if (!is_array($values[$args['id']])) $values[$args['id']] = array($values[$args['id']]);
 					foreach ($values[$args['id']] as $v) 

@@ -19,8 +19,8 @@ class CRM_Calendar_EventInstall extends ModuleInstall {
 			'title C(128) NOT NULL, '.
 			'description X, '.
 
-			'start I4 NOT NULL, '.
-			'end I4 NOT NULL, '.
+			'starts I4 NOT NULL, '.
+			'ends I4 NOT NULL, '.
 			'timeless I1 DEFAULT 0, '.
 
 			'access I1 DEFAULT 0, '.
@@ -33,8 +33,10 @@ class CRM_Calendar_EventInstall extends ModuleInstall {
 			'edited_on T,'.
 			'edited_by I4,'.
 			'recurrence_id I4',
-			array('constraints'=>	' , INDEX(start), INDEX(end), FOREIGN KEY (edited_by) REFERENCES user_login(id), FOREIGN KEY (created_by) REFERENCES user_login(id)')
+			array('constraints'=>	' , FOREIGN KEY (edited_by) REFERENCES user_login(id), FOREIGN KEY (created_by) REFERENCES user_login(id)')
 		);
+		DB::CreateIndex('crm_calendar_event__start__idx', 'crm_calendar_event', 'starts');
+		DB::CreateIndex('crm_calendar_event__end__idx', 'crm_calendar_event', 'ends');
 		$ret &= DB::CreateTable('crm_calendar_event_group_emp',
 			'id I,'.
 			'contact I4 NOT NULL',

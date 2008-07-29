@@ -201,10 +201,12 @@ class CRM_Filters extends Module {
 	}
 
 	public static function check_group_name_exists($name,$id) {
-		if(isset($id))
-			return (DB::GetOne('SELECT id FROM crm_filters_group WHERE id!=%d AND name=%s AND description=%s',array($id,$name[0],$name[1]))===false);
-		else
-			return (DB::GetOne('SELECT id FROM crm_filters_group WHERE name=%s AND description=%s',array($name[0],$name[1]))===false);
+		if(isset($id)) {
+			$ret = DB::GetOne('SELECT id FROM crm_filters_group WHERE id!=%d AND name=%s AND description=%s',array($id,$name[0],$name[1]));
+		} else {
+			$ret = DB::GetOne('SELECT id FROM crm_filters_group WHERE name=%s AND description=%s',array($name[0],$name[1]));
+		}
+		return $ret===false || $ret===null;
 	}
 
 }

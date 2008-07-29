@@ -82,9 +82,9 @@ if(!isset($_GET['license'])) {
 		    $host = $form -> exportValue('host');
 		    $user = $form -> exportValue('user');
 		    $pass = $form -> exportValue('password');
-		    $link = @pg_connect("host=$host user=$user password=$pass dbname=postgres");
+		    $link = pg_connect("host=$host user=$user password=$pass dbname=postgres");
 		    if(!$link) {
- 			echo('Could not connect.');
+ 				echo('Could not connect.');
 		    }
                     else {
 			$dbname = $form -> exportValue('db');
@@ -286,9 +286,11 @@ function install_base() {
 		die('Invalid SQL query - Database module (session_client table)');
 
 	$ret = DB::CreateTable('history',"session_name C(32) NOTNULL, page_id I, client_id I2," .
-			"data B",array('constraints'=>', FOREIGN KEY(session_name) REFERENCES session(name), PRIMARY KEY(client_id,session_name,page_id), INDEX(session_name,client_id), INDEX(session_name)'));
+			"data B",array('constraints'=>', FOREIGN KEY(session_name) REFERENCES session(name), PRIMARY KEY(client_id,session_name,page_id)'));
 	if($ret===false)
 		die('Invalid SQL query - Database module (history table)');
+	
+	DB::CreateIndex('history__session_name__client_id__idx', 'history', 'session_name, client_id');
 
 	$ret = DB::CreateTable('variables',"name C(32) KEY,value X");
 	if($ret===false)

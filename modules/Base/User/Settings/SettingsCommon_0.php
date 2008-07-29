@@ -143,7 +143,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 			if(isset(self::$user_variables)) self::$user_variables[$module][$name]=$value;
 			$value = serialize($value);
 			$val = DB::GetOne('SELECT value FROM base_user_settings WHERE user_login_id=%d AND module=%s AND variable=%s',array(Acl::get_user(),$module,$name));
-			if ($val === false)
+			if ($val === false || $val===null)
 				DB::Execute('INSERT INTO base_user_settings VALUES (%d,%s,%s,%s)',array(Acl::get_user(),$module,$name,$value));
 			else
 				DB::Execute('UPDATE base_user_settings SET value=%s WHERE user_login_id=%d AND module=%s AND variable=%s',array($value,Acl::get_user(),$module,$name));
@@ -173,7 +173,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 			if(isset(self::$admin_variables)) self::$admin_variables[$module][$name]=$value;
 			$value = serialize($value);
 			$val = DB::GetOne('SELECT value FROM base_user_settings_admin_defaults WHERE module=%s AND variable=%s',array($module,$name));
-			if ($val === false)
+			if ($val === false || $val===null)
 				DB::Execute('INSERT INTO base_user_settings_admin_defaults VALUES (%s,%s,%s)',array($module,$name,$value));
 			else
 				DB::Execute('UPDATE base_user_settings_admin_defaults SET value=%s WHERE module=%s AND variable=%s',array($value,$module,$name));

@@ -634,7 +634,8 @@ class Utils_RecordBrowser extends Module {
 		}
 
 		if ($mode!='add') {
-			$isfav = (DB::GetOne('SELECT user_id FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%d', array(Acl::get_user(), $id))!==false);
+			$isfav_query_result = DB::GetOne('SELECT user_id FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%d', array(Acl::get_user(), $id));
+			$isfav = ($isfav_query_result!==false && $isfav_query_result!==null);
 			$theme -> assign('info_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(Utils_RecordBrowserCommon::get_html_record_info($this->tab, $id)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','info.png').'" /></a>');
 			$row_data = array();
 			$fav = DB::GetOne('SELECT user_id FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%s', array(Acl::get_user(), $id));
@@ -938,7 +939,7 @@ class Utils_RecordBrowser extends Module {
 		do {
 			$num++;
 			$x = DB::GetOne('SELECT position FROM '.$this->tab.'_field WHERE type = \'page_split\' AND field = %s', array('Details '.$num));
-		} while ($x!==false);
+		} while ($x!==false && $x!==null);
 		DB::Execute('INSERT INTO '.$this->tab.'_field (field, type, extra, position) VALUES(%s, \'page_split\', 1, %d)', array('Details '.$num, $max_f+1));
 		DB::CompleteTrans();
 	}

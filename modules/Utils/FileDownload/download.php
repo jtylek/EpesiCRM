@@ -59,7 +59,7 @@ while(!feof($in)) {
 
 	if($curr_t-$last_t>3) {
 		$view_time = DB::GetOne('SELECT view_time FROM utils_filedownload_files WHERE id=%d',array($download_id));
-		if($view_time===false) break;
+		if($view_time===false || $view_time===null) break;
 		if($view_time+60<$curr_t) {
 			DB::Execute('DELETE FROM utils_filedownload_files WHERE id=%d',array($download_id));
 			break;

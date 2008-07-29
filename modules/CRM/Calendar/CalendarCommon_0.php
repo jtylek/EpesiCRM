@@ -95,7 +95,7 @@ class CRM_CalendarCommon extends ModuleCommon {
 		$attach_ev_ids2 = array_keys($attach_ev_ids);
 		
 		
-		$query = 'SELECT ev.start,ev.title,ev.id FROM crm_calendar_event ev '.
+		$query = 'SELECT ev.starts as start,ev.title,ev.id FROM crm_calendar_event ev '.
 					'WHERE ((ev.access<2 OR ev.created_by="'.Acl::get_user().'") AND (ev.title LIKE '.DB::Concat('\'%\'',DB::qstr($word),'\'%\'').
  					' OR ev.description LIKE '.DB::Concat('\'%\'',DB::qstr($word),'\'%\'').
  					(empty($attach_ev_ids)?'':' OR ev.id IN ('.implode(',',$attach_ev_ids2).')').

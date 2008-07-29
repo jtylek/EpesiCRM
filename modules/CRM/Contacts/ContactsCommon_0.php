@@ -20,7 +20,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			else return $cache[$uid]; 
 		}
 		$cid = DB::GetOne('SELECT contact_id FROM contact_data WHERE field=%s AND value=%d', array('Login', $uid));
-		if ($cid === false){
+		if ($cid === false || $cid === null){
 			$cache[$uid] = -1;
 			return null;
 		}
@@ -349,7 +349,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$ret = DB::Execute('SELECT id, login FROM user_login ORDER BY login');
 			$users = array(''=>'---');
 			while ($row=$ret->FetchRow()) {
-				if (DB::GetOne('SELECT contact_id FROM contact_data WHERE field=\'Login\' AND value=%d', array($row['id']))===false || $row['id']===$default)
+				$contact_id = DB::GetOne('SELECT contact_id FROM contact_data WHERE field=\'Login\' AND value=%d', array($row['id']));
+				if ($contact_id===false || $contact_id===null || $row['id']===$default)
 					if (Base_AclCommon::i_am_admin() || $row['id']==Acl::get_user())
 						$users[$row['id']] = $row['login'];
 			}
