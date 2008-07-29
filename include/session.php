@@ -28,22 +28,31 @@ class DBSession {
 
     public static function read($name) {
     	$ret = DB::GetOne('SELECT data FROM session WHERE name = %s AND expires > %d', array($name, time()-self::$lifetime));
-	if($ret)
+		if($ret) {
+			if(DATABASE_DRIVER=='postgres') $ret = pg_unescape_bytea($ret);
 	    	$_SESSION = unserialize($ret);
-	if(CID!==false && ($ret = DB::GetOne('SELECT data FROM session_client WHERE session_name = %s AND client_id=%d', array($name,CID))))
-		$_SESSION['client'] = unserialize($ret);
-	return '';
+		}
+		if(CID!==false && ($ret = DB::GetOne('SELECT data FROM session_client WHERE session_name = %s AND client_id=%d', array($name,CID)))) {
+			if(DATABASE_DRIVER=='postgres') $ret = pg_unescape_bytea($ret);
+			$_SESSION['client'] = unserialize($ret);
+		}
+		return '';
     }
 
     public static function write($name, $data) {
 	$ret = true;
     	DB::StartTrans();
-	if(CID!==false && isset($_SESSION['client']))
-		$ret &= DB::Replace('session_client',array('data'=>serialize($_SESSION['client']),'session_name'=>$name,'client_id'=>CID),array('session_name','client_id'),true);
-	if(isset($_SESSION['client'])) unset($_SESSION['client']);
-	$ret &= DB::Replace('session',array('expires'=>time(),'data'=>serialize($_SESSION),'name'=>$name),'name',true);
-	DB::CompleteTrans();
-	return ($ret>0)?true:false;
+		if(CID!==false && isset($_SESSION['client'])) {
+			$data = serialize($_SESSION['client']);
+			if(DATABASE_DRIVER=='postgres') $data = pg_escape_bytea($data);
+			$ret &= DB::Replace('session_client',array('data'=>$data,'session_name'=>$name,'client_id'=>CID),array('session_name','client_id'),true);
+		}
+		if(isset($_SESSION['client'])) unset($_SESSION['client']);
+		$data = serialize($_SESSION);
+		if(DATABASE_DRIVER=='postgres') $data = pg_escape_bytea($data);
+		$ret &= DB::Replace('session',array('expires'=>time(),'data'=>$data,'name'=>$name),'name',true);
+		DB::CompleteTrans();
+		return ($ret>0)?true:false;
     }
 
     public static function destroy($name) {
