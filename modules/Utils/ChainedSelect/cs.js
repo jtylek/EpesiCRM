@@ -10,7 +10,8 @@ ChainedSelect.prototype = {
 	stop_f:null,
 	loads:0,
 	initialize:function(dest_id,prev_ids,params,def_val) {
-		if($(dest_id)==null)return;
+		var dest = $(dest_id);
+		if(dest==null)return;
 		this.prev_ids = prev_ids;
 		this.dest_id = dest_id;
 		this.params = params;
@@ -21,12 +22,12 @@ ChainedSelect.prototype = {
 		Event.observe(prev_obj,'change',this.request_f);
 		Event.observe(prev_obj,'e_cs:load',this.request_f);
 		Event.observe(prev_obj,'e_cs:clear',this.clear_f);
+		this.stop_f = this.stop.bindAsEventListener(this);
+		Event.observe(document,'e:load',this.stop_f);
 		if(prev_ids.length==1) {
 			this.load_def_f = this.load_def.bindAsEventListener(this);
 			Event.observe(document,'e:load',this.load_def_f);
 		}
-		this.stop_f = this.stop.bindAsEventListener(this);
-		Event.observe(document,'e:load',this.stop_f);
 	},
 	load_def:function() {
 		this.request();
