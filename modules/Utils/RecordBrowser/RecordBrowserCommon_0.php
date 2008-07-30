@@ -546,7 +546,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							foreach($cols2 as $j=>$w) $cols2[$j] = DB::qstr($w); 
 							$cols2 = implode(' OR field=', $cols2);
 
-							$having .= 'EXISTS (SELECT rdt.value FROM '.$tab2.'_data AS rdt LEFT JOIN '.$tab.'_data AS rd ON r.id=rd.'.$tab.'_id AND rd.field='.DB::qstr($ref).' WHERE (rdt.field='.$cols2.') AND rdt.'.$tab2.'_id=rd.value AND ';
+							$having .= 'EXISTS (SELECT rdt.value FROM '.$tab2.'_data AS rdt LEFT JOIN '.$tab.'_data AS rd ON rdt.'.$tab2.'_id=rd.value AND rd.field='.DB::qstr($ref).' AND rdt.field='.$cols2.' WHERE rd.'.$tab.'_id=r.id AND ';
 							if (!is_array($v)) $v = array($v);
 							if ($negative) $having .= '(';
 							$having .= '('.($negative?'true':'false');
