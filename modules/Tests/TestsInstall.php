@@ -46,6 +46,7 @@ class TestsInstall extends ModuleInstall {
 		    array('name'=>'Tests/Lytebox','version'=>0),
 		    array('name'=>'Tests/QuickForm','version'=>0),
 		    array('name'=>'Tests/Menu','version'=>0),
+		    array('name'=>'Tests/OpenFlashChart','version'=>0),
 		    array('name'=>'Tests/Search','version'=>0),
 		    array('name'=>'Tests/SharedUniqueHref','version'=>0),
 		    array('name'=>'Tests/TabbedBrowser','version'=>0),
