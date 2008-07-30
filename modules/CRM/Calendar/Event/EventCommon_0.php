@@ -157,11 +157,13 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		$my_id = CRM_FiltersCommon::get_my_profile();
 		if(!Base_AclCommon::i_am_admin())
 			$fil .= ' AND (e.access<2 OR (SELECT id FROM crm_calendar_event_group_emp cg2 WHERE cg2.id=e.id AND cg2.contact='.$my_id.' LIMIT 1) IS NOT NULL)';
-		$count = DB::GetOne('SELECT count(e.id) FROM crm_calendar_event e WHERE ((e.starts>=%d AND e.starts<%d) OR (e.ends>=%d AND e.ends<%d)) '.$fil.$order,array($start,$end,$start,$end));
+		$count = DB::GetOne('SELECT COUNT(*) FROM crm_calendar_event e WHERE ((e.starts>=%d AND e.starts<%d) OR (e.ends>=%d AND e.ends<%d)) '.$fil,array($start,$end,$start,$end));
 		if($count>50) {
 			Epesi::alert(Base_LangCommon::ts('CRM_Calendar_Event','Displaying only 50 of %d events',array($count)));
 		}
-		$ret = DB::Execute('SELECT e.status,e.color,e.access,e.starts as start,e.ends as end,e.title,e.description,e.id,e.timeless,e.priority,e.created_by,e.created_on,e.edited_by,e.edited_on,(SELECT GROUP_CONCAT(DISTINCT emp.contact SEPARATOR \',\') FROM crm_calendar_event_group_emp emp WHERE emp.id=e.id GROUP BY emp.id) as employees,(SELECT GROUP_CONCAT(DISTINCT cus.contact SEPARATOR \',\') FROM crm_calendar_event_group_cus cus WHERE cus.id=e.id GROUP BY cus.id) as customers FROM crm_calendar_event e WHERE ((((e.starts>=%d AND e.starts<%d) OR (e.ends>=%d AND e.ends<%d)) AND e.timeless=0) OR (e.timeless=1 AND DATE(FROM_UNIXTIME(starts))>=%D AND DATE(FROM_UNIXTIME(starts))<=%D)) '.$fil.$order.' LIMIT 50',array($start,$end,$start,$end,$start,$end));
+		if (DATABASE_DRIVER=='postgres') $method = 'ABSTIME';
+		else $method = 'FROM_UNIXTIME';
+		$ret = DB::Execute('SELECT e.status,e.color,e.access,e.starts as start,e.ends as end,e.title,e.description,e.id,e.timeless,e.priority,e.created_by,e.created_on,e.edited_by,e.edited_on FROM crm_calendar_event e WHERE ((((e.starts>=%d AND e.starts<%d) OR (e.ends>=%d AND e.ends<%d)) AND e.timeless=0) OR (e.timeless=1 AND DATE('.$method.'(starts))>=%D AND DATE('.$method.'(starts))<=%D)) '.$fil.$order.' LIMIT 50',array($start,$end,$start,$end,$start,$end));
 		$result = array();
 		$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
 		$priority = array(0 =>'None', 1 => 'Low', 2 => 'Medium', 3 => 'High');
@@ -186,13 +188,15 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 											(($row['edited_by'])?(
 											Base_LangCommon::ts('CRM_Calendar_Event','Edited by').' '.Base_UserCommon::get_user_login($row['edited_by']). '<br>'.
 											Base_LangCommon::ts('CRM_Calendar_Event','Edited on').' '.$row['edited_on']. '<br>'):'');
-
-			$emps_tmp = explode(',',$row['employees']);
+			$emps_tmp = DB::GetAssoc('SELECT emp.contact,emp.contact FROM crm_calendar_event_group_emp AS emp WHERE emp.id=%d',array($row['id']));
+			$cuss_tmp = DB::GetAssoc('SELECT cus.contact,cus.contact FROM crm_calendar_event_group_cus AS cus WHERE cus.id=%d',array($row['id']));
+ 
+//			$emps_tmp = explode(',',$row['employees']);
 			$emps = array();
 			foreach($emps_tmp as $k)
 				if(is_numeric($k))
 					$emps[] = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact($k));
-			$cuss_tmp = explode(',',$row['customers']);
+//			$cuss_tmp = explode(',',$row['customers']);
 			$cuss = array();
 			foreach($cuss_tmp as $k)
 				if(is_numeric($k))

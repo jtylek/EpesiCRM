@@ -111,7 +111,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return self::$table_rows;
 	}
 
-	public static function install_new_recordset($tab = null, $fields) {
+	public static function install_new_recordset($tab = null, $fields=array()) {
 		if (!$tab) return false;
 		if (!preg_match('/^[a-zA-Z_]+$/',$tab)) trigger_error('Invalid table name ('.$tab.') given to install_new_recordset.',E_USER_ERROR);
 		DB::Execute('INSERT INTO recordbrowser_table_properties (tab) VALUES (%s)', array($tab));
@@ -206,6 +206,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		return true;
 	}
+	public static function enable_watchdog($tab,$watchdog_callback) {
+		self::check_table_name($tab);
+		Utils_WatchdogCommon::register_category($tab, $watchdog_callback);
+	}
 	public static function field_requires($tab = null, $field, $req_field, $val) {
 		if (!$tab) return false;
 		self::check_table_name($tab);
@@ -224,6 +228,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
 	public static function uninstall_recordset($tab = null) {
 		if (!$tab) return false;
+		Utils_WatchdogCommon::unregister_category($tab);
 		self::check_table_name($tab);
 		DB::DropTable($tab.'_callback');
 		DB::DropTable($tab.'_require');
@@ -445,6 +450,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		
 		$or_started = false;
+		$sep = DB::qstr('::');
 		foreach($crits as $k=>$v){
 			$negative = $noquotes = $or_start = $or = false;
 			$operator = 'LIKE';
@@ -484,7 +490,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							if(is_array($v))
 								$inj = $v[0].DB::qstr($v[1]);
 							elseif(is_string($v))
-								$inj = $v;
+								$inj = DB::qstr($v);
 							if($inj)
 								$having .= ' created_on '.$inj; 
 							break;
@@ -496,7 +502,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							if(is_array($v))
 								$inj = $v[0].DB::qstr($v[1]);
 							elseif(is_string($v))
-								$inj = $v;
+								$inj = DB::qstr($v);
 							if($inj)
 								$having .= ' (((SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) '.$inj.') OR'.
 										'((SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) IS NULL AND created_on '.$inj.'))'; 
@@ -513,24 +519,26 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								$cols2 = $param[1];
 							} else $cols = $param[0];
 							if ($params[1]=='RefCD' || $tab2=='__COMMON__') {
-								foreach ($v as $kkk=>$vvv)
-									$v[$kkk] = substr($vvv,12,-6);
 								$ret = Utils_CommonDataCommon::get_translated_array(isset($cols2)?$cols2:$cols);
 								$allowed_cd = array();
 								foreach ($ret as $kkk=>$vvv) 
-									foreach ($v as $w) {
+									foreach ($v as $w) if ($w!='') {
 										if (strpos($vvv,$w)!==false) {
 											$allowed_cd[] = DB::qstr($kkk);
 											break;
 										}
 									}
 								if (empty($allowed_cd)) {
-									$having .= $negative?'1':'0';
+									$having .= $negative?'true':'false';
 									break;
 								}
-								$fields .= ', concat( \'::\', group_concat( rd'.$iter.'.value ORDER BY rd'.$iter.'.value SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
-								$final_tab = '('.$final_tab.') LEFT JOIN '.$tab.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab.'_id AND rd'.$iter.'.field="'.$ref.'"';
-								$having .= '(val'.$iter.' LIKE concat(\'%\','.implode(',\'%\') OR val'.$iter.' LIKE concat(\'%\',',$allowed_cd).',\'%\'))';
+								$having .= 'EXISTS (SELECT rd.value FROM '.$tab.'_data AS rd WHERE r.id=rd.'.$tab.'_id AND rd.field='.DB::qstr($ref).' AND ';
+								$having_cd = array();
+								foreach ($allowed_cd as $vvv)
+									$having_cd[] = 'rd.value LIKE '.DB::Concat(DB::qstr('%'),$vvv,DB::qstr('%'));
+								if (!empty($having_cd)) $having .= '('.implode(' OR ',$having_cd).')';
+								else $having .= false;
+								$having .= ')';
 								$iter++;
 								break;
 							}
@@ -538,22 +546,20 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							foreach($cols2 as $j=>$w) $cols2[$j] = DB::qstr($w); 
 							$cols2 = implode(' OR field=', $cols2);
 
-							$fields .= ', concat( \'::\', (SELECT group_concat(rdt'.$iter.'.value SEPARATOR \'::\' ) FROM '.$tab2.'_data AS rdt'.$iter.' WHERE (rdt'.$iter.'.field='.$cols2.') AND rdt'.$iter.'.'.$tab2.'_id=rd'.$iter.'.value) , \'::\' ) AS val'.$iter;
-							$final_tab = '('.$final_tab.') LEFT JOIN '.$tab.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab.'_id AND rd'.$iter.'.field="'.$ref.'"';
-
+							$having .= 'EXISTS (SELECT rdt.value FROM '.$tab2.'_data AS rdt LEFT JOIN '.$tab.'_data AS rd ON r.id=rd.'.$tab.'_id AND rd.field='.DB::qstr($ref).' WHERE (rdt.field='.$cols2.') AND rdt.'.$tab2.'_id=rd.value AND ';
 							if (!is_array($v)) $v = array($v);
 							if ($negative) $having .= '(';
 							$having .= '('.($negative?'true':'false');
 							foreach($v as $w) {
-								if ($w==='') $having .= ' '.($negative?'AND':'OR').' val'.$iter.' IS '.($negative?'NOT ':'').'NULL';
+								if ($w==='') $having .= ' '.($negative?'AND':'OR').' rdt.value IS '.($negative?'NOT ':'').'NULL';
 								else {
 									if (!$noquotes) $w = DB::qstr($w);
-									$having .= ' '.($negative?'AND':'OR').' val'.$iter.' '.($negative?'NOT ':'').$operator.' '.DB::Concat(DB::qstr('%::'),$w,DB::qstr('::%'));
+									$having .= ' '.($negative?'AND':'OR').' rdt.value '.($negative?'NOT ':'').$operator.' '.DB::Concat(DB::qstr('%'),$w,DB::qstr('%'));
 								}
 							}
 							$having .= ')';
-							if ($negative) $having .= ' OR val'.$iter.' IS NULL)';
-
+							if ($negative) $having .= ' OR rdt.value IS NULL)';
+							$having .= ')';
 							$iter++;
 						} else trigger_error('Unknow paramter given to get_records criteria: '.$k, E_USER_ERROR);
 				}
@@ -567,21 +573,20 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					}
 					$having .= ')';
 				} else {
-					if ($operator=='LIKE') $fields .= ', concat( \'::\', group_concat( rd'.$iter.'.value ORDER BY rd'.$iter.'.value SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
-					else $fields .= ', MAX(rd'.$iter.'.value) AS val'.$iter;
-					$final_tab = '('.$final_tab.') LEFT JOIN '.$tab.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab.'_id AND rd'.$iter.'.field="'.$k.'"';
+					$having .= 'EXISTS (SELECT rd.value FROM '.$tab.'_data AS rd WHERE r.id=rd.'.$tab.'_id AND rd.field='.DB::qstr($k).' AND ';
 					if (!is_array($v)) $v = array($v);
 					if ($negative) $having .= '(';
 					$having .= '('.($negative?'true':'false');
 					foreach($v as $w) {
-						if ($w==='') $having .= ' '.($negative?'AND':'OR').' val'.$iter.' IS '.($negative?'NOT ':'').'NULL';
+						if ($w==='') $having .= ' '.($negative?'AND':'OR').' rd.value IS '.($negative?'NOT ':'').'NULL';
 						else {
 							if (!$noquotes) $w = DB::qstr($w);
-							$having .= ' '.($negative?'AND':'OR').' val'.$iter.' '.($negative?'NOT ':'').$operator.' '.($operator=='LIKE'?DB::Concat(DB::qstr('%::'),$w,DB::qstr('::%')):$w);
+							$having .= ' '.($negative?'AND':'OR').' rd.value '.($negative?'NOT ':'').$operator.' '.($operator=='LIKE'?DB::Concat(DB::qstr('%'),$w,DB::qstr('%')):$w);
 						}
 					}
 					$having .= ')';
-					if ($negative) $having .= ' OR val'.$iter.' IS NULL)';
+					if ($negative) $having .= ' OR rd.value IS NULL)';
+					$having .= ')';
 					$iter++;
 				}
 			}
@@ -624,21 +629,21 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							foreach($cols2 as $j=>$w) $cols2[$j] = DB::qstr($w); 
 							$cols2 = implode(' OR field=', $cols2);
 		
-							$fields .= ', concat( \'::\', (SELECT group_concat(rdt'.$iter.'.value SEPARATOR \'::\' ) FROM '.$tab2.'_data AS rdt'.$iter.' WHERE (rdt'.$iter.'.field='.$cols2.') AND rdt'.$iter.'.'.$tab2.'_id=rd'.$iter.'.value) , \'::\' ) AS val'.$iter;
-							$final_tab = '('.$final_tab.') LEFT JOIN '.$tab.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab.'_id AND rd'.$iter.'.field="'.$v['order'].'"';
-							$orderby .= ' val'.$iter.' '.$v['direction'];
+							$val = '(SELECT '.($v['direction']=='ASC'?'MIN':'MAX').'(rdt.value) FROM '.$tab2.'_data AS rdt LEFT JOIN '.$tab.'_data AS rd ON r.id=rd.'.$tab.'_id AND rd.field='.DB::qstr($v['order']).' WHERE rdt.field='.$cols2.' AND rdt.'.$tab2.'_id=rd.value)';
+							$orderby .= ' '.$val.' '.$v['direction'];
 							$iter++;
 							continue;
 						}
 					}
 				} 
-				$fields .= ', concat( \'::\', group_concat( rd'.$iter.'.value ORDER BY rd'.$iter.'.value SEPARATOR \'::\' ) , \'::\' ) AS val'.$iter;
-				$final_tab = '('.$final_tab.') LEFT JOIN '.$tab.'_data AS rd'.$iter.' ON r.id=rd'.$iter.'.'.$tab.'_id AND rd'.$iter.'.field="'.$v['order'].'"';
-				$orderby .= ' val'.$iter.' '.$v['direction'];
+				$val = '(SELECT '.($v['direction']=='ASC'?'MIN':'MAX').'(rd.value) FROM '.$tab.'_data AS rd WHERE r.id=rd.'.$tab.'_id AND rd.field='.DB::qstr($v['order']).')';
+				// could be better, doesn't work perfectly for multiselects
+				$orderby .= ' '.$val.' '.$v['direction'];
 				$iter++;
 			}
 		}
-		$ret = array('sql'=>'SELECT id, active, created_by, created_on'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?Utils_RecordBrowser::$admin_filter:' AND active=1').$where.' GROUP BY id HAVING true'.$having.$orderby,'vals'=>$vals);
+		$final_tab = str_replace('('.$tab.' AS r'.')',$tab.' AS r',$final_tab);
+		$ret = array('sql'=>'SELECT id, active, created_by, created_on'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?Utils_RecordBrowser::$admin_filter:' AND active=1').$where.$having.$orderby,'vals'=>$vals);
 		return $cache[$key] = $ret;
 	}
 	public static function get_records_limit( $tab = null, $crits = null, $admin = false) {

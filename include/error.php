@@ -123,7 +123,7 @@ class ErrorHandler {
 
 //sometimes set_error_handler doesn't work with classes
 function handle_epesi_error($type, $message,$errfile,$errline,$errcontext) {
-	return ErrorHandler::handle_error($type, $message,$errfile,$errline,$errcontext);
+	return ErrorHandler::handle_error($type, htmlspecialchars($message),$errfile,$errline,$errcontext);
 }
 if(REPORT_ALL_ERRORS)
 	error_reporting(E_ALL);

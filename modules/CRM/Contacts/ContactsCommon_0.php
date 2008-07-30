@@ -169,7 +169,6 @@ class CRM_ContactsCommon extends ModuleCommon {
 				$crit_callback = explode('::',$param[2]);
 				if ($crit_callback[0]=='ChainedSelect') {
 					$crits = null;
-//					self::contacts_chainedselect_crits($form->exportValue($field), $desc, $callback, $crit_callback[1]);
 				} else {
 					$crits = call_user_func($crit_callback, false);
 					$adv_crits = call_user_func($crit_callback, true);

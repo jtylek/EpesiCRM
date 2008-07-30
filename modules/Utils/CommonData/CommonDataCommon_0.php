@@ -188,7 +188,8 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 	 */
 	public static function get_array($name, $order_by_key=false, $readinfo=false){
 		$id = self::get_id($name);
-		if($id===false) return false;
+		if($id===false)
+			trigger_error('Invalid CommonData::get_array() request: '.$name,E_USER_ERROR);
 		if($order_by_key)
 			$order_by = 'akey';
 		else
