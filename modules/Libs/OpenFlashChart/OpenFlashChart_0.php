@@ -40,15 +40,18 @@ class Libs_OpenFlashChart extends Module {
 		$this->width = "500px";
 		$this->height = "250px";
 		$data = $this->ofc->toString();
-		eval_js('var open_flash_chart_data=function() {'.
-					'return "'.Epesi::escapeJS($data).'";'.
-					  '}');
+		$this->set_module_variable('data',$data);
+//		eval_js('var open_flash_chart_data=function() {'.
+//					'return "'.Epesi::escapeJS($data).'";'.
+//					  '}');
+		$url=urlencode($this->get_module_dir().'data.php?id='.CID.'&chart='.$this->get_path());
 		print('<span style="display:none">'.md5($data).'</span>');
 		print('<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://fpdownload.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=8,0,0,0" width="'.$this->width.'" height="'.$this->height.'" id="ofc_'.$md.'" align="middle">'.
 		     '<param name="allowScriptAccess" value="sameDomain" />'.
 		     '<param name="movie" value="'.$this->get_module_dir().'2-alpha-8/open-flash-chart.swf" />'.
+			 '<param name="FlashVars" value="data-file='.$url.'" />'.
 		     '<param name="quality" value="high" />'.
-			 '<embed src="'.$this->get_module_dir().'2-alpha-8/open-flash-chart.swf" quality="high" bgcolor="#FFFFFF" width="'.$this->width.'" height="'.$this->height.'" name="open-flash-chart" align="middle" allowScriptAccess="sameDomain" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" />'.
+			 '<embed src="'.$this->get_module_dir().'2-alpha-8/open-flash-chart.swf" FlashVars="data-file='.$url.'" quality="high" bgcolor="#FFFFFF" width="'.$this->width.'" height="'.$this->height.'" name="open-flash-chart" align="middle" allowScriptAccess="sameDomain" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" />'.
 			'</object>');
 	}
 
