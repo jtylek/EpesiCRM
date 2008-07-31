@@ -28,17 +28,17 @@ class Libs_OpenFlashChart extends Module {
 	}
 	
 	public function set_width($w) {
+		if(is_numeric($w)) $w .= 'px';
 		$this->width = $w;
 	}
 	
 	public function set_height($h) {
+		if(is_numeric($h)) $h .= 'px';
 		$this->height = $h;
 	}
 
 	public function body() {
 		$md = md5($this->get_path());
-		$this->width = "500px";
-		$this->height = "250px";
 		$data = $this->ofc->toString();
 		$this->set_module_variable('data',$data);
 //		eval_js('var open_flash_chart_data=function() {'.

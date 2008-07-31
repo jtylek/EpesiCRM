@@ -28,11 +28,19 @@ class Tests_OpenFlashChart extends Module {
 		$title = new title( date("D M d Y") );
 		$f2->set_title( $title );
 
-		$bar = new bar();
+		$bar = new bar_glass();
 		$data = array();
 		for($i=1; $i<10; $i++)
 			$data[] = rand()%10;
 		$bar->set_values( $data );
+		$f2->add_element( $bar );
+
+		$bar = new line();
+		$data = array();
+		for($i=1; $i<10; $i++)
+			$data[] = rand()%10;
+		$bar->set_values( $data );
+		$bar->set_colour('#FF0000');
 		$f2->add_element( $bar );
 
 		$this->display_module($f2);

@@ -10,6 +10,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_RecordBrowser_Reports extends Module {
+	private static $colours = array('#00FFFF','#008000','#000080', '#808000', '#008080', '#0000FF','#00FF00','#800080','#FF00FF','#800000','#FF0000','#FFFF00','#C0C0C0','#808080','#000000');
 	private $ref_records = array();
 	private $ref_record_display_callback = null;
 	private $gb_captions = null;
@@ -25,6 +26,7 @@ class Utils_RecordBrowser_Reports extends Module {
 	private $lang;
 	private $date_range;
 	private $pdf = false;
+	private $charts = false;
 	private $pdf_ob = null;
 	private $widths = array();
 	private $fontsize = 12;
@@ -399,6 +401,45 @@ class Utils_RecordBrowser_Reports extends Module {
 			}
 			if ($this->pdf) {
 				$this->display_pdf_row($ggrow);
+			} elseif($this->charts) {
+				$f = $this->init_module('Libs/OpenFlashChart');
+
+				$title = new title( $ggrow[0][0]['value'] );
+				$f->set_title( $title );
+				$labels = array();
+				for($i=(empty($this->categories)?1:2); $i<count($ggrow[0]); $i++)
+					$labels[] = $this->gb_captions[$i]['name'];
+				$x_ax = new x_axis();
+				$x_ax->set_labels_from_array($labels);
+				$f->set_x_axis($x_ax);
+				$max = 0;
+				foreach ($ggrow as $k=>$grow) {
+					$bar = new bar_glass();
+					$bar->set_colour(self::$colours[$k%count(self::$colours)]);
+					if (!empty($this->categories)) {
+						$bar->set_key($grow[1]['value'],3);
+						$start = 2;
+					} else
+						$start = 1;
+					$arr = array();
+					for($i=$start; $i<count($grow); $i++) {
+						$val = (int)strip_tags($grow[$i]['value']);
+						if($max<$val) $max=$val;
+						$arr[] = $val;
+					}
+//					print_r($arr);
+					$bar->set_values( $arr );
+					$f->add_element( $bar );
+					break;
+				}
+				$y_ax = new y_axis();
+				$y_ax->set_range(0,$max);
+				$y_ax->set_steps($max/10);
+				$f->set_y_axis($y_ax);
+				$f->set_width(950);
+				$f->set_height(400);
+				$this->display_module($f);
+				print('<br>');
 			} else {
 				foreach ($ggrow as $grow) {
 					$gb_row = $gb->get_new_row();
@@ -458,12 +499,133 @@ class Utils_RecordBrowser_Reports extends Module {
 		}
 		if ($this->pdf) {
 			$this->display_pdf_row($ggrow,true);
+		} elseif($this->charts) {
+		
 		} else { 
 			foreach ($ggrow as $grow) {
 				$gb_row = $gb->get_new_row();
 				$gb_row->add_data_array($grow);
 			}
 			$this->display_module($gb, array(Base_ThemeCommon::get_template_filename('Utils_GenericBrowser','no_shadow')));
+		}
+	}
+	
+	public function make_charts() {
+		if (empty($this->ref_records)) {
+			print('There were no records to display report for.');
+			return;
+		}
+
+
+		$cols_total = array();
+		/***** MAIN TABLE *****/
+		$row_count = 1;
+		$gb_captions = $this->gb_captions;
+		array_shift($gb_captions);
+		if (!empty($this->categories)) array_shift($gb_captions);
+		foreach($this->ref_records as $k=>$r) {
+			$f = $this->init_module('Libs/OpenFlashChart');
+			$f2 = $this->init_module('Libs/OpenFlashChart');
+			$data_recs = array();
+			foreach ($this->data_record as $dv) {
+				$vals = array();
+				$data_ids = array();
+				foreach ($this->data_record_relation[$dv] as $k2=>$v2) $vals = array($k2, $r['id']);
+				$ret = DB::Execute('SELECT '.$dv.'_id FROM '.$dv.'_data AS rd LEFT JOIN '.$dv.' AS r ON r.id=rd.'.$dv.'_id WHERE rd.field=%s AND rd.value=%s AND r.active=1', $vals);
+				while ($row = $ret->FetchRow())
+					$data_ids[] = $row[$dv.'_id'];
+				$data_recs[] = Utils_RecordBrowserCommon::get_records($dv, array('id'=>$data_ids));
+			}
+			$results = call_user_func($this->display_cell_callback, $r, $data_recs);
+
+			$ref_rec = call_user_func($this->ref_record_display_callback, $r);
+			$title = new title( strip_tags($ref_rec) );
+			$f->set_title( $title );
+			$f2->set_title( $title );
+			$labels = array();
+			foreach($gb_captions as $cap)
+				$labels[] = $cap['name'];
+			$x_ax = new x_axis();
+			$x_ax->set_labels_from_array($labels);
+			$f->set_x_axis($x_ax);
+			$f2->set_x_axis($x_ax);
+			$max = 5;
+			$max2 = 5;
+			$curr = false;
+			$num = false;
+
+			if (empty($this->categories)) {
+				$arr = array();
+				$bar = new bar_glass();
+				$bar->set_colour(self::$colours[0]);
+				foreach ($results as & $res_ref) {
+					$val = (int)strip_tags($res_ref);
+					$arr[] = $val;
+					if($this->format=='currency') {
+						if($max2<$val) $max2=$val;
+					} else {
+						if($max<$val) $max=$val;
+					}
+				}
+				$bar->set_values( $arr );
+				if($this->format=='currency') {
+					$f2->add_element( $bar );
+					$curr = true;
+				} else {
+					$f->add_element( $bar );
+					$num = true;
+				}
+			} else {
+				foreach ($this->categories as $q=>$c) {
+					$bar = new bar_glass();
+					$bar->set_colour(self::$colours[$q%count(self::$colours)]);
+					$bar->set_key(strip_tags($c),3);
+					$arr = array();
+					foreach ($results as $v) {
+						$val = (int)strip_tags($v[$c]);
+						$arr[] = $val;
+						if($this->format[$c]=='currency') {
+							if($max2<$val) $max2=$val;
+						} else {
+							if($max<$val) $max=$val;
+						}
+					}
+					$bar->set_values( $arr );
+					if($this->format[$c]=='currency') {
+						$f2->add_element( $bar );
+						$curr = true;
+					} else {
+						$f->add_element( $bar );
+						$num = true;
+					}
+				}
+			}
+
+			if($num) {
+				$y_ax = new y_axis();
+				$y_ax->set_range(0,$max);
+				$y_ax->set_steps($max/10);
+				$f->set_y_axis($y_ax);
+			
+				$f->set_width(950);
+				$f->set_height(400);
+			
+				$this->display_module($f);
+				print('<br>');
+			}
+			
+			if($curr) {
+				$y_ax = new y_axis();
+				$y_ax->set_range(0,$max2);
+				$y_ax->set_steps($max2/10);
+				$f2->set_y_axis($y_ax);
+
+				$f2->set_width(950);
+				$f2->set_height(400);
+
+				$this->display_module($f2);
+				print('<br>');
+			}
 		}
 	}
 	
@@ -500,12 +662,13 @@ class Utils_RecordBrowser_Reports extends Module {
 		$this->pdf_filename = $arg;
 	}
 	
-	public function body($pdf=false) {
+	public function body($pdf=false, $charts=false) {
 //		Base_ThemeCommon::install_default_theme($this->get_type()); // TODO: delete this, just develop tool
 		if ($this->is_back()) return false;
 		if ($this->date_range=='error') return;
 		Base_ThemeCommon::load_css('Utils/RecordBrowser/Reports');
 		$this->pdf = $pdf;
+		$this->charts = $charts;
 		if ($this->pdf) {
 			$this->pdf_ob = $this->init_module('Libs/TCPDF', 'L');
 			$this->pdf_ob->set_title($this->pdf_title);
@@ -514,16 +677,25 @@ class Utils_RecordBrowser_Reports extends Module {
 			$this->pdf_ob->AddPage();
 		}	
 
-		$this->make_table();
-
-		if ($this->pdf){
-			Base_ActionBarCommon::add('save','Download PDF','href="'.$this->pdf_ob->get_href($this->pdf_filename).'"');
-			self::$pdf_ready = 1;
-		} elseif ($this->pdf_title!='' && self::$pdf_ready == 0) {
-			if (count($this->gb_captions)<20)
-				Base_ActionBarCommon::add('print','Create PDF',$this->create_callback_href(array($this, 'body'), array(true)));
-			else
-				Base_ActionBarCommon::add('print','Create PDF','','Too many columns to prepare printable version - please narrow date range');
+		if($this->charts)
+			$this->make_charts();		
+		else
+			$this->make_table();
+		
+		if($charts) {
+			Base_ActionBarCommon::add('report','Table',$this->create_back_href());
+			return true;
+		} else {
+			Base_ActionBarCommon::add('report','Charts',$this->create_callback_href(array($this, 'body'), array(false,true)));
+			if ($this->pdf){
+				Base_ActionBarCommon::add('save','Download PDF','href="'.$this->pdf_ob->get_href($this->pdf_filename).'"');
+				self::$pdf_ready = 1;
+			} elseif ($this->pdf_title!='' && self::$pdf_ready == 0) {
+				if (count($this->gb_captions)<20)
+					Base_ActionBarCommon::add('print','Create PDF',$this->create_callback_href(array($this, 'body'), array(true,$charts)));
+				else
+					Base_ActionBarCommon::add('print','Create PDF','','Too many columns to prepare printable version - please narrow date range');
+			}
 		}
 		return false;
 	}
