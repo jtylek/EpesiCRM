@@ -357,6 +357,11 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$form->setDefaults(array($field=>$default));
 		}
 	}
+	
+	public static function maplink($r,$nolink,$desc) {
+		return Utils_TooltipCommon::create('<a href="http://maps.google.com/?'.http_build_query(array('q'=>Utils_CommonDataCommon::get_value('Countries/'.$r['country']).', '.$r['city'].', '.$r['address_1'].' '.$r['address_2'])).'" target="_blank">'.$r[$desc['id']].'</a>',Base_LangCommon::ts('CRM_Contacts','Click here to search this location using google maps'));
+	}
+	
 	public static function display_fname($v, $nolink) {
 		return Utils_RecordBrowserCommon::create_linked_label('contact', 'First Name', $v['id'], $nolink);
 	}
