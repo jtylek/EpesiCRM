@@ -544,7 +544,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							}
 							$cols2 = explode('|', $cols2);
 							foreach($cols2 as $j=>$w) $cols2[$j] = DB::qstr($w); 
-							$cols2 = implode(' OR field=', $cols2);
+							$cols2 = implode(' OR rdt.field=', $cols2);
 
 							$having .= 'EXISTS (SELECT rdt.value FROM '.$tab2.'_data AS rdt LEFT JOIN '.$tab.'_data AS rd ON rdt.'.$tab2.'_id=rd.value AND rd.field='.DB::qstr($ref).' AND rdt.field='.$cols2.' WHERE rd.'.$tab.'_id=r.id AND ';
 							if (!is_array($v)) $v = array($v);
@@ -627,7 +627,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						if ($tab2!='__COMMON__') {
 							$cols2 = explode('|', $cols2);
 							foreach($cols2 as $j=>$w) $cols2[$j] = DB::qstr($w); 
-							$cols2 = implode(' OR field=', $cols2);
+							$cols2 = implode(' OR rd.field=', $cols2);
 		
 							$val = '(SELECT '.($v['direction']=='ASC'?'MIN':'MAX').'(rdt.value) FROM '.$tab2.'_data AS rdt LEFT JOIN '.$tab.'_data AS rd ON r.id=rd.'.$tab.'_id AND rd.field='.DB::qstr($v['order']).' WHERE rdt.field='.$cols2.' AND rdt.'.$tab2.'_id=rd.value)';
 							$orderby .= ' '.$val.' '.$v['direction'];
@@ -910,7 +910,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		return array('__jump_to_RB_table'=>$tab, '__jump_to_RB_record'=>$id);
 	}
-	private static function create_record_href($tab, $id){
+	public static function create_record_href($tab, $id){
 		return Module::create_href(self::get_record_href_array($tab,$id));
 	}
 	public static function record_link_open_tag($tab, $id, $nolink=false){

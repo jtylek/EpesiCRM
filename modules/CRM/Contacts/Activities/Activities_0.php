@@ -28,7 +28,7 @@ class CRM_Contacts_Activities extends Module {
 		$events = null;
 		$tasks = null;
 		$phonecalls = null;
-		if ($this->display['events']) $events = DB::GetAll('SELECT * FROM crm_calendar_event AS cce WHERE EXISTS (SELECT contact FROM crm_calendar_event_group_emp AS ccegp WHERE ccegp.id=cce.id AND (false'.$db_string.')) OR EXISTS (SELECT contact FROM crm_calendar_event_group_cus AS ccegc WHERE ccegc.id=cce.id AND (false'.$db_string.')) ORDER BY start DESC', array_merge($ids, $ids));
+		if ($this->display['events']) $events = DB::GetAll('SELECT * FROM crm_calendar_event AS cce WHERE EXISTS (SELECT contact FROM crm_calendar_event_group_emp AS ccegp WHERE ccegp.id=cce.id AND (false'.$db_string.')) OR EXISTS (SELECT contact FROM crm_calendar_event_group_cus AS ccegc WHERE ccegc.id=cce.id AND (false'.$db_string.')) ORDER BY starts DESC', array_merge($ids, $ids));
 		$crits = array('(employees'=>$ids, '|customers'=>$ids);
 		if (!$this->display['closed']) $crits['!status'] = array(2,3);
 		if ($this->display['tasks']) $tasks = CRM_TasksCommon::get_tasks($crits, array(), array('deadline'=>'DESC'));
@@ -45,7 +45,7 @@ class CRM_Contacts_Activities extends Module {
 		$events = null;
 		$tasks = null;
 		$phonecalls = null;
-		if ($this->display['events']) $events = DB::GetAll('SELECT * FROM crm_calendar_event AS cce WHERE EXISTS (SELECT contact FROM crm_calendar_event_group_emp AS ccegp WHERE ccegp.id=cce.id AND contact=%d) OR EXISTS (SELECT contact FROM crm_calendar_event_group_cus AS ccegc WHERE ccegc.id=cce.id AND contact=%d) ORDER BY start DESC', array($me['id'], $me['id']));
+		if ($this->display['events']) $events = DB::GetAll('SELECT * FROM crm_calendar_event AS cce WHERE EXISTS (SELECT contact FROM crm_calendar_event_group_emp AS ccegp WHERE ccegp.id=cce.id AND contact=%d) OR EXISTS (SELECT contact FROM crm_calendar_event_group_cus AS ccegc WHERE ccegc.id=cce.id AND contact=%d) ORDER BY starts DESC', array($me['id'], $me['id']));
 		$crits = array('(employees'=>$me['id'], '|customers'=>$me['id']);
 		if (!$this->display['closed']) $crits['!status'] = array(2,3);
 		if ($this->display['tasks']) $tasks = CRM_TasksCommon::get_tasks($crits, array(), array('deadline'=>'DESC'));
@@ -96,7 +96,7 @@ class CRM_Contacts_Activities extends Module {
 			$gb_row = $gb->get_new_row();
 			$gb_row->add_data(	$this->lang->t('Event'),
 								$title, 
-								Base_RegionalSettingsCommon::time2reg($v['start']), 
+								Base_RegionalSettingsCommon::time2reg($v['starts']), 
 								CRM_ContactsCommon::display_contact(array('employees'=>$employees), false, array('id'=>'employees', 'param'=>';CRM_ContactsCommon::contact_format_no_company')), 
 								CRM_ContactsCommon::display_contact(array('customers'=>$customers), false, array('id'=>'customers', 'param'=>';::')) 
 							);

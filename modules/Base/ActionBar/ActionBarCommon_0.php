@@ -45,7 +45,7 @@ class Base_ActionBarCommon extends ModuleCommon {
 	}
 
 	public static function add($type, $text, $action, $description=null) {
-		if(!array_key_exists($type,self::$available_icons)) trigger_error('Invalid action '.$type,E_USER_ERROR);
+//		if(!array_key_exists($type,self::$available_icons)) trigger_error('Invalid action '.$type,E_USER_ERROR);
 
 		self::$icons[] = array('icon'=>$type,'label'=>$text,'action'=>$action,'description'=>$description);
 	}

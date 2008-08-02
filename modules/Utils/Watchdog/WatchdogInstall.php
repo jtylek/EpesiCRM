@@ -12,6 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_WatchdogInstall extends ModuleInstall {
 
 	public function install() {
+		Base_ThemeCommon::install_default_theme($this->get_type());
 		$ret = true;
 		$ret &= DB::CreateTable('utils_watchdog_category',
 					'id I AUTO KEY,'.
@@ -54,6 +55,7 @@ class Utils_WatchdogInstall extends ModuleInstall {
 	}
 	
 	public function uninstall() {
+		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		$ret = true;
 		$ret &= DB::DropTable('utils_watchdog_category');
 		$ret &= DB::DropTable('utils_watchdog_event');

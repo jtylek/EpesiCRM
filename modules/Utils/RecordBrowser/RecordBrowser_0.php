@@ -130,7 +130,9 @@ class Utils_RecordBrowser extends Module {
 		$params = DB::GetRow('SELECT caption, icon, recent, favorites, full_history FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 		if ($params==false) trigger_error('There is no such recordSet as '.$this->tab.'.', E_USER_ERROR);
 		list($this->caption,$this->icon,$this->recent,$this->favorites,$this->full_history) = $params;
-
+		$cid = Utils_WatchdogCommon::get_category_id($this->tab);
+		$this->watchdog = ($cid!==false && $cid!==false);
+		 
 		//If Caption or icon not specified assign default values
 		if ($this->caption=='') $this->caption='Record Browser';
 		if ($this->icon=='') $this->icon = Base_ThemeCommon::get_template_filename('Base_ActionBar','icons/settings.png');
@@ -319,8 +321,13 @@ class Utils_RecordBrowser extends Module {
 
 		if ($special)
 			$table_columns = array(array('name'=>$this->lang->t('Select'), 'width'=>1));
-		elseif (!$admin && $this->favorites)
-			$table_columns = array(array('name'=>$this->lang->t('Fav'), 'width'=>1, 'order'=>':Fav'));
+		else {
+			$table_columns = array();
+			if (!$admin && $this->favorites)
+				$table_columns[] = array('name'=>$this->lang->t('Fav'), 'width'=>1, 'order'=>':Fav');
+			if (!$admin && $this->watchdog)
+				$table_columns[] = array('name'=>$this->lang->t('Sub'), 'width'=>1);
+		}
 		$table_columns_SQL = array();
 		$quickjump = DB::GetOne('SELECT quickjump FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 
@@ -433,6 +440,9 @@ class Utils_RecordBrowser extends Module {
 				$isfav = isset($favs[$row['id']]);
 				$row_data = array('<a '.Utils_TooltipCommon::open_tag_attrs(($isfav?$this->lang->t('This item is on your favourites list<br>Click to remove it from your favorites'):$this->lang->t('Click to add this item to favorites'))).' '.$this->create_callback_href(array($this,($isfav?'remove_from_favs':'add_to_favs')), array($row['id'])).'><img style="width: 14px; height: 14px; vertical-align: middle;" border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','star_'.($isfav==false?'no':'').'fav.png').'" /></a>');
 			} else $row_data = array();
+			if (!$admin && $this->watchdog) {
+				$row_data[] = Utils_WatchdogCommon::get_change_subscription_icon($this->tab,$row['id']);
+			}
 			if ($special) {
 				$func = $this->get_module_variable('format_func');
 				$element = $this->get_module_variable('element');
@@ -493,7 +503,7 @@ class Utils_RecordBrowser extends Module {
 				}
 				$id = Utils_RecordBrowserCommon::new_record($this->tab, $values);
 				$values['id'] = $id;
-				Utils_WatchdogCommon::new_event($this->tab,$values['id'],'Created');
+				Utils_WatchdogCommon::new_event($this->tab,$values['id'],'Record created');
 				Utils_WatchdogCommon::notified($this->tab,$values['id']);
 				if ($dpm!=='')
 					call_user_func($method, $values, 'added');
@@ -606,7 +616,7 @@ class Utils_RecordBrowser extends Module {
 			$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 			$method = '';
 			if ($mode==='edit')
-				Utils_WatchdogCommon::new_event($this->tab,$values['id'],'Edited');
+				Utils_WatchdogCommon::new_event($this->tab,$values['id'],'Record edited');
 			if ($dpm!=='') {
 				$method = explode('::',$dpm);
 				if (is_callable($method)) $values = call_user_func($method, $values, $mode);
@@ -617,8 +627,8 @@ class Utils_RecordBrowser extends Module {
 				$id = Utils_RecordBrowserCommon::new_record($this->tab, $values);
 				self::$clone_result = $id;
 				self::$clone_tab = $this->tab;
-				Utils_WatchdogCommon::new_event($this->tab,$values['id'],'Created');
 				$values['id'] = $id;
+				Utils_WatchdogCommon::new_event($this->tab,$values['id'],'Record created');
 				if ($dpm!=='')
 					call_user_func($method, $values, 'added');
 				Utils_WatchdogCommon::notified($this->tab,$values['id']);
@@ -652,7 +662,9 @@ class Utils_RecordBrowser extends Module {
 			$fav = DB::GetOne('SELECT user_id FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%s', array(Acl::get_user(), $id));
 
 			if ($this->favorites)
-				$theme -> assign('fav_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(($isfav?$this->lang->t('This item is on your favourites list<br>Click to remove it from your favorites'):$this->lang->t('Click to add this item to favorites'))).' '.$this->create_callback_href(array($this,($isfav?'remove_from_favs':'add_to_favs')), array($id)).'><img style="width: 14px; height: 14px; vertical-align: middle;" border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','star_'.($isfav==false?'no':'').'fav.png').'" /></a>');
+				$theme -> assign('fav_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(($isfav?$this->lang->t('This item is on your favourites list<br>Click to remove it from your favorites'):$this->lang->t('Click to add this item to favorites'))).' '.$this->create_callback_href(array($this,($isfav?'remove_from_favs':'add_to_favs')), array($id)).'><img style="width: 14px; height: 14px;" border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','star_'.($isfav==false?'no':'').'fav.png').'" /></a>');
+			if ($this->watchdog)
+				$theme -> assign('subscription_tooltip', Utils_WatchdogCommon::get_change_subscription_icon($this->tab, $id));
 			if ($this->full_history) {
 				$info = Utils_RecordBrowserCommon::get_record_info($this->tab, $id);
 				if ($info['edited_by']===null) $theme -> assign('history_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('This record was never edited')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','history_inactive.png').'" /></a>');

@@ -24,6 +24,8 @@ class Base_ActionBar extends Module {
 	 * @return int comparison result
 	 */
 	public function compare($a, $b) {
+		if (!isset(Base_ActionBarCommon::$available_icons[$a['icon']])) return 1;
+		if (!isset(Base_ActionBarCommon::$available_icons[$b['icon']])) return -1;
 		$ret = Base_ActionBarCommon::$available_icons[$a['icon']]-Base_ActionBarCommon::$available_icons[$b['icon']];
 		if($ret==0) $ret = strcmp($a['label'],$b['label']);
 		return $ret;
@@ -63,7 +65,8 @@ class Base_ActionBar extends Module {
 				$t = Utils_TooltipCommon::open_tag_attrs($i['label'].(($i['description'])?' - '.$i['description']:''),false);
 			$i['open'] = '<a '.$i['action'].' '.$t.'>';
 			$i['close'] = '</a>';
-			$i['icon'] = Base_ThemeCommon::get_template_file('Base_ActionBar','icons/'.$i['icon'].'.png');
+			if (isset(Base_ActionBarCommon::$available_icons[$i['icon']]))
+				$i['icon'] = Base_ThemeCommon::get_template_file('Base_ActionBar','icons/'.$i['icon'].'.png');
 		}
 
 

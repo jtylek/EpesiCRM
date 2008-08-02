@@ -30,6 +30,9 @@
 			<td class="name">{$caption}</td>
 			<td class="required_fav_info">
 				&nbsp;*&nbsp;{$required_note}
+				{if isset($subscription_tooltip)}
+					&nbsp;&nbsp;&nbsp;{$subscription_tooltip}
+				{/if}
 				{if isset($fav_tooltip)}
 					&nbsp;&nbsp;&nbsp;{$fav_tooltip}
 				{/if}
