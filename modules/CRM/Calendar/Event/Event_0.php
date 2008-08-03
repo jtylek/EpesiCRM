@@ -123,7 +123,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 															));
 		$pdf_theme->assign('title', array(	'label'=>$this->lang->t('Title'),
 											'value'=>$ev['title']));
-		$start = Base_RegionalSettingsCommon::time2reg($ev['start'],false);
+		$start = Base_RegionalSettingsCommon::time2reg($ev['starts'],false);
 		$pdf_theme->assign('start_date', array(	'label'=>$this->lang->t('Start date'),
 												'value'=>$start,
 												'details'=>array('weekday'=>date('l', strtotime($start)))));
@@ -501,8 +501,8 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			if ($pdf->prepare()) {
 				$ev = DB::GetRow('SELECT * FROM crm_calendar_event WHERE id=%d', array($id));
 				$pdf->set_title($this->lang->t('Event').': '.$ev['title']);
-				if (!$ev['timeless']) $pdf->set_subject(Base_RegionalSettingsCommon::time2reg($ev['start']).' - '.Base_RegionalSettingsCommon::time2reg($ev['end']));
-				else $pdf->set_subject(Base_RegionalSettingsCommon::time2reg($ev['start'],false));
+				if (!$ev['timeless']) $pdf->set_subject(Base_RegionalSettingsCommon::time2reg($ev['starts']).' - '.Base_RegionalSettingsCommon::time2reg($ev['ends']));
+				else $pdf->set_subject(Base_RegionalSettingsCommon::time2reg($ev['starts'],false));
 				$pdf->prepare_header();
 
 				$pdf->AddPage();

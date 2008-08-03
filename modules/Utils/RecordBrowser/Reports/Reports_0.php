@@ -269,7 +269,6 @@ class Utils_RecordBrowser_Reports extends Module {
 
 	public function display_pdf_row($grow) {
 		$table = '';
-		// TODO: put inside tpl
 		foreach ($grow as $row) {
 			$theme = $this->init_module('Base/Theme');
 			$theme->assign('row',$row);
