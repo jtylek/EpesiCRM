@@ -50,6 +50,7 @@ class Libs_OpenFlashChart extends Module {
 		     '<param name="allowScriptAccess" value="sameDomain" />'.
 		     '<param name="movie" value="'.$this->get_module_dir().'2-alpha-8/open-flash-chart.swf" />'.
 			 '<param name="FlashVars" value="data-file='.$url.'" />'.
+			 '<param name="wmode" value="transparent">'.
 		     '<param name="quality" value="high" />'.
 			 '<embed src="'.$this->get_module_dir().'2-alpha-8/open-flash-chart.swf" FlashVars="data-file='.$url.'" quality="high" bgcolor="#FFFFFF" width="'.$this->width.'" height="'.$this->height.'" name="open-flash-chart" align="middle" allowScriptAccess="sameDomain" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" />'.
 			'</object>');
