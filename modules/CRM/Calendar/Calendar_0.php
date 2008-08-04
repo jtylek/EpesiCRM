@@ -71,7 +71,7 @@ class CRM_Calendar extends Module {
 
 		$l = $this->init_module('Base/Lang');
 
-		$gb = $this->init_module('Utils/GenericBrowser', null, 'agenda');
+		$gb = $this->init_module('Utils/GenericBrowser', null, 'agendaX');
 		$columns = array(
 			array('name'=>$l->t('Start'), 'order'=>'e.starts', 'width'=>50),
 			array('name'=>$l->t('Title'), 'order'=>'e.title','width'=>50),
@@ -83,6 +83,7 @@ class CRM_Calendar extends Module {
 
 		$gb->set_default_order(array($l->t('Start')=>'ASC'));
 		CRM_Calendar_EventCommon::$filter = '('.CRM_FiltersCommon::get_my_profile().')';
+//		trigger_error($gb->get_query_order());
 		$ret = CRM_Calendar_EventCommon::get_all($start,$end,$gb->get_query_order());
 		$data = array();
 		$colors = CRM_Calendar_EventCommon::get_available_colors();
