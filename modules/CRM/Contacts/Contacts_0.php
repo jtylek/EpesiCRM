@@ -21,12 +21,14 @@ class CRM_Contacts extends Module {
 
 		$this->rb = $this->init_module('Utils/RecordBrowser',$mode,$mode);
 		$this->rb->set_defaults(array(	'country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
-										'zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state')));
+										'zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state'),
+										'permission'=>'0'));
 //		$this->rb->set_cut_lengths(array('company_name'=>30));
 //		$this->rb->set_header_properties(array('company_name'=>array('name'=>'Company Name Replacement','width'=>1)));
 		if ($mode=='contact') {
 			$this->rb->set_defaults(array(	'home_country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
-											'home_zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state')));
+											'home_zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state'),
+											'permission'=>'0'));
 			$this->rb->set_default_order(array('last_name'=>'ASC', 'first_name'=>'ASC'));
 		} else {
 			$this->rb->set_default_order(array('company_name'=>'ASC'));
@@ -138,7 +140,10 @@ class CRM_Contacts extends Module {
 		CRM_ContactsCommon::$paste_or_new = $company;
 		$rb = $this->init_module('Utils/RecordBrowser','contact','contact');
 		$this->rb = $rb;
-		$ret = $rb->view_entry('add', null, array('company_name'=>array($company)));
+		$ret = $rb->view_entry('add', null, array('company_name'=>array($company),
+												'country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
+												'zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state'),											
+												'permission'=>'0'));
 		$this->set_module_variable('view_or_add', 'add');
 		if ($ret==false) {
 			$x = ModuleManager::get_instance('/Base_Box|0');
