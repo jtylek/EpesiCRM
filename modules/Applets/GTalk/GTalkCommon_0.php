@@ -11,7 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Applets_GTalkCommon extends ModuleCommon {
 	public static function applet_caption() {
-		return "Google Talk applet";
+		return "Google Talk";
 	}
 
 	public static function applet_info() {
