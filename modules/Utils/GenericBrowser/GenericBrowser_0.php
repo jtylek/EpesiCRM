@@ -322,7 +322,8 @@ class Utils_GenericBrowser extends Module {
 	 */
 	public function get_query_order() {
 		$ch_order = $this->get_unique_href_variable('change_order');
-		if ($ch_order) $this->change_order($ch_order);
+		if ($ch_order)
+			$this->change_order($ch_order);
 		$order = $this->get_module_variable('order');
 		if(!is_array($order)) return '';
 		ksort($order);

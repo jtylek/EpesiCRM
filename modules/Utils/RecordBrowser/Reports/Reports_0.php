@@ -509,20 +509,7 @@ class Utils_RecordBrowser_Reports extends Module {
 		}
 	}
 	
-	public function make_charts() {
-		if (empty($this->ref_records)) {
-			print('There were no records to display report for.');
-			return;
-		}
-
-
-		$cols_total = array();
-		/***** MAIN TABLE *****/
-		$row_count = 1;
-		$gb_captions = $this->gb_captions;
-		array_shift($gb_captions);
-		if (!empty($this->categories)) array_shift($gb_captions);
-		foreach($this->ref_records as $k=>$r) {
+	public function draw_chart($r,$ref_rec,$gb_captions) {
 			$f = $this->init_module('Libs/OpenFlashChart');
 			$f2 = $this->init_module('Libs/OpenFlashChart');
 			$data_recs = array();
@@ -537,8 +524,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			}
 			$results = call_user_func($this->display_cell_callback, $r, $data_recs);
 
-			$ref_rec = call_user_func($this->ref_record_display_callback, $r);
-			$title = new title( strip_tags($ref_rec) );
+			$title = new title( $ref_rec );
 			$f->set_title( $title );
 			$f2->set_title( $title );
 			$labels = array();
@@ -625,7 +611,90 @@ class Utils_RecordBrowser_Reports extends Module {
 				$this->display_module($f2);
 				print('<br>');
 			}
+
+	}
+	
+	public function draw_category_chart($r,$ref_rec,$gb_captions) {
+			$f = $this->init_module('Libs/OpenFlashChart');
+			$data_recs = array();
+
+			$title = new title( $ref_rec );
+			$f->set_title( $title );
+			$labels = array();
+			foreach($gb_captions as $cap)
+				$labels[] = $cap['name'];
+			$x_ax = new x_axis();
+			$x_ax->set_labels_from_array($labels);
+			$f->set_x_axis($x_ax);
+			$max = 5;
+
+			foreach($this->ref_records as $q=>$r) {
+				$data_recs = array();
+				foreach ($this->data_record as $dv) {
+					$vals = array();
+					$data_ids = array();
+					foreach ($this->data_record_relation[$dv] as $k2=>$v2) $vals = array($k2, $r['id']); //TODO: tutaj jest blad poniewaz zawsze zastepuje vals biarac praktycznie ostatnia wartosc
+					$ret = DB::Execute('SELECT '.$dv.'_id FROM '.$dv.'_data AS rd LEFT JOIN '.$dv.' AS r ON r.id=rd.'.$dv.'_id WHERE rd.field=%s AND rd.value=%s AND r.active=1', $vals);
+					while ($row = $ret->FetchRow())
+						$data_ids[] = $row[$dv.'_id'];
+					$data_recs[] = Utils_RecordBrowserCommon::get_records($dv, array('id'=>$data_ids));
+				}
+				$results = call_user_func($this->display_cell_callback, $r, $data_recs);
+				
+				$title2 = strip_tags(call_user_func($this->ref_record_display_callback, $r));
+				$bar = new bar_glass();
+				$bar->set_colour(self::$colours[$q%count(self::$colours)]);
+				$bar->set_key($title2,3);
+				$arr = array();
+				foreach ($results as $v) {
+					$val = (int)strip_tags($v[$ref_rec]);
+					$arr[] = $val;
+					if($max<$val) $max=$val;
+				}
+				$bar->set_values( $arr );
+				$f->add_element( $bar );
+			}
+
+			$y_ax = new y_axis();
+			$y_ax->set_range(0,$max);
+			$y_ax->set_steps($max/10);
+			$f->set_y_axis($y_ax);
+		
+			$f->set_width(950);
+			$f->set_height(400);
+			
+			$this->display_module($f);
+	}
+	
+	public function make_charts() {
+		if (empty($this->ref_records)) {
+			print('There were no records to display report for.');
+			return;
 		}
+
+
+		$cols_total = array();
+		/***** MAIN TABLE *****/
+		$row_count = 1;
+		$gb_captions = $this->gb_captions;
+		array_shift($gb_captions);
+		if (!empty($this->categories)) array_shift($gb_captions);
+
+		$tb = & $this->init_module('Utils/TabbedBrowser');
+		foreach($this->ref_records as $k=>$r) {
+			$title = strip_tags(call_user_func($this->ref_record_display_callback, $r));
+			$tb->set_tab($title, array($this,'draw_chart'),array($r,$title,$gb_captions));
+		}
+		if (empty($this->categories)) {
+			$tb->set_tab($title, array($this,'draw_category_chart'),array($gb_captions));
+		} else {
+			foreach ($this->categories as $q=>$c) {
+				$title = strip_tags($c);
+				$tb->set_tab($title, array($this,'draw_category_chart'),array($c,$title,$gb_captions));
+			}
+		}
+		$this->display_module($tb);
+		$this->tag();
 	}
 	
 	public function from_to_date() { 
