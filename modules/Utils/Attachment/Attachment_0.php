@@ -143,10 +143,14 @@ class Utils_Attachment extends Module {
 			$r = $gb->get_new_row();
 
 
+			$inline_img = '';
 			if($row['original']!=='') {
 				$f_filename = 'data/Utils_Attachment/'.$row['local'].'/'.$row['id'].'_'.$row['file_revision'];
 				$filetooltip = $this->lang->t('Filename: %s<br>File size: %s',array($row['original'],filesize_hr($f_filename))).'<hr>'.$this->lang->t('Last uploaded by %s<br>on %s<br>Number of uploads: %d<br>Number of downloads: %d',array($row['upload_by'],Base_RegionalSettingsCommon::time2reg($row['upload_on']),$row['file_revision'],$row['downloads']));
-				$file = '<a '.$this->get_file($row).' '.Utils_TooltipCommon::open_tag_attrs($filetooltip,false).'><img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'attach.png').'" border=0></a>';
+				$view_link = '';
+				$file = '<a '.$this->get_file($row,$view_link).' '.Utils_TooltipCommon::open_tag_attrs($filetooltip,false).'><img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'attach.png').'" border=0></a>';
+				if(eregi('.(jpg|jpeg|gif|png|bmp)$',$row['original']) && $view_link)
+					$inline_img = '<hr><img src="'.$view_link.'" width="100%" />';
 			} else {
 				$file = '';
 			}
@@ -178,10 +182,13 @@ class Utils_Attachment extends Module {
 			}
 			$text = strip_tags(str_replace('</p>','<br>',$row['text']),'<br><br/>');
 			$max_len = 120;
-			if(strlen($text)>$max_len) {
-				$br = strpos($text,'<br',$max_len-3);
+			if(strlen($text)>$max_len || $inline_img) {
+				if($inline_img)
+					$br=false;
+				else
+					$br = strpos($text,'<br',$max_len-3);
 				if($br!==false && $br<$max_len) $max_len=$br;
-				$text = array('value'=>substr($text,0,$max_len).'<a href="javascript:void(0)" onClick="utils_attachment_expand('.$row['id'].')" id="utils_attachment_more_'.$row['id'].'">...'.$this->lang->t('[more]').'</a><span style="display:none" id="utils_attachment_text_'.$row['id'].'">'.substr($text,$max_len).' <a href="javascript:void(0)" onClick="utils_attachment_collapse('.$row['id'].')">'.$this->lang->t('[less]').'</a></span>','hint'=>$this->lang->t('Click on view icon to see full note'));
+				$text = array('value'=>substr($text,0,$max_len).'<a href="javascript:void(0)" onClick="utils_attachment_expand('.$row['id'].')" id="utils_attachment_more_'.$row['id'].'">...'.$this->lang->t('[more]').'</a><span style="display:none" id="utils_attachment_text_'.$row['id'].'">'.substr($text,$max_len).$inline_img.' <a href="javascript:void(0)" onClick="utils_attachment_collapse('.$row['id'].')">'.$this->lang->t('[less]').'</a></span>','hint'=>$this->lang->t('Click on view icon to see full note'));
 				$expandable[] = $row['id'];
 			}
 
@@ -215,7 +222,7 @@ class Utils_Attachment extends Module {
 		$this->push_box0('view',array($id),array($this->real_key,$this->group,$this->persistent_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header));
 	}
 
-	public function get_file($row) {
+	public function get_file($row, & $view_link = '') {
 		static $th;
 		if(!isset($th)) $th = $this->init_module('Base/Theme');
 
@@ -230,7 +237,8 @@ class Utils_Attachment extends Module {
 
 		$lid = 'get_file_'.md5($this->get_path().serialize($row));
 
-		$th->assign('view','<a href="modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$row['file_id'],'path'=>$this->get_path(),'cid'=>CID,'view'=>1)).'" target="_blank" onClick="leightbox_deactivate(\''.$lid.'\')">'.$this->lang->t('View').'</a><br>');
+		$view_link = 'modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$row['file_id'],'path'=>$this->get_path(),'cid'=>CID,'view'=>1));
+		$th->assign('view','<a href="'.$view_link.'" target="_blank" onClick="leightbox_deactivate(\''.$lid.'\')">'.$this->lang->t('View').'</a><br>');
 		$th->assign('download','<a href="modules/Utils/Attachment/get.php?'.http_build_query(array('id'=>$row['file_id'],'path'=>$this->get_path(),'cid'=>CID)).'" onClick="leightbox_deactivate(\''.$lid.'\')">'.$this->lang->t('Download').'</a><br>');
 		load_js('modules/Utils/Attachment/remote.js');
 		$th->assign('link','<a href="javascript:void(0)" onClick="utils_attachment_get_link('.$row['file_id'].', '.CID.', \''.Epesi::escapeJS($this->get_path(),false).'\',\'get link\');leightbox_deactivate(\''.$lid.'\')">'.$this->lang->t('Get link').'</a><br>');
@@ -336,7 +344,7 @@ class Utils_Attachment extends Module {
 		$ret = $gb->query_order_limit('SELECT ual.permission_by,ual.permission,uac.revision,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text FROM utils_attachment_note uac INNER JOIN utils_attachment_link ual ON ual.id=uac.attach_id WHERE uac.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_note uac WHERE uac.attach_id='.$id);
 		while($row = $ret->FetchRow()) {
 			$r = $gb->get_new_row();
-			if(Base_AclCommon::i_am_admin() || 
+			if(Base_AclCommon::i_am_admin() ||
 				$row['permission_by']==Acl::get_user() ||
 			   ($row['permission']==0 && $this->public_write) ||
 			   ($row['permission']==1 && $this->protected_write) ||
@@ -360,7 +368,7 @@ class Utils_Attachment extends Module {
 		$ret = $gb->query_order_limit('SELECT uaf.id as file_id,ual.local,ual.permission_by,ual.permission,uaf.attach_id as id,uaf.revision as file_revision,uaf.created_on as upload_on,(SELECT l.login FROM user_login l WHERE uaf.created_by=l.id) as upload_by,uaf.original FROM utils_attachment_file uaf INNER JOIN utils_attachment_link ual ON ual.id=uaf.attach_id WHERE uaf.attach_id='.$id, 'SELECT count(*) FROM utils_attachment_file uaf WHERE uaf.attach_id='.$id);
 		while($row = $ret->FetchRow()) {
 			$r = $gb->get_new_row();
-			if(Base_AclCommon::i_am_admin() || 
+			if(Base_AclCommon::i_am_admin() ||
 				$row['permission_by']==Acl::get_user() ||
 			   ($row['permission']==0 && $this->public_write) ||
 			   ($row['permission']==1 && $this->protected_write) ||
