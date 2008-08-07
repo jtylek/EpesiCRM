@@ -90,7 +90,8 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 				$result['color'] = $color[$row['color']];
 			$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
 			$priority = array(0 =>'None', 1 => 'Low', 2 => 'Medium', 3 => 'High');
-			$result['additional_info2'] = 	Base_LangCommon::ts('CRM_Calendar_Event','Access').': '.Base_LangCommon::ts('CRM_Calendar_Event',$access[$row['access']]).'<br>'.
+			$result['additional_info2'] = 	'<hr>'.Base_LangCommon::ts('CRM_Calendar_Event','Status').': '.$status[$row['status']].'<br>'.
+								Base_LangCommon::ts('CRM_Calendar_Event','Access').': '.Base_LangCommon::ts('CRM_Calendar_Event',$access[$row['access']]).'<br>'.
 								Base_LangCommon::ts('CRM_Calendar_Event','Priority').': '.Base_LangCommon::ts('CRM_Calendar_Event',$priority[$row['priority']]). '<br>'.
 								Base_LangCommon::ts('CRM_Calendar_Event','Notes').': '.Utils_AttachmentCommon::count($row['id'],'CRM/Calendar/Event/'.$row['id']). '<br>'.
 								Base_LangCommon::ts('CRM_Calendar_Event','Created by').' '.Base_UserCommon::get_user_login($row['created_by']). '<br>'.
@@ -110,7 +111,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 				if(is_numeric($k))
 					$cuss[] = CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($k));
 
-			$result['additional_info'] =  $row['description'].'<hr>'.
+			$result['additional_info'] =  '<hr>'.
 					Base_LangCommon::ts('CRM_Calendar_Event','Employees:').'<br>'.
 						implode('<br>',$emps).
 					(empty($cuss)?'':'<br>'.Base_LangCommon::ts('CRM_Calendar_Event','Customers:').'<br>'.
@@ -167,6 +168,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		$result = array();
 		$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
 		$priority = array(0 =>'None', 1 => 'Low', 2 => 'Medium', 3 => 'High');
+		$status = Utils_CommonDataCommon::get_translated_array('Ticket_Status');
 		while ($row = $ret->FetchRow()) {
 			$next_result = array();
 			foreach (array('start','id','title','timeless','description') as $v)
@@ -180,7 +182,8 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			else
 				$next_result['color'] = $color[$row['color']];
 
-			$next_result['additional_info2'] = 	Base_LangCommon::ts('CRM_Calendar_Event','Access').': '.Base_LangCommon::ts('CRM_Calendar_Event',$access[$row['access']]).'<br>'.
+			$next_result['additional_info2'] = 	'<hr>'.Base_LangCommon::ts('CRM_Calendar_Event','Status').': '.$status[$row['status']].'<br>'.
+								Base_LangCommon::ts('CRM_Calendar_Event','Access').': '.Base_LangCommon::ts('CRM_Calendar_Event',$access[$row['access']]).'<br>'.
 								Base_LangCommon::ts('CRM_Calendar_Event','Priority').': '.Base_LangCommon::ts('CRM_Calendar_Event',$priority[$row['priority']]). '<br>'.
 								Base_LangCommon::ts('CRM_Calendar_Event','Notes').': '.Utils_AttachmentCommon::count($row['id'],'CRM/Calendar/Event/'.$row['id']). '<br>'.
 								Base_LangCommon::ts('CRM_Calendar_Event','Created by').' '.Base_UserCommon::get_user_login($row['created_by']). '<br>'.
@@ -190,7 +193,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 											Base_LangCommon::ts('CRM_Calendar_Event','Edited on').' '.$row['edited_on']. '<br>'):'');
 			$emps_tmp = DB::GetAssoc('SELECT emp.contact,emp.contact FROM crm_calendar_event_group_emp AS emp WHERE emp.id=%d',array($row['id']));
 			$cuss_tmp = DB::GetAssoc('SELECT cus.contact,cus.contact FROM crm_calendar_event_group_cus AS cus WHERE cus.id=%d',array($row['id']));
- 
+
 //			$emps_tmp = explode(',',$row['employees']);
 			$emps = array();
 			foreach($emps_tmp as $k)
@@ -201,7 +204,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			foreach($cuss_tmp as $k)
 				if(is_numeric($k))
 					$cuss[] = CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($k));
-			$next_result['additional_info'] =  $row['description'].	'<hr>'.
+			$next_result['additional_info'] =  '<hr>'.
 					'<b>'.Base_LangCommon::ts('CRM_Calendar_Event','Employees:').'</b><br>'.
 						implode('<br>',$emps).
 					(empty($cuss)?'':'<br><b>'.Base_LangCommon::ts('CRM_Calendar_Event','Customers:').'</b><br>'.
