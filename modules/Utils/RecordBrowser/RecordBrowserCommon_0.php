@@ -581,7 +581,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						if ($w==='') $having .= ' '.($negative?'AND':'OR').' rd.value IS '.($negative?'NOT ':'').'NULL';
 						else {
 							if (!$noquotes) $w = DB::qstr($w);
-							$having .= ' '.($negative?'AND':'OR').' rd.value '.($negative?'NOT ':'').$operator.' '.$w;//TODO: ticket #0065 solved by comment out of this code // ($operator=='LIKE'?DB::Concat(DB::qstr('%'),$w,DB::qstr('%')):$w);
+							$having .= ' '.($negative?'AND':'OR').' rd.value '.($negative?'NOT ':'').$operator.' '.$w;//TODO: ticket #0065 and #0062 solved by comment out of this code // ($operator=='LIKE'?DB::Concat(DB::qstr('%'),$w,DB::qstr('%')):$w);
 						}
 					}
 					$having .= ')';
@@ -644,7 +644,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		$final_tab = str_replace('('.$tab.' AS r'.')',$tab.' AS r',$final_tab);
 		$ret = array('sql'=>'SELECT id, active, created_by, created_on'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?Utils_RecordBrowser::$admin_filter:' AND active=1').$where.$having.$orderby,'vals'=>$vals);
-		error_log(print_r($ret,true)."\n\n",3,'data/logger');
+//		error_log(print_r($ret,true)."\n\n",3,'data/logger');
 		return $cache[$key] = $ret;
 	}
 	public static function get_records_limit( $tab = null, $crits = null, $admin = false) {
