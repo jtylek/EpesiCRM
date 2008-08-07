@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @author Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Arkadiusz Bisaga <abisaga@telaxus.com>
  * @license SPL
@@ -10,7 +10,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_RecordBrowser_Reports extends Module {
-	private static $colours = array('#00FFFF','#008000','#000080', '#808000', '#008080', '#0000FF','#00FF00','#800080','#FF00FF','#800000','#FF0000','#FFFF00','#C0C0C0','#808080','#000000');
+	private static $colours = array('#00FFFF','#008000','#000080', '#808000', '#008080', '#0000FF','#00FF00','#800080','#FF00FF','#800000','#FF0000','#C0C0C0','#808080','#000000','#FFFF00');
 	private $ref_records = array();
 	private $ref_record_display_callback = null;
 	private $gb_captions = null;
@@ -38,11 +38,11 @@ class Utils_RecordBrowser_Reports extends Module {
 	private $bonus_width = 15;
 
 	public function construct(){
-		$this->lang = $this->init_module('Base/Lang');	
+		$this->lang = $this->init_module('Base/Lang');
 	}
 
 	public function set_bonus_width($arg){
-		$this->bonus_width = $arg;	
+		$this->bonus_width = $arg;
 	}
 
 	public function set_data_records($dr) {
@@ -74,20 +74,20 @@ class Utils_RecordBrowser_Reports extends Module {
 	public function set_reference_record_display_callback($rrdc) {
 		$this->ref_record_display_callback = $rrdc;
 	}
-	
+
 	public function set_summary($colrow, $action) {
 		if ($colrow=='col') $this->col_summary = $action;
 		if ($colrow=='row') $this->row_summary = $action;
 	}
-	
+
 	public function set_table_header($arg) {
 		$cap = array();
-		foreach($arg as $v) $cap[] = array('name'=>$v, 'wrapmode'=>'nowrap'); 
+		foreach($arg as $v) $cap[] = array('name'=>$v, 'wrapmode'=>'nowrap');
 		$this->gb_captions = $cap;
 		if (!empty($this->categories))
 			$this->add_categories_to_header();
 	}
-	
+
 	public function add_categories_to_header() {
 		$x = array_shift($this->gb_captions);
 		array_unshift($this->gb_captions, array('name'=>'&nbsp;', 'wrapmode'=>'nowrap'));
@@ -105,7 +105,7 @@ class Utils_RecordBrowser_Reports extends Module {
 	}
 
 	public function set_format($arg) {
-		$this->format = $arg;	
+		$this->format = $arg;
 	}
 
 	public function format_cell($format, $str) {
@@ -144,20 +144,20 @@ class Utils_RecordBrowser_Reports extends Module {
 	private function create_tooltip($ref_rec, $col, $value, $c='') {
 		if ($this->pdf) return '';
 		return Utils_TooltipCommon::open_tag_attrs($ref_rec.'<hr>'.$col.'<br>'.($c!=''?$c.':':'').$value, false).' ';
-	}	
-	
+	}
+
 	public function check_dates($arg) {
 		$idx = 0;
 		switch ($arg[0]) {
-			case 'year': $idx+=2;	
-			case 'month': $idx+=2;	
-			case 'week': $idx+=2;	
+			case 'year': $idx+=2;
+			case 'month': $idx+=2;
+			case 'week': $idx+=2;
 		}
 		$st = $this->get_date($arg[0], $arg[1+$idx]);
 		$nd = $this->get_date($arg[0], $arg[2+$idx]);
 		return $st<=$nd;
 	}
-	
+
 	public function display_date_picker($datepicker_defaults = array()) {
 		$form = $this->init_module('Libs/QuickForm');
 		$theme = $this->init_module('Base/Theme');
@@ -187,8 +187,8 @@ class Utils_RecordBrowser_Reports extends Module {
 
 		$form->registerRule('check_dates', 'callback', 'check_dates', $this);
 		$form->addRule(array('date_range_type','from_day','to_day','from_week','to_week','from_month','to_month','from_year','to_year'), $this->lang->t('\'From\' date must be earlier than \'To\' date'), 'check_dates');
-		
-		$failed = false;		
+
+		$failed = false;
 		$vals = $form->exportValues();
 		$this->set_module_variable('vals',$vals);
 		if ($vals['submited'] && !$form->validate()) {
@@ -199,7 +199,7 @@ class Utils_RecordBrowser_Reports extends Module {
 		$form->assign_theme('form',$theme);
 		$theme->display('date_picker');
 		$type = $vals['date_range_type'];
-		foreach(array('week','day','year','month') as $v) 
+		foreach(array('week','day','year','month') as $v)
 			if ($v!=$type) eval_js('document.getElementById(\''.$v.'_elements\').style.display=\'none\';');
 
 		if ($failed) {
@@ -211,7 +211,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			$this->date_range[$v] = $vals[$v];
 		$header = array();
 		$start_p = $start = $this->get_date($type, $this->date_range['from_'.$type]);
-		$end	= $this->get_date($type, $this->date_range['to_'.$type]);		
+		$end	= $this->get_date($type, $this->date_range['to_'.$type]);
 		$header[] = $start;
 		while (true) {
 			switch ($type) {
@@ -221,11 +221,11 @@ class Utils_RecordBrowser_Reports extends Module {
 				case 'year': $start = strtotime(date('Y-06-15 12:00:00', $start+2592000*12)); break;
 			}
 			if ($start>$end) break;
-			$header[] = $start;			
+			$header[] = $start;
 		}
 		return array('type'=>$type, 'dates'=>$header, 'start'=>date('Y-m-d',$start_p), 'end'=>date('Y-m-d',$end));
 	}
-	
+
 	public function get_date($type, $arg) {
 		switch ($type) {
 			case 'day': $arg = strtotime($arg.' 12:00:00'); break;
@@ -239,7 +239,7 @@ class Utils_RecordBrowser_Reports extends Module {
 		}
 		return $arg;
 	}
-	
+
 	public function new_table_page() {
 		static $call_once=false;
 		if (!$call_once)
@@ -253,7 +253,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			return $gb;
 		}
 	}
-	
+
 	public function display_pdf_header() {
 		$theme = $this->init_module('Base/Theme');
 		$grow = array();
@@ -290,10 +290,10 @@ class Utils_RecordBrowser_Reports extends Module {
 		$this->display_pdf_header();
 		$this->pdf_ob->writeHTML($table,false);
 	}
-	
+
 	public function make_table() {
 		$gb = $this->new_table_page();
-		
+
 		if ($this->pdf) {
 			$cols = count($this->gb_captions);
 			// 760 - total width for landscape page
@@ -347,7 +347,7 @@ class Utils_RecordBrowser_Reports extends Module {
 					$val = strip_tags($res_ref);
 					if ($this->row_summary!==false) $total += $val;
 					if ($this->col_summary!==false) {
-						if (!isset($cols_total[$i])) $cols_total[$i] = 0;  
+						if (!isset($cols_total[$i])) $cols_total[$i] = 0;
 						$cols_total[$i] += $val;
 					}
 					$res_ref = $this->format_cell($this->format, $res_ref);
@@ -373,14 +373,14 @@ class Utils_RecordBrowser_Reports extends Module {
 					} else $grow = array(0=>array('dummy'=>1, 'value'=>''));
 					$grow[] = $this->format_cell(array(), $c);
 					$total = 0;
-					$i = 0;  
+					$i = 0;
 					if (!isset($cols_total[$c])) $cols_total[$c] = array();
 					$format = array($this->format[$c]);
 					foreach ($results as $v) {
 						$val = strip_tags($v[$c]);
 						if ($this->row_summary!==false) $total += $val;
 						if ($this->col_summary!==false) {
-							if (!isset($cols_total[$c][$i])) $cols_total[$c][$i] = 0;  
+							if (!isset($cols_total[$c][$i])) $cols_total[$c][$i] = 0;
 							$cols_total[$c][$i] += $val;
 						}
 						$next = $this->format_cell($format, $v[$c]);
@@ -400,45 +400,6 @@ class Utils_RecordBrowser_Reports extends Module {
 			}
 			if ($this->pdf) {
 				$this->display_pdf_row($ggrow);
-			} elseif($this->charts) {
-				$f = $this->init_module('Libs/OpenFlashChart');
-
-				$title = new title( $ggrow[0][0]['value'] );
-				$f->set_title( $title );
-				$labels = array();
-				for($i=(empty($this->categories)?1:2); $i<count($ggrow[0]); $i++)
-					$labels[] = $this->gb_captions[$i]['name'];
-				$x_ax = new x_axis();
-				$x_ax->set_labels_from_array($labels);
-				$f->set_x_axis($x_ax);
-				$max = 0;
-				foreach ($ggrow as $k=>$grow) {
-					$bar = new bar_glass();
-					$bar->set_colour(self::$colours[$k%count(self::$colours)]);
-					if (!empty($this->categories)) {
-						$bar->set_key($grow[1]['value'],3);
-						$start = 2;
-					} else
-						$start = 1;
-					$arr = array();
-					for($i=$start; $i<count($grow); $i++) {
-						$val = (int)strip_tags($grow[$i]['value']);
-						if($max<$val) $max=$val;
-						$arr[] = $val;
-					}
-//					print_r($arr);
-					$bar->set_values( $arr );
-					$f->add_element( $bar );
-					break;
-				}
-				$y_ax = new y_axis();
-				$y_ax->set_range(0,$max);
-				$y_ax->set_steps($max/10);
-				$f->set_y_axis($y_ax);
-				$f->set_width(950);
-				$f->set_height(400);
-				$this->display_module($f);
-				print('<br>');
 			} else {
 				foreach ($ggrow as $grow) {
 					$gb_row = $gb->get_new_row();
@@ -499,8 +460,8 @@ class Utils_RecordBrowser_Reports extends Module {
 		if ($this->pdf) {
 			$this->display_pdf_row($ggrow,true);
 		} elseif($this->charts) {
-		
-		} else { 
+
+		} else {
 			foreach ($ggrow as $grow) {
 				$gb_row = $gb->get_new_row();
 				$gb_row->add_data_array($grow);
@@ -508,7 +469,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			$this->display_module($gb, array(Base_ThemeCommon::get_template_filename('Utils_GenericBrowser','no_shadow')));
 		}
 	}
-	
+
 	public function draw_chart($r,$ref_rec,$gb_captions) {
 			$f = $this->init_module('Libs/OpenFlashChart');
 			$f2 = $this->init_module('Libs/OpenFlashChart');
@@ -541,7 +502,7 @@ class Utils_RecordBrowser_Reports extends Module {
 
 			if (empty($this->categories)) {
 				$arr = array();
-				$bar = new bar_glass();
+				$bar = new line_hollow();
 				$bar->set_colour(self::$colours[0]);
 				foreach ($results as & $res_ref) {
 					$val = (int)strip_tags($res_ref);
@@ -562,7 +523,7 @@ class Utils_RecordBrowser_Reports extends Module {
 				}
 			} else {
 				foreach ($this->categories as $q=>$c) {
-					$bar = new bar_glass();
+					$bar = new line_hollow();
 					$bar->set_colour(self::$colours[$q%count(self::$colours)]);
 					$bar->set_key(strip_tags($c),3);
 					$arr = array();
@@ -591,14 +552,14 @@ class Utils_RecordBrowser_Reports extends Module {
 				$y_ax->set_range(0,$max);
 				$y_ax->set_steps($max/10);
 				$f->set_y_axis($y_ax);
-			
+
 				$f->set_width(950);
 				$f->set_height(400);
-			
+
 				$this->display_module($f);
 				print('<br>');
 			}
-			
+
 			if($curr) {
 				$y_ax = new y_axis();
 				$y_ax->set_range(0,$max2);
@@ -613,8 +574,222 @@ class Utils_RecordBrowser_Reports extends Module {
 			}
 
 	}
-	
-	public function draw_category_chart($r,$ref_rec,$gb_captions) {
+
+	public function draw_summary_chart($gb_captions) {
+			$f = $this->init_module('Libs/OpenFlashChart'); //row summary numeric
+			$f2 = $this->init_module('Libs/OpenFlashChart'); //row summary currency
+			$fc = $this->init_module('Libs/OpenFlashChart'); //columns summary numeric
+			$fc2 = $this->init_module('Libs/OpenFlashChart'); //columns summary currency
+
+			$title = new title( "Summary by row" );
+			$f->set_title( $title );
+			$f2->set_title( $title );
+			if(!empty($this->categories)) {
+				$labels = array();
+				$labels_c = array();
+				foreach ($this->categories as $q=>$c) {
+					if($this->format[$c]=='currency') {
+						$labels_c[] = strip_tags($c);
+					} else {
+						$labels[] = strip_tags($c);
+					}
+				}
+				$x_ax = new x_axis();
+				$x_ax->set_labels_from_array($labels);
+				$f->set_x_axis($x_ax);
+				$x_ax = new x_axis();
+				$x_ax->set_labels_from_array($labels_c);
+				$f2->set_x_axis($x_ax);
+			}
+
+			$title = new title( "Summary by column" );
+			$fc->set_title( $title );
+			$fc2->set_title( $title );
+			$labels = array();
+			foreach($gb_captions as $cap)
+				$labels[] = $cap['name'];
+			$x_ax = new x_axis();
+			$x_ax->set_labels_from_array($labels);
+			$fc->set_x_axis($x_ax);
+			$fc2->set_x_axis($x_ax);
+			$max = 5;
+			$max2 = 5;
+			$maxc = 5;
+			$maxc2 = 5;
+			$curr = false;
+			$num = false;
+			$col_total=array();
+
+			foreach($this->ref_records as $k=>$r) {
+				$data_recs = array();
+				foreach ($this->data_record as $dv) {
+					$vals = array();
+					$data_ids = array();
+					foreach ($this->data_record_relation[$dv] as $k2=>$v2) $vals = array($k2, $r['id']);
+					$ret = DB::Execute('SELECT '.$dv.'_id FROM '.$dv.'_data AS rd LEFT JOIN '.$dv.' AS r ON r.id=rd.'.$dv.'_id WHERE rd.field=%s AND rd.value=%s AND r.active=1', $vals);
+					while ($row = $ret->FetchRow())
+						$data_ids[] = $row[$dv.'_id'];
+					$data_recs[] = Utils_RecordBrowserCommon::get_records($dv, array('id'=>$data_ids));
+				}
+				$results = call_user_func($this->display_cell_callback, $r, $data_recs);
+
+				$ref_rec = call_user_func($this->ref_record_display_callback, $r);
+
+				$bar = new bar_glass();
+				$bar->set_colour(self::$colours[$k%count(self::$colours)]);
+				$bar->set_key(strip_tags($ref_rec),3);
+
+				if(empty($this->categories)) {
+					$total = 0;
+					$i = 0;
+					foreach ($results as & $res_ref) {
+						$val = strip_tags($res_ref);
+							$total += $val;
+						if (!isset($cols_total[$i])) $cols_total[$i] = 0;
+						$cols_total[$i] += $val;
+						$i++;
+					}
+					$bar->set_values(array($total));
+					if($this->format=='currency') {
+						$max2 = $total;
+						$f2->add_element( $bar );
+						$curr = true;
+					} else {
+						$max = $total;
+						$f->add_element( $bar );
+						$num = true;
+					}
+				} else {
+					$bar_c = new bar_glass();
+					$bar_c->set_colour(self::$colours[$k%count(self::$colours)]);
+					$bar_c->set_key(strip_tags($ref_rec),3);
+					$arr = array();
+					$arr_c = array();
+					foreach ($this->categories as $q=>$c) {
+						$total = 0;
+						if(!isset($cols_total[$c])) $cols_total[$c] = array();
+						$i=0;
+						foreach ($results as $v) {
+							$val = (int)strip_tags($v[$c]);
+							$total += $val;
+							if (!isset($cols_total[$c][$i])) $cols_total[$c][$i] = 0;
+							$cols_total[$c][$i] += $val;
+							$i++;
+						}
+						if($this->format[$c]=='currency') {
+							$arr_c[] = $total;
+							if($max2<$total) $max2 = $total;
+						} else {
+							$arr[] = $total;
+							if($max<$total) $max = $total;
+						}
+					}
+					if(!empty($arr)) {
+						$bar->set_values( $arr );
+						$f->add_element( $bar );
+						$num = true;
+					}
+					if(!empty($arr_c)) {
+						$bar_c->set_values( $arr_c );
+						$f2->add_element( $bar_c );
+						$curr = true;
+					}
+				}
+			}
+
+
+			if($num) {
+				$y_ax = new y_axis();
+				$y_ax->set_range(0,$max);
+				$y_ax->set_steps($max/10);
+				$f->set_y_axis($y_ax);
+
+				$f->set_width(950);
+				$f->set_height(400);
+
+				$this->display_module($f);
+				print('<br>');
+			}
+
+			if($curr) {
+				$y_ax = new y_axis();
+				$y_ax->set_range(0,$max2);
+				$y_ax->set_steps($max2/10);
+				$f2->set_y_axis($y_ax);
+
+				$f2->set_width(950);
+				$f2->set_height(400);
+
+				$this->display_module($f2);
+				print('<br>');
+			}
+
+			if(empty($this->categories)) {
+				$bar = new bar_glass();
+				$bar->set_colour(self::$colours[0]);
+				$bar->set_key('Total',3);
+				$mm = 5;
+				foreach($cols_total as $val)
+					if($mm<$val) $mm=$val;
+				$bar->set_values($cols_total);
+				if($this->format=='currency') {
+					$maxc2 = $mm;
+					$fc2->add_element( $bar );
+				} else {
+					$maxc = $mm;
+					$fc->add_element( $bar );
+				}
+			} else {
+				$i = 0;
+				foreach($cols_total as $k=>$arr) {
+					$bar = new bar_glass();
+					$bar->set_colour(self::$colours[$i%count(self::$colours)]);
+					$bar->set_key(strip_tags($k),3);
+					$bar->set_values($arr);
+					$mm = 5;
+					foreach($arr as $val)
+						if($mm<$val) $mm=$val;
+					if($this->format[$k]=='currency') {
+						if($mm>$maxc2) $maxc2 = $mm;
+						$fc2->add_element( $bar );
+					} else {
+						if($mm>$maxc) $maxc = $mm;
+						$fc->add_element( $bar );
+					}
+					$i++;
+				}
+			}
+
+
+			if($num) {
+				$y_ax = new y_axis();
+				$y_ax->set_range(0,$maxc);
+				$y_ax->set_steps($maxc/10);
+				$fc->set_y_axis($y_ax);
+
+				$fc->set_width(950);
+				$fc->set_height(400);
+
+				$this->display_module($fc);
+				print('<br>');
+			}
+
+			if($curr) {
+				$y_ax = new y_axis();
+				$y_ax->set_range(0,$maxc2);
+				$y_ax->set_steps($maxc2/10);
+				$fc2->set_y_axis($y_ax);
+
+				$fc2->set_width(950);
+				$fc2->set_height(400);
+
+				$this->display_module($fc2);
+				print('<br>');
+			}
+
+	}
+
+	public function draw_category_chart($ref_rec,$gb_captions) {
 			$f = $this->init_module('Libs/OpenFlashChart');
 			$data_recs = array();
 
@@ -640,9 +815,9 @@ class Utils_RecordBrowser_Reports extends Module {
 					$data_recs[] = Utils_RecordBrowserCommon::get_records($dv, array('id'=>$data_ids));
 				}
 				$results = call_user_func($this->display_cell_callback, $r, $data_recs);
-				
+
 				$title2 = strip_tags(call_user_func($this->ref_record_display_callback, $r));
-				$bar = new bar_glass();
+				$bar = new line_hollow();
 				$bar->set_colour(self::$colours[$q%count(self::$colours)]);
 				$bar->set_key($title2,3);
 				$arr = array();
@@ -659,13 +834,13 @@ class Utils_RecordBrowser_Reports extends Module {
 			$y_ax->set_range(0,$max);
 			$y_ax->set_steps($max/10);
 			$f->set_y_axis($y_ax);
-		
+
 			$f->set_width(950);
 			$f->set_height(400);
-			
+
 			$this->display_module($f);
 	}
-	
+
 	public function make_charts() {
 		if (empty($this->ref_records)) {
 			print('There were no records to display report for.');
@@ -686,18 +861,20 @@ class Utils_RecordBrowser_Reports extends Module {
 			$tb->set_tab($title, array($this,'draw_chart'),array($r,$title,$gb_captions));
 		}
 		if (empty($this->categories)) {
-			$tb->set_tab($title, array($this,'draw_category_chart'),array($gb_captions));
+			$title = 'All';
+			$tb->set_tab($title, array($this,'draw_category_chart'),array($title,$gb_captions));
 		} else {
 			foreach ($this->categories as $q=>$c) {
 				$title = strip_tags($c);
-				$tb->set_tab($title, array($this,'draw_category_chart'),array($c,$title,$gb_captions));
+				$tb->set_tab($title, array($this,'draw_category_chart'),array($title,$gb_captions));
 			}
 		}
+		$tb->set_tab('Summary', array($this,'draw_summary_chart'),array($gb_captions));
 		$this->display_module($tb);
 		$this->tag();
 	}
-	
-	public function from_to_date() { 
+
+	public function from_to_date() {
 		$start = $this->date_range['from_'.$this->date_range['date_range_type']];
 		$end = $this->date_range['to_'.$this->date_range['date_range_type']];
 		switch ($this->date_range['date_range_type']) {
@@ -717,7 +894,7 @@ class Utils_RecordBrowser_Reports extends Module {
 	public function pdf_subject_date_range() {
 		return $this->lang->t(ucfirst($this->date_range['date_range_type']).' report -  %s  -  %s', $this->from_to_date());
 	}
-	
+
 	public function set_pdf_title($arg) {
 		$this->pdf_title = $arg;
 	}
@@ -725,11 +902,11 @@ class Utils_RecordBrowser_Reports extends Module {
 	public function set_pdf_subject($arg) {
 		$this->pdf_subject = $arg;
 	}
-	
+
 	public function set_pdf_filename($arg) {
 		$this->pdf_filename = $arg;
 	}
-	
+
 	public function body($pdf=false, $charts=false) {
 //		Base_ThemeCommon::install_default_theme($this->get_type()); // TODO: delete this, just develop tool
 		if ($this->is_back()) return false;
@@ -743,13 +920,13 @@ class Utils_RecordBrowser_Reports extends Module {
 			$this->pdf_ob->set_subject($this->pdf_subject);
 			$this->pdf_ob->prepare_header();
 			$this->pdf_ob->AddPage();
-		}	
+		}
 
 		if($this->charts)
-			$this->make_charts();		
+			$this->make_charts();
 		else
 			$this->make_table();
-		
+
 		if($charts) {
 			Base_ActionBarCommon::add('report','Table',$this->create_back_href());
 			return true;
