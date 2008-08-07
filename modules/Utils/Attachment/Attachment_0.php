@@ -150,7 +150,7 @@ class Utils_Attachment extends Module {
 				$view_link = '';
 				$file = '<a '.$this->get_file($row,$view_link).' '.Utils_TooltipCommon::open_tag_attrs($filetooltip,false).'><img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'attach.png').'" border=0></a>';
 				if(eregi('.(jpg|jpeg|gif|png|bmp)$',$row['original']) && $view_link)
-					$inline_img = '<hr><img src="'.$view_link.'" width="100%" />';
+					$inline_img = '<hr><img src="'.$view_link.'" style="max-width:600px" /><br>';
 			} else {
 				$file = '';
 			}
