@@ -822,7 +822,10 @@ class Utils_RecordBrowser_Reports extends Module {
 				$bar->set_key($title2,3);
 				$arr = array();
 				foreach ($results as $v) {
-					$val = (int)strip_tags($v[$ref_rec]);
+					if($ref_rec)
+						$val = (int)strip_tags($v[$ref_rec]);
+					else
+						$val = (int)strip_tags($v);
 					$arr[] = $val;
 					if($max<$val) $max=$val;
 				}
@@ -862,7 +865,7 @@ class Utils_RecordBrowser_Reports extends Module {
 		}
 		if (empty($this->categories)) {
 			$title = 'All';
-			$tb->set_tab($title, array($this,'draw_category_chart'),array($title,$gb_captions));
+			$tb->set_tab($title, array($this,'draw_category_chart'),array('',$gb_captions));
 		} else {
 			foreach ($this->categories as $q=>$c) {
 				$title = strip_tags($c);
