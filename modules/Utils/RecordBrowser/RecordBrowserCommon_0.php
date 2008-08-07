@@ -34,10 +34,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		return $record;
 	}
-	
+
 	public static function user_settings(){
 		$ret = DB::Execute('SELECT tab, caption, icon, recent, favorites, full_history FROM recordbrowser_table_properties');
-		$settings = array(); 
+		$settings = array();
 		while ($row = $ret->FetchRow()) {
 			if (!$row['favorites'] && !$row['recent']) continue;
 			if (!self::get_access($row['tab'],'browse')) continue;
@@ -183,10 +183,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$datatypes[$row['type']] = array($row['module'], $row['func']);
 		foreach ($fields as $v) {
 			if (!isset($v['param'])) $v['param'] = '';
-			if (!isset($v['style'])) { 
+			if (!isset($v['style'])) {
 				if (in_array($v['type'], array('timestamp','currency','integer')))
 					$v['style'] = $v['type'];
-				else 
+				else
 					$v['style'] = '';
 			}
 			if (!isset($v['extra'])) $v['extra'] = true;
@@ -364,7 +364,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				if ($val!==false && $val!==null) DB::Execute('DELETE FROM '.$tab.'_data WHERE '.$tab.'_id=%d AND field=%s',array($id, $field));
 				if ($values[$args['id']] !== '') {
 					if (!is_array($values[$args['id']])) $values[$args['id']] = array($values[$args['id']]);
-					foreach ($values[$args['id']] as $v) 
+					foreach ($values[$args['id']] as $v)
 						DB::Execute('INSERT INTO '.$tab.'_data(value, '.$tab.'_id, field) VALUES (%s, %d, %s)',array($v, $id, $field));
 				}
 				DB::CompleteTrans();
@@ -376,7 +376,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$edit_id = DB::Insert_ID(''.$tab.'_edit_history','id');
 			foreach($diff as $k=>$v) {
 				if (!is_array($v)) $v = array($v);
-				foreach($v as $c)  
+				foreach($v as $c)
 					DB::Execute('INSERT INTO '.$tab.'_edit_history_data(edit_id, field, old_value) VALUES (%d,%s,%s)', array($edit_id, $k, $c));
 			}
 		}
@@ -448,7 +448,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if (isset($hash[$tk])) $crits[str_replace($tk, $hash[$tk], $k)] = $v;
 			else $crits[$k] = $v;
 		}
-		
+
 		$or_started = false;
 		$sep = DB::qstr('::');
 		foreach($crits as $k=>$v){
@@ -485,19 +485,19 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				switch ($k) {
 					case ':Fav'	: $having .= ' (SELECT COUNT(*) FROM '.$tab.'_favorite WHERE '.$tab.'_id=r.id AND user_id=%d)!=0'; $vals[]=Acl::get_user(); break;
 					case ':Recent'	: $having .= ' (SELECT COUNT(*) FROM '.$tab.'_recent WHERE '.$tab.'_id=r.id AND user_id=%d)!=0'; $vals[]=Acl::get_user(); break;
-					case ':Created_on'	: 
+					case ':Created_on'	:
 							$inj = '';
 							if(is_array($v))
 								$inj = $v[0].DB::qstr($v[1]);
 							elseif(is_string($v))
 								$inj = DB::qstr($v);
 							if($inj)
-								$having .= ' created_on '.$inj; 
+								$having .= ' created_on '.$inj;
 							break;
-					case ':Created_by'	: 
-							$having .= ' created_by = '.$v; 
+					case ':Created_by'	:
+							$having .= ' created_by = '.$v;
 							break;
-					case ':Edited_on'	: 
+					case ':Edited_on'	:
 							$inj = '';
 							if(is_array($v))
 								$inj = $v[0].DB::qstr($v[1]);
@@ -505,15 +505,15 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								$inj = DB::qstr($v);
 							if($inj)
 								$having .= ' (((SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) '.$inj.') OR'.
-										'((SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) IS NULL AND created_on '.$inj.'))'; 
+										'((SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) IS NULL AND created_on '.$inj.'))';
 							break;
-					default		: 
+					default		:
 						if (substr($k,0,4)==':Ref')	{
 							$params = explode(':', $k);
 							$ref = $params[2];
 							$param = explode(';', self::$table_rows[$ref]['param']);
 							$param = explode('::',$param[0]);
-							
+
 							if (isset($param[1])) {
 								$tab2 = $param[0];
 								$cols2 = $param[1];
@@ -521,7 +521,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							if ($params[1]=='RefCD' || $tab2=='__COMMON__') {
 								$ret = Utils_CommonDataCommon::get_translated_array(isset($cols2)?$cols2:$cols);
 								$allowed_cd = array();
-								foreach ($ret as $kkk=>$vvv) 
+								foreach ($ret as $kkk=>$vvv)
 									foreach ($v as $w) if ($w!='') {
 										if (strpos($vvv,$w)!==false) {
 											$allowed_cd[] = DB::qstr($kkk);
@@ -543,7 +543,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								break;
 							}
 							$cols2 = explode('|', $cols2);
-							foreach($cols2 as $j=>$w) $cols2[$j] = DB::qstr($w); 
+							foreach($cols2 as $j=>$w) $cols2[$j] = DB::qstr($w);
 							$cols2 = implode(' OR rdt.field=', $cols2);
 
 							$having .= 'EXISTS (SELECT rdt.value FROM '.$tab2.'_data AS rdt LEFT JOIN '.$tab.'_data AS rd ON rdt.'.$tab2.'_id=rd.value AND rd.field='.DB::qstr($ref).' AND rdt.field='.$cols2.' WHERE rd.'.$tab.'_id=r.id AND ';
@@ -581,7 +581,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						if ($w==='') $having .= ' '.($negative?'AND':'OR').' rd.value IS '.($negative?'NOT ':'').'NULL';
 						else {
 							if (!$noquotes) $w = DB::qstr($w);
-							$having .= ' '.($negative?'AND':'OR').' rd.value '.($negative?'NOT ':'').$operator.' '.($operator=='LIKE'?DB::Concat(DB::qstr('%'),$w,DB::qstr('%')):$w);
+							$having .= ' '.($negative?'AND':'OR').' rd.value '.($negative?'NOT ':'').$operator.' '.$w;//TODO: ticket #0065 solved by comment out of this code // ($operator=='LIKE'?DB::Concat(DB::qstr('%'),$w,DB::qstr('%')):$w);
 						}
 					}
 					$having .= ')';
@@ -598,17 +598,17 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			else $orderby .= ', ';
 			if ($v['order'][0]==':') {
 				switch ($v['order']) {
-					case ':Fav'	: 
+					case ':Fav'	:
 						$fields .= ', (SELECT COUNT(*) FROM '.$tab.'_favorite WHERE '.$tab.'_id=r.id AND user_id=%d) AS _fav_order';
 						$orderby .= ' _fav_order '.$v['direction'];
 						$vals[]=Acl::get_user();
 						break;
-					case ':Visited_on'	: 
+					case ':Visited_on'	:
 						$fields .= ', (SELECT visited_on FROM '.$tab.'_recent WHERE '.$tab.'_id=r.id AND user_id=%d) AS _rec_order';
 						$orderby .= ' _rec_order '.$v['direction'];
 						$vals[]=Acl::get_user();
 						break;
-					case ':Edited_on'	: 
+					case ':Edited_on'	:
 						$fields .= ', (CASE WHEN (SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) THEN (SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) ELSE created_on END) AS _edited_on';
 						$orderby .= ' _edited_on '.$v['direction'];
 						break;
@@ -626,16 +626,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						}
 						if ($tab2!='__COMMON__') {
 							$cols2 = explode('|', $cols2);
-							foreach($cols2 as $j=>$w) $cols2[$j] = DB::qstr($w); 
+							foreach($cols2 as $j=>$w) $cols2[$j] = DB::qstr($w);
 							$cols2 = implode(' OR rd.field=', $cols2);
-		
+
 							$val = '(SELECT '.($v['direction']=='ASC'?'MIN':'MAX').'(rdt.value) FROM '.$tab2.'_data AS rdt LEFT JOIN '.$tab.'_data AS rd ON r.id=rd.'.$tab.'_id AND rd.field='.DB::qstr($v['order']).' WHERE rdt.field='.$cols2.' AND rdt.'.$tab2.'_id=rd.value)';
 							$orderby .= ' '.$val.' '.$v['direction'];
 							$iter++;
 							continue;
 						}
 					}
-				} 
+				}
 				$val = '(SELECT '.($v['direction']=='ASC'?'MIN':'MAX').'(rd.value) FROM '.$tab.'_data AS rd WHERE r.id=rd.'.$tab.'_id AND rd.field='.DB::qstr($v['order']).')';
 				// could be better, doesn't work perfectly for multiselects
 				$orderby .= ' '.$val.' '.$v['direction'];
@@ -644,6 +644,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		$final_tab = str_replace('('.$tab.' AS r'.')',$tab.' AS r',$final_tab);
 		$ret = array('sql'=>'SELECT id, active, created_by, created_on'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?Utils_RecordBrowser::$admin_filter:' AND active=1').$where.$having.$orderby,'vals'=>$vals);
+		error_log(print_r($ret,true)."\n\n",3,'data/logger');
 		return $cache[$key] = $ret;
 	}
 	public static function get_records_limit( $tab = null, $crits = null, $admin = false) {
@@ -663,7 +664,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$first = true;
 			$where = '';
 			$vals = array();
-			foreach($crits['id'] as $v) { 
+			foreach($crits['id'] as $v) {
 				if ($first) $first = false;
 				else $where .= ', ';
 				$where .= '%d';
@@ -763,7 +764,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$result = false;
 			$k = strtolower($k);
 			if (!isset($r[$k])) trigger_error($k.'<br><br>'.print_r($r,true), E_USER_ERROR);
-			if (is_array($r[$k])) $result = in_array($v, $r[$k]); 
+			if (is_array($r[$k])) $result = in_array($v, $r[$k]);
 			else switch ($operator) {
 				case '>': $result = ($r[$k] > $v); break;
 				case '>=': $result = ($r[$k] >= $v); break;
@@ -773,7 +774,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			}
 			if ($negative) $result = !$result;
 			if ($or_started) $or_result |= $result;
-			else if (!$result) return $cache[$tab.'__'.$id] = false; 
+			else if (!$result) return $cache[$tab.'__'.$id] = false;
 		}
 		if ($or_started && !$or_result) return $cache[$tab.'__'.$id] = false;
 		return $cache[$tab.'__'.$id] = true;
@@ -787,7 +788,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$ret = call_user_func($access_callback, $action, $param);
 		if ($action==='delete' && $ret) $ret = call_user_func($access_callback, 'edit', $param);
 		if ($action==='fields') {
-			self::init($tab);			
+			self::init($tab);
 			foreach (self::$table_rows as $field=>$args)
 				if (!isset($ret[$args['id']])) $ret[$args['id']] = 'full';
 		}
@@ -883,7 +884,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			Utils_RecordBrowser::$clone_result = null;
 		}
 		if (isset($_REQUEST['__add_record_to_RB_table']) &&
-			isset($_REQUEST['__add_record_id']) && 
+			isset($_REQUEST['__add_record_id']) &&
 			($tab==$_REQUEST['__add_record_to_RB_table']) &&
 			($id==$_REQUEST['__add_record_id'])) {
 			unset($_REQUEST['__add_record_to_RB_table']);
@@ -898,7 +899,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 	public static function get_record_href_array($tab, $id){
 		self::check_table_name($tab);
-		if (isset($_REQUEST['__jump_to_RB_table']) && 
+		if (isset($_REQUEST['__jump_to_RB_table']) &&
 			($tab==$_REQUEST['__jump_to_RB_table']) &&
 			($id==$_REQUEST['__jump_to_RB_record'])) {
 			unset($_REQUEST['__jump_to_RB_record']);
