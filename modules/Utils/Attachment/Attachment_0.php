@@ -289,18 +289,30 @@ class Utils_Attachment extends Module {
 
 		$th = $this->init_module('Base/Theme');
 		$th->assign('header',$this->add_header);
-		$th->assign('note',$row['text']);
+		
+		// display images inline
+
 		$th->assign('upload_by',$row['upload_by']);
 		$th->assign('upload_on',Base_RegionalSettingsCommon::time2reg($row['upload_on']));
 
 
 		if($row['original']) {
+			$inline_img = '';
+			$view_link = '';
+
+			$file = $this->get_file($row,$view_link);
+			if(eregi('.(jpg|jpeg|gif|png|bmp)$',$row['original']) && $view_link)
+					$inline_img = '<hr><img src="'.$view_link.'" style="max-width:900px" /><br>';
+
 			$f_filename = 'data/Utils_Attachment/'.$row['local'].'/'.$row['id'].'_'.$row['file_revision'];
 			$th->assign('file_size',filesize_hr($f_filename));
-			$file = $this->get_file($row);
 			$th->assign('file','<a '.$file.'>'.$row['original'].'</a>');
-		} else
+			$th->assign('note',$row['text'].$inline_img);
+		} else {
 			$th->assign('file','');
+			$th->assign('note',$row['text']);
+		}
+
 		$th->display('view');
 
 		$this->caption = $this->lang->t('View note');
