@@ -546,9 +546,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							foreach($cols2 as $j=>$w) $cols2[$j] = DB::qstr($w);
 							$cols2 = implode(' OR rdt.field=', $cols2);
 
-							$having .= 'EXISTS (SELECT rdt.value FROM '.$tab2.'_data AS rdt LEFT JOIN '.$tab.'_data AS rd ON rdt.'.$tab2.'_id=rd.value AND rd.field='.DB::qstr($ref).' AND rdt.field='.$cols2.' WHERE rd.'.$tab.'_id=r.id AND ';
-							if (!is_array($v)) $v = array($v);
+							$exists = 'EXISTS (SELECT rdt.value FROM '.$tab2.'_data AS rdt LEFT JOIN '.$tab.'_data AS rd ON rdt.'.$tab2.'_id=rd.value AND rd.field='.DB::qstr($ref).' AND rdt.field='.$cols2.' WHERE rd.'.$tab.'_id=r.id AND ';
+							$having .= $exists;
 							if ($negative) $having .= '(';
+							if (!is_array($v)) $v = array($v);
 							$having .= '('.($negative?'true':'false');
 							foreach($v as $w) {
 								if ($w==='') $having .= ' '.($negative?'AND':'OR').' rdt.value IS '.($negative?'NOT ':'').'NULL';
@@ -558,7 +559,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								}
 							}
 							$having .= ')';
-							if ($negative) $having .= ' OR rdt.value IS NULL)';
+							if ($negative) $having .= ') OR NOT '.$exists.' true)';
 							$having .= ')';
 							$iter++;
 						} else trigger_error('Unknow paramter given to get_records criteria: '.$k, E_USER_ERROR);
@@ -573,9 +574,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					}
 					$having .= ')';
 				} else {
-					$having .= 'EXISTS (SELECT rd.value FROM '.$tab.'_data AS rd WHERE r.id=rd.'.$tab.'_id AND rd.field='.DB::qstr($k).' AND ';
-					if (!is_array($v)) $v = array($v);
+					$exists = 'EXISTS (SELECT rd.value FROM '.$tab.'_data AS rd WHERE r.id=rd.'.$tab.'_id AND rd.field='.DB::qstr($k).' AND ';
 					if ($negative) $having .= '(';
+					$having .= $exists;
+					if (!is_array($v)) $v = array($v);
 					$having .= '('.($negative?'true':'false');
 					foreach($v as $w) {
 						if ($w==='') $having .= ' '.($negative?'AND':'OR').' rd.value IS '.($negative?'NOT ':'').'NULL';
@@ -585,7 +587,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						}
 					}
 					$having .= ')';
-					if ($negative) $having .= ' OR rd.value IS NULL)';
+					if ($negative) $having .= ') OR NOT '.$exists.' true)';
 					$having .= ')';
 					$iter++;
 				}
@@ -644,7 +646,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		$final_tab = str_replace('('.$tab.' AS r'.')',$tab.' AS r',$final_tab);
 		$ret = array('sql'=>'SELECT id, active, created_by, created_on'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?Utils_RecordBrowser::$admin_filter:' AND active=1').$where.$having.$orderby,'vals'=>$vals);
-//		error_log(print_r($ret,true)."\n\n",3,'data/logger');
+		error_log(print_r($ret,true)."\n\n",3,'data/logger');
 		return $cache[$key] = $ret;
 	}
 	public static function get_records_limit( $tab = null, $crits = null, $admin = false) {
