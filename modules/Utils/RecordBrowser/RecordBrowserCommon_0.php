@@ -646,7 +646,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		$final_tab = str_replace('('.$tab.' AS r'.')',$tab.' AS r',$final_tab);
 		$ret = array('sql'=>'SELECT id, active, created_by, created_on'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?Utils_RecordBrowser::$admin_filter:' AND active=1').$where.$having.$orderby,'vals'=>$vals);
-		error_log(print_r($ret,true)."\n\n",3,'data/logger');
+//		error_log(print_r($ret,true)."\n\n",3,'data/logger');
 		return $cache[$key] = $ret;
 	}
 	public static function get_records_limit( $tab = null, $crits = null, $admin = false) {
