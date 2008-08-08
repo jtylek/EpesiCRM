@@ -90,6 +90,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 				$result['color'] = $color[$row['color']];
 			$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
 			$priority = array(0 =>'None', 1 => 'Low', 2 => 'Medium', 3 => 'High');
+			$status = Utils_CommonDataCommon::get_translated_array('Ticket_Status');
 			$result['additional_info2'] = 	'<hr>'.Base_LangCommon::ts('CRM_Calendar_Event','Status').': '.$status[$row['status']].'<br>'.
 								Base_LangCommon::ts('CRM_Calendar_Event','Access').': '.Base_LangCommon::ts('CRM_Calendar_Event',$access[$row['access']]).'<br>'.
 								Base_LangCommon::ts('CRM_Calendar_Event','Priority').': '.Base_LangCommon::ts('CRM_Calendar_Event',$priority[$row['priority']]). '<br>'.
