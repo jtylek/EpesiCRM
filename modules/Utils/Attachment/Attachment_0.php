@@ -101,7 +101,8 @@ class Utils_Attachment extends Module {
 		if($this->author)
 			$cols[] = array('name'=>$this->lang->t('Last Author'), 'order'=>'note_by','width'=>10);
 		$cols[] = array('name'=>$this->lang->t('Date'), 'order'=>'note_on','width'=>10);
-		$cols[] = array('name'=>$this->lang->t('Note'), 'order'=>'uac.text','width'=>70);
+		$expand_id = 'expand_collapse_'.md5($this->get_path());
+		$cols[] = array('name'=>$this->lang->t('Note'), 'preppend'=>'<span id="'.$expand_id.'"></span>', 'order'=>'uac.text','width'=>70);
 		$cols[] = array('name'=>$this->lang->t('Attachment'), 'order'=>'uaf.original','width'=>5);
 		$gb->set_table_columns($cols);
 
@@ -213,7 +214,7 @@ class Utils_Attachment extends Module {
 		}
 
 		if(!empty($expandable))
-			print('<a href="javascript:void(0)" onClick=\'utils_attachment_expand_all('.Epesi::escapeJS(json_encode($expandable),false,true).')\'>'.$this->lang->t('Expand all').'</a> <a href="javascript:void(0)" onClick=\'utils_attachment_collapse_all('.Epesi::escapeJS(json_encode($expandable),false,true).')\'>'.$this->lang->t('Collapse all').'</a>');
+			eval_js('$(\''.$expand_id.'\').innerHTML = \''.Epesi::escapeJS('<a href="javascript:void(0)" onClick=\'utils_attachment_expand_all('.Epesi::escapeJS(json_encode($expandable),false,true).')\' '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('Expand all')).'>[+]</a> <a href="javascript:void(0)" onClick=\'utils_attachment_collapse_all('.Epesi::escapeJS(json_encode($expandable),false,true).')\' '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('Collapse all')).'>[-]</a>').'\'');
 
 		$this->display_module($gb);
 	}

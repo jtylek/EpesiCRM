@@ -78,7 +78,7 @@ table#Utils_GenericBrowser th a {
     padding-left: 3px;
     padding-right: 3px;
 	color: #FFFFFF;
-    display: block;
+    display: inline;
     line-height: 20px;
 }
 
