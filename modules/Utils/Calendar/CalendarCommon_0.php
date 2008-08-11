@@ -94,7 +94,14 @@ class Utils_CalendarCommon extends ModuleCommon {
 		} else {
 			$start_time = Base_RegionalSettingsCommon::time2reg($ev_start,2,false);
 			$end_time = Base_RegionalSettingsCommon::time2reg($ev_end,2,false);
-			$start_t = $start_day.', '.$start_date.' '.$start_time;
+			if($start_date == Base_RegionalSettingsCommon::time2reg(time(),false))
+				$start_t = Base_LangCommon::ts('Utils_Calendar','Today').', '.$start_time;			
+			elseif($start_date == Base_RegionalSettingsCommon::time2reg(time()+3600*24,false))
+				$start_t = Base_LangCommon::ts('Utils_Calendar','Tomorrow').', '.$start_time;			
+			elseif($start_date == Base_RegionalSettingsCommon::time2reg(time()-3600*24,false))
+				$start_t = Base_LangCommon::ts('Utils_Calendar','Yesterday').', '.$start_time;			
+			else
+				$start_t = $start_day.', '.$start_date.' '.$start_time;
 			if(!$oneday)
 				$end_t = $end_day.', '.$end_date.' '.$end_time;
 		}
