@@ -96,6 +96,7 @@ class Utils_Attachment extends Module {
 
 		$gb = $this->init_module('Utils/GenericBrowser',null,$this->key);
 		$cols = array();
+		$cols[] = array('name'=>$this->lang->t('Sticky'),'order'=>'ual.sticky','width'=>5);
 		if($vd)
 			$cols[] = array('name'=>$this->lang->t('Deleted'),'order'=>'ual.deleted','width'=>5);
 		if($this->author)
@@ -107,13 +108,13 @@ class Utils_Attachment extends Module {
 		$gb->set_table_columns($cols);
 
 		if($vd) {
-			$query = 'SELECT uaf.id as file_id,(SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id=ual.id) as downloads,ual.other_read,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.deleted,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text,uaf.original,uaf.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE uaf.created_by=l2.id) as upload_by FROM utils_attachment_link ual INNER JOIN (utils_attachment_note uac,utils_attachment_file uaf) ON (uac.attach_id=ual.id AND uaf.attach_id=ual.id) WHERE ual.attachment_key=\''.$this->key.'\' AND ual.local='.DB::qstr($this->group).' AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id)';
+			$query = 'SELECT ual.sticky,uaf.id as file_id,(SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id=ual.id) as downloads,ual.other_read,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.deleted,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text,uaf.original,uaf.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE uaf.created_by=l2.id) as upload_by FROM utils_attachment_link ual INNER JOIN (utils_attachment_note uac,utils_attachment_file uaf) ON (uac.attach_id=ual.id AND uaf.attach_id=ual.id) WHERE ual.attachment_key=\''.$this->key.'\' AND ual.local='.DB::qstr($this->group).' AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id)';
 			$query_lim = 'SELECT count(ual.id) FROM utils_attachment_link ual WHERE ual.attachment_key=\''.$this->key.'\' AND ual.local='.DB::qstr($this->group);
 		} else {
-			$query = 'SELECT uaf.id as file_id,(SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id=ual.id) as downloads,ual.other_read,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text,uaf.original,uaf.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE uaf.created_by=l2.id) as upload_by FROM utils_attachment_link ual INNER JOIN (utils_attachment_note uac,utils_attachment_file uaf) ON (uac.attach_id=ual.id AND ual.id=uaf.attach_id) WHERE ual.attachment_key=\''.$this->key.'\' AND ual.local='.DB::qstr($this->group).' AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id) AND ual.deleted=0';
+			$query = 'SELECT ual.sticky,uaf.id as file_id,(SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id=ual.id) as downloads,ual.other_read,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text,uaf.original,uaf.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE uaf.created_by=l2.id) as upload_by FROM utils_attachment_link ual INNER JOIN (utils_attachment_note uac,utils_attachment_file uaf) ON (uac.attach_id=ual.id AND ual.id=uaf.attach_id) WHERE ual.attachment_key=\''.$this->key.'\' AND ual.local='.DB::qstr($this->group).' AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id) AND ual.deleted=0';
 			$query_lim = 'SELECT count(ual.id) FROM utils_attachment_link ual WHERE ual.attachment_key=\''.$this->key.'\' AND ual.local='.DB::qstr($this->group).'  AND ual.deleted=0';
 		}
-		$gb->set_default_order(array($this->lang->t('Date')=>'DESC'));
+		$gb->set_default_order(array($this->lang->t('Sticky')=>'DESC',$this->lang->t('Date')=>'DESC'));
 //		$query_order = $gb->get_query_order();
 
 //		$ret = DB::Execute($query.$query_order);
@@ -196,6 +197,7 @@ class Utils_Attachment extends Module {
 			$date_format = Base_RegionalSettingsCommon::date_format();
 			$regional_note_on = strftime($date_format,strtotime($note_on));
 			$arr = array();
+			$arr[] = ($row['sticky']?'yes':'no');
 			if($vd)
 				$arr[] = ($row['deleted']?'yes':'no');
 			if($this->author)
@@ -473,6 +475,7 @@ class Utils_Attachment extends Module {
 				$form->addElement('header', 'upload', $this->lang->t('Attach note').': '.$this->add_header);
 			$form->addElement('select','permission',$this->lang->t('Permission'),array($this->lang->ht('Public'),$this->lang->ht('Protected'),$this->lang->ht('Private')));
 			$form->addElement('checkbox','other',$this->lang->t('Read by others'));
+			$form->addElement('checkbox','sticky',$this->lang->t('Sticky'));
 			$fck = $form->addElement('fckeditor', 'note', $this->lang->t('Note'));
 			$fck->setFCKProps('800','300');
 			$form->set_upload_button_caption('Save');
@@ -485,8 +488,8 @@ class Utils_Attachment extends Module {
 			$form->add_upload_element();
 
 			if(isset($id)) {
-				$row = DB::GetRow('SELECT x.text,l.permission,l.other_read FROM utils_attachment_note x INNER JOIN utils_attachment_link l ON l.id=x.attach_id WHERE x.attach_id=%d AND x.revision=(SELECT max(z.revision) FROM utils_attachment_note z WHERE z.attach_id=%d)',array($id,$id));
-				$form->setDefaults(array('note'=>$row['text'],'permission'=>$row['permission'],'other'=>$row['other_read']));
+				$row = DB::GetRow('SELECT l.sticky,x.text,l.permission,l.other_read FROM utils_attachment_note x INNER JOIN utils_attachment_link l ON l.id=x.attach_id WHERE x.attach_id=%d AND x.revision=(SELECT max(z.revision) FROM utils_attachment_note z WHERE z.attach_id=%d)',array($id,$id));
+				$form->setDefaults(array('note'=>$row['text'],'permission'=>$row['permission'],'other'=>$row['other_read'],'sticky'=>$row['sticky']));
 			}
 
 			if(!$this->inline) {
@@ -516,7 +519,7 @@ class Utils_Attachment extends Module {
 	}
 
 	public function submit_attach($file,$oryg,$data) {
-		DB::Execute('INSERT INTO utils_attachment_link(attachment_key,local,permission,permission_by,other_read) VALUES(%s,%s,%d,%d,%b)',array($this->key,$this->group,$data['permission'],Acl::get_user(),isset($data['other']) && $data['other']));
+		DB::Execute('INSERT INTO utils_attachment_link(attachment_key,local,permission,permission_by,other_read,sticky) VALUES(%s,%s,%d,%d,%b,%b)',array($this->key,$this->group,$data['permission'],Acl::get_user(),isset($data['other']) && $data['other'],isset($data['sticky']) && $data['sticky']));
 		$id = DB::Insert_ID('utils_attachment_link','id');
 		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$oryg,Acl::get_user()));
 		DB::Execute('INSERT INTO utils_attachment_note(attach_id,text,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$data['note'],Acl::get_user()));
@@ -529,7 +532,7 @@ class Utils_Attachment extends Module {
 	}
 
 	public function submit_edit($file,$oryg,$data,$id,$text) {
-		DB::Execute('UPDATE utils_attachment_link SET other_read=%b,permission=%d,permission_by=%d WHERE id=%d',array(isset($data['other']) && $data['other'],$data['permission'],Acl::get_user(),$id));
+		DB::Execute('UPDATE utils_attachment_link SET sticky=%b,other_read=%b,permission=%d,permission_by=%d WHERE id=%d',array(isset($data['sticky']) && $data['sticky'],isset($data['other']) && $data['other'],$data['permission'],Acl::get_user(),$id));
 		if($data['note']!=$text) {
 			DB::StartTrans();
 			$rev = DB::GetOne('SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=%d',array($id));
