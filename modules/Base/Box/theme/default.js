@@ -34,13 +34,11 @@ base_box_roll_topbar = function() {
    if($('EmptyDiv').style.display == 'none') {
       $('EmptyDiv').show();
       document.getElementById("ShadowBar").style.display = 'none';
-      document.getElementById("gray-transparent").style.display = 'block';
       //document.getElementById("CRM_Calendar__filter").style.top = '149px';
    }
    else {
       setTimeout('$(\'EmptyDiv\').hide()',500);
       document.getElementById("ShadowBar").style.display = 'block';
-      document.getElementById("gray-transparent").style.display = 'none';
       //document.getElementById("CRM_Calendar__filter").style.top = '74px';
    }
 }

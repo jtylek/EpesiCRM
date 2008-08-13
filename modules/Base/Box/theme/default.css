@@ -155,8 +155,7 @@ hr.line {
 }
 
 #EmptyDiv {
-    /*height: 75px;*/
-    height: 85px;
+	height: 70px;
 }
 
 #EmptyDivMenu {
@@ -375,13 +374,6 @@ hr.line {
 #top_bar #top_bar_2 .filter a:hover {
     background-image: url('images/filter-hover.png');
 	/*background-image: url("images/header-gray-dark-hover.png");*/
-}
-
-#gray-transparent {
-    height: 10px;
-    background-image: url('images/gray-transparent.png');
-    background-repeat: repeat-x;
-    _background-image: none; /* no bg in IE */
 }
 
 /*	=layer
