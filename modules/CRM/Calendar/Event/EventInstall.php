@@ -32,7 +32,10 @@ class CRM_Calendar_EventInstall extends ModuleInstall {
 			'created_by I4,'.
 			'edited_on T,'.
 			'edited_by I4,'.
-			'recurrence_id I4',
+			
+			'recurrence_type I2,'.
+			'recurrence_end D,'.
+			'recurrence_hash C(8)',
 			array('constraints'=>	' , FOREIGN KEY (edited_by) REFERENCES user_login(id), FOREIGN KEY (created_by) REFERENCES user_login(id)')
 		);
 		DB::CreateIndex('crm_calendar_event__start__idx', 'crm_calendar_event', 'starts');

@@ -160,6 +160,10 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 	public function view_event($action, $id=null, $timeless=false){
 		if($this->is_back()) return false;
 
+		$recurrence = strpos($id,'_');
+		if($recurrence!==false)
+			$id = substr($id,0,$recurrence);
+
 		$form = $this->init_module('Libs/QuickForm');
 		$theme =  $this->pack_module('Base/Theme');
 		$theme->assign('action',$action);
@@ -184,7 +188,8 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				'priority'=>0,
 				'emp_id' => $my_emp,
 				'timeless'=>($timeless?1:0),
-				'cus_id'=>array()
+				'cus_id'=>array(),
+				'recurrence'=>false
 			);
 			foreach($this->custom_defaults as $k=>$v) $def[$k] = $v;
 		} else {
@@ -228,8 +233,17 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				'created_on' => $event['created_on'],
 				'edited_by' => $event['edited_by']?Base_UserCommon::get_user_login($event['edited_by']):'---',
 				'edited_on' => $event['edited_by']?$event['edited_on']:'---',
-				'recurrence' => $event['recurrence_id']!=null
+				'recurrence' => $event['recurrence_type']!=null,
+				'recurrence_no_end_date' => $event['recurrence_end']==null
 			);
+			if($def['recurrence']) {
+				$def['recurrence_interval'] = CRM_Calendar_EventCommon::recurrence_type($event['recurrence_type']);
+				if(!$def['recurrence_no_end_date'])
+					$def['recurrence_end_date'] = $event['recurrence_end'];
+				if($def['recurrence_interval'] == 'week_custom')
+					for($i=0; $i<7; $i++)
+						$def['custom_days'][$i]=$event['recurrence_hash']{$i};
+			}
 			$defec = CRM_Calendar_EventCommon::get_emp_and_cus($id);
 			$def['cus_id'] = $defec['cus_id'];
 			$def['emp_id'] = $defec['emp_id'];
@@ -384,29 +398,6 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		}
 
 		if($action == 'new') {
-			eval_js_once('crm_calendar_event_recurrence = function(v) {if(v) $("recurrence_block").show(); else $("recurrence_block").hide();}');
-			$theme->assign('recurrence_block','recurrence_block');
-			$form->addElement('checkbox','recurrence',$this->lang->t('Recurrence event'),null,array('onClick'=>'crm_calendar_event_recurrence(this.checked)'));
-			eval_js('crm_calendar_event_recurrence('.($form->exportValue('recurrence')?1:0).')');
-			eval_js_once('crm_calendar_event_recurrence_custom = function(v) {if(v) $("recurrence_custom_days").show(); else $("recurrence_custom_days").hide();}');
-			$form->addElement('select','recurrence_interval',$this->lang->t('Recurrence interval'),array('everyday'=>$this->lang->ht('everyday'),'second'=>$this->lang->ht('every second day'),'third'=>$this->lang->ht('every third day'),'fourth'=>$this->lang->ht('every fourth day'),'fifth'=>$this->lang->ht('every fifth day'),'sixth'=>$this->lang->ht('every sixth day'),'week'=>$this->lang->ht('once every week'),'week_custom'=>$this->lang->ht('customize week'),'two_weeks'=>$this->lang->ht('every two weeks'),'month'=>$this->lang->ht('every month')),array('onChange'=>'crm_calendar_event_recurrence_custom(this.value=="week_custom")'));
-			$theme->assign('recurrence_custom_days','recurrence_custom_days');
-			$custom_week = array();
-			$custom_week[] = $form->createElement('checkbox','0',null,$this->lang->t('Monday'));
-			$custom_week[] = $form->createElement('checkbox','1',null,$this->lang->t('Tuesday'));
-			$custom_week[] = $form->createElement('checkbox','2',null,$this->lang->t('Wednesday'));
-			$custom_week[] = $form->createElement('checkbox','3',null,$this->lang->t('Thursday'));
-			$custom_week[] = $form->createElement('checkbox','4',null,$this->lang->t('Friday'));
-			$custom_week[] = $form->createElement('checkbox','5',null,$this->lang->t('Saturday'));
-			$custom_week[] = $form->createElement('checkbox','6',null,$this->lang->t('Sunday'));
-			$form->addGroup($custom_week,'custom_days');
-			$form->addElement('datepicker','recurrence_end_date',$this->lang->t('End date'));
-			if($form->exportValue('recurrence'))
-				$form->addRule('recurrence_end_date', $this->lang->t('Field required.'), 'required');
-			$form->registerRule('check_recurrence', 'callback', 'check_recurrence', $this);
-			$form->addRule(array('recurrence_end_date','recurrence','date_s'), $this->lang->t('You cannot create recurrence event for more than one year period.'), 'check_recurrence');
-			$form->registerRule('check_recurrence2', 'callback', 'check_recurrence2', $this);
-			$form->addRule(array('recurrence_end_date','recurrence','date_s'), $this->lang->t('End date cannot be before start date.'), 'check_recurrence2');
 
 			eval_js_once('crm_calendar_event_messenger = function(v) {if(v){$("messenger_before").enable();$("messenger_message").enable();}else{$("messenger_before").disable();$("messenger_message").disable();}}');
 			$form->addElement('select','messenger_before',$this->lang->t('Popup alert before'),array(0=>$this->lang->ht('on event start'), 1=>$this->lang->ht('1 hour'), 2=>$this->lang->ht('2 hours'), 3=>$this->lang->ht('3 hours'), 4=>$this->lang->ht('4 hours'), 8=>$this->lang->ht('8 hours'), 12=>$this->lang->ht('12 hours'), 24=>$this->lang->ht('24 hours')),array('id'=>'messenger_before'));
@@ -415,10 +406,32 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			eval_js('crm_calendar_event_messenger('.($form->exportValue('messenger_before')?1:0).')');
 			$form->registerRule('check_my_user', 'callback', 'check_my_user', $this);
 			$form->addRule(array('messenger_on','emp_id'), $this->lang->t('You have to select your contact to set alarm on it'), 'check_my_user');
-		} else {
-			$form->addElement('checkbox','recurrence',$this->lang->t('Recurrence event'))->freeze();
 		}
 
+		eval_js_once('crm_calendar_event_recurrence_custom = function(v) {if(v) $("recurrence_custom_days").show(); else $("recurrence_custom_days").hide();}');
+		eval_js_once('crm_calendar_event_recurrence_no_end_date = function(v) {if(v) $("recurrence_end_date").disable(); else $("recurrence_end_date").enable();}');
+		eval_js_once('crm_calendar_event_recurrence = function(v) {if(v) $("recurrence_block").show(); else $("recurrence_block").hide();crm_calendar_event_recurrence_custom($("recurrence_interval").value=="week_custom");crm_calendar_event_recurrence_no_end_date($("recurrence_no_end_date").checked)}');
+		$theme->assign('recurrence_block','recurrence_block');
+		$form->addElement('checkbox','recurrence',$this->lang->t('Recurrence event'),null,array('onClick'=>'crm_calendar_event_recurrence(this.checked)'));
+//		print('='.$form->exportValue('recurrence').'=');
+		eval_js('crm_calendar_event_recurrence('.(($form->exportValue('recurrence') || $def['recurrence'])?1:0).')');
+		$form->addElement('select','recurrence_interval',$this->lang->t('Recurrence interval'),array('everyday'=>$this->lang->ht('everyday'),'second'=>$this->lang->ht('every second day'),'third'=>$this->lang->ht('every third day'),'fourth'=>$this->lang->ht('every fourth day'),'fifth'=>$this->lang->ht('every fifth day'),'sixth'=>$this->lang->ht('every sixth day'),'week'=>$this->lang->ht('once every week'),'week_custom'=>$this->lang->ht('customize week'),'two_weeks'=>$this->lang->ht('every two weeks'),'month'=>$this->lang->ht('every month')),array('onChange'=>'crm_calendar_event_recurrence_custom(this.value=="week_custom")', 'id'=>'recurrence_interval'));
+		$theme->assign('recurrence_custom_days','recurrence_custom_days');
+		$custom_week = array();
+		$custom_week[] = $form->createElement('checkbox','0',null,$this->lang->t('Monday'));
+		$custom_week[] = $form->createElement('checkbox','1',null,$this->lang->t('Tuesday'));
+		$custom_week[] = $form->createElement('checkbox','2',null,$this->lang->t('Wednesday'));
+		$custom_week[] = $form->createElement('checkbox','3',null,$this->lang->t('Thursday'));
+		$custom_week[] = $form->createElement('checkbox','4',null,$this->lang->t('Friday'));
+		$custom_week[] = $form->createElement('checkbox','5',null,$this->lang->t('Saturday'));
+		$custom_week[] = $form->createElement('checkbox','6',null,$this->lang->t('Sunday'));
+		$form->addGroup($custom_week,'custom_days');
+		$form->addElement('checkbox','recurrence_no_end_date',$this->lang->t('No end date'),null,array('onClick'=>'crm_calendar_event_recurrence_no_end_date(this.checked)','id'=>'recurrence_no_end_date'));
+		$form->addElement('datepicker','recurrence_end_date',$this->lang->t('End date'),array('id'=>'recurrence_end_date'));
+		if($form->exportValue('recurrence') && !$form->exportValue('recurrence_no_end_date'))
+			$form->addRule('recurrence_end_date', $this->lang->t('Field required.'), 'required');
+		$form->registerRule('check_recurrence2', 'callback', 'check_recurrence2', $this);
+		$form->addRule(array('recurrence_end_date','recurrence','date_s','recurrence_no_end_date'), $this->lang->t('End date cannot be before start date.'), 'check_recurrence2');
 
 		if($action != 'view') {
 			$rb2 = $this->init_module('Utils/RecordBrowser/RecordPicker');
@@ -454,7 +467,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			//print_r($values);
 			if (!isset($values['timeless'])) $values['timeless'] = false;
 			if($action == 'new' || $action=='clone') {
-				if($action=='clone') unset($values['recurrence']);
+//				if($action=='clone') unset($values['recurrence']);
 				CRM_CalendarCommon::$last_added = $this->add_event($values);
 			} else
 				$this->update_event($id, $values);
@@ -524,7 +537,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 		return true;
 	}
-	
+
 	public function check_my_user($arg) {
 		if(!$arg[0]) return true;
 		$sub = array_filter(explode('__SEP__',$arg[1]));
@@ -539,15 +552,8 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		return $end >= $start;
 	}
 
-	public function check_recurrence($arg) {
-		if(!$arg[1]) return true;
-		$start = strtotime($arg[2]);
-		$end = strtotime($arg[0]);
-		return $end <= $start+366*24*3600;
-	}
-
 	public function check_recurrence2($arg) {
-		if(!$arg[1]) return true;
+		if(!$arg[1] || (isset($arg[3]) && $arg[3])) return true;
 		$start = strtotime($arg[2]);
 		$end = strtotime($arg[0]);
 		return $end > $start;
@@ -576,10 +582,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$start = Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$start),true);
 			$end = Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$end),true);
 		}
-		$ret_id = null;
-		$rec_id = null;
-		while(1) {
-			DB::Execute('INSERT INTO crm_calendar_event (title,'.
+		DB::Execute('INSERT INTO crm_calendar_event (title,'.
 													'description,'.
 													'starts,'.
 													'ends,'.
@@ -613,73 +616,29 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 													Acl::get_user(),
 													date('Y-m-d H:i:s')
 													));
-			$id = DB::Insert_ID('crm_calendar_event', 'id');
+		$id = DB::Insert_ID('crm_calendar_event', 'id');
 
-			if(isset($vals['messenger_on']) && $vals['messenger_on']) 
+		if(isset($vals['messenger_on']) && $vals['messenger_on'])
 				Utils_MessengerCommon::add('CRM_Calendar_Event:'.$id,$this->get_type(),$vals['messenger_message'],$start-$vals['messenger_before']*3600, array('CRM_Calendar_EventCommon','get_alarm'),array($id));
 
-			foreach($vals['emp_id'] as $v) {
+		foreach($vals['emp_id'] as $v)
 				DB::Execute('INSERT INTO crm_calendar_event_group_emp (id,contact) VALUES (%d, %d)', array($id, $v));
-			}
-			foreach($vals['cus_id'] as $v) {
+		foreach($vals['cus_id'] as $v)
 				DB::Execute('INSERT INTO crm_calendar_event_group_cus (id,contact) VALUES (%d, %d)', array($id, $v));
+		if(isset($vals['recurrence']) && $vals['recurrence']) {
+			$type = CRM_Calendar_EventCommon::recurrence_type($vals['recurrence_interval']);
+			if(isset($vals['recurrence_no_end_date']) && $vals['recurrence_no_end_date'])
+				DB::Execute('UPDATE crm_calendar_event SET recurrence_type=%d,recurrence_end=null WHERE id=%d',array($type,$id));
+			else
+				DB::Execute('UPDATE crm_calendar_event SET recurrence_type=%d,recurrence_end=%D WHERE id=%d',array($type,$vals['recurrence_end_date'],$id));
+			if($vals['recurrence_interval'] == 'week_custom') {
+				$days = '0000000';
+				foreach($vals['custom_days'] as $k=>$v)
+					$days{$k} = '1';
+				DB::Execute('UPDATE crm_calendar_event SET recurrence_hash=%s WHERE id=%d',array($days,$id));
 			}
-			if($ret_id===null)
-			if(!isset($vals['recurrence'])) break;
-			if($rec_id===null)
-				$rec_id = DB::GetOne('SELECT MAX(recurrence_id) FROM crm_calendar_event')+1;
-			DB::Execute('UPDATE crm_calendar_event SET recurrence_id=%d WHERE id=%d',array($rec_id,$id));
-			switch($vals['recurrence_interval']) {
-				case 'everyday':
-					$start+=3600*24;
-					$end+=3600*24;
-					break;
-				case 'second':
-					$start+=3600*48;
-					$end+=3600*48;
-					break;
-				case 'third':
-					$start+=3600*72;
-					$end+=3600*72;
-					break;
-				case 'fourth':
-					$start+=3600*96;
-					$end+=3600*96;
-					break;
-				case 'fifth':
-					$start+=3600*120;
-					$end+=3600*120;
-					break;
-				case 'sixth':
-					$start+=3600*144;
-					$end+=3600*144;
-					break;
-				case 'week':
-					$start+=3600*168;
-					$end+=3600*168;
-					break;
-				case 'week_custom':
-					if(!$vals['custom_days']) return $ret_id;
-					do {
-						$start+=3600*24;
-						$end+=3600*24;
-					} while(!isset($vals['custom_days'][date('w',$start)]));
-					break;
-				case 'two_weeks':
-					$start+=3600*168*2;
-					$end+=3600*168*2;
-					break;
-				case 'month':
-					$month = date('m',$start)%12+1;
-					$start = strtotime(date('Y-'.$month.'-d H:i:s',$start));
-					$month = date('m',$end)%12+1;
-					$end = strtotime(date('Y-'.$month.'-d H:i:s',$end));
-					break;
-			}
-			if($start>strtotime($vals['recurrence_end_date'])+24*3600-1)
-				break;
 		}
-		return $ret_id;
+		return $id;
 	}
 
 	public function update_event($id, $vals = array()){
@@ -698,46 +657,8 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$end = Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$end),true);
 		}
 
-		$prev = DB::GetRow('SELECT * FROM crm_calendar_event WHERE id=%d',array($id));
-		if(isset($prev['recurrence_id']) && $prev['recurrence_id']!==null) {
-			$start_diff = $prev['start']-$start;
-			$end_diff = $prev['end']-$end;
-			DB::Execute('UPDATE crm_calendar_event SET title=%s,'.
-													'description=%s,'.
-													'starts=starts-%d,'.
-													'ends=ends-%d,'.
-													'timeless=%b,'.
-													'access=%d,'.
-													'priority=%d,'.
-													'color=%d,'.
-													'status=%d,'.
-													'edited_by=%d,'.
-													'edited_on=%T WHERE recurrence_id=%d',
-													array(
-													$vals['title'],
-													$vals['description'],
-													$start_diff,
-													$end_diff,
-													($vals['timeless']?1:0),
-													$vals['access'],
-													$vals['priority'],
-													$vals['color'],
-													$vals['status'],
-													Acl::get_user(),
-													date('Y-m-d H:i:s'),
-													$prev['recurrence_id']
-													));
-			DB::Execute('DELETE FROM crm_calendar_event_group_emp WHERE id in (SELECT id FROM crm_calendar_event WHERE recurrence_id=%d)', array($prev['recurrence_id']));
-			DB::Execute('DELETE FROM crm_calendar_event_group_cus WHERE id in (SELECT id FROM crm_calendar_event WHERE recurrence_id=%d)', array($prev['recurrence_id']));
-			$ids = DB::GetCol('SELECT id FROM crm_calendar_event WHERE recurrence_id=%d',array($prev['recurrence_id']));
-			foreach($ids as $idk) {
-				foreach($vals['emp_id'] as $v)
-					DB::Execute('INSERT INTO crm_calendar_event_group_emp (id,contact) VALUES (%d, %d)', array($idk, $v));
-				foreach($vals['cus_id'] as $v)
-					DB::Execute('INSERT INTO crm_calendar_event_group_cus (id,contact) VALUES (%d, %d)', array($idk, $v));
-			}
-		} else {
-			DB::Execute('UPDATE crm_calendar_event SET title=%s,'.
+//		$prev = DB::GetRow('SELECT * FROM crm_calendar_event WHERE id=%d',array($id));
+		DB::Execute('UPDATE crm_calendar_event SET title=%s,'.
 													'description=%s,'.
 													'starts=%d,'.
 													'ends=%d,'.
@@ -747,7 +668,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 													'color=%d,'.
 													'status=%d,'.
 													'edited_by=%d,'.
-													'edited_on=%T WHERE id=%d',
+													'edited_on=%T,recurrence_type=null WHERE id=%d',
 													array(
 													$vals['title'],
 													$vals['description'],
@@ -762,13 +683,25 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 													date('Y-m-d H:i:s'),
 													$id
 													));
-			DB::Execute('DELETE FROM crm_calendar_event_group_emp WHERE id=%d', array($id));
-			DB::Execute('DELETE FROM crm_calendar_event_group_cus WHERE id=%d', array($id));
-			foreach($vals['emp_id'] as $v) {
-				DB::Execute('INSERT INTO crm_calendar_event_group_emp (id,contact) VALUES (%d, %d)', array($id, $v));
-			}
-			foreach($vals['cus_id'] as $v) {
-				DB::Execute('INSERT INTO crm_calendar_event_group_cus (id,contact) VALUES (%d, %d)', array($id, $v));
+		DB::Execute('DELETE FROM crm_calendar_event_group_emp WHERE id=%d', array($id));
+		DB::Execute('DELETE FROM crm_calendar_event_group_cus WHERE id=%d', array($id));
+		foreach($vals['emp_id'] as $v) {
+			DB::Execute('INSERT INTO crm_calendar_event_group_emp (id,contact) VALUES (%d, %d)', array($id, $v));
+		}
+		foreach($vals['cus_id'] as $v) {
+			DB::Execute('INSERT INTO crm_calendar_event_group_cus (id,contact) VALUES (%d, %d)', array($id, $v));
+		}
+		if(isset($vals['recurrence']) && $vals['recurrence']) {
+			$type = CRM_Calendar_EventCommon::recurrence_type($vals['recurrence_interval']);
+			if(isset($vals['recurrence_no_end_date']) && $vals['recurrence_no_end_date'])
+				DB::Execute('UPDATE crm_calendar_event SET recurrence_type=%d,recurrence_end=null WHERE id=%d',array($type,$id));
+			else
+				DB::Execute('UPDATE crm_calendar_event SET recurrence_type=%d,recurrence_end=%D WHERE id=%d',array($type,$vals['recurrence_end_date'],$id));
+			if($vals['recurrence_interval'] == 'week_custom') {
+				$days = '0000000';
+				foreach($vals['custom_days'] as $k=>$v)
+					$days{$k} = '1';
+				DB::Execute('UPDATE crm_calendar_event SET recurrence_hash=%s WHERE id=%d',array($days,$id));
 			}
 		}
 	}

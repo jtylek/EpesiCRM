@@ -12,6 +12,18 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 	public static $filter = null;
 
+	public static function recurrence_type($i) {
+		static $recurrence_numeric = null;
+		static $recurrence_string = null;
+		if(!isset($recurrence_numeric))
+			$recurrence_numeric = array('everyday','second', 'third','fourth','fifth', 'sixth', 'week', 'week_custom', 'two_weeks', 'month');
+		if(!isset($recurrence_string))
+			$recurrence_string = array_flip($recurrence_numeric);
+		if(is_numeric($i))
+			return $recurrence_numeric[$i-1];
+		return $recurrence_string[$i]+1;
+	}
+
 	public static function get_available_colors() {
 		static $color = array(0 => '', 1 => 'green', 2 => 'yellow', 3 => 'red', 4 => 'blue', 5=> 'gray', 6 => 'cyan', 7 =>'magenta');
 		$color[0] = $color[Base_User_SettingsCommon::get('CRM_Calendar','default_color')];
@@ -159,17 +171,18 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		$my_id = CRM_FiltersCommon::get_my_profile();
 		if(!Base_AclCommon::i_am_admin())
 			$fil .= ' AND (e.access<2 OR (SELECT id FROM crm_calendar_event_group_emp cg2 WHERE cg2.id=e.id AND cg2.contact='.$my_id.' LIMIT 1) IS NOT NULL)';
-		$count = DB::GetOne('SELECT COUNT(*) FROM crm_calendar_event e WHERE ((e.starts>=%d AND e.starts<%d) OR (e.ends>=%d AND e.ends<%d)) '.$fil,array($start,$end,$start,$end));
-		if($count>50) {
-			Epesi::alert(Base_LangCommon::ts('CRM_Calendar_Event','Displaying only 50 of %d events',array($count)));
-		}
+//		$count = DB::GetOne('SELECT COUNT(*) FROM crm_calendar_event e WHERE (((e.recurrence_type is null AND ((e.starts>=%d AND e.starts<%d) OR (e.ends>=%d AND e.ends<%d) OR (e.starts<%d AND e.ends>=%d))) OR (e.recurrence_type is not null AND ((e.starts>=%d AND e.starts<%d) OR (e.recurrence_end>=%d AND e.recurrence_end<%d) OR (e.starts<%d AND e.recurrence_end>=%d)))) AND e.timeless=0) '.$fil,array($start,$end,$start,$end,$start,$end,$start,$end,$start,$end,$start,$end,$start,$end,$start,$end,$start,$end,$end,$start,$end));
 		if (DATABASE_DRIVER=='postgres') $method = 'ABSTIME';
 		else $method = 'FROM_UNIXTIME';
-		$ret = DB::Execute('SELECT e.status,e.color,e.access,e.starts as start,e.ends as end,e.title,e.description,e.id,e.timeless,e.priority,e.created_by,e.created_on,e.edited_by,e.edited_on FROM crm_calendar_event e WHERE ((((e.starts>=%d AND e.starts<%d) OR (e.ends>=%d AND e.ends<%d)) AND e.timeless=0) OR (e.timeless=1 AND DATE('.$method.'(starts))>=%D AND DATE('.$method.'(starts))<=%D)) '.$fil.$order.' LIMIT 50',array($start,$end,$start,$end,$start,$end));
+		$ret = DB::Execute('SELECT e.recurrence_type,e.recurrence_hash,e.recurrence_end,e.status,e.color,e.access,e.starts as start,e.ends as end,e.title,e.description,e.id,e.timeless,e.priority,e.created_by,e.created_on,e.edited_by,e.edited_on FROM crm_calendar_event e WHERE ('.
+			'(e.timeless=0 AND ((e.recurrence_type is null AND ((e.starts>=%d AND e.starts<%d) OR (e.ends>=%d AND e.ends<%d) OR (e.starts<%d AND e.ends>=%d))) OR (e.recurrence_type is not null AND ((e.starts>=%d AND e.starts<%d) OR ('.$method.'(e.recurrence_end)>=%d AND '.$method.'(e.recurrence_end)<%d) OR (e.starts<%d AND '.$method.'(e.recurrence_end)>=%d) OR (e.starts<%d AND e.recurrence_end is null))))) '.
+			'OR '.
+			'(e.timeless=1 AND ((e.recurrence_type is null AND DATE('.$method.'(e.starts))>=%D AND DATE('.$method.'(e.starts))<=%D) OR (e.recurrence_type is not null AND ((DATE('.$method.'(e.starts))<=%D AND e.recurrence_end>=%D) OR (DATE('.$method.'(e.starts))>=%D AND DATE('.$method.'(e.starts))<=%D) OR (e.recurrence_end>=%D AND e.recurrence_end<=%D) OR (e.starts<%d AND e.recurrence_end is null)))))) '.$fil.$order.' LIMIT 51',array($start,$end,$start,$end,$start,$end,$start,$end,$start,$end,$start,$end,$end,$start,$end,$start,$end,$start,$end,$start,$end,$end));
 		$result = array();
 		$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
 		$priority = array(0 =>'None', 1 => 'Low', 2 => 'Medium', 3 => 'High');
 		$status = Utils_CommonDataCommon::get_translated_array('Ticket_Status');
+		$count = 0;
 		while ($row = $ret->FetchRow()) {
 			$next_result = array();
 			foreach (array('start','id','title','timeless','description') as $v)
@@ -218,14 +231,80 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 				$next_result['edit_action'] = false;
 				$next_result['delete_action'] = false;
 			} elseif($row['status']<2)
-					$next_result['actions'] = array(array('icon'=>Base_ThemeCommon::get_template_file('CRM_Calendar_Event','access-private.png'),'href'=>CRM_Calendar_EventCommon::get_followup_leightbox_href($row['id'], $row)));
+				$next_result['actions'] = array(array('icon'=>Base_ThemeCommon::get_template_file('CRM_Calendar_Event','access-private.png'),'href'=>CRM_Calendar_EventCommon::get_followup_leightbox_href($row['id'], $row)));
 
-			$result[] = $next_result;
+			if($row['recurrence_type']) {
+				$type = self::recurrence_type($row['recurrence_type']);
+				if(isset($row['recurrence_end']))
+					$rend = min(strtotime($row['recurrence_end']),$end);
+				else
+					$rend = $end;
+				$kk = 0;
+				if($next_result['start']>=$start) {
+					$next_result['id'] = $row['id'].'_'.$kk;
+					if($type=='week_custom') {
+						if($row['recurrence_hash']{date('N',strtotime(Base_RegionalSettingsCommon::time2reg($next_result['start'],false,true,true,false)))-1})
+							$result[] = $next_result;
+					} else {
+						$result[] = $next_result;
+					}
+				}
+				while($next_result['start']<$rend) {
+						$kk++;
+						$next_result['id'] = $row['id'].'_'.$kk;
+						switch($type) {
+							case 'everyday':
+								$next_result['start']+=3600*24;
+								break;
+							case 'second':
+								$next_result['start']+=3600*48;
+								break;
+							case 'third':
+								$next_result['start']+=3600*72;
+								break;
+							case 'fourth':
+								$next_result['start']+=3600*96;
+								break;
+							case 'fifth':
+								$next_result['start']+=3600*120;
+								break;
+							case 'sixth':
+								$next_result['start']+=3600*144;
+								break;
+							case 'week':
+								$next_result['start']+=3600*168;
+								break;
+							case 'week_custom':
+								do {
+									$next_result['start']+=3600*24;
+								} while(!$row['recurrence_hash']{date('N',strtotime(Base_RegionalSettingsCommon::time2reg($next_result['start'],false,true,true,false)))-1});
+								break;
+							case 'two_weeks':
+								$next_result['start']+=3600*168*2;
+								break;
+							case 'month':
+								$month = date('m',$next_result['start'])%12+1;
+								$next_result['start'] = strtotime(date('Y-'.$month.'-d H:i:s',$next_result['start']));
+								break;
+						}
+						if($next_result['start']>=$start && $next_result['start']<$rend) {
+							$next_result['id'] =
+							$result[] = $next_result;
+						}
+				}
+			} else {
+				$count++;
+				if($count>50) {
+					Epesi::alert(Base_LangCommon::ts('CRM_Calendar_Event','Too much events to display - displaying only 50.',array($count)));
+					break;
+				}
+				$result[] = $next_result;
+			}
 		}
 		return $result;
 	}
 
-	public static function delete($id) { //make sure that event owner is Acl::get_user....
+	public static function delete($id) { //TODO:make sure that event owner is Acl::get_user....
 		DB::Execute('DELETE FROM crm_calendar_event_group_emp WHERE id=%d', array($id));
 		DB::Execute('DELETE FROM crm_calendar_event_group_cus WHERE id=%d', array($id));
 		DB::Execute('DELETE FROM crm_calendar_event WHERE id=%d',array($id));
@@ -234,20 +313,20 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		return true;
 	}
 
-	public static function update(&$id,$start,$duration,$timeless) { //make sure that event owner is Acl::get_user....
-		$prev = DB::GetRow('SELECT *,starts as start,ends as end FROM crm_calendar_event WHERE id=%d',array($id));
+	public static function update(&$id,$start,$duration,$timeless) { //TODO:make sure that event owner is Acl::get_user....
+/*		$prev = DB::GetRow('SELECT *,starts as start,ends as end FROM crm_calendar_event WHERE id=%d',array($id));
 		if(isset($prev['recurrence_id']) && $prev['recurrence_id']!==null) {
 			$start_diff = $prev['start']-$start;
 			$end_diff = $prev['end']-$start-$duration;
 			DB::Execute('UPDATE crm_calendar_event SET starts=starts-%d, ends=ends-%d, timeless=%b WHERE recurrence_id=%d',array($start_diff,$end_diff,$timeless,$prev['recurrence_id']));
 			print('Epesi.updateIndicatorText("updating calendar");Epesi.request("");');
-		} else {
+		} else {*/
 			//error_log($start.' = direct '.date('Y-m-d H:i:s',$start)."\n",3,'data/log2');
 			//error_log($start.' = '.date('Y-m-d',strtotime(Base_RegionalSettingsCommon::time2reg($start,false,true,true,false)))."\n",3,'data/log2');
 			if($timeless)
 				$start = strtotime(date('Y-m-d',$start));
 			DB::Execute('UPDATE crm_calendar_event SET starts=%d, ends=%d, timeless=%b WHERE id=%d',array($start,$start+$duration,$timeless,$id));
-		}
+//		}
 		return true;
 	}
 

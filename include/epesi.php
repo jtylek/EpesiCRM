@@ -324,7 +324,7 @@ class Epesi {
 				$style='color:red;font-weight:bold';
 				if ($q['time']<0.5) $style = 'color:yellow;font-weight:bold';
 				if ($q['time']<0.05) $style = 'color:green';
-				$debug .= '<span style="'.$style.';">'.'<b>'.$q['func'].'</b> '.var_export($q['args'],true).' <i>'.$q['time'].'</i><br>'.'</span>';
+				$debug .= '<span style="'.$style.';">'.'<b>'.$q['func'].'</b> '.htmlspecialchars(var_export($q['args'],true)).' <i>'.$q['time'].'</i><br>'.'</span>';
 			}
 		}
 		if(DEBUG || MODULE_TIMES || SQL_TIMES)
