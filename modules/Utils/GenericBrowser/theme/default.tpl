@@ -12,7 +12,7 @@
 	{$form_data_search.hidden}
 {/if}
 
-<table id="letters-search">
+<table id="letters-search" border="0" cellpadding="0" cellspacing="0">
 	<tbody>
 		<tr>
 			<!-- Custom label -->
