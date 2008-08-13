@@ -190,6 +190,57 @@
                     </table>
                 </td>
             </tr>
+            <tr>
+                <td style="vertical-align: top;">
+                    <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if}" style="border-left: none;" cellspacing="0" cellpadding="0" border="0">
+                        <tbody>
+                            <tr>
+                                <td class="label" align="left" style="width: 20%;">{$form_data.recurrence.label}</td>
+                                <td class="data" align="left" style="width: 80%;">{$form_data.recurrence.html}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+                <td style="vertical-align: top;">
+                    <div id="{$recurrence_block}">
+                        <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if}" style="border-left: none;" cellspacing="0" cellpadding="0" border="0">
+                            <tbody>
+                                <tr>
+                                    <td class="label" align="left" style="width: 20%;">{$form_data.recurrence_interval.label}</td>
+                                    <td class="data" align="left" style="width: 80%;">{$form_data.recurrence_interval.html}</td>
+                                </tr>
+                                <tr>
+                                    <td class="label" align="left">{$form_data.recurrence_no_end_date.label}*</td>
+                                    <td class="data" align="left"><span class="error">{$form_data.recurrence_no_end_date.error}</span>{$form_data.recurrence_no_end_date.html}</td>
+                                </tr>
+                                <tr>
+                                    <td class="label" align="left">{$form_data.recurrence_end_date.label}*</td>
+                                    <td class="data" align="left"><span class="error">{$form_data.recurrence_end_date.error}</span>{$form_data.recurrence_end_date.html}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <span id="{$recurrence_custom_days}">{$form_data.custom_days.html}</span>
+                    </div>
+                    {if $action=='new'}
+                        <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if}" style="border-left: none;" cellspacing="0" cellpadding="0" border="0">
+                            <tbody>
+                                <tr>
+                                    <td class="label" align="left" style="width: 20%;">{$form_data.messenger_on.label}*</td>
+                                    <td class="data" align="left" style="width: 80%;"><span class="error">{$form_data.messenger_on.error}</span>{$form_data.messenger_on.html}</td>
+                                </tr>
+                                <tr>
+                                    <td class="label" align="left">{$form_data.messenger_before.label}*</td>
+                                    <td class="data" align="left"><span class="error">{$form_data.messenger_before.error}</span>{$form_data.messenger_before.html}</td>
+                                </tr>
+                                <tr>
+                                    <td class="label" align="left">{$form_data.messenger_message.label}*</td>
+                                    <td class="data" align="left"><span class="error">{$form_data.messenger_message.error}</span>{$form_data.messenger_message.html}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    {/if}
+                </td>
+            </tr>
         </tbody>
     </table>
 </div>
@@ -225,19 +276,5 @@
 		{$tabs}
         </div>
     {/if}
-
-
-{$form_data.recurrence.label} {$form_data.recurrence.html}<br>
-<div id="{$recurrence_block}">
-	{$form_data.recurrence_interval.label} {$form_data.recurrence_interval.html}<br>
-	{$form_data.recurrence_no_end_date.label} {$form_data.recurrence_no_end_date.error} {$form_data.recurrence_no_end_date.html}<br>
-	{$form_data.recurrence_end_date.label} {$form_data.recurrence_end_date.error} {$form_data.recurrence_end_date.html}<br>
-	<span id="{$recurrence_custom_days}">{$form_data.custom_days.html}</span>
-</div>
-{if $action=='new'}
-{$form_data.messenger_on.label} {$form_data.messenger_on.error} {$form_data.messenger_on.html}<br>
-{$form_data.messenger_before.label} {$form_data.messenger_before.error} {$form_data.messenger_before.html}<br>
-{$form_data.messenger_message.label} {$form_data.messenger_message.error} {$form_data.messenger_message.html}<br>
-{/if}
 
 </form>
