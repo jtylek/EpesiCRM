@@ -36,8 +36,12 @@ ul#Utils_TabbedBrowser li a {
 	margin-right: 0px;
 	text-decoration: none;
 	border-bottom: none;
+	/*
 	padding-left: 30px;
 	padding-right: 30px;
+	*/
+	padding-left: 10px;
+	padding-right:10px;
 }
 
 ul#Utils_TabbedBrowser a:hover {
