@@ -111,7 +111,7 @@ class Utils_RecordBrowser extends Module {
 	public function set_button($arg){
 		$this->add_button = $arg;
 	}
-	
+
 	public function set_header_properties($ar) {
 		$this->more_table_properties = $ar;
 	}
@@ -132,7 +132,7 @@ class Utils_RecordBrowser extends Module {
 		list($this->caption,$this->icon,$this->recent,$this->favorites,$this->full_history) = $params;
 		$cid = Utils_WatchdogCommon::get_category_id($this->tab);
 		$this->watchdog = ($cid!==false && $cid!==false);
-		 
+
 		//If Caption or icon not specified assign default values
 		if ($this->caption=='') $this->caption='Record Browser';
 		if ($this->icon=='') $this->icon = Base_ThemeCommon::get_template_filename('Base_ActionBar','icons/settings.png');
@@ -348,7 +348,7 @@ class Utils_RecordBrowser extends Module {
 			}
 			if (isset($this->more_table_properties[$args['id']])) {
 				foreach (array('name','wrapmode','width') as $v)
-					if (isset($this->more_table_properties[$args['id']][$v])) $arr[$v] = $this->more_table_properties[$args['id']][$v]; 
+					if (isset($this->more_table_properties[$args['id']][$v])) $arr[$v] = $this->more_table_properties[$args['id']][$v];
 			}
 			$str = explode(';', $args['param']);
 			$ref = explode('::', $str[0]);
@@ -362,7 +362,7 @@ class Utils_RecordBrowser extends Module {
 		}
 		$clean_order = array();
 		foreach ($order as $k => $v) {
-			if (isset($this->more_table_properties[$k]) && isset($this->more_table_properties[$k]['name'])) $key = $this->more_table_properties[$k]['name']; 
+			if (isset($this->more_table_properties[$k]) && isset($this->more_table_properties[$k]['name'])) $key = $this->more_table_properties[$k]['name'];
 			elseif (isset($hash[$k])) $key = $hash[$k];
 			else $key = $k;
 			$clean_order[$this->lang->t($key)] = $v;
@@ -380,7 +380,7 @@ class Utils_RecordBrowser extends Module {
 		if (!$special) {
 			if ($this->add_button!==null) $label = $this->add_button;
 			else $label = $this->create_callback_href(array($this, 'navigate'), array('view_entry', 'add', null, $this->custom_defaults));
-			$gb->set_custom_label('<a '.$label.'><img border="0" src="'.Base_ThemeCommon::get_template_file('Base/ActionBar','icons/add.png').'" /></a>');
+			$gb->set_custom_label('<a '.$label.'><img border="0" src="'.Base_ThemeCommon::get_template_file('Base/ActionBar','icons/add-small.png').'" /></a>');
 		}
 		$search = $gb->get_search_query(true);
 		$search_res = array();
@@ -551,7 +551,7 @@ class Utils_RecordBrowser extends Module {
 		}
 		$record = Utils_RecordBrowserCommon::get_record($this->tab, $id);
 		$access = $this->get_access('fields',$record);
-		if (is_array($access)) 
+		if (is_array($access))
 			foreach ($access as $k=>$v)
 				if ($v=='hide') unset($record[$k]);
 		$this->navigate('view_entry', 'add', null, $record);
@@ -565,9 +565,9 @@ class Utils_RecordBrowser extends Module {
 			self::$clone_result = 'canceled';
 			return $this->back();
 		}
-		
+
 		if ($id!==null) Utils_WatchdogCommon::notified($this->tab,$id);
-		
+
 		$this->init();
 		$this->record = Utils_RecordBrowserCommon::get_record($this->tab, $id);
 		if ($mode!='add' && !$this->record['active'] && !Base_AclCommon::i_am_admin()) return $this->back();
@@ -585,10 +585,10 @@ class Utils_RecordBrowser extends Module {
 				$method = explode('::',$dpm);
 				if (is_callable($method)) {
 					$theme_stuff = call_user_func($method, $this->record, 'view');
-					if (is_array($theme_stuff)) 
+					if (is_array($theme_stuff))
 						foreach ($theme_stuff as $k=>$v)
 							$theme->assign($k, $v);
-				} 
+				}
 			}
 		}
 		switch ($mode) {
@@ -767,14 +767,14 @@ class Utils_RecordBrowser extends Module {
 
 	public function timestamp_required($v) {
 		return strtotime($v['datepicker'])!==false;
-	}	
+	}
 
 	public function prepare_view_entry_details($record, $mode, $id, $form, $visible_cols = null){
 		$init_js = '';
 		foreach($this->table_rows as $field => $args){
 			if ($this->fields_permission[$args['id']]==='hide') continue;
 			if ($visible_cols!==null && !isset($visible_cols[$args['id']])) continue;
-			if ($args['type']=='hidden') { 
+			if ($args['type']=='hidden') {
 				$form->addElement('hidden', $args['id']);
 				$form->setDefaults(array($args['id']=>$record[$args['id']]));
 				continue;
@@ -1433,7 +1433,7 @@ class Utils_RecordBrowser extends Module {
 		}
 		return $ret;
 	}
-	
+
 	public function mini_view($cols, $crits, $order, $info, $limit=null, $icons = array('view', 'info')){
 		$this->init();
 		$gb = $this->init_module('Utils/GenericBrowser',$this->tab,$this->tab);
