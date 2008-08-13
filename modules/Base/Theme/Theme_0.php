@@ -40,14 +40,13 @@ class Base_Theme extends Module {
 	}
 
 	private function load_css_cache() {
-		if(!file_exists(self::$themes_dir.self::$theme.'/__cache.css') || !file_exists(self::$themes_dir.'default/__cache.css') ||
-			!file_exists(self::$themes_dir.self::$theme.'/__cache.php') || !file_exists(self::$themes_dir.'default/__cache.php')) return;
-		if(load_css(self::$themes_dir.self::$theme.'/__cache.php')) {
+		if(!file_exists(self::$themes_dir.self::$theme.'/__cache.css') || !file_exists(self::$themes_dir.'default/__cache.css')) return;
+		if(load_css(self::$themes_dir.self::$theme.'/__css.php?f='.self::$themes_dir.self::$theme.'/__cache.css')) {
 			$arr = explode("\n",file_get_contents(self::$themes_dir.self::$theme.'/__cache.files'));
 			foreach($arr as $f)
 				$_SESSION['client']['__loaded_csses__'][$f] = 1;
 		}
-		if(self::$theme!='default' && load_css(self::$themes_dir.'default/__cache.php')) {
+		if(self::$theme!='default' && load_css(self::$themes_dir.'default/__css.php?f='.self::$themes_dir.self::$theme.'/__cache.css')) {
 			$arr = explode("\n",file_get_contents(self::$themes_dir.'default/__cache.files'));
 			foreach($arr as $f)
 				$_SESSION['client']['__loaded_csses__'][$f] = 1;

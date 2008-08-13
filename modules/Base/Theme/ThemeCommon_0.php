@@ -70,7 +70,7 @@ class Base_ThemeCommon extends ModuleCommon {
 			if(isset($css)) {
 				$cssf = $smarty->template_dir.'/'.$css;
 				if(file_exists($cssf))
-			    		load_css($cssf);
+			    	load_css($smarty->template_dir.'/__css.php?f='.$cssf);
 			}
 		} else {
 			$smarty->template_dir = 'data/Base_Theme/templates/default';
@@ -85,7 +85,7 @@ class Base_ThemeCommon extends ModuleCommon {
 			if(isset($css)) {
 				$cssf = $smarty->template_dir.'/'.$css;
 				if(file_exists($cssf))
-					load_css($cssf);
+					load_css($smarty->template_dir.'/__css.php?f='.$cssf);
 			}
 
 			$dt = self::get_default_template();
@@ -234,25 +234,25 @@ class Base_ThemeCommon extends ModuleCommon {
 			}
 		}
 		
-		if(function_exists('gzopen')) {
+/*		if(function_exists('gzopen')) {
 			$zp = gzopen($themes_dir.'default/__cache.css.gz', 'w9');
 			gzwrite($zp, $css_def_out);
 			gzclose($zp);
-		}
+		}*/
 
 		file_put_contents($themes_dir.'default/__cache.css',$css_def_out);
 		file_put_contents($themes_dir.'default/__cache.files',$files_def_out);
-		copy('modules/Base/Theme/css.php',$themes_dir.'default/__cache.php');
+		copy('modules/Base/Theme/css.php',$themes_dir.'default/__css.php');
 		if($def_theme!='default') {
-			if(function_exists('gzopen')) {
+/*			if(function_exists('gzopen')) {
 				$zp = gzopen($tdir.'/__cache.css.gz', 'w9');
 				gzwrite($zp, $css_cur_out);
 				gzclose($zp);
-			}
+			}*/
 			
 			file_put_contents($tdir.'/__cache.css',$css_cur_out);
 			file_put_contents($tdir.'/__cache.files',$files_cur_out);
-			copy('modules/Base/Theme/css.php',$tdir.'/__cache.php');
+			copy('modules/Base/Theme/css.php',$tdir.'/__css.php');
 		}
 	}
 

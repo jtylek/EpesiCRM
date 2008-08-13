@@ -46,6 +46,8 @@ function install_default_theme_common_files($dir,$f) {
 }
 install_default_theme_common_files('modules/Base/Theme/','images');
 
+Base_ThemeCommon::create_cache();
+
 print('</span>');
 print('<hr><a href="index.php">back</a>');
 ?>

@@ -31,7 +31,7 @@ class Epesi {
 		foreach(self::$load_csses as $f)
 			$ret .= 'Epesi.load_css(\''.self::escapeJS($f,false).'\');';
 		foreach(self::$load_jses as $f)
-			$ret .= 'Epesi.load_js(\''.self::escapeJS($f,false).'\');';
+			$ret .= 'Epesi.load_js(\'serve.php?f='.self::escapeJS($f,false).'\');';
 		$ret .= self::$txts;
 		$jjj = '';
 		foreach(self::$jses as $cc) {
