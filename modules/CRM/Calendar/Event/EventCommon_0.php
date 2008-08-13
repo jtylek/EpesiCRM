@@ -79,6 +79,10 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 
 
 	public static function get($id) {
+		$recurrence = strpos($id,'_');
+		if($recurrence!==false)
+			$id = substr($id,0,$recurrence);
+
 		if(self::$filter=='()')
 			$fil = ' AND 1=0';
 		else if(self::$filter)
@@ -305,6 +309,10 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 	}
 
 	public static function delete($id) { //TODO:make sure that event owner is Acl::get_user....
+		$recurrence = strpos($id,'_');
+		if($recurrence!==false)
+			$id = substr($id,0,$recurrence);
+
 		DB::Execute('DELETE FROM crm_calendar_event_group_emp WHERE id=%d', array($id));
 		DB::Execute('DELETE FROM crm_calendar_event_group_cus WHERE id=%d', array($id));
 		DB::Execute('DELETE FROM crm_calendar_event WHERE id=%d',array($id));
@@ -314,23 +322,26 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 	}
 
 	public static function update(&$id,$start,$duration,$timeless) { //TODO:make sure that event owner is Acl::get_user....
-/*		$prev = DB::GetRow('SELECT *,starts as start,ends as end FROM crm_calendar_event WHERE id=%d',array($id));
-		if(isset($prev['recurrence_id']) && $prev['recurrence_id']!==null) {
-			$start_diff = $prev['start']-$start;
-			$end_diff = $prev['end']-$start-$duration;
-			DB::Execute('UPDATE crm_calendar_event SET starts=starts-%d, ends=ends-%d, timeless=%b WHERE recurrence_id=%d',array($start_diff,$end_diff,$timeless,$prev['recurrence_id']));
+		$recurrence = strpos($id,'_');
+		if($recurrence!==false) {
+			$id = substr($id,0,$recurrence);
 			print('Epesi.updateIndicatorText("updating calendar");Epesi.request("");');
-		} else {*/
-			//error_log($start.' = direct '.date('Y-m-d H:i:s',$start)."\n",3,'data/log2');
-			//error_log($start.' = '.date('Y-m-d',strtotime(Base_RegionalSettingsCommon::time2reg($start,false,true,true,false)))."\n",3,'data/log2');
-			if($timeless)
-				$start = strtotime(date('Y-m-d',$start));
-			DB::Execute('UPDATE crm_calendar_event SET starts=%d, ends=%d, timeless=%b WHERE id=%d',array($start,$start+$duration,$timeless,$id));
-//		}
+		}
+		if($timeless)
+			$start = strtotime(date('Y-m-d',$start));
+
+		DB::Execute('UPDATE crm_calendar_event SET starts=%d, ends=%d, timeless=%b WHERE id=%d',array($start,$start+$duration,$timeless,$id));
+
+		if($recurrence!==false)
+			return false;
 		return true;
 	}
 
 	public static function get_alarm($id) {
+		$recurrence = strpos($id,'_');
+		if($recurrence!==false)
+			$id = substr($id,0,$recurrence);
+
 		$a = self::get($id);
 
 		if($a['timeless'])
