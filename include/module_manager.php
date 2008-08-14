@@ -365,6 +365,7 @@ class ModuleManager {
 		self::register($module,$to_version,self::$modules);
 
 		self::create_load_priority_array();
+		self::create_common_cache();
 
 		self::$processed_modules[$module] = $to_version;
 		if($i==$to_version)	{
@@ -435,6 +436,7 @@ class ModuleManager {
 		}
 
 		self::create_load_priority_array();
+		self::create_common_cache();
 
 		print('Module '.$module.' succesfully downgraded to version '.$to_version.'<br>');
 		self::$processed_modules[$module] = $to_version;
@@ -532,6 +534,7 @@ class ModuleManager {
 
 		print('<b>' . $module_to_install . '</b>' . ': deps ok, including common class<br>');
 		self :: include_common($module_to_install,$version);
+		self::create_common_cache();
 
 		print('</div>');
 		self::$processed_modules[$module_to_install] = $version;
@@ -739,6 +742,7 @@ class ModuleManager {
 		}
 
 		self::create_load_priority_array();
+		self::create_common_cache();
 
 		print ($module_to_uninstall . " module uninstalled! You can safely remove module directory.<br>");
 		self::$processed_modules[$module_to_uninstall] = -1;
