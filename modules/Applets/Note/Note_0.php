@@ -19,7 +19,8 @@ class Applets_Note extends Module {
 		Base_ThemeCommon::load_css($this->get_type());
 		$opts['title'] = $values['title'];
 		print ('<div id="Applets_Note"><div class="note-' . $values['bcolor'] . '">');
- 		print (str_replace("\n",'<br>',$values['text']));
+ 		print ($values['text']);
+		//print (str_replace("\n",'<br>',$values['text']));
 		print ('</div></div>');
 	}
 
