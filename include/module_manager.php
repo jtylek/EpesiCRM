@@ -882,7 +882,9 @@ class ModuleManager {
 		$installed_modules = ModuleManager::get_load_priority_array(true);
 		self::$not_loaded_modules = $installed_modules;
 		self::$loaded_modules = array();
+		ob_start();
 		require_once('data/cache/common.php');
+		ob_end_clean();
 		foreach($installed_modules as $row) {
 			$module = $row['name'];
 			$version = $row['version'];
