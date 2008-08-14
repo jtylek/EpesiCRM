@@ -31,7 +31,7 @@ class Applets_NoteCommon extends ModuleCommon {
 	
 	public static function text_elem($name, $args, & $def_js) {
 		$obj = HTML_QuickForm::createElement('fckeditor',$name,'Text to display');
-		$obj->setFCKProps('400','125',false);
+		$obj->setFCKProps('400','300',false);
 	//	$def_js .= '$(\''.$this->getAttribute('name').'\').'.$v['name'].'.value = \''.$v['default'].'\';';
 		return $obj;
 	}
