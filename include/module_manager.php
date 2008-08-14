@@ -882,13 +882,10 @@ class ModuleManager {
 		$installed_modules = ModuleManager::get_load_priority_array(true);
 		self::$not_loaded_modules = $installed_modules;
 		self::$loaded_modules = array();
-		if(file_exists('data/cache/common.php'))
-			require_once('data/cache/common.php');
-		else
+		require_once('data/cache/common.php');
 		foreach($installed_modules as $row) {
 			$module = $row['name'];
 			$version = $row['version'];
-			ModuleManager :: include_common($module, $version);
 			ModuleManager :: register($module, $version, self::$modules);
 		}
 	}
@@ -911,7 +908,6 @@ class ModuleManager {
 							'call_user_func(array($x,\'Instance\'),\''.$module.'\');'.
 					'} ?>';
 			}
-			$ret .= '<?php ModuleManager :: register(\''.$module.'\', '.$version.', ModuleManager::$modules);?>';
 		}
 		$cache_dir = 'data/cache/';
 		if(!file_exists($cache_dir))
