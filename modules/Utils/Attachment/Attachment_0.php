@@ -182,7 +182,7 @@ class Utils_Attachment extends Module {
 				$r->add_action($this->create_callback_href(array($this,'view_queue'),array($row['id'])),'view');
 				$r->add_action($this->create_callback_href(array($this,'edition_history_queue'),$row['id']),'history');
 			}
-			$text = strip_tags(str_replace('</p>','<br>',preg_replace('/<br\s*/?>\s*$/i','',$row['text'])),'<br><br/>');
+			$text = strip_tags(str_replace('</p>','<br>',preg_replace('/<\/p>\s*$/i','',$row['text'])),'<br><br/>');
 			$max_len = 120;
 			$br = strpos($text,'<br');
 			if($br!==false && $br<$max_len) $max_len=$br;
