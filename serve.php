@@ -26,9 +26,9 @@ if (isset($_GET['f'])) {
 		ini_set('include_path','libs/minify'.PATH_SEPARATOR.'.'.PATH_SEPARATOR.ini_get('include_path'));
         require 'Minify.php';
         
-		$cache_dir = 'data/minify_cache';
+		$cache_dir = 'data/cache/minify';
 		if(!file_exists($cache_dir))
-			mkdir($cache_dir);
+			mkdir($cache_dir,0777,true);
         Minify::useServerCache($cache_dir);
         
         // The Files controller can serve an array of files, but here we just

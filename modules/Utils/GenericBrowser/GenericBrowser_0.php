@@ -318,9 +318,10 @@ class Utils_GenericBrowser extends Module {
 	 *
 	 * Do not use this method in conjuntion with get_order()
 	 *
+	 * @param string columns to force order
 	 * @return string 'ORDER BY' part of the query
 	 */
-	public function get_query_order() {
+	public function get_query_order($force_order=null) {
 		$ch_order = $this->get_unique_href_variable('change_order');
 		if ($ch_order)
 			$this->change_order($ch_order);
@@ -335,7 +336,7 @@ class Utils_GenericBrowser extends Module {
 			$sql .= ($first?'':',').' '.$v['order'].' '.$v['direction'];
 			$first = false;
 		}
-		if ($sql) $sql = ' ORDER BY'.$sql;
+		if ($sql) $sql = ' ORDER BY'.($force_order?' '.trim($force_order,',').',':'').$sql;
 		$this->set_module_variable('order_history_display',$ohd);
 		$this->set_module_variable('order',$order);
 		return $sql;

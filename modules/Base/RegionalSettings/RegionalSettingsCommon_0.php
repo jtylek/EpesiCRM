@@ -47,7 +47,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 			$date_formats[$f] = self::strftime($f,$now);
 		self::restore_locale();
 		if(!function_exists('timezone_identifiers_list'))
-			require_once('tz_list.php');
+			require_once('modules/Base/RegionalSettings/tz_list.php');
 		$tz = timezone_identifiers_list();
 		return array('Regional settings'=>array(
 				//array('type'=>'select','name'=>'currency','label'=>'Currency') //google X pln in usd????

@@ -13,7 +13,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-require_once ('class.phpmailer.php');
+require_once ('modules/Base/Mail/class.phpmailer.php');
 
 class Base_MailCommon extends Base_AdminModuleCommon {
 	/**

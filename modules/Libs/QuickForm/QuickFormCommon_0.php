@@ -9,7 +9,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-require_once('requires.php');
+require_once('modules/Libs/QuickForm/requires.php');
 
 class Libs_QuickFormCommon extends ModuleCommon {
 	private static $on_submit = '';

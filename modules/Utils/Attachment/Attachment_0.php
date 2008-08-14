@@ -96,7 +96,6 @@ class Utils_Attachment extends Module {
 
 		$gb = $this->init_module('Utils/GenericBrowser',null,$this->key);
 		$cols = array();
-		$cols[] = array('name'=>$this->lang->t('Sticky'),'order'=>'ual.sticky','width'=>5);
 		if($vd)
 			$cols[] = array('name'=>$this->lang->t('Deleted'),'order'=>'ual.deleted','width'=>5);
 		if($this->author)
@@ -114,11 +113,12 @@ class Utils_Attachment extends Module {
 			$query = 'SELECT ual.sticky,uaf.id as file_id,(SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id=ual.id) as downloads,ual.other_read,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text,uaf.original,uaf.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE uaf.created_by=l2.id) as upload_by FROM utils_attachment_link ual INNER JOIN (utils_attachment_note uac,utils_attachment_file uaf) ON (uac.attach_id=ual.id AND ual.id=uaf.attach_id) WHERE ual.attachment_key=\''.$this->key.'\' AND ual.local='.DB::qstr($this->group).' AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id) AND ual.deleted=0';
 			$query_lim = 'SELECT count(ual.id) FROM utils_attachment_link ual WHERE ual.attachment_key=\''.$this->key.'\' AND ual.local='.DB::qstr($this->group).'  AND ual.deleted=0';
 		}
-		$gb->set_default_order(array($this->lang->t('Sticky')=>'DESC',$this->lang->t('Date')=>'DESC'));
-//		$query_order = $gb->get_query_order();
+		$gb->set_default_order(array($this->lang->t('Date')=>'DESC'));
 
-//		$ret = DB::Execute($query.$query_order);
-		$ret = $gb->query_order_limit($query,$query_lim);
+		$query_order = $gb->get_query_order('ual.sticky DESC');
+		$qty = DB::GetOne($query_lim);
+		$query_limits = $gb->get_limit($qty);
+		$ret = DB::SelectLimit($query.$query_order,$query_limits['numrows'],$query_limits['offset']);
 
 		eval_js_once('utils_attachment_expand = function(id) {'.
 			     '$(\'utils_attachment_more_\'+id).hide();'.
@@ -184,20 +184,17 @@ class Utils_Attachment extends Module {
 			}
 			$text = strip_tags(str_replace('</p>','<br>',$row['text']),'<br><br/>');
 			$max_len = 120;
+			$br = strpos($text,'<br');
+			if($br!==false && $br<$max_len) $max_len=$br;
 			if(strlen($text)>$max_len || $inline_img) {
-				if($inline_img)
-					$br=false;
-				else
-					$br = strpos($text,'<br',$max_len-3);
-				if($br!==false && $br<$max_len) $max_len=$br;
 				$text = array('value'=>substr($text,0,$max_len).'<a href="javascript:void(0)" onClick="utils_attachment_expand('.$row['id'].')" id="utils_attachment_more_'.$row['id'].'"> '.$this->lang->t('[ + ]').'</a><span style="display:none" id="utils_attachment_text_'.$row['id'].'">'.substr($text,$max_len).$inline_img.' <a href="javascript:void(0)" onClick="utils_attachment_collapse('.$row['id'].')">'.$this->lang->t('[ - ]').'</a></span>','hint'=>$this->lang->t('Click on view icon to see full note'));
 				$expandable[] = $row['id'];
 			}
+			if($row['sticky']) $text['value'] = '<img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'sticky.png').'" hspace=5 align="left"> '.$text['value'];
 
 			$date_format = Base_RegionalSettingsCommon::date_format();
 			$regional_note_on = strftime($date_format,strtotime($note_on));
 			$arr = array();
-			$arr[] = ($row['sticky']?'yes':'no');
 			if($vd)
 				$arr[] = ($row['deleted']?'yes':'no');
 			if($this->author)

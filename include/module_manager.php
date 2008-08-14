@@ -882,12 +882,42 @@ class ModuleManager {
 		$installed_modules = ModuleManager::get_load_priority_array(true);
 		self::$not_loaded_modules = $installed_modules;
 		self::$loaded_modules = array();
+		if(file_exists('data/cache/common.php'))
+			require_once('data/cache/common.php');
+		else
 		foreach($installed_modules as $row) {
 			$module = $row['name'];
 			$version = $row['version'];
 			ModuleManager :: include_common($module, $version);
 			ModuleManager :: register($module, $version, self::$modules);
 		}
+	}
+	
+	public static final function create_common_cache() {
+		$installed_modules = ModuleManager::get_load_priority_array(true);
+		$ret = '';
+		foreach($installed_modules as $row) {
+			$module = $row['name'];
+			$version = $row['version'];
+			$path = self::get_module_dir_path($module);
+			$file = self::get_module_file_name($module);
+			$file_url = 'modules/' . $path . '/' . $file . 'Common_'.$version.'.php';
+			if(file_exists($file_url)) {
+				$ret .= file_get_contents ($file_url);
+				$ret .= '<?php $x = \''.$module.'Common\';'.
+					'if(class_exists($x)){ '.
+						'if(!array_key_exists(\'ModuleCommon\',class_parents($x)))'.
+							'trigger_error(\'Module '.$path.': Common class should extend ModuleCommon class.\',E_USER_ERROR);'.
+							'call_user_func(array($x,\'Instance\'),\''.$module.'\');'.
+					'} ?>';
+			}
+			$ret .= '<?php ModuleManager :: register(\''.$module.'\', '.$version.', ModuleManager::$modules);?>';
+		}
+		$cache_dir = 'data/cache/';
+		if(!file_exists($cache_dir))
+			mkdir($cache_dir,0777,true);
+
+		file_put_contents($cache_dir.'common.php',$ret);
 	}
 
 	/**
