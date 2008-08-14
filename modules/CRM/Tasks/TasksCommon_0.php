@@ -27,7 +27,7 @@ class CRM_TasksCommon extends ModuleCommon {
 	}
 
 	public static function menu() {
-		if(self::Instance()->acl_check('access'))
+		if(self::Instance()->acl_check('browse tasks'))
 			return array('CRM'=>array('__submenu__'=>1,'Tasks'=>array()));
 		else
 			return array();
@@ -75,7 +75,7 @@ class CRM_TasksCommon extends ModuleCommon {
 	}
 	
 	public static function body_access() {
-		return self::Instance()->acl_check('access');
+		return self::Instance()->acl_check('browse tasks');
 	}
 	
 	public static function employees_crits(){
