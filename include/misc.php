@@ -70,8 +70,8 @@ function location($u = null,$ret = false, $clear = true) {
  *
  * @param string css file path and name
  */
-function load_css($u) {
-	return Epesi::load_css($u);
+function load_css($u,$loader=null) {
+	return Epesi::load_css($u,$loader);
 }
 
 /**
@@ -80,8 +80,8 @@ function load_css($u) {
  * @param string javascript file
  * @param boolean append contents of js file instead of use src tag?
  */
-function load_js($u) {
-	return Epesi::load_js($u);
+function load_js($u,$loader=null) {
+	return Epesi::load_js($u,$loader);
 }
 
 /**

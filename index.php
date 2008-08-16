@@ -52,9 +52,7 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 		<link rel="icon" type="image/png" href="images/favicon.png" />
 		<title>Epesi</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<script type="text/javascript" src="serve.php?f=libs/prototype.js"></script>
-		<script type="text/javascript" src="serve.php?f=libs/HistoryKeeper.js"></script>
-		<script type="text/javascript" src="serve.php?f=include/epesi.js"></script>
+		<script type="text/javascript" src="serve.php?f=libs/prototype.js,libs/HistoryKeeper.js,include/epesi.js"></script>
 
 		<style type="text/css">
 			#epesiStatus {

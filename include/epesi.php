@@ -28,10 +28,23 @@ class Epesi {
 
 	public final static function get_output() {
 		$ret = '';
-		foreach(self::$load_csses as $f)
+//		foreach(self::$load_csses as $f)
+//			$ret .= 'Epesi.load_css(\''.self::escapeJS($f,false).'\');';
+//		foreach(self::$load_jses as $f)
+//			$ret .= 'Epesi.load_js(\''.self::escapeJS($f,false).'\');';
+		require 'minify/Minify/Build.php';
+		foreach(self::$load_csses as $loader=>$css) {
+			$csses_build = new Minify_Build($css);
+			$f = $csses_build->uri($loader.http_build_query(array('f'=>array_values($css))));
+			$f = str_replace('&amp;','&',$f);
 			$ret .= 'Epesi.load_css(\''.self::escapeJS($f,false).'\');';
-		foreach(self::$load_jses as $f)
-			$ret .= 'Epesi.load_js(\'serve.php?f='.self::escapeJS($f,false).'\');';
+		}
+		foreach(self::$load_jses as $loader=>$js) {
+			$jses_build = new Minify_Build($js);
+			$f = $jses_build->uri($loader.http_build_query(array('f'=>array_values($js))));
+			$f = str_replace('&amp;','&',$f);
+			$ret .= 'Epesi.load_js(\''.self::escapeJS($f,false).'\');';
+		}
 		$ret .= self::$txts;
 		$jjj = '';
 		foreach(self::$jses as $cc) {
@@ -50,21 +63,25 @@ class Epesi {
 		self::$jses = array();
 		self::$load_jses = array();
 	}
-
-	public final static function load_js($file) {
-		if(!is_string($file) || strlen($file)==0) return false;
-		if (!isset($_SESSION['client']['__loaded_jses__'][$file])) {
-			self::$load_jses[] = $file;
-			$_SESSION['client']['__loaded_jses__'][$file] = true;
+	
+	public final static function load_js($u,$loader=null) {
+		if(!is_string($u) || strlen($u)==0) return false;
+		if(!isset($loader)) $loader = 'serve.php?';
+		if (!isset($_SESSION['client']['__loaded_jses__'][$u])) {
+			if(!isset(self::$load_jses[$loader])) self::$load_jses[$loader] = array();
+			self::$load_jses[$loader][] = $u;
+			$_SESSION['client']['__loaded_jses__'][$u] = true;
 			return true;
 		}
 		return false;
 	}
 
-	public final static function load_css($u) {
+	public final static function load_css($u,$loader=null) {
 		if(!is_string($u) || strlen($u)==0) return false;
+		if(!isset($loader)) $loader = 'serve.php?';
 		if (!isset($_SESSION['client']['__loaded_csses__'][$u])) {
-			self::$load_csses[] = $u;
+			if(!isset(self::$load_csses[$loader])) self::$load_csses[$loader] = array();
+			self::$load_csses[$loader][] = $u;
 			$_SESSION['client']['__loaded_csses__'][$u] = true;
 			return true;
 		}

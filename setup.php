@@ -189,6 +189,11 @@ define("DATABASE_DRIVER","'.$engine.'");
  */
 define("REDUCING_TRANSFER",1);
 
+/* 
+ * Turn on common cache.
+ */
+define("CACHE_COMMON_FILES",1);
+
 /*
  * A lot of debug info, starting with what modules are changed, what module variables are set... etc.
  */

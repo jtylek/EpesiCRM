@@ -886,12 +886,19 @@ class ModuleManager {
 		$installed_modules = ModuleManager::get_load_priority_array(true);
 		self::$not_loaded_modules = $installed_modules;
 		self::$loaded_modules = array();
-		ob_start();
-		require_once('data/cache/common.php');
-		ob_end_clean();
+		$cache_file = 'data/cache/common.php';
+		$cached = false;
+		if(file_exists($cache_file) && CACHE_COMMON_FILES) {
+			ob_start();
+			require_once($cache_file);
+			ob_end_clean();
+			$cached = true;
+		}
 		foreach($installed_modules as $row) {
 			$module = $row['name'];
 			$version = $row['version'];
+			if(!$cached)
+				ModuleManager :: include_common($module, $version);
 			ModuleManager :: register($module, $version, self::$modules);
 		}
 	}
