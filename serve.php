@@ -31,7 +31,7 @@ if (isset($_GET['f'])) {
 					$arr2[] = $v;
 		}
 	
-		ini_set('include_path','libs/minify'.PATH_SEPARATOR.'.'.PATH_SEPARATOR.ini_get('include_path'));
+		ini_set('include_path','libs/minify'.PATH_SEPARATOR.'.'.PATH_SEPARATOR.'libs'.PATH_SEPARATOR.ini_get('include_path'));
 	    require 'Minify.php';
         
 		$cache_dir = 'data/cache/minify';
