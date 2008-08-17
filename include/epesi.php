@@ -35,13 +35,13 @@ class Epesi {
 		require 'minify/Minify/Build.php';
 		foreach(self::$load_csses as $loader=>$css) {
 			$csses_build = new Minify_Build($css);
-			$f = $csses_build->uri($loader.http_build_query(array('f'=>array_values($css))));
+			$f = $csses_build->uri($loader.'?'.http_build_query(array('f'=>array_values($css))));
 			$f = str_replace('&amp;','&',$f);
 			$ret .= 'Epesi.load_css(\''.self::escapeJS($f,false).'\');';
 		}
 		foreach(self::$load_jses as $loader=>$js) {
 			$jses_build = new Minify_Build($js);
-			$f = $jses_build->uri($loader.http_build_query(array('f'=>array_values($js))));
+			$f = $jses_build->uri($loader.'?'.http_build_query(array('f'=>array_values($js))));
 			$f = str_replace('&amp;','&',$f);
 			$ret .= 'Epesi.load_js(\''.self::escapeJS($f,false).'\');';
 		}
@@ -66,7 +66,7 @@ class Epesi {
 	
 	public final static function load_js($u,$loader=null) {
 		if(!is_string($u) || strlen($u)==0) return false;
-		if(!isset($loader)) $loader = 'serve.php?';
+		if(!isset($loader)) $loader = 'serve.php';
 		if (!isset($_SESSION['client']['__loaded_jses__'][$u])) {
 			if(!isset(self::$load_jses[$loader])) self::$load_jses[$loader] = array();
 			self::$load_jses[$loader][] = $u;
@@ -78,7 +78,7 @@ class Epesi {
 
 	public final static function load_css($u,$loader=null) {
 		if(!is_string($u) || strlen($u)==0) return false;
-		if(!isset($loader)) $loader = 'serve.php?';
+		if(!isset($loader)) $loader = 'serve.php';
 		if (!isset($_SESSION['client']['__loaded_csses__'][$u])) {
 			if(!isset(self::$load_csses[$loader])) self::$load_csses[$loader] = array();
 			self::$load_csses[$loader][] = $u;

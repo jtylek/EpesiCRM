@@ -70,7 +70,7 @@ class Base_ThemeCommon extends ModuleCommon {
 			if(isset($css)) {
 				$cssf = $smarty->template_dir.'/'.$css;
 				if(file_exists($cssf))
-			    	load_css($cssf,$smarty->template_dir.'/__css.php?f=');
+			    	load_css($cssf,$smarty->template_dir.'/__css.php');
 			}
 		} else {
 			$smarty->template_dir = 'data/Base_Theme/templates/default';
@@ -85,7 +85,7 @@ class Base_ThemeCommon extends ModuleCommon {
 			if(isset($css)) {
 				$cssf = $smarty->template_dir.'/'.$css;
 				if(file_exists($cssf))
-					load_css($cssf,$smarty->template_dir.'/__css.php?f=');
+					load_css($cssf,$smarty->template_dir.'/__css.php');
 			}
 
 			$dt = self::get_default_template();
@@ -205,7 +205,7 @@ class Base_ThemeCommon extends ModuleCommon {
 		
 		try {
 			$css = self::get_template_file($module_name,$css_name.'.css');
-			load_css($css,self::get_template_dir().'__css.php?f=');
+			load_css($css,self::get_template_dir().'__css.php');
 			return true;
 		} catch(Exception $e) {
 			if($trig_error) trigger_error('Invalid css specified: '.$module_name.'__'.$css_name.'.css',E_USER_ERROR);
