@@ -58,7 +58,7 @@ class Base_StatusBar extends Module {
 								't=$(\'statusbar_text\');' .
 								'if(t)t.innerHTML=statusbar_message_t;' .
 								'statusbar_message(\'\');' .
-								'setTimeout(\'statusbar_fade()\',3000);' .
+								'setTimeout(\'statusbar_fade()\',1000);' .
 							'}else{' .
 								'statusbar_fade();' .
 							'};'.
