@@ -47,6 +47,10 @@ class Utils_RecordBrowser extends Module {
 	private $col_order = array();
 	private $advanced = array();
 
+	public function get_display_method($ar) {
+		return isset($this->display_callback_table[$ar])?$this->display_callback_table[$ar]:null;
+	}
+
 	public function set_cut_lengths($ar) {
 		$this->cut = $ar;
 	}

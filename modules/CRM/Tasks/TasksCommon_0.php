@@ -105,12 +105,6 @@ class CRM_TasksCommon extends ModuleCommon {
 		if (!$def) 	$def = '---';
 		return $def;
 	}
-	public static function contact_format_with_balls($record, $nolink=false){
-		$ret = '<span id="contact_confirmed_'.$record['id'].'"></span>';
-		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_open_tag('contact', $record['id']);
-		$ret .= $record['last_name'].(($record['first_name']!=='')?' '.$record['first_name']:'');
-		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_close_tag();		return $ret;
-	}
     public static function display_title($record, $nolink) {
 		$ret = Utils_RecordBrowserCommon::create_linked_label('task', 'Title', $record['id'], $nolink);
 		if (isset($record['description']) && $record['description']!='') $ret = '<span '.Utils_TooltipCommon::open_tag_attrs($record['description'], false).'>'.$ret.'</span>';
@@ -194,17 +188,6 @@ class CRM_TasksCommon extends ModuleCommon {
 		$me = CRM_ContactsCommon::get_my_record();
 		switch ($mode) {
 		case 'view':
-			$ret = DB::GetAssoc('SELECT contact_id, 1 FROM task_employees_notified WHERE task_id=%d', array($values['id']));
-			$icon_on = Base_ThemeCommon::get_template_file('images/active_on.png');
-			$icon_off = Base_ThemeCommon::get_template_file('images/active_off.png');
-			foreach($values['employees'] as $v) {
-				if ($values['id']!=null)
-					if ($v==$me['id']) {
-						$ret[$v] = 1;
-						self::set_notified($me['id'],$values['id']);
-					}
-				eval_js('document.getElementById("contact_confirmed_'.$v.'").innerHTML = "<img src=\"'.(isset($ret[$v])?$icon_on:$icon_off).'\" />";');
-			}
 			$values['date_and_time'] = date('Y-m-d H:i:s');
 			$values['title'] = Base_LangCommon::ts('CRM_Tasks','Follow up: ').$values['title'];
 			unset($values['status']);

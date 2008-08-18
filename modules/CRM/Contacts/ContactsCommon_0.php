@@ -206,16 +206,9 @@ class CRM_ContactsCommon extends ModuleCommon {
 					self::contacts_chainedselect_crits($form->exportValue($field), $desc, $callback, $crit_callback[1]);
 		} else {
 			$form->addElement('static', $field, $label, array('id'=>$field));
-			$def = '';
-			$first = true;
-			if (!is_array($default)) $default = array($default);
-			foreach($default as $k=>$v){
-				if ($v=='') break;
-				if ($first) $first = false;
-				else $def .= '<br>';
-				$def .= Utils_RecordBrowserCommon::no_wrap(self::display_contact(array($desc['id']=>$v), false, $desc));
-			}
-			if (!$def) 	$def = '---';
+			$callback = $rb_obj->get_display_method($desc['name']);
+			if (!is_callable($callback)) $callback = array('CRM_ContactsCommon','display_contact');
+			$def = call_user_func($callback, $rb_obj->record, false, $desc);
 			$form->setDefaults(array($field=>$def));
 		}
 	}
