@@ -210,6 +210,10 @@ class CRM_TasksCommon extends ModuleCommon {
 			if (ModuleManager::is_installed('CRM/PhoneCall')>=0) $ret['new_phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_Tasks','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('subject'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date_and_time'=>date('Y-m-d H:i:s'),'employees'=>$values['employees'], 'contact'=>isset($values['customers'][0])?$values['customers'][0]:'')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
 			return $ret;
 		case 'add':
+			if (!isset($values['is_deadline'])) {
+				$values['deadline']='';
+			}
+			break;
 		case 'edit':
 			if (!isset($values['is_deadline'])) {
 				$values['deadline']='';
