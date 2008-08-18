@@ -353,8 +353,8 @@ class Utils_RecordBrowser extends Module {
 			$str = explode(';', $args['param']);
 			$ref = explode('::', $str[0]);
 			if ($ref[0]!='' && isset($ref[1])) $arr['search'] = '__Ref__'.str_replace(' ','_',$field);
-			if ($args['type']=='commondata') {
-				if (!isset($ref[1])) $arr['search'] = '__RefCD__'.str_replace(' ','_',$field);
+			if ($args['type']=='commondata' || $ref[0]=='__COMMON__') {
+				if (!isset($ref[1]) || $ref[0]=='__COMMON__') $arr['search'] = '__RefCD__'.str_replace(' ','_',$field);
 				else unset($arr['search']);
 			}
 			$table_columns[] = $arr;
@@ -384,8 +384,19 @@ class Utils_RecordBrowser extends Module {
 		}
 		$search = $gb->get_search_query(true);
 		$search_res = array();
-		foreach ($search as $k=>$v)
-			$search_res[str_replace(array('__','_'),array(':',' '),$k)] = $v;
+		foreach ($search as $k=>$v) {
+			$k = str_replace(array('__','_'),array(':',' '),$k);
+			$type = explode(':',$k);
+			if (isset($type[1]) && $type[1]=='RefCD') {
+				$search_res['"'.$k] = $v;
+				continue;
+			}
+			if (!is_array($v)) $v = array($v);
+			$r = array();
+			foreach ($v as $w)
+				$r[] = DB::Concat(DB::qstr('%'),DB::qstr($w),DB::qstr('%'));
+			$search_res['"'.$k] = $r;
+		}
 
 		$order = $gb->get_order();
 		$crits = array_merge($crits, $search_res);

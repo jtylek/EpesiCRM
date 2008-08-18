@@ -546,21 +546,24 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							foreach($cols2 as $j=>$w) $cols2[$j] = DB::qstr($w);
 							$cols2 = implode(' OR rdt.field=', $cols2);
 
-							$exists = 'EXISTS (SELECT rdt.value FROM '.$tab2.'_data AS rdt LEFT JOIN '.$tab.'_data AS rd ON rdt.'.$tab2.'_id=rd.value AND rd.field='.DB::qstr($ref).' AND rdt.field='.$cols2.' WHERE rd.'.$tab.'_id=r.id AND ';
-							$having .= $exists;
-							if ($negative) $having .= '(';
+							$base_exists = $exists = 'EXISTS (SELECT rdt.value FROM '.$tab2.'_data AS rdt LEFT JOIN '.$tab.'_data AS rd ON rdt.'.$tab2.'_id=rd.value AND rd.field='.DB::qstr($ref).' AND rdt.field='.$cols2.' WHERE rd.'.$tab.'_id=r.id AND ';
+							if ($negative) $exists = 'NOT '.$exists;
 							if (!is_array($v)) $v = array($v);
-							$having .= '('.($negative?'true':'false');
+							$exists .= '(false';
+							$must_be_empty = false;
 							foreach($v as $w) {
-								if ($w==='') $having .= ' '.($negative?'AND':'OR').' rdt.value IS '.($negative?'NOT ':'').'NULL';
-								else {
+								if ($w==='') {
+									$must_be_empty = true;
+									break;
+								} else {
 									if (!$noquotes) $w = DB::qstr($w);
-									$having .= ' '.($negative?'AND':'OR').' rdt.value '.($negative?'NOT ':'').$operator.' '.DB::Concat(DB::qstr('%'),$w,DB::qstr('%'));
+									$exists .= ' OR rdt.value '.$operator.' '.DB::Concat(DB::qstr('%'),$w,DB::qstr('%'));
 								}
 							}
-							$having .= ')';
-							if ($negative) $having .= ') OR NOT '.$exists.' true)';
-							$having .= ')';
+							$exists .= ')';
+							$exists .= ')';
+							if ($must_be_empty) $having .= ' ('.($negative?'':'NOT ').$base_exists.'true) OR '.$exists.')';
+							else $having .= $exists;
 							$iter++;
 						} else trigger_error('Unknow paramter given to get_records criteria: '.$k, E_USER_ERROR);
 				}
@@ -574,21 +577,25 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					}
 					$having .= ')';
 				} else {
-					$exists = 'EXISTS (SELECT rd.value FROM '.$tab.'_data AS rd WHERE r.id=rd.'.$tab.'_id AND rd.field='.DB::qstr($k).' AND ';
-					if ($negative) $having .= '(';
-					$having .= $exists;
+					$base_exists = 'EXISTS (SELECT rd.value FROM '.$tab.'_data AS rd WHERE r.id=rd.'.$tab.'_id AND rd.field='.DB::qstr($k).' AND ';
+					$exists = $base_exists;
+					if ($negative) $exists = 'NOT '.$exists;
 					if (!is_array($v)) $v = array($v);
-					$having .= '('.($negative?'true':'false');
+					$exists .= '(false';
+					$must_be_empty = false;
 					foreach($v as $w) {
-						if ($w==='') $having .= ' '.($negative?'AND':'OR').' rd.value IS '.($negative?'NOT ':'').'NULL';
-						else {
+						if ($w==='') {
+							$must_be_empty = true;
+							break;
+						} else {
 							if (!$noquotes) $w = DB::qstr($w);
-							$having .= ' '.($negative?'AND':'OR').' rd.value '.($negative?'NOT ':'').$operator.' '.$w;//TODO: ticket #0065 and #0062 solved by comment out of this code // ($operator=='LIKE'?DB::Concat(DB::qstr('%'),$w,DB::qstr('%')):$w);
+							$exists .= ' OR rd.value '.$operator.' '.$w;
 						}
 					}
-					$having .= ')';
-					if ($negative) $having .= ') OR NOT '.$exists.' true)';
-					$having .= ')';
+					$exists .= ')';
+					$exists .= ')';
+					if ($must_be_empty) $having .= ' ('.($negative?'':'NOT ').$base_exists.'true) OR '.$exists.')';
+					else $having .= $exists;
 					$iter++;
 				}
 			}
@@ -628,10 +635,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						}
 						if ($tab2!='__COMMON__') {
 							$cols2 = explode('|', $cols2);
-							foreach($cols2 as $j=>$w) $cols2[$j] = DB::qstr($w);
-							$cols2 = implode(' OR rd.field=', $cols2);
-
-							$val = '(SELECT '.($v['direction']=='ASC'?'MIN':'MAX').'(rdt.value) FROM '.$tab2.'_data AS rdt LEFT JOIN '.$tab.'_data AS rd ON r.id=rd.'.$tab.'_id AND rd.field='.DB::qstr($v['order']).' WHERE rdt.field='.$cols2.' AND rdt.'.$tab2.'_id=rd.value)';
+							$cols2 = $cols2[0];
+							$val = '(SELECT '.($v['direction']=='ASC'?'MIN':'MAX').'(rdt.value) FROM '.$tab2.'_data AS rdt LEFT JOIN '.$tab.'_data AS rd ON rdt.'.$tab2.'_id=rd.value AND rd.field='.DB::qstr($v['order']).' AND rdt.field='.DB::qstr($cols2).' WHERE r.id=rd.'.$tab.'_id)';
 							$orderby .= ' '.$val.' '.$v['direction'];
 							$iter++;
 							continue;

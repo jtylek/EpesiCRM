@@ -111,7 +111,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		if (!isset($field['QFfield_callback'])) $field['QFfield_callback'] = array('CRM_ContactsCommon', 'QFfield_contact');
 		if (!isset($field['display_callback'])) $field['display_callback'] = array('CRM_ContactsCommon', 'display_contact');
 		$field['type'] = $field['param']['field_type'];
-		$param = 'contact::First Name|Last Name';
+		$param = 'contact::Last Name|First Name';
 		if (isset($field['param']['format'])) $param .= ';'.implode('::',$field['param']['format']);
 		else $param .= ';::';
 		if (isset($field['param']['crits'])) $param .= ';'.implode('::',$field['param']['crits']);
