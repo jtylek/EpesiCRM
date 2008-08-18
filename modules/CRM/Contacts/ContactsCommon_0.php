@@ -403,6 +403,9 @@ class CRM_ContactsCommon extends ModuleCommon {
 							'new_task'=>'<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),'employees'=>$emp,'customers'=>$cus)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>',
 							'new_phonecall'=>'<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'contact'=>$values['id'],'employees'=>$me['id'],'company_name'=>((isset($values['company_name'][0]))?$values['company_name'][0]:''))).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>');
 		case 'add':
+			if ($values['email']=='' && $values['login']!=0 && $mode=='add')
+				$values['email'] = DB::GetOne('SELECT mail FROM user_password WHERE user_login_id=%d', array($values['login']));
+		case 'edit':
 			if (isset($values['create_company'])) {
 				$comp_id = Utils_RecordBrowserCommon::new_record('company',
 					array(	'company_name'=>$values['create_company_name'],
@@ -414,14 +417,13 @@ class CRM_ContactsCommon extends ModuleCommon {
 							'postal_code'=>$values['postal_code'],
 							'phone'=>$values['work_phone'],
 							'fax'=>$values['fax'],
-							'web_address'=>$values['web_address'])
+							'web_address'=>$values['web_address'],
+							'permission'=>$values['permission'])
 				);
 				if (!isset($values['company_name'])) $values['company_name'] = array(); 
 				if (!is_array($values['company_name'])) $values['company_name'] = array($values['company_name']);
 				$values['company_name'][] = $comp_id;
 			}
-			if ($values['email']=='' && $values['login']!=0 && $mode=='add')
-				$values['email'] = DB::GetOne('SELECT mail FROM user_password WHERE user_login_id=%d', array($values['login']));
 		}		
 		return $values;
 	}
