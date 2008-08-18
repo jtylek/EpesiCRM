@@ -217,7 +217,7 @@ class Apps_MailClient extends Module {
 				foreach($cols as $v) {
 					if(ereg("header$",$v['name'])) continue;
 					if(isset($values[$v['name']]))
-						$dbup[$v['name']] = DB::qstr($values[$v['name']]);
+						$dbup[$v['name']] = $values[$v['name']];
 					else
 						$dbup[$v['name']] = 0;
 				}

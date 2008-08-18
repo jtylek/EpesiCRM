@@ -372,11 +372,11 @@ class Utils_Calendar extends Module {
 		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('day_selector', $link_text,false,'day',$this->settings['first_day_of_week']));
 
 		$header_day = array('number'=>date('d',$this->date),
-							'label'=>date('l',$this->date),
-							'label_short'=>date('D',$this->date)
+							'label'=>$this->lang->t(date('l',$this->date)),
+							'label_short'=>$this->lang->t(date('D',$this->date))
 							);
 
-		$theme->assign('header_month', date('F',$this->date));
+		$theme->assign('header_month', $this->lang->t(date('F',$this->date)));
 		$theme->assign('link_month', $this->create_unique_href(array('action'=>'switch','time'=>$this->date, 'tab'=>'Month')));
 		$theme->assign('header_year', date('Y',$this->date));
 		$theme->assign('link_year', $this->create_unique_href(array('action'=>'switch','time'=>$this->date, 'tab'=>'Year')));
@@ -511,13 +511,13 @@ class Utils_Calendar extends Module {
 			$second_span_width = date('d',$dis_week_from+518400);
 			$header_month = array('first_span'=>array(
 									'colspan'=>7-$second_span_width,
-									'month'=>date('M',$dis_week_from),
+									'month'=>$this->lang->t(date('M',$dis_week_from)),
 									'month_link'=>$this->create_unique_href(array('action'=>'switch','time'=>$dis_week_from, 'tab'=>'Month')),
 									'year'=>date('Y',$dis_week_from),
 									'year_link'=>$this->create_unique_href(array('action'=>'switch','time'=>$dis_week_from, 'tab'=>'Year'))),
 								'second_span'=>array(
 									'colspan'=>$second_span_width,
-									'month'=>date('M',$dis_week_from+518400),
+									'month'=>$this->lang->t(date('M',$dis_week_from+518400)),
 									'month_link'=>$this->create_unique_href(array('action'=>'switch','time'=>$dis_week_from+518400, 'tab'=>'Month')),
 									'year'=>date('Y',$dis_week_from+518400),
 									'year_link'=>$this->create_unique_href(array('action'=>'switch','time'=>$dis_week_from+518400, 'tab'=>'Year'))
@@ -525,7 +525,7 @@ class Utils_Calendar extends Module {
 		} else {
 			$header_month = array('first_span'=>array(
 									'colspan'=>7,
-									'month'=>date('M',$dis_week_from),
+									'month'=>$this->lang->t(date('M',$dis_week_from)),
 									'month_link'=>$this->create_unique_href(array('action'=>'switch','time'=>$dis_week_from, 'tab'=>'Month')),
 									'year'=>date('Y',$dis_week_from),
 									'year_link'=>$this->create_unique_href(array('action'=>'switch','time'=>$dis_week_from, 'tab'=>'Year'))),
@@ -534,7 +534,7 @@ class Utils_Calendar extends Module {
 		for ($i=0; $i<7; $i++) {
 			$that_day = $dis_week_from+$i*86400;
 			$day_headers[] = array(
-						'date'=>date('d D', $that_day),
+						'date'=>date('d', $that_day).' '.$this->lang->t(date('D', $that_day)),
 						'style'=>(date('Y-m-d',$that_day)==$today?'today':'other'),
 						'link' => $this->create_unique_href(array('action'=>'switch','time'=>$that_day, 'tab'=>'Day'))
 						);
@@ -696,13 +696,13 @@ class Utils_Calendar extends Module {
 
 		$day_headers = array();
 		for ($i=0; $i<7; $i++)
-			$day_headers[] = date('D', strtotime('Sun')+86400*($i+$this->settings['first_day_of_week']));
+			$day_headers[] = $this->lang->t(date('D', strtotime('Sun')+86400*($i+$this->settings['first_day_of_week'])));
 
 		$theme->assign('month_view_label', $this->lang->t('Month calendar'));
 
 		$theme->assign('day_headers', $day_headers);
 		$theme->assign('month', $month);
-		$theme->assign('month_label', date('F', $this->date));
+		$theme->assign('month_label', $this->lang->t(date('F', $this->date)));
 		$theme->assign('year_label', date('Y', $this->date));
 		$theme->assign('year_link', $this->create_unique_href(array('time'=>$this->date, 'tab'=>'Year','action'=>'switch')));
 		$theme->assign('trash_id','UCtrash');
@@ -751,7 +751,7 @@ class Utils_Calendar extends Module {
 
 		$day_headers = array();
 		for ($i=0; $i<7; $i++)
-			$day_headers[] = date('D', strtotime('Sun')+86400*($i+$this->settings['first_day_of_week']));
+			$day_headers[] = $this->lang->t(date('D', strtotime('Sun')+86400*($i+$this->settings['first_day_of_week'])));
 
 		$theme->assign('month_view_label', $this->lang->t('Year calendar'));
 
@@ -765,7 +765,7 @@ class Utils_Calendar extends Module {
 			$month = $this->month_array($date, $ret, $it);
 			$year[] = array('month' => $month,
 							'month_link' => $this->create_unique_href(array('action'=>'switch','time'=>$date, 'tab'=>'Month')),
-							'month_label' => date('F', $date),
+							'month_label' => $this->lang->t(date('F', $date)),
 							'year_label' => date('Y', $date)
 							);
 		}
