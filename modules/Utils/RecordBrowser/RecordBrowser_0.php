@@ -387,6 +387,10 @@ class Utils_RecordBrowser extends Module {
 		foreach ($search as $k=>$v) {
 			$k = str_replace(array('__','_'),array(':',' '),$k);
 			$type = explode(':',$k);
+			if ($k[0]=='"') {
+				$search_res[$k] = $v;
+				continue;
+			}
 			if (isset($type[1]) && $type[1]=='RefCD') {
 				$search_res['"'.$k] = $v;
 				continue;
