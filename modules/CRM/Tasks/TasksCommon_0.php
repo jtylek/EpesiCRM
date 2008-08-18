@@ -88,6 +88,7 @@ class CRM_TasksCommon extends ModuleCommon {
 	public static function display_employees($record, $nolink, $desc) {
 		$icon_on = Base_ThemeCommon::get_template_file('images/active_on.png');
 		$icon_off = Base_ThemeCommon::get_template_file('images/active_off.png');
+		$icon_none = Base_ThemeCommon::get_template_file('images/active_off2.png');
 		$v = $record[$desc['id']];
 		$def = '';
 		$first = true;
@@ -95,12 +96,21 @@ class CRM_TasksCommon extends ModuleCommon {
 		if ($param[1] == '::') $callback = array('CRM_ContactsCommon', 'contact_format_default');
 		else $callback = explode('::', $param[1]);
 		if (!is_array($v)) $v = array($v);
-		$ret = DB::GetAssoc('SELECT contact_id, 1 FROM task_employees_notified WHERE task_id=%d', array($record['id']));
 		foreach($v as $k=>$w){
 			if ($w=='') break;
 			if ($first) $first = false;
 			else $def .= '<br>';
-			$def .= '<img src="'.(isset($ret[$w])?$icon_on:$icon_off).'" />'.Utils_RecordBrowserCommon::no_wrap(call_user_func($callback, CRM_ContactsCommon::get_contact($w), $nolink));
+			$contact = CRM_ContactsCommon::get_contact($w);
+			if ($contact['login']=='') $icon = $icon_none;
+			else {
+				$icon = Utils_WatchdogCommon::user_check_if_notified($contact['login'],'task',$record['id']);
+				if ($icon===null) $icon = $icon_none;
+				elseif ($icon===true) $icon = $icon_on;
+				else $icon = $icon_off;
+			}
+			$def .= 
+				'<img src="'.$icon.'" />'.
+				Utils_RecordBrowserCommon::no_wrap(call_user_func($callback, $contact, $nolink));
 		}
 		if (!$def) 	$def = '---';
 		return $def;
@@ -114,8 +124,8 @@ class CRM_TasksCommon extends ModuleCommon {
 		$me = CRM_ContactsCommon::get_my_record();
 		$ret = self::display_title($record, false);
 		if (!in_array($me['id'], $record['employees'])) return $ret;
-		$notified = DB::GetOne('SELECT 1 FROM task_employees_notified WHERE contact_id=%d AND task_id=%d', array($me['id'],$record['id']));
-		if ($notified===false || $notified===null) $ret = '<img src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','notice.png').'">'.$ret;
+		$notified = Utils_WatchdogCommon::check_if_notified('task',$record['id']);
+		if ($notified!==true && $notified!==null) $ret = '<img src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','notice.png').'">'.$ret;
 		return $ret;
 	}
 	public static function QFfield_is_deadline(&$form, $field, $label, $mode, $default, $desc) {
@@ -136,7 +146,6 @@ class CRM_TasksCommon extends ModuleCommon {
 			$form->addElement('checkbox', $field, $label, null, array('id'=>$field));
 			if ($mode=='edit') {
 				$form->setDefaults(array($field=>$default));
-				$form->addElement('checkbox', 'notify', Base_LangCommon::ts('CRM_Tasks','Notify'), null, array('id'=>'notify'));
 			}
 		} else {
 			$form->addElement('checkbox', $field, $label);
@@ -180,10 +189,14 @@ class CRM_TasksCommon extends ModuleCommon {
 		}
 		return '<a href="javascript:void(0)" class="lbOn" rel="'.$prefix.'_followups_leightbox" onMouseDown="'.$prefix.'_set_id('.$record['id'].');">'.$status[$v].'</a>';
 	}
-	public static function set_notified($user, $task) {
-		DB::Execute('DELETE FROM task_employees_notified WHERE contact_id=%d AND task_id=%d', array($user,$task));
-		DB::Execute('INSERT INTO task_employees_notified (contact_id, task_id) VALUES (%d,%d)', array($user,$task));
+	public static function subscribed_employees($v) {
+		if (!is_array($v)) return;
+		foreach ($v['employees'] as $k) {
+			$user = Utils_RecordBrowserCommon::get_value('contact',$k,'Login');
+			if ($user!==false && $user!==null) Utils_WatchdogCommon::user_subscribe($user, 'task', $v['id']);
+		}
 	}
+
 	public static function submit_task($values, $mode) {
 		$me = CRM_ContactsCommon::get_my_record();
 		switch ($mode) {
@@ -196,21 +209,25 @@ class CRM_TasksCommon extends ModuleCommon {
 			$ret['new_task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_Tasks','New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', $values).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
 			if (ModuleManager::is_installed('CRM/PhoneCall')>=0) $ret['new_phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_Tasks','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('subject'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date_and_time'=>date('Y-m-d H:i:s'),'employees'=>$values['employees'], 'contact'=>isset($values['customers'][0])?$values['customers'][0]:'')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
 			return $ret;
-		case 'added':
-			if (in_array($me['id'],$values['employees']))
-					self::set_notified($me['id'],$values['id']);
-			break;
 		case 'add':
 		case 'edit':
 			if (!isset($values['is_deadline'])) {
 				$values['deadline']='';
 			}
-			if (isset($values['notify'])) {
-				DB::Execute('DELETE FROM task_employees_notified WHERE task_id=%s', array($values['id']));
-			}
-			return $values;
+		case 'added':
+			self::subscribed_employees($values);
+			break;
 		}
 		return $values;
+	}
+	public static function watchdog_label($arg = null) {
+		$ret = array('category'=>Base_LangCommon::ts('CRM_Tasks','Tasks'));
+		if ($arg!==null) {
+			$r = Utils_RecordBrowserCommon::get_record('task',$arg);
+			$ret['title'] = Utils_RecordBrowserCommon::record_link_open_tag('task',$arg).$r['title'].Utils_RecordBrowserCommon::record_link_close_tag();
+			$ret['view_href'] = Utils_RecordBrowserCommon::create_record_href('task',$arg);
+		}
+		return $ret;
 	}
 }
 

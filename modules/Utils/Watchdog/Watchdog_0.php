@@ -35,7 +35,7 @@ class Utils_Watchdog extends Module {
 				$data['title']
 			);
 			$gb_row->add_action($data['view_href'],'View');
-			$gb_row->add_info(Utils_WatchdogCommon::implode_events(Utils_WatchdogCommon::check_if_notified(Acl::get_user(), $v, $k)));
+			$gb_row->add_info(Utils_WatchdogCommon::implode_events(Utils_WatchdogCommon::check_if_notified($v, $k)));
 		}
 		$this->display_module($gb);
 	}

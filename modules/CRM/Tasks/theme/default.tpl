@@ -128,12 +128,6 @@
 									{$form_data.priority.html}
 								</td>
 							</tr>
-							{if $action=='edit'}
-							<tr>
-								<td class="label" align="left">{$form_data.notify.label}</td>
-								<td class="data" align="left">{$form_data.notify.html}</td>
-							</tr>
-							{/if}
 						</tbody>
 					</table>
 					{* customers *}

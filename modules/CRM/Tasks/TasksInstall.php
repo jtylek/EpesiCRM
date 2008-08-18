@@ -32,6 +32,7 @@ class CRM_TasksInstall extends ModuleInstall {
 			array('name'=>'Deadline',			'type'=>'date', 'extra'=>false, 'visible'=>true)
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('task', $fields);
+		Utils_RecordBrowserCommon::enable_watchdog('task', array('CRM_TasksCommon','watchdog_label'));
 		Utils_RecordBrowserCommon::set_tpl('task', Base_ThemeCommon::get_template_filename('CRM/Tasks', 'default'));
 		Utils_RecordBrowserCommon::set_processing_method('task', array('CRM_TasksCommon', 'submit_task'));
 		Utils_RecordBrowserCommon::set_icon('task', Base_ThemeCommon::get_template_filename('CRM/Tasks', 'icon.png'));
@@ -56,15 +57,6 @@ class CRM_TasksInstall extends ModuleInstall {
 		Utils_CommonDataCommon::new_array('Permissions',array('Public','Protected','Private'), true,true);
 		Utils_CommonDataCommon::new_array('Priorities',array('Low','Medium','High'), true,true);
 
-		$ret = DB::CreateTable('task_employees_notified','
-			task_id I4 NOTNULL,
-			contact_id I4 NOTNULL',
-			array('constraints'=>', FOREIGN KEY (task_id) REFERENCES task(ID), FOREIGN KEY (contact_id) REFERENCES contact(ID)'));
-		if(!$ret){
-			print('Unable to create table \'task_employees_notified\'.<br>');
-			return false;
-		}
-
 		$this->add_aco('view protected notes','Employee');
 		$this->add_aco('view public notes','Employee');
 		$this->add_aco('edit protected notes','Employee Administrator');
@@ -73,7 +65,6 @@ class CRM_TasksInstall extends ModuleInstall {
 	}
 
 	public function uninstall() {
-		DB::DropTable('task_employees_notified');
 		Base_ThemeCommon::uninstall_default_theme('CRM/Tasks');
 		Utils_RecordBrowserCommon::uninstall_recordset('task');
 		Utils_CommonDataCommon::remove('Ticket_Status');

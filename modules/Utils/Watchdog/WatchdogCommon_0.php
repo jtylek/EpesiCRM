@@ -76,7 +76,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		DB::Execute('DELETE FROM utils_watchdog_subscription WHERE user_id=%d AND internal_id=%d AND category_id=%d',array($user_id,$id,$category_id));
 	}
 
-	public static function check_if_notified($user_id, $category_name, $id) {
+	public static function user_check_if_notified($user_id, $category_name, $id) {
 		$category_id = self::get_category_id($category_name);
 		if (!$category_id) return;
 		$last_seen = DB::GetOne('SELECT last_seen_event FROM utils_watchdog_subscription WHERE user_id=%d AND internal_id=%d AND category_id=%d',array($user_id,$id,$category_id));
@@ -111,13 +111,14 @@ class Utils_WatchdogCommon extends ModuleCommon {
 	public static function notified($category_name, $id) {
 		self::user_notified(Acl::get_user(), $category_name, $id);
 	}
-
 	public static function subscribe($category_name, $id) {
 		self::user_subscribe(Acl::get_user(), $category_name, $id);
 	}
-
 	public static function unsubscribe($category_name, $id) {
 		self::user_unsubscribe(Acl::get_user(), $category_name, $id);
+	}
+	public static function check_if_notified($category_name, $id) {
+		return self::user_check_if_notified(Acl::get_user(), $category_name, $id);
 	}
 	public static function get_change_subscr_href($category_name, $id) {
 		return self::user_get_change_subscr_href(Acl::get_user(), $category_name, $id);
@@ -159,7 +160,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		$category_id = self::get_category_id($category_name);
 		if (!$category_id) return;
 		$href = self::get_change_subscr_href($category_name, $id);
-		$last_seen = self::check_if_notified(Acl::get_user(), $category_name, $id);
+		$last_seen = self::check_if_notified($category_name, $id);
 		if ($last_seen===null) {
 			$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','subscribe_small.png');
 			$tooltip = Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_Watchdog','Click to subscribe this record.'));
