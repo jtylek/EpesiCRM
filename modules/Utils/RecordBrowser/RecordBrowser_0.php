@@ -108,7 +108,6 @@ class Utils_RecordBrowser extends Module {
 				if ($val!='') $ret = Base_RegionalSettingsCommon::time2reg($val);
 			}
 		}
-//		if (is_array($ret)) $ret = implode(', ', $ret);
 		return $ret;
 	}
 
@@ -240,11 +239,11 @@ class Utils_RecordBrowser extends Module {
 					$arr = array_merge($arr, Utils_CommonDataCommon::get_translated_array($col, true));
 				} else {
 					Utils_RecordBrowserCommon::check_table_name($tab);
-					$ret2 = DB::Execute('SELECT '.$tab.'_id, value FROM '.$tab.'_data WHERE field=%s ORDER BY value', array($col));
+					$ret2 = DB::Execute('SELECT MIN('.$tab.'_id) AS '.$tab.'_id, value FROM '.$tab.'_data WHERE field=%s GROUP BY value ORDER BY value', array($col));
 					while ($row2 = $ret2->FetchRow()) $arr[$row2[$tab.'_id']] = $row2['value'];
 				}
 			} else {
-				$ret2 = DB::Execute('SELECT '.$this->tab.'_id, value FROM '.$this->tab.'_data WHERE field=%s ORDER BY value', array($filter));
+				$ret2 = DB::Execute('SELECT MIN('.$this->tab.'_id) AS '.$this->tab.'_id, value FROM '.$this->tab.'_data WHERE field=%s GROUP BY value ORDER BY value', array($filter));
 				while ($row2 = $ret2->FetchRow()) if($row2['value'][0]!='_') $arr[$row2['value']] = $this->get_val($filter, array($this->table_rows[$filter]['id']=>$row2['value']), $row2[$this->tab.'_id'], true, $this->table_rows[$filter]);
 			}
 			if ($this->table_rows[$filter]['type']=='checkbox') $arr = array(''=>$this->lang->ht('No'), 1=>$this->lang->ht('Yes'));
