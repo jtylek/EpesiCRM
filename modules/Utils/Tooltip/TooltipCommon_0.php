@@ -56,7 +56,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 			eval_js($js,false);
 			$_SESSION['client']['utils_tooltip'] = true;
 		}
-		return ' onMouseMove="Utils_Toltip__showTip(\''.escapeJS(htmlspecialchars($tip)).'\', event)" onMouseOut="Utils_Toltip__hideTip()" onMouseUp="Utils_Toltip__hideTip()" ';
+		return ' onMouseMove="if(typeof(Utils_Toltip__showTip)!=undefined)Utils_Toltip__showTip(\''.escapeJS(htmlspecialchars($tip)).'\', event)" onMouseOut="if(typeof(Utils_Toltip__hideTip)!=undefined)Utils_Toltip__hideTip()" onMouseUp="if(typeof(Utils_Toltip__hideTip)!=undefined)Utils_Toltip__hideTip()" ';
 	}
 
 	/**
