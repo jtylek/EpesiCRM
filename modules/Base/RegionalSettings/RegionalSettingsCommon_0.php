@@ -89,7 +89,8 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 
 		$curr_locale = setlocale(LC_TIME,0);
 		$lang_code = $form->exportValue('Base_Lang_Administrator__language');
-		setlocale(LC_TIME,$lang_code.'_'.strtoupper($lang_code).'.utf8', //unixes
+		if (!is_string($lang_code)) $lang_code = Base_User_SettingsCommon::get('Base_Lang_Administrator','language');
+		array(LC_TIME,$lang_code.'_'.strtoupper($lang_code).'.utf8', //unixes
 				$lang_code.'_'.strtoupper($lang_code).'.UTF-8',
 				$lang_code.'.utf8',
 				$lang_code.'.UTF-8',
@@ -133,11 +134,11 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 			$format = '%Y-%m-%d %H:%M:%S';
 		}
 
-		self::set_locale();
+//		self::set_locale();
 		if($tz)
 			self::set_tz();
 		$ret = self::strftime($format,$t);
-		self::restore_locale();
+//		self::restore_locale();
 		if($tz)
 			self::restore_tz();
 		return $ret;
@@ -153,7 +154,6 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	public static function set_locale($tz = true) {
 		self::$curr_locale = setlocale(LC_TIME,0);
 		$lang_code = strtolower(Base_LangCommon::get_lang_code());
-		// TODO: We experience 10-20% performance drop because of setlocale
 		setlocale(LC_TIME,$lang_code.'_'.strtoupper($lang_code).'.utf8', //unixes
 				$lang_code.'_'.strtoupper($lang_code).'.UTF-8',
 				$lang_code.'.utf8',
@@ -201,7 +201,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 
 		if(is_numeric($t)) $t = date('Y-m-d H:i:s',$t);
 
-		self::set_locale();
+//		self::set_locale();
 		if($tz)
 			self::set_tz();
 		if(strpos($datef,'%B')>=0) {
@@ -221,7 +221,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		$tt = strtotime($t);
 		if($tz)
 			self::restore_tz();
-		self::restore_locale();
+//		self::restore_locale();
 		return $tt;
 	}
 
@@ -252,4 +252,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		return '%I:%M:%S %p'==Base_User_SettingsCommon::get('Base_RegionalSettings','time');
 	}
 }
+
+Base_RegionalSettingsCommon::set_locale();
+
 ?>
