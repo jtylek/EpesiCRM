@@ -32,6 +32,9 @@ class Utils_Attachment extends Module {
 	private $add_header = '';
 
 	private $caption = '';
+	
+	private $watchdog_category;
+	private $watchdog_id;
 
 	public function construct($key,$group='',$pd=null,$in=null,$priv_r=null,$priv_w=null,$prot_r=null,$prot_w=null,$pub_r=null,$pub_w=null,$header=null) {
 		if(!isset($key)) trigger_error('Key not given to attachment module',E_USER_ERROR);
@@ -192,8 +195,10 @@ class Utils_Attachment extends Module {
 			}
 			if($row['sticky']) $text['value'] = '<img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'sticky.png').'" hspace=5 align="left"> '.$text['value'];
 
-			$date_format = Base_RegionalSettingsCommon::date_format();
-			$regional_note_on = strftime($date_format,strtotime($note_on));
+			// TODO: Why changing format and timezone twice? Everything was screwed up because of this, Paul, please revise
+			//$date_format = Base_RegionalSettingsCommon::date_format();
+			//$regional_note_on = strftime($date_format,strtotime($note_on));
+			$regional_note_on = $note_on;
 			$arr = array();
 			if($vd)
 				$arr[] = ($row['deleted']?'yes':'no');
@@ -515,7 +520,7 @@ class Utils_Attachment extends Module {
 			return $this->pop_box0();
 	}
 
-	public function submit_attach($file,$oryg,$data) {
+	public function submit_attach($file,$oryg,$data) {		
 		DB::Execute('INSERT INTO utils_attachment_link(attachment_key,local,permission,permission_by,other_read,sticky) VALUES(%s,%s,%d,%d,%b,%b)',array($this->key,$this->group,$data['permission'],Acl::get_user(),isset($data['other']) && $data['other'],isset($data['sticky']) && $data['sticky']));
 		$id = DB::Insert_ID('utils_attachment_link','id');
 		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$oryg,Acl::get_user()));
@@ -526,6 +531,7 @@ class Utils_Attachment extends Module {
 			rename($file,$local.'/'.$id.'_0');
 		}
 		$this->ret_attach = false;
+		if (isset($this->watchdog_category)) Utils_WatchdogCommon::new_event($this->watchdog_category,$this->watchdog_id,'Note added');
 	}
 
 	public function submit_edit($file,$oryg,$data,$id,$text) {
@@ -547,6 +553,7 @@ class Utils_Attachment extends Module {
 			rename($file,$local.'/'.$id.'_'.$rev);
 		}
 		$this->ret_attach = false;
+		if (isset($this->watchdog_category)) Utils_WatchdogCommon::new_event($this->watchdog_category,$this->watchdog_id,'Note edited');
 	}
 
 	public function delete($id) {
@@ -561,10 +568,16 @@ class Utils_Attachment extends Module {
 		} else {
 			DB::Execute('UPDATE utils_attachment_link SET deleted=1 WHERE id=%d',array($id));
 		}
+		if (isset($this->watchdog_category)) Utils_WatchdogCommon::new_event($this->watchdog_category,$this->watchdog_id,'Note deleted');
 	}
 
 	public function caption() {
 		return $this->caption;
+	}
+	
+	public function enable_watchdog($category, $id) {
+		$this->watchdog_category = $category;
+		$this->watchdog_id = $id;
 	}
 }
 
