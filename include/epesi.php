@@ -329,20 +329,30 @@ class Epesi {
 		}
 
 		if(MODULE_TIMES) {
-			foreach (self::$content as $k => $v)
-				$debug .= 'Time of loading module <b>'.$k.'</b>: <i>'.$v['time'].'</i><br>';
+			foreach (self::$content as $k => $v) {
+				$style='color:red;font-weight:bold';
+				if ($v['time']<0.5) $style = 'color:orange;font-weight:bold';
+				if ($v['time']<0.05) $style = 'color:green;font-weight:bold';
+				$debug .= 'Time of loading module <b>'.$k.'</b>: <i>'.'<span style="'.$style.';">'.number_format($v['time'],4).'</span>'.'</i><br>';
+			}
 			$debug .= 'Page renderered in '.(microtime(true)-$time).'s<hr>';
 		}
 
 		if(SQL_TIMES) {
 			$debug .= '<font size="+1">QUERIES</font><br>';
 			$queries = DB::GetQueries();
+			$sum = 0;
+			$qty = 0;
 			foreach($queries as $q) {
 				$style='color:red;font-weight:bold';
-				if ($q['time']<0.5) $style = 'color:yellow;font-weight:bold';
+				if ($q['time']<0.5) $style = 'color:orange;font-weight:bold';
 				if ($q['time']<0.05) $style = 'color:green';
-				$debug .= '<span style="'.$style.';">'.'<b>'.$q['func'].'</b> '.htmlspecialchars(var_export($q['args'],true)).' <i>'.$q['time'].'</i><br>'.'</span>';
+				$debug .= '<span style="'.$style.';">'.'<b>'.$q['func'].'</b> '.htmlspecialchars(var_export($q['args'],true)).' <i><b>'.number_format($q['time'],4).'</b></i><br>'.'</span>';
+				$sum+=$q['time'];
+				$qty++;
 			}
+			$debug .= '<b>Number of queries:</b> '.$qty.'<br>';
+			$debug .= '<b>Queries times:</b> '.$sum.'<br>';
 		}
 		if(DEBUG || MODULE_TIMES || SQL_TIMES)
 			self::text($debug,'debug');
