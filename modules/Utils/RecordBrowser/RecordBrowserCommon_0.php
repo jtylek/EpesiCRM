@@ -941,7 +941,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 	public static function create_linked_label($tab, $col, $id, $nolink=false){
 		if (!is_numeric($id)) return '';
-		self::check_table_name($tab);
 		self::init($tab);
 		if (isset(self::$hash[$col])) $col = self::$hash[$col];
 		$label = DB::GetOne('SELECT value FROM '.$tab.'_data WHERE field=%s AND '.$tab.'_id=%d', array($col, $id));
