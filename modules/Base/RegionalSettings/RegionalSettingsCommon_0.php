@@ -153,6 +153,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	public static function set_locale($tz = true) {
 		self::$curr_locale = setlocale(LC_TIME,0);
 		$lang_code = strtolower(Base_LangCommon::get_lang_code());
+		// TODO: We experience 10-20% performance drop because of setlocale
 		setlocale(LC_TIME,$lang_code.'_'.strtoupper($lang_code).'.utf8', //unixes
 				$lang_code.'_'.strtoupper($lang_code).'.UTF-8',
 				$lang_code.'.utf8',
