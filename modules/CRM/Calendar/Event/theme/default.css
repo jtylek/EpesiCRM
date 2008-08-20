@@ -435,3 +435,23 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
 .employees {
 	border-right: 1px solid #b3b3b3;
 }
+
+
+
+
+#CRM_Calendar_Event_Personal .button100 {
+	background-color: #336699;
+	background-image: url('images/header-blue.png');
+	background-repeat: repeat-x;
+	color: white;
+	display: block;
+	width: 100px;
+	cursor: pointer;
+	text-align: center;
+	padding-top: 4px;
+	padding-bottom: 3px;
+}
+
+#CRM_Calendar_Event_Personal .button100:hover {
+	background-image: url('images/header-blue-hover.png');
+}
