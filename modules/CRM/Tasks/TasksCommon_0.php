@@ -220,6 +220,12 @@ class CRM_TasksCommon extends ModuleCommon {
 			}
 		case 'added':
 			self::subscribed_employees($values);
+			$related = array_merge($values['employees'],$values['customers']);
+			foreach ($related as $v) {
+				$subs = Utils_WatchdogCommon::get_subscribers('contact',$v);
+				foreach($subs as $s)
+					Utils_WatchdogCommon::user_subscribe($s, 'task',$values['id']);
+			}
 			break;
 		}
 		return $values;

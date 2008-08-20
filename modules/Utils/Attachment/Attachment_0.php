@@ -36,7 +36,7 @@ class Utils_Attachment extends Module {
 	private $watchdog_category;
 	private $watchdog_id;
 
-	public function construct($key,$group='',$pd=null,$in=null,$priv_r=null,$priv_w=null,$prot_r=null,$prot_w=null,$pub_r=null,$pub_w=null,$header=null) {
+	public function construct($key,$group='',$pd=null,$in=null,$priv_r=null,$priv_w=null,$prot_r=null,$prot_w=null,$pub_r=null,$pub_w=null,$header=null,$watchdog_cat=null,$watchdog_id=null) {
 		if(!isset($key)) trigger_error('Key not given to attachment module',E_USER_ERROR);
 		$this->lang = & $this->init_module('Base/Lang');
 		$this->group = $group;
@@ -52,6 +52,8 @@ class Utils_Attachment extends Module {
 		if(isset($pub_r)) $this->public_read = $pub_r;
 		if(isset($pub_w)) $this->public_write = $pub_w;
 		if(isset($header)) $this->add_header = $header;
+		if(isset($watchdog_cat)) $this->watchdog_category = $watchdog_cat;
+		if(isset($watchdog_id)) $this->watchdog_id = $watchdog_id;
 	}
 
 	public function additional_header($x) {
@@ -224,7 +226,7 @@ class Utils_Attachment extends Module {
 	}
 
 	public function view_queue($id) {
-		$this->push_box0('view',array($id),array($this->real_key,$this->group,$this->persistent_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header));
+		$this->push_box0('view',array($id),array($this->real_key,$this->group,$this->persistent_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id));
 	}
 
 	public function get_file($row, & $view_link = '') {
@@ -465,7 +467,7 @@ class Utils_Attachment extends Module {
 	}
 
 	public function edit_note_queue($id=null) {
-		$this->push_box0('edit_note',array($id),array($this->real_key,$this->group,$this->persistent_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header));
+		$this->push_box0('edit_note',array($id),array($this->real_key,$this->group,$this->persistent_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id));
 	}
 
 	public function edit_note($id=null) {

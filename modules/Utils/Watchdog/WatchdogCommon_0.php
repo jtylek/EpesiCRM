@@ -16,7 +16,11 @@ class Utils_WatchdogCommon extends ModuleCommon {
 	public static function applet_info() {
 		return "Helps tracking changes introduced in the system";
 	}
-
+	public static function get_subscribers($category_name, $id) {
+		$category_id = self::get_category_id($category_name);
+		$ret = DB::GetAssoc('SELECT user_id,user_id FROM utils_watchdog_subscription WHERE category_id=%d AND internal_id=%s', array($category_id, $id));
+		return $ret;
+	}
 	public static function get_category_id($category_name) {
 		static $cache = array();
 		if (isset($cache[$category_name])) return $cache[$category_name];

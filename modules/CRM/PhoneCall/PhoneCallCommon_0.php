@@ -246,16 +246,37 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			if (ModuleManager::is_installed('CRM/Tasks')>=0) $ret['new_task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/PhoneCall','New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('title'=>$values['subject'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),'employees'=>$values['employees'], 'customers'=>$values['contact'])).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
 			$ret['new_phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/PhoneCall','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', $values).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
 			return $ret;
-		case 'add':
+		case 'added':
 		case 'edit':
+			$related = $values['employees'];
+			if (!isset($values['other_contact'])) $related[] = $values['contact'];
+			foreach ($related as $v) {
+				$subs = Utils_WatchdogCommon::get_subscribers('contact',$v);
+				foreach($subs as $s)
+					Utils_WatchdogCommon::user_subscribe($s, 'phonecall',$values['id']);
+			}
+			if ($mode=='added') break;
+		case 'add':
 			if (isset($values['other_contact'])) {
 				$values['other_phone']=1;
 				$values['contact']='';
-			} else $values['other_contact_name']='';
+			} else {
+				$values['other_contact_name']='';
+			}
 			if (isset($values['other_phone'])) $values['phone']='';
 			else $values['other_phone_number']='';
 		}
 		return $values;
+	}
+
+	public static function watchdog_label($arg = null) {
+		$ret = array('category'=>Base_LangCommon::ts('CRM_PhoneCall','Phonecalls'));
+		if ($arg!==null) {
+			$r = Utils_RecordBrowserCommon::get_record('phonecall',$arg);
+			$ret['title'] = Utils_RecordBrowserCommon::record_link_open_tag('phonecall',$arg).$r['subject'].Utils_RecordBrowserCommon::record_link_close_tag();
+			$ret['view_href'] = Utils_RecordBrowserCommon::create_record_href('phonecall',$arg);
+		}
+		return $ret;
 	}
 }
 ?>

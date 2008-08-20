@@ -32,7 +32,6 @@ class CRM_TasksInstall extends ModuleInstall {
 			array('name'=>'Deadline',			'type'=>'date', 'extra'=>false, 'visible'=>true)
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('task', $fields);
-		Utils_RecordBrowserCommon::enable_watchdog('task', array('CRM_TasksCommon','watchdog_label'));
 		Utils_RecordBrowserCommon::set_tpl('task', Base_ThemeCommon::get_template_filename('CRM/Tasks', 'default'));
 		Utils_RecordBrowserCommon::set_processing_method('task', array('CRM_TasksCommon', 'submit_task'));
 		Utils_RecordBrowserCommon::set_icon('task', Base_ThemeCommon::get_template_filename('CRM/Tasks', 'icon.png'));
@@ -42,6 +41,7 @@ class CRM_TasksInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_recent('task', 5);
 		Utils_RecordBrowserCommon::set_caption('task', 'Tasks');
 		Utils_RecordBrowserCommon::set_access_callback('task', 'CRM_TasksCommon', 'access_task');
+		Utils_RecordBrowserCommon::enable_watchdog('task', array('CRM_TasksCommon','watchdog_label'));
 // ************ addons ************** //
 		Utils_RecordBrowserCommon::new_addon('task', 'CRM/Tasks', 'task_attachment_addon', 'Notes');
 //		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Contacts', 'company_addon', 'Contacts');
