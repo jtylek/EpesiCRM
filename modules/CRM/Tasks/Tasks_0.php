@@ -55,7 +55,8 @@ class CRM_Tasks extends Module {
 									$crits,
 									array('is_deadline'=>'DESC','deadline'=>'ASC','status'=>'ASC','priority'=>'ASC'),
 									array('CRM_TasksCommon','applet_info_format'),
-									15
+									15,
+									$conf
 				);
 		$this->display_module($rb, $conds, 'mini_view');
 	}

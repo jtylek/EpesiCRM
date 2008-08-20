@@ -946,5 +946,18 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$label = DB::GetOne('SELECT value FROM '.$tab.'_data WHERE field=%s AND '.$tab.'_id=%d', array($col, $id));
 		return self::record_link_open_tag($tab, $id, $nolink).$label.self::record_link_close_tag();
 	}
+	public static function applet_settings($some_more = array()) {
+		$some_more = array_merge($some_more,array(
+			array('label'=>'Actions','name'=>'actions_header','type'=>'header'),
+			array('label'=>'Info','name'=>'actions_info','type'=>'checkbox','default'=>true),
+			array('label'=>'View','name'=>'actions_view','type'=>'checkbox','default'=>false),
+			array('label'=>'Edit','name'=>'actions_edit','type'=>'checkbox','default'=>true),
+			array('label'=>'Delete','name'=>'actions_delete','type'=>'checkbox','default'=>false),
+			array('label'=>'View edit history','name'=>'actions_history','type'=>'checkbox','default'=>false),
+//			array('label'=>'Subscription status','name'=>'actions_subscription','type'=>'checkbox','default'=>false),
+//			array('label'=>'Favs','name'=>'actions_fav','type'=>'checkbox','default'=>false)
+		));
+		return $some_more;
+	}
 }
 ?>

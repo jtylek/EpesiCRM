@@ -55,7 +55,8 @@ class CRM_PhoneCall extends Module {
 									array('employees'=>array($me['id']), '!status'=>array(2,3)),
 									array('status'=>'ASC','date_and_time'=>'ASC'),
 									array('CRM_PhoneCallCommon','applet_info_format'),
-									15
+									15,
+									$conf
 				);
 		$this->display_module($rb, $conds, 'mini_view');
 	}

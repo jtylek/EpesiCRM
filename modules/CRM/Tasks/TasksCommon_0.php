@@ -67,11 +67,11 @@ class CRM_TasksCommon extends ModuleCommon {
 	}
 
 	public static function applet_settings() {
-		return array(
+		return Utils_RecordBrowserCommon::applet_settings(array(
 			array('label'=>'Display tasks marked as','name'=>'term','type'=>'select','values'=>array('s'=>'Short term','l'=>'Long term','b'=>'Both'),'default'=>'s','rule'=>array(array('message'=>'Field required', 'type'=>'required'))),
 			array('label'=>'Display closed tasks','name'=>'closed','type'=>'checkbox','default'=>false),
 			array('label'=>'Related','name'=>'related','type'=>'select','values'=>array('Employee','Customer','Both'),'default'=>'0')
-			);
+			));
 	}
 	
 	public static function body_access() {

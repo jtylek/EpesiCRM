@@ -1451,7 +1451,7 @@ class Utils_RecordBrowser extends Module {
 		return $ret;
 	}
 
-	public function mini_view($cols, $crits, $order, $info, $limit=null, $icons = array('view', 'info')){
+	public function mini_view($cols, $crits, $order, $info, $limit=null, $conf = array('actions_edit'=>true, 'actions_info'=>true)){
 		$this->init();
 		$gb = $this->init_module('Utils/GenericBrowser',$this->tab,$this->tab);
 		$field_hash = array();
@@ -1484,11 +1484,10 @@ class Utils_RecordBrowser extends Module {
 		if ($limit!=null) {
 			$limit = array('offset'=>0, 'numrows'=>$limit);
 			$records_qty = Utils_RecordBrowserCommon::get_records_limit($this->tab, $crits);
-			if ($records_qty['numrows']>$limit['numrows']) print($this->lang->t('Displaying %s of %s records', array($limit['numrows'], $records_qty['numrows'])));
+			if ($records_qty>$limit['numrows']) print($this->lang->t('Displaying %s of %s records', array($limit['numrows'], $records_qty)));
 		}
 		$records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array(), $clean_order, $limit);
 		$records = Utils_RecordBrowserCommon::format_long_text_array($this->tab,$records);
-		$icons = array_flip($icons);
 		foreach($records as $v) {
 			$gb_row = $gb->get_new_row();
 			$arr = array();
@@ -1501,11 +1500,11 @@ class Utils_RecordBrowser extends Module {
 			if (is_callable($info)) {
 				$additional_info = call_user_func($info, $v).'<hr>';
 			} else $additional_info = '';
-			if (isset($icons['info'])) $gb_row->add_info($additional_info.Utils_RecordBrowserCommon::get_html_record_info($this->tab, $v['id']));
-			if (isset($icons['view'])) $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'view',$v['id'])),'View');
-			if (isset($icons['edit'])) if ($this->get_access('edit',$v)) $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'edit',$v['id'])),'Edit');
-			if (isset($icons['delete'])) if ($this->get_access('delete',$v)) $gb_row->add_action($this->create_confirm_callback_href($this->lang->t('Are you sure you want to delete this record?'),array('Utils_RecordBrowserCommon','delete_record'),array($this->tab, $v['id'])),'Delete');
-			if (isset($icons['history'])) {
+			if (isset($conf['actions_info']) && $conf['actions_info']) $gb_row->add_info($additional_info.Utils_RecordBrowserCommon::get_html_record_info($this->tab, $v['id']));
+			if (isset($conf['actions_view']) && $conf['actions_view']) $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'view',$v['id'])),'View');
+			if (isset($conf['actions_edit']) && $conf['actions_edit']) if ($this->get_access('edit',$v)) $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'edit',$v['id'])),'Edit');
+			if (isset($conf['actions_delete']) && $conf['actions_delete']) if ($this->get_access('delete',$v)) $gb_row->add_action($this->create_confirm_callback_href($this->lang->t('Are you sure you want to delete this record?'),array('Utils_RecordBrowserCommon','delete_record'),array($this->tab, $v['id'])),'Delete');
+			if (isset($conf['actions_history']) && $conf['actions_history']) {
 				$r_info = Utils_RecordBrowserCommon::get_record_info($this->tab, $v['id']);
 				if ($r_info['edited_by']===null) $gb_row->add_action('','This record was never edited',null,'history_inactive');
 				else $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_edit_history', $v['id'])),'View edit history',null,'history');

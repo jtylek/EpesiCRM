@@ -8,6 +8,9 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	public static function applet_info() {
 		return 'List of phone calls to do';
 	}
+	public static function applet_settings() {
+		return Utils_RecordBrowserCommon::applet_settings();		
+	}
 	public static function applet_info_format($r){
 		if (isset($r['contact']) && $r['contact']!='') {
 			$c = CRM_ContactsCommon::get_contact($r['contact']);
