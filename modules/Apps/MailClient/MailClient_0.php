@@ -87,16 +87,12 @@ class Apps_MailClient extends Module {
 		
 		$checknew_id = $this->get_path().'checknew';
 		Base_ActionBarCommon::add('folder',$this->lang->t('Check'),'href="javascript:void(0)" rel="'.$checknew_id.'" class="lbOn" id="'.$checknew_id.'b"');
-		eval_js('mailclient_check_f = function() {'.
-				'if($(\''.$checknew_id.'\').style.display==\'block\'){'.
-					'$(\''.$checknew_id.'X\').src=\'modules/Apps/MailClient/checknew.php?'.http_build_query(array('id'=>$checknew_id,'t'=>microtime(true))).'\';'.
-				'}else{'.
-					'setTimeout(mailclient_check_f,100);'.
-				'}};'.
-			'Event.observe(\''.$checknew_id.'b\',\'click\',mailclient_check_f)');
+		eval_js('Apps_MailClient.check_mail_button_observe(\''.$checknew_id.'\')');
 		print('<div id="'.$checknew_id.'" class="leightbox"><div style="width:100%;text-align:center" id="'.$checknew_id.'progresses"></div>'.
-			'<iframe id="'.$checknew_id.'X" frameborder=0 scrolling="No" height="80" width="100%"></iframe>'.
+			'<a id="'.$checknew_id.'L" style="display:none" href="javascript:Apps_MailClient.hide(\''.$checknew_id.'\')">'.$this->lang->t('hide').'</a>'.
 			'</div>');
+//echo('<script>function destroy_me(parent) {var x=parent.$(\''.$_GET['id'].'X\');x.parentNode.removeChild(x);parent.leightbox_deactivate(\''.$_GET['id'].'\')}</script>');
+//echo('<a href="javascript:destroy_me(parent)">hide</a>');
 	}
 	
 	private function set_open_mail_dir_callbacks(array & $str,$path='') {

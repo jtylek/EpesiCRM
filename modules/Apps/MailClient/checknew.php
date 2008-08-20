@@ -27,6 +27,10 @@ function rm_lock($lock) {
 
 $accounts = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE user_login_id=%d',array(Acl::get_user()));
 foreach($accounts as $account) {
+	echo('<script>parent.Apps_MailClient.progress_bar.set_text(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\',\'\');');
+	echo('parent.Apps_MailClient.progress_bar.set_progress(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\', 0)</script>');
+}
+foreach($accounts as $account) {
 	$host = explode(':',$account['incoming_server']);
 	if(isset($host[1])) $port=$host[1];
 		else $port = null;
@@ -45,7 +49,7 @@ foreach($accounts as $account) {
 		message($account['id'],$account['mail'].': mailbox locked');
 		continue;	
 	}
-	file_put_contents($lock,'');
+	touch($lock);
 	register_shutdown_function('rm_lock',$lock); //be sure that lock was deleted
 	
 	//open mbox
@@ -163,5 +167,5 @@ foreach($accounts as $account) {
 		message($account['id'],$account['mail'].': ok, got '.$num.' new messages, '.$invalid.' invalid messages skipped');
 	unlink($lock);
 }
-echo('<a href="javascript:parent.$(\''.$_GET['id'].'X\').src=\'\';parent.leightbox_deactivate(\''.$_GET['id'].'\')">hide</a>');
+echo('<script>parent.Apps_MailClient.show_hide_button(\''.$_GET['id'].'\');</script>');
 ?>
