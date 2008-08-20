@@ -888,7 +888,9 @@ class ModuleManager {
 		self::$loaded_modules = array();
 		$cache_file = 'data/cache/common.php';
 		$cached = false;
-		if(file_exists($cache_file) && CACHE_COMMON_FILES) {
+		if(CACHE_COMMON_FILES) {
+			if(!file_exists($cache_file))
+				self::create_common_cache();
 			ob_start();
 			require_once($cache_file);
 			ob_end_clean();

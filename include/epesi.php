@@ -235,7 +235,8 @@ class Epesi {
 				if($v[1]) unset(self::$jses[$k]);
 
 			//go
-			return self::process('__location&' . http_build_query($loc),false,true);
+			$loc['__location'] = microtime(true);
+			return self::process(http_build_query($loc),false,true);
 		}
 
 		if(DEBUG || MODULE_TIMES || SQL_TIMES) {
