@@ -8,6 +8,7 @@ table#Base_Admin .button {
 	vertical-align: middle;
 	text-align: left;
 	padding-left: 15px;
+	padding-right: 15px;
 	font-size: 11px;
 
 	display: block;
@@ -38,5 +39,10 @@ table#Base_Admin .header {
 	background-repeat: repeat-x;
 	height: 20px;
 	text-align: center;
+	vertical-align: middle;
+}
+
+table#Base_Admin .button table td {
+	text-align: left;
 	vertical-align: middle;
 }
