@@ -10,15 +10,23 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_FollowupCommon extends ModuleCommon {
+	public static $leightbox_ready = array();
+	public static $last_location = null;
+	
+	public static function check_location() {
+		if (isset($_REQUEST['__location']) && self::$last_location!=$_REQUEST['__location']) {
+			$last_location = $_REQUEST['__location'];
+			self::$leightbox_ready = array();	
+		}
+	}
+	
 	public static function drawLeightbox($prefix) {
-		static $leightbox_ready = array();
-		static $b_location = array();
 		$events = (ModuleManager::is_installed('CRM/Calendar')>=0);
 		$tasks = (ModuleManager::is_installed('CRM/Tasks')>=0);
 		$phonecall = (ModuleManager::is_installed('CRM/PhoneCall')>=0);
-		if (!isset($leightbox_ready[$prefix]) || (isset($_REQUEST['__location']) && !isset($b_location[$prefix]))) {
-			if (isset($_REQUEST['__location'])) $b_location[$prefix] = true;
-			$leightbox_ready[$prefix] = true;
+		self::check_location();
+		if (!isset(self::$leightbox_ready[$prefix])) {
+			self::$leightbox_ready[$prefix] = true;
 
 			$theme = Base_ThemeCommon::init_smarty();
 			eval_js_once($prefix.'_followups_deactivate = function(){leightbox_deactivate(\''.$prefix.'_followups_leightbox\');}');
