@@ -923,29 +923,45 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return Module::create_href(self::get_record_href_array($tab,$id));
 	}
 	public static function record_link_open_tag($tab, $id, $nolink=false){
-		self::check_table_name($tab);
+/*		static $cache = array();
+		if (isset($cache[$tab.'__'.$id.'-'.$nolink])) {
+			self::$del_or_a = $cache[$tab.'__'.$id.'-'.$nolink]['close'];
+			return $cache[$tab.'__'.$id.'-'.$nolink]['ret'];
+		}
+		self::check_table_name($tab);*/
+		$ret = '';
 		if (!DB::GetOne('SELECT active FROM '.$tab.' WHERE id=%d',array($id))) {
 			self::$del_or_a = '</del>';
-			return '<del '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_RecordBrowser','This record was deleted from the system, please edit current record or contact system administrator')).'>';
-		}
-		if (!self::check_record_against_crits($tab, $id, self::get_access($tab, 'view'))) {
+			$ret = '<del '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_RecordBrowser','This record was deleted from the system, please edit current record or contact system administrator')).'>';
+		} elseif (!$nolink && !self::check_record_against_crits($tab, $id, self::get_access($tab, 'view'))) {
 			self::$del_or_a = '</span>';
-			return '<span '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_RecordBrowser','You don\'t have permission to view this record.')).'>';
+			$ret = '<span '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_RecordBrowser','You don\'t have permission to view this record.')).'>';
+		} else {
+			self::$del_or_a = '</a>';
+			if (!$nolink) $ret = '<a '.self::create_record_href($tab, $id).'>';
+			else self::$del_or_a = '';
 		}
-		self::$del_or_a = '</a>';
-		if (!$nolink) return '<a '.self::create_record_href($tab, $id).'>';
-		self::$del_or_a = '';
-		return '';
+//		$cache[$tab.'__'.$id.'-'.$nolink] = array('close'=>self::$del_or_a,'ret'=>$ret);
+		return $ret;
 	}
 	public static function record_link_close_tag(){
 		return self::$del_or_a;
 	}
 	public static function create_linked_label($tab, $col, $id, $nolink=false){
 		if (!is_numeric($id)) return '';
+
+/*		static $cache = array();
+		if (isset($cache[$tab.'__'.$col.'__'.$id.'-'.$nolink])) {
+			return $cache[$tab.'__'.$col.'__'.$id.'-'.$nolink];
+		}*/
 		self::init($tab);
 		if (isset(self::$hash[$col])) $col = self::$hash[$col];
 		$label = DB::GetOne('SELECT value FROM '.$tab.'_data WHERE field=%s AND '.$tab.'_id=%d', array($col, $id));
-		return self::record_link_open_tag($tab, $id, $nolink).$label.self::record_link_close_tag();
+		$ret = self::record_link_open_tag($tab, $id, $nolink).$label.self::record_link_close_tag();
+
+//		$cache[$tab.'__'.$col.'__'.$id.'-'.$nolink] = $ret;
+
+		return $ret;
 	}
 	public static function applet_settings($some_more = array()) {
 		$some_more = array_merge($some_more,array(
