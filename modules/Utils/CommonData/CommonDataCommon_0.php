@@ -82,12 +82,15 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 	 * @return mixed false on invalid name
 	 */
 	public static function get_value($name,$translate=false){
+		static $cache;
+		if (isset($cache[$name.'__'.$translate])) return $cache[$name.'__'.$translate];
 		$val = false;
 		$id = self::get_id($name);
 		if($id===false) return false;
 		$ret = DB::GetOne('SELECT value FROM utils_commondata_tree WHERE id=%d',array($id));
 		if($translate)
 			$ret = Base_LangCommon::ts('Utils_CommonData',$ret);
+		$cache[$name.'__'.$translate] = $ret;
 		return $ret;
 	}
 
