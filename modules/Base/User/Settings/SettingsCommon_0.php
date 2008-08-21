@@ -42,7 +42,6 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	public static function get_default($module,$name){
 		$module = str_replace('/','_',$module);
 		static $variables;
-		//print('get_default '.$module.':'.$name.';');
 		if (isset($variables[$module])) {
 			if(isset($variables[$module][$name]))
 				return $variables[$module][$name];
@@ -85,16 +84,17 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	 */
 	public static function get_admin($module,$name){
 		$module = str_replace('/','_',$module);
-		//print('get_admin '.$module.':'.$name.';');
-		if (!isset(self::$admin_variables)) {
+		if (!isset(self::$admin_variables))
 			self::$admin_variables = array();
-			$ret = DB::Execute('SELECT module,variable,value FROM base_user_settings_admin_defaults');
+		if (!isset(self::$admin_variables[$module])) {
+			self::$admin_variables[$module] = array();
+			$ret = DB::Execute('SELECT variable,value FROM base_user_settings_admin_defaults WHERE module=%s',array($module));
 			while($row = $ret->FetchRow())
-				self::$admin_variables[$row['module']][$row['variable']] = unserialize($row['value']);
+				self::$admin_variables[$module][$row['variable']] = unserialize($row['value']);
 		}
 		if (isset(self::$admin_variables[$module][$name]))
 			return self::$admin_variables[$module][$name];
-		return self::get_default($module,$name);
+		return self::$admin_variables[$module][$name] = self::get_default($module,$name);
 	}
 
 	/**
@@ -109,16 +109,17 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	public static function get($module,$name){
 		if (!Acl::is_user()) return null;
 		$module = str_replace('/','_',$module);
-		//print('get '.$module.':'.$name.';');
-		if (!isset(self::$user_variables)) {
+		if (!isset(self::$user_variables))
 			self::$user_variables = array();
-			$ret = DB::Execute('SELECT module, variable, value FROM base_user_settings WHERE user_login_id=%d',array(Acl::get_user()));
+		if (!isset(self::$user_variables[$module])) {
+			self::$user_variables[$module] = array();
+			$ret = DB::Execute('SELECT variable, value FROM base_user_settings WHERE user_login_id=%d AND module=%s',array(Acl::get_user(), $module));
 			while($row = $ret->FetchRow())
-				self::$user_variables[$row['module']][$row['variable']] = unserialize($row['value']);
+				self::$user_variables[$module][$row['variable']] = unserialize($row['value']);
 		}
 		if (isset(self::$user_variables[$module][$name]))
-			return self::$user_variables[$module][$name];
-		return self::get_admin($module,$name);
+			return self::$user_variables[$module][$name];	
+		return self::$user_variables[$module][$name] = self::get_admin($module,$name);
 	}
 
 	/**
