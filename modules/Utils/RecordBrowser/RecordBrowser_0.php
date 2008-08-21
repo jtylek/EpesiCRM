@@ -335,11 +335,13 @@ class Utils_RecordBrowser extends Module {
 
 		$hash = array();
 		$access = $this->get_access('fields', 'browse');
+		$query_cols = array();
 		foreach($this->table_rows as $field => $args) {
 			$hash[$args['id']] = $field;
 			if ($field === 'id') continue;
 			if ((!$args['visible'] && (!isset($cols[$args['id']]) || $cols[$args['id']] === false)) || $access[$args['id']]=='hide') continue;
 			if (isset($cols[$args['id']]) && $cols[$args['id']] === false) continue;
+			$query_cols[] = $args['id'];
 			$arr = array('name'=>$this->lang->t($args['name']));
 			if ($this->browse_mode!='recent') $arr['order'] = $field;
 			if ($quickjump!=='' && $args['name']===$quickjump) $arr['quickjump'] = '"'.$args['name'];
@@ -420,9 +422,6 @@ class Utils_RecordBrowser extends Module {
 			$form->addElement('submit', 'submit', 'Show');
 			$f = $this->get_module_variable('admin_filter', 0);
 			$form->setDefaults(array('show_records'=>$f));
-//			$theme = $this->init_module('Base/Theme');
-//			$form->assign_theme('form',$theme);
-//			$this->display_module($theme, 'Filter');
 			self::$admin_filter = $form->exportValue('show_records');
 			$this->set_module_variable('admin_filter', self::$admin_filter);
 			if (self::$admin_filter==0) self::$admin_filter = '';
@@ -432,7 +431,7 @@ class Utils_RecordBrowser extends Module {
 		}
 
 		$limit = $gb->get_limit(Utils_RecordBrowserCommon::get_records_limit($this->tab, $crits, $admin));
-		$records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array(), $order, $limit, $admin);
+		$records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array()/*$query_cols - cannot apply since get_access may need whole data*/, $order, $limit, $admin);
 
 		if ($admin) $this->browse_mode = 'all';
 		if ($this->browse_mode == 'recent') {
@@ -447,15 +446,18 @@ class Utils_RecordBrowser extends Module {
 		}
 		if ($special) $rpicker_ind = array();
 
-		$favs = array();
-		$ret = DB::Execute('SELECT '.$this->tab.'_id FROM '.$this->tab.'_favorite WHERE user_id=%d', array(Acl::get_user()));
-		while ($row=$ret->FetchRow()) $favs[$row[$this->tab.'_id']] = true;
-
+		if (!$admin && $this->favorites) {
+			$favs = array();
+			$ret = DB::Execute('SELECT '.$this->tab.'_id FROM '.$this->tab.'_favorite WHERE user_id=%d', array(Acl::get_user()));
+			while ($row=$ret->FetchRow()) $favs[$row[$this->tab.'_id']] = true;
+			$star_on = Base_ThemeCommon::get_template_file('Utils_RecordBrowser','star_fav.png');
+			$star_off = Base_ThemeCommon::get_template_file('Utils_RecordBrowser','star_nofav.png');
+		}
 		foreach ($records as $row) {
 			$gb_row = $gb->get_new_row();
 			if (!$admin && $this->favorites) {
 				$isfav = isset($favs[$row['id']]);
-				$row_data = array('<a '.Utils_TooltipCommon::open_tag_attrs(($isfav?$this->lang->t('This item is on your favourites list<br>Click to remove it from your favorites'):$this->lang->t('Click to add this item to favorites'))).' '.$this->create_callback_href(array($this,($isfav?'remove_from_favs':'add_to_favs')), array($row['id'])).'><img style="width: 14px; height: 14px; vertical-align: middle;" border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','star_'.($isfav==false?'no':'').'fav.png').'" /></a>');
+				$row_data = array('<a '.Utils_TooltipCommon::open_tag_attrs(($isfav?$this->lang->t('This item is on your favourites list<br>Click to remove it from your favorites'):$this->lang->t('Click to add this item to favorites'))).' '.$this->create_callback_href(array($this,($isfav?'remove_from_favs':'add_to_favs')), array($row['id'])).'><img style="width: 14px; height: 14px; vertical-align: middle;" border="0" src="'.($isfav==false?$star_off:$star_on).'" /></a>');
 			} else $row_data = array();
 			if (!$admin && $this->watchdog) {
 				$row_data[] = Utils_WatchdogCommon::get_change_subscription_icon($this->tab,$row['id']);
@@ -466,17 +468,16 @@ class Utils_RecordBrowser extends Module {
 				$row_data = array('<a href="javascript:rpicker_addto(\''.$element.'\','.$row['id'].',\''.Base_ThemeCommon::get_template_file('images/active_on.png').'\',\''.Base_ThemeCommon::get_template_file('images/active_off2.png').'\',\''.(is_callable($func)?strip_tags(call_user_func($func, $row, true)):'').'\');"><img border="0" name="leightbox_rpicker_'.$element.'_'.$row['id'].'" /></a>');
 				$rpicker_ind[] = $row['id'];
 			}
-
-			foreach($this->table_rows as $field => $args) {
-				if ($access[$args['id']]=='hide') continue;
-				if (($args['visible'] && !isset($cols[$args['id']])) || (isset($cols[$args['id']]) && $cols[$args['id']] === true)) {
-					$value = $this->get_val($field, $row, $row['id'], $special, $args);
-					if (isset($this->cut[$args['id']])) {
-						$value = $this->cut_string($value,$this->cut[$args['id']]);
-					}
-					if ($args['type']=='currency') $value = array('style'=>'text-align:right;','value'=>$value);
-					$row_data[] = $value;
+			foreach($query_cols as $argsid) {
+				if ($access[$argsid]=='hide') continue;
+				$field = $hash[$argsid];
+				$args = $this->table_rows[$field]; 
+				$value = $this->get_val($field, $row, $row['id'], $special, $args);
+				if (isset($this->cut[$args['id']])) {
+					$value = $this->cut_string($value,$this->cut[$args['id']]);
 				}
+				if ($args['type']=='currency') $value = array('style'=>'text-align:right;','value'=>$value);
+				$row_data[] = $value;
 			}
 			if ($this->browse_mode == 'recent')
 				$row_data[] = $row['visited_on'];
@@ -531,7 +532,6 @@ class Utils_RecordBrowser extends Module {
 			$form->accept($renderer);
 			$data = $renderer->toArray();
 
-//			print($data['javascript'].'<form '.$data['attributes'].'>'.$data['hidden']."\n");
 			$gb->set_prefix($data['javascript'].'<form '.$data['attributes'].'>'.$data['hidden']."\n");
 			$gb->set_postfix("</form>\n");
 
@@ -553,7 +553,6 @@ class Utils_RecordBrowser extends Module {
 			$this->set_module_variable('rpicker_ind',$rpicker_ind);
 			return $this->get_html_of_module($gb);
 		} else $this->display_module($gb);
-//		if ($this->add_in_table) print("</form>\n");
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
 	public function delete_record($id) {

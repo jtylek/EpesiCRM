@@ -726,12 +726,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			} else
 				$records[$field[$tab.'_id']][$field_id] = $field['value'];
 		}
+		$check = self::$table_rows;
 		foreach(self::$table_rows as $field=>$args)
-			if (empty($cols) || isset($cols[$field]))
-				foreach($records as $k=>$v)
-					if (!isset($records[$k][$args['id']]))
-						if ($args['type'] == 'multiselect') $records[$k][$args['id']] = array();
-						else $records[$k][$args['id']] = '';
+			if (!empty($cols) && !isset($cols[$field]))
+				unset($check[$field]);
+		foreach($records as $k=>$v)
+			foreach($check as $field=>$args)
+				if (!isset($records[$k][$args['id']])) {
+					$records[$k][$args['id']] = '';
+					if ($args['type'] == 'multiselect') $records[$k][$args['id']] = array();
+				}
 		return $records;
 	}
 	public static function check_record_against_crits($tab, $id, $crits) {
