@@ -105,7 +105,7 @@ class Utils_Attachment extends Module {
 			$cols[] = array('name'=>$this->lang->t('Deleted'),'order'=>'ual.deleted','width'=>5);
 		if($this->author)
 			$cols[] = array('name'=>$this->lang->t('Last Author'), 'order'=>'note_by','width'=>10);
-		$cols[] = array('name'=>$this->lang->t('Date'), 'order'=>'note_on','width'=>10);
+		$cols[] = array('name'=>$this->lang->t('Date'), 'order'=>'note_on','width'=>12);
 		$expand_id = 'expand_collapse_'.md5($this->get_path());
 		$cols[] = array('name'=>$this->lang->t('Note'), 'preppend'=>'<span id="'.$expand_id.'"></span>', 'order'=>'uac.text','width'=>70);
 		$cols[] = array('name'=>$this->lang->t('Attachment'), 'order'=>'uaf.original','width'=>5);
@@ -195,7 +195,7 @@ class Utils_Attachment extends Module {
 				$text = array('value'=>substr($text,0,$max_len).'<a href="javascript:void(0)" onClick="utils_attachment_expand('.$row['id'].')" id="utils_attachment_more_'.$row['id'].'"> '.$this->lang->t('[ + ]').'</a><span style="display:none" id="utils_attachment_text_'.$row['id'].'">'.substr($text,$max_len).$inline_img.' <a href="javascript:void(0)" onClick="utils_attachment_collapse('.$row['id'].')">'.$this->lang->t('[ - ]').'</a></span>','hint'=>$this->lang->t('Click on view icon to see full note'));
 				$expandable[] = $row['id'];
 			}
-			if($row['sticky']) $text['value'] = '<img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'sticky.png').'" hspace=5 align="left"> '.$text['value'];
+			if($row['sticky']) $text['value'] = '<img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'sticky.png').'" hspace=3 align="left"> '.$text['value'];
 
 			// TODO: Why changing format and timezone twice? Everything was screwed up because of this, Paul, please revise
 			//$date_format = Base_RegionalSettingsCommon::date_format();
@@ -220,7 +220,7 @@ class Utils_Attachment extends Module {
 		}
 
 		if(!empty($expandable))
-			eval_js('$(\''.$expand_id.'\').innerHTML = \''.Epesi::escapeJS('<a href="javascript:void(0)" onClick=\'utils_attachment_expand_all('.Epesi::escapeJS(json_encode($expandable),false,true).')\' '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('Expand all')).'>[+]</a> <a href="javascript:void(0)" onClick=\'utils_attachment_collapse_all('.Epesi::escapeJS(json_encode($expandable),false,true).')\' '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('Collapse all')).'>[-]</a>').'\'');
+			eval_js('$(\''.$expand_id.'\').innerHTML = \''.Epesi::escapeJS('<a href="javascript:void(0)" onClick=\'utils_attachment_expand_all('.Epesi::escapeJS(json_encode($expandable),false,true).')\' '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('Expand all')).'>[ + ]</a> <a href="javascript:void(0)" onClick=\'utils_attachment_collapse_all('.Epesi::escapeJS(json_encode($expandable),false,true).')\' '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('Collapse all')).'>[ - ]</a>').'\'');
 
 		$this->display_module($gb);
 	}
