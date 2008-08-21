@@ -593,7 +593,9 @@ class HTML_QuickForm extends HTML_Common
         }
         $className = $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'][$type][1];
         $includeFile = $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'][$type][0];
-        include_once($includeFile);
+        static $cache=array();
+        if (!isset($cache[$includeFile])) include_once($includeFile);
+        $cache[$includeFile] = true;
         $elementObject =& new $className();
         for ($i = 0; $i < 5; $i++) {
             if (!isset($args[$i])) {
