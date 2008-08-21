@@ -867,17 +867,18 @@ class Utils_GenericBrowser extends Module {
 				if ($actions_position==0) $column_no = -1;
 				else $column_no = count($this->columns);
 				if (!empty($this->actions[$i])) {
-					$ac_theme = & $this->init_module('Base/Theme');
-					$actions = array();
+					uksort($this->actions[$i], array($this,'sort_actions'));
+					$actions = '';
 					foreach($this->actions[$i] as $icon=>$arr) {
-						$actions[$icon] = array(
-							'open'=>'<a '.Utils_TooltipCommon::open_tag_attrs($arr['tooltip']!==null?$arr['tooltip']:$arr['label'], $arr['tooltip']===null).' '.$arr['tag_attrs'].'>',
-							'close'=>'</a>',
-							'label'=>$arr['label']);
+						$actions .= '<a '.Utils_TooltipCommon::open_tag_attrs($arr['tooltip']!==null?$arr['tooltip']:$arr['label'], $arr['tooltip']===null).' '.$arr['tag_attrs'].'>';
+					    if ($icon=='view' || $icon=='delete' || $icon=='edit' || $icon=='info' || $icon=='restore' || $icon=='append data' || $icon=='active-on' || $icon=='active-off' || $icon=='history' || $icon=='move-down' || $icon=='move-up' || $icon=='history_inactive') {
+							$actions .= '<img src="'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser',$icon.'.png').'" border="0" width="14" height="14">';
+					    } else {
+							$actions .= $arr['label'];
+					    }
+						$actions .= '</a>';
 					}
-					uksort($actions, array($this,'sort_actions'));
-					$ac_theme->assign('actions',$actions);
-					$col[$column_no]['label'] = $this->get_html_of_module($ac_theme,'Actions','display');
+					$col[$column_no]['label'] = $actions;
 				} else $col[$column_no]['label'] = '&nbsp;';
 				$col[$column_no]['attrs'] = 'nowrap="nowrap"';
 			}
