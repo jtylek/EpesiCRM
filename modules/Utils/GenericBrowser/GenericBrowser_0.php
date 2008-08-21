@@ -671,7 +671,6 @@ class Utils_GenericBrowser extends Module {
 		$per_page = $this->get_module_variable('per_page');
 		$order = $this->get_module_variable('order');
 		if ($this->en_actions) $actions_position = Base_User_SettingsCommon::get('Utils/GenericBrowser','actions_position');
-
 		$col_pos = array();
 		$ret = DB::Execute('SELECT column_id, column_pos, display FROM generic_browser WHERE name=%s',$md5_id);
 		if($ret)
@@ -840,6 +839,7 @@ class Utils_GenericBrowser extends Module {
 		}
 		$i = 0;
 		$is_order = false;
+		$adv_history = Base_User_SettingsCommon::get('Utils/GenericBrowser','adv_history');
 		foreach($this->columns as $v) {
 			if((!Base_AclCommon::i_am_sa() || !Base_MaintenanceModeCommon::get_mode()) && ((array_key_exists('display', $v) && $v['display']==false) || !$col_pos[$i]['display'])) {
 				$i++;
@@ -847,7 +847,7 @@ class Utils_GenericBrowser extends Module {
 			}
 			if(isset($v['order'])) $is_order = true;
 			if(!isset($headers[$col_pos[$i]['pos']])) $headers[$col_pos[$i]['pos']] = array('label'=>'');
-			if (!Base_User_SettingsCommon::get('Utils/GenericBrowser','adv_history') && $v['name']==$order[0]['column']) $sort = 'style="padding-right: 12px; background-image: url('.Base_ThemeCommon::get_template_file('Utils_GenericBrowser','sort-'.strtolower($order[0]['direction']).'ending.png').'); background-repeat: no-repeat; background-position: right;"';
+			if (!$adv_history && $v['name']==$order[0]['column']) $sort = 'style="padding-right: 12px; background-image: url('.Base_ThemeCommon::get_template_file('Utils_GenericBrowser','sort-'.strtolower($order[0]['direction']).'ending.png').'); background-repeat: no-repeat; background-position: right;"';
 			else $sort = '';
 			$headers[$col_pos[$i]['pos']]['label'] .= (isset($v['preppend'])?$v['preppend']:'').(isset($v['order'])?'<a '.$this->create_unique_href(array('change_order'=>$v['name'])).'>' . '<span '.$sort.'>' . $v['name'] . '</span></a>':'<span>'.$v['name'].'</span>').(isset($v['append'])?$v['append']:'');
 			//if ($v['search']) $headers[$col_pos[$i]['pos']] .= $form_array['search__'.$v['search']]['label'].$form_array['search__'.$v['search']]['html'];
