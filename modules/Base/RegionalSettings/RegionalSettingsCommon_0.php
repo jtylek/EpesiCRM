@@ -153,7 +153,8 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 
 	public static function set_locale($tz = true) {
 		self::$curr_locale = setlocale(LC_TIME,0);
-		$lang_code = strtolower(Base_LangCommon::get_lang_code());
+		if (ModuleManager::is_installed('Base_Lang')!==-1) $lang_code = strtolower(Base_LangCommon::get_lang_code());
+		else $lang_code = 'en';
 		setlocale(LC_TIME,$lang_code.'_'.strtoupper($lang_code).'.utf8', //unixes
 				$lang_code.'_'.strtoupper($lang_code).'.UTF-8',
 				$lang_code.'.utf8',
