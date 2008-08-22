@@ -19,7 +19,7 @@ class CRM_TasksInstall extends ModuleInstall {
 
 			array('name'=>'Description', 		'type'=>'long text', 'extra'=>false, 'param'=>'255', 'visible'=>false),
 
-			array('name'=>'Employees', 			'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('CRM_TasksCommon','employees_crits'), 'format'=>array('CRM_TasksCommon','contact_format_with_balls')), 'display_callback'=>array('CRM_TasksCommon','display_employees'), 'required'=>true, 'extra'=>false, 'visible'=>true),
+			array('name'=>'Employees', 			'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('CRM_TasksCommon','employees_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'display_callback'=>array('CRM_TasksCommon','display_employees'), 'required'=>true, 'extra'=>false, 'visible'=>true),
 			array('name'=>'Customers', 			'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('CRM_TasksCommon','customers_crits')), 'extra'=>false, 'visible'=>true),
 
 			array('name'=>'Status',				'type'=>'select', 'required'=>true, 'visible'=>true, 'filter'=>true, 'param'=>'__COMMON__::Ticket_Status', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_TasksCommon','display_status')),
