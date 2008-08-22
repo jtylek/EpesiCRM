@@ -230,12 +230,12 @@ class Utils_RecordBrowser extends Module {
 					$arr = array_merge($arr, Utils_CommonDataCommon::get_translated_array($col, true));
 				} else {
 					Utils_RecordBrowserCommon::check_table_name($tab);
-					$ret2 = DB::Execute('SELECT MIN('.$tab.'_id) AS '.$tab.'_id, value FROM '.$tab.'_data WHERE field=%s GROUP BY value ORDER BY value', array($col));
-					while ($row2 = $ret2->FetchRow()) $arr[$row2[$tab.'_id']] = $row2['value'];
+					$ret2 = Utils_RecordBrowserCommon::get_records($tab,array(),array($col));
+					foreach ($ret2 as $k=>$v) $arr[$k] = $v[$col];
 				}
 			} else {
-				$ret2 = DB::Execute('SELECT MIN('.$this->tab.'_id) AS '.$this->tab.'_id, value FROM '.$this->tab.'_data WHERE field=%s GROUP BY value ORDER BY value', array($filter));
-				while ($row2 = $ret2->FetchRow()) if($row2['value'][0]!='_') $arr[$row2['value']] = $this->get_val($filter, array($this->table_rows[$filter]['id']=>$row2['value']), $row2[$this->tab.'_id'], true, $this->table_rows[$filter]);
+				$ret2 = Utils_RecordBrowserCommon::get_records($this->tab,array(),array($filter));
+				foreach ($ret2 as $k=>$v) /*if($v[$filter][0]!='_') */$arr[$k] = $this->get_val($filter, $v, $v['id'], true, $this->table_rows[$filter]);
 			}
 			if ($this->table_rows[$filter]['type']=='checkbox') $arr = array(''=>$this->lang->ht('No'), 1=>$this->lang->ht('Yes'));
 			natcasesort($arr);
@@ -334,9 +334,9 @@ class Utils_RecordBrowser extends Module {
 			if (isset($cols[$args['id']]) && $cols[$args['id']] === false) continue;
 			$query_cols[] = $args['id'];
 			$arr = array('name'=>$this->lang->t($args['name']));
-			if ($this->browse_mode!='recent') $arr['order'] = $field;
+			if ($this->browse_mode!='recent' && $args['type']!=='multiselect') $arr['order'] = $field;
 			if ($quickjump!=='' && $args['name']===$quickjump) $arr['quickjump'] = '"'.$args['name'];
-			if ($args['type']=='text' || $args['type']=='currency' || $args['type']=='calculated') $arr['search'] = str_replace(' ','_',$field);
+			if ($args['type']=='text' || $args['type']=='currency' || $args['type']=='calculated') $arr['search'] = $args['id'];//str_replace(' ','_',$field);
 			if ($args['type']=='checkbox' || $args['type']=='date' || $args['type']=='timestamp' || $args['type']=='commondata') {
 				$arr['wrapmode'] = 'nowrap';
 				$arr['width'] = 1;
@@ -347,9 +347,9 @@ class Utils_RecordBrowser extends Module {
 			}
 			$str = explode(';', $args['param']);
 			$ref = explode('::', $str[0]);
-			if ($ref[0]!='' && isset($ref[1])) $arr['search'] = '__Ref__'.str_replace(' ','_',$field);
+			if ($ref[0]!='' && isset($ref[1])) $arr['search'] = '__Ref__'.$args['id'];//str_replace(' ','_',$field);
 			if ($args['type']=='commondata' || $ref[0]=='__COMMON__') {
-				if (!isset($ref[1]) || $ref[0]=='__COMMON__') $arr['search'] = '__RefCD__'.str_replace(' ','_',$field);
+				if (!isset($ref[1]) || $ref[0]=='__COMMON__') $arr['search'] = '__RefCD__'.$args['id'];//str_replace(' ','_',$field);
 				else unset($arr['search']);
 			}
 			$table_columns[] = $arr;
@@ -380,7 +380,7 @@ class Utils_RecordBrowser extends Module {
 		$search = $gb->get_search_query(true);
 		$search_res = array();
 		foreach ($search as $k=>$v) {
-			$k = str_replace(array('__','_'),array(':',' '),$k);
+			$k = str_replace('__',':',$k);
 			$type = explode(':',$k);
 			if ($k[0]=='"') {
 				$search_res['_'.$k] = $v;
@@ -448,15 +448,15 @@ class Utils_RecordBrowser extends Module {
 			$gb_row = $gb->get_new_row();
 			if (!$admin && $this->favorites) {
 				$isfav = isset($favs[$row['id']]);
-				$row_data = array('<a '.Utils_TooltipCommon::open_tag_attrs(($isfav?$this->lang->t('This item is on your favourites list<br>Click to remove it from your favorites'):$this->lang->t('Click to add this item to favorites'))).' '.$this->create_callback_href(array($this,($isfav?'remove_from_favs':'add_to_favs')), array($row['id'])).'><img style="width: 14px; height: 14px; vertical-align: middle;" border="0" src="'.($isfav==false?$star_off:$star_on).'" /></a>');
-			} else $row_data = array();
+				$row_data= array('<a '.Utils_TooltipCommon::open_tag_attrs(($isfav?$this->lang->t('This item is on your favourites list<br>Click to remove it from your favorites'):$this->lang->t('Click to add this item to favorites'))).' '.$this->create_callback_href(array($this,($isfav?'remove_from_favs':'add_to_favs')), array($row['id'])).'><img style="width: 14px; height: 14px; vertical-align: middle;" border="0" src="'.($isfav==false?$star_off:$star_on).'" /></a>');
+			} else $row_data= array();
 			if (!$admin && $this->watchdog) {
 				$row_data[] = Utils_WatchdogCommon::get_change_subscription_icon($this->tab,$row['id']);
 			}
 			if ($special) {
 				$func = $this->get_module_variable('format_func');
 				$element = $this->get_module_variable('element');
-				$row_data = array('<a href="javascript:rpicker_addto(\''.$element.'\','.$row['id'].',\''.Base_ThemeCommon::get_template_file('images/active_on.png').'\',\''.Base_ThemeCommon::get_template_file('images/active_off2.png').'\',\''.(is_callable($func)?strip_tags(call_user_func($func, $row, true)):'').'\');"><img border="0" name="leightbox_rpicker_'.$element.'_'.$row['id'].'" /></a>');
+				$row_data= array('<a href="javascript:rpicker_addto(\''.$element.'\','.$row['id'].',\''.Base_ThemeCommon::get_template_file('images/active_on.png').'\',\''.Base_ThemeCommon::get_template_file('images/active_off2.png').'\',\''.(is_callable($func)?strip_tags(call_user_func($func, $row, true)):'').'\');"><img border="0" name="leightbox_rpicker_'.$element.'_'.$row['id'].'" /></a>');
 				$rpicker_ind[] = $row['id'];
 			}
 			foreach($query_cols as $argsid) {
@@ -527,8 +527,8 @@ class Utils_RecordBrowser extends Module {
 			$gb->set_postfix("</form>\n");
 
 			if (!$admin && $this->favorites) {
-				$row_data = array('&nbsp;');
-			} else $row_data = array();
+				$row_data= array('&nbsp;');
+			} else $row_data= array();
 
 			foreach($visible_cols as $k => $v)
 				$row_data[] = $data[$k]['error'].$data[$k]['html'];
@@ -663,7 +663,7 @@ class Utils_RecordBrowser extends Module {
 			$isfav_query_result = DB::GetOne('SELECT user_id FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%d', array(Acl::get_user(), $id));
 			$isfav = ($isfav_query_result!==false && $isfav_query_result!==null);
 			$theme -> assign('info_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(Utils_RecordBrowserCommon::get_html_record_info($this->tab, $id)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','info.png').'" /></a>');
-			$row_data = array();
+			$row_data= array();
 			$fav = DB::GetOne('SELECT user_id FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%s', array(Acl::get_user(), $id));
 
 			if ($this->favorites)
@@ -1120,10 +1120,10 @@ class Utils_RecordBrowser extends Module {
 			$row = DB::GetRow('SELECT field, type, visible, required, param, filter FROM '.$this->tab.'_field WHERE field=%s',array($id));
 			$form->setDefaults($row);
 			$form->addElement('static', 'select_data_type', $this->lang->t('Data Type'), $row['type']);
-			$selected_data = $row['type'];
+			$selected_data= $row['type'];
 		} else {
 			$form->addElement('select', 'select_data_type', $this->lang->t('Data Type'), $data_type);
-			$selected_data = $form->exportValue('select_data_type');
+			$selected_data= $form->exportValue('select_data_type');
 			$form->setDefaults(array('visible'=>1));
 		}
 		switch($selected_data) {
@@ -1158,10 +1158,13 @@ class Utils_RecordBrowser extends Module {
 				DB::StartTrans();
 				DB::Execute('UPDATE '.$this->tab.'_field SET field=%s, visible=%d, required=%d, filter=%d WHERE field=%s',
 							array($data['field'], $data['visible'], $data['required'], $data['filter'], $id));
-				DB::Execute('UPDATE '.$this->tab.'_data SET field=%s WHERE field=%s',
-							array($data['field'], $id));
 				DB::Execute('UPDATE '.$this->tab.'_edit_history_data SET field=%s WHERE field=%s',
 							array($data['field'], $id));
+				$data['field'] = strtolower(str_replace(' ','_',$data['field']));
+				if (preg_match('/^[a-z0-9_]*$/',$id)===false) trigger_error('Invalid column name: '.$id);
+				if (preg_match('/^[a-z0-9_]*$/',$data['field'])===false) trigger_error('Invalid column name: '.$data['field']);
+				DB::Execute('ALTER TABLE '.$this->tab.'_data_1 RENAME COLUMN f_'.$id.' TO f_'.$data['field']);
+				// TODO: check above query for security holes!
 				DB::CompleteTrans();
 				return false;
 			} else {

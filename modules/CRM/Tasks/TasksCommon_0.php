@@ -172,7 +172,7 @@ class CRM_TasksCommon extends ModuleCommon {
 			$values = $record;
 			$values['date_and_time'] = date('Y-m-d H:i:s');
 			$values['title'] = Base_LangCommon::ts('CRM/Tasks','Follow up: ').$values['title'];
-			unset($values['status']);
+			$values['status'] = 0;
 
 			if ($action != 'none') {		
 				$x = ModuleManager::get_instance('/Base_Box|0');
@@ -203,7 +203,7 @@ class CRM_TasksCommon extends ModuleCommon {
 		case 'view':
 			$values['date_and_time'] = date('Y-m-d H:i:s');
 			$values['title'] = Base_LangCommon::ts('CRM_Tasks','Follow up: ').$values['title'];
-			unset($values['status']);
+			$values['status'] = 0;
 			$ret = array();
 			if (ModuleManager::is_installed('CRM/Calendar')>=0) $ret['new_event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_Tasks','New Event')).' '.CRM_CalendarCommon::create_new_event_href(array('title'=>$values['title'],'access'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'emp_id'=>$values['employees'],'cus_id'=>$values['customers'])).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'"></a>';
 			$ret['new_task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_Tasks','New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', $values).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';

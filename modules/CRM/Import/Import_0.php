@@ -726,8 +726,10 @@ class CRM_Import extends Module {
 			switch($v[$header['ACTIVITY_NAME']]) {
 				case 'Call':
 					$kk = DB::GetRow('SELECT created_on,id FROM crm_import_phonecall WHERE original=%s',array($v[$header['ACTIVITYID']]));
-					$company_name = DB::GetOne('SELECT value FROM contact_data WHERE contact_id=%s AND field=\'Company Name\'',array($contact));
-					$phone = DB::GetOne('SELECT field FROM contact_data WHERE contact_id=%s AND (field=\'Work Phone\' OR field=\'Mobile Phone\' OR field=\'Home Phone\')',array($contact));
+					$company_name = Utils_RecordBrowserCommon::get_value('contact',$contact,'company_name');
+					$phone = Utils_RecordBrowserCommon::get_value('contact',$contact,'work_phone');
+					if (!$phone) $phone = Utils_RecordBrowserCommon::get_value('contact',$contact,'mobile_phone');
+					if (!$phone) $phone = Utils_RecordBrowserCommon::get_value('contact',$contact,'home_phone');
 					$phone_number = 0;
 					if ($phone=='Mobile Phone') $phone_number = 1;
 					if ($phone=='Work Phone') $phone_number = 2;

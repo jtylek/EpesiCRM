@@ -26,6 +26,20 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		return $records;
 	}
+	public static function encode_multi($v) {
+		if ($v==='') return '';
+		if (is_array($v)) {
+			if (empty($v)) return ''; 
+		} else $v = array($v);
+		return '__'.implode('__',$v).'__';
+	}
+	public static function decode_multi($v) {
+		if ($v===null) return array();
+		$v = explode('__',$v);
+		array_shift($v);
+		array_pop($v);
+		return $v;
+	}
 	public static function format_long_text($tab,$record){
 		self::init($tab);
 		foreach(self::$table_rows as $field => $args) {
@@ -58,15 +72,17 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		if (($tab!=null && !isset($tables[$tab])) && !$flush) trigger_error('RecordBrowser critical failure, terminating. (Requested '.$tab.', available '.print_r($tables, true).')', E_USER_ERROR);
 	}
-	public static function get_id($tab, $field, $value) {
-		self::init($tab);
-		if (isset(self::$hash[$field])) $field = self::$hash[$field];
-		return DB::GetOne('SELECT '.$tab.'_id FROM '.$tab.'_data WHERE field=%s AND value=%s', array($field, $value));
-	}
 	public static function get_value($tab, $id, $field) {
 		self::init($tab);
-		if (isset(self::$hash[$field])) $field = self::$hash[$field];
-		return DB::GetOne('SELECT value FROM '.$tab.'_data WHERE field=%s AND '.$tab.'_id=%d', array($field, $id));
+		if (isset(self::$table_rows[$field])) $field = self::$table_rows[$field]['id'];
+		elseif (!isset(self::$hash[$field])) trigger_error('get_value(): Unknown column: '.$field, E_USER_ERROR);
+		return DB::GetOne('SELECT f_'.$field.' FROM '.$tab.'_data_1 WHERE id=%d', array($id));
+	}
+	public static function get_id($tab, $field, $value) {
+		self::init($tab);
+		if (isset(self::$table_rows[$field])) $field = self::$table_rows[$field]['id'];
+		elseif (!isset(self::$hash[$field])) trigger_error('get_id(): Unknown column: '.$field, E_USER_ERROR);
+		return DB::GetOne('SELECT id FROM '.$tab.'_data_1 WHERE f_'.$field.'=%d', array($value));
 	}
 	public static function is_active($tab, $id) {
 		self::init($tab);
@@ -121,18 +137,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (!preg_match('/^[a-zA-Z_]+$/',$tab)) trigger_error('Invalid table name ('.$tab.') given to install_new_recordset.',E_USER_ERROR);
 		DB::Execute('INSERT INTO recordbrowser_table_properties (tab) VALUES (%s)', array($tab));
 		self::check_table_name(null, true);
-		DB::CreateTable($tab,
-					'id I AUTO KEY,'.
-					'created_on T NOT NULL,'.
-					'created_by I NOT NULL,'.
-					'private I4 DEFAULT 0,'.
-					'active I1 NOT NULL DEFAULT 1',
-					array('constraints'=>', FOREIGN KEY (created_by) REFERENCES user_login(id)'));
-		DB::CreateTable($tab.'_data',
-					$tab.'_id I,'.
-					'field C(32) NOT NULL,'.
-					'value C(255) NOT NULL',
-					array('constraints'=>', FOREIGN KEY ('.$tab.'_id) REFERENCES '.$tab.'(id)'));
 		DB::CreateTable($tab.'_field',
 					'field C(32) UNIQUE NOT NULL,'.
 					'type C(32),'.
@@ -181,6 +185,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$ret = DB::Execute('SELECT * FROM recordbrowser_datatype');
 		while ($row = $ret->FetchRow())
 			$datatypes[$row['type']] = array($row['module'], $row['func']);
+		DB::CreateTable($tab.'_data_1',
+					'id I AUTO KEY,'.
+					'created_on T NOT NULL,'.
+					'created_by I NOT NULL,'.
+					'private I4 DEFAULT 0,'.
+					'active I1 NOT NULL DEFAULT 1',
+					array('constraints'=>''));
 		foreach ($fields as $v) {
 			if (!isset($v['param'])) $v['param'] = '';
 			if (!isset($v['style'])) {
@@ -225,8 +236,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		DB::DropTable($tab.'_edit_history_data');
 		DB::DropTable($tab.'_edit_history');
 		DB::DropTable($tab.'_field');
-		DB::DropTable($tab.'_data');
-		DB::DropTable($tab);
+		DB::DropTable($tab.'_data_1');
 		DB::Execute('DELETE FROM recordbrowser_table_properties WHERE tab=%s', array($tab));
 		return true;
 	}
@@ -257,6 +267,24 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			}
 		}
 		DB::Execute('INSERT INTO '.$tab.'_field(field, type, visible, param, style, position, extra, required, filter) VALUES(%s, %s, %d, %s, %s, %d, %d, %d, %d)', array($field, $type, $visible?1:0, $param, $style, $pos, $extra?1:0, $required?1:0, $filter?1:0));
+		switch ($type) {
+			case 'page_split': $f = ''; break;
+
+			case 'text': $f = 'VARCHAR('.$param.')'; break;
+			case 'select': $f = 'TEXT'; break;
+			case 'multiselect': $f = 'TEXT'; break;
+			case 'commondata': $f = 'VARCHAR(128)'; break;
+			case 'integer': $f = 'INTEGER'; break;
+			case 'date': $f = 'DATE'; break;
+			case 'timestamp': $f = 'TIMESTAMP'; break;
+			case 'long text': $f = 'TEXT'; break;
+			case 'hidden': $f = (isset($param)?$param:''); break;
+			case 'calculated': $f = (isset($param)?$param:''); break;
+			case 'checkbox': $f = 'BOOLEAN'; break;
+			case 'currency': $f = 'VARCHAR(128)'; break;
+		}
+		if (!isset($f)) trigger_error('Database column for type '.$type.' undefined.',E_USER_ERROR);
+		if ($f!=='') DB::Execute('ALTER TABLE '.$tab.'_data_1 ADD COLUMN f_'.strtolower(str_replace(' ','_',$field)).' '.$f);
 	}
 	public static function new_addon($tab, $module, $func, $label) {
 		$module = str_replace('/','_',$module);
@@ -308,6 +336,15 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function set_access_callback($tab, $module, $func){
 		DB::Execute('UPDATE recordbrowser_table_properties SET access_callback=%s WHERE tab=%s', array($module.'::'.$func, $tab));
 	}
+	public static function get_sql_type($type) {
+		switch ($type) {
+			case 'checkbox': 
+			case 'integer': return '%d';
+			case 'date': return '%D';
+			case 'timestamp': return '%T';
+		}
+		return '%s';
+	}
 	public static function set_record_properties( $tab, $id, $info = array()) {
 		self::check_table_name($tab);
 		foreach ($info as $k=>$v)
@@ -322,17 +359,20 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (!$tab) return false;
 		self::init($tab);
 		DB::StartTrans();
-		DB::Execute('INSERT INTO '.$tab.' (created_on, created_by, active) VALUES (%T, %d, %d)',array(date('Y-m-d G:i:s'), Acl::get_user(), 1));
-		$id = DB::Insert_ID($tab, 'id');
-		self::add_recent_entry($tab, Acl::get_user(), $id);
+		$fields = 'created_on,created_by,active';
+		$fields_types = '%T,%d,%d';
+		$vals = array(date('Y-m-d G:i:s'), Acl::get_user(), 1);
 		foreach(self::$table_rows as $field => $args) {
+			if ($args['type']=='multiselect')
+				$values[$args['id']] = self::encode_multi($values[$args['id']]);
 			if (!isset($values[$args['id']]) || $values[$args['id']]=='') continue;
-			if (!is_array($values[$args['id']]))
-				DB::Execute('INSERT INTO '.$tab.'_data ('.$tab.'_id, field, value) VALUES (%d, %s, %s)',array($id, $field, $values[$args['id']]));
-			else
-				foreach($values[$args['id']] as $v)
-					DB::Execute('INSERT INTO '.$tab.'_data ('.$tab.'_id, field, value) VALUES (%d, %s, %s)',array($id, $field, $v));
+			$fields_types .= ','.self::get_sql_type($args['type']);
+			$fields .= ',f_'.$args['id'];
+			$vals[] = $values[$args['id']];
 		}
+		DB::Execute('INSERT INTO '.$tab.'_data_1 ('.$fields.') VALUES ('.$fields_types.')',$vals);
+		$id = DB::Insert_ID($tab.'_data_1', 'id');
+		self::add_recent_entry($tab, Acl::get_user(), $id);
 		DB::CompleteTrans();
 		return $id;
 	}
@@ -347,16 +387,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if ($args['id']=='id') continue;
 			if (!isset($values[$args['id']])) if ($all_fields) $values[$args['id']] = ''; else continue;
 			if ($record[$args['id']]!=$values[$args['id']]) {
-				DB::StartTrans();
-				$val = DB::GetOne('SELECT value FROM '.$tab.'_data WHERE '.$tab.'_id=%d AND field=%s',array($id, $field));
-				if ($val!==false && $val!==null) DB::Execute('DELETE FROM '.$tab.'_data WHERE '.$tab.'_id=%d AND field=%s',array($id, $field));
-				if ($values[$args['id']] !== '') {
-					if (!is_array($values[$args['id']])) $values[$args['id']] = array($values[$args['id']]);
-					foreach ($values[$args['id']] as $v)
-						DB::Execute('INSERT INTO '.$tab.'_data(value, '.$tab.'_id, field) VALUES (%s, %d, %s)',array($v, $id, $field));
+				if ($args['type']=='multiselect') {
+					$v = self::encode_multi($values[$args['id']]);
+					$old = self::encode_multi($record[$args['id']]);
+				} else {
+					$v = $values[$args['id']];
+					$old = $record[$args['id']];
 				}
-				DB::CompleteTrans();
-				$diff[$args['id']] = $record[$args['id']];
+				if ($v!=='') DB::Execute('UPDATE '.$tab.'_data_1 SET f_'.$args['id'].'='.self::get_sql_type($args['type']).' WHERE id=%d',array($v, $id));
+				else DB::Execute('UPDATE '.$tab.'_data_1 SET f_'.$args['id'].'=NULL WHERE id=%d',array($id));
+				$diff[$args['id']] = $old;
 			}
 		}
 		if (!empty($diff)) {
@@ -407,12 +447,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$key=$tab.'__'.serialize($crits).'__'.$admin.'__'.serialize($order);
 		static $cache = array();
 		self::init($tab, $admin);
-		if (isset($cache[$key])) return $cache[$key];
+//		if (isset($cache[$key])) return $cache[$key];
 		if (!$tab) return false;
 		$having = '';
 		$fields = '';
 		$where = '';
-		$final_tab = $tab.' AS r';
+		$final_tab = $tab.'_data_1 AS r';
 		$vals = array();
 		if (!$crits) $crits = array();
 		$access = self::get_access($tab, 'view');
@@ -430,14 +470,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
  			else $order[] = array('column'=>$hash[$k], 'order'=>$hash[$k], 'direction'=>$v);
 			unset($order[$k]);
 		}
-		$old_crits = $crits;
+/*		$old_crits = $crits;
 		$crits = array();
 		foreach($old_crits as $k=>$v) {
 			$tk = trim($k, '"!|(<=>_');
 			if (isset($hash[$tk])) $crits[str_replace($tk, $hash[$tk], $k)] = $v;
 			else $crits[$k] = $v;
-		}
-
+		}*/
 		$or_started = false;
 		$sep = DB::qstr('::');
 		foreach($crits as $k=>$v){
@@ -512,7 +551,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								$allowed_cd = array();
 								foreach ($ret as $kkk=>$vvv)
 									foreach ($v as $w) if ($w!='') {
-										if (strpos($vvv,$w)!==false) {
+										if (stripos($vvv,$w)!==false) {
 											$allowed_cd[] = DB::qstr($kkk);
 											break;
 										}
@@ -521,39 +560,35 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 									$having .= $negative?'true':'false';
 									break;
 								}
-								$having .= 'EXISTS (SELECT rd.value FROM '.$tab.'_data AS rd WHERE r.id=rd.'.$tab.'_id AND rd.field='.DB::qstr($ref).' AND ';
 								$having_cd = array();
 								foreach ($allowed_cd as $vvv)
-									$having_cd[] = 'rd.value LIKE '.DB::Concat(DB::qstr('%'),$vvv,DB::qstr('%'));
+									$having_cd[] = 'r.f_'.$ref.' LIKE '.DB::Concat(DB::qstr('%'),$vvv,DB::qstr('%'));
 								if (!empty($having_cd)) $having .= '('.implode(' OR ',$having_cd).')';
 								else $having .= false;
-								$having .= ')';
-								$iter++;
 								break;
 							}
 							$cols2 = explode('|', $cols2);
-							foreach($cols2 as $j=>$w) $cols2[$j] = DB::qstr($w);
-							$cols2 = implode(' OR rdt.field=', $cols2);
-
-							$base_exists = $exists = 'EXISTS (SELECT rdt.value FROM '.$tab2.'_data AS rdt LEFT JOIN '.$tab.'_data AS rd ON rdt.'.$tab2.'_id=rd.value AND rd.field='.DB::qstr($ref).' AND rdt.field='.$cols2.' WHERE rd.'.$tab.'_id=r.id AND ';
-							if ($negative) $exists = 'NOT '.$exists;
+							foreach($cols2 as $j=>$w) $cols2[$j] = self::$table_rows[$cols2[$j]]['id'];
+							if (!$noquotes) $w = DB::qstr($w);
 							if (!is_array($v)) $v = array($v);
-							$exists .= '(false';
-							$must_be_empty = false;
-							foreach($v as $w) {
+							$poss_vals = '';
+							foreach ($v as $w) {
 								if ($w==='') {
-									$must_be_empty = true;
+									$poss_vals .= 'OR f_'.implode(' IS NULL OR f_', $cols2);
 									break;
 								} else {
 									if (!$noquotes) $w = DB::qstr($w);
-									$exists .= ' OR rdt.value '.$operator.' '.DB::Concat(DB::qstr('%'),$w,DB::qstr('%'));
+									$poss_vals .= ' OR f_'.implode(' LIKE '.$w.' OR f_', $cols2).' LIKE '.$w;
 								}
 							}
-							$exists .= ')';
-							$exists .= ')';
-							if ($must_be_empty) $having .= ' ('.($negative?'':'NOT ').$base_exists.'true) OR '.$exists.')';
-							else $having .= $exists;
-							$iter++;
+							$allowed_cd = DB::GetAssoc('SELECT id, id FROM '.$tab2.'_data_1 WHERE false '.$poss_vals);
+
+							$having_cd = array();
+							if ($negative) $having .= 'NOT (';
+							foreach ($allowed_cd as $vvv)
+								$having_cd[] = 'r.f_'.$ref.' LIKE '.DB::Concat(DB::qstr('%'),DB::qstr('__'.$vvv.'__'),DB::qstr('%'));
+							if (!empty($having_cd)) $having .= '('.implode(' OR ',$having_cd).')';
+							else $having .= false;
 						} else trigger_error('Unknow paramter given to get_records criteria: '.$k, E_USER_ERROR);
 				}
 			} else {
@@ -566,26 +601,21 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					}
 					$having .= ')';
 				} else {
-					$base_exists = 'EXISTS (SELECT rd.value FROM '.$tab.'_data AS rd WHERE r.id=rd.'.$tab.'_id AND rd.field='.DB::qstr($k).' AND ';
-					$exists = $base_exists;
-					if ($negative) $exists = 'NOT '.$exists;
+					if ($negative) $having .= 'NOT ';
 					if (!is_array($v)) $v = array($v);
-					$exists .= '(false';
-					$must_be_empty = false;
+					$having .= '(false';
 					foreach($v as $w) {
 						if ($w==='') {
-							$must_be_empty = true;
+							$having .= ' OR r.f_'.$k.' IS NULL';
 							break;
 						} else {
-							if (!$noquotes) $w = DB::qstr($w);
-							$exists .= ' OR rd.value '.$operator.' '.$w;
+							if (!isset($hash[$k])) trigger_error(print_r($crits,true));
+							if (self::$table_rows[$hash[$k]]['type']=='multiselect') $w = DB::Concat(DB::qstr('%'),DB::qstr('__'.$w.'__'),DB::qstr('%'));
+							elseif (!$noquotes) $w = DB::qstr($w);
+							$having .= ' OR r.f_'.$k.' '.$operator.' '.$w;
 						}
 					}
-					$exists .= ')';
-					$exists .= ')';
-					if ($must_be_empty) $having .= ' ('.($negative?'':'NOT ').$base_exists.'true) OR '.$exists.')';
-					else $having .= $exists;
-					$iter++;
+					$having .= ')';
 				}
 			}
 		}
@@ -622,24 +652,25 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							$tab2 = $param[0];
 							$cols2 = $param[1];
 						}
-						if ($tab2!='__COMMON__') {
+/*						if ($tab2!='__COMMON__') {
 							$cols2 = explode('|', $cols2);
 							$cols2 = $cols2[0];
-							$val = '(SELECT '.($v['direction']=='ASC'?'MIN':'MAX').'(rdt.value) FROM '.$tab2.'_data AS rdt LEFT JOIN '.$tab.'_data AS rd ON rdt.'.$tab2.'_id=rd.value AND rd.field='.DB::qstr($v['order']).' AND rdt.field='.DB::qstr($cols2).' WHERE r.id=rd.'.$tab.'_id)';
+							$val = '(SELECT rdt.f_'.self::$table_rows[$cols2]['id'].' FROM '.$tab.'_data_1 AS rd LEFT JOIN '.$tab2.'_data_1 AS rdt ON rdt.id=rd.f_'.self::$table_rows[$v['order']]['id'].' WHERE r.id=rd.id)';
+							// TODO: check some stuff, possible inj
 							$orderby .= ' '.$val.' '.$v['direction'];
 							$iter++;
 							continue;
-						}
+						}*/
 					}
 				}
-				$val = '(SELECT '.($v['direction']=='ASC'?'MIN':'MAX').'(rd.value) FROM '.$tab.'_data AS rd WHERE r.id=rd.'.$tab.'_id AND rd.field='.DB::qstr($v['order']).')';
+				$val = 'f_'.self::$table_rows[$v['order']]['id'];
 				// could be better, doesn't work perfectly for multiselects
 				$orderby .= ' '.$val.' '.$v['direction'];
 				$iter++;
 			}
 		}
-		$final_tab = str_replace('('.$tab.' AS r'.')',$tab.' AS r',$final_tab);
-		$ret = array('sql'=>'SELECT id, active, created_by, created_on'.$fields.' FROM '.$final_tab.' WHERE true'.($admin?Utils_RecordBrowser::$admin_filter:' AND active=1').$where.$having.$orderby,'vals'=>$vals);
+		$final_tab = str_replace('('.$tab.'_data_1 AS r'.')',$tab.'_data_1 AS r',$final_tab);
+		$ret = array('sql'=>'SELECT * FROM '.$final_tab.' WHERE true'.($admin?Utils_RecordBrowser::$admin_filter:' AND active=1').$where.$having.$orderby,'vals'=>$vals);
 //		error_log(print_r($ret,true)."\n\n",3,'data/logger');
 		return $cache[$key] = $ret;
 	}
@@ -666,64 +697,35 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$where .= '%d';
 				$vals[] = $v;
 			}
-			$ret = DB::SelectLimit('SELECT id, active, created_by, created_on FROM '.$tab.' WHERE id IN ('.$where.')', $limit['numrows'], $limit['offset'], $vals);
+			$ret = DB::SelectLimit('SELECT * FROM '.$tab.' WHERE id IN ('.$where.')', $limit['numrows'], $limit['offset'], $vals);
+			// TODO: limit to needed cols
 		} else {
 			$par = self::build_query($tab, $crits, $admin, $order);
 			if (empty($par)) return array();
 			$ret = DB::SelectLimit($par['sql'], $limit['numrows'], $limit['offset'], $par['vals']);
+			// TODO: limit to needed cols
 		}
 		$records = array();
-		$where = ' WHERE true';
-		$vals = array();
-		$cols = array_flip($cols);
-		if (!empty($cols)) {
-			foreach(self::$table_rows as $field=>$args)
-				if (isset($cols[$args['id']])) {
-					unset($cols[$args['id']]);
-					$cols[$field] = true;
-				}
-			$where .= ' AND (false';
-			foreach ($cols as $k=>$v) {
-				$where .= ' OR field=%s';
-				$vals[] = $k;
-			}
-			$where .= ')';
-		}
-		$where .= ' AND '.$tab.'_id IN (';
-		$first = true;
+		if (!empty($cols))
+			foreach($cols as $k=>$v) $cols[$k] = (isset(self::$hash[$v])?self::$table_rows[self::$hash[$v]]:self::$table_rows[$v]);
+		else
+			$cols = self::$table_rows;
 		while ($row = $ret->FetchRow()) {
-			$records[$row['id']] = array(	'id'=>$row['id'],
-											'active'=>$row['active'],
-											'created_by'=>$row['created_by'],
-											'created_on'=>$row['created_on']);
-			if ($first) $first = false;
-			else $where .= ', ';
-			$where .= '%d';
-			$vals[] = $row['id'];
-		}
-		if ($first) return array();
-		$where .= ')';
-		$data = DB::Execute('SELECT * FROM '.$tab.'_data'.$where, $vals);
-		while($field = $data->FetchRow()) {
-			if (!isset(self::$table_rows[$field['field']])) continue;
-			$field_id = strtolower(str_replace(' ','_',$field['field']));
-			if (self::$table_rows[$field['field']]['type'] == 'multiselect') {
-				if (isset($records[$field[$tab.'_id']][$field_id]))
-					$records[$field[$tab.'_id']][$field_id][] = $field['value'];
-				else $records[$field[$tab.'_id']][$field_id] = array($field['value']);
-			} else
-				$records[$field[$tab.'_id']][$field_id] = $field['value'];
-		}
-		$check = self::$table_rows;
-		foreach(self::$table_rows as $field=>$args)
-			if (!empty($cols) && !isset($cols[$field]))
-				unset($check[$field]);
-		foreach($records as $k=>$v)
-			foreach($check as $field=>$args)
-				if (!isset($records[$k][$args['id']])) {
-					$records[$k][$args['id']] = '';
-					if ($args['type'] == 'multiselect') $records[$k][$args['id']] = array();
+			$r = array(	'id'=>$row['id'],
+						'active'=>$row['active'],
+						'created_by'=>$row['created_by'],
+						'created_on'=>$row['created_on']);
+			foreach(self::$table_rows as $v){
+				if (isset($row['f_'.$v['id']])) {
+					if ($v['type']=='multiselect') $r[$v['id']] = self::decode_multi($row['f_'.$v['id']]); 
+					else $r[$v['id']] = $row['f_'.$v['id']];
+				} else {
+					if ($v['type']=='multiselect') $r[$v['id']] = array(); 
+					else $r[$v['id']] = '';
 				}
+			}
+			$records[$row['id']] = $r;
+		}
 		return $records;
 	}
 	public static function check_record_against_crits($tab, $id, $crits) {
@@ -798,7 +800,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (!$tab) return false;
 		if (!$id) return false;
 		self::check_table_name($tab);
-		$created = DB::GetRow('SELECT created_on, created_by FROM '.$tab.' WHERE id=%d', array($id));
+		$created = DB::GetRow('SELECT created_on, created_by FROM '.$tab.'_data_1 WHERE id=%d', array($id));
 		$edited = DB::GetRow('SELECT edited_on, edited_by FROM '.$tab.'_edit_history WHERE '.$tab.'_id=%d ORDER BY edited_on DESC', array($id));
 		if (!isset($edited['edited_on'])) $edited['edited_on'] = null;
 		if (!isset($edited['edited_by'])) $edited['edited_by'] = null;
@@ -834,27 +836,19 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		self::init($tab);
 		if (isset($id)) {
 			self::check_table_name($tab);
-			$row = DB::Execute('SELECT active, created_by, created_on FROM '.$tab.' WHERE id=%d', array($id))->FetchRow();
-			if ($row===false) return null;
-			$data = DB::Execute('SELECT * FROM '.$tab.'_data WHERE '.$tab.'_id=%d', array($id));
-			$record = array();
-			while($field = $data->FetchRow()) {
-				if (!isset(self::$table_rows[$field['field']])) continue;
-				$field_id = strtolower(str_replace(' ','_',$field['field']));
-				if (self::$table_rows[$field['field']]['type'] == 'multiselect')
-					if (isset($record[$field_id]))
-						$record[$field_id][] = $field['value'];
-					else $record[$field_id] = array($field['value']);
-				else
-					$record[$field_id] = $field['value'];
-			}
-			$record['id'] = $id;
+			$row = DB::GetRow('SELECT * FROM '.$tab.'_data_1 WHERE id=%d', array($id));
+			$record = array('id'=>$id);
 			foreach(array('active','created_by','created_on') as $v)
 				$record[$v] = $row[$v];
-			foreach(self::$table_rows as $field=>$args)
-				if (!isset($record[$args['id']]))
-					if ($args['type'] == 'multiselect') $record[$args['id']] = array();
-					else $record[$args['id']] = '';
+			foreach(self::$table_rows as $field=>$args) {
+				if ($args['type']==='multiselect') {
+					if (!isset($row['f_'.$args['id']])) $r = array();
+					else $r = self::decode_multi($row['f_'.$args['id']]);
+					$record[$args['id']] = $r;
+				} else {
+					$record[$args['id']] = (isset($row['f_'.$args['id']])?$row['f_'.$args['id']]:'');
+				}
+			}
 			return $record;
 		} else {
 			return null;
@@ -922,7 +916,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		self::check_table_name($tab);*/
 		$ret = '';
-		if (!DB::GetOne('SELECT active FROM '.$tab.' WHERE id=%d',array($id))) {
+		if (!DB::GetOne('SELECT active FROM '.$tab.'_data_1 WHERE id=%d',array($id))) {
 			self::$del_or_a = '</del>';
 			$ret = '<del '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_RecordBrowser','This record was deleted from the system, please edit current record or contact system administrator')).'>';
 		} elseif (!$nolink && !self::check_record_against_crits($tab, $id, self::get_access($tab, 'view'))) {
@@ -947,8 +941,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			return $cache[$tab.'__'.$col.'__'.$id.'-'.$nolink];
 		}*/
 		self::init($tab);
-		if (isset(self::$hash[$col])) $col = self::$hash[$col];
-		$label = DB::GetOne('SELECT value FROM '.$tab.'_data WHERE field=%s AND '.$tab.'_id=%d', array($col, $id));
+		if (isset(self::$table_rows[$col])) $col = self::$table_rows[$col]['id'];
+		else trigger_error('Unknown column name: '.$col,E_USER_ERROR);
+		$label = DB::GetOne('SELECT f_'.$col.' FROM '.$tab.'_data_1 WHERE id=%d', array($id));
 		$ret = self::record_link_open_tag($tab, $id, $nolink).$label.self::record_link_close_tag();
 
 //		$cache[$tab.'__'.$col.'__'.$id.'-'.$nolink] = $ret;

@@ -74,8 +74,48 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array('0.9');
-	}	
+		return array('1.0', '2.0 alpha');
+	}
+	
+	public function upgrade_1(){
+		$tabs = DB::GetAssoc('SELECT tab, tab FROM recordbrowser_table_properties');
+		foreach ($tabs as $t) {
+			DB::CreateTable($t.'_data_1',
+						'id I AUTO KEY,'.
+						'created_on T NOT NULL,'.
+						'created_by I NOT NULL,'.
+						'private I4 DEFAULT 0,'.
+						'active I1 NOT NULL DEFAULT 1',
+						array('constraints'=>''));
+			$cols = DB::Execute('SELECT field, type, param FROM '.$t.'_field WHERE type!=%s AND type!=%s', array('foreign index','page_split'));
+			while ($c = $cols->FetchRow()) {
+				switch ($c['type']) {
+					case 'text': $f = 'VARCHAR('.$c['param'].')'; break;
+					case 'select': $f = 'TEXT'; break;
+					case 'multiselect': $f = 'TEXT'; break;
+					case 'commondata': $f = 'VARCHAR(128)'; break;
+					case 'integer': $f = 'INTEGER'; break;
+					case 'date': $f = 'DATE'; break;
+					case 'timestamp': $f = 'TIMESTAMP'; break;
+					case 'long text': $f = 'TEXT'; break;
+					case 'hidden': $f = (isset($c['param'])?$c['param']:''); break;
+					case 'calculated': $f = (isset($c['param'])?$c['param']:''); break;
+					case 'checkbox': $f = 'BOOLEAN'; break;
+					case 'currency': $f = 'VARCHAR(128)'; break;
+				}
+				if (!isset($f)) trigger_error('Database column for type '.$c['type'].' undefined.',E_USER_ERROR);
+				if ($f!=='') DB::Execute('ALTER TABLE '.$t.'_data_1 ADD COLUMN f_'.strtolower(str_replace(' ','_',$c['field'])).' '.$f);
+			}
+		}
+		return true;
+	}
+
+	public function downgrade_1(){
+		$tabs = DB::GetAssoc('SELECT tab, tab FROM recordbrowser_table_properties');
+		foreach ($tabs as $t)
+			DB::DropTable($t.'_data_1');
+		return true;
+	}
 }
 
 ?>

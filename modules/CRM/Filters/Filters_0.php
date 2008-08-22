@@ -76,7 +76,13 @@ class CRM_Filters extends Module {
 
 	public function set_profile($prof) {
 		if(is_numeric($prof)) {
-			DB::Execute('DELETE FROM crm_filters_contacts WHERE (SELECT count(cd.value) FROM contact_data cd WHERE cd.contact_id=contact_id AND cd.field=\'Company Name\' AND cd.value=%d)=0',CRM_ContactsCommon::get_main_company());
+			$cids = DB::GetAssoc('SELECT contact_id, contact_id FROM crm_filters_contacts');
+			foreach ($cids as $v) {
+				$c = CRM_ContactsCommon::get_contact($c);
+				if (!in_array(CRM_ContactsCommon::get_main_company(), $c['company name'])) {
+					DB::Execute('DELETE FROM crm_filters_contacts WHERE contact_id=%d',array($v));
+				}
+			}
 			$c = DB::GetCol('SELECT p.contact_id FROM crm_filters_contacts p WHERE p.group_id=%d',array($prof));
 			if($c)
 				$ret = implode(',',$c);
@@ -131,7 +137,10 @@ class CRM_Filters extends Module {
 			$gb_row = & $gb->get_new_row();
 			$gb_row->add_action($this->create_confirm_callback_href($this->lang->ht('Delete this group?'),array('CRM_Filters','delete_group'), $row['id']),'Delete');
 			$gb_row->add_action($this->create_callback_href(array($this,'edit_group'),$row['id']),'Edit');
-			$users = DB::GetCol('SELECT '.DB::Concat('(SELECT aa.value FROM contact_data aa WHERE aa.contact_id=c.contact_id AND aa.field=\'First Name\')','\' \'','(SELECT aa.value FROM contact_data aa WHERE aa.contact_id=c.contact_id AND aa.field=\'Last Name\')').' FROM crm_filters_contacts c WHERE c.group_id=%d',array($row['id']));
+			$cids = DB::GetAssoc('SELECT c.contact_id, c.contact_id FROM crm_filters_contacts c WHERE c.group_id=%d',array($row['id']));
+			$users = array();
+			foreach ($cids as $v)
+				$users[] = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact($v),true);
 			$gb_row->add_data($row['name'], $row['description'], implode(', ',$users));
 		}
 

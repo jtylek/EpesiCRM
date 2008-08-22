@@ -333,9 +333,9 @@ class Utils_RecordBrowser_Reports extends Module {
 				$vals = array();
 				$data_ids = array();
 				foreach ($this->data_record_relation[$dv] as $k2=>$v2) $vals = array($k2, $r['id']);
-				$ret = DB::Execute('SELECT '.$dv.'_id FROM '.$dv.'_data AS rd LEFT JOIN '.$dv.' AS r ON r.id=rd.'.$dv.'_id WHERE rd.field=%s AND rd.value=%s AND r.active=1', $vals);
-				while ($row = $ret->FetchRow())
-					$data_ids[] = $row[$dv.'_id'];
+				$ret = Utils_RecordBrowserCommon::get_records($dv,array($k2=>$r['id']));
+				foreach ($ret as $k=>$v)
+					$data_ids[] = $k;
 				$data_recs[] = Utils_RecordBrowserCommon::get_records($dv, array('id'=>$data_ids));
 			}
 			$results = call_user_func($this->display_cell_callback, $r, $data_recs);
@@ -478,9 +478,9 @@ class Utils_RecordBrowser_Reports extends Module {
 				$vals = array();
 				$data_ids = array();
 				foreach ($this->data_record_relation[$dv] as $k2=>$v2) $vals = array($k2, $r['id']);
-				$ret = DB::Execute('SELECT '.$dv.'_id FROM '.$dv.'_data AS rd LEFT JOIN '.$dv.' AS r ON r.id=rd.'.$dv.'_id WHERE rd.field=%s AND rd.value=%s AND r.active=1', $vals);
-				while ($row = $ret->FetchRow())
-					$data_ids[] = $row[$dv.'_id'];
+				$ret = Utils_RecordBrowserCommon::get_records($dv,array($k2=>$r['id']));
+				foreach ($ret as $k=>$v)
+					$data_ids[] = $k;
 				$data_recs[] = Utils_RecordBrowserCommon::get_records($dv, array('id'=>$data_ids));
 			}
 			$results = call_user_func($this->display_cell_callback, $r, $data_recs);
@@ -626,9 +626,9 @@ class Utils_RecordBrowser_Reports extends Module {
 					$vals = array();
 					$data_ids = array();
 					foreach ($this->data_record_relation[$dv] as $k2=>$v2) $vals = array($k2, $r['id']);
-					$ret = DB::Execute('SELECT '.$dv.'_id FROM '.$dv.'_data AS rd LEFT JOIN '.$dv.' AS r ON r.id=rd.'.$dv.'_id WHERE rd.field=%s AND rd.value=%s AND r.active=1', $vals);
-					while ($row = $ret->FetchRow())
-						$data_ids[] = $row[$dv.'_id'];
+					$ret = Utils_RecordBrowserCommon::get_records($dv,array($k2=>$r['id']));
+					foreach ($ret as $k=>$v)
+						$data_ids[] = $k;
 					$data_recs[] = Utils_RecordBrowserCommon::get_records($dv, array('id'=>$data_ids));
 				}
 				$results = call_user_func($this->display_cell_callback, $r, $data_recs);
@@ -809,9 +809,9 @@ class Utils_RecordBrowser_Reports extends Module {
 					$vals = array();
 					$data_ids = array();
 					foreach ($this->data_record_relation[$dv] as $k2=>$v2) $vals = array($k2, $r['id']); //TODO: tutaj jest blad poniewaz zawsze zastepuje vals biarac praktycznie ostatnia wartosc
-					$ret = DB::Execute('SELECT '.$dv.'_id FROM '.$dv.'_data AS rd LEFT JOIN '.$dv.' AS r ON r.id=rd.'.$dv.'_id WHERE rd.field=%s AND rd.value=%s AND r.active=1', $vals);
-					while ($row = $ret->FetchRow())
-						$data_ids[] = $row[$dv.'_id'];
+					$ret = Utils_RecordBrowserCommon::get_records($dv,array($k2=>$r['id']));
+					foreach ($ret as $k=>$v)
+						$data_ids[] = $k;
 					$data_recs[] = Utils_RecordBrowserCommon::get_records($dv, array('id'=>$data_ids));
 				}
 				$results = call_user_func($this->display_cell_callback, $r, $data_recs);
@@ -911,7 +911,6 @@ class Utils_RecordBrowser_Reports extends Module {
 	}
 
 	public function body($pdf=false, $charts=false) {
-//		Base_ThemeCommon::install_default_theme($this->get_type()); // TODO: delete this, just develop tool
 		if ($this->is_back()) return false;
 		if ($this->date_range=='error') return;
 		Base_ThemeCommon::load_css('Utils/RecordBrowser/Reports');
