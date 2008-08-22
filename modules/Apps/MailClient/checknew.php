@@ -27,9 +27,12 @@ function rm_lock($lock) {
 
 $accounts = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE user_login_id=%d',array(Acl::get_user()));
 foreach($accounts as $account) {
-	echo('<script>parent.Apps_MailClient.progress_bar.set_text(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\',\'\');');
+	$pop3 = ($account['incoming_protocol']==0);
+	if(!$pop3) continue;
+	echo('<script>parent.Apps_MailClient.progress_bar.set_text(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\',\''.Epesi::escapeJS($account['mail'],false).'\');');
 	echo('parent.Apps_MailClient.progress_bar.set_progress(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\', 0)</script>');
 }
+flush();
 foreach($accounts as $account) {
 	$host = explode(':',$account['incoming_server']);
 	if(isset($host[1])) $port=$host[1];
@@ -40,6 +43,7 @@ foreach($accounts as $account) {
 	$ssl = $account['incoming_ssl'];
 	$method = $account['incoming_method']!='auto'?$account['incoming_method']:null;
 	$pop3 = ($account['incoming_protocol']==0);
+	if(!$pop3) continue;
 	
 	$box = str_replace(array('@','.'),array('__at__','__dot__'),$account['mail']).'/Inbox';
 	
@@ -63,7 +67,29 @@ foreach($accounts as $account) {
 
 	message($account['id'],$account['mail'].': login');
 
-	if($pop3) { //pop3
+	$native_support = false;
+	if(function_exists('imap_open')) {
+		$native_support = true;
+		$in = @imap_open('{'.$host.':'.($port?$port:'110').'/pop3'.($ssl?'/ssl/novalidate-cert':'').'}', $user,$pass);
+		if(!$in) {
+			message($account['id'],$account['mail'].': (connect error) '.implode(', ',imap_errors()));
+			unlink($lock);
+			continue;
+		}
+
+		message($account['id'],$account['mail'].': fetching');
+
+		if ($hdr = imap_check($in)) {
+			$msgCount = $hdr->Nmsgs;
+		} else {
+			message($account['id'],$account['mail'].': (fetch error) '.implode(', ',imap_errors()));
+			unlink($lock);
+			continue;			
+		}
+
+		
+		$l=imap_fetch_overview($in,'1:'.$msgCount,0);
+	} else {
 		require_once('Net/POP3.php');
 		$in = new Net_POP3();
 
@@ -71,97 +97,114 @@ foreach($accounts as $account) {
 			if($ssl) $port=995;
 			else $port=110;
 		}
-	} else { //imap
-		require_once('Net/IMAP.php');
-		if($port==null) {
-			if($ssl) $port=993;
-			else $port=143;
+	
+		if(PEAR::isError( $ret= $in->connect(($ssl?'ssl://':'').$host , $port) )) {
+			message($account['id'],$account['mail'].': (connect error) '.$ret->getMessage());
+			unlink($lock);
+			continue;
 		}
-		$in = new Net_IMAP();
-	}
 
-	if(PEAR::isError( $ret= $in->connect(($ssl?'ssl://':'').$host , $port) )) {
-		message($account['id'],$account['mail'].': (connect error) '.$ret->getMessage());
-		unlink($lock);
-		continue;
-	}
+		if(PEAR::isError( $ret= $in->login($user , $pass, $method))) {
+			message($account['id'],$account['mail'].': (login error) '.$ret->getMessage());
+			unlink($lock);
+			continue;
+		}
 
-	if(PEAR::isError( $ret= $in->login($user , $pass, $method))) {
-		message($account['id'],$account['mail'].': (login error) '.$ret->getMessage());
-		unlink($lock);
-		continue;
+		$l = $in->getListing();
 	}
-
+	
 	$num = 0;
 	$error = false;
-	if($pop3) {
-		$l = $in->getListing();
-		//check uidls and unset already downloaded messages
-		$uidls_file = Apps_MailClientCommon::get_mail_dir().$box.'.uilds';
-		$uidls = array();
-		if(($uidls_fp = @fopen($uidls_file,'r'))!==false) {
-			while(($data = fgetcsv($uidls_fp,200))!==false) {
-				$xxx = count($data);
-				if($xxx!=2) continue;
-				$uidls[$data[0]] = intval($data[1]);
-			}
-			fclose($uidls_fp);
+	//check uidls and unset already downloaded messages
+	$uidls_file = Apps_MailClientCommon::get_mail_dir().$box.'.uilds';
+	$uidls = array();
+	if(($uidls_fp = @fopen($uidls_file,'r'))!==false) {
+		while(($data = fgetcsv($uidls_fp,200))!==false) {
+			$xxx = count($data);
+			if($xxx!=2) continue;
+			$uidls[$data[0]] = intval($data[1]);
 		}
-		$now = time();
-		$count = count($l);
-		if(!empty($uidls))
-			for($k=0; $k<$count; $k++)
-				if(array_key_exists($l[$k]['uidl'],$uidls)) {
-					//print('old uidl=>'.$l[$k]['uidl'].', time=>'.$uidls[$l[$k]['uidl']].', live time=>'.($uidls[$l[$k]['uidl']]+$account['pop3_leave_msgs_on_server']*86400).', now=>'.$now.'<br>');
-					if($account['pop3_leave_msgs_on_server']>=0 && ($uidls[$l[$k]['uidl']]+$account['pop3_leave_msgs_on_server']*86400)<=$now) {
-						$in->deleteMsg($l[$k]['msg_id']);
-						unset($uidls[$l[$k]['uidl']]);
-					}
-					unset($l[$k]);
-				}
-		
-		$count = count($l);
-		$invalid = 0;
-		foreach($l as $msgl) {
-			message($account['id'],$account['mail'].': getting message '.$num.' of '.$count);
-			$msg = $in->getMsg($msgl['msg_id']);
-			$decode = new Mail_mimeDecode($msg, "\r\n");
-			$structure = $decode->decode();
-			if($msg===false || !isset($structure->headers['from']) || !isset($structure->headers['date'])) {
-				$invalid++;
-				//$in->deleteMsg($msgl['msg_id']);
-				//$count--;
-				continue;
-			}
-			$msg_id = $mbox->size();
-			$mbox->insert("From - ".date('D M d H:i:s Y')."\n".$msg);
-			if(!Apps_MailClientCommon::append_msg_to_index($box,$msg_id,isset($structure->headers['subject'])?$structure->headers['subject']:'no subject',$structure->headers['from'],$structure->headers['date'],strlen($msg))) {
-				message($account['id'],$account['mail'].': broken index file');
-				$mbox->remove($msg_id);
-				$error = true;
-				break;
-			}
-			$tt = strtotime($structure->headers['date']);
-			if($tt===false) $tt=$now;
-			//print('uidl=>'.$msgl['uidl'].', time=>'.$tt.', live time=>'.($tt+$account['pop3_leave_msgs_on_server']*86400).', now=>'.$now.'<br>');
-			if($account['pop3_leave_msgs_on_server']>=0 && ($tt+$account['pop3_leave_msgs_on_server']*86400)<=$now) {
-				$in->deleteMsg($msgl['msg_id']);
-			} else {
-				$uidls[$msgl['uidl']] = $tt;	
-			}
-
-			$num++;
-			echo('<script>parent.Apps_MailClient.progress_bar.set_progress(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\', '.ceil($num*100/$count).')</script>');
-			flush();
-		}
-		if(($uidls_fp = @fopen($uidls_file,'w'))!==false) {
-			foreach($uidls as $ui=>$t)
-				fputcsv($uidls_fp,array($ui,$t));
-			fclose($uidls_fp);
-		}
-	} else { //imap
+		fclose($uidls_fp);
 	}
-	$in->disconnect();
+	$now = time();
+	$count = count($l);
+	if(!empty($uidls))
+		for($k=0; $k<$count; $k++) {
+			if($native_support) 
+				$uidl = $l[$k]->message_id;
+			else
+				$uidl = $l[$k]['uidl'];
+			if(array_key_exists($uidl,$uidls)) {
+				//print('old uidl=>'.$l[$k]['uidl'].', time=>'.$uidls[$l[$k]['uidl']].', live time=>'.($uidls[$l[$k]['uidl']]+$account['pop3_leave_msgs_on_server']*86400).', now=>'.$now.'<br>');
+				if($account['pop3_leave_msgs_on_server']>=0 && ($uidls[$uidl]+$account['pop3_leave_msgs_on_server']*86400)<=$now) {
+					if($native_support)
+						imap_delete($in,$l[$k]->uid);
+					else
+						$in->deleteMsg($l[$k]['msg_id']);
+					unset($uidls[$uidl]);
+				}
+				unset($l[$k]);
+			}
+		}
+	
+		
+	$count = count($l);
+	$invalid = 0;
+	foreach($l as $msgl) {
+		message($account['id'],$account['mail'].': getting message '.$num.' of '.$count);
+		//tutaj jest jedyne wykorzystanie bibliotecznej funkcji
+		if($native_support)
+			$msg = imap_fetchheader($in,$msgl->uid).imap_body($in,$msgl->uid,FT_INTERNAL);
+		else
+			$msg = $in->getMsg($msgl['msg_id']);
+		$decode = new Mail_mimeDecode($msg, "\r\n");
+		$structure = $decode->decode();
+		if($msg===false || !isset($structure->headers['from']) || !isset($structure->headers['date'])) {
+			$invalid++;
+			//$in->deleteMsg($msgl['msg_id']);
+			//$count--;
+			continue;
+		}
+		$msg_id = $mbox->size();
+		$mbox->insert("From - ".date('D M d H:i:s Y')."\n".$msg);
+		if(!Apps_MailClientCommon::append_msg_to_index($box,$msg_id,isset($structure->headers['subject'])?$structure->headers['subject']:'no subject',$structure->headers['from'],$structure->headers['date'],strlen($msg))) {
+			message($account['id'],$account['mail'].': broken index file');
+			$mbox->remove($msg_id);
+			$error = true;
+			break;
+		}
+		$tt = strtotime($structure->headers['date']);
+		if($tt===false) $tt=$now;
+		//print('uidl=>'.$msgl['uidl'].', time=>'.$tt.', live time=>'.($tt+$account['pop3_leave_msgs_on_server']*86400).', now=>'.$now.'<br>');
+		if($account['pop3_leave_msgs_on_server']>=0 && ($tt+$account['pop3_leave_msgs_on_server']*86400)<=$now) {
+			if($native_support)
+				imap_delete($in,$msgl->uid);
+			else
+				$in->deleteMsg($msgl['msg_id']);
+		} else {
+			if($native_support)
+				$uidls[$msgl->message_id] = $tt;				
+			else
+				$uidls[$msgl['uidl']] = $tt;	
+		}
+
+		$num++;
+		echo('<script>parent.Apps_MailClient.progress_bar.set_progress(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\', '.ceil($num*100/$count).')</script>');
+		flush();
+	}
+	
+	echo('<script>parent.Apps_MailClient.progress_bar.set_progress(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\', 100)</script>');
+	if(($uidls_fp = @fopen($uidls_file,'w'))!==false) {
+		foreach($uidls as $ui=>$t)
+			fputcsv($uidls_fp,array($ui,$t));
+		fclose($uidls_fp);
+	}
+	
+	if($native_support)
+		imap_close($in);
+	else
+		$in->disconnect();
+	
 	$mbox->close();
 	if(!$error)
 		message($account['id'],$account['mail'].': ok, got '.$num.' new messages, '.$invalid.' invalid messages skipped');
