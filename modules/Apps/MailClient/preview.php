@@ -95,9 +95,17 @@ if(($ret = $mbox->setTmpDir(Apps_MailClientCommon::Instance()->get_data_dir().'t
 					$ret_attachments .= '<a target="_blank" href="modules/Apps/MailClient/preview.php?'.http_build_query(array_merge($_GET,array('attachment_cid'=>$a))).'">'.$name.'</a><br>';
 			}
 		}
+
+		if(ereg('(Sent|Drafts)$',$_GET['mbox']))
+			$address = $structure->headers['to'];
+		else
+			$address = $structure->headers['from'];
 		
-		$script = 'parent.$(\''.$_GET['pid'].'_subject\').innerHTML=\''.Epesi::escapeJS(htmlentities(isset($structure->headers['subject'])?$structure->headers['subject']:'no subject'),false).'\';'.
-			'parent.$(\''.$_GET['pid'].'_address\').innerHTML=\''.Epesi::escapeJS(htmlentities($structure->headers['from']),false).'\';'.
+		$subject = isset($structure->headers['subject'])?Apps_MailClientCommon::mime_header_decode($structure->headers['subject']):'no subject';
+		$address = Apps_MailClientCommon::mime_header_decode($address);
+		
+		$script = 'parent.$(\''.$_GET['pid'].'_subject\').innerHTML=\''.Epesi::escapeJS(htmlentities($subject),false).'\';'.
+			'parent.$(\''.$_GET['pid'].'_address\').innerHTML=\''.Epesi::escapeJS(htmlentities($address),false).'\';'.
 			'parent.$(\''.$_GET['pid'].'_attachments\').innerHTML=\''.Epesi::escapeJS($ret_attachments,false).'\';';
 		
 		header("Content-type: text/html");

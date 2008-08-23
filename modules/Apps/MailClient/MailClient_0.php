@@ -69,7 +69,9 @@ class Apps_MailClient extends Module {
 		
 		foreach($mbox as $id=>$data) {
 			$r = $gb->get_new_row();
-			$r->add_data($id,'<a href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$id, 'pid'=>$preview_id)).'\')">'.htmlentities($data['subject']).'</a>',htmlentities($to_col?$data['to']:$data['from']),Base_RegionalSettingsCommon::time2reg($data['date']),$data['size']);
+			$subject = Apps_MailClientCommon::mime_header_decode($data['subject']);
+			$address = Apps_MailClientCommon::mime_header_decode($to_col?$data['to']:$data['from']);
+			$r->add_data($id,'<a href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$id, 'pid'=>$preview_id)).'\')">'.htmlentities($subject).'</a>',htmlentities($address),Base_RegionalSettingsCommon::time2reg($data['date']),$data['size']);
 			$lid = 'mailclient_link_'.$id;
 			$r->add_action('href="javascript:void(0)" rel="'.$show_id.'" class="lbOn" id="'.$lid.'" ','View');
 			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Delete this message?'),array($this,'remove_message'),array($mbox_file,$id)),'Delete');

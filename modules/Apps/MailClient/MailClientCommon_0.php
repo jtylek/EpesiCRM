@@ -225,6 +225,16 @@ class Apps_MailClientCommon extends ModuleCommon {
 		fclose($out);
 		return true;
 	}
+	
+	public static function mime_header_decode($string) {
+		if(!function_exists('imap_mime_header_decode')) return $string;
+	    $array = imap_mime_header_decode($string);
+	    $str = "";
+	    foreach ($array as $key => $part) {
+	        $str .= $part->text;
+	    }
+	    return $str;
+	}
 }
 
 ?>
