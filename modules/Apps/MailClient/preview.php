@@ -96,8 +96,8 @@ if(($ret = $mbox->setTmpDir(Apps_MailClientCommon::Instance()->get_data_dir().'t
 			}
 		}
 		
-		$script = 'parent.$(\''.$_GET['pid'].'_subject\').innerHTML=\''.Epesi::escapeJS(htmlentities($structure->headers['subject']),false).'\';'.
-			'parent.$(\''.$_GET['pid'].'_from\').innerHTML=\''.Epesi::escapeJS(htmlentities($structure->headers['from']),false).'\';'.
+		$script = 'parent.$(\''.$_GET['pid'].'_subject\').innerHTML=\''.Epesi::escapeJS(htmlentities(isset($structure->headers['subject'])?$structure->headers['subject']:'no subject'),false).'\';'.
+			'parent.$(\''.$_GET['pid'].'_address\').innerHTML=\''.Epesi::escapeJS(htmlentities($structure->headers['from']),false).'\';'.
 			'parent.$(\''.$_GET['pid'].'_attachments\').innerHTML=\''.Epesi::escapeJS($ret_attachments,false).'\';';
 		
 		header("Content-type: text/html");

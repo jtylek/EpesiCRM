@@ -1,9 +1,9 @@
 <table style="width:100%">
 <tr>
-	<td>Subject: </td><td>{$subject}</td><td style="text-align:right" rowspan=2>{$attachments}</td>
+	<td>{$subject_label}: </td><td>{$subject}</td><td style="text-align:right" rowspan=2>{$attachments}</td>
 </tr>
 <tr>
-	<td>From: </td><td>{$from}</td>
+	<td>{$address_label}: </td><td>{$address}</td>
 </tr>
 <tr>
 	<td colspan=3>{$body}</td>

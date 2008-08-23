@@ -54,9 +54,14 @@ class Apps_MailClientCommon extends ModuleCommon {
 				file_put_contents($acc_dir.'Inbox.mbox','');
 				file_put_contents($acc_dir.'Sent.mbox','');
 				file_put_contents($acc_dir.'Trash.mbox','');
+				file_put_contents($acc_dir.'Drafts.mbox','');
 			}
 		}
 		return $dir; 
+	}
+	
+	public static function get_mailbox_dir($mail_address) {
+		return Apps_MailClientCommon::get_mail_dir().str_replace(array('@','.'),array('__at__','__dot__'),$mail_address).'/';
 	}
 	
 	public static function get_mail_dir() {
@@ -122,9 +127,9 @@ class Apps_MailClientCommon extends ModuleCommon {
 					continue;
 				$decode = new Mail_mimeDecode($message, "\r\n");
 				$structure = $decode->decode();
-				if(!isset($structure->headers['from']) || !isset($structure->headers['date']))
+				if(!isset($structure->headers['from']) || !isset($structure->headers['to']) || !isset($structure->headers['date']))
 					continue;
-				fputcsv($out, array($n,isset($structure->headers['subject'])?substr($structure->headers['subject'],0,256):'no subject',substr($structure->headers['from'],0,256),substr($structure->headers['date'],0,64),substr(strlen($message),0,64)));
+				fputcsv($out, array($n,isset($structure->headers['subject'])?substr($structure->headers['subject'],0,256):'no subject',substr($structure->headers['from'],0,256),substr($structure->headers['to'],0,256),substr($structure->headers['date'],0,64),substr(strlen($message),0,64)));
 			}
 			fclose($out);
 			$mbox->close();
@@ -133,29 +138,32 @@ class Apps_MailClientCommon extends ModuleCommon {
 		return false;
 	}
 	
-	public static function get_index($box) {
-		$box = Apps_MailClientCommon::get_mail_dir().ltrim($box,'/');
+	public static function get_index($box,$dir=null) {
+		if(isset($dir))
+			$box = Apps_MailClientCommon::get_mailbox_dir(trim($box,'/')).$dir;
+		else
+			$box = Apps_MailClientCommon::get_mail_dir().ltrim($box,'/');
 		if(!file_exists($box.'.idx')) self::build_index($box);
 		$in = @fopen($box.'.idx','r');
 		if($in==false) return false;
 		$ret = array();
 		while (($data = fgetcsv($in, 660)) !== false) { //teoretically max is 640+integer and commas
 			$num = count($data);
-			if($num!=5) continue;
-			$ret[$data[0]] = array('from'=>$data[2], 'date'=>$data[3], 'subject'=>$data[1], 'size'=>$data[4]);
+			if($num!=6) continue;
+			$ret[$data[0]] = array('from'=>$data[2], 'to'=>$data[3], 'date'=>$data[4], 'subject'=>$data[1], 'size'=>$data[5]);
 		}
 		fclose($in);
 		return $ret;
 	}
 	
-	public static function remove_msg($box, $id) {
+	public static function remove_msg($box, $dir, $id) {
 		ini_set('include_path','modules/Apps/MailClient/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
 		require_once('Mail/Mbox.php');
 		require_once('Mail/mimeDecode.php');
 		
-		if(!self::remove_msg_from_index($box,$id)) return false;
+		if(!self::remove_msg_from_index($box,$dir,$id)) return false;
 
-		$boxpath = self::get_mail_dir().ltrim($box,'/');
+		$boxpath = self::get_mailbox_dir(trim($box,'/')).$dir;
 		$mbox = new Mail_Mbox($boxpath.'.mbox');
 		if(($ret = $mbox->setTmpDir(self::Instance()->get_data_dir().'tmp'))===true && ($ret = $mbox->open())===true) {
 			if($mbox->size()<=$id) return false;
@@ -166,30 +174,30 @@ class Apps_MailClientCommon extends ModuleCommon {
 		return true;
 	}
 	
-	public static function remove_msg_from_index($box,$id) {
-		$idx = self::get_index($box);
+	public static function remove_msg_from_index($box,$dir,$id) {
+		$idx = self::get_index($box,$dir);
 		
 		if($idx===false || !isset($idx[$id])) return false;
 		unset($idx[$id]);
 
-		$box = Apps_MailClientCommon::get_mail_dir().$box;
+		$box = Apps_MailClientCommon::get_mailbox_dir(trim($box,'/')).$dir;
 		$out = @fopen($box.'.idx','w');
 		if($out==false) return false;
 		$idx = array_values($idx);
 		foreach($idx as $id=>$d)
-			fputcsv($out, array($id,substr($d['subject'],0,256),substr($d['from'],0,256),substr($d['date'],0,64),substr($d['size'],0,64)));
+			fputcsv($out, array($id,substr($d['subject'],0,256),substr($d['from'],0,256),substr($d['to'],0,256),substr($d['date'],0,64),substr($d['size'],0,64)));
 		fclose($out);
 		return true;
 	}
 	
-	public static function move_msg($box, $box2, $id) {
+	public static function move_msg($box, $dir, $box2, $dir2, $id) {
 		ini_set('include_path','modules/Apps/MailClient/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
 		require_once('Mail/Mbox.php');
 		require_once('Mail/mimeDecode.php');
 		
-		$boxpath = self::get_mail_dir().ltrim($box,'/');
+		$boxpath = self::get_mailbox_dir(trim($box,'/')).$dir;
 		$mbox = new Mail_Mbox($boxpath.'.mbox');
-		$boxpath2 = self::get_mail_dir().ltrim($box2,'/');
+		$boxpath2 = self::get_mailbox_dir(trim($box2,'/')).$dir2;
 		$mbox2 = new Mail_Mbox($boxpath2.'.mbox');
 		if($mbox->setTmpDir(self::Instance()->get_data_dir().'tmp')===true && $mbox->open()===true &&
 			$mbox2->setTmpDir(self::Instance()->get_data_dir().'tmp')===true && $mbox2->open()===true) {
@@ -199,21 +207,21 @@ class Apps_MailClientCommon extends ModuleCommon {
 			$mbox2->insert($msg);
 			$decode = new Mail_mimeDecode($msg, "\r\n");
 			$structure = $decode->decode();
-			if(!self::append_msg_to_index($box2,$id2,$structure->headers['subject'],$structure->headers['from'],$structure->headers['date'],strlen($msg)))
+			if(!self::append_msg_to_index($box2,$dir2,$id2,$structure->headers['subject'],$structure->headers['from'],$structure->headers['to'],$structure->headers['date'],strlen($msg)))
 				return false;
 
 			$mbox->remove($id);
-			if(!self::remove_msg_from_index($box,$id)) return false;
+			if(!self::remove_msg_from_index($box,$dir,$id)) return false;
 			return true;
 		}
 		return false;
 	}
 
-	public static function append_msg_to_index($box, $id, $subject, $from, $date, $size) {
-		$box = self::get_mail_dir().ltrim($box,'/');
+	public static function append_msg_to_index($mail,$box, $id, $subject, $from, $to, $date, $size) {
+		$box = self::get_mailbox_dir(trim($mail,'/')).$box;
 		$out = @fopen($box.'.idx','a');
 		if($out==false) return false;
-		fputcsv($out,array($id, substr($subject,0,256), substr($from,0,256), substr($date,0,64), substr($size,0,64)));
+		fputcsv($out,array($id, substr($subject,0,256), substr($from,0,256), substr($to,0,256), substr($date,0,64), substr($size,0,64)));
 		fclose($out);
 		return true;
 	}
