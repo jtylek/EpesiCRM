@@ -153,14 +153,86 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$fil = '';
 		if(!Base_AclCommon::i_am_admin())
 			$fil .= ' AND (e.access<2 OR (SELECT id FROM crm_calendar_event_group_emp cg2 WHERE cg2.id=e.id AND cg2.contact='.CRM_FiltersCommon::get_my_profile().' LIMIT 1) IS NOT NULL)';
-		$ret = DB::Execute('SELECT color, e.starts as start FROM crm_calendar_event AS e WHERE e.starts>=%d AND e.starts<=%d AND status<2 '.$fil.' ORDER BY e.starts', array($start, $end));
+		$ret = DB::Execute('SELECT e.color, e.starts as start, e.recurrence_type, e.recurrence_end, e.recurrence_hash FROM crm_calendar_event AS e WHERE ((e.recurrence_type is null AND e.starts>=%d AND e.starts<=%d) OR (e.recurrence_type is not null AND e.starts<%d AND (e.recurrence_end is null OR e.recurrence_end>=%D))) AND status<2 '.$fil.' ORDER BY e.starts', array($start, $end, $end, $start));
 		$rs = array();
-		$last = '';
+		$last = array();
 		while ($row = $ret->FetchRow()) {
-			$next = date('Y-m-d',$row['start']);
-			if ($next==$last) continue;
-			$rs[] = array('time'=>strtotime($next),'color'=>$row['color']);
-			$last = $next;
+			if($row['recurrence_type']) {
+				$type = self::recurrence_type($row['recurrence_type']);
+				if(isset($row['recurrence_end']))
+					$rend = min(strtotime($row['recurrence_end']),$end);
+				else
+					$rend = $end;
+				$kk = 0;
+				if($row['start']>=$start) {
+					if($type=='week_custom') {
+						if($row['recurrence_hash']{date('N',strtotime(Base_RegionalSettingsCommon::time2reg($row['start'],false,true,true,false)))-1}) {
+							$next = date('Y-m-d',$row['start']);
+							if (!isset($last[$next])) {
+								$last[$next] = 1;
+								$rs[] = array('time'=>strtotime($next),'color'=>$row['color']);
+							}
+						}
+					} else {
+						$next = date('Y-m-d',$row['start']);
+						if (!isset($last[$next])) {
+							$last[$next] = 1;
+							$rs[] = array('time'=>strtotime($next),'color'=>$row['color']);
+						}
+					}
+				}
+				while($row['start']<$rend) {
+						$kk++;
+						switch($type) {
+							case 'everyday':
+								$row['start']+=3600*24;
+								break;
+							case 'second':
+								$row['start']+=3600*48;
+								break;
+							case 'third':
+								$row['start']+=3600*72;
+								break;
+							case 'fourth':
+								$row['start']+=3600*96;
+								break;
+							case 'fifth':
+								$row['start']+=3600*120;
+								break;
+							case 'sixth':
+								$row['start']+=3600*144;
+								break;
+							case 'week':
+								$row['start']+=3600*168;
+								break;
+							case 'week_custom':
+								do {
+									$row['start']+=3600*24;
+								} while(!$row['recurrence_hash']{date('N',strtotime(Base_RegionalSettingsCommon::time2reg($row['start'],false,true,true,false)))-1});
+								break;
+							case 'two_weeks':
+								$row['start']+=3600*168*2;
+								break;
+							case 'month':
+								$month = date('m',$row['start'])%12+1;
+								$row['start'] = strtotime(date('Y-'.$month.'-d H:i:s',$row['start']));
+								break;
+						}
+						if($row['start']>=$start && $row['start']<$rend) {
+							$next = date('Y-m-d',$row['start']);
+							if (!isset($last[$next])) {
+								$last[$next] = 1;
+								$rs[] = array('time'=>strtotime($next),'color'=>$row['color']);
+							}
+						}
+				}
+			} else {
+				$next = date('Y-m-d',$row['start']);
+				if (isset($last[$next])) continue;
+				$last[$next] = 1;
+				$rs[] = array('time'=>strtotime($next),'color'=>$row['color']);
+
+			}
 		}
 		return $rs;
 	}
@@ -292,7 +364,6 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 								break;
 						}
 						if($next_result['start']>=$start && $next_result['start']<$rend) {
-							$next_result['id'] =
 							$result[] = $next_result;
 						}
 				}
