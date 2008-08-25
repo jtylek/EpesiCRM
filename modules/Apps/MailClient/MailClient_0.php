@@ -2,7 +2,11 @@
 /**
  * Simple mail client
  *
- * TODO: internal mail, zalaczniki, obsluga imap
+ * TODO: 
+ * -internal mail 
+ * -filtrowanie addressbook przy new mail - dodaj uzytkownikow z kontem epesi tak aby wiadomosc szla do internal mail
+ * -zalaczniki
+ * -obsluga imap
  * @author pbukowski@telaxus.com
  * @copyright pbukowski@telaxus.com
  * @license SPL

@@ -87,6 +87,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		if($mdir===null) $mdir = $this->_get_mail_dir();
 		$st = array();
 		$cont = scandir($mdir);
+		$cont[] = 'Internal mail';
 		foreach($cont as $f) {
 			if($f=='.' || $f=='..') continue;
 			$path = $mdir.$f;
