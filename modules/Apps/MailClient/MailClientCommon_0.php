@@ -207,7 +207,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 			$mbox2->insert($msg);
 			$decode = new Mail_mimeDecode($msg, "\r\n");
 			$structure = $decode->decode();
-			if(!self::append_msg_to_index($box2,$dir2,$id2,$structure->headers['subject'],$structure->headers['from'],$structure->headers['to'],$structure->headers['date'],strlen($msg)))
+			if(!self::append_msg_to_index($box2,$dir2,$id2,isset($structure->headers['subject'])?$structure->headers['subject']:'no subject',$structure->headers['from'],$structure->headers['to'],$structure->headers['date'],strlen($msg)))
 				return false;
 
 			$mbox->remove($id);
@@ -234,6 +234,10 @@ class Apps_MailClientCommon extends ModuleCommon {
 	        $str .= $part->text;
 	    }
 	    return $str;
+	}
+
+	public static function addressbook_rp($e){
+		return CRM_ContactsCommon::contact_format_default($e,true);
 	}
 }
 

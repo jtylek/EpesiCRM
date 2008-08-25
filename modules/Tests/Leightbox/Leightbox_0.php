@@ -22,7 +22,7 @@ class Tests_Leightbox extends Module{
 		$rb1 = $this->init_module('Utils/RecordBrowser/RecordPicker');
 		$this->display_module($rb1, array('contact' ,'test',array('Tests_LeightboxCommon','TEST'), array('company_name'=>true)));
 		print($rb1->create_open_link('Click here!'));
-		
+
 		Libs_LeightboxCommon::display('leightbox1','<h1>Leightbox</h1>'.
 							'ble ble ble','Test header');
 

@@ -71,7 +71,7 @@ class Apps_MailClient extends Module {
 			$r = $gb->get_new_row();
 			$subject = Apps_MailClientCommon::mime_header_decode($data['subject']);
 			$address = Apps_MailClientCommon::mime_header_decode($to_col?$data['to']:$data['from']);
-			$r->add_data($id,'<a href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$id, 'pid'=>$preview_id)).'\')">'.htmlentities($subject).'</a>',htmlentities($address),Base_RegionalSettingsCommon::time2reg($data['date']),$data['size']);
+			$r->add_data($id,'<a href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$id, 'pid'=>$preview_id)).'\')">'.htmlentities($subject).'</a>',htmlentities($address),Base_RegionalSettingsCommon::time2reg($data['date']),filesize_hr($data['size']));
 			$lid = 'mailclient_link_'.$id;
 			$r->add_action('href="javascript:void(0)" rel="'.$show_id.'" class="lbOn" id="'.$lid.'" ','View');
 			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Delete this message?'),array($this,'remove_message'),array($mbox_file,$id)),'Delete');
@@ -121,14 +121,26 @@ class Apps_MailClient extends Module {
 		
 		
 		$f = $this->init_module('Libs/QuickForm');
+		$theme = $this->init_module('Base/Theme');
 		
 		$f->addElement('hidden','action','send','id="new_mail_action"');
 		
 		$from = DB::GetAssoc('SELECT id,mail FROM apps_mailclient_accounts WHERE smtp_server is not null AND smtp_server!=\'\' AND user_login_id='.Acl::get_user());
 		$f->addElement('select','from_addr',$this->lang->t('From'),$from);
-		$f->addElement('text','to_addr',$this->lang->t('To'));
+		$f->addRule('from_addr',$this->lang->t('Field required'),'required');
+		$f->addElement('text','to_addr',$this->lang->t('To'),Utils_TooltipCommon::open_tag_attrs($this->lang->t('You can enter more then one email address separating it with comma.')));
 		$f->addRule('to_addr',$this->lang->t('Field required'),'required');
 		$f->addRule('to_addr',$this->lang->t('Invalid mail address'),'email');
+		if(ModuleManager::is_installed('CRM/Contacts')>=0) {
+			$theme->assign('addressbook','<a href="javascript:void(0)" onClick="$(\'addressbook_area_id\').toggle()">Addressbook</a>');
+			$theme->assign('addressbook_area_id','apps_mailclient_addressbook');
+			$f->addElement('multiselect','to_addr_ex','',array());
+			$rb1 = $this->init_module('Utils/RecordBrowser/RecordPicker');
+			$this->display_module($rb1, array('contact' ,'to_addr_ex',array('Apps_MailClientCommon','addressbook_rp')));
+			$theme->assign('addressbook_add_button',$rb1->create_open_link('Choose contact'));
+//			Libs_LeightboxCommon::display('apps_mailclient_addressbook','<h1>Leightbox</h1>'.
+//								'ble ble ble','Test header');
+		}
 		$f->addElement('text','subject',$this->lang->t('Subject'),array('maxlength'=>256));
 		$f->addRule('subject',$this->lang->t('Max length of subject is 256 chars'),'maxlength',256);
 		$fck = & $f->addElement('fckeditor', 'body', $this->lang->t('Content'));
@@ -175,7 +187,9 @@ class Apps_MailClient extends Module {
 				return false;
 			}
 		}
-		$f->display();
+		$f->assign_theme('form', $theme);
+
+		$theme->display('new');
 		
 		Base_ActionBarCommon::add('save','Save',' href="javascript:void(0)" onClick="$(\'new_mail_action\').value=\'save\';'.addcslashes($f->get_submit_form_js(),'"').'"');
 		Base_ActionBarCommon::add('report','Send',' href="javascript:void(0)" onClick="$(\'new_mail_action\').value=\'send\';'.addcslashes($f->get_submit_form_js(),'"').'"');

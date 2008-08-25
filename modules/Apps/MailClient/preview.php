@@ -110,7 +110,7 @@ if(($ret = $mbox->setTmpDir(Apps_MailClientCommon::Instance()->get_data_dir().'t
 		
 		header("Content-type: text/html");
 		if($body_type=='plain') {
-			$body = preg_replace("/(http:\/\/[a-z0-9]+(\.[a-z0-9]+)+(\/[\.a-z0-9]+)*)/i", "<a href='\\1'>\\1</a>", $body);
+			$body = htmlspecialchars(preg_replace("/(http:\/\/[a-z0-9]+(\.[a-z0-9]+)+(\/[\.a-z0-9]+)*)/i", "<a href='\\1'>\\1</a>", $body));
 			$body = '<html>'.
 				'<head><meta http-equiv=Content-Type content="'.$body_ctype.'"></head>'.
 				'<body><pre>'.$body.'</pre></body>';

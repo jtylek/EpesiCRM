@@ -13,8 +13,8 @@ class Tests_LeightboxCommon extends ModuleCommon {
 	public static function menu(){
 		return array('Tests'=>array('__submenu__'=>1,'__weight__'=>-10, 'Leightbox page'=>array()));
 	}
-	public static function TEST($id){
-		return $id;	
+	public static function TEST($e){
+		return $e['id'];	
 	}
 }
 
