@@ -478,7 +478,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$or_started = false;
 		$sep = DB::qstr('::');
 		foreach($crits as $k=>$v){
-			$v = str_replace('_','\\_',$v);
 			$negative = $noquotes = $or_start = $or = false;
 			$operator = 'LIKE';
 			while (($k[0]<'a' || $k[0]>'z') && ($k[0]<'A' || $k[0]>'Z') && $k[0]!=':') {
