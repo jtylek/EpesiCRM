@@ -130,7 +130,6 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 			$recs = DB::Execute('SELECT * FROM '.$t);
 			self::el($t.': Moving records... ');
 			while ($r = $recs->FetchRow()) {
-				if ($r['id']==2273) continue;
 				DB::Execute('INSERT INTO '.$t.'_data_1 (id, active, created_by, created_on) VALUES (%d, %d, %d, %T)', array($r['id'], $r['active'], $r['created_by'], $r['created_on']));
 				self::el($t.': Moving record '.$r['id']);
 				foreach($multi as $v) {

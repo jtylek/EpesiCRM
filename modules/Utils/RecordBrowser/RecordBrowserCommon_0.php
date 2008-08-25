@@ -580,7 +580,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					foreach($v as $w) {
 						if ($w==='') {
 							$must_be_empty = true;
-							break;
 						} else {
 							if (!$noquotes) $w = DB::qstr($w);
 							$exists .= ' OR rd.value '.$operator.' '.$w;
@@ -588,7 +587,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					}
 					$exists .= ')';
 					$exists .= ')';
-					if ($must_be_empty) $having .= ' ('.($negative?'':'NOT ').$base_exists.'true) OR '.$exists.')';
+//					if ($must_be_empty) $having .= ' ('.($negative?'':'NOT ').$base_exists.'true) OR '.$exists.')';
+//					if ($must_be_empty) $having .= ($negative?'':'NOT ').$base_exists.'true)';
+					if ($must_be_empty) $having .= ' ('.($negative?'':'NOT ').$base_exists.'true) '.($negative?'AND':'OR').' '.$exists.')';
 					else $having .= $exists;
 					$iter++;
 				}
