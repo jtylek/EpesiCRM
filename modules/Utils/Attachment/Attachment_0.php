@@ -197,9 +197,6 @@ class Utils_Attachment extends Module {
 			}
 			if($row['sticky']) $text['value'] = '<img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'sticky.png').'" hspace=3 align="left"> '.$text['value'];
 
-			// TODO: Why changing format and timezone twice? Everything was screwed up because of this, Paul, please revise
-			//$date_format = Base_RegionalSettingsCommon::date_format();
-			//$regional_note_on = strftime($date_format,strtotime($note_on));
 			$regional_note_on = $note_on;
 			$arr = array();
 			if($vd)
