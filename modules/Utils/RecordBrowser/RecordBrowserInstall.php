@@ -74,12 +74,24 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array('1.0', '2.0 alpha');
+		return array('1.0', '2.0 beta');
+	}
+	
+	public static function el($s) {
+		return;
+		static $start = 0;
+		if ($start == 0) $start=microtime(true);
+		error_log(number_format(microtime(true)-$start,3).': '.$s."\n",3,'data/RBupgrade.txt');
 	}
 	
 	public function upgrade_1(){
+		set_time_limit(0);
+		ini_set("memory_limit","512M");
 		$tabs = DB::GetAssoc('SELECT tab, tab FROM recordbrowser_table_properties');
+		self::el('Starting...');
 		foreach ($tabs as $t) {
+			self::el($t.': Working');
+			@DB::DropTable($t.'_data_1');
 			DB::CreateTable($t.'_data_1',
 						'id I AUTO KEY,'.
 						'created_on T NOT NULL,'.
@@ -87,6 +99,7 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 						'private I4 DEFAULT 0,'.
 						'active I1 NOT NULL DEFAULT 1',
 						array('constraints'=>''));
+			self::el($t.': Created base table');
 			$cols = DB::Execute('SELECT field, type, param FROM '.$t.'_field WHERE type!=%s AND type!=%s', array('foreign index','page_split'));
 			while ($c = $cols->FetchRow()) {
 				switch ($c['type']) {
@@ -106,7 +119,35 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 				if (!isset($f)) trigger_error('Database column for type '.$c['type'].' undefined.',E_USER_ERROR);
 				if ($f!=='') DB::Execute('ALTER TABLE '.$t.'_data_1 ADD COLUMN f_'.strtolower(str_replace(' ','_',$c['field'])).' '.$f);
 			}
+			self::el($t.': Created all table fields');
+			$params = DB::GetAssoc('SELECT field, type FROM '.$t.'_field');
+			$multi = array();
+			$rest = '';
+			foreach($params as $k=>$v) {
+				if ($v=='multiselect') $multi[] = $k;
+				else $rest .= ' OR field=\''.$k.'\'';
+			} 
+			$recs = DB::Execute('SELECT * FROM '.$t);
+			self::el($t.': Moving records... ');
+			while ($r = $recs->FetchRow()) {
+				if ($r['id']==2273) continue;
+				DB::Execute('INSERT INTO '.$t.'_data_1 (id, active, created_by, created_on) VALUES (%d, %d, %d, %T)', array($r['id'], $r['active'], $r['created_by'], $r['created_on']));
+				self::el($t.': Moving record '.$r['id']);
+				foreach($multi as $v) {
+					$vals = DB::GetAssoc('SELECT value, value FROM '.$t.'_data WHERE field=%s AND '.$t.'_id=%d',array($v,$r['id']));
+					if (empty($vals)) continue;
+					DB::Execute('UPDATE '.$t.'_data_1 SET f_'.strtolower(str_replace(' ','_',$v)).'='.DB::qstr('__'.implode('__',$vals).'__').\' WHERE id='.$r['id']);
+				}
+				$vals = DB::GetAssoc('SELECT field, value FROM '.$t.'_data WHERE '.$t.'_id='.$r['id'].' AND (false'.$rest.')');
+				$update = '';
+				foreach ($vals as $k=>$v) {
+					DB::Execute('UPDATE '.$t.'_data_1 SET f_'.strtolower(str_replace(' ','_',$k)).'='.DB::qstr($v).' WHERE id='.$r['id']);					
+				}
+				self::el($t.': Moved record '.$r['id']);
+			}
+			self::el($t.': Done');
 		}
+		self::el($t.': Upgrade done');
 		return true;
 	}
 

@@ -448,7 +448,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$key=$tab.'__'.serialize($crits).'__'.$admin.'__'.serialize($order);
 		static $cache = array();
 		self::init($tab, $admin);
-//		if (isset($cache[$key])) return $cache[$key];
+		if (isset($cache[$key])) return $cache[$key];
 		if (!$tab) return false;
 		$having = '';
 		$fields = '';
@@ -462,13 +462,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$crits = self::merge_crits($crits, $access);
 		}
 		$iter = 0;
-		$hash = array();
-		foreach (self::$table_rows as $field=>$args)
-			$hash[$args['id']] = $field;
 		foreach($order as $k=>$v) {
 			if (!is_string($k)) break;
  			if ($k[0]==':') $order[] = array('column'=>$k, 'order'=>$k, 'direction'=>$v);
- 			else $order[] = array('column'=>$hash[$k], 'order'=>$hash[$k], 'direction'=>$v);
+ 			else $order[] = array('column'=>self::$hash[$k], 'order'=>self::$hash[$k], 'direction'=>$v);
 			unset($order[$k]);
 		}
 /*		$old_crits = $crits;
@@ -602,18 +599,23 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					}
 					$having .= ')';
 				} else {
-					if ($negative) $having .= 'NOT ';
 					if (!is_array($v)) $v = array($v);
+					if ($negative) $having .= 'NOT ';
 					$having .= '(false';
 					foreach($v as $w) {
 						if ($w==='') {
 							$having .= ' OR r.f_'.$k.' IS NULL';
-							break;
 						} else {
-							if (!isset($hash[$k])) trigger_error(print_r($crits,true));
-							if (self::$table_rows[$hash[$k]]['type']=='multiselect') $w = DB::Concat(DB::qstr('%'),DB::qstr('__'.$w.'__'),DB::qstr('%'));
+							if (isset(self::$hash[$k])) {
+								$f = self::$hash[$k];
+								$key = $k;
+							} elseif (isset(self::$table_rows[$k])) {
+								$f = $k;
+								$key = self::$table_rows[$k]['id'];
+							} else trigger_error(print_r($crits,true));
+							if (self::$table_rows[$f]['type']=='multiselect') $w = DB::Concat(DB::qstr('%'),DB::qstr('__'.$w.'__'),DB::qstr('%'));
 							elseif (!$noquotes) $w = DB::qstr($w);
-							$having .= ' OR r.f_'.$k.' '.$operator.' '.$w;
+							$having .= ' OR (r.f_'.$key.' '.$operator.' '.$w.' AND r.f_'.$key.' IS NOT NULL)';
 						}
 					}
 					$having .= ')';
@@ -698,7 +700,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$where .= '%d';
 				$vals[] = $v;
 			}
-			$ret = DB::SelectLimit('SELECT * FROM '.$tab.' WHERE id IN ('.$where.')', $limit['numrows'], $limit['offset'], $vals);
+			$ret = DB::SelectLimit('SELECT * FROM '.$tab.'_data_1 WHERE id IN ('.$where.')', $limit['numrows'], $limit['offset'], $vals);
 			// TODO: limit to needed cols
 		} else {
 			$par = self::build_query($tab, $crits, $admin, $order);
@@ -943,7 +945,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}*/
 		self::init($tab);
 		if (isset(self::$table_rows[$col])) $col = self::$table_rows[$col]['id'];
-		else trigger_error('Unknown column name: '.$col,E_USER_ERROR);
+		elseif (!isset(self::$hash[$col])) trigger_error('Unknown column name: '.$col,E_USER_ERROR);
 		$label = DB::GetOne('SELECT f_'.$col.' FROM '.$tab.'_data_1 WHERE id=%d', array($id));
 		$ret = self::record_link_open_tag($tab, $id, $nolink).$label.self::record_link_close_tag();
 

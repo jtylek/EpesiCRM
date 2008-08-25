@@ -226,10 +226,13 @@ class Base_Setup extends Module {
 			}
 		}
 
+		$post_install = array();
 		//install
-		foreach($install as $i=>$v)
+		foreach($install as $i=>$v) {
+			$post_install[$i] = $v;
 			if (!ModuleManager::install($i,$v))
 				return false;
+		}
 
 		//uninstall
 		$modules_prio_rev = array();
@@ -248,7 +251,7 @@ class Base_Setup extends Module {
 
 		Base_ThemeCommon::create_cache();
 
-		$this->set_module_variable('post-install',ModuleManager::get_processed_modules());
+		$this->set_module_variable('post-install',$post_install);
 		return true;
 	}
 }

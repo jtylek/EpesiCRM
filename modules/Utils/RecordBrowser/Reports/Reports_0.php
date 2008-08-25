@@ -333,10 +333,7 @@ class Utils_RecordBrowser_Reports extends Module {
 				$vals = array();
 				$data_ids = array();
 				foreach ($this->data_record_relation[$dv] as $k2=>$v2) $vals = array($k2, $r['id']);
-				$ret = Utils_RecordBrowserCommon::get_records($dv,array($k2=>$r['id']));
-				foreach ($ret as $k=>$v)
-					$data_ids[] = $k;
-				$data_recs[] = Utils_RecordBrowserCommon::get_records($dv, array('id'=>$data_ids));
+				$data_recs[] = Utils_RecordBrowserCommon::get_records($dv,array($k2=>$r['id']));
 			}
 			$results = call_user_func($this->display_cell_callback, $r, $data_recs);
 			if (empty($this->categories)) {
@@ -478,10 +475,7 @@ class Utils_RecordBrowser_Reports extends Module {
 				$vals = array();
 				$data_ids = array();
 				foreach ($this->data_record_relation[$dv] as $k2=>$v2) $vals = array($k2, $r['id']);
-				$ret = Utils_RecordBrowserCommon::get_records($dv,array($k2=>$r['id']));
-				foreach ($ret as $k=>$v)
-					$data_ids[] = $k;
-				$data_recs[] = Utils_RecordBrowserCommon::get_records($dv, array('id'=>$data_ids));
+				$data_recs[] = Utils_RecordBrowserCommon::get_records($dv,array($k2=>$r['id']));
 			}
 			$results = call_user_func($this->display_cell_callback, $r, $data_recs);
 
@@ -626,10 +620,7 @@ class Utils_RecordBrowser_Reports extends Module {
 					$vals = array();
 					$data_ids = array();
 					foreach ($this->data_record_relation[$dv] as $k2=>$v2) $vals = array($k2, $r['id']);
-					$ret = Utils_RecordBrowserCommon::get_records($dv,array($k2=>$r['id']));
-					foreach ($ret as $k=>$v)
-						$data_ids[] = $k;
-					$data_recs[] = Utils_RecordBrowserCommon::get_records($dv, array('id'=>$data_ids));
+					$data_recs[] = Utils_RecordBrowserCommon::get_records($dv,array($k2=>$r['id']));
 				}
 				$results = call_user_func($this->display_cell_callback, $r, $data_recs);
 
@@ -809,10 +800,7 @@ class Utils_RecordBrowser_Reports extends Module {
 					$vals = array();
 					$data_ids = array();
 					foreach ($this->data_record_relation[$dv] as $k2=>$v2) $vals = array($k2, $r['id']); //TODO: tutaj jest blad poniewaz zawsze zastepuje vals biarac praktycznie ostatnia wartosc
-					$ret = Utils_RecordBrowserCommon::get_records($dv,array($k2=>$r['id']));
-					foreach ($ret as $k=>$v)
-						$data_ids[] = $k;
-					$data_recs[] = Utils_RecordBrowserCommon::get_records($dv, array('id'=>$data_ids));
+					$data_recs[] = Utils_RecordBrowserCommon::get_records($dv,array($k2=>$r['id']));
 				}
 				$results = call_user_func($this->display_cell_callback, $r, $data_recs);
 

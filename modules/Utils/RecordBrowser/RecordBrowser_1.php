@@ -230,6 +230,7 @@ class Utils_RecordBrowser extends Module {
 					$arr = array_merge($arr, Utils_CommonDataCommon::get_translated_array($col, true));
 				} else {
 					Utils_RecordBrowserCommon::check_table_name($tab);
+					if (isset($this->table_rows[$col])) $col = $this->table_rows[$col]['id'];
 					$ret2 = Utils_RecordBrowserCommon::get_records($tab,array(),array($col));
 					foreach ($ret2 as $k=>$v) $arr[$k] = $v[$col];
 				}
@@ -832,7 +833,7 @@ class Utils_RecordBrowser extends Module {
 					}
 				switch ($args['type']) {
 					case 'calculated':	$form->addElement('static', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
-										if ($args['param'] == 'display_in_edit' && $mode=='edit')
+										if ($record[$args['id']]!='' && $mode=='edit')
 											$form->setDefaults(array($args['id']=>$this->get_val($field, $record, $record['id'], false, $args)));
 										else
 											$form->setDefaults(array($args['id']=>'['.$this->lang->t('formula').']'));

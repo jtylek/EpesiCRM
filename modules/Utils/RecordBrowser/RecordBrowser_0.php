@@ -832,7 +832,7 @@ class Utils_RecordBrowser extends Module {
 					}
 				switch ($args['type']) {
 					case 'calculated':	$form->addElement('static', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
-										if ($args['param'] == 'display_in_edit' && $mode=='edit')
+										if ($record[$args['id']]!='' && $mode=='edit')
 											$form->setDefaults(array($args['id']=>$this->get_val($field, $record, $record['id'], false, $args)));
 										else
 											$form->setDefaults(array($args['id']=>'['.$this->lang->t('formula').']'));
