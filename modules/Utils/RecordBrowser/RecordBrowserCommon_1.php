@@ -478,6 +478,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$or_started = false;
 		$sep = DB::qstr('::');
 		foreach($crits as $k=>$v){
+			$v = str_replace('_','\\_',$v);
 			$negative = $noquotes = $or_start = $or = false;
 			$operator = 'LIKE';
 			while (($k[0]<'a' || $k[0]>'z') && ($k[0]<'A' || $k[0]>'Z') && $k[0]!=':') {
@@ -561,8 +562,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								$having_cd = array();
 								foreach ($allowed_cd as $vvv)
 									$having_cd[] = 'r.f_'.$ref.' LIKE '.DB::Concat(DB::qstr('%'),$vvv,DB::qstr('%'));
-								if (!empty($having_cd)) $having .= '('.implode(' OR ',$having_cd).')';
-								else $having .= false;
+								$having .= '('.implode(' OR ',$having_cd).')';
 								break;
 							}
 							$cols2 = explode('|', $cols2);
@@ -581,12 +581,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							}
 							$allowed_cd = DB::GetAssoc('SELECT id, id FROM '.$tab2.'_data_1 WHERE false '.$poss_vals);
 
+							if (empty($allowed_cd)) {
+								$having .= $negative?'true':'false';
+								break;
+							}
+
 							$having_cd = array();
 							if ($negative) $having .= 'NOT (';
 							foreach ($allowed_cd as $vvv)
-								$having_cd[] = 'r.f_'.$ref.' LIKE '.DB::Concat(DB::qstr('%'),DB::qstr('__'.$vvv.'__'),DB::qstr('%'));
-							if (!empty($having_cd)) $having .= '('.implode(' OR ',$having_cd).')';
-							else $having .= false;
+								$having_cd[] = 'r.f_'.$ref.' LIKE '.DB::Concat(DB::qstr('%'),DB::qstr('\_\_'.$vvv.'\_\_'),DB::qstr('%'));
+							$having .= '('.implode(' OR ',$having_cd).')';
 						} else trigger_error('Unknow paramter given to get_records criteria: '.$k, E_USER_ERROR);
 				}
 			} else {
@@ -613,7 +617,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								$f = $k;
 								$key = self::$table_rows[$k]['id'];
 							} else trigger_error(print_r($crits,true));
-							if (self::$table_rows[$f]['type']=='multiselect') $w = DB::Concat(DB::qstr('%'),DB::qstr('__'.$w.'__'),DB::qstr('%'));
+							if (self::$table_rows[$f]['type']=='multiselect') $w = DB::Concat(DB::qstr('%'),DB::qstr('\_\_'.$w.'\_\_'),DB::qstr('%'));
 							elseif (!$noquotes) $w = DB::qstr($w);
 							$having .= ' OR (r.f_'.$key.' '.$operator.' '.$w.' AND r.f_'.$key.' IS NOT NULL)';
 						}
