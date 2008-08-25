@@ -15,7 +15,7 @@ class CRM_FollowupCommon extends ModuleCommon {
 	
 	public static function check_location() {
 		if (isset($_REQUEST['__location']) && self::$last_location!=$_REQUEST['__location']) {
-			$last_location = $_REQUEST['__location'];
+			self::$last_location = $_REQUEST['__location'];
 			self::$leightbox_ready = array();	
 		}
 	}
