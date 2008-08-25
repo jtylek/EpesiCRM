@@ -7,14 +7,14 @@
 </tr>
 <tr>
 <td>{$form_data.to_addr.label}</td>
-<td><span class="error">{$form_data.to_addr.error}</span>{$form_data.to_addr.html}</td>
+<td><span class="error">{$form_data.to_addr.error}</span>{$form_data.to_addr.html}{$addressbook}</td>
 </tr>
 {if isset($addressbook)}
 <tr>
 <td colspan=2>
 <div id="{$addressbook_area_id}">
-{$form_data.to_addr_ex.html}
 {$addressbook_add_button}
+{$form_data.to_addr_ex.html}
 </div>
 </td>
 </tr>

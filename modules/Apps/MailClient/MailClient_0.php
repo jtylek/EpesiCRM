@@ -2,7 +2,7 @@
 /**
  * Simple mail client
  *
- * TODO: wysylanie maili, internal mail, zalaczniki, obsluga imap
+ * TODO: internal mail, zalaczniki, obsluga imap
  * @author pbukowski@telaxus.com
  * @copyright pbukowski@telaxus.com
  * @license SPL
@@ -107,6 +107,7 @@ class Apps_MailClient extends Module {
 		
 		$checknew_id = $this->get_path().'checknew';
 		Base_ActionBarCommon::add('folder',$this->lang->t('Check'),'href="javascript:void(0)" rel="'.$checknew_id.'" class="lbOn" id="'.$checknew_id.'b"');
+//		if(DB::GetOne('SELECT 1 FROM apps_mailclient_accounts WHERE smtp_server is not null AND smtp_server!=\'\' AND user_login_id='.Acl::get_user())) //bo bedzie internal
 		Base_ActionBarCommon::add('add',$this->lang->t('New mail'),$this->create_callback_href(array($this,'new_mail')));
 		eval_js('Apps_MailClient.check_mail_button_observe(\''.$checknew_id.'\')');
 		print('<div id="'.$checknew_id.'" class="leightbox"><div style="width:100%;text-align:center" id="'.$checknew_id.'progresses"></div>'.
@@ -129,18 +130,37 @@ class Apps_MailClient extends Module {
 		$f->addElement('select','from_addr',$this->lang->t('From'),$from);
 		$f->addRule('from_addr',$this->lang->t('Field required'),'required');
 		$f->addElement('text','to_addr',$this->lang->t('To'),Utils_TooltipCommon::open_tag_attrs($this->lang->t('You can enter more then one email address separating it with comma.')));
-		$f->addRule('to_addr',$this->lang->t('Field required'),'required');
-		$f->addRule('to_addr',$this->lang->t('Invalid mail address'),'email');
+//		$f->addRule('to_addr',$this->lang->t('Invalid mail address'),'email');
 		if(ModuleManager::is_installed('CRM/Contacts')>=0) {
-			$theme->assign('addressbook','<a href="javascript:void(0)" onClick="$(\'addressbook_area_id\').toggle()">Addressbook</a>');
+			eval_js_once('var apps_mailclient_addressbook_hidden = true;'.
+						'apps_mailclient_addressbook_toggle = function() {'.
+						'if(apps_mailclient_addressbook_hidden) {'.
+							'Effect.SlideDown(\'apps_mailclient_addressbook\',{duration:0.3});'.
+							'apps_mailclient_addressbook_hidden = false;'.
+						'} else {'.
+							'Effect.SlideUp(\'apps_mailclient_addressbook\',{duration:0.3});'.
+							'apps_mailclient_addressbook_hidden = true;'.
+						'}};'.
+						'apps_mailclient_addressbook_toggle_init = function() {'.
+						'if(apps_mailclient_addressbook_hidden) {'.
+							'$(\'apps_mailclient_addressbook\').hide();'.
+						'} else {'.
+							'$(\'apps_mailclient_addressbook\').show();'.
+						'}};');
+			eval_js('apps_mailclient_addressbook_toggle_init()');
+			$theme->assign('addressbook','<a href="javascript:void(0)" onClick="apps_mailclient_addressbook_toggle()">Addressbook</a>');
 			$theme->assign('addressbook_area_id','apps_mailclient_addressbook');
-			$f->addElement('multiselect','to_addr_ex','',array());
+			$fav = CRM_ContactsCommon::get_contacts(array(':Fav'=>true,'!email'=>''),array('id','first_name','last_name','company_name'));
+			$fav2 = array();
+			foreach($fav as $v)
+				$fav2[$v['id']] = CRM_ContactsCommon::contact_format_default($v,true);
+			$f->addElement('multiselect','to_addr_ex','',$fav2);
 			$rb1 = $this->init_module('Utils/RecordBrowser/RecordPicker');
-			$this->display_module($rb1, array('contact' ,'to_addr_ex',array('Apps_MailClientCommon','addressbook_rp')));
+			$this->display_module($rb1, array('contact' ,'to_addr_ex',array('Apps_MailClientCommon','addressbook_rp'),array('!email'=>''),array('work_phone'=>false,'mobile_phone'=>false,'email'=>true)));
 			$theme->assign('addressbook_add_button',$rb1->create_open_link('Choose contact'));
-//			Libs_LeightboxCommon::display('apps_mailclient_addressbook','<h1>Leightbox</h1>'.
-//								'ble ble ble','Test header');
-		}
+			$f->addFormRule(array($this,'check_to_addr'));
+		} else
+			$f->addRule('to_addr',$this->lang->t('Field required'),'required');
 		$f->addElement('text','subject',$this->lang->t('Subject'),array('maxlength'=>256));
 		$f->addRule('subject',$this->lang->t('Max length of subject is 256 chars'),'maxlength',256);
 		$fck = & $f->addElement('fckeditor', 'body', $this->lang->t('Content'));
@@ -158,33 +178,66 @@ class Apps_MailClient extends Module {
 			$mime = new Mail_Mime();
 			$headers = array();
 			$from = DB::GetRow('SELECT * FROM apps_mailclient_accounts WHERE id=%d',array($v['from_addr']));
+			$to = array_filter(explode(',',$v['to_addr']),'trim');
+			if(ModuleManager::is_installed('CRM/Contacts')>=0) {
+				$to_addr_ex = CRM_ContactsCommon::get_contacts(array('id'=>$v['to_addr_ex']),array('email'));
+				foreach($to_addr_ex as $kk)
+					$to[] = $kk['email'];
+			}
 	        $headers['From'] = $from['mail'];
-	        $headers['To'] = $v['to_addr'];
+	        $headers['To'] = implode(', ',$to);
 		 	$headers['Subject'] = $v['subject'];
 			$headers['Date'] = $date;
 			$mime->setHTMLBody($v['body']);
 				
 			$headers = $mime->headers($headers);
-
+			
+			$ret = true;
 			if($v['action']=='send') {
 				$save_folder = 'Sent';			
 				//tutaj wysylanie
-			}
-			$mbox = new Mail_Mbox(Apps_MailClientCommon::get_mailbox_dir($from['mail']).$save_folder.'.mbox');
-			if(($ret = $mbox->setTmpDir('data/Apps_MailClient/tmp'))===false 
-					|| ($ret = $mbox->open())===false) {
-					Epesi::alert($this->lang->ht('Unable to open mailbox folder: '.$save_folder));
-			} else {
-				//$mail =& Mail::factory('mail');
-				//$mail->send($v['to_addr'], $headers, $mbody);
+				if(ModuleManager::is_installed('CRM/Contacts')>=0) {
+					$my = CRM_ContactsCommon::get_my_record();
+					$name = CRM_ContactsCommon::contact_format_default($my,true);
+				}
+				if(!isset($name))
+					$name = Base_UserCommon::get_my_user_login();
 				
-				$mbody = $mime->getMessage();
-				$msg_id = $mbox->size();
-				$mbox->append("From - ".date('D M d H:i:s Y')."\n".$mbody);
-				Apps_MailClientCommon::append_msg_to_index($from['mail'],$save_folder,$msg_id,$subject,$from['mail'],$v['to_addr'],$date,strlen($mbody));
+				$mailer = Base_MailCommon::new_mailer();
+				$mailer->From = $from['mail'];
+				$mailer->FromName = $name;
+				$mailer->Host = $from['smtp_server'];
+				$mailer->Mailer = 'smtp';
+				$mailer->Username = $from['smtp_login'];
+				$mailer->Password = $from['smtp_password'];
+				$mailer->SMTPAuth = $from['smtp_auth'];
+				foreach($to as $m)
+					$mailer->AddAddress($m);
+				$mailer->Subject = $v['subject'];
+				$mailer->IsHTML(true);
+				$mailer->Body = $v['body'];
+				$mailer->AltBody = strip_tags($v['body']);
+				$ret = $mailer->Send();
+				if(!$ret) print($mailer->ErrorInfo.'<br>');
+				unset($mailer);
+			}
+			if($ret) {
+				$mbox = new Mail_Mbox(Apps_MailClientCommon::get_mailbox_dir($from['mail']).$save_folder.'.mbox');
+				if(($ret = $mbox->setTmpDir('data/Apps_MailClient/tmp'))===false 
+						|| ($ret = $mbox->open())===false) {
+						Epesi::alert($this->lang->ht('Unable to open mailbox folder: '.$save_folder));
+				} else {
+					//$mail =& Mail::factory('mail');
+					//$mail->send($v['to_addr'], $headers, $mbody);
+				
+					$mbody = $mime->getMessage();
+					$msg_id = $mbox->size();
+					$mbox->append("From - ".date('D M d H:i:s Y')."\n".$mbody);
+					Apps_MailClientCommon::append_msg_to_index($from['mail'],$save_folder,$msg_id,$subject,$from['mail'],$v['to_addr'],$date,strlen($mbody));
 
-				$mbox->close();
-				return false;
+					$mbox->close();
+					return false;
+				}
 			}
 		}
 		$f->assign_theme('form', $theme);
@@ -195,6 +248,12 @@ class Apps_MailClient extends Module {
 		Base_ActionBarCommon::add('report','Send',' href="javascript:void(0)" onClick="$(\'new_mail_action\').value=\'send\';'.addcslashes($f->get_submit_form_js(),'"').'"');
 		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 		
+		return true;
+	}
+	
+	public function check_to_addr($f) {
+		if(empty($f['to_addr']) && empty($f['to_addr_ex']))
+			return array('to_addr'=>$this->lang->t('You must provide at least one recipient email address.'));
 		return true;
 	}
 	

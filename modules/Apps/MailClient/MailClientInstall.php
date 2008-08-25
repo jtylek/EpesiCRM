@@ -58,6 +58,7 @@ class Apps_MailClientInstall extends ModuleInstall {
 			array('name'=>'Base/ActionBar','version'=>0),
 			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'Base/Theme','version'=>0),
+			array('name'=>'Base/Mail','version'=>0),
 			array('name'=>'Base/RegionalSettings','version'=>0),
 			array('name'=>'Base/User','version'=>0),
 			array('name'=>'Base/User/Settings','version'=>0),
