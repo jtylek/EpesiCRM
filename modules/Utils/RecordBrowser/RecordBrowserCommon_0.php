@@ -501,6 +501,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						if (substr($k,0,4)==':Ref')	{
 							$params = explode(':', $k);
 							$ref = $params[2];
+							if (!isset(self::$hash[$ref])) {
+								if (isset(self::$table_rows[$ref]['id'])) $ref = self::$table_rows[$ref]['id'];
+								else trigger_error('Invalid query.',E_USER_ERROR);
+							}
 							$param = explode(';', self::$table_rows[self::$hash[$ref]]['param']);
 							$param = explode('::',$param[0]);
 
