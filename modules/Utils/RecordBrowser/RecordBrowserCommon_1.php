@@ -329,7 +329,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			case 'select': $f = 'TEXT'; break;
 			case 'multiselect': $f = 'TEXT'; break;
 			case 'commondata': $f = 'VARCHAR(128)'; break;
-			case 'integer': $f = 'INTEGER'; break;
+			case 'integer': $f = 'DOUBLE'; break;
 			case 'date': $f = 'DATE'; break;
 			case 'timestamp': $f = 'TIMESTAMP'; break;
 			case 'long text': $f = 'TEXT'; break;
