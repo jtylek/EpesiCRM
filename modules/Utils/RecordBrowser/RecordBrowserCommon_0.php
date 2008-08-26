@@ -921,12 +921,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return Module::create_href(self::get_record_href_array($tab,$id));
 	}
 	public static function record_link_open_tag($tab, $id, $nolink=false){
-/*		static $cache = array();
-		if (isset($cache[$tab.'__'.$id.'-'.$nolink])) {
-			self::$del_or_a = $cache[$tab.'__'.$id.'-'.$nolink]['close'];
-			return $cache[$tab.'__'.$id.'-'.$nolink]['ret'];
-		}
-		self::check_table_name($tab);*/
 		$ret = '';
 		if (!DB::GetOne('SELECT active FROM '.$tab.' WHERE id=%d',array($id))) {
 			self::$del_or_a = '</del>';
@@ -939,7 +933,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if (!$nolink) $ret = '<a '.self::create_record_href($tab, $id).'>';
 			else self::$del_or_a = '';
 		}
-//		$cache[$tab.'__'.$id.'-'.$nolink] = array('close'=>self::$del_or_a,'ret'=>$ret);
 		return $ret;
 	}
 	public static function record_link_close_tag(){
@@ -947,18 +940,20 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 	public static function create_linked_label($tab, $col, $id, $nolink=false){
 		if (!is_numeric($id)) return '';
-
-/*		static $cache = array();
-		if (isset($cache[$tab.'__'.$col.'__'.$id.'-'.$nolink])) {
-			return $cache[$tab.'__'.$col.'__'.$id.'-'.$nolink];
-		}*/
 		self::init($tab);
 		if (isset(self::$hash[$col])) $col = self::$hash[$col];
 		$label = DB::GetOne('SELECT value FROM '.$tab.'_data WHERE field=%s AND '.$tab.'_id=%d', array($col, $id));
 		$ret = self::record_link_open_tag($tab, $id, $nolink).$label.self::record_link_close_tag();
-
-//		$cache[$tab.'__'.$col.'__'.$id.'-'.$nolink] = $ret;
-
+		return $ret;
+	}
+	public static function create_linked_label_r($tab, $col, $r, $nolink=false){
+		$id = $r['id'];
+		if (!is_numeric($id)) return '';
+		self::init($tab);
+		if (isset(self::$table_rows[$col])) $label = $r[self::$table_rows[$col]['id']];
+		else $label = $r[$col];
+		if (isset(self::$hash[$col])) $col = self::$hash[$col];
+		$ret = self::record_link_open_tag($tab, $id, $nolink).$label.self::record_link_close_tag();
 		return $ret;
 	}
 	public static function applet_settings($some_more = array()) {

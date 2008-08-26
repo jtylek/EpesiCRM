@@ -356,13 +356,13 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 	
 	public static function display_fname($v, $nolink) {
-		return Utils_RecordBrowserCommon::create_linked_label('contact', 'First Name', $v['id'], $nolink);
+		return Utils_RecordBrowserCommon::create_linked_label_r('contact', 'First Name', $v, $nolink);
 	}
 	public static function display_lname($v, $nolink) {
-		return Utils_RecordBrowserCommon::create_linked_label('contact', 'Last Name', $v['id'], $nolink);
+		return Utils_RecordBrowserCommon::create_linked_label_r('contact', 'Last Name', $v, $nolink);
 	}
 	public static function display_cname($v, $nolink) {
-		return Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $v['id'], $nolink);
+		return Utils_RecordBrowserCommon::create_linked_label_r('company', 'Company Name', $v, $nolink);
 	}
 	public static function display_webaddress($record, $nolink, $desc) {
 		$v = $record[$desc['id']];

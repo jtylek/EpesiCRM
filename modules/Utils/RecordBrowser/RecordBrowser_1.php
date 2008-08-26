@@ -1297,22 +1297,14 @@ class Utils_RecordBrowser extends Module {
 			$ret2 = DB::Execute('SELECT * FROM '.$this->tab.'_edit_history_data WHERE edit_id=%d',array($row['id']));
 			while($row2 = $ret2->FetchRow()) {
 				if ($access[$row2['field']] == 'hide') continue;
-				if (isset($changed[$row2['field']])) {
-					if (is_array($changed[$row2['field']]))
-						array_unshift($changed[$row2['field']], $row2['old_value']);
-					else
-						$changed[$row2['field']] = array($row2['old_value'], $changed[$row2['field']]);
-				} else {
-					$changed[$row2['field']] = $row2['old_value'];
-				}
-				if (is_array($changed[$row2['field']]))
-					sort($changed[$row2['field']]);
+				$changed[$row2['field']] = $row2['old_value'];
 				$last_row = $row2;
 			}
 			foreach($changed as $k=>$v) {
 				if ($k=='') $gb_cha->add_row($row['edited_on'], Base_UserCommon::get_user_login($row['edited_by']), '', '', $last_row['old_value']);
 				else {
 					$new = $this->get_val($field_hash[$k], $created, $created['id'], false, $this->table_rows[$field_hash[$k]]);
+					if ($this->table_rows[$field_hash[$k]]['type']=='multiselect') $v = Utils_RecordBrowserCommon::decode_multi($v);
 					$created[$k] = $v;
 					$old = $this->get_val($field_hash[$k], $created, $created['id'], false, $this->table_rows[$field_hash[$k]]);
 					$gb_cha->add_row($row['edited_on'], Base_UserCommon::get_user_login($row['edited_by']), $this->lang->t($field_hash[$k]), $old, $new);

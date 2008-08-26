@@ -167,7 +167,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		}
 	}
     public static function display_subject($record, $nolink = false) {
-		$ret = Utils_RecordBrowserCommon::create_linked_label('phonecall', 'Subject', $record['id'], $nolink);
+		$ret = Utils_RecordBrowserCommon::create_linked_label_r('phonecall', 'Subject', $record, $nolink);
 		if (isset($record['description']) && $record['description']!='') $ret = '<span '.Utils_TooltipCommon::open_tag_attrs($record['description'], false).'>'.$ret.'</span>';
 		return $ret;
 	}
