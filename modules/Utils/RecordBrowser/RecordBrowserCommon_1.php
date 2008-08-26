@@ -767,10 +767,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			// TODO: limit to needed cols
 		}
 		$records = array();
-		if (!empty($cols))
+/*		if (!empty($cols))
 			foreach($cols as $k=>$v) $cols[$k] = (isset(self::$hash[$v])?self::$table_rows[self::$hash[$v]]:self::$table_rows[$v]);
 		else
-			$cols = self::$table_rows;
+			$cols = self::$table_rows;*/
 		while ($row = $ret->FetchRow()) {
 			$r = array(	'id'=>$row['id'],
 						'active'=>$row['active'],
