@@ -530,7 +530,7 @@ class Utils_Attachment extends Module {
 			rename($file,$local.'/'.$id.'_0');
 		}
 		$this->ret_attach = false;
-		if (isset($this->watchdog_category)) Utils_WatchdogCommon::new_event($this->watchdog_category,$this->watchdog_id,'Note added');
+		if (isset($this->watchdog_category)) Utils_WatchdogCommon::new_event($this->watchdog_category,$this->watchdog_id,'N_+_'.$id);
 	}
 
 	public function submit_edit($file,$oryg,$data,$id,$text) {
@@ -552,7 +552,7 @@ class Utils_Attachment extends Module {
 			rename($file,$local.'/'.$id.'_'.$rev);
 		}
 		$this->ret_attach = false;
-		if (isset($this->watchdog_category)) Utils_WatchdogCommon::new_event($this->watchdog_category,$this->watchdog_id,'Note edited');
+		if (isset($this->watchdog_category)) Utils_WatchdogCommon::new_event($this->watchdog_category,$this->watchdog_id,'N_~_'.$id);
 	}
 
 	public function delete($id) {
@@ -567,7 +567,7 @@ class Utils_Attachment extends Module {
 		} else {
 			DB::Execute('UPDATE utils_attachment_link SET deleted=1 WHERE id=%d',array($id));
 		}
-		if (isset($this->watchdog_category)) Utils_WatchdogCommon::new_event($this->watchdog_category,$this->watchdog_id,'Note deleted');
+		if (isset($this->watchdog_category)) Utils_WatchdogCommon::new_event($this->watchdog_category,$this->watchdog_id,'N_-_'.$id);
 	}
 
 	public function caption() {

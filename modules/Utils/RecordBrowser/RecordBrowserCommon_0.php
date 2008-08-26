@@ -336,7 +336,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		DB::CompleteTrans();
 		return $id;
 	}
-	public static function update_record($tab,$id,$values,$all_fields = false, $date = null) {
+	public static function update_record($tab,$id,$values,$all_fields = false, $date = null, $dont_notify=false) {
 		DB::StartTrans();
 		self::init($tab);
 		$record = self::get_record($tab, $id);
@@ -360,10 +360,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			}
 		}
 		if (!empty($diff)) {
-			Utils_WatchdogCommon::new_event($tab,$id,'Record edited');
-			Utils_WatchdogCommon::notified($tab,$id);
 			DB::Execute('INSERT INTO '.$tab.'_edit_history(edited_on, edited_by, '.$tab.'_id) VALUES (%T,%d,%d)', array((($date==null)?date('Y-m-d G:i:s'):$date), Acl::get_user(), $id));
 			$edit_id = DB::Insert_ID(''.$tab.'_edit_history','id');
+			if (!$dont_notify) Utils_WatchdogCommon::new_event($tab,$id,'E_'.$edit_id);
 			foreach($diff as $k=>$v) {
 				if (!is_array($v)) $v = array($v);
 				foreach($v as $c)
@@ -603,18 +602,15 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if ($v['order'][0]==':') {
 				switch ($v['order']) {
 					case ':Fav'	:
-						$fields .= ', (SELECT COUNT(*) FROM '.$tab.'_favorite WHERE '.$tab.'_id=r.id AND user_id=%d) AS _fav_order';
-						$orderby .= ' _fav_order '.$v['direction'];
+						$orderby .= ' (SELECT COUNT(*) FROM '.$tab.'_favorite WHERE '.$tab.'_id=r.id AND user_id=%d) '.$v['direction'];
 						$vals[]=Acl::get_user();
 						break;
 					case ':Visited_on'	:
-						$fields .= ', (SELECT visited_on FROM '.$tab.'_recent WHERE '.$tab.'_id=r.id AND user_id=%d) AS _rec_order';
-						$orderby .= ' _rec_order '.$v['direction'];
+						$orderby .= ' (SELECT visited_on FROM '.$tab.'_recent WHERE '.$tab.'_id=r.id AND user_id=%d) '.$v['direction'];
 						$vals[]=Acl::get_user();
 						break;
 					case ':Edited_on'	:
-						$fields .= ', (CASE WHEN (SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) THEN (SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) ELSE created_on END) AS _edited_on';
-						$orderby .= ' _edited_on '.$v['direction'];
+						$orderby .= ' (CASE WHEN (SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) THEN (SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) ELSE created_on END) '.$v['direction'];
 						break;
 					default		: trigger_error('Unknow paramter given to get_records criteria: '.$k, E_USER_ERROR);
 				}
@@ -968,6 +964,41 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 //			array('label'=>'Favs','name'=>'actions_fav','type'=>'checkbox','default'=>false)
 		));
 		return $some_more;
+	}
+	public static function watchdog_label($tab, $cat, $rid, $events = array(), $label = null) {
+		$ret = array('category'=>$cat);
+		if ($rid!==null) {
+			$r = self::get_record($tab, $rid);
+			if (is_array($label)) $label = call_user_func($label, $r);
+			else $label = $r[$label];
+			$ret['title'] = Utils_RecordBrowserCommon::record_link_open_tag($tab, $rid).$r['ticket_id'].': '.$r['title'];
+			$close = Utils_RecordBrowserCommon::record_link_close_tag();
+			if ($close!='</a>') return null;
+			$ret['title'] .= $close;
+			$ret['view_href'] = Utils_RecordBrowserCommon::create_record_href($tab, $rid);
+			$events_display = array();
+			$events = array_reverse($events);
+			foreach ($events as $v) {
+				$param = explode('_', $v);
+				switch ($param[0]) {
+					case 'C': 	$event_display = Base_LangCommon::ts('Utils_RecordBrowser','<b>Record edited by</b> %s<b>, on</b> %s', array(Base_UserCommon::get_user_login($r['created_by']), Base_RegionalSettingsCommon::time2reg($r['created_on'])));
+								break;
+					case 'E': 	$edit_info = DB::GetRow('SELECT * FROM '.$tab.'_edit_history WHERE id=%d',array($param[1]));
+								$event_display = Base_LangCommon::ts('Utils_RecordBrowser','<b>Record edited by</b> %s<b>, on</b> %s', array(Base_UserCommon::get_user_login($edit_info['edited_by']), Base_RegionalSettingsCommon::time2reg($edit_info['edited_on'])));
+								break;
+								
+					case 'N': 	$action = 'added';
+								if ($param[1]=='~') $action = 'edited';
+								if ($param[1]=='-') $action = 'deleted';
+								$event_display = Base_LangCommon::ts('Utils_RecordBrowser','<b>Note '.$action.'<b>');
+								break;								
+					default: 	$event_display = '<b>'.$v.'</b>';	
+				}
+				$events_display[] = $event_display;
+			}
+			$ret['events'] = implode('<hr>',array_reverse($events_display));
+		}
+		return $ret;
 	}
 }
 ?>

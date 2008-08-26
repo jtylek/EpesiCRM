@@ -60,55 +60,7 @@ class Utils_RecordBrowser extends Module {
 	}
 
 	public function get_val($field, $record, $id, $links_not_recommended = false, $args = null) {
-		$val = $record[$args['id']];
-		if (isset($this->display_callback_table[$field])) {
-			$ret = call_user_func($this->display_callback_table[$field], $record, $links_not_recommended, $this->table_rows[$field]);
-		} else {
-			$ret = $val;
-			if ($args['type']=='select' || $args['type']=='multiselect') {
-				if ((is_array($val) && empty($val)) || (!is_array($val) && $val=='')) {
-					$ret = '---';
-					return $ret;
-				}
-				list($tab, $col) = explode('::',$args['param']);
-				if (!is_array($val)) $val = array($val);
-				if ($tab=='__COMMON__') $data = Utils_CommonDataCommon::get_translated_array($col, true);
-				$ret = '';
-				$first = true;
-				foreach ($val as $k=>$v){
-					if ($tab=='__COMMON__' && !isset($data[$v])) continue;
-					if ($first) $first = false;
-					else $ret .= '<br>';
-					if ($tab=='__COMMON__') $ret .= Utils_RecordBrowserCommon::no_wrap($data[$v]);
-					else $ret .= Utils_RecordBrowserCommon::create_linked_label($tab, $col, $v, $links_not_recommended);
-				}
-				if ($ret=='') $ret = '---';
-			}
-			if ($args['type']=='commondata') {
-				if (!isset($val) || $val==='') {
-					$ret = '';
-				} else {
-					$arr = explode('::',$args['param']);
-					$path = array_shift($arr);
-					foreach($arr as $v) $path .= '/'.$record[strtolower(str_replace(' ','_',$v))];
-					$path .= '/'.$record[$args['id']];
-					$ret = Utils_CommonDataCommon::get_value($path,true);
-				}
-			}
-			if ($args['type']=='currency') {
-				$ret = Utils_CurrencyFieldCommon::format($val);
-			}
-			if ($args['type']=='checkbox') {
-				$ret = $ret?$this->lang->t('Yes'):$this->lang->t('No');
-			}
-			if ($args['type']=='date') {
-				if ($val!='') $ret = Base_RegionalSettingsCommon::time2reg($val, false,true,false);
-			}
-			if ($args['type']=='timestamp') {
-				if ($val!='') $ret = Base_RegionalSettingsCommon::time2reg($val);
-			}
-		}
-		return $ret;
+		return Utils_RecordBrowserCommon::get_val($this->tab, $field, $record, $id, $links_not_recommended, $args);
 	}
 
 	public function set_button($arg){
@@ -513,8 +465,7 @@ class Utils_RecordBrowser extends Module {
 				}
 				$id = Utils_RecordBrowserCommon::new_record($this->tab, $values);
 				$values['id'] = $id;
-				Utils_WatchdogCommon::new_event($this->tab,$values['id'],'Record created');
-				Utils_WatchdogCommon::notified($this->tab,$values['id']);
+				Utils_WatchdogCommon::new_event($this->tab,$values['id'],'C');
 				if ($dpm!=='')
 					call_user_func($method, $values, 'added');
 				location(array());
@@ -627,17 +578,14 @@ class Utils_RecordBrowser extends Module {
 				$method = explode('::',$dpm);
 				if (is_callable($method)) $values = call_user_func($method, $values, $mode);
 			}
-			if ($mode==='edit')
-				Utils_WatchdogCommon::notified($this->tab,$values['id']);
 			if ($mode=='add') {
 				$id = Utils_RecordBrowserCommon::new_record($this->tab, $values);
 				self::$clone_result = $id;
 				self::$clone_tab = $this->tab;
 				$values['id'] = $id;
-				Utils_WatchdogCommon::new_event($this->tab,$values['id'],'Record created');
+				Utils_WatchdogCommon::new_event($this->tab,$values['id'],'C');
 				if ($dpm!=='')
 					call_user_func($method, $values, 'added');
-				Utils_WatchdogCommon::notified($this->tab,$values['id']);
 				return $this->back();
 			}
 			$time_from = date('Y-m-d H:i:s', $this->get_module_variable('edit_start_time'));

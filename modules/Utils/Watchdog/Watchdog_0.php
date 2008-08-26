@@ -10,6 +10,11 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_Watchdog extends Module {
+	private $lang;
+
+	public function construct() {
+		$this->lang = $this->init_module('Base/Lang');
+	}
 
 	public function body() {
 		
@@ -23,19 +28,22 @@ class Utils_Watchdog extends Module {
 		$gb = $this->init_module('Utils/GenericBrowser','subscriptions','subscriptions');
 		$gb->set_table_columns(array(
 //								array('name'=>'Sub','width'=>1),
-								array('name'=>'Cat.','width'=>1),
-								array('name'=>'Title')//LANG!
+								array('name'=>$this->lang->t('Cat.'),'width'=>1),
+								array('name'=>$this->lang->t('Title'))
 								));
 		foreach ($records as $k=>$v) {
+			$changes = Utils_WatchdogCommon::check_if_notified($v, $k);
+			if (!is_array($changes)) $changes = array();
+			$data = call_user_func($methods[$v], $k, $changes);
+			if ($data==null) continue;
 			$gb_row = $gb->get_new_row();
-			$data = call_user_func($methods[$v], $k);
 			$gb_row->add_data(
 //				Utils_WatchdogCommon::get_change_subscription_icon($v,$k), 
 				$data['category'], 
 				$data['title']
 			);
 			$gb_row->add_action($data['view_href'],'View');
-			$gb_row->add_info(Utils_WatchdogCommon::implode_events(Utils_WatchdogCommon::check_if_notified($v, $k)));
+			if (isset($data['events']) && $data['events']) $gb_row->add_info($data['events']);
 		}
 		$this->display_module($gb);
 	}

@@ -512,8 +512,7 @@ class Utils_RecordBrowser extends Module {
 				}
 				$id = Utils_RecordBrowserCommon::new_record($this->tab, $values);
 				$values['id'] = $id;
-				Utils_WatchdogCommon::new_event($this->tab,$values['id'],'Record created');
-				Utils_WatchdogCommon::notified($this->tab,$values['id']);
+				Utils_WatchdogCommon::new_event($this->tab,$values['id'],'C');
 				if ($dpm!=='')
 					call_user_func($method, $values, 'added');
 				location(array());
@@ -626,17 +625,14 @@ class Utils_RecordBrowser extends Module {
 				$method = explode('::',$dpm);
 				if (is_callable($method)) $values = call_user_func($method, $values, $mode);
 			}
-			if ($mode==='edit')
-				Utils_WatchdogCommon::notified($this->tab,$values['id']);
 			if ($mode=='add') {
 				$id = Utils_RecordBrowserCommon::new_record($this->tab, $values);
 				self::$clone_result = $id;
 				self::$clone_tab = $this->tab;
 				$values['id'] = $id;
-				Utils_WatchdogCommon::new_event($this->tab,$values['id'],'Record created');
+				Utils_WatchdogCommon::new_event($this->tab,$values['id'],'C');
 				if ($dpm!=='')
 					call_user_func($method, $values, 'added');
-				Utils_WatchdogCommon::notified($this->tab,$values['id']);
 				return $this->back();
 			}
 			$time_from = date('Y-m-d H:i:s', $this->get_module_variable('edit_start_time'));

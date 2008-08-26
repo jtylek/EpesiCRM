@@ -14,7 +14,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		return "Subscriptions";
 	}
 	public static function applet_info() {
-		return "Helps tracking changes introduced in the system";
+		return "Helps tracking changes made in the system";
 	}
 	public static function get_subscribers($category_name, $id) {
 		$category_id = self::get_category_id($category_name);
@@ -55,6 +55,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		$category_id = self::get_category_id($category_name);
 		if (!$category_id) return;
 		DB::Execute('INSERT INTO utils_watchdog_event (category_id, internal_id, message) VALUES (%d,%d,%s)',array($category_id,$id,$message));
+		Utils_WatchdogCommon::notified($category_name,$id);
 		//TODO: notify those subscribed to the category
 	}
 	// *************************** Subscription manipulation *******************
@@ -141,24 +142,13 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		}
 		Base_ActionBarCommon::add($icon,$label,$href);
 	}
-	public static function implode_events($arr) {
-		$i = -1;
-		$last_message = '';
-		$counts = array();
-		foreach ($arr as $k=>$v) {
-			if ($last_message!=$v) {
-				$last_message=$v;
-				$i = $k;
-				$counts[$i] = 1;
-				continue;
-			}
-			unset($arr[$k]);
-			$counts[$i]++;
-		}
-		foreach ($arr as $k=>$v) {
-			if ($counts[$k]!=1) $arr[$k] = $v.' <i>x'.$counts[$k].'</i>';
-		}
-		return implode('<br>',$arr);
+	public static function display_events($category_name, $changes, $id) {
+		$category_id = self::get_category_id($category_name);
+		$method = DB::GetOne('SELECT callback FROM utils_watchdog_category WHERE id=%d', array($category_id));
+		if (!is_array($changes)) return '';
+		$data = call_user_func($method, $id, $changes);
+		if (!isset($data['events'])) return '';
+		return $data['events'];
 	} 
 	public static function get_change_subscription_icon($category_name, $id) {
 		$category_id = self::get_category_id($category_name);
@@ -174,7 +164,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 				$tooltip = Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_Watchdog','You are subscribing this record. Click to unsubscribe.'));
 			} else {
 				$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','unsubscribe_small_new_events.png');
-				$tooltip = Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_Watchdog','You are subscribing this record. Click to unsubscribe.<br>The following events ocurred since the last time you were viewing this record:<br>%s',array(self::implode_events($last_seen))));
+				$tooltip = Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_Watchdog','You are subscribing this record. Click to unsubscribe.<br>The following changes were made since the last time you were viewing this record:<br>%s',array(self::display_events($category_id, $last_seen, $id))));
 			}
 		}
 		return '<a '.$href.' '.$tooltip.'><img border="0" src="'.$icon.'"></a>';
