@@ -106,14 +106,15 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	 * @param string variable name
 	 * @return mixed user value
 	 */
-	public static function get($module,$name){
+	public static function get($module,$name,$user=null){
 		if (!Acl::is_user()) return null;
+		if ($user===null) $user = Acl::get_user();
 		$module = str_replace('/','_',$module);
 		if (!isset(self::$user_variables))
 			self::$user_variables = array();
 		if (!isset(self::$user_variables[$module])) {
 			self::$user_variables[$module] = array();
-			$ret = DB::Execute('SELECT variable, value FROM base_user_settings WHERE user_login_id=%d AND module=%s',array(Acl::get_user(), $module));
+			$ret = DB::Execute('SELECT variable, value FROM base_user_settings WHERE user_login_id=%d AND module=%s',array($user, $module));
 			while($row = $ret->FetchRow())
 				self::$user_variables[$module][$row['variable']] = unserialize($row['value']);
 		}
