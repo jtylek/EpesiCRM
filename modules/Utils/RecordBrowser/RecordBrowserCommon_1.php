@@ -212,8 +212,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					$tab.'_id I NOT NULL,'.
 					'edited_on T NOT NULL,'.
 					'edited_by I NOT NULL',
-					array('constraints'=>', FOREIGN KEY (edited_by) REFERENCES user_login(id)'.
-											', FOREIGN KEY ('.$tab.'_id) REFERENCES '.$tab.'(id)'));
+					array('constraints'=>', FOREIGN KEY (edited_by) REFERENCES user_login(id)'));
 		DB::CreateTable($tab.'_edit_history_data',
 					'edit_id I,'.
 					'field C(32),'.
@@ -222,14 +221,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		DB::CreateTable($tab.'_favorite',
 					$tab.'_id I,'.
 					'user_id I',
-					array('constraints'=>', FOREIGN KEY (user_id) REFERENCES user_login(id)'.
-										', FOREIGN KEY ('.$tab.'_id) REFERENCES '.$tab.'(id)'));
+					array('constraints'=>', FOREIGN KEY (user_id) REFERENCES user_login(id)'));
 		DB::CreateTable($tab.'_recent',
 					$tab.'_id I,'.
 					'user_id I,'.
 					'visited_on T',
-					array('constraints'=>', FOREIGN KEY (user_id) REFERENCES user_login(id)'.
-										', FOREIGN KEY ('.$tab.'_id) REFERENCES '.$tab.'(id)'));
+					array('constraints'=>', FOREIGN KEY (user_id) REFERENCES user_login(id)'));
 		DB::CreateTable($tab.'_callback',
 					'field C(32),'.
 					'module C(64),'.
