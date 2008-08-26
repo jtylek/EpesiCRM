@@ -78,7 +78,7 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 	}
 	
 	public static function el($s) {
-		return;
+//		return;
 		static $start = 0;
 		if ($start == 0) $start=microtime(true);
 		error_log(number_format(microtime(true)-$start,3).': '.$s."\n",3,'data/RBupgrade.txt');
@@ -131,7 +131,7 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 			self::el($t.': Moving records... ');
 			while ($r = $recs->FetchRow()) {
 				DB::Execute('INSERT INTO '.$t.'_data_1 (id, active, created_by, created_on) VALUES (%d, %d, %d, %T)', array($r['id'], $r['active'], $r['created_by'], $r['created_on']));
-//				self::el($t.': Moving record '.$r['id']);
+				self::el($t.': Moving record '.$r['id']);
 				foreach($multi as $v) {
 					$vals = DB::GetAssoc('SELECT value, value FROM '.$t.'_data WHERE field=%s AND '.$t.'_id=%d',array($v,$r['id']));
 					if (empty($vals)) continue;
@@ -142,7 +142,7 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 				foreach ($vals as $k=>$v) {
 					DB::Execute('UPDATE '.$t.'_data_1 SET f_'.strtolower(str_replace(' ','_',$k)).'='.DB::qstr($v).' WHERE id='.$r['id']);					
 				}
-//				self::el($t.': Moved record '.$r['id']);
+				self::el($t.': Moved record '.$r['id']);
 			}
 			self::el($t.': Converting history '.$r['id']);
 			if (!empty($multi)) {
