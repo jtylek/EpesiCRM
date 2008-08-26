@@ -269,14 +269,14 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		return $values;
 	}
 
-	public static function watchdog_label($arg = null) {
-		$ret = array('category'=>Base_LangCommon::ts('CRM_PhoneCall','Phonecalls'));
-		if ($arg!==null) {
-			$r = Utils_RecordBrowserCommon::get_record('phonecall',$arg);
-			$ret['title'] = Utils_RecordBrowserCommon::record_link_open_tag('phonecall',$arg).$r['subject'].Utils_RecordBrowserCommon::record_link_close_tag();
-			$ret['view_href'] = Utils_RecordBrowserCommon::create_record_href('phonecall',$arg);
-		}
-		return $ret;
+	public static function watchdog_label($rid = null, $events = array()) {
+		return Utils_RecordBrowserCommon::watchdog_label(
+				'phonecall',
+				Base_LangCommon::ts('CRM_PhoneCall','Phonecalls'),
+				$rid,
+				$events,
+				'subject'
+			);
 	}
 }
 ?>

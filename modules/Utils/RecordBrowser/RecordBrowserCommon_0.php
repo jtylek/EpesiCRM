@@ -969,9 +969,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$ret = array('category'=>$cat);
 		if ($rid!==null) {
 			$r = self::get_record($tab, $rid);
-			if (is_array($label)) $label = call_user_func($label, $r);
+			if ($r===null) return null;
+			if (is_array($label)) $label = call_user_func($label, $r, true);
 			else $label = $r[$label];
-			$ret['title'] = Utils_RecordBrowserCommon::record_link_open_tag($tab, $rid).$r['ticket_id'].': '.$r['title'];
+			$ret['title'] = Utils_RecordBrowserCommon::record_link_open_tag($tab, $rid).$label;
 			$close = Utils_RecordBrowserCommon::record_link_close_tag();
 			if ($close!='</a>') return null;
 			$ret['title'] .= $close;

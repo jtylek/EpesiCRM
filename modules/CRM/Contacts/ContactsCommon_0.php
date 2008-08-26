@@ -475,23 +475,23 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return $ret;
 	}
 
-	public static function contact_watchdog_label($arg = null) {
-		$ret = array('category'=>Base_LangCommon::ts('CRM_Contacts','Contacts'));
-		if ($arg!==null) {
-			$r = Utils_RecordBrowserCommon::get_record('contact',$arg);
-			$ret['title'] = Utils_RecordBrowserCommon::record_link_open_tag('contact',$arg).$r['last_name'].' '.$r['first_name'].Utils_RecordBrowserCommon::record_link_close_tag();
-			$ret['view_href'] = Utils_RecordBrowserCommon::create_record_href('contact',$arg);
-		}
-		return $ret;
+	public static function contact_watchdog_label($rid = null, $events = array()) {
+		return Utils_RecordBrowserCommon::watchdog_label(
+				'contact',
+				Base_LangCommon::ts('CRM_Contacts','Contacts'),
+				$rid,
+				$events,
+				array('CRM_ContactsCommon','contact_format_default')
+			);
 	}
-	public static function company_watchdog_label($arg = null) {
-		$ret = array('category'=>Base_LangCommon::ts('CRM_Contacts','Companies'));
-		if ($arg!==null) {
-			$r = Utils_RecordBrowserCommon::get_record('company',$arg);
-			$ret['title'] = Utils_RecordBrowserCommon::record_link_open_tag('company',$arg).$r['company_name'].Utils_RecordBrowserCommon::record_link_close_tag();
-			$ret['view_href'] = Utils_RecordBrowserCommon::create_record_href('company',$arg);
-		}
-		return $ret;
+	public static function company_watchdog_label($rid = null, $events = array()) {
+		return Utils_RecordBrowserCommon::watchdog_label(
+				'company',
+				Base_LangCommon::ts('CRM_Contacts','Companies'),
+				$rid,
+				$events,
+				'company_name'
+			);
 	}
 
 }

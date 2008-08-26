@@ -101,16 +101,17 @@ class CRM_TasksCommon extends ModuleCommon {
 			if ($first) $first = false;
 			else $def .= '<br>';
 			$contact = CRM_ContactsCommon::get_contact($w);
-			if ($contact['login']=='') $icon = $icon_none;
-			else {
-				$icon = Utils_WatchdogCommon::user_check_if_notified($contact['login'],'task',$record['id']);
-				if ($icon===null) $icon = $icon_none;
-				elseif ($icon===true) $icon = $icon_on;
-				else $icon = $icon_off;
+			if (!$nolink) {
+				if ($contact['login']=='') $icon = $icon_none;
+				else {
+					$icon = Utils_WatchdogCommon::user_check_if_notified($contact['login'],'task',$record['id']);
+					if ($icon===null) $icon = $icon_none;
+					elseif ($icon===true) $icon = $icon_on;
+					else $icon = $icon_off;
+				}
+				$def .= '<img src="'.$icon.'" />';
 			}
-			$def .= 
-				'<img src="'.$icon.'" />'.
-				Utils_RecordBrowserCommon::no_wrap(call_user_func($callback, $contact, $nolink));
+			$def .= Utils_RecordBrowserCommon::no_wrap(call_user_func($callback, $contact, $nolink));
 		}
 		if (!$def) 	$def = '---';
 		return $def;
@@ -230,14 +231,14 @@ class CRM_TasksCommon extends ModuleCommon {
 		}
 		return $values;
 	}
-	public static function watchdog_label($arg = null) {
-		$ret = array('category'=>Base_LangCommon::ts('CRM_Tasks','Tasks'));
-		if ($arg!==null) {
-			$r = Utils_RecordBrowserCommon::get_record('task',$arg);
-			$ret['title'] = Utils_RecordBrowserCommon::record_link_open_tag('task',$arg).$r['title'].Utils_RecordBrowserCommon::record_link_close_tag();
-			$ret['view_href'] = Utils_RecordBrowserCommon::create_record_href('task',$arg);
-		}
-		return $ret;
+	public static function watchdog_label($rid = null, $events = array()) {
+		return Utils_RecordBrowserCommon::watchdog_label(
+				'task',
+				Base_LangCommon::ts('CRM_Tasks','Tasks'),
+				$rid,
+				$events,
+				'title'
+			);
 	}
 }
 
