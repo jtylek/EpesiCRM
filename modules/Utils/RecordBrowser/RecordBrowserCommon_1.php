@@ -672,7 +672,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							} elseif (isset(self::$table_rows[$k])) {
 								$f = $k;
 								$key = self::$table_rows[$k]['id'];
-							} else trigger_error($k.' - '.print_r($crits,true), E_USER_ERROR);
+							} else trigger_error($k.' - '.print_r($crits,true).' - '.print_r(self::$table_rows,true), E_USER_ERROR);
 							if (self::$table_rows[$f]['type']=='multiselect') $w = DB::Concat(DB::qstr('%'),DB::qstr('\_\_'.$w.'\_\_'),DB::qstr('%'));
 							elseif (!$noquotes) $w = DB::qstr($w);
 							$having .= ' OR (r.f_'.$key.' '.$operator.' '.$w.' AND r.f_'.$key.' IS NOT NULL)';
