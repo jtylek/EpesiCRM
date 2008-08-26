@@ -87,9 +87,18 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 	public function upgrade_1(){
 		set_time_limit(0);
 		ini_set("memory_limit","512M");
+
+		// Create RB update table
+		$tables_db = DB::MetaTables();
+		if(!in_array('patch_rb',$tables_db))
+		DB::CreateTable('patch_rb',"id C(32) KEY NOTNULL");
+
 		$tabs = DB::GetAssoc('SELECT tab, tab FROM recordbrowser_table_properties');
 		self::el('Starting... tabs: '.print_r($tabs,true));
 		foreach ($tabs as $t) {
+			// skip upgrade if the table was already upgraded
+			if (DB::GetOne('SELECT 1 FROM patch_rb WHERE id=%s',array($t))) continue;
+
 			self::el($t.': Working');
 			@DB::DropTable($t.'_data_1');
 			DB::CreateTable($t.'_data_1',
@@ -180,6 +189,7 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 				}
 			}
 			self::el($t.': Done');
+		DB::Execute('INSERT INTO patch_rb VALUES(%s)',array($t));
 		}
 		self::el($t.': Upgrade done');
 		return true;
