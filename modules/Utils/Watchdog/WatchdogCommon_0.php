@@ -37,7 +37,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 	// ****************** registering ************************
 	public static function register_category($category_name, $callback) {
 		$exists = DB::GetOne('SELECT name FROM utils_watchdog_category WHERE name=%s',array(md5($category_name)));
-		if ($exists!==false) return;
+		if ($exists!==false && $exists!==null) return;
 		if (is_array($callback)) $callback = implode('::',$callback);
 		DB::Execute('INSERT INTO utils_watchdog_category (name, callback) VALUES (%s,%s)',array(md5($category_name),$callback));
 	}
@@ -63,7 +63,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		$category_id = self::get_category_id($category_name);
 		if (!$category_id) return;
 		$last_event = DB::GetOne('SELECT MAX(id) FROM utils_watchdog_event WHERE internal_id=%d AND category_id=%d', array($id,$category_id));
-		if ($last_event===null) $last_event = -1;
+		if ($last_event===null || $last_event===false) $last_event = -1;
 		DB::Execute('UPDATE utils_watchdog_subscription SET last_seen_event=%d WHERE user_id=%d AND internal_id=%d AND category_id=%d',array($last_event,$user_id,$id,$category_id));
 	}
 
@@ -71,7 +71,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		$category_id = self::get_category_id($category_name);
 		if (!$category_id) return;
 		$already_subscribed = DB::GetOne('SELECT last_seen_event FROM utils_watchdog_subscription WHERE user_id=%d AND internal_id=%d AND category_id=%d',array($user_id,$id,$category_id));
-		if ($already_subscribed===false) DB::Execute('INSERT INTO utils_watchdog_subscription (last_seen_event, user_id, internal_id, category_id) VALUES (%d,%d,%d,%d)',array(-1,$user_id,$id,$category_id));
+		if ($already_subscribed===false || $already_subscribed===null) DB::Execute('INSERT INTO utils_watchdog_subscription (last_seen_event, user_id, internal_id, category_id) VALUES (%d,%d,%d,%d)',array(-1,$user_id,$id,$category_id));
 		if ($user_id==Acl::get_user()) self::notified($category_name, $id);
 	}
 
