@@ -92,9 +92,6 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 		foreach ($tabs as $t) {
 			self::el($t.': Working');
 			@DB::DropTable($t.'_data_1');
-			@DB::Execute('ALTER TABLE '.$t.'_recent DROP INDEX '.$t.'_id');
-			@DB::Execute('ALTER TABLE '.$t.'_favorite DROP INDEX '.$t.'_id');
-			@DB::Execute('ALTER TABLE '.$t.'_edit_history DROP INDEX '.$t.'_id');
 			DB::CreateTable($t.'_data_1',
 						'id I AUTO KEY,'.
 						'created_on T NOT NULL,'.
