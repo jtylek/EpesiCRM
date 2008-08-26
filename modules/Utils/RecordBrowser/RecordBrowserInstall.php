@@ -88,7 +88,7 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 		set_time_limit(0);
 		ini_set("memory_limit","512M");
 		$tabs = DB::GetAssoc('SELECT tab, tab FROM recordbrowser_table_properties');
-		self::el('Starting...');
+		self::el('Starting... tabs: '.print_r($tabs,true));
 		foreach ($tabs as $t) {
 			self::el($t.': Working');
 			@DB::DropTable($t.'_data_1');
