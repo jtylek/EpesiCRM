@@ -620,8 +620,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								$having .= '('.implode(' OR ',$having_cd).')';
 								break;
 							}
+							self::init($tab2);
 							$cols2 = explode('|', $cols2);
 							foreach($cols2 as $j=>$w) $cols2[$j] = self::$table_rows[$cols2[$j]]['id'];
+							self::init($tab);
 							if (!$noquotes) $w = DB::qstr($w);
 							if (!is_array($v)) $v = array($v);
 							$poss_vals = '';
