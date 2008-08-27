@@ -39,7 +39,6 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 	public function make_event_PDF($pdf, $id, $no_details = false,$type='Event'){
 		$ev = DB::GetRow('SELECT * FROM crm_calendar_event WHERE id=%d', array($id));
-//		Base_ThemeCommon::install_default_theme($this->get_type()); // TODO: delete this, just develop tool
 		$pdf_theme = $this->pack_module('Base/Theme');
 		$pdf_theme->assign('description', array('label'=>$this->lang->t('Description'), 'value'=>str_replace("\n",'<br/>',htmlspecialchars($ev['description']))));
 		if (!$no_details) {
@@ -377,6 +376,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				$emp_id .= CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact($v)).'<br>';
 			$def['cus_id'] = $cus_id;
 			$def['emp_id'] = $emp_id;
+			$theme->assign('subscribe_icon',Utils_WatchdogCommon::get_change_subscription_icon('crm_calendar',$id));
 		} else {
 			$emp = array();
 			$emp_alarm = array();
@@ -468,9 +468,16 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			if (!isset($values['timeless'])) $values['timeless'] = false;
 			if($action == 'new' || $action=='clone') {
 //				if($action=='clone') unset($values['recurrence']);
-				CRM_CalendarCommon::$last_added = $this->add_event($values);
-			} else
+				$id = CRM_CalendarCommon::$last_added = $this->add_event($values);
+				Utils_WatchdogCommon::new_event('crm_calendar',CRM_CalendarCommon::$last_added,'Event added');
+			} else {
 				$this->update_event($id, $values);
+				Utils_WatchdogCommon::new_event('crm_calendar',$id,'Event updated');
+			}
+			foreach ($values['emp_id'] as $v) {
+				$uid = Utils_RecordBrowserCommon::get_value('contact',$v,'Login');
+				if ($uid) Utils_WatchdogCommon::user_subscribe($uid,'crm_calendar',$id);
+			}
 			$this->back_to_calendar();
 			return;
 		}

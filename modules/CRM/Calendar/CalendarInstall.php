@@ -6,11 +6,13 @@ class CRM_CalendarInstall extends ModuleInstall {
 		Base_ThemeCommon::install_default_theme('CRM/Calendar');
 		$this->add_aco('manage others','Employee Manager');
 		$this->add_aco('access','Employee');
+		Utils_WatchdogCommon::register_category('crm_calendar', array('CRM_CalendarCommon','watchdog_label'));
 		return true;
 	}
 
 	public function uninstall() {
 		Base_ThemeCommon::uninstall_default_theme('CRM/Calendar');
+		Utils_WatchdogCommon::unregister_category('crm_calendar');
 		return true;
 	}
 

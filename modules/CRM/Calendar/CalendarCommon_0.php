@@ -113,7 +113,26 @@ class CRM_CalendarCommon extends ModuleCommon {
 		return $result;
 	}
 
-
+	public static function watchdog_label($rid = null, $events = array()) {
+		$ret = array('category'=>Base_LangCommon::ts('CRM_Calendar', 'Events'));
+		if ($rid!==null) {
+			$ret['view_href'] = Module::create_href(array('crm_calendar_watchdog_view_event'=>$rid));
+			if (isset($_REQUEST['crm_calendar_watchdog_view_event'])
+				&& $_REQUEST['crm_calendar_watchdog_view_event']==$rid) {
+				unset($_REQUEST['crm_calendar_watchdog_view_event']);
+				$x = ModuleManager::get_instance('/Base_Box|0');
+				if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+				$x->push_main('CRM_Calendar_Event','view',$rid);
+			}
+			$ret['title'] = '<a '.$ret['view_href'].'>'.DB::GetOne('SELECT title FROM crm_calendar_event WHERE id=%d',array($rid)).'</a>';
+			$events_display = array();
+			foreach ($events as $v) {
+				$events_display[] = '<b>'.Base_LangCommon::ts('CRM_Calendar',$v).'</b>';	
+			}
+			$ret['events'] = implode('<hr>',array_reverse($events_display));
+		}
+		return $ret;
+	}
 
 }
 ?>

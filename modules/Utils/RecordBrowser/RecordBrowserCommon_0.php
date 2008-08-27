@@ -993,7 +993,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								if ($param[1]=='-') $action = 'deleted';
 								$event_display = Base_LangCommon::ts('Utils_RecordBrowser','<b>Note '.$action.'<b>');
 								break;								
-					default: 	$event_display = '<b>'.$v.'</b>';	
+					default: 	$event_display = '<b>'.Base_LangCommon::ts('Utils_RecordBrowser',$v).'</b>';	
 				}
 				$events_display[] = $event_display;
 			}
