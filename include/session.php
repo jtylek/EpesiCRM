@@ -29,11 +29,11 @@ class DBSession {
     public static function read($name) {
     	$ret = DB::GetOne('SELECT data FROM session WHERE name = %s AND expires > %d', array($name, time()-self::$lifetime));
 		if($ret) {
-			if ((strtoupper(substr(PHP_OS, 0, 3))!=='WIN' && DATABASE_DRIVER=='postgres') $ret = pg_unescape_bytea($ret);
+			if (strtoupper(substr(PHP_OS, 0, 3))!=='WIN' && DATABASE_DRIVER=='postgres') $ret = pg_unescape_bytea($ret);
 	    	$_SESSION = unserialize($ret);
 		}
 		if(CID!==false && ($ret = DB::GetOne('SELECT data FROM session_client WHERE session_name = %s AND client_id=%d', array($name,CID)))) {
-			if ((strtoupper(substr(PHP_OS, 0, 3))!=='WIN' && DATABASE_DRIVER=='postgres') $ret = pg_unescape_bytea($ret);
+			if (strtoupper(substr(PHP_OS, 0, 3))!=='WIN' && DATABASE_DRIVER=='postgres') $ret = pg_unescape_bytea($ret);
 			$_SESSION['client'] = unserialize($ret);
 		}
 		return '';
@@ -44,12 +44,12 @@ class DBSession {
     	DB::StartTrans();
 		if(CID!==false && isset($_SESSION['client'])) {
 			$data = serialize($_SESSION['client']);
-			if ((strtoupper(substr(PHP_OS, 0, 3))!=='WIN' && DATABASE_DRIVER=='postgres') $data = pg_escape_bytea($data);
+			if (strtoupper(substr(PHP_OS, 0, 3))!=='WIN' && DATABASE_DRIVER=='postgres') $data = pg_escape_bytea($data);
 			$ret &= DB::Replace('session_client',array('data'=>$data,'session_name'=>$name,'client_id'=>CID),array('session_name','client_id'),true);
 		}
 		if(isset($_SESSION['client'])) unset($_SESSION['client']);
 		$data = serialize($_SESSION);
-		if ((strtoupper(substr(PHP_OS, 0, 3))!=='WIN' && DATABASE_DRIVER=='postgres') $data = pg_escape_bytea($data);
+		if (strtoupper(substr(PHP_OS, 0, 3))!=='WIN' && DATABASE_DRIVER=='postgres') $data = pg_escape_bytea($data);
 		$ret &= DB::Replace('session',array('expires'=>time(),'data'=>$data,'name'=>$name),'name',true);
 		DB::CompleteTrans();
 		return ($ret>0)?true:false;
