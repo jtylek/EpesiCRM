@@ -188,7 +188,8 @@ class Utils_RecordBrowser extends Module {
 				}
 			} else {
 				$ret2 = Utils_RecordBrowserCommon::get_records($this->tab,array(),array($filter));
-				foreach ($ret2 as $k=>$v) /*if($v[$filter][0]!='_') */$arr[$k] = $this->get_val($filter, $v, $v['id'], true, $this->table_rows[$filter]);
+				$field_id = $this->table_rows[$filter]['id'];
+				foreach ($ret2 as $k=>$v) if ($v[$field_id]!='' && !isset($arr[$v[$field_id]])) $arr[$v[$field_id]] = $this->get_val($filter, $v, $v['id'], true, $this->table_rows[$filter]);
 			}
 			if ($this->table_rows[$filter]['type']=='checkbox') $arr = array(''=>$this->lang->ht('No'), 1=>$this->lang->ht('Yes'));
 			natcasesort($arr);
@@ -220,7 +221,7 @@ class Utils_RecordBrowser extends Module {
 		$theme->assign('hide_filters', $this->lang->t('Hide filters'));
 		$theme->assign('id', $f_id);
 		if (!$this->isset_module_variable('filters_defaults'))
-		$this->set_module_variable('filters_defaults', $this->crits);
+			$this->set_module_variable('filters_defaults', $this->crits);
 		elseif ($this->crits!==$this->get_module_variable('filters_defaults')) $theme->assign('dont_hide', true);
 		return $this->get_html_of_module($theme, 'Filter', 'display');
 	}
