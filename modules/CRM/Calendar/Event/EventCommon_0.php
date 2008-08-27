@@ -54,6 +54,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$action  = $_REQUEST['action'];
 			if ($action == 'set_in_progress') $v = 1;
 			DB::Execute('UPDATE crm_calendar_event SET status=%d WHERE id=%d',array($v,$id));
+			Utils_WatchdogCommon::new_event('crm_calendar',$id,'Event status changed');
 			if ($action == 'set_in_progress') location(array());
 
 			$values = $def;
@@ -411,6 +412,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$start = strtotime(date('Y-m-d',$start));
 
 		DB::Execute('UPDATE crm_calendar_event SET starts=%d, ends=%d, timeless=%b WHERE id=%d',array($start,$start+$duration,$timeless,$id));
+		Utils_WatchdogCommon::new_event('crm_calendar',$id,'Event moved');
 
 		if($recurrence!==false)
 			return false;
