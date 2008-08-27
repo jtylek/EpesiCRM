@@ -91,7 +91,7 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 		// Create RB update table
 		$tables_db = DB::MetaTables();
 		if(!in_array('patch_rb',$tables_db))
-		DB::CreateTable('patch_rb',"id C(32) KEY NOTNULL");
+			DB::CreateTable('patch_rb',"id C(32) KEY NOTNULL");
 
 		$tabs = DB::GetAssoc('SELECT tab, tab FROM recordbrowser_table_properties');
 		self::el('Starting... tabs: '.print_r($tabs,true));
@@ -108,6 +108,16 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 						'private I4 DEFAULT 0,'.
 						'active I1 NOT NULL DEFAULT 1',
 						array('constraints'=>''));
+			foreach (array('recent', 'favorite', 'edit_history') as $v){			
+			    $a_create_table = DB::getRow(sprintf('SHOW CREATE TABLE %s', $t.'_'.$v));
+			    $create_sql  = $a_create_table[1];
+			    if (!preg_match_all("/CONSTRAINT `(.*?)` FOREIGN KEY \(`(.*?)`\) REFERENCES `(.*?)` \(`(.*?)`\)/", $create_sql, $matches)) continue;
+			 	$foreign_keys = array();	 	 
+			    $num_keys = count($matches[0]);
+			    for ( $i = 0;  $i < $num_keys;  $i ++ ) {
+					DB::Execute('ALTER TABLE '.$t.'_'.$v.' DROP FOREIGN KEY '.$matches[1][$i]);
+			    }
+			}
 			self::el($t.': Created base table');
 			$cols = DB::Execute('SELECT field, type, param FROM '.$t.'_field WHERE type!=%s AND type!=%s', array('foreign index','page_split'));
 			while ($c = $cols->FetchRow()) {
@@ -191,6 +201,7 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 			self::el($t.': Done');
 		DB::Execute('INSERT INTO patch_rb VALUES(%s)',array($t));
 		}
+		DB::DropTable('patch_rb');
 		self::el($t.': Upgrade done');
 		return true;
 	}
