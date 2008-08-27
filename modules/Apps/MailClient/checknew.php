@@ -20,7 +20,7 @@ require_once('Mail/mimeDecode.php');
 
 function message($id,$text) {
 	echo('<script>parent.Apps_MailClient.progress_bar.set_text(parent.$(\''.$_GET['id'].'progresses\'),\''.$id.'\',\''.Epesi::escapeJS($text,false).'\')</script>');
-	ob_flush();
+	@ob_flush();
 	flush();
 }
 
@@ -46,7 +46,7 @@ foreach($accounts as $account) {
 	echo('<script>parent.Apps_MailClient.progress_bar.set_text(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\',\''.Epesi::escapeJS($account['mail'],false).'\');');
 	echo('parent.Apps_MailClient.progress_bar.set_progress(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\', 0)</script>');
 }
-ob_flush();
+@ob_flush();
 flush();
 foreach($accounts as $account) {
 	$host = explode(':',$account['incoming_server']);
@@ -213,7 +213,7 @@ foreach($accounts as $account) {
 		
 		$num++;
 		echo('<script>parent.Apps_MailClient.progress_bar.set_progress(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\', '.ceil($num*100/$count).')</script>');
-		ob_flush();
+		@ob_flush();
 		flush();
 	}
 	
