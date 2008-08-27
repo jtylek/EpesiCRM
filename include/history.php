@@ -19,7 +19,7 @@ class History {
 		self::$action = true;
 		if(self::is_back()) $_SESSION['client']['__history_id__']--;
 		$data = DB::GetOne('SELECT data FROM history WHERE session_name=%s AND page_id=%d AND client_id=%d',array(session_id(),$_SESSION['client']['__history_id__']-1,CID));
-		if(DATABASE_DRIVER=='postgres') $data = pg_unescape_bytea($data);
+//		$data = DB::BlobDecode($data);
 		if(GZIP_HISTORY && function_exists('gzuncompress')) $data = gzuncompress($data);
 		$_SESSION['client']['__module_vars__'] = unserialize($data);
 		location(array());
@@ -30,7 +30,7 @@ class History {
 			$_SESSION['client']['__history_id__']++;
 		self::$action = true;
 		$data = DB::GetOne('SELECT data FROM history WHERE session_name=%s AND page_id=%d AND client_id=%d',array(session_id(),$_SESSION['client']['__history_id__']-1,CID));
-		if(DATABASE_DRIVER=='postgres') $data = pg_unescape_bytea($data);
+//		$data = DB::BlobDecode($data);
 		if(GZIP_HISTORY && function_exists('gzuncompress')) $data = gzuncompress($data);
 		$_SESSION['client']['__module_vars__'] = unserialize($data);
 		location(array());
@@ -43,9 +43,10 @@ class History {
 		if(!isset($_SESSION['client']['__history_id__'])) $_SESSION['client']['__history_id__']=0;
 		$data = serialize($_SESSION['client']['__module_vars__']);
 		if(GZIP_HISTORY && function_exists('gzcompress')) $data = gzcompress($data);
-		if(DATABASE_DRIVER=='postgres') $data = pg_escape_bytea($data);
+		if(DATABASE_DRIVER=='postgres') $data = '\''.DB::BlobEncode($data).'\'';
+		else $data = DB::qstr($data);
 		DB::StartTrans();
-		DB::Replace('history',array('data'=>$data,'page_id'=>$_SESSION['client']['__history_id__'], 'session_name'=>session_id(), 'client_id'=>CID),array('session_name','page_id'),true);
+		DB::Replace('history',array('data'=>$data,'page_id'=>$_SESSION['client']['__history_id__'], 'session_name'=>DB::qstr(session_id()), 'client_id'=>CID),array('session_name','page_id'));
 		$_SESSION['client']['__history_id__']++;
 		$ret = DB::Execute('SELECT page_id FROM history WHERE session_name=%s AND (page_id>=%d OR page_id<%d) AND client_id=%d',array(session_id(),$_SESSION['client']['__history_id__'],$_SESSION['client']['__history_id__']-20,CID));
 		while($row = $ret->FetchRow())
@@ -81,7 +82,7 @@ class History {
 			Epesi::alert('History expired.');
 			return;
 		}
-		if(DATABASE_DRIVER=='postgres') $data = pg_unescape_bytea($data);
+//		$data = DB::BlobDecode($data);
 		if(GZIP_HISTORY && function_exists('gzuncompress')) $data = gzuncompress($data);
 		$_SESSION['client']['__module_vars__'] = unserialize($data);
 	}

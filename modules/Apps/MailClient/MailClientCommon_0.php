@@ -57,6 +57,15 @@ class Apps_MailClientCommon extends ModuleCommon {
 				file_put_contents($acc_dir.'Drafts.mbox','');
 			}
 		}
+
+		$acc_dir=$dir.'internal/';
+		if(!file_exists($acc_dir)) { // create user dir
+			mkdir($acc_dir);
+			file_put_contents($acc_dir.'Inbox.mbox','');
+			file_put_contents($acc_dir.'Sent.mbox','');
+			file_put_contents($acc_dir.'Trash.mbox','');
+			file_put_contents($acc_dir.'Drafts.mbox','');
+		}
 		return $dir; 
 	}
 	
@@ -87,9 +96,9 @@ class Apps_MailClientCommon extends ModuleCommon {
 		if($mdir===null) $mdir = $this->_get_mail_dir();
 		$st = array();
 		$cont = scandir($mdir);
-		$cont[] = 'Internal mail';
+		$st[] = array('name'=>'internal','label'=>Base_LangCommon::ts('Apps_MailClient','Private messages'),'sub'=>$this->_get_mail_account_structure($mdir.'internal/'));
 		foreach($cont as $f) {
-			if($f=='.' || $f=='..') continue;
+			if($f=='.' || $f=='..' | $f=='internal') continue;
 			$path = $mdir.$f;
 			$r = array();
 			if(is_dir($path))
@@ -237,8 +246,12 @@ class Apps_MailClientCommon extends ModuleCommon {
 	    return $str;
 	}
 
-	public static function addressbook_rp($e){
-		return CRM_ContactsCommon::contact_format_default($e,true);
+	public static function addressbook_rp_mail($e){
+		return CRM_ContactsCommon::contact_format_default($e,true).' - '.$e['email'];
+	}
+
+	public static function addressbook_rp_pm($e){
+		return CRM_ContactsCommon::contact_format_default($e,true).' - private message';
 	}
 }
 
