@@ -9,6 +9,8 @@ require_once('../../../include.php');
 session_commit();
 ModuleManager::load_modules();
 set_time_limit(0);
+$mail_size_limit = Variable::get('max_mail_size');
+ini_set("memory_limit",$mail_size_limit+32*1024*1024); // max mail size is
 
 if(!Acl::is_user()) die('Not logged in');
 
@@ -25,6 +27,17 @@ function rm_lock($lock) {
 	@unlink(dirname(dirname(dirname(__FILE__))).'/'.$lock);
 }
 
+function profiler() {
+        static $m = 0;
+        if(($mem = memory_get_usage()) > $m) {
+		$m = $mem;
+		error_log(filesize_hr($m)."\n\n",3,'data/logsze');
+	}
+}
+   
+register_tick_function('profiler');
+declare(ticks = 10);
+   
 $accounts = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE user_login_id=%d',array(Acl::get_user()));
 foreach($accounts as $account) {
 	$pop3 = ($account['incoming_protocol']==0);
@@ -152,7 +165,15 @@ foreach($accounts as $account) {
 	$invalid = 0;
 	foreach($l as $msgl) {
 		message($account['id'],$account['mail'].': getting message '.$num.' of '.$count);
-		//tutaj jest jedyne wykorzystanie bibliotecznej funkcji
+		if($native_support) {
+			$size = $msgl->size;
+		} else {
+			$size= $msgl['size'];
+		}
+		if($size>$mail_size_limit) {
+			$invalid++;
+			continue;
+		}
 		if($native_support)
 			$msg = imap_fetchheader($in,$msgl->uid).imap_body($in,$msgl->uid,FT_INTERNAL);
 		else
@@ -187,7 +208,7 @@ foreach($accounts as $account) {
 			else
 				$uidls[$msgl['uidl']] = $tt;	
 		}
-
+		
 		$num++;
 		echo('<script>parent.Apps_MailClient.progress_bar.set_progress(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\', '.ceil($num*100/$count).')</script>');
 		flush();

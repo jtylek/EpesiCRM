@@ -41,6 +41,10 @@ class Apps_MailClientCommon extends ModuleCommon {
 		return array('Mail client'=>array());
 	}
 	
+	public static function admin_caption() {
+		return 'Mail client settings';
+	}
+
 	////////////////////////////////////////////////////
 	// scan mail dir, etc
 	private function _get_mail_dir() {

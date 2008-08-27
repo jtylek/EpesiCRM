@@ -37,6 +37,7 @@ class Apps_MailClientInstall extends ModuleInstall {
 			return false;
 		}
 		Base_ThemeCommon::install_default_theme($this -> get_type());
+		Variable::set('max_mail_size',5*1024*1024);
 		$this->create_data_dir();
 		mkdir($this->get_data_dir().'tmp');
 		return $ret;
@@ -45,6 +46,7 @@ class Apps_MailClientInstall extends ModuleInstall {
 	public function uninstall() {
 		$ret = true;
 		$ret &= DB::DropTable('apps_mailclient_accounts');
+		Variable::delete('max_mail_size');
 		Base_ThemeCommon::uninstall_default_theme($this -> get_type());
 		return $ret;
 	}

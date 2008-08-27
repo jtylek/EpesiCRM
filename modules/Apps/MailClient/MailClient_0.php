@@ -26,13 +26,6 @@ class Apps_MailClient extends Module {
 	
 	public function body() {
 		$def_mbox = Apps_MailClientCommon::get_default_mbox();
-		if($def_mbox===null) {
-			print($this->lang->t('No mailboxes defined !<br />'));
-			print($this->lang->t('You need to setup a mailbox first.<br />'));
-			print($this->lang->t('<br /><br />Click on New Account icon in the action bar to setup the account.<br />'));
-			Base_ActionBarCommon::add('add','New account',$this->create_callback_href(array($this,'account'),array(null,'new')));
-			return;
-		}
 
 		$mbox_file = $this->get_module_variable('opened_mbox',$def_mbox);
 		$preview_id = $this->get_path().'preview';
@@ -77,7 +70,9 @@ class Apps_MailClient extends Module {
 			$r = $gb->get_new_row();
 			$subject = Apps_MailClientCommon::mime_header_decode($data['subject']);
 			$address = Apps_MailClientCommon::mime_header_decode($to_col?$data['to']:$data['from']);
-			$r->add_data($id,'<a href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$id, 'pid'=>$preview_id)).'\')">'.htmlentities($subject).'</a>',htmlentities($address),Base_RegionalSettingsCommon::time2reg($data['date']),filesize_hr($data['size']));
+			$subject = strip_tags($subject);
+			if(strlen($subject)>40) $subject = Utils_TooltipCommon::create(substr($subject,0,38).'...',$subject);
+			$r->add_data($id,'<a href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$id, 'pid'=>$preview_id)).'\')">'.$subject.'</a>',htmlentities($address),Base_RegionalSettingsCommon::time2reg($data['date']),array('style'=>'text-align:right','value'=>filesize_hr($data['size'])));
 			$lid = 'mailclient_link_'.$id;
 			$r->add_action('href="javascript:void(0)" rel="'.$show_id.'" class="lbOn" id="'.$lid.'" ','View');
 			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Delete this message?'),array($this,'remove_message'),array($mbox_file,$id)),'Delete');
@@ -350,6 +345,13 @@ class Apps_MailClient extends Module {
 				'Event.observe(\'mailclient_smtp_auth\',\'change\',function(x) {'.
 					'if(this.checked==true) {this.form.smtp_login.disabled=false;this.form.smtp_password.disabled=false;} else {this.form.smtp_login.disabled=true;this.form.smtp_password.disabled=true;}'.
 					'})');
+		} else {
+			eval_js('Event.observe(\'mailclient_incoming_protocol\',\'change\',function(x) {'.
+					'if(this.value==0) this.form.pop3_leave_msgs_on_server.disabled=false; else this.form.pop3_leave_msgs_on_server.disabled=true;'.
+					'});'.
+				'Event.observe(\'mailclient_smtp_auth\',\'change\',function(x) {'.
+					'if(this.checked==true) {this.form.smtp_login.disabled=false;this.form.smtp_password.disabled=false;} else {this.form.smtp_login.disabled=true;this.form.smtp_password.disabled=true;}'.
+					'})');
 		}
 
 		$cols = array(
@@ -448,6 +450,40 @@ class Apps_MailClient extends Module {
 		$th = $this->init_module('Base/Theme');
 		$th->assign('accounts',$ret);
 		$th->display('applet');
+	}
+
+	///////////////////////////////////////////////////
+	// admin
+	
+	public function admin() {
+		if($this->is_back()) {
+			$this->parent->reset();
+		}
+		
+		$form = & $this->init_module('Libs/QuickForm',null,'mailclient_setup');
+		
+		$form->addElement('header', 'module_header', $this->lang->t('Mail messages setup'));
+		$s = array();
+		for($i=5; $i<250; $i*=2) {
+			$k = $i*1024*1024;
+			$s[$k] = filesize_hr($k);
+		}
+		$form->addElement('select','max_mail_size',$this->lang->t('Max downloaded mail size'), $s);
+		
+		$form->setDefaults(array('max_mail_size'=>Variable::get('max_mail_size')));
+		
+		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+		Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
+		
+		if($form->validate()) {
+			if($form->process(array($this,'submit_admin'))) {
+				$this->parent->reset();
+			}
+		} else $form->display();
+	}
+
+	public function submit_admin($data) {
+		return Variable::set('max_mail_size',$data['max_mail_size']);	
 	}
 }
 
