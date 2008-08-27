@@ -21,12 +21,13 @@ require_once('Mail/mimeDecode.php');
 function message($id,$text) {
 	echo('<script>parent.Apps_MailClient.progress_bar.set_text(parent.$(\''.$_GET['id'].'progresses\'),\''.$id.'\',\''.Epesi::escapeJS($text,false).'\')</script>');
 	flush();
+	@ob_flush();
 }
 
 function rm_lock($lock) {
 	@unlink(dirname(dirname(dirname(__FILE__))).'/'.$lock);
 }
-
+/*
 function profiler() {
         static $m = 0;
         if(($mem = memory_get_usage()) > $m) {
@@ -37,7 +38,7 @@ function profiler() {
    
 register_tick_function('profiler');
 declare(ticks = 10);
-   
+  */ 
 $accounts = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE user_login_id=%d',array(Acl::get_user()));
 foreach($accounts as $account) {
 	$pop3 = ($account['incoming_protocol']==0);
@@ -46,6 +47,7 @@ foreach($accounts as $account) {
 	echo('parent.Apps_MailClient.progress_bar.set_progress(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\', 0)</script>');
 }
 flush();
+@ob_flush();
 foreach($accounts as $account) {
 	$host = explode(':',$account['incoming_server']);
 	if(isset($host[1])) $port=$host[1];
@@ -212,6 +214,7 @@ foreach($accounts as $account) {
 		$num++;
 		echo('<script>parent.Apps_MailClient.progress_bar.set_progress(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\', '.ceil($num*100/$count).')</script>');
 		flush();
+		@ob_flush();
 	}
 	
 	echo('<script>parent.Apps_MailClient.progress_bar.set_progress(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\', 100)</script>');
