@@ -738,7 +738,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function get_records_limit( $tab = null, $crits = null, $admin = false) {
 		$par = self::build_query($tab, $crits, $admin);
 		if (empty($par)) return 0;
-		return DB::GetOne('SELECT COUNT(*) FROM ('.$par['sql'].') AS tmp', $par['vals']);
+		return DB::GetOne(str_replace('SELECT * FROM','SELECT COUNT(*) FROM',$par['sql']), $par['vals']);
 	}
 	public static function get_records( $tab = null, $crits = array(), $cols = array(), $order = array(), $limit = array(), $admin = false) {
 		if (!$tab) return false;
