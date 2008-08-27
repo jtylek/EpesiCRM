@@ -75,6 +75,17 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		if ($user_id==Acl::get_user()) self::notified($category_name, $id);
 	}
 
+	public static function user_change_subscription($user_id, $category_name, $id) {
+		$category_id = self::get_category_id($category_name);
+		if (!$category_id) return;
+		$already_subscribed = DB::GetOne('SELECT last_seen_event FROM utils_watchdog_subscription WHERE user_id=%d AND internal_id=%d AND category_id=%d',array($user_id,$id,$category_id));
+		if ($already_subscribed!==false && $already_subscribed!==null) DB::Execute('DELETE FROM utils_watchdog_subscription WHERE user_id=%d AND internal_id=%d AND category_id=%d',array($user_id,$id,$category_id));
+		else { 
+			DB::Execute('INSERT INTO utils_watchdog_subscription (last_seen_event, user_id, internal_id, category_id) VALUES (%d,%d,%d,%d)',array(-1,$user_id,$id,$category_id));
+			if ($user_id==Acl::get_user()) self::notified($category_name, $id);
+		}
+	}
+
 	public static function user_unsubscribe($user_id, $category_name, $id) {
 		$category_id = self::get_category_id($category_name);
 		if (!$category_id) return;
@@ -99,15 +110,16 @@ class Utils_WatchdogCommon extends ModuleCommon {
 	public static function user_get_change_subscr_href($user, $category_name, $id) {
 		$category_id = self::get_category_id($category_name);
 		if (!$category_id) return;
-		$subscribed = self::check_if_user_subscribes($user, $category_name, $id);
+//		$subscribed = self::check_if_user_subscribes($user, $category_name, $id);
 		if (isset($_REQUEST['utils_watchdog_category']) &&
 			isset($_REQUEST['utils_watchdog_user']) &&  
 			isset($_REQUEST['utils_watchdog_id']) &&
 			$_REQUEST['utils_watchdog_category']==$category_id &&
 			$_REQUEST['utils_watchdog_user']==$user &&  
 			$_REQUEST['utils_watchdog_id']==$id) {
-			if ($subscribed) self::user_unsubscribe($user, $category_name, $id);	
-			else self::user_subscribe($user, $category_name, $id);
+//			if ($subscribed) self::user_unsubscribe($user, $category_name, $id);	
+//			else self::user_subscribe($user, $category_name, $id);
+			self::user_change_subscription($user, $category_name, $id);
 			location(array());	
 		}
 		return Module::create_href(array('utils_watchdog_category'=>$category_id, 'utils_watchdog_user'=>$user, 'utils_watchdog_id'=>$id));
