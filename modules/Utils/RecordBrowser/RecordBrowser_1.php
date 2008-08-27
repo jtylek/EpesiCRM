@@ -1283,7 +1283,7 @@ class Utils_RecordBrowser extends Module {
 
 	public function set_active($id, $state=true){
 		DB::StartTrans();
-		DB::Execute('UPDATE '.$this->tab.' SET active=%d WHERE id=%d',array($state?1:0,$id));
+		DB::Execute('UPDATE '.$this->tab.'_data_1 SET active=%d WHERE id=%d',array($state?1:0,$id));
 		DB::Execute('INSERT INTO '.$this->tab.'_edit_history(edited_on, edited_by, '.$this->tab.'_id) VALUES (%T,%d,%d)', array(date('Y-m-d G:i:s'), Acl::get_user(), $id));
 		$edit_id = DB::Insert_ID($this->tab.'_edit_history','id');
 		DB::Execute('INSERT INTO '.$this->tab.'_edit_history_data(edit_id, field, old_value) VALUES (%d,%s,%s)', array($edit_id, 'id', ($state?'REVERTED':'DELETED')));

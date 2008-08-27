@@ -144,7 +144,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 	public static function is_active($tab, $id) {
 		self::init($tab);
-		return DB::GetOne('SELECT active FROM '.$tab.' WHERE id=%d', array($id));
+		return DB::GetOne('SELECT active FROM '.$tab.'_data_1 WHERE id=%d', array($id));
 	}
 	public static function admin_caption() {
 		return 'Records Sets';
@@ -405,9 +405,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		self::check_table_name($tab);
 		foreach ($info as $k=>$v)
 			switch ($k) {
-				case 'created_on': 	DB::Execute('UPDATE '.$tab.' SET created_on=%T WHERE id=%d', array($v, $id));
+				case 'created_on': 	DB::Execute('UPDATE '.$tab.'_data_1 SET created_on=%T WHERE id=%d', array($v, $id));
 									break;
-				case 'created_by': 	DB::Execute('UPDATE '.$tab.' SET created_by=%d WHERE id=%d', array($v, $id));
+				case 'created_by': 	DB::Execute('UPDATE '.$tab.'_data_1 SET created_by=%d WHERE id=%d', array($v, $id));
 									break;
 			}
 	}
