@@ -917,7 +917,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function delete_record($tab, $id) {
 		self::check_table_name($tab);
 		DB::StartTrans();
-		DB::Execute('UPDATE '.$tab.' SET active=0 where id=%d', array($id));
+		DB::Execute('UPDATE '.$tab.'_data_1 SET active=0 where id=%d', array($id));
 		DB::Execute('INSERT INTO '.$tab.'_edit_history(edited_on, edited_by, '.$tab.'_id) VALUES (%T,%d,%d)', array(date('Y-m-d G:i:s'), Acl::get_user(), $id));
 		$edit_id = DB::Insert_ID($tab.'_edit_history','id');
 		DB::Execute('INSERT INTO '.$tab.'_edit_history_data(edit_id, field, old_value) VALUES (%d,%s,%s)', array($edit_id, '', 'DELETED'));
