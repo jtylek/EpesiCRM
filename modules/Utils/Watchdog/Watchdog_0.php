@@ -33,7 +33,7 @@ class Utils_Watchdog extends Module {
 	}
 	
 	public function applet($conf, $opts) {
-		print('<a '.$this->create_callback_href(array($this,'purge_subscriptions_applet')).'>Pruge applet (will end up as icon on applet bar)!</a>');
+		print('<a '.$this->create_callback_href(array($this,'purge_subscriptions_applet')).'>Purge applet (will end up as icon on applet bar)!</a>');
 		$records = DB::GetAssoc('SELECT internal_id,category_id FROM utils_watchdog_subscription AS uws WHERE user_id=%d AND last_seen_event<(SELECT MAX(id) FROM utils_watchdog_event AS uwe WHERE uwe.internal_id=uws.internal_id AND uwe.category_id=uws.category_id)', array(Acl::get_user()));
 		$methods = DB::GetAssoc('SELECT id,callback FROM utils_watchdog_category');
 		foreach ($methods as $k=>$v) 
