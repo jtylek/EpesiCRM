@@ -162,7 +162,12 @@ foreach($accounts as $account) {
 			}
 		}
 	
-		
+	if(($uidls_fp = @fopen($uidls_file,'a'))==false) {
+		message($account['id'],$account['mail'].': unable to open UIDLS file');
+		unlink($lock);
+		continue;
+	}
+	
 	$count = count($l);
 	$invalid = 0;
 	foreach($l as $msgl) {
@@ -206,9 +211,10 @@ foreach($accounts as $account) {
 				$in->deleteMsg($msgl['msg_id']);
 		} else {
 			if($native_support)
-				$uidls[$msgl->message_id] = $tt;				
+				$msg_uidl = $msgl->message_id;
 			else
-				$uidls[$msgl['uidl']] = $tt;	
+				$msg_uidl = $msgl['uidl'];
+			fputcsv($uidls_fp,array($msg_uidl,$tt));
 		}
 		
 		$num++;
@@ -218,11 +224,7 @@ foreach($accounts as $account) {
 	}
 	
 	echo('<script>parent.Apps_MailClient.progress_bar.set_progress(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\', 100)</script>');
-	if(($uidls_fp = @fopen($uidls_file,'w'))!==false) {
-		foreach($uidls as $ui=>$t)
-			fputcsv($uidls_fp,array($ui,$t));
-		fclose($uidls_fp);
-	}
+	fclose($uidls_fp);
 	
 	if($native_support)
 		imap_close($in);
