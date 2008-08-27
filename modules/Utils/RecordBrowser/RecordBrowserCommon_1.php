@@ -326,18 +326,18 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		switch ($type) {
 			case 'page_split': $f = ''; break;
 
-			case 'text': $f = 'VARCHAR('.$param.')'; break;
-			case 'select': $f = 'TEXT'; break;
-			case 'multiselect': $f = 'TEXT'; break;
-			case 'commondata': $f = 'VARCHAR(128)'; break;
-			case 'integer': $f = 'DOUBLE'; break;
-			case 'date': $f = 'DATE'; break;
-			case 'timestamp': $f = 'TIMESTAMP'; break;
-			case 'long text': $f = 'TEXT'; break;
+			case 'text': $f = DB::dict()->ActualType('C').'('.$param.')'; break;
+			case 'select': $f = DB::dict()->ActualType('X'); break;
+			case 'multiselect': $f = DB::dict()->ActualType('X'); break;
+			case 'commondata': $f = DB::dict()->ActualType('C').'(128)'; break;
+			case 'integer': $f = DB::dict()->ActualType('F'); break;
+			case 'date': $f = DB::dict()->ActualType('D'); break;
+			case 'timestamp': $f = DB::dict()->ActualType('T'); break;
+			case 'long text': $f = DB::dict()->ActualType('X'); break;
 			case 'hidden': $f = (isset($param)?$param:''); break;
 			case 'calculated': $f = (isset($param)?$param:''); break;
-			case 'checkbox': $f = 'BOOLEAN'; break;
-			case 'currency': $f = 'VARCHAR(128)'; break;
+			case 'checkbox': $f = DB::dict()->ActualType('I1'); break;
+			case 'currency': $f = DB::dict()->ActualType('C').'(128)'; break;
 		}
 		if (!isset($f)) trigger_error('Database column for type '.$type.' undefined.',E_USER_ERROR);
 		if ($f!=='') DB::Execute('ALTER TABLE '.$tab.'_data_1 ADD COLUMN f_'.strtolower(str_replace(' ','_',$field)).' '.$f);

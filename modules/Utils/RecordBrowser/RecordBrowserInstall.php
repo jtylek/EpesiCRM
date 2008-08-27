@@ -108,32 +108,42 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 						'private I4 DEFAULT 0,'.
 						'active I1 NOT NULL DEFAULT 1',
 						array('constraints'=>''));
-			foreach (array('recent', 'favorite', 'edit_history') as $v){			
-			    $a_create_table = DB::getRow(sprintf('SHOW CREATE TABLE %s', $t.'_'.$v));
-			    $create_sql  = $a_create_table[1];
-			    if (!preg_match_all("/CONSTRAINT `(.*?)` FOREIGN KEY \(`(.*?)`\) REFERENCES `(.*?)` \(`(.*?)`\)/", $create_sql, $matches)) continue;
-			 	$foreign_keys = array();	 	 
-			    $num_keys = count($matches[0]);
+			foreach (array('recent', 'favorite', 'edit_history') as $v){
+				if(DATABASE_DRIVER=='postgres') {
+					$idxs = DB::Execute('SELECT t.tgargs as args FROM pg_trigger t,pg_class c,pg_proc p WHERE t.tgenabled AND t.tgrelid = c.oid AND t.tgfoid = p.oid AND p.proname = \'RI_FKey_check_ins\' AND c.relname = \''.strtolower($t.'_'.$v).'\' ORDER BY t.tgrelid');
+					$matches = array(1=>array());
+					while ($i = $idxs->FetchRow()) {
+						$data = explode(chr(0), $i[0]);
+						$matches[1][] = $data[0];
+					}
+					$op = 'CONSTRAINT';
+				} else { 
+					$a_create_table = DB::getRow(sprintf('SHOW CREATE TABLE %s', $t.'_'.$v));
+				    $create_sql  = $a_create_table[1];
+				    if (!preg_match_all("/CONSTRAINT `(.*?)` FOREIGN KEY \(`(.*?)`\) REFERENCES `(.*?)` \(`(.*?)`\)/", $create_sql, $matches)) continue;
+				    $op = 'FOREIGN KEY';
+				}
+				$num_keys = count($matches[1]);
 			    for ( $i = 0;  $i < $num_keys;  $i ++ ) {
-					DB::Execute('ALTER TABLE '.$t.'_'.$v.' DROP FOREIGN KEY '.$matches[1][$i]);
+					DB::Execute('ALTER TABLE '.$t.'_'.$v.' DROP '.$op.' '.$matches[1][$i]);
 			    }
 			}
 			self::el($t.': Created base table');
 			$cols = DB::Execute('SELECT field, type, param FROM '.$t.'_field WHERE type!=%s AND type!=%s', array('foreign index','page_split'));
 			while ($c = $cols->FetchRow()) {
 				switch ($c['type']) {
-					case 'text': $f = 'VARCHAR('.$c['param'].')'; break;
-					case 'select': $f = 'TEXT'; break;
-					case 'multiselect': $f = 'TEXT'; break;
-					case 'commondata': $f = 'VARCHAR(128)'; break;
-					case 'integer': $f = 'DOUBLE'; break;
-					case 'date': $f = 'DATE'; break;
-					case 'timestamp': $f = 'TIMESTAMP'; break;
-					case 'long text': $f = 'TEXT'; break;
+					case 'text': $f = DB::dict()->ActualType('C').'('.$c['param'].')'; break;
+					case 'select': $f = DB::dict()->ActualType('X'); break;
+					case 'multiselect': $f = DB::dict()->ActualType('X'); break;
+					case 'commondata': $f = DB::dict()->ActualType('C').'(128)'; break;
+					case 'integer': $f = DB::dict()->ActualType('F'); break;
+					case 'date': $f = DB::dict()->ActualType('D'); break;
+					case 'timestamp': $f = DB::dict()->ActualType('T'); break;
+					case 'long text': $f = DB::dict()->ActualType('X'); break;
 					case 'hidden': $f = (isset($c['param'])?$c['param']:''); break;
 					case 'calculated': $f = (isset($c['param'])?$c['param']:''); break;
-					case 'checkbox': $f = 'BOOLEAN'; break;
-					case 'currency': $f = 'VARCHAR(128)'; break;
+					case 'checkbox': $f = DB::dict()->ActualType('I1'); break;
+					case 'currency': $f = DB::dict()->ActualType('C').'(128)'; break;
 				}
 				if (!isset($f)) trigger_error('Database column for type '.$c['type'].' undefined.',E_USER_ERROR);
 				if ($f!=='') DB::Execute('ALTER TABLE '.$t.'_data_1 ADD COLUMN f_'.strtolower(str_replace(' ','_',$c['field'])).' '.$f);
