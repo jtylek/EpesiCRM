@@ -20,7 +20,20 @@ class Utils_Watchdog extends Module {
 		
 	}
 	
+	public function purge_subscriptions_applet() {
+		DB::Execute('UPDATE utils_watchdog_subscription AS uws SET last_seen_event=(SELECT MAX(id) FROM utils_watchdog_event AS uwe WHERE uwe.internal_id=uws.internal_id AND uwe.category_id=uws.category_id) WHERE user_id=%d', array(Acl::get_user()));
+		location(array());
+		return false;
+	}
+	
+	public function notified($id) {
+		DB::Execute('UPDATE utils_watchdog_subscription AS uws SET last_seen_event=(SELECT MAX(id) FROM utils_watchdog_event AS uwe WHERE uwe.internal_id=uws.internal_id AND uwe.category_id=uws.category_id) WHERE user_id=%d AND internal_id=%d', array(Acl::get_user(), $id));
+		location(array());
+		return false;
+	}
+	
 	public function applet($conf, $opts) {
+		print('<a '.$this->create_callback_href(array($this,'purge_subscriptions_applet')).'>Pruge applet (will end up as icon on applet bar)!</a>');
 		$records = DB::GetAssoc('SELECT internal_id,category_id FROM utils_watchdog_subscription AS uws WHERE user_id=%d AND last_seen_event<(SELECT MAX(id) FROM utils_watchdog_event AS uwe WHERE uwe.internal_id=uws.internal_id AND uwe.category_id=uws.category_id)', array(Acl::get_user()));
 		$methods = DB::GetAssoc('SELECT id,callback FROM utils_watchdog_category');
 		foreach ($methods as $k=>$v) 
@@ -43,6 +56,7 @@ class Utils_Watchdog extends Module {
 				$data['title']
 			);
 			$gb_row->add_action($data['view_href'],'View');
+			$gb_row->add_action($this->create_callback_href(array($this,'notified'), array($k)),'Restore','Mark as read');
 			if (isset($data['events']) && $data['events']) $gb_row->add_info($data['events']);
 		}
 		$this->display_module($gb);
