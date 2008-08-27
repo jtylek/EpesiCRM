@@ -297,8 +297,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 
 	public static function delete_record_field($tab, $field){
-		self::check_table_name($tab);
+		self::init($tab);
 		DB::Execute('DELETE FROM '.$tab.'_field WHERE field=%s', array($field));
+		DB::Execute('ALTER TABLE '.$tab.'_data_1 DROP COLUMN f_'.self::$table_rows[$field]['id']);
 	}
 	public static function new_record_field($tab, $field, $type, $visible, $required, $param='', $style='', $extra = true, $filter = false){
 		self::check_table_name($tab);
