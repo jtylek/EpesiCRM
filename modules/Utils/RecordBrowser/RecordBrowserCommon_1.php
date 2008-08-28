@@ -146,7 +146,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		self::init($tab);
 		if (isset(self::$table_rows[$field])) $field = self::$table_rows[$field]['id'];
 		elseif (!isset(self::$hash[$field])) trigger_error('get_id(): Unknown column: '.$field, E_USER_ERROR);
-		return DB::GetOne('SELECT id FROM '.$tab.'_data_1 WHERE f_'.$field.'=%d', array($value));
+		$f_id = self::$hash[$field];
+		if (self::$table_rows[$f_id]['type']=='multiselect') {
+			return DB::GetOne('SELECT id FROM '.$tab.'_data_1 WHERE f_'.$field.' LIKE '.DB::Concat(DB::qstr('%\_\_'),'%s',DB::qstr('\_\_%')), array($value));
+		}
+		return DB::GetOne('SELECT id FROM '.$tab.'_data_1 WHERE f_'.$field.'=%s', array($value));
 	}
 	public static function is_active($tab, $id) {
 		self::init($tab);
