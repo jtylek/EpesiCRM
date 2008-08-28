@@ -128,12 +128,12 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 												'details'=>array('weekday'=>date('l', strtotime($start)))));
 		if (!$ev['timeless']) {
 			$pdf_theme->assign('start_time', array(	'label'=>$this->lang->t('Start time'),
-													'value'=>Base_RegionalSettingsCommon::time2reg($ev['start'],true,false)));
+													'value'=>Base_RegionalSettingsCommon::time2reg($ev['starts'],true,false)));
 			$pdf_theme->assign('end_time', array(	'label'=>$this->lang->t('End time'),
-													'value'=>Base_RegionalSettingsCommon::time2reg($ev['end'],true,false)));
-			$duration = array(floor(($ev['end']-$ev['start'])/3600));
+													'value'=>Base_RegionalSettingsCommon::time2reg($ev['ends'],true,false)));
+			$duration = array(floor(($ev['ends']-$ev['starts'])/3600));
 			$format = '%d hours';
-			$minutes = ($ev['end']-$ev['start'])%3600;
+			$minutes = ($ev['ends']-$ev['starts'])%3600;
 			if ($minutes!=0) {
 				if ($duration[0]==0) {
 					$duration = array();
@@ -144,9 +144,9 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			}
 			$pdf_theme->assign('duration', array(	'label'=>$this->lang->t('Duration'),
 													'value'=>$this->lang->t($format,$duration)));
-			if (date('Y-m-d',$ev['start'])!=date('Y-m-d',$ev['end']))
+			if (date('Y-m-d',$ev['starts'])!=date('Y-m-d',$ev['ends']))
 				$pdf_theme->assign('end_date', array(	'label'=>$this->lang->t('End date'),
-														'value'=>Base_RegionalSettingsCommon::time2reg($ev['end'],false)));
+														'value'=>Base_RegionalSettingsCommon::time2reg($ev['ends'],false)));
 		} else $pdf_theme->assign('timeless', array(	'label'=>$this->lang->t('Timeless'),
 														'value'=>$this->lang->t('Yes')));
 		$pdf_theme->assign('type',$type);

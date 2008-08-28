@@ -136,6 +136,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		elseif (!isset(self::$hash[$field])) trigger_error('get_value(): Unknown column: '.$field, E_USER_ERROR);
 		return DB::GetOne('SELECT f_'.$field.' FROM '.$tab.'_data_1 WHERE id=%d', array($id));
 	}
+	public static function get_possible_values($tab, $field) {
+		self::init($tab);
+		if (isset(self::$table_rows[$field])) $field = self::$table_rows[$field]['id'];
+		elseif (!isset(self::$hash[$field])) trigger_error('get_value(): Unknown column: '.$field, E_USER_ERROR);
+		return DB::GetCol('SELECT DISTINCT(f_'.$field.') FROM '.$tab.'_data_1 WHERE f_'.$field.' IS NOT NULL');
+	}
 	public static function get_id($tab, $field, $value) {
 		self::init($tab);
 		if (isset(self::$table_rows[$field])) $field = self::$table_rows[$field]['id'];
