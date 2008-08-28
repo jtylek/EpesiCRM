@@ -140,7 +140,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		self::init($tab);
 		if (isset(self::$table_rows[$field])) $field = self::$table_rows[$field]['id'];
 		elseif (!isset(self::$hash[$field])) trigger_error('get_value(): Unknown column: '.$field, E_USER_ERROR);
-		return DB::GetCol('SELECT DISTINCT(f_'.$field.') FROM '.$tab.'_data_1 WHERE f_'.$field.' IS NOT NULL');
+		return DB::GetCol('SELECT MIN(id) FROM '.$tab.'_data_1 WHERE f_'.$field.' IS NOT NULL GROUP BY f_'.$field);
 	}
 	public static function get_id($tab, $field, $value) {
 		self::init($tab);

@@ -71,7 +71,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function get_possible_values($tab, $field) {
 		self::init($tab);
 		if (isset(self::$hash[$field])) $field = self::$hash[$field];
-		return DB::GetOne('SELECT DISTINCT(value) FROM '.$tab.'_data WHERE field=%s', array($field));
+		return DB::GetOne('SELECT MIN('.$tab.'_id) FROM '.$tab.'_data WHERE field=%s GROUP BY value', array($field));
 	}
 	public static function is_active($tab, $id) {
 		self::init($tab);

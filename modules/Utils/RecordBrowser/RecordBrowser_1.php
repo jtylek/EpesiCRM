@@ -175,44 +175,47 @@ class Utils_RecordBrowser extends Module {
 				continue;
 			}
 			$arr = array();
-			if (!isset($this->QFfield_callback_table[$filter]) && ($this->table_rows[$filter]['type'] == 'select' || $this->table_rows[$filter]['type'] == 'multiselect')) {
-				$param = explode(';',$this->table_rows[$filter]['param']);
-				list($tab, $col) = explode('::',$param[0]);
-				if ($tab=='__COMMON__') {
-					$arr = array_merge($arr, Utils_CommonDataCommon::get_translated_array($col, true));
-				} else {
-					Utils_RecordBrowserCommon::check_table_name($tab);
-					if (isset($this->table_rows[$col])) $col = $this->table_rows[$col]['id'];
-					$ret2 = Utils_RecordBrowserCommon::get_records($tab,array(),array($col));
-					foreach ($ret2 as $k=>$v) $arr[$k] = $v[$col];
-				}
+			if ($this->table_rows[$filter]['type']=='checkbox') {
+				$arr = array(''=>$this->lang->ht('No'), 1=>$this->lang->ht('Yes'));
 			} else {
-				$tmp = Utils_RecordBrowserCommon::get_possible_values($this->tab, $filter);
-				$ids = array();
-				if ($this->table_rows[$filter]['type']=='multiselect')
-					foreach ($tmp as $v) {
-						$vals = Utils_RecordBrowserCommon::decode_multi($v);
-						foreach ($vals as $id)
-							if (!isset($ids[$id]) && $id) $ids[$id] = $id;
+				if (!isset($this->QFfield_callback_table[$filter]) && ($this->table_rows[$filter]['type'] == 'select' || $this->table_rows[$filter]['type'] == 'multiselect')) {
+					$param = explode(';',$this->table_rows[$filter]['param']);
+					list($tab, $col) = explode('::',$param[0]);
+					if ($tab=='__COMMON__') {
+						$arr = array_merge($arr, Utils_CommonDataCommon::get_translated_array($col, true));
+					} else {
+						Utils_RecordBrowserCommon::check_table_name($tab);
+						if (isset($this->table_rows[$col])) $col = $this->table_rows[$col]['id'];
+						$ret2 = Utils_RecordBrowserCommon::get_records($tab,array(),array($col));
+						foreach ($ret2 as $k=>$v) $arr[$k] = $v[$col];
 					}
-				else $ids = $tmp;
-				$ret2 = Utils_RecordBrowserCommon::get_records($this->tab,array('id'=>$ids),array($filter));
-				$field_id = $this->table_rows[$filter]['id'];
-				foreach ($ret2 as $k=>$v) {
-					$f = $v[$field_id];
-					if (!is_array($f)) $f = array($f);
-					foreach ($f as $w)
-						if ($w!='' && !isset($arr[$w])) {
-							$v[$field_id] = $w;
-							$arr[$w] = $this->get_val($filter, $v, $v['id'], true, $this->table_rows[$filter]);
+				} else {
+					$tmp = Utils_RecordBrowserCommon::get_possible_values($this->tab, $filter);
+					$ids = array();
+					if ($this->table_rows[$filter]['type']=='multiselect')
+						foreach ($tmp as $v) {
+							$vals = Utils_RecordBrowserCommon::decode_multi($v);
+							foreach ($vals as $id)
+								if (!isset($ids[$id]) && $id) $ids[$id] = $id;
 						}
+					else $ids = $tmp;
+					$ret2 = Utils_RecordBrowserCommon::get_records($this->tab,array('id'=>$ids),array($filter));
+					$field_id = $this->table_rows[$filter]['id'];
+					foreach ($ret2 as $k=>$v) {
+						$f = $v[$field_id];
+						if (!is_array($f)) $f = array($f);
+						foreach ($f as $w)
+							if ($w!='' && !isset($arr[$w])) {
+								$v[$field_id] = $w;
+								$arr[$w] = $this->get_val($filter, $v, $v['id'], true, $this->table_rows[$filter]);
+							}
+					}
 				}
+				natcasesort($arr);
+				$arr = array('__NULL__'=>'---')+$arr;
+				$form->addElement('select', $filter_id, $this->lang->t($filter), $arr);
+				$filters[] = $filter_id;
 			}
-			if ($this->table_rows[$filter]['type']=='checkbox') $arr = array(''=>$this->lang->ht('No'), 1=>$this->lang->ht('Yes'));
-			natcasesort($arr);
-			$arr = array('__NULL__'=>'---')+$arr;
-			$form->addElement('select', $filter_id, $this->lang->t($filter), $arr);
-			$filters[] = $filter_id;
 		}
 		$form->addElement('submit', 'submit', 'Show');
 		$def_filt = $this->get_module_variable('def_filter', array());
