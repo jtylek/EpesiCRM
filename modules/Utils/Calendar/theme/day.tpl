@@ -10,7 +10,7 @@ Variable {$weekend} (true/false) indicated whether displayed day is part of week
 		<td class="empty">
 			<div id="{$trash_id}" class="trash">
 				<div class="icon"><img border="0" width="32" height="32" src="{$theme_dir}/Utils_Calendar__trash.png"></div>
-				<div class="text">Drag and drop<br>to delete</div>
+				<div class="text">{$trash_label}</div>
 			</div>
 		</td>
 		<td style="width: 10px;"></td>

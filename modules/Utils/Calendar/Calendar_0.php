@@ -361,6 +361,7 @@ class Utils_Calendar extends Module {
 	public function day() {
 		$theme = & $this->pack_module('Base/Theme');
 
+		$theme->assign('trash_label', $this->lang->ht('Drag and drop<br>to delete'));
 		$theme->assign('next_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date+86400))));
 		$theme->assign('next_label',$this->lang->ht('Next day'));
 		$theme->assign('today_href', $this->create_unique_href(array('date'=>date('Y-m-d'))));
@@ -485,6 +486,7 @@ class Utils_Calendar extends Module {
 	public function week() {
 		$theme = & $this->pack_module('Base/Theme');
 
+		$theme->assign('trash_label', $this->lang->ht('Drag and drop<br>to delete'));
 		$theme->assign('next7_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date+604800))));
 		$theme->assign('next7_label',$this->lang->ht('Next week'));
 		$theme->assign('next_href', $this->create_unique_href(array('shift_week_day'=>1)));
@@ -669,6 +671,7 @@ class Utils_Calendar extends Module {
 	public function month() {
 		$theme = & $this->pack_module('Base/Theme');
 
+		$theme->assign('trash_label', $this->lang->ht('Drag and drop<br>to delete'));
 		$theme->assign('nextyear_href', $this->create_unique_href(array('date'=>(date('Y',$this->date)+1).date('-m-d',$this->date))));
 		$theme->assign('nextyear_label',$this->lang->ht('Next year'));
 		$theme->assign('nextmonth_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date+86400*date('t',$this->date)))));
