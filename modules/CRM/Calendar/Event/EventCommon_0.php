@@ -266,7 +266,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		$count = 0;
 		while ($row = $ret->FetchRow()) {
 			$next_result = array();
-			foreach (array('start','id','title','timeless','description') as $v)
+			foreach (array('start','id','title','timeless','description','status') as $v)
 				$next_result[$v] = $row[$v];
 //			if($next_result['timeless'])
 //				$next_result['start'] = $next_result['start'];

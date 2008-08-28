@@ -88,6 +88,7 @@ class CRM_Calendar extends Module {
 		$data = array();
 		$colors = CRM_Calendar_EventCommon::get_available_colors();
 		foreach($ret as $row) {
+			if ($row['status']>=2) continue;
 			if ($conf['color']!=0 && $colors[$conf['color']]!=$row['color']) continue; 
 			$ex = Utils_CalendarCommon::process_event($row);
 			$view_action = '<a '.$this->create_callback_href(array($this,'view_event'),$row['id']).'>';
