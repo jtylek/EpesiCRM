@@ -747,8 +747,25 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 	public static function get_records_limit( $tab = null, $crits = null, $admin = false) {
 		$par = self::build_query($tab, $crits, $admin);
-		if (empty($par)) return 0;
+		if (empty($par) || !$par) return 0;
 		return DB::GetOne(str_replace('SELECT * FROM','SELECT COUNT(*) FROM',$par['sql']), $par['vals']);
+	}
+	public static function get_next_and_prev_record( $tab = null, $crits = null, $order = false, $id = null) {
+		$par = self::build_query($tab, $crits, false, $order);
+		if (empty($par) || !$par) return null;
+		$ret = DB::GetCol(str_replace('SELECT * FROM','SELECT id FROM',$par['sql']), $par['vals']);
+		if ($ret===false || $ret===null) return null;
+		$k = array_search($id,$ret);
+		return array(	'next'=>isset($ret[$k+1])?$ret[$k+1]:null,
+						'prev'=>isset($ret[$k-1])?$ret[$k-1]:null);
+	}
+	public static function get_prev_record( $tab = null, $crits = null, $order = false, $id = null) {
+		$par = self::build_query($tab, $crits, false, $order);
+		if (empty($par) || !$par) return null;
+		array_unshift($par['vals'],$id);
+		$ret = DB::GetOne(str_replace(array('SELECT * FROM', 'WHERE true'),array('SELECT id FROM', 'WHERE id<%d'),$par['sql']), $par['vals']);
+		if ($ret===false) $ret = null;
+		return $ret;
 	}
 	public static function get_records( $tab = null, $crits = array(), $cols = array(), $order = array(), $limit = array(), $admin = false) {
 		if (!$tab) return false;

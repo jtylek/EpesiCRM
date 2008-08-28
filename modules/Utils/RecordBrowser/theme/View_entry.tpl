@@ -27,7 +27,14 @@
 	<tbody>
 		<tr>
 			<td class="icon"><img src="{$icon}" width="32" height="32" border="0"></td>
-			<td class="name">{$caption}</td>
+			<td class="name">{$caption}
+			{if isset($prev_record)}
+				&nbsp;&nbsp;{$prev_record}
+			{/if}
+			{if isset($next_record)}
+				&nbsp;&nbsp;{$next_record}
+			{/if}
+			</td>
 			<td class="required_fav_info">
 				&nbsp;*&nbsp;{$required_note}
 				{if isset($subscription_tooltip)}

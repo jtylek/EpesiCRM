@@ -46,6 +46,7 @@ class Utils_RecordBrowser extends Module {
 	public $adv_search = false;
 	private $col_order = array();
 	private $advanced = array();
+	public static $browsed_records = null;
 
 	public function get_display_method($ar) {
 		return isset($this->display_callback_table[$ar])?$this->display_callback_table[$ar]:null;
@@ -396,7 +397,8 @@ class Utils_RecordBrowser extends Module {
 		}
 
 		$limit = $gb->get_limit(Utils_RecordBrowserCommon::get_records_limit($this->tab, $crits, $admin));
-		$records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array()/*$query_cols - cannot apply since get_access may need whole data*/, $order, $limit, $admin);
+		$records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array(), $order, $limit, $admin);
+		self::$browsed_records = array('tab'=>$this->tab,'crits'=>$crits, 'order'=>$order);
 
 		if ($admin) $this->browse_mode = 'all';
 		if ($this->browse_mode == 'recent') {
@@ -538,6 +540,37 @@ class Utils_RecordBrowser extends Module {
 		return true;
 	}
 	public function view_entry($mode='view', $id = null, $defaults = array()) {
+		$theme = $this->init_module('Base/Theme');
+		if ($this->isset_module_variable('id')) {
+			$id = $this->get_module_variable('id');
+			$this->unset_module_variable('id');
+		}
+		if (self::$browsed_records!==null)
+			if (self::$browsed_records['tab']==$this->tab) {
+				$this->set_module_variable('browsed_records',self::$browsed_records);
+				self::$browsed_records = null;
+			}
+		$browsed_records = $this->get_module_variable('browsed_records',null);
+		if ($mode=='view' && $browsed_records!=null) {
+			$time = microtime(true);
+			$this->set_module_variable('id',$id);
+			if (!is_array($browsed_records['crits'])) $browsed_records['crits'] = array();
+			if (!is_array($browsed_records['order'])) $browsed_records['order'] = array();
+			$ids = Utils_RecordBrowserCommon::get_next_and_prev_record($this->tab, $browsed_records['crits'], $browsed_records['order'], $id);
+			if ($ids['prev'])
+				$theme->assign('prev_record', '<a '.$this->create_href(array('utils_recordbrowser_move_to_id'=>$ids['prev'])).'>Prev</a>');
+			if ($ids['next'])
+				$theme->assign('next_record', '<a '.$this->create_href(array('utils_recordbrowser_move_to_id'=>$ids['next'])).'>Next</a>');
+			if (isset($_REQUEST['utils_recordbrowser_move_to_id']) &&
+				($_REQUEST['utils_recordbrowser_move_to_id']===$ids['next'] ||
+				$_REQUEST['utils_recordbrowser_move_to_id']===$ids['prev'])) {
+				self::$browsed_records = $browsed_records;
+				$this->set_module_variable('id',$_REQUEST['utils_recordbrowser_move_to_id']);
+				unset($_REQUEST['utils_recordbrowser_move_to_id']);	
+				location(array());
+				}
+		}
+
 		Utils_RecordBrowserCommon::$cols_order = array();
 		$js = ($mode!='view');
 		$time = microtime(true);
@@ -550,7 +583,9 @@ class Utils_RecordBrowser extends Module {
 
 		$this->init();
 		$this->record = Utils_RecordBrowserCommon::get_record($this->tab, $id);
+		
 		if ($mode!='add' && !$this->record['active'] && !Base_AclCommon::i_am_admin()) return $this->back();
+		if ($mode!='add' && !$this->get_access($mode, $id)) return $this->back();
 
 		if ($mode=='view')
 			$this->record = Utils_RecordBrowserCommon::format_long_text($this->tab,$this->record);
@@ -558,7 +593,6 @@ class Utils_RecordBrowser extends Module {
 		$tb = $this->init_module('Utils/TabbedBrowser');
 		self::$tab_param = $tb->get_path();
 
-		$theme = $this->init_module('Base/Theme');
 		if ($mode=='view') {
 			$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 			if ($dpm!=='') {
