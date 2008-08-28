@@ -411,6 +411,8 @@ class Utils_Calendar extends Module {
 
 		$theme->assign('day_view_label', $this->lang->t('Day calendar'));
 
+		$theme->assign('weekend', date('N',$this->date)>=6);
+
 		$theme->assign('trash_id','UCtrash');
 
 		$theme->display('day');
@@ -535,7 +537,7 @@ class Utils_Calendar extends Module {
 			$that_day = $dis_week_from+$i*86400;
 			$day_headers[] = array(
 						'date'=>date('d', $that_day).' '.$this->lang->t(date('D', $that_day)),
-						'style'=>(date('Y-m-d',$that_day)==$today?'today':'other'),
+						'style'=>(date('Y-m-d',$that_day)==$today?'today':'other').(date('N',$that_day)>=6?'_weekend':''),
 						'link' => $this->create_unique_href(array('action'=>'switch','time'=>$that_day, 'tab'=>'Day'))
 						);
 		}
@@ -645,7 +647,7 @@ class Utils_Calendar extends Module {
 				$next = array(
 							'day'=>date('j', $currday),
 							'day_link' => $this->create_unique_href(array('action'=>'switch', 'time'=>$currday, 'tab'=>'Day')),
-							'style'=>($main_month)?(date('Y-m-d',$currday)==$today?'today':'current'):'other',
+							'style'=>($main_month?(date('Y-m-d',$currday)==$today?'today':'current'):'other').(date('N',$currday)>=6?'_weekend':''),
 							'time'=>$currday
 							);
 				if ($main_month && isset($mark[$it]) && $currday == $mark[$it]['time']) {

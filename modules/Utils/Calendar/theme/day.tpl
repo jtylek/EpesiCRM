@@ -1,3 +1,8 @@
+{*
+
+Variable {$weekend} (true/false) indicated whether displayed day is part of weekend or not
+
+*}
 <div style="width: 900px;">
  
 <div class="day-menu">

@@ -35,7 +35,7 @@ class Applets_MonthView extends Module {
 				$next = array(
 							'day'=>date('j', $currday),
 							'day_link' => Base_BoxCommon::create_href($this, 'CRM_Calendar', null, null, null, array('jump_to_date'=>$currday, 'switch_to_tab'=>'Day')),
-							'style'=>(date('m', $currday)==$curmonth)?(date('Y-m-d',$currday)==$today?'today':'current'):'other',
+							'style'=>((date('m', $currday)==$curmonth)?(date('Y-m-d',$currday)==$today?'today':'current'):'other').(date('N',$currday)>=6?'_weekend':''),
 							'time'=>$currday
 							);
 //				print(($currday-$mark[$it]).'<br>');

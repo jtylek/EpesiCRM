@@ -25,11 +25,6 @@ table#Utils_Calendar__month td.day {
 	border-right: 1px solid #B3B3B3;
 }
 
-table#Utils_Calendar__month td.current {
-	color: #000000;
-	background-color: #FFFFFF;
-}
-
 table#Utils_Calendar__month a.day_link {
 	font-size: 14px;
 	font-weight: bold;
@@ -37,24 +32,50 @@ table#Utils_Calendar__month a.day_link {
 	padding-top: 2px;
 }
 
+table#Utils_Calendar__month td.current {
+	color: #000000;
+	background-color: #FFFFFF;
+}
+
 table#Utils_Calendar__month td.other {
 	color: #B3B3B3;
 	background-color: #F0F0F0;
-}
-
-table#Utils_Calendar__month td.other a.day_link {
-	color: #B3B3B3;
-}
-
-table#Utils_Calendar__month td.today:hover,
-table#Utils_Calendar__month td.current:hover {
-	background-color: #e6cfcf
 }
 
 table#Utils_Calendar__month td.today {
 	/*background-color: #CFDAE6;*/
 	background-color: #E6ECF2;
 	border: 2px solid #336699;
+}
+
+table#Utils_Calendar__month td.current_weekend {
+	color: #000000;
+	background-color: #CCFFCC;
+}
+
+table#Utils_Calendar__month td.other_weekend {
+	color: #B3B3B3;
+	background-color: #E0F0E0;
+}
+
+table#Utils_Calendar__month td.today_weekend {
+	background-color: #CCFFCC;
+	border: 2px solid #336699;
+}
+
+table#Utils_Calendar__month td.other a.day_link {
+	color: #B3B3B3;
+}
+
+table#Utils_Calendar__month td.other_weekend a.day_link {
+	color: #B3B3B3;
+}
+
+table#Utils_Calendar__month td.today_weekend:hover,
+table#Utils_Calendar__month td.current_weekend:hover,
+table#Utils_Calendar__month td.today:hover,
+table#Utils_Calendar__month td.current:hover {
+	background-color: #e6cfcf
 }
 
 /* header */

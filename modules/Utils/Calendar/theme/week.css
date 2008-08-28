@@ -43,6 +43,31 @@
 	background-image: url('images/day-header-hover.png');
 }
 
+/* header day other weekend */
+
+#Utils_Calendar__week td.header_day_other_weekend {
+	vertical-align: middle;
+	border-right: 1px solid #FFFFFF;
+	border-left: 1px solid #B3B3B3;
+	width: 14%;
+	padding: 0px;
+}
+
+#Utils_Calendar__week td.header_day_other_weekend a {
+	display: block;
+	font-weight: bold;
+	font-size: 14px;
+	background-image: url('images/day-header-weekend.png');
+	background-repeat: repeat-x;
+	line-height: 50px;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+#Utils_Calendar__week td.header_day_other_weekend a:hover {
+	background-image: url('images/day-header-weekend-hover.png');
+}
+
 /* header day today */
 
 #Utils_Calendar__week td.header_day_today {
@@ -70,13 +95,30 @@
 	background-image: url('images/day-header-today-hover.png');
 }
 
-/* weekend */
+/* header day today weekend */
 
-#Utils_Calendar__week .weekend {
-	background-image: url('images/day-header-weekend.png');
+#Utils_Calendar__week td.header_day_today_weekend {
+	vertical-align: middle;
+	font-size: 14px;
+	width: 14%;
+	border-left: 2px solid #336699;
+	border-right: 2px solid #336699;
+	padding: 0px;
 }
 
-#Utils_Calendar__week .weekend:hover {
+#Utils_Calendar__week td.header_day_today_weekend a {
+	display: block;
+	font-weight: bold;
+	font-size: 14px;
+	background-color: #CFDAE6;
+	background-image: url('images/day-header-weekend.png');
+	background-repeat: repeat-x;
+	line-height: 50px;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+#Utils_Calendar__week td.header_day_today_weekend a:hover {
 	background-image: url('images/day-header-weekend-hover.png');
 }
 
@@ -145,6 +187,22 @@
 	background-color: #e6cfcf
 }
 
+#Utils_Calendar__week td.inter_other_weekend {
+	vertical-align: top;
+	color: #000000;
+	border: 1px solid #B3B3B3;
+	border-right: 0px;
+	border-bottom: 0px;
+	text-align: left;
+	background-color: #FFFFFF;
+	padding: 0px;
+	cursor: pointer;
+}
+
+#Utils_Calendar__week td.inter_other_weekend:hover {
+	background-color: #e6cfcf
+}
+
 #Utils_Calendar__week td.inter_today {
 	vertical-align: top;
 	color: #000000;
@@ -162,6 +220,26 @@
 }
 
 #Utils_Calendar__week td.inter_today:hover {
+	background-color: #e6cfcf;
+}
+
+#Utils_Calendar__week td.inter_today_weekend {
+	vertical-align: top;
+	color: #000000;
+	border: 1px solid #B3B3B3;
+	border-right: 0px;
+	border-bottom: 0px;
+	text-align: left;
+	/*background-color: #CFDAE6;*/
+	background-color: #e6ecf2;
+	padding: 0px;
+	cursor: pointer;
+
+	border-left: 2px solid #336699;
+	border-right: 2px solid #336699;
+}
+
+#Utils_Calendar__week td.inter_today_weekend:hover {
 	background-color: #e6cfcf;
 }
 
