@@ -585,7 +585,7 @@ class Utils_RecordBrowser extends Module {
 		$this->record = Utils_RecordBrowserCommon::get_record($this->tab, $id);
 		
 		if ($mode!='add' && !$this->record['active'] && !Base_AclCommon::i_am_admin()) return $this->back();
-		if ($mode!='add' && !$this->get_access($mode, $id)) return $this->back();
+		if ($mode!='add' && !$this->get_access($mode, $this->record)) return $this->back();
 
 		if ($mode=='view')
 			$this->record = Utils_RecordBrowserCommon::format_long_text($this->tab,$this->record);
