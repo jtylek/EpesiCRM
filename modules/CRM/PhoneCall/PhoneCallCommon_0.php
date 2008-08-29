@@ -113,13 +113,11 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		if ($mode=='add' || $mode=='edit') {
 			$js =
 					'Event.observe(\'other_contact\',\'change\', onchange_other_contact);'.
-//					'Event.observe(\'phone\',\'change\', onchange_other_phone);'.
 					'function enable_disable_contact(arg) {'.
 					'contact = document.forms[\''.$form->getAttribute('name').'\'].contact;'.
 					'o_contact = document.forms[\''.$form->getAttribute('name').'\'].other_contact_name;'.
 					'c_phone = document.forms[\''.$form->getAttribute('name').'\'].other_phone;'.
 					'if (arg) {c_phone.disable();contact.disable();o_contact.enable();} else {c_phone.enable();if(contact.length!=0)contact.enable();o_contact.disable();}'.
-					'if (enable_disable_phone) enable_disable_phone(arg);'.
 					'};'.
 					'function onchange_other_contact() {'.
 					'c_contact = document.forms[\''.$form->getAttribute('name').'\'].other_contact;'.
