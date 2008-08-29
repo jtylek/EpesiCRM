@@ -193,15 +193,7 @@ class Utils_RecordBrowser extends Module {
 						foreach ($ret2 as $k=>$v) $arr[$k] = $v[$col];
 					}
 				} else {
-					$tmp = Utils_RecordBrowserCommon::get_possible_values($this->tab, $filter);
-					$ids = array();
-					if ($this->table_rows[$filter]['type']=='multiselect')
-						foreach ($tmp as $v) {
-							$vals = Utils_RecordBrowserCommon::decode_multi($v);
-							foreach ($vals as $id)
-								if (!isset($ids[$id]) && $id) $ids[$id] = $id;
-						}
-					else $ids = $tmp;
+					$ids = Utils_RecordBrowserCommon::get_possible_values($this->tab, $filter);
 					$ret2 = Utils_RecordBrowserCommon::get_records($this->tab,array('id'=>$ids),array($filter));
 					$field_id = $this->table_rows[$filter]['id'];
 					foreach ($ret2 as $k=>$v) {
