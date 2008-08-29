@@ -108,7 +108,9 @@ class Utils_RecordBrowser extends Module {
 		$this->init();
 		if (self::$clone_result!==null) {
 			if (is_numeric(self::$clone_result)) $this->navigate('view_entry', 'view', self::$clone_result);
+			$clone_result = self::$clone_result;
 			self::$clone_result = null;
+			if ($clone_result!='canceled') return;
 		}
 		if ($this->get_access('browse')===false) {
 			print($this->lang->t('You are not authorised to browse this data.'));
@@ -545,31 +547,33 @@ class Utils_RecordBrowser extends Module {
 			$id = $this->get_module_variable('id');
 			$this->unset_module_variable('id');
 		}
-		if (self::$browsed_records!==null)
-			if (self::$browsed_records['tab']==$this->tab) {
-				$this->set_module_variable('browsed_records',self::$browsed_records);
-				self::$browsed_records = null;
-			}
-		$browsed_records = $this->get_module_variable('browsed_records',null);
-		if ($mode=='view' && $browsed_records!=null) {
-			$time = microtime(true);
-			$this->set_module_variable('id',$id);
-			if (!is_array($browsed_records['crits'])) $browsed_records['crits'] = array();
-			if (!is_array($browsed_records['order'])) $browsed_records['order'] = array();
-			$ids = Utils_RecordBrowserCommon::get_next_and_prev_record($this->tab, $browsed_records['crits'], $browsed_records['order'], $id);
-			if ($ids['prev'])
-				$theme->assign('prev_record', '<a '.$this->create_href(array('utils_recordbrowser_move_to_id'=>$ids['prev'])).'>Prev</a>');
-			if ($ids['next'])
-				$theme->assign('next_record', '<a '.$this->create_href(array('utils_recordbrowser_move_to_id'=>$ids['next'])).'>Next</a>');
-			if (isset($_REQUEST['utils_recordbrowser_move_to_id']) &&
-				($_REQUEST['utils_recordbrowser_move_to_id']===$ids['next'] ||
-				$_REQUEST['utils_recordbrowser_move_to_id']===$ids['prev'])) {
-				self::$browsed_records = $browsed_records;
-				$this->set_module_variable('id',$_REQUEST['utils_recordbrowser_move_to_id']);
-				unset($_REQUEST['utils_recordbrowser_move_to_id']);	
-				location(array());
+		if ($mode=='view') {
+			if (self::$browsed_records!==null)
+				if (self::$browsed_records['tab']==$this->tab)
+					$this->set_module_variable('browsed_records',self::$browsed_records);
+			$browsed_records = $this->get_module_variable('browsed_records',null);
+			if ($browsed_records!=null) {
+				$time = microtime(true);
+				$this->set_module_variable('id',$id);
+				if (!is_array($browsed_records['crits'])) $browsed_records['crits'] = array();
+				if (!is_array($browsed_records['order'])) $browsed_records['order'] = array();
+				$ids = Utils_RecordBrowserCommon::get_next_and_prev_record($this->tab, $browsed_records['crits'], $browsed_records['order'], $id);
+				if ($ids['prev'])
+					$theme->assign('prev_record', '<a '.$this->create_href(array('utils_recordbrowser_move_to_id'=>$ids['prev'])).'>Prev</a>');
+				if ($ids['next'])
+					$theme->assign('next_record', '<a '.$this->create_href(array('utils_recordbrowser_move_to_id'=>$ids['next'])).'>Next</a>');
+				if (isset($_REQUEST['utils_recordbrowser_move_to_id']) &&
+					($_REQUEST['utils_recordbrowser_move_to_id']===$ids['next'] ||
+					$_REQUEST['utils_recordbrowser_move_to_id']===$ids['prev'])) {
+					self::$browsed_records = $browsed_records;
+					$this->set_module_variable('id',$_REQUEST['utils_recordbrowser_move_to_id']);
+					unset($_REQUEST['utils_recordbrowser_move_to_id']);	
+					location(array());
+					return;
 				}
+			}
 		}
+		self::$browsed_records = null;
 
 		Utils_RecordBrowserCommon::$cols_order = array();
 		$js = ($mode!='view');
