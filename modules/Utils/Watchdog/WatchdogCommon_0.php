@@ -16,6 +16,20 @@ class Utils_WatchdogCommon extends ModuleCommon {
 	public static function applet_info() {
 		return "Helps tracking changes made in the system";
 	}
+	public static function applet_settings() {
+		$methods = DB::GetAssoc('SELECT id,callback FROM utils_watchdog_category');
+		$ret = array();
+		$ret[] = array('label'=>'Display only new events','name'=>'only_new','type'=>'checkbox','default'=>true);
+		if (!empty($methods)) {
+			$ret[] = array('label'=>'Categories','name'=>'categories_header','type'=>'header');
+			foreach ($methods as $k=>$v) { 
+				$method = explode('::',$v);
+				$methods[$k] = call_user_func($method);
+				$ret[] = array('label'=>$methods[$k]['category'],'name'=>'category_'.$k,'type'=>'checkbox','default'=>true);
+			}
+		}
+		return $ret;
+	}
 	public static function get_subscribers($category_name, $id) {
 		$category_id = self::get_category_id($category_name);
 		$ret = DB::GetAssoc('SELECT user_id,user_id FROM utils_watchdog_subscription WHERE category_id=%d AND internal_id=%s', array($category_id, $id));
@@ -59,19 +73,27 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		//TODO: notify those subscribed to the category
 	}
 	// *************************** Subscription manipulation *******************
+	public static function user_purge_notifications($user_id, $category_name) {
+		$category_id = self::get_category_id($category_name);
+		if (!$category_id) return;
+		DB::Execute('UPDATE utils_watchdog_subscription AS uws SET last_seen_event=(SELECT MAX(id) FROM utils_watchdog_event AS uwe WHERE uwe.internal_id=uws.internal_id AND uwe.category_id=uws.category_id) WHERE user_id=%d AND category_id=%d', array($user_id, $category_id));
+	}
 	public static function user_notified($user_id, $category_name, $id) {
 		$category_id = self::get_category_id($category_name);
 		if (!$category_id) return;
 		$last_event = DB::GetOne('SELECT MAX(id) FROM utils_watchdog_event WHERE internal_id=%d AND category_id=%d', array($id,$category_id));
 		if ($last_event===null || $last_event===false) $last_event = -1;
 		DB::Execute('UPDATE utils_watchdog_subscription SET last_seen_event=%d WHERE user_id=%d AND internal_id=%d AND category_id=%d',array($last_event,$user_id,$id,$category_id));
+		DB::Execute('DELETE FROM utils_watchdog_event WHERE internal_id=%d AND category_id=%d AND id<(SELECT MIN(last_seen_event) FROM utils_watchdog_subscription WHERE internal_id=%d AND category_id=%d)', array($id,$category_id,$id,$category_id));
 	}
 
 	public static function user_subscribe($user_id, $category_name, $id) {
 		$category_id = self::get_category_id($category_name);
 		if (!$category_id) return;
+		$lse = DB::GetOne('SELECT MAX(id) FROM utils_watchdog_event WHERE internal_id=%d AND id<(SELECT MAX(id) FROM utils_watchdog_event WHERE internal_id=%d)', array($id, $id));
+		if ($lse===false || $lse===null) $lse=-1;
 		$already_subscribed = DB::GetOne('SELECT last_seen_event FROM utils_watchdog_subscription WHERE user_id=%d AND internal_id=%d AND category_id=%d',array($user_id,$id,$category_id));
-		if ($already_subscribed===false || $already_subscribed===null) DB::Execute('INSERT INTO utils_watchdog_subscription (last_seen_event, user_id, internal_id, category_id) VALUES (%d,%d,%d,%d)',array(-1,$user_id,$id,$category_id));
+		if ($already_subscribed===false || $already_subscribed===null) DB::Execute('INSERT INTO utils_watchdog_subscription (last_seen_event, user_id, internal_id, category_id) VALUES (%d,%d,%d,%d)',array($lse,$user_id,$id,$category_id));
 		if ($user_id==Acl::get_user()) self::notified($category_name, $id);
 	}
 
@@ -125,6 +147,9 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		return Module::create_href(array('utils_watchdog_category'=>$category_id, 'utils_watchdog_user'=>$user, 'utils_watchdog_id'=>$id));
 	}
 	// **************** Subscription manipulation for logged user *******************
+	public static function purge_notifications($category_name) {
+		self::user_purge_notifications(Acl::get_user(), $category_name);
+	}
 	public static function notified($category_name, $id) {
 		self::user_notified(Acl::get_user(), $category_name, $id);
 	}
