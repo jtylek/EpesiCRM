@@ -77,6 +77,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		$category_id = self::get_category_id($category_name);
 		if (!$category_id) return;
 		DB::Execute('UPDATE utils_watchdog_subscription AS uws SET last_seen_event=(SELECT MAX(id) FROM utils_watchdog_event AS uwe WHERE uwe.internal_id=uws.internal_id AND uwe.category_id=uws.category_id) WHERE user_id=%d AND category_id=%d', array($user_id, $category_id));
+		DB::Execute('UPDATE utils_watchdog_subscription AS uws SET last_seen_event=-1 WHERE last_seen_event IS NULL');
 	}
 	public static function user_notified($user_id, $category_name, $id) {
 		$category_id = self::get_category_id($category_name);
