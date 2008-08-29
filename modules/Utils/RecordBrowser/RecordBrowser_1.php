@@ -47,6 +47,7 @@ class Utils_RecordBrowser extends Module {
 	private $col_order = array();
 	private $advanced = array();
 	public static $browsed_records = null;
+	private $no_limit_in_mini_view = false;
 
 	public function get_display_method($ar) {
 		return isset($this->display_callback_table[$ar])?$this->display_callback_table[$ar]:null;
@@ -1171,7 +1172,6 @@ class Utils_RecordBrowser extends Module {
 				if (preg_match('/^[a-z0-9_]*$/',$id)===false) trigger_error('Invalid column name: '.$id);
 				if (preg_match('/^[a-z0-9_]*$/',$data['field'])===false) trigger_error('Invalid column name: '.$data['field']);
 				DB::Execute('ALTER TABLE '.$this->tab.'_data_1 RENAME COLUMN f_'.$id.' TO f_'.$data['field']);
-				// TODO: check above query for security holes!
 				DB::CompleteTrans();
 				return false;
 			} else {
@@ -1440,6 +1440,10 @@ class Utils_RecordBrowser extends Module {
 		}
 		return $ret;
 	}
+	
+	public function set_no_limit_in_mini_view(){
+		$this->no_limit_in_mini_view = true;
+	}
 
 	public function mini_view($cols, $crits, $order, $info, $limit=null, $conf = array('actions_edit'=>true, 'actions_info'=>true)){
 		$this->init();
@@ -1471,10 +1475,15 @@ class Utils_RecordBrowser extends Module {
 		foreach($order as $k=>$v) {
 			$clean_order[] = array('column'=>$field_hash[$k],'order'=>$field_hash[$k],'direction'=>$v);
 		}
-		if ($limit!=null) {
+		if ($this->no_limit_in_mini_view) {
+			$limit = null;
+		} elseif ($limit!=null) {
 			$limit = array('offset'=>0, 'numrows'=>$limit);
 			$records_qty = Utils_RecordBrowserCommon::get_records_limit($this->tab, $crits);
-			if ($records_qty>$limit['numrows']) print($this->lang->t('Displaying %s of %s records', array($limit['numrows'], $records_qty)));
+			if ($records_qty>$limit['numrows']) {
+				print($this->lang->t('Displaying %s of %s records', array($limit['numrows'], $records_qty)));
+				print(' <a '.$this->create_callback_href(array($this, 'set_no_limit_in_mini_view')).'>'.$this->lang->t('[Display all]').'</a>');
+			}
 		}
 		$records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array(), $clean_order, $limit);
 		$records = Utils_RecordBrowserCommon::format_long_text_array($this->tab,$records);
