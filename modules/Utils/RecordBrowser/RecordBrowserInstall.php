@@ -130,6 +130,7 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 			}
 			self::el($t.': Created base table');
 			$cols = DB::Execute('SELECT field, type, param FROM '.$t.'_field WHERE type!=%s AND type!=%s', array('foreign index','page_split'));
+			$table_rows = array();
 			while ($c = $cols->FetchRow()) {
 				switch ($c['type']) {
 					case 'text': $f = DB::dict()->ActualType('C').'('.$c['param'].')'; break;
@@ -145,6 +146,7 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 					case 'checkbox': $f = DB::dict()->ActualType('I1'); break;
 					case 'currency': $f = DB::dict()->ActualType('C').'(128)'; break;
 				}
+				$table_rows[$c['field']] = array('type'=>$c['type'], 'param'=>$c['param']);
 				if (!isset($f)) trigger_error('Database column for type '.$c['type'].' undefined.',E_USER_ERROR);
 				if ($f!=='') DB::Execute('ALTER TABLE '.$t.'_data_1 ADD COLUMN f_'.strtolower(str_replace(' ','_',$c['field'])).' '.$f);
 			}
@@ -169,6 +171,7 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 				$vals = DB::GetAssoc('SELECT field, value FROM '.$t.'_data WHERE '.$t.'_id='.$r['id'].' AND (false'.$rest.')');
 				$update = '';
 				foreach ($vals as $k=>$v) {
+					if ($table_rows[$k]['type']=='text') $v=substr($v, 0, $table_rows[$k]['param']);
 					DB::Execute('UPDATE '.$t.'_data_1 SET f_'.strtolower(str_replace(' ','_',$k)).'='.DB::qstr($v).' WHERE id='.$r['id']);					
 				}
 				self::el($t.': Moved record '.$r['id']);
