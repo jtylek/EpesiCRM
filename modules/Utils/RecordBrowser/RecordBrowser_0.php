@@ -1495,5 +1495,34 @@ class Utils_RecordBrowser extends Module {
 		}
 		$this->display_module($gb);
 	}
+
+	public function search_by_id_form($label) {
+		$message = '';
+		$form = $this->init_module('Libs/QuickForm');
+		$theme = $this->init_module('Base/Theme');
+		$form->addElement('text', 'record_id', $label);
+		$form->addRule('record_id', 'Must be a number', 'numeric');
+		$form->addRule('record_id', 'Field required', 'required');
+		$ret = false;
+		if ($form->validate()) {
+			$id = $form->exportValue('record_id');
+			if (!is_numeric($id)) trigger_error('Invalid id',E_USER_ERROR);
+			$r = Utils_RecordBrowserCommon::get_record($this->tab,$id);
+			if (!$r || empty($r)) $message = $this->lang->t('There is no such record').'<br>';
+			else if (!$r['active']) $message = $this->lang->t('This record was deleted from the system').'<br>';
+			else {
+				$x = ModuleManager::get_instance('/Base_Box|0');
+				if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+				$x->push_main('Utils/RecordBrowser','view_entry',array('view', $id),array($this->tab));
+				return;
+			}
+			$ret = true;
+		}
+		$form->assign_theme('form', $theme);
+		$theme->assign('message', $message);
+		$theme->display('search_by_id');
+		return $ret;
+	}
+
 }
 ?>

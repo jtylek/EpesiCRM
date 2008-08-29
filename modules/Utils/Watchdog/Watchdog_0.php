@@ -33,7 +33,6 @@ class Utils_Watchdog extends Module {
 	}
 	
 	public function applet($conf, $opts) {
-		print('<a '.$this->create_callback_href(array($this,'purge_subscriptions_applet')).'>Purge applet (will end up as icon on applet bar)!</a>');
 		$records = DB::GetAssoc('SELECT internal_id,category_id FROM utils_watchdog_subscription AS uws WHERE user_id=%d AND last_seen_event<(SELECT MAX(id) FROM utils_watchdog_event AS uwe WHERE uwe.internal_id=uws.internal_id AND uwe.category_id=uws.category_id)', array(Acl::get_user()));
 		$methods = DB::GetAssoc('SELECT id,callback FROM utils_watchdog_category');
 		foreach ($methods as $k=>$v) 
@@ -44,6 +43,7 @@ class Utils_Watchdog extends Module {
 								array('name'=>$this->lang->t('Cat.'),'width'=>1),
 								array('name'=>$this->lang->t('Title'))
 								));
+		if (!empty($records)) $opts['actions'][] = '<a '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('Mark all entries as read')).' '.$this->create_confirm_callback_href($this->lang->t('This will update all of your subscriptions status in selected categories, are you sure you want to continue?'),array($this,'purge_subscriptions_applet')).'><img src="'.Base_ThemeCommon::get_template_file('Utils_Watchdog','purge.png').'" border="0"></a>';
 		foreach ($records as $k=>$v) {
 			$changes = Utils_WatchdogCommon::check_if_notified($v, $k);
 			if (!is_array($changes)) $changes = array();

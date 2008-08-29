@@ -56,8 +56,10 @@ class CRM_Tasks extends Module {
 									array('is_deadline'=>'DESC','deadline'=>'ASC','status'=>'ASC','priority'=>'DESC'),
 									array('CRM_TasksCommon','applet_info_format'),
 									15,
-									$conf
+									$conf,
+									& $opts
 				);
+		$opts['actions'][] = Utils_RecordBrowserCommon::applet_new_record_button('task',array('employees'=>array($me['id']),'status'=>0, 'permission'=>0));
 		$this->display_module($rb, $conds, 'mini_view');
 	}
 

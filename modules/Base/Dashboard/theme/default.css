@@ -29,13 +29,20 @@
 	text-align: right;
 }
 
+#dashboard .actions {
+	text-align: left;
+}
+
 #dashboard .title {
-	width: 70%;
 	text-align: left;
 	vertical-align: middle;
 }
 
 #dashboard .controls a {
+	color: #FFFFFF;
+}
+
+#dashboard .actions a {
 	color: #FFFFFF;
 }
 

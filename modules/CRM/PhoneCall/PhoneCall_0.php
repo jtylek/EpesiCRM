@@ -57,8 +57,10 @@ class CRM_PhoneCall extends Module {
 									array('status'=>'ASC','date_and_time'=>'ASC'),
 									array('CRM_PhoneCallCommon','applet_info_format'),
 									15,
-									$conf
+									$conf,
+									& $opts
 				);
+		$opts['actions'][] = Utils_RecordBrowserCommon::applet_new_record_button('phonecall',array('date_and_time'=>date('Y-m-d H:i:s'), 'employees'=>array($me['id']), 'permission'=>'0', 'status'=>'0', 'priority'=>'1'));
 		$this->display_module($rb, $conds, 'mini_view');
 	}
 

@@ -47,8 +47,7 @@ class Utils_RecordBrowser extends Module {
 	private $col_order = array();
 	private $advanced = array();
 	public static $browsed_records = null;
-	private $no_limit_in_mini_view = false;
-
+	
 	public function get_display_method($ar) {
 		return isset($this->display_callback_table[$ar])?$this->display_callback_table[$ar]:null;
 	}
@@ -80,10 +79,10 @@ class Utils_RecordBrowser extends Module {
 	public function construct($tab = null) {
 		$this->tab = $tab;
 		Utils_RecordBrowserCommon::check_table_name($tab);
+		$this->lang = $this->init_module('Base/Lang');
 	}
 
 	public function init($admin=false) {
-		if (!isset($this->lang)) $this->lang = $this->init_module('Base/Lang');
 		$params = DB::GetRow('SELECT caption, icon, recent, favorites, full_history FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 		if ($params==false) trigger_error('There is no such recordSet as '.$this->tab.'.', E_USER_ERROR);
 		list($this->caption,$this->icon,$this->recent,$this->favorites,$this->full_history) = $params;
@@ -1106,7 +1105,6 @@ class Utils_RecordBrowser extends Module {
 		);
 		natcasesort($data_type);
 
-		if (!isset($this->lang)) $this->lang = $this->init_module('Base/Lang');
 		$form = $this->init_module('Libs/QuickForm');
 
 		switch ($action) {
@@ -1375,7 +1373,6 @@ class Utils_RecordBrowser extends Module {
 		return $this->caption.': '.$this->action;
 	}
 	public function recordpicker($element, $format, $crits=array(), $cols=array(), $order=array(), $filters=array()) {
-		if (!isset($this->lang)) $this->lang = $this->init_module('Base/Lang');
 		$this->init();
 		$this->set_module_variable('element',$element);
 		$this->set_module_variable('format_func',$format);
@@ -1441,11 +1438,11 @@ class Utils_RecordBrowser extends Module {
 		return $ret;
 	}
 	
-	public function set_no_limit_in_mini_view(){
-		$this->no_limit_in_mini_view = true;
+	public function set_no_limit_in_mini_view($arg){
+		$this->set_module_variable('no_limit_in_mini_view',$arg);
 	}
 
-	public function mini_view($cols, $crits, $order, $info, $limit=null, $conf = array('actions_edit'=>true, 'actions_info'=>true)){
+	public function mini_view($cols, $crits, $order, $info, $limit=null, $conf = array('actions_edit'=>true, 'actions_info'=>true), & $opts = array()){
 		$this->init();
 		$gb = $this->init_module('Utils/GenericBrowser',$this->tab,$this->tab);
 		$field_hash = array();
@@ -1475,14 +1472,17 @@ class Utils_RecordBrowser extends Module {
 		foreach($order as $k=>$v) {
 			$clean_order[] = array('column'=>$field_hash[$k],'order'=>$field_hash[$k],'direction'=>$v);
 		}
-		if ($this->no_limit_in_mini_view) {
-			$limit = null;
-		} elseif ($limit!=null) {
+		if ($limit!=null) {
 			$limit = array('offset'=>0, 'numrows'=>$limit);
 			$records_qty = Utils_RecordBrowserCommon::get_records_limit($this->tab, $crits);
 			if ($records_qty>$limit['numrows']) {
-				print($this->lang->t('Displaying %s of %s records', array($limit['numrows'], $records_qty)));
-				print(' <a '.$this->create_callback_href(array($this, 'set_no_limit_in_mini_view')).'>'.$this->lang->t('[Display all]').'</a>');
+				if ($this->get_module_variable('no_limit_in_mini_view',false)) {
+					$opts['actions'][] = '<a '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('Display first %d records', array($limit['numrows']))).' '.$this->create_callback_href(array($this, 'set_no_limit_in_mini_view'), array(false)).'><img src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','show_some.png').'" border="0"></a>';
+					$limit = null;
+				} else {
+					print($this->lang->t('Displaying %s of %s records', array($limit['numrows'], $records_qty)));
+					$opts['actions'][] = '<a '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('Display all records')).' '.$this->create_callback_href(array($this, 'set_no_limit_in_mini_view'), array(true)).'><img src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','show_all.png').'" border="0"></a>';
+				}
 			}
 		}
 		$records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array(), $clean_order, $limit);
@@ -1511,5 +1511,34 @@ class Utils_RecordBrowser extends Module {
 		}
 		$this->display_module($gb);
 	}
+
+	public function search_by_id_form($label) {
+		$message = '';
+		$form = $this->init_module('Libs/QuickForm');
+		$theme = $this->init_module('Base/Theme');
+		$form->addElement('text', 'record_id', $label);
+		$form->addRule('record_id', 'Must be a number', 'numeric');
+		$form->addRule('record_id', 'Field required', 'required');
+		$ret = false;
+		if ($form->validate()) {
+			$id = $form->exportValue('record_id');
+			if (!is_numeric($id)) trigger_error('Invalid id',E_USER_ERROR);
+			$r = Utils_RecordBrowserCommon::get_record($this->tab,$id);
+			if (!$r || empty($r)) $message = $this->lang->t('There is no such record').'<br>';
+			else if (!$r['active']) $message = $this->lang->t('This record was deleted from the system').'<br>';
+			else {
+				$x = ModuleManager::get_instance('/Base_Box|0');
+				if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+				$x->push_main('Utils/RecordBrowser','view_entry',array('view', $id),array($this->tab));
+				return;
+			}
+			$ret = true;
+		}
+		$form->assign_theme('form', $theme);
+		$theme->assign('message', $message);
+		$theme->display('search_by_id');
+		return $ret;
+	}
+
 }
 ?>

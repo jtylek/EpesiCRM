@@ -1006,5 +1006,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		return $ret;
 	}
+
+	public function applet_new_record_button($tab, $defaults = array()) {
+		return '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_RecordBrowser', 'New record')).' '.Utils_RecordBrowserCommon::create_new_record_href($tab,$defaults).'><img src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','add.png').'" border="0"></a>';
+	}
 }
 ?>

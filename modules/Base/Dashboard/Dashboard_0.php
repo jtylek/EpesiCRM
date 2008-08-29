@@ -86,6 +86,7 @@ class Base_Dashboard extends Module {
 				$opts['go_function'] = 'body';
 				$opts['go_arguments'] = array();
 				$opts['go_constructor_arguments'] = array();
+				$opts['actions'] = array();
 
 				$th = $this->init_module('Base/Theme');
 
@@ -108,6 +109,8 @@ class Base_Dashboard extends Module {
 
 				$th->assign('caption',$opts['title']);
 				$th->assign('color',$colors[$row['color']]);
+				
+				$th->assign('actions',$opts['actions']);
 
 				print('<div class="applet" id="ab_item_'.$row['id'].'">');
 				$th->display();
