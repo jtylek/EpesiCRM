@@ -140,7 +140,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		self::init($tab);
 		if (isset(self::$table_rows[$field])) $field = self::$table_rows[$field]['id'];
 		elseif (!isset(self::$hash[$field])) trigger_error('get_value(): Unknown column: '.$field, E_USER_ERROR);
-		return DB::GetCol('SELECT MIN(id) FROM '.$tab.'_data_1 WHERE f_'.$field.' IS NOT NULL GROUP BY f_'.$field);
+		$par = self::build_query($tab, array('!'.$field=>''));
+		return DB::GetCol('SELECT MIN(id) FROM'.$par['sql'].' GROUP BY f_'.$field, $par['vals']);
 	}
 	public static function get_id($tab, $field, $value) {
 		self::init($tab);
@@ -533,13 +534,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
  			else $order[] = array('column'=>self::$hash[$k], 'order'=>self::$hash[$k], 'direction'=>$v);
 			unset($order[$k]);
 		}
-/*		$old_crits = $crits;
-		$crits = array();
-		foreach($old_crits as $k=>$v) {
-			$tk = trim($k, '"!|(<=>_');
-			if (isset($hash[$tk])) $crits[str_replace($tk, $hash[$tk], $k)] = $v;
-			else $crits[$k] = $v;
-		}*/
 		$or_started = false;
 		$sep = DB::qstr('::');
 		foreach($crits as $k=>$v){
@@ -741,39 +735,37 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			}
 		}
 		$final_tab = str_replace('('.$tab.'_data_1 AS r'.')',$tab.'_data_1 AS r',$final_tab);
-		$ret = array('sql'=>'SELECT * FROM '.$final_tab.' WHERE true'.($admin?Utils_RecordBrowser::$admin_filter:' AND active=1').$where.$having.$orderby,'vals'=>$vals);
+		$ret = array('sql'=>' '.$final_tab.' WHERE true'.($admin?Utils_RecordBrowser::$admin_filter:' AND active=1').$where.$having.$orderby,'vals'=>$vals);
 //		error_log(print_r($ret,true)."\n\n",3,'data/logger');
 		return $cache[$key] = $ret;
 	}
 	public static function get_records_limit( $tab = null, $crits = null, $admin = false) {
 		$par = self::build_query($tab, $crits, $admin);
 		if (empty($par) || !$par) return 0;
-		return DB::GetOne(str_replace('SELECT * FROM','SELECT COUNT(*) FROM',$par['sql']), $par['vals']);
+		return DB::GetOne('SELECT COUNT(*) FROM'.$par['sql'], $par['vals']);
 	}
 	public static function get_next_and_prev_record( $tab = null, $crits = null, $order = false, $id = null) {
 		$par = self::build_query($tab, $crits, false, $order);
 		if (empty($par) || !$par) return null;
-		$ret = DB::GetCol(str_replace('SELECT * FROM','SELECT id FROM',$par['sql']), $par['vals']);
+		$ret = DB::GetCol('SELECT id FROM'.$par['sql'], $par['vals']);
 		if ($ret===false || $ret===null) return null;
 		$k = array_search($id,$ret);
 		return array(	'next'=>isset($ret[$k+1])?$ret[$k+1]:null,
 						'prev'=>isset($ret[$k-1])?$ret[$k-1]:null);
-	}
-	public static function get_prev_record( $tab = null, $crits = null, $order = false, $id = null) {
-		$par = self::build_query($tab, $crits, false, $order);
-		if (empty($par) || !$par) return null;
-		array_unshift($par['vals'],$id);
-		$ret = DB::GetOne(str_replace(array('SELECT * FROM', 'WHERE true'),array('SELECT id FROM', 'WHERE id<%d'),$par['sql']), $par['vals']);
-		if ($ret===false) $ret = null;
-		return $ret;
 	}
 	public static function get_records( $tab = null, $crits = array(), $cols = array(), $order = array(), $limit = array(), $admin = false) {
 		if (!$tab) return false;
 		if (!isset($limit['offset'])) $limit['offset'] = 0;
 		if (!isset($limit['numrows'])) $limit['numrows'] = -1;
 		if (!$order) $order = array();
+		$fields = '*';
+		self::init($tab);
+		if (!empty($cols)) {
+			$cleancols = array();
+			foreach ($cols as $v) $cleancols[] = (isset(self::$table_rows[$v])?self::$table_rows[$v]['id']:$v);
+			$fields = 'id,active,created_by,created_on,f_'.implode(',f_',$cleancols);
+		}
 		if (count($crits)==1 && isset($crits['id']) && empty($order)) {
-			self::init($tab);
 			if (empty($crits['id'])) return array();
 			if (!is_array($crits['id'])) $crits['id'] = array($crits['id']);
 			$first = true;
@@ -785,13 +777,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$where .= '%d';
 				$vals[] = $v;
 			}
-			$ret = DB::SelectLimit('SELECT * FROM '.$tab.'_data_1 WHERE id IN ('.$where.')', $limit['numrows'], $limit['offset'], $vals);
+			$ret = DB::SelectLimit('SELECT '.$fields.' FROM '.$tab.'_data_1 WHERE id IN ('.$where.')', $limit['numrows'], $limit['offset'], $vals);
 			// TODO: limit to needed cols
 		} else {
 			$par = self::build_query($tab, $crits, $admin, $order);
 			if (empty($par)) return array();
 //			trigger_error(print_r($par,true));
-			$ret = DB::SelectLimit($par['sql'], $limit['numrows'], $limit['offset'], $par['vals']);
+			$ret = DB::SelectLimit('SELECT '.$fields.' FROM'.$par['sql'], $limit['numrows'], $limit['offset'], $par['vals']);
 			// TODO: limit to needed cols
 		}
 		$records = array();
