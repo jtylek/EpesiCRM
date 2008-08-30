@@ -762,7 +762,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		self::init($tab);
 		if (!empty($cols)) {
 			$cleancols = array();
-			foreach ($cols as $v) $cleancols[] = (isset(self::$table_rows[$v])?self::$table_rows[$v]['id']:$v);
+			foreach ($cols as $v) {
+				$val = (isset(self::$table_rows[$v])?self::$table_rows[$v]['id']:$v);
+				if ($val!='id') $cleancols[] = $val;
+			}
 			$fields = 'id,active,created_by,created_on,f_'.implode(',f_',$cleancols);
 		}
 		if (count($crits)==1 && isset($crits['id']) && empty($order)) {
