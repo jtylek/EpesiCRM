@@ -766,7 +766,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$val = (isset(self::$table_rows[$v])?self::$table_rows[$v]['id']:$v);
 				if ($val!='id') $cleancols[] = $val;
 			}
-			$fields = 'id,active,created_by,created_on,f_'.implode(',f_',$cleancols);
+			if (!empty($cleancols)) $fields = 'id,active,created_by,created_on,f_'.implode(',f_',$cleancols);
 		}
 		if (count($crits)==1 && isset($crits['id']) && empty($order)) {
 			if (empty($crits['id'])) return array();
