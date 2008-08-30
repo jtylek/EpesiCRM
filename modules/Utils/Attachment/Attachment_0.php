@@ -217,7 +217,7 @@ class Utils_Attachment extends Module {
 		}
 
 		if(!empty($expandable))
-			eval_js('$(\''.$expand_id.'\').innerHTML = \''.Epesi::escapeJS('<a href="javascript:void(0)" onClick=\'utils_attachment_expand_all('.Epesi::escapeJS(json_encode($expandable),false,true).')\' '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('Expand all')).'>[ + ]</a> <a href="javascript:void(0)" onClick=\'utils_attachment_collapse_all('.Epesi::escapeJS(json_encode($expandable),false,true).')\' '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('Collapse all')).'>[ - ]</a>').'\'');
+			eval_js('$(\''.$expand_id.'\').innerHTML = \''.Epesi::escapeJS('<a style="display:inline;" href="javascript:void(0)" onClick=\'utils_attachment_expand_all('.Epesi::escapeJS(json_encode($expandable),false,true).')\' '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('Expand all')).'>[ + ]</a> <a style="display:inline;" href="javascript:void(0)" onClick=\'utils_attachment_collapse_all('.Epesi::escapeJS(json_encode($expandable),false,true).')\' '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('Collapse all')).'>[ - ]</a>').'\'');
 
 		$this->display_module($gb);
 	}
