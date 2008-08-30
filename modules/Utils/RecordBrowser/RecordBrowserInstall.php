@@ -172,6 +172,7 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 				$update = '';
 				foreach ($vals as $k=>$v) {
 					if ($table_rows[$k]['type']=='text') $v=substr($v, 0, $table_rows[$k]['param']);
+					if ($table_rows[$k]['type']=='integer') $v = floatval($v);
 					DB::Execute('UPDATE '.$t.'_data_1 SET f_'.strtolower(str_replace(' ','_',$k)).'='.DB::qstr($v).' WHERE id='.$r['id']);					
 				}
 				self::el($t.': Moved record '.$r['id']);
