@@ -61,6 +61,7 @@ class Apps_MailClient extends Module {
 		$gb->set_table_columns($cols);
 		
 		$gb->set_default_order(array($this->lang->t('Date')=>'DESC'));
+		$gb->force_per_page(10);
 	
 		$limit_max = count($mbox);
 		
@@ -152,18 +153,13 @@ class Apps_MailClient extends Module {
 			$theme->assign('addressbook','<a href="javascript:void(0)" onClick="apps_mailclient_addressbook_toggle()">Addressbook</a>');
 			$theme->assign('addressbook_area_id','apps_mailclient_addressbook');
 			$fav2 = array();
-			$fav = CRM_ContactsCommon::get_contacts(array(':Fav'=>true,'!email'=>''),array('id','first_name','last_name','company_name'));
+			$fav = CRM_ContactsCommon::get_contacts(array(':Fav'=>true,'(!email'=>'','|!login'=>''),array('id','first_name','last_name','company_name'));
 			foreach($fav as $v)
-				$fav2['m'.$v['id']] = CRM_ContactsCommon::contact_format_default($v,true);
-			$fav = CRM_ContactsCommon::get_contacts(array(':Fav'=>true,'!login'=>''),array('id','first_name','last_name','company_name'));
-			foreach($fav as $v)
-				$fav2['p'.$v['id']] = CRM_ContactsCommon::contact_format_default($v,true);
+				$fav2[$v['id']] = CRM_ContactsCommon::contact_format_default($v,true);
 			$f->addElement('multiselect','to_addr_ex','',$fav2);
 			$rb1 = $this->init_module('Utils/RecordBrowser/RecordPicker');
-			$this->display_module($rb1, array('contact' ,'to_addr_ex',array('Apps_MailClientCommon','addressbook_rp_mail'),array('!email'=>''),array('work_phone'=>false,'mobile_phone'=>false,'email'=>true)));
-			$rb2 = $this->init_module('Utils/RecordBrowser/RecordPicker');
-			$this->display_module($rb2, array('contact' ,'to_addr_ex',array('Apps_MailClientCommon','addressbook_rp_pm'),array('!login'=>''),array('work_phone'=>false,'mobile_phone'=>false,'login'=>true)));
-			$theme->assign('addressbook_add_button',$rb1->create_open_link('Add contact mail').' '.$rb2->create_open_link('Add contact private message'));
+			$this->display_module($rb1, array('contact' ,'to_addr_ex',array('Apps_MailClientCommon','addressbook_rp_mail'),array('(!email'=>'','|!login'=>''),array('work_phone'=>false,'mobile_phone'=>false,'email'=>true,'login'=>true)));
+			$theme->assign('addressbook_add_button',$rb1->create_open_link('Add contact'));
 			$f->addFormRule(array($this,'check_to_addr'));
 		} else
 			$f->addRule('to_addr',$this->lang->t('Field required'),'required');

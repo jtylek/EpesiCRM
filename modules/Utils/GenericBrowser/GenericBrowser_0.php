@@ -106,6 +106,7 @@ class Utils_GenericBrowser extends Module {
 	private $en_actions = false;
 	private $cur_row = -1;
 	private $per_page;
+	private $forced_per_page = false;
 	private $offset;
 	private $custom_label = '';
 	private $table_prefix = '';
@@ -656,6 +657,13 @@ class Utils_GenericBrowser extends Module {
 		else
 			return strcasecmp($a,$b);
 	}
+	
+	public function force_per_page($i) {
+		if(!is_numeric($i))
+			trigger_error('Invalid argument passed to force_per_page method.',E_USER_ERROR);
+		$this->set_module_variable('per_page',$i);
+		$this->forced_per_page = true;
+	}
 	/**
 	 * Displays the table.
 	 *
@@ -702,9 +710,13 @@ class Utils_GenericBrowser extends Module {
 		$form_p = & $this->init_module('Libs/QuickForm');
 		$pager_on = false;
 		if(isset($this->rows_qty) && $paging) {
-			$form_p->addElement('select','per_page',$this->lang->t('Number of rows per page'), array(5=>5,10=>10,20=>20,50=>50,100=>100), 'onChange="'.$form_p->get_submit_form_js(false).'"');
+			if(!$this->forced_per_page)
+				$form_p->addElement('select','per_page',$this->lang->t('Number of rows per page'), array(5=>5,10=>10,20=>20,50=>50,100=>100), 'onChange="'.$form_p->get_submit_form_js(false).'"');
 			$pages = array();
-			foreach (range(1, ceil($this->rows_qty/$this->per_page)) as $v) $pages[($v-1)*$this->per_page] = $v;
+			if($this->rows_qty==0) 
+				$pages[0] = 1;
+			else
+				foreach (range(1, ceil($this->rows_qty/$this->per_page)) as $v) $pages[($v-1)*$this->per_page] = $v;
 			$form_p->addElement('select','page',$this->lang->t('Page'), $pages, 'onChange="'.$form_p->get_submit_form_js(false).'"');
 			$form_p->setDefaults(array('per_page'=>$per_page, 'page'=>$this->offset));
 			$pager_on = true;

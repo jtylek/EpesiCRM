@@ -173,24 +173,45 @@ foreach($accounts as $account) {
 	foreach($l as $msgl) {
 		message($account['id'],$account['mail'].': getting message '.$num.' of '.$count);
 		if($native_support) {
+			if(!isset($msgl->size)) {
+				$invalid++;
+				continue;
+			}
 			$size = $msgl->size;
 		} else {
+			if(!isset($msgl['size'])) {
+				$invalid++;
+				continue;
+			}
 			$size= $msgl['size'];
 		}
 		if($size>$mail_size_limit) {
 			$invalid++;
 			continue;
 		}
-		if($native_support)
+		if($native_support) {
+			if(!isset($msgl->uid)) {
+				$invalid++;
+				continue;
+			}
 			$msg = imap_fetchheader($in,$msgl->uid).imap_body($in,$msgl->uid,FT_INTERNAL);
-		else
+		} else {
+			if(!isset($msgl['msg_id'])) {
+				$invalid++;
+				continue;
+			}
 			$msg = $in->getMsg($msgl['msg_id']);
+		}
 		$decode = new Mail_mimeDecode($msg, "\r\n");
 		$structure = $decode->decode();
-		if($msg===false || !isset($structure->headers['from']) || !isset($structure->headers['to']) || !isset($structure->headers['date'])) {
+		if(!isset($structure->headers['from']))
+			$structure->headers['from'] = '';
+		if(!isset($structure->headers['to']))
+			$structure->headers['to'] = '';
+		if(!isset($structure->headers['date']))
+			$structure->headers['date'] = '';
+		if($msg===false) {
 			$invalid++;
-			//$in->deleteMsg($msgl['msg_id']);
-			//$count--;
 			continue;
 		}
 		$msg_id = $mbox->size();
@@ -210,10 +231,19 @@ foreach($accounts as $account) {
 			else
 				$in->deleteMsg($msgl['msg_id']);
 		} else {
-			if($native_support)
+			if($native_support) {
+				if(!isset($msgl->message_id)) {
+					$invalid++;
+					continue;
+				}
 				$msg_uidl = $msgl->message_id;
-			else
+			} else {
+				if(!isset($msgl['uidl'])) {
+					$invalid++;
+					continue;
+				}
 				$msg_uidl = $msgl['uidl'];
+			}
 			fputcsv($uidls_fp,array($msg_uidl,$tt));
 		}
 		

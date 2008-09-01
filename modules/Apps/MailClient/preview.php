@@ -29,7 +29,13 @@ if(($ret = $mbox->setTmpDir(Apps_MailClientCommon::Instance()->get_data_dir().'t
 
 	$decode = new Mail_mimeDecode($message, "\r\n");
 	$structure = $decode->decode(array('decode_bodies'=>true,'include_bodies'=>true));
-	
+	if(!isset($structure->headers['from']))
+		$structure->headers['from'] = '';
+	if(!isset($structure->headers['to']))
+		$structure->headers['to'] = '';
+	if(!isset($structure->headers['date']))
+		$structure->headers['date'] = '';
+
 	
 	if(isset($_GET['attachment_cid']) || isset($_GET['attachment_name'])) {
 		if(isset($structure->parts)) {
