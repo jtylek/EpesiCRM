@@ -50,10 +50,11 @@ class Apps_MailClientCommon extends ModuleCommon {
 
 	////////////////////////////////////////////////////
 	// scan mail dir, etc
-	private function _get_mail_dir() {
-		$dir = $this->get_data_dir().Acl::get_user().'/';
+	private function _get_mail_dir($user=null) {
+		if(!isset($user)) $user = Acl::get_user();
+		$dir = $this->get_data_dir().$user.'/';
 		if(!file_exists($dir)) mkdir($dir);
-		$accounts = DB::GetCol('SELECT mail FROM apps_mailclient_accounts WHERE user_login_id=%d',array(Acl::get_user()));
+		$accounts = DB::GetCol('SELECT mail FROM apps_mailclient_accounts WHERE user_login_id=%d',array($user));
 		foreach($accounts as $account) {
 			$acc_dir = $dir.str_replace(array('@','.'),array('__at__','__dot__'),$account).'/';
 			if(!file_exists($acc_dir)) { // create user dir
@@ -76,12 +77,41 @@ class Apps_MailClientCommon extends ModuleCommon {
 		return $dir; 
 	}
 	
+	public static function drop_message($mailbox,$subject,$from,$to,$date,$body) {
+		ini_set('include_path','modules/Apps/MailClient/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
+		require_once('Mail/mime.php');
+		require_once('Mail/Mbox.php');
+
+		$mbox = new Mail_Mbox($mailbox.'.mbox');
+		if(($ret = $mbox->setTmpDir('data/Apps_MailClient/tmp'))===false 
+			|| ($ret = $mbox->open())===false) {
+			Epesi::alert($this->lang->ht('Unable to open mailbox folder: '.$save_folder));
+			return false;
+		}
+		$msg_id = $mbox->size();
+
+		$mime = new Mail_Mime();
+		$headers = array();
+        $headers['From'] = $from;
+        $headers['To'] = $to;
+	 	$headers['Subject'] = $subject;
+		$headers['Date'] = $date;
+		$mime->headers($headers);
+		$mime->setHTMLBody($body);
+		$mbody = $mime->getMessage();
+		$mbox->append("From - ".date('D M d H:i:s Y')."\n".$mbody);
+		Apps_MailClientCommon::append_msg_to_mailbox_index($mailbox,$msg_id,$subject,$from,$to,$date,strlen($mbody));
+
+		$mbox->close();
+		return true;
+	}
+	
 	public static function get_mailbox_dir($mail_address) {
 		return Apps_MailClientCommon::get_mail_dir().str_replace(array('@','.'),array('__at__','__dot__'),$mail_address).'/';
 	}
 	
-	public static function get_mail_dir() {
-		return self::Instance()->_get_mail_dir();
+	public static function get_mail_dir($user=null) {
+		return self::Instance()->_get_mail_dir($user);
 	}
 	
 	private function _get_mail_account_structure($mdir) {
@@ -123,7 +153,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$cont = scandir($mdir);
 		$ret = null;
 		foreach($cont as $c)
-			if(ereg('__at__[a-zA-Z0-9]+__dot__',$c)) {
+			if(ereg('__at__[a-zA-Z0-9]+__dot__',$c) || $c=='internal') {
 				$ret = '/'.$c.'/Inbox';
 				break;
 			}
@@ -242,6 +272,14 @@ class Apps_MailClientCommon extends ModuleCommon {
 		fclose($out);
 		return true;
 	}
+
+	public static function append_msg_to_mailbox_index($mailbox, $id, $subject, $from, $to, $date, $size) {
+		$out = @fopen($mailbox.'.idx','a');
+		if($out==false) return false;
+		fputcsv($out,array($id, substr($subject,0,256), substr($from,0,256), substr($to,0,256), substr($date,0,64), substr($size,0,64)));
+		fclose($out);
+		return true;
+	}
 	
 	public static function mime_header_decode($string) {
 		if(!function_exists('imap_mime_header_decode')) return $string;
@@ -254,11 +292,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 	}
 
 	public static function addressbook_rp_mail($e){
-		return CRM_ContactsCommon::contact_format_default($e,true).' - '.$e['email'];
-	}
-
-	public static function addressbook_rp_pm($e){
-		return CRM_ContactsCommon::contact_format_default($e,true).' - private message';
+		return CRM_ContactsCommon::contact_format_default($e,true);
 	}
 }
 
