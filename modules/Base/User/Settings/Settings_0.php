@@ -81,7 +81,8 @@ class Base_User_Settings extends Module {
 			if(!$reload && isset($cmr[$module_name])) {
 				$menu = $cmr[$module_name];
 				if(!is_array($menu)) continue;
-				foreach($menu as $vv) 
+				foreach($menu as $vv) {
+					if(!is_array($vv)) continue;
 					foreach($vv as $v) {
 						if($v['type']=='group') {
 							foreach($v['elems'] as $e)
@@ -93,6 +94,7 @@ class Base_User_Settings extends Module {
 						}
 						if($reload) break;
 					}
+				}
 			}
 		}
 		
