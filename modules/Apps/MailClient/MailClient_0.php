@@ -3,7 +3,7 @@
  * Simple mail client
  *
  * TODO: 
- * -internal mail 
+ * -internal mail: przy wysylaniu do PM dodac naglowek TO - imie i nazwisko kontaktu, umieszczanie wiadomosci w mbox docelowego usera, testowanie
  * -filtrowanie addressbook przy new mail - dodaj uzytkownikow z kontem epesi tak aby wiadomosc szla do internal mail
  * -zalaczniki
  * -obsluga imap
@@ -181,10 +181,19 @@ class Apps_MailClient extends Module {
 			$headers = array();
 			$from = DB::GetRow('SELECT * FROM apps_mailclient_accounts WHERE id=%d',array($v['from_addr']));
 			$to = array_filter(explode(',',$v['to_addr']),'trim');
+			$to_epesi = array();
 			if(ModuleManager::is_installed('CRM/Contacts')>=0) {
-				$to_addr_ex = CRM_ContactsCommon::get_contacts(array('id'=>$v['to_addr_ex']),array('email'));
-				foreach($to_addr_ex as $kk)
+				$to_addr_ex = CRM_ContactsCommon::get_contacts(array('id'=>$v['to_addr_ex']),array('email','login'));
+				foreach($to_addr_ex as $kk) {
+					if(isset($kk['login'])) {
+						$where = Base_User_SettingsCommon::get('Apps_MailClient','default_dest_mailbox',$kk['login']);
+						if($where=='both' || $where=='pm')
+							$to_epesi[] = $kk['login'];
+						if($where=='pm')
+							continue;
+					}
 					$to[] = $kk['email'];
+				}
 			}
 	        $headers['From'] = $from['mail'];
 	        $headers['To'] = implode(', ',$to);

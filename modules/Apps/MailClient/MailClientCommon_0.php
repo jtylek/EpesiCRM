@@ -11,7 +11,10 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Apps_MailClientCommon extends ModuleCommon {
 	public static function user_settings() {
-		if(Acl::is_user()) return array('Mail accounts'=>'account_manager');
+		if(Acl::is_user()) return array('Mail accounts'=>'account_manager','Mail settings'=>array(
+					array('name'=>'default_dest_mailbox','label'=>'Messages from epesi users deliver to', 'type'=>'select', 'values'=>array('both'=>'Private message and contact mail', 'mail'=>'Mail only', 'pm'=>'Private message only'), 'default'=>'both'),
+			)
+		);
 		return array();
 	}
 
