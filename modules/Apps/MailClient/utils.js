@@ -1,8 +1,9 @@
 var Apps_MailClient = {
-preview: function(id,query) {
+preview: function(id,query,msg_id) {
     var iframe = $(id+'_body');
     if(!iframe) return;
     iframe.src = 'modules/Apps/MailClient/preview.php?'+query;
+	$('apps_mailclient_msg_'+msg_id).style.fontWeight='normal';
 },
 progress_bar: {
 get: function(parent,name) {

@@ -72,11 +72,11 @@ class Apps_MailClient extends Module {
 			$address = Apps_MailClientCommon::mime_header_decode($to_col?$data['to']:$data['from']);
 			$subject = strip_tags($subject);
 			if(strlen($subject)>40) $subject = Utils_TooltipCommon::create(substr($subject,0,38).'...',$subject);
-			$r->add_data($id,'<a href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$id, 'pid'=>$preview_id)).'\')">'.$subject.'</a>',htmlentities($address),Base_RegionalSettingsCommon::time2reg($data['date']),array('style'=>'text-align:right','value'=>filesize_hr($data['size'])));
+			$r->add_data($id,'<a href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$id, 'pid'=>$preview_id)).'\',\''.$id.'\')" id="apps_mailclient_msg_'.$id.'" '.($data['read']?'':'style="font-weight:bold"').'>'.$subject.'</a>',htmlentities($address),Base_RegionalSettingsCommon::time2reg($data['date']),array('style'=>'text-align:right','value'=>filesize_hr($data['size'])));
 			$lid = 'mailclient_link_'.$id;
 			$r->add_action('href="javascript:void(0)" rel="'.$show_id.'" class="lbOn" id="'.$lid.'" ','View');
 			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Delete this message?'),array($this,'remove_message'),array($mbox_file,$id)),'Delete');
-			$r->add_js('Event.observe(\''.$lid.'\',\'click\',function() {Apps_MailClient.preview(\''.$show_id.'\',\''.http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$id, 'pid'=>$show_id)).'\')})');
+			$r->add_js('Event.observe(\''.$lid.'\',\'click\',function() {Apps_MailClient.preview(\''.$show_id.'\',\''.http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$id, 'pid'=>$show_id)).'\',\''.$id.'\')})');
 		}
 		
 		$th->assign('list', $this->get_html_of_module($gb,array(true),'automatic_display'));
@@ -249,7 +249,7 @@ class Apps_MailClient extends Module {
 				}
 			}
 			if($ret) {
-				if(Apps_MailClientCommon::drop_message(Apps_MailClientCommon::get_mailbox_dir($from?$from['mail']:'internal').$save_folder,$v['subject'],$from?$from['mail']:$this->lang->ht('private message'),$to_names,$date,$v['body']))
+				if(Apps_MailClientCommon::drop_message(Apps_MailClientCommon::get_mailbox_dir($from?$from['mail']:'internal').$save_folder,$v['subject'],$from?$from['mail']:$this->lang->ht('private message'),$to_names,$date,$v['body'],true))
 					return false;
 			}
 		}

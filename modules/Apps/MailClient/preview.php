@@ -2,7 +2,7 @@
 header("Cache-Control: no-cache, must-revalidate");
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // date in the past
 
-if(!isset($_GET['msg_id']) || !isset($_GET['mbox']))
+if(!isset($_GET['msg_id']) || !isset($_GET['mbox']) || !is_numeric($_GET['msg_id']))
 	die('Invalid request');
 
 define('CID',false);
@@ -133,7 +133,7 @@ if(($ret = $mbox->setTmpDir(Apps_MailClientCommon::Instance()->get_data_dir().'t
 
 		echo $body;//.'<pre>'.htmlentities(print_r($structure,true)).'</pre>';
 	}
-	
+	Apps_MailClientCommon::read_msg($_GET['mbox'],$_GET['msg_id']);
 } else {
 	die($ret->getMessage());
 }

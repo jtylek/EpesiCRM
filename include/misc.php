@@ -369,7 +369,7 @@ function filesize_hr($size) {
 			break;
 		}
   	}
-	return round($size, 2)." ".$val;
+	return number_format($size, 2)." ".$val;
 }
 
 if ( !function_exists('json_decode') ){
