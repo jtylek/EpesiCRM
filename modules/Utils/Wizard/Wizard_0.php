@@ -139,10 +139,10 @@ class Utils_Wizard extends Module {
 				if(!is_string($this->curr_page) && $this->curr_page<=$this->counter) location(array());
 			} else {
 				if(empty($this->history)) {
-					$this->form[$this->curr_page]->addElement('submit', 'button_next', Base_LangCommon::ts('Wizard','Next'));
+					$this->form[$this->curr_page]->addElement('submit', 'button_next', Base_LangCommon::ts('Utils/Wizard','Next'));
 				} else {
-					$button_prev = HTML_QuickForm::createElement('button', 'button_prev', Base_LangCommon::ts('Wizard','Prev'), $this->create_back_href());
-					$button_next = HTML_QuickForm::createElement('submit', 'button_next', Base_LangCommon::ts('Wizard','Next'));
+					$button_prev = HTML_QuickForm::createElement('button', 'button_prev', Base_LangCommon::ts('Utils/Wizard','Prev'), $this->create_back_href());
+					$button_next = HTML_QuickForm::createElement('submit', 'button_next', Base_LangCommon::ts('Utils/Wizard','Next'));
 					$this->form[$this->curr_page]->addGroup(array($button_prev, $button_next));
 				}
 				
@@ -227,7 +227,7 @@ class Utils_Wizard extends Module {
 				if(!call_user_func_array($func, $args))
 					print('<br><input '.$this->create_back_href().' type="button" value="back">'); 
 			} else 
-				print(Base_LangCommon::ts('Wizard','Wizard complete! No more pages to display...'));
+				print(Base_LangCommon::ts('Utils/Wizard','Wizard complete! No more pages to display...'));
 		} else {
 			$t = & $this->init_module('Base/Theme');
 			

@@ -10,6 +10,7 @@
 
 class Apps_GalleryInstall extends ModuleInstall {
 	public function install() {
+		Base_LangCommon::install_translations($this->get_type());
 		Base_ThemeCommon::install_default_theme('Apps/Gallery');
 		$ret = DB::CreateTable('gallery_shared_media',"user_id I, media C(255) NOTNULL");
 		if($ret === false) {

@@ -15,6 +15,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_DirtyReadInstall extends ModuleInstall {
 	public function install() {
+		Base_LangCommon::install_translations($this->get_type());
 		return true;
 	}
 	

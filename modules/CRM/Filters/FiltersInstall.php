@@ -12,6 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_FiltersInstall extends ModuleInstall {
 
 	public function install() {
+		Base_LangCommon::install_translations($this->get_type());
 		$ret = true;
 		$ret &= DB::CreateTable('crm_filters_group','
 			id I4 AUTO KEY,

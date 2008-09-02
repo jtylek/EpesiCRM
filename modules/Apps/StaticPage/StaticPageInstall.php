@@ -11,6 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Apps_StaticPageInstall extends ModuleInstall {
 
 	public function install() {
+		Base_LangCommon::install_translations($this->get_type());
 		$ret = true;
 		$ret &= DB::CreateTable('apps_staticpage_pages','
 			id I AUTO KEY,

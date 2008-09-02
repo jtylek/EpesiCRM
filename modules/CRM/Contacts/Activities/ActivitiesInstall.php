@@ -12,6 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_Contacts_ActivitiesInstall extends ModuleInstall {
 
 	public function install() {
+		Base_LangCommon::install_translations($this->get_type());
 		Base_ThemeCommon::install_default_theme('CRM/Contacts/Activities');
 		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Contacts/Activities', 'company_activities', 'Activities');
 		Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Contacts/Activities', 'contact_activities', 'Activities');

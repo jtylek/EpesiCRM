@@ -108,16 +108,16 @@ class Base_LangCommon extends ModuleCommon {
 	 */
 	public static function install_translations($mod_name,$lang_dir='lang') {
 		global $translations;
-		$mod_name = str_replace('/','_',$mod_name);
 		$directory = 'modules/'.str_replace('_','/',$mod_name).'/'.$lang_dir;
+		if (!is_dir($directory)) return;
 		$content = scandir($directory);
 		$trans_backup = $translations;
 		foreach ($content as $name){
 			if($name == '.' || $name == '..' || ereg('^[\.~]',$name)) continue;
 			$langcode = substr($name,0,strpos($name,'.'));
 			$translations = array();
-			@include_once('data/Base_Lang/'.$langcode.'.php');
-			include_once($directory.'/'.$name);
+			@include('data/Base_Lang/'.$langcode.'.php');
+			include($directory.'/'.$name);
 			Base_LangCommon::save($langcode);
 		}
 		$translations = $trans_backup;

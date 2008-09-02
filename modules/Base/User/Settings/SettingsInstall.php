@@ -14,6 +14,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_User_SettingsInstall extends ModuleInstall {
 
 	public function install() {
+		Base_LangCommon::install_translations($this->get_type());
 		global $database;
 		$ret = true;
 		$ret &= DB::CreateTable('base_user_settings','

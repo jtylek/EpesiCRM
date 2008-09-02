@@ -11,7 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Tests_LangInstall extends ModuleInstall{
 	public function install(){
-		Base_LangCommon::install_translations('Tests_Lang');
+		Base_LangCommon::install_translations($this->get_type());
 		return true;
 	}
 

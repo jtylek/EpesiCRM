@@ -12,6 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_WatchdogInstall extends ModuleInstall {
 
 	public function install() {
+		Base_LangCommon::install_translations($this->get_type());
 		Base_ThemeCommon::install_default_theme($this->get_type());
 		$ret = true;
 		$ret &= DB::CreateTable('utils_watchdog_category',

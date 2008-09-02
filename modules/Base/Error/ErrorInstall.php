@@ -13,6 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_ErrorInstall extends ModuleInstall {
 	public function install() {
+		Base_LangCommon::install_translations($this->get_type());
 		Variable::set('error_mail','');
 		$this->create_data_dir();
 		return true;

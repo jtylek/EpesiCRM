@@ -12,6 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_CustomMenuInstall extends ModuleInstall {
 
 	public function install() {
+		Base_LangCommon::install_translations($this->get_type());
 		$ret = true;
 		$ret &= DB::CreateTable('utils_custommenu_page','
 			id C(32) KEY NOTNULL,

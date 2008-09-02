@@ -14,6 +14,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_FileUploadInstall extends ModuleInstall {
 
 	public function install() {
+		Base_LangCommon::install_translations($this->get_type());
 		$this->create_data_dir();
 		return true;
 	}

@@ -12,6 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_RecordBrowser_RecordPickerInstall extends ModuleInstall {
 
 	public function install() {
+		Base_LangCommon::install_translations($this->get_type());
 		return true;
 	}
 	

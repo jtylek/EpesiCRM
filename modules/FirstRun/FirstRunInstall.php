@@ -12,6 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class FirstRunInstall extends ModuleInstall {
 
 	public function install() {
+		Base_LangCommon::install_translations($this->get_type());
 		Base_ThemeCommon::install_default_theme('FirstRun');
 		Base_ThemeCommon::create_cache();
 		return true;

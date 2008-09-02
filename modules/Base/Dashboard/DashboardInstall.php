@@ -13,6 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_DashboardInstall extends ModuleInstall {
 
 	public function install() {
+		Base_LangCommon::install_translations($this->get_type());
 		$ret = true;
 		$ret &= DB::CreateTable('base_dashboard_tabs','
 			id I4 AUTO KEY,

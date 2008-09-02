@@ -15,6 +15,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_MailInstall extends ModuleInstall {
 	public function install() {
+		Base_LangCommon::install_translations($this->get_type());
 		$ret = true;
 		if($ret) $ret = Variable::set('mail_from_addr','admin@example.com');
 		if($ret) $ret = Variable::set('mail_from_name','Administrator');

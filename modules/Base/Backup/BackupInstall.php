@@ -13,6 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_BackupInstall extends ModuleInstall {
 	public function install() {
+		Base_LangCommon::install_translations($this->get_type());
 		Base_ThemeCommon::install_default_theme('Base/Backup');
 		return true;
 	}

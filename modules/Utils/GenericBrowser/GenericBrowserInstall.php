@@ -12,6 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_GenericBrowserInstall extends ModuleInstall {
 
 	public function install() {
+		Base_LangCommon::install_translations($this->get_type());
 		$ret = true;
 		$ret &= DB::CreateTable('generic_browser',"name C(40) NOTNULL, column_id I NOTNULL, column_pos I NOTNULL, display I1 DEFAULT 1", array('constraints' => ', PRIMARY KEY (name,column_id)'));
 		if(!$ret){

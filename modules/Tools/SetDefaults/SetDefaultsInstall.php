@@ -53,7 +53,6 @@ class Tools_SetDefaultsInstall extends ModuleInstall {
 		return array(
 			array('name'=>'Base/Theme','version'=>0),
 			array('name'=>'Utils/Wizard','version'=>0),
-			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'CRM/Calendar','version'=>0),
 			array('name'=>'CRM/Contacts','version'=>0),
 			array('name'=>'CRM/PhoneCall','version'=>0),

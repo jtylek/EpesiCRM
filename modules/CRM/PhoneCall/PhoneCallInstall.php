@@ -19,6 +19,7 @@ defined("_VALID_ACCESS") || die();
 class CRM_PhoneCallInstall extends ModuleInstall {
 	public function install() {
 // ************ contacts ************** //
+		Base_LangCommon::install_translations($this->get_type());
 		Base_ThemeCommon::install_default_theme('CRM/PhoneCall');
 		$fields = array(
 			array('name'=>'Subject', 			'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_PhoneCallCommon','display_subject')),

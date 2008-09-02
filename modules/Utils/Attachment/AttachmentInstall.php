@@ -12,6 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_AttachmentInstall extends ModuleInstall {
 
 	public function install() {
+		Base_LangCommon::install_translations($this->get_type());
 		$ret = true;
 		$ret &= DB::CreateTable('utils_attachment_link','
 			id I4 AUTO KEY NOTNULL,
@@ -100,6 +101,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			     array('name'=>'Utils/Attachment/Administrator', 'version'=>0),
 			     array('name'=>'Utils/Watchdog', 'version'=>0),
 			     array('name'=>'Base/RegionalSettings', 'version'=>0),
+			     array('name'=>'Base/Lang','version'=>0),
 			     array('name'=>'Base/Box', 'version'=>0),
 			     array('name'=>'Base/Theme', 'version'=>0),
 			     array('name'=>'Base/ActionBar', 'version'=>0));

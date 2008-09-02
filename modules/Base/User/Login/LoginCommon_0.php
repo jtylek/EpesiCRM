@@ -54,8 +54,8 @@ class Base_User_LoginCommon extends ModuleCommon {
 	 */
 	public static function send_mail_with_password($username, $pass, $mail) {
 		$url = get_epesi_url();
-		$subject = Base_LangCommon::ts('Login','Your account at %s',array($url));
-		$body = Base_LangCommon::ts('Login', "This e-mail is to inform you that a user account was setup for you at: %s
+		$subject = Base_LangCommon::ts('Base_User_Login','Your account at %s',array($url));
+		$body = Base_LangCommon::ts('Base_User_Login', "This e-mail is to inform you that a user account was setup for you at: %s
 Your login name is: %s
 Your password is: %s
 

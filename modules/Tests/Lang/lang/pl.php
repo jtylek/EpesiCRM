@@ -1,8 +1,8 @@
 <?php
 /**
- * Translation file.
+ * Translation file
  * @package epesi-translations
- * @subpackage en
+ * @subpackage pl
  */
 global $translations;
 $translations['Tests_Lang']['Hello world!']='Witaj świecie!';

@@ -15,6 +15,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_HomePageInstall extends ModuleInstall {
 	public function install() {
+		Base_LangCommon::install_translations($this->get_type());
 		$ret = DB::CreateTable('home_page',"user_login_id I KEY,url X2 NOTNULL",array('constraints' => ', FOREIGN KEY (user_login_id) REFERENCES user_login(id)'));
 		if($ret===false) {
 			print('Invalid SQL query - homepage install');

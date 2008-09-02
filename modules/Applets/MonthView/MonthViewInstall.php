@@ -13,6 +13,7 @@ class Applets_MonthViewInstall extends ModuleInstall {
 
 	public function install() {
 		Base_ThemeCommon::install_default_theme($this->get_type());
+		Base_LangCommon::install_translations($this->get_type());
 		return true;
 	}
 
@@ -27,7 +28,8 @@ class Applets_MonthViewInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
-			array('name'=>'CRM/Calendar','version'=>0));
+			array('name'=>'CRM/Calendar','version'=>0),
+			array('name'=>'Base/Lang','version'=>0));
 	}
 	
 	public static function info() {

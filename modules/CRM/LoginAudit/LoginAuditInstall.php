@@ -12,6 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_LoginAuditInstall extends ModuleInstall {
 
 	public function install() {
+		Base_LangCommon::install_translations($this->get_type());
 		Base_ThemeCommon::install_default_theme($this -> get_type());
 		$ret = DB::CreateTable('base_login_audit',"id I AUTO KEY, user_login_id I, start_time T, end_time T, ip_address C(32), host_name C(64)");
 		if($ret===false){
@@ -32,6 +33,7 @@ class CRM_LoginAuditInstall extends ModuleInstall {
 
 	public function requires($v) {
 		return array(
+			array('name'=>'Base/Lang', 'version'=>0),
 			array('name'=>'Base/Theme','version'=>0),
 			array('name'=>'CRM/Contacts', 'version'=>0),
 			array('name'=>'Base/User', 'version'=>0));

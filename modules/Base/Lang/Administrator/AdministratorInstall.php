@@ -17,6 +17,7 @@ class Base_Lang_AdministratorInstall extends ModuleInstall {
 	}
 
 	public function install() {
+		Base_LangCommon::install_translations($this->get_type());
 		Base_ThemeCommon::install_default_theme($this->get_type());
 		return Variable::set('allow_lang_change',true);
 	}

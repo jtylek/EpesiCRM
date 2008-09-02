@@ -11,6 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Apps_ShoutboxInstall extends ModuleInstall {
 
 	public function install() {
+		Base_LangCommon::install_translations($this->get_type());
 		$ret = true;
 		$ret &= DB::CreateTable('apps_shoutbox_messages','
 			id I4 AUTO KEY,

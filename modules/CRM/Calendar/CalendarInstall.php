@@ -3,6 +3,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_CalendarInstall extends ModuleInstall {
 	public function install() {
+		Base_LangCommon::install_translations($this->get_type());
 		Base_ThemeCommon::install_default_theme('CRM/Calendar');
 		$this->add_aco('manage others','Employee Manager');
 		$this->add_aco('access','Employee');
@@ -30,6 +31,7 @@ class CRM_CalendarInstall extends ModuleInstall {
 	
 	public function requires($v) {
 		return array(
+			array('name'=>'Base/Lang', 'version'=>0),
 			array('name'=>'Utils/Calendar','version'=>0),
 			array('name'=>'Base/User/Settings','version'=>0),
 			array('name'=>'Base/RegionalSettings','version'=>0),

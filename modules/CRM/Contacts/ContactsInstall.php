@@ -13,6 +13,7 @@ defined("_VALID_ACCESS") || die();
 
 class CRM_ContactsInstall extends ModuleInstall {
 	public function install() {
+		Base_LangCommon::install_translations($this->get_type());
 		Base_ThemeCommon::install_default_theme('CRM/Contacts');
 		Utils_RecordBrowserCommon::register_datatype('crm_company', 'CRM_ContactsCommon', 'crm_company_datatype');
 		Utils_RecordBrowserCommon::register_datatype('crm_contact', 'CRM_ContactsCommon', 'crm_contact_datatype');

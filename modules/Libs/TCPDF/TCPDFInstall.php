@@ -32,7 +32,9 @@ class Libs_TCPDFInstall extends ModuleInstall {
 		return array('3.1.001');
 	}
 	public function requires($v) {
-		return array();
+		return array(
+					array('name'=>'Base/Lang', 'version'=>0)
+					);
 	}
 }
 
