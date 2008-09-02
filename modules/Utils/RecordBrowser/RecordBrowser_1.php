@@ -206,11 +206,11 @@ class Utils_RecordBrowser extends Module {
 							}
 					}
 				}
-				natcasesort($arr);
-				$arr = array('__NULL__'=>'---')+$arr;
-				$form->addElement('select', $filter_id, $this->lang->t($filter), $arr);
-				$filters[] = $filter_id;
 			}
+			natcasesort($arr);
+			$arr = array('__NULL__'=>'---')+$arr;
+			$form->addElement('select', $filter_id, $this->lang->t($filter), $arr);
+			$filters[] = $filter_id;
 		}
 		$form->addElement('submit', 'submit', 'Show');
 		$def_filt = $this->get_module_variable('def_filter', array());
