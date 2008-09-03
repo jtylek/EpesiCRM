@@ -569,8 +569,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			}
 			if ($k[0]==':') {
 				switch ($k) {
-					case ':Fav'	: $having .= ' (SELECT COUNT(*) FROM '.$tab.'_favorite WHERE '.$tab.'_id=r.id AND user_id=%d)!=0'; $vals[]=Acl::get_user(); break;
-					case ':Recent'	: $having .= ' (SELECT COUNT(*) FROM '.$tab.'_recent WHERE '.$tab.'_id=r.id AND user_id=%d)!=0'; $vals[]=Acl::get_user(); break;
+//					case ':Fav'	: $having .= ' (SELECT COUNT(*) FROM '.$tab.'_favorite WHERE '.$tab.'_id=r.id AND user_id=%d)!=0'; $vals[]=Acl::get_user(); break;
+					case ':Fav'	: 	$final_tab = '('.$final_tab.') LEFT JOIN '.$tab.'_favorite AS fav ON '.$tab.'_id=r.id AND user_id='.Acl::get_user();
+									$having .= ' fav.user_id IS NOT NULL'; 
+									break;
+					case ':Recent'	: 	$final_tab = '('.$final_tab.') LEFT JOIN '.$tab.'_recent AS rec ON '.$tab.'_id=r.id AND user_id='.Acl::get_user();
+										$having .= ' rec.user_id IS NOT NULL'; 
+										break;
 					case ':Created_on'	:
 							$inj = '';
 							if(is_array($v))
