@@ -35,7 +35,7 @@ Variable {$weekend} (true/false) indicated whether displayed day is part of week
 {* shows month *}
 		<tr>
 			<td class="hours_header" rowspan="2"><img src="{$theme_dir}/Utils_Calendar__icon-day.png" width="32" height="32" border="0"><br>{$day_view_label}</td>
-			<td class=header_month>
+			<td class="header_month">
 				<a {$link_month}>{$header_month}</a>
 				 &bull;
 				<a {$link_year}>{$header_year}</a>
@@ -45,7 +45,7 @@ Variable {$weekend} (true/false) indicated whether displayed day is part of week
 
 {* this row contains days of month *}
 		<tr>
-			<td class="header_day">
+			<td class="header_day{if $weekend}_weekend{/if}">
 				{$header_day.label} &bull; {$header_day.number}
 			</td>
 		</tr>
@@ -54,7 +54,7 @@ Variable {$weekend} (true/false) indicated whether displayed day is part of week
 		{foreach key=k item=stamp from=$timeline}
 			<tr>
 				<td class="hour" nowrap >{$stamp.label}</td>
-				<td class="inter" id="{$stamp.id}">&nbsp;</td>
+				<td class="inter{if $weekend}_weekend{/if}" id="{$stamp.id}">&nbsp;</td>
 			</tr>
 		{/foreach}
 

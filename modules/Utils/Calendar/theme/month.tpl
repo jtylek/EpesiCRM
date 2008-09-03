@@ -33,7 +33,7 @@
 		<tr>
 			<td class="week-number">&nbsp;</td>
 			{foreach item=header from=$day_headers}
-                <td class="header">{$header}</td>
+                <td class="{$header.class}">{$header.label}</td>
 			{/foreach}
 		</tr>
 

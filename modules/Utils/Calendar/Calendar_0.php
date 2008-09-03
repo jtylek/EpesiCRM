@@ -700,8 +700,10 @@ class Utils_Calendar extends Module {
 		}
 
 		$day_headers = array();
-		for ($i=0; $i<7; $i++)
-			$day_headers[] = $this->lang->t(date('D', strtotime('Sun')+86400*($i+$this->settings['first_day_of_week'])));
+		for ($i=0; $i<7; $i++) {
+			$time = strtotime('Sun')+86400*($i+$this->settings['first_day_of_week']);
+			$day_headers[] = array('class'=>(date('N',$time)>=6?'weekend_day_header':'day_header'), 'label'=>$this->lang->t(date('D', $time)));
+		}
 
 		$theme->assign('month_view_label', $this->lang->t('Month calendar'));
 

@@ -148,6 +148,7 @@ class Utils_RecordBrowser extends Module {
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
 	public function show_filters($filters_set = array(), $f_id='') {
+		return '';
 		if ($this->get_access('browse')===false) {
 			return;
 		}

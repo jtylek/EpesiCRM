@@ -38,6 +38,22 @@
 	vertical-align: middle;
 }
 
+#Utils_Calendar__day td.header_day_weekend {
+	width: 100%;
+	border-left: 1px solid #B3B3B3;
+	height: 50px;
+	text-align: center;
+	background-color: #B3B3B3;
+	background-image: url('images/day-header-weekend.png');
+	background-repeat: repeat-x;
+	padding-left: 5px;
+	padding-right: 5px;
+	font-weight: bold;
+	font-size: 14px;
+	color: #336699;
+	vertical-align: middle;
+}
+
 /* header month */
 
 #Utils_Calendar__day td.header_month {
@@ -126,6 +142,21 @@
 }
 
 #Utils_Calendar__day td.inter:hover {
+	background-color: #e6cfcf
+}
+
+#Utils_Calendar__day td.inter_weekend {
+	vertical-align: top;
+	color: #000000;
+	border: 1px solid #B3B3B3;
+	border-right: 0px;
+	border-bottom: 0px;
+	text-align: left;
+	background-color: #E0FFE0;
+	padding: 0px;
+}
+
+#Utils_Calendar__day td.inter_weekend:hover {
 	background-color: #e6cfcf
 }
 

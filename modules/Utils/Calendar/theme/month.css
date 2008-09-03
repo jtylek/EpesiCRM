@@ -53,6 +53,14 @@ table#Utils_Calendar__month td.current_weekend {
 	background-color: #CCFFCC;
 }
 
+table#Utils_Calendar__month td.current_weekend a {
+	color: #338833;
+}
+
+table#Utils_Calendar__month td.today_weekend a {
+	color: #338833;
+}
+
 table#Utils_Calendar__month td.other_weekend {
 	color: #B3B3B3;
 	background-color: #E0F0E0;
@@ -80,7 +88,7 @@ table#Utils_Calendar__month td.current:hover {
 
 /* header */
 
-table#Utils_Calendar__month td.header {
+table#Utils_Calendar__month td.day_header {
 	color: #336699;
 	font-weight: bold;
 	font-size: 12px;
@@ -88,6 +96,21 @@ table#Utils_Calendar__month td.header {
 	vertical-align: middle;
 	background-color: #336699;
 	background-image: url('images/header-gray-30px.png');
+	background-repeat: repeat-x;
+	padding-left: 5px;
+	border-left: 1px solid #FFFFFF;
+	border-right: 1px solid #B3B3B3;
+	border-bottom: 2px solid #FFFFFF;
+}
+
+table#Utils_Calendar__month td.weekend_day_header {
+	color: #005505;
+	font-weight: bold;
+	font-size: 12px;
+	height: 30px;
+	vertical-align: middle;
+	background-color: #336699;
+	background-image: url('images/header-green-30px.png');
 	background-repeat: repeat-x;
 	padding-left: 5px;
 	border-left: 1px solid #FFFFFF;
