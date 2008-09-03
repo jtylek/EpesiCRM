@@ -12,7 +12,6 @@ defined("_VALID_ACCESS") || define("_VALID_ACCESS", true);
 umask(0);
 
 chdir(dirname(__FILE__));
-// require_once('include/include_path.php');
 require_once('include/config.php');
 require_once('include/epesi.php');
 require_once('include/error.php');

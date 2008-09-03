@@ -3,8 +3,8 @@
  * Simple mail client
  *
  * TODO: 
- * -wiadomosc przeczytana?
- * -zalaczniki
+ * -sortowanie po size
+ * -zalaczniki przy new
  * -obsluga imap
  * -obsluga ssl przy wysylaniu smtp
  * 
