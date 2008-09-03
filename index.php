@@ -19,7 +19,7 @@ if(!file_exists('data/config.php')) {
 }
 
 define('_VALID_ACCESS',1);
-require_once('include/include_path.php');
+// require_once('include/include_path.php');
 require_once('include/config.php');
 require_once('include/error.php');
 ob_start(array('ErrorHandler','handle_fatal'));

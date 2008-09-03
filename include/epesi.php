@@ -32,7 +32,7 @@ class Epesi {
 //			$ret .= 'Epesi.load_css(\''.self::escapeJS($f,false).'\');';
 //		foreach(self::$load_jses as $f)
 //			$ret .= 'Epesi.load_js(\''.self::escapeJS($f,false).'\');';
-		require_once('Minify/Build.php');
+		require_once('libs/minify/Minify/Build.php');
 		foreach(self::$load_csses as $loader=>$css) {
 			$csses_build = new Minify_Build($css);
 			$f = $csses_build->uri($loader.'?'.http_build_query(array('f'=>array_values($css))));

@@ -10,8 +10,8 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 defined('ADODB_DIR') || define('ADODB_DIR','adodb');
 
-require_once('phpgacl/gacl.class.php');
-require_once('phpgacl/gacl_api.class.php');
+require_once('libs/phpgacl/gacl.class.php');
+require_once('libs/phpgacl/gacl_api.class.php');
 
 class Acl {
 	public static $gacl;

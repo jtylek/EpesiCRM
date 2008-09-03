@@ -14,8 +14,8 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 /**
  * Include AdoDB.
  */
-require_once('adodb/adodb-errorhandler.inc.php');
-require_once('adodb/adodb.inc.php');
+require_once('libs/adodb/adodb-errorhandler.inc.php');
+require_once('libs/adodb/adodb.inc.php');
 
 /**
  * This class maintains database connection.

@@ -4,7 +4,7 @@
  * @package Minify
  */
 
-require_once 'Minify/Source.php';
+require_once 'libs/minify/Minify/Source.php';
 
 /**
  * Maintain a single last modification time for a group of Minify sources to
