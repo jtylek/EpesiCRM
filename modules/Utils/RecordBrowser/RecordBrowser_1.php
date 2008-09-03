@@ -282,9 +282,10 @@ class Utils_RecordBrowser extends Module {
 			if ($this->browse_mode!=='favorites' && $this->favorites) Base_ActionBarCommon::add('favorites','Favorites', $this->create_callback_href(array($this,'switch_view'),array('favorites')));
 		}
 
-		if ($special)
+		if ($special) {
+			$gb->force_per_page(10);
 			$table_columns = array(array('name'=>$this->lang->t('Select'), 'width'=>1));
-		else {
+		} else {
 			$table_columns = array();
 			if (!$admin && $this->favorites)
 				$table_columns[] = array('name'=>$this->lang->t('Fav'), 'width'=>1, 'order'=>':Fav');
