@@ -570,10 +570,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if ($k[0]==':') {
 				switch ($k) {
 //					case ':Fav'	: $having .= ' (SELECT COUNT(*) FROM '.$tab.'_favorite WHERE '.$tab.'_id=r.id AND user_id=%d)!=0'; $vals[]=Acl::get_user(); break;
-					case ':Fav'	: 	$final_tab = '('.$final_tab.') LEFT JOIN '.$tab.'_favorite AS fav ON '.$tab.'_id=r.id AND user_id='.Acl::get_user();
+					case ':Fav'	: 	$final_tab = '('.$final_tab.') LEFT JOIN '.$tab.'_favorite AS fav ON fav.'.$tab.'_id=r.id AND fav.user_id='.Acl::get_user();
 									$having .= ' fav.user_id IS NOT NULL'; 
 									break;
-					case ':Recent'	: 	$final_tab = '('.$final_tab.') LEFT JOIN '.$tab.'_recent AS rec ON '.$tab.'_id=r.id AND user_id='.Acl::get_user();
+					case ':Recent'	: 	$final_tab = '('.$final_tab.') LEFT JOIN '.$tab.'_recent AS rec ON rec.'.$tab.'_id=r.id AND rec.user_id='.Acl::get_user();
 										$having .= ' rec.user_id IS NOT NULL'; 
 										break;
 					case ':Created_on'	:
@@ -786,13 +786,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$vals[] = $v;
 			}
 			$ret = DB::SelectLimit('SELECT '.$fields.' FROM '.$tab.'_data_1 WHERE id IN ('.$where.')', $limit['numrows'], $limit['offset'], $vals);
-			// TODO: limit to needed cols
 		} else {
 			$par = self::build_query($tab, $crits, $admin, $order);
 			if (empty($par)) return array();
-//			trigger_error(print_r($par,true));
 			$ret = DB::SelectLimit('SELECT '.$fields.' FROM'.$par['sql'], $limit['numrows'], $limit['offset'], $par['vals']);
-			// TODO: limit to needed cols
 		}
 		$records = array();
 /*		if (!empty($cols))
