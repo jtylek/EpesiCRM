@@ -393,18 +393,16 @@ class Utils_RecordBrowser extends Module {
 
 		$limit = $gb->get_limit(Utils_RecordBrowserCommon::get_records_limit($this->tab, $crits, $admin));
 		$records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array(), $order, $limit, $admin);
-		self::$browsed_records = array('tab'=>$this->tab,'crits'=>$crits, 'order'=>$order);
 
 		if ($admin) $this->browse_mode = 'all';
 		if ($this->browse_mode == 'recent') {
-			$rec_tmp = array();
 			$ret = DB::Execute('SELECT * FROM '.$this->tab.'_recent WHERE user_id=%d ORDER BY visited_on DESC', array(Acl::get_user()));
 			while ($row = $ret->FetchRow()) {
 				if (!isset($records[$row[$this->tab.'_id']])) continue;
-				$rec_tmp[$row[$this->tab.'_id']] = $records[$row[$this->tab.'_id']];
-				$rec_tmp[$row[$this->tab.'_id']]['visited_on'] = Base_RegionalSettingsCommon::time2reg(strtotime($row['visited_on']));
+				$records[$row[$this->tab.'_id']]['visited_on'] = Base_RegionalSettingsCommon::time2reg(strtotime($row['visited_on']));
 			}
-			$records = $rec_tmp;
+		} else {
+			self::$browsed_records = array('tab'=>$this->tab,'crits'=>$crits, 'order'=>$order);
 		}
 		if ($special) $rpicker_ind = array();
 
