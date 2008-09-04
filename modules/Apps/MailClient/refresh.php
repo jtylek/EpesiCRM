@@ -25,13 +25,83 @@ $method = $account['incoming_method']!='auto'?$account['incoming_method']:null;
 $pop3 = ($account['incoming_protocol']==0);
 
 if($pop3) { //pop3
-	require_once('Net/POP3.php');
-	$in = new Net_POP3();
+	$native_support = false;
+	if(function_exists('imap_open')) {
+		$native_support = true;
+		$in = @imap_open('{'.$host.':'.($port?$port:'110').'/pop3'.($ssl?'/ssl/novalidate-cert':'').'}', $user,$pass);
+		if(!$in) {
+			die('(connect error) '.implode(', ',imap_errors()));
+		}
+
+		if ($hdr = imap_check($in)) {
+			$msgCount = $hdr->Nmsgs;
+		} else {
+			die('(fetch error) '.implode(', ',imap_errors()));
+		}
+
+		
+		$l=imap_fetch_overview($in,'1:'.$msgCount,0);
+	} else {
+		require_once('Net/POP3.php');
+		$in = new Net_POP3();
+
+		if($port==null) {
+			if($ssl) $port=995;
+			else $port=110;
+		}
 	
-	if($port==null) {
-		if($ssl) $port=995;
-		else $port=110;
+		if(PEAR::isError( $ret= $in->connect(($ssl?'ssl://':'').$host , $port) )) {
+			die('(connect error) '.$ret->getMessage());
+		}
+
+		if(PEAR::isError( $ret= $in->login($user , $pass, $method))) {
+			die('(login error) '.$ret->getMessage());
+		}
+
+		$l = $in->getListing();
 	}
+
+	if($l===false) die('unknown error');
+	$box = str_replace(array('@','.'),array('__at__','__dot__'),$account['mail']).'/Inbox';
+	$uidls_file = Apps_MailClientCommon::get_mail_dir().$box.'.uilds';
+	if($account['pop3_leave_msgs_on_server']!=0 && file_exists($uidls_file)) {
+		$uidls = array();
+		if(($uidls_fp = @fopen($uidls_file,'r'))!==false) {
+			while(($data = fgetcsv($uidls_fp,200))!==false) {
+				$xxx = count($data);
+				if($xxx!=2) continue;
+				$uidls[$data[0]] = intval($data[1]);
+			}
+			fclose($uidls_fp);
+		}
+
+		if(!empty($uidls)) {
+			$count = count($l);
+			for($k=0; $k<$count; $k++) {
+				if($native_support) 
+					$uidl = $l[$k]->message_id;
+				else
+					$uidl = $l[$k]['uidl'];
+				if(array_key_exists($uidl,$uidls)) {
+					if($account['pop3_leave_msgs_on_server']>=0 && ($uidls[$uidl]+$account['pop3_leave_msgs_on_server']*86400)<=$now) {
+						if($native_support)
+							imap_delete($in,$l[$k]->uid);
+						else
+							$in->deleteMsg($l[$k]['msg_id']);
+						unset($uidls[$uidl]);
+					}
+					unset($l[$k]);
+				}
+			}
+		}
+
+	}
+	$num_msgs = count($l);
+
+	if($native_support)
+		imap_close($in);
+	else
+		$in->disconnect();
 } else { //imap
 	require_once('Net/IMAP.php');
 	if($port==null) {
@@ -39,31 +109,18 @@ if($pop3) { //pop3
 		else $port=143;
 	}
 	$in = new Net_IMAP();
-}
 
-if(PEAR::isError( $ret= $in->connect(($ssl?'ssl://':'').$host , $port) ))
-	die('(connect error) '.$ret->getMessage());
+	if(PEAR::isError( $ret= $in->connect(($ssl?'ssl://':'').$host , $port) ))
+		die('(connect error) '.$ret->getMessage());
 	
-if(PEAR::isError( $ret= $in->login($user , $pass, $method)))
-	die('(login error) '.$ret->getMessage());
+	if(PEAR::isError( $ret= $in->login($user , $pass, $method)))
+		die('(login error) '.$ret->getMessage());
 
-if($pop3) {
-	$l = $in->getListing();
-	if($l===false) die('unknown error');
-	$box = str_replace(array('@','.'),array('__at__','__dot__'),$account['mail']).'/Inbox';
-	$uidls_file = Apps_MailClientCommon::get_mail_dir().$box.'.uilds';
-	if($account['pop3_leave_msgs_on_server']!=0 && file_exists($uidls_file)) {
-		$uidls = explode("\n",file_get_contents($uidls_file));
-		$count = count($l);
-		for($k=0; $k<$count; $k++)
-			if(in_array($l[$k]['uidl'],$uidls)) unset($l[$k]);
-	}
-	$num_msgs = count($l);
-} else { //imap
 	if(PEAR::isError($num_msgs = $in->getNumberOfUnSeenMessages()))
 		die('(connection error) '.$num_msgs->getMessage());
+
+	$in->disconnect();
 }
-$in->disconnect();
 
 print($num_msgs);
 ?>
