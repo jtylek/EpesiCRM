@@ -136,6 +136,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		elseif (!isset(self::$hash[$field])) trigger_error('get_value(): Unknown column: '.$field, E_USER_ERROR);
 		return DB::GetOne('SELECT f_'.$field.' FROM '.$tab.'_data_1 WHERE id=%d', array($id));
 	}
+	public static function count_possible_values($tab, $field) {
+		self::init($tab);
+		if (isset(self::$table_rows[$field])) $field = self::$table_rows[$field]['id'];
+		elseif (!isset(self::$hash[$field])) trigger_error('get_value(): Unknown column: '.$field, E_USER_ERROR);
+		$par = self::build_query($tab, array('!'.$field=>''));
+		return DB::GetOne('SELECT COUNT(DISTINCT(f_'.$field.')) FROM '.$par['sql'], $par['vals']);
+	}
 	public static function get_possible_values($tab, $field) {
 		self::init($tab);
 		if (isset(self::$table_rows[$field])) $field = self::$table_rows[$field]['id'];
@@ -997,16 +1004,25 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 	public static function record_link_open_tag($tab, $id, $nolink=false){
 		$ret = '';
-		if (!DB::GetOne('SELECT active FROM '.$tab.'_data_1 WHERE id=%d',array($id))) {
-			self::$del_or_a = '</del>';
-			$ret = '<del '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_RecordBrowser','This record was deleted from the system, please edit current record or contact system administrator')).'>';
-		} elseif (!$nolink && !self::check_record_against_crits($tab, $id, self::get_access($tab, 'view'))) {
-			self::$del_or_a = '</span>';
-			$ret = '<span '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_RecordBrowser','You don\'t have permission to view this record.')).'>';
-		} else {
+		if (isset(Utils_RecordBrowser::$access_override) &&
+			Utils_RecordBrowser::$access_override['tab']==$tab &&
+			Utils_RecordBrowser::$access_override['id']==$id) {
+			print('-');
 			self::$del_or_a = '</a>';
 			if (!$nolink) $ret = '<a '.self::create_record_href($tab, $id).'>';
 			else self::$del_or_a = '';
+		} else {
+			if (!DB::GetOne('SELECT active FROM '.$tab.'_data_1 WHERE id=%d',array($id))) {
+				self::$del_or_a = '</del>';
+				$ret = '<del '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_RecordBrowser','This record was deleted from the system, please edit current record or contact system administrator')).'>';
+			} elseif (!$nolink && !self::check_record_against_crits($tab, $id, self::get_access($tab, 'view'))) {
+				self::$del_or_a = '</span>';
+				$ret = '<span '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_RecordBrowser','You don\'t have permission to view this record.')).'>';
+			} else {
+				self::$del_or_a = '</a>';
+				if (!$nolink) $ret = '<a '.self::create_record_href($tab, $id).'>';
+				else self::$del_or_a = '';
+			}
 		}
 		return $ret;
 	}

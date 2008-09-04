@@ -47,6 +47,7 @@ class Utils_RecordBrowser extends Module {
 	private $col_order = array();
 	private $advanced = array();
 	public static $browsed_records = null;
+	public static $access_override = array('tab'=>'', 'id'=>'');
 	
 	public function get_display_method($ar) {
 		return isset($this->display_callback_table[$ar])?$this->display_callback_table[$ar]:null;
@@ -194,8 +195,9 @@ class Utils_RecordBrowser extends Module {
 						foreach ($ret2 as $k=>$v) $arr[$k] = $v[$col];
 					}
 				} else {
-					$ids = Utils_RecordBrowserCommon::get_possible_values($this->tab, $filter);
-					if (count($ids)<=100) {
+					$count_ids = Utils_RecordBrowserCommon::count_possible_values($this->tab, $filter);
+					if ($count_ids<=100) {
+						$ids = Utils_RecordBrowserCommon::get_possible_values($this->tab, $filter);
 						$ret2 = Utils_RecordBrowserCommon::get_records($this->tab,array('id'=>$ids),array($filter));
 						$field_id = $this->table_rows[$filter]['id'];
 						foreach ($ret2 as $k=>$v) {
@@ -210,6 +212,8 @@ class Utils_RecordBrowser extends Module {
 					} else {
 						$form->addElement('text', $filter_id, $this->lang->t($filter));
 						$text_filters[$filter_id] = true;
+						$filters[] = $filter_id;
+						continue;
 					}
 				}
 			}
@@ -225,16 +229,18 @@ class Utils_RecordBrowser extends Module {
 		$vals = $form->exportValues();
 		foreach ($filters_all as $filter) {
 			$filter_id = strtolower(str_replace(' ','_',$filter));
-			if (!isset($vals[$filter_id])) $vals[$filter_id]='__NULL__';
 			if (isset($this->custom_filters[$filter_id])) {
+				if (!isset($vals[$filter_id])) $vals[$filter_id]='__NULL__';
 				if (isset($this->custom_filters[$filter_id]['trans'][$vals[$filter_id]]))
 					foreach($this->custom_filters[$filter_id]['trans'][$vals[$filter_id]] as $k=>$v)
 						$this->crits[$k] = $v;
 			} else {
 				if (!isset($text_filters[$filter_id])) {
+					if (!isset($vals[$filter_id])) $vals[$filter_id]='__NULL__';
 					if ($vals[$filter_id]!=='__NULL__') $this->crits[$filter_id] = $vals[$filter_id];
 				} else {
-					if ($vals[$filter_id]!=='' && $vals[$filter_id]!=='__NULL__') {
+					if (!isset($vals[$filter_id])) $vals[$filter_id]='';
+					if ($vals[$filter_id]!=='') {
 						$args = $this->table_rows[$filter];
 						$str = explode(';', $args['param']);
 						$ref = explode('::', $str[0]);
@@ -433,7 +439,9 @@ class Utils_RecordBrowser extends Module {
 			$star_on = Base_ThemeCommon::get_template_file('Utils_RecordBrowser','star_fav.png');
 			$star_off = Base_ThemeCommon::get_template_file('Utils_RecordBrowser','star_nofav.png');
 		}
+		self::$access_override['tab'] = $this->tab;
 		foreach ($records as $row) {
+			self::$access_override['id'] = $row['id'];
 			$gb_row = $gb->get_new_row();
 			if (!$admin && $this->favorites) {
 				$isfav = isset($favs[$row['id']]);
