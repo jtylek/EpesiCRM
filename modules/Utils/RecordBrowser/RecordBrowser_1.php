@@ -148,7 +148,6 @@ class Utils_RecordBrowser extends Module {
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
 	public function show_filters($filters_set = array(), $f_id='') {
-		return '';
 		if ($this->get_access('browse')===false) {
 			return;
 		}
@@ -168,6 +167,7 @@ class Utils_RecordBrowser extends Module {
 
 		$form = $this->init_module('Libs/QuickForm', null, $this->tab.'filters');
 		$filters = array();
+		$text_filters = array();
 		foreach ($filters_all as $filter) {
 			$filter_id = strtolower(str_replace(' ','_',$filter));
 			if (isset($this->custom_filters[$filter_id])) {
@@ -195,16 +195,21 @@ class Utils_RecordBrowser extends Module {
 					}
 				} else {
 					$ids = Utils_RecordBrowserCommon::get_possible_values($this->tab, $filter);
-					$ret2 = Utils_RecordBrowserCommon::get_records($this->tab,array('id'=>$ids),array($filter));
-					$field_id = $this->table_rows[$filter]['id'];
-					foreach ($ret2 as $k=>$v) {
-						$f = $v[$field_id];
-						if (!is_array($f)) $f = array($f);
-						foreach ($f as $w)
-							if ($w!='' && !isset($arr[$w])) {
-								$v[$field_id] = $w;
-								$arr[$w] = $this->get_val($filter, $v, $v['id'], true, $this->table_rows[$filter]);
-							}
+					if (count($ids)<=100) {
+						$ret2 = Utils_RecordBrowserCommon::get_records($this->tab,array('id'=>$ids),array($filter));
+						$field_id = $this->table_rows[$filter]['id'];
+						foreach ($ret2 as $k=>$v) {
+							$f = $v[$field_id];
+							if (!is_array($f)) $f = array($f);
+							foreach ($f as $w)
+								if ($w!='' && !isset($arr[$w])) {
+									$v[$field_id] = $w;
+									$arr[$w] = $this->get_val($filter, $v, $v['id'], true, $this->table_rows[$filter]);
+								}
+						}
+					} else {
+						$form->addElement('text', $filter_id, $this->lang->t($filter));
+						$text_filters[$filter_id] = true;
 					}
 				}
 			}
@@ -225,7 +230,21 @@ class Utils_RecordBrowser extends Module {
 				if (isset($this->custom_filters[$filter_id]['trans'][$vals[$filter_id]]))
 					foreach($this->custom_filters[$filter_id]['trans'][$vals[$filter_id]] as $k=>$v)
 						$this->crits[$k] = $v;
-			} elseif ($vals[$filter_id]!=='__NULL__') $this->crits[$filter_id] = $vals[$filter_id];
+			} else {
+				if (!isset($text_filters[$filter_id])) {
+					if ($vals[$filter_id]!=='__NULL__') $this->crits[$filter_id] = $vals[$filter_id];
+				} else {
+					if ($vals[$filter_id]!=='') {
+						$args = $this->table_rows[$filter];
+						$str = explode(';', $args['param']);
+						$ref = explode('::', $str[0]);
+						if ($ref[0]!='' && isset($ref[1])) $this->crits['_":Ref:'.$args['id']] = DB::Concat(DB::qstr($vals[$filter_id]),DB::qstr('%'));;
+						if ($args['type']=='commondata' || $ref[0]=='__COMMON__') {
+							if (!isset($ref[1]) || $ref[0]=='__COMMON__') $this->crits['_":RefCD:'.$args['id']] = DB::Concat(DB::qstr($vals[$filter_id]),DB::qstr('%'));;
+						}
+					}
+				}
+			}
 		}
 		foreach ($vals as $k=>$v)
 			if (isset($this->custom_filters[$k]) && $this->custom_filters[$k]['type']=='checkbox' && $v=='__NULL__') unset($vals[$k]);
