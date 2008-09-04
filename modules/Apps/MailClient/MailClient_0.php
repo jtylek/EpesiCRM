@@ -112,7 +112,7 @@ class Apps_MailClient extends Module {
 		Base_ActionBarCommon::add('add',$this->lang->t('New mail'),$this->create_callback_href(array($this,'new_mail')));
 		eval_js('Apps_MailClient.check_mail_button_observe(\''.$checknew_id.'\')');
 		print('<div id="'.$checknew_id.'" class="leightbox"><div style="width:100%;text-align:center" id="'.$checknew_id.'progresses"></div>'.
-			'<a id="'.$checknew_id.'L" style="display:none" href="javascript:Apps_MailClient.hide(\''.$checknew_id.'\')">'.$this->lang->t('hide').'</a>'.
+			'<a id="'.$checknew_id.'L" style="display:none" href="javascript:void(0)" onClick="Apps_MailClient.hide(\''.$checknew_id.'\');Epesi.request(\'\');">'.$this->lang->t('hide').'</a>'.
 			'</div>');
 //echo('<script>function destroy_me(parent) {var x=parent.$(\''.$_GET['id'].'X\');x.parentNode.removeChild(x);parent.leightbox_deactivate(\''.$_GET['id'].'\')}</script>');
 //echo('<a href="javascript:destroy_me(parent)">hide</a>');

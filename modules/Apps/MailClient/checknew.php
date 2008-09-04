@@ -24,21 +24,6 @@ function message($id,$text) {
 	@ob_flush();
 }
 
-function rm_lock($lock) {
-	@unlink(dirname(dirname(dirname(__FILE__))).'/'.$lock);
-}
-/*
-function profiler() {
-        static $m = 0;
-        if(($mem = memory_get_usage()) > $m) {
-		$m = $mem;
-		error_log(filesize_hr($m)."\n\n",3,'data/logsze');
-	}
-}
-   
-register_tick_function('profiler');
-declare(ticks = 10);
-  */ 
 $accounts = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE user_login_id=%d',array(Acl::get_user()));
 foreach($accounts as $account) {
 	$pop3 = ($account['incoming_protocol']==0);
@@ -62,24 +47,6 @@ foreach($accounts as $account) {
 	
 	$box = Apps_MailClientCommon::get_mailbox_dir($account['mail']).'/Inbox';
 	
-	//check if mbox is not locked
-	$lock = $box.'.lock';
-	if(file_exists($lock)) {
-		message($account['id'],$account['mail'].': mailbox locked');
-		continue;	
-	}
-	touch($lock);
-	register_shutdown_function('rm_lock',$lock); //be sure that lock was deleted
-	
-	//open mbox
-	$mbox = new Mail_Mbox($box.'.mbox');
-	if(($ret = $mbox->setTmpDir('data/Apps_MailClient/tmp'))===false 
-		|| ($ret = $mbox->open())===false) {
-		message($account['id'],$account['mail'].': unable to open Inbox file');
-		unlink($lock);
-		continue;	
-	}
-
 	message($account['id'],$account['mail'].': login');
 
 	$native_support = false;
@@ -88,7 +55,6 @@ foreach($accounts as $account) {
 		$in = @imap_open('{'.$host.':'.($port?$port:'110').'/pop3'.($ssl?'/ssl/novalidate-cert':'').'}', $user,$pass);
 		if(!$in) {
 			message($account['id'],$account['mail'].': (connect error) '.implode(', ',imap_errors()));
-			unlink($lock);
 			continue;
 		}
 
@@ -98,7 +64,6 @@ foreach($accounts as $account) {
 			$msgCount = $hdr->Nmsgs;
 		} else {
 			message($account['id'],$account['mail'].': (fetch error) '.implode(', ',imap_errors()));
-			unlink($lock);
 			continue;			
 		}
 
@@ -115,13 +80,11 @@ foreach($accounts as $account) {
 	
 		if(PEAR::isError( $ret= $in->connect(($ssl?'ssl://':'').$host , $port) )) {
 			message($account['id'],$account['mail'].': (connect error) '.$ret->getMessage());
-			unlink($lock);
 			continue;
 		}
 
 		if(PEAR::isError( $ret= $in->login($user , $pass, $method))) {
 			message($account['id'],$account['mail'].': (login error) '.$ret->getMessage());
-			unlink($lock);
 			continue;
 		}
 
@@ -164,9 +127,22 @@ foreach($accounts as $account) {
 	
 	if(($uidls_fp = @fopen($uidls_file,'a'))==false) {
 		message($account['id'],$account['mail'].': unable to open UIDLS file');
-		unlink($lock);
 		continue;
 	}
+	message($account['id'],$account['mail'].': waiting for mailbox lock.');
+	if (!flock($uidls_fp, LOCK_EX)) {
+		message($account['id'],$account['mail'].': mailbox locked.');
+		continue;	
+	}	
+
+	//open mbox
+	$mbox = new Mail_Mbox($box.'.mbox');
+	if(($ret = $mbox->setTmpDir('data/Apps_MailClient/tmp'))===false 
+		|| ($ret = $mbox->open())===false) {
+		message($account['id'],$account['mail'].': unable to open Inbox file');
+		continue;	
+	}
+	
 	
 	$count = count($l);
 	$invalid = 0;
@@ -254,6 +230,7 @@ foreach($accounts as $account) {
 	}
 	
 	echo('<script>parent.Apps_MailClient.progress_bar.set_progress(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\', 100)</script>');
+	flock($uidls_fp, LOCK_UN);
 	fclose($uidls_fp);
 	
 	if($native_support)
@@ -264,7 +241,6 @@ foreach($accounts as $account) {
 	$mbox->close();
 	if(!$error)
 		message($account['id'],$account['mail'].': ok, got '.$num.' new messages, '.$invalid.' invalid messages skipped');
-	unlink($lock);
 }
 echo('<script>parent.Apps_MailClient.show_hide_button(\''.$_GET['id'].'\');</script>');
 ?>
