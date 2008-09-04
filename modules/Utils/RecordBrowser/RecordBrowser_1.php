@@ -234,7 +234,7 @@ class Utils_RecordBrowser extends Module {
 				if (!isset($text_filters[$filter_id])) {
 					if ($vals[$filter_id]!=='__NULL__') $this->crits[$filter_id] = $vals[$filter_id];
 				} else {
-					if ($vals[$filter_id]!=='') {
+					if ($vals[$filter_id]!=='' && $vals[$filter_id]!=='__NULL__') {
 						$args = $this->table_rows[$filter];
 						$str = explode(';', $args['param']);
 						$ref = explode('::', $str[0]);
