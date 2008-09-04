@@ -200,7 +200,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 				'postal_code'=>isset($val['postal'])?$val['postal']:'',
 				'phone'=>isset($val['phone'])?$val['phone']:'',
 				'fax'=>isset($val['fax'])?$val['fax']:'',
-				'permission'=>0,
+				'permission'=>'0',
 				'web_address'=>isset($val['web'])?$val['web']:''
 				));
 		Variable::set('main_company',$comp_id);
@@ -227,7 +227,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 					'web_address'=>isset($val['web'])?$val['web']:'',
 					'company_name'=>array($comp_id),
 					'login'=>$user['id'],
-					'permission'=>0,
+					'permission'=>'0',
 					'email'=>$user['mail'],
 					'group'=>array('office','field')
 					));
