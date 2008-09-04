@@ -451,7 +451,7 @@ class ModuleManager {
 	 * @param integer module version
 	 * @return bool true if installation success, false otherwise
 	 */
-	public static final function install($module_to_install, $version=null) {
+	public static final function install($module_to_install, $version=null, $check=true) {
 		print('<div class="green" style="text-align: left;">');
 
 		//already installed?
@@ -520,8 +520,10 @@ class ModuleManager {
 
 		self :: register($module_to_install, 0, self::$modules);
 
-		print('<b>' . $module_to_install . '</b>' . ': rewriting priorities<br>');
-		self::create_load_priority_array();
+		if ($check) {
+			print('<b>' . $module_to_install . '</b>' . ': rewriting priorities<br>');
+			self::create_load_priority_array();
+		}
 
 		print ('<b>' . $module_to_install . '</b>' . ' module installed!<br>');
 
