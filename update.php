@@ -11,6 +11,53 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 include_once('include/misc.php');
 
+// ******************* Database Patch functions *************
+function PatchDBAddColumn($table_name,$table_column,$table_column_def){
+	// First check if table needs to be altered
+	if (!array_key_exists(strtoupper($table_column),DB::MetaColumnNames($table_name)))
+		{
+		$q = DB::dict()->AddColumnSQL($table_name,$table_column.' '.$table_column_def);
+		foreach($q as $qq)
+		DB::Execute($qq);
+		return true;
+		}
+		else
+		{
+		return false;
+		}
+	} //end of PatchDBAddColumn
+
+function PatchDBDropColumn($table_name,$table_column){
+	// First check if table needs to be altered
+	if (array_key_exists(strtoupper($table_column),DB::MetaColumnNames($table_name)))
+		{
+		$q = DB::dict()->DropColumnSQL($table_name,$table_column);
+		foreach($q as $qq)
+		DB::Execute($qq);
+		return true;
+		}
+		else
+		{
+		return false;
+		}
+	} //end of PatchDBDropColumn
+
+
+function PatchDBRenameColumn($table_name,$old_table_column,$new_table_column,$table_column_def){
+	// First check if column exists
+	if (array_key_exists(strtoupper($old_table_column),DB::MetaColumnNames($table_name)))
+		{
+		$q = DB::dict()->RenameColumnSQL($table_name,$old_table_column,$new_table_column,$new_table_column.' '.$table_column_def);
+		foreach($q as $qq)
+		DB::Execute($qq);
+		return true;
+		}
+		else
+		{
+		return false;
+		}
+	} //end of DBRenameColumn
+
 function install_default_theme_common_files($dir,$f) {
 	if(class_exists('ZipArchive')) {
 		$zip = new ZipArchive;
@@ -55,7 +102,7 @@ function themeup(){
 	install_default_theme_common_files('modules/Base/Theme/','images');
 }
 
-$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1','0.9.9beta1','0.9.9beta2','1.0.0rc1','1.0.0rc2');
+$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1','0.9.9beta1','0.9.9beta2','1.0.0rc1','1.0.0rc2','1.0.0rc3');
 
 /****************** 0.8.5 to 0.8.6 **********************/
 function update_from_0_9_9beta1_to_0_9_9beta2() {
@@ -111,7 +158,7 @@ function update_from_0_9_9beta2_to_1_0_0rc1() {
 }
 
 function update_from_1_0_0rc1_to_1_0_0rc2() {
-/*	DB::DropTable('history');
+	DB::DropTable('history');
 	DB::DropTable('session_client');
 	DB::DropTable('session');
 	DB::CreateTable('session',"name C(32) NOTNULL," .
@@ -287,8 +334,155 @@ function update_from_1_0_0rc1_to_1_0_0rc2() {
 			DB::Execute('SET FOREIGN_KEY_CHECKS=1');
 
 	}
-*/
+
 	themeup();
+}
+
+function update_from_1_0_0rc2_to_1_0_0rc3() {
+	define('CID',false);
+	require_once('include.php');
+	ob_start();
+	ModuleManager::load_modules();
+	if (ModuleManager::is_installed('Utils/Watchdog')==-1) {
+		ModuleManager::install('Utils_Watchdog',0,false);
+	}
+	if (ModuleManager::is_installed('Libs/TCPDF')==-1) {
+		ModuleManager::install('Libs_TCPDF',0,false);
+	}
+	ModuleManager::create_load_priority_array();
+	ob_end_clean();
+
+
+	if (ModuleManager::is_installed('Utils/RecordBrowser')>=0) {
+		DB::Execute('SET FOREIGN_KEY_CHECKS=0');
+
+		$tabs = DB::GetAssoc('SELECT tab, tab FROM recordbrowser_table_properties');
+		foreach ($tabs as $t) {
+			foreach (array('recent', 'favorite', 'edit_history') as $v){
+				if(DATABASE_DRIVER=='postgres') {
+					$idxs = DB::Execute('SELECT t.tgargs as args FROM pg_trigger t,pg_class c,pg_proc p WHERE t.tgenabled AND t.tgrelid = c.oid AND t.tgfoid = p.oid AND p.proname = \'RI_FKey_check_ins\' AND c.relname = \''.strtolower($t.'_'.$v).'\' ORDER BY t.tgrelid');
+					$matches = array(1=>array());
+					while ($i = $idxs->FetchRow()) {
+						$data = explode(chr(0), $i[0]);
+						$matches[1][] = $data[0];
+					}
+					$op = 'CONSTRAINT';
+				} else {
+					$a_create_table = DB::getRow(sprintf('SHOW CREATE TABLE %s', $t.'_'.$v));
+					$create_sql  = $a_create_table[1];
+					if (!preg_match_all("/CONSTRAINT `(.*?)` FOREIGN KEY \(`(.*?)`\) REFERENCES `(.*?)` \(`(.*?)`\)/", $create_sql, $matches)) continue;
+					$op = 'FOREIGN KEY';
+				}
+				$num_keys = count($matches[1]);
+				for ( $i = 0;  $i < $num_keys;  $i ++ ) {
+					DB::Execute('ALTER TABLE '.$t.'_'.$v.' DROP '.$op.' '.$matches[1][$i]);
+				}
+			}
+		}
+		foreach ($tabs as $t) {
+			foreach (array('recent', 'favorite', 'edit_history') as $v){
+				DB::CreateIndex($t.'_'.$v.'__start__idx', $t.'_'.$v, $t.'_id');
+			}
+		}
+		DB::Execute('SET FOREIGN_KEY_CHECKS=1');
+	}
+
+
+	if (ModuleManager::is_installed('Utils/Attachment')>=0) {
+		if (PatchDBAddColumn('utils_attachment_link','sticky','I1 DEFAULT 0')){
+			DB::Execute('UPDATE utils_attachment_link SET sticky=0');
+		}
+	}
+
+
+
+
+
+	if (ModuleManager::is_installed('CRM/Calendar/Event')>=0) {
+		PatchDBAddColumn('crm_calendar_event','recurrence_id','I4');
+		PatchDBRenameColumn('crm_calendar_event','start','starts','I4 NOT NULL');
+		PatchDBRenameColumn('crm_calendar_event','end','ends','I4 NOT NULL');
+		PatchDBDropColumn('crm_calendar_event','recurrence_id');
+
+		PatchDBAddColumn('crm_calendar_event','recurrence_type','I2');
+		PatchDBAddColumn('crm_calendar_event','recurrence_end','D');
+		PatchDBAddColumn('crm_calendar_event','recurrence_hash','C(8)');
+
+		Utils_WatchdogCommon::register_category('crm_calendar', array('CRM_CalendarCommon','watchdog_label'));
+	}
+
+
+
+
+
+	if (ModuleManager::is_installed('CRM/PhoneCall')>=0) {
+		Utils_RecordBrowserCommon::enable_watchdog('phonecall', array('CRM_PhoneCallCommon','watchdog_label'));
+	}
+
+
+
+
+
+	if (ModuleManager::is_installed('CRM/Contacts')>=0) {
+		DB::Execute('UPDATE contact_field SET filter=1 WHERE field=%s',array('Group'));
+		DB::Execute('UPDATE contact_field SET filter=1 WHERE field=%s',array('Company Name'));
+		DB::Execute('UPDATE company_field SET filter=1 WHERE field=%s',array('Group'));
+
+		Utils_RecordBrowserCommon::set_display_method('company', 'Address 1', 'CRM_ContactsCommon', 'maplink');
+		Utils_RecordBrowserCommon::set_display_method('company', 'Address 2', 'CRM_ContactsCommon', 'maplink');
+		Utils_RecordBrowserCommon::set_display_method('company', 'City', 'CRM_ContactsCommon', 'maplink');
+		Utils_RecordBrowserCommon::set_display_method('contact', 'Address 1', 'CRM_ContactsCommon', 'maplink');
+		Utils_RecordBrowserCommon::set_display_method('contact', 'Address 2', 'CRM_ContactsCommon', 'maplink');
+		Utils_RecordBrowserCommon::set_display_method('contact', 'City', 'CRM_ContactsCommon', 'maplink');
+
+		Utils_RecordBrowserCommon::enable_watchdog('company', array('CRM_ContactsCommon','company_watchdog_label'));
+		Utils_RecordBrowserCommon::enable_watchdog('contact', array('CRM_ContactsCommon','contact_watchdog_label'));
+	}
+
+
+
+
+
+
+
+	if (ModuleManager::is_installed('Utils/Tasks')>=0) {
+		Utils_RecordBrowserCommon::delete_addon('task', 'Utils/Tasks', 'task_attachment_addon');
+		Utils_RecordBrowserCommon::new_addon('task', 'CRM/Tasks', 'task_attachment_addon', 'Notes');
+		DB::Execute('UPDATE task_field SET param="contact::First Name|Last Name;CRM_TasksCommon::contact_format_with_balls;CRM_TasksCommon::employees_crits" WHERE field="Employees"');
+		DB::Execute('UPDATE task_field SET param="contact::First Name|Last Name;::;CRM_TasksCommon::customers_crits" WHERE field="Customers"');
+		DB::Execute('UPDATE recordbrowser_addon SET module="CRM_Tasks" WHERE tab="task"');
+		DB::Execute('UPDATE task_callback SET module="CRM_TasksCommon" WHERE module="Utils_TasksCommon"');
+		DB::Execute('UPDATE recordbrowser_table_properties SET tpl="CRM_Tasks__default", icon="CRM_Tasks__icon.png", access_callback="CRM_TasksCommon::access_task", data_process_method="CRM_TasksCommon::submit_task" WHERE tab="task"');
+		DB::Execute('DELETE FROM modules WHERE name="Utils_Tasks"');
+		DB::Execute('DELETE FROM task_data WHERE field="Page id"');
+		DB::Execute('DELETE FROM task_field WHERE field="Page id"');
+		Acl::add_aco('CRM_Tasks','browse tasks',array('Employee'));
+		Acl::add_aco('CRM_Tasks','view task',array('Employee'));
+		Acl::add_aco('CRM_Tasks','edit task',array('Employee'));
+		Acl::add_aco('CRM_Tasks','delete task',array('Employee Manager'));
+		Acl::del_aco('Utils_Tasks','browse tasks');
+		Acl::del_aco('Utils_Tasks','view task');
+		Acl::del_aco('Utils_Tasks','edit task');
+		Acl::del_aco('Utils_Tasks','delete task');
+
+		Acl::add_aco('CRM_Tasks','view protected notes','Employee');
+		Acl::add_aco('CRM_Tasks','view public notes','Employee');
+		Acl::add_aco('CRM_Tasks','edit protected notes','Employee Administrator');
+		Acl::add_aco('CRM_Tasks','edit public notes','Employee');
+		Acl::del_aco('Utils_Tasks','view protected notes','Employee');
+		Acl::del_aco('Utils_Tasks','view public notes','Employee');
+		Acl::del_aco('Utils_Tasks','edit protected notes','Employee Administrator');
+		Acl::del_aco('Utils_Tasks','edit public notes','Employee');
+
+		Utils_RecordBrowserCommon::enable_watchdog('task', array('CRM_TasksCommon','watchdog_label'));
+		DB::DropTable('task_employees_notified');
+		DB::Execute('UPDATE task_field SET param=\'contact::First Name|Last Name;CRM_ContactsCommon::contact_format_no_company;CRM_TasksCommon::employees_crits\' WHERE field=\'Employees\'');
+	}
+
+
+	ModuleManager::create_common_cache();
+	themeup();
+	Base_ThemeCommon::create_cache();
 }
 
 //=========================================================================
