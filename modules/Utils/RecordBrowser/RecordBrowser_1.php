@@ -428,7 +428,7 @@ class Utils_RecordBrowser extends Module {
 				$records[$row[$this->tab.'_id']]['visited_on'] = Base_RegionalSettingsCommon::time2reg(strtotime($row['visited_on']));
 			}
 		} else {
-			self::$browsed_records = array('tab'=>$this->tab,'crits'=>$crits, 'order'=>$order);
+			self::$browsed_records = array('tab'=>$this->tab,'crits'=>$crits, 'order'=>$order, 'records'=>array());
 		}
 		if ($special) $rpicker_ind = array();
 
@@ -440,7 +440,12 @@ class Utils_RecordBrowser extends Module {
 			$star_off = Base_ThemeCommon::get_template_file('Utils_RecordBrowser','star_nofav.png');
 		}
 		self::$access_override['tab'] = $this->tab;
+		$i = $limit['offset'];
 		foreach ($records as $row) {
+			if ($this->browse_mode!='recent') {
+				self::$browsed_records['records'][$row['id']] = $i;
+				$i++;
+			}
 			self::$access_override['id'] = $row['id'];
 			$gb_row = $gb->get_new_row();
 			if (!$admin && $this->favorites) {
@@ -576,15 +581,19 @@ class Utils_RecordBrowser extends Module {
 				$this->set_module_variable('id',$id);
 				if (!is_array($browsed_records['crits'])) $browsed_records['crits'] = array();
 				if (!is_array($browsed_records['order'])) $browsed_records['order'] = array();
-				$ids = Utils_RecordBrowserCommon::get_next_and_prev_record($this->tab, $browsed_records['crits'], $browsed_records['order'], $id);
-				if ($ids['prev'])
+				if (!is_array($browsed_records['records'])) $browsed_records['records'] = array();
+				$ids = Utils_RecordBrowserCommon::get_next_and_prev_record($this->tab, $browsed_records['crits'], $browsed_records['order'], $id, $this->get_module_variable('browsed_records_curr',isset($browsed_records['records'][$id])?$browsed_records['records'][$id]:null));
+				if (isset($ids['prev']))
 					$theme->assign('prev_record', '<a '.$this->create_href(array('utils_recordbrowser_move_to_id'=>$ids['prev'])).'>Prev</a>');
-				if ($ids['next'])
+				if (isset($ids['next']))
 					$theme->assign('next_record', '<a '.$this->create_href(array('utils_recordbrowser_move_to_id'=>$ids['next'])).'>Next</a>');
+				if (isset($ids['curr']))
+					$this->set_module_variable('browsed_records_curr',$ids['curr']);
 				if (isset($_REQUEST['utils_recordbrowser_move_to_id']) &&
 					($_REQUEST['utils_recordbrowser_move_to_id']===$ids['next'] ||
 					$_REQUEST['utils_recordbrowser_move_to_id']===$ids['prev'])) {
 					self::$browsed_records = $browsed_records;
+					$this->set_module_variable('browsed_records_curr',$_REQUEST['utils_recordbrowser_move_to_id']===$ids['next']?$ids['curr']+1:$ids['curr']-1);
 					$this->set_module_variable('id',$_REQUEST['utils_recordbrowser_move_to_id']);
 					unset($_REQUEST['utils_recordbrowser_move_to_id']);	
 					location(array());

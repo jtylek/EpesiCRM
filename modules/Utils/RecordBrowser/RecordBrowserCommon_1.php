@@ -756,14 +756,25 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (empty($par) || !$par) return 0;
 		return DB::GetOne('SELECT COUNT(*) FROM'.$par['sql'], $par['vals']);
 	}
-	public static function get_next_and_prev_record( $tab = null, $crits = null, $order = false, $id = null) {
+	public static function get_next_and_prev_record( $tab = null, $crits = null, $order = false, $id = null, $last = null) {
 		$par = self::build_query($tab, $crits, false, $order);
 		if (empty($par) || !$par) return null;
-		$ret = DB::GetCol('SELECT id FROM'.$par['sql'], $par['vals']);
-		if ($ret===false || $ret===null) return null;
-		$k = array_search($id,$ret);
-		return array(	'next'=>isset($ret[$k+1])?$ret[$k+1]:null,
-						'prev'=>isset($ret[$k-1])?$ret[$k-1]:null);
+		if ($last===null || is_array($last)) {
+			/* Just failsafe - should not happen */
+			$ret = DB::GetCol('SELECT id FROM'.$par['sql'], $par['vals']);
+			if ($ret===false || $ret===null) return null;
+			$k = array_search($id,$ret);
+			return array(	'next'=>isset($ret[$k+1])?$ret[$k+1]:null,
+							'curr'=>$k,
+							'prev'=>isset($ret[$k-1])?$ret[$k-1]:null);
+		} else {
+			$ret = DB::GetCol('SELECT id FROM'.$par['sql'].' LIMIT '.($last!=0?$last-1:$last).', 3', $par['vals']);
+			if ($ret===false || $ret===null) return null;
+			if ($last===0) $ret = array(0=>null, 2=>$ret[1]);
+			return array(	'next'=>isset($ret[2])?$ret[2]:null,
+							'curr'=>$last,
+							'prev'=>isset($ret[0])?$ret[0]:null);
+		}
 	}
 	public static function get_records( $tab = null, $crits = array(), $cols = array(), $order = array(), $limit = array(), $admin = false) {
 		if (!$tab) return false;
