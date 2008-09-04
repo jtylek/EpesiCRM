@@ -432,7 +432,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		foreach(self::$table_rows as $field => $args) {
 			if ($args['type']=='multiselect')
 				$values[$args['id']] = self::encode_multi($values[$args['id']]);
-			if (!isset($values[$args['id']]) || $values[$args['id']]=='') continue;
+			if (!isset($values[$args['id']]) || $values[$args['id']]==='') continue;
 			$fields_types .= ','.self::get_sql_type($args['type']);
 			$fields .= ',f_'.$args['id'];
 			$vals[] = $values[$args['id']];
