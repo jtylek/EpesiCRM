@@ -342,9 +342,11 @@ function update_from_1_0_0rc2_to_1_0_0rc3() {
 	define('CID',false);
 	require_once('include.php');
 	ob_start();
+	DB::Execute('DELETE FROM modules WHERE name="utils_tasks"');
 	ModuleManager::load_modules();
 	if (ModuleManager::is_installed('Utils/Watchdog')==-1) {
 		ModuleManager::install('Utils_Watchdog',0,false);
+		ModuleManager::include_common('Utils_Watchdog',0);
 	}
 	if (ModuleManager::is_installed('Libs/TCPDF')==-1) {
 		ModuleManager::install('Libs_TCPDF',0,false);
@@ -453,7 +455,6 @@ function update_from_1_0_0rc2_to_1_0_0rc3() {
 		DB::Execute('UPDATE recordbrowser_addon SET module="CRM_Tasks" WHERE tab="task"');
 		DB::Execute('UPDATE task_callback SET module="CRM_TasksCommon" WHERE module="Utils_TasksCommon"');
 		DB::Execute('UPDATE recordbrowser_table_properties SET tpl="CRM_Tasks__default", icon="CRM_Tasks__icon.png", access_callback="CRM_TasksCommon::access_task", data_process_method="CRM_TasksCommon::submit_task" WHERE tab="task"');
-		DB::Execute('DELETE FROM modules WHERE name="Utils_Tasks"');
 		DB::Execute('DELETE FROM task_data WHERE field="Page id"');
 		DB::Execute('DELETE FROM task_field WHERE field="Page id"');
 		Acl::add_aco('CRM_Tasks','browse tasks',array('Employee'));
