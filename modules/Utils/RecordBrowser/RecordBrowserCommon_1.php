@@ -1007,7 +1007,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (isset(Utils_RecordBrowser::$access_override) &&
 			Utils_RecordBrowser::$access_override['tab']==$tab &&
 			Utils_RecordBrowser::$access_override['id']==$id) {
-			print('-');
 			self::$del_or_a = '</a>';
 			if (!$nolink) $ret = '<a '.self::create_record_href($tab, $id).'>';
 			else self::$del_or_a = '';
