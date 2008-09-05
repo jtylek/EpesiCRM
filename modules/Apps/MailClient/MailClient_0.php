@@ -208,15 +208,21 @@ class Apps_MailClient extends Module {
 			}
 				
 			$ret = true;
+			if(ModuleManager::is_installed('CRM/Contacts')>=0) {
+				$my = CRM_ContactsCommon::get_my_record();
+				$name = CRM_ContactsCommon::contact_format_default($my,true);
+			}
+			if(!isset($name))
+				$name = Base_UserCommon::get_my_user_login();
+
+			if($v['from_addr']=='pm')
+				$to_names = implode(', ',$to_epesi_names);
+			else
+				$to_names = implode(', ',array_merge($to,$to_epesi_names));
+
 			if($v['action']=='send') {
 				$save_folder = 'Sent';			
 				//remote delivery
-				if(ModuleManager::is_installed('CRM/Contacts')>=0) {
-					$my = CRM_ContactsCommon::get_my_record();
-					$name = CRM_ContactsCommon::contact_format_default($my,true);
-				}
-				if(!isset($name))
-					$name = Base_UserCommon::get_my_user_login();
 				
 				if($v['from_addr']!='pm') {
 					$mailer = Base_MailCommon::new_mailer();
@@ -239,10 +245,6 @@ class Apps_MailClient extends Module {
 				}
 						
 				//local delivery
-				if($v['from_addr']=='pm')
-					$to_names = implode(', ',$to_epesi_names);
-				else
-					$to_names = implode(', ',array_merge($to,$to_epesi_names));
 				foreach($to_epesi as $e) {
 					if(!Apps_MailClientCommon::drop_message(Apps_MailClientCommon::get_mail_dir($e).'internal/Inbox',$v['subject'],$name,$to_names,$date,$v['body']))
 						print($this->lang->t('Unable to send message to %s',array($to_epesi_names[$e])).'<br>');
