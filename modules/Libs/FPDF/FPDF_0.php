@@ -15,12 +15,8 @@ class Libs_FPDF extends Module {
 	public $fpdf;
 
 	public function construct($orientation='P',$unit='mm',$format='A4') {
-//		require_once('fpdf153.php');
-//		$this->fpdf = new FPDF($orientation, $unit, $format);
-
-		require_once('html2pdf/html2fpdf.php');
-		$this->fpdf = new HTML2FPDF($orientation, $unit, $format);
-
+		require_once('fpdf153.php');
+		$this->fpdf = new FPDF($orientation, $unit, $format);
 	}	
 
 	public function body() {
