@@ -810,16 +810,20 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$ret = DB::SelectLimit('SELECT '.$fields.' FROM'.$par['sql'], $limit['numrows'], $limit['offset'], $par['vals']);
 		}
 		$records = array();
-/*		if (!empty($cols))
-			foreach($cols as $k=>$v) $cols[$k] = (isset(self::$hash[$v])?self::$table_rows[self::$hash[$v]]:self::$table_rows[$v]);
-		else
-			$cols = self::$table_rows;*/
+		if (!empty($cols)) {
+			foreach($cols as $k=>$v) {
+				if (isset(self::$hash[$v])) $cols[$k] = self::$table_rows[self::$hash[$v]];
+				elseif (isset(self::$table_rows[$v])) $cols[$k] = self::$table_rows[$v];
+				else unset($cols[$k]);
+			} 
+		} else
+			$cols = self::$table_rows;
 		while ($row = $ret->FetchRow()) {
 			$r = array(	'id'=>$row['id'],
 						'active'=>$row['active'],
 						'created_by'=>$row['created_by'],
 						'created_on'=>$row['created_on']);
-			foreach(self::$table_rows as $v){
+			foreach($cols as $v){
 				if (isset($row['f_'.$v['id']])) {
 					if ($v['type']=='multiselect') $r[$v['id']] = self::decode_multi($row['f_'.$v['id']]); 
 					else $r[$v['id']] = $row['f_'.$v['id']];

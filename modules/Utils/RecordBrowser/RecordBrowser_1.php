@@ -587,7 +587,6 @@ class Utils_RecordBrowser extends Module {
 		return true;
 	}
 	public function view_entry($mode='view', $id = null, $defaults = array()) {
-//		if ($this->check_for_jump()) return;
 		$theme = $this->init_module('Base/Theme');
 		if ($this->isset_module_variable('id')) {
 			$id = $this->get_module_variable('id');
