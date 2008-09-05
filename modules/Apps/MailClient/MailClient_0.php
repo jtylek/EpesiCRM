@@ -128,7 +128,11 @@ class Apps_MailClient extends Module {
 		$f->addElement('hidden','action','send','id="new_mail_action"');
 		
 		$from_mails = DB::GetAssoc('SELECT id,mail FROM apps_mailclient_accounts WHERE smtp_server is not null AND smtp_server!=\'\' AND user_login_id='.Acl::get_user());
-		$from = array('pm'=>$this->lang->ht('Private message'))+$from_mails;
+		if($from_mails)
+			$from = $from_mails;
+		else
+			$from = array('pm'=>$this->lang->ht('Private message'));
+			
 		eval_js_once('apps_mailclient_from_change = function(v) {'.
 						'if(v==\'pm\') {'.
 							'$("apps_mailclient_to_addr").disable();'.
@@ -136,7 +140,6 @@ class Apps_MailClient extends Module {
 							'$("apps_mailclient_to_addr").enable();'.
 						'}}');
 		$f->addElement('select','from_addr',$this->lang->t('From'),$from,array('onChange'=>'apps_mailclient_from_change(this.value)'));
-		$f->setDefaults(array('from_addr'=>($from_mails?key($from_mails):'pm')));
 		eval_js('apps_mailclient_from_change(\''.$f->exportValue('from_addr').'\')');
 		$f->addRule('from_addr',$this->lang->t('Field required'),'required');
 		$f->addElement('text','to_addr',$this->lang->t('To'),Utils_TooltipCommon::open_tag_attrs($this->lang->t('You can enter more then one email address separating it with comma.')).' id="apps_mailclient_to_addr"');

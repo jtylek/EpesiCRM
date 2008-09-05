@@ -26,8 +26,54 @@ ob_start(array('ErrorHandler','handle_fatal'));
 require_once('include/database.php');
 require_once('include/variables.php');
 $cur_ver = Variable::get('version');
-if($cur_ver!==EPESI_VERSION)
-	require_once('update.php');
+if($cur_ver!==EPESI_VERSION) {
+	if(isset($_GET['up'])) {
+		require_once('update.php');
+		$ret = ob_get_clean();
+		if(trim($ret))
+			die($ret);
+		header('Location: index.php');
+		exit();
+	} else {
+		?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+      <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+      <title>Epesi update</title>
+      <link href="setup.css" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+        <table id="banner" border="0" cellpadding="0" cellspacing="0">
+            <tr>
+                <td class="image">&nbsp;</td>
+                <td class="back">&nbsp;</td>
+            </tr>
+        </table>
+        <br>
+        <center>
+        <table id="main" border="0" cellpadding="0" cellspacing="0">
+            <tr>
+                <td>
+				Updating epesi from version <?php echo $cur_ver; ?> to <?php echo EPESI_VERSION; ?>. This operation may take several minutes.
+				<a href="index.php?up=1">Click here to proceed</a>
+                </td>
+            </tr>
+        </table>
+        </center>
+        <br>
+        <center>
+        <span class="footer">Copyright &copy; 2008 &bull; <a href="http://www.telaxus.com">Telaxus LLC</a></span>
+        <br>
+        <p><a href="http://www.epesi.org"><img src="images/epesi-powered.png" border="0"></a></p>
+        </center>
+</body>
+</html>
+<?php
+		ob_end_flush();
+		exit();
+	}
+}
 
 $tables = DB::MetaTables();
 if(!in_array('modules',$tables) || !in_array('variables',$tables) || !in_array('session',$tables))
