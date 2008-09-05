@@ -530,8 +530,12 @@ class Utils_GenericBrowser extends Module {
 			foreach($data as $j=>$d)
 				foreach($d as $i=>$c)
 					if(isset($this->columns[$i]['order']) && $this->columns[$i]['order']==$order['order']) {
-						if(is_array($c)) $xxx = $c['value'];
-							else $xxx = $c;
+						if(is_array($c)) {
+							if(isset($c['order_value']))
+								$xxx = $c['order_value'];
+							else
+								$xxx = $c['value'];
+						} else $xxx = $c;
 						if(isset($this->columns[$i]['order_eregi'])) {
 							$ret = array();
 							eregi($this->columns[$i]['order_eregi'],$xxx, $ret);
