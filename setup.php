@@ -41,7 +41,6 @@ if(!is_writable('backup'))
 	die('Cannot write into "backup" directory. Please fix privileges.');
 
 @define("_VALID_ACCESS", true);
-require_once('include/include_path.php');
 require_once('modules/Libs/QuickForm/requires.php');
 
 if(!isset($_GET['license'])) {
@@ -257,7 +256,6 @@ function rm_config($x) {
 }
 
 function clean_database() {
-	require_once('include/include_path.php');
 	require_once('include/config.php');
 	require_once('include/database.php');
 	$tables_db = DB::MetaTables();
@@ -272,7 +270,6 @@ function clean_database() {
 }
 
 function install_base() {
-	require_once('include/include_path.php');
 	require_once('include/config.php');
 	require_once('include/database.php');
 
@@ -310,7 +307,7 @@ function install_base() {
 		die('Invalid SQL query - Setup module (populating variables)');
 
 	//phpgacl
-	require( "adodb/adodb-xmlschema.inc.php" );
+	require( "libs/adodb/adodb-xmlschema.inc.php" );
 
 	$errh = DB::$ado->raiseErrorFn;
 	DB::$ado->raiseErrorFn = false;
