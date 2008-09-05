@@ -46,6 +46,7 @@ class Applets_MonthView extends Module {
 				}
 				$week[] = $next;
 				$currday += 86400;
+				$currday = strtotime(date('Y-m-d 00:00:00', $currday+60*60*12));
 			}
 			$month[] = array(
 							'week_label'=>$weekno,
