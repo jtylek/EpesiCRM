@@ -511,6 +511,7 @@ class Utils_GenericBrowser extends Module {
 			foreach($this->columns as $k=>$v){
 				if (isset($v['search']) && isset($search['__keyword__'])) {
 					$ret = false;
+					if (is_array($row[$k])) $row[$k] = $row[$k]['value'];
 					if (stripos(strip_tags($row[$k]),$search['__keyword__'])!==false) return true;
 				}
 			}
