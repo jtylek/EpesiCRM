@@ -98,6 +98,19 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 		<link rel="icon" type="image/png" href="images/favicon.png" />
 		<title>Epesi</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<script type="text/javascript">
+		function detectBrowser()
+		{
+		var browser=navigator.appName;
+		var b_version=navigator.appVersion;
+		var version=parseFloat(b_version);
+		if (browser=="Microsoft Internet Explorer")
+			{
+			alert("Sorry but Internet Explorer is not supported.\nPlease upgrade to Firefox.");
+			window.location = "http://www.mozilla.com/firefox/"
+			}
+		}
+		</script>
 		<script type="text/javascript" src="serve.php?f=libs/prototype.js,libs/HistoryKeeper.js,include/epesi.js"></script>
 
 		<style type="text/css">
@@ -176,6 +189,7 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 		unFocus.History.addEventListener('historyChange',history_call);
 		-->
 		</script>
+	<body onload="detectBrowser()">
 	</body>
 </html>
 <?php
