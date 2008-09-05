@@ -770,7 +770,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		} else {
 			$ret = DB::GetCol('SELECT id FROM'.$par['sql'].' LIMIT '.($last!=0?$last-1:$last).', 3', $par['vals']);
 			if ($ret===false || $ret===null) return null;
-			if ($last===0) $ret = array(0=>null, 2=>$ret[1]);
+			if ($last===0) $ret = array(0=>null, 2=>isset($ret[1])?$ret[1]:null);
 			return array(	'next'=>isset($ret[2])?$ret[2]:null,
 							'curr'=>$last,
 							'prev'=>isset($ret[0])?$ret[0]:null);
