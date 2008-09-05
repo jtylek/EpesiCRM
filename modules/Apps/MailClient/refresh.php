@@ -78,10 +78,19 @@ if($pop3) { //pop3
 		if(!empty($uidls)) {
 			$count = count($l);
 			for($k=0; $k<$count; $k++) {
-				if($native_support) 
+				if($native_support) {
+					if(!isset($l[$k]->message_id)) {
+						unset($l[$k]);
+						continue;
+					}
 					$uidl = $l[$k]->message_id;
-				else
+				} else {
+					if(!isset($l[$k]['uidl'])) {
+						unset($l[$k]);
+						continue;
+					}
 					$uidl = $l[$k]['uidl'];
+				}
 				if(array_key_exists($uidl,$uidls)) {
 					if($account['pop3_leave_msgs_on_server']>=0 && ($uidls[$uidl]+$account['pop3_leave_msgs_on_server']*86400)<=$now) {
 						if($native_support)
