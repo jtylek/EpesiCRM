@@ -252,4 +252,6 @@ foreach($accounts as $account) {
 		message($account['id'],$account['mail'].': ok, got '.$num.' new messages, '.$invalid.' invalid messages skipped');
 }
 echo('<script>parent.Apps_MailClient.show_hide_button(\''.$_GET['id'].'\');</script>');
+
+error_reporting(0);
 ?>
