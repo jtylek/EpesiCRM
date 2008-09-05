@@ -137,7 +137,7 @@ class Base_Setup extends Module {
 					& $this,
 					'validate'
 				))) {
-					location();
+					Epesi::redirect();
 				} else {
 					print('<hr class="line"><center><a class="button"' . $this -> create_href(array()) . '>Back</a></center>');
 				}
