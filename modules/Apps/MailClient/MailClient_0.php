@@ -492,6 +492,11 @@ class Apps_MailClient extends Module {
 	public function submit_admin($data) {
 		return Variable::set('max_mail_size',$data['max_mail_size']);	
 	}
+
+	public function caption() {
+		return "Mail client";
+	}
+
 }
 
 ?>

@@ -132,4 +132,6 @@ if($pop3) { //pop3
 }
 
 print($num_msgs);
+
+error_reporting(0);
 ?>
