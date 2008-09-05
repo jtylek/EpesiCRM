@@ -714,16 +714,17 @@ class Utils_GenericBrowser extends Module {
 				$form_p->addElement('select','per_page',$this->lang->t('Number of rows per page'), array(5=>5,10=>10,20=>20,50=>50,100=>100), 'onChange="'.$form_p->get_submit_form_js(false).'"');
 				$form_p->setDefaults(array('per_page'=>$per_page));
 			}			
-			if (ceil($this->rows_qty/$this->per_page)<=25) {
+			$qty_pages = ceil($this->rows_qty/$this->per_page);
+			if ($qty_pages<=25) {
 					$pages = array();
 				if($this->rows_qty==0) 
 					$pages[0] = 1;
 				else
-					foreach (range(1, ceil($this->rows_qty/$this->per_page)) as $v) $pages[$v] = $v;
+					foreach (range(1, $qty_pages) as $v) $pages[$v] = $v;
 				$form_p->addElement('select','page',$this->lang->t('Page'), $pages, 'onChange="'.$form_p->get_submit_form_js(false).'"');
 				$form_p->setDefaults(array('page'=>$this->offset));
 			} else {
-				$form_p->addElement('text','page',$this->lang->t('Page'), 'onChange="'.$form_p->get_submit_form_js(false).'"');
+				$form_p->addElement('text','page',$this->lang->t('Page (%s to %s)', array(1,$qty_pages)), array('onclick'=>'this.focus();this.select();', 'onChange'=>$form_p->get_submit_form_js(false), 'style'=>'width:'.(7*strlen($qty_pages)).'px;'));
 				$form_p->setDefaults(array('page'=>($this->offset/$this->per_page)+1));
 			}
 			$pager_on = true;
@@ -766,9 +767,11 @@ class Utils_GenericBrowser extends Module {
 					$this->set_module_variable('per_page',$values['per_page']);
 					Base_User_SettingsCommon::save('Utils/GenericBrowser','per_page',$values['per_page']);
 				}
-				if(isset($values['page']))
+				if(isset($values['page']) && is_numeric($values['page']) && ($values['page']>=1 && $values['page']<=$qty_pages)) {
 					$this->set_module_variable('offset',($values['page']-1)*$this->per_page);
+				}
 				location(array());
+				return;
 			}
 		}
 		if ($search_on) {
