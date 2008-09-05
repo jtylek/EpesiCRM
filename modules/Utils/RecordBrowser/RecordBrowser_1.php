@@ -104,8 +104,28 @@ class Utils_RecordBrowser extends Module {
 			if ($row['freezed']==1) $this->display_callback_table[$row['field']] = array($row['module'], $row['func']);
 			else $this->QFfield_callback_table[$row['field']] = array($row['module'], $row['func']);
 	}
+
+	public function check_for_jump() {
+		if (isset($_REQUEST['__jump_to_RB_table']) &&
+			isset($_REQUEST['__jump_to_RB_record'])) {
+			$tab = $_REQUEST['__jump_to_RB_table'];
+			$id = $_REQUEST['__jump_to_RB_record'];
+			if (!is_numeric($id)) trigger_error('Critical failure - invalid id, requested record with id "'.serialize($id).'" from table "'.serialize($tab).'".',E_USER_ERROR);
+			Utils_RecordBrowserCommon::check_table_name($tab);
+			unset($_REQUEST['__jump_to_RB_record']);
+			unset($_REQUEST['__jump_to_RB_table']);
+			self::$browsed_records = $this->get_module_variable('set_browsed_records',null);
+			$x = ModuleManager::get_instance('/Base_Box|0');
+			if (!$this->get_access('browse')) return false;
+			if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+			$x->push_main('Utils/RecordBrowser','view_entry',array('view', $id),array($tab));
+			return true;
+		}
+		return false;
+	}
 	// BODY //////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function body($def_order=array(), $crits=array()) {
+		if ($this->check_for_jump()) return;
 		$this->init();
 		if (self::$clone_result!==null) {
 			if (is_numeric(self::$clone_result)) $this->navigate('view_entry', 'view', self::$clone_result);
@@ -282,6 +302,7 @@ class Utils_RecordBrowser extends Module {
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
 	public function show_data($crits = array(), $cols = array(), $order = array(), $admin = false, $special = false) {
+		if ($this->check_for_jump()) return;
 		Utils_RecordBrowserCommon::$cols_order = $this->col_order;
 		if ($this->get_access('browse')===false) {
 			print($this->lang->t('You are not authorised to browse this data.'));
@@ -428,7 +449,7 @@ class Utils_RecordBrowser extends Module {
 				$records[$row[$this->tab.'_id']]['visited_on'] = Base_RegionalSettingsCommon::time2reg(strtotime($row['visited_on']));
 			}
 		} else {
-			self::$browsed_records = array('tab'=>$this->tab,'crits'=>$crits, 'order'=>$order, 'records'=>array());
+			$this->set_module_variable('set_browsed_records',array('tab'=>$this->tab,'crits'=>$crits, 'order'=>$order, 'records'=>array()));
 		}
 		if ($special) $rpicker_ind = array();
 
@@ -566,6 +587,7 @@ class Utils_RecordBrowser extends Module {
 		return true;
 	}
 	public function view_entry($mode='view', $id = null, $defaults = array()) {
+//		if ($this->check_for_jump()) return;
 		$theme = $this->init_module('Base/Theme');
 		if ($this->isset_module_variable('id')) {
 			$id = $this->get_module_variable('id');
@@ -616,8 +638,8 @@ class Utils_RecordBrowser extends Module {
 		$this->init();
 		$this->record = Utils_RecordBrowserCommon::get_record($this->tab, $id);
 		
+		if ($mode!='add' && (!$this->get_access($mode, $this->record) || $this->record==null)) return $this->back();
 		if ($mode!='add' && !$this->record['active'] && !Base_AclCommon::i_am_admin()) return $this->back();
-		if ($mode!='add' && !$this->get_access($mode, $this->record)) return $this->back();
 
 		if ($mode=='view')
 			$this->record = Utils_RecordBrowserCommon::format_long_text($this->tab,$this->record);

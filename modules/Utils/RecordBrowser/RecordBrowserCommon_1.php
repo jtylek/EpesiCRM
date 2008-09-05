@@ -128,7 +128,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			foreach($r as $v)
 				$tables[$v['tab']] = true;
 		}
-		if (($tab!=null && !isset($tables[$tab])) && !$flush) trigger_error('RecordBrowser critical failure, terminating. (Requested '.$tab.', available '.print_r($tables, true).')', E_USER_ERROR);
+		if (($tab!=null && !isset($tables[$tab])) && !$flush) trigger_error('RecordBrowser critical failure, terminating. (Requested '.serialize($tab).', available '.print_r($tables, true).')', E_USER_ERROR);
 	}
 	public static function get_value($tab, $id, $field) {
 		self::init($tab);
