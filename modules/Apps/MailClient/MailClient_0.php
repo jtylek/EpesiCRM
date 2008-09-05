@@ -452,7 +452,7 @@ class Apps_MailClient extends Module {
 							'onComplete:function(r){mailclientcache[accid]=r.responseText},'.
 							'parameters:{acc_id:accid}});'.
 					'}');
-				eval_js_once('setInterval(\'mailclientfunc('.$id.' , 0)\',300)');
+				eval_js_once('setInterval(\'mailclientfunc('.$id.' , 0)\',300000)');
 
 				//get rss now!
 				eval_js('mailclientfunc('.$id.' , 1)');
