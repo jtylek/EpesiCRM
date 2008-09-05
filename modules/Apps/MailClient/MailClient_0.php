@@ -194,7 +194,7 @@ class Apps_MailClient extends Module {
 			if(ModuleManager::is_installed('CRM/Contacts')>=0) {
 				$to_addr_ex = CRM_ContactsCommon::get_contacts(array('id'=>$v['to_addr_ex']),array('email','login','first_name','last_name','company_name'));
 				foreach($to_addr_ex as $kk) {
-					if(isset($kk['login'])) {
+					if(isset($kk['login']) && $kk['login']!=='') {
 						$where = Base_User_SettingsCommon::get('Apps_MailClient','default_dest_mailbox',$kk['login']);
 						if($where=='both' || $where=='pm') {
 							$to_epesi[] = $kk['login'];
