@@ -203,18 +203,42 @@ class Utils_RecordBrowser extends Module {
 			if ($this->table_rows[$filter]['type']=='checkbox') {
 				$arr = array(''=>$this->lang->ht('No'), 1=>$this->lang->ht('Yes'));
 			} else {
-				if (!isset($this->QFfield_callback_table[$filter]) && ($this->table_rows[$filter]['type'] == 'select' || $this->table_rows[$filter]['type'] == 'multiselect')) {
+				if ($this->table_rows[$filter]['type'] == 'commondata') {
+					$arr = array_merge($arr, Utils_CommonDataCommon::get_translated_array($this->table_rows[$filter]['param'], true));
+				} else {
 					$param = explode(';',$this->table_rows[$filter]['param']);
+					$x = explode('::',$param[0]);
+					if (!isset($x[1])) trigger_error($filter);
 					list($tab, $col) = explode('::',$param[0]);
 					if ($tab=='__COMMON__') {
 						$arr = array_merge($arr, Utils_CommonDataCommon::get_translated_array($col, true));
 					} else {
+						$col = explode('|',$col);
 						Utils_RecordBrowserCommon::check_table_name($tab);
-						if (isset($this->table_rows[$col])) $col = $this->table_rows[$col]['id'];
-						$ret2 = Utils_RecordBrowserCommon::get_records($tab,array(),array($col));
-						foreach ($ret2 as $k=>$v) $arr[$k] = $v[$col];
+						foreach ($col as $k=>$v)
+							$col[$k] = strtolower(str_replace(' ','_',$v));
+						$crits = array();
+						if (isset($param[2])) {
+							$callback = explode('::',$param[2]);
+							if (is_callable($callback))
+								$crits = call_user_func($callback, true);
+						}
+						$ret2 = Utils_RecordBrowserCommon::get_records($tab,$crits,$col);
+						if (count($col)!=1) { 
+							foreach ($ret2 as $k=>$v) {
+								$txt = array();
+								foreach ($col as $kk=>$vv)
+									$txt[] = $v[$vv];
+								$arr[$k] = implode(' ',$txt);
+							}
+						} else {
+							foreach ($ret2 as $k=>$v) {
+								$arr[$k] = $v[$col[0]];
+							}
+						}
 					}
-				} else {
+				} 
+/*					else {
 					$count_ids = Utils_RecordBrowserCommon::count_possible_values($this->tab, $filter);
 					if ($count_ids<=100) {
 						$ids = Utils_RecordBrowserCommon::get_possible_values($this->tab, $filter);
@@ -235,7 +259,7 @@ class Utils_RecordBrowser extends Module {
 						$filters[] = $filter_id;
 						continue;
 					}
-				}
+				}*/
 			}
 			natcasesort($arr);
 			$arr = array('__NULL__'=>'---')+$arr;
