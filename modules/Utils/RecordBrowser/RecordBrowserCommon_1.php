@@ -1019,7 +1019,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 	public static function record_link_open_tag($tab, $id, $nolink=false){
 		$ret = '';
-		if (isset(Utils_RecordBrowser::$access_override) &&
+		if (class_exists('Utils_RecordBrowser') &&
+			isset(Utils_RecordBrowser::$access_override) &&
 			Utils_RecordBrowser::$access_override['tab']==$tab &&
 			Utils_RecordBrowser::$access_override['id']==$id) {
 			self::$del_or_a = '</a>';
