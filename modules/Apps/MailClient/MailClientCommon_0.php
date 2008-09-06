@@ -190,6 +190,27 @@ class Apps_MailClientCommon extends ModuleCommon {
 		return true;
 	}
 	
+	public static function mark_all_as_read($box) {
+		$box = Apps_MailClientCommon::get_mail_dir().trim($box,'/').'/';
+		$in = @fopen($box.'.idx','r');
+		if($in==false) return false;
+		$ret = array();
+		while (($data = fgetcsv($in, 660)) !== false) { //teoretically max is 640+integer and commas
+			$num = count($data);
+			if($num!=7) continue;
+			$data[6]=1;
+			$ret[] = $data;
+		}
+		fclose($in);
+
+		$out = @fopen($box.'.idx','w');
+		if($out==false) return false;
+		foreach($ret as $d) {
+			fputcsv($out, $d);
+		}
+		fclose($out);
+	}
+	
 	public static function get_index($box,$dir=null) {
 		if(isset($dir))
 			$box = Apps_MailClientCommon::get_mailbox_dir(trim($box,'/')).$dir.'/';
