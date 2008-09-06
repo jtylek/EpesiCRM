@@ -1,5 +1,6 @@
 {php}
-	load_js('data/Base_Theme/templates/default/CRM_Calendar_Event__default.js');
+	$theme_dir = $this->get_template_vars('theme_dir');
+	load_js($theme_dir.'/CRM_Calendar_Event__default.js');
 {/php}
 
 <table class="CRM_Calendar_Event__header" border="0" cellpadding="0" cellspacing="0">
