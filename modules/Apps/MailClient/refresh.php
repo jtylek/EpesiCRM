@@ -62,8 +62,9 @@ if($pop3) { //pop3
 	}
 
 	if($l===false) die('unknown error');
-	$box = str_replace(array('@','.'),array('__at__','__dot__'),$account['mail']).'/Inbox';
-	$uidls_file = Apps_MailClientCommon::get_mail_dir().$box.'/.uilds';
+	$box_root = str_replace(array('@','.'),array('__at__','__dot__'),$account['mail']);
+	$box = $box_root.'/Inbox';
+	$uidls_file = Apps_MailClientCommon::get_mail_dir().$box_root.'/.uilds';
 	if($account['pop3_leave_msgs_on_server']!=0 && file_exists($uidls_file)) {
 		$uidls = array();
 		if(($uidls_fp = @fopen($uidls_file,'r'))!==false) {

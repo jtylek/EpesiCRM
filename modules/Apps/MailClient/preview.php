@@ -131,7 +131,7 @@ if(isset($_GET['attachment_cid']) || isset($_GET['attachment_name'])) {
 			$body = substr($body,0,strlen($body)-7);
 	}
 	$body = preg_replace('/"cid:([^@]+@[^@]+)"/i','"preview.php?'.http_build_query($_GET).'&attachment_cid=$1"',$body);
-	$body = preg_replace("/<a([^>]*)>(.*)<\/a>/is", "<a\\1 target='_blank'>\\2</a>", $body);
+	$body = preg_replace("/<a([^>]*)>(.*)<\/a>/i", '<a$1 target="_blank">$2</a>', $body);
 		
 	$body .= '<script>'.$script.'</script>'.
 			'</html>';

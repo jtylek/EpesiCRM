@@ -83,7 +83,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$in = @fopen($mailbox.'.idx','r');
 		if($in==false) return false;
 		$ret = array();
-		$msg_id = 0;
+		$msg_id = -1;
 		while (($data = fgetcsv($in, 660)) !== false) { //teoretically max is 640+integer and commas
 			$num = count($data);
 			if($num!=7) continue;
