@@ -59,36 +59,48 @@ class Apps_MailClientCommon extends ModuleCommon {
 			$acc_dir = $dir.str_replace(array('@','.'),array('__at__','__dot__'),$account).'/';
 			if(!file_exists($acc_dir)) { // create user dir
 				mkdir($acc_dir);
-				file_put_contents($acc_dir.'Inbox.mbox','');
-				file_put_contents($acc_dir.'Sent.mbox','');
-				file_put_contents($acc_dir.'Trash.mbox','');
-				file_put_contents($acc_dir.'Drafts.mbox','');
+				mkdir($acc_dir.'Inbox');
+				mkdir($acc_dir.'Sent');
+				mkdir($acc_dir.'Trash');
+				mkdir($acc_dir.'Drafts');
 			}
 		}
 
 		$acc_dir=$dir.'internal/';
 		if(!file_exists($acc_dir)) { // create user dir
 			mkdir($acc_dir);
-			file_put_contents($acc_dir.'Inbox.mbox','');
-			file_put_contents($acc_dir.'Sent.mbox','');
-			file_put_contents($acc_dir.'Trash.mbox','');
-			file_put_contents($acc_dir.'Drafts.mbox','');
+			mkdir($acc_dir.'Inbox');
+			mkdir($acc_dir.'Sent');
+			mkdir($acc_dir.'Trash');
+			mkdir($acc_dir.'Drafts');
 		}
 		return $dir; 
+	}
+	
+	public static function get_next_msg_id($mailbox) {
+		$mailbox = rtrim($mailbox,'/').'/';
+		if(!file_exists($mailbox.'.idx')) self::build_index($mailbox);
+		$in = @fopen($mailbox.'.idx','r');
+		if($in==false) return false;
+		$ret = array();
+		$msg_id = 0;
+		while (($data = fgetcsv($in, 660)) !== false) { //teoretically max is 640+integer and commas
+			$num = count($data);
+			if($num!=7) continue;
+			if($data[0]>$msg_id) $msg_id=$data[0];
+		}
+		fclose($in);
+		return $msg_id+1;
 	}
 	
 	public static function drop_message($mailbox,$subject,$from,$to,$date,$body,$read=false) {
 		ini_set('include_path','modules/Apps/MailClient/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
 		require_once('Mail/mime.php');
-		require_once('Mail/Mbox.php');
 
-		$mbox = new Mail_Mbox($mailbox.'.mbox');
-		if(($ret = $mbox->setTmpDir('data/Apps_MailClient/tmp'))===false 
-			|| ($ret = $mbox->open())===false) {
-			Epesi::alert($this->lang->ht('Unable to open mailbox folder: '.$save_folder));
-			return false;
-		}
-		$msg_id = $mbox->size();
+		$mailbox = rtrim($mailbox,'/').'/';
+
+		$msg_id = self::get_next_msg_id($mailbox);
+		if($msg_id===false) return false;
 
 		$mime = new Mail_Mime();
 		$headers = array();
@@ -99,10 +111,9 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$mime->headers($headers);
 		$mime->setHTMLBody($body);
 		$mbody = $mime->getMessage();
-		$mbox->append("From - ".date('D M d H:i:s Y')."\n".$mbody);
+		file_put_contents($mailbox.$msg_id,$mbody);
 		Apps_MailClientCommon::append_msg_to_mailbox_index($mailbox,$msg_id,$subject,$from,$to,$date,strlen($mbody),$read);
 
-		$mbox->close();
 		return true;
 	}
 	
@@ -121,10 +132,8 @@ class Apps_MailClientCommon extends ModuleCommon {
 			if($f=='.' || $f=='..') continue;
 			$path = $mdir.$f;
 			$r = array();
-			if(is_dir($path) && in_array($f.'.mbox',$cont) && is_file($path.'.mbox') && is_readable($path.'.mbox') && is_writable($path.'.mbox'))
+			if(is_dir($path) && is_readable($path) && is_writable($path))
 				$st[] = array('name'=>str_replace(array('__at__','__dot__'),array('@','.'),$f),'sub'=>$this->_get_mail_account_structure($path.'/'));
-			elseif(ereg('^([a-zA-Z0-9]+)\.mbox$',$f,$r) && is_file($path) && is_readable($path) && is_writable($path) && !(in_array($r[1],$cont) && is_dir($mdir.$r[1])))
-				$st[] = array('name'=>$r[1]);
 		}
 		return $st;
 	}
@@ -148,7 +157,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		return self::Instance()->_get_mail_dir_structure();
 	}
 	
-	public static function get_default_mbox() {
+	public static function get_default_box() {
 		$mdir = self::get_mail_dir();
 		$cont = scandir($mdir);
 		$ret = null;
@@ -162,34 +171,30 @@ class Apps_MailClientCommon extends ModuleCommon {
 	
 	public static function build_index($boxpath) {
 		ini_set('include_path','modules/Apps/MailClient/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
-		require_once('Mail/Mbox.php');
 		require_once('Mail/mimeDecode.php');
-		$mbox = new Mail_Mbox($boxpath.'.mbox');
-		if(($ret = $mbox->setTmpDir(self::Instance()->get_data_dir().'tmp'))===true && ($ret = $mbox->open())===true) {
-			$limit_max = $mbox->size();
-			$out = @fopen($boxpath.'.idx','w');
-			if($out==false) return false;
-			for ($n = 0; $n < $limit_max; $n++) {
-				if(PEAR::isError($message = $mbox->get($n)))
-					continue;
-				$decode = new Mail_mimeDecode($message, "\r\n");
-				$structure = $decode->decode();
-				if(!isset($structure->headers['from']) || !isset($structure->headers['to']) || !isset($structure->headers['date']))
-					continue;
-				fputcsv($out, array($n,isset($structure->headers['subject'])?substr($structure->headers['subject'],0,256):'no subject',substr($structure->headers['from'],0,256),substr($structure->headers['to'],0,256),substr($structure->headers['date'],0,64),substr(strlen($message),0,64),'0'));
-			}
-			fclose($out);
-			$mbox->close();
-			return true;
+		$boxpath = rtrim($boxpath,'/').'/';
+		$out = @fopen($boxpath.'.idx','w');
+		if($out==false) return false;
+		$files = scandir($boxpath);
+		foreach($files as $f) {
+			if(!is_numeric($f)) continue;
+			$message = @file_get_contents($boxpath.$f);
+			if($message===false) continue;
+			$decode = new Mail_mimeDecode($message, "\r\n");
+			$structure = $decode->decode();
+			if(!isset($structure->headers['from']) || !isset($structure->headers['to']) || !isset($structure->headers['date']))
+				continue;
+			fputcsv($out, array($f,isset($structure->headers['subject'])?substr($structure->headers['subject'],0,256):'no subject',substr($structure->headers['from'],0,256),substr($structure->headers['to'],0,256),substr($structure->headers['date'],0,64),substr(strlen($message),0,64),'0'));
 		}
-		return false;
+		fclose($out);
+		return true;
 	}
 	
 	public static function get_index($box,$dir=null) {
 		if(isset($dir))
-			$box = Apps_MailClientCommon::get_mailbox_dir(trim($box,'/')).$dir;
+			$box = Apps_MailClientCommon::get_mailbox_dir(trim($box,'/')).$dir.'/';
 		else
-			$box = Apps_MailClientCommon::get_mail_dir().ltrim($box,'/');
+			$box = Apps_MailClientCommon::get_mail_dir().trim($box,'/').'/';
 		if(!file_exists($box.'.idx')) self::build_index($box);
 		$in = @fopen($box.'.idx','r');
 		if($in==false) return false;
@@ -205,18 +210,12 @@ class Apps_MailClientCommon extends ModuleCommon {
 	
 	public static function remove_msg($box, $dir, $id) {
 		ini_set('include_path','modules/Apps/MailClient/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
-		require_once('Mail/Mbox.php');
 		require_once('Mail/mimeDecode.php');
 		
 		if(!self::remove_msg_from_index($box,$dir,$id)) return false;
 
 		$boxpath = self::get_mailbox_dir(trim($box,'/')).$dir;
-		$mbox = new Mail_Mbox($boxpath.'.mbox');
-		if(($ret = $mbox->setTmpDir(self::Instance()->get_data_dir().'tmp'))===true && ($ret = $mbox->open())===true) {
-			if($mbox->size()<=$id) return false;
-			$mbox->remove($id);
-		}
-		$mbox->close();
+		@unlink($boxpath.'/'.$id);
 
 		return true;
 	}
@@ -227,7 +226,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		if($idx===false || !isset($idx[$id])) return false;
 		unset($idx[$id]);
 
-		$box = Apps_MailClientCommon::get_mailbox_dir(trim($box,'/')).$dir;
+		$box = Apps_MailClientCommon::get_mailbox_dir(trim($box,'/')).$dir.'/';
 		$out = @fopen($box.'.idx','w');
 		if($out==false) return false;
 		$idx = array_values($idx);
@@ -239,32 +238,28 @@ class Apps_MailClientCommon extends ModuleCommon {
 	
 	public static function move_msg($box, $dir, $box2, $dir2, $id) {
 		ini_set('include_path','modules/Apps/MailClient/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
-		require_once('Mail/Mbox.php');
 		
 		$boxpath = self::get_mailbox_dir(trim($box,'/')).$dir;
-		$mbox = new Mail_Mbox($boxpath.'.mbox');
 		$boxpath2 = self::get_mailbox_dir(trim($box2,'/')).$dir2;
-		$mbox2 = new Mail_Mbox($boxpath2.'.mbox');
-		if($mbox->setTmpDir(self::Instance()->get_data_dir().'tmp')===true && $mbox->open()===true &&
-			$mbox2->setTmpDir(self::Instance()->get_data_dir().'tmp')===true && $mbox2->open()===true) {
-			if($mbox->size()<=$id) return false;
-			$id2 = $mbox2->size();
-			$msg = $mbox->get($id);
-			$mbox2->insert($msg);
-			$idx = self::get_index($box,$dir);
-			$idx = $idx[$id];
-			if(!self::append_msg_to_index($box2,$dir2,$id2,$idx['subject'],$idx['from'],$idx['to'],$idx['date'],$idx['size'],$idx['read']))
-				return false;
+		$msg = @file_get_contents($boxpath.'/'.$id);
+		if($msg===false) return false;
 
-			$mbox->remove($id);
-			if(!self::remove_msg_from_index($box,$dir,$id)) return false;
-			return true;
-		}
-		return false;
+		$id2 = self::get_next_msg_id($boxpath2);
+		if($id2===false) return false;
+
+		file_put_contents($boxpath2.'/'.$id2,$msg);
+		$idx = self::get_index($box,$dir);
+		$idx = $idx[$id];
+		if(!self::append_msg_to_index($box2,$dir2,$id2,$idx['subject'],$idx['from'],$idx['to'],$idx['date'],$idx['size'],$idx['read']))
+			return false;
+
+		@unlink($boxpath.'/'.$id);
+		if(!self::remove_msg_from_index($box,$dir,$id)) return false;
+		return true;
 	}
 
 	public static function append_msg_to_index($mail,$box, $id, $subject, $from, $to, $date, $size,$read=false) {
-		$box = self::get_mailbox_dir(trim($mail,'/')).$box;
+		$box = self::get_mailbox_dir(trim($mail,'/')).$box.'/';
 		$out = @fopen($box.'.idx','a');
 		if($out==false) return false;
 		fputcsv($out,array($id, substr($subject,0,256), substr($from,0,256), substr($to,0,256), substr($date,0,64), substr($size,0,64),$read?'1':'0'));
@@ -273,6 +268,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 	}
 
 	public static function append_msg_to_mailbox_index($mailbox, $id, $subject, $from, $to, $date, $size, $read=false) {
+		$mailbox = rtrim($mailbox,'/').'/';
 		$out = @fopen($mailbox.'.idx','a');
 		if($out==false) return false;
 		fputcsv($out,array($id, substr($subject,0,256), substr($from,0,256), substr($to,0,256), substr($date,0,64), substr($size,0,64),$read?'1':'0'));
@@ -286,7 +282,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		if($idx===false || !isset($idx[$id])) return false;
 		$idx[$id]['read'] = '1';
 
-		$box = Apps_MailClientCommon::get_mail_dir().ltrim($mailbox,'/');
+		$box = Apps_MailClientCommon::get_mail_dir().trim($mailbox,'/').'/';
 		$out = @fopen($box.'.idx','w');
 		if($out==false) return false;
 		$idx = array_values($idx);

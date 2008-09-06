@@ -24,9 +24,9 @@ class Apps_MailClient extends Module {
 	}
 	
 	public function body() {
-		$def_mbox = Apps_MailClientCommon::get_default_mbox();
+		$def_box = Apps_MailClientCommon::get_default_box();
 
-		$mbox_file = $this->get_module_variable('opened_mbox',$def_mbox);
+		$box_file = $this->get_module_variable('opened_box',$def_box);
 		$preview_id = $this->get_path().'preview';
 		$show_id = $this->get_path().'show';
 
@@ -38,8 +38,8 @@ class Apps_MailClient extends Module {
 		$tree->sort();
 		$th->assign('tree', $this->get_html_of_module($tree));
 		
-		$mbox = Apps_MailClientCommon::get_index(ltrim($mbox_file,'/'));
-		if($mbox===false) {
+		$box = Apps_MailClientCommon::get_index(ltrim($box_file,'/'));
+		if($box===false) {
 			print('Invalid mailbox');
 			return;
 		}
@@ -48,7 +48,7 @@ class Apps_MailClient extends Module {
 		$cols = array();
 		$cols[] = array('name'=>$this->lang->t('ID'), 'order'=>'id','width'=>'3', 'display'=>DEBUG);
 		$cols[] = array('name'=>$this->lang->t('Subject'), 'search'=>1, 'order'=>'subj','order_eregi'=>'^<a [^<>]*>([^<>]*)</a>$','width'=>'40');
-		if(ereg('(Sent|Drafts)$',$mbox_file)) {
+		if(ereg('(Sent|Drafts)$',$box_file)) {
 			$to_col = true;
 			$cols[] = array('name'=>$this->lang->t('To'), 'search'=>1,'quickjump'=>1, 'order'=>'to','width'=>'32');
 		} else {
@@ -62,21 +62,21 @@ class Apps_MailClient extends Module {
 		$gb->set_default_order(array($this->lang->t('Date')=>'DESC'));
 		$gb->force_per_page(10);
 	
-		$limit_max = count($mbox);
+		$limit_max = count($box);
 		
 		load_js($this->get_module_dir().'utils.js');
 		
-		foreach($mbox as $id=>$data) {
+		foreach($box as $id=>$data) {
 			$r = $gb->get_new_row();
 			$subject = Apps_MailClientCommon::mime_header_decode($data['subject']);
 			$address = Apps_MailClientCommon::mime_header_decode($to_col?$data['to']:$data['from']);
 			$subject = strip_tags($subject);
 			if(strlen($subject)>40) $subject = Utils_TooltipCommon::create(substr($subject,0,38).'...',$subject);
-			$r->add_data($id,'<a href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$id, 'pid'=>$preview_id)).'\',\''.$id.'\')" id="apps_mailclient_msg_'.$id.'" '.($data['read']?'':'style="font-weight:bold"').'>'.$subject.'</a>',htmlentities($address),array('value'=>Base_RegionalSettingsCommon::time2reg($data['date']), 'order_value'=>strtotime($data['date'])),array('style'=>'text-align:right','value'=>filesize_hr($data['size']), 'order_value'=>$data['size']));
+			$r->add_data($id,'<a href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.http_build_query(array('box'=>$box_file, 'msg_id'=>$id, 'pid'=>$preview_id)).'\',\''.$id.'\')" id="apps_mailclient_msg_'.$id.'" '.($data['read']?'':'style="font-weight:bold"').'>'.$subject.'</a>',htmlentities($address),array('value'=>Base_RegionalSettingsCommon::time2reg($data['date']), 'order_value'=>strtotime($data['date'])),array('style'=>'text-align:right','value'=>filesize_hr($data['size']), 'order_value'=>$data['size']));
 			$lid = 'mailclient_link_'.$id;
 			$r->add_action('href="javascript:void(0)" rel="'.$show_id.'" class="lbOn" id="'.$lid.'" ','View');
-			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Delete this message?'),array($this,'remove_message'),array($mbox_file,$id)),'Delete');
-			$r->add_js('Event.observe(\''.$lid.'\',\'click\',function() {Apps_MailClient.preview(\''.$show_id.'\',\''.http_build_query(array('mbox'=>$mbox_file, 'msg_id'=>$id, 'pid'=>$show_id)).'\',\''.$id.'\')})');
+			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Delete this message?'),array($this,'remove_message'),array($box_file,$id)),'Delete');
+			$r->add_js('Event.observe(\''.$lid.'\',\'click\',function() {Apps_MailClient.preview(\''.$show_id.'\',\''.http_build_query(array('box'=>$box_file, 'msg_id'=>$id, 'pid'=>$show_id)).'\',\''.$id.'\')})');
 		}
 		
 		$th->assign('list', $this->get_html_of_module($gb,array(true),'automatic_display'));
@@ -276,10 +276,10 @@ class Apps_MailClient extends Module {
 	}
 	
 	private function set_open_mail_dir_callbacks(array & $str,$path='') {
-		$opened_mbox = str_replace(array('__at__','__dot__'),array('@','.'),$this->get_module_variable('opened_mbox'));
+		$opened_box = str_replace(array('__at__','__dot__'),array('@','.'),$this->get_module_variable('opened_box'));
 		foreach($str as $k=>& $v) {
 			$mpath = $path.'/'.$v['name'];
-			if($mpath == $opened_mbox) {
+			if($mpath == $opened_box) {
 				$v['visible'] = true;
 				$v['selected'] = true;
 			}
@@ -291,7 +291,7 @@ class Apps_MailClient extends Module {
 	}
 	
 	public function open_mail_dir_callback($path) {
-		$this->set_module_variable('opened_mbox',$path);
+		$this->set_module_variable('opened_box',$path);
 	}
 	
 	public function remove_message($box,$id) {
