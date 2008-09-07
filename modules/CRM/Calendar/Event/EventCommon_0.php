@@ -58,6 +58,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			if ($action == 'set_in_progress') location(array());
 
 			$values = $def;
+			$values['id'] = $id;
 			$values['date_and_time'] = date('Y-m-d H:i:s');
 			$values['title'] = Base_LangCommon::ts('CRM/Calendar/Event','Follow up: ').$values['title'];
 			$values['status'] = 0;
