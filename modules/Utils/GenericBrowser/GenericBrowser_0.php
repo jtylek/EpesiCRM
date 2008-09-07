@@ -518,7 +518,7 @@ class Utils_GenericBrowser extends Module {
 			return $ret;
 		} else {
 			foreach($this->columns as $k=>$v){
-				if (isset($v['search']) && isset($search[$v['search']]) && stripos(strip_tags($row[$k]),$search[$v['search']])===false) return false;
+				if (isset($v['search']) && isset($search[$v['search']]) && stripos(strip_tags(is_array($row[$k])?$row[$k]['value']:$row[$k]),$search[$v['search']])===false) return false;
 			}
 			return true;
 		}
@@ -747,7 +747,11 @@ class Utils_GenericBrowser extends Module {
 			$search_fields = array();
 			if ($this->en_actions && $actions_position==0) $mov = 1;
 			else $mov=0;
-			foreach($this->columns as $k=>$v)
+			foreach($this->columns as $k=>$v) {
+				if(isset($v['display']) && !$v['display']) {
+					$mov--;
+					continue;
+				}
 				if (isset($v['search'])) {
 					$form_s->addElement('hidden','search__'.$v['search'],'');
 					$default = isset($search[$v['search']])?$search[$v['search']]:$this->lang->ht('search keyword...');
@@ -756,6 +760,7 @@ class Utils_GenericBrowser extends Module {
 					$search_fields[$col_pos[$k]['pos']+$mov] = $in;
 					$search_on=true;
 				}
+			}
 			$theme->assign('search_fields', $search_fields);
 		}
 		if ($search_on) $form_s->addElement('submit','submit_search',$this->lang->ht('Search'));

@@ -79,14 +79,9 @@
 					{php}
 						$cols = $this->get_template_vars('cols');
 						$search_fields = $this->get_template_vars('search_fields');
-						$i=0;
 						foreach($cols as $k=>$v){
-							if(!isset($search_fields[$i])) {
-								$i++;
-								continue;
-							}
-							$cols[$k]['label'] = $cols[$k]['label'].$search_fields[$i];
-							$i++;
+							if(isset($search_fields[$k]))
+								$cols[$k]['label'] = $cols[$k]['label'].$search_fields[$k];
 						}
 						$this->assign('cols',$cols);
 					{/php}

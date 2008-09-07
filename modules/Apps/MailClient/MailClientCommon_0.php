@@ -84,7 +84,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		if($in==false) return false;
 		$ret = array();
 		$msg_id = -1;
-		while (($data = fgetcsv($in, 660)) !== false) { //teoretically max is 640+integer and commas
+		while (($data = fgetcsv($in, 700)) !== false) { //teoretically max is 640+integer and commas
 			$num = count($data);
 			if($num!=7) continue;
 			if($data[0]>$msg_id) $msg_id=$data[0];
@@ -195,7 +195,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$in = @fopen($box.'.idx','r');
 		if($in==false) return false;
 		$ret = array();
-		while (($data = fgetcsv($in, 660)) !== false) { //teoretically max is 640+integer and commas
+		while (($data = fgetcsv($in, 700)) !== false) { //teoretically max is 640+integer and commas
 			$num = count($data);
 			if($num!=7) continue;
 			$data[6]=1;
@@ -220,7 +220,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$in = @fopen($box.'.idx','r');
 		if($in==false) return false;
 		$ret = array();
-		while (($data = fgetcsv($in, 660)) !== false) { //teoretically max is 640+integer and commas
+		while (($data = fgetcsv($in, 700)) !== false) { //teoretically max is 640+integer and commas
 			$num = count($data);
 			if($num!=7) continue;
 			$ret[$data[0]] = array('from'=>$data[2], 'to'=>$data[3], 'date'=>$data[4], 'subject'=>$data[1], 'size'=>$data[5],'read'=>$data[6]);

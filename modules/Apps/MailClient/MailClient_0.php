@@ -47,7 +47,7 @@ class Apps_MailClient extends Module {
 		$gb = $this->init_module('Utils/GenericBrowser',null,'list');
 		$cols = array();
 		$cols[] = array('name'=>$this->lang->t('ID'), 'order'=>'id','width'=>'3', 'display'=>DEBUG);
-		$cols[] = array('name'=>$this->lang->t('Subject'), 'search'=>1, 'order'=>'subj','order_eregi'=>'^<a [^<>]*>([^<>]*)</a>$','width'=>'40');
+		$cols[] = array('name'=>$this->lang->t('Subject'), 'search'=>1, 'order'=>'subj','width'=>'40');
 		if(ereg('(Sent|Drafts)$',$box_file)) {
 			$to_col = true;
 			$cols[] = array('name'=>$this->lang->t('To'), 'search'=>1,'quickjump'=>1, 'order'=>'to','width'=>'32');
@@ -72,7 +72,7 @@ class Apps_MailClient extends Module {
 			$address = Apps_MailClientCommon::mime_header_decode($to_col?$data['to']:$data['from']);
 			$subject = strip_tags($subject);
 			if(strlen($subject)>40) $subject = Utils_TooltipCommon::create(substr($subject,0,38).'...',$subject);
-			$r->add_data($id,'<a href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.http_build_query(array('box'=>$box_file, 'msg_id'=>$id, 'pid'=>$preview_id)).'\',\''.$id.'\')" id="apps_mailclient_msg_'.$id.'" '.($data['read']?'':'style="font-weight:bold"').'>'.$subject.'</a>',htmlentities($address),array('value'=>Base_RegionalSettingsCommon::time2reg($data['date']), 'order_value'=>strtotime($data['date'])),array('style'=>'text-align:right','value'=>filesize_hr($data['size']), 'order_value'=>$data['size']));
+			$r->add_data($id,array('value'=>'<a href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.http_build_query(array('box'=>$box_file, 'msg_id'=>$id, 'pid'=>$preview_id)).'\',\''.$id.'\')" id="apps_mailclient_msg_'.$id.'" '.($data['read']?'':'style="font-weight:bold"').'>'.$subject.'</a>','order_value'=>$subject),htmlentities($address),array('value'=>Base_RegionalSettingsCommon::time2reg($data['date']), 'order_value'=>strtotime($data['date'])),array('style'=>'text-align:right','value'=>filesize_hr($data['size']), 'order_value'=>$data['size']));
 			$lid = 'mailclient_link_'.$id;
 			$r->add_action('href="javascript:void(0)" rel="'.$show_id.'" class="lbOn" id="'.$lid.'" ','View');
 			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Delete this message?'),array($this,'remove_message'),array($box_file,$id)),'Delete');
