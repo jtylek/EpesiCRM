@@ -684,22 +684,6 @@ class Utils_GenericBrowser extends Module {
 		$per_page = $this->get_module_variable('per_page');
 		$order = $this->get_module_variable('order');
 		if ($this->en_actions) $actions_position = Base_User_SettingsCommon::get('Utils/GenericBrowser','actions_position');
-		$col_pos = array();
-		$ret = DB::Execute('SELECT column_id, column_pos, display FROM generic_browser WHERE name=%s',$md5_id);
-		if($ret)
-			while($row = $ret->FetchRow()) {
-				$col_pos[$row['column_id']] = array('pos'=>$row['column_pos'], 'display'=>$row['display']);
-			}
-		if (count($col_pos)!=$this->columns_qty) {
-			$col_pos = null;
-			DB::Execute('DELETE FROM generic_browser WHERE name=%s', $md5_id);
-		}
-		if (!$col_pos) {
-			foreach(range(0, $this->columns_qty-1) as $v) {
-				$col_pos[] = array('pos'=>$v, 'display'=>1);
-				DB::Execute('INSERT INTO generic_browser(name,column_id, column_pos, display) VALUES(%s,%d,%d,1)',array($md5_id, $v, $v));
-			}
-		}
 
 		$ch_adv_search = $this->get_unique_href_variable('adv_search');
 		if (isset($ch_adv_search)) {
@@ -757,7 +741,7 @@ class Utils_GenericBrowser extends Module {
 					$default = isset($search[$v['search']])?$search[$v['search']]:$this->lang->ht('search keyword...');
 					$form_s->setDefaults(array('search__'.$v['search']=>$default));
 					$in = '<input value="'.$default.'" name="search__textbox_'.$v['search'].'" onfocus="if (this.value==\''.$this->lang->ht('search keyword...').'\') this.value=\'\';" onblur="if (this.value==\'\') this.value=\''.$this->lang->ht('search keyword...').'\'; document.forms[\''.$form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;" onkeydown="if (event.keyCode==13) {document.forms[\''.$form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;'.$form_s->get_submit_form_js().';}" />';
-					$search_fields[$col_pos[$k]['pos']+$mov] = $in;
+					$search_fields[$k+$mov] = $in;
 					$search_on=true;
 				}
 			}
@@ -810,54 +794,10 @@ class Utils_GenericBrowser extends Module {
 			}
 		}
 
-		// maintance mode -> action
-		if($this->isset_unique_href_variable('action'))
-			switch($this->get_unique_href_variable('action')) {
-				case 'reset_order':
-					$this->set_module_variable('order',$this->get_module_variable('default_order'));
-					$this->get_order();
-					break;
-				case 'enable':
-					DB::Execute('UPDATE generic_browser SET display=1 WHERE name=%s AND column_id=%d',array($md5_id,$this->get_unique_href_variable('id')));
-					break;
-				case 'disable':
-					DB::Execute('UPDATE generic_browser SET display=0 WHERE name=%s AND column_id=%d',array($md5_id,$this->get_unique_href_variable('id')));
-					break;
-				case 'move':
-					$new_id = $this->get_unique_href_variable('new_id');
-					$rid = $this->get_unique_href_variable('id');
-					$old_id = DB::GetOne('SELECT column_pos FROM generic_browser WHERE column_id=%d AND name=%s', array($rid, $md5_id));
-					if($new_id==$old_id) break;
-					if($new_id<$old_id) {
-						for($i=$new_id; $i<$old_id; $i++)
-							DB::Execute('UPDATE generic_browser SET column_pos=column_pos+1 WHERE name=%s AND column_pos=%d',array($md5_id,$i));
-						DB::Execute('UPDATE generic_browser SET column_pos=%d WHERE name=%s AND column_id=%d',array($new_id,$md5_id,$rid));
-					} else {
-						for($i=$new_id; $i>$old_id; $i--)
-							DB::Execute('UPDATE generic_browser SET column_pos=column_pos-1 WHERE name=%s AND column_pos=%d',array($md5_id,$i));
-						DB::Execute('UPDATE generic_browser SET column_pos=%d WHERE name=%s AND column_id=%d',array($new_id,$md5_id,$rid));
-					}
-					break;
-			}
-
 		$headers = array();
 		if ($this->en_actions) {
 			if ($actions_position==0) $headers[-1] = array('label'=>'<span>'.$this->lang->t('Actions').'</span>','attrs'=>'style="width: 0%"');
 			else $headers[count($this->columns)] = array('label'=>'<span>'.$this->lang->t('Actions').'</span>','attrs'=>'style="width: 0%"');
-		}
-
-		if(Base_AclCommon::i_am_sa() && Base_MaintenanceModeCommon::get_mode()) {
-			foreach($this->columns as $i=>$v) {
-				if($col_pos[$i]['display']) $enabled = '<a '.$this->create_unique_href(array('action'=>'disable', 'id'=>$i)).'>'.$this->lang->t('enabled').'</a>';
-				else $enabled = '<a '.$this->create_unique_href(array('action'=>'enable', 'id'=>$i)).'>'.$this->lang->t('disabled').'</a>';
-				if($col_pos[$i]['pos']>0) $left = '<a '.$this->create_unique_href(array('action'=>'move', 'id'=>$i, 'new_id'=>$col_pos[$i]['pos']-1)).'><=</a> ';
-				else $left = '';
-				if($col_pos[$i]['pos']<$this->columns_qty-1) $right = ' <a '.$this->create_unique_href(array('action'=>'move', 'id'=>$i, 'new_id'=>$col_pos[$i]['pos']+1)).'>=></a>';
-				else $right = '';
-
-				if(!isset($headers[$col_pos[$i]['pos']])) $headers[$col_pos[$i]['pos']] = array();
-				$headers[$col_pos[$i]['pos']]['label'] = $left.$enabled.$right.'<hr>';
-			}
 		}
 
 		$all_width = 0;
@@ -873,18 +813,18 @@ class Utils_GenericBrowser extends Module {
 		$is_order = false;
 		$adv_history = Base_User_SettingsCommon::get('Utils/GenericBrowser','adv_history');
 		foreach($this->columns as $v) {
-			if((!Base_AclCommon::i_am_sa() || !Base_MaintenanceModeCommon::get_mode()) && ((array_key_exists('display', $v) && $v['display']==false) || !$col_pos[$i]['display'])) {
+			if (array_key_exists('display', $v) && $v['display']==false) {
 				$i++;
 				continue;
 			}
 			if(isset($v['order'])) $is_order = true;
-			if(!isset($headers[$col_pos[$i]['pos']])) $headers[$col_pos[$i]['pos']] = array('label'=>'');
+			if(!isset($headers[$i])) $headers[$i] = array('label'=>'');
 			if (!$adv_history && $v['name']==$order[0]['column']) $sort = 'style="padding-right: 12px; background-image: url('.Base_ThemeCommon::get_template_file('Utils_GenericBrowser','sort-'.strtolower($order[0]['direction']).'ending.png').'); background-repeat: no-repeat; background-position: right;"';
 			else $sort = '';
-			$headers[$col_pos[$i]['pos']]['label'] .= (isset($v['preppend'])?$v['preppend']:'').(isset($v['order'])?'<a '.$this->create_unique_href(array('change_order'=>$v['name'])).'>' . '<span '.$sort.'>' . $v['name'] . '</span></a>':'<span>'.$v['name'].'</span>').(isset($v['append'])?$v['append']:'');
-			//if ($v['search']) $headers[$col_pos[$i]['pos']] .= $form_array['search__'.$v['search']]['label'].$form_array['search__'.$v['search']]['html'];
-			$headers[$col_pos[$i]['pos']]['attrs'] = 'style="width: '.intval(100*$v['width']/$all_width).'%" ';
-			$headers[$col_pos[$i]['pos']]['attrs'] .= 'nowrap="1" ';
+			$headers[$i]['label'] .= (isset($v['preppend'])?$v['preppend']:'').(isset($v['order'])?'<a '.$this->create_unique_href(array('change_order'=>$v['name'])).'>' . '<span '.$sort.'>' . $v['name'] . '</span></a>':'<span>'.$v['name'].'</span>').(isset($v['append'])?$v['append']:'');
+			//if ($v['search']) $headers[$i] .= $form_array['search__'.$v['search']]['label'].$form_array['search__'.$v['search']]['html'];
+			$headers[$i]['attrs'] = 'style="width: '.intval(100*$v['width']/$all_width).'%" ';
+			$headers[$i]['attrs'] .= 'nowrap="1" ';
 			$i++;
 		}
 		ksort($headers);
@@ -916,26 +856,26 @@ class Utils_GenericBrowser extends Module {
 			}
 			foreach($r as $k=>$v) {
 				if (is_array($v) && isset($v['dummy'])) $v['style'] = 'display:none;';
-				if((!Base_AclCommon::i_am_sa() || !Base_MaintenanceModeCommon::get_mode()) && ((array_key_exists('display',$this->columns[$k]) && $this->columns[$k]['display']==false) || !$col_pos[$k]['display'])) continue;
-				if (is_array($v) && isset($v['attrs'])) $col[$col_pos[$k]['pos']]['attrs'] = $v['attrs'];
-				else $col[$col_pos[$k]['pos']]['attrs'] = '';
+				if (array_key_exists('display',$this->columns[$k]) && $this->columns[$k]['display']==false) continue;
+				if (is_array($v) && isset($v['attrs'])) $col[$k]['attrs'] = $v['attrs'];
+				else $col[$k]['attrs'] = '';
 				if (!is_array($v)) $v = array('value'=>$v);
 				if (trim(strip_tags($v['value']),' ')=='')
-					$col[$col_pos[$k]['pos']]['label'] = $v['value'].'&nbsp;';
+					$col[$k]['label'] = $v['value'].'&nbsp;';
 				else
-					$col[$col_pos[$k]['pos']]['label'] = $v['value'];
-				$col[$col_pos[$k]['pos']]['attrs'] .= isset($v['style'])? ' style="'.$v['style'].'"':'';
-				if (isset($quickjump_col) && $k==$quickjump_col) $col[$col_pos[$k]['pos']]['attrs'] .= ' class="Utils_GenericBrowser__quickjump"';
-				if ((!isset($this->columns[$k]['wrapmode']) || $this->columns[$k]['wrapmode']!='cut') && isset($v['hint'])) $col[$col_pos[$k]['pos']]['attrs'] .= ' title="'.$v['hint'].'"';
-				$col[$col_pos[$k]['pos']]['attrs'] .= (isset($this->columns[$k]['wrapmode']) && $this->columns[$k]['wrapmode']=='nowrap')?' nowrap':'';
+					$col[$k]['label'] = $v['value'];
+				$col[$k]['attrs'] .= isset($v['style'])? ' style="'.$v['style'].'"':'';
+				if (isset($quickjump_col) && $k==$quickjump_col) $col[$k]['attrs'] .= ' class="Utils_GenericBrowser__quickjump"';
+				if ((!isset($this->columns[$k]['wrapmode']) || $this->columns[$k]['wrapmode']!='cut') && isset($v['hint'])) $col[$k]['attrs'] .= ' title="'.$v['hint'].'"';
+				$col[$k]['attrs'] .= (isset($this->columns[$k]['wrapmode']) && $this->columns[$k]['wrapmode']=='nowrap')?' nowrap':'';
 				$max_width = 130*$this->columns[$k]['width']/$all_width*(7+(isset($this->columns[$k]['fontsize'])?$this->columns[$k]['fontsize']:0));
 				if (isset($this->columns[$k]['wrapmode']) && $this->columns[$k]['wrapmode']=='cut'){
-					if (strlen($col[$col_pos[$k]['pos']]['label'])>$max_width){
-						if (is_array($v) && isset($v['hint'])) $col[$col_pos[$k]['pos']]['attrs'] .= ' title="'.$col[$col_pos[$k]['pos']]['label'].': '.$v['hint'].'"';
-						else $col[$col_pos[$k]['pos']]['attrs'] .= ' title="'.$col[$col_pos[$k]['pos']]['label'].'"';
-						$col[$col_pos[$k]['pos']]['label'] = substr($col[$col_pos[$k]['pos']]['label'],0,$max_width-3).'...';
-					} elseif (is_array($v) && isset($v['hint'])) $col[$col_pos[$k]['pos']]['attrs'] .= ' title="'.$v['hint'].'"';
-					$col[$col_pos[$k]['pos']]['attrs'] .= ' nowrap';
+					if (strlen($col[$k]['label'])>$max_width){
+						if (is_array($v) && isset($v['hint'])) $col[$k]['attrs'] .= ' title="'.$col[$k]['label'].': '.$v['hint'].'"';
+						else $col[$k]['attrs'] .= ' title="'.$col[$k]['label'].'"';
+						$col[$k]['label'] = substr($col[$k]['label'],0,$max_width-3).'...';
+					} elseif (is_array($v) && isset($v['hint'])) $col[$k]['attrs'] .= ' title="'.$v['hint'].'"';
+					$col[$k]['attrs'] .= ' nowrap';
 				}
 			}
 			ksort($col);
