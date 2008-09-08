@@ -633,6 +633,10 @@ abstract class Module extends ModulePrimitive {
 		return $this->create_unique_href(array('back'=>$i));
 	}
 
+	public final function create_back_href_js($i=1,$indicator=null,$mode=null) {
+		return $this->create_unique_href_js(array('back'=>$i));
+	}
+
 	/**
 	 * Sets reload location to previous page display.
 	 * Use is_back to control when this method was called.

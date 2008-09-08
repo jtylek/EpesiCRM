@@ -57,6 +57,7 @@ class Base_HomePageCommon extends ModuleCommon {
 
 	public static function homepage_icon() {
 		Base_ActionBarCommon::add('home','Home',Module::create_href(array('Base_HomePage_load'=>'1')));
+		Utils_ShortcutCommon::add(array('Ctrl','H'), 'function(){'.Module::create_href_js(array('Base_HomePage_load'=>'1')).'}');
 	}
 }
 

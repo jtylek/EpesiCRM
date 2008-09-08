@@ -52,6 +52,7 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 		return array(
 			array('name'=>'Utils/CommonData', 'version'=>0), 
 			array('name'=>'Utils/CurrencyField', 'version'=>0), 
+			array('name'=>'Utils/Shortcut', 'version'=>0), 
 			array('name'=>'Utils/Tooltip', 'version'=>0), 
 			array('name'=>'Utils/BookmarkBrowser', 'version'=>0), 
 			array('name'=>'Utils/GenericBrowser', 'version'=>0), 

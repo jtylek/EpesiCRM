@@ -351,6 +351,10 @@ function update_from_1_0_0rc2_to_1_0_0rc3() {
 	if (ModuleManager::is_installed('Libs/TCPDF')==-1) {
 		ModuleManager::install('Libs_TCPDF',0,false);
 	}
+	if (ModuleManager::is_installed('Utils/RecordBrowser')!=-1 ||
+		ModuleManager::is_installed('Base/HomePage')!=-1) {
+		ModuleManager::install('Utils_Shortcut',0,false);
+	}
 	ModuleManager::create_load_priority_array();
 	ob_end_clean();
 
@@ -386,6 +390,15 @@ function update_from_1_0_0rc2_to_1_0_0rc3() {
 				DB::CreateIndex($t.'_'.$v.'__start__idx', $t.'_'.$v, $t.'_id');
 			}
 		}
+
+		$tabs = DB::GetAssoc('SELECT tab, tab FROM recordbrowser_table_properties');
+		foreach ($tabs as $t) {
+			$fields = DB::GetAssoc('SELECT field, param FROM '.$t.'_field WHERE type="multiselect" OR type="select"');
+			foreach ($fields as $f=>$p) {
+				DB::Execute('UPDATE '.$t.'_field SET param=%s WHERE field=%s', array(str_replace('First Name|Last Name','Last Name|First Name',$p),$f));
+			}
+		}
+
 		DB::Execute('SET FOREIGN_KEY_CHECKS=1');
 	}
 

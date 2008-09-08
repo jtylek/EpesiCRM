@@ -48,6 +48,7 @@ class Utils_RecordBrowser extends Module {
 	private $advanced = array();
 	public static $browsed_records = null;
 	public static $access_override = array('tab'=>'', 'id'=>'');
+	private $navigation_executed = false;
 	
 	public function get_display_method($ar) {
 		return isset($this->display_callback_table[$ar])?$this->display_callback_table[$ar]:null;
@@ -138,8 +139,10 @@ class Utils_RecordBrowser extends Module {
 			return;
 		}
 		$this->is_on_main_page = true;
-		if ($this->get_access('add')!==false)
+		if ($this->get_access('add')!==false) {
 			Base_ActionBarCommon::add('add','New', $this->create_callback_href(array($this,'navigate'),array('view_entry', 'add', null, $this->custom_defaults)));
+			Utils_ShortcutCommon::add(array('Ctrl','N'), 'function(){'.$this->create_callback_href_js(array($this,'navigate'),array('view_entry', 'add', null, $this->custom_defaults)).'}');
+		}
 
 		$filters = $this->show_filters();
 
@@ -317,6 +320,7 @@ class Utils_RecordBrowser extends Module {
 		$args = func_get_args();
 		array_shift($args);
 		$x->push_main('Utils/RecordBrowser',$func,$args,array(self::$clone_result!==null?self::$clone_tab:$this->tab));
+		$this->navigation_executed = true;
 		return false;
 	}
 	public function back(){
@@ -611,18 +615,22 @@ class Utils_RecordBrowser extends Module {
 		return true;
 	}
 	public function view_entry($mode='view', $id = null, $defaults = array()) {
+		if ($this->navigation_executed) {
+			$this->navigation_executed = false;
+			return true;
+		}
 		$theme = $this->init_module('Base/Theme');
 		if ($this->isset_module_variable('id')) {
 			$id = $this->get_module_variable('id');
 			$this->unset_module_variable('id');
 		}
 		if ($mode=='view') {
-			if (self::$browsed_records!==null)
-				if (self::$browsed_records['tab']==$this->tab)
-					$this->set_module_variable('browsed_records',self::$browsed_records);
+			if (self::$browsed_records!==null &&
+				isset(self::$browsed_records['tab']) &&
+				self::$browsed_records['tab']==$this->tab)
+				$this->set_module_variable('browsed_records',self::$browsed_records);
 			$browsed_records = $this->get_module_variable('browsed_records',null);
 			if ($browsed_records!=null) {
-				$time = microtime(true);
 				$this->set_module_variable('id',$id);
 				if (!is_array($browsed_records['crits'])) $browsed_records['crits'] = array();
 				if (!is_array($browsed_records['order'])) $browsed_records['order'] = array();
@@ -728,10 +736,18 @@ class Utils_RecordBrowser extends Module {
 			}
 			$this->dirty_read_changes($id, $time_from);
 		}
-		if ($mode=='edit') $this->set_module_variable('edit_start_time',$time);
+		if ($mode=='edit' || $mode=='add') {
+			Utils_ShortcutCommon::add(array('Ctrl','S'), 'function(){'.$form->get_submit_form_js().'}');
+		}
+		if ($mode=='edit') {
+			$this->set_module_variable('edit_start_time',$time);
+		}
 
 		if ($mode=='view') {
-			if ($this->get_access('edit',$this->record)) Base_ActionBarCommon::add('edit', 'Edit', $this->create_callback_href(array($this,'navigate'), array('view_entry','edit',$id)));
+			if ($this->get_access('edit',$this->record)) {
+				Base_ActionBarCommon::add('edit', 'Edit', $this->create_callback_href(array($this,'navigate'), array('view_entry','edit',$id)));
+				Utils_ShortcutCommon::add(array('Ctrl','E'), 'function(){'.$this->create_callback_href_js(array($this,'navigate'), array('view_entry','edit',$id)).'}');
+			}
 			if ($this->get_access('delete',$this->record)) Base_ActionBarCommon::add('delete', 'Delete', $this->create_confirm_callback_href($this->lang->t('Are you sure you want to delete this record?'),array($this,'delete_record'),array($id)));
 			Base_ActionBarCommon::add('clone','Clone', $this->create_confirm_callback_href($this->lang->ht('You are about to create a copy of this record. Do you want to continue?'),array($this,'clone_record'),array($id)));
 			Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
@@ -739,6 +755,7 @@ class Utils_RecordBrowser extends Module {
 			Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
 			Base_ActionBarCommon::add('delete', 'Cancel', $this->create_back_href());
 		}
+		Utils_ShortcutCommon::add(array('esc'), 'function(){'.$this->create_back_href_js().'}');
 
 		if ($mode!='add') {
 			$isfav_query_result = DB::GetOne('SELECT user_id FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%d', array(Acl::get_user(), $id));
