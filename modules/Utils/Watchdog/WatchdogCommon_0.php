@@ -30,9 +30,10 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		}
 		return $ret;
 	}
-	public static function get_subscribers($category_name, $id) {
+	public static function get_subscribers($category_name, $id=null) {
 		$category_id = self::get_category_id($category_name);
-		$ret = DB::GetAssoc('SELECT user_id,user_id FROM utils_watchdog_subscription WHERE category_id=%d AND internal_id=%s', array($category_id, $id));
+		if ($id!==null) $ret = DB::GetAssoc('SELECT user_id,user_id FROM utils_watchdog_subscription WHERE category_id=%d AND internal_id=%s', array($category_id, $id));
+		else $ret = DB::GetAssoc('SELECT user_id,user_id FROM utils_watchdog_category_subscription WHERE category_id=%d', array($category_id));
 		return $ret;
 	}
 	public static function get_category_id($category_name) {
@@ -42,10 +43,11 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		if (!$ret && is_numeric($category_name)) return $category_name;  
 		return $cache[$category_name] = $ret;
 	}
-	private static function check_if_user_subscribes($user, $category_name, $id) {
+	private static function check_if_user_subscribes($user, $category_name, $id=null) {
 		$category_id = self::get_category_id($category_name);
 		if (!$category_id) return;
-		$last_seen = DB::GetOne('SELECT last_seen_event FROM utils_watchdog_subscription WHERE user_id=%d AND internal_id=%d AND category_id=%d',array($user,$id,$category_id));
+		if ($id!==null) $last_seen = DB::GetOne('SELECT last_seen_event FROM utils_watchdog_subscription WHERE user_id=%d AND internal_id=%d AND category_id=%d',array($user,$id,$category_id));
+		else $last_seen = DB::GetOne('SELECT 1 FROM utils_watchdog_category_subscription WHERE user_id=%d AND category_id=%d',array($user,$category_id));
 		return ($last_seen!==false && $last_seen!==null);
 	}
 	// ****************** registering ************************
@@ -70,7 +72,14 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		if (!$category_id) return;
 		DB::Execute('INSERT INTO utils_watchdog_event (category_id, internal_id, message) VALUES (%d,%d,%s)',array($category_id,$id,$message));
 		Utils_WatchdogCommon::notified($category_name,$id);
-		//TODO: notify those subscribed to the category
+		$count = DB::GetOne('SELECT COUNT(*) FROM utils_watchdog_event WHERE category_id=%d AND internal_id=%d', array($category_id,$id));
+		//trigger_error($count.'!');
+		if ($count==1) {
+			print('!!!!');
+			$subscribers = self::get_subscribers($category_id);
+			foreach ($subscribers as $s)
+				self::user_subscribe($s, $category_name, $id);
+		}
 	}
 	// *************************** Subscription manipulation *******************
 	public static function user_purge_notifications($user_id, $category_name) {
@@ -98,14 +107,19 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		if ($user_id==Acl::get_user()) self::notified($category_name, $id);
 	}
 
-	public static function user_change_subscription($user_id, $category_name, $id) {
+	public static function user_change_subscription($user_id, $category_name, $id=null) {
 		$category_id = self::get_category_id($category_name);
 		if (!$category_id) return;
-		$already_subscribed = DB::GetOne('SELECT last_seen_event FROM utils_watchdog_subscription WHERE user_id=%d AND internal_id=%d AND category_id=%d',array($user_id,$id,$category_id));
-		if ($already_subscribed!==false && $already_subscribed!==null) DB::Execute('DELETE FROM utils_watchdog_subscription WHERE user_id=%d AND internal_id=%d AND category_id=%d',array($user_id,$id,$category_id));
-		else { 
-			DB::Execute('INSERT INTO utils_watchdog_subscription (last_seen_event, user_id, internal_id, category_id) VALUES (%d,%d,%d,%d)',array(-1,$user_id,$id,$category_id));
-			if ($user_id==Acl::get_user()) self::notified($category_name, $id);
+		$already_subscribed = self::check_if_user_subscribes($user_id,$category_id,$id);
+		if ($id===null) {
+			if ($already_subscribed!==false && $already_subscribed!==null) DB::Execute('DELETE FROM utils_watchdog_category_subscription WHERE user_id=%d AND category_id=%d',array($user_id,$category_id));
+			else DB::Execute('INSERT INTO utils_watchdog_category_subscription (user_id, category_id) VALUES (%d,%d)',array($user_id,$category_id));
+		} else {
+			if ($already_subscribed!==false && $already_subscribed!==null) DB::Execute('DELETE FROM utils_watchdog_subscription WHERE user_id=%d AND internal_id=%d AND category_id=%d',array($user_id,$id,$category_id));
+			else { 
+				DB::Execute('INSERT INTO utils_watchdog_subscription (last_seen_event, user_id, internal_id, category_id) VALUES (%d,%d,%d,%d)',array(-1,$user_id,$id,$category_id));
+				if ($user_id==Acl::get_user()) self::notified($category_name, $id);
+			}
 		}
 	}
 
@@ -130,18 +144,17 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		return $ret;
 	}
 	
-	public static function user_get_change_subscr_href($user, $category_name, $id) {
+	public static function user_get_change_subscr_href($user, $category_name, $id=null) {
 		$category_id = self::get_category_id($category_name);
 		if (!$category_id) return;
-//		$subscribed = self::check_if_user_subscribes($user, $category_name, $id);
 		if (isset($_REQUEST['utils_watchdog_category']) &&
 			isset($_REQUEST['utils_watchdog_user']) &&  
-			isset($_REQUEST['utils_watchdog_id']) &&
 			$_REQUEST['utils_watchdog_category']==$category_id &&
-			$_REQUEST['utils_watchdog_user']==$user &&  
-			$_REQUEST['utils_watchdog_id']==$id) {
-//			if ($subscribed) self::user_unsubscribe($user, $category_name, $id);	
-//			else self::user_subscribe($user, $category_name, $id);
+			$_REQUEST['utils_watchdog_user']==$user &&
+			((isset($_REQUEST['utils_watchdog_id']) && 
+			$_REQUEST['utils_watchdog_id']==$id) || 
+			(!isset($_REQUEST['utils_watchdog_id']) &&
+			$id===null))) {
 			self::user_change_subscription($user, $category_name, $id);
 			location(array());	
 		}
@@ -163,10 +176,10 @@ class Utils_WatchdogCommon extends ModuleCommon {
 	public static function check_if_notified($category_name, $id) {
 		return self::user_check_if_notified(Acl::get_user(), $category_name, $id);
 	}
-	public static function get_change_subscr_href($category_name, $id) {
+	public static function get_change_subscr_href($category_name, $id=null) {
 		return self::user_get_change_subscr_href(Acl::get_user(), $category_name, $id);
 	}
-	public static function add_actionbar_change_subscription_button($category_name, $id) {
+	public static function add_actionbar_change_subscription_button($category_name, $id=null) {
 		$category_id = self::get_category_id($category_name);
 		if (!$category_id) return;
 		$href = self::get_change_subscr_href($category_name, $id);

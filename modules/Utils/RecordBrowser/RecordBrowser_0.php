@@ -139,6 +139,7 @@ class Utils_RecordBrowser extends Module {
 			print($this->lang->t('You are not authorised to browse this data.'));
 			return;
 		}
+		Utils_WatchdogCommon::add_actionbar_change_subscription_button($this->tab);
 		$this->is_on_main_page = true;
 		if ($this->get_access('add')!==false) {
 			Base_ActionBarCommon::add('add','New', $this->create_callback_href(array($this,'navigate'),array('view_entry', 'add', null, $this->custom_defaults)));
