@@ -27,7 +27,7 @@ class CRM_FiltersInstall extends ModuleInstall {
 		$ret &= DB::CreateTable('crm_filters_contacts','
 			group_id I4 NOTNULL,
 			contact_id I4',
-			array('constraints'=>', FOREIGN KEY (group_id) REFERENCES crm_filters_group(id), FOREIGN KEY (contact_id) REFERENCES contact(ID)'));
+			array('constraints'=>', FOREIGN KEY (group_id) REFERENCES crm_filters_group(id)'));
 		if(!$ret){
 			print('Unable to create table crm_filters_contacts.<br>');
 			return false;

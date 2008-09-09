@@ -437,9 +437,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$fields_types = '%T,%d,%d';
 		$vals = array(date('Y-m-d G:i:s'), Acl::get_user(), 1);
 		foreach(self::$table_rows as $field => $args) {
+			if (!isset($values[$args['id']]) || $values[$args['id']]==='') continue;
+			if ($args['type']=='multiselect' && empty($values[$args['id']])) continue;
 			if ($args['type']=='multiselect')
 				$values[$args['id']] = self::encode_multi($values[$args['id']]);
-			if (!isset($values[$args['id']]) || $values[$args['id']]==='') continue;
 			$fields_types .= ','.self::get_sql_type($args['type']);
 			$fields .= ',f_'.$args['id'];
 			$vals[] = $values[$args['id']];

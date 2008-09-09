@@ -593,23 +593,24 @@ function update_from_1_0_0rc2_to_1_0_0rc3() {
 				$values = array();
 		
 				$row = $ret->FetchRow();
-				if (!$row) continue;
-				$l_f = $row['field'];
-				$l_eid = $row['edit_id'];
-				while ($row) {
-					$values[] = $row['old_value'];
-					$row = $ret->FetchRow();
-					if ($l_f!=$row['field'] || $l_eid!=$row['edit_id']) {
-						if (count($values)==1) {
-							$values = array(trim($values[0], '_'));
-						} 
-						if (count($values)==1 && $values[0]=='') $insert = ''; 
-						else $insert = '__'.implode('__',$values).'__';
-						DB::Execute('DELETE FROM '.$t.'_edit_history_data WHERE field=%s AND edit_id=%d', array($l_f, $l_eid));
-						DB::Execute('INSERT INTO '.$t.'_edit_history_data(edit_id,field,old_value) VALUES (%d, %s, %s)', array($l_eid, $l_f, $insert));
-						$values = array();
-						$l_f = $row['field'];
-						$l_eid = $row['edit_id'];
+				if ($row) {
+					$l_f = $row['field'];
+					$l_eid = $row['edit_id'];
+					while ($row) {
+						$values[] = $row['old_value'];
+						$row = $ret->FetchRow();
+						if ($l_f!=$row['field'] || $l_eid!=$row['edit_id']) {
+							if (count($values)==1) {
+								$values = array(trim($values[0], '_'));
+							} 
+							if (count($values)==1 && $values[0]=='') $insert = ''; 
+							else $insert = '__'.implode('__',$values).'__';
+							DB::Execute('DELETE FROM '.$t.'_edit_history_data WHERE field=%s AND edit_id=%d', array($l_f, $l_eid));
+							DB::Execute('INSERT INTO '.$t.'_edit_history_data(edit_id,field,old_value) VALUES (%d, %s, %s)', array($l_eid, $l_f, $insert));
+							$values = array();
+							$l_f = $row['field'];
+							$l_eid = $row['edit_id'];
+						}
 					}
 				}
 			}

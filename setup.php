@@ -11,22 +11,22 @@ ob_start();
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-      <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
-      <title>epesi setup</title>
-      <link href="setup.css" type="text/css" rel="stylesheet"/>
+	  <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+	  <title>epesi setup</title>
+	  <link href="setup.css" type="text/css" rel="stylesheet"/>
 </head>
 <body>
-        <table id="banner" border="0" cellpadding="0" cellspacing="0">
-            <tr>
-                <td class="image">&nbsp;</td>
-                <td class="back">&nbsp;</td>
-            </tr>
-        </table>
-        <br>
-        <center>
-        <table id="main" border="0" cellpadding="0" cellspacing="0">
-            <tr>
-                <td>
+		<table id="banner" border="0" cellpadding="0" cellspacing="0">
+			<tr>
+				<td class="image">&nbsp;</td>
+				<td class="back">&nbsp;</td>
+			</tr>
+		</table>
+		<br>
+		<center>
+		<table id="main" border="0" cellpadding="0" cellspacing="0">
+			<tr>
+				<td>
 <?php
 /**
  * Check access to working directories
@@ -46,12 +46,12 @@ require_once('modules/Libs/QuickForm/requires.php');
 if(!isset($_GET['license'])) {
 	print('<h1>Welcome to epesi framework setup!<br></h1><h2>Please read and accept license</h2><br><div class="license">');
 	license();
-        print('</div><br><a class="button" href="setup.php?license=1">Accept</a>');
+		print('</div><br><a class="button" href="setup.php?license=1">Accept</a>');
 ?>
 
 <?php
 }
-    else {
+	else {
 	$form = new HTML_QuickForm('serverform','post',$_SERVER['PHP_SELF'].'?'.http_build_query($_GET));
 	$form -> addElement('header', null, 'Database server settings');
 	$form -> addElement('text', 'host', 'Database server address');
@@ -75,82 +75,76 @@ if(!isset($_GET['license'])) {
 	$form->setRequiredNote('<span class="required_note_star">*</span> <span class="required_note">denotes required field</span>');
 	$form -> addElement('html','<tr><td colspan=2><br /><b>Any existing tables will be dropped!</b><br />The database will be populated with data.<br />This operation can take several minutes.</td></tr>');
 	if($form -> validate()) {
-	    $engine = $form -> exportValue('engine');
-	    switch($engine) {
-		case 'postgres': {
-		    $host = $form -> exportValue('host');
-		    $user = $form -> exportValue('user');
-		    $pass = $form -> exportValue('password');
-		    $link = pg_connect("host=$host user=$user password=$pass dbname=postgres");
-		    if(!$link) {
- 				echo('Could not connect.');
-		    }
-                    else {
-			$dbname = $form -> exportValue('db');
-			if($form->exportValue('newdb')==1) {
-			    $sql = 'CREATE DATABASE '.$dbname;
-			    if (pg_query($link, $sql)) {
-   				//echo "Database '$dbname' created successfully\n";
-   				write_config($host,$user,$pass,$dbname,$engine);
-			    }
-                            else {
- 	  			echo 'Error creating database: ' . pg_last_error() . "\n";
-                            }
-   			    pg_close($link);
-			}
-                        else {
-			    write_config($host, $user, $pass, $dbname, $engine);
-                        }
-		    }
-                }
-                break;
-		case 'mysqlt': {
-		    $host = $form->exportValue('host');
-		    $user = $form->exportValue('user');
-		    $pass = $form->exportValue('password');
-		    $link = @mysql_connect($host,$user,$pass);
-		    if (!$link) {
- 			echo('Could not connect: ' . mysql_error());
-		    }
-                    else {
-			$dbname = $form->exportValue('db');
-			if($form->exportValue('newdb')==1) {
-			    $sql = 'CREATE DATABASE '.$dbname;
-			    if(mysql_query($sql, $link)) {
-   				//echo "Database '$dbname' created successfully\n";
-   				write_config($host,$user,$pass,$dbname,$engine);
-			    }
-                            else {
-	   			echo 'Error creating database: ' . mysql_error() . "\n";
-                            }
-   			    mysql_close($link);
+		$engine = $form -> exportValue('engine');
+		switch($engine) {
+			case 'postgres': 
+				$host = $form -> exportValue('host');
+				$user = $form -> exportValue('user');
+				$pass = $form -> exportValue('password');
+				$link = pg_connect("host=$host user=$user password=$pass dbname=postgres");
+				if(!$link) {
+	 				echo('Could not connect.');
+				} else {
+					$dbname = $form -> exportValue('db');
+					if($form->exportValue('newdb')==1) {
+						$sql = 'CREATE DATABASE '.$dbname;
+						if (pg_query($link, $sql)) {
+			   				//echo "Database '$dbname' created successfully\n";
+			   				write_config($host,$user,$pass,$dbname,$engine);
+						} else {
+		 	  				echo 'Error creating database: ' . pg_last_error() . "\n";
+		 	  			}
+		   				pg_close($link);
+					} else {
+						write_config($host, $user, $pass, $dbname, $engine);
+					}
+				}
+			break;
+		case 'mysqlt':
+			$host = $form->exportValue('host');
+			$user = $form->exportValue('user');
+			$pass = $form->exportValue('password');
+			$link = @mysql_connect($host,$user,$pass);
+			if (!$link) {
+				echo('Could not connect: ' . mysql_error());
 			} else {
-                  $result=mysql_select_db($dbname, $link);
-                  if (!$result) {
-                        echo 'Database does not exist: ' . mysql_error() . "\n";
-                        echo '<br />Please create the database first <br />or select option <b>Create new database</b>';
-                  } else {
-                        write_config($host, $user, $pass, $dbname, $engine);
-                         }
-                  }
-		    }
-                }
-                break;
-	    }
+				$dbname = $form->exportValue('db');
+				if($form->exportValue('newdb')==1) {
+					$sql = 'CREATE DATABASE '.$dbname;
+					if(mysql_query($sql, $link)) {
+	   				//echo "Database '$dbname' created successfully\n";
+	   				write_config($host,$user,$pass,$dbname,$engine);
+					}
+								else {
+		   			echo 'Error creating database: ' . mysql_error() . "\n";
+								}
+	   				mysql_close($link);
+				} else {
+					$result=mysql_select_db($dbname, $link);
+					if (!$result) {
+						echo 'Database does not exist: ' . mysql_error() . "\n";
+						echo '<br />Please create the database first <br />or select option <b>Create new database</b>';
+					} else {
+						write_config($host, $user, $pass, $dbname, $engine);
+					}
+				}
+			}
+			break;
+		}
 	}
 
 	$renderer =& $form->defaultRenderer();
 	$renderer->setHeaderTemplate("\n\t<tr>\n\t\t<td style=\"white-space: nowrap; height: 20px; vertical-align: middle; background-color: #336699; background-image: url('images/header-blue.png'); background-repeat: repeat-x; color: #FFFFFF; font-weight: normal; text-align: center;\" align=\"left\" valign=\"top\" colspan=\"2\">{header}</td>\n\t</tr>");
 	$renderer->setElementTemplate("\n\t<tr>\n\t\t<td align=\"right\" valign=\"top\"><!-- BEGIN required --><span style=\"color: #ff0000\">*</span><!-- END required -->{label}</td>\n\t\t<td valign=\"top\" align=\"left\"><!-- BEGIN error --><span style=\"color: #ff0000\">{error}</span><br /><!-- END error -->\t{element}</td>\n\t</tr>");
-        $form->accept($renderer);
-        print($renderer->toHtml());
-    }
+		$form->accept($renderer);
+		print($renderer->toHtml());
+	}
 
 ///////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////
 function write_config($host, $user, $pass, $dbname, $engine) {
-    $c = & fopen('data/config.php', 'w');
-    fwrite($c, '<?php
+	$c = & fopen('data/config.php', 'w');
+	fwrite($c, '<?php
 /**
  * Config file
  *
@@ -262,6 +256,21 @@ function clean_database() {
 	$tables = array();
 	if(DATABASE_DRIVER=='mysqlt' || DATABASE_DRIVER=='mysqli')
 		DB::Execute('SET FOREIGN_KEY_CHECKS=0');
+	
+	if(DATABASE_DRIVER=='postgres') {
+		foreach ($tables_db as $t) {
+			$idxs = DB::Execute('SELECT t.tgargs as args FROM pg_trigger t,pg_class c,pg_proc p WHERE t.tgenabled AND t.tgrelid = c.oid AND t.tgfoid = p.oid AND p.proname = \'RI_FKey_check_ins\' AND c.relname = \''.strtolower($t).'\' ORDER BY t.tgrelid');
+			$matches = array(1=>array());
+			while ($i = $idxs->FetchRow()) {
+				$data = explode(chr(0), $i[0]);
+				$matches[1][] = $data[0];
+			}
+			$num_keys = count($matches[1]);
+		    for ( $i = 0;  $i < $num_keys;  $i ++ )
+				DB::Execute('ALTER TABLE '.$t.' DROP CONSTRAINT '.$matches[1][$i]);
+		}
+	}
+
 	foreach($tables_db as $t) {
 		DB::DropTable($t);
 	}
@@ -353,16 +362,16 @@ fclose($fp);
 print $license_txt;
 }
 ?>
-                </td>
-            </tr>
-        </table>
-        </center>
-        <br>
-        <center>
-        <span class="footer">Copyright &copy; 2008 &bull; <a href="http://www.telaxus.com">Telaxus LLC</a></span>
-        <br>
-        <p><a href="http://www.epesi.org"><img src="images/epesi-powered.png" border="0"></a></p>
-        </center>
+				</td>
+			</tr>
+		</table>
+		</center>
+		<br>
+		<center>
+		<span class="footer">Copyright &copy; 2008 &bull; <a href="http://www.telaxus.com">Telaxus LLC</a></span>
+		<br>
+		<p><a href="http://www.epesi.org"><img src="images/epesi-powered.png" border="0"></a></p>
+		</center>
 </body>
 </html>
 <?php
