@@ -234,6 +234,7 @@ class Utils_Calendar extends Module {
 		}
 
 		Base_ActionBarCommon::add('add','Add event',$this->create_unique_href(array('action'=>'add','time'=>$this->date)));
+		Utils_ShortcutCommon::add(array('Ctrl','N'), 'function(){'.$this->create_unique_href_js(array('action'=>'add','time'=>$this->date)).'}');
 	}
 
 	public function push_event_action($action,$arg=null) {

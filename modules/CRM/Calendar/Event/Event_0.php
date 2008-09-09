@@ -410,7 +410,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 		eval_js_once('crm_calendar_event_recurrence_custom = function(v) {if(v) $("recurrence_custom_days").show(); else $("recurrence_custom_days").hide();}');
 		eval_js_once('crm_calendar_event_recurrence_no_end_date = function(v) {if(v) $("recurrence_end_date").disable(); else $("recurrence_end_date").enable();}');
-		eval_js_once('crm_calendar_event_recurrence = function(v) {if(v) $("recurrence_block").show(); else $("recurrence_block").hide();crm_calendar_event_recurrence_custom($("recurrence_interval").value=="week_custom");crm_calendar_event_recurrence_no_end_date($("recurrence_no_end_date").checked)}');
+		eval_js_once('crm_calendar_event_recurrence = function(v) {if(v) $("recurrence_block").show(); else $("recurrence_block").hide();if(v) crm_calendar_event_recurrence_custom($("recurrence_interval").value=="week_custom");crm_calendar_event_recurrence_no_end_date($("recurrence_no_end_date").checked)}');
 		$theme->assign('recurrence_block','recurrence_block');
 		$form->addElement('checkbox','recurrence',$this->lang->t('Recurrence event'),null,array('onClick'=>'crm_calendar_event_recurrence(this.checked)'));
 //		print('='.$form->exportValue('recurrence').'=');
@@ -536,12 +536,15 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$my_id = CRM_FiltersCommon::get_my_profile();
 			if($def['access']==0 || in_array($my_id,$def_emp_id) || Base_AclCommon::i_am_admin()) {
 				Base_ActionBarCommon::add('edit','Edit', $this->create_callback_href(array($this, 'view_event'), array('edit', $id)));
+				Utils_ShortcutCommon::add(array('Ctrl','E'), 'function(){'.$this->create_callback_href_js(array($this, 'view_event'), array('edit', $id)).'}');
 				Base_ActionBarCommon::add('clone','Clone', $this->create_confirm_callback_href($this->lang->ht('You are about to create a copy of this record. Do you want to continue?'),array($this,'clone_event'),array($id)));
 			}
 		} else {
+			Utils_ShortcutCommon::add(array('Ctrl','S'), 'function(){'.$form->get_submit_form_js(true).'}');
 			Base_ActionBarCommon::add('save','Save',' href="javascript:void(0)" onClick="'.addcslashes($form->get_submit_form_js(true),'"').'"');
 		}
 		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+		Utils_ShortcutCommon::add(array('Esc'), 'function(){'.$this->create_back_href_js().'}');
 		return true;
 	}
 
