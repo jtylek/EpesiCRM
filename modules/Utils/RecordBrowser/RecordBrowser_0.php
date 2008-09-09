@@ -49,6 +49,7 @@ class Utils_RecordBrowser extends Module {
 	public static $browsed_records = null;
 	public static $access_override = array('tab'=>'', 'id'=>'');
 	private $navigation_executed = false;
+	private $current_field = null;
 	
 	public function get_display_method($ar) {
 		return isset($this->display_callback_table[$ar])?$this->display_callback_table[$ar]:null;
@@ -84,7 +85,7 @@ class Utils_RecordBrowser extends Module {
 		$this->lang = $this->init_module('Base/Lang');
 	}
 
-	public function init($admin=false) {
+	public function init($admin=false, $force=false) {
 		$params = DB::GetRow('SELECT caption, icon, recent, favorites, full_history FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 		if ($params==false) trigger_error('There is no such recordSet as '.$this->tab.'.', E_USER_ERROR);
 		list($this->caption,$this->icon,$this->recent,$this->favorites,$this->full_history) = $params;
@@ -96,7 +97,7 @@ class Utils_RecordBrowser extends Module {
 		if ($this->icon=='') $this->icon = Base_ThemeCommon::get_template_filename('Base_ActionBar','icons/settings.png');
 		$this->icon = Base_ThemeCommon::get_template_dir().$this->icon;
 
-		$this->table_rows = Utils_RecordBrowserCommon::init($this->tab, $admin);
+		$this->table_rows = Utils_RecordBrowserCommon::init($this->tab, $admin, $force);
 		$this->requires = array();
 		$this->display_callback_table = array();
 		$this->QFfield_callback_table = array();
@@ -175,7 +176,7 @@ class Utils_RecordBrowser extends Module {
 		if ($this->get_access('browse')===false) {
 			return;
 		}
-		$ret = DB::Execute('SELECT field FROM '.$this->tab.'_field WHERE filter=1');
+		$ret = DB::Execute('SELECT field FROM '.$this->tab.'_field WHERE filter=1 AND active=1');
 		$filters_all = array();
 		while($row = $ret->FetchRow())
 			if (!isset($filters_set[$row['field']]) || $filters_set[$row['field']]) {
@@ -798,7 +799,7 @@ class Utils_RecordBrowser extends Module {
 		while ($row) {
 			$row = $ret->FetchRow();
 			if ($row) $pos = $row['position'];
-			else $pos = DB::GetOne('SELECT MAX(position) FROM '.$this->tab.'_field')+1;
+			else $pos = DB::GetOne('SELECT MAX(position) FROM '.$this->tab.'_field WHERE active=1')+1;
 			if ($pos - $last_page>1) $tb->set_tab($this->lang->t($label),array($this,'view_entry_details'), array($last_page, $pos+1, $data, null, false, $cols), $js);
 			$cols = $row['param'];
 			$last_page = $pos;
@@ -1083,6 +1084,7 @@ class Utils_RecordBrowser extends Module {
 
 		$form->addElement('header', null, $this->lang->t('Edit page properties'));
 		$form->addElement('text', 'label', $this->lang->t('Label'));
+		$this->current_field = $id;
 		$form->registerRule('check_if_column_exists', 'callback', 'check_if_column_exists', $this);
 		$form->registerRule('check_if_no_id', 'callback', 'check_if_no_id', $this);
 		$form->addRule('label', $this->lang->t('Field required.'), 'required');
@@ -1101,6 +1103,7 @@ class Utils_RecordBrowser extends Module {
 				$data[$key] = htmlspecialchars($val);
 			DB::Execute('UPDATE '.$this->tab.'_field SET field=%s WHERE field=%s',
 						array($data['label'], $id));
+			$this->init(true, true);
 			return false;
 		}
 		$form->display();
@@ -1125,7 +1128,7 @@ class Utils_RecordBrowser extends Module {
 
 		//read database
 		$rows = count($this->table_rows);
-		$max_p = DB::GetOne('SELECT position FROM '.$this->tab.'_field WHERE field = \'Details\'');
+		$max_p = DB::GetOne('SELECT MIN(position) FROM '.$this->tab.'_field WHERE type = \'page_split\' AND field!=\'General\'');
 		foreach($this->table_rows as $field=>$args) {
 			$gb_row = $gb->get_new_row();
 			if($args['extra']) {
@@ -1182,9 +1185,9 @@ class Utils_RecordBrowser extends Module {
 		return false;
 	} //submit_delete_field
 	//////////////////////////////////////////////////////////////////////////////////////////
-	public function view_field($action = 'add', $id = null) {
+	public function view_field($action = 'add', $field = null) {
+		if (!$action) $action = 'add';
 		if ($this->is_back()) return false;
-
 		$data_type = array(
 			'currency'=>'currency',
 			'checkbox'=>'checkbox',
@@ -1205,6 +1208,7 @@ class Utils_RecordBrowser extends Module {
 		}
 		$form->addElement('text', 'field', $this->lang->t('Field'));
 		$form->registerRule('check_if_column_exists', 'callback', 'check_if_column_exists', $this);
+		$this->current_field = $field;
 		$form->registerRule('check_if_no_id', 'callback', 'check_if_no_id', $this);
 		$form->addRule('field', $this->lang->t('Field required.'), 'required');
 		$form->addRule('field', $this->lang->t('Field with this name already exists.'), 'check_if_column_exists');
@@ -1213,7 +1217,7 @@ class Utils_RecordBrowser extends Module {
 
 
 		if ($action=='edit') {
-			$row = DB::GetRow('SELECT field, type, visible, required, param, filter FROM '.$this->tab.'_field WHERE field=%s',array($id));
+			$row = DB::GetRow('SELECT field, type, visible, required, param, filter FROM '.$this->tab.'_field WHERE field=%s',array($field));
 			$form->setDefaults($row);
 			$form->addElement('static', 'select_data_type', $this->lang->t('Data Type'), $row['type']);
 			$selected_data= $row['type'];
@@ -1241,31 +1245,39 @@ class Utils_RecordBrowser extends Module {
 		$cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->lang->ht('Cancel'), $this->create_back_href());
 		$form->addGroup(array($ok_b, $cancel_b));
 
-		if($form->validate()) {
-			if ($action=='edit') {
-				$data = $form->exportValues();
-				if(!isset($data['visible']) || $data['visible'] == '') $data['visible'] = 0;
-				if(!isset($data['required']) || $data['required'] == '') $data['required'] = 0;
-				if(!isset($data['filter']) || $data['filter'] == '') $data['filter'] = 0;
-
-				foreach($data as $key=>$val)
-					$data[$key] = htmlspecialchars($val);
-
-				DB::StartTrans();
-				DB::Execute('UPDATE '.$this->tab.'_field SET field=%s, visible=%d, required=%d, filter=%d WHERE field=%s',
-							array($data['field'], $data['visible'], $data['required'], $data['filter'], $id));
-				DB::Execute('UPDATE '.$this->tab.'_edit_history_data SET field=%s WHERE field=%s',
-							array($data['field'], $id));
-				$data['field'] = strtolower(str_replace(' ','_',$data['field']));
-				if (preg_match('/^[a-z0-9_]*$/',$id)===false) trigger_error('Invalid column name: '.$id);
-				if (preg_match('/^[a-z0-9_]*$/',$data['field'])===false) trigger_error('Invalid column name: '.$data['field']);
-				DB::Execute('ALTER TABLE '.$this->tab.'_data_1 RENAME COLUMN f_'.$id.' TO f_'.$data['field']);
-				DB::CompleteTrans();
-				return false;
-			} else {
-				if ($form->process(array($this, 'submit_add_field')))
-					return false;
+		if ($form->validate()) {
+			$data = $form->exportValues();
+			$data['field'] = trim($data['field']);
+			if ($action=='add')
+				$field = $data['field'];
+			$id = strtolower(str_replace(' ','_',$field));
+			$new_id = strtolower(str_replace(' ','_',$data['field']));
+			if (preg_match('/^[a-z0-9_]*$/',$id)===false) trigger_error('Invalid column name: '.$field);
+			if (preg_match('/^[a-z0-9_]*$/',$new_id)===false) trigger_error('Invalid new column name: '.$data['field']);
+			if ($action=='add') {
+				$id = $new_id;
+				if (in_array($data['select_data_type'], array('timestamp','currency','integer')))
+					$style = $data['select_data_type'];
+				else
+					$style = '';
+				Utils_RecordBrowserCommon::new_record_field($this->tab, $data['field'], $data['select_data_type'], 0, 0, '', $style);	
 			}
+			if(!isset($data['visible']) || $data['visible'] == '') $data['visible'] = 0;
+			if(!isset($data['required']) || $data['required'] == '') $data['required'] = 0;
+			if(!isset($data['filter']) || $data['filter'] == '') $data['filter'] = 0;
+
+			foreach($data as $key=>$val)
+				$data[$key] = htmlspecialchars($val);
+
+			DB::StartTrans();
+			DB::Execute('UPDATE '.$this->tab.'_field SET field=%s, visible=%d, required=%d, filter=%d WHERE field=%s',
+						array($data['field'], $data['visible'], $data['required'], $data['filter'], $field));
+			DB::Execute('UPDATE '.$this->tab.'_edit_history_data SET field=%s WHERE field=%s',
+						array($data['field'], $field));
+			if ($id!=$new_id) DB::Execute('ALTER TABLE '.$this->tab.'_data_1 RENAME COLUMN f_'.$id.' TO f_'.$new_id);
+			DB::CompleteTrans();
+			$this->init(true, true);
+			return false;
 		}
 		$form->display();
 		return true;
@@ -1275,34 +1287,12 @@ class Utils_RecordBrowser extends Module {
 	}
 	public function check_if_column_exists($arg){
 		$this->init(true);
+		if (strtolower($arg)==strtolower($this->current_field)) return true;
 		foreach($this->table_rows as $field=>$args)
 			if (strtolower($args['name']) == strtolower($arg))
 				return false;
 		return true;
 	}
-
-	public function submit_add_field($data) {
-		$param = '';
-		switch($data['select_data_type']) {
-			case 'text':
-				$param = $data['text_length'];
-				break;
-		}
-		if(!isset($data['visible']) || $data['visible'] == '') $data['visible'] = 0;
-		if(!isset($data['required']) || $data['required'] == '') $data['required'] = 0;
-		if(!isset($data['filter']) || $data['filter'] == '') $data['filter'] = 0;
-
-		foreach($data as $key=>$val)
-			$data[$key] = htmlspecialchars($val);
-
-		DB::StartTrans();
-		$max = DB::GetOne('SELECT MAX(position) FROM '.$this->tab.'_field')+1;
-		DB::Execute('INSERT INTO '.$this->tab.'_field(field, type, visible, required, param, position, filter)'.
-					' VALUES(%s, %s, %d, %d, %s, %d, %d)',
-					array($data['field'], $data['select_data_type'], $data['visible'], $data['required'], $param, $max, $data['filter']));
-		DB::CompleteTrans();
-		return true;
-	} //submit_add_field
 	public function dirty_read_changes($id, $time_from) {
 		print('<b>'.$this->lang->t('The following changes were applied to this record while you were editing it.<br>Please revise this data and make sure to keep this record most accurate.').'</b><br>');
 		$gb_cha = $this->init_module('Utils/GenericBrowser', null, $this->tab.'__changes');

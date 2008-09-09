@@ -167,10 +167,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function admin_caption() {
 		return 'Records Sets';
 	}
-	public static function init($tab, $admin=false) {
+	public static function init($tab, $admin=false, $force=false) {
 		static $cache = array();
 		if (!isset(self::$cols_order[$tab])) self::$cols_order[$tab] = array();
-		if (isset($cache[$tab.'__'.$admin.'__'.md5(serialize(self::$cols_order[$tab]))])) {
+		if (!$force && isset($cache[$tab.'__'.$admin.'__'.md5(serialize(self::$cols_order[$tab]))])) {
 			self::$hash = $cache[$tab.'__'.$admin.'__'.md5(serialize(self::$cols_order[$tab]))]['hash'];
 			return self::$table_rows = $cache[$tab.'__'.$admin.'__'.md5(serialize(self::$cols_order[$tab]))]['rows'];
 		}
