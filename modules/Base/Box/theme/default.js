@@ -29,6 +29,7 @@ correctPNG = function() // correctly handle PNG transparency in Win IE 5.5 & 6.
 };
 document.observe("e:load", correctPNG);
 
+/*
 base_box_roll_topbar = function() {
    Effect.toggle('ActionBar','slide',{duration:0.3});
    if($('EmptyDiv').style.display == 'none') {
@@ -40,6 +41,20 @@ base_box_roll_topbar = function() {
       setTimeout('$(\'EmptyDiv\').hide()',500);
       document.getElementById("ShadowBar").style.display = 'block';
       //document.getElementById("CRM_Calendar__filter").style.top = '74px';
+   }
+}
+*/
+
+base_box_roll_topbar = function() {
+   Effect.toggle('ActionBar','slide',{duration:0.3});
+   if($('ShadowBar').style.display == 'none') {
+      document.getElementById("ShadowBar").style.display = 'block';
+      setTimeout('document.getElementById("content_body").style.top = "25px"',500);
+   }
+   else {
+      document.getElementById("ShadowBar").style.display = 'none';
+      document.getElementById("content_body").style.top = "97px";
+      //setTimeout('document.getElementById("content_body").style.top = "97px"',500);
    }
 }
 
