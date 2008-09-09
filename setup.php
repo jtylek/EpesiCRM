@@ -222,6 +222,11 @@ define("REPORT_ALL_ERRORS",1);
  */
 define("GZIP_OUTPUT",1);
 define("GZIP_HISTORY",1);
+
+/*
+ * Use cache for modules Commons
+ */
+define("CACHE_COMMON_FILES",1);
 ?>');
 	fclose($c);
 
