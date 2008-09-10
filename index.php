@@ -134,7 +134,7 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 
 		<?php
 			if(defined('DEBUG'))
-				print('<div id="debug" style="font-size: 0.7em;"></div>');
+				print('<div id="debug" style="font-size: 0.8em;"></div>');
 		?>
 		<div id="error_box" onclick="this.innerHTML = ''"></div>
 		<div id="epesiStatus">
