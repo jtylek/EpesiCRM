@@ -45,7 +45,7 @@ foreach($accounts as $account) {
 	if(!$pop3) continue;
 	
 	$box_root = Apps_MailClientCommon::get_mailbox_dir($account['mail']);
-	$box = $box_root.'/Inbox';
+	$box = $box_root.'Inbox';
 	
 	message($account['id'],$account['mail'].': login');
 
@@ -94,7 +94,7 @@ foreach($accounts as $account) {
 	$num = 0;
 	$error = false;
 	//check uidls and unset already downloaded messages
-	$uidls_file = $box_root.'/.uilds';
+	$uidls_file = $box_root.'.uilds';
 	$uidls = array();
 	if(($uidls_fp = @fopen($uidls_file,'r'))!==false) {
 		while(($data = fgetcsv($uidls_fp,200))!==false) {

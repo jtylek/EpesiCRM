@@ -370,7 +370,6 @@ class Apps_MailClient extends Module {
 	}
 	
 	public function remove_mail($box,$id) {
-		trigger_error($box);
 		$box = trim($box,'/');
 		$x = explode('/',$box,2);
 		if($x[1]=='Trash') {

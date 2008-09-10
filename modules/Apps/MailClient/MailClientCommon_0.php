@@ -79,18 +79,18 @@ class Apps_MailClientCommon extends ModuleCommon {
 	
 	public static function get_next_msg_id($mailbox) {
 		$mailbox = rtrim($mailbox,'/').'/';
-		if(!file_exists($mailbox.'.idx')) self::build_index($mailbox);
-		$in = @fopen($mailbox.'.idx','r');
-		if($in==false) return false;
-		$ret = array();
-		$msg_id = -1;
-		while (($data = fgetcsv($in, 700)) !== false) { //teoretically max is 640+integer and commas
-			$num = count($data);
-			if($num!=7) continue;
-			if($data[0]>$msg_id) $msg_id=$data[0];
+		$nid = @file_get_contents($mailbox.'.mid');
+		if($nid===false || !is_numeric($nid)) {
+			$nid = -1;
+			$files = scandir($mailbox);
+			foreach($files as $f) {
+				if(is_numeric($f) && $nid<$f)
+					$nid=$f;
+			}
 		}
-		fclose($in);
-		return $msg_id+1;
+		$nid++;
+		file_put_contents($mailbox.'.mid',$nid);
+		return $nid;
 	}
 	
 	public static function drop_message($mailbox,$subject,$from,$to,$date,$body,$read=false) {
@@ -250,7 +250,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$box = Apps_MailClientCommon::get_mailbox_dir(trim($box,'/')).$dir.'/';
 		$out = @fopen($box.'.idx','w');
 		if($out==false) return false;
-		$idx = array_values($idx);
+
 		foreach($idx as $id=>$d)
 			fputcsv($out, array($id,substr($d['subject'],0,256),substr($d['from'],0,256),substr($d['to'],0,256),substr($d['date'],0,64),substr($d['size'],0,64),$d['read']));
 		fclose($out);
@@ -261,6 +261,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$boxpath = self::get_mailbox_dir(trim($box,'/')).$dir;
 		$boxpath2 = self::get_mailbox_dir(trim($box2,'/')).$dir2;
 		$msg = @file_get_contents($boxpath.'/'.$id);
+		//trigger_error(print_r($boxpath.'/'.$id,true));
 		if($msg===false) return false;
 
 		$id2 = self::get_next_msg_id($boxpath2);
@@ -304,7 +305,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$box = Apps_MailClientCommon::get_mail_dir().trim($mailbox,'/').'/';
 		$out = @fopen($box.'.idx','w');
 		if($out==false) return false;
-		$idx = array_values($idx);
+
 		foreach($idx as $id=>$d)
 			fputcsv($out, array($id,substr($d['subject'],0,256),substr($d['from'],0,256),substr($d['to'],0,256),substr($d['date'],0,64),substr($d['size'],0,64),$d['read']));
 		fclose($out);
