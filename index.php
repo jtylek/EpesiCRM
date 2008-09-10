@@ -98,19 +98,6 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 		<link rel="icon" type="image/png" href="images/favicon.png" />
 		<title>Epesi</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<script type="text/javascript">
-		function detectBrowser()
-		{
-		var browser=navigator.appName;
-		var b_version=navigator.appVersion;
-		var version=parseFloat(b_version);
-		if (browser=="Microsoft Internet Explorer")
-			{
-			alert("Sorry but Internet Explorer is not supported.\nPlease upgrade to Firefox.");
-			window.location = "http://www.mozilla.com/firefox/"
-			}
-		}
-		</script>
 		<script type="text/javascript" src="serve.php?f=libs/prototype.js,libs/HistoryKeeper.js,include/epesi.js"></script>
 
 		<style type="text/css">
@@ -145,6 +132,11 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 		<div id="body_content">
 		<div id="main_content"></div>
 
+		<?php
+			if(defined('DEBUG'))
+				print('<div id="debug" style="font-size: 0.7em;"></div>');
+		?>
+		<div id="error_box" onclick="this.innerHTML = ''"></div>
 		<div id="epesiStatus">
 			<table cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
                 <tr>
@@ -159,14 +151,18 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 			</table>
 		</div>
 
-		<?php
-			if(defined('DEBUG'))
-				print('<div id="debug" style="font-size: 0.7em;"></div>');
-		?>
-		<div id="error_box" onclick="this.innerHTML = ''"></div>
 		</div>
 		<script type="text/javascript">
 		<!--
+		var browser=navigator.appName;
+		var b_version=navigator.appVersion;
+		var version=parseFloat(b_version);
+		if (browser=="Microsoft Internet Explorer") {
+			alert("Sorry but Internet Explorer is not supported.\nPlease upgrade to Firefox.");
+			window.location = "http://www.mozilla.com/firefox/"
+		}
+
+
 		history_call = function(history_id){
         		switch(history_on){
 			    case -1: history_on=1;
@@ -189,7 +185,6 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 		unFocus.History.addEventListener('historyChange',history_call);
 		-->
 		</script>
-	<body onload="detectBrowser()">
 	</body>
 </html>
 <?php
