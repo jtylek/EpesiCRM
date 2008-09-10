@@ -1,5 +1,5 @@
 /* Global */
-
+ 
 body {
 	padding: 0;
 	margin: 0;
@@ -138,16 +138,6 @@ hr.line {
     vertical-align: top;
 }
 
-/*** content body ***/
-
-#content_body {
-    position: absolute;
-    top: 97px;
-    width: 100%;
-    padding: 0px;
-    text-align: center;
-}
-
 /*** top_bar ***/
 
 #top_bar {
@@ -159,6 +149,17 @@ hr.line {
 #ActionBar {
     overflow: hidden;
     height: 78px;
+}
+
+#ActionBar {
+}
+
+#EmptyDiv {
+	height: 65px;
+}
+
+#EmptyDivMenu {
+    height: 32px;
 }
 
 #ShadowBar {
@@ -178,7 +179,8 @@ hr.line {
 
 /* roll */
 
-#top_bar #top_bar_1 .roll-left {
+#top_bar #top_bar_1 .roll-left,
+#top_bar #top_bar_1 .roll-right {
     padding-left: 3px;
     padding-top: 3px;
     padding-bottom: 3px;
@@ -193,16 +195,21 @@ hr.line {
 	border-right: 4px solid #B3B3B3;
 }
 
-#top_bar #top_bar_1 .roll-left:hover {
+#top_bar #top_bar_1 .roll-right {
+	border-left: 4px solid #B3B3B3;
+}
+
+#top_bar #top_bar_1 .roll-left:hover,
+#top_bar #top_bar_1 .roll-right:hover {
 	background-image: url('images/header-gray-dark-hover.png');
 }
 
-#top_bar #top_bar_1 .roll-left img {
+#top_bar #top_bar_1 .roll-left img,
+#top_bar #top_bar_1 .roll-right img {
     display: block;
     margin: 0px;
     padding: 0px;
 }
-
 /* menu bar */
 
 #top_bar #top_bar_1 .menu-bar {
@@ -230,6 +237,7 @@ hr.line {
 	background-repeat: repeat-x;
 	text-align: center;
 	font-size: 9px;
+    border-right: 4px solid #b3b3b3;
 }
 
 #top_bar #top_bar_1 .version a {
@@ -430,3 +438,38 @@ hr.line {
 .layer .shadow-bottom	.center	{ background-image: url('images/shadow/b.png' ); }
 .layer .shadow-middle	.left	{ background-image: url('images/shadow/l.png' ); }
 .layer .shadow-middle	.right	{ background-image: url('images/shadow/r.png' ); }
+
+
+/* clock */
+
+#top_bar #top_bar_1 #clock_td {
+    background-color: #595959;
+    background-image: url('images/header-gray-dark.png');
+    background-repeat: repeat-x;
+    width: 200px;
+    height: 20px;
+    width: 0px;
+}
+
+#top_bar #top_bar_1 .clock_icon {
+    background-color: #595959;
+    background-image: url('images/header-gray-dark.png');
+    background-repeat: repeat-x;
+    width: 16px;
+    height: 16px;
+    padding-left: 2px;
+    padding-top: 1px;
+    padding-right: 1px;
+    cursor: pointer;
+}
+
+#top_bar #top_bar_1 .clock_icon:hover {
+    background-image: url('images/header-gray-dark-hover.png');
+}
+
+#digitalclock {
+    width: 200px;
+    color: white;
+    text-align: center;
+    background: transparent;
+}

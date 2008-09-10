@@ -28,15 +28,32 @@ correctPNG = function() // correctly handle PNG transparency in Win IE 5.5 & 6.
    }
 };
 document.observe("e:load", correctPNG);
-
+ 
 base_box_roll_topbar = function() {
    Effect.toggle('ActionBar','slide',{duration:0.3});
-   if($('ShadowBar').style.display == 'none') {
-      document.getElementById("ShadowBar").style.display = 'block';
-      setTimeout('document.getElementById("content_body").style.top = "25px"',500);
+   if($('EmptyDiv').style.display == 'none') {
+      $('EmptyDiv').show();
+      document.getElementById("ShadowBar").style.display = 'none';
+      //document.getElementById("CRM_Calendar__filter").style.top = '149px';
    }
    else {
-      document.getElementById("ShadowBar").style.display = 'none';
-      document.getElementById("content_body").style.top = "97px";
+      setTimeout('$(\'EmptyDiv\').hide()',500);
+      document.getElementById("ShadowBar").style.display = 'block';
+      //document.getElementById("CRM_Calendar__filter").style.top = '74px';
+   }
+}
+
+base_box_roll_search_login_bar = function() {
+   if($('search-login-bar').style.display == 'none') {
+      $('search-login-bar').style.display = 'block';
+      $('login-search-td').style.width = '297px';
+      $('quick-logout').style.display = 'none';
+      $('module-indicator').style.width = '287px';
+   }
+   else {
+      $('search-login-bar').style.display = 'none';
+      $('login-search-td').style.width = '10px';
+      $('module-indicator').style.width = '263px';
+      $('quick-logout').style.display = 'block';
    }
 }

@@ -1,5 +1,5 @@
 {if !$logged}
-
+ 
 <div id="Base_Box__login">
 	<div class="status">{$status}</div>
 	<div class="entry">{$login}</div>
@@ -22,12 +22,13 @@
 				<td class="menu-bar">{$menu}</td>
 				<td class="powered"><b>epesi</b> powered</td>
 				<td class="version">{$version_no}</td>
+				<td class="roll-right"><img id="roll" src="{$theme_dir}/Base_Box__roll-right.png" onClick="var x='{$theme_dir}/Base_Box__roll-';if(this.src.indexOf(x+'left.png')>=0)this.src=x+'right.png';else this.src=x+'left.png'; base_box_roll_search_login_bar();" width="14" height="14" alt="=" border="0"></td>
 				<td class="module-indicator"><div id="module-indicator">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</div><div id="quick-logout" style="display: none;"></div></td>
 			</tr>
 		</tbody>
 		</table>
 		</div>
-		<div id="ShadowBar" style="display: none;"></div>
+		<div id="ShadowBar"></div>
 		<div id="ActionBar">
 			<table id="top_bar_2" cellspacing="0" cellpadding="0" border="0">
 			<tbody>
@@ -48,9 +49,9 @@
 	</div>
 	<!-- -->
 	<div id="content">
-		<!-- <div id="EmptyDivMenu" style="border: 1px solid red;"></div>
-		<div id="EmptyDiv" style="border: 1px solid blue;"></div> -->
-		<div id="content_body">
+		<div id="EmptyDivMenu"></div>
+		<div id="EmptyDiv"></div>
+		<div id="content_body" style="padding: 0px; text-align: center;">
 			<center>{$main}</center>
 		</div>
 	</div>
