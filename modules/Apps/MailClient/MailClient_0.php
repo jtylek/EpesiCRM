@@ -3,7 +3,11 @@
  * Simple mail client
  *
  * TODO: 
- * -sortowanie po size
+ * -unable to move message to trash
+ * -drafts, sent i trash to specjalne foldery, wszystkie inne traktujemy tak jak inbox
+ * -+restore z kosza
+ * -edit w drafts
+ * -resend i edit as new w sent
  * -zalaczniki przy new
  * -obsluga imap
  * -obsluga ssl przy wysylaniu smtp
@@ -44,20 +48,26 @@ class Apps_MailClient extends Module {
 			return;
 		}
 
+		$drafts_folder = false;
+		$sent_folder = false;
+		$trash_folder = false;
+		if(ereg('Drafts$',$box_file))
+				$drafts_folder = true;
+		elseif(ereg('Sent$',$box_file))
+				$sent_folder = true;
+		elseif(ereg('Trash$',$box_file))
+				$trash_folder = true;
+		
 		$gb = $this->init_module('Utils/GenericBrowser',null,'list');
 		$cols = array();
 		$cols[] = array('name'=>$this->lang->t('ID'), 'order'=>'id','width'=>'3', 'display'=>DEBUG);
-		$cols[] = array('name'=>$this->lang->t('Subject'), 'search'=>1, 'order'=>'subj','width'=>'40');
-		if(ereg('(Sent|Drafts)$',$box_file)) {
-			$to_col = true;
-			$cols[] = array('name'=>$this->lang->t('To'), 'search'=>1,'quickjump'=>1, 'order'=>'to','width'=>'32');
-		} else {
-			$to_col = false;
-			$cols[] = array('name'=>$this->lang->t('From'), 'search'=>1,'quickjump'=>1, 'order'=>'from','width'=>'32');
-		}
+		$cols[] = array('name'=>$this->lang->t('Subject'), 'search'=>1, 'order'=>'subj','width'=>'50');
+		$cols[] = array('name'=>$this->lang->t('To'), 'search'=>1,'quickjump'=>1, 'order'=>'to','width'=>'10', 'display'=>($drafts_folder || $sent_folder || $trash_folder));
+		$cols[] = array('name'=>$this->lang->t('From'), 'search'=>1,'quickjump'=>1, 'order'=>'from','width'=>'10','display'=>($trash_folder || !($drafts_folder || $sent_folder)));
 		$cols[] = array('name'=>$this->lang->t('Date'), 'search'=>1, 'order'=>'date','width'=>'15');
 		$cols[] = array('name'=>$this->lang->t('Size'), 'search'=>1, 'order'=>'size','width'=>'10');
 		$gb->set_table_columns($cols);
+
 		
 		$gb->set_default_order(array($this->lang->t('Date')=>'DESC'));
 		$gb->force_per_page(10);
@@ -69,20 +79,27 @@ class Apps_MailClient extends Module {
 		foreach($box as $id=>$data) {
 			$r = $gb->get_new_row();
 			$subject = Apps_MailClientCommon::mime_header_decode($data['subject']);
-			$address = Apps_MailClientCommon::mime_header_decode($to_col?$data['to']:$data['from']);
+			$to_address = Apps_MailClientCommon::mime_header_decode($data['to']);
+			$from_address = Apps_MailClientCommon::mime_header_decode($data['from']);
 			$subject = strip_tags($subject);
 			if(strlen($subject)>40) $subject = Utils_TooltipCommon::create(substr($subject,0,38).'...',$subject);
-			$r->add_data($id,array('value'=>'<a href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.http_build_query(array('box'=>$box_file, 'msg_id'=>$id, 'pid'=>$preview_id)).'\',\''.$id.'\')" id="apps_mailclient_msg_'.$id.'" '.($data['read']?'':'style="font-weight:bold"').'>'.$subject.'</a>','order_value'=>$subject),htmlentities($address),array('value'=>Base_RegionalSettingsCommon::time2reg($data['date']), 'order_value'=>strtotime($data['date'])),array('style'=>'text-align:right','value'=>filesize_hr($data['size']), 'order_value'=>$data['size']));
+			$r->add_data($id,array('value'=>'<a href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.http_build_query(array('box'=>$box_file, 'msg_id'=>$id, 'pid'=>$preview_id)).'\',\''.$id.'\')" id="apps_mailclient_msg_'.$id.'" '.($data['read']?'':'style="font-weight:bold"').'>'.$subject.'</a>','order_value'=>$subject),htmlentities($to_address),htmlentities($from_address),array('value'=>Base_RegionalSettingsCommon::time2reg($data['date']), 'order_value'=>strtotime($data['date'])),array('style'=>'text-align:right','value'=>filesize_hr($data['size']), 'order_value'=>$data['size']));
 			$lid = 'mailclient_link_'.$id;
 			$r->add_action('href="javascript:void(0)" rel="'.$show_id.'" class="lbOn" id="'.$lid.'" ','View');
-			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Delete this message?'),array($this,'remove_message'),array($box_file,$id)),'Delete');
+			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Delete this message?'),array($this,'remove_mail'),array($box_file,$id)),'Delete');
+			if($drafts_folder)
+				$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box_file,$id)),'Edit');
+			elseif($sent_folder)
+				$r->add_action($this->create_callback_href(array($this,'edit_as_new_mail'),array($box_file,$id)),'Edit');
+			elseif($trash_folder)
+				$r->add_action($this->create_callback_href(array($this,'restore_mail'),array($box_file,$id)),'Restore');
 			$r->add_js('Event.observe(\''.$lid.'\',\'click\',function() {Apps_MailClient.preview(\''.$show_id.'\',\''.http_build_query(array('box'=>$box_file, 'msg_id'=>$id, 'pid'=>$show_id)).'\',\''.$id.'\')})');
 		}
 		
 		$th->assign('list', $this->get_html_of_module($gb,array(true),'automatic_display'));
 		$th->assign('subject_label',$this->lang->t('Subject'));
 		$th->assign('preview_subject','<div id="'.$preview_id.'_subject"></div>');
-		if($to_col)
+		if($drafts_folder || $sent_folder)
 			$th->assign('address_label',$this->lang->t('To'));
 		else
 			$th->assign('address_label',$this->lang->t('From'));
@@ -93,7 +110,7 @@ class Apps_MailClient extends Module {
 
 		$th_show = $this->init_module('Base/Theme');
 		$th_show->assign('subject_label',$this->lang->t('Subject'));
-		if($to_col)
+		if($drafts_folder || $sent_folder)
 			$th_show->assign('address_label',$this->lang->t('To'));
 		else
 			$th_show->assign('address_label',$this->lang->t('From'));
@@ -109,8 +126,8 @@ class Apps_MailClient extends Module {
 		$checknew_id = $this->get_path().'checknew';
 		Base_ActionBarCommon::add('folder',$this->lang->t('Check'),'href="javascript:void(0)" rel="'.$checknew_id.'" class="lbOn" id="'.$checknew_id.'b"');
 //		if(DB::GetOne('SELECT 1 FROM apps_mailclient_accounts WHERE smtp_server is not null AND smtp_server!=\'\' AND user_login_id='.Acl::get_user())) //bo bedzie internal
-		Base_ActionBarCommon::add('add',$this->lang->t('New mail'),$this->create_callback_href(array($this,'new_mail')));
-		Base_ActionBarCommon::add('scan',$this->lang->t('Mark all as read'),$this->create_confirm_callback_href($this->lang->ht('Are you sure?'),array($this,'mark_all_as_read')));
+		Base_ActionBarCommon::add('add',$this->lang->ht('New mail'),$this->create_callback_href(array($this,'new_mail')));
+		Base_ActionBarCommon::add('scan',$this->lang->ht('Mark all as read'),$this->create_confirm_callback_href($this->lang->ht('Are you sure?'),array($this,'mark_all_as_read')));
 		eval_js('Apps_MailClient.check_mail_button_observe(\''.$checknew_id.'\')');
 		print('<div id="'.$checknew_id.'" class="leightbox"><div style="width:100%;text-align:center" id="'.$checknew_id.'progresses"></div>'.
 			'<a id="'.$checknew_id.'L" style="display:none" href="javascript:void(0)" onClick="Apps_MailClient.hide(\''.$checknew_id.'\');Epesi.request(\'\');">'.$this->lang->t('hide').'</a>'.
@@ -122,6 +139,58 @@ class Apps_MailClient extends Module {
 	public function mark_all_as_read() {
 		$box_file = $this->get_module_variable('opened_box');
 		Apps_MailClientCommon::mark_all_as_read($box_file);
+	}
+	
+	public function restore_mail($box,$id) {
+		$box = trim($box,'/');
+		$trashpath = Apps_MailClientCommon::get_mail_dir().$box.'/.del';
+
+		$in = @fopen($trashpath,'r');
+		if($in===false) {
+			Epesi::alert($this->lang->ht('Invalid mail to restore'));
+			return false;
+		}
+		$ret = array();
+		$orig_box = false;
+		while (($data = fgetcsv($in, 700)) !== false) {
+			$num = count($data);
+			if($num!=2) continue;
+			if($data[0]==$id) {
+				$orig_box = $data[1];
+				continue;
+			}
+			$ret[] = $data;
+		}
+		fclose($in);
+		if($orig_box===false) {
+			Epesi::alert($this->lang->ht('Invalid mail to restore'));
+			return false;
+		}
+
+
+		$box = trim($box,'/');
+		$x = explode('/',$box,2);
+		$orig_box = trim($orig_box,'/');
+		$y = explode('/',$orig_box,2);
+		$id2 = Apps_MailClientCommon::move_msg($x[0],$x[1],$y[0],$y[1],$id);
+		
+		if($id2!==false) {
+			$out = @fopen($trashpath,'w');
+			if($out) {
+				foreach($ret as $v)
+					fputcsv($out,$v);
+				fclose($out);
+			}
+			Base_StatusBarCommon::message('Message restored.');
+		} else {
+			Epesi::alert($this->lang->ht('Unable to restore mail.'));
+		}
+	}
+	
+	public function edit_mail($id) {
+		$box_file = $this->get_module_variable('opened_box');
+		print($box_file);
+	
 	}
 	
 	public function new_mail() {
@@ -300,17 +369,43 @@ class Apps_MailClient extends Module {
 		$this->set_module_variable('opened_box',$path);
 	}
 	
-	public function remove_message($box,$id) {
-		$x = explode('/',trim($box,'/'),2);
+	public function remove_mail($box,$id) {
+		$box = trim($box,'/');
+		$x = explode('/',$box,2);
 		if($x[1]=='Trash') {
-			if(Apps_MailClientCommon::remove_msg($x[0],$x[1],$id))
+			if(Apps_MailClientCommon::remove_msg($x[0],$x[1],$id)) {
+				$trashpath = Apps_MailClientCommon::get_mailbox_dir(trim($x[0],'/')).'Trash/.del';
+
+				$in = @fopen($trashpath,'r');
+				if($in!==false) {
+					$ret = array();
+					while (($data = fgetcsv($in, 700)) !== false) {
+						$num = count($data);
+						if($num!=2 || $data[0]==$id) continue;
+						$ret[] = $data;
+					}
+					fclose($in);
+					$out = @fopen($trashpath,'w');
+					if($out!==false) {
+						foreach($ret as $v)
+							fputcsv($out,$v);
+						fclose($out);
+					}
+				}
 				Base_StatusBarCommon::message('Message deleted');
-			else
+			} else
 				Base_StatusBarCommon::message('Unable to delete message','error');
 		} else {
-			if(Apps_MailClientCommon::move_msg($x[0],$x[1],$x[0],'Trash',$id))
+			$id2 = Apps_MailClientCommon::move_msg($x[0],$x[1],$x[0],'Trash',$id);
+			if($id2!==false) {
+				$trashpath = Apps_MailClientCommon::get_mailbox_dir(trim($x[0],'/')).'Trash/.del';
+				$out = @fopen($trashpath,'a');
+				if($out!==false) {
+					fputcsv($out,array($id2,$box));
+					fclose($out);
+				}
 				Base_StatusBarCommon::message('Message moved to trash');
-			else
+			} else
 				Base_StatusBarCommon::message('Unable to move message to trash','error');
 		}
 	}

@@ -258,8 +258,6 @@ class Apps_MailClientCommon extends ModuleCommon {
 	}
 	
 	public static function move_msg($box, $dir, $box2, $dir2, $id) {
-		ini_set('include_path','modules/Apps/MailClient/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
-		
 		$boxpath = self::get_mailbox_dir(trim($box,'/')).$dir;
 		$boxpath2 = self::get_mailbox_dir(trim($box2,'/')).$dir2;
 		$msg = @file_get_contents($boxpath.'/'.$id);
@@ -276,7 +274,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 
 		@unlink($boxpath.'/'.$id);
 		if(!self::remove_msg_from_index($box,$dir,$id)) return false;
-		return true;
+		return $id2;
 	}
 
 	public static function append_msg_to_index($mail,$box, $id, $subject, $from, $to, $date, $size,$read=false) {
