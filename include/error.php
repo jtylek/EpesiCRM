@@ -22,6 +22,7 @@ class ErrorHandler {
 	
 	private static function notify_client($buffer) {
 		if(JS_OUTPUT && class_exists('Epesi')) {
+			chdir(dirname(dirname(__FILE__)));
 			Epesi::clean();
 			if(DISPLAY_ERRORS)
 				Epesi::text($buffer,'error_box','prepend');
@@ -54,26 +55,23 @@ class ErrorHandler {
 
 			if (($type & $breakLevel) > 0) {
 				if(function_exists('debug_backtrace')) {
-					ob_start();
+					$backtrace = '';
 					$bt = debug_backtrace();
    				   
  					for($i = 0; $i <= count($bt) - 1; $i++) {
  						if(!isset($bt[$i]["file"]))
-							echo("[PHP core called function]<br />");
+							$backtrace .= "[PHP core called function]<br />";
 						else
-							echo("File: ".$bt[$i]["file"]."<br />");
+							$backtrace .= "File: ".$bt[$i]["file"]."<br />";
        
 						if(isset($bt[$i]["line"]))
-							echo("&nbsp;&nbsp;&nbsp;&nbsp;line ".$bt[$i]["line"]."<br />");
-						echo("&nbsp;&nbsp;&nbsp;&nbsp;function called: ".$bt[$i]["function"]);
-						echo("<br /><br />");
+							$backtrace .= "&nbsp;&nbsp;&nbsp;&nbsp;line ".$bt[$i]["line"]."<br />";
+						$backtrace .= "&nbsp;&nbsp;&nbsp;&nbsp;function called: ".$bt[$i]["function"];
+						$backtrace .= "<br /><br />";
 					}
-					$backtrace = ob_get_contents();
-					ob_end_clean(); 
 					$backtrace = '<br>error backtrace:<br>'.$backtrace;
 				} else $backtrace = '';
 				
-				while(@ob_end_clean());
 				echo self::notify_client('Type: '.$type.'<br>Message: '.$message.'<br>File: '.$errfile.'<br>Line='.$errline.$backtrace.'<hr>');
 				exit();
 			}
