@@ -36,6 +36,10 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		else $ret = DB::GetAssoc('SELECT user_id,user_id FROM utils_watchdog_category_subscription WHERE category_id=%d', array($category_id));
 		return $ret;
 	}
+	public static function category_exists($category_name) {
+		$ret = DB::GetOne('SELECT 1 FROM utils_watchdog_category WHERE name=%s', array(md5($category_name)));
+		return $ret==1;
+	}
 	public static function get_category_id($category_name) {
 		static $cache = array();
 		if (isset($cache[$category_name])) return $cache[$category_name];

@@ -109,16 +109,32 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
 	public static function user_settings(){
 		$ret = DB::Execute('SELECT tab, caption, icon, recent, favorites, full_history FROM recordbrowser_table_properties');
-		$settings = array();
+		$settings = array(0=>array(), 1=>array(), 2=>array(), 3=>array());
 		while ($row = $ret->FetchRow()) {
-			if (!$row['favorites'] && !$row['recent']) continue;
 			if (!self::get_access($row['tab'],'browse')) continue;
-			$options = array('all'=>'All');
-			if ($row['favorites']) $options['favorites'] = 'Favorites';
-			if ($row['recent']) $options['recent'] = 'Recent';
-			$settings[] = array('name'=>$row['tab'].'_default_view','label'=>$row['caption'].' - default view','type'=>'select','values'=>$options,'default'=>'all');
+			if ($row['favorites'] || $row['recent']) {
+				$options = array('all'=>'All');
+				if ($row['favorites']) $options['favorites'] = 'Favorites';
+				if ($row['recent']) $options['recent'] = 'Recent';
+				$settings[0][] = array('name'=>$row['tab'].'_default_view','label'=>$row['caption'],'type'=>'select','values'=>$options,'default'=>'all');
+			}
+			if ($row['favorites']) 
+				$settings[1][] = array('name'=>$row['tab'].'_auto_fav','label'=>$row['caption'],'type'=>'select','values'=>array('Disabled', 'Enabled'),'default'=>0);
+			if (Utils_WatchdogCommon::category_exists($row['tab'])) {
+				$settings[2][] = array('name'=>$row['tab'].'_auto_subs','label'=>$row['caption'],'type'=>'select','values'=>array('Disabled', 'Enabled'),'default'=>0);
+//				$settings[3][] = array('name'=>$row['tab'].'_subs_category','label'=>$row['caption'],'type'=>'select','values'=>array('Disabled', 'Enabled'),'default'=>0);
+			}
 		}
-		return array('Default data view'=>$settings);
+		$final_settings = array();
+		$final_settings[] = array('name'=>'header_default_view','label'=>'Default data view','type'=>'header');
+		$final_settings = array_merge($final_settings,$settings[0]);
+		$final_settings[] = array('name'=>'header_auto_fav','label'=>'Automatically add to favorites records created by me','type'=>'header');
+		$final_settings = array_merge($final_settings,$settings[1]);
+		$final_settings[] = array('name'=>'header_auto_subscriptions','label'=>'Auto-subscribe to records created by me','type'=>'header');
+		$final_settings = array_merge($final_settings,$settings[2]);
+//		$final_settings[] = array('name'=>'header_category_subscriptions','label'=>'Auto-subscribe to all new records','type'=>'header');
+//		$final_settings = array_merge($final_settings,$settings[3]);
+		return array('Browsing Records'=>$final_settings);
 	}
 	public static function check_table_name($tab, $flush=false){
 		static $tables = null;
@@ -449,6 +465,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$id = DB::Insert_ID($tab.'_data_1', 'id');
 		self::add_recent_entry($tab, Acl::get_user(), $id);
 		DB::CompleteTrans();
+		if (Base_User_SettingsCommon::get('Utils_RecordBrowser',$tab.'_auto_fav'))
+			DB::Execute('INSERT INTO '.$tab.'_favorite (user_id, '.$tab.'_id) VALUES (%d, %d)', array(Acl::get_user(), $id));
+		if (Base_User_SettingsCommon::get('Utils_RecordBrowser',$tab.'_auto_subs'))
+			Utils_WatchdogCommon::subscribe($tab,$id);
 		return $id;
 	}
 	public static function update_record($tab,$id,$values,$all_fields = false, $date = null, $dont_notify = false) {
