@@ -52,4 +52,5 @@ for($k=0; $k<count($m) && $rate>1024; $k++)
 		
 print(number_format($rate,2).$m[$k].'/s, '.number_format($curr,2).$m[$i].' z '.number_format($size,2).$m[$j]);
 DB::Execute('UPDATE utils_filedownload_files SET view_time=%f  WHERE id=%d',array($t,$download_id));
+exit();
 ?>

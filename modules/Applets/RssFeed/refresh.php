@@ -13,5 +13,5 @@ $feed = $_POST['feed'];
 $num = $_POST['number'];
 
 echo RSS_Display($feed, $num);
-
+exit();
 ?>

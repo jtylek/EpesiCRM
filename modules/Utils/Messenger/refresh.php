@@ -21,4 +21,5 @@ foreach($arr as $row) {
 	print('if(confirm(\''.Epesi::escapeJS($ret."\n".($row['message']?Base_LangCommon::ts('Utils/Messenger',"Alarm comment: %s",array($row['message'])):'')."\n\n".Base_LangCommon::ts('Utils/Messenger',"Turn off alarm?"),false).'\')) new Ajax.Request(\'modules/Utils/Messenger/turnoff.php\',{method:\'get\',parameters:{id:'.$row['id'].'}});');
 }
 print('utils_messenger_on=true;');
+exit();
 ?>

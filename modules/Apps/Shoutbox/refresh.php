@@ -17,4 +17,5 @@ foreach($arr as $row) {
 	}
 	print(Base_LangCommon::ts('Apps_Shoutbox','<span class="time">[%s]</span> <span class="author">%s</span>: %s',array(date('j M H:i',strtotime(Base_RegionalSettingsCommon::time2reg(DB::UnixTimeStamp($row['posted_on']),true,true,true,false))), $row['login'], '<span style="color:'.$fcolor.';">'.$row['message'].'</span>')).'<br>');
 }
+exit();
 ?>
