@@ -495,7 +495,7 @@ function update_from_1_0_0rc2_to_1_0_0rc3() {
 
 
 	if (ModuleManager::is_installed('Utils/RecordBrowser')==0) {
-		set_time_limit(0);
+		@set_time_limit(0);
 		ini_set("memory_limit","512M");
 		
 		// Create RB update table

@@ -652,7 +652,7 @@ function do_export(){
 }
 
 function do_export_table($t='',$isvar=0,$MAXI=838860){
- set_time_limit(600);
+ @@set_time_limit(600);
 
  if($_REQUEST['s']){
   $sth=db_query("show create table `$t`");
@@ -718,7 +718,7 @@ function do_import(){
 
 // multiple SQL statements splitter
 function do_multi_sql($insql, $fname){
- set_time_limit(600);
+ @set_time_limit(600);
 
  $sql='';
  $ochar='';

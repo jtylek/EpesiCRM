@@ -10,5 +10,5 @@ ModuleManager::load_modules();
 $ret = Utils_CommonDataCommon::get_array($_POST['value']);
 if(!$ret) $ret = array();
 print(json_encode($ret));
-
+exit();
 ?>

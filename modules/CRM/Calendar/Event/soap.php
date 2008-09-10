@@ -4,7 +4,7 @@ define('CID',false);
 require_once('../../../../include.php');
 ModuleManager::load_modules();
 
-set_time_limit(0);
+@set_time_limit(0);
 
 
 require_once ('SOAP/Server.php'); 

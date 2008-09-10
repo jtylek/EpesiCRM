@@ -111,7 +111,7 @@ class CRM_Import extends Module {
 	}
 
 	public function upload_contacts($file, $oryginal_file) {
-		set_time_limit(0);
+		@set_time_limit(0);
 		ini_set("memory_limit","512M");
 		$f = fopen($file,'r');
 		$header = fgetcsv($f);
@@ -371,7 +371,7 @@ class CRM_Import extends Module {
 	}
 
 	public function upload_history($file, $oryginal_file) {
-		set_time_limit(0);
+		@set_time_limit(0);
 		ini_set("memory_limit","512M");
 		$f = fopen($file,'r');
 		$header = fgetcsv($f);
@@ -408,7 +408,7 @@ class CRM_Import extends Module {
 	}
 
 	public function upload_note($file, $oryginal_file) {
-		set_time_limit(0);
+		@set_time_limit(0);
 		ini_set("memory_limit","512M");
 		$f = fopen($file,'r');
 		$header = fgetcsv($f);
@@ -499,7 +499,7 @@ class CRM_Import extends Module {
 	}
 	
 	public function upload_attach_files($file, $oryginal_file) {
-		set_time_limit(0);
+		@set_time_limit(0);
 		$zip = new ZipArchive;
 		@mkdir($this->get_data_dir().'attachments',0777,true);
 		if ($zip->open($file) == 1) {
@@ -511,7 +511,7 @@ class CRM_Import extends Module {
 	}
 
 	public function upload_attachments($file, $oryginal_file) {
-		set_time_limit(0);
+		@set_time_limit(0);
 		ini_set("memory_limit","512M");
 		$f = fopen($file,'r');
 		$header = fgetcsv($f);
@@ -642,7 +642,7 @@ class CRM_Import extends Module {
 	}
 
 	public function upload_activities($file, $oryginal_file) {
-		set_time_limit(0);
+		@set_time_limit(0);
 		ini_set("memory_limit","512M");
 		$f = fopen($file,'r');
 		$header = fgetcsv($f);

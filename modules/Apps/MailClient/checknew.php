@@ -8,7 +8,7 @@ define('CID',false);
 require_once('../../../include.php');
 session_commit();
 ModuleManager::load_modules();
-set_time_limit(0);
+@set_time_limit(0);
 $mail_size_limit = Variable::get('max_mail_size');
 ini_set("memory_limit",$mail_size_limit+32*1024*1024); // max mail size is
 

@@ -51,7 +51,7 @@ if($_POST['cell_id']=='trash') {
 	$ev = call_user_func(array($mod.'Common','get'),$ev_id);
 	$ret_ev = ob_get_clean();
 //	error_log('3: '.(microtime(true)-$t)."\n",3,'data/log');
-	if(!$ev) return;
+	if(!$ev) exit();
 	if(isset($ev['title']))
 		$ev = array($ev);
 	foreach($ev as $e) {
@@ -61,5 +61,6 @@ if($_POST['cell_id']=='trash') {
 		print('$(\'utils_calendar_event:'.$e['id'].'\').innerHTML=\''.Epesi::escapeJS($ret_ev,false).Epesi::escapeJS($ret,false).'\';');
 	}
 //	error_log('4: '.(microtime(true)-$t)."\n",3,'data/log');
+exit();
 }
 ?>
