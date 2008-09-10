@@ -46,7 +46,7 @@ class Base_Backup extends Module {
 		$mods = array();
 		foreach(ModuleManager::$modules as $m=>$v) {
 			ModuleManager::include_install($m);
-			if ($v['name']!=$m || !is_callable(array($m.'Install','backup'))) continue;
+			if (!is_callable(array($m.'Install','backup'))) continue;
 			$mods[] = $m;
 		}
 		asort($mods);
@@ -75,7 +75,7 @@ class Base_Backup extends Module {
 		//$tree->set_inline_display(true);
 		$theme->assign('tree',$this->get_html_of_module($tree));
 		
-		$form->addElement('submit', 'create_backup', $this->lang->ht('Create backup'));		
+		$form->addElement('submit', 'create_backup', $this->lang->ht('Create backup'));
 		if($form->validate()) {
 			if($form->process(array($this,'submit_backup')))
 				location(array());

@@ -599,8 +599,10 @@ class ModuleManager {
 					foreach($columns as $i=>$c) {
 						$arr[$c] = $r[$i];
 					}
-					if(!$ado->AutoExecute($table,$arr,'INSERT'))
+					ob_start();
+					if(!@$ado->AutoExecute($table,$arr,'INSERT'))
 						print('Unable to insert '.var_dump($arr).' to table '.$table.'<br>');
+					ob_end_clean();
 				}
 			} else {
 				print('Unable to restore database dump.<br>');
