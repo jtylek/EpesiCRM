@@ -4,8 +4,8 @@
  *
  * TODO: 
  * -drafts, sent i trash to specjalne foldery, wszystkie inne traktujemy tak jak inbox
- * -edit w drafts
- * -resend i edit as new w sent
+ * -dodawanie, edycja folderow w mailboxach
+ * -resend w sent
  * -zalaczniki przy new
  * -obsluga imap
  * -obsluga ssl przy wysylaniu smtp
@@ -85,11 +85,11 @@ class Apps_MailClient extends Module {
 			$lid = 'mailclient_link_'.$id;
 			$r->add_action('href="javascript:void(0)" rel="'.$show_id.'" class="lbOn" id="'.$lid.'" ','View');
 			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Delete this message?'),array($this,'remove_mail'),array($box_file,$id)),'Delete');
-			if($drafts_folder)
+			if($drafts_folder) {
 				$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box_file,$id)),'Edit');
-			elseif($sent_folder)
+			} elseif($sent_folder) {
 				$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box_file,$id,true)),'Edit');
-			elseif($trash_folder)
+			} elseif($trash_folder)
 				$r->add_action($this->create_callback_href(array($this,'restore_mail'),array($box_file,$id)),'Restore');
 			$r->add_js('Event.observe(\''.$lid.'\',\'click\',function() {Apps_MailClient.preview(\''.$show_id.'\',\''.http_build_query(array('box'=>$box_file, 'msg_id'=>$id, 'pid'=>$show_id)).'\',\''.$id.'\')})');
 		}

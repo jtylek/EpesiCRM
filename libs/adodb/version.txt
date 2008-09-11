@@ -1,1 +1,2 @@
-5.04a
+5.05
+modified datadictionary on postgre - DropTableSQL - commented out _DropAutoincrement call.
