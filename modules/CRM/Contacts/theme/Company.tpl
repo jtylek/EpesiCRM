@@ -13,7 +13,7 @@
 <table class="CRM_Contacts__table" border="0" cellpadding="0" cellspacing="0">
 	<tbody>
 		<tr>
-			<td class="icon"><img src="{$theme_dir}/CRM_Contacts__companies.png" width="32" height="32" border="0"></td>
+			<td class="icon"><img src="{$theme_dir}/CRM/Contacts/companies.png" width="32" height="32" border="0"></td>
 			<td class="name">{$caption}
 			{if isset($prev_record)}
 				&nbsp;&nbsp;{$prev_record}

@@ -58,12 +58,12 @@
 
 #Applets_Note div.note-gradient {
 	background-color: white;
-	background-image: url('Applets_Note__background.png');
+	background-image: url('Applets/Note/background.png');
 	background-repeat: repeat-x;
 }
 
 #Applets_Note div.note-gradient2 {
 	background-color: #e5e562;
-	background-image: url('Applets_Note__background-2.png');
+	background-image: url('Applets/Note/background-2.png');
 	background-repeat: repeat-x;
 }

@@ -13,7 +13,7 @@
 	    {$__link.my.open}
 		<div class="button">
             {if $display_icon}
-            <img src="{$theme_dir}/CRM_Filters__my.png" alt="" align="middle" border="0" width="32" height="32">
+            <img src="{$theme_dir}/CRM/Filters/my.png" alt="" align="middle" border="0" width="32" height="32">
             {/if}
             {if $display_text}
                 <div style="height: 5px;"></div>
@@ -54,7 +54,7 @@
 	    {$__link.all.open}
 		<div class="button">
             {if $display_icon}
-            <img src="{$theme_dir}/CRM_Filters__all.png" alt="" align="middle" border="0" width="32" height="32">
+            <img src="{$theme_dir}/CRM/Filters/all.png" alt="" align="middle" border="0" width="32" height="32">
             {/if}
             {if $display_text}
                 <div style="height: 5px;"></div>
@@ -96,7 +96,7 @@
 	    {$__link.manage.open}
 		<div class="button">
             {if $display_icon}
-            <img src="{$theme_dir}/CRM_Filters__manage.png" alt="" align="middle" border="0" width="32" height="32">
+            <img src="{$theme_dir}/CRM/Filters/manage.png" alt="" align="middle" border="0" width="32" height="32">
             {/if}
             {if $display_text}
                 <div style="height: 5px;"></div>

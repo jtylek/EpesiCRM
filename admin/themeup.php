@@ -15,14 +15,21 @@ while($row = $ret->FetchRow()) {
 	$directory = 'modules/'.str_replace('_','/',$row[0]).'/theme_'.$row['version'];
 	if (!is_dir($directory)) $directory = 'modules/'.str_replace('_','/',$row[0]).'/theme';
 	$mod_name = $row[0];
-	$data_dir = 'data/Base_Theme/templates/default/';
+	$data_dir = 'data/Base_Theme/templates/default';
 	print('<span style="color: #339933;">Checking theme:&nbsp;&nbsp;&nbsp;'.$directory.'</span><br>');
 	if (!is_dir($directory)) continue;
 	$content = scandir($directory);
 	print('<span style="color: #336699;">Installing theme:&nbsp;'.$directory.'</span><br>');
+	$mod_name = str_replace('_','/',$mod_name);
+	$mod_path = explode('/',$mod_name);
+	$sum = '';
+	foreach ($mod_path as $p) {
+		$sum .= '/'.$p;
+		@mkdir($data_dir.$sum);
+	}
 	foreach ($content as $name){
 		if($name == '.' || $name == '..' || ereg('^[\.~]',$name)) continue;
-		recursive_copy($directory.'/'.$name,$data_dir.$mod_name.'__'.$name);
+		recursive_copy($directory.'/'.$name,$data_dir.'/'.$mod_name.'/'.$name);
 	}
 }
 

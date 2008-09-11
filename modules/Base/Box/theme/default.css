@@ -278,13 +278,13 @@ hr.line {
     height: 20px;
     float: right;
     border-left: 4px solid #b3b3b3;
-    background-image: url('Base_Box__logout.png');
+    background-image: url('Base/Box/logout.png');
     background-repeat: no-repeat;
     background-position: 3px 3px;
 }
 
 #top_bar #top_bar_1 .module-indicator #quick-logout:hover {
-    background-image: url('Base_Box__logout-hover.png');
+    background-image: url('Base/Box/logout-hover.png');
 }
 
 /*** top_bar_2 ***/

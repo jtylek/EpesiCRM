@@ -90,12 +90,20 @@ function themeup(){
 		$directory = 'modules/'.str_replace('_','/',$row[0]).'/theme_'.$row['version'];
 		if (!is_dir($directory)) $directory = 'modules/'.str_replace('_','/',$row[0]).'/theme';
 		$mod_name = $row[0];
-		$data_dir = 'data/Base_Theme/templates/default/';
+		$data_dir = 'data/Base_Theme/templates/default';
 		if (!is_dir($directory)) continue;
 		$content = scandir($directory);
+
+		$mod_name = str_replace('_','/',$mod_name);
+		$mod_path = explode('/',$mod_name);
+		$sum = '';
+		foreach ($mod_path as $p) {
+			$sum .= '/'.$p;
+			@mkdir($data_dir.$sum);
+		}
 		foreach ($content as $name){
 			if($name == '.' || $name == '..' || ereg('^[\.~]',$name)) continue;
-			recursive_copy($directory.'/'.$name,$data_dir.$mod_name.'__'.$name);
+			recursive_copy($directory.'/'.$name,$data_dir.'/'.$mod_name.'/'.$name);
 		}
 	}
 
@@ -361,6 +369,13 @@ function update_from_1_0_0rc2_to_1_0_0rc3() {
 
 	if (ModuleManager::is_installed('Utils/RecordBrowser')>=0) {
 		DB::Execute('SET FOREIGN_KEY_CHECKS=0');
+
+		$icons = DB::GetAssoc('SELECT tab, icon FROM recordbrowser_table_properties');
+		foreach ($icons as $t=>$i) {
+			$ic = explode('__', $i);
+			if (isset($ic[1])) $new_i = str_replace('_','/',$ic[0]).'/'.$ic[1];
+			DB::Execute('UPDATE recordbrowser_table_properties SET icon=%s WHERE tab=%s', array($new_i, $t));
+		} 
 
 		$tabs = DB::GetAssoc('SELECT tab, tab FROM recordbrowser_table_properties');
 		foreach ($tabs as $t) {

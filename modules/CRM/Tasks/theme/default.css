@@ -197,24 +197,24 @@
 	background-position: 1px 0px;
 }
 
-#CRM_Tasks .priority select option[value="0"] { background-image: url('CRM_Tasks__priority-low.png');    }
-#CRM_Tasks .priority select option[value="1"] { background-image: url('CRM_Tasks__priority-medium.png'); }
-#CRM_Tasks .priority select option[value="2"] { background-image: url('CRM_Tasks__priority-high.png');   }
-#CRM_Tasks .priority_0 { background-image: url('CRM_Tasks__priority-low.png');    }
-#CRM_Tasks .priority_1 { background-image: url('CRM_Tasks__priority-medium.png'); }
-#CRM_Tasks .priority_2 { background-image: url('CRM_Tasks__priority-high.png');   }
+#CRM_Tasks .priority select option[value="0"] { background-image: url('CRM/Tasks/priority-low.png');    }
+#CRM_Tasks .priority select option[value="1"] { background-image: url('CRM/Tasks/priority-medium.png'); }
+#CRM_Tasks .priority select option[value="2"] { background-image: url('CRM/Tasks/priority-high.png');   }
+#CRM_Tasks .priority_0 { background-image: url('CRM/Tasks/priority-low.png');    }
+#CRM_Tasks .priority_1 { background-image: url('CRM/Tasks/priority-medium.png'); }
+#CRM_Tasks .priority_2 { background-image: url('CRM/Tasks/priority-high.png');   }
 
-#CRM_Tasks .permission select option[value="0"] { background-image: url('CRM_Tasks__access-public.png');    }
-#CRM_Tasks .permission select option[value="1"] { background-image: url('CRM_Tasks__access-read-only.png'); }
-#CRM_Tasks .permission select option[value="2"] { background-image: url('CRM_Tasks__access-private.png');   }
-#CRM_Tasks .permission_0 { background-image: url('CRM_Tasks__access-public.png');    }
-#CRM_Tasks .permission_1 { background-image: url('CRM_Tasks__access-read-only.png'); }
-#CRM_Tasks .permission_2 { background-image: url('CRM_Tasks__access-private.png');   }
+#CRM_Tasks .permission select option[value="0"] { background-image: url('CRM/Tasks/access-public.png');    }
+#CRM_Tasks .permission select option[value="1"] { background-image: url('CRM/Tasks/access-read-only.png'); }
+#CRM_Tasks .permission select option[value="2"] { background-image: url('CRM/Tasks/access-private.png');   }
+#CRM_Tasks .permission_0 { background-image: url('CRM/Tasks/access-public.png');    }
+#CRM_Tasks .permission_1 { background-image: url('CRM/Tasks/access-read-only.png'); }
+#CRM_Tasks .permission_2 { background-image: url('CRM/Tasks/access-private.png');   }
 
-#CRM_Tasks .status select option[value="0"] { background-image: url('CRM_Tasks__status-open.png');    }
-#CRM_Tasks .status select option[value="1"] { background-image: url('CRM_Tasks__status-closed.png');   }
-#CRM_Tasks .status_0 { background-image: url('CRM_Tasks__status-open.png');    }
-#CRM_Tasks .status_1 { background-image: url('CRM_Tasks__status-closed.png');   }
+#CRM_Tasks .status select option[value="0"] { background-image: url('CRM/Tasks/status-open.png');    }
+#CRM_Tasks .status select option[value="1"] { background-image: url('CRM/Tasks/status-closed.png');   }
+#CRM_Tasks .status_0 { background-image: url('CRM/Tasks/status-open.png');    }
+#CRM_Tasks .status_1 { background-image: url('CRM/Tasks/status-closed.png');   }
 
 #CRM_Tasks .status .icon,
 #CRM_Tasks .permission .icon,

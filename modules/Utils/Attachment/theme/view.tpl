@@ -1,7 +1,7 @@
 <table class="Utils_Attachment__table" border="0" cellpadding="0" cellspacing="0">
 	<tbody>
 		<tr>
-			<td class="icon"><img src="{$theme_dir}/Utils_Attachment__icon.png" width="32" height="32" border="0"></td>
+			<td class="icon"><img src="{$theme_dir}/Utils/Attachment/icon.png" width="32" height="32" border="0"></td>
 			<td class="name">View note</td>
 			<td class="required_fav_info">&nbsp;{if isset($fav_tooltip)}{$fav_tooltip}{/if}&nbsp;&nbsp;&nbsp;{if isset($info_tooltip)}{$info_tooltip}{/if}</td>
 		</tr>
@@ -27,7 +27,7 @@
 			<tr>
 				<td class="file file_icon">
                     {$__link.file.open}
-                        <img src="{$theme_dir}/Utils_Attachment__attach.png" alt="" align="left" border="0" width="32" height="32">
+                        <img src="{$theme_dir}/Utils/Attachment/attach.png" alt="" align="left" border="0" width="32" height="32">
                     {$__link.file.close}
                 </td>            
 				<td class="file file_name">

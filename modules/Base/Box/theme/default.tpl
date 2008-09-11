@@ -9,7 +9,7 @@
 {else}
 
 {php}
-	load_js('data/Base_Theme/templates/default/Base_Box__default.js');
+	load_js('data/Base_Theme/templates/default/Base/Box/default.js');
 	eval_js_once('document.body.id=null');
 {/php}
 
@@ -18,7 +18,7 @@
 		<table id="top_bar_1" cellspacing="0" cellpadding="0" border="0">
 		<tbody>
 			<tr>
-				<td class="roll-left"><img id="roll" src="{$theme_dir}/Base_Box__roll-up.png" onClick="var x='{$theme_dir}/Base_Box__roll-';if(this.src.indexOf(x+'down.png')>=0)this.src=x+'up.png';else this.src=x+'down.png'; base_box_roll_topbar();" width="14" height="14" alt="=" border="0"></td>
+				<td class="roll-left"><img id="roll" src="{$theme_dir}/Base/Box/roll-up.png" onClick="var x='{$theme_dir}/Base/Box/roll-';if(this.src.indexOf(x+'down.png')>=0)this.src=x+'up.png';else this.src=x+'down.png'; base_box_roll_topbar();" width="14" height="14" alt="=" border="0"></td>
 				<td class="menu-bar">{$menu}</td>
 				<td class="powered"><b>epesi</b> powered</td>
 				<td class="version">{$version_no}</td>

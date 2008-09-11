@@ -218,31 +218,31 @@
 	background-position: 1px 0px;
 }
 
-#CRM_Calendar_Event_Personal .status select option[value="3"] { background-image: url('CRM_Calendar_Event__status-canceled.png');    }
-#CRM_Calendar_Event_Personal .status select option[value="2"] { background-image: url('CRM_Calendar_Event__status-closed.png');      }
-#CRM_Calendar_Event_Personal .status select option[value="1"] { background-image: url('CRM_Calendar_Event__status-in-progress.png'); }
-#CRM_Calendar_Event_Personal .status select option[value="0"] { background-image: url('CRM_Calendar_Event__status-open.png');        }
+#CRM_Calendar_Event_Personal .status select option[value="3"] { background-image: url('CRM/Calendar/Event/status-canceled.png');    }
+#CRM_Calendar_Event_Personal .status select option[value="2"] { background-image: url('CRM/Calendar/Event/status-closed.png');      }
+#CRM_Calendar_Event_Personal .status select option[value="1"] { background-image: url('CRM/Calendar/Event/status-in-progress.png'); }
+#CRM_Calendar_Event_Personal .status select option[value="0"] { background-image: url('CRM/Calendar/Event/status-open.png');        }
 
-#CRM_Calendar_Event_Personal .status_3 { background-image: url('CRM_Calendar_Event__status-canceled.png');    }
-#CRM_Calendar_Event_Personal .status_2 { background-image: url('CRM_Calendar_Event__status-closed.png');      }
-#CRM_Calendar_Event_Personal .status_1 { background-image: url('CRM_Calendar_Event__status-in-progress.png'); }
-#CRM_Calendar_Event_Personal .status_0 { background-image: url('CRM_Calendar_Event__status-open.png');        }
+#CRM_Calendar_Event_Personal .status_3 { background-image: url('CRM/Calendar/Event/status-canceled.png');    }
+#CRM_Calendar_Event_Personal .status_2 { background-image: url('CRM/Calendar/Event/status-closed.png');      }
+#CRM_Calendar_Event_Personal .status_1 { background-image: url('CRM/Calendar/Event/status-in-progress.png'); }
+#CRM_Calendar_Event_Personal .status_0 { background-image: url('CRM/Calendar/Event/status-open.png');        }
 
-#CRM_Calendar_Event_Personal .priority select option[value="0"] { background-image: url('CRM_Calendar_Event__priority-low.png');    }
-#CRM_Calendar_Event_Personal .priority select option[value="1"] { background-image: url('CRM_Calendar_Event__priority-medium.png'); }
-#CRM_Calendar_Event_Personal .priority select option[value="2"] { background-image: url('CRM_Calendar_Event__priority-high.png');   }
+#CRM_Calendar_Event_Personal .priority select option[value="0"] { background-image: url('CRM/Calendar/Event/priority-low.png');    }
+#CRM_Calendar_Event_Personal .priority select option[value="1"] { background-image: url('CRM/Calendar/Event/priority-medium.png'); }
+#CRM_Calendar_Event_Personal .priority select option[value="2"] { background-image: url('CRM/Calendar/Event/priority-high.png');   }
 
-#CRM_Calendar_Event_Personal .priority_0 { background-image: url('CRM_Calendar_Event__priority-low.png');    }
-#CRM_Calendar_Event_Personal .priority_1 { background-image: url('CRM_Calendar_Event__priority-medium.png'); }
-#CRM_Calendar_Event_Personal .priority_2 { background-image: url('CRM_Calendar_Event__priority-high.png');   }
+#CRM_Calendar_Event_Personal .priority_0 { background-image: url('CRM/Calendar/Event/priority-low.png');    }
+#CRM_Calendar_Event_Personal .priority_1 { background-image: url('CRM/Calendar/Event/priority-medium.png'); }
+#CRM_Calendar_Event_Personal .priority_2 { background-image: url('CRM/Calendar/Event/priority-high.png');   }
 
-#CRM_Calendar_Event_Personal .access select option[value="0"] { background-image: url('CRM_Calendar_Event__access-public.png');    }
-#CRM_Calendar_Event_Personal .access select option[value="1"] { background-image: url('CRM_Calendar_Event__access-read-only.png'); }
-#CRM_Calendar_Event_Personal .access select option[value="2"] { background-image: url('CRM_Calendar_Event__access-private.png');   }
+#CRM_Calendar_Event_Personal .access select option[value="0"] { background-image: url('CRM/Calendar/Event/access-public.png');    }
+#CRM_Calendar_Event_Personal .access select option[value="1"] { background-image: url('CRM/Calendar/Event/access-read-only.png'); }
+#CRM_Calendar_Event_Personal .access select option[value="2"] { background-image: url('CRM/Calendar/Event/access-private.png');   }
 
-#CRM_Calendar_Event_Personal .access_0 { background-image: url('CRM_Calendar_Event__access-public.png');    }
-#CRM_Calendar_Event_Personal .access_1 { background-image: url('CRM_Calendar_Event__access-read-only.png'); }
-#CRM_Calendar_Event_Personal .access_2 { background-image: url('CRM_Calendar_Event__access-private.png');   }
+#CRM_Calendar_Event_Personal .access_0 { background-image: url('CRM/Calendar/Event/access-public.png');    }
+#CRM_Calendar_Event_Personal .access_1 { background-image: url('CRM/Calendar/Event/access-read-only.png'); }
+#CRM_Calendar_Event_Personal .access_2 { background-image: url('CRM/Calendar/Event/access-private.png');   }
 
 #CRM_Calendar_Event_Personal .access .icon,
 #CRM_Calendar_Event_Personal .priority .icon,

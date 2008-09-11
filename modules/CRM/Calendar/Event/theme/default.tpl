@@ -6,7 +6,7 @@
 <table class="CRM_Calendar_Event__header" border="0" cellpadding="0" cellspacing="0">
 	<tbody>
 		<tr>
-			<td class="icon"><img src="{$theme_dir}/CRM_Calendar__icon.png" width="32" height="32" border="0"></td>
+			<td class="icon"><img src="{$theme_dir}/CRM/Calendar/icon.png" width="32" height="32" border="0"></td>
 			<td class="name">{if $action == 'view'}View{else}Edit{/if} Event</td>
 			<td class="required_fav_info">
                 {if isset($subscribe_icon)}

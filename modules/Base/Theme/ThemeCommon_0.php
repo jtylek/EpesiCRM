@@ -46,9 +46,10 @@ class Base_ThemeCommon extends ModuleCommon {
 	}
 	
 	public static function display_smarty($smarty, $module_name, $user_template=null, $fullname=false) {
+		$module_name = str_replace('_','/',$module_name);
 		if(isset($user_template)) {
 			if (!$fullname)
-				$module_name .= '__'.$user_template;
+				$module_name .= '/'.$user_template;
 			else {
 				if(ereg(".tpl$",$user_template)) {
 					$tpl = $user_template;
@@ -57,7 +58,7 @@ class Base_ThemeCommon extends ModuleCommon {
 					$module_name = $user_template;
 			}
 		} else
-			$module_name .= '__default';
+			$module_name .= '/default';
 		
 		if(!isset($tpl)) {
 			$tpl = $module_name.'.tpl';
@@ -106,12 +107,18 @@ class Base_ThemeCommon extends ModuleCommon {
 	public static function install_default_theme($mod_name,$version=0) {
 		$directory = 'modules/'.str_replace('_','/',$mod_name).'/theme_'.$version;
 		if (!is_dir($directory)) $directory = 'modules/'.str_replace('_','/',$mod_name).'/theme';
-		$mod_name = str_replace('/','_',$mod_name);
-		$data_dir = 'data/Base_Theme/templates/default/';
+		$mod_name = str_replace('_','/',$mod_name);
+		$data_dir = 'data/Base_Theme/templates/default';
 		$content = scandir($directory);
+		$mod_path = explode('/',$mod_name);
+		$sum = '';
+		foreach ($mod_path as $p) {
+			$sum .= '/'.$p;
+			@mkdir($data_dir.$sum);
+		}
 		foreach ($content as $name){
 			if($name == '.' || $name == '..' || ereg('^[\.~]',$name)) continue;
-			recursive_copy($directory.'/'.$name,$data_dir.$mod_name.'__'.$name);
+			recursive_copy($directory.'/'.$name,$data_dir.'/'.$mod_name.'/'.$name);
 		}
 	}
 	
@@ -164,7 +171,7 @@ class Base_ThemeCommon extends ModuleCommon {
 	 * @return string path and name of a file
 	 */
 	public static function get_template_filename($modulename,$filename) {
-		return str_replace("/", "_", $modulename).'__'.$filename;
+		return str_replace("_", "/", $modulename).'/'.$filename;
 	}
 
 	/**
@@ -208,7 +215,7 @@ class Base_ThemeCommon extends ModuleCommon {
 			load_css($css,self::get_template_dir().'__css.php');
 			return true;
 		} catch(Exception $e) {
-			if($trig_error) trigger_error('Invalid css specified: '.$module_name.'__'.$css_name.'.css',E_USER_ERROR);
+			if($trig_error) trigger_error('Invalid css specified: '.$module_name.'/'.$css_name.'.css',E_USER_ERROR);
 			return false;
 		}
 	}

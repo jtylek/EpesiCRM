@@ -7,7 +7,7 @@
 <!-- -->
 
 <!-- TEMP
-			<td class="image"><img src="{$theme_dir}/Base_StatusBar__loader.gif" width="32" height="32" border="0"></td>
+			<td class="image"><img src="{$theme_dir}/Base/StatusBar/loader.gif" width="32" height="32" border="0"></td>
 			<td class="text"><span id="{$text_id}">Loading...</span></td>
 -->
 
@@ -17,7 +17,7 @@
                 <td class="text"><span id="{$text_id}">Loading...</span></td>
             </tr>
             <tr>
-                <td class="image"><img src="{$theme_dir}/Base_StatusBar__loader.gif" width="256" height="10" border="0"></td>
+                <td class="image"><img src="{$theme_dir}/Base/StatusBar/loader.gif" width="256" height="10" border="0"></td>
             </tr>
         </tbody>
 	</table>

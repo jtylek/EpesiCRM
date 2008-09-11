@@ -63,7 +63,7 @@
 }
 
 #Utils_Attachment__view .notepad-left {
-    background-image: url('Utils_Attachment__hole.png');
+    background-image: url('Utils/Attachment/hole.png');
     background-repeat: repeat-y;
     border-right: 2px solid #b3b3b3;
     width: 50px;

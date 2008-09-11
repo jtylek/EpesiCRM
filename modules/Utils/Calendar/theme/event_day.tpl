@@ -15,16 +15,16 @@
 
             <span class="event_menu_content">
 	    	{if isset($view_href)}
-                <a {$view_href}><img border="0" src="{$theme_dir}/Utils_Calendar__view.png"></a>
+                <a {$view_href}><img border="0" src="{$theme_dir}/Utils/Calendar/view.png"></a>
 			{/if}
 	    	{if isset($edit_href)}
-                <a {$edit_href}><img border="0" src="{$theme_dir}/Utils_Calendar__edit.png"></a>
+                <a {$edit_href}><img border="0" src="{$theme_dir}/Utils/Calendar/edit.png"></a>
 			{/if}
 	    	{if isset($delete_href)}
-                <a {$delete_href}><img border="0" src="{$theme_dir}/Utils_Calendar__delete.png"></a>
+                <a {$delete_href}><img border="0" src="{$theme_dir}/Utils/Calendar/delete.png"></a>
 			{/if}
 	    	{if isset($move_href)}
-                <a {$move_href}><img border="0" src="{$theme_dir}/Utils_Calendar__move.png"></a>
+                <a {$move_href}><img border="0" src="{$theme_dir}/Utils/Calendar/move.png"></a>
 			{/if}
 			{foreach from=$custom_actions item=action}
 				<a {$action.href}><img border="0" src="{$action.icon}"></a>
@@ -52,7 +52,7 @@
     </span>
 
     <div class="row">
-        <span id="event_info"><img {$tip_tag_attrs} src="{$theme_dir}/Utils_Calendar__info.png" onClick="event_menu('{$event_id}')" width="11" height="11" border="0"></span>
+        <span id="event_info"><img {$tip_tag_attrs} src="{$theme_dir}/Utils/Calendar/info.png" onClick="event_menu('{$event_id}')" width="11" height="11" border="0"></span>
         <span id="event_time">{if isset($view_href)}<a {$view_href}>{/if}{$start_time} - {$end_time} ({$duration}){if isset($view_href)}</a>{/if}</span>
     </div>
      <div class="row {if $draggable}{$handle_class}{/if}">

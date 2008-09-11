@@ -1,5 +1,5 @@
 {php}
-	load_js('data/Base_Theme/templates/default/Utils_GenericBrowser__default.js');
+	load_js('data/Base_Theme/templates/default/Utils/GenericBrowser/default.js');
 {/php}
 
 <div>

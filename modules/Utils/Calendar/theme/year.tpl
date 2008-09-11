@@ -2,13 +2,13 @@
 	<table border="0" class="year-menu"><tr>
 		<td class="empty"></td>
 		<td style="width: 10px;"></td>
-		<td><a class="button" {$prevyear_href}>{$prevyear_label}&nbsp;&nbsp;<img border="0" width="8" height="20" src="{$theme_dir}/Utils_Calendar__prev.png"></a></td>
-		<td><a class="button" {$today_href}>{$today_label}&nbsp;&nbsp;<img border="0" width="8" height="20" src="{$theme_dir}/Utils_Calendar__this.png"></a></td>
-		<td><a class="button" {$nextyear_href}><img border="0" width="8" height="20" src="{$theme_dir}/Utils_Calendar__next.png">&nbsp;&nbsp;{$nextyear_label}</a></td>
+		<td><a class="button" {$prevyear_href}>{$prevyear_label}&nbsp;&nbsp;<img border="0" width="8" height="20" src="{$theme_dir}/Utils/Calendar/prev.png"></a></td>
+		<td><a class="button" {$today_href}>{$today_label}&nbsp;&nbsp;<img border="0" width="8" height="20" src="{$theme_dir}/Utils/Calendar/this.png"></a></td>
+		<td><a class="button" {$nextyear_href}><img border="0" width="8" height="20" src="{$theme_dir}/Utils/Calendar/next.png">&nbsp;&nbsp;{$nextyear_label}</a></td>
 		<td style="width: 10px;"></td>
 		<td>{$popup_calendar}</td>
 		<!-- <td style="width: 10px;"></td>
-		<td><a class="button" style="width: 80px;"><img border="0" width="20" height="20" src="{$theme_dir}/Utils_Calendar__4x3.png" style="vertical-align: middle; padding: 0px; margin-left: 10px; display: block; float: left; width: 20px; height: 20px;">4 x 3</a></td> -->
+		<td><a class="button" style="width: 80px;"><img border="0" width="20" height="20" src="{$theme_dir}/Utils/Calendar/4x3.png" style="vertical-align: middle; padding: 0px; margin-left: 10px; display: block; float: left; width: 20px; height: 20px;">4 x 3</a></td> -->
 		<td class="empty"></td>
 	</tr></table>
 </div>

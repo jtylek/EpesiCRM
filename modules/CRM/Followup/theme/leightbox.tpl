@@ -17,7 +17,7 @@
 
 	    {$new_event.open}
 		<div class="button">
-	        <img src="{$theme_dir}/CRM_Calendar__icon.png" alt="" align="middle" border="0" width="32" height="32">
+	        <img src="{$theme_dir}/CRM/Calendar/icon.png" alt="" align="middle" border="0" width="32" height="32">
 	        <div style="height: 5px;"></div>
 	        <span>{$new_event.text}</span>
         </div>
@@ -54,7 +54,7 @@
 
 	    {$new_task.open}
 		<div class="button">
-            <img src="{$theme_dir}/CRM_Tasks__icon.png" alt="" align="middle" border="0" width="32" height="32">
+            <img src="{$theme_dir}/CRM/Tasks/icon.png" alt="" align="middle" border="0" width="32" height="32">
             <div style="height: 5px;"></div>
             <span>{$new_task.text}</span>
         </div>
@@ -92,7 +92,7 @@
 
 	    {$new_phonecall.open}
 		<div class="button">
-            <img src="{$theme_dir}/CRM_PhoneCall__icon.png" alt="" align="middle" border="0" width="32" height="32">
+            <img src="{$theme_dir}/CRM/PhoneCall/icon.png" alt="" align="middle" border="0" width="32" height="32">
             <div style="height: 5px;"></div>
             <span>{$new_phonecall.text}</span>
         </div>
@@ -129,7 +129,7 @@
 
 	    {$just_close.open}
 		<div class="button">
-            <img src="{$theme_dir}/Base_ActionBar__icons/folder.png" alt="" align="middle" border="0" width="32" height="32">
+            <img src="{$theme_dir}/Base/ActionBar/icons/folder.png" alt="" align="middle" border="0" width="32" height="32">
             <div style="height: 5px;"></div>
             <span>{$just_close.text}</span>
         </div>

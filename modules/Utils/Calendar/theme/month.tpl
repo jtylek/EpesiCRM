@@ -2,16 +2,16 @@
 	<table class="month-menu" border="0" cellpadding="0" cellspacing="0"><tr>
 		<td class="empty">
 			<div id="{$trash_id}" class="trash">
-				<div class="icon"><img border="0" width="32" height="32" src="{$theme_dir}/Utils_Calendar__trash.png"></div>
+				<div class="icon"><img border="0" width="32" height="32" src="{$theme_dir}/Utils/Calendar/trash.png"></div>
 				<div class="text">{$trash_label}</div>
 			</div>
 		</td>
 		<td style="width: 10px;"></td>
-		<td><a class="button" {$prevyear_href}><img border="0" width="8" height="20" src="{$theme_dir}/Utils_Calendar__prev.png">&nbsp;&nbsp;{$prevyear_label}</a></td>
-		<td><a class="button" {$prevmonth_href}><img border="0" width="8" height="20" src="{$theme_dir}/Utils_Calendar__prev.png">&nbsp;&nbsp;{$prevmonth_label}</a></td>
-		<td><a class="button" {$today_href}>{$today_label}&nbsp;&nbsp;<img border="0" width="8" height="20" src="{$theme_dir}/Utils_Calendar__this.png"></a></td>
-		<td><a class="button" {$nextmonth_href}>{$nextmonth_label}&nbsp;&nbsp;<img border="0" width="8" height="20" src="{$theme_dir}/Utils_Calendar__next.png"></a></td>
-		<td><a class="button" {$nextyear_href}>{$nextyear_label}&nbsp;&nbsp;<img border="0" width="8" height="20" src="{$theme_dir}/Utils_Calendar__next.png"></a></td>
+		<td><a class="button" {$prevyear_href}><img border="0" width="8" height="20" src="{$theme_dir}/Utils/Calendar/prev.png">&nbsp;&nbsp;{$prevyear_label}</a></td>
+		<td><a class="button" {$prevmonth_href}><img border="0" width="8" height="20" src="{$theme_dir}/Utils/Calendar/prev.png">&nbsp;&nbsp;{$prevmonth_label}</a></td>
+		<td><a class="button" {$today_href}>{$today_label}&nbsp;&nbsp;<img border="0" width="8" height="20" src="{$theme_dir}/Utils/Calendar/this.png"></a></td>
+		<td><a class="button" {$nextmonth_href}>{$nextmonth_label}&nbsp;&nbsp;<img border="0" width="8" height="20" src="{$theme_dir}/Utils/Calendar/next.png"></a></td>
+		<td><a class="button" {$nextyear_href}>{$nextyear_label}&nbsp;&nbsp;<img border="0" width="8" height="20" src="{$theme_dir}/Utils/Calendar/next.png"></a></td>
 		<td style="width: 10px;"></td>
 		<td>{$popup_calendar}</td>
 		<td class="empty"></td>
