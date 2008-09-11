@@ -342,7 +342,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$users = array(''=>'---');
 			while ($row=$ret->FetchRow()) {
 				$contact_id = Utils_RecordBrowserCommon::get_id('contact','login',$row['id']);
-				if ($contact_id===false || $contact_id===null || $row['id']===$default)
+				if ($contact_id===false || $contact_id===null || ($row['id']===$default && $mode!='add'))
 					if (Base_AclCommon::i_am_admin() || $row['id']==Acl::get_user())
 						$users[$row['id']] = $row['login'];
 			}
