@@ -79,7 +79,6 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		$count = DB::GetOne('SELECT COUNT(*) FROM utils_watchdog_event WHERE category_id=%d AND internal_id=%d', array($category_id,$id));
 		//trigger_error($count.'!');
 		if ($count==1) {
-			print('!!!!');
 			$subscribers = self::get_subscribers($category_id);
 			foreach ($subscribers as $s)
 				self::user_subscribe($s, $category_name, $id);
