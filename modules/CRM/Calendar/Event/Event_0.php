@@ -400,7 +400,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		if($action == 'new') {
 
 			eval_js_once('crm_calendar_event_messenger = function(v) {if(v){$("messenger_before").enable();$("messenger_message").enable();}else{$("messenger_before").disable();$("messenger_message").disable();}}');
-			$form->addElement('select','messenger_before',$this->lang->t('Popup alert before'),array(0=>$this->lang->ht('on event start'), 1=>$this->lang->ht('1 hour'), 2=>$this->lang->ht('2 hours'), 3=>$this->lang->ht('3 hours'), 4=>$this->lang->ht('4 hours'), 8=>$this->lang->ht('8 hours'), 12=>$this->lang->ht('12 hours'), 24=>$this->lang->ht('24 hours')),array('id'=>'messenger_before'));
+			$form->addElement('select','messenger_before',$this->lang->t('Popup alert'),array(0=>$this->lang->ht('on event start'), 1=>$this->lang->ht('1 hour before event'), 2=>$this->lang->ht('2 hours before event'), 3=>$this->lang->ht('3 hours before event'), 4=>$this->lang->ht('4 hours before event'), 8=>$this->lang->ht('8 hours before event'), 12=>$this->lang->ht('12 hours before event'), 24=>$this->lang->ht('24 hours before event')),array('id'=>'messenger_before'));
 			$form->addElement('textarea','messenger_message',$this->lang->t('Popup message'),array('id'=>'messenger_message'));
 			$form->addElement('checkbox','messenger_on',$this->lang->t('Alert me'),null,array('onClick'=>'crm_calendar_event_messenger(this.checked)'));
 			eval_js('crm_calendar_event_messenger('.($form->exportValue('messenger_before')?1:0).')');
