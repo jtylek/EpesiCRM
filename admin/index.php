@@ -9,6 +9,7 @@ if(isset($_GET['mod'])) {
 	print('<a href="modules.php">Modules administration</a><br>');
 	print('<a href="modulesup.php">Update load priority array</a><br>');
 	print('<a href="themeup.php">Update default theme</a><br>');
+	print('<a href="langup.php">Update translations</a><br>');
 	print('<a href="wfb.php">WFB File manager</a><br>');
 	print('<a href="phpfm.php">phpfm File manager</a><br>');
 	print('<a href="phpminiadmin.php">Mini MySQL Admin</a><br>');
