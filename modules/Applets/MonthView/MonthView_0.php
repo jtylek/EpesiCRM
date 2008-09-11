@@ -75,12 +75,9 @@ class Applets_MonthView extends Module {
 		$link_text = $this->create_unique_href_js(array('date'=>'__YEAR__-__MONTH__-__DAY__'));
 		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text,false,'month',null,null,''));
 
-
 		$day_headers = array();
 		for ($i=0; $i<7; $i++)
-			$day_headers[] = date('D', strtotime('Sun')+86400*($i+Utils_PopupCalendarCommon::get_first_day_of_week()));
-
-		$theme->assign('month_view_label', $this->lang->t('Year calendar'));
+			$day_headers[] = $this->lang->t(date('D', strtotime('Sun')+86400*($i+Utils_PopupCalendarCommon::get_first_day_of_week())));
 
 		$year = array();
 		
@@ -93,7 +90,7 @@ class Applets_MonthView extends Module {
 		$month = $this->month_array($this->date, $ret, $it);
 		$year[] = array('month' => $month,
 						'month_link' => Base_BoxCommon::create_href($this, 'CRM_Calendar', null, null, null, array('jump_to_date'=>$this->date, 'switch_to_tab'=>'Month')),
-						'month_label' => date('F', $this->date),
+						'month_label' => $this->lang->t(date('F', $this->date)),
 						'year_label' => date('Y', $this->date)
 						);
 		$theme->assign('year', $year);

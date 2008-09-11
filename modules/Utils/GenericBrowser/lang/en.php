@@ -38,4 +38,6 @@ $translations['Utils_GenericBrowser']['Activate']='';
 $translations['Utils_GenericBrowser']['Move down']='';
 $translations['Utils_GenericBrowser']['Move up']='';
 $translations['Utils_GenericBrowser']['Restore']='';
+$translations['Utils_GenericBrowser']['Page (%s to %s)']='';
+$translations['Utils_GenericBrowser']['Append data']='';
 ?>

@@ -21,8 +21,8 @@ $translations['Base_Admin']['Manage users']='Zarządzanie użytkownikami';
 $translations['Base_Admin']['Notes & Attachments']='Notki i załączniki';
 $translations['Base_Admin']['Records Sets']='Zbiory danych';
 $translations['Base_Admin']['Modules settings']='Ustawienia modułów';
-$translations['Base_Admin']['Projects planner']='Harmonogram projektów';
 $translations['Base_Admin']['PHP & SQL Errors to mail']='Błedy PHP i SQL wysyłane do';
-$translations['Base_Admin']['Module indicator settings']='';
-$translations['Base_Admin']['Printing options']='';
+$translations['Base_Admin']['Module indicator settings']='Ustawienia wskaźnika lokacji';
+$translations['Base_Admin']['Printing options']='Ustawienia drukowania';
+$translations['Base_Admin']['Mail client settings']='Ustawienia klienta poczty';
 ?>

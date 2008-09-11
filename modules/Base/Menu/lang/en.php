@@ -53,4 +53,5 @@ $translations['Base_Menu']['Tickets']='';
 $translations['Base_Menu']['Timesheets']='';
 $translations['Base_Menu']['Add']='';
 $translations['Base_Menu']['Browse']='';
+$translations['Base_Menu']['Mail client']='';
 ?>

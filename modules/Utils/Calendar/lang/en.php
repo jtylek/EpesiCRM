@@ -70,4 +70,5 @@ $translations['Utils_Calendar']['Monday']='';
 $translations['Utils_Calendar']['Thursday']='';
 $translations['Utils_Calendar']['Wednesday']='';
 $translations['Utils_Calendar']['Drag and drop<br>to delete']='';
+$translations['Utils_Calendar']['Sep']='';
 ?>

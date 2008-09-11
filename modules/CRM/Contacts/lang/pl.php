@@ -22,8 +22,8 @@ $translations['CRM_Contacts']['Users without contact: %s.']='Użytwkowników bez
 $translations['CRM_Contacts']['New Event']='Nowe wydarzenie';
 $translations['CRM_Contacts']['New Task']='Nowe zadanie';
 $translations['CRM_Contacts']['New Phonecall']='Nowy telefon';
-$translations['CRM_Contacts']['Your user doesn\'t have contact, please assign one']='';
-$translations['CRM_Contacts']['Click here to search this location using google maps']='';
-$translations['CRM_Contacts']['Companies']='';
-$translations['CRM_Contacts']['Contacts']='';
+$translations['CRM_Contacts']['Your user doesn\'t have contact, please assign one']='Twoje konto nie ma przypisanego kontaktu';
+$translations['CRM_Contacts']['Click here to search this location using google maps']='Kliknij aby wyszukać to miejsce używając Google maps';
+$translations['CRM_Contacts']['Companies']='Firmy';
+$translations['CRM_Contacts']['Contacts']='Kontakty';
 ?>

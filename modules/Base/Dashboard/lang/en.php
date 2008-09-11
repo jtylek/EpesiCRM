@@ -168,4 +168,5 @@ $translations['Base_Dashboard']['Favs']='';
 $translations['Base_Dashboard']['Delete']='';
 $translations['Base_Dashboard']['Subscription status']='';
 $translations['Base_Dashboard']['Phone Calls settings']='';
+$translations['Base_Dashboard']['[All except closed]']='';
 ?>

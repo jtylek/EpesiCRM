@@ -26,7 +26,10 @@ class CRM_Tasks extends Module {
 	
 	public function applet($conf,$opts) {
 		$opts['go'] = true;
-		$opts['title'] = 'Tasks'.($conf['related']==0?' - Todo':'').($conf['related']==1?' - Related':'').($conf['term']=='s'?' - short term':($conf['term']=='l'?' - long term':''));
+		$opts['title'] = Base_LangCommon::ts('CRM/Tasks','Tasks').
+						($conf['related']==0?Base_LangCommon::ts('CRM/Tasks',' - Todo'):'').
+						($conf['related']==1?Base_LangCommon::ts('CRM/Tasks',' - Related'):'').
+						($conf['term']=='s'?Base_LangCommon::ts('CRM/Tasks',' - short term'):($conf['term']=='l'?Base_LangCommon::ts('CRM/Tasks',' - long term'):''));
 		$me = CRM_ContactsCommon::get_my_record();
 		if ($me['id']==-1) {
 			CRM_ContactsCommon::no_contact_message();

@@ -88,4 +88,7 @@ $translations['Base_ActionBar']['Subscribe']='';
 $translations['Base_ActionBar']['Add']='';
 $translations['Base_ActionBar']['Charts']='';
 $translations['Base_ActionBar']['Manage weekends']='';
+$translations['Base_ActionBar']['Check']='';
+$translations['Base_ActionBar']['New mail']='';
+$translations['Base_ActionBar']['Mark all as read']='';
 ?>

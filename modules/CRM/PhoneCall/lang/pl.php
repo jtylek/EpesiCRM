@@ -26,6 +26,6 @@ $translations['CRM_PhoneCall']['Close']='Zamknij';
 $translations['CRM_PhoneCall']['Canceled']='Anuluj';
 $translations['CRM_PhoneCall']['Follow up: ']='Kontynuacja: ';
 $translations['CRM_PhoneCall']['New Phonecall']='Nowy telefon';
-$translations['CRM_PhoneCall']['Field required']='';
-$translations['CRM_PhoneCall']['Phonecalls']='';
+$translations['CRM_PhoneCall']['Field required']='Pole wymagane';
+$translations['CRM_PhoneCall']['Phonecalls']='Telefony';
 ?>

@@ -48,4 +48,5 @@ $translations['Base_Menu_QuickAccess']['Premium: Tickets']='';
 $translations['Base_Menu_QuickAccess']['Premium: Projects']='';
 $translations['Base_Menu_QuickAccess']['Timesheets: Add']='';
 $translations['Base_Menu_QuickAccess']['Timesheets: Browse']='';
+$translations['Base_Menu_QuickAccess']['Mail client']='';
 ?>

@@ -34,5 +34,9 @@ $translations['Utils_GenericBrowser']['Page']='Strona';
 $translations['Utils_GenericBrowser']['Deactivate']='Wyłacz';
 $translations['Utils_GenericBrowser']['View edit history']='Zobacz historię edycji';
 $translations['Utils_GenericBrowser']['This record was never edited']='Ten rekord nie był nigdy zmieniany';
-$translations['Utils_GenericBrowser']['Restore']='';
+$translations['Utils_GenericBrowser']['Restore']='Przywróć';
+$translations['Utils_GenericBrowser']['Page (%s to %s)']='Strona (%s do %s)';
+$translations['Utils_GenericBrowser']['Activate']='Aktywuj';
+$translations['Utils_GenericBrowser']['Move down']='Przesuń w dół';
+$translations['Utils_GenericBrowser']['Move up']='Przesuń w górę';
 ?>

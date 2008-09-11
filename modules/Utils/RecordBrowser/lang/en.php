@@ -305,4 +305,13 @@ $translations['Utils_RecordBrowser']['Created']='';
 $translations['Utils_RecordBrowser']['Note deleted']='';
 $translations['Utils_RecordBrowser']['Note deleted9767']='';
 $translations['Utils_RecordBrowser']['Note added']='';
+$translations['Utils_RecordBrowser']['Testujemy Sobie']='';
+$translations['Utils_RecordBrowser']['Add new field']='';
+$translations['Utils_RecordBrowser']['Edit field properties']='';
+$translations['Utils_RecordBrowser']['  asdasda  ']='';
+$translations['Utils_RecordBrowser']['asdasdasa']='';
+$translations['Utils_RecordBrowser']['asdas']='';
+$translations['Utils_RecordBrowser']['ssssssssssssssssss']='';
+$translations['Utils_RecordBrowser']['Deffsssddsss']='';
+$translations['Utils_RecordBrowser']['P and L per Job']='';
 ?>

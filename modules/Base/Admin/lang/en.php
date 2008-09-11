@@ -25,4 +25,5 @@ $translations['Base_Admin']['Projects planner']='';
 $translations['Base_Admin']['PHP & SQL Errors to mail']='';
 $translations['Base_Admin']['Module indicator settings']='';
 $translations['Base_Admin']['Printing options']='';
+$translations['Base_Admin']['Mail client settings']='';
 ?>
