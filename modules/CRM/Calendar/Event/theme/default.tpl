@@ -1,6 +1,5 @@
 {php}
 	$theme_dir = $this->get_template_vars('theme_dir');
-	load_js($theme_dir.'/CRM/Calendar/Event/default.js');
 {/php}
 
 <table class="CRM_Calendar_Event__header" border="0" cellpadding="0" cellspacing="0">
@@ -277,7 +276,7 @@
                                     </tr>
                                     <tr>
                                         <td class="label" align="left">{$form_data.messenger_message.label}*</td>
-                                        <td class="data" align="left"><span class="error">{$form_data.messenger_message.error}</span>{$form_data.messenger_message.html}</td>
+                                        <td class="data smalltext" align="left"><span class="error">{$form_data.messenger_message.error}</span>{$form_data.messenger_message.html}</td>
                                     </tr>
                                 </tbody>
                             </table>

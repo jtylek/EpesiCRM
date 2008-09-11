@@ -436,3 +436,6 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
 	border-right: 1px solid #b3b3b3;
 }
 
+#CRM_Calendar_Event_Personal .smalltext textarea {
+	height: 16px;
+}
