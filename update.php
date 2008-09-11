@@ -77,6 +77,31 @@ function install_default_theme_common_files($dir,$f) {
 	}
 }
 
+function langup(){
+	$ret = DB::Execute('SELECT * FROM modules');
+	while($row = $ret->FetchRow()) {
+		$mod_name = $row[0];
+		if ($mod_name=='Base') continue;
+		if ($mod_name=='Tests') continue;
+		global $translations;
+		$directory = 'modules/'.str_replace('_','/',$mod_name).'/lang';
+		if (!is_dir($directory)) continue;
+		$content = scandir($directory);
+		$trans_backup = $translations;
+		foreach ($content as $name){
+			if($name == '.' || $name == '..' || ereg('^[\.~]',$name)) continue;
+			$dot = strpos($name,'.');
+			$langcode = substr($name,0,$dot);
+			if (strtolower(substr($name,$dot+1))!='php') continue;
+			$translations = array();
+			@include('data/Base_Lang/'.$langcode.'.php');
+			include($directory.'/'.$name);
+			Base_LangCommon::save($langcode);
+		}
+		$translations = $trans_backup;
+	}	
+}
+
 function themeup(){
 	$data_dir = 'data/Base_Theme/templates/default/';
 	$content = scandir($data_dir);
@@ -640,6 +665,7 @@ function update_from_1_0_0rc2_to_1_0_0rc3() {
 
 	ModuleManager::create_common_cache();
 	themeup();
+	langup();
 	Base_ThemeCommon::create_cache();
 }
 
