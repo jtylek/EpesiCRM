@@ -420,8 +420,9 @@ class Utils_Calendar extends Module {
 		$theme->display('day');
 
 		//data
-		$start = $this->date;
-		$end = $this->date+86400;
+		$this->date = strtotime(date('Y-m-d 00:00:00',$this->date));
+		$start = Base_RegionalSettingsCommon::reg2time($this->date);
+		$end = Base_RegionalSettingsCommon::reg2time($this->date+2*86400);
 		$ret = $this->get_events($start, $end);
 		$this->displayed_events = array('start'=>$start, 'end'=>$end,'events'=>$ret);
 		$custom_keys = $this->settings['custom_rows'];
@@ -507,7 +508,8 @@ class Utils_Calendar extends Module {
 		$first_day_of_displayed_week = date('w', $this->date)-$this->settings['first_day_of_week'];
 		if ($first_day_of_displayed_week<0) $first_day_of_displayed_week += 7;
 		$first_day_of_displayed_week *= 86400;
-		$dis_week_from = strtotime(date('Y-m-d',$this->date+$week_shift-$first_day_of_displayed_week));
+		$dis_week_from = strtotime(date('Y-m-d 00:00:00',$this->date+$week_shift-$first_day_of_displayed_week));
+		$dis_week_from = Base_RegionalSettingsCommon::reg2time($dis_week_from);
 
 		//headers
 		$day_headers = array();
@@ -606,7 +608,8 @@ class Utils_Calendar extends Module {
 					continue;
 				}
 			} else {
-				$today_t = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$ev['start']));
+				$today_t = Base_RegionalSettingsCommon::time2reg(date('Y-m-d H:i:s',$ev['start']),true,true,true,false);
+				$today_t = strtotime(date('Y-m-d H:i:s',Base_RegionalSettingsCommon::reg2time(date('Y-m-d',strtotime($today_t)))));
 				$ev_start = $ev['start']-$today_t;
 				$ct = count($timeline);
 				for($i=1, $j=2; $j<$ct; $i++,$j++)
@@ -720,7 +723,9 @@ class Utils_Calendar extends Module {
 
 		//data
 		$start_t = $month[0]['days'][0]['time'];
-		$end_t = $month[count($month)-1]['days'][6]['time'];
+		$start_t = Base_RegionalSettingsCommon::reg2time($start_t);
+		$end_t = $month[count($month)-1]['days'][6]['time']+86400;
+		$end_t = Base_RegionalSettingsCommon::reg2time($end_t);
 		$ret = $this->get_events($start_t,$end_t);
 		$this->js('Utils_Calendar.page_type=\'month\'');
 		$ev_out = 'function() {';
