@@ -50,7 +50,7 @@ table#Utils_Calendar__month td.today {
 
 table#Utils_Calendar__month td.current_weekend {
 	color: #000000;
-	background-color: #CCFFCC;
+	background-color: #E0EDE0;
 }
 
 table#Utils_Calendar__month td.current_weekend a {
@@ -63,7 +63,7 @@ table#Utils_Calendar__month td.today_weekend a {
 
 table#Utils_Calendar__month td.other_weekend {
 	color: #B3B3B3;
-	background-color: #E0F0E0;
+	background-color: #D7DDE3;
 }
 
 table#Utils_Calendar__month td.today_weekend {
@@ -110,12 +110,13 @@ table#Utils_Calendar__month td.weekend_day_header {
 	height: 30px;
 	vertical-align: middle;
 	background-color: #336699;
-	background-image: url('images/header-green-30px.png');
+	background-image: url('images/day-header-weekend.png');
+	/* background-image: url('images/header-green-30px.png'); */
 	background-repeat: repeat-x;
 	padding-left: 5px;
 	border-left: 1px solid #FFFFFF;
 	border-right: 1px solid #B3B3B3;
-	border-bottom: 2px solid #FFFFFF;
+	border-bottom: 2px solid #ACD2AC;
 }
 
 table#Utils_Calendar__month td.week-number {

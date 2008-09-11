@@ -38,7 +38,7 @@ p.event {
 }
 
 #Utils_Calendar__year .current_weekend {
-	background-color: #E5FFE5;
+	background-color: #E0EDE0;
 	color: #228822;
 }
 
@@ -77,7 +77,7 @@ p.event {
 
 #Utils_Calendar__year .other_weekend {
 	color: #93B393;
-	background-color: #E0F0E0;
+	background-color: #E0EDE0;
 }
 
 #Utils_Calendar__year .other a {
@@ -116,7 +116,7 @@ p.event {
 }
 
 #Utils_Calendar__year td.today_weekend {
-	background-color: #E5FFE5;
+	background-color: #E0EDE0;
 	color: #228822;
 	font-weight: bold;
 	border: 2px solid #336699;
