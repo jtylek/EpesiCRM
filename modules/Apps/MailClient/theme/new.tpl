@@ -2,6 +2,9 @@
 
 <table>
 <tr>
+<td colspan=2>{$form_data.header.mail_header}</td>
+</tr>
+<tr>
 <td>{$form_data.from_addr.label}</td>
 <td><span class="error">{$form_data.from_addr.error}</span>{$form_data.from_addr.html}</td>
 </tr>
