@@ -232,8 +232,7 @@
         <tbody>
             <tr>
                 <td style="width: 50%; vertical-align: top;">
-                    <a class="button100" onclick="show_hide_recurrence();">Recurrence</a>
-                    <div id="recurrence" style="padding-top: 5px; display: none;">
+                    <div id="recurrence" style="padding-top: 5px;">
                         <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if}" style="border-left: none;" cellspacing="0" cellpadding="0" border="0">
                             <tbody>
                                 <tr>
@@ -265,8 +264,7 @@
                 </td>
                 <td style="width: 50%; vertical-align: top;">
                     {if $action=='new'}
-                        <a class="button100" onclick="show_hide_alert();">Alert</a>
-                        <div id="alert" style="padding-top: 5px; display: none;">
+                        <div id="alert" style="padding-top: 5px;">
                             <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if}" style="border-left: none;" cellspacing="0" cellpadding="0" border="0">
                                 <tbody>
                                     <tr>
