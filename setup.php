@@ -96,7 +96,14 @@ if(!isset($_GET['license'])) {
 		 	  			}
 		   				pg_close($link);
 					} else {
-						write_config($host, $user, $pass, $dbname, $engine);
+						include_once('libs/adodb/adodb.inc.php');
+						$ado = & NewADOConnection('postgres');
+						if(!@$ado->Connect($host,$user,$pass,$dbname)) {
+							echo 'Database does not exist.'."\n";
+							echo '<br />Please create the database first <br />or select option <b>Create new database</b>';
+						} else {
+							write_config($host, $user, $pass, $dbname, $engine);
+						}
 					}
 				}
 			break;
