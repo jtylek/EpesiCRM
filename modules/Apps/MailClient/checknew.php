@@ -178,6 +178,10 @@ foreach($accounts as $account) {
 			}
 			$msg = $in->getMsg($msgl['msg_id']);
 		}
+		if($msg===false) {
+			$invalid++;
+			continue;
+		}
 		$decode = new Mail_mimeDecode($msg, "\r\n");
 		$structure = $decode->decode();
 		if(!isset($structure->headers['from']))
@@ -186,10 +190,6 @@ foreach($accounts as $account) {
 			$structure->headers['to'] = '';
 		if(!isset($structure->headers['date']))
 			$structure->headers['date'] = '';
-		if($msg===false) {
-			$invalid++;
-			continue;
-		}
 		$msg_id = Apps_MailClientCommon::get_next_msg_id($box);
 		file_put_contents($box.'/'.$msg_id,$msg);
 		if(!Apps_MailClientCommon::append_msg_to_index($account['mail'],'Inbox',$msg_id,isset($structure->headers['subject'])?$structure->headers['subject']:'no subject',$structure->headers['from'],$structure->headers['to'],$structure->headers['date'],strlen($msg))) {

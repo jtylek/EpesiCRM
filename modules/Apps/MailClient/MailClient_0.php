@@ -4,9 +4,8 @@
  *
  * TODO: 
  * -drafts, sent i trash to specjalne foldery, wszystkie inne traktujemy tak jak inbox
- * -dodawanie, edycja folderow w mailboxach
- * -resend w sent
  * -zalaczniki przy new
+ * -dodawanie, edycja folderow w mailboxach
  * -obsluga imap
  * -obsluga ssl przy wysylaniu smtp
  * 
@@ -86,11 +85,15 @@ class Apps_MailClient extends Module {
 			$r->add_action('href="javascript:void(0)" rel="'.$show_id.'" class="lbOn" id="'.$lid.'" ','View');
 			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Delete this message?'),array($this,'remove_mail'),array($box_file,$id)),'Delete');
 			if($drafts_folder) {
-				$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box_file,$id)),'Edit');
+				$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box_file,$id,'edit')),'Edit');
 			} elseif($sent_folder) {
-				$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box_file,$id,true)),'Edit');
-			} elseif($trash_folder)
+				$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box_file,$id,'edit_as_new')),'Edit');
+			} elseif($trash_folder) {
 				$r->add_action($this->create_callback_href(array($this,'restore_mail'),array($box_file,$id)),'Restore');
+			} else {
+				$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box_file,$id,'reply')),'Reply');			
+			}
+			$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box_file,$id,'forward')),'Forward');			
 			$r->add_js('Event.observe(\''.$lid.'\',\'click\',function() {Apps_MailClient.preview(\''.$show_id.'\',\''.http_build_query(array('box'=>$box_file, 'msg_id'=>$id, 'pid'=>$show_id)).'\',\''.$id.'\')})');
 		}
 		
@@ -185,13 +188,13 @@ class Apps_MailClient extends Module {
 		}
 	}
 	
-	public function edit_mail($box,$id=null,$edit_as_new=false) {
+	public function edit_mail($box,$id=null,$type=null) {
 		if($this->is_back()) return false;
 		
 		$f = $this->init_module('Libs/QuickForm');
 		$theme = $this->init_module('Base/Theme');
 		
-		$f->addElement('header','mail_header',$this->lang->t(($id===null || $edit_as_new)?'New mail':'Edit mail'));
+		$f->addElement('header','mail_header',$this->lang->t(($id===null || $type!='edit')?'New mail':'Edit mail'));
 		$f->addElement('hidden','action','send','id="new_mail_action"');
 		
 		$from_mails = DB::GetAssoc('SELECT id,mail FROM apps_mailclient_accounts WHERE smtp_server is not null AND smtp_server!=\'\' AND user_login_id='.Acl::get_user().' ORDER BY mail');
@@ -315,37 +318,61 @@ class Apps_MailClient extends Module {
 					}
 				}*/
 
-				$to_address = Apps_MailClientCommon::mime_header_decode($structure->headers['to']);
-				$to_address = explode(',',$to_address);
 				$to_addr = array();
 				$to_addr_ex = array();
-				foreach($to_address as $v) {
-					if(strpos($v,'@')!==false) {
-						$to_addr[] = trim($v);
-					} elseif(ereg('<([0-9]+)>$',$v,$r)) {
-						$to_addr_ex[] = $r[1];
-					}
-				}
-				if(ModuleManager::is_installed('CRM/Contacts')>=0) {
-					foreach($to_addr_ex as $k=>$v) {
-						$v = CRM_ContactsCommon::get_contact_by_user_id($v);
-						if($v===null) {
-							unset($to_addr_ex[$k]);
-							continue;
-						}
-						$to_addr_ex[$k] = $v['id'];
-						$to_addr = array_filter($to_addr,create_function('$o','return $o!=\''.$v['email'].'\';'));
-					}
-				} else {
-					foreach($to_addr_ex as $k=>$v) {
-						$mail = Base_User_LoginCommon::get_mail($v);
-						$to_addr = array_filter($to_addr,create_function('$o','return $o!=\''.$mail.'\';'));
-					}				
-				}
-				$to_addr = implode(', ',$to_addr);
-				//$from_address = Apps_MailClientCommon::mime_header_decode($structure->headers['from']);
 				$subject = isset($structure->headers['subject'])?Apps_MailClientCommon::mime_header_decode($structure->headers['subject']):'no subject';
-				
+				if($type=='edit' || $type=='edit_as_new') {
+					$to_address = Apps_MailClientCommon::mime_header_decode($structure->headers['to']);
+					$to_address = explode(',',$to_address);
+					foreach($to_address as $v) {
+						if(strpos($v,'@')!==false) {
+							$to_addr[] = trim($v);
+						} elseif(ereg('<([0-9]+)>$',$v,$r)) {
+							$to_addr_ex[] = $r[1];
+						}
+					}
+					if(ModuleManager::is_installed('CRM/Contacts')>=0) {
+						foreach($to_addr_ex as $k=>$v) {
+							$v = CRM_ContactsCommon::get_contact_by_user_id($v);
+							if($v===null) {
+								unset($to_addr_ex[$k]);
+								continue;
+							}
+							$to_addr_ex[$k] = $v['id'];
+							$to_addr = array_filter($to_addr,create_function('$o','return $o!=\''.$v['email'].'\';'));
+						}
+					} else {
+						foreach($to_addr_ex as $k=>$v) {
+							$mail = Base_User_LoginCommon::get_mail($v);
+							$to_addr = array_filter($to_addr,create_function('$o','return $o!=\''.$mail.'\';'));
+						}				
+					}
+				} elseif($type=='reply') {
+					$subject = 'Re: '.$subject;
+					$to_addr[] = Apps_MailClientCommon::mime_header_decode(isset($structure->headers['reply-to'])?$structure->headers['reply-to']:$structure->headers['from']);
+				} elseif($type=='forward') {
+					$subject = 'Fwd: '.$subject;
+				}
+				if($type=='reply' || $type=='forward') {
+					$msg_header = "\n\n--------- Original Message ---------\n".
+								"Subject: $subject\n".
+								"Date: ".Apps_MailClientCommon::mime_header_decode(isset($structure->headers['date'])?$structure->headers['date']:$this->lang->ht('no date header specified'))."\n".
+								"From: ".Apps_MailClientCommon::mime_header_decode(isset($structure->headers['from'])?$structure->headers['from']:$this->lang->ht('no from header specified'))."\n".
+								"To: ".Apps_MailClientCommon::mime_header_decode(isset($structure->headers['to'])?$structure->headers['to']:$this->lang->ht('no from header specified'))."\n\n";
+					if($body_type=='plain') {
+						$body = $msg_header.$body;
+					} else {
+						$c=0;
+						$msg_header = str_replace("\n","<br>",$msg_header);
+						$body = preg_replace('/(<body[^>]*>)/i','$1'.$msg_header,$body,1,$c);
+						if($c==0) {
+							$body = $msg_header.$body; //TODO: there was no body block... produces invalid HTML
+						}
+					}					
+				}
+
+				$to_addr = implode(', ',$to_addr);
+
 				if($body_type=='plain') {
 					$body = htmlspecialchars(preg_replace("/(http:\/\/[a-z0-9]+(\.[a-z0-9]+)+(\/[\.a-z0-9]+)*)/i", "<a href='\\1'>\\1</a>", $body));
 					$body = '<html>'.
@@ -457,7 +484,7 @@ class Apps_MailClient extends Module {
 			}
 			if($ret) {
 				if(Apps_MailClientCommon::drop_message(Apps_MailClientCommon::get_mailbox_dir($from?$from['mail']:'internal').$save_folder,$v['subject'],$from?$from['mail']:$this->lang->ht('private message'),$to_names,$date,$v['body'],true)) {
-					if($id!==null && !$edit_as_new) $this->remove_mail($box,$id);
+					if($id!==null && $type=='edit') $this->remove_mail($box,$id);
 					return false;
 				}
 			}
