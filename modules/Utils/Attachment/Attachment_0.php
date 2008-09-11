@@ -321,7 +321,7 @@ class Utils_Attachment extends Module {
 
 		$th->display('view');
 
-		$this->caption = $this->lang->t('View note');
+		$this->caption = 'View note';
 
 		return true;
 	}
@@ -429,7 +429,7 @@ class Utils_Attachment extends Module {
 
 		$th->display('history');
 
-		$this->caption = $this->lang->t('Note history');
+		$this->caption = 'Note history';
 
 		return true;
 	}
@@ -513,7 +513,7 @@ class Utils_Attachment extends Module {
 			$this->ret_attach = false;
 		}
 
-		$this->caption = $this->lang->t('Edit note');
+		$this->caption = 'Edit note';
 
 		if($this->inline)
 			return $this->ret_attach;
