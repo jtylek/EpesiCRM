@@ -398,8 +398,18 @@ function update_from_1_0_0rc2_to_1_0_0rc3() {
 		$icons = DB::GetAssoc('SELECT tab, icon FROM recordbrowser_table_properties');
 		foreach ($icons as $t=>$i) {
 			$ic = explode('__', $i);
-			if (isset($ic[1])) $new_i = str_replace('_','/',$ic[0]).'/'.$ic[1];
-			DB::Execute('UPDATE recordbrowser_table_properties SET icon=%s WHERE tab=%s', array($new_i, $t));
+			if (isset($ic[1])) {
+				$new_i = str_replace('_','/',$ic[0]).'/'.$ic[1];
+				DB::Execute('UPDATE recordbrowser_table_properties SET icon=%s WHERE tab=%s', array($new_i, $t));
+			}
+		} 
+		$icons = DB::GetAssoc('SELECT tab, tpl FROM recordbrowser_table_properties');
+		foreach ($icons as $t=>$i) {
+			$ic = explode('__', $i);
+			if (isset($ic[1])) {
+				$new_i = str_replace('_','/',$ic[0]).'/'.$ic[1];
+				DB::Execute('UPDATE recordbrowser_table_properties SET tpl=%s WHERE tab=%s', array($new_i, $t));
+			}
 		} 
 
 		$tabs = DB::GetAssoc('SELECT tab, tab FROM recordbrowser_table_properties');
