@@ -319,8 +319,8 @@ class ADODB2_postgres extends ADODB_DataDict {
 	{
 		$sql = ADODB_DataDict::DropTableSQL($tabname);
 		
-		$drop_seq = $this->_DropAutoIncrement($tabname);
-		if ($drop_seq) $sql[] = $drop_seq;
+//		$drop_seq = $this->_DropAutoIncrement($tabname);
+//		if ($drop_seq) $sql[] = $drop_seq;
 		
 		return $sql;
 	}
