@@ -63,12 +63,14 @@ remove_event_tag:function(prev_node,ev) {
 	var prev_ch;
 	var reload = new Array();
 	do {
-		prev_ch = cell.getAttribute('events_children').evalJSON().without(ev.id);
-		if(prev_ch.length==0) {
-			cell.removeAttribute('events_children');
-		} else {
-			reload = reload.concat(prev_ch);
-			cell.setAttribute('events_children',prev_ch.toJSON());
+		if(cell.hasAttribute('events_children')) {
+			prev_ch = cell.getAttribute('events_children').evalJSON().without(ev.id);
+			if(prev_ch.length==0) {
+				cell.removeAttribute('events_children');
+			} else {
+				reload = reload.concat(prev_ch);
+				cell.setAttribute('events_children',prev_ch.toJSON());
+			}
 		}
 
 		if(cell.hasAttribute('join_rows')) {
@@ -228,6 +230,7 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 								//Utils_Calendar.remove_event_tag($(element.getAttribute('last_cell')),element);
 								//Utils_Calendar.add_event_tag(droppable,element);
 								element.setAttribute('last_cell',droppable.id);
+								Utils_Calendar.remove_event_tag(droppable,element);
 								setTimeout(Utils_Calendar.flush_reload_event_tag,300);
 								//Utils_Calendar.flush_reload_event_tag();
 							}
