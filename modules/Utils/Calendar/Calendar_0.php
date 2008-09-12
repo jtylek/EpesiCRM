@@ -455,8 +455,9 @@ class Utils_Calendar extends Module {
 			}
 		}
 		$ev_out.='Utils_Calendar.flush_reload_event_tag();}';
-		eval_js('setTimeout('.$ev_out.',300)');
-		eval_js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
+		$this->js('Utils_Calendar.add_events_f = '.$ev_out);
+		$this->js('Utils_Calendar.add_events("Utils%2FCalendar%2Fday.css")');
+		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
 				'\''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
 				'\''.Epesi::escapeJS($this->get_path(),false).'\','.
 				'\''.CID.'\')');
@@ -625,8 +626,9 @@ class Utils_Calendar extends Module {
 			}
 		}
 		$ev_out.='Utils_Calendar.flush_reload_event_tag();}';
-		eval_js('setTimeout('.$ev_out.',300)');
-		eval_js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
+		$this->js('Utils_Calendar.add_events_f = '.$ev_out);
+		$this->js('Utils_Calendar.add_events("Utils%2FCalendar%2Fweek.css")');
+		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
 				'\''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
 				'\''.Epesi::escapeJS($this->get_path(),false).'\','.
 				'\''.CID.'\')');
@@ -740,8 +742,9 @@ class Utils_Calendar extends Module {
 			$ev_out .= 'Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).', 1);';
 		}
 		$ev_out.='}';
-		eval_js('setTimeout('.$ev_out.',300)');
-		eval_js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
+		$this->js('Utils_Calendar.add_events_f = '.$ev_out);
+		$this->js('Utils_Calendar.add_events("Utils%2FCalendar%2Fmonth.css")');
+		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
 				'\''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
 				'\''.Epesi::escapeJS($this->get_path(),false).'\','.
 				'\''.CID.'\')');

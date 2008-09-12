@@ -4,6 +4,21 @@ page_type:null,
 go_to_day:function(date) {
 	eval(Utils_Calendar.day_href.replace('__DATE__',date));
 },
+add_events_f:null,
+add_events:function(css) {
+	var loaded = false;
+	for(var i=0; i<document.styleSheets.length; i++) {
+		var v = document.styleSheets[i].href;
+		if(typeof(v)=='string' && v.indexOf(css)!=-1) {
+			loaded = true;
+		}
+	}
+	if (!loaded) {
+		setTimeout(Utils_Calendar.add_events.bind(Utils_Calendar,css),100);
+	} else {
+		Utils_Calendar.add_events_f();	
+	}	
+},
 add_event:function(dest_id,ev_id,draggable,duration) {
 	var dest = $(dest_id);
 	var ev = $('utils_calendar_event:'+ev_id);
