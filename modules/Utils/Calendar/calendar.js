@@ -8,6 +8,11 @@ add_events_f:null,
 add_events:function(css) {
 	var loaded = false;
 	for(var i=0; i<document.styleSheets.length; i++) {
+		try {
+			typeof(document.styleSheets[i].cssRules);
+		} catch(err) {
+			continue;
+		}
 		var v = document.styleSheets[i].href;
 		if(typeof(v)=='string' && v.indexOf(css)!=-1) {
 			loaded = true;
