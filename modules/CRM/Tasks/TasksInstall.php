@@ -100,6 +100,9 @@ class CRM_TasksInstall extends ModuleInstall {
 		return true;
 	}
 
+	public static function backup() {
+		return Utils_RecordBrowserCommon::get_tables('task');		
+	}
 }
 
 ?>

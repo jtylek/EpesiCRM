@@ -233,6 +233,13 @@ class CRM_ContactsInstall extends ModuleInstall {
 					));
 		}
 	}
+	
+	public static function backup() {
+		return array_merge(
+				Utils_RecordBrowserCommon::get_tables('contact'),		
+				Utils_RecordBrowserCommon::get_tables('company')
+			);
+	}
 }
 
 ?>
