@@ -7,8 +7,9 @@ class Utils_CalendarCommon extends ModuleCommon {
 		$ex = self::process_event($ev);
 		$th->assign('event_id',$ev['id']);
 		$th->assign('draggable',!isset($ev['draggable']) || $ev['draggable']===true);
-		$title = strip_tags($ev['title']);
-		if(strlen($title)>15) $title_s = Utils_TooltipCommon::create(trim(substr($title,0,13),' ').'...',$title,false);
+		$title = $ev['title'];
+		$title_st = strip_tags($ev['title']);
+		if(strlen($title_st)>15) $title_s = Utils_TooltipCommon::create(trim(substr($title_st,0,13),' ').'...',$title,false);
 			else $title_s = $title;
 		$th->assign('title',$title);
 		$th->assign('title_s',$title_s);

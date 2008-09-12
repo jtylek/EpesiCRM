@@ -220,37 +220,6 @@ class Base_ThemeCommon extends ModuleCommon {
 		}
 	}
 	
-	private static function create_css_cache() {
-		$themes_dir = 'data/Base_Theme/templates/';
-		$def_theme = Variable::get('default_theme');
-		$tdir = $themes_dir.$def_theme.'/';
-		$arr = glob($themes_dir.'default/*.css');
-		$css_def_out = '';
-		$css_cur_out = '';
-		$files_def_out = '';
-		$files_cur_out = '';
-		foreach($arr as $f) {
-			$name = basename($f);
-			if($name=='__cache.css') continue;
-			if(is_readable($tdir.$name) && $def_theme!='default') {
-				$css_cur_out .= file_get_contents($tdir.$name)."\n";
-				$files_cur_out .= $tdir.$name."\n";
-			} else {
-				$css_def_out .= file_get_contents($f)."\n";
-				$files_def_out .= $f."\n";
-			}
-		}
-		
-		file_put_contents($themes_dir.'default/__cache.css',$css_def_out);
-		file_put_contents($themes_dir.'default/__cache.files',$files_def_out);
-		copy('modules/Base/Theme/css.php',$themes_dir.'default/__css.php');
-		if($def_theme!='default') {
-			file_put_contents($tdir.'/__cache.css',$css_cur_out);
-			file_put_contents($tdir.'/__cache.files',$files_cur_out);
-			copy('modules/Base/Theme/css.php',$tdir.'/__css.php');
-		}
-	}
-
 	private static function get_images($dir) {
 		$content = scandir($dir);
 		$ret = array();
@@ -287,7 +256,14 @@ class Base_ThemeCommon extends ModuleCommon {
 	 * For internal use only.
 	 */
 	public static function create_cache() {
-		self::create_css_cache();
+		//css
+		$themes_dir = 'data/Base_Theme/templates/';
+		$def_theme = Variable::get('default_theme');
+		$tdir = $themes_dir.$def_theme.'/';
+		copy('modules/Base/Theme/css.php',$themes_dir.'default/__css.php');
+		if($def_theme!='default')
+			copy('modules/Base/Theme/css.php',$tdir.'/__css.php');
+		//images
 		self::create_images_cache();
 	}
 }

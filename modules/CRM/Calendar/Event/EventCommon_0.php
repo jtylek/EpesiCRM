@@ -95,11 +95,13 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$fil .= ' AND (e.access<2 OR (SELECT id FROM crm_calendar_event_group_emp cg2 WHERE cg2.id=e.id AND cg2.contact='.CRM_FiltersCommon::get_my_profile().' LIMIT 1) IS NOT NULL)';
 		$t = microtime(true);
 		$my_id = CRM_FiltersCommon::get_my_profile();
-		$row = DB::GetRow('SELECT e.status,e.color,e.access,e.starts as start,e.ends as end,e.title,e.description,e.id,e.timeless,e.priority,e.created_by,e.created_on,e.edited_by,e.edited_on,GROUP_CONCAT(DISTINCT emp.contact SEPARATOR \',\') as employees,GROUP_CONCAT(DISTINCT cus.contact SEPARATOR \',\') as customers FROM crm_calendar_event e LEFT JOIN crm_calendar_event_group_emp emp ON emp.id=e.id LEFT JOIN crm_calendar_event_group_cus cus ON cus.id=e.id WHERE e.id=%d'.$fil.' GROUP BY e.id',array($id));
+		$row = DB::GetRow('SELECT e.recurrence_type,e.status,e.color,e.access,e.starts as start,e.ends as end,e.title,e.description,e.id,e.timeless,e.priority,e.created_by,e.created_on,e.edited_by,e.edited_on,GROUP_CONCAT(DISTINCT emp.contact SEPARATOR \',\') as employees,GROUP_CONCAT(DISTINCT cus.contact SEPARATOR \',\') as customers FROM crm_calendar_event e LEFT JOIN crm_calendar_event_group_emp emp ON emp.id=e.id LEFT JOIN crm_calendar_event_group_cus cus ON cus.id=e.id WHERE e.id=%d'.$fil.' GROUP BY e.id',array($id));
 		$result = array();
 		if ($row) {
 			foreach (array('start','id','title','timeless','end','description') as $v)
 				$result[$v] = $row[$v];
+			if($row['recurrence_type'])
+				$result['title'] = '<img src="'.Base_ThemeCommon::get_template_file('CRM_Calendar_Event','recurrence.png').'" border=0 hspace=0 vspace=0 align=left>'.$result['title'];
 			$result['duration'] = $row['end']-$row['start'];
 			$color = self::get_available_colors();
 			if($row['status']>=2)
@@ -316,6 +318,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 				$next_result['actions'] = array(array('icon'=>Base_ThemeCommon::get_template_file('CRM_Calendar_Event','access-private.png'),'href'=>CRM_Calendar_EventCommon::get_followup_leightbox_href($row['id'], $row)));
 
 			if($row['recurrence_type']) {
+				$next_result['title'] = '<img src="'.Base_ThemeCommon::get_template_file('CRM_Calendar_Event','recurrence.png').'" border=0 hspace=0 vspace=0 align=left>'.$next_result['title'];
 				$type = self::recurrence_type($row['recurrence_type']);
 				if(isset($row['recurrence_end']))
 					$rend = min(strtotime($row['recurrence_end']),$end);
