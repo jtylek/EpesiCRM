@@ -311,6 +311,25 @@ class Data_CountriesInstall extends ModuleInstall {
 			'WI'=>"Wisconsin",  
 			'WY'=>"Wyoming");
 		Utils_CommonDataCommon::new_array('Countries/US',$usa_states);
+		
+		$pl_wojew = array('DS'=>'Dolnośląskie',
+			'KP'=>'Kujawsko-pomorskie',
+			'LB'=>'Lubuskie',
+			'LD'=>'Łódzkie',
+			'LU'=>'Lubelskie',
+			'MA'=>'Mazowieckie',
+			'MP'=>'Małopolskie',
+			'OP'=>'Opolskie',
+			'PD'=>'Podlaskie',
+			'PK'=>'Podkarpackie',
+			'PM'=>'Pomorskie',
+			'SL'=>'Śląkie',
+			'SW'=>'Świętokrzyskie',
+			'WM'=>'Warmińsko-mazurskie',
+			'WP'=>'Wielkopolskie',
+			'ZP'=>'Zachodniopomorskie');
+		Utils_CommonDataCommon::new_array('Countries/PL',$pl_wojew);
+
 		Base_ThemeCommon::install_default_theme($this->get_type());
 		return true;
 	}
@@ -322,7 +341,7 @@ class Data_CountriesInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array('2007');
+		return array('2008');
 	}
 	
 	public function requires($v) {
