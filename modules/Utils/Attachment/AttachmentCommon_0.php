@@ -65,7 +65,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 
 	public static function search_group($group,$word){
 		$ret = array();
-		$r = DB::Execute('SELECT ual.local,ual.id FROM utils_attachment_link ual WHERE (ual.permission<2 OR ual.permission_by="'.Acl::get_user().'") AND ual.deleted=0 AND (SELECT count(uan.id) FROM utils_attachment_note uan WHERE uan.attach_id=ual.id AND uan.text LIKE CONCAT(\'%\',%s,\'%\') AND uan.revision=(SELECT MAX(xxx.revision) FROM utils_attachment_note xxx WHERE xxx.attach_id=ual.id)) AND '.self::get_where(null,$group),array($word));
+		$r = DB::Execute('SELECT ual.local,ual.id FROM utils_attachment_link ual WHERE (ual.permission<2 OR ual.permission_by='.Acl::get_user().') AND ual.deleted=0 AND 0!=(SELECT count(uan.id) FROM utils_attachment_note AS uan WHERE uan.attach_id=ual.id AND uan.text LIKE '.DB::Concat(DB::qstr('%'),'%s',DB::qstr('%')).' AND uan.revision=(SELECT MAX(xxx.revision) FROM utils_attachment_note xxx WHERE xxx.attach_id=ual.id)) AND '.self::get_where(null,$group),array($word));
 		while($row = $r->FetchRow())
 			$ret[] = array('group'=>$row['local'],'view_href'=>'');
 		return $ret;

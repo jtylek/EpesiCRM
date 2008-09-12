@@ -736,7 +736,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						$vals[]=Acl::get_user();
 						break;
 					case ':Edited_on'	:
-						$orderby .= ' (CASE WHEN (SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) THEN (SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) ELSE created_on END) '.$v['direction'];
+						$orderby .= ' (CASE WHEN (SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) IS NOT NULL THEN (SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) ELSE created_on END) '.$v['direction'];
 						break;
 					default		: trigger_error('Unknow paramter given to get_records criteria: '.$k, E_USER_ERROR);
 				}
@@ -789,7 +789,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							'curr'=>$k,
 							'prev'=>isset($ret[$k-1])?$ret[$k-1]:null);
 		} else {
-			$ret = DB::GetCol('SELECT id FROM'.$par['sql'].' LIMIT '.($last!=0?$last-1:$last).', 3', $par['vals']);
+			$r = DB::SelectLimit('SELECT id FROM'.$par['sql'],3,($last!=0?$last-1:$last), $par['vals']);
+			$ret = array();
+			while ($row=$r->FetchRow()) {
+				$ret[] = $row['id'];
+			}
 			if ($ret===false || $ret===null) return null;
 			if ($last===0) $ret = array(0=>null, 2=>isset($ret[1])?$ret[1]:null);
 			return array(	'next'=>isset($ret[2])?$ret[2]:null,
