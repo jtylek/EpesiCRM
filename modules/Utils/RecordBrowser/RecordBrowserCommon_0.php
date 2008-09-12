@@ -847,7 +847,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			foreach($cols as $v){
 				if (isset($row['f_'.$v['id']])) {
 					if ($v['type']=='multiselect') $r[$v['id']] = self::decode_multi($row['f_'.$v['id']]); 
-					else $r[$v['id']] = $row['f_'.$v['id']];
+					else $r[$v['id']] = htmlspecialchars($row['f_'.$v['id']]);
 				} else {
 					if ($v['type']=='multiselect') $r[$v['id']] = array(); 
 					else $r[$v['id']] = '';
@@ -976,7 +976,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					else $r = self::decode_multi($row['f_'.$args['id']]);
 					$record[$args['id']] = $r;
 				} else {
-					$record[$args['id']] = (isset($row['f_'.$args['id']])?$row['f_'.$args['id']]:'');
+					$record[$args['id']] = (isset($row['f_'.$args['id']])?htmlspecialchars($row['f_'.$args['id']]):'');
 				}
 			}
 			return $record;
@@ -1150,6 +1150,15 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$ret['events'] = implode('<hr>',array_reverse($events_display));
 		}
 		return $ret;
+	}
+	public function get_tables($tab){
+		return array(	$tab.'_callback',
+						$tab.'_recent',
+						$tab.'_favorite',
+						$tab.'_edit_history_data',
+						$tab.'_edit_history',
+						$tab.'_field',
+						$tab.'_data_1');
 	}
 	
 	public function applet_new_record_button($tab, $defaults = array()) {
