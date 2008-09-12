@@ -280,9 +280,7 @@ class Utils_Calendar extends Module {
 	}
 
 	private function print_event($ev,$mode='') {
-		print('<div id="utils_calendar_event:'.$ev['id'].'" class="utils_calendar_event">');
 		Utils_CalendarCommon::print_event($ev,$mode);
-		print('</div>');
 	}
 
 	//////////////////////////////////////////////
