@@ -509,7 +509,6 @@ class Utils_Calendar extends Module {
 		if ($first_day_of_displayed_week<0) $first_day_of_displayed_week += 7;
 		$first_day_of_displayed_week *= 86400;
 		$dis_week_from = strtotime(date('Y-m-d 00:00:00',$this->date+$week_shift-$first_day_of_displayed_week));
-		$dis_week_from = Base_RegionalSettingsCommon::reg2time($dis_week_from);
 
 		//headers
 		$day_headers = array();
@@ -589,6 +588,7 @@ class Utils_Calendar extends Module {
 		$theme->display('week');
 
 		//data
+		$dis_week_from = Base_RegionalSettingsCommon::reg2time($dis_week_from);
 		$dis_week_to = $dis_week_from+7*86400-1;
 		$ret = $this->get_events($dis_week_from,$dis_week_to);
 		$this->displayed_events = array('start'=>$dis_week_from, 'end'=>$dis_week_to,'events'=>$ret);
