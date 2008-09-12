@@ -95,7 +95,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$fil .= ' AND (e.access<2 OR (SELECT id FROM crm_calendar_event_group_emp cg2 WHERE cg2.id=e.id AND cg2.contact='.CRM_FiltersCommon::get_my_profile().' LIMIT 1) IS NOT NULL)';
 		$t = microtime(true);
 		$my_id = CRM_FiltersCommon::get_my_profile();
-		$row = DB::GetRow('SELECT e.recurrence_type,e.status,e.color,e.access,e.starts as start,e.ends as end,e.title,e.description,e.id,e.timeless,e.priority,e.created_by,e.created_on,e.edited_by,e.edited_on,GROUP_CONCAT(DISTINCT emp.contact SEPARATOR \',\') as employees,GROUP_CONCAT(DISTINCT cus.contact SEPARATOR \',\') as customers FROM crm_calendar_event e LEFT JOIN crm_calendar_event_group_emp emp ON emp.id=e.id LEFT JOIN crm_calendar_event_group_cus cus ON cus.id=e.id WHERE e.id=%d'.$fil.' GROUP BY e.id',array($id));
+		$row = DB::GetRow('SELECT e.recurrence_type,e.status,e.color,e.access,e.starts as start,e.ends as end,e.title,e.description,e.id,e.timeless,e.priority,e.created_by,e.created_on,e.edited_by,e.edited_on FROM crm_calendar_event e LEFT JOIN crm_calendar_event_group_emp emp ON emp.id=e.id LEFT JOIN crm_calendar_event_group_cus cus ON cus.id=e.id WHERE e.id=%d'.$fil.' GROUP BY e.id',array($id));
 		$result = array();
 		if ($row) {
 			foreach (array('start','id','title','timeless','end','description') as $v)
@@ -121,12 +121,15 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 											Base_LangCommon::ts('CRM_Calendar_Event','Edited by').' '.Base_UserCommon::get_user_login($row['edited_by']). '<br>'.
 											Base_LangCommon::ts('CRM_Calendar_Event','Edited on').' '.$row['edited_on']. '<br>'):'');
 
-			$emps_tmp = explode(',',$row['employees']);
+			$emps_tmp = DB::GetAssoc('SELECT emp.contact,emp.contact FROM crm_calendar_event_group_emp AS emp WHERE emp.id=%d',array($row['id']));
+			$cuss_tmp = DB::GetAssoc('SELECT cus.contact,cus.contact FROM crm_calendar_event_group_cus AS cus WHERE cus.id=%d',array($row['id']));
+//			$emps_tmp = explode(',',$row['employees']);
+
 			$emps = array();
 			foreach($emps_tmp as $k)
 				if(is_numeric($k))
 					$emps[] = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact($k));
-			$cuss_tmp = explode(',',$row['customers']);
+//			$cuss_tmp = explode(',',$row['customers']);
 			$cuss = array();
 			foreach($cuss_tmp as $k)
 				if(is_numeric($k))
