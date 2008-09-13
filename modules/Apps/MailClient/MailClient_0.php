@@ -260,6 +260,7 @@ class Apps_MailClient extends Module {
 		$fck->setFCKProps('800','300',true);
 		
 		//if edit
+		$references = false;
 		if($id!==null) {
 			$message = @file_get_contents(Apps_MailClientCommon::get_mail_dir().$box.'/'.$id);
 			if($message!==false) {
@@ -349,6 +350,8 @@ class Apps_MailClient extends Module {
 					}
 				} elseif($type=='reply') {
 					$subject = 'Re: '.$subject;
+					if(isset($structure->headers['message-id']))
+						$references = $structure->headers['message-id'];
 					$to_addr[] = Apps_MailClientCommon::mime_header_decode(isset($structure->headers['reply-to'])?$structure->headers['reply-to']:$structure->headers['from']);
 				} elseif($type=='forward') {
 					$subject = 'Fwd: '.$subject;
@@ -471,6 +474,8 @@ class Apps_MailClient extends Module {
 					$mailer->IsHTML(true);
 					$mailer->Body = $v['body'];
 					$mailer->AltBody = strip_tags($v['body']);
+					if($references)
+						$mailer->AddCustomHeader('References: '.$references);
 					$ret = $mailer->Send();
 					if(!$ret) print($mailer->ErrorInfo.'<br>');
 					unset($mailer);

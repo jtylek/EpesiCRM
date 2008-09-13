@@ -163,7 +163,7 @@ class Utils_Comment extends Module{
 	}
 	
 	private function prepare_comment(& $comments,$row,$tab = 0){
-		$row['text'] = str_replace("\n",'<br>',$row['text']);
+		$row['text'] = str_replace("\n",'<br>',htmlspecialchars($row['text']));
 		if (Base_AclCommon::i_am_user()) {
 			if ($this->mod) {
 				$delete = '<a '.$this->create_confirm_callback_href($this->lang->ht('Are you sure you want to delete this post?'),array('Utils_CommentCommon','delete_post'),$row['id']).'>'.$this->lang->t('Delete').'</a>';
@@ -246,7 +246,7 @@ class Utils_Comment extends Module{
 	 */
 	public function add_post($post_text, $answer_to=-1){
 //		$post_text = str_replace("\n",'<br>',$post_text);
-		DB::Execute('INSERT INTO comment (text, user_login_id, topic, created_on, parent) VALUES (%s, %d, %s, %s, %d)',array(htmlspecialchars($post_text,ENT_QUOTES,'UTF-8'),Acl::get_user(),$this->key,date('Y-m-d G:i:s'),$answer_to));
+		DB::Execute('INSERT INTO comment (text, user_login_id, topic, created_on, parent) VALUES (%s, %d, %s, %s, %d)',array($post_text,Acl::get_user(),$this->key,date('Y-m-d G:i:s'),$answer_to));
 	}
 
 	private function first() {
