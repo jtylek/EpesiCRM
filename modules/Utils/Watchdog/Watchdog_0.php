@@ -28,8 +28,8 @@ class Utils_Watchdog extends Module {
 		return false;
 	}
 	
-	public function notified($id, $cat_id) {
-		Utils_WatchdogCommon::notified($cat_id,$id);
+	public function notified($cat_id, $id) {
+		Utils_WatchdogCommon::notified($cat_id, $id);
 		location(array());
 		return false;
 	}
@@ -64,7 +64,8 @@ class Utils_Watchdog extends Module {
 		$gb = $this->init_module('Utils/GenericBrowser','subscriptions','subscriptions');
 		$gb->set_table_columns($header);
 		$something_to_purge = false;
-		foreach ($records as $k=>$v) {
+		$count = 0;
+		foreach ($records as $k=>$v) {			
 			$changes = Utils_WatchdogCommon::check_if_notified($v, $k);
 			if (!is_array($changes)) $changes = array();
 			$data = call_user_func($methods[$v], $k, $changes);
@@ -81,13 +82,19 @@ class Utils_Watchdog extends Module {
 					$data['title']
 				);
 			}
+			$gb_row->add_action(Utils_WatchdogCommon::get_confirm_change_subscr_href($v, $k),'<img src="'.Base_ThemeCommon::get_template_file('Utils/Watchdog','unsubscribe_small_new_events.png').'" border="0" />','Click to unsubscribe');
 			$gb_row->add_action($data['view_href'],'View');
 			if ($only_new || Utils_WatchdogCommon::check_if_notified($v, $k)!==true) {
-				$gb_row->add_action($this->create_callback_href(array($this,'notified'), array($k, $v)),'Restore','Mark as read');
+				$gb_row->add_action($this->create_callback_href(array($this,'notified'), array($v, $k)),'Restore','Mark as read');
 				$something_to_purge = true;
 			}
 			if (isset($data['events']) && $data['events']) $gb_row->add_info($data['events']);
+			$count++;
+			if ($count==15) break;
 		}
+		$records_qty = count($records);
+		if ($records_qty>15)
+			print($this->lang->t('Displaying %s of %s records', array($count, $records_qty)));
 		if ($something_to_purge) $opts['actions'][] = '<a '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('Mark all entries as read')).' '.$this->create_confirm_callback_href($this->lang->t('This will update all of your subscriptions status in selected categories, are you sure you want to continue?'),array($this,'purge_subscriptions_applet'), array($categories)).'><img src="'.Base_ThemeCommon::get_template_file('Utils_Watchdog','purge.png').'" border="0"></a>';
 		$this->display_module($gb);
 	}

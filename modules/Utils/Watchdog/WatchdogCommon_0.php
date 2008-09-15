@@ -147,7 +147,13 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		return $ret;
 	}
 	
+	public static function user_get_confirm_change_subscr_href($user, $category_name, $id=null) {
+		return Module::create_confirm_href(Base_LangCommon::ts('Utils/Watchdog','Are you sure you want to unsubscribe this record?'),self::user_get_change_subscr_href_array($user, $category_name, $id));
+	}
 	public static function user_get_change_subscr_href($user, $category_name, $id=null) {
+		return Module::create_href(self::user_get_change_subscr_href_array($user, $category_name, $id));
+	}
+	public static function user_get_change_subscr_href_array($user, $category_name, $id=null) {
 		$category_id = self::get_category_id($category_name);
 		if (!$category_id) return;
 		if (isset($_REQUEST['utils_watchdog_category']) &&
@@ -161,7 +167,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 			self::user_change_subscription($user, $category_name, $id);
 			location(array());	
 		}
-		return Module::create_href(array('utils_watchdog_category'=>$category_id, 'utils_watchdog_user'=>$user, 'utils_watchdog_id'=>$id));
+		return array('utils_watchdog_category'=>$category_id, 'utils_watchdog_user'=>$user, 'utils_watchdog_id'=>$id);
 	}
 	// **************** Subscription manipulation for logged user *******************
 	public static function purge_notifications($category_name) {
@@ -181,6 +187,9 @@ class Utils_WatchdogCommon extends ModuleCommon {
 	}
 	public static function get_change_subscr_href($category_name, $id=null) {
 		return self::user_get_change_subscr_href(Acl::get_user(), $category_name, $id);
+	}
+	public static function get_confirm_change_subscr_href($category_name, $id=null) {
+		return self::user_get_confirm_change_subscr_href(Acl::get_user(), $category_name, $id);
 	}
 	public static function add_actionbar_change_subscription_button($category_name, $id=null) {
 		$category_id = self::get_category_id($category_name);
