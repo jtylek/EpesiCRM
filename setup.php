@@ -225,9 +225,8 @@ define("DISPLAY_ERRORS",1);
 define("REPORT_ALL_ERRORS",1);
 
 /*
- * Compress output buffer,session,history
+ * Compress history
  */
-define("GZIP_OUTPUT",1);
 define("GZIP_HISTORY",1);
 ?>');
 	fclose($c);

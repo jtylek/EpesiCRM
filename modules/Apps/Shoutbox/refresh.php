@@ -1,4 +1,5 @@
 <?php
+ob_start();
 define('SET_SESSION',0);
 require_once('../../../include.php');
 ModuleManager::load_modules();
@@ -17,5 +18,13 @@ foreach($arr as $row) {
 	}
 	print(Base_LangCommon::ts('Apps_Shoutbox','<span class="time">[%s]</span> <span class="author">%s</span>: %s',array(date('j M H:i',strtotime(Base_RegionalSettingsCommon::time2reg(DB::UnixTimeStamp($row['posted_on']),true,true,true,false))), $row['login'], '<span style="color:'.$fcolor.';">'.$row['message'].'</span>')).'<br>');
 }
+
+$content = ob_get_contents();
+ob_end_clean();
+
+require_once('libs/minify/HTTP/Encoder.php');
+$he = new HTTP_Encoder(array('content' => $content));
+$he->encode();
+$he->sendAll();
 exit();
 ?>

@@ -22,7 +22,6 @@ if(!defined('SQL_TIMES')) define("SQL_TIMES",0);
 if(!defined('STRIP_OUTPUT')) define("STRIP_OUTPUT",0);
 if(!defined('DISPLAY_ERRORS')) define("DISPLAY_ERRORS",0);
 if(!defined('REPORT_ALL_ERRORS')) define("REPORT_ALL_ERRORS",0);
-if(!defined('GZIP_OUTPUT')) define("GZIP_OUTPUT",0);
 if(!defined('GZIP_HISTORY')) define("GZIP_HISTORY",0);
 if(!defined('REDUCING_TRANSFER')) define("REDUCING_TRANSFER",1);
 if(!defined('CACHE_COMMON_FILES')) define("CACHE_COMMON_FILES",1);

@@ -98,7 +98,13 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 		<link rel="icon" type="image/png" href="images/favicon.png" />
 		<title>Epesi</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<script type="text/javascript" src="serve.php?f=libs/prototype.js,libs/HistoryKeeper.js,include/epesi.js"></script>
+<?php
+	require_once('libs/minify/Minify/Build.php');
+	$jses = array('libs/prototype.js','libs/HistoryKeeper.js','include/epesi.js');
+	$jsses_build = new Minify_Build($jses);
+	$jsses_src = $jsses_build->uri('serve.php?'.http_build_query(array('f'=>array_values($jses))));
+?>
+		<script type="text/javascript" src="<?php print($jsses_src)?>"></script>
 
 		<style type="text/css">
 			#epesiStatus {
@@ -152,5 +158,11 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 	</body>
 </html>
 <?php
-ob_end_flush();
+$content = ob_get_contents();
+ob_end_clean();
+
+require_once('libs/minify/HTTP/Encoder.php');
+$he = new HTTP_Encoder(array('content' => $content));
+$he->encode();
+$he->sendAll();
 ?>
