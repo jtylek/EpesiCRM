@@ -175,6 +175,17 @@ class CRM_Contacts extends Module {
 		$a->allow_public($this->acl_check('view public notes'),$this->acl_check('edit public notes'));
 		$this->display_module($a);
 	}
+	
+	public function edit_user_form($user_id) {
+		if (!$this->isset_module_variable('last_location')) $this->set_module_variable('last_location',isset($_REQUEST['__location'])?$_REQUEST['__location']:true);
+		$m = $this->init_module('Base/User/Administrator');
+		$this->display_module($m, array($user_id), 'edit_user_form');
+		if ($m->is_back() || (isset($_REQUEST['__location']) && $_REQUEST['__location']!=$this->get_module_variable('last_location'))) {
+			$x = ModuleManager::get_instance('/Base_Box|0');
+			if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+			$x->pop_main();
+		}
+	}
 
 	public function caption(){
 		if (isset($this->rb)) return $this->rb->caption();

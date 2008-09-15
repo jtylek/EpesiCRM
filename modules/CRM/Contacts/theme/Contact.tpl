@@ -93,7 +93,10 @@
 						{* login *}
 						<tr>
 							<td class="label" align="left">{$form_data.login.label}</td>
-							<td class="data" colspan="2" align="left">{if isset($form_data.login.error)}<span class="error">{$form_data.login.error}</span>{/if}{$form_data.login.html}</td>
+							{if isset($form_data.create_new_user)}
+								<td class="data create-company" style="width:1px" align="left">{$form_data.create_new_user.html}</td>
+							{/if}
+							<td class="data" {if !isset($form_data.create_new_user)}colspan="2" {/if}align="left">{if isset($form_data.login.error)}<span class="error">{$form_data.login.error}</span>{/if}{$form_data.login.html}{if isset($form_data.new_login)}{$form_data.new_login.html}{/if}</td>
 						</tr>
 						{* last name *}
 						<tr>

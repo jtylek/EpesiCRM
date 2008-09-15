@@ -42,7 +42,7 @@ class Base_User_LoginCommon extends ModuleCommon {
 	 * @return bool false if there is a user in the system with given name, true otherwise
 	 */
 	public static function check_username_free($username) {
-		return Base_UserCommon::get_user_id($username)===false;
+		return Base_UserCommon::get_user_id($username)===false || Base_UserCommon::get_user_id($username)===null;
 	}
 	
 	/**

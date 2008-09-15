@@ -12,11 +12,13 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_User_Administrator extends Module implements Base_AdminInterface {
+	private $lang;
+
+	public function construct() {
+		$this->lang = & $this->init_module('Base/Lang');
+	}
 
 	public function body() {
-		
-		$this->lang = & $this->init_module('Base/Lang');
-
 		if(!Base_AclCommon::i_am_user()) {
 			print($this->lang->t('First log in to the system.'));
 			return;
