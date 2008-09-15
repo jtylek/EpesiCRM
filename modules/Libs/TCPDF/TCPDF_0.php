@@ -28,7 +28,7 @@ class Libs_TCPDF extends Module {
 		if (self::$using_custom_fonts) {
 			$this->tcpdf = new TCPDF($orientation, $unit, $format);
 		} else {
-			$this->tcpdf = new TCPDF($orientation, $unit, $format, false, "ISO-8859-1");
+			$this->tcpdf = new TCPDF($orientation, $unit, $format, false, 'utf-8');
 		}
 
 		$this->tcpdf->SetCreator(PDF_CREATOR);
@@ -83,7 +83,7 @@ class Libs_TCPDF extends Module {
 		//initialize document
 		$this->tcpdf->AliasNbPages();
 
-		$this->SetFont("dejavusans", "", 9);
+		$this->SetFont("Helvetica", "", 9);
 	}
 
 	public function stripHTML($html) {
