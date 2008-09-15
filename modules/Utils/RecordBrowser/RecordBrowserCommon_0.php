@@ -478,7 +478,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$access = self::get_access($tab, 'fields', $record);
 		$diff = array();
 		foreach(self::$table_rows as $field => $args){
-			if ($access[$args['id']]=='hide' || $access[$args['id']]=='read-only') continue;
+//			if ($access[$args['id']]=='hide' || $access[$args['id']]=='read-only') continue;
+// TODO: check for holes
 			if ($args['id']=='id') continue;
 			if (!isset($values[$args['id']])) if ($all_fields) $values[$args['id']] = ''; else continue;
 			if ($record[$args['id']]!=$values[$args['id']]) {
@@ -996,6 +997,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$edit_id = DB::Insert_ID($tab.'_edit_history','id');
 		DB::Execute('INSERT INTO '.$tab.'_edit_history_data(edit_id, field, old_value) VALUES (%d,%s,%s)', array($edit_id, '', 'DELETED'));
 		DB::CompleteTrans();
+		$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($tab));
+		if ($dpm!=='') {
+			$method = explode('::',$dpm);
+			if (is_callable($method)) call_user_func($method, self::get_record($tab, $id), 'delete');
+		}
 	}
 	public static function no_wrap($s) {
 		$content_no_wrap = $s;

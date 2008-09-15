@@ -1426,17 +1426,11 @@ class Utils_RecordBrowser extends Module {
 		$edit_id = DB::Insert_ID($this->tab.'_edit_history','id');
 		DB::Execute('INSERT INTO '.$this->tab.'_edit_history_data(edit_id, field, old_value) VALUES (%d,%s,%s)', array($edit_id, 'id', ($state?'REVERTED':'DELETED')));
 		DB::CompleteTrans();
-		return false;
-	}
-	public function restore_record($data, $id) {
-		$this->init();
-		$i = 3;
-		$values = array();
-		foreach($this->table_rows as $field => $args) {
-			if ($field=='id') continue;
-			$values[$args['id']] = $data[$i++]['DBvalue'];
+		$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
+		if ($dpm!=='') {
+			$method = explode('::',$dpm);
+			if (is_callable($method)) call_user_func($method, self::get_record($this->tab, $id), $state?'restore':'delete');
 		}
-		$this->update_record($id,$values);
 		return false;
 	}
 	public function set_defaults($arg){
