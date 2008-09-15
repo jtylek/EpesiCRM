@@ -727,7 +727,7 @@ abstract class Module extends ModulePrimitive {
 
 		if(!isset($function_name)) $function_name = 'body';
 		if (!method_exists($m, $function_name))
-			trigger_error('Invalid method name given as argument 2 for display_module.',E_USER_ERROR);
+			trigger_error('Invalid method name ('.$function_name.') given as argument 2 for display_module.',E_USER_ERROR);
 
 		if($m->displayed())
 			trigger_error('You can\'t display the same module two times.',E_USER_ERROR);
