@@ -302,7 +302,7 @@ class Utils_RecordBrowser extends Module {
 			}
 		}
 		foreach ($vals as $k=>$v)
-			if (isset($this->custom_filters[$k]) && $this->custom_filters[$k]['type']=='checkbox' && $v=='__NULL__') unset($vals[$k]);
+			if (isset($this->custom_filters[$k]) && $this->custom_filters[$k]['type']=='checkbox' && $v==='__NULL__') unset($vals[$k]);
 		$this->set_module_variable('def_filter', $vals);
 		$theme = $this->init_module('Base/Theme');
 		$form->assign_theme('form',$theme);
