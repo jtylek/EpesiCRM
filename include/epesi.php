@@ -363,7 +363,7 @@ class Epesi {
 		}
 
 		if(!$history_call) {
-			self::js('history_add('.History::get_id().')');
+			self::js('Epesi.history_add('.History::get_id().')');
 		}
 
 		self::send_output();

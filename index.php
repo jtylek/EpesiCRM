@@ -123,46 +123,9 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 				font-size: 11px;
 				border: 5px solid #FFFFFF;
             }
-            body {
-                /*background-color: #5C5C5C;*/
-            }
 		</style>
-		<script type="text/javascript">
-		<!--
-		function epesi_init() {
-			var browser=navigator.appName;
-			var b_version=navigator.appVersion;
-			var version=parseFloat(b_version);
-			if (browser=="Microsoft Internet Explorer") {
-				alert("Sorry but Internet Explorer is not supported.\nPlease upgrade	to Firefox.");
-				window.location = "http://www.mozilla.com/firefox/";
-			}
-
-			history_call = function(history_id){
-        		switch(history_on){
-				    case -1: history_on=1;
-			    		return;
-					case 1: Epesi.request('',history_id);
-				}
-			}
-
-			history_add = function(id){
-				history_on=-1;
-				unFocus.History.addHistory(id);
-			}
-
-			Epesi.client_id=<?php print($client_id); ?>;
-			Epesi.process_file='<?php print(rtrim(str_replace('\\','/',dirname($_SERVER['PHP_SELF'])),'/').'/process.php'); ?>';
-
-			var history_on=1;
-			history_add(0);
-			Epesi.request('',0);
-			unFocus.History.addEventListener('historyChange',history_call);
-		}
-		-->
-		</script>
 	</head>
-	<body onload="epesi_init()">
+	<body onload="Epesi.init(<?php print($client_id); ?>,'<?php print(rtrim(str_replace('\\','/',dirname($_SERVER['PHP_SELF'])),'/').'/process.php'); ?>')">
 		<div id="body_content">
 		<div id="main_content"></div>
 

@@ -5,7 +5,7 @@
  * TODO: 
  * -drafts, sent i trash to specjalne foldery, wszystkie inne traktujemy tak jak inbox
  * -zalaczniki przy new
- * -dodawanie, edycja folderow w mailboxach
+ * -dodatkowe akcje dla maili: pokaz zrodlo, przenies do innego folderu
  * -obsluga imap
  * -obsluga ssl przy wysylaniu smtp
  * 
@@ -34,11 +34,12 @@ class Apps_MailClient extends Module {
 		$th = $this->init_module('Base/Theme');
 		$tree = $this->init_module('Utils/Tree');
 		$str = Apps_MailClientCommon::get_mail_dir_structure();
-		$this->set_open_mail_dir_callbacks($str);
+		$this->set_mail_dir_callbacks($str);
 		$tree->set_structure($str);
 		$tree->sort();
 		$th->assign('tree', $this->get_html_of_module($tree));
 		
+		//print($box_file);
 		$box = Apps_MailClientCommon::get_index(ltrim($box_file,'/'));
 		if($box===false) {
 			print('Invalid mailbox');
@@ -511,19 +512,73 @@ class Apps_MailClient extends Module {
 		return true;
 	}
 	
-	private function set_open_mail_dir_callbacks(array & $str,$path='') {
+	/**
+	 * Sets callbacks(open,create/edit/delete folder) in tree of mailboxes for Utils/Tree.
+	 */
+	private function set_mail_dir_callbacks(array & $str,$path='') {
 		$opened_box = str_replace(array('__at__','__dot__'),array('@','.'),$this->get_module_variable('opened_box'));
 		foreach($str as $k=>& $v) {
-			$mpath = $path.'/'.$v['name'];
+			$folder = $v['name'];
+			$mpath = $path.'/'.$folder;
 			if($mpath == $opened_box) {
 				$v['visible'] = true;
 				$v['selected'] = true;
+				$v['opened'] = true;
+//				print('='.$mpath.'=');
 			}
-			if(isset($v['sub']) && is_array($v['sub'])) $this->set_open_mail_dir_callbacks($v['sub'],$mpath);
+			if(isset($v['sub']) && is_array($v['sub'])) $this->set_mail_dir_callbacks($v['sub'],$mpath);
+			$main_dir_arr = explode('/',trim($mpath,'/'),3);
 			if($path=='')
 				$mpath .= '/Inbox';
-			$v['name'] = '<a '.$this->create_callback_href(array($this,'open_mail_dir_callback'),str_replace(array('@','.'),array('__at__','__dot__'),$mpath)).'>'.(isset($v['label'])?$v['label']:$v['name']).'</a>';
+			$translated_path = str_replace(array('@','.'),array('__at__','__dot__'),$mpath);
+			$v['name'] = '<a '.$this->create_callback_href(array($this,'open_mail_dir_callback'),array($translated_path)).'>'.(isset($v['label'])?$v['label']:$v['name']).'</a>';
+			if(isset($main_dir_arr[1]) && $main_dir_arr[1]=='Inbox') {
+				$v['name'] .= '<a '.$this->create_callback_href(array($this,'edit_folder_callback'),array($translated_path)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','create_folder.png').'" border=0></a>';
+				if(isset($main_dir_arr[2])) {
+					$v['name'] .= '<a '.$this->create_callback_href(array($this,'edit_folder_callback'),array(str_replace(array('@','.'),array('__at__','__dot__'),$path),$folder)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','edit_folder.png').'" border=0></a>';
+					$v['name'] .= '<a '.$this->create_confirm_callback_href($this->lang->ht('Delete this folder with all messages and subfolders?'),array($this,'delete_folder_callback'),array($translated_path)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','delete_folder.png').'" border=0></a>';
+				
+				}
+			}
 		}
+	}
+	
+	public function delete_folder_callback($path) {
+		$box = trim($path,'/');
+		recursive_rmdir(Apps_MailClientCommon::get_mail_dir().$box);
+		$this->set_module_variable('opened_box','/'.substr($box,0,strrpos($box,'/')));
+	}
+	
+	public function edit_folder_callback($path,$folder=false) {
+		if($this->is_back()) return false;
+		
+		$f = $this->init_module('Libs/QuickForm',null,'create_folder');
+		$f->addElement('header',null,$folder===false?$this->lang->t('Create folder in %s',array(str_replace(array('__at__','__dot__'),array('@','.'),trim($path,'/')))):$this->lang->t('Edit folder in %s',array(str_replace(array('__at__','__dot__'),array('@','.'),trim($path,'/')))));
+		$f->addElement('text','name',$this->lang->t('Name'));
+		$f->addRule('name',$this->lang->t('Field required'),'required');
+		$f->addRule('name',$this->lang->t('Invalid character - only letters and digits are allowed'),'alphanumeric');
+		if($folder!==false) {
+			$f->setDefaults(array('name'=>$folder));
+		}
+		
+		if($f->validate()) {
+			$box = trim($path,'/');
+			$new_name = $box.'/'.$f->exportValue('name');
+			$new_dir = Apps_MailClientCommon::get_mail_dir().$new_name;
+			if($folder!==false) { //edit
+				rename(Apps_MailClientCommon::get_mail_dir().$box.'/'.$folder,$new_dir);
+			} else {
+				mkdir($new_dir);
+			}
+			$this->set_module_variable('opened_box','/'.$new_name);
+			return false;
+		}
+		$f->display();
+		
+		Base_ActionBarCommon::add('save','Save',$f->get_submit_form_href());
+		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+		
+		return true;
 	}
 	
 	public function open_mail_dir_callback($path) {

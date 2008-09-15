@@ -32,6 +32,33 @@ var Epesi = {
 	updateIndicatorText: function(text) {
 		$(Epesi.indicator_text).innerHTML = text;
 	},
+	history_on:1,
+	history_add:function(id){
+		Epesi.history_on=-1;
+		unFocus.History.addHistory(id);
+	},
+	init:function(cl_id,path) {
+		var browser=navigator.appName;
+		var b_version=navigator.appVersion;
+		var version=parseFloat(b_version);
+		if (browser=="Microsoft Internet Explorer") {
+			alert("Sorry but Internet Explorer is not supported.\nPlease upgrade	to Firefox.");
+			window.location = "http://www.mozilla.com/firefox/";
+		}
+
+		Epesi.client_id=cl_id;
+		Epesi.process_file=path;
+
+		Epesi.history_add(0);
+		Epesi.request('',0);
+		unFocus.History.addEventListener('historyChange',function(history_id){
+       		switch(Epesi.history_on){
+			    case -1: Epesi.history_on=1;
+		    		return;
+				case 1: Epesi.request('',history_id);
+			}
+		});
+	},
 	request: function(url,history_id) {
 		Epesi.procOn++;
 		Epesi.updateIndicator();
