@@ -154,34 +154,35 @@
 <form {$form_data_paging.attributes}>
 {$form_data_paging.hidden}
 {/if}
-
-<table id="Utils_GenericBrowser__navigation" border="0" cellspacing="0" cellpadding="0">
-	<tr>
-		<td nowrap style="width: 50%; text-align: left;">
-			{if isset($order)}
-				{$order}&nbsp;&nbsp;&nbsp;<b>{$reset}</b>&nbsp;&nbsp;&nbsp;
-			{/if}
-		</td>
-
-		<td nowrap>{if isset($__link.first.open)}{$__link.first.open}&nbsp;<img border="0" src="{$theme_dir}/images/first.png">&nbsp;{$__link.first.text}&nbsp;{$__link.first.close}{/if}</td>
-		<td nowrap>{if isset($__link.prev.open)}{$__link.prev.open}&nbsp;<img border="0" src="{$theme_dir}/images/prev.png">&nbsp;{$__link.prev.text}&nbsp;{$__link.prev.close}{/if}</td>
-		<td nowrap>&nbsp;&nbsp;&nbsp;{$summary}&nbsp;&nbsp;&nbsp;</td>
-
-		<td nowrap>{if isset($__link.next.open)}{$__link.next.open}&nbsp;{$__link.next.text}&nbsp;<img border="0" src="{$theme_dir}/images/next.png">&nbsp;{$__link.next.close}{/if}</td>
-		<td nowrap>{if isset($__link.last.open)}{$__link.last.open}&nbsp;{$__link.last.text}&nbsp;<img border="0" src="{$theme_dir}/images/last.png">&nbsp;{$__link.last.close}{/if}</td>
-
-		<td nowrap style="width: 25%; text-align: right;">
-			{if isset($form_data_paging.page)}
-				&nbsp;&nbsp;&nbsp;{$form_data_paging.page.label}&nbsp;&nbsp;&nbsp;{$form_data_paging.page.html}
-			{/if}
-		</td>
-		<td nowrap style="width: 25%; text-align: right;">
-			{if isset($form_data_paging.per_page)}
-				&nbsp;&nbsp;&nbsp;{$form_data_paging.per_page.label}&nbsp;&nbsp;&nbsp;{$form_data_paging.per_page.html}
-			{/if}
-		</td>
-	</tr>
-</table>
+{if isset($order) || $first || $prev || $summary || isset($form_data_paging.page) || isset($form_data_paging.per_page)}
+	<table id="Utils_GenericBrowser__navigation" border="0" cellspacing="0" cellpadding="0">
+		<tr>
+			<td nowrap style="width: 50%; text-align: left;">
+				{if isset($order)}
+					{$order}&nbsp;&nbsp;&nbsp;<b>{$reset}</b>&nbsp;&nbsp;&nbsp;
+				{/if}
+			</td>
+	
+			<td nowrap>{if isset($__link.first.open)}{$__link.first.open}&nbsp;<img border="0" src="{$theme_dir}/images/first.png">&nbsp;{$__link.first.text}&nbsp;{$__link.first.close}{/if}</td>
+			<td nowrap>{if isset($__link.prev.open)}{$__link.prev.open}&nbsp;<img border="0" src="{$theme_dir}/images/prev.png">&nbsp;{$__link.prev.text}&nbsp;{$__link.prev.close}{/if}</td>
+			<td nowrap>&nbsp;&nbsp;&nbsp;{$summary}&nbsp;&nbsp;&nbsp;</td>
+	
+			<td nowrap>{if isset($__link.next.open)}{$__link.next.open}&nbsp;{$__link.next.text}&nbsp;<img border="0" src="{$theme_dir}/images/next.png">&nbsp;{$__link.next.close}{/if}</td>
+			<td nowrap>{if isset($__link.last.open)}{$__link.last.open}&nbsp;{$__link.last.text}&nbsp;<img border="0" src="{$theme_dir}/images/last.png">&nbsp;{$__link.last.close}{/if}</td>
+	
+			<td nowrap style="width: 25%; text-align: right;">
+				{if isset($form_data_paging.page)}
+					&nbsp;&nbsp;&nbsp;{$form_data_paging.page.label}&nbsp;&nbsp;&nbsp;{$form_data_paging.page.html}
+				{/if}
+			</td>
+			<td nowrap style="width: 25%; text-align: right;">
+				{if isset($form_data_paging.per_page)}
+					&nbsp;&nbsp;&nbsp;{$form_data_paging.per_page.label}&nbsp;&nbsp;&nbsp;{$form_data_paging.per_page.html}
+				{/if}
+			</td>
+		</tr>
+	</table>
+{/if}
 
 {if isset($form_data_paging)}
 </form>
