@@ -176,6 +176,8 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$out = @fopen($boxpath.'.idx','w');
 		if($out==false) return false;
 		$files = scandir($boxpath);
+		$c = 0;
+		$max = 0;
 		foreach($files as $f) {
 			if(!is_numeric($f)) continue;
 			$message = @file_get_contents($boxpath.$f);
@@ -185,8 +187,12 @@ class Apps_MailClientCommon extends ModuleCommon {
 			if(!isset($structure->headers['from']) || !isset($structure->headers['to']) || !isset($structure->headers['date']))
 				continue;
 			fputcsv($out, array($f,isset($structure->headers['subject'])?substr($structure->headers['subject'],0,256):'no subject',substr($structure->headers['from'],0,256),substr($structure->headers['to'],0,256),substr($structure->headers['date'],0,64),substr(strlen($message),0,64),'0'));
+			$c++;
+			if($f>$max) $max=$f;
 		}
 		fclose($out);
+		file_put_contents($boxpath.'.num',$c.','.$c);
+		file_put_contents($boxpath.'.mid',$max);
 		return true;
 	}
 	
@@ -205,10 +211,13 @@ class Apps_MailClientCommon extends ModuleCommon {
 
 		$out = @fopen($box.'.idx','w');
 		if($out==false) return false;
+		$c = 0;
 		foreach($ret as $d) {
 			fputcsv($out, $d);
+			$c++;
 		}
 		fclose($out);
+		file_put_contents($box.'.num',$c.',0');
 	}
 	
 	public static function get_index($box,$dir=null) {
@@ -251,9 +260,15 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$out = @fopen($box.'.idx','w');
 		if($out==false) return false;
 
-		foreach($idx as $id=>$d)
+		$c = 0;
+		$ur = 0;
+		foreach($idx as $id=>$d) {
 			fputcsv($out, array($id,substr($d['subject'],0,256),substr($d['from'],0,256),substr($d['to'],0,256),substr($d['date'],0,64),substr($d['size'],0,64),$d['read']));
+			if(!$d['read']) $ur++;
+			$c++;
+		}
 		fclose($out);
+		file_put_contents($box.'.num',$c.','.$ur);
 		return true;
 	}
 	
@@ -280,19 +295,24 @@ class Apps_MailClientCommon extends ModuleCommon {
 
 	public static function append_msg_to_index($mail,$box, $id, $subject, $from, $to, $date, $size,$read=false) {
 		$box = self::get_mailbox_dir(trim($mail,'/')).$box.'/';
-		$out = @fopen($box.'.idx','a');
-		if($out==false) return false;
-		fputcsv($out,array($id, substr($subject,0,256), substr($from,0,256), substr($to,0,256), substr($date,0,64), substr($size,0,64),$read?'1':'0'));
-		fclose($out);
-		return true;
+		return self::append_msg_to_mailbox_index($box,$id,$subject,$from, $to, $date, $size,$read);
 	}
 
 	public static function append_msg_to_mailbox_index($mailbox, $id, $subject, $from, $to, $date, $size, $read=false) {
 		$mailbox = rtrim($mailbox,'/').'/';
+		$num = @file_get_contents($mailbox.'.num');
+		if($num===false) {
+			self::build_index($mailbox);
+			$num = @file_get_contents($mailbox.'.num');
+			if($num===false) return false;
+		}
+		$num = explode(',',$num);
+		if(count($num)!=2) return false;
 		$out = @fopen($mailbox.'.idx','a');
 		if($out==false) return false;
 		fputcsv($out,array($id, substr($subject,0,256), substr($from,0,256), substr($to,0,256), substr($date,0,64), substr($size,0,64),$read?'1':'0'));
 		fclose($out);
+		file_put_contents($mailbox.'.num',($num[0]+1).','.($num[1]+($read?0:1)));
 		return true;
 	}
 	
@@ -303,12 +323,19 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$idx[$id]['read'] = '1';
 
 		$box = Apps_MailClientCommon::get_mail_dir().trim($mailbox,'/').'/';
+
+		$num = @file_get_contents($box.'.num');
+		if($num===false) return false;
+		$num = explode(',',$num);
+		if(count($num)!=2) return false;
+
 		$out = @fopen($box.'.idx','w');
 		if($out==false) return false;
 
 		foreach($idx as $id=>$d)
 			fputcsv($out, array($id,substr($d['subject'],0,256),substr($d['from'],0,256),substr($d['to'],0,256),substr($d['date'],0,64),substr($d['size'],0,64),$d['read']));
 		fclose($out);
+		file_put_contents($box.'.num',$num[0].','.($num[1]-1));
 		return true;
 	}
 	

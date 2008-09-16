@@ -5,7 +5,7 @@
  * TODO: 
  * -drafts, sent i trash to specjalne foldery, wszystkie inne traktujemy tak jak inbox
  * -zalaczniki przy new
- * -dodatkowe akcje dla maili: pokaz zrodlo, przenies do innego folderu
+ * -dodatkowe akcje dla maili: pokaz przenies do innego folderu
  * -obsluga imap
  * -obsluga ssl przy wysylaniu smtp
  * 
@@ -26,21 +26,42 @@ class Apps_MailClient extends Module {
 	
 	public function body() {
 		$def_box = Apps_MailClientCommon::get_default_box();
+		$str = Apps_MailClientCommon::get_mail_dir_structure();
 
 		$box_file = $this->get_module_variable('opened_box',$def_box);
 		$preview_id = $this->get_path().'preview';
 		$show_id = $this->get_path().'show';
 
+		$mailbox = explode('/',trim($box_file,'/'),2);
+
+		$move_msg_f = $this->init_module('Libs/QuickForm',null,'move_msg');
+		$move_msg_f->addElement('hidden','msg_id','-1',array('id'=>'mail_client_actions_move_msg_id'));
+		$folders = $this->get_move_folders($str);
+//		print_r($folders);
+		$move_msg_f->addElement('select','folder',$this->lang->t('Move message to folder'),$folders);
+		$move_msg_f->addElement('button','submit_button',$this->lang->ht('Move'),array('onClick'=>$move_msg_f->get_submit_form_js().'leightbox_deactivate(\'mail_actions\');'));
+
+		Libs_LeightboxCommon::display('mail_actions','<a onClick="leightbox_deactivate(\'mail_actions\')" href="" tpl_href="modules/Apps/MailClient/source.php?'.http_build_query(array('box'=>$box_file,'msg_id'=>'__MSG_ID__')).'" target="_blank" id="mail_client_actions_view_source">'.$this->lang->t('View source').'</a><br>'.
+							$move_msg_f->toHtml(),$this->lang->t('Mail actions'));
+
+		if($move_msg_f->validate()) {
+			$vals = $move_msg_f->exportValues();
+			$out_box = explode('/',trim($vals['folder'],'/'),2);
+//			print_r($out_box);
+//			print_r($vals);
+			//TODO: move message nie dziala dla innych skrzynek niz macierzysta
+			Apps_MailClientCommon::move_msg($mailbox[0],$mailbox[1],$out_box[0],$out_box[1],$vals['msg_id']);
+		}
+		
 		$th = $this->init_module('Base/Theme');
 		$tree = $this->init_module('Utils/Tree');
-		$str = Apps_MailClientCommon::get_mail_dir_structure();
 		$this->set_mail_dir_callbacks($str);
 		$tree->set_structure($str);
 		$tree->sort();
 		$th->assign('tree', $this->get_html_of_module($tree));
 		
 		//print($box_file);
-		$box = Apps_MailClientCommon::get_index(ltrim($box_file,'/'));
+		$box = Apps_MailClientCommon::get_index($mailbox[0],$mailbox[1]);
 		if($box===false) {
 			print('Invalid mailbox');
 			return;
@@ -73,9 +94,6 @@ class Apps_MailClient extends Module {
 		$limit_max = count($box);
 		
 		load_js($this->get_module_dir().'utils.js');
-
-		Libs_LeightboxCommon::display('mail_actions','<a onClick="leightbox_deactivate(\'mail_actions\')" href="" tpl_href="modules/Apps/MailClient/source.php?'.http_build_query(array('box'=>$box_file,'msg_id'=>'__MSG_ID__')).'" target="_blank" id="mail_client_actions_view_source">'.$this->lang->t('View source').'</a><br>'.
-							'Move',$this->lang->t('Mail actions'));
 		
 		foreach($box as $id=>$data) {
 			$r = $gb->get_new_row();
@@ -517,6 +535,23 @@ class Apps_MailClient extends Module {
 		return true;
 	}
 	
+	private function get_move_folders(array $str,$path='',$label='') {
+		$ret = array();
+		foreach($str as $k=>$v) {
+			$folder = $v['name'];
+			$mpath = $path.'/'.$folder;
+			$mlabel = ($label?$label.'/':'').(isset($v['label'])?$v['label']:$v['name']);
+			$main_dir_arr = explode('/',trim($mpath,'/'),3);
+			$translated_path = str_replace(array('@','.'),array('__at__','__dot__'),$mpath);
+			if(isset($main_dir_arr[1]) && $main_dir_arr[1]=='Inbox') {
+				$ret[$translated_path] = $mlabel;
+			}
+			if(isset($v['sub']) && is_array($v['sub'])) 
+				$ret = array_merge($ret,$this->get_move_folders($v['sub'],$mpath,$mlabel));
+		}
+		return $ret;
+	}
+	
 	/**
 	 * Sets callbacks(open,create/edit/delete folder) in tree of mailboxes for Utils/Tree.
 	 */
@@ -536,8 +571,14 @@ class Apps_MailClient extends Module {
 			if($path=='')
 				$mpath .= '/Inbox';
 			$translated_path = str_replace(array('@','.'),array('__at__','__dot__'),$mpath);
-			$v['name'] = '<a '.$this->create_callback_href(array($this,'open_mail_dir_callback'),array($translated_path)).'>'.(isset($v['label'])?$v['label']:$v['name']).'</a>';
+			$num = @file_get_contents(Apps_MailClientCommon::get_mail_dir().trim($translated_path,'/').'/.num');
+			if($num!==false) {
+				$num = explode(',',$num);
+				if(count($num)!==2) $num=false;
+			}
+			$v['name'] = '<a '.$this->create_callback_href(array($this,'open_mail_dir_callback'),array($translated_path)).'>'.(isset($v['label'])?$v['label']:$v['name']).($num?' ('.($num[1]?$num[1].'/':'').$num[0].')':'').'</a>';
 			if(isset($main_dir_arr[1]) && $main_dir_arr[1]=='Inbox') {
+		//		$this->in_folders[$translated_path] = $mpath;
 				$v['name'] .= '<a '.$this->create_callback_href(array($this,'edit_folder_callback'),array($translated_path)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','create_folder.png').'" border=0></a>';
 				if(isset($main_dir_arr[2])) {
 					$v['name'] .= '<a '.$this->create_callback_href(array($this,'edit_folder_callback'),array(str_replace(array('@','.'),array('__at__','__dot__'),$path),$folder)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','edit_folder.png').'" border=0></a>';
@@ -574,6 +615,7 @@ class Apps_MailClient extends Module {
 				rename(Apps_MailClientCommon::get_mail_dir().$box.'/'.$folder,$new_dir);
 			} else {
 				mkdir($new_dir);
+				Apps_MailClientCommon::build_index($new_dir);
 			}
 			$this->set_module_variable('opened_box','/'.$new_name);
 			return false;

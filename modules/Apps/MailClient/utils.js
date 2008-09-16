@@ -80,5 +80,6 @@ show_hide_button:function(name) {
 actions_set_id:function(id) {
 	var href = $('mail_client_actions_view_source').getAttribute('tpl_href');
 	$('mail_client_actions_view_source').setAttribute('href',href.replace('__MSG_ID__',id));
+	$('mail_client_actions_move_msg_id').value=id;
 }
 };
