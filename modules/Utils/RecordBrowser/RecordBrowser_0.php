@@ -556,18 +556,7 @@ class Utils_RecordBrowser extends Module {
 
 			if ($form->validate()) {
 				$values = $form->exportValues();
-				$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
-				$method = '';
-				if ($dpm!=='') {
-					$method = explode('::',$dpm);
-					if (is_callable($method)) $values = call_user_func($method, $values, 'add');
-					else $dpm = '';
-				}
 				$id = Utils_RecordBrowserCommon::new_record($this->tab, $values);
-				$values['id'] = $id;
-				Utils_WatchdogCommon::new_event($this->tab,$values['id'],'C');
-				if ($dpm!=='')
-					call_user_func($method, $values, 'added');
 				location(array());
 			}
 
@@ -608,7 +597,7 @@ class Utils_RecordBrowser extends Module {
 			self::$clone_result = null;
 			return false;
 		}
-		$record = Utils_RecordBrowserCommon::get_record($this->tab, $id);
+		$record = Utils_RecordBrowserCommon::get_record($this->tab, $id, false);
 		$access = $this->get_access('fields',$record);
 		if (is_array($access))
 			foreach ($access as $k=>$v)
@@ -669,7 +658,7 @@ class Utils_RecordBrowser extends Module {
 		if ($id!==null) Utils_WatchdogCommon::notified($this->tab,$id);
 
 		$this->init();
-		$this->record = Utils_RecordBrowserCommon::get_record($this->tab, $id);
+		$this->record = Utils_RecordBrowserCommon::get_record($this->tab, $id, $mode!=='edit');
 		
 		if ($mode!='add' && (!$this->get_access($mode, $this->record) || $this->record==null)) return $this->back();
 		if ($mode!='add' && !$this->record['active'] && !Base_AclCommon::i_am_admin()) return $this->back();
@@ -714,20 +703,10 @@ class Utils_RecordBrowser extends Module {
 		if ($form->validate()) {
 			$values = $form->exportValues();
 			$values['id'] = $id;
-			$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
-			$method = '';
-			if ($dpm!=='') {
-				$method = explode('::',$dpm);
-				if (is_callable($method)) $values = call_user_func($method, $values, $mode);
-			}
 			if ($mode=='add') {
 				$id = Utils_RecordBrowserCommon::new_record($this->tab, $values);
 				self::$clone_result = $id;
 				self::$clone_tab = $this->tab;
-				$values['id'] = $id;
-				Utils_WatchdogCommon::new_event($this->tab,$values['id'],'C');
-				if ($dpm!=='')
-					call_user_func($method, $values, 'added');
 				return $this->back();
 			}
 			$time_from = date('Y-m-d H:i:s', $this->get_module_variable('edit_start_time'));

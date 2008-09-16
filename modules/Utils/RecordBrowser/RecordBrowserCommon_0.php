@@ -448,6 +448,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function new_record( $tab = null, $values = array()) {
 		if (!$tab) return false;
 		self::init($tab);
+		$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($tab));
+		$method = '';
+		if ($dpm!=='') {
+			$method = explode('::',$dpm);
+			if (is_callable($method)) $values = call_user_func($method, $values, 'add');
+			else $dpm = '';
+		}
 		DB::StartTrans();
 		$fields = 'created_on,created_by,active';
 		$fields_types = '%T,%d,%d';
@@ -469,6 +476,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			DB::Execute('INSERT INTO '.$tab.'_favorite (user_id, '.$tab.'_id) VALUES (%d, %d)', array(Acl::get_user(), $id));
 		if (Base_User_SettingsCommon::get('Utils_RecordBrowser',$tab.'_auto_subs'))
 			Utils_WatchdogCommon::subscribe($tab,$id);
+		Utils_WatchdogCommon::new_event($tab,$id,'C');
+		if ($dpm!=='') {
+			$values['id'] = $id;
+			call_user_func($method, $values, 'added');
+		}
 		return $id;
 	}
 	public static function update_record($tab,$id,$values,$all_fields = false, $date = null, $dont_notify = false) {
@@ -476,6 +488,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		self::init($tab);
 		$record = self::get_record($tab, $id);
 		$access = self::get_access($tab, 'fields', $record);
+		$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($tab));
+		$method = '';
+		if ($dpm!=='') {
+			$method = explode('::',$dpm);
+			if (is_callable($method)) $values = call_user_func($method, $values, 'edit');
+		}
 		$diff = array();
 		foreach(self::$table_rows as $field => $args){
 //			if ($access[$args['id']]=='hide' || $access[$args['id']]=='read-only') continue;
@@ -965,7 +983,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				Base_LangCommon::ts('Utils_RecordBrowser','Edited on:').' '.Base_RegionalSettingsCommon::time2reg($info['edited_on']). '<br>'.
 				Base_LangCommon::ts('Utils_RecordBrowser','Edited by:').' '.$edited_by):'');
 	}
-	public static function get_record( $tab, $id) {
+	public static function get_record($tab, $id, $htmlspecialchars=true) {
 		if (!is_numeric($id)) return null;
 		self::init($tab);
 		if (isset($id)) {
@@ -981,7 +999,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					else $r = self::decode_multi($row['f_'.$args['id']]);
 					$record[$args['id']] = $r;
 				} else {
-					$record[$args['id']] = (isset($row['f_'.$args['id']])?htmlspecialchars($row['f_'.$args['id']]):'');
+					$record[$args['id']] = (isset($row['f_'.$args['id']])?$row['f_'.$args['id']]:'');
+					if ($htmlspecialchars) $record[$args['id']] = htmlspecialchars($record[$args['id']]);
 				}
 			}
 			return $record;
