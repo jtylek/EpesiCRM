@@ -989,19 +989,25 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			return null;
 		}
 	}
-	public static function delete_record($tab, $id) {
+	public static function set_active($tab, $id, $state){
 		self::check_table_name($tab);
 		DB::StartTrans();
-		DB::Execute('UPDATE '.$tab.'_data_1 SET active=0 where id=%d', array($id));
+		DB::Execute('UPDATE '.$tab.'_data_1 SET active=%d WHERE id=%d',array($state?1:0,$id));
 		DB::Execute('INSERT INTO '.$tab.'_edit_history(edited_on, edited_by, '.$tab.'_id) VALUES (%T,%d,%d)', array(date('Y-m-d G:i:s'), Acl::get_user(), $id));
 		$edit_id = DB::Insert_ID($tab.'_edit_history','id');
-		DB::Execute('INSERT INTO '.$tab.'_edit_history_data(edit_id, field, old_value) VALUES (%d,%s,%s)', array($edit_id, '', 'DELETED'));
+		DB::Execute('INSERT INTO '.$tab.'_edit_history_data(edit_id, field, old_value) VALUES (%d,%s,%s)', array($edit_id, 'id', ($state?'RESTORED':'DELETED')));
 		DB::CompleteTrans();
 		$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($tab));
 		if ($dpm!=='') {
 			$method = explode('::',$dpm);
-			if (is_callable($method)) call_user_func($method, self::get_record($tab, $id), 'delete');
+			if (is_callable($method)) call_user_func($method, self::get_record($tab, $id), $state?'restore':'delete');
 		}
+	}
+	public static function delete_record($tab, $id) {
+		self::set_active($tab, $id, false);
+	}
+	public static function restore_record($tab, $id) {
+		self::set_active($tab, $id, true);
 	}
 	public static function no_wrap($s) {
 		$content_no_wrap = $s;
