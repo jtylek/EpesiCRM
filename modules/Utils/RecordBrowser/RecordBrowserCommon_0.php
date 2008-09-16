@@ -883,8 +883,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function check_record_against_crits($tab, $id, $crits) {
 		if ($crits===true || empty($crits)) return true;
 		static $cache = array();
-		if (isset($cache[$tab.'__'.$id])) return $cache[$tab.'__'.$id];
-		$r = self::get_record($tab, $id);
+		if (is_numeric($id)) $r = self::get_record($tab, $id);
+		else $r = $id;
+//		if (isset($cache[$tab.'__'.$id])) return $cache[$tab.'__'.$id];
+//		$r = self::get_record($tab, $id);
 		$or_started = false;
 		$or_result = false;
 		foreach ($crits as $k=>$v) {
@@ -941,6 +943,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if ($access_callback === '' || !is_callable($access_callback)) return true;
 		$ret = call_user_func($access_callback, $action, $param);
 		if ($action==='delete' && $ret) $ret = call_user_func($access_callback, 'edit', $param);
+		if ($action==='view' && $param!==null) $ret = self::check_record_against_crits($tab, $param, $ret);
 		if ($action==='fields') {
 			self::init($tab);
 			foreach (self::$table_rows as $field=>$args)

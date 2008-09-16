@@ -660,7 +660,12 @@ class Utils_RecordBrowser extends Module {
 		$this->init();
 		$this->record = Utils_RecordBrowserCommon::get_record($this->tab, $id, $mode!=='edit');
 		
-		if ($mode!='add' && (!$this->get_access($mode, $this->record) || $this->record==null)) return $this->back();
+		if ($mode!='add' && (!$this->get_access($mode, $this->record) || $this->record==null)) {
+			print($this->lang->t('You have no longer permission to view this record.'));
+			Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+			Utils_ShortcutCommon::add(array('esc'), 'function(){'.$this->create_back_href_js().'}');
+			return true;
+		}
 		if ($mode!='add' && !$this->record['active'] && !Base_AclCommon::i_am_admin()) return $this->back();
 
 		if ($mode=='view')

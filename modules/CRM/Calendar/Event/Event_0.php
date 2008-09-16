@@ -169,6 +169,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 		$def = array();
 
+		$my_id = CRM_FiltersCommon::get_my_profile();
 		if($action == 'new') {
 			$duration_switch = '1';
 			$id = strtotime(Base_RegionalSettingsCommon::time2reg($id,true,true,true,false));
@@ -255,6 +256,12 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			while ($row=$ret->FetchRow())
 				$def['emp_id'][] = $row['contact'];*/
 			$def_emp_id = $def['emp_id'];
+			if ($def['access']==2 && !in_array($my_id,$def_emp_id) && !Base_AclCommon::i_am_admin()) {
+				print($this->lang->t('You are not authorised to view this record.'));
+				Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+				Utils_ShortcutCommon::add(array('Esc'), 'function(){'.$this->create_back_href_js().'}');
+				return;
+			}
 			$timeless = $event['timeless'];
 			$tmp = $def['title'];
 			$def['title'] = Base_LangCommon::ts('CRM/Calendar/Event','Follow up: ').$def['title'];
@@ -533,7 +540,6 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		}
 
 		if($action == 'view') {
-			$my_id = CRM_FiltersCommon::get_my_profile();
 			if($def['access']==0 || in_array($my_id,$def_emp_id) || Base_AclCommon::i_am_admin()) {
 				Base_ActionBarCommon::add('edit','Edit', $this->create_callback_href(array($this, 'view_event'), array('edit', $id)));
 				Utils_ShortcutCommon::add(array('Ctrl','E'), 'function(){'.$this->create_callback_href_js(array($this, 'view_event'), array('edit', $id)).'}');

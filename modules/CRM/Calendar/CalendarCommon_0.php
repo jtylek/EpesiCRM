@@ -119,6 +119,12 @@ class CRM_CalendarCommon extends ModuleCommon {
 			$title = DB::GetOne('SELECT title FROM crm_calendar_event WHERE id=%d',array($rid));
 			if ($title===false || $title===null)
 				return null;
+			$access = DB::GetOne('SELECT access FROM crm_calendar_event WHERE id=%d',array($rid));
+			if ($access>=2) {
+				$me = CRM_ContactsCommon::get_my_record();
+				$am_i_there = DB::GetOne('SELECT 1 FROM crm_calendar_event_group_emp WHERE id=%d AND contact=%d',array($rid, $me['id']));
+				if ($am_i_there!==1) return null;
+			}
 			$ret['view_href'] = Module::create_href(array('crm_calendar_watchdog_view_event'=>$rid));
 			if (isset($_REQUEST['crm_calendar_watchdog_view_event'])
 				&& $_REQUEST['crm_calendar_watchdog_view_event']==$rid) {
