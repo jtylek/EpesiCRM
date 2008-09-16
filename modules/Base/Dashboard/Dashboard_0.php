@@ -44,10 +44,13 @@ class Base_Dashboard extends Module {
 
 			$remember_tab = Base_User_SettingsCommon::get('Base_Dashboard','remember_tab');
 			if($remember_tab) {
-				if(isset($_SESSION['client']['dashboard_tab']))
+				if(isset($_REQUEST['Base_HomePage_load']) && isset($_SESSION['client']['dashboard_tab'])) {
+					$this->tb->switch_tab($_SESSION['client']['dashboard_tab']);//force switch tab
+				} elseif(isset($_SESSION['client']['dashboard_tab'])) {
 					$this->tb->set_default_tab($_SESSION['client']['dashboard_tab']);
-				else
+				} else {
 					$this->tb->set_default_tab($this->tb->get_tab());
+				}
 				$_SESSION['client']['dashboard_tab'] = $this->tb->get_tab();
 			}
 
