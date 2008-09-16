@@ -129,7 +129,8 @@ class Utils_WatchdogCommon extends ModuleCommon {
 	public static function user_unsubscribe($user_id, $category_name, $id) {
 		$category_id = self::get_category_id($category_name);
 		if (!$category_id) return;
-		DB::Execute('DELETE FROM utils_watchdog_subscription WHERE user_id=%d AND internal_id=%d AND category_id=%d',array($user_id,$id,$category_id));
+		if ($user_id!==null) DB::Execute('DELETE FROM utils_watchdog_subscription WHERE user_id=%d AND internal_id=%d AND category_id=%d',array($user_id,$id,$category_id));
+		else DB::Execute('DELETE FROM utils_watchdog_subscription WHERE internal_id=%d AND category_id=%d',array($id,$category_id));
 	}
 
 	public static function user_check_if_notified($user_id, $category_name, $id) {
@@ -179,7 +180,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 	public static function subscribe($category_name, $id) {
 		self::user_subscribe(Acl::get_user(), $category_name, $id);
 	}
-	public static function unsubscribe($category_name, $id) {
+	public static function unsubscribe($category_name, $id=null) {
 		self::user_unsubscribe(Acl::get_user(), $category_name, $id);
 	}
 	public static function check_if_notified($category_name, $id) {
