@@ -320,6 +320,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$idx = self::get_index($mailbox);
 		
 		if($idx===false || !isset($idx[$id])) return false;
+		if($idx[$id]['read']) return true;
 		$idx[$id]['read'] = '1';
 
 		$box = Apps_MailClientCommon::get_mail_dir().trim($mailbox,'/').'/';

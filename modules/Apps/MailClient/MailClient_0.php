@@ -5,7 +5,6 @@
  * TODO: 
  * -drafts, sent i trash to specjalne foldery, wszystkie inne traktujemy tak jak inbox
  * -zalaczniki przy new
- * -dodatkowe akcje dla maili: pokaz przenies do innego folderu
  * -obsluga imap
  * -obsluga ssl przy wysylaniu smtp
  * 
@@ -47,9 +46,6 @@ class Apps_MailClient extends Module {
 		if($move_msg_f->validate()) {
 			$vals = $move_msg_f->exportValues();
 			$out_box = explode('/',trim($vals['folder'],'/'),2);
-//			print_r($out_box);
-//			print_r($vals);
-			//TODO: move message nie dziala dla innych skrzynek niz macierzysta
 			Apps_MailClientCommon::move_msg($mailbox[0],$mailbox[1],$out_box[0],$out_box[1],$vals['msg_id']);
 		}
 		
