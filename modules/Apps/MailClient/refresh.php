@@ -118,18 +118,41 @@ if($pop3) { //pop3
 		if($ssl) $port=993;
 		else $port=143;
 	}
-	$in = new Net_IMAP();
 
-	if(PEAR::isError( $ret= $in->connect(($ssl?'ssl://':'').$host , $port) ))
-		die('(connect error) '.$ret->getMessage());
+	$native_support = false;
+	if(function_exists('imap_open')) {
+		$native_support = true;
+		$in = @imap_open('{'.$host.':'.$port.'/imap'.($ssl?'/ssl/novalidate-cert':'').'}INBOX', $user,$pass);
+		if(!$in) {
+			die('(connect error) '.implode(', ',imap_errors()));
+		}
+
+		if ($hdr = imap_check($in)) {
+			$msgCount = $hdr->Nmsgs;
+		} else {
+			die('(fetch error) '.implode(', ',imap_errors()));
+		}
+
+		
+		$l=imap_fetch_overview($in,'1:'.$msgCount,0);
+		$num_msgs = 0;
+		foreach($l as $v) {
+			if(!$v->seen && !$v->deleted) $num_msgs++;
+		}
+	} else {
+		$in = new Net_IMAP();
+
+		if(PEAR::isError( $ret= $in->connect(($ssl?'ssl://':'').$host , $port) ))
+			die('(connect error) '.$ret->getMessage());
 	
-	if(PEAR::isError( $ret= $in->login($user , $pass, $method)))
-		die('(login error) '.$ret->getMessage());
+		if(PEAR::isError( $ret= $in->login($user , $pass, $method)))
+			die('(login error) '.$ret->getMessage());
 
-	if(PEAR::isError($num_msgs = $in->getNumberOfUnSeenMessages()))
-		die('(connection error) '.$num_msgs->getMessage());
+		if(PEAR::isError($num_msgs = $in->getNumberOfUnSeenMessages()))
+			die('(connection error) '.$num_msgs->getMessage());
 
-	$in->disconnect();
+		$in->disconnect();
+	}
 }
 
 print($num_msgs);
