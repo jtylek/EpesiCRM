@@ -33,11 +33,11 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 	public function get_emp_and_cus($id){
 		$def = array();
 		$def['cus_id'] = array();
-		$ret = DB::Execute('SELECT contact FROM crm_calendar_event_group_cus WHERE id=%d', $id);
+		$ret = DB::Execute('SELECT contact FROM crm_calendar_event_group_cus WHERE id=%d', array($id));
 		while ($row=$ret->FetchRow())
 			$def['cus_id'][] = $row['contact'];
 		$def['emp_id'] = array();
-		$ret = DB::Execute('SELECT contact FROM crm_calendar_event_group_emp WHERE id=%d', $id);
+		$ret = DB::Execute('SELECT contact FROM crm_calendar_event_group_emp WHERE id=%d', array($id));
 		while ($row=$ret->FetchRow())
 			$def['emp_id'][] = $row['contact'];
 		return $def;
@@ -272,7 +272,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		$count = 0;
 		while ($row = $ret->FetchRow()) {
 			$next_result = array();
-			foreach (array('start','id','title','timeless','description','status') as $v)
+			foreach (array('start','end','id','title','timeless','description','status') as $v)
 				$next_result[$v] = $row[$v];
 //			if($next_result['timeless'])
 //				$next_result['start'] = $next_result['start'];
@@ -343,36 +343,46 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 						switch($type) {
 							case 'everyday':
 								$next_result['start']+=3600*24;
+								$next_result['end']+=3600*24;
 								break;
 							case 'second':
 								$next_result['start']+=3600*48;
+								$next_result['end']+=3600*48;
 								break;
 							case 'third':
 								$next_result['start']+=3600*72;
+								$next_result['end']+=3600*72;
 								break;
 							case 'fourth':
 								$next_result['start']+=3600*96;
+								$next_result['end']+=3600*96;
 								break;
 							case 'fifth':
 								$next_result['start']+=3600*120;
+								$next_result['end']+=3600*120;
 								break;
 							case 'sixth':
 								$next_result['start']+=3600*144;
+								$next_result['end']+=3600*144;
 								break;
 							case 'week':
 								$next_result['start']+=3600*168;
+								$next_result['end']+=3600*168;
 								break;
 							case 'week_custom':
 								do {
 									$next_result['start']+=3600*24;
+									$next_result['end']+=3600*24;
 								} while(!$row['recurrence_hash']{date('N',strtotime(Base_RegionalSettingsCommon::time2reg($next_result['start'],false,true,true,false)))-1});
 								break;
 							case 'two_weeks':
 								$next_result['start']+=3600*168*2;
+								$next_result['end']+=3600*168*2;
 								break;
 							case 'month':
 								$month = date('m',$next_result['start'])%12+1;
 								$next_result['start'] = strtotime(date('Y-'.$month.'-d H:i:s',$next_result['start']));
+								$next_result['end'] = strtotime(date('Y-'.$month.'-d H:i:s',$next_result['end']));
 								break;
 						}
 						if($next_result['start']>=$start && $next_result['start']<$rend) {

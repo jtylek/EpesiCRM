@@ -38,7 +38,20 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 	}
 
 	public function make_event_PDF($pdf, $id, $no_details = false,$type='Event'){
-		$ev = DB::GetRow('SELECT * FROM crm_calendar_event WHERE id=%d', array($id));
+		if (!is_array($id)) {
+			$ev = DB::GetRow('SELECT *, starts AS start, ends AS end FROM crm_calendar_event WHERE id=%d', array($id));
+			$id = explode('_',$id);
+			$id = $id[0];
+		} else {
+			$ev = $id;
+			$id = $ev['id'];
+			$id = explode('_',$id);
+			$id = $id[0];
+/*			$ev_details = DB::GetRow('SELECT *, starts AS start, ends AS end FROM crm_calendar_event WHERE id=%d', array($id));
+			foreach ($ev_details as $k=>$v)
+				if (!isset($ev[$k])) $ev[$k] = $v;*/
+			$ev['title'] = strip_tags($ev['title']);
+		}
 		$pdf_theme = $this->pack_module('Base/Theme');
 		$pdf_theme->assign('description', array('label'=>$this->lang->t('Description'), 'value'=>str_replace("\n",'<br/>',htmlspecialchars($ev['description']))));
 		if (!$no_details) {
@@ -122,18 +135,19 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 															));
 		$pdf_theme->assign('title', array(	'label'=>$this->lang->t('Title'),
 											'value'=>$ev['title']));
-		$start = Base_RegionalSettingsCommon::time2reg($ev['starts'],false);
+		$start = Base_RegionalSettingsCommon::time2reg($ev['start'],false);
 		$pdf_theme->assign('start_date', array(	'label'=>$this->lang->t('Start date'),
 												'value'=>$start,
 												'details'=>array('weekday'=>date('l', strtotime($start)))));
 		if (!$ev['timeless']) {
 			$pdf_theme->assign('start_time', array(	'label'=>$this->lang->t('Start time'),
-													'value'=>Base_RegionalSettingsCommon::time2reg($ev['starts'],true,false)));
+													'value'=>Base_RegionalSettingsCommon::time2reg($ev['start'],true,false)));
+			if (!isset($ev['end'])) trigger_error(print_r($ev,true));
 			$pdf_theme->assign('end_time', array(	'label'=>$this->lang->t('End time'),
-													'value'=>Base_RegionalSettingsCommon::time2reg($ev['ends'],true,false)));
-			$duration = array(floor(($ev['ends']-$ev['starts'])/3600));
+													'value'=>Base_RegionalSettingsCommon::time2reg($ev['end'],true,false)));
+			$duration = array(floor(($ev['end']-$ev['start'])/3600));
 			$format = '%d hours';
-			$minutes = ($ev['ends']-$ev['starts'])%3600;
+			$minutes = ($ev['end']-$ev['start'])%3600;
 			if ($minutes!=0) {
 				if ($duration[0]==0) {
 					$duration = array();
@@ -144,9 +158,9 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			}
 			$pdf_theme->assign('duration', array(	'label'=>$this->lang->t('Duration'),
 													'value'=>$this->lang->t($format,$duration)));
-			if (date('Y-m-d',$ev['starts'])!=date('Y-m-d',$ev['ends']))
+			if (date('Y-m-d',$ev['start'])!=date('Y-m-d',$ev['end']))
 				$pdf_theme->assign('end_date', array(	'label'=>$this->lang->t('End date'),
-														'value'=>Base_RegionalSettingsCommon::time2reg($ev['ends'],false)));
+														'value'=>Base_RegionalSettingsCommon::time2reg($ev['end'],false)));
 		} else $pdf_theme->assign('timeless', array(	'label'=>$this->lang->t('Timeless'),
 														'value'=>$this->lang->t('Yes')));
 		$pdf_theme->assign('type',$type);

@@ -28,7 +28,7 @@ class Libs_TCPDF extends Module {
 		if (self::$using_custom_fonts) {
 			$this->tcpdf = new TCPDF($orientation, $unit, $format);
 		} else {
-			$this->tcpdf = new TCPDF($orientation, $unit, $format, false, 'utf-8');
+			$this->tcpdf = new TCPDF($orientation, $unit, $format, false, 'ISO-8859-1');
 		}
 
 		$this->tcpdf->SetCreator(PDF_CREATOR);

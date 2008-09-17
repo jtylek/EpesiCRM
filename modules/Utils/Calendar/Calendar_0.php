@@ -727,6 +727,7 @@ class Utils_Calendar extends Module {
 		$end_t = $month[count($month)-1]['days'][6]['time']+86400;
 		$end_t = Base_RegionalSettingsCommon::reg2time($end_t);
 		$ret = $this->get_events($start_t,$end_t);
+		$this->displayed_events = array('start'=>$start_t, 'end'=>$end_t,'events'=>$ret);
 		$this->js('Utils_Calendar.page_type=\'month\'');
 		$ev_out = 'function() {';
 		foreach($ret as $k=>$ev) {

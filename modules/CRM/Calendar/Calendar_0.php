@@ -58,7 +58,7 @@ class CRM_Calendar extends Module {
 					$pdf->prepare_header();
 					$pdf->AddPage();
 					foreach($events['events'] as $v) {
-						$ev_mod->make_event_PDF($pdf,$v['id'],true,$view_type);
+						$ev_mod->make_event_PDF($pdf,$v,true,$view_type);
 					}
 				}
 				$pdf->add_actionbar_icon($this->lang->t(str_replace(' ','_',$view)));
