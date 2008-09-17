@@ -189,10 +189,11 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 	 * @param boolean order by key instead of value
 	 * @return mixed returns an array if such array exists, false otherwise
 	 */
-	public static function get_array($name, $order_by_key=false, $readinfo=false){
+	public static function get_array($name, $order_by_key=false, $readinfo=false, $silent=false){
 		$id = self::get_id($name);
 		if($id===false)
-			trigger_error('Invalid CommonData::get_array() request: '.$name,E_USER_ERROR);
+			if ($silent) return null;
+			else trigger_error('Invalid CommonData::get_array() request: '.$name,E_USER_ERROR);
 		if($order_by_key)
 			$order_by = 'akey';
 		else
@@ -202,8 +203,11 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 		return DB::GetAssoc('SELECT akey, value FROM utils_commondata_tree WHERE parent_id=%d ORDER BY '.$order_by,array($id));
 	}
 
-	public static function get_translated_array($name,$order_by_key=false,$readinfo=false) {
-		return self::translate_array(self::get_array($name,$order_by_key,$readinfo));
+	public static function get_translated_array($name,$order_by_key=false,$readinfo=false,$silent=false) {
+		// TODO: $readinfo screws translation (array is no longer simple)
+		$arr = self::get_array($name,$order_by_key,$readinfo,$silent);
+		if ($arr===null) return null;
+		return self::translate_array($arr);
 	}
 
 	public static function translate_array(& $arr) {

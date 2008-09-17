@@ -18,6 +18,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
 	public static function get_val($tab, $field, $record, $id, $links_not_recommended = false, $args = null) {
 		self::init($tab);
+		$commondata_sep = '/';
 		static $display_callback_table = array();
 		if (!isset($display_callback_table[$tab])) {			
 			$ret = DB::Execute('SELECT * FROM '.$tab.'_callback WHERE freezed=1');
@@ -36,15 +37,35 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				}
 				list($tab, $col) = explode('::',$args['param']);
 				if (!is_array($val)) $val = array($val);
-				if ($tab=='__COMMON__') $data = Utils_CommonDataCommon::get_translated_array($col, true);
+//				if ($tab=='__COMMON__') $data = Utils_CommonDataCommon::get_translated_array($col, true);
 				$ret = '';
 				$first = true;
 				foreach ($val as $k=>$v){
-					if ($tab=='__COMMON__' && !isset($data[$v])) continue;
+//					if ($tab=='__COMMON__' && !isset($data[$v])) continue;
 					if ($first) $first = false;
 					else $ret .= '<br>';
-					if ($tab=='__COMMON__') $ret .= Utils_RecordBrowserCommon::no_wrap($data[$v]);
-					else $ret .= Utils_RecordBrowserCommon::create_linked_label($tab, $col, $v, $links_not_recommended);
+					if ($tab=='__COMMON__') {
+						$path = explode('/',$v);
+						$tooltip = '';
+						$res = '';
+						if (count($path)>1) {
+							$res .= Utils_CommonDataCommon::get_value($col.'/'.$path[0],true);
+							if (count($path)>2) {
+								$res .= $commondata_sep.'...';
+								$tooltip = '';
+								$full_path = $col;
+								foreach ($path as $w) {
+									$full_path .= '/'.$w;
+									$tooltip .= ($tooltip?$commondata_sep:'').Utils_CommonDataCommon::get_value($full_path,true);
+								}
+							}
+							$res .= $commondata_sep;
+						}
+						$res .= Utils_CommonDataCommon::get_value($col.'/'.$v,true);
+						$res = self::no_wrap($res);
+						if ($tooltip) $res = '<span '.Utils_TooltipCommon::open_tag_attrs($tooltip, false).'>'.$res.'</span>';
+						$ret .= $res;
+					} else $ret .= Utils_RecordBrowserCommon::create_linked_label($tab, $col, $v, $links_not_recommended);
 				}
 				if ($ret=='') $ret = '---';
 			}
@@ -616,7 +637,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			}
 			if ($k[0]==':') {
 				switch ($k) {
-//					case ':Fav'	: $having .= ' (SELECT COUNT(*) FROM '.$tab.'_favorite WHERE '.$tab.'_id=r.id AND user_id=%d)!=0'; $vals[]=Acl::get_user(); break;
 					case ':Fav'	: 	$final_tab = '('.$final_tab.') LEFT JOIN '.$tab.'_favorite AS fav ON fav.'.$tab.'_id=r.id AND fav.user_id='.Acl::get_user();
 									$having .= ' fav.user_id IS NOT NULL'; 
 									break;
@@ -730,7 +750,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								$f = $k;
 								$key = self::$table_rows[$k]['id'];
 							} else trigger_error($tab.' - '.$k.' - '.print_r($crits,true).' - '.print_r(self::$table_rows,true), E_USER_ERROR);
-							if (self::$table_rows[$f]['type']=='multiselect') $w = DB::Concat(DB::qstr('%'),DB::qstr('\_\_'.$w.'\_\_'),DB::qstr('%'));
+							if (self::$table_rows[$f]['type']=='multiselect') {
+								$param = explode('::',self::$table_rows[$f]['param']);
+								if ($param[0]=='__COMMON__')$tail = '';
+								else $tail = '\_\_';
+								$w = DB::Concat(DB::qstr('%'),DB::qstr('\_\_'.$w.$tail),DB::qstr('%'));
+							}
 							elseif (!$noquotes) $w = DB::qstr($w);
 							$having .= ' OR (r.f_'.$key.' '.$operator.' '.$w.' AND r.f_'.$key.' IS NOT NULL)';
 						}

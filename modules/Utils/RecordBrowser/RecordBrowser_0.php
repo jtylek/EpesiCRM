@@ -210,13 +210,14 @@ class Utils_RecordBrowser extends Module {
 			} else {
 				if ($this->table_rows[$filter]['type'] == 'commondata') {
 					$arr = array_merge($arr, Utils_CommonDataCommon::get_translated_array($this->table_rows[$filter]['param'], true));
+					natcasesort($arr);
 				} else {
 					$param = explode(';',$this->table_rows[$filter]['param']);
 					$x = explode('::',$param[0]);
 					if (!isset($x[1])) trigger_error($filter);
 					list($tab, $col) = explode('::',$param[0]);
 					if ($tab=='__COMMON__') {
-						$arr = array_merge($arr, Utils_CommonDataCommon::get_translated_array($col, true));
+						$arr = array_merge($arr, $this->get_commondata_tree($col));
 					} else {
 						$col = explode('|',$col);
 						Utils_RecordBrowserCommon::check_table_name($tab);
@@ -241,32 +242,10 @@ class Utils_RecordBrowser extends Module {
 								$arr[$k] = $v[$col[0]];
 							}
 						}
+						natcasesort($arr);
 					}
 				} 
-/*					else {
-					$count_ids = Utils_RecordBrowserCommon::count_possible_values($this->tab, $filter);
-					if ($count_ids<=100) {
-						$ids = Utils_RecordBrowserCommon::get_possible_values($this->tab, $filter);
-						$ret2 = Utils_RecordBrowserCommon::get_records($this->tab,array('id'=>$ids),array($filter));
-						$field_id = $this->table_rows[$filter]['id'];
-						foreach ($ret2 as $k=>$v) {
-							$f = $v[$field_id];
-							if (!is_array($f)) $f = array($f);
-							foreach ($f as $w)
-								if ($w!='' && !isset($arr[$w])) {
-									$v[$field_id] = $w;
-									$arr[$w] = $this->get_val($filter, $v, $v['id'], true, $this->table_rows[$filter]);
-								}
-						}
-					} else {
-						$form->addElement('text', $filter_id, $this->lang->t($filter));
-						$text_filters[$filter_id] = true;
-						$filters[] = $filter_id;
-						continue;
-					}
-				}*/
 			}
-			natcasesort($arr);
 			$arr = array('__NULL__'=>'---')+$arr;
 			$form->addElement('select', $filter_id, $this->lang->t($filter), $arr);
 			$filters[] = $filter_id;
@@ -856,6 +835,20 @@ class Utils_RecordBrowser extends Module {
 	public function timestamp_required($v) {
 		return strtotime($v['datepicker'])!==false;
 	}
+	
+	public function get_commondata_tree($col, $deep=0){
+		$data = Utils_CommonDataCommon::get_translated_array($col, true, false, true);
+		if (!$data) return null;
+		$output = array();
+		foreach ($data as $k=>$v) {
+			$output[$k] = $v;
+			$sub = $this->get_commondata_tree($col.'/'.$k, $deep+1);
+			if ($sub) foreach ($sub as $k2=>$v2) {
+				$output[$k.'/'.$k2] = '* '.$v2;
+			}
+		}
+		return $output;
+	}
 
 	public function prepare_view_entry_details($record, $mode, $id, $form, $visible_cols = null){
 		$init_js = '';
@@ -878,41 +871,6 @@ class Utils_RecordBrowser extends Module {
 						continue;
 					}
 				}
-				if (isset($this->requires[$field]))
-					if ($mode=='add' || $mode=='edit') {
-						foreach($this->requires[$field] as $k=>$v) {
-							if (!is_array($v)) $v = array($v);
-							$r_id = strtolower(str_replace(' ','_',$k));
-							$js = 	'Event.observe(\''.$r_id.'\',\'change\', onchange_'.$args['id'].'__'.$k.');'.
-									'function onchange_'.$args['id'].'__'.$k.'() {'.
-									'if (0';
-							foreach ($v as $w)
-								$js .= ' || document.forms[\''.$form->getAttribute('name').'\'].'.$r_id.'.value == \''.$w.'\'';
-							$js .= 	') { '.
-									'document.forms[\''.$form->getAttribute('name').'\'].'.$args['id'].'.style.display = \'inline\';'.
-									'document.getElementById(\'_'.$args['id'].'__label\').style.display = \'inline\';'.
-									'} else { '.
-									'document.forms[\''.$form->getAttribute('name').'\'].'.$args['id'].'.style.display = \'none\';'.
-									'document.getElementById(\'_'.$args['id'].'__label\').style.display = \'none\';'.
-									'}};';
-							$init_js .= 'onchange_'.$args['id'].'__'.$k.'();';
-							eval_js($js);
-						}
-					} else {
-						$hidden = false;
-						foreach($this->requires[$field] as $k=>$v) {
-							if (!is_array($v)) $v = array($v);
-							$r_id = strtolower(str_replace(' ','_',$k));
-							foreach ($v as $w) {
-								if ($record[$k] != $w) {
-									$hidden = true;
-									break;
-								}
-							}
-							if ($hidden) break;
-						}
-						if ($hidden) continue;
-					}
 				switch ($args['type']) {
 					case 'calculated':	$form->addElement('static', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
 										if ($record[$args['id']]!='' && $mode=='edit')
@@ -930,8 +888,8 @@ class Utils_RecordBrowser extends Module {
 					case 'currency':	$form->addElement('currency', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
 										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 										break;
-					case 'text':		if ($mode!=='view') $form->addElement('text', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id'], 'maxlength'=>$args['param']));
-										else $form->addElement('static', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
+					case 'text':		$form->addElement('text', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id'], 'maxlength'=>$args['param']));
+//										else $form->addElement('static', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
 										$form->addRule($args['id'], $this->lang->t('Maximum length for this field is '.$args['param'].'.'), 'maxlength', $args['param']);
 										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 										break;
@@ -956,7 +914,6 @@ class Utils_RecordBrowser extends Module {
 										break;
 					case 'select':
 					case 'multiselect':	$comp = array();
-										if ($args['type']==='select') $comp[''] = '---';
 										$ref = explode(';',$args['param']);
 										if (isset($ref[1])) $crits_callback = $ref[1];
 										if (isset($ref[2])) $multi_adv_params = call_user_func(explode('::',$ref[2]));
@@ -967,53 +924,47 @@ class Utils_RecordBrowser extends Module {
 										$ref = $ref[0];
 										list($tab, $col) = explode('::',$ref);
 										if ($tab=='__COMMON__') {
-											$data = Utils_CommonDataCommon::get_translated_array($col, true);
+											$data = $this->get_commondata_tree($col);
 											if (!is_array($data)) $data = array();
-										}
-										if ($mode=='add' || $mode=='edit') {
-											if ($tab=='__COMMON__')
-												$comp = $comp+$data;
-											else {
-												if (isset($crits_callback)) {
-													$crit_callback = explode('::',$crits_callback);
-													$crits = call_user_func($crit_callback, false, $record);
-													$adv_crits = call_user_func($crit_callback, true, $record);
-													if ($adv_crits === $crits) $adv_crits = null;
-													if ($adv_crits !== null) {
-														$rp = $this->init_module('Utils/RecordBrowser/RecordPicker');
-														$this->display_module($rp, array($tab, $args['id'], $multi_adv_params['format_callback'], $adv_crits, $multi_adv_params['cols'], $multi_adv_params['order']));
-														$this->advanced[$args['id']] = $rp->create_open_link($this->lang->t('Advanced'));
-													}
-												} else $crits = array();
-												$records = Utils_RecordBrowserCommon::get_records($tab, $crits, empty($multi_adv_params['format_callback'])?array($col):array());
-												$col_id = strtolower(str_replace(' ','_',$col));
-												$ext_rec = array();
-												if (isset($record[$args['id']])) {
-													if (!is_array($record[$args['id']])) {
-														if ($record[$args['id']]!='') $record[$args['id']] = array($record[$args['id']]); else $record[$args['id']] = array();
-													}
-													$ext_rec = array_flip($record[$args['id']]);
-													foreach($ext_rec as $k=>$v) {
-														$c = Utils_RecordBrowserCommon::get_record($tab, $k);
-														if (!empty($multi_adv_params['format_callback'])) $n = call_user_func($multi_adv_params['format_callback'], $c);
-														else $n = $v[$col_id];
-														$comp[$k] = $n;
-													}
+											$comp = $comp+$data;
+										} else {
+											if (isset($crits_callback)) {
+												$crit_callback = explode('::',$crits_callback);
+												$crits = call_user_func($crit_callback, false, $record);
+												$adv_crits = call_user_func($crit_callback, true, $record);
+												if ($adv_crits === $crits) $adv_crits = null;
+												if ($adv_crits !== null) {
+													$rp = $this->init_module('Utils/RecordBrowser/RecordPicker');
+													$this->display_module($rp, array($tab, $args['id'], $multi_adv_params['format_callback'], $adv_crits, $multi_adv_params['cols'], $multi_adv_params['order']));
+													$this->advanced[$args['id']] = $rp->create_open_link($this->lang->t('Advanced'));
 												}
-												foreach ($records as $k=>$v) {
-													if (!empty($multi_adv_params['format_callback'])) $n = call_user_func($multi_adv_params['format_callback'], $v);
+											} else $crits = array();
+											$records = Utils_RecordBrowserCommon::get_records($tab, $crits, empty($multi_adv_params['format_callback'])?array($col):array());
+											$col_id = strtolower(str_replace(' ','_',$col));
+											$ext_rec = array();
+											if (isset($record[$args['id']])) {
+												if (!is_array($record[$args['id']])) {
+													if ($record[$args['id']]!='') $record[$args['id']] = array($record[$args['id']]); else $record[$args['id']] = array();
+												}
+												$ext_rec = array_flip($record[$args['id']]);
+												foreach($ext_rec as $k=>$v) {
+													$c = Utils_RecordBrowserCommon::get_record($tab, $k);
+													if (!empty($multi_adv_params['format_callback'])) $n = call_user_func($multi_adv_params['format_callback'], $c);
 													else $n = $v[$col_id];
 													$comp[$k] = $n;
-													unset($ext_rec[$v['id']]);
 												}
-												natcasesort($comp);
 											}
-											$form->addElement($args['type'], $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', $comp, array('id'=>$args['id']));
-											if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
-										} else {
-											$form->addElement('static', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
-											$form->setDefaults(array($args['id']=>$record[$args['id']]));
+											foreach ($records as $k=>$v) {
+												if (!empty($multi_adv_params['format_callback'])) $n = call_user_func($multi_adv_params['format_callback'], $v);
+												else $n = $v[$col_id];
+												$comp[$k] = $n;
+												unset($ext_rec[$v['id']]);
+											}
+											natcasesort($comp);
 										}
+										if ($args['type']==='select') $comp = array(''=>'---')+$comp;
+										$form->addElement($args['type'], $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', $comp, array('id'=>$args['id']));
+										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 										break;
 				}
 			}
