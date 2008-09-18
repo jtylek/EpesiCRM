@@ -7,7 +7,7 @@
 	position: fixed;
 	width: 70%;
 	z-index: 1002;
-	margin-left: 10px;
+	/*margin-left: 10px;*/
 }
 
 #Leightbox_header .left,
@@ -38,7 +38,8 @@
 	width: 70%;
 	height: 50%;
 	padding: 0px;
-	border: 10px solid #b3b3b3;
+	/*border: 10px solid #b3b3b3;
+	border: 10px solid white;*/
 	background-color: white;
 	text-align: left;
 	z-index: 1001;
@@ -56,7 +57,8 @@
 	width: 70%;
 	height: 50%;
 	padding: 0px;
-	border: 10px solid #b3b3b3;
+	/*border: 10px solid #b3b3b3;
+	border: 10px solid white;*/
 	background-color: white;
 	text-align: left;
 	z-index: 1001;
@@ -66,6 +68,7 @@
 }
 
 #Leightbox_content {
+	padding: 10px;
 	padding-top: 20px;
 }
 
