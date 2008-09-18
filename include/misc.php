@@ -243,7 +243,7 @@ if (STRIP_OUTPUT) {
  * @param integer depth counter, for internal use
  * @return array directory tree
  */
-function dir_tree($path, $maxdepth = -1, $d = 0) {
+function dir_tree($path, $hidden=false, $maxdepth = -1, $d = 0) {
 	if (substr($path, strlen($path) - 1) != '/') {
 		$path .= '/';
 	}
@@ -251,12 +251,12 @@ function dir_tree($path, $maxdepth = -1, $d = 0) {
 	$dirlist[] = $path;
 	if ($handle = opendir($path)) {
 		while (false !== ($file = readdir($handle))) {
-			if ($file != '.' && $file != '..') {
-				$file = $path . $file;
-				if (is_dir($file) && $d >= 0 && ($d < $maxdepth || $maxdepth < 0)) {
-					$result = dir_tree($file . '/', $maxdepth, $d +1);
-					$dirlist = array_merge($dirlist, $result);
-				}
+			if ($file == '.' || $file == '..' || (!$hidden && ereg('^\.',$file))) 
+				continue;
+			$file = $path . $file;
+			if (is_dir($file) && $d >= 0 && ($d < $maxdepth || $maxdepth < 0)) {
+				$result = dir_tree($file . '/', $maxdepth, $d +1);
+				$dirlist = array_merge($dirlist, $result);
 			}
 		}
 		closedir($handle);
