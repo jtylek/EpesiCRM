@@ -513,6 +513,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$method = '';
 		if ($dpm!=='') {
 			$values['id'] = $id;
+			foreach ($record as $k=>$v)
+				if (!isset($values[$k])) $values[$k] = $v;
 			$method = explode('::',$dpm);
 			if (is_callable($method)) $values = call_user_func($method, $values, 'edit');
 		}
