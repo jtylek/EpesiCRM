@@ -55,7 +55,7 @@
 			<td width="155" height="10" align="left">
 				<b>{$start_time.value}
 				{if isset($end_time)}
-					&nbsp;-&nbsp;{$end_time.value}
+					 - {$end_time.value}
 				{/if}
 				</b>
 			</td>
@@ -83,7 +83,7 @@
 	<tr>
 		<td width="510">
 			<font size="-1">
-				<b>{$employees.main_label}:&nbsp;</b>
+				<b>{$employees.main_label}: </b>
 				{assign var=dot value=''}
 				{foreach item=e from=$employees.data}
 					{$dot}{$e.name}

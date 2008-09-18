@@ -244,11 +244,15 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			if (ModuleManager::is_installed('CRM/Tasks')>=0) $ret['new_task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/PhoneCall','New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('title'=>$values['subject'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),'employees'=>$values['employees'], 'customers'=>$values['contact'])).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
 			$ret['new_phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/PhoneCall','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', $values).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
 			return $ret;
-		case 'added':
 		case 'edit':
+			$old_vals = Utils_RecordBrowserCommon::get_record('phonecall',$values['id']);
+			$old_related = $old_vals['employees'];
+			if (!isset($old_vals['other_contact'])) $old_related[] = $old_vals['contact'];
+		case 'added':
 			$related = $values['employees'];
 			if (!isset($values['other_contact'])) $related[] = $values['contact'];
 			foreach ($related as $v) {
+				if ($mode==='edit' && in_array($v, $old_related)) continue;
 				$subs = Utils_WatchdogCommon::get_subscribers('contact',$v);
 				foreach($subs as $s)
 					Utils_WatchdogCommon::user_subscribe($s, 'phonecall',$values['id']);

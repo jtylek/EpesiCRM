@@ -219,10 +219,13 @@ class CRM_TasksCommon extends ModuleCommon {
 			if (!isset($values['is_deadline'])) {
 				$values['deadline']='';
 			}
+			$old_values = Utils_RecordBrowserCommon::get_record('task',$values['id']);
+			$old_related = array_merge($old_values['employees'],$old_values['customers']);
 		case 'added':
 			self::subscribed_employees($values);
 			$related = array_merge($values['employees'],$values['customers']);
 			foreach ($related as $v) {
+				if ($mode==='edit' && in_array($v, $old_related)) continue;
 				$subs = Utils_WatchdogCommon::get_subscribers('contact',$v);
 				foreach($subs as $s)
 					Utils_WatchdogCommon::user_subscribe($s, 'task',$values['id']);
