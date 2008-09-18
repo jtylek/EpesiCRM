@@ -437,7 +437,7 @@ function update_from_1_0_0rc2_to_1_0_0rc3() {
 		}
 		foreach ($tabs as $t) {
 			foreach (array('recent', 'favorite', 'edit_history') as $v){
-				DB::CreateIndex($t.'_'.$v.'__start__idx', $t.'_'.$v, $t.'_id');
+				@DB::CreateIndex($t.'_'.$v.'__start__idx', $t.'_'.$v, $t.'_id');
 			}
 		}
 
