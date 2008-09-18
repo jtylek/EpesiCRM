@@ -255,7 +255,7 @@ function dir_tree($path, $hidden=false, $maxdepth = -1, $d = 0) {
 				continue;
 			$file = $path . $file;
 			if (is_dir($file) && $d >= 0 && ($d < $maxdepth || $maxdepth < 0)) {
-				$result = dir_tree($file . '/', $maxdepth, $d +1);
+				$result = dir_tree($file . '/', $hidden, $maxdepth, $d +1);
 				$dirlist = array_merge($dirlist, $result);
 			}
 		}
