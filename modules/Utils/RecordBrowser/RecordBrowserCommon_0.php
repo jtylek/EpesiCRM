@@ -512,19 +512,25 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($tab));
 		$method = '';
 		if ($dpm!=='') {
-			$values['id'] = $id;
+			$process_method_args = $values;
+			$process_method_args['id'] = $id;
 			foreach ($record as $k=>$v)
-				if (!isset($values[$k])) $values[$k] = $v;
+				if (!isset($process_method_args[$k])) $process_method_args[$k] = $v;
 			$method = explode('::',$dpm);
-			if (is_callable($method)) $values = call_user_func($method, $values, 'edit');
+			if (is_callable($method)) $values = call_user_func($method, $process_method_args, 'edit');
 		}
 		$diff = array();
+		self::init($tab);
 		foreach(self::$table_rows as $field => $args){
 //			if ($access[$args['id']]=='hide' || $access[$args['id']]=='read-only') continue;
 // TODO: check for holes
 			if ($args['id']=='id') continue;
-			if (!isset($values[$args['id']])) if ($all_fields) $values[$args['id']] = ''; else continue;
+			if (!isset($values[$args['id']])) {
+				if ($all_fields) $values[$args['id']] = '';
+				else continue;
+			}
 			if ($record[$args['id']]!=$values[$args['id']]) {
+				print($args['id'].'<br>');
 				if ($args['type']=='multiselect') {
 					$v = self::encode_multi($values[$args['id']]);
 					$old = self::encode_multi($record[$args['id']]);
