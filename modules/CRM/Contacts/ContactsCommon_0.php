@@ -388,7 +388,9 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$v = $record[$desc['id']];
 		$v = trim($v, ' ');
 		if ($v=='') return '';
-		if (strpos($v, 'http://')==false && $v) $v = 'http://'.$v;
+		if (strpos(strtolower($v), 'http://')===false && 
+			strpos(strtolower($v), 'https://')===false && 
+			$v) $v = 'http://'.$v;
 		return '<a href="'.$v.'" target="_blank">'.$v.'</a>';
 	}
 	public static function display_email($record, $nolink, $desc) {
