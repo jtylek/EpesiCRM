@@ -29,6 +29,7 @@
 // Author: Nicola Asuni
 //
 // (c) Copyright:
+//               Nicola Asuni
 //               Tecnick.com S.r.l.
 //               Via della Pace, 11
 //               09044 Quartucciu (CA)

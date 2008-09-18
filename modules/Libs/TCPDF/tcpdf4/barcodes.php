@@ -2,8 +2,8 @@
 //============================================================+
 // File name   : barcodes.php
 // Begin       : 2008-06-09
-// Last Update : 2008-06-27
-// Version     : 1.0.001
+// Last Update : 2008-07-16
+// Version     : 1.0.002
 // License     : GNU LGPL (http://www.gnu.org/copyleft/lesser.html)
 // 	----------------------------------------------------------------------------
 //  Copyright (C) 2008  Nicola Asuni - Tecnick.com S.r.l.
@@ -30,6 +30,7 @@
 // Author: Nicola Asuni
 //
 // (c) Copyright:
+//               Nicola Asuni
 //               Tecnick.com S.r.l.
 //               Via della Pace, 11
 //               09044 Quartucciu (CA)
@@ -515,9 +516,18 @@ class TCPDFBarcode {
 			case "C": {
 				$startid = 105;
 				$keys = "";
-				for($i = 0; $i <= 9; $i++) {
-					$keys .= $i;
+				if ((strlen($code) % 2) != 0) {
+					//echo "The length of barcode value must be even ($code). You must pad the number with zeros.\n";
+					return false;
 				}
+				for($i = 0; $i <= 99; $i++) {
+					$keys .= chr($i);
+				}
+				$new_code = "";
+				for ($i=0; $i < (strlen($code) / 2); $i++) {
+					$new_code .= chr(intval($code{(2 * $i)}.$code{(2 * $i + 1)}));
+				}
+				$code = $new_code;
 				break;
 			}
 			default: {

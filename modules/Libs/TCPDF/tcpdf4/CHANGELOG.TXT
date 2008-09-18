@@ -1,3 +1,141 @@
+4.0.026 (2008-09-17)
+	- convertHTMLColorToDec() function was improved to support rgb(RR,GG,BB) notation.
+	- The following inline CSS attributes are now supported: text-decoration, color, background-color and font-size names: xx-small, x-small, small, medium, large, x-large, xx-large
+	- Example n. 6 was updated.
+		
+4.0.025 (2008-09-15)
+	- _putcidfont0 function was improved to include CJK fonts (Chinese, Japanese, Korean, CJK, Asian fonts) without embedding.
+	- arialunicid0 font was added (see the new example n. 38).
+	- The following Unicode to CID-0 tables were added on fonts folder: uni2cid_ak12.php, uni2cid_aj16.php, uni2cid_ag15.php, uni2cid_ac15.php. 
+		
+4.0.024 (2008-09-12)
+	- "stripos" function was replaced with "strpos + strtolower" for backward compatibility with PHP4.
+	- support for Spot Colors were added. Check the new example n. 37 and the following new functions:
+		AddSpotColor()
+		SetDrawSpotColor()
+		SetFillSpotColor()
+		SetTextSpotColor()
+		_putspotcolors()
+	- Bookmark() function was improved to fix wrong levels.
+	- $lasth changes after header/footer calls were fixed.
+	
+4.0.023 (2008-09-05)
+	- Some HTML related problems were fixed.
+	- Image alignment on HTML was changed, now it always defaults to the normal mode (see example_006.php).
+	
+4.0.022 (2008-08-28)
+	- Line height on HTML was fixed.
+	- Image inside an HTML cell problem was fixed.
+	- A new "zarbold" persian font was added.
+	
+4.0.021 (2008-08-24)
+	- HTTP headers were fixed on Output function().
+	- getAliasNbPages() and getPageGroupAlias() functions were changed to support non-unicode fonts on unicode documents.
+	- Function Write() was fixed.
+	- The problem of additional vertical spaces on HTML was fixed.
+	- The problem of frame around HTML links was fixed.
+
+4.0.020 (2008-08-15)
+	- "[2052259] WriteHTML <u> & <b>" bug was fixed.
+
+4.0.019 (2008-08-13)
+	- "Rowspan on first cell" bug was fixed.
+
+4.0.018 (2008-08-08)
+	- Default cellpadding for HTML tables was fixed.
+	- Annotation() function was added to support some PDF annotations (see example_036.php and section 8.4 of PDF reference 1.7).
+	- HTML links are now correclty shifted during line alignments.
+	- function getAliasNbPages() was added and Footer() was updated.
+	- RowSpan mode for HTML tables was fixed.
+	- Bugs item #2043610 "Multiple sizes vertical align wrong" was fixed.
+	- ImageEPS() function was improved and RTL alignment was fixed (see example_032.php).
+
+4.0.017 (2008-08-05)
+	- Missing CNZ and CEO style modes were added to Rect() function.
+	- Fonts utils were updated to include support for OpenType fonts.
+	- getLastH() function was added.
+
+4.0.016 (2008-07-30)
+	- setPageMark() function was added. This function must be called after calling Image() function for a background image.
+
+4.0.015 (2008-07-29)
+	- Some functions were changed to support different page formats (see example_028.php).
+	- The signature of setPage() function is changed.
+
+4.0.014 (2008-07-29)
+	- K_PATH_MAIN calculation on tcpdf_config.php was fixed.
+	- HTML support for EPS/AI images was added (see example_006.php).
+	- Bugs item #2030807 "Truncated text on multipage html fields" was fixed.
+	- PDF header bug was fixed.
+	- helvetica was added as default font family.
+	- Stroke mode was fixed on Text function.
+	- several minor bugs were fixed.
+
+4.0.013 (2008-07-27)
+	- Bugs item #2027799 " Big spaces between lines after page break" was fixed.
+	- K_PATH_MAIN calculation on tcpdf_config.php was changed.
+	- Function setVisibility() was fixed to avoid the "Incorrect PDEObject type" error message.
+
+4.0.012 (2008-07-24)
+	- Addpage(), Header() and Footer() functions were changed to simplify the implementation of external header/footer functions.
+	- The following functions were added: 
+			setHeader()
+			setFooter()
+			getImageRBX()
+			getImageRBY()
+			getCellHeightRatio()
+			getHeaderFont()
+			getFooterFont()
+			getRTL()
+			getBarcode()
+			getHeaderData()
+			getHeaderMargin()
+			getFooterMargin()
+	
+4.0.011 (2008-07-23)
+	- Font support was improved.
+	- The folder /fonts/utils contains new utilities and instructions for embedd font files.
+	- Documentation was updated.
+
+4.0.010 (2008-07-22)
+	- HTML tables were fixed to work across pages.
+	- Header() and Footer() functions were updated to preserve previous settings.
+	- example_035.php was added.
+
+4.0.009 (2008-07-21)
+	- UTF8StringToArray() function was fixed for non-unicode mode.
+
+4.0.008 (2008-07-21)
+	- Barcodes alignment was fixed (see example_027.php).
+	- unicode_data.php was updated.
+	- Arabic shaping for "Zero-Width Non-Joiner" character (U+200C) was fixed.
+
+4.0.007 (2008-07-18)
+	- str_split was replaced by preg_split for compatibility with PHP4 version.
+	- Clipping mode was added to all graphic functions by using parameter $style = "CNZ" or "CEO" (see example_034.php).
+
+4.0.006 (2008-07-16)
+	- HTML rowspan bug was fixed.
+	- Line style for MultiCell() was fixed.
+	- WriteHTML() function was improved.
+	- CODE128C barcode was fixed (barcodes.php).
+
+4.0.005 (2008-07-11)
+	- Bug [2015715] "PHP Error/Warning" was fixed.
+
+4.0.004 (2008-07-09)
+	- HTML cell internal padding was fixed.
+
+4.0.003 (2008-07-08)
+	- Removed URL encoding when F option is selected on Output() function.
+	- fixed some minor bugs in html tables.
+
+4.0.002 (2008-07-07)
+	- Bug [2000861] was still unfixed and has been fixed.
+	
+4.0.001 (2008-07-05)
+	- Bug [2000861] was fixed.
+
 4.0.000 (2008-07-03)
 	- THIS IS A MAIN RELEASE THAT INCLUDES SEVERAL NEW FEATURES AND BUGFIXES
 	- Signature fo SetTextColor() and SetFillColor() functions was changed (parameter $storeprev was removed).

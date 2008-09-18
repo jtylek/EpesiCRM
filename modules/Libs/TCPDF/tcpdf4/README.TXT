@@ -11,10 +11,10 @@ Name:
 	TCPDF
 
 Version:
-	4.0.000
+	4.0.026
 	
 Release date:
-	2008-07-03
+	2008-09-17
 
 Author:
 	Nicola Asuni 
@@ -36,27 +36,28 @@ Description:
 	TCPDF has been originally derived from the Public Domain FPDF class by Olivier Plathey (http://www.fpdf.org).
 	
 Main Features:
-	* no external libraries are required for the basic functions;
-	* supports all ISO page formats;
-	* supports UTF-8 Unicode and Right-To-Left languages;
-	* supports document encryption;
-	* includes methods to publish some XHTML code;
-	* includes graphic (geometric) and transformation methods;
-	* includes bookmarks;
-	* includes Javascript and forms support;
-	* includes a method to print various barcode formats;
-	* supports TrueTypeUnicode, TrueType, Type1 and encoding;
-	* supports custom page formats, margins and units of measure;
-	* includes methods for page header and footer management;
-	* supports automatic page break;
-	* supports automatic page numbering and page groups;
-	* supports automatic line break and text justification;
-	* supports JPEG and PNG images whitout GD library and all images supported by GD: GD, GD2, GD2PART, GIF, JPEG, PNG, BMP, XBM, XPM;
-	* supports stroke and clipping mode for text;
-	* supports Grayscale, RGB and CMYK colors and transparency;
-	* supports links;
-	* supports page compression (requires zlib extension);
-	* supports PDF user's rights.
+//  * no external libraries are required for the basic functions;
+// 	* supports all ISO page formats;
+// 	* supports UTF-8 Unicode and Right-To-Left languages;
+// 	* supports document encryption;
+// 	* includes methods to publish some XHTML code;
+// 	* includes graphic (geometric) and transformation methods;
+// 	* includes bookmarks;
+// 	* includes Javascript and forms support;
+// 	* includes a method to print various barcode formats;
+// 	* supports TrueTypeUnicode, TrueType, Type1 and CID-0 fonts;
+// 	* supports custom page formats, margins and units of measure;
+// 	* includes methods for page header and footer management;
+// 	* supports automatic page break;
+// 	* supports automatic page numbering and page groups;
+// 	* supports automatic line break and text justification;
+// 	* supports JPEG and PNG images whitout GD library and all images supported by GD: GD, GD2, GD2PART, GIF, JPEG, PNG, BMP, XBM, XPM;
+// 	* supports stroke and clipping mode for text;
+// 	* supports clipping masks;
+// 	* supports Grayscale, RGB, CMYK, Spot colors and transparency;
+// 	* supports links and annotations;
+// 	* supports page compression (requires zlib extension);
+// 	* supports PDF user's rights.
 
 Installation (full instructions on http://www.tcpdf.org):
 	1. copy the folder on your Web server
