@@ -512,6 +512,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($tab));
 		$method = '';
 		if ($dpm!=='') {
+			$values['id'] = $id;
 			$method = explode('::',$dpm);
 			if (is_callable($method)) $values = call_user_func($method, $values, 'edit');
 		}
