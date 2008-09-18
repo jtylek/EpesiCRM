@@ -61,6 +61,9 @@
 	overflow-y: auto;
 }
 
+#Leightbox_content  {
+}
+
 .leightbox_overlay {
 	position: fixed;
 	display: none;
@@ -95,3 +98,10 @@
 }
 
 /* */
+
+#leightbox_customers {
+	top: 5%;
+	left: 5%;
+	width: 90%;
+	height: 90%;
+}
