@@ -117,7 +117,8 @@ class Base_Lang extends Module {
 			'new Ajax.Request(\'modules/Base/Lang/submit_trans.php\',{method:\'post\',parameters:{parent:\''.escapeJS($this->parent_module,false).'\', oryg: oryg, trans:x}});'.
 			'}">[*]</a>';
 		} else
-			$trans = vsprintf($trans,$arg);
+			$trans = @vsprintf($trans,$arg);
+		if ($original && !$trans) $trans = '<b>Invalid translation, misused char % (use double %%)</b>';
 		return $trans;
 	}
 
