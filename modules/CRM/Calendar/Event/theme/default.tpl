@@ -235,8 +235,8 @@
                         <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if}" style="border-left: none;" cellspacing="0" cellpadding="0" border="0">
                             <tbody>
                                 <tr>
-                                    <td class="label" align="left" style="width: 20%;">{$form_data.recurrence.label}</td>
-                                    <td class="data" align="left" style="width: 80%;">{$form_data.recurrence.html}</td>
+                                    <td class="label" align="left" style="width: 30%;">{$form_data.recurrence.label}</td>
+                                    <td class="data" align="left" style="width: 70%;">{$form_data.recurrence.html}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -244,8 +244,8 @@
                             <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if}" style="border-left: none;" cellspacing="0" cellpadding="0" border="0">
                                 <tbody>
                                     <tr>
-                                        <td class="label" align="left" style="width: 20%;">{$form_data.recurrence_interval.label}</td>
-                                        <td class="data" align="left" style="width: 80%;">{$form_data.recurrence_interval.html}</td>
+                                        <td class="label" align="left" style="width: 30%;">{$form_data.recurrence_interval.label}</td>
+                                        <td class="data" align="left" style="width: 70%;">{$form_data.recurrence_interval.html}</td>
                                     </tr>
                                     <tr>
                                         <td class="label" align="left">{$form_data.recurrence_no_end_date.label}*</td>
@@ -267,8 +267,8 @@
                             <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if}" style="border-left: none;" cellspacing="0" cellpadding="0" border="0">
                                 <tbody>
                                     <tr>
-                                        <td class="label" align="left" style="width: 20%;">{$form_data.messenger_on.label}*</td>
-                                        <td class="data" align="left" style="width: 80%;"><span class="error">{$form_data.messenger_on.error}</span>{$form_data.messenger_on.html}</td>
+                                        <td class="label" align="left" style="width: 30%;">{$form_data.messenger_on.label}*</td>
+                                        <td class="data" align="left" style="width: 70%;"><span class="error">{$form_data.messenger_on.error}</span>{$form_data.messenger_on.html}</td>
 	                                </tr>
     	                        </tbody>
         	                </table>
@@ -276,8 +276,8 @@
                             <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if}" style="border-left: none;" cellspacing="0" cellpadding="0" border="0">
                                 <tbody>
                                     <tr>
-                                        <td class="label" align="left">{$form_data.messenger_before.label}*</td>
-                                        <td class="data" align="left"><span class="error">{$form_data.messenger_before.error}</span>{$form_data.messenger_before.html}</td>
+                                        <td class="label" align="left" style="width: 30%;">{$form_data.messenger_before.label}*</td>
+                                        <td class="data" align="left" style="width: 70%;"><span class="error">{$form_data.messenger_before.error}</span>{$form_data.messenger_before.html}</td>
                                     </tr>
                                     <tr>
                                         <td class="label" align="left">{$form_data.messenger_message.label}*</td>
