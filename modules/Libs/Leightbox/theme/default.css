@@ -4,6 +4,10 @@
 	background-image: url("images/header-gray-dark.png");
 	background-repeat: repeat-x;
 	height: 20px;
+	position: fixed;
+	width: 70%;
+	z-index: 1002;
+	margin-left: 10px;
 }
 
 #Leightbox_header .left,
@@ -61,7 +65,8 @@
 	overflow-y: auto;
 }
 
-#Leightbox_content  {
+#Leightbox_content {
+	padding-top: 20px;
 }
 
 .leightbox_overlay {
@@ -104,4 +109,8 @@
 	left: 5%;
 	width: 90%;
 	height: 90%;
+}
+
+#leightbox_customers #Leightbox_header {
+	width: 90%;
 }
