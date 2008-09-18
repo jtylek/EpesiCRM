@@ -472,10 +472,19 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($tab));
 		$method = '';
 		if ($dpm!=='') {
+			$for_processing = $values;
+			foreach(self::$table_rows as $field=>$args)
+				if ($args['type']==='multiselect') {
+					if (!isset($for_processing[$args['id']]) || !$for_processing[$args['id']])
+						$for_processing[$args['id']] = array();
+//					else
+//						if (!is_array($for_processing[$args['id']])) $for_processing[$args['id']] = self::decode_multi($for_processing[$args['id']]);
+				} elseif (!isset($for_processing[$args['id']])) $for_processing[$args['id']] = '';
 			$method = explode('::',$dpm);
-			if (is_callable($method)) $values = call_user_func($method, $values, 'add');
+			if (is_callable($method)) $values = call_user_func($method, $for_processing, 'add');
 			else $dpm = '';
 		}
+		self::init($tab);
 		DB::StartTrans();
 		$fields = 'created_on,created_by,active';
 		$fields_types = '%T,%d,%d';
@@ -499,6 +508,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			Utils_WatchdogCommon::subscribe($tab,$id);
 		Utils_WatchdogCommon::new_event($tab,$id,'C');
 		if ($dpm!=='') {
+			foreach(self::$table_rows as $field=>$args)
+				if ($args['type']==='multiselect' && !is_array($values[$args['id']]))
+					$values[$args['id']] = self::decode_multi($values[$args['id']]);
 			$values['id'] = $id;
 			call_user_func($method, $values, 'added');
 		}
