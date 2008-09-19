@@ -485,13 +485,16 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 		if ($form->validate()) {
 			$values = $form->exportValues();
-			//print_r($values);
+			$added_contacts = array();
+			foreach ($values['emp_id'] as $v) $added_contacts[$v] = $v;
+			foreach ($values['cus_id'] as $v) $added_contacts[$v] = $v;
 			if (!isset($values['timeless'])) $values['timeless'] = false;
 			if($action == 'new' || $action=='clone') {
-//				if($action=='clone') unset($values['recurrence']);
 				$id = CRM_CalendarCommon::$last_added = $this->add_event($values);
 				Utils_WatchdogCommon::new_event('crm_calendar',CRM_CalendarCommon::$last_added,'Event added');
 			} else {
+				foreach ($defec['emp_id'] as $v) unset($added_contacts[$v]);
+				foreach ($defec['cus_id'] as $v) unset($added_contacts[$v]);
 				$this->update_event($id, $values);
 				Utils_WatchdogCommon::new_event('crm_calendar',$id,'Event updated');
 			}
@@ -499,8 +502,13 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				$uid = Utils_RecordBrowserCommon::get_value('contact',$v,'Login');
 				if ($uid) Utils_WatchdogCommon::user_subscribe($uid,'crm_calendar',$id);
 			}
+			foreach ($added_contacts as $v) {
+				$subs = Utils_WatchdogCommon::get_subscribers('contact',$v);
+				foreach($subs as $s)
+					Utils_WatchdogCommon::user_subscribe($s, 'crm_calendar',$id);
+			}
 			$this->back_to_calendar();
-			return;
+			return false;
 		}
 
 		if($action == 'view') {
