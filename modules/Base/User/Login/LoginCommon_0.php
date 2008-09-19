@@ -154,8 +154,31 @@ This e-mail was automatically generated and you do not need to respond to it.", 
 	}
 	
 	public static function mobile_logout() {
+		DB::Execute('UPDATE user_password SET mobile_autologin_id=\'\' WHERE user_login_id=%d',array(Acl::get_user()));
 		Acl::set_user();
 		return false;
+	}
+	
+	private static function mobile_new_autologin_id() {
+		$uid = Acl::get_user();
+		$user = Base_UserCommon::get_my_user_login();
+		$autologin_id = md5(mt_rand().(isset($_COOKIE['mobile_autologin_id'])?$_COOKIE['mobile_autologin_id']:md5($user.$uid)).mt_rand());
+		setcookie('mobile_autologin_id',$user.' '.$autologin_id,time()+60*60*24*30);
+		DB::Execute('UPDATE user_password SET mobile_autologin_id=%s WHERE user_login_id=%d',array($autologin_id,$uid));
+	}
+
+	public static function mobile_autologin() {
+		if(isset($_COOKIE['mobile_autologin_id'])) {
+			$arr = explode(' ',$_COOKIE['mobile_autologin_id']);
+			if(count($arr)==2) {
+				list($user,$autologin_id) = $arr;
+				$ret = DB::GetOne('SELECT p.mobile_autologin_id FROM user_login u JOIN user_password p ON u.id=p.user_login_id WHERE u.login=%s AND u.active=1', array($user));
+				if($ret && $ret==$autologin_id) {
+					Base_User_LoginCommon::set_logged($user);
+					self::mobile_new_autologin_id();
+				}
+			}
+		}
 	}
 
 	public static function mobile_login() {
@@ -169,7 +192,6 @@ This e-mail was automatically generated and you do not need to respond to it.", 
 			}
 		}
 		
-		//TODO: autologin! different table than in normal login
 
 		$qf = new HTML_QuickForm('login', 'post','mobile.php?'.http_build_query($_GET));
 
@@ -185,9 +207,14 @@ This e-mail was automatically generated and you do not need to respond to it.", 
 
 		if($qf->validate()) {
 			self::set_logged($qf->exportValue('username'));
+			self::mobile_new_autologin_id();
 			return false;
 		}
 		$qf->display();
 	}
 }
+
+if(!Acl::is_user())
+	Base_User_LoginCommon::mobile_autologin();
+
 ?>
