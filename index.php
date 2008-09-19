@@ -80,6 +80,11 @@ if(!in_array('modules',$tables) || !in_array('variables',$tables) || !in_array('
 	die('Database structure you are using is apparently out of date or damaged. If you didn\'t perform application update recently you should try to restore the database. Otherwise, please refer to epesi documentation in order to perform database update.');
 
 require_once('include/misc.php');
+if(detect_iphone()){
+	header('Location: iphone.php');
+	exit();
+}
+
 if(detect_mobile_device()) {
 	header('Location: mobile.php');
 	exit();
