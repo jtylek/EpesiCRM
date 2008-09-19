@@ -152,7 +152,7 @@ class CRM_CalendarCommon extends ModuleCommon {
 	}
 	
 	public static function mobile_agenda() {
-		print('Agenda');
+		Utils_CalendarCommon::mobile_agenda('CRM/Calendar/Event');
 	}
 
 }

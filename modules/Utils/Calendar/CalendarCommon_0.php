@@ -135,6 +135,47 @@ class Utils_CalendarCommon extends ModuleCommon {
 		return $duration_str;
 	}
 
+	public static function mobile_agenda($evmod,$extra_settings=array()) {
+		$settings = array(
+			'custom_agenda_cols'=>null
+		);
+		$settings = array_merge($settings,$extra_settings);
+		
+		$start = time();
+		$end = $start + (7 * 24 * 60 * 60);
+		$columns = array(
+			array('name'=>Base_LangCommon::ts('Utils_Calendar','Start'), 'order'=>'start', 'width'=>10),
+			array('name'=>Base_LangCommon::ts('Utils_Calendar','Duration'), 'order'=>'end', 'width'=>5),
+			array('name'=>Base_LangCommon::ts('Utils_Calendar','Title'), 'order'=>'title','width'=>10));
+		$add_cols = array();
+		if(is_array($settings['custom_agenda_cols'])) {
+			$w = 50/count($settings['custom_agenda_cols']);
+			foreach($settings['custom_agenda_cols'] as $k=>$col) {
+				$columns[] = array('name'=>Base_LangCommon::ts('Utils_Calendar',$col), 'order'=>'cus_col_'.$k,'width'=>$w);
+				$add_cols[] = $k;
+			}
+		}
+
+		//add data
+		ob_start();
+		$ret = call_user_func(array(str_replace('/','_',$evmod).'Common','get_all'),$start,$end);
+		ob_get_clean();
+		if(!is_array($ret))
+			trigger_error('Invalid return of event method: get_all (not an array)',E_USER_ERROR);
+			
+		$data = array();
+		foreach($ret as $row) {
+			$ex = Utils_CalendarCommon::process_event($row);
+
+			$rrr = array($ex['start'],Utils_TooltipCommon::create($ex['duration'],$ex['end'],false),$row['title']);
+			foreach($add_cols as $a)
+				$rrr[] = $row['custom_agenda_col_'.$a];
+
+			$data[] = $rrr;
+		}
+
+		Utils_GenericBrowserCommon::mobile_table($columns,$data);
+	}
 }
 
 

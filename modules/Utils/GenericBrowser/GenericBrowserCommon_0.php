@@ -19,6 +19,14 @@ class Utils_GenericBrowserCommon extends ModuleCommon {
 			array('name'=>'display_no_records_message','label'=>'Hide \'No records found\' message','type'=>'bool','default'=>0)
 			));
 	}
+	
+	public static function mobile_table($cols,$data) {
+		$th = Base_ThemeCommon::init_smarty();
+		$th->assign('cols',$cols);
+		$th->assign('data',$data);
+		Base_ThemeCommon::display_smarty($th,'Utils/GenericBrowser','mobile');
+	
+	}
 }
 
 ?>

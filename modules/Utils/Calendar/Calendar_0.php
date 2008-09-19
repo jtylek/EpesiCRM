@@ -275,7 +275,7 @@ class Utils_Calendar extends Module {
 
 		$ret = call_user_func(array($this->event_module.'Common','get_all'),$start,$end);
 		if(!is_array($ret))
-			trigger_error('Invalid return of event method: get (not an array)',E_USER_ERROR);
+			trigger_error('Invalid return of event method: get_all (not an array)',E_USER_ERROR);
 		return $ret;
 	}
 
