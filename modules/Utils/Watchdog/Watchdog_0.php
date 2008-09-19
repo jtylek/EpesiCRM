@@ -93,7 +93,7 @@ class Utils_Watchdog extends Module {
 			if ($count==15) break;
 		}
 		$records_qty = count($records);
-		if ($records_qty>15)
+		if ($records_qty>15 && $count==15)
 			print($this->lang->t('Displaying %s of %s records', array($count, $records_qty)));
 		if ($something_to_purge) $opts['actions'][] = '<a '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('Mark all entries as read')).' '.$this->create_confirm_callback_href($this->lang->t('This will update all of your subscriptions status in selected categories, are you sure you want to continue?'),array($this,'purge_subscriptions_applet'), array($categories)).'><img src="'.Base_ThemeCommon::get_template_file('Utils_Watchdog','purge.png').'" border="0"></a>';
 		$this->display_module($gb);
