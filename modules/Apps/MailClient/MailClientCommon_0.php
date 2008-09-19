@@ -54,9 +54,9 @@ class Apps_MailClientCommon extends ModuleCommon {
 		if(!isset($user)) $user = Acl::get_user();
 		$dir = $this->get_data_dir().$user.'/';
 		if(!file_exists($dir)) mkdir($dir);
-		$accounts = DB::GetCol('SELECT mail FROM apps_mailclient_accounts WHERE user_login_id=%d',array($user));
+		$accounts = DB::GetCol('SELECT mail FROM apps_mailclient_accounts WHERE user_login_id=%d AND incoming_protocol=0',array($user));
 		foreach($accounts as $account) {
-			$acc_dir = $dir.str_replace(array('@','.'),array('__at__','__dot__'),$account).'/';
+			$acc_dir = $dir.self::mailname2dirname($account).'/';
 			if(!file_exists($acc_dir)) { // create user dir
 				mkdir($acc_dir);
 				mkdir($acc_dir.'Inbox');
@@ -118,7 +118,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 	}
 	
 	public static function get_mailbox_dir($mail_address) {
-		return Apps_MailClientCommon::get_mail_dir().str_replace(array('@','.'),array('__at__','__dot__'),$mail_address).'/';
+		return Apps_MailClientCommon::get_mail_dir().self::mailname2dirname($mail_address).'/';
 	}
 	
 	public static function get_mail_dir($user=null) {
@@ -133,24 +133,114 @@ class Apps_MailClientCommon extends ModuleCommon {
 			$path = $mdir.$f;
 			$r = array();
 			if(is_dir($path) && is_readable($path) && is_writable($path))
-				$st[] = array('name'=>str_replace(array('__at__','__dot__'),array('@','.'),$f),'sub'=>$this->_get_mail_account_structure($path.'/'));
+				$st[] = array('name'=>self::dirname2mailname($f),'sub'=>$this->_get_mail_account_structure($path.'/'));
 		}
 		return $st;
 	}
 	
-	private function _get_mail_dir_structure($mdir=null) {
-		if($mdir===null) $mdir = $this->_get_mail_dir();
+	private function _get_mail_dir_structure() {
+		$mdir = $this->_get_mail_dir();
+		$accounts = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE user_login_id=%d',array(Acl::get_user()));
 		$st = array();
-		$cont = scandir($mdir);
 		$st[] = array('name'=>'internal','label'=>Base_LangCommon::ts('Apps_MailClient','Private messages'),'sub'=>$this->_get_mail_account_structure($mdir.'internal/'));
-		foreach($cont as $f) {
-			if($f=='.' || $f=='..' | $f=='internal') continue;
-			$path = $mdir.$f;
-			$r = array();
-			if(is_dir($path))
-				$st[] = array('name'=>str_replace(array('__at__','__dot__'),array('@','.'),$f),'sub'=>$this->_get_mail_account_structure($path.'/'));
+		foreach($accounts as $v) {
+			$name = $v['mail'];
+			$path = $mdir.self::mailname2dirname($name);
+			$ref = false;
+			if($v['incoming_protocol']==0) {///pop3
+				$imap = false;
+				$sub = $this->_get_mail_account_structure($path.'/');			
+			} else { //imap
+				$sub = array();
+				if(function_exists('imap_open')) {
+					list($imap,$ref) = self::imap_open($v);
+					if ($imap!==false) {
+						if(!file_exists($path)) { //download directory structure
+							$sub = self::imap_refresh_folders($imap,$ref,$v['mail']);
+							if($sub===false) { //cannot download folders
+								$name = '<span style="color:red" '.Utils_TooltipCommon::open_tag_attrs(implode(', ',imap_errors()),false).'>'.$name.'</span>';
+							}
+						} else {
+							$sub = $this->_get_mail_account_structure($path.'/');			
+						}
+					} else { //cannot connect
+						$name = '<span style="color:red" '.Utils_TooltipCommon::open_tag_attrs(implode(', ',imap_errors()),false).'>'.$name.'</span>';
+					}
+				} else { //imap not supported
+					$imap = false;
+					$name = '<span style="color:red" '.Utils_TooltipCommon::open_tag_attrs('php_imap library not installed',false).'>'.$name.'</span>';				
+				}
+			}
+			$acc = array('name'=>$name,'sub'=>$sub, 'imap'=>$imap,'id'=>$v['id']);
+			if($imap!==false && $ref!==false) $acc['imap_ref']=$ref;
+			$st[] = $acc;
 		}
 		return $st;
+	}
+	
+	public static function imap_open($v) {
+		if(!is_array($v)) 
+			$v = DB::GetRow('SELECT * FROM apps_mailclient_accounts WHERE id=%d',array($v));
+
+		$ssl = $v['incoming_ssl'];
+		$host = explode(':',$v['incoming_server']);
+		if(isset($host[1])) $port=$host[1];
+			else {
+				if($ssl)
+					$port = '993';
+				else
+					$port = '143';
+			}
+		$host = $host[0];
+		$user = $v['login'];
+		$pass = $v['password'];
+
+		$imap_ref = '{'.$host.':'.$port.'/imap'.($ssl?'/ssl/novalidate-cert':'').'}';
+		$imap = @imap_open($imap_ref, $user,$pass, OP_HALFOPEN);
+		return array(& $imap, $imap_ref, $v['mail']);
+	}
+	
+	public static function imap_refresh_folders($id,$ref=null,$account=null) {
+		if($ref===null) {
+			list($imap,$ref,$account) = self::imap_open($id);
+		} else {
+			$imap = $id;
+		}
+		$sub = false;
+		if ($imap!==false) {
+			if(is_array($list = imap_lsub($imap, $ref, "*"))) {
+				$imap_ref_len = strlen($ref);
+				$sub = array();
+				$dir = self::Instance()->get_data_dir().Acl::get_user().'/'; //mail data dir
+				if(!file_exists($dir)) mkdir($dir);
+				$acc_dir = $dir.self::mailname2dirname($account).'/';
+				if(!file_exists($acc_dir))
+					mkdir($acc_dir);
+		    	foreach ($list as $val) {
+					$box = imap_utf7_decode($val);
+					$box = substr($box,$imap_ref_len);
+					if(!file_exists($acc_dir.$box))
+						mkdir($acc_dir.$box,0777,true);
+
+					$x = explode('/',$box);
+					$y = & $sub;
+					foreach($x as $v) {
+						if(!isset($y[$v])) $y[$v] = array('label'=>$v, 'name'=>$box, 'sub'=>array());
+							$y = & $y[$v]['sub'];
+			    	}
+				}
+			}
+			imap_close($imap);
+		}
+		return $sub;
+	}
+	
+	public static function mailname2dirname($f) {
+		return str_replace(array('@','.'),array('__at__','__dot__'),$f);
+	}
+
+	public static function dirname2mailname($f) {
+		return str_replace(array('__at__','__dot__'),array('@','.'),$f);
 	}
 
 	public static function get_mail_dir_structure() {

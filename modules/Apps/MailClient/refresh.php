@@ -119,9 +119,7 @@ if($pop3) { //pop3
 		else $port=143;
 	}
 
-	$native_support = false;
 	if(function_exists('imap_open')) {
-		$native_support = true;
 		$in = @imap_open('{'.$host.':'.$port.'/imap'.($ssl?'/ssl/novalidate-cert':'').'}INBOX', $user,$pass);
 		if(!$in) {
 			die('(connect error) '.implode(', ',imap_errors()));
