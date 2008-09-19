@@ -79,6 +79,53 @@ $tables = DB::MetaTables();
 if(!in_array('modules',$tables) || !in_array('variables',$tables) || !in_array('session',$tables))
 	die('Database structure you are using is apparently out of date or damaged. If you didn\'t perform application update recently you should try to restore the database. Otherwise, please refer to epesi documentation in order to perform database update.');
 
+require_once('include/misc.php');
+if(detect_mobile_device()) {
+	header('Location: mobile.php');
+	exit();
+}
+if(!isset($_GET['force_epesi']) && detect_mobile_device()) {//detect_iphone()) {
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+      <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+      <title>Epesi</title>
+      <link href="setup.css" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+        <table id="banner" border="0" cellpadding="0" cellspacing="0">
+            <tr>
+                <td class="image">&nbsp;</td>
+                <td class="back">&nbsp;</td>
+            </tr>
+        </table>
+        <br>
+        <center>
+        <table id="main" border="0" cellpadding="0" cellspacing="0">
+            <tr>
+                <td>
+				Please choose epesi version:<ul>
+				<li><a href="mobile.php">mobile</a><br>
+				<li><a href="index.php?force_epesi=1">desktop</a>
+				</ul>
+                </td>
+            </tr>
+        </table>
+        </center>
+        <br>
+        <center>
+        <span class="footer">Copyright &copy; 2008 &bull; <a href="http://www.telaxus.com">Telaxus LLC</a></span>
+        <br>
+        <p><a href="http://www.epesi.org"><img src="images/epesi-powered.png" border="0"></a></p>
+        </center>
+</body>
+</html>
+<?php
+		ob_end_flush();
+		exit();
+}
+
 if(defined('CID')) {
 	if(constant('CID')!==false) die('Invalid update script defined custom CID. Please try to refresh site manually.');
 } else

@@ -21,11 +21,6 @@ class Base_User_Login extends Module {
 			$this->set_fast_process();
 	}
 
-	private function set_logged($user) {
-		$uid = Base_UserCommon::get_user_id($user);
-		Acl::set_user($uid); //tag who is logged
-	}
-
 	private function new_autologin_id() {
 		$uid = Acl::get_user();
 		$user = Base_UserCommon::get_my_user_login();
@@ -41,7 +36,7 @@ class Base_User_Login extends Module {
 				list($user,$autologin_id) = $arr;
 				$ret = DB::GetOne('SELECT p.autologin_id FROM user_login u JOIN user_password p ON u.id=p.user_login_id WHERE u.login=%s AND u.active=1', array($user));
 				if($ret && $ret==$autologin_id) {
-					$this->set_logged($user);
+					Base_User_LoginCommon::set_logged($user);
 					$this->new_autologin_id();
 					location(array());
 					return true;
@@ -107,8 +102,8 @@ class Base_User_Login extends Module {
 		$form->addElement('submit', 'submit_button', $this->lang->ht('Login'), array('class'=>'submit'));
 
 		// register and add a rule to check if a username and password is ok
-		$form->registerRule('check_login', 'callback', 'submit_login', 'Base_User_Login');
-		$form->addRule('username', $this->lang->t('Login or password incorrect'), 'check_login', $form);
+		$form->registerRule('check_login', 'callback', 'submit_login', 'Base_User_LoginCommon');
+		$form->addRule(array('username','password'), $this->lang->t('Login or password incorrect'), 'check_login');
 
 		$form->addRule('username', $this->lang->t('Field required'), 'required');
 		$form->addRule('password', $this->lang->t('Field required'), 'required');
@@ -117,7 +112,7 @@ class Base_User_Login extends Module {
 			$user = $form->exportValue('username');
 			$autologin = $form->exportValue('autologin');
 
-			$this->set_logged($user);
+			Base_User_LoginCommon::set_logged($user);
 
 			if($autologin)
 				$this->new_autologin_id();
@@ -129,21 +124,6 @@ class Base_User_Login extends Module {
 
 			eval_js("focus_by_id('username')");
 		}
-	}
-
-	public static function submit_login($username, $form) {
-		$ret = Base_User_LoginCommon::check_login($username, $form->exportValue('password'));
-		if(!$ret) {
-			$t = Variable::get('host_ban_time');
-			if($t>0) {
-				DB::Execute('DELETE FROM user_login_ban WHERE failed_on<=%d',array(time()-$t));
-				DB::Execute('INSERT INTO user_login_ban(failed_on,from_addr) VALUES(%d,%s)',array(time(),$_SERVER['REMOTE_ADDR']));
-				$fails = DB::GetOne('SELECT count(*) FROM user_login_ban WHERE failed_on>%d AND from_addr=%s',array(time()-$t,$_SERVER['REMOTE_ADDR']));
-				if($fails>=3)
-					location(array());
-			}
-		}
-		return $ret;
 	}
 
 	public function recover_pass() {

@@ -29,6 +29,29 @@ class Base_User_LoginCommon extends ModuleCommon {
 			return false;
 	}
 	
+	public static function submit_login($x) {
+		$username = $x[0];
+		$pass = $x[1];
+		$ret = Base_User_LoginCommon::check_login($username, $pass);
+		if(!$ret) {
+			$t = Variable::get('host_ban_time');
+			if($t>0) {
+				DB::Execute('DELETE FROM user_login_ban WHERE failed_on<=%d',array(time()-$t));
+				DB::Execute('INSERT INTO user_login_ban(failed_on,from_addr) VALUES(%d,%s)',array(time(),$_SERVER['REMOTE_ADDR']));
+				$fails = DB::GetOne('SELECT count(*) FROM user_login_ban WHERE failed_on>%d AND from_addr=%s',array(time()-$t,$_SERVER['REMOTE_ADDR']));
+				if($fails>=3)
+					location(array());
+			}
+		}
+		return $ret;
+	}
+
+	public static function set_logged($user) {
+		$uid = Base_UserCommon::get_user_id($user);
+		Acl::set_user($uid); //tag who is logged
+	}
+
+	
 	public static function check_username_mail_valid($username, $form) {
 		$mail = $form->getElement('mail')->getValue();
 		$ret = DB::Execute('SELECT null FROM user_password p JOIN user_login u ON u.id=p.user_login_id WHERE u.login=%s AND p.mail=%s AND u.active=1',array($username, $mail));
@@ -121,5 +144,50 @@ This e-mail was automatically generated and you do not need to respond to it.", 
 		return DB::GetOne('SELECT mail FROM user_password WHERE user_login_id=%d',array($id));
 	}
 	
+	////////////////////////////////////////////////////
+	// mobile devices
+	
+	public static function mobile_menu() {
+		if(Acl::is_user())
+			return array('Logout'=>'mobile_logout');
+		return array('Login'=>'mobile_login');
+	}
+	
+	public static function mobile_logout() {
+		Acl::set_user();
+		return false;
+	}
+
+	public static function mobile_login() {
+		$t = Variable::get('host_ban_time');
+		if($t>0) {
+			$fails = DB::GetOne('SELECT count(*) FROM user_login_ban WHERE failed_on>%d AND from_addr=%s',array(time()-$t,$_SERVER['REMOTE_ADDR']));
+			if($fails>=3) {
+				print(Base_LangCommon::ts('Base_User_Login','You have exceeded the number of allowed login attempts.<br>'));
+				print('<a href="'.get_epesi_url().'">'.Base_LangCommon::ts('Base_User_Login','Host banned. Click here to refresh.').'</a>');
+				return;
+			}
+		}
+		
+		//TODO: autologin! different table than in normal login
+
+		$qf = new HTML_QuickForm('login', 'post','mobile.php?'.http_build_query($_GET));
+
+		$qf->addElement('text', 'username', Base_LangCommon::ts('Base_User_Login','Login'));
+		$qf->addElement('password', 'password', Base_LangCommon::ts('Base_User_Login','Password'));
+		$qf->addElement('submit', 'submit_button', Base_LangCommon::ts('Base_User_Login','Login'));
+
+		$qf->registerRule('check_login', 'callback', 'submit_login', 'Base_User_LoginCommon');
+		$qf->addRule(array('username','password'), Base_LangCommon::ts('Base_User_Login','Login or password incorrect'), 'check_login');
+		$qf->addRule('username', Base_LangCommon::ts('Base_User_Login','Field required'), 'required');
+		$qf->addRule('password', Base_LangCommon::ts('Base_User_Login','Field required'), 'required');
+
+
+		if($qf->validate()) {
+			self::set_logged($qf->exportValue('username'));
+			return false;
+		}
+		$qf->display();
+	}
 }
 ?>
