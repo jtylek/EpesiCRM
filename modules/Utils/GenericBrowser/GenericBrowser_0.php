@@ -828,8 +828,8 @@ class Utils_GenericBrowser extends Module {
 			$i++;
 		}
 		ksort($headers);
-		foreach($headers as $v)
-			$out_headers[] = array('label'=>$v['label'],'attrs'=>$v['attrs']);
+		$out_headers = array_values($headers);
+		unset($headers);
 
 		$out_data = array();
 

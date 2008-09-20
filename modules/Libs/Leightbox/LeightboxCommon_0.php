@@ -9,11 +9,14 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-Base_ThemeCommon::load_css('Libs/Leightbox','default',false);
-load_js('modules/Libs/Leightbox/leightbox.js');
+if(!MOBILE_DEVICE) {
+	Base_ThemeCommon::load_css('Libs/Leightbox','default',false);
+	load_js('modules/Libs/Leightbox/leightbox.js');
+}
 
 class Libs_LeightboxCommon extends ModuleCommon {
 	public static function get($id,$content,$header='') {
+		if(MOBILE_DEVICE) return '';
 		ob_start();
 		print('<div id="'.$id.'" class="leightbox">');
 		$smarty = Base_ThemeCommon::init_smarty();
@@ -30,6 +33,7 @@ class Libs_LeightboxCommon extends ModuleCommon {
 	}
 	
 	public static function get_open_href($id) {
+		if(MOBILE_DEVICE) return '';
 		return 'class="lbOn" rel="'.$id.'" href="javascript:void(0)"';
 	}
 }

@@ -33,5 +33,4 @@ class Utils_ShortcutCommon extends ModuleCommon {
 }
 
 load_js('modules/Utils/Shortcut/js/Shortcut.js');
-
 ?>

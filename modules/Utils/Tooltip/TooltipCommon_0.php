@@ -32,6 +32,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 	 * @return string HTML tag attributes
 	 */
 	public static function open_tag_attrs( $tip, $help=true ) {
+		if(MOBILE_DEVICE) return '';
 		self::show_help();
 		if($help && !self::$help_tooltips) return '';
 		load_js('modules/Utils/Tooltip/js/Tooltip.js');

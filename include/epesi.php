@@ -25,6 +25,35 @@ class Epesi {
 	public final static function send_output() {
 		print(self::get_output());
 	}
+	
+	public final static function prepare_minified_files($arr) {
+		require_once('libs/minify/Minify/Build.php');
+		$out = array();
+		foreach($arr as $loader=>$css) {
+			$csses_build = new Minify_Build($css);
+			$f = $csses_build->uri($loader.'?'.http_build_query(array('f'=>array_values($css))));
+			$f = str_replace('&amp;','&',$f);
+			$out[] = $f;
+		}
+		return $out;
+	}
+	
+	public final static function get_csses() {
+		return self::prepare_minified_files(self::$load_csses);
+	}
+
+	public final static function get_jses() {
+		return self::prepare_minified_files(self::$load_jses);
+	}
+	
+	public final static function get_eval_jses() {
+		$jjj = '';
+		foreach(self::$jses as $cc) {
+			$x = rtrim($cc[0],';');
+			if($x) $jjj.=$x.';';
+		}
+		return $jjj;
+	}
 
 	public final static function get_output() {
 		$ret = '';
@@ -33,24 +62,16 @@ class Epesi {
 //		foreach(self::$load_jses as $f)
 //			$ret .= 'Epesi.load_js(\''.self::escapeJS($f,false).'\');';
 		require_once('libs/minify/Minify/Build.php');
-		foreach(self::$load_csses as $loader=>$css) {
-			$csses_build = new Minify_Build($css);
-			$f = $csses_build->uri($loader.'?'.http_build_query(array('f'=>array_values($css))));
-			$f = str_replace('&amp;','&',$f);
-			$ret .= 'Epesi.load_css(\''.self::escapeJS($f,false).'\');';
+		$out_css = self::get_csses();
+		foreach($out_css as $css) {
+			$ret .= 'Epesi.load_css(\''.self::escapeJS($css,false).'\');';
 		}
-		foreach(self::$load_jses as $loader=>$js) {
-			$jses_build = new Minify_Build($js);
-			$f = $jses_build->uri($loader.'?'.http_build_query(array('f'=>array_values($js))));
-			$f = str_replace('&amp;','&',$f);
-			$ret .= 'Epesi.load_js(\''.self::escapeJS($f,false).'\');';
+		$out_js = self::get_jses();
+		foreach($out_js as $js) {
+			$ret .= 'Epesi.load_js(\''.self::escapeJS($js,false).'\');';
 		}
 		$ret .= self::$txts;
-		$jjj = '';
-		foreach(self::$jses as $cc) {
-			$x = rtrim($cc[0],';');
-			if($x) $jjj.=$x.';';
-		}
+		$jjj = self::get_eval_jses();
 		if($jjj!=='')
 			$ret .= 'Epesi.append_js(\''.self::escapeJS($jjj,false).'\');';
 		self::clean();

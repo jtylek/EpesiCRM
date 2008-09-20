@@ -21,6 +21,7 @@ class CRM_FollowupCommon extends ModuleCommon {
 	}
 	
 	public static function drawLeightbox($prefix) {
+		if(MOBILE_DEVICE) return;
 		$events = (ModuleManager::is_installed('CRM/Calendar')>=0);
 		$tasks = (ModuleManager::is_installed('CRM/Tasks')>=0);
 		$phonecall = (ModuleManager::is_installed('CRM/PhoneCall')>=0);

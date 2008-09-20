@@ -28,6 +28,7 @@ if(!defined('CACHE_COMMON_FILES')) define("CACHE_COMMON_FILES",1);
 
 if(!defined('JS_OUTPUT')) define('JS_OUTPUT',0);
 if(!defined('SET_SESSION')) define('SET_SESSION',1);
+if(!defined('MOBILE_DEVICE')) define('MOBILE_DEVICE',0);
 
 //other
 @define('SYSTEM_TIMEZONE',date_default_timezone_get());
