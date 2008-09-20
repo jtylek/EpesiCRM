@@ -86,7 +86,9 @@ class Utils_GenericBrowserCommon extends ModuleCommon {
 
 		$out_data = array();
 		foreach($data as $row) {
-			foreach($row as $cell) {
+			foreach($row as $k=>$cell) {
+				if (!isset($cols[$k]) || (array_key_exists('display', $cols[$k]) && $cols[$k]['display']==false)) 
+					continue;
 				if(is_string($cell)) $out_data[] = array('label'=>$cell,'attrs'=>'');
 					else $out_data[] = $cell;
 			}
