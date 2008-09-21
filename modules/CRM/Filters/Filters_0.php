@@ -78,7 +78,7 @@ class CRM_Filters extends Module {
 		if(is_numeric($prof)) {
 			$cids = DB::GetAssoc('SELECT contact_id, contact_id FROM crm_filters_contacts');
 			foreach ($cids as $v) {
-				$c = CRM_ContactsCommon::get_contact($c);
+				$c = CRM_ContactsCommon::get_contact($v);
 				if (!in_array(CRM_ContactsCommon::get_main_company(), $c['company name'])) {
 					DB::Execute('DELETE FROM crm_filters_contacts WHERE contact_id=%d',array($v));
 				}
