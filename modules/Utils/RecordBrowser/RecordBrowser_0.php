@@ -1196,7 +1196,7 @@ class Utils_RecordBrowser extends Module {
 					$style = $data['select_data_type'];
 				else
 					$style = '';
-				Utils_RecordBrowserCommon::new_record_field($this->tab, $data['field'], $data['select_data_type'], 0, 0, '', $style);	
+				Utils_RecordBrowserCommon::new_record_field($this->tab, $data['field'], $data['select_data_type'], 0, 0, isset($data['text_length'])?$data['text_length']:'', $style);	
 			}
 			if(!isset($data['visible']) || $data['visible'] == '') $data['visible'] = 0;
 			if(!isset($data['required']) || $data['required'] == '') $data['required'] = 0;
