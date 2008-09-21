@@ -455,7 +455,7 @@ class Utils_Calendar extends Module {
 		$ev_out.='Utils_Calendar.flush_reload_event_tag();}';
 		$this->js('Utils_Calendar.add_events_f = '.$ev_out);
 		$this->js('Utils_Calendar.add_events("Utils%2FCalendar%2Fday.css")');
-		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
+		eval_js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
 				'\''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
 				'\''.Epesi::escapeJS($this->get_path(),false).'\','.
 				'\''.CID.'\')');
@@ -626,7 +626,7 @@ class Utils_Calendar extends Module {
 		$ev_out.='Utils_Calendar.flush_reload_event_tag();}';
 		$this->js('Utils_Calendar.add_events_f = '.$ev_out);
 		$this->js('Utils_Calendar.add_events("Utils%2FCalendar%2Fweek.css")');
-		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
+		eval_js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
 				'\''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
 				'\''.Epesi::escapeJS($this->get_path(),false).'\','.
 				'\''.CID.'\')');
@@ -743,7 +743,7 @@ class Utils_Calendar extends Module {
 		$ev_out.='}';
 		$this->js('Utils_Calendar.add_events_f = '.$ev_out);
 		$this->js('Utils_Calendar.add_events("Utils%2FCalendar%2Fmonth.css")');
-		$this->js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
+		eval_js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
 				'\''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__')),false).'\','.
 				'\''.Epesi::escapeJS($this->get_path(),false).'\','.
 				'\''.CID.'\')');

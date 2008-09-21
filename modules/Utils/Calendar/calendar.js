@@ -308,6 +308,7 @@ delete_event:function(eid,mpath,ecid) {
 },
 destroy:function() {
 	if(Utils_Calendar.ids==null) return;
+//	alert('destroy');
 
 	delete(Droppables.drops);
 	Droppables.drops = [];
