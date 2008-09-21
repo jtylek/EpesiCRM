@@ -1,5 +1,5 @@
 function libs_leightbox_resize(elem) {
-
+ 
 	var s = elem.style;
 
 	if(s.width == '100%') {
@@ -7,7 +7,7 @@ function libs_leightbox_resize(elem) {
 		s.left = '15%';
 		s.width = '70%';
 		s.height = '50%';
-		//s.border = '10px solid #b3b3b3';
+		s.border = '10px solid #b3b3b3';
 		s.padding = '0px';
 		s.background = 'white';
 	}
