@@ -1049,7 +1049,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					$record[$args['id']] = $r;
 				} else {
 					$record[$args['id']] = (isset($row['f_'.$args['id']])?$row['f_'.$args['id']]:'');
-					if ($htmlspecialchars) $record[$args['id']] = htmlspecialchars($record[$args['id']]);
+					if ($htmlspecialchars && $args['type']!=='long text') $record[$args['id']] = htmlspecialchars($record[$args['id']]);
 				}
 			}
 			return $record;
