@@ -1268,7 +1268,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 	
 	public static function mobile_rb_view($tab,$id) {
-		print($tab.' '.$id);
+		$rec = self::get_record($tab,$id);
+		$cols = Utils_RecordBrowserCommon::init($tab);
+		foreach($cols as $k=>$col) {
+			print($col['name'].': '.Utils_RecordBrowserCommon::get_val($tab,$col['name'],$rec,$rec['id'],false,$col).'<br>');
+		}
 	}
 }
 ?>

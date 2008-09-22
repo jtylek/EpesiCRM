@@ -15,7 +15,6 @@ foreach($data as $v) {
 	$row = array();
 	foreach($cols as $k=>$col) {
 		if(!$col['visible']) continue;
-//		$row[] = serialize($v[$col['id']]);
 		$row[] = Utils_RecordBrowserCommon::get_val($table,$col['name'],$v,$v['id'],false,$col);
 	}
 	$data_out[] = $row;
