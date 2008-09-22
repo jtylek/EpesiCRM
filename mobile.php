@@ -55,13 +55,20 @@ function mobile_menu() {
 	foreach($menus as $m=>$r) {
 		if(!is_array($r)) continue;
 		foreach($r as $cap=>$met) {
-			$method = array($m.'Common',$met);
-			$menus_out[$cap] = $method;
+			if(is_array($met)) {
+				if(!isset($met['func'])) continue;
+				$method = array($m.'Common',$met['func']);
+				$args = isset($met['args'])?$met['args']:array();				
+			} else {
+				$method = array($m.'Common',$met);
+				$args = array();
+			}
+			$menus_out[$cap] = array($method,$args);
 		}
 	}
 	ksort($menus_out);
 	foreach($menus_out as $cap=>$met)
-		print('<a '.mobile_stack_href($met,array(),$cap).'>'.$cap.'</a><br>');
+		print('<a '.mobile_stack_href($met[0],$met[1],$cap).'>'.$cap.'</a><br>');
 }
 
 

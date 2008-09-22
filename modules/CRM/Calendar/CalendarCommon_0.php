@@ -148,7 +148,7 @@ class CRM_CalendarCommon extends ModuleCommon {
 	
 	public static function mobile_menu() {
 		if(Acl::is_user())
-			return array('Agenda'=>'mobile_agenda');
+			return array('Calendar Agenda'=>'mobile_agenda');
 	}
 	
 	public static function mobile_agenda($time_shift=0) {

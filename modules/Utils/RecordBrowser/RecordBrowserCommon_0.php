@@ -1120,6 +1120,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return array('__jump_to_RB_table'=>$tab, '__jump_to_RB_record'=>$id);
 	}
 	public static function create_record_href($tab, $id){
+		if(MOBILE_DEVICE)
+			return mobile_stack_href(array('Utils_RecordBrowserCommon','mobile_rb_view'),array($tab,$id));
 		return Module::create_href(self::get_record_href_array($tab,$id));
 	}
 	public static function record_link_open_tag($tab, $id, $nolink=false){
@@ -1247,6 +1249,26 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	
 	public function applet_new_record_button($tab, $defaults = array()) {
 		return '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_RecordBrowser', 'New record')).' '.Utils_RecordBrowserCommon::create_new_record_href($tab,$defaults).'><img src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','add.png').'" border="0"></a>';
+	}
+	
+	///////////////////////////////////////////
+	// mobile devices
+	
+	public static function mobile_menu() {
+		if(!Acl::is_user()) return array();
+		$rbs = DB::GetAssoc('SELECT tab,caption FROM recordbrowser_table_properties');
+		$ret = array();
+		foreach($rbs as $table=>$cap)
+			$ret[$cap]=array('func'=>'mobile_rb','args'=>array($cap,$table));
+		return $ret;
+	}
+	
+	public static function mobile_rb($caption,$table) {
+		require_once('modules/Utils/RecordBrowser/mobile.php');
+	}
+	
+	public static function mobile_rb_view($tab,$id) {
+		print($tab.' '.$id);
 	}
 }
 ?>
