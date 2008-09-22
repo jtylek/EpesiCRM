@@ -98,7 +98,6 @@ class Utils_GenericBrowserCommon extends ModuleCommon {
 		$th->assign('data',$out_data);
 
 		Base_ThemeCommon::display_smarty($th,'Utils/GenericBrowser','mobile');
-	
 	}
 }
 

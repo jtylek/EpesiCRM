@@ -151,8 +151,15 @@ class CRM_CalendarCommon extends ModuleCommon {
 			return array('Agenda'=>'mobile_agenda');
 	}
 	
-	public static function mobile_agenda() {
-		Utils_CalendarCommon::mobile_agenda('CRM/Calendar/Event',array('custom_agenda_cols'=>array('Description','Assigned to','Related with')));
+	public static function mobile_agenda($time_shift=0) {
+		print(Base_RegionalSettingsCommon::time2reg(time()+$time_shift,false,true).' - '.Base_RegionalSettingsCommon::time2reg(time()+7*24*3600+$time_shift,false,true).'<br>');
+	
+		CRM_Calendar_EventCommon::$filter = CRM_FiltersCommon::get();
+		if($time_shift)
+			print('<a '.mobile_stack_href(array('CRM_CalendarCommon','mobile_agenda'),array(0)).'>'.Base_LangCommon::ts('Utils_Calendar','Show current week').'</a>');
+		else
+			print('<a '.mobile_stack_href(array('CRM_CalendarCommon','mobile_agenda'),array(7 * 24 * 60 * 60)).'>'.Base_LangCommon::ts('Utils_Calendar','Show next week').'</a>');
+		Utils_CalendarCommon::mobile_agenda('CRM/Calendar/Event',array('custom_agenda_cols'=>array('Description','Assigned to','Related with')),$time_shift);
 	}
 
 }

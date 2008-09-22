@@ -1,47 +1,117 @@
 <?php
-//TODO: load_css, menu tree
+//TODO: menu tree
 define('MOBILE_DEVICE',1);
 define('CID',false);
 require_once('include.php');
 ModuleManager::load_modules();
-ob_start();
-$page = false;
-$caption = '&nbsp;';
-$menus = ModuleManager::call_common_methods('mobile_menu');
-foreach($menus as $m=>$r) {
-	if(!is_array($r)) continue;
-	foreach($r as $cap=>$met) {
-		$method = array($m.'Common',$met);
-		$md5 = md5(serialize($method));
-		if(isset($_GET['page']) && $_GET['page']==$md5) {
-			$page = $method;
-			$caption = $cap;
-		}
-		print('<a href="mobile.php?'.http_build_query(array('page'=>$md5)).'">'.$cap.'</a><br>');
+
+class LinkEntry {
+	public $func = null;
+	public $args = array();
+	public $caption = null;
+	
+	public function __construct($f,$a=array(),$c) {
+		$this->caption = $c;
+		$this->func = $f;
+		$this->args = $a;
 	}
 }
-if($page) {
-	$menu = ob_get_clean();
 
-	ob_start();
-	$ret = call_user_func($page);
-	$body = ob_get_clean();
+class StackEntry {
+	public $caption = null;
+	public $func = null;
+	public $args = array();
+	public $links = array();
+	
+	public function __construct($c,$f=null,$a=array()) {
+		if($c instanceof LinkEntry) {
+			$this->caption = $c->caption;
+			$this->func = $c->func;
+			$this->args = $c->args;
+		} else {
+			if($f===null)
+				trigger_error('Invalid StackEntry usage');
+			$this->caption = $c;
+			$this->func = $f;
+			$this->args = $a;
+		}
+	}
 
-	$caption .= ' <a href="mobile.php">back</a>';
+	public function go() {
+		return call_user_func_array($this->func,$this->args);
+	}
+}
 
-	if(isset($ret) && $ret===false) {
+function mobile_stack_href($func,$args = array(),$caption=null) {
+	$s = new LinkEntry($func,$args,$caption);
+	$md5 = md5(serialize($s));
+	end($_SESSION['stack'])->links[$md5]=$s;
+	return 'href="mobile.php?'.http_build_query(array('page'=>$md5)).'"';
+}
+
+function mobile_menu() {
+	$menus = ModuleManager::call_common_methods('mobile_menu');
+	$menus_out = array();
+	foreach($menus as $m=>$r) {
+		if(!is_array($r)) continue;
+		foreach($r as $cap=>$met) {
+			$method = array($m.'Common',$met);
+			$menus_out[$cap] = $method;
+		}
+	}
+	ksort($menus_out);
+	foreach($menus_out as $cap=>$met)
+		print('<a '.mobile_stack_href($met,array(),$cap).'>'.$cap.'</a><br>');
+}
+
+
+if(!isset($_SESSION['stack']))
+	$_SESSION['stack'] = array();
+$stack = & $_SESSION['stack'];
+
+//if emtpy push menu
+if(empty($stack)) {
+	$m = new StackEntry('Menu','mobile_menu');
+	$stack[] = $m;
+}
+
+//back action
+if(isset($_GET['back'])) {
+	$stack = array_slice($stack,0,(int)$_GET['back']);
+	header('Location: mobile.php');
+	exit();
+}
+
+//go action
+$page = end($stack);
+if(isset($_GET['page'])) {
+	$l = & $page->links;
+	if(isset($l[$_GET['page']])) {
+		$page = new StackEntry($l[$_GET['page']]);
+		$stack[] = $page;
 		header('Location: mobile.php');
 		exit();
 	}
-	
-	$csses = Epesi::get_csses();
-/*	//js is not supported by most of mobile devices...
-	$jses = Epesi::get_jses();
-	$eval_js = Epesi::get_eval_jses();*/
-} else {
-	$csses = array();
-	$body = ob_get_clean();
 }
+
+$csses = array();
+$page->links = array(); //clear page links
+ob_start();
+$ret = $page->go();
+$body = ob_get_clean();
+$captions = array();
+$back = 1;
+foreach($stack as $s)
+	if($s->caption)
+		$captions[] = '<a href="mobile.php?back='.($back++).'">'.$s->caption.'</a>';
+$caption = implode($captions,' > ');
+
+if(isset($ret) && $ret===false) {
+	header('Location: mobile.php?back=1');
+	exit();
+}
+
+$csses = Epesi::get_csses();
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
@@ -49,7 +119,7 @@ if($page) {
 <head>
 	<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
 	<title>Epesi</title>
-	<link href="setup.css" type="text/css" rel="stylesheet"/>
+	<link href="mobile.css" type="text/css" rel="stylesheet"/>
 	<?php
 	foreach($csses as $f)
 	  	print('<link href="'.$f.'" type="text/css" rel="stylesheet"/>'."\n");

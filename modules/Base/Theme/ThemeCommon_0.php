@@ -64,6 +64,7 @@ class Base_ThemeCommon extends ModuleCommon {
 			$tpl = $module_name.'.tpl';
 			$css = $module_name.'.css';
 		}
+		
 
 		if($smarty->template_exists($tpl)) {
 			$smarty->assign('theme_dir',$smarty->template_dir);

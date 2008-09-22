@@ -135,14 +135,14 @@ class Utils_CalendarCommon extends ModuleCommon {
 		return $duration_str;
 	}
 
-	public static function mobile_agenda($evmod,$extra_settings=array()) {
+	public static function mobile_agenda($evmod,$extra_settings=array(),$time_shift=0) {
 		$settings = array(
 			'custom_agenda_cols'=>null
 		);
 		$settings = array_merge($settings,$extra_settings);
 		
-		$start = time();
-		$end = $start + (7 * 24 * 60 * 60);
+		$start = time()+$time_shift;
+		$end = $start + (7 * 24 * 60 * 60)+$time_shift;
 		$columns = array(
 			array('name'=>Base_LangCommon::ts('Utils_Calendar','Start'), 'order'=>'start', 'width'=>10),
 			array('name'=>Base_LangCommon::ts('Utils_Calendar','Duration'), 'order'=>'end', 'width'=>5),
@@ -173,7 +173,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 
 			$data[] = $rrr;
 		}
-
+		
 		Utils_GenericBrowserCommon::mobile_table($columns,$data);
 	}
 }
