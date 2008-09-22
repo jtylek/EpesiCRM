@@ -100,7 +100,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		foreach(self::$table_rows as $field => $args) {
 			if ($args['type']!='long text') continue;
 			foreach ($records as $k=>$v) {
-				$records[$k][$args['id']] = str_replace("\n",'<br>',htmlspecialchars($v[$args['id']]));
+				$records[$k][$args['id']] = str_replace("\n",'<br>',$v[$args['id']]);
 			}
 		}
 		return $records;
