@@ -118,6 +118,10 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 					'o_contact = document.forms[\''.$form->getAttribute('name').'\'].other_contact_name;'.
 					'c_phone = document.forms[\''.$form->getAttribute('name').'\'].other_phone;'.
 					'if (arg) {c_phone.disable();contact.disable();o_contact.enable();} else {c_phone.enable();if(contact.length!=0)contact.enable();o_contact.disable();}'.
+					'c_phone.checked=arg;'.
+					'phone = document.forms[\''.$form->getAttribute('name').'\'].phone;'.
+					'o_phone = document.forms[\''.$form->getAttribute('name').'\'].other_phone_number;'.
+					'if (arg) {phone.disable();o_phone.enable();} else {if(phone.length!=0)phone.enable();o_phone.disable();}'.
 					'};'.
 					'function onchange_other_contact() {'.
 					'c_contact = document.forms[\''.$form->getAttribute('name').'\'].other_contact;'.
