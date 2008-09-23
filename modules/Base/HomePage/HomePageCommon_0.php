@@ -27,7 +27,7 @@ class Base_HomePageCommon extends ModuleCommon {
 			return;
 		}
 		$_SESSION['client']['__module_vars__'] = unserialize($ret);
-		$_REQUEST['__homepage_req__'] = 1;
+		$_REQUEST['__homepage_req_session__'] = 1;
 		location(array('__homepage__'=>1));
 	}
 
@@ -65,10 +65,8 @@ class Base_HomePageCommon extends ModuleCommon {
 if(isset($_REQUEST['Base_HomePage_load'])) {
 	if(Acl::is_user())
 		Base_HomePageCommon::load();
-	else {
+	else
 		$_REQUEST = array_merge($_REQUEST,Base_BoxCommon::create_href_array(null,Base_BoxCommon::get_main_module_name()));
-		$_REQUEST['__homepage_req__'] = 1;
-	}
 } elseif(isset($_REQUEST['Base_HomePage_save'])) {
 	Base_HomePageCommon::save();
 	unset($_REQUEST['box_main_href']);
