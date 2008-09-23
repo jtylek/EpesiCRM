@@ -692,13 +692,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							$ref = $params[2];
 							$param = explode(';', self::$table_rows[self::$hash[$ref]]['param']);
 							$param = explode('::',$param[0]);
-
+							$cols2 = null;
 							if (isset($param[1])) {
 								$tab2 = $param[0];
 								$cols2 = $param[1];
 							} else $cols = $param[0];
 							if ($params[1]=='RefCD' || $tab2=='__COMMON__') {
-								$ret = Utils_CommonDataCommon::get_translated_array(isset($cols2)?$cols2:$cols);
+								$ret = Utils_CommonDataCommon::get_translated_array($cols2!==null?$cols2:$cols);
 								$allowed_cd = array();
 								foreach ($ret as $kkk=>$vvv)
 									foreach ($v as $w) if ($w!='') {
@@ -742,8 +742,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
 							$having_cd = array();
 							if ($negative) $having .= 'NOT (';
-							foreach ($allowed_cd as $vvv)
-								$having_cd[] = 'r.f_'.$ref.' LIKE '.DB::Concat(DB::qstr('%'),DB::qstr('\_\_'.$vvv.'\_\_'),DB::qstr('%'));
+							$is_multiselect = self::$table_rows[self::$hash[$ref]]=='multiselect';
+							foreach ($allowed_cd as $vvv) {
+								if ($is_multiselect) $www = DB::Concat(DB::qstr('%'),DB::qstr('\_\_'.$vvv.'\_\_'),DB::qstr('%'));
+								else $www = DB::qstr($vvv);
+								$having_cd[] = 'r.f_'.$ref.' LIKE '.$www;
+							}
 							$having .= '('.implode(' OR ',$having_cd).')';
 						} else trigger_error('Unknow paramter given to get_records criteria: '.$k, E_USER_ERROR);
 				}
