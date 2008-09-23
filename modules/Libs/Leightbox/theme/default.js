@@ -15,7 +15,7 @@ function libs_leightbox_resize(elem) {
 			s.width = '70%';
 			s.height = '50%';
 		}
-		s.border = '10px solid #b3b3b3';
+		//s.border = '10px solid #b3b3b3';
 		s.padding = '0px';
 		s.background = 'white';
 	}
