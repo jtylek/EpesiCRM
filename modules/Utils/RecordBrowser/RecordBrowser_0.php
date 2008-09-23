@@ -738,10 +738,12 @@ class Utils_RecordBrowser extends Module {
 				else $theme -> assign('history_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('Click to view edit history of currently displayed record')).' '.$this->create_callback_href(array($this,'navigate'), array('view_edit_history', $id)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','history.png').'" /></a>');
 			}
 		}
-		if ($mode=='edit')
-			foreach($this->table_rows as $field => $args)
-				if ($this->fields_permission[$args['id']]==='read-only')
+		if ($mode!=='view')
+			foreach($this->table_rows as $field => $args) {
+				if ($this->fields_permission[$args['id']]==='read-only') {
 					$form->freeze($args['id']);
+				}
+			}
 
 		if ($mode=='view') $form->freeze();
 		$renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
@@ -772,6 +774,7 @@ class Utils_RecordBrowser extends Module {
 		if ($mode!='add' && $mode!='edit') {
 			$ret = DB::Execute('SELECT * FROM recordbrowser_addon WHERE tab=%s', array($this->tab));
 			while ($row = $ret->FetchRow()) {
+				if (ModuleManager::is_installed($row['module'])==-1) continue;
 				$mod = $this->init_module($row['module']);
 				if (!is_callable(array($mod,$row['func']))) $tb->set_tab($this->lang->t($row['label']),array($this, 'broken_addon'), $js);
 				else $tb->set_tab($this->lang->t($row['label']),array($this, 'display_module'), array($mod, array($this->record), $row['func']), $js);
@@ -930,8 +933,10 @@ class Utils_RecordBrowser extends Module {
 										} else {
 											if (isset($crits_callback)) {
 												$crit_callback = explode('::',$crits_callback);
-												$crits = call_user_func($crit_callback, false, $record);
-												$adv_crits = call_user_func($crit_callback, true, $record);
+												if (is_callable($crit_callback)) {
+													$crits = call_user_func($crit_callback, false, $record);
+													$adv_crits = call_user_func($crit_callback, true, $record);
+												} else $crits = $adv_crits = array();
 												if ($adv_crits === $crits) $adv_crits = null;
 												if ($adv_crits !== null) {
 													$rp = $this->init_module('Utils/RecordBrowser/RecordPicker');
