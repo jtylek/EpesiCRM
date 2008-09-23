@@ -1263,11 +1263,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$rbs = DB::GetAssoc('SELECT tab,caption FROM recordbrowser_table_properties');
 		$ret = array();
 		foreach($rbs as $table=>$cap)
-			$ret[$cap]=array('func'=>'mobile_rb','args'=>array($cap,$table));
+			$ret[$cap]=array('func'=>'mobile_rb','args'=>array($table));
 		return $ret;
 	}
 	
-	public static function mobile_rb($caption,$table) {
+	public static function mobile_rb($table) {
 		require_once('modules/Utils/RecordBrowser/mobile.php');
 	}
 	
