@@ -26,15 +26,18 @@
 <table class="Utils_RecordBrowser__table" border="0" cellpadding="0" cellspacing="0">
 	<tbody>
 		<tr>
-			<td class="icon"><img src="{$icon}" width="32" height="32" border="0"></td>
-			<td class="name">{$caption}
-			{if isset($prev_record)}
-				&nbsp;&nbsp;<img src="{$theme_dir}/Utils/RecordBrowser/prev.png" width="24" height="16" border="0" style="vertical-align: middle;">&nbsp;&nbsp;{$prev_record}
-			{/if}
-			{if isset($next_record)}
-				&nbsp;&nbsp;{$next_record}&nbsp;&nbsp;<img src="{$theme_dir}/Utils/RecordBrowser/next.png" width="24" height="16" border="0" style="vertical-align: middle;">
-			{/if}
+			<td class="arrow" style="padding-left: 20px;">
+				{if isset($prev_record)}
+					{$__link.prev_record.open}<img src="{$theme_dir}/Utils/RecordBrowser/prev.png" width="24" height="16" border="0" style="vertical-align: middle;">{$__link.prev_record.close}
+				{/if}
 			</td>
+			<td class="icon"><img src="{$icon}" width="32" height="32" border="0"></td>
+			<td class="arrow">
+				{if isset($next_record)}
+					{$__link.next_record.open}<img src="{$theme_dir}/Utils/RecordBrowser/next.png" width="24" height="16" border="0" style="vertical-align: middle;">{$__link.next_record.close}
+				{/if}
+			</td>
+			<td class="name">{$caption}</td>
 			<td class="required_fav_info">
 				&nbsp;*&nbsp;{$required_note}
 				{if isset($subscription_tooltip)}

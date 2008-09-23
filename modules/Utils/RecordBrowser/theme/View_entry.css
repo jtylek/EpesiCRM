@@ -132,13 +132,32 @@
     width: 32px;
     height: 27px;
     text-align: left;
-    padding-left: 20px;
-    padding-right: 10px;
     padding-top: 2px;
     padding-bottom: 2px;
     vertical-align: top;
     background-color: #666666;
     background-image: url('images/dark-gray.png');
+}
+
+.Utils_RecordBrowser__table .arrow {
+    width: 32px;
+    height: 31px;
+    vertical-align: top;
+    text-align: center;
+    background-color: #666666;
+    background-image: url('images/dark-gray.png');
+}
+
+.Utils_RecordBrowser__table .arrow a {
+    display: block;
+    width: 32px;
+    height: 16px;
+    padding-top: 8px;
+    padding-bottom: 7px;
+}
+
+.Utils_RecordBrowser__table .arrow a:hover {
+    background-color: #336699;
 }
 
 .Utils_RecordBrowser__table .icon img {
