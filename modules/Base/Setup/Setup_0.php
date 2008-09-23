@@ -184,14 +184,12 @@ class Base_Setup extends Module {
 	}
 
 	public function validate($data) {
-
 		$default_module = false;
 		$simple = 0;
 		$installed = array ();
 		$install = array ();
 		$uninstall = array();
 		$anonymous_setup = false;
-		$modified_modules_table = false;
 
 		foreach ($data as $k => $v)
 			${ $k } = $v;
@@ -226,13 +224,14 @@ class Base_Setup extends Module {
 			}
 		}
 
-		$post_install = array();
 		//install
 		foreach($install as $i=>$v) {
 			$post_install[$i] = $v;
 			if (!ModuleManager::install($i,$v))
 				return false;
 		}
+		$processed = ModuleManager::get_processed_modules();
+		$this->set_module_variable('post-install',$processed['install']);
 
 		//uninstall
 		$modules_prio_rev = array();
@@ -251,7 +250,6 @@ class Base_Setup extends Module {
 
 		Base_ThemeCommon::create_cache();
 
-		$this->set_module_variable('post-install',$post_install);
 		return true;
 	}
 }

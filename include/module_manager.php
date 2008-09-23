@@ -21,7 +21,7 @@ class ModuleManager {
 	public static $modules_common = array();
 	public static $root = array();
 	private static $processing = array();
-	private static $processed_modules = array();
+	private static $processed_modules = array('install'=>array(),'downgrade'=>array(),'upgrade'=>array(),'uninstall'=>array());
 
 	/**
 	 * Includes file with module installation class.
@@ -367,7 +367,7 @@ class ModuleManager {
 		self::create_load_priority_array();
 		self::create_common_cache();
 
-		self::$processed_modules[$module] = $to_version;
+		self::$processed_modules['upgrade'][$module] = $to_version;
 		if($i==$to_version)	{
 			if(DEBUG)
 				print('Module '.$module.' succesfully upgraded to version '.$to_version.'<br>');
@@ -439,7 +439,7 @@ class ModuleManager {
 		self::create_common_cache();
 
 		print('Module '.$module.' succesfully downgraded to version '.$to_version.'<br>');
-		self::$processed_modules[$module] = $to_version;
+		self::$processed_modules['downgrade'][$module] = $to_version;
 		return true;
 	}
 
@@ -539,7 +539,7 @@ class ModuleManager {
 		self::create_common_cache();
 
 		print('</div>');
-		self::$processed_modules[$module_to_install] = $version;
+		self::$processed_modules['install'][$module_to_install] = $version;
 		return true;
 
 	}
@@ -749,7 +749,7 @@ class ModuleManager {
 		self::create_common_cache();
 
 		print ($module_to_uninstall . " module uninstalled! You can safely remove module directory.<br>");
-		self::$processed_modules[$module_to_uninstall] = -1;
+		self::$processed_modules['uninstall'][$module_to_uninstall] = -1;
 		return true;
 	}
 

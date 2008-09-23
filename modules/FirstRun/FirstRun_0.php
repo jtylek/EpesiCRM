@@ -179,7 +179,7 @@ class FirstRun extends Module {
 
 		$processed = ModuleManager::get_processed_modules();
 
-		$this->set_module_variable('post-install',$processed);
+		$this->set_module_variable('post-install',$processed['install']);
 		location();
 	}
 
