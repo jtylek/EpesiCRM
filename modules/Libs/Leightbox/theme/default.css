@@ -5,7 +5,7 @@
 	background-repeat: repeat-x;
 	height: 20px;
 }
- 
+
 #Leightbox_header .left,
 #Leightbox_header .right {
 	width: 14px;
@@ -95,3 +95,10 @@
 }
 
 /* */
+
+#leightbox_customers {
+	top: 5%;
+	left: 5%;
+	width: 90%;
+	height: 90%;
+}
