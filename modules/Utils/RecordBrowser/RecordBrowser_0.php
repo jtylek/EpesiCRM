@@ -499,7 +499,7 @@ class Utils_RecordBrowser extends Module {
 				if (isset($this->cut[$args['id']])) {
 					$value = $this->cut_string($value,$this->cut[$args['id']]);
 				}
-				if ($args['type']=='currency') $value = array('style'=>'text-align:right;','value'=>$value);
+				if ($args['type']=='currency' || $args['type']=='integer') $value = array('style'=>'text-align:right;','value'=>$value);
 				$row_data[] = $value;
 			}
 			if ($this->browse_mode == 'recent')
