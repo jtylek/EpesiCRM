@@ -62,13 +62,6 @@ span.footer a:hover {
     border-bottom: 4px solid #B3B3B3;
 }
 
-#banner .image {
-    background-image: url("images/logo-small.png");
-    background-repeat: repeat-x;
-    width: 193px;
-    height: 68px;
-}
-
 #banner .back {
     background-image: url("images/banner-background.png");
 

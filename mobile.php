@@ -135,7 +135,6 @@ $csses = Epesi::get_csses();
 <body>
         <table id="banner" border="0" cellpadding="0" cellspacing="0">
             <tr>
-                <td class="image">&nbsp;</td>
                 <td class="back"><?php print($caption); ?></td>
             </tr>
         </table>
