@@ -135,7 +135,7 @@ $csses = Epesi::get_csses();
 <body>
         <table id="banner" border="0" cellpadding="0" cellspacing="0">
             <tr>
-                <td class="back"><?php print($caption); ?></td>
+                <td class="back"><img src="images/epesi-powered.png" border="0" align="left" hspace=1 vspace=1><?php print($caption); ?></td>
             </tr>
         </table>
         <br>
@@ -151,8 +151,6 @@ $csses = Epesi::get_csses();
         <br>
         <center>
         <span class="footer">Copyright &copy; 2008 &bull; <a href="http://www.telaxus.com">Telaxus LLC</a></span>
-        <br>
-        <p><a href="http://www.epesi.org"><img src="images/epesi-powered.png" border="0"></a></p>
         </center>
 </body>
 </html>
