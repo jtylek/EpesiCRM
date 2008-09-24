@@ -633,7 +633,7 @@ class ModuleManager {
 			return false;
 		}
 
-		require_once('adodb/toexport.inc.php');
+		require_once('libs/adodb/toexport.inc.php');
 
 
 		if(!is_dir('backup') || !is_writable('backup'))
