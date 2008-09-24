@@ -71,14 +71,17 @@ table#Utils_GenericBrowser th {
     border-bottom: 1px solid #FFFFFF;
 	color: #FFFFFF;
     vertical-align: top;
+
+    padding-left: 3px;
+    padding-right: 3px;
 }
 
 table#Utils_GenericBrowser th span,
 table#Utils_GenericBrowser th a {
-    padding-left: 3px;
-    padding-right: 3px;
 	color: #FFFFFF;
-    display: inline;
+    /*display: inline;*/
+    display: block;
+    height: 20px;
     line-height: 20px;
 }
 
