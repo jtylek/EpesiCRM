@@ -26,11 +26,12 @@ Utils_GenericBrowserCommon::mobile_table($cols_out,$data_out);
 $num_rows = Utils_RecordBrowserCommon::get_records_limit($table,$crits);
 if($offset>0) print('<a href="mobile.php?rb_offset='.($offset-1).'">'.Base_LangCommon::ts('Utils_RecordBrowser','prev').'</a>');
 if($offset<$num_rows/10-1) print(' <a href="mobile.php?rb_offset='.($offset+1).'">'.Base_LangCommon::ts('Utils_RecordBrowser','next').'</a>');
-
-$qf = new HTML_QuickForm('login', 'get','mobile.php?'.http_build_query($_GET));
-$qf->addElement('text', 'rb_offset', Base_LangCommon::ts('Base_User_Login','Page(0-%d)',array($num_rows/10)));
-$qf->addElement('submit', 'submit_button', Base_LangCommon::ts('Base_User_Login','OK'));
-$qf->addRule('username', Base_LangCommon::ts('Base_User_Login','Field required'), 'required');
-$qf->addRule('page', Base_LangCommon::ts('Base_User_Login','Invalid page number'), 'numeric');
-$qf->display();
+if($num_rows>10) {
+	$qf = new HTML_QuickForm('login', 'get','mobile.php?'.http_build_query($_GET));
+	$qf->addElement('text', 'rb_offset', Base_LangCommon::ts('Base_User_Login','Page(0-%d)',array($num_rows/10)));
+	$qf->addElement('submit', 'submit_button', Base_LangCommon::ts('Base_User_Login','OK'));
+	$qf->addRule('username', Base_LangCommon::ts('Base_User_Login','Field required'), 'required');
+	$qf->addRule('page', Base_LangCommon::ts('Base_User_Login','Invalid page number'), 'numeric');
+	$qf->display();
+}
 ?>
