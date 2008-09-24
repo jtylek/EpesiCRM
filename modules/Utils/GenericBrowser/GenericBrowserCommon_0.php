@@ -20,7 +20,7 @@ class Utils_GenericBrowserCommon extends ModuleCommon {
 			));
 	}
 	
-	public static function mobile_table($cols,$data) {
+	public static function mobile_table($cols,$data,$sort=true) {
 		$th = Base_ThemeCommon::init_smarty();
 
 		$all_width = 0;
@@ -39,8 +39,8 @@ class Utils_GenericBrowserCommon extends ModuleCommon {
 			if(isset($v['order'])) $is_order = true;
 			if(!isset($headers[$i])) $headers[$i] = array('label'=>'');
 			if (isset($_GET['order']) && isset($_GET['order_dir']) && $i==$_GET['order']) {
-				$sort = 'style="padding-right: 12px; background-image: url('.Base_ThemeCommon::get_template_file('Utils_GenericBrowser','sort-'.strtolower($_GET['order_dir']).'ending.png').'); background-repeat: no-repeat; background-position: right;"';
 				$sort_direction = ($_GET['order_dir']=='desc')?'asc':'desc';
+				$sort = 'style="padding-right: 12px; background-image: url('.Base_ThemeCommon::get_template_file('Utils_GenericBrowser','sort-'.$sort_direction.'ending.png').'); background-repeat: no-repeat; background-position: right;"';
 			} else {
 				$sort = '';
 				$sort_direction = 'asc';
@@ -53,7 +53,7 @@ class Utils_GenericBrowserCommon extends ModuleCommon {
 		$th->assign('cols',array_values($headers));
 
 		//sort data
-		if(isset($_GET['order']) && isset($_GET['order_dir'])) {
+		if($sort && isset($_GET['order']) && isset($_GET['order_dir'])) {
 			$col = array();
 			foreach($data as $j=>$d)
 				foreach($d as $i=>$c)
@@ -89,9 +89,13 @@ class Utils_GenericBrowserCommon extends ModuleCommon {
 			foreach($row as $k=>$cell) {
 				if (!isset($cols[$k]) || (array_key_exists('display', $cols[$k]) && $cols[$k]['display']==false)) 
 					continue;
-				if(!$cell) $cell='&nbsp;';
-				if(is_string($cell)) $out_data[] = array('label'=>$cell,'attrs'=>'');
-					else $out_data[] = $cell;
+				if(!is_array($cell)) {
+					$cell.='&nbsp;';
+					$out_data[] = array('label'=>$cell,'attrs'=>'');
+				} else {
+					$cell['label'].='&nbsp;';
+					$out_data[] = $cell;
+				}
 			}
 		}
 		unset($data);

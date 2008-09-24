@@ -284,5 +284,18 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 				'subject'
 			);
 	}
+
+	//////////////////////////
+	// mobile devices
+	public function mobile_menu() {
+		if(!Acl::is_user())
+			return array();
+		return array('Phone Calls'=>'mobile_phone_calls');
+	}
+	
+	public function mobile_phone_calls() {
+		$me = CRM_ContactsCommon::get_my_record();
+		Utils_RecordBrowserCommon::mobile_rb('phonecall',array('employees'=>array($me['id'])),array('status'=>'ASC', 'date_and_time'=>'ASC', 'subject'=>'ASC'));
+	}
 }
 ?>

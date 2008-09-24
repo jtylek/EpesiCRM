@@ -243,6 +243,20 @@ class CRM_TasksCommon extends ModuleCommon {
 				'title'
 			);
 	}
+	
+	///////////////////////////////////
+	// mobile devices
+
+	public function mobile_menu() {
+		if(!Acl::is_user())
+			return array();
+		return array('Tasks'=>'mobile_tasks');
+	}
+	
+	public function mobile_tasks() {
+		$me = CRM_ContactsCommon::get_my_record();
+		Utils_RecordBrowserCommon::mobile_rb('task',array('employees'=>array($me['id'])),array('deadline'=>'ASC', 'longterm'=>'ASC', 'priority'=>'DESC', 'title'=>'ASC'));
+	}
 }
 
 ?>

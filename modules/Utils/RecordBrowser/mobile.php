@@ -1,13 +1,15 @@
 <?php
-//!!! $table variable is passed globally
+//!!! $table,$crits and sort variables are passed globally
 defined("_VALID_ACCESS") || die();
 
 //init
 $ret = DB::GetRow('SELECT caption, recent, favorites FROM recordbrowser_table_properties WHERE tab=%s',array($table));
 $type = isset($_GET['type'])?$_GET['type']:Base_User_SettingsCommon::get('Utils_RecordBrowser',$table.'_default_view');
-$order_num = isset($_GET['order'])?$_GET['order']:-1;
+$order_num = (isset($_GET['order']) && isset($_GET['order_dir']))?$_GET['order']:-1;
 $order = false;
 print(Base_LangCommon::ts('Utils_RecordBrowser',$ret['caption']).' - '.Base_LangCommon::ts('Utils_RecordBrowser',ucfirst($type)).'<br>');
+
+//TODO: simple search
 
 //cols
 $cols = Utils_RecordBrowserCommon::init($table);
@@ -26,18 +28,20 @@ foreach($cols as $col) {
 if($ret['recent'] && $type!='recent') print('<a href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'recent'))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','Recent').'</a> ');
 if($ret['favorites'] && $type!='favorites') print('<a href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'favorites'))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','Favorites').'</a> ');
 if(($ret['recent'] || $ret['favorites']) && $type!='all') print('<a href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'all'))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','All').'</a> ');
-$crits = array();
-$sort = array();
+//$crits = array();
+//$sort = array();
 switch($type) {
 	case 'favorites':
 		$crits[':Fav'] = true;
 		break;
 	case 'recent':
 		$crits[':Recent'] = true;
-		$sort[':Visited_on'] = 'DESC';
+		$sort = array(':Visited_on' => 'DESC');
 		break;
 }
-if($type!='recent' && $order) $sort[$order] = strtoupper($_GET['order_dir']);
+if($type!='recent' && $order && ($_GET['order_dir']=='asc' || $_GET['order_dir']=='desc')) {
+	$sort = array($order => strtoupper($_GET['order_dir']));
+}
 $offset = isset($_GET['rb_offset'])?$_GET['rb_offset']:0;
 $data = Utils_RecordBrowserCommon::get_records($table,$crits,array(),$sort,array('numrows'=>10,'offset'=>10*$offset));
 

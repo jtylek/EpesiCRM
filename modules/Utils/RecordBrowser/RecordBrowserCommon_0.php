@@ -1258,7 +1258,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	///////////////////////////////////////////
 	// mobile devices
 	
-	public static function mobile_menu() {
+/*	public static function mobile_menu() {
 		if(!Acl::is_user()) return array();
 		$rbs = DB::GetAssoc('SELECT tab,caption FROM recordbrowser_table_properties');
 		$ret = array();
@@ -1266,8 +1266,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$ret[$cap]=array('func'=>'mobile_rb','args'=>array($table));
 		return $ret;
 	}
-	
-	public static function mobile_rb($table) {
+*/	
+	public static function mobile_rb($table,array $crits=array(),array $sort=array()) {
 		require_once('modules/Utils/RecordBrowser/mobile.php');
 	}
 	

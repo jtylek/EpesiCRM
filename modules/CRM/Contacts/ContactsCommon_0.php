@@ -530,6 +530,21 @@ class CRM_ContactsCommon extends ModuleCommon {
 				'company_name'
 			);
 	}
-
+	
+	//////////////////////////
+	// mobile devices
+	public function mobile_menu() {
+		if(!Acl::is_user())
+			return array();
+		return array('Contacts'=>'mobile_contacts','Companies'=>'mobile_companies');
+	}
+	
+	public function mobile_contacts() {
+		Utils_RecordBrowserCommon::mobile_rb('contact',array(),array('last_name'=>'ASC', 'first_name'=>'ASC'));
+	}
+	
+	public function mobile_companies() {
+		Utils_RecordBrowserCommon::mobile_rb('contact',array(),array('company_name'=>'ASC'));	
+	}
 }
 ?>
