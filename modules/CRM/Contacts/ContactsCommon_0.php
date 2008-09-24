@@ -544,7 +544,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 	
 	public function mobile_companies() {
-		Utils_RecordBrowserCommon::mobile_rb('contact',array(),array('company_name'=>'ASC'));	
+		Utils_RecordBrowserCommon::mobile_rb('company',array(),array('company_name'=>'ASC'));	
 	}
 }
 ?>
