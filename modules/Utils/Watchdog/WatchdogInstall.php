@@ -58,10 +58,10 @@ class Utils_WatchdogInstall extends ModuleInstall {
 	public function uninstall() {
 		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		$ret = true;
-		$ret &= DB::DropTable('utils_watchdog_category');
-		$ret &= DB::DropTable('utils_watchdog_event');
 		$ret &= DB::DropTable('utils_watchdog_subscription');
 		$ret &= DB::DropTable('utils_watchdog_category_subscription');
+		$ret &= DB::DropTable('utils_watchdog_event');
+		$ret &= DB::DropTable('utils_watchdog_category');
 		return $ret;
 	}
 	

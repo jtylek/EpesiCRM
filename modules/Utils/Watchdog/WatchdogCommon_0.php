@@ -65,10 +65,10 @@ class Utils_WatchdogCommon extends ModuleCommon {
 	public static function unregister_category($category_name) {
 		$category_id = self::get_category_id($category_name);
 		if (!$category_id) return;
-		DB::Execute('DELETE FROM utils_watchdog_category WHERE name=%s',array(md5($category_name)));
 		DB::Execute('DELETE FROM utils_watchdog_category_subscription WHERE category_id=%d',array($category_id));
 		DB::Execute('DELETE FROM utils_watchdog_subscription WHERE category_id=%d',array($category_id));
 		DB::Execute('DELETE FROM utils_watchdog_event WHERE category_id=%d',array($category_id));
+		DB::Execute('DELETE FROM utils_watchdog_category WHERE id=%d',array($category_id));
 	}
 	// *********************************** New event ***************************
 	public static function new_event($category_name, $id, $message) {
