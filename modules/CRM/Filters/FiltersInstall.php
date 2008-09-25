@@ -19,7 +19,7 @@ class CRM_FiltersInstall extends ModuleInstall {
 			name C(128) NOTNULL,
 			description C(255),
 			user_login_id I4 NOTNULL',
-			array('constraints'=>', UNIQUE(name,description), FOREIGN KEY (user_login_id) REFERENCES user_login(ID)'));
+			array('constraints'=>', UNIQUE(name), FOREIGN KEY (user_login_id) REFERENCES user_login(ID)'));
 		if(!$ret){
 			print('Unable to create table crm_filters_group.<br>');
 			return false;
