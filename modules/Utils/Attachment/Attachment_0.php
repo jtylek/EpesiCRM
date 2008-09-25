@@ -107,7 +107,7 @@ class Utils_Attachment extends Module {
 			$cols[] = array('name'=>$this->lang->t('Last Author'), 'order'=>'note_by','width'=>10);
 		$cols[] = array('name'=>$this->lang->t('Date'), 'order'=>'note_on','width'=>12);
 		$expand_id = 'expand_collapse_'.md5($this->get_path());
-		$cols[] = array('name'=>$this->lang->t('Note'), 'preppend'=>'<span id="'.$expand_id.'"></span>', 'order'=>'uac.text','width'=>70);
+		$cols[] = array('name'=>$this->lang->t('Note'), 'preppend'=>'<span id="'.$expand_id.'"></span>', 'width'=>70);
 		$cols[] = array('name'=>$this->lang->t('Attachment'), 'order'=>'uaf.original','width'=>5);
 		$gb->set_table_columns($cols);
 

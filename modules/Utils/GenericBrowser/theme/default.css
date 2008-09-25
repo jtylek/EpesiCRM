@@ -76,11 +76,17 @@ table#Utils_GenericBrowser th {
     padding-right: 3px;
 }
 
-table#Utils_GenericBrowser th span,
+table#Utils_GenericBrowser th span {
+	color: #FFFFFF;
+    /*display: inline;*/
+    height: 20px;
+    line-height: 20px;
+}
+
 table#Utils_GenericBrowser th a {
 	color: #FFFFFF;
-    display: inline;
-    /*display: block;*/
+    /*display: inline;*/
+    display: block;
     height: 20px;
     line-height: 20px;
 }
