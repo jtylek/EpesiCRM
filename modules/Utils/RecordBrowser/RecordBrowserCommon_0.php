@@ -328,11 +328,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function set_display_method($tab = null, $field, $module, $func) {
 		if (!$tab) return false;
 		self::check_table_name($tab);
+		DB::Execute('DELETE FROM '.$tab.'_callback WHERE field=%s AND freezed=1', array($field));
 		DB::Execute('INSERT INTO '.$tab.'_callback (field, module, func, freezed) VALUES(%s, %s, %s, 1)', array($field, $module, $func));
 	}
 	public static function set_QFfield_method($tab = null, $field, $module, $func) {
 		if (!$tab) return false;
 		self::check_table_name($tab);
+		DB::Execute('DELETE FROM '.$tab.'_callback WHERE field=%s AND freezed=0', array($field));
 		DB::Execute('INSERT INTO '.$tab.'_callback (field, module, func, freezed) VALUES(%s, %s, %s, 0)', array($field, $module, $func));
 	}
 
