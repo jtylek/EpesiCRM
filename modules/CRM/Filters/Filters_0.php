@@ -166,7 +166,7 @@ class CRM_Filters extends Module {
 		$form->addRule('description',$this->lang->t('Max length of field exceeded'),'maxlength',256);
 		$form->addRule('name',$this->lang->t('Field required'),'required');
 		$form->registerRule('unique','callback','check_group_name_exists', 'CRM_Filters');
-		$form->addRule(array('name','description'),$this->lang->t('Group with this name and description already exists'),'unique',$id);
+		$form->addRule('name',$this->lang->t('Group with this name already exists'),'unique',$id);
 		$contacts = CRM_ContactsCommon::get_contacts(array('company_name'=>CRM_ContactsCommon::get_main_company()));
 		$contacts_select = array();
 		foreach($contacts as $v)
@@ -175,8 +175,7 @@ class CRM_Filters extends Module {
 		if ($form->validate()) {
 			$v = $form->exportValues();
 			if(isset($id)) {
-				if($v['name']!=$name)
-					DB::Execute('UPDATE crm_filters_group SET name=%s,description=%s WHERE id=%d',array($v['name'],$v['description'],$id));
+				DB::Execute('UPDATE crm_filters_group SET name=%s,description=%s WHERE id=%d',array($v['name'],$v['description'],$id));
 				DB::Execute('DELETE FROM crm_filters_contacts WHERE group_id=%d',array($id));
 			} else {
 				DB::Execute('INSERT INTO crm_filters_group(name,description,user_login_id) VALUES(%s,%s,%d)',array($v['name'],$v['description'],Acl::get_user()));
@@ -211,9 +210,9 @@ class CRM_Filters extends Module {
 
 	public static function check_group_name_exists($name,$id) {
 		if(isset($id)) {
-			$ret = DB::GetOne('SELECT id FROM crm_filters_group WHERE id!=%d AND name=%s AND description=%s',array($id,$name[0],$name[1]));
+			$ret = DB::GetOne('SELECT id FROM crm_filters_group WHERE id!=%d AND name=%s',array($id,$name));
 		} else {
-			$ret = DB::GetOne('SELECT id FROM crm_filters_group WHERE name=%s AND description=%s',array($name[0],$name[1]));
+			$ret = DB::GetOne('SELECT id FROM crm_filters_group WHERE name=%s',array($name));
 		}
 		return $ret===false || $ret===null;
 	}
