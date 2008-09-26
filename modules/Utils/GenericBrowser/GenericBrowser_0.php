@@ -622,7 +622,7 @@ class Utils_GenericBrowser extends Module {
 		$this->rows = array();
 		$this->rows_jses = array();
 		$this->actions = array();
-		$limit = $this->get_limit(count($rows));
+		if ($paging) $limit = $this->get_limit(count($rows));
 		$id = 0;
 		foreach($rows as $k=>$v) {
 			if (!$paging || ($id>=$limit['offset'] && $id<$limit['offset']+$limit['numrows'])){
