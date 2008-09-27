@@ -22,7 +22,7 @@ class Libs_QuickFormInstall extends ModuleInstall {
 	}
 
 	public function version() {
-		return array('3.2.9');
+		return array('3.2.10');
 	}
 	public function requires($v) {
 		return array(
