@@ -13,13 +13,15 @@ class Tests_QuickForm extends Module{
 	public function body(){
 		$f = $this->init_module('Libs/QuickForm');
 
-//		$x = $f->addElement('datepicker','xxxy','Date picker');
+		$f->addElement('text','frozen','Frozen test');
+		$f->freeze(array('frozen'));
+		$f->setDefaults(array('frozen'=>'original'));
 		$x = $f->addElement('timestamp','xxxyss','Timestamp picker');
 		$x = $f->addElement('text','ble','Test');
 		$x = $f->addElement('currency','cur','Currency');
 		$f->setDefaults(array('xxxyss'=>time()));
 //		$f->freeze(array('xxxyss'));
-		$f->setDefaults(array('cur'=>'1252341.22'));
+//		$f->setDefaults(array('cur'=>'1252341.22'));
 //		print($x->getValue().'<br>');
 
 //		$f->addElement('commondata_group','xxx2','commondata_group', 'Countries',array('depth'=>2,'separator'=>'<br>','empty_option'=>true));
