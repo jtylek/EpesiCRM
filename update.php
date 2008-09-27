@@ -135,7 +135,7 @@ function themeup(){
 	install_default_theme_common_files('modules/Base/Theme/','images');
 }
 
-$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1','0.9.9beta1','0.9.9beta2','1.0.0rc1','1.0.0rc2','1.0.0rc3');
+$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1','0.9.9beta1','0.9.9beta2','1.0.0rc1','1.0.0rc2','1.0.0rc3','1.0.0rc4');
 
 /****************** 0.8.5 to 0.8.6 **********************/
 function update_from_0_9_9beta1_to_0_9_9beta2() {
@@ -672,6 +672,23 @@ function update_from_1_0_0rc2_to_1_0_0rc3() {
 	
 	}
 
+
+	ModuleManager::create_common_cache();
+	themeup();
+	langup();
+	Base_ThemeCommon::create_cache();
+}
+
+function update_from_1_0_0rc3_to_1_0_0rc4() {
+	define('CID',false);
+	require_once('include.php');
+	ob_start();
+	ModuleManager::load_modules();
+	ob_end_clean();
+
+	if (ModuleManager::is_installed('Base/User/Login')>=0) {
+		PatchDBAddColumn('user_password','mobile_autologin_id','C(32)');
+	}
 
 	ModuleManager::create_common_cache();
 	themeup();
