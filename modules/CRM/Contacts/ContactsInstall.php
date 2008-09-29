@@ -201,7 +201,8 @@ class CRM_ContactsInstall extends ModuleInstall {
 				'phone'=>isset($val['phone'])?$val['phone']:'',
 				'fax'=>isset($val['fax'])?$val['fax']:'',
 				'permission'=>'0',
-				'web_address'=>isset($val['web'])?$val['web']:''
+				'web_address'=>isset($val['web'])?$val['web']:'',
+				'group'=>array('customer')
 				));
 		Variable::set('main_company',$comp_id);
 		$count = DB::GetOne('SELECT count(ul.id) FROM user_login ul');
