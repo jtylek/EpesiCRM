@@ -955,17 +955,17 @@ class Utils_RecordBrowser extends Module {
 												foreach($ext_rec as $k=>$v) {
 													$c = Utils_RecordBrowserCommon::get_record($tab, $k);
 													if (!empty($multi_adv_params['format_callback'])) $n = call_user_func($multi_adv_params['format_callback'], $c);
-													else $n = $v[$col_id];
+													else $n = $c[$col_id];
 													$comp[$k] = $n;
 												}
 											}
+											natcasesort($comp);
 											foreach ($records as $k=>$v) {
 												if (!empty($multi_adv_params['format_callback'])) $n = call_user_func($multi_adv_params['format_callback'], $v);
 												else $n = $v[$col_id];
 												$comp[$k] = $n;
 												unset($ext_rec[$v['id']]);
 											}
-											natcasesort($comp);
 										}
 										if ($args['type']==='select') $comp = array(''=>'---')+$comp;
 										$form->addElement($args['type'], $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', $comp, array('id'=>$args['id']));
