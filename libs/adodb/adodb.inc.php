@@ -201,6 +201,8 @@
 		var $name = '';
 		var $max_length=0;
 		var $type="";
+		var $primary_key=false;
+		var $unique=false;
 /*
 		// additional fields by dannym... (danny_milo@yahoo.com)
 		var $not_null = false; 
