@@ -451,8 +451,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 	public static function get_sql_type($type) {
 		switch ($type) {
-			case 'checkbox': 
-			case 'integer': return '%d';
+			case 'checkbox': return '%d';
+			case 'integer': return '%f';
 			case 'date': return '%D';
 			case 'timestamp': return '%T';
 		}
@@ -536,8 +536,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$diff = array();
 		self::init($tab);
 		foreach(self::$table_rows as $field => $args){
-//			if ($access[$args['id']]=='hide' || $access[$args['id']]=='read-only') continue;
-// TODO: check for holes
 			if ($args['id']=='id') continue;
 			if (!isset($values[$args['id']])) {
 				if ($all_fields) $values[$args['id']] = '';
