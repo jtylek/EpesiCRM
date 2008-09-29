@@ -141,15 +141,16 @@ class Base_Dashboard extends Module {
 			$ret = DB::GetAll('SELECT id,name,pos FROM base_dashboard_default_tabs ORDER BY pos');
 		else
 			$ret = DB::GetAll('SELECT id,name,pos FROM base_dashboard_tabs WHERE user_login_id=%d ORDER BY pos',array(Acl::get_user()));
+		print_r($ret);
 		foreach($ret as $row) {
 			$gb_row = $gb->get_new_row();
 			$gb_row->add_data($row['name']);
 			$gb_row->add_action($this->create_callback_href(array($this,'edit_tab'),$row['id']), 'Edit');
 			$gb_row->add_action($this->create_confirm_callback_href($this->lang->t('Delete this tab and all applets assigned to it?'),array($this,'delete_tab'),$row['id']), 'Delete');
-			if($row['pos']>0)
-				$gb_row->add_action($this->create_callback_href(array($this,'move_tab'),array($row['id'],$row['pos'],$row['pos']-1)), 'move-up');
-			if($row['pos']<count($ret)-1)
-				$gb_row->add_action($this->create_callback_href(array($this,'move_tab'),array($row['id'],$row['pos'],$row['pos']+1)), 'move-down');
+			if($row['pos']>$ret[0]['pos'])
+				$gb_row->add_action($this->create_callback_href(array($this,'move_tab'),array($row['id'],$row['pos'],-1)), 'move-up');
+			if($row['pos']<$ret[count($ret)-1]['pos'])
+				$gb_row->add_action($this->create_callback_href(array($this,'move_tab'),array($row['id'],$row['pos'],+1)), 'move-down');
 		}
 
 		$this->display_module($gb);
@@ -203,11 +204,12 @@ class Base_Dashboard extends Module {
 		return true;
 	}
 
-	public function move_tab($id,$old_pos,$new_pos) {
+	public function move_tab($id,$old_pos,$dir) {
 		$default_dash = $this->get_module_variable('default');
 		$table = 'base_dashboard_'.($default_dash?'default_':'').'tabs';
 		DB::StartTrans();
-		$id2 = DB::GetOne('SELECT id FROM '.$table.' WHERE pos=%d',array($new_pos));
+		$new_pos = DB::GetOne('SELECT '.($dir>0?'MIN':'MAX').'(pos) FROM '.$table.' WHERE pos'.($dir>0?'>':'<').'%d AND user_login_id=%s',array($old_pos, Acl::get_user()));
+		$id2 = DB::GetOne('SELECT id FROM '.$table.' WHERE pos=%d AND user_login_id=%s',array($new_pos,Acl::get_user()));
 		DB::Execute('UPDATE '.$table.' SET pos=%d WHERE id=%d',array($old_pos,$id2));
 		DB::Execute('UPDATE '.$table.' SET pos=%d WHERE id=%d',array($new_pos,$id));
 		DB::CompleteTrans();
