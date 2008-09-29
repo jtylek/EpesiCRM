@@ -305,7 +305,7 @@ class Base_Dashboard extends Module {
 		}
 		DB::CompleteTrans();
 		$sett_fn = array($mod.'Common','applet_settings');
-		$this->set_module_variable('first_conf',DB::Insert_ID('base_dashboard_default_applets','id'));
+		$this->set_module_variable('first_conf',DB::Insert_ID('base_dashboard_'.($this->get_module_variable('default')?'default_':'').'applets','id'));
 		$this->set_module_variable('mod_conf',$mod);
 	}
 
