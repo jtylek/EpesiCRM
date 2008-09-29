@@ -141,7 +141,6 @@ class Base_Dashboard extends Module {
 			$ret = DB::GetAll('SELECT id,name,pos FROM base_dashboard_default_tabs ORDER BY pos');
 		else
 			$ret = DB::GetAll('SELECT id,name,pos FROM base_dashboard_tabs WHERE user_login_id=%d ORDER BY pos',array(Acl::get_user()));
-		print_r($ret);
 		foreach($ret as $row) {
 			$gb_row = $gb->get_new_row();
 			$gb_row->add_data($row['name']);
@@ -189,9 +188,11 @@ class Base_Dashboard extends Module {
 				DB::StartTrans();
 				if($default_dash) {
 					$max = DB::GetOne('SELECT max(pos)+1 FROM '.$table);
+					if ($max===false || $max===null) $max=0;
 					DB::Execute('INSERT INTO '.$table.'(name,pos) VALUES(%s,%d)',array($name,$max));
 				} else {
 					$max = DB::GetOne('SELECT max(pos)+1 FROM '.$table.' WHERE user_login_id=%d',array(Acl::get_user()));
+					if ($max===false || $max===null) $max=0;
 					DB::Execute('INSERT INTO '.$table.'(name,pos,user_login_id) VALUES(%s,%d,%d)',array($name,$max,Acl::get_user()));
 				}
 				DB::CompleteTrans();
