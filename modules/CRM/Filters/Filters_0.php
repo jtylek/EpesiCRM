@@ -38,7 +38,7 @@ class CRM_Filters extends Module {
 		$ret = DB::Execute('SELECT id,name,description FROM crm_filters_group WHERE user_login_id=%d',array(Acl::get_user()));
 		$filters = array();
 		while($row = $ret->FetchRow()) {
-			$filters[] = array('title'=>$row['name'],'description'=>$row['description'],'open'=>'<a '.$this->create_callback_href(array($this,'set_profile'),$row['id']).' id="crm_filters_'.$row['id'].'">','close'=>'</a>');
+			$filters[] = array('title'=>$row['name'],'description'=>'','open'=>'<a '.Utils_TooltipCommon::open_tag_attrs($row['description'],false).' '.$this->create_callback_href(array($this,'set_profile'),$row['id']).' id="crm_filters_'.$row['id'].'">','close'=>'</a>');
 			eval_js('Event.observe(\'crm_filters_'.$row['id'].'\',\'click\', crm_filters_deactivate)');
 		}
 		$th->assign('filters',$filters);
@@ -153,11 +153,12 @@ class CRM_Filters extends Module {
 		$form = $this->init_module('Libs/QuickForm', null, 'edit_group');
 		if(isset($id)) {
 			$name = DB::GetOne('SELECT name FROM crm_filters_group WHERE id=%d',array($id));
+			$description = DB::GetOne('SELECT description FROM crm_filters_group WHERE id=%d',array($id));
 			$form->addElement('header',null,$this->lang->t('Edit group "%s"',array($name)));
 
 			$contacts_def = DB::GetCol('SELECT contact_id FROM crm_filters_contacts WHERE group_id=%d',array($id));
 
-			$form->setDefaults(array('name'=>$name,'contacts'=>$contacts_def));
+			$form->setDefaults(array('name'=>$name,'contacts'=>$contacts_def,'description'=>$description));
 		} else
 			$form->addElement('header',null,$this->lang->t('New group'));
 		$form->addElement('text','name',$this->lang->t('Name'));
