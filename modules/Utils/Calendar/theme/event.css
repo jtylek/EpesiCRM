@@ -28,8 +28,7 @@
 #Utils_Calendar__event #event_time {
     display: block;
     float: left;
-    padding-left: 15px;
-    position: fixed;
+    padding-left: 5px;
     color: black;
     font-size: 11px;
 }
