@@ -7,7 +7,6 @@
 
  *
  * TODO:
- * -zrobic porzadek w kodzie
  * -drafts, sent i trash to specjalne foldery, wszystkie inne traktujemy tak jak inbox
  * -zalaczniki przy new
  * -obsluga imap:
@@ -447,7 +446,7 @@ class Apps_MailClient extends Module {
 		//if edit
 		$references = false;
 		if($id!==null) {
-			$message = @file_get_contents(Apps_MailClientCommon::get_maildir_dir($box).$dir.$id);
+			$message = @file_get_contents(Apps_MailClientCommon::get_mailbox_dir($box).$dir.$id);
 			if($message!==false) {
 				ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
 				require_once('Mail/mimeDecode.php');
@@ -668,12 +667,17 @@ class Apps_MailClient extends Module {
 
 				//local delivery
 				foreach($to_epesi as $e) {
-					if(!Apps_MailClientCommon::drop_message(Apps_MailClientCommon::get_mail_dir($e).'internal/Inbox',$v['subject'],$name,$to_names,$date,$v['body']))
+					$dest_id = DB::GetOne('SELECT id FROM apps_mailclient_accounts WHERE mail=\'#internal\' AND user_login_id=%d',array($e));
+					if($dest_id===false) {
+						$dest_id = Apps_MailClientCommon::create_internal_mailbox($e);
+					}
+					if(!Apps_MailClientCommon::drop_message($dest_id,'Inbox/',$v['subject'],$name,$to_names,$date,$v['body']))
 						print($this->lang->t('Unable to send message to %s',array($to_epesi_names[$e])).'<br>');
 				}
 			}
 			if($ret) {
-				if(Apps_MailClientCommon::drop_message(Apps_MailClientCommon::get_mailbox_dir($from?$from['mail']:'internal').$save_folder,$v['subject'],$from?$from['mail']:$this->lang->ht('private message'),$to_names,$date,$v['body'],true)) {
+				$dest_id = $from?$from['id']:DB::GetOne('SELECT id FROM apps_mailclient_accounts WHERE mail=\'#internal\' AND user_login_id=%d',array(Acl::get_user()));
+				if(Apps_MailClientCommon::drop_message($dest_id,$save_folder.'/',$v['subject'],$from?$from['mail']:$this->lang->ht('private message'),$to_names,$date,$v['body'],true)) {
 					if($id!==null && $type=='edit') $this->remove_mail($box,$dir,$id);
 					return false;
 				}

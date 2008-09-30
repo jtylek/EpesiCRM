@@ -107,7 +107,7 @@ if(isset($_GET['attachment_cid']) || isset($_GET['attachment_name'])) {
 		}
 	}
 
-	if(ereg('(Sent|Drafts)$',$_GET['box']))
+	if(ereg('^(Sent|Drafts)',$_GET['dir']))
 		$address = $structure->headers['to'];
 	else
 		$address = $structure->headers['from'];

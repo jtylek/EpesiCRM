@@ -67,8 +67,8 @@ class Apps_MailClientCommon extends ModuleCommon {
 			mkdir($acc_dir.$d);
 	}
 
-	public static function create_internal_mailbox() {
-		$user = Acl::get_user();
+	public static function create_internal_mailbox($user=null) {
+		if($user===null) $user = Acl::get_user();
 		DB::Execute('INSERT INTO apps_mailclient_accounts(user_login_id,mail,login,password,incoming_server,incoming_protocol) VALUES(%d,\'#internal\',\'\',\'\',\'\',2)',array($user));
 		$id = DB::Insert_ID('apps_mailclient_accounts','id');
 		Apps_MailClientCommon::create_mailbox_dir($id);
@@ -134,7 +134,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$mbody = $mime->getMessage();
 		$mailbox = self::get_mailbox_dir($mailbox_id).$dir;
 		file_put_contents($mailbox.$msg_id,$mbody);
-		Apps_MailClientCommon::append_msg_to_mailbox_index($mailbox_id,$dir,$msg_id,$subject,$from,$to,$date,strlen($mbody),$read);
+		Apps_MailClientCommon::append_msg_to_index($mailbox_id,$dir,$msg_id,$subject,$from,$to,$date,strlen($mbody),$read);
 
 		return true;
 	}
@@ -237,29 +237,6 @@ class Apps_MailClientCommon extends ModuleCommon {
 		return $sub;
 	}
 
-	public static function mailname2dirname($f) {
-		return str_replace(array('@','.'),array('__at__','__dot__'),$f);
-	}
-
-	public static function dirname2mailname($f) {
-		return str_replace(array('__at__','__dot__'),array('@','.'),$f);
-	}
-
-	public static function get_mail_dir_structure() {
-		return self::Instance()->_get_mail_dir_structure();
-	}
-
-	public static function get_default_box() {
-		$mdir = self::get_mail_dir();
-		$cont = scandir($mdir);
-		$ret = null;
-		foreach($cont as $c)
-			if(ereg('__at__[a-zA-Z0-9]+__dot__',$c) || $c=='internal') {
-				$ret = '/'.$c.'/Inbox';
-				break;
-			}
-		return $ret;
-	}
  */
 	public static function build_index($id,$dir) {
 		ini_set('include_path','modules/Apps/MailClient/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
