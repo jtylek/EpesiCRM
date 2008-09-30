@@ -3,7 +3,7 @@ header("Cache-Control: no-cache, must-revalidate");
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // date in the past
 header("Content-Type: text/plain");
 
-if(!isset($_GET['msg_id']) || !isset($_GET['box']) || strpos($_GET['box'],'..')!==false || !is_numeric($_GET['msg_id']))
+if(!isset($_GET['msg_id']) || !isset($_GET['box']) || !is_numeric($_GET['box']) || !isset($_GET['dir']) || strpos($_GET['dir'],'..')!==false || !is_numeric($_GET['msg_id']))
 	die('Invalid request');
 
 define('CID',false);
@@ -13,9 +13,9 @@ ModuleManager::load_modules();
 
 if(!Acl::is_user()) die('Not logged in');
 
-$box = Apps_MailClientCommon::get_mail_dir().trim($_GET['box'],'/');
-	
-$message = @file_get_contents($box.'/'.$_GET['msg_id']);
+$box = Apps_MailClientCommon::get_mailbox_dir($_GET['box']).$_GET['dir'];
+
+$message = @file_get_contents($box.$_GET['msg_id']);
 if($message!==false)
 	echo $message;//.'<pre>'.htmlentities(print_r($structure,true)).'</pre>';
 else

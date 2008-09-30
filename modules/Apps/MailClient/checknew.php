@@ -43,10 +43,12 @@ foreach($accounts as $account) {
 	$method = $account['incoming_method']!='auto'?$account['incoming_method']:null;
 	$pop3 = ($account['incoming_protocol']==0);
 	if(!$pop3) continue;
-	
-	$box_root = Apps_MailClientCommon::get_mailbox_dir($account['mail']);
-	$box = $box_root.'Inbox';
-	
+
+	$box_root = Apps_MailClientCommon::get_mailbox_dir($account['id']);
+	$box_dir = 'Inbox/';
+	$box = $box_root.$box_dir;
+
+
 	message($account['id'],$account['mail'].': login');
 
 	$native_support = false;
@@ -64,10 +66,10 @@ foreach($accounts as $account) {
 			$msgCount = $hdr->Nmsgs;
 		} else {
 			message($account['id'],$account['mail'].': (fetch error) '.implode(', ',imap_errors()));
-			continue;			
+			continue;
 		}
 
-		
+
 		$l=imap_fetch_overview($in,'1:'.$msgCount,0);
 	} else {
 		require_once('Net/POP3.php');
@@ -77,7 +79,7 @@ foreach($accounts as $account) {
 			if($ssl) $port=995;
 			else $port=110;
 		}
-	
+
 		if(PEAR::isError( $ret= $in->connect(($ssl?'ssl://':'').$host , $port) )) {
 			message($account['id'],$account['mail'].': (connect error) '.$ret->getMessage());
 			continue;
@@ -90,7 +92,7 @@ foreach($accounts as $account) {
 
 		$l = $in->getListing();
 	}
-	
+
 	$num = 0;
 	$error = false;
 	//check uidls and unset already downloaded messages
@@ -133,7 +135,7 @@ foreach($accounts as $account) {
 				unset($l[$k]);
 			}
 		}
-	
+
 	if(($uidls_fp = @fopen($uidls_file,'a'))==false) {
 		message($account['id'],$account['mail'].': unable to open UIDLS file');
 		continue;
@@ -141,8 +143,8 @@ foreach($accounts as $account) {
 	message($account['id'],$account['mail'].': waiting for mailbox lock.');
 	if (!flock($uidls_fp, LOCK_EX)) {
 		message($account['id'],$account['mail'].': mailbox locked.');
-		continue;	
-	}	
+		continue;
+	}
 
 	$count = count($l);
 	$invalid = 0;
@@ -190,11 +192,11 @@ foreach($accounts as $account) {
 			$structure->headers['to'] = '';
 		if(!isset($structure->headers['date']))
 			$structure->headers['date'] = '';
-		$msg_id = Apps_MailClientCommon::get_next_msg_id($box);
-		file_put_contents($box.'/'.$msg_id,$msg);
-		if(!Apps_MailClientCommon::append_msg_to_index($account['mail'],'Inbox',$msg_id,isset($structure->headers['subject'])?$structure->headers['subject']:'no subject',$structure->headers['from'],$structure->headers['to'],$structure->headers['date'],strlen($msg))) {
+		$msg_id = Apps_MailClientCommon::get_next_msg_id($account['id'],$box_dir);
+		file_put_contents($box.$msg_id,$msg);
+		if(!Apps_MailClientCommon::append_msg_to_index($account['id'],$box_dir,$msg_id,isset($structure->headers['subject'])?$structure->headers['subject']:'no subject',$structure->headers['from'],$structure->headers['to'],$structure->headers['date'],strlen($msg))) {
 			message($account['id'],$account['mail'].': broken index file');
-			@unlink($box.'/'.$msg_id);
+			@unlink($box.$msg_id);
 			$error = true;
 			break;
 		}
@@ -222,22 +224,22 @@ foreach($accounts as $account) {
 			}
 			fputcsv($uidls_fp,array($msg_uidl,$tt));
 		}
-		
+
 		$num++;
 		echo('<script>parent.Apps_MailClient.progress_bar.set_progress(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\', '.ceil($num*100/$count).')</script>');
 		flush();
 		@ob_flush();
 	}
-	
+
 	echo('<script>parent.Apps_MailClient.progress_bar.set_progress(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\', 100)</script>');
 	flock($uidls_fp, LOCK_UN);
 	fclose($uidls_fp);
-	
+
 	if($native_support)
 		imap_close($in);
 	else
 		$in->disconnect();
-	
+
 	if(!$error)
 		message($account['id'],$account['mail'].': ok, got '.$num.' new messages, '.$invalid.' invalid messages skipped');
 }

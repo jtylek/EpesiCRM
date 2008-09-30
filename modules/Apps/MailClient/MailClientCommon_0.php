@@ -21,7 +21,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 	public static function account_manager_access() {
 		return Acl::is_user();
 	}
-	
+
 	public static function applet_caption() {
 		return "Mail indicator";
 	}
@@ -31,10 +31,16 @@ class Apps_MailClientCommon extends ModuleCommon {
 	}
 
 	public static function applet_settings() {
-		$ret = DB::Execute('SELECT id,mail FROM apps_mailclient_accounts WHERE user_login_id=%d',array(Acl::get_user()));
+		$ret = DB::GetAll('SELECT id,mail FROM apps_mailclient_accounts WHERE user_login_id=%d',array(Acl::get_user()));
 		$conf = array(array('type'=>'header','label'=>'Choose accounts'));
-		while($row=$ret->FetchRow())
-			$conf[] = array('name'=>'account_'.$row['id'], 'label'=>$row['mail'], 'type'=>'checkbox', 'default'=>0);
+		if(empty($ret))
+			$ret[] = array('id'=>Apps_MailClientCommon::create_internal_mailbox(), 'mail'=>'#internal');
+
+		foreach($ret as $row)
+			if($row['mail']==='#internal')
+				$conf[] = array('name'=>'account_'.$row['id'], 'label'=>Base_LangCommon::ts('Apps_MailClient','Private messages'), 'type'=>'checkbox', 'default'=>1);
+			else
+				$conf[] = array('name'=>'account_'.$row['id'], 'label'=>$row['mail'], 'type'=>'checkbox', 'default'=>0);
 		if(count($conf)==1)
 			return array(array('type'=>'static','label'=>'No accounts configured, go Home->My settings->Mail accounts'));
 		return $conf;
@@ -43,42 +49,58 @@ class Apps_MailClientCommon extends ModuleCommon {
 	public static function menu() {
 		return array('Mail client'=>array());
 	}
-	
+
 	public static function admin_caption() {
 		return 'Mail client settings';
 	}
 
 	////////////////////////////////////////////////////
 	// scan mail dir, etc
-	private function _get_mail_dir($user=null) {
-		if(!isset($user)) $user = Acl::get_user();
-		$dir = $this->get_data_dir().$user.'/';
-		if(!file_exists($dir)) mkdir($dir);
-		$accounts = DB::GetCol('SELECT mail FROM apps_mailclient_accounts WHERE user_login_id=%d AND incoming_protocol=0',array($user));
-		foreach($accounts as $account) {
-			$acc_dir = $dir.self::mailname2dirname($account).'/';
-			if(!file_exists($acc_dir)) { // create user dir
-				mkdir($acc_dir);
-				mkdir($acc_dir.'Inbox');
-				mkdir($acc_dir.'Sent');
-				mkdir($acc_dir.'Trash');
-				mkdir($acc_dir.'Drafts');
-			}
-		}
 
-		$acc_dir=$dir.'internal/';
-		if(!file_exists($acc_dir)) { // create user dir
-			mkdir($acc_dir);
-			mkdir($acc_dir.'Inbox');
-			mkdir($acc_dir.'Sent');
-			mkdir($acc_dir.'Trash');
-			mkdir($acc_dir.'Drafts');
-		}
-		return $dir; 
+	public static function create_mailbox_dir($id) {
+		//TODO: check protocol, on imap get lsub and create dirs
+		$acc_dir = self::Instance()->get_data_dir().$id.'/';
+		mkdir($acc_dir,0777,true);
+		$dirs = array('Inbox','Sent','Trash','Drafts');
+		file_put_contents($acc_dir.'.dirs',implode(",",$dirs));
+		foreach($dirs as $d)
+			mkdir($acc_dir.$d);
 	}
-	
-	public static function get_next_msg_id($mailbox) {
-		$mailbox = rtrim($mailbox,'/').'/';
+
+	public static function create_internal_mailbox() {
+		$user = Acl::get_user();
+		DB::Execute('INSERT INTO apps_mailclient_accounts(user_login_id,mail,login,password,incoming_server,incoming_protocol) VALUES(%d,\'#internal\',\'\',\'\',\'\',2)',array($user));
+		$id = DB::Insert_ID('apps_mailclient_accounts','id');
+		Apps_MailClientCommon::create_mailbox_dir($id);
+		return $id;
+	}
+
+	//gets mailbox dir
+	public static function get_mailbox_dir($id) {
+		$acc_dir = self::Instance()->get_data_dir().$id.'/';
+		if(!file_exists($acc_dir))
+			trigger_error('Invalid mailbox id: '.$id,E_USER_ERROR);
+		return $acc_dir;
+	}
+
+	//gets array of folders in mailbox
+	public static function get_mailbox_structure($id,$mdir='') {
+		$st = array();
+		$mbox_dir = self::get_mailbox_dir($id);
+		$cont = @file_get_contents($mbox_dir.$mdir.'.dirs');
+		if($cont===false) return array();
+		$cont = explode(",",$cont);
+		foreach($cont as $f) {
+			$path = $mdir.$f;
+			if(is_dir($mbox_dir.$path) && is_readable($mbox_dir.$path) && is_writable($mbox_dir.$path))
+				$st[$f] = self::get_mailbox_structure($id,$path.'/');
+		}
+		return $st;
+	}
+
+	//gets next message id
+	public static function get_next_msg_id($id,$dir) {
+		$mailbox = self::get_mailbox_dir($id).$dir;
 		$nid = @file_get_contents($mailbox.'.mid');
 		if($nid===false || !is_numeric($nid)) {
 			$nid = -1;
@@ -92,14 +114,13 @@ class Apps_MailClientCommon extends ModuleCommon {
 		file_put_contents($mailbox.'.mid',$nid);
 		return $nid;
 	}
-	
-	public static function drop_message($mailbox,$subject,$from,$to,$date,$body,$read=false) {
+
+	//drops message to specified mailbox
+	public static function drop_message($mailbox_id,$dir,$subject,$from,$to,$date,$body,$read=false) {
 		ini_set('include_path','modules/Apps/MailClient/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
 		require_once('Mail/mime.php');
 
-		$mailbox = rtrim($mailbox,'/').'/';
-
-		$msg_id = self::get_next_msg_id($mailbox);
+		$msg_id = self::get_next_msg_id($mailbox_id,$dir);
 		if($msg_id===false) return false;
 
 		$mime = new Mail_Mime();
@@ -111,33 +132,14 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$mime->headers($headers);
 		$mime->setHTMLBody($body);
 		$mbody = $mime->getMessage();
+		$mailbox = self::get_mailbox_dir($mailbox_id).$dir;
 		file_put_contents($mailbox.$msg_id,$mbody);
-		Apps_MailClientCommon::append_msg_to_mailbox_index($mailbox,$msg_id,$subject,$from,$to,$date,strlen($mbody),$read);
+		Apps_MailClientCommon::append_msg_to_mailbox_index($mailbox_id,$dir,$msg_id,$subject,$from,$to,$date,strlen($mbody),$read);
 
 		return true;
 	}
-	
-	public static function get_mailbox_dir($mail_address) {
-		return Apps_MailClientCommon::get_mail_dir().self::mailname2dirname($mail_address).'/';
-	}
-	
-	public static function get_mail_dir($user=null) {
-		return self::Instance()->_get_mail_dir($user);
-	}
-	
-	private function _get_mail_account_structure($mdir) {
-		$st = array();
-		$cont = scandir($mdir);
-		foreach($cont as $f) {
-			if($f=='.' || $f=='..') continue;
-			$path = $mdir.$f;
-			$r = array();
-			if(is_dir($path) && is_readable($path) && is_writable($path))
-				$st[] = array('name'=>self::dirname2mailname($f),'sub'=>$this->_get_mail_account_structure($path.'/'));
-		}
-		return $st;
-	}
-	
+
+/*
 	private function _get_mail_dir_structure() {
 		$mdir = $this->_get_mail_dir();
 		$accounts = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE user_login_id=%d',array(Acl::get_user()));
@@ -149,7 +151,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 			$ref = false;
 			if($v['incoming_protocol']==0) {///pop3
 				$imap = false;
-				$sub = $this->_get_mail_account_structure($path.'/');			
+				$sub = $this->_get_mail_account_structure($path.'/');
 			} else { //imap
 				$sub = array();
 				if(function_exists('imap_open')) {
@@ -161,14 +163,14 @@ class Apps_MailClientCommon extends ModuleCommon {
 								$name = '<span style="color:red" '.Utils_TooltipCommon::open_tag_attrs(implode(', ',imap_errors()),false).'>'.$name.'</span>';
 							}
 						} else {
-							$sub = $this->_get_mail_account_structure($path.'/');			
+							$sub = $this->_get_mail_account_structure($path.'/');
 						}
 					} else { //cannot connect
 						$name = '<span style="color:red" '.Utils_TooltipCommon::open_tag_attrs(implode(', ',imap_errors()),false).'>'.$name.'</span>';
 					}
 				} else { //imap not supported
 					$imap = false;
-					$name = '<span style="color:red" '.Utils_TooltipCommon::open_tag_attrs('php_imap library not installed',false).'>'.$name.'</span>';				
+					$name = '<span style="color:red" '.Utils_TooltipCommon::open_tag_attrs('php_imap library not installed',false).'>'.$name.'</span>';
 				}
 			}
 			$acc = array('name'=>$name,'sub'=>$sub, 'imap'=>$imap,'id'=>$v['id']);
@@ -177,9 +179,9 @@ class Apps_MailClientCommon extends ModuleCommon {
 		}
 		return $st;
 	}
-	
+
 	public static function imap_open($v) {
-		if(!is_array($v)) 
+		if(!is_array($v))
 			$v = DB::GetRow('SELECT * FROM apps_mailclient_accounts WHERE id=%d',array($v));
 
 		$ssl = $v['incoming_ssl'];
@@ -199,7 +201,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$imap = @imap_open($imap_ref, $user,$pass, OP_HALFOPEN);
 		return array(& $imap, $imap_ref, $v['mail']);
 	}
-	
+
 	public static function imap_refresh_folders($id,$ref=null,$account=null) {
 		if($ref===null) {
 			list($imap,$ref,$account) = self::imap_open($id);
@@ -234,7 +236,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		}
 		return $sub;
 	}
-	
+
 	public static function mailname2dirname($f) {
 		return str_replace(array('@','.'),array('__at__','__dot__'),$f);
 	}
@@ -246,7 +248,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 	public static function get_mail_dir_structure() {
 		return self::Instance()->_get_mail_dir_structure();
 	}
-	
+
 	public static function get_default_box() {
 		$mdir = self::get_mail_dir();
 		$cont = scandir($mdir);
@@ -258,11 +260,11 @@ class Apps_MailClientCommon extends ModuleCommon {
 			}
 		return $ret;
 	}
-	
-	public static function build_index($boxpath) {
+ */
+	public static function build_index($id,$dir) {
 		ini_set('include_path','modules/Apps/MailClient/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
 		require_once('Mail/mimeDecode.php');
-		$boxpath = rtrim($boxpath,'/').'/';
+		$boxpath = self::get_mailbox_dir($id).$dir;
 		$out = @fopen($boxpath.'.idx','w');
 		if($out==false) return false;
 		$files = scandir($boxpath);
@@ -285,9 +287,9 @@ class Apps_MailClientCommon extends ModuleCommon {
 		file_put_contents($boxpath.'.mid',$max);
 		return true;
 	}
-	
-	public static function mark_all_as_read($box) {
-		$box = Apps_MailClientCommon::get_mail_dir().trim($box,'/').'/';
+
+	public static function mark_all_as_read($id,$dir) {
+		$box = self::get_mailbox_dir($id).$dir;
 		$in = @fopen($box.'.idx','r');
 		if($in==false) return false;
 		$ret = array();
@@ -309,15 +311,12 @@ class Apps_MailClientCommon extends ModuleCommon {
 		fclose($out);
 		file_put_contents($box.'.num',$c.',0');
 	}
-	
-	public static function get_index($box,$dir=null) {
-		if(isset($dir))
-			$box = Apps_MailClientCommon::get_mailbox_dir(trim($box,'/')).$dir.'/';
-		else
-			$box = Apps_MailClientCommon::get_mail_dir().trim($box,'/').'/';
-		if(!file_exists($box.'.idx')) self::build_index($box);
+
+	public static function get_index($id,$dir) {
+		$box = self::get_mailbox_dir($id).$dir;
+		if(!file_exists($box.'.idx')) self::build_index($id,$dir);
 		$in = @fopen($box.'.idx','r');
-		if($in==false) return false;
+		if($in===false) return false;
 		$ret = array();
 		while (($data = fgetcsv($in, 700)) !== false) { //teoretically max is 640+integer and commas
 			$num = count($data);
@@ -327,26 +326,26 @@ class Apps_MailClientCommon extends ModuleCommon {
 		fclose($in);
 		return $ret;
 	}
-	
-	public static function remove_msg($box, $dir, $id) {
+
+	public static function remove_msg($mailbox_id, $dir, $id) {
 		ini_set('include_path','modules/Apps/MailClient/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
 		require_once('Mail/mimeDecode.php');
-		
-		if(!self::remove_msg_from_index($box,$dir,$id)) return false;
 
-		$boxpath = self::get_mailbox_dir(trim($box,'/')).$dir;
-		@unlink($boxpath.'/'.$id);
+		if(!self::remove_msg_from_index($mailbox_id,$dir,$id)) return false;
+
+		$boxpath = self::get_mailbox_dir($mailbox_id).$dir;
+		@unlink($boxpath.$id);
 
 		return true;
 	}
-	
-	public static function remove_msg_from_index($box,$dir,$id) {
-		$idx = self::get_index($box,$dir);
-		
+
+	public static function remove_msg_from_index($mailbox_id,$dir,$id) {
+		$idx = self::get_index($mailbox_id,$dir);
+
 		if($idx===false || !isset($idx[$id])) return false;
 		unset($idx[$id]);
 
-		$box = Apps_MailClientCommon::get_mailbox_dir(trim($box,'/')).$dir.'/';
+		$box = Apps_MailClientCommon::get_mailbox_dir($mailbox_id).$dir;
 		$out = @fopen($box.'.idx','w');
 		if($out==false) return false;
 
@@ -361,15 +360,15 @@ class Apps_MailClientCommon extends ModuleCommon {
 		file_put_contents($box.'.num',$c.','.$ur);
 		return true;
 	}
-	
+
 	public static function move_msg($box, $dir, $box2, $dir2, $id) {
-		$boxpath = self::get_mailbox_dir(trim($box,'/')).$dir;
-		$boxpath2 = self::get_mailbox_dir(trim($box2,'/')).$dir2;
+		$boxpath = self::get_mailbox_dir($box).$dir;
+		$boxpath2 = self::get_mailbox_dir($box2).$dir2;
 		$msg = @file_get_contents($boxpath.'/'.$id);
 		//trigger_error(print_r($boxpath.'/'.$id,true));
 		if($msg===false) return false;
 
-		$id2 = self::get_next_msg_id($boxpath2);
+		$id2 = self::get_next_msg_id($box2,$dir2);
 		if($id2===false) return false;
 
 		file_put_contents($boxpath2.'/'.$id2,$msg);
@@ -383,16 +382,11 @@ class Apps_MailClientCommon extends ModuleCommon {
 		return $id2;
 	}
 
-	public static function append_msg_to_index($mail,$box, $id, $subject, $from, $to, $date, $size,$read=false) {
-		$box = self::get_mailbox_dir(trim($mail,'/')).$box.'/';
-		return self::append_msg_to_mailbox_index($box,$id,$subject,$from, $to, $date, $size,$read);
-	}
-
-	public static function append_msg_to_mailbox_index($mailbox, $id, $subject, $from, $to, $date, $size, $read=false) {
-		$mailbox = rtrim($mailbox,'/').'/';
+	public static function append_msg_to_index($box,$dir, $id, $subject, $from, $to, $date, $size,$read=false) {
+		$mailbox = self::get_mailbox_dir($box).$dir;
 		$num = @file_get_contents($mailbox.'.num');
 		if($num===false) {
-			self::build_index($mailbox);
+			self::build_index($box,$dir);
 			$num = @file_get_contents($mailbox.'.num');
 			if($num===false) return false;
 		}
@@ -405,15 +399,15 @@ class Apps_MailClientCommon extends ModuleCommon {
 		file_put_contents($mailbox.'.num',($num[0]+1).','.($num[1]+($read?0:1)));
 		return true;
 	}
-	
-	public static function read_msg($mailbox, $id) {
-		$idx = self::get_index($mailbox);
-		
+
+	public static function read_msg($box,$dir, $id) {
+		$idx = self::get_index($box,$dir);
+
 		if($idx===false || !isset($idx[$id])) return false;
 		if($idx[$id]['read']) return true;
 		$idx[$id]['read'] = '1';
 
-		$box = Apps_MailClientCommon::get_mail_dir().trim($mailbox,'/').'/';
+		$box = Apps_MailClientCommon::get_mailbox_dir($box).$dir;
 
 		$num = @file_get_contents($box.'.num');
 		if($num===false) return false;
@@ -429,7 +423,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		file_put_contents($box.'.num',$num[0].','.($num[1]-1));
 		return true;
 	}
-	
+
 	public static function mime_header_decode($string) {
 		if(!function_exists('imap_mime_header_decode')) return $string;
 	    $array = imap_mime_header_decode($string);

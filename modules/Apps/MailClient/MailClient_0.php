@@ -31,41 +31,57 @@ class Apps_MailClient extends Module {
 	}
 
 	public function body() {
-		$def_box = Apps_MailClientCommon::get_default_box();
-		$str = Apps_MailClientCommon::get_mail_dir_structure();
+		$boxes = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE user_login_id=%d ORDER BY mail',array(Acl::get_user()));
+		if(empty($boxes)) {
+			Apps_MailClientCommon::create_internal_mailbox();
+			$boxes = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE user_login_id=%d ORDER BY mail',array(Acl::get_user()));
+		}
+		$str = array();
+		$tree = array();
+		$move_folders = array();
+		foreach($boxes as $v) {
+			if(!$this->isset_module_variable('opened_box')) {
+				$this->set_module_variable('opened_box',$v['id']);
+				$this->set_module_variable('opened_dir','Inbox/');
+			}
+			$str[$v['mail']] = Apps_MailClientCommon::get_mailbox_structure($v['id']);
+			$name = $v['mail']=='#internal'?$this->lang->t('Private messages'):$v['mail'];
+			$open_cb = '<a '.$this->create_callback_href(array($this,'open_mail_dir_callback'),array($v['id'],'Inbox/')).'>'.$name.'</a>';
+			$tree[] = array('name'=>$open_cb, 'sub'=>$this->get_tree_structure($str[$v['mail']],$v['id']));
+			$move_folders = array_merge($move_folders,$this->get_move_folders($str[$v['mail']],$name,$v['id']));
+		}
+//		print_r($tree);
+		//return;
 
-		$box_file = $this->get_module_variable('opened_box',$def_box);
+
+		$box = $this->get_module_variable('opened_box');
+		$dir = $this->get_module_variable('opened_dir');
 		$preview_id = $this->get_path().'preview';
 		$show_id = $this->get_path().'show';
 
-		$mailbox = explode('/',trim($box_file,'/'),2);
-
 		$move_msg_f = $this->init_module('Libs/QuickForm',null,'move_msg');
 		$move_msg_f->addElement('hidden','msg_id','-1',array('id'=>'mail_client_actions_move_msg_id'));
-		$folders = $this->get_move_folders($str);
-//		print_r($folders);
-		$move_msg_f->addElement('select','folder',$this->lang->t('Move message to folder'),$folders);
+		$move_msg_f->addElement('select','folder',$this->lang->t('Move message to folder'),$move_folders);
 		$move_msg_f->addElement('button','submit_button',$this->lang->ht('Move'),array('onClick'=>$move_msg_f->get_submit_form_js().'leightbox_deactivate(\'mail_actions\');'));
 
-		Libs_LeightboxCommon::display('mail_actions','<a onClick="leightbox_deactivate(\'mail_actions\')" href="" tpl_href="modules/Apps/MailClient/source.php?'.http_build_query(array('box'=>$box_file,'msg_id'=>'__MSG_ID__')).'" target="_blank" id="mail_client_actions_view_source">'.$this->lang->t('View source').'</a><br>'.
+		Libs_LeightboxCommon::display('mail_actions','<a onClick="leightbox_deactivate(\'mail_actions\')" href="" tpl_href="modules/Apps/MailClient/source.php?'.http_build_query(array('box'=>$box,'dir'=>$dir,'msg_id'=>'__MSG_ID__')).'" target="_blank" id="mail_client_actions_view_source">'.$this->lang->t('View source').'</a><br>'.
 							$move_msg_f->toHtml(),$this->lang->t('Mail actions'));
 
 		if($move_msg_f->validate()) {
 			$vals = $move_msg_f->exportValues();
-			$out_box = explode('/',trim($vals['folder'],'/'),2);
-			Apps_MailClientCommon::move_msg($mailbox[0],$mailbox[1],$out_box[0],$out_box[1],$vals['msg_id']);
+			$out_box = explode('/',$vals['folder'],2);
+			Apps_MailClientCommon::move_msg($box,$dir,$out_box[0],$out_box[1],$vals['msg_id']);
 		}
 
 		$th = $this->init_module('Base/Theme');
-		$tree = $this->init_module('Utils/Tree');
-		$this->set_mail_dir_callbacks($str);
-		$tree->set_structure($str);
-		$tree->sort();
-		$th->assign('tree', $this->get_html_of_module($tree));
+		$tree_mod = $this->init_module('Utils/Tree');
+		$tree_mod->set_structure($tree);
+		$tree_mod->sort();
+		$th->assign('tree', $this->get_html_of_module($tree_mod));
 
 		//print($box_file);
-		$box = Apps_MailClientCommon::get_index($mailbox[0],$mailbox[1]);
-		if($box===false) {
+		$box_idx = Apps_MailClientCommon::get_index($box,$dir);
+		if($box_idx===false) {
 			print('Invalid mailbox');
 			return;
 		}
@@ -73,11 +89,11 @@ class Apps_MailClient extends Module {
 		$drafts_folder = false;
 		$sent_folder = false;
 		$trash_folder = false;
-		if(ereg('Drafts$',$box_file))
+		if(ereg('^Drafts',$dir))
 				$drafts_folder = true;
-		elseif(ereg('Sent$',$box_file))
+		elseif(ereg('^Sent',$dir))
 				$sent_folder = true;
-		elseif(ereg('Trash$',$box_file))
+		elseif(ereg('^Trash',$dir))
 				$trash_folder = true;
 
 		$gb = $this->init_module('Utils/GenericBrowser',null,'list');
@@ -94,34 +110,34 @@ class Apps_MailClient extends Module {
 		$gb->set_default_order(array($this->lang->t('Date')=>'DESC'));
 		$gb->force_per_page(10);
 
-		$limit_max = count($box);
+		$limit_max = count($box_idx);
 
 		load_js($this->get_module_dir().'utils.js');
 
-		foreach($box as $id=>$data) {
+		foreach($box_idx as $id=>$data) {
 			$r = $gb->get_new_row();
 			$subject = Apps_MailClientCommon::mime_header_decode($data['subject']);
 			$to_address = Apps_MailClientCommon::mime_header_decode($data['to']);
 			$from_address = Apps_MailClientCommon::mime_header_decode($data['from']);
 			$subject = strip_tags($subject);
 			if(strlen($subject)>40) $subject = Utils_TooltipCommon::create(substr($subject,0,38).'...',$subject);
-			$r->add_data($id,array('value'=>'<a href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.http_build_query(array('box'=>$box_file, 'msg_id'=>$id, 'pid'=>$preview_id)).'\',\''.$id.'\')" id="apps_mailclient_msg_'.$id.'" '.($data['read']?'':'style="font-weight:bold"').'>'.$subject.'</a>','order_value'=>$subject),htmlentities($to_address),htmlentities($from_address),array('value'=>Base_RegionalSettingsCommon::time2reg($data['date']), 'order_value'=>strtotime($data['date'])),array('style'=>'text-align:right','value'=>filesize_hr($data['size']), 'order_value'=>$data['size']));
+			$r->add_data($id,array('value'=>'<a href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.http_build_query(array('box'=>$box, 'dir'=>$dir, 'msg_id'=>$id, 'pid'=>$preview_id)).'\',\''.$id.'\')" id="apps_mailclient_msg_'.$id.'" '.($data['read']?'':'style="font-weight:bold"').'>'.$subject.'</a>','order_value'=>$subject),htmlentities($to_address),htmlentities($from_address),array('value'=>Base_RegionalSettingsCommon::time2reg($data['date']), 'order_value'=>strtotime($data['date'])),array('style'=>'text-align:right','value'=>filesize_hr($data['size']), 'order_value'=>$data['size']));
 			$lid = 'mailclient_link_'.$id;
 			$r->add_action('href="javascript:void(0)" rel="'.$show_id.'" class="lbOn" id="'.$lid.'" ','View');
-			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Delete this message?'),array($this,'remove_mail'),array($box_file,$id)),'Delete');
+			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Delete this message?'),array($this,'remove_mail'),array($box,$dir,$id)),'Delete');
 			if($drafts_folder) {
-				$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box_file,$id,'edit')),'Edit');
+				$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box,$dir,$id,'edit')),'Edit');
 			} elseif($sent_folder) {
-				$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box_file,$id,'edit_as_new')),'Edit');
+				$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box,$dir,$id,'edit_as_new')),'Edit');
 			} elseif($trash_folder) {
-				$r->add_action($this->create_callback_href(array($this,'restore_mail'),array($box_file,$id)),'Restore');
+				$r->add_action($this->create_callback_href(array($this,'restore_mail'),array($box,$dir,$id)),'Restore');
 			} else {
-				$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box_file,$id,'reply')),'Reply');
+				$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box,$dir,$id,'reply')),'Reply');
 			}
-			$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box_file,$id,'forward')),'Forward');
+			$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box,$dir,$id,'forward')),'Forward');
 			$r->add_action(Libs_LeightboxCommon::get_open_href('mail_actions').' id="actions_button_'.$id.'"','Actions');
 			$r->add_js('Event.observe(\'actions_button_'.$id.'\',\'click\',function() {Apps_MailClient.actions_set_id(\''.$id.'\')})');
-			$r->add_js('Event.observe(\''.$lid.'\',\'click\',function() {Apps_MailClient.preview(\''.$show_id.'\',\''.http_build_query(array('box'=>$box_file, 'msg_id'=>$id, 'pid'=>$show_id)).'\',\''.$id.'\')})');
+			$r->add_js('Event.observe(\''.$lid.'\',\'click\',function() {Apps_MailClient.preview(\''.$show_id.'\',\''.http_build_query(array('box'=>$box, 'dir'=>$dir, 'msg_id'=>$id, 'pid'=>$show_id)).'\',\''.$id.'\')})');
 		}
 
 		$th->assign('list', $this->get_html_of_module($gb,array(true),'automatic_display'));
@@ -154,7 +170,7 @@ class Apps_MailClient extends Module {
 		$checknew_id = $this->get_path().'checknew';
 		Base_ActionBarCommon::add('folder',$this->lang->t('Check'),'href="javascript:void(0)" rel="'.$checknew_id.'" class="lbOn" id="'.$checknew_id.'b"');
 //		if(DB::GetOne('SELECT 1 FROM apps_mailclient_accounts WHERE smtp_server is not null AND smtp_server!=\'\' AND user_login_id='.Acl::get_user())) //bo bedzie internal
-		Base_ActionBarCommon::add('add',$this->lang->ht('New mail'),$this->create_callback_href(array($this,'edit_mail'),array($box_file)));
+		Base_ActionBarCommon::add('add',$this->lang->ht('New mail'),$this->create_callback_href(array($this,'edit_mail'),array($box,$dir)));
 		Base_ActionBarCommon::add('scan',$this->lang->ht('Mark all as read'),$this->create_confirm_callback_href($this->lang->ht('Are you sure?'),array($this,'mark_all_as_read')));
 		eval_js('Apps_MailClient.check_mail_button_observe(\''.$checknew_id.'\')');
 		print('<div id="'.$checknew_id.'" class="leightbox"><div style="width:100%;text-align:center" id="'.$checknew_id.'progresses"></div>'.
@@ -162,20 +178,20 @@ class Apps_MailClient extends Module {
 			'</div>');
 //echo('<script>function destroy_me(parent) {var x=parent.$(\''.$_GET['id'].'X\');x.parentNode.removeChild(x);parent.leightbox_deactivate(\''.$_GET['id'].'\')}</script>');
 //echo('<a href="javascript:destroy_me(parent)">hide</a>');
+
 	}
 
 	/////////////////////////////////////////
 	// action callbacks
-	public function open_mail_dir_callback($path) {
-		$this->set_module_variable('opened_box',$path);
+	public function open_mail_dir_callback($box,$dir) {
+		$this->set_module_variable('opened_box',$box);
+		$this->set_module_variable('opened_dir',$dir);
 	}
 
-	public function remove_mail($box,$id,$quiet=false) {
-		$box = trim($box,'/');
-		$x = explode('/',$box,2);
-		if($x[1]=='Trash') {
-			if(Apps_MailClientCommon::remove_msg($x[0],$x[1],$id)) {
-				$trashpath = Apps_MailClientCommon::get_mailbox_dir(trim($x[0],'/')).'Trash/.del';
+	public function remove_mail($box,$dir,$id,$quiet=false) {
+		if($dir=='Trash/') {
+			if(Apps_MailClientCommon::remove_msg($box,$dir,$id)) {
+				$trashpath = Apps_MailClientCommon::get_mailbox_dir($box).'Trash/.del';
 
 				$in = @fopen($trashpath,'r');
 				if($in!==false) {
@@ -200,12 +216,12 @@ class Apps_MailClient extends Module {
 					Base_StatusBarCommon::message('Unable to delete message','error');
 			}
 		} else {
-			$id2 = Apps_MailClientCommon::move_msg($x[0],$x[1],$x[0],'Trash',$id);
+			$id2 = Apps_MailClientCommon::move_msg($box,$dir,$box,'Trash/',$id);
 			if($id2!==false) {
-				$trashpath = Apps_MailClientCommon::get_mailbox_dir(trim($x[0],'/')).'Trash/.del';
+				$trashpath = Apps_MailClientCommon::get_mailbox_dir($box).'Trash/.del';
 				$out = @fopen($trashpath,'a');
 				if($out!==false) {
-					fputcsv($out,array($id2,$box));
+					fputcsv($out,array($id2,$dir));
 					fclose($out);
 				}
 				if(!$quiet)
@@ -218,13 +234,13 @@ class Apps_MailClient extends Module {
 	}
 
 	public function mark_all_as_read() {
-		$box_file = $this->get_module_variable('opened_box');
-		Apps_MailClientCommon::mark_all_as_read($box_file);
+		$box = $this->get_module_variable('opened_box');
+		$dir = $this->get_module_variable('opened_dir');
+		Apps_MailClientCommon::mark_all_as_read($box, $dir);
 	}
 
-	public function restore_mail($box,$id) {
-		$box = trim($box,'/');
-		$trashpath = Apps_MailClientCommon::get_mail_dir().$box.'/.del';
+	public function restore_mail($box,$dir,$id) {
+		$trashpath = Apps_MailClientCommon::get_mailbox_dir($box).$dir.'.del';
 
 		$in = @fopen($trashpath,'r');
 		if($in===false) {
@@ -249,11 +265,7 @@ class Apps_MailClient extends Module {
 		}
 
 
-		$box = trim($box,'/');
-		$x = explode('/',$box,2);
-		$orig_box = trim($orig_box,'/');
-		$y = explode('/',$orig_box,2);
-		$id2 = Apps_MailClientCommon::move_msg($x[0],$x[1],$y[0],$y[1],$id);
+		$id2 = Apps_MailClientCommon::move_msg($box,$dir,$box,$orig_box,$id);
 
 		if($id2!==false) {
 			$out = @fopen($trashpath,'w');
@@ -273,10 +285,16 @@ class Apps_MailClient extends Module {
 			Epesi::alert('Unable to fetch data from imap server.');
 	}
 
-	public function delete_folder_callback($path) {
-		$box = trim($path,'/');
-		recursive_rmdir(Apps_MailClientCommon::get_mail_dir().$box);
-		$this->set_module_variable('opened_box','/'.substr($box,0,strrpos($box,'/')));
+	public function delete_folder_callback($box,$dir) {
+		$mbox_dir = Apps_MailClientCommon::get_mailbox_dir($box);
+		recursive_rmdir($mbox_dir.$dir);
+		$parent_dir = substr($dir,0,strrpos(rtrim($dir,'/'),'/')+1);
+		$ret = explode(',',file_get_contents($mbox_dir.$parent_dir.'.dirs'));
+		$removed = substr($dir,strlen($parent_dir),-1);
+		print($removed);
+		$ret = array_filter($ret,create_function('$o','return $o!="'.$removed.'";'));
+		file_put_contents($mbox_dir.$parent_dir.'.dirs',implode(',',$ret));
+		$this->set_module_variable('opened_dir',$parent_dir);
 	}
 
 
@@ -284,19 +302,26 @@ class Apps_MailClient extends Module {
 	// other methods
 
 	//gets inbox folders from tree
-	private function get_move_folders(array $str,$path='',$label='') {
+	private function get_move_folders(array $str,$label,$box) {
 		$ret = array();
-		foreach($str as $k=>$v) {
-			$folder = $v['name'];
-			$mpath = $path.'/'.$folder;
-			$mlabel = ($label?$label.'/':'').(isset($v['label'])?$v['label']:$v['name']);
-			$main_dir_arr = explode('/',trim($mpath,'/'),3);
-			$translated_path = Apps_MailClientCommon::mailname2dirname($mpath);
-			if(isset($main_dir_arr[1]) && $main_dir_arr[1]=='Inbox') {
-				$ret[$translated_path] = $mlabel;
+		foreach($str as $d=>$v) {
+			if($d==='Inbox') {
+				$p = $box.'/'.$d.'/';
+				$l = $label.'/'.$d.'/';
+				$ret[$p] = $l;
+				$ret = array_merge($ret,$this->get_move_folders_inbox($v,$p,$l));
 			}
-			if(isset($v['sub']) && is_array($v['sub']))
-				$ret = array_merge($ret,$this->get_move_folders($v['sub'],$mpath,$mlabel));
+		}
+		return $ret;
+	}
+
+	private function get_move_folders_inbox(array $str,$path,$label) {
+		$ret = array();
+		foreach($str as $name=>$sub) {
+			$l = $label.$name.'/';
+			$p = $path.$name.'/';
+			$ret[$p] = $l;
+			$ret = array_merge($ret,$this->get_move_folders_inbox($sub,$p,$l));
 		}
 		return $ret;
 	}
@@ -304,66 +329,58 @@ class Apps_MailClient extends Module {
 	/**
 	 * Sets callbacks(open,create/edit/delete folder) in tree of mailboxes for Utils/Tree.
 	 */
-	private function set_mail_dir_callbacks(array & $str,$path='',$imap=false,$imap_ref=false) {
-		$opened_box = Apps_MailClientCommon::dirname2mailname($this->get_module_variable('opened_box'));
-		foreach($str as $k=>& $v) {
-			if(isset($v['imap']) && $v['imap']!==false) {
-				$imap = $v['imap'];
-				$imap_ref = $v['imap_ref'];
+	private function get_tree_structure(array $str,$box,$dir='',$create_dir=false,$edit_dir=false,$delete_dir=false) {
+		$opened_box = $this->get_module_variable('opened_box');
+		$opened_dir = $this->get_module_variable('opened_dir');
+		$ret = array();
+		foreach($str as $k=>$v) {
+			$cr = $create_dir;
+			$ed = $edit_dir;
+			$del = $delete_dir;
+			$p = $dir.$k.'/';
+			$arr = array('name'=>$k);
+
+			if($opened_box==$box && $p==$opened_dir) {
+				$arr['visible'] = true;
+				$arr['selected'] = true;
+				$arr['opened'] = true;
 			}
-			$folder = $v['name'];
-			$mpath = $path.'/'.$folder;
-			if($mpath == $opened_box) {
-				$v['visible'] = true;
-				$v['selected'] = true;
-				$v['opened'] = true;
-//				print('='.$mpath.'=');
-			}
-			if(isset($v['sub']) && is_array($v['sub'])) $this->set_mail_dir_callbacks($v['sub'],$mpath,$imap,$imap_ref);
-			$main_dir_arr = explode('/',trim($mpath,'/'),3);
-			if($path=='')
-				$mpath .= '/Inbox';
-			$translated_path = Apps_MailClientCommon::mailname2dirname($mpath);
+			if(!$cr && strcasecmp($p,'Inbox/')==0) $cr = true;
 			$unread_msgs = false;
 			$num_of_msgs = false;
-			if($imap!==false) {
-//				print($imap_ref.$v['name'].'<br>');
-				if($path!=='') {
-					$num = @imap_status($imap,$imap_ref.$v['name'],SA_MESSAGES|SA_UNSEEN);
-					if($num!==false) {
-						$num_of_msgs = $num->messages;
-						$unread_msgs = $num->unseen;
-					}
-				}
-			} else {
-				$num = @file_get_contents(Apps_MailClientCommon::get_mail_dir().trim($translated_path,'/').'/.num');
-				if($num!==false) {
-					$num = explode(',',$num);
-					if(count($num)==2) {
-						$unread_msgs = $num[1];
-						$num_of_msgs = $num[0];
-					}
+			$num = @file_get_contents(Apps_MailClientCommon::get_mailbox_dir($box).$p.'.num');
+			if($num!==false) {
+				$num = explode(',',$num);
+				if(count($num)==2) {
+					$unread_msgs = $num[1];
+					$num_of_msgs = $num[0];
 				}
 			}
-			$v['name'] = '<a '.$this->create_callback_href(array($this,'open_mail_dir_callback'),array($translated_path)).'>'.(isset($v['label'])?$v['label']:$v['name']).($num_of_msgs!==false?' ('.($unread_msgs?$unread_msgs.'/':'').$num_of_msgs.')':'').'</a>';
-			if($path==='' && $imap) {
-				$v['name'] .= '<a '.$this->create_callback_href(array($this,'imap_refresh_folders'),array($v['id'])).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','imap_refresh.png').'" border=0></a>';
-			}
-			if(isset($main_dir_arr[1]) && $main_dir_arr[1]=='Inbox') {
-				$v['name'] .= '<a '.$this->create_callback_href(array($this,'edit_folder_callback'),array($translated_path)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','create_folder.png').'" border=0></a>';
-				if(isset($main_dir_arr[2])) {
-					$v['name'] .= '<a '.$this->create_callback_href(array($this,'edit_folder_callback'),array(Apps_MailClientCommon::mailname2dirname($path),$folder)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','edit_folder.png').'" border=0></a>';
-					$v['name'] .= '<a '.$this->create_confirm_callback_href($this->lang->ht('Delete this folder with all messages and subfolders?'),array($this,'delete_folder_callback'),array($translated_path)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','delete_folder.png').'" border=0></a>';
+			$arr['name'] = '<a '.$this->create_callback_href(array($this,'open_mail_dir_callback'),array($box,$p)).'>'.$arr['name'].($num_of_msgs!==false?' ('.($unread_msgs?$unread_msgs.'/':'').$num_of_msgs.')':'').'</a>';
+			/*if($path==='' && $imap) {
+				$arr['name'] .= '<a '.$this->create_callback_href(array($this,'imap_refresh_folders'),array($box)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','imap_refresh.png').'" border=0></a>';
+			}*/
+			if($cr)
+				$arr['name'] .= '<a '.$this->create_callback_href(array($this,'edit_folder_callback'),array($box,$p)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','create_folder.png').'" border=0></a>';
+			if($ed)
+				$arr['name'] .= '<a '.$this->create_callback_href(array($this,'edit_folder_callback'),array($box,$dir,$k)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','edit_folder.png').'" border=0></a>';
+			if($del)
+				$arr['name'] .= '<a '.$this->create_confirm_callback_href($this->lang->ht('Delete this folder with all messages and subfolders?'),array($this,'delete_folder_callback'),array($box,$p)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','delete_folder.png').'" border=0></a>';
 
-				}
+			if((!$ed || !$del) && strcasecmp($p,'Inbox/')==0) {
+				$ed = true;
+				$del = true;
 			}
+			$arr['sub']=$this->get_tree_structure($v,$box,$p,$cr,$ed,$del);
+			$ret[] = $arr;
 		}
+		return $ret;
 	}
 
 	//////////////////////////////////////////
 	// screens
 
-	public function edit_mail($box,$id=null,$type=null) {
+	public function edit_mail($box,$dir,$id=null,$type=null) {
 		if($this->is_back()) return false;
 
 		$f = $this->init_module('Libs/QuickForm');
@@ -378,14 +395,7 @@ class Apps_MailClient extends Module {
 		else
 			$from = array('pm'=>$this->lang->ht('Private message'));
 
-		$box = trim($box,'/');
-		$m = explode('/',$box,2);
-		$m = Apps_MailClientCommon::dirname2mailname($m[0]);
-		foreach($from_mails as $k=>$v)
-			if($v==$m) {
-				$f->setDefaults(array('from_addr'=>$k));
-				break;
-			}
+		$f->setDefaults(array('from_addr'=>$box));
 
 		eval_js_once('apps_mailclient_from_change = function(v) {'.
 						'if(v==\'pm\') {'.
@@ -437,7 +447,7 @@ class Apps_MailClient extends Module {
 		//if edit
 		$references = false;
 		if($id!==null) {
-			$message = @file_get_contents(Apps_MailClientCommon::get_mail_dir().$box.'/'.$id);
+			$message = @file_get_contents(Apps_MailClientCommon::get_maildir_dir($box).$dir.$id);
 			if($message!==false) {
 				ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
 				require_once('Mail/mimeDecode.php');
@@ -664,7 +674,7 @@ class Apps_MailClient extends Module {
 			}
 			if($ret) {
 				if(Apps_MailClientCommon::drop_message(Apps_MailClientCommon::get_mailbox_dir($from?$from['mail']:'internal').$save_folder,$v['subject'],$from?$from['mail']:$this->lang->ht('private message'),$to_names,$date,$v['body'],true)) {
-					if($id!==null && $type=='edit') $this->remove_mail($box,$id);
+					if($id!==null && $type=='edit') $this->remove_mail($box,$dir,$id);
 					return false;
 				}
 			}
@@ -687,11 +697,11 @@ class Apps_MailClient extends Module {
 		return true;
 	}
 
-	public function edit_folder_callback($path,$folder=false) {
+	public function edit_folder_callback($box,$dir,$folder=false) {
 		if($this->is_back()) return false;
 
 		$f = $this->init_module('Libs/QuickForm',null,'create_folder');
-		$f->addElement('header',null,$folder===false?$this->lang->t('Create folder in %s',array(Apps_MailClientCommon::dirname2mailname(trim($path,'/')))):$this->lang->t('Edit folder in %s',array(Apps_MailClientCommon::dirname2mailname(trim($path,'/')))));
+		$f->addElement('header',null,$folder===false?$this->lang->t('Create folder in %s',array(trim($dir,'/'))):$this->lang->t('Edit folder in %s',array(trim($dir,'/'))));
 		$f->addElement('text','name',$this->lang->t('Name'));
 		$f->addRule('name',$this->lang->t('Field required'),'required');
 		$f->addRule('name',$this->lang->t('Invalid character - only letters and digits are allowed'),'alphanumeric');
@@ -700,16 +710,25 @@ class Apps_MailClient extends Module {
 		}
 
 		if($f->validate()) {
-			$box = trim($path,'/');
-			$new_name = $box.'/'.$f->exportValue('name');
-			$new_dir = Apps_MailClientCommon::get_mail_dir().$new_name;
+			$mbox_dir = Apps_MailClientCommon::get_mailbox_dir($box);
+			$name = $f->exportValue('name');
+			$new_name = $dir.$name.'/';
 			if($folder!==false) { //edit
-				rename(Apps_MailClientCommon::get_mail_dir().$box.'/'.$folder,$new_dir);
+				rename($mbox_dir.$dir.$folder,$mbox_dir.$new_name);
+				$ret = explode(',',file_get_contents($mbox_dir.$dir.'.dirs'));
+				$ret[] = $name;
+				$ret = array_filter($ret,create_function('$o','return $o!="'.$folder.'";'));
+				file_put_contents($mbox_dir.$dir.'.dirs',implode(',',$ret));
 			} else {
-				mkdir($new_dir);
-				Apps_MailClientCommon::build_index($new_dir);
+				mkdir($mbox_dir.$new_name);
+				Apps_MailClientCommon::build_index($box,$new_name);
+				$fs = @filesize($mbox_dir.$dir.'.dirs');
+				$f = fopen($mbox_dir.$dir.'.dirs','a');
+				fputs($f,($fs?',':'').$name);
+				fclose($f);
 			}
-			$this->set_module_variable('opened_box','/'.$new_name);
+			$this->set_module_variable('opened_dir',$new_name);
+			$this->set_module_variable('opened_box',$box);
 			return false;
 		}
 		$f->display();
@@ -727,12 +746,19 @@ class Apps_MailClient extends Module {
 		$gb->set_table_columns(array(
 			array('name'=>$this->lang->t('Mail'), 'order'=>'mail')
 				));
-		$ret = $gb->query_order_limit('SELECT id,mail FROM apps_mailclient_accounts WHERE user_login_id='.Acl::get_user(),'SELECT count(mail) FROM apps_mailclient_accounts WHERE user_login_id='.Acl::get_user());
+		$ret = $gb->query_order_limit('SELECT id,mail FROM apps_mailclient_accounts WHERE user_login_id='.Acl::get_user().' ORDER BY mail','SELECT count(mail) FROM apps_mailclient_accounts WHERE user_login_id='.Acl::get_user());
+		$all = array();
 		while($row=$ret->FetchRow()) {
+			$all[] = $row;
+		}
+		if(empty($all))
+			Apps_MailClientCommon::create_internal_mailbox();
+		foreach($all as $row) {
 			$r = & $gb->get_new_row();
+			if($row['mail']==='#internal') continue;
 			$r->add_data($row['mail']);
 			$r->add_action($this->create_callback_href(array($this,'account'),array($row['id'],'edit')),'Edit');
-//			$r->add_action($this->create_callback_href(array($this,'account'),array($row['id'],'view')),'View');
+			$r->add_action($this->create_callback_href(array($this,'account'),array($row['id'],'view')),'View');
 			$r->add_action($this->create_callback_href(array($this,'delete_account'),$row['id']),'Delete');
 		}
 		$this->display_module($gb);
@@ -821,6 +847,8 @@ class Apps_MailClient extends Module {
 						$dbup[$v['name']] = 0;
 				}
 				DB::Replace('apps_mailclient_accounts', $dbup, array('id'), true,true);
+				if($action=='new')
+					Apps_MailClientCommon::create_mailbox_dir(DB::Insert_ID('apps_mailclient_accounts','id'));
 				return false;
 			}
 			Base_ActionBarCommon::add('save','Save',' href="javascript:void(0)" onClick="'.addcslashes($f->get_submit_form_js(),'"').'"');
@@ -871,6 +899,9 @@ class Apps_MailClient extends Module {
 				$id = $x[1];
 				$mail = DB::GetOne('SELECT mail FROM apps_mailclient_accounts WHERE id=%d',array($id));
 				if(!$mail) continue;
+
+				if($mail==='#internal') $mail = $this->lang->t('Private messages');
+
 				$ret[$mail] = '<span id="mailaccount_'.$id.'"></span>';
 
 				//interval execution
@@ -934,6 +965,7 @@ class Apps_MailClient extends Module {
 	public function caption() {
 		return "Mail client";
 	}
+
 
 }
 

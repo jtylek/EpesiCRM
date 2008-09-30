@@ -13,7 +13,7 @@ ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include
 $id = $_POST['acc_id'];
 $account = DB::GetRow('SELECT * FROM apps_mailclient_accounts WHERE id=%d AND user_login_id=%d',array($id,Acl::get_user()));
 if(!$account) die('No such account');
-	
+
 $host = explode(':',$account['incoming_server']);
 if(isset($host[1])) $port=$host[1];
 	else $port = null;
@@ -23,8 +23,10 @@ $pass = $account['password'];
 $ssl = $account['incoming_ssl'];
 $method = $account['incoming_method']!='auto'?$account['incoming_method']:null;
 $pop3 = ($account['incoming_protocol']==0);
-
-if($pop3) { //pop3
+if($account['mail']==='#internal') {
+	//TODO: internal mail
+	$num_msgs = 0;
+} elseif($pop3) { //pop3
 	$native_support = false;
 	if(function_exists('imap_open')) {
 		$native_support = true;
@@ -39,7 +41,7 @@ if($pop3) { //pop3
 			die('(fetch error) '.implode(', ',imap_errors()));
 		}
 
-		
+
 		$l=imap_fetch_overview($in,'1:'.$msgCount,0);
 	} else {
 		require_once('Net/POP3.php');
@@ -49,7 +51,7 @@ if($pop3) { //pop3
 			if($ssl) $port=995;
 			else $port=110;
 		}
-	
+
 		if(PEAR::isError( $ret= $in->connect(($ssl?'ssl://':'').$host , $port) )) {
 			die('(connect error) '.$ret->getMessage());
 		}
@@ -131,7 +133,7 @@ if($pop3) { //pop3
 			die('(fetch error) '.implode(', ',imap_errors()));
 		}
 
-		
+
 		$l=imap_fetch_overview($in,'1:'.$msgCount,0);
 		$num_msgs = 0;
 		foreach($l as $v) {
@@ -142,7 +144,7 @@ if($pop3) { //pop3
 
 		if(PEAR::isError( $ret= $in->connect(($ssl?'ssl://':'').$host , $port) ))
 			die('(connect error) '.$ret->getMessage());
-	
+
 		if(PEAR::isError( $ret= $in->login($user , $pass, $method)))
 			die('(login error) '.$ret->getMessage());
 

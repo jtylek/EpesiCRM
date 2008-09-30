@@ -2,7 +2,7 @@
 header("Cache-Control: no-cache, must-revalidate");
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // date in the past
 
-if(!isset($_GET['msg_id']) || !isset($_GET['box']) || strpos($_GET['box'],'..')!==false || !is_numeric($_GET['msg_id']))
+if(!isset($_GET['msg_id']) || !isset($_GET['box']) || !is_numeric($_GET['box']) || !isset($_GET['dir']) || strpos($_GET['dir'],'..')!==false || !is_numeric($_GET['msg_id']))
 	die('Invalid request');
 
 define('CID',false);
@@ -15,8 +15,8 @@ if(!Acl::is_user()) die('Not logged in');
 ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
 require_once('Mail/mimeDecode.php');
 
-$box = Apps_MailClientCommon::get_mail_dir().trim($_GET['box'],'/');
-	
+$box = Apps_MailClientCommon::get_mailbox_dir($_GET['box']).$_GET['dir'];
+
 $message = @file_get_contents($box.'/'.$_GET['msg_id']);
 if($message===false) {
 	$err = 'Invalid message';
@@ -24,7 +24,7 @@ if($message===false) {
 	$script = 'parent.$(\''.$_GET['pid'].'_subject\').innerHTML=\''.Epesi::escapeJS(htmlentities($err),false).'\';'.
 			'parent.$(\''.$_GET['pid'].'_address\').innerHTML=\''.Epesi::escapeJS(htmlentities($err),false).'\';'.
 			'parent.$(\''.$_GET['pid'].'_attachments\').innerHTML=\''.Epesi::escapeJS('',false).'\';';
-		
+
 	$body = '<html>'.
 			'<body>'.$err.'</body>'.
 			'<script>'.$script.'</script>'.
@@ -41,7 +41,7 @@ if(!isset($structure->headers['to']))
 	$structure->headers['to'] = '';
 if(!isset($structure->headers['date']))
 	$structure->headers['date'] = '';
-	
+
 if(isset($_GET['attachment_cid']) || isset($_GET['attachment_name'])) {
 	if(isset($structure->parts)) {
 		$parts = $structure->parts;
@@ -94,9 +94,9 @@ if(isset($_GET['attachment_cid']) || isset($_GET['attachment_name'])) {
 		$body_type = $structure->ctype_secondary;
 		$body_ctype = isset($structure->headers['content-type'])?$structure->headers['content-type']:'text/'.$body_type;
 	}
-	
+
 	if($body===false) die('invalid message');
-	
+
 	$ret_attachments = '';
 	if($attachments) {
 		foreach($attachments as $name=>$a) {
@@ -111,14 +111,14 @@ if(isset($_GET['attachment_cid']) || isset($_GET['attachment_name'])) {
 		$address = $structure->headers['to'];
 	else
 		$address = $structure->headers['from'];
-		
+
 	$subject = isset($structure->headers['subject'])?Apps_MailClientCommon::mime_header_decode($structure->headers['subject']):'no subject';
 	$address = Apps_MailClientCommon::mime_header_decode($address);
-		
+
 	$script = 'parent.$(\''.$_GET['pid'].'_subject\').innerHTML=\''.Epesi::escapeJS(htmlentities($subject),false).'\';'.
 			'parent.$(\''.$_GET['pid'].'_address\').innerHTML=\''.Epesi::escapeJS(htmlentities($address),false).'\';'.
 			'parent.$(\''.$_GET['pid'].'_attachments\').innerHTML=\''.Epesi::escapeJS($ret_attachments,false).'\';';
-		
+
 	header("Content-type: text/html");
 	if($body_type=='plain') {
 		$body = htmlspecialchars(preg_replace("/(http:\/\/[a-z0-9]+(\.[a-z0-9]+)+(\/[\.a-z0-9]+)*)/i", "<a href='\\1'>\\1</a>", $body));
@@ -132,12 +132,12 @@ if(isset($_GET['attachment_cid']) || isset($_GET['attachment_name'])) {
 	}
 	$body = preg_replace('/"cid:([^@]+@[^@]+)"/i','"preview.php?'.http_build_query($_GET).'&attachment_cid=$1"',$body);
 	$body = preg_replace("/<a([^>]*)>(.*)<\/a>/i", '<a$1 target="_blank">$2</a>', $body);
-		
+
 	$body .= '<script>'.$script.'</script>'.
 			'</html>';
 
 	echo $body;//.'<pre>'.htmlentities(print_r($structure,true)).'</pre>';
 }
-Apps_MailClientCommon::read_msg($_GET['box'],$_GET['msg_id']);
+Apps_MailClientCommon::read_msg($_GET['box'],$_GET['dir'],$_GET['msg_id']);
 
 ?>
