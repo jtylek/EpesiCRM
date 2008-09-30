@@ -22,7 +22,7 @@
 {$form_open}
 
 <div id="recordbrowser_filters_{$id}" class="Utils_RecordBrowser__Filter" {if !isset($dont_hide)}style="display: none;"{/if}>
-	<table border="0" cellpadding="0" cellspacing="0">
+	<table border="0" cellpadding="0" cellspacing="0" style="margin-right:0;margin-left:auto;">
 		<tr>
 			{assign var=x value=0}
 			{assign var=first value=1}
