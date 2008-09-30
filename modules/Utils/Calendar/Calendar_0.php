@@ -384,12 +384,13 @@ class Utils_Calendar extends Module {
 
 		$timeline = $this->get_timeline();
 		$today_t = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$this->date));
+		$today_t_timeless = strtotime(date('Y-m-d',$this->date));
 		$dnd = array();
 		$joins = array();
 		$prev = null;
 		foreach($timeline as & $v) {
 			if(is_string($v['time'])) {
-				$ii = $today_t.'_'.$v['time'];
+				$ii = $today_t_timeless.'_'.$v['time'];
 				$dnd[] = $ii;
 				if($prev && isset($prev['join_rows'])) $joins[count($joins)-1][2] = $ii;
 				if(isset($v['join_rows']))
@@ -427,15 +428,18 @@ class Utils_Calendar extends Module {
 		$this->js('Utils_Calendar.page_type=\'day\'');
 		$ev_out = 'function() {Utils_Calendar.init_reload_event_tag();';
 		foreach($ret as $ev) {
-			$ev_start = $ev['start']-$today_t;//Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$ev['start']))
-			if($ev_start<0 || $ev_start>=86400) continue;
-
-			if(isset($ev['timeless']) && $ev['timeless'] && !isset($ev['custom_row_key'])) {
-				$ev['custom_row_key'] = 'timeless';
+			if(isset($ev['timeless']) && $ev['timeless']) {
+				if(!isset($ev['custom_row_key']))
+					$ev['custom_row_key'] = 'timeless';
+			} else {
+				$ev_start = $ev['start']-$today_t;//Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$ev['start']))
+				if($ev_start<0 || $ev_start>=86400) continue;
 			}
+
+
 			if(isset($ev['custom_row_key'])) {
 				if(isset($custom_keys[$ev['custom_row_key']])) {
-					$dest_id = 'UCcell_'.$today_t.'_'.$ev['custom_row_key'];
+					$dest_id = 'UCcell_'.$today_t_timeless.'_'.$ev['custom_row_key'];
 				} else {
 //					trigger_error('Invalid custom_row_key:'.$ev['custom_row_key'],E_USER_ERROR);
 					continue;
@@ -595,11 +599,10 @@ class Utils_Calendar extends Module {
 		$this->js('Utils_Calendar.page_type=\'week\'');
 		$ev_out = 'function() {Utils_Calendar.init_reload_event_tag();';
 		foreach($ret as $k=>$ev) {
-			if(isset($ev['timeless']) && $ev['timeless'] && !isset($ev['custom_row_key'])) {
-				$ev['custom_row_key'] = 'timeless';
-			}
-			if(isset($ev['custom_row_key'])) {
-				$today_t_timeless = strtotime(date('Y-m-d',$ev['start']));
+			if(isset($ev['timeless']) && $ev['timeless']) {
+				if(!isset($ev['custom_row_key']))
+					$ev['custom_row_key'] = 'timeless';
+				$today_t_timeless = strtotime($ev['timeless']);
 				if(isset($custom_keys[$ev['custom_row_key']])) {
 					$dest_id = 'UCcell_'.$today_t_timeless.'_'.$ev['custom_row_key'];
 				} else {
@@ -638,7 +641,7 @@ class Utils_Calendar extends Module {
 		$first_day_of_month = strtotime(date('Y-m-', $date).'01');
 		$diff = date('w', $first_day_of_month)-$this->settings['first_day_of_week'];
 		if ($diff<0) $diff += 7;
-		$currday = $first_day_of_month-86400*($diff);
+		$currday = strtotime(date('Y-m-d',$first_day_of_month-86400*($diff)));
 		$curmonth = date('m', $date);
 
 		$month = array();
@@ -662,7 +665,7 @@ class Utils_Calendar extends Module {
 				}
 				$week[] = $next;
 				$currday += 86400;
-				$currday = strtotime(date('Y-m-d 00:00:00', $currday+60*60*12));
+				$currday = strtotime(date('Y-m-d', $currday+60*60*12));
 			}
 			$month[] = array(
 							'week_label'=>$weekno,
@@ -735,7 +738,7 @@ class Utils_Calendar extends Module {
 			if(!isset($ev['timeless']) || !$ev['timeless'])
 				$ev_start = strtotime(Base_RegionalSettingsCommon::time2reg($ev['start'],true,true,true,false));
 			else
-				$ev_start = $ev['start'];
+				$ev_start = strtotime($ev['timeless']);
 			$ev_start = strtotime(date('Y-m-d',$ev_start));
 			$dest_id = 'UCcell_'.$ev_start;
 			$ev_out .= 'Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\', \''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).', 1);';

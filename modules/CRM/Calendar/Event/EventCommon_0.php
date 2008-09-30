@@ -98,8 +98,9 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		$row = DB::GetRow('SELECT e.recurrence_type,e.status,e.color,e.access,e.starts as start,e.ends as end,e.title,e.description,e.id,e.timeless,e.priority,e.created_by,e.created_on,e.edited_by,e.edited_on FROM crm_calendar_event e WHERE e.id=%d'.$fil,array($id));
 		$result = array();
 		if ($row) {
-			foreach (array('start','id','title','timeless','end','description') as $v)
+			foreach (array('start','id','title','end','description') as $v)
 				$result[$v] = $row[$v];
+			if($row['timeless']) $result['timeless'] = date('Y-m-d',$row['start']);
 			if($row['recurrence_type'])
 				$result['title'] = '<img src="'.Base_ThemeCommon::get_template_file('CRM_Calendar_Event','recurrence.png').'" border=0 hspace=0 vspace=0 align=left>'.$result['title'];
 			$result['duration'] = $row['end']-$row['start'];
@@ -272,8 +273,9 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		$count = 0;
 		while ($row = $ret->FetchRow()) {
 			$next_result = array();
-			foreach (array('start','end','id','title','timeless','description','status') as $v)
+			foreach (array('start','end','id','title','description','status') as $v)
 				$next_result[$v] = $row[$v];
+			if($row['timeless']) $next_result['timeless'] = date('Y-m-d',$row['start']);
 //			if($next_result['timeless'])
 //				$next_result['start'] = $next_result['start'];
 			$next_result['duration'] = $row['end']-$row['start'];
@@ -385,6 +387,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 								$next_result['end'] = strtotime(date('Y-'.$month.'-d H:i:s',$next_result['end']));
 								break;
 						}
+						if(isset($next_result['timeless'])) $next_result['timeless'] = date('Y-m-d',$next_result['start']);
 						if($next_result['start']>=$start && $next_result['start']<$rend) {
 							$result[] = $next_result;
 						}
@@ -444,8 +447,8 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 
 		$a = self::get($id);
 
-		if($a['timeless'])
-			$date = Base_LangCommon::ts('CRM_Calendar_Event','Timeless event: %s',array(Base_RegionalSettingsCommon::time2reg($a['start'],false)));
+		if(isset($a['timeless']))
+			$date = Base_LangCommon::ts('CRM_Calendar_Event','Timeless event: %s',array(Base_RegionalSettingsCommon::time2reg($a['timeless'],false)));
 		else
 			$date = Base_LangCommon::ts('CRM_Calendar_Event',"Start: %s\nEnd: %s",array(Base_RegionalSettingsCommon::time2reg($a['start']), Base_RegionalSettingsCommon::time2reg($a['end'])));
 

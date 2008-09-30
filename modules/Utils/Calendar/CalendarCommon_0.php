@@ -53,8 +53,8 @@ class Utils_CalendarCommon extends ModuleCommon {
 			trigger_error('Invalid return of event method: get(_all) (missing field \'title\' in '.print_r($row, true).')',E_USER_ERROR);
 		if(!isset($row['description']))
 			trigger_error('Invalid return of event method: get(_all) (missing field \'description\' in '.print_r($row, true).')',E_USER_ERROR);
-		if(!isset($row['timeless']))
-			trigger_error('Invalid return of event method: get(_all) (missing field \'timeless\' in '.print_r($row, true).')',E_USER_ERROR);
+		//if(!isset($row['timeless']))
+			//trigger_error('Invalid return of event method: get(_all) (missing field \'timeless\' in '.print_r($row, true).')',E_USER_ERROR);
 		if(!isset($row['id']))
 			trigger_error('Invalid return of event method: get(_all) (missing field \'id\' in '.print_r($row, true).')',E_USER_ERROR);
 		if(!isset($row['additional_info']))
@@ -70,37 +70,40 @@ class Utils_CalendarCommon extends ModuleCommon {
 
 		$row['end'] = $row['start']+$row['duration'];
 
-		$ev_start = $row['start'];
-		$ev_end = $row['end'];
-		$oneday = (date('Y-m-d',$ev_end)==date('Y-m-d',$ev_start));
 
-		Base_RegionalSettingsCommon::set();
-		$start_day = date('D',$ev_start);
-		$end_day = date('D',$ev_end);
-		Base_RegionalSettingsCommon::restore();
-
-		if($oneday)
-			$end_t = Base_RegionalSettingsCommon::time2reg($ev_end,2,false);
-		$start_date = Base_RegionalSettingsCommon::time2reg($ev_start,false);
-		$end_date = Base_RegionalSettingsCommon::time2reg($ev_end,false);
-
-		if($row['timeless']) {
+		if(isset($row['timeless'])) {
 			$start_time = Base_LangCommon::ts('Utils_Calendar','timeless');
 			$end_time = $start_time;
+			$ev_start = strtotime($row['timeless']);
+			$start_date = Base_RegionalSettingsCommon::time2reg($ev_start,false,true,false);
+			$end_date = $start_date;
+			$start_day = date('D',$ev_start);
+			$end_day = $start_day;
 			$start_t = $start_day.', '.$start_date;
-			if($oneday)
-				$end_t = $start_t;
-			else
-				$end_t = $end_day.', '.$end_date;
+			$end_t = $start_t;
 		} else {
+			$ev_start = $row['start'];
+			$ev_end = $row['end'];
+
+			Base_RegionalSettingsCommon::set();
+			$start_day = date('D',$ev_start);
+			$end_day = date('D',$ev_end);
+			Base_RegionalSettingsCommon::restore();
+
+			$start_date = Base_RegionalSettingsCommon::time2reg($ev_start,false);
+			$end_date = Base_RegionalSettingsCommon::time2reg($ev_end,false);
+			$oneday = ($start_date==$end_date);
+			if($oneday)
+				$end_t = Base_RegionalSettingsCommon::time2reg($ev_end,2,false);
+
 			$start_time = Base_RegionalSettingsCommon::time2reg($ev_start,2,false);
 			$end_time = Base_RegionalSettingsCommon::time2reg($ev_end,2,false);
 			if($start_date == Base_RegionalSettingsCommon::time2reg(time(),false))
-				$start_t = Base_LangCommon::ts('Utils_Calendar','Today').', '.$start_time;			
+				$start_t = Base_LangCommon::ts('Utils_Calendar','Today').', '.$start_time;
 			elseif($start_date == Base_RegionalSettingsCommon::time2reg(time()+3600*24,false))
-				$start_t = Base_LangCommon::ts('Utils_Calendar','Tomorrow').', '.$start_time;			
+				$start_t = Base_LangCommon::ts('Utils_Calendar','Tomorrow').', '.$start_time;
 			elseif($start_date == Base_RegionalSettingsCommon::time2reg(time()-3600*24,false))
-				$start_t = Base_LangCommon::ts('Utils_Calendar','Yesterday').', '.$start_time;			
+				$start_t = Base_LangCommon::ts('Utils_Calendar','Yesterday').', '.$start_time;
 			else
 				$start_t = $start_day.', '.$start_date.' '.$start_time;
 			if(!$oneday)
@@ -140,7 +143,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 			'custom_agenda_cols'=>null
 		);
 		$settings = array_merge($settings,$extra_settings);
-		
+
 		$start = time()+$time_shift;
 		$end = $start + (7 * 24 * 60 * 60)+$time_shift;
 		$columns = array(
@@ -162,7 +165,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 		ob_get_clean();
 		if(!is_array($ret))
 			trigger_error('Invalid return of event method: get_all (not an array)',E_USER_ERROR);
-			
+
 		$data = array();
 		foreach($ret as $row) {
 			$ex = Utils_CalendarCommon::process_event($row);
@@ -173,7 +176,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 
 			$data[] = $rrr;
 		}
-		
+
 		Utils_GenericBrowserCommon::mobile_table($columns,$data);
 	}
 }
