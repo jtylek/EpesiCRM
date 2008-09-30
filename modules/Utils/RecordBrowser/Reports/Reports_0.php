@@ -910,6 +910,8 @@ class Utils_RecordBrowser_Reports extends Module {
 			$this->pdf_ob->set_subject($this->pdf_subject);
 			$this->pdf_ob->prepare_header();
 			$this->pdf_ob->AddPage();
+		} elseif (!$this->charts) {
+			Base_ActionBarCommon::add('report','Charts',$this->create_callback_href(array($this, 'body'), array(false,true)));
 		}
 
 		if($this->charts)
@@ -921,7 +923,6 @@ class Utils_RecordBrowser_Reports extends Module {
 			Base_ActionBarCommon::add('report','Table',$this->create_back_href());
 			return true;
 		} else {
-			Base_ActionBarCommon::add('report','Charts',$this->create_callback_href(array($this, 'body'), array(false,true)));
 			if ($this->pdf){
 				Base_ActionBarCommon::add('save','Download PDF','href="'.$this->pdf_ob->get_href($this->pdf_filename).'"');
 				self::$pdf_ready = 1;
