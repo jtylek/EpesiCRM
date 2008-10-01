@@ -8,7 +8,7 @@ class CRM_Calendar extends Module {
 	public function body() {
 		CRM_Calendar_EventCommon::$filter = CRM_FiltersCommon::get();
 		CRM_FiltersCommon::add_action_bar_icon();
-		
+
 		if(isset($_REQUEST['search_date']) && is_numeric($_REQUEST['search_date']) && isset($_REQUEST['ev_id']) && is_numeric($_REQUEST['ev_id'])) {
 			$default_date = intval($_REQUEST['search_date']);
 			$this->view_event(intval($_REQUEST['ev_id']));
@@ -23,12 +23,12 @@ class CRM_Calendar extends Module {
 			'default_date'=>$default_date,
 			'custom_agenda_cols'=>array('Description','Assigned to','Related with')
 			);
-		
+
 		if (isset($_REQUEST['jump_to_date']) && is_numeric($_REQUEST['jump_to_date']) && isset($_REQUEST['switch_to_tab']) && is_string($_REQUEST['switch_to_tab'])) {
 			$args['default_date'] = $_REQUEST['jump_to_date'];
 			$args['default_view'] = $_REQUEST['switch_to_tab'];
 		}
-		
+
 		$theme = $this->init_module('Base/Theme');
 		$c = $this->init_module('Utils/Calendar',array('CRM/Calendar/Event',$args));
 		$theme->assign('calendar',$this->get_html_of_module($c));
@@ -47,8 +47,8 @@ class CRM_Calendar extends Module {
 				$pdf = $this->pack_module('Libs/TCPDF', 'L');
 				if ($pdf->prepare()) {
 					$ev_mod = $this->init_module('CRM/Calendar/Event');
-					$start = date('d F Y',$events['start']);
-					$end = date('d F Y',$events['end']);
+					$start = date('d F Y',Base_RegionalSettings::reg2time($events['start']));
+					$end = date('d F Y',Base_RegionalSettings::reg2time($events['end']));
 					$pdf->set_title($this->lang->t($view).', '.$start.($view_type!='Day'?' - '.$end:''));
 					$filter = CRM_FiltersCommon::get();
 					$me = CRM_ContactsCommon::get_my_record();
@@ -65,7 +65,7 @@ class CRM_Calendar extends Module {
 			}
 		}
 	}
-	
+
 	public function applet($conf,$opts) {
 		$opts['go'] = true;
 
@@ -78,8 +78,8 @@ class CRM_Calendar extends Module {
 		);
 		$gb->set_table_columns($columns);
 
-		$start = time();
-		$end = $start + ($conf['days'] * 24 * 60 * 60);
+		$start = date('Y-m-d',time());
+		$end = date('Y-m-d',time() + ($conf['days'] * 24 * 60 * 60));
 
 		$gb->set_default_order(array($l->t('Start')=>'ASC'));
 		CRM_Calendar_EventCommon::$filter = '('.CRM_FiltersCommon::get_my_profile().')';
@@ -89,7 +89,7 @@ class CRM_Calendar extends Module {
 		$colors = CRM_Calendar_EventCommon::get_available_colors();
 		foreach($ret as $row) {
 			if ($row['status']>=2) continue;
-			if ($conf['color']!=0 && $colors[$conf['color']]!=$row['color']) continue; 
+			if ($conf['color']!=0 && $colors[$conf['color']]!=$row['color']) continue;
 			$ex = Utils_CalendarCommon::process_event($row);
 			$view_action = '<a '.$this->create_callback_href(array($this,'view_event'),$row['id']).'>';
 			if($row['description'])
@@ -101,7 +101,7 @@ class CRM_Calendar extends Module {
 
 		$this->display_module($gb);
 	}
-	
+
 	public function view_event($id) {
 		$x = ModuleManager::get_instance('/Base_Box|0');
 		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);

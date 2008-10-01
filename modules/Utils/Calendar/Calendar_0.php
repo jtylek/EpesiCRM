@@ -250,7 +250,7 @@ class Utils_Calendar extends Module {
 	public function move_event($ev_id,$time) {
 		if(!is_numeric($time)) $time = strtotime($time);
 		$ev = call_user_func(array($this->event_module.'Common','get'),$ev_id);
-		if(!$ev['timeless'])
+		if(!isset($ev['timeless']))
 			$time += $ev['start']-strtotime(date('Y-m-d',$ev['start']));
 		elseif(!isset($ev['custom_row_key']))
 			$ev['custom_row_key'] = 'timeless';
@@ -270,9 +270,6 @@ class Utils_Calendar extends Module {
 	 * @return array
 	 */
 	private function get_events($start,$end) {
-		if(!is_numeric($start) && is_string($start)) $start = strtotime($start);
-		if(!is_numeric($end) && is_string($end)) $end = strtotime($end);
-
 		$ret = call_user_func(array($this->event_module.'Common','get_all'),$start,$end);
 		if(!is_array($ret))
 			trigger_error('Invalid return of event method: get_all (not an array)',E_USER_ERROR);
@@ -289,8 +286,8 @@ class Utils_Calendar extends Module {
 		$theme = $this->pack_module('Base/Theme');
 
 		/////////////// controls ////////////////////////
-		$start = & $this->get_module_variable('agenda_start',$this->date);
-		$end = & $this->get_module_variable('agenda_end',$this->date + (7 * 24 * 60 * 60));
+		$start = & $this->get_module_variable('agenda_start',date('Y-m-d',$this->date));
+		$end = & $this->get_module_variable('agenda_end',date('Y-m-d',$this->date + (7 * 24 * 60 * 60)));
 
 		$form = $this->init_module('Libs/QuickForm',null,'agenda_frm');
 
@@ -303,8 +300,8 @@ class Utils_Calendar extends Module {
 
 		if($form->validate()) {
 			$data = $form->exportValues();
-			$start = strtotime($data['start']);
-			$end = strtotime($data['end']);
+			$start = $data['start'];
+			$end = $data['end'];
 		}
 
 		$form->assign_theme('form', $theme, new HTML_QuickForm_Renderer_TCMSArraySmarty());
@@ -419,9 +416,11 @@ class Utils_Calendar extends Module {
 		$theme->display('day');
 
 		//data
-		$this->date = strtotime(date('Y-m-d 00:00:00',$this->date));
-		$start = Base_RegionalSettingsCommon::reg2time($this->date);
-		$end = Base_RegionalSettingsCommon::reg2time($this->date+2*86400);
+		//$this->date = strtotime(date('Y-m-d 00:00:00',$this->date));
+		//$start = Base_RegionalSettingsCommon::reg2time($this->date);
+		//$end = Base_RegionalSettingsCommon::reg2time($this->date+2*86400);
+		$start = date('Y-m-d',$this->date);
+		$end = date('Y-m-d',$this->date+86400);
 		$ret = $this->get_events($start, $end);
 		$this->displayed_events = array('start'=>$start, 'end'=>$end,'events'=>$ret);
 		$custom_keys = $this->settings['custom_rows'];
@@ -591,8 +590,10 @@ class Utils_Calendar extends Module {
 		$theme->display('week');
 
 		//data
-		$dis_week_from = Base_RegionalSettingsCommon::reg2time($dis_week_from);
-		$dis_week_to = $dis_week_from+7*86400-1;
+		//$dis_week_from = Base_RegionalSettingsCommon::reg2time($dis_week_from);
+		//$dis_week_to = $dis_week_from+7*86400-1;
+		$dis_week_to = date('Y-m-d',$dis_week_from+7*86400);
+		$dis_week_from = date('Y-m-d',$dis_week_from);
 		$ret = $this->get_events($dis_week_from,$dis_week_to);
 		$this->displayed_events = array('start'=>$dis_week_from, 'end'=>$dis_week_to,'events'=>$ret);
 		$custom_keys = $this->settings['custom_rows'];
@@ -725,10 +726,10 @@ class Utils_Calendar extends Module {
 
 
 		//data
-		$start_t = $month[0]['days'][0]['time'];
-		$start_t = Base_RegionalSettingsCommon::reg2time($start_t);
-		$end_t = $month[count($month)-1]['days'][6]['time']+86400;
-		$end_t = Base_RegionalSettingsCommon::reg2time($end_t);
+		$start_t = date('Y-m-d',$month[0]['days'][0]['time']);
+		//$start_t = Base_RegionalSettingsCommon::reg2time($start_t);
+		$end_t = date('Y-m-d',$month[count($month)-1]['days'][6]['time']+86400);
+		//$end_t = Base_RegionalSettingsCommon::reg2time($end_t);
 		$ret = $this->get_events($start_t,$end_t);
 		$this->displayed_events = array('start'=>$start_t, 'end'=>$end_t,'events'=>$ret);
 		$this->js('Utils_Calendar.page_type=\'month\'');

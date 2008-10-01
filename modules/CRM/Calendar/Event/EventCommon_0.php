@@ -151,7 +151,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		return $result;
 	}
 	public static function get_event_days($start,$end) {
-		if (!is_numeric($start)) $start = strtotime($start);
+		if (!is_numeric($start)) $start = strtotime($start); //TODO: here is a bug
 		if (!is_numeric($end)) $end = strtotime($end);
 		if(self::$filter=='()')
 			$fil = ' AND 1=0';
@@ -246,6 +246,9 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 	}
 
 	public static function get_all($start,$end,$order=' ORDER BY e.starts') {
+		//trigger_error($start.' '.$end);
+		$start_reg = Base_RegionalSettingsCommon::reg2time($start);
+		$end_reg = Base_RegionalSettingsCommon::reg2time($end);
 		if(self::$filter=='()')
 			$fil = ' AND 1=0';
 		else if(self::$filter)
@@ -265,7 +268,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		$ret = DB::Execute('SELECT e.recurrence_type,e.recurrence_hash,e.recurrence_end,e.status,e.color,e.access,e.starts as start,e.ends as end,e.title,e.description,e.id,e.timeless,e.priority,e.created_by,e.created_on,e.edited_by,e.edited_on FROM crm_calendar_event e WHERE ('.
 			'(e.timeless=0 AND ((e.recurrence_type is null AND ((e.starts>=%d AND e.starts<%d) OR (e.ends>=%d AND e.ends<%d) OR (e.starts<%d AND e.ends>=%d))) OR (e.recurrence_type is not null AND ((e.starts>=%d AND e.starts<%d) OR (e.recurrence_end>=%D AND e.recurrence_end<%D) OR (e.starts<%d AND e.recurrence_end>=%D) OR (e.starts<%d AND e.recurrence_end is null))))) '.
 			'OR '.
-			'(e.timeless=1 AND ((e.recurrence_type is null AND DATE('.$method_begin.'e.starts'.$method_end.')>=%D AND DATE('.$method_begin.'e.starts'.$method_end.')<=%D) OR (e.recurrence_type is not null AND ((DATE('.$method_begin.'e.starts'.$method_end.')<=%D AND e.recurrence_end>=%D) OR (DATE('.$method_begin.'e.starts'.$method_end.')>=%D AND DATE('.$method_begin.'e.starts'.$method_end.')<=%D) OR (e.recurrence_end>=%D AND e.recurrence_end<=%D) OR (e.starts<%d AND e.recurrence_end is null)))))) '.$fil.$order.' LIMIT 51',array($start,$end,$start,$end,$start,$end,$start,$end,$start,$end,$start,$end,$end,$start,$end,$start,$end,$start,$end,$start,$end,$end));
+			'(e.timeless=1 AND ((e.recurrence_type is null AND DATE('.$method_begin.'e.starts'.$method_end.')>=%D AND DATE('.$method_begin.'e.starts'.$method_end.')<=%D) OR (e.recurrence_type is not null AND ((DATE('.$method_begin.'e.starts'.$method_end.')<=%D AND e.recurrence_end>=%D) OR (DATE('.$method_begin.'e.starts'.$method_end.')>=%D AND DATE('.$method_begin.'e.starts'.$method_end.')<=%D) OR (e.recurrence_end>=%D AND e.recurrence_end<=%D) OR (e.starts<%d AND e.recurrence_end is null)))))) '.$fil.$order.' LIMIT 51',array($start_reg,$end_reg,$start_reg,$end_reg,$start_reg,$end_reg,$start_reg,$end_reg,$start,$end,$start_reg,$end,$end_reg,$start,$end,$start,$end,$start,$end,$start,$end,strtotime($end)));
 		$result = array();
 		$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
 		$priority = array(0 =>'None', 1 => 'Low', 2 => 'Medium', 3 => 'High');
@@ -325,12 +328,19 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			if($row['recurrence_type']) {
 				$next_result['title'] = '<img src="'.Base_ThemeCommon::get_template_file('CRM_Calendar_Event','recurrence.png').'" border=0 hspace=0 vspace=0 align=left>'.$next_result['title'];
 				$type = self::recurrence_type($row['recurrence_type']);
-				if(isset($row['recurrence_end']))
-					$rend = min(strtotime($row['recurrence_end']),$end);
-				else
-					$rend = $end;
+				if($row['timeless']) {
+					if(isset($row['recurrence_end']))
+						$rend = min(strtotime($row['recurrence_end']),$end);
+					else
+						$rend = strtotime($end);
+				} else {
+					if(isset($row['recurrence_end']))
+						$rend = min(Base_RegionalSettingsCommon::reg2time($row['recurrence_end']),$end_reg);
+					else
+						$rend = $end_reg;
+				}
 				$kk = 0;
-				if($next_result['start']>=$start) {
+				if(($next_result['start']>=$start_reg && !$row['timeless']) || ($next_result['start']>=$start && $row['timeless'])) {
 					$next_result['id'] = $row['id'].'_'.$kk;
 					if($type=='week_custom') {
 						if($row['recurrence_hash']{date('N',strtotime(Base_RegionalSettingsCommon::time2reg($next_result['start'],false,true,true,false)))-1})
@@ -388,7 +398,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 								break;
 						}
 						if(isset($next_result['timeless'])) $next_result['timeless'] = date('Y-m-d',$next_result['start']);
-						if($next_result['start']>=$start && $next_result['start']<$rend) {
+						if(($next_result['start']>=$start_reg && !$row['timeless']) || ($next_result['start']>=$start && $row['timeless']) && $next_result['start']<$rend) {
 							$result[] = $next_result;
 						}
 				}
