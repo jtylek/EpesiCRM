@@ -128,7 +128,7 @@
                                 </tr>
                                 <tr>
                                     <td class="data" style="height: 20px;">
-                                        <div id="{$duration_block_id}"><span class="error">{$form_data.duration.error}</span><div style="float: left; width: 200px;">{$form_data.duration.html}</div></div>
+                                        <div id="{$duration_block_id}"><span class="error">{$form_data.duration.error}</span><div style="float: left; width: 200px;"><span id="duration">{$form_data.duration.html}</span></div></div>
                                         <div id="{$event_end_block_id}"><span class="error">{$form_data.time_e.error}</span><span id="time_e">{$form_data.time_e.html}</span></div>
                                     </td>
                                 </tr>

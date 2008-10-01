@@ -428,6 +428,8 @@ class Utils_Calendar extends Module {
 		$ev_out = 'function() {Utils_Calendar.init_reload_event_tag();';
 		foreach($ret as $ev) {
 			if(isset($ev['timeless']) && $ev['timeless']) {
+				//print($ev['timeless'].' '.date('Y-m-d',$start));
+				if($ev['timeless']!==$start) continue;
 				if(!isset($ev['custom_row_key']))
 					$ev['custom_row_key'] = 'timeless';
 			} else {

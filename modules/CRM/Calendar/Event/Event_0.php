@@ -217,8 +217,10 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				$x = '-1';
 			}
 			$evx = Utils_CalendarCommon::process_event($event);
-			$event['start'] = strtotime(Base_RegionalSettingsCommon::time2reg($event['start'],true,true,true,false));
-			$event['end'] = strtotime(Base_RegionalSettingsCommon::time2reg($event['end'],true,true,true,false));
+			if(!$event['timeless']) {
+				$event['start'] = strtotime(Base_RegionalSettingsCommon::time2reg($event['start'],true,true,true,false));
+				$event['end'] = strtotime(Base_RegionalSettingsCommon::time2reg($event['end'],true,true,true,false));
+			}
 			$theme->assign('event_info',$evx);
 			$theme->assign('day_details',array('start'=>	array(	'day'=>date('j',$event['start']),
 																	'weekday'=>date('l',$event['start']),
@@ -324,8 +326,10 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			7200=>$this->lang->ht('2 hours'),
 			14400=>$this->lang->ht('4 hours'),
 			28800=>$this->lang->ht('8 hours'));
-		eval_js_once('crm_calendar_duration_switcher = function(x) {'.
+		eval_js_once('crm_calendar_duration_switcher = function(x,def) {'.
 			'var sw = $(\'duration_switch\');'.
+			'if(typeof(def)!=\'undefined\') '.
+				'sw.value=def;'.
 			'if((!x && sw.value==\'0\') || (x && sw.value==\'1\')) {'.
 			'var end_b=$(\'crm_calendar_event_end_block\');if(end_b)end_b.hide();'.
 			'var dur_b=$(\'crm_calendar_duration_block\');if(dur_b)dur_b.show();'.
@@ -339,7 +343,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$theme->assign('duration_block_id','crm_calendar_duration_block');
 		$theme->assign('event_end_block_id','crm_calendar_event_end_block');
 		$form->addElement('hidden','duration_switch',$duration_switch,array('id'=>'duration_switch'));
-		eval_js('crm_calendar_duration_switcher(1)');
+		eval_js('crm_calendar_duration_switcher(1,'.$duration_switch.')');
 		$form->addElement('select', 'duration', $this->lang->t('Duration'),$dur);
 		$form->addRule('duration',$this->lang->t('Duration not selected'),'neq','-1');
 
@@ -354,22 +358,21 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				'if(tdb==null) return;'.
 				'if(val){'.
 				'cal_style = \'none\';'.
-				'$(\'duration_switch\').value=\'0\';'.
 				'}else{'.
-				'cal_style = \'block\';'.
-				'$(\'duration_switch\').value=\'1\';'.
+				'cal_style = \'block\';alert(\'ok\');'.
 				'}'.
+				'var db = $(\'duration\');'.
+				'if(db) db.style.display = cal_style;'.
 				'var te = $(\'time_e\');'.
 				'if(te) te.style.display = cal_style;'.
 				'var ts = $(\'time_s\');'.
 				'if(ts) ts.style.display = cal_style;'.
 				'tdb.style.display = cal_style;'.
-				'crm_calendar_duration_switcher(1);'.
 			'}');
 		$form->addElement('checkbox', 'timeless', $this->lang->t('Timeless'), null,array('onClick'=>'crm_calendar_event_timeless(this.checked)','id'=>'timeless'));
 		if ($action=='view') $condition = $timeless;
 		else $condition = 'document.getElementsByName(\'timeless\')[0].checked';
-		eval_js('crm_calendar_event_timeless('.($timeless || $timeless==='timeless').')');
+		eval_js('crm_calendar_event_timeless('.(($timeless || $timeless==='timeless')?'1':'0').')');
 
 		$form->registerRule('check_dates', 'callback', 'check_dates', $this);
 		$form->addRule(array('date_s','time_e', 'date_s', 'time_s', 'timeless','duration_switch'), 'End date must be after begin date...', 'check_dates');

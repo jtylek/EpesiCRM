@@ -45,7 +45,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 	}
 
 	public static function process_event(& $row) {
-		if(!isset($row['start']) && !isset($row['timeless']))
+		if(!isset($row['start']) && !(isset($row['timeless']) && $row['timeless']))
 			trigger_error('Invalid return of event method: get(_all) (missing field \'start\' or \'timeless\' in '.print_r($row, true).')',E_USER_ERROR);
 		if(!isset($row['duration']) || !is_numeric($row['duration']))
 			trigger_error('Invalid return of event method: get(_all) (missing or not numeric field \'duration\' in '.print_r($row, true).')',E_USER_ERROR);
@@ -63,7 +63,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 			$row['actions'] = array();
 
 
-		if(isset($row['timeless'])) {
+		if(isset($row['timeless']) && $row['timeless']) {
 			$start_time = Base_LangCommon::ts('Utils_Calendar','timeless');
 			$end_time = $start_time;
 			$ev_start = strtotime($row['timeless']);
