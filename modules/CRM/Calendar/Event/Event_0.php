@@ -186,7 +186,8 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$my_id = CRM_FiltersCommon::get_my_profile();
 		if($action == 'new') {
 			$duration_switch = '1';
-			$id = strtotime(Base_RegionalSettingsCommon::time2reg($id,true,true,true,false));
+			if(!$timeless)
+				$id = strtotime(Base_RegionalSettingsCommon::time2reg($id,true,true,true,false));
 			$tt = $id-$id%300;
 			$me = CRM_ContactsCommon::get_contacts(array('login'=>Acl::get_user()),array('id'));
 			$my_emp = array();
