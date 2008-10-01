@@ -110,8 +110,10 @@ class Utils_CalendarCommon extends ModuleCommon {
 
 		if(isset($row['fake_duration']))
 			$duration_str = self::duration2str($row['fake_duration']);
-		else
+		elseif($row['duration'])
 			$duration_str = self::duration2str($row['duration']);
+		else
+			$duration_str = '';
 		return array('duration'=>$duration_str,'start'=>$start_t,'end'=>$end_t,'start_time'=>$start_time,'end_time'=>$end_time,'start_date'=>$start_date,'end_date'=>$end_date,'start_day'=>$start_day,'end_day'=>$end_day);
 	}
 

@@ -12,9 +12,11 @@
         <tr>
             <td class="label">End</td><td class="data">{$end}</td>
         </tr>
-        <tr>
+{if $duration}
+         <tr>
             <td class="label">Duration</td><td class="data">{$duration}</td>
         </tr>
+{/if}
 	<tr>
 	   <td colspan="2">{$additional_info}</td>
         </tr>
