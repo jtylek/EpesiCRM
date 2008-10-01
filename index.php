@@ -182,10 +182,9 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 	<body onload="Epesi.init(<?php print($client_id); ?>,'<?php print(rtrim(str_replace('\\','/',dirname($_SERVER['PHP_SELF'])),'/').'/process.php'); ?>')">
 		<div id="body_content">
 		<div id="main_content"></div>
-
 		<?php
 			if(defined('DEBUG'))
-				print('<div id="debug" style="font-size: 0.8em;"></div>');
+				print('<div id="debug"></div>');
 		?>
 		<div id="error_box" onclick="this.innerHTML = ''"></div>
 		<div id="epesiStatus">
