@@ -48,7 +48,7 @@ class Base_MailCommon extends Base_AdminModuleCommon {
 		$mailer->SetLanguage(Base_LangCommon::get_lang_code(), 'modules/Base/Mail/language/');
 		if(!isset($from_addr)) $from_addr = Variable::get('mail_from_addr');
 		$mailer->From = $from_addr;
-		if(!isset($from_name)) $from_addr = Variable::get('mail_from_name');
+		if(!isset($from_name)) $from_name = Variable::get('mail_from_name');
 		$mailer->FromName = $from_name;
 		$mailer->Host = Variable::get('mail_host');
 		$mailer->Mailer = Variable::get('mail_method');
