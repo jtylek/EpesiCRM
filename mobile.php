@@ -3,6 +3,10 @@
 define('MOBILE_DEVICE',1);
 define('CID',false);
 require_once('include.php');
+if(detect_iphone())
+	define('IPHONE',1);
+else
+	define('IPHONE',0);
 ModuleManager::load_modules();
 
 class LinkEntry {
@@ -68,7 +72,7 @@ function mobile_menu() {
 	}
 	ksort($menus_out);
 	foreach($menus_out as $cap=>$met)
-		print('<a '.mobile_stack_href($met[0],$met[1],$cap).'>'.$cap.'</a><br>');
+		print('<a '.mobile_stack_href($met[0],$met[1],$cap).' '.(IPHONE?' class="white button"':'').'>'.$cap.'</a>'.(IPHONE?'':'<br>'));
 }
 
 
@@ -107,12 +111,31 @@ ob_start();
 $ret = $page->go();
 $body = ob_get_clean();
 $captions = array();
-$back = 1;
 foreach($stack as $s)
-	if($s->caption)
-		$captions[] = '<a href="mobile.php?back='.($back++).'">'.$s->caption.'</a>';
-$caption = implode($captions,' > ');
-
+	if($s->caption) 
+		$captions[] = $s->caption;
+if(IPHONE) {
+	$title = end($captions);
+	$back_id = key($captions);
+	if(end($stack)->caption!==$title)
+		$action = '<a href="mobile.php?back='.($back_id+1).'" class="nav Action">'.$title.'</a>';
+	else
+		$action = '';
+	$title = '<h1>'.$title.'</h1>';
+	array_pop($captions);
+	$back = end($captions);
+	if($back) {
+		$back_id = key($captions);
+		$back = '<a href="mobile.php?back='.($back_id+1).'" class="nav" id="backButton">'.$back.'</a>';
+	}
+	
+	$caption = $back.$title.$action;
+} else {
+	$cap = array();
+	foreach($captions as $k=>$c)
+		$cap[] = '<a href="mobile.php?back='.($k+1).'">'.$c.'</a>';
+	$caption = implode($cap,' > ');
+}
 if(isset($ret) && $ret===false) {
 	header('Location: mobile.php?back=1');
 	exit();
@@ -120,6 +143,40 @@ if(isset($ret) && $ret===false) {
 
 $csses = Epesi::get_csses();
 
+if(IPHONE) {
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta id="viewport" name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
+	<title>epesi CRM</title>
+	<link rel="stylesheet" href="libs/UiUIKit/stylesheets/iphone.css" />
+	<link rel="apple-touch-icon" href="images/apple-touch-icon.png" />
+	<script type="text/javascript" charset="utf-8">
+		window.onload = function() {
+		  setTimeout(function(){window.scrollTo(0, 1);}, 100);
+		}
+	</script>
+	<?php
+	foreach($csses as $f)
+	  	print('<link href="'.$f.'" type="text/css" rel="stylesheet"/>'."\n");
+	?>
+</head>
+
+<body>
+<div id="header">
+		<?php print($caption); ?>
+</div>
+	
+<?php print($body); ?>
+        
+</body>
+</html>
+
+
+<?php
+} else {
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
@@ -156,3 +213,6 @@ $csses = Epesi::get_csses();
         </center>
 </body>
 </html>
+<?php
+}
+?>

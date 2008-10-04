@@ -81,50 +81,43 @@ if(!in_array('modules',$tables) || !in_array('variables',$tables) || !in_array('
 
 require_once('include/misc.php');
 
-if(detect_mobile_device()) {
-	header('Location: mobile.php');
-	exit();
-}
-if(!isset($_GET['force_epesi']) && detect_iphone()) {
+if(detect_iphone()) {
+	if(!isset($_GET['force_epesi'])) {
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-      <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
-      <title>Epesi</title>
-      <link href="setup.css" type="text/css" rel="stylesheet"/>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta id="viewport" name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
+	<title>epesi CRM</title>
+	<link rel="stylesheet" href="libs/UiUIKit/stylesheets/iphone.css" />
+	<link rel="apple-touch-icon" href="images/apple-touch-icon.png" />
+	<script type="text/javascript" charset="utf-8">
+		window.onload = function() {
+		  setTimeout(function(){window.scrollTo(0, 1);}, 100);
+		}
+	</script>
 </head>
+
 <body>
-        <table id="banner" border="0" cellpadding="0" cellspacing="0">
-            <tr>
-                <td class="image">&nbsp;</td>
-                <td class="back">&nbsp;</td>
-            </tr>
-        </table>
-        <br>
-        <center>
-        <table id="main" border="0" cellpadding="0" cellspacing="0">
-            <tr>
-                <td>
-				Please choose epesi version:<ul>
-				<li><a href="mobile.php">mobile</a><br>
-				<li><a href="index.php?force_epesi=1">desktop</a>
-				</ul>
-                </td>
-            </tr>
-        </table>
-        </center>
-        <br>
-        <center>
-        <span class="footer">Copyright &copy; 2008 &bull; <a href="http://www.telaxus.com">Telaxus LLC</a></span>
-        <br>
-        <p><a href="http://www.epesi.org"><img src="images/epesi-powered.png" border="0"></a></p>
-        </center>
+<div id="header">
+		<h1>epesi CRM</h1>
+</div>
+
+Please choose epesi version:<ul>
+<li><a href="mobile.php" class="white button">mobile</a><br>
+<li><a href="index.php?force_epesi=1" class="green button">desktop</a>
+</ul>
+
 </body>
 </html>
 <?php
 		ob_end_flush();
 		exit();
+	}
+} elseif(detect_mobile_device()) {
+	header('Location: mobile.php');
+	exit();
 }
 
 if(defined('CID')) {

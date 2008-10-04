@@ -1275,8 +1275,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		self::add_recent_entry($tab, Acl::get_user() ,$id);
 		$rec = self::get_record($tab,$id);
 		$cols = Utils_RecordBrowserCommon::init($tab);
-		foreach($cols as $k=>$col) {
-			print($col['name'].': '.Utils_RecordBrowserCommon::get_val($tab,$col['name'],$rec,$rec['id'],false,$col).'<br>');
+		if(IPHONE) {
+			print('<ul class="field">');
+			foreach($cols as $k=>$col) {
+				print('<li>'.$col['name'].': '.Utils_RecordBrowserCommon::get_val($tab,$col['name'],$rec,$rec['id'],false,$col).'</li>');
+			}
+			print('</ul>');
+		} else {
+			foreach($cols as $k=>$col) {
+				print($col['name'].': '.Utils_RecordBrowserCommon::get_val($tab,$col['name'],$rec,$rec['id'],false,$col).'<br>');
+			}
 		}
 	}
 }
