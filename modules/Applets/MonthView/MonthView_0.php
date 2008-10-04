@@ -17,11 +17,11 @@ class Applets_MonthView extends Module {
 	
 	}
 
-	public function month_array($date, $mark = array(), & $it = 0) {
+	public function month_array($date, $mark = array()) {
 		$first_day_of_month = strtotime(date('Y-m-', $date).'01');
 		$diff = date('w', $first_day_of_month)-Utils_PopupCalendarCommon::get_first_day_of_week();
 		if ($diff<0) $diff += 7;
-		$currday = $first_day_of_month-86400*($diff);
+		$currday = strtotime(date('Y-m-d',$first_day_of_month-86400*($diff)));
 		$curmonth = date('m', $date);
 
 		$month = array();
@@ -32,21 +32,18 @@ class Applets_MonthView extends Module {
 			$weekno = date('W',$currday);
 			$link = Base_BoxCommon::create_href($this, 'CRM_Calendar', null, null, null, array('jump_to_date'=>$currday, 'switch_to_tab'=>'Week'));
 			for ($i=0; $i<7; $i++) {
+				$main_month = date('m', $currday)==$curmonth;
 				$next = array(
 							'day'=>date('j', $currday),
 							'day_link' => Base_BoxCommon::create_href($this, 'CRM_Calendar', null, null, null, array('jump_to_date'=>$currday, 'switch_to_tab'=>'Day')),
-							'style'=>((date('m', $currday)==$curmonth)?(date('Y-m-d',$currday)==$today?'today':'current'):'other').(date('N',$currday)>=6?'_weekend':''),
+							'style'=>($main_month?(date('Y-m-d',$currday)==$today?'today':'current'):'other').(date('N',$currday)>=6?'_weekend':''),
 							'time'=>$currday
 							);
-//				print(($currday-$mark[$it]).'<br>');
-//				print(date('Y-m-d H:i:s',$currday).'-'.date('Y-m-d H:i:s',$mark[$it]).'<br>');
-				if (isset($mark[$it]) && $currday == $mark[$it]['time']) {
-					$next['style'].= ' event-'.$colors[$mark[$it]['color']];
-					$it++;
+				if ($main_month && isset($mark[date('Y-m-d',$currday)])) {
+					$next['style'].= ' event-'.$colors[$mark[date('Y-m-d',$currday)]];
 				}
 				$week[] = $next;
 				$currday += 86400;
-				$currday = strtotime(date('Y-m-d 00:00:00', $currday+60*60*12));
 			}
 			$month[] = array(
 							'week_label'=>$weekno,
@@ -83,11 +80,9 @@ class Applets_MonthView extends Module {
 		
 		$me = CRM_ContactsCommon::get_my_record(); 
 		CRM_Calendar_EventCommon::$filter = '('.$me['id'].')';
-		$ret = call_user_func(array('CRM_Calendar_EventCommon','get_event_days'),date('Y-m-01',$this->date),date('Y-m-t', $this->date+86400));
+		$ret = call_user_func(array('CRM_Calendar_EventCommon','get_event_days'),date('Y-m-01',$this->date),date('Y-m-d',strtotime(date('Y-m-t', $this->date))+86400));
 		
-		$it = 0;
-
-		$month = $this->month_array($this->date, $ret, $it);
+		$month = $this->month_array($this->date, $ret);
 		$year[] = array('month' => $month,
 						'month_link' => Base_BoxCommon::create_href($this, 'CRM_Calendar', null, null, null, array('jump_to_date'=>$this->date, 'switch_to_tab'=>'Month')),
 						'month_label' => $this->lang->t(date('F', $this->date)),
