@@ -151,41 +151,65 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		return $result;
 	}
 	public static function get_event_days($start,$end) {
-		if (!is_numeric($start)) $start = strtotime($start); //TODO: here is a bug
-		if (!is_numeric($end)) $end = strtotime($end);
+		$start_reg = Base_RegionalSettingsCommon::reg2time($start);
+		$end_reg = Base_RegionalSettingsCommon::reg2time($end);
+
 		if(self::$filter=='()')
 			$fil = ' AND 1=0';
 		else if(self::$filter)
 			$fil = ' AND (SELECT id FROM crm_calendar_event_group_emp cg WHERE cg.id=e.id AND cg.contact IN '.self::$filter.' LIMIT 1) IS NOT NULL';
 		else
 			$fil = '';
+		$my_id = CRM_FiltersCommon::get_my_profile();
 		if(!Base_AclCommon::i_am_admin())
-			$fil .= ' AND (e.access<2 OR (SELECT id FROM crm_calendar_event_group_emp cg2 WHERE cg2.id=e.id AND cg2.contact='.CRM_FiltersCommon::get_my_profile().' LIMIT 1) IS NOT NULL)';
-		$ret = DB::Execute('SELECT e.color, e.starts as start, e.recurrence_type, e.recurrence_end, e.recurrence_hash FROM crm_calendar_event AS e WHERE ((e.recurrence_type is null AND e.starts>=%d AND e.starts<=%d) OR (e.recurrence_type is not null AND e.starts<%d AND (e.recurrence_end is null OR e.recurrence_end>=%D))) AND status<2 '.$fil.' ORDER BY e.starts', array($start, $end, $end, $start));
-		$rs = array();
+			$fil .= ' AND (e.access<2 OR (SELECT id FROM crm_calendar_event_group_emp cg2 WHERE cg2.id=e.id AND cg2.contact='.$my_id.' LIMIT 1) IS NOT NULL)';
+		if (DATABASE_DRIVER=='postgres') {
+			$method_begin = '(SELECT TIMESTAMP \'epoch\' + ';
+			$method_end = ' * INTERVAL \'1 second\')';
+		} else {
+			$method_begin = 'FROM_UNIXTIME(';
+			$method_end = ')';
+		}
+		$ret = DB::Execute('SELECT e.timeless,e.recurrence_type,e.recurrence_hash,e.recurrence_end,e.color,e.starts as start FROM crm_calendar_event e WHERE ('.
+			'(e.timeless=0 AND ((e.recurrence_type is null AND ((e.starts>=%d AND e.starts<%d) OR (e.ends>=%d AND e.ends<%d) OR (e.starts<%d AND e.ends>=%d))) OR (e.recurrence_type is not null AND ((e.starts>=%d AND e.starts<%d) OR (e.recurrence_end>=%D AND e.recurrence_end<%D) OR (e.starts<%d AND e.recurrence_end>=%D) OR (e.starts<%d AND e.recurrence_end is null))))) '.
+			'OR '.
+			'(e.timeless=1 AND ((e.recurrence_type is null AND DATE('.$method_begin.'e.starts'.$method_end.')>=%D AND DATE('.$method_begin.'e.starts'.$method_end.')<%D) OR (e.recurrence_type is not null AND ((DATE('.$method_begin.'e.starts'.$method_end.')<=%D AND e.recurrence_end>=%D) OR (DATE('.$method_begin.'e.starts'.$method_end.')>=%D AND DATE('.$method_begin.'e.starts'.$method_end.')<=%D) OR (e.recurrence_end>=%D AND e.recurrence_end<=%D) OR (e.starts<%d AND e.recurrence_end is null)))))) '.$fil,array($start_reg,$end_reg,$start_reg,$end_reg,$start_reg,$end_reg,$start_reg,$end_reg,$start,$end,$start_reg,$end,$end_reg,$start,$end,$start,$end,$start,$end,$start,$end,strtotime($end)));
+
+
 		$last = array();
 		while ($row = $ret->FetchRow()) {
 			if($row['recurrence_type']) {
 				$type = self::recurrence_type($row['recurrence_type']);
-				if(isset($row['recurrence_end']))
-					$rend = min(strtotime($row['recurrence_end']),$end);
-				else
-					$rend = $end;
+				if($row['timeless']) {
+					if(isset($row['recurrence_end']))
+						$rend = min(strtotime($row['recurrence_end']),$end);
+					else
+						$rend = strtotime($end);
+				} else {
+					if(isset($row['recurrence_end']))
+						$rend = min(Base_RegionalSettingsCommon::reg2time($row['recurrence_end']),$end_reg);
+					else
+						$rend = $end_reg;
+				}
 				$kk = 0;
-				if($row['start']>=$start) {
+				if(($row['start']>=$start_reg && !$row['timeless']) || ($row['start']>=$start && $row['timeless'])) {
 					if($type=='week_custom') {
 						if($row['recurrence_hash']{date('N',strtotime(Base_RegionalSettingsCommon::time2reg($row['start'],false,true,true,false)))-1}) {
-							$next = date('Y-m-d',$row['start']);
+							if($row['timeless'])
+								$next = date('Y-m-d',$row['start']);
+							else
+								$next = Base_RegionalSettingsCommon::time2reg($row['start'],false,true,true,false);
 							if (!isset($last[$next])) {
-								$last[$next] = 1;
-								$rs[] = array('time'=>strtotime($next),'color'=>$row['color']);
+								$last[$next] = $row['color'];
 							}
 						}
 					} else {
-						$next = date('Y-m-d',$row['start']);
+						if($row['timeless'])
+							$next = date('Y-m-d',$row['start']);
+						else
+							$next = Base_RegionalSettingsCommon::time2reg($row['start'],false,true,true,false);
 						if (!isset($last[$next])) {
-							$last[$next] = 1;
-							$rs[] = array('time'=>strtotime($next),'color'=>$row['color']);
+							$last[$next] = $row['color'];
 						}
 					}
 				}
@@ -226,23 +250,26 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 								$row['start'] = strtotime(date('Y-'.$month.'-d H:i:s',$row['start']));
 								break;
 						}
-						if($row['start']>=$start && $row['start']<$rend) {
-							$next = date('Y-m-d',$row['start']);
+						if(($row['start']>=$start_reg && !$row['timeless']) || ($row['start']>=$start && $row['timeless']) && $row['start']<$rend) {
+							if($row['timeless'])
+								$next = date('Y-m-d',$row['start']);
+							else
+								$next = Base_RegionalSettingsCommon::time2reg($row['start'],false,true,true,false);
 							if (!isset($last[$next])) {
-								$last[$next] = 1;
-								$rs[] = array('time'=>strtotime($next),'color'=>$row['color']);
+								$last[$next] = $row['color'];
 							}
 						}
 				}
 			} else {
-				$next = date('Y-m-d',$row['start']);
+				if($row['timeless'])
+					$next = date('Y-m-d',$row['start']);
+				else
+					$next = Base_RegionalSettingsCommon::time2reg($row['start'],false,true,true,false);
 				if (isset($last[$next])) continue;
-				$last[$next] = 1;
-				$rs[] = array('time'=>strtotime($next),'color'=>$row['color']);
-
+				$last[$next] = $row['color'];
 			}
 		}
-		return $rs;
+		return $last;
 	}
 
 	public static function get_all($start,$end,$order=' ORDER BY e.starts') {

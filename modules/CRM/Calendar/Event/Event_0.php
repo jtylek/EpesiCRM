@@ -360,7 +360,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				'if(val){'.
 				'cal_style = \'none\';'.
 				'}else{'.
-				'cal_style = \'block\';alert(\'ok\');'.
+				'cal_style = \'block\';'.
 				'}'.
 				'var db = $(\'duration\');'.
 				'if(db) db.style.display = cal_style;'.

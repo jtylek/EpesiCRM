@@ -131,7 +131,14 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 			}
 			$format = implode(' ',$format);
 		} else {
-			$format = '%Y-%m-%d %H:%M:%S';
+			if($time && $date)
+				$format = '%Y-%m-%d %H:%M:%S';
+			elseif($time)
+				$format = '%H:%M:%S';
+			elseif($date)
+				$format = '%Y-%m-%d';
+			else
+				$format = '';
 		}
 
 //		self::set_locale();

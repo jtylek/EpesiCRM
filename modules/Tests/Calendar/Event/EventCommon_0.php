@@ -15,7 +15,7 @@ class Tests_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 	}
 
 	public static function get_all($start,$end) {
-		return DB::GetAll('SELECT \'\' as additional_info,\'\' as additional_info2, color,start,duration,title,description,id,timeless FROM tests_calendar_event WHERE ((start>=%d AND start<%d))',array($start,$end));
+		return DB::GetAll('SELECT \'\' as additional_info,\'\' as additional_info2, color,start,duration,title,description,id,timeless FROM tests_calendar_event WHERE ((start>=%d AND start<%d))',array(strtotime($start),strtotime($end)));
 	}
 
 	public static function get($id) {

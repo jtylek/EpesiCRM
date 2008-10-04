@@ -83,7 +83,7 @@ class Applets_MonthView extends Module {
 		
 		$me = CRM_ContactsCommon::get_my_record(); 
 		CRM_Calendar_EventCommon::$filter = '('.$me['id'].')';
-		$ret = call_user_func(array('CRM_Calendar_EventCommon','get_event_days'),date('Y-m-01 00:00:00',$this->date),date('Y-m-t 23:59:59', $this->date));
+		$ret = call_user_func(array('CRM_Calendar_EventCommon','get_event_days'),date('Y-m-01',$this->date),date('Y-m-t', $this->date+86400));
 		
 		$it = 0;
 

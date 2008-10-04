@@ -640,7 +640,7 @@ class Utils_Calendar extends Module {
 
 	//////////////////////////////////////////////////////
 	// month and year
-	public function month_array($date, $mark = array(), & $it = 0) {
+	public function month_array($date, $mark = array()) {
 		$first_day_of_month = strtotime(date('Y-m-', $date).'01');
 		$diff = date('w', $first_day_of_month)-$this->settings['first_day_of_week'];
 		if ($diff<0) $diff += 7;
@@ -662,13 +662,11 @@ class Utils_Calendar extends Module {
 							'style'=>($main_month?(date('Y-m-d',$currday)==$today?'today':'current'):'other').(date('N',$currday)>=6?'_weekend':''),
 							'time'=>$currday
 							);
-				if ($main_month && isset($mark[$it]) && $currday == $mark[$it]['time']) {
-					$next['style'].= ' event-'.$colors[$mark[$it]['color']];
-					$it++;
+				if ($main_month && isset($mark[date('Y-m-d',$currday)])) {
+					$next['style'].= ' event-'.$colors[$mark[date('Y-m-d',$currday)]];
 				}
 				$week[] = $next;
 				$currday += 86400;
-				$currday = strtotime(date('Y-m-d', $currday+60*60*12));
 			}
 			$month[] = array(
 							'week_label'=>$weekno,
@@ -778,12 +776,11 @@ class Utils_Calendar extends Module {
 
 		$year = array();
 
-		$ret = call_user_func(array($this->event_module.'Common','get_event_days'),date('Y-01-01',$this->date),date('Y-12-31',$this->date));
+		$ret = call_user_func(array($this->event_module.'Common','get_event_days'),date('Y-01-01',$this->date),(date('Y',$this->date)+1).'-01-01');
 
-		$it = 0;
 		for ($i=1; $i<=12; $i++) {
 			$date = strtotime(date('Y',$this->date).'-'.str_pad($i, 2, '0', STR_PAD_LEFT).'-15');
-			$month = $this->month_array($date, $ret, $it);
+			$month = $this->month_array($date, $ret);
 			$year[] = array('month' => $month,
 							'month_link' => $this->create_unique_href(array('action'=>'switch','time'=>$date, 'tab'=>'Month')),
 							'month_label' => $this->lang->t(date('F', $date)),
