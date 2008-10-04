@@ -161,7 +161,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 
 		//add data
 		ob_start();
-		$ret = call_user_func(array(str_replace('/','_',$evmod).'Common','get_all'),$start,$end);
+		$ret = call_user_func(array(str_replace('/','_',$evmod).'Common','get_all'),date('Y-m-d',$start),date('Y-m-d',$end));
 		ob_get_clean();
 		if(!is_array($ret))
 			trigger_error('Invalid return of event method: get_all (not an array)',E_USER_ERROR);
