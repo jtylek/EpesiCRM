@@ -214,7 +214,7 @@ class Utils_RecordBrowser extends Module {
 				} else {
 					$param = explode(';',$this->table_rows[$filter]['param']);
 					$x = explode('::',$param[0]);
-					if (!isset($x[1])) trigger_error($filter);
+					if (!isset($x[1])) continue;
 					list($tab, $col) = explode('::',$param[0]);
 					if ($tab=='__COMMON__') {
 						$arr = array_merge($arr, $this->get_commondata_tree($col));
