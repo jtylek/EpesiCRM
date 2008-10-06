@@ -53,7 +53,8 @@ class Base_LangCommon extends ModuleCommon {
 
 		if(!isset($trans) || $trans=='') $trans = $original;
 
-		$trans = vsprintf($trans,$arg);
+		$trans = @vsprintf($trans,$arg);
+		if ($trans=='' && $original) $trans = 'Invalid string to translate: '.$trans;
 		return $trans;
 	}
 
