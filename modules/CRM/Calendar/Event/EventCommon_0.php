@@ -250,7 +250,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 								$row['start'] = strtotime(date('Y-'.$month.'-d H:i:s',$row['start']));
 								break;
 						}
-						if(($row['start']>=$start_reg && !$row['timeless']) || ($row['start']>=$start && $row['timeless']) && $row['start']<$rend) {
+						if((($row['start']>=$start_reg && !$row['timeless']) || ($row['start']>=$start && $row['timeless'])) && $row['start']<$rend) {
 							if($row['timeless'])
 								$next = date('Y-m-d',$row['start']);
 							else
@@ -376,7 +376,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 						$result[] = $next_result;
 					}
 				}
-				while(true) {
+				while($next_result['start']<$rend) {
 						$kk++;
 						$next_result['id'] = $row['id'].'_'.$kk;
 						switch($type) {
@@ -424,9 +424,8 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 								$next_result['end'] = strtotime(date('Y-'.$month.'-d H:i:s',$next_result['end']));
 								break;
 						}
-						if ($next_result['start']>=$rend) break;
 						if(isset($next_result['timeless'])) $next_result['timeless'] = date('Y-m-d',$next_result['start']);
-						if(($next_result['start']>=$start_reg && !$row['timeless']) || ($next_result['start']>=$start && $row['timeless']) && $next_result['start']<$rend) {
+						if((($next_result['start']>=$start_reg && !$row['timeless']) || ($next_result['start']>=$start && $row['timeless'])) && $next_result['start']<$rend) {
 							$result[] = $next_result;
 						}
 				}
