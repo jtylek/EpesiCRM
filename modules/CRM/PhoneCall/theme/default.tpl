@@ -107,48 +107,70 @@
 								{$form_data.company_name.html}{if $action == 'view'}&nbsp;{/if}
 							</td>
 						</tr>
-						<tr>
-							<td class="label">{$form_data.contact.label}{if $form_data.contact.required}*{/if}</td>
-							<td class="data" colspan="2">
-								<span class="error">
-									{$form_data.contact.error}
-								</span>
-								{$form_data.contact.html}{if $action == 'view'}&nbsp;{/if}
-							</td>
-						</tr>
-						<tr>
-							<td class="label">{$form_data.other_contact.label}{if $form_data.other_contact.required}*{/if}</td>
-							<td class="data" style="width:1px;">
-								{$form_data.other_contact.html}
-							</td>
-							<td class="data" style="width:99%;">
-								<span class="error">
-									{$form_data.other_contact_name.error}
-								</span>
-								{$form_data.other_contact_name.html}{if $action == 'view'}&nbsp;{/if}
-							</td>
-						</tr>
-						<tr>
-							<td class="label">{$form_data.phone.label}{if $form_data.phone.required}*{/if}</td>
-							<td class="data" colspan="2">
-								<span class="error">
-									{$form_data.phone.error}
-								</span>
-								{$form_data.phone.html}{if $action == 'view'}&nbsp;{/if}
-							</td>
-						</tr>
-						<tr>
-							<td class="label">{$form_data.other_phone.label}{if $form_data.other_phone.required}*{/if}</td>
-							<td class="data">
-								{$form_data.other_phone.html}
-							</td>
-							<td class="data">
-								<span class="error">
-									{$form_data.other_phone_number.error}
-								</span>
-								{$form_data.other_phone_number.html}{if $action == 'view'}&nbsp;{/if}
-							</td>
-						</tr>
+						{if $action == 'view'}
+								<tr>
+									<td class="label">{$form_data.contact.label}</td>
+									<td class="data" colspan="2">
+										<span class="error">
+											{$form_data.contact.error}
+										</span>
+										{if $raw_data.other_contact}{$form_data.other_contact_name.html}{else}{$form_data.contact.html}{/if}&nbsp;
+									</td>
+								</tr>
+								<tr>
+									<td class="label">{$form_data.phone.label}</td>
+									<td class="data" colspan="2">
+										<span class="error">
+											{$form_data.phone.error}
+										</span>
+										{if $raw_data.other_phone}{$form_data.other_phone_number.html}{else}{$form_data.phone.html}{/if}&nbsp;
+									</td>
+								</tr>
+						{else}
+								<tr>
+									<td class="label">{$form_data.contact.label}{if $form_data.contact.required}*{/if}</td>
+									<td class="data" colspan="2">
+										<span class="error">
+											{$form_data.contact.error}
+										</span>
+										{$form_data.contact.html}{if $action == 'view'}&nbsp;{/if}
+									</td>
+								</tr>
+								<tr>
+									<td class="label">{$form_data.other_contact.label}{if $form_data.other_contact.required}*{/if}</td>
+									<td class="data" style="width:1px;">
+										{$form_data.other_contact.html}
+									</td>
+									<td class="data" style="width:99%;">
+										<span class="error">
+											{$form_data.other_contact_name.error}
+										</span>
+										{$form_data.other_contact_name.html}{if $action == 'view'}&nbsp;{/if}
+									</td>
+								</tr>
+								<tr>
+									<td class="label">{$form_data.phone.label}{if $form_data.phone.required}*{/if}</td>
+									<td class="data" colspan="2">
+										<span class="error">
+											{$form_data.phone.error}
+										</span>
+										{$form_data.phone.html}{if $action == 'view'}&nbsp;{/if}
+									</td>
+								</tr>
+								<tr>
+									<td class="label">{$form_data.other_phone.label}{if $form_data.other_phone.required}*{/if}</td>
+									<td class="data">
+										{$form_data.other_phone.html}
+									</td>
+									<td class="data">
+										<span class="error">
+											{$form_data.other_phone_number.error}
+										</span>
+										{$form_data.other_phone_number.html}{if $action == 'view'}&nbsp;{/if}
+									</td>
+								</tr>
+						{/if}
+						
 						<tr>
 							<td class="label" align="left">{$form_data.date_and_time.label}{if $form_data.date_and_time.required}*{/if}</td>
 							<td class="data timestamp" align="left" colspan="2" style="padding-bottom: 2px;"><span class="error">{$form_data.date_and_time.error}</span>{$form_data.date_and_time.html}{if $action == 'view'}&nbsp;{/if}</td>
