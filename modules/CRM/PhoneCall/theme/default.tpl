@@ -118,10 +118,10 @@
 						</tr>
 						<tr>
 							<td class="label">{$form_data.other_contact.label}{if $form_data.other_contact.required}*{/if}</td>
-							<td class="data">
-								{$form_data.other_contact.html}{if $action == 'view'}&nbsp;{/if}
+							<td class="data" style="width:1px;">
+								{$form_data.other_contact.html}
 							</td>
-							<td class="data">
+							<td class="data" style="width:99%;">
 								<span class="error">
 									{$form_data.other_contact_name.error}
 								</span>
@@ -140,7 +140,7 @@
 						<tr>
 							<td class="label">{$form_data.other_phone.label}{if $form_data.other_phone.required}*{/if}</td>
 							<td class="data">
-								{$form_data.other_phone.html}{if $action == 'view'}&nbsp;{/if}
+								{$form_data.other_phone.html}
 							</td>
 							<td class="data">
 								<span class="error">
