@@ -686,6 +686,9 @@ class Utils_RecordBrowser extends Module {
 
 		if ($form->validate()) {
 			$values = $form->exportValues();
+			foreach ($this->table_rows as $v) {
+				if ($v['type']=='checkbox' && !isset($values[$v['id']])) $values[$v['id']]=0;
+			}
 			$values['id'] = $id;
 			if ($mode=='add') {
 				$id = Utils_RecordBrowserCommon::new_record($this->tab, $values);

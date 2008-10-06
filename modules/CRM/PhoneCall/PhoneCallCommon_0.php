@@ -263,13 +263,13 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			}
 			if ($mode=='added') break;
 		case 'add':
-			if (isset($values['other_contact'])) {
+			if (isset($values['other_contact']) && $values['other_contact']) {
 				$values['other_phone']=1;
 				$values['contact']='';
 			} else {
 				$values['other_contact_name']='';
 			}
-			if (isset($values['other_phone'])) $values['phone']='';
+			if (isset($values['other_phone']) && $values['other_phone']) $values['phone']='';
 			else $values['other_phone_number']='';
 		}
 		return $values;
