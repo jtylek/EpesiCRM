@@ -320,8 +320,8 @@ class Utils_Calendar extends Module {
 				$add_cols[] = $k;
 			}
 		}
-
 		$gb->set_table_columns( $columns );
+		$gb->set_default_order(array($this->lang->t('Start')=>'ASC'));
 
 		//add data
 		$ret = $this->get_events($start,$end);
@@ -332,7 +332,7 @@ class Utils_Calendar extends Module {
 
 			$ex = Utils_CalendarCommon::process_event($row);
 
-			$rrr = array($ex['start'],Utils_TooltipCommon::create($ex['duration'],$ex['end'],false),'<a '.$view_h.'>'.$row['title'].'</a>');
+			$rrr = array(array('value'=>$ex['start'],'order_value'=>$row['start']),Utils_TooltipCommon::create($ex['duration'],$ex['end'],false),'<a '.$view_h.'>'.$row['title'].'</a>');
 			foreach($add_cols as $a)
 				$rrr[] = $row['custom_agenda_col_'.$a];
 

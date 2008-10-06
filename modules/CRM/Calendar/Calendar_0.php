@@ -84,7 +84,7 @@ class CRM_Calendar extends Module {
 		$gb->set_default_order(array($l->t('Start')=>'ASC'));
 		CRM_Calendar_EventCommon::$filter = '('.CRM_FiltersCommon::get_my_profile().')';
 //		trigger_error($gb->get_query_order());
-		$ret = CRM_Calendar_EventCommon::get_all($start,$end,$gb->get_query_order());
+		$ret = CRM_Calendar_EventCommon::get_all($start,$end);
 		$data = array();
 		$colors = CRM_Calendar_EventCommon::get_available_colors();
 		foreach($ret as $row) {
@@ -96,10 +96,12 @@ class CRM_Calendar extends Module {
 				$title = Utils_TooltipCommon::create($row['title'],$row['description']);
 			else
 				$title = $row['title'];
-			$gb->add_row($view_action.($ex['start_time']!='timeless'?Utils_TooltipCommon::create($ex['start'],$l->t('Duration: %s<br>End: %s',array($ex['duration'],$ex['end']))):$ex['start']).'</a>',$view_action.$title.'</a>');
+			$gb->add_row(
+				array('value'=>$view_action.($ex['start_time']!='timeless'?Utils_TooltipCommon::create($ex['start'],$l->t('Duration: %s<br>End: %s',array($ex['duration'],$ex['end']))):$ex['start']).'</a>', 'order_value'=>isset($row['timeless'])?strtotime($row['timeless']):$row['start']),
+				$view_action.$title.'</a>');
 		}
 
-		$this->display_module($gb);
+		$this->display_module($gb, array(false), 'automatic_display');
 	}
 
 	public function view_event($id) {
