@@ -362,7 +362,7 @@ class Utils_RecordBrowser extends Module {
 			$arr = array('name'=>$this->lang->t($args['name']));
 			if ($this->browse_mode!='recent' && $args['type']!=='multiselect') $arr['order'] = $field;
 			if ($quickjump!=='' && $args['name']===$quickjump) $arr['quickjump'] = '"'.$args['name'];
-			if ($args['type']=='text' || $args['type']=='currency' || $args['type']=='calculated') $arr['search'] = $args['id'];//str_replace(' ','_',$field);
+			if ($args['type']=='text' || $args['type']=='currency' || ($args['type']=='calculated' && $args['param']!='')) $arr['search'] = $args['id'];//str_replace(' ','_',$field);
 			if ($args['type']=='checkbox' || $args['type']=='date' || $args['type']=='timestamp' || $args['type']=='commondata') {
 				$arr['wrapmode'] = 'nowrap';
 				$arr['width'] = 1;
@@ -524,6 +524,7 @@ class Utils_RecordBrowser extends Module {
 			}
 		}
 		if (!$special && $this->add_in_table && $this->get_access('add')) {
+			$this->fields_permission = $this->get_access('fields','new');
 			$form = $this->init_module('Libs/QuickForm',null, 'add_in_table__'.$this->tab);
 			$form->setDefaults($this->custom_defaults);
 
@@ -535,10 +536,12 @@ class Utils_RecordBrowser extends Module {
 
 			if ($form->validate()) {
 				$values = $form->exportValues();
+				foreach ($this->custom_defaults as $k=>$v)
+					if (!isset($values[$k])) $values[$k] = $v;
 				$id = Utils_RecordBrowserCommon::new_record($this->tab, $values);
 				location(array());
 			}
-
+			$form->addElement('submit', 'submit', 'Submit');
 			$renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
 			$form->accept($renderer);
 			$data = $renderer->toArray();
@@ -557,7 +560,7 @@ class Utils_RecordBrowser extends Module {
 				$row_data[] = '&nbsp;';
 
 			$gb_row = $gb->get_new_row();
-			$gb_row->add_action($form->get_submit_form_href(),'Submit');
+			$gb_row->add_action('',$data['submit']['html']);
 			$gb_row->add_data_array($row_data);
 		}
 		if ($special) {
