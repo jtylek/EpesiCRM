@@ -35,7 +35,7 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 			}
 			
 			$str .= $this->_getTabs() . '<table style="border:0;padding:0;" cellpadding="0" cellspacing="0"><tr>'.
-			'<td>'.$this->currency.'&nbsp;</td><td><input ' . $this->_getAttrString($this->_attributes) . ' '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils/CurrencyField','Example value: %s',array('123'.$this->dec_delimiter.implode('',range(4,3+$this->dec_digits)))), false ).' /></td></tr></table>';
+			'<td style="border:0;">'.$this->currency.'&nbsp;</td><td style="border:0;"><input ' . $this->_getAttrString($this->_attributes) . ' '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils/CurrencyField','Example value: %s',array('123'.$this->dec_delimiter.implode('',range(4,3+$this->dec_digits)))), false ).' /></td></tr></table>';
 
 
 			load_js('modules/Utils/CurrencyField/currency.js');
