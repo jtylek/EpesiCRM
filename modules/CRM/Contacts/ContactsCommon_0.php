@@ -183,7 +183,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 
 			if ($crits!==null) {
 				$contacts = self::get_contacts($crits);
-				if (!$desc['required'] && $desc['type']!='multiselect') $cont[''] = '---';
+				if ($desc['type']!='multiselect') $cont[''] = '---';
 				if (!is_array($default)) {
 					if ($default!='') $default = array($default); else $default=array();
 				} 
