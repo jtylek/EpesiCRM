@@ -213,8 +213,9 @@ class CRM_ContactsCommon extends ModuleCommon {
 		}
 	}
 
-	public static function display_company($record, $nolink, $desc) {
-		$v = $record[$desc['id']];
+	public static function display_company($record, $nolink=false, $desc=null) {
+		if ($desc!==null) $v = $record[$desc['id']];
+		else $v = $record['id'];
 		if (!is_numeric($v) && !is_array($v)) return '---';
 		$def = '';
 		$first = true;
