@@ -24,7 +24,7 @@ class Utils_GenericBrowserCommon extends ModuleCommon {
 		if($enable_sort && is_string($enable_sort) && !isset($_GET['order'])) {
 				$x = explode(' ',$enable_sort);
 				foreach($cols as $i=>$v)
-					if($x[0]==$v['name']) $_GET['order'] = $i;
+					if($x[0]==$v['order']) $_GET['order'] = $i;
 				if(isset($_GET['order'])) {
 					if(count($x)<2) $_GET['order_dir'] = 'asc';
 					else $_GET['order_dir'] = $x[1];
