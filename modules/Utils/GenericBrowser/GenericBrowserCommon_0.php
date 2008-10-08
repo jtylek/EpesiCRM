@@ -29,15 +29,13 @@ class Utils_GenericBrowserCommon extends ModuleCommon {
 				continue;
 			$all_width+=$v['width'];
 		}
-		$i=0;
 		$headers = array();
-		foreach($cols as $v) {
+		foreach($cols as $i=>$v) {
 			if (array_key_exists('display', $v) && $v['display']==false) {
-				$i++;
 				continue;
 			}
 			if(isset($v['order'])) $is_order = true;
-			if(!isset($headers[$i])) $headers[$i] = array('label'=>'');
+			$headers[$i] = array();
 			if (isset($_GET['order']) && isset($_GET['order_dir']) && $i==$_GET['order']) {
 				$sort_direction = ($_GET['order_dir']=='desc')?'asc':'desc';
 				$sort = 'style="padding-right: 12px; background-image: url('.Base_ThemeCommon::get_template_file('Utils_GenericBrowser','sort-'.$sort_direction.'ending.png').'); background-repeat: no-repeat; background-position: right;"';
@@ -45,20 +43,22 @@ class Utils_GenericBrowserCommon extends ModuleCommon {
 				$sort = '';
 				$sort_direction = 'asc';
 			}
-			$headers[$i]['label'] .= (isset($v['preppend'])?$v['preppend']:'').(isset($v['order'])?'<a href="mobile.php?'.http_build_query(array_merge($_GET,array('order'=>$i,'order_dir'=>$sort_direction))).'">' . '<span '.$sort.'>' . $v['name'] . '</span></a>':'<span>'.$v['name'].'</span>').(isset($v['append'])?$v['append']:'');
+			$headers[$i]['label'] = (isset($v['preppend'])?$v['preppend']:'').(isset($v['order'])?'<a href="mobile.php?'.http_build_query(array_merge($_GET,array('order'=>$i,'order_dir'=>$sort_direction))).'">' . '<span '.$sort.'>' . $v['name'] . '</span></a>':'<span>'.$v['name'].'</span>').(isset($v['append'])?$v['append']:'');
 			$headers[$i]['attrs'] = 'style="width: '.intval(100*$v['width']/$all_width).'%" ';
 			$headers[$i]['attrs'] .= 'nowrap="1" ';
-			$i++;
 		}
 		$th->assign('cols',array_values($headers));
 
 		//sort data
 		if($enable_sort) {
-			if(is_string($enable_sort) && (!isset($_GET['order']) || !isset($_GET['order_dir']))) {
+			if(is_string($enable_sort) && !isset($_GET['order'])) {
 				$x = explode(' ',$enable_sort);
-				$_GET['order'] = $x[0];
-				if(count($x)<2) $_GET['order_dir'] = 'asc';
-				else $_GET['order_dir'] = $x[1];
+				foreach($cols as $i=>$v)
+					if($x[0]==$v['name']) $_GET['order'] = $i;
+				if(isset($_GET['order'])) {
+					if(count($x)<2) $_GET['order_dir'] = 'asc';
+					else $_GET['order_dir'] = $x[1];
+				}
 			}
 			if(isset($_GET['order']) && isset($_GET['order_dir'])) {
 				$col = array();
