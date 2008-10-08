@@ -88,7 +88,6 @@ class Utils_GenericBrowserCommon extends ModuleCommon {
 					$data2 = array_reverse($data2);
 				}
 				$data = $data2;
-			}
 		}
 		
 		$out_data = array();
