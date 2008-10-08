@@ -542,7 +542,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				else continue;
 			}
 			if ($record[$args['id']]!=$values[$args['id']]) {
-				print($args['id'].'<br>');
 				if ($args['type']=='multiselect') {
 					$v = self::encode_multi($values[$args['id']]);
 					$old = self::encode_multi($record[$args['id']]);

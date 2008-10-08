@@ -1334,6 +1334,7 @@ class Utils_RecordBrowser extends Module {
 			foreach($changed as $k=>$v) {
 				if ($k=='') $gb_cha->add_row($row['edited_on'], Base_UserCommon::get_user_login($row['edited_by']), '', '', $last_row['old_value']);
 				else {
+					if (!isset($field_hash[$k])) continue;
 					$new = $this->get_val($field_hash[$k], $created, $created['id'], false, $this->table_rows[$field_hash[$k]]);
 					if ($this->table_rows[$field_hash[$k]]['type']=='multiselect') $v = Utils_RecordBrowserCommon::decode_multi($v);
 					$created[$k] = $v;
