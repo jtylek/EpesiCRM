@@ -93,6 +93,8 @@ class Utils_GenericBrowserCommon extends ModuleCommon {
 					$cell.='&nbsp;';
 					$out_data[] = array('label'=>$cell,'attrs'=>'');
 				} else {
+					if(!isset($cell['attrs'])) $cell['attrs'] = '';
+					if(!isset($cell['label'])) $cell['label'] = '';
 					$cell['label'].='&nbsp;';
 					$out_data[] = $cell;
 				}
