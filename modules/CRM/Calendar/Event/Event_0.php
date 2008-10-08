@@ -425,7 +425,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		if($action == 'new') {
 			eval_js_once('crm_calendar_event_messenger = function(v) {if(v)$("messenger_block").show();else $("messenger_block").hide();}');
 			$theme->assign('messenger_block','messenger_block');
-			$form->addElement('select','messenger_before',$this->lang->t('Popup alert'),array(0=>$this->lang->ht('on event start'), 1=>$this->lang->ht('1 hour before event'), 2=>$this->lang->ht('2 hours before event'), 3=>$this->lang->ht('3 hours before event'), 4=>$this->lang->ht('4 hours before event'), 8=>$this->lang->ht('8 hours before event'), 12=>$this->lang->ht('12 hours before event'), 24=>$this->lang->ht('24 hours before event')));
+			$form->addElement('select','messenger_before',$this->lang->t('Popup alert'),array(0=>$this->lang->ht('on event start'), 900=>$this->lang->ht('15 minutes before event'), 1800=>$this->lang->ht('30 minutes before event'), 2700=>$this->lang->ht('45 minutes before event'), 3600=>$this->lang->ht('1 hour before event'), 2*3600=>$this->lang->ht('2 hours before event'), 3*3600=>$this->lang->ht('3 hours before event'), 4*3600=>$this->lang->ht('4 hours before event'), 8*3600=>$this->lang->ht('8 hours before event'), 12*3600=>$this->lang->ht('12 hours before event'), 24*3600=>$this->lang->ht('24 hours before event')));
 			$form->addElement('textarea','messenger_message',$this->lang->t('Popup message'), array('id'=>'messenger_message'));
 			$form->addElement('checkbox','messenger_on',$this->lang->t('Alert me'),null,array('onClick'=>'crm_calendar_event_messenger(this.checked);$("messenger_message").value=$("event_title").value;'));
 			eval_js('crm_calendar_event_messenger('.($form->exportValue('messenger_before')?1:0).')');
@@ -661,7 +661,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$id = DB::Insert_ID('crm_calendar_event', 'id');
 
 		if(isset($vals['messenger_on']) && $vals['messenger_on'])
-				Utils_MessengerCommon::add('CRM_Calendar_Event:'.$id,$this->get_type(),$vals['messenger_message'],$start-$vals['messenger_before']*3600, array('CRM_Calendar_EventCommon','get_alarm'),array($id));
+				Utils_MessengerCommon::add('CRM_Calendar_Event:'.$id,$this->get_type(),$vals['messenger_message'],$start-$vals['messenger_before'], array('CRM_Calendar_EventCommon','get_alarm'),array($id));
 
 		foreach($vals['emp_id'] as $v)
 				DB::Execute('INSERT INTO crm_calendar_event_group_emp (id,contact) VALUES (%d, %d)', array($id, $v));
