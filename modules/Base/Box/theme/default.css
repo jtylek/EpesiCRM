@@ -141,9 +141,9 @@ hr.line {
 /*** content body ***/
 
 #content_body {
-    position: absolute;
-    top: 97px;
-    /*margin-top: 97px;*/
+    /*position: absolute;
+    top: 97px;*/ 
+    margin-top: 97px;
     width: 100%;
     padding: 0px;
     text-align: center;
@@ -153,7 +153,6 @@ hr.line {
 }
 
 #debug {
-    font-size: 10px;
 }
 
 
