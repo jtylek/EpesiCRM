@@ -21,6 +21,15 @@ class Utils_GenericBrowserCommon extends ModuleCommon {
 	}
 	
 	public static function mobile_table($cols,$data,$enable_sort=true) {
+		if($enable_sort && is_string($enable_sort) && !isset($_GET['order'])) {
+				$x = explode(' ',$enable_sort);
+				foreach($cols as $i=>$v)
+					if($x[0]==$v['name']) $_GET['order'] = $i;
+				if(isset($_GET['order'])) {
+					if(count($x)<2) $_GET['order_dir'] = 'asc';
+					else $_GET['order_dir'] = $x[1];
+				}
+		}
 		$th = Base_ThemeCommon::init_smarty();
 
 		$all_width = 0;
@@ -50,17 +59,7 @@ class Utils_GenericBrowserCommon extends ModuleCommon {
 		$th->assign('cols',array_values($headers));
 
 		//sort data
-		if($enable_sort) {
-			if(is_string($enable_sort) && !isset($_GET['order'])) {
-				$x = explode(' ',$enable_sort);
-				foreach($cols as $i=>$v)
-					if($x[0]==$v['name']) $_GET['order'] = $i;
-				if(isset($_GET['order'])) {
-					if(count($x)<2) $_GET['order_dir'] = 'asc';
-					else $_GET['order_dir'] = $x[1];
-				}
-			}
-			if(isset($_GET['order']) && isset($_GET['order_dir'])) {
+		if($enable_sort && isset($_GET['order']) && isset($_GET['order_dir'])) {
 				$col = array();
 				foreach($data as $j=>$d)
 					foreach($d as $i=>$c)
