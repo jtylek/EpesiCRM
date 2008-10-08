@@ -53,37 +53,45 @@ class Utils_GenericBrowserCommon extends ModuleCommon {
 		$th->assign('cols',array_values($headers));
 
 		//sort data
-		if($enable_sort && isset($_GET['order']) && isset($_GET['order_dir'])) {
-			$col = array();
-			foreach($data as $j=>$d)
-				foreach($d as $i=>$c)
-					if(isset($cols[$i]['order']) && $i==$_GET['order']) {
-						if(is_array($c)) {
-							if(isset($c['order_value']))
-								$xxx = $c['order_value'];
-							else
-								$xxx = $c['value'];
-						} else $xxx = $c;
-						if(isset($cols[$i]['order_eregi'])) {
-							$ret = array();
-							eregi($cols[$i]['order_eregi'],$xxx, $ret);
-							$xxx = isset($ret[1])?$ret[1]:'';
+		if($enable_sort) {
+			if(is_string($enable_sort) && (!isset($_GET['order']) || !isset($_GET['order_dir']))) {
+				$x = explode(' ',$enable_sort);
+				$_GET['order'] = $x[0];
+				if(count($x)<2) $_GET['order_dir'] = 'asc';
+				else $_GET['order_dir'] = $x[1];
+			}
+			if(isset($_GET['order']) && isset($_GET['order_dir'])) {
+				$col = array();
+				foreach($data as $j=>$d)
+					foreach($d as $i=>$c)
+						if(isset($cols[$i]['order']) && $i==$_GET['order']) {
+							if(is_array($c)) {
+								if(isset($c['order_value']))
+									$xxx = $c['order_value'];
+								else
+									$xxx = $c['value'];
+							} else $xxx = $c;
+							if(isset($cols[$i]['order_eregi'])) {
+								$ret = array();
+								eregi($cols[$i]['order_eregi'],$xxx, $ret);
+								$xxx = isset($ret[1])?$ret[1]:'';
+							}
+							$xxx = strip_tags(strtolower($xxx));
+							$col[$j] = $xxx;
 						}
-						$xxx = strip_tags(strtolower($xxx));
-						$col[$j] = $xxx;
-					}
-
-			asort($col);
-			$data2 = array();
-			foreach($col as $j=>$v) {
-				$data2[] = $data[$j];
+	
+				asort($col);
+				$data2 = array();
+				foreach($col as $j=>$v) {
+					$data2[] = $data[$j];
+				}
+				if($_GET['order_dir']!='asc') {
+					$data2 = array_reverse($data2);
+				}
+				$data = $data2;
 			}
-			if($_GET['order_dir']!='asc') {
-				$data2 = array_reverse($data2);
-			}
-			$data = $data2;
 		}
-
+		
 		$out_data = array();
 		foreach($data as $row) {
 			foreach($row as $k=>$cell) {
