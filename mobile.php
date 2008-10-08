@@ -181,7 +181,7 @@ if(IPHONE) {
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-	<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	<title>Epesi</title>
 	<link href="mobile.css" type="text/css" rel="stylesheet"/>
 	<?php
