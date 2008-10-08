@@ -170,7 +170,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 		foreach($ret as $row) {
 			$ex = Utils_CalendarCommon::process_event($row);
 
-			$rrr = array($ex['start'],Utils_TooltipCommon::create($ex['duration'],$ex['end'],false),$row['title']);
+			$rrr = array(array('value'=>$ex['start'],'order_value'=>isset($row['timeless'])?strtotime($row['timeless']):$row['start']),Utils_TooltipCommon::create($ex['duration'],$ex['end'],false),$row['title']);
 			foreach($add_cols as $a)
 				$rrr[] = $row['custom_agenda_col_'.$a];
 
