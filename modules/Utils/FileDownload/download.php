@@ -38,7 +38,7 @@ flush();
 $in = fopen($file,'rb');
 
 $dest_filename  = $download_id.'.tmp';
-$dest_path  = 'data/Utils_FileDownload/'.$dest_filename;
+$dest_path  = DATA_DIR.'/Utils_FileDownload/'.$dest_filename;
 $out = fopen($dest_path,'wb');
 
 print('Connected<br>');

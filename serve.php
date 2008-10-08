@@ -33,8 +33,11 @@ if (isset($_GET['f'])) {
 	
 		ini_set('include_path','libs/minify'.PATH_SEPARATOR.'.'.PATH_SEPARATOR.'libs'.PATH_SEPARATOR.ini_get('include_path'));
 	    require 'Minify.php';
+		
+		define('_VALID_ACCESS',1);
+		require_once('include/data_dir.php');
         
-		$cache_dir = 'data/cache/minify';
+		$cache_dir = DATA_DIR.'/cache/minify';
 		if(!file_exists($cache_dir))
 			mkdir($cache_dir,0777,true);
 	    Minify::useServerCache($cache_dir);

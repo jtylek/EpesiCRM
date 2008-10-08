@@ -69,7 +69,6 @@ class Base_Box extends Module {
 			foreach($mains as $k=>$m)
 				if(ModuleManager::is_installed($m['module'])>=0) {
 					$this->freeze_module($m['module'],(isset($m['name'])?$m['name']:null));
-//					error_log('freezing '.$m['name']."\n",3,'data/log2');
 				}
 		} else $mains = array();
 
@@ -110,12 +109,10 @@ class Base_Box extends Module {
 			}
 		}
 		array_push($mains,$containers['main']);
-//		error_log(print_r($mains,true)."\n\n\n",3,'data/log');
 		$main_length = count($mains);
 		$this->set_module_variable('main', $mains);
 //		$containers['main']['name'] .= '_'.$main_length;
 		//print_r($containers);
-//		error_log(print_r($containers['main'],true)."\n\n",3,'data/bx.log');
 
 		$this->modules = array();
 		foreach ($containers as $k => $v) {
@@ -166,7 +163,6 @@ class Base_Box extends Module {
 		if(isset($func)) $arr['function'] = $func;
 		if(isset($args)) $arr['arguments'] = $args;
 		if(isset($constr_args)) $arr['constructor_arguments'] = $constr_args;
-		//error_log('dodaje:'."\n".print_r($arr,true)."\n\n\n",3,'data/log');
 		$mains[$x] = & $arr;
 		location(array());
 	}

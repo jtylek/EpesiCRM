@@ -18,7 +18,7 @@ while($row = $ret->FetchRow()) {
 		$langcode = substr($name,0,$dot);
 		if (strtolower(substr($name,$dot+1))!='php') continue;
 		$translations = array();
-		@include('data/Base_Lang/'.$langcode.'.php');
+		@include(DATA_DIR.'/Base_Lang/'.$langcode.'.php');
 		include($directory.'/'.$name);
 		Base_LangCommon::save($langcode);
 	}

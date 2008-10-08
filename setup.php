@@ -28,17 +28,17 @@ ob_start();
 			<tr>
 				<td>
 <?php
+define('_VALID_ACCESS',1);
+require_once('include/data_dir.php');
+
 /**
  * Check access to working directories
  */
-if(file_exists('data/config.php'))
-	die('Cannot write into data/config.php file. Please delete this file.');
+if(file_exists(DATA_DIR.'/config.php'))
+	die('Cannot write into '.DATA_DIR.'/config.php file. Please delete this file.');
 
-if(!is_writable('data'))
-	die('Cannot write into "data" directory. Please fix privileges.');
-
-if(!is_writable('backup'))
-	die('Cannot write into "backup" directory. Please fix privileges.');
+if(!is_writable(DATA_DIR))
+	die('Cannot write into "'.DATA_DIR.'" directory. Please fix privileges.');
 
 @define("_VALID_ACCESS", true);
 require_once('modules/Libs/QuickForm/requires.php');
@@ -150,7 +150,7 @@ if(!isset($_GET['license'])) {
 ///////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////
 function write_config($host, $user, $pass, $dbname, $engine) {
-	$c = & fopen('data/config.php', 'w');
+	$c = & fopen(DATA_DIR.'/config.php', 'w');
 	fwrite($c, '<?php
 /**
  * Config file
@@ -240,7 +240,7 @@ define("GZIP_HISTORY",1);
 
 	ob_end_flush();
 
-	if(file_exists('data/config.php'))
+	if(file_exists(DATA_DIR.'/config.php'))
 		header('Location: index.php');
 	ob_end_flush();
 }
@@ -249,7 +249,7 @@ define("GZIP_HISTORY",1);
 //////////////////////////////////////////////
 function rm_config($x) {
 	if($x) {
-		unlink(dirname(__FILE__).'/data/config.php');
+		unlink(dirname(__FILE__).'/'.DATA_DIR.'/config.php');
 		clean_database();
 	}
 	return $x;

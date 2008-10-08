@@ -31,7 +31,7 @@ abstract class ModulePrimitive extends ModuleAcl {
 	 * @return string path to the data directory
 	 */
 	public final function get_data_dir() {
-		return 'data/'.$this->type.'/';
+		return DATA_DIR.'/'.$this->type.'/';
 	}
 
 	/**

@@ -75,7 +75,6 @@ class Epesi {
 		if($jjj!=='')
 			$ret .= 'Epesi.append_js(\''.self::escapeJS($jjj,false).'\');';
 		self::clean();
-		//file_put_contents('data/jses',implode(self::$jses,"\n\n\n"));
 		return $ret;
 	}
 

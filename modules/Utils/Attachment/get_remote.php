@@ -34,7 +34,7 @@ if($duplicate)
 	DB::Execute('INSERT INTO utils_attachment_download(attach_file_id,created_by,created_on,download_on,description,ip_address,host_name,remote) VALUES (%d,%d,%T,%T,%s,%s,%s,2)',array($file_id,$row['created_by'],$row['created_on'],$t,$row['description'],$remote_address,$remote_host));
 else
 	DB::Execute('UPDATE utils_attachment_download SET remote=2, download_on=%T, ip_address=%s, host_name=%s WHERE id=%d',array($t,$remote_address,$remote_host,$id));
-$f_filename = 'data/Utils_Attachment/'.$filename;
+$f_filename = DATA_DIR.'/Utils_Attachment/'.$filename;
 if(!file_exists($f_filename))
 	die('File doesn\'t exists');
 $buffer = file_get_contents($f_filename);

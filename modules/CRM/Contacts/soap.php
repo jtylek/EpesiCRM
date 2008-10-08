@@ -188,7 +188,6 @@ $server->addObjectMap ($webservice,'http://schemas.xmlsoap.org/soap/envelope/');
 if (isset ($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
 	ob_start();
 	$server->service ($HTTP_RAW_POST_DATA);
-//	error_log(ob_get_contents()."\n\n\n",3,'data/log');
 	ob_end_flush();
 } else { //else discovery query
 	require_once ('SOAP/Disco.php'); //automatic WSDL

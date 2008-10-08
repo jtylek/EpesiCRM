@@ -27,11 +27,11 @@ class Base_ThemeCommon extends ModuleCommon {
 		
 		$theme = self::get_default_template();
 
-		$smarty->template_dir = 'data/Base_Theme/templates/'.$theme;
-		$smarty->compile_dir = 'data/Base_Theme/compiled/';
+		$smarty->template_dir = DATA_DIR.'/Base_Theme/templates/'.$theme;
+		$smarty->compile_dir = DATA_DIR.'/Base_Theme/compiled/';
 		$smarty->compile_id = $theme;
-		$smarty->config_dir = 'data/Base_Theme/config/';
-		$smarty->cache_dir = 'data/Base_Theme/cache/';
+		$smarty->config_dir = DATA_DIR.'/Base_Theme/config/';
+		$smarty->cache_dir = DATA_DIR.'/Base_Theme/cache/';
 		return $smarty;
 	}
 	
@@ -39,7 +39,7 @@ class Base_ThemeCommon extends ModuleCommon {
 		static $theme;
 		if(!isset($theme)) {
 			$theme = Variable::get('default_theme');
-			if(!is_dir('data/Base_Theme/templates/'.$theme))
+			if(!is_dir(DATA_DIR.'/Base_Theme/templates/'.$theme))
 				$theme = 'default';
 		}
 		return $theme;
@@ -75,7 +75,7 @@ class Base_ThemeCommon extends ModuleCommon {
 			    	load_css($cssf,$smarty->template_dir.'/__css.php');
 			}
 		} else {
-			$smarty->template_dir = 'data/Base_Theme/templates/default';
+			$smarty->template_dir = DATA_DIR.'/Base_Theme/templates/default';
 			$smarty->compile_id = 'default';
 
 			if(!$smarty->template_exists($tpl)) {
@@ -91,7 +91,7 @@ class Base_ThemeCommon extends ModuleCommon {
 			}
 
 			$dt = self::get_default_template();
-			$smarty->template_dir = 'data/Base_Theme/templates/'.$dt;
+			$smarty->template_dir = DATA_DIR.'/Base_Theme/templates/'.$dt;
 			$smarty->compile_id = $dt;
 		}
 	}
@@ -109,7 +109,7 @@ class Base_ThemeCommon extends ModuleCommon {
 		$directory = 'modules/'.str_replace('_','/',$mod_name).'/theme_'.$version;
 		if (!is_dir($directory)) $directory = 'modules/'.str_replace('_','/',$mod_name).'/theme';
 		$mod_name = str_replace('_','/',$mod_name);
-		$data_dir = 'data/Base_Theme/templates/default';
+		$data_dir = DATA_DIR.'/Base_Theme/templates/default';
 		$content = scandir($directory);
 		$mod_path = explode('/',$mod_name);
 		$sum = '';
@@ -131,7 +131,7 @@ class Base_ThemeCommon extends ModuleCommon {
 	public static function uninstall_default_theme($mod_name) {
 		$directory = str_replace('_','/',$mod_name);
 		$mod_name = str_replace('/','_',$mod_name);
-		$data_dir = 'data/Base_Theme/templates/default/';
+		$data_dir = DATA_DIR.'/Base_Theme/templates/default/';
 
 		$content = scandir($data_dir);
 		foreach ($content as $name){
@@ -150,7 +150,9 @@ class Base_ThemeCommon extends ModuleCommon {
 	 */
 	public static function get_template_dir() {
 		static $theme = null;
-		static $themes_dir = 'data/Base_Theme/templates/';
+		static $themes_dir;
+		if(!isset($themes_dir))
+			$themes_dir = DATA_DIR.'/Base_Theme/templates/';
 		if(!isset($theme)) {
 			$theme = Variable::get('default_theme');
 		
@@ -192,7 +194,7 @@ class Base_ThemeCommon extends ModuleCommon {
 			$filename = self::get_template_filename($modulename,$filename);
 		$f = self::get_template_dir().$filename;
 		if(!is_readable($f)) {
-			$f = 'data/Base_Theme/templates/default/'.$filename;
+			$f = DATA_DIR.'/Base_Theme/templates/default/'.$filename;
 			if(!is_readable($f))
 				throw new Exception('No such template file: '.$filename);
 		}
@@ -242,7 +244,7 @@ class Base_ThemeCommon extends ModuleCommon {
 	}
 
 	private static function create_images_cache() {
-		$theme_dir = 'data/Base_Theme/templates/';
+		$theme_dir = DATA_DIR.'/Base_Theme/templates/';
 		$default = self::get_images($theme_dir.'default');
 		file_put_contents($theme_dir.'default/__cache.images',implode("\n",$default));
 		$def_theme = Variable::get('default_theme');
@@ -258,7 +260,7 @@ class Base_ThemeCommon extends ModuleCommon {
 	 */
 	public static function create_cache() {
 		//css
-		$themes_dir = 'data/Base_Theme/templates/';
+		$themes_dir = DATA_DIR.'/Base_Theme/templates/';
 		$def_theme = Variable::get('default_theme');
 		$tdir = $themes_dir.$def_theme.'/';
 		copy('modules/Base/Theme/css.php',$themes_dir.'default/__css.php');

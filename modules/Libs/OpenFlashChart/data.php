@@ -15,7 +15,6 @@ $chart_id = $_REQUEST['chart'];
 
 define('CID', $id);
 require_once('../../../include.php');
-error_log(print_r($_REQUEST,true),3,'data/logK');
 
 $fn = Module::static_get_module_variable($chart_id,'data',null);
 session_commit();

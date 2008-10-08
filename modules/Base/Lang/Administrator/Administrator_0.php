@@ -35,7 +35,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		
 		$form = & $this->init_module('Libs/QuickForm',null,'language_setup');
 		
-		$ls_langs = scandir('data/Base_Lang');
+		$ls_langs = scandir(DATA_DIR.'/Base_Lang');
 		$langs = array();
 		foreach ($ls_langs as $entry)
 			if (ereg('.\.php$', $entry)) {

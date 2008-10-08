@@ -572,9 +572,9 @@ class ModuleManager {
 			return false;
 		}
 
-		$src = 'backup/'.$pkg_name.'/data/';
+		$src = DATA_DIR.'/backup/'.$pkg_name.'/data/';
 		if(is_dir($src)) {
-			$dest = 'data/'.$module.'/';
+			$dest = DATA_DIR.'/'.$module.'/';
 			if($delete_old_data && is_dir($dest))
 				self::remove_data_dir($module);
 			recursive_copy($src,$dest);
@@ -589,7 +589,7 @@ class ModuleManager {
 		$ado = & DB::$ado;
 		$ado->StartTrans();
 		foreach($backup_tables as $table) {
-			$fp = fopen('backup/'.$pkg_name.'/sql/'.$table, "r");
+			$fp = fopen(DATA_DIR.'backup/'.$pkg_name.'/sql/'.$table, "r");
 			if ($fp) {
 				if($delete_old_data)
 					DB::Execute('DELETE FROM '.$table);
@@ -641,11 +641,11 @@ class ModuleManager {
 
 		$pkg_name = $module.'__'.$installed_version.'__'.time();
 
-		mkdir('backup/'.$pkg_name);
+		mkdir(DATA_DIR.'/backup/'.$pkg_name,0777,true);
 
 		//backup data
-		$src = 'data/'.$module.'/';
-		$dest = 'backup/'.$pkg_name.'/data/';
+		$src = DATA_DIR.'/'.$module.'/';
+		$dest = DATA_DIR.'/backup/'.$pkg_name.'/data/';
 		if(is_dir($src))
 			recursive_copy($src,$dest);
 
@@ -655,9 +655,9 @@ class ModuleManager {
 				'backup'
 			),$installed_version);
 
-		mkdir('backup/'.$pkg_name.'/sql');
+		mkdir(DATA_DIR.'/backup/'.$pkg_name.'/sql',0777,true);
 		foreach($backup_tables as $table) {
-			$fp = fopen('backup/'.$pkg_name.'/sql/'.$table, "w");
+			$fp = fopen(DATA_DIR.'/backup/'.$pkg_name.'/sql/'.$table, "w");
 			if ($fp) {
 				$rs = DB::Execute('SELECT * FROM '.$table);
   				rs2csvfile($rs, $fp);
@@ -677,7 +677,8 @@ class ModuleManager {
 	 * @return array list of backups, each backup point is described as an array with fields 'name', 'version', 'date'
 	 */
 	public static final function list_backups() {
-		$backup_ls = scandir('backup');
+		if(!file_exists(DATA_DIR.'/backup') || !is_dir(DATA_DIR.'/backup')) return array();
+		$backup_ls = scandir(DATA_DIR.'/backup');
 		$backup = array();
 		$reqs = array();
 		foreach($backup_ls as $b) {
@@ -851,7 +852,7 @@ class ModuleManager {
 	 */
 	public static final function create_data_dir($name) {
 		$name = str_replace('/','_',$name);
-		$dir = 'data/'.$name;
+		$dir = DATA_DIR.'/'.$name;
 		if (is_dir($dir) && is_writable($dir))
 			return true;
 		$x = mkdir($dir,0777);
@@ -869,7 +870,7 @@ class ModuleManager {
 	 */
 	public static final function remove_data_dir($name) {
 		$name = str_replace('/','_',$name);
-		$dir = 'data/'.$name.'/';
+		$dir = DATA_DIR.'/'.$name.'/';
 		if(is_dir($dir))
 			recursive_rmdir($dir);
 		return true;
@@ -877,7 +878,7 @@ class ModuleManager {
 
 	public static final function get_data_dir($name) {
 		$name = str_replace('/','_',$name);
-		return 'data/'.$name.'/';
+		return DATA_DIR.'/'.$name.'/';
 	}
 
 	/**
@@ -890,7 +891,7 @@ class ModuleManager {
 		$installed_modules = ModuleManager::get_load_priority_array(true);
 		self::$not_loaded_modules = $installed_modules;
 		self::$loaded_modules = array();
-		$cache_file = 'data/cache/common.php';
+		$cache_file = DATA_DIR.'/cache/common.php';
 		$cached = false;
 		if(CACHE_COMMON_FILES) {
 			if(!file_exists($cache_file))
@@ -928,7 +929,7 @@ class ModuleManager {
 					'} ?>';
 			}
 		}
-		$cache_dir = 'data/cache/';
+		$cache_dir = DATA_DIR.'/cache/';
 		if(!file_exists($cache_dir))
 			mkdir($cache_dir,0777,true);
 

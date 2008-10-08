@@ -17,7 +17,7 @@ if(!isset($_REQUEST['form_name']) || !isset($_REQUEST['required']))
 $form_name = $_REQUEST['form_name'];
 $doc = $_FILES['file'];
 $dest_filename  = 'tmp_'.microtime(true);
-$dest_path  = 'data/Utils_FileUpload/'.$dest_filename;
+$dest_path  = DATA_DIR.'/Utils_FileUpload/'.$dest_filename;
 $dest_doc = '../../../'.$dest_path;
 $required = $_REQUEST['required'];
 

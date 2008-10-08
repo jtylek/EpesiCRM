@@ -10,12 +10,12 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 define("EPESI_VERSION", '1.0.0rc4');
 
-require_once('data/config.php');
-if(!defined('DATABASE_HOST')) trigger_error('Missing defined DATABASE_HOST in data/config.php.',E_USER_ERROR);
-if(!defined('DATABASE_USER')) trigger_error('Missing defined DATABASE_USER in data/config.php.',E_USER_ERROR);
-if(!defined('DATABASE_PASSWORD')) trigger_error('Missing defined DATABASE_PASSWORD in data/config.php.',E_USER_ERROR);
-if(!defined('DATABASE_NAME')) trigger_error('Missing defined DATABASE_NAME in data/config.php.',E_USER_ERROR);
-if(!defined('DATABASE_DRIVER')) trigger_error('Missing defined DATABASE_DRIVER in data/config.php.',E_USER_ERROR);
+require_once(DATA_DIR.'/config.php');
+if(!defined('DATABASE_HOST')) trigger_error('Missing defined DATABASE_HOST in '.DATA_DIR.'/config.php.',E_USER_ERROR);
+if(!defined('DATABASE_USER')) trigger_error('Missing defined DATABASE_USER in '.DATA_DIR.'/config.php.',E_USER_ERROR);
+if(!defined('DATABASE_PASSWORD')) trigger_error('Missing defined DATABASE_PASSWORD in '.DATA_DIR.'/config.php.',E_USER_ERROR);
+if(!defined('DATABASE_NAME')) trigger_error('Missing defined DATABASE_NAME in '.DATA_DIR.'/config.php.',E_USER_ERROR);
+if(!defined('DATABASE_DRIVER')) trigger_error('Missing defined DATABASE_DRIVER in '.DATA_DIR.'/config.php.',E_USER_ERROR);
 if(!defined('DEBUG')) define("DEBUG",0);
 if(!defined('MODULE_TIMES')) define("MODULE_TIMES",0);
 if(!defined('SQL_TIMES')) define("SQL_TIMES",0);

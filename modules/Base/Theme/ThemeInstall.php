@@ -16,11 +16,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_ThemeInstall extends ModuleInstall {
 	public function install() {
 		$this->create_data_dir();
-		mkdir('data/Base_Theme/templates');
-		mkdir('data/Base_Theme/templates/default');
-		mkdir('data/Base_Theme/compiled');
-		mkdir('data/Base_Theme/cache');
-		mkdir('data/Base_Theme/config');
+		mkdir(DATA_DIR.'/Base_Theme/templates');
+		mkdir(DATA_DIR.'/Base_Theme/templates/default');
+		mkdir(DATA_DIR.'/Base_Theme/compiled');
+		mkdir(DATA_DIR.'/Base_Theme/cache');
+		mkdir(DATA_DIR.'/Base_Theme/config');
 		$this->install_default_theme_common_files('modules/Base/Theme/','images');
 		Variable::set('default_theme','default');
 		Variable::set('preload_image_cache_default',true);
@@ -29,7 +29,7 @@ class Base_ThemeInstall extends ModuleInstall {
 	}
 	
 	public function uninstall() {
-		recursive_rmdir('data/Base_Theme/templates/default/images');
+		recursive_rmdir(DATA_DIR.'/Base_Theme/templates/default/images');
 		Variable::delete('default_theme');
 		Variable::delete('preload_image_cache_default');
 		Variable::delete('preload_image_cache_selected');
@@ -44,11 +44,11 @@ class Base_ThemeInstall extends ModuleInstall {
 		if(class_exists('ZipArchive')) {
 			$zip = new ZipArchive;
 			if ($zip->open($dir.$f.'.zip') == 1) {
-    			$zip->extractTo('data/Base_Theme/templates/default/');
+    			$zip->extractTo(DATA_DIR.'/Base_Theme/templates/default/');
     			return;
 			}
 		}
-		mkdir('data/Base_Theme/templates/default/'.$f);
+		mkdir(DATA_DIR.'/Base_Theme/templates/default/'.$f);
 		$content = scandir($dir.$f);
 		foreach ($content as $name){
 			if ($name == '.' || $name == '..') continue;
@@ -56,7 +56,7 @@ class Base_ThemeInstall extends ModuleInstall {
 			if (is_dir($path))
 				$this->install_default_theme_common_files($dir,$f.'/'.$name);
 			else
-				copy($path,'data/Base_Theme/templates/default/'.$f.'/'.$name);
+				copy($path,DATA_DIR.'/Base_Theme/templates/default/'.$f.'/'.$name);
 		}
 	}
 	public function requires($v) {

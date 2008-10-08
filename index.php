@@ -13,12 +13,13 @@
 if(version_compare(phpversion(), '5.0.0')==-1)
 	die("You are running an old version of PHP, php5 required.");
 
-if(!file_exists('data/config.php')) {
+define('_VALID_ACCESS',1);
+require_once('include/data_dir.php');
+if(!file_exists(DATA_DIR.'/config.php')) {
 	header('Location: setup.php');
 	exit();
 }
 
-define('_VALID_ACCESS',1);
 // require_once('include/include_path.php');
 require_once('include/config.php');
 require_once('include/error.php');

@@ -19,7 +19,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_Theme extends Module {
 	private static $theme;
 	private static $loaded_csses;
-	private static $themes_dir = 'data/Base_Theme/templates/';
 	public $links = array();
 	private $smarty = null;
 	private $lang;
@@ -42,10 +41,10 @@ class Base_Theme extends Module {
 		if(isset($_SESSION['client']['image_cache'])) return;
 		$_SESSION['client']['image_cache']=true;
 		$imgs = array();
-		if(Variable::get('preload_image_cache_selected') && file_exists(self::$themes_dir.self::$theme.'/__cache.images'))
-			$imgs = explode("\n",file_get_contents(self::$themes_dir.self::$theme.'/__cache.images'));
-		if(Variable::get('preload_image_cache_default') && file_exists(self::$themes_dir.'default/__cache.images'))
-			$imgs = array_merge($imgs,explode("\n",file_get_contents(self::$themes_dir.'default/__cache.images')));
+		if(Variable::get('preload_image_cache_selected') && file_exists($this->get_data_dir().'templates/'.self::$theme.'/__cache.images'))
+			$imgs = explode("\n",file_get_contents($this->get_data_dir().'templates/'.self::$theme.'/__cache.images'));
+		if(Variable::get('preload_image_cache_default') && file_exists($this->get_data_dir().'templates/'.'default/__cache.images'))
+			$imgs = array_merge($imgs,explode("\n",file_get_contents($this->get_data_dir().'templates/'.'default/__cache.images')));
 		if(!empty($imgs))
 			eval_js("var cache = document.createElement('div');".
 			"cache.style.display='none';".
@@ -164,9 +163,9 @@ class Base_Theme extends Module {
 	 */
 	public static function list_themes() {
 		$themes = array();
-		$inc = dir(self::$themes_dir);
+		$inc = dir($this->get_data_dir().'templates/');
 		while (false != ($entry = $inc->read())) {
-			if (is_dir(self::$themes_dir.$entry) && $entry!='.' && $entry!='..')
+			if (is_dir($this->get_data_dir().'templates/'.$entry) && $entry!='.' && $entry!='..')
 				$themes[$entry] = $entry;
 		}
 		asort($themes);

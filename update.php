@@ -62,10 +62,10 @@ function install_default_theme_common_files($dir,$f) {
 	if(class_exists('ZipArchive')) {
 		$zip = new ZipArchive;
 		if ($zip->open($dir.$f.'.zip') == 1)
-			$zip->extractTo('data/Base_Theme/templates/default/');
+			$zip->extractTo(DATA_DIR.'/Base_Theme/templates/default/');
 		return;
 	}
-	mkdir('data/Base_Theme/templates/default/'.$f);
+	mkdir(DATA_DIR.'/Base_Theme/templates/default/'.$f);
 	$content = scandir($dir.$f);
 	foreach ($content as $name){
 		if ($name == '.' || $name == '..') continue;
@@ -73,7 +73,7 @@ function install_default_theme_common_files($dir,$f) {
 		if (is_dir($path))
 			install_default_theme_common_files($dir,$f.'/'.$name);
 		else
-			copy($path,'data/Base_Theme/templates/default/'.$f.'/'.$name);
+			copy($path,DATA_DIR.'/Base_Theme/templates/default/'.$f.'/'.$name);
 	}
 }
 
@@ -94,7 +94,7 @@ function langup(){
 			$langcode = substr($name,0,$dot);
 			if (strtolower(substr($name,$dot+1))!='php') continue;
 			$translations = array();
-			@include('data/Base_Lang/'.$langcode.'.php');
+			@include(DATA_DIR.'/Base_Lang/'.$langcode.'.php');
 			include($directory.'/'.$name);
 			Base_LangCommon::save($langcode);
 		}
@@ -103,7 +103,7 @@ function langup(){
 }
 
 function themeup(){
-	$data_dir = 'data/Base_Theme/templates/default/';
+	$data_dir = DATA_DIR.'/Base_Theme/templates/default/';
 	$content = scandir($data_dir);
 	foreach ($content as $name){
 		if ($name == '.' || $name == '..') continue;
@@ -115,7 +115,7 @@ function themeup(){
 		$directory = 'modules/'.str_replace('_','/',$row[0]).'/theme_'.$row['version'];
 		if (!is_dir($directory)) $directory = 'modules/'.str_replace('_','/',$row[0]).'/theme';
 		$mod_name = $row[0];
-		$data_dir = 'data/Base_Theme/templates/default';
+		$data_dir = DATA_DIR.'/Base_Theme/templates/default';
 		if (!is_dir($directory)) continue;
 		$content = scandir($directory);
 

@@ -40,7 +40,7 @@ class Base_LangCommon extends ModuleCommon {
 
 		if(!isset($translations)) {
 			$translations = array();
-			include_once('data/Base_Lang/'.self::get_lang_code().'.php');
+			include_once(DATA_DIR.'/Base_Lang/'.self::get_lang_code().'.php');
 		}
 
 		if(!array_key_exists($group, $translations) ||
@@ -65,7 +65,7 @@ class Base_LangCommon extends ModuleCommon {
 		global $translations;
 		//save translations file
 		if (!isset($lang)) $lang = self::get_lang_code();
-		$f = @fopen('data/Base_Lang/'.$lang.'.php', 'w');
+		$f = @fopen(DATA_DIR.'/Base_Lang/'.$lang.'.php', 'w');
 		if(!$f)	return false;
 
 		fwrite($f, "<?php\n");
@@ -84,7 +84,7 @@ class Base_LangCommon extends ModuleCommon {
 	 * For internal use only.
 	 */
 	public static function load() {
-		@include_once('data/Base_Lang/'.self::get_lang_code().'.php');
+		@include_once(DATA_DIR.'/Base_Lang/'.self::get_lang_code().'.php');
 		global $translations;
 		if(!is_array($translations))
 			$translations=array();
@@ -117,7 +117,7 @@ class Base_LangCommon extends ModuleCommon {
 			if($name == '.' || $name == '..' || ereg('^[\.~]',$name)) continue;
 			$langcode = substr($name,0,strpos($name,'.'));
 			$translations = array();
-			@include('data/Base_Lang/'.$langcode.'.php');
+			@include(DATA_DIR.'/Base_Lang/'.$langcode.'.php');
 			include($directory.'/'.$name);
 			Base_LangCommon::save($langcode);
 		}
@@ -128,7 +128,7 @@ class Base_LangCommon extends ModuleCommon {
 	 * For internal use only.
 	 */
 	public static function new_langpack($code) {
-		file_put_contents('data/Base_Lang/'.$code.'.php','');
+		file_put_contents(DATA_DIR.'/Base_Lang/'.$code.'.php','');
 	}
 
 	/**
@@ -136,10 +136,10 @@ class Base_LangCommon extends ModuleCommon {
 	 */
 	public static function get_langpack($code) {
 		global $translations;
-		if (!is_file('data/Base_Lang/'.$code.'.php')) return false;
-		include_once('data/Base_Lang/'.$code.'.php');
+		if (!is_file(DATA_DIR.'/Base_Lang/'.$code.'.php')) return false;
+		include_once(DATA_DIR.'/Base_Lang/'.$code.'.php');
 		$langpack = $translations;
-		include_once('data/Base_Lang/'.self::get_lang_code().'.php');
+		include_once(DATA_DIR.'/Base_Lang/'.self::get_lang_code().'.php');
 		return $langpack;
 	}
 }
