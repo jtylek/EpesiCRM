@@ -20,7 +20,7 @@ class Utils_GenericBrowserCommon extends ModuleCommon {
 			));
 	}
 	
-	public static function mobile_table($cols,$data,$sort=true) {
+	public static function mobile_table($cols,$data,$enable_sort=true) {
 		$th = Base_ThemeCommon::init_smarty();
 
 		$all_width = 0;
@@ -53,7 +53,7 @@ class Utils_GenericBrowserCommon extends ModuleCommon {
 		$th->assign('cols',array_values($headers));
 
 		//sort data
-		if($sort && isset($_GET['order']) && isset($_GET['order_dir'])) {
+		if($enable_sort && isset($_GET['order']) && isset($_GET['order_dir'])) {
 			$col = array();
 			foreach($data as $j=>$d)
 				foreach($d as $i=>$c)
