@@ -177,7 +177,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 			$data[] = $rrr;
 		}
 
-		Utils_GenericBrowserCommon::mobile_table($columns,$data);
+		Utils_GenericBrowserCommon::mobile_table($columns,$data,'start');
 	}
 }
 
