@@ -185,6 +185,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 		$my_id = CRM_FiltersCommon::get_my_profile();
 		if($action == 'new') {
+			Utils_WatchdogCommon::notified('crm_calendar',$id);
 			$duration_switch = '1';
 			if(!$timeless)
 				$id = strtotime(Base_RegionalSettingsCommon::time2reg($id,true,true,true,false));
@@ -516,8 +517,6 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		}
 
 		if($action == 'view') {
-			Utils_WatchdogCommon::notified('crm_calendar',$id);
-	
 			$form->freeze();
 
 			$tb = $this->init_module('Utils/TabbedBrowser');
