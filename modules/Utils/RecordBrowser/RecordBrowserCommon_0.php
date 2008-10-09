@@ -616,6 +616,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$crits = self::merge_crits($crits, $access);
 		}
 		$iter = 0;
+		self::init($tab, $admin);
 		foreach($order as $k=>$v) {
 			if (!is_string($k)) break;
  			if ($k[0]==':') $order[] = array('column'=>$k, 'order'=>$k, 'direction'=>$v);
