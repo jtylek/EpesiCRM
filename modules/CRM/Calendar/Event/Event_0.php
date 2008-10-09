@@ -516,6 +516,8 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		}
 
 		if($action == 'view') {
+			Utils_WatchdogCommon::notified('crm_calendar',$id);
+	
 			$form->freeze();
 
 			$tb = $this->init_module('Utils/TabbedBrowser');
@@ -563,9 +565,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				$filename = $this->lang->t('Event_%s', array($ev['title']));
 			}
 			$pdf->add_actionbar_icon($filename);
-		}
 
-		if($action == 'view') {
 			if($def['access']==0 || in_array($my_id,$def_emp_id) || Base_AclCommon::i_am_admin()) {
 				Base_ActionBarCommon::add('edit','Edit', $this->create_callback_href(array($this, 'view_event'), array('edit', $id)));
 				Utils_ShortcutCommon::add(array('Ctrl','E'), 'function(){'.$this->create_callback_href_js(array($this, 'view_event'), array('edit', $id)).'}');
