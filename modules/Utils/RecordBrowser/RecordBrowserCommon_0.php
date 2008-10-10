@@ -455,6 +455,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function set_access_callback($tab, $module, $func){
 		DB::Execute('UPDATE recordbrowser_table_properties SET access_callback=%s WHERE tab=%s', array($module.'::'.$func, $tab));
 	}
+	public static function set_mobile_layout_callback($tab, $module, $func){
+		DB::Execute('UPDATE recordbrowser_table_properties SET mobile_layout_callback=%s WHERE tab=%s', array($module.'::'.$func, $tab));
+	}
+	public static function get_mobile_layout($tab){
+		$callback = DB::GetOne('SELECT mobile_layout_callback FROM recordbrowser_table_properties WHERE tab=%s', array($tab));
+		if (!$callback) return false;
+		$callback = explode('::',$callback);
+		if (is_callable($callback)) return call_user_func($callback); 
+		else return false;
+	}
 	public static function get_sql_type($type) {
 		switch ($type) {
 			case 'checkbox': return '%d';
