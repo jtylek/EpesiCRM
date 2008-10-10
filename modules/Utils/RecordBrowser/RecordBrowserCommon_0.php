@@ -189,13 +189,19 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 	public static function get_id($tab, $field, $value) {
 		self::init($tab);
-		if (isset(self::$table_rows[$field])) $field = self::$table_rows[$field]['id'];
-		elseif (!isset(self::$hash[$field])) trigger_error('get_id(): Unknown column: '.$field, E_USER_ERROR);
-		$f_id = self::$hash[$field];
-		if (self::$table_rows[$f_id]['type']=='multiselect') {
-			return DB::GetOne('SELECT id FROM '.$tab.'_data_1 WHERE f_'.$field.' LIKE '.DB::Concat(DB::qstr('%\_\_'),'%s',DB::qstr('\_\_%')), array($value));
+		$where = '';
+		if (!is_array($field)) $field=array($field);
+		if (!is_array($value)) $value=array($value);
+		foreach ($field as $k=>$v) {
+			if (isset(self::$table_rows[$v])) $v = $field[$k] = self::$table_rows[$v]['id'];
+			elseif (!isset(self::$hash[$v])) trigger_error('get_id(): Unknown column: '.$v, E_USER_ERROR);
+			$f_id = self::$hash[$v];
+			if (self::$table_rows[$f_id]['type']=='multiselect') {
+				$where .= ' AND f_'.$v.' LIKE '.DB::Concat(DB::qstr('%\_\_'),'%s',DB::qstr('\_\_%'));
+			} else $where .= ' AND f_'.$v.'=%s';
+			
 		}
-		return DB::GetOne('SELECT id FROM '.$tab.'_data_1 WHERE f_'.$field.'=%s', array($value));
+		return DB::GetOne('SELECT id FROM '.$tab.'_data_1 WHERE true'.$where, $value);
 	}
 	public static function is_active($tab, $id) {
 		self::init($tab);

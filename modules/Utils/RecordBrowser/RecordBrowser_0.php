@@ -401,7 +401,7 @@ class Utils_RecordBrowser extends Module {
 		if (!$special) {
 			if ($this->add_button!==null) $label = $this->add_button;
 			else $label = $this->create_callback_href(array($this, 'navigate'), array('view_entry', 'add', null, $this->custom_defaults));
-			$gb->set_custom_label('<a '.$label.'><img border="0" src="'.Base_ThemeCommon::get_template_file('Base/ActionBar','icons/add-small.png').'" /></a>');
+			if ($label!==false) $gb->set_custom_label('<a '.$label.'><img border="0" src="'.Base_ThemeCommon::get_template_file('Base/ActionBar','icons/add-small.png').'" /></a>');
 		}
 		$search = $gb->get_search_query(true);
 		$search_res = array();
