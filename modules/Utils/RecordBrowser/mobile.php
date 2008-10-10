@@ -44,7 +44,7 @@ if(!IPHONE && $type!='recent' && $order && ($_GET['order_dir']=='asc' || $_GET['
 }
 $offset = isset($_GET['rb_offset'])?$_GET['rb_offset']:0;
 if(IPHONE)
-	$num_rows = 50;
+	$num_rows = 20;
 else
 	$num_rows = 10;
 $data = Utils_RecordBrowserCommon::get_records($table,$crits,array(),$sort,array('numrows'=>$num_rows,'offset'=>$num_rows*$offset));
@@ -97,14 +97,21 @@ if(IPHONE) {
 
 //display paging
 $cur_num_rows = Utils_RecordBrowserCommon::get_records_limit($table,$crits);
-if($offset>0) print('<a href="mobile.php?'.http_build_query(array_merge($_GET,array('rb_offset'=>($offset-1)))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','prev').'</a>');
-if($offset<$cur_num_rows/$num_rows-1) print(' <a href="mobile.php?'.http_build_query(array_merge($_GET,array('rb_offset'=>($offset+1)))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','next').'</a>');
+if($offset>0) print('<a '.(IPHONE?'class="button red" ':'').'href="mobile.php?'.http_build_query(array_merge($_GET,array('rb_offset'=>($offset-1)))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','prev').'</a>');
+if($offset<$cur_num_rows/$num_rows-1) print(' <a '.(IPHONE?'class="button green" ':'').'href="mobile.php?'.http_build_query(array_merge($_GET,array('rb_offset'=>($offset+1)))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','next').'</a>');
 if($cur_num_rows>$num_rows) {
-	$qf = new HTML_QuickForm('login', 'get','mobile.php?'.http_build_query($_GET));
+	$qf = new HTML_QuickForm('rb_page', 'get','mobile.php?'.http_build_query($_GET));
 	$qf->addElement('text', 'rb_offset', Base_LangCommon::ts('Base_User_Login','Page(0-%d)',array($cur_num_rows/$num_rows)));
-	$qf->addElement('submit', 'submit_button', Base_LangCommon::ts('Base_User_Login','OK'));
-	$qf->addRule('username', Base_LangCommon::ts('Base_User_Login','Field required'), 'required');
-	$qf->addRule('page', Base_LangCommon::ts('Base_User_Login','Invalid page number'), 'numeric');
-	$qf->display();
+	$qf->addElement('submit', 'submit_button', Base_LangCommon::ts('Base_User_Login','OK'),IPHONE?'class="button white"':'');
+	$qf->addRule('rb_offset', Base_LangCommon::ts('Base_User_Login','Field required'), 'required');
+	$qf->addRule('rb_offset', Base_LangCommon::ts('Base_User_Login','Invalid page number'), 'numeric');
+	$renderer =& $qf->defaultRenderer();
+/*	if(IPHONE) {
+		$renderer->setFormTemplate("<form{attributes}>{hidden}<ul>{content}</ul></form>");
+		$renderer->setElementTemplate('<li class="error"><!-- BEGIN required --><span style="color: #ff0000">*</span><!-- END required -->{label}<!-- BEGIN error --><span style=\"color: #ff0000\">{error}</span><!-- END error -->{element}</li>');
+		$renderer->setRequiredNoteTemplate("<li>{requiredNote}</li>");
+	}		*/
+	$qf->accept($renderer);
+	print($renderer->toHtml());
 }
 ?>
