@@ -14,20 +14,20 @@ print(Base_LangCommon::ts('Utils_RecordBrowser',$ret['caption']).' - '.Base_Lang
 //cols
 $cols = Utils_RecordBrowserCommon::init($table);
 $cols_out = array();
-foreach($cols as $col) {
-	if($col['visible']) {
+foreach($cols as $k=>$col) {
+	if($col['visible'] && (array_key_exists($col['id'],$sort) || array_key_exists($col['id'],$info))) {
 		if(count($cols_out)==$order_num) $order=$col['id'];
 		if($type!='recent')
-			$cols_out[] = array('name'=>$col['name'], 'order'=>$col['id'], 'width'=>1);
+			$cols_out[] = array('name'=>$col['name'], 'order'=>$col['id'], 'width'=>1, 'record'=>$col);
 		else
-			$cols_out[] = array('name'=>$col['name'], 'width'=>1);
+			$cols_out[] = array('name'=>$col['name'], 'width'=>1, 'record'=>$col);
 	}
 }
 
 //views
-if($ret['recent'] && $type!='recent') print('<a href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'recent'))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','Recent').'</a> ');
-if($ret['favorites'] && $type!='favorites') print('<a href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'favorites'))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','Favorites').'</a> ');
-if(($ret['recent'] || $ret['favorites']) && $type!='all') print('<a href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'all'))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','All').'</a> ');
+if($ret['recent'] && $type!='recent') print('<a href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'recent','rb_offset'=>0))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','Recent').'</a> ');
+if($ret['favorites'] && $type!='favorites') print('<a href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'favorites','rb_offset'=>0))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','Favorites').'</a> ');
+if(($ret['recent'] || $ret['favorites']) && $type!='all') print('<a href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'all','rb_offset'=>0))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','All').'</a> ');
 //$crits = array();
 //$sort = array();
 switch($type) {
@@ -39,33 +39,69 @@ switch($type) {
 		$sort = array(':Visited_on' => 'DESC');
 		break;
 }
-if($type!='recent' && $order && ($_GET['order_dir']=='asc' || $_GET['order_dir']=='desc')) {
+if(!IPHONE && $type!='recent' && $order && ($_GET['order_dir']=='asc' || $_GET['order_dir']=='desc')) {
 	$sort = array($order => strtoupper($_GET['order_dir']));
 }
 $offset = isset($_GET['rb_offset'])?$_GET['rb_offset']:0;
-$data = Utils_RecordBrowserCommon::get_records($table,$crits,array(),$sort,array('numrows'=>10,'offset'=>10*$offset));
+if(IPHONE)
+	$num_rows = 50;
+else
+	$num_rows = 10;
+$data = Utils_RecordBrowserCommon::get_records($table,$crits,array(),$sort,array('numrows'=>$num_rows,'offset'=>$num_rows*$offset));
 
 //parse data
-$data_out = array();
+if(IPHONE) {
+	$letter = null;
+	$letter_col = current($cols_out);
+	$letter_col = $letter_col['record']['id'];
+	print('<ul>');
+} else
+	$data_out = array();
 foreach($data as $v) {
-	$row = array();
-	foreach($cols as $k=>$col) {
-		if(!$col['visible']) continue;
-		$row[] = Utils_RecordBrowserCommon::get_val($table,$col['name'],$v,$v['id'],false,$col);
+	if(IPHONE) {
+		$row_sort = '';
+		$row_info = '';
+	} else
+		$row = array();
+	foreach($cols_out as $col) {
+		$i = array_key_exists($col['record']['id'],$info);
+		$val = Utils_RecordBrowserCommon::get_val($table,$col['name'],$v,$v['id'],IPHONE,$col['record']);
+		if(IPHONE) {
+			if($val==='') continue;
+			if($type!='recent' && $col['record']['id'] == $letter_col && $letter!==$val{0}) {
+				$letter=$val{0};
+				print('</ul><h4>'.$letter.'</h4><ul>');
+			}
+			if($i)
+				$row_info .= ($info[$col['record']['id']]?$col['name'].': ':'').$val.'<br>';
+			else
+				$row_sort .= $val.' ';
+		} else
+			$row[] = $val;
 	}
-	$data_out[] = $row;
+	if(IPHONE) {
+		$open = self::record_link_open_tag($table, $v['id'], false);
+		$close = self::record_link_close_tag();
+		$row = $open.$row_sort.$close.$open.$row_info.$close;
+		print('<li class="arrow">'.$row.'</li>');
+	} else
+		$data_out[] = $row;
 }
 
 //display table
-Utils_GenericBrowserCommon::mobile_table($cols_out,$data_out,false);
+if(IPHONE) {
+	print('</ul>');
+} else {
+	Utils_GenericBrowserCommon::mobile_table($cols_out,$data_out,false);
+}
 
 //display paging
-$num_rows = Utils_RecordBrowserCommon::get_records_limit($table,$crits);
+$cur_num_rows = Utils_RecordBrowserCommon::get_records_limit($table,$crits);
 if($offset>0) print('<a href="mobile.php?'.http_build_query(array_merge($_GET,array('rb_offset'=>($offset-1)))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','prev').'</a>');
-if($offset<$num_rows/10-1) print(' <a href="mobile.php?'.http_build_query(array_merge($_GET,array('rb_offset'=>($offset+1)))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','next').'</a>');
-if($num_rows>10) {
+if($offset<$cur_num_rows/$num_rows-1) print(' <a href="mobile.php?'.http_build_query(array_merge($_GET,array('rb_offset'=>($offset+1)))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','next').'</a>');
+if($cur_num_rows>$num_rows) {
 	$qf = new HTML_QuickForm('login', 'get','mobile.php?'.http_build_query($_GET));
-	$qf->addElement('text', 'rb_offset', Base_LangCommon::ts('Base_User_Login','Page(0-%d)',array($num_rows/10)));
+	$qf->addElement('text', 'rb_offset', Base_LangCommon::ts('Base_User_Login','Page(0-%d)',array($cur_num_rows/$num_rows)));
 	$qf->addElement('submit', 'submit_button', Base_LangCommon::ts('Base_User_Login','OK'));
 	$qf->addRule('username', Base_LangCommon::ts('Base_User_Login','Field required'), 'required');
 	$qf->addRule('page', Base_LangCommon::ts('Base_User_Login','Invalid page number'), 'numeric');

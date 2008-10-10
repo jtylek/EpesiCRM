@@ -164,7 +164,7 @@ if(IPHONE) {
 	?>
 </head>
 
-<body>
+<body id="normal">
 <div id="header">
 		<?php print($caption); ?>
 </div>

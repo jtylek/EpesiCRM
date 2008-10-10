@@ -1272,7 +1272,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return $ret;
 	}
 */	
-	public static function mobile_rb($table,array $crits=array(),array $sort=array()) {
+	public static function mobile_rb($table,array $crits=array(),array $sort=array(),$info=array()) {
 		require_once('modules/Utils/RecordBrowser/mobile.php');
 	}
 	

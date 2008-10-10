@@ -541,11 +541,15 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 	
 	public function mobile_contacts() {
-		Utils_RecordBrowserCommon::mobile_rb('contact',array(),array('last_name'=>'ASC', 'first_name'=>'ASC'));
+		$sort = array('last_name'=>'ASC', 'first_name'=>'ASC');
+		$info = array('company_name'=>0,'work_phone'=>1,'mobile_phone'=>1);
+		Utils_RecordBrowserCommon::mobile_rb('contact',array(),$sort,$info);
 	}
 	
 	public function mobile_companies() {
-		Utils_RecordBrowserCommon::mobile_rb('company',array(),array('company_name'=>'ASC'));	
+		$info = array('phone'=>1);
+		$sort = array('company_name'=>'ASC');
+		Utils_RecordBrowserCommon::mobile_rb('company',array(),$sort,$info);	
 	}
 }
 ?>
