@@ -73,6 +73,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 		DB::CreateIndex('utils_attachment_note__revision__idx', 'utils_attachment_note', 'revision');
 		$this->add_aco('view download history','Super administrator');
 		$this->create_data_dir();
+		file_put_contents($this->get_data_dir().'.htaccess','deny from all');
 		Base_ThemeCommon::install_default_theme($this->get_type());
 		return $ret;
 	}

@@ -191,6 +191,11 @@ function update_from_0_9_9beta2_to_1_0_0rc1() {
 }
 
 function update_from_1_0_0rc1_to_1_0_0rc2() {
+	define('CID',false);
+	require_once('include.php');
+	ob_start();
+	ModuleManager::load_modules();
+	ob_end_clean();
 	DB::DropTable('history');
 	DB::DropTable('session_client');
 	DB::DropTable('session');
