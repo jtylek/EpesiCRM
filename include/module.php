@@ -281,7 +281,7 @@ abstract class Module extends ModulePrimitive {
 			return false;
 
 		if(!isset($name2)) $name2=$name;
-		$_SESSION['client']['__module_vars__'][$m->get_path()][$name2] = & $session['__module_vars__'][$this->get_path()][$name];
+		$_SESSION['client']['__module_vars__'][$m->get_path()][$name2] = & $_SESSION['client']['__module_vars__'][$this->get_path()][$name];
 		return true;
 	}
 
