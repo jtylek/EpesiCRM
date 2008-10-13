@@ -138,7 +138,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 		return $duration_str;
 	}
 
-	public static function mobile_agenda($evmod,$extra_settings=array(),$time_shift=0) {
+	public static function mobile_agenda($evmod,$extra_settings=array(),$time_shift=0,$view_func=null) {
 		$settings = array(
 			'custom_agenda_cols'=>null
 		);
@@ -152,14 +152,14 @@ class Utils_CalendarCommon extends ModuleCommon {
 				array('name'=>Base_LangCommon::ts('Utils_Calendar','Start'), 'order'=>'start', 'width'=>10),
 				array('name'=>Base_LangCommon::ts('Utils_Calendar','Duration'), 'order'=>'end', 'width'=>5),
 				array('name'=>Base_LangCommon::ts('Utils_Calendar','Title'), 'order'=>'title','width'=>10));
-			$add_cols = array();
+/*			$add_cols = array();
 			if(is_array($settings['custom_agenda_cols'])) {
 				$w = 50/count($settings['custom_agenda_cols']);
 				foreach($settings['custom_agenda_cols'] as $k=>$col) {
 					$columns[] = array('name'=>Base_LangCommon::ts('Utils_Calendar',$col), 'order'=>'cus_col_'.$k,'width'=>$w);
 					$add_cols[] = $k;
 				}
-			}
+			}*/
 		}
 		
 		//add data
@@ -177,20 +177,23 @@ class Utils_CalendarCommon extends ModuleCommon {
 		}
 		foreach($ret as $row) {
 			$ex = Utils_CalendarCommon::process_event($row);
-
+			if($view_func)
+				$h = mobile_stack_href($view_func,array($row['id']),Base_LangCommon::ts('Utils_Calendar','View event'));
+			else
+				$h = '';
 			if(IPHONE) {
 				if($date!==$ex['start_date']) {
 					$date=$ex['start_date'];
 					print('</ul><h4>'.$date.'</h4><ul>');
 				}
-				$start = '<a>'.$ex['start'].'</a>';
-				$duration = '<a>'.$ex['duration'].'</a>';
-				$title = '<a>'.$row['title'].'</a>';
+				$start = '<a '.$h.'>'.$ex['start'].'</a>';
+				$duration = '<a '.$h.'>'.$ex['duration'].'</a>';
+				$title = '<a '.$h.'>'.$row['title'].'</a>';
 				print('<li class="arrow">'.$start.$duration.$title.'</li>');
 			} else {
-				$rrr = array(array('label'=>$ex['start'],'order_value'=>isset($row['timeless'])?strtotime($row['timeless']):$row['start']),Utils_TooltipCommon::create($ex['duration'],$ex['end'],false),$row['title']);
-				foreach($add_cols as $a)
-					$rrr[] = $row['custom_agenda_col_'.$a];
+				$rrr = array(array('label'=>'<a '.$h.'>'.$ex['start'].'</a>','order_value'=>isset($row['timeless'])?strtotime($row['timeless']):$row['start']),'<a '.$h.'>'.$ex['duration'].'</a>','<a '.$h.'>'.$row['title'].'</a>');
+//				foreach($add_cols as $a)
+//					$rrr[] = $row['custom_agenda_col_'.$a];
 
 				$data[] = $rrr;
 			}

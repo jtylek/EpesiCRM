@@ -156,10 +156,29 @@ class CRM_CalendarCommon extends ModuleCommon {
 	
 		CRM_Calendar_EventCommon::$filter = CRM_FiltersCommon::get();
 		if($time_shift)
-			print('<a '.mobile_stack_href(array('CRM_CalendarCommon','mobile_agenda'),array(0)).'>'.Base_LangCommon::ts('Utils_Calendar','Show current week').'</a>');
+			print('<a '.(IPHONE?'class="button red" ':'').mobile_stack_href(array('CRM_CalendarCommon','mobile_agenda'),array(0)).'>'.Base_LangCommon::ts('Utils_Calendar','Show current week').'</a>');
 		else
-			print('<a '.mobile_stack_href(array('CRM_CalendarCommon','mobile_agenda'),array(7 * 24 * 60 * 60)).'>'.Base_LangCommon::ts('Utils_Calendar','Show next week').'</a>');
-		Utils_CalendarCommon::mobile_agenda('CRM/Calendar/Event',array('custom_agenda_cols'=>array('Description','Assigned to','Related with')),$time_shift);
+			print('<a '.(IPHONE?'class="button green" ':'').mobile_stack_href(array('CRM_CalendarCommon','mobile_agenda'),array(7 * 24 * 60 * 60)).'>'.Base_LangCommon::ts('Utils_Calendar','Show next week').'</a>');
+		Utils_CalendarCommon::mobile_agenda('CRM/Calendar/Event',array('custom_agenda_cols'=>array('Description','Assigned to','Related with')),$time_shift,array('CRM_CalendarCommon','mobile_view_event'));
+	}
+	
+	public static function mobile_view_event($id) {
+		$row = CRM_Calendar_EventCommon::get($id);
+		$row_orig = DB::GetRow('SELECT * FROM crm_calendar_event WHERE id=%d',array($id));
+		$ex = Utils_CalendarCommon::process_event($row);
+		$priority = array(0 => Base_LangCommon::ts('CRM_Calendar','Low'), 1 => Base_LangCommon::ts('CRM_Calendar','Medium'), 2 => Base_LangCommon::ts('CRM_Calendar','High'));
+		$access = array(0=>Base_LangCommon::ts('CRM_Calendar','Public'), 1=>Base_LangCommon::ts('CRM_Calendar','Public, read-only'), 2=>Base_LangCommon::ts('CRM_Calendar','Private'));
+		print('<ul class="field">');
+		print('<li>'.Base_LangCommon::ts('CRM_Calendar','Title').': '.$row['title'].'</li>');
+		print('<li>'.Base_LangCommon::ts('CRM_Calendar','Starts').': '.$ex['start'].'</li>');
+		print('<li>'.Base_LangCommon::ts('CRM_Calendar','Duration').': '.$ex['duration'].'</li>');
+		print('<li>'.Base_LangCommon::ts('CRM_Calendar','Ends').': '.$ex['end'].'</li>');
+		print('<li>'.Base_LangCommon::ts('CRM_Calendar','Description').': '.$row['description'].'</li>');
+		print('<li>'.Base_LangCommon::ts('CRM_Calendar','Priority').': '.$priority[$row_orig['priority']].'</li>');
+		print('<li>'.Base_LangCommon::ts('CRM_Calendar','Status').': '.Utils_CommonDataCommon::get_value('Ticket_Status/'.$row_orig['status'],true).'</li>');
+		print('<li>'.Base_LangCommon::ts('CRM_Calendar','Access').': '.$access[$row_orig['access']].'</li>');
+		print('</ul>');
+//		'color I1 DEFAULT 0, '.
 	}
 
 }

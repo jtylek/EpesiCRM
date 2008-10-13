@@ -408,7 +408,7 @@ function detect_mobile_device(){
     return true;
   }
   // check the http accept header to see if wap.wml or wap.xhtml support is claimed
-  if(stristr($_SERVER['HTTP_ACCEPT'],'text/vnd.wap.wml')||stristr($_SERVER['HTTP_ACCEPT'],'application/vnd.wap.xhtml+xml')){
+  if(isset($_SERVER['HTTP_ACCEPT']) && (stristr($_SERVER['HTTP_ACCEPT'],'text/vnd.wap.wml')||stristr($_SERVER['HTTP_ACCEPT'],'application/vnd.wap.xhtml+xml'))){
     return true;
   }
   // check if there are any tell tales signs it's a mobile device from the _server headers
