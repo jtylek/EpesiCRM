@@ -356,14 +356,14 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 				$next_result['title'] = '<img src="'.Base_ThemeCommon::get_template_file('CRM_Calendar_Event','recurrence.png').'" border=0 hspace=0 vspace=0 align=left>'.$next_result['title'];
 				$type = self::recurrence_type($row['recurrence_type']);
 				if($row['timeless']) {
-					if(isset($row['recurrence_end']))
-						$rend = min(strtotime($row['recurrence_end']),$end);
-					else
+					if(isset($row['recurrence_end'])) {
+						$rend = min(strtotime($row['recurrence_end'].' 12:00:00')+3600*24,$end);
+					} else
 						$rend = strtotime($end);
 				} else {
-					if(isset($row['recurrence_end']))
-						$rend = min(Base_RegionalSettingsCommon::reg2time($row['recurrence_end']),$end_reg);
-					else
+					if(isset($row['recurrence_end'])) {
+						$rend = min(Base_RegionalSettingsCommon::reg2time(strtotime($row['recurrence_end'].' 12:00:00')+3600*24),$end_reg);
+					} else
 						$rend = $end_reg;
 				}
 				$kk = 0;
