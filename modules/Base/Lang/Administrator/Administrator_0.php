@@ -35,13 +35,8 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		
 		$form = & $this->init_module('Libs/QuickForm',null,'language_setup');
 		
-		$ls_langs = scandir(DATA_DIR.'/Base_Lang');
-		$langs = array();
-		foreach ($ls_langs as $entry)
-			if (ereg('.\.php$', $entry)) {
-				$lang = substr($entry,0,-4);
-				$langs[$lang] = $lang;
-			}
+		$ls_langs = explode(',',@file_get_contents(DATA_DIR.'/Base_Lang/cache'));
+		$langs = array_combine($ls_langs,$ls_langs);
 		$form->addElement('header', 'module_header', 'Languages Administration');
 		$form->addElement('select','lang_code',$this->lang->t('Default language'), $langs);
 		
@@ -56,6 +51,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		*/
 		
 		Base_ActionBarCommon::add('add','New langpack',$this->create_callback_href(array($this,'new_lang_pack')));
+		Base_ActionBarCommon::add('refresh','Refresh languages',$this->create_callback_href(array('Base_LangCommon','refresh_cache')));
 		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
 		Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
 		
@@ -85,6 +81,8 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		}
 		$this->display_module($gb,array(true),'automatic_display');
 	}
+	
+		
 	
 	public function new_lang_pack(){
 		if ($this->is_back()) return false;

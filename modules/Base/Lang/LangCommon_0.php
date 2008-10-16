@@ -122,6 +122,7 @@ class Base_LangCommon extends ModuleCommon {
 			Base_LangCommon::save($langcode);
 		}
 		$translations = $trans_backup;
+		self::refresh_cache();
 	}
 
 	/**
@@ -129,6 +130,7 @@ class Base_LangCommon extends ModuleCommon {
 	 */
 	public static function new_langpack($code) {
 		file_put_contents(DATA_DIR.'/Base_Lang/'.$code.'.php','');
+		self::refresh_cache();
 	}
 
 	/**
@@ -142,6 +144,18 @@ class Base_LangCommon extends ModuleCommon {
 		include_once(DATA_DIR.'/Base_Lang/'.self::get_lang_code().'.php');
 		return $langpack;
 	}
+
+	public static function refresh_cache() {
+		$ls_langs = scandir(DATA_DIR.'/Base_Lang');
+		$langs = array();
+		foreach ($ls_langs as $entry)
+			if (ereg('.\.php$', $entry)) {
+				$lang = substr($entry,0,-4);
+				$langs[] = $lang;
+			}
+		file_put_contents(DATA_DIR.'/Base_Lang/cache',implode(',',$langs));
+	}
+	
 }
 
 on_init(array('Base_LangCommon','load'));
