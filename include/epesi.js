@@ -37,7 +37,7 @@ var Epesi = {
 		Epesi.history_on=-1;
 		unFocus.History.addHistory(id);
 	},
-	init:function(cl_id,path) {
+	init:function(cl_id,path,params) {
 		var browser=navigator.appName;
 		var b_version=navigator.appVersion;
 		var version=parseFloat(b_version);
@@ -50,7 +50,9 @@ var Epesi = {
 		Epesi.process_file=path;
 
 		Epesi.history_add(0);
-		Epesi.request('',0);
+		if(typeof params == 'undefined')
+			params = '';
+		Epesi.request(params,0);
 		unFocus.History.addEventListener('historyChange',function(history_id){
        		switch(Epesi.history_on){
 			    case -1: Epesi.history_on=1;

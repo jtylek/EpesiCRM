@@ -55,6 +55,46 @@ class Base_MenuCommon extends ModuleCommon {
 		}
 		return $menus;
 	}
+	
+	public static function create_href_js($mod,$arr,$ret='js') {
+		$main_mod = $arr['box_main_module'];
+		unset($arr['box_main_module']);
+		if(isset($arr['box_main_function'])) {
+			$main_func = $arr['box_main_function'];
+			unset($arr['box_main_function']);
+		} else {
+			$main_func = null;
+		}
+		if(isset($arr['box_main_arguments'])) {
+			$main_args = $arr['box_main_arguments'];
+			unset($arr['box_main_arguments']);
+		} else {
+			$main_args = null;
+		}
+		if(isset($arr['box_main_constructor_arguments'])) {
+			$constr_args = $arr['box_main_constructor_arguments'];
+			unset($arr['box_main_constructor_arguments']);
+		} else {
+			$constr_args = null;
+		}
+		switch($ret) {
+			case 'js':
+				return $mod->create_main_href_js($main_mod,$main_func,$main_args,$constr_args,$arr);
+			case 'href':
+				return $mod->create_main_href($main_mod,$main_func,$main_args,$constr_args,$arr);
+			case 'array':
+				return array_merge($arr,Base_BoxCommon::create_href_array($mod,$main_mod,$main_func,$main_args,$constr_args));
+		}
+		return '';
+	}
+	
+	public static function create_href($mod,$arr) {
+		return self::create_href_js($mod,$arr,'href');
+	}
+
+	public static function create_array($arr) {
+		return self::create_href_js(null,$arr,'array');
+	}
 
         private static $quick = array();
 	public static function add_quick_menu($name,$action) {

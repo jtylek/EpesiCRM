@@ -106,8 +106,9 @@ class Base_Menu extends Module {
 				} else {
 					if($url)
 						$menu->add_link(Base_LangCommon::ts('Base_Menu',$k), $url,$icon);
-					else
-						$menu->add_link(Base_LangCommon::ts('Base_Menu',$k), 'javascript:'.$this->create_main_href_js($arr['box_main_module'],isset($arr['box_main_function'])?$arr['box_main_function']:null,isset($arr['box_main_arguments'])?$arr['box_main_arguments']:null,isset($arr['box_main_constructor_arguments'])?$arr['box_main_constructor_arguments']:null,$arr) ,$icon);
+					else {
+						$menu->add_link(Base_LangCommon::ts('Base_Menu',$k), 'javascript:'.Base_MenuCommon::create_href_js($this,$arr) ,$icon);
+					}
 				}
 			}
 		}
