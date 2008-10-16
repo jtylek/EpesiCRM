@@ -39,7 +39,7 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 
 
 			load_js('modules/Utils/CurrencyField/currency.js');
-			$curr_format = '([%0-9]*)\\'.$this->dec_delimiter.'?[%0-9]{0,'.$this->dec_digits.'}';
+			$curr_format = '-?([0-9]*)\\'.$this->dec_delimiter.'?[0-9]{0,'.$this->dec_digits.'}';
 			eval_js('Event.observe(\''.$id.'\',\'keypress\',Utils_CurrencyField.validate.bindAsEventListener(Utils_CurrencyField,\''.Epesi::escapeJS($curr_format,false).'\'))');
 			eval_js('Event.observe(\''.$id.'\',\'blur\',Utils_CurrencyField.validate_blur.bindAsEventListener(Utils_CurrencyField,\''.Epesi::escapeJS($curr_format,false).'\'))');
 		}
