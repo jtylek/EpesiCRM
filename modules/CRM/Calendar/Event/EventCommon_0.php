@@ -217,33 +217,33 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 						$kk++;
 						switch($type) {
 							case 'everyday':
-								$row['start']+=3600*24;
+								$row['start']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$row['start']))+3600*24).' '.date('H:i:s',$row['start']));
 								break;
 							case 'second':
-								$row['start']+=3600*48;
+								$row['start']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$row['start']))+3600*48).' '.date('H:i:s',$row['start']));
 								break;
 							case 'third':
-								$row['start']+=3600*72;
+								$row['start']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$row['start']))+3600*72).' '.date('H:i:s',$row['start']));
 								break;
 							case 'fourth':
-								$row['start']+=3600*96;
+								$row['start']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$row['start']))+3600*96).' '.date('H:i:s',$row['start']));
 								break;
 							case 'fifth':
-								$row['start']+=3600*120;
+								$row['start']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$row['start']))+3600*120).' '.date('H:i:s',$row['start']));
 								break;
 							case 'sixth':
-								$row['start']+=3600*144;
+								$row['start']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$row['start']))+3600*144).' '.date('H:i:s',$row['start']));
 								break;
 							case 'week':
-								$row['start']+=3600*168;
+								$row['start']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$row['start']))+3600*168).' '.date('H:i:s',$row['start']));
 								break;
 							case 'week_custom':
 								do {
-									$row['start']+=3600*24;
+									$row['start']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$row['start']))+3600*24).' '.date('H:i:s',$row['start']));
 								} while(!$row['recurrence_hash']{date('N',strtotime(Base_RegionalSettingsCommon::time2reg($row['start'],false,true,true,false)))-1});
 								break;
 							case 'two_weeks':
-								$row['start']+=3600*168*2;
+								$row['start']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$row['start']))+3600*168*2).' '.date('H:i:s',$row['start']));
 								break;
 							case 'month':
 								$month = date('m',$row['start'])%12+1;
@@ -381,42 +381,42 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 						$next_result['id'] = $row['id'].'_'.$kk;
 						switch($type) {
 							case 'everyday':
-								$next_result['start']+=3600*24;
-								$next_result['end']+=3600*24;
+								$next_result['start']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['start']))+3600*24).' '.date('H:i:s',$next_result['start']));
+								$next_result['end']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['end']))+3600*24).' '.date('H:i:s',$next_result['end']));
 								break;
 							case 'second':
-								$next_result['start']+=3600*48;
-								$next_result['end']+=3600*48;
+								$next_result['start']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['start']))+3600*48).' '.date('H:i:s',$next_result['start']));
+								$next_result['end']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['end']))+3600*48).' '.date('H:i:s',$next_result['end']));
 								break;
 							case 'third':
-								$next_result['start']+=3600*72;
-								$next_result['end']+=3600*72;
+								$next_result['start']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['start']))+3600*72).' '.date('H:i:s',$next_result['start']));
+								$next_result['end']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['end']))+3600*72).' '.date('H:i:s',$next_result['end']));
 								break;
 							case 'fourth':
-								$next_result['start']+=3600*96;
-								$next_result['end']+=3600*96;
+								$next_result['start']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['start']))+3600*96).' '.date('H:i:s',$next_result['start']));
+								$next_result['end']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['end']))+3600*96).' '.date('H:i:s',$next_result['end']));
 								break;
 							case 'fifth':
-								$next_result['start']+=3600*120;
-								$next_result['end']+=3600*120;
+								$next_result['start']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['start']))+3600*120).' '.date('H:i:s',$next_result['start']));
+								$next_result['end']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['end']))+3600*120).' '.date('H:i:s',$next_result['end']));
 								break;
 							case 'sixth':
-								$next_result['start']+=3600*144;
-								$next_result['end']+=3600*144;
+								$next_result['start']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['start']))+3600*144).' '.date('H:i:s',$next_result['start']));
+								$next_result['end']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['end']))+3600*144).' '.date('H:i:s',$next_result['end']));
 								break;
 							case 'week':
-								$next_result['start']+=3600*168;
-								$next_result['end']+=3600*168;
+								$next_result['start']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['start']))+3600*168).' '.date('H:i:s',$next_result['start']));
+								$next_result['end']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['end']))+3600*168).' '.date('H:i:s',$next_result['end']));
 								break;
 							case 'week_custom':
 								do {
-									$next_result['start']+=3600*24;
-									$next_result['end']+=3600*24;
+									$next_result['start']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['start']))+3600*24).' '.date('H:i:s',$next_result['start']));
+									$next_result['end']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['end']))+3600*24).' '.date('H:i:s',$next_result['end']));
 								} while(!$row['recurrence_hash']{date('N',strtotime(Base_RegionalSettingsCommon::time2reg($next_result['start'],false,true,true,false)))-1});
 								break;
 							case 'two_weeks':
-								$next_result['start']+=3600*168*2;
-								$next_result['end']+=3600*168*2;
+								$next_result['start']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['start']))+3600*168*2).' '.date('H:i:s',$next_result['start']));
+								$next_result['end']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['end']))+3600*168*2).' '.date('H:i:s',$next_result['end']));
 								break;
 							case 'month':
 								$month = date('m',$next_result['start'])%12+1;

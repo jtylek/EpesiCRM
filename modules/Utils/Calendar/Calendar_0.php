@@ -542,7 +542,7 @@ class Utils_Calendar extends Module {
 									);
 		}
 		for ($i=0; $i<7; $i++) {
-			$that_day = $dis_week_from+$i*86400;
+			$that_day = strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$dis_week_from))+3600*24*$i).' '.date('H:i:s',$dis_week_from));
 			$day_headers[] = array(
 						'date'=>date('d', $that_day).' '.$this->lang->t(date('D', $that_day)),
 						'style'=>(date('Y-m-d',$that_day)==$today?'today':'other').(date('N',$that_day)>=6?'_weekend':''),
@@ -560,8 +560,8 @@ class Utils_Calendar extends Module {
 		$joins = array();
 		for ($i=0; $i<7; $i++) {
 			$time_ids[$i] = array();
-			$today_t_timeless = strtotime(date('Y-m-d',$dis_week_from+$i*86400));
-			$today_t = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$dis_week_from+$i*86400));
+			$today_t_timeless = strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$dis_week_from))+3600*24*$i).' '.date('H:i:s',$dis_week_from));
+			$today_t = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$today_t_timeless));
 			$prev = null;
 			foreach($timeline as & $v) {
 				if(is_string($v['time'])) {
@@ -644,7 +644,7 @@ class Utils_Calendar extends Module {
 		$first_day_of_month = strtotime(date('Y-m-', $date).'01');
 		$diff = date('w', $first_day_of_month)-$this->settings['first_day_of_week'];
 		if ($diff<0) $diff += 7;
-		$currday = strtotime(date('Y-m-d',$first_day_of_month-86400*($diff)));
+		$currday = strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$first_day_of_month))-3600*24*$diff).' '.date('H:i:s',$first_day_of_month));
 		$curmonth = date('m', $date);
 
 		$month = array();
@@ -666,7 +666,7 @@ class Utils_Calendar extends Module {
 					$next['style'].= ' event-'.$colors[$mark[date('Y-m-d',$currday)]];
 				}
 				$week[] = $next;
-				$currday += 86400;
+				$currday = strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$currday))+3600*24).' '.date('H:i:s',$currday));
 			}
 			$month[] = array(
 							'week_label'=>$weekno,
