@@ -63,6 +63,7 @@ function location($u = null,$ret = false, $clear = true) {
 
 	if (is_array($u))
 		$variables = array_merge($variables, $u);
+//	error_log('location '.print_r($u,true).' '.print_r($variables,true)."\n",3,'data/logger2');
 }
 
 /**
@@ -356,7 +357,7 @@ function escapeJS($str,$double=true,$single=true) {return Epesi::escapeJS($str,$
 
 function get_epesi_url() {
 	$protocol = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS'])!== "off") ? 'https://' : 'http://';
-	return $protocol.$_SERVER['HTTP_HOST'].str_replace('\\','/',dirname($_SERVER['PHP_SELF']));
+	return $protocol.$_SERVER['HTTP_HOST'].EPESI_DIR;
 }
 
 function filesize_hr($size) {

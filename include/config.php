@@ -33,4 +33,6 @@ if(!defined('MOBILE_DEVICE')) define('MOBILE_DEVICE',0);
 //other
 @define('SYSTEM_TIMEZONE',date_default_timezone_get());
 
+$dir = trim(dirname(dirname(substr(str_replace('\\','/',__FILE__),strlen(str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']))-strlen($_SERVER['SCRIPT_NAME'])))),'/');
+define('EPESI_DIR','/'.$dir.'/');
 ?>

@@ -17,8 +17,8 @@ class Base_Box extends Module {
 	private $modules;
 	
 	public function construct() {
-		if(isset($_REQUEST['__homepage__']) && $_REQUEST['__homepage__']=='session')
-			$this->set_reload(true);
+//		if(isset($_REQUEST['__homepage__']) && $_REQUEST['__homepage__']=='session')
+//			$this->set_reload(true);
 	}
 
 	public function body() {

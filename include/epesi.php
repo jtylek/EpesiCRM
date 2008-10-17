@@ -218,7 +218,6 @@ class Epesi {
 		if($url) {
 			parse_str($url, $_POST);
 			$_GET = $_REQUEST = & $_POST;
-			error_log(print_r($_GET,true)."\n",3,'data/logger');
 		}
 
 		ModuleManager::load_modules();

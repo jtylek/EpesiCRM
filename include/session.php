@@ -98,13 +98,6 @@ session_set_save_handler(array('DBSession','open'),
                              array('DBSession','destroy'),
                              array('DBSession','gc'));
 
-$subdir = substr(getcwd(),strlen(dirname(dirname(__FILE__))));
-$fulldir = dirname($_SERVER['SCRIPT_NAME']);
-$document_root = str_replace('\\','/',substr($fulldir,0,strlen($fulldir)-strlen($subdir)));
-$document_root = trim($document_root,'/');
-if($document_root) $document_root = '/'.$document_root.'/';
-	else $document_root = '/';
-
 if(!defined('CID')) {
 	if(isset($_SERVER['HTTP_X_CLIENT_ID']) && is_numeric($_SERVER['HTTP_X_CLIENT_ID']))
 		define('CID', (int)$_SERVER['HTTP_X_CLIENT_ID']);
@@ -112,6 +105,6 @@ if(!defined('CID')) {
 		trigger_error('Invalid request without client id');
 }
 
-session_set_cookie_params(0,$document_root);
+session_set_cookie_params(0,EPESI_DIR);
 session_start();
 ?>
