@@ -233,6 +233,24 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		}
 		return '<a '.$href.' '.$tooltip.'><img border="0" src="'.$icon.'"></a>';
 	} 
+	
+	public static function tray_notification() {
+		$methods = DB::GetAssoc('SELECT id,callback FROM utils_watchdog_category');
+		foreach ($methods as $k=>$v) { 
+			$methods[$k] = explode('::',$v);
+		}
+		$only_new = ' AND last_seen_event<(SELECT MAX(id) FROM utils_watchdog_event AS uwe WHERE uwe.internal_id=uws.internal_id AND uwe.category_id=uws.category_id)';
+		$records = DB::GetAssoc('SELECT internal_id,category_id FROM utils_watchdog_subscription AS uws WHERE user_id=%d '.$only_new, array(Acl::get_user()));
+		$ret = array();
+		foreach ($records as $k=>$v) {			
+			$changes = Utils_WatchdogCommon::check_if_notified($v, $k);
+			if (!is_array($changes)) $changes = array();
+			$data = call_user_func($methods[$v], $k, $changes);
+			if ($data==null) continue;
+			$ret[] = $data['title'];
+		}
+		return array('notification'=>$ret);
+	}
 }
 
 ?>
