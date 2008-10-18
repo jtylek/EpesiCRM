@@ -19,8 +19,10 @@ else {
 	}
 		
     $protocol = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS'])!== "off") ? 'https://' : 'http://';
-	$dir = trim(dirname(dirname(substr(str_replace('\\','/',__FILE__),strlen(str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']))-strlen($_SERVER['SCRIPT_NAME'])))),'/');
-    $req = $protocol.$_SERVER['HTTP_HOST'].'/'.$dir.'/';
+	$local_dir = dirname(dirname(str_replace('\\','/',__FILE__)));
+	$url_dir = substr($local_dir,strlen(str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']))-strlen(str_replace('\\','/',$_SERVER['SCRIPT_NAME'])));
+	$dir = trim($url_dir,'/');
+    $req = $protocol.$_SERVER['HTTP_HOST'].'/'.$dir.($dir?'/':'');
     foreach($virtual_hosts as $h=>$dir) {
 		if(!is_string($h)) die('Invalid map.php file: not string host address');
 		if($h==='') die('Invalid map.php file: empty host address');

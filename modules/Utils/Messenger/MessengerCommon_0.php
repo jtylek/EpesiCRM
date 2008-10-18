@@ -46,6 +46,17 @@ class Utils_MessengerCommon extends ModuleCommon {
 			DB::Execute('INSERT INTO utils_messenger_users(message_id,user_login_id) VALUES (%d,%d)',array($id,$users));
 	}
 
+	public static function tray_notification() {
+		$arr = DB::GetAll('SELECT m.* FROM utils_messenger_message m INNER JOIN utils_messenger_users u ON u.message_id=m.id WHERE u.user_login_id=%d AND u.done=0 AND m.alert_on<%T',array(Acl::get_user(),Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s'))));
+		$ret = array();
+		foreach($arr as $row) {
+			ob_start();
+			$m = call_user_func_array(unserialize($row['callback_method']),unserialize($row['callback_args']));
+			ob_clean();
+			$ret[] = $m.($row['message']?"\n".Base_LangCommon::ts('Utils/Messenger',"Alarm comment: %s",array($row['message'])):'');
+		}
+		return array('alerts'=>$ret);
+	}
 }
 
 eval_js_once('utils_messenger_on = true; utils_messenger_refresh = function(){'.

@@ -249,7 +249,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 			if ($data==null) continue;
 			$ret[] = $data['title'];
 		}
-		return array('notification'=>$ret);
+		return array('notifications'=>$ret);
 	}
 }
 
