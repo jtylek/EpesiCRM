@@ -1,5 +1,5 @@
 {php}
-	load_js('data/Base_Theme/templates/default/Libs/Leightbox/default.js');
+	load_js($this->get_template_vars('theme_dir').'/Libs/Leightbox/default.js');
 {/php}
 
 <div id="Leightbox_header">

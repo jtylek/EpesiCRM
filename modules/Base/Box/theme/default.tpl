@@ -9,7 +9,7 @@
 {else}
 
 {php}
-	load_js('data/Base_Theme/templates/default/Base/Box/default.js');
+	load_js($this->get_template_vars('theme_dir').'/Base/Box/default.js');
 	eval_js_once('document.body.id=null');
 {/php}
 
