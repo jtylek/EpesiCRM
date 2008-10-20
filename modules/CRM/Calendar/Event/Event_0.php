@@ -185,7 +185,6 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 		$my_id = CRM_FiltersCommon::get_my_profile();
 		if($action == 'new') {
-			Utils_WatchdogCommon::notified('crm_calendar',$id);
 			$duration_switch = '1';
 			if(!$timeless)
 				$id = strtotime(Base_RegionalSettingsCommon::time2reg($id,true,true,true,false));
@@ -209,6 +208,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			);
 			foreach($this->custom_defaults as $k=>$v) $def[$k] = $v;
 		} else {
+			Utils_WatchdogCommon::notified('crm_calendar',$id);
 			$event = DB::GetRow('SELECT *,starts as start,ends as end,ends-starts as duration FROM crm_calendar_event WHERE id=%d', $id);
 			if ($event['priority']==2) $event['priority']=1;
 			$x = $event['duration'];
