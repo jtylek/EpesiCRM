@@ -53,7 +53,7 @@ class Utils_MessengerCommon extends ModuleCommon {
 			ob_start();
 			$m = call_user_func_array(unserialize($row['callback_method']),unserialize($row['callback_args']));
 			ob_clean();
-			$ret[] = $m.($row['message']?"\n".Base_LangCommon::ts('Utils/Messenger',"Alarm comment: %s",array($row['message'])):'');
+			$ret[] = str_replace("\n",'<br>',$m).($row['message']?"<br>".Base_LangCommon::ts('Utils/Messenger',"Alarm comment: %s",array($row['message'])):'');
 		}
 		return array('alerts'=>$ret);
 	}
