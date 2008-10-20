@@ -14,11 +14,13 @@ header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // date in the past
 
 if(!isset($_REQUEST['form_name']) || !isset($_REQUEST['required']))
 	exit();
+
+define('CID',false);
+require_once('../../../include.php');
 $form_name = $_REQUEST['form_name'];
 $doc = $_FILES['file'];
 $dest_filename  = 'tmp_'.microtime(true);
 $dest_path  = DATA_DIR.'/Utils_FileUpload/'.$dest_filename;
-$dest_doc = '../../../'.$dest_path;
 $required = $_REQUEST['required'];
 
 if($doc['error']==UPLOAD_ERR_INI_SIZE || $doc['error']==UPLOAD_ERR_FORM_SIZE) {
@@ -66,7 +68,7 @@ if($doc['error']==UPLOAD_ERR_INI_SIZE || $doc['error']==UPLOAD_ERR_FORM_SIZE) {
 	}
 } else {
 	$ok = true;
-	move_uploaded_file($doc['tmp_name'], $dest_doc);
+	move_uploaded_file($doc['tmp_name'], $dest_path);
 	?>
 	<script type="text/javascript">
 	<!--
