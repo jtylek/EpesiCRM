@@ -300,6 +300,11 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$form->setDefaults(array($field=>self::display_email(array('email'=>$default), null, array('id'=>'email'))));
 		}
 	}
+	public static function check_new_company_name($data){
+		if (isset($data['create_company_name'])) $data['create_company_name'] = trim($data['create_company_name']);
+		if (isset($data['create_company']) && $data['create_company'] && (!isset($data['create_company_name']) || !$data['create_company_name'])) return array('create_company_name'=>Base_LangCommon::ts('Libs/QuickForm','Field requried'));
+		return true;
+	}
 	public static function QFfield_login(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
 		if ($mode=='view') {
 			$form->addElement('static', $field, $label);
@@ -310,12 +315,14 @@ class CRM_ContactsCommon extends ModuleCommon {
 			if (self::$paste_or_new=='new') {
 				$form->addElement('checkbox', 'create_company', Base_LangCommon::ts('CRM/Contacts','Create new company'), null, array('onClick'=>'document.getElementsByName("company_namefrom[]")[0].disabled=document.getElementsByName("company_nameto[]")[0].disabled=this.checked;document.getElementsByName("create_company_name")[0].disabled=!this.checked;'));
 				$form->addElement('text', 'create_company_name', Base_LangCommon::ts('CRM/Contacts','New company name'), array('disabled'=>1));
+				$form->addFormRule(array('CRM_ContactsCommon', 'check_new_company_name'));
 				if (isset($rb)) $form->setDefaults(array('create_company_name'=>$rb->record['last_name'].' '.$rb->record['first_name']));
 				eval_js('Event.observe(\'last_name\',\'change\', update_create_company_name_field);'.
 						'Event.observe(\'first_name\',\'change\', update_create_company_name_field);'.
 						'function update_create_company_name_field() {'.
 							'document.forms[\''.$form->getAttribute('name').'\'].create_company_name.value = document.forms[\''.$form->getAttribute('name').'\'].last_name.value+" "+document.forms[\''.$form->getAttribute('name').'\'].first_name.value;'.
 						'}');
+				eval_js('document.getElementsByName("company_namefrom[]")[0].disabled=document.getElementsByName("company_nameto[]")[0].disabled=document.getElementsByName("create_company")[0].checked;document.getElementsByName("create_company_name")[0].disabled=!document.getElementsByName("create_company")[0].checked;');
 			} else {
 				$comp = self::get_company(self::$paste_or_new);
 				$paste_company_info =

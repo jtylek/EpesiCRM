@@ -81,7 +81,7 @@
 								{$form_data.create_company.html}{if $action == 'view'}&nbsp;{/if}
 							</td>
 							<td class="data">
-								{$form_data.create_company_name.html}{if $action == 'view'}&nbsp;{/if}
+								{if isset($form_data.create_company_name.error)}<span class="error">{$form_data.create_company_name.error}</span>{/if}{$form_data.create_company_name.html}{if $action == 'view'}&nbsp;{/if}
 							</td>
 						</tr>
 						{else}
