@@ -174,8 +174,11 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		return $ret;
 	}
 	public static function display_phone_number($record, $nolink) {
-		if ($record['other_phone']) return $record['other_phone_number'];
-		else return self::display_phone(array('phone'=>$record['phone']),false,array('id'=>'phone'));
+		if ($record['other_phone']) {
+			if(MOBILE_DEVICE && IPHONE)
+				return '<a href="tel:'.$record['other_phone_number'].'">'.$record['other_phone_number'].'</a>';
+			return $record['other_phone_number'];
+		} else return self::display_phone(array('phone'=>$record['phone']),false,array('id'=>'phone'));
 	}
 	public static function display_contact_name($record, $nolink) {
 		if ($record['other_contact']) return $record['other_contact_name'];
@@ -198,6 +201,8 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		}
 		$id = strtolower(str_replace(' ','_',$nr));
 		$l = Base_LangCommon::ts('CRM/PhoneCall',$nr);
+		if(MOBILE_DEVICE && IPHONE)
+			return $l[0].': '.'<a href="tel:'.$contact[$id].'">'.$contact[$id].'</a>';
 		return $l[0].': '.$contact[$id];
 	}
 	public static function display_status($record, $nolink, $desc) {
