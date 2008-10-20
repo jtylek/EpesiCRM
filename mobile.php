@@ -71,8 +71,16 @@ function mobile_menu() {
 		}
 	}
 	ksort($menus_out);
-	foreach($menus_out as $cap=>$met)
-		print('<a '.mobile_stack_href($met[0],$met[1],$cap).' '.(IPHONE?' class="white button"':'').'>'.$cap.'</a>'.(IPHONE?'':'<br>'));
+	$colors = array('white','red','green','black','blue');
+	$i=-1;
+	$chr = null;
+	foreach($menus_out as $cap=>$met) {
+		if($chr != $cap{0}) {
+			$i = ($i+1)%count($colors);
+			$chr = $cap{0};
+		}
+		print('<a '.mobile_stack_href($met[0],$met[1],$cap).' '.(IPHONE?' class="button '.$colors[$i].'"':'').'>'.$cap.'</a>'.(IPHONE?'':'<br>'));
+	}
 }
 
 

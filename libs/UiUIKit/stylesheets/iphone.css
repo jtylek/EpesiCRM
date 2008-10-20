@@ -580,6 +580,7 @@
 											}
 
 											.green { -webkit-border-image: url(../images/greenButton.png) 0 14 0 14; }
+											.blue { -webkit-border-image: url(../images/blueButton.png) 0 14 0 14; }
 											.red { -webkit-border-image: url(../images/redButton.png) 0 14 0 14; }
 
 											.white {

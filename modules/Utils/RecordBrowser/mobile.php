@@ -25,9 +25,9 @@ foreach($cols as $k=>$col) {
 }
 
 //views
-if($ret['recent'] && $type!='recent') print('<a href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'recent','rb_offset'=>0))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','Recent').'</a> ');
-if($ret['favorites'] && $type!='favorites') print('<a href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'favorites','rb_offset'=>0))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','Favorites').'</a> ');
-if(($ret['recent'] || $ret['favorites']) && $type!='all') print('<a href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'all','rb_offset'=>0))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','All').'</a> ');
+if($ret['recent'] && $type!='recent') print('<a '.(IPHONE?'class="button red" ':'').'href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'recent','rb_offset'=>0))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','Recent').'</a> ');
+if($ret['favorites'] && $type!='favorites') print('<a '.(IPHONE?'class="button green" ':'').'href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'favorites','rb_offset'=>0))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','Favorites').'</a> ');
+if(($ret['recent'] || $ret['favorites']) && $type!='all') print('<a '.(IPHONE?'class="button white" ':'').'href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'all','rb_offset'=>0))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','All').'</a> ');
 //$crits = array();
 //$sort = array();
 switch($type) {
