@@ -43,7 +43,7 @@ class Applets_MonthView extends Module {
 					$next['style'].= ' event-'.$colors[$mark[date('Y-m-d',$currday)]];
 				}
 				$week[] = $next;
-				$currday += 86400;
+				$currday = strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$currday))+3600*24).' '.date('H:i:s',$currday));
 			}
 			$month[] = array(
 							'week_label'=>$weekno,
