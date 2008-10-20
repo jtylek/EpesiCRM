@@ -527,7 +527,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function update_record($tab,$id,$values,$all_fields = false, $date = null, $dont_notify = false) {
 		DB::StartTrans();
 		self::init($tab);
-		$record = self::get_record($tab, $id);
+		$record = self::get_record($tab, $id, false);
 		$access = self::get_access($tab, 'fields', $record);
 		$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($tab));
 		$method = '';
