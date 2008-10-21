@@ -189,7 +189,6 @@ class Utils_GenericBrowser extends Module {
 	 */
 	public function get_new_row() {
 		$this->cur_row++;
-		if ($this->per_page && $this->cur_row>=$this->per_page) trigger_error('Added more rows than expected, aborting.',E_USER_ERROR);
 		return new Utils_GenericBrowser_Row_Object($this,$this->cur_row);
 	}
 
