@@ -992,6 +992,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 	public static function get_access($tab, $action, $param=null){
 		if (Base_AclCommon::i_am_admin()) return true;
+// TODO: Need to set a switch?
 		static $cache = array();
 		if (!isset($cache[$tab])) $cache[$tab] = $access_callback = explode('::', DB::GetOne('SELECT access_callback FROM recordbrowser_table_properties WHERE tab=%s', array($tab)));
 		else $access_callback = $cache[$tab];

@@ -499,7 +499,7 @@ class Utils_RecordBrowser extends Module {
 				if (isset($this->cut[$args['id']])) {
 					$value = $this->cut_string($value,$this->cut[$args['id']]);
 				}
-				if ($args['type']=='currency' || $args['type']=='integer') $value = array('style'=>'text-align:right;','value'=>$value);
+				if ($args['style']=='currency' || $args['style']=='integer') $value = array('style'=>'text-align:right;','value'=>$value);
 				$row_data[] = $value;
 			}
 			if ($this->browse_mode == 'recent')
@@ -555,6 +555,12 @@ class Utils_RecordBrowser extends Module {
 
 			foreach($visible_cols as $k => $v)
 				$row_data[] = $data[$k]['error'].$data[$k]['html'];
+				
+			$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
+			if ($dpm!=='') {
+				$method = explode('::',$dpm);
+				if (is_callable($method)) call_user_func($method, null, 'adding');
+			}
 
 			if ($this->browse_mode == 'recent')
 				$row_data[] = '&nbsp;';
@@ -656,16 +662,14 @@ class Utils_RecordBrowser extends Module {
 		$tb = $this->init_module('Utils/TabbedBrowser');
 		self::$tab_param = $tb->get_path();
 
-		if ($mode=='view') {
-			$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
-			if ($dpm!=='') {
-				$method = explode('::',$dpm);
-				if (is_callable($method)) {
-					$theme_stuff = call_user_func($method, $this->record, 'view');
-					if (is_array($theme_stuff))
-						foreach ($theme_stuff as $k=>$v)
-							$theme->assign($k, $v);
-				}
+		$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
+		if ($dpm!=='') {
+			$method = explode('::',$dpm);
+			if (is_callable($method)) {
+				$theme_stuff = call_user_func($method, $this->record, $mode=='view'?'view':$mode.'ing');
+				if ($mode==='view' && is_array($theme_stuff))
+					foreach ($theme_stuff as $k=>$v)
+						$theme->assign($k, $v);
 			}
 		}
 		switch ($mode) {
@@ -950,9 +954,12 @@ class Utils_RecordBrowser extends Module {
 													$this->advanced[$args['id']] = $rp->create_open_link($this->lang->t('Advanced'));
 												}
 											} else $crits = array();
-											$records = Utils_RecordBrowserCommon::get_records($tab, $crits, empty($multi_adv_params['format_callback'])?array($col):array());
-											$col_id = strtolower(str_replace(' ','_',$col));
+											$col = explode('|',$col);
+											$col_id = array();
+											foreach ($col as $c) $col_id[] = strtolower(str_replace(' ','_',$c));
+											$records = Utils_RecordBrowserCommon::get_records($tab, $crits, empty($multi_adv_params['format_callback'])?$col_id:array());
 											$ext_rec = array();
+											$single_column = (count($col_id)==1);
 											if (isset($record[$args['id']])) {
 												if (!is_array($record[$args['id']])) {
 													if ($record[$args['id']]!='') $record[$args['id']] = array($record[$args['id']]); else $record[$args['id']] = array();
@@ -961,14 +968,29 @@ class Utils_RecordBrowser extends Module {
 												foreach($ext_rec as $k=>$v) {
 													$c = Utils_RecordBrowserCommon::get_record($tab, $k);
 													if (!empty($multi_adv_params['format_callback'])) $n = call_user_func($multi_adv_params['format_callback'], $c);
-													else $n = $c[$col_id];
+													else {
+														if ($single_column) $n = $c[$col_id[0]];
+														else {
+															$n = array();
+															foreach ($col_id as $cid) $n[] = $c[$cid];
+															$n = implode(' ',$n);
+														}
+													}
 													$comp[$k] = $n;
 												}
 											}
 											natcasesort($comp);
 											foreach ($records as $k=>$v) {
 												if (!empty($multi_adv_params['format_callback'])) $n = call_user_func($multi_adv_params['format_callback'], $v);
-												else $n = $v[$col_id];
+												else {
+//													$n = $v[$col_id];
+													if ($single_column) $n = $v[$col_id[0]];
+													else {
+														$n = array();
+														foreach ($col_id as $cid) $n[] = $v[$cid];
+														$n = implode(' ',$n);
+													}
+												}
 												$comp[$k] = $n;
 												unset($ext_rec[$v['id']]);
 											}
