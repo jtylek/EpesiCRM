@@ -545,6 +545,14 @@ class CRM_ContactsCommon extends ModuleCommon {
 			);
 	}
 	
+	public static function contact_bbcode($text, $param, $opt) {
+		return Utils_RecordBrowserCommon::record_bbcode('contact', array('first_name','last_name'), $text, $param, $opt);
+	}
+	
+	public static function company_bbcode($text, $param, $opt) {
+		return Utils_RecordBrowserCommon::record_bbcode('company', array('company_name'), $text, $param, $opt);
+	}
+	
 	//////////////////////////
 	// mobile devices
 	public function mobile_menu() {

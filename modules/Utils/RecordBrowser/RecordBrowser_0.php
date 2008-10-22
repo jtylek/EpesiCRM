@@ -472,6 +472,7 @@ class Utils_RecordBrowser extends Module {
 		self::$access_override['tab'] = $this->tab;
 		$i = $limit['offset'];
 		foreach ($records as $row) {
+			$row = Utils_RecordBrowserCommon::format_long_text($this->tab,$row);
 			if ($this->browse_mode!='recent') {
 				self::$browsed_records['records'][$row['id']] = $i;
 				$i++;

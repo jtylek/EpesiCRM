@@ -33,6 +33,10 @@ class CRM_TasksCommon extends ModuleCommon {
 			return array();
 	}
 
+	public static function task_bbcode($text, $param, $opt) {
+		return Utils_RecordBrowserCommon::record_bbcode('task', array('title'), $text, $param, $opt);
+	}
+	
 	public static function get_tasks($crits = array(), $cols = array(), $order = array()) {
 		return Utils_RecordBrowserCommon::get_records('task', $crits, $cols, $order);
 	}

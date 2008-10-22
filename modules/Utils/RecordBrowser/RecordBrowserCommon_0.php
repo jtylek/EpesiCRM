@@ -101,6 +101,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if ($args['type']!='long text') continue;
 			foreach ($records as $k=>$v) {
 				$records[$k][$args['id']] = str_replace("\n",'<br>',$v[$args['id']]);
+				$records[$k][$args['id']] = Utils_BBCodeCommon::parse($records[$k][$args['id']]);
 			}
 		}
 		return $records;
@@ -124,6 +125,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		foreach(self::$table_rows as $field => $args) {
 			if ($args['type']!='long text') continue;
 			$record[$args['id']] = str_replace("\n",'<br>',htmlspecialchars($record[$args['id']]));
+			$record[$args['id']] = Utils_BBCodeCommon::parse($record[$args['id']]);
 		}
 		return $record;
 	}
@@ -506,6 +508,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$vals = array(date('Y-m-d G:i:s'), Acl::get_user(), 1);
 		foreach(self::$table_rows as $field => $args) {
 			if (!isset($values[$args['id']]) || $values[$args['id']]==='') continue;
+			if ($args['type']=='long text')
+				$values[$args['id']] = Utils_BBCodeCommon::optimize($values[$args['id']]);
 			if ($args['type']=='multiselect' && empty($values[$args['id']])) continue;
 			if ($args['type']=='multiselect')
 				$values[$args['id']] = self::encode_multi($values[$args['id']]);
@@ -554,6 +558,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				if ($all_fields) $values[$args['id']] = '';
 				else continue;
 			}
+			if ($args['type']=='long text')
+				$values[$args['id']] = Utils_BBCodeCommon::optimize($values[$args['id']]);
 			if ($record[$args['id']]!=$values[$args['id']]) {
 				if ($args['type']=='multiselect') {
 					$v = self::encode_multi($values[$args['id']]);
@@ -771,7 +777,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					$having .= '('.($negative?'true':'false');
 					foreach($v as $w) {
 						if (!$noquotes) $w = DB::qstr($w);
-						$having .= ' '.($negative?'AND':'OR').' id '.($negative?'NOT ':'').$operator.' '.$w;
+						$having .= ' '.($negative?'AND':'OR').($negative?' NOT':'').' id '.$operator.' '.$w;
 					}
 					$having .= ')';
 				} else {
@@ -886,8 +892,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 	public static function get_records( $tab = null, $crits = array(), $cols = array(), $order = array(), $limit = array(), $admin = false) {
 		if (!$tab) return false;
-		if (!isset($limit['offset'])) $limit['offset'] = 0;
-		if (!isset($limit['numrows'])) $limit['numrows'] = -1;
+		if (is_numeric($limit)) {
+			$limit = array('numrows'=>$limit,'offset'=>0);
+		} else {			
+			if (!isset($limit['offset'])) $limit['offset'] = 0;
+			if (!isset($limit['numrows'])) $limit['numrows'] = -1;
+		}
 		if (!$order) $order = array();
 		$fields = '*';
 		self::init($tab);
@@ -1188,6 +1198,34 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$label = $r[$col];
 		$ret = self::record_link_open_tag($tab, $id, $nolink).$label.self::record_link_close_tag();
 		return $ret;
+	}
+	public static function record_bbcode($tab, $fields, $text, $param, $opt) {
+		if (!is_numeric($param)) {
+			$parts = explode(' ', $text);
+			$crits = array();
+			foreach ($parts as $k=>$v) {
+				$v = DB::Concat(DB::qstr('%'),DB::qstr($v),DB::qstr('%'));;
+				$chr = '(';
+				foreach ($fields as $f) {
+					$crits[$chr.str_repeat('_', $k).'~"'.$f] = $v;
+					$chr='|';
+					// TODO: problem if in two records one tag is substring for tag of another
+				}
+			}
+			$rec = Utils_RecordBrowserCommon::get_records($tab, $crits, array(), array(), 1);
+			if (is_array($rec)) $rec = array_shift($rec);
+			else $rec = null;
+		} else {
+			$rec = Utils_RecordBrowserCommon::get_record($tab, $param);
+		}
+		if ($opt) {
+			if (!$rec) return null;
+			return Utils_BBCodeCommon::create_bbcode(null, $rec['id'], $text);
+		}
+		if ($rec) {
+			return Utils_RecordBrowserCommon::record_link_open_tag($tab, $rec['id']).$text.Utils_RecordBrowserCommon::record_link_close_tag();
+		}
+		return Utils_BBCodeCommon::create_bbcode(null, $param, $text, Base_LangCommon::ts('Utils_RecordBrowser','Record not found'));
 	}
 	public static function applet_settings($some_more = array()) {
 		$some_more = array_merge($some_more,array(
