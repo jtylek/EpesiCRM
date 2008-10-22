@@ -409,18 +409,18 @@ class Utils_RecordBrowser extends Module {
 			$k = str_replace('__',':',$k);
 			$type = explode(':',$k);
 			if ($k[0]=='"') {
-				$search_res['_'.$k] = $v;
+				$search_res['~_'.$k] = $v;
 				continue;
 			}
 			if (isset($type[1]) && $type[1]=='RefCD') {
-				$search_res['"'.$k] = $v;
+				$search_res['~"'.$k] = $v;
 				continue;
 			}
 			if (!is_array($v)) $v = array($v);
 			$r = array();
 			foreach ($v as $w)
 				$r[] = DB::Concat(DB::qstr('%'),DB::qstr($w),DB::qstr('%'));
-			$search_res['"'.$k] = $r;
+			$search_res['~"'.$k] = $r;
 		}
 
 		$order = $gb->get_order();

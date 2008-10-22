@@ -634,7 +634,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		foreach($crits as $k=>$v){
 			self::init($tab, $admin);
 			$negative = $noquotes = $or_start = $or = false;
-			$operator = 'LIKE';
+			$operator = '=';
 			while (($k[0]<'a' || $k[0]>'z') && ($k[0]<'A' || $k[0]>'Z') && $k[0]!=':') {
 				if ($k[0]=='!') $negative = true;
 				if ($k[0]=='"') $noquotes = true;
@@ -642,6 +642,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				if ($k[0]=='|') $or = true;
 				if ($k[0]=='<') $operator = '<';
 				if ($k[0]=='>') $operator = '>';
+				if ($k[0]=='~') $operator = 'LIKE';
 				if ($k[1]=='=' && $operator!='LIKE') {
 					$operator .= '=';
 					$k = substr($k, 2);
@@ -748,7 +749,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
 							$having_cd = array();
 							if ($negative) $having .= 'NOT (';
-							$is_multiselect = self::$table_rows[self::$hash[$ref]]=='multiselect';
+							$is_multiselect = (self::$table_rows[self::$hash[$ref]]['type']=='multiselect');
 							foreach ($allowed_cd as $vvv) {
 								if ($is_multiselect) $www = DB::Concat(DB::qstr('%'),DB::qstr('\_\_'.$vvv.'\_\_'),DB::qstr('%'));
 								else $www = DB::qstr($vvv);
@@ -782,6 +783,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								$key = self::$table_rows[$k]['id'];
 							} else trigger_error($tab.' - '.$k.' - '.print_r($crits,true).' - '.print_r(self::$table_rows,true), E_USER_ERROR);
 							if (self::$table_rows[$f]['type']=='multiselect') {
+								$operator = 'LIKE';
 								$param = explode('::',self::$table_rows[$f]['param']);
 								if ($param[0]=='__COMMON__')$tail = '';
 								else $tail = '\_\_';
