@@ -527,6 +527,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			Utils_WatchdogCommon::subscribe($tab,$id);
 		Utils_WatchdogCommon::new_event($tab,$id,'C');
 		if ($dpm!=='') {
+			self::init($tab);
 			foreach(self::$table_rows as $field=>$args)
 				if ($args['type']==='multiselect') {
 					if (!isset($values[$args['id']])) $values[$args['id']] = array();
