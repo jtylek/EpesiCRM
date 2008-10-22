@@ -295,7 +295,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	public function mobile_menu() {
 		if(!Acl::is_user())
 			return array();
-		return array('Phone Calls'=>'mobile_phone_calls');
+		return array('Phone Calls'=>array('func'=>'mobile_phone_calls','color'=>'blue'));
 	}
 	
 	public function mobile_phone_calls() {

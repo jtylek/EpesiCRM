@@ -53,8 +53,21 @@ function mobile_stack_href($func,$args = array(),$caption=null) {
 	return 'href="mobile.php?'.http_build_query(array('page'=>$md5)).'"';
 }
 
+function sort_menus_cmp($a, $b) {
+	global $menus_out;
+	$aw = isset($menus_out[$a][2]) ? $menus_out[$a][2]:0;
+	$bw = isset($menus_out[$b][2]) ? $menus_out[$b][2]:0;
+	if(!isset($aw) || !is_numeric($aw)) $aw=0;
+	if(!isset($bw) || !is_numeric($bw)) $bw=0;
+	if($aw==$bw)
+		return strcasecmp($a, $b);
+	return $aw-$bw;
+}
+
+
 function mobile_menu() {
 	$menus = ModuleManager::call_common_methods('mobile_menu');
+	global $menus_out;
 	$menus_out = array();
 	foreach($menus as $m=>$r) {
 		if(!is_array($r)) continue;
@@ -63,23 +76,20 @@ function mobile_menu() {
 				if(!isset($met['func'])) continue;
 				$method = array($m.'Common',$met['func']);
 				$args = isset($met['args'])?$met['args']:array();				
+				$weight = isset($met['weight'])?$met['weight']:0;
+				$color = isset($met['color'])?$met['color']:'white';
 			} else {
 				$method = array($m.'Common',$met);
 				$args = array();
+				$weight = 0;
+				$color='white';
 			}
-			$menus_out[$cap] = array($method,$args);
+			$menus_out[$cap] = array($method,$args,$weight,$color);
 		}
 	}
-	ksort($menus_out);
-	$colors = array('white','red','green','black','blue');
-	$i=-1;
-	$chr = null;
+	uksort($menus_out,'sort_menus_cmp');
 	foreach($menus_out as $cap=>$met) {
-		if($chr != $cap{0}) {
-			$i = ($i+1)%count($colors);
-			$chr = $cap{0};
-		}
-		print('<a '.mobile_stack_href($met[0],$met[1],$cap).' '.(IPHONE?' class="button '.$colors[$i].'"':'').'>'.$cap.'</a>'.(IPHONE?'':'<br>'));
+		print('<a '.mobile_stack_href($met[0],$met[1],$cap).' '.(IPHONE?' class="button '.$met[3].'"':'').'>'.$cap.'</a>'.(IPHONE?'':'<br>'));
 	}
 }
 

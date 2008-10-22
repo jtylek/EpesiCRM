@@ -148,7 +148,7 @@ class CRM_CalendarCommon extends ModuleCommon {
 	
 	public static function mobile_menu() {
 		if(Acl::is_user())
-			return array('Calendar Agenda'=>'mobile_agenda');
+			return array('Calendar'=>array('func'=>'mobile_agenda','color'=>'green'));
 	}
 	
 	public static function mobile_agenda($time_shift=0) {
@@ -163,6 +163,9 @@ class CRM_CalendarCommon extends ModuleCommon {
 	}
 	
 	public static function mobile_view_event($id) {
+		$recurrence = strpos($id,'_');
+		if($recurrence!==false)
+			$id = substr($id,0,$recurrence);
 		$row = CRM_Calendar_EventCommon::get($id);
 		$row_orig = DB::GetRow('SELECT * FROM crm_calendar_event WHERE id=%d',array($id));
 		$ex = Utils_CalendarCommon::process_event($row);

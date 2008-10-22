@@ -1335,12 +1335,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if(IPHONE) {
 			print('<ul class="field">');
 			foreach($cols as $k=>$col) {
-				print('<li>'.$col['name'].': '.Utils_RecordBrowserCommon::get_val($tab,$col['name'],$rec,$rec['id'],false,$col).'</li>');
+				$val = Utils_RecordBrowserCommon::get_val($tab,$col['name'],$rec,$rec['id'],false,$col);
+				if($val==='') continue;
+				print('<li>'.$col['name'].': '.$val.'</li>');
 			}
 			print('</ul>');
 		} else {
 			foreach($cols as $k=>$col) {
-				print($col['name'].': '.Utils_RecordBrowserCommon::get_val($tab,$col['name'],$rec,$rec['id'],false,$col).'<br>');
+				$val = Utils_RecordBrowserCommon::get_val($tab,$col['name'],$rec,$rec['id'],false,$col);
+				if($val==='') continue;
+				print($col['name'].': '.$val.'<br>');
 			}
 		}
 	}

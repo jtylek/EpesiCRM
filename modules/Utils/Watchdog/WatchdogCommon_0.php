@@ -240,14 +240,14 @@ class Utils_WatchdogCommon extends ModuleCommon {
 			$methods[$k] = explode('::',$v);
 		}
 		$only_new = ' AND last_seen_event<(SELECT MAX(id) FROM utils_watchdog_event AS uwe WHERE uwe.internal_id=uws.internal_id AND uwe.category_id=uws.category_id)';
-		$records = DB::GetAssoc('SELECT internal_id,category_id FROM utils_watchdog_subscription AS uws WHERE user_id=%d '.$only_new, array(Acl::get_user()));
+		$records = DB::GetAll('SELECT internal_id,category_id,last_seen_event FROM utils_watchdog_subscription AS uws WHERE user_id=%d '.$only_new, array(Acl::get_user()));
 		$ret = array();
 		foreach ($records as $k=>$v) {			
-			$changes = Utils_WatchdogCommon::check_if_notified($v, $k);
+			$changes = Utils_WatchdogCommon::check_if_notified($v['category_id'], $v['internal_id']);
 			if (!is_array($changes)) $changes = array();
-			$data = call_user_func($methods[$v], $k, $changes);
+			$data = call_user_func($methods[$v['category_id']], $v['internal_id'], $changes);
 			if ($data==null) continue;
-			$ret[] = $data['title'];
+			$ret['watchdog_'.$v['internal_id'].'_'.$v['category_id'].'_'.$v['last_seen_event']] = $data['title'];
 		}
 		return array('notifications'=>$ret);
 	}

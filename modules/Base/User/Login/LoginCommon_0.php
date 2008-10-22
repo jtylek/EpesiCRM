@@ -149,7 +149,7 @@ This e-mail was automatically generated and you do not need to respond to it.", 
 	
 	public static function mobile_menu() {
 		if(Acl::is_user())
-			return array('Logout'=>'mobile_logout');
+			return array('Logout'=>array('func'=>'mobile_logout','weight'=>100));
 		return array('Login'=>'mobile_login');
 	}
 	

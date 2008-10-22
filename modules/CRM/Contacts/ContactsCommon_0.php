@@ -558,7 +558,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	public function mobile_menu() {
 		if(!Acl::is_user())
 			return array();
-		return array('Contacts'=>'mobile_contacts','Companies'=>'mobile_companies');
+		return array('Contacts'=>array('func'=>'mobile_contacts','color'=>'red'),'Companies'=>array('func'=>'mobile_companies','color'=>'black'));
 	}
 	
 	public function mobile_contacts() {

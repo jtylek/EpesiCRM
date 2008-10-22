@@ -254,7 +254,7 @@ class CRM_TasksCommon extends ModuleCommon {
 	public function mobile_menu() {
 		if(!Acl::is_user())
 			return array();
-		return array('Tasks'=>'mobile_tasks');
+		return array('Tasks'=>array('func'=>'mobile_tasks','color'=>'blue'));
 	}
 	
 	public function mobile_tasks() {

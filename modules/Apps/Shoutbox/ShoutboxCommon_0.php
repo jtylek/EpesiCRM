@@ -22,16 +22,16 @@ class Apps_ShoutboxCommon extends ModuleCommon {
 	}
 
 	public static function tray_notification() {
-		$arr = DB::GetAll('SELECT ul.login, asm.message, asm.posted_on FROM apps_shoutbox_messages asm LEFT JOIN user_login ul ON ul.id=asm.base_user_login_id WHERE asm.posted_on>%T ORDER BY asm.posted_on DESC LIMIT 50',array(time()-45));
+		$arr = DB::GetAll('SELECT ul.login, asm.id, asm.message, asm.posted_on FROM apps_shoutbox_messages asm LEFT JOIN user_login ul ON ul.id=asm.base_user_login_id WHERE asm.posted_on>%T ORDER BY asm.posted_on DESC LIMIT 50',array(time()-24*3600));
 		if(empty($arr)) return array();
 		//print it out
-		$ret = '';
+		$ret = array();
 		foreach($arr as $row) {
 			if(!$row['login']) $row['login']='Anonymous';
-			$ret .= Base_LangCommon::ts('Apps_Shoutbox','<font color="gray">[%s]</font><font color="blue">%s</font>: %s',array(Base_RegionalSettingsCommon::time2reg($row['posted_on']), $row['login'], $row['message'])).'<br>';
+			$ret['shoutbox_'.$row['id']] = Base_LangCommon::ts('Apps_Shoutbox','<font color="gray">[%s]</font><font color="blue">%s</font>: %s',array(Base_RegionalSettingsCommon::time2reg($row['posted_on']), $row['login'], $row['message']));
 		}
 
-		return array('notifications'=>array(Base_LangCommon::ts('Apps_Shoutbox','Shoutbox:').'<br>'.$ret));
+		return array('notifications'=>$ret);
 	}
 }
 ?>
