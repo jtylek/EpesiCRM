@@ -529,7 +529,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if ($dpm!=='') {
 			foreach(self::$table_rows as $field=>$args)
 				if ($args['type']==='multiselect') {
-					if (!isset($values[$args['id']])) $values[$args['id']] = '';
+					if (!isset($values[$args['id']])) $values[$args['id']] = array();
 					elseif (!is_array($values[$args['id']]))
 						$values[$args['id']] = self::decode_multi($values[$args['id']]);
 				}
