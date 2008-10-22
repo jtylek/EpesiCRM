@@ -528,8 +528,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		Utils_WatchdogCommon::new_event($tab,$id,'C');
 		if ($dpm!=='') {
 			foreach(self::$table_rows as $field=>$args)
-				if ($args['type']==='multiselect' && !is_array($values[$args['id']]))
-					$values[$args['id']] = self::decode_multi($values[$args['id']]);
+				if ($args['type']==='multiselect') {
+					if (!isset($values[$args['id']])) $values[$args['id']] = '';
+					elseif (!is_array($values[$args['id']]))
+						$values[$args['id']] = self::decode_multi($values[$args['id']]);
+				}
 			$values['id'] = $id;
 			call_user_func($method, $values, 'added');
 		}
