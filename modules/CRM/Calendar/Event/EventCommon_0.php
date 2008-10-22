@@ -85,16 +85,16 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		if($recurrence!==false)
 			$id = substr($id,0,$recurrence);
 
-		if(self::$filter=='()')
+/*		if(self::$filter=='()')
 			$fil = ' AND 1=0';
 		else if(self::$filter)
 			$fil = ' AND (SELECT id FROM crm_calendar_event_group_emp cg WHERE cg.id=e.id AND cg.contact IN '.self::$filter.' LIMIT 1) IS NOT NULL';
 		else
-			$fil = '';
-		if(!Base_AclCommon::i_am_admin())
-			$fil .= ' AND (e.access<2 OR (SELECT id FROM crm_calendar_event_group_emp cg2 WHERE cg2.id=e.id AND cg2.contact='.CRM_FiltersCommon::get_my_profile().' LIMIT 1) IS NOT NULL)';
-		$t = microtime(true);
+			$fil = '';*/
 		$my_id = CRM_FiltersCommon::get_my_profile();
+		if(!Base_AclCommon::i_am_admin())
+			$fil .= ' AND (e.access<2 OR (SELECT id FROM crm_calendar_event_group_emp cg2 WHERE cg2.id=e.id AND cg2.contact='.$my_id.' LIMIT 1) IS NOT NULL)';
+		$t = microtime(true);
 		$row = DB::GetRow('SELECT e.recurrence_type,e.status,e.color,e.access,e.starts as start,e.ends as end,e.title,e.description,e.id,e.timeless,e.priority,e.created_by,e.created_on,e.edited_by,e.edited_on FROM crm_calendar_event e WHERE e.id=%d'.$fil,array($id));
 		$result = array();
 		if ($row) {
@@ -486,7 +486,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 
 		$a = self::get($id);
 		
-		if (!$a) return 'Invalid alert, id:'.$id;
+		if (!$a) return Base_LangCommon::ts('CRM_Calendar_Event','Private record');
 
 		if(isset($a['timeless']))
 			$date = Base_LangCommon::ts('CRM_Calendar_Event','Timeless event: %s',array(Base_RegionalSettingsCommon::time2reg($a['timeless'],false)));
