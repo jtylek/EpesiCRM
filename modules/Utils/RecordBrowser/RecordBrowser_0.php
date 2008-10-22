@@ -863,6 +863,10 @@ class Utils_RecordBrowser extends Module {
 		}
 		return $output;
 	}
+	
+	public function max_description($string){
+		return strlen(Utils_BBCodeCommon::strip($string))<400;
+	}
 
 	public function prepare_view_entry_details($record, $mode, $id, $form, $visible_cols = null){
 		$init_js = '';
@@ -908,7 +912,8 @@ class Utils_RecordBrowser extends Module {
 										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 										break;
 					case 'long text':	$form->addElement('textarea', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id'], 'onkeypress'=>'var key=event.which || event.keyCode;return this.value.length < 255 || ((key<32 || key>126) && key!=10 && key!=13) ;'));
-										$form->addRule($args['id'], $this->lang->t('Maximum length for this field is 255.'), 'maxlength', 255);
+										$form->registerRule('max_description', 'callback', 'max_description', $this);
+										$form->addRule($args['id'], $this->lang->t('Maximum length for this field is 400 chars.'), 'max_description');
 										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 										break;
 					case 'date':		$form->addElement('datepicker', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
