@@ -32,6 +32,12 @@
 					<td class="data">
 						{$form_data.closed.html}
 					</td>
+					<td class="label">
+						{$form_data.activities_date.label}
+					</td>
+					<td class="data">
+						{$form_data.activities_date.html}
+					</td>
 				</tr>
 			</table>
 		</td>
