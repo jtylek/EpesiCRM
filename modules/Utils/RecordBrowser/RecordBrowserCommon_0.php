@@ -835,6 +835,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					default		: trigger_error('Unknow paramter given to get_records order: '.$k, E_USER_ERROR);
 				}
 			} else {
+				self::init($tab);
 				$param = explode(';', self::$table_rows[$v['order']]['param']);
 				$param = explode('::',$param[0]);
 				if (isset($param[1]) && $param[1]!='') {
