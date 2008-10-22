@@ -485,11 +485,13 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$id = substr($id,0,$recurrence);
 
 		$a = self::get($id);
+		
+		if (!$a) return 'Invalid alert, id:'.$id;
 
 		if(isset($a['timeless']))
 			$date = Base_LangCommon::ts('CRM_Calendar_Event','Timeless event: %s',array(Base_RegionalSettingsCommon::time2reg($a['timeless'],false)));
 		else
-			$date = Base_LangCommon::ts('CRM_Calendar_Event',"Start: %s\nEnd: %s",array(Base_RegionalSettingsCommon::time2reg($a['starts']), Base_RegionalSettingsCommon::time2reg($a['ends'])));
+			$date = Base_LangCommon::ts('CRM_Calendar_Event',"Start: %s\nEnd: %s",array(Base_RegionalSettingsCommon::time2reg($a['start']), Base_RegionalSettingsCommon::time2reg($a['end'])));
 
 		return $date."\n".Base_LangCommon::ts('CRM_Calendar_Event',"Title: %s",array($a['title']));
 	}
