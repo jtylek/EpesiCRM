@@ -412,7 +412,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		self::delete_addon($tab, $module, $func);
 		$pos = DB::GetOne('SELECT MAX(pos) FROM recordbrowser_addon WHERE tab=%s', array($tab));
 		if (!$pos) $pos=0;
-		DB::Execute('INSERT INTO recordbrowser_addon (tab, module, func, label, pos) VALUES (%s, %s, %s, %s, %d)', array($tab, $module, $func, $label, $pos+1));
+		DB::Execute('INSERT INTO recordbrowser_addon (tab, module, func, label, pos, enabled) VALUES (%s, %s, %s, %s, %d, 1)', array($tab, $module, $func, $label, $pos+1));
 	}
 	public static function delete_addon($tab, $module, $func) {
 		$module = str_replace('/','_',$module);
