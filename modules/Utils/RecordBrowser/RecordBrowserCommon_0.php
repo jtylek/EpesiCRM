@@ -408,11 +408,18 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function new_addon($tab, $module, $func, $label) {
 		$module = str_replace('/','_',$module);
 		self::delete_addon($tab, $module, $func);
-		DB::Execute('INSERT INTO recordbrowser_addon (tab, module, func, label) VALUES (%s, %s, %s, %s)', array($tab, $module, $func, $label));
+		$pos = DB::GetOne('SELECT MAX(pos) FROM recordbrowser_addon WHERE tab=%s', array($tab));
+		if (!$pos) $pos=0;
+		DB::Execute('INSERT INTO recordbrowser_addon (tab, module, func, label, pos) VALUES (%s, %s, %s, %s, %d)', array($tab, $module, $func, $label, $pos+1));
 	}
 	public static function delete_addon($tab, $module, $func) {
 		$module = str_replace('/','_',$module);
+		$pos = DB::GetOne('SELECT pos FROM recordbrowser_addon WHERE tab=%s AND module=%s AND func=%s', array($tab, $module, $func));
 		DB::Execute('DELETE FROM recordbrowser_addon WHERE tab=%s AND module=%s AND func=%s', array($tab, $module, $func));
+		while (DB::GetOne('SELECT pos FROM recordbrowser_addon WHERE tab=%s AND pos=%d', array($tab, $pos+1))) {
+			DB::Execute('UPDATE recordbrowser_addon SET pos=pos-1 WHERE tab=%s AND pos=%d', array($tab, $pos+1));
+			$pos++;
+		}
 	}
 	public static function register_datatype($type, $module, $func) {
 		DB::Execute('INSERT INTO recordbrowser_datatype (type, module, func) VALUES (%s, %s, %s)', array($type, $module, $func));

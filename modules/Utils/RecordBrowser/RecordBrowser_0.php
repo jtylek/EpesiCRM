@@ -782,7 +782,7 @@ class Utils_RecordBrowser extends Module {
 			if ($row) $label = $row['field'];
 		}
 		if ($mode!='add' && $mode!='edit') {
-			$ret = DB::Execute('SELECT * FROM recordbrowser_addon WHERE tab=%s', array($this->tab));
+			$ret = DB::Execute('SELECT * FROM recordbrowser_addon WHERE tab=%s AND enabled=1 ORDER BY pos', array($this->tab));
 			while ($row = $ret->FetchRow()) {
 				if (ModuleManager::is_installed($row['module'])==-1) continue;
 				$mod = $this->init_module($row['module']);
@@ -1022,11 +1022,46 @@ class Utils_RecordBrowser extends Module {
 
 		$tb->set_tab($this->lang->t('Manage Records'),array($this, 'show_data'), array(array(), array(), array(), true) );
 		$tb->set_tab($this->lang->t('Manage Fields'),array($this, 'setup_loader') );
+		$tb->set_tab($this->lang->t('Manage Addons'),array($this, 'manage_addons') );
 
 		$tb->body();
 		$tb->tag();
 	}
+	
+	public function set_addon_active($tab, $pos, $v) {
+		DB::Execute('UPDATE recordbrowser_addon SET enabled=%d WHERE tab=%s AND pos=%d', array($v?1:0, $tab, $pos));
+		return false;
+	}
 
+	public function move_addon($tab, $pos, $v) {
+		DB::StartTrans();
+		DB::Execute('UPDATE recordbrowser_addon SET pos=0 WHERE tab=%s AND pos=%d', array($tab, $pos));
+		DB::Execute('UPDATE recordbrowser_addon SET pos=%d WHERE tab=%s AND pos=%d', array($pos, $tab, $pos+$v));
+		DB::Execute('UPDATE recordbrowser_addon SET pos=%d WHERE tab=%s AND pos=0', array($pos+$v, $tab));
+		DB::CompleteTrans();
+		return false;
+	}
+
+	public function manage_addons() {
+		$gb = $this->init_module('Utils/GenericBrowser','manage_addons'.$this->tab, 'manage_addons'.$this->tab);
+		$gb->set_table_columns(array(
+								array('name'=>$this->lang->t('Addon caption')),
+								array('name'=>$this->lang->t('Called method'))
+								));
+		$add = DB::GetAll('SELECT * FROM recordbrowser_addon WHERE tab=%s ORDER BY pos',array($this->tab));
+		$first = true;
+		foreach ($add as $v) {
+			if (isset($gb_row)) $gb_row->add_action($this->create_callback_href(array($this, 'move_addon'),array($v['tab'],$v['pos']-1, +1)),'Move down', null, 'move-down');
+			$gb_row = $gb->get_new_row();
+			$gb_row->add_data($v['label'], $v['module'].' -> '.$v['func'].'()');
+			$gb_row->add_action($this->create_callback_href(array($this, 'set_addon_active'), array($v['tab'],$v['pos'],!$v['enabled'])), ($v['enabled']?'Dea':'A').'ctivate', null, 'active-'.($v['enabled']?'on':'off'));
+			
+			if (!$first) $gb_row->add_action($this->create_callback_href(array($this, 'move_addon'),array($v['tab'],$v['pos'], -1)),'Move up', null, 'move-up');
+			$first = false;
+		}
+		$this->display_module($gb);
+	}
+	
 	public function new_page() {
 		DB::StartTrans();
 		$max_f = DB::GetOne('SELECT MAX(position) FROM '.$this->tab.'_field');

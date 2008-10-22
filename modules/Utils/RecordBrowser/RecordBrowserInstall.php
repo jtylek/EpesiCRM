@@ -35,7 +35,9 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 					'tab C(64),'.
 					'module C(128),'.
 					'func C(128),'.
-					'label C(64)',
+					'pos I,'.
+					'enabled I1,'.
+					'label C(128)',
 					array('constraints'=>', PRIMARY KEY(module, func)'));
 		return true;
 	}
