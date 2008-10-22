@@ -1,6 +1,6 @@
 <?php
 ob_start();
-define('SET_SESSION',0);
+define('CID',false);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 
@@ -16,7 +16,7 @@ foreach($arr as $row) {
 		case ($daydiff<7): $fcolor = '#888888'; break;
 		default : $fcolor = '#AAAAAA';
 	}
-	print(Base_LangCommon::ts('Apps_Shoutbox','<span class="time">[%s]</span> <span class="author">%s</span>: %s',array(date('j M H:i',strtotime(Base_RegionalSettingsCommon::time2reg(DB::UnixTimeStamp($row['posted_on']),true,true,true,false))), $row['login'], '<span style="color:'.$fcolor.';">'.$row['message'].'</span>')).'<br>');
+	print(Base_LangCommon::ts('Apps_Shoutbox','<span class="time">[%s]</span> <span class="author">%s</span>: %s',array(Base_RegionalSettingsCommon::time2reg($row['posted_on']), $row['login'], '<span style="color:'.$fcolor.';">'.$row['message'].'</span>')).'<br>');
 }
 
 $content = ob_get_contents();
