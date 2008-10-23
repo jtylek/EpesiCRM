@@ -1212,14 +1212,26 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$v = DB::Concat(DB::qstr('%'),DB::qstr($v),DB::qstr('%'));;
 				$chr = '(';
 				foreach ($fields as $f) {
-					$crits[$chr.str_repeat('_', $k).'~"'.$f] = $v;
+					$crits[$chr.str_repeat('_', $k).'"'.$f] = $v;
 					$chr='|';
-					// TODO: problem if in two records one tag is substring for tag of another
 				}
 			}
 			$rec = Utils_RecordBrowserCommon::get_records($tab, $crits, array(), array(), 1);
-			if (is_array($rec)) $rec = array_shift($rec);
-			else $rec = null;
+			if (is_array($rec) && !empty($rec)) $rec = array_shift($rec);
+			else {
+				$crits = array();
+				foreach ($parts as $k=>$v) {
+					$v = DB::Concat(DB::qstr('%'),DB::qstr($v),DB::qstr('%'));;
+					$chr = '(';
+					foreach ($fields as $f) {
+						$crits[$chr.str_repeat('_', $k).'~"'.$f] = $v;
+						$chr='|';
+					}
+				}
+				$rec = Utils_RecordBrowserCommon::get_records($tab, $crits, array(), array(), 1);
+				if (is_array($rec)) $rec = array_shift($rec);
+				else $rec = null;
+			}
 		} else {
 			$rec = Utils_RecordBrowserCommon::get_record($tab, $param);
 		}
