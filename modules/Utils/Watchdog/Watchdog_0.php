@@ -58,7 +58,7 @@ class Utils_Watchdog extends Module {
 		} else {
 			$opts['title'] = Base_LangCommon::ts('Premium/Projects/Tickets','Subscriptions - Selection');
 		}
-		if (isset($conf['only_new']) && $conf['only_new']) $only_new = ' AND (last_seen_event<(SELECT MAX(id) FROM utils_watchdog_event AS uwe WHERE uwe.internal_id=uws.internal_id AND uwe.category_id=uws.category_id) OR last_seen_event=-1)';
+		if (isset($conf['only_new']) && $conf['only_new']) $only_new = ' AND last_seen_event<(SELECT MAX(id) FROM utils_watchdog_event AS uwe WHERE uwe.internal_id=uws.internal_id AND uwe.category_id=uws.category_id)';
 		else $only_new = '';
 		$records = DB::GetAll('SELECT internal_id,category_id FROM utils_watchdog_subscription AS uws WHERE user_id=%d '.$only_new.'AND category_id IN ('.implode(',',$categories).')', array(Acl::get_user()));
 		$gb = $this->init_module('Utils/GenericBrowser','subscriptions','subscriptions');
