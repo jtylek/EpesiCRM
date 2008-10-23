@@ -1296,7 +1296,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				}
 				$events_display[] = $event_display;
 			}
-			$ret['events'] = implode('<hr>',array_reverse($events_display));
+			$ret['events'] = implode($details?'<hr>':'<br>',array_reverse($events_display));
 		}
 		return $ret;
 	}
