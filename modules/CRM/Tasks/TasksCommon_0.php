@@ -207,13 +207,14 @@ class CRM_TasksCommon extends ModuleCommon {
 		}
 		return $values;
 	}
-	public static function watchdog_label($rid = null, $events = array()) {
+	public static function watchdog_label($rid = null, $events = array(), $details = true) {
 		return Utils_RecordBrowserCommon::watchdog_label(
 				'task',
 				Base_LangCommon::ts('CRM_Tasks','Tasks'),
 				$rid,
 				$events,
-				'title'
+				'title',
+				$details
 			);
 	}
 	

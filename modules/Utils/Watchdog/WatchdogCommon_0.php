@@ -242,12 +242,14 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		$only_new = ' AND last_seen_event<(SELECT MAX(id) FROM utils_watchdog_event AS uwe WHERE uwe.internal_id=uws.internal_id AND uwe.category_id=uws.category_id)';
 		$records = DB::GetAll('SELECT internal_id,category_id,last_seen_event FROM utils_watchdog_subscription AS uws WHERE user_id=%d '.$only_new, array(Acl::get_user()));
 		$ret = array();
-		foreach ($records as $k=>$v) {			
+		foreach ($records as $v) {			
 			$changes = Utils_WatchdogCommon::check_if_notified($v['category_id'], $v['internal_id']);
 			if (!is_array($changes)) $changes = array();
-			$data = call_user_func($methods[$v['category_id']], $v['internal_id'], $changes);
+			$data = call_user_func($methods[$v['category_id']], $v['internal_id'], $changes, false);
 			if ($data==null) continue;
-			$ret['watchdog_'.$v['internal_id'].'_'.$v['category_id'].'_'.$v['last_seen_event']] = $data['title'];
+			$ret['watchdog_'.$v['internal_id'].'_'.$v['category_id'].'_'.$v['last_seen_event']] = Base_LangCommon::ts('Utils_Watchdog','<b>Subscriptions - %s:</b>', array($data['category'])).' '.$data['title'];
+			if (isset($data['events']) && $data['events'])
+				$ret['watchdog_'.$v['internal_id'].'_'.$v['category_id'].'_'.$v['last_seen_event']] .= '<br><font size=-5 color=gray>'.$data['events'].'</font>';
 		}
 		return array('notifications'=>$ret);
 	}

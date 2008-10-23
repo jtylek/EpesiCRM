@@ -526,22 +526,24 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return $ret;
 	}
 
-	public static function contact_watchdog_label($rid = null, $events = array()) {
+	public static function contact_watchdog_label($rid = null, $events = array(), $details = true) {
 		return Utils_RecordBrowserCommon::watchdog_label(
 				'contact',
 				Base_LangCommon::ts('CRM_Contacts','Contacts'),
 				$rid,
 				$events,
-				array('CRM_ContactsCommon','contact_format_default')
+				array('CRM_ContactsCommon','contact_format_default'),
+				$details
 			);
 	}
-	public static function company_watchdog_label($rid = null, $events = array()) {
+	public static function company_watchdog_label($rid = null, $events = array(), $details = true) {
 		return Utils_RecordBrowserCommon::watchdog_label(
 				'company',
 				Base_LangCommon::ts('CRM_Contacts','Companies'),
 				$rid,
 				$events,
-				'company_name'
+				'company_name',
+				$details
 			);
 	}
 	

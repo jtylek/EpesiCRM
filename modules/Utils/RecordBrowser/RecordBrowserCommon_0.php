@@ -1245,7 +1245,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		));
 		return $some_more;
 	}
-	public static function watchdog_label($tab, $cat, $rid, $events = array(), $label = null) {
+	public static function watchdog_label($tab, $cat, $rid, $events = array(), $label = null, $details = true) {
 		$ret = array('category'=>$cat);
 		if ($rid!==null) {
 			$r = self::get_record($tab, $rid);
@@ -1266,6 +1266,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								break;
 					case 'E': 	$edit_info = DB::GetRow('SELECT * FROM '.$tab.'_edit_history WHERE id=%d',array($param[1]));
 								$event_display = Base_LangCommon::ts('Utils_RecordBrowser','<b>Record edited by</b> %s<b>, on</b> %s', array(Base_UserCommon::get_user_login($edit_info['edited_by']), Base_RegionalSettingsCommon::time2reg($edit_info['edited_on'])));
+								if (!$details) break;
 								$edit_details = DB::GetAssoc('SELECT field, old_value FROM '.$tab.'_edit_history_data WHERE edit_id=%d',array($param[1]));
 								$event_display .= '<table border="0"><tr><td><b>'.Base_LangCommon::ts('Utils_RecordBrowser','Field').'</b></td><td><b>'.Base_LangCommon::ts('Utils_RecordBrowser','Old value').'</b></td><td><b>'.Base_LangCommon::ts('Utils_RecordBrowser','New value').'</b></td></tr>';
 								$r2 = $r;
