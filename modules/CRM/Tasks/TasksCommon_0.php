@@ -259,7 +259,7 @@ class CRM_TasksCommon extends ModuleCommon {
 	
 	public function mobile_tasks() {
 		$me = CRM_ContactsCommon::get_my_record();
-		Utils_RecordBrowserCommon::mobile_rb('task',array('employees'=>array($me['id'])),array('deadline'=>'ASC', 'longterm'=>'ASC', 'priority'=>'DESC', 'title'=>'ASC'));
+		Utils_RecordBrowserCommon::mobile_rb('task',array('employees'=>array($me['id'])),array('deadline'=>'ASC', 'priority'=>'DESC', 'title'=>'ASC'),array('priority'=>1, 'deadline'=>1,'longterm'=>1));
 	}
 }
 

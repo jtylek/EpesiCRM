@@ -172,6 +172,16 @@ if(IPHONE) {
 	<link rel="stylesheet" href="libs/UiUIKit/stylesheets/iphone.css" />
 	<link rel="apple-touch-icon" href="images/apple-touch-icon.png" />
 	<script type="text/javascript" charset="utf-8">
+		function clickclear(thisfield, defaulttext) {
+			if (thisfield.value == defaulttext) {
+				thisfield.value = "";
+			}
+		}
+		function clickrecall(thisfield, defaulttext) {
+			if (thisfield.value == "") {
+				thisfield.value = defaulttext;
+			}
+		}
 		window.onload = function() {
 		  setTimeout(function(){window.scrollTo(0, 1);}, 100);
 		}

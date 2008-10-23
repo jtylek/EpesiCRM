@@ -30,7 +30,7 @@ if($ret['recent'] && $type!='recent') print('<li><a '.(IPHONE?'class="button red
 if($ret['favorites'] && $type!='favorites') print('<li><a '.(IPHONE?'class="button green" ':'').'href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'favorites','rb_offset'=>0))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','Favorites').'</a></li> ');
 if(($ret['recent'] || $ret['favorites']) && $type!='all') print('<li><a '.(IPHONE?'class="button white" ':'').'href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'all','rb_offset'=>0))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','All').'</a></li>');
 if($type!='recent')
-	print('<li><form method="POST" action="mobile.php?'.http_build_query($_GET).'"><input type="text" name="search" value="Search" id="some_name" onclick="clickclear(this, \'Search\')" onblur="clickrecall(this,\'Search\')" /></form></li>');
+	print('<li><form method="POST" action="mobile.php?'.http_build_query($_GET).'"><input type="text" name="search" value="'.(isset($_POST['search'])?$_POST['search']:'').'" id="some_name" onclick="clickclear(this, \'Search\')" onblur="clickrecall(this,\'Search\')" /></form></li>');
 print('</ul>');
 $search_crits = array();
 if(isset($_POST['search'])) {
