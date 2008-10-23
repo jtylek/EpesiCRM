@@ -21,14 +21,9 @@ class Apps_ShoutboxCommon extends ModuleCommon {
 		return "Mini shoutbox"; //here can be associative array
 	}
 
-	public static function tray_notification() {
-		$time = DB::GetOne('SELECT call_on FROM apps_shoutbox_notifications WHERE base_user_login_id=%d',array(Acl::get_user()));
-		$t = time();
-		if(!$time) {
+	public static function tray_notification($time) {
+		if(!$time)
 			$time = $t-24*3600;
-			DB::Execute('INSERT INTO apps_shoutbox_notifications(call_on,base_user_login_id) VALUES (%T,%d)',array($t,Acl::get_user()));
-		} else
-			DB::Execute('UPDATE apps_shoutbox_notifications SET call_on=%T WHERE base_user_login_id=%d',array($t,Acl::get_user()));
 		$arr = DB::GetAll('SELECT ul.login, asm.id, asm.message, asm.posted_on FROM apps_shoutbox_messages asm LEFT JOIN user_login ul ON ul.id=asm.base_user_login_id WHERE asm.posted_on>=%T AND asm.base_user_login_id!=%d ORDER BY asm.posted_on DESC LIMIT 10',array($time, Acl::get_user()));
 		if(empty($arr)) return array();
 		//print it out

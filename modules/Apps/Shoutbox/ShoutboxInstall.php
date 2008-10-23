@@ -23,14 +23,6 @@ class Apps_ShoutboxInstall extends ModuleInstall {
 			print('Unable to create table apps_shoutbox_messages.<br>');
 			return false;
 		}
-		$ret &= DB::CreateTable('apps_shoutbox_notifications','
-			base_user_login_id I4 NOTNULL,
-			call_on T',
-			array('constraints'=>', FOREIGN KEY (base_user_login_id) REFERENCES user_login(ID), UNIQUE(base_user_login_id)'));
-		if(!$ret){
-			print('Unable to create table apps_shoutbox_notifications.<br>');
-			return false;
-		}
 		Base_ThemeCommon::install_default_theme($this -> get_type());
 		return $ret;
 	}
@@ -38,7 +30,6 @@ class Apps_ShoutboxInstall extends ModuleInstall {
 	public function uninstall() {
 		$ret = true;
 		$ret &= DB::DropTable('apps_shoutbox_messages');
-		$ret &= DB::DropTable('apps_shoutbox_notifications');
 		Base_ThemeCommon::uninstall_default_theme($this -> get_type());
 		return $ret;
 	}

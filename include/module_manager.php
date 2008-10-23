@@ -980,14 +980,14 @@ class ModuleManager {
 		return true;
 	}
 
-	public static final function call_common_methods($method,$cached=true) { //przy instalacji niech rejestruje commony a pozniej idzie do bazy
+	public static final function call_common_methods($method,$cached=true,$args=array()) { //przy instalacji niech rejestruje commony a pozniej idzie do bazy
 		static $cache;
 		if(!isset($cache[$method]) || !$cached) {
 			$ret = array();
 			ob_start();
 			foreach(self::$modules as $name=>$version)
 				if(method_exists($name.'Common', $method)) {
-					$ret[$name] = call_user_func(array($name.'Common',$method));
+					$ret[$name] = call_user_func_array(array($name.'Common',$method),$args);
 				}
 			ob_end_clean();
 			$cache[$method]=&$ret;
