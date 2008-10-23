@@ -384,7 +384,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 
 	public static function display_phone($r,$nolink,$desc) {
-		if(MOBILE_DEVICE && IPHONE)
+		if(MOBILE_DEVICE && IPHONE && !$nolink)
 			return '<a href="tel:'.$r[$desc['id']].'">'.$r[$desc['id']].'</a>';
 		return $r[$desc['id']];
 	}
