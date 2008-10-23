@@ -76,7 +76,7 @@
 									{if isset($form_data.description.error)}
 										{$form_data.description.error}
 									{/if}
-									{if $action == 'view'}<div style="height: 71px; white-space: normal; overflow: auto;">{/if}
+									{if $action == 'view'}<div style="height: 51px; white-space: normal; overflow: auto;">{/if}
 										{$form_data.description.html}
 									{if $action == 'view'}</div>{/if}
 								</td>
@@ -108,10 +108,6 @@
 									{/if}
 									{$form_data.status.html}
 								</td>
-							</tr>
-							<tr>
-								<td class="label" align="left">{$form_data.is_deadline.label}</td>
-								<td class="data" align="left">{$form_data.is_deadline.html}</td>
 							</tr>
 							<tr>
 								<td class="label" align="left">{$form_data.deadline.label}</td>

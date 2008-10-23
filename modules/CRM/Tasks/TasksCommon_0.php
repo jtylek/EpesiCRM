@@ -21,9 +21,8 @@ class CRM_TasksCommon extends ModuleCommon {
 	public static function applet_info_format($r){
 		return 	Base_LangCommon::ts('CRM_Tasks','Title: %s', array($r['title'])).'<br>'.
 				Base_LangCommon::ts('CRM_Tasks','Description: %s', array($r['description'])).'<br>'.
-				($r['is_deadline']?
 				($r['deadline']!=''?
-				Base_LangCommon::ts('CRM_Tasks','Deadline: %s', array(Base_RegionalSettingsCommon::time2reg($r['deadline']))):Base_LangCommon::ts('CRM_Tasks','Deadline: Not set')):'');
+				Base_LangCommon::ts('CRM_Tasks','Deadline: %s', array(Base_RegionalSettingsCommon::time2reg($r['deadline']))):Base_LangCommon::ts('CRM_Tasks','Deadline: Not set'));
 	}
 
 	public static function menu() {
@@ -133,30 +132,6 @@ class CRM_TasksCommon extends ModuleCommon {
 		if ($notified!==true && $notified!==null) $ret = '<img src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','notice.png').'">'.$ret;
 		return $ret;
 	}
-	public static function QFfield_is_deadline(&$form, $field, $label, $mode, $default, $desc) {
-		if ($mode=='add' || $mode=='edit') {
-			$js =
-					'Event.observe(\'is_deadline\',\'change\', onchange_is_deadline);'.
-					'function enable_disable_deadline(arg) {'.
-					'deadline = document.forms[\''.$form->getAttribute('name').'\'].deadline;'.
-					'if (arg) {deadline.enable();} else {deadline.disable();}'.
-					'};'.
-					'function onchange_is_deadline() {'.
-					'is_deadline = document.forms[\''.$form->getAttribute('name').'\'].is_deadline;'.
-					'enable_disable_deadline(is_deadline.checked);'.
-					'};'.
-					'is_deadline = document.forms[\''.$form->getAttribute('name').'\'].is_deadline;'.
-					'enable_disable_deadline('.($default?'1':'0').' || is_deadline.checked);';
-			eval_js($js);
-			$form->addElement('checkbox', $field, $label, null, array('id'=>$field));
-			if ($mode=='edit') {
-				$form->setDefaults(array($field=>$default));
-			}
-		} else {
-			$form->addElement('checkbox', $field, $label);
-			$form->setDefaults(array($field=>$default));
-		}
-	}
 	public static function display_status($record, $nolink, $desc) {
 		$prefix = 'crm_tasks_leightbox';
 		CRM_FollowupCommon::drawLeightbox($prefix);
@@ -215,14 +190,8 @@ class CRM_TasksCommon extends ModuleCommon {
 			if (ModuleManager::is_installed('CRM/PhoneCall')>=0) $ret['new_phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM_Tasks','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('subject'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date_and_time'=>date('Y-m-d H:i:s'),'employees'=>$values['employees'], 'contact'=>isset($values['customers'][0])?$values['customers'][0]:'')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
 			return $ret;
 		case 'add':
-			if (!isset($values['is_deadline'])) {
-				$values['deadline']='';
-			}
 			break;
 		case 'edit':
-			if (!isset($values['is_deadline'])) {
-				$values['deadline']='';
-			}
 			$old_values = Utils_RecordBrowserCommon::get_record('task',$values['id']);
 			$old_related = array_merge($old_values['employees'],$old_values['customers']);
 		case 'added':

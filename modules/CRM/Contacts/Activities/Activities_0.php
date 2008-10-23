@@ -38,11 +38,11 @@ class CRM_Contacts_Activities extends Module {
 		$crits = array('(employees'=>$ids, '|customers'=>$ids);
 		if ($this->activities_date==0) {
 			$crits['(>=deadline'] = date('Y-m-d');
-			$crits['|is_deadline'] = '';
+			$crits['|deadline'] = '';
 		}
 		if ($this->activities_date==1) {
 			$crits['(<deadline'] = date('Y-m-d');
-			$crits['|is_deadline'] = '';
+			$crits['|deadline'] = '';
 		}
 		if (!$this->display['closed']) $crits['!status'] = array(2,3);
 		if ($this->display['tasks']) $tasks = CRM_TasksCommon::get_tasks($crits, array(), array('deadline'=>'DESC'));
@@ -68,11 +68,11 @@ class CRM_Contacts_Activities extends Module {
 		$crits = array('(employees'=>$me['id'], '|customers'=>$me['id']);
 		if ($this->activities_date==0) {
 			$crits['(>=deadline'] = date('Y-m-d');
-			$crits['|is_deadline'] = '';
+			$crits['|deadline'] = '';
 		}
 		if ($this->activities_date==1) {
 			$crits['(<deadline'] = date('Y-m-d');
-			$crits['|is_deadline'] = '';
+			$crits['|deadline'] = '';
 		}
 		if (!$this->display['closed']) $crits['!status'] = array(2,3);
 		if ($this->display['tasks']) $tasks = CRM_TasksCommon::get_tasks($crits, array(), array('deadline'=>'DESC'));
@@ -139,7 +139,7 @@ class CRM_Contacts_Activities extends Module {
 			$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info('task', isset($info)?$info:$v['id']));
 			$gb_row->add_data(	$this->lang->t('Task'), 
 								CRM_TasksCommon::display_title($v, false), 
-								(!isset($v['is_deadline']) || !$v['is_deadline'])?$this->lang->t('No deadline'):Base_RegionalSettingsCommon::time2reg($v['deadline']), 
+								(!isset($v['deadline']) || !$v['deadline'])?$this->lang->t('No deadline'):Base_RegionalSettingsCommon::time2reg($v['deadline']), 
 								CRM_ContactsCommon::display_contact($v, false, array('id'=>'employees', 'param'=>';CRM_ContactsCommon::contact_format_no_company')), 
 								CRM_ContactsCommon::display_contact($v, false, array('id'=>'customers', 'param'=>';::')) 
 							);
