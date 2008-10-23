@@ -27,7 +27,7 @@ class Applets_ClockCommon extends ModuleCommon {
 			);
 		else
 			return array(
-				array('name'=>'skin','label'=>'Clock skin','type'=>'select','default'=>'swissRail','rule'=>array(array('message'=>'Field required', 'type'=>'required')),'values'=>array('swissRail'=>'swissRail','chunkySwiss'=>'chunkySwiss','fancy'=>'fancy','machine'=>'machine','classic'=>'classic','modern'=>'modern','simple'=>'simple','flash'=>'flash'))
+				array('name'=>'skin','label'=>'Clock skin','type'=>'select','default'=>'swissRail','rule'=>array(array('message'=>'Field required', 'type'=>'required')),'values'=>array('swissRail'=>'swissRail','chunkySwiss'=>'chunkySwiss','chunkySwissOnBlack'=>'chunkySwissOnBlack','fancy'=>'fancy','machine'=>'machine','classic'=>'classic','modern'=>'modern','simple'=>'simple','securephp'=>'securephp','Tes2'=>'Tes2','Lev'=>'Lev','Sand'=>'Sand','Sun'=>'Sun','Tor'=>'Tor','Babosa'=>'Babosa','Tumb'=>'Tumb','Stone'=>'Stone','Disc'=>'Disc','flash'=>'flash'))
 			);
 	}	
 }

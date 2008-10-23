@@ -13,7 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Applets_Clock extends Module {
 	
 	public function body($skin, $size=200) {
-		print('<center>');
+		print('<center'.($skin=='chunkySwissOnBlack'?' style="background-color:black; color:white;"':'').'>');
 		$browser = stripos($_SERVER['HTTP_USER_AGENT'],'msie');
 		if($browser!==false || $skin=='flash') {
 			$size *= 2;
