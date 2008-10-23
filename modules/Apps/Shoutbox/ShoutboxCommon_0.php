@@ -22,7 +22,7 @@ class Apps_ShoutboxCommon extends ModuleCommon {
 	}
 
 	public static function tray_notification() {
-		$arr = DB::GetAll('SELECT ul.login, asm.id, asm.message, asm.posted_on FROM apps_shoutbox_messages asm LEFT JOIN user_login ul ON ul.id=asm.base_user_login_id WHERE asm.posted_on>%T ORDER BY asm.posted_on DESC LIMIT 50',array(time()-24*3600));
+		$arr = DB::GetAll('SELECT ul.login, asm.id, asm.message, asm.posted_on FROM apps_shoutbox_messages asm LEFT JOIN user_login ul ON ul.id=asm.base_user_login_id WHERE asm.posted_on>%T AND asm.base_user_login_id!=%d ORDER BY asm.posted_on DESC LIMIT 50',array(time()-24*3600, Acl::get_user()));
 		if(empty($arr)) return array();
 		//print it out
 		$ret = array();
