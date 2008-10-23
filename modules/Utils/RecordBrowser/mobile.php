@@ -32,11 +32,47 @@ if(($ret['recent'] || $ret['favorites']) && $type!='all') print('<li><a '.(IPHON
 if($type!='recent')
 	print('<li><form method="POST" action="mobile.php?'.http_build_query($_GET).'"><input type="text" name="search" value="Search" id="some_name" onclick="clickclear(this, \'Search\')" onblur="clickrecall(this,\'Search\')" /></form></li>');
 print('</ul>');
+$search_crits = array();
 if(isset($_POST['search'])) {
-	$search = $_POST['search'];
+	$search_string = $_POST['search'];
+	$search_string = DB::Concat(DB::qstr('%'),DB::qstr($search_string),DB::qstr('%'));
 //	$cols_out[$i]['record']
+	$chr = '(';
+	foreach ($cols_out as $col) {
+		$args = $col['record'];
+		$c = $args['id'];
+		if ($args['type']=='text' || $args['type']=='currency' || ($args['type']=='calculated' && $args['param']!='')) {
+			$search_crits[$chr.'"~'.$c] = $search_string;
+			$chr='|';
+			continue;
+		}
+		if ($args['type']!='commondata' && $args['type']!='multiselect' && $args['type']!='select') continue;
+		$str = explode(';', $args['param']);
+		$ref = explode('::', $str[0]);
+		if ($ref[0]!='' && isset($ref[1])) $search_crits[$chr.'"~:Ref:'.$c] = $search_string;
+		if ($args['type']=='commondata' || $ref[0]=='__COMMON__')
+			if (!isset($ref[1]) || $ref[0]=='__COMMON__') $search_crits[$chr.':RefCD:'.$c] = $search_string;
+/*		foreach ($search as $k=>$v) {
+			$k = str_replace('__',':',$k);
+			$type = explode(':',$k);
+			if ($k[0]=='"') {
+				$search_res['~_'.$k] = $v;
+				continue;
+			}
+			if (isset($type[1]) && $type[1]=='RefCD') {
+				$search_res['~"'.$k] = $v;
+				continue;
+			}
+			if (!is_array($v)) $v = array($v);
+			$r = array();
+			foreach ($v as $w)
+				$r[] = DB::Concat(DB::qstr('%'),DB::qstr($w),DB::qstr('%'));
+			$search_res['~"'.$k] = $r;
+		}*/
+	}
 	
 }
+$crits = self::merge_crits($crits, $search_crits);
 //$crits = array();
 //$sort = array();
 switch($type) {
