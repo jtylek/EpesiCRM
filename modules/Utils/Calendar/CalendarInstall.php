@@ -13,10 +13,6 @@ class Utils_CalendarInstall extends ModuleInstall {
 		return true;
 	}
 
-	public function provides($v) {
-		return array();
-	}
-
 	public function info() {
 		return array('Author'=>'<a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a>, <a href="mailto:pbukowski@telaxus.com">Paul Bukowski</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'Licence'=>'TL', 'Description'=>'Abstract calendar.');
 	}

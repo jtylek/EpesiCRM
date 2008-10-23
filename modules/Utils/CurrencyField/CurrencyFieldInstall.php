@@ -24,10 +24,6 @@ class Utils_CurrencyFieldInstall extends ModuleInstall {
 			array('name'=>'Libs/QuickForm', 'version'=>0)
 		);
 	}	
-	
-	public function provides($v) {
-		return array();
-	}
 }
 
 ?>

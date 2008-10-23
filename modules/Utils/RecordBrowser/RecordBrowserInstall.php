@@ -65,10 +65,6 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 		);
 	}
 	
-	public function provides($v) {
-		return array();
-	}
-	
 	public static function info() {
 		return array('Author'=>'<a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'License'=>'TL', 'Description'=>'Module to browse and modify records.');
 	}

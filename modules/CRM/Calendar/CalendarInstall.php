@@ -17,10 +17,6 @@ class CRM_CalendarInstall extends ModuleInstall {
 		return true;
 	}
 
-	public function provides($v) {
-		return array();
-	}
-
 	public function info() {
 		return array('Author'=>'<a href="http://www.telaxus.com">Telaxus LLC</a>', 'Licence'=>'TL', 'Description'=>'Simple calendar and organiser.');
 	}

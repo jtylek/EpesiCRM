@@ -22,7 +22,7 @@ class Base_User_SettingsInstall extends ModuleInstall {
 			module C(128) NOTNULL,
 			variable C(64) NOTNULL,
 			value X NOTNULL',
-			array('constraints'=>', FOREIGN KEY (user_login_id) REFERENCES user_login(id), PRIMARY KEY(user_login_id,module,variable), FOREIGN KEY (module) REFERENCES modules(name)'));
+			array('constraints'=>', FOREIGN KEY (user_login_id) REFERENCES user_login(id), PRIMARY KEY(user_login_id,module,variable)'));
 		if(!$ret){
 			print('Unable to create table base_user_settings.<br>');
 			return false;
@@ -31,7 +31,7 @@ class Base_User_SettingsInstall extends ModuleInstall {
 			module C(128) NOTNULL,
 			variable C(64) NOTNULL,
 			value X NOTNULL',
-			array('constraints'=>', PRIMARY KEY(module,variable), FOREIGN KEY (module) REFERENCES modules(name)'));
+			array('constraints'=>', PRIMARY KEY(module,variable)'));
 		if(!$ret){
 			print('Unable to create table base_user_settings_defaults.<br>');
 			return false;

@@ -25,9 +25,6 @@ class Utils_PopupCalendarInstall extends ModuleInstall {
 		);
 	}	
 	
-	public function provides($v) {
-		return array();
-	}
 }
 
 ?>
