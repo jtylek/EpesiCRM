@@ -45,6 +45,7 @@ class Apps_ShoutboxInstall extends ModuleInstall {
 		return array(
 			array('name'=>'Base/Acl','version'=>0),
 			array('name'=>'Base/User','version'=>0),
+			array('name'=>'Utils/BBCode', 'version'=>0), 
 			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'Libs/QuickForm','version'=>0));
 	}

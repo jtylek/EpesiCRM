@@ -16,7 +16,7 @@ foreach($arr as $row) {
 		case ($daydiff<7): $fcolor = '#888888'; break;
 		default : $fcolor = '#AAAAAA';
 	}
-	print(Base_LangCommon::ts('Apps_Shoutbox','<span class="time">[%s]</span> <span class="author">%s</span>: %s',array(Base_RegionalSettingsCommon::time2reg($row['posted_on']), $row['login'], '<span style="color:'.$fcolor.';">'.$row['message'].'</span>')).'<br>');
+	print(Base_LangCommon::ts('Apps_Shoutbox','<span class="time">[%s]</span> <span class="author">%s</span>: %s',array(Base_RegionalSettingsCommon::time2reg($row['posted_on']), $row['login'], '<span style="color:'.$fcolor.';">'.Utils_BBCodeCommon::parse($row['message']).'</span>')).'<br>');
 }
 
 $content = ob_get_contents();

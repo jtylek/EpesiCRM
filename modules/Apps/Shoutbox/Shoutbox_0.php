@@ -48,7 +48,7 @@ class Apps_Shoutbox extends Module {
 				 //get post group
 				$msg = $qf->exportValue('post');
 				//get msg from post group
-				$msg = $msg['post'];
+				$msg = Utils_BBCodeCommon::optimize($msg['post']);
 				//get logged user id
 				$user_id = Acl::get_user();
 				//clear text box and focus it
@@ -62,6 +62,10 @@ class Apps_Shoutbox extends Module {
 		} else {
 			print($this->lang->t('Please log in to post message').'<br>');
 		}
+		$arr = DB::GetAll('SELECT asm.message FROM apps_shoutbox_messages asm LEFT JOIN user_login ul ON ul.id=asm.base_user_login_id ORDER BY asm.posted_on DESC LIMIT 50');
+		//print it out
+		foreach($arr as $row)
+			Utils_BBCodeCommon::parse($row['message']);
 
 		print('<div id=\'shoutbox_board\'></div>');
 		Base_ThemeCommon::load_css($this->get_type());
