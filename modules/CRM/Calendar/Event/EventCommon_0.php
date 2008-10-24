@@ -443,7 +443,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 						$next_result['start']=strtotime($start_date.' '.date('H:i:s',Base_RegionalSettingsCommon::reg2time($start_date.' '.$start_time)));
 						$next_result['end']=strtotime($end_date.' '.date('H:i:s',Base_RegionalSettingsCommon::reg2time($end_date.' '.$end_time)));
 						if(isset($next_result['timeless'])) $next_result['timeless'] = date('Y-m-d',$next_result['start']);
-						if((($next_result['start']>=$start_reg && !isset($row['timeless'])) || ($next_result['start']>=$start && isset($row['timeless']))) && $next_result['start']<$rend) {
+						if((($next_result['start']>=$start_reg && !$row['timeless']) || ($next_result['start']>=$start && $row['timeless'])) && $next_result['start']<$rend) {
 							$result[] = $next_result;
 						}
 				}
