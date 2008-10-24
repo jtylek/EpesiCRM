@@ -14,6 +14,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	private static $table_rows = array();
 	private static $del_or_a = '';
 	private static $hash = array();
+	public static $admin_access = false;
 	public static $cols_order = array();
 
 	public static function get_val($tab, $field, $record, $id, $links_not_recommended = false, $args = null) {
@@ -1014,15 +1015,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if ($or_started && !$or_result) return $cache[$tab.'__'.$id] = false;
 		return $cache[$tab.'__'.$id] = true;
 	}
-	public static function get_access($tab, $action, $param=null){
-		if (Base_AclCommon::i_am_admin()) return true;
-// TODO: Need to set a switch?
+	public static function get_access($tab, $action, $param=null, $param2=null){
+		if (self::$admin_access && Base_AclCommon::i_am_admin()) return true;
 		static $cache = array();
 		if (!isset($cache[$tab])) $cache[$tab] = $access_callback = explode('::', DB::GetOne('SELECT access_callback FROM recordbrowser_table_properties WHERE tab=%s', array($tab)));
 		else $access_callback = $cache[$tab];
 		if ($access_callback === '' || !is_callable($access_callback)) return true;
-		$ret = call_user_func($access_callback, $action, $param);
-		if ($action==='delete' && $ret) $ret = call_user_func($access_callback, 'edit', $param);
+		$ret = call_user_func($access_callback, $action, $param, $param2);
+		if ($action==='delete' && $ret) $ret = call_user_func($access_callback, 'edit', $param, $param2);
 		if ($action==='view' && $param!==null) $ret = self::check_record_against_crits($tab, $param, $ret);
 		if ($action==='fields') {
 			self::init($tab);
@@ -1160,6 +1160,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 	public static function record_link_open_tag($tab, $id, $nolink=false){
 		$ret = '';
+		if (!is_numeric($id)) {
+			return self::$del_or_a = '';
+		}
 		if (class_exists('Utils_RecordBrowser') &&
 			isset(Utils_RecordBrowser::$access_override) &&
 			Utils_RecordBrowser::$access_override['tab']==$tab &&

@@ -32,12 +32,14 @@ class Utils_RecordBrowser extends Module {
 	private $changed_view = false;
 	private $is_on_main_page = false;
 	private $custom_defaults = array();
+	private $multiple_defaults = false;
 	private $add_in_table = false;
 	private $custom_filters = array();
 	private $filter_field;
 	private $default_order = array();
 	private $cut = array();
 	private $more_table_properties = array();
+	private $fullscreen_table = false;
 	public static $admin_filter = '';
 	public static $tab_param = '';
 	public static $clone_result = null;
@@ -75,8 +77,8 @@ class Utils_RecordBrowser extends Module {
 		$this->more_table_properties = $ar;
 	}
 
-	public function get_access($action, $param=null){
-		return Utils_RecordBrowserCommon::get_access($this->tab, $action, $param);
+	public function get_access($action, $param=null, $param2=null){
+		return Utils_RecordBrowserCommon::get_access($this->tab, $action, $param, $param2);
 	}
 
 	public function construct($tab = null) {
@@ -128,6 +130,7 @@ class Utils_RecordBrowser extends Module {
 	// BODY //////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function body($def_order=array(), $crits=array()) {
 		if ($this->check_for_jump()) return;
+		$this->fullscreen_table=true;
 		$this->init();
 		if (self::$clone_result!==null) {
 			if (is_numeric(self::$clone_result)) $this->navigate('view_entry', 'view', self::$clone_result);
@@ -142,8 +145,27 @@ class Utils_RecordBrowser extends Module {
 		Utils_WatchdogCommon::add_actionbar_change_subscription_button($this->tab);
 		$this->is_on_main_page = true;
 		if ($this->get_access('add')!==false) {
-			Base_ActionBarCommon::add('add','New', $this->create_callback_href(array($this,'navigate'),array('view_entry', 'add', null, $this->custom_defaults)));
-			Utils_ShortcutCommon::add(array('Ctrl','N'), 'function(){'.$this->create_callback_href_js(array($this,'navigate'),array('view_entry', 'add', null, $this->custom_defaults)).'}');
+			if (!$this->multiple_defaults) {
+				Base_ActionBarCommon::add('add','New', $this->create_callback_href(array($this,'navigate'),array('view_entry', 'add', null, $this->custom_defaults)));
+				Utils_ShortcutCommon::add(array('Ctrl','N'), 'function(){'.$this->create_callback_href_js(array($this,'navigate'),array('view_entry', 'add', null, $this->custom_defaults)).'}');
+			} else {
+				eval_js_once('actionbar_rb_new_record_deactivate = function(){leightbox_deactivate(\'actionbar_rb_new_record\');}');
+				$th = $this->init_module('Base/Theme');
+				$cds = array();
+				foreach ($this->custom_defaults as $k=>$v) {
+					$cds[] = array( 'label'=>$k,
+									'open'=>'<a OnClick="actionbar_rb_new_record_deactivate();'.$this->create_callback_href_js(array($this,'navigate'),array('view_entry', 'add', null, $v['defaults'])).'">',
+									'icon'=>$v['icon'],
+									'close'=>'</a>'
+									);
+				}
+				$th->assign('custom_defaults', $cds);
+				ob_start();
+				$th->display('new_record_leightbox');
+				$panel = ob_get_clean();
+				Libs_LeightboxCommon::display('actionbar_rb_new_record',$panel,$this->lang->t('New record'));
+				Base_ActionBarCommon::add('add','New', Libs_LeightboxCommon::get_open_href('actionbar_rb_new_record'));
+			}
 		}
 
 		$filters = $this->show_filters();
@@ -450,10 +472,10 @@ class Utils_RecordBrowser extends Module {
 		$limit = $gb->get_limit(Utils_RecordBrowserCommon::get_records_limit($this->tab, $crits, $admin));
 		$records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array(), $order, $limit, $admin);
 		
-		if (Base_AclCommon::i_am_admin()) {
+		if (Base_AclCommon::i_am_admin() && $this->fullscreen_table) {
 			Base_ActionBarCommon::add('save','Export', 'href="modules/Utils/RecordBrowser/csv_export.php?'.http_build_query(array('tab'=>$this->tab, 'admin'=>$admin, 'cid'=>CID, 'path'=>$this->get_path())).'"');
-			$this->set_module_variable('crits_stuff',$crits);
-			$this->set_module_variable('order_stuff',$order);
+			$this->set_module_variable('crits_stuff',$crits?$crits:array());
+			$this->set_module_variable('order_stuff',$order?$order:array());
 		}
 
 		if ($admin) $this->browse_mode = 'all';
@@ -669,11 +691,23 @@ class Utils_RecordBrowser extends Module {
 		$tb = $this->init_module('Utils/TabbedBrowser');
 		self::$tab_param = $tb->get_path();
 
+		$form = $this->init_module('Libs/QuickForm',null, $mode);
+		if($mode=='add') {
+			$form->setDefaults($defaults);
+			foreach ($defaults as $k=>$v)
+				$this->custom_defaults[$k] = $v;
+		}
+
+		$this->fields_permission = $this->get_access('fields', isset($this->record)?$this->record:'new', $this->custom_defaults);
+
+		if($mode!='add')
+			Utils_RecordBrowserCommon::add_recent_entry($this->tab, Acl::get_user(),$id);
+
 		$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 		if ($dpm!=='') {
 			$method = explode('::',$dpm);
 			if (is_callable($method)) {
-				$theme_stuff = call_user_func($method, $this->record, $mode=='view'?'view':$mode.'ing');
+				$theme_stuff = call_user_func($method, $mode=='view'?$this->record:$this->custom_defaults, $mode=='view'?'view':$mode.'ing');
 				if ($mode==='view' && is_array($theme_stuff))
 					foreach ($theme_stuff as $k=>$v)
 						$theme->assign($k, $v);
@@ -683,17 +717,6 @@ class Utils_RecordBrowser extends Module {
 			case 'add':		$this->action = 'New record'; break;
 			case 'edit':	$this->action = 'Edit record'; break;
 			case 'view':	$this->action = 'View record'; break;
-		}
-		$this->fields_permission = $this->get_access('fields', isset($this->record)?$this->record:'new');
-
-		if($mode!='add')
-			Utils_RecordBrowserCommon::add_recent_entry($this->tab, Acl::get_user(),$id);
-
-		$form = $this->init_module('Libs/QuickForm',null, $mode);
-		if($mode=='add') {
-			$form->setDefaults($defaults);
-			foreach ($defaults as $k=>$v)
-				$this->custom_defaults[$k] = $v;
 		}
 
 		$this->prepare_view_entry_details($this->record, $mode, $id, $form);
@@ -783,7 +806,16 @@ class Utils_RecordBrowser extends Module {
 			$row = $ret->FetchRow();
 			if ($row) $pos = $row['position'];
 			else $pos = DB::GetOne('SELECT MAX(position) FROM '.$this->tab.'_field WHERE active=1')+1;
-			if ($pos - $last_page>1) $tb->set_tab($this->lang->t($label),array($this,'view_entry_details'), array($last_page, $pos+1, $data, null, false, $cols), $js);
+
+			$valid_page = false;
+			foreach($this->table_rows as $field => $args) {
+				if (!isset($data[$args['id']]) || $data[$args['id']]['type']=='hidden')	continue;
+				if ($args['position'] >= $last_page && ($pos+1 == -1 || $args['position'] < $pos+1)) {
+					$valid_page = true;
+					break;
+				}
+			}
+			if ($valid_page && $pos - $last_page>1) $tb->set_tab($this->lang->t($label),array($this,'view_entry_details'), array($last_page, $pos+1, $data, null, false, $cols), $js);
 			$cols = $row['param'];
 			$last_page = $pos;
 			if ($row) $label = $row['field'];
@@ -1029,6 +1061,7 @@ class Utils_RecordBrowser extends Module {
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
 	public function administrator_panel() {
+		Utils_RecordBrowserCommon::$admin_access = true;
 		$this->init();
 		$tb = $this->init_module('Utils/TabbedBrowser');
 
@@ -1439,9 +1472,10 @@ class Utils_RecordBrowser extends Module {
 		Utils_RecordBrowserCommon::set_active($this->tab, $id, $state);
 		return false;
 	}
-	public function set_defaults($arg){
+	public function set_defaults($arg, $multiple=false){
 		foreach ($arg as $k=>$v)
 			$this->custom_defaults[$k] = $v;
+		if ($multiple) $this->multiple_defaults = true;
 	}
 	public function set_filters_defaults($arg){
 		if (!$this->isset_module_variable('def_filter')) $this->set_module_variable('def_filter', $arg);

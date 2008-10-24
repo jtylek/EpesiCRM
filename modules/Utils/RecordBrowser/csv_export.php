@@ -9,7 +9,7 @@
  * @package epesi-libs
  * @subpackage fpdf
  */
-if(!isset($_REQUEST['cid']) || !isset($_REQUEST['path']) || !isset($_REQUEST['tab']) || !isset($_REQUEST['admin'])) die('Invalid usage');
+if(!isset($_REQUEST['cid']) || !isset($_REQUEST['path']) || !isset($_REQUEST['tab']) || !isset($_REQUEST['admin'])) die('Invalid usage - missing param');
 $cid = $_REQUEST['cid'];
 $tab = $_REQUEST['tab'];
 $admin = $_REQUEST['admin'];
@@ -19,15 +19,15 @@ define('CID', $cid);
 require_once('../../../include.php');
 $crits = Module::static_get_module_variable($path, 'crits_stuff', null);
 $order = Module::static_get_module_variable($path, 'order_stuff', null);
-if ($crits===null || $order===null) die('Invalid usage');
+if ($crits===null || $order===null) die('Invalid usage - variables not set (path - '.$path.', module vars - '.print_r($_SESSION['client']['__module_vars__'][$path],true).')');
 ModuleManager::load_modules();
-if (!Base_AclCommon::i_am_admin()) die('Invalid usage');
+if (!Base_AclCommon::i_am_admin()) die('Invalid usage - access denied');
 
 $tab_info = Utils_RecordBrowserCommon::init($tab);
 $records = Utils_RecordBrowserCommon::get_records($tab, $crits, array(), $order, array(), $admin);
 session_commit();
 
-header('Content-Type: text/plain');
+header('Content-Type: text/csv');
 //header('Content-Length: '.strlen($buffer));
 header('Content-disposition: attachement; filename="'.$tab.'_export_'.date('Y_m_d__h_i_s').'.csv"');
 if (headers_sent())
