@@ -380,7 +380,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 	
 	public static function maplink($r,$nolink,$desc) {
-		return Utils_TooltipCommon::create('<a href="http://maps.google.com/?'.http_build_query(array('q'=>Utils_CommonDataCommon::get_value('Countries/'.$r['country']).', '.$r['city'].', '.$r['address_1'].' '.$r['address_2'])).'" target="_blank">'.$r[$desc['id']].'</a>',Base_LangCommon::ts('CRM_Contacts','Click here to search this location using google maps'));
+		if (!$nolink) return Utils_TooltipCommon::create('<a href="http://maps.google.com/?'.http_build_query(array('q'=>Utils_CommonDataCommon::get_value('Countries/'.$r['country']).', '.$r['city'].', '.$r['address_1'].' '.$r['address_2'])).'" target="_blank">'.$r[$desc['id']].'</a>',Base_LangCommon::ts('CRM_Contacts','Click here to search this location using google maps'));
+		return $r[$desc['id']];
 	}
 
 	public static function display_phone($r,$nolink,$desc) {
@@ -400,6 +401,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 	public static function display_webaddress($record, $nolink, $desc) {
 		$v = $record[$desc['id']];
+		if ($nolink) return $v;
 		$v = trim($v, ' ');
 		if ($v=='') return '';
 		if (strpos(strtolower($v), 'http://')===false && 
@@ -409,6 +411,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 	public static function display_email($record, $nolink, $desc) {
 		$v = $record[$desc['id']];
+		if ($nolink) return $v;
 		return '<a href="mailto:'.$v.'">'.$v.'</a>';
 	}
 	public static function display_login($record, $nolink, $desc) {
@@ -425,7 +428,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			return '---';
 		else {
 			$login = Base_UserCommon::get_user_login($v);
-			if (Base_AclCommon::i_am_admin()) return '<a '.Module::create_href(array('crm_contacts_edit_user'=>$v)).'>'.$login.'</a>';
+			if (!$nolink && Base_AclCommon::i_am_admin()) return '<a '.Module::create_href(array('crm_contacts_edit_user'=>$v)).'>'.$login.'</a>';
 			else return $login;
 		}
 	}
