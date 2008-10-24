@@ -95,6 +95,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 	public function requires($v) {
 		return array(array('name'=>'Utils/GenericBrowser','version'=>0),
 			     array('name'=>'Utils/FileUpload', 'version'=>0),
+			     array('name'=>'Utils/BBCode', 'version'=>0),
 			     array('name'=>'Libs/QuickForm', 'version'=>0),
 			     array('name'=>'Libs/FCKeditor', 'version'=>0),
 			     array('name'=>'Libs/Leightbox', 'version'=>0),
