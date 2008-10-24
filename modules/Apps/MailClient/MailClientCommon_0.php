@@ -305,9 +305,6 @@ class Apps_MailClientCommon extends ModuleCommon {
 	}
 
 	public static function remove_msg($mailbox_id, $dir, $id) {
-		ini_set('include_path','modules/Apps/MailClient/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
-		require_once('Mail/mimeDecode.php');
-
 		if(!self::remove_msg_from_index($mailbox_id,$dir,$id)) return false;
 
 		$boxpath = self::get_mailbox_dir($mailbox_id).$dir;
@@ -341,21 +338,39 @@ class Apps_MailClientCommon extends ModuleCommon {
 	public static function move_msg($box, $dir, $box2, $dir2, $id) {
 		$boxpath = self::get_mailbox_dir($box).$dir;
 		$boxpath2 = self::get_mailbox_dir($box2).$dir2;
-		$msg = @file_get_contents($boxpath.'/'.$id);
-		//trigger_error(print_r($boxpath.'/'.$id,true));
+		$msg = @file_get_contents($boxpath.$id);
 		if($msg===false) return false;
 
 		$id2 = self::get_next_msg_id($box2,$dir2);
 		if($id2===false) return false;
 
-		file_put_contents($boxpath2.'/'.$id2,$msg);
+		file_put_contents($boxpath2.$id2,$msg);
 		$idx = self::get_index($box,$dir);
 		$idx = $idx[$id];
 		if(!self::append_msg_to_index($box2,$dir2,$id2,$idx['subject'],$idx['from'],$idx['to'],$idx['date'],$idx['size'],$idx['read']))
 			return false;
 
-		@unlink($boxpath.'/'.$id);
-		if(!self::remove_msg_from_index($box,$dir,$id)) return false;
+		if(!self::remove_msg($box,$dir,$id)) return false;
+
+		if($dir=='Trash/') {		
+			$trashpath = $boxpath.'.del';
+			$in = @fopen($trashpath,'r');
+			if($in!==false) {
+				$ret = array();
+				while (($data = fgetcsv($in, 700)) !== false) {
+					$num = count($data);
+					if($num!=2 || $data[0]==$id) continue;
+					$ret[] = $data;
+				}
+				fclose($in);
+				$out = @fopen($trashpath,'w');
+				if($out!==false) {
+					foreach($ret as $v)
+						fputcsv($out,$v);
+					fclose($out);
+				}
+			}
+		}
 		return $id2;
 	}
 

@@ -304,7 +304,7 @@ class Apps_MailClient extends Module {
 	private function get_move_folders(array $str,$label,$box) {
 		$ret = array();
 		foreach($str as $d=>$v) {
-			if($d==='Inbox') {
+			if($d!=='Trash') {
 				$p = $box.'/'.$d.'/';
 				$l = $label.'/'.$d.'/';
 				$ret[$p] = $l;
