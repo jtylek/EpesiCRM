@@ -187,7 +187,7 @@ class Utils_Attachment extends Module {
 				$r->add_action($this->create_callback_href(array($this,'view_queue'),array($row['id'])),'view');
 				$r->add_action($this->create_callback_href(array($this,'edition_history_queue'),$row['id']),'history');
 			}
-			$text = strip_tags(str_replace('</p>','<br>',preg_replace('/<\/p>\s*$/i','',$row['text'])),'<br><br/>');
+			$text = Utils_BBCodeCommon::parse(strip_tags(str_replace('</p>','<br>',preg_replace('/<\/p>\s*$/i','',$row['text'])),'<br><br/>'));
 			$max_len = 120;
 			$br = strpos($text,'<br');
 			if($br!==false && $br<$max_len) $max_len=$br;
@@ -266,7 +266,7 @@ class Utils_Attachment extends Module {
 			return $this->pop_box0();
 		}
 
-		$row = DB::GetRow('SELECT uaf.id as file_id,ual.permission_by,ual.permission,ual.deleted,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text,uaf.original,uaf.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE uaf.created_by=l2.id) as upload_by FROM utils_attachment_link ual INNER JOIN (utils_attachment_note uac,utils_attachment_file uaf) ON (uac.attach_id=ual.id AND uaf.attach_id=ual.id) WHERE ual.id=%d AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id)',array($id));
+		$row = DB::GetRow('SELECT uaf.id as file_id,ual.permission_by,ual.permission,ual.deleted,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text,uaf.original,uaf.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE uaf.created_by=l2.id) as upload_by FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON uaf.attach_id=ual.id WHERE ual.id=%d AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id)',array($id));
 
 		if($this->inline) {
 			if(Base_AclCommon::i_am_admin() ||
@@ -313,10 +313,10 @@ class Utils_Attachment extends Module {
 			$f_filename = DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$row['id'].'_'.$row['file_revision'];
 			$th->assign('file_size',filesize_hr($f_filename));
 			$th->assign('file','<a '.$file.'>'.$row['original'].'</a>');
-			$th->assign('note',$row['text'].$inline_img);
+			$th->assign('note',Utils_BBCodeCommon::parse($row['text']).$inline_img);
 		} else {
 			$th->assign('file','');
-			$th->assign('note',$row['text']);
+			$th->assign('note',Utils_BBCodeCommon::parse($row['text']));
 		}
 
 		$th->display('view');
@@ -525,7 +525,7 @@ class Utils_Attachment extends Module {
 		DB::Execute('INSERT INTO utils_attachment_link(attachment_key,local,permission,permission_by,other_read,sticky) VALUES(%s,%s,%d,%d,%b,%b)',array($this->key,$this->group,$data['permission'],Acl::get_user(),isset($data['other']) && $data['other'],isset($data['sticky']) && $data['sticky']));
 		$id = DB::Insert_ID('utils_attachment_link','id');
 		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$oryg,Acl::get_user()));
-		DB::Execute('INSERT INTO utils_attachment_note(attach_id,text,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$data['note'],Acl::get_user()));
+		DB::Execute('INSERT INTO utils_attachment_note(attach_id,text,created_by,revision) VALUES(%d,%s,%d,0)',array($id,Utils_BBCodeCommon::optimize($data['note']),Acl::get_user()));
 		if($file) {
 			$local = $this->get_data_dir().$this->group;
 			@mkdir($local,0777,true);
@@ -540,7 +540,7 @@ class Utils_Attachment extends Module {
 		if($data['note']!=$text) {
 			DB::StartTrans();
 			$rev = DB::GetOne('SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=%d',array($id));
-			DB::Execute('INSERT INTO utils_attachment_note(text,attach_id,revision,created_by) VALUES (%s,%d,%d,%d)',array($data['note'],$id,$rev+1,Acl::get_user()));
+			DB::Execute('INSERT INTO utils_attachment_note(text,attach_id,revision,created_by) VALUES (%s,%d,%d,%d)',array(Utils_BBCodeCommon::optimize($data['note']),$id,$rev+1,Acl::get_user()));
 			DB::CompleteTrans();
 		}
 		if($file) {
