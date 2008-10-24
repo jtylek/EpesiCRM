@@ -346,6 +346,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		DB::Execute('DELETE FROM '.$tab.'_callback WHERE field=%s AND freezed=0', array($field));
 		DB::Execute('INSERT INTO '.$tab.'_callback (field, module, func, freezed) VALUES(%s, %s, %s, 0)', array($field, $module, $func));
 	}
+	public static function unset_display_method($tab = null, $field) {
+		if (!$tab) return false;
+		self::check_table_name($tab);
+		DB::Execute('DELETE FROM '.$tab.'_callback WHERE field=%s AND freezed=1', array($field));
+	}
+	public static function unset_QFfield_method($tab = null, $field) {
+		if (!$tab) return false;
+		self::check_table_name($tab);
+		DB::Execute('DELETE FROM '.$tab.'_callback WHERE field=%s AND freezed=0', array($field));
+	}
 
 	public static function uninstall_recordset($tab = null) {
 		if (!$tab) return false;

@@ -707,7 +707,7 @@ class Utils_RecordBrowser extends Module {
 		if ($dpm!=='') {
 			$method = explode('::',$dpm);
 			if (is_callable($method)) {
-				$theme_stuff = call_user_func($method, $mode=='view'?$this->record:$this->custom_defaults, $mode=='view'?'view':$mode.'ing');
+				$theme_stuff = call_user_func($method, $mode!='add'?$this->record:$this->custom_defaults, $mode=='view'?'view':$mode.'ing');
 				if ($mode==='view' && is_array($theme_stuff))
 					foreach ($theme_stuff as $k=>$v)
 						$theme->assign($k, $v);
@@ -825,6 +825,11 @@ class Utils_RecordBrowser extends Module {
 			while ($row = $ret->FetchRow()) {
 				if (ModuleManager::is_installed($row['module'])==-1) continue;
 				$mod = $this->init_module($row['module']);
+				if (is_callable(explode('::',$row['label']))) {
+					$result = call_user_func(explode('::',$row['label']), $this->record);
+					if ($result['show']==false) continue;
+					$row['label'] = $result['label'];
+				}
 				if (!is_callable(array($mod,$row['func']))) $tb->set_tab($this->lang->t($row['label']),array($this, 'broken_addon'), $js);
 				else $tb->set_tab($this->lang->t($row['label']),array($this, 'display_module'), array($mod, array($this->record), $row['func']), $js);
 			}
