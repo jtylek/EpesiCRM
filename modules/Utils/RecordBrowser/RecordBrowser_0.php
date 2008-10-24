@@ -449,6 +449,12 @@ class Utils_RecordBrowser extends Module {
 
 		$limit = $gb->get_limit(Utils_RecordBrowserCommon::get_records_limit($this->tab, $crits, $admin));
 		$records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array(), $order, $limit, $admin);
+		
+		if (Base_AclCommon::i_am_admin()) {
+			Base_ActionBarCommon::add('save','Export', 'href="modules/Utils/RecordBrowser/csv_export.php?'.http_build_query(array('tab'=>$this->tab, 'admin'=>$admin, 'cid'=>CID, 'path'=>$this->get_path())).'"');
+			$this->set_module_variable('crits_stuff',$crits);
+			$this->set_module_variable('order_stuff',$order);
+		}
 
 		if ($admin) $this->browse_mode = 'all';
 		if ($this->browse_mode == 'recent') {
