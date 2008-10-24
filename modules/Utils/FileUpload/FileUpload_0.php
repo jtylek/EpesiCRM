@@ -98,9 +98,7 @@ class Utils_FileUpload extends Module {
 		$form_name = $this->form->getAttribute('name');
 		$this->form->addElement('hidden','form_name',$form_name);
 
-		$s = $this->form->get_submit_form_js(false,$this->lang->ht('Processing file...'));
-		$s = str_replace("Epesi.","parent.Epesi.",$s);
-		$s = str_replace('$','parent.$',$s);
+		$s = $this->form->get_submit_form_js(false,$this->lang->ht('Processing file...'),'parent.');
 
 		$this->form->addElement('hidden','submit_js',$s);
 		$this->form->addElement('file', 'file', $this->lang->ht('Specify file'));

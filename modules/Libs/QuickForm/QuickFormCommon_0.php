@@ -12,14 +12,17 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 require_once('modules/Libs/QuickForm/requires.php');
 
 class Libs_QuickFormCommon extends ModuleCommon {
-	private static $on_submit = '';
+	private static $on_submit = array();
 	
 	public static function add_on_submit_action($action) {
-		self::$on_submit .=	$action.';';
+		self::$on_submit[] = rtrim($action,';').';';
 	}
 	
-	public static function get_on_submit_actions() {
-		return self::$on_submit;
+	public static function get_on_submit_actions($pre='') {
+		$ret = '';
+		foreach(self::$on_submit as $t)
+			$ret .= $pre.$t;
+		return $ret;
 	}
 }
 ?>

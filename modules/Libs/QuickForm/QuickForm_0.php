@@ -29,7 +29,7 @@ class Libs_QuickForm extends Module {
 		if($target=='' && $action!='')
 			$target = '_blank';
 		if(!isset($on_submit))
-			$on_submit = $this->get_submit_form_js_by_name($form_name,true,$indicator)."return false;";
+			$on_submit = $this->get_submit_form_js_by_name($form_name,true,$indicator,'')."return false;";
 		$this->qf = new HTML_QuickForm($form_name, 'post', $action, $target, array('onSubmit'=>$on_submit), true);
 		$this->qf->addElement('hidden', 'submited', 0);
 		$this->qf->setRequiredNote('<span class="required_note_star">*</span> <span class="required_note">'.$this->lang->t('denotes required field').'</span>');
@@ -67,22 +67,22 @@ class Libs_QuickForm extends Module {
 		return $return;
 	}
 	
-	public function get_submit_form_js($submited=true, $indicator=null) {
+	public function get_submit_form_js($submited=true, $indicator=null, $pre='') {
 		if (!is_object($this->qf))
 			throw new Exception("QuickFrom object doesn't exists");
 		$form_name = $this->qf->getAttribute('name');
-		return $this->get_submit_form_js_by_name($form_name,$submited,$indicator); 
+		return $this->get_submit_form_js_by_name($form_name,$submited,$indicator,$pre); 
 	}
 	public function get_submit_form_href($submited=true, $indicator=null) {
 		 return ' href="javascript:void(0)" onClick="'.$this->get_submit_form_js($submited,$indicator).'" ';
 	}
 	
-	private function get_submit_form_js_by_name($form_name, $submited, $indicator) {
+	private function get_submit_form_js_by_name($form_name, $submited, $indicator, $pre) {
 		if(!isset($indicator)) $indicator='processing...';
 		$fast = "+'&".str_replace('&amp;','&',http_build_query(array('__action_module__'=>$this->get_parent_path())))."'"; 
-		$s = str_replace('this',"$('".addslashes($form_name)."')",Libs_QuickFormCommon::get_on_submit_actions())."Epesi.href($('".addslashes($form_name)."').serialize()".$fast.", '".Epesi::escapeJS($indicator)."');";
+		$s = str_replace('this',$pre."$('".addslashes($form_name)."')",Libs_QuickFormCommon::get_on_submit_actions($pre)).$pre."Epesi.href(".$pre."$('".addslashes($form_name)."').serialize()".$fast.", '".Epesi::escapeJS($indicator)."');";
 		if($submited)
-	 		$s = "$('".addslashes($form_name)."').submited.value=1;".$s."$('".addslashes($form_name)."').submited.value=0;";
+	 		$s = $pre."$('".addslashes($form_name)."').submited.value=1;".$s.$pre."$('".addslashes($form_name)."').submited.value=0;";
 		return $s;
 	}
 
