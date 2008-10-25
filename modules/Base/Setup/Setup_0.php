@@ -133,14 +133,17 @@ class Base_Setup extends Module {
 
 			//validation or display
 			if ($form->exportValue('submited') && $form->validate()) {
-				if($form->process(array (
+				ob_start();
+				if(!$form->process(array (
 					& $this,
 					'validate'
 				))) {
-					Epesi::redirect();
-				} else {
 					print('<hr class="line"><center><a class="button"' . $this -> create_href(array()) . '>Back</a></center>');
 				}
+				if(is_array($post_install))
+					ob_end_clean();
+				else
+					ob_end_flush();
 			} elseif(!$post_install){
 				$form->display();
 				Base_ActionBarCommon::add('scan','Scan for new modules',$this->create_confirm_callback_href('Parsing for additional modules may take up to several minutes, do you wish to continue?',array('Base_Setup','parse_modules_folder_refresh')));
@@ -174,7 +177,6 @@ class Base_Setup extends Module {
 			if(empty($post_install))
 				Epesi::redirect();
 		}
-
 	}
 
 	public static function parse_modules_folder_refresh(){
@@ -249,6 +251,9 @@ class Base_Setup extends Module {
 			}
 
 		Base_ThemeCommon::create_cache();
+
+		if(empty($post_install))
+			Epesi::redirect();
 
 		return true;
 	}
