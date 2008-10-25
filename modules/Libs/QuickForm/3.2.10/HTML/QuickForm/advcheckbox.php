@@ -249,7 +249,10 @@ class HTML_QuickForm_advcheckbox extends HTML_QuickForm_checkbox
                 // default values are overriden by submitted
                 $value = $this->_findValue($caller->_constantValues);
                 if (null === $value) {
-                    $value = $this->_findValue($caller->_submitValues);
+					if($this->_flagFrozen) 
+						$this->_removeValue($caller->_submitValues);
+					else
+	                    $value = $this->_findValue($caller->_submitValues);
                     if (null === $value) {
                         $value = $this->_findValue($caller->_defaultValues);
                     }

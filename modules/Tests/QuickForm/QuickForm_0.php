@@ -13,9 +13,9 @@ class Tests_QuickForm extends Module{
 	public function body(){
 		$f = $this->init_module('Libs/QuickForm');
 
-		$f->addElement('text','frozen','Frozen test');
+		$f->addElement('checkbox','frozen','Frozen test');
 		$f->freeze(array('frozen'));
-		$f->setDefaults(array('frozen'=>'original'));
+		$f->setDefaults(array('frozen'=>true));
 		$x = $f->addElement('timestamp','xxxyss','Timestamp picker');
 		$x = $f->addElement('text','ble','Test');
 		$x = $f->addElement('currency','cur','Currency');

@@ -593,7 +593,10 @@ class HTML_QuickForm_select extends HTML_QuickForm_element {
         if ('updateValue' == $event) {
             $value = $this->_findValue($caller->_constantValues);
             if (null === $value) {
-                $value = $this->_findValue($caller->_submitValues);
+				if($this->_flagFrozen) 
+					$this->_removeValue($caller->_submitValues);
+				else
+	                $value = $this->_findValue($caller->_submitValues);
                 // Fix for bug #4465 & #5269
                 // XXX: should we push this to element::onQuickFormEvent()?
                 if (null === $value && (!$caller->isSubmitted() || !$this->getMultiple())) {
