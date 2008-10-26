@@ -65,7 +65,7 @@ class Base_Admin extends Module {
 					$icon = null;
 				}
 			}
-			$buttons[]= array('link'=>'<a '.$this->create_unique_href(array('href'=>$name)).'>'.$lang->t($caption).'</a>',
+			$buttons[]= array('link'=>'<a '.$this->create_unique_href(array('href'=>$name)).'>'.$lang->ht($caption).'</a>',
 						'icon'=>$icon);
 		}
 		$theme =  & $this->pack_module('Base/Theme');
