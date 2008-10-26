@@ -59,6 +59,10 @@ table#Utils_GenericBrowser {
     border-left: 1px solid #B3B3B3;
 }
 
+table#Utils_GenericBrowser input {
+	width: 95%;
+}
+
 table#Utils_GenericBrowser th {
     background-color: #336699;
     background-image: url("images/header-blue.png");
