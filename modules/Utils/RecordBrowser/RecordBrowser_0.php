@@ -382,7 +382,7 @@ class Utils_RecordBrowser extends Module {
 			if (isset($cols[$args['id']]) && $cols[$args['id']] === false) continue;
 			$query_cols[] = $args['id'];
 			$arr = array('name'=>$this->lang->t($args['name']));
-			if ($this->browse_mode!='recent' && $args['type']!=='multiselect') $arr['order'] = $field;
+			if ($this->browse_mode!='recent' && $args['type']!=='multiselect' && $args['type']!=='calculated') $arr['order'] = $field;
 			if ($quickjump!=='' && $args['name']===$quickjump) $arr['quickjump'] = '"'.$args['name'];
 			if ($args['type']=='text' || $args['type']=='currency' || ($args['type']=='calculated' && $args['param']!='')) $arr['search'] = $args['id'];//str_replace(' ','_',$field);
 			if ($args['type']=='checkbox' || $args['type']=='date' || $args['type']=='timestamp' || $args['type']=='commondata') {
@@ -561,6 +561,13 @@ class Utils_RecordBrowser extends Module {
 			foreach($this->table_rows as $field => $args)
 				if (($args['visible'] && !isset($cols[$args['id']])) || (isset($cols[$args['id']]) && $cols[$args['id']] === true))
 					$visible_cols[$args['id']] = true;
+
+			$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
+			if ($dpm!=='') {
+				$method = explode('::',$dpm);
+				if (is_callable($method)) call_user_func($method, $this->custom_defaults, 'adding');
+			}
+
 			$this->prepare_view_entry_details(null, 'add', null, $form, $visible_cols);
 
 			if ($form->validate()) {
@@ -585,12 +592,6 @@ class Utils_RecordBrowser extends Module {
 			foreach($visible_cols as $k => $v)
 				$row_data[] = $data[$k]['error'].$data[$k]['html'];
 				
-			$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
-			if ($dpm!=='') {
-				$method = explode('::',$dpm);
-				if (is_callable($method)) call_user_func($method, null, 'adding');
-			}
-
 			if ($this->browse_mode == 'recent')
 				$row_data[] = '&nbsp;';
 
@@ -925,7 +926,7 @@ class Utils_RecordBrowser extends Module {
 				call_user_func($this->QFfield_callback_table[$field], $form, $args['id'], $this->lang->t($args['name']), $mode, $mode=='add'?(isset($this->custom_defaults[$args['id']])?$this->custom_defaults[$args['id']]:''):$record[$args['id']], $args, $this, $this->display_callback_table);
 			} else {
 				if ($mode!=='add' && $mode!=='edit') {
-					if ($args['type']!='checkbox' && $args['type']!='commondata') {
+					if (($args['type']!='checkbox' || isset($this->display_callback_table[$field])) && $args['type']!='commondata') {
 						$def = $this->get_val($field, $record, $id, false, $args);
 						$form->addElement('static', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
 						$form->setDefaults(array($args['id']=>$def));
