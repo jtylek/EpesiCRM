@@ -126,12 +126,13 @@ class Base_User_Settings extends Module {
 	private function add_module_settings_to_form($info, &$f, $module){
 		$defaults = array();
 		$admin_settings = $this->get_module_variable('admin_settings');
-		foreach($info as & $v){
+		foreach($info as $k=>&$v){
 			if($v['type']=='group')
 				foreach($v['elems'] as & $vv)
 					$this->add_elem_to_form($vv,$defaults, $module,$admin_settings);
-			else
+			elseif($v['type']!='hidden')
 				$this->add_elem_to_form($v,$defaults, $module,$admin_settings);
+			else unset($info[$k]);
 		}
 		$f -> add_array($info, $this->set_default_js);
 		$f -> setDefaults($defaults);
@@ -149,6 +150,21 @@ class Base_User_Settings extends Module {
 		$us = ModuleManager::call_common_methods('user_settings');
 		foreach($us as $name=>$menu) {
 			if(!is_array($menu)) continue;
+			$display = false;
+			foreach ($menu as $m) { 
+				if (!is_array($m)) {
+					$display = true;
+					continue;
+				}
+				foreach ($m as $m2) {
+					if (isset($m2['type']) && $m2['type']!='hidden') { 
+						$display=true;
+						break;
+					}
+					if ($display) break;
+				}
+			}
+			if (!$display) continue;
 			foreach($menu as $k=>$v) {
 				if(isset($modules[$k])) {
 					if (!is_string($v) && !isset($modules[$k]['external']))
