@@ -947,7 +947,7 @@ class ModuleManager {
 			$default_module = Variable::get('default_module');
 			self::$root = & ModuleManager :: new_instance($default_module,null,'0');
 		} catch (Exception $e) {
-			self::$root = & ModuleManager :: new_instance('FirstRun',null,'0');
+			self::$root = & ModuleManager :: new_instance(FIRST_RUN,null,'0');
 		}
 		$ret = trim(ob_get_contents());
 		if(strlen($ret)>0 || self::$root==null) trigger_error($ret,E_USER_ERROR);

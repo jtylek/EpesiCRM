@@ -162,10 +162,10 @@ class Epesi {
 		$first_run = false;
 
 		foreach(ModuleManager::$modules as $name=>$version) {
-			if($name=='FirstRun') $first_run=true;
+			if($name==FIRST_RUN) $first_run=true;
 		}
 		ob_start();
-		if(!$first_run && !ModuleManager :: install('FirstRun')) {
+		if(!$first_run && !ModuleManager :: install(FIRST_RUN)) {
 			$x = ob_get_contents();
 			ob_end_clean();
 			trigger_error('Unable to install default module: '.$x,E_USER_ERROR);
