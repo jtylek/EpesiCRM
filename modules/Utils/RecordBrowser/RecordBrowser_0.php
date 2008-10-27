@@ -498,10 +498,10 @@ class Utils_RecordBrowser extends Module {
 			$star_off = Base_ThemeCommon::get_template_file('Utils_RecordBrowser','star_nofav.png');
 		}
 		self::$access_override['tab'] = $this->tab;
-		$i = $limit['offset'];
+		if (isset($limit)) $i = $limit['offset'];
 		foreach ($records as $row) {
 			$row = Utils_RecordBrowserCommon::format_long_text($this->tab,$row);
-			if ($this->browse_mode!='recent') {
+			if ($this->browse_mode!='recent' && isset($limit)) {
 				self::$browsed_records['records'][$row['id']] = $i;
 				$i++;
 			}
@@ -1660,6 +1660,6 @@ class Utils_RecordBrowser extends Module {
 		$theme->display('search_by_id');
 		return $ret;
 	}
-
+	
 }
 ?>
