@@ -1078,8 +1078,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$edited_by = Base_UserCommon::get_user_login($info['edited_by']);
 		}
 		return Base_LangCommon::ts('Utils_RecordBrowser','Created on:').' '.Base_RegionalSettingsCommon::time2reg($info['created_on']). '<br>'.
-				Base_LangCommon::ts('Utils_RecordBrowser','Created by:').' '.$created_by. '<br>'.
-				(($info['edited_by']!=null)?(
+				Base_LangCommon::ts('Utils_RecordBrowser','Created by:').' '.$created_by.
+				(($info['edited_by']!=null)?('<br>'.
 				Base_LangCommon::ts('Utils_RecordBrowser','Edited on:').' '.Base_RegionalSettingsCommon::time2reg($info['edited_on']). '<br>'.
 				Base_LangCommon::ts('Utils_RecordBrowser','Edited by:').' '.$edited_by):'');
 	}

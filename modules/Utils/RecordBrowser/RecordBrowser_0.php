@@ -411,8 +411,8 @@ class Utils_RecordBrowser extends Module {
 			$clean_order[$this->lang->t($key)] = $v;
 		}
 		$table_columns_SQL = join(', ', $table_columns_SQL);
-		if ($this->browse_mode == 'recent')
-			$table_columns[] = array('name'=>$this->lang->t('Visited on'), 'wrapmode'=>'nowrap', 'width'=>1);
+//		if ($this->browse_mode == 'recent')
+//			$table_columns[] = array('name'=>$this->lang->t('Visited on'), 'wrapmode'=>'nowrap', 'width'=>1);
 
 
 		$gb->set_table_columns( $table_columns );
@@ -531,8 +531,8 @@ class Utils_RecordBrowser extends Module {
 				if ($args['style']=='currency' || $args['style']=='integer') $value = array('style'=>'text-align:right;','value'=>$value);
 				$row_data[] = $value;
 			}
-			if ($this->browse_mode == 'recent')
-				$row_data[] = $row['visited_on'];
+//			if ($this->browse_mode == 'recent')
+//				$row_data[] = $row['visited_on'];
 
 			$gb_row->add_data_array($row_data);
 			if (!isset($cols['Actions']) || $cols['Actions'])
@@ -549,7 +549,7 @@ class Utils_RecordBrowser extends Module {
 					} else
 					if ($this->get_access('delete',$row)) $gb_row->add_action($this->create_confirm_callback_href($this->lang->t('Are you sure you want to delete this record?'),array('Utils_RecordBrowserCommon','delete_record'),array($this->tab, $row['id'])),'Delete');
 				}
-				$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info($this->tab, isset($info)?$info:$row['id']));
+				$gb_row->add_info(($this->browse_mode=='recent'?'<b>'.$this->lang->t('Visited on: %s', array($row['visited_on'])).'</b><br>':'').Utils_RecordBrowserCommon::get_html_record_info($this->tab, isset($info)?$info:$row['id']));
 			}
 		}
 		if (!$special && $this->add_in_table && $this->get_access('add')) {
