@@ -301,8 +301,8 @@ class Utils_Calendar extends Module {
 			$data = $form->exportValues();
 			$start = $data['start'];
 			$end = $data['end'];
+			$end = date('Y-m-d',strtotime($end)+86400);
 		}
-		$end = date('Y-m-d',strtotime($end)+86400);
 		$form->assign_theme('form', $theme, new HTML_QuickForm_Renderer_TCMSArraySmarty());
 
 		//////////////// data ////////////////////////
