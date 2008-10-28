@@ -77,7 +77,7 @@ class CRM_Calendar_Reports extends Module {
 		$title = new title( "Time by color" );
 		$f->set_title( $title );
 
-		$av_colors = array('#339933','#999933', '#993333', '#336699', '#808080','#339999','#993399');
+		$av_colors = array('#339933','#339933','#999933', '#993333', '#336699', '#808080','#339999','#993399');
 		$max = 0;
 		while($row = $ret->FetchRow()) {
 			$bar = new bar_glass();
