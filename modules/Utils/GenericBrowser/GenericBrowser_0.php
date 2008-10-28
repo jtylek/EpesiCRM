@@ -111,6 +111,7 @@ class Utils_GenericBrowser extends Module {
 	private $custom_label = '';
 	private $table_prefix = '';
 	private $table_postfix = '';
+	private static $possible_vals_for_per_page=array(5=>5,10=>10,15=>15,20=>20,25=>25,30=>30,40=>40,50=>50);
 
 	public function construct() {
 		if (is_numeric($this->get_instance_id()))
@@ -284,6 +285,10 @@ class Utils_GenericBrowser extends Module {
 	public function get_limit($max) {
 		$offset = $this->get_module_variable('offset',0);
 		$per_page = $this->get_module_variable('per_page',Base_User_SettingsCommon::get('Utils/GenericBrowser','per_page'));
+		if (!isset(self::$possible_vals_for_per_page[$per_page])) {
+			$per_page = 5;
+			$this->get_module_variable('per_page',Base_User_SettingsCommon::save('Utils/GenericBrowser','per_page', 5));
+		}
 		$this->rows_qty = $max;
 		if ($offset>=$max) $offset = 0;
 
@@ -699,7 +704,7 @@ class Utils_GenericBrowser extends Module {
 		$pager_on = false;
 		if(isset($this->rows_qty) && $paging) {
 			if(!$this->forced_per_page) {
-				$form_p->addElement('select','per_page',$this->lang->t('Number of rows per page'), array(5=>5,10=>10,20=>20,50=>50,100=>100), 'onChange="'.$form_p->get_submit_form_js(false).'"');
+				$form_p->addElement('select','per_page',$this->lang->t('Number of rows per page'), self::$possible_vals_for_per_page, 'onChange="'.$form_p->get_submit_form_js(false).'"');
 				$form_p->setDefaults(array('per_page'=>$per_page));
 			}			
 			$qty_pages = ceil($this->rows_qty/$this->per_page);
