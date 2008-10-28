@@ -63,12 +63,8 @@ class CRM_Calendar_Reports extends Module {
 		$f = $this->init_module('Libs/OpenFlashChart');
 		$title = new title( "Time by color" );
 		$f->set_title( $title );
-		$colors = CRM_Calendar_EventCommon::get_available_colors();
-		$x_ax = new x_axis();
-		$x_ax->set_labels_from_array($colors);
-		$f->set_x_axis($x_ax);
 
-		$av_colors = array('#00FFFF','#008000','#000080', '#808000', '#008080', '#0000FF','#00FF00','#800080','#FF00FF','#800000','#FF0000','#C0C0C0','#808080','#000000','#FFFF00');
+		$av_colors = array('#339933','#999933', '#993333', '#336699', '#808080','#339999','#993399');
 		$max = 0;
 		while($row = $ret->FetchRow()) {
 			$bar = new bar_glass();
