@@ -32,9 +32,21 @@ class CRM_Calendar_Reports extends Module {
 			$data = $form->exportValues();
 			$start = $data['start'];
 			$end = $data['end'];
+			$end = date('Y-m-d',strtotime($end)+86400);
 		}
 		$form->display();
+		print('<br><br><br><br><br>');
 
+
+		$tb = & $this->init_module('Utils/TabbedBrowser');
+		$tb->set_tab($this->lang->t("Time by color"), array($this,'time_by_color'),array($start,$end));
+		$this->display_module($tb);
+		$this->tag();
+
+//		print($start.' = '.$end);
+	}
+	
+	public function time_by_color($start,$end) { //TODO: recurring events
 		$start_reg = Base_RegionalSettingsCommon::reg2time($start);
 		$end_reg = Base_RegionalSettingsCommon::reg2time($end);
 		
@@ -60,6 +72,7 @@ class CRM_Calendar_Reports extends Module {
 			'OR '.
 			'(e.timeless=1 AND ((e.recurrence_type is null AND DATE('.$method_begin.'e.starts'.$method_end.')>=%D AND DATE('.$method_begin.'e.starts'.$method_end.')<%D) OR (e.recurrence_type is not null AND ((DATE('.$method_begin.'e.starts'.$method_end.')<=%D AND e.recurrence_end>=%D) OR (DATE('.$method_begin.'e.starts'.$method_end.')>=%D AND DATE('.$method_begin.'e.starts'.$method_end.')<=%D) OR (e.recurrence_end>=%D AND e.recurrence_end<=%D) OR (e.starts<%d AND e.recurrence_end is null)))))) '.$fil.' GROUP BY e.color',array($start_reg,$end_reg,$start_reg,$end_reg,$start_reg,$end_reg,$start_reg,$end_reg,$start,$end,$start_reg,$end,$end_reg,$start,$end,$start,$end,$start,$end,$start,$end,strtotime($end)));
 
+
 		$f = $this->init_module('Libs/OpenFlashChart');
 		$title = new title( "Time by color" );
 		$f->set_title( $title );
@@ -83,7 +96,7 @@ class CRM_Calendar_Reports extends Module {
 		$f->set_width(950);
 		$f->set_height(400);
 		$this->display_module($f);
-//		print($start.' = '.$end);
+
 	}
 
 }
