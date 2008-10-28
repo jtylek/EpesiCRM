@@ -1548,7 +1548,7 @@ class Utils_RecordBrowser extends Module {
 			$oldc = $content = strip_tags($str);
 			$content = str_replace('&nbsp;',' ',$content);
 			if (strlen($content)>$len) {
-				$label = substr($content, 0, $len).'...';
+				$label = htmlspecialchars(substr(htmlspecialchars_decode($content), 0, $len)).'...';
 				$label = str_replace(' ','&nbsp;',$label);
 				$label = str_replace($oldc, $label, $str);
 				if (!strpos($str, 'Utils_Toltip__showTip(')) $label = '<span '.Utils_TooltipCommon::open_tag_attrs($content).'>'.$label.'</span>';
