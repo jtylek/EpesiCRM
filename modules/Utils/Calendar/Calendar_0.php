@@ -1,6 +1,5 @@
 <?php
 defined("_VALID_ACCESS") || die('Direct access forbidden');
-
 class Utils_Calendar extends Module {
 	private $lang;
 	private static $views = array('Agenda','Day','Week','Month','Year');
@@ -294,8 +293,8 @@ class Utils_Calendar extends Module {
 		$form->addElement('datepicker', 'start', $this->lang->t('From'));
 		$form->addElement('datepicker', 'end', $this->lang->t('To'));
 		$form->addElement('submit', 'submit_button', $this->lang->ht('Show'));
-		$form->addRule('select_start', 'Field required', 'required');
-		$form->addRule('select_end', 'Field required', 'required');
+		$form->addRule('start', 'Field required', 'required');
+		$form->addRule('end', 'Field required', 'required');
 		$form->setDefaults(array('start'=>$start,'end'=>$end));
 
 		if($form->validate()) {
@@ -594,7 +593,7 @@ class Utils_Calendar extends Module {
 		//data
 		//$dis_week_from = Base_RegionalSettingsCommon::reg2time($dis_week_from);
 		//$dis_week_to = $dis_week_from+7*86400-1;
-		$dis_week_to = date('Y-m-d',$dis_week_from+7*86400);
+		$dis_week_to = date('Y-m-d',$dis_week_from+7.5*86400);
 		$dis_week_from = date('Y-m-d',$dis_week_from);
 		$ret = $this->get_events($dis_week_from,$dis_week_to);
 		$this->displayed_events = array('start'=>$dis_week_from, 'end'=>$dis_week_to,'events'=>$ret);
