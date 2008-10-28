@@ -588,8 +588,8 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 	public function check_dates($arg) {
 		if($arg[5]) return true;
-		$start = strtotime($arg[2]) + ($arg[4]==true?0:1)*$this->recalculate_time($arg[3]);
-		$end = strtotime($arg[0]) + ($arg[4]==true?0:1)*$this->recalculate_time($arg[1]);
+		$start = ($arg[4]==true?strtotime($arg[2]):$this->recalculate_time($arg[2],$arg[3]));
+		$end = ($arg[4]==true?strtotime($arg[0]):$this->recalculate_time($arg[0],$arg[1]));
 		return $end >= $start;
 	}
 
@@ -600,22 +600,26 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		return $end > $start;
 	}
 
-	private function recalculate_time($time) {
+	private function recalculate_time($date,$time) {
 		if (isset($time['a'])) {
-			$result = 60*($time['i']+60*($time['h']%12));
-			if ($time['a']=='pm') $result += 43200;
-		} else $result = 60*($time['i']+60*($time['H']));
-		return $result;
+			$result_h = ($time['h']%12);
+			$result_m = $time['i'];
+			if ($time['a']=='pm') $result_h += 12;
+		} else {
+			$result_m = $time['i'];
+			$result_h = $time['H'];
+		}
+		return strtotime($date.' '.$result_h.':'.$result_m.':00');
 	}
 
 	public function add_event($vals = array()){
-		$start = strtotime($vals['date_s']) + $this->recalculate_time($vals['time_s']);
+		$start = $this->recalculate_time($vals['date_s'],$vals['time_s']);
 		if($vals['duration_switch']) {
 			$end = $start + $vals['duration'];
 			if(date('Y-m-d',$start)!=date('Y-m-d',$end))
 				$end = strtotime(date('Y-m-d',$start).' 23:59');
 		} else
-			$end = strtotime($vals['date_s']) + $this->recalculate_time($vals['time_e']);
+			$end = $this->recalculate_time($vals['date_s'],$vals['time_e']);
 		if($vals['timeless']) {
 			$start = strtotime(date('Y-m-d',$start));
 			$end = strtotime(date('Y-m-d',$end));
@@ -683,21 +687,23 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 	}
 
 	public function update_event($id, $vals = array()){
-		$start = strtotime($vals['date_s']) + $this->recalculate_time($vals['time_s']);
+		$start = $this->recalculate_time($vals['date_s'],$vals['time_s']);
+		$debug = strtotime('2008-10-26 3:00:00').'--'.$start.' - '.date('Y-m-d H:i:s',$start).' ----- ';
 		if($vals['duration_switch']) {
 			$end = $start + $vals['duration'];
 			if(date('Y-m-d',$start)!=date('Y-m-d',$end))
 				$end = strtotime(date('Y-m-d',$start).' 23:59');
 		} else
-			$end = strtotime($vals['date_s']) + $this->recalculate_time($vals['time_e']);
+			$end = $this->recalculate_time($vals['date_s'],$vals['time_e']);
 		if($vals['timeless']) {
 			$start = strtotime(date('Y-m-d',$start));
 			$end = strtotime(date('Y-m-d',$end));
 		} else {
 			$start = Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$start),true);
 			$end = Base_RegionalSettingsCommon::reg2time(date('Y-m-d H:i:s',$end),true);
-		}
 
+
+		}
 //		$prev = DB::GetRow('SELECT * FROM crm_calendar_event WHERE id=%d',array($id));
 		DB::Execute('UPDATE crm_calendar_event SET title=%s,'.
 													'description=%s,'.
