@@ -79,7 +79,7 @@ class Libs_QuickForm extends Module {
 	
 	private function get_submit_form_js_by_name($form_name, $submited, $indicator, $pre) {
 		if(!isset($indicator)) $indicator='processing...';
-		$fast = "+'&".str_replace('&amp;','&',http_build_query(array('__action_module__'=>$this->get_parent_path())))."'"; 
+		$fast = "+'&".http_build_query(array('__action_module__'=>$this->get_parent_path()))."'"; 
 		$s = str_replace('this',$pre."$('".addslashes($form_name)."')",Libs_QuickFormCommon::get_on_submit_actions($pre)).$pre."Epesi.href(".$pre."$('".addslashes($form_name)."').serialize()".$fast.", '".Epesi::escapeJS($indicator)."');";
 		if($submited)
 	 		$s = $pre."$('".addslashes($form_name)."').submited.value=1;".$s.$pre."$('".addslashes($form_name)."').submited.value=0;";
