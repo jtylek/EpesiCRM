@@ -106,13 +106,16 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 		return $renderer->toHtml();
 	}
 
-	function recalculate_time($time) {
+	private function recalculate_time($date,$time) {
 		if (isset($time['a'])) {
-			$result = 60*($time['i']+60*($time['h']%12));
-			if ($time['a']=='pm') $result += 43200;
-		} else $result = 60*($time['i']+60*($time['H']));
-
-		return $result;
+			$result_h = ($time['h']%12);
+			$result_m = $time['i'];
+			if ($time['a']=='pm') $result_h += 12;
+		} else {
+			$result_m = $time['i'];
+			$result_h = $time['H'];
+		}
+		return strtotime($date.' '.$result_h.':'.$result_m.':00');
 	}
 	
 	function onQuickFormEvent($event, $arg, &$caller) {
@@ -129,8 +132,8 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 		$dpv = $this->_elements['datepicker']->exportValue($submitValues);
 		if ($dpv=='') return $this->_prepareValue('', $assoc);
 		$dv = $this->_elements['date']->exportValue($submitValues);
-		$result = $this->recalculate_time($dv);
-		$cleanValue = date('Y-m-d H:i:s',Base_RegionalSettingsCommon::reg2time($dpv.' '.date('H:i:s', strtotime(date('Y-m-d'))+$result),!isset($this->_options['regional_settings_tz']) || $this->_options['regional_settings_tz']==true)); //tz trans - last arg changed from false...
+		$result = $this->recalculate_time(date('Y-m-d'),$dv);
+		$cleanValue = date('Y-m-d H:i:s',Base_RegionalSettingsCommon::reg2time($dpv.' '.date('H:i:s', $result),!isset($this->_options['regional_settings_tz']) || $this->_options['regional_settings_tz']==true)); //tz trans - last arg changed from false...
 		return $this->_prepareValue($cleanValue, $assoc);
 	}
 
@@ -144,9 +147,11 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 	function setValue($value)
 	{
 		$this->_createElementsIfNotExist();
+	
 		if(is_array($value)) {
-			foreach ($value as $key=>$v)
-				$this->_elements[$key]->setValue($v);
+			$value['datepicker'] = strftime('%Y-%m-%d',Base_RegionalSettingsCommon::reg2time($value['datepicker'],false));
+			$this->_elements['datepicker']->setValue($value['datepicker']);
+			$this->_elements['date']->setValue($value['date']);
 		} else {
 			if (!is_numeric($value)) $value = Base_RegionalSettingsCommon::reg2time($value,false);
 			$value -= (date('i',$value) % $this->_options['optionIncrement']['i'])*60;
@@ -155,7 +160,7 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 				$value = Base_RegionalSettingsCommon::time2reg($value,true,true,true,false);
 			//tz trans end
 			foreach ($this->_elements as & $v)
-			$v->setValue($value);
+				$v->setValue($value);
 		}
 	} //end func setValue
 	
