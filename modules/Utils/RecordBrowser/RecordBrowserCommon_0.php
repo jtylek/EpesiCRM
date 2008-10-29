@@ -377,7 +377,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		DB::Execute('DELETE FROM '.$tab.'_field WHERE field=%s', array($field));
 		DB::Execute('ALTER TABLE '.$tab.'_data_1 DROP COLUMN f_'.self::$table_rows[$field]['id']);
 	}
-	public static function new_record_field($tab, $field, $type, $visible, $required, $param='', $style='', $extra = true, $filter = false){
+	public static function new_record_field($tab, $field, $type, $visible, $required, $param='', $style='', $extra = true, $filter = false, $pos = null){
 		self::check_table_name($tab);
 		$exists = DB::GetOne('SELECT field FROM '.$tab.'_field WHERE field=%s', array($field));
 		if ($exists) return;
@@ -385,7 +385,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$pos = DB::GetOne('SELECT MAX(position) FROM '.$tab.'_field')+1;
 		} else {
 			DB::StartTrans();
-			$pos = DB::GetOne('SELECT position FROM '.$tab.'_field WHERE field=\'Details\'');
+			if ($pos===null) $pos = DB::GetOne('SELECT position FROM '.$tab.'_field WHERE field=\'Details\'');
 			DB::Execute('UPDATE '.$tab.'_field SET position = position+1 WHERE position>=%d', array($pos));
 			DB::CompleteTrans();
 		}

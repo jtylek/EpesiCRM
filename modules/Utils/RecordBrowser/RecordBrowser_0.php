@@ -552,7 +552,7 @@ class Utils_RecordBrowser extends Module {
 				$gb_row->add_info(($this->browse_mode=='recent'?'<b>'.$this->lang->t('Visited on: %s', array($row['visited_on'])).'</b><br>':'').Utils_RecordBrowserCommon::get_html_record_info($this->tab, isset($info)?$info:$row['id']));
 			}
 		}
-		if (!$special && $this->add_in_table && $this->get_access('add')) {
+		if (!$special && $this->add_in_table && $this->get_access('add', $this->custom_defaults)) {
 			$this->fields_permission = $this->get_access('fields','new');
 			$form = $this->init_module('Libs/QuickForm',null, 'add_in_table__'.$this->tab);
 			$form->setDefaults($this->custom_defaults);
