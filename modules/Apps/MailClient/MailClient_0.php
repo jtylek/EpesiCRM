@@ -763,7 +763,7 @@ class Apps_MailClient extends Module {
 			$r->add_data($row['mail']);
 			$r->add_action($this->create_callback_href(array($this,'account'),array($row['id'],'edit')),'Edit');
 			$r->add_action($this->create_callback_href(array($this,'account'),array($row['id'],'view')),'View');
-			$r->add_action($this->create_callback_href(array($this,'delete_account'),$row['id']),'Delete');
+			$r->add_action($this->create_confirm_callback_href($this->lang->ht("Delete this account?"),array($this,'delete_account'),$row['id']),'Delete');
 		}
 		$this->display_module($gb);
 		Base_ActionBarCommon::add('add','New account',$this->create_callback_href(array($this,'account'),array(null,'new')));
@@ -865,31 +865,9 @@ class Apps_MailClient extends Module {
 	}
 
 	public function delete_account($id){
-		if($this->is_back()) return false;
-		$f = $this->init_module('Libs/QuickForm');
-		$mail = DB::GetOne('SELECT mail FROM apps_mailclient_accounts WHERE id=%d',array($id));
-		$f->addElement('header',null,$this->lang->t('Delete account %s',array($mail)));
-		$f->addElement('checkbox','setup',$this->lang->t('Account setup'));
-		$f->addElement('checkbox','data',$this->lang->t('Emails'));
-		$f->setDefaults(array('setup'=>1));
-
-		if($f->validate()) {
-			$values = $f->exportValues();
-			if(isset($values['setup']) && $values['setup'])
-				DB::Execute('DELETE FROM apps_mailclient_accounts WHERE id=%d',array($id));
-			if(isset($values['data']) && $values['data'])
-				recursive_rmdir($this->get_data_dir().Acl::get_user().'/'.Apps_MailClientCommon::mailname2dirname($mail));
-			return false;
-		}
-		$f->display();
-
-		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
-		Base_ActionBarCommon::add('delete','Delete',' href="javascript:void(0)" onClick="'.addcslashes($f->get_submit_form_js(),'"').'"');
-
-
-		return true;
+		recursive_rmdir(Apps_MailClientCommon::get_mailbox_dir($id));
+		DB::Execute('DELETE FROM apps_mailclient_accounts WHERE id=%d',array($id));
 	}
-
 
 	//////////////////////////////////////////////////////////////////
 	//applet
