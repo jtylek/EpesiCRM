@@ -51,9 +51,9 @@ if($_POST['cell_id']=='trash') {
 		$ev = array($ev);
 	foreach($ev as $e) {
 		ob_start();
-		Utils_CalendarCommon::print_event($e,($_POST['page_type']=='day')?'day':null);
+		Utils_CalendarCommon::print_event($e,($_POST['page_type']=='day')?'day':null,false);
 		$ret = ob_get_clean();
-		print('$(\'utils_calendar_event:'.$e['id'].'\').innerHTML=\''.Epesi::escapeJS($ret_ev,false).Epesi::escapeJS($ret,false).'\';');
+		print('$(\'utils_calendar_event:'.$e['id'].'\').innerHTML=\''.Epesi::escapeJS($ret_ev.$ret,false).'\';');
 	}
 exit();
 }

@@ -50,7 +50,10 @@
 	</div>
 	<!-- -->
 </span>
+
+{if $with_div}
 <div id="utils_calendar_event:{$event_id}" class="utils_calendar_event">
+{/if}
 	<span id="Utils_Calendar__event_day" class="event_{$color}">
 		<div class="row">
 			<span id="event_info"><img {$tip_tag_attrs} src="{$theme_dir}/Utils/Calendar/info.png" onClick="event_menu('{$event_id}')" width="11" height="11" border="0"></span>
@@ -60,4 +63,6 @@
 			<span id="event_title">{$title}{if $description!=''} - {$description|truncate:100:"..."}{/if}</span>
 		</div>
 	</span>
+{if $with_div}
 </div>
+{/if}

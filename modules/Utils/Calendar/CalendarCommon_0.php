@@ -2,7 +2,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_CalendarCommon extends ModuleCommon {
-	public static function print_event($ev,$mode='') {
+	public static function print_event($ev,$mode='',$with_div=true) {
 		$th = Base_ThemeCommon::init_smarty();
 		$ex = self::process_event($ev);
 		$th->assign('event_id',$ev['id']);
@@ -11,6 +11,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 		$title_st = strip_tags($ev['title']);
 		if(strlen($title_st)>15) $title_s = Utils_TooltipCommon::create(trim(substr($title_st,0,13),' ').'...',$title,false);
 			else $title_s = $title;
+		$th->assign('with_div',$with_div);
 		$th->assign('title',$title);
 		$th->assign('title_s',$title_s);
 		$th->assign('description',$ev['description']);
