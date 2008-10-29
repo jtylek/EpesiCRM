@@ -136,7 +136,7 @@ if(isset($_GET['attachment_cid']) || isset($_GET['attachment_name'])) {
 	$body .= '<script>'.$script.'</script>'.
 			'</html>';
 
-	echo $body;//.'<pre>'.htmlentities(print_r($structure,true)).'</pre>';
+	echo Utils_BBCodeCommon::parse($body);//.'<pre>'.htmlentities(print_r($structure,true)).'</pre>';
 }
 Apps_MailClientCommon::read_msg($_GET['box'],$_GET['dir'],$_GET['msg_id']);
 
