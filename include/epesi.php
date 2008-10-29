@@ -32,7 +32,6 @@ class Epesi {
 		foreach($arr as $loader=>$css) {
 			$csses_build = new Minify_Build($css);
 			$f = $csses_build->uri($loader.'?'.http_build_query(array('f'=>array_values($css))));
-			$f = str_replace('&amp;','&',$f);
 			$out[] = $f;
 		}
 		return $out;
@@ -213,7 +212,7 @@ class Epesi {
 		if(MODULE_TIMES)
 			$time = microtime(true);
 
-		$url = str_replace('&amp;','&',$url);
+		$url = str_replace('&amp;','&',$url); //do we need this if we set arg_separator.output to &?
 
 		if($url) {
 			parse_str($url, $_POST);
