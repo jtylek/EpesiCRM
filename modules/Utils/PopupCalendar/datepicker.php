@@ -54,6 +54,33 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 		else $cleanValue = '';
         return $this->_prepareValue($cleanValue, $assoc);
 	}
+	
+	function onQuickFormEvent($event, $arg, &$caller)
+    {
+        if ('updateValue' != $event) {
+            parent::onQuickFormEvent($event, $arg, $caller);
+        } else {
+                // constant values override both default and submitted ones
+                // default values are overriden by submitted
+                $value = $this->_findValue($caller->_constantValues);
+                if (null === $value) {
+					if($this->_flagFrozen) 
+						$this->_removeValue($caller->_submitValues);
+					else {
+	                    $value = $this->_findValue($caller->_submitValues);
+						if($value!==null)
+							$value = strftime('%Y-%m-%d',Base_RegionalSettingsCommon::reg2time($value,false));
+					}
+                    if (null === $value) {
+                        $value = $this->_findValue($caller->_defaultValues);
+                    }
+                }
+                if (null !== $value) {
+                    $this->setValue($value);
+                }
+        }
+        return true;
+    } // end func onQuickFormEvent
 
 	function setValue($value) {
 		if ($value) $this->updateAttributes(array('value'=>Base_RegionalSettingsCommon::time2reg($value,false,true,false)));
