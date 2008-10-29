@@ -39,4 +39,6 @@ $local_dir = dirname(dirname(str_replace('\\','/',__FILE__)));
 $url_dir = substr($local_dir,strlen(str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']))-strlen(str_replace('\\','/',$_SERVER['SCRIPT_NAME'])));
 $dir = trim($url_dir,'/');
 define('EPESI_DIR','/'.$dir.($dir?'/':''));
+
+ini_set('arg_separator.output','&');
 ?>
