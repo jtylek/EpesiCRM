@@ -722,6 +722,12 @@ class Utils_RecordBrowser extends Module {
 
 		$this->prepare_view_entry_details($this->record, $mode, $id, $form);
 
+		if ($mode!=='view')
+			foreach($this->table_rows as $field => $args) {
+				if ($this->fields_permission[$args['id']]==='read-only') {
+					$form->freeze($args['id']);
+				}
+			}
 		if ($form->validate()) {
 			$values = $form->exportValues();
 			foreach ($this->table_rows as $v) {
@@ -779,12 +785,6 @@ class Utils_RecordBrowser extends Module {
 				else $theme -> assign('history_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('Click to view edit history of currently displayed record')).' '.$this->create_callback_href(array($this,'navigate'), array('view_edit_history', $id)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','history.png').'" /></a>');
 			}
 		}
-		if ($mode!=='view')
-			foreach($this->table_rows as $field => $args) {
-				if ($this->fields_permission[$args['id']]==='read-only') {
-					$form->freeze($args['id']);
-				}
-			}
 
 		if ($mode=='view') $form->freeze();
 		$renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
