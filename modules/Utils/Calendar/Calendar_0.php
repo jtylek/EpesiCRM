@@ -173,7 +173,7 @@ class Utils_Calendar extends Module {
 	 *
 	 * @return array
 	 */
-	private function get_timeline() {
+	private function get_timeline($date) {
 		$timeline = array();
 
 		//timeless
@@ -193,6 +193,9 @@ class Utils_Calendar extends Module {
 				$curr = $zero_t;
 				while($curr<$end) {
 					$next = $curr+$interval;
+					//$next = strtotime($date.' '.date('H:i:s',$curr+$interval));
+					//$time = date('H:i:s',strtotime(Base_RegionalSettingsCommon::time2reg($curr+$interval,true,true,true,false)));
+					//$next = strtotime($date.' '.date('H:i:s',Base_RegionalSettingsCommon::reg2time($date.' '.$time)));
 					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($next,2,false,false),'time'=>($curr-$zero_t),'join_rows'=>1);
 					$curr = $next;
 				}
@@ -378,7 +381,7 @@ class Utils_Calendar extends Module {
 		$theme->assign('link_year', $this->create_unique_href(array('action'=>'switch','time'=>$this->date, 'tab'=>'Year')));
 		$theme->assign('header_day', $header_day);
 
-		$timeline = $this->get_timeline();
+		$timeline = $this->get_timeline(date('Y-m-d',$this->date));
 		$today_t = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$this->date));
 		$today_t_timeless = strtotime(date('Y-m-d',$this->date));
 		$dnd = array();
@@ -553,7 +556,6 @@ class Utils_Calendar extends Module {
 		$theme->assign('day_headers', $day_headers);
 
 		//timeline and ids
-		$timeline = $this->get_timeline();
 		$time_ids = array();
 		$dnd = array();
 		$joins = array();
@@ -561,6 +563,7 @@ class Utils_Calendar extends Module {
 			$time_ids[$i] = array();
 			$today_t_timeless = strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$dis_week_from))+3600*24*$i).' '.date('H:i:s',$dis_week_from));
 			$today_t = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$today_t_timeless));
+			$timeline = $this->get_timeline(date('Y-m-d',$today_t_timeless));
 			$prev = null;
 			foreach($timeline as & $v) {
 				if(is_string($v['time'])) {

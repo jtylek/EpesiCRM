@@ -174,8 +174,10 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		if($this->is_back()) return false;
 
 		$recurrence = strpos($id,'_');
-		if($recurrence!==false)
+		if($recurrence!==false) {
+			$recurrence_id = substr($id,$recurrence+1);
 			$id = substr($id,0,$recurrence);
+		}
 
 		$form = $this->init_module('Libs/QuickForm');
 		$theme =  $this->pack_module('Base/Theme');
@@ -211,6 +213,10 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			Utils_WatchdogCommon::notified('crm_calendar',$id);
 			$event = DB::GetRow('SELECT *,starts as start,ends as end,ends-starts as duration FROM crm_calendar_event WHERE id=%d', $id);
 			if ($event['priority']==2) $event['priority']=1;
+			if($recurrence) {
+				$event['start'] = CRM_Calendar_EventCommon::get_n_recurrence_time($event['start'],$event,$recurrence_id);
+				$event['end'] = CRM_Calendar_EventCommon::get_n_recurrence_time($event['end'],$event,$recurrence_id);
+			}
 			$x = $event['duration'];
 			if(in_array($x,array(300,900,1800,3600,7200,14400,28800)))
 				$duration_switch='1';
@@ -595,8 +601,8 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 	public function check_recurrence2($arg) {
 		if(!$arg[1] || (isset($arg[3]) && $arg[3])) return true;
-		$start = strtotime($arg[2]);
-		$end = strtotime($arg[0]);
+		$start = strtotime(strftime('%Y-%m-%d',Base_RegionalSettingsCommon::reg2time($arg[2],false)));
+		$end = strtotime(strftime('%Y-%m-%d',Base_RegionalSettingsCommon::reg2time($arg[0],false)));
 		return $end > $start;
 	}
 

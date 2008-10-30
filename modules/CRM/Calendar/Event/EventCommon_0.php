@@ -214,45 +214,10 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 						}
 					}
 				}
+				$start_time = date('H:i:s',strtotime(Base_RegionalSettingsCommon::time2reg($row['start'],true,true,true,false)));
 				while($row['start']<$rend) {
 						$kk++;
-						switch($type) {
-							case 'everyday':
-								$row['start']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$row['start']))+3600*24).' '.date('H:i:s',$row['start']));
-								break;
-							case 'second':
-								$row['start']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$row['start']))+3600*48).' '.date('H:i:s',$row['start']));
-								break;
-							case 'third':
-								$row['start']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$row['start']))+3600*72).' '.date('H:i:s',$row['start']));
-								break;
-							case 'fourth':
-								$row['start']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$row['start']))+3600*96).' '.date('H:i:s',$row['start']));
-								break;
-							case 'fifth':
-								$row['start']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$row['start']))+3600*120).' '.date('H:i:s',$row['start']));
-								break;
-							case 'sixth':
-								$row['start']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$row['start']))+3600*144).' '.date('H:i:s',$row['start']));
-								break;
-							case 'week':
-								$row['start']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$row['start']))+3600*168).' '.date('H:i:s',$row['start']));
-								break;
-							case 'week_custom':
-								do {
-									$row['start']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$row['start']))+3600*24).' '.date('H:i:s',$row['start']));
-								} while(!$row['recurrence_hash']{date('N',strtotime(Base_RegionalSettingsCommon::time2reg($row['start'],false,true,true,false)))-1});
-								break;
-							case 'two_weeks':
-								$row['start']=strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$row['start']))+3600*168*2).' '.date('H:i:s',$row['start']));
-								break;
-							case 'month':
-								$year = date('Y',$row['start']);
-								$month = date('m',$row['start'])%12+1;
-								if($month==1) $year++;
-								$row['start'] = strtotime(date($year.'-'.$month.'-d H:i:s',$row['start']));
-								break;
-						}
+						$row['start'] = self::get_next_recurrence_time($row['start'],$row,$type,$start_time);
 						if((($row['start']>=$start_reg && !$row['timeless']) || ($row['start']>=$start && $row['timeless'])) && $row['start']<$rend) {
 							if($row['timeless'])
 								$next = date('Y-m-d',$row['start']);
@@ -273,6 +238,63 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			}
 		}
 		return $last;
+	}
+
+	public static function get_next_recurrence_time($t,$row,$type=null,$time=null) {
+		if($time===null)
+			$time = date('H:i:s',strtotime(Base_RegionalSettingsCommon::time2reg($t,true,true,true,false)));
+		if($type===null)
+			$type = self::recurrence_type($row['recurrence_type']);
+		switch($type) {
+			case 'everyday':
+				$date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$t))+3600*24);
+				break;
+			case 'second':
+				$date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$t))+3600*48);
+				break;
+			case 'third':
+				$date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$t))+3600*72);
+				break;
+			case 'fourth':
+				$date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$t))+3600*96);
+				break;
+			case 'fifth':
+				$date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$t))+3600*120);
+				break;
+			case 'sixth':
+				$date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$t))+3600*144);
+				break;
+			case 'week':
+				$date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$t))+3600*168);
+				break;
+			case 'week_custom':
+				$date = strtotime(date('Y-m-d 12:00:00',$t));
+				do {
+					$date = strtotime(date('Y-m-d 12:00:00',$date+3600*24));
+				} while(!$row['recurrence_hash']{date('N',$date)-1});
+				$date = date('Y-m-d',$date);
+				break;
+			case 'two_weeks':
+				$date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$t))+3600*168*2);
+				break;
+			case 'month':
+				$year = date('Y',$t);
+				$month = date('m',$t)%12+1;
+				if($month==1) $year++;
+				$date = date($year.'-'.$month.'-d',$t);
+
+				break;
+		}
+		return strtotime($date.' '.date('H:i:s',Base_RegionalSettingsCommon::reg2time($date.' '.$time)));
+	}
+
+	public static function get_n_recurrence_time($t,$row,$n) {
+		$time = date('H:i:s',strtotime(Base_RegionalSettingsCommon::time2reg($t,true,true,true,false)));
+		$type = self::recurrence_type($row['recurrence_type']);
+		while($n-->0) {
+			$t = self::get_next_recurrence_time($t,$row,$type,$time);
+		}
+		return $t;
 	}
 
 	public static function get_all($start,$end,$order=' ORDER BY e.starts') {
@@ -384,64 +406,8 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 				while($next_result['start']<$rend) {
 						$kk++;
 						$next_result['id'] = $row['id'].'_'.$kk;
-						switch($type) {
-							case 'everyday':
-								$start_date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['start']))+3600*24);
-								$end_date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['end']))+3600*24);
-								break;
-							case 'second':
-								$start_date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['start']))+3600*48);
-								$end_date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['end']))+3600*48);
-								break;
-							case 'third':
-								$start_date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['start']))+3600*72);
-								$end_date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['end']))+3600*72);
-								break;
-							case 'fourth':
-								$start_date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['start']))+3600*96);
-								$end_date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['end']))+3600*96);
-								break;
-							case 'fifth':
-								$start_date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['start']))+3600*120);
-								$end_date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['end']))+3600*120);
-								break;
-							case 'sixth':
-								$start_date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['start']))+3600*144);
-								$end_date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['end']))+3600*144);
-								break;
-							case 'week':
-								$start_date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['start']))+3600*168);
-								$end_date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['end']))+3600*168);
-								break;
-							case 'week_custom':
-								$start_date = strtotime(date('Y-m-d 12:00:00',$next_result['start']));
-								$end_date = strtotime(date('Y-m-d 12:00:00',$next_result['end']));
-								do {
-									$start_date = strtotime(date('Y-m-d 12:00:00',$start_date+3600*24));
-									$end_date = strtotime(date('Y-m-d 12:00:00',$end_date+3600*24));
-								} while(!$row['recurrence_hash']{date('N',$start_date)-1});
-								$start_date = date('Y-m-d',$start_date);
-								$end_date = date('Y-m-d',$end_date);
-								break;
-							case 'two_weeks':
-								$start_date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['start']))+3600*168*2);
-								$end_date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$next_result['end']))+3600*168*2);
-								break;
-							case 'month':
-								$year = date('Y',$next_result['start']);
-								$month = date('m',$next_result['start'])%12+1;
-								if($month==1) $year++;
-								$start_date = date($year.'-'.$month.'-d',$next_result['start']);
-
-								$year = date('Y',$next_result['end']);
-								$month = date('m',$next_result['end'])%12+1;
-								if($month==1) $year++;
-								$end_date = date($year.'-'.$month.'-d',$next_result['end']);
-
-								break;
-						}
-						$next_result['start']=strtotime($start_date.' '.date('H:i:s',Base_RegionalSettingsCommon::reg2time($start_date.' '.$start_time)));
-						$next_result['end']=strtotime($end_date.' '.date('H:i:s',Base_RegionalSettingsCommon::reg2time($end_date.' '.$end_time)));
+						$next_result['start'] = self::get_next_recurrence_time($next_result['start'],$row,$type,$start_time);
+						$next_result['end'] = self::get_next_recurrence_time($next_result['end'],$row,$type,$end_time);
 						if(isset($next_result['timeless'])) $next_result['timeless'] = date('Y-m-d',$next_result['start']);
 						if((($next_result['start']>=$start_reg && !$row['timeless']) || ($next_result['start']>=$start && $row['timeless'])) && $next_result['start']<$rend) {
 							$result[] = $next_result;
@@ -503,7 +469,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$id = substr($id,0,$recurrence);
 
 		$a = self::get($id);
-		
+
 		if (!$a) return Base_LangCommon::ts('CRM_Calendar_Event','Private record');
 
 		if(isset($a['timeless']))
