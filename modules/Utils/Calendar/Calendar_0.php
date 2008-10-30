@@ -37,6 +37,7 @@ class Utils_Calendar extends Module {
 			$this->settings['custom_rows'] = array('timeless'=>$this->lang->t('Timeless'));
 
 		$this->date = & $this->get_module_variable('date',$this->settings['default_date']);
+		$this->date = strtotime(date('Y-m-d',$this->date));
 
 
 		if($this->isset_unique_href_variable('date'))
@@ -173,7 +174,7 @@ class Utils_Calendar extends Module {
 	 *
 	 * @return array
 	 */
-	private function get_timeline($date) {
+	private function get_timeline($date) { //TODO: zmiana czasu przy dobie 23h zrobi blad
 		$timeline = array();
 
 		//timeless
@@ -182,42 +183,56 @@ class Utils_Calendar extends Module {
 
 		if($this->settings['timeline']) {
 			//other
-			$interval = strtotime($this->settings['interval']);
-			$zero_t = strtotime('0:00');
-			$start = strtotime($this->settings['start_day']);
-			$end = strtotime($this->settings['end_day']);
+			$interval = strtotime($date.' '.$this->settings['interval']);
+			$zero_t = strtotime($date.' 0:00');
+			$start = strtotime($date.' '.$this->settings['start_day']);
+			$end = strtotime($date.' '.$this->settings['end_day']);
 			if($end===false || $start===false || $interval===false)
 				trigger_error('Invalid start/end_day or interval.',E_USER_ERROR);
 			$interval -= $zero_t;
+			$used = array();
 			if($end<$start) {
 				$curr = $zero_t;
-				while($curr<$end) {
-					$next = $curr+$interval;
-					//$next = strtotime($date.' '.date('H:i:s',$curr+$interval));
-					//$time = date('H:i:s',strtotime(Base_RegionalSettingsCommon::time2reg($curr+$interval,true,true,true,false)));
-					//$next = strtotime($date.' '.date('H:i:s',Base_RegionalSettingsCommon::reg2time($date.' '.$time)));
+				$x = $curr;
+				while($x<$end) {
+					$x = $x+$interval;
+					$next = strtotime($date.' '.date('H:i:s',$x));
+					if(isset($used[$next])) continue;
+					$used[$next] = 1;
+					//$next = $curr+$interval;
 					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($next,2,false,false),'time'=>($curr-$zero_t),'join_rows'=>1);
 					$curr = $next;
 				}
 				$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($start,2,false,false),'time'=>($curr-$zero_t),'join_rows'=>ceil(($start-$curr)/$interval));
-				$day_end = strtotime('23:59')-$interval;
+				$day_end = strtotime($date.' 23:59')-$interval;
 				$curr = $start;
-				while($curr<$day_end) {
-					$next = $curr+$interval;
+				$x = $curr;
+				while($x<$day_end) {
+					$x = $x+$interval;
+					$next = strtotime($date.' '.date('H:i:s',$x));
+					if(isset($used[$next])) continue;
+					$used[$next] = 1;
+					//$next = $curr+$interval;
 					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($next,2,false,false),'time'=>($curr-$zero_t),'join_rows'=>1);
 					$curr = $next;
 				}
 				$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($curr,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg('23:59',2,false,false),'time'=>($curr-$zero_t));
 			} else {
 				$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($zero_t,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($start,2,false,false),'time'=>0,'join_rows'=>ceil(($start-$zero_t)/$interval));
-				while($start<$end) {
-					$next = $start+$interval;
+				$x = $start;
+				while($x<$end) {
+					//$next = $start+$interval;
+					$x = $x+$interval;
+					$next = strtotime($date.' '.date('H:i:s',$x));
+					if(isset($used[$next])) continue;
+					$used[$next] = 1;
 					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($start,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($next,2,false,false),'time'=>($start-$zero_t),'join_rows'=>1);
 					$start = $next;
 				}
 				$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($start,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg('23:59',2,false,false),'time'=>($start-$zero_t));
 			}
 		}
+		//print_r($timeline);
 		return $timeline;
 	}
 
@@ -360,11 +375,11 @@ class Utils_Calendar extends Module {
 		$theme = & $this->pack_module('Base/Theme');
 
 		$theme->assign('trash_label', $this->lang->ht('Drag and drop<br>to delete'));
-		$theme->assign('next_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date+86400))));
+		$theme->assign('next_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date+36*3600))));
 		$theme->assign('next_label',$this->lang->ht('Next day'));
 		$theme->assign('today_href', $this->create_unique_href(array('date'=>date('Y-m-d'))));
 		$theme->assign('today_label', $this->lang->ht('Today'));
-		$theme->assign('prev_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date-86400))));
+		$theme->assign('prev_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date-36*3600))));
 		$theme->assign('prev_label', $this->lang->ht('Previous day'));
 		$theme->assign('info', $this->lang->t('Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event'));
 		$link_text = $this->create_unique_href_js(array('date'=>'__YEAR__-__MONTH__-__DAY__'));
@@ -422,7 +437,7 @@ class Utils_Calendar extends Module {
 		//$start = Base_RegionalSettingsCommon::reg2time($this->date);
 		//$end = Base_RegionalSettingsCommon::reg2time($this->date+2*86400);
 		$start = date('Y-m-d',$this->date);
-		$end = date('Y-m-d',$this->date+86400);
+		$end = date('Y-m-d',$this->date+3600*36);
 		$ret = $this->get_events($start, $end);
 		$this->displayed_events = array('start'=>$start, 'end'=>$end,'events'=>$ret);
 		$custom_keys = $this->settings['custom_rows'];
@@ -559,13 +574,15 @@ class Utils_Calendar extends Module {
 		$time_ids = array();
 		$dnd = array();
 		$joins = array();
+		$timeline = array();
 		for ($i=0; $i<7; $i++) {
 			$time_ids[$i] = array();
 			$today_t_timeless = strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$dis_week_from))+3600*24*$i).' '.date('H:i:s',$dis_week_from));
 			$today_t = Base_RegionalSettingsCommon::reg2time(date('Y-m-d',$today_t_timeless));
-			$timeline = $this->get_timeline(date('Y-m-d',$today_t_timeless));
+			$today_date = date('Y-m-d',$today_t_timeless);
+			$timeline[$today_date] = $this->get_timeline($today_date);
 			$prev = null;
-			foreach($timeline as & $v) {
+			foreach($timeline[$today_date] as & $v) {
 				if(is_string($v['time'])) {
 					$ii = $today_t_timeless.'_'.$v['time'];
 					$dnd[] = $ii;
@@ -586,7 +603,7 @@ class Utils_Calendar extends Module {
 		}
 		$this->js('Utils_Calendar.join_rows(\''.Epesi::escapeJS(json_encode($joins),false).'\')');
 		$theme->assign('time_ids', $time_ids);
-		$theme->assign('timeline', $timeline);
+		$theme->assign('timeline', reset($timeline));
 
 		$theme->assign('week_view_label', $this->lang->t('Week calendar'));
 		$theme->assign('trash_id','UCtrash');
@@ -615,14 +632,16 @@ class Utils_Calendar extends Module {
 					continue;
 				}
 			} else {
-				$today_t = Base_RegionalSettingsCommon::time2reg(date('Y-m-d H:i:s',$ev['start']),true,true,true,false);
-				$today_t = strtotime(date('Y-m-d H:i:s',Base_RegionalSettingsCommon::reg2time(date('Y-m-d',strtotime($today_t)))));
+				$today_t = Base_RegionalSettingsCommon::time2reg($ev['start'],true,true,true,false);
+				$today_date = date('Y-m-d',strtotime($today_t));
+				$today_t = strtotime(date('Y-m-d H:i:s',Base_RegionalSettingsCommon::reg2time($today_date)));
 				$ev_start = $ev['start']-$today_t;
-				$ct = count($timeline);
+				$ct = count($timeline[$today_date]);
 				for($i=1, $j=2; $j<$ct; $i++,$j++)
-					if($timeline[$i]['time']<=$ev_start && $ev_start<$timeline[$j]['time'])
+					if($timeline[$today_date][$i]['time']<=$ev_start && $ev_start<$timeline[$today_date][$j]['time'])
 						break;
-				$dest_id = 'UCcell_'.($today_t+$timeline[$i]['time']);
+				//print($ev['start'].' '.$timeline[$i]['time'].' <= '.$ev_start.' < '.$timeline[$j]['time'].'<br>');
+				$dest_id = 'UCcell_'.($today_t+$timeline[$today_date][$i]['time']);
 			}
 			if(isset($dest_id)) {
 //				print($ev['title'].' '.$ev['start'].'<hr>');
