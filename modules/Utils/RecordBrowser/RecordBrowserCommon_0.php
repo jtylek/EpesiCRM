@@ -816,7 +816,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							} elseif (isset(self::$table_rows[$k])) {
 								$f = $k;
 								$key = self::$table_rows[$k]['id'];
-							} else trigger_error($tab.' - '.$k.' - '.print_r($crits,true).' - '.print_r(self::$table_rows,true), E_USER_ERROR);
+							} else trigger_error('In table "'.$tab.'" - unknow column "'.$k.'" in criteria "'.print_r($crits,true).'". Available columns are: "'.print_r(self::$table_rows,true).'"', E_USER_ERROR);
 							if (self::$table_rows[$f]['type']=='multiselect') {
 								$operator = 'LIKE';
 								$param = explode('::',self::$table_rows[$f]['param']);
@@ -1332,7 +1332,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		return $ret;
 	}
-	public function get_tables($tab){
+	public static function get_tables($tab){
 		return array(	$tab.'_callback',
 						$tab.'_recent',
 						$tab.'_favorite',
@@ -1342,10 +1342,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						$tab.'_data_1');
 	}
 	
-	public function applet_new_record_button($tab, $defaults = array()) {
+	public static function applet_new_record_button($tab, $defaults = array()) {
 		return '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_RecordBrowser', 'New record')).' '.Utils_RecordBrowserCommon::create_new_record_href($tab,$defaults).'><img src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','add.png').'" border="0"></a>';
 	}
 	
+	public static function get_calcualted_id($tab, $field, $id) {
+		return $tab.'__'.$field.'___'.$id;
+	}
 	///////////////////////////////////////////
 	// mobile devices
 	

@@ -938,7 +938,7 @@ class Utils_RecordBrowser extends Module {
 										if ($record[$args['id']]!='' && $mode=='edit')
 											$form->setDefaults(array($args['id']=>$this->get_val($field, $record, $record['id'], false, $args)));
 										else
-											$form->setDefaults(array($args['id']=>'['.$this->lang->t('formula').']'));
+											$form->setDefaults(array($args['id']=>'<div id="'.Utils_RecordBrowserCommon::get_calcualted_id($this->tab, $args['id'], $id).'">['.$this->lang->t('formula').']</div>'));
 										break;
 					case 'integer':		$form->addElement('text', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
 										$form->addRule($args['id'], $this->lang->t('Only numbers are allowed.'), 'numeric');
