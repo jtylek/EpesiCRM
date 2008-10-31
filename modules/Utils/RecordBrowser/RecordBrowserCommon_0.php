@@ -1122,8 +1122,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if (is_callable($method)) call_user_func($method, self::get_record($tab, $id), $state?'restore':'delete');
 		}
 	}
-	public static function delete_record($tab, $id) {
-		self::set_active($tab, $id, false);
+	public static function delete_record($tab, $id, $perma=false) {
+		if (!$perma) self::set_active($tab, $id, false);
+		else {
+			self::check_table_name($tab);
+			DB::Execute('DELETE FROM '.$tab.'_data_1 WHERE id=%d', array($id));
+		}
 	}
 	public static function restore_record($tab, $id) {
 		self::set_active($tab, $id, true);
