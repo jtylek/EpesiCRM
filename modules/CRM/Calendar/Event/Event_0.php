@@ -528,11 +528,12 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$tb = $this->init_module('Utils/TabbedBrowser');
 			$tb->start_tab('Notes');
 			//attachments
+			$writable = ($def['access']==0 || in_array($my_id,$def_emp_id) || Base_AclCommon::i_am_admin());
 			$a = $this->init_module('Utils/Attachment',array($id,'CRM/Calendar/Event/'.$id));
 			$a->set_inline_display();
 			$a->additional_header('Event: '.$event['title']);
-			$a->allow_protected($this->acl_check('view protected notes'),$this->acl_check('edit protected notes'));
-			$a->allow_public($this->acl_check('view public notes'),$this->acl_check('edit public notes'));
+			$a->allow_protected($this->acl_check('view protected notes'),$writable && $this->acl_check('edit protected notes'));
+			$a->allow_public($this->acl_check('view public notes'),$writable && $this->acl_check('edit public notes'));
 			$this->display_module($a);
 			$tb->end_tab();
 

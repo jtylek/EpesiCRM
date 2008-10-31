@@ -93,6 +93,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$fil = '';*/
 		$fil = '';
 		$my_id = CRM_FiltersCommon::get_my_profile();
+		$my_id = $my_id['id'];
 		if(!Base_AclCommon::i_am_admin())
 			$fil .= ' AND (e.access<2 OR (SELECT id FROM crm_calendar_event_group_emp cg2 WHERE cg2.id=e.id AND cg2.contact='.$my_id.' LIMIT 1) IS NOT NULL)';
 		$t = microtime(true);
@@ -162,6 +163,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		else
 			$fil = '';
 		$my_id = CRM_FiltersCommon::get_my_profile();
+		$my_id = $my_id['id'];
 		if(!Base_AclCommon::i_am_admin())
 			$fil .= ' AND (e.access<2 OR (SELECT id FROM crm_calendar_event_group_emp cg2 WHERE cg2.id=e.id AND cg2.contact='.$my_id.' LIMIT 1) IS NOT NULL)';
 		if (DATABASE_DRIVER=='postgres') {
@@ -308,6 +310,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		else
 			$fil = '';
 		$my_id = CRM_FiltersCommon::get_my_profile();
+		$my_id = $my_id['id'];
 		if(!Base_AclCommon::i_am_admin())
 			$fil .= ' AND (e.access<2 OR (SELECT id FROM crm_calendar_event_group_emp cg2 WHERE cg2.id=e.id AND cg2.contact='.$my_id.' LIMIT 1) IS NOT NULL)';
 		if (DATABASE_DRIVER=='postgres') {
@@ -425,12 +428,21 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		return $result;
 	}
 
-	public static function delete($id) { //TODO:make sure that event owner is Acl::get_user....
+	public static function delete($id) {
 		$recurrence = strpos($id,'_');
 		if($recurrence!==false) {
 			$id = substr($id,0,$recurrence);
 			print('Epesi.updateIndicatorText("updating calendar");Epesi.request("");');
 		}
+
+		$access = DB::GetOne('SELECT access FROM crm_calendar_event WHERE id=%d',array($id));
+		if($access > 0) {
+			$my_id = CRM_ContactsCommon::get_my_record();
+			$my_id = $my_id['id'];
+			$ok = DB::GetOne('SELECT 1 FROM crm_calendar_event_group_emp WHERE id=%d AND contact=%d',array($id,$my_id));
+			if(!$ok) return false;
+		}
+
 
 		DB::Execute('DELETE FROM crm_calendar_event_group_emp WHERE id=%d', array($id));
 		DB::Execute('DELETE FROM crm_calendar_event_group_cus WHERE id=%d', array($id));
@@ -444,12 +456,21 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		return true;
 	}
 
-	public static function update(&$id,$start,$duration,$timeless) { //TODO:make sure that event owner is Acl::get_user....
+	public static function update(&$id,$start,$duration,$timeless) {
 		$recurrence = strpos($id,'_');
 		if($recurrence!==false) {
 			$id = substr($id,0,$recurrence);
 			print('Epesi.updateIndicatorText("updating calendar");Epesi.request("");');
 		}
+
+		$access = DB::GetOne('SELECT access FROM crm_calendar_event WHERE id=%d',array($id));
+		if($access > 0) {
+			$my_id = CRM_ContactsCommon::get_my_record();
+			$my_id = $my_id['id'];
+			$ok = DB::GetOne('SELECT 1 FROM crm_calendar_event_group_emp WHERE id=%d AND contact=%d',array($id,$my_id));
+			if(!$ok) return false;
+		}
+
 		if($timeless) {
 			$start = strtotime(date('Y-m-d',$start));
 			$duration = 0;
