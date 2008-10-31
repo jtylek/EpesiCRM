@@ -896,7 +896,7 @@ class Utils_RecordBrowser extends Module {
 	
 	public function get_commondata_tree($col, $deep=0){
 		$data = Utils_CommonDataCommon::get_translated_array($col, true, false, true);
-		if (!$data) return null;
+		if (!$data) return array();
 		$output = array();
 		foreach ($data as $k=>$v) {
 			$output[$k] = $v;
