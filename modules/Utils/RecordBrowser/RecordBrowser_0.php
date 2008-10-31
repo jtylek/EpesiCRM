@@ -52,9 +52,14 @@ class Utils_RecordBrowser extends Module {
 	public static $access_override = array('tab'=>'', 'id'=>'');
 	private $navigation_executed = false;
 	private $current_field = null;
+	private $additional_actions_method = null;
 	
 	public function get_display_method($ar) {
 		return isset($this->display_callback_table[$ar])?$this->display_callback_table[$ar]:null;
+	}
+
+	public function set_additional_actions_method($obj, $func) {
+		$this->additional_actions_method = array($obj, $func);
 	}
 
 	public function set_cut_lengths($ar) {
@@ -538,6 +543,8 @@ class Utils_RecordBrowser extends Module {
 					if ($this->get_access('delete',$row)) $gb_row->add_action($this->create_confirm_callback_href($this->lang->t('Are you sure you want to delete this record?'),array('Utils_RecordBrowserCommon','delete_record'),array($this->tab, $row['id'])),'Delete');
 				}
 				$gb_row->add_info(($this->browse_mode=='recent'?'<b>'.$this->lang->t('Visited on: %s', array($row['visited_on'])).'</b><br>':'').Utils_RecordBrowserCommon::get_html_record_info($this->tab, isset($info)?$info:$row['id']));
+				if ($this->additional_actions_method!==null && is_callable($this->additional_actions_method))
+					call_user_func($this->additional_actions_method, $row, $gb_row);
 			}
 		}
 		if (!$special && $this->add_in_table && $this->get_access('add', $this->custom_defaults)) {
