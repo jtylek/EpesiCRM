@@ -93,7 +93,6 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$fil = '';*/
 		$fil = '';
 		$my_id = CRM_FiltersCommon::get_my_profile();
-		$my_id = $my_id['id'];
 		if(!Base_AclCommon::i_am_admin())
 			$fil .= ' AND (e.access<2 OR (SELECT id FROM crm_calendar_event_group_emp cg2 WHERE cg2.id=e.id AND cg2.contact='.$my_id.' LIMIT 1) IS NOT NULL)';
 		$t = microtime(true);
@@ -163,7 +162,6 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		else
 			$fil = '';
 		$my_id = CRM_FiltersCommon::get_my_profile();
-		$my_id = $my_id['id'];
 		if(!Base_AclCommon::i_am_admin())
 			$fil .= ' AND (e.access<2 OR (SELECT id FROM crm_calendar_event_group_emp cg2 WHERE cg2.id=e.id AND cg2.contact='.$my_id.' LIMIT 1) IS NOT NULL)';
 		if (DATABASE_DRIVER=='postgres') {
@@ -310,7 +308,6 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		else
 			$fil = '';
 		$my_id = CRM_FiltersCommon::get_my_profile();
-		$my_id = $my_id['id'];
 		if(!Base_AclCommon::i_am_admin())
 			$fil .= ' AND (e.access<2 OR (SELECT id FROM crm_calendar_event_group_emp cg2 WHERE cg2.id=e.id AND cg2.contact='.$my_id.' LIMIT 1) IS NOT NULL)';
 		if (DATABASE_DRIVER=='postgres') {
@@ -437,8 +434,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 
 		$access = DB::GetOne('SELECT access FROM crm_calendar_event WHERE id=%d',array($id));
 		if($access > 0) {
-			$my_id = CRM_ContactsCommon::get_my_record();
-			$my_id = $my_id['id'];
+			$my_id = CRM_FiltersCommon::get_my_profile();
 			$ok = DB::GetOne('SELECT 1 FROM crm_calendar_event_group_emp WHERE id=%d AND contact=%d',array($id,$my_id));
 			if(!$ok) return false;
 		}
@@ -465,8 +461,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 
 		$access = DB::GetOne('SELECT access FROM crm_calendar_event WHERE id=%d',array($id));
 		if($access > 0) {
-			$my_id = CRM_ContactsCommon::get_my_record();
-			$my_id = $my_id['id'];
+			$my_id = CRM_FiltersCommon::get_my_profile();
 			$ok = DB::GetOne('SELECT 1 FROM crm_calendar_event_group_emp WHERE id=%d AND contact=%d',array($id,$my_id));
 			if(!$ok) return false;
 		}
