@@ -476,14 +476,17 @@ class Utils_Attachment extends Module {
 				$form->addElement('header', 'upload', $this->lang->t('Edit note').': '.$this->add_header);
 			else
 				$form->addElement('header', 'upload', $this->lang->t('Attach note').': '.$this->add_header);
-			$form->addElement('select','permission',$this->lang->t('Permission'),array($this->lang->ht('Public'),$this->lang->ht('Protected'),$this->lang->ht('Private')));
-			$form->addElement('checkbox','other',$this->lang->t('Read by others'));
-			$form->addElement('checkbox','sticky',$this->lang->t('Sticky'));
 			$fck = $form->addElement('fckeditor', 'note', $this->lang->t('Note'));
 			$fck->setFCKProps('800','300');
+			
 			$form->set_upload_button_caption('Save');
 			if($form->getSubmitValue('note')=='' && $form->getSubmitValue('uploaded_file')=='')
 				$form->addRule('note',$this->lang->t('Please enter note or choose file'),'required');
+
+			$form->addElement('select','permission',$this->lang->t('Permission'),array($this->lang->ht('Public'),$this->lang->ht('Protected'),$this->lang->ht('Private')));
+//			Read by others not used now
+//			$form->addElement('checkbox','other',$this->lang->t('Read by others'));
+			$form->addElement('checkbox','sticky',$this->lang->t('Sticky'));
 
 			if(isset($id))
 				$form->addElement('header',null,$this->lang->t('Replace attachment with file'));
