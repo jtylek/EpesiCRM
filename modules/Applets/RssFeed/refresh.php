@@ -1,6 +1,10 @@
 <?php
-if(!isset($_POST['feed']) || !isset($_POST['number']))
+if(!isset($_POST['feed']) || !isset($_POST['number']) || !isset($_POST['cid']))
 	die('Invalid request');
+
+define('CID', $_POST['cid']);
+require_once('../../../include.php');
+ModuleManager::load_modules();
 
 require_once("rsslib.php");
 
@@ -12,6 +16,6 @@ set_error_handler('handle_rss_error');
 $feed = $_POST['feed'];
 $num = $_POST['number'];
 
-echo RSS_Display($feed, $num);
+echo Utils_BBCodeCommon::parse(RSS_Display($feed, $num));
 exit();
 ?>

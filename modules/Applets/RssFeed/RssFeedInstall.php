@@ -30,6 +30,7 @@ class Applets_RssFeedInstall extends ModuleInstall {
 		return array(
 			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'Base/Theme','version'=>0),
+			array('name'=>'Utils/BBCode','version'=>0),
 			array('name'=>'Base/Dashboard','version'=>0));
 	}
 	

@@ -54,7 +54,7 @@ class Applets_RssFeed extends Module {
 				'new Ajax.Updater(\'rssfeed_\'+name,\'modules/Applets/RssFeed/refresh.php\',{'.
 					'method:\'post\','.
 					'onComplete:function(r){rssfeedcache[name]=r.responseText},'.
-					'parameters:{feed:fee, number:num}});'.
+					'parameters:{feed:fee, number:num, cid: Epesi.client_id}});'.
 			'}');
 		eval_js_once('setInterval(\'rssfeedfunc(\\\''.$name.'\\\',\\\''.Epesi::escapeJS($values['rssfeed'],false).'\\\' ,'.$values['rssnumber'].' , 0)\',1799993)'); //29 minutes and 53 seconds
 

@@ -110,22 +110,10 @@ class Utils_RecordBrowser extends Module {
 	}
 
 	public function check_for_jump() {
-		if (isset($_REQUEST['__jump_to_RB_table']) &&
-			isset($_REQUEST['__jump_to_RB_record'])) {
-			$tab = $_REQUEST['__jump_to_RB_table'];
-			$id = $_REQUEST['__jump_to_RB_record'];
-			if (!is_numeric($id)) trigger_error('Critical failure - invalid id, requested record with id "'.serialize($id).'" from table "'.serialize($tab).'".',E_USER_ERROR);
-			Utils_RecordBrowserCommon::check_table_name($tab);
-			unset($_REQUEST['__jump_to_RB_record']);
-			unset($_REQUEST['__jump_to_RB_table']);
+		$x = Utils_RecordBrowserCommon::check_for_jump();
+		if($x)
 			self::$browsed_records = $this->get_module_variable('set_browsed_records',null);
-			$x = ModuleManager::get_instance('/Base_Box|0');
-			if (!$this->get_access('browse')) return false;
-			if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-			$x->push_main('Utils/RecordBrowser','view_entry',array('view', $id),array($tab));
-			return true;
-		}
-		return false;
+		return $x;
 	}
 	// BODY //////////////////////////////////////////////////////////////////////////////////////////////////////
 	public function body($def_order=array(), $crits=array()) {

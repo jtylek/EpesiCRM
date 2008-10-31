@@ -1349,6 +1349,24 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function get_calcualted_id($tab, $field, $id) {
 		return $tab.'__'.$field.'___'.$id;
 	}
+
+	public static function check_for_jump() {
+		if (isset($_REQUEST['__jump_to_RB_table']) &&
+			isset($_REQUEST['__jump_to_RB_record'])) {
+			$tab = $_REQUEST['__jump_to_RB_table'];
+			$id = $_REQUEST['__jump_to_RB_record'];
+			if (!is_numeric($id)) trigger_error('Critical failure - invalid id, requested record with id "'.serialize($id).'" from table "'.serialize($tab).'".',E_USER_ERROR);
+			Utils_RecordBrowserCommon::check_table_name($tab);
+			unset($_REQUEST['__jump_to_RB_record']);
+			unset($_REQUEST['__jump_to_RB_table']);
+			$x = ModuleManager::get_instance('/Base_Box|0');
+			if (!self::get_access($tab,'browse')) return false;
+			if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+			$x->push_main('Utils/RecordBrowser','view_entry',array('view', $id),array($tab));
+			return true;
+		}
+		return false;
+	}
 	///////////////////////////////////////////
 	// mobile devices
 	
