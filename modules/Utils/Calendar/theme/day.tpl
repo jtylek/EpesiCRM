@@ -54,7 +54,7 @@ Variable {$weekend} (true/false) indicated whether displayed day is part of week
 		{foreach key=k item=stamp from=$timeline}
 			<tr>
 				<td class="hour" nowrap >{$stamp.label}</td>
-				<td class="inter{if $weekend}_weekend{/if}" id="{$stamp.id}">&nbsp;</td>
+				<td class="inter{if $weekend}_weekend{/if}"{if $stamp.id!==false} id="{$stamp.id}"{/if}>&nbsp;</td>
 			</tr>
 		{/foreach}
 
