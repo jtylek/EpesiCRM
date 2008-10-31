@@ -22,7 +22,7 @@ class Base_Dashboard extends Module {
 
 	public function body() {
 		if(ModuleManager::is_installed('Utils/RecordBrowser')>=0) //speed up links to RB
-			if(Utils_RecordBrowserCommon::check_for_links()) return;
+			if(Utils_RecordBrowserCommon::check_for_jump()) return;
 		$is_user = DB::GetAll('SELECT name,pos FROM base_dashboard_tabs WHERE user_login_id=%d',array(Acl::get_user()));
 		if(!$is_user)
 			$this->set_default_applets();
