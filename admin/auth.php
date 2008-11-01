@@ -1,5 +1,21 @@
 <?php
 require_once('include.php');
+$lpa = ModuleManager::get_load_priority_array();
+$load = array('Base_User'=>1,'Base_User_Login'=>1);
+
+ModuleManager::$not_loaded_modules = $lpa;
+ModuleManager::$loaded_modules = array();
+foreach($lpa as $row) {
+	$module = $row['name'];
+	$version = $row['version'];
+	ModuleManager :: include_common($module, $version);
+	ModuleManager :: register($module, $version, ModuleManager::$modules);
+	if(isset($load[$module])) {
+		unset($load[$module]);
+		if(empty($load)) break;
+	}
+}
+
 
 try {
 $anonymous = Variable::get('anonymous_setup');
