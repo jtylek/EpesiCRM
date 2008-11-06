@@ -19,7 +19,7 @@ class Base_SetupCommon extends ModuleCommon {
 	}
 	
 	public static function admin_caption() {
-		return 'Main setup';
+		return 'Modules Administration';
 	}
 	
 	public static function refresh_available_modules() {
