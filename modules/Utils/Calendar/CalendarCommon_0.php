@@ -65,7 +65,9 @@ class Utils_CalendarCommon extends ModuleCommon {
 
 
 		if(isset($row['timeless']) && $row['timeless']) {
-			$start_time = Base_LangCommon::ts('Utils_Calendar','timeless');
+			if(!isset($row['timeless_caption']))
+				$row['timeless_caption'] = Base_LangCommon::ts('Utils_Calendar','timeless');
+			$start_time = $row['timeless_caption'];
 			$end_time = $start_time;
 			$ev_start = strtotime($row['timeless']);
 			$start_date = Base_RegionalSettingsCommon::time2reg($ev_start,false,true,false);

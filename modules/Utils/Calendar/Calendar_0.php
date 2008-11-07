@@ -276,6 +276,19 @@ class Utils_Calendar extends Module {
 		call_user_func(array($this->event_module.'Common','update'),$ev_id,$time,$ev['duration'],isset($ev['custom_row_key'])?$ev['custom_row_key']:null);
 		location();
 	}
+	
+	public function sort_events($a, $b) {
+		if(!isset($a['timeless']) || !$a['timeless'])
+			$a_start = strtotime(Base_RegionalSettingsCommon::time2reg($a['start'],true,true,true,false));
+		else
+			$a_start = strtotime($a['timeless']);
+		if(!isset($b['timeless']) || !$b['timeless'])
+			$b_start = strtotime(Base_RegionalSettingsCommon::time2reg($b['start'],true,true,true,false));
+		else
+			$b_start = strtotime($b['timeless']);
+
+		return $a_start>$b_start;
+	}
 
 	/**
 	 * Get array of events between start and end time.
@@ -293,6 +306,7 @@ class Utils_Calendar extends Module {
 		$ret = call_user_func(array($this->event_module.'Common','get_all'),$start,$end);
 		if(!is_array($ret))
 			trigger_error('Invalid return of event method: get_all (not an array)',E_USER_ERROR);
+		usort($ret,array($this,'sort_events'));
 		return $ret;
 	}
 
@@ -770,7 +784,7 @@ class Utils_Calendar extends Module {
 		$this->displayed_events = array('start'=>$start_t, 'end'=>$end_t,'events'=>$ret);
 		$this->js('Utils_Calendar.page_type=\'month\'');
 		$ev_out = 'function() {';
-		foreach($ret as $k=>$ev) {
+		foreach($ret as $ev) {
 			$this->print_event($ev);
 			if(!isset($ev['timeless']) || !$ev['timeless'])
 				$ev_start = strtotime(Base_RegionalSettingsCommon::time2reg($ev['start'],true,true,true,false));

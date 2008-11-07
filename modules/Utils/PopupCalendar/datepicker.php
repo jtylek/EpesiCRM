@@ -17,6 +17,9 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 
 	function toHtml() {
 		$str = "";
+		$value = $this->getAttribute('value');
+		if($value)
+			$this->setAttribute('value',Base_RegionalSettingsCommon::time2reg($value,false,true,false));
 		if ($this->_flagFrozen) {
 			$str .= $this->getFrozenHtml();
 		} else {
@@ -42,10 +45,11 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 			eval_js('Event.observe(\''.$id.'\',\'keypress\',Utils_PopupCalendarDatePicker.validate.bindAsEventListener(Utils_PopupCalendarDatePicker,\''.Epesi::escapeJS($date_format,false).'\'))');
 			eval_js('Event.observe(\''.$id.'\',\'blur\',Utils_PopupCalendarDatePicker.validate_blur.bindAsEventListener(Utils_PopupCalendarDatePicker,\''.Epesi::escapeJS($date_format,false).'\'))');
 		}
+		$this->setAttribute('value',$value);
 		return $str;
 	} //end func toHtml
 
-	function exportValue(&$submitValues, $assoc = false) {
+/*	function exportValue(&$submitValues, $assoc = false) {
         $value = $this->_findValue($submitValues);
         if (is_null($value)) {
             $value = $this->getValue();
@@ -87,6 +91,23 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 		else $this->updateAttributes(array('value'=>''));
 	} // end func setValue
 
+*/
+	function getValue() {
+		$value = $this->getAttribute('value');
+		if(!$value) return '';
+//		print('get_value('.$this->getName().')='.$value.' '.Base_RegionalSettingsCommon::time2reg($value,false,true,false).'<hr>');
+		return Base_RegionalSettingsCommon::time2reg($value,false,true,false);
+	} // end func setValue
 
+    function onQuickFormEvent($event, $arg, &$caller) {
+		if($event=='updateValue')
+			$caller->applyFilter($this->getName(),array($this,'reg2time'));
+		return parent::onQuickFormEvent($event,$arg,$caller);
+	}
+	
+	function reg2time($value) {
+		if(!$value) return '';
+		return strftime('%Y-%m-%d',Base_RegionalSettingsCommon::reg2time($value,false));
+	}
 } //end class HTML_QuickForm_datepicker
 ?>

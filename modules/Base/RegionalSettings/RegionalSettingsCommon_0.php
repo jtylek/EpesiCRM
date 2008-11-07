@@ -121,11 +121,15 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		elseif(!is_numeric($t) && is_string($t)) $t = strtotime($t);
 		if($reg_format) {
 			$format = array();
-			if($date)
-				$format[] = Base_User_SettingsCommon::get('Base_RegionalSettings','date');
+			if($date) {
+				$d = Base_User_SettingsCommon::get('Base_RegionalSettings','date');
+				if($date===2 || strcasecmp($date,'without_year')==0)
+					$d = str_replace(array(', %Y','/%Y','%Y-',' %Y'),'',$d);
+				$format[] = $d;
+			}
 			if($time) {
 				$sec = Base_User_SettingsCommon::get('Base_RegionalSettings','time');
-				if($time==2 || strcasecmp($time,'without_seconds')==0)
+				if($time===2 || strcasecmp($time,'without_seconds')==0)
 					$sec = str_replace(':%S','',$sec);
 				$format[] = $sec;
 			}

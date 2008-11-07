@@ -16,13 +16,18 @@ class Tests_QuickForm extends Module{
 		$f->addElement('checkbox','frozen','Frozen test');
 		$f->freeze(array('frozen'));
 		$f->setDefaults(array('frozen'=>true));
-		$x = $f->addElement('timestamp','xxxyss','Timestamp picker');
-		$x = $f->addElement('text','ble','Test');
-		$x = $f->addElement('currency','cur','Currency');
-		$f->setDefaults(array('xxxyss'=>time()));
+		$x = $f->addElement('timestamp','xxxyss','Date picker');
+		print('get(here is what was submited): '.$x->getValue().'<br>');
+		print('export: '.$f->exportValue('xxxyss').'<br>');
+		$f->applyFilter('xxxyss',array($this,'ble_filter'));
+		$f->registerRule('ble_rule', 'callback', 'ble_rule',$this);
+		$f->addRule('xxxyss','ble rule not passed','ble_rule');
+		$f->addRule('xxxyss','required rule not passed','required');
+		$f->addElement('text','ble','Test');
+		$f->addElement('currency','cur','Currency');
+//		$f->setDefaults(array('xxxyss'=>time()));
 //		$f->freeze(array('xxxyss'));
 //		$f->setDefaults(array('cur'=>'1252341.22'));
-//		print($x->getValue().'<br>');
 
 //		$f->addElement('commondata_group','xxx2','commondata_group', 'Countries',array('depth'=>2,'separator'=>'<br>','empty_option'=>true));
 
@@ -64,6 +69,16 @@ class Tests_QuickForm extends Module{
 		print('<hr><b>Common</b><br>');
 		$this->pack_module('Utils/CatFile','modules/Tests/QuickForm/QuickFormCommon_0.php');
 
+	}
+	
+	public function ble_filter($x) {
+		print('filter: '.print_r($x,true).'<br>');
+		return $x;
+	}
+	
+	public function ble_rule($x) {
+		print('rule: '.print_r($x,true).'<br>');
+		return true;
 	}
 }
 

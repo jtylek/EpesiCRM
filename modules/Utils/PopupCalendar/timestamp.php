@@ -122,6 +122,7 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 		if ('updateValue' == $event) {
 				// we need to call setValue(), 'cause the default/constant value
 				// may be in fact a timestamp, not an array
+			$this->_createElementsIfNotExist();
 			return HTML_QuickForm_element::onQuickFormEvent($event, $arg, $caller);
 		} else {
 			return parent::onQuickFormEvent($event, $arg, $caller);
@@ -147,9 +148,9 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 	function setValue($value)
 	{
 		$this->_createElementsIfNotExist();
-	
 		if(is_array($value)) {
-			$value['datepicker'] = strftime('%Y-%m-%d',Base_RegionalSettingsCommon::reg2time($value['datepicker'],false));
+			if($value['datepicker']!=='')
+				$value['datepicker'] = strftime('%Y-%m-%d',Base_RegionalSettingsCommon::reg2time($value['datepicker'],false));
 			$this->_elements['datepicker']->setValue($value['datepicker']);
 			$this->_elements['date']->setValue($value['date']);
 		} else {

@@ -471,7 +471,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$duration = 0;
 		}
 
-		DB::Execute('UPDATE crm_calendar_event SET starts=%d, ends=%d, timeless=%b WHERE id=%d',array($start,$start+$duration,$timeless,$id));
+		DB::Execute('UPDATE crm_calendar_event SET starts=%d, ends=%d, timeless=%b, edited_by=%d, edited_on=%T WHERE id=%d',array($start,$start+$duration,$timeless,Acl::get_user(),date('Y-m-d H:i:s'),$id));
 		Utils_WatchdogCommon::new_event('crm_calendar',$id,'Event moved');
 
 		if($recurrence!==false)

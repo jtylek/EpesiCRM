@@ -886,7 +886,7 @@ class Utils_RecordBrowser extends Module {
 	}
 
 	public function timestamp_required($v) {
-		return strtotime($v['datepicker'])!==false;
+		return $v['datepicker']!=='' && Base_RegionalSettingsCommon::reg2time($v['datepicker'],false)!==false;
 	}
 	
 	public function get_commondata_tree($col, $deep=0){

@@ -30,7 +30,7 @@ if($_POST['cell_id']=='trash') {
 	$ev = call_user_func(array($mod.'Common','get'),$ev_id);
 	ob_clean();
 	if($_POST['page_type']=='month') {
-		if($ev['timeless']) $cc[1]=(isset($ev['custom_row_key'])?$ev['custom_row_key']:'timeless');
+		if(isset($ev['timeless'])) $cc[1]=(isset($ev['custom_row_key'])?$ev['custom_row_key']:'timeless');
 		else $cc[0] += $ev['start']-strtotime(date('Y-m-d',$ev['start']));
 	} else {
 		$cc[0] += $ev['start']-strtotime(date('Y-m-d H:00:00',$ev['start']));
