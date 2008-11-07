@@ -4,15 +4,13 @@ defined("_VALID_ACCESS") || die();
 
 //init
 $ret = DB::GetRow('SELECT caption, recent, favorites FROM recordbrowser_table_properties WHERE tab=%s',array($table));
-if(isset($_POST['search']))
+if(isset($_GET['search']) && $_GET['search']!=="Search" && $_GET['search']!=="")
 	$type = 'all';
 else
 	$type = isset($_GET['type'])?$_GET['type']:Base_User_SettingsCommon::get('Utils_RecordBrowser',$table.'_default_view');
 $order_num = (isset($_GET['order']) && isset($_GET['order_dir']))?$_GET['order']:-1;
 $order = false;
 //print(Base_LangCommon::ts('Utils_RecordBrowser',$ret['caption']).' - '.Base_LangCommon::ts('Utils_RecordBrowser',ucfirst($type)).'<br>');
-
-//TODO: simple search
 
 //cols
 $cols = Utils_RecordBrowserCommon::init($table);
@@ -28,16 +26,23 @@ foreach($cols as $k=>$col) {
 }
 
 //views
-if($ret['recent'] && $type!='recent') print('<a '.(IPHONE?'class="button red" ':'').'href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'recent','rb_offset'=>0))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','Recent').'</a>'.(IPHONE?'':'<br>'));
+/*if($ret['recent'] && $type!='recent') print('<a '.(IPHONE?'class="button red" ':'').'href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'recent','rb_offset'=>0))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','Recent').'</a>'.(IPHONE?'':'<br>'));
 if($ret['favorites'] && $type!='favorites') print('<a '.(IPHONE?'class="button green" ':'').'href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'favorites','rb_offset'=>0))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','Favorites').'</a>'.(IPHONE?'':'<br>'));
-if(($ret['recent'] || $ret['favorites']) && $type!='all') print('<a '.(IPHONE?'class="button white" ':'').'href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'all','rb_offset'=>0))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','All').'</a>'.(IPHONE?'':'<br>'));
-print('<ul class="form">');
-if($type!='recent')
-	print('<li><form method="POST" action="mobile.php?'.http_build_query($_GET).'"><input type="text" name="search" value="'.(isset($_POST['search'])?$_POST['search']:'Search').'" id="some_name" onclick="clickclear(this, \'Search\')" onblur="clickrecall(this,\'Search\')" /></form></li>');
-print('</ul>');
-if(isset($_POST['search'])) {
+if(($ret['recent'] || $ret['favorites']) && $type!='all') print('<a '.(IPHONE?'class="button white" ':'').'href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'all','rb_offset'=>0))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','All').'</a>'.(IPHONE?'':'<br>'));*/
+print('<form method="GET" action="mobile.php?'.http_build_query($_GET).'">');
+if(IPHONE)
+	print('<ul class="form">');
+print('<input type="hidden" name="rb_offset" value="0">');
+print((IPHONE?'<li>':'').'<select onchange="form.elements[\'search\'].value=\'Search\';form.submit()" name="type"><option value="all"'.($type=='all'?' selected=1':'').'>'.Base_LangCommon::ts('Utils_RecordBrowser','All').'</option><option value="recent"'.($type=='recent'?' selected=1':'').'>'.Base_LangCommon::ts('Utils_RecordBrowser','Recent').'</option><option value="favorites"'.($type=='favorites'?' selected=1':'').'>'.Base_LangCommon::ts('Utils_RecordBrowser','Favorites').'</option></select>'.(IPHONE?'</li>':'<br>'));
+print((IPHONE?'<li>':'').'<input type="text" name="search" value="'.(isset($_GET['search'])?$_GET['search']:'Search').'" onclick="clickclear(this, \'Search\')" onblur="clickrecall(this,\'Search\')" />'.(IPHONE?'</li>':'<br>'));
+if(IPHONE)
+	print('</ul>');
+else
+	print('<input type="submit" value="OK"/>');
+print('</form>');
+if(isset($_GET['search']) && $_GET['search']!=="Search" && $_GET['search']!=="") {
 	$search_crits = array();
-	$search_string = $_POST['search'];
+	$search_string = $_GET['search'];
 	$search_string = DB::Concat(DB::qstr('%'),DB::qstr($search_string),DB::qstr('%'));
 	$chr = '(';
 	foreach ($cols_out as $col) {

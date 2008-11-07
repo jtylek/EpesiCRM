@@ -135,18 +135,27 @@ foreach($stack as $s)
 if(IPHONE) {
 	$title = end($captions);
 	$back_id = key($captions);
-	if(end($stack)->caption!==$title)
-		$action = '<a href="mobile.php?back='.($back_id+1).'" class="nav Action">'.$title.'</a>';
-	else
-		$action = '';
-	$title = '<h1>'.$title.'</h1>';
 	array_pop($captions);
-	$back = end($captions);
-	if($back) {
-		$back_id = key($captions);
-		$back = '<a href="mobile.php?back='.($back_id+1).'" class="nav" id="backButton">'.$back.'</a>';
+	$back = '';
+	$is_back = end($captions);
+	if(end($stack)->caption!==$title) {
+		if($is_back) {
+			$back = '<a href="mobile.php?back='.($back_id+1).'" class="nav" id="backButton">'.$title.'</a>';
+			$back_id = key($captions);
+			$action = '<a href="mobile.php?back='.($back_id+1).'" class="nav Action">'.$is_back.'</a>';
+		} else {
+			$back = '<a href="mobile.php?back='.($back_id+1).'" class="nav Action">'.$title.'</a>';
+			$action = '';
+		}
+	} else {
+		$action = '';
+		if($is_back) {
+			$back_id = key($captions);
+			$back = '<a href="mobile.php?back='.($back_id+1).'" class="nav" id="backButton">'.$is_back.'</a>';
+		}
 	}
 	
+	$title = '<h1>'.$title.'</h1>';
 	$caption = $back.$title.$action;
 } else {
 	$cap = array();
@@ -216,6 +225,18 @@ if(IPHONE) {
 	foreach($csses as $f)
 	  	print('<link href="'.$f.'" type="text/css" rel="stylesheet"/>'."\n");
 	?>
+	<script type="text/javascript" charset="utf-8">
+		function clickclear(thisfield, defaulttext) {
+			if (thisfield.value == defaulttext) {
+				thisfield.value = "";
+			}
+		}
+		function clickrecall(thisfield, defaulttext) {
+			if (thisfield.value == "") {
+				thisfield.value = defaulttext;
+			}
+		}
+	</script>
 </head>
 <body>
         <table id="banner" border="0" cellpadding="0" cellspacing="0">
