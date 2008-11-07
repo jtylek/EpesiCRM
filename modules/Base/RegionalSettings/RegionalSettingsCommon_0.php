@@ -216,18 +216,28 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 //		self::set_locale();
 		if($tz)
 			self::set_tz();
-		if(strpos($datef,'%B')>=0) {
-			$months = array();
-			for($i=1; $i<=12; $i++)
-				$months[] = self::strftime('%B',strtotime($i.'/'.$i));
-			$t = str_replace($months,self::$months_en,$t);
+		static $dt_B;
+		if(!isset($dt_B)) $dt_B = (strpos($datef,'%B')>=0);
+		if($dt_B) {
+			static $months_B;
+			if(!isset($months_B)) {
+				$months_B = array();
+				for($i=1; $i<=12; $i++)
+					$months_B[] = self::strftime('%B',strtotime($i.'/'.$i));
+			}
+			$t = str_replace($months_B,self::$months_en,$t);
 		}
 
-		if(strpos($datef,'%b')>=0) {
-			$months = array();
-			for($i=1; $i<=12; $i++)
-				$months[] = self::strftime('%b',strtotime($i.'/'.$i));
-			$t = str_replace($months,self::$months_en_short,$t);
+		static $dt_sb;
+		if(!isset($dt_sb)) $dt_sb = (strpos($datef,'%b')>=0);
+		if($dt_sb) {
+			static $months_sb;
+			if(!isset($months_sb)) {
+				$months_sb = array();
+				for($i=1; $i<=12; $i++)
+					$months_sb[] = self::strftime('%b',strtotime($i.'/'.$i));
+			}
+			$t = str_replace($months_sb,self::$months_en_short,$t);
 		}
 
 		$tt = strtotime($t);
