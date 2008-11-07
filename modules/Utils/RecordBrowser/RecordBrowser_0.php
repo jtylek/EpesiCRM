@@ -44,6 +44,7 @@ class Utils_RecordBrowser extends Module {
 	public static $tab_param = '';
 	public static $clone_result = null;
 	public static $clone_tab = null;
+	public static $last_record = null;
 	public $record;
 	public $adv_search = false;
 	private $col_order = array();
@@ -671,7 +672,7 @@ class Utils_RecordBrowser extends Module {
 		if ($id!==null) Utils_WatchdogCommon::notified($this->tab,$id);
 
 		$this->init();
-		$this->record = Utils_RecordBrowserCommon::get_record($this->tab, $id, $mode!=='edit');
+		self::$last_record = $this->record = Utils_RecordBrowserCommon::get_record($this->tab, $id, $mode!=='edit');
 		
 		if ($mode!='add' && (!$this->get_access($mode, $this->record) || $this->record==null)) {
 			print($this->lang->t('You have no longer permission to view this record.'));
