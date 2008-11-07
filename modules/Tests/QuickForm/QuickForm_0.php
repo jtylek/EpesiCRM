@@ -24,6 +24,14 @@ class Tests_QuickForm extends Module{
 		$f->addRule('xxxyss','ble rule not passed','ble_rule');
 		$f->addRule('xxxyss','required rule not passed','required');
 		$f->addElement('text','ble','Test');
+
+		for ($i=0;$i<100;$i++) {
+			$time = microtime(true);
+			$f->addElement('datepicker','ble_'.$i,'Test_'.$i);
+			$f->setDefaults(array('ble_'.$i=>time()));
+			error_log((microtime(true)-$time)."\n",3,'data/QF_perf_test.txt');
+		}
+
 		$f->addElement('currency','cur','Currency');
 //		$f->setDefaults(array('xxxyss'=>time()));
 //		$f->freeze(array('xxxyss'));
