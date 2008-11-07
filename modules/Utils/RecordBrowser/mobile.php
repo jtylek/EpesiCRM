@@ -46,6 +46,7 @@ if(isset($_GET['search']) && $_GET['search']!=="Search" && $_GET['search']!=="")
 	$search_string = DB::Concat(DB::qstr('%'),DB::qstr($search_string),DB::qstr('%'));
 	$chr = '(';
 	foreach ($cols_out as $col) {
+		if(array_key_exists($col['record']['id'],$info)) continue;
 		$args = $col['record'];
 		$c = $args['id'];
 		if ($args['type']=='text' || $args['type']=='currency' || ($args['type']=='calculated' && $args['param']!='')) {
