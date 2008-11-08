@@ -92,12 +92,39 @@ class CRM_Calendar extends Module {
 			if ($conf['color']!=0 && $colors[$conf['color']]!=$row['color']) continue;
 			$ex = Utils_CalendarCommon::process_event($row);
 			$view_action = '<a '.$this->create_callback_href(array($this,'view_event'),$row['id']).'>';
+			
+			$ev_id = explode('_',$row['id'],2);
+			$ev_id = $ev_id[0];
+			
+			///////////////////
+			// right column
+			$emps_tmp = DB::GetAssoc('SELECT emp.contact,emp.contact FROM crm_calendar_event_group_emp AS emp WHERE emp.id=%d',array($ev_id));
+			$cuss_tmp = DB::GetAssoc('SELECT cus.contact,cus.contact FROM crm_calendar_event_group_cus AS cus WHERE cus.id=%d',array($ev_id));
+
+			$emps = array();
+			foreach($emps_tmp as $k)
+				if(is_numeric($k))
+					$emps[] = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact($k));
+			$cuss = array();
+			foreach($cuss_tmp as $k)
+				if(is_numeric($k))
+					$cuss[] = CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($k));
+
+			$additional = Base_LangCommon::ts('CRM_Calendar_Event','Employees:').'<br>'.
+						implode('<br>',$emps).
+					(empty($cuss)?'':'<br>'.Base_LangCommon::ts('CRM_Calendar_Event','Customers:').'<br>'.
+						implode('<br>',$cuss));
+			
 			if($row['description'])
-				$title = Utils_TooltipCommon::create($row['title'],$row['description']);
-			else
-				$title = $row['title'];
+				$row['description'] .= '<hr>';
+			$title = Utils_TooltipCommon::create($row['title'],$row['description'].$additional);
+			
+			//////////////////////////
+			// left column
+			$date_tip = !isset($row['timeless'])?$l->t('Duration: %s<br>End: %s',array($ex['duration'],$ex['end'])):$l->t('Timeless');
+			$date = Utils_TooltipCommon::create($ex['start'],$date_tip);
 			$gb->add_row(
-				array('value'=>$view_action.($ex['start_time']!='timeless'?Utils_TooltipCommon::create($ex['start'],$l->t('Duration: %s<br>End: %s',array($ex['duration'],$ex['end']))):$ex['start']).'</a>', 'order_value'=>isset($row['timeless'])?strtotime($row['timeless']):$row['start']),
+				array('value'=>$view_action.$date.'</a>', 'order_value'=>isset($row['timeless'])?strtotime($row['timeless']):$row['start']),
 				$view_action.$title.'</a>');
 		}
 
