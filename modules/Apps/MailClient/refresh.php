@@ -64,7 +64,11 @@ if($account['mail']==='#internal') {
 	}
 
 	if($l===false) die('unknown error');
-	$uidls_file = Apps_MailClientCommon::get_mailbox_dir($id).'.uilds';
+	$box_dir = Apps_MailClientCommon::get_mailbox_dir($id);
+	if($box_dir===false) {
+		die('invalid mailbox');
+	}
+	$uidls_file = $box_dir.'.uilds';
 	if($account['pop3_leave_msgs_on_server']!=0 && file_exists($uidls_file)) {
 		$uidls = array();
 		if(($uidls_fp = @fopen($uidls_file,'r'))!==false) {

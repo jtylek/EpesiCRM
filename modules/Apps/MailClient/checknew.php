@@ -45,6 +45,7 @@ foreach($accounts as $account) {
 	if(!$pop3) continue;
 
 	$box_root = Apps_MailClientCommon::get_mailbox_dir($account['id']);
+	if($box_root===false) continue;
 	$box_dir = 'Inbox/';
 	$box = $box_root.$box_dir;
 
@@ -193,6 +194,11 @@ foreach($accounts as $account) {
 		if(!isset($structure->headers['date']))
 			$structure->headers['date'] = '';
 		$msg_id = Apps_MailClientCommon::get_next_msg_id($account['id'],$box_dir);
+		if($msg_id===false) {
+			message($account['id'],$account['mail'].': broken index file?');
+			$error = true;
+			break;
+		}
 		file_put_contents($box.$msg_id,$msg);
 		if(!Apps_MailClientCommon::append_msg_to_index($account['id'],$box_dir,$msg_id,isset($structure->headers['subject'])?$structure->headers['subject']:'no subject',$structure->headers['from'],$structure->headers['to'],$structure->headers['date'],strlen($msg))) {
 			message($account['id'],$account['mail'].': broken index file');

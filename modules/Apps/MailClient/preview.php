@@ -15,7 +15,11 @@ if(!Acl::is_user()) die('Not logged in');
 ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
 require_once('Mail/mimeDecode.php');
 
-$box = Apps_MailClientCommon::get_mailbox_dir($_GET['box']).$_GET['dir'];
+$box_dir = Apps_MailClientCommon::get_mailbox_dir($_GET['box']);
+if($box_dir===false) {
+	die('Invalid mailbox');
+}
+$box = $box_dir.$_GET['dir'];
 
 $message = @file_get_contents($box.'/'.$_GET['msg_id']);
 if($message===false) {

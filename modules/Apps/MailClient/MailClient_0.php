@@ -50,7 +50,7 @@ class Apps_MailClient extends Module {
 			$move_folders = array_merge($move_folders,$this->get_move_folders($str[$v['mail']],$name,$v['id']));
 		}
 //		print_r($tree);
-		//return;
+//		return;
 
 
 		$box = $this->get_module_variable('opened_box');
@@ -188,9 +188,14 @@ class Apps_MailClient extends Module {
 	}
 
 	public function remove_mail($box,$dir,$id,$quiet=false) {
+		$box_dir=Apps_MailClientCommon::get_mailbox_dir($box);
+		if($box_dir===false && !$quiet) {
+			Epesi::alert($this->lang->ht('Invalid mailbox'));
+			return;
+		}
 		if($dir=='Trash/') {
 			if(Apps_MailClientCommon::remove_msg($box,$dir,$id)) {
-				$trashpath = Apps_MailClientCommon::get_mailbox_dir($box).'Trash/.del';
+				$trashpath = $box_dir.'Trash/.del';
 
 				$in = @fopen($trashpath,'r');
 				if($in!==false) {
@@ -212,12 +217,12 @@ class Apps_MailClient extends Module {
 					Base_StatusBarCommon::message('Message deleted');
 			} else {
 				if(!$quiet)
-					Base_StatusBarCommon::message('Unable to delete message','error');
+					Epesi::alert($this->lang->ht('Unable to delete message'));
 			}
 		} else {
 			$id2 = Apps_MailClientCommon::move_msg($box,$dir,$box,'Trash/',$id);
 			if($id2!==false) {
-				$trashpath = Apps_MailClientCommon::get_mailbox_dir($box).'Trash/.del';
+				$trashpath = $box_dir.'Trash/.del';
 				$out = @fopen($trashpath,'a');
 				if($out!==false) {
 					fputcsv($out,array($id2,$dir));
@@ -227,7 +232,7 @@ class Apps_MailClient extends Module {
 					Base_StatusBarCommon::message('Message moved to trash');
 			} else {
 				if(!$quiet)
-					Base_StatusBarCommon::message('Unable to move message to trash','error');
+					Epesi::alert($this->lang->ht('Unable to move message to trash'));
 			}
 		}
 	}
@@ -235,11 +240,18 @@ class Apps_MailClient extends Module {
 	public function mark_all_as_read() {
 		$box = $this->get_module_variable('opened_box');
 		$dir = $this->get_module_variable('opened_dir');
-		Apps_MailClientCommon::mark_all_as_read($box, $dir);
+		if(!Apps_MailClientCommon::mark_all_as_read($box, $dir)) {
+			Epesi::alert($this->lang->ht('Invalid mailbox'));		
+		}
 	}
 
 	public function restore_mail($box,$dir,$id) {
-		$trashpath = Apps_MailClientCommon::get_mailbox_dir($box).$dir.'.del';
+		$box_dir = Apps_MailClientCommon::get_mailbox_dir($box);
+		if($box_dir===false) {
+			Epesi::alert($this->lang->ht('Invalid mailbox'));
+			return false;		
+		}
+		$trashpath = $box_dir.$dir.'.del';
 
 		$in = @fopen($trashpath,'r');
 		if($in===false) {
@@ -286,11 +298,14 @@ class Apps_MailClient extends Module {
 
 	public function delete_folder_callback($box,$dir) {
 		$mbox_dir = Apps_MailClientCommon::get_mailbox_dir($box);
+		if($mbox_dir===false) {
+			Epesi::alert($this->lang->ht('Invalid mailbox'));
+			return;
+		}
 		recursive_rmdir($mbox_dir.$dir);
 		$parent_dir = substr($dir,0,strrpos(rtrim($dir,'/'),'/')+1);
 		$ret = explode(',',file_get_contents($mbox_dir.$parent_dir.'.dirs'));
 		$removed = substr($dir,strlen($parent_dir),-1);
-		print($removed);
 		$ret = array_filter($ret,create_function('$o','return $o!="'.$removed.'";'));
 		file_put_contents($mbox_dir.$parent_dir.'.dirs',implode(',',$ret));
 		$this->set_module_variable('opened_dir',$parent_dir);
@@ -332,6 +347,11 @@ class Apps_MailClient extends Module {
 		$opened_box = $this->get_module_variable('opened_box');
 		$opened_dir = $this->get_module_variable('opened_dir');
 		$ret = array();
+		$box_dir = Apps_MailClientCommon::get_mailbox_dir($box);
+		if($box_dir===false) {
+			Epesi::alert($this->lang->ht('Invalid mailbox'));
+			return $ret;		
+		}
 		foreach($str as $k=>$v) {
 			$cr = $create_dir;
 			$ed = $edit_dir;
@@ -347,7 +367,7 @@ class Apps_MailClient extends Module {
 			if(!$cr && strcasecmp($p,'Inbox/')==0) $cr = true;
 			$unread_msgs = false;
 			$num_of_msgs = false;
-			$num = @file_get_contents(Apps_MailClientCommon::get_mailbox_dir($box).$p.'.num');
+			$num = @file_get_contents($box_dir.$p.'.num');
 			if($num!==false) {
 				$num = explode(',',$num);
 				if(count($num)==2) {
@@ -445,8 +465,11 @@ class Apps_MailClient extends Module {
 
 		//if edit
 		$references = false;
-		if($id!==null) {
-			$message = @file_get_contents(Apps_MailClientCommon::get_mailbox_dir($box).$dir.$id);
+		$box_dir = Apps_MailClientCommon::get_mailbox_dir($box);
+		if($box_dir === false) {
+			Epesi::alert($this->lang->ht('Invalid mailbox'));
+		} elseif($id!==null) {
+			$message = @file_get_contents($box_dir.$dir.$id);
 			if($message!==false) {
 				ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
 				require_once('Mail/mimeDecode.php');
@@ -715,6 +738,10 @@ class Apps_MailClient extends Module {
 
 		if($f->validate()) {
 			$mbox_dir = Apps_MailClientCommon::get_mailbox_dir($box);
+			if($mbox_dir===false) {
+				Epesi::alert($this->lang->ht('Invalid mailbox. Did you delete it?'));
+				return false;
+			}
 			$name = $f->exportValue('name');
 			$new_name = $dir.$name.'/';
 			if($folder!==false) { //edit
@@ -865,7 +892,12 @@ class Apps_MailClient extends Module {
 	}
 
 	public function delete_account($id){
-		recursive_rmdir(Apps_MailClientCommon::get_mailbox_dir($id));
+		$box_dir = Apps_MailClientCommon::get_mailbox_dir($id);
+		if($box_dir===false) {
+			Epesi::alert($this->lang->ht('Invalid mailbox'));
+			return;
+		}
+		recursive_rmdir($box_dir);
 		DB::Execute('DELETE FROM apps_mailclient_accounts WHERE id=%d',array($id));
 	}
 
