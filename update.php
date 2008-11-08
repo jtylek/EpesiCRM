@@ -135,7 +135,7 @@ function themeup(){
 	install_default_theme_common_files('modules/Base/Theme/','images');
 }
 
-$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1','0.9.9beta1','0.9.9beta2','1.0.0rc1','1.0.0rc2','1.0.0rc3','1.0.0rc4');
+$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1','0.9.9beta1','0.9.9beta2','1.0.0rc1','1.0.0rc2','1.0.0rc3','1.0.0rc4','1.0.0rc5');
 
 /****************** 0.8.5 to 0.8.6 **********************/
 function update_from_0_9_9beta1_to_0_9_9beta2() {
@@ -695,6 +695,93 @@ function update_from_1_0_0rc3_to_1_0_0rc4() {
 		PatchDBAddColumn('user_password','mobile_autologin_id','C(32)');
 	}
 
+	ModuleManager::create_common_cache();
+	themeup();
+	langup();
+	Base_ThemeCommon::create_cache();
+}
+
+function update_from_1_0_0rc4_to_1_0_0rc5() {
+	define('CID',false);
+	require_once('include.php');
+	ob_start();
+	ModuleManager::load_modules();
+	ob_end_clean();
+
+	//addons management
+	if (ModuleManager::is_installed('Utils_RecordBrowser')>=0) {
+		PatchDBAddColumn('recordbrowser_addon','pos','I');
+		PatchDBAddColumn('recordbrowser_addon','enabled','I1');
+		PatchDBRenameColumn('recordbrowser_addon','label','label_','C(128)');
+		PatchDBAddColumn('recordbrowser_addon','label','C(128)');
+		DB::Execute('UPDATE recordbrowser_addon SET label=label_');
+		PatchDBDropColumn('recordbrowser_addon','label_');
+
+		DB::Execute('UPDATE recordbrowser_addon SET enabled=1, pos=0 WHERE pos IS NULL');
+	
+		$tab = DB::GetAssoc('SELECT tab, tab FROM recordbrowser_table_properties');
+		foreach ($tab as $t) {
+			do {
+				$dangling_add = DB::GetOne('SELECT label FROM recordbrowser_addon WHERE tab=%s AND pos=0',array($t));
+				if ($dangling_add) {
+					$max = DB::GetOne('SELECT MAX(pos)+1 FROM recordbrowser_addon WHERE tab=%s', array($t));
+					DB::Execute('UPDATE recordbrowser_addon SET pos=%d WHERE tab=%s AND pos=0 AND label=%s', array($max,$t,$dangling_add));
+				}
+			} while ($dangling_add);
+		}
+	}
+	
+	//bb codes
+	ModuleManager::install('Utils_BBCode');
+
+	if (ModuleManager::is_installed('CRM_Contacts')>=0) {
+		Utils_BBCodeCommon::new_bbcode('contact', 'CRM_ContactsCommon', 'contact_bbcode');
+		Utils_BBCodeCommon::new_bbcode('company', 'CRM_ContactsCommon', 'company_bbcode');
+	}
+	if (ModuleManager::is_installed('CRM_Tasks')>=0)
+		Utils_BBCodeCommon::new_bbcode('task', 'CRM_TasksCommon', 'task_bbcode');
+	if (ModuleManager::is_installed('Premium_Projects_Tickets')>=0)
+		Utils_BBCodeCommon::new_bbcode('ticket', 'Premium_Projects_TicketsCommon', 'ticket_bbcode');
+
+	//tasks fix
+	if (ModuleManager::is_installed('CRM_Tasks')>=0)
+		Utils_RecordBrowserCommon::delete_record_field('task','Is Deadline');
+
+	//iphone callto
+	if (ModuleManager::is_installed('CRM_Contacts')>=0) {
+		Utils_RecordBrowserCommon::set_display_method('company', 'Phone', 'CRM_ContactsCommon', 'display_phone');
+		Utils_RecordBrowserCommon::set_display_method('contact', 'Work Phone', 'CRM_ContactsCommon', 'display_phone');
+		Utils_RecordBrowserCommon::set_display_method('contact', 'Mobile Phone', 'CRM_ContactsCommon', 'display_phone');
+		Utils_RecordBrowserCommon::set_display_method('contact', 'Home Phone', 'CRM_ContactsCommon', 'display_phone');
+	}
+
+	//lang
+	Base_LangCommon::refresh_cache();
+
+	//user settings module foreign key
+	$tabs = array('base_user_settings','base_user_settings_admin_defaults');
+	foreach ($tabs as $t) {
+		if(DATABASE_DRIVER=='postgres') {
+			$idxs = DB::Execute('SELECT t.tgargs as args FROM pg_trigger t,pg_class c,pg_proc p WHERE t.tgenabled AND t.tgrelid = c.oid AND t.tgfoid = p.oid AND p.proname = \'RI_FKey_check_ins\' AND c.relname = \''.strtolower($t).'\' ORDER BY t.tgrelid');
+			$matches = array(1=>array());
+			while ($i = $idxs->FetchRow()) {
+				$data = explode(chr(0), $i[0]);
+				$matches[1][] = $data[0];
+			}
+			$op = 'CONSTRAINT';
+		} else { 
+			$a_create_table = DB::getRow(sprintf('SHOW CREATE TABLE %s', $t));
+	    	$create_sql  = $a_create_table[1];
+		    if (!preg_match_all("/CONSTRAINT `(.*?)` FOREIGN KEY \(`(.*?)`\) REFERENCES `(.*?)` \(`(.*?)`\)/", $create_sql, $matches)) continue;
+		    $op = 'FOREIGN KEY';
+		}
+		$num_keys = count($matches[1]);
+	    for ( $i = 0;  $i < $num_keys;  $i ++ ) {
+			DB::Execute('ALTER TABLE '.$t.' DROP '.$op.' '.$matches[1][$i]);
+	    }
+	}
+
+	//ok, done
 	ModuleManager::create_common_cache();
 	themeup();
 	langup();
