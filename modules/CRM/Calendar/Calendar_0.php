@@ -98,26 +98,9 @@ class CRM_Calendar extends Module {
 			
 			///////////////////
 			// right column
-			$emps_tmp = DB::GetAssoc('SELECT emp.contact,emp.contact FROM crm_calendar_event_group_emp AS emp WHERE emp.id=%d',array($ev_id));
-			$cuss_tmp = DB::GetAssoc('SELECT cus.contact,cus.contact FROM crm_calendar_event_group_cus AS cus WHERE cus.id=%d',array($ev_id));
-
-			$emps = array();
-			foreach($emps_tmp as $k)
-				if(is_numeric($k))
-					$emps[] = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact($k));
-			$cuss = array();
-			foreach($cuss_tmp as $k)
-				if(is_numeric($k))
-					$cuss[] = CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($k));
-
-			$additional = Base_LangCommon::ts('CRM_Calendar_Event','Employees:').'<br>'.
-						implode('<br>',$emps).
-					(empty($cuss)?'':'<br>'.Base_LangCommon::ts('CRM_Calendar_Event','Customers:').'<br>'.
-						implode('<br>',$cuss));
-			
 			if($row['description'])
 				$row['description'] .= '<hr>';
-			$title = Utils_TooltipCommon::create($row['title'],$row['description'].$additional);
+			$title = Utils_TooltipCommon::create($row['title'],$row['description'].substr($row['additional_info'],4).$row['additional_info2']);
 			
 			//////////////////////////
 			// left column
