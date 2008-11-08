@@ -3,7 +3,7 @@
  * Flash Charts
  * @author shacky@poczta.fm
  * @copyright shacky@poczta.fm
- * @license EPL
+ * @license SPL
  * @version 0.1
  * @package libs-openflashchart
  */

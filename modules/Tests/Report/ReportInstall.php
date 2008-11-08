@@ -3,7 +3,7 @@
  * 
  * @author Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Arkadiusz Bisaga <abisaga@telaxus.com>
- * @license EPL
+ * @license SPL
  * @version 0.1
  * @package tests-report
  */

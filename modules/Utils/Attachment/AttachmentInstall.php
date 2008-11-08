@@ -3,7 +3,7 @@
  * Use this module if you want to add attachments to some page.
  * @author pbukowski@telaxus.com
  * @copyright pbukowski@telaxus.com
- * @license EPL
+ * @license SPL
  * @version 0.1
  * @package utils-attachment
  */

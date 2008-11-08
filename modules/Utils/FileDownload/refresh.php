@@ -5,7 +5,7 @@
  * @version 0.9
  * @package utils
  * @subpackage file-download
- * @license EPL
+ * @license SPL
  */
 if(!isset($_POST['path']))
 	die('Invalid request');

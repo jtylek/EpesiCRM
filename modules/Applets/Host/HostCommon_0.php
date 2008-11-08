@@ -3,7 +3,7 @@
  * Gets host ip or domain
  * @author pbukowski@telaxus.com
  * @copyright pbukowski@telaxus.com
- * @license EPL
+ * @license SPL
  * @version 0.1
  * @package applets-host
  */

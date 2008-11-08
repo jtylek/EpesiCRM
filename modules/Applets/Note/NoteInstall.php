@@ -3,7 +3,7 @@
  * 
  * @author pbukowski@telaxus.com
  * @copyright pbukowski@telaxus.com
- * @license EPL
+ * @license SPL
  * @version 1.1
  * @package applets-note
  */

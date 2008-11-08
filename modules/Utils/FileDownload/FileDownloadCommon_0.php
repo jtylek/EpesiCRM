@@ -5,7 +5,7 @@
  * @version 0.9
  * @package utils
  * @subpackage file-download
- * @license EPL
+ * @license SPL
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

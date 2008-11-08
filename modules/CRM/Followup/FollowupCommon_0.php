@@ -3,7 +3,7 @@
  *
  * @author abisaga@telaxus.com
  * @copyright abisaga@telaxus.com
- * @license EPL
+ * @license SPL
  * @version 0.9
  * @package crm-Followup
  */

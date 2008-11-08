@@ -5,7 +5,7 @@
  * This file defines abstract class Module whose provides basic modules functionality.
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
- * @license EPL
+ * @license SPL
  * @version 1.0
  * @package epesi-base
  */

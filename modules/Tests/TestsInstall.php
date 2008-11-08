@@ -5,7 +5,7 @@
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
- * @license EPL
+ * @license SPL
  * @package epesi-tests
  * @subpackage tests-installer
  */

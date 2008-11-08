@@ -3,7 +3,7 @@
  * Something like igoogle
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2007, Telaxus LLC
- * @license EPL
+ * @license SPL
  * @version 0.1
  * @package epesi-base-extra
  * @subpackage dashboard

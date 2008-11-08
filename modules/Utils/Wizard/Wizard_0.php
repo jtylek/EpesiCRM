@@ -5,7 +5,7 @@
  * @author Paul Bukowski <pbukowski@telaxus.com> and Kuba Slawinski <kslawinski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
- * @license EPL
+ * @license SPL
  * @package epesi-utils
  * @subpackage wizard
  */

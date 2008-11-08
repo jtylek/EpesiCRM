@@ -6,7 +6,7 @@
  * Other users can read notes if you set permission with allow_other method.
  * @author pbukowski@telaxus.com
  * @copyright pbukowski@telaxus.com
- * @license EPL
+ * @license SPL
  * @version 0.1
  * @package utils-attachment
  */

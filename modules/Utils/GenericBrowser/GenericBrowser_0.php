@@ -3,7 +3,7 @@
  * @author Arkadiusz Bisaga <abisaga@telaxus.com>, Kuba Slawinski <kslawinski@telaxus.com> and Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
- * @license EPL
+ * @license SPL
  * @package epesi-utils
  * @subpackage generic-browser
  */

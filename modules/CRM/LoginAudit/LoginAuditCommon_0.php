@@ -3,7 +3,7 @@
  * Provides login audit log
  * @author pbukowski@telaxus.com & jtylek@telaxus.com
  * @copyright pbukowski@telaxus.com & jtylek@telaxus.com
- * @license EPL
+ * @license SPL
  * @version 0.1
  * @package epesi-base
  */

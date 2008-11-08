@@ -7,7 +7,7 @@
  * @author Paul Bukowski <pbukowski@telaxus.com> and Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
- * @license EPL
+ * @license SPL
  * @package epesi-base-extra
  * @subpackage theme
  */

@@ -5,7 +5,7 @@
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 0.9
- * @license EPL
+ * @license SPL
  * @package tools-fontsize
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');

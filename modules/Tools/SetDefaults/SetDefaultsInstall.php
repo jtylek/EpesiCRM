@@ -3,7 +3,7 @@
  * @author Janusz Tylek <jtylek@telaxus.com>
  * @copyright Copyright &copy; 2008, Telaxus LLC
  * @version 0.1
- * @license EPL
+ * @license SPL
  * @package epesi-tools
  * @subpackage setdefaults
  */

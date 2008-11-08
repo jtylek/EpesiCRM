@@ -4,7 +4,7 @@
  *
  * @author msteczkiewicz@telaxus.com
  * @copyright msteczkiewicz@telaxus.com
- * @license EPL
+ * @license SPL
  * @version 0.9
  * @package applets-calc
  */

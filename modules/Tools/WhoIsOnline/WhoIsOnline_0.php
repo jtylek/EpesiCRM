@@ -3,7 +3,7 @@
  * Shows who is logged to epesi.
  * @author pbukowski@telaxus.com
  * @copyright pbukowski@telaxus.com
- * @license EPL
+ * @license SPL
  * @version 0.1
  * @package tools-whoisonline
  */
