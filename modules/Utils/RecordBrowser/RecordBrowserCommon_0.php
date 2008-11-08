@@ -374,6 +374,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
 	public static function delete_record_field($tab, $field){
 		self::init($tab);
+		$exists = DB::GetOne('SELECT 1 FROM '.$tab.'_field WHERE field=%s', array($field));
+		if(!$exists) return;
 		DB::Execute('DELETE FROM '.$tab.'_field WHERE field=%s', array($field));
 		DB::Execute('ALTER TABLE '.$tab.'_data_1 DROP COLUMN f_'.self::$table_rows[$field]['id']);
 	}
