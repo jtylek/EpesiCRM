@@ -3,7 +3,7 @@
  * 
  * @author jtylek@telaxus.com
  * @copyright jtylek@telaxus.com
- * @license SPL
+ * @license EPL
  * @version 0.1
  * @package applets-gtalk
  */

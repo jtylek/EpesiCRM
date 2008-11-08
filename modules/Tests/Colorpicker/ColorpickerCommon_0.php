@@ -3,7 +3,7 @@
  * 
  * @author Kuba Sławiński
  * @copyright Kuba Sławiński
- * @license SPL
+ * @license EPL
  * @version 0.1
  * @package tests-colorpicker
  */

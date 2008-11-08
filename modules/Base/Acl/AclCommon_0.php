@@ -9,7 +9,7 @@
  * @version 1.0
  * @package epesi-base-extra
  * @subpackage acl
- * @license SPL
+ * @license EPL
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

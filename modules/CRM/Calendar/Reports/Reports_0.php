@@ -3,7 +3,7 @@
  * Simple reports for CRM Calendar
  * @author shacky@poczta.fm
  * @copyright shacky@poczta.fm
- * @license SPL
+ * @license EPL
  * @version 0.1
  * @package crm-calendar--reports
  */

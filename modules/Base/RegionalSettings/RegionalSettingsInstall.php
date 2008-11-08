@@ -3,7 +3,7 @@
  * Regional settings like currency, time...
  * @author pbukowski@telaxus.com
  * @copyright pbukowski@telaxus.com
- * @license SPL
+ * @license EPL
  * @version 0.1
  * @package base-regionalsettings
  */

@@ -3,7 +3,7 @@
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2007, Telaxus LLC
  * @version 1.0
- * @license SPL
+ * @license EPL
  * @package epesi-tests
  * @subpackage Lytebox
  */

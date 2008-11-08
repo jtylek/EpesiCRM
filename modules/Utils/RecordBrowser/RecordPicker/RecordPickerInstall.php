@@ -3,7 +3,7 @@
  * 
  * @author admin@admin.com
  * @copyright admin@admin.com
- * @license SPL
+ * @license EPL
  * @version 0.1
  * @package utils-recordbrowser--recordpicker
  */

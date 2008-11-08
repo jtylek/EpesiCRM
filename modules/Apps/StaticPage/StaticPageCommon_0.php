@@ -4,7 +4,7 @@
  * @version 1.0
  * @copyright Copyright &copy; 2007, Telaxus LLC
  * @package apps-static-page
- * @license SPL
+ * @license EPL
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

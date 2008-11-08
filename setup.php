@@ -3,7 +3,7 @@
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @version 1.0
  * @copyright Copyright &copy; 2007, Telaxus LLC
- * @license SPL
+ * @license EPL
  * @package epesi-base
  */
 ob_start();

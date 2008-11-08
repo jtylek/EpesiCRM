@@ -3,7 +3,7 @@
  * Activities history for Company and Contacts
  * @author Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Arkadiusz Bisaga <abisaga@telaxus.com>
- * @license SPL
+ * @license EPL
  * @version 0.1
  * @package crm-contacts--activities
  */

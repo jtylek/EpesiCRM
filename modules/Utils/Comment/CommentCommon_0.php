@@ -3,7 +3,7 @@
  * @author Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
- * @license SPL
+ * @license EPL
  * @package epesi-utils
  * @subpackage comment
  */

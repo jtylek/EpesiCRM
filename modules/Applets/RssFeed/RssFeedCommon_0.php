@@ -3,7 +3,7 @@
  * Simple RSS Feed applet
  * @author jtylek@gmail.com
  * @copyright jtylek@gmail.com
- * @license SPL
+ * @license EPL
  * @version 0.2
  * @package applets-RSS_Feed
  */
