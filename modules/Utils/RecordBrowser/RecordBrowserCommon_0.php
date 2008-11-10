@@ -1310,10 +1310,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								$r2 = $r;
 								self::init($tab);
 								foreach ($edit_details as $k=>$v) {
+									$k = strtolower(str_replace(' ','_',$k)); // failsafe
 									if (self::$table_rows[self::$hash[$k]]['type']=='multiselect') $v = $edit_details[$k] = self::decode_multi($v);
 									$r2[$k] = $v;
 								}
 								foreach ($edit_details as $k=>$v) {
+									$k = strtolower(str_replace(' ','_',$k)); // failsafe
 									self::init($tab);
 									$field = self::$hash[$k];
 									$event_display .= '<tr valign="top"><td><b>'.$field.'</b></td>';
