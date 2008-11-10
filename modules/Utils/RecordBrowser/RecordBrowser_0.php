@@ -363,7 +363,6 @@ class Utils_RecordBrowser extends Module {
 			if (!$admin && $this->watchdog)
 				$table_columns[] = array('name'=>$this->lang->t('Sub'), 'width'=>1);
 		}
-		$table_columns_SQL = array();
 		$quickjump = DB::GetOne('SELECT quickjump FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 
 		$hash = array();
@@ -395,7 +394,6 @@ class Utils_RecordBrowser extends Module {
 				else unset($arr['search']);
 			}
 			$table_columns[] = $arr;
-			array_push($table_columns_SQL, 'e.'.$field);
 		}
 		$clean_order = array();
 		foreach ($order as $k => $v) {
@@ -404,7 +402,6 @@ class Utils_RecordBrowser extends Module {
 			else $key = $k;
 			$clean_order[$this->lang->t($key)] = $v;
 		}
-		$table_columns_SQL = join(', ', $table_columns_SQL);
 //		if ($this->browse_mode == 'recent')
 //			$table_columns[] = array('name'=>$this->lang->t('Visited on'), 'wrapmode'=>'nowrap', 'width'=>1);
 
@@ -549,14 +546,16 @@ class Utils_RecordBrowser extends Module {
 			}
 		}
 		if (!$special && $this->add_in_table && $this->get_access('add', $this->custom_defaults)) {
-			$this->fields_permission = $this->get_access('fields','new');
+			$this->fields_permission = $this->get_access('fields','new', $this->custom_defaults);
 			$form = $this->init_module('Libs/QuickForm',null, 'add_in_table__'.$this->tab);
 			$form->setDefaults($this->custom_defaults);
 
 			$visible_cols = array();
-			foreach($this->table_rows as $field => $args)
-				if (($args['visible'] && !isset($cols[$args['id']])) || (isset($cols[$args['id']]) && $cols[$args['id']] === true))
-					$visible_cols[$args['id']] = true;
+			foreach($this->table_rows as $field => $args){
+				if ((!$args['visible'] && (!isset($cols[$args['id']]) || $cols[$args['id']] === false)) || $access[$args['id']]=='hide') continue;
+				if (isset($cols[$args['id']]) && $cols[$args['id']] === false) continue;
+				$visible_cols[$args['id']] = true;
+			}
 
 			$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 			if ($dpm!=='') {
@@ -586,7 +585,8 @@ class Utils_RecordBrowser extends Module {
 			} else $row_data= array();
 
 			foreach($visible_cols as $k => $v)
-				$row_data[] = $data[$k]['error'].$data[$k]['html'];
+				if (isset($data[$k])) $row_data[] = $data[$k]['error'].$data[$k]['html'];
+				else $row_data[] = '&nbsp;';
 				
 			if ($this->browse_mode == 'recent')
 				$row_data[] = '&nbsp;';
