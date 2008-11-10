@@ -452,10 +452,10 @@ class ModuleManager {
 	 * @return bool true if installation success, false otherwise
 	 */
 	public static final function install($module_to_install, $version=null, $check=true) {
-		print('<div class="green" style="text-align: left;">');
+		$debug = '<div class="green" style="text-align: left;">';
 
 		//already installed?
-		print('<b>' . $module_to_install . '</b>' .': is installed?<br>');
+		$debug .= '<b>' . $module_to_install . '</b>' .': is installed?<br>';
 
 		self :: include_install($module_to_install);
 
@@ -471,7 +471,7 @@ class ModuleManager {
 			$version = $inst_ver-1;
 		} else {
 			if($inst_ver<$version) {
-				print('Module ' . '<b>' . $module_to_install . '</b>' .' is too old. Please download newer version<br>');
+				print($debug.'Module ' . '<b>' . $module_to_install . '</b>' .' is too old. Please download newer version<br>');
 				return false;
 			}
 		}
@@ -484,7 +484,7 @@ class ModuleManager {
 
 		//check dependecies
 		if(!self::satisfy_dependencies($module_to_install,$version)) {
-			print('<b>' . $module_to_install . '</b>' . ': dependencies not satisfied.<br>');
+			print($debug.'<b>' . $module_to_install . '</b>' . ': dependencies not satisfied.<br>');
 			return false;
 		}
 
@@ -494,51 +494,54 @@ class ModuleManager {
 			return false;
 		}
 */
-		print('<b>' . $module_to_install . '</b>' . ': calling install method<br>');
+		$debug .= '<b>' . $module_to_install . '</b>' . ': calling install method<br>';
 		//call install script and fill database
 		if(!call_user_func(array (
 			self::$modules_install[$module_to_install],
 			'install'
 		))) {
-			print('<b>' . $module_to_install . '</b>' . ': failed install, calling uninstall<br>');
+			$debug .= '<b>' . $module_to_install . '</b>' . ': failed install, calling uninstall<br>';
 			call_user_func(array (
 				self::$modules_install[$module_to_install],
 				'uninstall'
 			));
 			Acl::del_aco_section($module_to_install);
 			self::remove_data_dir($module_to_install);
-			print('<b>' . $module_to_install . '</b>' . ': uninstalled<br>');
+			print($debug.'<b>' . $module_to_install . '</b>' . ': uninstalled<br>');
 			return false;
 		}
 
-		print('<b>' . $module_to_install . '</b>' . ': registering<br>');
+		$debug .= '<b>' . $module_to_install . '</b>' . ': registering<br>';
 		$ret = DB::Execute('insert into modules(name, version) values(%s,0)', $module_to_install);
 		if (!$ret) {
-			print ('<b>' . $module_to_install . '</b>' . ' module installation failed: database<br>');
+			print ($debug.'<b>' . $module_to_install . '</b>' . ' module installation failed: database<br>');
 			return false;
 		}
 
 		self :: register($module_to_install, 0, self::$modules);
 
 		if ($check) {
-			print('<b>' . $module_to_install . '</b>' . ': rewriting priorities<br>');
+			$debug .= '<b>' . $module_to_install . '</b>' . ': rewriting priorities<br>';
 			self::create_load_priority_array();
 		}
 
 		print ('<b>' . $module_to_install . '</b>' . ' module installed!<br>');
 
 		if($version!=0) {
-			print('<b>' . $module_to_install . '</b>' . ': upgrades...<br>');
+			$debug .= '<b>' . $module_to_install . '</b>' . ': upgrades...<br>';
 			$up = self::upgrade($module_to_install, $version);
-			if(!$up) return false;
+			if(!$up) {
+				print($debug);
+				return false;
+			}
 		}
 		self::$not_loaded_modules[] = array('name'=>$module_to_install,'version'=>$version);
 
-		print('<b>' . $module_to_install . '</b>' . ': deps ok, including common class<br>');
+		//$debug .= '<b>' . $module_to_install . '</b>' . ': deps ok, including common class<br>';
 		self :: include_common($module_to_install,$version);
 		self::create_common_cache();
 
-		print('</div>');
+		//$debug .= '</div>';
 		self::$processed_modules['install'][$module_to_install] = $version;
 		return true;
 
