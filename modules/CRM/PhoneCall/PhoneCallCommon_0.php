@@ -175,8 +175,8 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	}
 	public static function display_phone_number($record, $nolink) {
 		if ($record['other_phone']) {
-			if(MOBILE_DEVICE && IPHONE)
-				return '<a href="tel:'.$record['other_phone_number'].'">'.$record['other_phone_number'].'</a>';
+			if(MOBILE_DEVICE && IPHONE && !$nolink && ereg('^([0-9\t\+-]+)',$record['other_phone_number'],$args))
+				return '<a href="tel:'.$args[1].'">'.$record['other_phone_number'].'</a>';
 			return $record['other_phone_number'];
 		} else return self::display_phone(array('phone'=>$record['phone']),false,array('id'=>'phone'));
 	}
