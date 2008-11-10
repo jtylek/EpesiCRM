@@ -733,6 +733,14 @@ function update_from_1_0_0rc4_to_1_0_0rc5() {
 	
 	//bb codes
 	ModuleManager::install('Utils_BBCode');
+	DB::Execute('DELETE FROM utils_bbcode');
+	DB::Execute('INSERT INTO utils_bbcode VALUES (%s, %s)', array('b','Utils_BBCodeCommon::tag_b'));
+	DB::Execute('INSERT INTO utils_bbcode VALUES (%s, %s)', array('i','Utils_BBCodeCommon::tag_i'));
+	DB::Execute('INSERT INTO utils_bbcode VALUES (%s, %s)', array('u','Utils_BBCodeCommon::tag_u'));
+	DB::Execute('INSERT INTO utils_bbcode VALUES (%s, %s)', array('s','Utils_BBCodeCommon::tag_s'));
+	DB::Execute('INSERT INTO utils_bbcode VALUES (%s, %s)', array('url','Utils_BBCodeCommon::tag_url'));
+	DB::Execute('INSERT INTO utils_bbcode VALUES (%s, %s)', array('color','Utils_BBCodeCommon::tag_color'));
+	DB::Execute('INSERT INTO utils_bbcode VALUES (%s, %s)', array('img','Utils_BBCodeCommon::tag_img'));
 
 	if (ModuleManager::is_installed('CRM_Contacts')>=0) {
 		Utils_BBCodeCommon::new_bbcode('contact', 'CRM_ContactsCommon', 'contact_bbcode');

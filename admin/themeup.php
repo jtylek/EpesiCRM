@@ -10,6 +10,13 @@ foreach ($content as $name){
 	recursive_rmdir($data_dir.$name);
 }
 
+$compiled_dir = DATA_DIR.'/Base_Theme/compiled/';
+$content = scandir($compiled_dir);
+foreach ($content as $name){
+	if ($name == '.' || $name == '..') continue;
+	@unlink($compiled_dir.$name);
+}
+
 $ret = DB::Execute('SELECT * FROM modules');
 while($row = $ret->FetchRow()) {
 	$directory = 'modules/'.str_replace('_','/',$row[0]).'/theme_'.$row['version'];
