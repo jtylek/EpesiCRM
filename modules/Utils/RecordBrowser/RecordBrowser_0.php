@@ -1324,7 +1324,7 @@ class Utils_RecordBrowser extends Module {
 			DB::Execute('UPDATE '.$this->tab.'_field SET field=%s, visible=%d, required=%d, filter=%d WHERE field=%s',
 						array($data['field'], $data['visible'], $data['required'], $data['filter'], $field));
 			DB::Execute('UPDATE '.$this->tab.'_edit_history_data SET field=%s WHERE field=%s',
-						array($data['field'], $field));
+						array($new_id, $id));
 			if ($id!=$new_id) DB::Execute('ALTER TABLE '.$this->tab.'_data_1 RENAME COLUMN f_'.$id.' TO f_'.$new_id);
 			DB::CompleteTrans();
 			$this->init(true, true);
