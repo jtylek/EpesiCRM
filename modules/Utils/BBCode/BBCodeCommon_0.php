@@ -64,6 +64,7 @@ class Utils_BBCodeCommon extends ModuleCommon {
 	}
 	
 	public static function new_bbcode($code, $module, $func) {
+		DB::Execute('DELETE FROM utils_bbcode WHERE code=%s', array($code));
 		DB::Execute('INSERT INTO utils_bbcode VALUES (%s, %s)', array($code,$module.'::'.$func));
 	}
 	
