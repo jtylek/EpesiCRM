@@ -800,12 +800,12 @@ foreach($versions as $v) {
 		if(is_callable('update_from_'.$last_ver.'_to_'.$x)) {
 //			print('Update from '.$last_ver.' to '.$x.'<br>');
 			call_user_func('update_from_'.$last_ver.'_to_'.$x);
-			@unlink(DATA_DIR.'/cache/common.php');
 		}
 	}
 	if($v==$cur_ver) $go=true;
 	if($v==EPESI_VERSION) $go=false;
 	$last_ver = $x;
 }
+@unlink(DATA_DIR.'/cache/common.php');
 Variable::set('version',EPESI_VERSION);
 ?>
