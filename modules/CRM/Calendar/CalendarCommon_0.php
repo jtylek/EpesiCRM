@@ -3,6 +3,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_CalendarCommon extends ModuleCommon {
 	public static $last_added = null;
+	public static $trash = 0;
 
 	public static function body_access() {
 		return self::Instance()->acl_check('access');
@@ -96,7 +97,7 @@ class CRM_CalendarCommon extends ModuleCommon {
 		
 		
 		$query = 'SELECT ev.starts as start,ev.title,ev.id FROM crm_calendar_event ev '.
-					'WHERE ((ev.access<2 OR ev.created_by='.Acl::get_user().') AND (ev.title LIKE '.DB::Concat('\'%\'',DB::qstr($word),'\'%\'').
+					'WHERE deleted='.CRM_CalendarCommon::$trash.' AND ((ev.access<2 OR ev.created_by='.Acl::get_user().') AND (ev.title LIKE '.DB::Concat('\'%\'',DB::qstr($word),'\'%\'').
  					' OR ev.description LIKE '.DB::Concat('\'%\'',DB::qstr($word),'\'%\'').
  					(empty($attach_ev_ids)?'':' OR ev.id IN ('.implode(',',$attach_ev_ids2).')').
 					'))';
