@@ -143,8 +143,6 @@ function update_from_0_9_9beta1_to_0_9_9beta2() {
 }
 
 function update_from_0_9_9beta2_to_1_0_0rc1() {
-	define('CID',false);
-	require_once('include.php');
 	//attachment
 	ob_start();
 	ModuleManager::load_modules();
@@ -191,8 +189,6 @@ function update_from_0_9_9beta2_to_1_0_0rc1() {
 }
 
 function update_from_1_0_0rc1_to_1_0_0rc2() {
-	define('CID',false);
-	require_once('include.php');
 	ob_start();
 	ModuleManager::load_modules();
 	ob_end_clean();
@@ -209,10 +205,7 @@ function update_from_1_0_0rc1_to_1_0_0rc2() {
 	$q = DB::dict()->AddColumnSQL('utils_commondata_tree','readonly I1 DEFAULT 0');
 	DB::Execute($q[0]);
 
-	define('CID',false);
-	require_once('include.php');
 	ob_start();
-	ModuleManager::load_modules();
 	if(ModuleManager::is_installed('CRM/Contacts')>=0)
 		ModuleManager::install('CRM_Followup');
 	ob_end_clean();
@@ -377,8 +370,6 @@ function update_from_1_0_0rc1_to_1_0_0rc2() {
 }
 
 function update_from_1_0_0rc2_to_1_0_0rc3() {
-	define('CID',false);
-	require_once('include.php');
 	ob_start();
 	DB::Execute('DELETE FROM modules WHERE name="utils_tasks"');
 	ModuleManager::load_modules();
@@ -685,8 +676,6 @@ function update_from_1_0_0rc2_to_1_0_0rc3() {
 }
 
 function update_from_1_0_0rc3_to_1_0_0rc4() {
-	define('CID',false);
-	require_once('include.php');
 	ob_start();
 	ModuleManager::load_modules();
 	ob_end_clean();
@@ -702,8 +691,6 @@ function update_from_1_0_0rc3_to_1_0_0rc4() {
 }
 
 function update_from_1_0_0rc4_to_1_0_0rc5() {
-	define('CID',false);
-	require_once('include.php');
 	ob_start();
 	ModuleManager::load_modules();
 	ob_end_clean();
@@ -805,12 +792,15 @@ $cur_ver = '0.8.5';
 }
 $go=false;
 $last_ver = '';
+define('CID',false);
+require_once('include.php');
 foreach($versions as $v) {
 	$x = str_replace('.','_',$v);
 	if($go) {
 		if(is_callable('update_from_'.$last_ver.'_to_'.$x)) {
 //			print('Update from '.$last_ver.' to '.$x.'<br>');
 			call_user_func('update_from_'.$last_ver.'_to_'.$x);
+			@unlink(DATA_DIR.'/cache/common.php');
 		}
 	}
 	if($v==$cur_ver) $go=true;
