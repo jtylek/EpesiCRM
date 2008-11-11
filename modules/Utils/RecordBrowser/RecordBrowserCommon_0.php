@@ -1303,6 +1303,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					case 'C': 	$event_display = Base_LangCommon::ts('Utils_RecordBrowser','<b>Record created by</b> %s<b>, on</b> %s', array(Base_UserCommon::get_user_login($r['created_by']), Base_RegionalSettingsCommon::time2reg($r['created_on'])));
 								break;
 					case 'E': 	$edit_info = DB::GetRow('SELECT * FROM '.$tab.'_edit_history WHERE id=%d',array($param[1]));
+								$event_display = 'Error, Invalid event: '.$param;
+								if (!$edit_info) continue;
+
 								$event_display = Base_LangCommon::ts('Utils_RecordBrowser','<b>Record edited by</b> %s<b>, on</b> %s', array(Base_UserCommon::get_user_login($edit_info['edited_by']), Base_RegionalSettingsCommon::time2reg($edit_info['edited_on'])));
 								if (!$details) break;
 								$edit_details = DB::GetAssoc('SELECT field, old_value FROM '.$tab.'_edit_history_data WHERE edit_id=%d',array($param[1]));
