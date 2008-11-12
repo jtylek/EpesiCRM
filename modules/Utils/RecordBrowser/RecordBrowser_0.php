@@ -241,8 +241,8 @@ class Utils_RecordBrowser extends Module {
 						foreach ($col as $k=>$v)
 							$col[$k] = strtolower(str_replace(' ','_',$v));
 						$crits = array();
-						if (isset($param[2])) {
-							$callback = explode('::',$param[2]);
+						if (isset($param[1])) {
+							$callback = explode('::',$param[1]);
 							if (is_callable($callback))
 								$crits = call_user_func($callback, true);
 						}
@@ -1014,7 +1014,8 @@ class Utils_RecordBrowser extends Module {
 											$col = explode('|',$col);
 											$col_id = array();
 											foreach ($col as $c) $col_id[] = strtolower(str_replace(' ','_',$c));
-											$records = Utils_RecordBrowserCommon::get_records($tab, $crits, empty($multi_adv_params['format_callback'])?$col_id:array());
+											$records = Utils_RecordBrowserCommon::get_records($tab, $crits, empty($multi_adv_params['format_callback'])?$col_id:array(), isset($multi_adv_params['order'])?$multi_adv_params['order']:array());
+//											$records = Utils_RecordBrowserCommon::get_records($tab, $crits, empty($multi_adv_params['format_callback'])?$col_id:array());
 											$ext_rec = array();
 											$single_column = (count($col_id)==1);
 											if (isset($record[$args['id']])) {
