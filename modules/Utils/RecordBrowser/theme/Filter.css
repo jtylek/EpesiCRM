@@ -51,7 +51,8 @@
 
 /* buttons */
 
-#Utils_RecordBrowser__Filter .buttons {
+#Utils_RecordBrowser__Filter .buttons,
+#Utils_RecordBrowser__Filter .buttons_disabled {
     display: block;
     float: right;
     padding-right: 20px;
@@ -62,6 +63,16 @@
     color: #FFFFFF;
     background-color: #336699;
     background-image: url('images/header-blue.png');
+    width: 100px;
+    height: 20px;
+    border: 0px;
+}
+
+.Utils_RecordBrowser__Filter .buttons_disabled input,
+#Utils_RecordBrowser__Filter .buttons_disabled input {
+    color: #FFFFFF;
+    background-color: #336699;
+    background-image: url('images/header-gray.png');
     width: 100px;
     height: 20px;
     border: 0px;

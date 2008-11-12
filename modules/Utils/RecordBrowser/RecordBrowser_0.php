@@ -40,6 +40,7 @@ class Utils_RecordBrowser extends Module {
 	private $cut = array();
 	private $more_table_properties = array();
 	private $fullscreen_table = false;
+	private $amount_of_records = 0;
 	public static $admin_filter = '';
 	public static $tab_param = '';
 	public static $clone_result = null;
@@ -339,6 +340,10 @@ class Utils_RecordBrowser extends Module {
 			print($this->lang->t('You don\'t have permission to access this data.'));
 		}
 		$gb = $this->init_module('Utils/GenericBrowser', null, $this->tab);
+		if ($special) {
+			$gb_per_page = Base_User_SettingsCommon::get('Utils/GenericBrowser','per_page');
+			$gb->set_per_page(Base_User_SettingsCommon::get('Utils/RecordBrowser/RecordPicker','per_page'));
+		}
 		$gb->set_module_variable('adv_search', $gb->get_module_variable('adv_search', $this->adv_search));
 		$is_searching = $gb->get_module_variable('search','');
 		if (!empty($is_searching)) {
@@ -354,7 +359,6 @@ class Utils_RecordBrowser extends Module {
 		}
 
 		if ($special) {
-			$gb->force_per_page(10);
 			$table_columns = array(array('name'=>$this->lang->t('Select'), 'width'=>1));
 		} else {
 			$table_columns = array();
@@ -460,13 +464,16 @@ class Utils_RecordBrowser extends Module {
 			$form->display();
 		}
 
-		$limit = $gb->get_limit(Utils_RecordBrowserCommon::get_records_limit($this->tab, $crits, $admin));
+		$this->amount_of_records = Utils_RecordBrowserCommon::get_records_limit($this->tab, $crits, $admin);
+		$limit = $gb->get_limit($this->amount_of_records);
 		$records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array(), $order, $limit, $admin);
 		
-		if (Base_AclCommon::i_am_admin() && $this->fullscreen_table) {
-			Base_ActionBarCommon::add('save','Export', 'href="modules/Utils/RecordBrowser/csv_export.php?'.http_build_query(array('tab'=>$this->tab, 'admin'=>$admin, 'cid'=>CID, 'path'=>$this->get_path())).'"');
-			$this->set_module_variable('crits_stuff',$crits?$crits:array());
-			$this->set_module_variable('order_stuff',$order?$order:array());
+		switch (true) {
+			case (Base_AclCommon::i_am_admin() && $this->fullscreen_table):
+				Base_ActionBarCommon::add('save','Export', 'href="modules/Utils/RecordBrowser/csv_export.php?'.http_build_query(array('tab'=>$this->tab, 'admin'=>$admin, 'cid'=>CID, 'path'=>$this->get_path())).'"');
+			case $special:
+				$this->set_module_variable('crits_stuff',$crits?$crits:array());
+				$this->set_module_variable('order_stuff',$order?$order:array());
 		}
 
 		if ($admin) $this->browse_mode = 'all';
@@ -508,7 +515,8 @@ class Utils_RecordBrowser extends Module {
 			if ($special) {
 				$func = $this->get_module_variable('format_func');
 				$element = $this->get_module_variable('element');
-				$row_data= array('<a href="javascript:rpicker_addto(\''.$element.'\','.$row['id'].',\''.Base_ThemeCommon::get_template_file('images/active_on.png').'\',\''.Base_ThemeCommon::get_template_file('images/active_off2.png').'\',\''.(is_callable($func)?strip_tags(call_user_func($func, $row, true)):'').'\');"><img border="0" name="leightbox_rpicker_'.$element.'_'.$row['id'].'" /></a>');
+//				$row_data= array('<a href="javascript:rpicker_addto(\''.$element.'\','.$row['id'].',\''.Base_ThemeCommon::get_template_file('images/active_on.png').'\',\''.Base_ThemeCommon::get_template_file('images/active_off2.png').'\',\''.(is_callable($func)?strip_tags(call_user_func($func, $row, true)):'').'\');"><img border="0" name="leightbox_rpicker_'.$element.'_'.$row['id'].'" /></a>');
+				$row_data = array('<input type="checkbox" id="leightbox_rpicker_'.$element.'_'.$row['id'].'" onclick="rpicker_move(\''.$element.'\','.$row['id'].',\''.(is_callable($func)?strip_tags(call_user_func($func, $row, true)):'').'\',this.checked);" />');
 				$rpicker_ind[] = $row['id'];
 			}
 			foreach($query_cols as $argsid) {
@@ -597,7 +605,10 @@ class Utils_RecordBrowser extends Module {
 		}
 		if ($special) {
 			$this->set_module_variable('rpicker_ind',$rpicker_ind);
-			return $this->get_html_of_module($gb);
+			$ret = $this->get_html_of_module($gb);
+			Base_User_SettingsCommon::save('Utils/RecordBrowser/RecordPicker','per_page',$gb->get_module_variable('per_page'));
+			Base_User_SettingsCommon::save('Utils/GenericBrowser','per_page',$gb_per_page);
+			return $ret;
 		} else $this->display_module($gb);
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
@@ -1494,7 +1505,9 @@ class Utils_RecordBrowser extends Module {
 		$this->set_module_variable('element',$element);
 		$this->set_module_variable('format_func',$format);
 		$theme = $this->init_module('Base/Theme');
+		Base_ThemeCommon::load_css($this->get_type(),'Browsing_records');
 		$theme->assign('filters', $this->show_filters($filters, $element));
+		$theme->assign('disabled', '');
 		foreach	($crits as $k=>$v) {
 			if (!is_array($v)) $v = array($v);
 			if (isset($this->crits[$k]) && !empty($v)) {
@@ -1502,12 +1515,21 @@ class Utils_RecordBrowser extends Module {
 			} else $this->crits[$k] = $v;
 		}
 		$theme->assign('table', $this->show_data($this->crits, $cols, $order, false, true));
+		if ($this->amount_of_records>=50) {
+			$theme->assign('disabled', '_disabled');
+			$theme->assign('select_all', array('js'=>'', 'label'=>$this->lang->t('Select all')));
+			$theme->assign('deselect_all', array('js'=>'', 'label'=>$this->lang->t('Deselect all')));
+		} else {
+			load_js('modules/Utils/RecordBrowser/RecordPicker/select_all.js');
+			$theme->assign('select_all', array('js'=>'RecordPicker_select_all(1,\''.$this->get_path().'\',\''.$this->tab.'\');', 'label'=>$this->lang->t('Select all')));
+			$theme->assign('deselect_all', array('js'=>'RecordPicker_select_all(0,\''.$this->get_path().'\',\''.$this->tab.'\');', 'label'=>$this->lang->t('Deselect all')));
+		}
 		load_js('modules/Utils/RecordBrowser/rpicker.js');
 
 		$rpicker_ind = $this->get_module_variable('rpicker_ind');
 		$init_func = 'init_all_rpicker_'.$element.' = function(id, cstring){';
 		foreach($rpicker_ind as $v)
-			$init_func .= 'rpicker_init(\''.$element.'\','.$v.',\''.Base_ThemeCommon::get_template_file('images/active_on.png').'\',\''.Base_ThemeCommon::get_template_file('images/active_off2.png').'\');';
+			$init_func .= 'rpicker_init(\''.$element.'\','.$v.');';
 		$init_func .= '}';
 		eval_js($init_func.';init_all_rpicker_'.$element.'();');
 		$theme->display('Record_picker');
