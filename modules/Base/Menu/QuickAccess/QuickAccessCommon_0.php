@@ -16,10 +16,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_Menu_QuickAccessCommon extends ModuleCommon {
 	private static $options = null;
 
-	public static function user_settings_icon() {
-		return Base_ThemeCommon::get_template_file('Base_Menu_QuickAccess','icon.png');
-	}
-
 	public static function user_settings() {
 		self::get_options();
 		$ret_opts = array();

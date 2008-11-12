@@ -188,8 +188,8 @@ class Base_User_Settings extends Module {
 				if(is_callable($f)) {
 					$ret = call_user_func($f);
 					if(is_array($ret)) {
-						if(isset($ret[$caption]['icons'])) {
-							$icon = $ret[$caption]['icons'];
+						if(isset($ret[$caption])) {
+							$icon = $ret[$caption];
 							break;
 						}
 					} elseif(is_string($ret)) {

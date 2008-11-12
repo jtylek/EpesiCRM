@@ -18,6 +18,15 @@ class Apps_MailClientCommon extends ModuleCommon {
 		return array();
 	}
 
+	public static function user_settings_icon() {
+		if(Acl::is_user()) 
+			return array('Mail accounts'=>Base_ThemeCommon::get_template_file(self::Instance()->get_type(),'icon.png'),
+				'Mail settings'=>Base_ThemeCommon::get_template_file(self::Instance()->get_type(),'settings.png')
+				);
+		return array();	
+	}
+
+
 	public static function account_manager_access() {
 		return Acl::is_user();
 	}
