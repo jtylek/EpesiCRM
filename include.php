@@ -9,7 +9,7 @@
 
 defined("_VALID_ACCESS") || define("_VALID_ACCESS", true);
 
-umask(0755);
+umask(0022);
 
 chdir(dirname(__FILE__));
 //ini_set('include_path','');
