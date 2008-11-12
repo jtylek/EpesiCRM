@@ -315,8 +315,13 @@ class Utils_GenericBrowser extends Module {
 						'offset'=>$offset);
 	}
 
+	public function set_per_page($pp) {
+		if (!isset(self::$possible_vals_for_per_page[$pp])) $pp = 5; 
+		$this->set_module_variable('per_page',$this->per_page = $pp);
+	}
+
 	/**
-	 * Returns 'ORDER BY' part of an QSL query
+	 * Returns 'ORDER BY' part of an SQL query
 	 * which will sort rows in order chosen by end-user.
 	 * Default value returned is determined by arguments passed to set_default_order().
 	 * Returned string contains space at the beginning.
