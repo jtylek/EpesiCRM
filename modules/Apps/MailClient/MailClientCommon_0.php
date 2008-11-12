@@ -62,6 +62,10 @@ class Apps_MailClientCommon extends ModuleCommon {
 	public static function admin_caption() {
 		return 'Mail client settings';
 	}
+	
+	public static function admin_icon() {
+		return Base_ThemeCommon::get_template_file(self::Instance()->get_type(),'settings.png');
+	}
 
 	////////////////////////////////////////////////////
 	// scan mail dir, etc
