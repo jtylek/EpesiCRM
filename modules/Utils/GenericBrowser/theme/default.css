@@ -59,7 +59,7 @@ table#Utils_GenericBrowser {
     border-left: 1px solid #B3B3B3;
 }
 
-table#Utils_GenericBrowser input {
+table#Utils_GenericBrowser input[type=text] {
 	width: 95%;
 }
 
