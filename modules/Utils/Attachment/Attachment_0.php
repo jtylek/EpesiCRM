@@ -531,7 +531,7 @@ class Utils_Attachment extends Module {
 		DB::Execute('INSERT INTO utils_attachment_note(attach_id,text,created_by,revision) VALUES(%d,%s,%d,0)',array($id,Utils_BBCodeCommon::optimize($data['note']),Acl::get_user()));
 		if($file) {
 			$local = $this->get_data_dir().$this->group;
-			@mkdir($local,0777,true);
+			@mkdir($local,0755,true);
 			rename($file,$local.'/'.$id.'_0');
 		}
 		$this->ret_attach = false;
@@ -553,7 +553,7 @@ class Utils_Attachment extends Module {
 			DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,revision) VALUES(%d,%s,%d,%d)',array($id,$oryg,Acl::get_user(),$rev));
 			DB::CompleteTrans();
 			$local = $this->get_data_dir().$this->group;
-			@mkdir($local,0777,true);
+			@mkdir($local,0755,true);
 			rename($file,$local.'/'.$id.'_'.$rev);
 		}
 		$this->ret_attach = false;
