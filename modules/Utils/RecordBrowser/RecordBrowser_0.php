@@ -241,11 +241,11 @@ class Utils_RecordBrowser extends Module {
 						foreach ($col as $k=>$v)
 							$col[$k] = strtolower(str_replace(' ','_',$v));
 						$crits = array();
-						if (isset($param[1])) {
+/*						if (isset($param[1])) {
 							$callback = explode('::',$param[1]);
 							if (is_callable($callback))
 								$crits = call_user_func($callback, true);
-						}
+						}*/
 						$ret2 = Utils_RecordBrowserCommon::get_records($tab,$crits,$col);
 						if (count($col)!=1) { 
 							foreach ($ret2 as $k=>$v) {
