@@ -53,7 +53,10 @@ class Base_User_SettingsCommon extends ModuleCommon {
 				foreach($menu as $v) {
 					if(!is_array($v)) continue;
 					foreach($v as $v2) {
-						if(!isset($v2['type'])) trigger_error('Type not defined in array: '.print_r($v2,true),E_USER_ERROR);
+						if(!isset($v2['type'])) {
+							return null;
+							trigger_error('Type not defined in array: '.print_r($v2,true),E_USER_ERROR);
+						}
 						if ($v2['type']=='group') {
 							foreach($v2['elems'] as $e)
 								if ($e['type']!='static' && $e['type']!='header') {
@@ -71,6 +74,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 			if(isset($ret)) return $ret;
 			return null;
 		} else {
+			return null;
 			trigger_error('There is no common class for module: '.$module,E_USER_ERROR);
 		}
 	}
@@ -137,7 +141,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 		//if ($value === null) $value = 0;
 		$module = str_replace('/','_',$module);
 		$def = self::get_admin($module,$name);
-		if (!isset($def)) return false;
+//		if (!isset($def)) return false;
 		if ($value==$def) {
 			DB::Execute('DELETE FROM base_user_settings WHERE user_login_id=%d AND module=%s AND variable=%s',array(Acl::get_user(),$module,$name));
 			if(isset(self::$user_variables)) unset(self::$user_variables[$module][$name]);
