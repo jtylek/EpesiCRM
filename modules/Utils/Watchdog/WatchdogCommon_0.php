@@ -43,8 +43,9 @@ class Utils_WatchdogCommon extends ModuleCommon {
 	public static function get_category_id($category_name) {
 		static $cache = array();
 		if (isset($cache[$category_name])) return $cache[$category_name];
+		if (is_numeric($category_name)) return $category_name;  
 		$ret = DB::GetOne('SELECT id FROM utils_watchdog_category WHERE name=%s', array(md5($category_name)));
-		if (!$ret && is_numeric($category_name)) return $category_name;  
+		if ($ret===false || $ret===null) trigger_error('Invalid category given: '.$category_name.', category not found.');  
 		return $cache[$category_name] = $ret;
 	}
 	private static function check_if_user_subscribes($user, $category_name, $id=null) {
