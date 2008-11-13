@@ -98,8 +98,7 @@ class Utils_RecordBrowser extends Module {
 		$params = DB::GetRow('SELECT caption, icon, recent, favorites, full_history FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 		if ($params==false) trigger_error('There is no such recordSet as '.$this->tab.'.', E_USER_ERROR);
 		list($this->caption,$this->icon,$this->recent,$this->favorites,$this->full_history) = $params;
-		$cid = Utils_WatchdogCommon::get_category_id($this->tab);
-		$this->watchdog = ($cid!==false && $cid!==false);
+		$this->watchdog = Utils_WatchdogCommon::category_exists($this->tab);
 
 		//If Caption or icon not specified assign default values
 		if ($this->caption=='') $this->caption='Record Browser';

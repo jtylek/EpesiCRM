@@ -36,16 +36,19 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		else $ret = DB::GetAssoc('SELECT user_id,user_id FROM utils_watchdog_category_subscription WHERE category_id=%d', array($category_id));
 		return $ret;
 	}
-	public static function category_exists($category_name) {
-		$ret = DB::GetOne('SELECT 1 FROM utils_watchdog_category WHERE name=%s', array(md5($category_name)));
-		return $ret==1;
-	}
 	public static function get_category_id($category_name) {
 		static $cache = array();
 		if (isset($cache[$category_name])) return $cache[$category_name];
 		if (is_numeric($category_name)) return $category_name;  
 		$ret = DB::GetOne('SELECT id FROM utils_watchdog_category WHERE name=%s', array(md5($category_name)));
 		if ($ret===false || $ret===null) trigger_error('Invalid category given: '.$category_name.', category not found.');  
+		return $cache[$category_name] = $ret;
+	}
+	public static function category_exists($category_name) {
+		static $cache = array();
+		if (isset($cache[$category_name])) return $cache[$category_name];
+		$ret = DB::GetOne('SELECT id FROM utils_watchdog_category WHERE name=%s', array(md5($category_name)));
+		$ret = ($ret!==false && $ret!==null);
 		return $cache[$category_name] = $ret;
 	}
 	private static function check_if_user_subscribes($user, $category_name, $id=null) {
