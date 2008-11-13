@@ -381,7 +381,7 @@ class Utils_RecordBrowser extends Module {
 			if ($this->browse_mode!='recent' && $args['type']!=='multiselect' && $args['type']!=='calculated') $arr['order'] = $field;
 			if ($quickjump!=='' && $args['name']===$quickjump) $arr['quickjump'] = '"'.$args['name'];
 			if ($args['type']=='text' || $args['type']=='currency' || ($args['type']=='calculated' && $args['param']!='')) $arr['search'] = $args['id'];//str_replace(' ','_',$field);
-			if ($args['type']=='checkbox' || $args['type']=='date' || $args['type']=='timestamp' || $args['type']=='commondata') {
+			if ($args['type']=='checkbox' || (($args['type']=='date' || $args['type']=='timestamp') && !$this->add_in_table) || $args['type']=='commondata') {
 				$arr['wrapmode'] = 'nowrap';
 				$arr['width'] = 1;
 			}
@@ -966,7 +966,7 @@ class Utils_RecordBrowser extends Module {
 										$form->addRule($args['id'], $this->lang->t('Maximum length for this field is 400 chars.'), 'max_description');
 										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 										break;
-					case 'date':		$form->addElement('datepicker', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));
+					case 'date':		$form->addElement('datepicker', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id'], 'label'=>$this->add_in_table?'':null));
 										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 										break;
 					case 'timestamp':	$form->addElement('timestamp', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id']));

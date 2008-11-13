@@ -59,8 +59,13 @@ table#Utils_GenericBrowser {
     border-left: 1px solid #B3B3B3;
 }
 
-table#Utils_GenericBrowser input[type=text] {
+table#Utils_GenericBrowser input[type="text"] {
 	width: 95%;
+}
+
+table#Utils_GenericBrowser a.button {
+	width: 20px;
+	text-align:left;
 }
 
 table#Utils_GenericBrowser th {

@@ -36,12 +36,15 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		else $ret = DB::GetAssoc('SELECT user_id,user_id FROM utils_watchdog_category_subscription WHERE category_id=%d', array($category_id));
 		return $ret;
 	}
-	public static function get_category_id($category_name) {
+	public static function get_category_id($category_name, $report_error=true) {
 		static $cache = array();
 		if (isset($cache[$category_name])) return $cache[$category_name];
 		if (is_numeric($category_name)) return $category_name;  
 		$ret = DB::GetOne('SELECT id FROM utils_watchdog_category WHERE name=%s', array(md5($category_name)));
-		if ($ret===false || $ret===null) trigger_error('Invalid category given: '.$category_name.', category not found.');  
+		if ($ret===false || $ret===null) {
+//			if ($report_error) trigger_error('Invalid category given: '.$category_name.', category not found.');
+			return null;
+		}  
 		return $cache[$category_name] = $ret;
 	}
 	public static function category_exists($category_name) {
@@ -76,7 +79,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 	}
 	// *********************************** New event ***************************
 	public static function new_event($category_name, $id, $message) {
-		$category_id = self::get_category_id($category_name);
+		$category_id = self::get_category_id($category_name, false);
 		if (!$category_id) return;
 		DB::Execute('INSERT INTO utils_watchdog_event (category_id, internal_id, message) VALUES (%d,%d,%s)',array($category_id,$id,$message));
 		Utils_WatchdogCommon::notified($category_name,$id);
