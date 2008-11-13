@@ -1092,8 +1092,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			self::check_table_name($tab);
 			$row = DB::GetRow('SELECT * FROM '.$tab.'_data_1 WHERE id=%d', array($id));
 			$record = array('id'=>$id);
-//			if (!isset($row['active'])) return null; 
-			foreach(array('id','active','created_by','created_on') as $v)
+			if (!isset($row['active'])) return null; 
+			foreach(array('active','created_by','created_on') as $v)
 				$record[$v] = $row[$v];
 			foreach(self::$table_rows as $field=>$args) {
 				if ($args['type']==='multiselect') {
