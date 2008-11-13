@@ -1,4 +1,7 @@
-var RecordPicker_select_all = function(select,path,tab) {
+var RecordPicker_select_all = function(select,path,tab,message) {
+	Epesi.updateIndicatorText(message);
+	Epesi.procOn++;
+	Epesi.updateIndicator();
 	new Ajax.Request('modules/Utils/RecordBrowser/RecordPicker/select_all.php', {
 		method: 'post',
 		parameters:{

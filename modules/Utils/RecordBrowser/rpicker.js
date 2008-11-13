@@ -13,6 +13,7 @@ rpicker_init = function(element, id){
 }
 
 rpicker_move = function(element, id, cstring, where){
+	if ($('leightbox_rpicker_'+element+'_'+id)) $('leightbox_rpicker_'+element+'_'+id).checked=where;
 	tolist = document.getElementsByName(element+'to[]')[0];
 	fromlist = document.getElementsByName(element+'from[]')[0];
 	if (where) {

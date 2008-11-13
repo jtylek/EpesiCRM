@@ -21,19 +21,12 @@ $tab_info = Utils_RecordBrowserCommon::init($tab);
 $records = Utils_RecordBrowserCommon::get_records($tab, $crits, array(), $order, array());
 
 $js = '';
-$i = 0;
-$max = 50;
-foreach ($browsed_records as $r) {
-	$js .= '$(\'leightbox_rpicker_'.$element.'_'.$r.'\').checked='.($_POST['select']?1:0).';';
-}
-foreach ($records as $row) {
-	$i++;
-	if ($i==$max+1) {
-		$js .= 'alert(\''.Base_LangCommon::ts('Utils/RecordBrowser','Only first %d records were put in the multiselect element.', array($max)).'\');';
-		break;
-	}
-	$js .= 'rpicker_move(\''.$element.'\','.$row['id'].',\''.(is_callable($func)?htmlspecialchars_decode(strip_tags(call_user_func($func, $row, true))):'').'\','.($_POST['select']?1:0).');';
-}
-// TODO: checkboxes - mark those
+//foreach ($browsed_records as $r) {
+//	$js .= '$(\'leightbox_rpicker_'.$element.'_'.$r.'\').checked='.($_POST['select']?1:0).';';
+//}
+foreach ($records as $row)
+	$js .= 'rpicker_move(\''.$element.'\','.$row['id'].',\''.epesi::escapeJS(is_callable($func)?htmlspecialchars_decode(strip_tags(call_user_func($func, $row, true))):'').'\','.($_POST['select']?1:0).');';
+$js .= 'Epesi.procOn--;Epesi.updateIndicator();';
+//error_log($js."\n",3,'data/log.txt');
 print($js);
 ?>

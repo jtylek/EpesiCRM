@@ -1516,14 +1516,14 @@ class Utils_RecordBrowser extends Module {
 			} else $this->crits[$k] = $v;
 		}
 		$theme->assign('table', $this->show_data($this->crits, $cols, $order, false, true));
-		if ($this->amount_of_records>=50) {
+		if ($this->amount_of_records>=250) {
 			$theme->assign('disabled', '_disabled');
 			$theme->assign('select_all', array('js'=>'', 'label'=>$this->lang->t('Select all')));
 			$theme->assign('deselect_all', array('js'=>'', 'label'=>$this->lang->t('Deselect all')));
 		} else {
 			load_js('modules/Utils/RecordBrowser/RecordPicker/select_all.js');
-			$theme->assign('select_all', array('js'=>'RecordPicker_select_all(1,\''.$this->get_path().'\',\''.$this->tab.'\');', 'label'=>$this->lang->t('Select all')));
-			$theme->assign('deselect_all', array('js'=>'RecordPicker_select_all(0,\''.$this->get_path().'\',\''.$this->tab.'\');', 'label'=>$this->lang->t('Deselect all')));
+			$theme->assign('select_all', array('js'=>'RecordPicker_select_all(1,\''.$this->get_path().'\',\''.$this->tab.'\',\''.Base_LangCommon::ts('Utils/RecordBrowser','processing...').'\');', 'label'=>$this->lang->t('Select all')));
+			$theme->assign('deselect_all', array('js'=>'RecordPicker_select_all(0,\''.$this->get_path().'\',\''.$this->tab.'\',\''.Base_LangCommon::ts('Utils/RecordBrowser','processing...').'\');', 'label'=>$this->lang->t('Deselect all')));
 		}
 		load_js('modules/Utils/RecordBrowser/rpicker.js');
 
