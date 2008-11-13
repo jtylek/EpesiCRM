@@ -644,7 +644,7 @@ class ModuleManager {
 
 		$pkg_name = $module.'__'.$installed_version.'__'.time();
 
-		mkdir(DATA_DIR.'/backup/'.$pkg_name,0755,true);
+		mkdir(DATA_DIR.'/backup/'.$pkg_name,0777,true);
 
 		//backup data
 		$src = DATA_DIR.'/'.$module.'/';
@@ -658,7 +658,7 @@ class ModuleManager {
 				'backup'
 			),$installed_version);
 
-		mkdir(DATA_DIR.'/backup/'.$pkg_name.'/sql',0755,true);
+		mkdir(DATA_DIR.'/backup/'.$pkg_name.'/sql',0777,true);
 		foreach($backup_tables as $table) {
 			$fp = fopen(DATA_DIR.'/backup/'.$pkg_name.'/sql/'.$table, "w");
 			if ($fp) {
@@ -934,7 +934,7 @@ class ModuleManager {
 		}
 		$cache_dir = DATA_DIR.'/cache/';
 		if(!file_exists($cache_dir))
-			mkdir($cache_dir,0755,true);
+			mkdir($cache_dir,0777,true);
 
 		file_put_contents($cache_dir.'common.php',$ret);
 	}

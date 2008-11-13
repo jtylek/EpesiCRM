@@ -53,7 +53,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		DB::Execute('INSERT INTO utils_attachment_note(attach_id,text,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$note,$user));
 		if($file) {
 			$local = self::Instance()->get_data_dir().$group;
-			@mkdir($local,0755,true);
+			@mkdir($local,0777,true);
 			rename($file,$local.'/'.$id.'_0');
 		}
 		return $id;
