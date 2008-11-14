@@ -40,7 +40,9 @@ class Utils_CustomMenuCommon extends ModuleCommon {
 					//pass 
 				//}
 			}
-			$curr[$path[count($path)-1]] = array('__module__'=>$row['module'],'__function__'=>$row['function'],'__function_arguments__'=>unserialize($row['arguments'])); 
+			$args = unserialize($row['arguments']);
+			if(!is_array($args)) $args = array($args);
+			$curr[$path[count($path)-1]] = array('__module__'=>$row['module'],'__function__'=>$row['function'],'__function_arguments__'=>$args); 
 		}
 		//print_r($menu);
 		return $menu;
