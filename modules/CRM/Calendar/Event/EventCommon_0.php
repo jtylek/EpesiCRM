@@ -268,6 +268,10 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 				$date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$t))+3600*168);
 				break;
 			case 'week_custom':
+				if (!$row['recurrence_hash']) {
+					$date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$t))+3600*168);
+					break;
+				}
 				$date = strtotime(date('Y-m-d 12:00:00',$t));
 				do {
 					$date = strtotime(date('Y-m-d 12:00:00',$date+3600*24));
