@@ -76,6 +76,14 @@ class HTML_QuickForm_element extends HTML_Common
      */
     var $_persistantFreeze = false;
     
+	/**
+	 * Used by freeze to remove submit values.
+     * @var       object
+     * @since     epesi
+     * @access    private
+	 */
+	var $_caller = null;
+	
     // }}}
     // {{{ constructor
     
@@ -205,6 +213,10 @@ class HTML_QuickForm_element extends HTML_Common
     function freeze()
     {
         $this->_flagFrozen = true;
+		if($this->_caller!==null) {
+			$this->_removeValue($this->_caller->_submitValues);
+			$this->onQuickFormEvent('updateValue',null,$this->_caller);
+		}
     } //end func freeze
 
     // }}}
@@ -393,6 +405,7 @@ class HTML_QuickForm_element extends HTML_Common
      */
     function onQuickFormEvent($event, $arg, &$caller)
     {
+		$this->_caller = & $caller;
         switch ($event) {
             case 'createElement':
                 $className = get_class($this);

@@ -1,6 +1,6 @@
 diff -rup 3.2.10.orig/HTML/QuickForm/advcheckbox.php 3.2.10/HTML/QuickForm/advcheckbox.php
 --- 3.2.10.orig/HTML/QuickForm/advcheckbox.php	2007-10-05 22:29:00.000000000 +0200
-+++ 3.2.10/HTML/QuickForm/advcheckbox.php	2008-10-25 11:03:51.000000000 +0200
++++ 3.2.10/HTML/QuickForm/advcheckbox.php	2008-11-17 15:53:10.000000000 +0100
 @@ -249,7 +249,10 @@ class HTML_QuickForm_advcheckbox extends
                  // default values are overriden by submitted
                  $value = $this->_findValue($caller->_constantValues);
@@ -15,7 +15,7 @@ diff -rup 3.2.10.orig/HTML/QuickForm/advcheckbox.php 3.2.10/HTML/QuickForm/advch
                      }
 diff -rup 3.2.10.orig/HTML/QuickForm/checkbox.php 3.2.10/HTML/QuickForm/checkbox.php
 --- 3.2.10.orig/HTML/QuickForm/checkbox.php	2007-10-05 22:29:00.000000000 +0200
-+++ 3.2.10/HTML/QuickForm/checkbox.php	2008-10-25 11:05:19.000000000 +0200
++++ 3.2.10/HTML/QuickForm/checkbox.php	2008-11-17 15:53:10.000000000 +0100
 @@ -146,10 +146,10 @@ class HTML_QuickForm_checkbox extends HT
      function getFrozenHtml()
      {
@@ -44,8 +44,34 @@ diff -rup 3.2.10.orig/HTML/QuickForm/checkbox.php 3.2.10/HTML/QuickForm/checkbox
                      }
 diff -rup 3.2.10.orig/HTML/QuickForm/element.php 3.2.10/HTML/QuickForm/element.php
 --- 3.2.10.orig/HTML/QuickForm/element.php	2007-10-05 22:29:00.000000000 +0200
-+++ 3.2.10/HTML/QuickForm/element.php	2008-09-27 10:39:08.000000000 +0200
-@@ -353,6 +353,30 @@ class HTML_QuickForm_element extends HTM
++++ 3.2.10/HTML/QuickForm/element.php	2008-11-17 15:57:37.000000000 +0100
+@@ -76,6 +76,14 @@ class HTML_QuickForm_element extends HTM
+      */
+     var $_persistantFreeze = false;
+     
++	/**
++	 * Used by freeze to remove submit values.
++     * @var       object
++     * @since     epesi
++     * @access    private
++	 */
++	var $_caller = null;
++	
+     // }}}
+     // {{{ constructor
+     
+@@ -205,6 +213,10 @@ class HTML_QuickForm_element extends HTM
+     function freeze()
+     {
+         $this->_flagFrozen = true;
++		if($this->_caller!==null) {
++			$this->_removeValue($this->_caller->_submitValues);
++			$this->onQuickFormEvent('updateValue',null,$this->_caller);
++		}
+     } //end func freeze
+ 
+     // }}}
+@@ -353,6 +365,30 @@ class HTML_QuickForm_element extends HTM
              return null;
          }
      } //end func _findValue
@@ -76,7 +102,15 @@ diff -rup 3.2.10.orig/HTML/QuickForm/element.php 3.2.10/HTML/QuickForm/element.p
  
      // }}}
      // {{{ onQuickFormEvent()
-@@ -383,7 +407,10 @@ class HTML_QuickForm_element extends HTM
+@@ -369,6 +405,7 @@ class HTML_QuickForm_element extends HTM
+      */
+     function onQuickFormEvent($event, $arg, &$caller)
+     {
++		$this->_caller = & $caller;
+         switch ($event) {
+             case 'createElement':
+                 $className = get_class($this);
+@@ -383,7 +420,10 @@ class HTML_QuickForm_element extends HTM
                  // default values are overriden by submitted
                  $value = $this->_findValue($caller->_constantValues);
                  if (null === $value) {
@@ -88,7 +122,7 @@ diff -rup 3.2.10.orig/HTML/QuickForm/element.php 3.2.10/HTML/QuickForm/element.p
                      if (null === $value) {
                          $value = $this->_findValue($caller->_defaultValues);
                      }
-@@ -432,7 +459,7 @@ class HTML_QuickForm_element extends HTM
+@@ -432,7 +472,7 @@ class HTML_QuickForm_element extends HTM
          static $idx = 1;
  
          if (!$this->getAttribute('id')) {
@@ -99,7 +133,7 @@ diff -rup 3.2.10.orig/HTML/QuickForm/element.php 3.2.10/HTML/QuickForm/element.p
  
 diff -rup 3.2.10.orig/HTML/QuickForm/radio.php 3.2.10/HTML/QuickForm/radio.php
 --- 3.2.10.orig/HTML/QuickForm/radio.php	2007-10-05 22:29:01.000000000 +0200
-+++ 3.2.10/HTML/QuickForm/radio.php	2008-10-25 11:05:29.000000000 +0200
++++ 3.2.10/HTML/QuickForm/radio.php	2008-11-17 15:53:10.000000000 +0100
 @@ -146,10 +146,10 @@ class HTML_QuickForm_radio extends HTML_
      function getFrozenHtml()
      {
@@ -128,7 +162,7 @@ diff -rup 3.2.10.orig/HTML/QuickForm/radio.php 3.2.10/HTML/QuickForm/radio.php
 Only in 3.2.10/HTML/QuickForm/Renderer: .svn
 diff -rup 3.2.10.orig/HTML/QuickForm/Rule/Required.php 3.2.10/HTML/QuickForm/Rule/Required.php
 --- 3.2.10.orig/HTML/QuickForm/Rule/Required.php	2007-10-05 22:29:00.000000000 +0200
-+++ 3.2.10/HTML/QuickForm/Rule/Required.php	2008-10-20 19:44:22.000000000 +0200
++++ 3.2.10/HTML/QuickForm/Rule/Required.php	2008-11-08 19:32:39.000000000 +0100
 @@ -47,6 +47,7 @@ class HTML_QuickForm_Rule_Required exten
       */
      function validate($value, $options = null)
@@ -140,7 +174,7 @@ diff -rup 3.2.10.orig/HTML/QuickForm/Rule/Required.php 3.2.10/HTML/QuickForm/Rul
 Only in 3.2.10/HTML/QuickForm/Rule: .svn
 diff -rup 3.2.10.orig/HTML/QuickForm/select.php 3.2.10/HTML/QuickForm/select.php
 --- 3.2.10.orig/HTML/QuickForm/select.php	2007-10-05 22:29:01.000000000 +0200
-+++ 3.2.10/HTML/QuickForm/select.php	2008-10-25 11:00:06.000000000 +0200
++++ 3.2.10/HTML/QuickForm/select.php	2008-11-17 15:53:10.000000000 +0100
 @@ -593,7 +593,10 @@ class HTML_QuickForm_select extends HTML
          if ('updateValue' == $event) {
              $value = $this->_findValue($caller->_constantValues);
@@ -156,7 +190,7 @@ diff -rup 3.2.10.orig/HTML/QuickForm/select.php 3.2.10/HTML/QuickForm/select.php
 Only in 3.2.10/HTML/QuickForm: .svn
 diff -rup 3.2.10.orig/HTML/QuickForm.php 3.2.10/HTML/QuickForm.php
 --- 3.2.10.orig/HTML/QuickForm.php	2007-10-05 22:29:01.000000000 +0200
-+++ 3.2.10/HTML/QuickForm.php	2008-09-27 10:39:58.000000000 +0200
++++ 3.2.10/HTML/QuickForm.php	2008-11-17 15:17:55.000000000 +0100
 @@ -593,7 +593,9 @@ class HTML_QuickForm extends HTML_Common
          }
          $className = $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'][$type][1];

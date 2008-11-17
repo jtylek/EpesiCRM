@@ -42,6 +42,7 @@ class CRM_Calendar_EventInstall extends ModuleInstall {
 		);
 		DB::CreateIndex('crm_calendar_event__start__idx', 'crm_calendar_event', 'starts');
 		DB::CreateIndex('crm_calendar_event__end__idx', 'crm_calendar_event', 'ends');
+		DB::CreateIndex('crm_calendar_event__deleted__idx', 'crm_calendar_event', 'deleted');
 		$ret &= DB::CreateTable('crm_calendar_event_group_emp',
 			'id I,'.
 			'contact I4 NOT NULL',
