@@ -622,7 +622,7 @@ class Utils_RecordBrowser extends Module {
 			return false;
 		}
 		$record = Utils_RecordBrowserCommon::get_record($this->tab, $id, false);
-		$access = $this->get_access('fields',$record);
+		$access = $this->get_access('fields',$record,'view');
 		if (is_array($access))
 			foreach ($access as $k=>$v)
 				if ($v=='hide') unset($record[$k]);
@@ -705,7 +705,7 @@ class Utils_RecordBrowser extends Module {
 				$this->custom_defaults[$k] = $v;
 		}
 
-		$this->fields_permission = $this->get_access('fields', isset($this->record)?$this->record:'new', $this->custom_defaults);
+		$this->fields_permission = $this->get_access('fields', isset($this->record)?$this->record:$this->custom_defaults, isset($this->record)?$mode:'new');
 
 		if($mode!='add')
 			Utils_RecordBrowserCommon::add_recent_entry($this->tab, Acl::get_user(),$id);
@@ -1422,7 +1422,7 @@ class Utils_RecordBrowser extends Module {
 		$gb_cha->set_table_columns( $table_columns_changes );
 
 		$created = Utils_RecordBrowserCommon::get_record($this->tab, $id, true);
-		$access = $this->get_access('fields', $created);
+		$access = $this->get_access('fields', $created, 'view');
 		$created['created_by_login'] = Base_UserCommon::get_user_login($created['created_by']);
 		$field_hash = array();
 		$edited = DB::GetRow('SELECT ul.login, c.edited_on FROM '.$this->tab.'_edit_history AS c LEFT JOIN user_login AS ul ON ul.id=c.edited_by WHERE c.'.$this->tab.'_id=%d ORDER BY edited_on DESC',array($id));
