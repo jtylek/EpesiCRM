@@ -182,6 +182,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$form = $this->init_module('Libs/QuickForm');
 		$theme =  $this->pack_module('Base/Theme');
 		$theme->assign('action',$action);
+		
 
 		$def = array();
 
@@ -458,7 +459,8 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$custom_week[] = $form->createElement('checkbox','5',null,$this->lang->t('Saturday'));
 		$custom_week[] = $form->createElement('checkbox','6',null,$this->lang->t('Sunday'));
 		$form->addGroup($custom_week,'custom_days');
-		if($form->exportValue('recurrence_interval')==='week_custom')
+//		trigger_error($form->exportValue('recurrence'));
+		if($form->exportValue('recurrence') && $form->exportValue('recurrence_interval')==='week_custom')
 			$form->addGroupRule('custom_days',$this->lang->t('Please check at least one day'),'required',null,1);
 		$form->addElement('checkbox','recurrence_no_end_date',$this->lang->t('No end date'),null,array('onClick'=>'crm_calendar_event_recurrence_no_end_date(this.checked)','id'=>'recurrence_no_end_date'));
 		$form->addElement('datepicker','recurrence_end_date',$this->lang->t('End date'),array('id'=>'recurrence_end_date'));
