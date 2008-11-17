@@ -75,7 +75,7 @@ class Base_RegionalSettingsInstall extends ModuleInstall {
 
 	public static function post_install() {
 		$now = time();
-		$date_formats_proto = array('%Y-%m-%d','%y-%m-%d','%m/%d/%y','%d %B %Y','%d %B %y','%d %b %Y','%d %b %y','%b %d, %Y');
+		$date_formats_proto = array('%Y-%m-%d','%m/%d/%Y','%d %B %Y','%d %b %Y','%b %d, %Y');
 		$date_formats = array();
 		foreach($date_formats_proto as $f)
 			$date_formats[$f] = strftime($f,$now);
@@ -85,7 +85,7 @@ class Base_RegionalSettingsInstall extends ModuleInstall {
 
 		return array(
 				array('type'=>'select','name'=>'date','label'=>'Date format',
-					'default'=>'%m/%d/%y','values'=>$date_formats),//strftime
+					'default'=>'%m/%d/%Y','values'=>$date_formats),//strftime
 				array('type'=>'select','name'=>'time','label'=>'Time format',
 					'default'=>'%I:%M:%S %p','values'=>array('%I:%M:%S %p'=>'12h am/pm', '%H:%M:%S'=>'24h'),
 					'rule'=>array('type'=>'callback',
