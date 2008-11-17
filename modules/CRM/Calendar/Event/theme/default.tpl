@@ -257,7 +257,7 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <span id="{$recurrence_custom_days}">{$form_data.custom_days.html}</span>
+                            <span id="{$recurrence_custom_days}">{$form_data.custom_days.error}{$form_data.custom_days.html}</span>
                         </div>
                     </div>
                 </td>

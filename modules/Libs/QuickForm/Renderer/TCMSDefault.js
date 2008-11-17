@@ -32,6 +32,11 @@ for(i=0; i<e.length; i++){e[i].checked=false;if(e[i].value==value)e[i].checked=t
 
 seterror=function(err_id, error){
 t=$(err_id);
+if(t) {
 if (error!="") t.innerHTML = error+"<br>";
-else if (t) t.innerHTML = error;
+else t.innerHTML = error;
+}else{
+if(error!="")
+alert("Error field not defined in smarty template, unable to fill '"+err_id+"' with error: '"+error+"'");
+}
 };

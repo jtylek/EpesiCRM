@@ -458,6 +458,8 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$custom_week[] = $form->createElement('checkbox','5',null,$this->lang->t('Saturday'));
 		$custom_week[] = $form->createElement('checkbox','6',null,$this->lang->t('Sunday'));
 		$form->addGroup($custom_week,'custom_days');
+		if($form->exportValue('recurrence_interval')==='week_custom')
+			$form->addGroupRule('custom_days',$this->lang->t('Please check at least one day'),'required',null,1);
 		$form->addElement('checkbox','recurrence_no_end_date',$this->lang->t('No end date'),null,array('onClick'=>'crm_calendar_event_recurrence_no_end_date(this.checked)','id'=>'recurrence_no_end_date'));
 		$form->addElement('datepicker','recurrence_end_date',$this->lang->t('End date'),array('id'=>'recurrence_end_date'));
 		if($form->exportValue('recurrence') && !$form->exportValue('recurrence_no_end_date'))
@@ -585,7 +587,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		Utils_ShortcutCommon::add(array('Esc'), 'function(){'.$this->create_back_href_js().'}');
 		return true;
 	}
-
+	
 	public function check_my_user($arg) {
 		if(!$arg[0]) return true;
 		$sub = array_filter(explode('__SEP__',$arg[1]));
