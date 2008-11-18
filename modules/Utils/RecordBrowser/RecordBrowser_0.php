@@ -961,7 +961,7 @@ class Utils_RecordBrowser extends Module {
 										$form->addRule($args['id'], $this->lang->t('Maximum length for this field is '.$args['param'].'.'), 'maxlength', $args['param']);
 										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 										break;
-					case 'long text':	$form->addElement('textarea', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id'], 'onkeypress'=>'var key=event.which || event.keyCode;return this.value.length < 400 || ((key<32 || key>126) && key!=10 && key!=13) ;'));
+					case 'long text':	$form->addElement($this->add_in_table?'text':'textarea', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', array('id'=>$args['id'], 'onkeypress'=>'var key=event.which || event.keyCode;return this.value.length < 400 || ((key<32 || key>126) && key!=10 && key!=13) ;'));
 										$form->registerRule('max_description', 'callback', 'max_description', $this);
 										$form->addRule($args['id'], $this->lang->t('Maximum length for this field is 400 chars.'), 'max_description');
 										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
