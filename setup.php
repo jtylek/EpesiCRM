@@ -34,6 +34,11 @@ require_once('include/data_dir.php');
 /**
  * Check access to working directories
  */
+
+if(file_exists('easyinstall.php')){
+	unlink('easyinstall.php');
+}
+
 if(file_exists(DATA_DIR.'/config.php'))
 	die('Cannot write into '.DATA_DIR.'/config.php file. Please delete this file.');
 
