@@ -179,7 +179,7 @@ if(IPHONE) {
 	<meta id="viewport" name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
 	<title>epesi CRM</title>
 	<link rel="stylesheet" href="libs/UiUIKit/stylesheets/iphone.css" />
-	<link rel="apple-touch-icon" href="images/apple-touch-icon.png" />
+	<link rel="apple-touch-icon" href="libs/UiUIKit/images/apple-touch-icon.png" />
 	<script type="text/javascript" charset="utf-8">
 		function clickclear(thisfield, defaulttext) {
 			if (thisfield.value == defaulttext) {
