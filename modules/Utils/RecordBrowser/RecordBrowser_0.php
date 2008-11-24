@@ -1268,12 +1268,13 @@ class Utils_RecordBrowser extends Module {
 			case 'edit': $form->addElement('header', null, $this->lang->t('Edit field properties'));
 						break;
 		}
-		$form->addElement('text', 'field', $this->lang->t('Field'));
+		$form->addElement('text', 'field', $this->lang->t('Field'), array('maxlength'=>32));
 		$form->registerRule('check_if_column_exists', 'callback', 'check_if_column_exists', $this);
 		$this->current_field = $field;
 		$form->registerRule('check_if_no_id', 'callback', 'check_if_no_id', $this);
 		$form->addRule('field', $this->lang->t('Field required.'), 'required');
 		$form->addRule('field', $this->lang->t('Field with this name already exists.'), 'check_if_column_exists');
+		$form->addRule('field', $this->lang->t('Field length cannot be over 32 characters.'), 'maxlength', 32);
 		$form->addRule('field', $this->lang->t('Only letters and space are allowed.'), 'regex', '/^[a-zA-Z ]*$/');
 		$form->addRule('field', $this->lang->t('"ID" as field name is not allowed.'), 'check_if_no_id');
 
@@ -1332,11 +1333,20 @@ class Utils_RecordBrowser extends Module {
 				$data[$key] = htmlspecialchars($val);
 
 			DB::StartTrans();
+			if ($id!=$new_id) {
+				Utils_RecordBrowserCommon::check_table_name($this->tab);
+				if(DATABASE_DRIVER=='postgres')
+					DB::Execute('ALTER TABLE '.$this->tab.'_data_1 RENAME COLUMN f_'.$id.' TO f_'.$new_id);
+				else {
+					$type = DB::GetOne('SELECT type FROM '.$this->tab.'_field WHERE field=%s', array($field));
+					$param = DB::GetOne('SELECT param FROM '.$this->tab.'_field WHERE field=%s', array($field));
+					DB::RenameColumn($this->tab.'_data_1', 'f_'.$id, 'f_'.$new_id, Utils_RecordBrowserCommon::actual_db_type($type, $param));
+				}
+			}
 			DB::Execute('UPDATE '.$this->tab.'_field SET field=%s, visible=%d, required=%d, filter=%d WHERE field=%s',
 						array($data['field'], $data['visible'], $data['required'], $data['filter'], $field));
 			DB::Execute('UPDATE '.$this->tab.'_edit_history_data SET field=%s WHERE field=%s',
 						array($new_id, $id));
-			if ($id!=$new_id) DB::Execute('ALTER TABLE '.$this->tab.'_data_1 RENAME COLUMN f_'.$id.' TO f_'.$new_id);
 			DB::CompleteTrans();
 			$this->init(true, true);
 			return false;
