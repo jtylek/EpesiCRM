@@ -685,6 +685,13 @@ $ret = call_user_func_array(array(self::$ado,"MetaType"), $args);
 return $ret;
 }
 
+public static function RenameColumn( $tabname , $oldcolumn , $newcolumn , $flds ) {
+$qrs = DB::dict()->RenameColumnSQL($tabname, $oldcolumn, $newcolumn, $newcolumn.' '.$flds);
+foreach($qrs as $q)
+	DB::Execute($q);
+return true;
+}
+
 /** * Change the SQL connection locale to a specified locale. * This is used to get the date formats written depending on the client locale. */
 public static function &SetDateLocale( $locale = 'En' ) {
 $args = func_get_args();
