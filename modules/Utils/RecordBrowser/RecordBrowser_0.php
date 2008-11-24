@@ -1070,7 +1070,7 @@ class Utils_RecordBrowser extends Module {
 		DB::Execute('DELETE FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%d', array(Acl::get_user(), $id));
 	}
 	public function update_record($id,$values) {
-		Utils_RecordBrowserCommon::update_record($this->tab, $id, $values, true);
+		Utils_RecordBrowserCommon::update_record($this->tab, $id, $values);
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
 	public function administrator_panel() {

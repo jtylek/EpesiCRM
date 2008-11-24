@@ -810,7 +810,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					$having .= '(false';
 					foreach($v as $w) {
 						if ($w==='') {
-							$having .= ' OR r.f_'.$k.' IS NULL';
+							$having .= ' OR r.f_'.$k.' IS NULL OR r.f_'.$k.'=\'\'';
 						} else {
 							if (isset(self::$hash[$k])) {
 								$f = self::$hash[$k];
