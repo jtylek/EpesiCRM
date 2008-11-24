@@ -174,8 +174,8 @@ diff -rup 3.2.10.orig/HTML/QuickForm/Rule/Required.php 3.2.10/HTML/QuickForm/Rul
 Only in 3.2.10/HTML/QuickForm/Rule: .svn
 diff -rup 3.2.10.orig/HTML/QuickForm/select.php 3.2.10/HTML/QuickForm/select.php
 --- 3.2.10.orig/HTML/QuickForm/select.php	2007-10-05 22:29:01.000000000 +0200
-+++ 3.2.10/HTML/QuickForm/select.php	2008-11-17 15:53:10.000000000 +0100
-@@ -593,7 +593,10 @@ class HTML_QuickForm_select extends HTML
++++ 3.2.10/HTML/QuickForm/select.php	2008-11-24 11:30:43.000000000 +0100
+@@ -593,10 +593,13 @@ class HTML_QuickForm_select extends HTML
          if ('updateValue' == $event) {
              $value = $this->_findValue($caller->_constantValues);
              if (null === $value) {
@@ -186,11 +186,15 @@ diff -rup 3.2.10.orig/HTML/QuickForm/select.php 3.2.10/HTML/QuickForm/select.php
 +	                $value = $this->_findValue($caller->_submitValues);
                  // Fix for bug #4465 & #5269
                  // XXX: should we push this to element::onQuickFormEvent()?
-                 if (null === $value && (!$caller->isSubmitted() || !$this->getMultiple())) {
+-                if (null === $value && (!$caller->isSubmitted() || !$this->getMultiple())) {
++                if (null === $value && ((is_callable(array($caller,'isSubmitted')) && !$caller->isSubmitted()) || (is_callable(array($this,'getMultiple')) && !$this->getMultiple()))) {
+                     $value = $this->_findValue($caller->_defaultValues);
+                 }
+             }
 Only in 3.2.10/HTML/QuickForm: .svn
 diff -rup 3.2.10.orig/HTML/QuickForm.php 3.2.10/HTML/QuickForm.php
 --- 3.2.10.orig/HTML/QuickForm.php	2007-10-05 22:29:01.000000000 +0200
-+++ 3.2.10/HTML/QuickForm.php	2008-11-17 15:17:55.000000000 +0100
++++ 3.2.10/HTML/QuickForm.php	2008-11-24 11:52:21.000000000 +0100
 @@ -593,7 +593,9 @@ class HTML_QuickForm extends HTML_Common
          }
          $className = $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'][$type][1];
@@ -202,5 +206,13 @@ diff -rup 3.2.10.orig/HTML/QuickForm.php 3.2.10/HTML/QuickForm.php
          $elementObject =& new $className();
          for ($i = 0; $i < 5; $i++) {
              if (!isset($args[$i])) {
+@@ -1512,6 +1514,7 @@ class HTML_QuickForm extends HTML_Common
+         $registry =& HTML_QuickForm_RuleRegistry::singleton();
+ 
+         foreach ($this->_rules as $target => $rules) {
++			if($this->isElementFrozen($target)) continue;
+             $submitValue = $this->getSubmitValue($target);
+ 
+             foreach ($rules as $rule) {
 Only in 3.2.10/HTML: .svn
 Only in 3.2.10: .svn

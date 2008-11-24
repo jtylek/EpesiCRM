@@ -13,8 +13,8 @@ class Tests_QuickForm extends Module{
 	public function body(){
 		$f = $this->init_module('Libs/QuickForm');
 
-		$f->addElement('checkbox','frozen','Frozen test');
-		$f->setDefaults(array('frozen'=>true));
+		$f->addElement('text','frozen','Frozen test');
+		$f->addRule('frozen','required','required');
 		$x = $f->addElement('timestamp','xxxyss','Date picker');
 		print('get(here is what was submited): '.$x->getValue().'<br>');
 		print('export: '.$f->exportValue('xxxyss').'<br>');
