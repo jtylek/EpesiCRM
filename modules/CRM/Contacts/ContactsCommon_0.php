@@ -142,7 +142,10 @@ class CRM_ContactsCommon extends ModuleCommon {
 		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_open_tag('contact', $record['id']);
 		$ret .= $record['last_name'].(isset($record['first_name'][0])?' '.$record['first_name'][0].'.':'');
 		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_close_tag();
-		if (isset($record['company_name'][0])) $ret .= ' ['.Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $record['company_name'][0], $nolink).']';
+		if (!empty($record['company_name'])) {
+			$first_comp = array_pop($record['company_name']);
+			$ret .= ' ['.Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $first_comp, $nolink).']';
+		}
 		return $ret;
 	}
 	public static function contact_format_no_company($record, $nolink=false){
@@ -445,7 +448,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$ret = array();
 			if (ModuleManager::is_installed('CRM/Calendar')!==-1) $ret['new_event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Event')).' '.CRM_CalendarCommon::create_new_event_href(array('emp_id'=>$emp,'cus_id'=>$cus)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'"></a>';
 			if (ModuleManager::is_installed('CRM/Tasks')!==-1) $ret['new_task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
-			if (ModuleManager::is_installed('CRM/PhoneCall')!==-1) $ret['new_phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'contact'=>$values['id'],'employees'=>$me['id'],'status'=>0, 'permission'=>0, 'priority'=>1,'company_name'=>((isset($values['company_name'][0]))?$values['company_name'][0]:''))).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
+			if (ModuleManager::is_installed('CRM/PhoneCall')!==-1) $ret['new_phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'contact'=>$values['id'],'employees'=>$me['id'],'status'=>0, 'permission'=>0, 'priority'=>1,'company_name'=>((!empty($values['company_name']))?array_pop($values['company_name']):''))).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
 			return $ret;
 		case 'add':
 			if ($values['email']=='' && $values['login']!=0 && $mode=='add')

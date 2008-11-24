@@ -119,7 +119,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$v = explode('__',$v);
 		array_shift($v);
 		array_pop($v);
-		return $v;
+		$ret = array();
+		foreach ($v as $w)
+			$ret[$w] = $w;
+		return $ret;
 	}
 	public static function format_long_text($tab,$record){
 		self::init($tab);
@@ -233,7 +236,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						'id'=>strtolower(str_replace(' ','_',$row['field'])),
 						'type'=>$row['type'],
 						'visible'=>$row['visible'],
-						'required'=>$row['required'],
+						'required'=>($row['type']=='calculated'?false:$row['required']),
 						'extra'=>$row['extra'],
 						'active'=>$row['active'],
 						'position'=>$row['position'],
@@ -1184,6 +1187,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return Module::create_href(self::get_record_href_array($tab,$id));
 	}
 	public static function record_link_open_tag($tab, $id, $nolink=false){
+		self::check_table_name($tab);
 		$ret = '';
 		if (!is_numeric($id)) {
 			return self::$del_or_a = '';
