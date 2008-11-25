@@ -382,8 +382,12 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return true;
 	}
 	
+	public static function create_map_href($r) {
+		return 'href="http://maps.google.com/?'.http_build_query(array('q'=>Utils_CommonDataCommon::get_value('Countries/'.$r['country']).', '.$r['city'].', '.$r['address_1'].' '.$r['address_2'])).'" target="_blank"';
+	}
+	
 	public static function maplink($r,$nolink,$desc) {
-		if (!$nolink) return Utils_TooltipCommon::create('<a href="http://maps.google.com/?'.http_build_query(array('q'=>Utils_CommonDataCommon::get_value('Countries/'.$r['country']).', '.$r['city'].', '.$r['address_1'].' '.$r['address_2'])).'" target="_blank">'.$r[$desc['id']].'</a>',Base_LangCommon::ts('CRM_Contacts','Click here to search this location using google maps'));
+		if (!$nolink) return Utils_TooltipCommon::create('<a '.self::create_map_href($r).'>'.$r[$desc['id']].'</a>',Base_LangCommon::ts('CRM_Contacts','Click here to search this location using google maps'));
 		return $r[$desc['id']];
 	}
 
