@@ -56,8 +56,8 @@ class CRM_Calendar extends Module {
 				$pdf = $this->pack_module('Libs/TCPDF', 'L');
 				if ($pdf->prepare()) {
 					$ev_mod = $this->init_module('CRM/Calendar/Event');
-					$start = date('d F Y',Base_RegionalSettings::reg2time($events['start']));
-					$end = date('d F Y',Base_RegionalSettings::reg2time($events['end']));
+					$start = date('d F Y',Base_RegionalSettingsCommon::reg2time($events['start']));
+					$end = date('d F Y',Base_RegionalSettingsCommon::reg2time($events['end']));
 					$pdf->set_title($this->lang->t($view).', '.$start.($view_type!='Day'?' - '.$end:''));
 					$filter = CRM_FiltersCommon::get();
 					$me = CRM_ContactsCommon::get_my_record();
