@@ -15,10 +15,21 @@ if(!MOBILE_DEVICE) {
 }
 
 class Libs_LeightboxCommon extends ModuleCommon {
-	public static function get($id,$content,$header='') {
+	public static function get($id,$content,$header='',$big=0) {
 		if(MOBILE_DEVICE) return '';
 		ob_start();
-		print('<div id="'.$id.'" class="leightbox">');
+		print('<div id="'.$id.'" big="1" class="leightbox">');
+		print('<input type="hidden" id="'.$id.'_bigsize" value="'.($big?1:0).'" />');
+		if ($big) {
+			eval_js('s = $(\''.$id.'\').style;'.
+			's.top = \'5%\';'.
+			's.left = \'5%\';'.
+			's.width = \'90%\';'.
+			's.height = \'90%\';'.
+			's.padding = \'0px\';'.
+			's.background = \'white\';');
+			
+		}
 		$smarty = Base_ThemeCommon::init_smarty();
 		$smarty->assign('close_href','href="javascript:leightbox_deactivate(\''.$id.'\')"');
 		$smarty->assign('content',$content);
@@ -28,8 +39,8 @@ class Libs_LeightboxCommon extends ModuleCommon {
 		return ob_get_clean();
 	}
 	
-	public static function display($id,$x,$header='') {
-		print(self::get($id,$x,$header));
+	public static function display($id,$x,$header='',$big=0) {
+		print(self::get($id,$x,$header,$big));
 	}
 	
 	public static function get_open_href($id) {

@@ -3,13 +3,12 @@ function libs_leightbox_resize(elem) {
 	var s = elem.style;
 
 	if(s.width == '100%') {
-		if(elem.id == "leightbox_customers") {
+		if($(elem.id+'_bigsize').value==1) {
 			s.top = '5%';
 			s.left = '5%';
 			s.width = '90%';
 			s.height = '90%';
-		}
-		else {
+		} else {
 			s.top = '25%';
 			s.left = '15%';
 			s.width = '70%';
