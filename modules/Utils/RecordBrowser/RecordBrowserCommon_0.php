@@ -262,7 +262,17 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function install_new_recordset($tab = null, $fields=array()) {
 		if (!$tab) return false;
 		if (!preg_match('/^[a-zA-Z_]+$/',$tab)) trigger_error('Invalid table name ('.$tab.') given to install_new_recordset.',E_USER_ERROR);
-		DB::Execute('INSERT INTO recordbrowser_table_properties (tab) VALUES (%s)', array($tab));
+		if (false && DB::GetOne('SELECT 1 FROM recordbrowser_table_properties WHERE tab=%s', array($tab))) {
+			@DB::DropTable($tab.'_callback');
+			@DB::DropTable($tab.'_recent');
+			@DB::DropTable($tab.'_favorite');
+			@DB::DropTable($tab.'_edit_history_data');
+			@DB::DropTable($tab.'_edit_history');
+			@DB::DropTable($tab.'_field');
+			@DB::DropTable($tab.'_data_1');
+		} else {
+			DB::Execute('INSERT INTO recordbrowser_table_properties (tab) VALUES (%s)', array($tab));
+		}
 		self::check_table_name(null, true);
 		DB::CreateTable($tab.'_field',
 					'field C(32) UNIQUE NOT NULL,'.

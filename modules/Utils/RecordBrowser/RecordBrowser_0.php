@@ -1447,17 +1447,17 @@ class Utils_RecordBrowser extends Module {
 			if ($created[$args['id']] !== '') $gb_cur->add_row($this->lang->t($field), $val);
 		}
 
-		$ret = DB::Execute('SELECT ul.login, c.id, c.edited_on, c.edited_by FROM '.$this->tab.'_edit_history AS c LEFT JOIN user_login AS ul ON ul.id=c.edited_by WHERE c.'.$this->tab.'_id=%d ORDER BY edited_on DESC',array($id));
+		$ret = DB::Execute('SELECT ul.login, c.id, c.edited_on, c.edited_by FROM '.$this->tab.'_edit_history AS c LEFT JOIN user_login AS ul ON ul.id=c.edited_by WHERE c.'.$this->tab.'_id=%d ORDER BY edited_on DESC, id DESC',array($id));
 		while ($row = $ret->FetchRow()) {
 			$changed = array();
 			$ret2 = DB::Execute('SELECT * FROM '.$this->tab.'_edit_history_data WHERE edit_id=%d',array($row['id']));
 			while($row2 = $ret2->FetchRow()) {
-				if ($access[$row2['field']] == 'hide') continue;
+				if (isset($access[$row2['field']]) && $access[$row2['field']] == 'hide') continue;
 				$changed[$row2['field']] = $row2['old_value'];
 				$last_row = $row2;
 			}
 			foreach($changed as $k=>$v) {
-				if ($k=='') $gb_cha->add_row($row['edited_on'], Base_UserCommon::get_user_login($row['edited_by']), '', '', $last_row['old_value']);
+				if ($k=='id') $gb_cha->add_row($row['edited_on'], Base_UserCommon::get_user_login($row['edited_by']), '<b>'.$last_row['old_value'].'</b>', '', '');
 				else {
 					if (!isset($field_hash[$k])) continue;
 					$new = $this->get_val($field_hash[$k], $created, $created['id'], false, $this->table_rows[$field_hash[$k]]);
