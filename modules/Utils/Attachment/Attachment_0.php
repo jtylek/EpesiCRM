@@ -104,8 +104,8 @@ class Utils_Attachment extends Module {
 		if($vd)
 			$cols[] = array('name'=>$this->lang->t('Deleted'),'order'=>'ual.deleted','width'=>5);
 		if($this->author)
-			$cols[] = array('name'=>$this->lang->t('Last Author'), 'order'=>'note_by','width'=>10);
-		$cols[] = array('name'=>$this->lang->t('Date'), 'order'=>'note_on','width'=>12);
+			$cols[] = array('name'=>$this->lang->t('User'), 'order'=>'note_by','width'=>5);
+		$cols[] = array('name'=>$this->lang->t('Date'), 'order'=>'note_on','width'=>5);
 		$expand_id = 'expand_collapse_'.md5($this->get_path());
 		$cols[] = array('name'=>$this->lang->t('Note'), 'preppend'=>'<span id="'.$expand_id.'"></span>', 'width'=>70);
 		$cols[] = array('name'=>$this->lang->t('Attachment'), 'order'=>'uaf.original','width'=>5);
@@ -164,10 +164,11 @@ class Utils_Attachment extends Module {
 
 			static $def_permissions = array('Public','Protected','Private');
 			$perm = $this->lang->t($def_permissions[$row['permission']]);
-			$note_on = Base_RegionalSettingsCommon::time2reg($row['note_on']);
+			$note_on = Base_RegionalSettingsCommon::time2reg($row['note_on'],0);
+			$note_on_time = Base_RegionalSettingsCommon::time2reg($row['note_on'],1);
 			$info = $this->lang->t('Owner: %s',array($row['permission_owner'])).'<br>'.
 				$this->lang->t('Permission: %s',array($perm)).'<hr>'.
-				$this->lang->t('Last edited by %s<br>on %s<br>Number of edits: %d',array($row['note_by'],$note_on,$row['note_revision']));
+				$this->lang->t('Last edited by %s<br>on %s<br>Number of edits: %d',array($row['note_by'],$note_on_time,$row['note_revision']));
 			$r->add_info($info);
 			if(Base_AclCommon::i_am_admin() ||
 			 	$row['permission_by']==Acl::get_user() ||
