@@ -40,7 +40,7 @@ fputcsv($f, $cols);
 foreach ($records as $r) {
 	$rec = array();
 	foreach ($tab_info as $v) {
-		$val = str_replace('&nbsp;',' ',strip_tags(preg_replace('/\<[Bb][Rr]\/?\>/',"\n",Utils_RecordBrowserCommon::get_val($tab, $v['name'], $r, null, true, $v))));
+		$val = htmlspecialchars_decode(strip_tags(preg_replace('/\<[Bb][Rr]\/?\>/',"\n",Utils_RecordBrowserCommon::get_val($tab, $v['name'], $r, null, true, $v))));
 		$rec[] = $val;
 	}
 	fputcsv($f, $rec);

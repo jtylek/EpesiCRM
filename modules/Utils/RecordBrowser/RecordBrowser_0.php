@@ -524,7 +524,7 @@ class Utils_RecordBrowser extends Module {
 				$args = $this->table_rows[$field]; 
 				$value = $this->get_val($field, $row, $row['id'], $special, $args);
 				if (isset($this->cut[$args['id']])) {
-					$value = $this->cut_string($value,$this->cut[$args['id']]);
+					$value = Utils_RecordBrowserCommon::cut_string($value,$this->cut[$args['id']]);
 				}
 				if ($args['style']=='currency' || $args['style']=='integer') $value = array('style'=>'text-align:right;','value'=>$value);
 				$row_data[] = $value;
@@ -1567,25 +1567,6 @@ class Utils_RecordBrowser extends Module {
 	public function set_crm_filter($field){
 		$this->filter_field = $field;
 	}
-	public function cut_string($str, $len) {
-		if ($len==-1) return $str;
-		$ret = '';
-		$strings = explode('<br>',$str);
-		foreach ($strings as $str) {
-			if ($ret) $ret .= '<br>';
-			$oldc = $content = strip_tags($str);
-			$content = str_replace('&nbsp;',' ',$content);
-			if (strlen($content)>$len) {
-				$label = htmlspecialchars(substr(htmlspecialchars_decode($content), 0, $len)).'...';
-				$label = str_replace(' ','&nbsp;',$label);
-				$label = str_replace($oldc, $label, $str);
-				if (!strpos($str, 'Utils_Toltip__showTip(')) $label = '<span '.Utils_TooltipCommon::open_tag_attrs($content).'>'.$label.'</span>';
-				else $label = preg_replace('/Utils_Toltip__showTip\(\'(.*?)\'/', 'Utils_Toltip__showTip(\''.escapeJS(htmlspecialchars($content)).'<hr>$1\'', $label);
-				$ret .= $label;
-			} else $ret .= $str;
-		}
-		return $ret;
-	}
 	
 	public function set_no_limit_in_mini_view($arg){
 		$this->set_module_variable('no_limit_in_mini_view',$arg);
@@ -1642,7 +1623,7 @@ class Utils_RecordBrowser extends Module {
 			foreach($cols as $k=>$w) {
 				if (!isset($callbacks[$k])) $s = $this->get_val($field_hash[$w], $v, $v['id'], false, $this->table_rows[$field_hash[$w]]);
 				else $s = call_user_func($callbacks[$k], $v);
-				$arr[] = $this->cut_string($s, $cut[$k]);
+				$arr[] = Utils_RecordBrowserCommon::cut_string($s, $cut[$k]);
 			}
 			$gb_row->add_data_array($arr);
 			if (is_callable($info)) {

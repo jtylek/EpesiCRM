@@ -1,6 +1,6 @@
 <?php
 /**
- * FPDF class.
+ * TCPDF class.
  * 
  * @author Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC

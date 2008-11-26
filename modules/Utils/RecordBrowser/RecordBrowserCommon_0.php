@@ -171,7 +171,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			foreach($r as $v)
 				$tables[$v['tab']] = true;
 		}
-		if (($tab!=null && !isset($tables[$tab])) && !$flush) trigger_error('RecordBrowser critical failure, terminating. (Requested '.serialize($tab).', available '.print_r($tables, true).')', E_USER_ERROR);
+		if ((!isset($tables[$tab])) && !$flush) trigger_error('RecordBrowser critical failure, terminating. (Requested '.serialize($tab).', available '.print_r($tables, true).')', E_USER_ERROR);
 	}
 	public static function get_value($tab, $id, $field) {
 		self::init($tab);
@@ -1181,26 +1181,28 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function create_new_record_href($tab, $def, $id='none'){
 		return Module::create_href(self::get_new_record_href($tab,$def, $id));
 	}
-	public static function get_record_href_array($tab, $id){
+	public static function get_record_href_array($tab, $id, $action='view'){
 		self::check_table_name($tab);
 		if (isset($_REQUEST['__jump_to_RB_table']) &&
 			($tab==$_REQUEST['__jump_to_RB_table']) &&
-			($id==$_REQUEST['__jump_to_RB_record'])) {
+			($id==$_REQUEST['__jump_to_RB_record']) &&
+			($action==$_REQUEST['__jump_to_RB_action'])) {
 			unset($_REQUEST['__jump_to_RB_record']);
 			unset($_REQUEST['__jump_to_RB_table']);
+			unset($_REQUEST['__jump_to_RB_action']);
 			$x = ModuleManager::get_instance('/Base_Box|0');
 			if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-			$x->push_main('Utils/RecordBrowser','view_entry',array('view', $id),array($tab));
+			$x->push_main('Utils/RecordBrowser','view_entry',array($action, $id),array($tab));
 			return array();
 		}
-		return array('__jump_to_RB_table'=>$tab, '__jump_to_RB_record'=>$id);
+		return array('__jump_to_RB_table'=>$tab, '__jump_to_RB_record'=>$id, '__jump_to_RB_action'=>$action);
 	}
-	public static function create_record_href($tab, $id){
+	public static function create_record_href($tab, $id, $action='view'){
 		if(MOBILE_DEVICE)
 			return mobile_stack_href(array('Utils_RecordBrowserCommon','mobile_rb_view'),array($tab,$id));
-		return Module::create_href(self::get_record_href_array($tab,$id));
+		return Module::create_href(self::get_record_href_array($tab,$id,$action));
 	}
-	public static function record_link_open_tag($tab, $id, $nolink=false){
+	public static function record_link_open_tag($tab, $id, $nolink=false, $action='view'){
 		self::check_table_name($tab);
 		$ret = '';
 		if (!is_numeric($id)) {
@@ -1211,7 +1213,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			Utils_RecordBrowser::$access_override['tab']==$tab &&
 			Utils_RecordBrowser::$access_override['id']==$id) {
 			self::$del_or_a = '</a>';
-			if (!$nolink) $ret = '<a '.self::create_record_href($tab, $id).'>';
+			if (!$nolink) $ret = '<a '.self::create_record_href($tab, $id, $action).'>';
 			else self::$del_or_a = '';
 		} else {
 			if (!DB::GetOne('SELECT active FROM '.$tab.'_data_1 WHERE id=%d',array($id))) {
@@ -1222,7 +1224,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$ret = '<span '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_RecordBrowser','You don\'t have permission to view this record.')).'>';
 			} else {
 				self::$del_or_a = '</a>';
-				if (!$nolink) $ret = '<a '.self::create_record_href($tab, $id).'>';
+				if (!$nolink) $ret = '<a '.self::create_record_href($tab, $id, $action).'>';
 				else self::$del_or_a = '';
 			}
 		}
@@ -1386,6 +1388,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			isset($_REQUEST['__jump_to_RB_record'])) {
 			$tab = $_REQUEST['__jump_to_RB_table'];
 			$id = $_REQUEST['__jump_to_RB_record'];
+			$action = $_REQUEST['__jump_to_RB_action'];
 			if (!is_numeric($id)) trigger_error('Critical failure - invalid id, requested record with id "'.serialize($id).'" from table "'.serialize($tab).'".',E_USER_ERROR);
 			Utils_RecordBrowserCommon::check_table_name($tab);
 			unset($_REQUEST['__jump_to_RB_record']);
@@ -1393,10 +1396,32 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$x = ModuleManager::get_instance('/Base_Box|0');
 			if (!self::get_access($tab,'browse')) return false;
 			if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-			$x->push_main('Utils/RecordBrowser','view_entry',array('view', $id),array($tab));
+			$x->push_main('Utils/RecordBrowser','view_entry',array($action, $id),array($tab));
 			return true;
 		}
 		return false;
+	}
+
+	public function cut_string($str, $len, $tooltip=true) {
+		if ($len==-1) return $str;
+		$ret = '';
+		$strings = explode('<br>',$str);
+		foreach ($strings as $str) {
+			if ($ret) $ret .= '<br>';
+			$oldc = $content = strip_tags($str);
+			$content = str_replace('&nbsp;',' ',$content);
+			if (strlen($content)>$len) {
+				$label = htmlspecialchars(substr(htmlspecialchars_decode($content), 0, $len)).'...';
+				$label = str_replace(' ','&nbsp;',$label);
+				$label = str_replace($oldc, $label, $str);
+				if ($tooltip) {
+					if (!strpos($str, 'Utils_Toltip__showTip(')) $label = '<span '.Utils_TooltipCommon::open_tag_attrs($content).'>'.$label.'</span>';
+					else $label = preg_replace('/Utils_Toltip__showTip\(\'(.*?)\'/', 'Utils_Toltip__showTip(\''.escapeJS(htmlspecialchars($content)).'<hr>$1\'', $label);
+				}
+				$ret .= $label;
+			} else $ret .= $str;
+		}
+		return $ret;
 	}
 	///////////////////////////////////////////
 	// mobile devices
