@@ -1402,7 +1402,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return false;
 	}
 
-	public function cut_string($str, $len, $tooltip=true) {
+	public function cut_string($str, $len, $tooltip=true, &$cut=null) {
 		if ($len==-1) return $str;
 		$ret = '';
 		$strings = explode('<br>',$str);
@@ -1435,7 +1435,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					} else {
 						$j = 1;
 						$next_tag = '';
-						while ($i+$j<=$strlen && $str{$i+$j}!=' ') {
+						while ($i+$j<=$strlen && $str{$i+$j}!=' ' && $str{$i+$j}!='>' && $str{$i+$j}!='/') {
 							$next_tag .= $str{$i+$j};
 							$j++;
 						}
@@ -1449,6 +1449,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$i++;
 			}
 			if ($i<$strlen) {
+				$cut = true;
 				$label .= '...';
 				if ($tooltip) {
 					if (!strpos($str, 'Utils_Toltip__showTip(')) $label = '<span '.Utils_TooltipCommon::open_tag_attrs($str).'>'.$label.'</span>';
