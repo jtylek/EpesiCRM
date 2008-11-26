@@ -1408,18 +1408,55 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$strings = explode('<br>',$str);
 		foreach ($strings as $str) {
 			if ($ret) $ret .= '<br>';
-			$oldc = $content = strip_tags($str);
-			$content = str_replace('&nbsp;',' ',$content);
-			if (strlen($content)>$len) {
-				$label = htmlspecialchars(substr(htmlspecialchars_decode($content), 0, $len)).'...';
-				$label = str_replace(' ','&nbsp;',$label);
-				$label = str_replace($oldc, $label, $str);
+			$label = '';
+			$i = 0;
+			$curr_len = 0;
+			$tags = array();
+			$inside = false;
+			$strlen = strlen($str); 
+			while ($curr_len<=$len && $i<$strlen) {
+				if ($str{$i} == '&' && !$inside) {
+					$e = -1;
+					if (isset($str{$i+3}) && $str{$i+3}==';') $e = 3;
+					elseif (isset($str{$i+4}) && $str{$i+4}==';') $e = 4;
+					elseif (isset($str{$i+5}) && $str{$i+5}==';') $e = 5;
+					if ($e!=-1) {
+						$hsc = substr($str, $i, $e+1);
+						if ($hsc=='&nbsp;' || strlen(htmlspecialchars_decode($hsc))==1) {
+							$label .= substr($str, $i, $e);
+							$i += $e;
+							$curr_len++;
+						}
+					}
+				} elseif ($str{$i} == '<') {
+					$inside = true;
+					if (isset($str{$i+1}) && $str{$i+1} == '/') { 
+						if (!empty($tags)) array_pop($tags);
+					} else {
+						$j = 1;
+						$next_tag = '';
+						while ($i+$j<=$strlen && $str{$i+$j}!=' ') {
+							$next_tag .= $str{$i+$j};
+							$j++;
+						}
+						$tags[] = $next_tag;
+					}
+				} elseif ($str{$i} == '>') {
+					if ($i>0 && $str{$i-1} == '/') array_pop($tags);
+					$inside = false;
+				} elseif (!$inside) $curr_len++;
+				$label .= $str{$i}; 
+				$i++;
+			}
+			if ($i<$strlen) {
+				$label .= '...';
 				if ($tooltip) {
-					if (!strpos($str, 'Utils_Toltip__showTip(')) $label = '<span '.Utils_TooltipCommon::open_tag_attrs($content).'>'.$label.'</span>';
-					else $label = preg_replace('/Utils_Toltip__showTip\(\'(.*?)\'/', 'Utils_Toltip__showTip(\''.escapeJS(htmlspecialchars($content)).'<hr>$1\'', $label);
+					if (!strpos($str, 'Utils_Toltip__showTip(')) $label = '<span '.Utils_TooltipCommon::open_tag_attrs($str).'>'.$label.'</span>';
+					else $label = preg_replace('/Utils_Toltip__showTip\(\'(.*?)\'/', 'Utils_Toltip__showTip(\''.escapeJS(htmlspecialchars($str)).'<hr>$1\'', $label);
 				}
-				$ret .= $label;
-			} else $ret .= $str;
+			}
+			while (!empty($tags)) $label .= '</'.array_pop($tags).'>';
+			$ret .= $label;
 		}
 		return $ret;
 	}
