@@ -134,12 +134,8 @@ class Base_Setup extends Module {
 			//validation or display
 			if ($form->exportValue('submited') && $form->validate()) {
 				ob_start();
-				if(!$form->process(array (
-					& $this,
-					'validate'
-				))) {
+				if (!$this->validate($form->getSubmitValues()))
 					print('<hr class="line"><center><a class="button"' . $this -> create_href(array()) . '>Back</a></center>');
-				}
 				if(is_array($post_install))
 					ob_end_clean();
 				else
