@@ -617,7 +617,14 @@ class Utils_RecordBrowser extends Module {
 	}
 	public function clone_record($id) {
 		if (self::$clone_result!==null) {
-			if (is_numeric(self::$clone_result)) $this->navigate('view_entry', 'view', self::$clone_result);
+			if (is_numeric(self::$clone_result)) {
+				$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
+				if ($dpm!=='') {
+					$method = explode('::',$dpm);
+					if (is_callable($method)) call_user_func($method, array('original'=>$id, 'clone'=>self::$clone_result), 'cloned');
+				}
+				$this->navigate('view_entry', 'view', self::$clone_result);
+			}
 			self::$clone_result = null;
 			return false;
 		}
