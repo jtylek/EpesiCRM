@@ -974,7 +974,7 @@ class Utils_RecordBrowser extends Module {
 										if (!$rule_defined) $form->registerRule('timestamp_required', 'callback', 'timestamp_required', $this);
 										$rule_defined = true;
 										if (isset($args['required']) && $args['required']) $form->addRule($args['id'], Base_LangCommon::ts('Utils_RecordBrowser','Field required'), 'timestamp_required');
-										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
+										if ($mode!=='add' && $record[$args['id']]) $form->setDefaults(array($args['id']=>$record[$args['id']]));
 										break;
 					case 'commondata':	$param = explode('::',$args['param']);
 										foreach ($param as $k=>$v) if ($k!=0) $param[$k] = strtolower(str_replace(' ','_',$v));
