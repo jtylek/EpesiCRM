@@ -100,7 +100,7 @@ class Base_Setup extends Module {
 						}
 						$c = & $c[$path[$i]]['sub'];
 					}
-					$ele = $form->createElement('select', 'installed['.$entry.']', $path[count($path)-1], $versions);
+					$ele = $form->addElement('select', 'installed['.$entry.']', $path[count($path)-1], $versions);
 					$ele->setValue($installed);
 					$c[$path[count($path)-1]] = array();
 					$c[$path[count($path)-1]]['name'] = '<table width=100%><tr><td width=100% align=left>' . $info . ' ' . $path[count($path)-1] . '</td><td align=right>' . $ele->toHtml() . '</td></tr></table>';
