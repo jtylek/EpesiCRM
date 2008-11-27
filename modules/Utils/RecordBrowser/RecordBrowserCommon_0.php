@@ -894,6 +894,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							continue;
 						}*/
 					}
+//					if (self::$table_rows[$v['order']]['type']=='calculated') {
+//						$cols2 = explode('|', $param[1]);
+//						$cols2 = $cols2[0];
+//						self::check_table_name($param[0]);
+//						$val = '(SELECT rdt.f_company_name FROM '.$tab.'_data_1 AS rd LEFT JOIN '.$param[0].'_data_1 AS rdt ON rdt.id=rd.f_record_id WHERE r.id=rd.id)';
+//						// TODO: check some stuff, possible inj
+//						$orderby .= ' '.$val.' '.$v['direction'];
+//						$iter++;
+//						continue;
+//					}
 				}
 				$val = 'f_'.self::$table_rows[$v['order']]['id'];
 				// could be better, doesn't work perfectly for multiselects
