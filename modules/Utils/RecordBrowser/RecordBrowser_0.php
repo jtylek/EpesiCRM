@@ -378,7 +378,7 @@ class Utils_RecordBrowser extends Module {
 			if (isset($cols[$args['id']]) && $cols[$args['id']] === false) continue;
 			$query_cols[] = $args['id'];
 			$arr = array('name'=>$this->lang->t($args['name']));
-			if ($this->browse_mode!='recent' && $args['type']!=='multiselect' && $args['type']!=='calculated') $arr['order'] = $field;
+			if ($this->browse_mode!='recent' && $args['type']!=='multiselect' && ($args['type']!=='calculated' || $args['param']!='') && $args['type']!=='hidden') $arr['order'] = $field;
 			if ($quickjump!=='' && $args['name']===$quickjump) $arr['quickjump'] = '"'.$args['name'];
 			if ($args['type']=='text' || $args['type']=='currency' || ($args['type']=='calculated' && $args['param']!='')) $arr['search'] = $args['id'];//str_replace(' ','_',$field);
 			if ($args['type']=='checkbox' || (($args['type']=='date' || $args['type']=='timestamp') && !$this->add_in_table) || $args['type']=='commondata') {
