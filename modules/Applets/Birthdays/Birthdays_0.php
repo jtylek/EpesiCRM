@@ -40,8 +40,10 @@ public function applet($conf,$opts) {
 						);
 		// 2nd - criteria (filter)
 		// TO DO - filter date - today through today+2 weeks
-		$today = date('Y-m-d',strtotime(Base_RegionalSettingsCommon::time2reg(null,false)));
-		$crits=array(':Fav'=>true,'birth_date'=>$today);
+		$dates = array();
+		for ($i=0;$i<7;$i++)
+			$dates[] = DB::Concat(DB::qstr('%'),DB::qstr(date('m-d',strtotime(Base_RegionalSettingsCommon::time2reg(strtotime('+'.$i.' days'),false)))),DB::qstr('%')); 
+		$crits=array(':Fav'=>true,'"~birth_date'=>$dates);
 
 		// 3rd - sorting
 		$sorting = array('birth_date'=>'ASC');
