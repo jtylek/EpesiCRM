@@ -171,7 +171,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			foreach($r as $v)
 				$tables[$v['tab']] = true;
 		}
-		if ((!isset($tables[$tab])) && !$flush) trigger_error('RecordBrowser critical failure, terminating. (Requested '.serialize($tab).', available '.print_r($tables, true).')', E_USER_ERROR);
+		if (!isset($tables[$tab]) && !$flush) trigger_error('RecordBrowser critical failure, terminating. (Requested '.serialize($tab).', available '.print_r($tables, true).')', E_USER_ERROR);
+		return isset($tables[$tab]);
 	}
 	public static function get_value($tab, $id, $field) {
 		self::init($tab);
@@ -374,8 +375,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
 	public static function uninstall_recordset($tab = null) {
 		if (!$tab) return false;
+		if (!self::check_table_name($tab,true)) return;
 		Utils_WatchdogCommon::unregister_category($tab);
-		self::check_table_name($tab);
 		DB::DropTable($tab.'_callback');
 		DB::DropTable($tab.'_recent');
 		DB::DropTable($tab.'_favorite');
