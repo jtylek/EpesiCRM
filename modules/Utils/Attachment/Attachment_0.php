@@ -190,24 +190,27 @@ class Utils_Attachment extends Module {
 			}
 			$text = Utils_BBCodeCommon::parse(strip_tags(str_replace('</p>','<br>',preg_replace('/<\/p>\s*$/i','',$row['text'])),'<br><br/>'));
 			$max_len = 120;
+			if ($max_len>strlen(strip_tags($text))) $max_len = strlen(strip_tags($text));
 			$br = strpos($text,'<br');
 			if($br!==false && $br<$max_len) $max_len=$br;
 			// ************* Strip without loosing html entities
 			$i = 0;
 			$continue=0;
 			$in_middle=false;
-			while ($continue>0 || $in_middle || $i<$max_len) {
-				if ($text{$i}=='<') {
-					if (isset($text{$i+1}) && $text{$i+1}!='/') $continue++;
-					else $continue--;
-					$in_middle=true;
+			if ($max_len != strlen($text)) {
+				while ($continue>0 || $in_middle || $i<$max_len) {
+					if ($text{$i}=='<') {
+						if (isset($text{$i+1}) && $text{$i+1}!='/') $continue++;
+						else $continue--;
+						$in_middle=true;
+					}
+					if ($text{$i}=='>') {
+						$in_middle=false;
+						if (isset($text{$i-1}) && $text{$i-1}=='/') $continue--;
+					}
+					if (!isset($text{$i+1})) break;
+					$i++;
 				}
-				if ($text{$i}=='>') {
-					$in_middle=false;
-					if (isset($text{$i-1}) && $text{$i-1}=='/') $continue--;
-				}
-				if (!isset($text{$i+1})) break;
-				$i++;
 			}
 			$max_len=$i;
 			// ************* Strip without loosing html entities
