@@ -34,8 +34,9 @@ set_progress: function(parent,name,p) {
 	pr.style.width = p+'%';
 }
 },
-check_mail_f: function(me,name) {
-	if(Apps_MailClient.check_mail_bind) {
+check_mail: Class.create({
+f: function(me,name) {
+	if(this.bind) {
 		if($(name).style.display=='block') {
 			var today = new Date();
 			var ch = document.createElement('iframe');
@@ -45,29 +46,30 @@ check_mail_f: function(me,name) {
 
 			document.body.appendChild(ch);
 		} else {
-			setTimeout(Apps_MailClient.check_mail_bind,100);
+			setTimeout(this.bind,100);
 		}
 	}
 },
-check_mail_bind:null,
-check_mail_button_observe: function(name) {
-	if(Apps_MailClient.check_mail_destroy_bind) {
-		Apps_MailClient.check_mail_destroy_bind();
+bind:null,
+initialize: function(name) {
+	if(this.destroy_bind) {
+		this.destroy_bind();
 	}
-	Apps_MailClient.check_mail_bind = Apps_MailClient.check_mail_f.bindAsEventListener(Apps_MailClient,name);
-	Event.observe(name+'b','click',Apps_MailClient.check_mail_bind);
-	Apps_MailClient.check_mail_destroy_bind = Apps_MailClient.check_mail_destroy_f.bindAsEventListener(Apps_MailClient,name);
-	document.observe('e:loading',Apps_MailClient.check_mail_destroy_bind);
+	this.bind = this.f.bindAsEventListener(this,name);
+	Event.observe(name+'b','click',this.bind);
+	this.destroy_bind = this.destroy_f.bindAsEventListener(this,name);
+	document.observe('e:loading',this.destroy_bind);
 },
-check_mail_destroy_bind:null,
-check_mail_destroy_f:function(em,name) {
+destroy_bind:null,
+destroy_f:function(em,name) {
 	var x=$(name+'X');
 	if(x) x.parentNode.removeChild(x);
-	Event.stopObserving(name+'b','click',Apps_MailClient.check_mail_bind);
-	delete(Apps_MailClient.check_mail_bind);
-	document.stopObserving('e:loading',Apps_MailClient.check_mail_destroy_bind);
-	delete(Apps_MailClient.check_mail_destroy_bind);
+	Event.stopObserving(name+'b','click',this.bind);
+	delete(this.bind);
+	document.stopObserving('e:loading',this.destroy_bind);
+	delete(this.destroy_bind);
 },
+}),
 hide:function(name) {
 	var x=$(name+'X');
 	x.parentNode.removeChild(x);

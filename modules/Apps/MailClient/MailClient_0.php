@@ -139,6 +139,7 @@ class Apps_MailClient extends Module {
 			$r->add_js('Event.observe(\''.$lid.'\',\'click\',function() {Apps_MailClient.preview(\''.$show_id.'\',\''.http_build_query(array('box'=>$box, 'dir'=>$dir, 'msg_id'=>$id, 'pid'=>$show_id)).'\',\''.$id.'\')})');
 		}
 
+		//list of messages/preview
 		$th->assign('list', $this->get_html_of_module($gb,array(true),'automatic_display'));
 		$th->assign('subject_label',$this->lang->t('Subject'));
 		$th->assign('preview_subject','<div id="'.$preview_id.'_subject"></div>');
@@ -151,6 +152,7 @@ class Apps_MailClient extends Module {
 		$th->assign('preview_body','<iframe id="'.$preview_id.'_body" style="width:100%;height:70%"></iframe>');
 		$th->display();
 
+		//message view
 		$th_show = $this->init_module('Base/Theme');
 		$th_show->assign('subject_label',$this->lang->t('Subject'));
 		if($drafts_folder || $sent_folder)
@@ -166,18 +168,23 @@ class Apps_MailClient extends Module {
 		$th_show->display('message');
 		print('</div>');
 
-		$checknew_id = $this->get_path().'checknew';
-		Base_ActionBarCommon::add('folder',$this->lang->t('Check'),'href="javascript:void(0)" rel="'.$checknew_id.'" class="lbOn" id="'.$checknew_id.'b"');
+		Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file($this->get_type(),'check.png'),$this->lang->t('Check'),$this->check_mail_href());
 //		if(DB::GetOne('SELECT 1 FROM apps_mailclient_accounts WHERE smtp_server is not null AND smtp_server!=\'\' AND user_login_id='.Acl::get_user())) //bo bedzie internal
 		Base_ActionBarCommon::add('add',$this->lang->ht('New mail'),$this->create_callback_href(array($this,'edit_mail'),array($box,$dir)));
 		Base_ActionBarCommon::add('scan',$this->lang->ht('Mark all as read'),$this->create_confirm_callback_href($this->lang->ht('Are you sure?'),array($this,'mark_all_as_read')));
-		eval_js('Apps_MailClient.check_mail_button_observe(\''.$checknew_id.'\')');
-		print('<div id="'.$checknew_id.'" class="leightbox"><div style="width:100%;text-align:center" id="'.$checknew_id.'progresses"></div>'.
-			'<a id="'.$checknew_id.'L" style="display:none" href="javascript:void(0)" onClick="Apps_MailClient.hide(\''.$checknew_id.'\');Epesi.request(\'\');">'.$this->lang->t('hide').'</a>'.
-			'</div>');
 //echo('<script>function destroy_me(parent) {var x=parent.$(\''.$_GET['id'].'X\');x.parentNode.removeChild(x);parent.leightbox_deactivate(\''.$_GET['id'].'\')}</script>');
 //echo('<a href="javascript:destroy_me(parent)">hide</a>');
 
+	}
+	
+	private function check_mail_href() {
+		$checknew_id = $this->get_path().'checknew';
+		
+		eval_js('new Apps_MailClient.check_mail(\''.$checknew_id.'\')');
+		print('<div id="'.$checknew_id.'" class="leightbox"><div style="width:100%;text-align:center" id="'.$checknew_id.'progresses"></div>'.
+			'<a id="'.$checknew_id.'L" style="display:none" href="javascript:void(0)" onClick="Apps_MailClient.hide(\''.$checknew_id.'\');Epesi.request(\'\');">'.$this->lang->t('hide').'</a>'.
+			'</div>');
+		return 'href="javascript:void(0)" rel="'.$checknew_id.'" class="lbOn" id="'.$checknew_id.'b"';
 	}
 
 	/////////////////////////////////////////
@@ -905,6 +912,10 @@ class Apps_MailClient extends Module {
 	//applet
 	public function applet($conf, $opts) {
 		$opts['go'] = true;
+		load_js($this->get_module_dir().'utils.js');
+		Base_ThemeCommon::load_css($this->get_type());
+		$check_action = $this->check_mail_href();
+		$opts['actions'][] = '<a '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('Check mail')).' '.$check_action.'><img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'check_small.png').'" border="0"></a>';
 		$accounts = array();
 		$ret = array();
 		foreach($conf as $key=>$on) {
