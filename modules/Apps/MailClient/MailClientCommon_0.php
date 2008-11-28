@@ -155,8 +155,8 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$mbox_dir = self::get_mailbox_dir($mailbox_id);
 		if($mbox_dir===false) return false;
 		$mailbox = $mbox_dir.$dir;
-		file_put_contents($mailbox.$msg_id,$mbody);
 		Apps_MailClientCommon::append_msg_to_index($mailbox_id,$dir,$msg_id,$subject,$from,$to,$date,strlen($mbody),$read);
+		file_put_contents($mailbox.$msg_id,$mbody);
 
 		return true;
 	}
