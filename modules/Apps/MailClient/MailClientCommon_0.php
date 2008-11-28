@@ -11,10 +11,21 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Apps_MailClientCommon extends ModuleCommon {
 	public static function user_settings() {
-		if(Acl::is_user()) return array('Mail accounts'=>'account_manager','Mail settings'=>array(
-					array('name'=>'default_dest_mailbox','label'=>'Messages from epesi users deliver to', 'type'=>'select', 'values'=>array('both'=>'Private message and contact mail', 'mail'=>'Mail only', 'pm'=>'Private message only'), 'default'=>'both'),
-			)
-		);
+		if(Acl::is_user()) {
+			$opts = array('both'=>'Private message and contact mail', 'pm'=>'Private message only');
+			$contact_exists = false;
+			if(ModuleManager::is_installed('CRM/Contacts')>=0) {
+				$my = CRM_ContactsCommon::get_my_record();
+				if($my['id']>=0 && isset($my['email']) && $my['email']!=='')
+					$contact_exists = true;
+			}	
+			if($contact_exists)
+				$opts['mail']='Mail only';
+			return array('Mail accounts'=>'account_manager','Mail settings'=>array(
+					array('name'=>'default_dest_mailbox','label'=>'Messages from epesi users deliver to', 'type'=>'select', 'values'=>$opts, 'default'=>'both'),
+					)
+			);
+		}
 		return array();
 	}
 
