@@ -96,7 +96,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		if(!Base_AclCommon::i_am_admin())
 			$fil .= ' AND (e.access<2 OR (SELECT id FROM crm_calendar_event_group_emp cg2 WHERE cg2.id=e.id AND cg2.contact='.$my_id.' LIMIT 1) IS NOT NULL)';
 		$t = microtime(true);
-		$row = DB::GetRow('SELECT e.recurrence_type,e.status,e.color,e.access,e.starts as start,e.ends as end,e.title,e.description,e.id,e.timeless,e.priority,e.created_by,e.created_on,e.edited_by,e.edited_on FROM crm_calendar_event e WHERE e.id=%d'.$fil,array($id));
+		$row = DB::GetRow('SELECT e.deleted,e.recurrence_type,e.status,e.color,e.access,e.starts as start,e.ends as end,e.title,e.description,e.id,e.timeless,e.priority,e.created_by,e.created_on,e.edited_by,e.edited_on FROM crm_calendar_event e WHERE e.id=%d'.$fil,array($id));
 		$result = array();
 		if ($row) {
 			foreach (array('start','id','title','end','description') as $v)
@@ -142,7 +142,10 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 						implode('<br>',$emps).
 					(empty($cuss)?'':'<br>'.Base_LangCommon::ts('CRM_Calendar_Event','Customers:').'<br>'.
 						implode('<br>',$cuss));
-			if($row['access']>0 && !in_array($my_id,$emps_tmp) && !Base_AclCommon::i_am_admin()) {
+			if($row['deleted']) {
+				$result['edit_action'] = false;
+				$result['delete_action'] = false;
+			} elseif($row['access']>0 && !in_array($my_id,$emps_tmp) && !Base_AclCommon::i_am_admin()) {
 				$result['edit_action'] = false;
 				$result['delete_action'] = false;
 			} elseif($row['status']<2)
@@ -302,6 +305,8 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 	}
 
 	public static function get_all($start,$end,$order=' ORDER BY e.starts') {
+		if(isset($_GET['restore']) && is_numeric($_GET['restore'])) 
+			self::restore_event($_GET['restore']);
 		//trigger_error($start.' '.$end);
 		$start_reg = Base_RegionalSettingsCommon::reg2time($start);
 		$end_reg = Base_RegionalSettingsCommon::reg2time($end);
@@ -321,7 +326,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$method_begin = 'FROM_UNIXTIME(';
 			$method_end = ')';
 		}
-		$ret = DB::Execute('SELECT e.recurrence_type,e.recurrence_hash,e.recurrence_end,e.status,e.color,e.access,e.starts as start,e.ends as end,e.title,e.description,e.id,e.timeless,e.priority,e.created_by,e.created_on,e.edited_by,e.edited_on FROM crm_calendar_event e WHERE deleted='.CRM_CalendarCommon::$trash.' AND ('.
+		$ret = DB::Execute('SELECT e.deleted,e.recurrence_type,e.recurrence_hash,e.recurrence_end,e.status,e.color,e.access,e.starts as start,e.ends as end,e.title,e.description,e.id,e.timeless,e.priority,e.created_by,e.created_on,e.edited_by,e.edited_on FROM crm_calendar_event e WHERE deleted='.CRM_CalendarCommon::$trash.' AND ('.
 			'(e.timeless=0 AND ((e.recurrence_type is null AND ((e.starts>=%d AND e.starts<%d) OR (e.ends>=%d AND e.ends<%d) OR (e.starts<%d AND e.ends>=%d))) OR (e.recurrence_type is not null AND ((e.starts>=%d AND e.starts<%d) OR (e.recurrence_end>=%D AND e.recurrence_end<%D) OR (e.starts<%d AND e.recurrence_end>=%D) OR (e.starts<%d AND e.recurrence_end is null))))) '.
 			'OR '.
 			'(e.timeless=1 AND ((e.recurrence_type is null AND DATE('.$method_begin.'e.starts'.$method_end.')>=%D AND DATE('.$method_begin.'e.starts'.$method_end.')<%D) OR (e.recurrence_type is not null AND ((DATE('.$method_begin.'e.starts'.$method_end.')<=%D AND e.recurrence_end>=%D) OR (DATE('.$method_begin.'e.starts'.$method_end.')>=%D AND DATE('.$method_begin.'e.starts'.$method_end.')<=%D) OR (e.recurrence_end>=%D AND e.recurrence_end<=%D) OR (e.starts<%d AND e.recurrence_end is null)))))) '.$fil.$order.' LIMIT 51',array($start_reg,$end_reg,$start_reg,$end_reg,$start_reg,$end_reg,$start_reg,$end_reg,$start,$end,$start_reg,$end,$end_reg,$start,$end,$start,$end,$start,$end,$start,$end,strtotime($end)));
@@ -375,8 +380,14 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$next_result['custom_agenda_col_1'] = implode(', ',$emps);
 			$next_result['custom_agenda_col_2'] = implode(', ',$cuss);
 			//$next_result['actions'] = array();
-			if($row['access']>0 && !in_array($my_id,$emps_tmp) && !Base_AclCommon::i_am_admin()) {
+			if($row['deleted']) {
 				$next_result['edit_action'] = false;
+				$next_result['move_action'] = false;
+				$next_result['delete_action'] = false;
+				$next_result['actions'] = array(array('icon'=>Base_ThemeCommon::get_template_file('CRM_Calendar_Event','restore_small.png'),'href'=>Module::create_href(array('restore'=>$next_result['id']))));
+			} elseif($row['access']>0 && !in_array($my_id,$emps_tmp) && !Base_AclCommon::i_am_admin()) {
+				$next_result['edit_action'] = false;
+				$next_result['move_action'] = false;
 				$next_result['delete_action'] = false;
 			} elseif($row['status']<2)
 				$next_result['actions'] = array(array('icon'=>Base_ThemeCommon::get_template_file('CRM_Calendar_Event','access-private.png'),'href'=>CRM_Calendar_EventCommon::get_followup_leightbox_href($row['id'], $row)));
@@ -436,13 +447,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			print('Epesi.updateIndicatorText("updating calendar");Epesi.request("");');
 		}
 
-		$access = DB::GetOne('SELECT access FROM crm_calendar_event WHERE id=%d',array($id));
-		if($access > 0) {
-			$my_id = CRM_FiltersCommon::get_my_profile();
-			$ok = DB::GetOne('SELECT 1 FROM crm_calendar_event_group_emp WHERE id=%d AND contact=%d',array($id,$my_id));
-			if(!$ok) return false;
-		}
-
+		if(!self::check_edit_access($id)) return false;
 
 		/*DB::Execute('DELETE FROM crm_calendar_event_group_emp WHERE id=%d', array($id));
 		DB::Execute('DELETE FROM crm_calendar_event_group_cus WHERE id=%d', array($id));
@@ -456,6 +461,19 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			return false;
 		return true;
 	}
+	
+	private static function check_edit_access($id) {
+		$row = DB::GetRow('SELECT access,deleted FROM crm_calendar_event WHERE id=%d',array($id));
+		$access = $row['access'];
+		if($row['deleted'])
+			return false;
+		if($access > 0) {
+			$my_id = CRM_FiltersCommon::get_my_profile();
+			$ok = DB::GetOne('SELECT 1 FROM crm_calendar_event_group_emp WHERE id=%d AND contact=%d',array($id,$my_id));
+			if(!$ok) return false;
+		}
+		return true;
+	}
 
 	public static function update(&$id,$start,$duration,$timeless) {
 		$recurrence = strpos($id,'_');
@@ -464,12 +482,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			print('Epesi.updateIndicatorText("updating calendar");Epesi.request("");');
 		}
 
-		$access = DB::GetOne('SELECT access FROM crm_calendar_event WHERE id=%d',array($id));
-		if($access > 0) {
-			$my_id = CRM_FiltersCommon::get_my_profile();
-			$ok = DB::GetOne('SELECT 1 FROM crm_calendar_event_group_emp WHERE id=%d AND contact=%d',array($id,$my_id));
-			if(!$ok) return false;
-		}
+		if(!self::check_edit_access($id)) return false;
 
 		if($timeless) {
 			$start = strtotime(date('Y-m-d',$start));
@@ -499,6 +512,10 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$date = Base_LangCommon::ts('CRM_Calendar_Event',"Start: %s\nEnd: %s",array(Base_RegionalSettingsCommon::time2reg($a['start']), Base_RegionalSettingsCommon::time2reg($a['end'])));
 
 		return $date."\n".Base_LangCommon::ts('CRM_Calendar_Event',"Title: %s",array($a['title']));
+	}
+	
+	public static function restore_event($id) {
+		DB::Execute('UPDATE crm_calendar_event SET deleted=0, edited_by=%d,edited_on=%T WHERE id=%d',array(Acl::get_user(),time(),$id));
 	}
 }
 

@@ -532,7 +532,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$tb = $this->init_module('Utils/TabbedBrowser');
 			$tb->start_tab('Notes');
 			//attachments
-			$writable = ($def['access']==0 || in_array($my_id,$def_emp_id) || Base_AclCommon::i_am_admin());
+			$writable = ($def['access']==0 || in_array($my_id,$def_emp_id) || Base_AclCommon::i_am_admin()) && !$event['deleted'];
 			$a = $this->init_module('Utils/Attachment',array($id,'CRM/Calendar/Event/'.$id));
 			$a->set_inline_display();
 			$a->additional_header('Event: '.$event['title']);
@@ -576,7 +576,9 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			}
 			$pdf->add_actionbar_icon($filename);
 
-			if($def['access']==0 || in_array($my_id,$def_emp_id) || Base_AclCommon::i_am_admin()) {
+			if($event['deleted']) {
+				Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file('CRM_Calendar_Event','restore.png'),'Restore', $this->create_callback_href(array('CRM_Calendar_EventCommon', 'restore_event'), array($id)));
+			} elseif($writable) {
 				Base_ActionBarCommon::add('edit','Edit', $this->create_callback_href(array($this, 'view_event'), array('edit', $id)));
 				Utils_ShortcutCommon::add(array('Ctrl','E'), 'function(){'.$this->create_callback_href_js(array($this, 'view_event'), array('edit', $id)).'}');
 				Base_ActionBarCommon::add('clone','Clone', $this->create_confirm_callback_href($this->lang->ht('You are about to create a copy of this record. Do you want to continue?'),array($this,'clone_event'),array($id)));
@@ -622,7 +624,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		}
 		return strtotime($date.' '.$result_h.':'.$result_m.':00');
 	}
-
+	
 	public function add_event($vals = array()){
 		$start = $this->recalculate_time($vals['date_s'],$vals['time_s']);
 		if($vals['duration_switch']) {
