@@ -243,6 +243,7 @@ class Base_Dashboard extends Module {
 
 		$buttons = array();
 		$app_cap = ModuleManager::call_common_methods('applet_caption');
+		asort($app_cap);
 		$app_info = ModuleManager::call_common_methods('applet_info');
 		foreach($app_cap as $name=>$cap) {
 			$attrs = '';
