@@ -526,6 +526,7 @@ function detect_iphone(){
 
 class EpesiHTML {
 	public static function startElement($parser, $name, $attrs) {
+		if($name=='EPESI') return;
 		$r_attrs = '';
 		foreach($attrs as $k=>$v) {
 			if(eregi('(id|onMouseMove|onMouseUp|onMouseOut|onKeyPress|onLoad|onClick|onMouseOver)',$k) || ($name=='A' && strcasecmp($k,'href')==0 && strncasecmp($v,'javascript:',11)==0)) continue;
@@ -535,6 +536,7 @@ class EpesiHTML {
 	}
 
 	public static function endElement($parser, $name) {
+		if($name=='EPESI') return;
 		echo "</$name>";
 	}
 	
@@ -647,7 +649,7 @@ class EpesiHTML {
 <!ENTITY yacute "&#253;">
 <!ENTITY thorn  "&#254;">
 <!ENTITY yuml   "&#255;">
-]>'.$val;
+]><epesi>'.$val.'</epesi>';
 		ob_start();
 		$ret_ok = true;
 		if(!xml_parse($xml_parser, $val, true)) {
