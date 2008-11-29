@@ -80,11 +80,11 @@ if(isset($_GET['attachment_cid']) || isset($_GET['attachment_name'])) {
 			if($body===false && $part->ctype_primary=='text' && $part->ctype_secondary=='plain' && (!isset($part->disposition) || $part->disposition=='inline')) {
 				$body = $part->body;
 				$body_type = 'plain';
-				$body_ctype = isset($structure->headers['content-type'])?$structure->headers['content-type']:'text/'.$body_type;
 			} elseif($part->ctype_primary=='text' && $part->ctype_secondary=='html' && ($body===false || $body_type=='plain') && (!isset($part->disposition) || $part->disposition=='inline')) {
 				$body = $part->body;
 				$body_type = 'html';
 			}
+			$body_ctype = isset($part->headers['content-type'])?$part->headers['content-type']:'text/'.$body_type;
 			//if(isset($part->disposition) && $part->disposition=='attachment')
 			if(isset($part->ctype_parameters['name'])) {
 				if(isset($part->headers['content-id']))
@@ -131,8 +131,12 @@ if(isset($_GET['attachment_cid']) || isset($_GET['attachment_name'])) {
 			'<body><pre>'.$body.'</pre></body>';
 	} else {
 		$body = trim($body);
+		if(ereg('^<html>',$body))
+			$body = substr($body,6);
 		if(ereg('</html>$',$body))
 			$body = substr($body,0,strlen($body)-7);
+		$body = '<html>'.
+			'<head><meta http-equiv=Content-Type content="'.$body_ctype.'"></head>'.$body;
 	}
 	$body = preg_replace('/"cid:([^@]+@[^@]+)"/i','"preview.php?'.http_build_query($_GET).'&attachment_cid=$1"',$body);
 	$body = preg_replace("/<a([^>]*)>(.*)<\/a>/i", '<a$1 target="_blank">$2</a>', $body);
