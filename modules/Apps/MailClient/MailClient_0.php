@@ -709,6 +709,7 @@ class Apps_MailClient extends Module {
 				$dest_id = $from?$from['id']:DB::GetOne('SELECT id FROM apps_mailclient_accounts WHERE mail=\'#internal\' AND user_login_id=%d',array(Acl::get_user()));
 				if(Apps_MailClientCommon::drop_message($dest_id,$save_folder.'/',$v['subject'],$from?$from['mail']:$this->lang->ht('private message'),$to_names,$date,$v['body'],true)) {
 					if($id!==null && $type=='edit') $this->remove_mail($box,$dir,$id);
+					location(array());
 					return false;
 				}
 			}
@@ -927,24 +928,14 @@ class Apps_MailClient extends Module {
 
 				if($mail==='#internal') $mail = $this->lang->t('Private messages');
 
-				$ret[$mail] = '<span id="mailaccount_'.$id.'"></span>';
+				$cell_id = 'mailaccount_'.$opts['id'].'_'.$id;
+				$ret[$mail] = '<span id="'.$cell_id.'"></span>';
 
 				//interval execution
-				eval_js_once('var mailclientcache = Array();'.
-					'mailclientfunc = function(accid,cache){'.
-					'if(!$(\'mailaccount_\'+accid)) return;'.
-					'if(cache && typeof mailclientcache[accid] != \'undefined\')'.
-						'$(\'mailaccount_\'+accid).innerHTML = mailclientcache[accid];'.
-					'else '.
-						'new Ajax.Updater(\'mailaccount_\'+accid,\'modules/Apps/MailClient/refresh.php\',{'.
-							'method:\'post\','.
-							'onComplete:function(r){mailclientcache[accid]=r.responseText},'.
-							'parameters:{acc_id:accid}});'.
-					'}');
-				eval_js_once('setInterval(\'mailclientfunc('.$id.' , 0)\',300000)');
+				eval_js_once('setInterval(\'Apps_MailClient.update_msg_num('.$opts['id'].' ,'.$id.' , 0)\',300000)');
 
-				//get rss now!
-				eval_js('mailclientfunc('.$id.' , 1)');
+				//and now
+				eval_js('Apps_MailClient.update_msg_num('.$opts['id'].' ,'.$id.' , 1)');
 
 			}
 		}

@@ -92,6 +92,7 @@ class Base_Dashboard extends Module {
 				$opts['go_arguments'] = array();
 				$opts['go_constructor_arguments'] = array();
 				$opts['actions'] = array();
+				$opts['id'] = $row['id'];
 
 				$th = $this->init_module('Base/Theme');
 

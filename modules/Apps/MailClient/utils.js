@@ -83,5 +83,26 @@ actions_set_id:function(id) {
 	var href = $('mail_client_actions_view_source').getAttribute('tpl_href');
 	$('mail_client_actions_view_source').setAttribute('href',href.replace('__MSG_ID__',id));
 	$('mail_client_actions_move_msg_id').value=id;
+},
+msg_num_cache: Array(),
+updating_msg_num: Array(),
+update_msg_num: function(applet_id,accid,cache) {
+	if(!$('mailaccount_'+applet_id+'_'+accid)) return;
+	if(Apps_MailClient.updating_msg_num[accid] == true) {
+		setTimeout('Apps_MailClient.update_msg_num('+applet_id+', '+accid+', 1)',1000);
+		return;
+	}
+	Apps_MailClient.updating_msg_num[accid] = true;
+	if(cache && typeof Apps_MailClient.msg_num_cache[accid] != 'undefined')
+		$('mailaccount_'+applet_id+'_'+accid).innerHTML = Apps_MailClient.msg_num_cache[accid];
+	else 
+		new Ajax.Updater('mailaccount_'+applet_id+'_'+accid,'modules/Apps/MailClient/refresh.php',{
+			method:'post',
+			onComplete:function(r){
+				Apps_MailClient.msg_num_cache[accid]=r.responseText;
+				Apps_MailClient.updating_msg_num[accid] = false;
+			},
+			parameters:{acc_id:accid}});
 }
 };
+
