@@ -14,6 +14,10 @@ class Applets_Birthdays extends Module {
 	private $date;
 	private $lang;
 
+	public function construct() {
+		$this->lang = $this->init_module('Base/Lang');
+	}
+
 	public function body() {
 	}
 
@@ -44,7 +48,7 @@ public function applet($conf,$opts) {
 		// TO DO - filter date - today through today+2 weeks
 		$dates = array();
 		for ($i=0;$i<$conf['no_of_days'];$i++)
-			$dates[] = DB::Concat(DB::qstr('%'),DB::qstr(date('m-d',strtotime(Base_RegionalSettingsCommon::time2reg(strtotime('+'.$i.' days'),false)))),DB::qstr('%')); 
+			$dates[] = DB::Concat(DB::qstr('%'),DB::qstr(date('-m-d',strtotime(Base_RegionalSettingsCommon::time2reg(strtotime('+'.$i.' days'),false))))); 
 		$crits=array(':Fav'=>true,'"~birth_date'=>$dates);
 
 		// 3rd - sorting
@@ -68,9 +72,7 @@ public function applet($conf,$opts) {
 									& $opts
 				);
 		// initialize miniview
-		$message1=Base_LangCommon::ts('Applets_Birthdays','Birthdays upcoming in the next: ');
-		$message2=Base_LangCommon::ts('Applets_Birthdays',' days.');
-		print ($message1.$conf['no_of_days'].$message2);
+		print($this->lang->t('Birthdays upcoming in the next: %d days.', array($conf['no_of_days'])));
 		$this->display_module($rb, $conds, 'mini_view');
 	}
 }

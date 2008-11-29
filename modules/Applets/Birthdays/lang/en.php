@@ -5,6 +5,5 @@
  * @subpackage en
  */
 global $translations;
-$translations['Applets_Birthdays']['Birthdays upcoming in the next: ']='';
-$translations['Applets_Birthdays'][' days']='';
+$translations['Applets_Birthdays']['Birthdays upcoming in the next: %d days.']='';
 ?>
