@@ -16,13 +16,13 @@ $private = Module::static_get_module_variable($path,'private',false);
 session_commit();
 if(!Acl::is_user())
 	die('Permission denied');
-$row = DB::GetRow('SELECT uaf.attach_id, uaf.revision,uaf.original,ual.local,ual.permission,ual.other_read,ual.permission_by FROM utils_attachment_file uaf INNER JOIN utils_attachment_link ual ON ual.id=uaf.attach_id WHERE uaf.id='.DB::qstr($id));
+$row = DB::GetRow('SELECT uaf.attach_id, uaf.revision,uaf.original,ual.local,ual.permission,ual.permission_by FROM utils_attachment_file uaf INNER JOIN utils_attachment_link ual ON ual.id=uaf.attach_id WHERE uaf.id='.DB::qstr($id));
 $original = $row['original'];
 $rev = $row['revision'];
 $local = $row['local'];
 $filename = $local.'/'.$row['attach_id'].'_'.$rev;
 
-if(!Base_AclCommon::i_am_admin() && !$row['other_read'] && $row['permission_by']!=Acl::get_user()) {
+if(!Base_AclCommon::i_am_admin() && $row['permission_by']!=Acl::get_user()) {
 	if(($row['permission']==0 && !$public) ||
 		($row['permission']==1 && !$protected) ||
 		($row['permission']==2 && !$private))

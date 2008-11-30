@@ -32,7 +32,7 @@ class CRM_PhoneCall extends Module {
 
 	public function phonecall_attachment_addon($arg){
 		$lang = $this->init_module('Base/Lang');
-		$a = $this->init_module('Utils/Attachment',array($arg['id'],'CRM/PhoneCall/'.$arg['id']));
+		$a = $this->init_module('Utils/Attachment',array('CRM/PhoneCall/'.$arg['id']));
 		$a->enable_watchdog('phonecall',$arg['id']);
 		$a->additional_header($lang->t('Phone Call: %s',array($arg['subject'])));
 		$a->allow_protected($this->acl_check('view protected notes'),$this->acl_check('edit protected notes'));

@@ -18,17 +18,15 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			id I4 AUTO KEY NOTNULL,
 			local C(255) NOTNULL,
 			deleted I1 DEFAULT 0,
-			other_read I1 DEFAULT 0,
 			permission I2 DEFAULT 0,
 			permission_by I4,
-			attachment_key C(32) NOTNULL,
 			sticky I1 DEFAULT 0',
 			array('constraints'=>', FOREIGN KEY (permission_by) REFERENCES user_login(ID)'));
 		if(!$ret){
 			print('Unable to create table utils_attachment_link.<br>');
 			return false;
 		}
-		DB::CreateIndex('utils_attachment_link__attachment_key__local__idx', 'utils_attachment_link', 'attachment_key,local');
+		DB::CreateIndex('utils_attachment_link__attachment__local__idx', 'utils_attachment_link', 'local');
 		$ret &= DB::CreateTable('utils_attachment_file','
 			id I4 AUTO KEY NOTNULL,
 			attach_id I4 NOTNULL,

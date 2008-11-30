@@ -116,7 +116,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$result['additional_info2'] = 	'<hr>'.Base_LangCommon::ts('CRM_Calendar_Event','Status').': '.$status[$row['status']].'<br>'.
 								Base_LangCommon::ts('CRM_Calendar_Event','Access').': '.Base_LangCommon::ts('CRM_Calendar_Event',$access[$row['access']]).'<br>'.
 								Base_LangCommon::ts('CRM_Calendar_Event','Priority').': '.Base_LangCommon::ts('CRM_Calendar_Event',$priority[$row['priority']]). '<br>'.
-								Base_LangCommon::ts('CRM_Calendar_Event','Notes').': '.Utils_AttachmentCommon::count($row['id'],'CRM/Calendar/Event/'.$row['id']). '<br>'.
+								Base_LangCommon::ts('CRM_Calendar_Event','Notes').': '.Utils_AttachmentCommon::count('CRM/Calendar/Event/'.$row['id']). '<br>'.
 								Base_LangCommon::ts('CRM_Calendar_Event','Created by').' '.Base_UserCommon::get_user_login($row['created_by']). '<br>'.
 											Base_LangCommon::ts('CRM_Calendar_Event','Created on').' '.$row['created_on']. '<br>'.
 											(($row['edited_by'])?(
@@ -352,7 +352,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$next_result['additional_info2'] = 	'<hr>'.Base_LangCommon::ts('CRM_Calendar_Event','Status').': '.$status[$row['status']].'<br>'.
 								Base_LangCommon::ts('CRM_Calendar_Event','Access').': '.Base_LangCommon::ts('CRM_Calendar_Event',$access[$row['access']]).'<br>'.
 								Base_LangCommon::ts('CRM_Calendar_Event','Priority').': '.Base_LangCommon::ts('CRM_Calendar_Event',$priority[$row['priority']]). '<br>'.
-								Base_LangCommon::ts('CRM_Calendar_Event','Notes').': '.Utils_AttachmentCommon::count($row['id'],'CRM/Calendar/Event/'.$row['id']). '<br>'.
+								Base_LangCommon::ts('CRM_Calendar_Event','Notes').': '.Utils_AttachmentCommon::count('CRM/Calendar/Event/'.$row['id']). '<br>'.
 								Base_LangCommon::ts('CRM_Calendar_Event','Created by').' '.Base_UserCommon::get_user_login($row['created_by']). '<br>'.
 											Base_LangCommon::ts('CRM_Calendar_Event','Created on').' '.$row['created_on']. '<br>'.
 											(($row['edited_by'])?(
@@ -453,7 +453,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		DB::Execute('DELETE FROM crm_calendar_event_group_cus WHERE id=%d', array($id));
 		DB::Execute('DELETE FROM crm_calendar_event WHERE id=%d',array($id));*/
 		DB::Execute('UPDATE crm_calendar_event SET deleted=1, edited_on=%T, edited_by=%d WHERE id=%d',array(time(),Acl::get_user(),$id));
-		//Utils_AttachmentCommon::persistent_mass_delete($id,'CRM/Calendar/Event/'.$id);
+		//Utils_AttachmentCommon::persistent_mass_delete('CRM/Calendar/Event/'.$id);
 		//Utils_MessengerCommon::delete_by_id('CRM_Calendar_Event:'.$id);
 		Utils_WatchdogCommon::user_unsubscribe(null, 'crm_calendar', $id);
 

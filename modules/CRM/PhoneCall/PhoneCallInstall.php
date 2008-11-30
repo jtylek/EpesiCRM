@@ -81,10 +81,10 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 	public function uninstall() {
 		Base_ThemeCommon::uninstall_default_theme('CRM/PhoneCall');
 		Utils_RecordBrowserCommon::delete_addon('phonecall', 'CRM/PhoneCall', 'phonecall_attachment_addon');
-		Utils_AttachmentCommon::persistent_mass_delete(null,'CRM/PhoneCall/');
+		Utils_AttachmentCommon::persistent_mass_delete('CRM/PhoneCall/');
 //		Utils_RecordBrowserCommon::delete_addon('company', 'CRM/Contacts', 'company_attachment_addon');
-//		Utils_AttachmentCommon::persistent_mass_delete(null,'CRM/Contact/');
-//		Utils_AttachmentCommon::persistent_mass_delete(null,'CRM/Company/');
+//		Utils_AttachmentCommon::persistent_mass_delete('CRM/Contact/');
+//		Utils_AttachmentCommon::persistent_mass_delete('CRM/Company/');
 //		Utils_RecordBrowserCommon::delete_addon('contact', 'CRM/Contacts', 'contact_attachment_addon');
 		Utils_RecordBrowserCommon::uninstall_recordset('phonecall');
 		Utils_CommonDataCommon::remove('Ticket_Status');

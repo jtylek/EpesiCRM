@@ -121,8 +121,8 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::unregister_datatype('crm_contact');
 		Utils_RecordBrowserCommon::delete_addon('company', 'CRM/Contacts', 'company_addon');
 		Utils_RecordBrowserCommon::delete_addon('company', 'CRM/Contacts', 'company_attachment_addon');
-		Utils_AttachmentCommon::persistent_mass_delete(null,'CRM/Contact/');
-		Utils_AttachmentCommon::persistent_mass_delete(null,'CRM/Company/');
+		Utils_AttachmentCommon::persistent_mass_delete('CRM/Contact/');
+		Utils_AttachmentCommon::persistent_mass_delete('CRM/Company/');
 		Utils_RecordBrowserCommon::delete_addon('contact', 'CRM/Contacts', 'contact_attachment_addon');
 		Utils_RecordBrowserCommon::uninstall_recordset('company');
 		Utils_RecordBrowserCommon::uninstall_recordset('contact');

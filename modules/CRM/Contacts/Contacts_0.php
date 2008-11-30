@@ -153,7 +153,7 @@ class CRM_Contacts extends Module {
 	}
 
 	public function company_attachment_addon($arg){
-		$a = $this->init_module('Utils/Attachment',array($arg['id'],'CRM/Company/'.$arg['id']));
+		$a = $this->init_module('Utils/Attachment',array('CRM/Company/'.$arg['id']));
 		$a->enable_watchdog('company',$arg['id']);
 		$a->additional_header('Company: '.$arg['company_name']);
 		$a->allow_protected($this->acl_check('view protected notes'),$this->acl_check('edit protected notes'));
@@ -163,7 +163,7 @@ class CRM_Contacts extends Module {
 
 	public function contact_attachment_addon($arg){
 		$l = $this->init_module('Base/Lang');
-		$a = $this->init_module('Utils/Attachment',array($arg['id'],'CRM/Contact/'.$arg['id']));
+		$a = $this->init_module('Utils/Attachment',array('CRM/Contact/'.$arg['id']));
 		$a->enable_watchdog('contact',$arg['id']);
 		$companies = array();
 		foreach($arg['company_name'] as $comp) {

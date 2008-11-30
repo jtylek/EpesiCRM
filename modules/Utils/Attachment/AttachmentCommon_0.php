@@ -3,7 +3,6 @@
  * Use this module if you want to add attachments to some page.
  * Owner of note has always 3x(private,protected,public) write&read.
  * Permission for group is set by methods allow_{private,protected,public}.
- * Other users can read notes if you set permission with allow_other method.
  * @author pbukowski@telaxus.com
  * @copyright pbukowski@telaxus.com
  * @license SPL
@@ -14,23 +13,18 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_AttachmentCommon extends ModuleCommon {
 
-	private static function get_where($key=null,$group=null,$group_starts_with=true) {
-		$wh = array();
-		if(isset($key)) $wh[] = 'ual.attachment_key=\''.md5($key).'\'';
-		if(isset($group)) {
-			if($group_starts_with)
-				$wh[] = 'ual.local LIKE \''.DB::addq($group).'%\'';
-			else
-				$wh[] = 'ual.local='.DB::qstr($group);
-		}
-		return implode(' AND ',$wh);
+	private static function get_where($group,$group_starts_with=true) {
+		if($group_starts_with)
+			return 'ual.local LIKE \''.DB::addq($group).'%\'';
+		else
+			return 'ual.local='.DB::qstr($group);
 	}
 	/**
 	 * Example usage:
-	 * Utils_AttachmentCommon::persistent_mass_delete(null,'CRM/Contact'); // deletes all entries located in CRM/Contact*** group
+	 * Utils_AttachmentCommon::persistent_mass_delete('CRM/Contact'); // deletes all entries located in CRM/Contact*** group
 	 */
-	public static function persistent_mass_delete($key=null,$group=null,$group_starts_with=true) {
-		$ret = DB::Execute('SELECT ual.id,ual.local FROM utils_attachment_link ual WHERE '.self::get_where($key,$group,$group_starts_with));
+	public static function persistent_mass_delete($group,$group_starts_with=true) {
+		$ret = DB::Execute('SELECT ual.id,ual.local FROM utils_attachment_link ual WHERE '.self::get_where($group,$group_starts_with));
 		while($row = $ret->FetchRow()) {
 			$id = $row['id'];
 			$local = $row['local'];
@@ -45,9 +39,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		}
 	}
 	
-	public static function add($key,$group,$permission,$user,$other_read,$note=null,$oryg=null,$file=null) {
-		$key = md5($key);
-		DB::Execute('INSERT INTO utils_attachment_link(attachment_key,local,permission,permission_by,other_read) VALUES(%s,%s,%d,%d,%b)',array($key,$group,$permission,$user,$other_read));
+	public static function add($group,$permission,$user,$note=null,$oryg=null,$file=null) {
+		DB::Execute('INSERT INTO utils_attachment_link(local,permission,permission_by) VALUES(%s,%d,%d)',array($group,$permission,$user));
 		$id = DB::Insert_ID('utils_attachment_link','id');
 		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$oryg,$user));
 		DB::Execute('INSERT INTO utils_attachment_note(attach_id,text,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$note,$user));
@@ -59,8 +52,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		return $id;
 	}
 
-	public static function count($key=null,$group=null,$group_starts_with=true) {
-		return DB::GetOne('SELECT count(ual.id) FROM utils_attachment_link ual WHERE ual.deleted=0 AND '.self::get_where($key,$group,$group_starts_with));
+	public static function count($group=null,$group_starts_with=true) {
+		return DB::GetOne('SELECT count(ual.id) FROM utils_attachment_link ual WHERE ual.deleted=0 AND '.self::get_where($group,$group_starts_with));
 	}
 
 	public static function search_group($group,$word){

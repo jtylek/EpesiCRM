@@ -533,7 +533,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$tb->start_tab('Notes');
 			//attachments
 			$writable = ($def['access']==0 || in_array($my_id,$def_emp_id) || Base_AclCommon::i_am_admin()) && !$event['deleted'];
-			$a = $this->init_module('Utils/Attachment',array($id,'CRM/Calendar/Event/'.$id));
+			$a = $this->init_module('Utils/Attachment',array('CRM/Calendar/Event/'.$id));
 			$a->set_inline_display();
 			$a->additional_header('Event: '.$event['title']);
 			$a->allow_protected($this->acl_check('view protected notes'),$writable && $this->acl_check('edit protected notes'));
