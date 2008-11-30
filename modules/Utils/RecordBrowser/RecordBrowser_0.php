@@ -29,6 +29,7 @@ class Utils_RecordBrowser extends Module {
 	private $access_callback;
 	private $noneditable_fields = array();
 	private $add_button = null;
+	private $more_add_button_stuff = '';
 	private $changed_view = false;
 	private $is_on_main_page = false;
 	private $custom_defaults = array();
@@ -41,6 +42,7 @@ class Utils_RecordBrowser extends Module {
 	private $more_table_properties = array();
 	private $fullscreen_table = false;
 	private $amount_of_records = 0;
+	private $switch_to_addon = null;
 	public static $admin_filter = '';
 	public static $tab_param = '';
 	public static $clone_result = null;
@@ -55,6 +57,10 @@ class Utils_RecordBrowser extends Module {
 	private $navigation_executed = false;
 	private $current_field = null;
 	private $additional_actions_method = null;
+	
+	public function switch_to_addon($arg) {
+		$this->switch_to_addon = $arg;
+	}
 	
 	public function get_display_method($ar) {
 		return isset($this->display_callback_table[$ar])?$this->display_callback_table[$ar]:null;
@@ -76,8 +82,9 @@ class Utils_RecordBrowser extends Module {
 		return Utils_RecordBrowserCommon::get_val($this->tab, $field, $record, $id, $links_not_recommended, $args);
 	}
 
-	public function set_button($arg){
+	public function set_button($arg, $arg2=''){
 		$this->add_button = $arg;
+		$this->more_add_button_stuff = $arg2;
 	}
 
 	public function set_header_properties($ar) {
@@ -415,9 +422,15 @@ class Utils_RecordBrowser extends Module {
 			$gb->set_default_order($clean_order, $this->changed_view);
 
 		if (!$special) {
+			$custom_label = '';
 			if ($this->add_button!==null) $label = $this->add_button;
 			else $label = $this->create_callback_href(array($this, 'navigate'), array('view_entry', 'add', null, $this->custom_defaults));
-			if ($label!==false) $gb->set_custom_label('<a '.$label.'><img border="0" src="'.Base_ThemeCommon::get_template_file('Base/ActionBar','icons/add-small.png').'" /></a>');
+			if ($label!==false) $custom_label = '<a '.$label.'><img border="0" src="'.Base_ThemeCommon::get_template_file('Base/ActionBar','icons/add-small.png').'" /></a>';
+			if ($this->more_add_button_stuff) { 
+				if ($custom_label) $custom_label = '<table><tr><td>'.$custom_label.'</td><td>'.$this->more_add_button_stuff.'</td></tr></table>';
+				else $custom_label = $this->more_add_button_stuff;
+			}
+			$gb->set_custom_label($custom_label);
 		}
 		$search = $gb->get_search_query(true);
 		$search_res = array();
@@ -845,10 +858,27 @@ class Utils_RecordBrowser extends Module {
 					$row['label'] = $result['label'];
 				}
 				if (!is_callable(array($mod,$row['func']))) $tb->set_tab($this->lang->t($row['label']),array($this, 'broken_addon'), $js);
-				else $tb->set_tab($this->lang->t($row['label']),array($this, 'display_module'), array($mod, array($this->record), $row['func']), $js);
+				else $tb->set_tab($this->lang->t($row['label']),array($this, 'display_module'), array($mod, array($this->record, $this), $row['func']), $js);
 			}
 		}
 		$this->display_module($tb);
+		if ($this->switch_to_addon!==null) {
+			$ret = DB::Execute('SELECT * FROM recordbrowser_addon WHERE tab=%s AND enabled=1 ORDER BY pos', array($this->tab));
+			$tab_counter=0;
+			while ($row = $ret->FetchRow()) {
+				if (ModuleManager::is_installed($row['module'])==-1) continue;
+				$mod = $this->init_module($row['module']);
+				if (is_callable(explode('::',$row['label']))) {
+					$result = call_user_func(explode('::',$row['label']), $this->record);
+					if ($result['show']==false) continue;
+					$row['label'] = $result['label'];
+				}
+				if ($row['label']==$this->switch_to_addon) $this->switch_to_addon = $tab_counter;
+				$tab_counter++;
+			}
+			$tb->switch_tab($this->switch_to_addon);
+			location(array());
+		}
 		if ($mode=='add' || $mode=='edit') print("</form>\n");
 		$tb->tag();
 

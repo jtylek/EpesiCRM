@@ -4,14 +4,6 @@
 
 <div>
 
-{if isset($form_data_search)}
-	<div class="IEfix">
-	{$form_data_search.javascript}
-
-	<form {$form_data_search.attributes}>
-	{$form_data_search.hidden}
-{/if}
-
 <table id="letters-search" border="0" cellpadding="0" cellspacing="0">
 	<tbody>
 		<tr>
@@ -62,53 +54,53 @@
 			</td>
 			<!-- Advanced / Simple Search -->
 			<td style="text-align: right;">
-				{if isset($form_data_search.search)}
-					<div>
-					<table class="Utils_GenericBrowser__search" border="0" cellpadding="0" cellspacing="0">
-						<tbody>
-							<tr>
-								{*<td class="label">{$form_data_search.search.label}</td>*}
-								<td>{$form_data_search.search.html}</td>
-								<td class="submit">{$form_data_search.submit_search.html}</td>
-								<td class="advanced">{$adv_search}</td>
-							</tr>
-						</tbody>
-					</table>
-					</div>
-				{else}
-					{php}
-						$cols = $this->get_template_vars('cols');
-						$search_fields = $this->get_template_vars('search_fields');
-						foreach($cols as $k=>$v){
-							if(isset($search_fields[$k]))
-								$cols[$k]['label'] = $cols[$k]['label'].$search_fields[$k];
-						}
-						$this->assign('cols',$cols);
-					{/php}
-					{if isset($form_data_search.submit_search)}
-					<div style="padding-left: 20px; text-align: left;">
-					<table class="Utils_GenericBrowser__search" border="0" cellpadding="0" cellspacing="0">
-						<tbody>
-							<tr>
-								<td class="submit">{$form_data_search.submit_search.html}</td>
-								<td class="advanced">{$adv_search}</td>
-							</tr>
-						</tbody>
-					</table>
-					</div>
+				{if isset($form_data_search)}
+					<div class="IEfix">
+					{$form_data_search.javascript}
+				
+					<form {$form_data_search.attributes}>
+					{$form_data_search.hidden}
+					{if isset($form_data_search.search)}
+						<table class="Utils_GenericBrowser__search" border="0" cellpadding="0" cellspacing="0">
+							<tbody>
+								<tr>
+									{*<td class="label">{$form_data_search.search.label}</td>*}
+									<td>{$form_data_search.search.html}</td>
+									<td class="submit">{$form_data_search.submit_search.html}</td>
+									<td class="advanced">{$adv_search}</td>
+								</tr>
+							</tbody>
+						</table>
+					{else}
+						{php}
+							$cols = $this->get_template_vars('cols');
+							$search_fields = $this->get_template_vars('search_fields');
+							foreach($cols as $k=>$v){
+								if(isset($search_fields[$k]))
+									$cols[$k]['label'] = $cols[$k]['label'].$search_fields[$k];
+							}
+							$this->assign('cols',$cols);
+						{/php}
+						{if isset($form_data_search.submit_search)}
+						<div style="padding-left: 20px; text-align: left;">
+						<table class="Utils_GenericBrowser__search" border="0" cellpadding="0" cellspacing="0">
+							<tbody>
+								<tr>
+									<td class="submit">{$form_data_search.submit_search.html}</td>
+									<td class="advanced">{$adv_search}</td>
+								</tr>
+							</tbody>
+						</table>
+						</div>
+						{/if}
 					{/if}
+					</form>
+					</div>
 				{/if}
 			</td>
 		</tr>
 	</tbody>
 </table>
-
-<div style="height: 0px;">
-{if isset($form_data_search)}
-	</form>
-	</div>
-{/if}
-</div>
 
 {$table_prefix}
 
