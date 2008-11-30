@@ -90,7 +90,7 @@ class Utils_RecordBrowser extends Module {
 
 	public function construct($tab = null) {
 		$this->tab = $tab;
-		Utils_RecordBrowserCommon::check_table_name($tab);
+		if ($tab!==null) Utils_RecordBrowserCommon::check_table_name($tab);
 		$this->lang = $this->init_module('Base/Lang');
 	}
 
