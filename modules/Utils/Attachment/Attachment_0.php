@@ -31,8 +31,11 @@ class Utils_Attachment extends Module {
 	
 	private $watchdog_category;
 	private $watchdog_id;
+	
+	private $func = null;
+	private $args = array();
 
-	public function construct($group,$pd=null,$in=null,$priv_r=null,$priv_w=null,$prot_r=null,$prot_w=null,$pub_r=null,$pub_w=null,$header=null,$watchdog_cat=null,$watchdog_id=null) {
+	public function construct($group,$pd=null,$in=null,$priv_r=null,$priv_w=null,$prot_r=null,$prot_w=null,$pub_r=null,$pub_w=null,$header=null,$watchdog_cat=null,$watchdog_id=null,$func=null,$args=null) {
 		if(!isset($group)) trigger_error('Key not given to attachment module',E_USER_ERROR);
 		$this->lang = & $this->init_module('Base/Lang');
 		$this->group = $group;
@@ -48,10 +51,17 @@ class Utils_Attachment extends Module {
 		if(isset($header)) $this->add_header = $header;
 		if(isset($watchdog_cat)) $this->watchdog_category = $watchdog_cat;
 		if(isset($watchdog_id)) $this->watchdog_id = $watchdog_id;
+		if(isset($func)) $this->func = $func;
+		if(isset($args)) $this->args = $args;
 	}
 
 	public function additional_header($x) {
 		$this->add_header = $x;
+	}
+
+	public function set_view_func($x, array $y=array()) {
+		$this->func = $x;
+		$this->args = $y;
 	}
 
 	public function inline_attach_file($x=true) {
@@ -537,7 +547,7 @@ class Utils_Attachment extends Module {
 	}
 
 	public function submit_attach($file,$oryg,$data) {		
-		DB::Execute('INSERT INTO utils_attachment_link(local,permission,permission_by,sticky) VALUES(%s,%d,%d,%b)',array($this->group,$data['permission'],Acl::get_user(),isset($data['sticky']) && $data['sticky']));
+		DB::Execute('INSERT INTO utils_attachment_link(local,permission,permission_by,sticky,func,args) VALUES(%s,%d,%d,%b,%s,%s)',array($this->group,$data['permission'],Acl::get_user(),isset($data['sticky']) && $data['sticky'],serialize($this->func),serialize($this->args)));
 		$id = DB::Insert_ID('utils_attachment_link','id');
 		if($file && trim($data['note'])=='')
 			$data['note'] = $oryg;

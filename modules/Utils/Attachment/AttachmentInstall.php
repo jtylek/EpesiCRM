@@ -20,7 +20,9 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			deleted I1 DEFAULT 0,
 			permission I2 DEFAULT 0,
 			permission_by I4,
-			sticky I1 DEFAULT 0',
+			sticky I1 DEFAULT 0,
+			func C(255),
+			args C(255)',
 			array('constraints'=>', FOREIGN KEY (permission_by) REFERENCES user_login(ID)'));
 		if(!$ret){
 			print('Unable to create table utils_attachment_link.<br>');

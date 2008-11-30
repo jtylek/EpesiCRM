@@ -39,8 +39,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		}
 	}
 	
-	public static function add($group,$permission,$user,$note=null,$oryg=null,$file=null) {
-		DB::Execute('INSERT INTO utils_attachment_link(local,permission,permission_by) VALUES(%s,%d,%d)',array($group,$permission,$user));
+	public static function add($group,$permission,$user,$note=null,$oryg=null,$file=null,$func=null,$args=null) {
+		DB::Execute('INSERT INTO utils_attachment_link(local,permission,permission_by,func,args) VALUES(%s,%d,%d,%s,%s)',array($group,$permission,$user,serialize($func),serialize($args)));
 		$id = DB::Insert_ID('utils_attachment_link','id');
 		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$oryg,$user));
 		DB::Execute('INSERT INTO utils_attachment_note(attach_id,text,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$note,$user));
