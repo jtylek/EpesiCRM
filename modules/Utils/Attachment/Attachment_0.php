@@ -551,6 +551,8 @@ class Utils_Attachment extends Module {
 	public function submit_attach($file,$oryg,$data) {		
 		DB::Execute('INSERT INTO utils_attachment_link(attachment_key,local,permission,permission_by,other_read,sticky) VALUES(%s,%s,%d,%d,%b,%b)',array($this->key,$this->group,$data['permission'],Acl::get_user(),isset($data['other']) && $data['other'],isset($data['sticky']) && $data['sticky']));
 		$id = DB::Insert_ID('utils_attachment_link','id');
+		if($file && trim($data['note'])=='')
+			$data['note'] = $oryg;
 		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$oryg,Acl::get_user()));
 		DB::Execute('INSERT INTO utils_attachment_note(attach_id,text,created_by,revision) VALUES(%d,%s,%d,0)',array($id,Utils_BBCodeCommon::optimize($data['note']),Acl::get_user()));
 		if($file) {
@@ -565,6 +567,8 @@ class Utils_Attachment extends Module {
 	public function submit_edit($file,$oryg,$data,$id,$text) {
 		DB::Execute('UPDATE utils_attachment_link SET sticky=%b,other_read=%b,permission=%d,permission_by=%d WHERE id=%d',array(isset($data['sticky']) && $data['sticky'],isset($data['other']) && $data['other'],$data['permission'],Acl::get_user(),$id));
 		if($data['note']!=$text) {
+			if($file && trim($data['note'])=='')
+				$data['note'] = $oryg;
 			DB::StartTrans();
 			$rev = DB::GetOne('SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=%d',array($id));
 			DB::Execute('INSERT INTO utils_attachment_note(text,attach_id,revision,created_by) VALUES (%s,%d,%d,%d)',array(Utils_BBCodeCommon::optimize($data['note']),$id,$rev+1,Acl::get_user()));
