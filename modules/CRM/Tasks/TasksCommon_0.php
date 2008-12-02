@@ -218,6 +218,14 @@ class CRM_TasksCommon extends ModuleCommon {
 			);
 	}
 	
+	public static function search_format($id) {
+		if(!self::Instance()->acl_check('browse tasks')) return false;
+		$row = self::get_tasks(array('id'=>$id));
+		if(!$row) return false;
+		$row = array_pop($row);
+		return Utils_RecordBrowserCommon::record_link_open_tag('task', $row['id']).Base_LangCommon::ts('CRM_Tasks', 'Task (attachment) #%d, %s', array($row['id'], $row['title'])).Utils_RecordBrowserCommon::record_link_close_tag();
+	}
+
 	///////////////////////////////////
 	// mobile devices
 

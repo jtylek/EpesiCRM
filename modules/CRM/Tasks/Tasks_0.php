@@ -71,6 +71,7 @@ class CRM_Tasks extends Module {
 	public function task_attachment_addon($arg){
 		$lang = $this->init_module('Base/Lang');
 		$a = $this->init_module('Utils/Attachment',array('CRM/Tasks/'.$arg['id']));
+		$a->set_view_func(array('CRM_TasksCommon','search_format'),array($arg['id']));
 		$a->enable_watchdog('task',$arg['id']);
 		$a->additional_header($lang->t('Task: %s',array($arg['title'])));
 		$a->allow_protected($this->acl_check('view protected notes'),$this->acl_check('edit protected notes'));

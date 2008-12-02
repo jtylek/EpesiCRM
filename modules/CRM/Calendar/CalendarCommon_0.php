@@ -82,34 +82,34 @@ class CRM_CalendarCommon extends ModuleCommon {
 		return array(	array('name'=>'days', 'label'=>'Look for events in', 'type'=>'select', 'default'=>'7', 'values'=>array('1'=>'1 day','2'=>'2 days','3'=>'3 days','5'=>'5 days','7'=>'1 week','14'=>'2 weeks', '30'=>'1 month', '61'=>'2 months')),
 						array('name'=>'color', 'label'=>'Only events with selected color', 'type'=>'select', 'default'=>'0', 'values'=>$cols));
 	}
+	
+	public static function search_format($id) {
+		if(!self::Instance()->acl_check('access'))
+			return false;
+
+		$query = 'SELECT ev.starts as start,ev.title,ev.id FROM crm_calendar_event ev '.
+					'WHERE deleted='.CRM_CalendarCommon::$trash.' AND ((ev.access<2 OR ev.created_by='.Acl::get_user().') AND '.
+ 					'ev.id=%d)';
+ 		$row = DB::GetRow($query,array($id));
+		
+		if(!$row) return false;
+		return '<a '.Base_BoxCommon::create_href(null, 'CRM_Calendar', null, array(), array(), array('search_date'=>$row['start'],'ev_id'=>$row['id'])).'>'.Base_LangCommon::ts('CRM_Calendar','Event (attachment) #%d, %s',array($row['id'], $row['title'])).'</a>';
+	}
 
 	public static function search($word){
 		if(!self::Instance()->acl_check('access'))
 			return array();
 		
-		$attachs = Utils_AttachmentCommon::search_group('CRM/Calendar/Event',$word);
-		$attach_ev_ids = array();
-		foreach($attachs as $x) {
-			if(ereg('CRM/Calendar/Event/([0-9]+)',$x['group'],$reqs))
-				$attach_ev_ids[$reqs[1]] = true;
-		}
-		$attach_ev_ids2 = array_keys($attach_ev_ids);
-		
-		
 		$query = 'SELECT ev.starts as start,ev.title,ev.id FROM crm_calendar_event ev '.
 					'WHERE deleted='.CRM_CalendarCommon::$trash.' AND ((ev.access<2 OR ev.created_by='.Acl::get_user().') AND (ev.title LIKE '.DB::Concat('\'%\'',DB::qstr($word),'\'%\'').
  					' OR ev.description LIKE '.DB::Concat('\'%\'',DB::qstr($word),'\'%\'').
- 					(empty($attach_ev_ids)?'':' OR ev.id IN ('.implode(',',$attach_ev_ids2).')').
 					'))';
  		$recordSet = DB::Execute($query);
  		$result = array();
 
  		while (!$recordSet->EOF){
  			$row = $recordSet->FetchRow();
-			if(isset($attach_ev_ids[$row['id']]))
- 				$result['a_'.$row['id']] = '<a '.Base_BoxCommon::create_href(null, 'CRM_Calendar', null, array(), array(), array('search_date'=>$row['start'],'ev_id'=>$row['id'])).'>'.Base_LangCommon::ts('CRM_Calendar','Event (attachment) #%d, %s',array($row['id'], $row['title'])).'</a>';
-			else
- 				$result[$row['id']] = '<a '.Base_BoxCommon::create_href(null, 'CRM_Calendar', null, array(), array(), array('search_date'=>$row['start'],'ev_id'=>$row['id'])).'>'.Base_LangCommon::ts('CRM_Calendar','Event #%d, %s',array($row['id'], $row['title'])).'</a>';
+			$result[$row['id']] = '<a '.Base_BoxCommon::create_href(null, 'CRM_Calendar', null, array(), array(), array('search_date'=>$row['start'],'ev_id'=>$row['id'])).'>'.Base_LangCommon::ts('CRM_Calendar','Event #%d, %s',array($row['id'], $row['title'])).'</a>';
  		} 		
 		return $result;
 	}

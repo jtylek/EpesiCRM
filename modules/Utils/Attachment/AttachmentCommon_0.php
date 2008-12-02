@@ -56,15 +56,31 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		return DB::GetOne('SELECT count(ual.id) FROM utils_attachment_link ual WHERE ual.deleted=0 AND '.self::get_where($group,$group_starts_with));
 	}
 
-	public static function search_group($group,$word){
+	public static function search_group($group,$word,$view_func=false) {
 		$ret = array();
-		$r = DB::Execute('SELECT ual.local,ual.id FROM utils_attachment_link ual WHERE (ual.permission<2 OR ual.permission_by='.Acl::get_user().') AND ual.deleted=0 AND '.
+		$r = DB::Execute('SELECT ual.local,ual.id,ual.func,ual.args FROM utils_attachment_link ual WHERE (ual.permission<2 OR ual.permission_by='.Acl::get_user().') AND ual.deleted=0 AND '.
 				'(0!=(SELECT count(uan.id) FROM utils_attachment_note AS uan WHERE uan.attach_id=ual.id AND uan.text LIKE '.DB::Concat(DB::qstr('%'),'%s',DB::qstr('%')).' AND uan.revision=(SELECT MAX(xxx.revision) FROM utils_attachment_note xxx WHERE xxx.attach_id=ual.id)) OR '.
 				'0!=(SELECT count(uaf.id) FROM utils_attachment_file AS uaf WHERE uaf.attach_id=ual.id AND uaf.original LIKE '.DB::Concat(DB::qstr('%'),'%s',DB::qstr('%')).' AND uaf.revision=(SELECT MAX(xxx2.revision) FROM utils_attachment_file xxx2 WHERE xxx2.attach_id=ual.id))) '.
-				'AND '.self::get_where(null,$group),array($word));
-		while($row = $r->FetchRow())
-			$ret[] = array('group'=>$row['local'],'view_href'=>'');
+				'AND '.self::get_where($group),array($word,$word));
+		while($row = $r->FetchRow()) {
+			$view = '';
+			if($view_func) {
+				$func = unserialize($row['func']);
+				if($func) {
+					$view = call_user_func_array($func,unserialize($row['args']));
+				}
+				if(!$view) continue;
+				$ret[$row['id']] = $view;
+			} else {
+				$ret[] = array('id'=>$row['id'],'group'=>$row['local']);
+			}
+		}
 		return $ret;
+	}
+	
+	public static function search($word) {
+		$attachs = Utils_AttachmentCommon::search_group('',$word,true);
+		return $attachs;
 	}
 
 }
