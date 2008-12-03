@@ -2,10 +2,11 @@
 /**
  * Gets host ip or domain
  * @author pbukowski@telaxus.com
- * @copyright pbukowski@telaxus.com
- * @license SPL
- * @version 0.1
- * @package applets-host
+ * @copyright 2008 Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-applets
+ * @subpackage host
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -35,7 +36,7 @@ class Applets_HostInstall extends ModuleInstall {
 		return array(
 			'Description'=>'Gets host ip or domain',
 			'Author'=>'pbukowski@telaxus.com',
-			'License'=>'SPL');
+			'License'=>'MIT');
 	}
 	
 	public static function simple_setup() {

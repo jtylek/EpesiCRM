@@ -1,12 +1,13 @@
 <?php
 /**
- * 
  * @author jtylek@telaxus.com
- * @copyright jtylek@telaxus.com
- * @license SPL
- * @version 0.1
- * @package applets-birthdays
+ * @copyright 2008 Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-applets
+ * @subpackage birthdays
  */
+
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Applets_BirthdaysInstall extends ModuleInstall {
@@ -23,7 +24,7 @@ class Applets_BirthdaysInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array("0.1");
+		return array("1.0");
 	}
 	
 	public function requires($v) {
@@ -36,7 +37,7 @@ class Applets_BirthdaysInstall extends ModuleInstall {
 		return array(
 			'Description'=>'Upcoming birthdays',
 			'Author'=>'jtylek@telaxus.com',
-			'License'=>'SPL');
+			'License'=>'MIT');
 	}
 	
 	public static function simple_setup() {

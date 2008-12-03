@@ -1,13 +1,16 @@
 <?php
 /**
- * Clock.
+ * Flash clock
+ * (clock taken from http://www.kirupa.com/developer/actionscript/clock.htm)
  *
  * @author pbukowski@telaxus.com
- * @copyright pbukowski@telaxus.com
- * @license SPL
- * @version 0.1
- * @package applets-clock
+ * @copyright 2008 Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-applets
+ * @subpackage clock
  */
+
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Applets_Clock extends Module {

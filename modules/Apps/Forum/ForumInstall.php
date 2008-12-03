@@ -1,10 +1,11 @@
 <?php
 /**
  * @author Arkadiusz Bisaga <abisaga@telaxus.com>
- * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @package apps-forum
- * @license SPL
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-apps
+ * @subpackage forum
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -44,7 +45,7 @@ class Apps_ForumInstall extends ModuleInstall {
 	}
 
 	public static function info() {
-		return array('Author'=>'<a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'License'=>'TL', 'Description'=>'Simple forum');
+		return array('Author'=>'<a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'License'=>'MIT', 'Description'=>'Simple forum');
 	}
 	
 	public static function simple_setup() {
@@ -52,7 +53,7 @@ class Apps_ForumInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array('0.9.9');
+		return array('1.0');
 	}
 
 	public function requires($v) {

@@ -1,12 +1,13 @@
 <?php
 /**
- * 
  * @author abisaga@telaxus.com
- * @copyright abisaga@telaxus.com
- * @license SPL
- * @version 0.1
- * @package applets-monthview
+ * @copyright 2008 Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-applets
+ * @subpackage monthview
  */
+
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Applets_MonthViewInstall extends ModuleInstall {
@@ -23,7 +24,7 @@ class Applets_MonthViewInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array("0.1");
+		return array("1.0");
 	}
 	
 	public function requires($v) {
@@ -34,9 +35,9 @@ class Applets_MonthViewInstall extends ModuleInstall {
 	
 	public static function info() {
 		return array(
-			'Description'=>'',
+			'Description'=>'Applet showing monthly calendar',
 			'Author'=>'abisaga@telaxus.com',
-			'License'=>'SPL');
+			'License'=>'MIT');
 	}
 	
 	public static function simple_setup() {

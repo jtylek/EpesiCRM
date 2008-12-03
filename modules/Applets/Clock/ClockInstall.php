@@ -4,11 +4,13 @@
  * (clock taken from http://www.kirupa.com/developer/actionscript/clock.htm)
  *
  * @author pbukowski@telaxus.com
- * @copyright pbukowski@telaxus.com
- * @license SPL
- * @version 0.1
- * @package applets-clock
+ * @copyright 2008 Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-applets
+ * @subpackage clock
  */
+
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Applets_ClockInstall extends ModuleInstall {
@@ -24,7 +26,7 @@ class Applets_ClockInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array("0.9.9");
+		return array("1.0");
 	}
 	
 	public function requires($v) {
@@ -37,7 +39,7 @@ class Applets_ClockInstall extends ModuleInstall {
 		return array(
 			'Description'=>'Flash clock',
 			'Author'=>'pbukowski@telaxus.com',
-			'License'=>'SPL');
+			'License'=>'MIT');
 	}
 	
 	public static function simple_setup() {

@@ -1,12 +1,11 @@
 <?php
-
 /**
- *
  * @author msteczkiewicz@telaxus.com
- * @copyright msteczkiewicz@telaxus.com
- * @license SPL
- * @version 0.9
- * @package applets-calc
+ * @copyright 2008 Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-applets
+ * @subpackage calc
  */
 
 defined("_VALID_ACCESS") || die('Direct access forbidden');

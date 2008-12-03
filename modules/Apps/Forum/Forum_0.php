@@ -1,10 +1,11 @@
 <?php
 /**
  * @author Arkadiusz Bisaga <abisaga@telaxus.com>
- * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @package apps-forum
- * @license SPL
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-apps
+ * @subpackage forum
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

@@ -1,12 +1,11 @@
 <?php
-
 /**
- *
  * @author msteczkiewicz@telaxus.com
- * @copyright msteczkiewicz@telaxus.com
- * @license SPL
+ * @copyright 2008 Telaxus LLC
+ * @license MIT
  * @version 1.2
- * @package applets-google
+ * @package epesi-applets
+ * @subpackage google
  */
 
 defined("_VALID_ACCESS") || die('Direct access forbidden');

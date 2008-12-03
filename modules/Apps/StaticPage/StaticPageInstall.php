@@ -1,10 +1,11 @@
 <?php
 /**
  * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
  * @version 1.0
- * @copyright Copyright &copy; 2007, Telaxus LLC
- * @package apps-static-page
- * @license SPL
+ * @package epesi-apps
+ * @subpackage staticpage
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -38,7 +39,7 @@ class Apps_StaticPageInstall extends ModuleInstall {
 	}
 	
 	public static function info() {
-		return array('Author'=>'<a href="mailto:pbukowski@telaxus.com">Paul Bukowski</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'License'=>'TL', 'Description'=>'Simple WIKI pages');
+		return array('Author'=>'<a href="mailto:pbukowski@telaxus.com">Paul Bukowski</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'License'=>'MIT', 'Description'=>'Simple WIKI pages');
 	}
 	
 	public static function simple_setup() {
@@ -46,7 +47,7 @@ class Apps_StaticPageInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array('0.8.5');
+		return array('1.0');
 	}
 
 	public function requires($v) {

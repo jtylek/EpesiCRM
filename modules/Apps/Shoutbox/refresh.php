@@ -1,4 +1,13 @@
 <?php
+/**
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-apps
+ * @subpackage shoutbox
+ */
+
 ob_start();
 define('CID',false);
 require_once('../../../include.php');

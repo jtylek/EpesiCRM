@@ -1,11 +1,11 @@
 <?php
 /**
- * 
  * @author jtylek@telaxus.com
- * @copyright jtylek@telaxus.com
- * @license SPL
- * @version 0.1
- * @package applets-birthdays
+ * @copyright 2008 Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-applets
+ * @subpackage birthdays
  */
 
 defined("_VALID_ACCESS") || die('Direct access forbidden');

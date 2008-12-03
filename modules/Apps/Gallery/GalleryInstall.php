@@ -1,12 +1,14 @@
 <?php
 /**
- * @author Kuba Slawinski <kslawinski@telaxus.com>
- * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @package apps-gallery
- * @license SPL
+ * @author Kuba Slawinski <kslawinski@telaxus.com> and Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-apps
+ * @subpackage gallery
  */
- defined("_VALID_ACCESS") || die('Direct access forbidden');
+
+defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Apps_GalleryInstall extends ModuleInstall {
 	public function install() {
@@ -28,7 +30,7 @@ class Apps_GalleryInstall extends ModuleInstall {
 	}
 
 	public static function info() {
-		return array('Author'=>'<a href="mailto:kslawinski@telaxus.com">Kuba Slawinski</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'License'=>'TL', 'Description'=>'Simple gallery module');
+		return array('Author'=>'<a href="mailto:kslawinski@telaxus.com">Kuba Slawinski</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'License'=>'MIT', 'Description'=>'Simple gallery module');
 	}
 	
 	public static function simple_setup() {
@@ -36,7 +38,7 @@ class Apps_GalleryInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array('0.8.6');
+		return array('1.0');
 	}
 	
 	public function requires($v) {

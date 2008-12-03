@@ -15,11 +15,13 @@
  * -obsluga ssl przy wysylaniu smtp
  *
  * @author pbukowski@telaxus.com
- * @copyright pbukowski@telaxus.com
- * @license SPL
- * @version 0.1
- * @package apps-mail
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-apps
+ * @subpackage mailclient
  */
+
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Apps_MailClient extends Module {

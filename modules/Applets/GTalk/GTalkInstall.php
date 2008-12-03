@@ -1,12 +1,13 @@
 <?php
 /**
- * 
  * @author jtylek@telaxus.com
- * @copyright jtylek@telaxus.com
- * @license SPL
- * @version 0.1
- * @package applets-gtalk
+ * @copyright 2008 Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-applets
+ * @subpackage gtalk
  */
+
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Applets_GTalkInstall extends ModuleInstall {
@@ -23,7 +24,7 @@ class Applets_GTalkInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array("0.1");
+		return array("1.0");
 	}
 	
 	public function requires($v) {
@@ -37,7 +38,7 @@ class Applets_GTalkInstall extends ModuleInstall {
 		return array(
 			'Description'=>'Google Talk applet',
 			'Author'=>'jtylek@telaxus.com',
-			'License'=>'SPL');
+			'License'=>'MIT');
 	}
 	
 	public static function simple_setup() {

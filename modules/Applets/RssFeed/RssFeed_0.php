@@ -1,11 +1,12 @@
 <?php
 /**
  * Simple RSS Feed applet
- * @author jtylek@gmail.com
- * @copyright jtylek@gmail.com
- * @license SPL
- * @version 0.2
- * @package applets-RSS_Feed
+ * @author jtylek@telaxus.com
+ * @copyright 2008 Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-applets
+ * @subpackage rssfeed
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

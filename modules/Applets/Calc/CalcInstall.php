@@ -1,12 +1,11 @@
 <?php
-
 /**
- *
  * @author msteczkiewicz@telaxus.com
- * @copyright msteczkiewicz@telaxus.com
- * @license SPL
- * @version 0.9
- * @package applets-calc
+ * @copyright 2008 Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-applets
+ * @subpackage calc
  */
 
 defined("_VALID_ACCESS") || die('Direct access forbidden');
@@ -24,7 +23,7 @@ class Applets_CalcInstall extends ModuleInstall {
 	}
 
 	public function version() {
-		return array("0.9");
+		return array("1.0");
 	}
 
 	public function requires($v) {
@@ -35,9 +34,9 @@ class Applets_CalcInstall extends ModuleInstall {
 
 	public static function info() {
 		return array(
-			'Description' => '',
+			'Description' => 'Calculator',
 			'Author' => 'msteczkiewicz@telaxus.com',
-			'License' => 'SPL');
+			'License' => 'MIT');
 	}
 
 	public static function simple_setup() {

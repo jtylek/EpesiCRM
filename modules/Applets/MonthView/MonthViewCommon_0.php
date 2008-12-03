@@ -1,11 +1,11 @@
 <?php
 /**
- * 
  * @author abisaga@telaxus.com
- * @copyright abisaga@telaxus.com
- * @license SPL
- * @version 0.1
- * @package applets-monthview
+ * @copyright 2008 Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-applets
+ * @subpackage monthview
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

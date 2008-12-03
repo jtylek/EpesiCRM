@@ -1,11 +1,11 @@
 <?php
 /**
- * 
- * @author shacky@poczta.fm
- * @copyright shacky@poczta.fm
- * @license SPL
- * @version 0.1
- * @package apps-twistergame
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-apps
+ * @subpackage twistergame
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -22,7 +22,7 @@ class Apps_TwisterGameInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array("0.1");
+		return array("1.0");
 	}
 	
 	public function requires($v) {
@@ -31,9 +31,9 @@ class Apps_TwisterGameInstall extends ModuleInstall {
 	
 	public static function info() {
 		return array(
-			'Description'=>'',
+			'Description'=>'Twister Game',
 			'Author'=>'shacky@poczta.fm',
-			'License'=>'SPL');
+			'License'=>'MIT');
 	}
 	
 	public static function simple_setup() {

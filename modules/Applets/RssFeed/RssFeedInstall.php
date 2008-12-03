@@ -1,12 +1,14 @@
 <?php
 /**
  * Simple RSS Feed applet
- * @author jtylek@gmail.com
- * @copyright jtylek@gmail.com
- * @license SPL
- * @version 0.2
- * @package applets-RSS_Feed
+ * @author jtylek@telaxus.com
+ * @copyright 2008 Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-applets
+ * @subpackage rssfeed
  */
+
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Applets_RssFeedInstall extends ModuleInstall {
@@ -23,7 +25,7 @@ class Applets_RssFeedInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array("0.2");
+		return array("1.0");
 	}
 	
 	public function requires($v) {
@@ -37,8 +39,8 @@ class Applets_RssFeedInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'RSS Feed',
-			'Author'=>'jtylek@gmail.com',
-			'License'=>'SPL');
+			'Author'=>'jtylek@telaxus.com',
+			'License'=>'MIT');
 	}
 	
 	public static function simple_setup() {

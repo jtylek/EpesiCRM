@@ -1,10 +1,11 @@
 <?php
 /**
  * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
  * @version 1.0
- * @copyright Copyright &copy; 2007, Telaxus LLC
- * @package apps-static-page
- * @license SPL
+ * @package epesi-apps
+ * @subpackage staticpage
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-translations
- * @subpackage pl
+ * @package epesi-applets
+ * @subpackage monthview
  */
 global $translations;
 $translations['Applets_MonthView']['Next year']='Następny rok';

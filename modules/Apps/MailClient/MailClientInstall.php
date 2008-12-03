@@ -2,11 +2,13 @@
 /**
  * Simple mail client
  * @author pbukowski@telaxus.com
- * @copyright pbukowski@telaxus.com
- * @license SPL
- * @version 0.1
- * @package apps-mail
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-apps
+ * @subpackage mailclient
  */
+
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Apps_MailClientInstall extends ModuleInstall {
@@ -75,7 +77,7 @@ class Apps_MailClientInstall extends ModuleInstall {
 		return array(
 			'Description'=>'Simple mail client',
 			'Author'=>'pbukowski@telaxus.com',
-			'License'=>'SPL');
+			'License'=>'MIT');
 	}
 	
 	public static function simple_setup() {

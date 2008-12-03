@@ -1,4 +1,14 @@
 <?php
+/**
+ * Simple RSS Feed applet
+ * @author jtylek@telaxus.com
+ * @copyright 2008 Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-applets
+ * @subpackage rssfeed
+ */
+
 if(!isset($_POST['feed']) || !isset($_POST['number']) || !isset($_POST['cid']))
 	die('Invalid request');
 
