@@ -1,11 +1,12 @@
 <?php
 /**
  * Simple reports for CRM Calendar
- * @author shacky@poczta.fm
- * @copyright shacky@poczta.fm
- * @license SPL
- * @version 0.1
- * @package crm-calendar--reports
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-crm
+ * @subpackage calendar-reports
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -21,7 +22,7 @@ class CRM_Calendar_ReportsInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array("0.1");
+		return array("1.0");
 	}
 	
 	public function requires($v) {
@@ -36,8 +37,8 @@ class CRM_Calendar_ReportsInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'Simple reports for CRM Calendar',
-			'Author'=>'shacky@poczta.fm',
-			'License'=>'SPL');
+			'Author'=>'pbukowski@telaxus.com',
+			'License'=>'MIT');
 	}
 	
 	public static function simple_setup() {

@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-translations
- * @subpackage en
+ * @package epesi-crm
+ * @subpackage import
  */
 global $translations;
 $translations['CRM_Import']['Contacts & Companies']='';

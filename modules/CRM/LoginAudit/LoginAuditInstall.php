@@ -1,11 +1,12 @@
 <?php
 /**
  * Provides login audit log
- * @author pbukowski@telaxus.com & jtylek@telaxus.com
- * @copyright pbukowski@telaxus.com & jtylek@telaxus.com
- * @license SPL
- * @version 0.1
- * @package epesi-base
+ * @author Paul Bukowski <pbukowski@telaxus.com> & Janusz Tylek <jtylek@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-crm
+ * @subpackage loginaudit
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -28,7 +29,7 @@ class CRM_LoginAuditInstall extends ModuleInstall {
 	}
 
 	public function version() {
-		return array("0.6");
+		return array("1.0");
 	}
 
 	public function requires($v) {
@@ -42,7 +43,7 @@ class CRM_LoginAuditInstall extends ModuleInstall {
 	public static function info() {
 		return array('Author'=>'<a href="mailto:jtylek@telaxus.com">Janusz Tylek</a> and <a href="mailto:pbukowski@telaxus.com">Pawel Bukowski</a>
 					 (<a href="http://www.telaxus.com">Telaxus LLC</a>)',
-					 'License'=>'TL', 'Description'=>'Provides login audit log.');
+					 'License'=>'MIT', 'Description'=>'Provides login audit log.');
 	}
 
 	public static function simple_setup() {

@@ -1,11 +1,11 @@
 <?php
 /**
- *
- * @author pbukowski@telaxus.com
- * @copyright pbukowski@telaxus.com
- * @license SPL
- * @version 0.1
- * @package crm-Filters
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-crm
+ * @subpackage filters
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -46,7 +46,7 @@ class CRM_FiltersInstall extends ModuleInstall {
 	}
 
 	public function version() {
-		return array("0.8");
+		return array("1.0");
 	}
 
 	public function requires($v) {
@@ -63,9 +63,9 @@ class CRM_FiltersInstall extends ModuleInstall {
 
 	public static function info() {
 		return array(
-			'Description'=>'',
+			'Description'=>'CRM Filters',
 			'Author'=>'pbukowski@telaxus.com',
-			'License'=>'SPL');
+			'License'=>'MIT');
 	}
 
 	public static function simple_setup() {

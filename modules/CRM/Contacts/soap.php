@@ -1,4 +1,14 @@
 <?php
+/**
+ * CRM Contacts class.
+ *
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-crm
+ * @subpackage contacts
+ */
 define('_VALID_ACCESS',true);
 define('CID',false);
 require_once('../../../include.php');

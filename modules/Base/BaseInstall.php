@@ -11,7 +11,7 @@
  * @package epesi-base
  * @subpackage baseinstall
  */
- */
+
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class BaseInstall extends ModuleInstall {

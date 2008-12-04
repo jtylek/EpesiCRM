@@ -2,10 +2,11 @@
 /**
  * Activities history for Company and Contacts
  * @author Arkadiusz Bisaga <abisaga@telaxus.com>
- * @copyright Arkadiusz Bisaga <abisaga@telaxus.com>
- * @license SPL
- * @version 0.1
- * @package crm-contacts--activities
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-crm
+ * @subpackage contacts-activities
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

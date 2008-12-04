@@ -1,11 +1,12 @@
 <?php
 /**
  *
- * @author abisaga@telaxus.com
- * @copyright abisaga@telaxus.com
- * @license SPL
- * @version 0.9
- * @package crm-Followup
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-crm
+ * @subpackage followup
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -23,7 +24,7 @@ class CRM_FollowupInstall extends ModuleInstall {
 	}
 
 	public function version() {
-		return array("0.9");
+		return array("1.0");
 	}
 
 	public function requires($v) {
@@ -38,7 +39,7 @@ class CRM_FollowupInstall extends ModuleInstall {
 		return array(
 			'Description'=>'',
 			'Author'=>'abisaga@telaxus.com',
-			'License'=>'SPL');
+			'License'=>'MIT');
 	}
 
 	public static function simple_setup() {

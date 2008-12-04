@@ -1,11 +1,12 @@
 <?php
 /**
  * Provides login audit log
- * @author pbukowski@telaxus.com & jtylek@telaxus.com
- * @copyright pbukowski@telaxus.com & jtylek@telaxus.com
- * @license SPL
- * @version 0.1
- * @package epesi-base
+ * @author Paul Bukowski <pbukowski@telaxus.com> & Janusz Tylek <jtylek@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-crm
+ * @subpackage loginaudit
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

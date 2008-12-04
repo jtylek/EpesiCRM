@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-translations
- * @subpackage en
+ * @package epesi-crm
+ * @subpackage tasks
  */
 global $translations;
 $translations['CRM_Tasks']['Your user doesn\'t have contact, please assign one']='';

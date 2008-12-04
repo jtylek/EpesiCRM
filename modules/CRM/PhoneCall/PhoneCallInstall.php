@@ -1,21 +1,16 @@
 <?php
 /**
- * CRMHRInstall class.
- *
- * This class provides initialization data for CRMHR module.
+ * CRM Phone Call Class
  *
  * @author Arkadiusz Bisaga <abisaga@telaxus.com>
- * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @package tcms-extra
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-crm
+ * @subpackage phonecall
  */
 defined("_VALID_ACCESS") || die();
 
-/**
- * This class provides initialization data for Test module.
- * @package tcms-extra
- * @subpackage test
- */
 class CRM_PhoneCallInstall extends ModuleInstall {
 	public function install() {
 // ************ contacts ************** //
@@ -107,7 +102,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 	}
 
 	public static function info() {
-		return array('Author'=>'<a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'License'=>'TL', 'Description'=>'Module for organising Your contacts.');
+		return array('Author'=>'<a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'License'=>'MIT', 'Description'=>'Module for organising Your contacts.');
 	}
 
 	public static function simple_setup() {
@@ -115,7 +110,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 	}
 
 	public function version() {
-		return array('0.9');
+		return array('1.0');
 	}
 
 	public static function backup() {

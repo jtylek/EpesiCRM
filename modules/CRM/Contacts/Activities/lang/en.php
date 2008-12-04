@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-translations
- * @subpackage en
+ * @package epesi-crm
+ * @subpackage contacts-activities
  */
 global $translations;
 $translations['CRM_Contacts_Activities']['Display']='';

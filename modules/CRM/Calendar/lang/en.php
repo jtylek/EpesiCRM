@@ -1,9 +1,9 @@
 <?php
 /**
  * Translation file
- * @package epesi-translations
- * @subpackage en
- */
+ * @package epesi-crm
+ * @subpackage calendar
+*/
 global $translations;
 $translations['CRM_Calendar']['Start']='';
 $translations['CRM_Calendar']['Title']='';

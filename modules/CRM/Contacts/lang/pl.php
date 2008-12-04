@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-translations
- * @subpackage pl
+ * @package epesi-crm
+ * @subpackage contacts
  */
 global $translations;
 $translations['CRM_Contacts']['Add contact']='Dodaj kontakt';

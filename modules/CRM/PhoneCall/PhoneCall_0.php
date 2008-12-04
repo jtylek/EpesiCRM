@@ -1,13 +1,13 @@
 <?php
 /**
- * CRMHR class.
- *
- * This class is just my first module, test only.
+ * CRM Phone Call Class
  *
  * @author Arkadiusz Bisaga <abisaga@telaxus.com>
- * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.99
- * @package tcms-extra
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-crm
+ * @subpackage phonecall
  */
 
 defined("_VALID_ACCESS") || die();

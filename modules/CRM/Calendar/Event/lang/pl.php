@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-translations
- * @subpackage pl
+ * @package epesi-crm
+ * @subpackage calendar-event
  */
 global $translations;
 $translations['CRM_Calendar_Event']['Displaying only 50 of %d events']='Wyświetlono tylko 50 z %d wydarzeń';

@@ -1,12 +1,14 @@
 <?php
 /**
  * Shows who is logged to epesi.
- * @author pbukowski@telaxus.com
- * @copyright pbukowski@telaxus.com
- * @license SPL
- * @version 0.1
- * @package CRM-whoisonline
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-crm
+ * @subpackage whoisonline
  */
+
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_WhoIsOnlineInstall extends ModuleInstall {
@@ -22,7 +24,7 @@ class CRM_WhoIsOnlineInstall extends ModuleInstall {
 	}
 
 	public function version() {
-		return array("0.9.9");
+		return array("1.0");
 	}
 
 	public function requires($v) {
@@ -36,7 +38,7 @@ class CRM_WhoIsOnlineInstall extends ModuleInstall {
 		return array(
 			'Description'=>'Shows who is logged to epesi.',
 			'Author'=>'pbukowski@telaxus.com',
-			'License'=>'SPL');
+			'License'=>'MIT');
 	}
 
 	public static function simple_setup() {

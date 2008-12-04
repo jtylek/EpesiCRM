@@ -1,13 +1,15 @@
 <?php
 /**
- * ContactsInstall class.
+* CRM Contacts class.
  *
  * This class provides initialization data for CRMHR module.
  *
  * @author Arkadiusz Bisaga <abisaga@telaxus.com>
- * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @package tcms-extra
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-crm
+ * @subpackage contacts
  */
 defined("_VALID_ACCESS") || die();
 
