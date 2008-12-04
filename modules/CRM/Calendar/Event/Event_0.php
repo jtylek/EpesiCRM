@@ -8,12 +8,7 @@
  * @package epesi-crm
  * @subpackage calendar-event
  */
- * @author pbukowski@telaxus.com
- * @copyright pbukowski@telaxus.com
- * @license SPL
- * @version 0.1
- * @package crm-calendar-event
- */
+
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_Calendar_Event extends Utils_Calendar_Event {
