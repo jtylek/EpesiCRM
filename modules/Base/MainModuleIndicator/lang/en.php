@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-translations
- * @subpackage en
+ * @package epesi-base
+ * @subpackage MainModuleIndicator
  */
 global $translations;
 $translations['Base_MainModuleIndicator']['Dashboard']='';

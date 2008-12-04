@@ -4,11 +4,11 @@
  *
  * Provides for search functionality in a module.
  *
- * @author Arkadiusz Bisaga <pbukowski@telaxus.com>
- * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @license SPL
- * @package epesi-base-extra
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-base
  * @subpackage search
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');

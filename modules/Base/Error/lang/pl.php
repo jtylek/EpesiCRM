@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-translations
- * @subpackage pl
+ * @package epesi-base
+ * @subpackage error
  */
 global $translations;
 $translations['Base_Error']['Send bugs to']='Wysyłaj błedy do';

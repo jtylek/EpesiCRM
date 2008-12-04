@@ -5,11 +5,12 @@
  * This class initialization data for Base pack of module.
  *
  * @author Paul Bukowski <pbukowski@telaxus.com>
- * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @license SPL
- * @package epesi-base-extra
- * @subpackage base-installer
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-base
+ * @subpackage baseinstall
+ */
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -31,7 +32,7 @@ class BaseInstall extends ModuleInstall {
 	}
 
 	public function version() {
-		return array('0.9.9');
+		return array('1.0');
 	}
 
 	public function requires($v) {

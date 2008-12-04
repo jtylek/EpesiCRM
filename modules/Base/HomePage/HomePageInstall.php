@@ -5,10 +5,10 @@
  * This class provides initialization data for HomePage module.
  * 
  * @author Paul Bukowski <pbukowski@telaxus.com>
- * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @license SPL
- * @package epesi-base-extra
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-base
  * @subpackage homepage
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
@@ -29,7 +29,7 @@ class Base_HomePageInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array('0.8.9');
+		return array('1.0');
 	}
 
 	public function requires($v) {

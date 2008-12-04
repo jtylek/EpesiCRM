@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-translations
- * @subpackage pl
+ * @package epesi-base
+ * @subpackage user-login
  */
 global $translations;
 $translations['Base_User_Login']['Logged as %s']='Zalogowany jako %s';

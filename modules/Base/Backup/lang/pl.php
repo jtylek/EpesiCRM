@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-translations
- * @subpackage en
+ * @package epesi-base
+ * @subpackage backup
  */
 global $translations;
 $translations['Base_Backup']['Available backups']='Dostêpne kopie zapasowe';

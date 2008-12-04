@@ -5,10 +5,10 @@
  * Provides module templating.
  *
  * @author Paul Bukowski <pbukowski@telaxus.com> and Arkadiusz Bisaga <abisaga@telaxus.com>
- * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @license SPL
- * @package epesi-base-extra
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-base
  * @subpackage theme
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');

@@ -2,10 +2,10 @@
 /**
  * Something like igoogle
  * @author Paul Bukowski <pbukowski@telaxus.com>
- * @copyright Copyright &copy; 2007, Telaxus LLC
- * @license SPL
- * @version 0.1
- * @package epesi-base-extra
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-base
  * @subpackage dashboard
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');

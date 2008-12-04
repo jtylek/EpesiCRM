@@ -1,11 +1,12 @@
 <?php
 /**
  * Regional settings like currency, time...
- * @author pbukowski@telaxus.com
- * @copyright pbukowski@telaxus.com
- * @license SPL
- * @version 0.1
- * @package base-regionalsettings
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-base
+ * @subpackage regionalsettings
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -23,7 +24,7 @@ class Base_RegionalSettingsInstall extends ModuleInstall {
 	}
 
 	public function version() {
-		return array("0.1");
+		return array("1.0");
 	}
 
 	public function requires($v) {
@@ -39,7 +40,7 @@ class Base_RegionalSettingsInstall extends ModuleInstall {
 		return array(
 			'Description'=>'Regional settings like currency, time...',
 			'Author'=>'pbukowski@telaxus.com',
-			'License'=>'SPL');
+			'License'=>'MIT');
 	}
 
 	public static function simple_setup() {

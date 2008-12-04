@@ -1,11 +1,11 @@
 <?php
-/** 
+/**
  * Something like igoogle
  * @author Paul Bukowski <pbukowski@telaxus.com>
- * @copyright Copyright &copy; 2007, Telaxus LLC
- * @license SPL
- * @version 0.1
- * @package epesi-base-extra
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-base
  * @subpackage dashboard
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
@@ -94,7 +94,7 @@ class Base_DashboardInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array("0.8.0");
+		return array("1.0");
 	}
 	
 	public function requires($v) {
@@ -116,7 +116,7 @@ class Base_DashboardInstall extends ModuleInstall {
 		return array(
 			'Description'=>'Something like igoogle',
 			'Author'=>'Paul Bukowski <pbukowski@telaxus.com>',
-			'License'=>'SPL');
+			'License'=>'MIT');
 	}
 	
 	public static function simple_setup() {

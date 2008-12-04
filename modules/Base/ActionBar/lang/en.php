@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-translations
- * @subpackage en
+ * @package epesi-base
+ * @subpackage actionbar
  */
 global $translations;
 $translations['Base_ActionBar']['Home']='';

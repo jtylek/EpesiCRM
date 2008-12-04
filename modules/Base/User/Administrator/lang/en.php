@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-translations
- * @subpackage en
+ * @package epesi-base
+ * @subpackage user-administrator
  */
 global $translations;
 $translations['Base_User_Administrator']['Login']='';

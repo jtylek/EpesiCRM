@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-translations
- * @subpackage pl
+ * @package epesi-base
+ * @subpackage mail
  */
 global $translations;
 $translations['Base_Mail']['Mail settings']='Ustawienia Poczty';

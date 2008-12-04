@@ -5,11 +5,11 @@
  * This class provides initialization data for QuickAccess module.
  * 
  * @author Arkadiusz Bisaga <abisaga@telaxus.com>
- * @copyright Copyright &copy; 2006, Telaxus LLC
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
  * @version 1.0
- * @license SPL
- * @package epesi-base-extra
- * @subpackage menu-quick-access
+ * @package epesi-base
+ * @subpackage menu-quickaccess
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

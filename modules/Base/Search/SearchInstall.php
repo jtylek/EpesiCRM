@@ -3,12 +3,12 @@
  * SearchInstall class.
  * 
  * This class provides initialization data for Search module.
- * 
+ *
  * @author Arkadiusz Bisaga <abisaga@telaxus.com>
- * @copyright Copyright &copy; 2006, Telaxus LLC
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
  * @version 1.0
- * @license SPL
- * @package epesi-base-extra
+ * @package epesi-base
  * @subpackage search
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');

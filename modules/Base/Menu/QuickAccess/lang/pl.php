@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-translations
- * @subpackage pl
+ * @package epesi-base
+ * @subpackage menu-quickaccess
  */
 global $translations;
 $translations['Base_Menu_QuickAccess']['Shoutbox']='Shoutbox';

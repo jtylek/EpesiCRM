@@ -1,4 +1,13 @@
 <?php
+/**
+ * Something like igoogle
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-base
+ * @subpackage dashboard
+ */
 header("Content-type: text/javascript");
 
 define('JS_OUTPUT',1);

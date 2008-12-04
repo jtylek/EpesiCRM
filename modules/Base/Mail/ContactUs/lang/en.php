@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-translations
- * @subpackage en
+ * @package epesi-base
+ * @subpackage mail-contactus
  */
 global $translations;
 $translations['Base_Mail_ContactUs']['Support']='';
