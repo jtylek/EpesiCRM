@@ -1,13 +1,11 @@
 <?php
 /**
- * FPDFInstall class.
- * 
- * @author Paul Bukowski <pbukowski@telaxus.com>
- * @copyright Copyright &copy; 2006, Telaxus LLC
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
  * @version 1.0
- * @license SPL
+ * @license MIT
  * @package epesi-libs
- * @subpackage tcpdf
+ * @subpackage exportxls
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -21,7 +19,7 @@ class Libs_ExportXLSInstall extends ModuleInstall {
 	}
 
 	public function version() {
-		return array('0.9');
+		return array('1.0');
 	}
 	public function requires($v) {
 		return array();

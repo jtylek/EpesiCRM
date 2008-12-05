@@ -2,16 +2,15 @@
 /**
  * Utils_BookmarkBrowser.
  * Module for displaying large amounts of data in one table with navigation between specified data groups.
- * 
  * @author Kuba Slawinski <kslawinski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
- * @license SPL
+ * @license MIT
  * @package epesi-utils
  * @subpackage bookmark-browser
  */
-defined("_VALID_ACCESS") || die('Direct access forbidden');
 
+defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_BookmarkBrowser extends Module {
 	private $_bookmarks = array();
 	private $current_bookmark = 0;

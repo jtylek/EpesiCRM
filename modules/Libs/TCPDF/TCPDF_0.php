@@ -1,6 +1,11 @@
 <?php
 /**
  * TCPDF class.
+ *
+ * This module uses TCPDF PHP class released under
+ * GNU LESSER GENERAL PUBLIC LICENSE Version 2.1
+ * Author: Nicola Asuni 
+ * Copyright (c) 2001-2008: Nicola Asuni
  * 
  * @author Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC

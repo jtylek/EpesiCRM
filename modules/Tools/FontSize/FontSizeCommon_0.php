@@ -1,12 +1,13 @@
 <?php
 /**
  * Tools_FontSize class.
- *
- * @author Paul Bukowski <pbukowski@telaxus.com>
+ * 
+ * @author Kuba Slawinski <kslawinski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @license SPL
- * @package tools-fontsize
+ * @version 1.0
+ * @license MIT
+ * @package epesi-tools
+ * @subpackage fontsize
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

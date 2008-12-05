@@ -1,4 +1,12 @@
 <?php
+/**
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2006, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-base
+ */
+
 //TODO: menu tree
 define('MOBILE_DEVICE',1);
 define('CID',false);

@@ -1,4 +1,13 @@
 <?php
+/**
+ * Use this module if you want to add attachments to some page.
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-utils
+ * @subpackage attachment
+ */
 function get_mime_type($filepath,$original) {
 	//new method, but not compiled in by default
 	if(extension_loaded('fileinfo')) {

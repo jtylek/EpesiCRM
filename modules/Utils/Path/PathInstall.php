@@ -2,8 +2,8 @@
 /** 
  * @author Kuba Slawinski <kslawinski@telaxus.com> 
  * @copyright Copyright &copy; 2006, Telaxus LLC 
- * @version 0.9 
- * @license SPL
+ * @version 1.0
+ * @license MIT
  * @package epesi-utils 
  * @subpackage path
  */
@@ -20,7 +20,7 @@ class Utils_PathInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array('0.9.0');
+		return array('1.0');
 	}
 	public function requires($v) {
 		return array();

@@ -3,11 +3,13 @@
  * Use this module if you want to add attachments to some page.
  * Owner of note has always 3x(private,protected,public) write&read.
  * Permission for group is set by methods allow_{private,protected,public}.
- * @author pbukowski@telaxus.com
- * @copyright pbukowski@telaxus.com
- * @license SPL
- * @version 0.1
- * @package utils-attachment
+ *
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-utils
+ * @subpackage attachment
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

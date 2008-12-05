@@ -1,4 +1,13 @@
 <?php
+/**
+ * Use this module if you want to add attachments to some page.
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-utils
+ * @subpackage attachment
+ */
 if(!isset($_REQUEST['cid']) || !isset($_REQUEST['id']) || !isset($_REQUEST['path']))
 	die('Invalid usage');
 $cid = $_REQUEST['cid'];

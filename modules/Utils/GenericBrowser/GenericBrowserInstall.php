@@ -2,8 +2,8 @@
 /**
  * @author Arkadiusz Bisaga <abisaga@telaxus.com>, Kuba Slawinski <kslawinski@telaxus.com> and Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @license SPL
+ * @version 1.0
+ * @license MIT
  * @package epesi-utils
  * @subpackage generic-browser
  */
@@ -23,7 +23,7 @@ class Utils_GenericBrowserInstall extends ModuleInstall {
 	}
 
 	public function version() {
-		return array('0.9.9');
+		return array('1.0');
 	}	
 	public function requires($v) {
 		return array(

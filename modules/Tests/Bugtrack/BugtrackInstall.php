@@ -1,11 +1,13 @@
 <?php
 /**
  * Software Development - Bug Tracking
- * @author jtylek@telaxus.com
- * @copyright jtylek@telaxus.com
- * @license SPL
- * @version 0.1
- * @package apps-bugtrack
+ *
+ * @author Janusz Tylek <jtylek@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-tests
+ * @subpackage bugtrack
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

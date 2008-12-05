@@ -5,9 +5,9 @@
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
- * @license SPL
- * @package epesi-libs
- * @subpackage fpdf
+ * @license MIT
+ * @package epesi-utils
+ * @subpackage RecordBrowser
  */
 if(!isset($_REQUEST['cid']) || !isset($_REQUEST['path']) || !isset($_REQUEST['tab']) || !isset($_REQUEST['admin'])) die('Invalid usage - missing param');
 $cid = $_REQUEST['cid'];

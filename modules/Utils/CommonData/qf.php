@@ -1,11 +1,16 @@
 <?php
-require_once('HTML/QuickForm/select.php');
-
 /**
  * HTML class for common data
  *
  * @author       Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2006, Telaxus LLC
+ * @version 1.0
+ * @license MIT
+ * @package epesi-utils
+ * @subpackage CommonData
  */
+require_once('HTML/QuickForm/select.php');
+
 class HTML_QuickForm_commondata extends HTML_QuickForm_select {
 	var $_cd = null;
 	var $_add_empty_fields = false;

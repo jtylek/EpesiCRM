@@ -1,4 +1,13 @@
 <?php
+/**
+ * Popup message to the user
+ * @author pbukowski@telaxus.com
+ * @copyright pbukowski@telaxus.com
+ * @license MIT
+ * @version 1.0
+ * @package epesi-Utils
+ * @subpackage Messenger
+ */
 header("Content-type: text/javascript");
 header("Cache-Control: no-cache, must-revalidate");
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // date in the past

@@ -3,11 +3,11 @@
  * Download file
  *
  * @author Paul Bukowski <pbukowski@telaxus.com>
- * @copyright Copyright &copy; 2006, Telaxus LLC
+ * @copyright Copyright &copy; 2008, Telaxus LLC
  * @version 1.0
- * @license SPL
+ * @license MIT
  * @package epesi-libs
- * @subpackage fpdf
+ * @subpackage exportxls
  */
 if(!isset($_REQUEST['id']) || !isset($_REQUEST['xls']) || !isset($_REQUEST['args']) || !isset($_REQUEST['filename'])) die('Invalid usage');
 $id = $_REQUEST['id'];

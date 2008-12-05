@@ -1,11 +1,14 @@
 <?php
+/**
+ * @author Paul Bukowski <pbukowski@telaxus.com> and Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-Utils
+ * @subpackage PopupCalendar
+ */
 require_once("HTML/QuickForm/input.php");
 
-/**
- * HTML class for a text field with calendar
- *
- * @author       Paul Bukowski <pbukowski@telaxus.com>
- */
 class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 
 	function HTML_QuickForm_datepicker($elementName=null, $elementLabel=null, $attributes=null) {

@@ -5,7 +5,7 @@
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
- * @license SPL
+ * @license MIT
  * @package epesi-utils
  * @subpackage file-uploader
  */
@@ -23,7 +23,7 @@ class Utils_FileUploadInstall extends ModuleInstall {
 		return true;
 	}
 	public function version() {
-		return array("0.5");
+		return array("1.0");
 	}
 	
 	public function requires($v) {

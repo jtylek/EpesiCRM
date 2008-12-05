@@ -1,4 +1,12 @@
 <?php
+/**
+ * @author Paul Bukowski <pbukowski@telaxus.com> and Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-Utils
+ * @subpackage calendar
+ */
 if(!isset($_POST['path']) || !isset($_POST['cid']) ||  !isset($_POST['ev_id'])
 	 || !isset($_POST['cell_id']))
 	die('alert(\'Invalid request\')');

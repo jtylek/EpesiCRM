@@ -1,4 +1,13 @@
 <?php
+/**
+ * 
+ * @author Paul Bukowski <pbukowski@telaxus.com> and Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-Utils
+ * @subpackage ChainedSelect
+ */
 if(!isset($_POST['values']) || !isset($_POST['dest_id']) || !isset($_POST['cid']))
 	die('alert(\'Invalid request\')');
 	

@@ -1,11 +1,11 @@
 <?php
 /**
- * 
- * @author pbukowski@telaxus.com
- * @copyright pbukowski@telaxus.com
- * @license SPL
- * @version 0.1
- * @package tests-codepress
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-tests
+ * @subpackage calendar
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -32,8 +32,8 @@ class Tests_CalendarInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'',
-			'Author'=>'abisaga@telaxus.com',
-			'License'=>'SPL');
+			'Author'=>'pbukowski@telaxus.com',
+			'License'=>'MIT');
 	}
 	
 	public static function simple_setup() {

@@ -1,9 +1,12 @@
 <?php
 /**
+ * This module uses scriptaculous.js released under MIT license
+ * Copyright (c) 2005, 2006 Thomas Fuchs (http://script.aculo.us, http://mir.aculo.us)
+ *
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2007, Telaxus LLC
  * @version 1.0
- * @license SPL
+ * @license MIT
  * @package epesi-libs
  * @subpackage ScriptAculoUs
  */

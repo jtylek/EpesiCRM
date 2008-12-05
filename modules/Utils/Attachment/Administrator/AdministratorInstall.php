@@ -1,11 +1,12 @@
 <?php
 /**
  * 
- * @author shacky@poczta.fm
- * @copyright shacky@poczta.fm
- * @license SPL
- * @version 0.1
- * @package utils-attachment-administrator
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-utils
+ * @subpackage attachment-administrator
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -22,7 +23,7 @@ class Utils_Attachment_AdministratorInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array("0.1");
+		return array("1.0");
 	}
 	
 	public function requires($v) {
@@ -33,7 +34,7 @@ class Utils_Attachment_AdministratorInstall extends ModuleInstall {
 		return array(
 			'Description'=>'',
 			'Author'=>'shacky@poczta.fm',
-			'License'=>'SPL');
+			'License'=>'MIT');
 	}
 	
 	public static function simple_setup() {

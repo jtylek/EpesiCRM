@@ -2,9 +2,9 @@
 /**
  * @author Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC 
- * @version 0.9
- * @license SPL
- * @package epesi-utils
+ * @version 1.0
+ * @license MIT 
+ * @package epesi-utils 
  * @subpackage shortcut
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');

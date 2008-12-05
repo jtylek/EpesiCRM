@@ -1,4 +1,11 @@
 <?php
+/**
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2006, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-base
+ */
 ob_start();
 header("Content-type: text/javascript");
 header("Cache-Control: no-cache, must-revalidate");

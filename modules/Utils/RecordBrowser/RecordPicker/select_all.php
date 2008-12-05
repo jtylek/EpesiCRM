@@ -1,4 +1,12 @@
 <?php
+/**
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-utils
+ * @subpackage RecordBrowser-RecordPicker
+ */
 if(!isset($_POST['select']) || !isset($_POST['tab']) || !isset($_POST['path']) || !isset($_POST['cid']))
 	die('alert(\'Invalid request\')');
 

@@ -1,11 +1,17 @@
 <?php
 /**
  * Flash Charts
- * @author shacky@poczta.fm
- * @copyright shacky@poczta.fm
- * @license SPL
- * @version 0.1
- * @package libs-openflashchart
+ *
+ * This module uses Open Flash Chart, displays data as a chart in flash.
+ * Copyright (C) 2007 John Glazebrook
+ * distributed under the terms of the GNU General Public License version 2 or later
+ *
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2006, Telaxus LLC
+ * @version 1.0
+ * @license MIT
+ * @package epesi-libs
+ * @subpackage openflashchart
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -20,7 +26,7 @@ class Libs_OpenFlashChartInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array("0.1");
+		return array("1.0");
 	}
 	
 	public function requires($v) {
@@ -30,8 +36,8 @@ class Libs_OpenFlashChartInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'Flash Charts',
-			'Author'=>'shacky@poczta.fm',
-			'License'=>'SPL');
+			'Author'=>'pbukowski@telaxus.com',
+			'License'=>'MIT');
 	}
 	
 	public static function simple_setup() {

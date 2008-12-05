@@ -6,8 +6,8 @@
  * 
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @license SPL
+ * @version 1.0
+ * @license MIT
  * @package epesi-utils
  * @subpackage tabbed-browser
  */
@@ -25,7 +25,7 @@ class Utils_TabbedBrowserInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array('0.9.9');
+		return array('1.0');
 	}
 	public function requires($v) {
 		return array(array('name'=>'Base/Theme','version'=>0));

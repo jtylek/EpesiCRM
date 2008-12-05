@@ -1,11 +1,15 @@
 <?php
 /**
  * Codepress editor
- * @author pbukowski@telaxus.com
- * @copyright pbukowski@telaxus.com
- * @license SPL
+ * This module uses CodePress editor released under
+ * GNU LESSER GENERAL PUBLIC LICENSE Version 2.1
+ *
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
  * @version 0.1
- * @package libs-codepress
+ * @package epesi-libs
+ * @subpackage codepress
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

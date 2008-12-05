@@ -6,10 +6,10 @@
  * 
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @license SPL
+ * @version 1.0
+ * @license MIT
  * @package epesi-utils
- * @subpackage dirty-read
+ * @subpackage DirtyRead
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

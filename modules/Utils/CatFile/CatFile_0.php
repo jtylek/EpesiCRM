@@ -1,13 +1,13 @@
 <?php
 /**
- * CatFile class.
+ * CatFileInstall class.
  * 
- * Displays file content
+ * This class provides initialization data for CatFile module.
  * 
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
- * @license SPL
+ * @license MIT
  * @package epesi-utils
  * @subpackage catfile
  */

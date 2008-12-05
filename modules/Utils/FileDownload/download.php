@@ -1,15 +1,12 @@
 <?php
 /**
- * Download file
- * 
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
+ * @license MIT
  * @version 1.0
- * @license SPL
- * @package utils
- * @subpackage file-download
+ * @package epesi-utils
+ * @subpackage FileDownload
  */
-
 header("Cache-Control: no-cache, must-revalidate");
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // date in the past
 

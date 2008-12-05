@@ -3,8 +3,8 @@
  * HTML class for a multiselect
  *
  * @author       Arkadiusz Bisaga <abisaga@telaxus.com> based on HTML_QuickForm select.php
- * @version      1.0
- * @access       public
+ * @license MIT
+ * @version 1.0
  * @package epesi-libs
  * @subpackage QuickForm
  */

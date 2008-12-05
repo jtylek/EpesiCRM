@@ -1,11 +1,14 @@
 <?php
+/**
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-utils
+ * @subpackage CurrencyField
+ */
 require_once("HTML/QuickForm/input.php");
 
-/**
- * HTML class for a text field with calendar
- *
- * @author       Arkadiusz Bisaga <abisaga@telaxus.com> & Paul Bukowski <pbukowski@telaxus.com>
- */
 class HTML_QuickForm_currency extends HTML_QuickForm_input {
 	private $dec_delimiter = '.';
 	private $thou_delimiter = ',';

@@ -1,11 +1,13 @@
 <?php
 /**
- * Keep epesi logged in.
- * @author pbukowski@telaxus.com
- * @copyright pbukowski@telaxus.com
- * @license SPL
- * @version 0.1
- * @package tools-sessionkeeper
+ * Keeps epesi user logged in.
+ *
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-tools
+ * @subpackage SessionKeeper
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

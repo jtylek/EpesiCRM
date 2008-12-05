@@ -5,9 +5,9 @@
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
- * @license SPL
+ * @license MIT
  * @package epesi-libs
- * @subpackage open-flash-chart
+ * @subpackage openflashchart
  */
 if(!isset($_REQUEST['id']) || !isset($_REQUEST['chart'])) die('Invalid usage');
 $id = $_REQUEST['id'];

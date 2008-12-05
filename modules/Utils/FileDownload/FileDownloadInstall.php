@@ -2,10 +2,10 @@
 /**
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
- * @version 0.9
- * @package utils
- * @subpackage file-download
- * @license SPL
+ * @license MIT
+ * @version 1.0
+ * @package epesi-utils
+ * @subpackage FileDownload
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -38,7 +38,7 @@ class Utils_FileDownloadInstall extends ModuleInstall {
 		return $ret;
 	}
 	public function version() {
-		return array("0.1");
+		return array("1.0");
 	}
 	
 	public function requires($v) {

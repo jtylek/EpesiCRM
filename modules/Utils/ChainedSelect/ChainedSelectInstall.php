@@ -1,11 +1,12 @@
 <?php
 /**
  * 
- * @author pbukowski@telaxus.com
- * @copyright pbukowski@telaxus.com
- * @license SPL
- * @version 0.1
- * @package utils-chainedselect
+ * @author Paul Bukowski <pbukowski@telaxus.com> and Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-Utils
+ * @subpackage ChainedSelect
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -20,7 +21,7 @@ class Utils_ChainedSelectInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array("0.5");
+		return array("1.0");
 	}
 	
 	public function requires($v) {
@@ -31,7 +32,7 @@ class Utils_ChainedSelectInstall extends ModuleInstall {
 		return array(
 			'Description'=>'',
 			'Author'=>'pbukowski@telaxus.com',
-			'License'=>'SPL');
+			'License'=>'MIT');
 	}
 	
 	public static function simple_setup() {

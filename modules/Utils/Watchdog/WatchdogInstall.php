@@ -2,12 +2,13 @@
 /**
  * 
  * @author Arkadiusz Bisaga <abisaga@telaxus.com>
- * @copyright Arkadiusz Bisaga <abisaga@telaxus.com>
- * @license SPL
- * @version 0.1
- * @package utils-watchdog
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-utils
+ * @subpackage Watchdog
  */
-defined("_VALID_ACCESS") || die('Direct access forbidden');
+ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_WatchdogInstall extends ModuleInstall {
 
@@ -66,7 +67,7 @@ class Utils_WatchdogInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array("0.8");
+		return array("1.0");
 	}
 	
 	public function requires($v) {
@@ -79,7 +80,7 @@ class Utils_WatchdogInstall extends ModuleInstall {
 		return array(
 			'Description'=>'',
 			'Author'=>'Arkadiusz Bisaga <abisaga@telaxus.com>',
-			'License'=>'SPL');
+			'License'=>'MIT');
 	}
 	
 	public static function simple_setup() {

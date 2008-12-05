@@ -4,9 +4,15 @@ require_once('qf.php');
 
 /**
  * HTML class for common data
- * 
+ *
  * @author       Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2006, Telaxus LLC
+ * @version 1.0
+ * @license MIT
+ * @package epesi-utils
+ * @subpackage CommonData
  */
+
 class HTML_QuickForm_commondata_group extends HTML_QuickForm_group {
 	var $_cd_root = '';
 	var $_cd_depth = 1;

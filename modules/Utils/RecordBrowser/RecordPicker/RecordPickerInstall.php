@@ -1,11 +1,11 @@
 <?php
 /**
- * 
- * @author admin@admin.com
- * @copyright admin@admin.com
- * @license SPL
- * @version 0.1
- * @package utils-recordbrowser--recordpicker
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-utils
+ * @subpackage RecordBrowser-RecordPicker
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

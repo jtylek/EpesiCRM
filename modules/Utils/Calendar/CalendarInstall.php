@@ -1,4 +1,12 @@
 <?php
+/**
+ * @author Paul Bukowski <pbukowski@telaxus.com> and Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-Utils
+ * @subpackage calendar
+ */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_CalendarInstall extends ModuleInstall {
@@ -14,7 +22,7 @@ class Utils_CalendarInstall extends ModuleInstall {
 	}
 
 	public function info() {
-		return array('Author'=>'<a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a>, <a href="mailto:pbukowski@telaxus.com">Paul Bukowski</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'Licence'=>'TL', 'Description'=>'Abstract calendar.');
+		return array('Author'=>'<a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a>, <a href="mailto:pbukowski@telaxus.com">Paul Bukowski</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'Licence'=>'MIT', 'Description'=>'Abstract calendar.');
 	}
 
 	public function simple_setup() {
@@ -32,7 +40,7 @@ class Utils_CalendarInstall extends ModuleInstall {
 		);
 	}
 	public function version() {
-		return array('0.1.0');
+		return array('1.0');
 	}
 }
 

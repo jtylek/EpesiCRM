@@ -2,8 +2,8 @@
 /**
  * @author Janusz Tylek <jtylek@telaxus.com>
  * @copyright Copyright &copy; 2008, Telaxus LLC
- * @version 0.1
- * @license SPL
+ * @version 1.0
+ * @license MIT
  * @package epesi-tools
  * @subpackage setdefaults
  */

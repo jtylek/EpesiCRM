@@ -1,4 +1,12 @@
 <?php
+/**
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-utils
+ * @subpackage bbcode
+ */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_BBCodeInstall extends ModuleInstall {
@@ -25,7 +33,7 @@ class Utils_BBCodeInstall extends ModuleInstall {
 	}
 
 	public function info() {
-		return array('Author'=>'<a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'Licence'=>'TL', 'Description'=>'BBCode parser module for epesi.');
+		return array('Author'=>'<a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'Licence'=>'MIT', 'Description'=>'BBCode parser module for epesi.');
 	}
 
 	public function simple_setup() {
@@ -38,7 +46,7 @@ class Utils_BBCodeInstall extends ModuleInstall {
 		);
 	}
 	public function version() {
-		return array('0.9');
+		return array('1.0');
 	}
 }
 

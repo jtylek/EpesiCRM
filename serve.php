@@ -1,6 +1,11 @@
 <?php
-
 /**
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2006, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-base
+ *
  * This script will serve a single js/css file in this directory. Here we place
  * the front-end-controller logic in user code, then use the "Files" controller
  * to minify the file. Alternately, we could have created a custom controller

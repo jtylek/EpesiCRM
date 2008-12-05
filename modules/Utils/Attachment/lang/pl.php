@@ -1,8 +1,8 @@
 <?php
 /**
  * Translation file
- * @package epesi-translations
- * @subpackage pl
+ * @package epesi-utils
+ * @subpackage attachment
  */
 global $translations;
 $translations['Utils_Attachment']['Date']='Data';

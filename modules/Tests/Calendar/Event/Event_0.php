@@ -1,11 +1,12 @@
 <?php
 /**
  * Example event module
- * @author pbukowski@telaxus.com
- * @copyright pbukowski@telaxus.com
- * @license SPL
- * @version 0.1
- * @package tests-calendar-event
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-tests
+ * @subpackage calendar-event
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

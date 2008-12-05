@@ -1,11 +1,11 @@
 <?php
 /**
- * 
  * @author Kuba Sławiński
- * @copyright Kuba Sławiński
- * @license SPL
- * @version 0.1
- * @package tests-colorpicker
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-tests
+ * @subpackage colorpicker
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 

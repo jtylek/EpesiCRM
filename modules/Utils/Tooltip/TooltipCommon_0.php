@@ -1,10 +1,10 @@
 <?php
-/**
+/** 
  * @author Kuba Slawinski <kslawinski@telaxus.com> and Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC 
- * @version 0.9
- * @license SPL
- * @package epesi-utils
+ * @version 1.0
+ * @license MIT 
+ * @package epesi-utils 
  * @subpackage tooltip
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');

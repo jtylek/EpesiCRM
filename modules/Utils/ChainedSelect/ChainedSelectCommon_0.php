@@ -1,11 +1,12 @@
 <?php
 /**
  * 
- * @author pbukowski@telaxus.com
- * @copyright pbukowski@telaxus.com
- * @license SPL
- * @version 0.1
- * @package utils-chainedselect
+ * @author Paul Bukowski <pbukowski@telaxus.com> and Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @license MIT
+ * @version 1.0
+ * @package epesi-Utils
+ * @subpackage ChainedSelect
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
