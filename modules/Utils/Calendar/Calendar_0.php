@@ -669,6 +669,7 @@ class Utils_Calendar extends Module {
 				$today_date = date('Y-m-d',strtotime($today_t));
 				$today_t = strtotime(date('Y-m-d H:i:s',Base_RegionalSettingsCommon::reg2time($today_date)));
 				$ev_start = $ev['start']-$today_t;
+				if(!isset($timeline[$today_date])) continue;
 				$ct = count($timeline[$today_date]);
 				for($i=1, $j=2; $j<$ct; $i++,$j++) {
 					while($timeline[$today_date][$i]['time']===false) $i++;
