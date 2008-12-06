@@ -107,7 +107,7 @@ class Utils_Attachment extends Module {
 			$cols[] = array('name'=>$this->lang->t('Deleted'),'order'=>'ual.deleted','width'=>5);
 		if($this->author)
 			$cols[] = array('name'=>$this->lang->t('User'), 'order'=>'note_by','width'=>5);
-		$cols[] = array('name'=>$this->lang->t('Date'), 'order'=>'note_on','width'=>5);
+		$cols[] = array('name'=>$this->lang->t('Date'), 'order'=>'note_on','width'=>1,'wrapmode'=>'nowrap');
 		$expand_id = 'expand_collapse_'.md5($this->get_path());
 		$cols[] = array('name'=>$this->lang->t('Note'), 'preppend'=>'<span id="'.$expand_id.'"></span>', 'width'=>70);
 		$cols[] = array('name'=>$this->lang->t('Attachment'), 'order'=>'uaf.original','width'=>5);
