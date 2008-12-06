@@ -1,0 +1,104 @@
+#Filters_header,
+.Filters_header {
+	color: #FFFFFF;
+	background-color: #336699;
+	background-image: url("images/header-blue.png");
+	background-repeat: repeat-x;
+	height: 20px;
+	text-align: center;
+	vertical-align: middle;
+	font-weight: bold;
+}
+
+.Filters_header {
+	font-weight: normal;
+}
+
+#Filters_header .left {
+	width: 20px;
+	display: block;
+	float: left;
+}
+
+#Filters_header .center {
+	display: block;
+	float: left;
+	padding-top: 3px;
+	font-weight: bold;
+	text-align: center;
+}
+
+#Filters_header .right {
+	width: 17px;
+	display: block;
+	float: right;
+	padding-top: 3px;
+	padding-right: 3px;
+}
+
+/* button */
+
+table#Utils_LeightboxPrompt .button {
+	background-color: #F0F0F0;
+	border: 1px solid #FFFFFF;
+	background-repeat: repeat-x;
+	vertical-align: middle;
+	text-align: center;
+	font-size: 11px;
+	display: block;
+	cursor: pointer;
+	height: 60px;
+	background-image: url("images/big-button.png");
+	padding-top: 10px;
+}
+
+table#Utils_LeightboxPrompt .button:hover {
+	background-color: #FFFFFF;
+	background-image: url("images/big-button-hover.png");
+}
+
+table#Utils_LeightboxPrompt a .button {
+	color: #336699;
+	font-weight: bold;
+}
+
+table#Utils_LeightboxPrompt a .button .desc {
+	font-weight: normal;
+}
+
+table#Utils_LeightboxPrompt .button span {
+	display: block;
+}
+
+table#Utils_LeightboxPrompt .button span.text {
+	padding-bottom: 5px;
+}
+
+table#Utils_LeightboxPrompt .button span.desc {
+	width: 100px;
+	text-align: left;
+	margin-left: 10px;
+}
+
+/* small button */
+
+table#Utils_LeightboxPrompt .button-small {
+	display: block;
+	line-height: 20px;
+	width: 200px;
+	border: 0px;
+	color: #FFFFFF;
+	background-color: #336699;
+	text-align: center;
+}
+
+table#Utils_LeightboxPrompt .button-small:hover {
+	background-color: #339933;
+	color: #FFFFFF;
+}
+
+/* a */
+
+table#Utils_LeightboxPrompt a:hover {
+	color: #993333;
+}
