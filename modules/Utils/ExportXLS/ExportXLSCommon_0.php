@@ -9,7 +9,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Libs_ExportXLSCommon extends ModuleCommon {
+class Utils_ExportXLSCommon extends ModuleCommon {
 	static $row = 0;
 	
 	function BOF() {

@@ -9,7 +9,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class Libs_ExportXLSInstall extends ModuleInstall {
+class Utils_ExportXLSInstall extends ModuleInstall {
 	public function install() {
 		return true;
 	}
