@@ -1465,7 +1465,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$cut = true;
 				$label .= '...';
 				if ($tooltip) {
-					if (!strpos($str, 'Utils_Toltip__showTip(')) $label = '<span '.Utils_TooltipCommon::open_tag_attrs($str).'>'.$label.'</span>';
+					if (!strpos($str, 'Utils_Toltip__showTip(')) $label = '<span '.Utils_TooltipCommon::open_tag_attrs(strip_tags($str)).'>'.$label.'</span>';
 					else $label = preg_replace('/Utils_Toltip__showTip\(\'(.*?)\'/', 'Utils_Toltip__showTip(\''.escapeJS(htmlspecialchars($str)).'<hr>$1\'', $label);
 				}
 			}
