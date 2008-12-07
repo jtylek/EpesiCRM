@@ -1064,7 +1064,6 @@ class Utils_RecordBrowser extends Module {
 														$record[$args['id']][] = $v;
 												}
 											}
-											print('<hr>');
 											$single_column = (count($col_id)==1);
 											if (isset($record[$args['id']])) {
 												if (!is_array($record[$args['id']])) {
