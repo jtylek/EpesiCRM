@@ -1053,7 +1053,7 @@ class Utils_RecordBrowser extends Module {
 											$col = explode('|',$col);
 											$col_id = array();
 											foreach ($col as $c) $col_id[] = strtolower(str_replace(' ','_',$c));
-											$records = Utils_RecordBrowserCommon::get_records($tab, $crits, empty($multi_adv_params['format_callback'])?$col_id:array(), isset($multi_adv_params['order'])?$multi_adv_params['order']:array());
+											$records = Utils_RecordBrowserCommon::get_records($tab, $crits, empty($multi_adv_params['format_callback'])?$col_id:array(), !empty($multi_adv_params['order'])?$multi_adv_params['order']:array());
 //											$records = Utils_RecordBrowserCommon::get_records($tab, $crits, empty($multi_adv_params['format_callback'])?$col_id:array());
 											$ext_rec = array();
 											if (isset($this->custom_defaults[$args['id']])) {
@@ -1084,7 +1084,7 @@ class Utils_RecordBrowser extends Module {
 													$comp[$k] = $n;
 												}
 											}
-											natcasesort($comp);
+											if (!empty($multi_adv_params['order'])) natcasesort($comp);
 											foreach ($records as $k=>$v) {
 												if (!empty($multi_adv_params['format_callback'])) $n = call_user_func($multi_adv_params['format_callback'], $v);
 												else {
@@ -1099,6 +1099,7 @@ class Utils_RecordBrowser extends Module {
 												$comp[$k] = $n;
 												unset($ext_rec[$v['id']]);
 											}
+											if (empty($multi_adv_params['order'])) natcasesort($comp);
 										}
 										if ($args['type']==='select') $comp = array(''=>'---')+$comp;
 										$form->addElement($args['type'], $args['id'], '<span id="_'.$args['id'].'__label">'.$this->lang->t($args['name']).'</span>', $comp, array('id'=>$args['id']));
