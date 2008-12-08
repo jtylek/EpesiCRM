@@ -31,6 +31,6 @@ if(!Acl::is_user())
 $t = time();
 $token = md5(Acl::get_user().$t);
 DB::Execute('INSERT INTO utils_attachment_download(remote,attach_file_id,created_by,created_on,description,token) VALUES (1,%d,%d,%T,%s,%s)',array($file_id,Acl::get_user(),$t,$description,$token));
-$url = get_epesi_url().'/get_remote.php?'.http_build_query(array('id'=>DB::Insert_ID('utils_attachment_download','id'),'token'=>$token));
+$url = get_epesi_url().'modules/Utils/Attachment/get_remote.php?'.http_build_query(array('id'=>DB::Insert_ID('utils_attachment_download','id'),'token'=>$token));
 print($url);
 ?>
