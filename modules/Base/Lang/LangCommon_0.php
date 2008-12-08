@@ -156,6 +156,42 @@ class Base_LangCommon extends ModuleCommon {
 		file_put_contents(DATA_DIR.'/Base_Lang/cache',implode(',',$langs));
 	}
 	
+// ********************************************************************\
+// Translation of text with one argument only
+// The directory is parsed using debug_backtrace
+
+	 public static function translate($original, array $arg=array()) {
+		global $translations;
+		// Get a directory of a script from which the function was called
+		$call_dir=debug_backtrace();
+		$dirname = dirname($call_dir[0]['file']);
+		// extract module name
+		$pos=strrpos($dirname,'modules')+8;
+		$group = substr($dirname,$pos);
+		
+		$group = str_replace('/','_',$group);
+		$group = str_replace('\\','_',$group);
+
+		if(!isset($translations)) {
+			$translations = array();
+			include_once(DATA_DIR.'/Base_Lang/'.self::get_lang_code().'.php');
+		}
+
+		if(!array_key_exists($group, $translations) ||
+			!array_key_exists($original, $translations[$group])) {
+			$translations[$group][$original] = '';
+			//only first display of the string is not in translations database... slows down loading of the page only once...
+			self::save();
+		}
+		$trans = $translations[$group][$original];
+
+		if(!isset($trans) || $trans=='') $trans = $original;
+
+		$trans = @vsprintf($trans,$arg);
+		if ($trans=='' && $original) $trans = 'Invalid string to translate: '.$trans;
+		return $trans;
+	}
+
 }
 
 on_init(array('Base_LangCommon','load'));
