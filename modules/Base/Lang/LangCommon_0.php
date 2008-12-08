@@ -169,8 +169,7 @@ class Base_LangCommon extends ModuleCommon {
 		$pos=strrpos($dirname,'modules')+8;
 		$group = substr($dirname,$pos);
 		
-		$group = str_replace('/','_',$group);
-		$group = str_replace('\\','_',$group);
+		$group = str_replace(array('/','\\'),'_',$group);
 
 		if(!isset($translations)) {
 			$translations = array();
