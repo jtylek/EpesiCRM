@@ -1,3 +1,4 @@
+<br>
 {$form_open}
 <table id="Utils_LeightboxPrompt__form" cellspacing="0" cellpadding="0" style="width:70%">
 	{foreach item=e from=$form_data}
@@ -24,5 +25,4 @@
 		</td>
 	</tr>
 </table>
-<span style="text-align:left;"><xmp>{php}print_r($this->_tpl_vars['form_data']){/php}</xmp></span>
 {$form_close}

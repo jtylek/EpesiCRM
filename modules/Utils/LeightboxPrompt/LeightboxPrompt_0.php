@@ -16,6 +16,12 @@ class Utils_LeightboxPrompt extends Module {
 	private $group = null;
 	private $leightbox_ready = false;
 	private $last_location = null;
+	private $option_chosen = null;
+	
+	public function option_chosen($arg) {
+		$this->option_chosen = $arg;
+		return false;
+	}
 	
 	public function construct() {
 		$this->group = md5($this->get_path());
@@ -44,14 +50,13 @@ class Utils_LeightboxPrompt extends Module {
 			}
 			
 			$this->leightbox_ready = true;
-			
-			eval_js_once($this->group.'_followups_deactivate = function(){leightbox_deactivate(\''.$this->group.'_followups_leightbox\');}');
-			eval_js_once($this->group.'_show_form = function(arg){$(arg+\'_'.$this->group.'_form_section\').style.display=\'block\';$(\''.$this->group.'_buttons_section\').style.display=\'none\';}');
+
+			eval_js_once('f'.$this->group.'_followups_deactivate = function(){leightbox_deactivate(\''.$this->group.'_followups_leightbox\');}');
+			eval_js_once('f'.$this->group.'_show_form = function(arg){$(arg+\'_'.$this->group.'_form_section\').style.display=\'block\';$(\''.$this->group.'_buttons_section\').style.display=\'none\';}');
 			eval_js('$(\''.$this->group.'_buttons_section\').style.display=\'block\';');
 
 			$buttons = array();
 			$sections = array();
-			Base_ThemeCommon::install_default_theme($this->get_type());
 			foreach ($this->options as $k=>$v) {
 				$next_button = array('icon'=>$v['icon'], 'label'=>$v['label']);
 				if ($v['form']!==null) {
@@ -59,17 +64,17 @@ class Utils_LeightboxPrompt extends Module {
 						foreach ($params as $w)
 							$v['form']->addElement('hidden', $this->group.'_'.$w, $w, array('id'=>$this->group.'_'.$w));
 					$v['form']->addElement('button', 'cancel', $this->lang->t('Cancel'), array('onclick'=>'$(\''.$this->group.'_buttons_section\').style.display=\'block\';$(\''.$k.'_'.$this->group.'_form_section\').style.display=\'none\';'));
-					$v['form']->addElement('submit', 'submit', $this->lang->t('OK'), array('onclick'=>$this->group.'_followups_deactivate();'));
+					$v['form']->addElement('submit', 'submit', $this->lang->t('OK'), array('onclick'=>'f'.$this->group.'_followups_deactivate();'));
 					ob_start();
 					$th = $this->init_module('Base/Theme');
 					$v['form']->assign_theme('form', $th);
 					$th->display('form');
 					$form_contents = ob_get_clean();
-					$next_button['open'] = '<a href="javascript:void(0);" onclick="'.$this->group.'_show_form(\''.$k.'\');">';
+					$next_button['open'] = '<a href="javascript:void(0);" onclick="f'.$this->group.'_show_form(\''.$k.'\');">';
 					$sections[] = '<div id="'.$k.'_'.$this->group.'_form_section" style="display:none;">'.$form_contents.'</div>'; 
 					eval_js('$(\''.$k.'_'.$this->group.'_form_section\').style.display=\'none\';');
 				} else {
-					$next_button['open'] = '<a href="javascript:void(0);">';
+					$next_button['open'] = '<a '.$this->create_callback_href(array($this,'option_chosen'), array($k)).' onmouseup="f'.$this->group.'_followups_deactivate();">';
 				}
 				$next_button['close'] = '</a>';
 				$buttons[] = $next_button;
@@ -89,29 +94,34 @@ class Utils_LeightboxPrompt extends Module {
 		}
 	}
 	
-	public function get_href($params) {
+	public function get_href($params=array()) {
 		$ret = 'href="javascript:void(0)" class="lbOn" rel="'.$this->group.'_followups_leightbox"';
 		if (!empty($params)) $ret .= ' onmousedown="'.$this->group.'_set_params(\''.implode('\',\'',$params).'\');"';
 		return $ret;
 	}
 
 	public function get_close_leightbox_href($params) {
-		return 'href="javascript:void(0)" onclick="'.$this->group.'_followups_deactivate();"';
+		return 'href="javascript:void(0)" onclick="f'.$this->group.'_followups_deactivate();"';
 	}
 
 	public function export_values() {
 		$ret = array();
+		if ($this->option_chosen!==null) return array('option'=>$this->option_chosen);
 		foreach ($this->options as $k=>$v)
 			if ($v['form']!==null && $v['form']->validate()) {
 				$ret['option'] = $k;
 				$vals = $v['form']->exportValues();
-				foreach ($this->params as $p) {
+				if (is_array($this->params)) foreach ($this->params as $p) {
 					$ret['params'][$p] = $vals[$this->group.'_'.$p];
 					unset($vals[$this->group.'_'.$p]);
 				}
+				unset($vals['submit']);
+				unset($vals['submited']);
+				unset($vals['_qf__libs_qf_'.md5($v['form']->get_path())]); // TODO: not really nice
 				$ret['form'] = $vals;
 				break;	
 			}
+		if (empty($ret)) return null; 
 		return $ret;
 	}
 }
