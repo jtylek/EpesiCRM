@@ -1,7 +1,8 @@
-Utils_Toltip__showTip = function(tip, my_event) {
+Utils_Toltip__showTip = function(o,my_event) {
 	var div_tip = $('tooltip_div');
 	var tooltip_text = $('tooltip_text');
-	if(!div_tip || !tooltip_text) return;
+	var tip = o.getAttribute('tip');
+	if(!div_tip || !tooltip_text || !tip) return;
 	tooltip_text.innerHTML = tip;
 	var dimensions = div_tip.getDimensions();
 	

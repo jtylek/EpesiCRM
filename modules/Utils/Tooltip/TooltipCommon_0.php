@@ -57,7 +57,8 @@ class Utils_TooltipCommon extends ModuleCommon {
 			eval_js($js,false);
 			$_SESSION['client']['utils_tooltip'] = true;
 		}
-		return ' onMouseMove="if(typeof(Utils_Toltip__showTip)!=\'undefined\')Utils_Toltip__showTip(\''.escapeJS(htmlspecialchars($tip,ENT_QUOTES)).'\', event)" onMouseOut="if(typeof(Utils_Toltip__hideTip)!=\'undefined\')Utils_Toltip__hideTip()" onMouseUp="if(typeof(Utils_Toltip__hideTip)!=\'undefined\')Utils_Toltip__hideTip()" ';
+//		$tip = 'dupa';
+		return ' onMouseMove="if(typeof(Utils_Toltip__showTip)!=\'undefined\')Utils_Toltip__showTip(this,event)" tip="'.htmlspecialchars($tip).'" onMouseOut="if(typeof(Utils_Toltip__hideTip)!=\'undefined\')Utils_Toltip__hideTip()" onMouseUp="if(typeof(Utils_Toltip__hideTip)!=\'undefined\')Utils_Toltip__hideTip()" ';
 	}
 
 	/**
