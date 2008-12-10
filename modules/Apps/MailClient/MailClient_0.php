@@ -60,13 +60,40 @@ class Apps_MailClient extends Module {
 		$preview_id = $this->get_path().'preview';
 		$show_id = $this->get_path().'show';
 
+		$mail_actions_arr = array();
+
 		$move_msg_f = $this->init_module('Libs/QuickForm',null,'move_msg');
 		$move_msg_f->addElement('hidden','msg_id','-1',array('id'=>'mail_client_actions_move_msg_id'));
 		$move_msg_f->addElement('select','folder',$this->lang->t('Move message to folder'),$move_folders);
 		$move_msg_f->addElement('button','submit_button',$this->lang->ht('Move'),array('onClick'=>$move_msg_f->get_submit_form_js().'leightbox_deactivate(\'mail_actions\');'));
+		$mail_actions_arr[] = $move_msg_f->toHtml();
 
-		Libs_LeightboxCommon::display('mail_actions','<a onClick="leightbox_deactivate(\'mail_actions\')" href="" tpl_href="modules/Apps/MailClient/source.php?'.http_build_query(array('box'=>$box,'dir'=>$dir,'msg_id'=>'__MSG_ID__')).'" target="_blank" id="mail_client_actions_view_source">'.$this->lang->t('View source').'</a><br>'.
-							$move_msg_f->toHtml(),$this->lang->t('Mail actions'));
+		$mail_actions_arr[] = '<a onClick="leightbox_deactivate(\'mail_actions\')" href="" tpl_href="modules/Apps/MailClient/source.php?'.http_build_query(array('box'=>$box,'dir'=>$dir,'msg_id'=>'__MSG_ID__')).'" target="_blank" id="mail_client_actions_view_source">'.$this->lang->t('View source').'</a>';
+		
+		$external_mail_actions = ModuleManager::call_common_methods('mail_actions');
+		$i=0;
+		foreach($external_mail_actions as $x) {
+			if(!is_array($x)) continue;
+			foreach($x as $caption=>$f) {
+				if(!is_array($f) || !isset($f['func']))  {
+					if(!is_string($f) || !is_array($f)) continue;
+					$f = array('func'=>$f);
+				}
+				if($this->get_unique_href_variable('external_action')===$caption) {
+					$id = $this->get_unique_href_variable('msg_id');
+					if(is_numeric($id)) {
+						$msg = Apps_MailClientCommon::parse_message($box,$dir,$id);
+						call_user_func($f['func'],$msg);
+						if(isset($f['delete']) && $f['delete'])
+							Apps_MailClientCommon::remove_msg($box,$dir,$id);
+					}
+				}
+				$mail_actions_arr[] = '<a href="javascript:void(0)" tpl_onClick="'.Module::create_unique_href_js(array('external_action'=>$caption,'msg_id'=>'__MSG_ID__')).'" id="mail_client_external_actions_'.$i.'">'.$this->lang->t($caption).'</a>';
+				$i++;		
+			}
+		}
+			
+		Libs_LeightboxCommon::display('mail_actions','<ul><li>'.implode($mail_actions_arr,'<li>').'</ul>',$this->lang->t('Mail actions'));
 
 		if($move_msg_f->validate()) {
 			$vals = $move_msg_f->exportValues();
@@ -174,6 +201,8 @@ class Apps_MailClient extends Module {
 //		if(DB::GetOne('SELECT 1 FROM apps_mailclient_accounts WHERE smtp_server is not null AND smtp_server!=\'\' AND user_login_id='.Acl::get_user())) //bo bedzie internal
 		Base_ActionBarCommon::add('add',$this->lang->ht('New mail'),$this->create_callback_href(array($this,'edit_mail'),array($box,$dir)));
 		Base_ActionBarCommon::add('scan',$this->lang->ht('Mark all as read'),$this->create_confirm_callback_href($this->lang->ht('Are you sure?'),array($this,'mark_all_as_read')));
+		if($trash_folder)
+			Base_ActionBarCommon::add('delete',$this->lang->ht('Empty trash'),$this->create_confirm_callback_href($this->lang->ht('Are you sure?'),array($this,'empty_trash')));
 //echo('<script>function destroy_me(parent) {var x=parent.$(\''.$_GET['id'].'X\');x.parentNode.removeChild(x);parent.leightbox_deactivate(\''.$_GET['id'].'\')}</script>');
 //echo('<a href="javascript:destroy_me(parent)">hide</a>');
 
@@ -252,6 +281,32 @@ class Apps_MailClient extends Module {
 		if(!Apps_MailClientCommon::mark_all_as_read($box, $dir)) {
 			Epesi::alert($this->lang->ht('Invalid mailbox'));		
 		}
+	}
+
+	public function empty_trash() {
+		$box = $this->get_module_variable('opened_box');
+		$dir = $this->get_module_variable('opened_dir');
+
+		$idx = Apps_MailClientCommon::get_index($box,$dir);
+		if($idx===false) {
+			Epesi::alert($this->lang->ht('Invalid index'));
+			return false;
+		}
+
+		$mbox_dir = Apps_MailClientCommon::get_mailbox_dir($box);
+		if($mbox_dir===false) {
+			Epesi::alert($this->lang->ht('Invalid mailbox'));
+			return false;
+		}
+		$box = $mbox_dir.$dir;
+
+		foreach($idx as $i=>$a) {
+			@unlink($box.$id);
+		}
+
+		file_put_contents($box.'.idx','');
+		file_put_contents($box.'.del','');
+		file_put_contents($box.'.num','0,0');
 	}
 
 	public function restore_mail($box,$dir,$id) {

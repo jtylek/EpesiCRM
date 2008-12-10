@@ -12,17 +12,9 @@ ModuleManager::load_modules();
 
 if(!Acl::is_user()) die('Not logged in');
 
-ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
-require_once('Mail/mimeDecode.php');
+$structure = Apps_MailClientCommon::get_message_structure($_GET['box'],$_GET['dir'],$_GET['msg_id']);
 
-$box_dir = Apps_MailClientCommon::get_mailbox_dir($_GET['box']);
-if($box_dir===false) {
-	die('Invalid mailbox');
-}
-$box = $box_dir.$_GET['dir'];
-
-$message = @file_get_contents($box.'/'.$_GET['msg_id']);
-if($message===false) {
+if($structure===false) {
 	$err = 'Invalid message';
 	header("Content-type: text/html");
 	$script = 'parent.$(\''.$_GET['pid'].'_subject\').innerHTML=\''.Epesi::escapeJS(htmlentities($err),false).'\';'.
@@ -37,14 +29,6 @@ if($message===false) {
 	exit();
 }
 
-$decode = new Mail_mimeDecode($message, "\r\n");
-$structure = $decode->decode(array('decode_bodies'=>true,'include_bodies'=>true));
-if(!isset($structure->headers['from']))
-	$structure->headers['from'] = '';
-if(!isset($structure->headers['to']))
-	$structure->headers['to'] = '';
-if(!isset($structure->headers['date']))
-	$structure->headers['date'] = '';
 
 if(isset($_GET['attachment_cid']) || isset($_GET['attachment_name'])) {
 	if(isset($structure->parts)) {
@@ -66,38 +50,11 @@ if(isset($_GET['attachment_cid']) || isset($_GET['attachment_name'])) {
 	}
 	die('Invalid attachment');
 } else {
-	$body = false;
-	$body_type = false;
-	$body_ctype = false;
-	$attachments = array();
-
-	if($structure->ctype_primary=='multipart' && isset($structure->parts)) {
-		$parts = $structure->parts;
-		for($i=0; $i<count($parts); $i++) {
-			$part = $parts[$i];
-			if($part->ctype_primary=='multipart' && isset($part->parts))
-				$parts = array_merge($parts,$part->parts);
-			if($body===false && $part->ctype_primary=='text' && $part->ctype_secondary=='plain' && (!isset($part->disposition) || $part->disposition=='inline')) {
-				$body = $part->body;
-				$body_type = 'plain';
-			} elseif($part->ctype_primary=='text' && $part->ctype_secondary=='html' && ($body===false || $body_type=='plain') && (!isset($part->disposition) || $part->disposition=='inline')) {
-				$body = $part->body;
-				$body_type = 'html';
-			}
-			$body_ctype = isset($part->headers['content-type'])?$part->headers['content-type']:'text/'.$body_type;
-			//if(isset($part->disposition) && $part->disposition=='attachment')
-			if(isset($part->ctype_parameters['name'])) {
-				if(isset($part->headers['content-id']))
-					$attachments[$part->ctype_parameters['name']] = trim($part->headers['content-id'],'><');
-				else
-					$attachments[$part->ctype_parameters['name']] = true;
-			}
-		}
-	} elseif(isset($structure->body) && $structure->ctype_primary=='text') {
-		$body = $structure->body;
-		$body_type = $structure->ctype_secondary;
-		$body_ctype = isset($structure->headers['content-type'])?$structure->headers['content-type']:'text/'.$body_type;
-	}
+	$msg = Apps_MailClientCommon::parse_message_structure($structure,true);
+	$body = $msg['body'];
+	$body_type = $msg['type'];
+	$body_ctype = $msg['ctype'];
+	$attachments = $msg['attachments'];
 
 	if($body===false) die('invalid message');
 
@@ -116,7 +73,7 @@ if(isset($_GET['attachment_cid']) || isset($_GET['attachment_name'])) {
 	else
 		$address = $structure->headers['from'];
 
-	$subject = isset($structure->headers['subject'])?Apps_MailClientCommon::mime_header_decode($structure->headers['subject']):'no subject';
+	$subject = $msg['subject'];
 	$address = Apps_MailClientCommon::mime_header_decode($address);
 
 	$script = 'parent.$(\''.$_GET['pid'].'_subject\').innerHTML=\''.Epesi::escapeJS(htmlentities($subject),false).'\';'.

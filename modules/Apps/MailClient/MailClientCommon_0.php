@@ -440,6 +440,76 @@ class Apps_MailClientCommon extends ModuleCommon {
 	    return $str;
 	}
 
+	public static function get_message_structure($box,$dir,$id) {
+		$box_dir = Apps_MailClientCommon::get_mailbox_dir($box);
+		if($box_dir===false)
+			return false;
+		$box = $box_dir.$dir;
+		$message = @file_get_contents($box.'/'.$id);
+		
+		if($message===false)
+			return false;
+
+		ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
+		require_once('Mail/mimeDecode.php');
+		$decode = new Mail_mimeDecode($message, "\r\n");
+		$structure = $decode->decode(array('decode_bodies'=>true,'include_bodies'=>true));
+		if(!isset($structure->headers['from']))
+			$structure->headers['from'] = '';
+		if(!isset($structure->headers['to']))
+			$structure->headers['to'] = '';
+		if(!isset($structure->headers['date']))
+			$structure->headers['date'] = '';
+		return $structure;
+	}
+
+	public static function parse_message_structure($structure,$full_attachments=true) {
+		$body = false;
+		$body_type = false;
+		$body_ctype = false;
+		$attachments = array();
+
+		if($structure->ctype_primary=='multipart' && isset($structure->parts)) {
+			$parts = $structure->parts;
+			for($i=0; $i<count($parts); $i++) {
+				$part = $parts[$i];
+				if($part->ctype_primary=='multipart' && isset($part->parts))
+					$parts = array_merge($parts,$part->parts);
+				if($body===false && $part->ctype_primary=='text' && $part->ctype_secondary=='plain' && (!isset($part->disposition) || $part->disposition=='inline')) {
+					$body = $part->body;
+					$body_type = 'plain';
+				} elseif($part->ctype_primary=='text' && $part->ctype_secondary=='html' && ($body===false || $body_type=='plain') && (!isset($part->disposition) || $part->disposition=='inline')) {
+					$body = $part->body;
+					$body_type = 'html';
+				}
+				$body_ctype = isset($part->headers['content-type'])?$part->headers['content-type']:'text/'.$body_type;
+				//if(isset($part->disposition) && $part->disposition=='attachment')
+				if(isset($part->ctype_parameters['name'])) {
+					if($full_attachments) {
+						$attachments[$part->ctype_parameters['name']] = array('type'=>isset($part->headers['content-type'])?$part->headers['content-type']:false,'body'=>$part->body);
+					} else {
+						if(isset($part->headers['content-id']))
+							$attachments[$part->ctype_parameters['name']] = trim($part->headers['content-id'],'><');
+						else
+							$attachments[$part->ctype_parameters['name']] = true;
+					}
+				}
+			}
+		} elseif(isset($structure->body) && $structure->ctype_primary=='text') {
+			$body = $structure->body;
+			$body_type = $structure->ctype_secondary;
+			$body_ctype = isset($structure->headers['content-type'])?$structure->headers['content-type']:'text/'.$body_type;
+		}
+		$subject = isset($structure->headers['subject'])?Apps_MailClientCommon::mime_header_decode($structure->headers['subject']):'no subject';
+		return array('body'=>$body, 'subject'=>$subject,'type'=>$body_type, 'ctype'=>$body_ctype, 'attachments'=>$attachments);
+	}
+	
+	public static function parse_message($box,$dir,$id,$structure=true) {
+		$str = self::get_message_structure($box,$dir,$id);
+		if($str===false) return false;
+		return array_merge(self::parse_message_structure($str),array('headers'=>$str->headers));
+	}
+
 	public static function addressbook_rp_mail($e){
 		return CRM_ContactsCommon::contact_format_default($e,true);
 	}

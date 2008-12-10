@@ -83,6 +83,12 @@ actions_set_id:function(id) {
 	var href = $('mail_client_actions_view_source').getAttribute('tpl_href');
 	$('mail_client_actions_view_source').setAttribute('href',href.replace('__MSG_ID__',id));
 	$('mail_client_actions_move_msg_id').value=id;
+	var i=0;
+	var e;
+	while(e=$('mail_client_external_actions_'+i)) {
+		e.setAttribute('onClick',e.getAttribute('tpl_onClick').replace('__MSG_ID__',id)+';leightbox_deactivate(\'mail_actions\')');
+		i++;
+	}
 },
 msg_num_cache: Array(),
 updating_msg_num: Array(),

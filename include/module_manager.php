@@ -985,7 +985,8 @@ class ModuleManager {
 
 	public static final function call_common_methods($method,$cached=true,$args=array()) { //przy instalacji niech rejestruje commony a pozniej idzie do bazy
 		static $cache;
-		if(!isset($cache[$method]) || !$cached) {
+		$cache_id = $method.md5(serialize($args));
+		if(!isset($cache[$cache_id]) || !$cached) {
 			$ret = array();
 			ob_start();
 			foreach(self::$modules as $name=>$version)
@@ -993,22 +994,23 @@ class ModuleManager {
 					$ret[$name] = call_user_func_array(array($name.'Common',$method),$args);
 				}
 			ob_end_clean();
-			$cache[$method]=&$ret;
+			$cache[$cache_id]=&$ret;
 		}
-		return $cache[$method];
+		return $cache[$cache_id];
 	}
 
 	public static final function check_common_methods($method,$cached=true) { //przy instalacji niech rejestruje commony a pozniej idzie do bazy
 		static $cache;
-		if(!isset($cache[$method]) || !$cached) {
+		$cache_id = $method.md5(serialize($args));
+		if(!isset($cache[$cache_id]) || !$cached) {
 			$ret = array();
 			foreach(self::$modules as $name=>$version)
 				if(method_exists($name.'Common', $method)) {
 					$ret[] = $name;
 				}
-			$cache[$method]=&$ret;
+			$cache[$cache_id]=&$ret;
 		}
-		return $cache[$method];
+		return $cache[$cache_id];
 	}
 
 }
