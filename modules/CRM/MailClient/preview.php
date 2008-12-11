@@ -30,7 +30,7 @@ if(isset($_GET['attachment_cid']))
 elseif(isset($_GET['attachment_name']))
 	$attach = DB::GetRow('SELECT * FROM crm_mailclient_attachments WHERE mail_id=%d AND name=%s',array($_GET['msg_id'],$_GET['attachment_name']));
 if($attach!==true) {
-	if($attach===false)
+	if(!$attach)
 		die('Invalid attachment');
 	header('Content-Type: '.$attach['type']);
 	header('Content-disposotion: '.$attach['disposition']);
@@ -59,7 +59,10 @@ if($attach!==true) {
 	$body = preg_replace('/"cid:([^@]+@[^@]+)"/i','"preview.php?'.http_build_query($_GET).'&attachment_cid=$1"',$body);
 	$body = preg_replace("/<a([^>]*)>(.*)<\/a>/i", '<a$1 target="_blank">$2</a>', $body);
 
-	$body .= '</html>';
+	$body .= '<script>'.
+			'parent.$("crm_mailclient_view").height = document.body.offsetHeight+20;'.
+			'</script>'.
+			'</html>';
 
 	echo Utils_BBCodeCommon::parse($body);//.'<pre>'.htmlentities(print_r($structure,true)).'</pre>';
 }

@@ -31,16 +31,18 @@ class CRM_MailClientInstall extends ModuleInstall {
 			id I4 AUTO KEY NOTNULL,
 			mail_id I4 NOTNULL,
 			type C(32),
-			disposition C(32),
+			disposition C(255),
 			name C(255),
 			cid C(255)',
 			array('constraints'=>', FOREIGN KEY (mail_id) REFERENCES crm_mailclient_mails(ID)'));
 		$this->create_data_dir();
 		file_put_contents($this->get_data_dir().'.htaccess','deny from all');
+		Base_ThemeCommon::install_default_theme($this->get_type());
 		return $ret;
 	}
 	
 	public function uninstall() {
+		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		Utils_RecordBrowserCommon::delete_addon('contact', 'CRM/MailClient', 'contact_addon');
 		DB::DropTable('crm_mailclient_attachments');
 		DB::DropTable('crm_mailclient_mails');

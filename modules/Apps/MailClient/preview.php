@@ -38,7 +38,7 @@ if(isset($_GET['attachment_cid']) || isset($_GET['attachment_name'])) {
 			if($part->ctype_primary=='multipart' && isset($part->parts))
 				$parts = array_merge($parts,$part->parts);
 			//if(isset($part->disposition) && $part->disposition=='attachment' && $part->ctype_parameters['name']==$_GET['attachment']) {
-			if((isset($part->headers['content-id']) && trim($part->headers['content-id'],'<>')==$_GET['attachment_cid']) || (isset($part->ctype_parameters['name']) && $part->ctype_parameters['name']==$_GET['attachment_name'])) {
+			if((isset($_GET['attachment_cid']) && isset($part->headers['content-id']) && trim($part->headers['content-id'],'<>')==$_GET['attachment_cid']) || (isset($_GET['attachment_name']) && isset($part->ctype_parameters['name']) && $part->ctype_parameters['name']==$_GET['attachment_name'])) {
 				if(isset($part->headers['content-type']))
 					header('Content-Type: '.$part->headers['content-type']);
 				if(isset($part->headers['content-dispositon']))
@@ -50,7 +50,7 @@ if(isset($_GET['attachment_cid']) || isset($_GET['attachment_name'])) {
 	}
 	die('Invalid attachment');
 } else {
-	$msg = Apps_MailClientCommon::parse_message_structure($structure,true);
+	$msg = Apps_MailClientCommon::parse_message_structure($structure,false);
 	$body = $msg['body'];
 	$body_type = $msg['type'];
 	$body_ctype = $msg['ctype'];

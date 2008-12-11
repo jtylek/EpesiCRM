@@ -32,7 +32,7 @@ class CRM_MailClientCommon extends ModuleCommon {
 		
 		$headers = '';
 		foreach($msg['headers'] as $cap=>$h)
-			$headers = $cap.': '.$h."\n";
+			$headers .= $cap.': '.$h."\n";
 			
 		$data_dir = self::Instance()->get_data_dir();
 		foreach($c as $i) {
