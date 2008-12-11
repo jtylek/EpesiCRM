@@ -61,7 +61,7 @@ if(isset($_GET['attachment_cid']) || isset($_GET['attachment_name'])) {
 	$ret_attachments = '';
 	if($attachments) {
 		foreach($attachments as $name=>$a) {
-			if($a===true)
+			if($a==='')
 				$ret_attachments .= '<a target="_blank" href="modules/Apps/MailClient/preview.php?'.http_build_query(array_merge($_GET,array('attachment_name'=>$name))).'">'.$name.'</a><br>';
 			else
 				$ret_attachments .= '<a target="_blank" href="modules/Apps/MailClient/preview.php?'.http_build_query(array_merge($_GET,array('attachment_cid'=>$a))).'">'.$name.'</a><br>';
@@ -82,7 +82,7 @@ if(isset($_GET['attachment_cid']) || isset($_GET['attachment_name'])) {
 
 	header("Content-type: text/html");
 	if($body_type=='plain') {
-		$body = htmlspecialchars(preg_replace("/(http:\/\/[a-z0-9]+(\.[a-z0-9]+)+(\/[\.a-z0-9]+)*)/i", "<a href='\\1'>\\1</a>", $body));
+		$body = htmlspecialchars(preg_replace("/(http:\/\/[a-z0-9]+(\.[a-z0-9]+)+(\/[\.a-z0-9]+)*)/i", "<a href='\\1' target=\"_blank\">\\1</a>", $body));
 		$body = '<html>'.
 			'<head><meta http-equiv=Content-Type content="'.$body_ctype.'"></head>'.
 			'<body><pre>'.$body.'</pre></body>';

@@ -485,13 +485,18 @@ class Apps_MailClientCommon extends ModuleCommon {
 				$body_ctype = isset($part->headers['content-type'])?$part->headers['content-type']:'text/'.$body_type;
 				//if(isset($part->disposition) && $part->disposition=='attachment')
 				if(isset($part->ctype_parameters['name'])) {
+					if(isset($part->headers['content-id']))
+						$coid = trim($part->headers['content-id'],'><');
+					else
+						$coid = '';
+					if(isset($part->headers['content-dispositon']))
+						$disposition = $part->headers['content-disposition'];
+					else
+						$disposition = 'attachment';
 					if($full_attachments) {
-						$attachments[$part->ctype_parameters['name']] = array('type'=>isset($part->headers['content-type'])?$part->headers['content-type']:false,'body'=>$part->body);
+						$attachments[$part->ctype_parameters['name']] = array('type'=>isset($part->headers['content-type'])?$part->headers['content-type']:false,'body'=>$part->body,'id'=>$coid,'disposition'=>$disposition);
 					} else {
-						if(isset($part->headers['content-id']))
-							$attachments[$part->ctype_parameters['name']] = trim($part->headers['content-id'],'><');
-						else
-							$attachments[$part->ctype_parameters['name']] = true;
+						$attachments[$part->ctype_parameters['name']] = $coid;
 					}
 				}
 			}

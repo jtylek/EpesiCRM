@@ -24,13 +24,19 @@ class CRM_MailClientInstall extends ModuleInstall {
 			subject C(255),
 			body X,
 			body_type C(16),
-			body_ctype C(64)',
+			body_ctype C(32),
+			sent I1 DEFAULT 0',
 			array('constraints'=>', FOREIGN KEY (contact_id) REFERENCES contact(ID)'));
 		$ret &= DB::CreateTable('crm_mailclient_attachments','
 			id I4 AUTO KEY NOTNULL,
 			mail_id I4 NOTNULL,
-			name C(255)',
+			type C(32),
+			disposition C(32),
+			name C(255),
+			cid C(255)',
 			array('constraints'=>', FOREIGN KEY (mail_id) REFERENCES crm_mailclient_mails(ID)'));
+		$this->create_data_dir();
+		file_put_contents($this->get_data_dir().'.htaccess','deny from all');
 		return $ret;
 	}
 	

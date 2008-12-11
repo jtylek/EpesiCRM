@@ -83,7 +83,7 @@ class Apps_MailClient extends Module {
 					$id = $this->get_unique_href_variable('msg_id');
 					if(is_numeric($id)) {
 						$msg = Apps_MailClientCommon::parse_message($box,$dir,$id);
-						$ret = call_user_func($f['func'],$msg);
+						$ret = call_user_func($f['func'],$msg,$dir);
 						if(isset($f['delete']) && $f['delete'] && $ret)
 							Apps_MailClientCommon::remove_msg($box,$dir,$id);
 					}
@@ -732,7 +732,7 @@ class Apps_MailClient extends Module {
 
 				if($v['from_addr']!='pm') {
 					$mailer = Base_MailCommon::new_mailer();
-					$mailer->From = $from['mail'];
+					$mailer->From = $from['mail'].' <'.Acl::get_user().'>';
 					$mailer->FromName = $name;
 					$mailer->Host = $from['smtp_server'];
 					$mailer->Mailer = 'smtp';
