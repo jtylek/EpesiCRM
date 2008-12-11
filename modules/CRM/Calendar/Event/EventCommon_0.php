@@ -17,7 +17,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		static $recurrence_numeric = null;
 		static $recurrence_string = null;
 		if(!isset($recurrence_numeric))
-			$recurrence_numeric = array('everyday','second', 'third','fourth','fifth', 'sixth', 'week', 'week_custom', 'two_weeks', 'month');
+			$recurrence_numeric = array('everyday','second', 'third','fourth','fifth', 'sixth', 'week', 'week_custom', 'two_weeks', 'month','year');
 		if(!isset($recurrence_string))
 			$recurrence_string = array_flip($recurrence_numeric);
 		if(is_numeric($i))
@@ -290,7 +290,11 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 				$month = date('m',$t)%12+1;
 				if($month==1) $year++;
 				$date = date($year.'-'.$month.'-d',$t);
-
+				break;
+			case 'year':
+				$year = date('Y',$t);
+				$year++;
+				$date = date($year.'-m-d',$t);
 				break;
 		}
 		return strtotime($date.' '.date('H:i:s',Base_RegionalSettingsCommon::reg2time($date.' '.$time)));
