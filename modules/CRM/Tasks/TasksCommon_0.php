@@ -26,13 +26,14 @@ class CRM_TasksCommon extends ModuleCommon {
 		// $status = Utils_CommonDataCommon::get_translated_array('Status');
 		$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
 		$priority = array(0 =>'None', 1 => 'Low', 2 => 'Medium', 3 => 'High');
+		$status = Utils_CommonDataCommon::get_translated_array('Ticket_Status');
 
 		$args=array(
-					'Title:'=>$r['title'],
+					'Title:'=>'<b>'.$r['title'].'</b>',
 					'Description:'=>$r['description'],
 					'Assigned to:'=>CRM_ContactsCommon::display_contact(array('id'=>$r['employees']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_no_company')),
 					'Contacts:'=>CRM_ContactsCommon::display_contact(array('id'=>$r['customers']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_default')),
-					'Status:'=>$r['status'],
+					'Status:'=>$status[$r['status']],
 					'Deadline:'=>$r['deadline']!=''?Base_RegionalSettingsCommon::time2reg($r['deadline'],false):Base_LangCommon::ts('CRM_Tasks','Not set'),
 					'Longterm:'=>Base_LangCommon::ts('CRM_Tasks',$r['longterm']!=0?'Yes':'No'),
 					'Permission:'=>$access[$r['permission']],
