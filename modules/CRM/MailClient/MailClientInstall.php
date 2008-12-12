@@ -17,16 +17,16 @@ class CRM_MailClientInstall extends ModuleInstall {
 		$ret &= DB::CreateTable('crm_mailclient_mails','
 			id I4 AUTO KEY NOTNULL,
 			delivered_on T NOTNULL,
-			contact_id I4 NOTNULL,
+			from_contact_id I4 NOTNULL,
+			to_contact_id I4 NOTNULL,
 			deleted I1 DEFAULT 0,
 			sticky I1 DEFAULT 0,
 			headers X,
 			subject C(255),
 			body X,
 			body_type C(16),
-			body_ctype C(32),
-			sent I1 DEFAULT 0',
-			array('constraints'=>', FOREIGN KEY (contact_id) REFERENCES contact(ID)'));
+			body_ctype C(32)',
+			array('constraints'=>', FOREIGN KEY (from_contact_id) REFERENCES contact(ID), FOREIGN KEY (to_contact_id) REFERENCES contact(ID)'));
 		$ret &= DB::CreateTable('crm_mailclient_attachments','
 			id I4 AUTO KEY NOTNULL,
 			mail_id I4 NOTNULL,

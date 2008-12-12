@@ -10,15 +10,18 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_MailClientCommon extends ModuleCommon {
+	private static $my_rec;
+
 	public static function move_action($msg, $dir) {
 		$sent = false;
 		if(ereg('^(Drafts|Sent)',$dir))
 			$sent = true;
 
-		if($sent) //TODO: udoskonalic to to/from itp bo jest nie intuicyjne
+		if($sent) {
 			$addr = $msg['headers']['to'];
-		else
+		} else {
 			$addr = $msg['headers']['from'];
+		}
 		if(ereg('^[^<]*<(.+)>$',$addr,$reqs))
 			$addr = $reqs[1];
 		if(is_numeric($addr))
@@ -36,14 +39,22 @@ class CRM_MailClientCommon extends ModuleCommon {
 			
 		$data_dir = self::Instance()->get_data_dir();
 		foreach($c as $i) {
-			DB::Execute('INSERT INTO crm_mailclient_mails(contact_id,subject,headers,body,body_type,body_ctype,delivered_on,sent) VALUES(%d,%s,%s,%s,%s,%s,%T,%b)',array($i['id'],$msg['subject'],$headers,$msg['body'],$msg['type'],$msg['ctype'],strtotime($msg['headers']['date']),$sent));
+			if($sent) {
+				$to = $i['id'];
+				$from = self::$my_rec['id'];
+			} else {
+				$to = self::$my_rec['id'];
+				$from = $i['id'];
+			}
+			DB::Execute('INSERT INTO crm_mailclient_mails(from_contact_id,to_contact_id,subject,headers,body,body_type,body_ctype,delivered_on) VALUES(%d,%d,%s,%s,%s,%s,%s,%T)',array($from,$to,$msg['subject'],$headers,$msg['body'],$msg['type'],$msg['ctype'],strtotime($msg['headers']['date'])));
 			$mid = DB::Insert_ID('crm_mailclient_mails','id');
 			foreach($msg['attachments'] as $k=>$a) {
 				DB::Execute('INSERT INTO crm_mailclient_attachments(mail_id,name,type,cid,disposition) VALUES(%d,%s,%s,%s,%s)',array($mid,$k,$a['type'],$a['id'],$a['disposition']));
 				$aid = DB::Insert_ID('crm_mailclient_mails','id');
 				file_put_contents($data_dir.$aid,$a['body']);
 			}
-			Utils_WatchdogCommon::new_event('contact',$i['id'],'N_New mail');
+			Utils_WatchdogCommon::new_event('contact',$to,'N_New mail');
+			Utils_WatchdogCommon::new_event('contact',$from,'N_New mail');
 		}
 		return true;
 	}
@@ -79,8 +90,11 @@ class CRM_MailClientCommon extends ModuleCommon {
 	}
 
 	public static function mail_actions() {
-		return array('Go to contact'=>array('func'=>array('CRM_MailClientCommon','goto_action'),'delete'=>0),
-					'Move to contact'=>array('func'=>array('CRM_MailClientCommon','move_action'),'delete'=>1));
+		$ret = array('Go to contact'=>array('func'=>array('CRM_MailClientCommon','goto_action'),'delete'=>0));
+		self::$my_rec = CRM_ContactsCommon::get_my_record();
+		if(self::$my_rec['id']!==-1)
+			$ret['Move to CRM']=array('func'=>array('CRM_MailClientCommon','move_action'),'delete'=>1);
+		return $ret;
 	}
 }
 

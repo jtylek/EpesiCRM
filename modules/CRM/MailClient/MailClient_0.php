@@ -23,13 +23,14 @@ class CRM_MailClient extends Module {
 		$gb = $this->init_module('Utils/GenericBrowser',null,'addon');
 		$cols = array();
 		$cols[] = array('name'=>$this->lang->t('Date'), 'order'=>'delivered_on','width'=>5);
-		$cols[] = array('name'=>$this->lang->t('Type'), 'order'=>'sent','width'=>5);
-		$cols[] = array('name'=>$this->lang->t('Subject'), 'width'=>65);
+		$cols[] = array('name'=>$this->lang->t('From'), 'order'=>'from_contact_id','width'=>15);
+		$cols[] = array('name'=>$this->lang->t('To'), 'order'=>'to_contact_id','width'=>15);
+		$cols[] = array('name'=>$this->lang->t('Subject'), 'width'=>40);
 		$cols[] = array('name'=>$this->lang->t('Attachments'), 'order'=>'uaf.original','width'=>25);
 		$gb->set_table_columns($cols);
 
-		$query = 'SELECT sticky,id,delivered_on,subject,sent FROM crm_mailclient_mails WHERE contact_id='.DB::qstr($arg['id']).' AND deleted=0';
-		$query_lim = 'SELECT count(id) FROM crm_mailclient_mails WHERE contact_id='.DB::qstr($arg['id']).' AND deleted=0';
+		$query = 'SELECT sticky,id,delivered_on,subject,from_contact_id,to_contact_id FROM crm_mailclient_mails WHERE (from_contact_id='.DB::qstr($arg['id']).' OR to_contact_id='.DB::qstr($arg['id']).') AND deleted=0';
+		$query_lim = 'SELECT count(id) FROM crm_mailclient_mails WHERE (from_contact_id='.DB::qstr($arg['id']).' OR to_contact_id='.DB::qstr($arg['id']).') AND deleted=0';
 		$gb->set_default_order(array($this->lang->t('Date')=>'DESC'));
 
 		$query_order = $gb->get_query_order('sticky DESC');
@@ -47,12 +48,14 @@ class CRM_MailClient extends Module {
 
 			$arr = array();
 			$arr[] = Utils_TooltipCommon::create($delivered_on,$delivered_on_time);
-			$arr[] = $this->lang->t($row['sent']?'sent':'received');
+			$arr[] = CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($row['from_contact_id']));
+			$arr[] = CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($row['to_contact_id']));
 			$view_href = $this->create_callback_href(array($this,'show_message_cb'),array($row['id'],$arg));
 			$arr[] = '<a '.$view_href.'>'.$text.'</a>';
 			$arr[] = $this->get_attachments($row['id']);
 			$r->add_data_array($arr);
 			$r->add_action($view_href,'view');
+			$r->add_action($this->create_callback_href(array($this,'sticky'),array($row['id'],$row['sticky'])),($row['sticky']?'unsticky':'sticky'));
 		}
 
 		$this->display_module($gb);
@@ -85,10 +88,10 @@ class CRM_MailClient extends Module {
 			$x->pop_main();
 		}
 		
-		$row = DB::GetRow('SELECT headers,subject,delivered_on,sent FROM crm_mailclient_mails WHERE id=%d',array($id));
+		$row = DB::GetRow('SELECT headers,subject,delivered_on,from_contact_id,to_contact_id FROM crm_mailclient_mails WHERE id=%d',array($id));
 
 		$th = $this->init_module('Base/Theme');
-		$th->assign('header',$this->lang->t('Mail %s %s %s on %s',array($this->lang->ht($row['sent']?'to':'from'),$contact['first_name'].' '.$contact['last_name'],$this->lang->ht($row['sent']?'sent':'received'),Base_RegionalSettingsCommon::time2reg($row['delivered_on']))));
+		$th->assign('header',$this->lang->t('Mail from %s to %s sent on %s',array(CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($row['from_contact_id'])),CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($row['to_contact_id'])),Base_RegionalSettingsCommon::time2reg($row['delivered_on']))));
 		
 		Libs_LeightboxCommon::display('headers_leightbox','<pre>'.$row['headers'].
 							'</pre>','Message headers');
@@ -106,6 +109,9 @@ class CRM_MailClient extends Module {
 		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 	}
 
+	public function sticky($id,$sticky) {
+		DB::Execute('UPDATE crm_mailclient_mails SET sticky=%b WHERE id=%d',array(!$sticky,$id));
+	}
 }
 
 ?>
