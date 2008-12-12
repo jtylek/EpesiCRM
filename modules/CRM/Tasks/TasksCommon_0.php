@@ -20,10 +20,29 @@ class CRM_TasksCommon extends ModuleCommon {
 	}
 
 	public static function applet_info_format($r){
-		return 	Base_LangCommon::ts('CRM_Tasks','Title: %s', array($r['title'])).'<br>'.
-				Base_LangCommon::ts('CRM_Tasks','Description: %s', array($r['description'])).'<br>'.
-				($r['deadline']!=''?
-				Base_LangCommon::ts('CRM_Tasks','Deadline: %s', array(Base_RegionalSettingsCommon::time2reg($r['deadline']))):Base_LangCommon::ts('CRM_Tasks','Deadline: Not set'));
+		
+		// Build array representing 2-column tooltip
+		// Format: array (Label,value)
+		// $status = Utils_CommonDataCommon::get_translated_array('Status');
+		$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
+		$priority = array(0 =>'None', 1 => 'Low', 2 => 'Medium', 3 => 'High');
+
+		$args=array(
+					array('Title:',$r['title']),
+					array('Description:',$r['description']),
+					array('Assigned to:',CRM_ContactsCommon::display_contact(array('id'=>$r['employees']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_no_company'))),
+					array('Contacts:',CRM_ContactsCommon::display_contact(array('id'=>$r['customers']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_default'))),
+					array('Status:',$r['status']),
+					array('Deadline:',
+						$r['deadline']!=''?Base_RegionalSettingsCommon::time2reg($r['deadline'],false):Base_LangCommon::ts('CRM_Tasks','Not set')),
+					array('Longterm:',$r['longterm']!=0?Base_LangCommon::ts('CRM_Tasks','Yes'):Base_LangCommon::ts('CRM_Tasks','No')),
+					array('Permission:',$access[$r['permission']]),
+					array('Priority:',$priority[$r['priority']]),
+					);
+
+		// Pass 2 arguments: array containing pairs: label/value
+		// and the name of the group for translation
+		return	Utils_TooltipCommon::applet_tooltip($args,'CRM_Tasks');
 	}
 
 	public static function menu() {

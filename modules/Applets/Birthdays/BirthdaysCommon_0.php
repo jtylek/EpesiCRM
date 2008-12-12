@@ -15,7 +15,8 @@ class Applets_BirthdaysCommon extends ModuleCommon {
 	}
 
 	public static function applet_info() {
-		return "Displays upcoming Birthdays of your favorite contacts";
+		$html="Displays upcoming Birthdays of your favorite contacts.";
+		return $html;
 	}
 
 	// Returns array of parameters back to the applet as $conf

@@ -1098,24 +1098,58 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (is_numeric($id))$info = Utils_RecordBrowserCommon::get_record_info($tab, $id);
 		else $info = $id;
 		$contact='';
+		// If CRM Contacts module is installed get user contact
 		if (ModuleManager::is_installed('CRM_Contacts')>=0) {
 			$contact = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact_by_user_id($info['created_by']),true);
 			if ($contact!=' ') $created_by = $contact;
 			else $created_by = Base_UserCommon::get_user_login($info['created_by']);
+			// If the record was edited get user contact info
 			if ($info['edited_by']!=null) {
 				if ($info['edited_by']!=$info['created_by']) $contact = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact_by_user_id($info['edited_by']),true);
 				if ($contact!=' ') $edited_by = $contact;
-				else $edited_by = Base_UserCommon::get_user_login($info['edited_by']);
-			}
+				}
+			// Record was not edited yet
+			else $edited_by = '';
+			
+		// If CRM Module is not installed get user login only
 		} else {
 			$created_by = Base_UserCommon::get_user_login($info['created_by']);
 			$edited_by = Base_UserCommon::get_user_login($info['edited_by']);
 		}
-		return Base_LangCommon::ts('Utils_RecordBrowser','Created on:').' '.Base_RegionalSettingsCommon::time2reg($info['created_on']). '<br>'.
-				Base_LangCommon::ts('Utils_RecordBrowser','Created by:').' '.$created_by.
-				(($info['edited_by']!=null)?('<br>'.
-				Base_LangCommon::ts('Utils_RecordBrowser','Edited on:').' '.Base_RegionalSettingsCommon::time2reg($info['edited_on']). '<br>'.
-				Base_LangCommon::ts('Utils_RecordBrowser','Edited by:').' '.$edited_by):'');
+
+		if ($edited_by == '') {
+		$htmlinfo=array(
+					array('Created by:',$created_by),			
+					array('Created on:',Base_RegionalSettingsCommon::time2reg($info['created_on']))
+						);
+		} else {
+
+		$htmlinfo=array(
+					array('Created by:',$created_by),			
+					array('Created on:',Base_RegionalSettingsCommon::time2reg($info['created_on'])),
+					array('Edited by:',$edited_by),		
+					array('Edited on:',Base_RegionalSettingsCommon::time2reg($info['edited_on']))
+						);
+		}
+
+		return	Utils_TooltipCommon::applet_tooltip($htmlinfo,'Utils_RecordBrowser');
+		
+		/*
+		return 
+		Base_LangCommon::ts('Utils_RecordBrowser','Created on:').' '.
+		
+		Base_RegionalSettingsCommon::time2reg($info['created_on']).
+		'<br>'.
+		
+		Base_LangCommon::ts('Utils_RecordBrowser','Created by:').' '.
+		$created_by.(($info['edited_by']!=null)?('<br>'.
+
+		Base_LangCommon::ts('Utils_RecordBrowser','Edited on:').' '.
+		
+		Base_RegionalSettingsCommon::time2reg($info['edited_on']). '<br>'.
+
+		Base_LangCommon::ts('Utils_RecordBrowser','Edited on:').' '.$edited_by):'');
+		*/
 	}
 	public static function get_record($tab, $id, $htmlspecialchars=true) {
 		if (!is_numeric($id)) return null;

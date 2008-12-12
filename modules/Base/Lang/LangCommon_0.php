@@ -191,6 +191,59 @@ class Base_LangCommon extends ModuleCommon {
 		return $trans;
 	}
 
+// ********************************************************************\
+// Translation of group of text
+// The directory is parsed using debug_backtrace
+
+	 public static function TranslateGroup($textarray) {
+		global $translations;
+		// Get a directory of a script from which the function was called
+		$call_dir=debug_backtrace();
+		$dirname = dirname($call_dir[0]['file']);
+		// extract module name
+		$pos=strrpos($dirname,'modules')+8;
+		$group = substr($dirname,$pos);
+		
+		$group = str_replace(array('/','\\'),'_',$group);
+
+		if(!isset($translations)) {
+			$translations = array();
+			include_once(DATA_DIR.'/Base_Lang/'.self::get_lang_code().'.php');
+		}
+
+		
+		return $textarray;
+		
+		$texttotranslate=array();
+		foreach ($textarray as $line){
+		// We need: LABEL, Text, $args
+		//	foreach ($line as $text){
+				$texttotranslate['group']=$group;
+				$texttotranslate['label']=$line[0];
+				$texttotranslate['text']=$line[1];
+		//		$texttotranslate['arg']=$text[2];
+		//	}
+		} // end of foreach
+		
+		return $texttotranslate;
+		
+		if(!array_key_exists($group, $translations) ||
+			!array_key_exists($original, $translations[$group])) {
+			$translations[$group][$original] = '';
+			//only first display of the string is not in translations database... slows down loading of the page only once...
+			self::save();
+		}
+		$trans = $translations[$group][$original];
+
+		if(!isset($trans) || $trans=='') $trans = $original;
+
+		$trans = @vsprintf($trans,$arg);
+		if ($trans=='' && $original) $trans = 'Invalid string to translate: '.$trans;
+
+
+		return $trans;
+	}
+
 }
 
 on_init(array('Base_LangCommon','load'));

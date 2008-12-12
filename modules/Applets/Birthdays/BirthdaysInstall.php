@@ -34,8 +34,10 @@ class Applets_BirthdaysInstall extends ModuleInstall {
 	}
 	
 	public static function info() {
+		$html="Displays upcoming Birthdays of your favorite contacts.";
+		$html.="<br>The contact has to be in your favorite list<br>and have a birthday date set.";
 		return array(
-			'Description'=>'Upcoming birthdays',
+			'Description'=>$html,
 			'Author'=>'jtylek@telaxus.com',
 			'License'=>'MIT');
 	}
