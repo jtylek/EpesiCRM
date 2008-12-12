@@ -36,7 +36,7 @@ class Base_LangCommon extends ModuleCommon {
 	 */
 	 public static function ts($group, $original, array $arg=array()) {
 		global $translations;
-		$group = str_replace('/','_',$group);
+		$group = str_replace(array('/','\\'),'_',$group);
 
 		if(!isset($translations)) {
 			$translations = array();
@@ -160,41 +160,29 @@ class Base_LangCommon extends ModuleCommon {
 // Translation of text with one argument only
 // The directory is parsed using debug_backtrace
 
-	 public static function translate($original, array $arg=array()) {
-		global $translations;
-		// Get a directory of a script from which the function was called
+	public static function get_group() {
 		$call_dir=debug_backtrace();
 		$dirname = dirname($call_dir[0]['file']);
 		// extract module name
-		$pos=strrpos($dirname,'modules')+8;
-		$group = substr($dirname,$pos);
-		
-		$group = str_replace(array('/','\\'),'_',$group);
+		return substr($dirname,strlen(EPESI_LOCAL_DIR)+9);	
+	}
 
-		if(!isset($translations)) {
-			$translations = array();
-			include_once(DATA_DIR.'/Base_Lang/'.self::get_lang_code().'.php');
-		}
-
-		if(!array_key_exists($group, $translations) ||
-			!array_key_exists($original, $translations[$group])) {
-			$translations[$group][$original] = '';
-			//only first display of the string is not in translations database... slows down loading of the page only once...
-			self::save();
-		}
-		$trans = $translations[$group][$original];
-
-		if(!isset($trans) || $trans=='') $trans = $original;
-
-		$trans = @vsprintf($trans,$arg);
-		if ($trans=='' && $original) $trans = 'Invalid string to translate: '.$trans;
-		return $trans;
+	 public static function translate($original, array $arg=array()) {
+		// Get a directory of a script from which the function was called
+		return self::ts(self::get_group(),$original,$arg);
 	}
 
 // ********************************************************************\
 // Translation of group of text
 // The directory is parsed using debug_backtrace
-
+/*
+	Janusz, nie wiem o co chodzilo tutaj... podzielilem funkcje translate tak aby nie bylo kodu kopiuj&wklej. 
+	Swoja droga zrobiles ladnie wnetrze get_group - jak mi o tym wspominales to myslalem ze calkiem inaczej 
+	zrobisz/masz na mysli.
+	Tutaj tez trzeba zrobic porzadek. Nie zauwazylem zebys gdzies uzywal tej funkcji wiec ja zakomentowalem.
+	Mam jeszcze mala uwage do konwencji nazewnictwa klas i metod jaka przyjelismy kiedys z Arkiem:
+	ToJestKlasaModulu_ToJestPodmodul::nazwa_funkcji_jest_malymi_literami_z_podkreslnikami
+	
 	 public static function TranslateGroup($textarray) {
 		global $translations;
 		// Get a directory of a script from which the function was called
@@ -243,7 +231,7 @@ class Base_LangCommon extends ModuleCommon {
 
 		return $trans;
 	}
-
+*/
 }
 
 on_init(array('Base_LangCommon','load'));

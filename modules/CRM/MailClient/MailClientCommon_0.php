@@ -15,7 +15,7 @@ class CRM_MailClientCommon extends ModuleCommon {
 		if(ereg('^(Drafts|Sent)',$dir))
 			$sent = true;
 
-		if($sent)
+		if($sent) //TODO: udoskonalic to to/from itp bo jest nie intuicyjne
 			$addr = $msg['headers']['to'];
 		else
 			$addr = $msg['headers']['from'];
@@ -43,6 +43,7 @@ class CRM_MailClientCommon extends ModuleCommon {
 				$aid = DB::Insert_ID('crm_mailclient_mails','id');
 				file_put_contents($data_dir.$aid,$a['body']);
 			}
+			Utils_WatchdogCommon::new_event('contact',$i['id'],'N_New mail');
 		}
 		return true;
 	}

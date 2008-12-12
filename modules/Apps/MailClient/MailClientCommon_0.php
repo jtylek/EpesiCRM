@@ -150,8 +150,8 @@ class Apps_MailClientCommon extends ModuleCommon {
 
 	//drops message to specified mailbox
 	public static function drop_message($mailbox_id,$dir,$subject,$from,$to,$date,$body,$read=false) {
-		ini_set('include_path','modules/Apps/MailClient/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
-		require_once('modules/Apps/MailClient/Mail/mime.php');
+		ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
+		require_once('Mail/mime.php');
 
 		$msg_id = self::get_next_msg_id($mailbox_id,$dir);
 		if($msg_id===false) return false;
@@ -234,8 +234,8 @@ class Apps_MailClientCommon extends ModuleCommon {
 
  */
 	public static function build_index($id,$dir) {
-		ini_set('include_path','modules/Apps/MailClient/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
-		require_once('modules/Apps/MailClient/Mail/mimeDecode.php');
+		ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
+		require_once('Mail/mimeDecode.php');
 		$mbox_dir = self::get_mailbox_dir($id);
 		if($mbox_dir===false) return false;
 		$boxpath = $mbox_dir.$dir;
@@ -451,7 +451,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 			return false;
 
 		ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
-		require_once('modules/Apps_MailClient/Mail/mimeDecode.php');
+		require_once('Mail/mimeDecode.php');
 		$decode = new Mail_mimeDecode($message, "\r\n");
 		$structure = $decode->decode(array('decode_bodies'=>true,'include_bodies'=>true));
 		if(!isset($structure->headers['from']))

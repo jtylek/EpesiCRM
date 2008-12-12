@@ -1399,10 +1399,22 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								$event_display .= '</table>';
 								break;
 								
-					case 'N': 	$action = 'added';
-								if ($param[1]=='~') $action = 'edited';
-								if ($param[1]=='-') $action = 'deleted';
-								$event_display = Base_LangCommon::ts('Utils_RecordBrowser','<b>Note '.$action.'<b>');
+					case 'N': 	$event_display = false;
+								switch($param[1]) {
+									case '+':
+										$action = 'added';
+										break;
+									case '~':
+										$action = 'edited';
+										break;
+									case '-':
+										$action = 'deleted';
+										break;
+									default:
+										$event_display = Base_LangCommon::ts('Utils_RecordBrowser',$param[1]);
+								}
+								if($event_display===false)
+									$event_display = Base_LangCommon::ts('Utils_RecordBrowser','<b>'.$caption.' '.$action.'<b>');
 								break;								
 					default: 	$event_display = '<b>'.Base_LangCommon::ts('Utils_RecordBrowser',$v).'</b>';	
 				}
