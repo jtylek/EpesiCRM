@@ -42,7 +42,7 @@ class CRM_TasksCommon extends ModuleCommon {
 
 		// Pass 2 arguments: array containing pairs: label/value
 		// and the name of the group for translation
-		return	Utils_TooltipCommon::applet_tooltip($args,'CRM_Tasks');
+		return	Base_DashboardCommon::applet_tooltip($args);
 	}
 
 	public static function menu() {

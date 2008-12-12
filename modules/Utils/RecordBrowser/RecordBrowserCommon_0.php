@@ -1132,7 +1132,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						);
 		}
 
-		return	Utils_TooltipCommon::applet_tooltip($htmlinfo,'Utils_RecordBrowser');
+		return	Base_DashboardCommon::applet_tooltip($htmlinfo);
 		
 		/*
 		return 

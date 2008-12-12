@@ -160,16 +160,17 @@ class Base_LangCommon extends ModuleCommon {
 // Translation of text with one argument only
 // The directory is parsed using debug_backtrace
 
-	public static function get_group() {
+	public static function get_group($i=0) {
 		$call_dir=debug_backtrace();
-		$dirname = dirname($call_dir[0]['file']);
+		$dirname = dirname($call_dir[$i]['file']);
 		// extract module name
 		return substr($dirname,strlen(EPESI_LOCAL_DIR)+9);	
 	}
 
-	 public static function translate($original, array $arg=array()) {
+	 public static function t($original, array $arg=array()) {
 		// Get a directory of a script from which the function was called
-		return self::ts(self::get_group(),$original,$arg);
+		$gr = self::get_group(1);
+		return self::ts($gr,$original,$arg);
 	}
 
 // ********************************************************************\

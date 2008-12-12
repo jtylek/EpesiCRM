@@ -76,25 +76,5 @@ class Utils_TooltipCommon extends ModuleCommon {
 		else
 			return $text;
 	}
-
-	/**
-	* Returns a 2-column formatted table for use with applet tooltip
-	*
-	* @param array text
-	*/
-	public static function applet_tooltip( $arg,$group='Utils_Tooltip') {
-		
-		$table='<TABLE cellpadding="2">';
-		foreach ($arg as $row){
-			$table.='<TR><TD><STRONG>';
-			$table.=Base_LangCommon::ts($group,$row[0]).'</STRONG></TD><TD bgcolor="white">
-'; // Translated label
-			$table.=$row[1]; // Value
-			$table.='</TD></TR>';
-		}
-		$table.='</TABLE>';
-		return $table;
-	}
-
 }
 ?>
