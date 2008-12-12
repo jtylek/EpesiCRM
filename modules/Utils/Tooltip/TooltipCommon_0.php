@@ -85,9 +85,9 @@ class Utils_TooltipCommon extends ModuleCommon {
 	public static function format_info_tooltip( $arg,$group=null) {
 		if($group===null)
 			$group = self::get_type_with_bt(1);
-		$table='<TABLE cellpadding="2">';
+		$table='<TABLE WIDTH="280" cellpadding="2">';
 		foreach ($arg as $k=>$v){
-			$table.='<TR><TD><STRONG>';
+			$table.='<TR><TD WIDTH="90"><STRONG>';
 			$table.=Base_LangCommon::ts($group,$k).'</STRONG></TD><TD bgcolor="white">'; // Translated label
 			$table.=$v; // Value
 			$table.='</TD></TR>';
