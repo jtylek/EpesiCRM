@@ -1392,7 +1392,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 										$event_display = Base_LangCommon::ts('Utils_RecordBrowser',$param[1]);
 								}
 								if($event_display===false)
-									$event_display = Base_LangCommon::ts('Utils_RecordBrowser','<b>'.$caption.' '.$action.'<b>');
+									$event_display = Base_LangCommon::ts('Utils_RecordBrowser','<b>Note '.$action.'<b>');
 								break;								
 					default: 	$event_display = '<b>'.Base_LangCommon::ts('Utils_RecordBrowser',$v).'</b>';	
 				}
