@@ -77,6 +77,13 @@ abstract class ModulePrimitive extends ModuleAcl {
 	public final function check_access($m) {
 		return ModuleManager::check_access($this->type,$m);
 	}
+	
+	public final static function get_type_with_bt($i=0) {
+		$call_dir=debug_backtrace();
+		$dirname = dirname($call_dir[$i]['file']);
+		// extract module name
+		return substr($dirname,strlen(EPESI_LOCAL_DIR)+9);	
+	}
 }
 
 ?>

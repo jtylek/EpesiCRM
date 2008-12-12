@@ -76,5 +76,24 @@ class Utils_TooltipCommon extends ModuleCommon {
 		else
 			return $text;
 	}
+
+	/**
+	* Returns a 2-column formatted table
+	*
+	* @param array keys are captions, values are values
+	*/
+	public static function format_info_tooltip( $arg,$group=null) {
+		if($group===null)
+			$group = self::get_type_with_bt(1);
+		$table='<TABLE cellpadding="2">';
+		foreach ($arg as $k=>$v){
+			$table.='<TR><TD><STRONG>';
+			$table.=Base_LangCommon::ts($group,$k).'</STRONG></TD><TD bgcolor="white">'; // Translated label
+			$table.=$v; // Value
+			$table.='</TD></TR>';
+		}
+		$table.='</TABLE>';
+		return $table;
+	}
 }
 ?>

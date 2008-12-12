@@ -15,7 +15,6 @@ class Tests_Attachment extends Module{
 		$com = & $this->init_module('Utils/Attachment',array('grupa'));
 		$this -> display_module($com);
 
-		Base_LangCommon::t('dupa');
 		//------------------------------ print out src
 		print('<hr><b>Install</b><br>');
 		$this->pack_module('Utils/CatFile','modules/Tests/Attachment/AttachmentInstall.php');

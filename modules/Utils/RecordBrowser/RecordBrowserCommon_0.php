@@ -1107,9 +1107,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if ($info['edited_by']!=null) {
 				if ($info['edited_by']!=$info['created_by']) $contact = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact_by_user_id($info['edited_by']),true);
 				if ($contact!=' ') $edited_by = $contact;
-				}
-			// Record was not edited yet
-			else $edited_by = '';
+				else $edited_by = Base_UserCommon::get_user_login($info['edited_by']);
+			}
 			
 		// If CRM Module is not installed get user login only
 		} else {
@@ -1117,39 +1116,18 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$edited_by = Base_UserCommon::get_user_login($info['edited_by']);
 		}
 
-		if ($edited_by == '') {
 		$htmlinfo=array(
-					array('Created by:',$created_by),			
-					array('Created on:',Base_RegionalSettingsCommon::time2reg($info['created_on']))
+					'Created by:'=>$created_by,			
+					'Created on:'=>Base_RegionalSettingsCommon::time2reg($info['created_on'])
 						);
-		} else {
-
-		$htmlinfo=array(
-					array('Created by:',$created_by),			
-					array('Created on:',Base_RegionalSettingsCommon::time2reg($info['created_on'])),
-					array('Edited by:',$edited_by),		
-					array('Edited on:',Base_RegionalSettingsCommon::time2reg($info['edited_on']))
+		if ($info['edited_by']!=null) {
+			$htmlinfo=$htmlinfo+array(
+					'Edited by:'=>$edited_by,		
+					'Edited on:'=>Base_RegionalSettingsCommon::time2reg($info['edited_on'])
 						);
 		}
 
-		return	Base_DashboardCommon::applet_tooltip($htmlinfo);
-		
-		/*
-		return 
-		Base_LangCommon::ts('Utils_RecordBrowser','Created on:').' '.
-		
-		Base_RegionalSettingsCommon::time2reg($info['created_on']).
-		'<br>'.
-		
-		Base_LangCommon::ts('Utils_RecordBrowser','Created by:').' '.
-		$created_by.(($info['edited_by']!=null)?('<br>'.
-
-		Base_LangCommon::ts('Utils_RecordBrowser','Edited on:').' '.
-		
-		Base_RegionalSettingsCommon::time2reg($info['edited_on']). '<br>'.
-
-		Base_LangCommon::ts('Utils_RecordBrowser','Edited on:').' '.$edited_by):'');
-		*/
+		return	Utils_TooltipCommon::format_info_tooltip($htmlinfo);
 	}
 	public static function get_record($tab, $id, $htmlspecialchars=true) {
 		if (!is_numeric($id)) return null;

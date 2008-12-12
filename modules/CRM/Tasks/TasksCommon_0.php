@@ -28,21 +28,20 @@ class CRM_TasksCommon extends ModuleCommon {
 		$priority = array(0 =>'None', 1 => 'Low', 2 => 'Medium', 3 => 'High');
 
 		$args=array(
-					array('Title:',$r['title']),
-					array('Description:',$r['description']),
-					array('Assigned to:',CRM_ContactsCommon::display_contact(array('id'=>$r['employees']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_no_company'))),
-					array('Contacts:',CRM_ContactsCommon::display_contact(array('id'=>$r['customers']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_default'))),
-					array('Status:',$r['status']),
-					array('Deadline:',
-						$r['deadline']!=''?Base_RegionalSettingsCommon::time2reg($r['deadline'],false):Base_LangCommon::ts('CRM_Tasks','Not set')),
-					array('Longterm:',$r['longterm']!=0?Base_LangCommon::ts('CRM_Tasks','Yes'):Base_LangCommon::ts('CRM_Tasks','No')),
-					array('Permission:',$access[$r['permission']]),
-					array('Priority:',$priority[$r['priority']]),
+					'Title:'=>$r['title'],
+					'Description:'=>$r['description'],
+					'Assigned to:'=>CRM_ContactsCommon::display_contact(array('id'=>$r['employees']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_no_company')),
+					'Contacts:'=>CRM_ContactsCommon::display_contact(array('id'=>$r['customers']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_default')),
+					'Status:'=>$r['status'],
+					'Deadline:'=>$r['deadline']!=''?Base_RegionalSettingsCommon::time2reg($r['deadline'],false):Base_LangCommon::ts('CRM_Tasks','Not set'),
+					'Longterm:'=>Base_LangCommon::ts('CRM_Tasks',$r['longterm']!=0?'Yes':'No'),
+					'Permission:'=>$access[$r['permission']],
+					'Priority:'=>$priority[$r['priority']],
 					);
 
 		// Pass 2 arguments: array containing pairs: label/value
 		// and the name of the group for translation
-		return	Base_DashboardCommon::applet_tooltip($args);
+		return	Utils_TooltipCommon::format_info_tooltip($args);
 	}
 
 	public static function menu() {
