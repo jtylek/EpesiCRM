@@ -79,10 +79,20 @@ abstract class ModulePrimitive extends ModuleAcl {
 	}
 	
 	public final static function get_type_with_bt($i=0) {
-		$call_dir=debug_backtrace();
-		$dirname = dirname($call_dir[$i]['file']);
-		// extract module name
-		return substr($dirname,strlen(EPESI_LOCAL_DIR)+9);	
+		if (version_compare(PHP_VERSION, '5.2.5') === 1) {
+			$call_dir=debug_backtrace(true);
+		} else {
+			$call_dir=debug_backtrace();
+		}
+		
+		for($j=0; $j<count($call_dir); $j++)
+			if(isset($call_dir[$j]['object']) && $call_dir[$j]['object'] instanceof Module) {
+				if($i==0)
+					return get_class($call_dir[$j]['object']);
+				$i--;
+			}
+		if($i<=0)
+			trigger_error('get_type_with_bt - execution outside epesi module');
 	}
 }
 
