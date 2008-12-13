@@ -325,6 +325,13 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			// get tooltip
 			$next_result['tooltip'] = self::get_event_tooltip($row);
 
+			$next_result['custom_agenda_col_0'] = $row['description'];
+//			$next_result['custom_agenda_col_1'] = implode(', ',$emps);
+//			$next_result['custom_agenda_col_2'] = implode(', ',$cuss);
+			$next_result['custom_agenda_col_1'] = 'test';
+			$next_result['custom_agenda_col_2'] = 'test';
+
+
 			if($row['deleted']) {
 				$next_result['edit_action'] = false;
 				$next_result['move_action'] = false;
