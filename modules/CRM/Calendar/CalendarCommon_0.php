@@ -179,17 +179,16 @@ class CRM_CalendarCommon extends ModuleCommon {
 		$row = CRM_Calendar_EventCommon::get($id);
 		$row_orig = DB::GetRow('SELECT * FROM crm_calendar_event WHERE id=%d',array($id));
 		$ex = Utils_CalendarCommon::process_event($row);
-		$priority = array(0 => Base_LangCommon::ts('CRM_Calendar','Low'), 1 => Base_LangCommon::ts('CRM_Calendar','Medium'), 2 => Base_LangCommon::ts('CRM_Calendar','High'));
-		$access = array(0=>Base_LangCommon::ts('CRM_Calendar','Public'), 1=>Base_LangCommon::ts('CRM_Calendar','Public, read-only'), 2=>Base_LangCommon::ts('CRM_Calendar','Private'));
+		
 		print('<ul class="field">');
 		print('<li>'.Base_LangCommon::ts('CRM_Calendar','Title').': '.$row['title'].'</li>');
 		print('<li>'.Base_LangCommon::ts('CRM_Calendar','Starts').': '.$ex['start'].'</li>');
 		print('<li>'.Base_LangCommon::ts('CRM_Calendar','Duration').': '.$ex['duration'].'</li>');
 		print('<li>'.Base_LangCommon::ts('CRM_Calendar','Ends').': '.$ex['end'].'</li>');
 		print('<li>'.Base_LangCommon::ts('CRM_Calendar','Description').': '.$row['description'].'</li>');
-		print('<li>'.Base_LangCommon::ts('CRM_Calendar','Priority').': '.$priority[$row_orig['priority']].'</li>');
-		print('<li>'.Base_LangCommon::ts('CRM_Calendar','Status').': '.Utils_CommonDataCommon::get_value('Ticket_Status/'.$row_orig['status'],true).'</li>');
-		print('<li>'.Base_LangCommon::ts('CRM_Calendar','Access').': '.$access[$row_orig['access']].'</li>');
+		print('<li>'.Base_LangCommon::ts('CRM_Calendar','Priority').': '.Utils_CommonDataCommon::get_value('CRM/Priority/'.$row_orig['priority'],true).'</li>');
+		print('<li>'.Base_LangCommon::ts('CRM_Calendar','Status').': '.Utils_CommonDataCommon::get_value('CRM/Status/'.$row_orig['status'],true).'</li>');
+		print('<li>'.Base_LangCommon::ts('CRM_Calendar','Access').': '.Utils_CommonDataCommon::get_value('CRM/Access/'.$row_orig['access'],true).'</li>');
 		print('</ul>');
 //		'color I1 DEFAULT 0, '.
 	}

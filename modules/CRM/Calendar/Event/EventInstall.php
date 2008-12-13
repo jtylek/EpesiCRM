@@ -85,6 +85,7 @@ class CRM_Calendar_EventInstall extends ModuleInstall {
 
 	public function requires($v) {
 		return array(
+				array('name'=>'CRM/Common', 'version'=>0),
 				array('name'=>'Base/Lang', 'version'=>0),
 				array('name'=>'Utils/Calendar/Event','version'=>0),
 				array('name'=>'Utils/PopupCalendar','version'=>0),

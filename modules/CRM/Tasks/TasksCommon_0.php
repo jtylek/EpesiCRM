@@ -23,8 +23,8 @@ class CRM_TasksCommon extends ModuleCommon {
 		
 		// Build array representing 2-column tooltip
 		// Format: array (Label,value)
-		$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
-		$priority = array(0 =>'None', 1 => 'Low', 2 => 'Medium', 3 => 'High');
+		$access = Utils_CommonDataCommon::get_translated_array('Permissions');
+		$priority = Utils_CommonDataCommon::get_translated_array('Priorities');
 		$status = Utils_CommonDataCommon::get_translated_array('Ticket_Status');
 
 		$args=array(
@@ -41,7 +41,7 @@ class CRM_TasksCommon extends ModuleCommon {
 
 		// Pass 2 arguments: array containing pairs: label/value
 		// and the name of the group for translation
-		return	Utils_TooltipCommon::format_info_tooltip($args);
+		return	Utils_TooltipCommon::format_info_tooltip($args,'CRM_Tasks');
 	}
 
 	public static function menu() {

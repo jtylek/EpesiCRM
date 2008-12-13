@@ -17,8 +17,8 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 	private static $priority;
 
 	public function construct() {
-		self::$access = array(0=>$this->t('Public'), 1=>$this->t('Public, read-only'), 2=>$this->t('Private'));
-		self::$priority = array(0 => $this->t('Low'), 1 => $this->t('Medium'), 2 => $this->t('High'));
+		self::$access = Utils_CommonDataCommon::get_translated_array('CRM/Access');
+		self::$priority = Utils_CommonDataCommon::get_translated_array('CRM/Priority');
 	}
 
 	public function view($id) {
@@ -55,7 +55,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$pdf_theme = $this->pack_module('Base/Theme');
 		$pdf_theme->assign('description', array('label'=>$this->t('Description'), 'value'=>str_replace("\n",'<br/>',htmlspecialchars($ev['description']))));
 		if (!$no_details) {
-			$ev['status'] = Utils_CommonDataCommon::get_value('Ticket_Status/'.$ev['status'],true);
+			$ev['status'] = Utils_CommonDataCommon::get_value('CRM/Status/'.$ev['status'],true);
 			$ev['access'] = self::$access[$ev['access']];
 			$ev['priority'] = self::$priority[$ev['priority']];
 			foreach (array('access', 'priority', 'status') as $v)
@@ -304,7 +304,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 		if ($action=='view') {
 			$form->addElement('static', 'status', $this->t('Status'));
-			$status = Utils_CommonDataCommon::get_translated_array('Ticket_Status');
+			$status = Utils_CommonDataCommon::get_translated_array('CRM/Status');
 			$prefix = 'crm_event_leightbox';
 
 			$lgb = CRM_Calendar_EventCommon::get_followup_leightbox_href($id, $def);
@@ -316,7 +316,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				$def['status'] = '<a '.$lgb.'>'.$status[$def['status']].'</a>';
 			}
 		} else {
-			$form->addElement('commondata', 'status', $this->t('Status'),'Ticket_Status',array('order_by_key'=>true));
+			$form->addElement('commondata', 'status', $this->t('Status'),'CRM/Status',array('order_by_key'=>true));
 		}
 
 		$time_format = Base_RegionalSettingsCommon::time_12h()?'h:i a':'H:i';

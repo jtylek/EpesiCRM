@@ -12,6 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 	public static $filter = null;
+	private static $my_id = null;
 
 	public static function recurrence_type($i) {
 		static $recurrence_numeric = null;
@@ -80,81 +81,149 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		return 'href="javascript:void(0)" class="lbOn" rel="'.$prefix.'_followups_leightbox" onMouseDown="'.$prefix.'_set_id('.$id.');"';
 	}
 
+	//function prepares event array(required by Utils/Calendar) from database event row
+	public static function parse_event($row) {
+		$next_result = array();
+		foreach (array('start','end','id','title','description','status') as $v)
+			$next_result[$v] = $row[$v];
+		if($row['timeless']) $next_result['timeless'] = date('Y-m-d',$row['start']);
+		$next_result['duration'] = $row['end']-$row['start'];
+		$color = self::get_available_colors();
+		if($row['status']>=2)
+			$next_result['color'] = 'gray';
+		else
+			$next_result['color'] = $color[$row['color']];
+
+		static $access,$priority,$status;
+		if(!isset($access)) {
+			$access = Utils_CommonDataCommon::get_translated_array('CRM/Access');
+			$priority = Utils_CommonDataCommon::get_translated_array('CRM/Priority');
+			$status = Utils_CommonDataCommon::get_translated_array('CRM/Status');
+		}
+		$inf2 = array('Status' => $status[$row['status']],
+						'Access' => $access[$row['access']],
+						'Priority' => $priority[$row['priority']],
+						'Notes' => Utils_AttachmentCommon::count('CRM/Calendar/Event/'.$row['id']));
+		$next_result['additional_info2'] = '<hr>'.Utils_TooltipCommon::format_info_tooltip($inf2,'CRM_Calendar_Event').
+						'<hr>'.CRM_ContactsCommon::get_html_record_info($row['created_by'],$row['created_on'],$row['edited_by'],$row['edited_on']);
+		
+		$emps_tmp = DB::GetCol('SELECT emp.contact FROM crm_calendar_event_group_emp AS emp WHERE emp.id=%d',array($row['id']));
+		$cuss_tmp = DB::GetCol('SELECT cus.contact FROM crm_calendar_event_group_cus AS cus WHERE cus.id=%d',array($row['id']));
+
+		$emps = array();
+		foreach($emps_tmp as $k)
+			$emps[] = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact($k));
+		$cuss = array();
+		foreach($cuss_tmp as $k)
+			$cuss[] = CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($k));
+			
+		$next_result['additional_info'] =  '<hr>'.Utils_TooltipCommon::format_info_tooltip(array(
+				'Employees' => implode('<br>',$emps),
+				'Customers' => implode('<br>',$cuss)),'CRM_Calendar_Event');
+		$next_result['custom_agenda_col_0'] = $row['description'];
+		$next_result['custom_agenda_col_1'] = implode(', ',$emps);
+		$next_result['custom_agenda_col_2'] = implode(', ',$cuss);
+		if($row['deleted']) {
+			$next_result['edit_action'] = false;
+			$next_result['move_action'] = false;
+			$next_result['delete_action'] = false;
+			$next_result['actions'] = array(array('icon'=>Base_ThemeCommon::get_template_file('CRM_Calendar_Event','restore_small.png'),'href'=>Module::create_href(array('restore'=>$next_result['id']))));
+		} elseif($row['access']>0 && !in_array(self::$my_id,$emps_tmp) && !Base_AclCommon::i_am_admin()) {
+			$next_result['edit_action'] = false;
+			$next_result['move_action'] = false;
+			$next_result['delete_action'] = false;
+		} elseif($row['status']<2)
+			$next_result['actions'] = array(array('icon'=>Base_ThemeCommon::get_template_file('CRM_Calendar_Event','access-private.png'),'href'=>CRM_Calendar_EventCommon::get_followup_leightbox_href($row['id'], $row)));
+
+		if($row['recurrence_type'])
+			$next_result['title'] = '<img src="'.Base_ThemeCommon::get_template_file('CRM_Calendar_Event','recurrence.png').'" border=0 hspace=0 vspace=0 align=left>'.$next_result['title'];
+
+		return $next_result;
+	}
+	
+	public static function get_next_recurrence_time($t,$row,$type=null,$time=null) {
+		if($time===null)
+			$time = date('H:i:s',strtotime(Base_RegionalSettingsCommon::time2reg($t,true,true,true,false)));
+		if($type===null)
+			$type = self::recurrence_type($row['recurrence_type']);
+		switch($type) {
+			case 'everyday':
+				$date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$t))+3600*24);
+				break;
+			case 'second':
+				$date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$t))+3600*48);
+				break;
+			case 'third':
+				$date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$t))+3600*72);
+				break;
+			case 'fourth':
+				$date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$t))+3600*96);
+				break;
+			case 'fifth':
+				$date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$t))+3600*120);
+				break;
+			case 'sixth':
+				$date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$t))+3600*144);
+				break;
+			case 'week':
+				$date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$t))+3600*168);
+				break;
+			case 'week_custom':
+				if (!$row['recurrence_hash']) {
+					$date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$t))+3600*168);
+					break;
+				}
+				$date = strtotime(date('Y-m-d 12:00:00',$t));
+				do {
+					$date = strtotime(date('Y-m-d 12:00:00',$date+3600*24));
+				} while(!$row['recurrence_hash']{date('N',$date)-1});
+				$date = date('Y-m-d',$date);
+				break;
+			case 'two_weeks':
+				$date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$t))+3600*168*2);
+				break;
+			case 'month':
+				$year = date('Y',$t);
+				$month = date('m',$t)%12+1;
+				if($month==1) $year++;
+				$date = date($year.'-'.$month.'-d',$t);
+				break;
+			case 'year':
+				$year = date('Y',$t);
+				$year++;
+				$date = date($year.'-m-d',$t);
+				break;
+		}
+		return strtotime($date.' '.date('H:i:s',Base_RegionalSettingsCommon::reg2time($date.' '.$time)));
+	}
+
+	public static function get_n_recurrence_time($t,$row,$n) {
+		$time = date('H:i:s',strtotime(Base_RegionalSettingsCommon::time2reg($t,true,true,true,false)));
+		$type = self::recurrence_type($row['recurrence_type']);
+		while($n-->0) {
+			$t = self::get_next_recurrence_time($t,$row,$type,$time);
+		}
+		return $t;
+	}
 
 	public static function get($id) {
 		$recurrence = strpos($id,'_');
 		if($recurrence!==false)
 			$id = substr($id,0,$recurrence);
 
-/*		if(self::$filter=='()')
-			$fil = ' AND 1=0';
-		else if(self::$filter)
-			$fil = ' AND (SELECT id FROM crm_calendar_event_group_emp cg WHERE cg.id=e.id AND cg.contact IN '.self::$filter.' LIMIT 1) IS NOT NULL';
-		else
-			$fil = '';*/
 		$fil = '';
-		$my_id = CRM_FiltersCommon::get_my_profile();
+		self::$my_id = CRM_FiltersCommon::get_my_profile();
 		if(!Base_AclCommon::i_am_admin())
-			$fil .= ' AND (e.access<2 OR (SELECT id FROM crm_calendar_event_group_emp cg2 WHERE cg2.id=e.id AND cg2.contact='.$my_id.' LIMIT 1) IS NOT NULL)';
+			$fil .= ' AND (e.access<2 OR (SELECT id FROM crm_calendar_event_group_emp cg2 WHERE cg2.id=e.id AND cg2.contact='.self::$my_id.' LIMIT 1) IS NOT NULL)';
 		$t = microtime(true);
 		$row = DB::GetRow('SELECT e.deleted,e.recurrence_type,e.status,e.color,e.access,e.starts as start,e.ends as end,e.title,e.description,e.id,e.timeless,e.priority,e.created_by,e.created_on,e.edited_by,e.edited_on FROM crm_calendar_event e WHERE e.id=%d'.$fil,array($id));
 		$result = array();
 		if ($row) {
-			foreach (array('start','id','title','end','description') as $v)
-				$result[$v] = $row[$v];
-			if($row['timeless']) $result['timeless'] = date('Y-m-d',$row['start']);
-			if($row['recurrence_type'])
-				$result['title'] = '<img src="'.Base_ThemeCommon::get_template_file('CRM_Calendar_Event','recurrence.png').'" border=0 hspace=0 vspace=0 align=left>'.$result['title'];
-			$result['duration'] = $row['end']-$row['start'];
-			$color = self::get_available_colors();
-			if($row['status']>=2)
-				$result['color'] = 'gray';
-			else
-				$result['color'] = $color[$row['color']];
-			$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
-			$priority = array(0 =>'None', 1 => 'Low', 2 => 'Medium', 3 => 'High');
-			$status = Utils_CommonDataCommon::get_translated_array('Ticket_Status');
-			$result['additional_info2'] = 	'<hr>'.Base_LangCommon::ts('CRM_Calendar_Event','Status').': '.$status[$row['status']].'<br>'.
-								Base_LangCommon::ts('CRM_Calendar_Event','Access').': '.Base_LangCommon::ts('CRM_Calendar_Event',$access[$row['access']]).'<br>'.
-								Base_LangCommon::ts('CRM_Calendar_Event','Priority').': '.Base_LangCommon::ts('CRM_Calendar_Event',$priority[$row['priority']]). '<br>'.
-								Base_LangCommon::ts('CRM_Calendar_Event','Notes').': '.Utils_AttachmentCommon::count('CRM/Calendar/Event/'.$row['id']). '<br>'.
-								Base_LangCommon::ts('CRM_Calendar_Event','Created by').' '.Base_UserCommon::get_user_login($row['created_by']). '<br>'.
-											Base_LangCommon::ts('CRM_Calendar_Event','Created on').' '.$row['created_on']. '<br>'.
-											(($row['edited_by'])?(
-											Base_LangCommon::ts('CRM_Calendar_Event','Edited by').' '.Base_UserCommon::get_user_login($row['edited_by']). '<br>'.
-											Base_LangCommon::ts('CRM_Calendar_Event','Edited on').' '.$row['edited_on']. '<br>'):'');
-
-			$emps_tmp = DB::GetAssoc('SELECT emp.contact,emp.contact FROM crm_calendar_event_group_emp AS emp WHERE emp.id=%d',array($row['id']));
-			$cuss_tmp = DB::GetAssoc('SELECT cus.contact,cus.contact FROM crm_calendar_event_group_cus AS cus WHERE cus.id=%d',array($row['id']));
-//			$emps_tmp = explode(',',$row['employees']);
-
-			$emps = array();
-			foreach($emps_tmp as $k)
-				if(is_numeric($k))
-					$emps[] = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact($k));
-//			$cuss_tmp = explode(',',$row['customers']);
-			$cuss = array();
-			foreach($cuss_tmp as $k)
-				if(is_numeric($k))
-					$cuss[] = CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($k));
-
-			$result['additional_info'] =  '<hr>'.
-					Base_LangCommon::ts('CRM_Calendar_Event','Employees:').'<br>'.
-						implode('<br>',$emps).
-					(empty($cuss)?'':'<br>'.Base_LangCommon::ts('CRM_Calendar_Event','Customers:').'<br>'.
-						implode('<br>',$cuss));
-			if($row['deleted']) {
-				$result['edit_action'] = false;
-				$result['delete_action'] = false;
-			} elseif($row['access']>0 && !in_array($my_id,$emps_tmp) && !Base_AclCommon::i_am_admin()) {
-				$result['edit_action'] = false;
-				$result['delete_action'] = false;
-			} elseif($row['status']<2)
-					$result['actions'] = array(array('icon'=>Base_ThemeCommon::get_template_file('CRM_Calendar_Event','access-private.png'),'href'=>CRM_Calendar_EventCommon::get_followup_leightbox_href($row['id'], $row)));
-
+			$result = self::parse_event($row);
 		}
 		return $result;
 	}
+	
 	public static function get_event_days($start,$end) {
 		$start_reg = Base_RegionalSettingsCommon::reg2time($start);
 		$end_reg = Base_RegionalSettingsCommon::reg2time($end);
@@ -165,9 +234,9 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$fil = ' AND (SELECT id FROM crm_calendar_event_group_emp cg WHERE cg.id=e.id AND cg.contact IN '.self::$filter.' LIMIT 1) IS NOT NULL';
 		else
 			$fil = '';
-		$my_id = CRM_FiltersCommon::get_my_profile();
+		self::$my_id = CRM_FiltersCommon::get_my_profile();
 		if(!Base_AclCommon::i_am_admin())
-			$fil .= ' AND (e.access<2 OR (SELECT id FROM crm_calendar_event_group_emp cg2 WHERE cg2.id=e.id AND cg2.contact='.$my_id.' LIMIT 1) IS NOT NULL)';
+			$fil .= ' AND (e.access<2 OR (SELECT id FROM crm_calendar_event_group_emp cg2 WHERE cg2.id=e.id AND cg2.contact='.self::$my_id.' LIMIT 1) IS NOT NULL)';
 		if (DATABASE_DRIVER=='postgres') {
 			$method_begin = '(SELECT TIMESTAMP \'epoch\' + ';
 			$method_end = ' * INTERVAL \'1 second\')';
@@ -244,71 +313,6 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		return $last;
 	}
 
-	public static function get_next_recurrence_time($t,$row,$type=null,$time=null) {
-		if($time===null)
-			$time = date('H:i:s',strtotime(Base_RegionalSettingsCommon::time2reg($t,true,true,true,false)));
-		if($type===null)
-			$type = self::recurrence_type($row['recurrence_type']);
-		switch($type) {
-			case 'everyday':
-				$date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$t))+3600*24);
-				break;
-			case 'second':
-				$date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$t))+3600*48);
-				break;
-			case 'third':
-				$date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$t))+3600*72);
-				break;
-			case 'fourth':
-				$date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$t))+3600*96);
-				break;
-			case 'fifth':
-				$date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$t))+3600*120);
-				break;
-			case 'sixth':
-				$date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$t))+3600*144);
-				break;
-			case 'week':
-				$date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$t))+3600*168);
-				break;
-			case 'week_custom':
-				if (!$row['recurrence_hash']) {
-					$date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$t))+3600*168);
-					break;
-				}
-				$date = strtotime(date('Y-m-d 12:00:00',$t));
-				do {
-					$date = strtotime(date('Y-m-d 12:00:00',$date+3600*24));
-				} while(!$row['recurrence_hash']{date('N',$date)-1});
-				$date = date('Y-m-d',$date);
-				break;
-			case 'two_weeks':
-				$date = date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$t))+3600*168*2);
-				break;
-			case 'month':
-				$year = date('Y',$t);
-				$month = date('m',$t)%12+1;
-				if($month==1) $year++;
-				$date = date($year.'-'.$month.'-d',$t);
-				break;
-			case 'year':
-				$year = date('Y',$t);
-				$year++;
-				$date = date($year.'-m-d',$t);
-				break;
-		}
-		return strtotime($date.' '.date('H:i:s',Base_RegionalSettingsCommon::reg2time($date.' '.$time)));
-	}
-
-	public static function get_n_recurrence_time($t,$row,$n) {
-		$time = date('H:i:s',strtotime(Base_RegionalSettingsCommon::time2reg($t,true,true,true,false)));
-		$type = self::recurrence_type($row['recurrence_type']);
-		while($n-->0) {
-			$t = self::get_next_recurrence_time($t,$row,$type,$time);
-		}
-		return $t;
-	}
-
 	public static function get_all($start,$end,$order=' ORDER BY e.starts') {
 		if(isset($_GET['restore']) && is_numeric($_GET['restore'])) 
 			self::restore_event($_GET['restore']);
@@ -321,9 +325,9 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$fil = ' AND (SELECT id FROM crm_calendar_event_group_emp cg WHERE cg.id=e.id AND cg.contact IN '.self::$filter.' LIMIT 1) IS NOT NULL';
 		else
 			$fil = '';
-		$my_id = CRM_FiltersCommon::get_my_profile();
+		self::$my_id = CRM_FiltersCommon::get_my_profile();
 		if(!Base_AclCommon::i_am_admin())
-			$fil .= ' AND (e.access<2 OR (SELECT id FROM crm_calendar_event_group_emp cg2 WHERE cg2.id=e.id AND cg2.contact='.$my_id.' LIMIT 1) IS NOT NULL)';
+			$fil .= ' AND (e.access<2 OR (SELECT id FROM crm_calendar_event_group_emp cg2 WHERE cg2.id=e.id AND cg2.contact='.self::$my_id.' LIMIT 1) IS NOT NULL)';
 		if (DATABASE_DRIVER=='postgres') {
 			$method_begin = '(SELECT TIMESTAMP \'epoch\' + ';
 			$method_end = ' * INTERVAL \'1 second\')';
@@ -336,69 +340,11 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			'OR '.
 			'(e.timeless=1 AND ((e.recurrence_type is null AND DATE('.$method_begin.'e.starts'.$method_end.')>=%D AND DATE('.$method_begin.'e.starts'.$method_end.')<%D) OR (e.recurrence_type is not null AND ((DATE('.$method_begin.'e.starts'.$method_end.')<=%D AND e.recurrence_end>=%D) OR (DATE('.$method_begin.'e.starts'.$method_end.')>=%D AND DATE('.$method_begin.'e.starts'.$method_end.')<=%D) OR (e.recurrence_end>=%D AND e.recurrence_end<=%D) OR (e.starts<%d AND e.recurrence_end is null)))))) '.$fil.$order.' LIMIT 51',array($start_reg,$end_reg,$start_reg,$end_reg,$start_reg,$end_reg,$start_reg,$end_reg,$start,$end,$start_reg,$end,$end_reg,$start,$end,$start,$end,$start,$end,$start,$end,strtotime($end)));
 		$result = array();
-		$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
-		$priority = array(0 =>'None', 1 => 'Low', 2 => 'Medium', 3 => 'High');
-		$status = Utils_CommonDataCommon::get_translated_array('Ticket_Status');
 		$count = 0;
 		while ($row = $ret->FetchRow()) {
-			$next_result = array();
-			foreach (array('start','end','id','title','description','status') as $v)
-				$next_result[$v] = $row[$v];
-			if($row['timeless']) $next_result['timeless'] = date('Y-m-d',$row['start']);
-//			if($next_result['timeless'])
-//				$next_result['start'] = $next_result['start'];
-			$next_result['duration'] = $row['end']-$row['start'];
-			$color = self::get_available_colors();
-			if($row['status']>=2)
-				$next_result['color'] = 'gray';
-			else
-				$next_result['color'] = $color[$row['color']];
-
-			$next_result['additional_info2'] = 	'<hr>'.Base_LangCommon::ts('CRM_Calendar_Event','Status').': '.$status[$row['status']].'<br>'.
-								Base_LangCommon::ts('CRM_Calendar_Event','Access').': '.Base_LangCommon::ts('CRM_Calendar_Event',$access[$row['access']]).'<br>'.
-								Base_LangCommon::ts('CRM_Calendar_Event','Priority').': '.Base_LangCommon::ts('CRM_Calendar_Event',$priority[$row['priority']]). '<br>'.
-								Base_LangCommon::ts('CRM_Calendar_Event','Notes').': '.Utils_AttachmentCommon::count('CRM/Calendar/Event/'.$row['id']). '<br>'.
-								Base_LangCommon::ts('CRM_Calendar_Event','Created by').' '.Base_UserCommon::get_user_login($row['created_by']). '<br>'.
-											Base_LangCommon::ts('CRM_Calendar_Event','Created on').' '.$row['created_on']. '<br>'.
-											(($row['edited_by'])?(
-											Base_LangCommon::ts('CRM_Calendar_Event','Edited by').' '.Base_UserCommon::get_user_login($row['edited_by']). '<br>'.
-											Base_LangCommon::ts('CRM_Calendar_Event','Edited on').' '.$row['edited_on']. '<br>'):'');
-			$emps_tmp = DB::GetAssoc('SELECT emp.contact,emp.contact FROM crm_calendar_event_group_emp AS emp WHERE emp.id=%d',array($row['id']));
-			$cuss_tmp = DB::GetAssoc('SELECT cus.contact,cus.contact FROM crm_calendar_event_group_cus AS cus WHERE cus.id=%d',array($row['id']));
-
-//			$emps_tmp = explode(',',$row['employees']);
-			$emps = array();
-			foreach($emps_tmp as $k)
-				if(is_numeric($k))
-					$emps[] = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact($k));
-//			$cuss_tmp = explode(',',$row['customers']);
-			$cuss = array();
-			foreach($cuss_tmp as $k)
-				if(is_numeric($k))
-					$cuss[] = CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($k));
-			$next_result['additional_info'] =  '<hr>'.
-					'<b>'.Base_LangCommon::ts('CRM_Calendar_Event','Employees:').'</b><br>'.
-						implode('<br>',$emps).
-					(empty($cuss)?'':'<br><b>'.Base_LangCommon::ts('CRM_Calendar_Event','Customers:').'</b><br>'.
-						implode('<br>',$cuss));
-			$next_result['custom_agenda_col_0'] = $row['description'];
-			$next_result['custom_agenda_col_1'] = implode(', ',$emps);
-			$next_result['custom_agenda_col_2'] = implode(', ',$cuss);
-			//$next_result['actions'] = array();
-			if($row['deleted']) {
-				$next_result['edit_action'] = false;
-				$next_result['move_action'] = false;
-				$next_result['delete_action'] = false;
-				$next_result['actions'] = array(array('icon'=>Base_ThemeCommon::get_template_file('CRM_Calendar_Event','restore_small.png'),'href'=>Module::create_href(array('restore'=>$next_result['id']))));
-			} elseif($row['access']>0 && !in_array($my_id,$emps_tmp) && !Base_AclCommon::i_am_admin()) {
-				$next_result['edit_action'] = false;
-				$next_result['move_action'] = false;
-				$next_result['delete_action'] = false;
-			} elseif($row['status']<2)
-				$next_result['actions'] = array(array('icon'=>Base_ThemeCommon::get_template_file('CRM_Calendar_Event','access-private.png'),'href'=>CRM_Calendar_EventCommon::get_followup_leightbox_href($row['id'], $row)));
-
+			$next_result = self::parse_event($row);
+			
 			if($row['recurrence_type']) {
-				$next_result['title'] = '<img src="'.Base_ThemeCommon::get_template_file('CRM_Calendar_Event','recurrence.png').'" border=0 hspace=0 vspace=0 align=left>'.$next_result['title'];
 				$type = self::recurrence_type($row['recurrence_type']);
 				if($row['timeless']) {
 					if(isset($row['recurrence_end'])) {
@@ -473,8 +419,8 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		if($row['deleted'])
 			return false;
 		if($access > 0) {
-			$my_id = CRM_FiltersCommon::get_my_profile();
-			$ok = DB::GetOne('SELECT 1 FROM crm_calendar_event_group_emp WHERE id=%d AND contact=%d',array($id,$my_id));
+			self::$my_id = CRM_FiltersCommon::get_my_profile();
+			$ok = DB::GetOne('SELECT 1 FROM crm_calendar_event_group_emp WHERE id=%d AND contact=%d',array($id,self::$my_id));
 			if(!$ok) return false;
 		}
 		return true;

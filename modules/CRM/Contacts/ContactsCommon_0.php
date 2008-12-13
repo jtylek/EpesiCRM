@@ -568,6 +568,31 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return Utils_RecordBrowserCommon::record_bbcode('company', array('company_name'), $text, $param, $opt);
 	}
 	
+	public static function get_html_record_info($created_by,$created_on,$edited_by=null,$edited_on=null) {
+		$contact = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact_by_user_id($created_by),true);
+		if ($contact!='') $created_by = $contact;
+		else $created_by = Base_UserCommon::get_user_login($created_by);
+		// If the record was edited get user contact info
+		if ($edited_by!=null) {
+			if ($edited_by!=$created_by) $contact = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact_by_user_id($edited_by),true);
+			if ($contact!='') $edited_by = $contact;
+			else $edited_by = Base_UserCommon::get_user_login($edited_by);
+		}
+		
+		$htmlinfo=array(
+					'Created by:'=>$created_by,			
+					'Created on:'=>Base_RegionalSettingsCommon::time2reg($created_on)
+						);
+		if ($edited_by!=null) {
+			$htmlinfo=$htmlinfo+array(
+					'Edited by:'=>$edited_by,		
+					'Edited on:'=>Base_RegionalSettingsCommon::time2reg($edited_on)
+						);
+		}
+
+		return	Utils_TooltipCommon::format_info_tooltip($htmlinfo,'CRM_Contacts');
+	}
+	
 	//////////////////////////
 	// mobile devices
 	public function mobile_menu() {
