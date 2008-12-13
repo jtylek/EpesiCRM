@@ -22,9 +22,11 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		return Utils_RecordBrowserCommon::applet_settings();		
 	}
 	public static function applet_info_format($r){
+
 		if (isset($r['contact']) && $r['contact']!='') {
 			$c = CRM_ContactsCommon::get_contact($r['contact']);
 			$contact = $c['last_name'].' '.$c['first_name'];
+			$company = CRM_ContactsCommon::display_company(array('id'=>$r['company_name']),true);
 			if (isset($r['phone']) && $r['phone']!='') {
 				list($ret, $num) = explode('__',$r['phone']);
 				switch ($num) {
@@ -39,13 +41,41 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		} else {
 			$contact = $r['other_contact_name'];
 			$phone = $r['other_phone_number'];
+			$company = '---';
 		}
+
+		// Build array representing 2-column tooltip
+		// Format: array (Label,value)
+		$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
+		$priority = array(0 =>'None', 1 => 'Low', 2 => 'Medium', 3 => 'High');
+		$status = Utils_CommonDataCommon::get_translated_array('Ticket_Status');
+
+		$args=array(
+					'Call:'=>'<b>'.$phone.'</b>',
+					'Contact:'=>$contact,
+					'Company:'=>$company,
+					'Subject:'=>'<b>'.$r['subject'].'</b>',
+					'Description:'=>$r['description'],
+					'Assigned to:'=>CRM_ContactsCommon::display_contact(array('id'=>$r['employees']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_no_company')),
+					'Date and Time:'=>Base_RegionalSettingsCommon::time2reg($r['date_and_time']),
+					'Status:'=>$status[$r['status']],
+					'Permission:'=>$access[$r['permission']],
+					'Priority:'=>$priority[$r['priority']]
+					);
+
+		// Pass 2 arguments: array containing pairs: label/value
+		// and the name of the group for translation
+		return	Utils_TooltipCommon::format_info_tooltip($args);
+
+	/*
 		return 	Base_LangCommon::ts('CRM_PhoneCall','Subject: %s', array($r['subject'])).'<br>'.
 				Base_LangCommon::ts('CRM_PhoneCall','Description: %s', array($r['description'])).'<br>'.
 				Base_LangCommon::ts('CRM_PhoneCall','Contact: %s', array($contact)).'<br>'.
 				Base_LangCommon::ts('CRM_PhoneCall','Phone: %s', array($phone)).'<br>'.
 				Base_LangCommon::ts('CRM_PhoneCall','Date and Time: %s', array(Base_RegionalSettingsCommon::time2reg($r['date_and_time'])));
+	*/
 	}
+
 	public static function get_phonecalls($crits = array(), $cols = array(), $order = array()) {
 		return Utils_RecordBrowserCommon::get_records('phonecall', $crits, $cols, $order);
 	}

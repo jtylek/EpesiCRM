@@ -23,13 +23,12 @@ class CRM_TasksCommon extends ModuleCommon {
 		
 		// Build array representing 2-column tooltip
 		// Format: array (Label,value)
-		// $status = Utils_CommonDataCommon::get_translated_array('Status');
 		$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
 		$priority = array(0 =>'None', 1 => 'Low', 2 => 'Medium', 3 => 'High');
 		$status = Utils_CommonDataCommon::get_translated_array('Ticket_Status');
 
 		$args=array(
-					'Title:'=>'<b>'.$r['title'].'</b>',
+					'Task:'=>'<b>'.$r['title'].'</b>',
 					'Description:'=>$r['description'],
 					'Assigned to:'=>CRM_ContactsCommon::display_contact(array('id'=>$r['employees']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_no_company')),
 					'Contacts:'=>CRM_ContactsCommon::display_contact(array('id'=>$r['customers']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_default')),

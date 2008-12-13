@@ -122,14 +122,12 @@ class CRM_Calendar extends Module {
 			
 			///////////////////
 			// right column
-			if($row['description'])
-				$row['description'] .= '<hr>';
-			$title = Utils_TooltipCommon::create($row['title'],$row['description'].substr($row['additional_info'],4).$row['additional_info2']);
+			$title = Utils_TooltipCommon::create($row['title'],$row['description']);
+			// $title = $row['title'];
 			
 			//////////////////////////
 			// left column
-			$date_tip = !isset($row['timeless'])?$this->lang->t('Duration: %s<br>End: %s',array($ex['duration'],$ex['end'])):$this->lang->t('Timeless');
-			$date = Utils_TooltipCommon::create($ex['start'],$date_tip);
+			$date = Utils_TooltipCommon::create($ex['start'],$row['tooltip']);
 			$gb->add_row(
 				array('value'=>$view_action.$date.'</a>', 'order_value'=>isset($row['timeless'])?strtotime($row['timeless']):$row['start']),
 				$view_action.$title.'</a>');

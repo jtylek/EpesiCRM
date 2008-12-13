@@ -111,38 +111,9 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 				$result['color'] = 'gray';
 			else
 				$result['color'] = $color[$row['color']];
-			$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
-			$priority = array(0 =>'None', 1 => 'Low', 2 => 'Medium', 3 => 'High');
-			$status = Utils_CommonDataCommon::get_translated_array('Ticket_Status');
-			$result['additional_info2'] = 	'<hr>'.Base_LangCommon::ts('CRM_Calendar_Event','Status').': '.$status[$row['status']].'<br>'.
-								Base_LangCommon::ts('CRM_Calendar_Event','Access').': '.Base_LangCommon::ts('CRM_Calendar_Event',$access[$row['access']]).'<br>'.
-								Base_LangCommon::ts('CRM_Calendar_Event','Priority').': '.Base_LangCommon::ts('CRM_Calendar_Event',$priority[$row['priority']]). '<br>'.
-								Base_LangCommon::ts('CRM_Calendar_Event','Notes').': '.Utils_AttachmentCommon::count('CRM/Calendar/Event/'.$row['id']). '<br>'.
-								Base_LangCommon::ts('CRM_Calendar_Event','Created by').' '.Base_UserCommon::get_user_login($row['created_by']). '<br>'.
-											Base_LangCommon::ts('CRM_Calendar_Event','Created on').' '.$row['created_on']. '<br>'.
-											(($row['edited_by'])?(
-											Base_LangCommon::ts('CRM_Calendar_Event','Edited by').' '.Base_UserCommon::get_user_login($row['edited_by']). '<br>'.
-											Base_LangCommon::ts('CRM_Calendar_Event','Edited on').' '.$row['edited_on']. '<br>'):'');
 
-			$emps_tmp = DB::GetAssoc('SELECT emp.contact,emp.contact FROM crm_calendar_event_group_emp AS emp WHERE emp.id=%d',array($row['id']));
-			$cuss_tmp = DB::GetAssoc('SELECT cus.contact,cus.contact FROM crm_calendar_event_group_cus AS cus WHERE cus.id=%d',array($row['id']));
-//			$emps_tmp = explode(',',$row['employees']);
+		$result['tooltip'] = self::get_event_tooltip($row);
 
-			$emps = array();
-			foreach($emps_tmp as $k)
-				if(is_numeric($k))
-					$emps[] = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact($k));
-//			$cuss_tmp = explode(',',$row['customers']);
-			$cuss = array();
-			foreach($cuss_tmp as $k)
-				if(is_numeric($k))
-					$cuss[] = CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($k));
-
-			$result['additional_info'] =  '<hr>'.
-					Base_LangCommon::ts('CRM_Calendar_Event','Employees:').'<br>'.
-						implode('<br>',$emps).
-					(empty($cuss)?'':'<br>'.Base_LangCommon::ts('CRM_Calendar_Event','Customers:').'<br>'.
-						implode('<br>',$cuss));
 			if($row['deleted']) {
 				$result['edit_action'] = false;
 				$result['delete_action'] = false;
@@ -336,17 +307,14 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			'OR '.
 			'(e.timeless=1 AND ((e.recurrence_type is null AND DATE('.$method_begin.'e.starts'.$method_end.')>=%D AND DATE('.$method_begin.'e.starts'.$method_end.')<%D) OR (e.recurrence_type is not null AND ((DATE('.$method_begin.'e.starts'.$method_end.')<=%D AND e.recurrence_end>=%D) OR (DATE('.$method_begin.'e.starts'.$method_end.')>=%D AND DATE('.$method_begin.'e.starts'.$method_end.')<=%D) OR (e.recurrence_end>=%D AND e.recurrence_end<=%D) OR (e.starts<%d AND e.recurrence_end is null)))))) '.$fil.$order.' LIMIT 51',array($start_reg,$end_reg,$start_reg,$end_reg,$start_reg,$end_reg,$start_reg,$end_reg,$start,$end,$start_reg,$end,$end_reg,$start,$end,$start,$end,$start,$end,$start,$end,strtotime($end)));
 		$result = array();
-		$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
-		$priority = array(0 =>'None', 1 => 'Low', 2 => 'Medium', 3 => 'High');
-		$status = Utils_CommonDataCommon::get_translated_array('Ticket_Status');
+
 		$count = 0;
 		while ($row = $ret->FetchRow()) {
 			$next_result = array();
 			foreach (array('start','end','id','title','description','status') as $v)
 				$next_result[$v] = $row[$v];
 			if($row['timeless']) $next_result['timeless'] = date('Y-m-d',$row['start']);
-//			if($next_result['timeless'])
-//				$next_result['start'] = $next_result['start'];
+
 			$next_result['duration'] = $row['end']-$row['start'];
 			$color = self::get_available_colors();
 			if($row['status']>=2)
@@ -354,37 +322,9 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			else
 				$next_result['color'] = $color[$row['color']];
 
-			$next_result['additional_info2'] = 	'<hr>'.Base_LangCommon::ts('CRM_Calendar_Event','Status').': '.$status[$row['status']].'<br>'.
-								Base_LangCommon::ts('CRM_Calendar_Event','Access').': '.Base_LangCommon::ts('CRM_Calendar_Event',$access[$row['access']]).'<br>'.
-								Base_LangCommon::ts('CRM_Calendar_Event','Priority').': '.Base_LangCommon::ts('CRM_Calendar_Event',$priority[$row['priority']]). '<br>'.
-								Base_LangCommon::ts('CRM_Calendar_Event','Notes').': '.Utils_AttachmentCommon::count('CRM/Calendar/Event/'.$row['id']). '<br>'.
-								Base_LangCommon::ts('CRM_Calendar_Event','Created by').' '.Base_UserCommon::get_user_login($row['created_by']). '<br>'.
-											Base_LangCommon::ts('CRM_Calendar_Event','Created on').' '.$row['created_on']. '<br>'.
-											(($row['edited_by'])?(
-											Base_LangCommon::ts('CRM_Calendar_Event','Edited by').' '.Base_UserCommon::get_user_login($row['edited_by']). '<br>'.
-											Base_LangCommon::ts('CRM_Calendar_Event','Edited on').' '.$row['edited_on']. '<br>'):'');
-			$emps_tmp = DB::GetAssoc('SELECT emp.contact,emp.contact FROM crm_calendar_event_group_emp AS emp WHERE emp.id=%d',array($row['id']));
-			$cuss_tmp = DB::GetAssoc('SELECT cus.contact,cus.contact FROM crm_calendar_event_group_cus AS cus WHERE cus.id=%d',array($row['id']));
+			// get tooltip
+			$next_result['tooltip'] = self::get_event_tooltip($row);
 
-//			$emps_tmp = explode(',',$row['employees']);
-			$emps = array();
-			foreach($emps_tmp as $k)
-				if(is_numeric($k))
-					$emps[] = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact($k));
-//			$cuss_tmp = explode(',',$row['customers']);
-			$cuss = array();
-			foreach($cuss_tmp as $k)
-				if(is_numeric($k))
-					$cuss[] = CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($k));
-			$next_result['additional_info'] =  '<hr>'.
-					'<b>'.Base_LangCommon::ts('CRM_Calendar_Event','Employees:').'</b><br>'.
-						implode('<br>',$emps).
-					(empty($cuss)?'':'<br><b>'.Base_LangCommon::ts('CRM_Calendar_Event','Customers:').'</b><br>'.
-						implode('<br>',$cuss));
-			$next_result['custom_agenda_col_0'] = $row['description'];
-			$next_result['custom_agenda_col_1'] = implode(', ',$emps);
-			$next_result['custom_agenda_col_2'] = implode(', ',$cuss);
-			//$next_result['actions'] = array();
 			if($row['deleted']) {
 				$next_result['edit_action'] = false;
 				$next_result['move_action'] = false;
@@ -522,6 +462,129 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 	public static function restore_event($id) {
 		DB::Execute('UPDATE crm_calendar_event SET deleted=0, edited_by=%d,edited_on=%T WHERE id=%d',array(Acl::get_user(),time(),$id));
 	}
-}
 
+	public static function get_event_tooltip($event){
+
+		/* ********************************************************************
+		** Get record created_by/edited_by info
+		***********************************************************************/
+		// If CRM Contacts module is installed get user contact
+		
+		if (ModuleManager::is_installed('CRM_Contacts')>=0) {
+			$contact = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact_by_user_id($event['created_by']),true);
+			if ($contact!=' ') $created_by = $contact;
+			else $created_by = Base_UserCommon::get_user_login($event['created_by']);
+			// If the record was edited get user contact info
+			if ($event['edited_by']!=null) {
+				if ($event['edited_by']!=$event['created_by']) $contact = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact_by_user_id($event['edited_by']),true);
+				if ($contact!=' ') $edited_by = $contact;
+				else $edited_by = Base_UserCommon::get_user_login($event['edited_by']);
+			}
+			
+		// If CRM Module is not installed get user login only
+		} else {
+			$created_by = Base_UserCommon::get_user_login($event['created_by']);
+			$edited_by = Base_UserCommon::get_user_login($event['edited_by']);
+		}
+
+		$htmlinfo=array(
+					'Created by:'=>$created_by,			
+					'Created on:'=>Base_RegionalSettingsCommon::time2reg($event['created_on'])
+						);
+		if ($event['edited_by']!=null) {
+			$htmlinfo=$htmlinfo+array(
+					'Edited by:'=>$edited_by,		
+					'Edited on:'=>Base_RegionalSettingsCommon::time2reg($event['edited_on'])
+						);
+		}
+
+		$tooltip_bottom = Utils_TooltipCommon::format_info_tooltip($htmlinfo);
+
+		/* ********************************************************************
+		** End of get record created_by/edited_by info
+		***********************************************************************/
+
+		// Get event's employees
+			$emps_tmp = DB::GetAssoc('SELECT emp.contact,emp.contact FROM crm_calendar_event_group_emp AS emp WHERE emp.id=%d',array($event['id']));
+
+			$emps = array();
+			foreach($emps_tmp as $k)
+				if(is_numeric($k))
+					$emps[] = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact($k));
+
+		// Get event's customers
+			$cuss_tmp = DB::GetAssoc('SELECT cus.contact,cus.contact FROM crm_calendar_event_group_cus AS cus WHERE cus.id=%d',array($event['id']));
+
+			$cuss = array();
+			foreach($cuss_tmp as $k)
+				if(is_numeric($k))
+					$cuss[] = CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($k));
+		
+		
+		$status = Utils_CommonDataCommon::get_translated_array('Ticket_Status');
+		$access = array(0=>'public', 1=>'public, read-only', 2=>'private');
+		$priority = array(0 =>'None', 1 => 'Low', 2 => 'Medium', 3 => 'High');
+		
+		// Get other fields
+
+//		$start_time = Base_RegionalSettingsCommon::time2reg($event['start'],true,true,true,false);
+		$start_time = Base_RegionalSettingsCommon::time2reg($event['start'],true,false);
+		$event_date = Base_RegionalSettingsCommon::time2reg($event['start'],false);
+		$end_time = Base_RegionalSettingsCommon::time2reg($event['end'],true,false);
+
+		$args=array(
+			'Date:'=>'<b>'.$event_date.'</b>');
+
+		if ($event['timeless']==1) {
+			$args+=array('Time'=>Base_LangCommon::ts('CRM_Calendar_Event','Timeless event'));
+			} else {
+			$args+=array(
+				'Time'=>$start_time.' - '.$end_time,
+				'Duration'=>self::secondsToWords($event['end']-$event['start'])
+				);
+			}
+
+		$args+=array(
+			'Event:'=>'<b>'.$event['title'].'</b>',
+			'Description:'=>$event['description'],
+			'Assigned to:'=>implode('<br>',$emps),
+			'Contacts:'=>implode('<br>',$cuss),
+			'Status:'=>$status[$event['status']],
+			'Access:'=>$access[$event['access']],
+			'No. of Notes:'=>Utils_AttachmentCommon::count('CRM/Calendar/Event/'.$event['id']),
+			'Priority:'=>$priority[$event['priority']]
+			);
+
+			$tooltip_top = Utils_TooltipCommon::format_info_tooltip($args);
+			return $tooltip_top.'<HR>'.$tooltip_bottom;
+	}
+
+	/**
+	 *
+	 * @convert seconds to hours minutes and seconds
+	 * @param int $seconds The number of seconds
+	 * @return string
+	 *
+	 */
+	public static function secondsToWords($seconds)
+	{
+	    /*** return value ***/
+	    $ret = "";
+
+		/*** get the hours ***/
+	    $hours = intval(intval($seconds) / 3600);
+	    if($hours > 0)
+		{
+			$ret .= Base_LangCommon::ts('CRM_Calendar_Event','%s hour(s) ',array($hours));
+	    }
+	    /*** get the minutes ***/
+	    $minutes = bcmod((intval($seconds) / 60),60);
+		if($hours > 0 || $minutes > 0)
+	    {
+		    $ret .= Base_LangCommon::ts('CRM_Calendar_Event','%s minutes',array($minutes));
+	    }
+
+		return $ret;
+		}
+}
 ?>
