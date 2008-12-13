@@ -19,15 +19,14 @@ class Base_Backup extends Module {
 	} 
 	
 	public function admin() {
-		$this->lang = & $this->init_module('Base/Lang');
 		$theme = & $this->pack_module('Base/Theme');
 		
-		$theme->assign('available_backups',$this->lang->t('Available backups'));
+		$theme->assign('available_backups',$this->t('Available backups'));
 		$gb = & $this->init_module('Utils/GenericBrowser',null,'backup');
 		$gb->set_table_columns(array(
-			array('name'=>$this->lang->t('Name')), 
-			array('name'=>$this->lang->t('Version')), 
-			array('name'=>$this->lang->t('Date'))));
+			array('name'=>$this->t('Name')), 
+			array('name'=>$this->t('Version')), 
+			array('name'=>$this->t('Date'))));
 		$backups_list = ModuleManager::list_backups();
 		$backups = array();
 		foreach($backups_list as $b) {
@@ -41,7 +40,7 @@ class Base_Backup extends Module {
 		}
 		$theme->assign('backups_table',$this->get_html_of_module($gb));
 		
-		$theme->assign('create_backup',$this->lang->t('Create backup'));
+		$theme->assign('create_backup',$this->t('Create backup'));
 		$form = & $this->init_module('Libs/QuickForm');
 		$mods = array();
 		foreach(ModuleManager::$modules as $m=>$v) {
@@ -75,7 +74,7 @@ class Base_Backup extends Module {
 		//$tree->set_inline_display(true);
 		$theme->assign('tree',$this->get_html_of_module($tree));
 		
-		$form->addElement('submit', 'create_backup', $this->lang->ht('Create backup'));
+		$form->addElement('submit', 'create_backup', $this->ht('Create backup'));
 		if($form->validate()) {
 			if($form->process(array($this,'submit_backup')))
 				location(array());

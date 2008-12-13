@@ -12,15 +12,13 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_Calendar_Event extends Utils_Calendar_Event {
-	private $lang;
 	private $custom_defaults = array();
 	private static $access;
 	private static $priority;
 
 	public function construct() {
-		$this->lang = $this->pack_module('Base/Lang');
-		self::$access = array(0=>$this->lang->t('Public'), 1=>$this->lang->t('Public, read-only'), 2=>$this->lang->t('Private'));
-		self::$priority = array(0 => $this->lang->t('Low'), 1 => $this->lang->t('Medium'), 2 => $this->lang->t('High'));
+		self::$access = array(0=>$this->t('Public'), 1=>$this->t('Public, read-only'), 2=>$this->t('Private'));
+		self::$priority = array(0 => $this->t('Low'), 1 => $this->t('Medium'), 2 => $this->t('High'));
 	}
 
 	public function view($id) {
@@ -55,19 +53,19 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$ev['title'] = strip_tags($ev['title']);
 		}
 		$pdf_theme = $this->pack_module('Base/Theme');
-		$pdf_theme->assign('description', array('label'=>$this->lang->t('Description'), 'value'=>str_replace("\n",'<br/>',htmlspecialchars($ev['description']))));
+		$pdf_theme->assign('description', array('label'=>$this->t('Description'), 'value'=>str_replace("\n",'<br/>',htmlspecialchars($ev['description']))));
 		if (!$no_details) {
 			$ev['status'] = Utils_CommonDataCommon::get_value('Ticket_Status/'.$ev['status'],true);
 			$ev['access'] = self::$access[$ev['access']];
 			$ev['priority'] = self::$priority[$ev['priority']];
 			foreach (array('access', 'priority', 'status') as $v)
-				$pdf_theme->assign($v, array('label'=>$this->lang->t(ucfirst($v)), 'value'=>$ev[$v]));
+				$pdf_theme->assign($v, array('label'=>$this->t(ucfirst($v)), 'value'=>$ev[$v]));
 			$created_by = CRM_ContactsCommon::get_contact_by_user_id($ev['created_by']);
 			if ($created_by!==null) $created_by = $created_by['last_name'].' '.$created_by['first_name'];
 			else $created_by = Base_UserCommon::get_user_login($ev['created_by']);
 			$created_on = Base_RegionalSettingsCommon::time2reg($ev['created_on'],false);
-			$pdf_theme->assign('created_on', array('label'=>$this->lang->t('Created on'), 'value'=>$created_on));
-			$pdf_theme->assign('created_by', array('label'=>$this->lang->t('Created by'), 'value'=>$created_by));
+			$pdf_theme->assign('created_on', array('label'=>$this->t('Created on'), 'value'=>$created_on));
+			$pdf_theme->assign('created_by', array('label'=>$this->t('Created by'), 'value'=>$created_by));
 			if ($ev['edited_by']!=null) {
 				$edited_by = CRM_ContactsCommon::get_contact_by_user_id($ev['edited_by']);
 				if ($edited_by!==null) $edited_by = $edited_by['last_name'].' '.$edited_by['first_name'];
@@ -77,9 +75,9 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				$edited_by = '--';
 				$edited_on = '--';
 			}
-			$pdf_theme->assign('edited_on', array('label'=>$this->lang->t('Edited on'), 'value'=>$edited_on));
-			$pdf_theme->assign('edited_by', array('label'=>$this->lang->t('Edited by'), 'value'=>$edited_by));
-			$pdf_theme->assign('printed_on', array(	'label'=>$this->lang->t('Printed on'),
+			$pdf_theme->assign('edited_on', array('label'=>$this->t('Edited on'), 'value'=>$edited_on));
+			$pdf_theme->assign('edited_by', array('label'=>$this->t('Edited by'), 'value'=>$edited_by));
+			$pdf_theme->assign('printed_on', array(	'label'=>$this->t('Printed on'),
 													'value'=>Base_RegionalSettingsCommon::time2reg(time())));
 		}
 		$defec = CRM_Calendar_EventCommon::get_emp_and_cus($id);
@@ -109,43 +107,43 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 					if (!isset($cus_cmps[$v2]))
 						$cus_cmps[$v2] = CRM_ContactsCommon::get_company($v2);
 		}
-		$pdf_theme->assign('employees', array(	'main_label'=>$this->lang->t('Employees'),
-												'name_label'=>$this->lang->t('Name'),
-												'mphone_label'=>$this->lang->t('Mobile Phone'),
-												'wphone_label'=>$this->lang->t('Work Phone'),
-												'hphone_label'=>$this->lang->t('Home Phone'),
-												'lp_label'=>$this->lang->t('Lp'),
+		$pdf_theme->assign('employees', array(	'main_label'=>$this->t('Employees'),
+												'name_label'=>$this->t('Name'),
+												'mphone_label'=>$this->t('Mobile Phone'),
+												'wphone_label'=>$this->t('Work Phone'),
+												'hphone_label'=>$this->t('Home Phone'),
+												'lp_label'=>$this->t('Lp'),
 												'data'=>$emps
 												));
-		$pdf_theme->assign('customers', array(	'main_label'=>$this->lang->t('Customers'),
-												'name_label'=>$this->lang->t('Name'),
-												'mphone_label'=>$this->lang->t('Mobile Phone'),
-												'wphone_label'=>$this->lang->t('Work Phone'),
-												'hphone_label'=>$this->lang->t('Home Phone'),
-												'company_name'=>$this->lang->t('Company Name'),
-												'lp_label'=>$this->lang->t('Lp'),
+		$pdf_theme->assign('customers', array(	'main_label'=>$this->t('Customers'),
+												'name_label'=>$this->t('Name'),
+												'mphone_label'=>$this->t('Mobile Phone'),
+												'wphone_label'=>$this->t('Work Phone'),
+												'hphone_label'=>$this->t('Home Phone'),
+												'company_name'=>$this->t('Company Name'),
+												'lp_label'=>$this->t('Lp'),
 												'data'=>$cuss
 												));
-		$pdf_theme->assign('customers_companies', array(	'main_label'=>$this->lang->t('Customers Companies'),
-															'name_label'=>$this->lang->t('Company Name'),
-															'phone_label'=>$this->lang->t('Phone'),
-															'fax_label'=>$this->lang->t('Fax'),
-															'address_label'=>$this->lang->t('Address'),
-															'city_label'=>$this->lang->t('City'),
-															'lp_label'=>$this->lang->t('Lp'),
+		$pdf_theme->assign('customers_companies', array(	'main_label'=>$this->t('Customers Companies'),
+															'name_label'=>$this->t('Company Name'),
+															'phone_label'=>$this->t('Phone'),
+															'fax_label'=>$this->t('Fax'),
+															'address_label'=>$this->t('Address'),
+															'city_label'=>$this->t('City'),
+															'lp_label'=>$this->t('Lp'),
 															'data'=>$cus_cmps
 															));
-		$pdf_theme->assign('title', array(	'label'=>$this->lang->t('Title'),
+		$pdf_theme->assign('title', array(	'label'=>$this->t('Title'),
 											'value'=>$ev['title']));
 		$start = Base_RegionalSettingsCommon::time2reg($ev['start'],false);
-		$pdf_theme->assign('start_date', array(	'label'=>$this->lang->t('Start date'),
+		$pdf_theme->assign('start_date', array(	'label'=>$this->t('Start date'),
 												'value'=>$start,
 												'details'=>array('weekday'=>date('l', strtotime($start)))));
 		if (!$ev['timeless']) {
-			$pdf_theme->assign('start_time', array(	'label'=>$this->lang->t('Start time'),
+			$pdf_theme->assign('start_time', array(	'label'=>$this->t('Start time'),
 													'value'=>Base_RegionalSettingsCommon::time2reg($ev['start'],true,false)));
 			if (!isset($ev['end'])) trigger_error(print_r($ev,true));
-			$pdf_theme->assign('end_time', array(	'label'=>$this->lang->t('End time'),
+			$pdf_theme->assign('end_time', array(	'label'=>$this->t('End time'),
 													'value'=>Base_RegionalSettingsCommon::time2reg($ev['end'],true,false)));
 			$duration = array(floor(($ev['end']-$ev['start'])/3600));
 			$format = '%d hours';
@@ -158,13 +156,13 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				$duration[] = $minutes/60;
 				$format .= '%d minutes';
 			}
-			$pdf_theme->assign('duration', array(	'label'=>$this->lang->t('Duration'),
-													'value'=>$this->lang->t($format,$duration)));
+			$pdf_theme->assign('duration', array(	'label'=>$this->t('Duration'),
+													'value'=>$this->t($format,$duration)));
 			if (date('Y-m-d',$ev['start'])!=date('Y-m-d',$ev['end']))
-				$pdf_theme->assign('end_date', array(	'label'=>$this->lang->t('End date'),
+				$pdf_theme->assign('end_date', array(	'label'=>$this->t('End date'),
 														'value'=>Base_RegionalSettingsCommon::time2reg($ev['end'],false)));
-		} else $pdf_theme->assign('timeless', array(	'label'=>$this->lang->t('Timeless'),
-														'value'=>$this->lang->t('Yes')));
+		} else $pdf_theme->assign('timeless', array(	'label'=>$this->t('Timeless'),
+														'value'=>$this->t('Yes')));
 		$pdf_theme->assign('type',$type);
 		ob_start();
 		$pdf_theme->display('pdf_version');
@@ -284,7 +282,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				$def['emp_id'][] = $row['contact'];*/
 			$def_emp_id = $def['emp_id'];
 			if ($def['access']==2 && !in_array($my_id,$def_emp_id) && !Base_AclCommon::i_am_admin()) {
-				print($this->lang->t('You are not authorised to view this record.'));
+				print($this->t('You are not authorised to view this record.'));
 				Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 				Utils_ShortcutCommon::add(array('Esc'), 'function(){'.$this->create_back_href_js().'}');
 				return;
@@ -301,11 +299,11 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 		$act = array();
 
-		$form->addElement('text', 'title', $this->lang->t('Title'), array('style'=>'width: 100%;', 'id'=>'event_title'));
+		$form->addElement('text', 'title', $this->t('Title'), array('style'=>'width: 100%;', 'id'=>'event_title'));
 		$form->addRule('title', 'Field is required!', 'required');
 
 		if ($action=='view') {
-			$form->addElement('static', 'status', $this->lang->t('Status'));
+			$form->addElement('static', 'status', $this->t('Status'));
 			$status = Utils_CommonDataCommon::get_translated_array('Ticket_Status');
 			$prefix = 'crm_event_leightbox';
 
@@ -318,25 +316,25 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				$def['status'] = '<a '.$lgb.'>'.$status[$def['status']].'</a>';
 			}
 		} else {
-			$form->addElement('commondata', 'status', $this->lang->t('Status'),'Ticket_Status',array('order_by_key'=>true));
+			$form->addElement('commondata', 'status', $this->t('Status'),'Ticket_Status',array('order_by_key'=>true));
 		}
 
 		$time_format = Base_RegionalSettingsCommon::time_12h()?'h:i a':'H:i';
 
-		$form->addElement('datepicker', 'date_s', $this->lang->t('Event start'));
+		$form->addElement('datepicker', 'date_s', $this->t('Event start'));
 		$form->addRule('date_s', 'Field is required!', 'required');
 		$lang_code = Base_LangCommon::get_lang_code();
-		$form->addElement('date', 'time_s', $this->lang->t('Time'), array('format'=>$time_format, 'optionIncrement'  => array('i' => 5),'language'=>$lang_code));
+		$form->addElement('date', 'time_s', $this->t('Time'), array('format'=>$time_format, 'optionIncrement'  => array('i' => 5),'language'=>$lang_code));
 
 		$dur = array(
-			-1=>$this->lang->ht('---'),
-			300=>$this->lang->ht('5 minutes'),
-			900=>$this->lang->ht('15 minutes'),
-			1800=>$this->lang->ht('30 minutes'),
-			3600=>$this->lang->ht('1 hour'),
-			7200=>$this->lang->ht('2 hours'),
-			14400=>$this->lang->ht('4 hours'),
-			28800=>$this->lang->ht('8 hours'));
+			-1=>$this->ht('---'),
+			300=>$this->ht('5 minutes'),
+			900=>$this->ht('15 minutes'),
+			1800=>$this->ht('30 minutes'),
+			3600=>$this->ht('1 hour'),
+			7200=>$this->ht('2 hours'),
+			14400=>$this->ht('4 hours'),
+			28800=>$this->ht('8 hours'));
 		eval_js_once('crm_calendar_duration_switcher = function(x,def) {'.
 			'var sw = $(\'duration_switch\');'.
 			'if(typeof(def)!=\'undefined\') '.
@@ -350,17 +348,17 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			'var dur_b=$(\'crm_calendar_duration_block\');if(dur_b)dur_b.hide();'.
 			'sw.value=\'0\';'.
 			'}}');
-		$theme->assign('toggle_duration','<a class="button" href="javascript:void(0)" onClick="crm_calendar_duration_switcher()" id="toggle_duration_button">'.$this->lang->t('Toggle').'</a>');
+		$theme->assign('toggle_duration','<a class="button" href="javascript:void(0)" onClick="crm_calendar_duration_switcher()" id="toggle_duration_button">'.$this->t('Toggle').'</a>');
 		$theme->assign('duration_block_id','crm_calendar_duration_block');
 		$theme->assign('event_end_block_id','crm_calendar_event_end_block');
 		$form->addElement('hidden','duration_switch',$duration_switch,array('id'=>'duration_switch'));
 		eval_js('crm_calendar_duration_switcher(1,'.$duration_switch.')');
-		$form->addElement('select', 'duration', $this->lang->t('Duration'),$dur);
-		$form->addRule('duration',$this->lang->t('Duration not selected'),'neq','-1');
+		$form->addElement('select', 'duration', $this->t('Duration'),$dur);
+		$form->addRule('duration',$this->t('Duration not selected'),'neq','-1');
 
-		//$form->addElement('datepicker', 'date_e', $this->lang->t('Event end'));
+		//$form->addElement('datepicker', 'date_e', $this->t('Event end'));
 		//$form->addRule('date_e', 'Field is required!', 'required');
-		$form->addElement('date', 'time_e', $this->lang->t('Event end'), array('format'=>$time_format, 'optionIncrement'  => array('i' => 5), 'language'=>$lang_code));
+		$form->addElement('date', 'time_e', $this->t('Event end'), array('format'=>$time_format, 'optionIncrement'  => array('i' => 5), 'language'=>$lang_code));
 		$form->addRule('time_e', 'Field is required!', 'required');
 
 		eval_js_once('crm_calendar_event_timeless = function(val) {'.
@@ -380,7 +378,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				'if(ts) ts.style.display = cal_style;'.
 				'tdb.style.display = cal_style;'.
 			'}');
-		$form->addElement('checkbox', 'timeless', $this->lang->t('Timeless'), null,array('onClick'=>'crm_calendar_event_timeless(this.checked)','id'=>'timeless'));
+		$form->addElement('checkbox', 'timeless', $this->t('Timeless'), null,array('onClick'=>'crm_calendar_event_timeless(this.checked)','id'=>'timeless'));
 		if ($action=='view') $condition = $timeless;
 		else $condition = 'document.getElementsByName(\'timeless\')[0].checked';
 		eval_js('crm_calendar_event_timeless('.(($timeless || $timeless==='timeless')?'1':'0').')');
@@ -389,20 +387,20 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$form->addRule(array('date_s','time_e', 'date_s', 'time_s', 'timeless','duration_switch'), 'End date must be after begin date...', 'check_dates');
 
 
-		$form->addElement('header', null, $this->lang->t('Event itself'));
+		$form->addElement('header', null, $this->t('Event itself'));
 
 		$color = CRM_Calendar_EventCommon::get_available_colors();
-		$color[0] = $this->lang->t('Default').': '.$this->lang->ht(ucfirst($color[0]));
+		$color[0] = $this->t('Default').': '.$this->ht(ucfirst($color[0]));
 		for($k=1; $k<count($color); $k++)
-			$color[$k] = '&bull; '.$this->lang->ht(ucfirst($color[$k]));
+			$color[$k] = '&bull; '.$this->ht(ucfirst($color[$k]));
 
-		$form->addElement('select', 'access', $this->lang->t('Access'), self::$access, array('style'=>'width: 100%;'));
-		$form->addElement('select', 'priority', $this->lang->t('Priority'), self::$priority, array('style'=>'width: 100%;'));
-		$form->addElement('select', 'color', $this->lang->t('Color'), $color, array('style'=>'width: 100%;'));
+		$form->addElement('select', 'access', $this->t('Access'), self::$access, array('style'=>'width: 100%;'));
+		$form->addElement('select', 'priority', $this->t('Priority'), self::$priority, array('style'=>'width: 100%;'));
+		$form->addElement('select', 'color', $this->t('Color'), $color, array('style'=>'width: 100%;'));
 
 		if ($action=='view') {
-			$form->addElement('static', 'emp_id', $this->lang->t('Employees'));
-			$form->addElement('static', 'cus_id', $this->lang->t('Customers'));
+			$form->addElement('static', 'emp_id', $this->t('Employees'));
+			$form->addElement('static', 'cus_id', $this->t('Customers'));
 			$cus_id = '';
 			$emp_id = '';
 			foreach ($def['cus_id'] as $v)
@@ -426,67 +424,67 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			foreach($ret as $c_id=>$data)
 				$cus[$c_id] = CRM_ContactsCommon::contact_format_default($data);
 
-			$form->addElement('multiselect', 'emp_id', $this->lang->t('Employees'), $emp);
-			$form->addRule('emp_id', $this->lang->t('At least one employee must be assigned to an event.'), 'required');
+			$form->addElement('multiselect', 'emp_id', $this->t('Employees'), $emp);
+			$form->addRule('emp_id', $this->t('At least one employee must be assigned to an event.'), 'required');
 
-			$form->addElement('multiselect', 'cus_id', $this->lang->t('Customers'), $cus);
+			$form->addElement('multiselect', 'cus_id', $this->t('Customers'), $cus);
 		}
 
 		if($action == 'new') {
 			eval_js_once('crm_calendar_event_messenger = function(v) {if(v)$("messenger_block").show();else $("messenger_block").hide();}');
 			$theme->assign('messenger_block','messenger_block');
-			$form->addElement('select','messenger_before',$this->lang->t('Popup alert'),array(0=>$this->lang->ht('on event start'), 900=>$this->lang->ht('15 minutes before event'), 1800=>$this->lang->ht('30 minutes before event'), 2700=>$this->lang->ht('45 minutes before event'), 3600=>$this->lang->ht('1 hour before event'), 2*3600=>$this->lang->ht('2 hours before event'), 3*3600=>$this->lang->ht('3 hours before event'), 4*3600=>$this->lang->ht('4 hours before event'), 8*3600=>$this->lang->ht('8 hours before event'), 12*3600=>$this->lang->ht('12 hours before event'), 24*3600=>$this->lang->ht('24 hours before event')));
-			$form->addElement('textarea','messenger_message',$this->lang->t('Popup message'), array('id'=>'messenger_message'));
-			$form->addElement('checkbox','messenger_on',$this->lang->t('Alert me'),null,array('onClick'=>'crm_calendar_event_messenger(this.checked);$("messenger_message").value=$("event_title").value;'));
+			$form->addElement('select','messenger_before',$this->t('Popup alert'),array(0=>$this->ht('on event start'), 900=>$this->ht('15 minutes before event'), 1800=>$this->ht('30 minutes before event'), 2700=>$this->ht('45 minutes before event'), 3600=>$this->ht('1 hour before event'), 2*3600=>$this->ht('2 hours before event'), 3*3600=>$this->ht('3 hours before event'), 4*3600=>$this->ht('4 hours before event'), 8*3600=>$this->ht('8 hours before event'), 12*3600=>$this->ht('12 hours before event'), 24*3600=>$this->ht('24 hours before event')));
+			$form->addElement('textarea','messenger_message',$this->t('Popup message'), array('id'=>'messenger_message'));
+			$form->addElement('checkbox','messenger_on',$this->t('Alert me'),null,array('onClick'=>'crm_calendar_event_messenger(this.checked);$("messenger_message").value=$("event_title").value;'));
 			eval_js('crm_calendar_event_messenger('.($form->exportValue('messenger_before')?1:0).')');
 			$form->registerRule('check_my_user', 'callback', 'check_my_user', $this);
-			$form->addRule(array('messenger_on','emp_id'), $this->lang->t('You have to select your contact to set alarm on it'), 'check_my_user');
+			$form->addRule(array('messenger_on','emp_id'), $this->t('You have to select your contact to set alarm on it'), 'check_my_user');
 		}
 
 		eval_js_once('crm_calendar_event_recurrence_custom = function(v) {if(v) $("recurrence_custom_days").show(); else $("recurrence_custom_days").hide();}');
 		eval_js_once('crm_calendar_event_recurrence_no_end_date = function(v) {if(v) $("recurrence_end_date").disable(); else $("recurrence_end_date").enable();}');
 		eval_js_once('crm_calendar_event_recurrence = function(v) {if(v) $("recurrence_block").show(); else $("recurrence_block").hide();if(v) crm_calendar_event_recurrence_custom($("recurrence_interval").value=="week_custom");crm_calendar_event_recurrence_no_end_date($("recurrence_no_end_date").checked)}');
 		$theme->assign('recurrence_block','recurrence_block');
-		$form->addElement('checkbox','recurrence',$this->lang->t('Recurrence event'),null,array('onClick'=>'crm_calendar_event_recurrence(this.checked)'));
+		$form->addElement('checkbox','recurrence',$this->t('Recurrence event'),null,array('onClick'=>'crm_calendar_event_recurrence(this.checked)'));
 //		print('='.$form->exportValue('recurrence').'=');
 		eval_js('crm_calendar_event_recurrence('.(($form->exportValue('recurrence') || $def['recurrence'])?1:0).')');
-		$form->addElement('select','recurrence_interval',$this->lang->t('Recurrence interval'),array('everyday'=>$this->lang->ht('everyday'),'second'=>$this->lang->ht('every second day'),'third'=>$this->lang->ht('every third day'),'fourth'=>$this->lang->ht('every fourth day'),'fifth'=>$this->lang->ht('every fifth day'),'sixth'=>$this->lang->ht('every sixth day'),'week'=>$this->lang->ht('once every week'),'week_custom'=>$this->lang->ht('customize week'),'two_weeks'=>$this->lang->ht('every two weeks'),'month'=>$this->lang->ht('every month'),'year'=>$this->lang->ht('every year')),array('onChange'=>'crm_calendar_event_recurrence_custom(this.value=="week_custom")', 'id'=>'recurrence_interval'));
+		$form->addElement('select','recurrence_interval',$this->t('Recurrence interval'),array('everyday'=>$this->ht('everyday'),'second'=>$this->ht('every second day'),'third'=>$this->ht('every third day'),'fourth'=>$this->ht('every fourth day'),'fifth'=>$this->ht('every fifth day'),'sixth'=>$this->ht('every sixth day'),'week'=>$this->ht('once every week'),'week_custom'=>$this->ht('customize week'),'two_weeks'=>$this->ht('every two weeks'),'month'=>$this->ht('every month'),'year'=>$this->ht('every year')),array('onChange'=>'crm_calendar_event_recurrence_custom(this.value=="week_custom")', 'id'=>'recurrence_interval'));
 		$theme->assign('recurrence_custom_days','recurrence_custom_days');
 		$custom_week = array();
-		$custom_week[] = $form->createElement('checkbox','0',null,$this->lang->t('Monday'));
-		$custom_week[] = $form->createElement('checkbox','1',null,$this->lang->t('Tuesday'));
-		$custom_week[] = $form->createElement('checkbox','2',null,$this->lang->t('Wednesday'));
-		$custom_week[] = $form->createElement('checkbox','3',null,$this->lang->t('Thursday'));
-		$custom_week[] = $form->createElement('checkbox','4',null,$this->lang->t('Friday'));
-		$custom_week[] = $form->createElement('checkbox','5',null,$this->lang->t('Saturday'));
-		$custom_week[] = $form->createElement('checkbox','6',null,$this->lang->t('Sunday'));
+		$custom_week[] = $form->createElement('checkbox','0',null,$this->t('Monday'));
+		$custom_week[] = $form->createElement('checkbox','1',null,$this->t('Tuesday'));
+		$custom_week[] = $form->createElement('checkbox','2',null,$this->t('Wednesday'));
+		$custom_week[] = $form->createElement('checkbox','3',null,$this->t('Thursday'));
+		$custom_week[] = $form->createElement('checkbox','4',null,$this->t('Friday'));
+		$custom_week[] = $form->createElement('checkbox','5',null,$this->t('Saturday'));
+		$custom_week[] = $form->createElement('checkbox','6',null,$this->t('Sunday'));
 		$form->addGroup($custom_week,'custom_days');
 //		trigger_error($form->exportValue('recurrence'));
 		if($form->exportValue('recurrence') && $form->exportValue('recurrence_interval')==='week_custom')
-			$form->addGroupRule('custom_days',$this->lang->t('Please check at least one day'),'required',null,1);
-		$form->addElement('checkbox','recurrence_no_end_date',$this->lang->t('No end date'),null,array('onClick'=>'crm_calendar_event_recurrence_no_end_date(this.checked)','id'=>'recurrence_no_end_date'));
-		$form->addElement('datepicker','recurrence_end_date',$this->lang->t('End date'),array('id'=>'recurrence_end_date'));
+			$form->addGroupRule('custom_days',$this->t('Please check at least one day'),'required',null,1);
+		$form->addElement('checkbox','recurrence_no_end_date',$this->t('No end date'),null,array('onClick'=>'crm_calendar_event_recurrence_no_end_date(this.checked)','id'=>'recurrence_no_end_date'));
+		$form->addElement('datepicker','recurrence_end_date',$this->t('End date'),array('id'=>'recurrence_end_date'));
 		if($form->exportValue('recurrence') && !$form->exportValue('recurrence_no_end_date'))
-			$form->addRule('recurrence_end_date', $this->lang->t('Field required.'), 'required');
+			$form->addRule('recurrence_end_date', $this->t('Field required.'), 'required');
 		$form->registerRule('check_recurrence2', 'callback', 'check_recurrence2', $this);
-		$form->addRule(array('recurrence_end_date','recurrence','date_s','recurrence_no_end_date'), $this->lang->t('End date cannot be before start date.'), 'check_recurrence2');
+		$form->addRule(array('recurrence_end_date','recurrence','date_s','recurrence_no_end_date'), $this->t('End date cannot be before start date.'), 'check_recurrence2');
 
 		if($action != 'view') {
 			$rb2 = $this->init_module('Utils/RecordBrowser/RecordPicker');
 			$this->display_module($rb2, array('contact', 'cus_id', array('CRM_ContactsCommon','contact_format_no_company'), array(), array('work_phone'=>false, 'mobile_phone'=>false, 'zone'=>false, 'Actions'=>false), array('last_name'=>'ASC')));
-			$cus_click = $rb2->create_open_link($this->lang->t('Advanced'));
+			$cus_click = $rb2->create_open_link($this->t('Advanced'));
 		} else {
 			$cus_click = '';
 		}
-		$form->addElement('text', 'rel_emp', $this->lang->t('Related Person'), array('style'=>'width: 100%;'));
+		$form->addElement('text', 'rel_emp', $this->t('Related Person'), array('style'=>'width: 100%;'));
 
-		$form->addElement('textarea', 'description',  $this->lang->t('Description'), array('rows'=>6, 'style'=>'width: 100%;'));
+		$form->addElement('textarea', 'description',  $this->t('Description'), array('rows'=>6, 'style'=>'width: 100%;'));
 
 		if($action === 'view') {
-			$form->addElement('static', 'created_by',  $this->lang->t('Created by'));
-			$form->addElement('static', 'created_on',  $this->lang->t('Created on'));
-			$form->addElement('static', 'edited_by',  $this->lang->t('Edited by'));
-			$form->addElement('static', 'edited_on',  $this->lang->t('Edited on'));
+			$form->addElement('static', 'created_by',  $this->t('Created by'));
+			$form->addElement('static', 'created_on',  $this->t('Created on'));
+			$form->addElement('static', 'edited_by',  $this->t('Edited by'));
+			$form->addElement('static', 'edited_on',  $this->t('Edited on'));
 			$theme->assign('info_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_RecordBrowser','Created on:').' '.$def['created_on']. '<br>'.
 					Base_LangCommon::ts('Utils_RecordBrowser','Created by:').' '.$def['created_by']. '<br>'.
 					Base_LangCommon::ts('Utils_RecordBrowser','Edited on:').' '.$def['edited_on']. '<br>'.
@@ -568,14 +566,14 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$filename = '';
 			if ($pdf->prepare()) {
 				$ev = DB::GetRow('SELECT * FROM crm_calendar_event WHERE id=%d', array($id));
-				$pdf->set_title($this->lang->t('Event').': '.$ev['title']);
+				$pdf->set_title($this->t('Event').': '.$ev['title']);
 				if (!$ev['timeless']) $pdf->set_subject(Base_RegionalSettingsCommon::time2reg($ev['starts']).' - '.Base_RegionalSettingsCommon::time2reg($ev['ends']));
 				else $pdf->set_subject(Base_RegionalSettingsCommon::time2reg($ev['starts'],false));
 				$pdf->prepare_header();
 
 				$pdf->AddPage();
 				$this->make_event_PDF($pdf,$id);
-				$filename = $this->lang->t('Event_%s', array($ev['title']));
+				$filename = $this->t('Event_%s', array($ev['title']));
 			}
 			$pdf->add_actionbar_icon($filename);
 
@@ -584,7 +582,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			} elseif($writable) {
 				Base_ActionBarCommon::add('edit','Edit', $this->create_callback_href(array($this, 'view_event'), array('edit', $id)));
 				Utils_ShortcutCommon::add(array('Ctrl','E'), 'function(){'.$this->create_callback_href_js(array($this, 'view_event'), array('edit', $id)).'}');
-				Base_ActionBarCommon::add('clone','Clone', $this->create_confirm_callback_href($this->lang->ht('You are about to create a copy of this record. Do you want to continue?'),array($this,'clone_event'),array($id)));
+				Base_ActionBarCommon::add('clone','Clone', $this->create_confirm_callback_href($this->ht('You are about to create a copy of this record. Do you want to continue?'),array($this,'clone_event'),array($id)));
 			}
 		} else {
 			Utils_ShortcutCommon::add(array('Ctrl','S'), 'function(){'.$form->get_submit_form_js(true).'}');

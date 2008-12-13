@@ -23,11 +23,10 @@ class Base_Box extends Module {
 
 	public function body() {
 		$theme = & $this->pack_module('Base/Theme');
-		$lang = & $this->init_module('Base/Lang');
 		try {
 			$ini = Base_ThemeCommon::get_template_file('Base_Box','default.ini');
 		} catch(Exception $e) {
-			print($lang->t('Unable to read Base/Box/default.ini file! Please create one, or change theme.'));
+			print($this->t('Unable to read Base/Box/default.ini file! Please create one, or change theme.'));
 			$this->pack_module('Base/Theme/Administrator',null,'admin');
 			return;
 		}
@@ -118,7 +117,7 @@ class Base_Box extends Module {
 		foreach ($containers as $k => $v) {
 			ob_start();
 			if(ModuleManager::is_installed($v['module'])==-1) {
-				if(Base_AclCommon::i_am_sa()) print($lang->t("Please install %s module or choose another theme!",array($v['module']))."<br><a ".$this->create_main_href('Base/Setup').">".$lang->t('Manage modules').'</a><br><a '.$this->create_main_href('Base/Theme/Administrator').'>'.$lang->t("Choose another theme").'</a>');
+				if(Base_AclCommon::i_am_sa()) print($this->t("Please install %s module or choose another theme!",array($v['module']))."<br><a ".$this->create_main_href('Base/Setup').">".$this->t('Manage modules').'</a><br><a '.$this->create_main_href('Base/Theme/Administrator').'>'.$this->t("Choose another theme").'</a>');
 			} else {
 				$module_type = str_replace('/','_',$v['module']);
 				if (!isset($v['name'])) $v['name'] = null;
@@ -144,7 +143,7 @@ class Base_Box extends Module {
 
 
 		//main output
-		$theme->assign('version_no','<a href="http://www.epesi.org" '.Utils_TooltipCommon::open_tag_attrs($lang->ht('Check for new version')).' target="_blank">'.$lang->t('version&nbsp;%s',array(EPESI_VERSION)).'</a>');
+		$theme->assign('version_no','<a href="http://www.epesi.org" '.Utils_TooltipCommon::open_tag_attrs($this->ht('Check for new version')).' target="_blank">'.$this->t('version&nbsp;%s',array(EPESI_VERSION)).'</a>');
 		$theme->display();
 
 

@@ -10,12 +10,6 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_CommonData extends Module {
-	private $lang;
-
-	public function construct() {
-		$this->lang = $this->init_module('Base/Lang');
-	}
-
 	/**
 	 * For internal use only.
 	 */
@@ -35,18 +29,18 @@ class Utils_CommonData extends Module {
 
 		$id = Utils_CommonDataCommon::get_id($parent);
 		if (!$id) {
-			print($this->lang->t('No such array'));
+			print($this->t('No such array'));
 			return false;
 		}
 
 		$f = & $this->init_module('Libs/QuickForm',null,'edit');
-		$f->addElement('header', null, $this->lang->t((($key===null)?'New':'Edit').' node'));
+		$f->addElement('header', null, $this->t((($key===null)?'New':'Edit').' node'));
 		$f->add_table('utils_commondata_tree',array(
-						array('name'=>'akey','label'=>$this->lang->t('Key'),
+						array('name'=>'akey','label'=>$this->t('Key'),
 							'rule'=>array('type'=>'callback','param'=>array($parent,$key),
 									'func'=>array($this,'check_key'),
-									'message'=>$this->lang->t('Specified key already exists'))),
-						array('name'=>'value','label'=>$this->lang->t('Value'))
+									'message'=>$this->t('Specified key already exists'))),
+						array('name'=>'value','label'=>$this->t('Value'))
 						));
 		if($key!==null) {
 			$value=Utils_CommonDataCommon::get_value($parent.'/'.$key);
@@ -80,19 +74,19 @@ class Utils_CommonData extends Module {
 		$gb = & $this->init_module('Utils/GenericBrowser',null,'browse'.md5($name));
 
 		$gb->set_table_columns(array(
-						array('name'=>$this->lang->t('Key'),'width'=>20, 'order'=>'akey','search'=>1,'quickjump'=>'akey'),
-						array('name'=>$this->lang->t('Value'),'width'=>20, 'order'=>'value','search'=>1)
+						array('name'=>$this->t('Key'),'width'=>20, 'order'=>'akey','search'=>1,'quickjump'=>'akey'),
+						array('name'=>$this->t('Value'),'width'=>20, 'order'=>'value','search'=>1)
 					));
 
 		print('<h2>'.$name.'</h2><br>');
 		$ret = Utils_CommonDataCommon::get_array($name,false,true);
 		foreach($ret as $k=>$v) {
 			$gb_row = $gb->get_new_row();
-			$gb_row->add_data($k,$this->lang->t($v['value']));
+			$gb_row->add_data($k,$this->t($v['value']));
 			$gb_row->add_action($this->create_callback_href(array($this,'browse'),array($name.'/'.$k,false)),'View');
 			if(!$v['readonly']) {
 				$gb_row->add_action($this->create_callback_href(array($this,'edit'),array($name,$k)),'Edit');
-				$gb_row->add_action($this->create_confirm_callback_href($this->lang->ht('Delete array').' \''.Epesi::escapeJS($name.'/'.$k,false).'\'?',array('Utils_CommonData','remove_array'), array($name.'/'.$k)),'Delete');
+				$gb_row->add_action($this->create_confirm_callback_href($this->ht('Delete array').' \''.Epesi::escapeJS($name.'/'.$k,false).'\'?',array('Utils_CommonData','remove_array'), array($name.'/'.$k)),'Delete');
 			}
 		}
 		//$this->display_module($gb);

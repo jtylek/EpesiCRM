@@ -17,9 +17,6 @@ class Utils_Attachment_Administrator extends Module {
 	}
 
 	public function admin() {
-		global $translations;
-		$this->lang = & $this->init_module('Base/Lang');
-
 		if($this->is_back()) {
 			$this->parent->reset();
 		}
@@ -28,7 +25,7 @@ class Utils_Attachment_Administrator extends Module {
 		
 		$form->addElement('header', 'module_header', 'Notes & Attachments administration');
 		
-		$form->addElement('checkbox','view_deleted',$this->lang->t('View deleted'));
+		$form->addElement('checkbox','view_deleted',$this->t('View deleted'));
 		
 		$form->setDefaults(array('view_deleted'=>isset($_SESSION['view_deleted_attachments']) && $_SESSION['view_deleted_attachments']));
 		

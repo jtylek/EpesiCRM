@@ -165,8 +165,6 @@ class Base_Menu extends Module {
 	}
 
 	public function body() {
-		$lang = & $this->init_module('Base/Lang');
-
 		// preparing modules menu and tools menu
 		$modules_menu = array();
 		$menus = Base_MenuCommon::get_menus();
@@ -202,7 +200,7 @@ class Base_Menu extends Module {
 
 		// Home menu
 		$home_menu = array();
-		$home_menu[$lang->ht('Menu')] = $modules_menu;
+		$home_menu[$this->ht('Menu')] = $modules_menu;
 
 		// putting all menus into menu array
 		$menu = array();

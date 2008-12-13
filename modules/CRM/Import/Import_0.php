@@ -11,80 +11,75 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_Import extends Module {
-	private $lang;
-
-	public function construct() {
-		$this->lang = $this->init_module('Base/Lang');
-	}
 
 	public function body() {
 		print('<h2>This process can take some time, please be patient... Time limit has been disabled.</h2>');
 		$tb = $this->init_module('Utils/TabbedBrowser');
-		$tb->set_tab($this->lang->t('Contacts & Companies'),array($this,'contacts'));
-		$tb->set_tab($this->lang->t('History'),array($this,'history'));
-		$tb->set_tab($this->lang->t('Notes'),array($this,'notes'));
-		$tb->set_tab($this->lang->t('Attachments'),array($this,'attachments'));
-		$tb->set_tab($this->lang->t('Activities'),array($this,'activities'));
+		$tb->set_tab($this->t('Contacts & Companies'),array($this,'contacts'));
+		$tb->set_tab($this->t('History'),array($this,'history'));
+		$tb->set_tab($this->t('Notes'),array($this,'notes'));
+		$tb->set_tab($this->t('Attachments'),array($this,'attachments'));
+		$tb->set_tab($this->t('Activities'),array($this,'activities'));
 		$this->display_module($tb);
 		$tb->tag();
 	}
 	
 	public function contacts() {
 		$f = $this->init_module('Utils/FileUpload',null,'cc');
-//		$f->addElement('header',null,$this->lang->t('Contacts & Companies'));
+//		$f->addElement('header',null,$this->t('Contacts & Companies'));
 		$i = DB::GetOne('SELECT count(*) FROM crm_import_contact');
 		$i2 = DB::GetOne('SELECT count(*) FROM crm_import_company');
-		$f->addElement('static',null,$this->lang->t('Warning'),$this->lang->t('Please upload CONTACT.CSV file'));
-		$f->addElement('static',null,$this->lang->t('Imported contact records'),($i?$i:$this->lang->t('none')));
-		$f->addElement('static',null,$this->lang->t('Imported company records'),($i2?$i2:$this->lang->t('none')));
+		$f->addElement('static',null,$this->t('Warning'),$this->t('Please upload CONTACT.CSV file'));
+		$f->addElement('static',null,$this->t('Imported contact records'),($i?$i:$this->t('none')));
+		$f->addElement('static',null,$this->t('Imported company records'),($i2?$i2:$this->t('none')));
 		$this->display_module($f,array(array($this,'upload_contacts')));
 	}
 	
 	public function history() {
 		$f2 = $this->init_module('Utils/FileUpload',null,'hist');
-//		$f2->addElement('header',null,$this->lang->t('History'));
+//		$f2->addElement('header',null,$this->t('History'));
 		$i = DB::GetOne('SELECT count(*) FROM crm_import_history');
-		$f2->addElement('static',null,$this->lang->t('Imported records'),($i?$i:$this->lang->t('none')));
+		$f2->addElement('static',null,$this->t('Imported records'),($i?$i:$this->t('none')));
 		$this->display_module($f2,array(array($this,'upload_history')));	
 	}
 	
 	public function notes() {
 		$f2 = $this->init_module('Utils/FileUpload',null,'notes');
-//		$f2->addElement('header',null,$this->lang->t('Notes'));
+//		$f2->addElement('header',null,$this->t('Notes'));
 		$i = DB::GetOne('SELECT count(*) FROM crm_import_note');
-		$f2->addElement('static',null,$this->lang->t('Imported records'),($i?$i:$this->lang->t('none')));
+		$f2->addElement('static',null,$this->t('Imported records'),($i?$i:$this->t('none')));
 		$this->display_module($f2,array(array($this,'upload_note')));
 	}
 	
 	public function attachments() {
 		if(!class_exists('ZipArchive')) {
-			print($this->lang->t('Unable to import attachments without ZipArchive module.'));
+			print($this->t('Unable to import attachments without ZipArchive module.'));
 		} else {
 			$f2 = $this->init_module('Utils/FileUpload',null,'attach_files');
-			$f2->addElement('header',null,$this->lang->t('Files'));
-			$f2->addElement('static',null,$this->lang->t('Warning'),$this->lang->t('Please upload zip file with attachment files in root of archive (without subdirectories!)'));
+			$f2->addElement('header',null,$this->t('Files'));
+			$f2->addElement('static',null,$this->t('Warning'),$this->t('Please upload zip file with attachment files in root of archive (without subdirectories!)'));
 			$i = count(glob($this->get_data_dir() . "attachments/*"));
 			if(file_exists($this->get_data_dir() . "attachments/index.html")) $i--;
-			$f2->addElement('static',null,$this->lang->t('Files in queue'),($i?$i:$this->lang->t('none')));
+			$f2->addElement('static',null,$this->t('Files in queue'),($i?$i:$this->t('none')));
 			$this->display_module($f2,array(array($this,'upload_attach_files')));
 			
 			$f2 = $this->init_module('Utils/FileUpload',null,'attach_db');
-			$f2->addElement('header',null,$this->lang->t('Database'));
+			$f2->addElement('header',null,$this->t('Database'));
 			$i = DB::GetOne('SELECT count(*) FROM crm_import_attach');
-			$f2->addElement('static',null,$this->lang->t('Imported records'),($i?$i:$this->lang->t('none')));
+			$f2->addElement('static',null,$this->t('Imported records'),($i?$i:$this->t('none')));
 			$this->display_module($f2,array(array($this,'upload_attachments')));
 		}
 	}
 	
 	public function activities() {
 		$f2 = $this->init_module('Utils/FileUpload',null,'activities');
-//		$f2->addElement('header',null,$this->lang->t('Activities'));
+//		$f2->addElement('header',null,$this->t('Activities'));
 		$i = DB::GetOne('SELECT count(*) FROM crm_import_task');
 		$i2 = DB::GetOne('SELECT count(*) FROM crm_import_event');
 		$i3 = DB::GetOne('SELECT count(*) FROM crm_import_phonecall');
-		$f2->addElement('static',null,$this->lang->t('Imported tasks'),($i?$i:$this->lang->t('none')));
-		$f2->addElement('static',null,$this->lang->t('Imported calendar events'),($i2?$i2:$this->lang->t('none')));
-		$f2->addElement('static',null,$this->lang->t('Imported phone calls'),($i3?$i3:$this->lang->t('none')));
+		$f2->addElement('static',null,$this->t('Imported tasks'),($i?$i:$this->t('none')));
+		$f2->addElement('static',null,$this->t('Imported calendar events'),($i2?$i2:$this->t('none')));
+		$f2->addElement('static',null,$this->t('Imported phone calls'),($i3?$i3:$this->t('none')));
 		$this->display_module($f2,array(array($this,'upload_activities')));
 	}
 
@@ -140,7 +135,7 @@ class CRM_Import extends Module {
 		fclose($f);
 
 		if(function_exists('memory_get_usage'))
-			print($this->lang->t("Memory usage: %s",array(filesize_hr(memory_get_usage(true)))).'<br>');
+			print($this->t("Memory usage: %s",array(filesize_hr(memory_get_usage(true)))).'<br>');
 			
 		$added_contacts = 0;
 		$updated_contacts = 0;
@@ -366,8 +361,8 @@ class CRM_Import extends Module {
 		$this->logit('=============================================================');
 		$this->set_log_file('');
 		
-//		print($this->lang->t("Data imported successfully. ").'<a '.$this->create_href(array()).'>'.$this->lang->t("Back").'</a>');
-		Epesi::alert($this->lang->t("Data imported successfully. "),false);
+//		print($this->t("Data imported successfully. ").'<a '.$this->create_href(array()).'>'.$this->t("Back").'</a>');
+		Epesi::alert($this->t("Data imported successfully. "),false);
 		location(array());
 	}
 
@@ -404,7 +399,7 @@ class CRM_Import extends Module {
 		$this->logit('=============================================================');
 		$this->set_log_file('');
 
-		Epesi::alert($this->lang->t("Data imported successfully. "),false);
+		Epesi::alert($this->t("Data imported successfully. "),false);
 		location(array());
 	}
 
@@ -495,7 +490,7 @@ class CRM_Import extends Module {
 		$this->logit('=============================================================');
 		$this->set_log_file('');
 
-		Epesi::alert($this->lang->t("Data imported successfully. "),false);
+		Epesi::alert($this->t("Data imported successfully. "),false);
 		location(array());
 	}
 	
@@ -638,7 +633,7 @@ class CRM_Import extends Module {
 		$this->logit('=============================================================');
 		$this->set_log_file('');
 
-		Epesi::alert($this->lang->t("Data imported successfully. "),false);
+		Epesi::alert($this->t("Data imported successfully. "),false);
 		location(array());
 	}
 
@@ -866,7 +861,7 @@ class CRM_Import extends Module {
 		$this->logit('=============================================================');
 		$this->set_log_file('');
 		
-		Epesi::alert($this->lang->t("Data imported successfully. "),false);
+		Epesi::alert($this->t("Data imported successfully. "),false);
 		location(array());
 	}
 }

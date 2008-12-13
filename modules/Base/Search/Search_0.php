@@ -14,16 +14,13 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_Search extends Module {
-	private $lang;
 
 	public function body() {
 		$qs_keyword = $this->get_module_variable('qs_keyword', '');
 		if (isset($_REQUEST['quick_search'])) $qs_keyword=$_REQUEST['quick_search'];
 		$this->set_module_variable('qs_keyword', $qs_keyword);
 
-		$this->lang = & $this->init_module('Base/Lang');
-
-		$form = & $this->init_module('Libs/QuickForm',$this->lang->ht('Searching'));
+		$form = & $this->init_module('Libs/QuickForm',$this->ht('Searching'));
 		$theme =  & $this->pack_module('Base/Theme');
 
 		$modules_with_search = ModuleManager::check_common_methods('search');
@@ -31,19 +28,19 @@ class Base_Search extends Module {
 		$cmr = ModuleManager::check_common_methods('advanced_search');
 		foreach($cmr as $name) {
 			if(ModuleManager::check_access($name,'advanced_search'))
-				$modules_with_adv_search[$name] = $this->lang->ht(str_replace('_',': ',$name));
+				$modules_with_adv_search[$name] = $this->ht(str_replace('_',': ',$name));
 		}
 
-		$form->addElement('header', 'quick_search_header', $this->lang->t('Quick search'));
-		$form->addElement('text', 'quick_search',  $this->lang->ht('Keyword'), array('id'=>'quick_search_text'));
-		$form->addRule('quick_search', $this->lang->t('Field required'), 'required');
-		$form->addElement('submit', 'quick_search_submit',  $this->lang->ht('Search'), array('class'=>'submit','onclick'=>'var elem=getElementById(\''.$form->getAttribute('name').'\').elements[\'advanced_search\'];if(elem)elem.value=0;'));
+		$form->addElement('header', 'quick_search_header', $this->t('Quick search'));
+		$form->addElement('text', 'quick_search',  $this->ht('Keyword'), array('id'=>'quick_search_text'));
+		$form->addRule('quick_search', $this->t('Field required'), 'required');
+		$form->addElement('submit', 'quick_search_submit',  $this->ht('Search'), array('class'=>'submit','onclick'=>'var elem=getElementById(\''.$form->getAttribute('name').'\').elements[\'advanced_search\'];if(elem)elem.value=0;'));
 
 		if (!empty($modules_with_adv_search)) {
-			$modules_with_adv_search_['__null__'] = '('.$this->lang->ht('Select module').')';
+			$modules_with_adv_search_['__null__'] = '('.$this->ht('Select module').')';
 			ksort($modules_with_adv_search);
 			foreach($modules_with_adv_search as $k=>$v) $modules_with_adv_search_[$k] = $v;
-			$form->addElement('static', 'advanced_search_header', $this->lang->t('Advanced search'));
+			$form->addElement('static', 'advanced_search_header', $this->t('Advanced search'));
 			$form->addElement('select', 'advanced_search', 'Module:', $modules_with_adv_search_, array('onChange'=>$form->get_submit_form_js(false),'id'=>'advanced_search_select'));
 			$advanced_search = $form->exportValue('advanced_search');
 			if ($advanced_search != $this->get_module_variable('advanced_search')) $qs_keyword = null;
@@ -82,14 +79,14 @@ class Base_Search extends Module {
 						foreach ($results as $rk => $rv) {
 							$count++;
 							if ($count == 101) {
-								$warning = $this->lang->t('Only 100 results are displayed.');
+								$warning = $this->t('Only 100 results are displayed.');
 								break;
 							}
 							$links[] = $rv;
 						}
 				}
 				$qs_theme =  & $this->pack_module('Base/Theme');
-				$qs_theme->assign('header', $this->lang->t('Search results'));
+				$qs_theme->assign('header', $this->t('Search results'));
 				$qs_theme->assign('links', $links);
 				$qs_theme->assign('warning', isset($warning)?$warning:null);
 				$qs_theme->display('Results');
@@ -99,7 +96,7 @@ class Base_Search extends Module {
 		}
 		if ($advanced_search) {
 			$qs_theme =  & $this->pack_module('Base/Theme');
-			$qs_theme->assign('header', $this->lang->t('Advanced search'));
+			$qs_theme->assign('header', $this->t('Advanced search'));
 			$qs_theme->display('Results');
 			$this->pack_module($advanced_search,null,'advanced_search');
 			$this->set_module_variable('advanced_search',$advanced_search);
@@ -113,11 +110,10 @@ class Base_Search extends Module {
 	}
 	*/
 	public function mini() {
-		$this->lang = & $this->init_module('Base/Lang');
-		$form = & $this->init_module('Libs/QuickForm',$this->lang->ht('Searching'));
+		$form = & $this->init_module('Libs/QuickForm',$this->ht('Searching'));
 
-		$form->addElement('text', 'quick_search', $this->lang->t('Quick search'));
-		$form->addElement('submit', 'quick_search_submit', $this->lang->ht('Search'), array('class'=>'mini_submit'));
+		$form->addElement('text', 'quick_search', $this->t('Quick search'));
+		$form->addElement('submit', 'quick_search_submit', $this->ht('Search'), array('class'=>'mini_submit'));
 
 		$theme =  & $this->pack_module('Base/Theme');
 		$form->assign_theme('form', $theme);

@@ -34,14 +34,17 @@ class Base_LangCommon extends ModuleCommon {
 	 * @param string string to translate
 	 * @return string
 	 */
-	 public static function ts($group, $original, array $arg=array()) {
+	 public static function ts($group, $original, array $arg=array(),$hidden=true) {
 		global $translations;
-		$group = str_replace(array('/','\\'),'_',$group);
+		if(is_string($group))
+			$group = str_replace(array('/','\\'),'_',$group);
+		elseif($group instanceof Module)
+			$group = $group->get_type();
+		else
+			trigger_error('Invalid argument passed to Base_LangCommon::ts');
 
-		if(!isset($translations)) {
-			$translations = array();
-			include_once(DATA_DIR.'/Base_Lang/'.self::get_lang_code().'.php');
-		}
+		if(!isset($translations))
+			self::load();
 
 		if(!array_key_exists($group, $translations) ||
 			!array_key_exists($original, $translations[$group])) {
@@ -49,13 +52,25 @@ class Base_LangCommon extends ModuleCommon {
 			//only first display of the string is not in translations database... slows down loading of the page only once...
 			self::save();
 		}
-		$trans = $translations[$group][$original];
+		
+		$trans_oryg = $translations[$group][$original];
+		if(!isset($trans_oryg) || $trans_oryg=='') $trans = $original;
+			else $trans=$trans_oryg;
 
-		if(!isset($trans) || $trans=='') $trans = $original;
-
-		$trans = @vsprintf($trans,$arg);
-		if ($trans=='' && $original) $trans = 'Invalid string to translate: '.$trans;
+		if(!$hidden && Base_MaintenanceModeCommon::get_mode() && Acl::check('Administration','Modules')) {
+			$id = 'trans_'.md5($group.$original);
+			$trans = '<span id="'.$id.'">'.$trans.'</span><a href="javascript:void(0)"  onClick="var oryg=\''.escapeJS(htmlspecialchars($original),false).'\';var oryg_trans=this.getAttribute(\'oryginal_trans\');if(oryg_trans==null)oryg_trans=\''.escapeJS(htmlspecialchars($trans_oryg),false).'\';var x=prompt(oryg,oryg_trans);if(x!=null){var sp=$(\''.$id.'\');if(x==\'\')sp.innerHTML=oryg;else sp.innerHTML=x;this.setAttribute(\'oryginal_trans\',x);'.
+			'new Ajax.Request(\'modules/Base/Lang/submit_trans.php\',{method:\'post\',parameters:{parent:\''.escapeJS($group,false).'\', oryg: oryg, trans:x}});'.
+			'}">[*]</a>';
+		} else
+			$trans = @vsprintf($trans,$arg);
+		if ($original && !$trans) $trans = '<b>Invalid translation, misused char % (use double %%)</b>';
+		
 		return $trans;
+	}
+
+	public static function its($group, $original, array $arg=array()) {
+		return self::ts($group,$original,$arg,false);
 	}
 
 	/**
@@ -228,5 +243,7 @@ class Base_LangCommon extends ModuleCommon {
 */
 }
 
+Module::register_method('t',array('Base_LangCommon','its')); //interactive ts
+Module::register_method('ht',array('Base_LangCommon','ts'));
 on_init(array('Base_LangCommon','load'));
 ?>

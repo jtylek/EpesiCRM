@@ -21,9 +21,8 @@ class Utils_CustomMenu extends Module {
 	 * @param string identifier of the menu entries group
 	 */
 	public function construct($id) {
-		$this->lang = & $this->init_module('Base/Lang');
 		if(!isset($id)) {
-			print($this->lang->t('Menu Editor: no ID given - unable to edit menus'));
+			print($this->t('Menu Editor: no ID given - unable to edit menus'));
 			return;
 		}
 		
@@ -64,13 +63,13 @@ class Utils_CustomMenu extends Module {
 		$gb = & $this->init_module('Utils/GenericBrowser',null,'custommenu');
 		$data = $this->get_module_variable('data');
 		$gb->set_table_columns(array(
-			array('name'=>$this->lang->t('Menu entry path'), 'width'=>70),
+			array('name'=>$this->t('Menu entry path'), 'width'=>70),
 				));
 		foreach($data as $row) {
 			$r = & $gb->get_new_row();
 			$r->add_data($row);
 			$r->add_action($this->create_unique_href(array('edit'=>$row)),'Edit');
-			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Are you sure?'),array($this,'delete_entry'),$row),'Delete');
+			$r->add_action($this->create_confirm_callback_href($this->ht('Are you sure?'),array($this,'delete_entry'),$row),'Delete');
 		}
 		$this->display_module($gb);
 		
@@ -95,14 +94,14 @@ class Utils_CustomMenu extends Module {
 		if($path)
 			$f->setDefaults(array('path'=>$path));
 
-		$f->addElement('text', 'path', $this->lang->t('Menu entry path'),array('maxlength'=>255));
-		$f->addRule('path',$this->lang->t('This field is required'),'required');
-		$f->addRule('path',$this->lang->t('Field too long, max 255 chars'),'maxlength',255);
+		$f->addElement('text', 'path', $this->t('Menu entry path'),array('maxlength'=>255));
+		$f->addRule('path',$this->t('This field is required'),'required');
+		$f->addRule('path',$this->t('Field too long, max 255 chars'),'maxlength',255);
 		$f->registerRule('check_path', 'callback', 'check_path', $this);
-		$f->addRule('path',$this->lang->t('Specified path already exists'),'check_path');
+		$f->addRule('path',$this->t('Specified path already exists'),'check_path');
 		
-		$save_b = & HTML_QuickForm::createElement('submit', null, $this->lang->ht('OK'));
-		$back_b = & HTML_QuickForm::createElement('button', null, $this->lang->ht('Cancel'), $this->create_back_href());
+		$save_b = & HTML_QuickForm::createElement('submit', null, $this->ht('OK'));
+		$back_b = & HTML_QuickForm::createElement('button', null, $this->ht('Cancel'), $this->create_back_href());
 		$f->addGroup(array($save_b,$back_b),'submit_button');
 		
 		if($f->validate()) {

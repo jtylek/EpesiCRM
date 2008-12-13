@@ -10,7 +10,6 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_Comment extends Module{
-	private $lang;
 	private $qty;
 	private $key = null;
 	private $offset;
@@ -30,7 +29,6 @@ class Utils_Comment extends Module{
 	public function construct($key) {
 		if(isset($key)) $this->key = $key;
 		else trigger_error('Key not given to comment module, aborting',E_USER_ERROR);
-		$this->lang = & $this->init_module('Base/Lang');
 	}
 	
 	/**
@@ -44,7 +42,7 @@ class Utils_Comment extends Module{
 			return;
 		}
 		
-		$form = & $this->init_module('Libs/QuickForm',$this->lang->ht('Posting reply'));
+		$form = & $this->init_module('Libs/QuickForm',$this->ht('Posting reply'));
 		$theme = & $this->init_module('Base/Theme');
 
 		if ($this->tree_structure) {
@@ -62,13 +60,13 @@ class Utils_Comment extends Module{
 		if ($this->reply)
 			if ($this->reply_on_comment_page) {
 				$form -> addElement('hidden','comment_content','none');
-				if ($answer==-1) $form -> addElement('header','reply',$this->lang->t('Post in this thread'));
+				if ($answer==-1) $form -> addElement('header','reply',$this->t('Post in this thread'));
 				else {
 					$comment_info = DB::Execute('SELECT c.id, c.text, ul.login, c.created_on FROM comment AS c LEFT JOIN user_login AS ul ON (c.user_login_id = ul.id) WHERE c.id = %d ORDER BY created_on',array($answer))->FetchRow();
-					$form -> addElement('header','reply',sprintf($this->lang->t('Reply to %s\'s comment given at %s'),$comment_info['login'],date('G:i, d M Y',strtotime($comment_info['created_on']))));
-					$form -> addElement('static','whole','','<a '.$this->create_unique_href(array('answer'=>-1)).'>'.$this->lang->t('Comment whole thread').'</a>');
+					$form -> addElement('header','reply',sprintf($this->t('Reply to %s\'s comment given at %s'),$comment_info['login'],date('G:i, d M Y',strtotime($comment_info['created_on']))));
+					$form -> addElement('static','whole','','<a '.$this->create_unique_href(array('answer'=>-1)).'>'.$this->t('Comment whole thread').'</a>');
 				}
-				$form -> addElement('textarea','comment_page_reply',$this->lang->t('Message'),array('rows'=>4,'cols'=>40));//,'onBlur'=>'document.getElementsByName(\'comment_content\')[0].value = document.getElementsByName(\'comment_page_reply\')[0].value.replace(/\n/g,\'<br>\');'));
+				$form -> addElement('textarea','comment_page_reply',$this->t('Message'),array('rows'=>4,'cols'=>40));//,'onBlur'=>'document.getElementsByName(\'comment_content\')[0].value = document.getElementsByName(\'comment_page_reply\')[0].value.replace(/\n/g,\'<br>\');'));
 				$form -> addElement('submit','submit_comment','Submit');
 				if ($form->validate() && $this->reply){
 					$this->add_post($form->exportValue('comment_page_reply'),$answer);
@@ -107,7 +105,7 @@ class Utils_Comment extends Module{
 		$i = 1;
 		$before_dots = false;
 		$after_dots = false;
-		$pages_links = array($this->lang->t('Pages'));
+		$pages_links = array($this->t('Pages'));
 		while ($i <= $pages){
 			if ($i==$curr_page) $pages_links[] = '<a>'.$i.'</a>'; // TODO: style and _link open possible solution, will need revision later
 			else {
@@ -166,19 +164,19 @@ class Utils_Comment extends Module{
 		$row['text'] = str_replace("\n",'<br>',htmlspecialchars($row['text']));
 		if (Base_AclCommon::i_am_user()) {
 			if ($this->mod) {
-				$delete = '<a '.$this->create_confirm_callback_href($this->lang->ht('Are you sure you want to delete this post?'),array('Utils_CommentCommon','delete_post'),$row['id']).'>'.$this->lang->t('Delete').'</a>';
+				$delete = '<a '.$this->create_confirm_callback_href($this->ht('Are you sure you want to delete this post?'),array('Utils_CommentCommon','delete_post'),$row['id']).'>'.$this->t('Delete').'</a>';
 				$rep_count = DB::GetOne('SELECT COUNT(*) FROM comment_report WHERE id=%d',$row['id']);
 				if (!$rep_count) $report = '';
-				else $report = $this->lang->t('Reported %d time(s)',$rep_count);
+				else $report = $this->t('Reported %d time(s)',$rep_count);
 			} else if ($this->report) {
 				$rep_count = DB::GetOne('SELECT COUNT(*) FROM comment_report WHERE id=%d AND user_login_id=%d',array($row['id'],Acl::get_user()));
-				if ($rep_count==0) $report = '<a '.$this->create_unique_href(array('report'=>$row['id'])).'>'.$this->lang->t('Report').'</a>';
-				else $report = $this->lang->t('Post reported');
+				if ($rep_count==0) $report = '<a '.$this->create_unique_href(array('report'=>$row['id'])).'>'.$this->t('Report').'</a>';
+				else $report = $this->t('Post reported');
 			}
 		}
 		$reply_vars = array('answer'=>$row['id']);
 		if (!$this->reply_on_comment_page) $reply_vars['action'] = 'post_reply';
-		if ($this->tree_structure && $this->reply) $reply_link = '<a '.$this->create_unique_href($reply_vars).'>'.$this->lang->t('Reply').'</a>';
+		if ($this->tree_structure && $this->reply) $reply_link = '<a '.$this->create_unique_href($reply_vars).'>'.$this->t('Reply').'</a>';
 		else $reply_link = null; 
 		$comments[] = array('text'=>$row['text'],
 							'user'=>$row['login'],
@@ -206,7 +204,7 @@ class Utils_Comment extends Module{
 			location(array());
 		}
 
-		$form = & $this->init_module('Libs/QuickForm',$this->lang->ht('Posting reply'));
+		$form = & $this->init_module('Libs/QuickForm',$this->ht('Posting reply'));
 		$theme = & $this->init_module('Base/Theme');
 
 		if ($this->tree_structure) {
@@ -217,10 +215,10 @@ class Utils_Comment extends Module{
 		$form -> addElement('hidden','comment_content','none');
 		if ($answer!=-1) {
 			$comment_info = DB::Execute('SELECT c.id, c.text, ul.login, c.created_on FROM comment AS c LEFT JOIN user_login AS ul ON (c.user_login_id = ul.id) WHERE c.id = %d ORDER BY created_on',array($answer))->FetchRow();
-			$form -> addElement('header','reply',$this->lang->t('Reply to %s\'s comment given at %s',array($comment_info['login'],date('G:i, d M Y',strtotime($comment_info['created_on'])))));
+			$form -> addElement('header','reply',$this->t('Reply to %s\'s comment given at %s',array($comment_info['login'],date('G:i, d M Y',strtotime($comment_info['created_on'])))));
 		}
-		$form -> addElement('textarea','comment_page_reply',$this->lang->t('Message'),array('rows'=>4,'cols'=>40));//,'onBlur'=>'document.getElementsByName(\'comment_content\')[0].value = document.getElementsByName(\'comment_page_reply\')[0].value.replace(/\n/g,\'<br>\');'));
-		$form -> addRule('comment_page_reply',$this->lang->t('Field required'),'required');
+		$form -> addElement('textarea','comment_page_reply',$this->t('Message'),array('rows'=>4,'cols'=>40));//,'onBlur'=>'document.getElementsByName(\'comment_content\')[0].value = document.getElementsByName(\'comment_page_reply\')[0].value.replace(/\n/g,\'<br>\');'));
+		$form -> addRule('comment_page_reply',$this->t('Field required'),'required');
 		$form -> addElement('submit','submit_comment','Submit');
 		$form -> addElement('button','cancel_comment','Cancel',$this->create_back_href());
 		if ($form->validate() && $this->reply){
@@ -232,7 +230,7 @@ class Utils_Comment extends Module{
 		} else {
 			$form->assign_theme('form', $theme);
 			$theme->assign('required', '<span align=top size=4 style="color:#FF0000">*</span>');
-			$theme->assign('required_description', $this->lang->t('Indicates required fields.'));
+			$theme->assign('required_description', $this->t('Indicates required fields.'));
 			$theme -> display('Reply');
 		}
 	}
@@ -251,28 +249,28 @@ class Utils_Comment extends Module{
 
 	private function first() {
 		if($this->offset>0)
-			return '<a '.$this->create_unique_href(array('first'=>1)).'>'.$this->lang->t('First').'</a>';
+			return '<a '.$this->create_unique_href(array('first'=>1)).'>'.$this->t('First').'</a>';
 		else
 			return null;
 	} 
 	
 	private function prev() {
 		if($this->offset>0)
-    		return '</a><a '.$this->create_unique_href(array('prev'=>1)).'>'.$this->lang->t('Prev').'</a>';
+    		return '</a><a '.$this->create_unique_href(array('prev'=>1)).'>'.$this->t('Prev').'</a>';
 		else
 			return null;
 	}
 	
 	private function next() {
 		if($this->offset+$this->per_page<$this->qty) 
-      		return '<a '.$this->create_unique_href(array('next'=>1)).'>'.$this->lang->t('Next').'</a>';
+      		return '<a '.$this->create_unique_href(array('next'=>1)).'>'.$this->t('Next').'</a>';
 		else
 			return null;
 	}
 	
 	private function last() {
 		if($this->offset+$this->per_page<$this->qty) 
-      		return '<a '.$this->create_unique_href(array('last'=>1)).'>'.$this->lang->t('Last').'</a>';
+      		return '<a '.$this->create_unique_href(array('last'=>1)).'>'.$this->t('Last').'</a>';
 		else
 			return null;
 	}

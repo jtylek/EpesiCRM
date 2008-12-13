@@ -13,7 +13,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_ModuleManager extends Module {
 	const host = "localhost";
 	const path = "tcms_repo";
-	private $lang;
 	
 	public function body() {
 	}
@@ -23,19 +22,18 @@ class Base_ModuleManager extends Module {
 			$this->parent->reset();
 			return;
 		}
-		$this->lang = & $this->init_module('Base/Lang');
 		if(!$this->isset_module_variable('ok')) {
 			$ret = self::unwritable_modules();
 			if(!empty($ret)) {
-				print('<div style="text-align:left;">'.$this->lang->t('Unwritable files/directories').':<br><ul>');
+				print('<div style="text-align:left;">'.$this->t('Unwritable files/directories').':<br><ul>');
 				foreach($ret as $r)
 					print('<li>'.$r);
-				print('</ul>'.$this->lang->t('Every file in modules directory should be accessable and writable by http server.').'</div>');
+				print('</ul>'.$this->t('Every file in modules directory should be accessable and writable by http server.').'</div>');
 				return;
 			}
 			$this->set_module_variable('ok',1);
 		}
-		print('<a '.$this->create_callback_href(array($this,'update')).'>'.$this->lang->t('Update modules tree').'</a>');
+		print('<a '.$this->create_callback_href(array($this,'update')).'>'.$this->t('Update modules tree').'</a>');
 		$new_modules = self::repo_only_modules();
 		$local_modules = ModuleManager::list_modules();
 		$modules = array_merge($new_modules,$local_modules);
@@ -70,7 +68,7 @@ class Base_ModuleManager extends Module {
 					$form->addElement('select', 'installed['.$entry.']', '<div align=left>'.$tab.$path[count($path)-1].'</div>', $versions);
 					$form->setDefaults(array('installed['.$entry.']'=>$installed));
 				} else {
-					$form->addElement('checkbox', 'download['.$entry.']', '<div align=left>'.$tab.$path[count($path)-1].'</div>',$this->lang->t('Download'));
+					$form->addElement('checkbox', 'download['.$entry.']', '<div align=left>'.$tab.$path[count($path)-1].'</div>',$this->t('Download'));
 				}
 		}
 				

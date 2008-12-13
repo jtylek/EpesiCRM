@@ -33,7 +33,7 @@ class Base_Lang extends Module {
 	/**
 	 * For internal use only.
 	 */
-	public function translate($data) {
+/*	public function translate($data) {
 		global $translations;
 		$trans = $data['trans_text'];
 		$orig = $data['trans_original'];
@@ -51,7 +51,7 @@ class Base_Lang extends Module {
 		return true;
 	}
 
-
+*/
 	/**
 	 * Use this function to translate desired string.
 	 * If you want to hide translation link '[*]', use ht() instead.

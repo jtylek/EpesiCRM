@@ -16,13 +16,12 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_MainModuleIndicator extends Module {
 
 	public function body() {
-		$lang = $this->init_module('Base/Lang');
 		$box_module = ModuleManager::get_instance('/Base_Box|0');
 		if($box_module)
 			$active_module = $box_module->get_main_module();
 		if($active_module && is_callable(array($active_module,'caption'))) {
 			$caption = $active_module->caption();
-			if ($caption!='') $caption = $lang->t($caption);
+			if ($caption!='') $caption = $this->t($caption);
 			if(Variable::get('show_module_indicator')) {
 				$t = & $this->pack_module('Base/Theme');
 				$t->assign('text', $caption);
@@ -44,18 +43,17 @@ class Base_MainModuleIndicator extends Module {
 	
 	public function admin() {
 		$f = & $this->init_module('Libs/QuickForm');
-		$l = & $this->init_module('Base/Lang');
 		$f->setDefaults(array(
 			'title'=>Variable::get('base_page_title'),
 			'show_caption_in_title'=>Variable::get('show_caption_in_title'),
 			'show_module_indicator'=>Variable::get('show_module_indicator')
 			));
-		$f->addElement('text','title',$l->t('Base page title'));
-		$f->addElement('checkbox','show_caption_in_title',$l->t('Display module captions inside page title'));
-		$f->addElement('checkbox','show_module_indicator',$l->t('Display module captions inside module'));
+		$f->addElement('text','title',$this->t('Base page title'));
+		$f->addElement('checkbox','show_caption_in_title',$this->t('Display module captions inside page title'));
+		$f->addElement('checkbox','show_module_indicator',$this->t('Display module captions inside module'));
 		
-		$save_b = & HTML_QuickForm::createElement('submit', null, $l->ht('Save'));
-		$back_b = & HTML_QuickForm::createElement('button', null, $l->ht('Cancel'), $this->create_back_href());
+		$save_b = & HTML_QuickForm::createElement('submit', null, $this->ht('Save'));
+		$back_b = & HTML_QuickForm::createElement('button', null, $this->ht('Cancel'), $this->create_back_href());
 		$f->addGroup(array($save_b,$back_b),'submit_button');
 
 		if($f->validate()) {

@@ -59,6 +59,7 @@ class CRM_MailClientInstall extends ModuleInstall {
 					array('name'=>'Utils/Tooltip','version'=>0),
 					array('name'=>'Utils/GenericBrowser','version'=>0),
 					array('name'=>'Apps/MailClient','version'=>0),
+					array('name'=>'Libs/QuickForm','version'=>0),
 					array('name'=>'CRM/Contacts','version'=>0)
 				);
 	}

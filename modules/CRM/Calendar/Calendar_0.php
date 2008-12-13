@@ -10,17 +10,11 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_Calendar extends Module {
-	private $lang;
-
-	public function construct() {
-		$this->lang = $this->init_module('Base/Lang');
-	}
-	
 	public function body() {
 		CRM_CalendarCommon::$trash = $this->get_module_variable('trash',0);
 		
 		if(CRM_CalendarCommon::$trash) {
-			print('<h1>'.$this->lang->t('You are in trash mode').'</h1>');
+			print('<h1>'.$this->t('You are in trash mode').'</h1>');
 		}
 		
 		CRM_Calendar_EventCommon::$filter = CRM_FiltersCommon::get();
@@ -65,19 +59,19 @@ class CRM_Calendar extends Module {
 					$ev_mod = $this->init_module('CRM/Calendar/Event');
 					$start = date('d F Y',Base_RegionalSettingsCommon::reg2time($events['start']));
 					$end = date('d F Y',Base_RegionalSettingsCommon::reg2time($events['end']));
-					$pdf->set_title($this->lang->t($view).', '.$start.($view_type!='Day'?' - '.$end:''));
+					$pdf->set_title($this->t($view).', '.$start.($view_type!='Day'?' - '.$end:''));
 					$filter = CRM_FiltersCommon::get();
 					$me = CRM_ContactsCommon::get_my_record();
 					if (trim($filter,'()')==$me['id']) $desc=$me['last_name'].' '.$me['first_name'];
 					else $desc = CRM_FiltersCommon::get_profile_desc();
-					$pdf->set_subject($this->lang->t('CRM Filters: %s',array($desc)));
+					$pdf->set_subject($this->t('CRM Filters: %s',array($desc)));
 					$pdf->prepare_header();
 					$pdf->AddPage();
 					foreach($events['events'] as $v) {
 						$ev_mod->make_event_PDF($pdf,$v,true,$view_type);
 					}
 				}
-				$pdf->add_actionbar_icon($this->lang->t(str_replace(' ','_',$view)));
+				$pdf->add_actionbar_icon($this->t(str_replace(' ','_',$view)));
 			}
 		}
 		if(Base_AclCommon::i_am_sa()) {
@@ -97,15 +91,15 @@ class CRM_Calendar extends Module {
 
 		$gb = $this->init_module('Utils/GenericBrowser', null, 'agendaX');
 		$columns = array(
-			array('name'=>$this->lang->t('Start'), 'order'=>'e.starts', 'width'=>50),
-			array('name'=>$this->lang->t('Title'), 'order'=>'e.title','width'=>50),
+			array('name'=>$this->t('Start'), 'order'=>'e.starts', 'width'=>50),
+			array('name'=>$this->t('Title'), 'order'=>'e.title','width'=>50),
 		);
 		$gb->set_table_columns($columns);
 
 		$start = date('Y-m-d',time());
 		$end = date('Y-m-d',time() + ($conf['days'] * 24 * 60 * 60));
 
-		$gb->set_default_order(array($this->lang->t('Start')=>'ASC'));
+		$gb->set_default_order(array($this->t('Start')=>'ASC'));
 		CRM_Calendar_EventCommon::$filter = '('.CRM_FiltersCommon::get_my_profile().')';
 //		trigger_error($gb->get_query_order());
 		$ret = CRM_Calendar_EventCommon::get_all($start,$end);
@@ -122,12 +116,14 @@ class CRM_Calendar extends Module {
 			
 			///////////////////
 			// right column
-			$title = Utils_TooltipCommon::create($row['title'],$row['description']);
-			// $title = $row['title'];
+			if($row['description'])
+				$row['description'] .= '<hr>';
+			$title = Utils_TooltipCommon::create($row['title'],$row['description'].substr($row['additional_info'],4).$row['additional_info2']);
 			
 			//////////////////////////
 			// left column
-			$date = Utils_TooltipCommon::create($ex['start'],$row['tooltip']);
+			$date_tip = !isset($row['timeless'])?$this->t('Duration: %s<br>End: %s',array($ex['duration'],$ex['end'])):$this->t('Timeless');
+			$date = Utils_TooltipCommon::create($ex['start'],$date_tip);
 			$gb->add_row(
 				array('value'=>$view_action.$date.'</a>', 'order_value'=>isset($row['timeless'])?strtotime($row['timeless']):$row['start']),
 				$view_action.$title.'</a>');

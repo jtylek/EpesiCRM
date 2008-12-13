@@ -34,7 +34,6 @@ class Utils_Messenger extends Module {
 	}
 
 	public function construct($id=null,$callback_method=null,$callback_args=null,$def_date=null,$users=null, $autosave=true) {
-		$this->lang = & $this->init_module('Base/Lang');
 		if(!isset($id))
 			//applet mode
 			return;
@@ -92,15 +91,15 @@ class Utils_Messenger extends Module {
 				$f->setDefaults(array('users'=>array_keys($this->users)));
 		}
 
-		$f->addElement('textarea', 'message', $this->lang->t('Message'));
-		$f->addElement('datepicker', 'alert_date', $this->lang->t('Alert date'));
+		$f->addElement('textarea', 'message', $this->t('Message'));
+		$f->addElement('datepicker', 'alert_date', $this->t('Alert date'));
 		$lang_code = Base_LangCommon::get_lang_code();
 		$time_format = Base_RegionalSettingsCommon::time_12h()?'h:i a':'H:i';
-		$f->addElement('date', 'alert_time', $this->lang->t('Alert time'), array('format'=>$time_format, 'optionIncrement'  => array('i' => 5), 'language'=>$lang_code));
+		$f->addElement('date', 'alert_time', $this->t('Alert time'), array('format'=>$time_format, 'optionIncrement'  => array('i' => 5), 'language'=>$lang_code));
 		
 		if(is_array($this->users)) {
-			$f->addElement('multiselect', 'users', $this->lang->t('Assigned users'), $this->users);
-			$f->addRule('users', $this->lang->t('At least one user must be assigned to an alarm.'), 'required');
+			$f->addElement('multiselect', 'users', $this->t('Assigned users'), $this->users);
+			$f->addRule('users', $this->t('At least one user must be assigned to an alarm.'), 'required');
 		}
 
 		if($f->validate()) {
@@ -166,9 +165,9 @@ class Utils_Messenger extends Module {
 		$gb = & $this->init_module('Utils/GenericBrowser',null,'messages');
 		$data = $this->get_module_variable('data');
 		$gb->set_table_columns(array(
-			array('name'=>$this->lang->t('Alert on'), 'width'=>20),
-			array('name'=>$this->lang->t('Message'), 'width'=>50),
-			array('name'=>$this->lang->t('Users'), 'width'=>30)
+			array('name'=>$this->t('Alert on'), 'width'=>20),
+			array('name'=>$this->t('Message'), 'width'=>50),
+			array('name'=>$this->t('Users'), 'width'=>30)
 				));
 		foreach($data as $row) {
 			$r = & $gb->get_new_row();
@@ -182,7 +181,7 @@ class Utils_Messenger extends Module {
 				
 			$r->add_data(Base_RegionalSettingsCommon::time2reg($row['alert_on']),$row['message'],$us);
 			$r->add_action($this->create_callback_href(array($this,'push_box0'),array('edit',array($row),array($this->real_id,$this->callback_method,$this->callback_args,$this->def_date,$this->users,$this->autosave))),'Edit');
-			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Are you sure?'),array($this,'delete_entry'),$row['id']),'Delete');
+			$r->add_action($this->create_confirm_callback_href($this->ht('Are you sure?'),array($this,'delete_entry'),$row['id']),'Delete');
 		}
 		$this->display_module($gb);
 		
@@ -194,13 +193,13 @@ class Utils_Messenger extends Module {
 
 		$gb = $this->init_module('Utils/GenericBrowser', null, 'agenda');
 		$columns = array(
-			array('name'=>$this->lang->t('Done'), 'order'=>'done', 'width'=>5),
-			array('name'=>$this->lang->t('Start'), 'order'=>'alert_on', 'width'=>15),
-			array('name'=>$this->lang->t('Info'), 'width'=>80)
+			array('name'=>$this->t('Done'), 'order'=>'done', 'width'=>5),
+			array('name'=>$this->t('Start'), 'order'=>'alert_on', 'width'=>15),
+			array('name'=>$this->t('Info'), 'width'=>80)
 		);
 		$gb->set_table_columns($columns);
 
-		$gb->set_default_order(array($this->lang->t('Start')=>'ASC'));
+		$gb->set_default_order(array($this->t('Start')=>'ASC'));
 
 		$t = time();
 		$ret = DB::Execute('(SELECT u.done,m.* FROM utils_messenger_message m INNER JOIN utils_messenger_users u ON u.message_id=m.id WHERE u.user_login_id=%d AND u.done=0 AND m.alert_on<%T)'.
@@ -212,7 +211,7 @@ class Utils_Messenger extends Module {
 		while($row = $ret->FetchRow()) {
 			$info = call_user_func_array(unserialize($row['callback_method']),unserialize($row['callback_args']));
 			$info = str_replace("\n",'<br>',$info);
-			$gb->add_row('<span class="'.($row['done']?'checkbox_on':'checkbox_off').'" />',Base_RegionalSettingsCommon::time2reg($row['alert_on']),$info.'<br>'.($row['message']?$this->lang->t("Alarm comment: %s",array($row['message'])):''));
+			$gb->add_row('<span class="'.($row['done']?'checkbox_on':'checkbox_off').'" />',Base_RegionalSettingsCommon::time2reg($row['alert_on']),$info.'<br>'.($row['message']?$this->t("Alarm comment: %s",array($row['message'])):''));
 		}
 
 		$this->display_module($gb);

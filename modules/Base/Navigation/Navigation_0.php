@@ -15,20 +15,19 @@ class Base_Navigation extends Module {
 	private $lang = null;
 	
 	public function body() {
-		$lang = & $this->init_module('Base/Lang');
 		$theme = & $this->init_module('Base/Theme');
 		
 		if(History::is_back())
-			$theme->assign('back','<a '.$this->create_callback_href(array('Base_Navigation','back')).'>'.$lang->t('<<').'</a>');
+			$theme->assign('back','<a '.$this->create_callback_href(array('Base_Navigation','back')).'>'.$this->t('<<').'</a>');
 		else
-			$theme->assign('back',$lang->t('<<'));
+			$theme->assign('back',$this->t('<<'));
 		
-		$theme->assign('reload','<a '.$this->create_callback_href(array('Base_Navigation','reload_page')).'>'.$lang->t('@').'</a>');
+		$theme->assign('reload','<a '.$this->create_callback_href(array('Base_Navigation','reload_page')).'>'.$this->t('@').'</a>');
 		
 		if(History::is_forward())
-			$theme->assign('next','<a '.$this->create_callback_href(array('Base_Navigation','forward')).'>'.$lang->t('>>').'</a>');
+			$theme->assign('next','<a '.$this->create_callback_href(array('Base_Navigation','forward')).'>'.$this->t('>>').'</a>');
 		else
-			$theme->assign('next', $lang->t('>>'));
+			$theme->assign('next', $this->t('>>'));
 		
 		$theme->display();
 	}

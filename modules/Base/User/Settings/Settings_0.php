@@ -12,7 +12,6 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_User_Settings extends Module {
-	private $lang;
 	private $settings_fields;
 	private $set_default_js;
 	private static $sep = "__";
@@ -23,8 +22,6 @@ class Base_User_Settings extends Module {
 	}
 	
 	public function body($branch=null,$admin_settings=false) {
-		$this->lang = & $this->init_module('Base/Lang');
-
 		$branch = $this->get_module_variable_or_unique_href_variable('settings_branch',$branch);
 		if($this->is_back()) $branch = null;
 		$this->set_module_variable('settings_branch',$branch);
@@ -36,8 +33,8 @@ class Base_User_Settings extends Module {
 			return;
 		}
 
-		$f = &$this->init_module('Libs/QuickForm',$this->lang->ht('Saving settings'),'settings');
-		$f->addElement('header',null,$this->lang->t($branch));
+		$f = &$this->init_module('Libs/QuickForm',$this->ht('Saving settings'),'settings');
+		$f->addElement('header',null,$this->t($branch));
 		$this->indicator = ': '.$branch;
 		$this->settings_fields = array();
 		$this->set_default_js = '';
@@ -98,23 +95,23 @@ class Base_User_Settings extends Module {
 			}
 		}
 		
-		Base_StatusBarCommon::message($this->lang->ht('Setting saved'.($reload?' - reloading page':'')));
+		Base_StatusBarCommon::message($this->ht('Setting saved'.($reload?' - reloading page':'')));
 		if ($reload) eval_js('setTimeout(\'document.location=\\\'index.php\\\'\',\'3000\')',false);
 		return true;
 	}
 	
 	private function add_elem_to_form(array & $v,array & $defaults, $module,$admin_settings) {
-		if(isset($v['label'])) $v['label'] = $this->lang->t($v['label']);
+		if(isset($v['label'])) $v['label'] = $this->t($v['label']);
 		$old_name = $v['name'];
 		$v['name'] = $module.self::$sep.$v['name'];
 		$this->settings_fields[] = $v['name'];
 		if(isset($v['values']) && is_array($v['values']))
 			foreach($v['values'] as &$x) 
-				$x = $this->lang->ht($x);
+				$x = $this->ht($x);
 		if (isset($v['rule'])) {
 			if(isset($v['rule']['message']) && isset($v['rule']['type'])) $v['rule'] = array($v['rule']);
 			foreach ($v['rule'] as & $r)
-				if (isset($r['message'])) $r['message'] = $this->lang->t($r['message']);
+				if (isset($r['message'])) $r['message'] = $this->t($r['message']);
 		}
 		if($admin_settings)
 			$value = Base_User_SettingsCommon::get_admin($module,$old_name);
@@ -143,7 +140,6 @@ class Base_User_Settings extends Module {
 		if (!Acl::is_user()) {
 			print('Log in to change your settings.');
 		}
-		$this->lang = & $this->init_module('Base/Lang');
 		$modules = array(); 
 		$admin_settings = $this->get_module_variable('admin_settings');
 
@@ -206,10 +202,10 @@ class Base_User_Settings extends Module {
 					} catch(Exception $e) {}
 				}
 			if(!$icon) $icon = '';
-			$buttons[]= array('link'=>'<a '.$arg['action'].'>'.$this->lang->t($caption).'</a>','module'=>$arg['module_names'],'icon'=>$icon);
+			$buttons[]= array('link'=>'<a '.$arg['action'].'>'.$this->t($caption).'</a>','module'=>$arg['module_names'],'icon'=>$icon);
 		}
 		$theme =  & $this->pack_module('Base/Theme');
-		$theme->assign('header', $this->lang->t('User Settings'));
+		$theme->assign('header', $this->t('User Settings'));
 		$theme->assign('buttons', $buttons);
 		$theme->display();
 	}

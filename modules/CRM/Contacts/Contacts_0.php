@@ -45,15 +45,13 @@ class CRM_Contacts extends Module {
 			return;
 		}
 		
-		$l = $this->init_module('Base/Lang');
-		
 		$filter = $this->get_module_variable_or_unique_href_variable('filter',1);
 		
 		if($filter) {
 			$c = CRM_ContactsCommon::get_company(CRM_ContactsCommon::get_main_company());
-			print('<h2>'.$l->t('"%s" contacts',array($c['company_name'])).'</h2>');
+			print('<h2>'.$this->t('"%s" contacts',array($c['company_name'])).'</h2>');
 		} else
-			print('<h2>'.$l->t('Epesi users').'</h2>');
+			print('<h2>'.$this->t('Epesi users').'</h2>');
 
 		$logins = DB::GetAssoc('SELECT id,login FROM user_login');
 		$ccc = CRM_ContactsCommon::get_contacts(array('login'=>array_keys($logins)),array('login','first_name','last_name','company_name'));
@@ -64,8 +62,8 @@ class CRM_Contacts extends Module {
 			$c = & $ccc;
 		$gb = $this->init_module('Utils/GenericBrowser',null,'my_contacts');
 		$gb->set_table_columns(array(
-			array('name'=>$l->t('Login'),'search'=>1,'order'=>'l'),
-			array('name'=>$l->t('Contact'),'search'=>1,'order'=>'c')
+			array('name'=>$this->t('Login'),'search'=>1,'order'=>'l'),
+			array('name'=>$this->t('Contact'),'search'=>1,'order'=>'c')
 			));
 			
 		foreach($c as $r) {
@@ -83,7 +81,7 @@ class CRM_Contacts extends Module {
 		foreach($ccc as $v) {
 			unset($logins[$v['login']]);
 		}
-		print($l->t('Users without contact: %s.',array(implode(', ',$logins))));
+		print($this->t('Users without contact: %s.',array(implode(', ',$logins))));
 
 
 		Base_ActionBarCommon::add('settings', 'Change main company', $this->create_callback_href(array($this,'admin_main_company')));
@@ -98,12 +96,11 @@ class CRM_Contacts extends Module {
 			return false;
 		}
 		$qf = $this->init_module('Libs/QuickForm',null,'my_company');
-		$l = $this->init_module('Base/Lang');
 		$companies = CRM_ContactsCommon::get_companies(array(), array(), array('company_name'=>'ASC'));
 		$x = array();
 		foreach($companies as $c)
 			$x['s'.$c['id']] = htmlentities($c['company_name']);//.' ('.$c['short_name'].')'
-		$qf->addElement('select','company',$l->t('Choose main company'),$x);
+		$qf->addElement('select','company',$this->t('Choose main company'),$x);
 		$qf->addElement('static',null,null,'Contacts assigned to this company are treated as employees. You should set the main company only once.');
 		try {
 			$main_company = Variable::get('main_company');
@@ -163,7 +160,6 @@ class CRM_Contacts extends Module {
 	}
 
 	public function contact_attachment_addon($arg){
-		$l = $this->init_module('Base/Lang');
 		$a = $this->init_module('Utils/Attachment',array('CRM/Contact/'.$arg['id']));
 		$a->set_view_func(array('CRM_ContactsCommon','search_format_contact'),array($arg['id']));
 		$a->enable_watchdog('contact',$arg['id']);
@@ -172,7 +168,7 @@ class CRM_Contacts extends Module {
 			$company = CRM_ContactsCommon::get_company($comp);
 			$companies[] = $company['company_name'].($company['short_name']?' ('.$company['short_name'].')':'');
 		}
-		$a->additional_header($l->t('%s %s from %s',array($arg['first_name'],$arg['last_name'],implode(', ',$companies))));
+		$a->additional_header($this->t('%s %s from %s',array($arg['first_name'],$arg['last_name'],implode(', ',$companies))));
 		$a->allow_protected($this->acl_check('view protected notes'),$this->acl_check('edit protected notes'));
 		$a->allow_public($this->acl_check('view public notes'),$this->acl_check('edit public notes'));
 		$this->display_module($a);

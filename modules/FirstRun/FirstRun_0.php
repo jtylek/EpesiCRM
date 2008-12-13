@@ -47,35 +47,33 @@ class FirstRun extends Module {
 		} else {
 
 			$wizard = & $this->init_module('Utils/Wizard');
-			$this->lang = & $this->init_module('Base/Lang');
-
 			/////////////////////////////////////////////////////////////
 			$this->ini = parse_ini_file('modules/FirstRun/distros.ini',true);
 			$f = & $wizard->begin_page();
-			$f->addElement('header', null, $this->lang->t('Welcome to epesi first run wizard'));
+			$f->addElement('header', null, $this->t('Welcome to epesi first run wizard'));
 			$f->setDefaults(array('setup_type'=>key($this->ini)));
 			foreach($this->ini as $name=>$pkgs)
-				$f->addElement('radio', 'setup_type', '', $this->lang->t($name), $name);
+				$f->addElement('radio', 'setup_type', '', $this->t($name), $name);
 			$wizard->next_page();
 
 			/////////////////////////////////////////////////////////////////
 			$f = & $wizard->begin_page('simple_user');
-			$f->addElement('header', null, $this->lang->t('Please enter administrator user login and password'));
+			$f->addElement('header', null, $this->t('Please enter administrator user login and password'));
 
-			$f->addElement('text', 'login', $this->lang->t('Login'));
-			$f->addRule('login', $this->lang->t('A username must be between 3 and 32 chars'), 'rangelength', array(3,32));
-			$f->addRule('login', $this->lang->t('Field required'), 'required');
+			$f->addElement('text', 'login', $this->t('Login'));
+			$f->addRule('login', $this->t('A username must be between 3 and 32 chars'), 'rangelength', array(3,32));
+			$f->addRule('login', $this->t('Field required'), 'required');
 
-			$f->addElement('text', 'mail', $this->lang->t('e-mail'));
-			$f->addRule('mail', $this->lang->t('Field required'), 'required');
-			$f->addRule('mail', $this->lang->t('This isn\'t valid e-mail address'), 'email');
+			$f->addElement('text', 'mail', $this->t('e-mail'));
+			$f->addRule('mail', $this->t('Field required'), 'required');
+			$f->addRule('mail', $this->t('This isn\'t valid e-mail address'), 'email');
 
-			$f->addElement('password', 'pass', $this->lang->t('Password'));
-			$f->addElement('password', 'pass_c', $this->lang->t('Confirm password'));
-			$f->addRule('pass', $this->lang->t('Field required'), 'required');
-			$f->addRule('pass_c', $this->lang->t('Field required'), 'required');
-			$f->addRule(array('pass','pass_c'), $this->lang->t('Passwords don\'t match'), 'compare');
-			$f->addRule('pass', $this->lang->t('Your password must be longer then 5 chars'), 'minlength', 5);
+			$f->addElement('password', 'pass', $this->t('Password'));
+			$f->addElement('password', 'pass_c', $this->t('Confirm password'));
+			$f->addRule('pass', $this->t('Field required'), 'required');
+			$f->addRule('pass_c', $this->t('Field required'), 'required');
+			$f->addRule(array('pass','pass_c'), $this->t('Passwords don\'t match'), 'compare');
+			$f->addRule('pass', $this->t('Your password must be longer then 5 chars'), 'minlength', 5);
 
 			$wizard->next_page();
 
@@ -83,28 +81,28 @@ class FirstRun extends Module {
 			$f = & $wizard->begin_page('simple_mail');
 
 			$f->setDefaults(array('mail_method'=>'mail'));
-			$f->addElement('header',null, $this->lang->t('Mail settings'));
-			$f->addElement('html','<tr><td colspan=2>'.$this->lang->t('If you are on a hosted server it probably should stay as it is now.').'</td></tr>');
-			$f->addElement('select','mail_method', $this->lang->t('Choose method'), array('smtp'=>'remote smtp server', 'mail'=>'local php.ini settings'));
+			$f->addElement('header',null, $this->t('Mail settings'));
+			$f->addElement('html','<tr><td colspan=2>'.$this->t('If you are on a hosted server it probably should stay as it is now.').'</td></tr>');
+			$f->addElement('select','mail_method', $this->t('Choose method'), array('smtp'=>'remote smtp server', 'mail'=>'local php.ini settings'));
 
 			$wizard->next_page(array($this,'choose_mail_method'));
 
 			//////////////////////
 			$f = & $wizard->begin_page('simple_mail_smtp');
 
-			$f->addElement('header',null, $this->lang->t('Mail settings'));
-			$f->addElement('text','mail_host', $this->lang->t('SMTP host address'));
-			$f->addRule('mail_host', $this->lang->t('Field required'),'required');
+			$f->addElement('header',null, $this->t('Mail settings'));
+			$f->addElement('text','mail_host', $this->t('SMTP host address'));
+			$f->addRule('mail_host', $this->t('Field required'),'required');
 
-			$f->addElement('header',null, $this->lang->t('If your server needs authorization...'));
-			$f->addElement('text','mail_user', $this->lang->t('Login'));
-			$f->addElement('password','mail_password', $this->lang->t('Password'));
+			$f->addElement('header',null, $this->t('If your server needs authorization...'));
+			$f->addElement('text','mail_user', $this->t('Login'));
+			$f->addElement('password','mail_password', $this->t('Password'));
 
 			$wizard->next_page();
 
 			////////////////////////////////////////////////////////////
 			$f = & $wizard->begin_page('setup_warning');
-			$f->addElement('header', null, $this->lang->t('Warning'));
+			$f->addElement('header', null, $this->t('Warning'));
 			$f->addElement('html','<tr><td colspan=2><br />Setup will now check for available modules and will install them.<br>This operation may take several minutes.<br><br></td></tr>');
 			$wizard->next_page();
 

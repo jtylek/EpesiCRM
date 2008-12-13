@@ -12,7 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_MailClientCommon extends ModuleCommon {
 	private static $my_rec;
 
-	public static function move_action($msg, $dir) {
+	public static function move_action($msg, $dir, array & $mail_ids = array()) {
 		$sent = false;
 		if(ereg('^(Drafts|Sent)',$dir))
 			$sent = true;
@@ -53,6 +53,7 @@ class CRM_MailClientCommon extends ModuleCommon {
 				$aid = DB::Insert_ID('crm_mailclient_mails','id');
 				file_put_contents($data_dir.$aid,$a['body']);
 			}
+			$mail_ids[] = $mid;
 			Utils_WatchdogCommon::new_event('contact',$to,'N_New mail');
 			Utils_WatchdogCommon::new_event('contact',$from,'N_New mail');
 		}
@@ -88,12 +89,23 @@ class CRM_MailClientCommon extends ModuleCommon {
 		$x->push_main('Utils/RecordBrowser','view_entry',array('view', $c['id']),array('contact'));
 		return true;
 	}
+	
+	public static function move_and_notify_action($msg,$dir) {
+		$mids = array();
+		self::move_action($msg, $dir, $mids);
+		$x = ModuleManager::get_instance('/Base_Box|0');
+		if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+		$x->push_main('CRM/MailClient','notify',array($mids));
+		return true;
+	}
 
 	public static function mail_actions() {
 		$ret = array('Go to contact'=>array('func'=>array('CRM_MailClientCommon','goto_action'),'delete'=>0));
 		self::$my_rec = CRM_ContactsCommon::get_my_record();
-		if(self::$my_rec['id']!==-1)
+		if(self::$my_rec['id']!==-1) {
 			$ret['Move to CRM']=array('func'=>array('CRM_MailClientCommon','move_action'),'delete'=>1);
+			$ret['Move to CRM & notify']=array('func'=>array('CRM_MailClientCommon','move_and_notify_action'),'delete'=>1);
+		}
 		return $ret;
 	}
 }

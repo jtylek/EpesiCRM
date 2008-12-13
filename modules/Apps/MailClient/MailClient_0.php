@@ -25,11 +25,6 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Apps_MailClient extends Module {
-	private $lang;
-
-	public function construct() {
-		$this->lang = $this->init_module('Base/Lang');
-	}
 
 	public function body() {
 		$boxes = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE user_login_id=%d ORDER BY mail',array(Acl::get_user()));
@@ -46,7 +41,7 @@ class Apps_MailClient extends Module {
 				$this->set_module_variable('opened_dir','Inbox/');
 			}
 			$str[$v['mail']] = Apps_MailClientCommon::get_mailbox_structure($v['id']);
-			$name = $v['mail']=='#internal'?$this->lang->t('Private messages'):$v['mail'];
+			$name = $v['mail']=='#internal'?$this->t('Private messages'):$v['mail'];
 			$open_cb = '<a '.$this->create_callback_href(array($this,'open_mail_dir_callback'),array($v['id'],'Inbox/')).'>'.$name.'</a>';
 			$tree[] = array('name'=>$open_cb, 'sub'=>$this->get_tree_structure($str[$v['mail']],$v['id']));
 			$move_folders = array_merge($move_folders,$this->get_move_folders($str[$v['mail']],$name,$v['id']));
@@ -64,11 +59,11 @@ class Apps_MailClient extends Module {
 
 		$move_msg_f = $this->init_module('Libs/QuickForm',null,'move_msg');
 		$move_msg_f->addElement('hidden','msg_id','-1',array('id'=>'mail_client_actions_move_msg_id'));
-		$move_msg_f->addElement('select','folder',$this->lang->t('Move message to folder'),$move_folders);
-		$move_msg_f->addElement('button','submit_button',$this->lang->ht('Move'),array('onClick'=>$move_msg_f->get_submit_form_js().'leightbox_deactivate(\'mail_actions\');'));
+		$move_msg_f->addElement('select','folder',$this->t('Move message to folder'),$move_folders);
+		$move_msg_f->addElement('button','submit_button',$this->ht('Move'),array('onClick'=>$move_msg_f->get_submit_form_js().'leightbox_deactivate(\'mail_actions\');'));
 		$mail_actions_arr[] = $move_msg_f->toHtml();
 
-		$mail_actions_arr[] = '<a onClick="leightbox_deactivate(\'mail_actions\')" href="" tpl_href="modules/Apps/MailClient/source.php?'.http_build_query(array('box'=>$box,'dir'=>$dir,'msg_id'=>'__MSG_ID__')).'" target="_blank" id="mail_client_actions_view_source">'.$this->lang->t('View source').'</a>';
+		$mail_actions_arr[] = '<a onClick="leightbox_deactivate(\'mail_actions\')" href="" tpl_href="modules/Apps/MailClient/source.php?'.http_build_query(array('box'=>$box,'dir'=>$dir,'msg_id'=>'__MSG_ID__')).'" target="_blank" id="mail_client_actions_view_source">'.$this->t('View source').'</a>';
 		
 		$external_mail_actions = ModuleManager::call_common_methods('mail_actions');
 		$i=0;
@@ -88,12 +83,12 @@ class Apps_MailClient extends Module {
 							Apps_MailClientCommon::remove_msg($box,$dir,$id);
 					}
 				}
-				$mail_actions_arr[] = '<a href="javascript:void(0)" tpl_onClick="'.Module::create_unique_href_js(array('external_action'=>$caption,'msg_id'=>'__MSG_ID__')).'" id="mail_client_external_actions_'.$i.'">'.$this->lang->t($caption).'</a>';
+				$mail_actions_arr[] = '<a href="javascript:void(0)" tpl_onClick="'.Module::create_unique_href_js(array('external_action'=>$caption,'msg_id'=>'__MSG_ID__')).'" id="mail_client_external_actions_'.$i.'">'.$this->t($caption).'</a>';
 				$i++;		
 			}
 		}
 			
-		Libs_LeightboxCommon::display('mail_actions','<ul><li>'.implode($mail_actions_arr,'<li>').'</ul>',$this->lang->t('Mail actions'));
+		Libs_LeightboxCommon::display('mail_actions','<ul><li>'.implode($mail_actions_arr,'<li>').'</ul>',$this->t('Mail actions'));
 
 		if($move_msg_f->validate()) {
 			$vals = $move_msg_f->exportValues();
@@ -126,16 +121,16 @@ class Apps_MailClient extends Module {
 
 		$gb = $this->init_module('Utils/GenericBrowser',null,'list');
 		$cols = array();
-		$cols[] = array('name'=>$this->lang->t('ID'), 'order'=>'id','width'=>'3', 'display'=>DEBUG);
-		$cols[] = array('name'=>$this->lang->t('Subject'), 'search'=>1, 'order'=>'subj','width'=>'50');
-		$cols[] = array('name'=>$this->lang->t('To'), 'search'=>1,'quickjump'=>1, 'order'=>'to','width'=>'10', 'display'=>($drafts_folder || $sent_folder || $trash_folder));
-		$cols[] = array('name'=>$this->lang->t('From'), 'search'=>1,'quickjump'=>1, 'order'=>'from','width'=>'10','display'=>($trash_folder || !($drafts_folder || $sent_folder)));
-		$cols[] = array('name'=>$this->lang->t('Date'), 'search'=>1, 'order'=>'date','width'=>'15');
-		$cols[] = array('name'=>$this->lang->t('Size'), 'search'=>1, 'order'=>'size','width'=>'10');
+		$cols[] = array('name'=>$this->t('ID'), 'order'=>'id','width'=>'3', 'display'=>DEBUG);
+		$cols[] = array('name'=>$this->t('Subject'), 'search'=>1, 'order'=>'subj','width'=>'50');
+		$cols[] = array('name'=>$this->t('To'), 'search'=>1,'quickjump'=>1, 'order'=>'to','width'=>'10', 'display'=>($drafts_folder || $sent_folder || $trash_folder));
+		$cols[] = array('name'=>$this->t('From'), 'search'=>1,'quickjump'=>1, 'order'=>'from','width'=>'10','display'=>($trash_folder || !($drafts_folder || $sent_folder)));
+		$cols[] = array('name'=>$this->t('Date'), 'search'=>1, 'order'=>'date','width'=>'15');
+		$cols[] = array('name'=>$this->t('Size'), 'search'=>1, 'order'=>'size','width'=>'10');
 		$gb->set_table_columns($cols);
 
 
-		$gb->set_default_order(array($this->lang->t('Date')=>'DESC'));
+		$gb->set_default_order(array($this->t('Date')=>'DESC'));
 		$gb->force_per_page(10);
 
 		$limit_max = count($box_idx);
@@ -152,7 +147,7 @@ class Apps_MailClient extends Module {
 			$r->add_data($id,array('value'=>'<a href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.http_build_query(array('box'=>$box, 'dir'=>$dir, 'msg_id'=>$id, 'pid'=>$preview_id)).'\',\''.$id.'\')" id="apps_mailclient_msg_'.$id.'" '.($data['read']?'':'style="font-weight:bold"').'>'.$subject.'</a>','order_value'=>$subject),htmlentities($to_address),htmlentities($from_address),array('value'=>Base_RegionalSettingsCommon::time2reg($data['date']), 'order_value'=>strtotime($data['date'])),array('style'=>'text-align:right','value'=>filesize_hr($data['size']), 'order_value'=>$data['size']));
 			$lid = 'mailclient_link_'.$id;
 			$r->add_action('href="javascript:void(0)" rel="'.$show_id.'" class="lbOn" id="'.$lid.'" ','View');
-			$r->add_action($this->create_confirm_callback_href($this->lang->ht('Delete this message?'),array($this,'remove_mail'),array($box,$dir,$id)),'Delete');
+			$r->add_action($this->create_confirm_callback_href($this->ht('Delete this message?'),array($this,'remove_mail'),array($box,$dir,$id)),'Delete');
 			if($drafts_folder) {
 				$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box,$dir,$id,'edit')),'Edit');
 			} elseif($sent_folder) {
@@ -170,12 +165,12 @@ class Apps_MailClient extends Module {
 
 		//list of messages/preview
 		$th->assign('list', $this->get_html_of_module($gb,array(true),'automatic_display'));
-		$th->assign('subject_label',$this->lang->t('Subject'));
+		$th->assign('subject_label',$this->t('Subject'));
 		$th->assign('preview_subject','<div id="'.$preview_id.'_subject"></div>');
 		if($drafts_folder || $sent_folder)
-			$th->assign('address_label',$this->lang->t('To'));
+			$th->assign('address_label',$this->t('To'));
 		else
-			$th->assign('address_label',$this->lang->t('From'));
+			$th->assign('address_label',$this->t('From'));
 		$th->assign('preview_address','<div id="'.$preview_id.'_address"></div>');
 		$th->assign('preview_attachments','<div id="'.$preview_id.'_attachments"></div>');
 		$th->assign('preview_body','<iframe id="'.$preview_id.'_body" style="width:100%;height:70%"></iframe>');
@@ -183,11 +178,11 @@ class Apps_MailClient extends Module {
 
 		//message view
 		$th_show = $this->init_module('Base/Theme');
-		$th_show->assign('subject_label',$this->lang->t('Subject'));
+		$th_show->assign('subject_label',$this->t('Subject'));
 		if($drafts_folder || $sent_folder)
-			$th_show->assign('address_label',$this->lang->t('To'));
+			$th_show->assign('address_label',$this->t('To'));
 		else
-			$th_show->assign('address_label',$this->lang->t('From'));
+			$th_show->assign('address_label',$this->t('From'));
 		$th_show->assign('subject','<div id="'.$show_id.'_subject"></div>');
 		$th_show->assign('address','<div id="'.$show_id.'_address"></div>');
 		$th_show->assign('attachments','<div id="'.$show_id.'_attachments"></div>');
@@ -197,12 +192,12 @@ class Apps_MailClient extends Module {
 		$th_show->display('message');
 		print('</div>');
 
-		Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file($this->get_type(),'check.png'),$this->lang->t('Check'),$this->check_mail_href());
+		Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file($this->get_type(),'check.png'),$this->t('Check'),$this->check_mail_href());
 //		if(DB::GetOne('SELECT 1 FROM apps_mailclient_accounts WHERE smtp_server is not null AND smtp_server!=\'\' AND user_login_id='.Acl::get_user())) //bo bedzie internal
-		Base_ActionBarCommon::add('add',$this->lang->ht('New mail'),$this->create_callback_href(array($this,'edit_mail'),array($box,$dir)));
-		Base_ActionBarCommon::add('scan',$this->lang->ht('Mark all as read'),$this->create_confirm_callback_href($this->lang->ht('Are you sure?'),array($this,'mark_all_as_read')));
+		Base_ActionBarCommon::add('add',$this->ht('New mail'),$this->create_callback_href(array($this,'edit_mail'),array($box,$dir)));
+		Base_ActionBarCommon::add('scan',$this->ht('Mark all as read'),$this->create_confirm_callback_href($this->ht('Are you sure?'),array($this,'mark_all_as_read')));
 		if($trash_folder)
-			Base_ActionBarCommon::add('delete',$this->lang->ht('Empty trash'),$this->create_confirm_callback_href($this->lang->ht('Are you sure?'),array($this,'empty_trash')));
+			Base_ActionBarCommon::add('delete',$this->ht('Empty trash'),$this->create_confirm_callback_href($this->ht('Are you sure?'),array($this,'empty_trash')));
 //echo('<script>function destroy_me(parent) {var x=parent.$(\''.$_GET['id'].'X\');x.parentNode.removeChild(x);parent.leightbox_deactivate(\''.$_GET['id'].'\')}</script>');
 //echo('<a href="javascript:destroy_me(parent)">hide</a>');
 
@@ -213,7 +208,7 @@ class Apps_MailClient extends Module {
 		
 		eval_js('new Apps_MailClient.check_mail(\''.$checknew_id.'\')');
 		print('<div id="'.$checknew_id.'" class="leightbox"><div style="width:100%;text-align:center" id="'.$checknew_id.'progresses"></div>'.
-			'<a id="'.$checknew_id.'L" style="display:none" href="javascript:void(0)" onClick="Apps_MailClient.hide(\''.$checknew_id.'\');Epesi.request(\'\');">'.$this->lang->t('hide').'</a>'.
+			'<a id="'.$checknew_id.'L" style="display:none" href="javascript:void(0)" onClick="Apps_MailClient.hide(\''.$checknew_id.'\');Epesi.request(\'\');">'.$this->t('hide').'</a>'.
 			'</div>');
 		return 'href="javascript:void(0)" rel="'.$checknew_id.'" class="lbOn" id="'.$checknew_id.'b"';
 	}
@@ -228,7 +223,7 @@ class Apps_MailClient extends Module {
 	public function remove_mail($box,$dir,$id,$quiet=false) {
 		$box_dir=Apps_MailClientCommon::get_mailbox_dir($box);
 		if($box_dir===false && !$quiet) {
-			Epesi::alert($this->lang->ht('Invalid mailbox'));
+			Epesi::alert($this->ht('Invalid mailbox'));
 			return;
 		}
 		if($dir=='Trash/') {
@@ -255,7 +250,7 @@ class Apps_MailClient extends Module {
 					Base_StatusBarCommon::message('Message deleted');
 			} else {
 				if(!$quiet)
-					Epesi::alert($this->lang->ht('Unable to delete message'));
+					Epesi::alert($this->ht('Unable to delete message'));
 			}
 		} else {
 			$id2 = Apps_MailClientCommon::move_msg($box,$dir,$box,'Trash/',$id);
@@ -270,7 +265,7 @@ class Apps_MailClient extends Module {
 					Base_StatusBarCommon::message('Message moved to trash');
 			} else {
 				if(!$quiet)
-					Epesi::alert($this->lang->ht('Unable to move message to trash'));
+					Epesi::alert($this->ht('Unable to move message to trash'));
 			}
 		}
 	}
@@ -279,7 +274,7 @@ class Apps_MailClient extends Module {
 		$box = $this->get_module_variable('opened_box');
 		$dir = $this->get_module_variable('opened_dir');
 		if(!Apps_MailClientCommon::mark_all_as_read($box, $dir)) {
-			Epesi::alert($this->lang->ht('Invalid mailbox'));		
+			Epesi::alert($this->ht('Invalid mailbox'));		
 		}
 	}
 
@@ -289,13 +284,13 @@ class Apps_MailClient extends Module {
 
 		$idx = Apps_MailClientCommon::get_index($box,$dir);
 		if($idx===false) {
-			Epesi::alert($this->lang->ht('Invalid index'));
+			Epesi::alert($this->ht('Invalid index'));
 			return false;
 		}
 
 		$mbox_dir = Apps_MailClientCommon::get_mailbox_dir($box);
 		if($mbox_dir===false) {
-			Epesi::alert($this->lang->ht('Invalid mailbox'));
+			Epesi::alert($this->ht('Invalid mailbox'));
 			return false;
 		}
 		$box = $mbox_dir.$dir;
@@ -312,14 +307,14 @@ class Apps_MailClient extends Module {
 	public function restore_mail($box,$dir,$id) {
 		$box_dir = Apps_MailClientCommon::get_mailbox_dir($box);
 		if($box_dir===false) {
-			Epesi::alert($this->lang->ht('Invalid mailbox'));
+			Epesi::alert($this->ht('Invalid mailbox'));
 			return false;		
 		}
 		$trashpath = $box_dir.$dir.'.del';
 
 		$in = @fopen($trashpath,'r');
 		if($in===false) {
-			Epesi::alert($this->lang->ht('Invalid mail to restore'));
+			Epesi::alert($this->ht('Invalid mail to restore'));
 			return false;
 		}
 		$ret = array();
@@ -335,7 +330,7 @@ class Apps_MailClient extends Module {
 		}
 		fclose($in);
 		if($orig_box===false) {
-			Epesi::alert($this->lang->ht('Invalid mail to restore'));
+			Epesi::alert($this->ht('Invalid mail to restore'));
 			return false;
 		}
 
@@ -351,7 +346,7 @@ class Apps_MailClient extends Module {
 			}
 			Base_StatusBarCommon::message('Message restored.');
 		} else {
-			Epesi::alert($this->lang->ht('Unable to restore mail.'));
+			Epesi::alert($this->ht('Unable to restore mail.'));
 		}
 	}
 
@@ -363,7 +358,7 @@ class Apps_MailClient extends Module {
 	public function delete_folder_callback($box,$dir) {
 		$mbox_dir = Apps_MailClientCommon::get_mailbox_dir($box);
 		if($mbox_dir===false) {
-			Epesi::alert($this->lang->ht('Invalid mailbox'));
+			Epesi::alert($this->ht('Invalid mailbox'));
 			return;
 		}
 		recursive_rmdir($mbox_dir.$dir);
@@ -413,7 +408,7 @@ class Apps_MailClient extends Module {
 		$ret = array();
 		$box_dir = Apps_MailClientCommon::get_mailbox_dir($box);
 		if($box_dir===false) {
-			Epesi::alert($this->lang->ht('Invalid mailbox'));
+			Epesi::alert($this->ht('Invalid mailbox'));
 			return $ret;		
 		}
 		foreach($str as $k=>$v) {
@@ -448,7 +443,7 @@ class Apps_MailClient extends Module {
 			if($ed)
 				$arr['name'] .= '<a '.$this->create_callback_href(array($this,'edit_folder_callback'),array($box,$dir,$k)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','edit_folder.png').'" border=0></a>';
 			if($del)
-				$arr['name'] .= '<a '.$this->create_confirm_callback_href($this->lang->ht('Delete this folder with all messages and subfolders?'),array($this,'delete_folder_callback'),array($box,$p)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','delete_folder.png').'" border=0></a>';
+				$arr['name'] .= '<a '.$this->create_confirm_callback_href($this->ht('Delete this folder with all messages and subfolders?'),array($this,'delete_folder_callback'),array($box,$p)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','delete_folder.png').'" border=0></a>';
 
 			if((!$ed || !$del) && strcasecmp($p,'Inbox/')==0) {
 				$ed = true;
@@ -469,14 +464,14 @@ class Apps_MailClient extends Module {
 		$f = $this->init_module('Libs/QuickForm');
 		$theme = $this->init_module('Base/Theme');
 
-		$f->addElement('header','mail_header',$this->lang->t(($id===null || $type!='edit')?'New mail':'Edit mail'));
+		$f->addElement('header','mail_header',$this->t(($id===null || $type!='edit')?'New mail':'Edit mail'));
 		$f->addElement('hidden','action','send','id="new_mail_action"');
 
 		$from_mails = DB::GetAssoc('SELECT id,mail FROM apps_mailclient_accounts WHERE smtp_server is not null AND smtp_server!=\'\' AND user_login_id='.Acl::get_user().' ORDER BY mail');
 		if($from_mails)
 			$from = $from_mails;
 		else
-			$from = array('pm'=>$this->lang->ht('Private message'));
+			$from = array('pm'=>$this->ht('Private message'));
 
 		$f->setDefaults(array('from_addr'=>$box));
 
@@ -486,11 +481,11 @@ class Apps_MailClient extends Module {
 						'} else {'.
 							'$("apps_mailclient_to_addr").enable();'.
 						'}}');
-		$f->addElement('select','from_addr',$this->lang->t('From'),$from,array('onChange'=>'apps_mailclient_from_change(this.value)'));
+		$f->addElement('select','from_addr',$this->t('From'),$from,array('onChange'=>'apps_mailclient_from_change(this.value)'));
 		eval_js('apps_mailclient_from_change(\''.$f->exportValue('from_addr').'\')');
-		$f->addRule('from_addr',$this->lang->t('Field required'),'required');
-		$f->addElement('text','to_addr',$this->lang->t('To'),Utils_TooltipCommon::open_tag_attrs($this->lang->t('You can enter more then one email address separating it with comma.')).' id="apps_mailclient_to_addr"');
-//		$f->addRule('to_addr',$this->lang->t('Invalid mail address'),'email');
+		$f->addRule('from_addr',$this->t('Field required'),'required');
+		$f->addElement('text','to_addr',$this->t('To'),Utils_TooltipCommon::open_tag_attrs($this->t('You can enter more then one email address separating it with comma.')).' id="apps_mailclient_to_addr"');
+//		$f->addRule('to_addr',$this->t('Invalid mail address'),'email');
 		eval_js_once('var apps_mailclient_addressbook_hidden = '.($from_mails?'true':'false').';'.
 						'apps_mailclient_addressbook_toggle = function() {'.
 						'if(apps_mailclient_addressbook_hidden) {'.
@@ -522,16 +517,16 @@ class Apps_MailClient extends Module {
 		}
 		$f->addElement('multiselect','to_addr_ex','',$fav2);
 		$f->addFormRule(array($this,'check_to_addr'));
-		$f->addElement('text','subject',$this->lang->t('Subject'),array('maxlength'=>256));
-		$f->addRule('subject',$this->lang->t('Max length of subject is 256 chars'),'maxlength',256);
-		$fck = & $f->addElement('fckeditor', 'body', $this->lang->t('Content'));
+		$f->addElement('text','subject',$this->t('Subject'),array('maxlength'=>256));
+		$f->addRule('subject',$this->t('Max length of subject is 256 chars'),'maxlength',256);
+		$fck = & $f->addElement('fckeditor', 'body', $this->t('Content'));
 		$fck->setFCKProps('800','300',true);
 
 		//if edit
 		$references = false;
 		$box_dir = Apps_MailClientCommon::get_mailbox_dir($box);
 		if($box_dir === false) {
-			Epesi::alert($this->lang->ht('Invalid mailbox'));
+			Epesi::alert($this->ht('Invalid mailbox'));
 		} elseif($id!==null) {
 			$message = @file_get_contents($box_dir.$dir.$id);
 			if($message!==false) {
@@ -630,9 +625,9 @@ class Apps_MailClient extends Module {
 				if($type=='reply' || $type=='forward') {
 					$msg_header = "\n\n--------- Original Message ---------\n".
 								"Subject: $subject\n".
-								"Date: ".Apps_MailClientCommon::mime_header_decode(isset($structure->headers['date'])?$structure->headers['date']:$this->lang->ht('no date header specified'))."\n".
-								"From: ".Apps_MailClientCommon::mime_header_decode(isset($structure->headers['from'])?$structure->headers['from']:$this->lang->ht('no from header specified'))."\n".
-								"To: ".Apps_MailClientCommon::mime_header_decode(isset($structure->headers['to'])?$structure->headers['to']:$this->lang->ht('no from header specified'))."\n\n";
+								"Date: ".Apps_MailClientCommon::mime_header_decode(isset($structure->headers['date'])?$structure->headers['date']:$this->ht('no date header specified'))."\n".
+								"From: ".Apps_MailClientCommon::mime_header_decode(isset($structure->headers['from'])?$structure->headers['from']:$this->ht('no from header specified'))."\n".
+								"To: ".Apps_MailClientCommon::mime_header_decode(isset($structure->headers['to'])?$structure->headers['to']:$this->ht('no from header specified'))."\n\n";
 					if($body_type=='plain') {
 						$body = $msg_header.$body;
 					} else {
@@ -759,12 +754,12 @@ class Apps_MailClient extends Module {
 						$dest_id = Apps_MailClientCommon::create_internal_mailbox($e);
 					}
 					if(!Apps_MailClientCommon::drop_message($dest_id,'Inbox/',$v['subject'],$name,$to_names,$date,$v['body']))
-						print($this->lang->t('Unable to send message to %s',array($to_epesi_names[$e])).'<br>');
+						print($this->t('Unable to send message to %s',array($to_epesi_names[$e])).'<br>');
 				}
 			}
 			if($ret) {
 				$dest_id = $from?$from['id']:DB::GetOne('SELECT id FROM apps_mailclient_accounts WHERE mail=\'#internal\' AND user_login_id=%d',array(Acl::get_user()));
-				if(Apps_MailClientCommon::drop_message($dest_id,$save_folder.'/',$v['subject'],$from?$from['mail']:$this->lang->ht('private message'),$to_names,$date,$v['body'],true)) {
+				if(Apps_MailClientCommon::drop_message($dest_id,$save_folder.'/',$v['subject'],$from?$from['mail']:$this->ht('private message'),$to_names,$date,$v['body'],true)) {
 					if($id!==null && $type=='edit') $this->remove_mail($box,$dir,$id);
 					location(array());
 					return false;
@@ -785,7 +780,7 @@ class Apps_MailClient extends Module {
 	// qf filter
 	public function check_to_addr($f) {
 		if(empty($f['to_addr']) && empty($f['to_addr_ex']))
-			return array('to_addr'=>$this->lang->t('You must provide at least one recipient email address.'));
+			return array('to_addr'=>$this->t('You must provide at least one recipient email address.'));
 		return true;
 	}
 
@@ -793,10 +788,10 @@ class Apps_MailClient extends Module {
 		if($this->is_back()) return false;
 
 		$f = $this->init_module('Libs/QuickForm',null,'create_folder');
-		$f->addElement('header',null,$folder===false?$this->lang->t('Create folder in %s',array(trim($dir,'/'))):$this->lang->t('Edit folder in %s',array(trim($dir,'/'))));
-		$f->addElement('text','name',$this->lang->t('Name'));
-		$f->addRule('name',$this->lang->t('Field required'),'required');
-		$f->addRule('name',$this->lang->t('Invalid character - only letters and digits are allowed'),'alphanumeric');
+		$f->addElement('header',null,$folder===false?$this->t('Create folder in %s',array(trim($dir,'/'))):$this->t('Edit folder in %s',array(trim($dir,'/'))));
+		$f->addElement('text','name',$this->t('Name'));
+		$f->addRule('name',$this->t('Field required'),'required');
+		$f->addRule('name',$this->t('Invalid character - only letters and digits are allowed'),'alphanumeric');
 		if($folder!==false) {
 			$f->setDefaults(array('name'=>$folder));
 		}
@@ -804,7 +799,7 @@ class Apps_MailClient extends Module {
 		if($f->validate()) {
 			$mbox_dir = Apps_MailClientCommon::get_mailbox_dir($box);
 			if($mbox_dir===false) {
-				Epesi::alert($this->lang->ht('Invalid mailbox. Did you delete it?'));
+				Epesi::alert($this->ht('Invalid mailbox. Did you delete it?'));
 				return false;
 			}
 			$name = $f->exportValue('name');
@@ -840,7 +835,7 @@ class Apps_MailClient extends Module {
 	public function account_manager() {
 		$gb = $this->init_module('Utils/GenericBrowser',null,'accounts');
 		$gb->set_table_columns(array(
-			array('name'=>$this->lang->t('Mail'), 'order'=>'mail')
+			array('name'=>$this->t('Mail'), 'order'=>'mail')
 				));
 		$ret = $gb->query_order_limit('SELECT id,mail FROM apps_mailclient_accounts WHERE user_login_id='.Acl::get_user().' ORDER BY mail','SELECT count(mail) FROM apps_mailclient_accounts WHERE user_login_id='.Acl::get_user());
 		$all = array();
@@ -855,7 +850,7 @@ class Apps_MailClient extends Module {
 			$r->add_data($row['mail']);
 			$r->add_action($this->create_callback_href(array($this,'account'),array($row['id'],'edit')),'Edit');
 			$r->add_action($this->create_callback_href(array($this,'account'),array($row['id'],'view')),'View');
-			$r->add_action($this->create_confirm_callback_href($this->lang->ht("Delete this account?"),array($this,'delete_account'),$row['id']),'Delete');
+			$r->add_action($this->create_confirm_callback_href($this->ht("Delete this account?"),array($this,'delete_account'),$row['id']),'Delete');
 		}
 		$this->display_module($gb);
 		Base_ActionBarCommon::add('add','New account',$this->create_callback_href(array($this,'account'),array(null,'new')));
@@ -900,28 +895,28 @@ class Apps_MailClient extends Module {
 		}
 
 		$cols = array(
-				array('name'=>'header','label'=>$this->lang->t(ucwords($action).' account'),'type'=>'header'),
-				array('name'=>'mail','label'=>$this->lang->t('Mail address'),'rule'=>array(array('type'=>'email','message'=>$this->lang->t('This isn\'t valid e-mail address')))),
-				array('name'=>'login','label'=>$this->lang->t('Login')),
-				array('name'=>'password','label'=>$this->lang->t('Password'),'type'=>'password'),
+				array('name'=>'header','label'=>$this->t(ucwords($action).' account'),'type'=>'header'),
+				array('name'=>'mail','label'=>$this->t('Mail address'),'rule'=>array(array('type'=>'email','message'=>$this->t('This isn\'t valid e-mail address')))),
+				array('name'=>'login','label'=>$this->t('Login')),
+				array('name'=>'password','label'=>$this->t('Password'),'type'=>'password'),
 
-				array('name'=>'in_header','label'=>$this->lang->t('Incoming mail'),'type'=>'header'),
-				array('name'=>'incoming_protocol','label'=>$this->lang->t('Incoming protocol'),'type'=>'select','values'=>array(0=>'POP3',1=>'IMAP'), 'default'=>0,'param'=>array('id'=>'mailclient_incoming_protocol')),
-				array('name'=>'incoming_server','label'=>$this->lang->t('Incoming server address')),
-				array('name'=>'incoming_ssl','label'=>$this->lang->t('Receive with SSL')));
+				array('name'=>'in_header','label'=>$this->t('Incoming mail'),'type'=>'header'),
+				array('name'=>'incoming_protocol','label'=>$this->t('Incoming protocol'),'type'=>'select','values'=>array(0=>'POP3',1=>'IMAP'), 'default'=>0,'param'=>array('id'=>'mailclient_incoming_protocol')),
+				array('name'=>'incoming_server','label'=>$this->t('Incoming server address')),
+				array('name'=>'incoming_ssl','label'=>$this->t('Receive with SSL')));
 		if(!$native_support)
-			$cols[] = array('name'=>'incoming_method','label'=>$this->lang->t('Authorization method'),'type'=>'select','values'=>$methods[(isset($defaults) && $defaults['incoming_protocol'])?1:0], 'default'=>'auto');
+			$cols[] = array('name'=>'incoming_method','label'=>$this->t('Authorization method'),'type'=>'select','values'=>$methods[(isset($defaults) && $defaults['incoming_protocol'])?1:0], 'default'=>'auto');
 		$cols = array_merge($cols,
-			array(array('name'=>'pop3_leave_msgs_on_server','label'=>$this->lang->t('Remove messages from server'),'type'=>'select',
+			array(array('name'=>'pop3_leave_msgs_on_server','label'=>$this->t('Remove messages from server'),'type'=>'select',
 					'values'=>array(0=>'immediately',1=>'after 1 day', 3=>'after 3 days', 7=>'after 1 week', 14=>'after 2 weeks', 30=>'after 1 month', -1=>'never'),
 					'default'=>'0','param'=>((isset($defaults) && $defaults['incoming_protocol']) || ($f->getSubmitValue('submited') && $f->getSubmitValue('incoming_protocol')))?array('disabled'=>1):array()),
 
-				array('name'=>'out_header','label'=>$this->lang->t('Outgoing mail'),'type'=>'header'),
-				array('name'=>'smtp_server','label'=>$this->lang->t('SMTP server address')),
-				array('name'=>'smtp_ssl','label'=>$this->lang->t('Send with SSL')),
-				array('name'=>'smtp_auth','label'=>$this->lang->t('SMTP authorization required'),'param'=>array('id'=>'mailclient_smtp_auth')),
-				array('name'=>'smtp_login','label'=>$this->lang->t('Login'),'param'=>((isset($defaults) && $defaults['smtp_auth']==0) || ($f->getSubmitValue('submited') && !$f->getSubmitValue('smtp_auth')))?array('disabled'=>1):array()),
-				array('name'=>'smtp_password','label'=>$this->lang->t('Password'),'type'=>'password','param'=>((isset($defaults) && $defaults['smtp_auth']==0) || ($f->getSubmitValue('submited') && !$f->getSubmitValue('smtp_auth')))?array('disabled'=>1):array())
+				array('name'=>'out_header','label'=>$this->t('Outgoing mail'),'type'=>'header'),
+				array('name'=>'smtp_server','label'=>$this->t('SMTP server address')),
+				array('name'=>'smtp_ssl','label'=>$this->t('Send with SSL')),
+				array('name'=>'smtp_auth','label'=>$this->t('SMTP authorization required'),'param'=>array('id'=>'mailclient_smtp_auth')),
+				array('name'=>'smtp_login','label'=>$this->t('Login'),'param'=>((isset($defaults) && $defaults['smtp_auth']==0) || ($f->getSubmitValue('submited') && !$f->getSubmitValue('smtp_auth')))?array('disabled'=>1):array()),
+				array('name'=>'smtp_password','label'=>$this->t('Password'),'type'=>'password','param'=>((isset($defaults) && $defaults['smtp_auth']==0) || ($f->getSubmitValue('submited') && !$f->getSubmitValue('smtp_auth')))?array('disabled'=>1):array())
 			));
 
 		$f->add_table('apps_mailclient_accounts',$cols);
@@ -959,7 +954,7 @@ class Apps_MailClient extends Module {
 	public function delete_account($id){
 		$box_dir = Apps_MailClientCommon::get_mailbox_dir($id);
 		if($box_dir===false) {
-			Epesi::alert($this->lang->ht('Invalid mailbox'));
+			Epesi::alert($this->ht('Invalid mailbox'));
 			return;
 		}
 		recursive_rmdir($box_dir);
@@ -973,7 +968,7 @@ class Apps_MailClient extends Module {
 		load_js($this->get_module_dir().'utils.js');
 		Base_ThemeCommon::load_css($this->get_type());
 		$check_action = $this->check_mail_href();
-		$opts['actions'][] = '<a '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('Check mail')).' '.$check_action.'><img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'check_small.png').'" border="0"></a>';
+		$opts['actions'][] = '<a '.Utils_TooltipCommon::open_tag_attrs($this->t('Check mail')).' '.$check_action.'><img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'check_small.png').'" border="0"></a>';
 		$accounts = array();
 		$ret = array();
 		foreach($conf as $key=>$on) {
@@ -983,7 +978,7 @@ class Apps_MailClient extends Module {
 				$mail = DB::GetOne('SELECT mail FROM apps_mailclient_accounts WHERE id=%d',array($id));
 				if(!$mail) continue;
 
-				if($mail==='#internal') $mail = $this->lang->t('Private messages');
+				if($mail==='#internal') $mail = $this->t('Private messages');
 
 				$cell_id = 'mailaccount_'.$opts['id'].'_'.$id;
 				$ret[$mail] = '<span id="'.$cell_id.'"></span>';
@@ -1011,13 +1006,13 @@ class Apps_MailClient extends Module {
 
 		$form = & $this->init_module('Libs/QuickForm',null,'mailclient_setup');
 
-		$form->addElement('header', 'module_header', $this->lang->t('Mail messages setup'));
+		$form->addElement('header', 'module_header', $this->t('Mail messages setup'));
 		$s = array();
 		for($i=5; $i<250; $i*=2) {
 			$k = $i*1024*1024;
 			$s[$k] = filesize_hr($k);
 		}
-		$form->addElement('select','max_mail_size',$this->lang->t('Max downloaded mail size'), $s);
+		$form->addElement('select','max_mail_size',$this->t('Max downloaded mail size'), $s);
 
 		$form->setDefaults(array('max_mail_size'=>Variable::get('max_mail_size')));
 

@@ -21,10 +21,8 @@ $GLOBALS['_HTML_QuickForm_registered_rules']['comparestring'] = array('HTML_Quic
  */
 class Libs_QuickForm extends Module {
 	private $qf;
-	private $lang;
 	
 	public function construct($indicator = null, $action = '', $target = '', $on_submit = null) {
-		$this->lang = $this->init_module('Base/Lang');
 		$form_name = 'libs_qf_'.md5($this->get_path());
 		if($target=='' && $action!='')
 			$target = '_blank';
@@ -32,7 +30,7 @@ class Libs_QuickForm extends Module {
 			$on_submit = $this->get_submit_form_js_by_name($form_name,true,$indicator,'')."return false;";
 		$this->qf = new HTML_QuickForm($form_name, 'post', $action, $target, array('onSubmit'=>$on_submit), true);
 		$this->qf->addElement('hidden', 'submited', 0);
-		$this->qf->setRequiredNote('<span class="required_note_star">*</span> <span class="required_note">'.$this->lang->t('denotes required field').'</span>');
+		$this->qf->setRequiredNote('<span class="required_note_star">*</span> <span class="required_note">'.Base_LangCommon::ts($this->get_type(),'denotes required field').'</span>');
 		eval_js_once("set_qf_sub0 = function(fn){var x=$(fn);if(x)x.submited.value=0}");
 		eval_js("set_qf_sub0('".addslashes($form_name)."')");
 		Base_ThemeCommon::load_css('Libs_QuickForm');
@@ -151,7 +149,7 @@ class Libs_QuickForm extends Module {
 				case 'radio':
 					$radio = array();
 					foreach($v['values'] as $k=>$x)
-						$radio[] = $this -> createElement('radio',$v['name'],null,$this->lang->ht($x),$k,$v['param']);
+						$radio[] = $this -> createElement('radio',$v['name'],null,$this->ht($x),$k,$v['param']);
 					$this->addGroup($radio,null,$v['label']);
 					$default_js .= 'e = $(\''.$this->getAttribute('name').'\').'.$v['name'].';'.
 					'for(i=0; i<e.length; i++){e[i].checked=false;if(e[i].value==\''.$v['default'].'\')e[i].checked=true;};';

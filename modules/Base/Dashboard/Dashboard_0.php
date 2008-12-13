@@ -11,12 +11,10 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_Dashboard extends Module {
-	private $lang;
 	private $tb;
 	private $set_default_js='';
 
 	public function construct() {
-		$this->lang = $this->init_module('Base/Lang');
 		$this->tb = $this->init_module('Utils/TabbedBrowser');
 	}
 
@@ -84,7 +82,7 @@ class Base_Dashboard extends Module {
 				$m = $this->init_module($row['module_name'],null,$row['id']);
 
 				$opts = array();
-				$opts['title'] = $this->lang->t(call_user_func(array($row['module_name'].'Common', 'applet_caption')));
+				$opts['title'] = $this->t(call_user_func(array($row['module_name'].'Common', 'applet_caption')));
 				$opts['toggle'] = true;
 				$opts['href'] = null;
 				$opts['go'] = false;
@@ -102,16 +100,16 @@ class Base_Dashboard extends Module {
 				$th->assign('handle_class','handle');
 
 				if($opts['toggle'])
-					$th->assign('toggle','<a class="toggle" '.Utils_TooltipCommon::open_tag_attrs($this->lang->ht('Toggle')).'>=</a>');
+					$th->assign('toggle','<a class="toggle" '.Utils_TooltipCommon::open_tag_attrs($this->ht('Toggle')).'>=</a>');
 
 				if($opts['go'])
 					$opts['href']=$this->create_main_href($row['module_name'],$opts['go_function'],$opts['go_arguments'],$opts['go_constructor_arguments']);
 				if($opts['href'])
 					$th->assign('href','<a class="href" '.$opts['href'].'>G</a>');
 
-				$th->assign('remove','<a class="remove" '.Utils_TooltipCommon::open_tag_attrs($this->lang->ht('Remove')).' '.$this->create_confirm_callback_href($this->lang->ht('Delete this applet?'),array($this,'delete_applet'),$row['id']).'>x</a>');
+				$th->assign('remove','<a class="remove" '.Utils_TooltipCommon::open_tag_attrs($this->ht('Remove')).' '.$this->create_confirm_callback_href($this->ht('Delete this applet?'),array($this,'delete_applet'),$row['id']).'>x</a>');
 
-				$th->assign('configure','<a class="configure" '.Utils_TooltipCommon::open_tag_attrs($this->lang->ht('Configure')).' '.$this->create_callback_href(array($this,'configure_applet'),array($row['id'],$row['module_name'])).'>c</a>');
+				$th->assign('configure','<a class="configure" '.Utils_TooltipCommon::open_tag_attrs($this->ht('Configure')).' '.$this->create_callback_href(array($this,'configure_applet'),array($row['id'],$row['module_name'])).'>c</a>');
 
 				$th->assign('caption',$opts['title']);
 				$th->assign('color',$colors[$row['color']]);
@@ -137,7 +135,7 @@ class Base_Dashboard extends Module {
 
 		$gb = $this->init_module('Utils/GenericBrowser',null,'tabs');
 		$gb->set_table_columns(array(
-				array('name'=>$this->lang->t('Caption'))
+				array('name'=>$this->t('Caption'))
 				));
 
 		if($default_dash)
@@ -148,7 +146,7 @@ class Base_Dashboard extends Module {
 			$gb_row = $gb->get_new_row();
 			$gb_row->add_data($row['name']);
 			$gb_row->add_action($this->create_callback_href(array($this,'edit_tab'),$row['id']), 'Edit');
-			$gb_row->add_action($this->create_confirm_callback_href($this->lang->t('Delete this tab and all applets assigned to it?'),array($this,'delete_tab'),$row['id']), 'Delete');
+			$gb_row->add_action($this->create_confirm_callback_href($this->t('Delete this tab and all applets assigned to it?'),array($this,'delete_tab'),$row['id']), 'Delete');
 			if($row['pos']>$ret[0]['pos'])
 				$gb_row->add_action($this->create_callback_href(array($this,'move_tab'),array($row['id'],$row['pos'],-1)), 'move-up');
 			if($row['pos']<$ret[count($ret)-1]['pos'])
@@ -179,7 +177,7 @@ class Base_Dashboard extends Module {
 		$table = 'base_dashboard_'.($default_dash?'default_':'').'tabs';
 		$qf = $this->init_module('Libs/QuickForm');
 		$qf->add_table($table, array(
-				array('name'=>'name', 'label'=>$this->lang->t('Caption'))
+				array('name'=>'name', 'label'=>$this->t('Caption'))
 			));
 		if(isset($id))
 			$qf->setDefaults(array('name'=>DB::GetOne('SELECT name FROM '.$table.' WHERE id=%d',array($id))));
@@ -220,8 +218,6 @@ class Base_Dashboard extends Module {
 	}
 
 	public function applets_list($tab_id) {
-		$this->lang = $this->init_module('Base/Lang');
-
 		$fc = $this->get_module_variable('first_conf');
 		if(isset($fc)) {
 			$mod = $this->get_module_variable('mod_conf');
@@ -277,12 +273,12 @@ class Base_Dashboard extends Module {
 		}
 
 		if(empty($buttons)) {
-			print($this->lang->t('No applets installed'));
+			print($this->t('No applets installed'));
 			return true;
 		}
 
 		$theme =  & $this->pack_module('Base/Theme');
-		$theme->assign('header', $this->lang->t('Add applet'));
+		$theme->assign('header', $this->t('Add applet'));
 		$theme->assign('buttons', $buttons);
 		$theme->display('list');
 
@@ -351,12 +347,11 @@ class Base_Dashboard extends Module {
 			return false;
 		}
 
-		$this->lang = $this->init_module('Base/Lang');
-		$f = &$this->init_module('Libs/QuickForm',$this->lang->ht('Saving settings'),'settings');
+		$f = &$this->init_module('Libs/QuickForm',$this->ht('Saving settings'),'settings');
 		$caption = call_user_func(array($mod.'Common','applet_caption'));
 
 		if($is_conf) {
-			$f->addElement('header',null,$this->lang->t($caption. ' settings'));
+			$f->addElement('header',null,$this->t($caption. ' settings'));
 
 			$menu = call_user_func($sett_fn);
 			if (is_array($menu))
@@ -365,19 +360,19 @@ class Base_Dashboard extends Module {
 				trigger_error('Invalid applet settings function: '.$mod,E_USER_ERROR);
 		}
 
-		$f->addElement('header',null,$this->lang->t($caption.' display settings'));
+		$f->addElement('header',null,$this->t($caption.' display settings'));
 
 		$color = Base_DashboardCommon::get_available_colors();
-		$color[0] = $this->lang->t('Default').': '.$this->lang->ht(ucfirst($color[0]));
+		$color[0] = $this->t('Default').': '.$this->ht(ucfirst($color[0]));
 		for($k=1; $k<count($color); $k++)
-			$color[$k] = '&bull; '.$this->lang->ht(ucfirst($color[$k]));
-		$f->addElement('select', '__color', $this->lang->t('Color'), $color, array('style'=>'width: 100%;'));
+			$color[$k] = '&bull; '.$this->ht(ucfirst($color[$k]));
+		$f->addElement('select', '__color', $this->t('Color'), $color, array('style'=>'width: 100%;'));
 
 		$default_dash = $this->get_module_variable('default');
 		$table_tabs = 'base_dashboard_'.($default_dash?'default_':'').'tabs';
 		$table_applets = 'base_dashboard_'.($default_dash?'default_':'').'applets';
 		$tabs = DB::GetAssoc('SELECT id,name FROM '.$table_tabs.($default_dash?'':' WHERE user_login_id='.Acl::get_user()));
-		$f->addElement('select','__tab',$this->lang->t('Tab'),$tabs);
+		$f->addElement('select','__tab',$this->t('Tab'),$tabs);
 		$dfs = DB::GetRow('SELECT tab,color FROM '.$table_applets.' WHERE id=%d',array($id));
 		$f->setDefaults(array('__tab'=>$dfs['tab'],'__color'=>$dfs['color']));
 
@@ -455,14 +450,14 @@ class Base_Dashboard extends Module {
 	private function add_module_settings_to_form($info, &$f, $id, $module){
 		$values = $this->get_values($id,$module);
 		foreach($info as & $v){
-			if(isset($v['label'])) $v['label'] = $this->lang->t($v['label']);
+			if(isset($v['label'])) $v['label'] = $this->t($v['label']);
 			if(isset($v['values']) && is_array($v['values']))
 				foreach($v['values'] as &$x)
-					$x = $this->lang->ht($x);
+					$x = $this->ht($x);
 			if (isset($v['rule'])) {
 				if(isset($v['rule']['message']) && isset($v['rule']['type'])) $v['rule'] = array($v['rule']);
 				foreach ($v['rule'] as & $r)
-					if (isset($r['message'])) $r['message'] = $this->lang->t($r['message']);
+					if (isset($r['message'])) $r['message'] = $this->t($r['message']);
 			}
 		}
 		$this->set_default_js = '';

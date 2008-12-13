@@ -10,11 +10,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Apps_StaticPage extends Module {
-	private $lang;
-	
 	public function body($path) {
-		if(!$this->lang) $this->lang = & $this->init_module('Base/Lang');
-
 		if(!isset($path))
 			$path = $this->get_module_variable_or_unique_href_variable('view');
 		else
@@ -27,8 +23,8 @@ class Apps_StaticPage extends Module {
 		if(!isset($path) || 
 			!($page = DB::Execute('SELECT title,content FROM apps_staticpage_pages WHERE path=%s',$path)) ||
 			!($page = $page->FetchRow())) {
-			print($this->lang->t('No such page').'<br>');
-			if(Base_AclCommon::i_am_admin()) print('<a '.$this->create_unique_href(array('edit'=>$path)).'>'.$this->lang->t('Create new one').'</a>');
+			print($this->t('No such page').'<br>');
+			if(Base_AclCommon::i_am_admin()) print('<a '.$this->create_unique_href(array('edit'=>$path)).'>'.$this->t('Create new one').'</a>');
 			return;
 		}
 		$theme->assign('path',$path);
@@ -54,7 +50,7 @@ class Apps_StaticPage extends Module {
 			$this->delete($id);
 			//$this->unset_module_variable('view');
 			$this->unset_module_variable('edit');
-			Base_StatusBarCommon::message($this->lang->t('Page deleted'));
+			Base_StatusBarCommon::message($this->t('Page deleted'));
 			return;
 		}
 				
@@ -69,26 +65,26 @@ class Apps_StaticPage extends Module {
 		if($path) {
 			if(!($page = DB::Execute('SELECT id,title,content FROM apps_staticpage_pages WHERE path=%s',array($path))) ||
 			!($page = $page->FetchRow())) {
-				print($this->lang->t('No such page, creating new one'));
+				print($this->t('No such page, creating new one'));
 				$f->setDefaults(array('path'=>$path));
 			} else
 				$f->setDefaults(array('path'=>$path,'title'=>$page['title'], 'content'=>$page['content']));
 		}
 		
-		$f->addElement('text', 'path', $this->lang->t('Path'),array('maxlength'=>255));
-		$f->addRule('path',$this->lang->t('Field too long, max 255 chars'),'maxlength',255);
-		$f->addRule('path',$this->lang->t('This field is required'),'required');
+		$f->addElement('text', 'path', $this->t('Path'),array('maxlength'=>255));
+		$f->addRule('path',$this->t('Field too long, max 255 chars'),'maxlength',255);
+		$f->addRule('path',$this->t('This field is required'),'required');
 		
-		$f->addElement('text', 'title', $this->lang->t('Title'),array('maxlength'=>255));
-		$f->addRule('title',$this->lang->t('This field is required'),'required');
-		$f->addRule('title',$this->lang->t('Field too long, max 255 chars'),'maxlength',255);
-		$fck = & $f->addElement('fckeditor', 'content', $this->lang->t('Content'));
+		$f->addElement('text', 'title', $this->t('Title'),array('maxlength'=>255));
+		$f->addRule('title',$this->t('This field is required'),'required');
+		$f->addRule('title',$this->t('Field too long, max 255 chars'),'maxlength',255);
+		$fck = & $f->addElement('fckeditor', 'content', $this->t('Content'));
 		$fck->setFCKProps('800','300',true);
 		
 		Base_ActionBarCommon::add('back','Cancel',$this->create_back_href());
 		Base_ActionBarCommon::add('save','Save',$f->get_submit_form_href());
-//		$save_b = & HTML_QuickForm::createElement('submit', null, $this->lang->ht('Save'));
-	//	$back_b = & HTML_QuickForm::createElement('button', null, $this->lang->ht('Cancel'), $this->create_back_href());
+//		$save_b = & HTML_QuickForm::createElement('submit', null, $this->ht('Save'));
+	//	$back_b = & HTML_QuickForm::createElement('button', null, $this->ht('Cancel'), $this->create_back_href());
 		//$f->addGroup(array($save_b,$back_b),'submit_button');
 
 		if(isset($page))
@@ -108,7 +104,7 @@ class Apps_StaticPage extends Module {
 				$this->set_module_variable('menu_edit',array('id'=>DB::Insert_ID('apps_staticpage_pages','id'),'path'=>$ret['path']));
 			}
 			$this->unset_module_variable('edit');
-			Base_StatusBarCommon::message($this->lang->t('Page saved'));
+			Base_StatusBarCommon::message($this->t('Page saved'));
 			location(array());
 			return;
 		}
@@ -116,7 +112,7 @@ class Apps_StaticPage extends Module {
 
 		if($path) {
 			$this->display_module($menu);
-			Base_ActionBarCommon::add('delete','Delete page',$this->create_confirm_unique_href($this->lang->ht('Delete this page?'), array('delete'=>true)));
+			Base_ActionBarCommon::add('delete','Delete page',$this->create_confirm_unique_href($this->ht('Delete this page?'), array('delete'=>true)));
 		}
 	}
 	
@@ -132,15 +128,13 @@ class Apps_StaticPage extends Module {
 		if($this->get_unique_href_variable('save')) {
 			$menu->save($x['path']);
 			$this->unset_module_variable('menu_edit');
-			Base_StatusBarCommon::message($this->lang->t('Menu entries saved'));
+			Base_StatusBarCommon::message($this->t('Menu entries saved'));
 			location(array());
 		}
 		$this->display_module($menu);
 	}
 	
 	public function admin() {
-		$this->lang = & $this->init_module('Base/Lang');
-		
 		$edit = $this->get_module_variable_or_unique_href_variable('edit');
 		if(isset($edit)) return $this->edit($edit);
 
@@ -161,15 +155,15 @@ class Apps_StaticPage extends Module {
 		$gb = & $this->init_module('Utils/GenericBrowser',null,'apps_staticpage_pages');
 		$ret = $gb->query_order_limit('SELECT id,path,title FROM apps_staticpage_pages','SELECT count(*) FROM apps_staticpage_pages');
 		$gb->set_table_columns(array(
-			array('name'=>$this->lang->t('Path'), 'width'=>30,'order'=>'path'),
-			array('name'=>$this->lang->t('Title'), 'width'=>50,'order'=>'title'),
+			array('name'=>$this->t('Path'), 'width'=>30,'order'=>'path'),
+			array('name'=>$this->t('Title'), 'width'=>50,'order'=>'title'),
 				));
 		while($row=$ret->FetchRow()) {
 			$r = & $gb->get_new_row();
 			$r->add_data($row['path'],$row['title']);
 			$r->add_action($this->create_unique_href(array('edit'=>$row['path'])),'Edit');
 			$r->add_action($this->create_unique_href(array('view'=>$row['path'])),'View');
-			$r->add_action($this->create_confirm_callback_href($this->lang->t('Are you sure?'),array($this,'delete'),$row['id']),'Delete');
+			$r->add_action($this->create_confirm_callback_href($this->t('Are you sure?'),array($this,'delete'),$row['id']),'Delete');
 		}
 		$this->display_module($gb);
 		

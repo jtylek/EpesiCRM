@@ -11,7 +11,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Applets_MonthView extends Module {
 	private $date;
-	private $lang;
 
 	public function body() {
 	
@@ -60,21 +59,20 @@ class Applets_MonthView extends Module {
 		$this->set_module_variable('date', $this->date);
 		$this->date = strtotime($this->date);
 		$theme = $this->pack_module('Base/Theme');
-		$this->lang = $this->pack_module('Base/Lang');
 
 		$theme->assign('nextyear_href', $this->create_unique_href(array('date'=>date('Y-m-15',$this->date+30*24*60*60))));
-		$theme->assign('nextyear_label',$this->lang->ht('Next year'));
+		$theme->assign('nextyear_label',$this->ht('Next year'));
 		$theme->assign('today_href', $this->create_unique_href(array('date'=>date('Y-m-d'))));
-		$theme->assign('today_label', $this->lang->ht('Today'));
+		$theme->assign('today_label', $this->ht('Today'));
 		$theme->assign('prevyear_href', $this->create_unique_href(array('date'=>date('Y-m-15',$this->date-30*24*60*60))));
-		$theme->assign('prevyear_label', $this->lang->ht('Previous year'));
+		$theme->assign('prevyear_label', $this->ht('Previous year'));
 
 		$link_text = $this->create_unique_href_js(array('date'=>'__YEAR__-__MONTH__-__DAY__'));
 		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text,false,'month',null,null,''));
 
 		$day_headers = array();
 		for ($i=0; $i<7; $i++)
-			$day_headers[] = $this->lang->t(date('D', strtotime('Sun')+86400*($i+Utils_PopupCalendarCommon::get_first_day_of_week())));
+			$day_headers[] = $this->t(date('D', strtotime('Sun')+86400*($i+Utils_PopupCalendarCommon::get_first_day_of_week())));
 
 		$year = array();
 		
@@ -85,7 +83,7 @@ class Applets_MonthView extends Module {
 		$month = $this->month_array($this->date, $ret);
 		$year[] = array('month' => $month,
 						'month_link' => Base_BoxCommon::create_href($this, 'CRM_Calendar', null, null, null, array('jump_to_date'=>$this->date, 'switch_to_tab'=>'Month')),
-						'month_label' => $this->lang->t(date('F', $this->date)),
+						'month_label' => $this->t(date('F', $this->date)),
 						'year_label' => date('Y', $this->date)
 						);
 		$theme->assign('year', $year);

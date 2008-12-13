@@ -10,11 +10,6 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_MailClient extends Module {
-
-	public function construct() {
-		$this->lang = $this->init_module('Base/Lang');
-	}
-
 	public function body() {
 	
 	}
@@ -22,16 +17,16 @@ class CRM_MailClient extends Module {
 	public function contact_addon($arg){
 		$gb = $this->init_module('Utils/GenericBrowser',null,'addon');
 		$cols = array();
-		$cols[] = array('name'=>$this->lang->t('Date'), 'order'=>'delivered_on','width'=>5);
-		$cols[] = array('name'=>$this->lang->t('From'), 'order'=>'from_contact_id','width'=>15);
-		$cols[] = array('name'=>$this->lang->t('To'), 'order'=>'to_contact_id','width'=>15);
-		$cols[] = array('name'=>$this->lang->t('Subject'), 'width'=>40);
-		$cols[] = array('name'=>$this->lang->t('Attachments'), 'order'=>'uaf.original','width'=>25);
+		$cols[] = array('name'=>$this->t('Date'), 'order'=>'delivered_on','width'=>5);
+		$cols[] = array('name'=>$this->t('From'), 'order'=>'from_contact_id','width'=>15);
+		$cols[] = array('name'=>$this->t('To'), 'order'=>'to_contact_id','width'=>15);
+		$cols[] = array('name'=>$this->t('Subject'), 'width'=>40);
+		$cols[] = array('name'=>$this->t('Attachments'), 'order'=>'uaf.original','width'=>25);
 		$gb->set_table_columns($cols);
 
 		$query = 'SELECT sticky,id,delivered_on,subject,from_contact_id,to_contact_id FROM crm_mailclient_mails WHERE (from_contact_id='.DB::qstr($arg['id']).' OR to_contact_id='.DB::qstr($arg['id']).') AND deleted=0';
 		$query_lim = 'SELECT count(id) FROM crm_mailclient_mails WHERE (from_contact_id='.DB::qstr($arg['id']).' OR to_contact_id='.DB::qstr($arg['id']).') AND deleted=0';
-		$gb->set_default_order(array($this->lang->t('Date')=>'DESC'));
+		$gb->set_default_order(array($this->t('Date')=>'DESC'));
 
 		$query_order = $gb->get_query_order('sticky DESC');
 		$qty = DB::GetOne($query_lim);
@@ -83,15 +78,13 @@ class CRM_MailClient extends Module {
 	
 	public function show_message($id,$contact) {
 		if($this->is_back()) {
-			$x = ModuleManager::get_instance('/Base_Box|0');
-			if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-			$x->pop_main();
+			$this->pop_box();
 		}
 		
 		$row = DB::GetRow('SELECT headers,subject,delivered_on,from_contact_id,to_contact_id FROM crm_mailclient_mails WHERE id=%d',array($id));
 
 		$th = $this->init_module('Base/Theme');
-		$th->assign('header',$this->lang->t('Mail from %s to %s sent on %s',array(CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($row['from_contact_id'])),CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($row['to_contact_id'])),Base_RegionalSettingsCommon::time2reg($row['delivered_on']))));
+		$th->assign('header',$this->t('Mail from %s to %s sent on %s',array(CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($row['from_contact_id'])),CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($row['to_contact_id'])),Base_RegionalSettingsCommon::time2reg($row['delivered_on']))));
 		
 		Libs_LeightboxCommon::display('headers_leightbox','<pre>'.$row['headers'].
 							'</pre>','Message headers');
@@ -99,9 +92,9 @@ class CRM_MailClient extends Module {
 		$th->assign('info_tooltip','<a '.Libs_LeightboxCommon::get_open_href('headers_leightbox').'>headers</a>');
 
 		$th->assign('subject',$row['subject']);
-		$th->assign('subject_caption',$this->lang->t('Subject'));
+		$th->assign('subject_caption',$this->t('Subject'));
 		$th->assign('attachments',$this->get_attachments($id));
-		$th->assign('attachments_caption',$this->lang->t('Attachments'));
+		$th->assign('attachments_caption',$this->t('Attachments'));
 		$th->assign('body','<iframe src="'.$this->get_module_dir().'/preview.php?'.http_build_query(array('msg_id'=>$id)).'" style="width: 90%; border:0" id="crm_mailclient_view" />');
 
 		$th->display('view');
@@ -111,6 +104,26 @@ class CRM_MailClient extends Module {
 
 	public function sticky($id,$sticky) {
 		DB::Execute('UPDATE crm_mailclient_mails SET sticky=%b WHERE id=%d',array(!$sticky,$id));
+	}
+	
+	private function pop_box() {
+			$x = ModuleManager::get_instance('/Base_Box|0');
+			if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+			$x->pop_main();	
+	}
+	
+	public function notify($mids) {
+		if($this->is_back()) {
+			$this->pop_box();
+		}
+		print_r($mids);
+
+		$qf = $this->init_module('Libs/QuickForm');
+//		$qf->addElement
+		
+		$this->display_module($qf);
+
+		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 	}
 }
 

@@ -18,9 +18,8 @@ class Applets_Host extends Module {
 	
 	public function applet() {
 		$f = $this->init_module('Libs/QuickForm');
-		$l = $this->init_module('Base/Lang');
 		$t = $f->createElement('text','t');
-		$ok = $f->createElement('submit','ok',$l->ht('OK'));
+		$ok = $f->createElement('submit','ok',$this->ht('OK'));
 		$f->addGroup(array($t,$ok),'w');
 		$f->display();
 		
@@ -35,13 +34,13 @@ class Applets_Host extends Module {
 					foreach($ip as $i)
 						$msg .= $i.'<br>';
 				} else 
-					$msg = $l->t('No such domain');
+					$msg = $this->t('No such domain');
 			} else {
 				$domain = gethostbyaddr($w);
 				if($domain!=$w)
 					$msg = $domain;
 				else
-					$msg = $l->t('No such ip entry');
+					$msg = $this->t('No such ip entry');
 			}
 		}
 		print($msg);

@@ -14,7 +14,6 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_User_Login extends Module {
-	protected $lang;
 
 	public function construct() {
 		if(!Base_MaintenanceModeCommon::get_changed())
@@ -47,15 +46,13 @@ class Base_User_Login extends Module {
 	}
 
 	public function body() {
-		$this->lang = & $this->init_module('Base/Lang');
-
 		//check bans
 		$t = Variable::get('host_ban_time');
 		if($t>0) {
 			$fails = DB::GetOne('SELECT count(*) FROM user_login_ban WHERE failed_on>%d AND from_addr=%s',array(time()-$t,$_SERVER['REMOTE_ADDR']));
 			if($fails>=3) {
-				print $this->lang->t('You have exceeded the number of allowed login attempts.<BR>');
-				print('<a href="'.get_epesi_url().'">'.$this->lang->t('Host banned. Click here to refresh.').'</a>');
+				print $this->t('You have exceeded the number of allowed login attempts.<BR>');
+				print('<a href="'.get_epesi_url().'">'.$this->t('Host banned. Click here to refresh.').'</a>');
 				return;
 			}
 		}
@@ -70,8 +67,8 @@ class Base_User_Login extends Module {
 				Acl::set_user();
 				location(array());
 			} else {
-				$theme->assign('logged_as', '<div style="float: left; width: 164px; padding-top: 3px; text-align: center;">'.$this->lang->t('Logged as %s',array('<b class="green">'.Base_UserCommon::get_my_user_login().'</b>')).'</div>');
-				$theme->assign('logout', '<a class="button" style="float: left;" '.$this->create_unique_href(array('logout'=>1)).'>'.$this->lang->t('Logout').'</a>');
+				$theme->assign('logged_as', '<div style="float: left; width: 164px; padding-top: 3px; text-align: center;">'.$this->t('Logged as %s',array('<b class="green">'.Base_UserCommon::get_my_user_login().'</b>')).'</div>');
+				$theme->assign('logout', '<a class="button" style="float: left;" '.$this->create_unique_href(array('logout'=>1)).'>'.$this->t('Logout').'</a>');
 				$theme->display();
 			}
 			return;
@@ -88,25 +85,25 @@ class Base_User_Login extends Module {
 		if($this->autologin()) return;
 
 		//else just login form
-		$form = & $this->init_module('Libs/QuickForm',$this->lang->ht('Logging in'));
-		$form->addElement('header', 'login_header', $this->lang->t('Login'));
-		$form->addElement('text', 'username', $this->lang->t('Username'),array('id'=>'username'));
-		$form->addElement('password', 'password', $this->lang->t('Password'));
+		$form = & $this->init_module('Libs/QuickForm',$this->ht('Logging in'));
+		$form->addElement('header', 'login_header', $this->t('Login'));
+		$form->addElement('text', 'username', $this->t('Username'),array('id'=>'username'));
+		$form->addElement('password', 'password', $this->t('Password'));
 
 		// Display warning about storing a cookie
-		$warning=$this->lang->t('Don\'t check this box if you are using public computer!');
+		$warning=$this->t('Don\'t check this box if you are using public computer!');
 		$form->addElement('static','warning',null,$warning);
-		$form->addElement('checkbox', 'autologin', '',$this->lang->t('Remember me'));
+		$form->addElement('checkbox', 'autologin', '',$this->t('Remember me'));
 
-		$form->addElement('static', 'recover_password', null, '<a '.$this->create_unique_href(array('mail_recover_pass'=>1)).'>'.$this->lang->t('Recover password').'</a>');
-		$form->addElement('submit', 'submit_button', $this->lang->ht('Login'), array('class'=>'submit'));
+		$form->addElement('static', 'recover_password', null, '<a '.$this->create_unique_href(array('mail_recover_pass'=>1)).'>'.$this->t('Recover password').'</a>');
+		$form->addElement('submit', 'submit_button', $this->ht('Login'), array('class'=>'submit'));
 
 		// register and add a rule to check if a username and password is ok
 		$form->registerRule('check_login', 'callback', 'submit_login', 'Base_User_LoginCommon');
-		$form->addRule(array('username','password'), $this->lang->t('Login or password incorrect'), 'check_login');
+		$form->addRule(array('username','password'), $this->t('Login or password incorrect'), 'check_login');
 
-		$form->addRule('username', $this->lang->t('Field required'), 'required');
-		$form->addRule('password', $this->lang->t('Field required'), 'required');
+		$form->addRule('username', $this->t('Field required'), 'required');
+		$form->addRule('password', $this->t('Field required'), 'required');
 
 		if($form->validate()) {
 			$user = $form->exportValue('username');
@@ -127,29 +124,29 @@ class Base_User_Login extends Module {
 	}
 
 	public function recover_pass() {
-		$form = & $this->init_module('Libs/QuickForm',$this->lang->ht('Processing request'));
+		$form = & $this->init_module('Libs/QuickForm',$this->ht('Processing request'));
 
-		$form->addElement('header', null, $this->lang->t('Recover password'));
+		$form->addElement('header', null, $this->t('Recover password'));
 		$form->addElement('hidden', $this->create_unique_key('mail_recover_pass'), '1');
-		$form->addElement('text', 'username', $this->lang->t('Username'));
-		$form->addElement('text', 'mail', $this->lang->t('e-mail'));
-		$ok_b = & HTML_QuickForm::createElement('submit', 'submit_button', $this->lang->ht('OK'));
-		$cancel_b = & HTML_QuickForm::createElement('button', 'cancel_button', $this->lang->ht('Cancel'), $this->create_back_href());
+		$form->addElement('text', 'username', $this->t('Username'));
+		$form->addElement('text', 'mail', $this->t('e-mail'));
+		$ok_b = & HTML_QuickForm::createElement('submit', 'submit_button', $this->ht('OK'));
+		$cancel_b = & HTML_QuickForm::createElement('button', 'cancel_button', $this->ht('Cancel'), $this->create_back_href());
 		$form->addGroup(array($ok_b,$cancel_b),'buttons');
 
 		// require a username
-		$form->addRule('username', $this->lang->t('A username must be between 3 and 32 chars'), 'rangelength', array(3,32));
+		$form->addRule('username', $this->t('A username must be between 3 and 32 chars'), 'rangelength', array(3,32));
 		// register and add a rule to check if a username and password is ok
 		$form->registerRule('check_username', 'callback', 'check_username_mail_valid', 'Base_User_Login');
-		$form->addRule('username', $this->lang->t('Username or e-mail invalid'), 'check_username', $form);
-		$form->addRule('username', $this->lang->t('Field required'), 'required');
+		$form->addRule('username', $this->t('Username or e-mail invalid'), 'check_username', $form);
+		$form->addRule('username', $this->t('Field required'), 'required');
 		//require valid e-mail address
-		$form->addRule('mail', $this->lang->t('Field required'), 'required');
-		$form->addRule('mail', $this->lang->t('This isn\'t valid e-mail address'), 'email');
+		$form->addRule('mail', $this->t('Field required'), 'required');
+		$form->addRule('mail', $this->t('This isn\'t valid e-mail address'), 'email');
 
 		if($form->validate()) {
 			if($form->process(array(&$this, 'submit_recover')))
-				print($this->lang->t('Mail with password sent.').' <a '.$this->create_back_href().'>'.$this->lang->t('Login').'</a>');
+				print($this->t('Mail with password sent.').' <a '.$this->create_back_href().'>'.$this->t('Login').'</a>');
 		} else $form->display();
 	}
 
@@ -171,12 +168,12 @@ class Base_User_Login extends Module {
 		}
 
 		if(!DB::Execute('UPDATE user_password SET password=%s WHERE user_login_id=%d', array(md5($pass), $user_id))) {
-			print($this->lang->t('Unable to update password for user %s.',array($username)));
+			print($this->t('Unable to update password for user %s.',array($username)));
 			return false;
 		}
 
 		if(!Base_User_LoginCommon::send_mail_with_password($username, $pass, $mail)) {
-			print($this->lang->t('Unable to send e-mail with password. Mail module configuration invalid. Please contact system administrator.'));
+			print($this->t('Unable to send e-mail with password. Mail module configuration invalid. Please contact system administrator.'));
 			return false;
 		}
 

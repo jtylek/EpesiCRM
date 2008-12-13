@@ -10,7 +10,6 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_LeightboxPrompt extends Module {
-	private $lang;
 	private $params;
 	private $options = array();
 	private $group = null;
@@ -25,7 +24,6 @@ class Utils_LeightboxPrompt extends Module {
 	
 	public function construct() {
 		$this->group = md5($this->get_path());
-		$this->lang = $this->init_module('Base/Lang');
 	}
 	
 	public function add_option($key, $label, $icon, $form=null) {
@@ -63,8 +61,8 @@ class Utils_LeightboxPrompt extends Module {
 					if (!empty($params))
 						foreach ($params as $w)
 							$v['form']->addElement('hidden', $this->group.'_'.$w, $w, array('id'=>$this->group.'_'.$w));
-					$v['form']->addElement('button', 'cancel', $this->lang->t('Cancel'), array('onclick'=>'$(\''.$this->group.'_buttons_section\').style.display=\'block\';$(\''.$k.'_'.$this->group.'_form_section\').style.display=\'none\';'));
-					$v['form']->addElement('submit', 'submit', $this->lang->t('OK'), array('onclick'=>'f'.$this->group.'_followups_deactivate();'));
+					$v['form']->addElement('button', 'cancel', $this->t('Cancel'), array('onclick'=>'$(\''.$this->group.'_buttons_section\').style.display=\'block\';$(\''.$k.'_'.$this->group.'_form_section\').style.display=\'none\';'));
+					$v['form']->addElement('submit', 'submit', $this->t('OK'), array('onclick'=>'f'.$this->group.'_followups_deactivate();'));
 					ob_start();
 					$th = $this->init_module('Base/Theme');
 					$v['form']->assign_theme('form', $th);

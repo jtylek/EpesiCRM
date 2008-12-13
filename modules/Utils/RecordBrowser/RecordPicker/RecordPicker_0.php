@@ -10,11 +10,9 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_RecordBrowser_RecordPicker extends Module {
-	private $lang;
 	private $element;
 
 	public function body($tab, $element, $format, $crits=array(), $cols=array(), $order=array(), $filters=array()) {
-		if (!isset($this->lang)) $this->lang = $this->init_module('Base/Lang');
 		$rb = $this->init_module('Utils/RecordBrowser', $tab, $tab.'_picker');
 		$rb->adv_search = true;
 
@@ -23,7 +21,7 @@ class Utils_RecordBrowser_RecordPicker extends Module {
 		Libs_LeightboxCommon::display(
 			'leightbox_'.$element,
 			$this->get_html_of_module($rb, array($element, $format, $crits, $cols, $order, $filters), 'recordpicker'),
-			$this->lang->t('Select'),
+			$this->t('Select'),
 			true);
 	}
 

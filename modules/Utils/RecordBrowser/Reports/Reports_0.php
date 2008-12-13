@@ -23,7 +23,6 @@ class Utils_RecordBrowser_Reports extends Module {
 	private $row_summary = false;
 	private $col_summary = false;
 	private $first = false;
-	private $lang;
 	private $date_range;
 	private $pdf = false;
 	private $charts = false;
@@ -36,10 +35,6 @@ class Utils_RecordBrowser_Reports extends Module {
 	private $pdf_filename = '';
 	private static $pdf_ready = 0;
 	private $bonus_width = 15;
-
-	public function construct(){
-		$this->lang = $this->init_module('Base/Lang');
-	}
 
 	public function set_bonus_width($arg){
 		$this->bonus_width = $arg;
@@ -162,15 +157,15 @@ class Utils_RecordBrowser_Reports extends Module {
 		$form = $this->init_module('Libs/QuickForm');
 		$theme = $this->init_module('Base/Theme');
 		$display_stuff_js = 'document.getElementById(\'day_elements\').style.display=\'none\';document.getElementById(\'month_elements\').style.display=\'none\';document.getElementById(\'week_elements\').style.display=\'none\';document.getElementById(\'year_elements\').style.display=\'none\';document.getElementById(this.value+\'_elements\').style.display=\'block\';';
-		$form->addElement('select', 'date_range_type', $this->lang->t('Display report'), array('day'=>$this->lang->t('Days'), 'week'=>$this->lang->t('Weeks'), 'month'=>$this->lang->t('Months'), 'year'=>$this->lang->t('Years')), array('onChange'=>$display_stuff_js, 'onKeyUp'=>$display_stuff_js));
-		$form->addElement('datepicker', 'from_day', $this->lang->t('From date'));
-		$form->addElement('datepicker', 'to_day', $this->lang->t('To date'));
-		$form->addElement('date', 'from_week', $this->lang->t('From week'), array('format'=>'Y W','language'=>Base_LangCommon::get_lang_code()));
-		$form->addElement('date', 'to_week', $this->lang->t('To week'), array('format'=>'Y W','language'=>Base_LangCommon::get_lang_code()));
-		$form->addElement('date', 'from_month', $this->lang->t('From month'), array('format'=>'Y m','language'=>Base_LangCommon::get_lang_code()));
-		$form->addElement('date', 'to_month', $this->lang->t('To month'), array('format'=>'Y m','language'=>Base_LangCommon::get_lang_code()));
-		$form->addElement('date', 'from_year', $this->lang->t('From year'), array('format'=>'Y','language'=>Base_LangCommon::get_lang_code()));
-		$form->addElement('date', 'to_year', $this->lang->t('To year'), array('format'=>'Y','language'=>Base_LangCommon::get_lang_code()));
+		$form->addElement('select', 'date_range_type', $this->t('Display report'), array('day'=>$this->t('Days'), 'week'=>$this->t('Weeks'), 'month'=>$this->t('Months'), 'year'=>$this->t('Years')), array('onChange'=>$display_stuff_js, 'onKeyUp'=>$display_stuff_js));
+		$form->addElement('datepicker', 'from_day', $this->t('From date'));
+		$form->addElement('datepicker', 'to_day', $this->t('To date'));
+		$form->addElement('date', 'from_week', $this->t('From week'), array('format'=>'Y W','language'=>Base_LangCommon::get_lang_code()));
+		$form->addElement('date', 'to_week', $this->t('To week'), array('format'=>'Y W','language'=>Base_LangCommon::get_lang_code()));
+		$form->addElement('date', 'from_month', $this->t('From month'), array('format'=>'Y m','language'=>Base_LangCommon::get_lang_code()));
+		$form->addElement('date', 'to_month', $this->t('To month'), array('format'=>'Y m','language'=>Base_LangCommon::get_lang_code()));
+		$form->addElement('date', 'from_year', $this->t('From year'), array('format'=>'Y','language'=>Base_LangCommon::get_lang_code()));
+		$form->addElement('date', 'to_year', $this->t('To year'), array('format'=>'Y','language'=>Base_LangCommon::get_lang_code()));
 		if ($this->isset_module_variable('vals')) {
 			$vals = $this->get_module_variable('vals');
 			unset($vals['submited']);
@@ -183,10 +178,10 @@ class Utils_RecordBrowser_Reports extends Module {
 			$form->setDefaults(array('date_range_type'=>'month'));
 			$form->setDefaults($datepicker_defaults);
 		}
-		$form->addElement('submit', 'submit', $this->lang->t('Show'));
+		$form->addElement('submit', 'submit', $this->t('Show'));
 
 		$form->registerRule('check_dates', 'callback', 'check_dates', $this);
-		$form->addRule(array('date_range_type','from_day','to_day','from_week','to_week','from_month','to_month','from_year','to_year'), $this->lang->t('\'From\' date must be earlier than \'To\' date'), 'check_dates');
+		$form->addRule(array('date_range_type','from_day','to_day','from_week','to_week','from_month','to_month','from_year','to_year'), $this->t('\'From\' date must be earlier than \'To\' date'), 'check_dates');
 
 		$failed = false;
 		$vals = $form->exportValues();
@@ -869,21 +864,21 @@ class Utils_RecordBrowser_Reports extends Module {
 		$start = $this->date_range['from_'.$this->date_range['date_range_type']];
 		$end = $this->date_range['to_'.$this->date_range['date_range_type']];
 		switch ($this->date_range['date_range_type']) {
-			case 'week':	$start = $this->lang->t('%d, week %d',array($start['Y'], $start['W']));
-							$end = $this->lang->t('%d, week %d',array($end['Y'], $end['W']));
+			case 'week':	$start = $this->t('%d, week %d',array($start['Y'], $start['W']));
+							$end = $this->t('%d, week %d',array($end['Y'], $end['W']));
 							break;
-			case 'month':	$start = $this->lang->t('%s %d',array(date('F',$this->get_date('month', $start)),$start['Y']));
-							$end = $this->lang->t('%s %d',array(date('F',$this->get_date('month', $end)),$end['Y']));
+			case 'month':	$start = $this->t('%s %d',array(date('F',$this->get_date('month', $start)),$start['Y']));
+							$end = $this->t('%s %d',array(date('F',$this->get_date('month', $end)),$end['Y']));
 							break;
-			case 'year':	$start = $this->lang->t('%d',array($start['Y']));
-							$end = $this->lang->t('%d',array($end['Y']));
+			case 'year':	$start = $this->t('%d',array($start['Y']));
+							$end = $this->t('%d',array($end['Y']));
 							break;
 		}
 		return array($start, $end);
 	}
 
 	public function pdf_subject_date_range() {
-		return $this->lang->t(ucfirst($this->date_range['date_range_type']).' report -  %s  -  %s', $this->from_to_date());
+		return $this->t(ucfirst($this->date_range['date_range_type']).' report -  %s  -  %s', $this->from_to_date());
 	}
 
 	public function set_pdf_title($arg) {

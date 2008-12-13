@@ -26,20 +26,18 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 			return;
 		}
 		
-		$this->lang = & $this->init_module('Base/Lang'); 
-		
 		$form = & $this->init_module('Libs/QuickForm','Changing template');
 		
 		$themes = Base_Theme::list_themes();
 		$form->addElement('header', 'install_module_header', 'Themes Administration');
-		$form->addElement('select', 'theme', $this->lang->t('Choose template'), $themes);
+		$form->addElement('select', 'theme', $this->t('Choose template'), $themes);
 
-		$form->addElement('checkbox', 'preload_selected', $this->lang->t('Preload selected template images'));
-		$form->addElement('checkbox', 'preload_default', $this->lang->t('Preload default template images'));
+		$form->addElement('checkbox', 'preload_selected', $this->t('Preload selected template images'));
+		$form->addElement('checkbox', 'preload_default', $this->t('Preload default template images'));
 		
 		/*
-		$ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->lang->ht('OK'));
-		$cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->lang->ht('Cancel'), 'onClick="'.$this->create_back_href().'"');
+		$ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->ht('OK'));
+		$cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->ht('Cancel'), 'onClick="'.$this->create_back_href().'"');
 		$form->addGroup(array($ok_b, $cancel_b));
 		*/
 		
@@ -55,7 +53,7 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 			$form->display();
 			
 			if(class_exists('ZipArchive')) {
-				$this->pack_module('Utils/FileUpload',array(array($this,'upload_template'),$this->lang->t('Upload template')));
+				$this->pack_module('Utils/FileUpload',array(array($this,'upload_template'),$this->t('Upload template')));
 				Base_ActionBarCommon::add('edit','Manage templates',$this->create_callback_href(array($this,'download_template')));
 			}
 		}
@@ -67,10 +65,10 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 		$zip = new ZipArchive;
 		if ($zip->open($file) == 1) {
     			$zip->extractTo(DATA_DIR.'/Base_Theme/templates/');
-			Base_StatusBarCommon::message($this->lang->t('Template installed'));
+			Base_StatusBarCommon::message($this->t('Template installed'));
     			return true;
 		}
-		Base_StatusBarCommon::message($this->lang->t('Invalid template file'),'error');
+		Base_StatusBarCommon::message($this->t('Invalid template file'),'error');
 		return true;
 	}
 	

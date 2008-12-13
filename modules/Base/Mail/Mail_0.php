@@ -28,8 +28,6 @@ class Base_Mail extends Module implements Base_AdminInterface {
 			return;
 		}
 		
-		$lang = & $this->init_module('Base/Lang');
-		
 		$form = & $this->init_module('Libs/QuickForm');
 		//defaults
 		$defaults = array();
@@ -44,32 +42,32 @@ class Base_Mail extends Module implements Base_AdminInterface {
 		$form->setDefaults($defaults);
 	
 		//form
-		$form->addElement('header',null, $lang->t('Mail settings'));
-		$form->addElement('select','mail_method', $lang->t('Choose method'), array('smtp'=>'remote smtp server', 'mail'=>'local php.ini settings'), 'onChange="'.$form->get_submit_form_js(false).'"');
+		$form->addElement('header',null, $this->t('Mail settings'));
+		$form->addElement('select','mail_method', $this->t('Choose method'), array('smtp'=>'remote smtp server', 'mail'=>'local php.ini settings'), 'onChange="'.$form->get_submit_form_js(false).'"');
 		
-		$form->addElement('text','mail_from_addr', $lang->t('Administrator e-mail address'));
-		$form->addRule('mail_from_addr', $lang->t('This isn\'t valid e-mail address'), 'email');
-		$form->addRule('mail_from_addr', $lang->t('Field required'), 'required');	
+		$form->addElement('text','mail_from_addr', $this->t('Administrator e-mail address'));
+		$form->addRule('mail_from_addr', $this->t('This isn\'t valid e-mail address'), 'email');
+		$form->addRule('mail_from_addr', $this->t('Field required'), 'required');	
 		
-		$form->addElement('text','mail_from_name', $lang->t('Send e-mails from name'));
+		$form->addElement('text','mail_from_name', $this->t('Send e-mails from name'));
 	
 		$method = $form->getElement('mail_method')->getSelected();
 		if($method[0]=='smtp') {
 			
-			$form->addElement('text','mail_host', $lang->t('SMTP host address'));
-			$form->addRule('mail_host', $lang->t('Field required'),'required');
+			$form->addElement('text','mail_host', $this->t('SMTP host address'));
+			$form->addRule('mail_host', $this->t('Field required'),'required');
 			
-			$form->addElement('checkbox','mail_auth', $lang->t('SMTP authorization'),'','onChange="'.$form->get_submit_form_js(false).'"');
+			$form->addElement('checkbox','mail_auth', $this->t('SMTP authorization'),'','onChange="'.$form->get_submit_form_js(false).'"');
 			
 			$auth = $form->getElement('mail_auth')->getValue();
 			if($auth) {
-				$form->addElement('text','mail_user', $lang->t('Login'));					
-				$form->addElement('password','mail_password', $lang->t('Password'));
+				$form->addElement('text','mail_user', $this->t('Login'));					
+				$form->addElement('password','mail_password', $this->t('Password'));
 			}
 		}
 		
-		$ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $lang->ht('OK'));
-		$cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $lang->ht('Cancel'), $this->create_back_href());
+		$ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->ht('OK'));
+		$cancel_b = HTML_QuickForm::createElement('button', 'cancel_button', $this->ht('Cancel'), $this->create_back_href());
 		$form->addGroup(array($ok_b, $cancel_b));
 		
 		if($form->getSubmitValue('submited') && $form->validate() && $form->process(array(&$this,'submit_admin'))) {

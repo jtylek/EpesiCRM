@@ -11,12 +11,6 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_Watchdog extends Module {
-	private $lang;
-
-	public function construct() {
-		$this->lang = $this->init_module('Base/Lang');
-	}
-
 	public function body() {
 		
 	}
@@ -43,17 +37,17 @@ class Utils_Watchdog extends Module {
 			if (isset($conf['category_'.$k]) && $conf['category_'.$k] && is_numeric($k)) $categories[] = $k;
 		}
 		if (empty($categories)) {
-			print($this->lang->t('No category selected'));
+			print($this->t('No category selected'));
 			return;
 		}
 		$header = array(
-					array('name'=>$this->lang->t('Cat.'),'width'=>1),
-					array('name'=>$this->lang->t('Title'))
+					array('name'=>$this->t('Cat.'),'width'=>1),
+					array('name'=>$this->t('Title'))
 					);
 		if (count($categories)==1) {
 			$title = call_user_func($methods[$categories[0]]);
 			$opts['title'] = Base_LangCommon::ts('Premium/Projects/Tickets','Subscriptions - ').$title['category'];
-			$header = array(array('name'=>$this->lang->t('Title')));
+			$header = array(array('name'=>$this->t('Title')));
 		} elseif (count($categories)==count($methods)) {
 			$opts['title'] = Base_LangCommon::ts('Premium/Projects/Tickets','Subscriptions - All');
 		} else {
@@ -97,8 +91,8 @@ class Utils_Watchdog extends Module {
 		}
 		$records_qty = count($records);
 		if ($records_qty>15 && $count==15)
-			print($this->lang->t('Displaying %s of %s records', array($count, $records_qty)));
-		if ($something_to_purge) $opts['actions'][] = '<a '.Utils_TooltipCommon::open_tag_attrs($this->lang->t('Mark all entries as read')).' '.$this->create_confirm_callback_href($this->lang->t('This will update all of your subscriptions status in selected categories, are you sure you want to continue?'),array($this,'purge_subscriptions_applet'), array($categories)).'><img src="'.Base_ThemeCommon::get_template_file('Utils_Watchdog','purge.png').'" border="0"></a>';
+			print($this->t('Displaying %s of %s records', array($count, $records_qty)));
+		if ($something_to_purge) $opts['actions'][] = '<a '.Utils_TooltipCommon::open_tag_attrs($this->t('Mark all entries as read')).' '.$this->create_confirm_callback_href($this->t('This will update all of your subscriptions status in selected categories, are you sure you want to continue?'),array($this,'purge_subscriptions_applet'), array($categories)).'><img src="'.Base_ThemeCommon::get_template_file('Utils_Watchdog','purge.png').'" border="0"></a>';
 		$this->display_module($gb);
 	}
 

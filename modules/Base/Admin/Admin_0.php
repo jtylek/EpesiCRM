@@ -42,8 +42,6 @@ class Base_Admin extends Module {
 	}
 	
 	private function list_admin_modules() {
-		$lang = & $this->init_module('Base/Lang');
-		
 		$mod_ok = array();
 		
 		$cmr = ModuleManager::call_common_methods('admin_caption');
@@ -65,11 +63,11 @@ class Base_Admin extends Module {
 					$icon = null;
 				}
 			}
-			$buttons[]= array('link'=>'<a '.$this->create_unique_href(array('href'=>$name)).'>'.$lang->ht($caption).'</a>',
+			$buttons[]= array('link'=>'<a '.$this->create_unique_href(array('href'=>$name)).'>'.$this->ht($caption).'</a>',
 						'icon'=>$icon);
 		}
 		$theme =  & $this->pack_module('Base/Theme');
-		$theme->assign('header', $lang->t('Modules settings'));
+		$theme->assign('header', $this->t('Modules settings'));
 		$theme->assign('buttons', $buttons);
 		$theme->display();
 	}

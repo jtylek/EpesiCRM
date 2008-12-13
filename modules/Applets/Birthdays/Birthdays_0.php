@@ -12,11 +12,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Applets_Birthdays extends Module {
 	private $date;
-	private $lang;
-
-	public function construct() {
-		$this->lang = $this->init_module('Base/Lang');
-	}
 
 	public function body() {
 	}
@@ -72,7 +67,7 @@ public function applet($conf,$opts) {
 									& $opts
 				);
 		// initialize miniview
-		print($this->lang->t('Birthdays upcoming in the next: %d days.', array($conf['no_of_days'])));
+		print($this->t('Birthdays upcoming in the next: %d days.', array($conf['no_of_days'])));
 		$this->display_module($rb, $conds, 'mini_view');
 	}
 }

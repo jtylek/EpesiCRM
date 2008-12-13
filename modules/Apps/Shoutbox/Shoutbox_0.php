@@ -10,12 +10,6 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Apps_Shoutbox extends Module {
-	private $lang;
-
-	public function construct() {
-		//initialize lang module
-		$this->lang = & $this->init_module('Base/Lang');
-	}
 
 	public function body() {
 		//if i am admin add "clear shoutbox" actionbar button
@@ -36,12 +30,12 @@ class Apps_Shoutbox extends Module {
 			//initialize HTML_QuickForm
 			$qf = & $this->init_module('Libs/QuickForm');
 			//create text box
-			$text = & HTML_QuickForm::createElement('text','post',$this->lang->t('Post'),'id="shoutbox_text"');
+			$text = & HTML_QuickForm::createElement('text','post',$this->t('Post'),'id="shoutbox_text"');
 			//create submit button
-			$submit = & HTML_QuickForm::createElement('submit','button',$this->lang->ht('Submit'), 'id="shoutbox_button"');
+			$submit = & HTML_QuickForm::createElement('submit','button',$this->ht('Submit'), 'id="shoutbox_button"');
 			//add it
 			$qf->addGroup(array($text,$submit),'post');
-			$qf->addGroupRule('post',$this->lang->t('Field required'),'required',null,2);
+			$qf->addGroupRule('post',$this->t('Field required'),'required',null,2);
 			$qf->setRequiredNote(null);
 
 			//if submited
@@ -61,7 +55,7 @@ class Apps_Shoutbox extends Module {
 			//display form
 			$qf->display();
 		} else {
-			print($this->lang->t('Please log in to post message').'<br>');
+			print($this->t('Please log in to post message').'<br>');
 		}
 
 		print('<div id=\'shoutbox_board\'></div>');

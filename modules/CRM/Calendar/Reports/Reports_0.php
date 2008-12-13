@@ -11,9 +11,6 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_Calendar_Reports extends Module {
-	public function construct() {
-		$this->lang = $this->init_module('Base/Lang');
-	}
 
 	public function body() {
 		$t = time();
@@ -22,9 +19,9 @@ class CRM_Calendar_Reports extends Module {
 
 		$form = $this->init_module('Libs/QuickForm',null,'reports_frm');
 
-		$form->addElement('datepicker', 'start', $this->lang->t('From'));
-		$form->addElement('datepicker', 'end', $this->lang->t('To'));
-		$form->addElement('submit', 'submit_button', $this->lang->ht('Show'));
+		$form->addElement('datepicker', 'start', $this->t('From'));
+		$form->addElement('datepicker', 'end', $this->t('To'));
+		$form->addElement('submit', 'submit_button', $this->ht('Show'));
 		$form->addRule('start', 'Field required', 'required');
 		$form->addRule('end', 'Field required', 'required');
 		$form->setDefaults(array('start'=>$start,'end'=>$end));
@@ -40,7 +37,7 @@ class CRM_Calendar_Reports extends Module {
 
 
 		$tb = & $this->init_module('Utils/TabbedBrowser');
-		$tb->set_tab($this->lang->t("Time by color"), array($this,'time_by_color'),array($start,$end));
+		$tb->set_tab($this->t("Time by color"), array($this,'time_by_color'),array($start,$end));
 		$this->display_module($tb);
 		$this->tag();
 
