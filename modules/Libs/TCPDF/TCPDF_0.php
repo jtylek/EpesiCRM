@@ -67,7 +67,7 @@ class Libs_TCPDF extends Module {
 		if ($who!==null) $who = $who['last_name'].' '.$who['first_name'];
 		else $who= Base_UserCommon::get_user_login(Acl::get_user());
 		$when = date('Y-m-d H:i:s');
-		$l['w_page'] = $this->ht('Printed by %s, on %s, ',array($who,$when)).$this->ht("Page");
+		$l['w_page'] = Base_LangCommon::ts($this->get_type(),'Printed by %s, on %s, ',array($who,$when)).Base_LangCommon::ts($this->get_type(),"Page");
 		$this->tcpdf->setLanguageArray($l); 
 		
 		//initialize document
@@ -178,9 +178,9 @@ class Libs_TCPDF extends Module {
 	public function admin() {
 		if($this->is_back()) $this->parent->reset();
 		$form = & $this->init_module('Utils/FileUpload',array(false));
-		$form->addElement('header', 'upload', $this->t('Upload company logo'));
+		$form->addElement('header', 'upload', Base_LangCommon::ts($this->get_type(),'Upload company logo',array(),false));
 		$form->add_upload_element();
-		$form->addElement('button',null,$this->t('Upload'),$form->get_submit_form_href());
+		$form->addElement('button',null,Base_LangCommon::ts($this->get_type(),'Upload'),$form->get_submit_form_href());
 		$this->display_module($form, array( array($this,'upload_logo') ));
 		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
 	}
@@ -189,13 +189,13 @@ class Libs_TCPDF extends Module {
 		$fp = fopen($file, "r");
 		$ext = strrchr($oryg,'.');
 		if($ext==='' || $ext!=='.png') {
-			print($this->t('Invalid extension. Only *.png is allowed.'));
+			print(Base_LangCommon::ts($this->get_type(),'Invalid extension. Only *.png is allowed.',array(),false));
 			return;
 		}
 		$target_filename = Libs_TCPDFCommon::get_logo_filename();
 		if (file_exists($target_filename)) unlink($target_filename);
 		copy($file, $target_filename);
-		print($this->t('Upload successful.'));
+		print(Base_LangCommon::ts($this->get_type(),'Upload successful.',array(),false));
 	}
 }
 

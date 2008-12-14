@@ -23,7 +23,7 @@ class Utils_FileUpload extends Module {
 	 */
 	public function construct($req=true) {
 		$this->added_upload_elem = false;
-		$this->form = & $this->init_module('Libs/QuickForm', array($this->ht('Uploading file...'),'modules/Utils/FileUpload/upload.php','upload_iframe',''),'file_chooser');
+		$this->form = & $this->init_module('Libs/QuickForm', array(Base_LangCommon::ts($this->get_type(),'Uploading file...'),'modules/Utils/FileUpload/upload.php','upload_iframe',''),'file_chooser');
 		$this->form->addElement('static',null,null,'<iframe frameborder="0" id="upload_iframe", name="upload_iframe" src="" style="display:none"></iframe>');
 		$this->form->addElement('hidden','required',$req?'1':'0');
 	}
@@ -97,11 +97,11 @@ class Utils_FileUpload extends Module {
 		$form_name = $this->form->getAttribute('name');
 		$this->form->addElement('hidden','form_name',$form_name);
 
-		$s = $this->form->get_submit_form_js(false,$this->ht('Processing file...'),'parent.');
+		$s = $this->form->get_submit_form_js(false,Base_LangCommon::ts($this->get_type(),'Processing file...'),'parent.');
 
 		$this->form->addElement('hidden','submit_js',$s);
-		$this->form->addElement('file', 'file', $this->ht('Specify file'));
-		$this->form->addElement('static',null,$this->t('Upload status'),'<div id="upload_status_'.$form_name.'"></div>');
+		$this->form->addElement('file', 'file', Base_LangCommon::ts($this->get_type(),'Specify file'));
+		$this->form->addElement('static',null,Base_LangCommon::ts($this->get_type(),'Upload status',array(),false),'<div id="upload_status_'.$form_name.'"></div>');
 	}
 
 	public function get_submit_form_js() {
@@ -129,7 +129,7 @@ class Utils_FileUpload extends Module {
 		$this->add_upload_element();
 
 		if($this->submit_button)
-			$this->form->addElement('submit', 'button', $this->ht($this->upload_button_caption), $this->get_submit_form_href());
+			$this->form->addElement('submit', 'button', Base_LangCommon::ts($this->get_type(),$this->upload_button_caption), $this->get_submit_form_href());
 
 		if($this->form->validate()) {
 			$this->form->process(array($this,'submit_parent'));
