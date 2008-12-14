@@ -27,11 +27,11 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 			array('name'=>'Other Contact',		'type'=>'checkbox', 'extra'=>false, 'QFfield_callback'=>array('CRM_PhoneCallCommon','QFfield_other_contact')),
 			array('name'=>'Other Contact Name',	'type'=>'text', 'param'=>'64', 'extra'=>false),
 
-			array('name'=>'Permission', 		'type'=>'select', 'required'=>true, 'param'=>'__COMMON__::Permissions', 'extra'=>false),
+			array('name'=>'Permission', 		'type'=>'select', 'required'=>true, 'param'=>'__COMMON__::CRM/Access', 'extra'=>false),
 			array('name'=>'Employees', 			'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('CRM_PhoneCallCommon','employees_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>true, 'extra'=>false, 'visible'=>true),
 
-			array('name'=>'Status',				'type'=>'select', 'required'=>true, 'filter'=>true, 'param'=>'__COMMON__::Ticket_Status', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_PhoneCallCommon','display_status')),
-			array('name'=>'Priority', 			'type'=>'select', 'required'=>true, 'param'=>'__COMMON__::Priorities', 'extra'=>false),
+			array('name'=>'Status',				'type'=>'select', 'required'=>true, 'filter'=>true, 'param'=>'__COMMON__::CRM/Status', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_PhoneCallCommon','display_status')),
+			array('name'=>'Priority', 			'type'=>'select', 'required'=>true, 'param'=>'__COMMON__::CRM/Priority', 'extra'=>false),
 
 			array('name'=>'Phone', 				'type'=>'select', 'extra'=>false, 'QFfield_callback'=>array('CRM_PhoneCallCommon','QFfield_phone'), 'display_callback'=>array('CRM_PhoneCallCommon','display_phone')),
 			array('name'=>'Other Phone',		'type'=>'checkbox', 'extra'=>false, 'QFfield_callback'=>array('CRM_PhoneCallCommon','QFfield_other_phone')),
@@ -62,10 +62,6 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 		$this->add_aco('edit phonecall',array('Employee'));
 		$this->add_aco('delete phonecall',array('Employee Manager'));
 
-		Utils_CommonDataCommon::new_array('Ticket_Status',array('Open','In Progress','Closed','Canceled'), true,true);
-		Utils_CommonDataCommon::new_array('Permissions',array('Public','Protected','Private'), true,true);
-		Utils_CommonDataCommon::new_array('Priorities',array('Low','Medium','High'), true,true);
-
 		$this->add_aco('view protected notes','Employee');
 		$this->add_aco('view public notes','Employee');
 		$this->add_aco('edit protected notes','Employee Administrator');
@@ -82,9 +78,6 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 //		Utils_AttachmentCommon::persistent_mass_delete('CRM/Company/');
 //		Utils_RecordBrowserCommon::delete_addon('contact', 'CRM/Contacts', 'contact_attachment_addon');
 		Utils_RecordBrowserCommon::uninstall_recordset('phonecall');
-		Utils_CommonDataCommon::remove('Ticket_Status');
-		Utils_CommonDataCommon::remove('Permissions');
-		Utils_CommonDataCommon::remove('Priorities');
 		return true;
 	}
 

@@ -23,9 +23,9 @@ class CRM_TasksCommon extends ModuleCommon {
 		
 		// Build array representing 2-column tooltip
 		// Format: array (Label,value)
-		$access = Utils_CommonDataCommon::get_translated_array('Permissions');
-		$priority = Utils_CommonDataCommon::get_translated_array('Priorities');
-		$status = Utils_CommonDataCommon::get_translated_array('Ticket_Status');
+		$access = Utils_CommonDataCommon::get_translated_array('CRM/Access');
+		$priority = Utils_CommonDataCommon::get_translated_array('CRM/Priority');
+		$status = Utils_CommonDataCommon::get_translated_array('CRM/Status');
 
 		$args=array(
 					'Task:'=>'<b>'.$r['title'].'</b>',
@@ -157,7 +157,7 @@ class CRM_TasksCommon extends ModuleCommon {
 
 		$v = $record[$desc['id']];
 		if (!$v) $v = 0;
-		$status = Utils_CommonDataCommon::get_translated_array('Ticket_Status');
+		$status = Utils_CommonDataCommon::get_translated_array('CRM/Status');
 		if (!self::access_task('edit', $record) && !Base_AclCommon::i_am_admin()) return $status[$v];
 		if ($v>=2) return $status[$v];
 		if (isset($_REQUEST['form_name']) && $_REQUEST['form_name']==$prefix.'_follow_up_form' && $_REQUEST['id']==$record['id']) {

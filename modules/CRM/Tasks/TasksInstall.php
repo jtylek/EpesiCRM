@@ -23,9 +23,9 @@ class CRM_TasksInstall extends ModuleInstall {
 			array('name'=>'Employees', 			'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('CRM_TasksCommon','employees_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'display_callback'=>array('CRM_TasksCommon','display_employees'), 'required'=>true, 'extra'=>false, 'visible'=>true),
 			array('name'=>'Customers', 			'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('CRM_TasksCommon','customers_crits')), 'extra'=>false, 'visible'=>true),
 
-			array('name'=>'Status',				'type'=>'select', 'required'=>true, 'visible'=>true, 'filter'=>true, 'param'=>'__COMMON__::Ticket_Status', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_TasksCommon','display_status')),
-			array('name'=>'Priority', 			'type'=>'select', 'required'=>true, 'visible'=>true, 'param'=>'__COMMON__::Priorities', 'extra'=>false),
-			array('name'=>'Permission', 		'type'=>'select', 'required'=>true, 'param'=>'__COMMON__::Permissions', 'extra'=>false),
+			array('name'=>'Status',				'type'=>'select', 'required'=>true, 'visible'=>true, 'filter'=>true, 'param'=>'__COMMON__::CRM/Status', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_TasksCommon','display_status')),
+			array('name'=>'Priority', 			'type'=>'select', 'required'=>true, 'visible'=>true, 'param'=>'__COMMON__::CRM/Priority', 'extra'=>false),
+			array('name'=>'Permission', 		'type'=>'select', 'required'=>true, 'param'=>'__COMMON__::CRM/Access', 'extra'=>false),
 
 			array('name'=>'Longterm',			'type'=>'checkbox', 'extra'=>false, 'filter'=>true, 'visible'=>true),
 
@@ -56,10 +56,6 @@ class CRM_TasksInstall extends ModuleInstall {
 		$this->add_aco('edit task',array('Employee'));
 		$this->add_aco('delete task',array('Employee Manager'));
 
-		Utils_CommonDataCommon::new_array('Ticket_Status',array('Open','In Progress','Closed','Canceled'), true,true); // TODO: move to common module
-		Utils_CommonDataCommon::new_array('Permissions',array('Public','Protected','Private'), true,true);
-		Utils_CommonDataCommon::new_array('Priorities',array('Low','Medium','High'), true,true);
-
 		$this->add_aco('view protected notes','Employee');
 		$this->add_aco('view public notes','Employee');
 		$this->add_aco('edit protected notes','Employee Administrator');
@@ -70,9 +66,6 @@ class CRM_TasksInstall extends ModuleInstall {
 	public function uninstall() {
 		Base_ThemeCommon::uninstall_default_theme('CRM/Tasks');
 		Utils_RecordBrowserCommon::uninstall_recordset('task');
-		Utils_CommonDataCommon::remove('Ticket_Status');
-		Utils_CommonDataCommon::remove('Permissions');
-		Utils_CommonDataCommon::remove('Priorities');
 		return true;
 	}
 
