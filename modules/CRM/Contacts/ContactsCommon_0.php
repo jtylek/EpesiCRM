@@ -577,19 +577,19 @@ class CRM_ContactsCommon extends ModuleCommon {
 			if ($edited_by!=$created_by) $contact = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact_by_user_id($edited_by),true);
 			if ($contact!='') $edited_by = $contact;
 			else $edited_by = Base_UserCommon::get_user_login($edited_by);
-		}
-		
+			}
+			
 		$htmlinfo=array(
-					'Created by:'=>$created_by,			
-					'Created on:'=>Base_RegionalSettingsCommon::time2reg($created_on)
-						);
-		if ($edited_by!=null) {
-			$htmlinfo=$htmlinfo+array(
-					'Edited by:'=>$edited_by,		
-					'Edited on:'=>Base_RegionalSettingsCommon::time2reg($edited_on)
-						);
-		}
+			'Created by:'=>$created_by,
+			'Created on:'=>Base_RegionalSettingsCommon::time2reg($created_on)
+			);
 
+			if ($edited_by!=null) {
+			$htmlinfo=$htmlinfo+array(
+				'Edited by:'=>$edited_by,
+				'Edited on:'=>Base_RegionalSettingsCommon::time2reg($edited_on)
+				);
+		}
 		return	Utils_TooltipCommon::format_info_tooltip($htmlinfo,'CRM_Contacts');
 	}
 	

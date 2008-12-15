@@ -114,20 +114,19 @@ class CRM_Calendar extends Module {
 			$ev_id = explode('_',$row['id'],2);
 			$ev_id = $ev_id[0];
 			
-			///////////////////
-			// right column
-			if($row['description'])
-				$row['description'] .= '<hr>';
-			$title = Utils_TooltipCommon::create($row['title'],$row['description'].substr($row['additional_info'],4).$row['additional_info2']);
+            ///////////////////
+            // right column
+            $title = Utils_TooltipCommon::create($row['title'],$row['description']);
 			
-			//////////////////////////
-			// left column
-			$date_tip = !isset($row['timeless'])?$this->t('Duration: %s<br>End: %s',array($ex['duration'],$ex['end'])):$this->t('Timeless');
-			$date = Utils_TooltipCommon::create($ex['start'],$date_tip);
-			$gb->add_row(
-				array('value'=>$view_action.$date.'</a>', 'order_value'=>isset($row['timeless'])?strtotime($row['timeless']):$row['start']),
-				$view_action.$title.'</a>');
+            //////////////////////////
+            // left column
+            $date = Utils_TooltipCommon::create($ex['start'],$row['tooltip'].'<hr>'.$row['additional_info2']);
+
+            $gb->add_row(
+                array('value'=>$view_action.$date.'</a>', 'order_value'=>isset($row['timeless'])?strtotime($row['timeless']):$row['start']),
+                $view_action.$title.'</a>');			
 		}
+
 
 		$this->display_module($gb, array(false), 'automatic_display');
 	}

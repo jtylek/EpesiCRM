@@ -274,6 +274,36 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	public static function time_12h() {
 		return '%I:%M:%S %p'==Base_User_SettingsCommon::get('Base_RegionalSettings','time');
 	}
+
+	 /**
+     *
+     * @convert seconds to hours and minutes
+     * @param int $seconds The number of seconds
+     * @return string for example 2 hour(s) 15 minutes (translated)
+     *
+     */
+    public static function seconds_to_words($seconds)
+    {
+        /*** return value ***/
+        $ret = "";
+
+        /*** get the hours ***/
+        $hours = intval(intval($seconds) / 3600);
+        if($hours > 0)
+        {
+            $ret .= Base_LangCommon::ts('CRM_Calendar_Event','%s hour(s) ',array($hours));
+        }
+        /*** get the minutes ***/
+        $minutes = bcmod((intval($seconds) / 60),60);
+        if($hours > 0 || $minutes > 0)
+        {
+            $ret .= Base_LangCommon::ts('CRM_Calendar_Event','%s minutes',array($minutes));
+        }
+
+        return $ret;
+        }
+
+
 }
 
 Base_RegionalSettingsCommon::set_locale();

@@ -94,19 +94,10 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		else
 			$next_result['color'] = $color[$row['color']];
 
-		static $access,$priority,$status;
-		if(!isset($access)) {
-			$access = Utils_CommonDataCommon::get_translated_array('CRM/Access');
-			$priority = Utils_CommonDataCommon::get_translated_array('CRM/Priority');
-			$status = Utils_CommonDataCommon::get_translated_array('CRM/Status');
-		}
-		$inf2 = array('Status' => $status[$row['status']],
-						'Access' => $access[$row['access']],
-						'Priority' => $priority[$row['priority']],
-						'Notes' => Utils_AttachmentCommon::count('CRM/Calendar/Event/'.$row['id']));
-		$next_result['additional_info2'] = '<hr>'.Utils_TooltipCommon::format_info_tooltip($inf2,'CRM_Calendar_Event').
-						'<hr>'.CRM_ContactsCommon::get_html_record_info($row['created_by'],$row['created_on'],$row['edited_by'],$row['edited_on']);
-		
+		// lower part of tooltip showing created by/on + edited by/on
+		$next_result['additional_info2'] =
+			CRM_ContactsCommon::get_html_record_info($row['created_by'],$row['created_on'],$row['edited_by'],$row['edited_on']);
+
 		$emps_tmp = DB::GetCol('SELECT emp.contact FROM crm_calendar_event_group_emp AS emp WHERE emp.id=%d',array($row['id']));
 		$cuss_tmp = DB::GetCol('SELECT cus.contact FROM crm_calendar_event_group_cus AS cus WHERE cus.id=%d',array($row['id']));
 
@@ -116,6 +107,43 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		$cuss = array();
 		foreach($cuss_tmp as $k)
 			$cuss[] = CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($k));
+
+		static $access,$priority,$status;
+		if(!isset($access)) {
+			$access = Utils_CommonDataCommon::get_translated_array('CRM/Access');
+			$priority = Utils_CommonDataCommon::get_translated_array('CRM/Priority');
+			$status = Utils_CommonDataCommon::get_translated_array('CRM/Status');
+		}
+
+        $start_time = Base_RegionalSettingsCommon::time2reg($row['start'],2,false);
+        $event_date = Base_RegionalSettingsCommon::time2reg($row['start'],false);
+        $end_time = Base_RegionalSettingsCommon::time2reg($row['end'],2,false);
+
+        $inf2 = array(
+            'Date:'=>'<b>'.$event_date.'</b>');
+
+        if ($row['timeless']==1) {
+            $inf2 += array('Time'=>Base_LangCommon::ts('CRM_Calendar_Event','Timeless event'));
+            } else {
+            $inf2 += array(
+                'Time'=>$start_time.' - '.$end_time,
+                'Duration'=>Base_RegionalSettingsCommon::seconds_to_words($row['end']-$row['start'])
+                );
+            }
+
+		$inf2 += array(	'Event:' => '<b>'.$row['title'].'</b>',
+						'Description:' => $row['description'],
+						'Assigned to' => implode('<br>',$emps),
+						'Contacts' => implode('<br>',$cuss),
+						'Status' => $status[$row['status']],
+						'Access' => $access[$row['access']],
+						'Priority' => $priority[$row['priority']],
+						'Notes' => Utils_AttachmentCommon::count('CRM/Calendar/Event/'.$row['id'])
+					);
+
+		// create main tooltip part
+		$next_result['tooltip'] = Utils_TooltipCommon::format_info_tooltip($inf2,'CRM_Calendar_Event');
+
 			
 		$next_result['additional_info'] =  '<hr>'.Utils_TooltipCommon::format_info_tooltip(array(
 				'Employees' => implode('<br>',$emps),
@@ -123,6 +151,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		$next_result['custom_agenda_col_0'] = $row['description'];
 		$next_result['custom_agenda_col_1'] = implode(', ',$emps);
 		$next_result['custom_agenda_col_2'] = implode(', ',$cuss);
+
 		if($row['deleted']) {
 			$next_result['edit_action'] = false;
 			$next_result['move_action'] = false;
@@ -135,6 +164,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		} elseif($row['status']<2)
 			$next_result['actions'] = array(array('icon'=>Base_ThemeCommon::get_template_file('CRM_Calendar_Event','access-private.png'),'href'=>CRM_Calendar_EventCommon::get_followup_leightbox_href($row['id'], $row)));
 
+		
 		if($row['recurrence_type'])
 			$next_result['title'] = '<img src="'.Base_ThemeCommon::get_template_file('CRM_Calendar_Event','recurrence.png').'" border=0 hspace=0 vspace=0 align=left>'.$next_result['title'];
 
