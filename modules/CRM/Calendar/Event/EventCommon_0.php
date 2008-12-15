@@ -94,9 +94,6 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		else
 			$next_result['color'] = $color[$row['color']];
 
-		// lower part of tooltip showing created by/on + edited by/on
-		$next_result['additional_info2'] =
-			CRM_ContactsCommon::get_html_record_info($row['created_by'],$row['created_on'],$row['edited_by'],$row['edited_on']);
 
 		$emps_tmp = DB::GetCol('SELECT emp.contact FROM crm_calendar_event_group_emp AS emp WHERE emp.id=%d',array($row['id']));
 		$cuss_tmp = DB::GetCol('SELECT cus.contact FROM crm_calendar_event_group_cus AS cus WHERE cus.id=%d',array($row['id']));
@@ -142,12 +139,12 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 					);
 
 		// create main tooltip part
-		$next_result['tooltip'] = Utils_TooltipCommon::format_info_tooltip($inf2,'CRM_Calendar_Event');
+		$next_result['additional_info'] =  '';
+		$next_result['additional_info2'] = '';
+		// custom tooltip replaces standard one
+		$next_result['custom_tooltip'] =  Utils_TooltipCommon::format_info_tooltip($inf2,'CRM_Calendar_Event').'<hr>'.
+								CRM_ContactsCommon::get_html_record_info($row['created_by'],$row['created_on'],$row['edited_by'],$row['edited_on']);
 
-			
-		$next_result['additional_info'] =  '<hr>'.Utils_TooltipCommon::format_info_tooltip(array(
-				'Employees' => implode('<br>',$emps),
-				'Customers' => implode('<br>',$cuss)),'CRM_Calendar_Event');
 		$next_result['custom_agenda_col_0'] = $row['description'];
 		$next_result['custom_agenda_col_1'] = implode(', ',$emps);
 		$next_result['custom_agenda_col_2'] = implode(', ',$cuss);

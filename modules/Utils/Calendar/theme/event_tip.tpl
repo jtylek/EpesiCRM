@@ -1,3 +1,15 @@
+{if isset($custom_tooltip)}
+<table id="Utils_Calendar__event_tip" border="0">
+    <tbody>
+	<tr>
+            <td colspan="2">{$custom_tooltip}</td>
+	</tr>
+    <tr>
+            <td class="info" colspan="2">Click to show / hide menu</td>
+    </tr>
+	</tbody>
+</table>
+{else}
 <table id="Utils_Calendar__event_tip" border="0">
     <tbody>
 	<tr>
@@ -28,3 +40,4 @@
         </tr>
     </tbody>
 </table>
+{/if}

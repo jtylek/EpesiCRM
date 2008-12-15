@@ -35,6 +35,8 @@ class Utils_CalendarCommon extends ModuleCommon {
 		$th->assign('duration',$ex['duration']);
 		$th->assign('additional_info',$ev['additional_info']);
 		$th->assign('additional_info2',$ev['additional_info2']);
+		if(isset($ev['custom_tooltip']))
+			$th->assign('custom_tooltip',$ev['custom_tooltip']);
 		ob_start();
 		Base_ThemeCommon::display_smarty($th,'Utils_Calendar','event_tip');
 		$tip = ob_get_clean();

@@ -120,7 +120,7 @@ class CRM_Calendar extends Module {
 			
             //////////////////////////
             // left column
-            $date = Utils_TooltipCommon::create($ex['start'],$row['tooltip'].'<hr>'.$row['additional_info2']);
+            $date = Utils_TooltipCommon::create($ex['start'],$row['custom_tooltip']);
 
             $gb->add_row(
                 array('value'=>$view_action.$date.'</a>', 'order_value'=>isset($row['timeless'])?strtotime($row['timeless']):$row['start']),
