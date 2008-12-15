@@ -291,13 +291,13 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
         $hours = intval(intval($seconds) / 3600);
         if($hours > 0)
         {
-            $ret .= Base_LangCommon::ts('CRM_Calendar_Event','%s hour(s) ',array($hours));
+            $ret .= Base_LangCommon::ts('Base_RegionalSettings','%s hour(s) ',array($hours));
         }
         /*** get the minutes ***/
         $minutes = bcmod((intval($seconds) / 60),60);
         if($hours > 0 || $minutes > 0)
         {
-            $ret .= Base_LangCommon::ts('CRM_Calendar_Event','%s minutes',array($minutes));
+            $ret .= Base_LangCommon::ts('Base_RegionalSettings','%s minutes',array($minutes));
         }
 
         return $ret;
