@@ -1001,7 +1001,7 @@ class ModuleManager {
 
 	public static final function check_common_methods($method,$cached=true) { //przy instalacji niech rejestruje commony a pozniej idzie do bazy
 		static $cache;
-		$cache_id = $method.md5(serialize($args));
+		$cache_id = $method;
 		if(!isset($cache[$cache_id]) || !$cached) {
 			$ret = array();
 			foreach(self::$modules as $name=>$version)
