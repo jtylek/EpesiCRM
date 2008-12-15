@@ -282,25 +282,36 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
      * @return string for example 2 hour(s) 15 minutes (translated)
      *
      */
-    public static function seconds_to_words($seconds)
+    public static function seconds_to_words($seconds,$days_h=true)
     {
         /*** return value ***/
         $ret = "";
 
-        /*** get the hours ***/
-        $hours = intval(intval($seconds) / 3600);
+		if($days_h) {
+	        /*** get the days and hours***/
+	        $days = intval(intval($seconds) / (3600*24));
+    	    if($days > 0)
+        	{
+            	$ret .= sprintf('%s day(s) ',$days);
+	        }
+	        $hours = bcmod((intval($seconds) / 3600),24);
+		} else {
+    	    /*** get the hours without days***/
+	        $hours = intval(intval($seconds) / 3600);
+			$days = 0;
+		}
         if($hours > 0)
         {
-            $ret .= Base_LangCommon::ts('Base_RegionalSettings','%s hour(s) ',array($hours));
+            $ret .= sprintf('%s hour(s) ',$hours);
         }
         /*** get the minutes ***/
         $minutes = bcmod((intval($seconds) / 60),60);
-        if($hours > 0 || $minutes > 0)
+        if($days>0 || $hours > 0 || $minutes > 0)
         {
-            $ret .= Base_LangCommon::ts('Base_RegionalSettings','%s minutes',array($minutes));
+            $ret .= sprintf('%s minutes',$minutes);
         }
-
-        return $ret;
+		
+		return $ret;
         }
 
 

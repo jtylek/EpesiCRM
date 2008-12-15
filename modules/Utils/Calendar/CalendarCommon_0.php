@@ -122,33 +122,12 @@ class Utils_CalendarCommon extends ModuleCommon {
 		}
 
 		if(isset($row['fake_duration']))
-			$duration_str = self::duration2str($row['fake_duration']);
+			$duration_str = Base_RegionalSettingsCommon::seconds_to_words($row['fake_duration']);
 		elseif($row['duration'])
-			$duration_str = self::duration2str($row['duration']);
+			$duration_str = Base_RegionalSettingsCommon::seconds_to_words($row['duration']);
 		else
 			$duration_str = '';
 		return array('duration'=>$duration_str,'start'=>$start_t,'end'=>$end_t,'start_time'=>$start_time,'end_time'=>$end_time,'start_date'=>$start_date,'end_date'=>$end_date,'start_day'=>$start_day,'end_day'=>$end_day);
-	}
-
-	private static function duration2str($duration) {
-		$sec = $duration%60;
-		$duration = floor($duration/60);
-		if($duration>0) {
-			$min = $duration%60;
-			$duration = floor($duration/60);
-			if($duration>0) {
-				$hour = $duration%24;
-				$duration = floor($duration/24);
-				if($duration>0) {
-					$days = $duration;
-					$duration_str = Base_LangCommon::ts('Utils_Calendar','%d day(s) %d:%s',array($days, $hour,str_pad($min, 2, "0", STR_PAD_LEFT)));
-				} else
-					$duration_str = Base_LangCommon::ts('Utils_Calendar','%d:%s',array($hour,str_pad($min, 2, "0", STR_PAD_LEFT)));
-			} else
-				$duration_str = Base_LangCommon::ts('Utils_Calendar','00:%s',array(str_pad($min, 2, "0", STR_PAD_LEFT)));
-		} else
-			$duration_str = Base_LangCommon::ts('Utils_Calendar','%d sec',array($sec));
-		return $duration_str;
 	}
 
 	public static function mobile_agenda($evmod,$extra_settings=array(),$time_shift=0,$view_func=null) {
