@@ -112,7 +112,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	 *
 	 * @param mixed string-strtotime recognizable string, null-current time, int-unix time
 	 * @param mixed {0,false,null,''}-no time (you probably don't want to set it!),{1,true,'with_seconds'}-time with seconds,{2,'without_seconds'}-time without seconds
-	 * @param mixed {0,false,null,''}-no date,{1,true}-with date,{2,'without_year'}-date without year
+	 * @param mixed {0,false,null,''}-no date,{1,true}-with date,{2,'without_year'}-date without year, {3,'with_weekday'}-date with weekday
 	 * @param boolean convert to client time
 	 * @param boolean use regional user format
 	 * @return string
@@ -126,8 +126,11 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 				$d = Base_User_SettingsCommon::get('Base_RegionalSettings','date');
 				if($date===2 || strcasecmp($date,'without_year')==0)
 					$d = str_replace(array(', %Y','/%Y','%Y-',' %Y'),'',$d);
+				if($date===3 || strcasecmp($date,'with_weekday')==0)
+					$d = '%a - '.$d;
 				$format[] = $d;
 			}
+
 			if($time) {
 				$sec = Base_User_SettingsCommon::get('Base_RegionalSettings','time');
 				if($time===2 || strcasecmp($time,'without_seconds')==0)
@@ -153,6 +156,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 //		self::restore_locale();
 		if($tz)
 			self::restore_tz();
+
 		return $ret;
 	}
 

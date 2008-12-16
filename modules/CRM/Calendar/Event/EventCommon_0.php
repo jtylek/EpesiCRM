@@ -113,7 +113,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		}
 
         $start_time = Base_RegionalSettingsCommon::time2reg($row['start'],2,false);
-        $event_date = Base_RegionalSettingsCommon::time2reg($row['start'],false);
+        $event_date = Base_RegionalSettingsCommon::time2reg($row['start'],false,3);
         $end_time = Base_RegionalSettingsCommon::time2reg($row['end'],2,false);
 
         $inf2 = array(
