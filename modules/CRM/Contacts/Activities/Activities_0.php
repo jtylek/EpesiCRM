@@ -87,13 +87,13 @@ class CRM_Contacts_Activities extends Module {
 	
 	public function filters() {	
 		$form = $this->init_module('Libs/QuickForm');
-		$form->addElement('header', 'display', $this->t('Display'));
+		$form->addElement('header', 'display', $this->t('Show'));
 		$form->addElement('checkbox', 'events', $this->t('Events'), null, array('onchange'=>$form->get_submit_form_js()));
 		$form->addElement('checkbox', 'tasks', $this->t('Tasks'), null, array('onchange'=>$form->get_submit_form_js()));
 		$form->addElement('checkbox', 'phonecalls', $this->t('Phone Calls'), null, array('onchange'=>$form->get_submit_form_js()));
 		$form->addElement('select', 'activities_date', $this->t('Activities date'), array(0=>$this->t('Future'), 1=>$this->t('Past'), 2=>$this->t('All time')), array('onchange'=>$form->get_submit_form_js()));
 		$form->addElement('checkbox', 'closed', $this->t('Closed'), null, array('onchange'=>$form->get_submit_form_js()));
-		$old_display = $this->get_module_variable('display_options', array('events'=>1, 'tasks'=>1, 'phonecalls'=>1, 'closed'=>0, 'activities_date'=>0));
+		$old_display = $this->get_module_variable('display_options', array('events'=>1, 'tasks'=>1, 'phonecalls'=>1, 'closed'=>1, 'activities_date'=>2));
 		$form->setDefaults($old_display);
 		$form->assign_theme('form',$this->theme);
 		$this->display = $form->exportValues();
