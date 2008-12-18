@@ -142,7 +142,7 @@ hr.line {
 
 #content_body {
     /*position: absolute;
-    top: 97px;*/ 
+    top: 97px;*/
     margin-top: 97px;
     width: 100%;
     padding: 0px;
@@ -181,7 +181,7 @@ hr.line {
 #top_bar #top_bar_1 {
 	width: 100%;
 	height: 20px;
-	border-bottom: 0px solid #B3B3B3;
+	border-bottom: 0px solid #b3b3b3;
 }
 
 /* roll */
@@ -192,17 +192,17 @@ hr.line {
     padding-bottom: 3px;
     width: 17px;
 	background-color: #595959;
-	background-image: url('images/header-gray-dark.png');
+	background-image: url('images/header-black.png');
 	background-repeat: repeat-x;
     cursor: pointer;
 }
 
 #top_bar #top_bar_1 .roll-left {
-	border-right: 4px solid #B3B3B3;
+	border-right: 4px solid #b3b3b3;
 }
 
 #top_bar #top_bar_1 .roll-left:hover {
-	background-image: url('images/header-gray-dark-hover.png');
+	background-image: url('images/header-black-hover.png');
 }
 
 #top_bar #top_bar_1 .roll-left img {
@@ -217,7 +217,7 @@ hr.line {
 	height: 20px;
 	text-align: left;
 	background-color: #595959;
-	background-image: url('images/header-gray-dark.png');
+	background-image: url('images/header-black.png');
 	background-repeat: repeat-x;
 }
 
@@ -225,7 +225,7 @@ hr.line {
     text-align: right;
     vertical-align: middle;
 	background-color: #595959;
-	background-image: url("images/header-gray-dark.png");
+	background-image: url("images/header-black.png");
 	background-repeat: repeat-x;
     font-size: 9px;
     color: white;
@@ -234,7 +234,7 @@ hr.line {
 #top_bar #top_bar_1 .version {
 	width: 100px;
 	background-color: #595959;
-	background-image: url("images/header-gray-dark.png");
+	background-image: url("images/header-black.png");
 	background-repeat: repeat-x;
 	text-align: center;
 	font-size: 9px;
@@ -255,11 +255,11 @@ hr.line {
 	width: 287px;
     height: 20px;
 	background-color: #595959;
-	background-image: url("images/header-gray-dark.png");
+	background-image: url("images/header-black.png");
 	background-repeat: repeat-x;
 	font-weight: bold;
 	text-align: center;
-	border-left: 4px solid #B3B3B3;
+	border-left: 4px solid #b3b3b3;
 	color: #FFFFFF;
     vertical-align: top;
     text-align: center;
@@ -368,12 +368,12 @@ hr.line {
     text-align: center;
     vertical-align: middle;
     background-image: url('images/filter.png');
-	/*background-image: url("images/header-gray-dark.png");*/
+	/*background-image: url("images/header-black.png");*/
 }
 
 #top_bar #top_bar_2 .filter a:hover {
     background-image: url('images/filter-hover.png');
-	/*background-image: url("images/header-gray-dark-hover.png");*/
+	/*background-image: url("images/header-black-hover.png");*/
 }
 
 /*	=layer
