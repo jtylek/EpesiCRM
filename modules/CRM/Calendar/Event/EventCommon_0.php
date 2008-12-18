@@ -293,7 +293,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 						$rend = $end_reg;
 				}
 				$kk = 0;
-				if(($row['start']>=$start_reg && !$row['timeless']) || ($row['start']>=$start && $row['timeless'])) {
+				if(($row['start']>=$start_reg && !$row['timeless']) || ($row['start']>=strtotime($start) && $row['timeless'])) {
 					if($type=='week_custom') {
 						if($row['recurrence_hash']{date('N',strtotime(Base_RegionalSettingsCommon::time2reg($row['start'],false,true,true,false)))-1}) {
 							if($row['timeless'])
@@ -318,7 +318,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 				while($row['start']<$rend) {
 						$kk++;
 						$row['start'] = self::get_next_recurrence_time($row['start'],$row,$type,$start_time);
-						if((($row['start']>=$start_reg && !$row['timeless']) || ($row['start']>=$start && $row['timeless'])) && $row['start']<$rend) {
+						if((($row['start']>=$start_reg && !$row['timeless']) || ($row['start']>=strtotime($start) && $row['timeless'])) && $row['start']<$rend) {
 							if($row['timeless'])
 								$next = date('Y-m-d',$row['start']);
 							else
@@ -385,7 +385,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 						$rend = $end_reg;
 				}
 				$kk = 0;
-				if(($next_result['start']>=$start_reg && !$row['timeless']) || ($next_result['start']>=$start && $row['timeless'])) {
+				if(($next_result['start']>=$start_reg && !$row['timeless']) || ($next_result['start']>=strtotime($start) && $row['timeless'])) {
 					$next_result['id'] = $row['id'].'_'.$kk;
 					if($type=='week_custom') {
 						if($row['recurrence_hash']{date('N',strtotime(Base_RegionalSettingsCommon::time2reg($next_result['start'],false,true,true,false)))-1})
@@ -402,7 +402,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 						$next_result['start'] = self::get_next_recurrence_time($next_result['start'],$row,$type,$start_time);
 						$next_result['end'] = self::get_next_recurrence_time($next_result['end'],$row,$type,$end_time);
 						if(isset($next_result['timeless'])) $next_result['timeless'] = date('Y-m-d',$next_result['start']);
-						if((($next_result['start']>=$start_reg && !$row['timeless']) || ($next_result['start']>=$start && $row['timeless'])) && $next_result['start']<$rend) {
+						if((($next_result['start']>=$start_reg && !$row['timeless']) || ($next_result['start']>=strtotime($start) && $row['timeless'])) && $next_result['start']<$rend) {
 							$result[] = $next_result;
 						}
 				}
