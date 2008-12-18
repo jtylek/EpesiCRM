@@ -126,7 +126,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 				$d = Base_User_SettingsCommon::get('Base_RegionalSettings','date');
 				if($date===2 || strcasecmp($date,'without_year')==0)
 					$d = str_replace(array(', %Y','/%Y','%Y-',' %Y'),'',$d);
-				if($date===3 || strcasecmp($date,'with_weekday')==0)
+				elseif($date===3 || strcasecmp($date,'with_weekday')==0)
 					$d = '%a - '.$d;
 				$format[] = $d;
 			}
