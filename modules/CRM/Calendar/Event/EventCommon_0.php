@@ -283,7 +283,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 				$type = self::recurrence_type($row['recurrence_type']);
 				if($row['timeless']) {
 					if(isset($row['recurrence_end']))
-						$rend = min(strtotime($row['recurrence_end']),$end);
+						$rend = min(strtotime($row['recurrence_end']),strtotime($end));
 					else
 						$rend = strtotime($end);
 				} else {
@@ -375,7 +375,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 				$type = self::recurrence_type($row['recurrence_type']);
 				if($row['timeless']) {
 					if(isset($row['recurrence_end'])) {
-						$rend = min(strtotime($row['recurrence_end'].' 12:00:00')+3600*24,$end);
+						$rend = min(strtotime($row['recurrence_end'].' 12:00:00')+3600*24,strtotime($end));
 					} else
 						$rend = strtotime($end);
 				} else {
