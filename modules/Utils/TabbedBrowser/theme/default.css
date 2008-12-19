@@ -7,7 +7,7 @@ ul#Utils_TabbedBrowser {
 	text-align: left;
 	font-weight: normal;
 	font-size: 11px;
-	border-bottom: 4px solid #595959;
+	border-bottom: 4px solid #828282;
 	list-style-type: none;
 	/* padding: 13px 20px 3px 20px; */
 	padding: 0px 20px 3px 20px;
@@ -46,7 +46,7 @@ ul#Utils_TabbedBrowser li a {
 
 ul#Utils_TabbedBrowser a:hover {
 	color: #FFFFFF;
-	background-color: #595959;
+	background-color: #828282;
 	/*background-image: url("images/header-blue-hover.png");*/
 	background-repeat: repeat-x;
 }
