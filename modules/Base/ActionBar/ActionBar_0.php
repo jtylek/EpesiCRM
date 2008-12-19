@@ -39,6 +39,8 @@ class Base_ActionBar extends Module {
 	 * Displays action bar.
 	 */
 	public function body() {
+		$this->help('main','ActionBar basics');
+		
 		$icons = Base_ActionBarCommon::get();
 		if(Acl::is_user())
 			$display_settings = Base_User_SettingsCommon::get('Base/ActionBar','display');

@@ -16,6 +16,9 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_MainModuleIndicator extends Module {
 
 	public function body() {
+		$t = $this->pack_module('Base/Theme');
+
+		//caption
 		$box_module = ModuleManager::get_instance('/Base_Box|0');
 		if($box_module)
 			$active_module = $box_module->get_main_module();
@@ -23,9 +26,9 @@ class Base_MainModuleIndicator extends Module {
 			$caption = $active_module->caption();
 			if ($caption!='') $caption = $this->t($caption);
 			if(Variable::get('show_module_indicator')) {
-				$t = & $this->pack_module('Base/Theme');
 				$t->assign('text', $caption);
-				$t->display();
+			} else {
+				$t->assign('text', '');
 			}
 			$show_caption = Variable::get('show_caption_in_title');
 			$base_title = Variable::get('base_page_title');
@@ -39,6 +42,12 @@ class Base_MainModuleIndicator extends Module {
 		} else {
 				eval_js('document.title=\''.addslashes(Variable::get('base_page_title')).'\'');
 		}
+		
+		//help
+		$t->assign('help', '<a href="'.$this->get_module_dir().'help.php?cid='.CID.'" target="_blank">help</a>');
+		
+		
+		$t->display();
 	}
 	
 	public function admin() {
