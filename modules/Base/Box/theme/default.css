@@ -192,7 +192,7 @@ hr.line {
     padding-bottom: 3px;
     width: 17px;
 	background-color: #595959;
-	background-image: url('images/header-black.png');
+	background-image: url('images/header-gray-dark.png');
 	background-repeat: repeat-x;
     cursor: pointer;
 }
@@ -202,7 +202,7 @@ hr.line {
 }
 
 #top_bar #top_bar_1 .roll-left:hover {
-	background-image: url('images/header-black-hover.png');
+	background-image: url('images/header-gray-dark-hover.png');
 }
 
 #top_bar #top_bar_1 .roll-left img {
@@ -217,7 +217,7 @@ hr.line {
 	height: 20px;
 	text-align: left;
 	background-color: #595959;
-	background-image: url('images/header-black.png');
+	background-image: url('images/header-gray-dark.png');
 	background-repeat: repeat-x;
 }
 
@@ -225,7 +225,7 @@ hr.line {
     text-align: right;
     vertical-align: middle;
 	background-color: #595959;
-	background-image: url("images/header-black.png");
+	background-image: url("images/header-gray-dark.png");
 	background-repeat: repeat-x;
     font-size: 9px;
     color: white;
@@ -234,7 +234,7 @@ hr.line {
 #top_bar #top_bar_1 .version {
 	width: 100px;
 	background-color: #595959;
-	background-image: url("images/header-black.png");
+	background-image: url("images/header-gray-dark.png");
 	background-repeat: repeat-x;
 	text-align: center;
 	font-size: 9px;
@@ -255,7 +255,7 @@ hr.line {
 	width: 287px;
     height: 20px;
 	background-color: #595959;
-	background-image: url("images/header-black.png");
+	background-image: url("images/header-gray-dark.png");
 	background-repeat: repeat-x;
 	font-weight: bold;
 	text-align: center;
@@ -334,7 +334,8 @@ hr.line {
 
 #top_bar #top_bar_2 .login a {
     margin-left: 7px;
-    background-image: url('images/logout.png');
+    /*background-image: url('images/logout.png');*/
+    background-image: url('images/header-green.png');
 }
 
 #top_bar #top_bar_2 .login a:hover {
@@ -367,8 +368,8 @@ hr.line {
     padding-top: 3px;
     text-align: center;
     vertical-align: middle;
-    background-image: url('images/filter.png');
-	/*background-image: url("images/header-black.png");*/
+    /*background-image: url('images/filter.png');*/
+    background-image: url('images/header-green.png');
 }
 
 #top_bar #top_bar_2 .filter a:hover {
