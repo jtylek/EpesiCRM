@@ -52,11 +52,17 @@ if(!isset($_GET['license'])) {
 	print('<h1>Welcome to epesi framework setup!<br></h1><h2>Please read and accept license</h2><br><div class="license">');
 	license();
 		print('</div><br><a class="button" href="setup.php?license=1">Accept</a>');
-?>
-
-<?php
-}
-	else {
+} elseif(!isset($_GET['htaccess'])) {
+	ob_start();
+	print('<h1>Welcome to epesi framework setup!<br></h1><h2>Hosting compatibility:</h2><br><div class="license">');
+	if(check_htaccess()) {
+		$_GET['htaccess'] = 1;
+		ob_end_clean();
+	} else
+		print('</div><br><a class="button" href="setup.php?license=1&htaccess=1">Ok</a>');	
+	ob_end_flush();
+} 
+if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 	$form = new HTML_QuickForm('serverform','post',$_SERVER['PHP_SELF'].'?'.http_build_query($_GET));
 	$form -> addElement('header', null, 'Database server settings');
 	$form -> addElement('text', 'host', 'Database server address');
@@ -154,6 +160,46 @@ if(!isset($_GET['license'])) {
 
 ///////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////
+function check_htaccess() {
+	$local_dir = dirname(str_replace('\\','/',__FILE__));
+	$file_url = substr(str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']),strlen($local_dir));
+	$dir_url = substr($_SERVER['SCRIPT_NAME'],0,strlen($_SERVER['SCRIPT_NAME'])-strlen($file_url));
+	$dir = trim($dir_url,'/');
+	$epesi_dir = '/'.$dir.($dir?'/':'');
+	$protocol = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS'])!== "off") ? 'https://' : 'http://';
+	$test_url = $protocol.$_SERVER['HTTP_HOST'].$epesi_dir.'data/test.php';
+	file_put_contents('data/test.php','');
+	copy('htaccess.txt','data/.htaccess');
+	if(ini_get('allow_url_fopen'))
+		$ret = @file_get_contents($test_url);
+	elseif (extension_loaded('curl')) { // Test if curl is loaded
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_HEADER, 0);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //Set curl to return the data instead of printing it to the browser.
+		curl_setopt($ch, CURLOPT_URL, $test_url);
+		$ret = curl_exec($ch);
+		curl_close($ch);
+	} 
+	
+	unlink('data/.htaccess');
+	unlink('data/test.php');
+
+	if(!isset($ret)) {
+		print('Unable to check epesi root .htaccess file hosting compatibility. You should tweak it yourself. <br>Suggested .htaccess file is:<pre>'.file_get_contents('htaccess.txt').'</pre>');
+		return false;
+	}
+	if($ret!=="") {
+		print('Your hosting is not compatible with default epesi root .htaccess file. You should tweak it yourself. <br>Default .htaccess file is:<pre>'.file_get_contents('htaccess.txt').'</pre>');
+		return false;
+	}
+	if(!is_writable('.')) {
+		print('Your hosting is compatible with default epesi root .htaccess file, but installer cannot write to epesi root directory. You should copy htaccess.txt to .htaccess file manually.');
+		return false;
+	}
+	copy('htaccess.txt','.htaccess');
+	return true;
+}
+
 function write_config($host, $user, $pass, $dbname, $engine) {
 	$c = & fopen(DATA_DIR.'/config.php', 'w');
 	fwrite($c, '<?php
