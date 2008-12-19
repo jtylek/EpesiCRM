@@ -88,7 +88,7 @@ class Utils_LeightboxPrompt extends Module {
 			ob_start();
 			$theme->display('leightbox');
 			$profiles_out = ob_get_clean();
-			Libs_LeightboxCommon::display($this->group.'_followups_leightbox', $profiles_out, $header);
+			Libs_LeightboxCommon::display($this->group.'_followups_leightbox', $profiles_out, $header, true);
 		}
 	}
 	
