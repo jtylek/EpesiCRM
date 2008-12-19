@@ -16,12 +16,13 @@ class Base_MainModuleIndicatorCommon extends Base_AdminModuleCommon {
 		return "Module indicator settings";
 	}
 	
-	public static function add_help($file,$caption,$c=null) {
-		if($file instanceof Module) {
-			$file = $file->get_module_dir().'help/'.$caption.'.html';
+	public static function add_help($caption,$file,$c=null) {
+		if($caption instanceof Module) {
 			if(!isset($c))
 				trigger_error('Missing argument 2 for Module::help()');
-			$caption = $c;
+			$cap = $file;
+			$file = $caption->get_module_dir().'help/'.$c.'.html';
+			$caption = $cap;
 		}
 		$_SESSION['client']['help'][$caption] = $file;
 	}
