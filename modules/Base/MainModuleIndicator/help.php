@@ -36,7 +36,11 @@ $h = & $_SESSION['client']['help'];
 foreach($h as $c=>$txt) {
 	$id = md5($c);
 	print('<h2><a href="javascript:void(0)" onClick="$(\''.$id.'\').toggle()">'.$c.'</a></h2>'); //TODO: expandable titles
-	print('<div id="'.$id.'" style="display: none;">'.file_get_contents($txt).'</div>');
+	if(file_exists($txt)){
+		print('<div id="'.$id.'" style="display: none;">'.file_get_contents($txt).'</div>');
+	}else{
+		print ('<div id="'.$id.'" style="display: none;">Help file for this topic does not exist</div>');
+	}
 }
 ?>
 				</td>
