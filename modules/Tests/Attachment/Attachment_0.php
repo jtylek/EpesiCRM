@@ -14,7 +14,6 @@ class Tests_Attachment extends Module{
 		print('This is an example Attachment page.');
 		$com = & $this->init_module('Utils/Attachment',array('grupa'));
 		$this -> display_module($com);
-
 		//------------------------------ print out src
 		print('<hr><b>Install</b><br>');
 		$this->pack_module('Utils/CatFile','modules/Tests/Attachment/AttachmentInstall.php');

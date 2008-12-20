@@ -201,11 +201,9 @@ class Epesi {
 	}
 
 	public static function debug($msg=null) {
-		if(DEBUG) {
-			static $msgs = '';
-			if($msg) $msgs .= $msg;
-			return $msgs;
-		}
+		static $msgs = '';
+		if($msg) $msgs .= $msg.'<br>';
+		return $msgs;
 	}
 
 	public static function process($url, $history_call=false,$refresh=false) {
@@ -258,12 +256,10 @@ class Epesi {
 			return self::process(http_build_query($loc),false,true);
 		}
 
-		if(DEBUG || MODULE_TIMES || SQL_TIMES) {
-			$debug = '';
-			if(DEBUG && ($debug_diff = @include_once('tools/Diff.php'))) {
-				require_once 'tools/Text/Diff/Renderer/inline.php';
-				$diff_renderer = &new Text_Diff_Renderer_inline();
-			}
+		$debug = '';
+		if(DEBUG && ($debug_diff = @include_once('tools/Diff.php'))) {
+			require_once 'tools/Text/Diff/Renderer/inline.php';
+			$diff_renderer = &new Text_Diff_Renderer_inline();
 		}
 
 		//clean up old modules
@@ -345,8 +341,8 @@ class Epesi {
 			$debug .= 'user='.Acl::get_user().'<br>';
 			if(isset($_REQUEST['__action_module__']))
 				$debug .= 'action module='.$_REQUEST['__action_module__'].'<br>';
-			$debug .= self::debug();
 		}
+		$debug .= self::debug();
 
 		if(MODULE_TIMES) {
 			foreach (self::$content as $k => $v) {
@@ -374,8 +370,10 @@ class Epesi {
 			$debug .= '<b>Number of queries:</b> '.$qty.'<br>';
 			$debug .= '<b>Queries times:</b> '.$sum.'<br>';
 		}
-		if(DEBUG || MODULE_TIMES || SQL_TIMES)
+		if(!isset($_SESSION['client']['custom_debug']) || $debug!=$_SESSION['client']['custom_debug']) {
 			self::text($debug,'debug');
+			$_SESSION['client']['custom_debug'] = $debug;
+		}
 
 		if(!$history_call && !History::soft_call()) {
 		        History::set();

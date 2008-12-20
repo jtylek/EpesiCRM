@@ -65,7 +65,8 @@ abstract class Module extends ModulePrimitive {
 		if(!isset($this->children[$type]))
 			$this->children[$type] = array();
 		$this->children[$type][$instance] = & $ch;
-		Epesi::debug('registering '.$this->get_path().'/'.$type.'|'.$instance.'<br>');
+		if(DEBUG)
+			Epesi::debug('registering '.$this->get_path().'/'.$type.'|'.$instance);
 	}
 
 	private final function get_new_child_instance_id($type) {
@@ -794,7 +795,8 @@ abstract class Module extends ModulePrimitive {
 		} else {
 			Epesi::$content[$path]['value'] = $_SESSION['client']['__module_content__'][$path]['value'];
 			Epesi::$content[$path]['js'] = $_SESSION['client']['__module_content__'][$path]['js'];
-			Epesi::debug('Fast process of '.$path.'<br>');
+			if(DEBUG)
+				Epesi::debug('Fast process of '.$path);
 		}
 		if(MODULE_TIMES)
 			Epesi::$content[$path]['time'] = microtime(true)-$time;

@@ -33,14 +33,15 @@ require_once('../../../include.php');
 				<td>
 <?php
 $h = & $_SESSION['client']['help'];
-foreach($h as $c=>$txt) {
-	$id = md5($c);
+ksort($h);
+$i=0;
+foreach($h as $c=>$t) {
+	$txt = $t[1];
+	$prior = $t[0];
+	$id = 'help_'.$i;
+	$i++;
 	print('<h2><a href="javascript:void(0)" onClick="$(\''.$id.'\').toggle()">'.$c.'</a></h2>'); //TODO: expandable titles
-	if(file_exists($txt)){
-		print('<div id="'.$id.'" style="display: none;">'.file_get_contents($txt).'</div>');
-	}else{
-		print ('<div id="'.$id.'" style="display: none;">Help file for this topic does not exist</div>');
-	}
+	print('<div id="'.$id.'" style="display: none;">'.(file_exists($txt)?file_get_contents($txt):'Help file for this topic does not exist').'</div>');
 }
 ?>
 				</td>
