@@ -32,7 +32,7 @@
 			<table id="top_bar_2" cellspacing="0" cellpadding="0" border="0">
 			<tbody>
 				<tr>
-					<td class="logo"><a href="#"><img border="0" src="{$theme_dir}/images/logo-small.png" width="193" height="68"></a></td>
+					<td class="logo"><a href="#"><img border="0" src="{$theme_dir}/images/logo-small.gif" width="193" height="68"></a></td>
 					<td class="icons">{$actionbar}</td>
 					<td id="login-search-td">
 						<div id="search-login-bar">
