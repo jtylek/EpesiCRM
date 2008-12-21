@@ -1,0 +1,17 @@
+.text {
+    float: left;
+    width: 267px;
+}
+
+.help {
+    float: left;
+    width: 20px;
+}
+
+.help img {
+    border: none;
+}
+
+.help:hover {
+    background-image: url('images/header-black-hover.png');
+}
