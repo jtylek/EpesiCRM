@@ -16,17 +16,17 @@ class Base_MainModuleIndicatorCommon extends Base_AdminModuleCommon {
 		return "Module indicator settings";
 	}
 	
-	public static function add_help($caption,$file,$priority=null,$c=null) {
+	public static function add_help($caption,$file,$open=null,$c=null) {
 		if($caption instanceof Module) {
-			if(!isset($priority))
+			if(!isset($open))
 				trigger_error('Missing argument 2 for Module::help()');
 			$mod = $caption;
 			$caption = $file;
-			$file = $mod->get_module_dir().'help/'.$priority.'.html';
-			$priority = $c;
+			$file = $mod->get_module_dir().'help/'.$open.'.html';
+			$open = $c;
 		}
-		if($priority==null) $priority=0;
-		$_SESSION['client']['help'][$caption] = array($priority,$file);
+		if($open==null) $open=false;
+		$_SESSION['client']['help'][$caption] = array($open,$file);
 	}
 
 	public static function clean_help() {

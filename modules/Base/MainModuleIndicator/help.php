@@ -4,6 +4,8 @@ if(!isset($_GET['cid']) || !is_numeric($_GET['cid'])) {
 }
 define('CID',$_GET['cid']);
 require_once('../../../include.php');
+
+$h = & $_SESSION['client']['help'];
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
@@ -12,12 +14,16 @@ require_once('../../../include.php');
 	  <title>epesi help</title>
 	  <link href="help.css" type="text/css" rel="stylesheet"/>
 <?php
+
 	require_once('libs/minify/Minify/Build.php');
-	$jses = array('libs/prototype.js');
+	$jses = array('libs/prototype.js','modules/Base/MainModuleIndicator/help.js');
 	$jsses_build = new Minify_Build($jses);
 	$jsses_src = $jsses_build->uri('../../../serve.php?'.http_build_query(array('f'=>array_values($jses))));
 ?>
 		<script type="text/javascript" src="<?php print($jsses_src)?>"></script>
+		<script type="text/javascript">
+		help.max=<?php echo(count($h)); ?>
+		</script>
 </head>
 <body>
 		<table id="banner" border="0" cellpadding="0" cellspacing="0">
@@ -32,16 +38,15 @@ require_once('../../../include.php');
 			<tr>
 				<td>
 <?php
-$h = & $_SESSION['client']['help'];
 ksort($h);
 $i=0;
 foreach($h as $c=>$t) {
 	$txt = $t[1];
-	$prior = $t[0];
+	$open = $t[0];
 	$id = 'help_'.$i;
+	print('<h2><a href="javascript:void(0)" onClick="help.sw('.$i.')">'.$c.'</a></h2>');
+	print('<div id="'.$id.'"'.($open?'':' style="display: none;"').'>'.(file_exists($txt)?file_get_contents($txt):'Help file for this topic does not exist').'</div>');
 	$i++;
-	print('<h2><a href="javascript:void(0)" onClick="$(\''.$id.'\').toggle()">'.$c.'</a></h2>'); //TODO: expandable titles
-	print('<div id="'.$id.'" style="display: none;">'.(file_exists($txt)?file_get_contents($txt):'Help file for this topic does not exist').'</div>');
 }
 ?>
 				</td>
