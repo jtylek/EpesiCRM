@@ -22,7 +22,7 @@
 	    <table id="Base_User_Login" cellspacing="0" cellpadding="0" border="0">
             <tbody>
 	    	<tr>
-				<td colspan="2" class="header_tail"><img border="0" src="{$theme_dir}/images/logo.png" width="550" height="200"></td>
+				<td colspan="2" class="header_tail"><img border="0" src="{$theme_dir}/images/logo.gif" width="550" height="200"></td>
 			</tr>
             <tr>
                 <td class="gradient">

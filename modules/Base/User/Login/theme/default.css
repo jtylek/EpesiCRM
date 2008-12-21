@@ -48,12 +48,12 @@ table#Base_User_Login input.submit {
 	border: 0px;
 	width: 100px;
 	height: 20px;
-	background-image: url("images/header-blue.png");
+	background-image: url("images/button.gif");
 	vertical-align: middle;
 }
 
 table#Base_User_Login input.submit:hover {
-	background-image: url("images/header-blue-hover.png");
+	background-image: url("images/button-hover.gif");
 }
 
 table#Base_User_Login td.label {
