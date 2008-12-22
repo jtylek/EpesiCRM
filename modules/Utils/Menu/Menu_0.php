@@ -83,6 +83,9 @@ class Utils_Menu extends Module {
 	 * This method displays menu.
 	 */
 	public function body() {
+
+		$this->help('Menu','index');
+
 		$theme = & $this->init_module('Base/Theme');
 		$str = '<div id=menu_contener_'.$this->menu_id.'><img width="16" height="16" border="0" style="width: 16px; height: 16px; background: white; color: white; border: 0px;" src="modules/Utils/Menu/theme/loader.gif"></div>';
 		$theme->assign('menu', $str);
