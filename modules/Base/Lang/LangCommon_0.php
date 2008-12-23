@@ -185,13 +185,6 @@ class Base_LangCommon extends ModuleCommon {
 // Translation of group of text
 // The directory is parsed using debug_backtrace
 /*
-	Janusz, nie wiem o co chodzilo tutaj... podzielilem funkcje translate tak aby nie bylo kodu kopiuj&wklej. 
-	Swoja droga zrobiles ladnie wnetrze get_group - jak mi o tym wspominales to myslalem ze calkiem inaczej 
-	zrobisz/masz na mysli.
-	Tutaj tez trzeba zrobic porzadek. Nie zauwazylem zebys gdzies uzywal tej funkcji wiec ja zakomentowalem.
-	Mam jeszcze mala uwage do konwencji nazewnictwa klas i metod jaka przyjelismy kiedys z Arkiem:
-	ToJestKlasaModulu_ToJestPodmodul::nazwa_funkcji_jest_malymi_literami_z_podkreslnikami
-	
 	 public static function TranslateGroup($textarray) {
 		global $translations;
 		// Get a directory of a script from which the function was called

@@ -22,7 +22,7 @@ class Base_MainModuleIndicatorCommon extends Base_AdminModuleCommon {
 				trigger_error('Missing argument 2 for Module::help()');
 			$mod = $caption;
 			$caption = $file;
-			$file = $mod->get_module_dir().'help/'.$open.'.html';
+			$file = $mod->get_module_dir().'help/'.$open;
 			$open = $c;
 		}
 		if($open==null) $open=false;

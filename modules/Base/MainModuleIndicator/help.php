@@ -4,6 +4,7 @@ if(!isset($_GET['cid']) || !is_numeric($_GET['cid'])) {
 }
 define('CID',$_GET['cid']);
 require_once('../../../include.php');
+ModuleManager::load_modules();
 
 $h = & $_SESSION['client']['help'];
 ?>
@@ -45,7 +46,11 @@ foreach($h as $c=>$t) {
 	$open = $t[0];
 	$id = 'help_'.$i;
 	print('<h2><a href="javascript:void(0)" onClick="help.sw('.$i.')">'.$c.'</a></h2>');
-	print('<div id="'.$id.'"'.($open?'':' style="display: none;"').'>'.(file_exists($txt)?file_get_contents($txt):'Help file for this topic does not exist').'</div>');
+	$lang = Base_LangCommon::get_lang_code();
+	$file = htmlspecialchars($txt).'.'.$lang.'.html';
+	if(!file_exists($file))
+		$file = htmlspecialchars($txt).'.html';
+	print('<div id="'.$id.'"'.($open?'':' style="display: none;"').'>'.(file_exists($file)?'<iframe src="../../../'.$file.'" width="1000px" height="400px"></iframe>':'Help file for this topic does not exist').'</div>');
 	$i++;
 }
 ?>
