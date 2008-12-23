@@ -45,6 +45,7 @@ class Utils_RecordBrowser extends Module {
 	private $fullscreen_table = false;
 	private $amount_of_records = 0;
 	private $switch_to_addon = null;
+	private $additional_caption = '';
 	public static $admin_filter = '';
 	public static $tab_param = '';
 	public static $clone_result = null;
@@ -62,6 +63,10 @@ class Utils_RecordBrowser extends Module {
 	
 	public function switch_to_addon($arg) {
 		$this->switch_to_addon = $arg;
+	}
+	
+	public function set_additional_caption($arg) {
+		$this->additional_caption = $arg;
 	}
 	
 	public function get_display_method($ar) {
@@ -187,7 +192,7 @@ class Utils_RecordBrowser extends Module {
 		$theme = $this->init_module('Base/Theme');
 		$theme->assign('filters', $filters);
 		$theme->assign('table', $table);
-		$theme->assign('caption', $this->t($this->caption).' - '.$this->t(ucfirst($this->browse_mode)));
+		$theme->assign('caption', $this->t($this->caption).' - '.$this->t(ucfirst($this->browse_mode)).$this->additional_caption);
 		$theme->assign('icon', $this->icon);
 		$theme->display('Browsing_records');
 	}
