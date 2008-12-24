@@ -50,7 +50,11 @@ foreach($h as $c=>$t) {
 	$file = htmlspecialchars($txt).'.'.$lang.'.html';
 	if(!file_exists($file))
 		$file = htmlspecialchars($txt).'.html';
-	print('<div id="'.$id.'"'.($open?'':' style="display: none;"').'>'.(file_exists($file)?'<iframe src="../../../'.$file.'" width="1000px" height="400px"></iframe>':'Help file for this topic does not exist').'</div>');
+	if(file_exists($file)) {
+		$content = '<iframe id="'.$id.'_frame" src="../../../'.$file.'" width="950px" frameborder=0></iframe>';
+	} else
+		$content = 'Help file for this topic does not exist';
+	print('<div id="'.$id.'"'.($open?'':' style="display: none;"').'>'.$content.'</div>');
 	$i++;
 }
 ?>
