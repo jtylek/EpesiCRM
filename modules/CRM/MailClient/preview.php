@@ -60,7 +60,7 @@ if($attach!==true) {
 	$body = preg_replace("/<a([^>]*)>(.*)<\/a>/i", '<a$1 target="_blank">$2</a>', $body);
 
 	$body .= '<script>'.
-			'parent.$("crm_mailclient_view").height = document.body.offsetHeight+20;'.
+			'parent.$("crm_mailclient_view").height = Math.max(document.body.offsetHeight,document.body.scrollHeight)+30;'.
 			'</script>'.
 			'</html>';
 
