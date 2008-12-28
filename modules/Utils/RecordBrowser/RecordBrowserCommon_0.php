@@ -422,7 +422,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if ($f!=='') DB::Execute('ALTER TABLE '.$tab.'_data_1 ADD COLUMN f_'.strtolower(str_replace(' ','_',$field)).' '.$f);
 		DB::Execute('INSERT INTO '.$tab.'_field(field, type, visible, param, style, position, extra, required, filter) VALUES(%s, %s, %d, %s, %s, %d, %d, %d, %d)', array($field, $type, $visible?1:0, $param, $style, $pos, $extra?1:0, $required?1:0, $filter?1:0));
 	}
-	public static function actual_db_type($type, $param) {
+	public static function actual_db_type($type, $param=null) {
 		$f = '';
 		switch ($type) {
 			case 'page_split': $f = ''; break;
