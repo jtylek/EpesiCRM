@@ -35,6 +35,7 @@ class CRM_MailClientInstall extends ModuleInstall {
 			name C(255),
 			cid C(255)',
 			array('constraints'=>', FOREIGN KEY (mail_id) REFERENCES crm_mailclient_mails(ID)'));
+		Utils_WatchdogCommon::register_category('crm_mailclient', array('CRM_MailClientCommon','watchdog_label'));
 		$this->create_data_dir();
 		file_put_contents($this->get_data_dir().'.htaccess','deny from all');
 		Base_ThemeCommon::install_default_theme($this->get_type());
@@ -43,6 +44,7 @@ class CRM_MailClientInstall extends ModuleInstall {
 	
 	public function uninstall() {
 		Base_ThemeCommon::uninstall_default_theme($this->get_type());
+		Utils_WatchdogCommon::unregister_category('crm_mailclient');
 		Utils_RecordBrowserCommon::delete_addon('contact', 'CRM/MailClient', 'contact_addon');
 		DB::DropTable('crm_mailclient_attachments');
 		DB::DropTable('crm_mailclient_mails');

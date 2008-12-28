@@ -31,3 +31,5 @@
 <td><span class="error">{$form_data.body.error}</span>{$form_data.body.html}</td>
 </tr>
 </table>
+
+{$form_close}

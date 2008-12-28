@@ -45,7 +45,7 @@ class CRM_MailClient extends Module {
 			$arr[] = Utils_TooltipCommon::create($delivered_on,$delivered_on_time);
 			$arr[] = CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($row['from_contact_id']));
 			$arr[] = CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($row['to_contact_id']));
-			$view_href = $this->create_callback_href(array($this,'show_message_cb'),array($row['id'],$arg));
+			$view_href = $this->create_callback_href(array($this,'show_message_cb'),array($row['id']));
 			$arr[] = '<a '.$view_href.'>'.$text.'</a>';
 			$arr[] = $this->get_attachments($row['id']);
 			$r->add_data_array($arr);
@@ -70,16 +70,18 @@ class CRM_MailClient extends Module {
 		return $attachments;
 	}
 	
-	public function show_message_cb($id,$contact) {
+	public function show_message_cb($id) {
 		$x = ModuleManager::get_instance('/Base_Box|0');
 		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-		$x->push_main('CRM/MailClient','show_message',array($id,$contact));
+		$x->push_main('CRM/MailClient','show_message',array($id));
 	}
 	
-	public function show_message($id,$contact) {
+	public function show_message($id) {
 		if($this->is_back()) {
 			$this->pop_box();
 		}
+
+		Utils_WatchdogCommon::notified('crm_calendar',$id);
 		
 		$row = DB::GetRow('SELECT headers,subject,delivered_on,from_contact_id,to_contact_id FROM crm_mailclient_mails WHERE id=%d',array($id));
 
@@ -113,17 +115,35 @@ class CRM_MailClient extends Module {
 	}
 	
 	public function notify($mids) {
-		if($this->is_back()) {
+		$theme = $this->init_module('Base/Theme');
+		$qf = $this->init_module('Libs/QuickForm');
+		$qf->addElement('header','notification_header',$this->t('Notify this contacts'));
+
+		$fav2 = array();
+		$fav = CRM_ContactsCommon::get_contacts(array(':Fav'=>true,'!login'=>''),array('id','first_name','last_name','company_name'));
+		foreach($fav as $v)
+			$fav2[$v['id']] = CRM_ContactsCommon::contact_format_default($v,true);
+		$rb1 = $this->init_module('Utils/RecordBrowser/RecordPicker');
+		$this->display_module($rb1, array('contact' ,'to_addr_ex',array('Apps_MailClientCommon','addressbook_rp_mail'),array('!login'=>''),array('work_phone'=>false,'mobile_phone'=>false,'email'=>true,'login'=>true)));
+		$theme->assign('addressbook_add_button',$rb1->create_open_link('Add contact'));
+		$qf->addElement('multiselect','to_addr_ex','',$fav2);
+
+		$qf->assign_theme('form', $theme);
+		
+		if($qf->validate()) {
+			$u = $qf->exportValue('to_addr_ex');
+			foreach($mids as $mid) {
+				foreach($u as $user) {
+					Utils_WatchdogCommon::user_subscribe($user['login'], 'crm_mailclient', $mid);
+				}
+				Utils_WatchdogCommon::new_event('crm_mailclient',$mid,'Mail moved to contact');
+			}
 			$this->pop_box();
 		}
-		print_r($mids);
 
-		$qf = $this->init_module('Libs/QuickForm');
-//		$qf->addElement
-		
-		$this->display_module($qf);
+		$theme->display('notification');
 
-		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+		Base_ActionBarCommon::add('save','Notify',$qf->get_submit_form_href());
 	}
 }
 

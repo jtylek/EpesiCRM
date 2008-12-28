@@ -92,7 +92,7 @@ class CRM_MailClientCommon extends ModuleCommon {
 	
 	public static function move_and_notify_action($msg,$dir) {
 		$mids = array();
-		self::move_action($msg, $dir, $mids);
+		if(!self::move_action($msg, $dir, $mids)) return false;
 		$x = ModuleManager::get_instance('/Base_Box|0');
 		if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 		$x->push_main('CRM/MailClient','notify',array($mids));
@@ -105,6 +105,30 @@ class CRM_MailClientCommon extends ModuleCommon {
 		if(self::$my_rec['id']!==-1) {
 			$ret['Move to CRM']=array('func'=>array('CRM_MailClientCommon','move_action'),'delete'=>1);
 			$ret['Move to CRM & notify']=array('func'=>array('CRM_MailClientCommon','move_and_notify_action'),'delete'=>1);
+		}
+		return $ret;
+	}
+
+	public static function watchdog_label($rid = null, $events = array()) {
+		$ret = array('category'=>Base_LangCommon::ts('CRM_MailClient', 'Mails'));
+		if ($rid!==null) {
+			$title = DB::GetOne('SELECT subject FROM crm_mailclient_mails WHERE id=%d',array($rid));
+			if ($title===false || $title===null)
+				return null;
+			$ret['view_href'] = Module::create_href(array('crm_mailclient_watchdog_view_event'=>$rid));
+			if (isset($_REQUEST['crm_mailclient_watchdog_view_event'])
+				&& $_REQUEST['crm_mailclient_watchdog_view_event']==$rid) {
+				unset($_REQUEST['crm_mailclient_watchdog_view_event']);
+				$x = ModuleManager::get_instance('/Base_Box|0');
+				if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+				$x->push_main('CRM_MailClient_Event','show_message',array($rid));
+			}
+			$ret['title'] = '<a '.$ret['view_href'].'>'.$title.'</a>';
+			$events_display = array();
+			foreach ($events as $v) {
+				$events_display[] = '<b>'.Base_LangCommon::ts('CRM_Calendar',$v).'</b>';	
+			}
+			$ret['events'] = implode('<hr>',array_reverse($events_display));
 		}
 		return $ret;
 	}
