@@ -342,7 +342,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if (!isset($v['required'])) $v['required'] = false;
 			if (!isset($v['filter'])) $v['filter'] = false;
 			if (isset($datatypes[$v['type']])) $v = call_user_func($datatypes[$v['type']], $v);
-			Utils_RecordBrowserCommon::new_record_field($tab, $v['name'], $v['type'], $v['visible'], $v['required'], $v['param'], $v['style'], $v['extra'], $v['filter']);
+			Utils_RecordBrowserCommon::new_record_field($tab, $v['name'], $v['type'], $v['visible'], $v['required'], $v['param'], $v['style'], $v['extra'], $v['filter'], null);
 			if (isset($v['display_callback'])) self::set_display_method($tab, $v['name'], $v['display_callback'][0], $v['display_callback'][1]);
 			if (isset($v['QFfield_callback'])) self::set_QFfield_method($tab, $v['name'], $v['QFfield_callback'][0], $v['QFfield_callback'][1]);
 		}
@@ -419,7 +419,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			}
 		}
 		$f = self::actual_db_type($type, $param);
-		if ($f!=='') DB::Execute('ALTER TABLE '.$tab.'_data_1 ADD COLUMN f_'.strtolower(str_replace(' ','_',$field)).' '.$f);
+		if ($f!=='') @DB::Execute('ALTER TABLE '.$tab.'_data_1 ADD COLUMN f_'.strtolower(str_replace(' ','_',$field)).' '.$f);
 		DB::Execute('INSERT INTO '.$tab.'_field(field, type, visible, param, style, position, extra, required, filter) VALUES(%s, %s, %d, %s, %s, %d, %d, %d, %d)', array($field, $type, $visible?1:0, $param, $style, $pos, $extra?1:0, $required?1:0, $filter?1:0));
 	}
 	public static function actual_db_type($type, $param=null) {
@@ -435,8 +435,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			case 'date': $f = DB::dict()->ActualType('D'); break;
 			case 'timestamp': $f = DB::dict()->ActualType('T'); break;
 			case 'long text': $f = DB::dict()->ActualType('X'); break;
-			case 'hidden': $f = (isset($param)?self::actual_db_type($param):''); break;
-			case 'calculated': $f = (isset($param)?self::actual_db_type($param):''); break;
+			case 'hidden': $f = (isset($param)?$param:''); break;
+			case 'calculated': $f = (isset($param)?$param:''); break;
 			case 'checkbox': $f = DB::dict()->ActualType('I1'); break;
 			case 'currency': $f = DB::dict()->ActualType('C').'(128)'; break;
 		}
