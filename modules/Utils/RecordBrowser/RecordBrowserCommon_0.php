@@ -434,8 +434,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			case 'date': $f = DB::dict()->ActualType('D'); break;
 			case 'timestamp': $f = DB::dict()->ActualType('T'); break;
 			case 'long text': $f = DB::dict()->ActualType('X'); break;
-			case 'hidden': $f = (isset($param)?$param:''); break;
-			case 'calculated': $f = (isset($param)?$param:''); break;
+			case 'hidden': $f = (isset($param)?self::actual_db_type($param):''); break;
+			case 'calculated': $f = (isset($param)?self::actual_db_type($param):''); break;
 			case 'checkbox': $f = DB::dict()->ActualType('I1'); break;
 			case 'currency': $f = DB::dict()->ActualType('C').'(128)'; break;
 		}
