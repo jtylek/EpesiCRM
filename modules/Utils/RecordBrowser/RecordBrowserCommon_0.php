@@ -883,19 +883,19 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				if (isset($param[1]) && $param[1]!='') {
 					if (self::$table_rows[$v['order']]['type']!='commondata') {
 						if (!isset($param[1])) $cols = $param[0];
-						else {
+						else if ($param[0]!='__COMMON__') {
 							$tab2 = $param[0];
 							$cols2 = $param[1];
-						}
-/*						if ($tab2!='__COMMON__') {
 							$cols2 = explode('|', $cols2);
 							$cols2 = $cols2[0];
-							$val = '(SELECT rdt.f_'.self::$table_rows[$cols2]['id'].' FROM '.$tab.'_data_1 AS rd LEFT JOIN '.$tab2.'_data_1 AS rdt ON rdt.id=rd.f_'.self::$table_rows[$v['order']]['id'].' WHERE r.id=rd.id)';
-							// TODO: check some stuff, possible inj
+							$cols2 = explode('/', $cols2);
+							if (isset($cols2[1])) $data_col = self::$table_rows[$cols2[1]]['id']; else $data_col = self::$table_rows[$v['order']]['id'];
+							$cols2 = $cols2[0];
+							$val = '(SELECT rdt.f_'.strtolower(str_replace(' ','_',$cols2)).' FROM '.$tab.'_data_1 AS rd LEFT JOIN '.$tab2.'_data_1 AS rdt ON rdt.id=rd.f_'.$data_col.' WHERE r.id=rd.id)';
 							$orderby .= ' '.$val.' '.$v['direction'];
 							$iter++;
 							continue;
-						}*/
+						}
 					}
 //					if (self::$table_rows[$v['order']]['type']=='calculated') {
 //						$cols2 = explode('|', $param[1]);

@@ -1059,6 +1059,11 @@ class Utils_RecordBrowser extends Module {
 											$records = Utils_RecordBrowserCommon::get_records($tab, $crits, empty($multi_adv_params['format_callback'])?$col_id:array(), !empty($multi_adv_params['order'])?$multi_adv_params['order']:array());
 //											$records = Utils_RecordBrowserCommon::get_records($tab, $crits, empty($multi_adv_params['format_callback'])?$col_id:array());
 											$ext_rec = array();
+											if (isset($record[$args['id']])) {
+												if (!is_array($record[$args['id']])) {
+													if ($record[$args['id']]!='') $record[$args['id']] = array($record[$args['id']]); else $record[$args['id']] = array();
+												}
+											}
 											if (isset($this->custom_defaults[$args['id']])) {
 												if (!is_array($this->custom_defaults[$args['id']]))  
 													$record[$args['id']][] = $this->custom_defaults[$args['id']];
@@ -1069,9 +1074,6 @@ class Utils_RecordBrowser extends Module {
 											}
 											$single_column = (count($col_id)==1);
 											if (isset($record[$args['id']])) {
-												if (!is_array($record[$args['id']])) {
-													if ($record[$args['id']]!='') $record[$args['id']] = array($record[$args['id']]); else $record[$args['id']] = array();
-												}
 												$ext_rec = array_flip($record[$args['id']]);
 												foreach($ext_rec as $k=>$v) {
 													$c = Utils_RecordBrowserCommon::get_record($tab, $k);
