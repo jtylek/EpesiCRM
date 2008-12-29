@@ -66,7 +66,7 @@ class Utils_MessengerInstall extends ModuleInstall {
 		return array(
 			'Description'=>'Popup message to the user',
 			'Author'=>'pbukowski@telaxus.com',
-			'License'=>'SPL');
+			'License'=>'MIT');
 	}
 	
 	public static function simple_setup() {

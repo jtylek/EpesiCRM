@@ -45,7 +45,7 @@ class Utils_RecordBrowser_ReportsInstall extends ModuleInstall {
 	}
 
 	public static function simple_setup() {
-		return true;
+		return false;
 	}
 
 }

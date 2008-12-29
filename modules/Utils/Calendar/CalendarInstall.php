@@ -26,8 +26,9 @@ class Utils_CalendarInstall extends ModuleInstall {
 	}
 
 	public function simple_setup() {
-		return true;
+		return false;
 	}
+	
 	public function requires($v) {
 		return array(
 			array('name'=>'Utils/TabbedBrowser', 'version'=>0),

@@ -33,11 +33,11 @@ class Tests_ReportInstall extends ModuleInstall {
 		return array(
 			'Description'=>'',
 			'Author'=>'Arkadiusz Bisaga <abisaga@telaxus.com>',
-			'License'=>'SPL');
+			'License'=>'MIT');
 	}
 	
 	public static function simple_setup() {
-		return true;
+		return false;
 	}
 	
 }

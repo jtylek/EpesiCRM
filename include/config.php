@@ -36,8 +36,6 @@ if(!defined('FIRST_RUN')) define('FIRST_RUN','FirstRun');
 @define('SYSTEM_TIMEZONE',date_default_timezone_get());
 
 $local_dir = dirname(dirname(str_replace('\\','/',__FILE__)));
-/*$url_dir = substr($local_dir,strlen(str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']))-strlen(str_replace('\\','/',$_SERVER['SCRIPT_NAME'])));
-$dir = trim($url_dir,'/');*/
 $file_url = substr(str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']),strlen($local_dir));
 $dir_url = substr($_SERVER['SCRIPT_NAME'],0,strlen($_SERVER['SCRIPT_NAME'])-strlen($file_url));
 $dir = trim($dir_url,'/');

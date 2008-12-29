@@ -3,7 +3,7 @@
  * Apps/MailClient and other CRM functions connector
  * @author pbukowski@telaxus.com
  * @copyright pbukowski@telaxus.com
- * @license SPL
+ * @license MIT
  * @version 0.1
  * @package crm-mailclient
  */

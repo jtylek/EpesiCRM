@@ -73,11 +73,11 @@ class Tests_BugtrackInstall extends ModuleInstall {
 		return array(
 			'Description'=>' Software Development - Bug Tracking',
 			'Author'=>'jtylek@telaxus.com',
-			'License'=>'SPL');
+			'License'=>'MIT');
 	}
 	
 	public static function simple_setup() {
-		return true;
+		return false;
 	}
 	
 }

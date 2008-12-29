@@ -57,7 +57,7 @@ class Tests_Calendar_EventInstall extends ModuleInstall {
 		return array(
 			'Description'=>'Example event module',
 			'Author'=>'pbukowski@telaxus.com',
-			'License'=>'SPL');
+			'License'=>'MIT');
 	}
 
 	public static function simple_setup() {

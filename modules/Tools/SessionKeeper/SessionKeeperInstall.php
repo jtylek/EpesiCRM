@@ -34,7 +34,7 @@ class Tools_SessionKeeperInstall extends ModuleInstall {
 		return array(
 			'Description'=>'Keep epesi logged in.',
 			'Author'=>'pbukowski@telaxus.com',
-			'License'=>'SPL');
+			'License'=>'MIT');
 	}
 	
 	public static function simple_setup() {

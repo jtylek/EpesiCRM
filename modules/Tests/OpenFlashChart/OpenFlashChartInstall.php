@@ -33,7 +33,7 @@ class Tests_OpenFlashChartInstall extends ModuleInstall {
 		return array(
 			'Description'=>'Testing flash charts',
 			'Author'=>'shacky@poczta.fm',
-			'License'=>'SPL');
+			'License'=>'MIT');
 	}
 }
 

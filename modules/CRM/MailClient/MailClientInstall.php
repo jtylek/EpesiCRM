@@ -3,7 +3,7 @@
  * Apps/MailClient and other CRM functions connector
  * @author pbukowski@telaxus.com
  * @copyright pbukowski@telaxus.com
- * @license SPL
+ * @license MIT
  * @version 0.1
  * @package crm-mailclient
  */
@@ -70,7 +70,7 @@ class CRM_MailClientInstall extends ModuleInstall {
 		return array(
 			'Description'=>'Apps/MailClient and other CRM functions connector',
 			'Author'=>'pbukowski@telaxus.com',
-			'License'=>'SPL');
+			'License'=>'MIT');
 	}
 	
 	public static function simple_setup() {
