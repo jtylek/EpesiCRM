@@ -61,8 +61,7 @@
 .Utils_RecordBrowser__Filter .buttons input,
 #Utils_RecordBrowser__Filter .buttons input {
     color: #FFFFFF;
-    background-color: #336699;
-    background-image: url('images/header-blue.png');
+    background-image: url('images/button.gif');
     width: 100px;
     height: 20px;
     border: 0px;
@@ -80,5 +79,5 @@
 
 .Utils_RecordBrowser__Filter .buttons input:hover,
 #Utils_RecordBrowser__Filter .buttons input:hover {
-    background-image: url('images/header-blue-hover.png');
+    background-image: url('images/button-hover.gif');
 }

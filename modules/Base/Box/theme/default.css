@@ -39,21 +39,23 @@ input, textarea, select {
 .black   { color: #000000; }
 .dark-gray { color: #777777; }
 
-a.button {
+.button {
     font-weight: normal;
     color: #FFFFFF;
     width: 100px;
     line-height: 20px;
     height: 20px;
     display: block;
-    background-image: url("images/header-blue.png");
-    border: 0px;
+    background-image: url("images/button.gif");
+    border: none;
     text-align: center;
+    vertical-align: middle;
     cursor: pointer;
 }
 
-a.button:hover {
-    background-image: url("images/header-blue-hover.png");
+.button:hover {
+    background-image: url("images/button-hover.gif");
+    color: white;
 }
 
 hr.line {
@@ -334,12 +336,11 @@ hr.line {
 
 #top_bar #top_bar_2 .login a {
     margin-left: 7px;
-    /*background-image: url('images/logout.png');*/
-    background-image: url('images/header-green.png');
+    background-image: url('images/button-logout.gif');
 }
 
 #top_bar #top_bar_2 .login a:hover {
-    background-image: url('images/logout-hover.png');
+    background-image: url('images/button-logout-hover.gif');
     color: white;
 }
 
@@ -368,13 +369,11 @@ hr.line {
     padding-top: 3px;
     text-align: center;
     vertical-align: middle;
-    /*background-image: url('images/filter.png');*/
-    background-image: url('images/header-green.png');
+    background-image: url('images/button-filter.gif');
 }
 
 #top_bar #top_bar_2 .filter a:hover {
-    background-image: url('images/filter-hover.png');
-	/*background-image: url("images/header-black-hover.png");*/
+    background-image: url('images/button-filter-hover.gif');
 }
 
 /*	=layer

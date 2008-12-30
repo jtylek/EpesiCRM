@@ -18,29 +18,31 @@
 
 .Utils_GenericBrowser__search input {
     background-color: #e6ecf2;
+    background-color: white;
     height: 16px;
     padding-left: 2px;
     padding-right: 2px;
     vertical-align: middle;
     width: 96px;
+    border: 1px solid #b3b3b3;
 }
 
 .Utils_GenericBrowser__search input:focus {
-    background-color: #e6e6cf;
+    background-color: #ffffa5;
 }
 
 .Utils_GenericBrowser__search .submit input {
     width: 100px;
     height: 20px;
-    border: 0px;
-    background-color: #336699;
-    background-image: url('images/search.png');
+    border: none;
+    background-image: url('images/button-search.gif');
     vertical-align: middle;
     color: white;
+    background-color: transparent;
 }
 
 .Utils_GenericBrowser__search .submit input:hover {
-    background-image: url('images/search-hover.png');
+    background-image: url('images/button-search-hover.gif');
 }
 
 .Utils_GenericBrowser__search .advanced {
@@ -48,9 +50,13 @@
 }
 
 .Utils_GenericBrowser__search .advanced a.button {
-    width: 120px;
+    width: 150px;
+    background-image: url('images/button-long.gif');
 }
 
+.Utils_GenericBrowser__search .advanced a.button:hover {
+    background-image: url('images/button-long-hover.gif');
+}
 /* */
 
 table#Utils_GenericBrowser {
