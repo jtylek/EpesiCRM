@@ -161,10 +161,7 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 ///////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////
 function check_htaccess() {
-	$local_dir = dirname(str_replace('\\','/',__FILE__));
-	$file_url = substr(str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']),strlen($local_dir));
-	$dir_url = substr($_SERVER['SCRIPT_NAME'],0,strlen($_SERVER['SCRIPT_NAME'])-strlen($file_url));
-	$dir = trim($dir_url,'/');
+	$dir = trim(dirname($_SERVER['SCRIPT_NAME']),'/');
 	$epesi_dir = '/'.$dir.($dir?'/':'');
 	$protocol = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS'])!== "off") ? 'https://' : 'http://';
 	$test_url = $protocol.$_SERVER['HTTP_HOST'].$epesi_dir.'data/test.php';
@@ -201,6 +198,13 @@ function check_htaccess() {
 }
 
 function write_config($host, $user, $pass, $dbname, $engine) {
+	$local_dir = dirname(dirname(str_replace('\\','/',__FILE__)));
+	$script_filename = str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']);
+	$epesi_dir = '';
+	if(strcmp($local_dir,substr($script_filename,0,strlen($local_dir)))) 
+		$epesi_dir = '
+define("EPESI_DIR","'.dirname($_SERVER['SCRIPT_NAME']).'");';
+
 	$c = & fopen(DATA_DIR.'/config.php', 'w');
 	fwrite($c, '<?php
 /**
@@ -279,6 +283,7 @@ define("REPORT_ALL_ERRORS",1);
  * Compress history
  */
 define("GZIP_HISTORY",1);
+'.$epesi_dir.'
 ?>');
 	fclose($c);
 

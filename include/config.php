@@ -36,11 +36,22 @@ if(!defined('FIRST_RUN')) define('FIRST_RUN','FirstRun');
 @define('SYSTEM_TIMEZONE',date_default_timezone_get());
 
 $local_dir = dirname(dirname(str_replace('\\','/',__FILE__)));
-$file_url = substr(str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']),strlen($local_dir));
-$dir_url = substr($_SERVER['SCRIPT_NAME'],0,strlen($_SERVER['SCRIPT_NAME'])-strlen($file_url));
-$dir = trim($dir_url,'/');
-define('EPESI_DIR','/'.$dir.($dir?'/':''));
-define('EPESI_LOCAL_DIR',dirname(dirname(__FILE__)));
+define('EPESI_LOCAL_DIR',$local_dir);
+$script_filename = str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']);
+$detection_failed = strcmp($local_dir,substr($script_filename,0,strlen($local_dir)));
+if(!$detection_failed) {
+	$file_url = substr($script_filename,strlen($local_dir));
+	$dir_url = substr($_SERVER['SCRIPT_NAME'],0,strlen($_SERVER['SCRIPT_NAME'])-strlen($file_url));
+	$dir = trim($dir_url,'/');
+	$epesi_dir = '/'.$dir.($dir?'/':'');
+}
+if(!defined('EPESI_DIR')) {
+	if($detection_failed) 
+		trigger_error('Detection of epesi directory failed. Please define EPESI_DIR variable in config.php',E_USER_ERROR);
+	define('EPESI_DIR',$epesi_dir);
+} elseif(!$detection_failed && $epesi_dir!==EPESI_DIR) {
+	trigger_error('Epesi was installed with other directory. Please change config.php or access with other url.',E_USER_ERROR);
+}
 
 ini_set('arg_separator.output','&');
 ?>

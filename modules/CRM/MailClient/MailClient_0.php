@@ -134,7 +134,9 @@ class CRM_MailClient extends Module {
 			$u = $qf->exportValue('to_addr_ex');
 			foreach($mids as $mid) {
 				foreach($u as $user) {
-					Utils_WatchdogCommon::user_subscribe($user['login'], 'crm_mailclient', $mid);
+					$user_login = CRM_ContactsCommon::get_contact($user);
+					$user_login = $user_login['login'];
+					Utils_WatchdogCommon::user_subscribe($user_login, 'crm_mailclient', $mid);
 				}
 				Utils_WatchdogCommon::new_event('crm_mailclient',$mid,'Mail moved to contact');
 			}

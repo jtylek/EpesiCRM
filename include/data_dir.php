@@ -20,7 +20,10 @@ else {
 		
     $protocol = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS'])!== "off") ? 'https://' : 'http://';
 	$local_dir = dirname(dirname(str_replace('\\','/',__FILE__)));
-	$file_url = substr(str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']),strlen($local_dir));
+	$script_filename = str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']);
+	if(strcmp($local_dir,substr($script_filename,0,strlen($local_dir)))) 
+		trigger_error('Detection of epesi directory failed. You cannot use virtual hosts with this configuration.',E_USER_ERROR);
+	$file_url = substr($script_filename,strlen($local_dir));
 	$dir_url = substr($_SERVER['SCRIPT_NAME'],0,strlen($_SERVER['SCRIPT_NAME'])-strlen($file_url));
 	$dir = trim($dir_url,'/');
     $req = $protocol.$_SERVER['HTTP_HOST'].'/'.$dir.($dir?'/':'');
