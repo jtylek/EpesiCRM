@@ -1,11 +1,12 @@
 .text {
     float: left;
-    width: 267px;
+    width: 266px;
 }
 
 .help {
     float: left;
-    width: 20px;
+    width: 21px;
+    text-align: left;
 }
 
 .help img {
@@ -13,5 +14,4 @@
 }
 
 .help:hover {
-    background-image: url('images/header-black-hover.png');
 }
