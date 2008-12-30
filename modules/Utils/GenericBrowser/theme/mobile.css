@@ -43,7 +43,7 @@ table#Utils_GenericBrowser th input {
 }
 
 table#Utils_GenericBrowser th input:focus {
-    background-color: #e6e6cf;
+    background-color: #ffffa5;
 }
 
 table#Utils_GenericBrowser tbody {
