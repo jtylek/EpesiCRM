@@ -81,7 +81,7 @@ class CRM_MailClient extends Module {
 			$this->pop_box();
 		}
 
-		Utils_WatchdogCommon::notified('crm_calendar',$id);
+		Utils_WatchdogCommon::notified('crm_mailclient',$id);
 		
 		$row = DB::GetRow('SELECT headers,subject,delivered_on,from_contact_id,to_contact_id FROM crm_mailclient_mails WHERE id=%d',array($id));
 

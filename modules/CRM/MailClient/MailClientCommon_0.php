@@ -121,12 +121,12 @@ class CRM_MailClientCommon extends ModuleCommon {
 				unset($_REQUEST['crm_mailclient_watchdog_view_event']);
 				$x = ModuleManager::get_instance('/Base_Box|0');
 				if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-				$x->push_main('CRM_MailClient_Event','show_message',array($rid));
+				$x->push_main('CRM_MailClient','show_message',array($rid));
 			}
 			$ret['title'] = '<a '.$ret['view_href'].'>'.$title.'</a>';
 			$events_display = array();
 			foreach ($events as $v) {
-				$events_display[] = '<b>'.Base_LangCommon::ts('CRM_Calendar',$v).'</b>';	
+				$events_display[] = '<b>'.Base_LangCommon::ts('CRM_MailClient',$v).'</b>';	
 			}
 			$ret['events'] = implode('<hr>',array_reverse($events_display));
 		}
