@@ -143,7 +143,7 @@
 					<table name="UtilsTasks" class="form {if $action == 'view'}view{else}edit{/if} no-border" cellspacing="0" cellpadding="0" border="0" style="border-left: none; border-top: none;">
 						<tbody>
 							<tr>
-								<td class="label" style="padding-right: 0px; border-bottom: none;"><div style="float: left; padding-top: 3px;">{$form_data.customers.label}</div><div style="float: right; background-color: white; padding-left: 5px;">{if isset($form_data.customers_rpicker_advanced.html)}{$form_data.customers_rpicker_advanced.html}{/if}</div></td>
+								<td class="label" style="padding-right: 0px; border-bottom: none;"><div style="float: left; padding-top: 3px;">{$form_data.customers.label}</div><div style="float: right; background-color: white; padding-left: 4px;">{if isset($form_data.customers_rpicker_advanced.html)}{$form_data.customers_rpicker_advanced.html}{/if}</div></td>
 							</tr>
 							<tr>
 								<td class="data arrows" style="vertical-align: top;"><span class="error">{$form_data.customers.error}</span>{$form_data.customers.html}</td>
