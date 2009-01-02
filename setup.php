@@ -49,7 +49,7 @@ if(!is_writable(DATA_DIR))
 require_once('modules/Libs/QuickForm/requires.php');
 
 if(!isset($_GET['license'])) {
-	print('<h1>Welcome to epesi framework setup!<br></h1><h2>Please read and accept license</h2><br><div class="license">');
+	print('<h1>Welcome to epesi framework setup!<br></h1><h2>Please read and accept license</h2><div class="license">');
 	license();
 		print('</div><br><a class="button" href="setup.php?license=1">Accept</a>');
 } elseif(!isset($_GET['htaccess'])) {

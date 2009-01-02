@@ -17,6 +17,11 @@ a {
 
 h1 {
     color: #336699;
+	font-size: 16px;
+}
+
+h2 {
+	font-size: 14px;
 }
 
 input, select, textarea {
@@ -63,7 +68,7 @@ span.footer a:hover {
 }
 
 #banner .image {
-    background-image: url("images/logo-small.gif");
+    background-image: url("images/logo-small.png");
     background-repeat: repeat-x;
     width: 193px;
     height: 68px;
@@ -79,12 +84,12 @@ span.footer a:hover {
 #main {
     border: 1px solid #B3B3B3;
     background-color: #F0F0F0;
-    padding: 20px 20px 20px 20px;
+    padding: 10px 10px 10px 10px;
 }
 
 div.license {
     overflow: auto;
-    height: 200px;
+    height: 300px;
     border: 1px solid #B3B3B3;
     background-color: #FFFFFF;
     padding: 10px 10px 10px 10px;
