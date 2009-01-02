@@ -19,6 +19,8 @@ class Base_Dashboard extends Module {
 	}
 
 	public function body() {
+		$this->help('main','Dashboard Help');
+
 		if(ModuleManager::is_installed('Utils/RecordBrowser')>=0) //speed up links to RB
 			if(Utils_RecordBrowserCommon::check_for_jump()) return;
 		$is_user = DB::GetAll('SELECT name,pos FROM base_dashboard_tabs WHERE user_login_id=%d',array(Acl::get_user()));

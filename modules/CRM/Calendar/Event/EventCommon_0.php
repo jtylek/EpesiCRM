@@ -142,7 +142,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		$next_result['additional_info'] =  '';
 		$next_result['additional_info2'] = '';
 		// custom tooltip replaces standard one
-		$next_result['custom_tooltip'] =  Utils_TooltipCommon::format_info_tooltip($inf2,'CRM_Calendar_Event').'<hr>'.
+		$next_result['custom_tooltip'] = Utils_TooltipCommon::format_info_tooltip($inf2,'CRM_Calendar_Event').'<hr>'.
 								CRM_ContactsCommon::get_html_record_info($row['created_by'],$row['created_on'],$row['edited_by'],$row['edited_on']);
 
 		$next_result['custom_agenda_col_0'] = $row['description'];

@@ -14,6 +14,8 @@ class CRM_Tasks extends Module {
 	private $rb = null;
 
 	public function body() {
+		$this->help('main','Tasks Help');
+
 		$this->rb = $this->init_module('Utils/RecordBrowser','task','task');
 		$me = CRM_ContactsCommon::get_my_record();
 		$this->rb->set_custom_filter('status',array('type'=>'checkbox','label'=>$this->t('Display closed tasks'),'trans'=>array('__NULL__'=>array('!status'=>array(2,3)),1=>array('status'=>array(0,1,2,3)))));
