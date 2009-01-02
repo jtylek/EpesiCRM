@@ -181,7 +181,7 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 		<div id="epesiStatus">
 			<table cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
                 <tr>
-                    <td><img src="images/logo.png" width="550" height="200" border="0"></td>
+                    <td><img src="images/logo.gif" width="550" height="200" border="0"></td>
                 </tr>
 				<tr>
 					<td style="text-align: center; vertical-align: center; height: 40px;"><span id="epesiStatusText">Starting epesi ...<span></td>

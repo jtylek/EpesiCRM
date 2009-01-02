@@ -1,4 +1,4 @@
-table#Base_Dashboard .button {
+table#Base_Dashboard .big-button {
 	width: 218px;
 	height: 80px;
 	background-color: #F0F0F0;
@@ -6,47 +6,50 @@ table#Base_Dashboard .button {
 	background-image: url("images/big-button.png");
 	background-repeat: repeat-x;
 	font-size: 11px;
-
 	display: block;
 	cursor: pointer;
+	line-height: normal;
+	vertical-align: middle;
 }
 
-table#Base_Dashboard .button table {
+table#Base_Dashboard .big-button table {
 	margin-right: 18px;
 	width: 200px;
 }
 
-table#Base_Dashboard .button:hover {
+table#Base_Dashboard .big-button:hover {
 	background-color: #FFFFFF;
 	background-image: url("images/big-button-hover.png");
 	background-repeat: repeat-x;
 }
 
-table#Base_Dashboard .button .icon {
+table#Base_Dashboard .big-button .bb_icon {
 	text-align: center;
 	vertical-align: middle;
 	width: 60px;
 }
 
-table#Base_Dashboard .button .text {
+table#Base_Dashboard .big-button .bb_text {
 	text-align: center;
 	vertical-align: middle;
 	height: 40px;
+	width: 140px;
 }
 
-table#Base_Dashboard .button .desc {
+table#Base_Dashboard .big-button .bb_desc {
 	height: 40px;
 	vertical-align: top;
 	text-align: left;
 	color: #777777;
+	vertical-align: middle;
 }
 
-table#Base_Dashboard a .text {
+table#Base_Dashboard a .bb_text {
 	color: #336699;
 	font-weight: bold;
 }
 
-table#Base_Dashboard a:hover .text {
+table#Base_Dashboard a:hover .bb_text {
 	color: #993333;
 }
 

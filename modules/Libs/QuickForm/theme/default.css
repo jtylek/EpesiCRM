@@ -53,11 +53,12 @@
 	border: 0px;
 	padding-left: 20px;
 	padding-right: 20px;
-	background-image: url("images/header-blue.png");
+	background-image: url("images/button.gif");
+	width: 100px;
 }
 
 #quickform .element_submit input:hover, .element_button input:hover {
-	background-image: url("images/header-blue-hover.png");
+	background-image: url("images/button-hover.gif");
 }
 
 /* checkbox and radio */

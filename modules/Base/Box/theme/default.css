@@ -99,21 +99,27 @@ hr.line {
 #multiselect .buttons {
 }
 
+#multiselect .buttons .button,
+#multiselect .buttons .button:hover {
+    background-image: none;
+}
+
 #multiselect .buttons .button input {
-    width: 40px;
+    width: 50px;
     height: 20px;
-    background-color: #336699;
-    background-image: url('images/header-blue.png');
-    background-repeat: repeat-x;
+    background-color: transparent;
+    background-image: url('images/button-small.gif');
     color: #FFFFFF;
 }
 
 #multiselect .buttons .button input:hover {
-    background-image: url('images/header-blue-hover.png');
+    background-color: transparent;
+    background-image: url('images/button-small-hover.gif');
 }
 
 #multiselect .buttons .button input:focus {
-    background-image: url('images/header-green.png');
+    background-color: transparent;
+    background-image: url('images/button-small-hover.gif');
 }
 
 /*** login ***/
@@ -143,9 +149,9 @@ hr.line {
 /*** content body ***/
 
 #content_body {
-    /*position: absolute;
-    top: 97px;*/
-    margin-top: 97px;
+    position: absolute;
+    top: 97px;
+    /*margin-top: 97px;*/
     width: 100%;
     padding: 0px;
     text-align: center;
@@ -155,6 +161,7 @@ hr.line {
 }
 
 #debug {
+    padding-top: 1000px;
 }
 
 

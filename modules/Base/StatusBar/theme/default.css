@@ -37,13 +37,13 @@
 	background-color: #e6ecf2;
 }
 
-.Base_StatusBar td.image {
+.Base_StatusBar td.sb_image {
 	text-align: center;
 	vertical-align: middle;
     height: 20px;
 }
 
-.Base_StatusBar td.text {
+.Base_StatusBar td.sb_text {
 	text-align: center;
 	vertical-align: middle;
     height: 30px;

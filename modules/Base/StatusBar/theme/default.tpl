@@ -14,10 +14,10 @@
 	<table border="0" cellpadding="0" cellspacing="0">
         <tbody>
             <tr>
-                <td class="text"><span id="{$text_id}">Loading...</span></td>
+                <td class="sb_text"><span id="{$text_id}">Loading...</span></td>
             </tr>
             <tr>
-                <td class="image"><img src="{$theme_dir}/Base/StatusBar/loader.gif" width="256" height="10" border="0"></td>
+                <td class="sb_image"><img src="{$theme_dir}/Base/StatusBar/loader.gif" width="256" height="10" border="0"></td>
             </tr>
         </tbody>
 	</table>

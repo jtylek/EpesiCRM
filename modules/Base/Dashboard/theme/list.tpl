@@ -17,20 +17,20 @@
 <!-- -->
 
 			{$__link.buttons.$key.link.open}
-			<div class="button">
+			<div class="big-button">
 				<table border="0" cellpadding="0" cellspacing="0">
 					<tr>
-						<td class="icon" rowspan="2">
+						<td class="bb_icon" rowspan="2">
 							{if isset($button.icon)}
 							<img src="{$button.icon}" border="0" width="32" height="32" align="middle">
 							{/if}
 						</td>
-						<td class="text">
+						<td class="bb_text">
 							{$__link.buttons.$key.link.text}
 						</td>
 					</tr>
 					<tr>
-						<td class="desc">
+						<td class="bb_desc">
 							{$button.desc}
 						</td>
 					</tr>

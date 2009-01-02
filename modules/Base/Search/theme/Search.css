@@ -56,12 +56,12 @@ table#Base_Search__Search input.submit {
 	border: 0px;
 	width: 100px;
 	height: 20px;
-    background-image: url('images/search.png');
+    background-image: url('images/button-search.gif');
 	font-size: 11px;
 }
 
 table#Base_Search__Search input.submit:hover {
-    background-image: url('images/search-hover.png');
+    background-image: url('images/button-search-hover.gif');
 }
 
 table#Base_Search__Search .label {

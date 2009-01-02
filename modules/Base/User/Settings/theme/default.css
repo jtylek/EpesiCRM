@@ -1,4 +1,4 @@
-table#Base_User_Settings .button {
+table#Base_User_Settings .big-button {
 	/*width: 200px;*/
 	height: 60px;
 	background-color: #F0F0F0;
@@ -16,7 +16,7 @@ table#Base_User_Settings .button {
 	cursor: hand; /* css2 */
 }
 
-table#Base_User_Settings .button:hover {
+table#Base_User_Settings .big-button:hover {
 	background-color: #FFFFFF;
 	background-image: url("images/big-button-hover.png");
 	background-repeat: repeat-x;
