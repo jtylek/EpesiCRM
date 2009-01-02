@@ -87,7 +87,7 @@
 					<table name="UtilsTasks" class="form {if $action == 'view'}view{else}edit{/if} no-border" cellspacing="0" cellpadding="0" border="0" style="padding-top: 1px; border-top: none; border-right: 1px solid #b3b3b3;">
 						<tbody>
 							<tr>
-								<td class="label">{$form_data.employees.label}{if $form_data.employees.required}*{/if}</td>
+								<td class="label" style="border-bottom: 1px solid white;">{$form_data.employees.label}{if $form_data.employees.required}*{/if}</td>
 							</tr>
 							<tr>
 								<td class="data arrows" style="vertical-align: top;"><span class="error">{$form_data.employees.error}</span>{$form_data.employees.html}</td>
