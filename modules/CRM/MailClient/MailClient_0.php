@@ -102,6 +102,16 @@ class CRM_MailClient extends Module {
 		$th->display('view');
 		
 		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+		Base_ActionBarCommon::add('reply','Reply',$this->create_callback_href(array($this,'reply'),array($id)));
+		Base_ActionBarCommon::add('forward','Forward',$this->create_callback_href(array($this,'forward'),array($id)));
+	}
+	
+	public function reply($id) {
+	
+	}
+
+	public function forward($id) {
+	
 	}
 
 	public function sticky($id,$sticky) {
@@ -114,7 +124,7 @@ class CRM_MailClient extends Module {
 			$x->pop_main();	
 	}
 	
-	public function notify($mids) {
+	public function notify($mid) {
 		$theme = $this->init_module('Base/Theme');
 		$qf = $this->init_module('Libs/QuickForm');
 		$qf->addElement('header','notification_header',$this->t('Notify this contacts'));
@@ -132,15 +142,16 @@ class CRM_MailClient extends Module {
 		
 		if($qf->validate()) {
 			$u = $qf->exportValue('to_addr_ex');
-			foreach($mids as $mid) {
-				foreach($u as $user) {
-					$user_login = CRM_ContactsCommon::get_contact($user);
-					$user_login = $user_login['login'];
-					Utils_WatchdogCommon::user_subscribe($user_login, 'crm_mailclient', $mid);
-				}
-				Utils_WatchdogCommon::new_event('crm_mailclient',$mid,'Mail moved to contact');
+			foreach($u as $user) {
+				$user_login = CRM_ContactsCommon::get_contact($user);
+				$user_login = $user_login['login'];
+				Utils_WatchdogCommon::user_subscribe($user_login, 'crm_mailclient', $mid);
 			}
+			Utils_WatchdogCommon::new_event('crm_mailclient',$mid,'Mail moved to contact');
 			$this->pop_box();
+			$x = ModuleManager::get_instance('/Base_Box|0');
+			if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+			$x->push_main('CRM_MailClient','show_message',array($mid));
 		}
 
 		$theme->display('notification');

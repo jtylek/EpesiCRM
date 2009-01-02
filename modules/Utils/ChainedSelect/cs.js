@@ -82,9 +82,14 @@ ChainedSelect.prototype = {
 					obj.disabled=true;
 				} else {
 					obj.disabled=false;
-					for(y in new_opts) {
-						opts[opts.length] = new Option(new_opts[y],y);
-					}
+					if(Object.isArray(new_opts)) {
+						for(y=0; y<new_opts.length; y++) {
+							opts[opts.length] = new Option(new_opts[y],y);
+						}
+					} else
+						for(y in new_opts) {
+							opts[opts.length] = new Option(new_opts[y],y);
+						}
 					if(typeof def_val != 'undefined')
 						obj.value = def_val;
 					setTimeout(obj.fire.bind(obj,'e_cs:load'),1);
