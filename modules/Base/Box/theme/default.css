@@ -102,6 +102,7 @@ hr.line {
 #multiselect .buttons .button,
 #multiselect .buttons .button:hover {
     background-image: none;
+    width: auto;
 }
 
 #multiselect .buttons .button input {
