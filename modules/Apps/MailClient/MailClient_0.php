@@ -457,14 +457,20 @@ class Apps_MailClient extends Module {
 
 	//////////////////////////////////////////
 	// screens
+	
+	public function edit_mail_src($headers=null,$body=null,$body_type=null,$body_ctype=null,$box=null,$type=null,$drop_callback=null) {
+		if($this->is_back()) {
+			$x = ModuleManager::get_instance('/Base_Box|0');
+			if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+			$x->pop_main();	
+		}
 
-	public function edit_mail($box,$dir,$id=null,$type=null) {
-		if($this->is_back()) return false;
+		load_js($this->get_module_dir().'utils.js');
 
 		$f = $this->init_module('Libs/QuickForm');
 		$theme = $this->init_module('Base/Theme');
 
-		$f->addElement('header','mail_header',$this->t(($id===null || $type!='edit')?'New mail':'Edit mail'));
+		$f->addElement('header','mail_header',$this->t(($body===null || $type!='edit')?'New mail':'Edit mail'));
 		$f->addElement('hidden','action','send','id="new_mail_action"');
 
 		$from_mails = DB::GetAssoc('SELECT id,mail FROM apps_mailclient_accounts WHERE smtp_server is not null AND smtp_server!=\'\' AND user_login_id='.Acl::get_user().' ORDER BY mail');
@@ -473,36 +479,20 @@ class Apps_MailClient extends Module {
 		else
 			$from = array('pm'=>$this->ht('Private message'));
 
-		$f->setDefaults(array('from_addr'=>$box));
+		if($box!==null)
+			$f->setDefaults(array('from_addr'=>$box));
 
-		eval_js_once('apps_mailclient_from_change = function(v) {'.
-						'if(v==\'pm\') {'.
-							'$("apps_mailclient_to_addr").disable();'.
-						'} else {'.
-							'$("apps_mailclient_to_addr").enable();'.
-						'}}');
-		$f->addElement('select','from_addr',$this->t('From'),$from,array('onChange'=>'apps_mailclient_from_change(this.value)'));
-		eval_js('apps_mailclient_from_change(\''.$f->exportValue('from_addr').'\')');
+		$f->addElement('select','from_addr',$this->t('From'),$from,array('onChange'=>'Apps_MailClient.from_change(this.value)'));
+		eval_js('Apps_MailClient.from_change(\''.$f->exportValue('from_addr').'\')');
 		$f->addRule('from_addr',$this->t('Field required'),'required');
 		$f->addElement('text','to_addr',$this->t('To'),Utils_TooltipCommon::open_tag_attrs($this->t('You can enter more then one email address separating it with comma.')).' id="apps_mailclient_to_addr"');
 //		$f->addRule('to_addr',$this->t('Invalid mail address'),'email');
-		eval_js_once('var apps_mailclient_addressbook_hidden = '.($from_mails?'true':'false').';'.
-						'apps_mailclient_addressbook_toggle = function() {'.
-						'if(apps_mailclient_addressbook_hidden) {'.
-							'Effect.SlideDown(\'apps_mailclient_addressbook\',{duration:0.3});'.
-							'apps_mailclient_addressbook_hidden = false;'.
-						'} else {'.
-							'Effect.SlideUp(\'apps_mailclient_addressbook\',{duration:0.3});'.
-							'apps_mailclient_addressbook_hidden = true;'.
-						'}};'.
-						'apps_mailclient_addressbook_toggle_init = function() {'.
-						'if(apps_mailclient_addressbook_hidden) {'.
-							'$(\'apps_mailclient_addressbook\').hide();'.
-						'} else {'.
-							'$(\'apps_mailclient_addressbook\').show();'.
-						'}};');
-		eval_js('apps_mailclient_addressbook_toggle_init()');
-		$theme->assign('addressbook','<a href="javascript:void(0)" onClick="apps_mailclient_addressbook_toggle()">Addressbook</a>');
+		if(!$this->get_module_variable('addressbook_initialized',false)) {
+			eval_js('Apps_MailClient.addressbook_hidden = '.($from_mails?'true':'false'));
+			$this->set_module_variable('addressbook_initialized',true);
+		}
+		eval_js('Apps_MailClient.addressbook_toggle_init()');
+		$theme->assign('addressbook','<a href="javascript:void(0)" onClick="Apps_MailClient.addressbook_toggle()">Addressbook</a>');
 		$theme->assign('addressbook_area_id','apps_mailclient_addressbook');
 		$fav2 = array();
 		if(ModuleManager::is_installed('CRM/Contacts')>=0) {
@@ -524,24 +514,25 @@ class Apps_MailClient extends Module {
 
 		//if edit
 		$references = false;
-		$box_dir = Apps_MailClientCommon::get_mailbox_dir($box);
-		if($box_dir === false) {
-			Epesi::alert($this->ht('Invalid mailbox'));
-		} elseif($id!==null) {
-			$message = @file_get_contents($box_dir.$dir.$id);
-			if($message!==false) {
-				ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
-				require_once('Mail/mimeDecode.php');
-				$decode = new Mail_mimeDecode($message, "\r\n");
-				$structure = $decode->decode(array('decode_bodies'=>true,'include_bodies'=>true));
-				if(!isset($structure->headers['from']))
-					$structure->headers['from'] = '';
-				if(!isset($structure->headers['to']))
-					$structure->headers['to'] = '';
-				if(!isset($structure->headers['date']))
-					$structure->headers['date'] = '';
+		if($headers!==null) {
+			ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
+			require_once('Mail/mimeDecode.php');
+			if($body===null) {
+				$opts = array('decode_bodies'=>true,'include_bodies'=>true);
+			} else {
+				$headers.= "\r\n\r\n"; //fake message empty body in header
+				$opts = array();
+			}
+			$decode = new Mail_mimeDecode($headers, "\r\n");
+			$structure = $decode->decode($opts);
+			if(!isset($structure->headers['from']))
+				$structure->headers['from'] = '';
+			if(!isset($structure->headers['to']))
+				$structure->headers['to'] = '';
+			if(!isset($structure->headers['date']))
+				$structure->headers['date'] = '';
 
-				$body = false;
+			if($body===null) {
 				$body_type = false;
 				$body_ctype = false;
 				$attachments = array();
@@ -573,7 +564,7 @@ class Apps_MailClient extends Module {
 					$body_ctype = isset($structure->headers['content-type'])?$structure->headers['content-type']:'text/'.$body_type;
 				}
 
-				if($body===false) die('invalid message');
+				if($body===null) $body = '';
 
 				/*$ret_attachments = '';
 				if($attachments) {
@@ -584,78 +575,79 @@ class Apps_MailClient extends Module {
 							$ret_attachments .= '<a target="_blank" href="modules/Apps/MailClient/preview.php?'.http_build_query(array_merge($_GET,array('attachment_cid'=>$a))).'">'.$name.'</a><br>';
 					}
 				}*/
-
-				$to_addr = array();
-				$to_addr_ex = array();
-				$subject = isset($structure->headers['subject'])?Apps_MailClientCommon::mime_header_decode($structure->headers['subject']):'no subject';
-				if($type=='edit' || $type=='edit_as_new') {
-					$to_address = Apps_MailClientCommon::mime_header_decode($structure->headers['to']);
-					$to_address = explode(',',$to_address);
-					foreach($to_address as $v) {
-						if(strpos($v,'@')!==false) {
-							$to_addr[] = trim($v);
-						} elseif(ereg('<([0-9]+)>$',$v,$r)) {
-							$to_addr_ex[] = $r[1];
-						}
-					}
-					if(ModuleManager::is_installed('CRM/Contacts')>=0) {
-						foreach($to_addr_ex as $k=>$v) {
-							$v = CRM_ContactsCommon::get_contact_by_user_id($v);
-							if($v===null) {
-								unset($to_addr_ex[$k]);
-								continue;
-							}
-							$to_addr_ex[$k] = $v['id'];
-							$to_addr = array_filter($to_addr,create_function('$o','return $o!=\''.$v['email'].'\';'));
-						}
-					} else {
-						foreach($to_addr_ex as $k=>$v) {
-							$mail = Base_User_LoginCommon::get_mail($v);
-							$to_addr = array_filter($to_addr,create_function('$o','return $o!=\''.$mail.'\';'));
-						}
-					}
-				} elseif($type=='reply') {
-					$subject = 'Re: '.$subject;
-					if(isset($structure->headers['message-id']))
-						$references = $structure->headers['message-id'];
-					$to_addr[] = Apps_MailClientCommon::mime_header_decode(isset($structure->headers['reply-to'])?$structure->headers['reply-to']:$structure->headers['from']);
-				} elseif($type=='forward') {
-					$subject = 'Fwd: '.$subject;
-				}
-				if($type=='reply' || $type=='forward') {
-					$msg_header = "\n\n--------- Original Message ---------\n".
-								"Subject: $subject\n".
-								"Date: ".Apps_MailClientCommon::mime_header_decode(isset($structure->headers['date'])?$structure->headers['date']:$this->ht('no date header specified'))."\n".
-								"From: ".Apps_MailClientCommon::mime_header_decode(isset($structure->headers['from'])?$structure->headers['from']:$this->ht('no from header specified'))."\n".
-								"To: ".Apps_MailClientCommon::mime_header_decode(isset($structure->headers['to'])?$structure->headers['to']:$this->ht('no from header specified'))."\n\n";
-					if($body_type=='plain') {
-						$body = $msg_header.$body;
-					} else {
-						$c=0;
-						$msg_header = str_replace("\n","<br>",$msg_header);
-						$body = preg_replace('/(<body[^>]*>)/i','$1'.$msg_header,$body,1,$c);
-						if($c==0) {
-							$body = $msg_header.$body; //TODO: there was no body block... produces invalid HTML
-						}
-					}
-				}
-
-				$to_addr = implode(', ',$to_addr);
-
-				if($body_type=='plain') {
-					$body = htmlspecialchars(preg_replace("/(http:\/\/[a-z0-9]+(\.[a-z0-9]+)+(\/[\.a-z0-9]+)*)/i", "<a href='\\1'>\\1</a>", $body));
-					$body = '<html>'.
-						'<head><meta http-equiv=Content-Type content="'.$body_ctype.'"></head>'.
-						'<body><pre>'.$body.'</pre></body></html>';
-				} else {
-					$body = trim($body);
-				}
-				$body = preg_replace('/"cid:([^@]+@[^@]+)"/i','"preview.php?'.http_build_query($_GET).'&attachment_cid=$1"',$body);
-				$body = preg_replace("/<a([^>]*)>(.*)<\/a>/i", '<a$1 target="_blank">$2</a>', $body);
-
-				$f->setDefaults(array('body'=>$body,'subject'=>$subject, 'to_addr'=>$to_addr,'to_addr_ex'=>$to_addr_ex));
 			}
+
+			$to_addr = array();
+			$to_addr_ex = array();
+			$subject = isset($structure->headers['subject'])?Apps_MailClientCommon::mime_header_decode($structure->headers['subject']):'no subject';
+			if($type=='edit' || $type=='edit_as_new') {
+				$to_address = Apps_MailClientCommon::mime_header_decode($structure->headers['to']);
+				$to_address = explode(',',$to_address);
+				foreach($to_address as $v) {
+					if(strpos($v,'@')!==false) {
+						$to_addr[] = trim($v);
+					} elseif(ereg('<([0-9]+)>$',$v,$r)) {
+						$to_addr_ex[] = $r[1];
+					}
+				}
+				if(ModuleManager::is_installed('CRM/Contacts')>=0) {
+					foreach($to_addr_ex as $k=>$v) {
+						$v = CRM_ContactsCommon::get_contact_by_user_id($v);
+						if($v===null) {
+							unset($to_addr_ex[$k]);
+							continue;
+						}
+						$to_addr_ex[$k] = $v['id'];
+						$to_addr = array_filter($to_addr,create_function('$o','return $o!=\''.$v['email'].'\';'));
+					}
+				} else {
+					foreach($to_addr_ex as $k=>$v) {
+						$mail = Base_User_LoginCommon::get_mail($v);
+						$to_addr = array_filter($to_addr,create_function('$o','return $o!=\''.$mail.'\';'));
+					}
+				}
+			} elseif($type=='reply') {
+				$subject = 'Re: '.$subject;
+				if(isset($structure->headers['message-id']))
+					$references = $structure->headers['message-id'];
+				$to_addr[] = Apps_MailClientCommon::mime_header_decode(isset($structure->headers['reply-to'])?$structure->headers['reply-to']:$structure->headers['from']);
+			} elseif($type=='forward') {
+				$subject = 'Fwd: '.$subject;
+			}
+			if($type=='reply' || $type=='forward') {
+				$msg_header = "\n\n--------- Original Message ---------\n".
+							" Subject: $subject\n".
+							" Date: ".Apps_MailClientCommon::mime_header_decode(isset($structure->headers['date'])?$structure->headers['date']:$this->ht('no date header specified'))."\n".
+							" From: ".Apps_MailClientCommon::mime_header_decode(isset($structure->headers['from'])?$structure->headers['from']:$this->ht('no from header specified'))."\n".
+							" To: ".Apps_MailClientCommon::mime_header_decode(isset($structure->headers['to'])?$structure->headers['to']:$this->ht('no from header specified'))."\n\n";
+				if($body_type=='plain') {
+					$body = $msg_header.$body;
+				} else {
+					$c=0;
+					$msg_header = str_replace("\n","<br>",$msg_header);
+					$body = preg_replace('/(<body[^>]*>)/i','$1'.$msg_header,$body,1,$c);
+					if($c==0) {
+						$body = $msg_header.$body; //TODO: there was no body block... produces invalid HTML
+					}
+				}
+			}
+
+			$to_addr = implode(', ',$to_addr);
+
+			if($body_type=='plain') {
+				$body = htmlspecialchars(preg_replace("/(http:\/\/[a-z0-9]+(\.[a-z0-9]+)+(\/[\.a-z0-9]+)*)/i", "<a href='\\1'>\\1</a>", $body));
+				$body = '<html>'.
+					'<head><meta http-equiv=Content-Type content="'.$body_ctype.'"></head>'.
+					'<body><pre>'.$body.'</pre></body></html>';
+			} else {
+				$body = trim($body);
+			}
+			$body = preg_replace('/"cid:([^@]+@[^@]+)"/i','"preview.php?'.http_build_query($_GET).'&attachment_cid=$1"',$body);
+			$body = preg_replace("/<a([^>]*)>(.*)<\/a>/i", '<a$1 target="_blank">$2</a>', $body);
+
+			$f->setDefaults(array('body'=>$body,'subject'=>$subject, 'to_addr'=>$to_addr,'to_addr_ex'=>$to_addr_ex));
 		}
+		//}
 
 		if($f->validate()) {
 			$v = $f->exportValues();
@@ -727,7 +719,7 @@ class Apps_MailClient extends Module {
 
 				if($v['from_addr']!='pm') {
 					$mailer = Base_MailCommon::new_mailer();
-					$mailer->From = $from['mail'].' <'.Acl::get_user().'>';
+					$mailer->From = $from['mail'];//.' <'.Acl::get_user().'>';
 					$mailer->FromName = $name;
 					$mailer->Host = $from['smtp_server'];
 					$mailer->Mailer = 'smtp';
@@ -742,8 +734,8 @@ class Apps_MailClient extends Module {
 					$mailer->AltBody = strip_tags($v['body']);
 					if($references)
 						$mailer->AddCustomHeader('References: '.$references);
-					$ret = $mailer->Send();
-					if(!$ret) print($mailer->ErrorInfo.'<br>');
+//					$ret = $mailer->Send();
+//					if(!$ret) print($mailer->ErrorInfo.'<br>');
 					unset($mailer);
 				}
 
@@ -753,15 +745,15 @@ class Apps_MailClient extends Module {
 					if($dest_id===false) {
 						$dest_id = Apps_MailClientCommon::create_internal_mailbox($e);
 					}
-					if(!Apps_MailClientCommon::drop_message($dest_id,'Inbox/',$v['subject'],$name,$to_names,$date,$v['body']))
+					if(Apps_MailClientCommon::drop_message($dest_id,'Inbox/',$v['subject'],$name,$to_names,$date,$v['body'])===false)
 						print($this->t('Unable to send message to %s',array($to_epesi_names[$e])).'<br>');
 				}
 			}
 			if($ret) {
 				$dest_id = $from?$from['id']:DB::GetOne('SELECT id FROM apps_mailclient_accounts WHERE mail=\'#internal\' AND user_login_id=%d',array(Acl::get_user()));
-				if(Apps_MailClientCommon::drop_message($dest_id,$save_folder.'/',$v['subject'],$from?$from['mail']:$this->ht('private message'),$to_names,$date,$v['body'],true)) {
-					if($id!==null && $type=='edit') $this->remove_mail($box,$dir,$id);
-					location(array());
+				if(($mid = Apps_MailClientCommon::drop_message($dest_id,$save_folder.'/',$v['subject'],$from?$from['mail']:$this->ht('private message'),$to_names,$date,$v['body'],true))!==false) {
+					if($drop_callback!==null && is_callable($drop_callback))
+						call_user_func($drop_callback,$dest_id,$save_folder,$mid);
 					return false;
 				}
 			}
@@ -775,6 +767,26 @@ class Apps_MailClient extends Module {
 		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 
 		return true;
+	}
+
+	public function edit_mail($box,$dir,$id=null,$type=null) {
+		if($this->is_back()) return false;
+
+		$message = null;
+		$box_dir = Apps_MailClientCommon::get_mailbox_dir($box);
+		if($box_dir === false) {
+			Epesi::alert($this->ht('Invalid mailbox'));
+		} elseif($id!==null) {
+			$message = @file_get_contents($box_dir.$dir.$id);
+			if($message===false)
+				$message = null;
+		}
+		$ret = $this->edit_mail_src($message,null,null,null,$box,$type);
+		if($ret===false) {
+			if($id!==null && $type=='edit') $this->remove_mail($box,$dir,$id);
+			location(array());
+		}
+		return $ret;
 	}
 
 	// qf filter

@@ -58,10 +58,16 @@ class Base_Box extends Module {
 		if(isset($containers['main']))
 		    $containers['main']['name'] = 'main_0';
 		
-		$pop_main = isset($_REQUEST['base_box_pop_main']);
+		if(isset($_REQUEST['base_box_pop_main']))
+			$pop_main = $_REQUEST['base_box_pop_main'];
+		else
+			$pop_main = false;
 		if($this->isset_module_variable('main')) {
 			$mains = $this->get_module_variable('main');
-			if($pop_main) array_pop($mains);
+			if($pop_main) {
+				while($pop_main--) array_pop($mains);
+				$pop_main = true;
+			}
 			$main = array_pop($mains);
 			if(isset($main['module']) && $main['module']!=null)
 				$containers['main'] = & $main;
@@ -166,10 +172,10 @@ class Base_Box extends Module {
 		location(array());
 	}
 
-	public function pop_main() {
+	public function pop_main($c=1) {
 		$mains = & $this->get_module_variable('main');
 		if(count($mains)>1)
-			location(array('base_box_pop_main'=>1));
+			location(array('base_box_pop_main'=>$c));
 	}
 }
 ?>

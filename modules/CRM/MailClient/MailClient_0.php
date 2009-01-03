@@ -45,7 +45,7 @@ class CRM_MailClient extends Module {
 			$arr[] = Utils_TooltipCommon::create($delivered_on,$delivered_on_time);
 			$arr[] = CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($row['from_contact_id']));
 			$arr[] = CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($row['to_contact_id']));
-			$view_href = $this->create_callback_href(array($this,'show_message_cb'),array($row['id']));
+			$view_href = $this->create_callback_href(array('CRM_MailClient','show_message_cb'),array($row['id']));
 			$arr[] = '<a '.$view_href.'>'.$text.'</a>';
 			$arr[] = $this->get_attachments($row['id']);
 			$r->add_data_array($arr);
@@ -70,15 +70,9 @@ class CRM_MailClient extends Module {
 		return $attachments;
 	}
 	
-	public function show_message_cb($id) {
-		$x = ModuleManager::get_instance('/Base_Box|0');
-		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-		$x->push_main('CRM/MailClient','show_message',array($id));
-	}
-	
 	public function show_message($id) {
 		if($this->is_back()) {
-			$this->pop_box();
+			CRM_MailClient::pop_box();
 		}
 
 		Utils_WatchdogCommon::notified('crm_mailclient',$id);
@@ -102,26 +96,31 @@ class CRM_MailClient extends Module {
 		$th->display('view');
 		
 		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
-		Base_ActionBarCommon::add('reply','Reply',$this->create_callback_href(array($this,'reply'),array($id)));
-		Base_ActionBarCommon::add('forward','Forward',$this->create_callback_href(array($this,'forward'),array($id)));
+		Base_ActionBarCommon::add('reply','Reply',$this->create_callback_href(array($this,'edit_mail'),array($id,'reply')));
+		Base_ActionBarCommon::add('forward','Forward',$this->create_callback_href(array($this,'edit_mail'),array($id,'forward')));
 	}
 	
-	public function reply($id) {
-	
+	public function edit_mail($id,$type) {
+		$row = DB::GetRow('SELECT * FROM crm_mailclient_mails WHERE id=%d',array($id));
+		$x = ModuleManager::get_instance('/Base_Box|0');
+		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+		$x->push_main('Apps/MailClient','edit_mail_src',array($row['headers'],$row['body'],$row['body_type'],$row['body_ctype'],null,$type,array('CRM_MailClientCommon','drop_callback')));
 	}
-
-	public function forward($id) {
 	
-	}
-
 	public function sticky($id,$sticky) {
 		DB::Execute('UPDATE crm_mailclient_mails SET sticky=%b WHERE id=%d',array(!$sticky,$id));
 	}
+
+	public static function show_message_cb($id) {
+		$x = ModuleManager::get_instance('/Base_Box|0');
+		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+		$x->push_main('CRM/MailClient','show_message',array($id));
+	}
 	
-	private function pop_box() {
-			$x = ModuleManager::get_instance('/Base_Box|0');
-			if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-			$x->pop_main();	
+	public static function pop_box() {
+		$x = ModuleManager::get_instance('/Base_Box|0');
+		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+		$x->pop_main();	
 	}
 	
 	public function notify($mid) {
@@ -148,7 +147,7 @@ class CRM_MailClient extends Module {
 				Utils_WatchdogCommon::user_subscribe($user_login, 'crm_mailclient', $mid);
 			}
 			Utils_WatchdogCommon::new_event('crm_mailclient',$mid,'Mail moved to contact');
-			$this->pop_box();
+			CRM_MailClient::pop_box();
 			$x = ModuleManager::get_instance('/Base_Box|0');
 			if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 			$x->push_main('CRM_MailClient','show_message',array($mid));

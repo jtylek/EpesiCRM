@@ -171,7 +171,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		Apps_MailClientCommon::append_msg_to_index($mailbox_id,$dir,$msg_id,$subject,$from,$to,$date,strlen($mbody),$read);
 		file_put_contents($mailbox.$msg_id,$mbody);
 
-		return true;
+		return $msg_id;
 	}
 
 /*
@@ -446,7 +446,6 @@ class Apps_MailClientCommon extends ModuleCommon {
 			return false;
 		$box = $box_dir.$dir;
 		$message = @file_get_contents($box.'/'.$id);
-		
 		if($message===false)
 			return false;
 

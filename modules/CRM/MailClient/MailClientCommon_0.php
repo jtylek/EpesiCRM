@@ -43,6 +43,8 @@ class CRM_MailClientCommon extends ModuleCommon {
 			
 		$data_dir = self::Instance()->get_data_dir();
 		$i = array_pop($c);
+		if(!isset(self::$my_rec))
+			self::$my_rec = CRM_ContactsCommon::get_my_record();
 		if($sent) {
 			$to = $i['id'];
 			$from = self::$my_rec['id'];
@@ -104,7 +106,8 @@ class CRM_MailClientCommon extends ModuleCommon {
 
 	public static function mail_actions() {
 		$ret = array('Go to contact'=>array('func'=>array('CRM_MailClientCommon','goto_action'),'delete'=>0));
-		self::$my_rec = CRM_ContactsCommon::get_my_record();
+		if(!isset(self::$my_rec))
+			self::$my_rec = CRM_ContactsCommon::get_my_record();
 		if(self::$my_rec['id']!==-1) {
 			$ret['Move to CRM']=array('func'=>array('CRM_MailClientCommon','move_action'),'delete'=>1);
 			$ret['Move to CRM & notify']=array('func'=>array('CRM_MailClientCommon','move_and_notify_action'),'delete'=>1);
@@ -134,6 +137,17 @@ class CRM_MailClientCommon extends ModuleCommon {
 			$ret['events'] = implode('<hr>',array_reverse($events_display));
 		}
 		return $ret;
+	}
+
+	public static function drop_callback($dest_id,$dir,$mid) {
+		$new_id = null;
+		$msg = Apps_MailClientCommon::parse_message($dest_id,$dir,$mid);
+		$ret = CRM_MailClientCommon::move_action($msg,$dir,$new_id);
+		if($ret)
+			Apps_MailClientCommon::remove_msg($dest_id, $dir, $mid); //TODO: cos nie usuwa
+		$x = ModuleManager::get_instance('/Base_Box|0');
+		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+		$x->pop_main(2);	
 	}
 }
 

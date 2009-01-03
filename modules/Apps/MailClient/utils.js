@@ -109,6 +109,29 @@ update_msg_num: function(applet_id,accid,cache) {
 				Apps_MailClient.updating_msg_num[accid] = false;
 			},
 			parameters:{acc_id:accid}});
+},
+from_change: function(v) {
+	if(v=='pm') {
+		$("apps_mailclient_to_addr").disable();
+	} else {
+		$("apps_mailclient_to_addr").enable();
+	}
+},
+addressbook_hidden:false,
+addressbook_toggle: function() {
+	if(Apps_MailClient.addressbook_hidden) {
+		Effect.SlideDown('apps_mailclient_addressbook',{duration:0.3});
+		Apps_MailClient.addressbook_hidden = false;
+	} else {
+		Effect.SlideUp('apps_mailclient_addressbook',{duration:0.3});
+		Apps_MailClient.addressbook_hidden = true;
+	}
+},
+addressbook_toggle_init: function() {
+	if(Apps_MailClient.addressbook_hidden) {
+		$('apps_mailclient_addressbook').hide();
+	} else {
+		$('apps_mailclient_addressbook').show();
+	}
 }
 };
-
