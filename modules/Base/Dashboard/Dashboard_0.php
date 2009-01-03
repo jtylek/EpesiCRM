@@ -19,7 +19,7 @@ class Base_Dashboard extends Module {
 	}
 
 	public function body() {
-		$this->help('main','Dashboard Help');
+		$this->help('Dashboard Help','main');
 
 		if(ModuleManager::is_installed('Utils/RecordBrowser')>=0) //speed up links to RB
 			if(Utils_RecordBrowserCommon::check_for_jump()) return;
