@@ -262,7 +262,7 @@ div.week-menu a.button {
     width: 100px;
     line-height: 20px;
     display: block;
-	background-color: #336699;
+	background-color: #339933;
     /*background-image: url("images/header-blue.png");*/
     background-image: none;
     border: 0px;
@@ -270,7 +270,7 @@ div.week-menu a.button {
 }
 
 div.week-menu a.button:hover {
-	background-color: #339933;
+	background-color: #336699;
     /*background-image: url("images/header-blue-hover.png");*/
 }
 
