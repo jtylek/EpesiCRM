@@ -391,7 +391,7 @@ class Utils_RecordBrowser extends Module {
 		$quickjump = DB::GetOne('SELECT quickjump FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 
 		$hash = array();
-		$access = $this->get_access('fields', 'browse');
+		$access = $this->get_access('fields', 'browse', $this->custom_defaults);
 		$query_cols = array();
 		foreach($this->table_rows as $field => $args) {
 			$hash[$args['id']] = $field;
@@ -429,7 +429,6 @@ class Utils_RecordBrowser extends Module {
 		}
 //		if ($this->browse_mode == 'recent')
 //			$table_columns[] = array('name'=>$this->t('Visited on'), 'wrapmode'=>'nowrap', 'width'=>1);
-
 
 		$gb->set_table_columns( $table_columns );
 
