@@ -217,23 +217,28 @@ table#Utils_GenericBrowser__navigation img {
     z-index: 1005;
     position: absolute;
     margin-left: 34px;
+    margin-left: 50px;
     margin-top: -11px;
 }
 
 #letters-search .letters .abc {
-    height: 17px;
-    padding-top: 3px;
+    height: 20px;
+    line-height: 20px;
+    width: 50px;
+    text-align: center;
+    vertical-align: middle;
+    /*padding-top: 3px;
     padding-left: 5px;
-    padding-right: 5px;
+    padding-right: 5px;*/
     color: white;
-    background-image: url('images/header-blue.png');
+    background-image: url('images/button-small.gif');
     background-repeat: repeat-x;
     cursor: pointer;
     float: left;
 }
 
 #letters-search .letters .abc:hover {
-    background-image: url('images/header-blue-hover.png');
+    background-image: url('images/button-small-hover.gif');
 }
 
 

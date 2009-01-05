@@ -57,7 +57,7 @@
 				{if isset($form_data_search)}
 					<div class="IEfix">
 					{$form_data_search.javascript}
-				
+
 					<form {$form_data_search.attributes}>
 					{$form_data_search.hidden}
 					{if isset($form_data_search.search)}
@@ -154,11 +154,11 @@
 					{$order}&nbsp;&nbsp;&nbsp;<b>{$reset}</b>&nbsp;&nbsp;&nbsp;
 				{/if}
 			</td>
-	
+
 			<td nowrap>{if isset($__link.first.open)}{$__link.first.open}&nbsp;<img border="0" src="{$theme_dir}/images/first.png">&nbsp;{$__link.first.text}&nbsp;{$__link.first.close}{/if}</td>
 			<td nowrap>{if isset($__link.prev.open)}{$__link.prev.open}&nbsp;<img border="0" src="{$theme_dir}/images/prev.png">&nbsp;{$__link.prev.text}&nbsp;{$__link.prev.close}{/if}</td>
 			<td nowrap>&nbsp;&nbsp;&nbsp;{$summary}&nbsp;&nbsp;&nbsp;</td>
-	
+
 			<td nowrap>{if isset($__link.next.open)}{$__link.next.open}&nbsp;{$__link.next.text}&nbsp;<img border="0" src="{$theme_dir}/images/next.png">&nbsp;{$__link.next.close}{/if}</td>
 			<td nowrap>{if isset($__link.last.open)}{$__link.last.open}&nbsp;{$__link.last.text}&nbsp;<img border="0" src="{$theme_dir}/images/last.png">&nbsp;{$__link.last.close}{/if}</td>
 	
