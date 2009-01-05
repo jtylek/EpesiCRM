@@ -240,16 +240,13 @@ table#Utils_Calendar__month .month-header a:hover {
     width: 100px;
     line-height: 20px;
     display: block;
-	background-color: #336699;
-    /*background-image: url("images/header-blue.png");*/
-    background-image: none;
+    background-image: url('images/button.gif');
     border: 0px;
     text-align: center;
 }
 
 #month-menu a.button:hover {
-	background-color: #339933;
-    /*background-image: url("images/header-blue-hover.png");*/
+	background-image: url('images/button-hover.gif');
 }
 
 /* trash */
