@@ -1,4 +1,4 @@
-<div style="text-align: left; padding-bottom: 3px;">
+<div style="text-align: left;">
 <table id="Browsing_records" border="0" cellpadding="0" cellspacing="0">
 	<tbody>
 		<tr>
