@@ -42,6 +42,10 @@
     width: 100%;
 }
 
+.Utils_RecordBrowser__Filter .data input[type='checkbox'] {
+    width: auto;
+}
+
 .Utils_RecordBrowser__Filter .data input:focus,
 .Utils_RecordBrowser__Filter .data select:focus,
 .Utils_RecordBrowser__Filter .data textarea:focus {
