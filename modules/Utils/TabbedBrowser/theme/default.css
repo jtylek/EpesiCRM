@@ -1,39 +1,45 @@
 #Utils_TabbedBrowser_div {
-	background-image: url('images/tabbed-background.png');
+	/*background-image: url('images/tabbed-background.png');
 	background-repeat: repeat-x;
+	background-position: 0px 31px;*/
 }
 
 ul#Utils_TabbedBrowser {
 	text-align: left;
 	font-weight: normal;
 	font-size: 11px;
-	border-bottom: 4px solid #568A56;
+	/*border-bottom: 4px solid #828282;*/
 	list-style-type: none;
 	/* padding: 13px 20px 3px 20px; */
-	padding: 0px 20px 3px 20px;
+	padding: 0px 20px 0px 20px;
 	background: transparent;
 	margin-left: 0px;
+
+	background-image: url('images/tabbed-background.gif');
+	background-position: 0px 44px;
 }
 
 ul#Utils_TabbedBrowser li {
 	display: inline;
+	white-space: nowrap;
+	line-height: 41px;
 }
 
 ul#Utils_TabbedBrowser a.tabbed_browser_selected {
 	color: #FFFFFF;
 	top: 4px;
 	padding-top: 4px;
-	font-weight: bold;
-	background-color: #000000;
+	background-color: #595959;
 	background-image: url("images/header-green-dark.png");
 	background-repeat: repeat-x;
+	font-weight: bold;
 }
 
 ul#Utils_TabbedBrowser li a {
 	padding: 3px 4px;
 	border: 0px;
 	/*background-color: #55AA55;*/
-	background-color: #000000;
+	background-color: #339933;
 	background-image: url('images/header-black.png');
 	background-repeat: repeat-x;
 	color: #FFFFFF;
