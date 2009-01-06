@@ -361,6 +361,10 @@ hr.line {
     padding-top: 2px;
 }
 
+#top_bar #top_bar_2 .search #Base_Search__Search {
+    width: 277px;
+}
+
 #top_bar #top_bar_2 .filter {
 	height: 22px;
 	text-align: left;
