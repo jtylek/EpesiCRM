@@ -24,8 +24,9 @@ table#Base_Search__Search td.header_tail span.header {
 
 table#Base_Search__Search input {
 	color: #000000;
-	border: 1px solid #B3B3B3;
-	width: 173px;
+	border: 1px solid #b3b3b3;
+	/*width: 173px;*/
+	width: 171px;
 	height: 16px;
 	font-size: 11px;
 }
@@ -45,6 +46,8 @@ table#Base_Search__Search input.mini_submit {
     background-image: url('images/button-search.gif');
 	font-size: 11px;
 	border: none;
+	display: block;
+	float: right;
 }
 
 table#Base_Search__Search input.mini_submit:hover {
