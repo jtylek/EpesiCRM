@@ -53,7 +53,7 @@ table#Base_User_Login input.submit {
 }
 
 table#Base_User_Login input.submit:hover {
-	background-image: url("images/button-hover-2.gif");
+	background-image: url("images/button-hover.gif");
 }
 
 table#Base_User_Login td.label {
