@@ -23,7 +23,7 @@ class Utils_Attachment extends Module {
 	private $protected_write = true;
 	private $public_read = true;
 	private $public_write = true;
-	private $author = false;
+	private $author = true;
 
 	private $inline = false;
 	private $add_header = '';
