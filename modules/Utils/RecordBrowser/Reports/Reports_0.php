@@ -33,6 +33,7 @@ class Utils_RecordBrowser_Reports extends Module {
 	private $pdf_title = '';
 	private $pdf_subject = '';
 	private $pdf_filename = '';
+	private $cols_total = array();
 	private static $pdf_ready = 0;
 	private $bonus_width = 15;
 
@@ -285,6 +286,21 @@ class Utils_RecordBrowser_Reports extends Module {
 		$this->display_pdf_header();
 		$this->pdf_ob->writeHTML($table,false);
 	}
+	
+	public function get_cols_total() {
+		return $this->cols_total;
+	}
+	
+	public function modify_cols_total($i, $val, $cat=null) {
+		if (empty($this->categories)) {
+			if (!isset($this->cols_total[$i])) $this->cols_total[$i] = 0;
+			$this->cols_total[$i] += $val;
+		} else {
+			if (!isset($this->cols_total[$cat])) $this->cols_total[$cat] = array();
+			if (!isset($this->cols_total[$cat][$i])) $this->cols_total[$cat][$i] = 0;
+			$this->cols_total[$cat][$i] += $val;
+		}
+	}
 
 	public function make_table() {
 		$gb = $this->new_table_page();
@@ -316,7 +332,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			print('There were no records to display report for.');
 			return;
 		}
-		$cols_total = array();
+		$this->cols_total = array();
 		/***** MAIN TABLE *****/
 		$row_count = 1;
 		$gb_captions = $this->gb_captions;
@@ -339,8 +355,8 @@ class Utils_RecordBrowser_Reports extends Module {
 					$val = strip_tags($res_ref);
 					if ($this->row_summary!==false) $total += $val;
 					if ($this->col_summary!==false) {
-						if (!isset($cols_total[$i])) $cols_total[$i] = 0;
-						$cols_total[$i] += $val;
+						if (!isset($this->cols_total[$i])) $this->cols_total[$i] = 0;
+						$this->cols_total[$i] += $val;
 					}
 					$res_ref = $this->format_cell($this->format, $res_ref);
 					$res_ref['attrs'] .= $this->create_tooltip($ref_rec, $gb_captions[$i]['name'], $res_ref['value']);
@@ -366,14 +382,14 @@ class Utils_RecordBrowser_Reports extends Module {
 					$grow[] = $this->format_cell(array(), $c);
 					$total = 0;
 					$i = 0;
-					if (!isset($cols_total[$c])) $cols_total[$c] = array();
+					if (!isset($this->cols_total[$c])) $this->cols_total[$c] = array();
 					$format = array($this->format[$c]);
 					foreach ($results as $v) {
 						$val = strip_tags($v[$c]);
 						if ($this->row_summary!==false) $total += $val;
 						if ($this->col_summary!==false) {
-							if (!isset($cols_total[$c][$i])) $cols_total[$c][$i] = 0;
-							$cols_total[$c][$i] += $val;
+							if (!isset($this->cols_total[$c][$i])) $this->cols_total[$c][$i] = 0;
+							$this->cols_total[$c][$i] += $val;
 						}
 						$next = $this->format_cell($format, $v[$c]);
 						$next['attrs'] .= $this->create_tooltip($ref_rec, $gb_captions[$i]['name'], $next['value'], $c);
@@ -404,19 +420,19 @@ class Utils_RecordBrowser_Reports extends Module {
 			if (empty($this->categories)) {
 				$total = 0;
 				$i=0;
-				foreach ($cols_total as & $res_ref) {
+				foreach ($this->cols_total as & $res_ref) {
 					if ($this->row_summary!==false) $total += $res_ref;
 					$res_ref = $this->format_cell(array($this->format,'total'), $res_ref);
 					$res_ref['attrs'] .= $this->create_tooltip($this->col_summary['label'], $gb_captions[$i]['name'], $res_ref['value']);
 					$i++;
 				}
-				array_unshift($cols_total, $this->format_cell(array('total-row_desc'), $this->col_summary['label']));
+				array_unshift($this->cols_total, $this->format_cell(array('total-row_desc'), $this->col_summary['label']));
 				if ($this->row_summary!==false) {
 					$next = $this->format_cell(array($this->format,'total_all'), $total);
 					$next['attrs'] .= $this->create_tooltip($this->col_summary['label'], $this->row_summary['label'], $next['value']);
-					$cols_total[] = $next;
+					$this->cols_total[] = $next;
 				}
-				$ggrow = array($cols_total);
+				$ggrow = array($this->cols_total);
 			} else {
 				$this->first = true;
 				$count = count($this->categories);
@@ -428,10 +444,10 @@ class Utils_RecordBrowser_Reports extends Module {
 					} else $grow = array(0=>array('dummy'=>1, 'value'=>'', 'attrs'=>'class=" total"'));
 					$grow[] = $this->format_cell(array('total'), $c);
 					$total = 0;
-					if (!isset($cols_total[$c])) $cols_total[$c] = array();
+					if (!isset($this->cols_total[$c])) $this->cols_total[$c] = array();
 					$format = array($this->format[$c], 'total');
 					$i=0;
-					foreach ($cols_total[$c] as $v) {
+					foreach ($this->cols_total[$c] as $v) {
 						if ($this->row_summary!==false) $total += $v;
 						$next = $this->format_cell($format, $v);
 						$next['attrs'] .= $this->create_tooltip($this->col_summary['label'], $gb_captions[$i]['name'], $next['value'], $c);
@@ -631,8 +647,8 @@ class Utils_RecordBrowser_Reports extends Module {
 					foreach ($results as & $res_ref) {
 						$val = strip_tags($res_ref);
 							$total += $val;
-						if (!isset($cols_total[$i])) $cols_total[$i] = 0;
-						$cols_total[$i] += $val;
+						if (!isset($this->cols_total[$i])) $this->cols_total[$i] = 0;
+						$this->cols_total[$i] += $val;
 						$i++;
 					}
 					$bar->set_values(array($total));
@@ -653,13 +669,13 @@ class Utils_RecordBrowser_Reports extends Module {
 					$arr_c = array();
 					foreach ($this->categories as $q=>$c) {
 						$total = 0;
-						if(!isset($cols_total[$c])) $cols_total[$c] = array();
+						if(!isset($this->cols_total[$c])) $this->cols_total[$c] = array();
 						$i=0;
 						foreach ($results as $v) {
 							$val = (int)strip_tags($v[$c]);
 							$total += $val;
-							if (!isset($cols_total[$c][$i])) $cols_total[$c][$i] = 0;
-							$cols_total[$c][$i] += $val;
+							if (!isset($this->cols_total[$c][$i])) $this->cols_total[$c][$i] = 0;
+							$this->cols_total[$c][$i] += $val;
 							$i++;
 						}
 						if($this->format[$c]=='currency') {
@@ -715,9 +731,9 @@ class Utils_RecordBrowser_Reports extends Module {
 				$bar->set_colour(self::$colours[0]);
 				$bar->set_key('Total',3);
 				$mm = 5;
-				foreach($cols_total as $val)
+				foreach($this->cols_total as $val)
 					if($mm<$val) $mm=$val;
-				$bar->set_values($cols_total);
+				$bar->set_values($this->cols_total);
 				if($this->format=='currency') {
 					$maxc2 = $mm;
 					$fc2->add_element( $bar );
@@ -727,7 +743,7 @@ class Utils_RecordBrowser_Reports extends Module {
 				}
 			} else {
 				$i = 0;
-				foreach($cols_total as $k=>$arr) {
+				foreach($this->cols_total as $k=>$arr) {
 					$bar = new bar_glass();
 					$bar->set_colour(self::$colours[$i%count(self::$colours)]);
 					$bar->set_key(strip_tags($k),3);
@@ -834,7 +850,7 @@ class Utils_RecordBrowser_Reports extends Module {
 		}
 
 
-		$cols_total = array();
+		$this->cols_total = array();
 		/***** MAIN TABLE *****/
 		$row_count = 1;
 		$gb_captions = $this->gb_captions;
