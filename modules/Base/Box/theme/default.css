@@ -8,6 +8,13 @@ body {
 	background-color: #F0F0F0;
 }
 
+/* for debug uncomment following lines */
+/*
+div (
+	border:solid 1px red;
+}
+*/
+
 table {
 	font-size: 11px;
 }
@@ -151,25 +158,60 @@ hr.line {
 /*** content body ***/
 
 #content_body {
-    position: absolute;
-    top: 97px;
+    position: relative;
+   /* position: absolute; */
+    top: 50px;
     /*margin-top: 97px;*/
     width: 100%;
     padding: 0px;
-    text-align: center;
+    /*text-align: center;*/
+}
+
+#body_content {
+    position: relative;
+   /* position: absolute; */
+    top: 50px;
+    /*margin-top: 97px;*/
+    width: 100%;
+    padding: 0px;
+    /*text-align: center;*/
 }
 
 #main_content {
+	position: relative;
+	/* width: 100%; */
 }
 
 #debug {
-    position: absolute;
-    top: 1000px;
+	width: 90%;
+    background-color: white;
+	z-index: 99;
+	padding: 20px;
+	color: black;
+/*    position: absolute;
+    top: 1000px; */
+}
+
+#error_box {
+
+	/*
+	position: absolute;
+	bottom:0px;
+
+	vertical-align: bottom;
+	
+	width: 90%;
+	height:auto;
+	*/
+    background-color: white;
+	z-index: 99;
+	padding: 20px;
 }
 
 /*** top_bar ***/
 
 #top_bar {
+	position: fixed;
 	left: 0px;
 	top: 0px;
 	z-index: 10;
