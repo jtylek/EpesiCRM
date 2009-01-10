@@ -38,7 +38,7 @@
 
 /* button */
 
-table#CRM_Filters .button {
+table#CRM_Filters .big-button {
 	background-color: #F0F0F0;
 	border: 1px solid #FFFFFF;
 	background-repeat: repeat-x;
@@ -50,31 +50,38 @@ table#CRM_Filters .button {
 	height: 60px;
 	background-image: url("images/big-button.png");
 	padding-top: 10px;
+	width: auto;
 }
 
-table#CRM_Filters .button:hover {
+table#CRM_Filters .big-button:hover {
 	background-color: #FFFFFF;
 	background-image: url("images/big-button-hover.png");
+	color: #993333;
 }
 
-table#CRM_Filters a .button {
+table#CRM_Filters a .big-button {
 	color: #336699;
 	font-weight: bold;
 }
 
-table#CRM_Filters a .button .desc {
+table#CRM_Filters a .big-button .desc {
 	font-weight: normal;
+	text-align: center;
 }
 
-table#CRM_Filters .button span {
+table#CRM_Filters .big-button span {
 	display: block;
+	width: auto;
+	text-align: center;
 }
 
-table#CRM_Filters .button span.text {
+table#CRM_Filters .big-button span.text {
 	padding-bottom: 5px;
+	text-align: center;
+	width: 100%;
 }
 
-table#CRM_Filters .button span.desc {
+table#CRM_Filters .big-button span.desc {
 	width: 100px;
 	text-align: left;
 	margin-left: 10px;

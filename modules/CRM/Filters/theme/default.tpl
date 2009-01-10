@@ -11,7 +11,7 @@
 <!-- -->
 
 	    {$__link.my.open}
-		<div class="button">
+		<div class="big-button">
             {if $display_icon}
             <img src="{$theme_dir}/CRM/Filters/my.png" alt="" align="middle" border="0" width="32" height="32">
             {/if}
@@ -52,7 +52,7 @@
 <!-- -->
 
 	    {$__link.all.open}
-		<div class="button">
+		<div class="big-button">
             {if $display_icon}
             <img src="{$theme_dir}/CRM/Filters/all.png" alt="" align="middle" border="0" width="32" height="32">
             {/if}
@@ -83,7 +83,7 @@
 <!-- -->
 
         </td>
-        
+
         <!-- MANAGE FILTERS -->
         <td>
 <!-- SHADIW BEGIN -->
@@ -94,7 +94,7 @@
 
 
 	    {$__link.manage.open}
-		<div class="button">
+		<div class="big-button">
             {if $display_icon}
             <img src="{$theme_dir}/CRM/Filters/manage.png" alt="" align="middle" border="0" width="32" height="32">
             {/if}
@@ -124,7 +124,7 @@
 		</div>
 	</div>
 <!-- -->
-            
+
         </td>
     </tr>
     <tr>
@@ -133,7 +133,7 @@
 </table>
 
 <br>
-    
+
 <table id="CRM_Filters" cellspacing="0" cellpadding="0">
     <tr>
         <td colspan="4" class="Filters_header">&nbsp;&nbsp;{$saved_filters}&nbsp;&nbsp;</td>
@@ -152,7 +152,7 @@
 <!-- -->
 
 	    {$p.open}
-		<div class="button">
+		<div class="big-button">
             <span class="text">{$p.title}</span>
             <span class="desc">{$p.description}</span>
         </div>
