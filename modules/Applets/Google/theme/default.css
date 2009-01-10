@@ -14,16 +14,14 @@
 }
 
 #google .button {
-    border: 0px;
-    background-color: #336699;
-    background-image: url('images/header-blue.png');
-    background-repeat: repeat-x;
-    color: #FFFFFF;
+    border: none;
+    background-image: url('images/button.gif');
+    color: #ffffff;
     text-align: center;
-    width: 80px;
+    width: 100px;
     height: 20px;
 }
 
 #google .button:hover {
-    background-image: url('images/header-blue-hover.png');
+    background-image: url('images/button-hover.gif');
 }

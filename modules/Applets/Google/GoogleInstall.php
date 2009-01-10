@@ -23,7 +23,7 @@ class Applets_GoogleInstall extends ModuleInstall {
 	}
 
 	public function version() {
-		return array("1.2");
+		return array("1.3");
 	}
 
 	public function requires($v) {
