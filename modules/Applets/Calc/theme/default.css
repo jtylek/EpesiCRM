@@ -4,19 +4,26 @@
     background-repeat: repeat-x;
 }
 
-#calc .button {
-    width: 34px;
+#calc .key {
+    /*width: 34px;
     height: 24px;
     background-image: url('images/header-blue.png');
-    color: #FFFFFF;
-    border: 2px solid #FFFFFF;
+    border: 2px solid #FFFFFF;*/
+    color: #ffffff;
+    width: 50px;
+    height: 20px;
+    background-image: url('images/button-small.gif');
+    border: none;
+    margin: 2px;
 }
 
-#calc input:hover.button {
-    background-image: url('images/header-blue-hover.png');
+#calc input:hover.key {
+    /*background-image: url('images/header-blue-hover.png');*/
+    background-image: url('images/button-small-hover.gif');
 }
 
 #calc .text {
     border: 2px solid #B3B3B3;
-    width: 141px;
+    /*width: 141px;*/
+    width: 221px;
 }

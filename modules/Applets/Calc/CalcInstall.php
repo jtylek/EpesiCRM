@@ -23,7 +23,7 @@ class Applets_CalcInstall extends ModuleInstall {
 	}
 
 	public function version() {
-		return array("1.0");
+		return array("1.1");
 	}
 
 	public function requires($v) {
