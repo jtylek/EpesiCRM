@@ -115,11 +115,10 @@ div.events_brief {
 }
 
 #Utils_Calendar__agenda .button input {
-	background-color: #336699;
 	background-image: url('images/button.gif');
 	background-repeat: repeat-x;
 	color: #FFFFFF;
-	border: 0px;
+	border: none;
 	height: 20px;
 	width: 100px;
 }
@@ -138,7 +137,7 @@ div.events_brief {
 }
 
 #Utils_Calendar__agenda .data {
-	background-color: #336699;
+	/*background-color: #336699;*/
 	/*background-image: url('images/header-blue.png');*/
 	background-repeat: repeat-x;
 	/*border: 1px solid #B3B3B3;*/
@@ -165,10 +164,13 @@ div.events_brief {
 	/*padding-right: 20px;*/
 	color: #FFFFFF;
 	/* background-color: #339933; */
+	background-color: transparent;
 	background-image: url('images/button.gif');
 	width: 100px;
+    height: 20px;
 	display: block;
 	float: left;
+    border: none;
 }
 
 #Utils_Calendar__agenda .data a.button:hover {
