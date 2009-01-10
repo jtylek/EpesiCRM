@@ -7,9 +7,10 @@
     word-wrap: break-word;       /* Internet Explorer 5.5+ */
     overflow-y: scroll;
     text-align: left;
-    border: 1px solid #B3B3B3;
+    border: 1px solid #b3b3b3;
+    margin: 5px;
     padding: 5px;
-    background-color: #FFFFFF;
+    background-color: #ffffff;
 }
 
 #shoutbox_board .author {
@@ -17,22 +18,25 @@
 }
 
 #shoutbox_board .time {
-    color: #B3B3B3;
+    color: #b3b3b3;
+}
+
+.element_text {
 }
 
 #shoutbox_text {
-    width: 200px;
+    width: 226px;
 }
 
 #shoutbox_button {
-    color: #FFFFFF;
-    background-color: #336699;
-    background-image: url('images/header-blue.png');
-    background-repeat: repeat-x;
-    border: 0px;
-    padding: 1px 10px 1px 10px;
+    color: #ffffff;
+    background-image: url('images/button-small.gif');
+    border: none;
+    /*padding: 1px 10px 1px 10px;*/
+    width: 50px;
+    height: 20px;
 }
 
 #shoutbox_button:hover {
-    background-image: url('images/header-blue-hover.png');
+    background-image: url('images/button-small-hover.gif');
 }
