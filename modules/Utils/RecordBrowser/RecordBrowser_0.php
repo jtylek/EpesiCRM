@@ -399,7 +399,7 @@ class Utils_RecordBrowser extends Module {
 			if ((!$args['visible'] && (!isset($cols[$args['id']]) || $cols[$args['id']] === false)) || $access[$args['id']]=='hide') continue;
 			if (isset($cols[$args['id']]) && $cols[$args['id']] === false) continue;
 			$query_cols[] = $args['id'];
-			$arr = array('name'=>$this->t($args['name']));
+			$arr = array('name'=>$args['name']);
 			if ($this->browse_mode!='recent' && $args['type']!=='multiselect' && ($args['type']!=='calculated' || $args['param']!='') && $args['type']!=='hidden') $arr['order'] = $field;
 			if ($quickjump!=='' && $args['name']===$quickjump) $arr['quickjump'] = '"'.$args['name'];
 			if ($args['type']=='text' || $args['type']=='currency' || ($args['type']=='calculated' && $args['param']!='')) $arr['search'] = $args['id'];//str_replace(' ','_',$field);
@@ -411,6 +411,7 @@ class Utils_RecordBrowser extends Module {
 				foreach (array('name','wrapmode','width') as $v)
 					if (isset($this->more_table_properties[$args['id']][$v])) $arr[$v] = $this->more_table_properties[$args['id']][$v];
 			}
+			$arr['name'] = $this->t($arr['name']);
 			$str = explode(';', $args['param']);
 			$ref = explode('::', $str[0]);
 			if ($ref[0]!='' && isset($ref[1])) $arr['search'] = '__Ref__'.$args['id'];//str_replace(' ','_',$field);
