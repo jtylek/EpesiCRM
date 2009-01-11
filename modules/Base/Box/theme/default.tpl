@@ -48,7 +48,7 @@
 	</div>
 	<!-- -->
 	<div id="content">
-		<div id="content_body">
+		<div id="content_body" style="top: 50px;">
 			<center>{$main}</center>
 		</div>
 	</div>

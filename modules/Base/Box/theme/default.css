@@ -134,7 +134,7 @@ hr.line {
 /*** login ***/
 
 #Base_Box__login {
-	position: absolute;
+/*	position: absolute;*/
 	width: 100%;
 	height: 100%;
 	text-align: center;
@@ -160,7 +160,6 @@ hr.line {
 #content_body {
     position: relative;
    /* position: absolute; */
-    top: 50px;
     /*margin-top: 97px;*/
     width: 100%;
     padding: 0px;
@@ -184,28 +183,16 @@ hr.line {
 
 #debug {
 	width: 90%;
-    background-color: white;
 	z-index: 99;
-	padding: 20px;
+	padding: 5px;
 	color: black;
-/*    position: absolute;
-    top: 1000px; */
 }
 
 #error_box {
-
-	/*
-	position: absolute;
-	bottom:0px;
-
-	vertical-align: bottom;
-	
 	width: 90%;
-	height:auto;
-	*/
-    background-color: white;
 	z-index: 99;
-	padding: 20px;
+	padding: 5px;
+	color: black;
 }
 
 /*** top_bar ***/

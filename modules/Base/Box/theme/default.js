@@ -33,10 +33,10 @@ base_box_roll_topbar = function() {
    Effect.toggle('ActionBar','slide',{duration:0.3});
    if($('ShadowBar').style.display == 'none') {
       document.getElementById("ShadowBar").style.display = 'block';
-      setTimeout('document.getElementById("content_body").style.top = "25px"',500);
+      setTimeout('document.getElementById("content_body").style.top = "0px"',500);
    }
    else {
       document.getElementById("ShadowBar").style.display = 'none';
-      document.getElementById("content_body").style.top = "97px";
+      document.getElementById("content_body").style.top = "50px";
    }
 }
