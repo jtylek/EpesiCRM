@@ -39,7 +39,7 @@ class Utils_LeightboxPrompt extends Module {
 		if (!$this->leightbox_ready) {
 			if (!empty($params)) {
 				$this->params = $params;
-				$js = $this->group.'_set_params = function(arg'.implode(',arg',array_keys($params)).'){';
+				$js = 'f'.$this->group.'_set_params = function(arg'.implode(',arg',array_keys($params)).'){';
 				foreach ($params as $k=>$v) {
 					$js .= '$(\''.$this->group.'_'.$v.'\').value=arg'.$k.';';
 				}
@@ -51,7 +51,7 @@ class Utils_LeightboxPrompt extends Module {
 
 			eval_js_once('f'.$this->group.'_followups_deactivate = function(){leightbox_deactivate(\''.$this->group.'_followups_leightbox\');}');
 			eval_js_once('f'.$this->group.'_show_form = function(arg){$(arg+\'_'.$this->group.'_form_section\').style.display=\'block\';$(\''.$this->group.'_buttons_section\').style.display=\'none\';}');
-			eval_js('$(\''.$this->group.'_buttons_section\').style.display=\'block\';');
+			eval_js('$(\''.$this->group.'_buttons_section\').style.display=\''.(count($this->options)==1?'none':'block').'\';');
 
 			$buttons = array();
 			$sections = array();
@@ -61,7 +61,7 @@ class Utils_LeightboxPrompt extends Module {
 					if (!empty($params))
 						foreach ($params as $w)
 							$v['form']->addElement('hidden', $this->group.'_'.$w, $w, array('id'=>$this->group.'_'.$w));
-					$v['form']->addElement('button', 'cancel', $this->t('Cancel'), array('onclick'=>'$(\''.$this->group.'_buttons_section\').style.display=\'block\';$(\''.$k.'_'.$this->group.'_form_section\').style.display=\'none\';'));
+					$v['form']->addElement('button', 'cancel', $this->t('Cancel'), array('onclick'=>count($this->options)==1?'f'.$this->group.'_followups_deactivate();':'$(\''.$this->group.'_buttons_section\').style.display=\'block\';$(\''.$k.'_'.$this->group.'_form_section\').style.display=\'none\';'));
 					$v['form']->addElement('submit', 'submit', $this->t('OK'), array('onclick'=>'f'.$this->group.'_followups_deactivate();'));
 					ob_start();
 					$th = $this->init_module('Base/Theme');
@@ -70,7 +70,7 @@ class Utils_LeightboxPrompt extends Module {
 					$form_contents = ob_get_clean();
 					$next_button['open'] = '<a href="javascript:void(0);" onclick="f'.$this->group.'_show_form(\''.$k.'\');">';
 					$sections[] = '<div id="'.$k.'_'.$this->group.'_form_section" style="display:none;">'.$form_contents.'</div>'; 
-					eval_js('$(\''.$k.'_'.$this->group.'_form_section\').style.display=\'none\';');
+					eval_js('$(\''.$k.'_'.$this->group.'_form_section\').style.display=\''.(count($this->options)!=1?'none':'block').'\';');
 				} else {
 					$next_button['open'] = '<a '.$this->create_callback_href(array($this,'option_chosen'), array($k)).' onmouseup="f'.$this->group.'_followups_deactivate();">';
 				}
@@ -94,11 +94,11 @@ class Utils_LeightboxPrompt extends Module {
 	
 	public function get_href($params=array()) {
 		$ret = 'href="javascript:void(0)" class="lbOn" rel="'.$this->group.'_followups_leightbox"';
-		if (!empty($params)) $ret .= ' onmousedown="'.$this->group.'_set_params(\''.implode('\',\'',$params).'\');"';
+		if (!empty($params)) $ret .= ' onmousedown="f'.$this->group.'_set_params(\''.implode('\',\'',$params).'\');"';
 		return $ret;
 	}
 
-	public function get_close_leightbox_href($params) {
+	public function get_close_leightbox_href() {
 		return 'href="javascript:void(0)" onclick="f'.$this->group.'_followups_deactivate();"';
 	}
 
