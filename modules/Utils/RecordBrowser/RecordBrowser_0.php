@@ -872,7 +872,7 @@ class Utils_RecordBrowser extends Module {
 					if ($result['show']==false) continue;
 					$row['label'] = $result['label'];
 				}
-				if (!is_callable(array($mod,$row['func']))) $tb->set_tab($this->t($row['label']),array($this, 'broken_addon'), $js);
+				if (!method_exists($mod,$row['func'])) $tb->set_tab($this->t($row['label']),array($this, 'broken_addon'), $js);
 				else $tb->set_tab($this->t($row['label']),array($this, 'display_module'), array($mod, array($this->record, $this), $row['func']), $js);
 			}
 		}
