@@ -51,6 +51,7 @@ class Utils_RecordBrowser extends Module {
 	public static $clone_result = null;
 	public static $clone_tab = null;
 	public static $last_record = null;
+	public static $rb_obj = null;
 	public $record;
 	public $adv_search = false;
 	private $col_order = array();
@@ -103,6 +104,7 @@ class Utils_RecordBrowser extends Module {
 	}
 
 	public function construct($tab = null) {
+		self::$rb_obj = $this;
 		$this->tab = $tab;
 		if ($tab!==null) Utils_RecordBrowserCommon::check_table_name($tab);
 	}
