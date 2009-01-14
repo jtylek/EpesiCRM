@@ -69,7 +69,7 @@ class Base_Dashboard extends Module {
 		$colors = Base_DashboardCommon::get_available_colors();
 		print('<div id="dashboard" style="width: 100%">');
 		for($j=0; $j<3; $j++) {
-			print('<div id="dashboard_applets_'.$j.'" style="width:33%;min-height:200px;padding-bottom:200px;vertical-align:top;float:left">');
+			print('<div id="dashboard_applets_'.$j.'" style="width:33%;min-height:200px;padding-bottom:10px;vertical-align:top;float:left">');
 
 			if($default_dash)
 				$ret = DB::GetAll('SELECT id,module_name,color FROM base_dashboard_default_applets WHERE col=%d AND tab=%d ORDER BY pos',array($j,$tab_id));
