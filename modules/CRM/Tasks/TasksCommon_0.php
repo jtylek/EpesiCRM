@@ -38,10 +38,21 @@ class CRM_TasksCommon extends ModuleCommon {
 					'Permission:'=>$access[$r['permission']],
 					'Priority:'=>$priority[$r['priority']],
 					);
+		
+		$bg_color = '';
+		switch ($r['priority']) {
+			case 0: $bg_color = '#FFFFFF'; break; // low priority
+			case 1: $bg_color = '#FFFFD5'; break; // medium
+			case 2: $bg_color = '#FFD5D5'; break; // high
+		}
 
 		// Pass 2 arguments: array containing pairs: label/value
 		// and the name of the group for translation
-		return	Utils_TooltipCommon::format_info_tooltip($args,'CRM_Tasks');
+		//return	Utils_TooltipCommon::format_info_tooltip($args,'CRM_Tasks');
+
+		$ret = array('notes'=>Utils_TooltipCommon::format_info_tooltip($args,'CRM_Tasks'));
+		if ($bg_color) $ret['row_attrs'] = 'style="background:'.$bg_color.';"';
+		return $ret;
 	}
 
 	public static function menu() {
