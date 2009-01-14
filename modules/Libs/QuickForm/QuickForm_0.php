@@ -149,7 +149,7 @@ class Libs_QuickForm extends Module {
 				case 'radio':
 					$radio = array();
 					foreach($v['values'] as $k=>$x)
-						$radio[] = $this -> createElement('radio',$v['name'],null,$this->ht($x),$k,$v['param']);
+						$radio[] = $this -> createElement('radio',$v['name'],null,Base_LangCommon::ts($this->get_type(),$x),$k,$v['param']);
 					$this->addGroup($radio,null,$v['label']);
 					$default_js .= 'e = $(\''.$this->getAttribute('name').'\').'.$v['name'].';'.
 					'for(i=0; i<e.length; i++){e[i].checked=false;if(e[i].value==\''.$v['default'].'\')e[i].checked=true;};';
