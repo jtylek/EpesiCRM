@@ -61,7 +61,7 @@ class Utils_GenericBrowser_Row_Object {
 	}
 
 	/**
-	 * Adds an action to the Generic Browser.
+	 * Adds an action to a row in Generic Browser.
 	 *
 	 * All actions are placed in one, additional column.
 	 * Theme may replace text with icons and to determine which icon to use
@@ -72,6 +72,20 @@ class Utils_GenericBrowser_Row_Object {
 	 */
 	public function add_action($tag_attrs,$label,$tooltip=null,$icon=null){
 		$this->GBobj->__add_row_action($this->num, $tag_attrs,$label,isset($tooltip)?$tooltip:null,$icon);
+	}
+
+	/**
+	 * Adds a style to a row in Generic Browser.
+	 *
+	 * All actions are placed in one, additional column.
+	 * Theme may replace text with icons and to determine which icon to use
+	 * label lowercase is used.
+	 *
+	 * @param string href
+	 * @param string label
+	 */
+	public function set_attrs($tag_attrs){
+		$this->GBobj->__set_row_attrs($this->num, $tag_attrs);
 	}
 
 	/**
@@ -102,6 +116,7 @@ class Utils_GenericBrowser extends Module {
 	private $rows_jses = array();
 	private $rows_qty;
 	private $actions = array();
+	private $row_attrs = array();
 	private $en_actions = false;
 	private $cur_row = -1;
 	private $per_page;
@@ -211,6 +226,13 @@ class Utils_GenericBrowser extends Module {
 		if (!isset($icon)) $icon = strtolower(trim($label));
 		$this->actions[$num][$icon] = array('tag_attrs'=>$tag_attrs,'label'=>$this->ht($label),'tooltip'=>$tooltip);
 		$this->en_actions = true;
+	}
+
+	/**
+	 * For internal use only.
+	 */
+	public function __set_row_attrs($num,$tag_attrs) {
+		$this->row_attrs[$num] = $tag_attrs;
 	}
 
 	/**
@@ -925,6 +947,8 @@ class Utils_GenericBrowser extends Module {
 
 		$theme->assign('data', $out_data);
 		$theme->assign('cols', $out_headers);
+
+		$theme->assign('row_attrs', $this->row_attrs);
 
 		$theme->assign('table_prefix', $this->table_prefix);
 		$theme->assign('table_postfix', $this->table_postfix);

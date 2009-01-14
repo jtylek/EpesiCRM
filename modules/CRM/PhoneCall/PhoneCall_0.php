@@ -54,7 +54,7 @@ class CRM_PhoneCall extends Module {
 											array('field'=>'status', 'width'=>1)
 										),
 									array('employees'=>array($me['id']), '!status'=>array(2,3)),
-									array('status'=>'ASC','date_and_time'=>'ASC'),
+									array('status'=>'ASC','date_and_time'=>'ASC','priority'=>'DESC'),
 									array('CRM_PhoneCallCommon','applet_info_format'),
 									15,
 									$conf,

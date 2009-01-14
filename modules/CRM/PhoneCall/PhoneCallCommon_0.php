@@ -65,7 +65,14 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 
 		// Pass 2 arguments: array containing pairs: label/value
 		// and the name of the group for translation
-		return	Utils_TooltipCommon::format_info_tooltip($args,'CRM_PhoneCall');
+		$bg_color = '';
+		switch ($r['priority']) {
+			case 1: $bg_color = '#FFFFD5'; break; 
+			case 2: $bg_color = '#FFD5D5'; break; 
+		}
+		$ret = array('notes'=>Utils_TooltipCommon::format_info_tooltip($args,'CRM_PhoneCall'));
+		if ($bg_color) $ret['row_attrs'] = 'style="background:'.$bg_color.';"';
+		return $ret;
 
 	/*
 		return 	Base_LangCommon::ts('CRM_PhoneCall','Subject: %s', array($r['subject'])).'<br>'.

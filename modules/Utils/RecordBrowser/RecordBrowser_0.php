@@ -1637,7 +1637,7 @@ class Utils_RecordBrowser extends Module {
 		$this->set_module_variable('no_limit_in_mini_view',$arg);
 	}
 
-	public function mini_view($cols, $crits, $order, $info, $limit=null, $conf = array('actions_edit'=>true, 'actions_info'=>true), & $opts = array()){
+	public function mini_view($cols, $crits, $order, $info=null, $limit=null, $conf = array('actions_edit'=>true, 'actions_info'=>true), & $opts = array()){
 		$this->init();
 		$gb = $this->init_module('Utils/GenericBrowser',$this->tab,$this->tab);
 		$field_hash = array();
@@ -1692,9 +1692,12 @@ class Utils_RecordBrowser extends Module {
 			}
 			$gb_row->add_data_array($arr);
 			if (is_callable($info)) {
-				$additional_info = call_user_func($info, $v).'<hr>';
+				$additional_info = call_user_func($info, $v);
 			} else $additional_info = '';
-			if (isset($conf['actions_info']) && $conf['actions_info']) $gb_row->add_info($additional_info.Utils_RecordBrowserCommon::get_html_record_info($this->tab, $v['id']));
+			if (!is_array($additional_info) && isset($additional_info)) $additional_info = array('notes'=>$additional_info);
+			if (isset($additional_info['notes'])) $additional_info['notes'] = $additional_info['notes'].'<hr />';
+			if (isset($additional_info['row_attrs'])) $gb_row->set_attrs($additional_info['row_attrs']);
+			if (isset($conf['actions_info']) && $conf['actions_info']) $gb_row->add_info($additional_info['notes'].Utils_RecordBrowserCommon::get_html_record_info($this->tab, $v['id']));
 			if (isset($conf['actions_view']) && $conf['actions_view']) $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'view',$v['id'])),'View');
 			if (isset($conf['actions_edit']) && $conf['actions_edit']) if ($this->get_access('edit',$v)) $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'edit',$v['id'])),'Edit');
 			if (isset($conf['actions_delete']) && $conf['actions_delete']) if ($this->get_access('delete',$v)) $gb_row->add_action($this->create_confirm_callback_href($this->t('Are you sure you want to delete this record?'),array('Utils_RecordBrowserCommon','delete_record'),array($this->tab, $v['id'])),'Delete');
