@@ -1,5 +1,6 @@
 #shoutbox_board {
-    height: 200px;
+    height: 250px;
+	max-width: 290px;
     white-space: pre-wrap;       /* css-3 */
     white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
     white-space: -pre-wrap;      /* Opera 4-6 */
@@ -7,10 +8,9 @@
     word-wrap: break-word;       /* Internet Explorer 5.5+ */
     overflow-y: scroll;
     text-align: left;
-    border: 1px solid #b3b3b3;
-    margin: 5px;
+    border: 1px solid #B3B3B3;
     padding: 5px;
-    background-color: #ffffff;
+    background-color: #FFFFFF;
 }
 
 #shoutbox_board .author {
@@ -18,25 +18,22 @@
 }
 
 #shoutbox_board .time {
-    color: #b3b3b3;
-}
-
-.element_text {
+    color: #B3B3B3;
 }
 
 #shoutbox_text {
-    width: 226px;
+    width: 200px;
 }
 
 #shoutbox_button {
-    color: #ffffff;
-    background-image: url('images/button-small.gif');
-    border: none;
-    /*padding: 1px 10px 1px 10px;*/
-    width: 50px;
-    height: 20px;
+    color: #FFFFFF;
+    background-color: #336699;
+    background-image: url('images/header-blue.png');
+    background-repeat: repeat-x;
+    border: 0px;
+    padding: 1px 10px 1px 10px;
 }
 
 #shoutbox_button:hover {
-    background-image: url('images/button-small-hover.gif');
+    background-image: url('images/header-blue-hover.png');
 }
