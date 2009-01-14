@@ -65,6 +65,9 @@
 							<tbody>
 								<tr>
 									{*<td class="label">{$form_data_search.search.label}</td>*}
+									{if isset($form_data_search.show_all)}
+										<td class="submit">{$form_data_search.show_all.html}</td>
+									{/if}
 									<td>{$form_data_search.search.html}</td>
 									<td class="submit">{$form_data_search.submit_search.html}</td>
 									<td class="advanced">{$adv_search}</td>
@@ -86,6 +89,9 @@
 						<table class="Utils_GenericBrowser__search" border="0" cellpadding="0" cellspacing="0">
 							<tbody>
 								<tr>
+									{if isset($form_data_search.show_all)}
+										<td class="submit">{$form_data_search.show_all.html}</td>
+									{/if}
 									<td class="submit">{$form_data_search.submit_search.html}</td>
 									<td class="advanced">{$adv_search}</td>
 								</tr>

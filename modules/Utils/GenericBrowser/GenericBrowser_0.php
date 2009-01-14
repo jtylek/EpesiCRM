@@ -753,7 +753,14 @@ class Utils_GenericBrowser extends Module {
 			}
 			$theme->assign('search_fields', $search_fields);
 		}
-		if ($search_on) $form_s->addElement('submit','submit_search',$this->ht('Search'));
+		if ($search_on) {
+			$form_s->addElement('submit','submit_search',$this->ht('Search'));
+			if (Base_User_SettingsCommon::get($this->get_type(), 'show_all_button')) {
+				$el = $form_s->addElement('hidden','show_all_pressed');
+				$form_s->addElement('button','show_all',$this->ht('Show all'), array('onclick'=>'document.forms["'.$form_s->getAttribute('name').'"].show_all_pressed.value="1";'.$form_s->get_submit_form_js()));
+				$el->setValue('0');
+			}
+		}
 		if ($pager_on) {
 			$form_p->accept($renderer);
 			$form_array = $renderer->toArray();
@@ -783,6 +790,11 @@ class Utils_GenericBrowser extends Module {
 			// form processing
 			if($form_s->validate()) {
 				$values = $form_s->exportValues();
+				if (isset($values['show_all_pressed']) && $values['show_all_pressed']) {
+					$this->set_module_variable('search',array());
+					location(array());
+					return;
+				}
 				$search = array();
 				foreach ($values as $k=>$v){
 					if ($k=='search') {
@@ -797,6 +809,7 @@ class Utils_GenericBrowser extends Module {
 				}
 				$this->set_module_variable('search',$search);
 				location(array());
+				return;
 			}
 		}
 

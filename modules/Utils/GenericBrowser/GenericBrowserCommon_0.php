@@ -16,7 +16,8 @@ class Utils_GenericBrowserCommon extends ModuleCommon {
 			array('name'=>'actions_position','label'=>'Position of \'Actions\' column','type'=>'radio','values'=>array(0=>'Left',1=>'Right'),'default'=>0),
 			array('name'=>'adv_search','label'=>'Advanced search by default','type'=>'bool','default'=>0),
 			array('name'=>'adv_history','label'=>'Advanced order history','type'=>'bool','default'=>0),
-			array('name'=>'display_no_records_message','label'=>'Hide \'No records found\' message','type'=>'bool','default'=>0)
+			array('name'=>'display_no_records_message','label'=>'Hide \'No records found\' message','type'=>'bool','default'=>0),
+			array('name'=>'show_all_button','label'=>'Display \'Show all\' button','type'=>'bool','default'=>0)
 			));
 	}
 	
