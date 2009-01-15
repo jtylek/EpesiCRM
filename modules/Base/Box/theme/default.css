@@ -495,14 +495,18 @@ div.autocomplete {
 */
 
 div.autocomplete ul {
-  width:250px;
-  background-color:white;
-  border:1px solid #888;
-  list-style-type:none;
-  text-align: left;
-  margin:0;
-  padding:0;
-  z-index:99;
+	position: absolute;
+	top: auto;
+	left: auto;
+	width:250px;
+	bottom:0px;
+	background-color:white;
+	border:1px solid #888;
+	list-style-type:none;
+	text-align: left;
+	margin:0;
+	padding:0;
+	z-index:99;
 }
 div.autocomplete ul li.selected { background-color: #ffb;}
 
