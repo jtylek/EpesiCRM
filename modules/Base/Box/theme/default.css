@@ -499,8 +499,8 @@ div.autocomplete ul {
 	top: auto;
 	left: auto;
 	width:250px;
-	bottom:0px;
-	background-color:white;
+	bottom:16px;
+	background-color:#FFFFCC;
 	border:1px solid #888;
 	list-style-type:none;
 	text-align: left;
@@ -508,7 +508,7 @@ div.autocomplete ul {
 	padding:0;
 	z-index:99;
 }
-div.autocomplete ul li.selected { background-color: #ffb;}
+div.autocomplete ul li.selected { background-color: #CCFFCC;}
 
 div.autocomplete ul li {
   display:block;
