@@ -135,7 +135,7 @@ function themeup(){
 	install_default_theme_common_files('modules/Base/Theme/','images');
 }
 
-$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1','0.9.9beta1','0.9.9beta2','1.0.0rc1','1.0.0rc2','1.0.0rc3','1.0.0rc4','1.0.0rc5');
+$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1','0.9.9beta1','0.9.9beta2','1.0.0rc1','1.0.0rc2','1.0.0rc3','1.0.0rc4','1.0.0rc5','1.0.0rc6');
 
 /****************** 0.8.5 to 0.8.6 **********************/
 function update_from_0_9_9beta1_to_0_9_9beta2() {
@@ -775,6 +775,146 @@ function update_from_1_0_0rc4_to_1_0_0rc5() {
 			DB::Execute('ALTER TABLE '.$t.' DROP '.$op.' '.$matches[1][$i]);
 	    }
 	}
+
+	//ok, done
+	ModuleManager::create_common_cache();
+	themeup();
+	langup();
+	Base_ThemeCommon::create_cache();
+}
+
+function update_from_1_0_0rc5_to_1_0_0rc6() {
+	ob_start();
+	ModuleManager::load_modules();
+	ob_end_clean();
+
+	if (ModuleManager::is_installed('Utils_Attachment')>=0) {
+		PatchDBAddColumn('utils_attachment_link','func','C(255)');
+		PatchDBAddColumn('utils_attachment_link','args','C(255)');
+		Acl::del_aco("Utils_Attachment",'view download history');
+		Acl::add_aco("Utils_Attachment",'view download history','Employee');
+
+		if (array_key_exists(strtoupper('attachment_key'),DB::MetaColumnNames('utils_attachment_link'))) {
+			if (ModuleManager::is_installed('CRM_Tasks')>=0) {
+				$task_group = 'CRM/Tasks/'.md5('crm_tasks');
+				$tasks = CRM_TasksCommon::get_tasks();
+				foreach($tasks as $t) {
+					$ats = DB::GetAll('SELECT ual.id,uaf.revision FROM utils_attachment_link ual INNER JOIN utils_attachment_file uaf ON (uaf.attach_id=ual.id) WHERE ual.attachment_key=%s AND ual.local=%s',array(md5('Task:'.$t['id']),$task_group));
+					$file_base = DATA_DIR.'/Utils_Attachment/'.$task_group.'/';
+					$new_file_base = DATA_DIR.'/Utils_Attachment/CRM/Tasks/'.$t['id'].'/';
+					foreach($ats as $a)
+						@rename($file_base.$a['id'].'_'.$a['revision'],$new_file_base.$a['id'].'_'.$a['revision']);
+
+					DB::Execute('UPDATE utils_attachment_link SET local=%s WHERE attachment_key=%s AND local=%s',array('CRM/Tasks/'.$t['id'],md5('Task:'.$t['id']),$task_group));
+				}
+			}
+			PatchDBDropColumn('utils_attachment_link','attachment_key');
+			DB::CreateIndex('utils_attachment_link__attachment__local__idx', 'utils_attachment_link', 'local');
+		}
+
+		PatchDBDropColumn('utils_attachment_link','other_read');
+
+		if(ModuleManager::is_installed('Apps_Bugtrack')>=0)
+			ModuleManager::uninstall('Apps_Bugtrack');
+			
+		if (ModuleManager::is_installed('CRM_Calendar')>=0) {
+			$calendar_ats = DB::GetAssoc('SELECT ual.id,ual.local FROM utils_attachment_link ual WHERE ual.local LIKE \'CRM/Calendar/Event/%\'');
+
+			foreach($calendar_ats as $i=>$g) {
+				if(ereg('CRM/Calendar/Event/([0-9]+)',$g,$reqs))
+					DB::Execute('UPDATE utils_attachment_link SET func=%s,args=%s WHERE id=%d',array(serialize(array('CRM_CalendarCommon','search_format')),serialize(array($reqs[1])),$i));
+			}
+		}
+		
+		if (ModuleManager::is_installed('CRM_Contacts')>=0) {
+			$contact_ats = DB::GetAssoc('SELECT ual.id,ual.local FROM utils_attachment_link ual WHERE ual.local LIKE \'CRM/Contact/%\'');
+			$company_ats = DB::GetAssoc('SELECT ual.id,ual.local FROM utils_attachment_link ual WHERE ual.local LIKE \'CRM/Company/%\'');
+
+			foreach($contact_ats as $i=>$g) {
+				if(ereg('CRM/Contact/([0-9]+)',$g,$reqs))
+					DB::Execute('UPDATE utils_attachment_link SET func=%s,args=%s WHERE id=%d',array(serialize(array('CRM_ContactsCommon','search_format_contact')),serialize(array($reqs[1])),$i));
+			}
+
+			foreach($company_ats as $i=>$g) {
+				if(ereg('CRM/Company/([0-9]+)',$g,$reqs))
+					DB::Execute('UPDATE utils_attachment_link SET func=%s,args=%s WHERE id=%d',array(serialize(array('CRM_ContactsCommon','search_format_company')),serialize(array($reqs[1])),$i));
+			}
+		}
+		
+		if (ModuleManager::is_installed('Premium_ListManager')>=0) {
+			$task_ats = DB::GetAssoc('SELECT ual.id,ual.local FROM utils_attachment_link ual WHERE ual.local LIKE \'Premium/ListManager/%\'');
+
+			foreach($task_ats as $i=>$g) {
+				if(ereg('Premium/ListManager/([0-9]+)',$g,$reqs))
+					DB::Execute('UPDATE utils_attachment_link SET func=%s,args=%s WHERE id=%d',array(serialize(array('Premium_ListManagerCommon','search_format')),serialize(array($reqs[1])),$i));
+			}
+		}
+		
+		if (ModuleManager::is_installed('Premium_Projects')>=0) {
+			$task_ats = DB::GetAssoc('SELECT ual.id,ual.local FROM utils_attachment_link ual WHERE ual.local LIKE \'Premium/Projects/%\'');
+
+			foreach($task_ats as $i=>$g) {
+				if(ereg('Premium/Projects/Tickets([0-9]+)',$g,$reqs))
+					DB::Execute('UPDATE utils_attachment_link SET func=%s,args=%s WHERE id=%d',array(serialize(array('Premium_Projects_TicketsCommon','search_format')),serialize(array($reqs[1])),$i));
+				elseif(ereg('Premium/Projects/([0-9]+)',$g,$reqs))
+					DB::Execute('UPDATE utils_attachment_link SET func=%s,args=%s WHERE id=%d',array(serialize(array('Premium_ProjectsCommon','search_format')),serialize(array($reqs[1])),$i));
+			}
+		}
+		
+		if (ModuleManager::is_installed('Premium_Warehouse')>=0) {
+			$task_ats = DB::GetAssoc('SELECT ual.id,ual.local FROM utils_attachment_link ual WHERE ual.local LIKE \'Premium/Warehouse/%\'');
+
+			foreach($task_ats as $i=>$g) {
+				if(ereg('Premium/Warehouse/Items/Orders/([0-9]+)',$g,$reqs))
+					DB::Execute('UPDATE utils_attachment_link SET func=%s,args=%s WHERE id=%d',array(serialize(array('Premium_Warehouse_Items_OrdersCommon','search_format')),serialize(array($reqs[1])),$i));
+				elseif(ereg('Premium/Warehouse/Items/([0-9]+)',$g,$reqs))
+					DB::Execute('UPDATE utils_attachment_link SET func=%s,args=%s WHERE id=%d',array(serialize(array('Premium_Warehouse_ItemsCommon','search_format')),serialize(array($reqs[1])),$i));
+				elseif(ereg('Premium/Warehouse/([0-9]+)',$g,$reqs))
+					DB::Execute('UPDATE utils_attachment_link SET func=%s,args=%s WHERE id=%d',array(serialize(array('Premium_WarehouseCommon','search_format')),serialize(array($reqs[1])),$i));
+			}
+		}
+
+		if (ModuleManager::is_installed('CRM_Tasks')>=0) {
+			$task_ats = DB::GetAssoc('SELECT ual.id,ual.local FROM utils_attachment_link ual WHERE ual.local LIKE \'CRM/Tasks/%\'');
+
+			foreach($task_ats as $i=>$g) {
+				if(ereg('CRM/Tasks/([0-9]+)',$g,$reqs))
+					DB::Execute('UPDATE utils_attachment_link SET func=%s,args=%s WHERE id=%d',array(serialize(array('CRM_TasksCommon','search_format')),serialize(array($reqs[1])),$i));
+			}
+		}
+	}
+
+	if (ModuleManager::is_installed('CRM_Calendar')>=0) {
+		if (!array_key_exists(strtoupper('deleted'),DB::MetaColumnNames('crm_calendar_event'))) {
+			PatchDBAddColumn('crm_calendar_event','deleted','I1 DEFAULT 0');
+			DB::CreateIndex('crm_calendar_event__deleted__idx', 'crm_calendar_event', 'deleted');
+		}
+	}
+	
+	if (ModuleManager::is_installed('CRM_PhoneCall')>=0 || 
+		ModuleManager::is_installed('CRM_Tasks')>=0 || 
+		ModuleManager::is_installed('CRM_Calendar_Event')>=0) {
+		ModuleManager::install('CRM_Common');	
+	}
+	
+	$tabs = DB::GetAssoc('SELECT tab, tab FROM recordbrowser_table_properties');
+
+	$changes = array(	'Permissions'=>'CRM/Access',
+					'Ticket_Status'=>'CRM/Status',
+					'Priorities'=>'CRM/Priority');
+	foreach ($tabs as $t) {
+		$fields = DB::Execute('SELECT * FROM '.$t.'_field WHERE type=\'select\'');
+		while ($f=$fields->FetchRow()) {
+			$p = explode('::',$f['param']);
+			if (isset($p[0]) && isset($p[1]) && $p[0]=='__COMMON__' && isset($changes[$p[1]])) {
+				DB::Execute('UPDATE '.$t.'_field SET param=%s WHERE field=%s', array('__COMMON__::'.$changes[$p[1]], $f['field']));
+			}
+		}
+	}
+
+	Utils_CommonDataCommon::remove('Permissions');
+	Utils_CommonDataCommon::remove('Ticket_Status');
+	Utils_CommonDataCommon::remove('Priorities');
 
 	//ok, done
 	ModuleManager::create_common_cache();
