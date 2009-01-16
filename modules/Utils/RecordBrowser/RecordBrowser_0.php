@@ -1045,7 +1045,8 @@ class Utils_RecordBrowser extends Module {
 										if (!isset($multi_adv_params['cols'])) $multi_adv_params['cols'] = array();
 										if (!isset($multi_adv_params['format_callback'])) $multi_adv_params['format_callback'] = array();
 										$ref = $ref[0];
-										list($tab, $col) = explode('::',$ref);
+										@(list($tab, $col) = explode('::',$ref));
+										if (!isset($col)) trigger_error($field);
 										if ($tab=='__COMMON__') {
 											$data = $this->get_commondata_tree($col);
 											if (!is_array($data)) $data = array();

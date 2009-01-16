@@ -858,22 +858,22 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			}
 		}
 		if ($or_started) $having .= ')';
-		$orderby = '';
+		$orderby = array();
 		foreach($order as $v){
-			if ($orderby=='') $orderby = ' ORDER BY';
-			else $orderby .= ', ';
+//			if ($orderby=='') $orderby = ' ORDER BY';
+//			else $orderby .= ', ';
 			if ($v['order'][0]==':') {
 				switch ($v['order']) {
 					case ':Fav'	:
-						$orderby .= ' (SELECT COUNT(*) FROM '.$tab.'_favorite WHERE '.$tab.'_id=r.id AND user_id=%d) '.$v['direction'];
+						$orderby[] = ' (SELECT COUNT(*) FROM '.$tab.'_favorite WHERE '.$tab.'_id=r.id AND user_id=%d) '.$v['direction'];
 						$vals[]=Acl::get_user();
 						break;
 					case ':Visited_on'	:
-						$orderby .= ' (SELECT visited_on FROM '.$tab.'_recent WHERE '.$tab.'_id=r.id AND user_id=%d) '.$v['direction'];
+						$orderby[] = ' (SELECT visited_on FROM '.$tab.'_recent WHERE '.$tab.'_id=r.id AND user_id=%d) '.$v['direction'];
 						$vals[]=Acl::get_user();
 						break;
 					case ':Edited_on'	:
-						$orderby .= ' (CASE WHEN (SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) IS NOT NULL THEN (SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) ELSE created_on END) '.$v['direction'];
+						$orderby[] = ' (CASE WHEN (SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) IS NOT NULL THEN (SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) ELSE created_on END) '.$v['direction'];
 						break;
 					default		: trigger_error('Unknow paramter given to get_records order: '.$k, E_USER_ERROR);
 				}
@@ -893,7 +893,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							if (isset($cols2[1])) $data_col = self::$table_rows[$cols2[1]]['id']; else $data_col = self::$table_rows[$v['order']]['id'];
 							$cols2 = $cols2[0];
 							$val = '(SELECT rdt.f_'.strtolower(str_replace(' ','_',$cols2)).' FROM '.$tab.'_data_1 AS rd LEFT JOIN '.$tab2.'_data_1 AS rdt ON rdt.id=rd.f_'.$data_col.' WHERE r.id=rd.id)';
-							$orderby .= ' '.$val.' '.$v['direction'];
+							$orderby[] = ' '.$val.' '.$v['direction'];
 							$iter++;
 							continue;
 						}
@@ -911,10 +911,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				}
 				$val = 'f_'.self::$table_rows[$v['order']]['id'];
 				// could be better, doesn't work perfectly for multiselects
-				$orderby .= ' '.$val.' '.$v['direction'];
+				$orderby[] = ' '.$val.' '.$v['direction'];
 				$iter++;
 			}
 		}
+		if (!empty($orderby)) $orderby = ' ORDER BY'.implode(', ',$orderby);
+		else $orderby = '';
 		$final_tab = str_replace('('.$tab.'_data_1 AS r'.')',$tab.'_data_1 AS r',$final_tab);
 		$ret = array('sql'=>' '.$final_tab.' WHERE true'.($admin?Utils_RecordBrowser::$admin_filter:' AND active=1').$where.$having.$orderby,'vals'=>$vals);
 		return $cache[$key] = $ret;
