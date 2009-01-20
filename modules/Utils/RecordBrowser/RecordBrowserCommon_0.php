@@ -785,10 +785,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								break;
 							}
 							self::init($tab2);
-							$cols2 = explode('|', $cols2);
+							$det = explode('/', $cols2);
+							$cols2 = explode('|', $det[0]);
 							foreach($cols2 as $j=>$w) $cols2[$j] = self::$table_rows[$cols2[$j]]['id'];
 							self::init($tab);
-							if (!$noquotes) $w = DB::qstr($w);
 							if (!is_array($v)) $v = array($v);
 							$poss_vals = '';
 							foreach ($v as $w) {
@@ -798,6 +798,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								} else {
 									if (!$noquotes) $w = DB::qstr($w);
 									$poss_vals .= ' OR f_'.implode(' LIKE '.$w.' OR f_', $cols2).' LIKE '.$w;
+									// TODO: possible inj
 								}
 							}
 							$allowed_cd = DB::GetAssoc('SELECT id, id FROM '.$tab2.'_data_1 WHERE false '.$poss_vals);
@@ -809,6 +810,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
 							$having_cd = array();
 							if ($negative) $having .= 'NOT (';
+							if (isset($det[1])) $ref = self::$table_rows[$det[1]]['id'];
 							$is_multiselect = (self::$table_rows[self::$hash[$ref]]['type']=='multiselect');
 							foreach ($allowed_cd as $vvv) {
 								if ($is_multiselect) $www = DB::Concat(DB::qstr('%'),DB::qstr('\_\_'.$vvv.'\_\_'),DB::qstr('%'));
@@ -919,6 +921,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		else $orderby = '';
 		$final_tab = str_replace('('.$tab.'_data_1 AS r'.')',$tab.'_data_1 AS r',$final_tab);
 		$ret = array('sql'=>' '.$final_tab.' WHERE true'.($admin?Utils_RecordBrowser::$admin_filter:' AND active=1').$where.$having.$orderby,'vals'=>$vals);
+//		print_r($ret);
 		return $cache[$key] = $ret;
 	}
 	public static function get_records_limit( $tab = null, $crits = null, $admin = false) {
