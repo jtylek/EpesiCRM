@@ -375,6 +375,7 @@ class Utils_RecordBrowser extends Module {
 		}
 		if ($this->is_on_main_page) {
 			$this->browse_mode = $this->get_module_variable('browse_mode', Base_User_SettingsCommon::get('Utils/RecordBrowser',$this->tab.'_default_view'));
+			if (!$this->browse_mode) $this->browse_mode='all';
 			if (($this->browse_mode=='recent' && $this->recent==0) || ($this->browse_mode=='favorites' && !$this->favorites)) $this->set_module_variable('browse_mode', $this->browse_mode='all');
 			if ($this->browse_mode!=='recent' && $this->recent>0) Base_ActionBarCommon::add('history','Recent', $this->create_callback_href(array($this,'switch_view'),array('recent')));
 			if ($this->browse_mode!=='all') Base_ActionBarCommon::add('all','All', $this->create_callback_href(array($this,'switch_view'),array('all')));
@@ -777,6 +778,8 @@ class Utils_RecordBrowser extends Module {
 				if ($v['type']=='checkbox' && !isset($values[$v['id']])) $values[$v['id']]=0;
 			}
 			$values['id'] = $id;
+			foreach ($this->custom_defaults as $k=>$v)
+				if (!isset($values[$k])) $values[$k] = $v;
 			if ($mode=='add') {
 				$id = Utils_RecordBrowserCommon::new_record($this->tab, $values);
 				self::$clone_result = $id;
