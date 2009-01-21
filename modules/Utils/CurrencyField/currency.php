@@ -10,6 +10,10 @@
 require_once("HTML/QuickForm/input.php");
 
 class HTML_QuickForm_currency extends HTML_QuickForm_input {
+	private $dec_delimiter = '.';
+	private $thou_delimiter = ',';
+	private $dec_digits = 2; 
+	private $currency = '$';
 
 	function HTML_QuickForm_currency($elementName=null, $elementLabel=null, $attributes=null) {
 		HTML_QuickForm_input::HTML_QuickForm_input($elementName, $elementLabel, $attributes);
