@@ -38,7 +38,7 @@
 
 /* button */
 
-table#Utils_LeightboxPrompt .button {
+table#Utils_LeightboxPrompt .big-button {
 	background-color: #F0F0F0;
 	border: 1px solid #FFFFFF;
 	background-repeat: repeat-x;
@@ -52,29 +52,29 @@ table#Utils_LeightboxPrompt .button {
 	padding-top: 10px;
 }
 
-table#Utils_LeightboxPrompt .button:hover {
+table#Utils_LeightboxPrompt .big-button:hover {
 	background-color: #FFFFFF;
 	background-image: url("images/big-button-hover.png");
 }
 
-table#Utils_LeightboxPrompt a .button {
+table#Utils_LeightboxPrompt a .big-button {
 	color: #336699;
 	font-weight: bold;
 }
 
-table#Utils_LeightboxPrompt a .button .desc {
+table#Utils_LeightboxPrompt a .big-button .desc {
 	font-weight: normal;
 }
 
-table#Utils_LeightboxPrompt .button span {
+table#Utils_LeightboxPrompt .big-button span {
 	display: block;
 }
 
-table#Utils_LeightboxPrompt .button span.text {
+table#Utils_LeightboxPrompt .big-button span.text {
 	padding-bottom: 5px;
 }
 
-table#Utils_LeightboxPrompt .button span.desc {
+table#Utils_LeightboxPrompt .big-button span.desc {
 	width: 100px;
 	text-align: left;
 	margin-left: 10px;
