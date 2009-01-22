@@ -10,21 +10,34 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_CurrencyFieldCommon extends ModuleCommon {
-	private static $dec_delimiter = '.';
-	private static $thou_delimiter = ',';
-	private static $dec_digits = 2;
-	private static $currency = '$';
-
-	public function format($val) {
+	public function format($val, $currency=1) {
+		if (!isset($currency) || !$currency) $currency = 1;
+		$params = DB::GetRow('SELECT * FROM utils_currency WHERE id=%d', array($currency));
+		// TODO: cache here
+		$dec_delimiter = $params['decimal_sign'];
+		$thou_delimiter = $params['thousand_sign'];
+		$dec_digits = $params['decimals'];
+		$currency = $params['symbol'];
+		$pos_before = $params['pos_before'];
+		
 		if (!$val) $val = '0';
-		if (!strrchr($val,self::$dec_delimiter)) $val .= self::$dec_delimiter; 
-		$cur = explode(self::$dec_delimiter, $val);
+		if (!strrchr($val,$dec_delimiter)) $val .= $dec_delimiter; 
+		$cur = explode($dec_delimiter, $val);
 		if (!isset($cur[1])) $cur[1] = ''; 
-		$cur[1] = str_pad($cur[1], self::$dec_digits, '0');
+		$cur[1] = str_pad($cur[1], $dec_digits, '0');
 		$val = $cur[0].'.'.$cur[1];
-		return self::$currency.'&nbsp;'.number_format($val, self::$dec_digits, self::$dec_delimiter, self::$thou_delimiter);
+		$ret = number_format($val, $dec_digits, $dec_delimiter, $thou_delimiter);
+		if ($pos_before) $ret = $currency.'&nbsp;'.$ret;
+		else $ret = $ret.'&nbsp;'.$currency;
+		return $ret;
 	}
 
+	public function user_settings() {
+		$options = DB::GetAssoc('SELECT id, code FROM utils_currency WHERE active=1');
+		return array('Currency'=>array(
+				array('name'=>'default_currency','label'=>'Default currency','type'=>'select','values'=>$options,'default'=>1)
+					));
+	}
 }
 
 $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['currency'] = array('modules/Utils/CurrencyField/currency.php','HTML_QuickForm_currency');
