@@ -37,14 +37,14 @@ a.button {
     line-height: 20px;
     height: 20px;
     display: block;
-    background-image: url("images/header-blue.png");
+    background-image: url("images/button.gif");
     border: 0px;
     text-align: center;
 }
 
 input[type="submit"]:hover,
 a.button:hover {
-    background-image: url("images/header-blue-hover.png");
+    background-image: url("images/button-hover.gif");
 }
 
 span.footer {
@@ -68,7 +68,7 @@ span.footer a:hover {
 }
 
 #banner .image {
-    background-image: url("images/logo-small.png");
+    background-image: url("images/logo-small.gif");
     background-repeat: repeat-x;
     width: 193px;
     height: 68px;
@@ -85,6 +85,7 @@ span.footer a:hover {
     border: 1px solid #B3B3B3;
     background-color: #F0F0F0;
     padding: 10px 10px 10px 10px;
+    margin: 10px 10px 10px 10px;
 }
 
 div.license {
