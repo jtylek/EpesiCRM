@@ -14,7 +14,7 @@
             	<div class="content_shadow">
             <!-- -->
                     {$__link.view.open}
-                    <div class="button">
+                    <div class="big-button">
                         {*{if $display_icon}*}
                         <img src="{$theme_dir}/Utils/Attachment/view.png" alt="" align="middle" border="0" width="32" height="32">
                         {*{/if}*}
@@ -50,7 +50,7 @@
             	<div class="content_shadow">
             <!-- -->
                     {$__link.download.open}
-                    <div class="button">
+                    <div class="big-button">
                         {*{if $display_icon}*}
                         <img src="{$theme_dir}/Utils/Attachment/download.png" alt="" align="middle" border="0" width="32" height="32">
                         {*{/if}*}
@@ -86,7 +86,7 @@
             	<div class="content_shadow">
             <!-- -->
                     {$__link.link.open}
-                    <div class="button">
+                    <div class="big-button">
                         {*{if $display_icon}*}
                         <img src="{$theme_dir}/Utils/Attachment/link.png" alt="" align="middle" border="0" width="32" height="32">
                         {*{/if}*}

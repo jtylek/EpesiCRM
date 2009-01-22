@@ -39,7 +39,7 @@
 
 /* download */
 
-table#Utils_Attachment__download .button {
+table#Utils_Attachment__download .big-button {
 	background-color: #F0F0F0;
 	border: 1px solid #FFFFFF;
 	background-repeat: repeat-x;
@@ -53,12 +53,12 @@ table#Utils_Attachment__download .button {
 	padding-top: 10px;
 }
 
-table#Utils_Attachment__download .button:hover {
+table#Utils_Attachment__download .big-button:hover {
 	background-color: #FFFFFF;
 	background-image: url("images/big-button-hover.png");
 }
 
-table#Utils_Attachment__download a .button {
+table#Utils_Attachment__download a .big-button {
 	color: #336699;
 	font-weight: bold;
 }
