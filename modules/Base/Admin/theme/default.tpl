@@ -16,7 +16,7 @@
 <!-- -->
 
 			{$__link.buttons.$key.link.open}
-			<div class="button">
+			<div class="big-button">
                 <table border="0" cellspacing="0" cellpadding="0" style="width: 100%;">
                     <tbody>
                         <tr>

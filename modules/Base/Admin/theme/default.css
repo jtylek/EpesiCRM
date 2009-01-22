@@ -1,4 +1,4 @@
-table#Base_Admin .button {
+table#Base_Admin .big-button {
 	/*width: 200px;*/
 	color: #336699;
 	font-weight: bold;
@@ -20,7 +20,7 @@ table#Base_Admin .button {
 	cursor: hand; /* css2 */
 }
 
-table#Base_Admin .button:hover {
+table#Base_Admin .big-button:hover {
 	color: #993333;
 	background-color: #FFFFFF;
 	background-image: url("images/big-button-hover.png");
@@ -46,7 +46,7 @@ table#Base_Admin .header {
 	vertical-align: middle;
 }
 
-table#Base_Admin .button table td {
+table#Base_Admin .big-button table td {
 	text-align: left;
 	vertical-align: middle;
 }
