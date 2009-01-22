@@ -18,7 +18,7 @@ ul#Utils_TabbedBrowser {
 	margin-left: 0px;
 
 	background-image: url('images/tabbed-background.gif');
-	background-position: 0px 0px;
+	background-position: 0px 4px;
 	padding-bottom: 0px;
 	margin-bottom: 0px;
 }
@@ -31,12 +31,10 @@ ul#Utils_TabbedBrowser li {
 
 ul#Utils_TabbedBrowser a.tabbed_browser_selected {
 	color: #FFFFFF;
-	/*padding-top: 3px;*/
-	padding-top: 7px;
+	padding-top: 3px;
 	background-color: #709c70;
 	background-image: url("images/header-green-dark.png");
 	background-repeat: repeat-x;
-	background-position: 0px 4px;
 	font-weight: bold;
 }
 
@@ -61,11 +59,10 @@ ul#Utils_TabbedBrowser li a {
 
 ul#Utils_TabbedBrowser a:hover {
 	color: #000000;
-	padding-top: 7px;
+	padding-top: 3px;
 	background-color: #709c70;
 	background-image: url('images/header-green-dark.png');
 	background-repeat: repeat-x;
-	background-position: 0px 4px;
 	color: #ffffff;
 }
 
