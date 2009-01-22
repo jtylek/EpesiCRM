@@ -998,10 +998,16 @@ class Utils_RecordBrowser extends Module {
 				}
 				switch ($args['type']) {
 					case 'calculated':	$form->addElement('static', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->t($args['name']).'</span>', array('id'=>$args['id']));
-										if ($mode=='edit')
-											$form->setDefaults(array($args['id']=>'<div id="'.Utils_RecordBrowserCommon::get_calcualted_id($this->tab, $args['id'], $id).'">'.$this->get_val($field, $this->record, $this->record['id'], true, $args).'</div>'));
-										else
-											$form->setDefaults(array($args['id']=>'<div id="'.Utils_RecordBrowserCommon::get_calcualted_id($this->tab, $args['id'], $id).'">['.$this->t('formula').']</div>'));
+//										if ($mode=='edit')
+										if (!is_array($this->record))
+											$values = $this->custom_defaults;
+										else {
+											$values = $this->record;
+											if (is_array($this->custom_defaults)) $values = $values+$this->custom_defaults;
+										}
+										$val = @$this->get_val($field, $values, $this->record['id'], true, $args);
+										if (!$val) $val = '['.$this->t('formula').']';
+										$form->setDefaults(array($args['id']=>'<div id="'.Utils_RecordBrowserCommon::get_calcualted_id($this->tab, $args['id'], $id).'">'.$val.'</div>'));
 										break;
 					case 'integer':		$form->addElement('text', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->t($args['name']).'</span>', array('id'=>$args['id']));
 										$form->addRule($args['id'], $this->t('Only numbers are allowed.'), 'numeric');
