@@ -40,7 +40,7 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 
 	public function user_settings() {
 		$options = DB::GetAssoc('SELECT id, code FROM utils_currency WHERE active=1');
-		return array('Currency'=>array(
+		return array('Regional settings'=>array(
 				array('name'=>'default_currency','label'=>'Default currency','type'=>'select','values'=>$options,'default'=>1)
 					));
 	}
