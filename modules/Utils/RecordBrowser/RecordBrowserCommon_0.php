@@ -84,8 +84,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				}
 			}
 			if ($args['type']=='currency') {
-				$val = explode('__', $val);
-				if (!isset($val[1])) $val[1] = null;
+				$val = Utils_CurrencyFieldCommon::get_values($val);
 				$ret = Utils_CurrencyFieldCommon::format($val[0], $val[1]);
 			}
 			if ($args['type']=='checkbox') {

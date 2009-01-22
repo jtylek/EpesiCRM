@@ -31,6 +31,12 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 		else $ret = $ret.'&nbsp;'.$currency;
 		return $ret;
 	}
+	
+	public function get_values($p) {
+		$p = explode('__', $p);
+		if (!isset($p[1])) $p[1] = 1;
+		return $p;
+	}
 
 	public function user_settings() {
 		$options = DB::GetAssoc('SELECT id, code FROM utils_currency WHERE active=1');
