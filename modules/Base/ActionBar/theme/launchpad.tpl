@@ -15,7 +15,7 @@
 <!-- -->
 
 	    {$i.open}
-		<div class="button">
+		<div class="big-button">
             {if $display_icon}
             <img src="{$i.icon}" alt="" align="middle" border="0" width="32" height="32">
             {/if}

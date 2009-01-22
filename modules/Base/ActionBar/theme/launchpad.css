@@ -1,7 +1,7 @@
 table#Base_ActionBar .label {
 }
 
-table#Base_ActionBar .button {
+table#Base_ActionBar .big-button {
 	/*width: 200px;*/
 	height: 60px;
 	background-color: #F0F0F0;
@@ -18,7 +18,7 @@ table#Base_ActionBar .button {
 	font-weight: bold;
 }
 
-table#Base_ActionBar .button:hover {
+table#Base_ActionBar .big-button:hover {
 	background-color: #FFFFFF;
 	background-image: url("images/big-button-hover.png");
 	background-repeat: repeat-x;
