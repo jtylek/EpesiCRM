@@ -87,7 +87,7 @@
         <!-- MANAGE FILTERS -->
         <td>
 <!-- SHADIW BEGIN -->
-	<div class="layer" style="padding: 8px; width: 100px;">
+	<div class="layer" style="padding: 8px; width: 80px;">
 		<div class="content_shadow">
 <!-- -->
 
