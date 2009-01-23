@@ -21,8 +21,14 @@
 				<table border="0" cellpadding="0" cellspacing="0">
 					<tbody>
 						<tr>
-							<td class="bb_icon"><img src="{$button.icon}" border="0" width="32" height="32" align="middle"></td>
-							<td class="bb_text">{$__link.buttons.$key.link.text}</td>
+							<td class="bb_icon">
+								{if isset($button.icon)}
+								<img src="{$button.icon}" border="0" width="32" height="32" align="middle">
+								{/if}
+							</td>
+							<td class="bb_text">
+								{$__link.buttons.$key.link.text}
+							</td>
 						</tr>
 					</tbody>
 				</table>
