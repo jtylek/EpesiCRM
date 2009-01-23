@@ -16,6 +16,21 @@ table#Base_User_Settings .big-button {
 	cursor: hand; /* css2 */
 }
 
+table#Base_User_Settings .big-button .bb_icon {
+	height: 40px;
+	width: 40px;
+	text-align: left;
+	vertical-align: middle;
+}
+
+table#Base_User_Settings .big-button .bb_text {
+	height: 40px;
+	width: 130px;
+	padding-left: 10px;
+	text-align: left;
+	vertical-align: middle;
+}
+
 table#Base_User_Settings .big-button:hover {
 	background-color: #FFFFFF;
 	background-image: url("images/big-button-hover.png");

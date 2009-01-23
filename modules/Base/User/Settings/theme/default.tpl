@@ -18,7 +18,14 @@
 
 			{$__link.buttons.$key.link.open}
 			<div class="big-button">
-				<img src="{$button.icon}" border="0" width="32" height="32" align="middle">&nbsp;&nbsp;{$__link.buttons.$key.link.text}
+				<table border="0" cellpadding="0" cellspacing="0">
+					<tbody>
+						<tr>
+							<td class="bb_icon"><img src="{$button.icon}" border="0" width="32" height="32" align="middle"></td>
+							<td class="bb_text">{$__link.buttons.$key.link.text}</td>
+						</tr>
+					</tbody>
+				</table>
 			</div>
 			{$__link.buttons.$key.link.close}
 
