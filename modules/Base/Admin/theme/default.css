@@ -20,6 +20,21 @@ table#Base_Admin .big-button {
 	cursor: hand; /* css2 */
 }
 
+table#Base_Admin .big-button .bb_icon {
+	height: 40px;
+	width: 40px;
+	text-align: left;
+	vertical-align: middle;
+}
+
+table#Base_Admin .big-button .bb_text {
+	height: 40px;
+	width: 130px;
+	padding-left: 10px;
+	text-align: left;
+	vertical-align: middle;
+}
+
 table#Base_Admin .big-button:hover {
 	color: #993333;
 	background-color: #FFFFFF;
