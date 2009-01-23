@@ -22,7 +22,7 @@ class Applets_Google extends Module {
  		print ('
             <form method="get" action="http://www.google.com/custom" target="_blank">
                 <fieldset style="border: 0px;">
-                    <a href="http://www.google.com/search"><img src="http://www.google.com/logos/Logo_40wht.gif" alt="Google" style="border: 0px; width: 128px; height: 53px;" /></a>
+                    <a href="http://www.google.com/search"><img src="'.Base_ThemeCommon::get_template_file('Applets/Google','Logo_40wht.gif').'" alt="Google" style="border: 0px; width: 128px; height: 53px;" /></a>
                     <center>
                     <table>
                         <tr>
