@@ -44,6 +44,10 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 				array('name'=>'default_currency','label'=>'Default currency','type'=>'select','values'=>$options,'default'=>1)
 					));
 	}
+	
+	public function admin_caption() {
+		return 'Currencies';
+	}
 }
 
 $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['currency'] = array('modules/Utils/CurrencyField/currency.php','HTML_QuickForm_currency');
