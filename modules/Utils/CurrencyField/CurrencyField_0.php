@@ -19,6 +19,14 @@ class Utils_CurrencyField extends Module {
 	}
 	
 	public function admin() {
+		if($this->is_back()) {
+			if($this->parent->get_type()=='Base_Admin')
+				$this->parent->reset();
+			else
+				location(array());
+			return;
+		}
+
 		$gb = $this->init_module('Utils_GenericBrowser',null,'currencies');
 		$gb->set_table_columns(array(
 			array('name'=>$this->t('Code')),
@@ -43,6 +51,7 @@ class Utils_CurrencyField extends Module {
 				));
 			$gb_row->add_action($this->create_callback_href(array($this, 'edit_currency'),array($row['id'])),'edit');
 		}
+		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
 		$this->display_module($gb);
 	}
 	
