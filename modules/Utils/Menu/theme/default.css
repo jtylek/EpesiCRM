@@ -137,9 +137,11 @@ img.link_icon {
 }
 
 table.root a.root_item_link_down:hover {
-	background-color: #6C99D7;
-	background-color: #787878;
-	background-image: url("images/header-black-hover.png");
+	/*background-color: #6C99D7;
+	background-color: #787878;*/
+	background-color: #649464;
+	/*background-image: url("images/header-black-hover.png");*/
+	background-image: url("images/header-green-dark.png");
 	background-repeat: repeat-x;
 }
 
