@@ -36,23 +36,24 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 				$this->updateAttributes(array('id'=>$id));
 			}
 			
-			$str .= $this->_getTabs() . '<table style="border:0;padding:0;" cellpadding="0" cellspacing="0"><tr>'.
-					'<td style="border:0;"><input ' . $this->_getAttrString($this->_attributes) . ' '.
-//					Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils/CurrencyField','Example value: %s',array('123'.$this->dec_delimiter.implode('',range(4,3+$this->dec_digits)))), false ).
-					' /></td>'.
-					'<td style="border:0;width:40px;"><select name="__'.$name.'__currency" id="__'.$id.'__currency">';
+			$this->dec_digits = DB::GetOne('SELECT decimals FROM utils_currency WHERE id=%d', array(Base_User_SettingsCommon::get('Utils_CurrencyField', 'decimal_point')));
+
+			$str .= $this->_getTabs() .
+					'<span><input style="width:60%;" ' . $this->_getAttrString($this->_attributes) . ' '.
+					Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils/CurrencyField','Example value: %s',array('123'.Utils_CurrencyFieldCommon::get_decimal_point().implode('',range(4,3+$this->dec_digits)))), false ).
+					' /></span>'.
+					'<span style="width:40px;"><select style="width:40px;" name="__'.str_replace(array('[',']'),'',$name).'__currency" id="__'.$id.'__currency">';
+
 			$curs = DB::GetAssoc('SELECT id, symbol FROM utils_currency ORDER BY code');
 			foreach ($curs as $k=>$v) {
 				$str .= '<option value="'.$k.'"';
 				if ($k==$this->currency) $str .= ' selected="1"';
 				$str .= '>'.$v.'</option>';
 			}
-			$str .= '</select></td>'.
-					'</tr></table>';
+			$str .= '</select></span>';
 
 
 			load_js('modules/Utils/CurrencyField/currency.js');
-			$this->dec_digits = DB::GetOne('SELECT decimals FROM utils_currency WHERE id=%d', array(Base_User_SettingsCommon::get('Utils_CurrencyField', 'decimal_point')));
 			$curr_format = '-?([0-9]*)\\'.Utils_CurrencyFieldCommon::get_decimal_point().'?[0-9]{0,'.$this->dec_digits.'}';
 			eval_js('Event.observe(\''.$id.'\',\'keypress\',Utils_CurrencyField.validate.bindAsEventListener(Utils_CurrencyField,\''.Epesi::escapeJS($curr_format,false).'\'))');
 			eval_js('Event.observe(\''.$id.'\',\'blur\',Utils_CurrencyField.validate_blur.bindAsEventListener(Utils_CurrencyField,\''.Epesi::escapeJS($curr_format,false).'\'))');
@@ -62,8 +63,15 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 
 	function exportValue(&$submitValues, $assoc = false) {
 		$val = parent::exportValue($submitValues, $assoc);
-		$currency = $submitValues['__'.$this->getName().'__currency'];
-		$cur = explode(Utils_CurrencyFieldCommon::get_decimal_point(), $assoc?$val[$this->getName()]:$val);
+		$currency = $submitValues['__'.str_replace(array('[',']'),'',$this->getName()).'__currency'];
+		if ($assoc) {
+			if (!isset($val[$this->getName()])) {
+				$key = explode('[', $this->getName());
+				$key[1] = str_replace(']','',$key[1]);
+				$val = $val[$key[0]][$key[1]];
+			} else $val = $val[$this->getName()];
+		}
+		$cur = explode(Utils_CurrencyFieldCommon::get_decimal_point(), $val);
 		if (!isset($cur[1])) $ret = $cur[0]; else {
 			$this->dec_digits = DB::GetOne('SELECT decimals FROM utils_currency WHERE id=%d', array($currency));
 			$cur[1] = str_pad($cur[1], $this->dec_digits, '0');
@@ -71,7 +79,10 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 		}
 		$ret .= '__'.$currency;
 		if($assoc) {
-			$val[$this->getName()] = $ret;
+			$val = array();
+			if (isset($key)) {
+				$val[$key[0]][$key[1]] = $ret;
+			} else $val[$this->getName()] = $ret;
 			return $val;
 		} else {
 			return $ret;
