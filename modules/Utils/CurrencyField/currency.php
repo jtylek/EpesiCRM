@@ -51,10 +51,11 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 					'</tr></table>';
 
 
-//			load_js('modules/Utils/CurrencyField/currency.js');
-//			$curr_format = '-?([0-9]*)\\'.$this->dec_delimiter.'?[0-9]{0,'.$this->dec_digits.'}';
-//			eval_js('Event.observe(\''.$id.'\',\'keypress\',Utils_CurrencyField.validate.bindAsEventListener(Utils_CurrencyField,\''.Epesi::escapeJS($curr_format,false).'\'))');
-//			eval_js('Event.observe(\''.$id.'\',\'blur\',Utils_CurrencyField.validate_blur.bindAsEventListener(Utils_CurrencyField,\''.Epesi::escapeJS($curr_format,false).'\'))');
+			load_js('modules/Utils/CurrencyField/currency.js');
+			$this->dec_digits = DB::GetOne('SELECT decimals FROM utils_currency WHERE id=%d', array(Base_User_SettingsCommon::get('Utils_CurrencyField', 'decimal_point')));
+			$curr_format = '-?([0-9]*)\\'.Utils_CurrencyFieldCommon::get_decimal_point().'?[0-9]{0,'.$this->dec_digits.'}';
+			eval_js('Event.observe(\''.$id.'\',\'keypress\',Utils_CurrencyField.validate.bindAsEventListener(Utils_CurrencyField,\''.Epesi::escapeJS($curr_format,false).'\'))');
+			eval_js('Event.observe(\''.$id.'\',\'blur\',Utils_CurrencyField.validate_blur.bindAsEventListener(Utils_CurrencyField,\''.Epesi::escapeJS($curr_format,false).'\'))');
 		}
 		return $str;
 	} //end func toHtml
@@ -62,7 +63,7 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 	function exportValue(&$submitValues, $assoc = false) {
 		$val = parent::exportValue($submitValues, $assoc);
 		$currency = $submitValues['__'.$this->getName().'__currency'];
-		$cur = explode(DB::GetOne('SELECT decimal_sign FROM utils_currency WHERE id=%d', array($currency)), $assoc?$val[$this->getName()]:$val);
+		$cur = explode(Utils_CurrencyFieldCommon::get_decimal_point(), $assoc?$val[$this->getName()]:$val);
 		if (!isset($cur[1])) $ret = $cur[0]; else {
 			$this->dec_digits = DB::GetOne('SELECT decimals FROM utils_currency WHERE id=%d', array($currency));
 			$cur[1] = str_pad($cur[1], $this->dec_digits, '0');

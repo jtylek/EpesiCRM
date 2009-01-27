@@ -39,10 +39,16 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 	}
 
 	public function user_settings() {
-		$options = DB::GetAssoc('SELECT id, code FROM utils_currency WHERE active=1');
+		$currency_options = DB::GetAssoc('SELECT id, code FROM utils_currency WHERE active=1');
+		$decimal_point_options = DB::GetAssoc('SELECT id, decimal_sign FROM utils_currency WHERE active=1');
 		return array('Regional settings'=>array(
-				array('name'=>'default_currency','label'=>'Default currency','type'=>'select','values'=>$options,'default'=>1)
+				array('name'=>'default_currency','label'=>'Default currency','type'=>'select','values'=>$currency_options,'default'=>1),
+				array('name'=>'decimal_point','label'=>'Currency decimal point','type'=>'select','values'=>$decimal_point_options,'default'=>1)
 					));
+	}
+	
+	public static function get_decimal_point() {
+		return DB::GetOne('SELECT decimal_sign FROM utils_currency WHERE id=%d', array(Base_User_SettingsCommon::get('Utils_CurrencyField','decimal_point')));
 	}
 	
 	public function admin_caption() {
