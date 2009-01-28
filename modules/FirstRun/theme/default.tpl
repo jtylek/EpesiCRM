@@ -20,7 +20,7 @@
 <br>
 
 <center>
-<span class="footer">Copyright &copy; 2008 &bull; <a href="http://www.telaxus.com">Telaxus LLC</a></span>
+<span class="footer">Copyright &copy; {php}echo date("Y"){/php} &bull; <a href="http://www.telaxus.com">Telaxus LLC</a></span>
 <br>
 <p><a href="http://www.epesi.org"><img src="images/epesi-powered.png" border="0"></a></p>
 </center>
