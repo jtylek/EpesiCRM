@@ -175,15 +175,11 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 	</head>
 	<body onload="Epesi.init(<?php print($client_id); ?>,'<?php print(rtrim(str_replace('\\','/',dirname($_SERVER['PHP_SELF'])),'/').'/process.php'); ?>','<?php print(http_build_query($_GET));?>')">
 		<div id="body_content"> 
-		
-		<div id="main_content"></div>
-
-		<div style="position: relative; width: 100%;" id="error-debug">
-		<!-- <div style="padding-top:97px;"> -->
-			<div style="position: relative; height: auto;" id="debug"></div>
-			<div style="position: relative; height: auto;" id="error_box" onclick="this.innerHTML = ''"></div>
+		<div id="main_content"></div> 
+		<div style="padding-top:97px;">
+			<div id="debug"></div>
+			<div id="error_box" onclick="this.innerHTML = ''"></div>
 		</div>
-		
 		<div id="epesiStatus">
 			<table cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
                 <tr>
@@ -198,7 +194,7 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 			</table>
 		</div>
 
-		</div> <!-- id="body_content" -->
+		</div>
 	</body>
 </html>
 <?php
