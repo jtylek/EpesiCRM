@@ -176,7 +176,8 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 	<body onload="Epesi.init(<?php print($client_id); ?>,'<?php print(rtrim(str_replace('\\','/',dirname($_SERVER['PHP_SELF'])),'/').'/process.php'); ?>','<?php print(http_build_query($_GET));?>')">
 		<div id="body_content"> 
 		<div id="main_content"></div>
-		<div style="padding-top:97px;">
+		<div style="padding-top:0px;">
+		<!-- <div style="padding-top:97px;"> -->
 			<div id="debug"></div>
 			<div id="error_box" onclick="this.innerHTML = ''"></div>
 		</div>
