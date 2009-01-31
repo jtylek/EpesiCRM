@@ -51,6 +51,10 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 		return DB::GetOne('SELECT decimal_sign FROM utils_currency WHERE id=%d', array(Base_User_SettingsCommon::get('Utils_CurrencyField','decimal_point')));
 	}
 	
+	public static function get_precission($arg) {
+		return DB::GetOne('SELECT decimals FROM utils_currency WHERE id=%d', array($arg));
+	}
+	
 	public function admin_caption() {
 		return 'Currencies';
 	}
