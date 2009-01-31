@@ -15,7 +15,7 @@ class Utils_CurrencyField extends Module {
 	
 	public function construct() {
 		self::$positions = array(0=>$this->t('After'), 1=>$this->t('Before'));
-		self::$active = array(0=>$this->t('No'), 1=>$this->t('Yes'));
+		self::$active = array(1=>$this->t('Yes'), 0=>$this->t('No'));
 	}
 	
 	public function admin() {
@@ -51,6 +51,7 @@ class Utils_CurrencyField extends Module {
 				));
 			$gb_row->add_action($this->create_callback_href(array($this, 'edit_currency'),array($row['id'])),'edit');
 		}
+		Base_ActionBarCommon::add('add', 'New', $this->create_callback_href(array($this, 'edit_currency'), array(null)));
 		Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
 		$this->display_module($gb);
 	}
@@ -73,11 +74,22 @@ class Utils_CurrencyField extends Module {
 		$form->addRule('thousand_sign', $this->t('Thousand sign must be up to 2 characters long'), 'maxlength', 2);
 		$form->addRule('decimals', $this->t('Field must hold numeric value'), 'numeric');
 
-		$defs = DB::GetRow('SELECT * FROM utils_currency WHERE id=%d', array($id));
-		$form->setDefaults($defs);
+		if ($id!==null) {
+			$defs = DB::GetRow('SELECT * FROM utils_currency WHERE id=%d', array($id));
+			$form->setDefaults($defs);
+		}
 		if ($form->validate()) {
 			$vals = $form->exportValues();
-			DB::Execute('UPDATE utils_currency SET '.
+			$vals = array(	$vals['code'],
+							$vals['symbol'],
+							$vals['position'],
+							$vals['decimal_sign'],
+							$vals['thousand_sign'],
+							$vals['decimals'],
+							$vals['active']);
+			if ($id!==null) {
+				$vals[] = $id;
+				$sql = 'UPDATE utils_currency SET '.
 							'code=%s, '.
 							'symbol=%s, '.
 							'pos_before=%d, '.
@@ -85,16 +97,27 @@ class Utils_CurrencyField extends Module {
 							'thousand_sign=%s, '.
 							'decimals=%d, '.
 							'active=%d'.
-							' WHERE id=%d',
-					array(	$vals['code'],
-							$vals['symbol'],
-							$vals['position'],
-							$vals['decimal_sign'],
-							$vals['thousand_sign'],
-							$vals['decimals'],
-							$vals['active'],
-							$id)
-							);
+							' WHERE id=%d';
+			} else {
+				$sql = 'INSERT INTO utils_currency ('.
+							'code, '.
+							'symbol, '.
+							'pos_before, '.
+							'decimal_sign, '.
+							'thousand_sign, '.
+							'decimals, '.
+							'active'.
+						') VALUES ('.
+							'%s, '.
+							'%s, '.
+							'%d, '.
+							'%s, '.
+							'%s, '.
+							'%d, '.
+							'%d'.
+						')';
+			}
+			DB::Execute($sql, $vals);
 			return false;
 		}
 		$form->display();
