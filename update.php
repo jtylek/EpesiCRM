@@ -894,7 +894,9 @@ function update_from_1_0_0rc5_to_1_0_0rc6() {
 	if (ModuleManager::is_installed('CRM_PhoneCall')>=0 || 
 		ModuleManager::is_installed('CRM_Tasks')>=0 || 
 		ModuleManager::is_installed('CRM_Calendar_Event')>=0) {
+		ob_start();
 		ModuleManager::install('CRM_Common');	
+		ob_end_clean();
 	}
 	
 	$tabs = DB::GetAssoc('SELECT tab, tab FROM recordbrowser_table_properties');

@@ -58,9 +58,10 @@ if(!isset($_GET['license'])) {
 	if(check_htaccess()) {
 		$_GET['htaccess'] = 1;
 		ob_end_clean();
-	} else
+	} else {
 		print('</div><br><a class="button" href="setup.php?license=1&htaccess=1">Ok</a>');	
-	ob_end_flush();
+		ob_end_flush();
+	}
 } 
 if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 	$form = new HTML_QuickForm('serverform','post',$_SERVER['PHP_SELF'].'?'.http_build_query($_GET));
