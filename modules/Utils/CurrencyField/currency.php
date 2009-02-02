@@ -21,7 +21,7 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 
 	function getFrozenHtml() {
 		$val = Utils_CurrencyFieldCommon::get_values($this->getValue());
-		return Utils_CurrencyFieldCommon::format($val[0], $val[1]);
+		return Utils_CurrencyFieldCommon::format($val[0], isset($this->currency)?$this->currency:1);
 	}
 
 	function toHtml() {
