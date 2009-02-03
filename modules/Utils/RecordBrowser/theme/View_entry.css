@@ -63,6 +63,10 @@
     padding-right: 5px;
 }
 
+#Utils_RecordBrowser__View_entry table.view .data img {
+    vertical-align: middle;
+}
+
 #Utils_RecordBrowser__View_entry table.edit .data {
     border-bottom: none;
     padding-left: 4px;
