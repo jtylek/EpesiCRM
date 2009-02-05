@@ -1494,6 +1494,17 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		return $ret;
 	}
+	
+	public static function build_cols_array($tab, $arg) {
+		self::init($tab);
+		$arg = array_flip($arg);
+		$ret = array();
+		foreach (self::$table_rows as $k=>$v) {
+			if ($v['visible'] && !isset($arg[$v['id']])) $ret[$v['id']] = false;
+			elseif (!$v['visible'] && isset($arg[$v['id']])) $ret[$v['id']] = true;
+		}
+		return $ret;
+	}
 	///////////////////////////////////////////
 	// mobile devices
 	
