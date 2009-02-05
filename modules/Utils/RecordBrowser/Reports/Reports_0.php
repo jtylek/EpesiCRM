@@ -274,7 +274,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			$table .= ob_get_clean();
 		}
 
-		$table = $this->pdf_ob->stripHTML($table);
+		$table = Libs_TCPDFCommon::stripHTML($table);
 		$pages = $this->pdf_ob->getNumPages();
 		$tmppdf = clone($this->pdf_ob->tcpdf);
 		$tmppdf->WriteHTML($table,false,0,false);

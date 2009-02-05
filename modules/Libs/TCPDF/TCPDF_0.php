@@ -21,80 +21,20 @@ class Libs_TCPDF extends Module {
 	private static $lifetime = '-12 hours';
 	private $steps = array();
 	private $pdf_ready = 0;
-	private static $default_font = 'Helvetica';
 
 	public function construct($orientation='P',$unit='mm',$format=null) {
-		require_once('tcpdf4/tcpdf.php');
-		
-		if ($format===null) $format = Base_User_SettingsCommon::get('Libs/TCPDF','page_format');
-
-		$this->tcpdf = new TCPDF($orientation, $unit, $format, true);
-
-		$this->tcpdf->SetCreator(PDF_CREATOR);
-		$this->tcpdf->SetAuthor("Powered by epesi");
-		$this->tcpdf->SetKeywords("PDF");
-				
-		// set header and footer fonts
-		$this->tcpdf->setHeaderFont(Array(self::$default_font, '', PDF_FONT_SIZE_MAIN));
-		$this->tcpdf->setFooterFont(Array(self::$default_font, '', PDF_FONT_SIZE_DATA));
-		
-		//set margins
-		$this->tcpdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
-		$this->tcpdf->SetHeaderMargin(PDF_MARGIN_HEADER);
-		$this->tcpdf->SetFooterMargin(PDF_MARGIN_FOOTER);
-		
-		//set auto page breaks
-		$this->tcpdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
-		
-		//set image scale factor
-		$this->tcpdf->setImageScale(PDF_IMAGE_SCALE_RATIO); 
+		$this->tcpdf = Libs_TCPDFCommon::new_pdf($orientation,$unit,$format);
 	}
 
 	public function prepare_header() {
 		foreach (array('title', 'subject') as $v)
 			if (!isset($this->steps[$v])) trigger_error('PDF '.$v.' was not set, use $tcpdf->set_'.$v.'();',E_USER_ERROR);
-		$logo_filename = Libs_TCPDFCommon::get_logo_filename();
-		if (!file_exists($logo_filename)) $logo_filename = Base_ThemeCommon::get_template_file('Libs/TCPDF','logo-small.png'); 
-		$this->tcpdf->SetHeaderData($logo_filename, PDF_HEADER_LOGO_WIDTH, $this->steps['title'], $this->steps['subject']);
-
-		//set some language-dependent strings
-		$l=array();
-		$l['a_meta_charset'] = "UTF-8";
-		$l['a_meta_dir'] = "ltr";
-		$l['a_meta_language'] = "pl";
-		
-		$who = CRM_ContactsCommon::get_contact_by_user_id(Acl::get_user());
-		if ($who!==null) $who = $who['last_name'].' '.$who['first_name'];
-		else $who= Base_UserCommon::get_user_login(Acl::get_user());
-		$when = date('Y-m-d H:i:s');
-		$l['w_page'] = Base_LangCommon::ts($this->get_type(),'Printed by %s, on %s, ',array($who,$when)).Base_LangCommon::ts($this->get_type(),"Page");
-		$this->tcpdf->setLanguageArray($l); 
-		
-		//initialize document
-		$this->tcpdf->AliasNbPages();
-
-		$this->SetFont(self::$default_font, '', 9);
-	}
-
-	public function stripHTML($html) {
-		$html = str_replace(array("\n", "\t", "\r"), '', $html);
-		$html = preg_replace('/\<\/?[aA][^\>]*\>/', '', $html);
-		return $html;
+			
+		Libs_TCPDFCommon::prepare_header($this->tcpdf, $this->steps['title'], $this->steps['subject']);
 	}
 
 	public function writeHTML($html, $autobreak=true) {
-		$html = $this->stripHTML($html);
-		if ($autobreak) {
-			$pages = $this->tcpdf->getNumPages();
-			$tmppdf = clone($this->tcpdf);
-			$this->tcpdf->WriteHTML($html,false,0,false);
-			if ($pages!=$this->tcpdf->getNumPages()) {
-				$this->tcpdf = $tmppdf;
-				$this->tcpdf->AddPage();
-				$this->tcpdf->WriteHTML($html,false,0,false);
-			}
-		} else
-			$this->tcpdf->WriteHTML($html,false,0,false);
+		Libs_TCPDFCommon::writeHTML($this->tcpdf, $html, $autobreak);
 	}
 
 	public function SetFont($family, $style='', $size=0) {
