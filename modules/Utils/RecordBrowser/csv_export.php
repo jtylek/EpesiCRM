@@ -31,7 +31,7 @@ header('Content-Type: text/csv');
 //header('Content-Length: '.strlen($buffer));
 header('Content-disposition: attachement; filename="'.$tab.'_export_'.date('Y_m_d__h_i_s').'.csv"');
 if (headers_sent())
-    die('Some data has already been output to browser, can\'t send PDF file');
+    die('Some data has already been output to browser, can\'t send the file');
 foreach ($tab_info as $v) {
 	$cols[] = $v['name'];
 }

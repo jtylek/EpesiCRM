@@ -137,7 +137,7 @@ class Utils_RecordBrowser extends Module {
 		return $x;
 	}
 	// BODY //////////////////////////////////////////////////////////////////////////////////////////////////////
-	public function body($def_order=array(), $crits=array()) {
+	public function body($def_order=array(), $crits=array(), $cols=array()) {
 		if ($this->check_for_jump()) return;
 		$this->fullscreen_table=true;
 		$this->init();
@@ -187,7 +187,7 @@ class Utils_RecordBrowser extends Module {
 		}
 		$this->crits = $this->crits+$crits;
 		ob_start();
-		$this->show_data($this->crits, array(), array_merge($def_order, $this->default_order));
+		$this->show_data($this->crits, $cols, array_merge($def_order, $this->default_order));
 		$table = ob_get_contents();
 		ob_end_clean();
 
@@ -871,12 +871,12 @@ class Utils_RecordBrowser extends Module {
 			$ret = DB::Execute('SELECT * FROM recordbrowser_addon WHERE tab=%s AND enabled=1 ORDER BY pos', array($this->tab));
 			while ($row = $ret->FetchRow()) {
 				if (ModuleManager::is_installed($row['module'])==-1) continue;
-				$mod = $this->init_module($row['module']);
 				if (is_callable(explode('::',$row['label']))) {
 					$result = call_user_func(explode('::',$row['label']), $this->record);
 					if ($result['show']==false) continue;
 					$row['label'] = $result['label'];
 				}
+				$mod = $this->init_module($row['module']);
 				if (!method_exists($mod,$row['func'])) $tb->set_tab($this->t($row['label']),array($this, 'broken_addon'), $js);
 				else $tb->set_tab($this->t($row['label']),array($this, 'display_module'), array($mod, array($this->record, $this), $row['func']), $js);
 			}
