@@ -1,0 +1,7 @@
+.Applets_Weather {
+	width: 300px;
+}
+
+.Applets_Weather ul, ul li {
+	list-style: none;
+}
