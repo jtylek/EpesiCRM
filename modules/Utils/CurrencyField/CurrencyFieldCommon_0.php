@@ -10,7 +10,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_CurrencyFieldCommon extends ModuleCommon {
-	public function format($val, $currency=1, $symbol=true) {
+	public function format($val, $currency=1) {
 		if (!isset($currency) || !$currency) $currency = 1;
 		$params = DB::GetRow('SELECT * FROM utils_currency WHERE id=%d', array($currency));
 		// TODO: cache here
@@ -27,10 +27,8 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 		$cur[1] = str_pad($cur[1], $dec_digits, '0');
 		$val = $cur[0].'.'.$cur[1];
 		$ret = number_format($val, $dec_digits, $dec_delimiter, $thou_delimiter);
-		if ($symbol) {
-			if ($pos_before) $ret = $currency.'&nbsp;'.$ret;
-			else $ret = $ret.'&nbsp;'.$currency;
-		}
+		if ($pos_before) $ret = $currency.'&nbsp;'.$ret;
+		else $ret = $ret.'&nbsp;'.$currency;
 		return $ret;
 	}
 	
