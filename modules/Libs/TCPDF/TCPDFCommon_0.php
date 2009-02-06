@@ -16,6 +16,8 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
+define('TCPDF_DIR', 'modules/Libs/TCPDF/tcpdf4/');
+
 class Libs_TCPDFCommon extends ModuleCommon {
 	private static $default_font = 'Helvetica';
 
@@ -26,7 +28,7 @@ class Libs_TCPDFCommon extends ModuleCommon {
 	}
 
 	public function new_pdf($orientation='P',$unit='mm',$format=null) {
-		require_once('tcpdf4/tcpdf.php');
+		require_once(TCPDF.'tcpdf.php');
 		
 		if ($format===null) $format = Base_User_SettingsCommon::get('Libs/TCPDF','page_format');
 
@@ -54,7 +56,7 @@ class Libs_TCPDFCommon extends ModuleCommon {
 		return $tcpdf; 
 	}
 
-	public function prepare_header(& $tcpdf, $title='', $subject='') {
+	public function prepare_header(& $tcpdf, $title='', $subject='', $printed_by=true) {
 		$logo_filename = Libs_TCPDFCommon::get_logo_filename();
 		if (!file_exists($logo_filename)) $logo_filename = Base_ThemeCommon::get_template_file('Libs/TCPDF','logo-small.png'); 
 		$tcpdf->SetHeaderData($logo_filename, PDF_HEADER_LOGO_WIDTH, $title, $subject);
@@ -69,7 +71,9 @@ class Libs_TCPDFCommon extends ModuleCommon {
 		if ($who!==null) $who = $who['last_name'].' '.$who['first_name'];
 		else $who= Base_UserCommon::get_user_login(Acl::get_user());
 		$when = date('Y-m-d H:i:s');
-		$l['w_page'] = Base_LangCommon::ts('Libs_TCPDF','Printed by %s, on %s, ',array($who,$when)).Base_LangCommon::ts('Libs_TCPDF','Page');
+		$l['w_page'] = '';
+		if ($printed_by) $l['w_page'] .= Base_LangCommon::ts('Libs_TCPDF','Printed by %s, on %s, ',array($who,$when));
+		$l['w_page'] .= Base_LangCommon::ts('Libs_TCPDF','Page');
 		$tcpdf->setLanguageArray($l); 
 		
 		//initialize document
