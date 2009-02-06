@@ -28,7 +28,7 @@ class Libs_TCPDFCommon extends ModuleCommon {
 	}
 
 	public function new_pdf($orientation='P',$unit='mm',$format=null) {
-		require_once(TCPDF.'tcpdf.php');
+		require_once(TCPDF_DIR.'tcpdf.php');
 		
 		if ($format===null) $format = Base_User_SettingsCommon::get('Libs/TCPDF','page_format');
 
