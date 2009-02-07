@@ -34,7 +34,8 @@ class Utils_MessengerInstall extends ModuleInstall {
 			message_id I4,
 			done I1 DEFAULT 0,
 			user_login_id I4,
-			done_on T',
+			done_on T,
+			follow I1 DEFAULT 0',
 			array('constraints'=>' , FOREIGN KEY (message_id) REFERENCES utils_messenger_message(id), FOREIGN KEY (user_login_id) REFERENCES user_login(ID)'));
 		if(!$ret){
 			print('Unable to create table utils_messenger_users.<br>');
@@ -57,8 +58,10 @@ class Utils_MessengerInstall extends ModuleInstall {
 	public function requires($v) {
 		return array(
 			array('name'=>'Base/Lang','version'=>0),
+			array('name'=>'Base/Mail','version'=>0),
 			array('name'=>'Base/RegionalSettings','version'=>0),
 			array('name'=>'Base/ActionBar','version'=>0),
+			array('name'=>'Base/User/Settings','version'=>0),
 			array('name'=>'Utils/GenericBrowser','version'=>0),
 			array('name'=>'Utils/PopupCalendar','version'=>0));
 	}

@@ -11,7 +11,9 @@ define('CID',false);
 require_once('include.php');
 
 ModuleManager::load_modules();
+ob_start();
 $ret = ModuleManager::call_common_methods('cron');
+ob_end_clean();
 foreach($ret as $name=>$obj) {
 	print($name.": ".$obj."<br>");
 }

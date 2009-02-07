@@ -58,6 +58,44 @@ class Utils_MessengerCommon extends ModuleCommon {
 		}
 		return array('alerts'=>$ret);
 	}
+	
+	public static function user_settings(){
+		return array('Alerts'=>array(
+			array('name'=>'mail','label'=>'E-mail','type'=>'text','default'=>'',
+					'rule'=>array('type'=>'email',
+						'message'=>'Not valid e-mail address.')),
+			array('name'=>'always_follow_me','label'=>'Always follow me','type'=>'bool','default'=>0,
+					'rule'=>array('type'=>'callback',
+						'func'=>array('Utils_MessengerCommon','check_follow'),
+						'message'=>'E-mail required if you want to be followed.',
+						'param'=>'__form__'))
+			));
+	}
+	
+	public static function check_follow($v, $f) {
+		if(!$v) return true;
+		return $f->exportValue('Utils_Messenger__mail')!='';
+	}
+	
+	public static function cron() {
+		$arr = DB::GetAll('SELECT m.*,u.* FROM utils_messenger_message m INNER JOIN utils_messenger_users u ON u.message_id=m.id WHERE u.follow=0 AND m.alert_on+INTERVAL 4 minute<%T',array(time()));
+		foreach($arr as $row) {
+			Acl::set_user($row['user_login_id']);
+			$always_follow = Base_User_SettingsCommon::get('Utils_Messenger','always_follow_me');
+			if(!$always_follow && $row['done']) continue;
+			ob_start();
+			$ret = call_user_func_array(unserialize($row['callback_method']),unserialize($row['callback_args']));
+			ob_clean();
+			DB::Execute('UPDATE utils_messenger_users SET follow=1 WHERE message_id=%d AND user_login_id=%d',array($row['id'],$row['user_login_id']));
+
+			$mail = Base_User_SettingsCommon::get('Utils_Messenger','mail');
+			if($mail) {
+				$msg = Base_LangCommon::ts('Utils/Messenger','Alert on: %s',array(Base_RegionalSettingsCommon::time2reg($row['alert_on'])))."\n".$ret."\n".($row['message']?Base_LangCommon::ts('Utils/Messenger',"Alarm comment: %s",array($row['message'])):'');
+				Base_MailCommon::send($mail,'Alert!',$msg);
+			}
+			Acl::set_user();
+		}
+	}
 }
 
 eval_js_once('utils_messenger_on = true; utils_messenger_refresh = function(){'.
