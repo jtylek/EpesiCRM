@@ -33,7 +33,8 @@ class Utils_MessengerInstall extends ModuleInstall {
 		$ret &= DB::CreateTable('utils_messenger_users','
 			message_id I4,
 			done I1 DEFAULT 0,
-			user_login_id I4',
+			user_login_id I4,
+			done_on T',
 			array('constraints'=>' , FOREIGN KEY (message_id) REFERENCES utils_messenger_message(id), FOREIGN KEY (user_login_id) REFERENCES user_login(ID)'));
 		if(!$ret){
 			print('Unable to create table utils_messenger_users.<br>');
