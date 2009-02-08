@@ -119,6 +119,7 @@ hr.line {
     background-color: transparent;
     background-image: url('images/button-small.gif');
     color: #FFFFFF;
+    border: none;
 }
 
 #multiselect .buttons .button input:hover {
@@ -483,7 +484,7 @@ hr.line {
 
 
 /*	=autocomplete
----------------------------------------------------------------------------- 
+----------------------------------------------------------------------------
 div.autocomplete {
   position:absolute;
   width:250px;
