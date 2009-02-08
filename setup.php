@@ -59,10 +59,10 @@ if(!isset($_GET['license'])) {
 		$_GET['htaccess'] = 1;
 		ob_end_clean();
 	} else {
-		print('</div><br><a class="button" href="setup.php?license=1&htaccess=1">Ok</a>');	
+		print('</div><br><a class="button" href="setup.php?license=1&htaccess=1">Ok</a>');
 		ob_end_flush();
 	}
-} 
+}
 if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 	$form = new HTML_QuickForm('serverform','post',$_SERVER['PHP_SELF'].'?'.http_build_query($_GET));
 	$form -> addElement('header', null, 'Database server settings');
@@ -89,7 +89,7 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 	if($form -> validate()) {
 		$engine = $form -> exportValue('engine');
 		switch($engine) {
-			case 'postgres': 
+			case 'postgres':
 				$host = $form -> exportValue('host');
 				$user = $form -> exportValue('user');
 				$pass = $form -> exportValue('password');
@@ -177,8 +177,8 @@ function check_htaccess() {
 		curl_setopt($ch, CURLOPT_URL, $test_url);
 		$ret = curl_exec($ch);
 		curl_close($ch);
-	} 
-	
+	}
+
 	unlink('data/.htaccess');
 	unlink('data/test.php');
 
@@ -202,7 +202,7 @@ function write_config($host, $user, $pass, $dbname, $engine) {
 	$local_dir = dirname(dirname(str_replace('\\','/',__FILE__)));
 	$script_filename = str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']);
 	$epesi_dir = '';
-	if(strcmp($local_dir,substr($script_filename,0,strlen($local_dir)))) 
+	if(strcmp($local_dir,substr($script_filename,0,strlen($local_dir))))
 		$epesi_dir = '
 define("EPESI_DIR","'.dirname($_SERVER['SCRIPT_NAME']).'");';
 
@@ -245,7 +245,7 @@ define("DATABASE_DRIVER","'.$engine.'");
  */
 define("REDUCING_TRANSFER",1);
 
-/* 
+/*
  * Turn on common cache.
  */
 define("CACHE_COMMON_FILES",1);
@@ -319,7 +319,7 @@ function clean_database() {
 	$tables = array();
 	if(DATABASE_DRIVER=='mysqlt' || DATABASE_DRIVER=='mysqli')
 		DB::Execute('SET FOREIGN_KEY_CHECKS=0');
-	
+
 	if(DATABASE_DRIVER=='postgres') {
 		foreach ($tables_db as $t) {
 			$idxs = DB::Execute('SELECT t.tgargs as args FROM pg_trigger t,pg_class c,pg_proc p WHERE t.tgenabled AND t.tgrelid = c.oid AND t.tgfoid = p.oid AND p.proname = \'RI_FKey_check_ins\' AND c.relname = \''.strtolower($t).'\' ORDER BY t.tgrelid');
@@ -363,7 +363,7 @@ function install_base() {
 			"data B",array('constraints'=>', FOREIGN KEY(session_name) REFERENCES session(name), PRIMARY KEY(client_id,session_name,page_id)'));
 	if($ret===false)
 		die('Invalid SQL query - Database module (history table)');
-	
+
 	DB::CreateIndex('history__session_name__client_id__idx', 'history', 'session_name, client_id');
 
 	$ret = DB::CreateTable('variables',"name C(32) KEY,value X");
@@ -431,7 +431,7 @@ print $license_txt;
 		</center>
 		<br>
 		<center>
-		<span class="footer">Copyright &copy; 2008 &bull; <a href="http://www.telaxus.com">Telaxus LLC</a></span>
+		<span class="footer">Copyright &copy; <?php echo date('Y'); ?> &bull; <a href="http://www.telaxus.com">Telaxus LLC</a></span>
 		<br>
 		<p><a href="http://www.epesi.org"><img src="images/epesi-powered.png" border="0"></a></p>
 		</center>
