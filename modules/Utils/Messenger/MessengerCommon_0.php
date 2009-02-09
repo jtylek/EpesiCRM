@@ -91,7 +91,7 @@ class Utils_MessengerCommon extends ModuleCommon {
 
 			$mail = Base_User_SettingsCommon::get('Utils_Messenger','mail');
 			if($mail) {
-				$msg = Base_LangCommon::ts('Utils/Messenger','Alert on: %s',array(Base_RegionalSettingsCommon::time2reg($row['alert_on'])))."\n".$fret."\n".($row['message']?Base_LangCommon::ts('Utils/Messenger',"Alarm comment: %s",array($row['message'])):'');
+				$msg = Base_LangCommon::ts('Utils/Messenger','Alert on: %s',array(Base_RegionalSettingsCommon::time2reg($row['alert_on'],2)))."\n".$fret."\n".($row['message']?Base_LangCommon::ts('Utils/Messenger',"Alarm comment: %s",array($row['message'])):'');
 				Base_MailCommon::send($mail,'Alert!',$msg);
 				$ret .= $mail.' => <pre>'.$msg.'</pre><br>';
 			}
