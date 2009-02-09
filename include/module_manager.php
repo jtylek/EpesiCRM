@@ -994,7 +994,7 @@ class ModuleManager {
 					$ret[$name] = call_user_func_array(array($name.'Common',$method),$args);
 				}
 			ob_end_clean();
-			$cache[$cache_id]=&$ret;
+			$cache[$cache_id]=$ret;
 		}
 		return $cache[$cache_id];
 	}
