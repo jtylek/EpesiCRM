@@ -2,11 +2,11 @@
 //============================================================+
 // File name   : barcodes.php
 // Begin       : 2008-06-09
-// Last Update : 2008-07-16
-// Version     : 1.0.002
+// Last Update : 2009-01-24
+// Version     : 1.0.004
 // License     : GNU LGPL (http://www.gnu.org/copyleft/lesser.html)
 // 	----------------------------------------------------------------------------
-//  Copyright (C) 2008  Nicola Asuni - Tecnick.com S.r.l.
+//  Copyright (C) 2008-2009 Nicola Asuni - Tecnick.com S.r.l.
 // 	
 // 	This program is free software: you can redistribute it and/or modify
 // 	it under the terms of the GNU Lesser General Public License as published by
@@ -44,17 +44,17 @@
  * @package com.tecnick.tcpdf
  * @abstract Functions for generating string representation of common 1D barcodes.
  * @author Nicola Asuni
- * @copyright 2008 Nicola Asuni - Tecnick.com S.r.l (www.tecnick.com) Via Della Pace, 11 - 09044 - Quartucciu (CA) - ITALY - www.tecnick.com - info@tecnick.com
+ * @copyright 2008-2009 Nicola Asuni - Tecnick.com S.r.l (www.tecnick.com) Via Della Pace, 11 - 09044 - Quartucciu (CA) - ITALY - www.tecnick.com - info@tecnick.com
  * @link http://www.tcpdf.org
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
- * @version 1.0.001
+ * @version 1.0.004
  */
 
 	/**
 	* PHP class to creates array representations for common 1D barcodes to be used with TCPDF (http://www.tcpdf.org).<br>
 	* @name TCPDFBarcode
 	* @package com.tecnick.tcpdf
-	* @version 1.0.001
+	* @version 1.0.004
 	* @author Nicola Asuni
 	* @link http://www.tcpdf.org
 	* @license http://www.gnu.org/copyleft/lesser.html LGPL
@@ -70,14 +70,14 @@ class TCPDFBarcode {
 	/**
 	 * This is the class constructor. 
 	 * Return an array representations for common 1D barcodes:<ul>
-	 * <li>$arrcode["code"] code to be printed on text label</li>
-	 * <li>$arrcode["maxh"] max bar height</li>
-	 * <li>$arrcode["maxw"] max bar width</li>
-	 * <li>$arrcode["bcode"][$k] single bar or space in $k position</li>
-	 * <li>$arrcode["bcode"][$k]["t"] bar type: true = bar, false = space.</li>
-	 * <li>$arrcode["bcode"][$k]["w"] bar width in units.</li>
-	 * <li>$arrcode["bcode"][$k]["h"] bar height in units.</li>
-	 * <li>$arrcode["bcode"][$k]["p"] bar top position (0 = top, 1 = middle)</li></ul>
+	 * <li>$arrcode['code'] code to be printed on text label</li>
+	 * <li>$arrcode['maxh'] max bar height</li>
+	 * <li>$arrcode['maxw'] max bar width</li>
+	 * <li>$arrcode['bcode'][$k] single bar or space in $k position</li>
+	 * <li>$arrcode['bcode'][$k]['t'] bar type: true = bar, false = space.</li>
+	 * <li>$arrcode['bcode'][$k]['w'] bar width in units.</li>
+	 * <li>$arrcode['bcode'][$k]['h'] bar height in units.</li>
+	 * <li>$arrcode['bcode'][$k]['p'] bar top position (0 = top, 1 = middle)</li></ul>
 	 * @param string $code code to print
  	 * @param string $type type of barcode: <ul><li>C39 : CODE 39</li><li>C39+ : CODE 39 with checksum</li><li>C39E : CODE 39 EXTENDED</li><li>C39E+ : CODE 39 EXTENDED with checksum</li><li>I25 : Interleaved 2 of 5</li><li>C128A : CODE 128 A</li><li>C128B : CODE 128 B</li><li>C128C : CODE 128 C</li><li>EAN13 : EAN 13</li><li>UPCA : UPC-A</li><li>POSTNET : POSTNET</li><li>CODABAR : CODABAR</li></ul>
 	 */
@@ -101,51 +101,51 @@ class TCPDFBarcode {
 	 */
 	public function setBarcode($code, $type) {
 		switch (strtoupper($type)) {
-			case "C39": { // CODE 39
+			case 'C39': { // CODE 39
 				$arrcode = $this->barcode_code39($code, false, false);
 				break;
 			}
-			case "C39+": { // CODE 39 with checksum
+			case 'C39+': { // CODE 39 with checksum
 				$arrcode = $this->barcode_code39($code, false, true);
 				break;
 			}
-			case "C39E": { // CODE 39 EXTENDED
+			case 'C39E': { // CODE 39 EXTENDED
 				$arrcode = $this->barcode_code39($code, true, false);
 				break;
 			}
-			case "C39E+": { // CODE 39 EXTENDED with checksum
+			case 'C39E+': { // CODE 39 EXTENDED with checksum
 				$arrcode = $this->barcode_code39($code, true, true);
 				break;
 			}
-			case "I25": { // Interleaved 2 of 5
+			case 'I25': { // Interleaved 2 of 5
 				$arrcode = $this->barcode_i25($code);
 				break;
 			}
-			case "C128A": { // CODE 128 A
-				$arrcode = $this->barcode_c128($code, "A");
+			case 'C128A': { // CODE 128 A
+				$arrcode = $this->barcode_c128($code, 'A');
 				break;
 			}
-			case "C128B": { // CODE 128 B
-				$arrcode = $this->barcode_c128($code, "B");
+			case 'C128B': { // CODE 128 B
+				$arrcode = $this->barcode_c128($code, 'B');
 				break;
 			}
-			case "C128C": { // CODE 128 C
-				$arrcode = $this->barcode_c128($code, "C");
+			case 'C128C': { // CODE 128 C
+				$arrcode = $this->barcode_c128($code, 'C');
 				break;
 			}
-			case "EAN13": { // EAN 13
+			case 'EAN13': { // EAN 13
 				$arrcode = $this->barcode_ean13($code, 13);
 				break;
 			}
-			case "UPCA": { // UPC-A
+			case 'UPCA': { // UPC-A
 				$arrcode = $this->barcode_ean13($code, 12);
 				break;
 			}
-			case "POSTNET": { // POSTNET
+			case 'POSTNET': { // POSTNET
 				$arrcode = $this->barcode_postnet($code);
 				break;
 			}
-			case "CODABAR": { // CODABAR
+			case 'CODABAR': { // CODABAR
 				$arrcode = $this->barcode_codabar($code);
 				break;
 			}
@@ -222,9 +222,9 @@ class TCPDFBarcode {
 			$code .= $this->checksum_code39($code);
 		}
 		// add start and stop codes
-		$code = "*".$code."*";
+		$code = '*'.$code.'*';
 		
-		$bararray = array("code" => $code, "maxw" => 0, "maxh" => 1, "bcode" => array());
+		$bararray = array('code' => $code, 'maxw' => 0, 'maxh' => 1, 'bcode' => array());
 		$k = 0;
 		for($i=0; $i < strlen($code); $i++) {
 			$char = $code{$i};
@@ -239,13 +239,13 @@ class TCPDFBarcode {
 					$t = false; // space
 				}
 				$w = $chr[$char]{$j};
-				$bararray["bcode"][$k] = array("t" => $t, "w" => $w, "h" => 1, "p" => 0);
-				$bararray["maxw"] += $w;
-				$k++;
+				$bararray['bcode'][$k] = array('t' => $t, 'w' => $w, 'h' => 1, 'p' => 0);
+				$bararray['maxw'] += $w;
+				++$k;
 			}
-			$bararray["bcode"][$k] = array("t" => false, "w" => 1, "h" => 1, "p" => 0);
-			$bararray["maxw"] += 1;
-			$k++;
+			$bararray['bcode'][$k] = array('t' => false, 'w' => 1, 'h' => 1, 'p' => 0);
+			$bararray['maxw'] += 1;
+			++$k;
 		}
 		return $bararray;
 	}
@@ -350,7 +350,7 @@ class TCPDFBarcode {
 		// add start and stop codes
 		$code = 'AA'.strtolower($code).'ZA';
 			
-		$bararray = array("code" => $code, "maxw" => 0, "maxh" => 1, "bcode" => array());
+		$bararray = array('code' => $code, 'maxw' => 0, 'maxh' => 1, 'bcode' => array());
 		$k = 0;
 		for($i=0; $i < strlen($code); $i=$i+2) {
 			$char_bar = $code{$i};
@@ -360,7 +360,7 @@ class TCPDFBarcode {
 				return false;
 			}
 			// create a bar-space sequence
-			$seq = "";
+			$seq = '';
 			for($s=0; $s < strlen($chr[$char_bar]); $s++){
 				$seq .= $chr[$char_bar]{$s} . $chr[$char_space]{$s};
 			}
@@ -371,9 +371,9 @@ class TCPDFBarcode {
 					$t = false; // space
 				}
 				$w = $seq{$j};
-				$bararray["bcode"][$k] = array("t" => $t, "w" => $w, "h" => 1, "p" => 0);
-				$bararray["maxw"] += $w;
-				$k++;
+				$bararray['bcode'][$k] = array('t' => $t, 'w' => $w, 'h' => 1, 'p' => 0);
+				$bararray['maxw'] += $w;
+				++$k;
 			}
 		}
 		return $bararray;
@@ -387,7 +387,7 @@ class TCPDFBarcode {
 	 * @return array barcode representation.
 	 * @access protected
 	 */
-	protected function barcode_c128($code, $type="B") {
+	protected function barcode_c128($code, $type='B') {
 		$chr = array(
 			'212222', /* 00 */
 			'222122', /* 01 */
@@ -498,9 +498,9 @@ class TCPDFBarcode {
 			'233111',	/* STOP */
 			'200000'	/* END */
 		);
-		$keys = "";
+		$keys = '';
 		switch(strtoupper($type)) {
-			case "A": {
+			case 'A': {
 				$startid = 103;
 				$keys = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_';
 				for($i = 0; $i < 32; $i++) {
@@ -508,14 +508,14 @@ class TCPDFBarcode {
 				}
 				break;
 			}
-			case "B": {
+			case 'B': {
 				$startid = 104;
 				$keys = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~'.chr(127);
 				break;
 			}
-			case "C": {
+			case 'C': {
 				$startid = 105;
-				$keys = "";
+				$keys = '';
 				if ((strlen($code) % 2) != 0) {
 					//echo "The length of barcode value must be even ($code). You must pad the number with zeros.\n";
 					return false;
@@ -523,7 +523,7 @@ class TCPDFBarcode {
 				for($i = 0; $i <= 99; $i++) {
 					$keys .= chr($i);
 				}
-				$new_code = "";
+				$new_code = '';
 				for ($i=0; $i < (strlen($code) / 2); $i++) {
 					$new_code .= chr(intval($code{(2 * $i)}.$code{(2 * $i + 1)}));
 				}
@@ -543,13 +543,14 @@ class TCPDFBarcode {
 		
 		// add start, check and stop codes
 		$code = chr($startid).$code.chr($check).chr(106).chr(107);
-		$bararray = array("code" => $code, "maxw" => 0, "maxh" => 1, "bcode" => array());
+		$bararray = array('code' => $code, 'maxw' => 0, 'maxh' => 1, 'bcode' => array());
 		$k = 0;
 		$len = strlen($code);
 		for($i=0; $i < $len; $i++) {
 			$ck = strpos($keys, $code{$i});
 			if (($i == 0) OR ($i > ($len-4))) {
-				$seq = $chr[ord($code{$i})];
+				$char_num = ord($code{$i});
+				$seq = $chr[$char_num];
 			} elseif(($ck >= 0) AND isset($chr[$ck])) {
 					$seq = $chr[$ck];
 			} else {
@@ -563,9 +564,9 @@ class TCPDFBarcode {
 					$t = false; // space
 				}
 				$w = $seq{$j};
-				$bararray["bcode"][$k] = array("t" => $t, "w" => $w, "h" => 1, "p" => 0);
-				$bararray["maxw"] += $w;
-				$k++;
+				$bararray['bcode'][$k] = array('t' => $t, 'w' => $w, 'h' => 1, 'p' => 0);
+				$bararray['maxw'] += $w;
+				++$k;
 			}
 		}
 		return $bararray;		
@@ -659,7 +660,7 @@ class TCPDFBarcode {
 			'9'=>array('A','B','B','A','B','A')
 		);
 		
-		$bararray = array("code" => $code, "maxw" => 0, "maxh" => 1, "bcode" => array());
+		$bararray = array('code' => $code, 'maxw' => 0, 'maxh' => 1, 'bcode' => array());
 		$k = 0;
 		$seq = '101';
 		$p = $parities[$code{0}];
@@ -681,9 +682,9 @@ class TCPDFBarcode {
 				} else {
 					$t = false; // space
 				}
-				$bararray["bcode"][$k] = array("t" => $t, "w" => $w, "h" => 1, "p" => 0);
-				$bararray["maxw"] += $w;
-				$k++;
+				$bararray['bcode'][$k] = array('t' => $t, 'w' => $w, 'h' => 1, 'p' => 0);
+				$bararray['maxw'] += $w;
+				++$k;
 				$w = 0;
 			}
 		}
@@ -710,10 +711,10 @@ class TCPDFBarcode {
 			8 => Array(2,1,1,2,1),
 			9 => Array(2,1,2,1,1)
 		);
-		$bararray = array("code" => $code, "maxw" => 0, "maxh" => 2, "bcode" => array());
+		$bararray = array('code' => $code, 'maxw' => 0, 'maxh' => 2, 'bcode' => array());
 		$k = 0;
-		$code = str_replace("-", "", $code);
-		$code = str_replace(" ", "", $code);
+		$code = str_replace('-', '', $code);
+		$code = str_replace(' ', '', $code);
 		$len = strlen($code);
 		// calculate checksum
 		$sum = 0;
@@ -723,24 +724,24 @@ class TCPDFBarcode {
 		if(($sum % 10) == 0) {
 			return false;
 		}
-		$code .= "".(10 - ($sum % 10))."";
+		$code .= ''.(10 - ($sum % 10)).'';
 		$len = strlen($code);
 		// start bar
-		$bararray["bcode"][$k++] = array("t" => 1, "w" => 1, "h" => 2, "p" => 0);
-		$bararray["bcode"][$k++] = array("t" => 0, "w" => 1, "h" => 2, "p" => 0);
-		$bararray["maxw"] += 2;
+		$bararray['bcode'][$k++] = array('t' => 1, 'w' => 1, 'h' => 2, 'p' => 0);
+		$bararray['bcode'][$k++] = array('t' => 0, 'w' => 1, 'h' => 2, 'p' => 0);
+		$bararray['maxw'] += 2;
 		for ($i=0; $i < $len; $i++) {
 			for ($j=0; $j < 5; $j++) {
 				$h = $barlen[$code{$i}][$j];
 				$p = floor(1 / $h);
-				$bararray["bcode"][$k++] = array("t" => 1, "w" => 1, "h" => $h, "p" => $p);
-				$bararray["bcode"][$k++] = array("t" => 0, "w" => 1, "h" => 2, "p" => 0);
-				$bararray["maxw"] += 2;
+				$bararray['bcode'][$k++] = array('t' => 1, 'w' => 1, 'h' => $h, 'p' => $p);
+				$bararray['bcode'][$k++] = array('t' => 0, 'w' => 1, 'h' => 2, 'p' => 0);
+				$bararray['maxw'] += 2;
 			}
 		}
 		// end bar
-		$bararray["bcode"][$k++] = array("t" => 1, "w" => 1, "h" => 2, "p" => 0);
-		$bararray["maxw"] += 1;
+		$bararray['bcode'][$k++] = array('t' => 1, 'w' => 1, 'h' => 2, 'p' => 0);
+		$bararray['maxw'] += 1;
 		return $bararray;
 	}
 	
@@ -774,11 +775,11 @@ class TCPDFBarcode {
 			'D' => '11122211'
 		);
 		
-		$bararray = array("code" => $code, "maxw" => 0, "maxh" => 1, "bcode" => array());
+		$bararray = array('code' => $code, 'maxw' => 0, 'maxh' => 1, 'bcode' => array());
 		$k = 0;
 		$w = 0;
-		$seq = "";
-		$code = "A".strtoupper($code)."A";
+		$seq = '';
+		$code = 'A'.strtoupper($code).'A';
 		$len = strlen($code);
 		for($i=0; $i < $len; $i++) {
 			if (!isset($chr[$code{$i}])) {
@@ -792,9 +793,9 @@ class TCPDFBarcode {
 					$t = false; // space
 				}
 				$w = $seq{$j};
-				$bararray["bcode"][$k] = array("t" => $t, "w" => $w, "h" => 1, "p" => 0);
-				$bararray["maxw"] += $w;
-				$k++;
+				$bararray['bcode'][$k] = array('t' => $t, 'w' => $w, 'h' => 1, 'p' => 0);
+				$bararray['maxw'] += $w;
+				++$k;
 			}
 		}
 		return $bararray;

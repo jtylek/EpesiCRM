@@ -1,3 +1,252 @@
+4.5.010 (2009-01-29)
+	- Bug n. 2546108 "BarCode Y position" was fixed.
+	
+4.5.009 (2009-01-26)
+	- Bug n. 2538094 "Empty pdf file created" was fixed.
+	
+4.5.008 (2009-01-26)
+	- setPage() method was fixed to correctly restore graphic states.
+	- Source code was cleaned up for performances.
+
+4.5.007 (2009-01-24)
+	- checkPageBreak() and write1DBarcode() methods were fixed.
+	- Source code was cleaned up for performances.
+	- barcodes.php was updated.
+
+4.5.006 (2009-01-23)
+	- getHTMLUnitToPoints() method was replaced by getHTMLUnitToUnits() to fix HTML units bugs.
+
+4.5.005 (2009-01-23)
+	- Page closing bug was fixed.
+
+4.5.004 (2009-01-21)
+	- The access of convertHTMLColorToDec() method was changed to public
+	- Fixed bug on UL tag.
+
+4.5.003 (2009-01-19)
+	- Fonts on different folders are now supported.
+
+4.5.002 (2009-01-07)
+	- addTOC() function was improved (see example n. 45).
+
+4.5.001 (2009-01-04)
+	- The signature of startPageGroup() function was changed.
+	- Method Footer() was improved to automatically print page or page-group number (see example n. 23).
+	- Protected method formatTOCPageNumber() was added to customize the format of page numbers on the Table Of Content.
+	- The signature of addTOC() was changed to include the font used for page numbers.
+	
+4.5.000 (2009-01-03)
+	- A new $diskcache parameter was added to class constructor to enable disk caching and reduce RAM memory usage (see example n. 43).
+	- The method movePageTo() was added to move pages to previous positions (see example n. 44).
+	- The methods getAliasNumPage() and getPageNumGroupAlias() were added to get the alias for page number (needed when using movepageTo()).
+	- The methods addTOC() was added to print a Table Of Content (see example n. 45).
+	- Imagick class constant was removed for better compatibility with PHP4.
+	- All existing examples were updated and new examples were added.
+
+4.4.009 (2008-12-29)
+	- Examples 1 and 35 were fixed.
+
+4.4.008 (2008-12-28)
+	- Bug #2472169 "Unordered bullet size not adjusted for unit type" was fixed.
+
+4.4.007 (2008-12-23)
+	- Bug #2459935 "no unit conversion for header line" was fixed.
+	- Example n. 42 for image alpha channel was added.
+	- All examples were updated.
+
+4.4.006 (2008-12-11)
+	- Method setLIsymbol() was changed to reflect latest changes in HTML list handling.
+
+4.4.005 (2008-12-10)
+	- Bug item #2413870 "ordered list override value" was fixed.
+
+4.4.004 (2008-12-10)
+	- The protected method getHTMLUnitToPoints() was added to accept various HTML units of measure (em, ex, px, in, cm, mm, pt, pc, %).
+	- The method intToRoman() was added to convert integer number to Roman representation.
+	- Support fot HTML lists was improved: the CSS property list-style-type is now supported.
+
+4.4.003 (2008-12-09)
+	- Bug item #2412147 "Warning on line 3367" was fixed.
+	- Method setHtmlLinksStyle() was added to set default HTML link colors and font style.
+	- Method addHtmlLink() was changed to use color and style defined on the inline CSS.
+	
+4.4.002 (2008-12-09)
+	- Borders on Multicell() were fixed.
+	- Problem of Multicell() on Header function (Bug item #2407579) was fixed.
+	- Problem on graphics tranformations applied to Multicell() was fixed.
+	- Support for ImageMagick was added.
+	- Width calculation for nested tables was fixed.
+	
+4.4.001 (2008-12-08)
+	- Some missing core fonts were added on fonts directory.
+	- CID0 fonts rendering was fixed.
+	- HTML support was improved (<pre> and <tt> tags are now supported).
+	- Bug item #2406022 "Left padding bug in MultiCell with maxh" was fixed.
+	
+4.4.000 (2008-12-07)
+	- File attachments are now supported (see example n. 41).
+	- Font functions were optimized to reduce document size.
+	- makefont.php was updated.
+	- Linux binaries were added on /fonts/utils
+	- All fonts were updated.
+	- $autopadding parameter was added to Multicell() to disable automatic padding features.
+	- $maxh parameter was added to Multicell() and Write() to set a maximum height.
+
+4.3.009 (2008-12-05)
+	- Bug item #2392989 (Custom header + setlinewidth + cell border bug) was fixed.
+	
+4.3.008 (2008-12-05)
+	- Bug item #2390566 "rect bug" was fixed.
+	- File path was fixed for font embedded files.
+	- SetFont() method signature was changed to include the font filename.
+	- Some font-related methods were improved.
+	- Methods getFontFamily() and getFontStyle() were added.
+	
+4.3.007 (2008-12-03)
+	- PNG alpha channel is now supported (GD library is required).
+	- AddFont() function now support custom font file path on $file parameter.
+	- The default width variable ($dw) is now always defined for any font.
+	- The 'Style' attribute on CID-0 fonts was removed because of protection bug.
+	
+4.3.006 (2008-12-01)
+	- A regular expression on getHtmlDomArray() to find HTML tags was fixed.
+
+4.3.005 (2008-11-25)
+	- makefont.php was fixed.
+	- Bug item #2339877 was fixed (false loop condition detected on WriteHTML()).
+	- Bug item #2336733 was fixed (lasth value update on Multicell() when border and fill are disabled).
+	- Bug item #2342303 was fixed (automatic page-break on Image() and ImageEPS()).
+
+4.3.004 (2008-11-19)
+	- Function _textstring() was fixed (bug 2309051).
+	- All examples were updated.
+
+4.3.003 (2008-11-18)
+	- CID-0 font bug was fixed.
+	- Some functions were optimized.
+	- Function getGroupPageNoFormatted() was added.
+	- Example n. 23 was updated.
+
+4.3.002 (2008-11-17)
+	- Bug item #2305518 "CID-0 font don't work with encryption" was fixed.
+	
+4.3.001 (2008-11-17)
+	- Bug item #2300007 "download mimetype pdf" was fixed.
+	- Double quotes were replaced by single quotes to improve PHP performances.
+	- A bug relative to HTML cell borders was fixed.
+	
+4.3.000 (2008-11-14)
+	- The function setOpenCell() was added to set the top/bottom cell sides to be open or closed when the cell cross the page.
+	- A bug relative to list items indentation was fixed.
+	- A bug relative to borders on HTML tables and Multicell was fixed.
+	- A bug relative to rowspanned cells was fixed.
+	- A bug relative to html images across pages was fixed.
+	
+4.2.009 (2008-11-13)
+	- Spaces between li tags are now automatically removed.
+	
+4.2.008 (2008-11-12)
+	- A bug relative to fill color on next page was fixed.
+	
+4.2.007 (2008-11-12)
+	- The function setListIndentWidth() was added to set custom indentation widht for HTML lists.
+	
+4.2.006 (2008-11-06)
+	- A bug relative to HTML justification was fixed.
+	
+4.2.005 (2008-11-06)
+	- A bug relative to HTML justification was fixed.
+	- The methods formatPageNumber() and PageNoFormatted() were added to format page numbers.
+	- Default Footer() method was changed to use PageNoFormatted() instead of PageNo().
+	- Example 6 was updated.
+	
+4.2.004 (2008-11-04)
+	- Bug item n. 2217039 "filename handling improvement" was fixed.
+	
+4.2.003 (2008-10-31)
+	- Font style bug was fixed.
+	
+4.2.002 (2008-10-31)
+	- Bug item #2210922 (htm element br not work) was fixed.
+	- Write() function was improved to support margin changes.
+	
+4.2.001 (2008-10-30)
+	- setHtmlVSpace($tagvs) function was added to set custom vertical spaces for HTML tags.
+	- writeHTML() function now support margin changes during execution.
+	- Signature of addHTMLVertSpace() function is changed.
+	
+4.2.000 (2008-10-29)
+	- htmlcolors.php was changed to support class-loaders.
+	- ImageEps() function was improved in performances.
+	- Signature of Link() And Annotation() functions were changed.
+	- (Bug item #2198926) Links and Annotations alignment were fixed (support for geometric tranformations was added).
+	- rowspan mode for HTML table cells was improved and fixed.
+	- Booklet mode for double-sided pages was added; see SetBooklet() function and example n. 40.
+	- lastPage() signature is changed.
+	- Signature of Write() function is changed.
+	- Some HTML justification problems were fixed.
+	- Some functions were fixed to better support RTL mode.
+	- Example n. 10 was changed to support RTL mode.
+	- All examples were updated.
+	
+4.1.004 (2008-10-23)
+	- unicode_data.php was changed to support class-loaders.
+	- Bug item #2186040/2 (writeHTML margin problem) was fixed.
+	
+4.1.003 (2008-10-22)
+	- Bug item #2185399 was fixed (rowspan and page break).
+	- Bugs item #2186040 was fixed (writeHTML margin problem).
+	- Newline after table was removed.
+	
+4.1.002 (2008-10-21)
+	- Bug item #2184525 was fixed (rowspan on HTML cell).
+	
+4.1.001 (2008-10-21)
+	- Support for "start" attribute was added to HTML ordered list.
+	- unicode_data.php file was changed to include UTF-8 to ASCII table.
+	- Some functions were modified to better support UTF-8 extensions to core fonts.
+	- Support for images on HTML lists was improved.
+	- Examples n. 1 and 6 were updated.
+	
+4.1.000 (2008-10-18)
+	- Page-break bug using HTML content was fixed.
+	- The "false" parameter was reintroduced to class_exists function on PHP5 version to avoid autoload.
+	- addHtmlLink() function was improved to support internal links (i.e.: <a href="#23">link to page 23</a>).
+	- Justification alignment is now supported on HTML (see example n. 39).
+	- example_006.php was updated.
+	
+4.0.033 (2008-10-13)
+	- Bug n. 2157099 was fixed.
+	- SetX() and SetY() functions were improved.
+	- SetY() includes a new parameter to avoid the X reset.
+
+4.0.032 (2008-10-10)
+	- Bug n. 2156926 was fixed (bold, italic, underlined, linethrough).
+	- setStyle() method was removed.
+	- Configuration file was changed to use helvetica (non-unicode) font by default.
+	- The use of mixed font types was improved.
+	- All examples were updated.
+
+4.0.031 (2008-10-09)
+	- _putannots() and _putbookmarks() links alignments were fixed.
+
+4.0.030 (2008-10-07)
+	- _putbookmarks() function was fixed.
+	- _putannots() was fixed to include internal links.
+
+4.0.029 (2008-09-27)
+	- Infinite loop bug was fixed [Bug item #130309].
+	- Multicell() problem on Header() was fixed.
+	
+4.0.028 (2008-09-26)
+	- setLIsymbol() was added to set the LI symbol used on UL lists.
+	- Missing $padding and $encryption_key variables declarations were added [Bug item #2129058].
+	
+4.0.027 (2008-09-19)
+	- Bug #2118588 "Undefined offset in tcpdf.php on line 9581" was fixed.
+	- arailunicid0.php font was updated.
+	- The problem of javascript form fields duplication after saving was fixed.
+		
 4.0.026 (2008-09-17)
 	- convertHTMLColorToDec() function was improved to support rgb(RR,GG,BB) notation.
 	- The following inline CSS attributes are now supported: text-decoration, color, background-color and font-size names: xx-small, x-small, small, medium, large, x-large, xx-large
@@ -542,7 +791,7 @@
 
 1.53.0.TC004 (2005-01-04)
 	- this changelog were added.
-	- removed comercial fonts for licensing issue.
+	- removed commercial fonts for licensing issue.
 	- Bitstream Vera Fonts were added (http://www.bitstream.com/font_rendering/products/dev_fonts/vera.html).
 	- Now the AddFont and SetFont functions returns the basic font if the styled version do not exist.
 
