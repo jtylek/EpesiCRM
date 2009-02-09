@@ -89,6 +89,7 @@ class Utils_MessengerCommon extends ModuleCommon {
 			ob_clean();
 			DB::Execute('UPDATE utils_messenger_users SET follow=1 WHERE message_id=%d AND user_login_id=%d',array($row['id'],$row['user_login_id']));
 
+			$ret .= print_r($row,true);
 			$mail = Base_User_SettingsCommon::get('Utils_Messenger','mail');
 			if($mail) {
 				$msg = Base_LangCommon::ts('Utils/Messenger','Alert on: %s',array(Base_RegionalSettingsCommon::time2reg($row['alert_on'])))."\n".$ret."\n".($row['message']?Base_LangCommon::ts('Utils/Messenger',"Alarm comment: %s",array($row['message'])):'');
