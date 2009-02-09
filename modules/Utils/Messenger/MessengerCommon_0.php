@@ -79,7 +79,7 @@ class Utils_MessengerCommon extends ModuleCommon {
 	
 	public static function cron() {
 		$arr = DB::GetAll('SELECT m.*,u.* FROM utils_messenger_message m INNER JOIN utils_messenger_users u ON u.message_id=m.id WHERE u.follow=0 AND m.alert_on+INTERVAL 4 minute<%T',array(time()));
-		$ret = '';
+		$ret = 'x';
 		foreach($arr as $row) {
 			Acl::set_user($row['user_login_id']);
 			$always_follow = Base_User_SettingsCommon::get('Utils_Messenger','always_follow_me');
