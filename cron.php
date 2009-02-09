@@ -15,7 +15,7 @@ ob_start();
 $ret = ModuleManager::call_common_methods('cron');
 ob_end_clean();
 foreach($ret as $name=>$obj) {
-	print($name.": ".$obj."<br>");
+	print($name.":<br>".$obj."<hr>");
 }
 
 ?>

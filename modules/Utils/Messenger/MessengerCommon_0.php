@@ -79,6 +79,7 @@ class Utils_MessengerCommon extends ModuleCommon {
 	
 	public static function cron() {
 		$arr = DB::GetAll('SELECT m.*,u.* FROM utils_messenger_message m INNER JOIN utils_messenger_users u ON u.message_id=m.id WHERE u.follow=0 AND m.alert_on+INTERVAL 4 minute<%T',array(time()));
+		$ret = '';
 		foreach($arr as $row) {
 			Acl::set_user($row['user_login_id']);
 			$always_follow = Base_User_SettingsCommon::get('Utils_Messenger','always_follow_me');
@@ -92,9 +93,12 @@ class Utils_MessengerCommon extends ModuleCommon {
 			if($mail) {
 				$msg = Base_LangCommon::ts('Utils/Messenger','Alert on: %s',array(Base_RegionalSettingsCommon::time2reg($row['alert_on'])))."\n".$ret."\n".($row['message']?Base_LangCommon::ts('Utils/Messenger',"Alarm comment: %s",array($row['message'])):'');
 				Base_MailCommon::send($mail,'Alert!',$msg);
+				$ret .= $mail.' => '.$msg.'<br>';
 			}
 			Acl::set_user();
 		}
+		
+		return $ret;
 	}
 }
 
