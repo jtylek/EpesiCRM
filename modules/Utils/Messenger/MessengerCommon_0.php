@@ -86,7 +86,7 @@ class Utils_MessengerCommon extends ModuleCommon {
 			if(!$always_follow && $row['done']) continue;
 			ob_start();
 			$ret = call_user_func_array(unserialize($row['callback_method']),unserialize($row['callback_args']));
-			ob_get_clean();
+			ob_end_clean();
 			DB::Execute('UPDATE utils_messenger_users SET follow=1 WHERE message_id=%d AND user_login_id=%d',array($row['id'],$row['user_login_id']));
 
 			$ret .= print_r($row,true);
