@@ -194,7 +194,7 @@ class Utils_Messenger extends Module {
 	}
 	
 	private function orphan() {
-		DB::Execute('DELETE FROM utils_messenger_message WHERE (SELECT count(1) FROM utils_messenger_users u WHERE u.message_id=id AND u.done=0)=0');
+		DB::Execute('DELETE FROM utils_messenger_message WHERE (SELECT count(u.*) FROM utils_messenger_users u WHERE u.message_id=id AND u.done=0)=0');
 	}
 	
 	public function delete_user_entry($id) {
