@@ -357,7 +357,7 @@ function escapeJS($str,$double=true,$single=true) {return Epesi::escapeJS($str,$
 
 function get_epesi_url() {
 	if(isset($GLOBALS['argv']))
-		return getcwd();
+		return dirname(dirname(__FILE__));
 	$protocol = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS'])!== "off") ? 'https://' : 'http://';
 	return $protocol.$_SERVER['HTTP_HOST'].EPESI_DIR;
 }
