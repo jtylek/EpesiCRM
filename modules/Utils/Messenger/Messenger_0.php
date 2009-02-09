@@ -188,6 +188,47 @@ class Utils_Messenger extends Module {
 		Base_ActionBarCommon::add('add','New alert',$this->create_callback_href(array($this,'push_box0'),array('edit',array(false),array($this->real_id,$this->callback_method,$this->callback_args,$this->def_date,$this->users,$this->autosave))));	
 	}
 
+	public function purge_old() {
+		DB::Execute('DELETE FROM utils_messenger_users WHERE user_login_id=%d AND done=1',array(Acl::get_user()));
+		$this->orphan();
+	}
+	
+	private function orphan() {
+		DB::Execute('DELETE FROM utils_messenger_message WHERE (SELECT count(1) FROM utils_messenger_users u WHERE u.message_id=id AND u.done=0)=0');
+	}
+	
+	public function delete_user_entry($id) {
+		DB::Execute('DELETE FROM utils_messenger_users WHERE message_id=%d AND user_login_id=%d',array($id,Acl::get_user()));
+		$this->orphan();
+	}
+
+	public function browse() {
+		$gb = $this->init_module('Utils/GenericBrowser', null, 'agenda');
+		$columns = array(
+			array('name'=>$this->t('Done'), 'order'=>'done', 'width'=>5),
+			array('name'=>$this->t('Start'), 'order'=>'alert_on', 'width'=>15),
+			array('name'=>$this->t('Info'), 'width'=>80)
+		);
+		$gb->set_table_columns($columns);
+
+		$gb->set_default_order(array($this->t('Start')=>'ASC'));
+
+		$t = time();
+		$ret = DB::Execute('SELECT u.done,m.* FROM utils_messenger_message m INNER JOIN utils_messenger_users u ON u.message_id=m.id WHERE u.user_login_id=%d'.$gb->get_query_order(),array(Acl::get_user()));
+
+		while($row = $ret->FetchRow()) {
+			$info = call_user_func_array(unserialize($row['callback_method']),unserialize($row['callback_args']));
+			$info = str_replace("\n",'<br>',$info);
+			$r = & $gb->get_new_row();
+			$r->add_data('<span class="'.($row['done']?'checkbox_on':'checkbox_off').'" />',Base_RegionalSettingsCommon::time2reg($row['alert_on']),$info.'<br>'.($row['message']?$this->t("Alarm comment: %s",array($row['message'])):''));
+			$r->add_action($this->create_confirm_callback_href($this->ht('Are you sure?'),array($this,'delete_user_entry'),$row['id']),'Delete');
+		}
+
+		$this->display_module($gb);
+		
+		Base_ActionBarCommon::add('delete','Purge old alerts',$this->create_confirm_callback_href($this->t('Purge all done alerts?'),array($this,'purge_old')));	
+	}
+
 	/////////////////////////////////////////////////////////////
 	public function applet() {
 

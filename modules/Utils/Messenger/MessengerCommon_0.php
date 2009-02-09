@@ -100,6 +100,11 @@ class Utils_MessengerCommon extends ModuleCommon {
 		
 		return $ret;
 	}
+
+    public static function menu() {
+		return array('Messenger alerts'=>array(
+				'__function__'=>'browse'));
+	}
 }
 
 eval_js_once('utils_messenger_on = true; utils_messenger_refresh = function(){'.
