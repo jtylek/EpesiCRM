@@ -8,6 +8,8 @@
  * @package epesi-base
  */
 define('CID',false);
+if(isset($argv))
+	define('EPESI_DIR','/');
 require_once('include.php');
 
 $user = Acl::get_user();
