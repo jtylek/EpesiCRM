@@ -1,9 +1,9 @@
 <?php
 /**
  * ActionBar
- * 
+ *
  * This class provides action bar component.
- * 
+ *
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2008, Telaxus LLC
  * @license MIT
@@ -17,26 +17,27 @@ class Base_ActionBarCommon extends ModuleCommon {
 	private static $icons = array();
 
 	public static $available_icons = array(
-			'home'=>0,
-			'back'=>1,
-			'report'=>2,
-			'history'=>3,
-			'all'=>4,
-			'favorites'=>5,
-			'calendar'=>6,
-			'search'=>7,
-			'folder'=>8,
-//			'new'=>6,
-			'edit'=>9,
-			'view'=>10,
-			'add'=>11,
-			'delete'=>12,
-			'save'=>13,
-			'print'=>14,
-			'clone'=>15,
-			'settings'=>16,
-			'scan'=>17,
-			'filter'=>18);
+			'home'		=> 0,
+			'back'		=> 1,
+			'report'	=> 2,
+			'history'	=> 3,
+			'all'		=> 4,
+			'favorites'	=> 5,
+			'calendar'	=> 6,
+			'search'	=> 7,
+			'folder'	=> 8,
+			'edit'		=> 9,
+			'view'		=> 10,
+			'add'		=> 11,
+			'delete'	=> 12,
+			'save'		=> 13,
+			'print'		=> 14,
+			'clone'		=> 15,
+			'settings'	=> 16,
+			'scan'		=> 17,
+			'filter'	=> 18,
+			'send'		=> 19,
+			'new-mail'	=> 20);
 
 	public static function user_settings(){
 		return array('Misc'=>array(

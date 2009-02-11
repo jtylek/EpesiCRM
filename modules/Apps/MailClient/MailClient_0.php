@@ -64,7 +64,7 @@ class Apps_MailClient extends Module {
 		$mail_actions_arr[] = $move_msg_f->toHtml();
 
 		$mail_actions_arr[] = '<a onClick="leightbox_deactivate(\'mail_actions\')" href="" tpl_href="modules/Apps/MailClient/source.php?'.http_build_query(array('box'=>$box,'dir'=>$dir,'msg_id'=>'__MSG_ID__')).'" target="_blank" id="mail_client_actions_view_source">'.$this->t('View source').'</a>';
-		
+
 		$external_mail_actions = ModuleManager::call_common_methods('mail_actions');
 		$i=0;
 		foreach($external_mail_actions as $x) {
@@ -84,10 +84,10 @@ class Apps_MailClient extends Module {
 					}
 				}
 				$mail_actions_arr[] = '<a href="javascript:void(0)" tpl_onClick="'.Module::create_unique_href_js(array('external_action'=>$caption,'msg_id'=>'__MSG_ID__')).'" id="mail_client_external_actions_'.$i.'">'.$this->t($caption).'</a>';
-				$i++;		
+				$i++;
 			}
 		}
-			
+
 		Libs_LeightboxCommon::display('mail_actions','<ul><li>'.implode($mail_actions_arr,'<li>').'</ul>',$this->t('Mail actions'));
 
 		if($move_msg_f->validate()) {
@@ -194,7 +194,7 @@ class Apps_MailClient extends Module {
 
 		Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file($this->get_type(),'check.png'),$this->t('Check'),$this->check_mail_href());
 //		if(DB::GetOne('SELECT 1 FROM apps_mailclient_accounts WHERE smtp_server is not null AND smtp_server!=\'\' AND user_login_id='.Acl::get_user())) //bo bedzie internal
-		Base_ActionBarCommon::add('add',$this->ht('New mail'),$this->create_callback_href(array($this,'edit_mail'),array($box,$dir)));
+		Base_ActionBarCommon::add('new-mail',$this->ht('New mail'),$this->create_callback_href(array($this,'edit_mail'),array($box,$dir)));
 		Base_ActionBarCommon::add('scan',$this->ht('Mark all as read'),$this->create_confirm_callback_href($this->ht('Are you sure?'),array($this,'mark_all_as_read')));
 		if($trash_folder)
 			Base_ActionBarCommon::add('delete',$this->ht('Empty trash'),$this->create_confirm_callback_href($this->ht('Are you sure?'),array($this,'empty_trash')));
@@ -202,10 +202,10 @@ class Apps_MailClient extends Module {
 //echo('<a href="javascript:destroy_me(parent)">hide</a>');
 
 	}
-	
+
 	private function check_mail_href() {
 		$checknew_id = $this->get_path().'checknew';
-		
+
 		eval_js('new Apps_MailClient.check_mail(\''.$checknew_id.'\')');
 		print('<div id="'.$checknew_id.'" class="leightbox"><div style="width:100%;text-align:center" id="'.$checknew_id.'progresses"></div>'.
 			'<a id="'.$checknew_id.'L" style="display:none" href="javascript:void(0)" onClick="Apps_MailClient.hide(\''.$checknew_id.'\');Epesi.request(\'\');">'.$this->t('hide').'</a>'.
@@ -274,7 +274,7 @@ class Apps_MailClient extends Module {
 		$box = $this->get_module_variable('opened_box');
 		$dir = $this->get_module_variable('opened_dir');
 		if(!Apps_MailClientCommon::mark_all_as_read($box, $dir)) {
-			Epesi::alert($this->ht('Invalid mailbox'));		
+			Epesi::alert($this->ht('Invalid mailbox'));
 		}
 	}
 
@@ -308,7 +308,7 @@ class Apps_MailClient extends Module {
 		$box_dir = Apps_MailClientCommon::get_mailbox_dir($box);
 		if($box_dir===false) {
 			Epesi::alert($this->ht('Invalid mailbox'));
-			return false;		
+			return false;
 		}
 		$trashpath = $box_dir.$dir.'.del';
 
@@ -409,7 +409,7 @@ class Apps_MailClient extends Module {
 		$box_dir = Apps_MailClientCommon::get_mailbox_dir($box);
 		if($box_dir===false) {
 			Epesi::alert($this->ht('Invalid mailbox'));
-			return $ret;		
+			return $ret;
 		}
 		foreach($str as $k=>$v) {
 			$cr = $create_dir;
@@ -457,12 +457,12 @@ class Apps_MailClient extends Module {
 
 	//////////////////////////////////////////
 	// screens
-	
+
 	public function edit_mail_src($headers=null,$body=null,$body_type=null,$body_ctype=null,$box=null,$type=null,$drop_callback=null) {
 		if($this->is_back()) {
 			$x = ModuleManager::get_instance('/Base_Box|0');
 			if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-			$x->pop_main();	
+			$x->pop_main();
 		}
 
 		load_js($this->get_module_dir().'utils.js');
@@ -763,7 +763,7 @@ class Apps_MailClient extends Module {
 		$theme->display('new');
 
 		Base_ActionBarCommon::add('save','Save',' href="javascript:void(0)" onClick="$(\'new_mail_action\').value=\'save\';'.addcslashes($f->get_submit_form_js(),'"').'"');
-		Base_ActionBarCommon::add('report','Send',' href="javascript:void(0)" onClick="$(\'new_mail_action\').value=\'send\';'.addcslashes($f->get_submit_form_js(),'"').'"');
+		Base_ActionBarCommon::add('send','Send',' href="javascript:void(0)" onClick="$(\'new_mail_action\').value=\'send\';'.addcslashes($f->get_submit_form_js(),'"').'"');
 		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 
 		return true;
