@@ -1,5 +1,6 @@
 .Applets_Weather {
 	width: 300px;
+	background-color: red;
 }
 
 .Applets_Weather ul, ul li {

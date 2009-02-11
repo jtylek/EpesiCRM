@@ -12,7 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Applets_Weather extends Module {
 
-	public function body(&$x) {
+	public function body() {
 	}
 
 
