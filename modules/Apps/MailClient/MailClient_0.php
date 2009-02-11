@@ -439,11 +439,11 @@ class Apps_MailClient extends Module {
 				$arr['name'] .= '<a '.$this->create_callback_href(array($this,'imap_refresh_folders'),array($box)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','imap_refresh.png').'" border=0></a>';
 			}*/
 			if($cr)
-				$arr['name'] .= '<a '.$this->create_callback_href(array($this,'edit_folder_callback'),array($box,$p)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','create_folder.png').'" border=0></a>';
+				$arr['name'] .= '<a '.$this->create_callback_href(array($this,'edit_folder_callback'),array($box,$p)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','create_folder.png').'" border="0"></a>';
 			if($ed)
-				$arr['name'] .= '<a '.$this->create_callback_href(array($this,'edit_folder_callback'),array($box,$dir,$k)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','edit_folder.png').'" border=0></a>';
+				$arr['name'] .= '<a '.$this->create_callback_href(array($this,'edit_folder_callback'),array($box,$dir,$k)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','edit_folder.png').'" border="0"></a>';
 			if($del)
-				$arr['name'] .= '<a '.$this->create_confirm_callback_href($this->ht('Delete this folder with all messages and subfolders?'),array($this,'delete_folder_callback'),array($box,$p)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','delete_folder.png').'" border=0></a>';
+				$arr['name'] .= '<a '.$this->create_confirm_callback_href($this->ht('Delete this folder with all messages and subfolders?'),array($this,'delete_folder_callback'),array($box,$p)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','delete_folder.png').'" border="0"></a>';
 
 			if((!$ed || !$del) && strcasecmp($p,'Inbox/')==0) {
 				$ed = true;

@@ -8,21 +8,64 @@ div.mail_progressbar_in {
 	height: 20px;
 }
 
+.utils_tree_node_content img,
+.utils_tree_node_content_selected img {
+	vertical-align: middle;
+	padding-left: 4px;
+}
+
+#Apps_MailClient {
+	background-color: white;
+	width: 100%;
+    border: 1px solid #b3b3b3;
+}
+
+#Apps_MailClient table.mail {
+	width: 100%;
+	border-top: 1px solid #b3b3b3;
+	margin-top: 20px;
+}
+
+#Apps_MailClient .menu {
+	vertical-align: top;
+	width: 200px;
+	overflow: auto;
+	background-color: #f0f0f0;
+	border-right: 1px solid #b3b3b3;
+}
+
+#Apps_MailClient .preview_body iframe {
+	border: none;
+}
+
+/* no shadow in tables */
+#Apps_MailClient .shadow-top,
+#Apps_MailClient .shadow-middle,
+#Apps_MailClient .shadow-bottom {
+	display: none;
+}
+
+#Apps_MailClient .layer {
+	padding: 0px;
+	width: 100%;
+}
+
+#Apps_MailClient .layer .margin2px {
+	padding: 0px;
+}
+
+/* */
+
+/* New Mail */
+
 #Apps_MailClient_new {
 	background-color: white;
 	width: 100%;
 }
 
-#Apps_MailClient_new .header {
-	color: white;
-	height: 20px;
-	text-align: center;
-	vertical-align: middle;
-	background-image: url('images/header-blue.png');
-}
-
 /* label */
 
+#Apps_MailClient .label,
 #Apps_MailClient_new .label {
     color: white;
     background-color: #336699;
@@ -70,6 +113,15 @@ div.mail_progressbar_in {
     padding-right: 4px;
 }
 
+#Apps_MailClient .data {
+    border-bottom: 1px solid #b3b3b3;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+#Apps_MailClient .data input,
+#Apps_MailClient .data select,
+#Apps_MailClient .data textarea,
 #Apps_MailClient_new .data input,
 #Apps_MailClient_new .data select,
 #Apps_MailClient_new .data textarea {
@@ -78,11 +130,16 @@ div.mail_progressbar_in {
     width: 100%;
 }
 
+#Apps_MailClient .data input[type="checkbox"],
+#Apps_MailClient .data input[type="radio"],
 #Apps_MailClient_new .data input[type="checkbox"],
 #Apps_MailClient_new .data input[type="radio"] {
     width: auto;
 }
 
+#Apps_MailClient .data input:focus,
+#Apps_MailClient .data select:focus,
+#Apps_MailClient .data textarea:focus,
 #Apps_MailClient_new .data input:focus,
 #Apps_MailClient_new .data select:focus,
 #Apps_MailClient_new .data textarea:focus {
@@ -106,12 +163,14 @@ div.mail_progressbar_in {
 
 /* header */
 
+.Apps_MailClient_header,
 .Apps_MailClient_new_header {
     width: 100%;
     vertical-align: middle;
     height: 31px;
 }
 
+.Apps_MailClient_header .icon,
 .Apps_MailClient_new_header .icon {
     width: 32px;
     height: 27px;
@@ -123,6 +182,7 @@ div.mail_progressbar_in {
     background-image: url('images/dark-gray.png');
 }
 
+.Apps_MailClient_header .arrow,
 .Apps_MailClient_new_header .arrow {
     width: 32px;
     height: 31px;
@@ -132,6 +192,7 @@ div.mail_progressbar_in {
     background-image: url('images/dark-gray.png');
 }
 
+.Apps_MailClient_header .arrow a,
 .Apps_MailClient_new_header .arrow a {
     display: block;
     width: 32px;
@@ -140,15 +201,18 @@ div.mail_progressbar_in {
     padding-bottom: 7px;
 }
 
+.Apps_MailClient_header .arrow a:hover,
 .Apps_MailClient_new_header .arrow a:hover {
     background-color: #336699;
 }
 
+.Apps_MailClient_header .icon img,
 .Apps_MailClient_new_header .icon img {
     position: absolute;
     clip: rect(0px 32px 28px 0px);
 }
 
+.Apps_MailClient_header .name,
 .Apps_MailClient_new_header .name {
     width: 290px;
     text-align: left;
@@ -163,6 +227,7 @@ div.mail_progressbar_in {
     background-repeat: repeat-y;
 }
 
+.Apps_MailClient_header .required_fav_info,
 .Apps_MailClient_new_header .required_fav_info {
     color: #777777;
     text-align: right;
