@@ -86,7 +86,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 	public static function create_mailbox_dir($id) {
 		//TODO: check protocol, on imap get lsub and create dirs
 		$acc_dir = self::Instance()->get_data_dir().$id.'/';
-		mkdir($acc_dir,0777,true);
+		if (!is_dir($acc_dir)) mkdir($acc_dir,0777,true);
 		$dirs = array('Inbox','Sent','Trash','Drafts');
 		file_put_contents($acc_dir.'.dirs',implode(",",$dirs));
 		foreach($dirs as $d)
