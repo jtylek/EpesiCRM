@@ -4,7 +4,7 @@ re:null,
 validate: function(ev,f) {
 	var elem = Event.element(ev);
 	var val = elem.value;
-	var key = ev.which || ev.keyCode;
+	var key = ev.which;
 	if(!(key>=32 && key<=126)) return;
 	var car = this.get_caret(elem);
 	val = val.substring(0,car)+String.fromCharCode(key)+val.substring(car);
