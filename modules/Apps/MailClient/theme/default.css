@@ -54,7 +54,13 @@ div.mail_progressbar_in {
 	padding: 0px;
 }
 
-/* */
+#Apps_MailClient #Utils_GenericBrowser {
+	margin: 0px 5px 5px 5px;
+}
+
+#Apps_MailClient #Utils_GenericBrowser td {
+	white-space: nowrap;
+}
 
 /* New Mail */
 
