@@ -32,7 +32,7 @@ class Applets_WeatherCommon extends ModuleCommon {
 				'filter'=>array(array('Applets_WeatherCommon','set_url'))
 			),
 			array('name'=>'zipcode','label'=>'Enter City and State or Zip Code','type'=>'text','default'=>'19063','rule'=>array(array('message'=>'Field required', 'type'=>'required'))),
-			array('name'=>'temperature','label'=>'Fahrenheit / Celsius','type'=>'select','default'=>'f','rule'=>array(array('message'=>'Field required', 'type'=>'required')), 'values'=>array('f' => 'F', 'c'=>'C'))
+			array('name'=>'temperature','label'=>'Fahrenheit / Celsius','type'=>'select','default'=>'f','rule'=>array(array('message'=>'Field required', 'type'=>'required')), 'values'=>array('f' => '&deg;F', 'c'=>'&deg;C'))
 		);
 	}
 

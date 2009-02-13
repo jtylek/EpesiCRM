@@ -24,7 +24,7 @@ class Applets_WeatherInstall extends ModuleInstall {
 	}
 
 	public function version() {
-		return array("0.1");
+		return array("0.3");
 	}
 
 	public function requires($v) {

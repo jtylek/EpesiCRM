@@ -39,7 +39,7 @@ class Applets_Weather extends Module {
 		$name = md5($this->get_path().$rssfeed);
 
 		//div for updating
-		print('<div id="Applets_Weather" style="padding-left: 20px; padding-right: 20px; background-image: url('.Base_ThemeCommon::get_template_file('Applets/Weather','background.gif').'); background-repeat: repeat-x;"><div id="rssfeed_'.$name.'">'.$this->t('Loading Weather...').'</div></div>');
+		print('<div id="Applets_Weather"><div id="rssfeed_'.$name.'"><span>'.$this->t('Loading Weather...').'</span></div></div>');
 
 		//interval execution
 		eval_js_once('var rssfeedcache = Array();'.
