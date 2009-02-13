@@ -93,8 +93,8 @@ table#Utils_GenericBrowser th span {
     /*display: inline;*/
     height: 20px;
     line-height: 20px;
-    padding-left: 3px;
-    padding-right: 3px;
+    margin-left: 3px;
+    margin-right: 3px;
 }
 
 table#Utils_GenericBrowser th a {
