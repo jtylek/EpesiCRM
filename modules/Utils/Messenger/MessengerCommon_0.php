@@ -41,8 +41,10 @@ class Utils_MessengerCommon extends ModuleCommon {
 		DB::Execute('INSERT INTO utils_messenger_message(page_id,parent_module,message,callback_method,callback_args,created_on,created_by,alert_on) VALUES(%s,%s,%s,%s,%s,%T,%d,%T)',array(md5($id),$parent_type,$message,serialize($callback_method),serialize($callback_args),time(),Acl::get_user(),$alert_on));
 		$id = DB::Insert_ID('utils_messenger_message','id');
 		if(is_array($users)) {
-			foreach($users as $r)
-				DB::Execute('INSERT INTO utils_messenger_users(message_id,user_login_id) VALUES (%d,%d)',array($id,$r));
+			foreach($users as $k) {
+				if(Base_User_SettingsCommon::get('Utils_Messenger','allow_other',$k) || Acl::get_user()==$k)
+					DB::Execute('INSERT INTO utils_messenger_users(message_id,user_login_id) VALUES (%d,%d)',array($id,$k));
+			}
 		} else
 			DB::Execute('INSERT INTO utils_messenger_users(message_id,user_login_id) VALUES (%d,%d)',array($id,$users));
 	}

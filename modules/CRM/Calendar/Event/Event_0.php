@@ -435,8 +435,9 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$theme->assign('messenger_block','messenger_block');
 			$form->addElement('select','messenger_before',$this->t('Popup alert'),array(0=>$this->ht('on event start'), 900=>$this->ht('15 minutes before event'), 1800=>$this->ht('30 minutes before event'), 2700=>$this->ht('45 minutes before event'), 3600=>$this->ht('1 hour before event'), 2*3600=>$this->ht('2 hours before event'), 3*3600=>$this->ht('3 hours before event'), 4*3600=>$this->ht('4 hours before event'), 8*3600=>$this->ht('8 hours before event'), 12*3600=>$this->ht('12 hours before event'), 24*3600=>$this->ht('24 hours before event')));
 			$form->addElement('textarea','messenger_message',$this->t('Popup message'), array('id'=>'messenger_message'));
-			$form->addElement('checkbox','messenger_on',$this->t('Alert me'),null,array('onClick'=>'crm_calendar_event_messenger(this.checked);$("messenger_message").value=$("event_title").value;'));
-			eval_js('crm_calendar_event_messenger('.($form->exportValue('messenger_before')?1:0).')');
+			$form->addElement('select','messenger_on',$this->t('Alert'),array('none'=>$this->ht('None'),'me'=>$this->ht('me'),'all'=>$this->ht('all selected employees')),array('onChange'=>'crm_calendar_event_messenger(this.value!="none");$("messenger_message").value=$("event_title").value;'));
+//			$form->addElement('checkbox','messenger_on',$this->t('Alert me'),null,array('onClick'=>'crm_calendar_event_messenger(this.checked);$("messenger_message").value=$("event_title").value;'));
+			eval_js('crm_calendar_event_messenger('.(($form->exportValue('messenger_on')!='none' && $form->exportValue('messenger_on')!='')?1:0).')');
 			$form->registerRule('check_my_user', 'callback', 'check_my_user', $this);
 			$form->addRule(array('messenger_on','emp_id'), $this->t('You have to select your contact to set alarm on it'), 'check_my_user');
 		}
@@ -677,8 +678,19 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 													));
 		$id = DB::Insert_ID('crm_calendar_event', 'id');
 
-		if(isset($vals['messenger_on']) && $vals['messenger_on'])
+		if(isset($vals['messenger_on']) && $vals['messenger_on']!='none') {
+			if($vals['messenger_on']=='me')
 				Utils_MessengerCommon::add('CRM_Calendar_Event:'.$id,$this->get_type(),$vals['messenger_message'],$start-$vals['messenger_before'], array('CRM_Calendar_EventCommon','get_alarm'),array($id));
+			else {
+				$eee = array();
+				foreach($vals['emp_id'] as $v) {
+					$c = CRM_ContactsCommon::get_contact($v);
+					if(isset($c['login']))
+						$eee[] = $c['login'];
+				}
+				Utils_MessengerCommon::add('CRM_Calendar_Event:'.$id,$this->get_type(),$vals['messenger_message'],$start-$vals['messenger_before'], array('CRM_Calendar_EventCommon','get_alarm'),array($id),$eee);
+			}
+		}
 
 		foreach($vals['emp_id'] as $v)
 				DB::Execute('INSERT INTO crm_calendar_event_group_emp (id,contact) VALUES (%d, %d)', array($id, $v));
