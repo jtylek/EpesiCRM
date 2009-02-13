@@ -68,7 +68,8 @@ class Utils_MessengerCommon extends ModuleCommon {
 					'rule'=>array('type'=>'callback',
 						'func'=>array('Utils_MessengerCommon','check_follow'),
 						'message'=>'E-mail required if you want to be followed.',
-						'param'=>'__form__'))
+						'param'=>'__form__')),
+			array('name'=>'allow_other','label'=>'Allow other users to set up alerts for me','type'=>'bool','default'=>0)
 			));
 	}
 	

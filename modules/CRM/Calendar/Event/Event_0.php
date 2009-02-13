@@ -398,6 +398,14 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$form->addElement('select', 'priority', $this->t('Priority'), self::$priority, array('style'=>'width: 100%;'));
 		$form->addElement('select', 'color', $this->t('Color'), $color, array('style'=>'width: 100%;'));
 
+		$emp = array();
+		$emp_alarm = array();
+		$ret = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())), array(), array('last_name'=>'ASC', 'first_name'=>'ASC'));
+		foreach($ret as $c_id=>$data) {
+			$emp[$c_id] = $data['last_name'].' '.$data['first_name'];
+			if(is_numeric($data['login']))
+				$emp_alarm[$c_id] = $data['login'];
+		}
 		if ($action=='view') {
 			$form->addElement('static', 'emp_id', $this->t('Employees'));
 			$form->addElement('static', 'cus_id', $this->t('Customers'));
@@ -411,14 +419,6 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$def['emp_id'] = $emp_id;
 			$theme->assign('subscribe_icon',Utils_WatchdogCommon::get_change_subscription_icon('crm_calendar',$id));
 		} else {
-			$emp = array();
-			$emp_alarm = array();
-			$ret = CRM_ContactsCommon::get_contacts(array('company_name'=>array(CRM_ContactsCommon::get_main_company())), array(), array('last_name'=>'ASC', 'first_name'=>'ASC'));
-			foreach($ret as $c_id=>$data) {
-				$emp[$c_id] = $data['last_name'].' '.$data['first_name'];
-				if(is_numeric($data['login']))
-					$emp_alarm[$c_id] = $data['login'];
-			}
 			$cus = array();
 			$ret = CRM_ContactsCommon::get_contacts(array('(:Fav'=>true, '|:Recent'=>true, '|id'=>$def['cus_id']), array(), array('last_name'=>'ASC', 'first_name'=>'ASC'));
 			foreach($ret as $c_id=>$data)
