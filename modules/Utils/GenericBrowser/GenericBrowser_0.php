@@ -336,7 +336,7 @@ class Utils_GenericBrowser extends Module {
 	}
 
 	public function set_per_page($pp) {
-		if (!isset(self::$possible_vals_for_per_page[$pp])) $pp = 5; 
+		if (!isset(self::$possible_vals_for_per_page[$pp])) $pp = 5;
 		$this->set_module_variable('per_page',$this->per_page = $pp);
 	}
 
@@ -691,7 +691,7 @@ class Utils_GenericBrowser extends Module {
 		else
 			return strcasecmp($a,$b);
 	}
-	
+
 	public function force_per_page($i) {
 		if(!is_numeric($i))
 			trigger_error('Invalid argument passed to force_per_page method.',E_USER_ERROR);
@@ -730,11 +730,11 @@ class Utils_GenericBrowser extends Module {
 			if(!$this->forced_per_page) {
 				$form_p->addElement('select','per_page',$this->t('Number of rows per page'), self::$possible_vals_for_per_page, 'onChange="'.$form_p->get_submit_form_js(false).'"');
 				$form_p->setDefaults(array('per_page'=>$per_page));
-			}			
+			}
 			$qty_pages = ceil($this->rows_qty/$this->per_page);
 			if ($qty_pages<=25) {
 					$pages = array();
-				if($this->rows_qty==0) 
+				if($this->rows_qty==0)
 					$pages[0] = 1;
 				else
 					foreach (range(1, $qty_pages) as $v) $pages[$v] = $v;
@@ -860,7 +860,7 @@ class Utils_GenericBrowser extends Module {
 			}
 			if(isset($v['order'])) $is_order = true;
 			if(!isset($headers[$i])) $headers[$i] = array('label'=>'');
-			if (!$adv_history && $v['name']==$order[0]['column']) $sort = 'style="padding-right: 12px; background-image: url('.Base_ThemeCommon::get_template_file('Utils_GenericBrowser','sort-'.strtolower($order[0]['direction']).'ending.png').'); background-repeat: no-repeat; background-position: right;"';
+			if (!$adv_history && $v['name']==$order[0]['column']) $sort = 'style="padding-right: 12px; margin-right: 12px; background-image: url('.Base_ThemeCommon::get_template_file('Utils_GenericBrowser','sort-'.strtolower($order[0]['direction']).'ending.png').'); background-repeat: no-repeat; background-position: right;"';
 			else $sort = '';
 			$headers[$i]['label'] .= (isset($v['preppend'])?$v['preppend']:'').(isset($v['order'])?'<a '.$this->create_unique_href(array('change_order'=>$v['name'])).'>' . '<span '.$sort.'>' . $v['name'] . '</span></a>':'<span>'.$v['name'].'</span>').(isset($v['append'])?$v['append']:'');
 			//if ($v['search']) $headers[$i] .= $form_array['search__'.$v['search']]['label'].$form_array['search__'.$v['search']]['html'];
