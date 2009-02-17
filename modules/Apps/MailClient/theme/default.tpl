@@ -21,7 +21,7 @@
 	<tbody>
 		<tr>
 			<td rowspan="2" class="menu">{$tree}</td>
-			<td>{$list}</td>
+			<td class="list">{$list}</td>
 		</tr>
 		<tr>
 			<td>

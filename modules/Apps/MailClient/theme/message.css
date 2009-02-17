@@ -1,0 +1,13 @@
+#Apps_MailClient_message {
+    height: 100%;
+}
+
+#Apps_MailClient_message .mail {
+    height: 100%;
+    border: none;
+}
+
+#Apps_MailClient_message preview_body {
+    height: 100%;
+    vertical-align: top;
+}

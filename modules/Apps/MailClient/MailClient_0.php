@@ -173,7 +173,7 @@ class Apps_MailClient extends Module {
 			$th->assign('address_label',$this->t('From'));
 		$th->assign('preview_address','<div id="'.$preview_id.'_address"></div>');
 		$th->assign('preview_attachments','<div id="'.$preview_id.'_attachments"></div>');
-		$th->assign('preview_body','<iframe id="'.$preview_id.'_body" style="width:100%;height:70%"></iframe>');
+		$th->assign('preview_body','<iframe id="'.$preview_id.'_body"></iframe>');
 		$th->display();
 
 		//message view
@@ -186,7 +186,7 @@ class Apps_MailClient extends Module {
 		$th_show->assign('subject','<div id="'.$show_id.'_subject"></div>');
 		$th_show->assign('address','<div id="'.$show_id.'_address"></div>');
 		$th_show->assign('attachments','<div id="'.$show_id.'_attachments"></div>');
-		$th_show->assign('body','<iframe id="'.$show_id.'_body" style="width:95%;height:90%"></iframe>');
+		$th_show->assign('body','<iframe id="'.$show_id.'_body"></iframe>');
 		$th_show->assign('close','<a class="lbAction" rel="deactivate">Close</a>');
 		print('<div id="'.$show_id.'" class="leightbox">');
 		$th_show->display('message');
