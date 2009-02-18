@@ -155,10 +155,10 @@ class Apps_MailClient extends Module {
 			} elseif($trash_folder) {
 				$r->add_action($this->create_callback_href(array($this,'restore_mail'),array($box,$dir,$id)),'Restore');
 			} else {
-				$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box,$dir,$id,'reply')),'Reply');
+				$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box,$dir,$id,'reply')),'Reply',null,Base_ThemeCommon::get_template_file($this->get_type(),'reply.png'));
 			}
-			$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box,$dir,$id,'forward')),'Forward');
-			$r->add_action(Libs_LeightboxCommon::get_open_href('mail_actions').' id="actions_button_'.$id.'"','Actions');
+			$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box,$dir,$id,'forward')),'Forward',null,Base_ThemeCommon::get_template_file($this->get_type(),'forward.png'));
+			$r->add_action(Libs_LeightboxCommon::get_open_href('mail_actions').' id="actions_button_'.$id.'"','Actions',null,Base_ThemeCommon::get_template_file($this->get_type(),'actions.png'));
 			$r->add_js('Event.observe(\'actions_button_'.$id.'\',\'click\',function() {Apps_MailClient.actions_set_id(\''.$id.'\')})');
 			$r->add_js('Event.observe(\''.$lid.'\',\'click\',function() {Apps_MailClient.preview(\''.$show_id.'\',\''.http_build_query(array('box'=>$box, 'dir'=>$dir, 'msg_id'=>$id, 'pid'=>$show_id)).'\',\''.$id.'\')})');
 		}

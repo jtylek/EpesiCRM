@@ -886,6 +886,8 @@ class Utils_GenericBrowser extends Module {
 						$actions .= '<a '.Utils_TooltipCommon::open_tag_attrs($arr['tooltip']!==null?$arr['tooltip']:$arr['label'], $arr['tooltip']===null).' '.$arr['tag_attrs'].'>';
 					    if ($icon=='view' || $icon=='delete' || $icon=='edit' || $icon=='info' || $icon=='restore' || $icon=='append data' || $icon=='active-on' || $icon=='active-off' || $icon=='history' || $icon=='move-down' || $icon=='move-up' || $icon=='history_inactive') {
 							$actions .= '<img src="'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser',$icon.'.png').'" border="0" width="14" height="14">';
+					    } elseif(file_exists($icon)) {
+							$actions .= '<img src="'.$icon.'" border="0" width="14" height="14">';
 					    } else {
 							$actions .= $arr['label'];
 					    }
