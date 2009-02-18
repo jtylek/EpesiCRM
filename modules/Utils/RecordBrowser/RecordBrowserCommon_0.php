@@ -1219,8 +1219,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return array('__jump_to_RB_table'=>$tab, '__jump_to_RB_record'=>$id, '__jump_to_RB_action'=>$action);
 	}
 	public static function create_record_href($tab, $id, $action='view'){
-		if(MOBILE_DEVICE)
-			return mobile_stack_href(array('Utils_RecordBrowserCommon','mobile_rb_view'),array($tab,$id));
+		if(MOBILE_DEVICE) {
+			$cap = DB::GetOne('SELECT caption FROM recordbrowser_table_properties WHERE tab=%s',array($tab));
+			return mobile_stack_href(array('Utils_RecordBrowserCommon','mobile_rb_view'),array($tab,$id),$cap);
+		}
 		return Module::create_href(self::get_record_href_array($tab,$id,$action));
 	}
 	public static function record_link_open_tag($tab, $id, $nolink=false, $action='view'){
