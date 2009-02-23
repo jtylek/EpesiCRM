@@ -432,7 +432,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		DB::Execute('DELETE FROM crm_calendar_event WHERE id=%d',array($id));*/
 		DB::Execute('UPDATE crm_calendar_event SET deleted=1, edited_on=%T, edited_by=%d WHERE id=%d',array(time(),Acl::get_user(),$id));
 		//Utils_AttachmentCommon::persistent_mass_delete('CRM/Calendar/Event/'.$id);
-		//Utils_MessengerCommon::delete_by_id('CRM_Calendar_Event:'.$id);
+		Utils_MessengerCommon::delete_by_id('CRM_Calendar_Event:'.$id);
 		Utils_WatchdogCommon::user_unsubscribe(null, 'crm_calendar', $id);
 
 		if($recurrence!==false)

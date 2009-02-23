@@ -543,15 +543,18 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$this->display_module($a);
 			$tb->end_tab();
 
-			$tb->start_tab('Alerts');
-			$mes_users = array();
-			foreach ($def_emp_id as $r)
+			if(!$event['deleted']) {
+			    $tb->start_tab('Alerts');
+    			    $mes_users = array();
+			    foreach ($def_emp_id as $r)
 				if(isset($emp_alarm[$r]))
 					$mes_users[$emp_alarm[$r]] = $emp[$r];
-			$mes = $this->init_module('Utils/Messenger',array('CRM_Calendar_Event:'.$id,array('CRM_Calendar_EventCommon','get_alarm'),array($id),$event['start'],$mes_users));
-			$mes->set_inline_display();
-			$this->display_module($mes);
-			$tb->end_tab();
+			    $mes = $this->init_module('Utils/Messenger',array('CRM_Calendar_Event:'.$id,array('CRM_Calendar_EventCommon','get_alarm'),array($id),$event['start'],$mes_users));
+			    $mes->set_inline_display();
+			    $this->display_module($mes);
+			    $tb->end_tab();
+			}
+			
 			$tb->tag();
 			$theme->assign('tabs', $this->get_html_of_module($tb));
 		}
