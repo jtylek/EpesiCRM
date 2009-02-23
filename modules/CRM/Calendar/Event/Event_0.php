@@ -598,7 +598,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 	}
 	
 	public function check_my_user($arg) {
-		if(!$arg[0]) return true;
+		if($arg[0]!=='me') return true;
 		$sub = array_filter(explode('__SEP__',$arg[1]));
 		$me = CRM_ContactsCommon::get_my_record();
 		return in_array($me['id'],$sub);
