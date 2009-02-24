@@ -13,7 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_MainModuleIndicatorCommon extends Base_AdminModuleCommon {
 	public static function admin_caption() {
-		return "Module indicator settings";
+		return "Title and logo";
 	}
 	
 	public static function add_help($caption,$file,$open=null,$c=null) {

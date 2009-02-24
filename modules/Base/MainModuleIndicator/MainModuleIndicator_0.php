@@ -46,34 +46,62 @@ class Base_MainModuleIndicator extends Module {
 		
 		//help
 		$t->assign('help', '<a href="'.$this->get_module_dir().'help.php?cid='.CID.'" target="_blank">help</a>');
-		
-		
+			
 		$t->display();
 	}
 	
 	public function admin() {
-		$f = & $this->init_module('Libs/QuickForm');
-		$f->setDefaults(array(
+		if($this->is_back())
+		    $this->parent->reset();
+		    
+		$form = & $this->init_module('Utils/FileUpload',array(false));
+
+		$form->addElement('header', 'settings', $this->t('Title'));
+		$form->setDefaults(array(
 			'title'=>Variable::get('base_page_title'),
 			'show_caption_in_title'=>Variable::get('show_caption_in_title'),
 			'show_module_indicator'=>Variable::get('show_module_indicator')
 			));
-		$f->addElement('text','title',$this->t('Base page title'));
-		$f->addElement('checkbox','show_caption_in_title',$this->t('Display module captions inside page title'));
-		$f->addElement('checkbox','show_module_indicator',$this->t('Display module captions inside module'));
-		
-		$save_b = & HTML_QuickForm::createElement('submit', null, $this->ht('Save'));
-		$back_b = & HTML_QuickForm::createElement('button', null, $this->ht('Cancel'), $this->create_back_href());
-		$f->addGroup(array($save_b,$back_b),'submit_button');
+		$form->addElement('text','title',$this->t('Base page title'));
+		$form->addElement('checkbox','show_caption_in_title',$this->t('Display module captions inside page title'));
+		$form->addElement('checkbox','show_module_indicator',$this->t('Display module captions inside module'));
 
-		if($f->validate()) {
-			$vars = $f->exportValues();
-			Variable::set('base_page_title',$vars['title']);
-			Variable::set('show_caption_in_title',$vars['show_caption_in_title']);
-			Variable::set('show_module_indicator',$vars['show_module_indicator']);
-			$this->parent->reset();
-		}
-		$f->display();
+		$form->addElement('header', 'upload', $this->t('Logo'));
+		$form->add_upload_element();
+
+		Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
+		Base_ActionBarCommon::add('delete','Delete logo',$this->create_callback_href(array($this,'delete_logo')));
+		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+
+		$this->display_module($form, array( array($this,'submit_all') ));
+	}
+	
+	public function delete_logo() {
+	
+	}
+	
+	public function submit_all($file,$oryg,$vars) {
+	    Variable::set('base_page_title',$vars['title']);
+	    Variable::set('show_caption_in_title',isset($vars['show_caption_in_title']) && $vars['show_caption_in_title']);
+	    Variable::set('show_module_indicator',isset($vars['show_module_indicator']) && $vars['show_module_indicator']);
+	    if($oryg) {
+		$reqs = array();
+    		if(!eregi('\.(jpg|jpeg|gif|png|bmp)$',$oryg,$reqs)) {
+    		    print('<a href="#">'.$this->t('Uploaded file is not valid image - JPG, GIF, PNG and BMP files are supported. Click here to proceed with another file.').'</a>');
+		    return;
+    		}
+		$l = $this->get_data_dir().'logo.'.$reqs[1];
+		Variable::set('logo_file',$l);
+    		rename($file,$l);
+	    }
+	    $this->parent->reset();
+	}
+	
+	public function logo() {
+	    $t = $this->pack_module('Base/Theme');
+	    $l = Variable::get('logo_file');
+	    $t->assign('logo',$l);
+	    $t->display('logo');
 	}
 }
 ?>
