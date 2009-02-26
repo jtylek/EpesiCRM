@@ -77,7 +77,11 @@ class Base_MainModuleIndicator extends Module {
 	}
 	
 	public function delete_logo() {
-	
+	    $l = Variable::get('logo_file');
+	    if($l) {
+    		@unlink($l);
+		Variable::set('logo_file','');
+	    }
 	}
 	
 	public function submit_all($file,$oryg,$vars) {
