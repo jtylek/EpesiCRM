@@ -57,6 +57,7 @@ class Base_MenuCommon extends ModuleCommon {
 	}
 	
 	public static function create_href_js($mod,$arr,$ret='js') {
+		if(!$arr) return '';
 		$main_mod = $arr['box_main_module'];
 		unset($arr['box_main_module']);
 		if(isset($arr['box_main_function'])) {
