@@ -46,7 +46,9 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 	}
 
 	public static function get_options() {
-		if (isset(self::$options)) return self::$options;
+		static $user;
+		if (isset(self::$options) && $user==Acl::get_user()) return self::$options;
+		$user = Acl::get_user();
 		self::$options = array();
 		$modules_menu = array();
 

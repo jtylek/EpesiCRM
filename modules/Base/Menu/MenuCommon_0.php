@@ -48,8 +48,10 @@ class Base_MenuCommon extends ModuleCommon {
 
 	public static function get_menus() {
 		static $menus;
-		if(!isset($menus)) { //here can be bug with caching and location
-			$menus = ModuleManager::call_common_methods('menu');
+		static $user;
+		if(!isset($menus) || $user!=Acl::get_user()) {
+			$user = Acl::get_user();
+			$menus = ModuleManager::call_common_methods('menu',false);
 			foreach($menus as $m=>$r)
 				if(!is_array($r)) unset($menus[$m]);
 		}
@@ -57,7 +59,6 @@ class Base_MenuCommon extends ModuleCommon {
 	}
 	
 	public static function create_href_js($mod,$arr,$ret='js') {
-		if(!$arr) return '';
 		$main_mod = $arr['box_main_module'];
 		unset($arr['box_main_module']);
 		if(isset($arr['box_main_function'])) {
