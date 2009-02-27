@@ -25,6 +25,10 @@ div.mail_progressbar_in {
 	vertical-align: top;
 }
 
+#Apps_MailClient td.letters {
+	vertical-align: middle;
+}
+
 #Apps_MailClient table.mail {
 	width: 100%;
 	border-top: 1px solid #b3b3b3;
@@ -73,6 +77,10 @@ div.mail_progressbar_in {
 
 #Apps_MailClient #Utils_GenericBrowser td {
 	white-space: nowrap;
+}
+
+#Apps_MailClient #Utils_GenericBrowser td img {
+	padding-right: 1px;
 }
 
 /* New Mail */
