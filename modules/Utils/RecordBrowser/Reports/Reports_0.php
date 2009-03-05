@@ -34,8 +34,13 @@ class Utils_RecordBrowser_Reports extends Module {
 	private $pdf_subject = '';
 	private $pdf_filename = '';
 	private $cols_total = array();
+	private $currency = 1;
 	private static $pdf_ready = 0;
 	private $bonus_width = 15;
+
+	public function set_currency($arg){
+		$this->currency = $arg;
+	}
 
 	public function set_bonus_width($arg){
 		$this->bonus_width = $arg;
@@ -111,7 +116,9 @@ class Utils_RecordBrowser_Reports extends Module {
 		$css_class = '';
 		$style = '';
 		$attrs = '';
-		if (isset($format['currency'])) $ret = '$&nbsp;'.number_format($str,2,'.',',');
+		if (isset($format['currency'])) {
+			$ret = Utils_CurrencyFieldCommon::format($str, $this->currency);
+		}
 //		if (isset($format['numeric'])) $ret = round($str*100)/100;
 //		if ($this->first) $style .= 'border-top:1px solid #555555;';
 //		if (isset($format['total'])) $style .= 'background-color:#DFFFDF;';
