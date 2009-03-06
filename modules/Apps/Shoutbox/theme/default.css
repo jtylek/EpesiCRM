@@ -14,7 +14,7 @@
 }
 
 #shoutbox_board .author {
-    /* background-color: #6F6F6F; */
+    background-color: #6F6F6F;
 	color: #ffffff;
 	padding: 1px 2px 1px 5px; 
 	-moz-border-radius-topleft: 3px; 
