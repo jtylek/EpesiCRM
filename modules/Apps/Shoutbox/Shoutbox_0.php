@@ -12,11 +12,37 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Apps_Shoutbox extends Module {
 
 	public function body() {
-		//if i am admin add "clear shoutbox" actionbar button
+		/* Do not delete anything - all messages are kept in history
+		// to allow delete by sdmin uncomment below lines
+		// if i am admin add "clear shoutbox" actionbar button
 		if(Base_AclCommon::i_am_admin())
 			Base_ActionBarCommon::add('delete','Clear shoutbox',$this->create_callback_href(array($this,'delete_all')));
+		*/
+		print ('Shoutbox History');
 
-		$this->applet();
+		$gb = & $this->init_module('Utils/GenericBrowser',null,'shoutbox_history');
+
+		$gb->set_table_columns(array(
+						array('name'=>$this->t('User'),'width'=>10),
+						array('name'=>$this->t('Message'),'width'=>74),
+						array('name'=>$this->t('Date'),'width'=>16)
+						));
+
+        // $gb->set_default_order(array($this->t('Date')=>'DESC'));
+
+		$query = 'SELECT base_user_login_id, message, posted_on FROM apps_shoutbox_messages ORDER BY posted_on DESC';
+        $query_qty = 'SELECT count(id) FROM apps_shoutbox_messages';
+
+		$ret = $gb->query_order_limit($query, $query_qty);
+
+        if($ret)
+			while(($row=$ret->FetchRow())) {
+				$ulogin = Base_UserCommon::get_user_login($row['base_user_login_id']);
+                $gb->add_row('<span class="author">'.$ulogin.'</span>',$row['message'],Base_RegionalSettingsCommon::time2reg($row['posted_on']));
+			}
+
+		$this->display_module($gb);
+        return true;
 	}
 
 	//delete_all callback (on "clear shoutbox" button)
@@ -24,7 +50,9 @@ class Apps_Shoutbox extends Module {
 		DB::Execute('DELETE FROM apps_shoutbox_messages');
 	}
 
-	public function applet() {
+	public function applet($conf,$opts) {
+		$opts['go'] = true;
+		
 		Base_ThemeCommon::load_css($this->get_type()); // added by MS
 		if(Acl::is_user()) {
 			//initialize HTML_QuickForm
@@ -61,7 +89,7 @@ class Apps_Shoutbox extends Module {
 		print('<div id=\'shoutbox_board\'></div>');
 		Base_ThemeCommon::load_css($this->get_type());
 
-		//if there is displayed shoutbox, call myFunctions->refresh from refresh.php file every 5s
+		//if shoutbox is diplayed, call myFunctions->refresh from refresh.php file every 5s
 		eval_js_once('shoutbox_refresh = function(){if(!$(\'shoutbox_board\')) return;'.
 			'new Ajax.Updater(\'shoutbox_board\',\'modules/Apps/Shoutbox/refresh.php\',{method:\'get\'});'.
 			'};setInterval(\'shoutbox_refresh()\',30000)');
