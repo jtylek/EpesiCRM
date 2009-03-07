@@ -38,7 +38,7 @@ class Apps_Shoutbox extends Module {
         if($ret)
 			while(($row=$ret->FetchRow())) {
 				$ulogin = Base_UserCommon::get_user_login($row['base_user_login_id']);
-                $gb->add_row('<span class="author">'.$ulogin.'</span>',$row['message'],Base_RegionalSettingsCommon::time2reg($row['posted_on']));
+                $gb->add_row('<span class="author">'.$ulogin.'</span>',Utils_BBCodeCommon::parse($row['message']),Base_RegionalSettingsCommon::time2reg($row['posted_on']));
 			}
 
 		$this->display_module($gb);
