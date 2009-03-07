@@ -18,7 +18,7 @@ class Apps_Shoutbox extends Module {
 		if(Base_AclCommon::i_am_admin())
 			Base_ActionBarCommon::add('delete','Clear shoutbox',$this->create_callback_href(array($this,'delete_all')));
 		*/
-		print ('Shoutbox History');
+		print ('<div class="shoutbox-header">Shoutbox History</div>');
 
 		$gb = & $this->init_module('Utils/GenericBrowser',null,'shoutbox_history');
 
@@ -52,7 +52,7 @@ class Apps_Shoutbox extends Module {
 
 	public function applet($conf,$opts) {
 		$opts['go'] = true;
-		
+
 		Base_ThemeCommon::load_css($this->get_type()); // added by MS
 		if(Acl::is_user()) {
 			//initialize HTML_QuickForm

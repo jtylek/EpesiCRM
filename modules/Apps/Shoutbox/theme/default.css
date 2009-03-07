@@ -1,3 +1,17 @@
+.shoutbox-header {
+    vertical-align: middle;
+    text-align: left;
+    font-size: 14px;
+    font-weight: bold;
+    color: #FFFFFF;
+    padding-left: 10px;
+    padding-top: 7px;
+    height: 24px;
+    vertical-align: top;
+    background-image: url('images/dark-gray-gradient.png');
+    background-repeat: repeat-y;
+}
+
 #shoutbox_board {
     height: 250px;
 	max-width: 290px;
@@ -16,14 +30,14 @@
 #shoutbox_board .author {
     background-color: #6F6F6F;
 	color: #ffffff;
-	padding: 1px 2px 1px 5px; 
-	-moz-border-radius-topleft: 3px; 
-	-webkit-border-top-left-radius: 3px; 
-	-moz-border-radius-topright: 3px; 
-	-webkit-border-top-right-radius: 3px; 
-	-moz-border-radius-bottomleft: 3px; 
+	padding: 1px 2px 1px 5px;
+	-moz-border-radius-topleft: 3px;
+	-webkit-border-top-left-radius: 3px;
+	-moz-border-radius-topright: 3px;
+	-webkit-border-top-right-radius: 3px;
+	-moz-border-radius-bottomleft: 3px;
 	-webkit-border-bottom-left-radius: 3px;
-	-moz-border-radius-bottomright: 3px; 
+	-moz-border-radius-bottomright: 3px;
 	-webkit-border-bottom-right-radius: 3px;
 }
 
