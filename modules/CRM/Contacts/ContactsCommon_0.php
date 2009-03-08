@@ -271,7 +271,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 				$comp = array(''=>'['.Base_LangCommon::ts('CRM_Contacts','w/o company').']') + $comp;
 				$key = '_no_company';
 			}
-			if (!$desc['required'] && $desc['type']!='multiselect') $comp = array($key => '---') + $comp;
+			$comp = array($key => '---') + $comp;
 			$form->addElement($desc['type'], $field, $label, $comp, array('id'=>$field));
 			if ($mode!=='add') $form->setDefaults(array($field=>$default));
 		} else {
