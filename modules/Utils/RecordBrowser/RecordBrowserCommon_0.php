@@ -1363,6 +1363,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 									$r2[$k] = $v;
 								}
 								foreach ($edit_details as $k=>$v) {
+									$access = self::get_access($tab,'fields',$r);
+									if ($access[$k]=='hide') continue;
 									$k = strtolower(str_replace(' ','_',$k)); // failsafe
 									self::init($tab);
 									$field = self::$hash[$k];
