@@ -13,6 +13,27 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 	public static $filter = null;
 	private static $my_id = null;
+	
+	public static function new_custom_field($field, $definition, $callback) {
+		if (!ereg('^[a-zA-Z_]+$', $field)) trigger_error('Invalid field: '.$field, E_USER_ERROR);
+		DB::Execute('INSERT INTO crm_calendar_event_custom_fields (field, callback) VALUES (%s, %s)', array($field,implode('::',$callback)));
+		if (!array_key_exists(strtoupper($field),DB::MetaColumnNames('crm_calendar_event'))) {
+			$q = DB::dict()->AddColumnSQL('crm_calendar_event',$field.' '.$definition);
+			foreach($q as $qq)
+				DB::Execute($qq);
+		}
+	}
+
+
+	public static function delete_custom_field($field) {
+		if (!ereg('^[a-zA-Z_]+$', $field)) trigger_error('Invalid field: '.$field, E_USER_ERROR);
+		DB::Execute('DELETE FROM crm_calendar_event_custom_fields WHERE field=%s', array($field));
+		if (!array_key_exists(strtoupper($field),DB::MetaColumnNames('crm_calendar_event'))) {
+			$q = DB::dict()->DropColumnSQL('crm_calendar_event',$field);
+			foreach($q as $qq)
+				DB::Execute($qq);
+		}
+	}
 
 	public static function recurrence_type($i) {
 		static $recurrence_numeric = null;

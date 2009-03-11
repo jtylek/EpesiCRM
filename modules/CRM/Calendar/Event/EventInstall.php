@@ -14,6 +14,11 @@ class CRM_Calendar_EventInstall extends ModuleInstall {
 
 	public function install() {
 		$ret = true;
+		$ret &= DB::CreateTable('crm_calendar_event_custom_fields',
+					'id I AUTO KEY, '.
+					'field C(64), '.
+					'callback C(128)',
+					array('constraints'=>''));
 		$ret &= DB::CreateTable('crm_calendar_event',
 			'id I AUTO KEY,'.
 
@@ -76,6 +81,7 @@ class CRM_Calendar_EventInstall extends ModuleInstall {
 		$ret &= DB::DropTable('crm_calendar_event_group_emp');
 		$ret &= DB::DropTable('crm_calendar_event_group_cus');
 		$ret &= DB::DropTable('crm_calendar_event');
+		$ret &= DB::DropTable('crm_calendar_event_custom_fields');
 		return $ret;
 	}
 

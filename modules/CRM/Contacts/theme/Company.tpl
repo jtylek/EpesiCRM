@@ -63,27 +63,27 @@
 						{assign var=i value=0}
 						{assign var=j value=0}
 						{foreach key=k item=f from=$fields name=fields}
-						{if !isset($focus) && $f.type=="text"}
-							{assign var=focus value=$f.element}
-						{/if}
-						<td class="label" nowrap>{$f.label}{if $f.required}*{/if}</td>
-						<td class="data">{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
-						{assign var=x value=$x+1}
-						{* If more than half records displayed start new table - second column table *}
-						{if $x >= $rows and $i==0}
-					</tr>
-				</table>
-			</td>
-			{* First table closed - start second column*}
-			<td class="right-column right-column-{if $action == 'view'}view{else}edit{/if}">
-				<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
-					<tr>
-						{assign var=i value=1}
-						{else}
-					</tr>
-					<tr>
-						{/if}
-						{assign var=j value=$j+1}
+							{if !isset($focus) && $f.type=="text"}
+								{assign var=focus value=$f.element}
+							{/if}
+							<td class="label" nowrap>{$f.label}{if $f.required}*{/if}</td>
+							<td class="data">{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
+							{assign var=x value=$x+1}
+							{* If more than half records displayed start new table - second column table *}
+							{if $x >= $rows and $i==0}
+						</tr>
+					</table>
+				</td>
+				{* First table closed - start second column*}
+				<td class="right-column right-column-{if $action == 'view'}view{else}edit{/if}">
+					<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+						<tr>
+							{assign var=i value=1}
+							{else}
+						</tr>
+						<tr>
+							{/if}
+							{assign var=j value=$j+1}
 						{/foreach}
 						{* Fill empty row if number of records is not even *}
 						{if $j is not even}

@@ -177,6 +177,14 @@
                                     {$form_data.status.html}
                                 </td>
                             </tr>
+                            {foreach item=f from=$custom_fields}
+	                            <tr>
+	                                <td class="label" align="left">{$form_data.$f.label}</td>
+	                                <td class="data" align="left">
+	                                    {$form_data.$f.html}
+	                                </td>
+	                            </tr>
+	                         {/foreach}
                         </tbody>
                     </table>
                 </td>

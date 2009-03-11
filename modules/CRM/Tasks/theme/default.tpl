@@ -137,6 +137,24 @@
 									{$form_data.priority.html}
 								</td>
 							</tr>
+							{foreach key=k item=f from=$fields name=fields}
+								{if (	$k!='title' &&
+										$k!='employees' &&
+										$k!='customers' &&
+										$k!='status' &&
+										$k!='priority' &&
+										$k!='permission' &&
+										$k!='longterm' &&
+										$k!='deadline')}
+								<tr>
+									<td class="label" align="left">{$f.label}{if $f.required}*{/if}</td>
+									<td class="data" align="left">
+										<span class="error">{$f.error}</span>
+										{$f.html}
+									</td>
+								</tr>
+								{/if}
+							{/foreach}
 						</tbody>
 					</table>
 					{* customers *}

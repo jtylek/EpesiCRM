@@ -491,9 +491,18 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 					Base_LangCommon::ts('Utils_RecordBrowser','Edited on:').' '.$def['edited_on']. '<br>'.
 					Base_LangCommon::ts('Utils_RecordBrowser','Edited by:').' '.$def['edited_by']).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','info.png').'" /></a>');
 		}
+		
+		$fields = DB::GetAssoc('SELECT field, callback FROM crm_calendar_event_custom_fields');
+		
+		$custom_fields = array();
+		foreach ($fields as $k=>$v) {
+			call_user_func(explode('::',$v), $form, $action, isset($event)?$event:array());
+			$custom_fields[] = $k;
+		}
 
 		$form->setDefaults($def);
-
+		
+		$theme->assign('custom_fields',$custom_fields);
 		$theme->assign('access_id',$form->exportValue('access'));
 		$theme->assign('priority_id',$form->exportValue('priority'));
 		$theme->assign('color_id',$form->exportValue('color'));
@@ -514,6 +523,12 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				$this->update_event($id, $values);
 				Utils_WatchdogCommon::new_event('crm_calendar',$id,'Event updated');
 			}
+			$fields = DB::GetAssoc('SELECT field, callback FROM crm_calendar_event_custom_fields');
+			foreach ($fields as $k=>$v) {
+				if (!ereg('^[a-zA-Z_]+$', $k)) trigger_error('Invalid field: '.$k, E_USER_ERROR);
+				else DB::Execute('UPDATE crm_calendar_event SET '.$k.'=%s WHERE id=%d', array($values[$k], $id));
+			}
+
 			foreach ($values['emp_id'] as $v) {
 				$uid = Utils_RecordBrowserCommon::get_value('contact',$v,'Login');
 				if ($uid) Utils_WatchdogCommon::user_subscribe($uid,'crm_calendar',$id);

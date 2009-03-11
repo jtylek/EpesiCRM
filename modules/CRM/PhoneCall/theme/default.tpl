@@ -205,6 +205,29 @@
 								{$form_data.priority.html}{if $action == 'view'}&nbsp;{/if}
 							</td>
 						</tr>
+						{foreach key=k item=f from=$fields name=fields}
+							{if (	$k!='subject' &&
+									$k!='company_name' &&
+									$k!='employees' &&
+									$k!='status' &&
+									$k!='priority' &&
+									$k!='permission' &&
+									$k!='contact' &&
+									$k!='other_contact' &&
+									$k!='other_contact_name' &&
+									$k!='phone' &&
+									$k!='other_phone' &&
+									$k!='other_phone_number' &&
+									$k!='date_and_time')}
+							<tr>
+								<td class="label" align="left">{$f.label}{if $f.required}*{/if}</td>
+								<td class="data" align="left" colspan="2">
+									<span class="error">{$f.error}</span>
+									{$f.html}
+								</td>
+							</tr>
+							{/if}
+						{/foreach}
 					</table>
 				</td>
 			</tr>
