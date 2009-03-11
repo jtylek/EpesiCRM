@@ -538,7 +538,7 @@ class EpesiHTML {
 	}
 
 	public static function endElement($parser, $name) {
-		if($name=='EPESI') return;
+		if($name=='EPESI' || $name=='BR') return;
 		echo "</$name>";
 	}
 	

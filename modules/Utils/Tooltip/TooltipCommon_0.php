@@ -49,7 +49,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 				'div.style.zIndex = 2000;'.
 				'div.style.left = 0;'.
 				'div.style.top = 0;'.
-				'div.onmouseover = Utils_Toltip__hideTip;'.
+				'div.onmouseover = "Utils_Tooltip__hideTip()";'.
 				'div.innerHTML = \''.Epesi::escapeJS($tip_th,false).'\';'.
 				'body = document.getElementsByTagName(\'body\');'.
 				'body = body[0];'.

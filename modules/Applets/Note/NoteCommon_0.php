@@ -24,8 +24,8 @@ class Applets_NoteCommon extends ModuleCommon {
 	public static function applet_settings() {
 		return array(
 			array('name'=>'title','label'=>'Title','type'=>'text','default'=>'Note','rule'=>array(array('message'=>'Field required', 'type'=>'required'))),
-			array('name'=>'text','type'=>'callback','func'=>array('Applets_NoteCommon','text_elem'),'default'=>'','rule'=>array(array('message'=>'Field required', 'type'=>'required'))),
-			// array('name'=>'text','type'=>'callback','func'=>array('Applets_NoteCommon','text_elem'),'default'=>'','rule'=>array(array('message'=>'Field required', 'type'=>'required')),'filter'=>array(array('Applets_NoteCommon','filter_text'))),
+//			array('name'=>'text','type'=>'callback','func'=>array('Applets_NoteCommon','text_elem'),'default'=>'','rule'=>array(array('message'=>'Field required', 'type'=>'required'))),
+			array('name'=>'text','type'=>'callback','func'=>array('Applets_NoteCommon','text_elem'),'default'=>'','rule'=>array(array('message'=>'Field required', 'type'=>'required')),'filter'=>array(array('Applets_NoteCommon','filter_text'))),
 			array('name'=>'bcolor','label'=>'Background color','type'=>'select','default'=>'nice yellow','rule'=>array(array('message'=>'Field required', 'type'=>'required')), 'values'=>array('nice-yellow' => 'nice yellow', 'blue'=>'blue', 'red'=>'red', 'yellow'=>'yellow', 'green' => 'green', 'white'=>'white', 'gradient' => 'gradient', 'gradient2' => 'gradient2', 'gray' => 'gray', 'dark-blue' => 'dark blue', 'dark-red' => 'dark red', 'dark-yellow' => 'dark yellow', 'dark-green' => 'dark green'))
 			);
 	}
