@@ -1041,7 +1041,7 @@ class Utils_RecordBrowser extends Module {
 										break;
 					case 'commondata':	$param = explode('::',$args['param']);
 										foreach ($param as $k=>$v) if ($k!=0) $param[$k] = strtolower(str_replace(' ','_',$v));
-										$form->addElement($args['type'], $args['id'], '<span id="_'.$args['id'].'__label">'.$this->t($args['name']).'</span>', $param, array('empty_option'=>$args['required'], 'id'=>$args['id']));
+										$form->addElement($args['type'], $args['id'], '<span id="_'.$args['id'].'__label">'.$this->t($args['name']).'</span>', $param, array('empty_option'=>true, 'id'=>$args['id']));
 										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 										break;
 					case 'select':
