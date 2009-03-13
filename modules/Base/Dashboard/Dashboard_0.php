@@ -107,7 +107,7 @@ class Base_Dashboard extends Module {
 				if($opts['go'])
 					$opts['href']=$this->create_main_href($row['module_name'],$opts['go_function'],$opts['go_arguments'],$opts['go_constructor_arguments']);
 				if($opts['href'])
-					$th->assign('href','<a class="href" '.$opts['href'].'>G</a>');
+					$th->assign('href','<a class="href" '.Utils_TooltipCommon::open_tag_attrs($this->ht('Fullscreen')).' '.$opts['href'].'>G</a>');
 
 				$th->assign('remove','<a class="remove" '.Utils_TooltipCommon::open_tag_attrs($this->ht('Remove')).' '.$this->create_confirm_callback_href($this->ht('Delete this applet?'),array($this,'delete_applet'),$row['id']).'>x</a>');
 
