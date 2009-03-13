@@ -18,7 +18,8 @@ class Apps_Shoutbox extends Module {
 		if(Base_AclCommon::i_am_admin())
 			Base_ActionBarCommon::add('delete','Clear shoutbox',$this->create_callback_href(array($this,'delete_all')));
 		*/
-		print ('<div class="shoutbox-header">Shoutbox History</div>');
+		$th = $this->init_module('Base/Theme');
+		$th->assign('header', $this->t('Shoutbox History'));
 
 		$gb = & $this->init_module('Utils/GenericBrowser',null,'shoutbox_history');
 
@@ -41,8 +42,9 @@ class Apps_Shoutbox extends Module {
                 $gb->add_row('<span class="author">'.$ulogin.'</span>',Utils_BBCodeCommon::parse($row['message']),Base_RegionalSettingsCommon::time2reg($row['posted_on']));
 			}
 
-		$this->display_module($gb);
-        return true;
+		$th->assign('messages',$this->get_html_of_module($gb));
+		$th->display();
+            return true;
 	}
 
 	//delete_all callback (on "clear shoutbox" button)
