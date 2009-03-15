@@ -41,6 +41,20 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		}
 	}
 	
+	public static function call_user_func_on_file($group,$func,$group_starts_with=true) {
+		$ret = DB::Execute('SELECT ual.id,ual.local, f.original, f.revision as rev
+				    FROM utils_attachment_link ual INNER JOIN utils_attachment_file f ON (f.attach_id=ual.id AND f.revision=(SELECT max(revision) FROM utils_attachment_file WHERE attach_id=ual.id))
+				    WHERE ual.deleted=0 AND '.self::get_where($group,$group_starts_with));
+		while($row = $ret->FetchRow()) {
+			$id = $row['id'];
+			$local = $row['local'];
+			$rev = $row['rev'];
+			$file = self::Instance()->get_data_dir().$local.'/'.$id.'_'.$rev;
+			if(file_exists($file))
+    				call_user_func($func,$id,$rev,$file,$row['original']);
+		}
+	}
+	
 	public static function add($group,$permission,$user,$note=null,$oryg=null,$file=null,$func=null,$args=null) {
 		DB::Execute('INSERT INTO utils_attachment_link(local,permission,permission_by,func,args) VALUES(%s,%d,%d,%s,%s)',array($group,$permission,$user,serialize($func),serialize($args)));
 		$id = DB::Insert_ID('utils_attachment_link','id');

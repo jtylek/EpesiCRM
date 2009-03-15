@@ -36,7 +36,10 @@ class Utils_Attachment extends Module {
 	private $func = null;
 	private $args = array();
 
-	public function construct($group,$pd=null,$in=null,$priv_r=null,$priv_w=null,$prot_r=null,$prot_w=null,$pub_r=null,$pub_w=null,$header=null,$watchdog_cat=null,$watchdog_id=null,$func=null,$args=null) {
+	private $add_func = null;
+	private $add_args = array();
+
+	public function construct($group,$pd=null,$in=null,$priv_r=null,$priv_w=null,$prot_r=null,$prot_w=null,$pub_r=null,$pub_w=null,$header=null,$watchdog_cat=null,$watchdog_id=null,$func=null,$args=null,$add_func=null,$add_args=null) {
 		if(!isset($group)) trigger_error('Key not given to attachment module',E_USER_ERROR);
 		$this->group = $group;
 
@@ -53,6 +56,8 @@ class Utils_Attachment extends Module {
 		if(isset($watchdog_id)) $this->watchdog_id = $watchdog_id;
 		if(isset($func)) $this->func = $func;
 		if(isset($args)) $this->args = $args;
+		if(isset($add_func)) $this->add_func = $add_func;
+		if(isset($add_args)) $this->add_args = $add_args;
 	}
 
 	public function additional_header($x) {
@@ -62,6 +67,11 @@ class Utils_Attachment extends Module {
 	public function set_view_func($x, array $y=array()) {
 		$this->func = $x;
 		$this->args = $y;
+	}
+
+	public function set_add_func($x, array $y=array()) {
+		$this->add_func = $x;
+		$this->add_args = $y;
 	}
 
 	public function inline_attach_file($x=true) {
@@ -156,7 +166,7 @@ class Utils_Attachment extends Module {
 				$filetooltip = $this->t('Filename: %s<br>File size: %s',array($row['original'],filesize_hr($f_filename))).'<hr>'.$this->t('Last uploaded by %s<br>on %s<br>Number of uploads: %d<br>Number of downloads: %d',array($row['upload_by'],Base_RegionalSettingsCommon::time2reg($row['upload_on']),$row['file_revision'],$row['downloads']));
 				$view_link = '';
 				$file = '<a '.$this->get_file($row,$view_link).' '.Utils_TooltipCommon::open_tag_attrs($filetooltip,false).'><img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'attach.png').'" border=0></a>';
-				if(eregi('.(jpg|jpeg|gif|png|bmp)$',$row['original']) && $view_link)
+				if(eregi('\.(jpg|jpeg|gif|png|bmp)$',$row['original']) && $view_link)
 					$inline_img = '<hr><img src="'.$view_link.'" style="max-width:700px" /><br>';
 			} else {
 				$file = '';
@@ -249,7 +259,7 @@ class Utils_Attachment extends Module {
 	}
 
 	public function view_queue($id) {
-		$this->push_box0('view',array($id),array($this->group,$this->persistent_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id));
+		$this->push_box0('view',array($id),array($this->group,$this->persistent_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id,$this->func,$this->args,$this->add_func,$this->add_args));
 	}
 
 	public function get_file($row, & $view_link = '') {
@@ -357,7 +367,7 @@ class Utils_Attachment extends Module {
 	}
 
 	public function edition_history_queue($id) {
-		$this->push_box0('edition_history',array($id),array($this->group,$this->persistent_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header));
+		$this->push_box0('edition_history',array($id),array($this->group,$this->persistent_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id,$this->func,$this->args,$this->add_func,$this->add_args));
 	}
 
 	public function edition_history($id) {
@@ -490,7 +500,7 @@ class Utils_Attachment extends Module {
 	}
 
 	public function edit_note_queue($id=null) {
-		$this->push_box0('edit_note',array($id),array($this->group,$this->persistent_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id));
+		$this->push_box0('edit_note',array($id),array($this->group,$this->persistent_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id,$this->func,$this->args,$this->add_func,$this->add_args));
 	}
 
 	public function edit_note($id=null) {
@@ -556,7 +566,9 @@ class Utils_Attachment extends Module {
 		if($file) {
 			$local = $this->get_data_dir().$this->group;
 			@mkdir($local,0777,true);
-			rename($file,$local.'/'.$id.'_0');
+			$dest_file = $local.'/'.$id.'_0';
+			rename($file,$dest_file);
+			if ($this->add_func) call_user_func($this->add_func,$id,0,$dest_file,$oryg,$this->add_args);
 		}
 		$this->ret_attach = false;
 		if (isset($this->watchdog_category)) Utils_WatchdogCommon::new_event($this->watchdog_category,$this->watchdog_id,'N_+_'.$id);
@@ -580,7 +592,9 @@ class Utils_Attachment extends Module {
 			DB::CompleteTrans();
 			$local = $this->get_data_dir().$this->group;
 			@mkdir($local,0777,true);
-			rename($file,$local.'/'.$id.'_'.$rev);
+			$dest_file = $local.'/'.$id.'_'.$rev;
+			rename($file,$dest_file);
+			if ($this->add_func) call_user_func($this->add_func,$id,$rev,$dest_file,$this->add_args);
 		}
 		$this->ret_attach = false;
 		if (isset($this->watchdog_category)) Utils_WatchdogCommon::new_event($this->watchdog_category,$this->watchdog_id,'N_~_'.$id);
