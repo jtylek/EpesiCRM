@@ -39,6 +39,7 @@ if(file_exists('easyinstall.php')){
 	unlink('easyinstall.php');
 }
 
+
 if(file_exists(DATA_DIR.'/config.php'))
 	die('Cannot write into '.DATA_DIR.'/config.php file. Please delete this file.');
 
@@ -93,28 +94,32 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 				$host = $form -> exportValue('host');
 				$user = $form -> exportValue('user');
 				$pass = $form -> exportValue('password');
-				$link = pg_connect("host=$host user=$user password=$pass dbname=postgres");
-				if(!$link) {
-	 				echo('Could not connect.');
+				if(!function_exists('pg_connect')) {
+				    echo('Please enable postgresql extension in php.ini.');
 				} else {
-					$dbname = $form -> exportValue('db');
-					if($form->exportValue('newdb')==1) {
-						$sql = 'CREATE DATABASE '.$dbname;
-						if (pg_query($link, $sql)) {
-			   				//echo "Database '$dbname' created successfully\n";
-			   				write_config($host,$user,$pass,$dbname,$engine);
-						} else {
-		 	  				echo 'Error creating database: ' . pg_last_error() . "\n";
-		 	  			}
-		   				pg_close($link);
+					$link = pg_connect("host=$host user=$user password=$pass dbname=postgres");
+					if(!$link) {
+	 					echo('Could not connect.');
 					} else {
-						include_once('libs/adodb/adodb.inc.php');
-						$ado = & NewADOConnection('postgres');
-						if(!@$ado->Connect($host,$user,$pass,$dbname)) {
-							echo 'Database does not exist.'."\n";
-							echo '<br />Please create the database first <br />or select option <b>Create new database</b>';
+						$dbname = $form -> exportValue('db');
+						if($form->exportValue('newdb')==1) {
+							$sql = 'CREATE DATABASE '.$dbname;
+							if (pg_query($link, $sql)) {
+				   				//echo "Database '$dbname' created successfully\n";
+				   				write_config($host,$user,$pass,$dbname,$engine);
+							} else {
+		 		  				echo 'Error creating database: ' . pg_last_error() . "\n";
+		 	  				}
+		   					pg_close($link);
 						} else {
-							write_config($host, $user, $pass, $dbname, $engine);
+							include_once('libs/adodb/adodb.inc.php');
+							$ado = & NewADOConnection('postgres');
+							if(!@$ado->Connect($host,$user,$pass,$dbname)) {
+								echo 'Database does not exist.'."\n";
+								echo '<br />Please create the database first <br />or select option <b>Create new database</b>';
+							} else {
+								write_config($host, $user, $pass, $dbname, $engine);
+							}
 						}
 					}
 				}
@@ -123,10 +128,13 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 			$host = $form->exportValue('host');
 			$user = $form->exportValue('user');
 			$pass = $form->exportValue('password');
-			$link = @mysql_connect($host,$user,$pass);
-			if (!$link) {
-				echo('Could not connect: ' . mysql_error());
+			if(!function_exists('mysql_connect')) {
+			    echo('Please enable mysql extension in php.ini.');
 			} else {
+    			    $link = @mysql_connect($host,$user,$pass);
+			    if (!$link) {
+				echo('Could not connect: ' . mysql_error());
+			    } else {
 				$dbname = $form->exportValue('db');
 				if($form->exportValue('newdb')==1) {
 					$sql = 'CREATE DATABASE '.$dbname;
@@ -147,6 +155,7 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 						write_config($host, $user, $pass, $dbname, $engine);
 					}
 				}
+			    }
 			}
 			break;
 		}
@@ -204,7 +213,7 @@ function write_config($host, $user, $pass, $dbname, $engine) {
 	$epesi_dir = '';
 	if(strcmp($local_dir,substr($script_filename,0,strlen($local_dir))))
 		$epesi_dir = '
-define("EPESI_DIR","'.dirname($_SERVER['SCRIPT_NAME']).'");';
+define("EPESI_DIR","'.str_replace('\\','/',dirname($_SERVER['SCRIPT_NAME'])).'");';
 
 	$c = & fopen(DATA_DIR.'/config.php', 'w');
 	fwrite($c, '<?php
