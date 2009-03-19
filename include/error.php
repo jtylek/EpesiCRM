@@ -54,23 +54,7 @@ class ErrorHandler {
 				$breakLevel = E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR;
 
 			if (($type & $breakLevel) > 0) {
-				if(function_exists('debug_backtrace')) {
-					$backtrace = '';
-					$bt = debug_backtrace();
-   				   
- 					for($i = 0; $i <= count($bt) - 1; $i++) {
- 						if(!isset($bt[$i]["file"]))
-							$backtrace .= "[PHP core called function]<br />";
-						else
-							$backtrace .= "File: ".$bt[$i]["file"]."<br />";
-       
-						if(isset($bt[$i]["line"]))
-							$backtrace .= "&nbsp;&nbsp;&nbsp;&nbsp;line ".$bt[$i]["line"]."<br />";
-						$backtrace .= "&nbsp;&nbsp;&nbsp;&nbsp;function called: ".$bt[$i]["function"];
-						$backtrace .= "<br /><br />";
-					}
-					$backtrace = '<br>error backtrace:<br>'.$backtrace;
-				} else $backtrace = '';
+				$backtrace = self::debug_backtrace();
 				
 				while(@ob_end_clean());
 				echo self::notify_client('Type: '.$type.'<br>Message: '.$message.'<br>File: '.$errfile.'<br>Line='.$errline.$backtrace.'<hr>');
@@ -80,6 +64,28 @@ class ErrorHandler {
 
 		return true;
 	}
+
+	public static function debug_backtrace() {
+		if(function_exists('debug_backtrace')) {
+			$backtrace = '';
+			$bt = debug_backtrace();
+		   
+			for($i = 0; $i <= count($bt) - 1; $i++) {
+				if(!isset($bt[$i]["file"]))
+					$backtrace .= "[PHP core called function]<br />";
+				else
+					$backtrace .= "File: ".$bt[$i]["file"]."<br />";
+	   
+						if(isset($bt[$i]["line"]))
+					$backtrace .= "&nbsp;&nbsp;&nbsp;&nbsp;line ".$bt[$i]["line"]."<br />";
+				$backtrace .= "&nbsp;&nbsp;&nbsp;&nbsp;function called: ".$bt[$i]["function"];
+				$backtrace .= "<br /><br />";
+			}
+			$backtrace = '<br>error backtrace:<br>'.$backtrace;
+		} else $backtrace = '';
+		return $backtrace;
+	}
+	
 
 	public static function add_observer(&$observer) {
 		if (!is_object($observer))
@@ -126,6 +132,8 @@ function handle_epesi_error($type, $message,$errfile,$errline,$errcontext) {
 }
 if(REPORT_ALL_ERRORS)
 	error_reporting(E_ALL);
+else
+	error_reporting(E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR);
 	
 set_error_handler('handle_epesi_error');
 ?>

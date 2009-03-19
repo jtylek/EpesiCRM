@@ -15,10 +15,9 @@ class EpesiErrorObserver extends ErrorObserver {
 	public function update_observer($type, $message,$errfile,$errline,$errcontext) {
 		$mail = Variable::get('error_mail');
 		if(($type & (E_ERROR | E_PARSE | E_CORE_ERROR | E_CORE_WARNING | E_USER_ERROR | E_USER_WARNING | E_RECOVERABLE_ERROR | E_COMPILE_ERROR)) && $mail) {
-			if(function_exists('debug_print_backtrace')) { 
-				debug_print_backtrace();
-				$backtrace = "\nerror backtrace:\n".ob_get_contents();
-			} else $backtrace = '';
+			if(function_exists('debug_print_backtrace')) 
+				$backtrace = "\nerror backtrace:\n".ErrorHandler::debug_backtrace();
+			else $backtrace = '';
 			$x = "who=".Acl::get_user()."\ntype=".$type."\nmessage=".$message."\nerror file=".$errfile."\nerror line=".$errline."\n".$backtrace;
 			$d = ModuleManager::get_data_dir('Base/Error').md5($x).'.txt';
 			file_put_contents($d,$x);
