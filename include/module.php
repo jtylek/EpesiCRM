@@ -815,14 +815,14 @@ abstract class Module extends ModulePrimitive {
 	 * @return true if this module instance was aready displayed, false otherwise
 	 */
 	public final function displayed() {
-		return $this->displayed;
+		return $this->displayed===(isset($_REQUEST['__location'])?$_REQUEST['__location']:null);
 	}
 
 	/**
 	 * Marks this module instance as it was displayed.
 	 */
 	public final function mark_displayed() {
-		$this->displayed=true;
+		$this->displayed = isset($_REQUEST['__location'])?$_REQUEST['__location']:null;;
 	}
 
 	/**
