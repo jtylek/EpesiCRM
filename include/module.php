@@ -731,7 +731,7 @@ abstract class Module extends ModulePrimitive {
 			trigger_error('Invalid method name ('.$function_name.') given as argument 2 for display_module.',E_USER_ERROR);
 
 		if($m->displayed())
-			trigger_error('You can\'t display the same module two times.',E_USER_ERROR);
+			trigger_error('You can\'t display the same module twice, path:'.$m->get_path().'.',E_USER_ERROR);
 
 		if (!$m->check_access($function_name))
 			return false;
