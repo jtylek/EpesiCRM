@@ -58,11 +58,15 @@ class Utils_LeightboxPrompt extends Module {
 			foreach ($this->options as $k=>$v) {
 				$next_button = array('icon'=>$v['icon'], 'label'=>$v['label']);
 				if ($v['form']!==null) {
-					if (!empty($params))
-						foreach ($params as $w)
-							$v['form']->addElement('hidden', $this->group.'_'.$w, $w, array('id'=>$this->group.'_'.$w));
-					$v['form']->addElement('button', 'cancel', $this->t('Cancel'), array('onclick'=>count($this->options)==1?'f'.$this->group.'_followups_deactivate();':'$(\''.$this->group.'_buttons_section\').style.display=\'block\';$(\''.$k.'_'.$this->group.'_form_section\').style.display=\'none\';'));
-					$v['form']->addElement('submit', 'submit', $this->t('OK'), array('onclick'=>'f'.$this->group.'_followups_deactivate();'));
+					static $adding_done = array();
+					if (!isset($adding_done[$k])){
+						$adding_done[$k] = true;
+						if (!empty($params))
+							foreach ($params as $w)
+								$v['form']->addElement('hidden', $this->group.'_'.$w, $w, array('id'=>$this->group.'_'.$w));
+						$v['form']->addElement('button', 'cancel', $this->t('Cancel'), array('onclick'=>count($this->options)==1?'f'.$this->group.'_followups_deactivate();':'$(\''.$this->group.'_buttons_section\').style.display=\'block\';$(\''.$k.'_'.$this->group.'_form_section\').style.display=\'none\';'));
+						$v['form']->addElement('submit', 'submit', $this->t('OK'), array('onclick'=>'f'.$this->group.'_followups_deactivate();'));
+					}
 					ob_start();
 					$th = $this->init_module('Base/Theme');
 					$v['form']->assign_theme('form', $th);
