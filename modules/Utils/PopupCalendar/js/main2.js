@@ -11,17 +11,17 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 			this.first_day_of_week = parseInt(this.first_day_of_week);
 
 		//show calendar
-		this.show = function() {
+		this.show = function(year, month) {
 			switch(this.mode) {
 				case 'year':
 					this.show_decade();
 					break;
 				case 'month':
-					this.show_year();
+					this.show_year(year);
 					break;
 				case 'day':
 				default:
-					this.show_month();
+					this.show_month(month, year);
 			}
 		}
 

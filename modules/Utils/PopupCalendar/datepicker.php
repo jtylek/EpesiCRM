@@ -20,7 +20,7 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 
 	function toHtml() {
 		$str = "";
-		$value = $this->getAttribute('value');
+		$default = $value = $this->getAttribute('value');
 		if($value)
 			$this->setAttribute('value',Base_RegionalSettingsCommon::time2reg($value,false,true,false));
 		if ($this->_flagFrozen) {
@@ -42,7 +42,7 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 					'{method:\'post\', parameters:{date: __YEAR__+\'-\'+__MONTH__+\'-\'+__DAY__},'.
 					'onSuccess:function(t){$(\''.Epesi::escapeJS($id,false).'\').value=t.responseText;}})',
 					false,null,null,
-					'popup.clonePosition(\''.$id.'\',{setWidth:false,setHeight:false,offsetTop:$(\''.$id.'\').getHeight()})',$label).'</td></tr></table>';
+					'popup.clonePosition(\''.$id.'\',{setWidth:false,setHeight:false,offsetTop:$(\''.$id.'\').getHeight()})',$label,$default).'</td></tr></table>';
 
 
 			load_js('modules/Utils/PopupCalendar/datepicker.js');

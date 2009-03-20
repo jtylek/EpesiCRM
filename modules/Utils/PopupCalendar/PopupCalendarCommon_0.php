@@ -10,7 +10,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_PopupCalendarCommon extends ModuleCommon {
-	public static function show($name,$function = '',$fullscreen=true,$mode=null,$first_day_of_week=null,$pos_js=null,$label=null) {
+	public static function show($name,$function = '',$fullscreen=true,$mode=null,$first_day_of_week=null,$pos_js=null,$label=null,$default=null) {
 		if ($label===null) {
 			if($mode=='month') {
 				$label = Base_LangCommon::ts('Utils_PopupCalendar','Select month');
@@ -21,10 +21,10 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 			}
 		}
 
-		return '<a class="button" '.self::create_href($name,$function,$fullscreen,$mode,$first_day_of_week,$pos_js).'>' . $label . '&nbsp;&nbsp;<img style="vertical-align: middle;" border="0" width="10" height="16" src=' . Base_ThemeCommon::get_template_file('Utils_PopupCalendar', 'select.gif').'>' . '</a>';
+		return '<a class="button" '.self::create_href($name,$function,$fullscreen,$mode,$first_day_of_week,$pos_js,$default).'>' . $label . '&nbsp;&nbsp;<img style="vertical-align: middle;" border="0" width="10" height="16" src=' . Base_ThemeCommon::get_template_file('Utils_PopupCalendar', 'select.gif').'>' . '</a>';
 	}
 
-	public static function create_href($name,$function = '',$fullscreen=true,$mode=null,$first_day_of_week=null,$pos_js=null) {
+	public static function create_href($name,$function = '',$fullscreen=true,$mode=null,$first_day_of_week=null,$pos_js=null,$default=null) {
 		Base_ThemeCommon::load_css('Utils_PopupCalendar');
 		load_js('modules/Utils/PopupCalendar/js/main2.js');
 
@@ -70,10 +70,11 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 			$ret = 'onClick="var popup=$(\''.$entry.'\');'.$pos_js.';$(\''.$entry.'\').toggle()" href="javascript:void(0)" id="'.$butt.'"';
 			$function .= ';$(\''.$entry.'\').hide()';
 		}
-
+		if ($default==null) $default = time();
+		elseif (!is_numeric($default)) $default = strtotime($default);
 		eval_js(
 			'var datepicker_'.$name.' = new Utils_PopupCalendar("'.Epesi::escapeJS($function,true,false).'", \''.$name.'\',\''.$mode.'\',\''.$first_day_of_week.'\');'.
-			'datepicker_'.$name.'.show()'
+			'datepicker_'.$name.'.show('.date('Y',$default).','.(date('n',$default)-1).')'
 		);
 		return $ret;
 	}
