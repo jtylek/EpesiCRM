@@ -19,9 +19,12 @@ define('CID', $cid);
 require_once('../../../include.php');
 $crits = Module::static_get_module_variable($path, 'crits_stuff', null);
 $order = Module::static_get_module_variable($path, 'order_stuff', null);
-if ($crits===null || $order===null) die('Invalid usage - variables not set (path - '.$path.', module vars - '.print_r($_SESSION['client']['__module_vars__'][$path],true).')');
+if ($crits===null || $order===null) {
+	$crits = $order = array();
+}
 ModuleManager::load_modules();
-if (!Base_AclCommon::i_am_admin()) die('Invalid usage - access denied');
+if (!Utils_RecordBrowserCommon::get_access('access_listmanager_history', 'export'))
+	die('Invalid usage - access denied');
 
 $tab_info = Utils_RecordBrowserCommon::init($tab);
 $records = Utils_RecordBrowserCommon::get_records($tab, $crits, array(), $order, array(), $admin);

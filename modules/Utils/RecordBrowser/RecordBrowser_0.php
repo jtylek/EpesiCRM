@@ -46,6 +46,7 @@ class Utils_RecordBrowser extends Module {
 	private $amount_of_records = 0;
 	private $switch_to_addon = null;
 	private $additional_caption = '';
+	private $enable_export = false;
 	public static $admin_filter = '';
 	public static $tab_param = '';
 	public static $clone_result = null;
@@ -64,6 +65,10 @@ class Utils_RecordBrowser extends Module {
 	
 	public function switch_to_addon($arg) {
 		$this->switch_to_addon = $arg;
+	}
+	
+	public function enable_export($arg) {
+		$this->enable_export = $arg;
 	}
 	
 	public function set_additional_caption($arg) {
@@ -498,12 +503,11 @@ class Utils_RecordBrowser extends Module {
 		$limit = $gb->get_limit($this->amount_of_records);
 		$records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array(), $order, $limit, $admin);
 		
-		switch (true) {
-			case (Base_AclCommon::i_am_admin() && $this->fullscreen_table):
-				Base_ActionBarCommon::add('save','Export', 'href="modules/Utils/RecordBrowser/csv_export.php?'.http_build_query(array('tab'=>$this->tab, 'admin'=>$admin, 'cid'=>CID, 'path'=>$this->get_path())).'"');
-			case $special:
-				$this->set_module_variable('crits_stuff',$crits?$crits:array());
-				$this->set_module_variable('order_stuff',$order?$order:array());
+		if ((Base_AclCommon::i_am_admin() && $this->fullscreen_table) || $this->enable_export)
+			Base_ActionBarCommon::add('save','Export', 'href="modules/Utils/RecordBrowser/csv_export.php?'.http_build_query(array('tab'=>$this->tab, 'admin'=>$admin, 'cid'=>CID, 'path'=>$this->get_path())).'"');
+		if ($special) {
+			$this->set_module_variable('crits_stuff',$crits?$crits:array());
+			$this->set_module_variable('order_stuff',$order?$order:array());
 		}
 
 		if ($admin) $this->browse_mode = 'all';
