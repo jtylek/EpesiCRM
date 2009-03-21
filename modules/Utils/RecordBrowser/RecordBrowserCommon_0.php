@@ -712,6 +712,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				if (!isset($k[0])) trigger_error('Invalid criteria in build query: missing word.', E_USER_ERROR);
 			}
 			$or |= $or_start;
+			if ($k[0]!=':' && $k!=='id' && !isset(self::$table_rows[self::$hash[$k]])) continue; //failsafe
 			if ($or) {
 				if ($or_start && $or_started) {
 					$having .= ')';
@@ -864,6 +865,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if ($or_started) $having .= ')';
 		$orderby = array();
 		foreach($order as $v){
+			if ($v['order'][0]!=':' && !isset(self::$table_rows[$v['order']])) continue; //failsafe
 //			if ($orderby=='') $orderby = ' ORDER BY';
 //			else $orderby .= ', ';
 			if ($v['order'][0]==':') {
