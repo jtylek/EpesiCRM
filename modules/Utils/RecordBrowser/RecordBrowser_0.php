@@ -67,6 +67,10 @@ class Utils_RecordBrowser extends Module {
 		$this->switch_to_addon = $arg;
 	}
 	
+	public function get_custom_defaults(){
+		return $this->custom_defaults;
+	}
+	
 	public function enable_export($arg) {
 		$this->enable_export = $arg;
 	}
@@ -158,7 +162,7 @@ class Utils_RecordBrowser extends Module {
 		}
 		Utils_WatchdogCommon::add_actionbar_change_subscription_button($this->tab);
 		$this->is_on_main_page = true;
-		if ($this->get_access('add')!==false) {
+		if ($this->get_access('add')!==false && $this->add_button!==false) {
 			if (!$this->multiple_defaults) {
 				Base_ActionBarCommon::add('add','New', $this->create_callback_href(array($this,'navigate'),array('view_entry', 'add', null, $this->custom_defaults)));
 				Utils_ShortcutCommon::add(array('Ctrl','N'), 'function(){'.$this->create_callback_href_js(array($this,'navigate'),array('view_entry', 'add', null, $this->custom_defaults)).'}');
