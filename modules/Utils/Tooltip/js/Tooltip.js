@@ -38,6 +38,27 @@ Utils_Toltip__showTip = function(o,my_event) {
 	div_tip.style.display = 'block';
 }
 
+Utils_Toltip__load_ajax_Tip = function(o,my_event) {
+	tooltip_id = o.getAttribute('tooltip_id');
+	o.setAttribute('tooltip_id','done');
+	if (tooltip_id!='done') {
+		Utils_Toltip__showTip(o,my_event);
+		new Ajax.Request('modules/Utils/Tooltip/req.php', {
+			method: 'post',
+			parameters:{
+				tooltip_id: tooltip_id,
+				cid: Epesi.client_id
+			},
+			onSuccess:function(t) {
+				o.setAttribute('tip',t.responseText);
+				Utils_Toltip__showTip(o,my_event);
+			}
+		});
+	} else {
+		Utils_Toltip__showTip(o,my_event);
+	}
+}
+
 Utils_Toltip__hideTip = function() {
 	$('tooltip_div').style.display = 'none';
 } 

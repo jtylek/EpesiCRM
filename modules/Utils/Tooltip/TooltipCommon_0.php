@@ -21,22 +21,9 @@ class Utils_TooltipCommon extends ModuleCommon {
 		if(!isset(self::$help_tooltips))
 			self::$help_tooltips = Base_User_SettingsCommon::get('Utils/Tooltip','help_tooltips');
 	}
-
-
-	/**
-	 * Returns string that when placed as tag attribute
-	 * will enable tooltip when placing mouse over that element.
-	 *
-	 * @param string tooltip text
-	 * @param boolean help tooltip? (you can turn off help tooltips)
-	 * @return string HTML tag attributes
-	 */
-	public static function open_tag_attrs( $tip, $help=true ) {
-		if(MOBILE_DEVICE) return '';
-		self::show_help();
-		if($help && !self::$help_tooltips) return '';
-		load_js('modules/Utils/Tooltip/js/Tooltip.js');
-		if(!isset($_SESSION['client']['utils_tooltip'])) {
+	
+	private static function init_tooltip_div(){
+		if(!isset($_SESSION['client']['utils_tooltip']['div_exists'])) {
 			$smarty = Base_ThemeCommon::init_smarty();
 			$smarty->assign('tip','<span id="tooltip_text"></span>');
 			ob_start();
@@ -55,9 +42,46 @@ class Utils_TooltipCommon extends ModuleCommon {
 				'body = body[0];'.
 				'document.body.appendChild(div);';
 			eval_js($js,false);
-			$_SESSION['client']['utils_tooltip'] = true;
+			$_SESSION['client']['utils_tooltip']['div_exists'] = true;
 		}
+	}
+
+	/**
+	 * Returns string that when placed as tag attribute
+	 * will enable tooltip when placing mouse over that element.
+	 *
+	 * @param string tooltip text
+	 * @param boolean help tooltip? (you can turn off help tooltips)
+	 * @return string HTML tag attributes
+	 */
+	public static function open_tag_attrs( $tip, $help=true ) {
+		if(MOBILE_DEVICE) return '';
+		self::show_help();
+		if($help && !self::$help_tooltips) return '';
+		load_js('modules/Utils/Tooltip/js/Tooltip.js');
+		self::init_tooltip_div();
 		return ' onMouseMove="if(typeof(Utils_Toltip__showTip)!=\'undefined\')Utils_Toltip__showTip(this,event)" tip="'.htmlspecialchars($tip).'" onMouseOut="if(typeof(Utils_Toltip__hideTip)!=\'undefined\')Utils_Toltip__hideTip()" onMouseUp="if(typeof(Utils_Toltip__hideTip)!=\'undefined\')Utils_Toltip__hideTip()" ';
+	}
+
+	/**
+	 * Returns string that when placed as tag attribute
+	 * will enable ajax request to set a tooltip when placing mouse over that element.
+	 *
+	 * @param callback method that will be called to get tooltip content
+	 * @param array parameters that will be passed to the callback
+	 * @return string HTML tag attributes
+	 */
+	public static function ajax_open_tag_attrs( $callback ) {
+		if(MOBILE_DEVICE) return '';
+		static $tooltip_id = 0;
+		load_js('modules/Utils/Tooltip/js/Tooltip.js');
+		self::init_tooltip_div();
+		$tooltip_id++;
+		$args = func_get_args();
+		array_shift($args);
+		$_SESSION['client']['utils_tooltip']['callbacks'][$tooltip_id] = array('callback'=>$callback, 'args'=>$args);
+		$loading_message = '<center><img src='.Base_ThemeCommon::get_template_file('Utils_Tooltip','loader.gif').' />&nbsp;'.Base_LangCommon::ts('Utils_Tooltip','Loading...').'</center>';
+		return ' onMouseMove="if(typeof(Utils_Toltip__showTip)!=\'undefined\')Utils_Toltip__load_ajax_Tip(this,event)" tip="'.$loading_message.'" tooltip_id="'.$tooltip_id.'" onMouseOut="if(typeof(Utils_Toltip__hideTip)!=\'undefined\')Utils_Toltip__hideTip()" onMouseUp="if(typeof(Utils_Toltip__hideTip)!=\'undefined\')Utils_Toltip__hideTip()" ';
 	}
 
 	/**
