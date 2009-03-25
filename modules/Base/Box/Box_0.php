@@ -159,11 +159,15 @@ class Base_Box extends Module {
 		return isset($this->modules['main'])?$this->modules['main']:null;
 	}
 
-	public function push_main($module=null,$func=null,$args=null,$constr_args=null) {
+	public function push_main($module=null,$func=null,$args=null,$constr_args=null,$name=null) {
 		$mains = & $this->get_module_variable('main');
 		$x = count($mains);
 		$arr = $mains[$x-1];
-		$arr['name'] = 'main_'.$x;
+		if(isset($name)) {
+		    $arr['name'] = $name;
+		} else {
+		    $arr['name'] = 'main_'.$x;
+		}
 		if(isset($module)) $arr['module'] = $module;
 		if(isset($func)) $arr['function'] = $func;
 		if(isset($args)) $arr['arguments'] = $args;
