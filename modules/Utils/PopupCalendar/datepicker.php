@@ -100,8 +100,18 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 		$value = $this->getAttribute('value');
 		if(!$value) return '';
 //		print('get_value('.$this->getName().')='.$value.' '.Base_RegionalSettingsCommon::time2reg($value,false,true,false).'<hr>');
-		return date('Y-m-d', Base_RegionalSettingsCommon::reg2time($value,false));
+		return Base_RegionalSettingsCommon::time2reg($value,false);
 	} // end func setValue
+
+	function exportValue(&$submitValues, $assoc = false) {
+        $value = $this->_findValue($submitValues);
+        if (is_null($value)) {
+            $value = $this->getValue();
+        } 
+		if ($value=='') return $this->_prepareValue('', $assoc);
+		$cleanValue = date('Y-m-d',Base_RegionalSettingsCommon::reg2time($value,false));
+		return $this->_prepareValue($cleanValue, $assoc);
+	}
 
     function onQuickFormEvent($event, $arg, &$caller) {
 		if($event=='updateValue')
