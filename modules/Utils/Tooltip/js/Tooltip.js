@@ -51,7 +51,7 @@ Utils_Toltip__load_ajax_Tip = function(o,my_event) {
 			},
 			onSuccess:function(t) {
 				o.setAttribute('tip',t.responseText);
-				Utils_Toltip__showTip(o,my_event);
+				$('tooltip_text').innerHTML = t.responseText;
 			}
 		});
 	} else {
