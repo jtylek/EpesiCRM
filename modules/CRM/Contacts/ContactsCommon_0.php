@@ -188,7 +188,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 					if ($adv_crits === $crits) $adv_crits = null;
 					if ($adv_crits !== null) {
 						$rp = $rb_obj->init_module('Utils/RecordBrowser/RecordPicker');
-						$rb_obj->display_module($rp, array('contact', $field, $callback, $adv_crits, array('work_phone'=>false, 'mobile_phone'=>false, 'zone'=>false, 'Actions'=>false), array('last_name'=>'ASC')));
+						$rb_obj->display_module($rp, array('contact', $field, $callback, $adv_crits, array('work_phone'=>false, 'mobile_phone'=>false, 'zone'=>false), array('last_name'=>'ASC')));
 						$form->addElement('static', $field.'_rpicker_advanced', null, $rp->create_open_link(Base_LangCommon::ts('CRM_Contacts','Advanced')));
 					}
 				}

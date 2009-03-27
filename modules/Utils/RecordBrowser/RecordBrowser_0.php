@@ -15,7 +15,6 @@ defined("_VALID_ACCESS") || die();
 
 class Utils_RecordBrowser extends Module {
 	private $table_rows = array();
-	private $tab;
 	private $browse_mode;
 	private $display_callback_table = array();
 	private $QFfield_callback_table = array();
@@ -62,6 +61,7 @@ class Utils_RecordBrowser extends Module {
 	private $navigation_executed = false;
 	private $current_field = null;
 	private $additional_actions_method = null;
+	private $disabled = array('search'=>false, 'browse_mode'=>false, 'watchdog'=>false, 'quickjump'=>false, 'filters'=>false, 'headline'=>false, 'actions'=>false);
 	
 	public function switch_to_addon($arg) {
 		$this->switch_to_addon = $arg;
@@ -69,6 +69,11 @@ class Utils_RecordBrowser extends Module {
 	
 	public function get_custom_defaults(){
 		return $this->custom_defaults;
+	}
+	
+	public function get_final_crits() {
+		if (!$this->displayed()) trigger_error('You need to call display_module() before calling get_final_crits() method.', E_USER_ERROR);
+		return $this->get_module_variable('crits_stuff');
 	}
 	
 	public function enable_export($arg) {
@@ -99,6 +104,14 @@ class Utils_RecordBrowser extends Module {
 		return Utils_RecordBrowserCommon::get_val($this->tab, $field, $record, $id, $links_not_recommended, $args);
 	}
 
+	public function disable_search(){$this->disabled['search'] = true;}
+	public function disable_browse_mode_switch(){$this->disabled['browse_mode'] = true;}
+	public function disable_watchdog(){$this->disabled['watchdog'] = true;}
+	public function disable_filters(){$this->disabled['filters'] = true;}
+	public function disable_quickjump(){$this->disabled['quickjump'] = true;}
+	public function disable_headline() {$this->disabled['headline'] = true;}
+	public function disable_actions() {$this->disabled['actions'] = true;}
+
 	public function set_button($arg, $arg2=''){
 		$this->add_button = $arg;
 		$this->more_add_button_stuff = $arg2;
@@ -122,7 +135,7 @@ class Utils_RecordBrowser extends Module {
 		$params = DB::GetRow('SELECT caption, icon, recent, favorites, full_history FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 		if ($params==false) trigger_error('There is no such recordSet as '.$this->tab.'.', E_USER_ERROR);
 		list($this->caption,$this->icon,$this->recent,$this->favorites,$this->full_history) = $params;
-		$this->watchdog = Utils_WatchdogCommon::category_exists($this->tab);
+		$this->watchdog = Utils_WatchdogCommon::category_exists($this->tab) && !$this->disabled['watchdog'];
 
 		//If Caption or icon not specified assign default values
 		if ($this->caption=='') $this->caption='Record Browser';
@@ -160,7 +173,7 @@ class Utils_RecordBrowser extends Module {
 			print($this->t('You are not authorised to browse this data.'));
 			return;
 		}
-		Utils_WatchdogCommon::add_actionbar_change_subscription_button($this->tab);
+		if ($this->watchdog) Utils_WatchdogCommon::add_actionbar_change_subscription_button($this->tab);
 		$this->is_on_main_page = true;
 		if ($this->get_access('add')!==false && $this->add_button!==false) {
 			if (!$this->multiple_defaults) {
@@ -186,7 +199,8 @@ class Utils_RecordBrowser extends Module {
 			}
 		}
 
-		$filters = $this->show_filters();
+		if (!$this->disabled['filters']) $filters = $this->show_filters();
+		else $filters = '';
 
 		if (isset($this->filter_field)) {
 			CRM_FiltersCommon::add_action_bar_icon();
@@ -203,7 +217,7 @@ class Utils_RecordBrowser extends Module {
 		$theme = $this->init_module('Base/Theme');
 		$theme->assign('filters', $filters);
 		$theme->assign('table', $table);
-		$theme->assign('caption', $this->t($this->caption).' - '.$this->t(ucfirst($this->browse_mode)).$this->additional_caption);
+		if (!$this->disabled['headline']) $theme->assign('caption', $this->t($this->caption).' - '.$this->t(ucfirst($this->browse_mode)).$this->additional_caption);
 		$theme->assign('icon', $this->icon);
 		$theme->display('Browsing_records');
 	}
@@ -376,19 +390,25 @@ class Utils_RecordBrowser extends Module {
 			$gb_per_page = Base_User_SettingsCommon::get('Utils/GenericBrowser','per_page');
 			$gb->set_per_page(Base_User_SettingsCommon::get('Utils/RecordBrowser/RecordPicker','per_page'));
 		}
-		$gb->set_module_variable('adv_search', $gb->get_module_variable('adv_search', $this->adv_search));
-		$is_searching = $gb->get_module_variable('search','');
-		if (!empty($is_searching)) {
-			$this->set_module_variable('browse_mode','all');
-			$gb->set_module_variable('quickjump_to',null);
+		if (!$this->disabled['search']) {
+			$gb->set_module_variable('adv_search', $gb->get_module_variable('adv_search', $this->adv_search));
+			$is_searching = $gb->get_module_variable('search','');
+			if (!empty($is_searching)) {
+				$this->set_module_variable('browse_mode','all');
+				$gb->set_module_variable('quickjump_to',null);
+			}
 		}
 		if ($this->is_on_main_page) {
-			$this->browse_mode = $this->get_module_variable('browse_mode', Base_User_SettingsCommon::get('Utils/RecordBrowser',$this->tab.'_default_view'));
-			if (!$this->browse_mode) $this->browse_mode='all';
-			if (($this->browse_mode=='recent' && $this->recent==0) || ($this->browse_mode=='favorites' && !$this->favorites)) $this->set_module_variable('browse_mode', $this->browse_mode='all');
-			if ($this->browse_mode!=='recent' && $this->recent>0) Base_ActionBarCommon::add('history','Recent', $this->create_callback_href(array($this,'switch_view'),array('recent')));
-			if ($this->browse_mode!=='all') Base_ActionBarCommon::add('all','All', $this->create_callback_href(array($this,'switch_view'),array('all')));
-			if ($this->browse_mode!=='favorites' && $this->favorites) Base_ActionBarCommon::add('favorites','Favorites', $this->create_callback_href(array($this,'switch_view'),array('favorites')));
+			if ($this->disabled['browse_mode'])
+				$this->browse_mode='all';
+			else {
+				$this->browse_mode = $this->get_module_variable('browse_mode', Base_User_SettingsCommon::get('Utils/RecordBrowser',$this->tab.'_default_view'));
+				if (!$this->browse_mode) $this->browse_mode='all';
+				if (($this->browse_mode=='recent' && $this->recent==0) || ($this->browse_mode=='favorites' && !$this->favorites)) $this->set_module_variable('browse_mode', $this->browse_mode='all');
+				if ($this->browse_mode!=='recent' && $this->recent>0) Base_ActionBarCommon::add('history','Recent', $this->create_callback_href(array($this,'switch_view'),array('recent')));
+				if ($this->browse_mode!=='all') Base_ActionBarCommon::add('all','All', $this->create_callback_href(array($this,'switch_view'),array('all')));
+				if ($this->browse_mode!=='favorites' && $this->favorites) Base_ActionBarCommon::add('favorites','Favorites', $this->create_callback_href(array($this,'switch_view'),array('favorites')));
+			}
 		}
 
 		if ($special) {
@@ -400,7 +420,8 @@ class Utils_RecordBrowser extends Module {
 			if (!$admin && $this->watchdog)
 				$table_columns[] = array('name'=>$this->t('Sub'), 'width'=>1);
 		}
-		$quickjump = DB::GetOne('SELECT quickjump FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
+		if (!$this->disabled['quickjump']) $quickjump = DB::GetOne('SELECT quickjump FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
+		else $quickjump = '';
 
 		$hash = array();
 		$access = $this->get_access('fields', 'browse', $this->custom_defaults);
@@ -414,7 +435,6 @@ class Utils_RecordBrowser extends Module {
 			$arr = array('name'=>$args['name']);
 			if ($this->browse_mode!='recent' && $args['type']!=='multiselect' && ($args['type']!=='calculated' || $args['param']!='') && $args['type']!=='hidden') $arr['order'] = $field;
 			if ($quickjump!=='' && $args['name']===$quickjump) $arr['quickjump'] = '"'.$args['name'];
-			if ($args['type']=='text' || $args['type']=='currency' || ($args['type']=='calculated' && $args['param']!='')) $arr['search'] = $args['id'];//str_replace(' ','_',$field);
 			if ($args['type']=='checkbox' || (($args['type']=='date' || $args['type']=='timestamp') && !$this->add_in_table) || $args['type']=='commondata') {
 				$arr['wrapmode'] = 'nowrap';
 				$arr['width'] = 1;
@@ -426,10 +446,13 @@ class Utils_RecordBrowser extends Module {
 			$arr['name'] = $this->t($arr['name']);
 			$str = explode(';', $args['param']);
 			$ref = explode('::', $str[0]);
-			if ($ref[0]!='' && isset($ref[1])) $arr['search'] = '__Ref__'.$args['id'];//str_replace(' ','_',$field);
-			if ($args['type']=='commondata' || $ref[0]=='__COMMON__') {
-				if (!isset($ref[1]) || $ref[0]=='__COMMON__') $arr['search'] = '__RefCD__'.$args['id'];//str_replace(' ','_',$field);
-				else unset($arr['search']);
+			if (!$this->disabled['search']) {
+				if ($args['type']=='text' || $args['type']=='currency' || ($args['type']=='calculated' && $args['param']!='')) $arr['search'] = $args['id'];//str_replace(' ','_',$field);
+				if ($ref[0]!='' && isset($ref[1])) $arr['search'] = '__Ref__'.$args['id'];//str_replace(' ','_',$field);
+				if ($args['type']=='commondata' || $ref[0]=='__COMMON__') {
+					if (!isset($ref[1]) || $ref[0]=='__COMMON__') $arr['search'] = '__RefCD__'.$args['id'];//str_replace(' ','_',$field);
+					else unset($arr['search']);
+				}
 			}
 			$table_columns[] = $arr;
 		}
@@ -509,10 +532,9 @@ class Utils_RecordBrowser extends Module {
 		
 		if ((Base_AclCommon::i_am_admin() && $this->fullscreen_table) || $this->enable_export)
 			Base_ActionBarCommon::add('save','Export', 'href="modules/Utils/RecordBrowser/csv_export.php?'.http_build_query(array('tab'=>$this->tab, 'admin'=>$admin, 'cid'=>CID, 'path'=>$this->get_path())).'"');
-		if ($special) {
-			$this->set_module_variable('crits_stuff',$crits?$crits:array());
-			$this->set_module_variable('order_stuff',$order?$order:array());
-		}
+
+		$this->set_module_variable('crits_stuff',$crits?$crits:array());
+		$this->set_module_variable('order_stuff',$order?$order:array());
 
 		if ($admin) $this->browse_mode = 'all';
 		if ($this->browse_mode == 'recent') {
@@ -547,9 +569,8 @@ class Utils_RecordBrowser extends Module {
 				$isfav = isset($favs[$row['id']]);
 				$row_data= array('<a '.Utils_TooltipCommon::open_tag_attrs(($isfav?$this->t('This item is on your favourites list<br>Click to remove it from your favorites'):$this->t('Click to add this item to favorites'))).' '.$this->create_callback_href(array($this,($isfav?'remove_from_favs':'add_to_favs')), array($row['id'])).'><img style="width: 14px; height: 14px; vertical-align: middle;" border="0" src="'.($isfav==false?$star_off:$star_on).'" /></a>');
 			} else $row_data= array();
-			if (!$admin && $this->watchdog) {
+			if (!$admin && $this->watchdog)
 				$row_data[] = Utils_WatchdogCommon::get_change_subscription_icon($this->tab,$row['id']);
-			}
 			if ($special) {
 				$func = $this->get_module_variable('format_func');
 				$element = $this->get_module_variable('element');
@@ -572,8 +593,7 @@ class Utils_RecordBrowser extends Module {
 //				$row_data[] = $row['visited_on'];
 
 			$gb_row->add_data_array($row_data);
-			if (!isset($cols['Actions']) || $cols['Actions'])
-			{
+			if (!$this->disabled['actions']) {
 				if (!$special) {
 					$gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'view', $row['id'])),'View');
 					if ($this->get_access('edit',$row)) $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'edit',$row['id'])),'Edit');
@@ -1015,7 +1035,7 @@ class Utils_RecordBrowser extends Module {
 										}
 										$val = @$this->get_val($field, $values, $this->record['id'], true, $args);
 										if (!$val) $val = '['.$this->t('formula').']';
-										$form->setDefaults(array($args['id']=>'<div id="'.Utils_RecordBrowserCommon::get_calcualted_id($this->tab, $args['id'], $id).'">'.$val.'</div>'));
+										$form->setDefaults(array($args['id']=>'<div id="'.Utils_RecordBrowserCommon::get_calculated_id($this->tab, $args['id'], $id).'">'.$val.'</div>'));
 										break;
 					case 'integer':		$form->addElement('text', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->t($args['name']).'</span>', array('id'=>$args['id']));
 										$form->addRule($args['id'], $this->t('Only numbers are allowed.'), 'numeric');

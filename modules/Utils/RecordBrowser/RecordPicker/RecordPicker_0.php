@@ -15,6 +15,7 @@ class Utils_RecordBrowser_RecordPicker extends Module {
 	public function body($tab, $element, $format, $crits=array(), $cols=array(), $order=array(), $filters=array()) {
 		$rb = $this->init_module('Utils/RecordBrowser', $tab, $tab.'_picker');
 		$rb->adv_search = true;
+		$rb->disable_actions();
 
 		$this->element = $element;
 

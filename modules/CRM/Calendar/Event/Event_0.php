@@ -472,7 +472,8 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 
 		if($action != 'view') {
 			$rb2 = $this->init_module('Utils/RecordBrowser/RecordPicker');
-			$this->display_module($rb2, array('contact', 'cus_id', array('CRM_ContactsCommon','contact_format_no_company'), array(), array('work_phone'=>false, 'mobile_phone'=>false, 'zone'=>false, 'Actions'=>false), array('last_name'=>'ASC')));
+			$rb2->disable_actions();
+			$this->display_module($rb2, array('contact', 'cus_id', array('CRM_ContactsCommon','contact_format_no_company'), array(), array('work_phone'=>false, 'mobile_phone'=>false, 'zone'=>false), array('last_name'=>'ASC')));
 			$cus_click = $rb2->create_open_link($this->t('Advanced'));
 		} else {
 			$cus_click = '';
