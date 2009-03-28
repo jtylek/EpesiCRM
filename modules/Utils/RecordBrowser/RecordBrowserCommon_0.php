@@ -446,6 +446,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return $f;
 	}
 	public static function new_addon($tab, $module, $func, $label) {
+		if (is_array($label)) $label= implode('::',$label);
 		$module = str_replace('/','_',$module);
 		self::delete_addon($tab, $module, $func);
 		$pos = DB::GetOne('SELECT MAX(pos) FROM recordbrowser_addon WHERE tab=%s', array($tab));
