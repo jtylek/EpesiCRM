@@ -217,7 +217,7 @@ class Utils_RecordBrowser extends Module {
 		$theme = $this->init_module('Base/Theme');
 		$theme->assign('filters', $filters);
 		$theme->assign('table', $table);
-		if (!$this->disabled['headline']) $theme->assign('caption', $this->t($this->caption).' - '.$this->t(ucfirst($this->browse_mode)).$this->additional_caption);
+		if (!$this->disabled['headline']) $theme->assign('caption', $this->t($this->caption).(!$this->disabled['browse_mode']?' - '.$this->t(ucfirst($this->browse_mode)):'').($this->additional_caption?' - '.$this->additional_caption:''));
 		$theme->assign('icon', $this->icon);
 		$theme->display('Browsing_records');
 	}
