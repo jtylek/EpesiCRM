@@ -55,7 +55,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		}
 	}
 	
-	public static function add($group,$permission,$user,$note=null,$oryg=null,$file=null,$func=null,$args=null) {
+	public static function add($group,$permission,$user,$note=null,$oryg=null,$file=null,$func=null,$args=null,$add_func=null,$add_args=array()) {
 		DB::Execute('INSERT INTO utils_attachment_link(local,permission,permission_by,func,args) VALUES(%s,%d,%d,%s,%s)',array($group,$permission,$user,serialize($func),serialize($args)));
 		$id = DB::Insert_ID('utils_attachment_link','id');
 		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,revision) VALUES(%d,%s,%d,0)',array($id,$oryg,$user));
@@ -63,7 +63,9 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		if($file) {
 			$local = self::Instance()->get_data_dir().$group;
 			@mkdir($local,0777,true);
-			rename($file,$local.'/'.$id.'_0');
+			$dest_file = $local.'/'.$id.'_0';
+			rename($file,$dest_file);
+			if ($add_func) call_user_func($add_func,$id,0,$dest_file,$oryg,$add_args);
 		}
 		return $id;
 	}
