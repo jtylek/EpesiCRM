@@ -61,7 +61,7 @@ class Utils_RecordBrowser extends Module {
 	private $navigation_executed = false;
 	private $current_field = null;
 	private $additional_actions_method = null;
-	private $disabled = array('search'=>false, 'browse_mode'=>false, 'watchdog'=>false, 'quickjump'=>false, 'filters'=>false, 'headline'=>false, 'actions'=>false);
+	private $disabled = array('search'=>false, 'browse_mode'=>false, 'watchdog'=>false, 'quickjump'=>false, 'filters'=>false, 'headline'=>false, 'actions'=>false, 'fav'=>false);
 	
 	public function switch_to_addon($arg) {
 		$this->switch_to_addon = $arg;
@@ -107,6 +107,7 @@ class Utils_RecordBrowser extends Module {
 	public function disable_search(){$this->disabled['search'] = true;}
 	public function disable_browse_mode_switch(){$this->disabled['browse_mode'] = true;}
 	public function disable_watchdog(){$this->disabled['watchdog'] = true;}
+	public function disable_fav(){$this->disabled['fav'] = true;}
 	public function disable_filters(){$this->disabled['filters'] = true;}
 	public function disable_quickjump(){$this->disabled['quickjump'] = true;}
 	public function disable_headline() {$this->disabled['headline'] = true;}
@@ -135,6 +136,7 @@ class Utils_RecordBrowser extends Module {
 		$params = DB::GetRow('SELECT caption, icon, recent, favorites, full_history FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 		if ($params==false) trigger_error('There is no such recordSet as '.$this->tab.'.', E_USER_ERROR);
 		list($this->caption,$this->icon,$this->recent,$this->favorites,$this->full_history) = $params;
+		$this->favorites &= !$this->disabled['fav'];
 		$this->watchdog = Utils_WatchdogCommon::category_exists($this->tab) && !$this->disabled['watchdog'];
 
 		//If Caption or icon not specified assign default values
