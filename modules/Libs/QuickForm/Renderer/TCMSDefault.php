@@ -274,7 +274,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
     
     function _prepareValue(&$element) {
 		$type = $element->getType();
-    		$name = $element->getName();
+    	$name = $element->getName();
 		$value = '';
 		if(!$element->isFrozen()) {
 			if($type == 'text' || $type=='textarea' || $type=='hidden') {
@@ -300,6 +300,9 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
 					else
 						eval_js('setradiovalue(\''.$this->_formName.'\',\''.$name.'\',\''.str_replace("\n",'\n',addslashes(addslashes($element->getValue()))).'\')');
 	    			}
+			} else {
+				$value = $element->getValue();
+        		if ($value!==null && !is_array($value)) eval_js('settextvalue(\''.$this->_formName.'\',\''.$name.'\',"'.str_replace("\n",'\n',addslashes($value)).'")');
 			}
 		}
     }
@@ -316,7 +319,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
     */
     function renderElement(&$element, $required, $error)
     {
-        if (!$this->_inGroup) {
+		if (!$this->_inGroup) {
 	    	$this->_prepareValue($element);
             $html = $this->_prepareTemplate($element->getName(), $element->getLabel(), $required, $error);
             $this->_html .= str_replace(array('{element}','{element_style}'), array($element->toHtml(),'element_'.$element->getType()), $html);

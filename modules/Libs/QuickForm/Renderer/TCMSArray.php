@@ -208,6 +208,7 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
 
     function renderElement(&$element, $required, $error)
     {
+    	$this->_prepareValue($element);
         $elAry = $this->_elementToArray($element, $required, $error);
         if (!empty($error)) {
             $this->_ary['errors'][$elAry['name']] = $error;
@@ -218,12 +219,7 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
 
     function renderHidden(&$element)
     {
-	$value = $element->getValue();
-	$name = $element->getName();
-    	$element->setValue('');
-	if($value!==null) {
-		eval_js('settextvalue(\''.$this->_formName.'\',\''.$name.'\',"'.str_replace("\n",'\n',addslashes($value)).'")');
-	}
+		$this->_prepareValue($element);
         if ($this->_collectHidden) {
             $this->_ary['hidden'] .= $element->toHtml() . "\n";
         } else {
@@ -257,42 +253,11 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
     * @param  string    Error associated with the element
     * @return array
     */
-    function _elementToArray(&$element, $required, $error)
-    {
-	$type = $element->getType();
-        $name = $element->getName();
-    	$err_id = 'error_' . $this->_formName . "_" . $name . "_" . $type;
-	
-	
-/*	$value = '';
-	if(!$element->isFrozen()) {
-		if($type == 'text' || $type=='textarea') {
-			$value = $element->getValue();
-        	    	$element->setValue('');
-        		if($value!==null) {
-				eval_js('settextvalue(\''.$this->_formName.'\',\''.$name.'\',"'.str_replace("\n",'\n',addslashes(addslashes($value))).'")');
-    			}
-		} elseif($type == 'select') {
-			$value = $element->getValue();
-			$element->setValue(array());
-			if($element->getMultiple()) $name .= '[]'; 
-			if($value!==null)
-				foreach($value as $v) {
-					eval_js('setselectvalue(\''.$this->_formName.'\',\''.$name.'\',\''.str_replace("\n",'\n',addslashes(addslashes($v))).'\')');
-				}
-		} elseif($type == 'checkbox' || $type=='radio') {
-	    		$value = $element->getAttribute('checked');
-	        	$element->removeAttribute('checked');
-    			if($value!==null) {
-			    if($type=='checkbox')
-				eval_js('setcheckvalue(\''.$this->_formName.'\',\''.$name.'\',\''.addslashes(addslashes($value)).'\')');
-			    else
-				eval_js('setradiovalue(\''.$this->_formName.'\',\''.$name.'\',\''.str_replace("\n",'\n',addslashes(addslashes($element->getValue()))).'\')');
-	    		}
-		}
-	}
-*/
-	
+    function _elementToArray(&$element, $required, $error) {
+		$type = $element->getType();
+		$name = $element->getName();
+		$err_id = 'error_' . $this->_formName . "_" . $name . "_" . $type;
+		
         $ret = array(
             'name'      => $element->getName(),
             'value'     => $element->getValue(),
@@ -370,5 +335,41 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
             $this->_elementStyles[$elementName] = $styleName;
         }
     }
+    
+	function _prepareValue(&$element) {
+		$type = $element->getType();
+    	$name = $element->getName();
+		$value = '';
+		if(!$element->isFrozen()) {
+			if($type == 'text' || $type=='textarea' || $type=='hidden') {
+				$value = $element->getValue();
+        	    $element->setValue('');
+        		if($value!==null) {
+					eval_js('settextvalue(\''.$this->_formName.'\',\''.$name.'\',"'.str_replace("\n",'\n',addslashes($value)).'")');
+    			}
+			} elseif($type == 'select') {
+				$value = $element->getValue();
+  				$element->setValue(array());
+				if($element->getMultiple()) $name .= '[]'; 
+				if($value!==null)
+				foreach($value as $v) {
+					eval_js('setselectvalue(\''.$this->_formName.'\',\''.$name.'\',\''.str_replace("\n",'\n',addslashes(addslashes($v))).'\')');
+				}
+			} elseif($type == 'checkbox' || $type=='radio') {
+	    		$value = $element->getAttribute('checked');
+	        	$element->removeAttribute('checked');
+    			if($value!==null) {
+					if($type=='checkbox')
+						eval_js('setcheckvalue(\''.$this->_formName.'\',\''.$name.'\',\''.addslashes(addslashes($value)).'\')');
+					else
+						eval_js('setradiovalue(\''.$this->_formName.'\',\''.$name.'\',\''.str_replace("\n",'\n',addslashes(addslashes($element->getValue()))).'\')');
+    			}
+			} else {
+				$value = $element->getValue();
+        		if ($value!==null && !is_array($value)) eval_js('settextvalue(\''.$this->_formName.'\',\''.$name.'\',"'.str_replace("\n",'\n',addslashes($value)).'")');
+			}
+		}
+	}
+   
 }
 ?>

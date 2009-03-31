@@ -92,9 +92,15 @@
 }
 
 #Utils_PopupCalendar table.small td.today {
-	background-color: #E6ECF2;
 	font-weight: bold;
-	border: none;
+}
+
+#Utils_PopupCalendar table.small td.weekend {
+	background-color: #E6ECF2;
+}
+
+#Utils_PopupCalendar table.small td.selected {
+	border: 1px solid;
 }
 
 #Utils_PopupCalendar table.small td.spacerTop {

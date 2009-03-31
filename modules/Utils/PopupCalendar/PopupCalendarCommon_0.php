@@ -70,11 +70,13 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 			$ret = 'onClick="var popup=$(\''.$entry.'\');'.$pos_js.';$(\''.$entry.'\').toggle()" href="javascript:void(0)" id="'.$butt.'"';
 			$function .= ';$(\''.$entry.'\').hide()';
 		}
-		if ($default==null) $default = time();
-		elseif (!is_numeric($default)) $default = strtotime($default);
+		if ($default) {
+			if (!is_numeric($default)) $default = strtotime($default);
+			$args = date('Y',$default).','.(date('n',$default)-1).','.(date('d',$default));
+		} else $args = '';
 		eval_js(
 			'var datepicker_'.$name.' = new Utils_PopupCalendar("'.Epesi::escapeJS($function,true,false).'", \''.$name.'\',\''.$mode.'\',\''.$first_day_of_week.'\');'.
-			'datepicker_'.$name.'.show('.date('Y',$default).','.(date('n',$default)-1).')'
+			'datepicker_'.$name.'.show('.$args.')'
 		);
 		return $ret;
 	}

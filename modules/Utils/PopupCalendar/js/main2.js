@@ -1,6 +1,7 @@
 var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_week) {
 		this.monthName = new Array('January','February','March','April','May','June','July','August','September','October','November','December');
 		this.link_proto = link_proto;
+		this.selected = 0;
 		this.instance_id = instance_id;
 		if(typeof mode == 'undefined') mode='day';
 		this.mode = mode;
@@ -11,7 +12,7 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 			this.first_day_of_week = parseInt(this.first_day_of_week);
 
 		//show calendar
-		this.show = function(year, month) {
+		this.show = function(year, month, day) {
 			switch(this.mode) {
 				case 'year':
 					this.show_decade();
@@ -21,18 +22,20 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 					break;
 				case 'day':
 				default:
-					this.show_month(month, year);
+					this.show_month(year, month, day);
 			}
 		}
 
 		// show a month
-		this.show_month = function( month, year ) {
+		this.show_month = function( year, month, day ) {
+			if (!this.selected && year && month && day) {
+				this.selected = new Date();
+				this.selected.setDate(day);
+				this.selected.setMonth(month);
+				this.selected.setYear(year);
+			}
 			var days = new Array('Sun', 'Mon','Tue','Wed','Thu','Fri','Sat');
             var daysInMonth = null;
-            if(year%400==0 || (year%100!=0 && year%4==0))
-                    daysInMonth = new Array(31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
-            else
-                    daysInMonth = new Array(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
 			var daysInWeek = 7;
 
 			// formatting constants
@@ -47,12 +50,17 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 			var Calendar = new Date();
 			var current_day = Calendar.getDate();
 			var current_month = Calendar.getMonth();
-			var current_year = Calendar.getYear();
-
-			if( !month ) { month = Calendar.getMonth(); } else { month = month * 1; }
+			var current_year = Calendar.getFullYear();
+			if( typeof month == "undefined" ) { month = Calendar.getMonth(); } else { month = month * 1; }
 			var prev_month = month - 1;
 			var next_month = month + 1;
-			if( !year ) { year = Calendar.getYear(); } else { year = year * 1; }
+			if( typeof year == "undefined" ) { year = Calendar.getFullYear(); } else { year = year * 1; }
+
+            if(year%400==0 || (year%100!=0 && year%4==0))
+            	daysInMonth = new Array(31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
+            else
+            	daysInMonth = new Array(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
+
 			year_real = year;
 			var prev_year = year;
 			if(prev_month < 0) { prev_month = 11; prev_year--; }
@@ -64,9 +72,9 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 
 			// filling header
 			var header_string = '<table class="menu" cellspacing="0" cellpadding="0" border="0"><tr>';
-			header_string += '<td class="prev"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_month(\''+prev_month+'\', \''+prev_year+'\')">&lt;&lt</a></td>';
+			header_string += '<td class="prev"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_month(\''+prev_year+'\', \''+prev_month+'\')">&lt;&lt</a></td>';
 			header_string += '<td class="month"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_year(\''+year+'\')">'+this.monthName[month] + ' ' + year_real+'</a></td>';
-			header_string += '<td class="next"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_month(\''+next_month+'\', \''+next_year+'\')">&gt;&gt</a></td>';
+			header_string += '<td class="next"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_month(\''+next_year+'\', \''+next_month+'\')">&gt;&gt</a></td>';
 			header_string += '</tr></table>';
 			$('datepicker_'+this.instance_id+'_header').innerHTML = header_string;
 
@@ -96,19 +104,22 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 				//if(weekday == 1) { cal += TRstart; }
 				if(weekday == this.first_day_of_week) { cal += TRstart; }
 
-				cal += '<td ';
-				if( (current_day == Calendar.getDate()) && (current_month == month) && (current_year == year) ) {
-					cal += ' class="today">';
-				} else if( ((weekday+1) % 6) < 1) {
-					cal += ' class="weekend">';
-				} else {
-					cal += '>';
-				}
+				cal += '<td class="';
+				if( (current_day == Calendar.getDate()) && (current_month == month) && (current_year == year) )
+					cal += 'today ';
+				if( weekday % 6 < 1 )
+					cal += 'weekend ';
+				if( this.selected &&
+					(Calendar.getDate() == this.selected.getDate()) && 
+					(Calendar.getMonth() == this.selected.getMonth()) && 
+					(Calendar.getFullYear() == this.selected.getFullYear()) )
+					cal += 'selected ';
+				cal += '">';
 				//cal += '<a class=day href="javascript:get_date('+year_real+', '+(month+1)+', '+Calendar.getDate()+', \''+this.field+'\', \''+this.format+'\')">';
 				var prep_link = this.link_proto.replace("__YEAR__", year_real);
 				prep_link = prep_link.replace("__MONTH__", (month+1));
 				prep_link = prep_link.replace("__DAY__", Calendar.getDate());
-				cal += '<div class="day"><a href="javascript:void(0)" onClick="'+prep_link+'">';
+				cal += '<div class="day"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.selected = new Date('+Calendar.getFullYear()+','+Calendar.getMonth()+','+Calendar.getDate()+');datepicker_'+this.instance_id+'.show_month('+year+','+month+','+day+');'+prep_link+'">';
 				cal += Calendar.getDate();
 				cal += '</a></div>' + TDend;
 
@@ -140,8 +151,8 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 			// preparing date
 			var Calendar = new Date();
 			var current_month = Calendar.getMonth();
-			var current_year = Calendar.getYear();
-			if( !year ) { year = Calendar.getYear(); } else { year = year * 1; }
+			var current_year = Calendar.getFullYear();
+			if( !year ) { year = Calendar.getFullYear(); } else { year = year * 1; }
 			year_real = year;
 			var prev_year = year - 1;
 			var next_year = year + 1;
@@ -200,8 +211,8 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 
 			// preparing date
 			var Calendar = new Date();
-			var current_year = Calendar.getYear();
-			if( !decade ) { decade = Calendar.getYear(); } else { decade = decade * 1; }
+			var current_year = Calendar.getFullYear();
+			if( !decade ) { decade = Calendar.getFullYear(); } else { decade = decade * 1; }
 			decade_real = decade;
 			var prev_decade = decade - 10;
 			var next_decade = decade + 10;
@@ -260,8 +271,8 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 
 			// preparing date
 			var Calendar = new Date();
-			var current_year = Calendar.getYear();
-			if( !century ) { century = Calendar.getYear(); } else { century = century * 1; }
+			var current_year = Calendar.getFullYear();
+			if( !century ) { century = Calendar.getFullYear(); } else { century = century * 1; }
 			century_real = century;
 			var prev_century = century - 100;
 			var next_century = century + 100;

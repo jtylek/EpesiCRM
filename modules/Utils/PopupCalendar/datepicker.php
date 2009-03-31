@@ -14,27 +14,29 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 	function HTML_QuickForm_datepicker($elementName=null, $elementLabel=null, $attributes=null) {
 		HTML_QuickForm_input::HTML_QuickForm_input($elementName, $elementLabel, $attributes);
 		$this->_persistantFreeze = true;
-		$this->setType('text');
+		$this->setType('datepicker');
 //		$this->updateAttributes(array('readonly'=>1));
 	} //end constructor
 
 	function toHtml() {
 		$str = "";
-		$default = $value = $this->getAttribute('value');
-		if($value)
-			$this->setAttribute('value',Base_RegionalSettingsCommon::time2reg($value,false,true,false));
 		if ($this->_flagFrozen) {
 			$str .= $this->getFrozenHtml();
 		} else {
+			$value = $this->getAttribute('value');
+			if (is_numeric($value)) $value = date('Y-m-d', $value);
 			$id = $this->getAttribute('id');
 			$name = $this->getAttribute('name');
 			$label = $this->getAttribute('label');
+			if ($value)
+				$this->setAttribute('value','');
 			if(!isset($id)) {
 				$id = 'datepicker_field_'.$name;
 				$this->updateAttributes(array('id'=>$id));
 			}
 			$ex_date = Base_RegionalSettingsCommon::time2reg(null,false,true,false);
 			$date_format = Base_RegionalSettingsCommon::date_format();
+			$this->setType('text');
 			$str .= $this->_getTabs() . '<table style="border:0;padding:0;" cellpadding="0" cellspacing="0"><tr>'.
 				'<td><input ' . $this->_getAttrString($this->_attributes) . ' '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils/PopupCalendar','Example date: %s',array($ex_date)), false ).' /></td>'.
 				'<td>'.	Utils_PopupCalendarCommon::show(md5($id),
@@ -42,14 +44,13 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 					'{method:\'post\', parameters:{date: __YEAR__+\'-\'+__MONTH__+\'-\'+__DAY__},'.
 					'onSuccess:function(t){$(\''.Epesi::escapeJS($id,false).'\').value=t.responseText;}})',
 					false,null,null,
-					'popup.clonePosition(\''.$id.'\',{setWidth:false,setHeight:false,offsetTop:$(\''.$id.'\').getHeight()})',$label,$default).'</td></tr></table>';
-
+					'popup.clonePosition(\''.$id.'\',{setWidth:false,setHeight:false,offsetTop:$(\''.$id.'\').getHeight()})',$label,$value).'</td></tr></table>';
+			print($value.'<br>');
 
 			load_js('modules/Utils/PopupCalendar/datepicker.js');
 			eval_js('Event.observe(\''.$id.'\',\'keypress\',Utils_PopupCalendarDatePicker.validate.bindAsEventListener(Utils_PopupCalendarDatePicker,\''.Epesi::escapeJS($date_format,false).'\'))');
 			eval_js('Event.observe(\''.$id.'\',\'blur\',Utils_PopupCalendarDatePicker.validate_blur.bindAsEventListener(Utils_PopupCalendarDatePicker,\''.Epesi::escapeJS($date_format,false).'\'))');
 		}
-		$this->setAttribute('value',$value);
 		return $str;
 	} //end func toHtml
 
