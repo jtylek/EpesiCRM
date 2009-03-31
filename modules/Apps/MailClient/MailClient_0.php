@@ -52,8 +52,7 @@ class Apps_MailClient extends Module {
 
 		$box = $this->get_module_variable('opened_box');
 		$dir = $this->get_module_variable('opened_dir');
-		$preview_id = $this->get_path().'preview';
-		$show_id = $this->get_path().'show';
+		$preview_id = 'mail_view';
 
 		$mail_actions_arr = array();
 
@@ -146,7 +145,6 @@ class Apps_MailClient extends Module {
 			if(strlen($subject)>40) $subject = Utils_TooltipCommon::create(substr($subject,0,38).'...',$subject);
 			$r->add_data($id,array('value'=>'<a href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.http_build_query(array('box'=>$box, 'dir'=>$dir, 'msg_id'=>$id, 'pid'=>$preview_id)).'\',\''.$id.'\')" id="apps_mailclient_msg_'.$id.'" '.($data['read']?'':'style="font-weight:bold"').'>'.$subject.'</a>','order_value'=>$subject),htmlentities($to_address),htmlentities($from_address),array('value'=>Base_RegionalSettingsCommon::time2reg($data['date']), 'order_value'=>strtotime($data['date'])),array('style'=>'text-align:right','value'=>filesize_hr($data['size']), 'order_value'=>$data['size']));
 			$lid = 'mailclient_link_'.$id;
-			$r->add_action('href="javascript:void(0)" rel="'.$show_id.'" class="lbOn" id="'.$lid.'" ','View');
 			$r->add_action($this->create_confirm_callback_href($this->ht('Delete this message?'),array($this,'remove_mail'),array($box,$dir,$id)),'Delete');
 			if($drafts_folder) {
 				$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box,$dir,$id,'edit')),'Edit');
@@ -160,7 +158,6 @@ class Apps_MailClient extends Module {
 			$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box,$dir,$id,'forward')),'Forward',null,Base_ThemeCommon::get_template_file($this->get_type(),'forward.png'));
 			$r->add_action(Libs_LeightboxCommon::get_open_href('mail_actions').' id="actions_button_'.$id.'"','Actions',null,Base_ThemeCommon::get_template_file($this->get_type(),'actions.png'));
 			$r->add_js('Event.observe(\'actions_button_'.$id.'\',\'click\',function() {Apps_MailClient.actions_set_id(\''.$id.'\')})');
-			$r->add_js('Event.observe(\''.$lid.'\',\'click\',function() {Apps_MailClient.preview(\''.$show_id.'\',\''.http_build_query(array('box'=>$box, 'dir'=>$dir, 'msg_id'=>$id, 'pid'=>$show_id)).'\',\''.$id.'\')})');
 		}
 
 		//list of messages/preview
@@ -183,14 +180,6 @@ class Apps_MailClient extends Module {
 			$th_show->assign('address_label',$this->t('To'));
 		else
 			$th_show->assign('address_label',$this->t('From'));
-		$th_show->assign('subject','<div id="'.$show_id.'_subject"></div>');
-		$th_show->assign('address','<div id="'.$show_id.'_address"></div>');
-		$th_show->assign('attachments','<div id="'.$show_id.'_attachments"></div>');
-		$th_show->assign('body','<iframe id="'.$show_id.'_body"></iframe>');
-		$th_show->assign('close','<a class="lbAction" rel="deactivate">Close</a>');
-		print('<div id="'.$show_id.'" class="leightbox">');
-		$th_show->display('message');
-		print('</div>');
 
 		Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file($this->get_type(),'check.png'),$this->t('Check'),$this->check_mail_href());
 //		if(DB::GetOne('SELECT 1 FROM apps_mailclient_accounts WHERE smtp_server is not null AND smtp_server!=\'\' AND user_login_id='.Acl::get_user())) //bo bedzie internal

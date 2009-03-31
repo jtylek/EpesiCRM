@@ -78,7 +78,8 @@ if(isset($_GET['attachment_cid']) || isset($_GET['attachment_name'])) {
 
 	$script = 'parent.$(\''.$_GET['pid'].'_subject\').innerHTML=\''.Epesi::escapeJS(htmlentities($subject),false).'\';'.
 			'parent.$(\''.$_GET['pid'].'_address\').innerHTML=\''.Epesi::escapeJS(htmlentities($address),false).'\';'.
-			'parent.$(\''.$_GET['pid'].'_attachments\').innerHTML=\''.Epesi::escapeJS($ret_attachments,false).'\';';
+			'parent.$(\''.$_GET['pid'].'_attachments\').innerHTML=\''.Epesi::escapeJS($ret_attachments,false).'\';'.
+			'parent.$("mail_view_body").height = Math.max(document.body.offsetHeight,document.body.scrollHeight)+30;';
 
 	header("Content-type: text/html");
 	if($body_type=='plain') {
