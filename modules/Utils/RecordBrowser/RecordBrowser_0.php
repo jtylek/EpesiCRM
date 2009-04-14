@@ -324,9 +324,13 @@ class Utils_RecordBrowser extends Module {
 			$filter_id = strtolower(str_replace(' ','_',$filter));
 			if (isset($this->custom_filters[$filter_id])) {
 				if (!isset($vals[$filter_id])) $vals[$filter_id]='__NULL__';
-				if (isset($this->custom_filters[$filter_id]['trans'][$vals[$filter_id]]))
+				if (isset($this->custom_filters[$filter_id]['trans'][$vals[$filter_id]])) {
 					foreach($this->custom_filters[$filter_id]['trans'][$vals[$filter_id]] as $k=>$v)
 						$this->crits[$k] = $v;
+				} elseif (isset($this->custom_filters[$filter_id]['trans_callback'])) {
+					$new_crits = call_user_func($this->custom_filters[$filter_id]['trans_callback'], $vals[$filter_id]);
+					$this->crits = Utils_RecordBrowserCommon::merge_crits($this->crits, $new_crits);
+				}
 			} else {
 				if (!isset($text_filters[$filter_id])) {
 					if (!isset($vals[$filter_id])) $vals[$filter_id]='__NULL__';
