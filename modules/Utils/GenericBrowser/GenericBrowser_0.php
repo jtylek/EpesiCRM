@@ -71,7 +71,7 @@ class Utils_GenericBrowser_Row_Object {
 	 * @param string label
 	 */
 	public function add_action($tag_attrs,$label,$tooltip=null,$icon=null){
-		$this->GBobj->__add_row_action($this->num, $tag_attrs,$label,isset($tooltip)?$tooltip:null,$icon);
+		$this->GBobj->__add_row_action($this->num, $tag_attrs,$label,$tooltip,$icon);
 	}
 
 	/**
@@ -224,7 +224,8 @@ class Utils_GenericBrowser extends Module {
 	 */
 	public function __add_row_action($num,$tag_attrs,$label,$tooltip,$icon) {
 		if (!isset($icon)) $icon = strtolower(trim($label));
-		$this->actions[$num][$icon] = array('tag_attrs'=>$tag_attrs,'label'=>$this->ht($label),'tooltip'=>$tooltip);
+		if ($label==strip_tags($label)) $label = $this->ht($label);
+		$this->actions[$num][$icon] = array('tag_attrs'=>$tag_attrs,'label'=>$label,'tooltip'=>$tooltip);
 		$this->en_actions = true;
 	}
 

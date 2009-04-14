@@ -645,7 +645,7 @@ class Utils_RecordBrowser extends Module {
 				$id = Utils_RecordBrowserCommon::new_record($this->tab, $values);
 				location(array());
 			}
-			$form->addElement('submit', 'submit', 'Submit');
+			$form->addElement('submit', 'submit', $this->t('Submit'));
 			$renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
 			$form->accept($renderer);
 			$data = $renderer->toArray();
@@ -665,7 +665,7 @@ class Utils_RecordBrowser extends Module {
 				$row_data[] = '&nbsp;';
 
 			$gb_row = $gb->get_new_row();
-			$gb_row->add_action('',$data['submit']['html']);
+			$gb_row->add_action('',$data['submit']['html'],'');
 			$gb_row->add_data_array($row_data);
 		}
 		if ($special) {
