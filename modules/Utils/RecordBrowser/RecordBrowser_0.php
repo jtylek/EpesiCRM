@@ -480,7 +480,8 @@ class Utils_RecordBrowser extends Module {
 		if (!$special) {
 			$custom_label = '';
 			if ($this->add_button!==null) $label = $this->add_button;
-			else $label = $this->create_callback_href(array($this, 'navigate'), array('view_entry', 'add', null, $this->custom_defaults));
+			elseif (!$this->multiple_defaults) $label = $this->create_callback_href(array($this, 'navigate'), array('view_entry', 'add', null, $this->custom_defaults));
+			else $label = false;
 			if ($label!==false) $custom_label = '<a '.$label.'><img border="0" src="'.Base_ThemeCommon::get_template_file('Base/ActionBar','icons/add-small.png').'" /></a>';
 			if ($this->more_add_button_stuff) { 
 				if ($custom_label) $custom_label = '<table><tr><td>'.$custom_label.'</td><td>'.$this->more_add_button_stuff.'</td></tr></table>';
