@@ -45,7 +45,6 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 					'onSuccess:function(t){$(\''.Epesi::escapeJS($id,false).'\').value=t.responseText;}})',
 					false,null,null,
 					'popup.clonePosition(\''.$id.'\',{setWidth:false,setHeight:false,offsetTop:$(\''.$id.'\').getHeight()})',$label,$value).'</td></tr></table>';
-			print($value.'<br>');
 
 			load_js('modules/Utils/PopupCalendar/datepicker.js');
 			eval_js('Event.observe(\''.$id.'\',\'keypress\',Utils_PopupCalendarDatePicker.validate.bindAsEventListener(Utils_PopupCalendarDatePicker,\''.Epesi::escapeJS($date_format,false).'\'))');
