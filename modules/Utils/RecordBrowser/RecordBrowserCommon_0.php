@@ -1012,7 +1012,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			foreach($cols as $v){
 				if (isset($row['f_'.$v['id']])) {
 					if ($v['type']=='multiselect') $r[$v['id']] = self::decode_multi($row['f_'.$v['id']]); 
-					else $r[$v['id']] = htmlspecialchars($row['f_'.$v['id']]);
+					elseif ($v['type']!=='long text') $r[$v['id']] = htmlspecialchars($row['f_'.$v['id']]);
+					else $r[$v['id']] = $row['f_'.$v['id']];
 				} else {
 					if ($v['type']=='multiselect') $r[$v['id']] = array(); 
 					else $r[$v['id']] = '';
