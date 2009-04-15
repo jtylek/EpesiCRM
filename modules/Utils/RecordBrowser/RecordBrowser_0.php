@@ -63,6 +63,7 @@ class Utils_RecordBrowser extends Module {
 	private $additional_actions_method = null;
 	private $filter_crits = array();
 	private $disabled = array('search'=>false, 'browse_mode'=>false, 'watchdog'=>false, 'quickjump'=>false, 'filters'=>false, 'headline'=>false, 'actions'=>false, 'fav'=>false);
+	private $force_order;
 	
 	public function set_filter_crits($field, $crits) {
 		$this->filter_crits[$field] = $crits;
@@ -430,8 +431,11 @@ class Utils_RecordBrowser extends Module {
 			$table_columns = array(array('name'=>$this->t('Select'), 'width'=>1));
 		} else {
 			$table_columns = array();
-			if (!$admin && $this->favorites)
-				$table_columns[] = array('name'=>$this->t('Fav'), 'width'=>1, 'order'=>':Fav');
+			if (!$admin && $this->favorites) {
+				$fav = array('name'=>$this->t('Fav'), 'width'=>1);
+				if (!isset($this->force_order)) $fav['order'] = ':Fav';
+				$table_columns[] = $fav;
+			}
 			if (!$admin && $this->watchdog)
 				$table_columns[] = array('name'=>$this->t('Sub'), 'width'=>1);
 		}
@@ -448,7 +452,7 @@ class Utils_RecordBrowser extends Module {
 			if (isset($cols[$args['id']]) && $cols[$args['id']] === false) continue;
 			$query_cols[] = $args['id'];
 			$arr = array('name'=>$args['name']);
-			if ($this->browse_mode!='recent' && $args['type']!=='multiselect' && ($args['type']!=='calculated' || $args['param']!='') && $args['type']!=='hidden') $arr['order'] = $field;
+			if (!isset($this->force_order) && $this->browse_mode!='recent' && $args['type']!=='multiselect' && ($args['type']!=='calculated' || $args['param']!='') && $args['type']!=='hidden') $arr['order'] = $field;
 			if ($quickjump!=='' && $args['name']===$quickjump) $arr['quickjump'] = '"'.$args['name'];
 			if ($args['type']=='checkbox' || (($args['type']=='date' || $args['type']=='timestamp') && !$this->add_in_table) || $args['type']=='commondata') {
 				$arr['wrapmode'] = 'nowrap';
@@ -541,6 +545,7 @@ class Utils_RecordBrowser extends Module {
 			if (self::$admin_filter==2) self::$admin_filter = ' AND active=0';
 			$form->display();
 		}
+		if (isset($this->force_order)) $order = $this->force_order; 
 
 		$this->amount_of_records = Utils_RecordBrowserCommon::get_records_limit($this->tab, $crits, $admin);
 		$limit = $gb->get_limit($this->amount_of_records);
@@ -1625,6 +1630,9 @@ class Utils_RecordBrowser extends Module {
 	public function set_default_order($arg){
 		foreach ($arg as $k=>$v)
 			$this->default_order[$k] = $v;
+	}
+	public function force_order($arg){
+		$this->force_order = $arg;
 	}
 	public function caption(){
 		return $this->caption.': '.$this->action;
