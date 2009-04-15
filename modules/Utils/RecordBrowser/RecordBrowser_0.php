@@ -61,7 +61,12 @@ class Utils_RecordBrowser extends Module {
 	private $navigation_executed = false;
 	private $current_field = null;
 	private $additional_actions_method = null;
+	private $filter_crits = array();
 	private $disabled = array('search'=>false, 'browse_mode'=>false, 'watchdog'=>false, 'quickjump'=>false, 'filters'=>false, 'headline'=>false, 'actions'=>false, 'fav'=>false);
+	
+	public function set_filter_crits($field, $crits) {
+		$this->filter_crits[$field] = $crits;
+	}
 	
 	public function switch_to_addon($arg) {
 		$this->switch_to_addon = $arg;
@@ -280,19 +285,23 @@ class Utils_RecordBrowser extends Module {
 						foreach ($col as $k=>$v)
 							$col[$k] = strtolower(str_replace(' ','_',$v));
 						$crits = array();
-						if (isset($param[1])) {
-							$callback = explode('::',$param[1]);
-							if (is_callable($callback))
-								$crits = call_user_func($callback, true);
-						}
-						if (!is_array($crits)) {
-							$crits = array();
-							if (isset($param[2])) {
-								$callback = explode('::',$param[2]);
+						if (isset($this->filter_crits[$this->table_rows[$filter]['id']])) {
+							$crits = $this->filter_crits[$this->table_rows[$filter]['id']];
+						} else {
+							if (isset($param[1])) {
+								$callback = explode('::',$param[1]);
 								if (is_callable($callback))
 									$crits = call_user_func($callback, true);
 							}
-							if (!is_array($crits)) $crits = array();
+							if (!is_array($crits)) {
+								$crits = array();
+								if (isset($param[2])) {
+									$callback = explode('::',$param[2]);
+									if (is_callable($callback))
+										$crits = call_user_func($callback, true);
+								}
+								if (!is_array($crits)) $crits = array();
+							}
 						}
 						$ret2 = Utils_RecordBrowserCommon::get_records($tab,$crits,$col);
 						if (count($col)!=1) { 
