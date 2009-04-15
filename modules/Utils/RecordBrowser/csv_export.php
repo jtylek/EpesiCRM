@@ -35,9 +35,8 @@ header('Content-Type: text/csv');
 header('Content-disposition: attachement; filename="'.$tab.'_export_'.date('Y_m_d__h_i_s').'.csv"');
 if (headers_sent())
     die('Some data has already been output to browser, can\'t send the file');
-foreach ($tab_info as $v) {
-	$cols[] = $v['name'];
-}
+foreach ($tab_info as $v)
+	$cols[] = Base_LangCommon::ts('Utils_RecordBrowser',$v['name']);
 $f = fopen('php://output','w');
 fputcsv($f, $cols);
 foreach ($records as $r) {
