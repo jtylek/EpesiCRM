@@ -26,6 +26,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 			array('name'=>'Short Name',		'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>false),
 			array('name'=>'Phone', 			'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_phone')),
 			array('name'=>'Fax', 			'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false),
+			array('name'=>'Email', 			'type'=>'text', 'required'=>false, 'param'=>'128', 'extra'=>false, 'visible'=>false, 'display_callback'=>array('CRM_ContactsCommon', 'display_email'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_email')),
 			array('name'=>'Web address',	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>false, 'display_callback'=>array('CRM_ContactsCommon', 'display_webaddress'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_webaddress')),
 			array('name'=>'Group', 			'type'=>'multiselect', 'required'=>false, 'visible'=>true, 'param'=>'__COMMON__::Companies_Groups', 'extra'=>false, 'visible'=>true, 'filter'=>true),
 			array('name'=>'Permission',		'type'=>'select', 'required'=>true, 'param'=>'__COMMON__::CRM/Access', 'extra'=>false),
