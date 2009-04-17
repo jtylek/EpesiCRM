@@ -44,6 +44,15 @@ class Utils_TooltipCommon extends ModuleCommon {
 			eval_js($js,false);
 			$_SESSION['client']['utils_tooltip']['div_exists'] = true;
 		}
+		static $on_exit_defined = false;
+		if (!$on_exit_defined) {
+			on_exit(array('Utils_TooltipCommon', 'hide_tooltip'),false);
+			$on_exit_defined = true;
+		}
+	}
+	
+	public static function hide_tooltip() {
+		eval_js('if($("tooltip_div"))$("tooltip_div").style.display=\'none\';');		
 	}
 
 	/**
@@ -119,4 +128,5 @@ class Utils_TooltipCommon extends ModuleCommon {
 		return $table;
 	}
 }
+
 ?>
