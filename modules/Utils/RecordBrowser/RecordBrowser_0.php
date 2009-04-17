@@ -271,7 +271,7 @@ class Utils_RecordBrowser extends Module {
 				$arr = array(''=>$this->ht('No'), 1=>$this->ht('Yes'));
 			} else {
 				if ($this->table_rows[$filter]['type'] == 'commondata') {
-					$arr = array_merge($arr, Utils_CommonDataCommon::get_translated_array($this->table_rows[$filter]['param'], true));
+					$arr = array_merge($arr, Utils_CommonDataCommon::get_translated_array($this->table_rows[$filter]['param']['array_id'], $this->table_rows[$filter]['param']['order_by_key']));
 					natcasesort($arr);
 				} else {
 					$param = explode(';',$this->table_rows[$filter]['param']);
@@ -463,7 +463,10 @@ class Utils_RecordBrowser extends Module {
 					if (isset($this->more_table_properties[$args['id']][$v])) $arr[$v] = $this->more_table_properties[$args['id']][$v];
 			}
 			$arr['name'] = $this->t($arr['name']);
-			$str = explode(';', $args['param']);
+			if (is_array($args['param']))
+				$str = explode(';', $args['param']['array_id']);
+			else
+				$str = explode(';', $args['param']);
 			$ref = explode('::', $str[0]);
 			if (!$this->disabled['search']) {
 				if ($args['type']=='text' || $args['type']=='currency' || ($args['type']=='calculated' && $args['param']!='')) $arr['search'] = $args['id'];//str_replace(' ','_',$field);
@@ -1088,9 +1091,9 @@ class Utils_RecordBrowser extends Module {
 										if (isset($args['required']) && $args['required']) $form->addRule($args['id'], Base_LangCommon::ts('Utils_RecordBrowser','Field required'), 'timestamp_required');
 										if ($mode!=='add' && $record[$args['id']]) $form->setDefaults(array($args['id']=>$record[$args['id']]));
 										break;
-					case 'commondata':	$param = explode('::',$args['param']);
+					case 'commondata':	$param = explode('::',$args['param']['array_id']);
 										foreach ($param as $k=>$v) if ($k!=0) $param[$k] = strtolower(str_replace(' ','_',$v));
-										$form->addElement($args['type'], $args['id'], '<span id="_'.$args['id'].'__label">'.$this->t($args['name']).'</span>', $param, array('empty_option'=>true, 'id'=>$args['id']));
+										$form->addElement($args['type'], $args['id'], '<span id="_'.$args['id'].'__label">'.$this->t($args['name']).'</span>', $param, array('empty_option'=>true, 'id'=>$args['id'], 'order_by_key'=>$args['param']['order_by_key']));
 										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 										break;
 					case 'select':

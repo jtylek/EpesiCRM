@@ -77,7 +77,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				if (!isset($val) || $val==='') {
 					$ret = '';
 				} else {
-					$arr = explode('::',$args['param']);
+					$arr = explode('::',$args['param']['array_id']);
 					$path = array_shift($arr);
 					foreach($arr as $v) $path .= '/'.$record[strtolower(str_replace(' ','_',$v))];
 					$path .= '/'.$record[$args['id']];
@@ -127,6 +127,18 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		foreach ($v as $w)
 			$ret[$w] = $w;
 		return $ret;
+	}
+	public static function decode_commondata_param($param) {
+		$param = explode('__',$param);
+		if (isset($param[1]))
+			$param = array('order_by_key'=>$param[0], 'array_id'=>$param[1]);
+		else
+			$param = array('order_by_key'=>false, 'array_id'=>$param[0]);
+		return $param;
+	}
+	public static function encode_commondata_param($param) {
+		if (!is_numeric($param[0])) $param[0] = (int)$param[0];
+		return implode('__', $param);
 	}
 	public static function format_long_text($tab,$record){
 		self::init($tab);
@@ -236,6 +248,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		self::$hash = array();
 		while($row = $ret->FetchRow()) {
 			if ($row['field']=='id') continue;
+			if ($row['type']=='commondata')
+				$row['param'] = self::decode_commondata_param($row['param']);
 			self::$table_rows[$row['field']] =
 				array(	'name'=>$row['field'],
 						'id'=>strtolower(str_replace(' ','_',$row['field'])),
@@ -413,7 +427,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		if (is_array($param)) {
 			if ($type=='commondata') {
-				$param = implode('::',$param);
+				if (isset($param['order_by_key'])) {
+					$obk = $param['order_by_key'];
+					unset($param['order_by_key']);
+					$param = array('array_id'=>implode('::',$param));
+					$param['order_by_key'] = $obk;
+					$param = self::encode_commondata_param($param);
+				} else $param = implode('::',$param);
 			} else {
 				$tmp = array();
 				foreach ($param as $k=>$v) $tmp[] = $k.'::'.$v;
@@ -430,7 +450,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			case 'page_split': $f = ''; break;
 
 			case 'text': $f = DB::dict()->ActualType('C').'('.$param.')'; break;
-			case 'select': $f = DB::dict()->ActualType('X'); break;
+			case 'select': $f = DB::dict()->ActualType('I4'); break;
 			case 'multiselect': $f = DB::dict()->ActualType('X'); break;
 			case 'commondata': $f = DB::dict()->ActualType('C').'(128)'; break;
 			case 'integer': $f = DB::dict()->ActualType('F'); break;
@@ -886,7 +906,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				}
 			} else {
 				self::init($tab);
-				$param = explode(';', self::$table_rows[$v['order']]['param']);
+				if (is_array(self::$table_rows[$v['order']]['param']))
+					$param = explode(';', self::$table_rows[$v['order']]['param']['array_id']);
+				else
+					$param = explode(';', self::$table_rows[$v['order']]['param']);
 				$param = explode('::',$param[0]);
 				if (isset($param[1]) && $param[1]!='') {
 					if (self::$table_rows[$v['order']]['type']!='commondata') {

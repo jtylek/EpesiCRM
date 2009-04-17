@@ -27,11 +27,11 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 			array('name'=>'Other Contact',		'type'=>'checkbox', 'extra'=>false, 'QFfield_callback'=>array('CRM_PhoneCallCommon','QFfield_other_contact')),
 			array('name'=>'Other Contact Name',	'type'=>'text', 'param'=>'64', 'extra'=>false),
 
-			array('name'=>'Permission', 		'type'=>'select', 'required'=>true, 'param'=>'__COMMON__::CRM/Access', 'extra'=>false),
+			array('name'=>'Permission', 		'type'=>'commondata', 'required'=>true, 'param'=>array('order_by_key'=>true,'CRM/Access'), 'extra'=>false),
 			array('name'=>'Employees', 			'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('CRM_PhoneCallCommon','employees_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>true, 'extra'=>false, 'visible'=>true),
 
-			array('name'=>'Status',				'type'=>'select', 'required'=>true, 'filter'=>true, 'param'=>'__COMMON__::CRM/Status', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_PhoneCallCommon','display_status')),
-			array('name'=>'Priority', 			'type'=>'select', 'required'=>true, 'param'=>'__COMMON__::CRM/Priority', 'extra'=>false),
+			array('name'=>'Status',				'type'=>'commondata', 'required'=>true, 'filter'=>true, 'param'=>array('order_by_key'=>true,'CRM/Status'), 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_PhoneCallCommon','display_status')),
+			array('name'=>'Priority', 			'type'=>'commondata', 'required'=>true, 'param'=>array('order_by_key'=>true,'CRM/Priority'), 'extra'=>false),
 
 			array('name'=>'Phone', 				'type'=>'select', 'extra'=>false, 'QFfield_callback'=>array('CRM_PhoneCallCommon','QFfield_phone'), 'display_callback'=>array('CRM_PhoneCallCommon','display_phone')),
 			array('name'=>'Other Phone',		'type'=>'checkbox', 'extra'=>false, 'QFfield_callback'=>array('CRM_PhoneCallCommon','QFfield_other_phone')),
