@@ -269,7 +269,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$key = '';
 			if ($no_company_option) {
 				$comp = array(''=>'['.Base_LangCommon::ts('CRM_Contacts','w/o company').']') + $comp;
-				$key = '_no_company';
+				$key = -1;
 			}
 			$comp = array($key => '---') + $comp;
 			$form->addElement($desc['type'], $field, $label, $comp, array('id'=>$field));
