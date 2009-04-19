@@ -28,7 +28,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			$contact = $c['last_name'].' '.$c['first_name'];
 			$company = CRM_ContactsCommon::display_company(array('id'=>$r['company_name']),true);
 			if (isset($r['phone']) && $r['phone']!='') {
-				list($ret, $num) = explode('__',$r['phone']);
+				$num = $r['phone'];
 				switch ($num) {
 					case 1: $nr = 'Mobile Phone'; break;
 					case 2: $nr = 'Work Phone'; break;
@@ -212,7 +212,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			$form->addFormRule(array('CRM_PhoneCallCommon','check_contact_not_empty'));
 		} else {
 			$form->addElement('static', $field, $label);
-			$form->setDefaults(array($field=>self::display_phone(array($desc['id']=>$default), false, $desc)));
+			$form->setDefaults(array($field=>self::display_phone(Utils_RecordBrowser::$last_record, false, $desc)));
 		}
 	}
     public static function display_subject($record, $nolink = false) {
@@ -225,7 +225,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			if(MOBILE_DEVICE && IPHONE && !$nolink && ereg('^([0-9\t\+-]+)',$record['other_phone_number'],$args))
 				return '<a href="tel:'.$args[1].'">'.$record['other_phone_number'].'</a>';
 			return $record['other_phone_number'];
-		} else return self::display_phone(array('phone'=>$record['phone']),false,array('id'=>'phone'));
+		} else return self::display_phone($record,false,array('id'=>'phone'));
 	}
 	public static function display_contact_name($record, $nolink) {
 		if ($record['other_contact']) return $record['other_contact_name'];
@@ -239,8 +239,8 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	}
 	public static function display_phone($record, $nolink, $desc) {
 		if ($record[$desc['id']]=='') return '';
-		list($ret, $num) = explode('__',$record[$desc['id']]);
-		$contact = CRM_ContactsCommon::get_contact($ret);
+		$num = $record[$desc['id']];
+		$contact = CRM_ContactsCommon::get_contact($record['contact']);
 		switch ($num) {
 			case 1: $nr = 'Mobile Phone'; break;
 			case 2: $nr = 'Work Phone'; break;

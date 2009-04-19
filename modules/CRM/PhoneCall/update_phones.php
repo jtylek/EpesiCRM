@@ -30,7 +30,7 @@ else {
 	$i = 1;
 	foreach(array('Mobile Phone', 'Work Phone', 'Home Phone') as $v) {
 		$id = strtolower(str_replace(' ','_',$v));
-		if ($contact[$id]) $res[$ret.'__'.$i] = Base_LangCommon::ts('CRM/PhoneCall',$v).': '.$contact[$id];
+		if ($contact[$id]) $res[$i] = Base_LangCommon::ts('CRM/PhoneCall',$v).': '.$contact[$id];
 		$i++; 
 	}
 	
