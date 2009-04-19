@@ -55,7 +55,7 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 		$this->_elementName = $elementName;
 		$this->_persistantFreeze = true;
 		$this->_appendName = true;
-		$this->_type = 'timestamp';
+		$this->_type = 'group';
 		$this->_options = $options;
 	}
 

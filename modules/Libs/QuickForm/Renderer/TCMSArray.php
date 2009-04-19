@@ -336,10 +336,16 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
         }
     }
     
-	function _prepareValue(&$element) {
+	function _prepareValue(&$element, $group_name=null) {
 		$type = $element->getType();
     	$name = $element->getName();
+    	if ($group_name) $name = $group_name.'['.$name.']';
 		$value = '';
+		if($element->getType()=='group') {
+			foreach ($element->_elements as $e)
+				$this->_prepareValue(&$e, $name);
+			return;
+		}
 		if(!$element->isFrozen()) {
 			if($type == 'text' || $type=='textarea' || $type=='hidden') {
 				$value = $element->getValue();
