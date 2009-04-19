@@ -279,7 +279,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
 		$value = '';
 		if($element->getType()=='group') {
 			foreach ($element->_elements as $e)
-				$this->_prepareValue(&$e, $name);
+				$this->_prepareValue($e, $name);
 			return;
 		}
 		if(!$element->isFrozen()) {
