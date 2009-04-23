@@ -1530,7 +1530,13 @@ class Utils_RecordBrowser extends Module {
 				$gb_row = $gb_cha->get_new_row();
 //				eval_js('apply_changes_to_'.$k.'=function(){element = document.getElementsByName(\''.$k.'\')[0].value=\''.$v.'\';};');
 //				$gb_row->add_action('href="javascript:apply_changes_to_'.$k.'()"', 'Apply', null, 'apply');
-				$gb_row->add_data($row['edited_on'], Base_UserCommon::get_user_login($row['edited_by']), $field_hash[$k], $old, $new);
+				$gb_row->add_data(
+					Base_RegionalSettingsCommon::time2reg($row['edited_on']), 
+					Base_UserCommon::get_user_login($row['edited_by']), 
+					$field_hash[$k], 
+					$old, 
+					$new
+				);
 			}
 		}
 		$theme = $this->init_module('Base/Theme');
@@ -1566,7 +1572,7 @@ class Utils_RecordBrowser extends Module {
 		if (!isset($edited['login']))
 			return;
 		$gb_cur->add_row($this->t('Edited by'), $edited['login']);
-		$gb_cur->add_row($this->t('Edited on'), $edited['edited_on']);
+		$gb_cur->add_row($this->t('Edited on'), Base_RegionalSettingsCommon::time2reg($edited['edited_on']));
 		foreach($this->table_rows as $field => $args) {
 			if ($access[$args['id']] == 'hide') continue;
 			$field_hash[$args['id']] = $field;
@@ -1591,12 +1597,18 @@ class Utils_RecordBrowser extends Module {
 					if ($this->table_rows[$field_hash[$k]]['type']=='multiselect') $v = Utils_RecordBrowserCommon::decode_multi($v);
 					$created[$k] = $v;
 					$old = $this->get_val($field_hash[$k], $created, $created['id'], false, $this->table_rows[$field_hash[$k]]);
-					$gb_cha->add_row($row['edited_on'], Base_UserCommon::get_user_login($row['edited_by']), $this->t($field_hash[$k]), $old, $new);
+					$gb_cha->add_row(
+						Base_RegionalSettingsCommon::time2reg($row['edited_on']), 
+						Base_UserCommon::get_user_login($row['edited_by']), 
+						$this->t($field_hash[$k]), 
+						$old, 
+						$new
+					);
 				}
 			}
 		}
 		$gb_ori->add_row($this->t('Created by'), $created['created_by_login']);
-		$gb_ori->add_row($this->t('Created on'), $created['created_on']);
+		$gb_ori->add_row($this->t('Created on'), Base_RegionalSettingsCommon::time2reg($created['created_on']));
 		foreach($this->table_rows as $field => $args) {
 			if ($access[$args['id']] == 'hide') continue;
 			$val = $this->get_val($field, $created, $created['id'], false, $args);

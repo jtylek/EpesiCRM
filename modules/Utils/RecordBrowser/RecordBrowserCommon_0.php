@@ -635,18 +635,19 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			}
 			if ($args['type']=='long text')
 				$values[$args['id']] = Utils_BBCodeCommon::optimize($values[$args['id']]);
-			if ($record[$args['id']]!=$values[$args['id']]) {
-				if ($args['type']=='multiselect') {
-					$v = self::encode_multi($values[$args['id']]);
-					$old = self::encode_multi($record[$args['id']]);
-				} else {
-					$v = $values[$args['id']];
-					$old = $record[$args['id']];
-				}
-				if ($v!=='') DB::Execute('UPDATE '.$tab.'_data_1 SET f_'.$args['id'].'='.self::get_sql_type($args['type']).' WHERE id=%d',array($v, $id));
-				else DB::Execute('UPDATE '.$tab.'_data_1 SET f_'.$args['id'].'=NULL WHERE id=%d',array($id));
-				$diff[$args['id']] = $old;
+			if ($args['type']=='multiselect') {
+				$array_diff = array_diff($record[$args['id']], $values[$args['id']]);
+				if (empty($array_diff)) continue;
+				$v = self::encode_multi($values[$args['id']]);
+				$old = self::encode_multi($record[$args['id']]);
+			} else {
+				if ($record[$args['id']]==$values[$args['id']]) continue;
+				$v = $values[$args['id']];
+				$old = $record[$args['id']];
 			}
+			if ($v!=='') DB::Execute('UPDATE '.$tab.'_data_1 SET f_'.$args['id'].'='.self::get_sql_type($args['type']).' WHERE id=%d',array($v, $id));
+			else DB::Execute('UPDATE '.$tab.'_data_1 SET f_'.$args['id'].'=NULL WHERE id=%d',array($id));
+			$diff[$args['id']] = $old;
 		}
 		if (!$dont_notify && !empty($diff)) {
 			DB::Execute('INSERT INTO '.$tab.'_edit_history(edited_on, edited_by, '.$tab.'_id) VALUES (%T,%d,%d)', array((($date==null)?date('Y-m-d G:i:s'):$date), Acl::get_user(), $id));
