@@ -66,9 +66,6 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 			if(prev_month < 0) { prev_month = 11; prev_year--; }
 			var next_year = year;
 			if(next_month > 11) { next_month = 0; next_year++; }
-			if(year < 1900) {
-				year_real = year + 1900;
-			}
 
 			// filling header
 			var header_string = '<table class="menu" cellspacing="0" cellpadding="0" border="0"><tr>';
@@ -156,9 +153,6 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 			year_real = year;
 			var prev_year = year - 1;
 			var next_year = year + 1;
-			if(year < 1900) {
-				year_real = year + 1900;
-			}
 
 			// filling header
 			var header_string = '<table class="menu" cellspacing="0" cellpadding="0" border="0"><tr>';
@@ -182,7 +176,7 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 				}
 				var prep_link;
 				if(this.mode!='month') {
-					prep_link = 'datepicker_'+this.instance_id+'.show_month('+index+', '+year+')';
+					prep_link = 'datepicker_'+this.instance_id+'.show_month('+year+', '+index+')';
 				} else {
 					prep_link = this.link_proto.replace("__YEAR__", year_real);
 					prep_link = prep_link.replace("__MONTH__", (index+1));
@@ -216,9 +210,6 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 			decade_real = decade;
 			var prev_decade = decade - 10;
 			var next_decade = decade + 10;
-			if(decade < 1900) {
-				decade_real = decade + 1900;
-			}
 
 			// filling header
 			var header_string = '<table class="menu"  cellspacing="0" cellpadding="0" border="0"><tr>';
@@ -276,12 +267,9 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 			century_real = century;
 			var prev_century = century - 100;
 			var next_century = century + 100;
-			if(century < 1900) {
-				century_real = century + 1900;
-			}
 
 			// filling header
-			var header_string = '<table cellspacing="0" cellpadding="0" border="0"><tr>';
+			var header_string = '<table class="menu" cellspacing="0" cellpadding="0" border="0"><tr>';
 			header_string += '<td align=left><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_century(\''+prev_century+'\')">&lt;&lt</a></td>';
 			header_string += '<td width=100% align=center>'+ century_real + ' - ' + (century_real+100) + '</td>';
 			header_string += '<td align=right><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_century(\''+next_century+'\')">&gt;&gt</a></td>';
@@ -301,7 +289,7 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 					cal += '>';
 				}
 				cal += '<div class="month"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_decade(' + (century + index - 10) + ')">';
-				cal += (century_real + index - 10) + ' - ' + (century_real + index);
+				cal += (century_real + index - 10) + '&nbsp;-&nbsp;' + (century_real + index);
 				cal += '</a></div>' + TDend;
 
 				if(index % 30 == 20) { cal += TRend; }
