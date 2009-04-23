@@ -218,11 +218,10 @@ class CRM_ContactsCommon extends ModuleCommon {
 				if ($crit_callback[0]=='ChainedSelect')
 					self::contacts_chainedselect_crits($form->exportValue($field), $desc, $callback, $crit_callback[1]);
 		} else {
-			$form->addElement('static', $field, $label, array('id'=>$field));
 			$callback = $rb_obj->get_display_method($desc['name']);
 			if (!is_callable($callback)) $callback = array('CRM_ContactsCommon','display_contact');
 			$def = call_user_func($callback, $rb_obj->record, false, $desc);
-			$form->setDefaults(array($field=>$def));
+			$form->addElement('static', $field, $label, $def);
 		}
 	}
 
@@ -275,7 +274,6 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$form->addElement($desc['type'], $field, $label, $comp, array('id'=>$field));
 			if ($mode!=='add') $form->setDefaults(array($field=>$default));
 		} else {
-			$form->addElement('static', $field, $label, array('id'=>$field));
 			/*$def = '';
 			$first = true;
 			if (is_numeric($default) || is_array($default)) {
@@ -291,7 +289,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$form->setDefaults(array($field=>$def));*/
 			if (isset($display_callbacks[$desc['name']])) $callback = $display_callbacks[$desc['name']];
 			else $callback = array('CRM_ContactsCommon', 'display_company');
-			$form->setDefaults(array($field=>call_user_func($callback, array('company'=>$default), false, array('id'=>'company'))));
+			$form->addElement('static', $field, $label, call_user_func($callback, array('company'=>$default), false, array('id'=>'company')));
 		}
 	}
 
