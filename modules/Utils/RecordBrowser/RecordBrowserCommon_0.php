@@ -137,7 +137,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return $param;
 	}
 	public static function encode_commondata_param($param) {
-		if (!is_numeric($param[0])) $param[0] = (int)$param[0];
+		if (!is_array($param)) return '0__'.$param;
+		if (isset($param[0])) {
+			array_unshift($param, 0);
+		} else {
+			$param = array($param['order_by_key'], $param['array_id']);
+		}
 		return implode('__', $param);
 	}
 	public static function format_long_text($tab,$record){
