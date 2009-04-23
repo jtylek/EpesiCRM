@@ -41,6 +41,20 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 		if (!isset($p[1])) $p[1] = 1;
 		return $p;
 	}
+	
+	public function format_default($v, $c=null) {
+		if ($c===null) {
+			$c = explode('__',$v);
+			if (!isset($c[1])) {
+				$c = 1;
+			} else {
+				$v = $c[0];
+				$c = $c[1];
+			}
+		}
+		$v=str_replace('.', self::get_decimal_point(), round($v,self::get_precission($c)));
+		return $v.'__'.$c;
+	}
 
 	public function user_settings() {
 		$currency_options = DB::GetAssoc('SELECT id, code FROM utils_currency WHERE active=1');
@@ -52,11 +66,15 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 	}
 	
 	public static function get_decimal_point() {
-		return DB::GetOne('SELECT decimal_sign FROM utils_currency WHERE id=%d', array(Base_User_SettingsCommon::get('Utils_CurrencyField','decimal_point')));
+		static $cache = null;
+		if ($cache==null) $cache = DB::GetOne('SELECT decimal_sign FROM utils_currency WHERE id=%d', array(Base_User_SettingsCommon::get('Utils_CurrencyField','decimal_point')));
+		return $cache;
 	}
 	
 	public static function get_precission($arg) {
-		return DB::GetOne('SELECT decimals FROM utils_currency WHERE id=%d', array($arg));
+		static $cache = array();
+		if (!isset($cache[$arg])) $cache[$arg] = DB::GetOne('SELECT decimals FROM utils_currency WHERE id=%d', array($arg));
+		return $cache[$arg];
 	}
 	
 	public function admin_caption() {

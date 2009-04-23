@@ -91,7 +91,7 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 
 	function setValue($value) {
 		$val = explode('__',$value);
-		$this->updateAttributes(array('value'=>$val[0]));
+		$this->updateAttributes(array('value'=>str_replace('.',Utils_CurrencyFieldCommon::get_decimal_point(),$val[0])));
 		if (isset($val[1])) $this->currency = $val[1];
 		// TODO: float or string? If float is to be accepted, then conversion is neccessary
 	} // end func setValue

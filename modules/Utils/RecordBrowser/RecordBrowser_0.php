@@ -1069,6 +1069,7 @@ class Utils_RecordBrowser extends Module {
 										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 										break;
 					case 'currency':	$form->addElement('currency', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->t($args['name']).'</span>', array('id'=>$args['id']));
+//										if ($mode!=='add') $form->setDefaults(array($args['id']=>Utils_CurrencyFieldCommon::format_default($record[$args['id']])));
 										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 										break;
 					case 'text':		$form->addElement('text', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->t($args['name']).'</span>', array('id'=>$args['id'], 'maxlength'=>$args['param']));
