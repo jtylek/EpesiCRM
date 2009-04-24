@@ -1043,7 +1043,7 @@ class Utils_RecordBrowser extends Module {
 				if ($mode!=='add' && $mode!=='edit') {
 					if (($args['type']!='checkbox' || isset($this->display_callback_table[$field])) && $args['type']!='commondata') {
 						$def = $this->get_val($field, $record, $id, false, $args);
-						$form->addElement('static', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->t($args['name']).'</span>', array('id'=>$args['id']));
+						$form->addElement('static', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->t($args['name']).'</span>', '', array('id'=>$args['id']));
 						$form->setDefaults(array($args['id']=>$def));
 						continue;
 					}
