@@ -1358,7 +1358,7 @@ class Utils_RecordBrowser extends Module {
 						$args['visible']?$this->t('<b>Yes</b>'):$this->t('No'),
 						$args['required']?$this->t('<b>Yes</b>'):$this->t('No'),
 						$args['filter']?$this->t('<b>Yes</b>'):$this->t('No'),
-						$args['param']
+						is_array($args['param'])?serialize($args['param']):$args['param']
 					);
 		}
 		$this->display_module($gb);
