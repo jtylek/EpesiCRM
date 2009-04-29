@@ -1689,12 +1689,21 @@ class Utils_RecordBrowser extends Module {
 	}
 	public function admin() {
 		$ret = DB::Execute('SELECT tab FROM recordbrowser_table_properties');
-		$tb = $this->init_module('Utils/TabbedBrowser');
+		$form = $this->init_module('Libs/QuickForm');
+		$opts = array();
+		$first = false;
 		while ($row=$ret->FetchRow()) {
-			$tb->set_tab(ucfirst(str_replace('_',' ',$row['tab'])), array($this, 'record_management'), array($row['tab']));
+			if (!$first) $first = $row['tab'];
+			$opts[$row['tab']] = ucfirst(str_replace('_',' ',$row['tab']));  
 		}
-		$this->display_module($tb);
-		$tb->tag();
+		$form->addElement('select', 'recordset', $this->t('Record Set'), $opts, array('onchange'=>$form->get_submit_form_js()));
+		$form->display();
+		if ($form->validate()) {
+			$tab = $form->exportValue('recordset');
+			$this->set_module_variable('admin_browse_recordset', $tab);
+		}
+		$tab = $this->get_module_variable('admin_browse_recordset', $first);
+		if ($tab) $this->record_management($tab);
 	}
 	public function record_management($table){
 		$rb = $this->init_module('Utils/RecordBrowser',$table,$table);
