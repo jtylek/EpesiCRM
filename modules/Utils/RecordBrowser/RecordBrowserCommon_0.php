@@ -637,7 +637,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$values[$args['id']] = Utils_BBCodeCommon::optimize($values[$args['id']]);
 			if ($args['type']=='multiselect') {
 				$array_diff = array_diff($record[$args['id']], $values[$args['id']]);
-				if (empty($array_diff)) continue;
+				if (empty($array_diff)) {
+					$array_diff = array_diff($values[$args['id']], $record[$args['id']]);
+					if (empty($array_diff)) continue;
+				}
 				$v = self::encode_multi($values[$args['id']]);
 				$old = self::encode_multi($record[$args['id']]);
 			} else {
