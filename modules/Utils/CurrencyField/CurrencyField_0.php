@@ -74,6 +74,11 @@ class Utils_CurrencyField extends Module {
 		$form->addRule('thousand_sign', $this->t('Thousand sign must be up to 2 characters long'), 'maxlength', 2);
 		$form->addRule('decimals', $this->t('Field must hold numeric value'), 'numeric');
 
+		$form->addRule('code', $this->t('Field required'), 'required');
+		$form->addRule('symbol', $this->t('Field required'), 'required');
+		$form->addRule('decimal_sign', $this->t('Field required'), 'required');
+		$form->addRule('decimals', $this->t('Field required'), 'required');
+
 		if ($id!==null) {
 			$defs = DB::GetRow('SELECT * FROM utils_currency WHERE id=%d', array($id));
 			$form->setDefaults($defs);
