@@ -247,7 +247,6 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			case 2: $nr = 'Work Phone'; break;
 			case 3: $nr = 'Home Phone'; break;
 		}
-		print_r($record);
 		if (!$nr) return '';
 		$id = strtolower(str_replace(' ','_',$nr));
 		$l = Base_LangCommon::ts('CRM/PhoneCall',$nr);
