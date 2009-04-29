@@ -50,7 +50,7 @@ class Base_Admin extends Module {
 			if(!isset($caption)) $caption = $name.' module';
 			$mod_ok[$caption] = $name;
 		}
-		ksort($mod_ok);
+		uksort($mod_ok,'strcasecmp');
 		
 		$buttons = array();
 		foreach($mod_ok as $caption=>$name) {
