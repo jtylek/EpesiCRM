@@ -241,11 +241,14 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		if ($record[$desc['id']]=='') return '';
 		$num = $record[$desc['id']];
 		$contact = CRM_ContactsCommon::get_contact($record['contact']);
+		$nr = '';
 		switch ($num) {
 			case 1: $nr = 'Mobile Phone'; break;
 			case 2: $nr = 'Work Phone'; break;
 			case 3: $nr = 'Home Phone'; break;
 		}
+		print_r($record);
+		if (!$nr) return '';
 		$id = strtolower(str_replace(' ','_',$nr));
 		$l = Base_LangCommon::ts('CRM/PhoneCall',$nr);
 		if(MOBILE_DEVICE && IPHONE)
