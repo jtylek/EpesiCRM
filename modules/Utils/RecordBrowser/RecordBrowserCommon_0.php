@@ -786,10 +786,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								$having .= ' (((SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) '.$inj.') OR'.
 										'((SELECT MAX(edited_on) FROM '.$tab.'_edit_history WHERE '.$tab.'_id=r.id) IS NULL AND created_on '.$inj.'))';
 							break;
-					default		:
+					default:
 						if (substr($k,0,4)==':Ref')	{
 							$params = explode(':', $k);
 							$ref = $params[2];
+							if (is_array(self::$table_rows[self::$hash[$ref]]['param'])) {
+								if (isset(self::$table_rows[self::$hash[$ref]]['param']['array_id']))
+									self::$table_rows[self::$hash[$ref]]['param'] = self::$table_rows[self::$hash[$ref]]['param']['array_id'];
+								else
+									self::$table_rows[self::$hash[$ref]]['param'] = self::$table_rows[self::$hash[$ref]]['param'][1];
+							}
 							$param = explode(';', self::$table_rows[self::$hash[$ref]]['param']);
 							$param = explode('::',$param[0]);
 							$cols2 = null;
