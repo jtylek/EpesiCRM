@@ -650,7 +650,7 @@ class Utils_RecordBrowser extends Module {
 			$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 			if ($dpm!=='') {
 				$method = explode('::',$dpm);
-				if (is_callable($method)) call_user_func($method, $this->custom_defaults, 'adding');
+				if (is_callable($method)) call_user_func($method, $this->custom_defaults, 'adding',$this->tab);
 			}
 
 			$this->prepare_view_entry_details(null, 'add', null, $form, $visible_cols);
@@ -704,7 +704,7 @@ class Utils_RecordBrowser extends Module {
 				$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 				if ($dpm!=='') {
 					$method = explode('::',$dpm);
-					if (is_callable($method)) call_user_func($method, array('original'=>$id, 'clone'=>self::$clone_result), 'cloned');
+					if (is_callable($method)) call_user_func($method, array('original'=>$id, 'clone'=>self::$clone_result), 'cloned',$this->tab);
 				}
 				$this->navigate('view_entry', 'view', self::$clone_result);
 			}
@@ -804,7 +804,7 @@ class Utils_RecordBrowser extends Module {
 		if ($dpm!=='') {
 			$method = explode('::',$dpm);
 			if (is_callable($method)) {
-				$theme_stuff = call_user_func($method, $mode!='add'?$this->record:$this->custom_defaults, $mode=='view'?'view':$mode.'ing');
+				$theme_stuff = call_user_func($method, $mode!='add'?$this->record:$this->custom_defaults, $mode=='view'?'view':$mode.'ing',$this->tab);
 				if ($mode==='view' && is_array($theme_stuff))
 					foreach ($theme_stuff as $k=>$v)
 						$theme->assign($k, $v);

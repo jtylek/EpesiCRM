@@ -569,7 +569,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 //						if (!is_array($for_processing[$args['id']])) $for_processing[$args['id']] = self::decode_multi($for_processing[$args['id']]);
 				} elseif (!isset($for_processing[$args['id']])) $for_processing[$args['id']] = '';
 			$method = explode('::',$dpm);
-			if (is_callable($method)) $values = call_user_func($method, $for_processing, 'add');
+			if (is_callable($method)) $values = call_user_func($method, $for_processing, 'add',$tab);
 			else $dpm = '';
 		}
 		self::init($tab);
@@ -606,7 +606,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						$values[$args['id']] = self::decode_multi($values[$args['id']]);
 				}
 			$values['id'] = $id;
-			call_user_func($method, $values, 'added');
+			call_user_func($method, $values, 'added',$tab);
 		}
 		return $id;
 	}
@@ -623,7 +623,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			foreach ($record as $k=>$v)
 				if (!isset($process_method_args[$k])) $process_method_args[$k] = $v;
 			$method = explode('::',$dpm);
-			if (is_callable($method)) $values = call_user_func($method, $process_method_args, 'edit');
+			if (is_callable($method)) $values = call_user_func($method, $process_method_args, 'edit',$tab);
 		}
 		$diff = array();
 		self::init($tab);
@@ -1197,7 +1197,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($tab));
 		if ($dpm!=='') {
 			$method = explode('::',$dpm);
-			if (is_callable($method)) call_user_func($method, self::get_record($tab, $id), $state?'restore':'delete');
+			if (is_callable($method)) call_user_func($method, self::get_record($tab, $id), $state?'restore':'delete',$tab);
 		}
 	}
 	public static function delete_record($tab, $id, $perma=false) {

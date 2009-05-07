@@ -182,7 +182,7 @@ class Utils_GenericBrowser extends Module {
 		foreach($arg as $k=>$v){
 			$ord = false;
 			foreach($this->columns as $val)
-				if ($val['name'] == $k) {
+				if ($val['name'] == $k && isset($val['order'])) {
 					$ord = $val['order'];
 					break;
 				}
