@@ -56,8 +56,8 @@ class Libs_TCPDFCommon extends ModuleCommon {
 		return $tcpdf; 
 	}
 
-	public function prepare_header(& $tcpdf, $title='', $subject='', $printed_by=true) {
-		$logo_filename = Libs_TCPDFCommon::get_logo_filename();
+	public function prepare_header(& $tcpdf, $title='', $subject='', $printed_by=true, $logo_filename=null) {
+		if ($logo_filename===null) $logo_filename = Libs_TCPDFCommon::get_logo_filename();
 		if (!file_exists($logo_filename)) $logo_filename = Base_ThemeCommon::get_template_file('Libs/TCPDF','logo-small.png'); 
 		$tcpdf->SetHeaderData($logo_filename, PDF_HEADER_LOGO_WIDTH, $title, $subject);
 
