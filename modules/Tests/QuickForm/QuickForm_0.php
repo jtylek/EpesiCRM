@@ -10,6 +10,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Tests_QuickForm extends Module{
+	
 	public function body(){
 		$f = $this->init_module('Libs/QuickForm');
 
@@ -23,6 +24,7 @@ class Tests_QuickForm extends Module{
 		$f->addRule('xxxyss','ble rule not passed','ble_rule');
 		$f->addRule('xxxyss','required rule not passed','required');
 		$f->addElement('text','ble','Test');
+		$f->addElement('autocomplete','auto_test','Autocomplete', array($this->get_type().'Common', 'autocomplete'));
 
 		$f->addElement('currency','cur','Currency');
 //		$f->setDefaults(array('xxxyss'=>time()));
