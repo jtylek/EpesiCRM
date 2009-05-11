@@ -965,8 +965,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$final_tab = str_replace('('.$tab.'_data_1 AS r'.')',$tab.'_data_1 AS r',$final_tab);
 		$default_filter = (class_exists('Utils_RecordBrowser') && isset(Utils_RecordBrowser::$admin_filter))?Utils_RecordBrowser::$admin_filter:'';
 		$ret = array('sql'=>' '.$final_tab.' WHERE true'.($admin?$default_filter:' AND active=1').$where.$having.$orderby,'vals'=>$vals);
-		print_r($ret);
-		die();
 		return $cache[$key] = $ret;
 	}
 	public static function get_records_limit( $tab = null, $crits = null, $admin = false) {
