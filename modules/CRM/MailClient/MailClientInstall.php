@@ -26,7 +26,7 @@ class CRM_MailClientInstall extends ModuleInstall {
 			body X,
 			body_type C(16),
 			body_ctype C(32)',
-			array('constraints'=>', FOREIGN KEY (from_contact_id) REFERENCES contact(ID), FOREIGN KEY (to_contact_id) REFERENCES contact(ID)'));
+			array('constraints'=>', FOREIGN KEY (from_contact_id) REFERENCES contact_data_1(ID), FOREIGN KEY (to_contact_id) REFERENCES contact_data_1(ID)'));
 		$ret &= DB::CreateTable('crm_mailclient_attachments','
 			id I4 AUTO KEY NOTNULL,
 			mail_id I4 NOTNULL,
