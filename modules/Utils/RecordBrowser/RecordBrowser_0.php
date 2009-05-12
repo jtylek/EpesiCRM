@@ -1041,10 +1041,9 @@ class Utils_RecordBrowser extends Module {
 				call_user_func($this->QFfield_callback_table[$field], $form, $args['id'], $this->t($args['name']), $mode, $mode=='add'?(isset($this->custom_defaults[$args['id']])?$this->custom_defaults[$args['id']]:''):$record[$args['id']], $args, $this, $this->display_callback_table);
 			} else {
 				if ($mode!=='add' && $mode!=='edit') {
-					if (($args['type']!='checkbox' || isset($this->display_callback_table[$field])) && $args['type']!='commondata') {
+					if ($args['type']!='checkbox' || isset($this->display_callback_table[$field])) {
 						$def = $this->get_val($field, $record, $id, false, $args);
-						$form->addElement('static', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->t($args['name']).'</span>', '', array('id'=>$args['id']));
-						$form->setDefaults(array($args['id']=>$def));
+						$form->addElement('static', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->t($args['name']).'</span>', $def, array('id'=>$args['id']));
 						continue;
 					}
 				}
