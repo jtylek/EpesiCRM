@@ -538,6 +538,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function get_sql_type($type) {
 		switch ($type) {
 			case 'checkbox': return '%d';
+			case 'select': return '%d';
 			case 'integer': return '%f';
 			case 'date': return '%D';
 			case 'timestamp': return '%T';
