@@ -135,7 +135,7 @@ function themeup(){
 	install_default_theme_common_files('modules/Base/Theme/','images');
 }
 
-$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1','0.9.9beta1','0.9.9beta2','1.0.0rc1','1.0.0rc2','1.0.0rc3','1.0.0rc4','1.0.0rc5','1.0.0rc6');
+$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1','0.9.9beta1','0.9.9beta2','1.0.0rc1','1.0.0rc2','1.0.0rc3','1.0.0rc4','1.0.0rc5','1.0.0rc6','1.0.0');
 
 /****************** 0.8.5 to 0.8.6 **********************/
 function update_from_0_9_9beta1_to_0_9_9beta2() {
@@ -925,6 +925,93 @@ function update_from_1_0_0rc5_to_1_0_0rc6() {
 	Base_ThemeCommon::create_cache();
 }
 
+function update_from_1_0_0rc6_to_1_0_0() {
+    //fix RB common data fields
+    if (ModuleManager::is_installed('Utils/RecordBrowser')>=0) {
+	if(ModuleManager::is_installed('CRM/PhoneCall')>=0) {
+    	    DB::Execute('UPDATE phonecall_data_1 SET f_company_name=-1 WHERE f_company_name=%s', array('_no_company'));
+	    $rs = Utils_RecordBrowserCommon::get_records('phonecall');
+	    foreach ($rs as $r) {
+		$p = explode('__',$r['phone']);
+	        if (isset($p[1])) {
+	    	    $p = $p[1];
+		    Utils_RecordBrowserCommon::update_record('phonecall', $r['id'], array('phone'=>$p));
+	        }
+	    }
+	}
+
+	$tabs = DB::GetAssoc('SELECT tab, tab FROM recordbrowser_table_properties');
+	foreach ($tabs as $t) {
+	    $fields = DB::GetAssoc('SELECT field, param FROM '.$t.'_field WHERE type="select"');
+	    foreach ($fields as $f=>$p) {
+		$fk = strtolower(str_replace(' ','_',$f));
+		$param = explode('::',$p);
+		if ($param[0]=='__COMMON__') {
+			unset($param[0]);
+			$param = '1__'.implode('::', $param);
+			DB::Execute('UPDATE '.$t.'_field SET param=%s, type=%s WHERE field=%s', array($param, 'commondata', $f));
+			PatchDBRenameColumn($t.'_data_1', 'f_'.$fk, 'f_'.$fk, 'C(128)');
+		} else {
+			PatchDBRenameColumn($t.'_data_1', 'f_'.$fk, 'f_'.$fk, 'I4');
+		}
+	    }
+	}
+    }
+
+    //calendar custom fields
+    $tables_db = DB::MetaTables();
+    if (ModuleManager::is_installed('CRM_Calendar_Event')>=0) {
+	if(!in_array('crm_calendar_event_custom_fields',$tables_db))
+	    DB::CreateTable('crm_calendar_event_custom_fields',
+		'id I AUTO KEY, '.
+		'field C(64), '.
+		'callback C(128)',
+		array('constraints'=>''));
+    }
+    
+    //company add mail and tax id
+    if (ModuleManager::is_installed('CRM_Contacts')>=0) {
+	Utils_RecordBrowserCommon::new_record_field('company','Email','text', false, false, '128', '', false, false, 7);
+	Utils_RecordBrowserCommon::set_QFfield_method('company','Email','CRM_ContactsCommon', 'QFfield_email');
+	Utils_RecordBrowserCommon::set_display_method('company','Email','CRM_ContactsCommon', 'display_email');
+	Utils_RecordBrowserCommon::new_record_field('company','Tax ID','text', false, false, '64', '', false, false);
+    }
+    
+    //logo
+    if (ModuleManager::is_installed('Base_MainModuleIndicator')>=0) {
+	ModuleManager::create_data_dir('Base_MainModuleIndicator');
+	Variable::set('logo_file','');
+    }
+    
+    //messenger
+    if (ModuleManager::is_installed('Utils_Messenger')>=0) {
+	PatchDBAddColumn('utils_messenger_users','done_on','T');
+	PatchDBAddColumn('utils_messenger_users','follow','I1 DEFAULT 0');
+    }
+    
+    //currencies
+    if (ModuleManager::is_installed('Utils_CurrencyField')>=0 && !in_array('utils_currency',$tables_db)) {
+	DB::CreateTable('utils_currency',
+			'id I AUTO KEY,'.
+			'symbol C(16),'.
+			'code C(8),'.
+			'decimal_sign C(2),'.
+			'thousand_sign C(2),'.
+			'decimals I1,'.
+			'active I1,'.
+			'pos_before I1',
+			array('constraints'=>''));
+	DB::Execute('INSERT INTO utils_currency (id, symbol, code, decimal_sign, thousand_sign, decimals, pos_before, active) VALUES (%d, %s, %s, %s, %s, %d, %d, %d)',
+			array(1, '$', 'USD', '.', ',', 2, 1, 1));
+    }
+
+	//ok, done
+	ModuleManager::create_common_cache();
+	ModuleManager::load_modules();
+	themeup();
+	langup();
+	Base_ThemeCommon::create_cache();
+}
 //=========================================================================
 
 try {
