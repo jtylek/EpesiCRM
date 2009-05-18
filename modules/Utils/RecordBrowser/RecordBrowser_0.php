@@ -719,7 +719,7 @@ class Utils_RecordBrowser extends Module {
 		$this->navigate('view_entry', 'add', null, $record);
 		return true;
 	}
-	public function view_entry($mode='view', $id = null, $defaults = array()) {
+	public function view_entry($mode='view', $id = null, $defaults = array(), $show_actions=true) {
 		if ($this->navigation_executed) {
 			$this->navigation_executed = false;
 			return true;
@@ -776,8 +776,10 @@ class Utils_RecordBrowser extends Module {
 		
 		if ($mode!='add' && (!$this->get_access($mode, $this->record) || $this->record==null)) {
 			print($this->t('You have no longer permission to view this record.'));
-			Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
-			Utils_ShortcutCommon::add(array('esc'), 'function(){'.$this->create_back_href_js().'}');
+			if ($show_actions) {
+				Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+				Utils_ShortcutCommon::add(array('esc'), 'function(){'.$this->create_back_href_js().'}');
+			}
 			return true;
 		}
 		if ($mode!='add' && !$this->record['active'] && !Base_AclCommon::i_am_admin()) return $this->back();
@@ -846,26 +848,28 @@ class Utils_RecordBrowser extends Module {
 			}
 			$this->dirty_read_changes($id, $time_from);
 		}
-		if ($mode=='edit' || $mode=='add') {
+		if (($mode=='edit' || $mode=='add') && $show_actions) {
 			Utils_ShortcutCommon::add(array('Ctrl','S'), 'function(){'.$form->get_submit_form_js().'}');
 		}
 		if ($mode=='edit') {
 			$this->set_module_variable('edit_start_time',$time);
 		}
 
-		if ($mode=='view') {
-			if ($this->get_access('edit',$this->record)) {
-				Base_ActionBarCommon::add('edit', 'Edit', $this->create_callback_href(array($this,'navigate'), array('view_entry','edit',$id)));
-				Utils_ShortcutCommon::add(array('Ctrl','E'), 'function(){'.$this->create_callback_href_js(array($this,'navigate'), array('view_entry','edit',$id)).'}');
+		if ($show_actions) {
+			if ($mode=='view') {
+				if ($this->get_access('edit',$this->record)) {
+					Base_ActionBarCommon::add('edit', 'Edit', $this->create_callback_href(array($this,'navigate'), array('view_entry','edit',$id)));
+					Utils_ShortcutCommon::add(array('Ctrl','E'), 'function(){'.$this->create_callback_href_js(array($this,'navigate'), array('view_entry','edit',$id)).'}');
+				}
+				if ($this->get_access('delete',$this->record)) Base_ActionBarCommon::add('delete', 'Delete', $this->create_confirm_callback_href($this->t('Are you sure you want to delete this record?'),array($this,'delete_record'),array($id)));
+				Base_ActionBarCommon::add('clone','Clone', $this->create_confirm_callback_href($this->ht('You are about to create a copy of this record. Do you want to continue?'),array($this,'clone_record'),array($id)));
+				Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+			} else {
+				Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
+				Base_ActionBarCommon::add('delete', 'Cancel', $this->create_back_href());
 			}
-			if ($this->get_access('delete',$this->record)) Base_ActionBarCommon::add('delete', 'Delete', $this->create_confirm_callback_href($this->t('Are you sure you want to delete this record?'),array($this,'delete_record'),array($id)));
-			Base_ActionBarCommon::add('clone','Clone', $this->create_confirm_callback_href($this->ht('You are about to create a copy of this record. Do you want to continue?'),array($this,'clone_record'),array($id)));
-			Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
-		} else {
-			Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
-			Base_ActionBarCommon::add('delete', 'Cancel', $this->create_back_href());
+			Utils_ShortcutCommon::add(array('esc'), 'function(){'.$this->create_back_href_js().'}');
 		}
-		Utils_ShortcutCommon::add(array('esc'), 'function(){'.$this->create_back_href_js().'}');
 
 		if ($mode!='add') {
 			$isfav_query_result = DB::GetOne('SELECT user_id FROM '.$this->tab.'_favorite WHERE user_id=%d AND '.$this->tab.'_id=%d', array(Acl::get_user(), $id));
