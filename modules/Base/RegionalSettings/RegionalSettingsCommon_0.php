@@ -298,7 +298,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
         	{
             	$ret .= sprintf('%s day(s) ',$days);
 	        }
-	        $hours = bcmod((intval($seconds) / 3600),24);
+	        $hours = (intval($seconds) / 3600)%24;
 		} else {
     	    /*** get the hours without days***/
 	        $hours = intval(intval($seconds) / 3600);
@@ -309,7 +309,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
             $ret .= sprintf('%s hour(s) ',$hours);
         }
         /*** get the minutes ***/
-        $minutes = bcmod((intval($seconds) / 60),60);
+        $minutes = (intval($seconds) / 60)%60;
         if($days>0 || $hours > 0 || $minutes > 0)
         {
             $ret .= sprintf('%s minutes',$minutes);
