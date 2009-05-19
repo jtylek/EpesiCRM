@@ -48,7 +48,7 @@ if($doc['error']==UPLOAD_ERR_INI_SIZE || $doc['error']==UPLOAD_ERR_FORM_SIZE) {
 	</script>
 	<?php
 } elseif($doc['error']==UPLOAD_ERR_NO_FILE) {
-	if($required &&  $name=='') {
+	if($required) {
 	?>
 	<script type="text/javascript">
 	<!--
