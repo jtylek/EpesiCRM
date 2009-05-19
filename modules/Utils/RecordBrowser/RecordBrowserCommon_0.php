@@ -508,7 +508,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		self::check_table_name($tab);
 		DB::Execute('UPDATE '.$tab.'_field SET filter=0 WHERE field=%s', array($col_name));
 	}
-	public static function set_processing_method($tab, $method) {
+	public static function set_processing_callback($tab, $method) {
 		DB::Execute('UPDATE recordbrowser_table_properties SET data_process_method=%s WHERE tab=%s', array($method[0].'::'.$method[1], $tab));
 	}
 	public static function set_quickjump($tab, $col_name) {
@@ -532,8 +532,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function set_icon($tab, $value) {
 		DB::Execute('UPDATE recordbrowser_table_properties SET icon=%s WHERE tab=%s', array($value, $tab));
 	}
-	public static function set_access_callback($tab, $module, $func){
-		DB::Execute('UPDATE recordbrowser_table_properties SET access_callback=%s WHERE tab=%s', array($module.'::'.$func, $tab));
+	public static function set_access_callback($tab, $callback){
+		if (is_array($callback)) $callback = implode('::',$callback);
+		DB::Execute('UPDATE recordbrowser_table_properties SET access_callback=%s WHERE tab=%s', array($callback, $tab));
 	}
 	public static function get_sql_type($type) {
 		switch ($type) {

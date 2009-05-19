@@ -30,7 +30,7 @@ class Tests_BugtrackInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_recent('bugtrack', 15);
 		Utils_RecordBrowserCommon::set_caption('bugtrack', 'Bugtrack');
 		Utils_RecordBrowserCommon::set_icon('bugtrack', Base_ThemeCommon::get_template_filename('Tests/Bugtrack', 'icon.png'));
-		Utils_RecordBrowserCommon::set_access_callback('bugtrack', 'Tests_BugtrackCommon', 'access_bugtrack');
+		Utils_RecordBrowserCommon::set_access_callback('bugtrack', array('Tests_BugtrackCommon', 'access_bugtrack'));
 		
 // ************ addons ************** //
 		Utils_RecordBrowserCommon::new_addon('bugtrack', 'Tests/Bugtrack', 'bugtrack_attachment_addon', 'Notes');

@@ -281,11 +281,11 @@ function update_from_1_0_0rc1_to_1_0_0rc2() {
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('task', $fields);
 		Utils_RecordBrowserCommon::set_tpl('task', Base_ThemeCommon::get_template_filename('Utils/Tasks', 'default'));
-		Utils_RecordBrowserCommon::set_processing_method('task', array('Utils_TasksCommon', 'submit_task'));
+		Utils_RecordBrowserCommon::set_processing_callback('task', array('Utils_TasksCommon', 'submit_task'));
 		Utils_RecordBrowserCommon::set_icon('task', Base_ThemeCommon::get_template_filename('Utils/Tasks', 'icon.png'));
 		Utils_RecordBrowserCommon::set_recent('task', 5);
 		Utils_RecordBrowserCommon::set_caption('task', 'Tasks');
-		Utils_RecordBrowserCommon::set_access_callback('task', 'Utils_TasksCommon', 'access_task');
+		Utils_RecordBrowserCommon::set_access_callback('task', array('Utils_TasksCommon', 'access_task'));
 		Utils_RecordBrowserCommon::new_addon('task', 'Utils/Tasks', 'task_attachment_addon', 'Notes');
 
 		Utils_CommonDataCommon::new_array('Ticket_Status',array('Open','In Progress','Closed'), true);
