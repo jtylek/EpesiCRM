@@ -39,6 +39,7 @@ $cols = array('Record ID');
 foreach ($tab_info as $v)
 	$cols[] = Base_LangCommon::ts('Utils_RecordBrowser',$v['name']);
 $f = fopen('php://output','w');
+//fwrite($f, "\xEF\xBB\xBF");
 fputcsv($f, $cols);
 foreach ($records as $r) {
 	$rec = array($r['id']);
