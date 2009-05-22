@@ -988,6 +988,9 @@ function update_from_1_0_0rc6_to_1_0_0() {
 	PatchDBAddColumn('utils_messenger_users','done_on','T');
 	PatchDBAddColumn('utils_messenger_users','follow','I1 DEFAULT 0');
     }
+	if (ModuleManager::is_installed('Utils_Watchdog')>=0) {
+		PatchDBAddColumn('utils_watchdog_event','event_time','T');
+	}
     
     //currencies
     if (ModuleManager::is_installed('Utils_CurrencyField')>=0 && !in_array('utils_currency',$tables_db)) {

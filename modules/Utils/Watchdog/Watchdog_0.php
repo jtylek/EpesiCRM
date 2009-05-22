@@ -17,7 +17,7 @@ class Utils_Watchdog extends Module {
 	
 	public function purge_subscriptions_applet($cat_ids) {
 		foreach ($cat_ids as $cat_id) {
-			Utils_WatchdogCommon::purge_notifications($cat_id);
+			Utils_WatchdogCommon::purge_notifications($cat_id, $this->get_module_variable('display_at_time'));
 		}
 		location(array());
 		return false;
@@ -92,6 +92,7 @@ class Utils_Watchdog extends Module {
 		$records_qty = count($records);
 		if ($records_qty>15 && $count==15)
 			print($this->t('Displaying %s of %s records', array($count, $records_qty)));
+		$this->set_module_variable('display_at_time', time());
 		if ($something_to_purge) $opts['actions'][] = '<a '.Utils_TooltipCommon::open_tag_attrs($this->t('Mark all entries as read')).' '.$this->create_confirm_callback_href($this->t('This will update all of your subscriptions status in selected categories, are you sure you want to continue?'),array($this,'purge_subscriptions_applet'), array($categories)).'><img src="'.Base_ThemeCommon::get_template_file('Utils_Watchdog','purge.png').'" border="0"></a>';
 		$this->display_module($gb);
 	}

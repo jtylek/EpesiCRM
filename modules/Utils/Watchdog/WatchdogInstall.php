@@ -29,7 +29,8 @@ class Utils_WatchdogInstall extends ModuleInstall {
 					'id I AUTO KEY,'.
 					'category_id I,'.
 					'internal_id I,'.
-					'message C(64)',
+					'message C(64),'.
+					'event_time T',
 			array('constraints'=>', FOREIGN KEY (category_id) REFERENCES utils_watchdog_category(id)'));
 		if(!$ret){
 			print('Unable to create table utils_watchdog_event.<br>');

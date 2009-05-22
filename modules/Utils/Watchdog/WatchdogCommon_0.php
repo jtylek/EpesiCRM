@@ -82,10 +82,9 @@ class Utils_WatchdogCommon extends ModuleCommon {
 	public static function new_event($category_name, $id, $message) {
 		$category_id = self::get_category_id($category_name, false);
 		if (!$category_id) return;
-		DB::Execute('INSERT INTO utils_watchdog_event (category_id, internal_id, message) VALUES (%d,%d,%s)',array($category_id,$id,$message));
+		DB::Execute('INSERT INTO utils_watchdog_event (category_id, internal_id, message, event_time) VALUES (%d,%d,%s,%T)',array($category_id,$id,$message,time()));
 		Utils_WatchdogCommon::notified($category_name,$id);
 		$count = DB::GetOne('SELECT COUNT(*) FROM utils_watchdog_event WHERE category_id=%d AND internal_id=%d', array($category_id,$id));
-		//trigger_error($count.'!');
 		if ($count==1) {
 			$subscribers = self::get_subscribers($category_id);
 			foreach ($subscribers as $s)
@@ -93,10 +92,11 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		}
 	}
 	// *************************** Subscription manipulation *******************
-	public static function user_purge_notifications($user_id, $category_name) {
+	public static function user_purge_notifications($user_id, $category_name, $time=null) {
 		$category_id = self::get_category_id($category_name);
 		if (!$category_id) return;
-		DB::Execute('UPDATE utils_watchdog_subscription AS uws SET last_seen_event=(SELECT MAX(id) FROM utils_watchdog_event AS uwe WHERE uwe.internal_id=uws.internal_id AND uwe.category_id=uws.category_id) WHERE user_id=%d AND category_id=%d', array($user_id, $category_id));
+		if ($time===null) $time=time();
+		DB::Execute('UPDATE utils_watchdog_subscription AS uws SET last_seen_event=(SELECT MAX(id) FROM utils_watchdog_event AS uwe WHERE uwe.internal_id=uws.internal_id AND uwe.category_id=uws.category_id AND (event_time<=%T OR event_time IS NULL)) WHERE user_id=%d AND category_id=%d', array($time, $user_id, $category_id));
 		DB::Execute('UPDATE utils_watchdog_subscription AS uws SET last_seen_event=-1 WHERE last_seen_event IS NULL');
 	}
 	public static function user_notified($user_id, $category_name, $id) {
@@ -179,8 +179,8 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		return array('utils_watchdog_category'=>$category_id, 'utils_watchdog_user'=>$user, 'utils_watchdog_id'=>$id);
 	}
 	// **************** Subscription manipulation for logged user *******************
-	public static function purge_notifications($category_name) {
-		self::user_purge_notifications(Acl::get_user(), $category_name);
+	public static function purge_notifications($category_name, $time=null) {
+		self::user_purge_notifications(Acl::get_user(), $category_name, $time);
 	}
 	public static function notified($category_name, $id) {
 		self::user_notified(Acl::get_user(), $category_name, $id);
