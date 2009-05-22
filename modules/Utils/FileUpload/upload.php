@@ -12,11 +12,13 @@
 header("Cache-Control: no-cache, must-revalidate");
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // date in the past
 
-if(!isset($_REQUEST['form_name']) || !isset($_REQUEST['required']))
+if(!isset($_REQUEST['form_name']) || !isset($_REQUEST['required']) || !isset($_FILES['file']))
 	exit();
 
 define('CID',false);
 require_once('../../../include.php');
+if(!Acl::is_user())
+	exit();
 $form_name = $_REQUEST['form_name'];
 $doc = $_FILES['file'];
 $dest_filename  = 'tmp_'.microtime(true);
