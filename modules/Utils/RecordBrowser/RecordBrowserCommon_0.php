@@ -1126,7 +1126,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if ($access_callback === '' || !is_callable($access_callback)) return true;
 		$ret = call_user_func($access_callback, $action, $param, $param2);
 		if ($action==='delete' && $ret) $ret = call_user_func($access_callback, 'edit', $param, $param2);
-		if ($action==='view' && $param!==null) $ret = self::check_record_against_crits($tab, $param, $ret);
+		if ($ret!==false && $action==='view' && $param!==null) $ret = self::check_record_against_crits($tab, $param, $ret);
 		if ($action==='fields') {
 			self::init($tab);
 			foreach (self::$table_rows as $field=>$args)
