@@ -219,7 +219,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				$event['end'] = CRM_Calendar_EventCommon::get_n_recurrence_time($event['end'],$event,$recurrence_id);
 			}
 			$x = $event['duration'];
-			if(in_array($x,array(300,900,1800,3600,7200,14400,28800)))
+			if(in_array($x,array(300,900,1800,2700,3600,7200,14400,28800)))
 				$duration_switch='1';
 			else {
 				$duration_switch='0';
@@ -331,6 +331,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			300=>$this->ht('5 minutes'),
 			900=>$this->ht('15 minutes'),
 			1800=>$this->ht('30 minutes'),
+			2700=>$this->ht('45 minutes'),
 			3600=>$this->ht('1 hour'),
 			7200=>$this->ht('2 hours'),
 			14400=>$this->ht('4 hours'),
