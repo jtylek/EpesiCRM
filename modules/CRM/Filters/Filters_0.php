@@ -10,6 +10,8 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_Filters extends Module {
+	private $contacts_select;
+
 	public function body() {
 		$th = $this->init_module('Base/Theme');
 		$display_settings = Base_User_SettingsCommon::get('Base/ActionBar','display');
@@ -39,15 +41,13 @@ class CRM_Filters extends Module {
 
 		$qf = $this->init_module('Libs/QuickForm');
 		$contacts = CRM_ContactsCommon::get_contacts(array('company_name'=>CRM_ContactsCommon::get_main_company()),array('first_name','last_name'),array('last_name'=>'ASC','first_name'=>'ASC'));
-		$contacts_select = array(''=>'---');
+		$this->contacts_select = array(''=>'---');
 		foreach($contacts as $v)
-			$contacts_select[$v['id']] = $v['last_name'].' '.$v['first_name'];
-		$qf->addElement('select','contact',$this->t('Records of'),$contacts_select,array('onChange'=>'if(this.value!=\'\'){'.$qf->get_submit_form_js().'crm_filters_deactivate();}'));
+			$this->contacts_select[$v['id']] = $v['last_name'].' '.$v['first_name'];
+		$qf->addElement('select','contact',$this->t('Records of'),$this->contacts_select,array('onChange'=>'if(this.value!=\'\'){'.$qf->get_submit_form_js().'crm_filters_deactivate();}'));
 		if($qf->validate()) {
 			$c = $qf->exportValue('contact');
-//			$this->set_module_variable('profile',$c);
-			$_SESSION['client']['filter_'.Acl::get_user()] = $c;
-			$this->set_module_variable('profile_desc',$contacts_select[$c]);
+			$this->set_profile('c'.$c);
 			location(array());
 		}
 		$th->assign('saved_filters',$this->t('Saved Filters'));
@@ -58,8 +58,11 @@ class CRM_Filters extends Module {
 		$profiles_out = ob_get_clean();
 
 		Libs_LeightboxCommon::display('crm_filters',$profiles_out,$this->t('Filters'));
+		if(!$this->isset_module_variable('profile_desc'))
+			$this->set_profile($this->get_default_filter());
+		    
 		//Base_ActionBarCommon::add('folder','Filters','class="lbOn" rel="crm_filters"',$this->get_module_variable('profile_desc',$this->t('My records')));
-		print($this->t('%s',array('<a class="lbOn" rel="crm_filters">'.$this->ht('Filters: ').'<b>'.$this->get_module_variable('profile_desc',$this->t('My records')).'</b></a>')));
+		print($this->t('%s',array('<a class="lbOn" rel="crm_filters">'.$this->ht('Filters: ').'<b>'.$this->get_module_variable('profile_desc').'</b></a>')));
 	}
 
 	public function manage_filters() {
@@ -69,7 +72,10 @@ class CRM_Filters extends Module {
 	}
 
 	public function set_profile($prof) {
-		if(is_numeric($prof)) {
+		if(ereg('^c([0-9]+)$',$prof,$reqs)) {
+			$ret = $reqs[1];
+			$desc = $this->contacts_select[$reqs[1]];
+		} elseif(is_numeric($prof)) {
 			$cids = DB::GetAssoc('SELECT contact_id, contact_id FROM crm_filters_contacts');
 			foreach ($cids as $v) {
 				$c = CRM_ContactsCommon::get_contact($v);
@@ -126,8 +132,15 @@ class CRM_Filters extends Module {
 				array('name'=>$this->t('Users in category'), 'width'=>50, 'order'=>'')
 				));
 
-		$ret = $gb->query_order_limit('SELECT g.name,g.id,g.description FROM crm_filters_group g WHERE g.user_login_id='.Acl::get_user(),'SELECT count(g.id) FROM crm_filters_group g WHERE g.user_login_id='.Acl::get_user());
+		$def_opts = array('my'=>$this->ht('My records'), 'all'=>$this->ht('All records'));
+		$contacts = CRM_ContactsCommon::get_contacts(array('company_name'=>CRM_ContactsCommon::get_main_company()),array('first_name','last_name'),array('last_name'=>'ASC','first_name'=>'ASC'));
+		foreach($contacts as $v)
+			$def_opts['c'.$v['id']] = $v['last_name'].' '.$v['first_name'];
+
+		$ret = DB::Execute('SELECT g.name,g.id,g.description FROM crm_filters_group g WHERE g.user_login_id='.Acl::get_user());
 		while($row = $ret->FetchRow()) {
+			$def_opts[$row['id']] = $row['name'];
+		
 			$gb_row = & $gb->get_new_row();
 			$gb_row->add_action($this->create_confirm_callback_href($this->ht('Delete this group?'),array('CRM_Filters','delete_group'), $row['id']),'Delete');
 			$gb_row->add_action($this->create_callback_href(array($this,'edit_group'),$row['id']),'Edit');
@@ -139,6 +152,30 @@ class CRM_Filters extends Module {
 		}
 
 		$this->display_module($gb);
+		
+		$qf = $this->init_module('Libs/QuickForm',null,'default_filter');
+		$qf->addElement('select','def_filter',$this->t('Default filter'),$def_opts,array('onChange'=>$qf->get_submit_form_js()));
+		$qf->addRule('def_filter',$this->t('Field required'),'required');
+		$qf->setDefaults(array('def_filter'=>$this->get_default_filter($def_filter_exists)));
+		if($qf->validate()) {
+		    $vals = $qf->exportValues();
+		    if($def_filter_exists)
+			DB::Execute('UPDATE crm_filters_default SET filter=%s WHERE user_login_id=%d',array($vals['def_filter'],Acl::get_user()));
+		    else
+			DB::Execute('INSERT INTO crm_filters_default(filter,user_login_id) VALUES (%s, %d)',array($vals['def_filter'],Acl::get_user()));
+		}
+		$qf->display();
+	}
+	
+	private function get_default_filter(& $def_filter_exists = false) {
+	    $def = DB::GetOne('SELECT filter FROM crm_filters_default WHERE user_login_id=%d',array(Acl::get_user()));
+	    if(!$def) {
+		$def_filter_exists = false;
+		$def = 'my';
+	    } else {
+		$def_filter_exists = true;
+	    }
+	    return $def;
 	}
 
 	public function edit_group($id=null) {
@@ -205,9 +242,9 @@ class CRM_Filters extends Module {
 
 	public static function check_group_name_exists($name,$id) {
 		if(isset($id)) {
-			$ret = DB::GetOne('SELECT id FROM crm_filters_group WHERE id!=%d AND name=%s',array($id,$name));
+			$ret = DB::GetOne('SELECT id FROM crm_filters_group WHERE id!=%d AND name=%s AND user_login_id=%d',array($id,$name,Acl::get_user()));
 		} else {
-			$ret = DB::GetOne('SELECT id FROM crm_filters_group WHERE name=%s',array($name));
+			$ret = DB::GetOne('SELECT id FROM crm_filters_group WHERE name=%s AND user_login_id=%d',array($name,Acl::get_user()));
 		}
 		return $ret===false || $ret===null;
 	}

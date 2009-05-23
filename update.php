@@ -1008,12 +1008,23 @@ function update_from_1_0_0rc6_to_1_0_0() {
 			array(1, '$', 'USD', '.', ',', 2, 1, 1));
     }
 
-	//ok, done
-	ModuleManager::create_common_cache();
-	ModuleManager::load_modules();
-	themeup();
-	langup();
-	Base_ThemeCommon::create_cache();
+    //crm default filter
+    if (ModuleManager::is_installed('CRM_Filters')>=0 && !in_array('crm_filters_default',$tables_db)) {
+	DB::CreateTable('crm_filters_default','
+			user_login_id I4 NOTNULL,
+			filter C(16)',
+			array('constraints'=>', FOREIGN KEY (user_login_id) REFERENCES user_login(id)'));
+		
+	DB::Execute('alter table crm_filters_group drop key `name`');
+	DB::Execute('alter table crm_filters_group ADD UNIQUE(`name`,`user_login_id`)');
+    }
+    
+    //ok, done
+    ModuleManager::create_common_cache();
+    ModuleManager::load_modules();
+    themeup();
+    langup();
+    Base_ThemeCommon::create_cache();
 }
 //=========================================================================
 

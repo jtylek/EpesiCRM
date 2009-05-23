@@ -474,34 +474,15 @@ class Apps_MailClient extends Module {
 		$f->addElement('select','from_addr',$this->t('From'),$from,array('onChange'=>'Apps_MailClient.from_change(this.value)'));
 		eval_js('Apps_MailClient.from_change(\''.$f->exportValue('from_addr').'\')');
 		$f->addRule('from_addr',$this->t('Field required'),'required');
-		$f->addElement('text','to_addr',$this->t('To'),Utils_TooltipCommon::open_tag_attrs($this->t('You can enter more then one email address separating it with comma.')).' id="apps_mailclient_to_addr"');
-//		$f->addRule('to_addr',$this->t('Invalid mail address'),'email');
-		if(!$this->get_module_variable('addressbook_initialized',false)) {
-			eval_js('Apps_MailClient.addressbook_hidden = '.($from_mails?'true':'false'));
-			$this->set_module_variable('addressbook_initialized',true);
-		}
-		eval_js('Apps_MailClient.addressbook_toggle_init()');
-		$theme->assign('addressbook','<a href="javascript:void(0)" onClick="Apps_MailClient.addressbook_toggle()">Addressbook</a>');
-		$theme->assign('addressbook_area_id','apps_mailclient_addressbook');
-		$fav2 = array();
-		if(ModuleManager::is_installed('CRM/Contacts')>=0) {
-			$fav = CRM_ContactsCommon::get_contacts($from_mails?array(':Fav'=>true,'(!email'=>'','|!login'=>''):array(':Fav'=>true,'!login'=>''),array('id','first_name','last_name','company_name'));
-			foreach($fav as $v)
-				$fav2[$v['id']] = CRM_ContactsCommon::contact_format_default($v,true);
-			$rb1 = $this->init_module('Utils/RecordBrowser/RecordPicker');
-			$this->display_module($rb1, array('contact' ,'to_addr_ex',array('Apps_MailClientCommon','addressbook_rp_mail'),$from_mails?array('(!email'=>'','|!login'=>''):array('!login'=>''),array('work_phone'=>false,'mobile_phone'=>false,'email'=>true,'login'=>true)));
-			$theme->assign('addressbook_add_button',$rb1->create_open_link('Add contact'));
-		} else {
-			$fav2 = DB::GetAssoc('SELECT id,login FROM user_login');
-		}
-		$f->addElement('multiselect','to_addr_ex','',$fav2);
-		$f->addFormRule(array($this,'check_to_addr'));
+
+
 		$f->addElement('text','subject',$this->t('Subject'),array('maxlength'=>256));
 		$f->addRule('subject',$this->t('Max length of subject is 256 chars'),'maxlength',256);
 		$fck = & $f->addElement('fckeditor', 'body', $this->t('Content'));
 		$fck->setFCKProps('800','300',true);
 
 		//if edit
+		$fav2 = array();
 		$references = false;
 		if($headers!==null) {
 			ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
@@ -573,27 +554,38 @@ class Apps_MailClient extends Module {
 				$to_address = Apps_MailClientCommon::mime_header_decode($structure->headers['to']);
 				$to_address = explode(',',$to_address);
 				foreach($to_address as $v) {
-					if(strpos($v,'@')!==false) {
+					if(strpos($v,'.')!==false) {
 						$to_addr[] = trim($v);
-					} elseif(ereg('<([0-9]+)>$',$v,$r)) {
-						$to_addr_ex[] = $r[1];
+					} else {
+						$to_addr_ex[] = trim($v,'<>');
 					}
 				}
-				if(ModuleManager::is_installed('CRM/Contacts')>=0) {
-					foreach($to_addr_ex as $k=>$v) {
-						$v = CRM_ContactsCommon::get_contact_by_user_id($v);
-						if($v===null) {
-							unset($to_addr_ex[$k]);
-							continue;
-						}
-						$to_addr_ex[$k] = $v['id'];
-						$to_addr = array_filter($to_addr,create_function('$o','return $o!=\''.$v['email'].'\';'));
+				foreach($to_addr_ex as $k=>$v) {
+					if(!ereg('^([0-9]+)@epesi_(contact|user)$',$v,$r)) { //invalid epesi address
+						unset($to_addr_ex[$k]);
+						continue;
 					}
-				} else {
-					foreach($to_addr_ex as $k=>$v) {
-						$mail = Base_User_LoginCommon::get_mail($v);
-						$to_addr = array_filter($to_addr,create_function('$o','return $o!=\''.$mail.'\';'));
-					}
+					switch($r[2]) {
+						case 'contact':
+							if(ModuleManager::is_installed('CRM/Contacts')>=0) {
+								$v2 = CRM_ContactsCommon::get_contact($r[1]);
+								if($v2===null) {
+									unset($to_addr_ex[$k]);
+									continue;
+								}
+								if($v2['email'])
+				    					$to_addr = array_filter($to_addr,create_function('$o','return $o!=\''.$v2['email'].'\';'));
+								$fav2[$v] = CRM_ContactsCommon::contact_format_default($v2,true);
+							} else {
+								unset($to_addr_ex[$k]);
+							}
+							break;
+						case 'user':
+							$v2 = DB::GetRow('SELECT l.login,p.mail FROM user_password p INNER JOIN user_login l ON p.user_login_id=l.id WHERE user_login_id=%d',array($r[1]));
+							$fav2[$v] = $v2['login'];
+							if($v2['mail'])
+								$to_addr = array_filter($to_addr,create_function('$o','return $o!=\''.$v2['mail'].'\';'));
+					} 
 				}
 			} elseif($type=='reply') {
 				$subject = 'Re: '.$subject;
@@ -636,7 +628,30 @@ class Apps_MailClient extends Module {
 
 			$f->setDefaults(array('body'=>$body,'subject'=>$subject, 'to_addr'=>$to_addr,'to_addr_ex'=>$to_addr_ex));
 		}
-		//}
+
+		$f->addElement('text','to_addr',$this->t('To'),Utils_TooltipCommon::open_tag_attrs($this->t('You can enter more then one email address separating it with comma.')).' id="apps_mailclient_to_addr"');
+//		$f->addRule('to_addr',$this->t('Invalid mail address'),'email');
+		if(!$this->get_module_variable('addressbook_initialized',false)) {
+			eval_js('Apps_MailClient.addressbook_hidden = '.($from_mails?'true':'false'));
+			$this->set_module_variable('addressbook_initialized',true);
+		}
+		eval_js('Apps_MailClient.addressbook_toggle_init()');
+
+		$theme->assign('addressbook','<a href="javascript:void(0)" onClick="Apps_MailClient.addressbook_toggle()">Addressbook</a>');
+		$theme->assign('addressbook_area_id','apps_mailclient_addressbook');
+
+		if(ModuleManager::is_installed('CRM/Contacts')>=0) {
+			$fav = CRM_ContactsCommon::get_contacts($from_mails?array(':Fav'=>true,'(!email'=>'','|!login'=>''):array(':Fav'=>true,'!login'=>''),array('id','login','first_name','last_name','company_name'));
+			foreach($fav as $v)
+				$fav2[$v['id'].'@epesi_contact'] = CRM_ContactsCommon::contact_format_default($v,true);
+			$rb1 = $this->init_module('Utils/RecordBrowser/RecordPicker');
+			$this->display_module($rb1, array('contact' ,'to_addr_ex',array('Apps_MailClientCommon','addressbook_rp_mail'),$from_mails?array('(!email'=>'','|!login'=>''):array('!login'=>''),array('work_phone'=>false,'mobile_phone'=>false,'email'=>true,'login'=>true)));
+			$theme->assign('addressbook_add_button',$rb1->create_open_link('Add contact'));
+		} else {
+			$fav2 = DB::GetAssoc('SELECT '.DB::Concat('id',DB::qstr('@epesi_user')).',login FROM user_login');
+		}
+		$f->addElement('multiselect','to_addr_ex','',$fav2);
+		$f->addFormRule(array($this,'check_to_addr'));
 
 		if($f->validate()) {
 			$v = $f->exportValues();
@@ -652,35 +667,43 @@ class Apps_MailClient extends Module {
 			$to = explode(',',$v['to_addr']);
 			$to_epesi = array();
 			$to_epesi_names = array();
-			if(ModuleManager::is_installed('CRM/Contacts')>=0) {
-				$to_addr_ex = CRM_ContactsCommon::get_contacts(array('id'=>$v['to_addr_ex']),array('email','login','first_name','last_name','company_name'));
-				foreach($to_addr_ex as $kk) {
-					if(isset($kk['login']) && $kk['login']!=='') {
-						$where = Base_User_SettingsCommon::get('Apps_MailClient','default_dest_mailbox',$kk['login']);
-						if($where=='both' || $where=='pm') {
-							$to_epesi[] = $kk['login'];
-							$to_epesi_names[$kk['login']] = CRM_ContactsCommon::contact_format_default($kk,true).' <'.$kk['login'].'>';
-						}
-						if($where=='pm')
-							continue;
-						if($kk['email']=='') {
-							$to[] = Base_User_LoginCommon::get_mail($kk['login']);
-							continue;
-						}
-					}
-					if($kk['email'])
-						$to[] = $kk['email'];
+			foreach($to_addr_ex as $kk) {
+				if(!ereg('^([0-9]+)@epesi_(contact|user)$',$v,$r)) { //invalid epesi address
+					continue;
 				}
-			} else {
-				foreach($v['to_addr_ex'] as $kk) {
-					$where = Base_User_SettingsCommon::get('Apps_MailClient','default_dest_mailbox',$kk);
-					if($where=='both' || $where=='pm') {
-						$to_epesi[] = $kk;
-						$to_epesi_names[$kk] = $fav2[$kk].' <'.$kk.'>';
-					}
-					if($where=='pm')
-						continue;
-					$to[] = Base_User_LoginCommon::get_mail($kk);
+				switch($r[2]) {
+					case 'contact':
+						if(ModuleManager::is_installed('CRM/Contacts')>=0) {
+							$v2 = CRM_ContactsCommon::get_contact($r[1]);
+							if($v2===null) {
+								continue;
+							}
+							if(isset($v2['login']) && $v2['login']!=='') {
+								$where = Base_User_SettingsCommon::get('Apps_MailClient','default_dest_mailbox',$v2['login']);
+								if($where=='both' || $where=='pm') {
+									$to_epesi[] = $v2['login'];
+									$to_epesi_names[$v2['login']] = CRM_ContactsCommon::contact_format_default($v2,true).' <'.$kk['login'].'>';
+									if($where=='pm')
+										continue;
+								}
+								if($v2['email']=='') {
+									$to[] = Base_User_LoginCommon::get_mail($v2['login']);
+									continue;
+								}
+							}
+							if($v2['email'])
+								$to[] = $v2['email'];
+						}
+						break;
+					case 'user':
+						$where = Base_User_SettingsCommon::get('Apps_MailClient','default_dest_mailbox',$r[1]);
+						if($where=='both' || $where=='pm') {
+							$to_epesi[] = $r[1];
+							$to_epesi_names[$r[1]] = $fav2[$kk].' <'.$kk.'>';
+							if($where=='pm')
+								continue;
+						}
+						$to[] = Base_User_LoginCommon::get_mail($r[1]);
 				}
 			}
 /*			foreach($to as &$t)
@@ -772,7 +795,8 @@ class Apps_MailClient extends Module {
 		}
 		$ret = $this->edit_mail_src($message,null,null,null,$box,$type);
 		if($ret===false) {
-			if($id!==null && $type=='edit') $this->remove_mail($box,$dir,$id);
+			if($id!==null && $type=='edit') 
+				Apps_MailClientCommon::remove_msg($box,$dir,$id);
 			location(array());
 		}
 		return $ret;
