@@ -426,7 +426,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$pos = DB::GetOne('SELECT MAX(position) FROM '.$tab.'_field')+1;
 		} else {
 			DB::StartTrans();
-			if ($pos===null) $pos = DB::GetOne('SELECT position FROM '.$tab.'_field WHERE field=\'Details\'');
+			if (is_string($pos)) $pos = DB::GetOne('SELECT position FROM '.$tab.'_field WHERE field=%s', array($pos))+1;
+			if ($pos===null || $pos===false) $pos = DB::GetOne('SELECT position FROM '.$tab.'_field WHERE field=\'Details\'');
 			DB::Execute('UPDATE '.$tab.'_field SET position = position+1 WHERE position>=%d', array($pos));
 			DB::CompleteTrans();
 		}
