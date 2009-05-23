@@ -1041,18 +1041,19 @@ class Utils_RecordBrowser extends Module {
 				$form->setDefaults(array($args['id']=>$record[$args['id']]));
 				continue;
 			}
+			$label = '<span id="_'.$args['id'].'__label">'.$this->t($args['name']).'</span>';
 			if (isset($this->QFfield_callback_table[$field])) {
-				call_user_func($this->QFfield_callback_table[$field], $form, $args['id'], $this->t($args['name']), $mode, $mode=='add'?(isset($this->custom_defaults[$args['id']])?$this->custom_defaults[$args['id']]:''):$record[$args['id']], $args, $this, $this->display_callback_table);
+				call_user_func($this->QFfield_callback_table[$field], $form, $args['id'], $label, $mode, $mode=='add'?(isset($this->custom_defaults[$args['id']])?$this->custom_defaults[$args['id']]:''):$record[$args['id']], $args, $this, $this->display_callback_table);
 			} else {
 				if ($mode!=='add' && $mode!=='edit') {
 					if ($args['type']!='checkbox' || isset($this->display_callback_table[$field])) {
 						$def = $this->get_val($field, $record, $id, false, $args);
-						$form->addElement('static', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->t($args['name']).'</span>', $def, array('id'=>$args['id']));
+						$form->addElement('static', $args['id'], $label, $def, array('id'=>$args['id']));
 						continue;
 					}
 				}
 				switch ($args['type']) {
-					case 'calculated':	$form->addElement('static', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->t($args['name']).'</span>', array('id'=>$args['id']));
+					case 'calculated':	$form->addElement('static', $args['id'], $label, array('id'=>$args['id']));
 //										if ($mode=='edit')
 										if (!is_array($this->record))
 											$values = $this->custom_defaults;
@@ -1064,31 +1065,31 @@ class Utils_RecordBrowser extends Module {
 										if (!$val) $val = '['.$this->t('formula').']';
 										$form->setDefaults(array($args['id']=>'<div id="'.Utils_RecordBrowserCommon::get_calculated_id($this->tab, $args['id'], $id).'">'.$val.'</div>'));
 										break;
-					case 'integer':		$form->addElement('text', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->t($args['name']).'</span>', array('id'=>$args['id']));
+					case 'integer':		$form->addElement('text', $args['id'], $label, array('id'=>$args['id']));
 										$form->addRule($args['id'], $this->t('Only numbers are allowed.'), 'numeric');
 										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 										break;
-					case 'checkbox':	$form->addElement('checkbox', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->t($args['name']).'</span>', '', array('id'=>$args['id']));
+					case 'checkbox':	$form->addElement('checkbox', $args['id'], $label, '', array('id'=>$args['id']));
 										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 										break;
-					case 'currency':	$form->addElement('currency', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->t($args['name']).'</span>', array('id'=>$args['id']));
+					case 'currency':	$form->addElement('currency', $args['id'], $label, array('id'=>$args['id']));
 //										if ($mode!=='add') $form->setDefaults(array($args['id']=>Utils_CurrencyFieldCommon::format_default($record[$args['id']])));
 										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 										break;
-					case 'text':		$form->addElement('text', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->t($args['name']).'</span>', array('id'=>$args['id'], 'maxlength'=>$args['param']));
-//										else $form->addElement('static', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->t($args['name']).'</span>', array('id'=>$args['id']));
+					case 'text':		$form->addElement('text', $args['id'], $label, array('id'=>$args['id'], 'maxlength'=>$args['param']));
+//										else $form->addElement('static', $args['id'], $label, array('id'=>$args['id']));
 										$form->addRule($args['id'], $this->t('Maximum length for this field is '.$args['param'].'.'), 'maxlength', $args['param']);
 										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 										break;
-					case 'long text':	$form->addElement($this->add_in_table?'text':'textarea', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->t($args['name']).'</span>', array('id'=>$args['id'], 'onkeypress'=>'var key=event.which || event.keyCode;return this.value.length < 400 || ((key<32 || key>126) && key!=10 && key!=13) ;'));
+					case 'long text':	$form->addElement($this->add_in_table?'text':'textarea', $args['id'], $label, array('id'=>$args['id'], 'onkeypress'=>'var key=event.which || event.keyCode;return this.value.length < 400 || ((key<32 || key>126) && key!=10 && key!=13) ;'));
 										$form->registerRule('max_description', 'callback', 'max_description', $this);
 										$form->addRule($args['id'], $this->t('Maximum length for this field is 400 chars.'), 'max_description');
 										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 										break;
-					case 'date':		$form->addElement('datepicker', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->t($args['name']).'</span>', array('id'=>$args['id'], 'label'=>$this->add_in_table?'':null));
+					case 'date':		$form->addElement('datepicker', $args['id'], $label, array('id'=>$args['id'], 'label'=>$this->add_in_table?'':null));
 										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 										break;
-					case 'timestamp':	$form->addElement('timestamp', $args['id'], '<span id="_'.$args['id'].'__label">'.$this->t($args['name']).'</span>', array('id'=>$args['id']));
+					case 'timestamp':	$form->addElement('timestamp', $args['id'], $label, array('id'=>$args['id']));
 										static $rule_defined = false;
 										if (!$rule_defined) $form->registerRule('timestamp_required', 'callback', 'timestamp_required', $this);
 										$rule_defined = true;
@@ -1097,7 +1098,7 @@ class Utils_RecordBrowser extends Module {
 										break;
 					case 'commondata':	$param = explode('::',$args['param']['array_id']);
 										foreach ($param as $k=>$v) if ($k!=0) $param[$k] = strtolower(str_replace(' ','_',$v));
-										$form->addElement($args['type'], $args['id'], '<span id="_'.$args['id'].'__label">'.$this->t($args['name']).'</span>', $param, array('empty_option'=>true, 'id'=>$args['id'], 'order_by_key'=>$args['param']['order_by_key']));
+										$form->addElement($args['type'], $args['id'], $label, $param, array('empty_option'=>true, 'id'=>$args['id'], 'order_by_key'=>$args['param']['order_by_key']));
 										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 										break;
 					case 'select':
@@ -1184,7 +1185,7 @@ class Utils_RecordBrowser extends Module {
 											if (empty($multi_adv_params['order'])) natcasesort($comp);
 										}
 										if ($args['type']==='select') $comp = array(''=>'---')+$comp;
-										$form->addElement($args['type'], $args['id'], '<span id="_'.$args['id'].'__label">'.$this->t($args['name']).'</span>', $comp, array('id'=>$args['id']));
+										$form->addElement($args['type'], $args['id'], $label, $comp, array('id'=>$args['id']));
 										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 										break;
 				}
