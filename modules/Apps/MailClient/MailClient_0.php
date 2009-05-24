@@ -4,7 +4,21 @@
 
  Tworze konto to wtedy laczy sie i pobiera foldery. Zaznaczasz pozniej ktore foldery subskrybowac.
  Pozniej wyswietla drzewa z lokalnego drzewa katalogu subskrybowanych folderow.
+ Pobieram cale maile od razu, zeby uproscic klienta i zblizyc do pop3.
 
+ Synchronizacja maili ajaxowo z ustalonym refresh, tylko zalogowanym uzytkownikom. 
+ Pierwsza synchronizacja od razu po zalogowaniu do epesi, common dodaje JS i tam zaczyna sie akcja.
+ Umozliwisc automatyczna synchronizacje pop3? Na razie reczna synchronizacja imap klikajac pobierz - tak jak pop3.
+
+ Kasowanie maili musi isc lokalnie oraz bezposrednio do serwera imap, tak samo przeniesienie itp. Na ten czas refresh musi zastopowac, zeby nie bylo konfliktu.
+
+ Trzeba przeniesc patch apps_mailclient.php do update.php.
+
+ Watpliwosci:
+ Gdy serwer imap jest offline pozwalac kasowac, przenosic wiadomosci?? Moze kolejkowac zadania do wyslania na serwer?? Firefox nie pozwala na edycje...
+ Co jezeli na serwerze zostana poczynione modyfikacje? Jak to zmodyfikowac lokalnie? Trzeba przestudiowac zwroty z serwera imap.
+ Czy przeniesc CRM/MailClient tutaj? Na razie nie...
+ 
  *
  * TODO:
  * -drafts, sent i trash to specjalne foldery, wszystkie inne traktujemy tak jak inbox
@@ -554,10 +568,10 @@ class Apps_MailClient extends Module {
 				$to_address = Apps_MailClientCommon::mime_header_decode($structure->headers['to']);
 				$to_address = explode(',',$to_address);
 				foreach($to_address as $v) {
-					if(strpos($v,'.')!==false) {
+					if(ereg('<([0-9]+)@epesi_(contact|user)>$',$v,$r)) {
+						$to_addr_ex[] = $r[1].'@epesi_'.$r[2];
+					} elseif(strpos($v,'@')!==false) {
 						$to_addr[] = trim($v);
-					} else {
-						$to_addr_ex[] = trim($v,'<>');
 					}
 				}
 				foreach($to_addr_ex as $k=>$v) {
@@ -663,36 +677,39 @@ class Apps_MailClient extends Module {
 			if($v['from_addr']!='pm')
 				$from = DB::GetRow('SELECT * FROM apps_mailclient_accounts WHERE id=%d',array($v['from_addr']));
 			else
-				$from=null;
+				$from = null;
 			$to = explode(',',$v['to_addr']);
 			$to_epesi = array();
 			$to_epesi_names = array();
-			foreach($to_addr_ex as $kk) {
-				if(!ereg('^([0-9]+)@epesi_(contact|user)$',$v,$r)) { //invalid epesi address
-					continue;
+			foreach($v['to_addr_ex'] as $kk) {
+				if(!ereg('^([0-9]+)@epesi_(contact|user)$',$kk,$r)) { //invalid epesi address or new record from rpicker
+					if(!is_numeric($kk) || ModuleManager::is_installed('CRM/Contacts')<0) //no rpicker, invalid epesi address
+						continue;
+					$r[2] = 'contact';
+					$r[1] = $kk;
 				}
 				switch($r[2]) {
 					case 'contact':
 						if(ModuleManager::is_installed('CRM/Contacts')>=0) {
-							$v2 = CRM_ContactsCommon::get_contact($r[1]);
-							if($v2===null) {
+							$kk2 = CRM_ContactsCommon::get_contact($r[1]);
+							if($kk2===null) {
 								continue;
 							}
-							if(isset($v2['login']) && $v2['login']!=='') {
-								$where = Base_User_SettingsCommon::get('Apps_MailClient','default_dest_mailbox',$v2['login']);
+							if(isset($kk2['login']) && $kk2['login']!=='') {
+								$where = Base_User_SettingsCommon::get('Apps_MailClient','default_dest_mailbox',$kk2['login']);
 								if($where=='both' || $where=='pm') {
-									$to_epesi[] = $v2['login'];
-									$to_epesi_names[$v2['login']] = CRM_ContactsCommon::contact_format_default($v2,true).' <'.$kk['login'].'>';
+									$to_epesi[] = $kk2['login'];
+									$to_epesi_names[$kk2['login']] = CRM_ContactsCommon::contact_format_default($kk2,true).' <'.$r[1].'@epesi_contact>';
 									if($where=='pm')
 										continue;
 								}
-								if($v2['email']=='') {
-									$to[] = Base_User_LoginCommon::get_mail($v2['login']);
+								if($kk2['email']=='') {
+									$to[] = Base_User_LoginCommon::get_mail($kk2['login']);
 									continue;
 								}
 							}
-							if($v2['email'])
-								$to[] = $v2['email'];
+							if($kk2['email'])
+								$to[] = $kk2['email'];
 						}
 						break;
 					case 'user':
@@ -706,8 +723,6 @@ class Apps_MailClient extends Module {
 						$to[] = Base_User_LoginCommon::get_mail($r[1]);
 				}
 			}
-/*			foreach($to as &$t)
-				$t = trim($t);*/
 			$to = array_map('trim',$to);
 			$to = array_unique($to);
 			$to = array_filter($to);
@@ -716,9 +731,12 @@ class Apps_MailClient extends Module {
 			if(ModuleManager::is_installed('CRM/Contacts')>=0) {
 				$my = CRM_ContactsCommon::get_my_record();
 				$name = CRM_ContactsCommon::contact_format_default($my,true);
+				$name_epesi_mail = $my['id'].'@epesi_contact';
 			}
-			if(!isset($name))
+			if(!isset($name)) {
 				$name = Base_UserCommon::get_my_user_login();
+				$name_epesi_mail = Acl::get_user().'@epesi_user';
+			}
 
 			if($v['from_addr']=='pm')
 				$to_names = implode(', ',$to_epesi_names);
@@ -757,7 +775,7 @@ class Apps_MailClient extends Module {
 					if($dest_id===false) {
 						$dest_id = Apps_MailClientCommon::create_internal_mailbox($e);
 					}
-					if(Apps_MailClientCommon::drop_message($dest_id,'Inbox/',$v['subject'],$name,$to_names,$date,$v['body'])===false)
+					if(Apps_MailClientCommon::drop_message($dest_id,'Inbox/',$v['subject'],$name.' <'.$name_epesi_mail.'>',$to_names,$date,$v['body'])===false)
 						print($this->t('Unable to send message to %s',array($to_epesi_names[$e])).'<br>');
 				}
 			}
@@ -862,21 +880,18 @@ class Apps_MailClient extends Module {
 		$gb->set_table_columns(array(
 			array('name'=>$this->t('Mail'), 'order'=>'mail')
 				));
-		$ret = $gb->query_order_limit('SELECT id,mail FROM apps_mailclient_accounts WHERE user_login_id='.Acl::get_user().' ORDER BY mail','SELECT count(mail) FROM apps_mailclient_accounts WHERE user_login_id='.Acl::get_user());
-		$all = array();
+		$ret = $gb->query_order_limit('SELECT id,mail FROM apps_mailclient_accounts WHERE mail!="#internal" AND user_login_id='.Acl::get_user(),'SELECT count(mail) FROM apps_mailclient_accounts WHERE mail!="#internal" AND user_login_id='.Acl::get_user());
+		$num = 0;
 		while($row=$ret->FetchRow()) {
-			$all[] = $row;
-		}
-		if(empty($all))
-			Apps_MailClientCommon::create_internal_mailbox();
-		foreach($all as $row) {
 			$r = & $gb->get_new_row();
-			if($row['mail']==='#internal') continue;
 			$r->add_data($row['mail']);
 			$r->add_action($this->create_callback_href(array($this,'account'),array($row['id'],'edit')),'Edit');
 			$r->add_action($this->create_callback_href(array($this,'account'),array($row['id'],'view')),'View');
 			$r->add_action($this->create_confirm_callback_href($this->ht("Delete this account?"),array($this,'delete_account'),$row['id']),'Delete');
+			$num++;
 		}
+		if($num==0)
+			Apps_MailClientCommon::create_internal_mailbox();
 		$this->display_module($gb);
 		Base_ActionBarCommon::add('add','New account',$this->create_callback_href(array($this,'account'),array(null,'new')));
 	}
@@ -1050,10 +1065,81 @@ class Apps_MailClient extends Module {
 			}
 		} else $form->display();
 	}
-
+	
 	public function submit_admin($data) {
 		return Variable::set('max_mail_size',$data['max_mail_size']);
 	}
+
+	///////////////////////////////////////////
+	// filters management
+	
+	public function manage_filters() {
+		// account selection
+		$accounts = DB::GetAssoc('SELECT id,mail FROM apps_mailclient_accounts WHERE user_login_id=%d',array(Acl::get_user()));
+		$def_account = & $this->get_module_variable('filters_account',null);
+		if(empty($accounts))
+			$accounts[Apps_MailClientCommon::create_internal_mailbox()] = Base_LangCommon::ts('Apps_MailClient','Private messages');
+		else
+			foreach($accounts as $k=>$row)
+				if($row==='#internal')
+					$accounts[$k] = Base_LangCommon::ts('Apps_MailClient','Private messages');
+		
+		if($def_account == null || !isset($accounts[$def_account])) {
+		    $def_account = array_pop(array_keys($accounts));
+		}
+
+		$form = & $this->init_module('Libs/QuickForm',null,'mailclient_setup');
+
+		$form->addElement('select', 'account', $this->t('Mail account'),$accounts, array('onChange'=>$form->get_submit_form_js()));
+		$form->setDefaults(array('account'=>$def_account));
+
+		if($form->validate()) {
+			$vals = $form->exportValues();
+			if(isset($vals['account']) && is_numeric($vals['account'])) 
+				$def_account = $vals['account'];
+		}
+		$form->display();
+		
+
+		// filters browser 
+		$gb = $this->init_module('Utils/GenericBrowser',null,'filters');
+		$gb->set_table_columns(array(
+			array('name'=>$this->t('Name'), 'order'=>'name')
+				));
+		$ret = $gb->query_order_limit('SELECT id,name FROM apps_mailclient_filters WHERE account_id='.$def_account,'SELECT count(id) FROM apps_mailclient_filters WHERE account_id='.$def_account);
+		while($row=$ret->FetchRow()) {
+			$r = & $gb->get_new_row();
+			$r->add_data($row['mail']);
+			$r->add_action($this->create_callback_href(array($this,'filter'),array($row['id'],'edit')),'Edit');
+			$r->add_action($this->create_callback_href(array($this,'filter'),array($row['id'],'view')),'View');
+			$r->add_action($this->create_confirm_callback_href($this->ht("Delete this filter?"),array($this,'delete_filter'),$row['id']),'Delete');
+		}
+		$this->display_module($gb);
+		Base_ActionBarCommon::add('add','New filter',$this->create_callback_href(array($this,'filter'),array(null,'new')));
+		
+	}
+	
+	public function filter($id, $action='view') {
+		if($this->is_back()) return false;
+
+		$f = $this->init_module('Libs/QuickForm');
+
+		$f->display();
+
+		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+
+		return true;
+		
+	}
+	
+	public function delete_filter($id) {
+		DB::Execute('DELETE FROM apps_mailclient_filter_rules WHERE filter_id=%d',array($id));
+		DB::Execute('DELETE FROM apps_mailclient_filter_actions WHERE filter_id=%d',array($id));
+		DB::Execute('DELETE FROM apps_mailclient_filters WHERE id=%d',array($id));
+	}
+	
+	//////////////////////////////////////////////
+	// other
 
 	public function caption() {
 		return "Mail client";

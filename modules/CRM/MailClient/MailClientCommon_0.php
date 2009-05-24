@@ -12,6 +12,30 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_MailClientCommon extends ModuleCommon {
 	private static $my_rec;
 
+	private static function resolve_contact($addr) {
+		if(ereg('<(.+)>$',$addr,$reqs))
+			$addr = trim($reqs[1]);
+		if(ereg('([0-9]+)@epesi_(contact|user)$',$addr,$reqs)) {
+			switch($reqs[2]) {
+				case 'contact':
+					$c = array(CRM_ContactsCommon::get_contact($reqs[1]));
+					break;
+				case 'user':
+					$c = CRM_ContactsCommon::get_contacts(array('login'=>$reqs[1]));
+			}
+		} else
+			$c = CRM_ContactsCommon::get_contacts(array('email'=>$addr));
+		if(empty($c)) {
+			Epesi::alert(Base_LangCommon::ts('CRM_MailClient','Contact not found'));
+			return false;
+		}
+		if(count($c)!==1) {
+			Epesi::alert(Base_LangCommon::ts('CRM_MailClient','Found more then one contact with specified mail address'));
+			return false;
+		}
+		return array_pop($c);
+	}
+
 	public static function move_action($msg, $dir, & $mail_id=null) {
 		$sent = false;
 		if(ereg('^(Drafts|Sent)',$dir))
@@ -22,35 +46,23 @@ class CRM_MailClientCommon extends ModuleCommon {
 		} else {
 			$addr = $msg['headers']['from'];
 		}
-		if(ereg('^[^<]*<(.+)>$',$addr,$reqs))
-			$addr = $reqs[1];
-		if(is_numeric($addr))
-			$c = CRM_ContactsCommon::get_contacts(array('login'=>$addr));
-		else
-			$c = CRM_ContactsCommon::get_contacts(array('email'=>$addr));
-		if(empty($c)) {
-			Epesi::alert(Base_LangCommon::ts('CRM_MailClient','Contact not found'));
-			return false;
-		}
-		if(count($c)!==1) {
-			Epesi::alert(Base_LangCommon::ts('CRM_MailClient','Found more then one contact with specified mail address'));
-			return false;
-		}
+		
+		$c = self::resolve_contact($addr);
+		if(!$c) return false;
 		
 		$headers = '';
 		foreach($msg['headers'] as $cap=>$h)
 			$headers .= $cap.': '.$h."\n";
 			
 		$data_dir = self::Instance()->get_data_dir();
-		$i = array_pop($c);
 		if(!isset(self::$my_rec))
 			self::$my_rec = CRM_ContactsCommon::get_my_record();
 		if($sent) {
-			$to = $i['id'];
+			$to = $c['id'];
 			$from = self::$my_rec['id'];
 		} else {
 			$to = self::$my_rec['id'];
-			$from = $i['id'];
+			$from = $c['id'];
 		}
 		DB::Execute('INSERT INTO crm_mailclient_mails(from_contact_id,to_contact_id,subject,headers,body,body_type,body_ctype,delivered_on) VALUES(%d,%d,%s,%s,%s,%s,%s,%T)',array($from,$to,$msg['subject'],$headers,$msg['body'],$msg['type'],$msg['ctype'],strtotime($msg['headers']['date'])));
 		$mid = DB::Insert_ID('crm_mailclient_mails','id');
@@ -74,21 +86,10 @@ class CRM_MailClientCommon extends ModuleCommon {
 			$addr = $msg['headers']['to'];
 		else
 			$addr = $msg['headers']['from'];
-		if(ereg('^[^<]*<(.+)>$',$addr,$reqs))
-			$addr = $reqs[1];
-		if(is_numeric($addr))
-			$c = CRM_ContactsCommon::get_contacts(array('login'=>$addr));
-		else
-			$c = CRM_ContactsCommon::get_contacts(array('email'=>$addr));
-		if(empty($c)) {
-			Epesi::alert(Base_LangCommon::ts('CRM_MailClient','Contact not found'));
-			return false;
-		}
-		if(count($c)!==1) {
-			Epesi::alert(Base_LangCommon::ts('CRM_MailClient','Found more then one contact with specified mail address'));
-			return false;
-		}
-		$c = array_pop($c);
+
+		$c = self::resolve_contact($addr);
+		if(!$c) return false;
+
 		$x = ModuleManager::get_instance('/Base_Box|0');
 		if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 		$x->push_main('Utils/RecordBrowser','view_entry',array('view', $c['id']),array('contact'));

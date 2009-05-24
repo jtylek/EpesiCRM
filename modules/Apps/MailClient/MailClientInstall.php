@@ -39,6 +39,41 @@ class Apps_MailClientInstall extends ModuleInstall {
 			print('Unable to create table apps_mailclient_accounts.<br>');
 			return false;
 		}
+		
+		$ret &= DB::CreateTable('apps_mailclient_filters','
+			id I4 AUTO KEY,
+			account_id I4 NOTNULL,
+			name C(64),
+			match_method I1 DEFAULT 0',
+			array('constraints'=>', FOREIGN KEY (account_id) REFERENCES apps_mailclient_accounts(ID)'));
+		if(!$ret){
+			print('Unable to create table apps_mailclient_filters.<br>');
+			return false;
+		}
+
+		$ret &= DB::CreateTable('apps_mailclient_filter_rules','
+			id I4 AUTO KEY,
+			filter_id I4 NOTNULL,
+			header C(64),
+			rule I1 DEFAULT 0,
+			value C(128)',
+			array('constraints'=>', FOREIGN KEY (filter_id) REFERENCES apps_mailclient_filters(ID)'));
+		if(!$ret){
+			print('Unable to create table apps_mailclient_filter_rules.<br>');
+			return false;
+		}
+
+		$ret &= DB::CreateTable('apps_mailclient_filter_actions','
+			id I4 AUTO KEY,
+			filter_id I4 NOTNULL,
+			action I1 DEFAULT 0,
+			value C(128)',
+			array('constraints'=>', FOREIGN KEY (filter_id) REFERENCES apps_mailclient_filters(ID)'));
+		if(!$ret){
+			print('Unable to create table apps_mailclient_filter_actions.<br>');
+			return false;
+		}
+		
 		Base_ThemeCommon::install_default_theme($this -> get_type());
 		Variable::set('max_mail_size',5*1024*1024);
 		$this->create_data_dir();
@@ -48,6 +83,9 @@ class Apps_MailClientInstall extends ModuleInstall {
 	
 	public function uninstall() {
 		$ret = true;
+		$ret &= DB::DropTable('apps_mailclient_filter_rules');
+		$ret &= DB::DropTable('apps_mailclient_filter_actions');
+		$ret &= DB::DropTable('apps_mailclient_filters');
 		$ret &= DB::DropTable('apps_mailclient_accounts');
 		Variable::delete('max_mail_size');
 		Base_ThemeCommon::uninstall_default_theme($this -> get_type());

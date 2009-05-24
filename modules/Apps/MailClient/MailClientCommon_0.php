@@ -23,7 +23,9 @@ class Apps_MailClientCommon extends ModuleCommon {
 			}	
 			if($contact_exists)
 				$opts['mail']='Mail only';
-			return array('Mail accounts'=>'account_manager','Mail settings'=>array(
+			return array('Mail accounts'=>'account_manager',
+				    'Mail filters'=>'manage_filters',
+				    'Mail settings'=>array(
 					array('name'=>'default_dest_mailbox','label'=>'Messages from epesi users deliver to', 'type'=>'select', 'values'=>$opts, 'default'=>'both'),
 					)
 			);
