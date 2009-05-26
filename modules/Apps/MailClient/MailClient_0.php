@@ -1085,7 +1085,7 @@ class Apps_MailClient extends Module {
 					$accounts[$k] = Base_LangCommon::ts('Apps_MailClient','Private messages');
 		
 		if($def_account == null || !isset($accounts[$def_account])) {
-		    $def_account = array_pop(array_keys($accounts));
+		    $def_account = current(array_keys($accounts));
 		}
 
 		$form = & $this->init_module('Libs/QuickForm',null,'mailclient_setup');
@@ -1121,11 +1121,55 @@ class Apps_MailClient extends Module {
 	
 	public function filter($id, $action='view') {
 		if($this->is_back()) return false;
-
+		
+		load_js($this->get_module_dir().'utils.js');
+		
 		$f = $this->init_module('Libs/QuickForm');
+		$theme = $this->init_module('Base/Theme');
+		
+		$f->addElement('header','general_header',$this->t('General'));
+		$f->addElement('text','name',$this->t('Name'),array('maxlength'=>64));
+		$f->addRule('name',$this->t('Max length of field exceeded'),'maxlength',64);
+		$f->addRule('name',$this->t('Field required'),'required');
+		$f->addElement('select','match',$this->t('For incoming messages that match'),array('allrules'=>$this->ht('all of the following rules'), 'anyrules'=>$this->ht('any of the following rules'), 'allmessages'=>$this->ht('all messages')),array('onChange'=>'Apps_MailClient.filters_match_change(this.value)'));
+		$f->addRule('match',$this->t('Field required'),'required');
+		eval_js('Apps_MailClient.filters_match_change('.$f->exportValue('match').')');
 
-		$f->display();
+		//rules
+		$f->addElement('header','rules_header',$this->t('Rules'));
+		$f->addElement('hidden','rules_ids','1',array('id'=>'mail_filters_rules_ids'));
+		$rules_ids = $f->exportValue('rules_ids');
+		$rules_ids = explode(',',$rules_ids);
+		if(empty($rules_ids))
+		    $rules_ids[] = '1';
+		$theme->assign('rules_ids',$rules_ids);
+		$rules_ids[] = 'template';
+		foreach($rules_ids as $rid) {
+			$h = $f->createElement('select','header','',array('subject'=>$this->ht('Subject'),'from'=>$this->ht('From')));
+			$m = $f->createElement('select','match','',array('contains'=>$this->ht('contains'),'notcontains'=>$this->ht('doesn\'t contains'),'is'=>$this->ht('is'),'notis'=>$this->ht('isn\'t'),'begins'=>$this->ht('begins with'),'ends'=>$this->ht('ends with')));
+			$v = $f->createElement('text','value');
+			$rb = $f->createElement('button','remove',$this->ht('Remove rule'),array('onClick'=>'Apps_MailClient.filter_remove_rule('.$rid.')'));
+			$f->addGroup(array($h,$m,$v,$rb),'rule['.$rid.']');
+		}
+		$theme->assign('rules_block','mail_filters_rules_block');
+		$theme->assign('rule_template_block','mail_filters_rule_template');
+		$theme->assign('rules_elements','mail_filters_rules_elements');
+		$theme->assign('rule_remove_block','mail_filters_rule_');
+		
+		$f->addElement('button','add_rule_button',$this->t('Add rule'),array('onClick'=>'Apps_MailClient.filter_add_rule()'));
 
+		//actions
+		$f->addElement('header','actions_header',$this->t('Actions'));
+		
+		if($f->validate()) {
+			
+		}
+
+		$f->assign_theme('form', $theme);
+
+		$theme->display('filter_new');
+
+		Base_ActionBarCommon::add('save','Save',$f->get_submit_form_href());
 		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 
 		return true;

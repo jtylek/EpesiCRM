@@ -133,5 +133,33 @@ addressbook_toggle_init: function() {
 	} else {
 		$('apps_mailclient_addressbook').show();
 	}
+},
+
+filters_match_change: function(val) {
+	if(val=='allmessages')
+		$('mail_filters_rules_block').hide();
+	else
+		$('mail_filters_rules_block').show();
+},
+filter_remove_rule: function(val) {
+	$('mail_filters_rule_'+val).remove();
+	var ids = $('mail_filters_rules_ids').value.split(',');
+	var new_ids = Array();
+	for(var i=0; i<ids.size(); i++) {
+	    if(ids[i]!=val)
+		new_ids.push(ids[i]);
+	}
+	$('mail_filters_rules_ids').value = new_ids.join(',');
+},
+filter_add_rule: function(val) {
+	var ids = $('mail_filters_rules_ids').value.split(',');
+	var max = 0;
+	for(var i=0; i<ids.size(); i++) {
+	    if(max<ids[i]) max = ids[i];
+	}
+	max = max+1;
+	ids.push(max);
+	$('mail_filters_rules_block').appendChild($('mail_filters_rule_template').clone());
+	$('mail_filters_rules_ids').value = ids.join(',');
 }
 };
