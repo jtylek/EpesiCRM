@@ -141,25 +141,37 @@ filters_match_change: function(val) {
 	else
 		$('mail_filters_rules_block').show();
 },
-filter_remove_rule: function(val) {
-	$('mail_filters_rule_'+val).remove();
-	var ids = $('mail_filters_rules_ids').value.split(',');
+filter_remove: function(what,val) {
+	var ids = $('mail_filters_'+what+'s_ids').value.split(',');
+	if(ids.size()<2) return;
 	var new_ids = Array();
 	for(var i=0; i<ids.size(); i++) {
 	    if(ids[i]!=val)
 		new_ids.push(ids[i]);
 	}
-	$('mail_filters_rules_ids').value = new_ids.join(',');
+	$('mail_filters_'+what+'_'+val).remove();
+	$('mail_filters_'+what+'s_ids').value = new_ids.join(',');
 },
-filter_add_rule: function(val) {
-	var ids = $('mail_filters_rules_ids').value.split(',');
+filter_add: function(what) {
+	var ids = $('mail_filters_'+what+'s_ids').value.split(',');
 	var max = 0;
 	for(var i=0; i<ids.size(); i++) {
-	    if(max<ids[i]) max = ids[i];
+	    var j = parseInt(ids[i]);
+	    if(max<j) max = j;
 	}
 	max = max+1;
 	ids.push(max);
-	$('mail_filters_rules_block').appendChild($('mail_filters_rule_template').clone());
-	$('mail_filters_rules_ids').value = ids.join(',');
+	var new_rule = $('mail_filters_'+what+'s_template').innerHTML.replace(new RegExp('template','g'),max);
+	var x = document.createElement('span'); //doesn't work with appendChild so this ugly work around...
+	x.innerHTML = new_rule;
+	$('mail_filters_'+what+'s_elements').appendChild(x);
+//	$('mail_filters_'+what+'s_elements').innerHTML = $('mail_filters_'+what+'s_elements').innerHTML+new_rule; //doesn't work with appendChild so this other ugly work around... with bug: clears form elements
+	$('mail_filters_'+what+'s_ids').value = ids.join(',');
+},
+filter_action_change: function(id,action) {
+	if(action=='delete' || action=='read')
+		$('mail_filter_action_value_'+id).hide();
+	else
+		$('mail_filter_action_value_'+id).show();
 }
 };

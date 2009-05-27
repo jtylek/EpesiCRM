@@ -12,6 +12,40 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Apps_MailClientCommon extends ModuleCommon {
+
+	public static function filter_match_method($v) {
+	    static $arr,$rev;
+	    if(!isset($arr)) {
+		$arr = array('allrules', 'anyrule', 'allmessages');
+		$rev = array_flip($arr);
+	    }
+	    if(is_numeric($v))
+		    return $arr[$v];
+	    return $rev[$v];
+	}
+
+	public static function filter_rules_match($v) {
+	    static $arr,$rev;
+	    if(!isset($arr)) {
+		$arr = array('contains','notcontains','is','notis','begins','ends');
+		$rev = array_flip($arr);
+	    }
+	    if(is_numeric($v))
+		    return $arr[$v];
+	    return $rev[$v];
+	}
+	
+	public static function filter_actions($v) {
+	    static $arr,$rev;
+	    if(!isset($arr)) {
+		$arr = array('move','copy','forward','read','delete');
+		$rev = array_flip($arr);
+	    }
+	    if(is_numeric($v))
+		    return $arr[$v];
+	    return $rev[$v];
+	}
+
 	public static function user_settings() {
 		if(Acl::is_user()) {
 			$opts = array('both'=>'Private message and contact mail', 'pm'=>'Private message only');

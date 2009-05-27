@@ -22,14 +22,20 @@
         </tr>
     </tbody>
 </table>
+
+
 <div id="{$rules_block}">
-<table id="{$rule_template_block}" style="display:none">
-        <tr id="($rule_remove_block}template">
+<table style="display:none">
+    <tbody id="{$rule_template_block}">
+        <tr id="{$rule_remove_block}template">
             <td class="label">
+		{$form_data.rule.template.error}
 		{$form_data.rule.template.html}
-	</td>
-    </tr>
+	    </td>
+	</tr>
+    </tbody>
 </table>
+
 <table id="Apps_MailClient_new" border="0" cellpadding="0" cellspacing="0">
     <tbody id="{$rules_elements}">
         <tr>
@@ -37,23 +43,51 @@
         </tr>
 {foreach item=f from=$rules_ids}
         <tr id="{$rule_remove_block}{$f}">
-            <td class="label">{$form_data.rule.$f.html}</td>
+            <td class="label">
+		{$form_data.rule.$f.error}
+		{$form_data.rule.$f.html}
+	    </td>
         </tr>
 {/foreach}
     </tbody>
 </table>
+
 {$form_data.add_rule_button.html}
+
 </div>
-<table id="Apps_MailClient_new" border="0" cellpadding="0" cellspacing="0">
-    <tbody>
-        <tr>
-            <td class="label" colspan=2>{$form_data.header.actions_header}</td>
-        </tr>
+
+
+<table style="display:none">
+    <tbody id="{$action_template_block}">
+        <tr id="{$action_remove_block}template">
+            <td class="label">
+		{$form_data.action.template.error}
+		{$form_data.action.template.html}
+	    </td>
+	</tr>
     </tbody>
 </table>
 
-</div>
+<table id="Apps_MailClient_new" border="0" cellpadding="0" cellspacing="0">
+    <tbody id="{$actions_elements}">
+        <tr>
+            <td class="label">{$form_data.header.actions_header}</td>
+        </tr>
+{foreach item=f from=$actions_ids}
+        <tr id="{$action_remove_block}{$f}">
+            <td class="label">
+		{$form_data.action.$f.error}
+		{$form_data.action.$f.html}
+	    </td>
+        </tr>
+{/foreach}
+    </tbody>
+</table>
 
+{$form_data.add_action_button.html}
+
+
+</div>
 <!-- SHADOW END -->
  		</div>
 		<div class="shadow-top">

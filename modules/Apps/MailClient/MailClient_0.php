@@ -1072,7 +1072,7 @@ class Apps_MailClient extends Module {
 
 	///////////////////////////////////////////
 	// filters management
-	
+
 	public function manage_filters() {
 		// account selection
 		$accounts = DB::GetAssoc('SELECT id,mail FROM apps_mailclient_accounts WHERE user_login_id=%d',array(Acl::get_user()));
@@ -1109,9 +1109,8 @@ class Apps_MailClient extends Module {
 		$ret = $gb->query_order_limit('SELECT id,name FROM apps_mailclient_filters WHERE account_id='.$def_account,'SELECT count(id) FROM apps_mailclient_filters WHERE account_id='.$def_account);
 		while($row=$ret->FetchRow()) {
 			$r = & $gb->get_new_row();
-			$r->add_data($row['mail']);
+			$r->add_data($row['name']);
 			$r->add_action($this->create_callback_href(array($this,'filter'),array($row['id'],'edit')),'Edit');
-			$r->add_action($this->create_callback_href(array($this,'filter'),array($row['id'],'view')),'View');
 			$r->add_action($this->create_confirm_callback_href($this->ht("Delete this filter?"),array($this,'delete_filter'),$row['id']),'Delete');
 		}
 		$this->display_module($gb);
@@ -1119,7 +1118,7 @@ class Apps_MailClient extends Module {
 		
 	}
 	
-	public function filter($id, $action='view') {
+	public function filter($id, $action='new') {
 		if($this->is_back()) return false;
 		
 		load_js($this->get_module_dir().'utils.js');
@@ -1131,38 +1130,112 @@ class Apps_MailClient extends Module {
 		$f->addElement('text','name',$this->t('Name'),array('maxlength'=>64));
 		$f->addRule('name',$this->t('Max length of field exceeded'),'maxlength',64);
 		$f->addRule('name',$this->t('Field required'),'required');
-		$f->addElement('select','match',$this->t('For incoming messages that match'),array('allrules'=>$this->ht('all of the following rules'), 'anyrules'=>$this->ht('any of the following rules'), 'allmessages'=>$this->ht('all messages')),array('onChange'=>'Apps_MailClient.filters_match_change(this.value)'));
+		$f->addElement('select','match',$this->t('For incoming messages that match'),array('allrules'=>Base_LangCommon::ts('Apps_MailClient','all of the following rules'), 'anyrule'=>Base_LangCommon::ts('Apps_MailClient','any of the following rules'), 'allmessages'=>Base_LangCommon::ts('Apps_MailClient','all messages')),array('onChange'=>'Apps_MailClient.filters_match_change(this.value)'));
 		$f->addRule('match',$this->t('Field required'),'required');
-		eval_js('Apps_MailClient.filters_match_change('.$f->exportValue('match').')');
+		$f->setDefaults(array('match'=>'anyrule'));
+
+
+		if($action!='new') { //view or edit
+			$row = DB::GetRow('SELECT name,match_method FROM apps_mailclient_filters WHERE id=%d',array($id));
+			$f->setDefaults(array('name'=>$row['name'],'match'=>Apps_MailClientCommon::filter_match_method($row['match_method'])));
+
+			$ret = DB::Execute('SELECT header,rule,value FROM apps_mailclient_filter_rules WHERE filter_id=%d',array($id));
+			$rid = 1;
+			$rules_def = array();
+			while($row = $ret->FetchRow()) {
+				$rules_def[$rid] = array('value'=>$row['value'], 'match'=>Apps_MailClientCommon::filter_rules_match($row['rule']), 'header'=>$row['header']);
+				$rid++;
+			}
+			$f->setDefaults(array('rule'=>$rules_def,'rules_ids'=>implode(',',array_keys($rules_def))));
+
+			$ret = DB::Execute('SELECT action,value FROM apps_mailclient_filter_actions WHERE filter_id=%d',array($id));
+			$rid = 1;
+			$actions_def = array();
+			while($row = $ret->FetchRow()) {
+				$actions_def[$rid] = array('value'=>$row['value'], 'action'=>Apps_MailClientCommon::filter_actions($row['action']));
+				$rid++;
+			}
+			$f->setDefaults(array('action'=>$actions_def,'actions_ids'=>implode(',',array_keys($actions_def))));
+		}
+		
+
+		eval_js('Apps_MailClient.filters_match_change(\''.$f->exportValue('match').'\')');
 
 		//rules
 		$f->addElement('header','rules_header',$this->t('Rules'));
 		$f->addElement('hidden','rules_ids','1',array('id'=>'mail_filters_rules_ids'));
 		$rules_ids = $f->exportValue('rules_ids');
+		if($rules_ids==='')
+			trigger_error('Filter rules_ids field empty!');
 		$rules_ids = explode(',',$rules_ids);
-		if(empty($rules_ids))
-		    $rules_ids[] = '1';
 		$theme->assign('rules_ids',$rules_ids);
+		
 		$rules_ids[] = 'template';
 		foreach($rules_ids as $rid) {
-			$h = $f->createElement('select','header','',array('subject'=>$this->ht('Subject'),'from'=>$this->ht('From')));
-			$m = $f->createElement('select','match','',array('contains'=>$this->ht('contains'),'notcontains'=>$this->ht('doesn\'t contains'),'is'=>$this->ht('is'),'notis'=>$this->ht('isn\'t'),'begins'=>$this->ht('begins with'),'ends'=>$this->ht('ends with')));
-			$v = $f->createElement('text','value');
-			$rb = $f->createElement('button','remove',$this->ht('Remove rule'),array('onClick'=>'Apps_MailClient.filter_remove_rule('.$rid.')'));
-			$f->addGroup(array($h,$m,$v,$rb),'rule['.$rid.']');
+			$g = array();
+			$g[] = $f->createElement('select','header','',array('subject'=>$this->ht('Subject'),'from'=>$this->ht('From')));
+			$g[] = $f->createElement('select','match','',array('contains'=>Base_LangCommon::ts('Apps_MailClient','contains'),'notcontains'=>Base_LangCommon::ts('Apps_MailClient','doesn\'t contains'),'is'=>Base_LangCommon::ts('Apps_MailClient','is'),'notis'=>Base_LangCommon::ts('Apps_MailClient','isn\'t'),'begins'=>Base_LangCommon::ts('Apps_MailClient','begins with'),'ends'=>Base_LangCommon::ts('Apps_MailClient','ends with')));
+			$g[] = $f->createElement('text','value');
+			$g[] = $f->createElement('button','remove',$this->ht('Remove rule'),array('onClick'=>'Apps_MailClient.filter_remove(\'rule\','.$rid.')'));
+			$f->addGroup($g,'rule['.$rid.']');
 		}
-		$theme->assign('rules_block','mail_filters_rules_block');
-		$theme->assign('rule_template_block','mail_filters_rule_template');
+		$theme->assign('rule_template_block','mail_filters_rules_template');
 		$theme->assign('rules_elements','mail_filters_rules_elements');
 		$theme->assign('rule_remove_block','mail_filters_rule_');
-		
-		$f->addElement('button','add_rule_button',$this->t('Add rule'),array('onClick'=>'Apps_MailClient.filter_add_rule()'));
+		$theme->assign('rules_block','mail_filters_rules_block');
+		$f->addElement('button','add_rule_button',$this->t('Add rule'),array('onClick'=>'Apps_MailClient.filter_add(\'rule\')'));
 
 		//actions
 		$f->addElement('header','actions_header',$this->t('Actions'));
+		$f->addElement('hidden','actions_ids','1',array('id'=>'mail_filters_actions_ids'));
+		$actions_ids = $f->exportValue('actions_ids');
+		if($actions_ids==='')
+			trigger_error('Filter actions_ids field empty!');
+		$actions_ids = explode(',',$actions_ids);
+		$theme->assign('actions_ids',$actions_ids);
+		
+		$actions_ids[] = 'template';
+		foreach($actions_ids as $rid) {
+			$g = array();
+			$g[] = $f->createElement('select','action','',array('move'=>Base_LangCommon::ts('Apps_MailClient','Move message to'),'copy'=>Base_LangCommon::ts('Apps_MailClient','Copy message to'),'forward'=>Base_LangCommon::ts('Apps_MailClient','Forward message to'),'read'=>Base_LangCommon::ts('Apps_MailClient','Mark as read'),'delete'=>Base_LangCommon::ts('Apps_MailClient','Delete')),array('onChange'=>'Apps_MailClient.filter_action_change('.$rid.',this.value)'));
+			$g[] = $f->createElement('text','value','',array('id'=>'mail_filter_action_value_'.$rid));
+			$g[] = $f->createElement('button','remove',$this->ht('Remove action'),array('onClick'=>'Apps_MailClient.filter_remove(\'action\','.$rid.')'));
+			$f->addGroup($g,'action['.$rid.']');
+			$val = $f->exportValue('action['.$rid.']');
+			eval_js('Apps_MailClient.filter_action_change(\''.$rid.'\',\''.(isset($val['action'])?$val['action']:'').'\')');
+		}
+		$theme->assign('action_template_block','mail_filters_actions_template');
+		$theme->assign('actions_elements','mail_filters_actions_elements');
+		$theme->assign('action_remove_block','mail_filters_action_');
+		$f->addElement('button','add_action_button',$this->t('Add action'),array('onClick'=>'Apps_MailClient.filter_add(\'action\')'));
+
+
+		//validate rules and actions
+		$f->addFormRule(array($this,'check_rules_and_actions'));
 		
 		if($f->validate()) {
-			
+		    $vals = $f->exportValues();
+		    if($action=='new') {
+			    DB::Execute('INSERT INTO apps_mailclient_filters (account_id,name,match_method) VALUES (%d, %s, %d)',
+				    array($this->get_module_variable('filters_account'),$vals['name'],Apps_MailClientCommon::filter_match_method($vals['match'])));
+			    $id = DB::Insert_ID('apps_mailclient_filters','id');
+		    } else { //edit
+			    DB::Execute('UPDATE apps_mailclient_filters SET name=%s, match_method=%d WHERE id=%d',
+				    array($vals['name'],Apps_MailClientCommon::filter_match_method($vals['match']),$id));
+			    DB::Execute('DELETE FROM apps_mailclient_filter_rules WHERE filter_id=%d',array($id));
+			    DB::Execute('DELETE FROM apps_mailclient_filter_actions WHERE filter_id=%d',array($id));
+		    }
+		    foreach($vals['rule'] as $i=>$row) {
+			    if($i=='template') continue;
+			    DB::Execute('INSERT INTO apps_mailclient_filter_rules (filter_id,header,rule,value) VALUES (%d, %s, %d, %s)',
+				    array($id,$row['header'],Apps_MailClientCommon::filter_rules_match($row['match']),$row['value']));
+		    }
+		    foreach($vals['action'] as $i=>$row) {
+			    if($i=='template') continue;
+			    DB::Execute('INSERT INTO apps_mailclient_filter_actions (filter_id,action,value) VALUES (%d, %d, %s)',
+				    array($id,Apps_MailClientCommon::filter_actions($row['action']),$row['value']));
+		    }
+		    return false;			
 		}
 
 		$f->assign_theme('form', $theme);
@@ -1174,6 +1247,23 @@ class Apps_MailClient extends Module {
 
 		return true;
 		
+	}
+	
+	public function check_rules_and_actions($f) {
+		$ret = array();
+		foreach($f['rule'] as $id=>$r) {
+			if($id=='template') continue;
+			if(empty($r['value']))
+				$ret['rule['.$id.']'] = $this->t('Value required.');
+		}
+		foreach($f['action'] as $id=>$r) {
+			if($id=='template') continue;
+			if(empty($r['value']) && $r['action']!='delete' && $r['action']!='read')
+				$ret['action['.$id.']'] = $this->t('Value required.');
+		}
+		if(!empty($ret))
+			return $ret;
+		return true;
 	}
 	
 	public function delete_filter($id) {
