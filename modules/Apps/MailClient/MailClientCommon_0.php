@@ -89,7 +89,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 	}
 
 	public static function applet_settings() {
-		$ret = DB::GetAll('SELECT id,mail FROM apps_mailclient_accounts WHERE user_login_id=%d',array(Acl::get_user()));
+		$ret = Apps_MailClientCommon::get_mailbox_data();
 		$conf = array(array('type'=>'header','label'=>'Choose accounts'));
 		if(empty($ret))
 			$ret[] = array('id'=>Apps_MailClientCommon::create_internal_mailbox(), 'mail'=>'#internal');
@@ -136,12 +136,14 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$all_last = '';
 		foreach($name_arr as $r) {
 			$all .= $r.'/';
-			@mkdir($mbox_dir.$all);
-			Apps_MailClientCommon::build_index($id,$all);
-			$fs = @filesize($mbox_dir.$all_last.'.dirs');
-			$f = fopen($mbox_dir.$all_last.'.dirs','a');
-			fputs($f,($fs?',':'').$r);
-			fclose($f);
+			if(!file_exists($mbox_dir.$all)) {
+			    @mkdir($mbox_dir.$all);
+			    Apps_MailClientCommon::build_index($id,$all);
+			    $fs = @filesize($mbox_dir.$all_last.'.dirs');
+			    $f = fopen($mbox_dir.$all_last.'.dirs','a');
+			    fputs($f,($fs?',':'').$r);
+			    fclose($f);
+			}
 			$all_last = $all;
 		}
 		//TODO: jezeli skrzynka imap to stworzenie zdalnego folderu
@@ -169,11 +171,26 @@ class Apps_MailClientCommon extends ModuleCommon {
 		Apps_MailClientCommon::create_mailbox_dir($id);
 		return $id;
 	}
+	
+	public static function get_mailbox_data($id=null,$use_cache=true) {
+		static $cache;
+		if(!isset($cache) || !$use_cache) {
+			$ret = DB::Execute('SELECT * FROM apps_mailclient_accounts WHERE user_login_id=%d ORDER BY mail',array(Acl::get_user()));
+			$cache = array();
+			while($row = $ret->FetchRow())
+				$cache[$row['id']] = $row;
+		}
+		if($id===null)
+			return $cache;
+		if(!isset($cache[$id]))
+			return false;
+		return $cache[$id];
+	}
 
 	//gets mailbox dir
 	public static function get_mailbox_dir($id) {
 		if(!Acl::is_user()) return false;
-		$ret = DB::GetOne('SELECT 1 FROM apps_mailclient_accounts WHERE user_login_id=%d AND id=%d',array(Acl::get_user(),$id));
+		$ret = self::get_mailbox_data($id);
 		if(!$ret) return false;
 		$acc_dir = self::Instance()->get_data_dir().$id.'/';
 		if(!file_exists($acc_dir))
@@ -539,7 +556,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		if(isset(self::$imap_connections[$id]))
 			return self::$imap_connections[$id];
 
-		$v = DB::GetRow('SELECT * FROM apps_mailclient_accounts WHERE id=%d',array($id));
+		$v = Apps_MailClientCommon::get_mailbox_data($id);
 
 		$ssl = $v['incoming_ssl'];
 		$host = explode(':',$v['incoming_server']);
@@ -586,18 +603,34 @@ class Apps_MailClientCommon extends ModuleCommon {
 				$local_exists = true;
 				$local_curr = & $local_dirs;
 				$remote_curr = & $remote_dirs;
+				$remote_dir = ''; //we will build here remote_dir with case changed dirs
+				//check if local directory exists
 				while(($x = array_shift($remote_dir_arr))!==null) {
-					if(!isset($remote_curr[$x]))
-						$remote_curr[$x] = array();
-					$remote_curr = & $remote_curr[$x];
-					if($local_exists && isset($local_curr[$x])) {
-						$local_curr = $local_curr[$x];
+
+					if(!empty($local_curr)) {
+						$local_curr_keys = array_keys($local_curr);
+						$local_curr_case_map = array_change_key_case(array_combine($local_curr_keys,$local_curr_keys));
+					} else
+						$local_curr_case_map = array();
+					$lower_x = strtolower($x);
+					
+					//remote_curr is current remote dir
+					if(!isset($remote_curr[$lower_x]))
+						$remote_curr[$lower_x] = array();
+					$remote_curr = & $remote_curr[$lower_x];
+
+					if($local_exists && isset($local_curr_case_map[$lower_x])) {
+						$local_curr = & $local_curr[$local_curr_case_map[$lower_x]];
+						$remote_dir .= $local_curr_case_map[$lower_x].'/';
 					} else {
 						$local_exists = false;
+						$remote_dir .= $x.'/';
 					}
 				}
-				if(!$local_exists)
+				if(!$local_exists) {
 					self::create_mailbox_subdir($id,$remote_dir);
+					$local_dirs = self::get_mailbox_structure($id);
+				} 
 			}
 			self::imap_sync_mailbox_dir_remove_old($id,$local_dirs,$remote_dirs);
 		}
@@ -606,13 +639,14 @@ class Apps_MailClientCommon extends ModuleCommon {
 	private static function imap_sync_mailbox_dir_remove_old($id,$local_dirs,$remote_dirs,$curr_dir = '') {
 		//go thru local and remove old dirs
 		foreach($local_dirs as $name=>$sub) {
-			if(!isset($remote_dirs[$name])) {
+			$lower_name = strtolower($name);
+			if(!isset($remote_dirs[$lower_name])) {
 				self::remove_mailbox_subdir($id,$curr_dir.$name);
 				continue;
 			}
-			self::imap_sync_mailbox_dir_remove_old($id,$sub,$remote_dirs[$name],$curr_dir.$name.'/');
+			self::imap_sync_mailbox_dir_remove_old($id,$sub,$remote_dirs[$lower_name],$curr_dir.$name.'/');
 		}
 	}
 }
-
+load_js('modules/Apps/MailClient/utils.js');
 ?>

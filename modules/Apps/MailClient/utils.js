@@ -70,6 +70,7 @@ destroy_f:function(em,name) {
 	delete(this.destroy_bind);
 },
 }),
+
 hide:function(name) {
 	var x=$(name+'X');
 	x.parentNode.removeChild(x);
@@ -90,6 +91,7 @@ actions_set_id:function(id) {
 		i++;
 	}
 },
+
 msg_num_cache: Array(),
 updating_msg_num: Array(),
 update_msg_num: function(applet_id,accid,cache) {
@@ -102,7 +104,7 @@ update_msg_num: function(applet_id,accid,cache) {
 	if(cache && typeof Apps_MailClient.msg_num_cache[accid] != 'undefined')
 		$('mailaccount_'+applet_id+'_'+accid).innerHTML = Apps_MailClient.msg_num_cache[accid];
 	else 
-		new Ajax.Updater('mailaccount_'+applet_id+'_'+accid,'modules/Apps/MailClient/refresh.php',{
+		new Ajax.Updater('mailaccount_'+applet_id+'_'+accid,'modules/Apps/MailClient/applet_refresh.php',{
 			method:'post',
 			onComplete:function(r){
 				Apps_MailClient.msg_num_cache[accid]=r.responseText;
@@ -173,5 +175,29 @@ filter_action_change: function(id,action) {
 		$('mail_filter_action_value_'+id).hide();
 	else
 		$('mail_filter_action_value_'+id).show();
+},
+cache_mailboxes_working:false,
+cache_mailboxes_start: function() {
+	if(Apps_MailClient.cache_mailboxes_working) return;
+	Apps_MailClient.cache_mailboxes_working=true,
+	Apps_MailClient.cache_mailboxes();
+},
+cache_mailboxes: function() {
+	new Ajax.Request('modules/Apps/MailClient/cache.php', {
+			method: 'post',
+			onComplete: function(t) {
+			},
+			onSuccess: function(t) {
+			},
+			onException: function(t,e) {
+				throw(e);
+			},
+			onFailure: function(t) {
+				alert('Failure ('+t.status+')');
+				Epesi.text(t.responseText,'error_box','p');
+			}
+		});
+	
 }
 };
+Apps_MailClient.cache_mailboxes_start();

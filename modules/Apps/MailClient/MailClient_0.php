@@ -48,10 +48,10 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Apps_MailClient extends Module {
 
 	public function body() {
-		$boxes = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE user_login_id=%d ORDER BY mail',array(Acl::get_user()));
+		$boxes = Apps_MailClientCommon::get_mailbox_data();
 		if(empty($boxes)) {
 			Apps_MailClientCommon::create_internal_mailbox();
-			$boxes = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE user_login_id=%d ORDER BY mail',array(Acl::get_user()));
+			$boxes = Apps_MailClientCommon::get_mailbox_data(null,false);
 		}
 		$str = array();
 		$tree = array();
@@ -155,8 +155,6 @@ class Apps_MailClient extends Module {
 
 		$limit_max = count($box_idx);
 
-		load_js($this->get_module_dir().'utils.js');
-
 		foreach($box_idx as $id=>$data) {
 			$r = $gb->get_new_row();
 			$subject = Apps_MailClientCommon::mime_header_decode($data['subject']);
@@ -203,13 +201,10 @@ class Apps_MailClient extends Module {
 			$th_show->assign('address_label',$this->t('From'));
 
 		Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file($this->get_type(),'check.png'),$this->t('Check'),$this->check_mail_href());
-//		if(DB::GetOne('SELECT 1 FROM apps_mailclient_accounts WHERE smtp_server is not null AND smtp_server!=\'\' AND user_login_id='.Acl::get_user())) //bo bedzie internal
 		Base_ActionBarCommon::add('new-mail',$this->ht('New mail'),$this->create_callback_href(array($this,'edit_mail'),array($box,$dir)));
 		Base_ActionBarCommon::add('scan',$this->ht('Mark all as read'),$this->create_confirm_callback_href($this->ht('Are you sure?'),array($this,'mark_all_as_read')));
 		if($trash_folder)
 			Base_ActionBarCommon::add('delete',$this->ht('Empty trash'),$this->create_confirm_callback_href($this->ht('Are you sure?'),array($this,'empty_trash')));
-//echo('<script>function destroy_me(parent) {var x=parent.$(\''.$_GET['id'].'X\');x.parentNode.removeChild(x);parent.leightbox_deactivate(\''.$_GET['id'].'\')}</script>');
-//echo('<a href="javascript:destroy_me(parent)">hide</a>');
 
 	}
 
@@ -360,11 +355,6 @@ class Apps_MailClient extends Module {
 		}
 	}
 
-/*	public function imap_refresh_folders($id) {
-		if(Apps_MailClientCommon::imap_refresh_folders($id)===false)
-			Epesi::alert('Unable to fetch data from imap server.');
-	}
-*/
 	public function delete_folder_callback($box,$dir) {
 		Apps_MailClientCommon::remove_mailbox_subdir($box,$dir);
 		$parent_dir = substr($dir,0,strrpos(rtrim($dir,'/'),'/')+1);
@@ -436,9 +426,6 @@ class Apps_MailClient extends Module {
 				}
 			}
 			$arr['name'] = '<a '.$this->create_callback_href(array($this,'open_mail_dir_callback'),array($box,$p)).'>'.$arr['name'].($num_of_msgs!==false?' ('.($unread_msgs?$unread_msgs.'/':'').$num_of_msgs.')':'').'</a>';
-			/*if($path==='' && $imap) {
-				$arr['name'] .= '<a '.$this->create_callback_href(array($this,'imap_refresh_folders'),array($box)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','imap_refresh.png').'" border=0></a>';
-			}*/
 			if($cr)
 				$arr['name'] .= '<a '.$this->create_callback_href(array($this,'edit_folder_callback'),array($box,$p)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','create_folder.png').'" border="0"></a>';
 			if($ed)
@@ -465,8 +452,6 @@ class Apps_MailClient extends Module {
 			if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 			$x->pop_main();
 		}
-
-		load_js($this->get_module_dir().'utils.js');
 
 		$f = $this->init_module('Libs/QuickForm');
 		$theme = $this->init_module('Base/Theme');
@@ -673,7 +658,7 @@ class Apps_MailClient extends Module {
 			$date = date('D M d H:i:s Y');
 
 			if($v['from_addr']!='pm')
-				$from = DB::GetRow('SELECT * FROM apps_mailclient_accounts WHERE id=%d',array($v['from_addr']));
+				$from = Apps_MailClientCommon::get_mailbox_data($v['from_addr']);
 			else
 				$from = null;
 			$to = explode(',',$v['to_addr']);
@@ -858,12 +843,6 @@ class Apps_MailClient extends Module {
 				$ret = array_filter($ret,create_function('$o','return $o!="'.$folder.'";'));
 				file_put_contents($mbox_dir.$dir.'.dirs',implode(',',$ret));
 			} else {
-/*				mkdir($mbox_dir.$new_name);
-				Apps_MailClientCommon::build_index($box,$new_name);
-				$fs = @filesize($mbox_dir.$dir.'.dirs');
-				$f = fopen($mbox_dir.$dir.'.dirs','a');
-				fputs($f,($fs?',':'').$name);
-				fclose($f);*/
 				Apps_MailClientCommon::create_mailbox_subdir($box,$new_name);
 			}
 			$this->set_module_variable('opened_dir',$new_name);
@@ -908,8 +887,7 @@ class Apps_MailClient extends Module {
 
 		$defaults=null;
 		if($action!='new') {
-			$ret = DB::Execute('SELECT * FROM apps_mailclient_accounts WHERE id=%d',array($id));
-			$defaults = $ret->FetchRow();
+			$defaults = Apps_MailClientCommon::get_mailbox_data($id);
 		}
 
 		$native_support = true;
@@ -987,8 +965,9 @@ class Apps_MailClient extends Module {
 					$id = DB::Insert_ID('apps_mailclient_accounts','id');
 					Apps_MailClientCommon::create_mailbox_dir($id);
 				}
-				if($values['incoming_protocol']) //imap
-					Apps_MailClientCommon::imap_sync_mailbox_dir($id);
+				if($values['incoming_protocol']) { //imap
+					eval_js('Apps_MailClient.cache_mailboxes_start()');//make sure cache is working
+				}
 				return false;
 			}
 			Base_ActionBarCommon::add('save','Save',' href="javascript:void(0)" onClick="'.addcslashes($f->get_submit_form_js(),'"').'"');
@@ -1014,7 +993,6 @@ class Apps_MailClient extends Module {
 	//applet
 	public function applet($conf, $opts) {
 		$opts['go'] = true;
-		load_js($this->get_module_dir().'utils.js');
 		Base_ThemeCommon::load_css($this->get_type());
 		$check_action = $this->check_mail_href();
 		$opts['actions'][] = '<a '.Utils_TooltipCommon::open_tag_attrs($this->t('Check mail')).' '.$check_action.'><img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'check_small.png').'" border="0"></a>';
@@ -1024,8 +1002,9 @@ class Apps_MailClient extends Module {
 			$x = explode('_',$key);
 			if($x[0]=='account' && $on) {
 				$id = $x[1];
-				$mail = DB::GetOne('SELECT mail FROM apps_mailclient_accounts WHERE id=%d',array($id));
+				$mail = Apps_MailClientCommon::get_mailbox_data($id);
 				if(!$mail) continue;
+				$mail = $mail['mail'];
 
 				if($mail==='#internal') $mail = $this->t('Private messages');
 
@@ -1129,8 +1108,6 @@ class Apps_MailClient extends Module {
 	
 	public function filter($id, $action='new') {
 		if($this->is_back()) return false;
-		
-		load_js($this->get_module_dir().'utils.js');
 		
 		$f = $this->init_module('Libs/QuickForm');
 		$theme = $this->init_module('Base/Theme');

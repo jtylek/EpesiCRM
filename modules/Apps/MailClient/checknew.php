@@ -23,10 +23,8 @@ function message($id,$text) {
 	@ob_flush();
 }
 
-$accounts = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE user_login_id=%d',array(Acl::get_user()));
+$accounts = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE user_login_id=%d AND incoming_protocol=0',array(Acl::get_user()));
 foreach($accounts as $account) {
-	$pop3 = ($account['incoming_protocol']==0);
-	if(!$pop3) continue; //TODO: force imap sync
 	echo('<script>parent.Apps_MailClient.progress_bar.set_text(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\',\''.Epesi::escapeJS($account['mail'],false).'\');');
 	echo('parent.Apps_MailClient.progress_bar.set_progress(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\', 0)</script>');
 }
@@ -41,8 +39,6 @@ foreach($accounts as $account) {
 	$pass = $account['password'];
 	$ssl = $account['incoming_ssl'];
 	$method = $account['incoming_method']!='auto'?$account['incoming_method']:null;
-	$pop3 = ($account['incoming_protocol']==0);
-	if(!$pop3) continue; //TODO: force imap sync
 
 	$box_root = Apps_MailClientCommon::get_mailbox_dir($account['id']);
 	if($box_root===false) continue;
