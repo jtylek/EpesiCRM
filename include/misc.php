@@ -119,14 +119,18 @@ function eval_js_once($u,$del_on_loc=false) {
  * @param bool if set to true the function will return currently hold list of functions (don't use it in modules)
  * @return mixed returns function list if requested, true if function was added to list, false otherwise
  */
-function on_exit($u = null, $args = null, $stable=true, $ret = false) {
+function on_exit($u = null, $args = null, $stable=true, $ret = false, $last_call=false) {
 	static $headers = array ();
 
 	if($ret) {
-		$ret = $headers;
-		$headers = array ();
-		foreach($ret as $v)
-			if($v['stable']) $headers[] = $v;
+		if($last_call) {
+			$ret = $headers;
+			$headers = array();
+		} else { 
+			$ret = array();
+			foreach($headers as $v)
+				if($v['stable']) $ret[] = $v; //if stable call always
+		}
 		return $ret;
 	}
 

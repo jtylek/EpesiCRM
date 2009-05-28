@@ -233,13 +233,14 @@ class Epesi {
 		$root = & ModuleManager::create_root();
 		self::go($root);
 
+		//go somewhere else?
+		$loc = location(null,true);
+
 		//on exit call methods...
-		$ret = on_exit(null,null,null,true);
+		$ret = on_exit(null,null,null,true,$loc===false);
 		foreach($ret as $k)
 			call_user_func_array($k['func'],$k['args']);
 
-		//go somewhere else?
-		$loc = location(null,true);
 		if($loc!==false) {
 			if(isset($_REQUEST['__action_module__']))
 				$loc['__action_module__'] = $_REQUEST['__action_module__'];

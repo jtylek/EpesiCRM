@@ -5,6 +5,12 @@
  Tworze konto to wtedy laczy sie i pobiera foldery. Zaznaczasz pozniej ktore foldery subskrybowac.
  Pozniej wyswietla drzewa z lokalnego drzewa katalogu subskrybowanych folderow.
  Pobieram cale maile od razu, zeby uproscic klienta i zblizyc do pop3.
+ 
+ 1. Inbox i podfoldery aktualizuje jako pierwsze, pobiera wiadomosci od ID wiekszego od najwiekszej wiadomosci do ilosci wiadomosci,
+ 2. potem aktualizuje wstecz, starsze wiadomosci - usuwa lokalnie, sciaga zmienione...
+ 3. Potem aktualizuje reszte folderow calosciowo.
+ 4 - 10. wykonuje krok 1 z odstepami minimum 5s.
+ 11. zrywa polaczenie wysylajac JS(meta refresh?) kolejkujacy kolejne wykonanie skryptu
 
  Synchronizacja maili ajaxowo z ustalonym refresh, tylko zalogowanym uzytkownikom. 
  Pierwsza synchronizacja od razu po zalogowaniu do epesi, common dodaje JS i tam zaczyna sie akcja.
@@ -14,8 +20,9 @@
 
  Trzeba przeniesc patch apps_mailclient.php do update.php.
 
+ Gdy serwer imap jest offline nie pozwalac kasowac, przenosic wiadomosci, tworzyc nowych. Pozwala tylko ogladac stare.
+
  Watpliwosci:
- Gdy serwer imap jest offline pozwalac kasowac, przenosic wiadomosci?? Moze kolejkowac zadania do wyslania na serwer?? Firefox nie pozwala na edycje...
  Co jezeli na serwerze zostana poczynione modyfikacje? Jak to zmodyfikowac lokalnie? Trzeba przestudiowac zwroty z serwera imap.
  Czy przeniesc CRM/MailClient tutaj? Na razie nie...
  
@@ -353,23 +360,14 @@ class Apps_MailClient extends Module {
 		}
 	}
 
-	public function imap_refresh_folders($id) {
+/*	public function imap_refresh_folders($id) {
 		if(Apps_MailClientCommon::imap_refresh_folders($id)===false)
 			Epesi::alert('Unable to fetch data from imap server.');
 	}
-
+*/
 	public function delete_folder_callback($box,$dir) {
-		$mbox_dir = Apps_MailClientCommon::get_mailbox_dir($box);
-		if($mbox_dir===false) {
-			Epesi::alert($this->ht('Invalid mailbox'));
-			return;
-		}
-		recursive_rmdir($mbox_dir.$dir);
+		Apps_MailClientCommon::remove_mailbox_subdir($box,$dir);
 		$parent_dir = substr($dir,0,strrpos(rtrim($dir,'/'),'/')+1);
-		$ret = explode(',',file_get_contents($mbox_dir.$parent_dir.'.dirs'));
-		$removed = substr($dir,strlen($parent_dir),-1);
-		$ret = array_filter($ret,create_function('$o','return $o!="'.$removed.'";'));
-		file_put_contents($mbox_dir.$parent_dir.'.dirs',implode(',',$ret));
 		$this->set_module_variable('opened_dir',$parent_dir);
 	}
 
@@ -747,6 +745,7 @@ class Apps_MailClient extends Module {
 				$save_folder = 'Sent';
 				//remote delivery
 
+				$send_ok = true;
 				if($v['from_addr']!='pm') {
 					$mailer = Base_MailCommon::new_mailer();
 					$mailer->From = $from['mail'];//.' <'.Acl::get_user().'>';
@@ -764,20 +763,24 @@ class Apps_MailClient extends Module {
 					$mailer->AltBody = strip_tags($v['body']);
 					if($references)
 						$mailer->AddCustomHeader('References: '.$references);
-//					$ret = $mailer->Send();
-//					if(!$ret) print($mailer->ErrorInfo.'<br>');
+					$send_ok = $mailer->Send();
+					if(!$send_ok) {
+						Epesi::alert($mailer->ErrorInfo."\nMessage moved to Drafts folder.");
+						$save_folder = 'Drafts';
+					}
 					unset($mailer);
 				}
 
 				//local delivery
-				foreach($to_epesi as $e) {
-					$dest_id = DB::GetOne('SELECT id FROM apps_mailclient_accounts WHERE mail=\'#internal\' AND user_login_id=%d',array($e));
-					if($dest_id===false) {
-						$dest_id = Apps_MailClientCommon::create_internal_mailbox($e);
+				if($send_ok)
+					foreach($to_epesi as $e) {
+						$dest_id = DB::GetOne('SELECT id FROM apps_mailclient_accounts WHERE mail=\'#internal\' AND user_login_id=%d',array($e));
+						if($dest_id===false) {
+							$dest_id = Apps_MailClientCommon::create_internal_mailbox($e);
+						}
+						if(Apps_MailClientCommon::drop_message($dest_id,'Inbox/',$v['subject'],$name.' <'.$name_epesi_mail.'>',$to_names,$date,$v['body'])===false)
+							Epesi::alert($this->ht('Unable to send message to %s',array($to_epesi_names[$e])));
 					}
-					if(Apps_MailClientCommon::drop_message($dest_id,'Inbox/',$v['subject'],$name.' <'.$name_epesi_mail.'>',$to_names,$date,$v['body'])===false)
-						print($this->t('Unable to send message to %s',array($to_epesi_names[$e])).'<br>');
-				}
 			}
 			if($ret) {
 				$dest_id = $from?$from['id']:DB::GetOne('SELECT id FROM apps_mailclient_accounts WHERE mail=\'#internal\' AND user_login_id=%d',array(Acl::get_user()));
@@ -848,18 +851,20 @@ class Apps_MailClient extends Module {
 			$name = $f->exportValue('name');
 			$new_name = $dir.$name.'/';
 			if($folder!==false) { //edit
+				//TODO: przeniesc do commona jako funkcja rename_mailbox_subdir
 				rename($mbox_dir.$dir.$folder,$mbox_dir.$new_name);
 				$ret = explode(',',file_get_contents($mbox_dir.$dir.'.dirs'));
 				$ret[] = $name;
 				$ret = array_filter($ret,create_function('$o','return $o!="'.$folder.'";'));
 				file_put_contents($mbox_dir.$dir.'.dirs',implode(',',$ret));
 			} else {
-				mkdir($mbox_dir.$new_name);
+/*				mkdir($mbox_dir.$new_name);
 				Apps_MailClientCommon::build_index($box,$new_name);
 				$fs = @filesize($mbox_dir.$dir.'.dirs');
 				$f = fopen($mbox_dir.$dir.'.dirs','a');
 				fputs($f,($fs?',':'').$name);
-				fclose($f);
+				fclose($f);*/
+				Apps_MailClientCommon::create_mailbox_subdir($box,$new_name);
 			}
 			$this->set_module_variable('opened_dir',$new_name);
 			$this->set_module_variable('opened_box',$box);
@@ -978,8 +983,12 @@ class Apps_MailClient extends Module {
 						$dbup[$v['name']] = 0;
 				}
 				DB::Replace('apps_mailclient_accounts', $dbup, array('id'), true,true);
-				if($action=='new')
-					Apps_MailClientCommon::create_mailbox_dir(DB::Insert_ID('apps_mailclient_accounts','id'));
+				if($action=='new') {
+					$id = DB::Insert_ID('apps_mailclient_accounts','id');
+					Apps_MailClientCommon::create_mailbox_dir($id);
+				}
+				if($values['incoming_protocol']) //imap
+					Apps_MailClientCommon::imap_sync_mailbox_dir($id);
 				return false;
 			}
 			Base_ActionBarCommon::add('save','Save',' href="javascript:void(0)" onClick="'.addcslashes($f->get_submit_form_js(),'"').'"');

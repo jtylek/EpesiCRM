@@ -126,7 +126,40 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$dirs = array('Inbox','Sent','Trash','Drafts');
 		file_put_contents($acc_dir.'.dirs',implode(",",$dirs));
 		foreach($dirs as $d)
-			mkdir($acc_dir.$d);
+			@mkdir($acc_dir.$d);
+	}
+	
+	public static function create_mailbox_subdir($id,$new_name) {
+		$mbox_dir = Apps_MailClientCommon::get_mailbox_dir($id);
+		$name_arr = explode('/',$new_name);
+		$all = '';
+		$all_last = '';
+		foreach($name_arr as $r) {
+			$all .= $r.'/';
+			@mkdir($mbox_dir.$all);
+			Apps_MailClientCommon::build_index($id,$all);
+			$fs = @filesize($mbox_dir.$all_last.'.dirs');
+			$f = fopen($mbox_dir.$all_last.'.dirs','a');
+			fputs($f,($fs?',':'').$r);
+			fclose($f);
+			$all_last = $all;
+		}
+		//TODO: jezeli skrzynka imap to stworzenie zdalnego folderu
+	}
+	
+	public static function remove_mailbox_subdir($box,$dir) {
+		$mbox_dir = Apps_MailClientCommon::get_mailbox_dir($box);
+		if($mbox_dir===false) {
+			Epesi::alert($this->ht('Invalid mailbox'));
+			return;
+		}
+		recursive_rmdir($mbox_dir.$dir);
+		$parent_dir = substr($dir,0,strrpos(rtrim($dir,'/'),'/')+1);
+		$ret = explode(',',file_get_contents($mbox_dir.$parent_dir.'.dirs'));
+		$removed = substr($dir,strlen($parent_dir),-1);
+		$ret = array_filter($ret,create_function('$o','return $o!="'.$removed.'";'));
+		file_put_contents($mbox_dir.$parent_dir.'.dirs',implode(',',$ret));
+		//TODO: jezeli imap to skasuj zdalny folder
 	}
 
 	public static function create_internal_mailbox($user=null) {
@@ -207,68 +240,11 @@ class Apps_MailClientCommon extends ModuleCommon {
 		Apps_MailClientCommon::append_msg_to_index($mailbox_id,$dir,$msg_id,$subject,$from,$to,$date,strlen($mbody),$read);
 		file_put_contents($mailbox.$msg_id,$mbody);
 
+		//TODO: jezeli skrzynka imap to stworzenie wiadomosci na serwerze
+
 		return $msg_id;
 	}
 
-/*
-	public static function imap_open($v) {
-		if(!is_array($v))
-			$v = DB::GetRow('SELECT * FROM apps_mailclient_accounts WHERE id=%d',array($v));
-
-		$ssl = $v['incoming_ssl'];
-		$host = explode(':',$v['incoming_server']);
-		if(isset($host[1])) $port=$host[1];
-			else {
-				if($ssl)
-					$port = '993';
-				else
-					$port = '143';
-			}
-		$host = $host[0];
-		$user = $v['login'];
-		$pass = $v['password'];
-
-		$imap_ref = '{'.$host.':'.$port.'/imap'.($ssl?'/ssl/novalidate-cert':'').'}';
-		$imap = @imap_open($imap_ref, $user,$pass, OP_HALFOPEN);
-		return array(& $imap, $imap_ref, $v['mail']);
-	}
-
-	public static function imap_refresh_folders($id,$ref=null,$account=null) {
-		if($ref===null) {
-			list($imap,$ref,$account) = self::imap_open($id);
-		} else {
-			$imap = $id;
-		}
-		$sub = false;
-		if ($imap!==false) {
-			if(is_array($list = imap_lsub($imap, $ref, "*"))) {
-				$imap_ref_len = strlen($ref);
-				$sub = array();
-				$dir = self::Instance()->get_data_dir().Acl::get_user().'/'; //mail data dir
-				if(!file_exists($dir)) mkdir($dir);
-				$acc_dir = $dir.self::mailname2dirname($account).'/';
-				if(!file_exists($acc_dir))
-					mkdir($acc_dir);
-		    	foreach ($list as $val) {
-					$box = imap_utf7_decode($val);
-					$box = substr($box,$imap_ref_len);
-					if(!file_exists($acc_dir.$box))
-						mkdir($acc_dir.$box,0777,true);
-
-					$x = explode('/',$box);
-					$y = & $sub;
-					foreach($x as $v) {
-						if(!isset($y[$v])) $y[$v] = array('label'=>$v, 'name'=>$box, 'sub'=>array());
-							$y = & $y[$v]['sub'];
-			    	}
-				}
-			}
-			imap_close($imap);
-		}
-		return $sub;
-	}
-
- */
 	public static function build_index($id,$dir) {
 		ini_set('include_path','modules/Apps/MailClient/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
 		require_once('Mail/mimeDecode.php');
@@ -552,6 +528,90 @@ class Apps_MailClientCommon extends ModuleCommon {
 
 	public static function addressbook_rp_mail($e){
 		return CRM_ContactsCommon::contact_format_default($e,true);
+	}
+	
+	private static $imap_connections;
+	public static function imap_open($id) {
+		if(!isset(self::$imap_connections)) {
+			self::$imap_connections = array();
+			on_exit(array('Apps_MailClientCommon','imap_close'),null,false);
+		}
+		if(isset(self::$imap_connections[$id]))
+			return self::$imap_connections[$id];
+
+		$v = DB::GetRow('SELECT * FROM apps_mailclient_accounts WHERE id=%d',array($id));
+
+		$ssl = $v['incoming_ssl'];
+		$host = explode(':',$v['incoming_server']);
+		if(isset($host[1])) $port=$host[1];
+			else {
+				if($ssl)
+					$port = '993';
+				else
+					$port = '143';
+			}
+		$host = $host[0];
+		$user = $v['login'];
+		$pass = $v['password'];
+
+		$imap_ref = '{'.$host.':'.$port.'/imap'.($ssl?'/ssl/novalidate-cert':'').'}';
+		$imap = @imap_open($imap_ref, $user,$pass, OP_HALFOPEN);
+		self::$imap_connections[$id] = array('connection'=>& $imap, 'ref'=>$imap_ref, 'addr'=>$v['mail']);
+		return self::$imap_connections[$id];
+	}
+	
+	public static function imap_close() {
+		if(isset(self::$imap_connections))
+			foreach(self::$imap_connections as $c) 
+				imap_close($c['connection']);
+	}
+
+	public static function imap_sync_mailbox_dir($id) {
+		@set_time_limit(0);
+		$imap = self::imap_open($id);
+		if ($imap['connection']==false) {
+			Epesi::alert(Base_LangCommon::ts('Apps_MailClient','Unable to connect to imap server.'));
+			return;
+		}
+		
+		if(is_array($list = imap_getsubscribed($imap['connection'], $imap['ref'], "*"))) {
+			$ref_len = strlen($imap['ref']);
+			//$mbox_dir = self::get_mailbox_dir($id);
+			$local_dirs = self::get_mailbox_structure($id);
+			$remote_dirs = array();
+			//go thru remote and create new dirs
+			foreach($list as $d) {
+				$remote_dir = str_replace($d->delimiter,'/',substr(imap_utf7_decode($d->name),$ref_len));
+				$remote_dir_arr = explode('/',$remote_dir);
+				$local_exists = true;
+				$local_curr = & $local_dirs;
+				$remote_curr = & $remote_dirs;
+				while(($x = array_shift($remote_dir_arr))!==null) {
+					if(!isset($remote_curr[$x]))
+						$remote_curr[$x] = array();
+					$remote_curr = & $remote_curr[$x];
+					if($local_exists && isset($local_curr[$x])) {
+						$local_curr = $local_curr[$x];
+					} else {
+						$local_exists = false;
+					}
+				}
+				if(!$local_exists)
+					self::create_mailbox_subdir($id,$remote_dir);
+			}
+			self::imap_sync_mailbox_dir_remove_old($id,$local_dirs,$remote_dirs);
+		}
+	}
+	
+	private static function imap_sync_mailbox_dir_remove_old($id,$local_dirs,$remote_dirs,$curr_dir = '') {
+		//go thru local and remove old dirs
+		foreach($local_dirs as $name=>$sub) {
+			if(!isset($remote_dirs[$name])) {
+				self::remove_mailbox_subdir($id,$curr_dir.$name);
+				continue;
+			}
+			self::imap_sync_mailbox_dir_remove_old($id,$sub,$remote_dirs[$name],$curr_dir.$name.'/');
+		}
 	}
 }
 
