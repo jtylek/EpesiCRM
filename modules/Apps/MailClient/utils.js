@@ -198,6 +198,10 @@ cache_mailboxes: function() {
 			}
 		});
 	
+},
+refresh_ui: function() {
+	if($('mail_view_body'))
+		Epesi.request('');
 }
 };
 Apps_MailClient.cache_mailboxes_start();

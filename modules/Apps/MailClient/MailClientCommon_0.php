@@ -129,7 +129,33 @@ class Apps_MailClientCommon extends ModuleCommon {
 			@mkdir($acc_dir.$d);
 	}
 	
-	public static function create_mailbox_subdir($id,$new_name) {
+	public static function is_imap($id) {
+		$v = self::get_mailbox_data($id);
+		return $v['incoming_protocol'];
+	}
+	
+	public static function create_mailbox_subdir($id,$new_name,$imap_create=true) {
+		if($imap_create) {
+			if(self::is_imap($id)) {
+		    		$imap = self::imap_open($id);
+				if(!$imap) {
+					Epesi::alert(Base_LangCommon::ts('Apps_MailClient','Unable to connect to imap server. Action failed.'));
+					return;
+				}
+				$iname = $imap['ref'].rtrim($new_name,'/');
+				$iname = imap_utf7_encode($iname);
+				if(!imap_createmailbox($imap['connection'],$iname)) {
+					Epesi::alert(Base_LangCommon::ts('Apps_MailClient','Unable to create directory on imap server.'));
+					return;				
+				}
+				if(!imap_subscribe($imap['connection'],$iname)) {
+					Epesi::alert(Base_LangCommon::ts('Apps_MailClient','Unable to subscribe to directory on imap server.'));
+					return;				
+				}
+			}
+		}
+		
+		//local
 		$mbox_dir = Apps_MailClientCommon::get_mailbox_dir($id);
 		$name_arr = explode('/',$new_name);
 		$all = '';
@@ -146,22 +172,71 @@ class Apps_MailClientCommon extends ModuleCommon {
 			}
 			$all_last = $all;
 		}
-		//TODO: jezeli skrzynka imap to stworzenie zdalnego folderu
 	}
 	
-	public static function remove_mailbox_subdir($box,$dir) {
-		$mbox_dir = Apps_MailClientCommon::get_mailbox_dir($box);
-		if($mbox_dir===false) {
-			Epesi::alert($this->ht('Invalid mailbox'));
-			return;
+	public static function remove_mailbox_subdir($id,$dir,$imap_remove=true) {
+		if($imap_remove) {
+			if(self::is_imap($id)) {
+		    		$imap = self::imap_open($id);
+				if(!$imap) {
+					Epesi::alert(Base_LangCommon::ts('Apps_MailClient','Unable to connect to imap server. Action failed.'));
+					return;
+				}
+				$iname = $imap['ref'].rtrim($dir,'/');
+				$iname = imap_utf7_encode($iname);
+				if(!imap_deletemailbox($imap['connection'],$iname)) {
+					Epesi::alert(Base_LangCommon::ts('Apps_MailClient','Unable to remove directory on imap server.'));
+					return;
+				}
+			}
 		}
+
 		recursive_rmdir($mbox_dir.$dir);
 		$parent_dir = substr($dir,0,strrpos(rtrim($dir,'/'),'/')+1);
 		$ret = explode(',',file_get_contents($mbox_dir.$parent_dir.'.dirs'));
 		$removed = substr($dir,strlen($parent_dir),-1);
 		$ret = array_filter($ret,create_function('$o','return $o!="'.$removed.'";'));
 		file_put_contents($mbox_dir.$parent_dir.'.dirs',implode(',',$ret));
-		//TODO: jezeli imap to skasuj zdalny folder
+	}
+	
+	public static function rename_mailbox_subdir($id,$old,$new,$imap_rename=true) {
+		if($imap_rename) {
+			if(self::is_imap($id)) {
+		    		$imap = self::imap_open($id);
+				if(!$imap) {
+					Epesi::alert(Base_LangCommon::ts('Apps_MailClient','Unable to connect to imap server. Action failed.'));
+					return;
+				}
+				$iname = $imap['ref'].rtrim($old,'/');
+				$iname = imap_utf7_encode($iname);
+				
+				$oname = $imap['ref'].rtrim($new,'/');
+				$oname = imap_utf7_encode($oname);
+				if(!imap_renamemailbox($imap['connection'],$iname,$oname)) {
+					Epesi::alert(Base_LangCommon::ts('Apps_MailClient','Unable to rename directory on imap server.'));
+					return;
+				}
+				if(!imap_subscribe($imap['connection'],$oname)) {
+					Epesi::alert(Base_LangCommon::ts('Apps_MailClient','Unable to subscribe to directory on imap server.'));
+					return;				
+				}
+			}
+		}
+		
+		//local
+		$mbox_dir = Apps_MailClientCommon::get_mailbox_dir($id);
+		if($mbox_dir===false) {
+			Epesi::alert($this->ht('Invalid mailbox'));
+			return;
+		}
+		rename($mbox_dir.$old,$mbox_dir.$new);
+		$dir = dirname(rtrim($old,'/')).'/';
+		$old_name = basename(rtrim($old,'/'));
+		$new_name = basename(rtrim($new,'/'));
+		$ret = explode(',',file_get_contents($mbox_dir.$dir.'.dirs'));
+		$ret = array_filter($ret,create_function('$o','return $o!="'.$old_name.'";'));
+		$ret[] = $new_name;
+		file_put_contents($mbox_dir.$dir.'.dirs',implode(',',$ret));
 	}
 
 	public static function create_internal_mailbox($user=null) {
@@ -588,9 +663,10 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$imap = self::imap_open($id);
 		if ($imap['connection']==false) {
 			Epesi::alert(Base_LangCommon::ts('Apps_MailClient','Unable to connect to imap server.'));
-			return;
+			return false;
 		}
 		
+		$changed = false;
 		if(is_array($list = imap_getsubscribed($imap['connection'], $imap['ref'], "*"))) {
 			$ref_len = strlen($imap['ref']);
 			//$mbox_dir = self::get_mailbox_dir($id);
@@ -628,24 +704,31 @@ class Apps_MailClientCommon extends ModuleCommon {
 					}
 				}
 				if(!$local_exists) {
-					self::create_mailbox_subdir($id,$remote_dir);
+					self::create_mailbox_subdir($id,$remote_dir,false);
 					$local_dirs = self::get_mailbox_structure($id);
+					$changed = true;
 				} 
 			}
-			self::imap_sync_mailbox_dir_remove_old($id,$local_dirs,$remote_dirs);
+			if(self::imap_sync_mailbox_dir_remove_old($id,$local_dirs,$remote_dirs))
+				$changed = true;
 		}
+		return $changed;
 	}
 	
 	private static function imap_sync_mailbox_dir_remove_old($id,$local_dirs,$remote_dirs,$curr_dir = '') {
 		//go thru local and remove old dirs
+		$changed = false;
 		foreach($local_dirs as $name=>$sub) {
 			$lower_name = strtolower($name);
 			if(!isset($remote_dirs[$lower_name])) {
-				self::remove_mailbox_subdir($id,$curr_dir.$name);
+				self::remove_mailbox_subdir($id,$curr_dir.$name.'/',false);
+				$changed = true;
 				continue;
 			}
-			self::imap_sync_mailbox_dir_remove_old($id,$sub,$remote_dirs[$lower_name],$curr_dir.$name.'/');
+			if(self::imap_sync_mailbox_dir_remove_old($id,$sub,$remote_dirs[$lower_name],$curr_dir.$name.'/'))
+				$changed = true;
 		}
+		return $changed;
 	}
 }
 load_js('modules/Apps/MailClient/utils.js');

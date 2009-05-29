@@ -53,6 +53,22 @@ class Apps_MailClient extends Module {
 			Apps_MailClientCommon::create_internal_mailbox();
 			$boxes = Apps_MailClientCommon::get_mailbox_data(null,false);
 		}
+
+		$box = $this->get_module_variable('opened_box');
+		$dir = $this->get_module_variable('opened_dir');
+		$preview_id = 'mail_view';
+
+		$box_idx = Apps_MailClientCommon::get_index($box,$dir);
+		if($box_idx===false) {
+			$dir = 'Inbox/';
+			$this->set_module_variable('opened_dir',$dir);
+			$box_idx = Apps_MailClientCommon::get_index($box,$dir);
+			if($box_idx===false) {
+				print('Invalid mailbox');
+				return;
+			}
+		}
+
 		$str = array();
 		$tree = array();
 		$move_folders = array();
@@ -70,10 +86,6 @@ class Apps_MailClient extends Module {
 //		print_r($tree);
 //		return;
 
-
-		$box = $this->get_module_variable('opened_box');
-		$dir = $this->get_module_variable('opened_dir');
-		$preview_id = 'mail_view';
 
 		$mail_actions_arr = array();
 
@@ -121,13 +133,6 @@ class Apps_MailClient extends Module {
 		$tree_mod->set_structure($tree);
 		$tree_mod->sort();
 		$th->assign('tree', $this->get_html_of_module($tree_mod));
-
-		//print($box_file);
-		$box_idx = Apps_MailClientCommon::get_index($box,$dir);
-		if($box_idx===false) {
-			print('Invalid mailbox');
-			return;
-		}
 
 		$drafts_folder = false;
 		$sent_folder = false;
@@ -828,20 +833,10 @@ class Apps_MailClient extends Module {
 		}
 
 		if($f->validate()) {
-			$mbox_dir = Apps_MailClientCommon::get_mailbox_dir($box);
-			if($mbox_dir===false) {
-				Epesi::alert($this->ht('Invalid mailbox. Did you delete it?'));
-				return false;
-			}
 			$name = $f->exportValue('name');
 			$new_name = $dir.$name.'/';
 			if($folder!==false) { //edit
-				//TODO: przeniesc do commona jako funkcja rename_mailbox_subdir
-				rename($mbox_dir.$dir.$folder,$mbox_dir.$new_name);
-				$ret = explode(',',file_get_contents($mbox_dir.$dir.'.dirs'));
-				$ret[] = $name;
-				$ret = array_filter($ret,create_function('$o','return $o!="'.$folder.'";'));
-				file_put_contents($mbox_dir.$dir.'.dirs',implode(',',$ret));
+				Apps_MailClientCommon::rename_mailbox_subdir($box,$dir.$folder.'/',$new_name);
 			} else {
 				Apps_MailClientCommon::create_mailbox_subdir($box,$new_name);
 			}

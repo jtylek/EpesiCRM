@@ -19,9 +19,12 @@ require_once('Mail/mimeDecode.php');
 $accounts = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE user_login_id=%d AND incoming_protocol=1',array(Acl::get_user()));
 if(empty($accounts)) {
 	print('Apps_MailClient.cache_mailboxes_working=false;'); //we don't need it, turn it off, so it can be turned on
+	exit();
 }
+$refresh = false;
 foreach($accounts as $a) {
-	Apps_MailClientCommon::imap_sync_mailbox_dir($a['id']);
+	if(Apps_MailClientCommon::imap_sync_mailbox_dir($a['id']))
+		$refresh=true;
 }
-print('setTimeout(\'Apps_MailClient.cache_mailboxes()\',30000)');//30s
+print(($refresh?'Apps_MailClient.refresh_ui();':'').'setTimeout(\'Apps_MailClient.cache_mailboxes()\',30000);');//30s
 ?>
