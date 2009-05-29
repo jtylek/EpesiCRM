@@ -63,13 +63,13 @@ class Utils_TooltipCommon extends ModuleCommon {
 	 * @param boolean help tooltip? (you can turn off help tooltips)
 	 * @return string HTML tag attributes
 	 */
-	public static function open_tag_attrs( $tip, $help=true ) {
+	public static function open_tag_attrs( $tip, $help=true, $max_width=300 ) {
 		if(MOBILE_DEVICE) return '';
 		self::show_help();
 		if($help && !self::$help_tooltips) return '';
 		load_js('modules/Utils/Tooltip/js/Tooltip.js');
 		self::init_tooltip_div();
-		return ' onMouseMove="if(typeof(Utils_Toltip__showTip)!=\'undefined\')Utils_Toltip__showTip(this,event)" tip="'.htmlspecialchars($tip).'" onMouseOut="if(typeof(Utils_Toltip__hideTip)!=\'undefined\')Utils_Toltip__hideTip()" onMouseUp="if(typeof(Utils_Toltip__hideTip)!=\'undefined\')Utils_Toltip__hideTip()" ';
+		return ' onMouseMove="if(typeof(Utils_Toltip__showTip)!=\'undefined\')Utils_Toltip__showTip(this,event,'.$max_width.')" tip="'.htmlspecialchars($tip).'" onMouseOut="if(typeof(Utils_Toltip__hideTip)!=\'undefined\')Utils_Toltip__hideTip()" onMouseUp="if(typeof(Utils_Toltip__hideTip)!=\'undefined\')Utils_Toltip__hideTip()" ';
 	}
 
 	/**
@@ -80,17 +80,15 @@ class Utils_TooltipCommon extends ModuleCommon {
 	 * @param array parameters that will be passed to the callback
 	 * @return string HTML tag attributes
 	 */
-	public static function ajax_open_tag_attrs( $callback ) {
+	public static function ajax_open_tag_attrs( $callback, $args, $max_width=300 ) {
 		if(MOBILE_DEVICE) return '';
 		static $tooltip_id = 0;
 		load_js('modules/Utils/Tooltip/js/Tooltip.js');
 		self::init_tooltip_div();
 		$tooltip_id++;
-		$args = func_get_args();
-		array_shift($args);
 		$_SESSION['client']['utils_tooltip']['callbacks'][$tooltip_id] = array('callback'=>$callback, 'args'=>$args);
-		$loading_message = '<center><img src='.Base_ThemeCommon::get_template_file('Utils_Tooltip','loader.gif').' />&nbsp;'.Base_LangCommon::ts('Utils_Tooltip','Loading...').'</center>';
-		return ' onMouseMove="if(typeof(Utils_Toltip__showTip)!=\'undefined\')Utils_Toltip__load_ajax_Tip(this,event)" tip="'.$loading_message.'" tooltip_id="'.$tooltip_id.'" onMouseOut="if(typeof(Utils_Toltip__hideTip)!=\'undefined\')Utils_Toltip__hideTip()" onMouseUp="if(typeof(Utils_Toltip__hideTip)!=\'undefined\')Utils_Toltip__hideTip()" ';
+		$loading_message = '<center><img src='.Base_ThemeCommon::get_template_file('Utils_Tooltip','loader.gif').' /><br/>'.Base_LangCommon::ts('Utils_Tooltip','Loading...').'</center>';
+		return ' onMouseMove="if(typeof(Utils_Toltip__showTip)!=\'undefined\')Utils_Toltip__load_ajax_Tip(this,event,'.$max_width.')" tip="'.$loading_message.'" tooltip_id="'.$tooltip_id.'" onMouseOut="if(typeof(Utils_Toltip__hideTip)!=\'undefined\')Utils_Toltip__hideTip()" onMouseUp="if(typeof(Utils_Toltip__hideTip)!=\'undefined\')Utils_Toltip__hideTip()" ';
 	}
 
 	/**

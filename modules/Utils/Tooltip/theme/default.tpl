@@ -1,5 +1,5 @@
 <!-- SHADIW BEGIN -->
-	<div class="layer" style="padding: 10px; max-width: 300px; width: auto;">
+	<div id="tooltip_layer_div" class="layer" style="padding: 10px; width: auto;">
 		<div class="content_shadow">
 <!-- -->
 

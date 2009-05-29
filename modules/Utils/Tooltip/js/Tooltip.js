@@ -1,4 +1,4 @@
-Utils_Toltip__showTip = function(o,my_event) {
+Utils_Toltip__showTip = function(o,my_event,max_width) {
 	var div_tip = $('tooltip_div');
 	var tooltip_text = $('tooltip_text');
 	var tip = o.getAttribute('tip');
@@ -35,10 +35,11 @@ Utils_Toltip__showTip = function(o,my_event) {
 		div_tip.style.top = pos + "px";
 	}
 
+	$('tooltip_layer_div').style.maxWidth = max_width + "px";
 	div_tip.style.display = 'block';
 }
 
-Utils_Toltip__load_ajax_Tip = function(o,my_event) {
+Utils_Toltip__load_ajax_Tip = function(o,my_event,max_width) {
 	tooltip_id = o.getAttribute('tooltip_id');
 	o.setAttribute('tooltip_id','done');
 	if (tooltip_id!='done') {
@@ -55,7 +56,7 @@ Utils_Toltip__load_ajax_Tip = function(o,my_event) {
 			}
 		});
 	} else {
-		Utils_Toltip__showTip(o,my_event);
+		Utils_Toltip__showTip(o,my_event,max_width);
 	}
 }
 
