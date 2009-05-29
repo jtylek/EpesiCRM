@@ -26,7 +26,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (!isset($display_callback_table[$tab])) {			
 			$ret = DB::Execute('SELECT * FROM '.$tab.'_callback WHERE freezed=1');
 			while ($row = $ret->FetchRow())
-				$display_callback_table[$tab][$row['field']] = array($row['module'], $row['func']);
+				$display_callback_table[$tab][$row['field']] = explode('::',$row['callback']);
 		}
 		$val = $record[$args['id']];
 		if (isset($display_callback_table[$tab][$field])) {
@@ -332,8 +332,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					array('constraints'=>', FOREIGN KEY (user_id) REFERENCES user_login(id)'));
 		DB::CreateTable($tab.'_callback',
 					'field C(32),'.
-					'module C(64),'.
-					'func C(128),'.
+					'callback C(255),'.
 					'freezed I1',
 					array('constraints'=>''));
 		DB::Execute('INSERT INTO '.$tab.'_field(field, type, extra, visible, position) VALUES(\'id\', \'foreign index\', 0, 0, 1)');
@@ -364,8 +363,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if (!isset($v['filter'])) $v['filter'] = false;
 			if (isset($datatypes[$v['type']])) $v = call_user_func($datatypes[$v['type']], $v);
 			Utils_RecordBrowserCommon::new_record_field($tab, $v['name'], $v['type'], $v['visible'], $v['required'], $v['param'], $v['style'], $v['extra'], $v['filter'], null);
-			if (isset($v['display_callback'])) self::set_display_method($tab, $v['name'], $v['display_callback'][0], $v['display_callback'][1]);
-			if (isset($v['QFfield_callback'])) self::set_QFfield_method($tab, $v['name'], $v['QFfield_callback'][0], $v['QFfield_callback'][1]);
+			if (isset($v['display_callback'])) self::set_display_callback($tab, $v['name'], $v['display_callback']);
+			if (isset($v['QFfield_callback'])) self::set_QFfield_callback($tab, $v['name'], $v['QFfield_callback']);
 		}
 		return true;
 	}
@@ -373,24 +372,26 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		self::check_table_name($tab);
 		Utils_WatchdogCommon::register_category($tab, $watchdog_callback);
 	}
-	public static function set_display_method($tab = null, $field, $module, $func) {
+	public static function set_display_callback($tab = null, $field, $callback) {
 		if (!$tab) return false;
 		self::check_table_name($tab);
+		if (is_array($callback)) $callback = implode('::',$callback);
 		DB::Execute('DELETE FROM '.$tab.'_callback WHERE field=%s AND freezed=1', array($field));
-		DB::Execute('INSERT INTO '.$tab.'_callback (field, module, func, freezed) VALUES(%s, %s, %s, 1)', array($field, $module, $func));
+		DB::Execute('INSERT INTO '.$tab.'_callback (field, callback, freezed) VALUES(%s, %s, 1)', array($field, $callback));
 	}
-	public static function set_QFfield_method($tab = null, $field, $module, $func) {
+	public static function set_QFfield_callback($tab = null, $field, $callback) {
 		if (!$tab) return false;
 		self::check_table_name($tab);
+		if (is_array($callback)) $callback = implode('::',$callback);
 		DB::Execute('DELETE FROM '.$tab.'_callback WHERE field=%s AND freezed=0', array($field));
-		DB::Execute('INSERT INTO '.$tab.'_callback (field, module, func, freezed) VALUES(%s, %s, %s, 0)', array($field, $module, $func));
+		DB::Execute('INSERT INTO '.$tab.'_callback (field, callback, freezed) VALUES(%s, %s, 0)', array($field, $callback));
 	}
-	public static function unset_display_method($tab = null, $field) {
+	public static function unset_display_callback($tab = null, $field) {
 		if (!$tab) return false;
 		self::check_table_name($tab);
 		DB::Execute('DELETE FROM '.$tab.'_callback WHERE field=%s AND freezed=1', array($field));
 	}
-	public static function unset_QFfield_method($tab = null, $field) {
+	public static function unset_QFfield_callback($tab = null, $field) {
 		if (!$tab) return false;
 		self::check_table_name($tab);
 		DB::Execute('DELETE FROM '.$tab.'_callback WHERE field=%s AND freezed=0', array($field));

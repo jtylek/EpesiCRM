@@ -156,8 +156,8 @@ class Utils_RecordBrowser extends Module {
 		$this->QFfield_callback_table = array();
 		$ret = DB::Execute('SELECT * FROM '.$this->tab.'_callback');
 		while ($row = $ret->FetchRow())
-			if ($row['freezed']==1) $this->display_callback_table[$row['field']] = array($row['module'], $row['func']);
-			else $this->QFfield_callback_table[$row['field']] = array($row['module'], $row['func']);
+			if ($row['freezed']==1) $this->display_callback_table[$row['field']] = explode('::',$row['callback']);
+			else $this->QFfield_callback_table[$row['field']] = explode('::',$row['callback']);
 	}
 
 	public function check_for_jump() {
