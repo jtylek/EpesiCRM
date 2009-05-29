@@ -489,12 +489,12 @@ function update_from_1_0_0rc2_to_1_0_0rc3() {
 		DB::Execute('UPDATE contact_field SET filter=1 WHERE field=%s',array('Company Name'));
 		DB::Execute('UPDATE company_field SET filter=1 WHERE field=%s',array('Group'));
 
-		Utils_RecordBrowserCommon::set_display_method('company', 'Address 1', 'CRM_ContactsCommon', 'maplink');
-		Utils_RecordBrowserCommon::set_display_method('company', 'Address 2', 'CRM_ContactsCommon', 'maplink');
-		Utils_RecordBrowserCommon::set_display_method('company', 'City', 'CRM_ContactsCommon', 'maplink');
-		Utils_RecordBrowserCommon::set_display_method('contact', 'Address 1', 'CRM_ContactsCommon', 'maplink');
-		Utils_RecordBrowserCommon::set_display_method('contact', 'Address 2', 'CRM_ContactsCommon', 'maplink');
-		Utils_RecordBrowserCommon::set_display_method('contact', 'City', 'CRM_ContactsCommon', 'maplink');
+		Utils_RecordBrowserCommon::set_display_callback('company', 'Address 1', array('CRM_ContactsCommon', 'maplink'));
+		Utils_RecordBrowserCommon::set_display_callback('company', 'Address 2', array('CRM_ContactsCommon', 'maplink'));
+		Utils_RecordBrowserCommon::set_display_callback('company', 'City', array('CRM_ContactsCommon', 'maplink'));
+		Utils_RecordBrowserCommon::set_display_callback('contact', 'Address 1', array('CRM_ContactsCommon', 'maplink'));
+		Utils_RecordBrowserCommon::set_display_callback('contact', 'Address 2', array('CRM_ContactsCommon', 'maplink'));
+		Utils_RecordBrowserCommon::set_display_callback('contact', 'City', array('CRM_ContactsCommon', 'maplink'));
 
 		Utils_RecordBrowserCommon::enable_watchdog('company', array('CRM_ContactsCommon','company_watchdog_label'));
 		Utils_RecordBrowserCommon::enable_watchdog('contact', array('CRM_ContactsCommon','contact_watchdog_label'));
@@ -744,10 +744,10 @@ function update_from_1_0_0rc4_to_1_0_0rc5() {
 
 	//iphone callto
 	if (ModuleManager::is_installed('CRM_Contacts')>=0) {
-		Utils_RecordBrowserCommon::set_display_method('company', 'Phone', 'CRM_ContactsCommon', 'display_phone');
-		Utils_RecordBrowserCommon::set_display_method('contact', 'Work Phone', 'CRM_ContactsCommon', 'display_phone');
-		Utils_RecordBrowserCommon::set_display_method('contact', 'Mobile Phone', 'CRM_ContactsCommon', 'display_phone');
-		Utils_RecordBrowserCommon::set_display_method('contact', 'Home Phone', 'CRM_ContactsCommon', 'display_phone');
+		Utils_RecordBrowserCommon::set_display_callback('company', 'Phone', array('CRM_ContactsCommon', 'display_phone'));
+		Utils_RecordBrowserCommon::set_display_callback('contact', 'Work Phone', array('CRM_ContactsCommon', 'display_phone'));
+		Utils_RecordBrowserCommon::set_display_callback('contact', 'Mobile Phone', array('CRM_ContactsCommon', 'display_phone'));
+		Utils_RecordBrowserCommon::set_display_callback('contact', 'Home Phone', array('CRM_ContactsCommon', 'display_phone'));
 	}
 
 	//lang
@@ -928,34 +928,44 @@ function update_from_1_0_0rc5_to_1_0_0rc6() {
 function update_from_1_0_0rc6_to_1_0_0() {
     //fix RB common data fields
     if (ModuleManager::is_installed('Utils/RecordBrowser')>=0) {
-	if(ModuleManager::is_installed('CRM/PhoneCall')>=0) {
-    	    DB::Execute('UPDATE phonecall_data_1 SET f_company_name=-1 WHERE f_company_name=%s', array('_no_company'));
-	    $rs = Utils_RecordBrowserCommon::get_records('phonecall');
-	    foreach ($rs as $r) {
-		$p = explode('__',$r['phone']);
-	        if (isset($p[1])) {
-	    	    $p = $p[1];
-		    Utils_RecordBrowserCommon::update_record('phonecall', $r['id'], array('phone'=>$p));
-	        }
-	    }
-	}
-
-	$tabs = DB::GetAssoc('SELECT tab, tab FROM recordbrowser_table_properties');
-	foreach ($tabs as $t) {
-	    $fields = DB::GetAssoc('SELECT field, param FROM '.$t.'_field WHERE type="select"');
-	    foreach ($fields as $f=>$p) {
-		$fk = strtolower(str_replace(' ','_',$f));
-		$param = explode('::',$p);
-		if ($param[0]=='__COMMON__') {
-			unset($param[0]);
-			$param = '1__'.implode('::', $param);
-			DB::Execute('UPDATE '.$t.'_field SET param=%s, type=%s WHERE field=%s', array($param, 'commondata', $f));
-			PatchDBRenameColumn($t.'_data_1', 'f_'.$fk, 'f_'.$fk, 'C(128)');
-		} else {
-			PatchDBRenameColumn($t.'_data_1', 'f_'.$fk, 'f_'.$fk, 'I4');
+		if(ModuleManager::is_installed('CRM/PhoneCall')>=0) {
+	    	    DB::Execute('UPDATE phonecall_data_1 SET f_company_name=-1 WHERE f_company_name=%s', array('_no_company'));
+		    $rs = Utils_RecordBrowserCommon::get_records('phonecall');
+		    foreach ($rs as $r) {
+			$p = explode('__',$r['phone']);
+		        if (isset($p[1])) {
+		    	    $p = $p[1];
+			    Utils_RecordBrowserCommon::update_record('phonecall', $r['id'], array('phone'=>$p));
+		        }
+		    }
 		}
-	    }
-	}
+	
+		$tabs = DB::GetAssoc('SELECT tab, tab FROM recordbrowser_table_properties');
+		foreach ($tabs as $t) {
+		    $fields = DB::GetAssoc('SELECT field, param FROM '.$t.'_field WHERE type="select"');
+		    foreach ($fields as $f=>$p) {
+			$fk = strtolower(str_replace(' ','_',$f));
+			$param = explode('::',$p);
+			if ($param[0]=='__COMMON__') {
+				unset($param[0]);
+				$param = '1__'.implode('::', $param);
+				DB::Execute('UPDATE '.$t.'_field SET param=%s, type=%s WHERE field=%s', array($param, 'commondata', $f));
+				PatchDBRenameColumn($t.'_data_1', 'f_'.$fk, 'f_'.$fk, 'C(128)');
+			} else {
+				PatchDBRenameColumn($t.'_data_1', 'f_'.$fk, 'f_'.$fk, 'I4');
+			}
+		    }
+		}
+
+		$tabs = DB::GetAssoc('SELECT tab, tab FROM recordbrowser_table_properties');
+		foreach ($tabs as $t) {
+			PatchDBAddColumn($t.'_callback', 'callback', 'C(255)');
+			$ret = DB::Execute('SELECT * FROM '.$t.'_callback');
+			while ($row = $ret->FetchRow())
+				DB::Execute('UPDATE '.$t.'_callback SET callback=%s WHERE field=%s AND module=%s AND func=%s AND freezed=%d', array($row['module'].'::'.$row['func'], $row['field'], $row['module'], $row['func'], $row['freezed']));
+			PatchDBDropColumn($t.'_callback', 'module');
+			PatchDBDropColumn($t.'_callback', 'func');
+		}
     }
 
     //calendar custom fields
@@ -972,8 +982,8 @@ function update_from_1_0_0rc6_to_1_0_0() {
     //company add mail and tax id
     if (ModuleManager::is_installed('CRM_Contacts')>=0) {
 	Utils_RecordBrowserCommon::new_record_field('company','Email','text', false, false, '128', '', false, false, 7);
-	Utils_RecordBrowserCommon::set_QFfield_method('company','Email','CRM_ContactsCommon', 'QFfield_email');
-	Utils_RecordBrowserCommon::set_display_method('company','Email','CRM_ContactsCommon', 'display_email');
+	Utils_RecordBrowserCommon::set_QFfield_callback('company','Email',array('CRM_ContactsCommon', 'QFfield_email'));
+	Utils_RecordBrowserCommon::set_display_callback('company','Email',array('CRM_ContactsCommon', 'display_email'));
 	Utils_RecordBrowserCommon::new_record_field('company','Tax ID','text', false, false, '64', '', false, false);
     }
     
