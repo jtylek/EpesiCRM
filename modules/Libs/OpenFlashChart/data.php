@@ -14,10 +14,10 @@ $id = $_REQUEST['id'];
 $chart_id = $_REQUEST['chart'];
 
 define('CID', $id);
+define('READ_ONLY_SESSION',true);
 require_once('../../../include.php');
 
 $fn = Module::static_get_module_variable($chart_id,'data',null);
-session_commit();
 
 echo $fn;
 ?>

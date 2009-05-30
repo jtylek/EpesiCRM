@@ -6,8 +6,8 @@ if(!isset($_GET['msg_id']) || !is_numeric($_GET['msg_id']))
 	die('Invalid request');
 
 define('CID',false);
+define('READ_ONLY_SESSION',true);
 require_once('../../../include.php');
-session_commit();
 ModuleManager::load_modules();
 
 if(!Acl::is_user()) die('Not logged in');

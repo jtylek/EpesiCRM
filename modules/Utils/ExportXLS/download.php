@@ -16,6 +16,7 @@ $xls_id = $_REQUEST['xls'];
 $filename = $_REQUEST['filename'];
 
 define('CID', $id);
+define('READ_ONLY_SESSION',true);
 require_once('../../../include.php');
 
 $fn = Module::static_get_module_variable($xls_id,'callback',null);
@@ -28,7 +29,6 @@ ModuleManager::load_modules();
 if (!is_callable($fn))
 	die('Invalid callback');
 $buffer = call_user_func_array($fn, $args);
-session_commit();
 header('Content-Type: application/xls');
 header('Content-Length: '.strlen($buffer));
 header('Content-disposition: attachement; filename="'.$filename.'"');

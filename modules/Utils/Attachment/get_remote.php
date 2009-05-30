@@ -14,8 +14,8 @@ $id = $_REQUEST['id'];
 $token = $_REQUEST['token'];
 
 define('CID', false);
+define('READ_ONLY_SESSION',true);
 require_once('../../../include.php');
-session_commit();
 
 $query = 'SELECT ual.local,uaf.revision,uaf.id,uaf.attach_id,uaf.original,uad.ip_address,uad.attach_file_id,uad.created_by,uad.created_on,uad.description FROM utils_attachment_file uaf INNER JOIN (utils_attachment_download uad,utils_attachment_link ual) ON (uad.attach_file_id=uaf.id AND uaf.attach_id=ual.id) WHERE uad.id='.DB::qstr($id).' AND uad.token='.DB::qstr($token).' AND uad.created_on>'.DB::DBTimeStamp(time()-3600*24*7).' AND uad.remote=';
 $row = DB::GetRow($query.'1');

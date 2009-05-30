@@ -5,8 +5,8 @@ if(!isset($_GET['id']))
 	die('Invalid request');
 
 define('CID',false);
+define('READ_ONLY_SESSION',true);
 require_once('../../../include.php');
-session_commit();
 ModuleManager::load_modules();
 @set_time_limit(0);
 $mail_size_limit = Variable::get('max_mail_size');

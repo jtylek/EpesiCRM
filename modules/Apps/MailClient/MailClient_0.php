@@ -2,15 +2,7 @@
 /**
  * Simple mail client
 
- Tworze konto to wtedy laczy sie i pobiera foldery. Zaznaczasz pozniej ktore foldery subskrybowac.
- Pozniej wyswietla drzewa z lokalnego drzewa katalogu subskrybowanych folderow.
- Pobieram cale maile od razu, zeby uproscic klienta i zblizyc do pop3.
- 
- 1. Inbox i podfoldery aktualizuje jako pierwsze, pobiera wiadomosci od ID wiekszego od najwiekszej wiadomosci do ilosci wiadomosci,
- 2. potem aktualizuje wstecz, starsze wiadomosci - usuwa lokalnie, sciaga zmienione...
- 3. Potem aktualizuje reszte folderow calosciowo.
- 4 - 10. wykonuje krok 1 z odstepami minimum 5s.
- 11. zrywa polaczenie wysylajac JS(meta refresh?) kolejkujacy kolejne wykonanie skryptu
+ Kosz dla imap jest bardziej skomplikowany: imap powinien odwolywac sie do oryginalnych folderow, gdzie byla wiadomosc, a nie do "kosza".
 
  Kasowanie maili musi isc lokalnie oraz bezposrednio do serwera imap, tak samo przeniesienie itp. Na ten czas refresh musi zastopowac, zeby nie bylo konfliktu.
 
@@ -226,7 +218,7 @@ class Apps_MailClient extends Module {
 		$this->set_module_variable('opened_dir',$dir);
 	}
 
-	public function remove_mail($box,$dir,$id,$quiet=false) {
+	public function remove_mail($box,$dir,$id) {
 		$box_dir=Apps_MailClientCommon::get_mailbox_dir($box);
 		if($box_dir===false && !$quiet) {
 			Epesi::alert($this->ht('Invalid mailbox'));
@@ -234,44 +226,15 @@ class Apps_MailClient extends Module {
 		}
 		if($dir=='Trash/') {
 			if(Apps_MailClientCommon::remove_msg($box,$dir,$id)) {
-				$trashpath = $box_dir.'Trash/.del';
-
-				$in = @fopen($trashpath,'r');
-				if($in!==false) {
-					$ret = array();
-					while (($data = fgetcsv($in, 700)) !== false) {
-						$num = count($data);
-						if($num!=2 || $data[0]==$id) continue;
-						$ret[] = $data;
-					}
-					fclose($in);
-					$out = @fopen($trashpath,'w');
-					if($out!==false) {
-						foreach($ret as $v)
-							fputcsv($out,$v);
-						fclose($out);
-					}
-				}
-				if(!$quiet)
-					Base_StatusBarCommon::message('Message deleted');
+				Base_StatusBarCommon::message('Message deleted');
 			} else {
-				if(!$quiet)
-					Epesi::alert($this->ht('Unable to delete message'));
+				Epesi::alert($this->ht('Unable to delete message'));
 			}
 		} else {
-			$id2 = Apps_MailClientCommon::move_msg($box,$dir,$box,'Trash/',$id);
-			if($id2!==false) {
-				$trashpath = $box_dir.'Trash/.del';
-				$out = @fopen($trashpath,'a');
-				if($out!==false) {
-					fputcsv($out,array($id2,$dir));
-					fclose($out);
-				}
-				if(!$quiet)
-					Base_StatusBarCommon::message('Message moved to trash');
+			if(Apps_MailClientCommon::move_msg_to_trash($box,$dir,$id)) {
+				Base_StatusBarCommon::message('Message moved to trash');
 			} else {
-				if(!$quiet)
-					Epesi::alert($this->ht('Unable to move message to trash'));
+				Epesi::alert($this->ht('Unable to move message to trash'));
 			}
 		}
 	}

@@ -15,10 +15,10 @@ $pdf_id = $_REQUEST['pdf'];
 $filename = $_REQUEST['filename'];
 
 define('CID', $id);
+define('READ_ONLY_SESSION',true);
 require_once('../../../include.php');
 
 $buffer = Module::static_get_module_variable($pdf_id,'pdf',null);
-session_commit();
 
 if(headers_sent())
     die('Some data has already been output to browser, can\'t send PDF file');

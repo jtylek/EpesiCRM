@@ -40,8 +40,9 @@ class DBSession {
     }
 
     public static function write($name, $data) {
-	$ret = true;
-    	DB::StartTrans();
+		if(READ_ONLY_SESSION) return true;
+		$ret = 0;
+    		DB::StartTrans();
 		if(CID!==false && isset($_SESSION['client'])) {
 			$data = serialize($_SESSION['client']);
 			if(DATABASE_DRIVER=='postgres') $data = '\''.DB::BlobEncode($data).'\'';

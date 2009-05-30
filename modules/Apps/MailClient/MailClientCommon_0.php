@@ -466,6 +466,21 @@ class Apps_MailClientCommon extends ModuleCommon {
 		fclose($in);
 		return $ret;
 	}
+	
+	public static function move_msg_to_trash($box,$dir,$id) {
+		$box_dir=Apps_MailClientCommon::get_mailbox_dir($box);
+		if($box_dir===false) return false;
+		$id2 = Apps_MailClientCommon::move_msg($box,$dir,$box,'Trash/',$id);
+		if($id2===false) return false;
+		
+		$trashpath = $box_dir.'Trash/.del';
+		$out = @fopen($trashpath,'a');
+		if($out!==false) {
+			fputcsv($out,array($id2,$dir));
+			fclose($out);
+		}
+		return true;
+	}
 
 	public static function remove_msg($mailbox_id, $dir, $id) {
 		if(!self::remove_msg_from_index($mailbox_id,$dir,$id)) return false;
@@ -474,6 +489,27 @@ class Apps_MailClientCommon extends ModuleCommon {
 		if($mbox_dir===false) return false;
 		$box = $mbox_dir.$dir;
 		@unlink($box.$id);
+		
+		if($dir!=='Trash/') return true;
+
+		//trash? delete entry from .del file		
+		$trashpath = $mbox_dir.'Trash/.del';
+		$in = @fopen($trashpath,'r');
+		if($in!==false) {
+			$ret = array();
+			while (($data = fgetcsv($in, 700)) !== false) {
+				$num = count($data);
+				if($num!=2 || $data[0]==$id) continue;
+				$ret[] = $data;
+			}
+			fclose($in);
+			$out = @fopen($trashpath,'w');
+			if($out!==false) {
+				foreach($ret as $v)
+					fputcsv($out,$v);
+				fclose($out);
+			}
+		}
 
 		return true;
 	}
@@ -565,15 +601,18 @@ class Apps_MailClientCommon extends ModuleCommon {
 		return true;
 	}
 
-	public static function read_msg($box,$dir, $id) {
-		if(self::is_imap($box)) {
+	public static function read_msg($box,$dir, $id, $value=1, $imap_seen = true) {
+		if($imap_seen && self::is_imap($box)) {
 			$imap = self::imap_open($box);
 			if(!$imap) {
 				Epesi::alert(Base_LangCommon::ts('Apps_MailClient','Unable to connect to imap server. Action failed.'));
 				return false;
 			}
 			imap_reopen($imap['connection'],$imap['ref'].rtrim($dir,'/'));
-			imap_setflag_full($imap['connection'], $id, "\\Seen", ST_UID);
+			if($value)
+				imap_setflag_full($imap['connection'], $id, "\\Seen", ST_UID);
+			else
+				imap_clearflag_full($imap['connection'], $id, "\\Seen", ST_UID);
 			imap_reopen($imap['connection'],$imap['ref']);
 		}
 	
@@ -581,7 +620,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 
 		if($idx===false || !isset($idx[$id])) return false;
 		if($idx[$id]['read']) return true;
-		$idx[$id]['read'] = '1';
+		$idx[$id]['read'] = $value;
 
 		$mbox_dir = self::get_mailbox_dir($box);
 		if($mbox_dir===false) return false;
@@ -849,14 +888,64 @@ class Apps_MailClientCommon extends ModuleCommon {
 		return $downloaded;
 	}
 	
+	public static function imap_sync_old_messages($id,$dir) {
+		$ret = false;
+		$tdir = rtrim($dir,'/');
+		//old messages are synchronized from time to time, not always... some people have 10000 messages in inbox, 
+		//but they don't modify them, we can check this messages once a day
+		$sync_rate = array(180,600,3600,7200,18000,86400); //3m,10m,1h,2h,5h,24h
+		$box_dir = self::get_mailbox_dir($id).$dir;
+		$rate = @file_get_contents($box_dir.'.imap_rate');
+		if($rate===false || !is_numeric($rate)) $rate=2;
+		
+		$last_sync = @file_get_contents($box_dir.'.imap_last_sync');
+		if($last_sync===false) $last_sync=0;
+		$time = time();
+		if($time-$last_sync<$sync_rate[$rate]) return false;
+		
+		//sync messages
+		$local = self::get_index($id,$dir);
+//		$trash = self::get_index($id,'Trash/');
+		if(!empty($local)) {
+			$imap = self::imap_open($id);
+			imap_reopen($imap['connection'],$imap['ref'].$tdir);
+			$remote = imap_fetch_overview($imap['connection'],implode(',',array_keys($local)),FT_UID);
+			foreach($remote as $row) {
+				if($local[$row->uid]['read']!=$row->seen)
+					self::read_msg($id,$dir,$row->uid,$row->seen,false);
+//				if($local[$row->uid]['read']!=$row->deleted)
+				unset($local[$row->uid]);
+			}
+			foreach($local as $k=>$v) { //remove remotly deleted messages
+				self::remove_msg($id,$dir,$k);
+			}
+			imap_reopen($imap['connection'],$imap['ref']);
+		}
+		
+		//save sync time and rate
+		file_put_contents($box_dir.'.imap_last_sync',$time);
+		if($ret) { //increase sync rate
+			if($rate>0)
+				file_put_contents($box_dir.'.imap_rate',$rate-1);
+		} else { //decrease sync rate
+			if($rate<count($sync_rate)-1)
+				file_put_contents($box_dir.'.imap_rate',$rate+1);
+		}
+			
+		return $ret;
+	}
+	
 	//full sync of messages
 	public static function imap_sync_messages($id,$arr=null,$p='') {
 		if($arr===null)
 			$arr = Apps_MailClientCommon::get_mailbox_structure($id);
 		$ret = false;
-		$imap = self::imap_open($id);
 		foreach($arr as $k=>$a) {
-			if(self::imap_sync_messages($id,$a,$p.$k.'/'))
+			if(self::imap_sync_old_messages($id,$p.$k.'/')) //sync old messages
+				$ret = true;
+			if(self::imap_get_new_messages($id,$p.$k.'/')) //and get new ones
+				$ret = true;
+			if(self::imap_sync_messages($id,$a,$p.$k.'/')) //sync subdirs
 				$ret = true;
 		}
 		return $ret;

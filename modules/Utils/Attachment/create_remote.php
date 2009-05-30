@@ -19,12 +19,12 @@ else
 	$description = '';
 
 define('CID', $cid);
+define('READ_ONLY_SESSION',true);
 require_once('../../../include.php');
 
 $public = Module::static_get_module_variable($path,'public',false);
 $protected = Module::static_get_module_variable($path,'protected',false);
 $private = Module::static_get_module_variable($path,'private',false);
-session_commit();
 if(!Acl::is_user())
 	die('Permission denied');
 

@@ -16,13 +16,13 @@ $id = $_REQUEST['id'];
 $disposition = (isset($_REQUEST['view']) && $_REQUEST['view'])?'inline':'attachment';
 
 define('CID', $cid);
+define('READ_ONLY_SESSION',true);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 
 $public = Module::static_get_module_variable($path,'public',false);
 $protected = Module::static_get_module_variable($path,'protected',false);
 $private = Module::static_get_module_variable($path,'private',false);
-session_commit();
 if(!Acl::is_user())
 	die('Permission denied');
 $row = DB::GetRow('SELECT uaf.attach_id, uaf.revision,uaf.original,ual.local,ual.permission,ual.permission_by FROM utils_attachment_file uaf INNER JOIN utils_attachment_link ual ON ual.id=uaf.attach_id WHERE uaf.id='.DB::qstr($id));

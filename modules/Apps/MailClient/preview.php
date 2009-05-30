@@ -6,8 +6,8 @@ if(!isset($_GET['msg_id']) || !isset($_GET['box']) || !is_numeric($_GET['box']) 
 	die('Invalid request');
 
 define('CID',false);
+define('READ_ONLY_SESSION',true);
 require_once('../../../include.php');
-session_commit();
 ModuleManager::load_modules();
 
 if(!Acl::is_user()) die('Not logged in');
@@ -73,7 +73,7 @@ if(isset($_GET['attachment_cid']) || isset($_GET['attachment_name'])) {
 	else
 		$address = $structure->headers['from'];
 
-	$subject = $msg['subject'];
+	$subject = Apps_MailClientCommon::mime_header_decode($msg['subject']);
 	$address = Apps_MailClientCommon::mime_header_decode($address);
 
 	$script = 'parent.$(\''.$_GET['pid'].'_subject\').innerHTML=\''.Epesi::escapeJS(htmlentities($subject),false).'\';'.

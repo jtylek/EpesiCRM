@@ -16,6 +16,7 @@ $admin = $_REQUEST['admin'];
 $path = $_REQUEST['path'];
 
 define('CID', $cid);
+define('READ_ONLY_SESSION',true);
 require_once('../../../include.php');
 $crits = Module::static_get_module_variable($path, 'crits_stuff', null);
 $order = Module::static_get_module_variable($path, 'order_stuff', null);
@@ -28,7 +29,6 @@ if (!Utils_RecordBrowserCommon::get_access('access_listmanager_history', 'export
 
 $tab_info = Utils_RecordBrowserCommon::init($tab);
 $records = Utils_RecordBrowserCommon::get_records($tab, $crits, array(), $order, array(), $admin);
-session_commit();
 
 header('Content-Type: text/csv');
 //header('Content-Length: '.strlen($buffer));
