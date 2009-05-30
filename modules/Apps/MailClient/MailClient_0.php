@@ -12,10 +12,6 @@
  4 - 10. wykonuje krok 1 z odstepami minimum 5s.
  11. zrywa polaczenie wysylajac JS(meta refresh?) kolejkujacy kolejne wykonanie skryptu
 
- Synchronizacja maili ajaxowo z ustalonym refresh, tylko zalogowanym uzytkownikom. 
- Pierwsza synchronizacja od razu po zalogowaniu do epesi, common dodaje JS i tam zaczyna sie akcja.
- Umozliwisc automatyczna synchronizacje pop3? Na razie reczna synchronizacja imap klikajac pobierz - tak jak pop3.
-
  Kasowanie maili musi isc lokalnie oraz bezposrednio do serwera imap, tak samo przeniesienie itp. Na ten czas refresh musi zastopowac, zeby nie bylo konfliktu.
 
  Trzeba przeniesc patch apps_mailclient.php do update.php.
@@ -23,15 +19,14 @@
  Gdy serwer imap jest offline nie pozwalac kasowac, przenosic wiadomosci, tworzyc nowych. Pozwala tylko ogladac stare.
 
  Watpliwosci:
- Co jezeli na serwerze zostana poczynione modyfikacje? Jak to zmodyfikowac lokalnie? Trzeba przestudiowac zwroty z serwera imap.
  Czy przeniesc CRM/MailClient tutaj? Na razie nie...
+ Umozliwisc automatyczna synchronizacje pop3?
  
  *
  * TODO:
  * -drafts, sent i trash to specjalne foldery, wszystkie inne traktujemy tak jak inbox
  * -zalaczniki przy new
  * -obsluga imap:
- *   -cache folderow
  *   -subskrypcja do folderow
  * -obsluga ssl przy wysylaniu smtp
  *
@@ -888,19 +883,10 @@ class Apps_MailClient extends Module {
 		$native_support = true;
 		if(!function_exists('imap_open')) {
 			$native_support = false;
-			$methods = array(
-					array('auto'=>'Automatic', 'DIGEST-MD5'=>'DIGEST-MD5', 'CRAM-MD5'=>'CRAM-MD5', 'APOP'=>'APOP', 'PLAIN'=>'PLAIN', 'LOGIN'=>'LOGIN', 'USER'=>'USER'),
-					array('auto'=>'Automatic', 'DIGEST-MD5'=>'DIGEST-MD5', 'CRAM-MD5'=>'CRAM-MD5', 'LOGIN'=>'LOGIN')
-				);
-			$methods_js = json_encode($methods);
-			eval_js('Event.observe(\'mailclient_incoming_protocol\',\'change\',function(x) {'.
-					'var methods = '.$methods_js.';'.
-					'var opts = this.form.incoming_method.options;'.
-					'opts.length=0;'.
-					'$H(methods[this.value]).each(function(x,y) {opts[y] = new Option(x[1],x[0]);});'.
-					'if(this.value==0) this.form.pop3_leave_msgs_on_server.disabled=false; else this.form.pop3_leave_msgs_on_server.disabled=true;'.
-					'});'.
-				'Event.observe(\'mailclient_smtp_auth\',\'change\',function(x) {'.
+			if($defaults)
+				$defaults['incoming_protocol'] = 0;
+			$pop3_methods = array('auto'=>'Automatic', 'DIGEST-MD5'=>'DIGEST-MD5', 'CRAM-MD5'=>'CRAM-MD5', 'APOP'=>'APOP', 'PLAIN'=>'PLAIN', 'LOGIN'=>'LOGIN', 'USER'=>'USER');
+			eval_js('Event.observe(\'mailclient_smtp_auth\',\'change\',function(x) {'.
 					'if(this.checked==true) {this.form.smtp_login.disabled=false;this.form.smtp_password.disabled=false;} else {this.form.smtp_login.disabled=true;this.form.smtp_password.disabled=true;}'.
 					'})');
 		} else {
@@ -919,11 +905,11 @@ class Apps_MailClient extends Module {
 				array('name'=>'password','label'=>$this->t('Password'),'type'=>'password'),
 
 				array('name'=>'in_header','label'=>$this->t('Incoming mail'),'type'=>'header'),
-				array('name'=>'incoming_protocol','label'=>$this->t('Incoming protocol'),'type'=>'select','values'=>array(0=>'POP3',1=>'IMAP'), 'default'=>0,'param'=>array('id'=>'mailclient_incoming_protocol')),
+				array('name'=>'incoming_protocol','label'=>$this->t('Incoming protocol'),'type'=>'select','values'=>array(0=>'POP3',1=>'IMAP'), 'default'=>0,'param'=>array('id'=>'mailclient_incoming_protocol')+($native_support?array():array('disabled'=>1))),
 				array('name'=>'incoming_server','label'=>$this->t('Incoming server address')),
 				array('name'=>'incoming_ssl','label'=>$this->t('Receive with SSL')));
 		if(!$native_support)
-			$cols[] = array('name'=>'incoming_method','label'=>$this->t('Authorization method'),'type'=>'select','values'=>$methods[(isset($defaults) && $defaults['incoming_protocol'])?1:0], 'default'=>'auto');
+			$cols[] = array('name'=>'incoming_method','label'=>$this->t('Authorization method'),'type'=>'select','values'=>$pop3_methods, 'default'=>'auto');
 		$cols = array_merge($cols,
 			array(array('name'=>'pop3_leave_msgs_on_server','label'=>$this->t('Remove messages from server'),'type'=>'select',
 					'values'=>array(0=>'immediately',1=>'after 1 day', 3=>'after 3 days', 7=>'after 1 week', 14=>'after 2 weeks', 30=>'after 1 month', -1=>'never'),
@@ -955,6 +941,8 @@ class Apps_MailClient extends Module {
 					else
 						$dbup[$v['name']] = 0;
 				}
+				if(!$native_support)
+					$dbup['incoming_protocol'] = 0;
 				DB::Replace('apps_mailclient_accounts', $dbup, array('id'), true,true);
 				if($action=='new') {
 					$id = DB::Insert_ID('apps_mailclient_accounts','id');
