@@ -8,7 +8,7 @@ session_commit();
 ModuleManager::load_modules();
 if(!Acl::is_user()) return;
 
-ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
+Apps_MailClientCommon::include_path();
 
 $id = $_POST['acc_id'];
 $account = DB::GetRow('SELECT * FROM apps_mailclient_accounts WHERE id=%d AND user_login_id=%d',array($id,Acl::get_user()));
@@ -23,10 +23,7 @@ $pass = $account['password'];
 $ssl = $account['incoming_ssl'];
 $method = $account['incoming_method']!='auto'?$account['incoming_method']:null;
 $pop3 = ($account['incoming_protocol']==0);
-if($account['mail']==='#internal') {
-	//TODO: internal mail
-	$num_msgs = 0;
-} elseif($pop3) { //pop3
+if($pop3) { //pop3
 	$native_support = false;
 	if(function_exists('imap_open')) {
 		$native_support = true;
@@ -116,44 +113,20 @@ if($account['mail']==='#internal') {
 		imap_close($in);
 	else
 		$in->disconnect();
-} else { //imap
-	require_once('Net/IMAP.php');
-	if($port==null) {
-		if($ssl) $port=993;
-		else $port=143;
-	}
-
-	if(function_exists('imap_open')) {
-		$in = @imap_open('{'.$host.':'.$port.'/imap'.($ssl?'/ssl/novalidate-cert':'').'}INBOX', $user,$pass);
-		if(!$in) {
-			die('(connect error) '.implode(', ',imap_errors()));
+} else { //imap and internal
+	$num_msgs = 0;
+	$struct = Apps_MailClientCommon::get_mailbox_structure($id);
+	if(isset($struct['Inbox'])) {
+		function inbox_sum($arr,$p) {
+			global $id;
+			$msgs = Apps_MailClientCommon::get_number_of_messages($id,$p);
+			$ret = $msgs['unread'];
+			foreach($arr as $k=>$a) {
+				$ret += inbox_sum($a,$p.$k.'/');
+			}
+			return $ret;
 		}
-
-		if ($hdr = imap_check($in)) {
-			$msgCount = $hdr->Nmsgs;
-		} else {
-			die('(fetch error) '.implode(', ',imap_errors()));
-		}
-
-
-		$l=imap_fetch_overview($in,'1:'.$msgCount,0);
-		$num_msgs = 0;
-		foreach($l as $v) {
-			if(!$v->seen && !$v->deleted) $num_msgs++;
-		}
-	} else {
-		$in = new Net_IMAP();
-
-		if(PEAR::isError( $ret= $in->connect(($ssl?'ssl://':'').$host , $port) ))
-			die('(connect error) '.$ret->getMessage());
-
-		if(PEAR::isError( $ret= $in->login($user , $pass, $method)))
-			die('(login error) '.$ret->getMessage());
-
-		if(PEAR::isError($num_msgs = $in->getNumberOfUnSeenMessages()))
-			die('(connection error) '.$num_msgs->getMessage());
-
-		$in->disconnect();
+		$num_msgs = inbox_sum($struct['Inbox'],'Inbox/');
 	}
 }
 

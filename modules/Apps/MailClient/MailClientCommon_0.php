@@ -131,7 +131,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 	
 	public static function is_imap($id) {
 		$v = self::get_mailbox_data($id);
-		return $v['incoming_protocol'];
+		return $v['incoming_protocol']==1;
 	}
 	
 	public static function create_mailbox_subdir($id,$new_name,$imap_create=true) {
@@ -191,6 +191,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 			}
 		}
 
+		$mbox_dir = Apps_MailClientCommon::get_mailbox_dir($id);
 		recursive_rmdir($mbox_dir.$dir);
 		$parent_dir = substr($dir,0,strrpos(rtrim($dir,'/'),'/')+1);
 		$ret = explode(',',file_get_contents($mbox_dir.$parent_dir.'.dirs'));
@@ -288,9 +289,24 @@ class Apps_MailClientCommon extends ModuleCommon {
 		}
 		return $st;
 	}
+	
+	public static function get_number_of_messages($box,$p) {
+		$box_dir = Apps_MailClientCommon::get_mailbox_dir($box);
+		if($box_dir===false) {
+			Epesi::alert($this->ht('Invalid mailbox'));
+			return false;
+		}
+		$num = @file_get_contents($box_dir.$p.'.num');
+		if($num!==false) {
+			$num = explode(',',$num);
+			if(count($num)==2) {
+				return array('unread'=>$num[1],'all'=>$num[0]);
+			}
+		}
+		return false;
+	}
 
-	//gets next message id
-	public static function get_next_msg_id($id,$dir) {
+	public static function get_msg_id($id,$dir) {
 		$mbox_dir = self::get_mailbox_dir($id);
 		if($mbox_dir === false)
 			return false;
@@ -304,14 +320,38 @@ class Apps_MailClientCommon extends ModuleCommon {
 					$nid=$f;
 			}
 		}
-		$nid++;
-		file_put_contents($mailbox.'.mid',$nid);
 		return $nid;
 	}
 
+	public static function set_msg_id($id,$dir,$nid) {
+		$mbox_dir = self::get_mailbox_dir($id);
+		if($mbox_dir === false)
+			return false;
+		$mailbox = $mbox_dir.$dir;
+		file_put_contents($mailbox.'.mid',$nid);
+		return $nid;
+	}
+	
+	//gets next message id
+	public static function get_next_msg_id($id,$dir) {
+		$nid = self::get_msg_id($id,$dir);
+		if($nid===false) return false;
+		$nid++;
+		self::set_msg_id($id,$dir,$nid);
+		return $nid;
+	}
+	
+	public static function include_path() {
+		static $ok;
+		if(!isset($ok)) {
+			$ok=true;
+			ini_set('include_path','modules/Apps/MailClient/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
+		}
+	}
+	
 	//drops message to specified mailbox
 	public static function drop_message($mailbox_id,$dir,$subject,$from,$to,$date,$body,$read=false) {
-		ini_set('include_path','modules/Apps/MailClient/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
+		self::include_path();
 		require_once('Mail/mime.php');
 
 		$msg_id = self::get_next_msg_id($mailbox_id,$dir);
@@ -338,7 +378,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 	}
 
 	public static function build_index($id,$dir) {
-		ini_set('include_path','modules/Apps/MailClient/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
+		self::include_path();
 		require_once('Mail/mimeDecode.php');
 		$mbox_dir = self::get_mailbox_dir($id);
 		if($mbox_dir===false) return false;
@@ -367,19 +407,36 @@ class Apps_MailClientCommon extends ModuleCommon {
 	}
 
 	public static function mark_all_as_read($id,$dir) {
+		$is_imap = self::is_imap($id);
+	
 		$mbox_dir = self::get_mailbox_dir($id);
 		if($mbox_dir===false) return false;
 		$box = $mbox_dir.$dir;
 		$in = @fopen($box.'.idx','r');
 		if($in==false) return false;
 		$ret = array();
+		if($is_imap)
+			$uidls = array();
 		while (($data = fgetcsv($in, 700)) !== false) { //teoretically max is 640+integer and commas
 			$num = count($data);
 			if($num!=7) continue;
 			$data[6]=1;
 			$ret[] = $data;
+			if($is_imap)
+				$uidls[] = $data[0];
 		}
 		fclose($in);
+
+		if($is_imap) {
+			$imap = self::imap_open($id);
+			if(!$imap) {
+				Epesi::alert(Base_LangCommon::ts('Apps_MailClient','Unable to connect to imap server. Action failed.'));
+				return false;
+			}
+			imap_reopen($imap['connection'],$imap['ref'].rtrim($dir,'/'));
+			imap_setflag_full($imap['connection'], implode(',',$uidls), "\\Seen", ST_UID);
+			imap_reopen($imap['connection'],$imap['ref']);
+		}
 
 		$out = @fopen($box.'.idx','w');
 		if($out==false) return false;
@@ -509,6 +566,17 @@ class Apps_MailClientCommon extends ModuleCommon {
 	}
 
 	public static function read_msg($box,$dir, $id) {
+		if(self::is_imap($box)) {
+			$imap = self::imap_open($box);
+			if(!$imap) {
+				Epesi::alert(Base_LangCommon::ts('Apps_MailClient','Unable to connect to imap server. Action failed.'));
+				return false;
+			}
+			imap_reopen($imap['connection'],$imap['ref'].rtrim($dir,'/'));
+			imap_setflag_full($imap['connection'], $id, "\\Seen", ST_UID);
+			imap_reopen($imap['connection'],$imap['ref']);
+		}
+	
 		$idx = self::get_index($box,$dir);
 
 		if($idx===false || !isset($idx[$id])) return false;
@@ -544,6 +612,20 @@ class Apps_MailClientCommon extends ModuleCommon {
 	    return $str;
 	}
 
+	public static function mime_decode($msg,$opts=null) {
+		self::include_path();
+		require_once('Mail/mimeDecode.php');
+		$decode = new Mail_mimeDecode($msg, "\r\n");
+		$structure = $decode->decode($opts);
+		if(!isset($structure->headers['from']))
+			$structure->headers['from'] = '';
+		if(!isset($structure->headers['to']))
+			$structure->headers['to'] = '';
+		if(!isset($structure->headers['date']))
+			$structure->headers['date'] = '';
+		return $structure;
+	}
+
 	public static function get_message_structure($box,$dir,$id) {
 		$box_dir = Apps_MailClientCommon::get_mailbox_dir($box);
 		if($box_dir===false)
@@ -553,17 +635,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		if($message===false)
 			return false;
 
-		ini_set('include_path','modules/Apps/MailClient/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
-		require_once('Mail/mimeDecode.php');
-		$decode = new Mail_mimeDecode($message, "\r\n");
-		$structure = $decode->decode(array('decode_bodies'=>true,'include_bodies'=>true));
-		if(!isset($structure->headers['from']))
-			$structure->headers['from'] = '';
-		if(!isset($structure->headers['to']))
-			$structure->headers['to'] = '';
-		if(!isset($structure->headers['date']))
-			$structure->headers['date'] = '';
-		return $structure;
+		return self::mime_decode($message,array('decode_bodies'=>true,'include_bodies'=>true));
 	}
 
 	public static function parse_message_structure($structure,$full_attachments=true) {
@@ -659,7 +731,6 @@ class Apps_MailClientCommon extends ModuleCommon {
 	}
 
 	public static function imap_sync_mailbox_dir($id) {
-		@set_time_limit(0);
 		$imap = self::imap_open($id);
 		if ($imap['connection']==false) {
 			Epesi::alert(Base_LangCommon::ts('Apps_MailClient','Unable to connect to imap server.'));
@@ -729,6 +800,67 @@ class Apps_MailClientCommon extends ModuleCommon {
 				$changed = true;
 		}
 		return $changed;
+	}
+	
+	//get new messages in directory
+	public static function imap_get_new_messages($id,$dir) {
+		$tdir = rtrim($dir,'/');
+		$mail_size_limit = Variable::get('max_mail_size');
+		$box_root = Apps_MailClientCommon::get_mailbox_dir($id);
+		if($box_root===false) return false;
+
+		$imap = self::imap_open($id);
+		imap_reopen($imap['connection'],$imap['ref'].$tdir);
+		$st = imap_status($imap['connection'],$imap['ref'].$tdir,SA_UIDNEXT);
+		$last_uid = $st->uidnext-1;
+		$first_uid = self::get_msg_id($id,$dir)+1;
+		if($first_uid>$last_uid) return 0;
+		$l=imap_fetch_overview($imap['connection'],$first_uid.':'.$last_uid,FT_UID); //list of new messages
+		
+		$downloaded = 0; //number of new messages
+
+		foreach($l as $msgl) {
+			if(!isset($msgl->size)) {
+				continue;
+			}
+			$size = $msgl->size;
+			if($size>$mail_size_limit) {
+				continue;
+			}
+			if(!isset($msgl->uid)) {
+				continue;
+			}
+			$msg = imap_fetchheader($imap['connection'],$msgl->uid,FT_UID | FT_PREFETCHTEXT).imap_body($imap['connection'],$msgl->uid,FT_UID);
+			if($msg===false) {
+				continue;
+			}
+			$structure = self::mime_decode($msg);
+			if(!Apps_MailClientCommon::append_msg_to_index($id,$dir,$msgl->uid,isset($structure->headers['subject'])?$structure->headers['subject']:'no subject',$structure->headers['from'],$structure->headers['to'],$structure->headers['date'],strlen($msg),$msgl->seen)) {
+				continue;
+			}
+			file_put_contents($box_root.$dir.$msgl->uid,$msg);
+			$downloaded++;
+		}
+		
+		self::set_msg_id($id,$dir,$last_uid);
+		
+		imap_reopen($imap['connection'],$imap['ref']);
+		
+		return $downloaded;
+	}
+	
+	//full sync of messages
+	public static function imap_sync_messages($id,$arr=null,$p='') {
+		if($arr===null)
+			$arr = Apps_MailClientCommon::get_mailbox_structure($id);
+		$ret = false;
+		$imap = self::imap_open($id);
+		foreach($arr as $k=>$a) {
+			if(self::imap_sync_messages($id,$a,$p.$k.'/'))
+				$ret = true;
+		}
+		return $ret;
+
 	}
 }
 load_js('modules/Apps/MailClient/utils.js');

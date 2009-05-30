@@ -121,6 +121,7 @@ class Apps_MailClient extends Module {
 			$vals = $move_msg_f->exportValues();
 			$out_box = explode('/',$vals['folder'],2);
 			Apps_MailClientCommon::move_msg($box,$dir,$out_box[0],$out_box[1],$vals['msg_id']);
+			location(array());
 		}
 
 		$th = $this->init_module('Base/Theme');
@@ -397,11 +398,6 @@ class Apps_MailClient extends Module {
 		$opened_box = $this->get_module_variable('opened_box');
 		$opened_dir = $this->get_module_variable('opened_dir');
 		$ret = array();
-		$box_dir = Apps_MailClientCommon::get_mailbox_dir($box);
-		if($box_dir===false) {
-			Epesi::alert($this->ht('Invalid mailbox'));
-			return $ret;
-		}
 		foreach($str as $k=>$v) {
 			$cr = $create_dir;
 			$ed = $edit_dir;
@@ -415,16 +411,10 @@ class Apps_MailClient extends Module {
 				$arr['opened'] = true;
 			}
 			if(!$cr && strcasecmp($p,'Inbox/')==0) $cr = true;
-			$unread_msgs = false;
-			$num_of_msgs = false;
-			$num = @file_get_contents($box_dir.$p.'.num');
-			if($num!==false) {
-				$num = explode(',',$num);
-				if(count($num)==2) {
-					$unread_msgs = $num[1];
-					$num_of_msgs = $num[0];
-				}
-			}
+			$msgs = Apps_MailClientCommon::get_number_of_messages($box,$p);
+			if(!$msgs) return $ret;
+			$unread_msgs = $msgs['unread'];
+			$num_of_msgs = $msgs['all'];
 			$arr['name'] = '<a '.$this->create_callback_href(array($this,'open_mail_dir_callback'),array($box,$p)).'>'.$arr['name'].($num_of_msgs!==false?' ('.($unread_msgs?$unread_msgs.'/':'').$num_of_msgs.')':'').'</a>';
 			if($cr)
 				$arr['name'] .= '<a '.$this->create_callback_href(array($this,'edit_folder_callback'),array($box,$p)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','create_folder.png').'" border="0"></a>';
@@ -482,22 +472,13 @@ class Apps_MailClient extends Module {
 		$fav2 = array();
 		$references = false;
 		if($headers!==null) {
-			ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
-			require_once('Mail/mimeDecode.php');
 			if($body===null) {
 				$opts = array('decode_bodies'=>true,'include_bodies'=>true);
 			} else {
 				$headers.= "\r\n\r\n"; //fake message empty body in header
 				$opts = array();
 			}
-			$decode = new Mail_mimeDecode($headers, "\r\n");
-			$structure = $decode->decode($opts);
-			if(!isset($structure->headers['from']))
-				$structure->headers['from'] = '';
-			if(!isset($structure->headers['to']))
-				$structure->headers['to'] = '';
-			if(!isset($structure->headers['date']))
-				$structure->headers['date'] = '';
+			$structure = Apps_MailClientCommon::mime_decode($headers,$opts);
 
 			if($body===null) {
 				$body_type = false;
@@ -731,7 +712,7 @@ class Apps_MailClient extends Module {
 				//remote delivery
 
 				$send_ok = true;
-				if($v['from_addr']!='pm') {
+				if($v['from_addr']!='pm' && $to) {
 					$mailer = Base_MailCommon::new_mailer();
 					$mailer->From = $from['mail'];//.' <'.Acl::get_user().'>';
 					$mailer->FromName = $name;
@@ -948,7 +929,7 @@ class Apps_MailClient extends Module {
 					$id = DB::Insert_ID('apps_mailclient_accounts','id');
 					Apps_MailClientCommon::create_mailbox_dir($id);
 				}
-				if($values['incoming_protocol']) { //imap
+				if($values['incoming_protocol']==1) { //imap
 					eval_js('Apps_MailClient.cache_mailboxes_start()');//make sure cache is working
 				}
 				return false;

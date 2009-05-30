@@ -13,18 +13,27 @@ ini_set("memory_limit",$mail_size_limit+32*1024*1024); // max mail size is
 
 if(!Acl::is_user()) die('Not logged in');
 
-ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
-require_once('Mail/mimeDecode.php');
-
 $accounts = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE user_login_id=%d AND incoming_protocol=1',array(Acl::get_user()));
 if(empty($accounts)) {
 	print('Apps_MailClient.cache_mailboxes_working=false;'); //we don't need it, turn it off, so it can be turned on
 	exit();
 }
 $refresh = false;
+//TODO: lock mailbox locally - cache.php cannot work 2x
 foreach($accounts as $a) {
+	//sync dirs
 	if(Apps_MailClientCommon::imap_sync_mailbox_dir($a['id']))
 		$refresh=true;
+	//sync inbox(without subdirs) messages
+	if(Apps_MailClientCommon::imap_get_new_messages($a['id'],'Inbox/'))
+		$refresh=true;
 }
+
+foreach($accounts as $a) {
+	//sync all messages (including inbox again)
+	if(Apps_MailClientCommon::imap_sync_messages($a['id']))
+		$refresh=true;
+}
+
 print(($refresh?'Apps_MailClient.refresh_ui();':'').'setTimeout(\'Apps_MailClient.cache_mailboxes()\',30000);');//30s
 ?>

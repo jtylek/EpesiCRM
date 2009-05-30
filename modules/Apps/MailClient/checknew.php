@@ -14,8 +14,7 @@ ini_set("memory_limit",$mail_size_limit+32*1024*1024); // max mail size is
 
 if(!Acl::is_user()) die('Not logged in');
 
-ini_set('include_path',dirname(__FILE__).'/PEAR'.PATH_SEPARATOR.ini_get('include_path'));
-require_once('Mail/mimeDecode.php');
+Apps_MailClientCommon::include_path();
 
 function message($id,$text) {
 	echo('<script>parent.Apps_MailClient.progress_bar.set_text(parent.$(\''.$_GET['id'].'progresses\'),\''.$id.'\',\''.Epesi::escapeJS($text,false).'\')</script>');
@@ -169,7 +168,7 @@ foreach($accounts as $account) {
 				$invalid++;
 				continue;
 			}
-			$msg = imap_fetchheader($in,$msgl->uid).imap_body($in,$msgl->uid,FT_INTERNAL);
+			$msg = imap_fetchheader($in,$msgl->uid,FT_UID | FT_PREFETCHTEXT).imap_body($in,$msgl->uid,FT_UID);
 		} else {
 			if(!isset($msgl['msg_id'])) {
 				$invalid++;
@@ -181,27 +180,19 @@ foreach($accounts as $account) {
 			$invalid++;
 			continue;
 		}
-		$decode = new Mail_mimeDecode($msg, "\r\n");
-		$structure = $decode->decode();
-		if(!isset($structure->headers['from']))
-			$structure->headers['from'] = '';
-		if(!isset($structure->headers['to']))
-			$structure->headers['to'] = '';
-		if(!isset($structure->headers['date']))
-			$structure->headers['date'] = '';
+		$structure = Apps_MailClientCommon::mime_decode($msg);
 		$msg_id = Apps_MailClientCommon::get_next_msg_id($account['id'],$box_dir);
 		if($msg_id===false) {
 			message($account['id'],$account['mail'].': broken index file?');
 			$error = true;
 			break;
 		}
-		file_put_contents($box.$msg_id,$msg);
 		if(!Apps_MailClientCommon::append_msg_to_index($account['id'],$box_dir,$msg_id,isset($structure->headers['subject'])?$structure->headers['subject']:'no subject',$structure->headers['from'],$structure->headers['to'],$structure->headers['date'],strlen($msg))) {
 			message($account['id'],$account['mail'].': broken index file');
-			@unlink($box.$msg_id);
 			$error = true;
 			break;
 		}
+		file_put_contents($box.$msg_id,$msg);
 		$tt = strtotime($structure->headers['date']);
 		if($tt===false) $tt=$now;
 		//print('uidl=>'.$msgl['uidl'].', time=>'.$tt.', live time=>'.($tt+$account['pop3_leave_msgs_on_server']*86400).', now=>'.$now.'<br>');
