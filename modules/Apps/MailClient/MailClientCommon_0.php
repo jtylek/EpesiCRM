@@ -414,6 +414,9 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$box = $mbox_dir.$dir;
 		$in = @fopen($box.'.idx','r');
 		if($in==false) return false;
+
+		if(!self::lock_mailbox_dir($id,$dir,'idx')) return false;
+
 		$ret = array();
 		if($is_imap)
 			$uidls = array();
@@ -431,6 +434,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 			$imap = self::imap_open($id);
 			if(!$imap) {
 				Epesi::alert(Base_LangCommon::ts('Apps_MailClient','Unable to connect to imap server. Action failed.'));
+				self::unlock_mailbox_dir($id,$dir,'idx');
 				return false;
 			}
 			imap_reopen($imap['connection'],$imap['ref'].rtrim($dir,'/'));
@@ -439,7 +443,10 @@ class Apps_MailClientCommon extends ModuleCommon {
 		}
 
 		$out = @fopen($box.'.idx','w');
-		if($out==false) return false;
+		if($out==false) {
+			self::unlock_mailbox_dir($id,$dir,'idx');
+			return false;
+		}
 		$c = 0;
 		foreach($ret as $d) {
 			fputcsv($out, $d);
@@ -447,6 +454,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		}
 		fclose($out);
 		file_put_contents($box.'.num',$c.',0');
+		self::unlock_mailbox_dir($id,$dir,'idx');
 		return true;
 	}
 
@@ -468,15 +476,26 @@ class Apps_MailClientCommon extends ModuleCommon {
 	}
 	
 	public static function remove_msg($mailbox_id, $dir, $id) {
-		if(!self::remove_msg_from_index($mailbox_id,$dir,$id)) return false;
+		if(!self::lock_mailbox_dir($mailbox_id,$dir,'trash')) return false;
+	
+		if(!self::remove_msg_from_index($mailbox_id,$dir,$id)) {
+			self::unlock_mailbox_dir($mailbox_id,$dir,'trash');
+			return false;
+		}
 
 		$mbox_dir = self::get_mailbox_dir($mailbox_id);
-		if($mbox_dir===false) return false;
+		if($mbox_dir===false) {
+			self::unlock_mailbox_dir($mailbox_id,$dir,'trash');
+			return false;
+		}
 		$box = $mbox_dir.$dir;
 		@unlink($box.$id);
 		
-		if($dir!=='Trash/') return true;
-
+		if($dir!=='Trash/') {
+			self::unlock_mailbox_dir($mailbox_id,$dir,'trash');
+			return true;
+		}
+		
 		//trash? delete entry from .del file		
 		$trashpath = $mbox_dir.'Trash/.del';
 		$in = @fopen($trashpath,'r');
@@ -496,20 +515,32 @@ class Apps_MailClientCommon extends ModuleCommon {
 			}
 		}
 
+		self::unlock_mailbox_dir($mailbox_id,$dir,'trash');
+
 		return true;
 	}
 
 	public static function remove_msg_from_index($mailbox_id,$dir,$id) {
+		if(!self::lock_mailbox_dir($mailbox_id,$dir,'idx')) return false;
 		$idx = self::get_index($mailbox_id,$dir);
 
-		if($idx===false || !isset($idx[$id])) return false;
+		if($idx===false || !isset($idx[$id])) {
+			self::unlock_mailbox_dir($id,$dir,'idx');
+			return false;
+		}
 		unset($idx[$id]);
 
 		$mbox_dir = self::get_mailbox_dir($mailbox_id);
-		if($mbox_dir===false) return false;
+		if($mbox_dir===false) {
+			self::unlock_mailbox_dir($mailbox_id,$dir,'idx');
+			return false;
+		}
 		$box = $mbox_dir.$dir;
 		$out = @fopen($box.'.idx','w');
-		if($out==false) return false;
+		if($out==false) {
+			self::unlock_mailbox_dir($mailbox_id,$dir,'idx');
+			return false;
+		}
 
 		$c = 0;
 		$ur = 0;
@@ -520,6 +551,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		}
 		fclose($out);
 		file_put_contents($box.'.num',$c.','.$ur);
+		self::unlock_mailbox_dir($mailbox_id,$dir,'idx');
 		return true;
 	}
 
@@ -533,18 +565,31 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$msg = @file_get_contents($boxpath.$id);
 		if($msg===false) return false;
 
+		if(!self::lock_mailbox_dir($box,$dir,'idx') || !self::lock_mailbox_dir($box2,$dir2,'idx')) return false;
+
 		$id2 = self::get_next_msg_id($box2,$dir2);
-		if($id2===false) return false;
+		if($id2===false) {
+			self::unlock_mailbox_dir($box,$dir,'idx');
+			self::unlock_mailbox_dir($box2,$dir2,'idx');
+			return false;
+		}
 
 		file_put_contents($boxpath2.$id2,$msg);
 		$idx = self::get_index($box,$dir);
 		$idx = $idx[$id];
-		if(!self::append_msg_to_index($box2,$dir2,$id2,$idx['subject'],$idx['from'],$idx['to'],$idx['date'],$idx['size'],$idx['read']))
+		if(!self::append_msg_to_index($box2,$dir2,$id2,$idx['subject'],$idx['from'],$idx['to'],$idx['date'],$idx['size'],$idx['read'])) {
+			self::unlock_mailbox_dir($box,$dir,'idx');
+			self::unlock_mailbox_dir($box2,$dir2,'idx');
 			return false;
+		}
 
-		if(!self::remove_msg($box,$dir,$id)) return false;
+		self::unlock_mailbox_dir($box,$dir,'idx');
+		self::unlock_mailbox_dir($box2,$dir2,'idx');
+		if(!self::remove_msg($box,$dir,$id)) {
+			return false;
+		}
 
-		if($dir=='Trash/') {		
+		if($dir=='Trash/' && self::lock_mailbox_dir($box,$dir,'trash')) {		
 			$trashpath = $boxpath.'.del';
 			$in = @fopen($trashpath,'r');
 			if($in!==false) {
@@ -562,6 +607,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 					fclose($out);
 				}
 			}
+			self::unlock_mailbox_dir($box,$dir,'trash');
 		}
 		if($dir2=='Trash/') {
 			$trashpath = $boxpath2.'.del';
@@ -595,10 +641,13 @@ class Apps_MailClientCommon extends ModuleCommon {
 	}
 
 	public static function read_msg($box,$dir, $id, $value=1, $imap_seen = true) {
+		if(!self::lock_mailbox_dir($box,$dir,'idx')) return false;
+
 		if($imap_seen && self::is_imap($box)) {
 			$imap = self::imap_open($box);
 			if(!$imap) {
 				Epesi::alert(Base_LangCommon::ts('Apps_MailClient','Unable to connect to imap server. Action failed.'));
+				self::unlock_mailbox_dir($box,$dir,'idx');
 				return false;
 			}
 			imap_reopen($imap['connection'],$imap['ref'].rtrim($dir,'/'));
@@ -611,26 +660,37 @@ class Apps_MailClientCommon extends ModuleCommon {
 	
 		$idx = self::get_index($box,$dir);
 
-		if($idx===false || !isset($idx[$id])) return false;
-		if($idx[$id]['read']) return true;
+		if($idx===false || !isset($idx[$id])) {
+			self::unlock_mailbox_dir($box,$dir,'idx');
+			return false;
+		}
+		if($idx[$id]['read']==$value) {
+			self::unlock_mailbox_dir($box,$dir,'idx');
+			return true;
+		}
 		$idx[$id]['read'] = $value;
 
 		$mbox_dir = self::get_mailbox_dir($box);
-		if($mbox_dir===false) return false;
+		if($mbox_dir===false) {
+			self::unlock_mailbox_dir($box,$dir,'idx');
+			return false;
+		}
 		$boxpath = $mbox_dir.$dir;
 
-		$num = @file_get_contents($boxpath.'.num');
-		if($num===false) return false;
-		$num = explode(',',$num);
-		if(count($num)!=2) return false;
-
 		$out = @fopen($boxpath.'.idx','w');
-		if($out==false) return false;
-
-		foreach($idx as $id=>$d)
+		if($out==false) {
+			self::unlock_mailbox_dir($box,$dir,'idx');
+			return false;
+		}
+		
+		$unread = 0;
+		foreach($idx as $id=>$d) {
+			if(!$d['read']) $unread++;
 			fputcsv($out, array($id,substr($d['subject'],0,256),substr($d['from'],0,256),substr($d['to'],0,256),substr($d['date'],0,64),substr($d['size'],0,64),$d['read']));
+		}
 		fclose($out);
-		file_put_contents($boxpath.'.num',$num[0].','.($num[1]-1));
+		file_put_contents($boxpath.'.num',count($idx).','.$unread);
+		self::unlock_mailbox_dir($box,$dir,'idx');
 		return true;
 	}
 
@@ -724,6 +784,26 @@ class Apps_MailClientCommon extends ModuleCommon {
 
 	public static function addressbook_rp_mail($e){
 		return CRM_ContactsCommon::contact_format_default($e,true);
+	}
+	
+	private static $lock_fp;
+	public static function lock_mailbox_dir($id,$dir,$name) {
+		$box_dir = self::get_mailbox_dir($id).$dir;
+		if(!isset(self::$lock_fp))
+			self::$lock_fp = array();
+		if(!isset(self::$lock_fp[$id]))
+			self::$lock_fp[$id] = array();
+		if(!isset(self::$lock_fp[$id][$dir]))
+			self::$lock_fp[$id][$dir] = array();
+		
+		if((self::$lock_fp[$id][$dir][$name] = @fopen($box_dir.'.'.$name.'_lock','w'))==false) return false;
+		if (!flock(self::$lock_fp[$id][$dir][$name], LOCK_EX)) return false;
+		return true;
+	}
+
+	public static function unlock_mailbox_dir($id,$dir,$name) {
+		flock(self::$lock_fp[$id][$dir][$name], LOCK_UN);
+		fclose(self::$lock_fp[$id][$dir][$name]);
 	}
 	
 	private static $imap_connections;
@@ -884,25 +964,27 @@ class Apps_MailClientCommon extends ModuleCommon {
 	}
 	
 	public static function imap_sync_old_messages($id,$dir) {
+		if($dir=='Trash/') return false;
 		$ret = false;
 		$tdir = rtrim($dir,'/');
 		//old messages are synchronized from time to time, not always... some people have 10000 messages in inbox, 
 		//but they don't modify them, we can check this messages once a day
-		$sync_rate = array(180,600,3600,7200,18000,86400); //3m,10m,1h,2h,5h,24h
+		$sync_rate = array(180,600,600,600,600,600,600,3600,3600,3600,3600,3600,3600,3600,3600,7200,7200,7200,7200,7200,7200,7200,7200,18000,18000,18000,18000,18000,18000,18000,18000,18000,18000,18000,18000,18000,18000,18000,18000,86400); //3m, 10m x6, 1h x8, 1h, 2h x8 ,5h x16,24h
+		$max_sync_rate = count($sync_rate)-1;
 		$box = self::get_mailbox_dir($id);
 		$box_dir = $box.$dir;
 		$rate = @file_get_contents($box_dir.'.imap_rate');
 		if($rate===false || !is_numeric($rate)) $rate=2;
+		if($rate>$max_sync_rate) $rate = $max_sync_rate;
 		
 		$last_sync_file = $box_dir.'.imap_last_sync';
 		$last_sync = @file_get_contents($last_sync_file);
 		if($last_sync===false || !is_numeric($last_sync)) $last_sync=0;
 		$time = time();
 		if($time-$last_sync<$sync_rate[$rate]) return false;
-
-		if(($last_sync_fp = @fopen($last_sync_file,'w'))==false) return false;
-		if (!flock($last_sync_fp, LOCK_EX)) return false;
 		
+		if(!self::lock_mailbox_dir($id,$dir,'sync')) return false;
+
 		//sync messages
 		$local = self::get_index($id,$dir);
 		$trash = self::get_index($id,'Trash/');
@@ -927,20 +1009,29 @@ class Apps_MailClientCommon extends ModuleCommon {
 			foreach($remote as $row) {
 				$deleted_uid = isset($trash_oryg[$row->uid])?$trash_oryg[$row->uid]:false;
 				if($deleted_uid!==false) {
-					if($trash[$deleted_uid]['read']!=$row->seen)
+					if($trash[$deleted_uid]['read']!=$row->seen) {
 						self::read_msg($id,'Trash/',$row->uid,$row->seen,false);
-					if(!$row->deleted)
-						self::move_msg($id,'Trash/',$id,$dir,$deleted_uid);
+						$ret = true;
+					}
+					if(!$row->deleted) {
+						self::move_msg($id,'Trash/',$id,$dir,$deleted_uid,false);
+						$ret = true;
+					}
 				} else {
-					if($local[$row->uid]['read']!=$row->seen)
+					if($local[$row->uid]['read']!=$row->seen) {
 						self::read_msg($id,$dir,$row->uid,$row->seen,false);
-					if($row->deleted)
-						self::move_msg($id,$dir,$id,'Trash/',$row->uid);
+						$ret = true;
+					}
+					if($row->deleted) {
+						self::move_msg($id,$dir,$id,'Trash/',$row->uid,false);
+						$ret = true;
+					}
 				}
 				unset($local[$row->uid]);
 			}
 			foreach($local as $k=>$v) { //remove remotly deleted messages
 				self::remove_msg($id,$dir,$k);
+				$ret = true;
 			}
 			imap_reopen($imap['connection'],$imap['ref']);
 		}
@@ -948,16 +1039,16 @@ class Apps_MailClientCommon extends ModuleCommon {
 		//save sync time and rate
 		if($ret) { //increase sync rate
 			if($rate>0)
-				file_put_contents($box_dir.'.imap_rate',$rate-1);
+				file_put_contents($box_dir.'.imap_rate',(($rate>3)?($rate-3):0));
 		} else { //decrease sync rate
-			if($rate<count($sync_rate)-1)
+			if($rate<$max_sync_rate)
 				file_put_contents($box_dir.'.imap_rate',$rate+1);
 		}
 
-		fwrite($last_sync_fp,$time);
-		flock($last_sync_fp, LOCK_UN);
-		fclose($last_sync_fp);
-			
+		file_put_contents($last_sync_file,$time);
+
+		self::unlock_mailbox_dir($id,$dir,'sync');
+
 		return $ret;
 	}
 	
