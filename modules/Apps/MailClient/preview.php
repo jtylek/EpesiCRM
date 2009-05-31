@@ -73,17 +73,24 @@ if(isset($_GET['attachment_cid']) || isset($_GET['attachment_name'])) {
 	else
 		$address = $structure->headers['from'];
 
-	$subject = Apps_MailClientCommon::mime_header_decode($msg['subject']);
-	$address = Apps_MailClientCommon::mime_header_decode($address);
+	$subject = Apps_MailClientCommon::mime_header_decode($msg['subject']); //it's in utf
+	$address = Apps_MailClientCommon::mime_header_decode($address); //it's in utf
+	
+	//convert to utf-8
 
-	$script = 'parent.$(\''.$_GET['pid'].'_subject\').innerHTML=\''.Epesi::escapeJS(htmlentities($subject),false).'\';'.
-			'parent.$(\''.$_GET['pid'].'_address\').innerHTML=\''.Epesi::escapeJS(htmlentities($address),false).'\';'.
+	$script = 'parent.$(\''.$_GET['pid'].'_subject\').innerHTML=\''.Epesi::escapeJS(htmlspecialchars($subject),false).'\';'.
+			'parent.$(\''.$_GET['pid'].'_address\').innerHTML=\''.Epesi::escapeJS(htmlspecialchars($address),false).'\';'.
 			'parent.$(\''.$_GET['pid'].'_attachments\').innerHTML=\''.Epesi::escapeJS($ret_attachments,false).'\';'.
 			'parent.$("mail_view_body").height = Math.max(document.body.offsetHeight,document.body.scrollHeight)+30;';
 
 	header("Content-type: text/html");
 	if($body_type=='plain') {
-		$body = htmlspecialchars(preg_replace("/(http:\/\/[a-z0-9]+(\.[a-z0-9]+)+(\/[\.a-z0-9]+)*)/i", "<a href='\\1' target=\"_blank\">\\1</a>", $body));
+		if(eregi("^(.+)charset=([a-z0-9\-]+)(;.*)$",$body_ctype,$reqs)) {
+			$charset = $reqs[2];
+			$body_ctype = $reqs[1]."charset=utf-8";
+			$body = iconv($charset,'UTF-8',$body);
+		}
+		$body = preg_replace("/(http:\/\/[a-z0-9]+(\.[a-z0-9]+)+(\/[\.a-z0-9?=&;]+)*)/i", "<a href='\\1' target=\"_blank\">\\1</a>", htmlspecialchars($body));
 		$body = '<html>'.
 			'<head><meta http-equiv=Content-Type content="'.$body_ctype.'"></head>'.
 			'<body><pre>'.$body.'</pre></body>';
