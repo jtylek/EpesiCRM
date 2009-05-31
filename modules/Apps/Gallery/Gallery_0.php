@@ -358,7 +358,7 @@ class Apps_Gallery extends Module {
 		if($ext==='' || !eregi('\.(jpg|jpeg|gif|png)$', $ext)) {
 			$GLOBALS['base']->alert($this->t('Invalid extension'));
 		} else {
-			$dest = $this->root.$this->user.$data['target'].$ory;
+			$dest = $this->root.$this->user.$_REQUEST['target'].$ory;
 			copy($file, $dest);
 			$this->set_module_variable('last_uploaded_img',$dest);
 		}

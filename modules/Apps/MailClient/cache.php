@@ -20,7 +20,6 @@ if(empty($accounts)) {
 	exit();
 }
 $refresh = false;
-//TODO: lock mailbox locally - cache.php cannot work 2x
 foreach($accounts as $a) {
 	//sync dirs
 	if(Apps_MailClientCommon::imap_sync_mailbox_dir($a['id']))

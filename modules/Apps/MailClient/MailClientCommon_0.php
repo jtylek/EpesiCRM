@@ -467,21 +467,6 @@ class Apps_MailClientCommon extends ModuleCommon {
 		return $ret;
 	}
 	
-	public static function move_msg_to_trash($box,$dir,$id) {
-		$box_dir=Apps_MailClientCommon::get_mailbox_dir($box);
-		if($box_dir===false) return false;
-		$id2 = Apps_MailClientCommon::move_msg($box,$dir,$box,'Trash/',$id);
-		if($id2===false) return false;
-		
-		$trashpath = $box_dir.'Trash/.del';
-		$out = @fopen($trashpath,'a');
-		if($out!==false) {
-			fputcsv($out,array($id2,$dir));
-			fclose($out);
-		}
-		return true;
-	}
-
 	public static function remove_msg($mailbox_id, $dir, $id) {
 		if(!self::remove_msg_from_index($mailbox_id,$dir,$id)) return false;
 
@@ -499,7 +484,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 			$ret = array();
 			while (($data = fgetcsv($in, 700)) !== false) {
 				$num = count($data);
-				if($num!=2 || $data[0]==$id) continue;
+				if($num!=3 || $data[0]==$id) continue;
 				$ret[] = $data;
 			}
 			fclose($in);
@@ -566,7 +551,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 				$ret = array();
 				while (($data = fgetcsv($in, 700)) !== false) {
 					$num = count($data);
-					if($num!=2 || $data[0]==$id) continue;
+					if($num!=3 || $data[0]==$id) continue;
 					$ret[] = $data;
 				}
 				fclose($in);
@@ -576,6 +561,14 @@ class Apps_MailClientCommon extends ModuleCommon {
 						fputcsv($out,$v);
 					fclose($out);
 				}
+			}
+		}
+		if($dir2=='Trash/') {
+			$trashpath = $boxpath2.'.del';
+			$out = @fopen($trashpath,'a');
+			if($out!==false) {
+				fputcsv($out,array($id2,$dir,$id));
+				fclose($out);
 			}
 		}
 		return $id2;
@@ -879,6 +872,8 @@ class Apps_MailClientCommon extends ModuleCommon {
 			}
 			file_put_contents($box_root.$dir.$msgl->uid,$msg);
 			$downloaded++;
+			if($msgl->deleted) 
+				self::move_msg($id,$dir,$id,'Trash/',$msgl->uid);
 		}
 		
 		self::set_msg_id($id,$dir,$last_uid);
@@ -894,26 +889,54 @@ class Apps_MailClientCommon extends ModuleCommon {
 		//old messages are synchronized from time to time, not always... some people have 10000 messages in inbox, 
 		//but they don't modify them, we can check this messages once a day
 		$sync_rate = array(180,600,3600,7200,18000,86400); //3m,10m,1h,2h,5h,24h
-		$box_dir = self::get_mailbox_dir($id).$dir;
+		$box = self::get_mailbox_dir($id);
+		$box_dir = $box.$dir;
 		$rate = @file_get_contents($box_dir.'.imap_rate');
 		if($rate===false || !is_numeric($rate)) $rate=2;
 		
-		$last_sync = @file_get_contents($box_dir.'.imap_last_sync');
-		if($last_sync===false) $last_sync=0;
+		$last_sync_file = $box_dir.'.imap_last_sync';
+		$last_sync = @file_get_contents($last_sync_file);
+		if($last_sync===false || !is_numeric($last_sync)) $last_sync=0;
 		$time = time();
 		if($time-$last_sync<$sync_rate[$rate]) return false;
+
+		if(($last_sync_fp = @fopen($last_sync_file,'w'))==false) return false;
+		if (!flock($last_sync_fp, LOCK_EX)) return false;
 		
 		//sync messages
 		$local = self::get_index($id,$dir);
-//		$trash = self::get_index($id,'Trash/');
+		$trash = self::get_index($id,'Trash/');
+		$trash_oryg = array();
+		$trashpath = $box.'Trash/.del';
+		$in = @fopen($trashpath,'r');
+		if($in!==false) {
+			while (($data = fgetcsv($in, 700)) !== false) {
+				$num = count($data);
+				if($num!=3 || $data[1]!=$dir) {
+					unset($trash[$data[0]]);
+					continue;
+				}
+				$trash_oryg[$data[2]] = $data[0];
+			}
+			fclose($in);
+		}
 		if(!empty($local)) {
 			$imap = self::imap_open($id);
 			imap_reopen($imap['connection'],$imap['ref'].$tdir);
-			$remote = imap_fetch_overview($imap['connection'],implode(',',array_keys($local)),FT_UID);
+			$remote = imap_fetch_overview($imap['connection'],implode(',',array_merge(array_keys($local),array_keys($trash_oryg))),FT_UID);
 			foreach($remote as $row) {
-				if($local[$row->uid]['read']!=$row->seen)
-					self::read_msg($id,$dir,$row->uid,$row->seen,false);
-//				if($local[$row->uid]['read']!=$row->deleted)
+				$deleted_uid = isset($trash_oryg[$row->uid])?$trash_oryg[$row->uid]:false;
+				if($deleted_uid!==false) {
+					if($trash[$deleted_uid]['read']!=$row->seen)
+						self::read_msg($id,'Trash/',$row->uid,$row->seen,false);
+					if(!$row->deleted)
+						self::move_msg($id,'Trash/',$id,$dir,$deleted_uid);
+				} else {
+					if($local[$row->uid]['read']!=$row->seen)
+						self::read_msg($id,$dir,$row->uid,$row->seen,false);
+					if($row->deleted)
+						self::move_msg($id,$dir,$id,'Trash/',$row->uid);
+				}
 				unset($local[$row->uid]);
 			}
 			foreach($local as $k=>$v) { //remove remotly deleted messages
@@ -923,7 +946,6 @@ class Apps_MailClientCommon extends ModuleCommon {
 		}
 		
 		//save sync time and rate
-		file_put_contents($box_dir.'.imap_last_sync',$time);
 		if($ret) { //increase sync rate
 			if($rate>0)
 				file_put_contents($box_dir.'.imap_rate',$rate-1);
@@ -931,6 +953,10 @@ class Apps_MailClientCommon extends ModuleCommon {
 			if($rate<count($sync_rate)-1)
 				file_put_contents($box_dir.'.imap_rate',$rate+1);
 		}
+
+		fwrite($last_sync_fp,$time);
+		flock($last_sync_fp, LOCK_UN);
+		fclose($last_sync_fp);
 			
 		return $ret;
 	}

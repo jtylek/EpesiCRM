@@ -231,7 +231,7 @@ class Apps_MailClient extends Module {
 				Epesi::alert($this->ht('Unable to delete message'));
 			}
 		} else {
-			if(Apps_MailClientCommon::move_msg_to_trash($box,$dir,$id)) {
+			if(Apps_MailClientCommon::move_msg($box,$dir,$box,'Trash/',$id)) {
 				Base_StatusBarCommon::message('Message moved to trash');
 			} else {
 				Epesi::alert($this->ht('Unable to move message to trash'));
@@ -250,6 +250,15 @@ class Apps_MailClient extends Module {
 	public function empty_trash() {
 		$box = $this->get_module_variable('opened_box');
 		$dir = $this->get_module_variable('opened_dir');
+		
+		if(Apps_MailClientCommon::is_imap($box)) {
+			$imap = Apps_MailClientCommon::imap_open($box);
+			if(!$imap) {
+				Epesi::alert(Base_LangCommon::ts('Apps_MailClient','Unable to connect to imap server. Action failed.'));
+				return false;
+			}
+			imap_expunge($imap['connection']);
+		}
 
 		$idx = Apps_MailClientCommon::get_index($box,$dir);
 		if($idx===false) {
@@ -290,7 +299,7 @@ class Apps_MailClient extends Module {
 		$orig_box = false;
 		while (($data = fgetcsv($in, 700)) !== false) {
 			$num = count($data);
-			if($num!=2) continue;
+			if($num!=3) continue;
 			if($data[0]==$id) {
 				$orig_box = $data[1];
 				continue;

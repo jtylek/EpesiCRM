@@ -85,9 +85,9 @@ if(isset($_GET['attachment_cid']) || isset($_GET['attachment_name'])) {
 
 	header("Content-type: text/html");
 	if($body_type=='plain') {
-		if(eregi("^(.+)charset=([a-z0-9\-]+)(;.*)$",$body_ctype,$reqs)) {
-			$charset = $reqs[2];
-			$body_ctype = $reqs[1]."charset=utf-8";
+		if(eregi("charset=([a-z0-9\-]+)",$body_ctype,$reqs)) {
+			$charset = $reqs[1];
+			$body_ctype = "text/plain; charset=utf-8";
 			$body = iconv($charset,'UTF-8',$body);
 		}
 		$body = preg_replace("/(http:\/\/[a-z0-9]+(\.[a-z0-9]+)+(\/[\.a-z0-9?=&;]+)*)/i", "<a href='\\1' target=\"_blank\">\\1</a>", htmlspecialchars($body));
