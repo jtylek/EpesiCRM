@@ -791,11 +791,10 @@ class Utils_RecordBrowser extends Module {
 		self::$tab_param = $tb->get_path();
 
 		$form = $this->init_module('Libs/QuickForm',null, $mode);
-		if($mode=='add') {
-			$form->setDefaults($defaults);
+
+		if($mode=='add')
 			foreach ($defaults as $k=>$v)
 				$this->custom_defaults[$k] = $v;
-		}
 
 		$this->fields_permission = $this->get_access('fields', isset($this->record)?$this->record:$this->custom_defaults, isset($this->record)?$mode:'new');
 
@@ -806,12 +805,23 @@ class Utils_RecordBrowser extends Module {
 		if ($dpm!=='') {
 			$method = explode('::',$dpm);
 			if (is_callable($method)) {
-				$theme_stuff = call_user_func($method, $mode!='add'?$this->record:$this->custom_defaults, $mode=='view'?'view':$mode.'ing',$this->tab);
-				if ($mode==='view' && is_array($theme_stuff))
-					foreach ($theme_stuff as $k=>$v)
-						$theme->assign($k, $v);
+				$processing_result = call_user_func($method, $mode!='add'?$this->record:$this->custom_defaults, $mode=='view'?'view':$mode.'ing',$this->tab);
+				if (is_array($processing_result)) {
+					if ($mode==='view')
+							foreach ($processing_result as $k=>$v)
+								$theme->assign($k, $v);
+					foreach ($processing_result as $k=>$v) {
+						$this->record[$k] = $v;
+						$this->custom_defaults[$k] = $v;
+						$defaults[$k] = $v;
+					}
+				}
 			}
 		}
+
+		if($mode=='add')
+			$form->setDefaults($defaults);
+
 		switch ($mode) {
 			case 'add':		$this->action = 'New record'; break;
 			case 'edit':	$this->action = 'Edit record'; break;
