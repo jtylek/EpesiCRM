@@ -39,7 +39,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					return $ret;
 				}
 				$param = explode(';',$args['param']);
-				list($tab, $col) = explode('::',$param[0]);
+				$pp = explode('::',$param[0]);
+				$tab = $pp[0];
+				if (isset($pp[1])) $col = $pp[1]; else return $val;
 				if (!is_array($val)) $val = array($val);
 //				if ($tab=='__COMMON__') $data = Utils_CommonDataCommon::get_translated_array($col, true);
 				$ret = '';
