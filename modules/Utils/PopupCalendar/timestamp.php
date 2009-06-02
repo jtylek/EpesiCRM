@@ -152,7 +152,7 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 			if($value['datepicker']!=='')
 				$value['datepicker'] = strftime('%Y-%m-%d',Base_RegionalSettingsCommon::reg2time($value['datepicker'],false));
 			$this->_elements['datepicker']->setValue($value['datepicker']);
-			$this->_elements['date']->setValue($value['date']);
+			$this->_elements['date']->setValue(isset($value['date'])?$value['date']:'');
 		} else {
 			if (!is_numeric($value)) $value = Base_RegionalSettingsCommon::reg2time($value,false);
 			$value -= (date('i',$value) % $this->_options['optionIncrement']['i'])*60;
