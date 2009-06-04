@@ -35,6 +35,7 @@ function get_mime_type($filepath,$original) {
 	}
 
 	preg_match("/\.(.*?)$/", $original, $m);
+	if(!isset($m[1])) return "application/octet-stream";
 	switch(strtolower($m[1])){
        // case "js": return "application/javascript";
        // case "json": return "application/json";
