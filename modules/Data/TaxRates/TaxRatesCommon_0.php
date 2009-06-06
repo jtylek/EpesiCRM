@@ -17,6 +17,7 @@ class Data_TaxRatesCommon extends Base_AdminModuleCommon {
 	public static function get_tax_details() {
 		static $cache = null;
 		if ($cache===null) {
+			$cache = array();
 			$r = Utils_RecordBrowserCommon::get_records('data_tax_rates');
 			foreach ($r as $v) $cache[$v['id']] = array('name'=>$v['name'],'percentage'=>$v['percentage']);
 		}
