@@ -3,9 +3,12 @@ header("Content-type: text/javascript");
 header("Cache-Control: no-cache, must-revalidate");
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // date in the past
 
-define('CID',false);
+if(!isset($_POST['cid']) || !is_numeric($_POST['cid']))
+	die('Client id not defined.');
+
+define('CID',$_POST['cid']);
 define('READ_ONLY_SESSION',true);
-define('READ_ONLY_SESSION',true);
+define('MAILCLIENT_CACHE',true);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 @set_time_limit(0);
@@ -25,7 +28,14 @@ foreach($accounts as $a) {
 	if(Apps_MailClientCommon::imap_sync_mailbox_dir($a['id']))
 		$refresh=true;
 	//sync inbox(without subdirs) messages
-	if(Apps_MailClientCommon::imap_get_new_messages($a['id'],'Inbox/'))
+	$local_dirs = Apps_MailClientCommon::get_mailbox_structure($a['id']);
+	$inbox = null;
+	foreach($local_dirs as $k=>$arr)
+		if(strcasecmp($k,'inbox')==0) {
+			$inbox = $k;
+			break;
+		}
+	if($inbox && Apps_MailClientCommon::imap_get_new_messages($a['id'],$inbox.'/'))
 		$refresh=true;
 }
 
@@ -35,5 +45,6 @@ foreach($accounts as $a) {
 		$refresh=true;
 }
 
+Epesi::send_output();
 print(($refresh?'Apps_MailClient.refresh_ui();':'').'setTimeout(\'Apps_MailClient.cache_mailboxes()\',30000);');//30s
 ?>

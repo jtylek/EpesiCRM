@@ -119,14 +119,14 @@ class Apps_MailClientCommon extends ModuleCommon {
 	////////////////////////////////////////////////////
 	// scan mail dir, etc
 
-	public static function create_mailbox_dir($id) {
-		//TODO: check protocol, on imap get lsub and create dirs
+	public static function create_mailbox_dir($id,$imap_create = true) {
 		$acc_dir = self::Instance()->get_data_dir().$id.'/';
-		if (!is_dir($acc_dir)) mkdir($acc_dir,0777,true);
+		if (!is_dir($acc_dir)) mkdir($acc_dir);
 		$dirs = array('Inbox','Sent','Trash','Drafts');
-		file_put_contents($acc_dir.'.dirs',implode(",",$dirs));
-		foreach($dirs as $d)
-			@mkdir($acc_dir.$d);
+		foreach($dirs as $d) {
+			self::create_mailbox_subdir($id,$d.'/',$imap_create);
+		}
+		return true;
 	}
 	
 	public static function is_imap($id) {
@@ -135,25 +135,26 @@ class Apps_MailClientCommon extends ModuleCommon {
 	}
 	
 	public static function create_mailbox_subdir($id,$new_name,$imap_create=true) {
-		if($imap_create) {
-			if(self::is_imap($id)) {
+		$mbox_dir = Apps_MailClientCommon::get_mailbox_dir($id);
+		if(file_exists($mbox_dir.$new_name)) return true;
+
+		if($imap_create && self::is_imap($id)) {
 		    		$imap = self::imap_open($id);
 				if(!$imap) {
-					Epesi::alert(Base_LangCommon::ts('Apps_MailClient','Unable to connect to imap server. Action failed.'));
-					return;
+					return false;
 				}
 				$iname = $imap['ref'].rtrim($new_name,'/');
 				$iname = imap_utf7_encode($iname);
-				if(!imap_createmailbox($imap['connection'],$iname)) {
-					Epesi::alert(Base_LangCommon::ts('Apps_MailClient','Unable to create directory on imap server.'));
-					return;				
+				$st = imap_status($imap['connection'],$iname,SA_UIDNEXT);
+				if(!$st) {
+				        imap_createmailbox($imap['connection'],$iname);
+					imap_subscribe($imap['connection'],$iname);
+					if(self::imap_errors('Unable to create directory on imap server.')) {
+					        return false;
+					}
 				}
-				if(!imap_subscribe($imap['connection'],$iname)) {
-					Epesi::alert(Base_LangCommon::ts('Apps_MailClient','Unable to subscribe to directory on imap server.'));
-					return;				
-				}
-			}
 		}
+		
 		
 		//local
 		$mbox_dir = Apps_MailClientCommon::get_mailbox_dir($id);
@@ -172,32 +173,40 @@ class Apps_MailClientCommon extends ModuleCommon {
 			}
 			$all_last = $all;
 		}
+		return true;
 	}
 	
 	public static function remove_mailbox_subdir($id,$dir,$imap_remove=true) {
-		if($imap_remove) {
-			if(self::is_imap($id)) {
+		if($imap_remove && self::is_imap($id)) {
 		    		$imap = self::imap_open($id);
 				if(!$imap) {
-					Epesi::alert(Base_LangCommon::ts('Apps_MailClient','Unable to connect to imap server. Action failed.'));
-					return;
+					return false;
 				}
 				$iname = $imap['ref'].rtrim($dir,'/');
 				$iname = imap_utf7_encode($iname);
-				if(!imap_deletemailbox($imap['connection'],$iname)) {
-					Epesi::alert(Base_LangCommon::ts('Apps_MailClient','Unable to remove directory on imap server.'));
-					return;
+				$st = imap_status($imap['connection'],$iname,SA_UIDNEXT);
+				if(!$st) {
+					return false;
 				}
-			}
+				imap_unsubscribe($imap['connection'],$iname);
+				imap_deletemailbox($imap['connection'],$iname);
+				if(self::imap_errors('Unable to remove directory on imap server')) {
+					return false;
+				}
 		}
 
 		$mbox_dir = Apps_MailClientCommon::get_mailbox_dir($id);
 		recursive_rmdir($mbox_dir.$dir);
-		$parent_dir = substr($dir,0,strrpos(rtrim($dir,'/'),'/')+1);
+		$pos = strrpos(rtrim($dir,'/'),'/');
+		if($pos)
+			$parent_dir = substr($dir,0,$pos+1);
+		else
+			$parent_dir = '';
 		$ret = explode(',',file_get_contents($mbox_dir.$parent_dir.'.dirs'));
 		$removed = substr($dir,strlen($parent_dir),-1);
 		$ret = array_filter($ret,create_function('$o','return $o!="'.$removed.'";'));
 		file_put_contents($mbox_dir.$parent_dir.'.dirs',implode(',',$ret));
+		return true;
 	}
 	
 	public static function rename_mailbox_subdir($id,$old,$new,$imap_rename=true) {
@@ -205,31 +214,25 @@ class Apps_MailClientCommon extends ModuleCommon {
 			if(self::is_imap($id)) {
 		    		$imap = self::imap_open($id);
 				if(!$imap) {
-					Epesi::alert(Base_LangCommon::ts('Apps_MailClient','Unable to connect to imap server. Action failed.'));
-					return;
+					return false;
 				}
 				$iname = $imap['ref'].rtrim($old,'/');
 				$iname = imap_utf7_encode($iname);
 				
 				$oname = $imap['ref'].rtrim($new,'/');
 				$oname = imap_utf7_encode($oname);
-				if(!imap_renamemailbox($imap['connection'],$iname,$oname)) {
-					Epesi::alert(Base_LangCommon::ts('Apps_MailClient','Unable to rename directory on imap server.'));
-					return;
-				}
-				if(!imap_subscribe($imap['connection'],$oname)) {
-					Epesi::alert(Base_LangCommon::ts('Apps_MailClient','Unable to subscribe to directory on imap server.'));
-					return;				
+
+				imap_unsubscribe($imap['connection'],$iname);
+				imap_renamemailbox($imap['connection'],$iname,$oname);
+				imap_subscribe($imap['connection'],$oname);
+				if(self::imap_errors('Unable to rename directory on imap server.')) {
+					return false;
 				}
 			}
 		}
 		
 		//local
 		$mbox_dir = Apps_MailClientCommon::get_mailbox_dir($id);
-		if($mbox_dir===false) {
-			Epesi::alert($this->ht('Invalid mailbox'));
-			return;
-		}
 		rename($mbox_dir.$old,$mbox_dir.$new);
 		$dir = dirname(rtrim($old,'/')).'/';
 		$old_name = basename(rtrim($old,'/'));
@@ -238,13 +241,14 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$ret = array_filter($ret,create_function('$o','return $o!="'.$old_name.'";'));
 		$ret[] = $new_name;
 		file_put_contents($mbox_dir.$dir.'.dirs',implode(',',$ret));
+		return true;
 	}
 
 	public static function create_internal_mailbox($user=null) {
 		if($user===null) $user = Acl::get_user();
 		DB::Execute('INSERT INTO apps_mailclient_accounts(user_login_id,mail,login,password,incoming_server,incoming_protocol) VALUES(%d,\'#internal\',\'\',\'\',\'\',2)',array($user));
 		$id = DB::Insert_ID('apps_mailclient_accounts','id');
-		Apps_MailClientCommon::create_mailbox_dir($id);
+		Apps_MailClientCommon::create_mailbox_dir($id,false);
 		return $id;
 	}
 	
@@ -433,7 +437,6 @@ class Apps_MailClientCommon extends ModuleCommon {
 		if($is_imap) {
 			$imap = self::imap_open($id);
 			if(!$imap) {
-				Epesi::alert(Base_LangCommon::ts('Apps_MailClient','Unable to connect to imap server. Action failed.'));
 				self::unlock_mailbox_dir($id,$dir,'idx');
 				return false;
 			}
@@ -583,11 +586,13 @@ class Apps_MailClientCommon extends ModuleCommon {
 			return false;
 		}
 
-		self::unlock_mailbox_dir($box,$dir,'idx');
-		self::unlock_mailbox_dir($box2,$dir2,'idx');
 		if(!self::remove_msg($box,$dir,$id)) {
+			self::unlock_mailbox_dir($box,$dir,'idx');
+			self::unlock_mailbox_dir($box2,$dir2,'idx');
 			return false;
 		}
+		self::unlock_mailbox_dir($box,$dir,'idx');
+		self::unlock_mailbox_dir($box2,$dir2,'idx');
 
 		if($dir=='Trash/' && self::lock_mailbox_dir($box,$dir,'trash')) {		
 			$trashpath = $boxpath.'.del';
@@ -646,7 +651,6 @@ class Apps_MailClientCommon extends ModuleCommon {
 		if($imap_seen && self::is_imap($box)) {
 			$imap = self::imap_open($box);
 			if(!$imap) {
-				Epesi::alert(Base_LangCommon::ts('Apps_MailClient','Unable to connect to imap server. Action failed.'));
 				self::unlock_mailbox_dir($box,$dir,'idx');
 				return false;
 			}
@@ -795,15 +799,25 @@ class Apps_MailClientCommon extends ModuleCommon {
 			self::$lock_fp[$id] = array();
 		if(!isset(self::$lock_fp[$id][$dir]))
 			self::$lock_fp[$id][$dir] = array();
-		
-		if((self::$lock_fp[$id][$dir][$name] = @fopen($box_dir.'.'.$name.'_lock','w'))==false) return false;
-		if (!flock(self::$lock_fp[$id][$dir][$name], LOCK_EX)) return false;
+		if(isset(self::$lock_fp[$id][$dir][$name])) {
+			self::$lock_fp[$id][$dir][$name]['count']++;
+		} else {
+			$fp = @fopen($box_dir.'.'.$name.'_lock','w');
+			if($fp==false) return false;
+			if (!flock($fp, LOCK_EX)) return false;
+			self::$lock_fp[$id][$dir][$name] = array('count'=>1, 'fp'=>$fp);
+		}
 		return true;
 	}
 
 	public static function unlock_mailbox_dir($id,$dir,$name) {
-		flock(self::$lock_fp[$id][$dir][$name], LOCK_UN);
-		fclose(self::$lock_fp[$id][$dir][$name]);
+		if(self::$lock_fp[$id][$dir][$name]['count']>1) {
+			self::$lock_fp[$id][$dir][$name]['count']--;
+		} else {
+			flock(self::$lock_fp[$id][$dir][$name]['fp'], LOCK_UN);
+			fclose(self::$lock_fp[$id][$dir][$name]['fp']);
+			unset(self::$lock_fp[$id][$dir][$name]);
+		}
 	}
 	
 	private static $imap_connections;
@@ -830,22 +844,43 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$user = $v['login'];
 		$pass = $v['password'];
 
-		$imap_ref = '{'.$host.':'.$port.'/imap'.($ssl?'/ssl/novalidate-cert':'').'}';
+		$imap_ref = '{'.$host.':'.$port.'/imap/novalidate-cert'.($ssl?'/ssl':'').'}';
 		$imap = @imap_open($imap_ref, $user,$pass, OP_HALFOPEN);
-		self::$imap_connections[$id] = array('connection'=>& $imap, 'ref'=>$imap_ref, 'addr'=>$v['mail']);
+		if($imap) {
+			self::$imap_connections[$id] = array('connection'=>$imap, 'ref'=>$imap_ref, 'addr'=>$v['mail']);
+			$online='1';
+		} else {
+			if(!defined('MAILCLIENT_CACHE'))
+				Epesi::alert(Base_LangCommon::ts('Apps_MailClient','Unable to connect imap server: '.$host));
+			$online='0';
+			self::$imap_connections[$id] = false;
+			imap_errors(); //flush imap errors
+		}
+		$mbox_dir = self::Instance()->get_data_dir().$id;
+		if(!is_dir($mbox_dir))
+			@mkdir($mbox_dir);
+		$status_file = $mbox_dir.'/.imap_online';
+		file_put_contents($status_file,$online);
 		return self::$imap_connections[$id];
+	}
+	
+	public static function is_online($id) {
+		static $cache;
+		if(!isset($cache)) $cache = array();
+		if(isset($cache[$id]))
+			return $cache[$id];
+		return $cache[$id] = !Apps_MailClientCommon::is_imap($id) || @file_get_contents(self::get_mailbox_dir($id).'.imap_online');
 	}
 	
 	public static function imap_close() {
 		if(isset(self::$imap_connections))
 			foreach(self::$imap_connections as $c) 
-				imap_close($c['connection']);
+				if($c) imap_close($c['connection']);
 	}
 
 	public static function imap_sync_mailbox_dir($id) {
 		$imap = self::imap_open($id);
-		if ($imap['connection']==false) {
-			Epesi::alert(Base_LangCommon::ts('Apps_MailClient','Unable to connect to imap server.'));
+		if (!$imap) {
 			return false;
 		}
 		
@@ -922,12 +957,17 @@ class Apps_MailClientCommon extends ModuleCommon {
 		if($box_root===false) return false;
 
 		$imap = self::imap_open($id);
+		if(!$imap) return false;
 		imap_reopen($imap['connection'],$imap['ref'].$tdir);
 		$st = imap_status($imap['connection'],$imap['ref'].$tdir,SA_UIDNEXT);
+		if(self::imap_errors('Unable to get status of directory: '.$dir.'.'))
+			return false;
 		$last_uid = $st->uidnext-1;
 		$first_uid = self::get_msg_id($id,$dir)+1;
 		if($first_uid>$last_uid) return 0;
 		$l=imap_fetch_overview($imap['connection'],$first_uid.':'.$last_uid,FT_UID); //list of new messages
+		if(self::imap_errors('Unable to get status of directory: '.$dir.'.'))
+			return false;
 		
 		$downloaded = 0; //number of new messages
 
@@ -1004,6 +1044,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		}
 		if(!empty($local)) {
 			$imap = self::imap_open($id);
+			if(!$imap) return false;
 			imap_reopen($imap['connection'],$imap['ref'].$tdir);
 			$remote = imap_fetch_overview($imap['connection'],implode(',',array_merge(array_keys($local),array_keys($trash_oryg))),FT_UID);
 			foreach($remote as $row) {
@@ -1067,6 +1108,15 @@ class Apps_MailClientCommon extends ModuleCommon {
 		}
 		return $ret;
 
+	}
+	
+	public static function imap_errors($msg='') {
+		$err = imap_errors();
+		if($err) {
+			Epesi::alert(Base_LangCommon::ts('Apps_MailClient',$msg)."\n".'IMAP errors: '.implode(', ',$err));
+			return true;
+		}
+		return false;
 	}
 }
 load_js('modules/Apps/MailClient/utils.js');

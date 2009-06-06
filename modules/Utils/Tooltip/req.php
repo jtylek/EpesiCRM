@@ -1,16 +1,11 @@
 <?php
 /**
- * WARNING: This is a commercial software
- * Please see the included license.html file for more information
- *
- * Warehouse - Items Orders
- *
  * @author Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2008, Telaxus LLC
- * @license Commercial
+ * @license MIT
  * @version 1.0
- * @package epesi-premium
- * @subpackage warehouse-items-orders
+ * @package epesi-utils
+ * @subpackage tooltip
  */
 if(!isset($_POST['tooltip_id']) || !isset($_POST['cid']))
 	die('Invalid request'.print_r($_POST,true));

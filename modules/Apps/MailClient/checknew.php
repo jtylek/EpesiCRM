@@ -50,7 +50,7 @@ foreach($accounts as $account) {
 	$native_support = false;
 	if(function_exists('imap_open')) {
 		$native_support = true;
-		$in = @imap_open('{'.$host.':'.($port?$port:'110').'/pop3'.($ssl?'/notls/ssl/novalidate-cert':'').'}', $user,$pass);
+		$in = @imap_open('{'.$host.':'.($port?$port:'110').'/pop3/novalidate-cert'.($ssl?'/notls/ssl':'').'}', $user,$pass);
 		if(!$in) {
 			message($account['id'],$account['mail'].': (connect error) '.implode(', ',imap_errors()));
 			continue;

@@ -184,6 +184,9 @@ cache_mailboxes_start: function() {
 },
 cache_mailboxes: function() {
 	new Ajax.Request('modules/Apps/MailClient/cache.php', {
+			parameters: {
+				cid: Epesi.client_id
+			},
 			method: 'post',
 			onComplete: function(t) {
 			},

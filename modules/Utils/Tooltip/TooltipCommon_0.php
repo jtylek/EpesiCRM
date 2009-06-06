@@ -22,37 +22,21 @@ class Utils_TooltipCommon extends ModuleCommon {
 			self::$help_tooltips = Base_User_SettingsCommon::get('Utils/Tooltip','help_tooltips');
 	}
 	
-	private static function init_tooltip_div(){
+	public static function init_tooltip_div(){
 		if(!isset($_SESSION['client']['utils_tooltip']['div_exists'])) {
 			$smarty = Base_ThemeCommon::init_smarty();
 			$smarty->assign('tip','<span id="tooltip_text"></span>');
 			ob_start();
 			Base_ThemeCommon::display_smarty($smarty,'Utils_Tooltip');
 			$tip_th = ob_get_clean();
-			$js = 'div = document.createElement(\'div\');'.
-				'div.id = \'tooltip_div\';'.
-				'div.style.position = \'absolute\';'.
-				'div.style.display = \'none\';'.
-				'div.style.zIndex = 2000;'.
-				'div.style.left = 0;'.
-				'div.style.top = 0;'.
-				'div.onmouseover = "Utils_Tooltip__hideTip()";'.
-				'div.innerHTML = \''.Epesi::escapeJS($tip_th,false).'\';'.
-				'body = document.getElementsByTagName(\'body\');'.
-				'body = body[0];'.
-				'document.body.appendChild(div);';
-			eval_js($js,false);
+			eval_js('Utils_Tooltip__create_block(\''.Epesi::escapeJS($tip_th,false).'\')',false);
 			$_SESSION['client']['utils_tooltip']['div_exists'] = true;
 		}
-		static $on_exit_defined = false;
-		if (!$on_exit_defined) {
-			on_exit(array('Utils_TooltipCommon', 'hide_tooltip'),false);
-			$on_exit_defined = true;
-		}
+		on_exit(array('Utils_TooltipCommon', 'hide_tooltip'),false);
 	}
 	
 	public static function hide_tooltip() {
-		eval_js('if($("tooltip_div"))$("tooltip_div").style.display=\'none\';');		
+		eval_js('Utils_Tooltip__hideTip()');
 	}
 
 	/**
@@ -67,9 +51,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 		if(MOBILE_DEVICE) return '';
 		self::show_help();
 		if($help && !self::$help_tooltips) return '';
-		load_js('modules/Utils/Tooltip/js/Tooltip.js');
-		self::init_tooltip_div();
-		return ' onMouseMove="if(typeof(Utils_Toltip__showTip)!=\'undefined\')Utils_Toltip__showTip(this,event,'.$max_width.')" tip="'.htmlspecialchars($tip).'" onMouseOut="if(typeof(Utils_Toltip__hideTip)!=\'undefined\')Utils_Toltip__hideTip()" onMouseUp="if(typeof(Utils_Toltip__hideTip)!=\'undefined\')Utils_Toltip__hideTip()" ';
+		return ' onMouseMove="if(typeof(Utils_Tooltip__showTip)!=\'undefined\')Utils_Tooltip__showTip(this,event,'.$max_width.')" tip="'.htmlspecialchars($tip).'" onMouseOut="if(typeof(Utils_Tooltip__hideTip)!=\'undefined\')Utils_Tooltip__hideTip()" onMouseUp="if(typeof(Utils_Tooltip__hideTip)!=\'undefined\')Utils_Tooltip__hideTip()" ';
 	}
 
 	/**
@@ -83,12 +65,10 @@ class Utils_TooltipCommon extends ModuleCommon {
 	public static function ajax_open_tag_attrs( $callback, $args, $max_width=300 ) {
 		if(MOBILE_DEVICE) return '';
 		static $tooltip_id = 0;
-		load_js('modules/Utils/Tooltip/js/Tooltip.js');
-		self::init_tooltip_div();
 		$tooltip_id++;
 		$_SESSION['client']['utils_tooltip']['callbacks'][$tooltip_id] = array('callback'=>$callback, 'args'=>$args);
 		$loading_message = '<center><img src='.Base_ThemeCommon::get_template_file('Utils_Tooltip','loader.gif').' /><br/>'.Base_LangCommon::ts('Utils_Tooltip','Loading...').'</center>';
-		return ' onMouseMove="if(typeof(Utils_Toltip__showTip)!=\'undefined\')Utils_Toltip__load_ajax_Tip(this,event,'.$max_width.')" tip="'.$loading_message.'" tooltip_id="'.$tooltip_id.'" onMouseOut="if(typeof(Utils_Toltip__hideTip)!=\'undefined\')Utils_Toltip__hideTip()" onMouseUp="if(typeof(Utils_Toltip__hideTip)!=\'undefined\')Utils_Toltip__hideTip()" ';
+		return ' onMouseMove="if(typeof(Utils_Tooltip__showTip)!=\'undefined\')Utils_Tooltip__load_ajax_Tip(this,event,'.$max_width.')" tip="'.$loading_message.'" tooltip_id="'.$tooltip_id.'" onMouseOut="if(typeof(Utils_Tooltip__hideTip)!=\'undefined\')Utils_Tooltip__hideTip()" onMouseUp="if(typeof(Utils_Tooltip__hideTip)!=\'undefined\')Utils_Tooltip__hideTip()" ';
 	}
 
 	/**
@@ -126,5 +106,8 @@ class Utils_TooltipCommon extends ModuleCommon {
 		return $table;
 	}
 }
+
+load_js('modules/Utils/Tooltip/js/Tooltip.js');
+Utils_TooltipCommon::init_tooltip_div();
 
 ?>

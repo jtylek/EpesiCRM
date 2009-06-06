@@ -1,4 +1,4 @@
-Utils_Toltip__showTip = function(o,my_event,max_width) {
+Utils_Tooltip__showTip = function(o,my_event,max_width) {
 	var div_tip = $('tooltip_div');
 	var tooltip_text = $('tooltip_text');
 	var tip = o.getAttribute('tip');
@@ -39,11 +39,11 @@ Utils_Toltip__showTip = function(o,my_event,max_width) {
 	div_tip.style.display = 'block';
 }
 
-Utils_Toltip__load_ajax_Tip = function(o,my_event,max_width) {
+Utils_Tooltip__load_ajax_Tip = function(o,my_event,max_width) {
 	tooltip_id = o.getAttribute('tooltip_id');
 	o.setAttribute('tooltip_id','done');
 	if (tooltip_id!='done') {
-		Utils_Toltip__showTip(o,my_event);
+		Utils_Tooltip__showTip(o,my_event);
 		new Ajax.Request('modules/Utils/Tooltip/req.php', {
 			method: 'post',
 			parameters:{
@@ -56,10 +56,25 @@ Utils_Toltip__load_ajax_Tip = function(o,my_event,max_width) {
 			}
 		});
 	} else {
-		Utils_Toltip__showTip(o,my_event,max_width);
+		Utils_Tooltip__showTip(o,my_event,max_width);
 	}
 }
 
-Utils_Toltip__hideTip = function() {
+Utils_Tooltip__hideTip = function() {
 	$('tooltip_div').style.display = 'none';
 } 
+
+Utils_Tooltip__create_block = function(template) {
+	div = document.createElement('div');
+	div.id = 'tooltip_div';
+	div.style.position = 'absolute';
+	div.style.display = 'none';
+	div.style.zIndex = 2000;
+	div.style.left = 0;
+	div.style.top = 0;
+	div.onmouseover = "Utils_Tooltip__hideTip()";
+	div.innerHTML = template;
+	body = document.getElementsByTagName('body');
+	body = body[0];
+	document.body.appendChild(div);
+}

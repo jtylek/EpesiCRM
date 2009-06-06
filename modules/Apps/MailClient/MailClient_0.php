@@ -41,6 +41,12 @@ class Apps_MailClient extends Module {
 			$boxes = Apps_MailClientCommon::get_mailbox_data(null,false);
 		}
 
+		if(!$this->isset_module_variable('opened_box')) {
+			$v = current($boxes);
+			$this->set_module_variable('opened_box',$v['id']);
+			$this->set_module_variable('opened_dir','Inbox/');
+		}
+
 		$box = $this->get_module_variable('opened_box');
 		$dir = $this->get_module_variable('opened_dir');
 		$preview_id = 'mail_view';
@@ -60,13 +66,10 @@ class Apps_MailClient extends Module {
 		$tree = array();
 		$move_folders = array();
 		foreach($boxes as $v) {
-			if(!$this->isset_module_variable('opened_box')) {
-				$this->set_module_variable('opened_box',$v['id']);
-				$this->set_module_variable('opened_dir','Inbox/');
-			}
 			$str[$v['mail']] = Apps_MailClientCommon::get_mailbox_structure($v['id']);
 			$name = $v['mail']=='#internal'?$this->t('Private messages'):$v['mail'];
-			$open_cb = '<a '.$this->create_callback_href(array($this,'open_mail_dir_callback'),array($v['id'],'Inbox/')).'>'.$name.'</a>';
+			$online = Apps_MailClientCommon::is_online($v['id']);
+			$open_cb = '<a '.$this->create_callback_href(array($this,'open_mail_dir_callback'),array($v['id'],'Inbox/')).'>'.$name.($online?'':' '.$this->ht('(Offline)')).'</a>';
 			$tree[] = array('name'=>$open_cb, 'sub'=>$this->get_tree_structure($str[$v['mail']],$v['id']));
 			$move_folders = array_merge($move_folders,$this->get_move_folders($str[$v['mail']],$name,$v['id']));
 		}
@@ -147,6 +150,7 @@ class Apps_MailClient extends Module {
 		$gb->force_per_page(10);
 
 		$limit_max = count($box_idx);
+		$imap_online = Apps_MailClientCommon::is_online($box);
 
 		foreach($box_idx as $id=>$data) {
 			$r = $gb->get_new_row();
@@ -157,19 +161,21 @@ class Apps_MailClient extends Module {
 			if(strlen($subject)>40) $subject = Utils_TooltipCommon::create(substr($subject,0,38).'...',$subject);
 			$r->add_data($id,array('value'=>'<a href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.http_build_query(array('box'=>$box, 'dir'=>$dir, 'msg_id'=>$id, 'pid'=>$preview_id)).'\',\''.$id.'\')" id="apps_mailclient_msg_'.$id.'" '.($data['read']?'':'style="font-weight:bold"').'>'.$subject.'</a>','order_value'=>$subject),htmlentities($to_address),htmlentities($from_address),array('value'=>Base_RegionalSettingsCommon::time2reg($data['date']), 'order_value'=>strtotime($data['date'])),array('style'=>'text-align:right','value'=>filesize_hr($data['size']), 'order_value'=>$data['size']));
 			$lid = 'mailclient_link_'.$id;
-			$r->add_action($this->create_confirm_callback_href($this->ht('Delete this message?'),array($this,'remove_mail'),array($box,$dir,$id)),'Delete');
-			if($drafts_folder) {
-				$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box,$dir,$id,'edit')),'Edit');
-			} elseif($sent_folder) {
-				$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box,$dir,$id,'edit_as_new')),'Edit');
-			} elseif($trash_folder) {
-				$r->add_action($this->create_callback_href(array($this,'restore_mail'),array($box,$dir,$id)),'Restore');
-			} else {
-				$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box,$dir,$id,'reply')),'Reply',null,Base_ThemeCommon::get_template_file($this->get_type(),'reply.png'));
+			if($imap_online) {
+				$r->add_action($this->create_confirm_callback_href($this->ht('Delete this message?'),array($this,'remove_mail'),array($box,$dir,$id)),'Delete');
+				if($drafts_folder) {
+					$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box,$dir,$id,'edit')),'Edit');
+				} elseif($sent_folder) {
+					$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box,$dir,$id,'edit_as_new')),'Edit');
+				} elseif($trash_folder) {
+					$r->add_action($this->create_callback_href(array($this,'restore_mail'),array($box,$dir,$id)),'Restore');
+				} else {
+					$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box,$dir,$id,'reply')),'Reply',null,Base_ThemeCommon::get_template_file($this->get_type(),'reply.png'));
+				}
+				$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box,$dir,$id,'forward')),'Forward',null,Base_ThemeCommon::get_template_file($this->get_type(),'forward.png'));
+				$r->add_action(Libs_LeightboxCommon::get_open_href('mail_actions').' id="actions_button_'.$id.'"','Actions',null,Base_ThemeCommon::get_template_file($this->get_type(),'actions.png'));
+				$r->add_js('Event.observe(\'actions_button_'.$id.'\',\'click\',function() {Apps_MailClient.actions_set_id(\''.$id.'\')})');
 			}
-			$r->add_action($this->create_callback_href(array($this,'edit_mail'),array($box,$dir,$id,'forward')),'Forward',null,Base_ThemeCommon::get_template_file($this->get_type(),'forward.png'));
-			$r->add_action(Libs_LeightboxCommon::get_open_href('mail_actions').' id="actions_button_'.$id.'"','Actions',null,Base_ThemeCommon::get_template_file($this->get_type(),'actions.png'));
-			$r->add_js('Event.observe(\'actions_button_'.$id.'\',\'click\',function() {Apps_MailClient.actions_set_id(\''.$id.'\')})');
 		}
 
 		//list of messages/preview
@@ -254,7 +260,6 @@ class Apps_MailClient extends Module {
 		if(Apps_MailClientCommon::is_imap($box)) {
 			$imap = Apps_MailClientCommon::imap_open($box);
 			if(!$imap) {
-				Epesi::alert(Base_LangCommon::ts('Apps_MailClient','Unable to connect to imap server. Action failed.'));
 				return false;
 			}
 			imap_expunge($imap['connection']);
@@ -370,6 +375,7 @@ class Apps_MailClient extends Module {
 		$opened_box = $this->get_module_variable('opened_box');
 		$opened_dir = $this->get_module_variable('opened_dir');
 		$ret = array();
+		$imap_online = Apps_MailClientCommon::is_online($box);
 		foreach($str as $k=>$v) {
 			$cr = $create_dir;
 			$ed = $edit_dir;
@@ -388,11 +394,11 @@ class Apps_MailClient extends Module {
 			$unread_msgs = $msgs['unread'];
 			$num_of_msgs = $msgs['all'];
 			$arr['name'] = '<a '.$this->create_callback_href(array($this,'open_mail_dir_callback'),array($box,$p)).'>'.$arr['name'].($num_of_msgs!==false?' ('.($unread_msgs?$unread_msgs.'/':'').$num_of_msgs.')':'').'</a>';
-			if($cr)
+			if($cr && $imap_online)
 				$arr['name'] .= '<a '.$this->create_callback_href(array($this,'edit_folder_callback'),array($box,$p)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','create_folder.png').'" border="0"></a>';
-			if($ed)
+			if($ed && $imap_online)
 				$arr['name'] .= '<a '.$this->create_callback_href(array($this,'edit_folder_callback'),array($box,$dir,$k)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','edit_folder.png').'" border="0"></a>';
-			if($del)
+			if($del && $imap_online)
 				$arr['name'] .= '<a '.$this->create_confirm_callback_href($this->ht('Delete this folder with all messages and subfolders?'),array($this,'delete_folder_callback'),array($box,$p)).'><img src="'.Base_ThemeCommon::get_template_file('Apps_MailClient','delete_folder.png').'" border="0"></a>';
 
 			if((!$ed || !$del) && strcasecmp($p,'Inbox/')==0) {
@@ -422,6 +428,8 @@ class Apps_MailClient extends Module {
 		$f->addElement('hidden','action','send','id="new_mail_action"');
 
 		$from_mails = DB::GetAssoc('SELECT id,mail FROM apps_mailclient_accounts WHERE smtp_server is not null AND smtp_server!=\'\' AND user_login_id='.Acl::get_user().' ORDER BY mail');
+		foreach($from_mails as $idk=>$mk)
+			if(!Apps_MailClientCommon::is_online($idk)) unset($from_mails[$idk]);
 		if($from_mails)
 			$from = $from_mails;
 		else
@@ -897,10 +905,11 @@ class Apps_MailClient extends Module {
 				if(!$native_support)
 					$dbup['incoming_protocol'] = 0;
 				DB::Replace('apps_mailclient_accounts', $dbup, array('id'), true,true);
-				if($action=='new') {
+				if($action=='new')
 					$id = DB::Insert_ID('apps_mailclient_accounts','id');
+				Apps_MailClientCommon::get_mailbox_data($id,$use_cache=false);
+				if($action=='new')
 					Apps_MailClientCommon::create_mailbox_dir($id);
-				}
 				if($values['incoming_protocol']==1) { //imap
 					eval_js('Apps_MailClient.cache_mailboxes_start()');//make sure cache is working
 				}

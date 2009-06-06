@@ -203,17 +203,17 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		elseif (!isset(self::$hash[$field])) trigger_error('get_value(): Unknown column: '.$field, E_USER_ERROR);
 		return DB::GetOne('SELECT f_'.$field.' FROM '.$tab.'_data_1 WHERE id=%d', array($id));
 	}
-	public static function count_possible_values($tab, $field) {
+	public static function count_possible_values($tab, $field) { //it ignores empty values!
 		self::init($tab);
 		if (isset(self::$table_rows[$field])) $field = self::$table_rows[$field]['id'];
-		elseif (!isset(self::$hash[$field])) trigger_error('get_value(): Unknown column: '.$field, E_USER_ERROR);
+		elseif (!isset(self::$hash[$field])) trigger_error('count_possible_values(): Unknown column: '.$field, E_USER_ERROR);
 		$par = self::build_query($tab, array('!'.$field=>''));
 		return DB::GetOne('SELECT COUNT(DISTINCT(f_'.$field.')) FROM '.$par['sql'], $par['vals']);
 	}
 	public static function get_possible_values($tab, $field) {
 		self::init($tab);
 		if (isset(self::$table_rows[$field])) $field = self::$table_rows[$field]['id'];
-		elseif (!isset(self::$hash[$field])) trigger_error('get_value(): Unknown column: '.$field, E_USER_ERROR);
+		elseif (!isset(self::$hash[$field])) trigger_error('get_possible_values(): Unknown column: '.$field, E_USER_ERROR);
 		$par = self::build_query($tab, array('!'.$field=>''));
 		return DB::GetCol('SELECT MIN(id) FROM'.$par['sql'].' GROUP BY f_'.$field, $par['vals']);
 	}
