@@ -200,6 +200,10 @@ function leightbox_deactivate(name) {
 for(i=0;i<leightboxes.length;i++)if(leightboxes[i].content==name){leightboxes[i].deactivate();break;}
 }
 
+function leightbox_activate(name) {
+for(i=0;i<leightboxes.length;i++)if(leightboxes[i].content==name){leightboxes[i].activate();break;}
+}
+
 addLeightboxMarkup();
 getBrowserInfo();
 
