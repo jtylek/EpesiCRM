@@ -328,7 +328,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 				$form->addElement('checkbox', 'create_company', Base_LangCommon::ts('CRM/Contacts','Create new company'), null, array('onClick'=>'document.getElementsByName("company_namefrom[]")[0].disabled=document.getElementsByName("company_nameto[]")[0].disabled=this.checked;document.getElementsByName("create_company_name")[0].disabled=!this.checked;'));
 				$form->addElement('text', 'create_company_name', Base_LangCommon::ts('CRM/Contacts','New company name'), array('disabled'=>1));
 				$form->addFormRule(array('CRM_ContactsCommon', 'check_new_company_name'));
-				if (isset($rb)) $form->setDefaults(array('create_company_name'=>$rb->record['last_name'].' '.$rb->record['first_name']));
+				if (isset($rb) && isset($rb->record['last_name']) && isset($rb->record['first_name'])) $form->setDefaults(array('create_company_name'=>$rb->record['last_name'].' '.$rb->record['first_name']));
 				eval_js('Event.observe(\'last_name\',\'change\', update_create_company_name_field);'.
 						'Event.observe(\'first_name\',\'change\', update_create_company_name_field);'.
 						'function update_create_company_name_field() {'.
