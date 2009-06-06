@@ -23,6 +23,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		self::init($tab);
 		$commondata_sep = '/';
 		static $display_callback_table = array();
+		if ($args===null) $args = self::$table_rows[$field];
 		if (!isset($display_callback_table[$tab])) {			
 			$ret = DB::Execute('SELECT * FROM '.$tab.'_callback WHERE freezed=1');
 			while ($row = $ret->FetchRow())
@@ -201,7 +202,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		self::init($tab);
 		if (isset(self::$table_rows[$field])) $field = self::$table_rows[$field]['id'];
 		elseif (!isset(self::$hash[$field])) trigger_error('get_value(): Unknown column: '.$field, E_USER_ERROR);
-		return DB::GetOne('SELECT f_'.$field.' FROM '.$tab.'_data_1 WHERE id=%d', array($id));
+		$ret = DB::GetOne('SELECT f_'.$field.' FROM '.$tab.'_data_1 WHERE id=%d', array($id));
+		if ($ret===false || $ret===null) return null;
+		return $ret;
 	}
 	public static function count_possible_values($tab, $field) { //it ignores empty values!
 		self::init($tab);
@@ -215,7 +218,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (isset(self::$table_rows[$field])) $field = self::$table_rows[$field]['id'];
 		elseif (!isset(self::$hash[$field])) trigger_error('get_possible_values(): Unknown column: '.$field, E_USER_ERROR);
 		$par = self::build_query($tab, array('!'.$field=>''));
-		return DB::GetCol('SELECT MIN(id) FROM'.$par['sql'].' GROUP BY f_'.$field, $par['vals']);
+		return DB::GetAssoc('SELECT MIN(id), MIN(f_'.$field.') FROM'.$par['sql'].' GROUP BY f_'.$field, $par['vals']);
 	}
 	public static function get_id($tab, $field, $value) {
 		self::init($tab);
@@ -223,6 +226,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (!is_array($field)) $field=array($field);
 		if (!is_array($value)) $value=array($value);
 		foreach ($field as $k=>$v) {
+			if (!$v) continue;
 			if (isset(self::$table_rows[$v])) $v = $field[$k] = self::$table_rows[$v]['id'];
 			elseif (!isset(self::$hash[$v])) trigger_error('get_id(): Unknown column: '.$v, E_USER_ERROR);
 			$f_id = self::$hash[$v];
