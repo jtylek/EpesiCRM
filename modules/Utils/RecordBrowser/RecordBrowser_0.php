@@ -1046,6 +1046,7 @@ class Utils_RecordBrowser extends Module {
 		foreach($this->table_rows as $field => $args){
 			if ($this->fields_permission[$args['id']]==='hide') continue;
 			if ($visible_cols!==null && !isset($visible_cols[$args['id']])) continue;
+			if (!isset($record[$args['id']])) $record[$args['id']] = '';
 			if ($args['type']=='hidden') {
 				$form->addElement('hidden', $args['id']);
 				$form->setDefaults(array($args['id']=>$record[$args['id']]));
