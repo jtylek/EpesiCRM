@@ -71,7 +71,8 @@ class Apps_MailClient extends Module {
 			$online = Apps_MailClientCommon::is_online($v['id']);
 			$open_cb = '<a '.$this->create_callback_href(array($this,'open_mail_dir_callback'),array($v['id'],'Inbox/')).'>'.$name.($online?'':' '.$this->ht('(Offline)')).'</a>';
 			$tree[] = array('name'=>$open_cb, 'sub'=>$this->get_tree_structure($str[$v['mail']],$v['id']));
-			$move_folders = array_merge($move_folders,$this->get_move_folders($str[$v['mail']],$name,$v['id']));
+			if($online)
+				$move_folders = array_merge($move_folders,$this->get_move_folders($str[$v['mail']],$name,$v['id']));
 		}
 //		print_r($tree);
 //		return;

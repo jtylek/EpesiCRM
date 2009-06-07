@@ -358,25 +358,34 @@ class Apps_MailClientCommon extends ModuleCommon {
 		self::include_path();
 		require_once('Mail/mime.php');
 
-		$msg_id = self::get_next_msg_id($mailbox_id,$dir);
-		if($msg_id===false) return false;
+		$mbox_dir = self::get_mailbox_dir($mailbox_id);
+		if($mbox_dir===false) return false;
+		
+		if(self::is_imap($mailbox_id)) {
+			$imap = self::imap_open($mailbox_id);
+			if(!$imap) return false;
+			$mailbox_name = imap_utf7_encode($imap['ref'].$dir);
+			$st = imap_status($imap['connection'],$mailbox_name,SA_UIDNEXT);
+			$msg_id = $st->uidnext;
+			if(self::imap_errors('Unable to save message on imap server')) return false;
+    			imap_append($imap['connection'], $mailbox_name, $mbody);
+		} else {
+			$msg_id = self::get_next_msg_id($mailbox_id,$dir);
+			if($msg_id===false) return false;
+		}
 
 		$mime = new Mail_Mime();
 		$headers = array();
-        $headers['From'] = $from;
-        $headers['To'] = $to;
+	        $headers['From'] = $from;
+		$headers['To'] = $to;
 	 	$headers['Subject'] = $subject;
 		$headers['Date'] = $date;
 		$mime->headers($headers);
 		$mime->setHTMLBody($body);
 		$mbody = $mime->getMessage();
-		$mbox_dir = self::get_mailbox_dir($mailbox_id);
-		if($mbox_dir===false) return false;
 		$mailbox = $mbox_dir.$dir;
 		Apps_MailClientCommon::append_msg_to_index($mailbox_id,$dir,$msg_id,$subject,$from,$to,$date,strlen($mbody),$read);
 		file_put_contents($mailbox.$msg_id,$mbody);
-
-		//TODO: jezeli skrzynka imap to stworzenie wiadomosci na serwerze
 
 		return $msg_id;
 	}
@@ -478,8 +487,18 @@ class Apps_MailClientCommon extends ModuleCommon {
 		return $ret;
 	}
 	
-	public static function remove_msg($mailbox_id, $dir, $id) {
+	public static function remove_msg($mailbox_id, $dir, $id, $imap_remove = true) {
 		if(!self::lock_mailbox_dir($mailbox_id,$dir,'trash')) return false;
+		
+		if($imap_remove && self::is_imap($mailbox_id)) {
+			$imap = self::imap_open($mailbox_id);
+			if(!$imap) return false;
+			$mailbox_name = imap_utf7_encode($imap['ref'].$dir);
+			imap_reopen($imap['connection'],$mailbox_name);
+    			imap_delete($imap['connection'], $id, FT_UID);
+			if(self::imap_errors('Unable to remove message from imap server')) return false;
+			imap_reopen($imap['connection'],$imap['ref']);
+		}
 	
 		if(!self::remove_msg_from_index($mailbox_id,$dir,$id)) {
 			self::unlock_mailbox_dir($mailbox_id,$dir,'trash');
@@ -569,12 +588,22 @@ class Apps_MailClientCommon extends ModuleCommon {
 		if($msg===false) return false;
 
 		if(!self::lock_mailbox_dir($box,$dir,'idx') || !self::lock_mailbox_dir($box2,$dir2,'idx')) return false;
-
-		$id2 = self::get_next_msg_id($box2,$dir2);
-		if($id2===false) {
-			self::unlock_mailbox_dir($box,$dir,'idx');
-			self::unlock_mailbox_dir($box2,$dir2,'idx');
-			return false;
+		
+		if(self::is_imap($box2)) {
+			$imap2 = self::imap_open($box2);
+			if(!$imap2) return false;
+			$mailbox_name = imap_utf7_encode($imap2['ref'].$dir2);
+			$st = imap_status($imap2['connection'],$mailbox_name,SA_UIDNEXT);
+			$id2 = $st->uidnext;
+			if(self::imap_errors('Unable to save message on imap server')) return false;
+    			imap_append($imap2['connection'], $mailbox_name, $msg);
+		} else {
+			$id2 = self::get_next_msg_id($box2,$dir2);
+			if($id2===false) {
+				self::unlock_mailbox_dir($box,$dir,'idx');
+				self::unlock_mailbox_dir($box2,$dir2,'idx');
+				return false;
+			}
 		}
 
 		file_put_contents($boxpath2.$id2,$msg);
@@ -864,10 +893,10 @@ class Apps_MailClientCommon extends ModuleCommon {
 		return self::$imap_connections[$id];
 	}
 	
-	public static function is_online($id) {
+	public static function is_online($id,$use_cache=true) {
 		static $cache;
 		if(!isset($cache)) $cache = array();
-		if(isset($cache[$id]))
+		if($use_cache && isset($cache[$id]))
 			return $cache[$id];
 		return $cache[$id] = !Apps_MailClientCommon::is_imap($id) || @file_get_contents(self::get_mailbox_dir($id).'.imap_online');
 	}
@@ -1071,7 +1100,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 				unset($local[$row->uid]);
 			}
 			foreach($local as $k=>$v) { //remove remotly deleted messages
-				self::remove_msg($id,$dir,$k);
+				self::remove_msg($id,$dir,$k,false);
 				$ret = true;
 			}
 			imap_reopen($imap['connection'],$imap['ref']);

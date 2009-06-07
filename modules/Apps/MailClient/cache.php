@@ -24,9 +24,10 @@ if(empty($accounts)) {
 }
 $refresh = false;
 foreach($accounts as $a) {
+	$online = Apps_MailClientCommon::is_online($a['id']);
 	//sync dirs
 	if(Apps_MailClientCommon::imap_sync_mailbox_dir($a['id']))
-		$refresh=true;
+		$refresh = true;
 	//sync inbox(without subdirs) messages
 	$local_dirs = Apps_MailClientCommon::get_mailbox_structure($a['id']);
 	$inbox = null;
@@ -36,13 +37,18 @@ foreach($accounts as $a) {
 			break;
 		}
 	if($inbox && Apps_MailClientCommon::imap_get_new_messages($a['id'],$inbox.'/'))
-		$refresh=true;
+		$refresh = true;
+	if(Apps_MailClientCommon::is_online($a['id'],false)!=$online)
+		$refresh = true;
 }
 
 foreach($accounts as $a) {
+	$online = Apps_MailClientCommon::is_online($a['id']);
 	//sync all messages (including inbox again)
 	if(Apps_MailClientCommon::imap_sync_messages($a['id']))
 		$refresh=true;
+	if(Apps_MailClientCommon::is_online($a['id'],false)!=$online)
+		$refresh = true;
 }
 
 Epesi::send_output();
