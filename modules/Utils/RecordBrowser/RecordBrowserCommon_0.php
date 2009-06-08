@@ -98,7 +98,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				if ($val!='') $ret = Base_RegionalSettingsCommon::time2reg($val, false,true,false);
 			}
 			if ($args['type']=='timestamp') {
-				if ($val!='') $ret = Base_RegionalSettingsCommon::time2reg($val);
+				if ($val!='') $ret = Base_RegionalSettingsCommon::time2reg($val, 'without_seconds');
 			}
 		}
 		return $ret;
