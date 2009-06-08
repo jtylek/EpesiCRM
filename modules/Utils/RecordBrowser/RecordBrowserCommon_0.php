@@ -901,7 +901,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								$w = DB::Concat(DB::qstr('%'),DB::qstr('\_\_'.$w.$tail),DB::qstr('%'));
 							}
 							elseif (!$noquotes) $w = DB::qstr($w);
-							$having .= ' OR (r.f_'.$key.' '.$operator.' '.$w.' AND r.f_'.$key.' IS NOT NULL)';
+							$having .= ' OR (r.f_'.$key.' '.$operator.' '.$w.' ';
+							if ($operator=='<') $having .= 'OR r.f_'.$key.' IS NULL)';
+							else $having .= 'AND r.f_'.$key.' IS NOT NULL)';
 						}
 					}
 					$having .= ')';
@@ -912,8 +914,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$orderby = array();
 		foreach($order as $v){
 			if ($v['order'][0]!=':' && !isset(self::$table_rows[$v['order']])) continue; //failsafe
-//			if ($orderby=='') $orderby = ' ORDER BY';
-//			else $orderby .= ', ';
 			if ($v['order'][0]==':') {
 				switch ($v['order']) {
 					case ':Fav'	:
