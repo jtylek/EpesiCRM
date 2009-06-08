@@ -71,6 +71,10 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 		return $cache;
 	}
 	
+	public static function get_id_by_code($code) {
+		return DB::GetOne('SELECT id FROM utils_currency WHERE code=%s', array($code));
+	}
+	
 	public static function get_precission($arg) {
 		static $cache = array();
 		if (!isset($cache[$arg])) $cache[$arg] = DB::GetOne('SELECT decimals FROM utils_currency WHERE id=%d', array($arg));
