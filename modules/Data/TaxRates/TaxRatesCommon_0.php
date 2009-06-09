@@ -39,6 +39,7 @@ class Data_TaxRatesCommon extends Base_AdminModuleCommon {
 	public static function get_tax_rates() {
 		static $cache = null;
 		if ($cache===null) {
+			$cache = array();
 			$rates = self::get_tax_details();
 			foreach ($rates as $k=>$v)
 				$cache[$k] = $v['name']; 
