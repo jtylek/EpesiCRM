@@ -122,6 +122,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 	public static function create_mailbox_dir($id,$imap_create = true) {
 		$acc_dir = self::Instance()->get_data_dir().$id.'/';
 		if (!is_dir($acc_dir)) mkdir($acc_dir);
+		Apps_MailClientCommon::get_mailbox_dir($id,false);
 		$dirs = array('Inbox','Sent','Trash','Drafts');
 		foreach($dirs as $d) {
 			self::create_mailbox_subdir($id,$d.'/',$imap_create);
@@ -135,7 +136,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 	}
 	
 	public static function create_mailbox_subdir($id,$new_name,$imap_create=true) {
-		$mbox_dir = Apps_MailClientCommon::get_mailbox_dir($id,false);
+		$mbox_dir = Apps_MailClientCommon::get_mailbox_dir($id);
 		if($mbox_dir===false) return false;
 		if(file_exists($mbox_dir.$new_name)) return true;
 
@@ -254,6 +255,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 	
 	public static function get_mailbox_data($id=null,$use_cache=true) {
 		static $cache;
+		if(!Acl::is_user()) return false;
 		if(!isset($cache) || !$use_cache) {
 			$ret = DB::Execute('SELECT * FROM apps_mailclient_accounts WHERE user_login_id=%d ORDER BY mail',array(Acl::get_user()));
 			$cache = array();
@@ -263,13 +265,12 @@ class Apps_MailClientCommon extends ModuleCommon {
 		if($id===null)
 			return $cache;
 		if(!isset($cache[$id]))
-			return false;
+			return DB::GetRow('SELECT * FROM apps_mailclient_accounts WHERE id=%d',array($id));
 		return $cache[$id];
 	}
 
 	//gets mailbox dir
 	public static function get_mailbox_dir($id,$use_cache=true) {
-		if(!Acl::is_user()) return false;
 		$ret = self::get_mailbox_data($id,$use_cache);
 		if(!$ret) return false;
 		$acc_dir = self::Instance()->get_data_dir().$id.'/';
