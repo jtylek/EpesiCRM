@@ -1184,7 +1184,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 	}
 
 	public static function init_imap() {
-		if(Acl::get_user()!=$_SESSION['apps_mailclient_user']) {
+		if(!isset($_SESSION['apps_mailclient_user']) || Acl::get_user()!=$_SESSION['apps_mailclient_user']) {
 			$_SESSION['apps_mailclient_user'] = Acl::get_user();
 			eval_js('Apps_MailClient.cache_mailboxes_start()');
 		}
