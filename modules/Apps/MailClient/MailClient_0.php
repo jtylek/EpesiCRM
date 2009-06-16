@@ -826,8 +826,6 @@ class Apps_MailClient extends Module {
 			$r->add_action($this->create_confirm_callback_href($this->ht("Delete this account?"),array($this,'delete_account'),$row['id']),'Delete');
 			$num++;
 		}
-		if($num==0)
-			Apps_MailClientCommon::create_internal_mailbox();
 		$this->display_module($gb);
 		Base_ActionBarCommon::add('add','New account',$this->create_callback_href(array($this,'account'),array(null,'new')));
 	}
