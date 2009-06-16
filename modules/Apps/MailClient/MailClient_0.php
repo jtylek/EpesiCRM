@@ -35,6 +35,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Apps_MailClient extends Module {
 
 	public function body() {
+		if(!Acl::is_user()) return;
 		$boxes = Apps_MailClientCommon::get_mailbox_data();
 		if(empty($boxes)) {
 			Apps_MailClientCommon::create_internal_mailbox();
