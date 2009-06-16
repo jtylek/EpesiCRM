@@ -135,7 +135,8 @@ class Apps_MailClientCommon extends ModuleCommon {
 	}
 	
 	public static function create_mailbox_subdir($id,$new_name,$imap_create=true) {
-		$mbox_dir = Apps_MailClientCommon::get_mailbox_dir($id);
+		$mbox_dir = Apps_MailClientCommon::get_mailbox_dir($id,false);
+		if($mbox_dir===false) return false;
 		if(file_exists($mbox_dir.$new_name)) return true;
 
 		if($imap_create && self::is_imap($id)) {
@@ -157,7 +158,6 @@ class Apps_MailClientCommon extends ModuleCommon {
 		
 		
 		//local
-		$mbox_dir = Apps_MailClientCommon::get_mailbox_dir($id,false);
 		$name_arr = explode('/',$new_name);
 		$all = '';
 		$all_last = '';
@@ -1146,6 +1146,41 @@ class Apps_MailClientCommon extends ModuleCommon {
 			return true;
 		}
 		return false;
+	}
+	
+	public static function get_number_of_messages_in_inbox($id) {
+		$struct = Apps_MailClientCommon::get_mailbox_structure($id);
+		$num_msgs = 0;
+		if(isset($struct['Inbox'])) {
+			function inbox_sum($arr,$p) {
+				global $id;
+				$msgs = Apps_MailClientCommon::get_number_of_messages($id,$p);
+				$ret = $msgs['unread'];
+				foreach($arr as $k=>$a) {
+					$ret += inbox_sum($a,$p.$k.'/');
+				}
+				return $ret;
+			}
+			$num_msgs = inbox_sum($struct['Inbox'],'Inbox/');
+		}
+		return $num_msgs;
+	}
+
+	public static function tray_notification($time) {
+		$boxes = Apps_MailClientCommon::get_mailbox_data();
+		$ret = array();
+		if(!isset($_SESSION['mails'])) 
+			$_SESSION['mails'] = array();
+		foreach($boxes as $v) {
+			$num = self::get_number_of_messages_in_inbox($v['id']);
+			if($num == 0) continue;
+			if(!isset($_SESSION['mails'][$v['id']]) || $_SESSION['mails'][$v['id']]!=$num) {
+				$_SESSION['mails'][$v['id']] = $num;
+				$name = $v['mail']=='#internal'?Base_LangCommon::ts('Apps_MailClient','Private messages'):$v['mail'];
+				$ret['mailclient_'.$v['id'].'_'.$time] = Base_LangCommon::ts('Apps_MailClient','<font color="gray">[%s]</font> %s',array($name, $num));
+			}
+		}
+		return array('notifications'=>$ret);
 	}
 }
 load_js('modules/Apps/MailClient/utils.js');

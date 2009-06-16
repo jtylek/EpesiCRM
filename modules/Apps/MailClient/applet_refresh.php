@@ -114,20 +114,7 @@ if($pop3) { //pop3
 	else
 		$in->disconnect();
 } else { //imap and internal
-	$num_msgs = 0;
-	$struct = Apps_MailClientCommon::get_mailbox_structure($id);
-	if(isset($struct['Inbox'])) {
-		function inbox_sum($arr,$p) {
-			global $id;
-			$msgs = Apps_MailClientCommon::get_number_of_messages($id,$p);
-			$ret = $msgs['unread'];
-			foreach($arr as $k=>$a) {
-				$ret += inbox_sum($a,$p.$k.'/');
-			}
-			return $ret;
-		}
-		$num_msgs = inbox_sum($struct['Inbox'],'Inbox/');
-	}
+	$num_msgs = Apps_MailClientCommon::get_number_of_messages_in_inbox($id);
 }
 
 print($num_msgs);
