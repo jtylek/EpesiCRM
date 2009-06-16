@@ -157,7 +157,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		
 		
 		//local
-		$mbox_dir = Apps_MailClientCommon::get_mailbox_dir($id);
+		$mbox_dir = Apps_MailClientCommon::get_mailbox_dir($id,false);
 		$name_arr = explode('/',$new_name);
 		$all = '';
 		$all_last = '';
@@ -268,9 +268,9 @@ class Apps_MailClientCommon extends ModuleCommon {
 	}
 
 	//gets mailbox dir
-	public static function get_mailbox_dir($id) {
+	public static function get_mailbox_dir($id,$use_cache=true) {
 		if(!Acl::is_user()) return false;
-		$ret = self::get_mailbox_data($id);
+		$ret = self::get_mailbox_data($id,$use_cache);
 		if(!$ret) return false;
 		$acc_dir = self::Instance()->get_data_dir().$id.'/';
 		if(!file_exists($acc_dir))
