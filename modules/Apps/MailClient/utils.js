@@ -207,4 +207,3 @@ refresh_ui: function() {
 		Epesi.request('');
 }
 };
-Apps_MailClient.cache_mailboxes_start();
