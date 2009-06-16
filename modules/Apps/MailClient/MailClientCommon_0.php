@@ -1153,8 +1153,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$struct = Apps_MailClientCommon::get_mailbox_structure($id);
 		$num_msgs = 0;
 		if(isset($struct['Inbox'])) {
-			function inbox_sum($arr,$p) {
-				global $id;
+			function inbox_sum($id,$arr,$p) {
 				$msgs = Apps_MailClientCommon::get_number_of_messages($id,$p);
 				$ret = $msgs['unread'];
 				foreach($arr as $k=>$a) {
@@ -1162,23 +1161,23 @@ class Apps_MailClientCommon extends ModuleCommon {
 				}
 				return $ret;
 			}
-			$num_msgs = inbox_sum($struct['Inbox'],'Inbox/');
+			$num_msgs = inbox_sum($id,$struct['Inbox'],'Inbox/');
 		}
 		return $num_msgs;
 	}
 
 	public static function tray_notification($time) {
 		$boxes = Apps_MailClientCommon::get_mailbox_data();
-		$ret = array();
 		if(!isset($_SESSION['mails'])) 
 			$_SESSION['mails'] = array();
+		$ret = array();
 		foreach($boxes as $v) {
 			$num = self::get_number_of_messages_in_inbox($v['id']);
 			if($num == 0) continue;
 			if(!isset($_SESSION['mails'][$v['id']]) || $_SESSION['mails'][$v['id']]!=$num) {
 				$_SESSION['mails'][$v['id']] = $num;
 				$name = $v['mail']=='#internal'?Base_LangCommon::ts('Apps_MailClient','Private messages'):$v['mail'];
-				$ret['mailclient_'.$v['id'].'_'.$time] = Base_LangCommon::ts('Apps_MailClient','<font color="gray">[%s]</font> %s',array($name, $num));
+				$ret['mailclient_'.$v['id'].'_'.$time] = Base_LangCommon::ts('Apps_MailClient','<b>%s</b> new message in mailbox: <font color="gray">%s</font>',array($num,$name));
 			}
 		}
 		return array('notifications'=>$ret);
