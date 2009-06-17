@@ -66,8 +66,10 @@ class Apps_MailClient extends Module {
 		$str = array();
 		$tree = array();
 		$move_folders = array();
+		$is_pop3 = false;
 		foreach($boxes as $v) {
 			$str[$v['mail']] = Apps_MailClientCommon::get_mailbox_structure($v['id']);
+			if($v['incoming_protocol']==0) $is_pop3=true;
 			$name = $v['mail']=='#internal'?$this->t('Private messages'):$v['mail'];
 			$online = Apps_MailClientCommon::is_online($v['id']);
 			$open_cb = '<a '.$this->create_callback_href(array($this,'open_mail_dir_callback'),array($v['id'],'Inbox/')).'>'.$name.($online?'':' '.$this->ht('(Offline)')).'</a>';
@@ -201,7 +203,8 @@ class Apps_MailClient extends Module {
 		else
 			$th_show->assign('address_label',$this->t('From'));
 
-		Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file($this->get_type(),'check.png'),$this->t('Check'),$this->check_mail_href());
+		if($is_pop3)
+			Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file($this->get_type(),'check.png'),$this->t('Check'),$this->check_mail_href());
 		Base_ActionBarCommon::add('new-mail',$this->ht('New mail'),$this->create_callback_href(array($this,'edit_mail'),array($box,$dir)));
 		Base_ActionBarCommon::add('scan',$this->ht('Mark all as read'),$this->create_confirm_callback_href($this->ht('Are you sure?'),array($this,'mark_all_as_read')));
 		if($trash_folder)
@@ -281,7 +284,7 @@ class Apps_MailClient extends Module {
 		$box = $mbox_dir.$dir;
 
 		foreach($idx as $i=>$a) {
-			@unlink($box.$id);
+			@unlink($box.$i);
 		}
 
 		file_put_contents($box.'.idx','');

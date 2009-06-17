@@ -365,10 +365,10 @@ class Apps_MailClientCommon extends ModuleCommon {
 		if(self::is_imap($mailbox_id)) {
 			$imap = self::imap_open($mailbox_id);
 			if(!$imap) return false;
-			$mailbox_name = imap_utf7_encode($imap['ref'].$dir);
+			$mailbox_name = imap_utf7_encode($imap['ref'].rtrim($dir,'/'));
 			$st = imap_status($imap['connection'],$mailbox_name,SA_UIDNEXT);
-			$msg_id = $st->uidnext;
 			if(self::imap_errors('Unable to save message on imap server')) return false;
+			$msg_id = $st->uidnext;
     			imap_append($imap['connection'], $mailbox_name, $mbody);
 		} else {
 			$msg_id = self::get_next_msg_id($mailbox_id,$dir);
@@ -494,7 +494,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		if($imap_remove && self::is_imap($mailbox_id)) {
 			$imap = self::imap_open($mailbox_id);
 			if(!$imap) return false;
-			$mailbox_name = imap_utf7_encode($imap['ref'].$dir);
+			$mailbox_name = imap_utf7_encode($imap['ref'].rtrim($dir,'/'));
 			imap_reopen($imap['connection'],$mailbox_name);
     			imap_delete($imap['connection'], $id, FT_UID);
 			if(self::imap_errors('Unable to remove message from imap server')) return false;
@@ -593,11 +593,12 @@ class Apps_MailClientCommon extends ModuleCommon {
 		if(self::is_imap($box2)) {
 			$imap2 = self::imap_open($box2);
 			if(!$imap2) return false;
-			$mailbox_name = imap_utf7_encode($imap2['ref'].$dir2);
+			$mailbox_name = imap_utf7_encode($imap2['ref'].rtrim($dir2,'/'));
 			$st = imap_status($imap2['connection'],$mailbox_name,SA_UIDNEXT);
-			$id2 = $st->uidnext;
 			if(self::imap_errors('Unable to save message on imap server')) return false;
+			$id2 = $st->uidnext;
     			imap_append($imap2['connection'], $mailbox_name, $msg);
+			self::set_msg_id($box2,$dir2,$id2);
 		} else {
 			$id2 = self::get_next_msg_id($box2,$dir2);
 			if($id2===false) {
@@ -1012,10 +1013,11 @@ class Apps_MailClientCommon extends ModuleCommon {
 			if(!isset($msgl->uid)) {
 				continue;
 			}
-			$msg = imap_fetchheader($imap['connection'],$msgl->uid,FT_UID | FT_PREFETCHTEXT).imap_body($imap['connection'],$msgl->uid,FT_UID);
+			$msg = @imap_fetchheader($imap['connection'],$msgl->uid,FT_UID | FT_PREFETCHTEXT);
 			if($msg===false) {
 				continue;
 			}
+			$msg .= imap_body($imap['connection'],$msgl->uid,FT_UID);
 			$structure = self::mime_decode($msg);
 			if(!Apps_MailClientCommon::append_msg_to_index($id,$dir,$msgl->uid,isset($structure->headers['subject'])?$structure->headers['subject']:'no subject',$structure->headers['from'],$structure->headers['to'],$structure->headers['date'],strlen($msg),$msgl->seen)) {
 				continue;
@@ -1149,19 +1151,20 @@ class Apps_MailClientCommon extends ModuleCommon {
 		return false;
 	}
 	
+	private static function inbox_sum($id,$arr,$p) {
+		$msgs = Apps_MailClientCommon::get_number_of_messages($id,$p);
+		$ret = $msgs['unread'];
+		foreach($arr as $k=>$a) {
+			$ret += self::inbox_sum($a,$p.$k.'/');
+		}
+		return $ret;
+	}
+
 	public static function get_number_of_messages_in_inbox($id) {
 		$struct = Apps_MailClientCommon::get_mailbox_structure($id);
 		$num_msgs = 0;
 		if(isset($struct['Inbox'])) {
-			function inbox_sum($id,$arr,$p) {
-				$msgs = Apps_MailClientCommon::get_number_of_messages($id,$p);
-				$ret = $msgs['unread'];
-				foreach($arr as $k=>$a) {
-					$ret += inbox_sum($a,$p.$k.'/');
-				}
-				return $ret;
-			}
-			$num_msgs = inbox_sum($id,$struct['Inbox'],'Inbox/');
+			$num_msgs = self::inbox_sum($id,$struct['Inbox'],'Inbox/');
 		}
 		return $num_msgs;
 	}
@@ -1180,7 +1183,10 @@ class Apps_MailClientCommon extends ModuleCommon {
 				$ret['mailclient_'.$v['id'].'_'.$time] = Base_LangCommon::ts('Apps_MailClient','<b>%s</b> new message in mailbox: <font color="gray">%s</font>',array($num,$name));
 			}
 		}
-		return array('notifications'=>$ret);
+		$ret = array('notifications'=>$ret);
+		if(!isset($_SESSION['mailclient_tray_job']) || $time-300>$_SESSION['mailclient_tray_job'])
+			$ret['jobs'] = array('mailclient'=>'modules/Apps/MailClient/tray_check.php');
+		return $ret;
 	}
 
 	public static function init_imap() {
