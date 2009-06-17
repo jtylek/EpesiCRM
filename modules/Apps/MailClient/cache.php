@@ -15,7 +15,10 @@ ModuleManager::load_modules();
 $mail_size_limit = Variable::get('max_mail_size');
 ini_set("memory_limit",$mail_size_limit+32*1024*1024); // max mail size is
 
-if(!Acl::is_user()) die();
+if(!Acl::is_user()) {
+	print('Apps_MailClient.cache_mailboxes_working=false;'); //we don't need it, turn it off, so it can be turned on
+	exit();
+}
 
 $accounts = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE user_login_id=%d AND incoming_protocol=1',array(Acl::get_user()));
 if(empty($accounts)) {
