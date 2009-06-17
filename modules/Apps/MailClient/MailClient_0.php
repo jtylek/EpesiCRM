@@ -911,7 +911,7 @@ class Apps_MailClient extends Module {
 				if($action=='new')
 					Apps_MailClientCommon::create_mailbox_dir($id);
 				if($values['incoming_protocol']==1) { //imap
-					eval_js('Apps_MailClient.cache_mailboxes_start()');//make sure cache is working
+					eval_js('Apps_MailClient.cache_mailboxes_start()',false);//make sure cache is working
 				}
 				return false;
 			}
