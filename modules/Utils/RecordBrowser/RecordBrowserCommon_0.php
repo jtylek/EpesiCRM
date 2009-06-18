@@ -19,7 +19,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static $admin_access = false;
 	public static $cols_order = array();
 
-	public static function get_val($tab, $field, $record, $id, $links_not_recommended = false, $args = null) {
+	public static function get_val($tab, $field, $record, $links_not_recommended = false, $args = null) {
 		self::init($tab);
 		$commondata_sep = '/';
 		static $display_callback_table = array();
@@ -1426,8 +1426,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 									$field = self::$hash[$k];
 									$event_display .= '<tr valign="top"><td><b>'.$field.'</b></td>';
 									$params = self::$table_rows[$field];
-									$event_display .= 	'<td>'.self::get_val($tab, $field, $r2, $rid, true, $params).'</td>'.
-														'<td>'.self::get_val($tab, $field, $r, $rid, true, $params).'</td></tr>';
+									$event_display .= 	'<td>'.self::get_val($tab, $field, $r2, true, $params).'</td>'.
+														'<td>'.self::get_val($tab, $field, $r, true, $params).'</td></tr>';
 								}
 								$r = $r2;
 								$event_display .= '</table>';
@@ -1588,14 +1588,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if(IPHONE) {
 			print('<ul class="field">');
 			foreach($cols as $k=>$col) {
-				$val = Utils_RecordBrowserCommon::get_val($tab,$col['name'],$rec,$rec['id'],false,$col);
+				$val = Utils_RecordBrowserCommon::get_val($tab,$col['name'],$rec,false,$col);
 				if($val==='') continue;
 				print('<li>'.$col['name'].': '.$val.'</li>');
 			}
 			print('</ul>');
 		} else {
 			foreach($cols as $k=>$col) {
-				$val = Utils_RecordBrowserCommon::get_val($tab,$col['name'],$rec,$rec['id'],false,$col);
+				$val = Utils_RecordBrowserCommon::get_val($tab,$col['name'],$rec,false,$col);
 				if($val==='') continue;
 				print($col['name'].': '.$val.'<br>');
 			}

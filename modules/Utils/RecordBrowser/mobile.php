@@ -111,7 +111,7 @@ foreach($data as $v) {
 		$row = array();
 	foreach($cols_out as $col) {
 		$i = array_key_exists($col['record']['id'],$info);
-		$val = Utils_RecordBrowserCommon::get_val($table,$col['name'],$v,$v['id'],IPHONE,$col['record']);
+		$val = Utils_RecordBrowserCommon::get_val($table,$col['name'],$v,IPHONE,$col['record']);
 		if(IPHONE) {
 			if($val==='') continue;
 			if($type!='recent' && $col['record']['id'] == $letter_col && $letter!==$val{0}) {

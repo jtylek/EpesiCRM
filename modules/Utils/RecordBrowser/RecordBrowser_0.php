@@ -106,8 +106,8 @@ class Utils_RecordBrowser extends Module {
 		$this->col_order = $arg;
 	}
 
-	public function get_val($field, $record, $id, $links_not_recommended = false, $args = null) {
-		return Utils_RecordBrowserCommon::get_val($this->tab, $field, $record, $id, $links_not_recommended, $args);
+	public function get_val($field, $record, $links_not_recommended = false, $args = null) {
+		return Utils_RecordBrowserCommon::get_val($this->tab, $field, $record, $links_not_recommended, $args);
 	}
 
 	public function disable_search(){$this->disabled['search'] = true;}
@@ -1058,7 +1058,7 @@ class Utils_RecordBrowser extends Module {
 			} else {
 				if ($mode!=='add' && $mode!=='edit') {
 					if ($args['type']!='checkbox' || isset($this->display_callback_table[$field])) {
-						$def = $this->get_val($field, $record, $id, false, $args);
+						$def = $this->get_val($field, $record, false, $args);
 						$form->addElement('static', $args['id'], $label, $def, array('id'=>$args['id']));
 						continue;
 					}
@@ -1072,7 +1072,7 @@ class Utils_RecordBrowser extends Module {
 											$values = $this->record;
 											if (is_array($this->custom_defaults)) $values = $values+$this->custom_defaults;
 										}
-										$val = @$this->get_val($field, $values, $this->record['id'], true, $args);
+										$val = @$this->get_val($field, $values, true, $args);
 										if (!$val) $val = '['.$this->t('formula').']';
 										$form->setDefaults(array($args['id']=>'<div id="'.Utils_RecordBrowserCommon::get_calculated_id($this->tab, $args['id'], $id).'">'.$val.'</div>'));
 										break;
@@ -1540,9 +1540,9 @@ class Utils_RecordBrowser extends Module {
 					sort($changed[$row2['field']]);
 			}
 			foreach($changed as $k=>$v) {
-				$new = $this->get_val($field_hash[$k], $created, $created['id'], false, $this->table_rows[$field_hash[$k]]);
+				$new = $this->get_val($field_hash[$k], $created, false, $this->table_rows[$field_hash[$k]]);
 				$created[$k] = $v;
-				$old = $this->get_val($field_hash[$k], $created, $created['id'], false, $this->table_rows[$field_hash[$k]]);
+				$old = $this->get_val($field_hash[$k], $created, false, $this->table_rows[$field_hash[$k]]);
 				$gb_row = $gb_cha->get_new_row();
 //				eval_js('apply_changes_to_'.$k.'=function(){element = document.getElementsByName(\''.$k.'\')[0].value=\''.$v.'\';};');
 //				$gb_row->add_action('href="javascript:apply_changes_to_'.$k.'()"', 'Apply', null, 'apply');
@@ -1592,7 +1592,7 @@ class Utils_RecordBrowser extends Module {
 		foreach($this->table_rows as $field => $args) {
 			if ($access[$args['id']] == 'hide') continue;
 			$field_hash[$args['id']] = $field;
-			$val = $this->get_val($field, $created, $created['id'], false, $args);
+			$val = $this->get_val($field, $created, false, $args);
 			if ($created[$args['id']] !== '') $gb_cur->add_row($this->t($field), $val);
 		}
 
@@ -1609,10 +1609,10 @@ class Utils_RecordBrowser extends Module {
 				if ($k=='id') $gb_cha->add_row($row['edited_on'], Base_UserCommon::get_user_login($row['edited_by']), '<b>'.$last_row['old_value'].'</b>', '', '');
 				else {
 					if (!isset($field_hash[$k])) continue;
-					$new = $this->get_val($field_hash[$k], $created, $created['id'], false, $this->table_rows[$field_hash[$k]]);
+					$new = $this->get_val($field_hash[$k], $created, false, $this->table_rows[$field_hash[$k]]);
 					if ($this->table_rows[$field_hash[$k]]['type']=='multiselect') $v = Utils_RecordBrowserCommon::decode_multi($v);
 					$created[$k] = $v;
-					$old = $this->get_val($field_hash[$k], $created, $created['id'], false, $this->table_rows[$field_hash[$k]]);
+					$old = $this->get_val($field_hash[$k], $created, false, $this->table_rows[$field_hash[$k]]);
 					$gb_cha->add_row(
 						Base_RegionalSettingsCommon::time2reg($row['edited_on']), 
 						Base_UserCommon::get_user_login($row['edited_by']), 
@@ -1627,7 +1627,7 @@ class Utils_RecordBrowser extends Module {
 		$gb_ori->add_row($this->t('Created on'), Base_RegionalSettingsCommon::time2reg($created['created_on']));
 		foreach($this->table_rows as $field => $args) {
 			if ($access[$args['id']] == 'hide') continue;
-			$val = $this->get_val($field, $created, $created['id'], false, $args);
+			$val = $this->get_val($field, $created, false, $args);
 			if ($created[$args['id']] !== '') $gb_ori->add_row($this->t($field), $val);
 		}
 		$theme = $this->init_module('Base/Theme');
@@ -1788,7 +1788,7 @@ class Utils_RecordBrowser extends Module {
 			$gb_row = $gb->get_new_row();
 			$arr = array();
 			foreach($cols as $k=>$w) {
-				if (!isset($callbacks[$k])) $s = $this->get_val($field_hash[$w], $v, $v['id'], false, $this->table_rows[$field_hash[$w]]);
+				if (!isset($callbacks[$k])) $s = $this->get_val($field_hash[$w], $v, false, $this->table_rows[$field_hash[$w]]);
 				else $s = call_user_func($callbacks[$k], $v);
 				$arr[] = Utils_RecordBrowserCommon::cut_string($s, $cut[$k]);
 			}

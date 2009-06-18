@@ -44,7 +44,7 @@ fputcsv($f, $cols);
 foreach ($records as $r) {
 	$rec = array($r['id']);
 	foreach ($tab_info as $v) {
-		$val = Utils_RecordBrowserCommon::get_val($tab, $v['name'], $r, null, true, $v);
+		$val = Utils_RecordBrowserCommon::get_val($tab, $v['name'], $r, true, $v);
 		$val = htmlspecialchars_decode(strip_tags(preg_replace('/\<[Bb][Rr]\/?\>/',"\n",$val)));
 		$rec[] = $val;
 	}
