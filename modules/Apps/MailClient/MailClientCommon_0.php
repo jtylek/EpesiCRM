@@ -1159,12 +1159,143 @@ class Apps_MailClientCommon extends ModuleCommon {
 		}
 		return $ret;
 	}
+	
+	public static function get_number_of_new_pop3_messages($id) {
+		$account = self::get_mailbox_data($id);
+		if(!$account) return false;
 
-	public static function get_number_of_messages_in_inbox($id) {
-		$struct = Apps_MailClientCommon::get_mailbox_structure($id);
+		$box_dir = Apps_MailClientCommon::get_mailbox_dir($id);
+		if($box_dir===false) {
+			return false;
+//				die('invalid mailbox');
+		}
+
+		$host = explode(':',$account['incoming_server']);
+		if(isset($host[1])) $port=$host[1];
+			else $port = null;
+		$host = $host[0];
+		$user = $account['login'];
+		$pass = $account['password'];
+		$ssl = $account['incoming_ssl'];
+		$method = $account['incoming_method']!='auto'?$account['incoming_method']:null;
+		$native_support = false;
+		if(function_exists('imap_open')) {
+			$native_support = true;
+			$in = @imap_open('{'.$host.':'.($port?$port:'110').'/pop3/novalidate-cert'.($ssl?'/ssl':'').'}', $user,$pass);
+			if(!$in) {
+				return false;
+	//					die('(connect error) '.implode(', ',imap_errors()));
+			}
+
+			if ($hdr = imap_check($in)) {
+				$msgCount = $hdr->Nmsgs;
+			} else {
+				return false;
+	//					die('(fetch error) '.implode(', ',imap_errors()));
+			}
+	
+	
+			$l=imap_fetch_overview($in,'1:'.$msgCount,0);
+		} else {
+			require_once('Net/POP3.php');
+			$in = new Net_POP3();
+	
+			if($port==null) {
+				if($ssl) $port=995;
+				else $port=110;
+			}
+	
+			if(PEAR::isError( $ret= $in->connect(($ssl?'ssl://':'').$host , $port) )) {
+				return false;
+//					die('(connect error) '.$ret->getMessage());
+			}
+	
+			if(PEAR::isError( $ret= $in->login($user , $pass, $method))) {
+				return false;
+	//					die('(login error) '.$ret->getMessage());
+			}
+			
+			$l = $in->getListing();
+		}
+			
+		if($l===false) {
+			return false;
+	//				die('unknown error');
+		}
+		$uidls_file = $box_dir.'.uidls';
+		if($account['pop3_leave_msgs_on_server']!=0 && file_exists($uidls_file)) {
+			$uidls = array();
+			if(($uidls_fp = @fopen($uidls_file,'r'))!==false) {
+				while(($data = fgetcsv($uidls_fp,200))!==false) {
+					$xxx = count($data);
+					if($xxx!=2) continue;
+					$uidls[$data[0]] = intval($data[1]);
+				}
+				fclose($uidls_fp);
+			}
+	
+			if(!empty($uidls)) {
+				$count = count($l);
+				for($k=0; $k<$count; $k++) {
+					if($native_support) {
+						if(!isset($l[$k]->message_id)) {
+							unset($l[$k]);
+							continue;
+						}
+						$uidl = $l[$k]->message_id;
+					} else {
+						if(!isset($l[$k]['uidl'])) {
+							unset($l[$k]);
+							continue;
+						}
+						$uidl = $l[$k]['uidl'];
+					}
+					if(array_key_exists($uidl,$uidls)) {
+						if($account['pop3_leave_msgs_on_server']>=0 && ($uidls[$uidl]+$account['pop3_leave_msgs_on_server']*86400)<=$now) {
+							if($native_support)
+								imap_delete($in,$l[$k]->uid);
+							else
+								$in->deleteMsg($l[$k]['msg_id']);
+							unset($uidls[$uidl]);
+						}
+						unset($l[$k]);
+					}
+				}
+			}
+	
+		}
+		$num_msgs = count($l);
+
+		if($native_support)
+			imap_close($in);
+		else
+			$in->disconnect();
+
+		return $num_msgs;
+	}
+
+	public static function get_number_of_new_messages_in_inbox($id,$cache_pop3=false) {
+		$account = self::get_mailbox_data($id);
+		if(!$account) return false;
 		$num_msgs = 0;
-		if(isset($struct['Inbox'])) {
-			$num_msgs = self::inbox_sum($id,$struct['Inbox'],'Inbox/');
+		if($account['incoming_protocol']) {
+			$struct = Apps_MailClientCommon::get_mailbox_structure($id);
+			if(isset($struct['Inbox'])) {
+				$num_msgs = self::inbox_sum($id,$struct['Inbox'],'Inbox/');
+			}
+		} else {
+			$box_dir = Apps_MailClientCommon::get_mailbox_dir($id);
+			if($box_dir===false) {
+				return false;
+//				die('invalid mailbox');
+			}
+			$pop3_cache_file = $box_dir.'.pop3_new_msgs';
+			if($cache_pop3) {
+				$num_msgs = file_get_contents($pop3_cache_file);
+			} else {
+				$num_msgs = self::get_number_of_new_pop3_messages($id);
+				file_put_contents($pop3_cache_file,$num_msgs);
+			}
 		}
 		return $num_msgs;
 	}
@@ -1175,7 +1306,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 			$_SESSION['mails'] = array();
 		$ret = array();
 		foreach($boxes as $v) {
-			$num = self::get_number_of_messages_in_inbox($v['id']);
+			$num = self::get_number_of_new_messages_in_inbox($v['id'],true);
 			if($num == 0) continue;
 			if(!isset($_SESSION['mails'][$v['id']]) || $_SESSION['mails'][$v['id']]!=$num) {
 				$_SESSION['mails'][$v['id']] = $num;

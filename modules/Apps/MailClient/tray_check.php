@@ -19,23 +19,26 @@ if(!Acl::is_user()) {
 	exit();
 }
 
-$accounts = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE user_login_id=%d AND incoming_protocol=1',array(Acl::get_user()));
+$accounts = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE user_login_id=%d AND incoming_protocol<2',array(Acl::get_user()));
 if(empty($accounts)) {
 	exit();
 }
 foreach($accounts as $a) {
-	$online = Apps_MailClientCommon::is_online($a['id']);
-	//sync dirs
-	Apps_MailClientCommon::imap_sync_mailbox_dir($a['id']);
-	//sync inbox(without subdirs) messages
-	$local_dirs = Apps_MailClientCommon::get_mailbox_structure($a['id']);
-	$inbox = null;
-	foreach($local_dirs as $k=>$arr)
-		if(strcasecmp($k,'inbox')==0) {
-			$inbox = $k;
-			break;
-		}
-	if($inbox) Apps_MailClientCommon::imap_get_new_messages($a['id'],$inbox.'/');
+	if($a['incoming_protocol']) {//imap
+		//sync dirs
+		Apps_MailClientCommon::imap_sync_mailbox_dir($a['id']);
+		//sync inbox(without subdirs) messages
+		$local_dirs = Apps_MailClientCommon::get_mailbox_structure($a['id']);
+		$inbox = null;
+		foreach($local_dirs as $k=>$arr)
+			if(strcasecmp($k,'inbox')==0) {
+				$inbox = $k;
+				break;
+			}
+		if($inbox) Apps_MailClientCommon::imap_get_new_messages($a['id'],$inbox.'/');
+	} else { //pop3
+		Apps_MailClientCommon::get_number_of_new_messages_in_inbox($id);
+	}
 }
 
 ?>

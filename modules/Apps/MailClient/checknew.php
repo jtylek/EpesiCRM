@@ -92,7 +92,7 @@ foreach($accounts as $account) {
 	$num = 0;
 	$error = false;
 	//check uidls and unset already downloaded messages
-	$uidls_file = $box_root.'.uilds';
+	$uidls_file = $box_root.'.uidls';
 	$uidls = array();
 	if(($uidls_fp = @fopen($uidls_file,'r'))!==false) {
 		while(($data = fgetcsv($uidls_fp,200))!==false) {
@@ -224,6 +224,7 @@ foreach($accounts as $account) {
 		@ob_flush();
 	}
 
+	file_put_contents($box_root.'.pop3_new_msgs',0);
 	echo('<script>parent.Apps_MailClient.progress_bar.set_progress(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\', 100)</script>');
 	flock($uidls_fp, LOCK_UN);
 	fclose($uidls_fp);

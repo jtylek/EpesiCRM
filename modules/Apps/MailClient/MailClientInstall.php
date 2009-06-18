@@ -93,7 +93,7 @@ class Apps_MailClientInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array("0.1");
+		return array("0.4");
 	}
 	
 	public function requires($v) {
