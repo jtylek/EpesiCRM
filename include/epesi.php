@@ -110,7 +110,7 @@ class Epesi {
 		self::$txts .= 'Epesi.text(\''.self::escapeJS($txt,false).'\',\''.self::escapeJS($id,false).'\',\''.self::escapeJS($type{0},false).'\');';
 	}
 
-	public final static function alert($txt,$del = true) {
+	public final static function alert($txt,$del = false) {
 		self::js('alert(\''.self::escapeJS($txt,false).'\')',$del);
 	}
 
