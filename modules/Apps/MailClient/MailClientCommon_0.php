@@ -1172,7 +1172,11 @@ class Apps_MailClientCommon extends ModuleCommon {
 
 		$host = explode(':',$account['incoming_server']);
 		if(isset($host[1])) $port=$host[1];
-			else $port = null;
+		else {
+			if($ssl) $port=995;
+			else $port=110;
+		}
+
 		$host = $host[0];
 		$user = $account['login'];
 		$pass = $account['password'];
@@ -1181,7 +1185,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$native_support = false;
 		if(function_exists('imap_open')) {
 			$native_support = true;
-			$in = @imap_open('{'.$host.':'.($port?$port:'110').'/pop3/novalidate-cert'.($ssl?'/ssl':'').'}', $user,$pass);
+			$in = @imap_open('{'.$host.':'.$port.'/pop3/novalidate-cert'.($ssl?'/ssl':'').'}', $user,$pass);
 			if(!$in) {
 				return false;
 	//					die('(connect error) '.implode(', ',imap_errors()));
@@ -1200,10 +1204,6 @@ class Apps_MailClientCommon extends ModuleCommon {
 			require_once('Net/POP3.php');
 			$in = new Net_POP3();
 	
-			if($port==null) {
-				if($ssl) $port=995;
-				else $port=110;
-			}
 	
 			if(PEAR::isError( $ret= $in->connect(($ssl?'ssl://':'').$host , $port) )) {
 				return false;
