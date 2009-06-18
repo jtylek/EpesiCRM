@@ -44,18 +44,21 @@ class Base_MailCommon extends Base_AdminModuleCommon {
 	 * @return true on success, false otherwise
 	 */
 	public static function send($to,$subject,$body,$from_addr=null, $from_name=null) {
-		$mailer = new PHPMailer();
-		$mailer->SetLanguage(Base_LangCommon::get_lang_code(), 'modules/Base/Mail/language/');
+		$mailer = self::new_mailer();
 		if(!isset($from_addr)) $from_addr = Variable::get('mail_from_addr');
-		$mailer->From = $from_addr;
 		if(!isset($from_name)) $from_name = Variable::get('mail_from_name');
-		$mailer->FromName = $from_name;
-		$mailer->Host = Variable::get('mail_host');
-		$mailer->Mailer = Variable::get('mail_method');
+		$mailer->SetFrom($from_addr, $from_name);
+		if(Variable::get('mail_method') == 'smtp') {
+			$mailer->IsSMTP();
+			$h = explode(':', Variable::get('mail_host'));
+			$mailer->Host = $h[0];
+			if(isset($h[1]))
+				$mailer->Port = $h[1];
+			$mailer->Username = Variable::get('mail_user');
+			$mailer->Password = Variable::get('mail_password');
+			$mailer->SMTPAuth = Variable::get('mail_auth');
+		}
 		$mailer->WordWrap = 75;
-		$mailer->Username = Variable::get('mail_user');
-		$mailer->Password = Variable::get('mail_password');
-		$mailer->SMTPAuth = Variable::get('mail_auth');
 		
 		if(is_array($to))
 			foreach($to as $m)

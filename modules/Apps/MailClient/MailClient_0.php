@@ -701,13 +701,21 @@ class Apps_MailClient extends Module {
 				$send_ok = true;
 				if($v['from_addr']!='pm' && $to) {
 					$mailer = Base_MailCommon::new_mailer();
-					$mailer->From = $from['mail'];//.' <'.Acl::get_user().'>';
-					$mailer->FromName = $name;
-					$mailer->Host = $from['smtp_server'];
-					$mailer->Mailer = 'smtp';
+					$mailer->SetFrom($from['mail'], $name);
+					$mailer->IsSMTP();
 					$mailer->Username = $from['smtp_login'];
 					$mailer->Password = $from['smtp_password'];
 					$mailer->SMTPAuth = $from['smtp_auth'];
+					$h = explode(':', $from['smtp_server']);
+					$mailer->Host = $h[0];
+					if(isset($h[1]))
+						$mailer->Port = $h[1];
+					else {
+						if($from['smtp_ssl'])
+							$mailer->Port = 465;
+					}
+					if($from['smtp_ssl'])
+						$mailer->SMTPSecure = "ssl";
 					foreach($to as $m)
 						$mailer->AddAddress($m);
 					$mailer->Subject = $v['subject'];
