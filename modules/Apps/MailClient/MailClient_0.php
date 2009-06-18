@@ -679,8 +679,10 @@ class Apps_MailClient extends Module {
 			$ret = true;
 			if(ModuleManager::is_installed('CRM/Contacts')>=0) {
 				$my = CRM_ContactsCommon::get_my_record();
-				$name = CRM_ContactsCommon::contact_format_default($my,true);
-				$name_epesi_mail = $my['id'].'@epesi_contact';
+				if($my['id']!==-1) {
+					$name = CRM_ContactsCommon::contact_format_default($my,true);
+					$name_epesi_mail = $my['id'].'@epesi_contact';
+				}
 			}
 			if(!isset($name)) {
 				$name = Base_UserCommon::get_my_user_login();
