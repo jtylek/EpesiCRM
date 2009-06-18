@@ -1171,16 +1171,15 @@ class Apps_MailClientCommon extends ModuleCommon {
 		}
 
 		$host = explode(':',$account['incoming_server']);
+		$ssl = $account['incoming_ssl'];
 		if(isset($host[1])) $port=$host[1];
 		else {
 			if($ssl) $port=995;
 			else $port=110;
 		}
-
 		$host = $host[0];
 		$user = $account['login'];
 		$pass = $account['password'];
-		$ssl = $account['incoming_ssl'];
 		$method = $account['incoming_method']!='auto'?$account['incoming_method']:null;
 		$native_support = false;
 		if(function_exists('imap_open')) {

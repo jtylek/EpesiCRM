@@ -31,6 +31,7 @@ flush();
 @ob_flush();
 foreach($accounts as $account) {
 	$host = explode(':',$account['incoming_server']);
+	$ssl = $account['incoming_ssl'];
 	if(isset($host[1])) $port=$host[1];
 	else {
 		if($ssl) $port=995;
@@ -39,7 +40,6 @@ foreach($accounts as $account) {
 	$host = $host[0];
 	$user = $account['login'];
 	$pass = $account['password'];
-	$ssl = $account['incoming_ssl'];
 	$method = $account['incoming_method']!='auto'?$account['incoming_method']:null;
 
 	$box_root = Apps_MailClientCommon::get_mailbox_dir($account['id']);
