@@ -8,6 +8,7 @@
  
  *
  * TODO:
+ * -nie kasowanie przy pop3 cos nie dziala - chwilowo zakomentowalem kod kasowania z checknew.php
  * -zalaczniki przy new
  * -obsluga imap:
  *   -subskrypcja do folderow
