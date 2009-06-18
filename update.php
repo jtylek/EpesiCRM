@@ -1028,6 +1028,34 @@ function update_from_1_0_0rc6_to_1_0_0() {
 	DB::Execute('alter table crm_filters_group drop key `name`');
 	DB::Execute('alter table crm_filters_group ADD UNIQUE(`name`,`user_login_id`)');
     }
+
+    //mail client
+    if (ModuleManager::is_installed('Apps_MailClient')>=0) {
+	if(!in_array('apps_mailclient_filters',$tables_db))
+		DB::CreateTable('apps_mailclient_filters','
+			id I4 AUTO KEY,
+			account_id I4 NOTNULL,
+			name C(64),
+			match_method I1 DEFAULT 0',
+			array('constraints'=>', FOREIGN KEY (account_id) REFERENCES apps_mailclient_accounts(ID)'));
+
+	if(!in_array('apps_mailclient_filter_rules',$tables_db))
+		DB::CreateTable('apps_mailclient_filter_rules','
+			id I4 AUTO KEY,
+			filter_id I4 NOTNULL,
+			header C(64),
+			rule I1 DEFAULT 0,
+			value C(128)',
+			array('constraints'=>', FOREIGN KEY (filter_id) REFERENCES apps_mailclient_filters(ID)'));
+
+	if(!in_array('apps_mailclient_filter_actions',$tables_db))
+		DB::CreateTable('apps_mailclient_filter_actions','
+			id I4 AUTO KEY,
+			filter_id I4 NOTNULL,
+			action I1 DEFAULT 0,
+			value C(128)',
+			array('constraints'=>', FOREIGN KEY (filter_id) REFERENCES apps_mailclient_filters(ID)'));
+    }    
     
     //ok, done
     ModuleManager::create_common_cache();
