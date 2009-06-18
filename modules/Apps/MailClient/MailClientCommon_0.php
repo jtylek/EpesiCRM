@@ -361,6 +361,16 @@ class Apps_MailClientCommon extends ModuleCommon {
 
 		$mbox_dir = self::get_mailbox_dir($mailbox_id);
 		if($mbox_dir===false) return false;
+
+		$mime = new Mail_Mime();
+		$headers = array();
+	        $headers['From'] = $from;
+		$headers['To'] = $to;
+	 	$headers['Subject'] = $subject;
+		$headers['Date'] = $date;
+		$mime->headers($headers);
+		$mime->setHTMLBody($body);
+		$mbody = $mime->getMessage();
 		
 		if(self::is_imap($mailbox_id)) {
 			$imap = self::imap_open($mailbox_id);
@@ -375,15 +385,6 @@ class Apps_MailClientCommon extends ModuleCommon {
 			if($msg_id===false) return false;
 		}
 
-		$mime = new Mail_Mime();
-		$headers = array();
-	        $headers['From'] = $from;
-		$headers['To'] = $to;
-	 	$headers['Subject'] = $subject;
-		$headers['Date'] = $date;
-		$mime->headers($headers);
-		$mime->setHTMLBody($body);
-		$mbody = $mime->getMessage();
 		$mailbox = $mbox_dir.$dir;
 		Apps_MailClientCommon::append_msg_to_index($mailbox_id,$dir,$msg_id,$subject,$from,$to,$date,strlen($mbody),$read);
 		file_put_contents($mailbox.$msg_id,$mbody);
