@@ -23,6 +23,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		self::init($tab);
 		$commondata_sep = '/';
 		static $display_callback_table = array();
+		if (!isset(self::$table_rows[$field])) {
+			if (!isset(self::$hash[$field])) trigger_error('Unknown field "'.$field.'" for recordset "'.$tab.'"',E_USER_ERROR);
+			$field = self::$hash[$field];
+		}
 		if ($args===null) $args = self::$table_rows[$field];
 		if (!isset($display_callback_table[$tab])) {			
 			$ret = DB::Execute('SELECT * FROM '.$tab.'_callback WHERE freezed=1');
