@@ -293,8 +293,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return self::$table_rows;
 	}
 
-	public static function install_new_recordset($tab = null, $fields=array()) {
-		if (!$tab) return false;
+	public static function install_new_recordset($tab, $fields=array()) {
 		if (!preg_match('/^[a-zA-Z_]+$/',$tab)) trigger_error('Invalid table name ('.$tab.') given to install_new_recordset.',E_USER_ERROR);
 		if (false && DB::GetOne('SELECT 1 FROM recordbrowser_table_properties WHERE tab=%s', array($tab))) {
 			@DB::DropTable($tab.'_callback');
@@ -382,33 +381,28 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		self::check_table_name($tab);
 		Utils_WatchdogCommon::register_category($tab, $watchdog_callback);
 	}
-	public static function set_display_callback($tab = null, $field, $callback) {
-		if (!$tab) return false;
+	public static function set_display_callback($tab, $field, $callback) {
 		self::check_table_name($tab);
 		if (is_array($callback)) $callback = implode('::',$callback);
 		DB::Execute('DELETE FROM '.$tab.'_callback WHERE field=%s AND freezed=1', array($field));
 		DB::Execute('INSERT INTO '.$tab.'_callback (field, callback, freezed) VALUES(%s, %s, 1)', array($field, $callback));
 	}
-	public static function set_QFfield_callback($tab = null, $field, $callback) {
-		if (!$tab) return false;
+	public static function set_QFfield_callback($tab, $field, $callback) {
 		self::check_table_name($tab);
 		if (is_array($callback)) $callback = implode('::',$callback);
 		DB::Execute('DELETE FROM '.$tab.'_callback WHERE field=%s AND freezed=0', array($field));
 		DB::Execute('INSERT INTO '.$tab.'_callback (field, callback, freezed) VALUES(%s, %s, 0)', array($field, $callback));
 	}
-	public static function unset_display_callback($tab = null, $field) {
-		if (!$tab) return false;
+	public static function unset_display_callback($tab, $field) {
 		self::check_table_name($tab);
 		DB::Execute('DELETE FROM '.$tab.'_callback WHERE field=%s AND freezed=1', array($field));
 	}
-	public static function unset_QFfield_callback($tab = null, $field) {
-		if (!$tab) return false;
+	public static function unset_QFfield_callback($tab, $field) {
 		self::check_table_name($tab);
 		DB::Execute('DELETE FROM '.$tab.'_callback WHERE field=%s AND freezed=0', array($field));
 	}
 
-	public static function uninstall_recordset($tab = null) {
-		if (!$tab) return false;
+	public static function uninstall_recordset($tab) {
 		if (!self::check_table_name($tab,true)) return;
 		Utils_WatchdogCommon::unregister_category($tab);
 		DB::DropTable($tab.'_callback');
@@ -568,8 +562,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 									break;
 			}
 	}
-	public static function new_record( $tab = null, $values = array()) {
-		if (!$tab) return false;
+	public static function new_record( $tab, $values = array()) {
 		self::init($tab);
 		$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($tab));
 		$method = '';
@@ -710,7 +703,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		return $a;
 	}
-	public static function build_query( $tab = null, $crits = null, $admin = false, $order = array()) {
+	public static function build_query( $tab, $crits = null, $admin = false, $order = array()) {
 		$key=$tab.'__'.serialize($crits).'__'.$admin.'__'.serialize($order);
 		static $cache = array();
 		self::init($tab, $admin);
@@ -981,12 +974,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$ret = array('sql'=>' '.$final_tab.' WHERE true'.($admin?$default_filter:' AND active=1').$where.$having.$orderby,'vals'=>$vals);
 		return $cache[$key] = $ret;
 	}
-	public static function get_records_limit( $tab = null, $crits = null, $admin = false) {
+	public static function get_records_limit( $tab, $crits = null, $admin = false) {
 		$par = self::build_query($tab, $crits, $admin);
 		if (empty($par) || !$par) return 0;
 		return DB::GetOne('SELECT COUNT(*) FROM'.$par['sql'], $par['vals']);
 	}
-	public static function get_next_and_prev_record( $tab = null, $crits = null, $order = false, $id = null, $last = null) {
+	public static function get_next_and_prev_record( $tab, $crits, $order, $id, $last = null) {
 		$par = self::build_query($tab, $crits, false, $order);
 		if (empty($par) || !$par) return null;
 		if ($last===null || is_array($last)) {
@@ -1010,7 +1003,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							'prev'=>isset($ret[0])?$ret[0]:null);
 		}
 	}
-	public static function get_records( $tab = null, $crits = array(), $cols = array(), $order = array(), $limit = array(), $admin = false) {
+	public static function get_records( $tab, $crits = array(), $cols = array(), $order = array(), $limit = array(), $admin = false) {
 		if (!$tab) return false;
 		if (is_numeric($limit)) {
 			$limit = array('numrows'=>$limit,'offset'=>0);
@@ -1146,9 +1139,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		return $ret;
 	}
-	public static function get_record_info($tab = null, $id = null) {
-		if (!$tab) return false;
-		if (!$id) return false;
+	public static function get_record_info($tab, $id) {
 		self::check_table_name($tab);
 		$created = DB::GetRow('SELECT created_on, created_by FROM '.$tab.'_data_1 WHERE id=%d', array($id));
 		$edited = DB::GetRow('SELECT edited_on, edited_by FROM '.$tab.'_edit_history WHERE '.$tab.'_id=%d ORDER BY edited_on DESC', array($id));
@@ -1158,7 +1149,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return array(	'created_on'=>$created['created_on'],'created_by'=>$created['created_by'],
 						'edited_on'=>$edited['edited_on'],'edited_by'=>$edited['edited_by']);
 	}
-	public static function get_html_record_info($tab = null, $id = null){
+	public static function get_html_record_info($tab, $id){
 		if (is_numeric($id))$info = Utils_RecordBrowserCommon::get_record_info($tab, $id);
 		else $info = $id;
 		// If CRM Contacts module is installed get user contact
