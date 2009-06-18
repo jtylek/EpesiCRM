@@ -2,25 +2,15 @@
 /**
  * Simple mail client
 
- Kosz dla imap jest bardziej skomplikowany: imap powinien odwolywac sie do oryginalnych folderow, gdzie byla wiadomosc, a nie do "kosza".
-
- Kasowanie maili musi isc lokalnie oraz bezposrednio do serwera imap, tak samo przeniesienie itp. Na ten czas refresh musi zastopowac, zeby nie bylo konfliktu.
-
- Trzeba przeniesc patch apps_mailclient.php do update.php.
-
- Gdy serwer imap jest offline nie pozwalac kasowac, przenosic wiadomosci, tworzyc nowych. Pozwala tylko ogladac stare.
-
  Watpliwosci:
  Czy przeniesc CRM/MailClient tutaj? Na razie nie...
  Umozliwisc automatyczna synchronizacje pop3?
  
  *
  * TODO:
- * -drafts, sent i trash to specjalne foldery, wszystkie inne traktujemy tak jak inbox
  * -zalaczniki przy new
  * -obsluga imap:
  *   -subskrypcja do folderow
- * -obsluga ssl przy wysylaniu smtp
  *
  * @author pbukowski@telaxus.com
  * @copyright Copyright &copy; 2008, Telaxus LLC
@@ -726,7 +716,7 @@ class Apps_MailClient extends Module {
 						$mailer->AddCustomHeader('References: '.$references);
 					$send_ok = $mailer->Send();
 					if(!$send_ok) {
-						Epesi::alert($mailer->ErrorInfo."\nMessage moved to Drafts folder.");
+						Epesi::alert($mailer->ErrorInfo."\n\nMessage moved to Drafts folder.");
 						$save_folder = 'Drafts';
 					}
 					unset($mailer);

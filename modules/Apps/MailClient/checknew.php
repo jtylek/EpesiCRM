@@ -121,7 +121,6 @@ foreach($accounts as $account) {
 			if(array_key_exists($uidl,$uidls)) {
 				//print('old uidl=>'.$l[$k]['uidl'].', time=>'.$uidls[$l[$k]['uidl']].', live time=>'.($uidls[$l[$k]['uidl']]+$account['pop3_leave_msgs_on_server']*86400).', now=>'.$now.'<br>');
 				if($account['pop3_leave_msgs_on_server']>=0 && ($uidls[$uidl]+$account['pop3_leave_msgs_on_server']*86400)<=$now) {
-					error_log(print_r($l[$k],true)."\r\n",3,'data/kasowane.txt');
 					if($native_support)
 						imap_delete($in,$l[$k]->uid);
 					else
