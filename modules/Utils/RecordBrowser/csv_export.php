@@ -36,17 +36,56 @@ header('Content-disposition: attachement; filename="'.$tab.'_export_'.date('Y_m_
 if (headers_sent())
     die('Some data has already been output to browser, can\'t send the file');
 $cols = array('Record ID');
-foreach ($tab_info as $v)
+foreach ($tab_info as $v) {
 	$cols[] = Base_LangCommon::ts('Utils_RecordBrowser',$v['name']);
+	if ($v['style']=='currency') $cols[] = Base_LangCommon::ts('Utils_RecordBrowser',$v['name']).' - '.Base_LangCommon::ts('Utils_RecordBrowser','currency');
+}
 $f = fopen('php://output','w');
 //fwrite($f, "\xEF\xBB\xBF");
 fputcsv($f, $cols);
+$currency_codes = DB::GetAssoc('SELECT symbol, code FROM utils_currency');
+
+function rb_csv_export_format_currency_value($v, $symbol) {
+	static $currency_decimal_signs=null;
+	static $currency_thou_signs;
+	if ($currency_decimal_signs===null) {
+		$currency_decimal_signs = DB::GetAssoc('SELECT symbol, decimal_sign FROM utils_currency');
+		$currency_thou_signs = DB::GetAssoc('SELECT symbol, thousand_sign FROM utils_currency');
+	}
+	$v = str_replace(array($currency_decimal_signs[$symbol], $currency_thou_signs[$symbol]), array('.',''), $v);
+	return $v;
+}
+
 foreach ($records as $r) {
 	$rec = array($r['id']);
 	foreach ($tab_info as $v) {
 		$val = Utils_RecordBrowserCommon::get_val($tab, $v['name'], $r, true, $v);
 		$val = htmlspecialchars_decode(strip_tags(preg_replace('/\<[Bb][Rr]\/?\>/',"\n",$val)));
-		$rec[] = $val;
+		if ($v['style']=='currency') {
+			$val = str_replace('&nbsp;','_',$val);
+			$val = explode(';', $val);
+			if (isset($val[1])) {
+				$final = array();
+				foreach ($val as $v) {
+					$v = explode('_',$v);
+					if (isset($v[1])) 
+						$final[] = rb_csv_export_format_currency_value($v[0], $v[1]).' '.$currency_codes[$v[1]];
+				} 
+				$rec[] = implode('; ',$final);
+				$rec[] = '---';
+				continue;
+			}
+			$val = explode('_', $val[0]);
+			if (!isset($val[1])) {
+				$rec[] = '0';
+				$rec[] = '---';
+				continue;
+			}
+			$rec[] = rb_csv_export_format_currency_value($val[0],$val[1]);
+			$rec[] = isset($currency_codes[$val[1]])?$currency_codes[$val[1]]:$val[1];
+		} else {
+			$rec[] = $val;
+		}
 	}
 	fputcsv($f, $rec);
 }

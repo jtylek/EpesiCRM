@@ -606,7 +606,7 @@ class Utils_RecordBrowser extends Module {
 				if ($access[$argsid]=='hide') continue;
 				$field = $hash[$argsid];
 				$args = $this->table_rows[$field]; 
-				$value = $this->get_val($field, $row, $row['id'], $special, $args);
+				$value = $this->get_val($field, $row, $special, $args);
 				if (isset($this->cut[$args['id']])) {
 					$value = Utils_RecordBrowserCommon::cut_string($value,$this->cut[$args['id']]);
 				}

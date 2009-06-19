@@ -39,6 +39,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			while ($row = $ret->FetchRow())
 				$display_callback_table[$tab][$row['field']] = explode('::',$row['callback']);
 		}
+		if (!isset($record[$args['id']])) trigger_error($args['id'].' - unknown field for record '.serialize($args), E_USER_ERROR);
 		$val = $record[$args['id']];
 		if (isset($display_callback_table[$tab][$field])) {
 			$ret = call_user_func($display_callback_table[$tab][$field], $record, $links_not_recommended, self::$table_rows[$field]);
