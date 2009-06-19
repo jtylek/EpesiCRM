@@ -18,11 +18,17 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	private static $hash = array();
 	public static $admin_access = false;
 	public static $cols_order = array();
+	
+	private static $clear_get_val_cache = false;
 
 	public static function get_val($tab, $field, $record, $links_not_recommended = false, $args = null) {
 		self::init($tab);
 		$commondata_sep = '/';
 		static $display_callback_table = array();
+		if (self::$clear_get_val_cache) {
+			self::$clear_get_val_cache = false;
+			$display_callback_table = array();
+		}
 		if (!isset(self::$table_rows[$field])) {
 			if (!isset(self::$hash[$field])) trigger_error('Unknown field "'.$field.'" for recordset "'.$tab.'"',E_USER_ERROR);
 			$field = self::$hash[$field];
@@ -383,27 +389,32 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 	public static function set_display_callback($tab, $field, $callback) {
 		self::check_table_name($tab);
+		self::$clear_get_val_cache = true;
 		if (is_array($callback)) $callback = implode('::',$callback);
 		DB::Execute('DELETE FROM '.$tab.'_callback WHERE field=%s AND freezed=1', array($field));
 		DB::Execute('INSERT INTO '.$tab.'_callback (field, callback, freezed) VALUES(%s, %s, 1)', array($field, $callback));
 	}
 	public static function set_QFfield_callback($tab, $field, $callback) {
 		self::check_table_name($tab);
+		self::$clear_get_val_cache = true;
 		if (is_array($callback)) $callback = implode('::',$callback);
 		DB::Execute('DELETE FROM '.$tab.'_callback WHERE field=%s AND freezed=0', array($field));
 		DB::Execute('INSERT INTO '.$tab.'_callback (field, callback, freezed) VALUES(%s, %s, 0)', array($field, $callback));
 	}
 	public static function unset_display_callback($tab, $field) {
 		self::check_table_name($tab);
+		self::$clear_get_val_cache = true;
 		DB::Execute('DELETE FROM '.$tab.'_callback WHERE field=%s AND freezed=1', array($field));
 	}
 	public static function unset_QFfield_callback($tab, $field) {
 		self::check_table_name($tab);
+		self::$clear_get_val_cache = true;
 		DB::Execute('DELETE FROM '.$tab.'_callback WHERE field=%s AND freezed=0', array($field));
 	}
 
 	public static function uninstall_recordset($tab) {
 		if (!self::check_table_name($tab,true)) return;
+		self::$clear_get_val_cache = true;
 		Utils_WatchdogCommon::unregister_category($tab);
 		DB::DropTable($tab.'_callback');
 		DB::DropTable($tab.'_recent');
@@ -418,13 +429,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
 	public static function delete_record_field($tab, $field){
 		self::init($tab);
+		self::$clear_get_val_cache = true;
 		$exists = DB::GetOne('SELECT 1 FROM '.$tab.'_field WHERE field=%s', array($field));
 		if(!$exists) return;
 		DB::Execute('DELETE FROM '.$tab.'_field WHERE field=%s', array($field));
 		@DB::Execute('ALTER TABLE '.$tab.'_data_1 DROP COLUMN f_'.self::$table_rows[$field]['id']);
+		self::init($tab, false, true);
 	}
 	public static function new_record_field($tab, $field, $type, $visible, $required, $param='', $style='', $extra = true, $filter = false, $pos = null){
 		self::check_table_name($tab);
+		self::$clear_get_val_cache = true;
 		$exists = DB::GetOne('SELECT field FROM '.$tab.'_field WHERE field=%s', array($field));
 		if ($exists) return;
 		if ($extra) {
@@ -454,6 +468,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$f = self::actual_db_type($type, $param);
 		if ($f!=='') @DB::Execute('ALTER TABLE '.$tab.'_data_1 ADD COLUMN f_'.strtolower(str_replace(' ','_',$field)).' '.$f);
 		DB::Execute('INSERT INTO '.$tab.'_field(field, type, visible, param, style, position, extra, required, filter) VALUES(%s, %s, %d, %s, %s, %d, %d, %d, %d)', array($field, $type, $visible?1:0, $param, $style, $pos, $extra?1:0, $required?1:0, $filter?1:0));
+		self::init($tab, false, true);
 	}
 	public static function actual_db_type($type, $param=null) {
 		$f = '';
@@ -950,19 +965,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							continue;
 						}
 					}
-//					if (self::$table_rows[$v['order']]['type']=='calculated') {
-//						$cols2 = explode('|', $param[1]);
-//						$cols2 = $cols2[0];
-//						self::check_table_name($param[0]);
-//						$val = '(SELECT rdt.f_company_name FROM '.$tab.'_data_1 AS rd LEFT JOIN '.$param[0].'_data_1 AS rdt ON rdt.id=rd.f_record_id WHERE r.id=rd.id)';
-//						// TODO: check some stuff, possible inj
-//						$orderby .= ' '.$val.' '.$v['direction'];
-//						$iter++;
-//						continue;
-//					}
 				}
 				$val = 'f_'.self::$table_rows[$v['order']]['id'];
-				// could be better, doesn't work perfectly for multiselects
 				$orderby[] = ' '.$val.' '.$v['direction'];
 				$iter++;
 			}
