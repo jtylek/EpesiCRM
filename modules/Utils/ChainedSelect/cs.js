@@ -35,7 +35,6 @@ ChainedSelect.prototype = {
 	clear:function(){
 		obj.options.length=0;
 		obj.fire('e_cs:clear');
-		obj.disabled=true;
 	},
 	stop:function(){
 		this.loads++;
@@ -79,9 +78,7 @@ ChainedSelect.prototype = {
 				opts.length=0;
 				if(new_opts.length==0) {
 					obj.fire('e_cs:clear');
-					obj.disabled=true;
 				} else {
-					obj.disabled=false;
 					if(Object.isArray(new_opts)) {
 						for(y=0; y<new_opts.length; y++) {
 							opts[opts.length] = new Option(new_opts[y],y);

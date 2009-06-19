@@ -14,7 +14,7 @@ Utils_CommonData.prototype = {
 		var prev_obj = eval('obj.form.'+this.path[this.path.length-1]);
 		Event.observe(prev_obj,'change',this.request.bindAsEventListener(this));
 		Event.observe(prev_obj,'e_u_cd:load',this.request.bindAsEventListener(this));
-		Event.observe(prev_obj,'e_u_cd:clear',function(){obj.options.length=0;obj.fire('e_u_cd:clear');obj.disabled=true;});
+		Event.observe(prev_obj,'e_u_cd:clear',function(){obj.options.length=0;obj.fire('e_u_cd:clear');});
 
 		this.first_request_bind = this.first_request.bindAsEventListener(this);
 		if(this.path.length==2)
@@ -39,7 +39,6 @@ Utils_CommonData.prototype = {
 				this.obj.options.length=0;
 				this.obj.fire('e_u_cd:clear');
 //				setTimeout(this.obj.fire.bind(this.obj,'e_u_cd:clear'),1);
-				this.obj.disabled=true;
 				return;
 			}
 			curr_root += '/' + val;
@@ -58,9 +57,7 @@ Utils_CommonData.prototype = {
 		opts.length=0;
 		if(new_opts.length==0) {
 			this.obj.fire('e_u_cd:clear');
-			this.obj.disabled=true;
 		} else {
-			this.obj.disabled=false;
 			if(this.add_empty==1) opts[0] = new Option('---','');
 			$H(new_opts).each(function(x) {opts[opts.length] = new Option(x[1],x[0]);});
 			if(this.def_val!='') {
