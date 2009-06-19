@@ -37,12 +37,22 @@ var Epesi = {
 		Epesi.history_on=-1;
 		unFocus.History.addHistory(id);
 	},
+	get_ie_version:function() {
+		var rv = -1; // Return value assumes failure.
+	        if (navigator.appName == 'Microsoft Internet Explorer') {
+		        var ua = navigator.userAgent;
+			var re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+			if (re.exec(ua) != null)
+			        rv = parseFloat(RegExp.$1);
+		}
+		return rv;
+	},
+	ie:false,
 	init:function(cl_id,path,params) {
-		var browser=navigator.appName;
-		var b_version=navigator.appVersion;
-		var version=parseFloat(b_version);
-		if (browser=="Microsoft Internet Explorer") {
-			alert("Sorry but Internet Explorer is not supported.\nPlease upgrade	to Firefox.");
+		var ie_ver = Epesi.get_ie_version();
+		if (ie_ver!=-1 && ie_ver<8.0) {
+			Epesi.ie = true;
+			alert("Sorry but your version of Internet Explorer browser is not supported.\nYou should upgrade it or install Firefox.");
 			window.location = "http://www.mozilla.com/firefox/";
 		}
 
@@ -169,12 +179,21 @@ var Epesi = {
 _chj=Epesi.href;
 Ajax.Responders.register({
 onCreate: function(x,y) { //hack
-	if (typeof x.options.requestHeaders == 'undefined')
-		x.options.requestHeaders = ['X-Client-ID', Epesi.client_id];
-	else if (typeof x.options.requestHeaders.push == 'function')
-		x.options.requestHeaders.push('X-Client-ID',Epesi.client_id);
-	else
-		x.options.requestHeaders = $H(x.options.requestHeaders).merge({'X-Client-ID': Epesi.client_id});
+	if(Epesi.ie) {
+	        if (typeof x.options.requestHeaders == 'undefined')
+			x.options.requestHeaders = ['X-Client-ID', Epesi.client_id, 'X-UA-Compatible', 'IE=8'];
+		else if (typeof x.options.requestHeaders.push == 'function')
+			x.options.requestHeaders.push('X-Client-ID',Epesi.client_id);
+		else
+			x.options.requestHeaders = $H(x.options.requestHeaders).merge({'X-Client-ID': Epesi.client_id, 'X-UA-Compatible':'IE=8'});
+	} else {
+	        if (typeof x.options.requestHeaders == 'undefined')
+			x.options.requestHeaders = ['X-Client-ID', Epesi.client_id];
+		else if (typeof x.options.requestHeaders.push == 'function')
+			x.options.requestHeaders.push('X-Client-ID',Epesi.client_id);
+		else
+			x.options.requestHeaders = $H(x.options.requestHeaders).merge({'X-Client-ID': Epesi.client_id, 'X-UA-Compatible':'IE=8'});	
+	}
 },
 onException: function(req, e){
 	alert(e);

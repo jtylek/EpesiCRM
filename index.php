@@ -140,6 +140,7 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 		<link rel="icon" type="image/png" href="images/favicon.png" />
 		<title>Epesi</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=8" />
 <?php
 	require_once('libs/minify/Minify/Build.php');
 	$jses = array('libs/prototype.js','libs/HistoryKeeper.js','include/epesi.js');
