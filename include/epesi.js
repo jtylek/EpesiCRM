@@ -50,10 +50,14 @@ var Epesi = {
 	ie:false,
 	init:function(cl_id,path,params) {
 		var ie_ver = Epesi.get_ie_version();
-		if (ie_ver!=-1 && ie_ver<8.0) {
-			Epesi.ie = true;
-			alert("Sorry but your version of Internet Explorer browser is not supported.\nYou should upgrade it or install Firefox.");
-			window.location = "http://www.mozilla.com/firefox/";
+		if (ie_ver!=-1) {
+			if(ie_ver<8.0) {
+				alert("Sorry but your version of Internet Explorer browser is not supported.\nYou should upgrade it or install Mozilla Firefox.");
+				window.location = "http://www.mozilla.com/firefox/";
+			} else {
+				alert("Internet Explorer support is experimental.\nFor best experience please use Mozilla Firefox.");
+				Epesi.ie = true;
+			}
 		}
 
 		Epesi.client_id=cl_id;
@@ -179,21 +183,12 @@ var Epesi = {
 _chj=Epesi.href;
 Ajax.Responders.register({
 onCreate: function(x,y) { //hack
-	if(Epesi.ie) {
-	        if (typeof x.options.requestHeaders == 'undefined')
-			x.options.requestHeaders = ['X-Client-ID', Epesi.client_id, 'X-UA-Compatible', 'IE=8'];
-		else if (typeof x.options.requestHeaders.push == 'function')
-			x.options.requestHeaders.push('X-Client-ID',Epesi.client_id);
-		else
-			x.options.requestHeaders = $H(x.options.requestHeaders).merge({'X-Client-ID': Epesi.client_id, 'X-UA-Compatible':'IE=8'});
-	} else {
-	        if (typeof x.options.requestHeaders == 'undefined')
-			x.options.requestHeaders = ['X-Client-ID', Epesi.client_id];
-		else if (typeof x.options.requestHeaders.push == 'function')
-			x.options.requestHeaders.push('X-Client-ID',Epesi.client_id);
-		else
-			x.options.requestHeaders = $H(x.options.requestHeaders).merge({'X-Client-ID': Epesi.client_id, 'X-UA-Compatible':'IE=8'});	
-	}
+        if (typeof x.options.requestHeaders == 'undefined')
+		x.options.requestHeaders = ['X-Client-ID', Epesi.client_id];
+	else if (typeof x.options.requestHeaders.push == 'function')
+		x.options.requestHeaders.push('X-Client-ID',Epesi.client_id);
+	else
+		x.options.requestHeaders = $H(x.options.requestHeaders).merge({'X-Client-ID': Epesi.client_id});	
 },
 onException: function(req, e){
 	alert(e);
