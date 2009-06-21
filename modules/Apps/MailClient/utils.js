@@ -171,10 +171,16 @@ filter_add: function(what) {
 	$('mail_filters_'+what+'s_ids').value = ids.join(',');
 },
 filter_action_change: function(id,action) {
-	if(action=='delete' || action=='read')
+	if(action=='delete' || action=='read') {
 		$('mail_filter_action_value_'+id).hide();
-	else
+		$('mail_filter_action_value_box_'+id).hide();
+	} else if(action=='forward' || action=='forward_delete') {
 		$('mail_filter_action_value_'+id).show();
+		$('mail_filter_action_value_box_'+id).hide();
+	} else { //move,copy
+		$('mail_filter_action_value_'+id).hide();
+		$('mail_filter_action_value_box_'+id).show();
+	}
 },
 cache_mailboxes_working:false,
 cache_mailboxes_start: function() {

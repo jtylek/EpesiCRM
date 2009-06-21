@@ -66,7 +66,7 @@ class FirstRun extends Module {
 
 			$f->addElement('text', 'mail', $this->t('e-mail'));
 			$f->addRule('mail', $this->t('Field required'), 'required');
-			$f->addRule('mail', $this->t('This isn\'t valid e-mail address'), 'email');
+			$f->addRule('mail', $this->t('This isn\'t valid e-mail address'), 'email',true);
 
 			$f->addElement('password', 'pass', $this->t('Password'));
 			$f->addElement('password', 'pass_c', $this->t('Confirm password'));

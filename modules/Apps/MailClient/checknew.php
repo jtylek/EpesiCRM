@@ -216,6 +216,8 @@ foreach($accounts as $account) {
 			}
 			fputcsv($uidls_fp,array($msg_uidl,$tt));
 		}
+		
+		Apps_MailClientCommon::apply_filters($account['id'],$box_dir,$msg_id);
 
 		$num++;
 		echo('<script>parent.Apps_MailClient.progress_bar.set_progress(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\', '.ceil($num*100/$count).')</script>');

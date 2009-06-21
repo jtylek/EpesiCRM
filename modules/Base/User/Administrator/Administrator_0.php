@@ -32,7 +32,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 		$form->addElement('header', null, $this->t('Change e-mail'));
 		$form->addElement('text','mail', $this->t('New e-mail address'));
 		$form->addRule('mail', $this->t('Field required'), 'required');
-		$form->addRule('mail', $this->t('Not valid e-mail address'), 'email');
+		$form->addRule('mail', $this->t('Not valid e-mail address'), 'email',true);
 
 		//confirmation
 		$form->addElement('header', null, $this->t('Confirmation'));
@@ -139,7 +139,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 
 		$form->addElement('text', 'mail', $this->t('e-mail'));
 		$form->addRule('mail', $this->t('Field required'), 'required');
-		$form->addRule('mail', $this->t('This isn\'t valid e-mail address'), 'email');
+		$form->addRule('mail', $this->t('This isn\'t valid e-mail address'), 'email',true);
 
 		$sel = HTML_QuickForm::createElement('select', 'group', $this->t('Groups'), Base_AclCommon::get_groups());
 		$sel->setMultiple(true);

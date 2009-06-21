@@ -38,7 +38,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 	public static function filter_actions($v) {
 	    static $arr,$rev;
 	    if(!isset($arr)) {
-		$arr = array('move','copy','forward','read','delete');
+		$arr = array('move','copy','forward','read','delete','forward_delete');
 		$rev = array_flip($arr);
 	    }
 	    if(is_numeric($v))
@@ -812,7 +812,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		return array('body'=>$body, 'subject'=>$subject,'type'=>$body_type, 'ctype'=>$body_ctype, 'attachments'=>$attachments);
 	}
 	
-	public static function parse_message($box,$dir,$id,$structure=true) {
+	public static function parse_message($box,$dir,$id) {
 		$str = self::get_message_structure($box,$dir,$id);
 		if($str===false) return false;
 		return array_merge(self::parse_message_structure($str),array('headers'=>$str->headers));
@@ -1027,6 +1027,9 @@ class Apps_MailClientCommon extends ModuleCommon {
 			$downloaded++;
 			if($msgl->deleted) 
 				self::move_msg($id,$dir,$id,'Trash/',$msgl->uid);
+			else {
+				Apps_MailClientCommon::apply_filters($id,$dir,$msgl->uid);
+			}
 		}
 		
 		self::set_msg_id($id,$dir,$last_uid);
@@ -1324,6 +1327,133 @@ class Apps_MailClientCommon extends ModuleCommon {
 		if(!isset($_SESSION['client']['apps_mailclient_user']) || Acl::get_user()!=$_SESSION['client']['apps_mailclient_user']) {
 			$_SESSION['client']['apps_mailclient_user'] = Acl::get_user();
 			eval_js('Apps_MailClient.cache_mailboxes_start()',false);
+		}
+	}
+	
+	public static function new_mailer($box,$name='') {
+		$mailer = Base_MailCommon::new_mailer();
+		$from = Apps_MailClientCommon::get_mailbox_data($box);
+		$mailer->SetFrom($from['mail'],$name);
+		$mailer->IsSMTP();
+		$mailer->Username = $from['smtp_login'];
+		$mailer->Password = $from['smtp_password'];
+		$mailer->SMTPAuth = $from['smtp_auth'];
+		$h = explode(':', $from['smtp_server']);
+		$mailer->Host = $h[0];
+		if(isset($h[1]))
+			$mailer->Port = $h[1];
+		else {
+			if($from['smtp_ssl'])
+				$mailer->Port = 465;
+		}
+		if($from['smtp_ssl'])
+			$mailer->SMTPSecure = "ssl";
+		return $mailer;
+	}
+	
+	public static function apply_filters($box,$dir,$msg_id) {
+		static $filters;
+
+		$msg = self::parse_message($box,$dir,$msg_id);
+		if($msg==false) return;
+
+		if(!isset($filters)) $filters = array();
+		if(!isset($filters[$box])) {
+			$filters[$box] = DB::GetAll('SELECT id,match_method FROM apps_mailclient_filters WHERE account_id=%d',array($box));
+			$filters[$box]['rules'] = DB::GetAll('SELECT header,rule,value FROM apps_mailclient_filter_rules WHERE filter_id=%d',array($filters[$box]['id']));
+			$filters[$box]['actions'] = DB::GetAll('SELECT action,value FROM apps_mailclient_filter_actions WHERE filter_id=%d',array($filters[$box]['id']));
+		}
+
+		foreach($filters[$box] as $filter) {
+			$match_method = self::filter_match_method($filter['match_method']);
+			$match = ($match_method=='allmessages');
+			if(!$match)
+				foreach($filter['rules'] as $rule) {
+					$match_this = false;
+					
+					if(!isset($msg['headers'][$rule['header']])) //TODO: is it ok?
+						$header_value = '';
+					else
+						$header_value = $msg['headers'][$rule['header']];
+					$ru = self::filter_rules_match($rule['rule']);
+					switch($ru) {
+						case 'contains':
+							if(strpos($header_value,$rule['value'])!==false)
+								$match_this = true;
+							break;
+						case 'notcontains':
+							if(strpos($header_value,$rule['value'])===false)
+								$match_this = true;
+							break;
+						case 'is':
+							if($header_value==$rule['value'])
+								$match_this = true;
+							break;
+						case 'notis':
+							if($header_value!=$rule['value'])
+								$match_this = true;
+							break;
+						case 'begins':
+							if(strpos($header_value,$rule['value'])===0)
+								$match_this = true;
+							break;
+						case 'ends':
+							if(strpos($header_value,$rule['value'])===(strlen($header_value)-strlen($rule['value'])))
+								$match_this = true;
+							break;
+					}
+					
+					//if "any rule" and matched this rule break and go to actions
+					if($match_this && $match_method=='anyrule') {
+						$match=true;
+						break;
+					}
+					//if "all rules" required and not matched this one, break and skip to another filter
+					if(!$match_this && $match_method=='allrules') {
+						break;
+					}
+				}
+			if(!$match) continue;
+			//matched, go to actions
+			foreach($filter['actions'] as $action) {
+				$act = self::filter_actions($action['action']);
+				//TODO: 'move','copy'
+				switch($act) {
+					case 'copy':
+					
+						break;
+					case 'move':
+					
+						break;
+					case 'forward':
+					case 'forward_delete':
+						$mailer = self::new_mailer($box);
+						$mailer->AddAddress($action['value']);
+						//TODO: attachments
+						$mailer->Subject = $msg['subject'];
+						if($msg['type']=='plain') {
+							$mailer->IsHTML(false);
+							if(eregi("charset=([a-z0-9\-]+)",$msg['ctype'],$reqs)) {
+								$charset = $reqs[1];
+								$mailer->CharSet = $charset;
+							}
+
+						} else {
+							$mailer->IsHTML(true);
+							$mailer->AltBody = strip_tags($msg['body']);
+						}
+						$mailer->Body = $msg['body'];
+						$send_ok = $mailer->Send();
+						
+						if($act=='forward') break;
+					case 'delete':
+						Apps_MailClientCommon::remove_msg($box,$dir,$msg_id,$imap);
+						break;
+					case 'read':
+						Apps_MailClientCommon::read_msg($box,$dir,$msg_id);
+						break;
+				}
+			}
 		}
 	}
 }

@@ -21,7 +21,7 @@ class Base_Mail_ContactUs extends Module {
 		if(!Acl::is_user()) {
     		    $form->addElement('text','mail', $this->t('E-mail address:'));
 		    $form->addRule('mail', $this->t('Field required'), 'required');
-    	    	    $form->addRule('mail', $this->t('Not valid e-mail address'), 'email');
+    	    	    $form->addRule('mail', $this->t('Not valid e-mail address'), 'email',true);
 		}
 		
 		$body = HTML_QuickForm::createElement('textarea', 'body',null,array('id'=>'contact_us'));

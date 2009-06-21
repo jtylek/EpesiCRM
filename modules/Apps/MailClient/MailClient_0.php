@@ -8,6 +8,7 @@
  
  *
  * TODO:
+ * -filtry: actions, attachmenty w forward
  * -nie kasowanie przy pop3 cos nie dziala - chwilowo zakomentowalem kod kasowania z checknew.php
  * -zalaczniki przy new
  * -obsluga imap:
@@ -690,23 +691,8 @@ class Apps_MailClient extends Module {
 				//remote delivery
 
 				$send_ok = true;
-				if($v['from_addr']!='pm' && $to) {
-					$mailer = Base_MailCommon::new_mailer();
-					$mailer->SetFrom($from['mail'], $name);
-					$mailer->IsSMTP();
-					$mailer->Username = $from['smtp_login'];
-					$mailer->Password = $from['smtp_password'];
-					$mailer->SMTPAuth = $from['smtp_auth'];
-					$h = explode(':', $from['smtp_server']);
-					$mailer->Host = $h[0];
-					if(isset($h[1]))
-						$mailer->Port = $h[1];
-					else {
-						if($from['smtp_ssl'])
-							$mailer->Port = 465;
-					}
-					if($from['smtp_ssl'])
-						$mailer->SMTPSecure = "ssl";
+				if($from && $to) {
+					$mailer = Apps_MailClientCommon::new_mailer($box,$name);
 					foreach($to as $m)
 						$mailer->AddAddress($m);
 					$mailer->Subject = $v['subject'];
@@ -865,7 +851,7 @@ class Apps_MailClient extends Module {
 
 		$cols = array(
 				array('name'=>'header','label'=>$this->t(ucwords($action).' account'),'type'=>'header'),
-				array('name'=>'mail','label'=>$this->t('Mail address'),'rule'=>array(array('type'=>'email','message'=>$this->t('This isn\'t valid e-mail address')))),
+				array('name'=>'mail','label'=>$this->t('Mail address'),'rule'=>array(array('type'=>'email','message'=>$this->t('This isn\'t valid e-mail address'), 'param'=>true))),
 				array('name'=>'login','label'=>$this->t('Login')),
 				array('name'=>'password','label'=>$this->t('Password'),'type'=>'password'),
 
@@ -1087,7 +1073,12 @@ class Apps_MailClient extends Module {
 			$rid = 1;
 			$actions_def = array();
 			while($row = $ret->FetchRow()) {
-				$actions_def[$rid] = array('value'=>$row['value'], 'action'=>Apps_MailClientCommon::filter_actions($row['action']));
+				$row_action = Apps_MailClientCommon::filter_actions($row['action']);
+				if($row_action=='move' || $row_action=='copy')
+					$value_name = 'value_box';
+				else
+					$value_name = 'value';
+				$actions_def[$rid] = array($value_name=>$row['value'], 'action'=>$row_action);
 				$rid++;
 			}
 			$f->setDefaults(array('action'=>$actions_def,'actions_ids'=>implode(',',array_keys($actions_def))));
@@ -1128,12 +1119,22 @@ class Apps_MailClient extends Module {
 			trigger_error('Filter actions_ids field empty!');
 		$actions_ids = explode(',',$actions_ids);
 		$theme->assign('actions_ids',$actions_ids);
+
+		//move and copy mboxes
+		$boxes = Apps_MailClientCommon::get_mailbox_data();
+		$move_folders = array();
+		foreach($boxes as $v) {
+			$name = $v['mail']=='#internal'?$this->t('Private messages'):$v['mail'];
+			$str = Apps_MailClientCommon::get_mailbox_structure($v['id']);
+			$move_folders = array_merge($move_folders,$this->get_move_folders($str,$name,$v['id']));
+		}
 		
 		$actions_ids[] = 'template';
 		foreach($actions_ids as $rid) {
 			$g = array();
-			$g[] = $f->createElement('select','action','',array('move'=>Base_LangCommon::ts('Apps_MailClient','Move message to'),'copy'=>Base_LangCommon::ts('Apps_MailClient','Copy message to'),'forward'=>Base_LangCommon::ts('Apps_MailClient','Forward message to'),'read'=>Base_LangCommon::ts('Apps_MailClient','Mark as read'),'delete'=>Base_LangCommon::ts('Apps_MailClient','Delete')),array('onChange'=>'Apps_MailClient.filter_action_change('.$rid.',this.value)'));
+			$g[] = $f->createElement('select','action','',array('move'=>Base_LangCommon::ts('Apps_MailClient','Move message to'),'copy'=>Base_LangCommon::ts('Apps_MailClient','Copy message to'),'forward'=>Base_LangCommon::ts('Apps_MailClient','Forward message to'),'forward_delete'=>Base_LangCommon::ts('Apps_MailClient','Forward message to ... and delete.'),'read'=>Base_LangCommon::ts('Apps_MailClient','Mark as read'),'delete'=>Base_LangCommon::ts('Apps_MailClient','Delete message pernamently')),array('onChange'=>'Apps_MailClient.filter_action_change('.$rid.',this.value)'));
 			$g[] = $f->createElement('text','value','',array('id'=>'mail_filter_action_value_'.$rid));
+			$g[] = $f->createElement('select','value_box','',$move_folders,array('id'=>'mail_filter_action_value_box_'.$rid));
 			$g[] = $f->createElement('button','remove',$this->ht('Remove action'),array('onClick'=>'Apps_MailClient.filter_remove(\'action\','.$rid.')'));
 			$f->addGroup($g,'action['.$rid.']');
 			$val = $f->exportValue('action['.$rid.']');
@@ -1167,6 +1168,8 @@ class Apps_MailClient extends Module {
 		    }
 		    foreach($vals['action'] as $i=>$row) {
 			    if($i=='template') continue;
+			    if($row['action'] == 'move' || $row['action'] == 'copy')
+				    $row['value'] = $row['value_box'];
 			    DB::Execute('INSERT INTO apps_mailclient_filter_actions (filter_id,action,value) VALUES (%d, %d, %s)',
 				    array($id,Apps_MailClientCommon::filter_actions($row['action']),$row['value']));
 		    }
@@ -1193,8 +1196,18 @@ class Apps_MailClient extends Module {
 		}
 		foreach($f['action'] as $id=>$r) {
 			if($id=='template') continue;
-			if(empty($r['value']) && $r['action']!='delete' && $r['action']!='read')
-				$ret['action['.$id.']'] = $this->t('Value required.');
+			if($r['action']=='move' || $r['action']=='copy') {
+				if(empty($r['value_box']))
+					$ret['action['.$id.']'] = $this->t('Value required.');
+			} elseif($r['action']=='forward' || $r['action']=='forward_delete') {
+				if(empty($r['value'])) {
+					$ret['action['.$id.']'] = $this->t('Value required.');
+					break;
+				}
+				$mr = new HTML_QuickForm_Rule_Email();
+				if(!$mr->validate($r['value'],true))
+					$ret['action['.$id.']'] = $this->t('This isn\'t valid e-mail address');
+			}
 		}
 		if(!empty($ret))
 			return $ret;
