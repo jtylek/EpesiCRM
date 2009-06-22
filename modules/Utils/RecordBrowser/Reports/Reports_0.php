@@ -42,7 +42,7 @@ class Utils_RecordBrowser_Reports extends Module {
 	}
 	
 	public function enable_paging($amount) {
-		if ($this->pdf) return null;
+		if (isset($_REQUEST['rb_reports_enable_pdf'])) return null;
 		$this->paging = true;
 		return $this->gb->get_limit($amount);
 	}
@@ -940,7 +940,8 @@ class Utils_RecordBrowser_Reports extends Module {
 		if ($this->is_back()) return false;
 		if ($this->date_range=='error') return;
 		Base_ThemeCommon::load_css('Utils/RecordBrowser/Reports');
-		$this->pdf = $pdf;
+		$this->pdf = $pdf || isset($_REQUEST['rb_reports_enable_pdf']);
+		unset($_REQUEST['rb_reports_enable_pdf']);
 		$this->charts = $charts;
 		if ($this->pdf) {
 			$this->pdf_ob = $this->init_module('Libs/TCPDF', 'L');
@@ -966,7 +967,7 @@ class Utils_RecordBrowser_Reports extends Module {
 				self::$pdf_ready = 1;
 			} elseif ($this->pdf_title!='' && self::$pdf_ready == 0) {
 				if (count($this->gb_captions)<20)
-					Base_ActionBarCommon::add('print','Create PDF',$this->create_callback_href(array($this, 'body'), array(true,$charts)));
+					Base_ActionBarCommon::add('print','Create PDF',$this->create_href(array('rb_reports_enable_pdf'=>1)));
 				else
 					Base_ActionBarCommon::add('print','Create PDF','','Too many columns to prepare printable version - please limit number of columns');
 			}
