@@ -36,8 +36,6 @@ class Tests_Report extends Module {
 		$this->rbr->set_summary('row', array('label'=>'Total'));
 		$this->rbr->set_format(array(	self::$cats[0]=>'numeric', 
 										self::$cats[1]=>'currency'));
-//		$this->rbr->set_data_records('contact');
-//		$this->rbr->set_data_record_relation('contact', array('company_name'=>':id'));
 		$header = array('Company');
 		$this->dates = $date_range['dates'];
 		$this->range_type = $date_range['type'];
@@ -57,7 +55,7 @@ class Tests_Report extends Module {
 		$this->display_module($this->rbr);
 	}
 
-	public function display_cells($ref_rec, $records){
+	public function display_cells($ref_rec){
 		$result = array();
 		$hash = array();
 		$i = 0;

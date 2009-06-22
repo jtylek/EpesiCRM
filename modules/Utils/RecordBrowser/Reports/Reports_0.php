@@ -15,8 +15,6 @@ class Utils_RecordBrowser_Reports extends Module {
 	private $ref_record_display_callback = null;
 	private $gb_captions = null;
 	private $calc_field_callback = null;
-	private $data_record = array();
-	private $data_record_relation = array();
 	private $display_cell_callback = array();
 	private $categories = array();
 	private $format = null;
@@ -46,30 +44,8 @@ class Utils_RecordBrowser_Reports extends Module {
 		$this->bonus_width = $arg;
 	}
 
-	public function set_data_records($dr) {
-		if (!is_array($dr)) $dr = array($dr);
-		foreach ($dr as $v) Utils_RecordBrowserCommon::check_table_name($v);
-		$this->data_record = $dr;
-	}
-
 	public function set_reference_records($rr) {
 		$this->ref_records = $rr;
-	}
-
-	public function set_data_record_relation($dr, $drr) {
-		static $hash = array();
-		if (!isset($hash[$dr])) {
-			$hash[$dr] = array();
-			Utils_RecordBrowserCommon::check_table_name($dr);
-			$ret = DB::Execute('SELECT field FROM '.$dr.'_field');
-			while ($row = $ret->FetchRow())
-				$hash[$dr][strtolower(str_replace(' ','_',$row['field']))] = $row['field'];
-		}
-		$drr_clean = array();
-		foreach($drr as $k=>$v) {
-			$drr_clean[$hash[$dr][$k]] = $v;
-		}
-		$this->data_record_relation[$dr] = $drr_clean;
 	}
 
 	public function set_reference_record_display_callback($rrdc) {
@@ -346,14 +322,8 @@ class Utils_RecordBrowser_Reports extends Module {
 		array_shift($gb_captions);
 		if (!empty($this->categories)) array_shift($gb_captions);
 		foreach($this->ref_records as $k=>$r) {
-			$data_recs = array();
-			foreach ($this->data_record as $dv) {
-				$vals = array();
-				$data_ids = array();
-				foreach ($this->data_record_relation[$dv] as $k2=>$v2) $vals = array($k2, $r['id']);
-				$data_recs[] = Utils_RecordBrowserCommon::get_records($dv,array($k2=>$r['id']));
-			}
-			$results = call_user_func($this->display_cell_callback, $r, $data_recs);
+			$results = call_user_func($this->display_cell_callback, $r);
+			if (!is_array($results)) $results = array($results);
 			if (empty($this->categories)) {
 				$total = 0;
 				$i = 0;
@@ -488,14 +458,7 @@ class Utils_RecordBrowser_Reports extends Module {
 	public function draw_chart($r,$ref_rec,$gb_captions) {
 			$f = $this->init_module('Libs/OpenFlashChart');
 			$f2 = $this->init_module('Libs/OpenFlashChart');
-			$data_recs = array();
-			foreach ($this->data_record as $dv) {
-				$vals = array();
-				$data_ids = array();
-				foreach ($this->data_record_relation[$dv] as $k2=>$v2) $vals = array($k2, $r['id']);
-				$data_recs[] = Utils_RecordBrowserCommon::get_records($dv,array($k2=>$r['id']));
-			}
-			$results = call_user_func($this->display_cell_callback, $r, $data_recs);
+			$results = call_user_func($this->display_cell_callback, $r);
 
 			$title = new title( $ref_rec );
 			$f->set_title( $title );
@@ -633,14 +596,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			$col_total=array();
 
 			foreach($this->ref_records as $k=>$r) {
-				$data_recs = array();
-				foreach ($this->data_record as $dv) {
-					$vals = array();
-					$data_ids = array();
-					foreach ($this->data_record_relation[$dv] as $k2=>$v2) $vals = array($k2, $r['id']);
-					$data_recs[] = Utils_RecordBrowserCommon::get_records($dv,array($k2=>$r['id']));
-				}
-				$results = call_user_func($this->display_cell_callback, $r, $data_recs);
+				$results = call_user_func($this->display_cell_callback, $r);
 
 				$ref_rec = call_user_func($this->ref_record_display_callback, $r);
 
@@ -800,7 +756,6 @@ class Utils_RecordBrowser_Reports extends Module {
 
 	public function draw_category_chart($ref_rec,$gb_captions) {
 			$f = $this->init_module('Libs/OpenFlashChart');
-			$data_recs = array();
 
 			$title = new title( $ref_rec );
 			$f->set_title( $title );
@@ -813,14 +768,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			$max = 5;
 
 			foreach($this->ref_records as $q=>$r) {
-				$data_recs = array();
-				foreach ($this->data_record as $dv) {
-					$vals = array();
-					$data_ids = array();
-					foreach ($this->data_record_relation[$dv] as $k2=>$v2) $vals = array($k2, $r['id']); //TODO: tutaj jest blad poniewaz zawsze zastepuje vals biarac praktycznie ostatnia wartosc
-					$data_recs[] = Utils_RecordBrowserCommon::get_records($dv,array($k2=>$r['id']));
-				}
-				$results = call_user_func($this->display_cell_callback, $r, $data_recs);
+				$results = call_user_func($this->display_cell_callback, $r);
 
 				$title2 = strip_tags(call_user_func($this->ref_record_display_callback, $r));
 				$bar = new line_hollow();
