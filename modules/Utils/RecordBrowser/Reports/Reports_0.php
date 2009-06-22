@@ -13,6 +13,8 @@ class Utils_RecordBrowser_Reports extends Module {
 	private static $colours = array('#00FFFF','#008000','#000080', '#808000', '#008080', '#0000FF','#00FF00','#800080','#FF00FF','#800000','#FF0000','#C0C0C0','#808080','#000000','#FFFF00');
 	private $ref_records = array();
 	private $ref_record_display_callback = null;
+	private $paging = false;
+	private $gb = null;
 	private $gb_captions = null;
 	private $calc_field_callback = null;
 	private $display_cell_callback = array();
@@ -32,12 +34,16 @@ class Utils_RecordBrowser_Reports extends Module {
 	private $pdf_subject = '';
 	private $pdf_filename = '';
 	private $cols_total = array();
-	private $currency = 1;
 	private static $pdf_ready = 0;
 	private $bonus_width = 15;
-
-	public function set_currency($arg){
-		$this->currency = $arg;
+	
+	public function construct() {
+		$this->gb = $this->init_module('Utils/GenericBrowser',null,'report_page');
+	}
+	
+	public function enable_paging($amount) {
+		$this->paging = true;
+		return $this->gb->get_limit($amount);
 	}
 
 	public function set_bonus_width($arg){
@@ -85,36 +91,47 @@ class Utils_RecordBrowser_Reports extends Module {
 		$this->format = $arg;
 	}
 
-	public function format_cell($format, $str) {
+	public function format_cell($format, $val) {
 		if (!is_array($format)) $format = array($format=>'');
 		else $format = array_flip($format);
-		$ret = $str;
+		$ret = array();
+		if (!is_array($val)) $val = array($val);
+		$format['fade_out_zero'] = 1;
 		$css_class = '';
 		$style = '';
 		$attrs = '';
-		if (isset($format['currency'])) {
-			$ret = Utils_CurrencyFieldCommon::format($str, $this->currency);
+		foreach ($val as $k=>$v) {
+			$next = $v;
+			if (isset($format['currency'])) {
+				$v = strip_tags($v);
+				if (((float)$v)==0 && strlen($v)>0 && $v!=((string)((float)$v))) {
+					$format['fade_out_zero'] = 0;
+					$next = $v;
+				} else $next = Utils_CurrencyFieldCommon::format($v, $k);
+			}
+			if (isset($format['currency']) || isset($format['numeric']))
+				if (strip_tags($v)!=0)
+					$format['fade_out_zero'] = 0;
+			$ret[] = $next;
 		}
-//		if (isset($format['numeric'])) $ret = round($str*100)/100;
-//		if ($this->first) $style .= 'border-top:1px solid #555555;';
-//		if (isset($format['total'])) $style .= 'background-color:#DFFFDF;';
-//		if (isset($format['currency']) || isset($format['numeric'])) {
-//			if (strip_tags($str)==0) $style .= 'color: #AAAAAA;';
-//			$style .= 'text-align:right;';
-//		}
+		if (isset($format['currency'])) {
+			foreach ($ret as $k=>$v) {
+				if (count($ret)==1) break;
+				if ($v==0) unset($ret[$k]);
+			}			
+		}
+		if (isset($format['currency']) || isset($format['numeric'])) {
+			$css_class .= ' number';
+			if ($format['fade_out_zero'])
+				$css_class .= ' fade-out-zero';
+		}
 		if ($this->first) $css_class .= ' top-row';
 		if (isset($format['total-row_desc'])) $css_class .= ' total-row_desc';
 		if (isset($format['row_desc'])) $css_class .= ' row-desc';
 		if (isset($format['total_all'])) $css_class .= ' total-all';
 		elseif (isset($format['total'])) $css_class .= ' total';
-		if (isset($format['currency']) || isset($format['numeric'])) {
-			if (strip_tags($str)==0) {
-				$css_class .= ' fade-out-zero';
-				$format['fade_out_zero'] = 1;
-			}
-			$css_class .= ' number';
-		}
 		$attrs .= ' class="'.$css_class.'"';
+		$ret = implode('<br>',$ret);
 		if ($this->pdf) $ret = array('value'=>$ret, 'style'=>$format, 'attrs'=>'');
 		else $ret = array('value'=>$ret, 'style'=>$style, 'attrs'=>$attrs);
 		return $ret;
@@ -189,20 +206,39 @@ class Utils_RecordBrowser_Reports extends Module {
 		foreach (array('date_range_type','from_'.$type,'to_'.$type) as $v)
 			$this->date_range[$v] = $vals[$v];
 		$header = array();
-		$start_p = $start = $this->get_date($type, $this->date_range['from_'.$type]);
-		$end	= $this->get_date($type, $this->date_range['to_'.$type]);
+		$start_p 	= $start 	= $this->get_date($type, $this->date_range['from_'.$type]);
+		$end_p 		= $end		= $this->get_date($type, $this->date_range['to_'.$type]);
 		$header[] = $start;
 		while (true) {
 			switch ($type) {
-				case 'day': $start = strtotime(date('Y-m-d 12:00:00', $start+86400)); break;
-				case 'week': $start = strtotime(date('Y-m-d 12:00:00', $start+604800)); break;
-				case 'month': $start = strtotime(date('Y-m-15 12:00:00', $start+2592000)); break;
-				case 'year': $start = strtotime(date('Y-06-15 12:00:00', $start+2592000*12)); break;
+				case 'day': 
+					$start = strtotime(date('Y-m-d 12:00:00', $start+86400));
+					$start_format = 'Y-m-d';
+					$end_format = 'Y-m-d'; 
+					break;
+				case 'week': 
+					$start = strtotime(date('Y-m-d 12:00:00', $start+604800)); 
+					$start_format = 'Y-m-d';
+					$end_format = 'Y-m-d';
+					$fdow = Utils_PopupCalendarCommon::get_first_day_of_week();
+					$start_p -= (4-$fdow)*24*60*60;
+					$end_p += (2+$fdow)*24*60*60;
+					break;
+				case 'month': 
+					$start = strtotime(date('Y-m-15 12:00:00', $start+2592000));
+					$start_format = 'Y-m-1';
+					$end_format = 'Y-m-t'; 
+					break;
+				case 'year': 
+					$start = strtotime(date('Y-06-15 12:00:00', $start+2592000*12));
+					$start_format = 'Y-01-01';
+					$end_format = 'Y-12-31';
+					break;
 			}
 			if ($start>$end) break;
 			$header[] = $start;
 		}
-		return array('type'=>$type, 'dates'=>$header, 'start'=>date('Y-m-d',$start_p), 'end'=>date('Y-m-d',$end));
+		return array('type'=>$type, 'dates'=>$header, 'start'=>date($start_format,$start_p), 'end'=>date($end_format,$end));
 	}
 
 	public function get_date($type, $arg) {
@@ -226,10 +262,8 @@ class Utils_RecordBrowser_Reports extends Module {
 				$this->gb_captions[] = array('name'=>$this->row_summary['label']);
 		$call_once = true;
 		if (!$this->pdf) {
-			$gb = $this->init_module('Utils_GenericBrowser',null,'report_page');
-			$gb->set_table_columns($this->gb_captions);
-			$gb->set_inline_display();
-			return $gb;
+			$this->gb->set_table_columns($this->gb_captions);
+			$this->gb->set_inline_display();
 		}
 	}
 
@@ -286,7 +320,7 @@ class Utils_RecordBrowser_Reports extends Module {
 	}
 
 	public function make_table() {
-		$gb = $this->new_table_page();
+		$this->new_table_page();
 
 		if ($this->pdf) {
 			$cols = count($this->gb_captions);
@@ -325,15 +359,23 @@ class Utils_RecordBrowser_Reports extends Module {
 			$results = call_user_func($this->display_cell_callback, $r);
 			if (!is_array($results)) $results = array($results);
 			if (empty($this->categories)) {
-				$total = 0;
+				$total = array();
 				$i = 0;
 				$ref_rec = call_user_func($this->ref_record_display_callback, $r);
 				foreach ($results as & $res_ref) {
-					$val = strip_tags($res_ref);
-					if ($this->row_summary!==false) $total += $val;
+					if (!is_array($res_ref)) $res_ref = array($res_ref);
+					if ($this->row_summary!==false) {
+						foreach ($res_ref as $k=>$w) {
+							if (!isset($total[$k])) $total[$k] = 0;
+							$total[$k] += strip_tags($w);
+						}
+					}
 					if ($this->col_summary!==false) {
-						if (!isset($this->cols_total[$i])) $this->cols_total[$i] = 0;
-						$this->cols_total[$i] += $val;
+						if (!isset($this->cols_total[$i])) $this->cols_total[$i] = array();
+						foreach ($res_ref as $k=>$w) {
+							if (!isset($this->cols_total[$i][$k])) $this->cols_total[$i][$k] = 0;
+							$this->cols_total[$i][$k] += strip_tags($w);
+						}
 					}
 					$res_ref = $this->format_cell($this->format, $res_ref);
 					$res_ref['attrs'] .= $this->create_tooltip($ref_rec, $gb_captions[$i]['name'], $res_ref['value']);
@@ -357,16 +399,24 @@ class Utils_RecordBrowser_Reports extends Module {
 						$grow[0]['attrs'] .= ' rowspan="'.$count.'" ';
 					} else $grow = array(0=>array('dummy'=>1, 'value'=>''));
 					$grow[] = $this->format_cell(array(), $c);
-					$total = 0;
+					$total = array();
 					$i = 0;
 					if (!isset($this->cols_total[$c])) $this->cols_total[$c] = array();
 					$format = array($this->format[$c]);
 					foreach ($results as $v) {
-						$val = strip_tags($v[$c]);
-						if ($this->row_summary!==false) $total += $val;
+						if (!is_array($v[$c])) $v[$c] = array($v[$c]);
+						if ($this->row_summary!==false) {
+							foreach ($v[$c] as $k=>$w) {
+								if (!isset($total[$k])) $total[$k] = 0;
+								$total[$k] += strip_tags($w);
+							}
+						}
 						if ($this->col_summary!==false) {
-							if (!isset($this->cols_total[$c][$i])) $this->cols_total[$c][$i] = 0;
-							$this->cols_total[$c][$i] += $val;
+							if (!isset($this->cols_total[$c][$i])) $this->cols_total[$c][$i] = array();
+							foreach ($v[$c] as $k=>$w) {
+								if (!isset($this->cols_total[$c][$i][$k])) $this->cols_total[$c][$i][$k] = 0;
+								$this->cols_total[$c][$i][$k] += strip_tags($w);
+							}
 						}
 						$next = $this->format_cell($format, $v[$c]);
 						$next['attrs'] .= $this->create_tooltip($ref_rec, $gb_captions[$i]['name'], $next['value'], $c);
@@ -387,18 +437,29 @@ class Utils_RecordBrowser_Reports extends Module {
 				$this->display_pdf_row($ggrow);
 			} else {
 				foreach ($ggrow as $grow) {
-					$gb_row = $gb->get_new_row();
+					$gb_row = $this->gb->get_new_row();
 					$gb_row->add_data_array($grow);
 				}
 			}
 		}
 		/***** BOTTOM SUMMARY *****/
 		if ($this->col_summary!==false) {
+			static $added_page_ind = false;
+			if ($this->paging && !$added_page_ind) {
+				$this->col_summary['label'] = $this->col_summary['label'].' (page)';
+				$added_page_ind = true;
+			}
 			if (empty($this->categories)) {
-				$total = 0;
+				$total = array();
 				$i=0;
 				foreach ($this->cols_total as & $res_ref) {
-					if ($this->row_summary!==false) $total += $res_ref;
+					if (!is_array($res_ref)) $res_ref = array($res_ref);
+					if ($this->row_summary!==false) {
+						foreach ($res_ref as $k=>$w) {
+							if (!isset($total[$k])) $total[$k] = 0;
+							$total[$k] += strip_tags($w);
+						}
+					}
 					$res_ref = $this->format_cell(array($this->format,'total'), $res_ref);
 					$res_ref['attrs'] .= $this->create_tooltip($this->col_summary['label'], $gb_captions[$i]['name'], $res_ref['value']);
 					$i++;
@@ -420,12 +481,17 @@ class Utils_RecordBrowser_Reports extends Module {
 						$grow[0]['attrs'] .= 'rowspan="'.$count.'" ';
 					} else $grow = array(0=>array('dummy'=>1, 'value'=>'', 'attrs'=>'class=" total"'));
 					$grow[] = $this->format_cell(array('total'), $c);
-					$total = 0;
+					$total = array();
 					if (!isset($this->cols_total[$c])) $this->cols_total[$c] = array();
 					$format = array($this->format[$c], 'total');
 					$i=0;
 					foreach ($this->cols_total[$c] as $v) {
-						if ($this->row_summary!==false) $total += $v;
+						if ($this->row_summary!==false) {
+							foreach ($v as $k=>$w) {
+								if (!isset($total[$k])) $total[$k] = 0;
+								$total[$k] += $w;
+							}
+						}
 						$next = $this->format_cell($format, $v);
 						$next['attrs'] .= $this->create_tooltip($this->col_summary['label'], $gb_captions[$i]['name'], $next['value'], $c);
 						$grow[] = $next;
@@ -448,10 +514,10 @@ class Utils_RecordBrowser_Reports extends Module {
 
 		} else {
 			foreach ($ggrow as $grow) {
-				$gb_row = $gb->get_new_row();
+				$gb_row = $this->gb->get_new_row();
 				$gb_row->add_data_array($grow);
 			}
-			$this->display_module($gb, array(Base_ThemeCommon::get_template_filename('Utils_GenericBrowser','no_shadow')));
+			$this->display_module($this->gb, array(Base_ThemeCommon::get_template_filename('Utils_GenericBrowser','no_shadow')));
 		}
 	}
 
@@ -480,6 +546,8 @@ class Utils_RecordBrowser_Reports extends Module {
 				$bar = new line_hollow();
 				$bar->set_colour(self::$colours[0]);
 				foreach ($results as & $res_ref) {
+					if (is_array($res_ref))
+						$res_ref = array_pop($res_ref);
 					$val = (int)strip_tags($res_ref);
 					$arr[] = $val;
 					if($this->format=='currency') {
@@ -608,6 +676,8 @@ class Utils_RecordBrowser_Reports extends Module {
 					$total = 0;
 					$i = 0;
 					foreach ($results as & $res_ref) {
+						if (is_array($res_ref))
+							$res_ref = array_pop($res_ref);
 						$val = strip_tags($res_ref);
 							$total += $val;
 						if (!isset($this->cols_total[$i])) $this->cols_total[$i] = 0;
@@ -776,10 +846,15 @@ class Utils_RecordBrowser_Reports extends Module {
 				$bar->set_key($title2,3);
 				$arr = array();
 				foreach ($results as $v) {
-					if($ref_rec)
+					if($ref_rec) {
+						if (is_array($v[$ref_rec]))
+							$v[$ref_rec] = array_pop($v[$ref_rec]);
 						$val = (int)strip_tags($v[$ref_rec]);
-					else
+					} else {
+						if (is_array($v))
+							$v = array_pop($v);
 						$val = (int)strip_tags($v);
+					}
 					$arr[] = $val;
 					if($max<$val) $max=$val;
 				}
