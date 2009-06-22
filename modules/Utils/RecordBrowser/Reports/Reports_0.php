@@ -42,6 +42,7 @@ class Utils_RecordBrowser_Reports extends Module {
 	}
 	
 	public function enable_paging($amount) {
+		if ($this->pdf) return null;
 		$this->paging = true;
 		return $this->gb->get_limit($amount);
 	}
@@ -96,7 +97,8 @@ class Utils_RecordBrowser_Reports extends Module {
 		else $format = array_flip($format);
 		$ret = array();
 		if (!is_array($val)) $val = array($val);
-		$format['fade_out_zero'] = 1;
+		if (isset($format['currency']) || isset($format['numeric']))
+			$format['fade_out_zero'] = 1;
 		$css_class = '';
 		$style = '';
 		$attrs = '';
@@ -110,8 +112,8 @@ class Utils_RecordBrowser_Reports extends Module {
 				} else $next = Utils_CurrencyFieldCommon::format($v, $k);
 			}
 			if (isset($format['currency']) || isset($format['numeric']))
-				if (strip_tags($v)!=0)
-					$format['fade_out_zero'] = 0;
+				if ($v!=0)
+					unset($format['fade_out_zero']);
 			$ret[] = $next;
 		}
 		if (isset($format['currency'])) {
@@ -122,7 +124,7 @@ class Utils_RecordBrowser_Reports extends Module {
 		}
 		if (isset($format['currency']) || isset($format['numeric'])) {
 			$css_class .= ' number';
-			if ($format['fade_out_zero'])
+			if (isset($format['fade_out_zero']))
 				$css_class .= ' fade-out-zero';
 		}
 		if ($this->first) $css_class .= ' top-row';
@@ -290,7 +292,6 @@ class Utils_RecordBrowser_Reports extends Module {
 			$theme->display('pdf_row');
 			$table .= ob_get_clean();
 		}
-
 		$table = Libs_TCPDFCommon::stripHTML($table);
 		$pages = $this->pdf_ob->getNumPages();
 		$tmppdf = clone($this->pdf_ob->tcpdf);
@@ -444,11 +445,7 @@ class Utils_RecordBrowser_Reports extends Module {
 		}
 		/***** BOTTOM SUMMARY *****/
 		if ($this->col_summary!==false) {
-			static $added_page_ind = false;
-			if ($this->paging && !$added_page_ind) {
-				$this->col_summary['label'] = $this->col_summary['label'].' (page)';
-				$added_page_ind = true;
-			}
+			if (!$this->pdf) $this->col_summary['label'] = $this->col_summary['label'].' ('.$this->t('page').')';
 			if (empty($this->categories)) {
 				$total = array();
 				$i=0;
@@ -971,7 +968,7 @@ class Utils_RecordBrowser_Reports extends Module {
 				if (count($this->gb_captions)<20)
 					Base_ActionBarCommon::add('print','Create PDF',$this->create_callback_href(array($this, 'body'), array(true,$charts)));
 				else
-					Base_ActionBarCommon::add('print','Create PDF','','Too many columns to prepare printable version - please narrow date range');
+					Base_ActionBarCommon::add('print','Create PDF','','Too many columns to prepare printable version - please limit number of columns');
 			}
 		}
 		return false;
