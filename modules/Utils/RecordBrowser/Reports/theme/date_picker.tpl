@@ -1,5 +1,28 @@
+{*		{php}
+		print_r($this->_tpl_vars['form_data']);
+		{/php}*}
+
 {$form_open}
 <div style="text-align:left; padding-left: 10px; padding-right: 10px;">
+
+<table cellpadding="0" cellspacing="0" class="Utils_RecordBrowser_Reports__date_picker">
+	<tr>
+		{assign var=block value=0}
+		{foreach item=e key=k from=$form_data}
+			{if is_array($e) && isset($e.name) && $e.name=="date_range_type"}
+				{assign var=block value=1}
+			{/if}
+			{if $block==0 && is_array($e) && isset($e.html)}
+				<td class="label">
+					{$e.label}
+				</td>
+				<td class="data">
+					{$e.html}
+				</td>
+			{/if}
+		{/foreach}
+	</tr>
+</table>
 <table cellpadding="0" cellspacing="0" class="Utils_RecordBrowser_Reports__date_picker">
 	<tr>
 		<td style="text-align:center;font-weight:bold" colspan="7">

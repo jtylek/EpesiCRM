@@ -157,8 +157,8 @@ class Utils_RecordBrowser_Reports extends Module {
 		return $st<=$nd;
 	}
 
-	public function display_date_picker($datepicker_defaults = array()) {
-		$form = $this->init_module('Libs/QuickForm');
+	public function display_date_picker($datepicker_defaults = array(), $form=null) {
+		if ($form===null) $form = $this->init_module('Libs/QuickForm');
 		$theme = $this->init_module('Base/Theme');
 		$display_stuff_js = 'document.getElementById(\'day_elements\').style.display=\'none\';document.getElementById(\'month_elements\').style.display=\'none\';document.getElementById(\'week_elements\').style.display=\'none\';document.getElementById(\'year_elements\').style.display=\'none\';document.getElementById(this.value+\'_elements\').style.display=\'block\';';
 		$form->addElement('select', 'date_range_type', $this->t('Display report'), array('day'=>$this->t('Days'), 'week'=>$this->t('Weeks'), 'month'=>$this->t('Months'), 'year'=>$this->t('Years')), array('onChange'=>$display_stuff_js, 'onKeyUp'=>$display_stuff_js));
@@ -188,7 +188,7 @@ class Utils_RecordBrowser_Reports extends Module {
 		$form->addRule(array('date_range_type','from_day','to_day','from_week','to_week','from_month','to_month','from_year','to_year'), $this->t('\'From\' date must be earlier than \'To\' date'), 'check_dates');
 
 		$failed = false;
-		$vals = $form->exportValues();
+		$other = $vals = $form->exportValues();
 		$this->set_module_variable('vals',$vals);
 		if ($vals['submited'] && !$form->validate()) {
 			$this->date_range = 'error';
@@ -241,7 +241,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			if ($start>$end) break;
 			$header[] = $start;
 		}
-		return array('type'=>$type, 'dates'=>$header, 'start'=>date($start_format,$start_p), 'end'=>date($end_format,$end));
+		return array('type'=>$type, 'dates'=>$header, 'start'=>date($start_format,$start_p), 'end'=>date($end_format,$end), 'other'=>$other);
 	}
 
 	public function get_date($type, $arg) {
