@@ -385,6 +385,7 @@ class Utils_RecordBrowser_Reports extends Module {
 				}
 				array_unshift($results, $this->format_cell(array('row_desc'), $ref_rec));
 				if ($this->row_summary!==false) {
+					if (isset($this->row_summary['callback'])) $total = call_user_func($this->row_summary['callback'], $results, $total);
 					$next = $this->format_cell(array($this->format,'total'), $total);
 					$next['attrs'] .= $this->create_tooltip($ref_rec, $this->row_summary['label'], $next['value']);
 					$results[] = $next;
@@ -427,6 +428,7 @@ class Utils_RecordBrowser_Reports extends Module {
 					}
 					$format[] = 'total';
 					if ($this->row_summary!==false) {
+						if (isset($this->row_summary['callback'])) $total = call_user_func($this->row_summary['callback'], $results, $total, $c);
 						$next = $this->format_cell($format, $total);
 						$next['attrs'] .= $this->create_tooltip($ref_rec, $this->row_summary['label'], $next['value'], $c);
 						$grow[] = $next;
