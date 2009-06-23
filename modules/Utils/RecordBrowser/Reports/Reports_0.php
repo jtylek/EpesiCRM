@@ -104,16 +104,17 @@ class Utils_RecordBrowser_Reports extends Module {
 		$attrs = '';
 		foreach ($val as $k=>$v) {
 			$next = $v;
-			if (isset($format['currency'])) {
-				$v = strip_tags($v);
-				if (((float)$v)==0 && strlen($v)>0 && $v!=((string)((float)$v))) {
-					$format['fade_out_zero'] = 0;
-					$next = $v;
-				} else $next = Utils_CurrencyFieldCommon::format($v, $k);
+			if (((float)$v)==0 && strlen($v)>0 && $v!=((string)((float)$v))) {
+				unset($format['fade_out_zero']);
+			} else {
+				if (isset($format['currency'])) {
+					$v = strip_tags($v);
+					$next = Utils_CurrencyFieldCommon::format($v, $k);
+				}
+				if (isset($format['currency']) || isset($format['numeric']))
+					if (((float)$v)!=0)
+						unset($format['fade_out_zero']);
 			}
-			if (isset($format['currency']) || isset($format['numeric']))
-				if ($v!=0)
-					unset($format['fade_out_zero']);
 			$ret[] = $next;
 		}
 		if (isset($format['currency'])) {
