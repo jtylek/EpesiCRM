@@ -229,7 +229,7 @@ class Utils_RecordBrowser_Reports extends Module {
 					break;
 				case 'month': 
 					$start = strtotime(date('Y-m-15 12:00:00', $start+2592000));
-					$start_format = 'Y-m-1';
+					$start_format = 'Y-m-01';
 					$end_format = 'Y-m-t'; 
 					break;
 				case 'year': 
