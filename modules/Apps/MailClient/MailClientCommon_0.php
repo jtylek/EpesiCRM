@@ -1018,7 +1018,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 			if($msg===false) {
 				continue;
 			}
-			$msg .= imap_body($imap['connection'],$msgl->uid,FT_UID);
+			$msg .= imap_body($imap['connection'],$msgl->uid,FT_UID | FT_PEEK);
 			$structure = self::mime_decode($msg);
 			if(!Apps_MailClientCommon::append_msg_to_index($id,$dir,$msgl->uid,isset($structure->headers['subject'])?$structure->headers['subject']:'no subject',$structure->headers['from'],$structure->headers['to'],$structure->headers['date'],strlen($msg),$msgl->seen)) {
 				continue;

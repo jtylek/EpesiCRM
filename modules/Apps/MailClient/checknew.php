@@ -196,10 +196,10 @@ foreach($accounts as $account) {
 		if($tt===false) $tt=$now;
 		//print('uidl=>'.$msgl['uidl'].', time=>'.$tt.', live time=>'.($tt+$account['pop3_leave_msgs_on_server']*86400).', now=>'.$now.'<br>');
 		if($account['pop3_leave_msgs_on_server']>=0 && ($tt+$account['pop3_leave_msgs_on_server']*86400)<=$now) {
-/*			if($native_support)
+			if($native_support)
 				imap_delete($in,$msgl->uid);
 			else
-				$in->deleteMsg($msgl['msg_id']);*/
+				$in->deleteMsg($msgl['msg_id']);
 		} else {
 			if($native_support) {
 				if(!isset($msgl->message_id)) {
