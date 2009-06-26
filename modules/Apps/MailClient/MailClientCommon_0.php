@@ -596,7 +596,11 @@ class Apps_MailClientCommon extends ModuleCommon {
 			if(!$imap2) return false;
 			$mailbox_name = imap_utf7_encode($imap2['ref'].rtrim($dir2,'/'));
 			$st = imap_status($imap2['connection'],$mailbox_name,SA_UIDNEXT);
-			if(self::imap_errors('Unable to save message on imap server')) return false;
+			if(self::imap_errors('Unable to save message on imap server')) {
+				self::unlock_mailbox_dir($box,$dir,'idx');
+				self::unlock_mailbox_dir($box2,$dir2,'idx');
+				return false;
+			}
 			$id2 = $st->uidnext;
     			imap_append($imap2['connection'], $mailbox_name, $msg);
 			self::set_msg_id($box2,$dir2,$id2);
@@ -646,6 +650,59 @@ class Apps_MailClientCommon extends ModuleCommon {
 			}
 			self::unlock_mailbox_dir($box,$dir,'trash');
 		}
+		if($dir2=='Trash/') {
+			$trashpath = $boxpath2.'.del';
+			$out = @fopen($trashpath,'a');
+			if($out!==false) {
+				fputcsv($out,array($id2,$dir,$id));
+				fclose($out);
+			}
+		}
+		return $id2;
+	}
+
+	public static function copy_msg($box, $dir, $box2, $dir2, $id) {
+		$mbox_dir = self::get_mailbox_dir($box);
+		if($mbox_dir===false) return false;
+		$boxpath = $mbox_dir.$dir;
+		$mbox2_dir = self::get_mailbox_dir($box2);
+		if($mbox2_dir===false) return false;
+		$boxpath2 = $mbox2_dir.$dir2;
+		$msg = @file_get_contents($boxpath.$id);
+		if($msg===false) return false;
+
+		if(!self::lock_mailbox_dir($box2,$dir2,'idx')) return false;
+		
+		if(self::is_imap($box2)) {
+			$imap2 = self::imap_open($box2);
+			if(!$imap2) return false;
+			$mailbox_name = imap_utf7_encode($imap2['ref'].rtrim($dir2,'/'));
+			$st = imap_status($imap2['connection'],$mailbox_name,SA_UIDNEXT);
+			if(self::imap_errors('Unable to save message on imap server')) {
+				self::unlock_mailbox_dir($box2,$dir2,'idx');
+				return false;
+			}
+			$id2 = $st->uidnext;
+    			imap_append($imap2['connection'], $mailbox_name, $msg);
+			self::set_msg_id($box2,$dir2,$id2);
+		} else {
+			$id2 = self::get_next_msg_id($box2,$dir2);
+			if($id2===false) {
+				self::unlock_mailbox_dir($box2,$dir2,'idx');
+				return false;
+			}
+		}
+
+		file_put_contents($boxpath2.$id2,$msg);
+		$idx = self::get_index($box,$dir);
+		$idx = $idx[$id];
+		if(!self::append_msg_to_index($box2,$dir2,$id2,$idx['subject'],$idx['from'],$idx['to'],$idx['date'],$idx['size'],$idx['read'])) {
+			self::unlock_mailbox_dir($box2,$dir2,'idx');
+			return false;
+		}
+
+		self::unlock_mailbox_dir($box2,$dir2,'idx');
+
 		if($dir2=='Trash/') {
 			$trashpath = $boxpath2.'.del';
 			$out = @fopen($trashpath,'a');
@@ -1417,13 +1474,14 @@ class Apps_MailClientCommon extends ModuleCommon {
 			//matched, go to actions
 			foreach($filter['actions'] as $action) {
 				$act = self::filter_actions($action['action']);
-				//TODO: 'move','copy'
 				switch($act) {
 					case 'copy':
-					
+						$out_box = explode('/',$action['value'],2);
+						Apps_MailClientCommon::copy_msg($box,$dir,$out_box[0],$out_box[1],$msg_id);
 						break;
 					case 'move':
-					
+						$out_box = explode('/',$action['value'],2);
+						Apps_MailClientCommon::move_msg($box,$dir,$out_box[0],$out_box[1],$msg_id);
 						break;
 					case 'forward':
 					case 'forward_delete':
