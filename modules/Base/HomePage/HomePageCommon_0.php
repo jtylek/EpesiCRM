@@ -34,7 +34,14 @@ class Base_HomePageCommon extends ModuleCommon {
 	public static function save() {
 		if(!Acl::is_user()) return;
 		$uid = Acl::get_user();
-		$url = serialize($_SESSION['client']['__module_vars__']);
+		
+		$m = Module::static_get_module_variable('/Base_Box|0','main');
+		$v = end($m);
+		if(str_replace('_','/',$v['module']) == Base_BoxCommon::get_main_module_name()) {
+			$url = '';
+		} else {
+			$url = serialize($_SESSION['client']['__module_vars__']);
+		}
 		DB::Replace('home_page',array('user_login_id'=>$uid,'url'=>$url), 'user_login_id',true);
 	}
 
