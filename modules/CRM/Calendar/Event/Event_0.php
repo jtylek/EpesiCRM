@@ -190,8 +190,8 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		if($action == 'new') {
 			$duration_switch = '1';
 			if(!$timeless)
-				$id = strtotime(Base_RegionalSettingsCommon::time2reg($id,true,true,true,false));
-			$tt = $id-$id%300;
+				$id2 = strtotime(Base_RegionalSettingsCommon::time2reg($id,true,true,true,false));
+			$tt = $id2-$id2%300;
 			$me = CRM_ContactsCommon::get_contacts(array('login'=>Acl::get_user()),array('id'));
 			$my_emp = array();
 			foreach($me as $v)
@@ -227,7 +227,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			}
 			$evx = Utils_CalendarCommon::process_event($event);
 			if(!$event['timeless']) {
-				$event['start'] = strtotime(Base_RegionalSettingsCommon::time2reg($event['start'],true,true,true,false));
+//				$event['start'] = strtotime(Base_RegionalSettingsCommon::time2reg($event['start'],true,true,true,false));
 				$event['end'] = strtotime(Base_RegionalSettingsCommon::time2reg($event['end'],true,true,true,false));
 			}
 			$theme->assign('event_info',$evx);
@@ -244,7 +244,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$def = array(
 				'date_s' => $event['start'],
 //				'date_e' => $event['end'],
-				'time_s' => $event['start'],
+				'time_s' => strtotime(Base_RegionalSettingsCommon::time2reg($event['start'],true,true,true,false)),
 				'time_e' => $event['end'],
 				'status' => $event['status'],
 				'duration' => $x,
