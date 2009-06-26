@@ -1417,8 +1417,10 @@ class Apps_MailClientCommon extends ModuleCommon {
 		if(!isset($filters)) $filters = array();
 		if(!isset($filters[$box])) {
 			$filters[$box] = DB::GetAll('SELECT id,match_method FROM apps_mailclient_filters WHERE account_id=%d',array($box));
-			$filters[$box]['rules'] = DB::GetAll('SELECT header,rule,value FROM apps_mailclient_filter_rules WHERE filter_id=%d',array($filters[$box]['id']));
-			$filters[$box]['actions'] = DB::GetAll('SELECT action,value FROM apps_mailclient_filter_actions WHERE filter_id=%d',array($filters[$box]['id']));
+			foreach($filters[$box] as & $filter) {
+				$filter['rules'] = DB::GetAll('SELECT header,rule,value FROM apps_mailclient_filter_rules WHERE filter_id=%d',array($filter['id']));
+				$filter['actions'] = DB::GetAll('SELECT action,value FROM apps_mailclient_filter_actions WHERE filter_id=%d',array($filter['id']));
+			}
 		}
 
 		foreach($filters[$box] as $filter) {
