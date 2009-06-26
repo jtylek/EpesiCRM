@@ -28,8 +28,7 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 			$id = $this->getAttribute('id');
 			$name = $this->getAttribute('name');
 			$label = $this->getAttribute('label');
-			if ($value)
-				$this->setAttribute('value','');
+			$this->setAttribute('value','');
 			if(!isset($id)) {
 				$id = 'datepicker_field_'.$name;
 				$this->updateAttributes(array('id'=>$id));
@@ -98,7 +97,7 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 */
 	function getValue() {
 		$value = $this->getAttribute('value');
-		if(!$value) return '';
+		if (!$value) return $value;
 //		print('get_value('.$this->getName().')='.$value.' '.Base_RegionalSettingsCommon::time2reg($value,false,true,false).'<hr>');
 		return Base_RegionalSettingsCommon::time2reg($value,false);
 	} // end func setValue
@@ -120,7 +119,7 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 	}
 	
 	function reg2time($value) {
-		if(!$value) return '';
+		if (!$value) return '';
 		return strftime('%Y-%m-%d',Base_RegionalSettingsCommon::reg2time($value,false));
 	}
 } //end class HTML_QuickForm_datepicker
