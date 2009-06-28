@@ -1150,15 +1150,15 @@ class Utils_RecordBrowser extends Module {
 											$ext_rec = array();
 											if (isset($record[$args['id']])) {
 												if (!is_array($record[$args['id']])) {
-													if ($record[$args['id']]!='') $record[$args['id']] = array($record[$args['id']]); else $record[$args['id']] = array();
+													if ($record[$args['id']]!='') $record[$args['id']] = array($record[$args['id']]=>$record[$args['id']]); else $record[$args['id']] = array();
 												}
 											}
 											if (isset($this->custom_defaults[$args['id']])) {
 												if (!is_array($this->custom_defaults[$args['id']]))  
-													$record[$args['id']][] = $this->custom_defaults[$args['id']];
+													$record[$args['id']][$this->custom_defaults[$args['id']]] = $this->custom_defaults[$args['id']];
 												else {
 													foreach ($this->custom_defaults[$args['id']] as $v) 
-														$record[$args['id']][] = $v;
+														$record[$args['id']][$v] = $v;
 												}
 											}
 											$single_column = (count($col_id)==1);
