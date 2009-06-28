@@ -1,4 +1,0 @@
-Options -Indexes
-php_value memory_limit "64M"
-php_flag magic_quotes_gpc off
-#SecFilterEngine Off

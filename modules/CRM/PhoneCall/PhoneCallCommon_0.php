@@ -224,7 +224,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		if ($record['other_phone']) {
 			if(MOBILE_DEVICE && IPHONE && !$nolink && ereg('^([0-9\t\+-]+)',$record['other_phone_number'],$args))
 				return '<a href="tel:'.$args[1].'">'.$record['other_phone_number'].'</a>';
-			return $record['other_phone_number'];
+			return CRM_CommonCommon::get_dial_code($record['other_phone_number']);
 		} else return self::display_phone($record,false,array('id'=>'phone'));
 	}
 	public static function display_contact_name($record, $nolink) {
@@ -252,7 +252,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		$l = Base_LangCommon::ts('CRM/PhoneCall',$nr);
 		if(MOBILE_DEVICE && IPHONE)
 			return $l[0].': '.'<a href="tel:'.$contact[$id].'">'.$contact[$id].'</a>';
-		return $l[0].': '.$contact[$id];
+		return $l[0].': '.CRM_CommonCommon::get_dial_code($contact[$id]);
 	}
 	public static function display_status($record, $nolink, $desc) {
 		$prefix = 'crm_phonecall_leightbox';
