@@ -20,5 +20,9 @@ $params = $_SESSION['client']['quickform']['autocomplete'][$_GET['key']];
 $string = $_POST[$params['field']];
 $callback = $params['callback'];
 
-print(call_user_func($callback, $string));
+if (is_callable($callback)) {
+	array_unshift($params['args'], $string);
+	print(call_user_func_array($callback, $params['args']));
+} else
+	print('<ul><li>Error: method ('.print_r($callback,true).') not callable</li></ul>');
 ?>

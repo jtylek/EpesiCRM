@@ -375,10 +375,6 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
             foreach ($this->_options as $k=>$option) {
             	$this->keyhash[$i] = $this->_options[$k]['attr']['value'];
             	$kv = array_search($this->_options[$k]['attr']['value'], $this->_values);
-            	// ghaxx:
-            	//if ($kv!==false) $this->_values[$kv] = $i;
-//				print(':'.($kv!==false).' - '.$i.' = '.$this->_options[$k]['attr']['value'].':');
-            	//$this->_options[$k]['attr']['value'] = $i;
             	$i++;
 				if ($leave_selected || !(is_array($this->_values) && in_array((string)$this->_options[$k]['attr']['value'], $this->_values)))
                 	$fromElement .= $tabs . "\t<option " . $this->_getAttrString($this->_options[$k]['attr']) . ">" . $this->_options[$k]['text'] . "</option>\n";
@@ -589,7 +585,7 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 
 			$this->setName($myName);
 			$attrString = $this->_getAttrString($this->_attributes);
-			$strHtml .= $tabs . '<input type=hidden name="' . $myName . "\" value=\"".$list."\" />\n";
+			$strHtml .= $tabs . '<input type="hidden" name="' . $myName . "\" value=\"".$list."\" />\n";
 //			print_r($this->_options);
 			return $strHtml;
         }

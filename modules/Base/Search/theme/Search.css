@@ -48,6 +48,7 @@ table#Base_Search__Search input.mini_submit {
 	border: none;
 	display: block;
 	float: right;
+	cursor: pointer;
 }
 
 table#Base_Search__Search input.mini_submit:hover {

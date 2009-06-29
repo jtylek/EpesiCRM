@@ -14,6 +14,9 @@ class Tests_QuickForm extends Module{
 	public function body(){
 		$f = $this->init_module('Libs/QuickForm');
 
+		$f->addElement('automulti','justble','Bleing', array($this->get_type().'Common', 'automulti_search'), array('ble'), array($this->get_type().'Common', 'automulti_format'));
+		$f->setDefaults(array('justble'=>array(2,3)));
+		$f->addElement('multiselect','justble2','Bleing2', array());
 		$f->addElement('text','frozen','Frozen test');
 		$f->addRule('frozen','required','required');
 		$x = $f->addElement('timestamp','xxxyss','Date picker');
