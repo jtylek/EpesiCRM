@@ -242,7 +242,7 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
 			$search->on_hide_js('automulti_on_hide("'.$myName.'","'.$this->list_sep.'")');
 			
 			$searchElement .= $tabs . $search->toHtml()."\n";
-			if (isset($this->_values[0]) && eregi($this->list_sep,$this->_values[0])) {
+			if (isset($this->_values[0]) && (eregi($this->list_sep,$this->_values[0]) || $this->_values[0]=='')) {
 		        $this->_values = explode($this->list_sep,$this->_values[0]);
 		        array_shift($this->_values);
 			}
@@ -253,7 +253,7 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
 			$list = '';
 			$attrString = $this->_getAttrString($this->_attributes);
 			$mainElement .= $tabs . '<select' . $attrString . ' onclick="automulti_remove_button_update(\''.$myName.'\');">'."\n";
-
+			
 			foreach ($this->_values as $value) {
 				$mainElement .= $tabs . "\t".'<option value>' . call_user_func($this->_format_callback, $value) . '</option>'."\n";
 				$list .= '__SEP__'.$value;
