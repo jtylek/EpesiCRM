@@ -149,6 +149,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 	public static function contact_format_default($record, $nolink=false){
 		if (is_numeric($record)) $record = Utils_RecordBrowserCommon::get_record('contact', $record);
+		if (!$record) return null;
 		$ret = '';
 		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_open_tag('contact', $record['id']);
 		$ret .= $record['last_name'].(isset($record['first_name'][0])?' '.$record['first_name'][0].'.':'');
@@ -161,6 +162,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 	public static function contact_format_no_company($record, $nolink=false){
 		if (is_numeric($record)) $record = Utils_RecordBrowserCommon::get_record('contact', $record);
+		if (!$record) return null;
 		$ret = '';
 		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_open_tag('contact', $record['id']);
 		$ret .= $record['last_name'].(($record['first_name']!=='')?' '.$record['first_name']:'');
