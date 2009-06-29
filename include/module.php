@@ -786,9 +786,10 @@ abstract class Module extends ModulePrimitive {
 				$m->display_func=false;
 			}
 
-			if(STRIP_OUTPUT)
-				Epesi::$content[$path]['value'] = strip_html(ob_get_contents());
-			else
+			if(STRIP_OUTPUT) {
+				require_once('libs/minify/Minify/HTML.php');
+				Epesi::$content[$path]['value'] = Minify_HTML::minify(ob_get_contents());
+			} else
 				Epesi::$content[$path]['value'] = ob_get_contents();
 			ob_end_clean();
 			Epesi::$content[$path]['js'] = $m->get_jses();
