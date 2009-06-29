@@ -286,35 +286,36 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
      * @return string for example 2 hour(s) 15 minutes (translated)
      *
      */
-    public static function seconds_to_words($seconds,$days_h=true)
+    public static function seconds_to_words($seconds,$days_h=true,$seconds_h=false)
     {
         /*** return value ***/
         $ret = "";
 
-		if($days_h) {
+	if($days_h) {
 	        /*** get the days and hours***/
 	        $days = intval(intval($seconds) / (3600*24));
-    	    if($days > 0)
-        	{
-            	$ret .= sprintf('%s day(s) ',$days);
-	        }
-	        $hours = (intval($seconds) / 3600)%24;
-		} else {
-    	    /*** get the hours without days***/
-	        $hours = intval(intval($seconds) / 3600);
-			$days = 0;
+    		if($days > 0) {
+            		$ret .= sprintf('%s day(s) ',$days);
 		}
-        if($hours > 0)
-        {
+		$hours = (intval($seconds) / 3600)%24;
+	} else {
+    		/*** get the hours without days***/
+	        $hours = intval(intval($seconds) / 3600);
+		$days = 0;
+	}
+        if($hours > 0) {
             $ret .= sprintf('%s hour(s) ',$hours);
         }
         /*** get the minutes ***/
         $minutes = (intval($seconds) / 60)%60;
-        if($days>0 || $hours > 0 || $minutes > 0)
+        if($minutes > 0)
         {
             $ret .= sprintf('%s minutes',$minutes);
         }
-		
+	if($seconds_h) {
+	    $seconds = intval($seconds)%60;
+            $ret .= sprintf('%s seconds',$seconds);
+	}	
 		return $ret;
         }
 
