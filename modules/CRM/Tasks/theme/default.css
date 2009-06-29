@@ -142,7 +142,7 @@
 }
 
 #CRM_Tasks .data textarea {
-	height: 52px;
+	height: 100%;
 }
 
 #CRM_Tasks .data input[type="checkbox"],

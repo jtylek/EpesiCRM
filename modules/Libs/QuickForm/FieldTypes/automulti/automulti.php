@@ -79,6 +79,9 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
     	array_unshift($args, $string);
     	$result = call_user_func_array($callback, $args);
     	$ret = '<ul>';
+    	if (empty($result)) {
+			$ret .= '<li><span style="text-align:center;font-weight:bold;" class="informal">'.Base_LangCommon::ts('Libs/QuickForm','No records founds').'</span></li>';
+    	}
     	foreach ($result as $k=>$v) {
     		$disp = call_user_func($format, $k);
 			$ret .= '<li><span style="display:none;">'.$k.'__'.$disp.'</span><span class="informal">'.$v.'</span></li>';
@@ -234,28 +237,15 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
 
 			load_js('modules/Libs/QuickForm/FieldTypes/automulti/automulti.js');
 
-//			$this->setName($myName . '__search');
-//			$this->_attributes['id'] = $myName . '__search';
-//			$attrString = $this->_getAttrString($this->_attributes);
-//			$attrArray = $this->getAttributes();
 			$searchElement = '';
 			$search = new HTML_QuickForm_autocomplete($myName.'__search','', array('HTML_QuickForm_automulti','get_autocomplete_suggestbox'), array($this->_options_callback, $this->_options_callback_args, $this->_format_callback));
 			$search->on_hide_js('automulti_on_hide("'.$myName.'","'.$this->list_sep.'")');
 			
 			$searchElement .= $tabs . $search->toHtml()."\n";
-//			if (isset($this->_values[0]) && eregi($this->list_sep,$this->_values[0])) {
-//		        $this->_values = explode($this->list_sep,$this->_values[0]);
-//		        array_shift($this->_values);
-//			}
-//			$i = 0;
-//            foreach ($this->_options as $k=>$option) {
-//            	$this->keyhash[$i] = $this->_options[$k]['attr']['value'];
-//            	$kv = array_search($this->_options[$k]['attr']['value'], $this->_values);
-//            	$i++;
-//				if ($leave_selected || !(is_array($this->_values) && in_array((string)$this->_options[$k]['attr']['value'], $this->_values)))
-//                	$fromElement .= $tabs . "\t<option " . $this->_getAttrString($this->_options[$k]['attr']) . ">" . $this->_options[$k]['text'] . "</option>\n";
-//            }
-//			$fromElement .= $tabs . '</select>';
+			if (isset($this->_values[0]) && eregi($this->list_sep,$this->_values[0])) {
+		        $this->_values = explode($this->list_sep,$this->_values[0]);
+		        array_shift($this->_values);
+			}
 
 			$this->setName($myName.'__display');
 
@@ -263,13 +253,7 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
 			$list = '';
 			$attrString = $this->_getAttrString($this->_attributes);
 			$mainElement .= $tabs . '<select' . $attrString . ' onclick="automulti_remove_button_update(\''.$myName.'\');">'."\n";
-			print_r($this->_values);
-			if (!isset($this->_values)) {
-				$this->_values = array();
-			} elseif (!is_array($this->_values)) {
-				$this->_values = explode($this->list_sep, $this->_values);
-				array_shift($this->_values);
-			}
+
 			foreach ($this->_values as $value) {
 				$mainElement .= $tabs . "\t".'<option value>' . call_user_func($this->_format_callback, $value) . '</option>'."\n";
 				$list .= '__SEP__'.$value;
@@ -300,8 +284,7 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
     function getFrozenHtml()
     {
     	$html = '';
-    	foreach($this->_options as $k=>$v)
-	        if (in_array($v['attr']['value'],$this->_values)) $html .= empty($v['text'])? '&nbsp;':'<span>'.$v['text'].'</span><br />';
+    	// TODO: :)
         return $html;
     }
 

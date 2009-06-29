@@ -420,15 +420,15 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$def['emp_id'] = $emp_id;
 			$theme->assign('subscribe_icon',Utils_WatchdogCommon::get_change_subscription_icon('crm_calendar',$id));
 		} else {
-			$cus = array();
-			$ret = CRM_ContactsCommon::get_contacts(array('(:Fav'=>true, '|:Recent'=>true, '|id'=>$def['cus_id']), array(), array('last_name'=>'ASC', 'first_name'=>'ASC'));
-			foreach($ret as $c_id=>$data)
-				$cus[$c_id] = CRM_ContactsCommon::contact_format_default($data);
+			//$cus = array();
+			//$ret = CRM_ContactsCommon::get_contacts(array('(:Fav'=>true, '|:Recent'=>true, '|id'=>$def['cus_id']), array(), array('last_name'=>'ASC', 'first_name'=>'ASC'));
+			//foreach($ret as $c_id=>$data)
+			//	$cus[$c_id] = CRM_ContactsCommon::contact_format_default($data);
 
 			$form->addElement('multiselect', 'emp_id', $this->t('Employees'), $emp);
 			$form->addRule('emp_id', $this->t('At least one employee must be assigned to an event.'), 'required');
 
-			$form->addElement('multiselect', 'cus_id', $this->t('Customers'), $cus);
+			$form->addElement('automulti', 'cus_id', $this->t('Customers'), array('CRM_ContactsCommon','automulti_contact_suggestbox'), array(array()), array('CRM_ContactsCommon','contact_format_default'));
 		}
 
 		if($action == 'new') {
@@ -471,14 +471,14 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		$form->registerRule('check_recurrence2', 'callback', 'check_recurrence2', $this);
 		$form->addRule(array('recurrence_end_date','recurrence','date_s','recurrence_no_end_date'), $this->t('End date cannot be before start date.'), 'check_recurrence2');
 
-		if($action != 'view') {
-			$rb2 = $this->init_module('Utils/RecordBrowser/RecordPicker');
-			$rb2->disable_actions();
-			$this->display_module($rb2, array('contact', 'cus_id', array('CRM_ContactsCommon','contact_format_no_company'), array(), array('work_phone'=>false, 'mobile_phone'=>false, 'zone'=>false), array('last_name'=>'ASC')));
-			$cus_click = $rb2->create_open_link($this->t('Advanced'));
-		} else {
-			$cus_click = '';
-		}
+//		if($action != 'view') {
+//			$rb2 = $this->init_module('Utils/RecordBrowser/RecordPicker');
+//			$rb2->disable_actions();
+//			$this->display_module($rb2, array('contact', 'cus_id', array('CRM_ContactsCommon','contact_format_no_company'), array(), array('work_phone'=>false, 'mobile_phone'=>false, 'zone'=>false), array('last_name'=>'ASC')));
+//			$cus_click = $rb2->create_open_link($this->t('Advanced'));
+//		} else {
+//			$cus_click = '';
+//		}
 		$form->addElement('text', 'rel_emp', $this->t('Related Person'), array('style'=>'width: 100%;'));
 
 		$form->addElement('textarea', 'description',  $this->t('Description'), array('rows'=>6, 'style'=>'width: 100%;'));
@@ -577,7 +577,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		}
 
 //		$theme->assign('view_style', 'new_event');
-		$theme->assign('cus_click', $cus_click);
+//		$theme->assign('cus_click', $cus_click);
 		$form->assign_theme('form', $theme);
 
 		$theme->display();

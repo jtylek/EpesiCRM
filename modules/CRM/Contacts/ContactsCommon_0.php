@@ -148,6 +148,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return $def;
 	}
 	public static function contact_format_default($record, $nolink=false){
+		if (is_numeric($record)) $record = Utils_RecordBrowserCommon::get_record('contact', $record);
 		$ret = '';
 		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_open_tag('contact', $record['id']);
 		$ret .= $record['last_name'].(isset($record['first_name'][0])?' '.$record['first_name'][0].'.':'');
@@ -159,6 +160,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return $ret;
 	}
 	public static function contact_format_no_company($record, $nolink=false){
+		if (is_numeric($record)) $record = Utils_RecordBrowserCommon::get_record('contact', $record);
 		$ret = '';
 		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_open_tag('contact', $record['id']);
 		$ret .= $record['last_name'].(($record['first_name']!=='')?' '.$record['first_name']:'');
@@ -171,6 +173,17 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 	public function compare_names($a, $b) {
 		return strcasecmp(strip_tags($a),strip_tags($b));
+	}
+	
+	public static function automulti_contact_suggestbox($str, $crits) {
+		$str = DB::Concat(DB::qstr('%'),DB::qstr($str),DB::qstr('%'));
+		$crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~"last_name'=>$str,'|~"first_name'=>$str));
+		$recs = Utils_RecordBrowserCommon::get_records('contact', $crits, array(), array('last_name'=>'ASC'), 10);
+		$ret = array();
+		foreach($recs as $v) {
+			$ret[$v['id']] = $v['last_name'].' '.$v['first_name'];
+		}
+		return $ret;
 	}
 	public static function QFfield_contact(&$form, $field, $label, $mode, $default, $desc, $rb_obj = null) {
 		$cont = array();
@@ -187,9 +200,12 @@ class CRM_ContactsCommon extends ModuleCommon {
 					$adv_crits = call_user_func($crit_callback, true);
 					if ($adv_crits === $crits) $adv_crits = null;
 					if ($adv_crits !== null) {
-						$rp = $rb_obj->init_module('Utils/RecordBrowser/RecordPicker');
-						$rb_obj->display_module($rp, array('contact', $field, $callback, $adv_crits, array('work_phone'=>false, 'mobile_phone'=>false, 'zone'=>false), array('last_name'=>'ASC')));
-						$form->addElement('static', $field.'_rpicker_advanced', null, $rp->create_open_link(Base_LangCommon::ts('CRM_Contacts','Advanced')));
+//						$rp = $rb_obj->init_module('Utils/RecordBrowser/RecordPicker');
+//						$rb_obj->display_module($rp, array('contact', $field, $callback, $adv_crits, array('work_phone'=>false, 'mobile_phone'=>false, 'zone'=>false), array('last_name'=>'ASC')));
+//						$form->addElement('static', $field.'_rpicker_advanced', null, $rp->create_open_link(Base_LangCommon::ts('CRM_Contacts','Advanced')));
+						$form->addElement('automulti', $field, $label, array('CRM_ContactsCommon','automulti_contact_suggestbox'), array($adv_crits), $callback);
+						$form->setDefaults(array($field=>$default));
+						return;
 					}
 				}
 			} else $crits = array();

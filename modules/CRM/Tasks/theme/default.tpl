@@ -76,9 +76,14 @@
 									{if isset($form_data.description.error)}
 										{$form_data.description.error}
 									{/if}
-									{if $action == 'view'}<div style="height: 51px; white-space: normal; overflow: auto;">{/if}
+									{assign var=number value=$form_data|@count}
+									{assign var=number value=$number-15}
+									{assign var=number value=$number*21}
+									{assign var=number value=$number+53}
+									{if $action=='view'}{assign var=number value=$number-2}{/if}
+									<div style="height: {$number}px; white-space: normal; overflow: auto;">
 										{$form_data.description.html}
-									{if $action == 'view'}</div>{/if}
+									</div>
 								</td>
 							</tr>
 						</tbody>
@@ -164,7 +169,7 @@
 								<td class="label" style="padding-right: 0px; border-bottom: none;"><div style="float: left; padding-top: 3px;">{$form_data.customers.label}</div><div style="float: right; background-color: white; padding-left: 4px;">{if isset($form_data.customers_rpicker_advanced.html)}{$form_data.customers_rpicker_advanced.html}{/if}</div></td>
 							</tr>
 							<tr>
-								<td class="data arrows" style="vertical-align: top;"><span class="error">{$form_data.customers.error}</span>{$form_data.customers.html}</td>
+								<td class="data" style="vertical-align: top;"><span class="error">{$form_data.customers.error}</span>{$form_data.customers.html}</td>
 							</tr>
 						</tbody>
 					</table>

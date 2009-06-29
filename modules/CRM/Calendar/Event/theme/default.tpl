@@ -195,11 +195,11 @@
                         <tbody>
                             <tr>
                                 <td class="label" style="width: 50%; border-bottom: none; border-right: 1px solid #b3b3b3;">{$form_data.emp_id.label}</td>
-                                <td class="label" style="width: 50%; padding-right: 0px; border-bottom: none;"><div style="float: left; padding-top: 3px;">{$form_data.cus_id.label}</div><div style="float: right; border-left: 1px solid #b3b3b3;">{$cus_click}</div></td>
+                                <td class="label" style="width: 50%; padding-right: 0px; border-bottom: none;"><div style="float: left; padding-top: 3px;">{$form_data.cus_id.label}</div></td>
                             </tr>
                             <tr>
                                 <td class="data arrows" style="vertical-align: top; border-right: 1px solid #b3b3b3;"><span class="error">{$form_data.emp_id.error}</span>{$form_data.emp_id.html}</td>
-                                <td class="data arrows" style="vertical-align: top;"><span class="error">{$form_data.cus_id.error}</span>{$form_data.cus_id.html}</td>
+                                <td class="data" style="vertical-align: top;"><span class="error">{$form_data.cus_id.error}</span>{$form_data.cus_id.html}</td>
                             </tr>
                         </tbody>
                     </table>
