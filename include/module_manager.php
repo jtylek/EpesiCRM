@@ -404,7 +404,7 @@ class ModuleManager {
 
 		//check if any other module requires this one....
 		foreach(self::$modules as $k=>$k_version) {
-			if($k=$module) continue;
+			if($k==$module) continue;
 
 			$func = array (
 				self::$modules_install[$k],
