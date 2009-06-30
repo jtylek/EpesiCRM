@@ -286,8 +286,14 @@ class Utils_Attachment extends Module {
 		$f_filename = DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$row['id'].'_'.$row['file_revision'];
 		$th->assign('file_size',$this->t('File size: %s',array(filesize_hr($f_filename))));
 
+		$getters = ModuleManager::call_common_methods('attachment_getters');
 		$custom_getters = array();
-		$custom_getters[] = array('open'=>'<a>','close'=>'</a>','text'=>'tekst','icon'=>'Utils/Attachment/download.png');
+		foreach($getters as $mod=>$arr) {
+			foreach($arr as $caption=>$func) {
+				$custom_getters[] = array('open'=>'<a href="javascript:void(0)" onClick="'.Epesi::escapeJS($this->create_callback_href_js(array($mod.'Common',$func['func']),array($f_filename,$row['original'])),true,false).';leightbox_deactivate(\''.$lid.'\')">','close'=>'</a>','text'=>$caption,'icon'=>$func['icon']);
+			}
+		}
+//		$custom_getters[] = array('open'=>'<a>','close'=>'</a>','text'=>'tekst','icon'=>'Utils/Attachment/download.png');
 		$th->assign('custom_getters',$custom_getters);
 
 		ob_start();
