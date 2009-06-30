@@ -286,6 +286,10 @@ class Utils_Attachment extends Module {
 		$f_filename = DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$row['id'].'_'.$row['file_revision'];
 		$th->assign('file_size',$this->t('File size: %s',array(filesize_hr($f_filename))));
 
+		$custom_getters = array();
+		$custom_getters[] = array('open'=>'<a>','close'=>'</a>','text'=>'tekst','icon'=>'Utils/Attachment/download.png');
+		$th->assign('custom_getters',$custom_getters);
+
 		ob_start();
 		$th->display('download');
 		$c = ob_get_clean();

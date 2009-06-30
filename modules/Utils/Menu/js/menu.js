@@ -45,7 +45,10 @@ custom_show = function(menu, submenu) {
 	elem.style.display  = "block";
 	if (elem.getAttribute('mi') == null) {
 		elem.setAttribute('mi','1');
-    		elem.style.position = 'fixed';
+		if(Epesi.ie)
+        		elem.style.position = 'fixed';
+		else
+        		elem.style.position = 'absolute';
 		elem.style.zIndex = 1000;
 		var offT = 0;
 		if(Epesi.ie && submenu==0)
