@@ -96,8 +96,10 @@ class CRM_Contacts_Activities extends Module {
 		$old_display = $this->get_module_variable('display_options', array('events'=>1, 'tasks'=>1, 'phonecalls'=>1, 'closed'=>1, 'activities_date'=>2));
 		$form->setDefaults($old_display);
 		$form->assign_theme('form',$this->theme);
-		$this->display = $form->exportValues();
-		foreach(array('events', 'tasks', 'phonecalls', 'closed') as $v) if (!isset($this->display[$v])) $this->display[$v] = false;
+		if ($form->validate()) {
+			$this->display = $form->exportValues();
+			foreach(array('events', 'tasks', 'phonecalls', 'closed', 'activities_date') as $v) if (!isset($this->display[$v])) $this->display[$v] = false;
+		} else $this->display = $old_display;
 		$this->activities_date = isset($this->display['activities_date'])?$this->display['activities_date']:0;
 		$this->set_module_variable('display_options', $this->display);
 	}
