@@ -152,7 +152,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		if (!$record) return null;
 		$ret = '';
 		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_open_tag('contact', $record['id']);
-		$ret .= $record['last_name'].(isset($record['first_name'][0])?' '.$record['first_name'][0].'.':'');
+		$ret .= $record['last_name'].' '.$record['first_name'];
 		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_close_tag();
 		if (!empty($record['company_name'])) {
 			$first_comp = array_pop($record['company_name']);
@@ -178,12 +178,19 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 	
 	public static function automulti_contact_suggestbox($str, $crits) {
-		$str = DB::Concat(DB::qstr('%'),DB::qstr($str),DB::qstr('%'));
-		$crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~"last_name'=>$str,'|~"first_name'=>$str));
+		$str = explode(' ', trim($str));
+		foreach ($str as $k=>$v)
+			if ($v) {
+				$v = DB::Concat(DB::qstr('%'),DB::qstr($v),DB::qstr('%'));
+				$recs = Utils_RecordBrowserCommon::get_records('company', array('~"company_name'=>$v), array(), array('company_name'=>'ASC'));
+				$comp_ids = array();
+				foreach ($recs as $w) $comp_ids[$w['id']] = $w['id'];
+				$crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~"last_name'=>$v,'|~"first_name'=>$v, '|company_name'=>$comp_ids));
+			}
 		$recs = Utils_RecordBrowserCommon::get_records('contact', $crits, array(), array('last_name'=>'ASC'), 10);
 		$ret = array();
 		foreach($recs as $v) {
-			$ret[$v['id']] = $v['last_name'].' '.$v['first_name'];
+			$ret[$v['id']] = self::contact_format_default($v, true);
 		}
 		return $ret;
 	}
