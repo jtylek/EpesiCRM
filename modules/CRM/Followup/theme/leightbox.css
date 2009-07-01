@@ -102,3 +102,11 @@ table#CRM_Filters .button-small:hover {
 table#CRM_Filters a:hover {
 	color: #993333;
 }
+
+table#CRM_Filters .crm_followup_leightbox_note textarea {
+	width: 100%;
+}
+
+table#CRM_Filters .crm_followup_leightbox_note {
+	width: 100%;
+}

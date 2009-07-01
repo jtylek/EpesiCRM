@@ -266,6 +266,15 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			unset($_REQUEST['form_name']);
 			$v = $_REQUEST['closecancel'];
 			$action  = $_REQUEST['action'];
+
+			$note = $_REQUEST['note'];
+			if ($note) {
+				if (get_magic_quotes_gpc())
+					$note = stripslashes($note);
+				$note = str_replace("\n",'<br />',$note);
+				Utils_AttachmentCommon::add('CRM/PhoneCall/'.$record['id'],0,Acl::get_user(),$note);
+			}
+
 			if ($action == 'set_in_progress') $v = 1;
 			Utils_RecordBrowserCommon::update_record('phonecall', $record['id'], array('status'=>$v));
 			if ($action == 'set_in_progress') location(array());

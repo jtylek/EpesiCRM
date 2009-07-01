@@ -1,12 +1,28 @@
 <center>
 
-<table id="CRM_Filters" cellspacing="0" cellpadding="0">
+{$form_open}
+<table id="CRM_Filters" cellspacing="0" cellpadding="0" width="400px">
 	<tr>
-        <td style="text-align: center;" colspan="4">
-        	{$form_open}{$form_closecancel}{$form_close}
+        <td style="width:100px;background-color:#336699;border-bottom:1px solid #B3B3B3;color:#FFFFFF;padding-left:5px;padding-right:5px;text-align:left;vertical-align:middle;">
+        	{$form_closecancel.label}
+		</td>
+		<td colspan="3" style="width:1px;">
+			{$form_closecancel.html}
+		</td>
+	</tr>
+	<tr>
+        <td style="background-color:#336699;border-bottom:1px solid #B3B3B3;color:#FFFFFF;padding-left:5px;padding-right:5px;text-align:left;vertical-align:middle;">
+        	{$form_note.label}
+		</td>
+		<td colspan="3">
+			<div class="crm_followup_leightbox_note">
+				{$form_note.html}
+			</div>
         </td>
 	</tr>
+</table>
         <!-- MY -->
+<table id="CRM_Filters" cellspacing="0" cellpadding="0">
 	<tr>
         <td>
 
@@ -158,5 +174,6 @@
         </td>
     </tr>
 </table>
+{$form_close}
 
 </center>
