@@ -366,19 +366,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					'active I1 NOT NULL DEFAULT 1',
 					array('constraints'=>''));
 		foreach ($fields as $v) {
-			if (!isset($v['param'])) $v['param'] = '';
-			if (!isset($v['style'])) {
-				if (in_array($v['type'], array('timestamp','currency','integer')))
-					$v['style'] = $v['type'];
-				else
-					$v['style'] = '';
-			}
-			if (!isset($v['extra'])) $v['extra'] = true;
-			if (!isset($v['visible'])) $v['visible'] = false;
-			if (!isset($v['required'])) $v['required'] = false;
-			if (!isset($v['filter'])) $v['filter'] = false;
-			if (isset($datatypes[$v['type']])) $v = call_user_func($datatypes[$v['type']], $v);
-			Utils_RecordBrowserCommon::new_record_field($tab, $v['name'], $v['type'], $v['visible'], $v['required'], $v['param'], $v['style'], $v['extra'], $v['filter'], null);
+			Utils_RecordBrowserCommon::new_record_field($tab, $v['name'], $v);
 			if (isset($v['display_callback'])) self::set_display_callback($tab, $v['name'], $v['display_callback']);
 			if (isset($v['QFfield_callback'])) self::set_QFfield_callback($tab, $v['name'], $v['QFfield_callback']);
 		}
@@ -437,22 +425,53 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		@DB::Execute('ALTER TABLE '.$tab.'_data_1 DROP COLUMN f_'.self::$table_rows[$field]['id']);
 		self::init($tab, false, true);
 	}
-	public static function new_record_field($tab, $field, $type, $visible, $required, $param='', $style='', $extra = true, $filter = false, $pos = null){
+	public static function new_record_field($tab, $v){
+		if (!is_array($v)) {
+			// Backward compatibility - got to get rid of this one someday
+			$args = func_get_args();
+			array_shift($args);
+			$v = array();
+			foreach (array(	0=>'name',
+					1=>'type',
+					2=>'visible',
+					3=>'required',
+					4=>'param',
+					5=>'style',
+					6=>'extra',
+					7=>'filter',
+					8=>'position') as $k=>$w)
+				if (isset($args[$k])) $v[$w] = $args[$k];
+		}
+		if (!isset($v['param'])) $v['param'] = '';
+		if (!isset($v['style'])) {
+			if (in_array($v['type'], array('timestamp','currency','integer')))
+				$v['style'] = $v['type'];
+			else
+				$v['style'] = '';
+		}
+		if (!isset($v['extra'])) $v['extra'] = true;
+		if (!isset($v['visible'])) $v['visible'] = false;
+		if (!isset($v['required'])) $v['required'] = false;
+		if (!isset($v['filter'])) $v['filter'] = false;
+		if (!isset($v['position'])) $v['position'] = null;
+		if (isset($datatypes[$v['type']])) $v = call_user_func($datatypes[$v['type']], $v);
+
+//		$field, $type, $visible, $required, $param='', $style='', $extra = true, $filter = false, $pos = null
+
 		self::check_table_name($tab);
 		self::$clear_get_val_cache = true;
-		$exists = DB::GetOne('SELECT field FROM '.$tab.'_field WHERE field=%s', array($field));
+		$exists = DB::GetOne('SELECT field FROM '.$tab.'_field WHERE field=%s', array($v['name']));
 		if ($exists) return;
-		if ($extra) {
-			$pos = DB::GetOne('SELECT MAX(position) FROM '.$tab.'_field')+1;
-		} else {
-			DB::StartTrans();
-			if (is_string($pos)) $pos = DB::GetOne('SELECT position FROM '.$tab.'_field WHERE field=%s', array($pos))+1;
-			if ($pos===null || $pos===false) $pos = DB::GetOne('SELECT position FROM '.$tab.'_field WHERE field=\'Details\'');
-			DB::Execute('UPDATE '.$tab.'_field SET position = position+1 WHERE position>=%d', array($pos));
-			DB::CompleteTrans();
-		}
-		if (is_array($param)) {
-			if ($type=='commondata') {
+		
+		DB::StartTrans();
+		if (is_string($v['position'])) $v['position'] = DB::GetOne('SELECT position FROM '.$tab.'_field WHERE field=%s', array($v['position']))+1;
+		if ($v['position']===null || $v['position']===false) $v['position'] = DB::GetOne('SELECT MAX(position) FROM '.$tab.'_field')+1;
+		DB::Execute('UPDATE '.$tab.'_field SET position = position+1 WHERE position>=%d', array($v['position']));
+		DB::CompleteTrans();
+		
+		$param = $v['param'];
+		if (is_array($v['param'])) {
+			if ($v['type']=='commondata') {
 				if (isset($param['order_by_key'])) {
 					$obk = $param['order_by_key'];
 					unset($param['order_by_key']);
@@ -466,9 +485,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$param = implode(';',$tmp);
 			}
 		}
-		$f = self::actual_db_type($type, $param);
-		if ($f!=='') @DB::Execute('ALTER TABLE '.$tab.'_data_1 ADD COLUMN f_'.strtolower(str_replace(' ','_',$field)).' '.$f);
-		DB::Execute('INSERT INTO '.$tab.'_field(field, type, visible, param, style, position, extra, required, filter) VALUES(%s, %s, %d, %s, %s, %d, %d, %d, %d)', array($field, $type, $visible?1:0, $param, $style, $pos, $extra?1:0, $required?1:0, $filter?1:0));
+		$f = self::actual_db_type($v['type'], $param);
+		if ($f!=='') @DB::Execute('ALTER TABLE '.$tab.'_data_1 ADD COLUMN f_'.strtolower(str_replace(' ','_',$v['name'])).' '.$f);
+		DB::Execute('INSERT INTO '.$tab.'_field(field, type, visible, param, style, position, extra, required, filter) VALUES(%s, %s, %d, %s, %s, %d, %d, %d, %d)', array($v['name'], $v['type'], $v['visible']?1:0, $v['param'], $v['style'], $v['position'], $v['extra']?1:0, $v['required']?1:0, $v['filter']?1:0));
 		self::init($tab, false, true);
 	}
 	public static function actual_db_type($type, $param=null) {
