@@ -552,7 +552,7 @@ abstract class Module extends ModulePrimitive {
 			if(is_array($func) && count($func)==2 && is_string($func[1]) &&
 				(is_string($func[0]) || $func[0] instanceof Module)) {
 					if(!is_callable($func))
-						trigger_error('Callback not callable',E_USER_ERROR);
+						trigger_error('Callback not callable: '.print_r($func,true),E_USER_ERROR);
 					if(!is_string($func[0])) $func[0]=null;
 			} else
 				trigger_error('Invalid callback function', E_USER_ERROR);

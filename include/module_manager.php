@@ -983,7 +983,7 @@ class ModuleManager {
 		return true;
 	}
 
-	public static final function call_common_methods($method,$cached=true,$args=array()) { //przy instalacji niech rejestruje commony a pozniej idzie do bazy
+	public static final function call_common_methods($method,$cached=true,$args=array()) {
 		static $cache;
 		$cache_id = $method.md5(serialize($args));
 		if(!isset($cache[$cache_id]) || !$cached) {
@@ -999,7 +999,7 @@ class ModuleManager {
 		return $cache[$cache_id];
 	}
 
-	public static final function check_common_methods($method,$cached=true) { //przy instalacji niech rejestruje commony a pozniej idzie do bazy
+	public static final function check_common_methods($method,$cached=true) {
 		static $cache;
 		$cache_id = $method;
 		if(!isset($cache[$cache_id]) || !$cached) {
