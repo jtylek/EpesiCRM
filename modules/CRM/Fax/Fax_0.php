@@ -51,7 +51,7 @@ class CRM_Fax extends Module {
 			$fav_company2[$v['id']] = $v['company_name'];
 		$rb_company = $this->init_module('Utils/RecordBrowser/RecordPicker');
 		$this->display_module($rb_company, array('company' ,'dest_company',array('CRM_FaxCommon','rpicker_company_format'),array('!fax'=>''),array('fax'=>true)));
-		$qf->addElement('multiselect','dest_contact','',$fav_company2);
+		$qf->addElement('multiselect','dest_company','',$fav_company2);
 		$qf->addElement('static',null,$rb_company->create_open_link('Add company'));
 
 		$qf->addElement('header',null,$this->t('Other'));
@@ -62,8 +62,17 @@ class CRM_Fax extends Module {
 			if(!isset($providers_arr[$data['provider']]['func'])) {
 				Epesi::alert($this->ht('Invalid fax provider.'));
 			} else {
-				$fax_func = array($data['provider'].'Common',$providers_arr[$data['provider']]['func']);
-				call_user_func($fax_func,$file);
+				$fax_func = array($data['provider'].'Common',$providers_arr[$data['provider']]['send_func']);
+				$numbers = array();
+				$contacts = Utils_RecordBrowserCommon::get_records('contact',array('id'=>$data['dest_contact']),array('fax'));
+				foreach($contacts as $row)
+					$numbers[] = $row['fax'];
+					
+				$companies = Utils_RecordBrowserCommon::get_records('company',array('id'=>$data['dest_company']),array('fax'));
+				foreach($companies as $row)
+					$numbers[] = $row['fax'];
+				$numbers += explode(',',$data['dest_other']);
+				call_user_func($fax_func,$file,$numbers);
 				return $this->go_back($file);
 			}
 		}
