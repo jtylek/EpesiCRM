@@ -650,7 +650,7 @@ class Utils_RecordBrowser extends Module {
 			$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 			if ($dpm!=='') {
 				$method = explode('::',$dpm);
-				if (is_callable($method)) call_user_func($method, $this->custom_defaults, 'adding',$this->tab);
+				if (is_callable($method)) call_user_func($method, $this->custom_defaults, 'adding', $this->tab);
 			}
 
 			$this->prepare_view_entry_details(null, 'add', null, $form, $visible_cols);
@@ -704,7 +704,7 @@ class Utils_RecordBrowser extends Module {
 				$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
 				if ($dpm!=='') {
 					$method = explode('::',$dpm);
-					if (is_callable($method)) call_user_func($method, array('original'=>$id, 'clone'=>self::$clone_result), 'cloned',$this->tab);
+					if (is_callable($method)) call_user_func($method, array('original'=>$id, 'clone'=>self::$clone_result), 'cloned', $this->tab);
 				}
 				$this->navigate('view_entry', 'view', self::$clone_result);
 			}
@@ -805,16 +805,20 @@ class Utils_RecordBrowser extends Module {
 		if ($dpm!=='') {
 			$method = explode('::',$dpm);
 			if (is_callable($method)) {
+				if ($mode=='view') {
+					$processing_result = call_user_func($method, $this->record, 'display', $this->tab);
+					if (is_array($processing_result)) 
+						foreach ($processing_result as $k=>$v)
+							$theme->assign($k, $v);
+				}
 				$processing_result = call_user_func($method, $mode!='add'?$this->record:$this->custom_defaults, $mode=='view'?'view':$mode.'ing',$this->tab);
 				if (is_array($processing_result)) {
-					if ($mode==='view')
-							foreach ($processing_result as $k=>$v)
-								$theme->assign($k, $v);
-					foreach ($processing_result as $k=>$v) {
-						$this->record[$k] = $v;
-						$this->custom_defaults[$k] = $v;
-						$defaults[$k] = $v;
-					}
+					$defaults = $this->custom_defaults = $this->record = $processing_result;
+//					foreach ($processing_result as $k=>$v) {
+//						$this->record[$k] = $v;
+//						$this->custom_defaults[$k] = $v;
+//						$defaults[$k] = $v;
+//					}
 				}
 			}
 		}

@@ -219,7 +219,7 @@ class CRM_TasksCommon extends ModuleCommon {
 	public static function submit_task($values, $mode) {
 		$me = CRM_ContactsCommon::get_my_record();
 		switch ($mode) {
-		case 'view':
+		case 'display':
 			$values['date_and_time'] = date('Y-m-d H:i:s');
 			$values['title'] = Base_LangCommon::ts('CRM_Tasks','Follow up: ').$values['title'];
 			$values['status'] = 0;

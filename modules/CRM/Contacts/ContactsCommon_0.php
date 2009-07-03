@@ -475,7 +475,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 	public static function submit_contact($values, $mode) {
 		switch ($mode) {
-		case 'view':
+		case 'display':
 			$is_employee = false;
 			if (is_array($values['company_name']) && in_array(CRM_ContactsCommon::get_main_company(), $values['company_name'])) $is_employee = true;
 			$me = CRM_ContactsCommon::get_my_record();

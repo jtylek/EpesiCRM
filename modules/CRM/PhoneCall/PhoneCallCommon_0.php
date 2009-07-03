@@ -302,7 +302,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 
 	public static function submit_phonecall($values, $mode) {
 		switch ($mode) {
-		case 'view':
+		case 'display':
 			$values['date_and_time'] = date('Y-m-d H:i:s');
 			$values['subject'] = Base_LangCommon::ts('CRM/PhoneCall','Follow up: ').$values['subject'];
 			$values['status'] = 0;
