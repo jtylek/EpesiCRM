@@ -1120,7 +1120,9 @@ class Utils_RecordBrowser extends Module {
 					case 'multiselect':	$comp = array();
 										$ref = explode(';',$args['param']);
 										if (isset($ref[1])) $crits_callback = $ref[1];
+										else $crits_callback = null;
 										if (isset($ref[2])) $multi_adv_params = call_user_func(explode('::',$ref[2]));
+										else $multi_adv_params = null;
 										if (!isset($multi_adv_params) || !is_array($multi_adv_params)) $multi_adv_params = array();
 										if (!isset($multi_adv_params['order'])) $multi_adv_params['order'] = array();
 										if (!isset($multi_adv_params['cols'])) $multi_adv_params['cols'] = array();
@@ -1141,6 +1143,7 @@ class Utils_RecordBrowser extends Module {
 												} else $crits = $adv_crits = array();
 												if ($adv_crits === $crits) $adv_crits = null;
 												if ($adv_crits !== null) {
+//													trigger_error(print_r($crit_callback,true));
 													$rp = $this->init_module('Utils/RecordBrowser/RecordPicker');
 													$this->display_module($rp, array($tab, $args['id'], $multi_adv_params['format_callback'], $adv_crits, $multi_adv_params['cols'], $multi_adv_params['order']));
 													$this->advanced[$args['id']] = $rp->create_open_link($this->t('Advanced'));

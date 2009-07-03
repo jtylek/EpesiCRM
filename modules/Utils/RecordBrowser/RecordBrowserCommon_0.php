@@ -354,10 +354,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		DB::Execute('INSERT INTO '.$tab.'_field(field, type, extra, visible, position) VALUES(\'id\', \'foreign index\', 0, 0, 1)');
 		DB::Execute('INSERT INTO '.$tab.'_field(field, type, extra, position) VALUES(\'General\', \'page_split\', 0, 2)');
 		DB::Execute('INSERT INTO '.$tab.'_field(field, type, extra, position) VALUES(\'Details\', \'page_split\', 0, 3)');
-		$datatypes = array();
-		$ret = DB::Execute('SELECT * FROM recordbrowser_datatype');
-		while ($row = $ret->FetchRow())
-			$datatypes[$row['type']] = array($row['module'], $row['func']);
 		DB::CreateTable($tab.'_data_1',
 					'id I AUTO KEY,'.
 					'created_on T NOT NULL,'.
@@ -365,11 +361,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					'private I4 DEFAULT 0,'.
 					'active I1 NOT NULL DEFAULT 1',
 					array('constraints'=>''));
-		foreach ($fields as $v) {
-			Utils_RecordBrowserCommon::new_record_field($tab, $v['name'], $v);
-			if (isset($v['display_callback'])) self::set_display_callback($tab, $v['name'], $v['display_callback']);
-			if (isset($v['QFfield_callback'])) self::set_QFfield_callback($tab, $v['name'], $v['QFfield_callback']);
-		}
+		foreach ($fields as $v)
+			Utils_RecordBrowserCommon::new_record_field($tab, $v);
 		return true;
 	}
 	public static function enable_watchdog($tab,$watchdog_callback) {
@@ -425,12 +418,19 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		@DB::Execute('ALTER TABLE '.$tab.'_data_1 DROP COLUMN f_'.self::$table_rows[$field]['id']);
 		self::init($tab, false, true);
 	}
-	public static function new_record_field($tab, $v){
-		if (!is_array($v)) {
+	public static function new_record_field($tab, $definition){
+		static $datatypes = null;
+		if ($datatypes===null) {
+			$datatypes = array();
+			$ret = DB::Execute('SELECT * FROM recordbrowser_datatype');
+			while ($row = $ret->FetchRow())
+				$datatypes[$row['type']] = array($row['module'], $row['func']);
+		}
+		if (!is_array($definition)) {
 			// Backward compatibility - got to get rid of this one someday
 			$args = func_get_args();
 			array_shift($args);
-			$v = array();
+			$definition = array();
 			foreach (array(	0=>'name',
 					1=>'type',
 					2=>'visible',
@@ -440,38 +440,46 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					6=>'extra',
 					7=>'filter',
 					8=>'position') as $k=>$w)
-				if (isset($args[$k])) $v[$w] = $args[$k];
+				if (isset($args[$k])) $definition[$w] = $args[$k];
 		}
-		if (!isset($v['param'])) $v['param'] = '';
-		if (!isset($v['style'])) {
-			if (in_array($v['type'], array('timestamp','currency','integer')))
-				$v['style'] = $v['type'];
+		if (!isset($definition['type'])) trigger_error(print_r($definition,true));
+		if (!isset($definition['param'])) $definition['param'] = '';
+		if (!isset($definition['style'])) {
+			if (in_array($definition['type'], array('timestamp','currency','integer')))
+				$definition['style'] = $definition['type'];
 			else
-				$v['style'] = '';
+				$definition['style'] = '';
 		}
-		if (!isset($v['extra'])) $v['extra'] = true;
-		if (!isset($v['visible'])) $v['visible'] = false;
-		if (!isset($v['required'])) $v['required'] = false;
-		if (!isset($v['filter'])) $v['filter'] = false;
-		if (!isset($v['position'])) $v['position'] = null;
-		if (isset($datatypes[$v['type']])) $v = call_user_func($datatypes[$v['type']], $v);
+		if (!isset($definition['extra'])) $definition['extra'] = true;
+		if (!isset($definition['visible'])) $definition['visible'] = false;
+		if (!isset($definition['required'])) $definition['required'] = false;
+		if (!isset($definition['filter'])) $definition['filter'] = false;
+		if (!isset($definition['position'])) $definition['position'] = null;
+		if (isset($datatypes[$definition['type']])) $definition = call_user_func($datatypes[$definition['type']], $definition);
 
+		if (isset($definition['display_callback'])) self::set_display_callback($tab, $definition['name'], $definition['display_callback']);
+		if (isset($definition['QFfield_callback'])) self::set_QFfield_callback($tab, $definition['name'], $definition['QFfield_callback']);
 //		$field, $type, $visible, $required, $param='', $style='', $extra = true, $filter = false, $pos = null
 
 		self::check_table_name($tab);
 		self::$clear_get_val_cache = true;
-		$exists = DB::GetOne('SELECT field FROM '.$tab.'_field WHERE field=%s', array($v['name']));
+		$exists = DB::GetOne('SELECT field FROM '.$tab.'_field WHERE field=%s', array($definition['name']));
 		if ($exists) return;
 		
 		DB::StartTrans();
-		if (is_string($v['position'])) $v['position'] = DB::GetOne('SELECT position FROM '.$tab.'_field WHERE field=%s', array($v['position']))+1;
-		if ($v['position']===null || $v['position']===false) $v['position'] = DB::GetOne('SELECT MAX(position) FROM '.$tab.'_field')+1;
-		DB::Execute('UPDATE '.$tab.'_field SET position = position+1 WHERE position>=%d', array($v['position']));
+		if (is_string($definition['position'])) $definition['position'] = DB::GetOne('SELECT position FROM '.$tab.'_field WHERE field=%s', array($definition['position']))+1;
+		if ($definition['position']===null || $definition['position']===false) {
+			if ($definition['extra'])
+				$definition['position'] = DB::GetOne('SELECT MAX(position) FROM '.$tab.'_field')+1;
+			else
+				$definition['position'] = DB::GetOne('SELECT position FROM '.$tab.'_field WHERE field=%s', array('Details'));
+		}
+		DB::Execute('UPDATE '.$tab.'_field SET position = position+1 WHERE position>=%d', array($definition['position']));
 		DB::CompleteTrans();
 		
-		$param = $v['param'];
-		if (is_array($v['param'])) {
-			if ($v['type']=='commondata') {
+		$param = $definition['param'];
+		if (is_array($param)) {
+			if ($definition['type']=='commondata') {
 				if (isset($param['order_by_key'])) {
 					$obk = $param['order_by_key'];
 					unset($param['order_by_key']);
@@ -485,9 +493,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$param = implode(';',$tmp);
 			}
 		}
-		$f = self::actual_db_type($v['type'], $param);
-		if ($f!=='') @DB::Execute('ALTER TABLE '.$tab.'_data_1 ADD COLUMN f_'.strtolower(str_replace(' ','_',$v['name'])).' '.$f);
-		DB::Execute('INSERT INTO '.$tab.'_field(field, type, visible, param, style, position, extra, required, filter) VALUES(%s, %s, %d, %s, %s, %d, %d, %d, %d)', array($v['name'], $v['type'], $v['visible']?1:0, $v['param'], $v['style'], $v['position'], $v['extra']?1:0, $v['required']?1:0, $v['filter']?1:0));
+		$f = self::actual_db_type($definition['type'], $param);
+		if ($f!=='') @DB::Execute('ALTER TABLE '.$tab.'_data_1 ADD COLUMN f_'.strtolower(str_replace(' ','_',$definition['name'])).' '.$f);
+		DB::Execute('INSERT INTO '.$tab.'_field(field, type, visible, param, style, position, extra, required, filter) VALUES(%s, %s, %d, %s, %s, %d, %d, %d, %d)', array($definition['name'], $definition['type'], $definition['visible']?1:0, $param, $definition['style'], $definition['position'], $definition['extra']?1:0, $definition['required']?1:0, $definition['filter']?1:0));
 		self::init($tab, false, true);
 	}
 	public static function actual_db_type($type, $param=null) {
@@ -784,6 +792,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				if (!isset($k[0])) trigger_error('Invalid criteria in build query: missing word.', E_USER_ERROR);
 			}
 			$or |= $or_start;
+//			if ($k[0]!=':' && $k!=='id' && !isset(self::$table_rows[$k]) && !isset(self::$hash[$k])) trigger_error('!'.$k.'!'.$tab.print_r($crits,true).print_r(self::$hash,true));
 			if ($k[0]!=':' && $k!=='id' && !isset(self::$table_rows[$k]) && !isset(self::$table_rows[self::$hash[$k]])) continue; //failsafe
 			if ($or) {
 				if ($or_start && $or_started) {
