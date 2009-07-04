@@ -47,7 +47,7 @@
                         </tr>
                         <tr><td colspan="2" class="recover_password">{$form_data.recover_password.html}</td></tr>
                         <tr><td>&nbsp;</td></tr>
-                        <tr><td colspan="2" class="footer">Copyright &copy; {php}echo date("Y"){/php} &bull; <a href="http://www.telaxus.com">Telaxus LLC</a> &bull; Managing Business Your Way <span>TM</span></td></tr>
+                        <tr><td colspan="2" class="footer">Copyright &copy; {php}echo date("Y"){/php} &bull; <a href="http://www.telaxus.com">Telaxus LLC</a> &bull; Managing Business Your Way<sup>TM</sup></td></tr>
                         </tbody>
                     </table>
                 </td>
