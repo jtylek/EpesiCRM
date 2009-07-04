@@ -191,6 +191,8 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$duration_switch = '1';
 			if(!$timeless)
 				$id2 = strtotime(Base_RegionalSettingsCommon::time2reg($id,true,true,true,false));
+			else
+				$id2 = $id;
 			$tt = $id2-$id2%300;
 			$me = CRM_ContactsCommon::get_contacts(array('login'=>Acl::get_user()),array('id'));
 			$my_emp = array();
