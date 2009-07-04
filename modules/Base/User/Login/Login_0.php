@@ -65,7 +65,7 @@ class Base_User_Login extends Module {
 			if($this->get_unique_href_variable('logout')) {
 				DB::Execute('UPDATE user_password SET autologin_id=\'\' WHERE user_login_id=%d',array(Acl::get_user()));
 				Acl::set_user();
-				location(array());
+				eval_js('document.location=\'index.php\';',false);
 			} else {
 				$theme->assign('logged_as', '<div style="float: left; width: 164px; padding-top: 3px; text-align: center;">'.$this->t('Logged as %s',array('<b class="green">'.Base_UserCommon::get_my_user_login().'</b>')).'</div>');
 				$theme->assign('logout', '<a class="button" style="float: left;" '.$this->create_unique_href(array('logout'=>1)).'>'.$this->t('Logout').'</a>');
