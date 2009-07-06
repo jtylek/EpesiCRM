@@ -273,6 +273,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
     } // end func _prepareTemplate
     
 	function _prepareValue(&$element, $group_name=null) {
+		return;
 		$type = $element->getType();
     	$name = $element->getName();
     	if ($group_name) $name = $group_name.'['.$name.']';

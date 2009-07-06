@@ -28,7 +28,7 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 			$id = $this->getAttribute('id');
 			$name = $this->getAttribute('name');
 			$label = $this->getAttribute('label');
-			$this->setAttribute('value','');
+			if ($value) $this->setAttribute('value',Base_RegionalSettingsCommon::time2reg($value,false,true,false));
 			if(!isset($id)) {
 				$id = 'datepicker_field_'.$name;
 				$this->updateAttributes(array('id'=>$id));
