@@ -246,7 +246,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			} else $where .= ' AND f_'.$v.'=%s';
 			
 		}
-		$ret = DB::GetOne('SELECT id FROM '.$tab.'_data_1 WHERE true'.$where, $value);
+		$ret = DB::GetOne('SELECT id FROM '.$tab.'_data_1 WHERE active=1'.$where, $value);
 		if ($ret===false || $ret===null) return null;
 		return $ret;
 	}
