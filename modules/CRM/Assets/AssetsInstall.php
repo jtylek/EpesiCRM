@@ -27,7 +27,8 @@ class CRM_AssetsInstall extends ModuleInstall {
 	public function requires($v) {
 		return array(
 					array('name'=>'Base/Lang','version'=>0),
-					array('name'=>'Utils/RecordBrowser','version'=>0));
+					array('name'=>'Utils/RecordBrowser','version'=>0),
+                                        array('name'=>'CRM/Contacts','version'=>0));
 	}
 	
 	public static function info() {
