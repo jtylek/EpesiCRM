@@ -11,19 +11,53 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_Assets extends Module {
-    private $rb;
 
     public function body() {
         Base_ActionBarCommon::add('delete', 'Reinstall', $this->create_callback_href(array($this,'reinstalltmp')));
         Base_ActionBarCommon::add('delete', 'Uninstall', $this->create_callback_href(array($this,'uninstalltmp')));
         Base_ActionBarCommon::add('add', 'Install', $this->create_callback_href(array($this,'installtmp')));
         if(Utils_RecordBrowserCommon::check_table_name('crm_assets',true)) {
-            $this->rb = $this->init_module('Utils/RecordBrowser','crm_assets','crm_assets');
-            $this->rb->set_filters_defaults(array('active'=>true));
-            $this->display_module($this->rb);
+            $rb = $this->init_module('Utils/RecordBrowser','crm_assets','crm_assets');
+            $rb->set_filters_defaults(array('active'=>true));
+            $rb->set_header_properties(array(
+                    'asset_id'=>array('width'=>10),
+                    'category'=>array('width'=>10),
+                    'asset_name'=>array('width'=>30),
+                    'company'=>array('width'=>30),
+                    'general_info'=>array('width'=>50),
+                    'other'=>array('width'=>30)
+                ));
+            $this->display_module($rb, array(array('asset_name'=>'ASC'),array(),array('active'=>false)));
         } else {
             print('Please install tables<br/>');
         }
+    }
+
+    public function assets_addon($arg) {
+        $rb = $this->init_module('Utils/RecordBrowser','crm_assets','crm_assets_addon');
+        $rb->set_header_properties(array(
+                'asset_id'=>array('width'=>10),
+                'category'=>array('width'=>10),
+                'asset_name'=>array('width'=>30),
+                'active'=>array('width'=>10),
+                'company'=>array('width'=>30),
+                'general_info'=>array('width'=>50),
+                'other'=>array('width'=>30)
+            ));
+        $rb->set_button($this->create_callback_href(array($this,'assets_addon_new_asset'), array($arg['id'])));
+	$this->display_module($rb, array(array('company'=>array($arg['id'])), array('company'=>false), array('asset_name'=>'ASC')), 'show_data');
+    }
+
+    public function assets_addon_new_asset($company) {
+        $x = ModuleManager::get_instance('/Base_Box|0');
+        if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+        $x->push_main('CRM/Assets','new_asset',$company,array());
+        return false;
+    }
+
+    public function new_asset($company) {
+        $rb = $this->init_module('Utils/RecordBrowser','crm_assets','crm_assets');
+        $rb->view_entry('add',null,array('company'=>$company));
     }
 
     public function caption() {
@@ -82,7 +116,7 @@ class CRM_Assets extends Module {
                 'name'=>'Active',
                 'type'=>'checkbox',
                 'extra'=>false,
-                'visible'=>false,
+                'visible'=>true,
                 'filter'=>true
             ),
             /*************** COMMON ***************/
@@ -105,9 +139,18 @@ class CRM_Assets extends Module {
                 'extra'=>false
             ),
             array(
+                'name'=>'General Info',
+                'type'=>'calculated',
+                'extra'=>false,
+                'visible'=>true,
+                'display_callback'=>array('CRM_AssetsCommon', 'display_info'),
+                'QFfield_callback'=>array('CRM_AssetsCommon', 'QFfield_info')
+            ),
+            array(
                 'name'=>'Other',
                 'type'=>'long text',
-                'extra'=>false
+                'extra'=>false,
+                'visible'=>true
             ),
             /*************** COMPUTER ***************/
             array(
@@ -190,12 +233,15 @@ class CRM_Assets extends Module {
         Utils_RecordBrowserCommon::install_new_recordset('crm_assets', $fields);
         Utils_RecordBrowserCommon::set_recent('crm_assets', 10);
         Utils_RecordBrowserCommon::set_caption('crm_assets', 'Assets');
+        Utils_RecordBrowserCommon::set_quickjump('crm_assets', 'Asset Name');
 //        Utils_RecordBrowserCommon::set_icon('crm_assets', Base_ThemeCommon::get_template_filename('Custom/Projects', 'icon.png'));
         Utils_RecordBrowserCommon::set_processing_callback('crm_assets', array('CRM_AssetsCommon', 'process_request'));
 //        Utils_RecordBrowserCommon::set_access_callback('crm_assets', array('CRM_AssetsCommon', 'access_equipment'));
         Utils_RecordBrowserCommon::enable_watchdog('crm_assets', array('CRM_AssetsCommon','watchdog_label'));
         DB::Execute('UPDATE crm_assets_field SET param = 1 WHERE field = %s', array('Details'));
-        
+
+        Utils_RecordBrowserCommon::new_addon('company', 'CRM/Assets', 'assets_addon', 'Assets');
+
         print('Installed Successfully<br/>');
         return true;
     }
@@ -204,6 +250,7 @@ class CRM_Assets extends Module {
         Utils_CommonDataCommon::remove('crm_assets_category');
         Utils_CommonDataCommon::remove('crm_assets_monitor_type');
         Utils_CommonDataCommon::remove('crm_assets_printer_type');
+        Utils_RecordBrowserCommon::delete_addon('company', 'CRM/Assets', 'assets_addon');
         if( Utils_RecordBrowserCommon::uninstall_recordset('crm_assets') ) print('Uninstalled<br/>');
         return true;
     }

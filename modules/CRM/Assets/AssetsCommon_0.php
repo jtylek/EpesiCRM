@@ -19,6 +19,10 @@ class CRM_AssetsCommon extends ModuleCommon {
         return Utils_RecordBrowserCommon::create_linked_label_r('crm_assets', 'asset_id', $r, $nolink);
     }
 
+    public static function display_info($r, $nolink) {
+        return 'More info will be here';
+    }
+
     public static function watchdog_label($rid = null, $events = array(), $details = true) {
         return Utils_RecordBrowserCommon::watchdog_label(
         'crm_assets',
@@ -67,6 +71,9 @@ class CRM_AssetsCommon extends ModuleCommon {
         }
     }
 
+    public static function QFfield_info(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+    }
+    
 }
 
 ?>
