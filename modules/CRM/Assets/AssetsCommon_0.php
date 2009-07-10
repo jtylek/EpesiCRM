@@ -20,7 +20,29 @@ class CRM_AssetsCommon extends ModuleCommon {
     }
 
     public static function display_info($r, $nolink) {
-        return 'More info will be here';
+        /* monitor */
+        if($r['category']<3) {
+            $str = Base_LangCommon::t('Computer');
+            if($r['category']==3) $str .= '('.Base_LangCommon::t('Laptop').')';
+/* TODO complete summary for comp
+ */
+            $str .= ', more info later';
+            return $str;
+        }
+        if($r['category']==3) {
+            $type = Utils_CommonDataCommon::get_translated_array('crm_assets_monitor_type');
+            $str = Base_LangCommon::t('Display type').': '.$type[$r['display_type']];
+            $str .= ', '.Base_LangCommon::t('Screen size').': '.$r['screen_size'];
+            return $str;
+        }
+        if($r['category']==4) {
+            $type = Utils_CommonDataCommon::get_translated_array('crm_assets_printer_type');
+            $str = Base_LangCommon::t('Printer type').': '.$type[$r['printer_type']];
+            $color = $r['color_printing'] ? 'Yes': 'No';
+            $str .= ', '.Base_LangCommon::t('Color printing').': '.Base_LangCommon::t($color);
+            return $str;
+        }
+        return Base_LangCommon::t('This is non-categorized asset.');
     }
 
     public static function watchdog_label($rid = null, $events = array(), $details = true) {
