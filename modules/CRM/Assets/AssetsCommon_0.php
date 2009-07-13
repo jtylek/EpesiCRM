@@ -20,27 +20,28 @@ class CRM_AssetsCommon extends ModuleCommon {
     }
 
     public static function display_info($r, $nolink) {
-        /* monitor */
+        /* computer */
         if($r['category']<3) {
-            $str = Base_LangCommon::t('Computer');
-            if($r['category']==3) $str .= '('.Base_LangCommon::t('Laptop').')';
-/* TODO complete summary for comp
- */
-            $str .= ', more info later';
-            return $str;
+            if($r['host_name']) $arr[] = Base_LangCommon::t('Host name').': '.$r['host_name'];
+            if($r['operating_system']) $arr[] = Base_LangCommon::t('OS').': '.$r['operating_system'];
+            if($r['software']) $arr[] = Base_LangCommon::t('Software').': '.$r['software'];
+            if($r['category']==2 && $r['screen_size']) $arr[] = Base_LangCommon::t('Screen size').': '.$r['screen_size'];
+            return isset($arr) ? implode(', ', $arr) : Base_LangCommon::t('No info');
         }
+        /* monitor */
         if($r['category']==3) {
             $type = Utils_CommonDataCommon::get_translated_array('crm_assets_monitor_type');
-            $str = Base_LangCommon::t('Display type').': '.$type[$r['display_type']];
-            $str .= ', '.Base_LangCommon::t('Screen size').': '.$r['screen_size'];
-            return $str;
+            $arr[] = Base_LangCommon::t('Display type').': '.($r['display_type'] ? $type[$r['display_type']] : Base_LangCommon::t('Undefined'));
+            if($r['screen_size']) $arr[] = Base_LangCommon::t('Screen size').': '.$r['screen_size'];
+            return isset($arr) ? implode(', ', $arr) : Base_LangCommon::t('No info');
         }
+        /* printer */
         if($r['category']==4) {
             $type = Utils_CommonDataCommon::get_translated_array('crm_assets_printer_type');
-            $str = Base_LangCommon::t('Printer type').': '.$type[$r['printer_type']];
+            $arr[] = Base_LangCommon::t('Printer type').': '.($r['printer_type'] ? $type[$r['printer_type']] : Base_LangCommon::t('Undefined'));
             $color = $r['color_printing'] ? 'Yes': 'No';
-            $str .= ', '.Base_LangCommon::t('Color printing').': '.Base_LangCommon::t($color);
-            return $str;
+            $arr[] = Base_LangCommon::t('Color printing').': '.Base_LangCommon::t($color);
+            return isset($arr) ? implode(', ', $arr) : Base_LangCommon::t('No info');
         }
         return Base_LangCommon::t('This is non-categorized asset.');
     }
