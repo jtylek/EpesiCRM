@@ -96,7 +96,14 @@ class CRM_AssetsCommon extends ModuleCommon {
 
     public static function QFfield_info(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
     }
-    
+
+//    public static function search_format($id) {
+//        $row = Utils_RecordBrowserCommon::get_records('crm_assets',array('id'=>$id));
+//        if(!$row) return false;
+//        $row = array_pop($row);
+//        return Utils_RecordBrowserCommon::record_link_open_tag('custom_shopequipment', $row['id']).Base_LangCommon::ts('Custom_Projects_ShopEquipment', 'Shop Equipment (attachment) #%d, %s', array($row['id'], $row['equipment_id'])).Utils_RecordBrowserCommon::record_link_close_tag();
+//    }
+
 }
 
 ?>

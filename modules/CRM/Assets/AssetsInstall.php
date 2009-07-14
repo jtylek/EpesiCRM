@@ -26,7 +26,7 @@ class CRM_AssetsInstall extends ModuleInstall {
                 'visible'=>true,
                 'display_callback'=>array('CRM_AssetsCommon', 'display_asset_id')
             ),
-			 array(
+            array(
                 'name'=>'Active',
                 'type'=>'checkbox',
                 'extra'=>false,
@@ -64,6 +64,11 @@ class CRM_AssetsInstall extends ModuleInstall {
                 'visible'=>true,
                 'param'=>array('field_type'=>'select', 'crits'=>array('CRM_AssetsCommon','company_crits'))
             ),
+            array(
+                'name'=>'Date purchased',
+                'type'=>'date',
+                'extra'=>false
+            ),
             /*************** COMMON ***************/
             array(
                 'name'=>'Serial Number',
@@ -90,87 +95,91 @@ class CRM_AssetsInstall extends ModuleInstall {
                 'name'=>'Host Name',
                 'type'=>'text',
                 'param'=>'128',
-				'extra'=>false
+                'extra'=>false
             ),
             array(
                 'name'=>'Operating System',
                 'type'=>'text',
                 'param'=>'128',
-				'extra'=>false
+                'extra'=>false
             ),
             array(
                 'name'=>'Processor',
                 'type'=>'text',
                 'param'=>'128',
-				'extra'=>false
+                'extra'=>false
             ),
             array(
                 'name'=>'RAM',
                 'type'=>'text',
                 'param'=>'128',
-				'extra'=>false
+                'extra'=>false
             ),
             array(
                 'name'=>'HDD',
                 'type'=>'text',
                 'param'=>'128',
-				'extra'=>false
+                'extra'=>false
             ),
             array(
                 'name'=>'Optical Devices',
                 'type'=>'text',
                 'param'=>'128',
-				'extra'=>false
+                'extra'=>false
             ),
             array(
                 'name'=>'Audio',
                 'type'=>'text',
                 'param'=>'128',
-				'extra'=>false
+                'extra'=>false
             ),
             array(
                 'name'=>'Software',
                 'type'=>'long text',
-				'extra'=>false
+                'extra'=>false
             ),
             /*************** Monitor ***************/
             array(
                 'name'=>'Display Type',
                 'type'=>'commondata',
-				'extra'=>false,
+                'extra'=>false,
                 'param'=>array('crm_assets_monitor_type')
             ),
             array(
                 'name'=>'Screen Size',
                 'type'=>'text',
                 'param'=>'128',
-				'extra'=>false
+                'extra'=>false
             ),
             /*************** Printer ***************/
             array(
                 'name'=>'Printer Type',
                 'type'=>'commondata',
-				'extra'=>false,
+                'extra'=>false,
                 'param'=>array('order_by_key'=>true, 'crm_assets_printer_type')
             ),
             array(
                 'name'=>'Color Printing',
                 'type'=>'checkbox',
-				'extra'=>false
+                'extra'=>false
             ),
         );
 
         Utils_RecordBrowserCommon::install_new_recordset('crm_assets', $fields);
         Utils_RecordBrowserCommon::set_recent('crm_assets', 10);
+        Utils_RecordBrowserCommon::set_favorites('crm_assets', true);
         Utils_RecordBrowserCommon::set_caption('crm_assets', 'Assets');
         Utils_RecordBrowserCommon::set_quickjump('crm_assets', 'Asset Name');
     //        Utils_RecordBrowserCommon::set_icon('crm_assets', Base_ThemeCommon::get_template_filename('Custom/Projects', 'icon.png'));
         Utils_RecordBrowserCommon::set_processing_callback('crm_assets', array('CRM_AssetsCommon', 'process_request'));
     //        Utils_RecordBrowserCommon::set_access_callback('crm_assets', array('CRM_AssetsCommon', 'access_equipment'));
         Utils_RecordBrowserCommon::enable_watchdog('crm_assets', array('CRM_AssetsCommon','watchdog_label'));
-        DB::Execute('UPDATE crm_assets_field SET param = 1 WHERE field = %s', array('Details'));
+        /* set one column in details */
+//        DB::Execute('UPDATE crm_assets_field SET param = 1 WHERE field = %s', array('Details'));
 
         Utils_RecordBrowserCommon::new_addon('company', 'CRM/Assets', 'assets_addon', 'Assets');
+        Utils_RecordBrowserCommon::new_addon('crm_assets', 'CRM/Assets', 'assets_attachment_addon', 'Notes');
+
         return true;
     }
 
@@ -179,12 +188,13 @@ class CRM_AssetsInstall extends ModuleInstall {
         Utils_CommonDataCommon::remove('crm_assets_monitor_type');
         Utils_CommonDataCommon::remove('crm_assets_printer_type');
         Utils_RecordBrowserCommon::delete_addon('company', 'CRM/Assets', 'assets_addon');
+        Utils_RecordBrowserCommon::delete_addon('crm_assets', 'CRM/Assets', 'assets_attachment_addon');
         Utils_RecordBrowserCommon::uninstall_recordset('crm_assets');
         return true;
     }
 
     public function version() {
-        return array("0.2");
+        return array("0.3");
     }
 
     public function requires($v) {

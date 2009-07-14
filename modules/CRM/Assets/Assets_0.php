@@ -21,8 +21,7 @@ class CRM_Assets extends Module {
                 'category'=>array('width'=>10),
                 'asset_name'=>array('width'=>30),
                 'company'=>array('width'=>30),
-                'general_info'=>array('width'=>50),
-                'other'=>array('width'=>30)
+                'general_info'=>array('width'=>50)
             ));
         $this->display_module($this->rb, array(array('asset_name'=>'ASC'),array(),array('active'=>false)));
     }
@@ -34,12 +33,10 @@ class CRM_Assets extends Module {
                 'category'=>array('width'=>10),
                 'asset_name'=>array('width'=>30),
                 'active'=>array('width'=>10),
-                'company'=>array('width'=>30),
-                'general_info'=>array('width'=>50),
-                'other'=>array('width'=>30)
+                'general_info'=>array('width'=>50)
             ));
         $rb->set_button($this->create_callback_href(array($this,'assets_addon_new_asset'), array($arg['id'])));
-	$this->display_module($rb, array(array('company'=>array($arg['id'])), array('company'=>false), array('asset_name'=>'ASC')), 'show_data');
+	$this->display_module($rb, array(array('company'=>array($arg['id'])), array('company'=>false, 'active'=>true), array('asset_name'=>'ASC')), 'show_data');
     }
 
     public function assets_addon_new_asset($company) {
@@ -52,6 +49,13 @@ class CRM_Assets extends Module {
     public function new_asset($company) {
         $rb = $this->init_module('Utils/RecordBrowser','crm_assets','crm_assets');
         $rb->view_entry('add',null,array('company'=>$company));
+    }
+
+    public function assets_attachment_addon($arg) {
+        $a = $this->init_module('Utils/Attachment',array('CRM/Assets/'.$arg['id']));
+//        $a->set_view_func(array('CRM_AssetsCommon','search_format'), array($arg['id']));
+        $a->additional_header($arg['asset_name'].' ('.$arg['asset_id'].')');
+        $this->display_module($a);
     }
 
     public function caption() {

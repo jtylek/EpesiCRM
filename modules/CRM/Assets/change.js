@@ -17,13 +17,10 @@ function change(index) {
     $('_host_name__label').parentNode.parentNode.style.display=dispComp;
     $('_operating_system__label').parentNode.parentNode.style.display=dispComp;
     $('_processor__label').parentNode.parentNode.style.display=dispComp;
-    $('_motherboard__label').parentNode.parentNode.style.display=dispComp;
     $('_ram__label').parentNode.parentNode.style.display=dispComp;
     $('_hdd__label').parentNode.parentNode.style.display=dispComp;
     $('_optical_devices__label').parentNode.parentNode.style.display=dispComp;
     $('_audio__label').parentNode.parentNode.style.display=dispComp;
-    $('_modem__label').parentNode.parentNode.style.display=dispComp;
-    $('_ports__label').parentNode.parentNode.style.display=dispComp;
     $('_software__label').parentNode.parentNode.style.display=dispComp;
 
     $('_display_type__label').parentNode.parentNode.style.display=dispMon;
