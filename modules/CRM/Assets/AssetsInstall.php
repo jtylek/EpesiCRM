@@ -91,87 +91,78 @@ class CRM_AssetsInstall extends ModuleInstall {
                 'display_callback'=>array('CRM_AssetsCommon', 'display_info'),
                 'QFfield_callback'=>array('CRM_AssetsCommon', 'QFfield_info')
             ),
-            array(
-                'name'=>'Other',
-                'type'=>'long text',
-                'extra'=>false,
-                'visible'=>true
-            ),
             /*************** COMPUTER ***************/
             array(
                 'name'=>'Host Name',
                 'type'=>'text',
-                'param'=>'128'
+                'param'=>'128',
+				'extra'=>false
             ),
             array(
                 'name'=>'Operating System',
                 'type'=>'text',
-                'param'=>'128'
+                'param'=>'128',
+				'extra'=>false
             ),
             array(
                 'name'=>'Processor',
                 'type'=>'text',
-                'param'=>'128'
-            ),
-            array(
-                'name'=>'Motherboard',
-                'type'=>'text',
-                'param'=>'128'
+                'param'=>'128',
+				'extra'=>false
             ),
             array(
                 'name'=>'RAM',
                 'type'=>'text',
-                'param'=>'128'
+                'param'=>'128',
+				'extra'=>false
             ),
             array(
                 'name'=>'HDD',
                 'type'=>'text',
-                'param'=>'128'
+                'param'=>'128',
+				'extra'=>false
             ),
             array(
                 'name'=>'Optical Devices',
                 'type'=>'text',
-                'param'=>'128'
+                'param'=>'128',
+				'extra'=>false
             ),
             array(
                 'name'=>'Audio',
                 'type'=>'text',
-                'param'=>'128'
-            ),
-            array(
-                'name'=>'Modem',
-                'type'=>'text',
-                'param'=>'128'
-            ),
-            array(
-                'name'=>'Ports',
-                'type'=>'text',
-                'param'=>'128'
+                'param'=>'128',
+				'extra'=>false
             ),
             array(
                 'name'=>'Software',
-                'type'=>'long text'
+                'type'=>'long text',
+				'extra'=>false
             ),
             /*************** Monitor ***************/
             array(
                 'name'=>'Display Type',
                 'type'=>'commondata',
+				'extra'=>false,
                 'param'=>array('crm_assets_monitor_type')
             ),
             array(
                 'name'=>'Screen Size',
                 'type'=>'text',
-                'param'=>'128'
+                'param'=>'128',
+				'extra'=>false
             ),
             /*************** Printer ***************/
             array(
                 'name'=>'Printer Type',
                 'type'=>'commondata',
+				'extra'=>false,
                 'param'=>array('order_by_key'=>true, 'crm_assets_printer_type')
             ),
             array(
                 'name'=>'Color Printing',
-                'type'=>'checkbox'
+                'type'=>'checkbox',
+				'extra'=>false
             ),
         );
 
