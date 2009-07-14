@@ -26,6 +26,13 @@ class CRM_AssetsInstall extends ModuleInstall {
                 'visible'=>true,
                 'display_callback'=>array('CRM_AssetsCommon', 'display_asset_id')
             ),
+			 array(
+                'name'=>'Active',
+                'type'=>'checkbox',
+                'extra'=>false,
+                'visible'=>true,
+                'filter'=>true
+            ),
             array(
                 'name'=>'Category',
                 'type'=>'commondata',
@@ -57,13 +64,6 @@ class CRM_AssetsInstall extends ModuleInstall {
                 'visible'=>true,
                 'param'=>array('field_type'=>'select', 'crits'=>array('CRM_AssetsCommon','company_crits'))
             ),
-            array(
-                'name'=>'Active',
-                'type'=>'checkbox',
-                'extra'=>false,
-                'visible'=>true,
-                'filter'=>true
-            ),
             /*************** COMMON ***************/
             array(
                 'name'=>'Serial Number',
@@ -73,12 +73,6 @@ class CRM_AssetsInstall extends ModuleInstall {
             ),
             array(
                 'name'=>'IP Address',
-                'type'=>'text',
-                'param'=>'128',
-                'extra'=>false
-            ),
-            array(
-                'name'=>'Network',
                 'type'=>'text',
                 'param'=>'128',
                 'extra'=>false
