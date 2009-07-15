@@ -22,27 +22,46 @@ class CRM_AssetsCommon extends ModuleCommon {
     public static function display_info($r, $nolink) {
         /* computer */
         if($r['category']<3) {
-            if($r['host_name']) $arr[] = Base_LangCommon::t('Host name').': '.$r['host_name'];
-            if($r['operating_system']) $arr[] = Base_LangCommon::t('OS').': '.$r['operating_system'];
-            if($r['software']) $arr[] = Base_LangCommon::t('Software').': '.$r['software'];
-            if($r['category']==2 && $r['screen_size']) $arr[] = Base_LangCommon::t('Screen size').': '.$r['screen_size'];
-            return isset($arr) ? implode(', ', $arr) : Base_LangCommon::t('No info');
+            /* structure: variable_name => display_label */
+            $k = array('host_name'=>'Host Name', 'processor'=>'CPU', 'ram'=>'RAM', 'hdd'=>'HDD', 'operating_system'=>'OS', 'optical_devices'=>'DRIVES', 'audio'=>'AUDIO', 'software'=>'SOFT');
+            foreach($k as $var => $label) {
+                $pos = Base_User_SettingsCommon::get('CRM/Assets', $var.'_pos');
+                if($r[$var] && Base_User_SettingsCommon::get('CRM/Assets', $var)) $arr[$pos] = '['.Base_LangCommon::t($label).'] '.$r[$var];
+            }
+            /* laptop screen */
+            if($r['category']==2) {
+                $pos = Base_User_SettingsCommon::get('CRM/Assets', 'laptop_screen_pos');
+                if($r['screen_size'] && Base_User_SettingsCommon::get('CRM/Assets', 'laptop_screen')) $arr[$pos] = '['.Base_LangCommon::t('Screen').'] '.$r['screen_size'];
+            }
         }
         /* monitor */
         if($r['category']==3) {
-            $type = Utils_CommonDataCommon::get_translated_array('crm_assets_monitor_type');
-            $arr[] = Base_LangCommon::t('Display type').': '.($r['display_type'] ? $type[$r['display_type']] : Base_LangCommon::t('Undefined'));
-            if($r['screen_size']) $arr[] = Base_LangCommon::t('Screen size').': '.$r['screen_size'];
-            return isset($arr) ? implode(', ', $arr) : Base_LangCommon::t('No info');
+            if(Base_User_SettingsCommon::get('CRM/Assets', 'display_type')) {
+                $type = Utils_CommonDataCommon::get_translated_array('crm_assets_monitor_type');
+                $pos = Base_User_SettingsCommon::get('CRM/Assets', 'display_type_pos');
+                $arr[$pos] = '['.Base_LangCommon::t('Display Type').'] '.($r['display_type']!=null ? $type[$r['display_type']] : Base_LangCommon::t('Undefined'));
+            }
+            $pos = Base_User_SettingsCommon::get('CRM/Assets', 'screen_size_pos');
+            if($r['screen_size'] && Base_User_SettingsCommon::get('CRM/Assets', 'screen_size')) $arr[$pos] = '['.Base_LangCommon::t('Screen Size').'] '.$r['screen_size'];
         }
         /* printer */
         if($r['category']==4) {
-            $type = Utils_CommonDataCommon::get_translated_array('crm_assets_printer_type');
-            $arr[] = Base_LangCommon::t('Printer type').': '.($r['printer_type'] ? $type[$r['printer_type']] : Base_LangCommon::t('Undefined'));
-            $color = $r['color_printing'] ? 'Yes': 'No';
-            $arr[] = Base_LangCommon::t('Color printing').': '.Base_LangCommon::t($color);
-            return isset($arr) ? implode(', ', $arr) : Base_LangCommon::t('No info');
+            if(Base_User_SettingsCommon::get('CRM/Assets', 'printer_type')) {
+                $type = Utils_CommonDataCommon::get_translated_array('crm_assets_printer_type');
+                $pos = Base_User_SettingsCommon::get('CRM/Assets', 'printer_type_pos');
+                $arr[$pos] = '['.Base_LangCommon::t('Printer Type').'] '.($r['printer_type']!=null ? $type[$r['printer_type']] : Base_LangCommon::t('Undefined'));
+            }
+            if(Base_User_SettingsCommon::get('CRM/Assets', 'color_printing')) {
+                $color = $r['color_printing'] ? 'Yes': 'No';
+                $pos = Base_User_SettingsCommon::get('CRM/Assets', 'color_printing_pos');
+                $arr[$pos] = '['.Base_LangCommon::t('Color printing').'] '.Base_LangCommon::t($color);
+            }
         }
+        if($r['category']<=4) {
+            if(isset($arr)) ksort($arr);
+            return isset($arr) ? implode(' ', $arr) : Base_LangCommon::t('No info');
+        }
+
         return Base_LangCommon::t('This is non-categorized asset.');
     }
 
@@ -103,6 +122,51 @@ class CRM_AssetsCommon extends ModuleCommon {
 //        $row = array_pop($row);
 //        return Utils_RecordBrowserCommon::record_link_open_tag('custom_shopequipment', $row['id']).Base_LangCommon::ts('Custom_Projects_ShopEquipment', 'Shop Equipment (attachment) #%d, %s', array($row['id'], $row['equipment_id'])).Utils_RecordBrowserCommon::record_link_close_tag();
 //    }
+
+    public static function user_settings() {
+//        $rec = Utils_RecordBrowserCommon::get_records('premium_warehouse', array(), array('warehouse'), array('warehouse'=>'ASC'));
+//        $warehouses = array(''=>'---');
+//        foreach ($rec as $v)
+//            $warehouses[$v['id']] = $v['warehouse'];
+//        return array('Warehouse'=>array(
+//        array('name'=>'my_warehouse','label'=>'My main Warehouse','type'=>'select','values'=>$warehouses,'default'=>'')
+//        ));
+        return array('Assets'=>array(
+                array('name'=>'desc', 'label'=>'Check what should appear in General Info', 'type'=>'static', 'default'=>' and set order of appearance(smaller number -> earlier showed)'),
+
+                array('name'=>'computer_header', 'label'=>'', 'type'=>'header', 'default'=>'Computer'),
+                array('name'=>'processor', 'label'=>'CPU', 'type'=>'checkbox', 'default'=>true),
+                    array('name'=>'processor_pos', 'label'=>'Position', 'type'=>'numeric', 'default'=>'1'),
+                array('name'=>'ram', 'label'=>'RAM', 'type'=>'checkbox', 'default'=>true),
+                    array('name'=>'ram_pos', 'label'=>'Position', 'type'=>'numeric', 'default'=>'2'),
+                array('name'=>'hdd', 'label'=>'HDD', 'type'=>'checkbox', 'default'=>true),
+                    array('name'=>'hdd_pos', 'label'=>'Position', 'type'=>'numeric', 'default'=>'3'),
+                array('name'=>'operating_system', 'label'=>'OS', 'type'=>'checkbox', 'default'=>true),
+                    array('name'=>'operating_system_pos', 'label'=>'Position', 'type'=>'numeric', 'default'=>'4'),
+                array('name'=>'host_name', 'label'=>'Host Name', 'type'=>'checkbox', 'default'=>false),
+                    array('name'=>'host_name_pos', 'label'=>'Position', 'type'=>'numeric', 'default'=>'5'),
+                array('name'=>'optical_devices', 'label'=>'Optical Devices', 'type'=>'checkbox', 'default'=>false),
+                    array('name'=>'optical_devices_pos', 'label'=>'Position', 'type'=>'numeric', 'default'=>'6'),
+                array('name'=>'audio', 'label'=>'Audio', 'type'=>'checkbox', 'default'=>false),
+                    array('name'=>'audio_pos', 'label'=>'Position', 'type'=>'numeric', 'default'=>'7'),
+                array('name'=>'software', 'label'=>'Software', 'type'=>'checkbox', 'default'=>false),
+                    array('name'=>'sofware_pos', 'label'=>'Position', 'type'=>'numeric', 'default'=>'8'),
+                array('name'=>'laptop_screen', 'label'=>'Laptop Screen Size', 'type'=>'checkbox', 'default'=>true),
+                    array('name'=>'laptop_screen_pos', 'label'=>'Position', 'type'=>'numeric', 'default'=>'9'),
+
+                array('name'=>'monitor_header', 'label'=>'', 'type'=>'header', 'default'=>'Monitor'),
+                array('name'=>'display_type', 'label'=>'Display Type', 'type'=>'checkbox', 'default'=>true),
+                    array('name'=>'display_type_pos', 'label'=>'Position', 'type'=>'numeric', 'default'=>'1'),
+                array('name'=>'screen_size', 'label'=>'Screen Size', 'type'=>'checkbox', 'default'=>true),
+                    array('name'=>'screen_size_pos', 'label'=>'Position', 'type'=>'numeric', 'default'=>'2'),
+
+                array('name'=>'printer_header', 'label'=>'', 'type'=>'header', 'default'=>'Printer'),
+                array('name'=>'printer_type', 'label'=>'Printer Type', 'type'=>'checkbox', 'default'=>true),
+                    array('name'=>'printer_type_pos', 'label'=>'Position', 'type'=>'numeric', 'default'=>'1'),
+                array('name'=>'color_printing', 'label'=>'Color Printing', 'type'=>'checkbox', 'default'=>true),
+                    array('name'=>'color_printing_pos', 'label'=>'Position', 'type'=>'numeric', 'default'=>'2')
+            ));
+    }
 
 }
 

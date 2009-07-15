@@ -62,10 +62,11 @@ class CRM_AssetsInstall extends ModuleInstall {
                 'type'=>'crm_company',
                 'extra'=>false,
                 'visible'=>true,
-                'param'=>array('field_type'=>'select', 'crits'=>array('CRM_AssetsCommon','company_crits'))
+                'param'=>array('field_type'=>'select', 'crits'=>array('CRM_AssetsCommon','company_crits')),
+                'filter'=>true
             ),
             array(
-                'name'=>'Date purchased',
+                'name'=>'Date Purchased',
                 'type'=>'date',
                 'extra'=>false
             ),

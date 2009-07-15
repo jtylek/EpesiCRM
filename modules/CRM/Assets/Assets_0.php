@@ -19,9 +19,9 @@ class CRM_Assets extends Module {
         $this->rb->set_header_properties(array(
                 'asset_id'=>array('width'=>10),
                 'category'=>array('width'=>10),
-                'asset_name'=>array('width'=>30),
-                'company'=>array('width'=>30),
-                'general_info'=>array('width'=>50)
+                'asset_name'=>array('width'=>15),
+                'company'=>array('width'=>15),
+                'general_info'=>array('width'=>70)
             ));
         $this->display_module($this->rb, array(array('asset_name'=>'ASC'),array(),array('active'=>false)));
     }
@@ -31,9 +31,9 @@ class CRM_Assets extends Module {
         $rb->set_header_properties(array(
                 'asset_id'=>array('width'=>10),
                 'category'=>array('width'=>10),
-                'asset_name'=>array('width'=>30),
-                'active'=>array('width'=>10),
-                'general_info'=>array('width'=>50)
+                'asset_name'=>array('width'=>15),
+                'active'=>array('width'=>7),
+                'general_info'=>array('width'=>70)
             ));
         $rb->set_button($this->create_callback_href(array($this,'assets_addon_new_asset'), array($arg['id'])));
 	$this->display_module($rb, array(array('company'=>array($arg['id'])), array('company'=>false, 'active'=>true), array('asset_name'=>'ASC')), 'show_data');
