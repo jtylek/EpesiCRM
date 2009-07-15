@@ -176,8 +176,6 @@ if(isset($ret) && $ret===false) {
 	exit();
 }
 
-require_once('libs/minify/Minify/Build.php');
-
 $csses = Epesi::get_csses();
 
 if(IPHONE) {

@@ -28,6 +28,7 @@ class Epesi {
 	
 	public final static function prepare_minified_files($arr) {
 		$out = array();
+		require_once('libs/minify/Minify/Build.php');
 		foreach($arr as $loader=>$css) {
 			$csses_build = new Minify_Build($css);
 			$f = $csses_build->uri($loader.'?'.http_build_query(array('f'=>array_values($css))));

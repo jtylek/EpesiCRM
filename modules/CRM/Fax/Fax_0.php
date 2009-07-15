@@ -72,8 +72,9 @@ class CRM_Fax extends Module {
 				foreach($companies as $row)
 					$numbers[] = $row['fax'];
 				$numbers += explode(',',$data['dest_other']);
-				call_user_func($fax_func,$file,$numbers);
-				return $this->go_back($file);
+				$ret = call_user_func($fax_func,$file,$numbers);
+				if($ret)
+					return $this->go_back($file);
 			}
 		}
 		$qf->display();
