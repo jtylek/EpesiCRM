@@ -31,6 +31,11 @@ class CRM_Fax extends Module {
 			}
 			$providers[$module] = $arr['name'];
 		}
+		if(empty($providers)) {
+			$this->go_back($file);
+			Epesi::alert($this->ht('No fax providers installed or configured.'));
+			return;
+		}
 		$qf->addElement('header',null,$this->t('Faxing file: %s',array(basename($file))));
 		$qf->addElement('select','provider',$this->t('Provider'),$providers);
 		
@@ -59,7 +64,7 @@ class CRM_Fax extends Module {
 		
 		if($qf->validate()) {
 			$data = $qf->exportValues();
-			if(!isset($providers_arr[$data['provider']]['func'])) {
+			if(!isset($providers_arr[$data['provider']]['send_func'])) {
 				Epesi::alert($this->ht('Invalid fax provider.'));
 			} else {
 				$fax_func = array($data['provider'].'Common',$providers_arr[$data['provider']]['send_func']);
