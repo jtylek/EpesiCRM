@@ -52,7 +52,8 @@ function rb_csv_export_format_currency_value($v, $symbol) {
 		$currency_decimal_signs = DB::GetAssoc('SELECT symbol, decimal_sign FROM utils_currency');
 		$currency_thou_signs = DB::GetAssoc('SELECT symbol, thousand_sign FROM utils_currency');
 	}
-	$v = str_replace(array($currency_decimal_signs[$symbol], $currency_thou_signs[$symbol]), array('.',''), $v);
+	$v = str_replace($currency_thou_signs[$symbol], '', $v);
+	$v = str_replace($currency_decimal_signs[$symbol], '.', $v);
 	return $v;
 }
 
