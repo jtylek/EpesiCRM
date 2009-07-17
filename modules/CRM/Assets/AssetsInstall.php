@@ -190,6 +190,7 @@ class CRM_AssetsInstall extends ModuleInstall {
         Utils_CommonDataCommon::remove('crm_assets_printer_type');
         Utils_RecordBrowserCommon::delete_addon('company', 'CRM/Assets', 'assets_addon');
         Utils_RecordBrowserCommon::delete_addon('crm_assets', 'CRM/Assets', 'assets_attachment_addon');
+        Utils_AttachmentCommon::persistent_mass_delete('CRM/Assets');
         Utils_RecordBrowserCommon::uninstall_recordset('crm_assets');
         return true;
     }

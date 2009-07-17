@@ -116,21 +116,14 @@ class CRM_AssetsCommon extends ModuleCommon {
     public static function QFfield_info(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
     }
 
-//    public static function search_format($id) {
-//        $row = Utils_RecordBrowserCommon::get_records('crm_assets',array('id'=>$id));
-//        if(!$row) return false;
-//        $row = array_pop($row);
-//        return Utils_RecordBrowserCommon::record_link_open_tag('custom_shopequipment', $row['id']).Base_LangCommon::ts('Custom_Projects_ShopEquipment', 'Shop Equipment (attachment) #%d, %s', array($row['id'], $row['equipment_id'])).Utils_RecordBrowserCommon::record_link_close_tag();
-//    }
+    public static function search_format($id) {
+        $row = Utils_RecordBrowserCommon::get_records('crm_assets',array('id'=>$id));
+        if(!$row) return false;
+        $row = array_pop($row);
+        return Utils_RecordBrowserCommon::record_link_open_tag('crm_assets', $row['id']).Base_LangCommon::ts('CRM_Assets', 'Assets (attachment) #%d, %s (%s)', array($row['id'], $row['asset_name'], $row['asset_id'])).Utils_RecordBrowserCommon::record_link_close_tag();
+    }
 
     public static function user_settings() {
-//        $rec = Utils_RecordBrowserCommon::get_records('premium_warehouse', array(), array('warehouse'), array('warehouse'=>'ASC'));
-//        $warehouses = array(''=>'---');
-//        foreach ($rec as $v)
-//            $warehouses[$v['id']] = $v['warehouse'];
-//        return array('Warehouse'=>array(
-//        array('name'=>'my_warehouse','label'=>'My main Warehouse','type'=>'select','values'=>$warehouses,'default'=>'')
-//        ));
         return array('Assets'=>array(
                 array('name'=>'desc', 'label'=>'Check what should appear in General Info', 'type'=>'static', 'default'=>' and set order of appearance(smaller number -> earlier showed)'),
 

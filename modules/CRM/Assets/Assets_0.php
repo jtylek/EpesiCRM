@@ -53,7 +53,7 @@ class CRM_Assets extends Module {
 
     public function assets_attachment_addon($arg) {
         $a = $this->init_module('Utils/Attachment',array('CRM/Assets/'.$arg['id']));
-//        $a->set_view_func(array('CRM_AssetsCommon','search_format'), array($arg['id']));
+        $a->set_view_func(array('CRM_AssetsCommon','search_format'), array($arg['id']));
         $a->additional_header($arg['asset_name'].' ('.$arg['asset_id'].')');
         $this->display_module($a);
     }
