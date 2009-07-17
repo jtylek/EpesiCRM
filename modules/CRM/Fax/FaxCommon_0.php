@@ -32,6 +32,12 @@ class CRM_FaxCommon extends ModuleCommon {
 		return $e['company_name'];
 	}
 
+	public static function menu() {
+		if(!Acl::is_user()) return array();
+		return array('CRM'=>array('__submenu__'=>1,'Faxes'=>array()));
+	}
+	
+
 }
 
 ?>

@@ -1,0 +1,36 @@
+#CRM_Fax__filters table {
+    width: 100%;
+}
+
+#CRM_Fax__filters td.column  { vertical-align: top; }
+
+#CRM_Fax__filters .label {
+    background-color: #336699;
+    color: #FFFFFF;
+    border-bottom: 1px solid #B3B3B3;
+    height: 20px;
+    vertical-align: middle;
+    padding-left: 5px;
+    padding-right: 5px;
+    width: 150px;
+    text-align: left;
+}
+
+/*
+#CRM_Fax__filters table.edit .label {
+    border: 2px solid white;
+}
+*/
+
+#CRM_Fax__filters .data {
+    text-align: left;
+    /*
+	width: 60%;
+	*/
+}
+
+#CRM_Fax__filters .actions {
+    color: #777777;
+    text-align: right;
+    padding-right: 20px;
+}
