@@ -115,7 +115,7 @@ class Libs_QuickForm extends Module {
 			case 'bool':
 			case 'checkbox':
 				$elem = $this -> createElement('checkbox',$v['name'],$v['label'],$v['values'],$v['param']);
-				$default_js .= '$(\''.$this->getAttribute('name').'\').'.$v['name'].'.checked = '.$v['default'].';';
+				$default_js .= '$(\''.$this->getAttribute('name').'\').'.$v['name'].'.checked = '.($v['default']?1:0).';';
 				break;
 			
 			case 'numeric':
