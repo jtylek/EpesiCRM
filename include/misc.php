@@ -445,7 +445,7 @@ function detect_mobile_device(){
 }
 
 function detect_iphone(){
-  if(eregi('iphone',$_SERVER['HTTP_USER_AGENT'])||eregi('ipod',$_SERVER['HTTP_USER_AGENT'])){
+  if(eregi('iphone',$_SERVER['HTTP_USER_AGENT'])||eregi('ipod',$_SERVER['HTTP_USER_AGENT'])||eregi('webOS',$_SERVER['HTTP_USER_AGENT'])){
     return true;
   }
 }
