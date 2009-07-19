@@ -26,14 +26,23 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 	}
 
 	public static function get_id($name) {
+		static $cache;
 		$name = trim($name,'/');
 		$pcs = explode('/',$name);
 		$id = -1;
 		foreach($pcs as $v) {
 			if($v==='') continue; //ignore emtpy paths
-			$id = DB::GetOne('SELECT id FROM utils_commondata_tree WHERE parent_id=%d AND akey=%s',array($id,$v));
-			if($id===false || $id===null)
-				return false;
+			if(isset($cache[$id][$v])) {
+				$id = $cache[$id][$v];
+			} else {
+				$old_id = $id;
+				$id = DB::GetOne('SELECT id FROM utils_commondata_tree WHERE parent_id=%d AND akey=%s',array($id,$v));
+				if($id===null)
+					$id = false;
+				$cache[$old_id][$v] = $id;
+				if($id===false)
+					return false;
+			}
 		}
 		return $id;
 	}
@@ -101,10 +110,15 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 	 * @return mixed false on invalid name
 	 */
 	public static function get_nodes($root, array $names){
+		static $cache;
+		if(isset($cache[$root][$names]))
+			return $cache[$root][$names];
 		$val = false;
 		$id = self::get_id($root);
 		if($id===false) return false;
-		return DB::GetAssoc('SELECT id,value FROM utils_commondata_tree WHERE parent_id=%d AND (akey=\''.implode($names,'\' OR akey=\'').'\')',array($id));
+		$ret = DB::GetAssoc('SELECT id,value FROM utils_commondata_tree WHERE parent_id=%d AND (akey=\''.implode($names,'\' OR akey=\'').'\')',array($id));
+		$cache[$root][$names] = $ret;
+		return $ret;
 	}
 
 	/**
@@ -190,6 +204,9 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 	 * @return mixed returns an array if such array exists, false otherwise
 	 */
 	public static function get_array($name, $order_by_key=false, $readinfo=false, $silent=false){
+		static $cache;
+		if(isset($cache[$name][$order_by_key][$readinfo]))
+			return $cache[$name][$order_by_key][$readinfo];
 		$id = self::get_id($name);
 		if($id===false)
 			if ($silent) return null;
@@ -199,8 +216,11 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 		else
 			$order_by = 'value';
 		if($readinfo)
-			return DB::GetAssoc('SELECT akey, value, readonly FROM utils_commondata_tree WHERE parent_id=%d ORDER BY '.$order_by,array($id),true);
-		return DB::GetAssoc('SELECT akey, value FROM utils_commondata_tree WHERE parent_id=%d ORDER BY '.$order_by,array($id));
+			$ret = DB::GetAssoc('SELECT akey, value, readonly FROM utils_commondata_tree WHERE parent_id=%d ORDER BY '.$order_by,array($id),true);
+		else 
+			$ret = DB::GetAssoc('SELECT akey, value FROM utils_commondata_tree WHERE parent_id=%d ORDER BY '.$order_by,array($id));
+		$cache[$name][$order_by_key][$readinfo] = $ret;
+		return $ret;
 	}
 
 	public static function get_translated_array($name,$order_by_key=false,$readinfo=false,$silent=false) {

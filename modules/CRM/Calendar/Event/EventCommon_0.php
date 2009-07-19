@@ -44,7 +44,9 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$recurrence_string = array_flip($recurrence_numeric);
 		if(is_numeric($i))
 			return $recurrence_numeric[$i-1];
-		return $recurrence_string[$i]+1;
+		if(isset($recurrence_string[$i]))
+			return $recurrence_string[$i]+1;
+		return 0;
 	}
 
 	public static function get_available_colors() {
@@ -73,10 +75,10 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		if (!$v) $v = 0;
 		if (isset($_REQUEST['form_name']) && $_REQUEST['form_name']==$prefix.'_follow_up_form' && $_REQUEST['id']==$id) {
 			unset($_REQUEST['form_name']);
-			$v = $_REQUEST['closecancel'];
+			$v = isset($_REQUEST['closecancel'])?$_REQUEST['closecancel']:0;
 			$action  = $_REQUEST['action'];
 			
-			$note = $_REQUEST['note'];
+			$note = isset($_REQUEST['note'])?$_REQUEST['note']:'';
 			if ($note) {
 				if (get_magic_quotes_gpc())
 					$note = stripslashes($note);
@@ -85,9 +87,15 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			}
 			
 			if ($action == 'set_in_progress') $v = 1;
+			if($def['recurrence']) {
+				self::split_event($id,$def);
+			}
 			DB::Execute('UPDATE crm_calendar_event SET status=%d WHERE id=%d',array($v,$id));
 			Utils_WatchdogCommon::new_event('crm_calendar',$id,'Event status changed');
-			if ($action == 'set_in_progress') location(array());
+			if ($action == 'set_in_progress') {
+				location(array());
+				return;
+			}
 
 			$values = $def;
 			$values['id'] = $id;
@@ -109,6 +117,111 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			location(array());
 		}
 		return 'href="javascript:void(0)" class="lbOn" rel="'.$prefix.'_followups_leightbox" onMouseDown="'.$prefix.'_set_id('.$id.');"';
+	}
+	
+	public static function split_event($id,$def) {
+		$data = DB::GetRow('SELECT * FROM crm_calendar_event WHERE id=%d',array($id));
+		DB::Execute('UPDATE crm_calendar_event SET starts=%d,ends=%d,recurrence_type=null,recurrence_hash=null,recurrence_end=null,edited_on=%T,edited_by=%d WHERE id=%d',array($def['date_s'],$def['date_s']+($def['time_e']-$def['time_s']),time(),Acl::get_user(),$id));
+		$emps = DB::GetCol('SELECT contact FROM crm_calendar_event_group_emp WHERE id=%d',array($id));
+		$cus = DB::GetCol('SELECT contact FROM crm_calendar_event_group_cus WHERE id=%d',array($id));
+				
+		if(date('Y-m-d',$def['date_s']-3600*24)>=date('Y-m-d',$data['starts'])) {
+			DB::Execute('INSERT INTO crm_calendar_event (title,'.
+													'description,'.
+													'starts,'.
+													'ends,'.
+													'timeless,'.
+													'access,'.
+													'priority,'.
+													'color,'.
+													'status,'.
+													'created_by,'.
+													'created_on, edited_on, edited_by,'.
+													'recurrence_type,recurrence_end,'.
+													'recurrence_hash) VALUES ('.
+													'%s,'.
+													'%s,'.
+													'%d,'.
+													'%d,'.
+													'%d,'.
+													'%d,'.
+													'%d,'.
+													'%d,'.
+													'%d,'.
+													'%d,'.
+													'%T,%T,%d,%d,%D,%s)',array(
+													$data['title'],
+													$data['description'],
+													$data['starts'],
+													$data['ends'],
+													$data['timeless'],
+													$data['access'],
+													$data['priority'],
+													$data['color'],
+													$data['status'],
+													$data['created_by'],
+													$data['created_on'],
+													time(),
+													Acl::get_user(),
+													$data['recurrence_type'],
+													$def['date_s']-3600*24,
+													$data['recurrence_hash']
+													));
+			$id2 = DB::Insert_ID('crm_calendar_event', 'id');
+			foreach($emps as $e)
+				DB::Execute('INSERT INTO crm_calendar_event_group_emp(id,contact) VALUES (%d,%d)',array($id2,$e));
+			foreach($cus as $c)
+				DB::Execute('INSERT INTO crm_calendar_event_group_cus(id,contact) VALUES (%d,%d)',array($id2,$c));
+		}
+				
+		if($data['recurrence_end']>=date('Y-m-d',$def['date_s']+(3600*24))) {
+			DB::Execute('INSERT INTO crm_calendar_event (title,'.
+													'description,'.
+													'starts,'.
+													'ends,'.
+													'timeless,'.
+													'access,'.
+													'priority,'.
+													'color,'.
+													'status,'.
+													'created_by,'.
+													'created_on, edited_on, edited_by,'.
+													'recurrence_type,recurrence_end,'.
+													'recurrence_hash) VALUES ('.
+													'%s,'.
+													'%s,'.
+													'%d,'.
+													'%d,'.
+													'%d,'.
+													'%d,'.
+													'%d,'.
+													'%d,'.
+													'%d,'.
+													'%d,'.
+													'%T,%T,%d,%d,%D,%s)',array(
+													$data['title'],
+													$data['description'],
+													$def['date_s']+(3600*24),
+													$def['date_s']+(3600*24)+$def['time_e']-$def['time_s'],
+													$data['timeless'],
+													$data['access'],
+													$data['priority'],
+													$data['color'],
+													$data['status'],
+													$data['created_by'],
+													$data['created_on'],
+													time(),
+													Acl::get_user(),
+													$data['recurrence_type'],
+													$data['recurrence_end'],
+													$data['recurrence_hash']
+													));
+			$id2 = DB::Insert_ID('crm_calendar_event', 'id');
+			foreach($emps as $e)
+				DB::Execute('INSERT INTO crm_calendar_event_group_emp(id,contact) VALUES (%d,%d)',array($id2,$e));
+			foreach($cus as $c)
+				DB::Execute('INSERT INTO crm_calendar_event_group_cus(id,contact) VALUES (%d,%d)',array($id2,$c));
+		}
 	}
 
 	//function prepares event array(required by Utils/Calendar) from database event row
@@ -405,14 +518,14 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 				$type = self::recurrence_type($row['recurrence_type']);
 				if($row['timeless']) {
 					if(isset($row['recurrence_end'])) {
-						$rend = min(strtotime($row['recurrence_end'].' 12:00:00')+3600*24,strtotime($end));
+						$rend = $row['recurrence_end'];
 					} else
-						$rend = strtotime($end);
+						$rend = '';
 				} else {
 					if(isset($row['recurrence_end'])) {
-						$rend = min(Base_RegionalSettingsCommon::reg2time(strtotime($row['recurrence_end'].' 12:00:00')+3600*24),$end_reg);
+						$rend = $row['recurrence_end'];
 					} else
-						$rend = $end_reg;
+						$rend = '';
 				}
 				$kk = 0;
 				if(($next_result['start']>=$start_reg && !$row['timeless']) || ($next_result['start']>=strtotime($start) && $row['timeless'])) {
@@ -426,13 +539,13 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 				}
 				$start_time = date('H:i:s',strtotime(Base_RegionalSettingsCommon::time2reg($next_result['start'],true,true,true,false)));
 				$end_time = date('H:i:s',strtotime(Base_RegionalSettingsCommon::time2reg($next_result['end'],true,true,true,false)));
-				while($next_result['start']<$rend) {
+				while(date('Y-m-d',$next_result['start'])!=$rend && date('Y-m-d',$next_result['start'])!=$end) {
 						$kk++;
 						$next_result['id'] = $row['id'].'_'.$kk;
 						$next_result['start'] = self::get_next_recurrence_time($next_result['start'],$row,$type,$start_time);
 						$next_result['end'] = self::get_next_recurrence_time($next_result['end'],$row,$type,$end_time);
 						if(isset($next_result['timeless'])) $next_result['timeless'] = date('Y-m-d',$next_result['start']);
-						if((($next_result['start']>=$start_reg && !$row['timeless']) || ($next_result['start']>=strtotime($start) && $row['timeless'])) && $next_result['start']<$rend) {
+						if((($next_result['start']>=$start_reg && !$row['timeless']) || ($next_result['start']>=strtotime($start) && $row['timeless']))) {
 							$result[] = $next_result;
 						}
 				}

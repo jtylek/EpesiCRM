@@ -38,10 +38,16 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return $ret;
 	}
 	public static function get_contact($id) {
-		return Utils_RecordBrowserCommon::get_record('contact', $id);
+		static $cache;
+		if(!isset($cache[$id]))
+			$cache[$id] = Utils_RecordBrowserCommon::get_record('contact', $id);
+		return $cache[$id];
 	}
 	public static function get_company($id) {
-		return Utils_RecordBrowserCommon::get_record('company', $id);
+		static $cache;
+		if(!isset($cache[$id]))
+			$cache[$id] = Utils_RecordBrowserCommon::get_record('company', $id);
+		return $cache[$id];
 	}
 	public static function get_main_company() {
 		try {

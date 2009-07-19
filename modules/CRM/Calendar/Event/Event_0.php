@@ -600,6 +600,9 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			}
 			$pdf->add_actionbar_icon($filename);
 
+			if($def['recurrence'])
+				Base_ActionBarCommon::add('save','Split',$this->create_callback_href(array($this,'split_event'),array($id,$def)));
+
 			if($event['deleted']) {
 				Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file('CRM_Calendar_Event','restore.png'),'Restore', $this->create_callback_href(array('CRM_Calendar_EventCommon', 'restore_event'), array($id)));
 			} elseif($writable) {
@@ -614,6 +617,10 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 		Utils_ShortcutCommon::add(array('Esc'), 'function(){'.$this->create_back_href_js().'}');
 		return true;
+	}
+	
+	public function split_event($id,$def) {
+		CRM_Calendar_EventCommon::split_event($id,$def);
 	}
 	
 	public function check_my_user($arg) {

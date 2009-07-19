@@ -362,10 +362,14 @@ class Epesi {
 			$queries = DB::GetQueries();
 			$sum = 0;
 			$qty = 0;
-			foreach($queries as $q) {
+			foreach($queries as $kk=>$q) {
 				$style='color:red;font-weight:bold';
 				if ($q['time']<0.5) $style = 'color:orange;font-weight:bold';
 				if ($q['time']<0.05) $style = 'color:green';
+				for($kkk=0; $kkk<$kk; $kkk++)
+					if($queries[$kkk]['args']==$q['args']) {
+						$style .= ';text-decoration:underline';
+					}
 				$debug .= '<span style="'.$style.';">'.'<b>'.$q['func'].'</b> '.htmlspecialchars(var_export($q['args'],true)).' <i><b>'.number_format($q['time'],4).'</b></i><br>'.'</span>';
 				$sum+=$q['time'];
 				$qty++;

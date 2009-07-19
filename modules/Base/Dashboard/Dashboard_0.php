@@ -23,9 +23,6 @@ class Base_Dashboard extends Module {
 
 		if(ModuleManager::is_installed('Utils/RecordBrowser')>=0) //speed up links to RB
 			if(Utils_RecordBrowserCommon::check_for_jump()) return;
-		$is_user = DB::GetAll('SELECT name,pos FROM base_dashboard_tabs WHERE user_login_id=%d',array(Acl::get_user()));
-		if(!$is_user)
-			$this->set_default_applets();
 
 		$this->dashboard();
 	}
@@ -37,8 +34,13 @@ class Base_Dashboard extends Module {
 
 		if($default_dash)
 			$tabs = DB::GetAll('SELECT name,id FROM base_dashboard_default_tabs ORDER BY pos');
-		else
+		else {
 			$tabs = DB::GetAll('SELECT name,id FROM base_dashboard_tabs WHERE user_login_id=%d ORDER BY pos',array(Acl::get_user()));
+			if(!$tabs) {
+				$this->set_default_applets();
+				$tabs = DB::GetAll('SELECT name,id FROM base_dashboard_tabs WHERE user_login_id=%d ORDER BY pos',array(Acl::get_user()));
+			}
+		}
 
 		if(count($tabs)>1) {
 			foreach($tabs as $tab)
@@ -67,15 +69,19 @@ class Base_Dashboard extends Module {
 
 		$default_dash = $this->get_module_variable('default');
 		$colors = Base_DashboardCommon::get_available_colors();
+		$applets = array();
+		if($default_dash)
+			$ret = DB::Execute('SELECT col,id,module_name,color FROM base_dashboard_default_applets WHERE tab=%d ORDER BY col,pos',array($tab_id));
+		else
+			$ret = DB::Execute('SELECT col,id,module_name,color FROM base_dashboard_applets WHERE user_login_id=%d AND tab=%d ORDER BY pos',array(Acl::get_user(),$tab_id));
+		while($row = $ret->FetchRow()) {
+			$applets[$row['col']][] = $row;
+		}
 		print('<div id="dashboard" style="width: 100%">');
 		for($j=0; $j<3; $j++) {
 			print('<div id="dashboard_applets_'.$j.'" style="width:33%;min-height:200px;padding-bottom:10px;vertical-align:top;float:left">');
 
-			if($default_dash)
-				$ret = DB::GetAll('SELECT id,module_name,color FROM base_dashboard_default_applets WHERE col=%d AND tab=%d ORDER BY pos',array($j,$tab_id));
-			else
-				$ret = DB::GetAll('SELECT id,module_name,color FROM base_dashboard_applets WHERE col=%d AND user_login_id=%d AND tab=%d ORDER BY pos',array($j,Acl::get_user(),$tab_id));
-			foreach($ret as $row) {
+			foreach($applets[$j] as $row) {
 				if(ModuleManager::is_installed($row['module_name'])==-1) {//if its invalid entry
 					$this->delete_applets($row['module_name']);
 					continue;
@@ -403,6 +409,7 @@ class Base_Dashboard extends Module {
 				}
 			}
 			$ok = true;
+			self::$settings_cache = null;
 			return false;
 		}
 		$ok=null;
@@ -435,15 +442,35 @@ class Base_Dashboard extends Module {
 		return $variables[$mod];
 	}
 
+	private static $settings_cache;
+	
 	private function get_values($id,$mod) {
-		$variables = $this->get_default_values($mod);
+		if(!isset(self::$settings_cache)) {
+			self::$settings_cache = array('default'=>array(), 'user'=>array());
+			$ret = DB::Execute('SELECT applet_id,name,value FROM base_dashboard_default_settings');
+			while($row = $ret->FetchRow())
+				self::$settings_cache['default'][$row['applet_id']][] = $row;
 
+			self::$settings_cache['user'] = array();
+			if(Acl::is_user()) {
+				$ret = DB::Execute('SELECT s.applet_id,s.name,s.value FROM base_dashboard_settings s INNER JOIN base_dashboard_applets a ON a.id=s.applet_id WHERE a.user_login_id=%d',array(Acl::get_user()));
+				while($row = $ret->FetchRow())
+					self::$settings_cache['user'][$row['applet_id']][] = $row;
+			} 
+		}
 		if($this->get_module_variable('default'))
-			$ret = DB::Execute('SELECT name,value FROM base_dashboard_default_settings WHERE applet_id=%d',array($id));
+			$c = self::$settings_cache['default'];
 		else
-			$ret = DB::Execute('SELECT name,value FROM base_dashboard_settings WHERE applet_id=%d',array($id));
+			$c = self::$settings_cache['user'];
 
-		while($v = $ret->FetchRow())
+		if(!isset($c[$id]))
+			$c = array();
+		else
+			$c = $c[$id];
+
+		$variables = $this->get_default_values($mod);
+		
+		foreach($c as $v)
 			$variables[$v['name']] = $v['value'];
 
 		return $variables;

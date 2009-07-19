@@ -88,13 +88,11 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	 */
 	public static function get_admin($module,$name){
 		$module = str_replace('/','_',$module);
-		if (!isset(self::$admin_variables))
+		if (!isset(self::$admin_variables)) {
 			self::$admin_variables = array();
-		if (!isset(self::$admin_variables[$module])) {
-			self::$admin_variables[$module] = array();
-			$ret = DB::Execute('SELECT variable,value FROM base_user_settings_admin_defaults WHERE module=%s',array($module));
+			$ret = DB::Execute('SELECT module,variable,value FROM base_user_settings_admin_defaults');
 			while($row = $ret->FetchRow())
-				self::$admin_variables[$module][$row['variable']] = unserialize($row['value']);
+				self::$admin_variables[$row['module']][$row['variable']] = unserialize($row['value']);
 		}
 		if (isset(self::$admin_variables[$module][$name]))
 			return self::$admin_variables[$module][$name];
@@ -114,16 +112,14 @@ class Base_User_SettingsCommon extends ModuleCommon {
 		if (!Acl::is_user()) return null;
 		if ($user===null) $user = Acl::get_user();
 		$module = str_replace('/','_',$module);
-		if (!isset(self::$user_variables[$user]))
+		if (!isset(self::$user_variables[$user])) {
 			self::$user_variables[$user] = array();
-		if (!isset(self::$user_variables[$user][$module])) {
-			self::$user_variables[$user][$module] = array();
-			$ret = DB::Execute('SELECT variable, value FROM base_user_settings WHERE user_login_id=%d AND module=%s',array($user, $module));
+			$ret = DB::Execute('SELECT variable, value, module FROM base_user_settings WHERE user_login_id=%d',array($user));
 			while($row = $ret->FetchRow())
-				self::$user_variables[$user][$module][$row['variable']] = unserialize($row['value']);
+				self::$user_variables[$user][$row['module']][$row['variable']] = unserialize($row['value']);\
 		}
 		if (isset(self::$user_variables[$user][$module][$name]))
-			return self::$user_variables[$user][$module][$name];	
+			return self::$user_variables[$user][$module][$name];
 		return self::$user_variables[$user][$module][$name] = self::get_admin($module,$name);
 	}
 
