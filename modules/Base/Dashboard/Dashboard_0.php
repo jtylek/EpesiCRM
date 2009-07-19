@@ -69,7 +69,7 @@ class Base_Dashboard extends Module {
 
 		$default_dash = $this->get_module_variable('default');
 		$colors = Base_DashboardCommon::get_available_colors();
-		$applets = array();
+		$applets = array(0=>array(),1=>array(),2=>array());
 		if($default_dash)
 			$ret = DB::Execute('SELECT col,id,module_name,color FROM base_dashboard_default_applets WHERE tab=%d ORDER BY col,pos',array($tab_id));
 		else
