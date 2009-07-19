@@ -85,7 +85,7 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 		if(Acl::is_user()) {
 			return array(
 				'Calendar'=>array(
-					array('name'=>'first_day_of_week','label'=>'First day of week', 'type'=>'select', 'values'=>array(0=>'Sunday', 1=>'Monday', 2=>'Tuesday', 3=>'Wednestday', 4=>'Thursday', 5=>'Friday', 6=>'Saturday'), 'default'=>0),
+					array('name'=>'first_day_of_week','label'=>'First day of week', 'type'=>'select', 'values'=>array(0=>'Sunday', 1=>'Monday', 2=>'Tuesday', 3=>'Wednesday', 4=>'Thursday', 5=>'Friday', 6=>'Saturday'), 'default'=>0),
 				)
 			);
 		}
