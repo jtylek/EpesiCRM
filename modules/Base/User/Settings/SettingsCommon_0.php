@@ -116,7 +116,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 			self::$user_variables[$user] = array();
 			$ret = DB::Execute('SELECT variable, value, module FROM base_user_settings WHERE user_login_id=%d',array($user));
 			while($row = $ret->FetchRow())
-				self::$user_variables[$user][$row['module']][$row['variable']] = unserialize($row['value']);\
+				self::$user_variables[$user][$row['module']][$row['variable']] = unserialize($row['value']);
 		}
 		if (isset(self::$user_variables[$user][$module][$name]))
 			return self::$user_variables[$user][$module][$name];
