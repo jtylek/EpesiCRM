@@ -74,9 +74,9 @@ class Base_Dashboard extends Module {
 			$ret = DB::Execute('SELECT col,id,module_name,color FROM base_dashboard_default_applets WHERE tab=%d ORDER BY col,pos',array($tab_id));
 		else
 			$ret = DB::Execute('SELECT col,id,module_name,color FROM base_dashboard_applets WHERE user_login_id=%d AND tab=%d ORDER BY pos',array(Acl::get_user(),$tab_id));
-		while($row = $ret->FetchRow()) {
+		while($row = $ret->FetchRow())
 			$applets[$row['col']][] = $row;
-		}
+
 		print('<div id="dashboard" style="width: 100%">');
 		for($j=0; $j<3; $j++) {
 			print('<div id="dashboard_applets_'.$j.'" style="width:33%;min-height:200px;padding-bottom:10px;vertical-align:top;float:left">');

@@ -426,14 +426,14 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 				$type = self::recurrence_type($row['recurrence_type']);
 				if($row['timeless']) {
 					if(isset($row['recurrence_end']))
-						$rend = min(strtotime($row['recurrence_end']),strtotime($end));
+						$rend = strtotime($row['recurrence_end']);
 					else
-						$rend = strtotime($end);
+						$rend = false;
 				} else {
 					if(isset($row['recurrence_end']))
-						$rend = min(Base_RegionalSettingsCommon::reg2time($row['recurrence_end']),$end_reg);
+						$rend = strtotime($row['recurrence_end']);
 					else
-						$rend = $end_reg;
+						$rend = false;
 				}
 				$kk = 0;
 				if(($row['start']>=$start_reg && !$row['timeless']) || ($row['start']>=strtotime($start) && $row['timeless'])) {
@@ -458,10 +458,10 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 					}
 				}
 				$start_time = date('H:i:s',strtotime(Base_RegionalSettingsCommon::time2reg($row['start'],true,true,true,false)));
-				while($row['start']<$rend) {
+				while(($rend==false || strtotime(date('Y-m-d',$row['start']))<$rend) && strtotime(date('Y-m-d',$row['start']))<strtotime($end)) {
 						$kk++;
 						$row['start'] = self::get_next_recurrence_time($row['start'],$row,$type,$start_time);
-						if((($row['start']>=$start_reg && !$row['timeless']) || ($row['start']>=strtotime($start) && $row['timeless'])) && $row['start']<$rend) {
+						if((($row['start']>=$start_reg && !$row['timeless']) || ($row['start']>=strtotime($start) && $row['timeless']))) {
 							if($row['timeless'])
 								$next = date('Y-m-d',$row['start']);
 							else

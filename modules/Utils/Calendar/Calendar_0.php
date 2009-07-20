@@ -398,11 +398,11 @@ class Utils_Calendar extends Module {
 		$theme = & $this->pack_module('Base/Theme');
 
 		$theme->assign('trash_label', $this->ht('Drag and drop<br>to delete'));
-		$theme->assign('next_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date+36*3600))));
+		$theme->assign('next_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date+24*3600))));
 		$theme->assign('next_label',$this->ht('Next day'));
 		$theme->assign('today_href', $this->create_unique_href(array('date'=>date('Y-m-d'))));
 		$theme->assign('today_label', $this->ht('Today'));
-		$theme->assign('prev_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date-36*3600))));
+		$theme->assign('prev_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date-24*3600))));
 		$theme->assign('prev_label', $this->ht('Previous day'));
 		$theme->assign('info', $this->t('Double&nbsp;click&nbsp;on&nbsp;cell&nbsp;to&nbsp;add&nbsp;event'));
 		$link_text = $this->create_unique_href_js(array('date'=>'__YEAR__-__MONTH__-__DAY__'));
