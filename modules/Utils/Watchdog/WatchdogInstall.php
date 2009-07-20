@@ -54,6 +54,10 @@ class Utils_WatchdogInstall extends ModuleInstall {
 			print('Unable to create table utils_watchdog_category_subscription.<br>');
 			return false;
 		}
+
+		DB::CreateIndex('utils_watchdog_event__cat_int__idx', 'utils_watchdog_event', array('category_id','internal_id'));
+		DB::CreateIndex('utils_watchdog_subscription__cat_int__idx', 'utils_watchdog_subscription', array('category_id','internal_id'));
+		DB::CreateIndex('utils_watchdog_subscription__user__idx', 'utils_watchdog_subscription', 'user_id');
 		return $ret;
 	}
 	

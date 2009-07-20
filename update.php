@@ -926,6 +926,13 @@ function update_from_1_0_0rc5_to_1_0_0rc6() {
 }
 
 function update_from_1_0_0rc6_to_1_0_0() {
+	if (ModuleManager::is_installed('Utils_Watchdog')>=0) {
+		PatchDBAddColumn('utils_watchdog_event','event_time','T');
+		DB::CreateIndex('utils_watchdog_event__cat_int__idx', 'utils_watchdog_event', array('category_id','internal_id'));
+		DB::CreateIndex('utils_watchdog_subscription__cat_int__idx', 'utils_watchdog_subscription', array('category_id','internal_id'));
+		DB::CreateIndex('utils_watchdog_subscription__user__idx', 'utils_watchdog_subscription', 'user_id');
+	}
+
     //fix RB common data fields
     if (ModuleManager::is_installed('Utils/RecordBrowser')>=0) {
 		if(ModuleManager::is_installed('CRM/PhoneCall')>=0) {
@@ -998,9 +1005,6 @@ function update_from_1_0_0rc6_to_1_0_0() {
 	PatchDBAddColumn('utils_messenger_users','done_on','T');
 	PatchDBAddColumn('utils_messenger_users','follow','I1 DEFAULT 0');
     }
-	if (ModuleManager::is_installed('Utils_Watchdog')>=0) {
-		PatchDBAddColumn('utils_watchdog_event','event_time','T');
-	}
     
     //currencies
     if (ModuleManager::is_installed('Utils_CurrencyField')>=0 && !in_array('utils_currency',$tables_db)) {
@@ -1056,7 +1060,7 @@ function update_from_1_0_0rc6_to_1_0_0() {
 			value C(128)',
 			array('constraints'=>', FOREIGN KEY (filter_id) REFERENCES apps_mailclient_filters(ID)'));
     }    
-    
+
     //ok, done
     ModuleManager::create_common_cache();
     ModuleManager::load_modules();
