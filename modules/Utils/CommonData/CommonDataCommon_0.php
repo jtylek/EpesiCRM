@@ -31,8 +31,8 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 		$pcs = explode('/',$name);
 		$id = -1;
 		foreach($pcs as $v) {
-			if($v==='') continue; //ignore emtpy paths
-			if(isset($cache[$id][$v])) {
+			if($v==='') continue; //ignore empty paths
+			if(isset($cache[$id][$v]) && $cache[$id][$v]) {
 				$id = $cache[$id][$v];
 			} else {
 				$old_id = $id;
