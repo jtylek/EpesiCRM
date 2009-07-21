@@ -328,7 +328,7 @@ function clean_database() {
 	$tables = array();
 	if(DATABASE_DRIVER=='mysqlt' || DATABASE_DRIVER=='mysqli')
 		DB::Execute('SET FOREIGN_KEY_CHECKS=0');
-	if(DATABASE_DRIVER=='postgres' && version_compare(DB::GetOne('SELECT version()'),'8.2')===0) {  	 	 
+	if(DATABASE_DRIVER=='postgres' && strpos(DB::GetOne('SELECT version()'),'PostgreSQL 8.2')!==false) {
     	    foreach ($tables_db as $t) { 		 
 	            $idxs = DB::Execute('SELECT t.tgargs as args FROM pg_trigger t,pg_class c,pg_proc p WHERE t.tgenabled AND t.tgrelid = c.oid AND t.tgfoid = p.oid AND p.proname = \'RI_FKey_check_ins\' AND c.relname = \''.strtolower($t).'\' ORDER BY t.tgrelid'); 		 
 		    $matches = array(1=>array()); 		 
