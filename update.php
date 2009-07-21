@@ -926,6 +926,10 @@ function update_from_1_0_0rc5_to_1_0_0rc6() {
 }
 
 function update_from_1_0_0rc6_to_1_0_0() {
+	ob_start();
+	ModuleManager::load_modules();
+	ob_end_clean();
+
 	if (ModuleManager::is_installed('Utils_Watchdog')>=0) {
 		PatchDBAddColumn('utils_watchdog_event','event_time','T');
 		DB::CreateIndex('utils_watchdog_event__cat_int__idx', 'utils_watchdog_event', array('category_id','internal_id'));
@@ -949,7 +953,7 @@ function update_from_1_0_0rc6_to_1_0_0() {
 	
 		$tabs = DB::GetAssoc('SELECT tab, tab FROM recordbrowser_table_properties');
 		foreach ($tabs as $t) {
-		    $fields = DB::GetAssoc('SELECT field, param FROM '.$t.'_field WHERE type="select"');
+		    $fields = DB::GetAssoc('SELECT field, param FROM '.$t.'_field WHERE type=%s', array('select'));
 		    foreach ($fields as $f=>$p) {
 			$fk = strtolower(str_replace(' ','_',$f));
 			$param = explode('::',$p);
@@ -957,9 +961,11 @@ function update_from_1_0_0rc6_to_1_0_0() {
 				unset($param[0]);
 				$param = '1__'.implode('::', $param);
 				DB::Execute('UPDATE '.$t.'_field SET param=%s, type=%s WHERE field=%s', array($param, 'commondata', $f));
-				PatchDBRenameColumn($t.'_data_1', 'f_'.$fk, 'f_'.$fk, 'C(128)');
+				PatchDBRenameColumn($t.'_data_1', 'f_'.$fk, 'f2_'.$fk, 'C(128)');
+				PatchDBRenameColumn($t.'_data_1', 'f2_'.$fk, 'f_'.$fk, 'C(128)');
 			} else {
-				PatchDBRenameColumn($t.'_data_1', 'f_'.$fk, 'f_'.$fk, 'I4');
+				PatchDBRenameColumn($t.'_data_1', 'f_'.$fk, 'f2_'.$fk, 'I4');
+				PatchDBRenameColumn($t.'_data_1', 'f2_'.$fk, 'f_'.$fk, 'I4');
 			}
 		    }
 		}
@@ -1029,8 +1035,10 @@ function update_from_1_0_0rc6_to_1_0_0() {
 			filter C(16)',
 			array('constraints'=>', FOREIGN KEY (user_login_id) REFERENCES user_login(id)'));
 		
-	DB::Execute('alter table crm_filters_group drop key `name`');
-	DB::Execute('alter table crm_filters_group ADD UNIQUE(`name`,`user_login_id`)');
+		if(DATABASE_DRIVER=='mysqlt' || DATABASE_DRIVER=='mysqli') {
+			DB::Execute('alter table crm_filters_group drop key `name`');
+			DB::Execute('alter table crm_filters_group ADD UNIQUE(`name`,`user_login_id`)');
+    	}
     }
 
     //mail client
@@ -1079,6 +1087,7 @@ $go=false;
 $last_ver = '';
 define('CID',false);
 require_once('include.php');
+ModuleManager::create_common_cache();
 foreach($versions as $v) {
 	$x = str_replace('.','_',$v);
 	if($go) {
