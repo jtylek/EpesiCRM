@@ -24,7 +24,7 @@
 
 .Base_StatusBar table {
     width: 100%;
-	font-family: "Tahoma" "Verdana" "Vera-Sans" "DejaVu-Sans";
+    font-family: Tahoma, Verdana, Vera-Sans, DejaVu-Sans;
 	font-size: 11px;
 	font-weight: bold;
 	/*color: #339933;*/
