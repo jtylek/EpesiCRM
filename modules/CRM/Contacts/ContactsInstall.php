@@ -209,9 +209,8 @@ class CRM_ContactsInstall extends ModuleInstall {
 				'group'=>array('customer')
 				));
 		Variable::set('main_company',$comp_id);
-		$count = DB::GetOne('SELECT count(ul.id) FROM user_login ul');
-		if($count==1) {
-			$user = DB::GetRow('SELECT ul.id,up.mail,ul.login FROM user_login ul INNER JOIN user_password up ON up.user_login_id=ul.id');
+		if(Acl::is_user()) {
+			$mail = DB::GetRow('SELECT up.mail FROM user_password up WHERE up.user_login_id=%d',array(Acl::get_user()));
 
 			Utils_RecordBrowserCommon::new_record('contact',
 				array('first_name'=>$val['fname'],
@@ -226,9 +225,9 @@ class CRM_ContactsInstall extends ModuleInstall {
 					'fax'=>isset($val['fax'])?$val['fax']:'',
 					'web_address'=>isset($val['web'])?$val['web']:'',
 					'company_name'=>array($comp_id),
-					'login'=>$user['id'],
+					'login'=>Acl::get_user(),
 					'permission'=>'0',
-					'email'=>$user['mail'],
+					'email'=>$mail,
 					'group'=>array('office','field')
 					));
 		}

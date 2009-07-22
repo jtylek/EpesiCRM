@@ -126,13 +126,6 @@ class FirstRun extends Module {
 			print('Unable to install Base module pack.');
 			return false;
 		}
-		foreach($pkgs as $p)
-			if(!ModuleManager::install(str_replace('/','_',$p))) {
-				print('<b>Unable to install '.str_replace('_','/',$p).' module.</b>');
-			}
-
-		Base_SetupCommon::refresh_available_modules();
-		Base_ThemeCommon::create_cache();
 
 		if(!Base_UserCommon::add_user($d['simple_user']['login'])) {
 		    	print('Unable to create user');
@@ -174,6 +167,15 @@ class FirstRun extends Module {
 				Variable::set('mail_password', $d['simple_mail_smtp']['mail_password']);
 			}
 		}
+
+		foreach($pkgs as $p)
+			if(!ModuleManager::install(str_replace('/','_',$p))) {
+				print('<b>Unable to install '.str_replace('_','/',$p).' module.</b>');
+			}
+
+		Base_SetupCommon::refresh_available_modules();
+		Base_ThemeCommon::create_cache();
+
 
 		$processed = ModuleManager::get_processed_modules();
 
