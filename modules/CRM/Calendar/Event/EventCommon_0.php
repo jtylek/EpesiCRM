@@ -87,7 +87,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			}
 			
 			if ($action == 'set_in_progress') $v = 1;
-			if($def['recurrence']) {
+			if(isset($def['recurrence']) && $def['recurrence']) {
 				self::split_event($id,$def);
 			}
 			DB::Execute('UPDATE crm_calendar_event SET status=%d WHERE id=%d',array($v,$id));
