@@ -46,6 +46,8 @@ class CRM_Fax extends Module {
 			$tb->set_tab('Sent', array($this,'sent_tab'),array(array($provider.'Common',$providers_arr[$provider]['get_sent_count_func']),array($provider.'Common',$providers_arr[$provider]['get_sent_func']),$providers_arr[$provider]['sent_statuses']));
 		$this->display_module($tb);
 		$tb->tag();
+		
+		Base_ActionBarCommon::add('send','Send file',$this->create_callback_href(array($this,'send_file_tab')));
 	}
 	
 	public function received_tab($count_f,$get_f) {
@@ -55,7 +57,7 @@ class CRM_Fax extends Module {
 		$offset = & $this->get_module_variable('rec_offset',0);
 		
 		$form = $this->init_module('Libs/QuickForm');
-		$theme =  $this->pack_module('Base/Theme');
+		$theme =  $this->pack_module('Base/Theme',null,null,null,'rec');
 		
 		$form->addElement('datepicker', 'start', $this->t('From'));
 		$form->addElement('datepicker', 'end', $this->t('To'));
@@ -74,21 +76,28 @@ class CRM_Fax extends Module {
 
 		$form->assign_theme('form', $theme);
 
-		$count = call_user_func($count_f,$start,$end);
-		if($count===false) return;
-
-		$m = & $this->init_module('Utils/GenericBrowser',null,'sent');
+		$m = & $this->init_module('Utils/GenericBrowser',null,'rec');
  		$m->set_table_columns(array(
 							  array('name'=>'From','width'=>30,'order'=>'fromNumber'),
 							  array('name'=>'To','width'=>30,'order'=>'toNumber'),
 							  array('name'=>'Date','width'=>10,'order'=>'receivedDate'),
-							  array('name'=>'File','width'=>30,'order'=>'fileUrl')
+							  array('name'=>'File','width'=>30)
 							  ));
 		$m->set_default_order(array('Date'=>'ASC'));
+
+		$count = call_user_func($count_f,$start,$end);
+		if($count===false) {
+			$count = 0;
+		}
+
 		$limits = $m->get_limit($count);
 		$order = $m->get_order();
-		$data = call_user_func($get_f,$start,$end,$order[0]['order'],$order[0]['direction'],$limits['numrows'],(string)($limits['offset']+1));
-		if($data===false) return;
+		if($count!=0) {
+			$data = call_user_func($get_f,$start,$end,$order[0]['order'],$order[0]['direction'],$limits['numrows'],(string)($limits['offset']+1));
+		} 
+		if($count==0 || $data===false) {
+			$data = array();		
+		}
 		foreach($data as $row) {
 			$from_rec = CRM_ContactsCommon::get_contacts(array('fax'=>$row['fromNumber']));
 			foreach($from_rec as &$rec)
@@ -104,10 +113,10 @@ class CRM_Fax extends Module {
 			foreach($to_rec_comp as $rec)
 				$to_rec[] = Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $rec);
 			
-	 		$m->add_row((empty($from_rec)?'':' ('.implode(', ',$from_rec).')'),
-				    (empty($to_rec)?'':' ('.implode(', ',$to_rec).')'),
+	 		$m->add_row((empty($from_rec)?$row['fromNumber']:' ('.implode(', ',$from_rec).')'),
+				    (empty($to_rec)?$row['toNumber']:' ('.implode(', ',$to_rec).')'),
 				    Base_RegionalSettingsCommon::time2reg($row['receivedDate']),
-				    '<a href="'.$row['fileUrl'].'" target="_blank">'.$row['fileName'].'</a>');
+				    '<a href="'.$row['fileUrl'].'" target="_blank">'.basename($row['fileUrl']).'</a>');
 		}
  		$theme->assign('table_data',$this->get_html_of_module($m));
 
@@ -148,23 +157,30 @@ class CRM_Fax extends Module {
 
 		$form->assign_theme('form', $theme);
 
-		$count = call_user_func($count_f,$start,$end,$status);
-		if($count===false) return;
-
 		$m = & $this->init_module('Utils/GenericBrowser',null,'sent');
  		$m->set_table_columns(array(
 							  array('name'=>'To','width'=>30,'order'=>'toNumber'),
 							  array('name'=>'Status','width'=>10),
 							  array('name'=>'Date','width'=>10,'order'=>'sentDate'),
-							  array('name'=>'Pages','width'=>10,'order'=>'noPages'),
-							  array('name'=>'Cost','width'=>10,'order'=>'callCost'),
-							  array('name'=>'File','width'=>30,'order'=>'fileName')
+							  array('name'=>'Pages','width'=>10),
+							  array('name'=>'Cost','width'=>10),
+							  array('name'=>'File','width'=>30)
 							  ));
 		$m->set_default_order(array('Date'=>'ASC'));
+
+		$count = call_user_func($count_f,$start,$end,$status);
+		if($count===false) {
+			$count = 0;
+		}
+
 		$limits = $m->get_limit($count);
 		$order = $m->get_order();
-		$data = call_user_func($get_f,$start,$end,$status,$order[0]['order'],$order[0]['direction'],$limits['numrows'],(string)($limits['offset']+1));
-		if($data===false) return;
+		if($count!=0) {
+			$data = call_user_func($get_f,$start,$end,$status,$order[0]['order'],$order[0]['direction'],$limits['numrows'],(string)($limits['offset']+1));
+		}
+		if($count==0 || $data===false) {
+			$data = array();
+		}
 		foreach($data as $row) {
 			$from_rec = CRM_ContactsCommon::get_contacts(array('fax'=>$row['toNumber']));
 			foreach($from_rec as &$rec)
@@ -173,7 +189,7 @@ class CRM_Fax extends Module {
 			foreach($from_rec_comp as $rec)
 				$from_rec[] = Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $rec);
 			
-	 		$m->add_row((empty($from_rec)?'':' ('.implode(', ',$from_rec).')'),
+	 		$m->add_row((empty($from_rec)?$row['toNumber']:' ('.implode(', ',$from_rec).')'),
 				    Utils_TooltipCommon::create($statuses[$row['faxStatus']],$row['faxStatusDetails']),
 				    Base_RegionalSettingsCommon::time2reg($row['sentDate']),
 				    $row['noPages'],$row['sentCost'],'<a href="'.$row['fileUrl'].'" target="_blank">'.$row['fileName'].'</a>');
@@ -207,9 +223,6 @@ class CRM_Fax extends Module {
 
 		$form->assign_theme('form', $theme);
 
-		$count = call_user_func($count_f,$status);
-		if($count===false) return;
-
 		$m = & $this->init_module('Utils/GenericBrowser',null,'queue');
  		$m->set_table_columns(array(
 							  array('name'=>'To','width'=>30,'order'=>'toNumber'),
@@ -218,10 +231,20 @@ class CRM_Fax extends Module {
 							  array('name'=>'File','width'=>30,'order'=>'fileName')
 							  ));
 		$m->set_default_order(array('Date'=>'ASC'));
+
+		$count = call_user_func($count_f,$status);
+		if($count===false) {
+			$count = 0;
+		}
+
 		$limits = $m->get_limit($count);
 		$order = $m->get_order();
-		$data = call_user_func($get_f,$status,$order[0]['order'],$order[0]['direction'],$limits['numrows'],(string)($limits['offset']+1));
-		if($data===false) return;
+		if($count!=0) {
+			$data = call_user_func($get_f,$status,$order[0]['order'],$order[0]['direction'],$limits['numrows'],(string)($limits['offset']+1));
+		}
+		if($count==0 || $data===false) {
+			$data = array();
+		}
 		foreach($data as $row) {
 			$from_rec = CRM_ContactsCommon::get_contacts(array('fax'=>$row['toNumber']));
 			foreach($from_rec as &$rec)
@@ -230,7 +253,7 @@ class CRM_Fax extends Module {
 			foreach($from_rec_comp as $rec)
 				$from_rec[] = Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $rec);
 			
-	 		$m->add_row((empty($from_rec)?'':' ('.implode(', ',$from_rec).')'),
+	 		$m->add_row((empty($from_rec)?$row['toNumber']:' ('.implode(', ',$from_rec).')'),
 				    $statuses[$row['faxStatus']],
 				    Base_RegionalSettingsCommon::time2reg($row['creationDate']),
 				    '<a href="'.$row['fileUrl'].'" target="_blank">'.$row['fileName'].'</a>');
@@ -240,6 +263,29 @@ class CRM_Fax extends Module {
 		$theme->display();
 	
 	
+	}
+	
+	private $back_from_send_file = false;
+	public function send_file_tab() {
+		if($this->is_back()) return false;
+	
+		$form = & $this->init_module('Utils/FileUpload',array(false));
+		$form->addElement('header', 'upload', $this->t('Select file'));
+
+		$form->add_upload_element();
+
+		$s = HTML_QuickForm::createElement('button',null,$this->t('Send fax'),$form->get_submit_form_href());
+		$c = HTML_QuickForm::createElement('button',null,$this->t('Cancel'),$this->create_back_href());
+		$form->addGroup(array($s,$c));
+
+		$this->display_module($form, array( array($this,'submit_fax_file') ));
+		if($this->back_from_send_file) return false;
+		return true;
+	}
+	
+	public function submit_fax_file($file,$oryg,$data) {
+		CRM_FaxCommon::fax_file($file,$oryg);
+		$this->back_from_send_file = true;
 	}
 	
 	private static function get_providers($file=null) {
@@ -292,6 +338,8 @@ class CRM_Fax extends Module {
 
 		$qf->addElement('header',null,$this->t('Other'));
 		$qf->addElement('text','dest_other',$this->t('Other fax numbers (comma separated)'));
+
+		$qf->addFormRule(array($this,'check_numbers'));
 		
 		if($qf->validate()) {
 			$data = $qf->exportValues();
@@ -317,6 +365,14 @@ class CRM_Fax extends Module {
 		
 		Base_ActionBarCommon::add('send','Send',$qf->get_submit_form_href());
 		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+	}
+	
+	public function check_numbers($arg) {
+		if((!isset($arg['dest_contact']) || empty($arg['dest_contact'])) && 
+		    (!isset($arg['dest_company']) || empty($arg['dest_company'])) && 
+		    (!isset($arg['dest_other']) || trim($arg['dest_other'])==''))
+			return array('dest_contact'=>'Please select at least one fax number');
+		return true;
 	}
 	
 	public function go_back($file) {

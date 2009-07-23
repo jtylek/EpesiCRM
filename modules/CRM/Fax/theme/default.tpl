@@ -2,6 +2,7 @@
 
 <table id="CRM_Fax__filters" align="left" width="100%;">
 	<tr>
+		{if isset($form_data.status)}
 		<td class="label">
 			{$form_data.status.label}
 		</td>
@@ -9,6 +10,8 @@
 			{$form_data.status.error}
 			{$form_data.status.html}
 		</td>
+		{/if}
+		{if isset($form_data.start)}
 		<td class="label">
 			{$form_data.start.label}
 		</td>
@@ -23,6 +26,7 @@
 			{$form_data.end.error}
 			{$form_data.end.html}
 		</td>
+		{/if}
 		<td class="data" width="30px;">
 			{$form_data.submit_button.html}
 		</td>

@@ -34,7 +34,7 @@ class CRM_FaxCommon extends ModuleCommon {
 
 	public static function menu() {
 		if(!Acl::is_user()) return array();
-		return array('CRM'=>array('__submenu__'=>1,'Faxes'=>array()));
+		return array('CRM'=>array('__submenu__'=>1,'Fax'=>array()));
 	}
 	
 
