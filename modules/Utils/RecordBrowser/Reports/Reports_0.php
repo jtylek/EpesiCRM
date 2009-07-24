@@ -308,12 +308,12 @@ class Utils_RecordBrowser_Reports extends Module {
 	
 	public function modify_cols_total($i, $val, $cat=null) {
 		if (empty($this->categories)) {
-			if (!isset($this->cols_total[$i])) $this->cols_total[$i] = 0;
-			$this->cols_total[$i] += $val;
+//			if (!isset($this->cols_total[$i])) $this->cols_total[$i] = 0;
+			$this->cols_total[$i][0] += $val;
 		} else {
-			if (!isset($this->cols_total[$cat])) $this->cols_total[$cat] = array();
-			if (!isset($this->cols_total[$cat][$i])) $this->cols_total[$cat][$i] = 0;
-			$this->cols_total[$cat][$i] += $val;
+//			if (!isset($this->cols_total[$cat])) $this->cols_total[$cat] = array();
+//			if (!isset($this->cols_total[$cat][$i])) $this->cols_total[$cat][$i] = 0;
+			$this->cols_total[$cat][$i][0] += $val;
 		}
 	}
 
