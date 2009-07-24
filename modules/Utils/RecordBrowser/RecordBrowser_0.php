@@ -550,7 +550,7 @@ class Utils_RecordBrowser extends Module {
 		}
 		if (isset($this->force_order)) $order = $this->force_order; 
 
-		$this->amount_of_records = Utils_RecordBrowserCommon::get_records_limit($this->tab, $crits, $admin);
+		$this->amount_of_records = Utils_RecordBrowserCommon::get_records_count($this->tab, $crits, $admin);
 		$limit = $gb->get_limit($this->amount_of_records);
 		$records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array(), $order, $limit, $admin);
 		
@@ -610,7 +610,7 @@ class Utils_RecordBrowser extends Module {
 				if (isset($this->cut[$args['id']])) {
 					$value = Utils_RecordBrowserCommon::cut_string($value,$this->cut[$args['id']]);
 				}
-				if ($args['style']=='currency' || $args['style']=='integer') $value = array('style'=>'text-align:right;','value'=>$value);
+				if ($args['style']=='currency' || $args['style']=='number') $value = array('style'=>'text-align:right;','value'=>$value);
 				$row_data[] = $value;
 			}
 //			if ($this->browse_mode == 'recent')
@@ -1080,8 +1080,12 @@ class Utils_RecordBrowser extends Module {
 										if (!$val) $val = '['.$this->t('formula').']';
 										$form->setDefaults(array($args['id']=>'<div id="'.Utils_RecordBrowserCommon::get_calculated_id($this->tab, $args['id'], $id).'">'.$val.'</div>'));
 										break;
-					case 'integer':		$form->addElement('text', $args['id'], $label, array('id'=>$args['id']));
-										$form->addRule($args['id'], $this->t('Only numbers are allowed.'), 'numeric');
+					case 'integer':		
+					case 'float':		$form->addElement('text', $args['id'], $label, array('id'=>$args['id']));
+										if ($args['type']=='integer')
+											$form->addRule($args['id'], $this->t('Only integer numbers are allowed.'), 'regex', '/^[0-9]*$/');
+										else
+											$form->addRule($args['id'], $this->t('Only numbers are allowed.'), 'numeric');
 										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 										break;
 					case 'checkbox':	$form->addElement('checkbox', $args['id'], $label, '', array('id'=>$args['id']));
@@ -1405,6 +1409,7 @@ class Utils_RecordBrowser extends Module {
 			'checkbox'=>'checkbox',
 			'date'=>'date',
 			'integer'=>'integer',
+			'float'=>'float',
 			'text'=>'text',
 			'long text'=>'long text'
 		);
@@ -1778,7 +1783,7 @@ class Utils_RecordBrowser extends Module {
 		}
 		if ($limit!=null) {
 			$limit = array('offset'=>0, 'numrows'=>$limit);
-			$records_qty = Utils_RecordBrowserCommon::get_records_limit($this->tab, $crits);
+			$records_qty = Utils_RecordBrowserCommon::get_records_count($this->tab, $crits);
 			if ($records_qty>$limit['numrows']) {
 				if ($this->get_module_variable('no_limit_in_mini_view',false)) {
 					$opts['actions'][] = '<a '.Utils_TooltipCommon::open_tag_attrs($this->t('Display first %d records', array($limit['numrows']))).' '.$this->create_callback_href(array($this, 'set_no_limit_in_mini_view'), array(false)).'><img src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','show_some.png').'" border="0"></a>';

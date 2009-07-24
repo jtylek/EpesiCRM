@@ -17,7 +17,7 @@ class Data_TaxRatesInstall extends ModuleInstall {
 		$fields = array(
 			array('name'=>'Name', 	'type'=>'text', 'required'=>true, 'param'=>16, 'extra'=>false, 'visible'=>true),
 			array('name'=>'Description', 	'type'=>'long text', 'required'=>false, 'extra'=>false),
-			array('name'=>'Percentage', 	'type'=>'integer', 'required'=>true, 'extra'=>false, 'visible'=>true)
+			array('name'=>'Percentage', 	'type'=>'float', 'required'=>true, 'extra'=>false, 'visible'=>true)
 		);
 
 		Utils_RecordBrowserCommon::install_new_recordset('data_tax_rates', $fields);

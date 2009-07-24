@@ -114,6 +114,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		return $ret;
 	}
+	public static function multiselect_from_common($arrid) {
+		return '__COMMON__::'.$arrid;
+	}
 	public static function format_long_text_array($tab,$records){
 		self::init($tab);
 		foreach(self::$table_rows as $field => $args) {
@@ -445,10 +448,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (!isset($definition['type'])) trigger_error(print_r($definition,true));
 		if (!isset($definition['param'])) $definition['param'] = '';
 		if (!isset($definition['style'])) {
-			if (in_array($definition['type'], array('timestamp','currency','integer')))
+			if (in_array($definition['type'], array('timestamp','currency')))
 				$definition['style'] = $definition['type'];
-			else
-				$definition['style'] = '';
+			else {
+				if (in_array($definition['type'], array('float','integer')))
+					$definition['style'] = 'number';
+				else
+					$definition['style'] = '';
+			}
 		}
 		if (!isset($definition['extra'])) $definition['extra'] = true;
 		if (!isset($definition['visible'])) $definition['visible'] = false;
@@ -507,7 +514,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			case 'select': $f = DB::dict()->ActualType('I4'); break;
 			case 'multiselect': $f = DB::dict()->ActualType('X'); break;
 			case 'commondata': $f = DB::dict()->ActualType('C').'(128)'; break;
-			case 'integer': $f = DB::dict()->ActualType('F'); break;
+			case 'integer': $f = DB::dict()->ActualType('I4'); break;
+			case 'float': $f = DB::dict()->ActualType('F'); break;
 			case 'date': $f = DB::dict()->ActualType('D'); break;
 			case 'timestamp': $f = DB::dict()->ActualType('T'); break;
 			case 'long text': $f = DB::dict()->ActualType('X'); break;
@@ -589,7 +597,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		switch ($type) {
 			case 'checkbox': return '%d';
 			case 'select': return '%d';
-			case 'integer': return '%f';
+			case 'float': return '%f';
+			case 'integer': return '%d';
 			case 'date': return '%D';
 			case 'timestamp': return '%T';
 		}
@@ -1007,7 +1016,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$ret = array('sql'=>' '.$final_tab.' WHERE true'.($admin?$default_filter:' AND active=1').$where.$having.$orderby,'vals'=>$vals);
 		return $cache[$key] = $ret;
 	}
-	public static function get_records_limit( $tab, $crits = null, $admin = false) {
+	public static function get_records_count( $tab, $crits = null, $admin = false) {
 		$par = self::build_query($tab, $crits, $admin);
 		if (empty($par) || !$par) return 0;
 		return DB::GetOne('SELECT COUNT(*) FROM'.$par['sql'], $par['vals']);

@@ -142,7 +142,7 @@ if(IPHONE) {
 }
 
 //display paging
-$cur_num_rows = Utils_RecordBrowserCommon::get_records_limit($table,$crits);
+$cur_num_rows = Utils_RecordBrowserCommon::get_records_count($table,$crits);
 if($offset>0) print('<a '.(IPHONE?'class="button red" ':'').'href="mobile.php?'.http_build_query(array_merge($_GET,array('rb_offset'=>($offset-1)))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','prev').'</a>');
 if($offset<$cur_num_rows/$num_rows-1) print(' <a '.(IPHONE?'class="button green" ':'').'href="mobile.php?'.http_build_query(array_merge($_GET,array('rb_offset'=>($offset+1)))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','next').'</a>');
 if($cur_num_rows>$num_rows) {
