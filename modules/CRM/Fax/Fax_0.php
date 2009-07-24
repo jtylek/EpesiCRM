@@ -83,7 +83,7 @@ class CRM_Fax extends Module {
 							  array('name'=>'Date','width'=>10,'order'=>'receivedDate'),
 							  array('name'=>'File','width'=>30)
 							  ));
-		$m->set_default_order(array('Date'=>'ASC'));
+		$m->set_default_order(array('Date'=>'DESC'));
 
 		$count = call_user_func($count_f,$start,$end);
 		if($count===false) {
@@ -166,7 +166,7 @@ class CRM_Fax extends Module {
 							  array('name'=>'Cost','width'=>10),
 							  array('name'=>'File','width'=>30)
 							  ));
-		$m->set_default_order(array('Date'=>'ASC'));
+		$m->set_default_order(array('Date'=>'DESC'));
 
 		$count = call_user_func($count_f,$start,$end,$status);
 		if($count===false) {
@@ -230,7 +230,7 @@ class CRM_Fax extends Module {
 							  array('name'=>'Date','width'=>10,'order'=>'creationDate'),
 							  array('name'=>'File','width'=>30,'order'=>'fileName')
 							  ));
-		$m->set_default_order(array('Date'=>'ASC'));
+		$m->set_default_order(array('Date'=>'DESC'));
 
 		$count = call_user_func($count_f,$status);
 		if($count===false) {

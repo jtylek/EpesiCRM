@@ -7,6 +7,7 @@
  * @package epesi-base
  */
 ob_start();
+ini_set('arg_separator.output','&');
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
