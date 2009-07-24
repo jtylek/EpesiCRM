@@ -250,9 +250,19 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		if (!$nr) return '';
 		$id = strtolower(str_replace(' ','_',$nr));
 		$l = Base_LangCommon::ts('CRM/PhoneCall',$nr);
+		
+		$number = $contact[$id];
+		if($number && strpos($number,'+')===false) {
+			if($contact['country']) {
+				$calling_code = Utils_CommonDataCommon::get_value('Calling_Codes/'.$contact['country']);
+				if($calling_code)
+					$number = $calling_code.$number;
+			}
+		}
+
 		if(MOBILE_DEVICE && IPHONE)
-			return $l[0].': '.'<a href="tel:'.$contact[$id].'">'.$contact[$id].'</a>';
-		return $l[0].': '.CRM_CommonCommon::get_dial_code($contact[$id]);
+			return $l[0].': '.'<a href="tel:'.$number.'">'.$number.'</a>';
+		return $l[0].': '.CRM_CommonCommon::get_dial_code($number);
 	}
 	public static function display_status($record, $nolink, $desc) {
 		$prefix = 'crm_phonecall_leightbox';

@@ -435,7 +435,15 @@ class CRM_ContactsCommon extends ModuleCommon {
 	public static function display_phone($r,$nolink,$desc) {
 		if(MOBILE_DEVICE && IPHONE && !$nolink && ereg('^([0-9\t\+-]+)',$r[$desc['id']],$args))
 			return '<a href="tel:'.$args[1].'">'.$r[$desc['id']].'</a>';
-		return CRM_CommonCommon::get_dial_code($r[$desc['id']]);
+		$num = $r[$desc['id']];
+		if($num && strpos($num,'+')===false) {
+			if($r['country']) {
+				$calling_code = Utils_CommonDataCommon::get_value('Calling_Codes/'.$r['country']);
+				if($calling_code)
+					$num = $calling_code.$num;
+			}
+		}
+		return CRM_CommonCommon::get_dial_code($num);
 	}
 	
 	public static function display_fname($v, $nolink) {
