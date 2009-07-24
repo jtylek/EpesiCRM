@@ -89,14 +89,15 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	public static function get_phonecall($id) {
 		return Utils_RecordBrowserCommon::get_record('phonecall', $id);
 	}
-	public static function access_phonecall($action, $param){
+	public static function access_phonecall($action, $param=null){
 		$i = self::Instance();
 		switch ($action) {
-			case 'add':
-			case 'browse':
-							return $i->acl_check('browse phonecalls');
-			case 'view':	if ($i->acl_check('view phonecall')) return array('(!permission'=>2, '|:Created_by'=>Acl::get_user());
-							else return false;
+			case 'browse_crits':	if ($i->acl_check('browse phonecalls')) return array('(!permission'=>2, '|:Created_by'=>Acl::get_user());
+									return false;
+			case 'browse':	return true;
+			case 'view':	if ($param['permission']==2 && $param['created_by']!=Acl::get_user()) return false;
+							return $i->acl_check('view phonecall');
+			case 'add':		return $i->acl_check('edit phonecall');
 			case 'edit':	if ($param['permission']>=1 && $param['created_by']!=Acl::get_user()) return false;
 							if ($i->acl_check('edit phonecall')) return true;
 							$me = CRM_ContactsCommon::get_my_record();
@@ -113,9 +114,6 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 							$info = Utils_RecordBrowserCommon::get_record_info('phonecall',$param['id']);
 							if ($me['login']==$info['created_by']) return true;
 							return false;
-			case 'fields':
-							//if ($i->acl_check('edit phonecall')) return array();
-							return array();
 		}
 		return false;
 	}

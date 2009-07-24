@@ -673,7 +673,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		DB::StartTrans();
 		self::init($tab);
 		$record = self::get_record($tab, $id, false);
-		$access = self::get_access($tab, 'fields', $record, 'edit');
 		$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($tab));
 		$method = '';
 		if ($dpm!=='') {
@@ -767,7 +766,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$final_tab = $tab.'_data_1 AS r';
 		$vals = array();
 		if (!$crits) $crits = array();
-		$access = self::get_access($tab, 'view');
+		$access = self::get_access($tab, 'browse_crits');
 		if ($access===false) return array();
 		elseif ($access!==true && is_array($access)) {
 			$crits = self::merge_crits($crits, $access);
@@ -1165,19 +1164,25 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if ($or_started && !$or_result) return $cache[$tab.'__'.$id] = false;
 		return $cache[$tab.'__'.$id] = true;
 	}
-	public static function get_access($tab, $action, $param=null, $param2=null){
-		if (self::$admin_access && Base_AclCommon::i_am_admin()) return true;
-		static $cache = array();
-		if (!isset($cache[$tab])) $cache[$tab] = $access_callback = explode('::', DB::GetOne('SELECT access_callback FROM recordbrowser_table_properties WHERE tab=%s', array($tab)));
-		else $access_callback = $cache[$tab];
-		if ($access_callback === '' || !is_callable($access_callback)) return true;
-		$ret = call_user_func($access_callback, $action, $param, $param2);
-		if ($action==='delete' && $ret) $ret = call_user_func($access_callback, 'edit', $param, $param2);
-		if ($ret!==false && $action==='view' && $param!==null) $ret = self::check_record_against_crits($tab, $param, $ret);
-		if ($action==='fields') {
+	public static function get_access($tab, $action, $record=null){
+		if (self::$admin_access && Base_AclCommon::i_am_admin()) {
+			$ret = true;
+		} else {
+			static $cache = array();
+			if (!isset($cache[$tab])) $cache[$tab] = $access_callback = explode('::', DB::GetOne('SELECT access_callback FROM recordbrowser_table_properties WHERE tab=%s', array($tab)));
+			else $access_callback = $cache[$tab];
+			if ($access_callback === '' || !is_callable($access_callback)) {
+				$ret = true;
+			} else {
+				$ret = call_user_func($access_callback, $action, $record);
+				if ($action==='delete' && $ret) $ret = call_user_func($access_callback, 'edit', $record);
+			}
+		}
+		if ($action!=='browse_crits' && $action!=='delete') {
 			self::init($tab);
+			if ($ret===true) $ret = array();
 			foreach (self::$table_rows as $field=>$args)
-				if (!isset($ret[$args['id']])) $ret[$args['id']] = 'full';
+				if (!isset($ret[$args['id']])) $ret[$args['id']] = true;
 		}
 		return $ret;
 	}
@@ -1331,7 +1336,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if (!DB::GetOne('SELECT active FROM '.$tab.'_data_1 WHERE id=%d',array($id))) {
 				self::$del_or_a = '</del>';
 				$ret = '<del '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_RecordBrowser','This record was deleted from the system, please edit current record or contact system administrator')).'>';
-			} elseif (!$nolink && !self::check_record_against_crits($tab, $id, self::get_access($tab, 'view'))) {
+			} elseif (!$nolink && !self::get_access($tab, 'view', self::get_record($tab, $id))) {
 				self::$del_or_a = '</span>';
 				$ret = '<span '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils_RecordBrowser','You don\'t have permission to view this record.')).'>';
 			} else {
@@ -1452,9 +1457,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 									$r2[$k] = $v;
 								}
 								foreach ($edit_details as $k=>$v) {
-									$access = self::get_access($tab,'fields',$r);
-									if ($access[$k]=='hide') continue;
+									$access = self::get_access($tab,'view',$r);
 									$k = strtolower(str_replace(' ','_',$k)); // failsafe
+									if (!$access[$k]) continue;
 									self::init($tab);
 									$field = self::$hash[$k];
 									$event_display .= '<tr valign="top"><td><b>'.$field.'</b></td>';

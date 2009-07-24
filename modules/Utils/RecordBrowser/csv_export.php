@@ -24,7 +24,7 @@ if ($crits===null || $order===null) {
 	$crits = $order = array();
 }
 ModuleManager::load_modules();
-if (!Utils_RecordBrowserCommon::get_access('access_listmanager_history', 'export'))
+if (!Base_AclCommon::i_am_admin())
 	die('Invalid usage - access denied');
 
 $tab_info = Utils_RecordBrowserCommon::init($tab);

@@ -74,14 +74,17 @@ class CRM_TasksCommon extends ModuleCommon {
 		return Utils_RecordBrowserCommon::get_record('task', $id);
 	}
 
-	public static function access_task($action, $param){
+	public static function access_task($action, $param=null){
 		$i = self::Instance();
 		switch ($action) {
-			case 'add':
-			case 'browse':	return $i->acl_check('browse tasks');
+			case 'browse_crits':	if (!$i->acl_check('browse tasks')) return false;
+									$me = CRM_ContactsCommon::get_my_record();
+									return ($param['permission']!=2 || $param['employees']==$me['id'] || $param['customers']==$me['id']);
+			case 'browse':	return true;
 			case 'view':	if (!$i->acl_check('view task')) return false;
 							$me = CRM_ContactsCommon::get_my_record();
 							return array('(!permission'=>2, '|employees'=>$me['id'], '|customers'=>$me['id']);
+			case 'add':		return $i->acl_check('edit task');
 			case 'edit':	$me = CRM_ContactsCommon::get_my_record();
 							if ($param['permission']>=1 &&
 								!in_array($me['id'],$param['employees']) &&
@@ -92,9 +95,6 @@ class CRM_TasksCommon extends ModuleCommon {
 							$me = CRM_ContactsCommon::get_my_record();
 							if ($me['login']==$param['created_by']) return true;
 							return false;
-			case 'fields':
-							//if ($i->acl_check('edit task')) return array();
-							return array();
 		}
 		return false;
 	}

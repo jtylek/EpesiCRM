@@ -61,44 +61,48 @@ class CRM_ContactsCommon extends ModuleCommon {
 		if ($me===null) $me = array('id'=>-1, 'first_name'=>'', 'last_name'=>'', 'company_name'=>array(), 'login'=>-1);
 		return $me;
 	}
-	public static function access_company($action, $param){
+	public static function access_company($action, $param=null){
 		$i = self::Instance();
 		switch ($action) {
-			case 'add':
-			case 'browse':	return $i->acl_check('browse companies');
-			case 'view':	if ($i->acl_check('view company')) return array('(!permission'=>2, '|:Created_by'=>Acl::get_user());
+			case 'browse_crits':	if ($i->acl_check('browse companies')) return array('(!permission'=>2, '|:Created_by'=>Acl::get_user());
+									$me = self::get_my_record();
+									if ($me) return array('company_name'=>$me['company_name']);
+									return false;
+			case 'browse':	return true;
+			case 'view':	if ($i->acl_check('view company') && ($param['permission']!=2 || $param['created_by']==Acl::get_user())) return true;
 							$me = self::get_my_record();
-							if ($me) return array('company_name'=>$me['company_name']);
-							else return false;
+							if ($me && $param['id']==$me['company_name']) return true;
+							return false;
+			case 'add':		return $i->acl_check('edit company');
 			case 'edit':	if ($param['permission']>=1 && $param['created_by']!=Acl::get_user()) return false;
 							$me = self::get_my_record();
 							if ($me && in_array($param['id'],$me['company_name']) && $i->acl_check('edit my company')) return true; //my company
 							return $i->acl_check('edit company');
 			case 'delete':	return $i->acl_check('delete company');
-			case 'fields':	if($i->acl_check('edit company')) return array();
-							return array('company_name'=>'read-only','short_name'=>'read-only','group'=>'read-only');
 		}
 		return false;
 	}
-	public static function access_contact($action, $param){
+	public static function access_contact($action, $param=null){
 		$i = self::Instance();
 		switch ($action) {
-			case 'add':
-			case 'browse':	return $i->acl_check('browse contacts');
-			case 'view':	if ($i->acl_check('view contact')) return array('(!permission'=>2, '|login'=>Acl::get_user(), '|:Created_by'=>Acl::get_user());
-							else return array('login'=>Acl::get_user());
-			case 'delete':	return $i->acl_check('delete contact');
+			case 'browse_crits':	if ($i->acl_check('browse contacts')) return array('(!permission'=>2, '|login'=>Acl::get_user(), '|:Created_by'=>Acl::get_user());
+									else return array('login'=>Acl::get_user());
+			case 'browse':	return true;
+			case 'view':	if (!$i->acl_check('view contact')) {
+								return $param['login']==Acl::get_user();
+							}
+							return ($param['permission']!=2 || $param['login']==Acl::get_user() || $param['created_by']==Acl::get_user());
+			case 'add':		return $i->acl_check('edit contact');
 			case 'edit':	if ($param['login']==Acl::get_user()) return true; //me
 							if ($param['permission']>=1 && $param['created_by']!=Acl::get_user()) return false;
 							if ($i->acl_check('edit contact')) return true;
 							if ($i->acl_check('edit my company contacts')) {
 								$me = self::get_my_record();
-								foreach($param['company_name'] as $cid)
+								foreach($param['company_name'] as $cid) 
 									if(in_array($cid,$me['company_name'])) return true; //customer
 							}
 							return false;
-			case 'fields':	if ($i->acl_check('edit contact')) return array();
-							return array('company_name'=>'read-only','last_name'=>'read-only','first_name'=>'read-only','group'=>'read-only');
+			case 'delete':	return $i->acl_check('delete contact');
 		}
 		return false;
 	}

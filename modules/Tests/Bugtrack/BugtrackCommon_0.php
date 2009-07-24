@@ -26,16 +26,11 @@ class Tests_BugtrackCommon extends ModuleCommon {
     public static function access_bugtrack($action, $param){
 		$i = self::Instance();
 		switch ($action) {
+			case 'browse_crits':	if (!$i->acl_check('browse bugtrack')) return false;
+									return true;		
+			case 'browse':	return true;
+			case 'view':	return true;
 			case 'add':
-			case 'browse':	return $i->acl_check('browse bugtrack');
-			case 'view':	static $me;
-					if($i->acl_check('view bugtrack')) return true;
-					if(!isset($me)) {
-						$me = Utils_RecordBrowserCommon::get_records('bugtrack', array('login'=>Acl::get_user()));
-						if (is_array($me) && !empty($me)) $me = array_shift($me);
-					}
-					if ($me) return array('Project Name'=>$me['Project Name']);
-					return false;
 			case 'edit':	return $i->acl_check('edit bugtrack');
 			case 'delete':	return $i->acl_check('delete bugtrack');
 		}
