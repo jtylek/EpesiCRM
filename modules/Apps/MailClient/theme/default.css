@@ -35,8 +35,24 @@ div.mail_progressbar_in {
 	height: 100%;
 }
 
-#Apps_MailClient table.list {
-	margin-bottom: 20px;
+#Apps_MailClient .list {
+	height: 220px;
+	border-left: 1px solid #b3b3b3;
+}
+
+#Apps_MailClient .space {
+	height: 5px;
+	background-color: #f0f0f0;
+	background-color: #e6e6e6;
+	border-top: 1px solid #b3b3b3;
+	color: #b3b3b3;
+	text-align: center;
+	vertical-align: middle;
+}
+
+#Apps_MailClient .content {
+	height: 225px;
+	border-left: 1px solid #b3b3b3;
 }
 
 #Apps_MailClient .menu {
@@ -44,14 +60,16 @@ div.mail_progressbar_in {
 	width: 200px;
 	overflow: auto;
 	background-color: #f0f0f0;
-	border-right: 1px solid #b3b3b3;
+	background-color: #e6e6e6;
+	/*border-right: 1px solid #b3b3b3;*/
 }
 
-#Apps_MailClient .preview_body iframe {
+#Apps_MailClient .preview_body iframe#mail_view_body {
 	border: none;
 	width: 100%;
 	margin: 0px;
 	padding: 0px;
+	height: 185px;
 }
 
 /* no shadow in tables */

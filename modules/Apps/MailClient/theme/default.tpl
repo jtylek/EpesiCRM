@@ -20,17 +20,20 @@
 <table id="Apps_MailClient" border="0" cellpadding="0" cellspacing="0">
 	<tbody>
 		<tr>
-			<td rowspan="2" class="menu">{$tree}</td>
+			<td rowspan="3" class="menu">{$tree}</td>
 			<td class="list">{$list}</td>
 		</tr>
 		<tr>
-			<td>
+			<td class="space">=</td>
+		</tr>
+		<tr>
+			<td class="content">
 				<table class="mail" border="0" cellpadding="0" cellspacing="0">
 					<tbody>
 						<tr>
 							<td class="label">{$subject_label}</td>
 							<td class="data">{$preview_subject}</td>
-							<td style="text-align:right" rowspan="2">{$preview_attachments}</td>
+							<td style="width: 100px; text-align: right; border-bottom: 1px solid #b3b3b3; border-left: 1px solid #b3b3b3; vertical-align: middle; text-align: center;" rowspan="2">{$preview_attachments}</td>
 						</tr>
 						<tr>
 							<td class="label">{$address_label}</td>
