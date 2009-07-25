@@ -286,7 +286,7 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
     padding-bottom: 2px;
     vertical-align: top;
     background-color: #666666;
-    background-image: url('images/dark-gray.png');
+    background-image: url('images/dark-gray.gif');
 }
 
 .CRM_Tasks__table .arrow {
@@ -295,7 +295,7 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
     vertical-align: top;
     text-align: center;
     background-color: #666666;
-    background-image: url('images/dark-gray.png');
+    background-image: url('images/dark-gray.gif');
 }
 
 .CRM_Tasks__table .arrow a {
@@ -325,7 +325,7 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
     padding-top: 7px;
     height: 24px;
     vertical-align: top;
-    background-image: url('images/dark-gray-gradient.png');
+    background-image: url('images/dark-gray-gradient.gif');
     background-repeat: repeat-y;
 }
 

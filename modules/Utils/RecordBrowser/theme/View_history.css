@@ -14,7 +14,7 @@
     padding-bottom: 2px;
     vertical-align: top;
     background-color: #666666;
-    background-image: url('images/dark-gray.png');
+    background-image: url('images/dark-gray.gif');
 }
 
 .Utils_RecordBrowser__history_table .icon img {
@@ -32,6 +32,6 @@
     padding-top: 7px;
     height: 24px;
     vertical-align: top;
-    background-image: url('images/dark-gray-gradient.png');
+    background-image: url('images/dark-gray-gradient.gif');
     background-repeat: repeat-y;
 }
