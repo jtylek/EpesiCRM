@@ -205,14 +205,14 @@ p.event {
 	vertical-align: middle;
 	text-align: center;
 	color: #FFFFFF;
-	background-image: url('images/header-blue.png');
+	background-image: url('images/header-blue.gif');
 	background-repeat: repeat-x;
 	display: block;
 	line-height: 20px;
 }
 
 #Utils_Calendar__year td.header-month a:hover {
-	background-image: url('images/header-blue-hover.png');
+	background-image: url('images/header-blue-hover.gif');
 }
 
 
@@ -255,7 +255,7 @@ div.month-applet-menu a.button {
 
 div.month-applet-menu a.button:hover {
 	background-color: #339933;
-    /*background-image: url("images/header-blue-hover.png");*/
+    /*background-image: url("images/header-blue-hover.gif");*/
 }
 
 div.month-applet table.month-applet {

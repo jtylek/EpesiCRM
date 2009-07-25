@@ -4,7 +4,7 @@
 	vertical-align: middle;
 	color: #FFFFFF;
 	background-color: #336699;
-	background-image: url("images/header-blue.png");
+	background-image: url("images/header-blue.gif");
 	background-repeat: repeat-x;
 	height: 20px;
 	border: 0px;
@@ -205,4 +205,3 @@
     background-image: url('images/button-small-hover.gif');
     background-repeat: no-repeat;
 }
-

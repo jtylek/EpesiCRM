@@ -32,10 +32,10 @@ table#Utils_Comment__Reply td.submit input {
 	height: 20px;
 	text-align: center;
 	vertical-align: middle;
-	background-image: url("images/header-blue.png");
+	background-image: url("images/header-blue.gif");
 	font-size: 11px;
 }
 
 table#Utils_Comment__Reply td.submit input:hover {
-	background-image: url("images/header-blue-hover.png");
+	background-image: url("images/header-blue-hover.gif");
 }

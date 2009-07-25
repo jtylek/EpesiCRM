@@ -43,13 +43,13 @@
     float: right;
     width: 100px;
     height: 20px;
-    background-image: url('images/header-blue.png');
+    background-image: url('images/header-blue.gif');
     margin-right: 20px;
     cursor: pointer;
 }
 
 #Browsing_records .filters_button:hover {
-    background-image: url('images/header-blue-hover.png');
+    background-image: url('images/header-blue-hover.gif');
 }
 
 #Browsing_records .filters_button #filters_button_text {

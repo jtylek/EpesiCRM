@@ -163,7 +163,7 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 	}
 
 	$renderer =& $form->defaultRenderer();
-	$renderer->setHeaderTemplate("\n\t<tr>\n\t\t<td style=\"white-space: nowrap; height: 20px; vertical-align: middle; background-color: #336699; background-image: url('images/header-blue.png'); background-repeat: repeat-x; color: #FFFFFF; font-weight: normal; text-align: center;\" align=\"left\" valign=\"top\" colspan=\"2\">{header}</td>\n\t</tr>");
+	$renderer->setHeaderTemplate("\n\t<tr>\n\t\t<td style=\"white-space: nowrap; height: 20px; vertical-align: middle; background-color: #336699; background-image: url('images/header-blue.gif'); background-repeat: repeat-x; color: #FFFFFF; font-weight: normal; text-align: center;\" align=\"left\" valign=\"top\" colspan=\"2\">{header}</td>\n\t</tr>");
 	$renderer->setElementTemplate("\n\t<tr>\n\t\t<td align=\"right\" valign=\"top\"><!-- BEGIN required --><span style=\"color: #ff0000\">*</span><!-- END required -->{label}</td>\n\t\t<td valign=\"top\" align=\"left\"><!-- BEGIN error --><span style=\"color: #ff0000\">{error}</span><br /><!-- END error -->\t{element}</td>\n\t</tr>");
 		$form->accept($renderer);
 		print($renderer->toHtml());
@@ -330,17 +330,17 @@ function clean_database() {
 	if(DATABASE_DRIVER=='mysqlt' || DATABASE_DRIVER=='mysqli')
 		DB::Execute('SET FOREIGN_KEY_CHECKS=0');
 	if(DATABASE_DRIVER=='postgres' && strpos(DB::GetOne('SELECT version()'),'PostgreSQL 8.2')!==false) {
-    	    foreach ($tables_db as $t) { 		 
-	            $idxs = DB::Execute('SELECT t.tgargs as args FROM pg_trigger t,pg_class c,pg_proc p WHERE t.tgenabled AND t.tgrelid = c.oid AND t.tgfoid = p.oid AND p.proname = \'RI_FKey_check_ins\' AND c.relname = \''.strtolower($t).'\' ORDER BY t.tgrelid'); 		 
-		    $matches = array(1=>array()); 		 
-		    while ($i = $idxs->FetchRow()) { 		 
-		            $data = explode(chr(0), $i[0]); 		 
-			    $matches[1][] = $data[0]; 		 
-		    } 		 
-		    $num_keys = count($matches[1]); 		 
-		    for ( $i = 0;  $i < $num_keys;  $i ++ ) 		 
-		            DB::Execute('ALTER TABLE '.$t.' DROP CONSTRAINT '.$matches[1][$i]); 		 
-	} 		 
+    	    foreach ($tables_db as $t) {
+	            $idxs = DB::Execute('SELECT t.tgargs as args FROM pg_trigger t,pg_class c,pg_proc p WHERE t.tgenabled AND t.tgrelid = c.oid AND t.tgfoid = p.oid AND p.proname = \'RI_FKey_check_ins\' AND c.relname = \''.strtolower($t).'\' ORDER BY t.tgrelid');
+		    $matches = array(1=>array());
+		    while ($i = $idxs->FetchRow()) {
+		            $data = explode(chr(0), $i[0]);
+			    $matches[1][] = $data[0];
+		    }
+		    $num_keys = count($matches[1]);
+		    for ( $i = 0;  $i < $num_keys;  $i ++ )
+		            DB::Execute('ALTER TABLE '.$t.' DROP CONSTRAINT '.$matches[1][$i]);
+	}
 																	    }
 	foreach($tables_db as $t) {
 		DB::DropTable($t);

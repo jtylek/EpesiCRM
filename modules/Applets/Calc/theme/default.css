@@ -7,7 +7,7 @@
 #calc .key {
     /*width: 34px;
     height: 24px;
-    background-image: url('images/header-blue.png');
+    background-image: url('images/header-blue.gif');
     border: 2px solid #FFFFFF;*/
     color: #ffffff;
     width: 50px;
@@ -18,7 +18,7 @@
 }
 
 #calc input:hover.key {
-    /*background-image: url('images/header-blue-hover.png');*/
+    /*background-image: url('images/header-blue-hover.gif');*/
     background-image: url('images/button-small-hover.gif');
 }
 
