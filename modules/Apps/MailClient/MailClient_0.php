@@ -507,6 +507,15 @@ class Apps_MailClient extends Module {
 			$subject = isset($structure->headers['subject'])?Apps_MailClientCommon::mime_header_decode($structure->headers['subject']):'no subject';
 			if($type=='edit' || $type=='edit_as_new') {
 				$to_address = Apps_MailClientCommon::mime_header_decode($structure->headers['to']);
+			} elseif($type=='reply') {
+				$subject = 'Re: '.$subject;
+				if(isset($structure->headers['message-id']))
+					$references = $structure->headers['message-id'];
+				$to_address = Apps_MailClientCommon::mime_header_decode(isset($structure->headers['reply-to'])?$structure->headers['reply-to']:$structure->headers['from']);
+			} elseif($type=='forward') {
+				$subject = 'Fwd: '.$subject;
+			}
+			if(isset($to_address)) {
 				$to_address = explode(',',$to_address);
 				foreach($to_address as $v) {
 					if(ereg('<([0-9]+)@epesi_(contact|user)>$',$v,$r)) {
@@ -542,13 +551,6 @@ class Apps_MailClient extends Module {
 								$to_addr = array_filter($to_addr,create_function('$o','return $o!=\''.$v2['mail'].'\';'));
 					} 
 				}
-			} elseif($type=='reply') {
-				$subject = 'Re: '.$subject;
-				if(isset($structure->headers['message-id']))
-					$references = $structure->headers['message-id'];
-				$to_addr[] = Apps_MailClientCommon::mime_header_decode(isset($structure->headers['reply-to'])?$structure->headers['reply-to']:$structure->headers['from']);
-			} elseif($type=='forward') {
-				$subject = 'Fwd: '.$subject;
 			}
 			if($type=='reply' || $type=='forward') {
 				$msg_header = "\n\n--------- Original Message ---------\n".

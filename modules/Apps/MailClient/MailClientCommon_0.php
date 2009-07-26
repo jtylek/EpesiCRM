@@ -361,6 +361,8 @@ class Apps_MailClientCommon extends ModuleCommon {
 
 		$mbox_dir = self::get_mailbox_dir($mailbox_id);
 		if($mbox_dir===false) return false;
+		
+		if($subject=='') $subject = Base_LangCommon::ts('Apps/MailClient','no subject');
 
 		$mime = new Mail_Mime();
 		$headers = array();
@@ -411,7 +413,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 			$structure = $decode->decode();
 			if(!isset($structure->headers['from']) || !isset($structure->headers['to']) || !isset($structure->headers['date']))
 				continue;
-			fputcsv($out, array($f,isset($structure->headers['subject'])?substr($structure->headers['subject'],0,256):'no subject',substr($structure->headers['from'],0,256),substr($structure->headers['to'],0,256),substr($structure->headers['date'],0,64),substr(strlen($message),0,64),'0'));
+			fputcsv($out, array($f,isset($structure->headers['subject'])?substr($structure->headers['subject'],0,256):Base_LangCommon::ts('Apps/MailClient','no subject'),substr($structure->headers['from'],0,256),substr($structure->headers['to'],0,256),substr($structure->headers['date'],0,64),substr(strlen($message),0,64),'0'));
 			$c++;
 			if($f>$max) $max=$f;
 		}
@@ -728,6 +730,9 @@ class Apps_MailClientCommon extends ModuleCommon {
 		if(count($num)!=2) return false;
 		$out = @fopen($mailbox.'.idx','a');
 		if($out==false) return false;
+
+		if($subject=='') $subject = Base_LangCommon::ts('Apps/MailClient','no subject');
+
 		fputcsv($out,array($id, substr($subject,0,256), substr($from,0,256), substr($to,0,256), substr($date,0,64), substr($size,0,64),$read?'1':'0'));
 		fclose($out);
 		file_put_contents($mailbox.'.num',($num[0]+1).','.($num[1]+($read?0:1)));
@@ -865,7 +870,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 			$body_type = $structure->ctype_secondary;
 			$body_ctype = isset($structure->headers['content-type'])?$structure->headers['content-type']:'text/'.$body_type;
 		}
-		$subject = isset($structure->headers['subject'])?Apps_MailClientCommon::mime_header_decode($structure->headers['subject']):'no subject';
+		$subject = isset($structure->headers['subject'])?Apps_MailClientCommon::mime_header_decode($structure->headers['subject']):Base_LangCommon::ts('Apps/MailClient','no subject');
 		return array('body'=>$body, 'subject'=>$subject,'type'=>$body_type, 'ctype'=>$body_ctype, 'attachments'=>$attachments);
 	}
 	
@@ -1077,7 +1082,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 			}
 			$msg .= imap_body($imap['connection'],$msgl->uid,FT_UID | FT_PEEK);
 			$structure = self::mime_decode($msg);
-			if(!Apps_MailClientCommon::append_msg_to_index($id,$dir,$msgl->uid,isset($structure->headers['subject'])?$structure->headers['subject']:'no subject',$structure->headers['from'],$structure->headers['to'],$structure->headers['date'],strlen($msg),$msgl->seen)) {
+			if(!Apps_MailClientCommon::append_msg_to_index($id,$dir,$msgl->uid,isset($structure->headers['subject'])?$structure->headers['subject']:Base_LangCommon::ts('Apps/MailClient','no subject'),$structure->headers['from'],$structure->headers['to'],$structure->headers['date'],strlen($msg),$msgl->seen)) {
 				continue;
 			}
 			file_put_contents($box_root.$dir.$msgl->uid,$msg);

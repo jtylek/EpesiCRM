@@ -74,7 +74,7 @@ class CRM_MailClientInstall extends ModuleInstall {
 	}
 	
 	public static function simple_setup() {
-		return false;
+		return true;
 	}
 	
 }
