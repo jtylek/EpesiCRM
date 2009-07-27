@@ -38,7 +38,9 @@ class Base_ActionBarCommon extends ModuleCommon {
 			'filter'	=> 18,
 			'send'		=> 19,
 			'new-mail'	=> 20,
-			'attach'	=> 21);
+			'attach'	=> 21,
+			'reply'		=> 22,
+			'forward'	=> 23);
 
 	public static function user_settings(){
 		return array('Misc'=>array(
