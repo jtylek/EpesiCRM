@@ -117,6 +117,53 @@ class CRM_ContactsCommon extends ModuleCommon {
 	public static function admin_caption() {
 		return 'Main Company';
 	}
+	public static function check_for_duplicates($data, $js_function){
+		$crits = array();
+		$op = '(';
+		if (isset($data['company_name']) && $data['company_name']) {
+			$companies = Utils_RecordBrowserCommon::get_records('company', array('~"company_name'=>DB::Concat(DB::qstr('%'),DB::qstr($data['company_name']),DB::qstr('%'))));
+			$comp_ids = array();
+			foreach ($companies as $k=>$v)
+				$comp_ids[] = $v['id'];
+			$crits[$op.'company_name'] = $comp_ids;
+			$op = '|';
+		}
+		if ($data['first_name']) {
+			$crits[$op.'~"first_name'] = DB::Concat(DB::qstr('%'),DB::qstr($data['first_name']),DB::qstr('%'));
+			$op = '|';
+		}
+		if ($data['last_name']) {
+			$crits[$op.'~"last_name'] = DB::Concat(DB::qstr('%'),DB::qstr($data['last_name']),DB::qstr('%'));
+			$op = '|';
+		}
+		$contacts = Utils_RecordBrowserCommon::get_records('contact', $crits);
+		if (empty($contacts))
+			return false;
+		$contacts_final = array();
+		$output = '';
+		$precission = 3;
+		while (!$output) { // Or precission!=0
+			foreach ($contacts as $k=>$v) {
+				$score = 0;
+				foreach ($v['company_name'] as $l=>$e)
+					if (in_array($e, $comp_ids)) {
+						$score++;
+						break;
+					}
+				if ($v['first_name']==$data['first_name']) $score++;
+				if ($v['last_name']==$data['last_name']) $score++;
+				if ($score<$precission) continue;
+				$first_comp = array_pop($v['company_name']);
+				array_push($v['company_name'],$first_comp);
+				$output .= '<a href="javascript:void(0);" onmouseup="'.$js_function.'('.$v['id'].','.$first_comp.');leightbox_deactivate(\'crm_contact_duplicates\');">[Use this]</a> '.self::contact_format_default($v,true).'<br>';
+				unset($contacts[$k]);
+			}
+			$precission--;
+		}
+		Libs_LeightboxCommon::display('crm_contact_duplicates', $output, 'Contact duplicate found.');
+		print('<a '.Libs_LeightboxCommon::get_open_href('crm_contact_duplicates').' style="display:none;" />');
+		eval_js('leightbox_activate("crm_contact_duplicates");');
+	}
 	public static function crm_company_datatype($field = array()) {
 		if (!isset($field['QFfield_callback'])) $field['QFfield_callback'] = array('CRM_ContactsCommon', 'QFfield_company');
 		if (!isset($field['display_callback'])) $field['display_callback'] = array('CRM_ContactsCommon', 'display_company');
@@ -341,7 +388,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	public static function QFfield_email(&$form, $field, $label, $mode, $default) {
 		if ($mode=='add' || $mode=='edit') {
 			$form->addElement('text', $field, $label);
-			$form->addRule($field, 'Invalid e-mail address', 'regex', '/^[\._a-zA-Z0-9\-]+@[\.a-zA-Z0-9\-]+\.[a-zA-Z]{2,3}$/');
+			$form->addRule($field, Base_LangCommon::ts('CRM_Contacts','Invalid e-mail address'), 'email', true);//'/^[\._a-zA-Z0-9\-]+@[\.a-zA-Z0-9\-]+\.[a-zA-Z]{2,3}$/');
 			if ($mode=='edit') $form->setDefaults(array($field=>$default));
 		} else {
 			$form->addElement('static', $field, $label);
