@@ -163,6 +163,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		Libs_LeightboxCommon::display('crm_contact_duplicates', $output, 'Contact duplicate found.');
 		print('<a '.Libs_LeightboxCommon::get_open_href('crm_contact_duplicates').' style="display:none;" />');
 		eval_js('leightbox_activate("crm_contact_duplicates");');
+		return true;
 	}
 	public static function crm_company_datatype($field = array()) {
 		if (!isset($field['QFfield_callback'])) $field['QFfield_callback'] = array('CRM_ContactsCommon', 'QFfield_company');
