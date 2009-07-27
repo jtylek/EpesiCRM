@@ -8,7 +8,6 @@
 	</tbody>
 </table>
 
-
 <!-- SHADIW BEGIN -->
 	<div class="layer" style="padding: 9px; width: 98%;">
 		<div class="content_shadow">
@@ -21,11 +20,11 @@
         	</tr>
             <tr>
                 <td class="notepad-left2">{$subject_caption}</td>
-                <td class="note" colspan="2">{$subject}</td>
+                <td class="note2" colspan="2">{$subject}</td>
             </tr>
             <tr>
                 <td class="notepad-left2">{$attachments_caption}</td>
-                <td class="note" colspan="2">{$attachments}</td>
+                <td class="note2" colspan="2">{$attachments}</td>
             </tr>
             <tr>
                 <td class="notepad-left">&nbsp;</td>

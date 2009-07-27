@@ -16,6 +16,10 @@
     background-repeat: repeat-x;
 }
 
+#CRM_MailClient__view .header a {
+	color: #e6ecf2;
+}
+
 #crm_mailclient_view {
 	padding-left: 50px;
 }
@@ -28,14 +32,32 @@
 }
 
 #CRM_MailClient__view .notepad-left2 {
-    border-right: 2px solid #b3b3b3;
+    /*border-right: 2px solid #b3b3b3;*/
+    background-color: #f0f0f0;
     width: 50px;
+	padding-left: 10px;
+	padding-right: 10px;
+	height: 30px;
+	vertical-align: middle;
 }
 
 #CRM_MailClient__view .note {
     padding-left: 10px;
     padding-right: 10px;
     vertical-align: top;
+}
+
+#CRM_MailClient__view .note iframe {
+	width: 100%;
+}
+
+#CRM_MailClient__view .note2 {
+    background-color: #f0f0f0;
+	font-weight: bold;
+    padding-left: 10px;
+    padding-right: 10px;
+	height: 30px;
+	vertical-align: middle;
 }
 
 .CRM_MailClient__table {
