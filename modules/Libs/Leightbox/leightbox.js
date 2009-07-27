@@ -178,6 +178,7 @@ leightbox.prototype = {
 /*-----------------------------------------------------------------------------------------------*/
 
 var leightboxes = Array();
+var leightbox_to_activate = '';
 
 // Add in markup necessary to make this work. Basically two divs:
 // Overlay holds the shadow
@@ -201,7 +202,7 @@ for(i=0;i<leightboxes.length;i++)if(leightboxes[i].content==name){leightboxes[i]
 }
 
 function leightbox_activate(name) {
-for(i=0;i<leightboxes.length;i++)if(leightboxes[i].content==name){leightboxes[i].activate();break;}
+leightbox_to_activate = name;
 }
 
 addLeightboxMarkup();
@@ -211,6 +212,11 @@ document.observe("e:load", function() {
 	lbox = document.getElementsByClassName('lbOn');
 	for(i = 0; i < leightboxes.length; i++)
 		delete(leightboxes[i]);
-	for(i = 0; i < lbox.length; i++)
+	for(i = 0; i < lbox.length; i++) {
 		leightboxes[i] = new leightbox(lbox[i]);
+		if (leightbox_to_activate==lbox[i].rel) {
+			leightboxes[i].activate();
+			leightbox_to_activate='';
+		}
+	}
 });

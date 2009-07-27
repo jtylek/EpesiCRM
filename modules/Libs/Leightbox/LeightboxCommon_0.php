@@ -39,8 +39,8 @@ class Libs_LeightboxCommon extends ModuleCommon {
 		return ob_get_clean();
 	}
 	
-	public static function display($id,$x,$header='',$big=0) {
-		print(self::get($id,$x,$header,$big));
+	public static function display($id,$content,$header='',$big=0) {
+		print(self::get($id,$content,$header,$big));
 	}
 	
 	public static function get_open_href($id) {
