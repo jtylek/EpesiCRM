@@ -777,7 +777,7 @@ class Utils_RecordBrowser extends Module {
 		self::$last_record = $this->record = Utils_RecordBrowserCommon::get_record($this->tab, $id, $mode!=='edit');
 
 		$access = $this->get_access($mode, isset($this->record)?$this->record:$this->custom_defaults);
-		if ($mode=='edit')
+		if ($mode=='edit' || $mode=='add')
 			$this->view_fields_permission = $this->get_access('view', isset($this->record)?$this->record:$this->custom_defaults);
 		else 
 			$this->view_fields_permission = $access;
@@ -841,7 +841,7 @@ class Utils_RecordBrowser extends Module {
 
 		$this->prepare_view_entry_details($this->record, $mode, $id, $form);
 
-		if ($mode==='edit')
+		if ($mode==='edit' || $mode==='add')
 			foreach($this->table_rows as $field => $args) {
 				if (!$access[$args['id']])
 					$form->freeze($args['id']);
