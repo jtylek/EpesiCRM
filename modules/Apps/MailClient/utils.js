@@ -188,7 +188,7 @@ cache_mailboxes_start: function() {
 	Apps_MailClient.cache_mailboxes_working=true,
 	Apps_MailClient.cache_mailboxes();
 },
-cache_request = null,
+cache_request: null,
 cache_mailboxes: function() {
 	if(Apps_MailClient.cache_request != null) return;
 	if(Apps_MailClient.cache_timeout != null) {

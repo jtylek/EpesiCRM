@@ -34,7 +34,7 @@ flush();
 @ob_flush();
 foreach($accounts as $account) {
 	if($account['incoming_protocol']) {
-		message($account['id'],'operation background queued');
+		message($account['id'],$account['mail'].': operation queued');
 		echo('<script>parent.Apps_MailClient.progress_bar.set_progress(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\', 100)</script>');
 		continue;
 	}
