@@ -776,6 +776,10 @@ class Utils_RecordBrowser extends Module {
 		$this->init();
 		self::$last_record = $this->record = Utils_RecordBrowserCommon::get_record($this->tab, $id, $mode!=='edit');
 
+		if($mode=='add')
+			foreach ($defaults as $k=>$v)
+				$this->custom_defaults[$k] = $v;
+
 		$access = $this->get_access($mode, isset($this->record)?$this->record:$this->custom_defaults);
 		if ($mode=='edit' || $mode=='add')
 			$this->view_fields_permission = $this->get_access('view', isset($this->record)?$this->record:$this->custom_defaults);
@@ -800,10 +804,6 @@ class Utils_RecordBrowser extends Module {
 		self::$tab_param = $tb->get_path();
 
 		$form = $this->init_module('Libs/QuickForm',null, $mode);
-
-		if($mode=='add')
-			foreach ($defaults as $k=>$v)
-				$this->custom_defaults[$k] = $v;
 
 		if($mode!='add')
 			Utils_RecordBrowserCommon::add_recent_entry($this->tab, Acl::get_user(),$id);
