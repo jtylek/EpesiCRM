@@ -666,9 +666,20 @@ class Apps_MailClient extends Module {
 						$to[] = Base_User_LoginCommon::get_mail($r[1]);
 				}
 			}
-			$to = array_map('trim',$to);
-			$to = array_unique($to);
-			$to = array_filter($to);
+			$to2 = array();
+			foreach($to as $jj=>$kk) {
+				$kk = trim($kk);
+				if(ereg("<(.*)>$",$kk,$reqs)) {
+					$kkk = trim($reqs[1]);
+				} else
+					$kkk = $kk;
+				if($kkk=='' || isset($to2[$kkk])) {
+					unset($to[$jj]);
+					continue;
+				}
+				$to[$jj] = $kk;
+				$to2[$kkk] = 1;
+			}
 
 			$ret = true;
 			if(ModuleManager::is_installed('CRM/Contacts')>=0) {
@@ -695,7 +706,7 @@ class Apps_MailClient extends Module {
 				$send_ok = true;
 				if($from && $to) {
 					$mailer = Apps_MailClientCommon::new_mailer($box,$name);
-					foreach($to as $m)
+					foreach($to2 as $m=>$mmm)
 						$mailer->AddAddress($m);
 					$mailer->Subject = $v['subject'];
 					$mailer->IsHTML(true);
