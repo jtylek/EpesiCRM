@@ -65,6 +65,11 @@ class Utils_TooltipCommon extends ModuleCommon {
 	public static function ajax_open_tag_attrs( $callback, $args, $max_width=300 ) {
 		if(MOBILE_DEVICE) return '';
 		static $tooltip_id = 0;
+		static $tooltip_cleared = false;
+		if (isset($_REQUEST['__location']) && $tooltip_cleared!=$_REQUEST['__location']) {
+			$tooltip_cleared = $_REQUEST['__location'];
+			$tooltip_id = 0;
+		}
 		$tooltip_id++;
 		$_SESSION['client']['utils_tooltip']['callbacks'][$tooltip_id] = array('callback'=>$callback, 'args'=>$args);
 		$loading_message = '<center><img src='.Base_ThemeCommon::get_template_file('Utils_Tooltip','loader.gif').' /><br/>'.Base_LangCommon::ts('Utils_Tooltip','Loading...').'</center>';
