@@ -22,7 +22,7 @@ function message($id,$text) {
 	@ob_flush();
 }
 
-$accounts = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE user_login_id=%d WHERE incoming_protocol<2',array(Acl::get_user()));
+$accounts = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE user_login_id=%d AND incoming_protocol<2',array(Acl::get_user()));
 $is_imap = false;
 foreach($accounts as $account) {
 	if($account['incoming_protocol'])
