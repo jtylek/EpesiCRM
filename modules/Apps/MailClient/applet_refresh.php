@@ -12,8 +12,16 @@ Apps_MailClientCommon::include_path();
 
 $id = $_POST['acc_id'];
 
-$num = Apps_MailClientCommon::get_number_of_new_messages_in_inbox($id);
-print(($num===false)?'error':$num);
-
+list($num,$list) = Apps_MailClientCommon::get_number_of_new_messages_in_inbox($id);
+$listing = '';
+if($num) {
+	$listing .= '<small>';
+	foreach($list as $l) {
+		if(!$l) continue;
+		$listing .= htmlspecialchars($l['from']).': <i>'.Apps_MailClientCommon::mime_header_decode($l['subject']).'</i><br>';
+	}
+	$listing .= '</small>';
+}
+print(($num===false)?'error':Utils_TooltipCommon::create($num,$listing));
 error_reporting(0);
 ?>

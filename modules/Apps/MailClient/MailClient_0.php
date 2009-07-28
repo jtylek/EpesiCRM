@@ -1051,7 +1051,6 @@ class Apps_MailClient extends Module {
 		}
 		$this->display_module($gb);
 		Base_ActionBarCommon::add('add','New filter',$this->create_callback_href(array($this,'filter'),array(null,'new')));
-		
 	}
 	
 	public function filter($id, $action='new') {

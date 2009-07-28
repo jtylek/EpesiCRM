@@ -1218,12 +1218,20 @@ class Apps_MailClientCommon extends ModuleCommon {
 	}
 	
 	private static function inbox_sum($id,$arr,$p) {
-		$msgs = Apps_MailClientCommon::get_number_of_messages($id,$p);
-		$ret = $msgs['unread'];
+		$msgs = Apps_MailClientCommon::get_index($id,$p);
+		$unread = 0;
+		$list = array();
+		foreach($msgs as $m)
+			if(!$m['read']) {
+				$unread++;
+				$list[] = $m;
+			}
 		foreach($arr as $k=>$a) {
-			$ret += self::inbox_sum($a,$p.$k.'/');
+			$ret = self::inbox_sum($a,$p.$k.'/');
+			$unread += $ret[0];
+			$list += $ret[1];
 		}
-		return $ret;
+		return array($unread,$list);
 	}
 	
 	public static function get_number_of_new_pop3_messages($id) {
@@ -1288,6 +1296,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 	//				die('unknown error');
 		}
 		$uidls_file = $box_dir.'.uidls';
+		$list = array();
 		if($account['pop3_leave_msgs_on_server']!=0 && file_exists($uidls_file)) {
 			$uidls = array();
 			if(($uidls_fp = @fopen($uidls_file,'r'))!==false) {
@@ -1325,30 +1334,28 @@ class Apps_MailClientCommon extends ModuleCommon {
 						}
 						unset($l[$k]);
 					}
+					if($native_support) //only in native we've got msgs list
+						$list[] = array('subject'=>$l[$k]->subject,'from'=>$l[$k]->from,'to'=>$l[$k]->to,'date'=>$l[$k]->date,'size'=>$l[$k]->size);
 				}
 			}
 	
 		}
 		$num_msgs = count($l);
-
+		
 		if($native_support)
 			imap_close($in);
 		else
 			$in->disconnect();
 
-		return $num_msgs;
+		return array($num_msgs,$list);
 	}
 
 	public static function get_number_of_new_messages_in_inbox($id,$cache_pop3=false) {
 		$account = self::get_mailbox_data($id);
 		if(!$account) return false;
 		$num_msgs = 0;
-		if($account['incoming_protocol']) {
-			$struct = Apps_MailClientCommon::get_mailbox_structure($id);
-			if(isset($struct['Inbox'])) {
-				$num_msgs = self::inbox_sum($id,$struct['Inbox'],'Inbox/');
-			}
-		} else {
+		$list = array();
+		if($account['incoming_protocol']==0) {
 			$box_dir = Apps_MailClientCommon::get_mailbox_dir($id);
 			if($box_dir===false) {
 				return false;
@@ -1356,13 +1363,28 @@ class Apps_MailClientCommon extends ModuleCommon {
 			}
 			$pop3_cache_file = $box_dir.'.pop3_new_msgs';
 			if($cache_pop3) {
-				$num_msgs = file_get_contents($pop3_cache_file);
+				$tmp = file_get_contents($pop3_cache_file);
+				$tmp = explode("\n",$tmp);
+				$num_msgs = $tmp[0];
+				for($kk=1; $kk<count($tmp); $kk++)
+					$list[] = unserialize($tmp[$kk]);
+				$list = $tmp;
 			} else {
-				$num_msgs = self::get_number_of_new_pop3_messages($id);
-				file_put_contents($pop3_cache_file,$num_msgs);
+				list($num_msgs,$list) = self::get_number_of_new_pop3_messages($id);
+				$list2 = array();
+				foreach($list as $ll)
+					$list2[] = serialize($ll);
+				file_put_contents($pop3_cache_file,$num_msgs."\n".
+						implode("\n",$list2));
 			}
 		}
-		return $num_msgs;
+		$struct = Apps_MailClientCommon::get_mailbox_structure($id);
+		if(isset($struct['Inbox'])) {
+			$ret = self::inbox_sum($id,$struct['Inbox'],'Inbox/');
+			$num_msgs += $ret[0];
+			$list += $ret[1];
+		}
+		return array($num_msgs,$list);
 	}
 
 	public static function tray_notification($time) {
@@ -1371,12 +1393,21 @@ class Apps_MailClientCommon extends ModuleCommon {
 			$_SESSION['mails'] = array();
 		$ret = array();
 		foreach($boxes as $v) {
-			$num = self::get_number_of_new_messages_in_inbox($v['id'],true);
+			list($num,$list) = self::get_number_of_new_messages_in_inbox($v['id'],true);
 			if($num == 0) continue;
 			if(!isset($_SESSION['mails'][$v['id']]) || $_SESSION['mails'][$v['id']]!=$num) {
+				$listing = '';
+				if($num) {
+					$listing .= '<br><small>';
+					foreach($list as $l) {
+						if(!$l) continue;
+						$listing .= htmlspecialchars($l['from']).': <i>'.Apps_MailClientCommon::mime_header_decode($l['subject']).'</i><br>';
+					}
+					$listing .= '</small>';
+				}
 				$_SESSION['mails'][$v['id']] = $num;
 				$name = $v['mail']=='#internal'?Base_LangCommon::ts('Apps_MailClient','Private messages'):$v['mail'];
-				$ret['mailclient_'.$v['id'].'_'.$time] = Base_LangCommon::ts('Apps_MailClient','<b>%s</b> new message in mailbox: <font color="gray">%s</font>',array($num,$name));
+				$ret['mailclient_'.$v['id'].'_'.$time] = Base_LangCommon::ts('Apps_MailClient','<b>%s</b> new message in mailbox: <font color="gray">%s</font>',array($num,$name)).$listing;
 			}
 		}
 		$ret = array('notifications'=>$ret);
