@@ -203,12 +203,12 @@ class Apps_MailClient extends Module {
 
 	}
 
-	private function check_mail_href() {
+	private function check_mail_href($on_hide_js='') {
 		$checknew_id = $this->get_path().'checknew';
 
 		eval_js('new Apps_MailClient.check_mail(\''.$checknew_id.'\')');
 		print('<div id="'.$checknew_id.'" class="leightbox"><div style="width:100%;text-align:center" id="'.$checknew_id.'progresses"></div>'.
-			'<a id="'.$checknew_id.'L" style="display:none" href="javascript:void(0)" onClick="Apps_MailClient.hide(\''.$checknew_id.'\');Epesi.request(\'\');">'.$this->t('hide').'</a>'.
+			'<a id="'.$checknew_id.'L" style="display:none" href="javascript:void(0)" onClick="Apps_MailClient.hide(\''.$checknew_id.'\');Epesi.request(\'\');'.$on_hide_js.'">'.$this->t('hide').'</a>'.
 			'</div>');
 		return 'href="javascript:void(0)" rel="'.$checknew_id.'" class="lbOn" id="'.$checknew_id.'b"';
 	}
@@ -961,12 +961,12 @@ class Apps_MailClient extends Module {
 				eval_js_once('setInterval(\'Apps_MailClient.update_msg_num('.$opts['id'].' ,'.$id.' , 0)\',300000)');
 
 				//and now
-				$update_applet .= 'Apps_MailClient.update_msg_num('.$opts['id'].' ,'.$id.' , 1)';
+				$update_applet .= 'Apps_MailClient.update_msg_num('.$opts['id'].' ,'.$id.' ,1);';
 			}
 		}
-		eval_js($update_applet);
-		$check_action = $this->check_mail_href();
-		$opts['actions'][] = '<a '.Utils_TooltipCommon::open_tag_attrs($this->t('Check mail')).' '.$check_action.' onClick="'.$update_applet.'"><img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'check_small.png').'" border="0"></a>';
+		$this->js($update_applet);
+		$check_action = $this->check_mail_href(str_replace('1);','0);',$update_applet));
+		$opts['actions'][] = '<a '.Utils_TooltipCommon::open_tag_attrs($this->t('Check mail')).' '.$check_action.'><img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'check_small.png').'" border="0"></a>';
 		$th = $this->init_module('Base/Theme');
 		$th->assign('accounts',$ret);
 		$th->display('applet');

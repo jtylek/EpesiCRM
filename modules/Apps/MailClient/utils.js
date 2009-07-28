@@ -100,10 +100,10 @@ update_msg_num: function(applet_id,accid,cache) {
 		setTimeout('Apps_MailClient.update_msg_num('+applet_id+', '+accid+', 1)',1000);
 		return;
 	}
-	Apps_MailClient.updating_msg_num[accid] = true;
-	if(cache && typeof Apps_MailClient.msg_num_cache[accid] != 'undefined')
+	if(cache && typeof Apps_MailClient.msg_num_cache[accid] != 'undefined') {
 		$('mailaccount_'+applet_id+'_'+accid).innerHTML = Apps_MailClient.msg_num_cache[accid];
-	else 
+	} else {
+		Apps_MailClient.updating_msg_num[accid] = true;
 		new Ajax.Updater('mailaccount_'+applet_id+'_'+accid,'modules/Apps/MailClient/applet_refresh.php',{
 			method:'post',
 			onComplete:function(r){
@@ -111,6 +111,7 @@ update_msg_num: function(applet_id,accid,cache) {
 				Apps_MailClient.updating_msg_num[accid] = false;
 			},
 			parameters:{acc_id:accid}});
+	}
 },
 from_change: function(v) {
 	if(v=='pm') {
