@@ -210,7 +210,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 				));
 		Variable::set('main_company',$comp_id);
 		if(Acl::is_user()) {
-			$mail = DB::GetRow('SELECT up.mail FROM user_password up WHERE up.user_login_id=%d',array(Acl::get_user()));
+			$mail = DB::GetOne('SELECT up.mail FROM user_password up WHERE up.user_login_id=%d',array(Acl::get_user()));
 
 			Utils_RecordBrowserCommon::new_record('contact',
 				array('first_name'=>$val['fname'],
