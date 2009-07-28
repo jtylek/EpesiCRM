@@ -30,8 +30,6 @@ foreach($accounts as $account) {
 	echo('<script>parent.Apps_MailClient.progress_bar.set_text(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\',\''.Epesi::escapeJS($account['mail'],false).'\');');
 	echo('parent.Apps_MailClient.progress_bar.set_progress(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\', 0)</script>');
 }
-if($is_imap)
-	echo('<script>parent.Apps_MailClient.cache_mailboxes()</script>');
 flush();
 @ob_flush();
 foreach($accounts as $account) {
@@ -249,6 +247,8 @@ foreach($accounts as $account) {
 		message($account['id'],$account['mail'].': ok, got '.$num.' new messages, '.$invalid.' invalid messages skipped');
 }
 echo('<script>parent.Apps_MailClient.show_hide_button(\''.$_GET['id'].'\');</script>');
+if($is_imap)
+	echo('<script>parent.Apps_MailClient.cache_mailboxes()</script>');
 
 error_reporting(0);
 ?>
