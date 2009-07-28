@@ -38,6 +38,8 @@ class DB {
 		if(!self::$ado->Connect(DATABASE_HOST, DATABASE_USER, DATABASE_PASSWORD, DATABASE_NAME))
     			trigger_error("Connect to database failed",E_USER_ERROR);
 //  		DB::$ado->raiseErrorFn = $errh;
+		DB::Execute('SET NAMES "utf8"');
+	//        DB::Execute('SET CHARACTER SET utf8');
 	}
 
 	/**
@@ -72,7 +74,8 @@ class DB {
 	
 	public static function CreateTable($name, $cols, $opts=null) {
 		$dict = &self::dict();
-		$arr = $dict->CreateTableSQL($name,$cols,isset($opts)?array_merge($opts,array('postgres'=>' WITH OIDS','mysql' => ' TYPE=InnoDB')):array('postgres'=>' WITH OIDS','mysql' => ' TYPE=InnoDB'));
+		$def_opts = array('postgres'=>' WITH OIDS','mysql' => ' TYPE=InnoDB DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci');
+		$arr = $dict->CreateTableSQL($name,$cols,isset($opts)?array_merge($def_opts,$opts):$def_opts);
 		if($arr===false) return false;
 		$ret = $dict->ExecuteSQLArray($arr);
 		if($ret != 2) trigger_error(var_dump($arr).'\n'.self::ErrorMsg().'\n', E_USER_ERROR); 

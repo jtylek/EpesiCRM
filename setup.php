@@ -138,7 +138,7 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 			    } else {
 				$dbname = $form->exportValue('db');
 				if($form->exportValue('newdb')==1) {
-					$sql = 'CREATE DATABASE '.$dbname;
+					$sql = 'CREATE DATABASE '.$dbname.' CHARACTER SET utf8 COLLATE utf8_unicode_ci';
 					if(mysql_query($sql, $link)) {
 	   				//echo "Database '$dbname' created successfully\n";
 	   				write_config($host,$user,$pass,$dbname,$engine);
