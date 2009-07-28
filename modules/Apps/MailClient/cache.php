@@ -55,5 +55,5 @@ foreach($accounts as $a) {
 }
 
 Epesi::send_output();
-print(($refresh?'Apps_MailClient.refresh_ui();':'').'setTimeout(\'Apps_MailClient.cache_mailboxes()\',30000);');//30s
+print(($refresh?'Apps_MailClient.refresh_ui();':'').'Apps_MailClient.queue_cache();');//30s
 ?>

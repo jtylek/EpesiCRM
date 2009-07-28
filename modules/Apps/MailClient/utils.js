@@ -188,13 +188,20 @@ cache_mailboxes_start: function() {
 	Apps_MailClient.cache_mailboxes_working=true,
 	Apps_MailClient.cache_mailboxes();
 },
+cache_request = null,
 cache_mailboxes: function() {
-	new Ajax.Request('modules/Apps/MailClient/cache.php', {
+	if(Apps_MailClient.cache_request != null) return;
+	if(Apps_MailClient.cache_timeout != null) {
+		clearTimeout(Apps_MailClient.cache_timeout);
+		Apps_MailClient.cache_timeout = null;
+	}
+	Apps_MailClient.cache_request = new Ajax.Request('modules/Apps/MailClient/cache.php', {
 			parameters: {
 				cid: Epesi.client_id
 			},
 			method: 'post',
 			onComplete: function(t) {
+				Apps_MailClient.cache_request = null;
 			},
 			onSuccess: function(t) {
 			},
@@ -211,5 +218,9 @@ cache_mailboxes: function() {
 refresh_ui: function() {
 	if($('mail_view_body'))
 		Epesi.request('');
+},
+cache_timeout:null,
+queue_cache: function() {
+	Apps_MailClient.cache_timeout = setTimeout('Apps_MailClient.cache_mailboxes()',30000);
 }
 };

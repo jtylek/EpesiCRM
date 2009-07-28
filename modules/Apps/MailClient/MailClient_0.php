@@ -9,7 +9,6 @@
  *
  * TODO:
  * -filtry: actions, attachmenty w forward
- * -nie kasowanie przy pop3 cos nie dziala - chwilowo zakomentowalem kod kasowania z checknew.php
  * -zalaczniki przy new
  * -obsluga imap:
  *   -subskrypcja do folderow
@@ -195,8 +194,8 @@ class Apps_MailClient extends Module {
 		else
 			$th_show->assign('address_label',$this->t('From'));
 
-		if($is_pop3)
-			Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file($this->get_type(),'check.png'),$this->t('Check'),$this->check_mail_href());
+//		if($is_pop3)
+		Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file($this->get_type(),'check.png'),$this->t('Check'),$this->check_mail_href());
 		Base_ActionBarCommon::add('new-mail',$this->ht('New mail'),$this->create_callback_href(array($this,'edit_mail'),array($box,$dir)));
 		Base_ActionBarCommon::add('scan',$this->ht('Mark all as read'),$this->create_confirm_callback_href($this->ht('Are you sure?'),array($this,'mark_all_as_read')));
 		if($trash_folder)

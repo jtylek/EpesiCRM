@@ -22,14 +22,22 @@ function message($id,$text) {
 	@ob_flush();
 }
 
-$accounts = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE user_login_id=%d AND incoming_protocol=0',array(Acl::get_user()));
+$accounts = DB::GetAll('SELECT * FROM apps_mailclient_accounts WHERE user_login_id=%d',array(Acl::get_user()));
+$is_imap = false;
 foreach($accounts as $account) {
 	echo('<script>parent.Apps_MailClient.progress_bar.set_text(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\',\''.Epesi::escapeJS($account['mail'],false).'\');');
 	echo('parent.Apps_MailClient.progress_bar.set_progress(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\', 0)</script>');
 }
+if($is_imap)
+	echo('<script>parent.Apps_MailClient.cache_mailboxes()</script>');
 flush();
 @ob_flush();
 foreach($accounts as $account) {
+	if($account['incoming_protocol']) {
+		message($account['id'],'operation background queued');
+		echo('<script>parent.Apps_MailClient.progress_bar.set_progress(parent.$(\''.$_GET['id'].'progresses\'),\''.$account['id'].'\', 100)</script>');
+		continue;
+	}
 	$host = explode(':',$account['incoming_server']);
 	$ssl = $account['incoming_ssl'];
 	if(isset($host[1])) $port=$host[1];
