@@ -1334,8 +1334,10 @@ class Apps_MailClientCommon extends ModuleCommon {
 						}
 						unset($l[$k]);
 					}
-					if($native_support) //only in native we've got msgs list
-						$list[] = array('subject'=>$l[$k]->subject,'from'=>$l[$k]->from,'to'=>$l[$k]->to,'date'=>$l[$k]->date,'size'=>$l[$k]->size);
+					if(isset($l[$k])) {
+						if($native_support) //only in native we've got msgs list
+							$list[] = array('subject'=>$l[$k]->subject,'from'=>$l[$k]->from,'to'=>$l[$k]->to,'date'=>$l[$k]->date,'size'=>$l[$k]->size);
+					}
 				}
 			}
 	
