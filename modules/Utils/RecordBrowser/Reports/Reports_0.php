@@ -192,8 +192,8 @@ class Utils_RecordBrowser_Reports extends Module {
 		$other = $vals = $form->exportValues();
 		$this->set_module_variable('vals',$vals);
 		if ($vals['submited'] && !$form->validate()) {
-			$this->date_range = 'error';
-			$failed = true;
+			//$this->date_range = 'error';
+			//$failed = true;
 		}
 
 		$form->assign_theme('form',$theme);
