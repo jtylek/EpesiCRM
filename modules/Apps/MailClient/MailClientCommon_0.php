@@ -1395,7 +1395,9 @@ class Apps_MailClientCommon extends ModuleCommon {
 			$_SESSION['mails'] = array();
 		$ret = array();
 		foreach($boxes as $v) {
-			list($num,$list) = self::get_number_of_new_messages_in_inbox($v['id'],true);
+			$new_msgs = self::get_number_of_new_messages_in_inbox($v['id'],true);
+			if(!$new_msgs) continue;
+			list($num,$list) = $new_msgs;
 			if($num == 0) continue;
 			if(!isset($_SESSION['mails'][$v['id']]) || $_SESSION['mails'][$v['id']]!=$num) {
 				$listing = '';

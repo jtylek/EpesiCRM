@@ -12,7 +12,12 @@ Apps_MailClientCommon::include_path();
 
 $id = $_POST['acc_id'];
 
-list($num,$list) = Apps_MailClientCommon::get_number_of_new_messages_in_inbox($id);
+$new_msgs = Apps_MailClientCommon::get_number_of_new_messages_in_inbox($id);
+if(!$new_msgs) {
+	$num=false;
+} else {
+	list($num,$list) = $new_msgs;
+}
 $listing = '';
 if($num) {
 	$listing .= '<small>';
