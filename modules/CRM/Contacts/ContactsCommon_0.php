@@ -659,15 +659,17 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 	
 	public static function get_html_record_info($created_by,$created_on,$edited_by=null,$edited_on=null) {
-		$contact = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact_by_user_id($created_by),true);
-		if ($contact!='') $created_by = $contact;
-		else $created_by = Base_UserCommon::get_user_login($created_by);
+		if ($created_by!==null) {
+			$contact = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact_by_user_id($created_by),true);
+			if ($contact!='') $created_by = $contact;
+			else $created_by = Base_UserCommon::get_user_login($created_by);
+		} else $created_by = '';
 		// If the record was edited get user contact info
 		if ($edited_by!=null) {
 			if ($edited_by!=$created_by) $contact = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact_by_user_id($edited_by),true);
 			if ($contact!='') $edited_by = $contact;
 			else $edited_by = Base_UserCommon::get_user_login($edited_by);
-			}
+		}
 			
 		$htmlinfo=array(
 			'Created by:'=>$created_by,
