@@ -171,6 +171,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 	}
 
 	public function view_event($action, $id=null, $timeless=false){
+		$this->help('Calendar Help','main');
 		if($this->is_back()) return false;
 
 		$recurrence = strpos($id,'_');

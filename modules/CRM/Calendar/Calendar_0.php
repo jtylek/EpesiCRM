@@ -11,6 +11,9 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_Calendar extends Module {
 	public function body() {
+		$ev_mod = $this->init_module('CRM/Calendar/Event');
+		$ev_mod->help('Calendar Help','main');
+
 		CRM_CalendarCommon::$trash = $this->get_module_variable('trash',0);
 		
 		if(CRM_CalendarCommon::$trash) {
@@ -56,7 +59,6 @@ class CRM_Calendar extends Module {
 			if (isset($view)) {
 				$pdf = $this->pack_module('Libs/TCPDF', 'L');
 				if ($pdf->prepare()) {
-					$ev_mod = $this->init_module('CRM/Calendar/Event');
 					$start = date('d F Y',Base_RegionalSettingsCommon::reg2time($events['start']));
 					$end = date('d F Y',Base_RegionalSettingsCommon::reg2time($events['end']));
 					$pdf->set_title($this->t($view).', '.$start.($view_type!='Day'?' - '.$end:''));
