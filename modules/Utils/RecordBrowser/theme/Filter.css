@@ -65,7 +65,7 @@
 .Utils_RecordBrowser__Filter .buttons input,
 #Utils_RecordBrowser__Filter .buttons input {
     color: #FFFFFF;
-    background-image: url('images/button.gif');
+    background-image: url('../../images/button.gif');
     width: 100px;
     height: 20px;
     border: 0px;
@@ -75,7 +75,7 @@
 #Utils_RecordBrowser__Filter .buttons_disabled input {
     color: #FFFFFF;
     background-color: #336699;
-    background-image: url('images/header-gray.png');
+    background-image: url('../../images/header-gray.png');
     width: 100px;
     height: 20px;
     border: 0px;
@@ -83,5 +83,5 @@
 
 .Utils_RecordBrowser__Filter .buttons input:hover,
 #Utils_RecordBrowser__Filter .buttons input:hover {
-    background-image: url('images/button-hover.gif');
+    background-image: url('../../images/button-hover.gif');
 }

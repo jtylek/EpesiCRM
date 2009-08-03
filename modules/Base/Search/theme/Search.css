@@ -5,7 +5,7 @@ table#Base_Search__Search span.error {
 table#Base_Search__Search td.header_tail {
 	color: #FFFFFF;
 	background-color: #336699;
-	background-image: url("images/header-blue.gif");
+	background-image: url("../../images/header-blue.gif");
 	background-repeat: repeat-x;
 	font-weight: bold;
 	width: 200px;
@@ -43,7 +43,7 @@ table#Base_Search__Search input.mini_submit {
 	color: #FFFFFF;
 	width: 100px;
 	height: 20px;
-    background-image: url('images/button-search.gif');
+    background-image: url('../../images/button-search.gif');
 	font-size: 11px;
 	border: none;
 	display: block;
@@ -52,7 +52,7 @@ table#Base_Search__Search input.mini_submit {
 }
 
 table#Base_Search__Search input.mini_submit:hover {
-    background-image: url('images/button-search-hover.gif');
+    background-image: url('../../images/button-search-hover.gif');
 }
 
 table#Base_Search__Search input.submit {
@@ -60,12 +60,12 @@ table#Base_Search__Search input.submit {
 	border: 0px;
 	width: 100px;
 	height: 20px;
-    background-image: url('images/button-search.gif');
+    background-image: url('../../images/button-search.gif');
 	font-size: 11px;
 }
 
 table#Base_Search__Search input.submit:hover {
-    background-image: url('images/button-search-hover.gif');
+    background-image: url('../../images/button-search-hover.gif');
 }
 
 table#Base_Search__Search .label {

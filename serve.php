@@ -45,7 +45,7 @@ if (isset($_GET['f'])) {
 		$cache_dir = DATA_DIR.'/cache/minify';
 		if(!file_exists($cache_dir))
 			mkdir($cache_dir,0777,true);
-	    Minify::useServerCache($cache_dir);
+		Minify::setCache($cache_dir);
         
 	    // The Files controller can serve an array of files, but here we just
 		// need one.

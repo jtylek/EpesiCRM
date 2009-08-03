@@ -106,11 +106,11 @@ table#Utils_GenericBrowser tr:hover .row-desc {
 .Utils_RecordBrowser_Reports__date_picker .button input {
     border: none;
     color: white;
-    background-image: url("images/button.gif");
+    background-image: url("../../images/button.gif");
     width: 100px;
     height: 20px;
 }
 
 .Utils_RecordBrowser_Reports__date_picker .button input:hover {
-    background-image: url("images/button-hover.gif");
+    background-image: url("../../images/button-hover.gif");
 }

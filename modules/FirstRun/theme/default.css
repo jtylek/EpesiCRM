@@ -29,12 +29,12 @@ body#FirstRun {
     line-height: 20px;
     display: block;
     width: 100px;
-    background-image: url("images/button.gif");
+    background-image: url("../images/button.gif");
     text-align: center;
 }
 
 #FirstRun a.button:hover {
-    background-image: url("images/button-hover.gif");
+    background-image: url("../images/button-hover.gif");
 }
 
 #FirstRun .header {
@@ -62,14 +62,14 @@ body#FirstRun {
 }
 
 #FirstRun #banner .image {
-    background-image: url("images/logo-small.gif");
+    background-image: url("../images/logo-small.gif");
     background-repeat: repeat-x;
     width: 193px;
     height: 68px;
 }
 
 #FirstRun #banner .back {
-    background-image: url("images/banner-background.png");
+    background-image: url("../images/banner-background.png");
 
 }
 

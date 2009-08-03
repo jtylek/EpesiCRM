@@ -142,7 +142,8 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=8" />
 <?php
-	require_once('libs/minify/Minify/Build.php');
+	ini_set('include_path','libs/minify'.PATH_SEPARATOR.'.'.PATH_SEPARATOR.'libs'.PATH_SEPARATOR.ini_get('include_path'));
+	require_once('Minify/Build.php');
 	$jses = array('libs/prototype.js','libs/HistoryKeeper.js','include/epesi.js');
 	$jsses_build = new Minify_Build($jses);
 	$jsses_src = $jsses_build->uri('serve.php?'.http_build_query(array('f'=>array_values($jses))));

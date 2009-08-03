@@ -2,7 +2,7 @@
 .Filters_header {
 	color: #FFFFFF;
 	background-color: #336699;
-	background-image: url("images/header-blue.gif");
+	background-image: url("../../images/header-blue.gif");
 	background-repeat: repeat-x;
 	height: 20px;
 	text-align: center;
@@ -48,13 +48,13 @@ table#CRM_Filters .big-button {
 	display: block;
 	cursor: pointer;
 	height: 70px;
-	background-image: url("images/big-button.png");
+	background-image: url("../../images/big-button.png");
 	padding-top: 10px;
 }
 
 table#CRM_Filters .big-button:hover {
 	background-color: #FFFFFF;
-	background-image: url("images/big-button-hover.png");
+	background-image: url("../../images/big-button-hover.png");
 }
 
 table#CRM_Filters a .big-button {

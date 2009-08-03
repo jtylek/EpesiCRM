@@ -13,7 +13,7 @@
     padding-bottom: 2px;
     vertical-align: top;
     background-color: #666666;
-    background-image: url('images/dark-gray.gif');
+    background-image: url('../../images/dark-gray.gif');
 }
 
 #Browsing_records .icon img {
@@ -30,7 +30,7 @@
     padding-top: 7px;
     height: 24px;
     vertical-align: top;
-    background-image: url('images/dark-gray-gradient.gif');
+    background-image: url('../../images/dark-gray-gradient.gif');
     background-repeat: repeat-y;
 }
 
@@ -43,13 +43,13 @@
     float: right;
     width: 100px;
     height: 20px;
-    background-image: url('images/header-blue.gif');
+    background-image: url('../../images/header-blue.gif');
     margin-right: 20px;
     cursor: pointer;
 }
 
 #Browsing_records .filters_button:hover {
-    background-image: url('images/header-blue-hover.gif');
+    background-image: url('../../images/header-blue-hover.gif');
 }
 
 #Browsing_records .filters_button #filters_button_text {
@@ -72,17 +72,17 @@
 }
 
 #Browsing_records .filters_button #filters_button_icon_up {
-    background-image: url('images/roll-up.png');
+    background-image: url('../../images/roll-up.png');
 }
 
 #Browsing_records .filters_button:hover #filters_button_icon_up {
-    background-image: url('images/roll-up-hover.png');
+    background-image: url('../../images/roll-up-hover.png');
 }
 
 #Browsing_records .filters_button #filters_button_icon_down {
-    background-image: url('images/roll-down.png');
+    background-image: url('../../images/roll-down.png');
 }
 
 #Browsing_records .filters_button:hover #filters_button_icon_down {
-    background-image: url('images/roll-down-hover.png');
+    background-image: url('../../images/roll-down-hover.png');
 }

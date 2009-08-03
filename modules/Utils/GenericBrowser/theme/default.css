@@ -35,14 +35,14 @@
     width: 100px;
     height: 20px;
     border: none;
-    background-image: url('images/button-search.gif');
+    background-image: url('../../images/button-search.gif');
     vertical-align: middle;
     color: white;
     background-color: transparent;
 }
 
 .Utils_GenericBrowser__search .submit input:hover {
-    background-image: url('images/button-search-hover.gif');
+    background-image: url('../../images/button-search-hover.gif');
 }
 
 .Utils_GenericBrowser__search .advanced {
@@ -51,11 +51,11 @@
 
 .Utils_GenericBrowser__search .advanced a.button {
     width: 150px;
-    background-image: url('images/button-long.gif');
+    background-image: url('../../images/button-long.gif');
 }
 
 .Utils_GenericBrowser__search .advanced a.button:hover {
-    background-image: url('images/button-long-hover.gif');
+    background-image: url('../../images/button-long-hover.gif');
 }
 /* */
 
@@ -76,7 +76,7 @@ table#Utils_GenericBrowser a.button {
 
 table#Utils_GenericBrowser th {
     background-color: #336699;
-    background-image: url("images/header-blue.gif");
+    background-image: url("../../images/header-blue.gif");
     font-weight: normal;
     background-repeat: repeat-x;
     text-align: center;
@@ -108,7 +108,7 @@ table#Utils_GenericBrowser th a {
 }
 
 table#Utils_GenericBrowser th a:hover {
-    background-image: url('images/header-blue-hover.gif');
+    background-image: url('../../images/header-blue-hover.gif');
     background-repeat: repeat-x;
 }
 
@@ -202,14 +202,14 @@ table#Utils_GenericBrowser__navigation img {
 
 #letters-search .letters a                { color: #FFFFFF; }
 #letters-search .letters a span           { color: #FFFFFF; }
-#letters-search .letters a.letter         { background-image: url('images/char-back.png'); }
-#letters-search .letters a.letter:hover   { background-image: url('images/char-back-hover.png'); }
-#letters-search .letters a.all            { background-image: url('images/all-back.png'); }
-#letters-search .letters a.all:hover      { background-image: url('images/all-back-hover.png'); }
+#letters-search .letters a.letter         { background-image: url('../../images/char-back.png'); }
+#letters-search .letters a.letter:hover   { background-image: url('../../images/char-back-hover.png'); }
+#letters-search .letters a.all            { background-image: url('../../images/all-back.png'); }
+#letters-search .letters a.all:hover      { background-image: url('../../images/all-back-hover.png'); }
 
 #letters-search .letters span             { color: #336699; }
-#letters-search .letters span.letter      { background-image: url('images/char-back-sel.png'); }
-#letters-search .letters span.all         { background-image: url('images/all-back-sel.png'); }
+#letters-search .letters span.letter      { background-image: url('../../images/char-back-sel.png'); }
+#letters-search .letters span.all         { background-image: url('../../images/all-back-sel.png'); }
 
 /* */
 
@@ -231,14 +231,14 @@ table#Utils_GenericBrowser__navigation img {
     padding-left: 5px;
     padding-right: 5px;*/
     color: white;
-    background-image: url('images/button-small.gif');
+    background-image: url('../../images/button-small.gif');
     background-repeat: repeat-x;
     cursor: pointer;
     float: left;
 }
 
 #letters-search .letters .abc:hover {
-    background-image: url('images/button-small-hover.gif');
+    background-image: url('../../images/button-small-hover.gif');
 }
 
 

@@ -4,7 +4,7 @@
 	vertical-align: middle;
 	color: #FFFFFF;
 	background-color: #336699;
-	background-image: url("images/header-blue.gif");
+	background-image: url("../../images/header-blue.gif");
 	background-repeat: repeat-x;
 	height: 20px;
 	border: 0px;
@@ -53,12 +53,12 @@
 	border: 0px;
 	padding-left: 20px;
 	padding-right: 20px;
-	background-image: url("images/button.gif");
+	background-image: url("../../images/button.gif");
 	width: 100px;
 }
 
 #quickform .element_submit input:hover, .element_button input:hover {
-	background-image: url("images/button-hover.gif");
+	background-image: url("../../images/button-hover.gif");
 }
 
 /* checkbox and radio */
@@ -75,10 +75,10 @@
 	float: left;
 }
 
-.checkbox_on  { background-image: url('images/checkbox_on.png');  }
-.checkbox_off { background-image: url('images/checkbox_off.png'); }
-.radio_on     { background-image: url('images/radio_on.png');     }
-.radio_off    { background-image: url('images/radio_off.png');    }
+.checkbox_on  { background-image: url('../../images/checkbox_on.png');  }
+.checkbox_off { background-image: url('../../images/checkbox_off.png'); }
+.radio_on     { background-image: url('../../images/radio_on.png');     }
+.radio_off    { background-image: url('../../images/radio_off.png');    }
 
 /*** multiselect ***/
 
@@ -124,19 +124,19 @@
     width: 50px;
     height: 20px;
     background-color: transparent;
-    background-image: url('images/button-small.gif');
+    background-image: url('../../images/button-small.gif');
     color: #FFFFFF;
     border: none;
 }
 
 #multiselect .buttons .button input:hover {
     background-color: transparent;
-    background-image: url('images/button-small-hover.gif');
+    background-image: url('../../images/button-small-hover.gif');
 }
 
 #multiselect .buttons .button input:focus {
     background-color: transparent;
-    background-image: url('images/button-small-hover.gif');
+    background-image: url('../../images/button-small-hover.gif');
 }
 
 /*** automulti ***/
@@ -184,24 +184,24 @@
 
 #automulti .enabled input {
     background-color: transparent;
-    background-image: url('images/button-small.gif');
+    background-image: url('../../images/button-small.gif');
     background-repeat: no-repeat;
 }
 
 #automulti .disabled input {
     background-color: transparent;
-    background-image: url(images/button-small-disabled.gif);
+    background-image: url(../../images/button-small-disabled.gif);
     background-repeat: no-repeat;
 }
 
 #automulti .enabled input:hover {
     background-color: transparent;
-    background-image: url('images/button-small-hover.gif');
+    background-image: url('../../images/button-small-hover.gif');
     background-repeat: no-repeat;
 }
 
 #automulti .enabled input:focus {
     background-color: transparent;
-    background-image: url('images/button-small-hover.gif');
+    background-image: url('../../images/button-small-hover.gif');
     background-repeat: no-repeat;
 }

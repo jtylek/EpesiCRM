@@ -12,7 +12,7 @@ defined("_VALID_ACCESS") || define("_VALID_ACCESS", true);
 umask(0022);
 
 chdir(dirname(__FILE__));
-//ini_set('include_path','');
+require_once('include/include_path.php');
 require_once('include/data_dir.php');
 require_once('include/config.php');
 require_once('include/epesi.php');

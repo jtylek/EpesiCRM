@@ -8,7 +8,7 @@ table#Apps_Gallery td.images {
 }
 
 table#Apps_Gallery .path {
-	background-image: url("images/header-blue.gif");
+	background-image: url("../../images/header-blue.gif");
 	color: #FFFFFF;
 	background-repeat: repeat-x;
 	height: 20px;
@@ -92,7 +92,7 @@ table#Apps_Gallery__form td.header_tail span.header {
 	text-align: center;
 	font-weight: bold;
 	background: #336699;
-	background-image: url("images/header-blue.gif");
+	background-image: url("../../images/header-blue.gif");
 	color: #FFFFFF;
 	background-repeat: repeat-x;
 	border: 1px solid #B3B3B3;
@@ -104,11 +104,11 @@ table#Apps_Gallery__form td.button input {
 	border: 0px;
 	width: 100px;
 	height: 20px;
-	background-image: url("images/header-blue.gif");
+	background-image: url("../../images/header-blue.gif");
 	border: 0px;
 	font-size: 11px;
 }
 
 table#Apps_Gallery__form td.button input:hover {
-	background-image: url("images/header-blue-hover.gif");
+	background-image: url("../../images/header-blue-hover.gif");
 }
