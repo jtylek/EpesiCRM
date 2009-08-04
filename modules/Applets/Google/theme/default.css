@@ -15,7 +15,7 @@
 
 #google .button {
     border: none;
-    background-image: url('../../images/button.gif');
+    background-image: url('images/button.gif');
     color: #ffffff;
     text-align: center;
     width: 100px;
@@ -23,5 +23,5 @@
 }
 
 #google .button:hover {
-    background-image: url('../../images/button-hover.gif');
+    background-image: url('images/button-hover.gif');
 }

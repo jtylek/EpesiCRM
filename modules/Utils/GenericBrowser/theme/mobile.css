@@ -6,7 +6,7 @@ table#Utils_GenericBrowser {
 
 table#Utils_GenericBrowser th {
     background-color: #336699;
-    background-image: url("../../images/header-blue.gif");
+    background-image: url("images/header-blue.gif");
     font-weight: normal;
     background-repeat: repeat-x;
     text-align: center;
@@ -28,7 +28,7 @@ table#Utils_GenericBrowser th a {
 }
 
 table#Utils_GenericBrowser th a:hover {
-    background-image: url('../../images/header-blue-hover.gif');
+    background-image: url('images/header-blue-hover.gif');
     background-repeat: repeat-x;
 }
 

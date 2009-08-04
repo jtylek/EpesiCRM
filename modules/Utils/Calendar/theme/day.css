@@ -28,7 +28,7 @@
 	height: 50px;
 	text-align: center;
 	background-color: #B3B3B3;
-	background-image: url('../../images/day-header.png');
+	background-image: url('images/day-header.png');
 	background-repeat: repeat-x;
 	padding-left: 5px;
 	padding-right: 5px;
@@ -44,7 +44,7 @@
 	height: 50px;
 	text-align: center;
 	background-color: #B3B3B3;
-	background-image: url('../../images/day-header-weekend.png');
+	background-image: url('images/day-header-weekend.png');
 	background-repeat: repeat-x;
 	padding-left: 5px;
 	padding-right: 5px;
@@ -61,7 +61,7 @@
 	text-align: center;
 	vertical-align: middle;
 	background-color: #336699;
-	background-image: url('../../images/header-blue-30px.png');
+	background-image: url('images/header-blue-30px.png');
 	background-repeat: repeat-x;
 	height: 30px;
 	padding-left: 10px;
@@ -208,13 +208,13 @@ div.day-menu a.button {
     line-height: 20px;
     height: 20px;
     display: block;
-    background-image: url('../../images/button.gif');
+    background-image: url('images/button.gif');
     border: 0px;
     text-align: center;
 }
 
 div.day-menu a.button:hover {
-	background-image: url('../../images/button-hover.gif');
+	background-image: url('images/button-hover.gif');
 }
 
 /* trash */

@@ -86,7 +86,7 @@
     padding-bottom: 2px;
     vertical-align: top;
     background-color: #666666;
-    background-image: url('../../images/dark-gray.gif');
+    background-image: url('images/dark-gray.gif');
 }
 
 .CRM_Contacts__table .arrow {
@@ -95,7 +95,7 @@
     vertical-align: top;
     text-align: center;
     background-color: #666666;
-    background-image: url('../../images/dark-gray.gif');
+    background-image: url('images/dark-gray.gif');
 }
 
 .CRM_Contacts__table .arrow a {
@@ -125,7 +125,7 @@
     padding-top: 7px;
     height: 24px;
     vertical-align: top;
-    background-image: url('../../images/dark-gray-gradient.gif');
+    background-image: url('images/dark-gray-gradient.gif');
     background-repeat: repeat-y;
 }
 

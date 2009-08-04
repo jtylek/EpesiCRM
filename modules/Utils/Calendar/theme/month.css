@@ -95,7 +95,7 @@ table#Utils_Calendar__month td.day_header {
 	height: 30px;
 	vertical-align: middle;
 	background-color: #336699;
-	background-image: url('../../images/header-gray-30px.png');
+	background-image: url('images/header-gray-30px.png');
 	background-repeat: repeat-x;
 	padding-left: 5px;
 	border-left: 1px solid #FFFFFF;
@@ -110,8 +110,8 @@ table#Utils_Calendar__month td.weekend_day_header {
 	height: 30px;
 	vertical-align: middle;
 	background-color: #336699;
-	background-image: url('../../images/day-header-weekend.png');
-	/* background-image: url('../../images/header-green-30px.png'); */
+	background-image: url('images/day-header-weekend.png');
+	/* background-image: url('images/header-green-30px.png'); */
 	background-repeat: repeat-x;
 	padding-left: 5px;
 	border-left: 1px solid #FFFFFF;
@@ -191,7 +191,7 @@ table#Utils_Calendar__month .month-header {
 	color: #FFFFFF;
 	vertical-align: middle;
 	background-color: #336699;
-	background-image: url('../../images/header-blue-30px.png');
+	background-image: url('images/header-blue-30px.png');
 	background-repeat: repeat-x;
 	height: 30px;
 	padding-left: 10px;
@@ -240,13 +240,13 @@ table#Utils_Calendar__month .month-header a:hover {
     width: 100px;
     line-height: 20px;
     display: block;
-    background-image: url('../../images/button.gif');
+    background-image: url('images/button.gif');
     border: 0px;
     text-align: center;
 }
 
 #month-menu a.button:hover {
-	background-image: url('../../images/button-hover.gif');
+	background-image: url('images/button-hover.gif');
 }
 
 /* trash */

@@ -4,7 +4,7 @@ table#Apps_Forum__New_Thread {
 
 table#Apps_Forum__New_Thread td.header {
 	color: #FFFFFF;
-	background-image: url("../../images/header-blue.gif");
+	background-image: url("images/header-blue.gif");
 	background-repeat: repeat-x;
 	height: 20px;
 	text-align: center;
@@ -51,10 +51,10 @@ table#Apps_Forum__New_Thread td.submit input {
 	height: 20px;
 	text-align: center;
 	vertical-align: middle;
-	background-image: url("../../images/header-blue.gif");
+	background-image: url("images/header-blue.gif");
 	font-size: 11px;
 }
 
 table#Apps_Forum__New_Thread td.submit input:hover {
-	background-image: url("../../images/header-blue-hover.gif");
+	background-image: url("images/header-blue-hover.gif");
 }

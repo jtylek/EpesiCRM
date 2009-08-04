@@ -250,7 +250,7 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
 	width: 120px;
 	height: 20px;
 	background-color: #336699;
-	background-image: url('../../images/header-blue.gif');
+	background-image: url('images/header-blue.gif');
 	background-repeat: repeat-x;
 	color: white;
 	cursor: pointer;
@@ -260,7 +260,7 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
 }
 
 .AdditionalInfoButton:hover {
-	background-image: url('../../images/header-blue-hover.gif');
+	background-image: url('images/header-blue-hover.gif');
 }
 
 .AdditionalInfoButton img {
@@ -286,7 +286,7 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
     padding-bottom: 2px;
     vertical-align: top;
     background-color: #666666;
-    background-image: url('../../images/dark-gray.gif');
+    background-image: url('images/dark-gray.gif');
 }
 
 .CRM_Tasks__table .arrow {
@@ -295,7 +295,7 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
     vertical-align: top;
     text-align: center;
     background-color: #666666;
-    background-image: url('../../images/dark-gray.gif');
+    background-image: url('images/dark-gray.gif');
 }
 
 .CRM_Tasks__table .arrow a {
@@ -325,7 +325,7 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
     padding-top: 7px;
     height: 24px;
     vertical-align: top;
-    background-image: url('../../images/dark-gray-gradient.gif');
+    background-image: url('images/dark-gray-gradient.gif');
     background-repeat: repeat-y;
 }
 

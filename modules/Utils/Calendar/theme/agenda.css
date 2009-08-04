@@ -115,7 +115,7 @@ div.events_brief {
 }
 
 #Utils_Calendar__agenda .button input {
-	background-image: url('../../images/button.gif');
+	background-image: url('images/button.gif');
 	background-repeat: repeat-x;
 	color: #FFFFFF;
 	border: none;
@@ -124,7 +124,7 @@ div.events_brief {
 }
 
 #Utils_Calendar__agenda .button input:hover {
-	background-image: url('../../images/button-hover.gif');
+	background-image: url('images/button-hover.gif');
 }
 
 #Utils_Calendar__agenda .label {
@@ -138,7 +138,7 @@ div.events_brief {
 
 #Utils_Calendar__agenda .data {
 	/*background-color: #336699;*/
-	/*background-image: url('../../images/header-blue.gif');*/
+	/*background-image: url('images/header-blue.gif');*/
 	background-repeat: repeat-x;
 	/*border: 1px solid #B3B3B3;*/
 	/*height: 20px;
@@ -165,7 +165,7 @@ div.events_brief {
 	color: #FFFFFF;
 	/* background-color: #339933; */
 	background-color: transparent;
-	background-image: url('../../images/button.gif');
+	background-image: url('images/button.gif');
 	width: 100px;
     height: 20px;
 	display: block;
@@ -174,5 +174,5 @@ div.events_brief {
 }
 
 #Utils_Calendar__agenda .data a.button:hover {
-	background-image: url('../../images/button-hover.gif');
+	background-image: url('images/button-hover.gif');
 }

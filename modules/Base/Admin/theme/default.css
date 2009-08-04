@@ -6,7 +6,7 @@ table#Base_Admin .big-button {
 	height: 60px;
 	background-color: #F0F0F0;
 	border: 1px solid #FFFFFF;
-	background-image: url("../../images/big-button.png");
+	background-image: url("images/big-button.png");
 	background-repeat: repeat-x;
 	vertical-align: middle;
 	text-align: left;
@@ -38,7 +38,7 @@ table#Base_Admin .big-button .bb_text {
 table#Base_Admin .big-button:hover {
 	color: #993333;
 	background-color: #FFFFFF;
-	background-image: url("../../images/big-button-hover.png");
+	background-image: url("images/big-button-hover.png");
 	background-repeat: repeat-x;
 }
 
@@ -54,7 +54,7 @@ table#Base_Admin a:hover {
 table#Base_Admin .header {
 	color: #FFFFFF;
 	background-color: #336699;
-	background-image: url("../../images/header-blue.gif");
+	background-image: url("images/header-blue.gif");
 	background-repeat: repeat-x;
 	height: 20px;
 	text-align: center;

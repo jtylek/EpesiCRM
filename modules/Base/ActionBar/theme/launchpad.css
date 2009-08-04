@@ -6,7 +6,7 @@ table#Base_ActionBar .big-button {
 	height: 60px;
 	background-color: #F0F0F0;
 	border: 1px solid #FFFFFF;
-	background-image: url("../../images/big-button.png");
+	background-image: url("images/big-button.png");
 	background-repeat: repeat-x;
 	vertical-align: middle;
 	text-align: center;
@@ -20,7 +20,7 @@ table#Base_ActionBar .big-button {
 
 table#Base_ActionBar .big-button:hover {
 	background-color: #FFFFFF;
-	background-image: url("../../images/big-button-hover.png");
+	background-image: url("images/big-button-hover.png");
 	background-repeat: repeat-x;
 	color: #993333;
 }

@@ -50,33 +50,33 @@
 	color: #FFFFFF;
 	font-weight: bold;
 	height: 20px;
-	background-image: url('../../images/header-gray-dark.png');
+	background-image: url('images/header-gray-dark.png');
 }
 
 /* header colors */
 
-#dashboard .black			{ background-image: url('../../images/header-black.png'); }
-#dashboard .blue			{ background-image: url('../../images/header-blue.gif'); }
-#dashboard .dark-blue		{ background-image: url('../../images/header-blue-dark.png'); }
-#dashboard .dark-gray		{ background-image: url('../../images/header-gray-dark.png'); }
-#dashboard .green			{ background-image: url('../../images/header-green.png'); }
-#dashboard .dark-green		{ background-image: url('../../images/header-green-dark.png'); }
-#dashboard .red				{ background-image: url('../../images/header-red.png'); }
-#dashboard .dark-red		{ background-image: url('../../images/header-red-dark.png'); }
-#dashboard .yellow			{ background-image: url('../../images/header-yellow.png'); }
-#dashboard .dark-yellow		{ background-image: url('../../images/header-yellow-dark.png'); }
+#dashboard .black			{ background-image: url('images/header-black.png'); }
+#dashboard .blue			{ background-image: url('images/header-blue.gif'); }
+#dashboard .dark-blue		{ background-image: url('images/header-blue-dark.png'); }
+#dashboard .dark-gray		{ background-image: url('images/header-gray-dark.png'); }
+#dashboard .green			{ background-image: url('images/header-green.png'); }
+#dashboard .dark-green		{ background-image: url('images/header-green-dark.png'); }
+#dashboard .red				{ background-image: url('images/header-red.png'); }
+#dashboard .dark-red		{ background-image: url('images/header-red-dark.png'); }
+#dashboard .yellow			{ background-image: url('images/header-yellow.png'); }
+#dashboard .dark-yellow		{ background-image: url('images/header-yellow-dark.png'); }
 
 /*
   not in use
 
-#dashboard .blue-light		{ background-image: url('../../images/header-blue-light.png'); }
-#dashboard .cyan-light		{ background-image: url('../../images/header-cyan-light.png'); }
-#dashboard .gray			{ background-image: url('../../images/header-gray.png'); }
-#dashboard .gray-light		{ background-image: url('../../images/header-gray-light.png'); }
-#dashboard .green-light		{ background-image: url('../../images/header-green-light.png'); }
-#dashboard .magenta-light	{ background-image: url('../../images/header-magenta-light.png'); }
-#dashboard .red-light		{ background-image: url('../../images/header-red-light.png'); }
-#dashboard .yellow-light	{ background-image: url('../../images/header-yellow-light.png'); }
+#dashboard .blue-light		{ background-image: url('images/header-blue-light.png'); }
+#dashboard .cyan-light		{ background-image: url('images/header-cyan-light.png'); }
+#dashboard .gray			{ background-image: url('images/header-gray.png'); }
+#dashboard .gray-light		{ background-image: url('images/header-gray-light.png'); }
+#dashboard .green-light		{ background-image: url('images/header-green-light.png'); }
+#dashboard .magenta-light	{ background-image: url('images/header-magenta-light.png'); }
+#dashboard .red-light		{ background-image: url('images/header-red-light.png'); }
+#dashboard .yellow-light	{ background-image: url('images/header-yellow-light.png'); }
 */
 
 /* no shadow in tables */

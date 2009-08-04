@@ -79,7 +79,7 @@
 #Utils_PopupCalendar table.small td.daysHeader {
 	color: #FFFFFF;
 	background-color: #336699;
-	background-image: url('../../images/header-blue.gif');
+	background-image: url('images/header-blue.gif');
 	background-repeat: repeat-x;
 	border-bottom: #336699;
 	height: 20px;

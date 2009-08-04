@@ -85,7 +85,7 @@
 .event_blue {
 	border: 1px solid #336699;
 	background-color: #cfdbe6;
-	background-image: url('../../images/header-blue-light.png');
+	background-image: url('images/header-blue-light.png');
 }
 
 .event_blue #event_grab,
@@ -95,7 +95,7 @@
 
 .event_blue #event_title a:hover {
     color: #336699;
-    background-image: url('../../images/header-blue-light-hover.png');
+    background-image: url('images/header-blue-light-hover.png');
 }
 
 /* red */
@@ -103,7 +103,7 @@
 .event_red {
 	border: 1px solid #993333;
 	background-color: #e6cfcf;
-	background-image: url('../../images/header-red-light.png');
+	background-image: url('images/header-red-light.png');
 }
 
 .event_red #event_grab,
@@ -113,7 +113,7 @@
 
 .event_red #event_title a:hover {
     color: #993333;
-    background-image: url('../../images/header-red-light-hover.png');
+    background-image: url('images/header-red-light-hover.png');
 }
 
 /* yellow */
@@ -121,7 +121,7 @@
 .event_yellow {
 	border: 1px solid #999933;
 	background-color: #ffffa5;
-	background-image: url('../../images/header-yellow-light.png');
+	background-image: url('images/header-yellow-light.png');
 }
 
 .event_yellow #event_grab,
@@ -131,7 +131,7 @@
 
 .event_yellow #event_title a:hover {
     color: #999933;
-    background-image: url('../../images/header-yellow-light-hover.png');
+    background-image: url('images/header-yellow-light-hover.png');
 }
 
 /* green */
@@ -139,7 +139,7 @@
 .event_green {
 	border: 1px solid #339933;
 	background-color: #cfe6cf;
-	background-image: url('../../images/header-green-light.png');
+	background-image: url('images/header-green-light.png');
 }
 
 .event_green #event_grab,
@@ -149,7 +149,7 @@
 
 .event_green #event_title a:hover {
     color: #339933;
-    background-image: url('../../images/header-green-light-hover.png');
+    background-image: url('images/header-green-light-hover.png');
 }
 
 /* gray */
@@ -157,7 +157,7 @@
 .event_gray {
 	border: 1px solid #808080;
 	background-color: #f0f0f0;
-	background-image: url('../../images/header-gray-light.png');
+	background-image: url('images/header-gray-light.png');
 }
 
 .event_gray #event_grab,
@@ -167,7 +167,7 @@
 
 .event_gray #event_title a:hover {
     color: #808080;
-    background-image: url('../../images/header-gray-light-hover.png');
+    background-image: url('images/header-gray-light-hover.png');
 }
 
 /* cyan */
@@ -175,7 +175,7 @@
 .event_cyan {
 	border: 1px solid #339999;
 	background-color: #cfe6e6;
-	background-image: url('../../images/header-cyan-light.png');
+	background-image: url('images/header-cyan-light.png');
 }
 
 .event_cyan #event_grab,
@@ -185,7 +185,7 @@
 
 .event_cyan #event_title a:hover {
     color: #339999;
-    background-image: url('../../images/header-cyan-light-hover.png');
+    background-image: url('images/header-cyan-light-hover.png');
 }
 
 /* magenta */
@@ -193,7 +193,7 @@
 .event_magenta {
 	border: 1px solid #993399;
 	background-color: #e6cfe6;
-	background-image: url('../../images/header-magenta-light.png');
+	background-image: url('images/header-magenta-light.png');
 }
 
 .event_magenta #event_grab,
@@ -203,5 +203,5 @@
 
 .event_magenta #event_title a:hover {
     color: #993399;
-    background-image: url('../../images/header-magenta-light-hover.png');
+    background-image: url('images/header-magenta-light-hover.png');
 }

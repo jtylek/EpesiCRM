@@ -7,19 +7,19 @@
 #calc .key {
     /*width: 34px;
     height: 24px;
-    background-image: url('../../images/header-blue.gif');
+    background-image: url('images/header-blue.gif');
     border: 2px solid #FFFFFF;*/
     color: #ffffff;
     width: 50px;
     height: 20px;
-    background-image: url('../../images/button-small.gif');
+    background-image: url('images/button-small.gif');
     border: none;
     margin: 2px;
 }
 
 #calc input:hover.key {
-    /*background-image: url('../../images/header-blue-hover.gif');*/
-    background-image: url('../../images/button-small-hover.gif');
+    /*background-image: url('images/header-blue-hover.gif');*/
+    background-image: url('images/button-small-hover.gif');
 }
 
 #calc .text {

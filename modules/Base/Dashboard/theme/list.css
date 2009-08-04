@@ -3,7 +3,7 @@ table#Base_Dashboard .big-button {
 	height: 80px;
 	background-color: #F0F0F0;
 	border: 1px solid #FFFFFF;
-	background-image: url("../../images/big-button.png");
+	background-image: url("images/big-button.png");
 	background-repeat: repeat-x;
 	font-size: 11px;
 	display: block;
@@ -19,7 +19,7 @@ table#Base_Dashboard .big-button table {
 
 table#Base_Dashboard .big-button:hover {
 	background-color: #FFFFFF;
-	background-image: url("../../images/big-button-hover.png");
+	background-image: url("images/big-button-hover.png");
 	background-repeat: repeat-x;
 }
 
@@ -56,7 +56,7 @@ table#Base_Dashboard a:hover .bb_text {
 table#Base_Dashboard .header {
 	color: #FFFFFF;
 	background-color: #336699;
-	background-image: url("../../images/header-blue.gif");
+	background-image: url("images/header-blue.gif");
 	background-repeat: repeat-x;
 	height: 20px;
 	text-align: center;

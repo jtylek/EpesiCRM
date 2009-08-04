@@ -8,7 +8,7 @@
     padding-top: 7px;
     height: 24px;
     vertical-align: top;
-    background-image: url('../../images/dark-gray-gradient.gif');
+    background-image: url('images/dark-gray-gradient.gif');
     background-repeat: repeat-y;
 }
 
@@ -53,14 +53,14 @@
 #shoutbox_button {
     color: #FFFFFF;
     background-color: #336699;
-    background-image: url('../../images/header-blue.gif');
+    background-image: url('images/header-blue.gif');
     background-repeat: repeat-x;
     border: 0px;
     padding: 1px 10px 1px 10px;
 }
 
 #shoutbox_button:hover {
-    background-image: url('../../images/header-blue-hover.gif');
+    background-image: url('images/header-blue-hover.gif');
 }
 
 #shoutbox_board .hr {

@@ -50,7 +50,8 @@ if (isset($_GET['f'])) {
 	    // The Files controller can serve an array of files, but here we just
 		// need one.
 		Minify::serve('Files', array('files' => $arr,
-					'setExpires' => time() + 86400 * 365
+					'setExpires' => time() + 86400 * 365,
+					'rewriteCssUris'=>false
 				    ));
 
     	exit();

@@ -140,12 +140,12 @@ div.mail_progressbar_in {
 	text-align: center;
 	vertical-align: middle;
 	color: white;
-	background-image: url('../../images/button.gif');
+	background-image: url('images/button.gif');
 	float: left;
 }
 
 #Apps_MailClient_new .buttons a:hover {
-	background-image: url('../../images/button-hover.gif');
+	background-image: url('images/button-hover.gif');
 }
 
 /* data */
@@ -223,7 +223,7 @@ div.mail_progressbar_in {
     padding-bottom: 2px;
     vertical-align: top;
     background-color: #666666;
-    background-image: url('../../images/dark-gray.gif');
+    background-image: url('images/dark-gray.gif');
 }
 
 .Apps_MailClient_header .arrow,
@@ -233,7 +233,7 @@ div.mail_progressbar_in {
     vertical-align: top;
     text-align: center;
     background-color: #666666;
-    background-image: url('../../images/dark-gray.gif');
+    background-image: url('images/dark-gray.gif');
 }
 
 .Apps_MailClient_header .arrow a,
@@ -267,7 +267,7 @@ div.mail_progressbar_in {
     padding-top: 7px;
     height: 24px;
     vertical-align: top;
-    background-image: url('../../images/dark-gray-gradient.gif');
+    background-image: url('images/dark-gray-gradient.gif');
     background-repeat: repeat-y;
 }
 

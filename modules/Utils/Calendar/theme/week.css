@@ -32,7 +32,7 @@
 	display: block;
 	font-weight: bold;
 	font-size: 14px;
-	background-image: url('../../images/day-header.png');
+	background-image: url('images/day-header.png');
 	background-repeat: repeat-x;
 	line-height: 50px;
 	padding-left: 5px;
@@ -40,7 +40,7 @@
 }
 
 #Utils_Calendar__week td.header_day_other a:hover {
-	background-image: url('../../images/day-header-hover.png');
+	background-image: url('images/day-header-hover.png');
 }
 
 /* header day other weekend */
@@ -58,7 +58,7 @@
 	color: #226630;
 	font-weight: bold;
 	font-size: 14px;
-	background-image: url('../../images/day-header-weekend.png');
+	background-image: url('images/day-header-weekend.png');
 	background-repeat: repeat-x;
 	line-height: 50px;
 	padding-left: 5px;
@@ -66,7 +66,7 @@
 }
 
 #Utils_Calendar__week td.header_day_other_weekend a:hover {
-	background-image: url('../../images/day-header-weekend-hover.png');
+	background-image: url('images/day-header-weekend-hover.png');
 }
 
 /* header day today */
@@ -85,7 +85,7 @@
 	font-weight: bold;
 	font-size: 14px;
 	background-color: #CFDAE6;
-	background-image: url('../../images/day-header-today.png');
+	background-image: url('images/day-header-today.png');
 	background-repeat: repeat-x;
 	line-height: 50px;
 	padding-left: 5px;
@@ -93,7 +93,7 @@
 }
 
 #Utils_Calendar__week td.header_day_today a:hover {
-	background-image: url('../../images/day-header-today-hover.png');
+	background-image: url('images/day-header-today-hover.png');
 }
 
 /* header day today weekend */
@@ -113,7 +113,7 @@
 	font-weight: bold;
 	font-size: 14px;
 	background-color: #CFDAE6;
-	background-image: url('../../images/day-header-weekend.png');
+	background-image: url('images/day-header-weekend.png');
 	background-repeat: repeat-x;
 	line-height: 50px;
 	padding-left: 5px;
@@ -121,7 +121,7 @@
 }
 
 #Utils_Calendar__week td.header_day_today_weekend a:hover {
-	background-image: url('../../images/day-header-weekend-hover.png');
+	background-image: url('images/day-header-weekend-hover.png');
 }
 
 /* header month */
@@ -130,7 +130,7 @@
 	color: #FFFFFF;
 	vertical-align: middle;
 	background-color: #336699;
-	background-image: url('../../images/header-blue-30px.png');
+	background-image: url('images/header-blue-30px.png');
 	background-repeat: repeat-x;
 	height: 30px;
 	border-right: 1px solid #FFFFFF;
@@ -262,13 +262,13 @@ div.week-menu a.button {
     width: 100px;
     line-height: 20px;
     display: block;
-	background-image: url('../../images/button.gif');
+	background-image: url('images/button.gif');
     border: 0px;
     text-align: center;
 }
 
 div.week-menu a.button:hover {
-    background-image: url('../../images/button-hover.gif');
+    background-image: url('images/button-hover.gif');
 }
 
 div.week-menu table.week-menu {
