@@ -171,12 +171,10 @@ class CRM_AssetsInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::set_favorites('crm_assets', true);
         Utils_RecordBrowserCommon::set_caption('crm_assets', 'Assets');
         Utils_RecordBrowserCommon::set_quickjump('crm_assets', 'Asset Name');
-    //        Utils_RecordBrowserCommon::set_icon('crm_assets', Base_ThemeCommon::get_template_filename('Custom/Projects', 'icon.png'));
+        Utils_RecordBrowserCommon::set_icon('crm_assets', Base_ThemeCommon::get_template_filename('CRM/Assets', 'icon.png'));
         Utils_RecordBrowserCommon::set_processing_callback('crm_assets', array('CRM_AssetsCommon', 'process_request'));
-    //        Utils_RecordBrowserCommon::set_access_callback('crm_assets', array('CRM_AssetsCommon', 'access_equipment'));
+    //        Utils_RecordBrowserCommon::set_access_callback('crm_assets', array('CRM_AssetsCommon', 'access_assets'));
         Utils_RecordBrowserCommon::enable_watchdog('crm_assets', array('CRM_AssetsCommon','watchdog_label'));
-        /* set one column in details */
-//        DB::Execute('UPDATE crm_assets_field SET param = 1 WHERE field = %s', array('Details'));
 
         Utils_RecordBrowserCommon::new_addon('company', 'CRM/Assets', 'assets_addon', 'Assets');
         Utils_RecordBrowserCommon::new_addon('crm_assets', 'CRM/Assets', 'assets_attachment_addon', 'Notes');
@@ -196,7 +194,7 @@ class CRM_AssetsInstall extends ModuleInstall {
     }
 
     public function version() {
-        return array("0.3");
+        return array("0.9");
     }
 
     public function requires($v) {
@@ -208,7 +206,7 @@ class CRM_AssetsInstall extends ModuleInstall {
 
     public static function info() {
         return array(
-            'Description'=>'',
+            'Description'=>'This module helps you to manage assets',
             'Author'=>'Adam Bukowski <abukowski@telaxus.com>',
             'License'=>'MIT');
     }

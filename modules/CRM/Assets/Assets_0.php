@@ -36,7 +36,7 @@ class CRM_Assets extends Module {
                 'general_info'=>array('width'=>70)
             ));
         $rb->set_button($this->create_callback_href(array($this,'assets_addon_new_asset'), array($arg['id'])));
-	$this->display_module($rb, array(array('company'=>array($arg['id'])), array('company'=>false, 'active'=>true), array('asset_name'=>'ASC')), 'show_data');
+        $this->display_module($rb, array(array('company'=>array($arg['id'])), array('company'=>false, 'active'=>true), array('asset_name'=>'ASC')), 'show_data');
     }
 
     public function assets_addon_new_asset($company) {
