@@ -147,6 +147,12 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 				$format = '%Y-%m-%d';
 			else
 				$format = '';
+			if($time===2 || strcasecmp($time,'without_seconds')==0)
+				$format = str_replace(':%S','',$format);
+			if($date===2 || strcasecmp($date,'without_year')==0)
+				$format = str_replace('%Y-','',$format);
+			elseif($date===3 || strcasecmp($date,'with_weekday')==0)
+				$format = '%a - '.$format;
 		}
 
 //		self::set_locale();
