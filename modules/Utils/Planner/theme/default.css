@@ -1,0 +1,22 @@
+#Utils_Planner__grid .header {
+	background-color: #AAAAFF;
+	width: 80px;
+}
+
+#Utils_Planner__grid .used {
+	border: 1px solid;
+}
+
+#Utils_Planner__grid .noconflict.used {
+	background-color: #66FF66;
+}
+#Utils_Planner__grid .noconflict.unused {
+	background-color: #BBFFBB;
+}
+
+#Utils_Planner__grid .conflict.used {
+	background-color: #FF4444;
+}
+#Utils_Planner__grid .conflict.unused {
+	background-color: #FFBBBB;
+}

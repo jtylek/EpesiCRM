@@ -54,6 +54,9 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
     var $keyhash = array();
 
 	private $list_sep = '__SEP__';
+	private $on_add_js_code = '';
+	private $on_remove_js_code = '';
+	
     /**
      * Class constructor
      *
@@ -88,6 +91,13 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
     	}
     	$ret .= '</ul>';
     	return $ret;
+    }
+    
+    public function on_add_js($js) {
+    	$this->on_add_js_code = $js;
+    }
+    public function on_remove_js($js) {
+    	$this->on_remove_js_code = $js; // TODO: doesn't accept "
     }
 
     /**
@@ -234,12 +244,13 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
 			}
 			
 			$myName = $this->getName();
+			$this->updateAttributes(array('id' => $myName)); // Workaround for not processing attributes arg preoperly
 
 			load_js('modules/Libs/QuickForm/FieldTypes/automulti/automulti.js');
 
 			$searchElement = '';
 			$search = new HTML_QuickForm_autocomplete($myName.'__search','', array('HTML_QuickForm_automulti','get_autocomplete_suggestbox'), array($this->_options_callback, $this->_options_callback_args, $this->_format_callback));
-			$search->on_hide_js('automulti_on_hide("'.$myName.'","'.$this->list_sep.'")');
+			$search->on_hide_js('automulti_on_hide("'.$myName.'","'.$this->list_sep.'");'.$this->on_add_js_code);
 			
 			$searchElement .= $tabs . $search->toHtml()."\n";
 			if (isset($this->_values[0]) && (eregi($this->list_sep,$this->_values[0]) || $this->_values[0]=='')) {
@@ -263,7 +274,7 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
 			$strHtml .= $tabs . '<table id="automulti">';
             $strHtml .= $tabs . '<tr>'.
             			$tabs . '<td class="search-element">' . $searchElement . '</td>'.
-						$tabs . '<td class="button disabled" id="automulti_button_style_'.$myName.'">'.'<input type="button" onclick="automulti_remove_button_action(\''.$myName.'\', \''.$this->list_sep.'\');" value="'.Base_LangCommon::ts('Libs_QuickForm','Remove').'">'.'</td>' .
+						$tabs . '<td class="button disabled" id="automulti_button_style_'.$myName.'">'.'<input type="button" onclick="automulti_remove_button_action(\''.$myName.'\', \''.$this->list_sep.'\');'.$this->on_remove_js_code.'" value="'.Base_LangCommon::ts('Libs_QuickForm','Remove').'">'.'</td>' .
 								'</tr>';
 
 			$strHtml .= $tabs . '<tr><td class="main-element" colspan="2">' . $mainElement . '</td></tr></table>';
