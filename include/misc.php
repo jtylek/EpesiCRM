@@ -281,6 +281,18 @@ function recursive_copy($src, $dest) {
 	}
 }
 
+function recalculate_time($date,$time) {
+	if (isset($time['a'])) {
+		$result_h = ($time['h']%12);
+		$result_m = $time['i'];
+		if ($time['a']=='pm') $result_h += 12;
+	} else {
+		$result_m = $time['i'];
+		$result_h = $time['H'];
+	}
+	return strtotime($date.' '.$result_h.':'.$result_m.':00');
+}
+
 function escapeJS($str,$double=true,$single=true) {return Epesi::escapeJS($str,$double,$single);}
 
 function get_epesi_url() {

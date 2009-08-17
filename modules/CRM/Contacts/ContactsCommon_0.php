@@ -278,10 +278,10 @@ class CRM_ContactsCommon extends ModuleCommon {
 					}
 				}
 			} else $crits = array();
-
+			
+			if ($desc['type']!='multiselect') $cont[''] = '---';
 			if ($crits!==null) {
 				$contacts = self::get_contacts($crits);
-				if ($desc['type']!='multiselect') $cont[''] = '---';
 				if (!is_array($default)) {
 					if ($default!='') $default = array($default); else $default=array();
 				} 
@@ -296,7 +296,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 					$cont[$k] = call_user_func($callback, $c, true);
 				}
 				uasort($cont, array('CRM_ContactsCommon', 'compare_names'));
-			} else $cont = array();
+			}
 			$form->addElement($desc['type'], $field, $label, $cont, array('id'=>$field));
 			$form->setDefaults(array($field=>$default));
 			if ($param[2] != '::')

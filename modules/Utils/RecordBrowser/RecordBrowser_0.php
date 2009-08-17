@@ -455,7 +455,7 @@ class Utils_RecordBrowser extends Module {
 			$arr = array('name'=>$args['name']);
 			if (!isset($this->force_order) && $this->browse_mode!='recent' && $args['type']!=='multiselect' && ($args['type']!=='calculated' || $args['param']!='') && $args['type']!=='hidden') $arr['order'] = $field;
 			if ($quickjump!=='' && $args['name']===$quickjump) $arr['quickjump'] = '"'.$args['name'];
-			if ($args['type']=='checkbox' || (($args['type']=='date' || $args['type']=='timestamp') && !$this->add_in_table) || $args['type']=='commondata') {
+			if ($args['type']=='checkbox' || (($args['type']=='date' || $args['type']=='timestamp' || $args['type']=='time') && !$this->add_in_table) || $args['type']=='commondata') {
 				$arr['wrapmode'] = 'nowrap';
 				$arr['width'] = 1;
 			}
@@ -1121,6 +1121,11 @@ class Utils_RecordBrowser extends Module {
 										if (isset($args['required']) && $args['required']) $form->addRule($args['id'], Base_LangCommon::ts('Utils_RecordBrowser','Field required'), 'timestamp_required');
 										if ($mode!=='add' && $record[$args['id']]) $form->setDefaults(array($args['id']=>$record[$args['id']]));
 										break;
+					case 'time':		$time_format = Base_RegionalSettingsCommon::time_12h()?'h:i a':'H:i';
+										$lang_code = Base_LangCommon::get_lang_code();
+										$form->addElement('timestamp', $args['id'], $label, array('date'=>false, 'format'=>$time_format, 'optionIncrement'  => array('i' => 5),'language'=>$lang_code, 'id'=>$args['id']));
+										if ($mode!=='add' && $record[$args['id']]) $form->setDefaults(array($args['id']=>$record[$args['id']]));
+										break;
 					case 'commondata':	$param = explode('::',$args['param']['array_id']);
 										foreach ($param as $k=>$v) if ($k!=0) $param[$k] = strtolower(str_replace(' ','_',$v));
 										$form->addElement($args['type'], $args['id'], $label, $param, array('empty_option'=>true, 'id'=>$args['id'], 'order_by_key'=>$args['param']['order_by_key']));
@@ -1480,7 +1485,7 @@ class Utils_RecordBrowser extends Module {
 			if (preg_match('/^[a-z0-9_]*$/',$new_id)===false) trigger_error('Invalid new column name: '.$data['field']);
 			if ($action=='add') {
 				$id = $new_id;
-				if (in_array($data['select_data_type'], array('timestamp','currency','integer')))
+				if (in_array($data['select_data_type'], array('time','timestamp','currency','integer')))
 					$style = $data['select_data_type'];
 				else
 					$style = '';

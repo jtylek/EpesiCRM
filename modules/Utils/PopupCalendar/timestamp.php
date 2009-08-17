@@ -68,9 +68,11 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 		$this->_options['format'] = $time_format;
 		$this->_options['optionIncrement'] = array('i' => 5);
 		$this->_options['language'] = $lang_code;
+		if (!isset($this->_options['date'])) $this->_options['date'] = true;
 
-		$this->_elements['datepicker'] =& new HTML_QuickForm_datepicker('datepicker', null, array(), $this->getAttributes());
-		$this->_elements['date'] =& new HTML_QuickForm_date('date', null, $this->_options, $this->getAttributes());
+		if ($this->_options['date'])
+			$this->_elements['__datepicker'] =& new HTML_QuickForm_datepicker('__datepicker', null, array(), $this->getAttributes());
+		$this->_elements['__date'] =& new HTML_QuickForm_date('__date', null, $this->_options, $this->getAttributes());
 	}
 
 	// }}}
@@ -106,18 +108,6 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 		return $renderer->toHtml();
 	}
 
-	private function recalculate_time($date,$time) {
-		if (isset($time['a'])) {
-			$result_h = ($time['h']%12);
-			$result_m = $time['i'];
-			if ($time['a']=='pm') $result_h += 12;
-		} else {
-			$result_m = $time['i'];
-			$result_h = $time['H'];
-		}
-		return strtotime($date.' '.$result_h.':'.$result_m.':00');
-	}
-	
 	function onQuickFormEvent($event, $arg, &$caller) {
 		if ('updateValue' == $event) {
 				// we need to call setValue(), 'cause the default/constant value
@@ -130,11 +120,17 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 	}
 
 	function exportValue(&$submitValues, $assoc = false) {
-		$dpv = $this->_elements['datepicker']->exportValue($submitValues);
-		if ($dpv=='') return $this->_prepareValue('', $assoc);
-		$dv = $this->_elements['date']->exportValue($submitValues);
-		$result = $this->recalculate_time(date('Y-m-d'),$dv);
-		$cleanValue = date('Y-m-d H:i:s',Base_RegionalSettingsCommon::reg2time($dpv.' '.date('H:i:s', $result),!isset($this->_options['regional_settings_tz']) || $this->_options['regional_settings_tz']==true)); //tz trans - last arg changed from false...
+		if ($this->_options['date']) {
+			$dpv = $this->_elements['__datepicker']->exportValue($submitValues);
+			if ($dpv=='') return $this->_prepareValue('', $assoc);
+			$dv = $this->_elements['__date']->exportValue($submitValues);
+			$result = recalculate_time(date('Y-m-d'),$dv);
+			$cleanValue = date('Y-m-d H:i:s',Base_RegionalSettingsCommon::reg2time($dpv.' '.date('H:i:s', $result),!isset($this->_options['regional_settings_tz']) || $this->_options['regional_settings_tz']==true)); //tz trans - last arg changed from false...
+		} else {
+			$dv = $this->_elements['__date']->exportValue($submitValues);
+			$result = recalculate_time(date('Y-m-d'),$dv);
+			$cleanValue = date('1970-01-01 H:i:s',Base_RegionalSettingsCommon::reg2time('1970-01-01 '.date('H:i:s', $result),!isset($this->_options['regional_settings_tz']) || $this->_options['regional_settings_tz']==true)); //tz trans - last arg changed from false...
+		}
 		return $this->_prepareValue($cleanValue, $assoc);
 	}
 
@@ -149,10 +145,12 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 	{
 		$this->_createElementsIfNotExist();
 		if(is_array($value)) {
-			if($value['datepicker']!=='')
-				$value['datepicker'] = strftime('%Y-%m-%d',Base_RegionalSettingsCommon::reg2time($value['datepicker'],false));
-			$this->_elements['datepicker']->setValue($value['datepicker']);
-			$this->_elements['date']->setValue(isset($value['date'])?$value['date']:'');
+			if ($this->_options['date']) {
+				if($value['__datepicker']!=='')
+					$value['__datepicker'] = strftime('%Y-%m-%d',Base_RegionalSettingsCommon::reg2time($value['__datepicker'],false));
+				$this->_elements['__datepicker']->setValue($value['__datepicker']);
+			}
+			$this->_elements['__date']->setValue(isset($value['__date'])?$value['__date']:'');
 		} else {
 			if (!is_numeric($value)) $value = Base_RegionalSettingsCommon::reg2time($value,false);
 			$value -= (date('i',$value) % $this->_options['optionIncrement']['i'])*60;

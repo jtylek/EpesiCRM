@@ -93,6 +93,8 @@
     width: 100%;
 }
 
+#Utils_RecordBrowser__View_entry .time input,
+#Utils_RecordBrowser__View_entry .time select,
 #Utils_RecordBrowser__View_entry .timestamp input,
 #Utils_RecordBrowser__View_entry .timestamp select {
     width: auto;

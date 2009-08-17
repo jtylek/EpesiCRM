@@ -111,6 +111,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if ($args['type']=='timestamp') {
 				if ($val!='') $ret = Base_RegionalSettingsCommon::time2reg($val, 'without_seconds');
 			}
+			if ($args['type']=='time') {
+				if ($val!='') $ret = Base_RegionalSettingsCommon::time2reg($val, 'without_seconds',false);
+			}
 		}
 		return $ret;
 	}
@@ -305,7 +308,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
 	public static function install_new_recordset($tab, $fields=array()) {
 		if (!preg_match('/^[a-zA-Z_]+$/',$tab)) trigger_error('Invalid table name ('.$tab.') given to install_new_recordset.',E_USER_ERROR);
-		if (false && DB::GetOne('SELECT 1 FROM recordbrowser_table_properties WHERE tab=%s', array($tab))) {
+		if (DB::GetOne('SELECT 1 FROM recordbrowser_table_properties WHERE tab=%s', array($tab))) {
 			@DB::DropTable($tab.'_callback');
 			@DB::DropTable($tab.'_recent');
 			@DB::DropTable($tab.'_favorite');
@@ -448,7 +451,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (!isset($definition['type'])) trigger_error(print_r($definition,true));
 		if (!isset($definition['param'])) $definition['param'] = '';
 		if (!isset($definition['style'])) {
-			if (in_array($definition['type'], array('timestamp','currency')))
+			if (in_array($definition['type'], array('time','timestamp','currency')))
 				$definition['style'] = $definition['type'];
 			else {
 				if (in_array($definition['type'], array('float','integer')))
@@ -518,6 +521,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			case 'float': $f = DB::dict()->ActualType('F'); break;
 			case 'date': $f = DB::dict()->ActualType('D'); break;
 			case 'timestamp': $f = DB::dict()->ActualType('T'); break;
+			case 'time': $f = DB::dict()->ActualType('T'); break;
 			case 'long text': $f = DB::dict()->ActualType('X'); break;
 			case 'hidden': $f = (isset($param)?$param:''); break;
 			case 'calculated': $f = (isset($param)?$param:''); break;
@@ -797,7 +801,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					$operator .= '=';
 					$k = substr($k, 2);
 				} else $k = substr($k, 1);
-				if (!isset($k[0])) trigger_error('Invalid criteria in build query: missing word.', E_USER_ERROR);
+				if (!isset($k[0])) trigger_error('Invalid criteria in build query: missing word. Crits:'.print_r($crits,true), E_USER_ERROR);
 			}
 			$or |= $or_start;
 //			if ($k[0]!=':' && $k!=='id' && !isset(self::$table_rows[$k]) && !isset(self::$hash[$k])) trigger_error('!'.$k.'!'.$tab.print_r($crits,true).print_r(self::$hash,true));
