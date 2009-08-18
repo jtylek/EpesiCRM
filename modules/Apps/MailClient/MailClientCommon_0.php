@@ -859,7 +859,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 					else
 						$disposition = 'attachment';
 					if($full_attachments) {
-						$attachments[$part->ctype_parameters['name']] = array('type'=>isset($part->headers['content-type'])?$part->headers['content-type']:false,'body'=>$part->body,'id'=>$coid,'disposition'=>$disposition);
+						$attachments[$part->ctype_parameters['name']] = array('type'=>isset($part->headers['content-type'])?$part->headers['content-type']:false,'body'=>isset($part->body)?$part->body:'','id'=>$coid,'disposition'=>$disposition);
 					} else {
 						$attachments[$part->ctype_parameters['name']] = $coid;
 					}
