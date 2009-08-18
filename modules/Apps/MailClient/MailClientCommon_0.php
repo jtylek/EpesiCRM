@@ -1227,7 +1227,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 				$list[] = $m;
 			}
 		foreach($arr as $k=>$a) {
-			$ret = self::inbox_sum($a,$p.$k.'/');
+			$ret = self::inbox_sum($id,$a,$p.$k.'/');
 			$unread += $ret[0];
 			$list += $ret[1];
 		}
