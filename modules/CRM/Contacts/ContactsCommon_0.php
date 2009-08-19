@@ -279,7 +279,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 				}
 			} else $crits = array();
 			
-			if ($desc['type']!='multiselect') $cont[''] = '---';
+			if ($desc['type']!='multiselect' && $crit_callback[0]!='ChainedSelect') $cont[''] = '---';
 			if ($crits!==null) {
 				$contacts = self::get_contacts($crits);
 				if (!is_array($default)) {
@@ -300,8 +300,10 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$form->addElement($desc['type'], $field, $label, $cont, array('id'=>$field));
 			$form->setDefaults(array($field=>$default));
 			if ($param[2] != '::')
-				if ($crit_callback[0]=='ChainedSelect')
-					self::contacts_chainedselect_crits($form->exportValue($field), $desc, $callback, $crit_callback[1]);
+				if ($crit_callback[0]=='ChainedSelect') {
+					if ($form->exportValue($field)) $default = $form->exportValue($field);
+					self::contacts_chainedselect_crits($default, $desc, $callback, $crit_callback[1]);
+				}
 		} else {
 			$callback = $rb_obj->get_display_method($desc['name']);
 			if (!is_callable($callback)) $callback = array('CRM_ContactsCommon','display_contact');
