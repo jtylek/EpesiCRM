@@ -1783,6 +1783,7 @@ class Utils_RecordBrowser extends Module {
 				$arr = array('name'=>$this->t($field_hash[$v]));
 				$cols[$k] = $v;
 			}
+			if (isset($v['label'])) $arr['name'] = $v['label'];
 			$arr['wrapmode'] = 'nowrap';
 			$header[] = $arr;
 		}
