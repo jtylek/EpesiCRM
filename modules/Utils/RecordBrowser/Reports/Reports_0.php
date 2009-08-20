@@ -97,7 +97,7 @@ class Utils_RecordBrowser_Reports extends Module {
 		else $format = array_flip($format);
 		$ret = array();
 		if (!is_array($val)) $val = array($val);
-		if (isset($format['currency']) || isset($format['numeric']))
+		if (isset($format['currency']) || isset($format['numeric']) || isset($format['percent']))
 			$format['fade_out_zero'] = 1;
 		if (isset($format['currency']) && empty($val)) $val = array(0=>0);
 		$css_class = '';
@@ -116,6 +116,10 @@ class Utils_RecordBrowser_Reports extends Module {
 					if (((float)$v)!=0)
 						unset($format['fade_out_zero']);
 			}
+			if (isset($format['percent'])) {
+				$next = $v.' %';
+				if ($v!=0) unset($format['fade_out_zero']);
+			}
 			$ret[] = $next;
 		}
 		if (isset($format['currency'])) {
@@ -124,7 +128,7 @@ class Utils_RecordBrowser_Reports extends Module {
 				if ($v==0) unset($ret[$k]);
 			}			
 		}
-		if (isset($format['currency']) || isset($format['numeric'])) {
+		if (isset($format['currency']) || isset($format['numeric']) || isset($format['percent'])) {
 			$css_class .= ' number';
 			if (isset($format['fade_out_zero']))
 				$css_class .= ' fade-out-zero';
