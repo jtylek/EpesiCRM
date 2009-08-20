@@ -22,7 +22,7 @@ function generate_password($length = 8) {
 	$password = "";
 
 	// define possible characters
-	$possible = "0123456789bcdfghjkmnpqrstvwxyz";
+	$possible = "0123456789abcdfghjkmnpqrstvwxyz";
 
 	// set up a counter
 	$i = 0;
