@@ -92,7 +92,7 @@ class Utils_RecordBrowser_Reports extends Module {
 		$this->format = $arg;
 	}
 
-	public function format_cell($format, $val) {
+	public function format_cell($format, $val, $type='none') {
 		if (!is_array($format)) $format = array($format=>'');
 		else $format = array_flip($format);
 		$ret = array();
@@ -117,6 +117,15 @@ class Utils_RecordBrowser_Reports extends Module {
 						unset($format['fade_out_zero']);
 			}
 			if (isset($format['percent'])) {
+				if ($type=='row_total' || $type=='total_all') {
+					$cols = count($this->gb_captions)-2;
+					if (!empty($this->categories)) $cols--;
+					$v = number_format($v/$cols,2);
+				}
+				if ($type=='col_total' || $type=='total_all') {
+					$rows = count($this->ref_records);
+					$v = number_format($v/$rows,2);
+				}
 				$next = $v.' %';
 				if ($v!=0) unset($format['fade_out_zero']);
 			}
@@ -388,7 +397,7 @@ class Utils_RecordBrowser_Reports extends Module {
 				array_unshift($results, $this->format_cell(array('row_desc'), $ref_rec));
 				if ($this->row_summary!==false) {
 					if (isset($this->row_summary['callback'])) $total = call_user_func($this->row_summary['callback'], $results, $total);
-					$next = $this->format_cell(array($this->format,'total'), $total);
+					$next = $this->format_cell(array($this->format,'total'), $total, 'row_total');
 					$next['attrs'] .= $this->create_tooltip($ref_rec, $this->row_summary['label'], $next['value']);
 					$results[] = $next;
 				}
@@ -431,7 +440,7 @@ class Utils_RecordBrowser_Reports extends Module {
 					$format[] = 'total';
 					if ($this->row_summary!==false) {
 						if (isset($this->row_summary['callback'])) $total = call_user_func($this->row_summary['callback'], $results, $total, $c);
-						$next = $this->format_cell($format, $total);
+						$next = $this->format_cell($format, $total, 'row_total');
 						$next['attrs'] .= $this->create_tooltip($ref_rec, $this->row_summary['label'], $next['value'], $c);
 						$grow[] = $next;
 					}
@@ -462,13 +471,13 @@ class Utils_RecordBrowser_Reports extends Module {
 							$total[$k] += strip_tags($w);
 						}
 					}
-					$res_ref = $this->format_cell(array($this->format,'total'), $res_ref);
+					$res_ref = $this->format_cell(array($this->format,'total'), $res_ref, 'col_total');
 					$res_ref['attrs'] .= $this->create_tooltip($this->col_summary['label'], $gb_captions[$i]['name'], $res_ref['value']);
 					$i++;
 				}
 				array_unshift($this->cols_total, $this->format_cell(array('total-row_desc'), $this->col_summary['label']));
 				if ($this->row_summary!==false) {
-					$next = $this->format_cell(array($this->format,'total_all'), $total);
+					$next = $this->format_cell(array($this->format,'total_all'), $total, 'total_all');
 					$next['attrs'] .= $this->create_tooltip($this->col_summary['label'], $this->row_summary['label'], $next['value']);
 					$this->cols_total[] = $next;
 				}
@@ -494,14 +503,14 @@ class Utils_RecordBrowser_Reports extends Module {
 								$total[$k] += $w;
 							}
 						}
-						$next = $this->format_cell($format, $v);
+						$next = $this->format_cell($format, $v, 'col_total');
 						$next['attrs'] .= $this->create_tooltip($this->col_summary['label'], $gb_captions[$i]['name'], $next['value'], $c);
 						$grow[] = $next;
 						$i++;
 					}
 					$format = array($this->format[$c], 'total_all');
 					if ($this->row_summary!==false) {
-						$next = $this->format_cell($format, $total);
+						$next = $this->format_cell($format, $total, 'total_all');
 						$next['attrs'] .= $this->create_tooltip($this->col_summary['label'], $this->row_summary['label'], $next['value'], $c);
 						$grow[] = $next;
 					}
