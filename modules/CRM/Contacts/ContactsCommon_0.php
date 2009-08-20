@@ -279,7 +279,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 				}
 			} else $crits = array();
 			
-			if ($desc['type']!='multiselect' && $crit_callback[0]!='ChainedSelect') $cont[''] = '---';
+			if ($desc['type']!='multiselect' && isset($crit_callback) && $crit_callback[0]!='ChainedSelect') $cont[''] = '---';
 			if ($crits!==null) {
 				$contacts = self::get_contacts($crits);
 				if (!is_array($default)) {
