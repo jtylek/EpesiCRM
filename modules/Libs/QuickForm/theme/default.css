@@ -172,7 +172,7 @@
 #automulti .button,
 #automulti .button:hover {
     background-image: none;
-    width: auto;
+    width: 50px;
 }
 
 #automulti .button input {

@@ -42,10 +42,6 @@ function time_grid_mouse_move(from_time,day) {
 		elem.className = 'conflict '+switch_direction;
 }
 
-function time_grid_mouse_up() {
-	switch_direction = '';
-}
-
 function time_grid_change_conflicts(from_time,day,conflict) {
 	elem = $(day+'__'+from_time);
 	if (conflict)
@@ -71,6 +67,28 @@ function resource_changed(resource) {
 			resource:Object.toJSON(resource),
 			options:Object.toJSON(opts),
 			value:Object.toJSON($(resource).value),
+			cid: Epesi.client_id
+		},
+		onSuccess:function(t) {
+			eval(t.responseText);
+		}
+	});
+}
+
+function time_grid_mouse_up() {
+	switch_direction = '';
+	frames = new Array();
+	frames_elems = document.getElementsByClassName('used');
+	for(i = 0; i < frames_elems.length; i++) {
+//		id = frames_elems[i].id.split("__");
+//		if (typeof(frames[id[0]])=="undefined") frames[id[0]] = new Array();
+//		frames[id[0]][id[1]] = true;
+		frames[i] = frames_elems[i].id;
+	}
+	new Ajax.Request('modules/Utils/Planner/grid_change.php', {
+		method: 'post',
+		parameters:{
+			frames:Object.toJSON(frames),
 			cid: Epesi.client_id
 		},
 		onSuccess:function(t) {

@@ -20,3 +20,31 @@
 #Utils_Planner__grid .conflict.unused {
 	background-color: #FFBBBB;
 }
+
+#Utils_Planner__resource_table .label {
+    background-color: #336699;
+    color: #FFFFFF;
+    border-bottom: 1px solid #B3B3B3;
+    height: 20px;
+    vertical-align: middle;
+    padding-left: 5px;
+    padding-right: 5px;
+    width: 50px;
+    text-align: left;
+}
+
+#Utils_Planner__resource_table .data {
+    text-align: left;
+}
+
+#Utils_Planner__resource_table .data input,
+#Utils_Planner__resource_table .data select,
+#Utils_Planner__resource_table .data textarea {
+    border: 0px;
+    background-color: #e6ecf2;
+    width: 99%;
+}
+
+#Utils_Planner__time_frames table {
+	width: 100%;
+}

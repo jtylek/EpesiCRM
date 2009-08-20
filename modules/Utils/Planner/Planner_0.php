@@ -32,7 +32,6 @@ class Utils_Planner extends Module {
 		if (isset($def[5])) $param3 = $def[5];
 		$_SESSION['client']['utils_planner']['resources'][$name]=array('type'=>$type,'in_use'=>array(),'value'=>false);
 		$on_change = 'resource_changed(\''.$name.'\')';
-//		if (isset($prop['chained'])) foreach ($prop['chained'] as $v) $on_change .= ';resource_changed(\''.$v.'\')';
 		if (isset($prop['chained'])) $_SESSION['client']['utils_planner']['resources'][$name]['chained'] = $prop['chained'];
 		if ($type=='automulti'){
 			$el = $this->form->addElement($type, $name, $label, $param1, $param2, $param3);
@@ -84,23 +83,29 @@ class Utils_Planner extends Module {
 		$grid = array();
 		$grid_attrs = array();
 		$time = $this->start_time;
-		$base_unix_time = strtotime('1970-01-01 00:00');
 		$last_time = $this->start_time;
-		while ($time<$this->end_time) {
-			$grid_legend[$time] = Base_RegionalSettingsCommon::time2reg($base_unix_time+$time*60,'without_seconds',false,false);
+		while ($time!=$this->end_time) {
+			$grid_legend[$time] = Utils_PlannerCommon::format_time($time*60);
 			$grid[] = $time;
 			$last_time = $time;
 			$time += $this->grid_size;
-			$grid_legend[$last_time] .= ' - '.Base_RegionalSettingsCommon::time2reg($base_unix_time+$time*60,'without_seconds',false,false);
+			if ($time>$this->end_time) $time=$this->end_time;
+			$grid_legend[$last_time] .= ' - '.Utils_PlannerCommon::format_time($time*60);
 			$grid_attrs[$last_time] = array(); 
 			foreach ($headers as $k=>$v) $grid_attrs[$last_time][$k] = 'class="noconflict unused" id="'.$k.'__'.$last_time.'" onmousedown="time_grid_mouse_down('.$last_time.','.$k.')" onmousemove="time_grid_mouse_move('.$last_time.','.$k.')"';
 		}
+		$grid[] = $this->end_time;
 		$theme->assign('grid_legend',$grid_legend);
 		$theme->assign('grid_attrs',$grid_attrs);
-		$_SESSION['client']['utils_planner']['grid']=$grid;
+		$theme->assign('time_frames',array('label'=>$this->t('Time frames'), 'html'=>'<div id="Utils_Planner__time_frames" />'));
+		$_SESSION['client']['utils_planner']['grid']=array(
+			'timetable'=>$grid,
+			'days'=>$headers,
+			'selected_frames'=>array()
+			);
 
+		$this->form->assign_theme('form', $theme);
 		$theme->display();
-		$this->form->display();
 	}
 }
 

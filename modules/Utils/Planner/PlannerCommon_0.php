@@ -24,6 +24,12 @@ class Utils_PlannerCommon extends ModuleCommon {
 	public static function get_resource_value($resource) {
 		return $_SESSION['client']['utils_planner']['resources'][$resource]['value'];
 	}
+	
+	public static function format_time($time) {
+		static $base_unix_time = null;
+		if ($base_unix_time===null) $base_unix_time = strtotime('1970-01-01 00:00');
+		return Base_RegionalSettingsCommon::time2reg($base_unix_time+$time,'without_seconds',false,false);
+	}
 }
 
 ?>

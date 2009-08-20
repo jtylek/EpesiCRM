@@ -71,7 +71,7 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
     {
         HTML_QuickForm_element::HTML_QuickForm_element($elementName, $elementLabel, $attributes);
         $this->_persistantFreeze = true;
-        $this->_type = 'select';
+        $this->_type = 'automulti';
         if ($options_callback) $this->_options_callback = $options_callback;
         if ($options_callback_args) $this->_options_callback_args = $options_callback_args;
         if ($format_callback) $this->_format_callback = $format_callback;
