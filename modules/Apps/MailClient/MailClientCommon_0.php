@@ -1229,7 +1229,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		foreach($arr as $k=>$a) {
 			$ret = self::inbox_sum($id,$a,$p.$k.'/');
 			$unread += $ret[0];
-			$list += $ret[1];
+			$list = array_merge($list,$ret[1]);
 		}
 		return array($unread,$list);
 	}
@@ -1384,7 +1384,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		if(isset($struct['Inbox'])) {
 			$ret = self::inbox_sum($id,$struct['Inbox'],'Inbox/');
 			$num_msgs += $ret[0];
-			$list += $ret[1];
+			$list = array_merge($list,$ret[1]);
 		}
 		return array($num_msgs,$list);
 	}
