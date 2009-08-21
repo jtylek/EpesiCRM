@@ -1409,9 +1409,11 @@ class Apps_MailClientCommon extends ModuleCommon {
 					}
 					$listing .= '</small>';
 				}
+				if(isset($_SESSION['mails'][$v['id']]) || $num) {
+					$name = $v['mail']=='#internal'?Base_LangCommon::ts('Apps_MailClient','Private messages'):$v['mail'];
+					$ret['mailclient_'.$v['id'].'_'.$time] = Base_LangCommon::ts('Apps_MailClient','<b>%s</b> new message in mailbox: <font color="gray">%s</font>',array($num,$name)).$listing;
+				}
 				$_SESSION['mails'][$v['id']] = $num;
-				$name = $v['mail']=='#internal'?Base_LangCommon::ts('Apps_MailClient','Private messages'):$v['mail'];
-				$ret['mailclient_'.$v['id'].'_'.$time] = Base_LangCommon::ts('Apps_MailClient','<b>%s</b> new message in mailbox: <font color="gray">%s</font>',array($num,$name)).$listing;
 			}
 		}
 		$ret = array('notifications'=>$ret);
