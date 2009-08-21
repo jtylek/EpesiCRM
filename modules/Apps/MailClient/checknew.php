@@ -10,7 +10,7 @@ require_once('../../../include.php');
 ModuleManager::load_modules();
 @set_time_limit(0);
 $mail_size_limit = Variable::get('max_mail_size');
-ini_set("memory_limit",$mail_size_limit+32*1024*1024); // max mail size is
+ini_set("memory_limit",$mail_size_limit*2+32*1024*1024); // max mail size is
 
 if(!Acl::is_user()) die('Not logged in');
 
