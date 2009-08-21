@@ -38,11 +38,12 @@ foreach ($frames as $v) {
 
 $headers = $_SESSION['client']['utils_planner']['grid']['days'];
 
+$selected_frames = array();
 foreach ($cleanFrames as $day=>$v) {
 	$start = null;
 	foreach ($_SESSION['client']['utils_planner']['grid']['timetable'] as $t) {
 		if (isset($v[$t])) {
-			if ($start==null) $start = $t;
+			if ($start===null) $start = $t;
 		} elseif ($start!==null) {
 			$dur = ($t-$start);
 			$h = floor($dur/60);
@@ -56,11 +57,15 @@ foreach ($cleanFrames as $day=>$v) {
 						'<td>'.Utils_PlannerCommon::format_time($t*60).'</td>'.
 						'<td>'.$duration.'</td>'.
 					'</tr>';
+			$selected_frames[] = $day.'::'.$start.'::'.$t;
 			$timeframe[$day][] = $next;
 			$start = null;		
 		}
 	}
 }
+
+//$_SESSION['client']['utils_planner']['grid']['selected_frames'] = $selected_frames;
+$js .= '$("grid_selected_frames").value="'.implode(';',$selected_frames).'";';
 
 $timeframe_string = '<table class="time_frames">';
 $day = $fdow = Utils_PopupCalendarCommon::get_first_day_of_week();

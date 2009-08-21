@@ -76,6 +76,7 @@ function resource_changed(resource) {
 }
 
 function time_grid_mouse_up() {
+	if (switch_direction=='') return;
 	switch_direction = '';
 	frames = new Array();
 	frames_elems = document.getElementsByClassName('used');

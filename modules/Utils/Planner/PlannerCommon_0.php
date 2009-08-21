@@ -30,6 +30,52 @@ class Utils_PlannerCommon extends ModuleCommon {
 		if ($base_unix_time===null) $base_unix_time = strtotime('1970-01-01 00:00');
 		return Base_RegionalSettingsCommon::time2reg($base_unix_time+$time,'without_seconds',false,false);
 	}
+
+	public static function utils_planner_resource_changed($resource, $value) {
+		$js = '';
+		$racc = 	$_SESSION['client']['utils_planner']['resource_availability_check_callback'];
+		$in_use = 	$_SESSION['client']['utils_planner']['resources'][$resource]['in_use'];
+		$grid = 	$_SESSION['client']['utils_planner']['grid']['timetable'];
+		$new_in_use = array();
+		$busy_times = call_user_func($racc, $resource, $value);
+		foreach ($busy_times as $v) {
+			foreach (array('start', 'end') as $w)
+				if (!is_numeric($v[$w])) {
+					$e = explode(':',$v[$w]);
+					$v[$w] = $e[0]*60+$e[1];
+				}
+			$i = 0;
+			while (isset($grid[$i])) {
+				if (!isset($grid[$i+1]) || $grid[$i+1]>$v['start']) {
+					while (isset($grid[$i]) && $grid[$i]<$v['end']) {
+						$new_in_use[$grid[$i].'__'.$v['day']] = true;
+						$js .= 'time_grid_change_conflicts('.$grid[$i].','.$v['day'].',1);';
+						$i++;
+					}
+					break;
+				}
+				$i++;
+			}
+		}
+		
+		$_SESSION['client']['utils_planner']['resources'][$resource]['in_use'] = $new_in_use;
+		
+		foreach ($in_use as $k=>$v) {
+			if (!isset($new_in_use[$k])) {
+				$should_clear = true;
+				foreach($_SESSION['client']['utils_planner']['resources'] as $r) 
+					if (isset($r['in_use'][$k])) {
+						$should_clear = false;
+						break;
+					}
+				if ($should_clear) {
+					$args = explode('__',$k);
+					$js .= 'time_grid_change_conflicts('.$args[0].','.$args[1].',0);';
+				}
+			}
+		}
+		return $js;
+	}
 }
 
 ?>

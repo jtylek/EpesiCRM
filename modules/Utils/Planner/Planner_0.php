@@ -20,10 +20,16 @@ class Utils_Planner extends Module {
 		$_SESSION['client']['utils_planner'] = array();
 		$_SESSION['client']['utils_planner']['resources'] = array();
 		$this->form = $this->init_module('Libs/QuickForm');
+		$this->form->addElement('hidden', 'grid_selected_frames', '', array('id'=>'grid_selected_frames'));
+		Base_ActionBarCommon::add('save','Save',$this->form->get_submit_form_href());
 	}
 	
 	public function set_resource_availability_check_callback($callback) {
 		$_SESSION['client']['utils_planner']['resource_availability_check_callback'] = $callback;
+	}
+	
+	public function set_processing_callback($callback) {
+		$_SESSION['client']['utils_planner']['processing_callback'] = $callback;
 	}
 	
 	public function add_resource($def, $prop=array()) {
@@ -46,7 +52,6 @@ class Utils_Planner extends Module {
 	}
 
 	public function body(){
-		print('<div id="xxx"></div>');
 		Base_ThemeCommon::install_default_theme('Utils/Planner');
 		load_js('modules/Utils/Planner/planner.js');
 		eval_js('disableSelection($("Utils_Planner__grid"))');
@@ -101,11 +106,25 @@ class Utils_Planner extends Module {
 		$_SESSION['client']['utils_planner']['grid']=array(
 			'timetable'=>$grid,
 			'days'=>$headers,
-			'selected_frames'=>array()
 			);
 
 		$this->form->assign_theme('form', $theme);
 		$theme->display();
+		if ($this->form->validate()) {
+			$values = $this->form->exportValues();
+			$time_frames = explode(';',$values['grid_selected_frames']);
+			unset($values['grid_selected_frames']);
+			foreach ($time_frames as $k=>$v) {
+				list($day, $s, $e) = explode('::',$v);
+				$time_frames[$k] = array('day'=>$day, 'start'=>$s, 'end'=>$e);
+			}
+			call_user_func($_SESSION['client']['utils_planner']['processing_callback'], $values, $time_frames);
+			foreach ($values as $k=>$v) {
+				$_SESSION['client']['utils_planner']['resources'][$k]['value'] = $v;
+				$_SESSION['client']['utils_planner']['resources'][$k]['in_use'] = array();
+				eval_js(Utils_PlannerCommon::utils_planner_resource_changed($k, $v));
+			}
+		}
 	}
 }
 
