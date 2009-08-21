@@ -1370,7 +1370,6 @@ class Apps_MailClientCommon extends ModuleCommon {
 				$num_msgs = $tmp[0];
 				for($kk=1; $kk<count($tmp); $kk++)
 					$list[] = unserialize($tmp[$kk]);
-				$list = $tmp;
 			} else {
 				list($num_msgs,$list) = self::get_number_of_new_pop3_messages($id);
 				$list2 = array();
@@ -1398,14 +1397,13 @@ class Apps_MailClientCommon extends ModuleCommon {
 			$new_msgs = self::get_number_of_new_messages_in_inbox($v['id'],true);
 			if(!$new_msgs) continue;
 			list($num,$list) = $new_msgs;
-			if($num == 0) continue;
 			if(!isset($_SESSION['mails'][$v['id']]) || $_SESSION['mails'][$v['id']]!=$num) {
 				$listing = '';
 				if($num) {
 					$listing .= '<br><small>';
 					foreach($list as $l) {
 						if(!$l) continue;
-						$listing .= htmlspecialchars($l['from']).': <i>'.Apps_MailClientCommon::mime_header_decode($l['subject']).'</i><br>';
+						$listing .= htmlspecialchars(Apps_MailClientCommon::mime_header_decode($l['from'])).': <i>'.Apps_MailClientCommon::mime_header_decode($l['subject']).'</i><br>';
 					}
 					$listing .= '</small>';
 				}
