@@ -1092,6 +1092,8 @@ class Apps_MailClientCommon extends ModuleCommon {
 			else {
 				Apps_MailClientCommon::apply_filters($id,$dir,$msgl->uid);
 			}
+			unset($structure);
+			unset($msg);
 		}
 		
 		self::set_msg_id($id,$dir,$last_uid);
