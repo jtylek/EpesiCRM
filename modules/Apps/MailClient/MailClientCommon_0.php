@@ -987,8 +987,8 @@ class Apps_MailClientCommon extends ModuleCommon {
 			//go thru remote and create new dirs
 			foreach($list as $d) {
 				
-				$remote_dir = str_replace($d->delimiter,'/',mb_convert_encoding( substr($d->name,$ref_len), "UTF-8", "UTF7-IMAP" ));
-				$remote_dir_arr = explode('/',$remote_dir);
+				$remote_dir_orig = str_replace($d->delimiter,'/',mb_convert_encoding( substr($d->name,$ref_len), "UTF-8", "UTF7-IMAP" ));
+				$remote_dir_arr = explode('/',$remote_dir_orig);
 				$local_exists = true;
 				$local_curr = & $local_dirs;
 				$remote_curr = & $remote_dirs;
@@ -1018,6 +1018,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 				}
 				if(!$local_exists) {
 					self::create_mailbox_subdir($id,$remote_dir,false);
+					file_put_contents(self::get_mailbox_dir($id).$remote_dir.'.name',$remote_dir_orig);
 					$local_dirs = self::get_mailbox_structure($id);
 					$changed = true;
 				} 
@@ -1044,6 +1045,11 @@ class Apps_MailClientCommon extends ModuleCommon {
 		return $changed;
 	}
 	
+	private static function imap_get_mailbox_name($id,$dir) {
+		$ret = @file_get_contents(self::get_mailbox_dir($id).rtrim($dir,'/').'/.name');
+		return $ret?$ret:$dir;
+	}
+	
 	//get new messages in directory
 	public static function imap_get_new_messages($id,$dir) {
 		$mail_size_limit = Variable::get('max_mail_size');
@@ -1052,7 +1058,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 
 		$imap = self::imap_open($id);
 		if(!$imap) return false;
-		$tdir = mb_convert_encoding( $imap['ref'].rtrim($dir,'/'), "UTF7-IMAP", "UTF-8" );
+		$tdir = mb_convert_encoding( $imap['ref'].rtrim(self::imap_get_mailbox_name($id,$dir),'/'), "UTF7-IMAP", "UTF-8" );
 		imap_reopen($imap['connection'],$tdir);
 		$st = imap_status($imap['connection'],$tdir,SA_UIDNEXT);
 		if(self::imap_errors('Unable to get status of directory: '.$dir.'.'))
@@ -1145,7 +1151,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		if(!empty($local)) {
 			$imap = self::imap_open($id);
 			if(!$imap) return false;
-			$tdir = mb_convert_encoding( $imap['ref'].rtrim($dir,'/'), "UTF7-IMAP", "UTF-8" );
+			$tdir = mb_convert_encoding( $imap['ref'].rtrim(self::imap_get_mailbox_name($id,$dir),'/'), "UTF7-IMAP", "UTF-8" );
 			imap_reopen($imap['connection'],$tdir);
 			$remote = imap_fetch_overview($imap['connection'],implode(',',array_merge(array_keys($local),array_keys($trash_oryg))),FT_UID);
 			foreach($remote as $row) {
@@ -1200,6 +1206,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 			$arr = Apps_MailClientCommon::get_mailbox_structure($id);
 		$ret = false;
 		foreach($arr as $k=>$a) {
+			if($p.$k=='[Gmail]') continue;
 			if(self::imap_sync_old_messages($id,$p.$k.'/')) //sync old messages
 				$ret = true;
 			if(self::imap_get_new_messages($id,$p.$k.'/')) //and get new ones
