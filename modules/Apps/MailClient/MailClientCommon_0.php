@@ -146,7 +146,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 					return false;
 				}
 				$iname = $imap['ref'].rtrim($new_name,'/');
-				$iname = mb_convert_encoding( $iname, "UTF7-IMAP", "UTF-8" )
+				$iname = mb_convert_encoding( $iname, "UTF7-IMAP", "UTF-8" );
 				$st = imap_status($imap['connection'],$iname,SA_UIDNEXT);
 				if(!$st) {
 				        imap_createmailbox($imap['connection'],$iname);
@@ -184,7 +184,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 					return false;
 				}
 				$iname = $imap['ref'].rtrim($dir,'/');
-				$iname = mb_convert_encoding( $iname, "UTF7-IMAP", "UTF-8" )
+				$iname = mb_convert_encoding( $iname, "UTF7-IMAP", "UTF-8" );
 				$st = imap_status($imap['connection'],$iname,SA_UIDNEXT);
 				if(!$st) {
 					return false;
@@ -218,10 +218,10 @@ class Apps_MailClientCommon extends ModuleCommon {
 					return false;
 				}
 				$iname = $imap['ref'].rtrim($old,'/');
-				$iname = mb_convert_encoding( $iname, "UTF7-IMAP", "UTF-8" )
+				$iname = mb_convert_encoding( $iname, "UTF7-IMAP", "UTF-8" );
 				
 				$oname = $imap['ref'].rtrim($new,'/');
-				$oname = mb_convert_encoding( $oname, "UTF7-IMAP", "UTF-8" )
+				$oname = mb_convert_encoding( $oname, "UTF7-IMAP", "UTF-8" );
 
 				imap_unsubscribe($imap['connection'],$iname);
 				imap_renamemailbox($imap['connection'],$iname,$oname);
@@ -377,7 +377,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		if(self::is_imap($mailbox_id)) {
 			$imap = self::imap_open($mailbox_id);
 			if(!$imap) return false;
-			$mailbox_name = mb_convert_encoding( $imap['ref'].rtrim($dir,'/'), "UTF7-IMAP", "UTF-8" )
+			$mailbox_name = mb_convert_encoding( $imap['ref'].rtrim($dir,'/'), "UTF7-IMAP", "UTF-8" );
 			$st = imap_status($imap['connection'],$mailbox_name,SA_UIDNEXT);
 			if(self::imap_errors('Unable to save message on imap server')) return false;
 			$msg_id = $st->uidnext;
@@ -497,7 +497,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		if($imap_remove && self::is_imap($mailbox_id)) {
 			$imap = self::imap_open($mailbox_id);
 			if(!$imap) return false;
-			$mailbox_name = mb_convert_encoding( $imap['ref'].rtrim($dir,'/'), "UTF7-IMAP", "UTF-8" )
+			$mailbox_name = mb_convert_encoding( $imap['ref'].rtrim($dir,'/'), "UTF7-IMAP", "UTF-8" );
 			imap_reopen($imap['connection'],$mailbox_name);
     			imap_delete($imap['connection'], $id, FT_UID);
 			if(self::imap_errors('Unable to remove message from imap server')) return false;
@@ -596,7 +596,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		if(self::is_imap($box2)) {
 			$imap2 = self::imap_open($box2);
 			if(!$imap2) return false;
-			$mailbox_name = mb_convert_encoding( $imap2['ref'].rtrim($dir2,'/'), "UTF7-IMAP", "UTF-8" )
+			$mailbox_name = mb_convert_encoding( $imap2['ref'].rtrim($dir2,'/'), "UTF7-IMAP", "UTF-8" );
 			$st = imap_status($imap2['connection'],$mailbox_name,SA_UIDNEXT);
 			if(self::imap_errors('Unable to save message on imap server')) {
 				self::unlock_mailbox_dir($box,$dir,'idx');
@@ -678,7 +678,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		if(self::is_imap($box2)) {
 			$imap2 = self::imap_open($box2);
 			if(!$imap2) return false;
-			$mailbox_name = mb_convert_encoding( $imap2['ref'].rtrim($dir2,'/'), "UTF7-IMAP", "UTF-8" )
+			$mailbox_name = mb_convert_encoding( $imap2['ref'].rtrim($dir2,'/'), "UTF7-IMAP", "UTF-8" );
 			$st = imap_status($imap2['connection'],$mailbox_name,SA_UIDNEXT);
 			if(self::imap_errors('Unable to save message on imap server')) {
 				self::unlock_mailbox_dir($box2,$dir2,'idx');
