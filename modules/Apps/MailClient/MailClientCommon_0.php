@@ -1046,15 +1046,15 @@ class Apps_MailClientCommon extends ModuleCommon {
 	
 	//get new messages in directory
 	public static function imap_get_new_messages($id,$dir) {
-		$tdir = rtrim($dir,'/');
 		$mail_size_limit = Variable::get('max_mail_size');
 		$box_root = Apps_MailClientCommon::get_mailbox_dir($id);
 		if($box_root===false) return false;
 
 		$imap = self::imap_open($id);
 		if(!$imap) return false;
-		imap_reopen($imap['connection'],$imap['ref'].$tdir);
-		$st = imap_status($imap['connection'],$imap['ref'].$tdir,SA_UIDNEXT);
+		$tdir = mb_convert_encoding( $imap['ref'].rtrim($dir,'/'), "UTF7-IMAP", "UTF-8" );
+		imap_reopen($imap['connection'],$tdir);
+		$st = imap_status($imap['connection'],$tdir,SA_UIDNEXT);
 		if(self::imap_errors('Unable to get status of directory: '.$dir.'.'))
 			return false;
 		$last_uid = $st->uidnext-1;
@@ -1107,7 +1107,6 @@ class Apps_MailClientCommon extends ModuleCommon {
 	public static function imap_sync_old_messages($id,$dir) {
 		if($dir=='Trash/') return false;
 		$ret = false;
-		$tdir = rtrim($dir,'/');
 		//old messages are synchronized from time to time, not always... some people have 10000 messages in inbox, 
 		//but they don't modify them, we can check this messages once a day
 		$sync_rate = array(180,600,600,600,600,600,600,3600,3600,3600,3600,3600,3600,3600,3600,7200,7200,7200,7200,7200,7200,7200,7200,18000,18000,18000,18000,18000,18000,18000,18000,18000,18000,18000,18000,18000,18000,18000,18000,86400); //3m, 10m x6, 1h x8, 1h, 2h x8 ,5h x16,24h
@@ -1146,7 +1145,8 @@ class Apps_MailClientCommon extends ModuleCommon {
 		if(!empty($local)) {
 			$imap = self::imap_open($id);
 			if(!$imap) return false;
-			imap_reopen($imap['connection'],$imap['ref'].$tdir);
+			$tdir = mb_convert_encoding( $imap['ref'].rtrim($dir,'/'), "UTF7-IMAP", "UTF-8" );
+			imap_reopen($imap['connection'],$tdir);
 			$remote = imap_fetch_overview($imap['connection'],implode(',',array_merge(array_keys($local),array_keys($trash_oryg))),FT_UID);
 			foreach($remote as $row) {
 				$deleted_uid = isset($trash_oryg[$row->uid])?$trash_oryg[$row->uid]:false;
