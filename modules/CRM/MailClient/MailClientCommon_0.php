@@ -42,9 +42,9 @@ class CRM_MailClientCommon extends ModuleCommon {
 			$sent = true;
 
 		if($sent) {
-			$addr = $msg['headers']['to'];
+			$addr = Apps_MailClientCommon::mime_header_decode($msg['headers']['to']);
 		} else {
-			$addr = $msg['headers']['from'];
+			$addr = Apps_MailClientCommon::mime_header_decode($msg['headers']['from']);
 		}
 		
 		$c = self::resolve_contact($addr);
@@ -64,7 +64,7 @@ class CRM_MailClientCommon extends ModuleCommon {
 			$to = self::$my_rec['id'];
 			$from = $c['id'];
 		}
-		DB::Execute('INSERT INTO crm_mailclient_mails(from_contact_id,to_contact_id,subject,headers,body,body_type,body_ctype,delivered_on) VALUES(%d,%d,%s,%s,%s,%s,%s,%T)',array($from,$to,$msg['subject'],$headers,$msg['body'],$msg['type'],$msg['ctype'],strtotime($msg['headers']['date'])));
+		DB::Execute('INSERT INTO crm_mailclient_mails(from_contact_id,to_contact_id,subject,headers,body,body_type,body_ctype,delivered_on) VALUES(%d,%d,%s,%s,%s,%s,%s,%T)',array($from,$to,Apps_MailClientCommon::mime_header_decode($msg['subject']),$headers,$msg['body'],$msg['type'],$msg['ctype'],strtotime($msg['headers']['date'])));
 		$mid = DB::Insert_ID('crm_mailclient_mails','id');
 		foreach($msg['attachments'] as $k=>$a) {
 			DB::Execute('INSERT INTO crm_mailclient_attachments(mail_id,name,type,cid,disposition) VALUES(%d,%s,%s,%s,%s)',array($mid,$k,$a['type'],$a['id'],$a['disposition']));
@@ -83,9 +83,9 @@ class CRM_MailClientCommon extends ModuleCommon {
 			$sent = true;
 
 		if($sent)
-			$addr = $msg['headers']['to'];
+			$addr = Apps_MailClientCommon::mime_header_decode($msg['headers']['to']);
 		else
-			$addr = $msg['headers']['from'];
+			$addr = Apps_MailClientCommon::mime_header_decode($msg['headers']['from']);
 
 		$c = self::resolve_contact($addr);
 		if(!$c) return false;

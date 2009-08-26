@@ -372,7 +372,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$headers['Date'] = $date;
 		$mime->headers($headers);
 		$mime->setHTMLBody($body);
-		$mbody = $mime->getMessage();
+		$mbody = $mime->getMessage(null,array('html_charset'=>'utf-8'));
 		
 		if(self::is_imap($mailbox_id)) {
 			$imap = self::imap_open($mailbox_id);

@@ -17,8 +17,8 @@ $structure = Apps_MailClientCommon::get_message_structure($_GET['box'],$_GET['di
 if($structure===false) {
 	$err = 'Invalid message';
 	header("Content-type: text/html");
-	$script = 'parent.$(\''.$_GET['pid'].'_subject\').innerHTML=\''.Epesi::escapeJS(htmlentities($err),false).'\';'.
-			'parent.$(\''.$_GET['pid'].'_address\').innerHTML=\''.Epesi::escapeJS(htmlentities($err),false).'\';'.
+	$script = 'parent.$(\''.$_GET['pid'].'_subject\').innerHTML=\''.Epesi::escapeJS(htmlspecialchars($err),false).'\';'.
+			'parent.$(\''.$_GET['pid'].'_address\').innerHTML=\''.Epesi::escapeJS(htmlspecialchars($err),false).'\';'.
 			'parent.$(\''.$_GET['pid'].'_attachments\').innerHTML=\''.Epesi::escapeJS('',false).'\';';
 
 	$body = '<html>'.
@@ -92,14 +92,16 @@ if(isset($_GET['attachment_cid']) || isset($_GET['attachment_name'])) {
 		}
 		$body = preg_replace("/(http:\/\/[a-z0-9]+(\.[a-z0-9]+)+(\/[\.a-z0-9?=&;]+)*)/i", "<a href='\\1' target=\"_blank\">\\1</a>", htmlspecialchars($body));
 		$body = '<html>'.
-			'<head><meta http-equiv=Content-Type content="'.$body_ctype.'"></head>'.
+			'<head><meta http-equiv="Content-Type" content="'.$body_ctype.'"></head>'.
 			'<body><pre>'.$body.'</pre></body>';
 	} else {
 		$body = trim($body);
-		if(ereg('^<html>',$body))
+		if(eregi('^<html>',$body))
 			$body = substr($body,6);
-		if(ereg('</html>$',$body))
+		if(eregi('<\/html>$',$body))
 			$body = substr($body,0,strlen($body)-7);
+		if(!eregi('<\/body>$',$body) && !eregi('<body>',$body))
+			$body = '<body>'.$body.'</body>';
 		$body = '<html>'.
 			'<head><meta http-equiv=Content-Type content="'.$body_ctype.'"></head>'.$body;
 	}

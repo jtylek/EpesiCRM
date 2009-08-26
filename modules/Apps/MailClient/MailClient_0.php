@@ -134,8 +134,10 @@ class Apps_MailClient extends Module {
 		$cols = array();
 		$cols[] = array('name'=>$this->t('ID'), 'order'=>'id','width'=>'3', 'display'=>DEBUG);
 		$cols[] = array('name'=>$this->t('Subject'), 'search'=>1, 'order'=>'subj','width'=>'50');
-		$cols[] = array('name'=>$this->t('To'), 'search'=>1,'quickjump'=>1, 'order'=>'to','width'=>'10', 'display'=>($drafts_folder || $sent_folder || $trash_folder));
-		$cols[] = array('name'=>$this->t('From'), 'search'=>1,'quickjump'=>1, 'order'=>'from','width'=>'10','display'=>($trash_folder || !($drafts_folder || $sent_folder)));
+		$to_column_enabled = ($drafts_folder || $sent_folder || $trash_folder);
+		$cols[] = array('name'=>$this->t('To'), 'search'=>1,'quickjump'=>1, 'order'=>'to','width'=>'10', 'display'=>$to_column_enabled);
+		$from_column_enabled = ($trash_folder || !($drafts_folder || $sent_folder));
+		$cols[] = array('name'=>$this->t('From'), 'search'=>1,'quickjump'=>1, 'order'=>'from','width'=>'10','display'=>$from_column_enabled);
 		$cols[] = array('name'=>$this->t('Date'), 'search'=>1, 'order'=>'date','width'=>'15');
 		$cols[] = array('name'=>$this->t('Size'), 'search'=>1, 'order'=>'size','width'=>'10');
 		$gb->set_table_columns($cols);
@@ -150,11 +152,21 @@ class Apps_MailClient extends Module {
 		foreach($box_idx as $id=>$data) {
 			$r = $gb->get_new_row();
 			$subject = Apps_MailClientCommon::mime_header_decode($data['subject']);
-			$to_address = Apps_MailClientCommon::mime_header_decode($data['to']);
-			$from_address = Apps_MailClientCommon::mime_header_decode($data['from']);
+			if($to_column_enabled) {
+				$to_address = Apps_MailClientCommon::mime_header_decode($data['to']);
+				if(ereg('<(.+)>$',$to_address,$reqs) && ereg('([0-9]+)@epesi_(contact|user)$',trim($reqs[1]),$reqs2) && $reqs2[2] == 'contact') {
+					$to_address = CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($reqs2[1]));
+				} else $to_address = htmlspecialchars($to_address);
+			} else $to_address = '';
+			if($from_column_enabled) {
+				$from_address = Apps_MailClientCommon::mime_header_decode($data['from']);
+				if(ereg('<(.+)>$',$from_address,$reqs) && ereg('([0-9]+)@epesi_(contact|user)$',trim($reqs[1]),$reqs2) && $reqs2[2] == 'contact') {
+					$from_address = CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($reqs2[1]));
+				} else $from_address = htmlspecialchars($from_address);
+			} else $from_address = '';
 			$subject = strip_tags($subject);
 			if(strlen($subject)>40) $subject = Utils_TooltipCommon::create(substr($subject,0,38).'...',$subject);
-			$r->add_data($id,array('value'=>'<a href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.http_build_query(array('box'=>$box, 'dir'=>$dir, 'msg_id'=>$id, 'pid'=>$preview_id)).'\',\''.$id.'\')" id="apps_mailclient_msg_'.$id.'" '.($data['read']?'':'style="font-weight:bold"').'>'.$subject.'</a>','order_value'=>$subject),htmlentities($to_address),htmlentities($from_address),array('value'=>Base_RegionalSettingsCommon::time2reg($data['date']), 'order_value'=>strtotime($data['date'])),array('style'=>'text-align:right','value'=>filesize_hr($data['size']), 'order_value'=>$data['size']));
+			$r->add_data($id,array('value'=>'<a href="javascript:void(0)" onClick="Apps_MailClient.preview(\''.$preview_id.'\',\''.http_build_query(array('box'=>$box, 'dir'=>$dir, 'msg_id'=>$id, 'pid'=>$preview_id)).'\',\''.$id.'\')" id="apps_mailclient_msg_'.$id.'" '.($data['read']?'':'style="font-weight:bold"').'>'.$subject.'</a>','order_value'=>$subject),$to_address,$from_address,array('value'=>Base_RegionalSettingsCommon::time2reg($data['date']), 'order_value'=>strtotime($data['date'])),array('style'=>'text-align:right','value'=>filesize_hr($data['size']), 'order_value'=>$data['size']));
 			$lid = 'mailclient_link_'.$id;
 			if($imap_online) {
 				$r->add_action($this->create_confirm_callback_href($this->ht('Delete this message?'),array($this,'remove_mail'),array($box,$dir,$id)),'Delete');
@@ -457,48 +469,11 @@ class Apps_MailClient extends Module {
 			$structure = Apps_MailClientCommon::mime_decode($headers,$opts);
 
 			if($body===null) {
-				$body_type = false;
-				$body_ctype = false;
-				$attachments = array();
-
-				if($structure->ctype_primary=='multipart' && isset($structure->parts)) {
-					$parts = $structure->parts;
-					for($i=0; $i<count($parts); $i++) {
-						$part = $parts[$i];
-						if($part->ctype_primary=='multipart' && isset($part->parts))
-							$parts = array_merge($parts,$part->parts);
-							if($body===false && $part->ctype_primary=='text' && $part->ctype_secondary=='plain' && (!isset($part->disposition) || $part->disposition=='inline')) {
-							$body = $part->body;
-							$body_type = 'plain';
-							$body_ctype = isset($structure->headers['content-type'])?$structure->headers['content-type']:'text/'.$body_type;
-						} elseif($part->ctype_primary=='text' && $part->ctype_secondary=='html' && ($body===false || $body_type=='plain') && (!isset($part->disposition) || $part->disposition=='inline')) {
-							$body = $part->body;
-							$body_type = 'html';
-						}
-						if(isset($part->ctype_parameters['name'])) {
-							if(isset($part->headers['content-id']))
-								$attachments[$part->ctype_parameters['name']] = trim($part->headers['content-id'],'><');
-							else
-								$attachments[$part->ctype_parameters['name']] = true;
-						}
-					}
-				} elseif(isset($structure->body) && $structure->ctype_primary=='text') {
-					$body = $structure->body;
-					$body_type = $structure->ctype_secondary;
-					$body_ctype = isset($structure->headers['content-type'])?$structure->headers['content-type']:'text/'.$body_type;
-				}
-
-				if($body===null) $body = '';
-
-				/*$ret_attachments = '';
-				if($attachments) {
-					foreach($attachments as $name=>$a) {
-						if($a===true)
-							$ret_attachments .= '<a target="_blank" href="modules/Apps/MailClient/preview.php?'.http_build_query(array_merge($_GET,array('attachment_name'=>$name))).'">'.$name.'</a><br>';
-						else
-							$ret_attachments .= '<a target="_blank" href="modules/Apps/MailClient/preview.php?'.http_build_query(array_merge($_GET,array('attachment_cid'=>$a))).'">'.$name.'</a><br>';
-					}
-				}*/
+				$msg = Apps_MailClientCommon::parse_message_structure($structure,false);
+				$body = $msg['body'];
+				$body_type = $msg['type'];
+				$body_ctype = $msg['ctype'];
+				$attachments = $msg['attachments'];
 			}
 
 			$to_addr = array();
@@ -572,9 +547,14 @@ class Apps_MailClient extends Module {
 			$to_addr = implode(', ',$to_addr);
 
 			if($body_type=='plain') {
+				if(eregi("charset=([a-z0-9\-]+)",$body_ctype,$reqs)) {
+					$charset = $reqs[1];
+					$body_ctype = "text/plain; charset=utf-8";
+					$body = iconv($charset,'UTF-8',$body);
+				}
 				$body = htmlspecialchars(preg_replace("/(http:\/\/[a-z0-9]+(\.[a-z0-9]+)+(\/[\.a-z0-9]+)*)/i", "<a href='\\1'>\\1</a>", $body));
 				$body = '<html>'.
-					'<head><meta http-equiv=Content-Type content="'.$body_ctype.'"></head>'.
+					'<head><meta http-equiv="Content-Type" content="'.$body_ctype.'"></head>'.
 					'<body><pre>'.$body.'</pre></body></html>';
 			} else {
 				$body = trim($body);
@@ -708,6 +688,7 @@ class Apps_MailClient extends Module {
 					foreach($to2 as $m=>$mmm)
 						$mailer->AddAddress($m);
 					$mailer->Subject = $v['subject'];
+					$mailer->CharSet = "utf-8";
 					$mailer->IsHTML(true);
 					$mailer->Body = $v['body'];
 					$mailer->AltBody = strip_tags($v['body']);
@@ -736,7 +717,7 @@ class Apps_MailClient extends Module {
 				$dest_id = $from?$from['id']:DB::GetOne('SELECT id FROM apps_mailclient_accounts WHERE mail=\'#internal\' AND user_login_id=%d',array(Acl::get_user()));
 				if(($mid = Apps_MailClientCommon::drop_message($dest_id,$save_folder.'/',$v['subject'],$from?$from['mail']:$this->ht('private message'),$to_names,$date,$v['body'],true))!==false) {
 					if($drop_callback!==null && is_callable($drop_callback))
-						call_user_func($drop_callback,$dest_id,$save_folder,$mid);
+						call_user_func($drop_callback,$dest_id,$save_folder.'/',$mid);
 					return false;
 				}
 			}
