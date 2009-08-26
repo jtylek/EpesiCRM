@@ -11,7 +11,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Applets_RssFeedCommon extends ModuleCommon {
-	private static $url;
+	private static $feed;
 	
 	public static function applet_caption() {
 		return "RSS Feed";
@@ -26,7 +26,7 @@ class Applets_RssFeedCommon extends ModuleCommon {
 			array('name'=>'rssfeed','label'=>'RSS Feed','type'=>'text','default'=>'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/front_page/rss.xml',
 				'rule'=>array(
 					array('message'=>'Field required', 'type'=>'required'),
-					array('message'=>'Invalid RSS feed', 'type'=>'callback', 'func'=>array('Applets_RssFeedCommon','check_feed')),
+					array('message'=>'Invalid RSS feed or server has disabled url_fopen support', 'type'=>'callback', 'func'=>array('Applets_RssFeedCommon','check_feed')),
 					array('message'=>'Invalid address','type'=>'regex','param'=>'/^http(s)?:\/\//')
 					),
 				'filter'=>array(array('Applets_RssFeedCommon','set_url'))
@@ -41,34 +41,21 @@ class Applets_RssFeedCommon extends ModuleCommon {
 	}
 	
 	public static function check_feed($feed) {
-		if(!function_exists('curl_init')) {
-			//take care about it later...
-			return true;
-		}
-		// Check if RSS can be read
-		$rss = curl_init();
-		curl_setopt($rss, CURLOPT_URL, $feed);
-		curl_setopt($rss, CURLOPT_RETURNTRANSFER, true);
-		$output = curl_exec($rss);
-		$response_code = curl_getinfo($rss, CURLINFO_HTTP_CODE);
-		
-		if ($response_code == '404')
-			return false;
-		
-		return true;
+		return (self::$feed!=false);
 	}
 	
 	public static function set_url($feed) {
-		self::$url = $feed;
+		self::$feed = @file_get_contents($feed);
 		return $feed;
 	}
 
 	public static function get_title($t) {
 		if($t!='') return $t;
-		$html = @file_get_contents(self::$url);
-		if(!$html) return '';
+		if(self::$feed==false)
+			return '';
+			
 		$matches = array();
-		preg_match('/<title>([^<]*)</i', $html, $matches);
+		preg_match('/<title>([^<]*)</i', self::$feed, $matches);
 
 		$title = $matches[1];
 		if(!$title)
