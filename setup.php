@@ -214,7 +214,7 @@ function write_config($host, $user, $pass, $dbname, $engine) {
 	$epesi_dir = '';
 	if(strcmp($local_dir,substr($script_filename,0,strlen($local_dir))))
 		$epesi_dir = '
-define("EPESI_DIR","'.dirname($script_filename).'");';
+define("EPESI_DIR","'.dirname($_SERVER['SCRIPT_NAME']).'");';
 
 	$c = & fopen(DATA_DIR.'/config.php', 'w');
 	fwrite($c, '<?php

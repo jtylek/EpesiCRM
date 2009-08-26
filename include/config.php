@@ -45,13 +45,9 @@ if(!$detection_failed) {
 	$dir_url = substr($_SERVER['SCRIPT_NAME'],0,strlen($_SERVER['SCRIPT_NAME'])-strlen($file_url));
 	$dir = trim($dir_url,'/');
 	$epesi_dir = '/'.$dir.($dir?'/':'');
-}
-if(!defined('EPESI_DIR')) {
-	if($detection_failed) 
-		trigger_error('Detection of epesi directory failed. Please define EPESI_DIR variable in config.php',E_USER_ERROR);
 	define('EPESI_DIR',$epesi_dir);
-} elseif(!$detection_failed && $epesi_dir!==EPESI_DIR) {
-	trigger_error('Epesi was installed with other directory. Please change config.php or access with other url.',E_USER_ERROR);
+} elseif(!defined('EPESI_DIR')) {
+	trigger_error('Detection of epesi directory failed. Please define EPESI_DIR variable in config.php',E_USER_ERROR);
 }
 
 ini_set('arg_separator.output','&');
