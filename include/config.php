@@ -40,14 +40,16 @@ $local_dir = dirname(dirname(str_replace('\\','/',__FILE__)));
 define('EPESI_LOCAL_DIR',$local_dir);
 $script_filename = str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']);
 $detection_failed = strcmp($local_dir,substr($script_filename,0,strlen($local_dir)));
-if(!$detection_failed) {
-	$file_url = substr($script_filename,strlen($local_dir));
-	$dir_url = substr($_SERVER['SCRIPT_NAME'],0,strlen($_SERVER['SCRIPT_NAME'])-strlen($file_url));
-	$dir = trim($dir_url,'/');
-	$epesi_dir = '/'.$dir.($dir?'/':'');
-	define('EPESI_DIR',$epesi_dir);
-} elseif(!defined('EPESI_DIR')) {
-	trigger_error('Detection of epesi directory failed. Please define EPESI_DIR variable in config.php',E_USER_ERROR);
+if(!defined('EPESI_DIR')) {
+	if(!$detection_failed) {
+		$file_url = substr($script_filename,strlen($local_dir));
+		$dir_url = substr($_SERVER['SCRIPT_NAME'],0,strlen($_SERVER['SCRIPT_NAME'])-strlen($file_url));
+		$dir = trim($dir_url,'/');
+		$epesi_dir = '/'.$dir.($dir?'/':'');
+		define('EPESI_DIR',$epesi_dir);
+	} else {
+		trigger_error('Detection of epesi directory failed. Please define EPESI_DIR variable in config.php',E_USER_ERROR);
+	}
 }
 
 ini_set('arg_separator.output','&');
