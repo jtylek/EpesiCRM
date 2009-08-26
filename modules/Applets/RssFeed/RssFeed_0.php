@@ -15,24 +15,7 @@ class Applets_RssFeed extends Module {
 	public function body(&$x) {
 	}
 
-	private function get_page_title($url) {
-		$html = @file_get_contents($url);
-		if(!$html)
-			return null;
-		$matches = array();
-		preg_match('/<title>([^<]*)</i', $html, $matches);
-
-		$title = $matches[1];
-		if(!$title)
-			return null;
-
-		return $title;
-	}
-
 	public function applet($values, $opts) { //available applet options: toggle,href,title,go,go_function,go_arguments,go_contruct_arguments
-//		$new_title = $this->get_page_title($values['rssfeed']);
-//		if($new_title!==null)
-//			$opts['title'] = substr($new_title,0,15).'...';
 		$opts['title'] = $values['title'];
 
 		$name = md5($this->get_path().$values['rssfeed']);
