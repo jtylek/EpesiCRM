@@ -80,6 +80,7 @@ class CRM_TasksInstall extends ModuleInstall {
 			array('name'=>'CRM/Common', 'version'=>0),
 			array('name'=>'CRM/Acl', 'version'=>0),
 			array('name'=>'CRM/Contacts', 'version'=>0),
+			array('name'=>'CRM/MailClient', 'version'=>0),
 			array('name'=>'Base/Lang', 'version'=>0),
 			array('name'=>'Base/Acl', 'version'=>0),
 			array('name'=>'Utils/ChainedSelect', 'version'=>0),

@@ -95,7 +95,7 @@ class Apps_MailClient extends Module {
 					$id = $this->get_unique_href_variable('msg_id');
 					if(is_numeric($id)) {
 						$msg = Apps_MailClientCommon::parse_message($box,$dir,$id);
-						$ret = call_user_func($f['func'],$msg,$dir);
+						$ret = call_user_func($f['func'],$msg,$dir,isset($f['args'])?$f['args']:null);
 						if(isset($f['delete']) && $f['delete'] && $ret)
 							Apps_MailClientCommon::remove_msg($box,$dir,$id);
 					}

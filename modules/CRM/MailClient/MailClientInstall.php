@@ -35,19 +35,41 @@ class CRM_MailClientInstall extends ModuleInstall {
 			name C(255),
 			cid C(255)',
 			array('constraints'=>', FOREIGN KEY (mail_id) REFERENCES crm_mailclient_mails(ID)'));
+		$ret &= DB::CreateTable('crm_mailclient_addons','
+			tab C(64) KEY NOTNULL,
+			format_callback C(128) NOTNULL,
+			crits C(256)');
+		$ret &= DB::CreateTable('crm_mailclient_rb_mails','
+			mail_id I4 NOTNULL,
+			rec_id I4 NOTNULL,
+			tab C(64) NOTNULL',
+			array('constraints'=>', FOREIGN KEY (mail_id) REFERENCES crm_mailclient_mails(ID)'));
 		Utils_WatchdogCommon::register_category('crm_mailclient', array('CRM_MailClientCommon','watchdog_label'));
 		$this->create_data_dir();
 		file_put_contents($this->get_data_dir().'.htaccess','deny from all');
 		Base_ThemeCommon::install_default_theme($this->get_type());
+		
+		$tab = 'task';
+		$format_callback = array('CRM_TasksCommon','display_title_with_mark');
+		$crits = array('!status'=>array(2,3));
+		DB::Execute('INSERT INTO crm_mailclient_addons(tab,format_callback,crits) VALUES (%s,%s,%s)',array($tab,serialize($format_callback),serialize($crits)));
+		Utils_RecordBrowserCommon::new_addon($tab, 'CRM/MailClient', 'rb_addon', 'Mails');
+
 		return $ret;
 	}
 	
 	public function uninstall() {
+		$ret = DB::GetCol('SELECT tab FROM crm_mailclient_addons');
+		foreach($ret as $r) {
+			Utils_RecordBrowserCommon::delete_addon($r, 'CRM/MailClient', 'rb_addon');
+		}
 		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		Utils_WatchdogCommon::unregister_category('crm_mailclient');
 		Utils_RecordBrowserCommon::delete_addon('contact', 'CRM/MailClient', 'contact_addon');
 		DB::DropTable('crm_mailclient_attachments');
+		DB::DropTable('crm_mailclient_rb_mails');
 		DB::DropTable('crm_mailclient_mails');
+		DB::DropTable('crm_mailclient_addons');
 		return true;
 	}
 	

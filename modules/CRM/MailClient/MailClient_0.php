@@ -14,7 +14,7 @@ class CRM_MailClient extends Module {
 	
 	}
 
-	public function contact_addon($arg){
+	private function addon($where) {
 		$gb = $this->init_module('Utils/GenericBrowser',null,'addon');
 		$cols = array();
 		$cols[] = array('name'=>$this->t('Date'), 'order'=>'delivered_on','width'=>5);
@@ -24,8 +24,8 @@ class CRM_MailClient extends Module {
 		$cols[] = array('name'=>$this->t('Attachments'), 'order'=>'uaf.original','width'=>25);
 		$gb->set_table_columns($cols);
 
-		$query = 'SELECT sticky,id,delivered_on,subject,from_contact_id,to_contact_id FROM crm_mailclient_mails WHERE (from_contact_id='.DB::qstr($arg['id']).' OR to_contact_id='.DB::qstr($arg['id']).') AND deleted=0';
-		$query_lim = 'SELECT count(id) FROM crm_mailclient_mails WHERE (from_contact_id='.DB::qstr($arg['id']).' OR to_contact_id='.DB::qstr($arg['id']).') AND deleted=0';
+		$query = 'SELECT sticky,id,delivered_on,subject,from_contact_id,to_contact_id FROM crm_mailclient_mails WHERE ('.$where.') AND deleted=0';
+		$query_lim = 'SELECT count(id) FROM crm_mailclient_mails WHERE ('.$where.') AND deleted=0';
 		$gb->set_default_order(array($this->t('Date')=>'DESC'));
 
 		$query_order = $gb->get_query_order('sticky DESC');
@@ -54,6 +54,14 @@ class CRM_MailClient extends Module {
 		}
 
 		$this->display_module($gb);
+	}
+
+	public function contact_addon($arg){
+		$this->addon('from_contact_id='.DB::qstr($arg['id']).' OR to_contact_id='.DB::qstr($arg['id']));
+	}
+	
+	public function rb_addon($arg,$rb){
+		$this->addon('(SELECT 1 FROM crm_mailclient_rb_mails rb WHERE rb.mail_id=id AND rb.tab='.DB::qstr($rb->tab).' AND rb.rec_id='.DB::qstr($arg['id']).' LIMIT 1) is not null');
 	}
 	
 	private function get_attachments($id) {
@@ -156,6 +164,62 @@ class CRM_MailClient extends Module {
 		$theme->display('notification');
 
 		Base_ActionBarCommon::add('save','Notify',$qf->get_submit_form_href());
+	}
+
+	public function rb($mid,$table) {
+		$row = DB::GetRow('SELECT format_callback,crits FROM crm_mailclient_addons WHERE tab=%s',array($table));
+		$format_callback = unserialize($row['format_callback']);
+		$crits = unserialize($row['crits']);
+		$theme = $this->init_module('Base/Theme');
+		$qf = $this->init_module('Libs/QuickForm');
+		$qf->addElement('header','record_header',$this->t('Choose record'));
+
+		$fav2 = array();
+		$fav = Utils_RecordBrowserCommon::get_records($table,array_merge(array(':Fav'=>true),$crits));
+		foreach($fav as $v)
+			$fav2[$v['id']] = call_user_func($format_callback,$v,true);
+		$rb2 = $this->init_module('Utils/RecordBrowser/RecordPicker');
+		$this->display_module($rb2, array($table ,'records',$format_callback,$crits,array()));
+		$theme->assign('record_add_button',$rb2->create_open_link('Add record'));
+		$qf->addElement('multiselect','records','',$fav2);
+		$qf->addRule('records',$this->t('Field required'),'required');
+
+		$qf->addElement('header','notification_header',$this->t('Notify this contacts'));
+
+		$fav2 = array();
+		$fav = CRM_ContactsCommon::get_contacts(array(':Fav'=>true,'!login'=>''),array('id','first_name','last_name','company_name'));
+		foreach($fav as $v)
+			$fav2[$v['id']] = CRM_ContactsCommon::contact_format_default($v,true);
+		$rb1 = $this->init_module('Utils/RecordBrowser/RecordPicker');
+		$this->display_module($rb1, array('contact' ,'to_addr_ex',array('Apps_MailClientCommon','addressbook_rp_mail'),array('!login'=>''),array('work_phone'=>false,'mobile_phone'=>false,'email'=>true,'login'=>true)));
+		$theme->assign('addressbook_add_button',$rb1->create_open_link('Add contact'));
+		$qf->addElement('multiselect','to_addr_ex','',$fav2);
+
+		$qf->assign_theme('form', $theme);
+		
+		if($qf->validate()) {
+			$u = $qf->exportValue('to_addr_ex');
+			$r = $qf->exportValue('records');
+			foreach($r as $rec) {
+				DB::Execute('INSERT INTO crm_mailclient_rb_mails(mail_id,rec_id,tab) VALUES(%d,%d,%s)',array($mid,$rec,$table));
+			}
+			foreach($u as $user) {
+				$user_login = CRM_ContactsCommon::get_contact($user);
+				$user_login = $user_login['login'];
+				Utils_WatchdogCommon::user_subscribe($user_login, 'crm_mailclient', $mid);
+			}
+			$caption = DB::GetOne('SELECT rtb.caption FROM recordbrowser_table_properties rtb WHERE rtb.tab=%s',array($table));
+			Utils_WatchdogCommon::new_event('crm_mailclient',$mid,'Mail moved to "'.$caption.'"');
+			CRM_MailClient::pop_box();
+//			$x = ModuleManager::get_instance('/Base_Box|0');
+//			if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+//			$x->push_main('CRM_MailClient','show_message',array($mid));
+			return;
+		}
+
+		$theme->display('rb');
+
+		Base_ActionBarCommon::add('save','Attach to record',$qf->get_submit_form_href());
 	}
 }
 
