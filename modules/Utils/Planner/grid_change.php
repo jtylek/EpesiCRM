@@ -64,7 +64,6 @@ foreach ($cleanFrames as $day=>$v) {
 	}
 }
 
-//$_SESSION['client']['utils_planner']['grid']['selected_frames'] = $selected_frames;
 $js .= '$("grid_selected_frames").value="'.implode(';',$selected_frames).'";';
 
 $timeframe_string = '<table class="time_frames">';

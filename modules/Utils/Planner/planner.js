@@ -44,6 +44,7 @@ function time_grid_mouse_move(from_time,day) {
 
 function time_grid_change_conflicts(from_time,day,conflict) {
 	elem = $(day+'__'+from_time);
+	if (!elem) return;
 	if (conflict)
 		switch_conflict = 'conflict';
 	else 

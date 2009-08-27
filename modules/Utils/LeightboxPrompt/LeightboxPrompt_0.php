@@ -10,7 +10,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_LeightboxPrompt extends Module {
-	private $params;
+	private $params = array();
 	private $options = array();
 	private $group = null;
 	private $leightbox_ready = false;
@@ -30,7 +30,7 @@ class Utils_LeightboxPrompt extends Module {
 		$this->options[$key] = array('icon'=>$icon, 'form'=>$form, 'label'=>$label);
 	}
 	
-	public function body($header, $params = array()) {
+	public function body($header='', $params = array()) {
 		if (MOBILE_DEVICE) return;
 		if (isset($_REQUEST['__location']) && $this->last_location!=$_REQUEST['__location']) {
 			$this->last_location = $_REQUEST['__location'];
@@ -109,7 +109,7 @@ class Utils_LeightboxPrompt extends Module {
 	public function export_values() {
 		$ret = array();
 		if ($this->option_chosen!==null) return array('option'=>$this->option_chosen);
-		foreach ($this->options as $k=>$v)
+		foreach ($this->options as $k=>$v) {
 			if ($v['form']!==null && $v['form']->validate()) {
 				$ret['option'] = $k;
 				$vals = $v['form']->exportValues();
@@ -123,6 +123,7 @@ class Utils_LeightboxPrompt extends Module {
 				$ret['form'] = $vals;
 				break;	
 			}
+		}
 		if (empty($ret)) return null; 
 		return $ret;
 	}

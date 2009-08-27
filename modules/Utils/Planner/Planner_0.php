@@ -10,10 +10,8 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_Planner extends Module {
-	private $start_time='00:00';
-	private $end_time='23:59';
-	private $grid_size='01:00';
 	private $date=null;
+	private $grid = array();
 	private $form;
 	
 	public function construct() {
@@ -21,7 +19,6 @@ class Utils_Planner extends Module {
 		$_SESSION['client']['utils_planner']['resources'] = array();
 		$this->form = $this->init_module('Libs/QuickForm');
 		$this->form->addElement('hidden', 'grid_selected_frames', '', array('id'=>'grid_selected_frames'));
-		Base_ActionBarCommon::add('save','Save',$this->form->get_submit_form_href());
 	}
 	
 	public function set_resource_availability_check_callback($callback) {
@@ -30,6 +27,27 @@ class Utils_Planner extends Module {
 	
 	public function set_processing_callback($callback) {
 		$_SESSION['client']['utils_planner']['processing_callback'] = $callback;
+	}
+	
+	public function set_regular_grid($start_time='00:00', $end_time='23:59', $grid_size='01:00') {
+		foreach (array('start_time','end_time','grid_size') as $v)
+			if ($$v!=(string)intval($$v)) {
+				$e = explode(':',$$v);
+				$$v = $e[0]*60+$e[1];
+			}
+		$this->grid = array();
+		$time = $start_time;
+		$last_time = $start_time;
+		while ($time!=$end_time) {
+			$this->grid[] = $time;
+			$time += $grid_size;
+			if ($time>$end_time) $time=$end_time;
+		}
+		$this->grid[] = $end_time;
+	}
+
+	public function set_custom_grid($grid) {
+		$this->grid = $grid;
 	}
 	
 	public function add_resource($def, $prop=array()) {
@@ -52,6 +70,10 @@ class Utils_Planner extends Module {
 	}
 
 	public function body(){
+		if (empty($this->grid)) {
+			print('Time grid not defined, aborting');
+			return;
+		}
 		Base_ThemeCommon::install_default_theme('Utils/Planner');
 		load_js('modules/Utils/Planner/planner.js');
 		eval_js('disableSelection($("Utils_Planner__grid"))');
@@ -78,38 +100,29 @@ class Utils_Planner extends Module {
 		}
 		$theme->assign('headers',$headers);
 		
-		/* GRID */
-		foreach (array('start_time','end_time','grid_size') as $v)
-			if ($this->$v!=(string)intval($this->$v)) {
-				$e = explode(':',$this->$v);
-				$this->$v = $e[0]*60+$e[1];
-			}
+		/* GRID LEGEND */
 		$grid_legend = array();
-		$grid = array();
 		$grid_attrs = array();
-		$time = $this->start_time;
-		$last_time = $this->start_time;
-		while ($time!=$this->end_time) {
-			$grid_legend[$time] = Utils_PlannerCommon::format_time($time*60);
-			$grid[] = $time;
-			$last_time = $time;
-			$time += $this->grid_size;
-			if ($time>$this->end_time) $time=$this->end_time;
-			$grid_legend[$last_time] .= ' - '.Utils_PlannerCommon::format_time($time*60);
-			$grid_attrs[$last_time] = array(); 
-			foreach ($headers as $k=>$v) $grid_attrs[$last_time][$k] = 'class="noconflict unused" id="'.$k.'__'.$last_time.'" onmousedown="time_grid_mouse_down('.$last_time.','.$k.')" onmousemove="time_grid_mouse_move('.$last_time.','.$k.')"';
+		foreach ($this->grid as $k=>$v) {
+			if (!isset($this->grid[$k+1])) break;
+			$grid_legend[$v] = Utils_PlannerCommon::format_time($v*60);
+			$grid_legend[$v] .= ' - '.Utils_PlannerCommon::format_time($this->grid[$k+1]*60);
+			$grid_attrs[$v] = array(); 
+			foreach ($headers as $k2=>$v2) $grid_attrs[$v][$k2] = 'class="noconflict unused" id="'.$k2.'__'.$v.'" onmousedown="time_grid_mouse_down('.$v.','.$k2.')" onmousemove="time_grid_mouse_move('.$v.','.$k2.')"';
 		}
-		$grid[] = $this->end_time;
+		/* GRID LEGEND END */
+		
 		$theme->assign('grid_legend',$grid_legend);
 		$theme->assign('grid_attrs',$grid_attrs);
 		$theme->assign('time_frames',array('label'=>$this->t('Time frames'), 'html'=>'<div id="Utils_Planner__time_frames" />'));
 		$_SESSION['client']['utils_planner']['grid']=array(
-			'timetable'=>$grid,
+			'timetable'=>$this->grid,
 			'days'=>$headers,
 			);
 
 		$this->form->assign_theme('form', $theme);
 		$theme->display();
+		Base_ActionBarCommon::add('save','Save',$this->form->get_submit_form_href());
 		if ($this->form->validate()) {
 			$values = $this->form->exportValues();
 			$time_frames = explode(';',$values['grid_selected_frames']);
