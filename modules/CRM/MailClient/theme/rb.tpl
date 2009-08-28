@@ -6,7 +6,9 @@
 </tr>
 <tr>
 <td colspan=2>
+{if isset($record_add_button)}
 {$record_add_button}
+{/if}
 {$form_data.records.error}
 {$form_data.records.html}
 </td>

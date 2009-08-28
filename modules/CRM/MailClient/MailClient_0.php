@@ -57,7 +57,7 @@ class CRM_MailClient extends Module {
 	}
 
 	public function contact_addon($arg){
-		$this->addon('from_contact_id='.DB::qstr($arg['id']).' OR to_contact_id='.DB::qstr($arg['id']));
+		$this->addon('from_contact_id='.DB::qstr($arg['id']).' OR to_contact_id='.DB::qstr($arg['id']).' OR (SELECT 1 FROM crm_mailclient_rb_mails rb WHERE rb.mail_id=id AND rb.tab="contact" AND rb.rec_id='.DB::qstr($arg['id']).' LIMIT 1) is not null');
 	}
 	
 	public function rb_addon($arg,$rb){
@@ -174,14 +174,18 @@ class CRM_MailClient extends Module {
 		$qf = $this->init_module('Libs/QuickForm');
 		$qf->addElement('header','record_header',$this->t('Choose record'));
 
-		$fav2 = array();
-		$fav = Utils_RecordBrowserCommon::get_records($table,array_merge(array(':Fav'=>true),$crits));
-		foreach($fav as $v)
-			$fav2[$v['id']] = call_user_func($format_callback,$v,true);
-		$rb2 = $this->init_module('Utils/RecordBrowser/RecordPicker');
-		$this->display_module($rb2, array($table ,'records',$format_callback,$crits,array()));
-		$theme->assign('record_add_button',$rb2->create_open_link('Add record'));
-		$qf->addElement('multiselect','records','',$fav2);
+		if($table == 'contact') {
+			$qf->addElement('automulti', 'records', array('CRM_ContactsCommon','automulti_contact_suggestbox'), array(array()), array('CRM_ContactsCommon','contact_format_default'));
+		} else {
+			$fav2 = array();
+			$fav = Utils_RecordBrowserCommon::get_records($table,array_merge(array(':Fav'=>true),$crits));
+			foreach($fav as $v)
+				$fav2[$v['id']] = call_user_func($format_callback,$v,true);
+			$rb2 = $this->init_module('Utils/RecordBrowser/RecordPicker');
+			$this->display_module($rb2, array($table ,'records',$format_callback,$crits,array()));
+			$theme->assign('record_add_button',$rb2->create_open_link('Add record'));
+			$qf->addElement('multiselect','records','',$fav2);
+		}
 		$qf->addRule('records',$this->t('Field required'),'required');
 
 		$qf->addElement('header','notification_header',$this->t('Notify this contacts'));

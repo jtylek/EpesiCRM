@@ -55,6 +55,11 @@ class CRM_MailClientInstall extends ModuleInstall {
 		DB::Execute('INSERT INTO crm_mailclient_addons(tab,format_callback,crits) VALUES (%s,%s,%s)',array($tab,serialize($format_callback),serialize($crits)));
 		Utils_RecordBrowserCommon::new_addon($tab, 'CRM/MailClient', 'rb_addon', 'Mails');
 
+		$tab = 'contact';
+		$format_callback = null;
+		$crits = null;
+		DB::Execute('INSERT INTO crm_mailclient_addons(tab,format_callback,crits) VALUES (%s,%s,%s)',array($tab,serialize($format_callback),serialize($crits)));
+
 		return $ret;
 	}
 	
