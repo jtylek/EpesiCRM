@@ -26,9 +26,9 @@ if (get_magic_quotes_gpc()) {
         return $newArray;
     }
 
-//    $_GET = undoMagicQuotes($_GET);
-//    $_POST = undoMagicQuotes($_POST);
+    $_GET = undoMagicQuotes($_GET);
+    $_POST = undoMagicQuotes($_POST);
     $_COOKIE = undoMagicQuotes($_COOKIE);
-//    $_REQUEST = undoMagicQuotes($_REQUEST);
+    $_REQUEST = undoMagicQuotes($_REQUEST);
 }
 ?>
