@@ -131,7 +131,7 @@ class CRM_MailClient extends Module {
 		$x->pop_main();	
 	}
 	
-	public function notify($mid) {
+	public function notify($msg,$dir) {
 		$theme = $this->init_module('Base/Theme');
 		$qf = $this->init_module('Libs/QuickForm');
 		$qf->addElement('header','notification_header',$this->t('Notify this contacts'));
@@ -148,17 +148,21 @@ class CRM_MailClient extends Module {
 		$qf->assign_theme('form', $theme);
 		
 		if($qf->validate()) {
-			$u = $qf->exportValue('to_addr_ex');
-			foreach($u as $user) {
-				$user_login = CRM_ContactsCommon::get_contact($user);
-				$user_login = $user_login['login'];
-				Utils_WatchdogCommon::user_subscribe($user_login, 'crm_mailclient', $mid);
+			$mid = null;
+
+			if(CRM_MailClientCommon::move_to_contact_action($msg, $dir, $mid)) {
+				$u = $qf->exportValue('to_addr_ex');
+				foreach($u as $user) {
+					$user_login = CRM_ContactsCommon::get_contact($user);
+					$user_login = $user_login['login'];
+					Utils_WatchdogCommon::user_subscribe($user_login, 'crm_mailclient', $mid);
+				}
+				Utils_WatchdogCommon::new_event('crm_mailclient',$mid,'Mail moved to contact');
+				CRM_MailClient::pop_box();
+				$x = ModuleManager::get_instance('/Base_Box|0');
+				if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+				$x->push_main('CRM_MailClient','show_message',array($mid));
 			}
-			Utils_WatchdogCommon::new_event('crm_mailclient',$mid,'Mail moved to contact');
-			CRM_MailClient::pop_box();
-			$x = ModuleManager::get_instance('/Base_Box|0');
-			if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-			$x->push_main('CRM_MailClient','show_message',array($mid));
 		}
 
 		$theme->display('notification');
@@ -166,7 +170,11 @@ class CRM_MailClient extends Module {
 		Base_ActionBarCommon::add('save','Notify',$qf->get_submit_form_href());
 	}
 
-	public function rb($mid,$table) {
+	public function rb($msg,$dir,$table) {
+		if($this->is_back()) {
+			return CRM_MailClient::pop_box();
+		}
+		
 		$row = DB::GetRow('SELECT format_callback,crits FROM crm_mailclient_addons WHERE tab=%s',array($table));
 		$format_callback = unserialize($row['format_callback']);
 		$crits = unserialize($row['crits']);
@@ -175,7 +183,7 @@ class CRM_MailClient extends Module {
 		$qf->addElement('header','record_header',$this->t('Choose record'));
 
 		if($table == 'contact') {
-			$qf->addElement('automulti', 'records', array('CRM_ContactsCommon','automulti_contact_suggestbox'), array(array()), array('CRM_ContactsCommon','contact_format_default'));
+			$qf->addElement('automulti', 'records', '', array('CRM_ContactsCommon','automulti_contact_suggestbox'), array(array()), array('CRM_ContactsCommon','contact_format_default'));
 		} else {
 			$fav2 = array();
 			$fav = Utils_RecordBrowserCommon::get_records($table,array_merge(array(':Fav'=>true),$crits));
@@ -202,10 +210,50 @@ class CRM_MailClient extends Module {
 		$qf->assign_theme('form', $theme);
 		
 		if($qf->validate()) {
+			$sent = false;
+			if(ereg('^(Drafts|Sent)',$dir))
+				$sent = true;
+
+			if($sent) {
+				$addr = Apps_MailClientCommon::mime_header_decode($msg['headers']['to']);
+			} else {
+				$addr = Apps_MailClientCommon::mime_header_decode($msg['headers']['from']);
+			}
+		
+			$c = self::resolve_contact($addr,false);
+//			if(!$c) return false;
+		
+			$headers = '';
+			foreach($msg['headers'] as $cap=>$h)
+				$headers .= $cap.': '.$h."\n";
+			
+			$data_dir = self::Instance()->get_data_dir();
+			if(!isset(self::$my_rec))
+				self::$my_rec = CRM_ContactsCommon::get_my_record();
+			if($sent) {
+				$to = $c?$c['id']:null;
+				$from = self::$my_rec['id']>=0?self::$my_rec['id']:null;
+			} else {
+				$to = self::$my_rec['id']>=0?self::$my_rec['id']:null;
+				$from = $c?$c['id']:null;
+			}
+			DB::Execute('INSERT INTO crm_mailclient_mails(from_contact_id,to_contact_id,subject,headers,body,body_type,body_ctype,delivered_on) VALUES(%d,%d,%s,%s,%s,%s,%s,%T)',array($from,$to,Apps_MailClientCommon::mime_header_decode($msg['subject']),$headers,$msg['body'],$msg['type'],$msg['ctype'],strtotime($msg['headers']['date'])));
+			$mid = DB::Insert_ID('crm_mailclient_mails','id');
+			foreach($msg['attachments'] as $k=>$a) {
+				DB::Execute('INSERT INTO crm_mailclient_attachments(mail_id,name,type,cid,disposition) VALUES(%d,%s,%s,%s,%s)',array($mid,$k,$a['type'],$a['id'],$a['disposition']));
+				$aid = DB::Insert_ID('crm_mailclient_mails','id');
+				file_put_contents($data_dir.$aid,$a['body']);
+			}
+			$mail_id = $mid;
+			if($to!==null) Utils_WatchdogCommon::new_event('contact',$to,'N_New mail');
+			if($from!==null) Utils_WatchdogCommon::new_event('contact',$from,'N_New mail');
+	
 			$u = $qf->exportValue('to_addr_ex');
 			$r = $qf->exportValue('records');
 			foreach($r as $rec) {
+				if($table=='contact' && ($rec==$to || $rec==$from)) continue;
 				DB::Execute('INSERT INTO crm_mailclient_rb_mails(mail_id,rec_id,tab) VALUES(%d,%d,%s)',array($mid,$rec,$table));
+				Utils_WatchdogCommon::new_event($table,$rec,'N_New mail');
 			}
 			foreach($u as $user) {
 				$user_login = CRM_ContactsCommon::get_contact($user);
@@ -223,6 +271,7 @@ class CRM_MailClient extends Module {
 
 		$theme->display('rb');
 
+		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 		Base_ActionBarCommon::add('save','Attach to record',$qf->get_submit_form_href());
 	}
 }

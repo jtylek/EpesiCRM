@@ -80,47 +80,9 @@ class CRM_MailClientCommon extends ModuleCommon {
 	}
 	
 	public static function move_to_rb_action($msg, $dir, $table) {
-		$sent = false;
-		if(ereg('^(Drafts|Sent)',$dir))
-			$sent = true;
-
-		if($sent) {
-			$addr = Apps_MailClientCommon::mime_header_decode($msg['headers']['to']);
-		} else {
-			$addr = Apps_MailClientCommon::mime_header_decode($msg['headers']['from']);
-		}
-		
-		$c = self::resolve_contact($addr,false);
-//		if(!$c) return false;
-		
-		$headers = '';
-		foreach($msg['headers'] as $cap=>$h)
-			$headers .= $cap.': '.$h."\n";
-			
-		$data_dir = self::Instance()->get_data_dir();
-		if(!isset(self::$my_rec))
-			self::$my_rec = CRM_ContactsCommon::get_my_record();
-		if($sent) {
-			$to = $c?$c['id']:null;
-			$from = self::$my_rec['id']>=0?self::$my_rec['id']:null;
-		} else {
-			$to = self::$my_rec['id']>=0?self::$my_rec['id']:null;
-			$from = $c?$c['id']:null;
-		}
-		DB::Execute('INSERT INTO crm_mailclient_mails(from_contact_id,to_contact_id,subject,headers,body,body_type,body_ctype,delivered_on) VALUES(%d,%d,%s,%s,%s,%s,%s,%T)',array($from,$to,Apps_MailClientCommon::mime_header_decode($msg['subject']),$headers,$msg['body'],$msg['type'],$msg['ctype'],strtotime($msg['headers']['date'])));
-		$mid = DB::Insert_ID('crm_mailclient_mails','id');
-		foreach($msg['attachments'] as $k=>$a) {
-			DB::Execute('INSERT INTO crm_mailclient_attachments(mail_id,name,type,cid,disposition) VALUES(%d,%s,%s,%s,%s)',array($mid,$k,$a['type'],$a['id'],$a['disposition']));
-			$aid = DB::Insert_ID('crm_mailclient_mails','id');
-			file_put_contents($data_dir.$aid,$a['body']);
-		}
-		$mail_id = $mid;
-		if($to!==null) Utils_WatchdogCommon::new_event('contact',$to,'N_New mail');
-		if($from!==null) Utils_WatchdogCommon::new_event('contact',$from,'N_New mail');
-
 		$x = ModuleManager::get_instance('/Base_Box|0');
 		if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-		$x->push_main('CRM/MailClient','rb',array($mid,$table));
+		$x->push_main('CRM/MailClient','rb',array($msg,$dir,$table));
 		return true;
 	}
 	
@@ -144,11 +106,22 @@ class CRM_MailClientCommon extends ModuleCommon {
 	}
 	
 	public static function move_to_contact_and_notify_action($msg,$dir) {
-		$mid = null;
-		if(!self::move_to_contact_action($msg, $dir, $mid)) return false;
+		$sent = false;
+		if(ereg('^(Drafts|Sent)',$dir))
+			$sent = true;
+
+		if($sent) {
+			$addr = Apps_MailClientCommon::mime_header_decode($msg['headers']['to']);
+		} else {
+			$addr = Apps_MailClientCommon::mime_header_decode($msg['headers']['from']);
+		}
+		
+		$c = self::resolve_contact($addr);
+		if(!$c) return false;
+
 		$x = ModuleManager::get_instance('/Base_Box|0');
 		if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-		$x->push_main('CRM/MailClient','notify',array($mid));
+		$x->push_main('CRM/MailClient','notify',array($msg,$dir));
 		return true;
 	}
 
