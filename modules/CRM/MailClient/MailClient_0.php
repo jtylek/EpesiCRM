@@ -132,6 +132,10 @@ class CRM_MailClient extends Module {
 	}
 	
 	public function notify($msg,$dir) {
+		if($this->is_back()) {
+			return CRM_MailClient::pop_box();
+		}
+
 		$theme = $this->init_module('Base/Theme');
 		$qf = $this->init_module('Libs/QuickForm');
 		$qf->addElement('header','notification_header',$this->t('Notify this contacts'));
@@ -167,7 +171,8 @@ class CRM_MailClient extends Module {
 
 		$theme->display('notification');
 
-		Base_ActionBarCommon::add('save','Notify',$qf->get_submit_form_href());
+		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+		Base_ActionBarCommon::add('save','Move & Notify',$qf->get_submit_form_href());
 	}
 
 	public function rb($msg,$dir,$table) {
