@@ -234,13 +234,12 @@ class CRM_MailClient extends Module {
 				$headers .= $cap.': '.$h."\n";
 			
 			$data_dir = $this->get_data_dir();
-			if(!isset(self::$my_rec))
-				self::$my_rec = CRM_ContactsCommon::get_my_record();
+			$my_rec = CRM_ContactsCommon::get_my_record();
 			if($sent) {
 				$to = $c?$c['id']:null;
-				$from = self::$my_rec['id']>=0?self::$my_rec['id']:null;
+				$from = $my_rec['id']>=0?$my_rec['id']:null;
 			} else {
-				$to = self::$my_rec['id']>=0?self::$my_rec['id']:null;
+				$to = $my_rec['id']>=0?$my_rec['id']:null;
 				$from = $c?$c['id']:null;
 			}
 			DB::Execute('INSERT INTO crm_mailclient_mails(from_contact_id,to_contact_id,subject,headers,body,body_type,body_ctype,delivered_on) VALUES(%d,%d,%s,%s,%s,%s,%s,%T)',array($from,$to,Apps_MailClientCommon::mime_header_decode($msg['subject']),$headers,$msg['body'],$msg['type'],$msg['ctype'],strtotime($msg['headers']['date'])));
