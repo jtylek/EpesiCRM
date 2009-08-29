@@ -233,7 +233,7 @@ class CRM_MailClient extends Module {
 			foreach($msg['headers'] as $cap=>$h)
 				$headers .= $cap.': '.$h."\n";
 			
-			$data_dir = self::Instance()->get_data_dir();
+			$data_dir = $this->get_data_dir();
 			if(!isset(self::$my_rec))
 				self::$my_rec = CRM_ContactsCommon::get_my_record();
 			if($sent) {
