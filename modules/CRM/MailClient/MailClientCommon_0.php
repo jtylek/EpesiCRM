@@ -12,7 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_MailClientCommon extends ModuleCommon {
 	private static $my_rec;
 
-	private static function resolve_contact($addr,$display_errors=true) {
+	public static function resolve_contact($addr,$display_errors=true) {
 		if(ereg('<(.+)>$',$addr,$reqs))
 			$addr = trim($reqs[1]);
 		if(ereg('([0-9]+)@epesi_(contact|user)$',$addr,$reqs)) {

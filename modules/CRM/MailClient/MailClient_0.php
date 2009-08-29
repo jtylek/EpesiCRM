@@ -226,7 +226,7 @@ class CRM_MailClient extends Module {
 				$addr = Apps_MailClientCommon::mime_header_decode($msg['headers']['from']);
 			}
 		
-			$c = self::resolve_contact($addr,false);
+			$c = CRM_MailClientCommon::resolve_contact($addr,false);
 //			if(!$c) return false;
 		
 			$headers = '';
