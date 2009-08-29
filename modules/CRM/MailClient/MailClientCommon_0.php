@@ -38,11 +38,12 @@ class CRM_MailClientCommon extends ModuleCommon {
 		return array_pop($c);
 	}
 
-	public static function move_to_contact_action($msg, $dir, & $mail_id=null) {
+	public static function move_to_contact_action($box, $dir, $id, & $mail_id=null) {
 		$sent = false;
 		if(ereg('^(Drafts|Sent)',$dir))
 			$sent = true;
 
+		$msg = Apps_MailClientCommon::parse_message($box,$dir,$id);
 		if($sent) {
 			$addr = Apps_MailClientCommon::mime_header_decode($msg['headers']['to']);
 		} else {
@@ -79,18 +80,19 @@ class CRM_MailClientCommon extends ModuleCommon {
 		return true;
 	}
 	
-	public static function move_to_rb_action($msg, $dir, $table) {
+	public static function move_to_rb_action($box, $dir, $id, $table) {
 		$x = ModuleManager::get_instance('/Base_Box|0');
 		if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-		$x->push_main('CRM/MailClient','rb',array($msg,$dir,$table));
+		$x->push_main('CRM/MailClient','rb',array($box,$dir,$id,$table));
 		return true;
 	}
 	
-	public static function goto_action($msg,$dir) {
+	public static function goto_action($box,$dir,$id) {
 		$sent = false;
 		if(ereg('^(Drafts|Sent)',$dir))
 			$sent = true;
 
+		$msg = Apps_MailClientCommon::parse_message($box,$dir,$id);
 		if($sent)
 			$addr = Apps_MailClientCommon::mime_header_decode($msg['headers']['to']);
 		else
@@ -105,11 +107,12 @@ class CRM_MailClientCommon extends ModuleCommon {
 		return true;
 	}
 	
-	public static function move_to_contact_and_notify_action($msg,$dir) {
+	public static function move_to_contact_and_notify_action($box,$dir,$id) {
 		$sent = false;
 		if(ereg('^(Drafts|Sent)',$dir))
 			$sent = true;
 
+		$msg = Apps_MailClientCommon::parse_message($box,$dir,$id);
 		if($sent) {
 			$addr = Apps_MailClientCommon::mime_header_decode($msg['headers']['to']);
 		} else {
@@ -121,7 +124,7 @@ class CRM_MailClientCommon extends ModuleCommon {
 
 		$x = ModuleManager::get_instance('/Base_Box|0');
 		if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-		$x->push_main('CRM/MailClient','notify',array($msg,$dir));
+		$x->push_main('CRM/MailClient','notify',array($box,$dir,$id));
 		return true;
 	}
 
@@ -131,11 +134,11 @@ class CRM_MailClientCommon extends ModuleCommon {
 			self::$my_rec = CRM_ContactsCommon::get_my_record();
 		if(self::$my_rec['id']!==-1) {
 			$ret['Move to associated contact']=array('func'=>array('CRM_MailClientCommon','move_to_contact_action'),'delete'=>1);
-			$ret['Move to associated contact & notify employees']=array('func'=>array('CRM_MailClientCommon','move_to_contact_and_notify_action'),'delete'=>1);
+			$ret['Move to associated contact & notify employees']=array('func'=>array('CRM_MailClientCommon','move_to_contact_and_notify_action'));
 		}
 		$rbs = DB::GetAssoc('SELECT rtb.tab,rtb.caption FROM recordbrowser_table_properties rtb INNER JOIN crm_mailclient_addons x ON x.tab=rtb.tab');
 		foreach($rbs as $table=>$cap) {
-			$ret['Move to "'.$cap.'"']=array('func'=>array('CRM_MailClientCommon','move_to_rb_action'),'args'=>$table,'delete'=>1);
+			$ret['Move to "'.$cap.'"']=array('func'=>array('CRM_MailClientCommon','move_to_rb_action'),'args'=>$table);
 		}
 
 		return $ret;

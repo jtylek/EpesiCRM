@@ -131,7 +131,7 @@ class CRM_MailClient extends Module {
 		$x->pop_main();	
 	}
 	
-	public function notify($msg,$dir) {
+	public function notify($box,$dir,$id) {
 		if($this->is_back()) {
 			return CRM_MailClient::pop_box();
 		}
@@ -154,7 +154,7 @@ class CRM_MailClient extends Module {
 		if($qf->validate()) {
 			$mid = null;
 
-			if(CRM_MailClientCommon::move_to_contact_action($msg, $dir, $mid)) {
+			if(CRM_MailClientCommon::move_to_contact_action($box, $dir, $id, $mid)) {
 				$u = $qf->exportValue('to_addr_ex');
 				foreach($u as $user) {
 					$user_login = CRM_ContactsCommon::get_contact($user);
@@ -175,7 +175,7 @@ class CRM_MailClient extends Module {
 		Base_ActionBarCommon::add('save','Move & Notify',$qf->get_submit_form_href());
 	}
 
-	public function rb($msg,$dir,$table) {
+	public function rb($box,$dir,$id,$table) {
 		if($this->is_back()) {
 			return CRM_MailClient::pop_box();
 		}
@@ -219,6 +219,7 @@ class CRM_MailClient extends Module {
 			if(ereg('^(Drafts|Sent)',$dir))
 				$sent = true;
 
+			$msg = Apps_MailClientCommon::parse_message($box,$dir,$id);
 			if($sent) {
 				$addr = Apps_MailClientCommon::mime_header_decode($msg['headers']['to']);
 			} else {
@@ -271,6 +272,7 @@ class CRM_MailClient extends Module {
 //			$x = ModuleManager::get_instance('/Base_Box|0');
 //			if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 //			$x->push_main('CRM_MailClient','show_message',array($mid));
+			Apps_MailClientCommon::remove_msg($box,$dir,$id);
 			return;
 		}
 
