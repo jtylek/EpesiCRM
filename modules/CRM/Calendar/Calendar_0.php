@@ -76,12 +76,12 @@ class CRM_Calendar extends Module {
 				$pdf->add_actionbar_icon($this->t(str_replace(' ','_',$view)));
 			}
 		}
-		if(Base_AclCommon::i_am_sa()) {
+//		if(Base_AclCommon::i_am_sa()) {
 			if(CRM_CalendarCommon::$trash)
 				Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file('CRM_Calendar','icon.png'),'Calendar', $this->create_callback_href(array($this, 'set_trash'),array(0)));		
 			else
 				Base_ActionBarCommon::add('delete','Trash', $this->create_callback_href(array($this, 'set_trash'),array(1)));
-		}
+//		}
 	}
 	
 	public function set_trash($v) {
