@@ -135,7 +135,7 @@ function themeup(){
 	install_default_theme_common_files('modules/Base/Theme/','images');
 }
 
-$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1','0.9.9beta1','0.9.9beta2','1.0.0rc1','1.0.0rc2','1.0.0rc3','1.0.0rc4','1.0.0rc5','1.0.0rc6','1.0.0','1.0.1');
+$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1','0.9.9beta1','0.9.9beta2','1.0.0rc1','1.0.0rc2','1.0.0rc3','1.0.0rc4','1.0.0rc5','1.0.0rc6','1.0.0','1.0.1','1.0.2');
 
 /****************** 0.8.5 to 0.8.6 **********************/
 function update_from_0_9_9beta1_to_0_9_9beta2() {
@@ -1392,7 +1392,61 @@ function update_from_1_0_0_to_1_0_1() {
 		if (ModuleManager::is_installed('Base_HomePage')>=0)
 			DB::Execute('DELETE FROM home_page');
 	}
+    //ok, done
+    ModuleManager::create_common_cache();
+    ModuleManager::load_modules();
+    themeup();
+    langup();
+    Base_ThemeCommon::create_cache();
+}
 
+function update_from_1_0_1_to_1_0_2() {
+	ob_start();
+	ModuleManager::load_modules();
+	ob_end_clean();
+
+	if (ModuleManager::is_installed('CRM_MailClient')>=0) {
+
+		DB::CreateTable('crm_mailclient_addons','
+			tab C(64) KEY NOTNULL,
+			format_callback C(128) NOTNULL,
+			crits C(256)');
+
+		DB::CreateTable('crm_mailclient_rb_mails','
+			mail_id I4 NOTNULL,
+			rec_id I4 NOTNULL,
+			tab C(64) NOTNULL',
+			array('constraints'=>', FOREIGN KEY (mail_id) REFERENCES crm_mailclient_mails(ID)'));
+
+		$tab = 'task';
+		$format_callback = array('CRM_TasksCommon','display_title_with_mark');
+		$crits = array('!status'=>array(2,3));
+		DB::Execute('INSERT INTO crm_mailclient_addons(tab,format_callback,crits) VALUES (%s,%s,%s)',array($tab,serialize($format_callback),serialize($crits)));
+		Utils_RecordBrowserCommon::new_addon($tab, 'CRM/MailClient', 'rb_addon', 'Mails');
+
+		$r = DB::dict()->AlterColumnSQL('crm_mailclient_mails','
+			id I4 AUTO KEY NOTNULL,
+			delivered_on T NOTNULL,
+			from_contact_id I4 DEFAULT NULL,
+			to_contact_id I4 DEFAULT NULL,
+			deleted I1 DEFAULT 0,
+			sticky I1 DEFAULT 0,
+			headers X,
+			subject C(255),
+			body X,
+			body_type C(16),
+			body_ctype C(32)','',
+			array('constraints'=>', FOREIGN KEY (from_contact_id) REFERENCES contact_data_1(ID), FOREIGN KEY (to_contact_id) REFERENCES contact_data_1(ID)'));
+		foreach($r as $rr) {
+			DB::Execute($rr);
+		}
+
+		$tab = 'contact';
+		$format_callback = null;
+		$crits = null;
+		DB::Execute('INSERT INTO crm_mailclient_addons(tab,format_callback,crits) VALUES (%s,%s,%s)',array($tab,serialize($format_callback),serialize($crits)));
+	}
+	
     //ok, done
     ModuleManager::create_common_cache();
     ModuleManager::load_modules();

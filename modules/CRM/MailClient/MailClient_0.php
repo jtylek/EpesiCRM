@@ -180,11 +180,16 @@ class CRM_MailClient extends Module {
 			return CRM_MailClient::pop_box();
 		}
 		
+		$msg = Apps_MailClientCommon::parse_message($box,$dir,$id);
+
 		$row = DB::GetRow('SELECT format_callback,crits FROM crm_mailclient_addons WHERE tab=%s',array($table));
 		$format_callback = unserialize($row['format_callback']);
 		$crits = unserialize($row['crits']);
 		$theme = $this->init_module('Base/Theme');
 		$qf = $this->init_module('Libs/QuickForm');
+		$qf->addElement('static','subject',$this->t('Subject'),$msg['subject']);
+		$qf->addElement('static','from',$this->t('From'),Apps_MailClientCommon::mime_header_decode($msg['headers']['from']));
+		$qf->addElement('static','to',$this->t('To'),Apps_MailClientCommon::mime_header_decode($msg['headers']['to']));
 		$qf->addElement('header','record_header',$this->t('Choose record'));
 
 		if($table == 'contact') {
@@ -219,7 +224,6 @@ class CRM_MailClient extends Module {
 			if(ereg('^(Drafts|Sent)',$dir))
 				$sent = true;
 
-			$msg = Apps_MailClientCommon::parse_message($box,$dir,$id);
 			if($sent) {
 				$addr = Apps_MailClientCommon::mime_header_decode($msg['headers']['to']);
 			} else {

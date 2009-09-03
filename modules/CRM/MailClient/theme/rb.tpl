@@ -2,6 +2,18 @@
 
 <table>
 <tr>
+<td>{$form_data.subject.label}</td>
+<td>{$form_data.subject.html}</td>
+</tr>
+<tr>
+<td>{$form_data.from.label}</td>
+<td>{$form_data.from.html}</td>
+</tr>
+<tr>
+<td>{$form_data.to.label}</td>
+<td>{$form_data.to.html}</td>
+</tr>
+<tr>
 <td colspan=2>{$form_data.header.record_header}</td>
 </tr>
 <tr>
