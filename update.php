@@ -1422,6 +1422,8 @@ function update_from_1_0_1_to_1_0_2() {
 				tab C(64) NOTNULL',
 				array('constraints'=>', FOREIGN KEY (mail_id) REFERENCES crm_mailclient_mails(ID)'));
 		}
+		
+		DB::Execute('DELETE FROM crm_mailclient_addons');
 
 		$tab = 'task';
 		$format_callback = array('CRM_TasksCommon','display_title_with_mark');
