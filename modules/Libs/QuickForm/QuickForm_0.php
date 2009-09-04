@@ -54,11 +54,17 @@ class Libs_QuickForm extends Module {
 	}
 	
 	public function & __call($func_name, $args) {
-		if ($func_name=='addElement' && ($args[0]=='select' || $args[0]=='commondata' || $args[0]=='multiselect')) {
-			load_js('modules/Libs/QuickForm/select.js');
-			if (!isset($args[4])) $args[4] = array('onkeydown'=>'typeAhead();');
-			if (is_array($args[4])) $args[4]['onkeydown'] = 'typeAhead();';
-			else $args[4] .= ' onkeydown="typeAhead();"';
+		if ($func_name=='addElement' && isset($args[0])) {
+			if(is_string($args[0]))
+				$type = $args[0];
+			else
+				$type = $args[0]->getType();
+			if($type=='select' || $type=='commondata' || $type=='multiselect') {
+				load_js('modules/Libs/QuickForm/select.js');
+				if (!isset($args[4])) $args[4] = array('onkeydown'=>'typeAhead();');
+				if (is_array($args[4])) $args[4]['onkeydown'] = 'typeAhead();';
+				else $args[4] .= ' onkeydown="typeAhead();"';
+			}
 		}
 		if (is_object($this->qf))
 			$return = & call_user_func_array(array(&$this->qf, $func_name), $args);
