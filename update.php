@@ -1407,16 +1407,21 @@ function update_from_1_0_1_to_1_0_2() {
 
 	if (ModuleManager::is_installed('CRM_MailClient')>=0) {
 
-		DB::CreateTable('crm_mailclient_addons','
-			tab C(64) KEY NOTNULL,
-			format_callback C(128) NOTNULL,
-			crits C(256)');
-
-		DB::CreateTable('crm_mailclient_rb_mails','
-			mail_id I4 NOTNULL,
-			rec_id I4 NOTNULL,
-			tab C(64) NOTNULL',
-			array('constraints'=>', FOREIGN KEY (mail_id) REFERENCES crm_mailclient_mails(ID)'));
+		$tables = DB::MetaTables();
+		
+		if(!in_array('crm_mailclient_addons',$tables)) {
+			DB::CreateTable('crm_mailclient_addons','
+				tab C(64) KEY NOTNULL,
+				format_callback C(128) NOTNULL,
+				crits C(256)');
+		}
+		if(!in_array('crm_mailclient_rb_mails',$tables)) {
+			DB::CreateTable('crm_mailclient_rb_mails','
+				mail_id I4 NOTNULL,
+				rec_id I4 NOTNULL,
+				tab C(64) NOTNULL',
+				array('constraints'=>', FOREIGN KEY (mail_id) REFERENCES crm_mailclient_mails(ID)'));
+		}
 
 		$tab = 'task';
 		$format_callback = array('CRM_TasksCommon','display_title_with_mark');
