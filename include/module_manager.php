@@ -1013,5 +1013,32 @@ class ModuleManager {
 		return $cache[$cache_id];
 	}
 
+    /**
+     * Returns array containing required modules.
+     *
+     * @param bool If true then function returns associative array containing names of modules that require specific module
+     * @return array If module is required then arr['module_name'] is equal to number of modules that require specific module.
+     */
+    public static function required_modules($verbose = false) {
+        $ret = array();
+        foreach (self::$modules as $name => $version) {
+			self::include_install($name);
+			$required = call_user_func(array (
+				self::$modules_install[$name],
+				'requires'
+				),$version);
+
+			foreach ($required as $req_mod) {
+                $req_name = str_replace('/','_',$req_mod['name']);
+                if($verbose) {
+                    $ret[$req_name][] = $name;
+                } else {
+                    if(!isset($ret[$req_name])) $ret[$req_name] = 1;
+                    else $ret[ $req_name ]++;
+                }
+			}
+		}
+        return $ret;
+    }
 }
 ?>
