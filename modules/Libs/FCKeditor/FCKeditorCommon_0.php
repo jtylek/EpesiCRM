@@ -19,6 +19,6 @@ if(!MOBILE_DEVICE) {
                                             ,'HTML_Quickform_fckeditor');
 	load_js('modules/Libs/FCKeditor/onsubmit.js');
 	load_css('modules/Libs/FCKeditor/frontend.css');
-	Libs_QuickFormCommon::add_on_submit_action('if(typeof(fckeditor_onsubmit)!="undefined")fckeditor_onsubmit(this)');
+	Libs_QuickFormCommon::add_on_submit_action("if(typeof(fckeditor_onsubmit)!='undefined')fckeditor_onsubmit(this)");
 }
 ?> 
