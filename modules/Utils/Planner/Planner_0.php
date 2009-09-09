@@ -21,6 +21,10 @@ class Utils_Planner extends Module {
 		$this->form->addElement('hidden', 'grid_selected_frames', '', array('id'=>'grid_selected_frames'));
 	}
 	
+	public function get_form() {
+		return $this->form;
+	}
+	
 	public function set_resource_availability_check_callback($callback) {
 		$_SESSION['client']['utils_planner']['resource_availability_check_callback'] = $callback;
 	}
@@ -67,6 +71,10 @@ class Utils_Planner extends Module {
 			$this->form->addElement($type, $name, $label, $param1, array('id'=>$name, 'onchange'=>$on_change));
 			return;
 		}
+	}
+	
+	public function set_resource_default($k, $v) {
+		$this->form->setDefaults(array($k=>$v));
 	}
 
 	public function body(){

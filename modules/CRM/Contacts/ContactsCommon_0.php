@@ -236,7 +236,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return strcasecmp(strip_tags($a),strip_tags($b));
 	}
 	
-	public static function automulti_contact_suggestbox($str, $crits) {
+	public static function automulti_contact_suggestbox($str, $crits=array(), $no_company=false) {
 		$str = explode(' ', trim($str));
 		foreach ($str as $k=>$v)
 			if ($v) {
@@ -250,7 +250,10 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$recs = Utils_RecordBrowserCommon::get_records('contact', $crits, array(), array('last_name'=>'ASC'), 10);
 		$ret = array();
 		foreach($recs as $v) {
-			$ret[$v['id']] = self::contact_format_default($v, true);
+			if ($no_company)
+				$ret[$v['id']] = self::contact_format_no_company($v, true);
+			else
+				$ret[$v['id']] = self::contact_format_default($v, true);
 		}
 		return $ret;
 	}

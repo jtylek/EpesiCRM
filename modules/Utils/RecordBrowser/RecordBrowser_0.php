@@ -95,8 +95,8 @@ class Utils_RecordBrowser extends Module {
 		return isset($this->display_callback_table[$ar])?$this->display_callback_table[$ar]:null;
 	}
 
-	public function set_additional_actions_method($obj, $func) {
-		$this->additional_actions_method = array($obj, $func);
+	public function set_additional_actions_method($callback) {
+		$this->additional_actions_method = $callback;
 	}
 
 	public function set_cut_lengths($ar) {

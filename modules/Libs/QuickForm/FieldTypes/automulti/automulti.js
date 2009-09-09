@@ -32,22 +32,26 @@ automulti_on_hide = function (element, list_sep) {
 	var new_value=$("__autocomplete_id_"+element+"__search").value.split("__");
 	if (new_value && typeof(new_value[1])!="undefined") {
 		$("__autocomplete_id_"+element+"__search").value="";
-		list = document.getElementsByName(element+"__display")[0];
-		i = 0;
-		while (i!=list.options.length) {
-			if (list.options[i].value==new_value[0]) {
-				new_value=null;
-				break;
-			}
-			i++;
+		automulti_add_value(element, list_sep, new_value[0], new_value[1]);
+	}
+}
+
+automulti_add_value = function (element, list_sep, value, label) {
+	list = document.getElementsByName(element+"__display")[0];
+	i = 0;
+	while (i!=list.options.length) {
+		if (list.options[i].value==value) {
+			value=null;
+			break;
 		}
-		if (new_value!=null) {
-			list.options[i] = new Option();
-			list.options[i].value = new_value[0];
-			list.options[i].text = new_value[1];
-			val_holder = document.getElementsByName(element)[0];
-			val_holder.value += list_sep;
-			val_holder.value += new_value[0];
-		}
+		i++;
+	}
+	if (value!=null) {
+		list.options[i] = new Option();
+		list.options[i].value = value;
+		list.options[i].text = label;
+		val_holder = document.getElementsByName(element)[0];
+		val_holder.value += list_sep;
+		val_holder.value += value;
 	}
 }

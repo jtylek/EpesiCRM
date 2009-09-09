@@ -31,14 +31,14 @@
 						{if is_array($e) && isset($e.label)}
 							{if ($e.type=='automulti')}
 								<tr>
-									<td colspan="2" class="label">{$e.label}</td>
+									<td colspan="2" class="label" nowrap="1">{$e.label}</td>
 								</tr>
 								<tr>
 									<td colspan="2" class="data">{$e.html}</td>
 								</tr>
 							{else}
 								<tr>
-									<td class="label">{$e.label}</td>
+									<td class="label" nowrap="1">{$e.label}</td>
 									<td class="data">{$e.html}</td>
 								</tr>
 							{/if}
