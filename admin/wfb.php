@@ -352,7 +352,7 @@ function extractSubdir($d) {
 
    $tmp = "";
    if ($d != "") {
-      $rp = ereg_replace("((.*)\/.*)\/\.\.$", "\\2", $d);
+      $rp = preg_replace("/((.*)\/.*)\/\.\.$/", "\\2", $d);
       $tmp = strtr(str_replace($basedir, "", $rp), "\\", "/");
       while (isset($tmp[0]) && $tmp[0] == '/') $tmp = substr($tmp, 1);
    }
@@ -406,10 +406,10 @@ function checkFileName($f) {
             || (($subdir == "") && ($f == $trashcan))
             || (!$showimagesdir && ((($subdir == "") && ($f == $imagesdir)) || ($subdir == $imagesdir)))
             || ($hidedotfiles && ($f[0] == '.'))
-            || (($hidefilepattern != "") && ereg($hidefilepattern, $f))
-            || ($filealiases && ereg("^.*\.".strtolower($filealiasext)."$", strtolower($f)))
+            || (($hidefilepattern != "") && preg_match('/'.addcslashes($hidefilepattern,'/').'/', $f))
+            || ($filealiases && preg_match("/^.*\.".addcslashes(strtolower($filealiasext),'/')."$/", strtolower($f)))
             || (!$showreadmefile && ($f == $readmefile))
-            || (($subdir == $trashcan) && (($f == $readmefile) || ereg(".*\.".strtolower($trashcaninfofileext)."$", strtolower($f)))) );
+            || (($subdir == $trashcan) && (($f == $readmefile) || preg_match("/.*\.".addcslashes(strtolower($trashcaninfofileext),'/')."$/", strtolower($f)))) );
 }
 
 // Checks for edit extension
@@ -418,7 +418,7 @@ function checkExtension($f) {
 
    if (count($viewextensions) != 0) {
       foreach ($viewextensions as $ext) {
-         if (ereg(".*\.".strtolower($ext)."$", strtolower($f))) return true;
+         if (preg_match("/.*\.".addcslashes(strtolower($ext),'/')."$/", strtolower($f))) return true;
       }
       return false;
    } else {
@@ -445,7 +445,7 @@ function searchFiles($sd, $searchpattern, $level = 0) {
       while (($file = @readdir($d))) { 
          if (@is_dir($dir."/".$file) && ($file != ".") && ($file != "..")) {
             $count += searchFiles($sd."/".$file, $searchpattern, $level + 1); 
-         } else if (ereg(strtolower($searchpattern), strtolower($file)) && !ereg($hidefilepattern, $file)) {
+         } else if (preg_match('/'.addcslashes(strtolower($searchpattern),'/').'/', strtolower($file)) && !preg_match('/'.addcslashes($hidefilepattern,'/').'/', $file)) {
             $fp = getFilePath($file, $sd);
             addFileToList($file, $fp, ($subdir != "") ? str_replace($subdir."/", "", extractSubdir($fp)) : extractSubdir($fp), 9);
             $count++;
@@ -491,7 +491,7 @@ function addFileToList($file, $fp, $alias, $level, $image = "", $msg = "") {
 
    $files[$key] = array(
       "name" => $file,
-      "alias" => (($useimages) ? "<img src=\"$imagesdir/".(($image != "") ? $image : ((@is_dir($fp)) ? $dirimage : $fileimage))."\" border=0 align=center>&nbsp;" : "").(($subdir == $trashcan) ? ereg_replace("(.*)\.[0-9]*$", "\\1", $alias) : $alias),
+      "alias" => (($useimages) ? "<img src=\"$imagesdir/".(($image != "") ? $image : ((@is_dir($fp)) ? $dirimage : $fileimage))."\" border=0 align=center>&nbsp;" : "").(($subdir == $trashcan) ? preg_replace("/(.*)\.[0-9]*$/", "\\1", $alias) : $alias),
       "level" => $level,
       "path" => $fp,
       "size" => $size,
@@ -681,6 +681,9 @@ if (!isset($act) || $act != "download") {
    header("Content-Type: text/html; charset=$charset");
 }
 
+foreach($_REQUEST as $key=>$value) {
+	$$key = $value;
+}
 // Parameters check
 if (!isset($subdir) || $subdir == ".") $subdir = "";
 if (  ($subdir != "")
@@ -728,7 +731,7 @@ if (($act != "edit") && ($act != "show")) {
                $alias = "";
                if ($filealiases && @is_readable($fp_alias)) {
                   $fd = @fopen($fp_alias, "r");
-                  $alias = trim(@fread($fd, @filesize($fp_alias)))." <i>(".(($subdir == $trashcan) ? ereg_replace("(.*)\.[0-9]*$", "\\1", $file) : $file).")</i>";
+                  $alias = trim(@fread($fd, @filesize($fp_alias)))." <i>(".(($subdir == $trashcan) ? preg_replace("/(.*)\.[0-9]*$/", "\\1", $file) : $file).")</i>";
                   @fclose($fd);
                }
 
@@ -982,7 +985,7 @@ if (($act != "edit") && ($act != "show")) {
    } else if ($allowurlupload && ($act == "urlupload") && ($subdir != $trashcan)) {
       if (isset($file) && ($file != "")) {
          $url = $file;
-         $file = @basename(ereg_replace("^[a-zA-Z]*\:\/(.*)$", "\\1", $url));
+         $file = @basename(preg_replace("/^[a-zA-Z]*\:\/(.*)$/", "\\1", $url));
          if (!checkFileName($file) || (($subdir == "") && ($file == $trashcan))) {
             redirectWithMsg("warning", "uup1");
          } else {
@@ -1034,7 +1037,7 @@ if (($act != "edit") && ($act != "show")) {
             } else if ($subdir != $trashcan) {
                redirectWithMsg("warning", "rst2");
             } else {
-               $f = ereg_replace("(.*)\.[0-9]*$", "\\1", $file);
+               $f = preg_replace("/(.*)\.[0-9]*$/", "\\1", $file);
                $fp = getFilePath($file);
                $fp_info = $fp.".".$trashcaninfofileext;
 

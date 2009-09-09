@@ -1,4 +1,4 @@
-<?
+<?php
 //a:9:{s:4:"lang";s:2:"en";s:9:"auth_pass";s:32:"d41d8cd98f00b204e9800998ecf8427e";s:8:"quota_mb";i:0;s:17:"upload_ext_filter";a:0:{}s:19:"download_ext_filter";a:0:{}s:15:"error_reporting";s:0:"";s:7:"fm_root";s:0:"";s:17:"cookie_cache_time";i:1096733048;s:7:"version";s:5:"0.9.3";}
 /*--------------------------------------------------
  | PHP FILE MANAGER
@@ -166,7 +166,7 @@ class config {
         else $this->save();
     }
     function save(){
-        $objdata = "<?".chr(13).chr(10)."//".serialize($this->data).chr(13).chr(10);
+        $objdata = "<?php".chr(13).chr(10)."//".serialize($this->data).chr(13).chr(10);
         if (strlen($objdata)){
             if (file_exists($this->filename)){
                 $mat = file($this->filename);
@@ -460,7 +460,7 @@ function download(){
     if(file_exists($file)){
         $is_proibido = false;
         foreach($download_ext_filter as $key=>$ext){
-            if (eregi($ext,$filename)){
+            if (preg_match('/'.addcslashes($ext,'/').'/i',$filename)){
                 $is_proibido = true;
                 break;
             }
@@ -495,7 +495,7 @@ function save_upload($temp_file,$filename,$dir_dest) {
     $filesize = filesize($temp_file);
     $is_proibido = false;
     foreach($upload_ext_filter as $key=>$ext){
-        if (eregi($ext,$filename)){
+        if (preg_match('/'.addcslashes($ext,'/').'/i',$filename)){
             $is_proibido = true;
             break;
         }
