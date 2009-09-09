@@ -26,7 +26,7 @@ class Apps_GalleryCommon extends ModuleCommon {
 		$dir = $this->get_data_dir().Acl::get_user().'/';
 		$images = array();
 		if(file_exists($dir) && is_dir($dir)) {
-			$images_tmp = ereg_tree($dir,'\.('.sql_regcase('jpg|jpeg|png|gif').')$');
+			$images_tmp = preg_tree($dir,'/\.(jpg|jpeg|png|gif)$/i');
 			$def = null;
 			foreach($images_tmp as $f) {
 				if(!isset($def)) $def = $f;

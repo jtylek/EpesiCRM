@@ -567,9 +567,9 @@ class Utils_GenericBrowser extends Module {
 							else
 								$xxx = $c['value'];
 						} else $xxx = $c;
-						if(isset($this->columns[$i]['order_eregi'])) {
+						if(isset($this->columns[$i]['order_preg'])) {
 							$ret = array();
-							eregi($this->columns[$i]['order_eregi'],$xxx, $ret);
+							preg_match($this->columns[$i]['order_preg'],$xxx, $ret);
 							$xxx = isset($ret[1])?$ret[1]:'';
 						}
 						$xxx = strip_tags(strtolower($xxx));
@@ -723,9 +723,9 @@ class Utils_GenericBrowser extends Module {
 
 		$search = $this->get_module_variable('search');
 
-		$renderer =& new HTML_QuickForm_Renderer_TCMSArraySmarty();
-		$form_s = & $this->init_module('Libs/QuickForm');
-		$form_p = & $this->init_module('Libs/QuickForm');
+		$renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
+		$form_s = $this->init_module('Libs/QuickForm');
+		$form_p = $this->init_module('Libs/QuickForm');
 		$pager_on = false;
 		if(isset($this->rows_qty) && $paging) {
 			if(!$this->forced_per_page) {

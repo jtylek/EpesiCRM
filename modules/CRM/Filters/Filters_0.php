@@ -72,7 +72,7 @@ class CRM_Filters extends Module {
 	}
 
 	public function set_profile($prof) {
-		if(ereg('^c([0-9]+)$',$prof,$reqs)) {
+		if(preg_match('/^c([0-9]+)$/',$prof,$reqs)) {
 			$ret = $reqs[1];
 			$desc = $this->contacts_select[$reqs[1]];
 		} elseif(is_numeric($prof)) {

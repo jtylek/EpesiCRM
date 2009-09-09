@@ -68,7 +68,7 @@ if(isset($_GET['attachment_cid']) || isset($_GET['attachment_name'])) {
 		}
 	}
 
-	if(ereg('^(Sent|Drafts)',$_GET['dir']))
+	if(preg_match('/^(Sent|Drafts)/',$_GET['dir']))
 		$address = $structure->headers['to'];
 	else
 		$address = $structure->headers['from'];
@@ -85,7 +85,7 @@ if(isset($_GET['attachment_cid']) || isset($_GET['attachment_name'])) {
 
 	header("Content-type: text/html");
 	if($body_type=='plain') {
-		if(eregi("charset=([a-z0-9\-]+)",$body_ctype,$reqs)) {
+		if(preg_match("/charset=([a-z0-9\-]+)/i",$body_ctype,$reqs)) {
 			$charset = $reqs[1];
 			$body_ctype = "text/plain; charset=utf-8";
 			$body = iconv($charset,'UTF-8',$body);
@@ -96,11 +96,11 @@ if(isset($_GET['attachment_cid']) || isset($_GET['attachment_name'])) {
 			'<body><pre>'.$body.'</pre></body>';
 	} else {
 		$body = trim($body);
-		if(eregi('^<html>',$body))
+		if(preg_match('/^<html>/i',$body))
 			$body = substr($body,6);
-		if(eregi('<\/html>$',$body))
+		if(preg_match('/<\/html>$/i',$body))
 			$body = substr($body,0,strlen($body)-7);
-		if(!eregi('<\/body>$',$body) && !eregi('<body>',$body))
+		if(!preg_match('/<\/body>$/i',$body) && !preg_match('/<body>/i',$body))
 			$body = '<body>'.$body.'</body>';
 		$body = '<html>'.
 			'<head><meta http-equiv=Content-Type content="'.$body_ctype.'"></head>'.$body;

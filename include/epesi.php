@@ -231,8 +231,9 @@ class Epesi {
 
 		//on init call methods...
 		$ret = on_init(null,null,null,true);
-		foreach($ret as $k)
+		foreach($ret as $k) {
 			call_user_func_array($k['func'],$k['args']);
+		}
 
 		$root = & ModuleManager::create_root();
 		self::go($root);

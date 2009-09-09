@@ -105,7 +105,7 @@ class Utils_TabbedBrowser extends Module {
 	/**
 	 * This method will force Tabbed Browser to switch to selected tab.
 	 * 
-	 * @param intereger tab number
+	 * @param integer tab number
 	 */
 	public function switch_tab($i) {
 		if(!isset($i)) $i = count($this->tabs)-1;
@@ -123,7 +123,7 @@ class Utils_TabbedBrowser extends Module {
 	 * Sets default tab. 
 	 * No action will be done if tabbed browser was already displayed at least once.
 	 * 
-	 * @param intereger tab number
+	 * @param integer tab number
 	 */
 	public function set_default_tab($i) {
 		if($this->isset_module_variable('default_tab')) return;

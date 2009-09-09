@@ -596,7 +596,7 @@ class HTML_QuickForm extends HTML_Common
         static $cache=array();
         if (!isset($cache[$includeFile])) include_once($includeFile);
         $cache[$includeFile] = true;
-        $elementObject =& new $className();
+        $elementObject = new $className();
         for ($i = 0; $i < 5; $i++) {
             if (!isset($args[$i])) {
                 $args[$i] = null;
@@ -1702,7 +1702,7 @@ class HTML_QuickForm extends HTML_Common
     {
         if (!isset($GLOBALS['_HTML_QuickForm_default_renderer'])) {
             include_once('HTML/QuickForm/Renderer/Default.php');
-            $GLOBALS['_HTML_QuickForm_default_renderer'] =& new HTML_QuickForm_Renderer_Default();
+            $GLOBALS['_HTML_QuickForm_default_renderer'] = new HTML_QuickForm_Renderer_Default();
         }
         return $GLOBALS['_HTML_QuickForm_default_renderer'];
     } // end func defaultRenderer
@@ -1859,7 +1859,7 @@ class HTML_QuickForm extends HTML_Common
     function toArray($collectHidden = false)
     {
         include_once 'HTML/QuickForm/Renderer/Array.php';
-        $renderer =& new HTML_QuickForm_Renderer_Array($collectHidden);
+        $renderer = new HTML_QuickForm_Renderer_Array($collectHidden);
         $this->accept($renderer);
         return $renderer->toArray();
      } // end func toArray

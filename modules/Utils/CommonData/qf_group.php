@@ -53,10 +53,10 @@ class HTML_QuickForm_commondata_group extends HTML_QuickForm_group {
 		$cd = array($this->_cd_root);
 		$attributes = $this->getAttributes();
 		
-		$this->_elements[] = & new HTML_QuickForm_commondata($name.'____0', null, $cd, $attributes);
+		$this->_elements[] = new HTML_QuickForm_commondata($name.'____0', null, $cd, $attributes);
 		for($i=1; $i<$this->_cd_depth; $i++) {
 			$cd[] = $name.'____'.($i-1);
-			$this->_elements[] = & new HTML_QuickForm_commondata($name.'____'.$i, null, $cd, $attributes);
+			$this->_elements[] = new HTML_QuickForm_commondata($name.'____'.$i, null, $cd, $attributes);
 		}
 	}
 	

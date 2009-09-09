@@ -166,7 +166,7 @@ class Utils_Attachment extends Module {
 				$filetooltip = $this->t('Filename: %s<br>File size: %s',array($row['original'],filesize_hr($f_filename))).'<hr>'.$this->t('Last uploaded by %s<br>on %s<br>Number of uploads: %d<br>Number of downloads: %d',array($row['upload_by'],Base_RegionalSettingsCommon::time2reg($row['upload_on']),$row['file_revision'],$row['downloads']));
 				$view_link = '';
 				$file = '<a '.$this->get_file($row,$view_link).' '.Utils_TooltipCommon::open_tag_attrs($filetooltip,false).'><img src="'.Base_ThemeCommon::get_template_file($this->get_type(),'attach.png').'" border=0></a>';
-				if(eregi('\.(jpg|jpeg|gif|png|bmp)$',$row['original']) && $view_link)
+				if(preg_match('/\.(jpg|jpeg|gif|png|bmp)$/i',$row['original']) && $view_link)
 					$inline_img = '<hr><img src="'.$view_link.'" style="max-width:700px" /><br>';
 			} else {
 				$file = '';
@@ -351,7 +351,7 @@ class Utils_Attachment extends Module {
 			$view_link = '';
 
 			$file = $this->get_file($row,$view_link);
-			if(eregi('.(jpg|jpeg|gif|png|bmp)$',$row['original']) && $view_link)
+			if(preg_match('/\.(jpg|jpeg|gif|png|bmp)$/i',$row['original']) && $view_link)
 					$inline_img = '<hr><img src="'.$view_link.'" style="max-width:900px" /><br>';
 
 			$f_filename = DATA_DIR.'/Utils_Attachment/'.$row['local'].'/'.$row['id'].'_'.$row['file_revision'];

@@ -51,7 +51,7 @@ class Base_ThemeCommon extends ModuleCommon {
 			if (!$fullname)
 				$module_name .= '/'.$user_template;
 			else {
-				if(ereg(".tpl$",$user_template)) {
+				if(preg_match("/.tpl$/i",$user_template)) {
 					$tpl = $user_template;
 					$css = str_replace('.tpl','.css',$tpl);
 				} else
@@ -118,7 +118,7 @@ class Base_ThemeCommon extends ModuleCommon {
 			@mkdir($data_dir.$sum);
 		}
 		foreach ($content as $name){
-			if($name == '.' || $name == '..' || ereg('^[\.~]',$name)) continue;
+			if($name == '.' || $name == '..' || preg_match('/^[\.~]/i',$name)) continue;
 			recursive_copy($directory.'/'.$name,$data_dir.'/'.$mod_name.'/'.$name);
 		}
 	}
@@ -135,7 +135,7 @@ class Base_ThemeCommon extends ModuleCommon {
 
 		$content = scandir($data_dir);
 		foreach ($content as $name){
-			if($name == '.' || $name == '..' || ereg('^'.$mod_name,$name)===false) continue;
+			if($name == '.' || $name == '..' || preg_match('/^'.addcslashes($mod_name,'/').'/',$name)===false) continue;
 			$name = $data_dir.'/'.$name;
 			recursive_rmdir($name);
 //			if (!is_dir($name))

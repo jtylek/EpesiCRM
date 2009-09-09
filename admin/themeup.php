@@ -35,7 +35,7 @@ while($row = $ret->FetchRow()) {
 		@mkdir($data_dir.$sum);
 	}
 	foreach ($content as $name){
-		if($name == '.' || $name == '..' || ereg('^[\.~]',$name)) continue;
+		if($name == '.' || $name == '..' || preg_match('/^[\.~]/',$name)) continue;
 		recursive_copy($directory.'/'.$name,$data_dir.'/'.$mod_name.'/'.$name);
 	}
 }

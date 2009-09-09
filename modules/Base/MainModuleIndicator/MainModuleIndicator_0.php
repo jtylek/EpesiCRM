@@ -90,7 +90,7 @@ class Base_MainModuleIndicator extends Module {
 	    Variable::set('show_module_indicator',isset($vars['show_module_indicator']) && $vars['show_module_indicator']);
 	    if($oryg) {
 		$reqs = array();
-    		if(!eregi('\.(jpg|jpeg|gif|png|bmp)$',$oryg,$reqs)) {
+    		if(!preg_match('/\.(jpg|jpeg|gif|png|bmp)$/i',$oryg,$reqs)) {
     		    print('<a href="#">'.$this->t('Uploaded file is not valid image - JPG, GIF, PNG and BMP files are supported. Click here to proceed with another file.').'</a>');
 		    return;
     		}

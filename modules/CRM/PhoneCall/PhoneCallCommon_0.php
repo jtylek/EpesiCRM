@@ -220,7 +220,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	}
 	public static function display_phone_number($record, $nolink) {
 		if ($record['other_phone']) {
-			if(MOBILE_DEVICE && IPHONE && !$nolink && ereg('^([0-9\t\+-]+)',$record['other_phone_number'],$args))
+			if(MOBILE_DEVICE && IPHONE && !$nolink && preg_match('/^([0-9\t\+-]+)/',$record['other_phone_number'],$args))
 				return '<a href="tel:'.$args[1].'">'.$record['other_phone_number'].'</a>';
 			return CRM_CommonCommon::get_dial_code($record['other_phone_number']);
 		} else return self::display_phone($record,false,array('id'=>'phone'));

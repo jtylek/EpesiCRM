@@ -15,10 +15,7 @@ class Variable {
 
 	private static function load() {
 		if(!isset(self::$variables)) {
-		    self::$variables = array();
-		    $ret = DB::Execute("SELECT name,value FROM variables");
-		    while($row = $ret->FetchRow())
-			self::$variables[$row['name']] = $row['value'];
+		    self::$variables = DB::GetAssoc("SELECT name,value FROM variables");
 		}
 	}
 

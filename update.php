@@ -89,7 +89,7 @@ function langup(){
 		$content = scandir($directory);
 		$trans_backup = $translations;
 		foreach ($content as $name){
-			if($name == '.' || $name == '..' || ereg('^[\.~]',$name)) continue;
+			if($name == '.' || $name == '..' || preg_match('/^[\.~]/',$name)) continue;
 			$dot = strpos($name,'.');
 			$langcode = substr($name,0,$dot);
 			if (strtolower(substr($name,$dot+1))!='php') continue;
@@ -127,7 +127,7 @@ function themeup(){
 			@mkdir($data_dir.$sum);
 		}
 		foreach ($content as $name){
-			if($name == '.' || $name == '..' || ereg('^[\.~]',$name)) continue;
+			if($name == '.' || $name == '..' || preg_match('/^[\.~]/',$name)) continue;
 			recursive_copy($directory.'/'.$name,$data_dir.'/'.$mod_name.'/'.$name);
 		}
 	}
@@ -821,7 +821,7 @@ function update_from_1_0_0rc5_to_1_0_0rc6() {
 			$calendar_ats = DB::GetAssoc('SELECT ual.id,ual.local FROM utils_attachment_link ual WHERE ual.local LIKE \'CRM/Calendar/Event/%\'');
 
 			foreach($calendar_ats as $i=>$g) {
-				if(ereg('CRM/Calendar/Event/([0-9]+)',$g,$reqs))
+				if(preg_match('/CRM\/Calendar\/Event\/([0-9]+)/',$g,$reqs))
 					DB::Execute('UPDATE utils_attachment_link SET func=%s,args=%s WHERE id=%d',array(serialize(array('CRM_CalendarCommon','search_format')),serialize(array($reqs[1])),$i));
 			}
 		}
@@ -831,12 +831,12 @@ function update_from_1_0_0rc5_to_1_0_0rc6() {
 			$company_ats = DB::GetAssoc('SELECT ual.id,ual.local FROM utils_attachment_link ual WHERE ual.local LIKE \'CRM/Company/%\'');
 
 			foreach($contact_ats as $i=>$g) {
-				if(ereg('CRM/Contact/([0-9]+)',$g,$reqs))
+				if(preg_match('/CRM\/Contact\/([0-9]+)/',$g,$reqs))
 					DB::Execute('UPDATE utils_attachment_link SET func=%s,args=%s WHERE id=%d',array(serialize(array('CRM_ContactsCommon','search_format_contact')),serialize(array($reqs[1])),$i));
 			}
 
 			foreach($company_ats as $i=>$g) {
-				if(ereg('CRM/Company/([0-9]+)',$g,$reqs))
+				if(preg_match('/CRM\/Company\/([0-9]+)/',$g,$reqs))
 					DB::Execute('UPDATE utils_attachment_link SET func=%s,args=%s WHERE id=%d',array(serialize(array('CRM_ContactsCommon','search_format_company')),serialize(array($reqs[1])),$i));
 			}
 		}
@@ -845,7 +845,7 @@ function update_from_1_0_0rc5_to_1_0_0rc6() {
 			$task_ats = DB::GetAssoc('SELECT ual.id,ual.local FROM utils_attachment_link ual WHERE ual.local LIKE \'Premium/ListManager/%\'');
 
 			foreach($task_ats as $i=>$g) {
-				if(ereg('Premium/ListManager/([0-9]+)',$g,$reqs))
+				if(preg_match('/Premium\/ListManager\/([0-9]+)/',$g,$reqs))
 					DB::Execute('UPDATE utils_attachment_link SET func=%s,args=%s WHERE id=%d',array(serialize(array('Premium_ListManagerCommon','search_format')),serialize(array($reqs[1])),$i));
 			}
 		}
@@ -854,9 +854,9 @@ function update_from_1_0_0rc5_to_1_0_0rc6() {
 			$task_ats = DB::GetAssoc('SELECT ual.id,ual.local FROM utils_attachment_link ual WHERE ual.local LIKE \'Premium/Projects/%\'');
 
 			foreach($task_ats as $i=>$g) {
-				if(ereg('Premium/Projects/Tickets([0-9]+)',$g,$reqs))
+				if(preg_match('/Premium\/Projects\/Tickets([0-9]+)/',$g,$reqs))
 					DB::Execute('UPDATE utils_attachment_link SET func=%s,args=%s WHERE id=%d',array(serialize(array('Premium_Projects_TicketsCommon','search_format')),serialize(array($reqs[1])),$i));
-				elseif(ereg('Premium/Projects/([0-9]+)',$g,$reqs))
+				elseif(preg_match('/Premium\/Projects\/([0-9]+)/',$g,$reqs))
 					DB::Execute('UPDATE utils_attachment_link SET func=%s,args=%s WHERE id=%d',array(serialize(array('Premium_ProjectsCommon','search_format')),serialize(array($reqs[1])),$i));
 			}
 		}
@@ -865,11 +865,11 @@ function update_from_1_0_0rc5_to_1_0_0rc6() {
 			$task_ats = DB::GetAssoc('SELECT ual.id,ual.local FROM utils_attachment_link ual WHERE ual.local LIKE \'Premium/Warehouse/%\'');
 
 			foreach($task_ats as $i=>$g) {
-				if(ereg('Premium/Warehouse/Items/Orders/([0-9]+)',$g,$reqs))
+				if(preg_match('/Premium\/Warehouse\/Items\/Orders\/([0-9]+)/',$g,$reqs))
 					DB::Execute('UPDATE utils_attachment_link SET func=%s,args=%s WHERE id=%d',array(serialize(array('Premium_Warehouse_Items_OrdersCommon','search_format')),serialize(array($reqs[1])),$i));
-				elseif(ereg('Premium/Warehouse/Items/([0-9]+)',$g,$reqs))
+				elseif(preg_match('/Premium\/Warehouse\/Items\/([0-9]+)/',$g,$reqs))
 					DB::Execute('UPDATE utils_attachment_link SET func=%s,args=%s WHERE id=%d',array(serialize(array('Premium_Warehouse_ItemsCommon','search_format')),serialize(array($reqs[1])),$i));
-				elseif(ereg('Premium/Warehouse/([0-9]+)',$g,$reqs))
+				elseif(preg_match('/Premium\/Warehouse\/([0-9]+)/',$g,$reqs))
 					DB::Execute('UPDATE utils_attachment_link SET func=%s,args=%s WHERE id=%d',array(serialize(array('Premium_WarehouseCommon','search_format')),serialize(array($reqs[1])),$i));
 			}
 		}
@@ -878,7 +878,7 @@ function update_from_1_0_0rc5_to_1_0_0rc6() {
 			$task_ats = DB::GetAssoc('SELECT ual.id,ual.local FROM utils_attachment_link ual WHERE ual.local LIKE \'CRM/Tasks/%\'');
 
 			foreach($task_ats as $i=>$g) {
-				if(ereg('CRM/Tasks/([0-9]+)',$g,$reqs))
+				if(preg_match('/CRM\/Tasks\/([0-9]+)/',$g,$reqs))
 					DB::Execute('UPDATE utils_attachment_link SET func=%s,args=%s WHERE id=%d',array(serialize(array('CRM_TasksCommon','search_format')),serialize(array($reqs[1])),$i));
 			}
 		}
@@ -1365,10 +1365,10 @@ function update_from_1_0_0_to_1_0_1() {
 		$tables = DB::MetaTables();
 		foreach($tables as $t) {
 		        $ret = DB::GetRow('SHOW CREATE TABLE '.$t);
-			if(ereg('utf8_unicode_ci',$ret[1])) continue;
+			if(preg_match('/utf8_unicode_ci/',$ret[1])) continue;
 			$cols = explode("\n",$ret[1]);
 		        foreach($cols as $c) {
-				if(ereg('(varchar|text)',$c) && !ereg('latin',$c)) {
+				if(preg_match('/(varchar|text)/',$c) && !preg_match('/latin/',$c)) {
 					if($t=='aro' || $t=='axo') $c = str_replace('240','160',$c);
 					DB::Execute('ALTER TABLE `'.$t.'` MODIFY '.rtrim($c,',').' COLLATE utf8_unicode_ci');
 				}

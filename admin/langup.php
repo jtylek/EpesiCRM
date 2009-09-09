@@ -13,7 +13,7 @@ while($row = $ret->FetchRow()) {
 	$content = scandir($directory);
 	$trans_backup = $translations;
 	foreach ($content as $name){
-		if($name == '.' || $name == '..' || ereg('^[\.~]',$name)) continue;
+		if($name == '.' || $name == '..' || preg_match('/^[\.~]/',$name)) continue;
 		$dot = strpos($name,'.');
 		$langcode = substr($name,0,$dot);
 		if (strtolower(substr($name,$dot+1))!='php') continue;

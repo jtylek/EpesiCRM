@@ -13,9 +13,9 @@ class CRM_MailClientCommon extends ModuleCommon {
 	private static $my_rec;
 
 	public static function resolve_contact($addr,$display_errors=true) {
-		if(ereg('<(.+)>$',$addr,$reqs))
+		if(preg_match('/<(.+)>$/',$addr,$reqs))
 			$addr = trim($reqs[1]);
-		if(ereg('([0-9]+)@epesi_(contact|user)$',$addr,$reqs)) {
+		if(preg_match('/([0-9]+)@epesi_(contact|user)$/',$addr,$reqs)) {
 			switch($reqs[2]) {
 				case 'contact':
 					$c = array(CRM_ContactsCommon::get_contact($reqs[1]));
@@ -40,7 +40,7 @@ class CRM_MailClientCommon extends ModuleCommon {
 
 	public static function move_to_contact_action($box, $dir, $id, & $mail_id=null) {
 		$sent = false;
-		if(ereg('^(Drafts|Sent)',$dir))
+		if(preg_match('/^(Drafts|Sent)/',$dir))
 			$sent = true;
 
 		$msg = Apps_MailClientCommon::parse_message($box,$dir,$id);
@@ -89,7 +89,7 @@ class CRM_MailClientCommon extends ModuleCommon {
 	
 	public static function goto_action($box,$dir,$id) {
 		$sent = false;
-		if(ereg('^(Drafts|Sent)',$dir))
+		if(preg_match('/^(Drafts|Sent)/',$dir))
 			$sent = true;
 
 		$msg = Apps_MailClientCommon::parse_message($box,$dir,$id);
@@ -109,7 +109,7 @@ class CRM_MailClientCommon extends ModuleCommon {
 	
 	public static function move_to_contact_and_notify_action($box,$dir,$id) {
 		$sent = false;
-		if(ereg('^(Drafts|Sent)',$dir))
+		if(preg_match('/^(Drafts|Sent)/',$dir))
 			$sent = true;
 
 		$msg = Apps_MailClientCommon::parse_message($box,$dir,$id);

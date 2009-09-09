@@ -221,7 +221,7 @@ class CRM_MailClient extends Module {
 		
 		if($qf->validate()) {
 			$sent = false;
-			if(ereg('^(Drafts|Sent)',$dir))
+			if(preg_match('/^(Drafts|Sent)/',$dir))
 				$sent = true;
 
 			if($sent) {

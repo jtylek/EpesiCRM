@@ -129,7 +129,7 @@ class Base_LangCommon extends ModuleCommon {
 		$content = scandir($directory);
 		$trans_backup = $translations;
 		foreach ($content as $name){
-			if($name == '.' || $name == '..' || ereg('^[\.~]',$name)) continue;
+			if($name == '.' || $name == '..' || preg_match('/^[\.~]/',$name)) continue;
 			$langcode = substr($name,0,strpos($name,'.'));
 			$translations = array();
 			@include(DATA_DIR.'/Base_Lang/'.$langcode.'.php');
@@ -164,7 +164,7 @@ class Base_LangCommon extends ModuleCommon {
 		$ls_langs = scandir(DATA_DIR.'/Base_Lang');
 		$langs = array();
 		foreach ($ls_langs as $entry)
-			if (ereg('.\.php$', $entry)) {
+			if (preg_match('/.\.php$/i', $entry)) {
 				$lang = substr($entry,0,-4);
 				$langs[] = $lang;
 			}

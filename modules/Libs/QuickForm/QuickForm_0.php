@@ -53,6 +53,10 @@ class Libs_QuickForm extends Module {
 		return $ret;
 	}
 	
+	public function accept(&$r) {
+		$this->qf->accept($r);
+	}
+	
 	public function & __call($func_name, $args) {
 		if ($func_name=='addElement' && isset($args[0])) {
 			if(is_string($args[0]))
@@ -66,9 +70,10 @@ class Libs_QuickForm extends Module {
 				else $args[4] .= ' onkeydown="typeAhead();"';
 			}
 		}
-		if (is_object($this->qf))
-			$return = & call_user_func_array(array(&$this->qf, $func_name), $args);
-		else
+		if (is_object($this->qf)) {
+//			if($func_name==='accept') trigger_error(print_r($args,true));
+			$return =  &call_user_func_array(array(& $this->qf, $func_name), $args);
+		} else
 			trigger_error("QuickFrom object doesn't exists", E_USER_ERROR);
 		return $return;
 	}
@@ -92,8 +97,8 @@ class Libs_QuickForm extends Module {
 		return $s;
 	}
 
-	public function assign_theme($name, & $theme, $renderer=null){ 
-		if(!isset($renderer)) $renderer = & new HTML_QuickForm_Renderer_TCMSArraySmarty(); 
+	public function assign_theme($name, & $theme, &$renderer=null){ 
+		if(!isset($renderer)) $renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty(); 
 		$this->accept($renderer); 
 		$form_data = $renderer->toArray();
 		$theme->assign($name.'_name', $this->getAttribute('name')); 

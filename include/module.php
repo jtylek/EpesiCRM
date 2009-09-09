@@ -681,7 +681,8 @@ abstract class Module extends ModulePrimitive {
 		$module_type = str_replace('/','_',$module_type);
 		$m = & ModuleManager::new_instance($module_type,$this,$name,($clear_vars || $this->clear_child_vars));
 
-		if($args!==null && !is_array($args)) $args = array($args);
+		if($args===null) $args = array();
+		elseif(!is_array($args)) $args = array($args);
 
 		if(method_exists($m,'construct')) {
 			ob_start();
@@ -728,7 +729,7 @@ abstract class Module extends ModulePrimitive {
 
 		if(!isset($function_name)) $function_name = 'body';
 		if (!method_exists($m, $function_name))
-			trigger_error('Invalid method name ('.$function_name.') given as argument 2 for display_module.',E_USER_ERROR);
+			trigger_error('Invalid method name ('.get_class($m).'::'.$function_name.') given as argument 2 for display_module.',E_USER_ERROR);
 
 		if($m->displayed())
 			trigger_error('You can\'t display the same module twice, path:'.$m->get_path().'.',E_USER_ERROR);
@@ -756,7 +757,8 @@ abstract class Module extends ModulePrimitive {
 
 		if(!REDUCING_TRANSFER || 
 			(!$m->is_fast_process() || (isset($_REQUEST['__action_module__']) && strpos($_REQUEST['__action_module__'],$path)===0) || !isset($_SESSION['client']['__module_content__'][$path]))) {
-			if(isset($args) && !is_array($args)) $args = array($args);
+			if($args===null) $args = array();
+			elseif(!is_array($args)) $args = array($args);
 
 			ob_start();
 

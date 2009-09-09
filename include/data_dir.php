@@ -30,7 +30,9 @@ else {
     foreach($virtual_hosts as $h=>$dir) {
 		if(!is_string($h)) die('Invalid map.php file: not string host address');
 		if($h==='') die('Invalid map.php file: empty host address');
-		if(ereg($h,$req)) {
+		if(strlen($h)<2 || $h[0]!=='/' || $h[strlen($h)-1]!=='/')
+			$h = '/'.addcslashes($h,'/').'/';
+		if(preg_match($h,$req)) {
 		    if($dir===false) die('Forbidden');
 	    	define('DATA_DIR',$dir);
 		    return;

@@ -254,7 +254,7 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
 			$search->on_hide_js('automulti_on_hide("'.$myName.'","'.$this->list_sep.'");'.$this->on_add_js_code);
 			
 			$searchElement .= $tabs . $search->toHtml()."\n";
-			if (isset($this->_values[0]) && (eregi($this->list_sep,$this->_values[0]) || $this->_values[0]=='')) {
+			if (isset($this->_values[0]) && (preg_match('/'.addcslashes($this->list_sep,'/').'/i',$this->_values[0]) || $this->_values[0]=='')) {
 		        $this->_values = explode($this->list_sep,$this->_values[0]);
 		        array_shift($this->_values);
 			}

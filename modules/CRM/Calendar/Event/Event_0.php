@@ -530,7 +530,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			}
 			$fields = DB::GetAssoc('SELECT field, callback FROM crm_calendar_event_custom_fields');
 			foreach ($fields as $k=>$v) {
-				if (!ereg('^[a-zA-Z_]+$', $k)) trigger_error('Invalid field: '.$k, E_USER_ERROR);
+				if (!preg_match('/^[a-zA-Z_]+$/', $k)) trigger_error('Invalid field: '.$k, E_USER_ERROR);
 				else DB::Execute('UPDATE crm_calendar_event SET '.$k.'=%s WHERE id=%d', array($values[$k], $id));
 			}
 

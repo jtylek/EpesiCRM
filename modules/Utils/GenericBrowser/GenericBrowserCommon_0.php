@@ -71,9 +71,9 @@ class Utils_GenericBrowserCommon extends ModuleCommon {
 								else
 									$xxx = $c['value'];
 							} else $xxx = $c;
-							if(isset($cols[$i]['order_eregi'])) {
+							if(isset($cols[$i]['order_preg'])) {
 								$ret = array();
-								eregi($cols[$i]['order_eregi'],$xxx, $ret);
+								preg_match($cols[$i]['order_preg'],$xxx, $ret);
 								$xxx = isset($ret[1])?$ret[1]:'';
 							}
 							$xxx = strip_tags(strtolower($xxx));

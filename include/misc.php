@@ -135,6 +135,9 @@ function on_exit($u = null, $args = null, $stable=true, $ret = false, $last_call
 	}
 
 	if ($u != false) {
+		if($args===null) $args = array();
+		elseif(!is_array($args))
+			trigger_error('Invalid args passed to on_exit method',E_USER_ERROR);
 		$headers[] = array('func'=>$u,'args'=>$args, 'stable'=>$stable);
 		return true;
 	}
@@ -160,8 +163,12 @@ function on_init($u = null, $args = null, $stable=true, $ret = false) {
 		return $ret;
 	}
 
-	if ($u != false)
+	if ($u != false) {
+		if($args===null) $args = array();
+		elseif(!is_array($args))
+			trigger_error('Invalid args passed to on_init method',E_USER_ERROR);
 		$headers[] = array('func'=>$u,'args'=>$args, 'stable'=>$stable);
+	}
 }
 
 /**
@@ -180,7 +187,7 @@ function dir_tree($path, $hidden=false, $maxdepth = -1, $d = 0) {
 	$dirlist[] = $path;
 	if ($handle = opendir($path)) {
 		while (false !== ($file = readdir($handle))) {
-			if ($file == '.' || $file == '..' || (!$hidden && ereg('^\.',$file))) 
+			if ($file == '.' || $file == '..' || (!$hidden && preg_match('/^\./',$file))) 
 				continue;
 			$file = $path . $file;
 			if (is_dir($file) && $d >= 0 && ($d < $maxdepth || $maxdepth < 0)) {
@@ -206,7 +213,7 @@ function dir_tree($path, $hidden=false, $maxdepth = -1, $d = 0) {
  * @param integer depth counter, for internal use
  * @return array directory tree
  */
-function ereg_tree($path, $pattern, $maxdepth = -1, $d = 0) {
+function preg_tree($path, $pattern, $maxdepth = -1, $d = 0) {
 	if (substr($path, strlen($path) - 1) != '/') {
 		$path .= '/';
 	}
@@ -215,9 +222,9 @@ function ereg_tree($path, $pattern, $maxdepth = -1, $d = 0) {
 		while (false !== ($file = readdir($handle))) {
 			if ($file != '.' && $file != '..') {
 				$filep = $path . $file;
-				if(ereg($pattern,$file)) $list[] = $filep;
+				if(preg_match($pattern,$file)) $list[] = $filep;
 				if (is_dir($filep) && $d >= 0 && ($d < $maxdepth || $maxdepth < 0))
-					$list = array_merge($list,ereg_tree($filep . '/', $pattern, $maxdepth, $d +1));
+					$list = array_merge($list,preg_tree($filep . '/', $pattern, $maxdepth, $d +1));
 			}
 		}
 		closedir($handle);
@@ -347,7 +354,7 @@ function detect_mobile_device(){
     return false;
   }
   // check if the user agent gives away any tell tale signs it's a mobile browser
-  if(eregi('up.browser|up.link|windows ce|iemobile|mini|mmp|symbian|midp|wap|phone|pocket|mobile|pda|psp',$_SERVER['HTTP_USER_AGENT'])){
+  if(preg_match('/up.browser|up.link|windows ce|iemobile|mini|mmp|symbian|midp|wap|phone|pocket|mobile|pda|psp/i',$_SERVER['HTTP_USER_AGENT'])){
     return true;
   }
   // check the http accept header to see if wap.wml or wap.xhtml support is claimed
@@ -457,7 +464,7 @@ function detect_mobile_device(){
 }
 
 function detect_iphone(){
-  if(eregi('iphone',$_SERVER['HTTP_USER_AGENT'])||eregi('ipod',$_SERVER['HTTP_USER_AGENT'])||eregi('webOS',$_SERVER['HTTP_USER_AGENT'])){
+  if(preg_match('/iphone/i',$_SERVER['HTTP_USER_AGENT'])||preg_match('/ipod/i',$_SERVER['HTTP_USER_AGENT'])||preg_match('/webOS/i',$_SERVER['HTTP_USER_AGENT'])){
     return true;
   }
 }
@@ -471,7 +478,7 @@ class EpesiHTML {
 		if($name=='EPESI') return;
 		$r_attrs = '';
 		foreach($attrs as $k=>$v) {
-			if(eregi('(id|onMouseMove|onMouseUp|onMouseOut|onKeyPress|onLoad|onClick|onMouseOver)',$k) || ($name=='A' && strcasecmp($k,'href')==0 && strncasecmp($v,'javascript:',11)==0)) continue;
+			if(preg_match('/(id|onMouseMove|onMouseUp|onMouseOut|onKeyPress|onLoad|onClick|onMouseOver)/i',$k) || ($name=='A' && strcasecmp($k,'href')==0 && strncasecmp($v,'javascript:',11)==0)) continue;
 			$r_attrs .= ' '.$k.'="'.str_replace(array('"','\\'),array('\"','\\\\'),$v).'"';
 		}
 		echo '<'.$name.$r_attrs.'>';

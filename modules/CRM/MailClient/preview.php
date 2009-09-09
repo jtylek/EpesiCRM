@@ -49,9 +49,9 @@ if($attach!==true) {
 			'<body><pre>'.$body.'</pre></body>';
 	} else {
 		$body = trim($body);
-		if(ereg('^<html>',$body))
+		if(preg_match('/^<html>/i',$body))
 			$body = substr($body,6);
-		if(ereg('</html>$',$body))
+		if(preg_match('/<\/html>$/i',$body))
 			$body = substr($body,0,strlen($body)-7);
 		$body = '<html>'.
 			'<head><meta http-equiv=Content-Type content="'.$body_ctype.'"></head>'.$body;

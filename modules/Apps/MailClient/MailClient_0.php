@@ -122,11 +122,11 @@ class Apps_MailClient extends Module {
 		$drafts_folder = false;
 		$sent_folder = false;
 		$trash_folder = false;
-		if(ereg('^Drafts',$dir))
+		if(preg_match('/^Drafts/',$dir))
 				$drafts_folder = true;
-		elseif(ereg('^Sent',$dir))
+		elseif(preg_match('/^Sent/',$dir))
 				$sent_folder = true;
-		elseif(ereg('^Trash',$dir))
+		elseif(preg_match('/^Trash/',$dir))
 				$trash_folder = true;
 
 		$gb = $this->init_module('Utils/GenericBrowser',null,'list');
@@ -153,13 +153,13 @@ class Apps_MailClient extends Module {
 			$subject = Apps_MailClientCommon::mime_header_decode($data['subject']);
 			if($to_column_enabled) {
 				$to_address = Apps_MailClientCommon::mime_header_decode($data['to']);
-				if(ereg('<(.+)>$',$to_address,$reqs) && ereg('([0-9]+)@epesi_(contact|user)$',trim($reqs[1]),$reqs2) && $reqs2[2] == 'contact') {
+				if(preg_match('/<(.+)>$/',$to_address,$reqs) && preg_match('/([0-9]+)@epesi_(contact|user)$/',trim($reqs[1]),$reqs2) && $reqs2[2] == 'contact') {
 					$to_address = CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($reqs2[1]));
 				} else $to_address = htmlspecialchars($to_address);
 			} else $to_address = '';
 			if($from_column_enabled) {
 				$from_address = Apps_MailClientCommon::mime_header_decode($data['from']);
-				if(ereg('<(.+)>$',$from_address,$reqs) && ereg('([0-9]+)@epesi_(contact|user)$',trim($reqs[1]),$reqs2) && $reqs2[2] == 'contact') {
+				if(preg_match('/<(.+)>$/',$from_address,$reqs) && preg_match('/([0-9]+)@epesi_(contact|user)$/',trim($reqs[1]),$reqs2) && $reqs2[2] == 'contact') {
 					$from_address = CRM_ContactsCommon::contact_format_default(CRM_ContactsCommon::get_contact($reqs2[1]));
 				} else $from_address = htmlspecialchars($from_address);
 			} else $from_address = '';
@@ -491,14 +491,14 @@ class Apps_MailClient extends Module {
 			if(isset($to_address)) {
 				$to_address = explode(',',$to_address);
 				foreach($to_address as $v) {
-					if(ereg('<([0-9]+)@epesi_(contact|user)>$',$v,$r)) {
+					if(preg_match('/<([0-9]+)@epesi_(contact|user)>$/',$v,$r)) {
 						$to_addr_ex[] = $r[1].'@epesi_'.$r[2];
 					} elseif(strpos($v,'@')!==false) {
 						$to_addr[] = trim($v);
 					}
 				}
 				foreach($to_addr_ex as $k=>$v) {
-					if(!ereg('^([0-9]+)@epesi_(contact|user)$',$v,$r)) { //invalid epesi address
+					if(!preg_match('/^([0-9]+)@epesi_(contact|user)$/',$v,$r)) { //invalid epesi address
 						unset($to_addr_ex[$k]);
 						continue;
 					}
@@ -546,7 +546,7 @@ class Apps_MailClient extends Module {
 			$to_addr = implode(', ',$to_addr);
 
 			if($body_type=='plain') {
-				if(eregi("charset=([a-z0-9\-]+)",$body_ctype,$reqs)) {
+				if(preg_match("/charset=([a-z0-9\-]+)/i",$body_ctype,$reqs)) {
 					$charset = $reqs[1];
 					$body_ctype = "text/plain; charset=utf-8";
 					$body = iconv($charset,'UTF-8',$body);
@@ -603,7 +603,7 @@ class Apps_MailClient extends Module {
 			$to_epesi = array();
 			$to_epesi_names = array();
 			foreach($v['to_addr_ex'] as $kk) {
-				if(!ereg('^([0-9]+)@epesi_(contact|user)$',$kk,$r)) { //invalid epesi address or new record from rpicker
+				if(!preg_match('/^([0-9]+)@epesi_(contact|user)$/',$kk,$r)) { //invalid epesi address or new record from rpicker
 					if(!is_numeric($kk) || ModuleManager::is_installed('CRM/Contacts')<0) //no rpicker, invalid epesi address
 						continue;
 					$r[2] = 'contact';
@@ -647,7 +647,7 @@ class Apps_MailClient extends Module {
 			$to2 = array();
 			foreach($to as $jj=>$kk) {
 				$kk = trim($kk);
-				if(ereg("<(.*)>$",$kk,$reqs)) {
+				if(preg_match("/<(.*)>$/",$kk,$reqs)) {
 					$kkk = trim($reqs[1]);
 				} else
 					$kkk = $kk;
@@ -878,7 +878,7 @@ class Apps_MailClient extends Module {
 				$values = $f->exportValues();
 				$dbup = array('id'=>$id, 'user_login_id'=>Acl::get_user());
 				foreach($cols as $v) {
-					if(ereg("header$",$v['name'])) continue;
+					if(preg_match("/header$/",$v['name'])) continue;
 					if(isset($values[$v['name']]))
 						$dbup[$v['name']] = $values[$v['name']];
 					else

@@ -685,7 +685,7 @@ class ModuleManager {
 		$backup = array();
 		$reqs = array();
 		foreach($backup_ls as $b) {
-			if(!ereg('([^-]+)__([0-9]+)__([0-9]+)',$b,$reqs)) continue;
+			if(!preg_match('/([^-]+)__([0-9]+)__([0-9]+)/',$b,$reqs)) continue;
 			$backup[] = array('name'=>$reqs[1],'version'=>$reqs[2],'date'=>$reqs[3]);
 		}
 		return $backup;

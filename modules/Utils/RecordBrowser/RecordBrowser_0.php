@@ -912,6 +912,7 @@ class Utils_RecordBrowser extends Module {
 		$renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
 		$form->accept($renderer);
 		$data = $renderer->toArray();
+//		trigger_error(print_r($data,true));
 
 		print($data['javascript'].'<form '.$data['attributes'].'>'.$data['hidden']."\n");
 
@@ -945,6 +946,7 @@ class Utils_RecordBrowser extends Module {
 		}
 		if ($mode!='add' && $mode!='edit') {
 			$ret = DB::Execute('SELECT * FROM recordbrowser_addon WHERE tab=%s AND enabled=1 ORDER BY pos', array($this->tab));
+			$addons_mod = array();
 			while ($row = $ret->FetchRow()) {
 				if (ModuleManager::is_installed($row['module'])==-1) continue;
 				if (is_callable(explode('::',$row['label']))) {
@@ -952,9 +954,10 @@ class Utils_RecordBrowser extends Module {
 					if ($result['show']==false) continue;
 					$row['label'] = $result['label'];
 				}
-				$mod = $this->init_module($row['module']);
-				if (!method_exists($mod,$row['func'])) $tb->set_tab($this->t($row['label']),array($this, 'broken_addon'), $js);
-				else $tb->set_tab($this->t($row['label']),array($this, 'display_module'), array($mod, array($this->record, $this), $row['func']), $js);
+				$mod_id = md5(serialize($row));
+				$addons_mod[$mod_id] = $this->init_module($row['module']);
+				if (!method_exists($addons_mod[$mod_id],$row['func'])) $tb->set_tab($this->t($row['label']),array($this, 'broken_addon'), $js);
+				else $tb->set_tab($this->t($row['label']),array($this, 'display_module'), array(& $addons_mod[$mod_id], array($this->record, $this), $row['func']), $js);
 			}
 		}
 		$this->display_module($tb);
@@ -1064,7 +1067,14 @@ class Utils_RecordBrowser extends Module {
 			}
 			$label = '<span id="_'.$args['id'].'__label">'.$this->t($args['name']).'</span>';
 			if (isset($this->QFfield_callback_table[$field])) {
-				call_user_func($this->QFfield_callback_table[$field], $form, $args['id'], $label, $mode, $mode=='add'?(isset($this->custom_defaults[$args['id']])?$this->custom_defaults[$args['id']]:''):$record[$args['id']], $args, $this, $this->display_callback_table);
+				$ff = $this->QFfield_callback_table[$field];
+//				call_user_func($ff, & $form, $args['id'], $label, $mode, $mode=='add'?(isset($this->custom_defaults[$args['id']])?$this->custom_defaults[$args['id']]:''):$record[$args['id']], $args, $this, $this->display_callback_table);
+				if(is_string($ff))
+					$ff($form, $args['id'], $label, $mode, $mode=='add'?(isset($this->custom_defaults[$args['id']])?$this->custom_defaults[$args['id']]:''):$record[$args['id']], $args, $this, $this->display_callback_table);
+				elseif(is_array($ff) && count($ff)==2 && is_string($ff[0]) && is_string($ff[1]))
+					$ff[0]::$ff[1]($form, $args['id'], $label, $mode, $mode=='add'?(isset($this->custom_defaults[$args['id']])?$this->custom_defaults[$args['id']]:''):$record[$args['id']], $args, $this, $this->display_callback_table);
+				else
+					trigger_error('Invalid QFfield callback: '.print_r($ff,true),E_USER_ERROR);
 			} else {
 				if ($mode!=='add' && $mode!=='edit') {
 					if ($args['type']!='checkbox' || isset($this->display_callback_table[$field])) {

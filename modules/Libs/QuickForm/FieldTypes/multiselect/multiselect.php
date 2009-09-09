@@ -367,7 +367,7 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 			$fromElement = '';
             $fromElement .= $tabs . '<select' . $attrString . ' onkeypress="var key=event.which || event.keyCode;if(key==32)add_selected_'.$mod.'();" ondblclick="add_selected_'.$mod.'()">'."\n";
 //			print_r($this->_values);
-			if (isset($this->_values[0]) && eregi($this->list_sep,$this->_values[0])) {
+			if (isset($this->_values[0]) && preg_match('/'.addcslashes($this->list_sep,'/').'/i',$this->_values[0])) {
 		        $this->_values = explode($this->list_sep,$this->_values[0]);
 		        array_shift($this->_values);
 			}

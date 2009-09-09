@@ -1543,7 +1543,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 						$mailer->Subject = $msg['subject'];
 						if($msg['type']=='plain') {
 							$mailer->IsHTML(false);
-							if(eregi("charset=([a-z0-9\-]+)",$msg['ctype'],$reqs)) {
+							if(preg_match("/charset=([a-z0-9\-]+)/i",$msg['ctype'],$reqs)) {
 								$charset = $reqs[1];
 								$mailer->CharSet = $charset;
 							}

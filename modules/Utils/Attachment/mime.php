@@ -13,7 +13,7 @@ function get_mime_type($filepath,$original) {
 	if(extension_loaded('fileinfo')) {
         	$fff = new finfo(FILEINFO_MIME);
 	        $ret = $fff->file($filepath);
-        	$fff->close();
+        	unset($fff);
 	        return $ret;
     	}
 

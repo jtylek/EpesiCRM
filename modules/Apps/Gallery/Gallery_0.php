@@ -355,7 +355,7 @@ class Apps_Gallery extends Module {
 	////////////////////////////////////////////////////////////////////////
 	public function submit_upload($file, $ory, $data) {
 		$ext = strrchr($ory,'.');
-		if($ext==='' || !eregi('\.(jpg|jpeg|gif|png)$', $ext)) {
+		if($ext==='' || !preg_match('/\.(jpg|jpeg|gif|png)$/i', $ext)) {
 			$GLOBALS['base']->alert($this->t('Invalid extension'));
 		} else {
 			$dest = $this->root.$this->user.$_REQUEST['target'].$ory;

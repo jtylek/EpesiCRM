@@ -39,7 +39,7 @@ class Apps_StaticPage extends Module {
 	}
 	
 	public function parse_links_callback($x) {
-		if(ereg('^http[s]?://',$x[1]))
+		if(preg_match('/^http[s]?:\/\//i',$x[1]))
 			return "href=\"".$x[1].'"';
 		return $this->create_unique_href(array('view'=>$x[1]));
 	}

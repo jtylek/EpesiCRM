@@ -32,7 +32,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 			eval_js('Utils_Tooltip__create_block(\''.Epesi::escapeJS($tip_th,false).'\')',false);
 			$_SESSION['client']['utils_tooltip']['div_exists'] = true;
 		}
-		on_exit(array('Utils_TooltipCommon', 'hide_tooltip'),false);
+		on_exit(array('Utils_TooltipCommon', 'hide_tooltip'),null,false);
 	}
 	
 	public static function hide_tooltip() {

@@ -42,7 +42,7 @@ class Base_Lang_AdministratorInstall extends ModuleInstall {
 		$ls_langs = scandir(DATA_DIR.'/Base_Lang');
 		$langs = array();
 		foreach ($ls_langs as $entry)
-			if (ereg('.\.php$', $entry)) {
+			if (preg_match('/.\.php$/i', $entry)) {
 				$lang = substr($entry,0,-4);
 				$langs[$lang] = $lang;
 			}
