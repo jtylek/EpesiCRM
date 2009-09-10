@@ -21,12 +21,13 @@ function disableSelection(target){
 }
 
 var switch_direction = '';
-function time_grid_mouse_down(from_time,day) {
+function time_grid_mouse_down(from_time,day,switchd) {
 	elem = $(day+'__'+from_time);
 	if (has_class(elem,'unused'))
 		switch_direction = 'used';
 	else 
 		switch_direction = 'unused';
+	if (switchd) switch_direction = switchd;
 	if (has_class(elem,'noconflict'))
 		elem.className = 'noconflict '+switch_direction;
 	else

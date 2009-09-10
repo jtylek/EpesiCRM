@@ -13,12 +13,17 @@ class Utils_Planner extends Module {
 	private $date=null;
 	private $grid = array();
 	private $form;
+	private $values = array();
 	
 	public function construct() {
 		$_SESSION['client']['utils_planner'] = array();
 		$_SESSION['client']['utils_planner']['resources'] = array();
 		$this->form = $this->init_module('Libs/QuickForm');
 		$this->form->addElement('hidden', 'grid_selected_frames', '', array('id'=>'grid_selected_frames'));
+	}
+	
+	public function set_fixed_week($date) {
+		$this->date = $this->get_module_variable('fixed_date', $date);
 	}
 	
 	public function get_form() {
@@ -75,6 +80,25 @@ class Utils_Planner extends Module {
 	
 	public function set_resource_default($k, $v) {
 		$this->form->setDefaults(array($k=>$v));
+		$this->values[$k] = $v;
+	}
+	
+	public function set_default_time_frames($day, $start, $end) {
+		$mark = false;
+		$base_unix_time = strtotime('1970-01-01 00:00');
+		$start = (strtotime($start)-$base_unix_time)/60;
+		$end = (strtotime($end)-$base_unix_time)/60;
+		$last = 0;
+		foreach ($this->grid as $v) {
+			if (!$mark && $v>$start)
+				$mark = true;
+			if ($mark) {
+				eval_js('time_grid_mouse_down('.$last.','.$day.',"used");');
+				if ($v>=$end) break;
+			}
+			$last = $v;
+		}
+		eval_js('time_grid_mouse_up();');
 	}
 
 	public function body(){
@@ -102,7 +126,7 @@ class Utils_Planner extends Module {
 			if (!is_numeric($this->date)) $this->date = strtotime($this->date);
 			while (date('w',$this->date)!=$fdow) $this->date = strtotime('-1 day', $this->date);
 			while (count($headers)<7) {
-				$headers[$this->date] = date('Y-m-d, w', $this->date);
+				$headers[$this->date] = Base_RegionalSettingsCommon::time2reg($this->date, false, true).'<br>'.date('D',$this->date);
 				$this->date = strtotime('+1 day', $this->date);
 			}
 		}
@@ -131,20 +155,29 @@ class Utils_Planner extends Module {
 		$this->form->assign_theme('form', $theme);
 		$theme->display();
 		Base_ActionBarCommon::add('save','Save',$this->form->get_submit_form_href());
+		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
 		if ($this->form->validate()) {
 			$values = $this->form->exportValues();
+			foreach ($values as $k=>$v)
+				$this->values[$k] = $v;
 			$time_frames = explode(';',$values['grid_selected_frames']);
 			unset($values['grid_selected_frames']);
 			foreach ($time_frames as $k=>$v) {
+				if (!$v) {
+					unset($time_frames[$k]);
+					break;
+				}
 				list($day, $s, $e) = explode('::',$v);
 				$time_frames[$k] = array('day'=>$day, 'start'=>$s, 'end'=>$e);
 			}
 			call_user_func($_SESSION['client']['utils_planner']['processing_callback'], $values, $time_frames);
-			foreach ($values as $k=>$v) {
-				$_SESSION['client']['utils_planner']['resources'][$k]['value'] = $v;
-				$_SESSION['client']['utils_planner']['resources'][$k]['in_use'] = array();
-				eval_js(Utils_PlannerCommon::utils_planner_resource_changed($k, $v));
-			}
+			$this->set_back_location();
+			location(array());
+		}
+		foreach ($this->values as $k=>$v) {
+			$_SESSION['client']['utils_planner']['resources'][$k]['value'] = $v;
+			$_SESSION['client']['utils_planner']['resources'][$k]['in_use'] = array();
+			eval_js(Utils_PlannerCommon::utils_planner_resource_changed($k, $v));
 		}
 	}
 }

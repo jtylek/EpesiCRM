@@ -1184,6 +1184,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		if ($action!=='browse_crits' && $action!=='delete') {
 			self::init($tab);
+			if ($ret===false) return false;
 			if ($ret===true) $ret = array();
 			foreach (self::$table_rows as $field=>$args)
 				if (!isset($ret[$args['id']])) $ret[$args['id']] = true;
