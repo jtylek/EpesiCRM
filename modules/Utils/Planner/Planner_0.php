@@ -72,7 +72,7 @@ class Utils_Planner extends Module {
 		if (isset($prop['chained'])) $_SESSION['client']['utils_planner']['resources'][$name]['chained'] = $prop['chained'];
 		if ($type=='automulti'){
 			$el = $this->form->addElement($type, $name, $label, $param1, $param2, $param3);
-			$el->on_add_js($on_change);
+			$el->on_add_js($on_change.'update_grid();');
 			$el->on_remove_js($on_change);
 			return;
 		}

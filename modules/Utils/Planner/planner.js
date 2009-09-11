@@ -77,9 +77,7 @@ function resource_changed(resource) {
 	});
 }
 
-function time_grid_mouse_up() {
-	if (switch_direction=='') return;
-	switch_direction = '';
+function update_grid() {
 	frames = new Array();
 	frames_elems = document.getElementsByClassName('used');
 	for(i = 0; i < frames_elems.length; i++) {
@@ -98,4 +96,10 @@ function time_grid_mouse_up() {
 			eval(t.responseText);
 		}
 	});
+}
+
+function time_grid_mouse_up() {
+	if (switch_direction=='') return;
+	switch_direction = '';
+	update_grid();
 }
