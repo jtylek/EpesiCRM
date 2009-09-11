@@ -30,6 +30,10 @@ class Utils_Planner extends Module {
 		return $this->form;
 	}
 	
+	public function set_timeframe_availability_check_callback($callback) {
+		$_SESSION['client']['utils_planner']['timeframe_availability_check_callback'] = $callback;
+	}
+	
 	public function set_resource_availability_check_callback($callback) {
 		$_SESSION['client']['utils_planner']['resource_availability_check_callback'] = $callback;
 	}
@@ -64,7 +68,7 @@ class Utils_Planner extends Module {
 		if (isset($def[4])) $param2 = $def[4];
 		if (isset($def[5])) $param3 = $def[5];
 		$_SESSION['client']['utils_planner']['resources'][$name]=array('type'=>$type,'in_use'=>array(),'value'=>false);
-		$on_change = 'resource_changed(\''.$name.'\')';
+		$on_change = 'resource_changed(\''.$name.'\');';
 		if (isset($prop['chained'])) $_SESSION['client']['utils_planner']['resources'][$name]['chained'] = $prop['chained'];
 		if ($type=='automulti'){
 			$el = $this->form->addElement($type, $name, $label, $param1, $param2, $param3);
@@ -73,6 +77,7 @@ class Utils_Planner extends Module {
 			return;
 		}
 		if ($type=='select'){
+			$on_change .= 'this.className=this.options[this.selectedIndex].className;';
 			$this->form->addElement($type, $name, $label, $param1, array('id'=>$name, 'onchange'=>$on_change));
 			return;
 		}
@@ -100,7 +105,7 @@ class Utils_Planner extends Module {
 		}
 		eval_js('time_grid_mouse_up();');
 	}
-
+	
 	public function body(){
 		if (empty($this->grid)) {
 			print('Time grid not defined, aborting');
@@ -125,8 +130,9 @@ class Utils_Planner extends Module {
 		} else {
 			if (!is_numeric($this->date)) $this->date = strtotime($this->date);
 			while (date('w',$this->date)!=$fdow) $this->date = strtotime('-1 day', $this->date);
+			$_SESSION['client']['utils_planner']['date'] = $this->date;
 			while (count($headers)<7) {
-				$headers[$this->date] = Base_RegionalSettingsCommon::time2reg($this->date, false, true).'<br>'.date('D',$this->date);
+				$headers[$this->date] = Base_RegionalSettingsCommon::time2reg($this->date, false, true).' '.date('D',$this->date);
 				$this->date = strtotime('+1 day', $this->date);
 			}
 		}
@@ -177,7 +183,7 @@ class Utils_Planner extends Module {
 		foreach ($this->values as $k=>$v) {
 			$_SESSION['client']['utils_planner']['resources'][$k]['value'] = $v;
 			$_SESSION['client']['utils_planner']['resources'][$k]['in_use'] = array();
-			eval_js(Utils_PlannerCommon::utils_planner_resource_changed($k, $v));
+			eval_js(Utils_PlannerCommon::resource_changed($k, $v));
 		}
 	}
 }

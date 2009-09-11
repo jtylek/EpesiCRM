@@ -30,15 +30,27 @@ class Utils_PlannerCommon extends ModuleCommon {
 		if ($base_unix_time===null) $base_unix_time = strtotime('1970-01-01 00:00');
 		return Base_RegionalSettingsCommon::time2reg($base_unix_time+$time,'without_seconds',false,false);
 	}
+	
+	public static function get_current_week() {
+		$day = $_SESSION['client']['utils_planner']['date'];
+		$days = array();
+		while(count($days)<7) {
+			$days[] = date('Y-m-d',$day);
+			$day = strtotime('+1 day', $day);
+		}
+		return $days;
+	}
 
-	public static function utils_planner_resource_changed($resource, $value) {
+	public static function resource_changed($resource, $value) {
 		$js = '';
-		$racc = 	$_SESSION['client']['utils_planner']['resource_availability_check_callback'];
+		$racc = 	$_SESSION['client']['utils_planner']['timeframe_availability_check_callback'];
 		$in_use = 	$_SESSION['client']['utils_planner']['resources'][$resource]['in_use'];
 		$grid = 	$_SESSION['client']['utils_planner']['grid']['timetable'];
 		$new_in_use = array();
 		$busy_times = call_user_func($racc, $resource, $value);
+		error_log(print_r($busy_times,true),3,'data/log.txt');
 		foreach ($busy_times as $v) {
+			if (!is_numeric($v['day'])) $v['day'] = strtotime($v['day']);
 			foreach (array('start', 'end') as $w)
 				if (!is_numeric($v[$w])) {
 					$e = explode(':',$v[$w]);
@@ -73,6 +85,30 @@ class Utils_PlannerCommon extends ModuleCommon {
 					$js .= 'time_grid_change_conflicts('.$args[0].','.$args[1].',0);';
 				}
 			}
+		}
+		return $js;
+	}
+
+	public static function timeframe_changed($timeframes) {
+		foreach ($timeframes as $k=>$v) {
+			list($day, $s, $e) = explode('::', $v);
+			$timeframes[$k] = array('day'=>$day, 'start'=>$s*60, 'end'=>$e*60);
+		}
+		$js = '';
+		$racc = $_SESSION['client']['utils_planner']['resource_availability_check_callback'];
+		$result = call_user_func($racc, $timeframes);
+		foreach ($result as $elem=>$values) {
+			$js .= 'var conflicting = new Array();';
+			foreach ($values as $v)
+				$js .= 'conflicting['.$v.']='.$v.';';
+			$js .= 	'i=0;'.
+					'e=$("'.$elem.'");'.
+					'while(i<e.options.length){'.
+						'o=e.options[i];'.
+						'o.className=conflicting[o.value]?"conflict":"noconflict";'.
+						'i++;'.
+					'}'.
+					'if(!e.multiple)e.className=e.options[e.selectedIndex].className;';
 		}
 		return $js;
 	}

@@ -35,7 +35,6 @@ foreach ($frames as $v) {
 	if (!isset($cleanFrames[$v[0]])) $cleanFrames[$v[0]] = array();
 	$cleanFrames[$v[0]][$v[1]] = 1;
 }
-
 $headers = $_SESSION['client']['utils_planner']['grid']['days'];
 
 $selected_frames = array();
@@ -67,18 +66,29 @@ foreach ($cleanFrames as $day=>$v) {
 $js .= '$("grid_selected_frames").value="'.implode(';',$selected_frames).'";';
 
 $timeframe_string = '<table class="time_frames">';
-$day = $fdow = Utils_PopupCalendarCommon::get_first_day_of_week();
+if (isset($_SESSION['client']['utils_planner']['date']))
+	$day = $_SESSION['client']['utils_planner']['date'];
+else
+	$day = Utils_PopupCalendarCommon::get_first_day_of_week();
+$count = 0;
 do {
 	if (isset($timeframe[$day]))
 		foreach($timeframe[$day] as $v)
 			$timeframe_string .= $v;
-	$day++;
-	if ($day==7) $day = 0;
-} while ($day!=$fdow); 
+	if (isset($_SESSION['client']['utils_planner']['date']))
+		$day = strtotime('+1 day', $day);
+	else {
+		$day++;
+		if ($day==7) $day = 0;
+	}
+	$count++;
+} while ($count<7); 
 
 $timeframe_string .= '</table>';
 
 $js .= '$("Utils_Planner__time_frames").innerHTML="'.Epesi::escapeJS($timeframe_string).'";';
+
+$js .= Utils_PlannerCommon::timeframe_changed($selected_frames);
 
 print($js);
 ?>
