@@ -265,7 +265,7 @@ class Epesi {
 		$debug = '';
 		if(DEBUG && ($debug_diff = @include_once('tools/Diff.php'))) {
 			require_once 'tools/Text/Diff/Renderer/inline.php';
-			$diff_renderer = &new Text_Diff_Renderer_inline();
+			$diff_renderer = new Text_Diff_Renderer_inline();
 		}
 
 		//clean up old modules
