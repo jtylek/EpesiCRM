@@ -27,7 +27,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 			$smarty = Base_ThemeCommon::init_smarty();
 			$smarty->assign('tip','<span id="tooltip_text"></span>');
 			ob_start();
-			Base_ThemeCommon::display_smarty($smarty,'Utils_Tooltip');
+			@Base_ThemeCommon::display_smarty($smarty,'Utils_Tooltip');
 			$tip_th = ob_get_clean();
 			eval_js('Utils_Tooltip__create_block(\''.Epesi::escapeJS($tip_th,false).'\')',false);
 			$_SESSION['client']['utils_tooltip']['div_exists'] = true;
