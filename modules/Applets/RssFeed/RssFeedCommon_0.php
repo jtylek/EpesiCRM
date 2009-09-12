@@ -49,7 +49,7 @@ class Applets_RssFeedCommon extends ModuleCommon {
 		return $feed;
 	}
 
-	public static function get_title($t) {
+	public static function get_title($t='') {
 		if($t!='') return $t;
 		if(self::$feed==false)
 			return '';
@@ -61,7 +61,8 @@ class Applets_RssFeedCommon extends ModuleCommon {
 		if(!$title)
 			return 'RSS Feed';
 
-		return substr($title,0,15).'...';
+		if (strlen($title)>15) return substr($title,0,15).'...';
+		return $title;
 	}
 
 }

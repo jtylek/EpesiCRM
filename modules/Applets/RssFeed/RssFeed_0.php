@@ -16,6 +16,10 @@ class Applets_RssFeed extends Module {
 	}
 
 	public function applet($values, $opts) { //available applet options: toggle,href,title,go,go_function,go_arguments,go_contruct_arguments
+		if (!$values['title']) {
+			Applets_RssFeedCommon::set_url($values['rssfeed']);
+			$values['title'] = Applets_RssFeedCommon::get_title();
+		}
 		$opts['title'] = $values['title'];
 
 		$name = md5($this->get_path().$values['rssfeed']);
