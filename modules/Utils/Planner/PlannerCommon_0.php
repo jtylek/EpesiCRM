@@ -98,10 +98,12 @@ class Utils_PlannerCommon extends ModuleCommon {
 		$racc = $_SESSION['client']['utils_planner']['resource_availability_check_callback'];
 		$result = call_user_func($racc, $timeframes);
 		foreach ($result as $elem=>$values) {
-			$js .= 'var conflicting = new Array();';
+			$next = '';
 			foreach ($values as $v)
-				$js .= 'conflicting['.$v.']='.$v.';';
-			$js .= 	'i=0;'.
+				if ($v!='') $next .= 'conflicting['.$v.']='.$v.';';
+			if (!$next) continue;
+			$next = 'var conflicting = new Array();'.$next;
+			$next .='i=0;'.
 					'e=$("'.$elem.'");'.
 					'while(i<e.options.length){'.
 						'o=e.options[i];'.
@@ -109,6 +111,7 @@ class Utils_PlannerCommon extends ModuleCommon {
 						'i++;'.
 					'}'.
 					'if(!e.multiple)e.className=e.options[e.selectedIndex].className;';
+			$js .= $next;
 		}
 		return $js;
 	}
