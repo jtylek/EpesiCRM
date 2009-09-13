@@ -11,6 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_Calendar extends Module {
 	public function body() {
+		Base_ThemeCommon::install_default_theme('Utils/Calendar');
 		$ev_mod = $this->init_module('CRM/Calendar/Event');
 		$ev_mod->help('Calendar Help','main');
 

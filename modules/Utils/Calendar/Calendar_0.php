@@ -633,6 +633,12 @@ class Utils_Calendar extends Module {
 			}
 		}
 		$this->js('Utils_Calendar.join_rows(\''.Epesi::escapeJS(json_encode($joins),false).'\')');
+		$navigation_bar_additions = '';
+		if (is_callable(array($this->event_module, 'get_navigation_bar_additions'))) {
+			$event_module_instance = $this->init_module($this->event_module);
+			$navigation_bar_additions = call_user_func(array($event_module_instance,'get_navigation_bar_additions'), '', '');
+		}
+		$theme->assign('navigation_bar_additions', $navigation_bar_additions);
 		$theme->assign('time_ids', $time_ids);
 		$theme->assign('timeline', reset($timeline));
 

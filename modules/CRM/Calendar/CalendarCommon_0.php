@@ -192,6 +192,15 @@ class CRM_CalendarCommon extends ModuleCommon {
 		print('</ul>');
 //		'color I1 DEFAULT 0, '.
 	}
+	
+	public static function new_event_handler($name, $callback) {
+		if (is_array($callback)) $callback = implode('::', $callback);
+		DB::Execute('INSERT INTO crm_calendar_custom_events_handlers(group_name, get_callback) VALUES (%s, %s)', array($name, $callback));
+	}
+	
+	public static function delete_event_handler($name) {
+		DB::Execute('DELETE FROM crm_calendar_custom_events_handlers WHERE group_name=%s', array($name));
+	}
 
 }
 ?>

@@ -41,15 +41,26 @@ class Utils_CalendarCommon extends ModuleCommon {
 		Base_ThemeCommon::display_smarty($th,'Utils_Calendar','event_tip');
 		$tip = ob_get_clean();
 		$th->assign('tip_tag_attrs',Utils_TooltipCommon::open_tag_attrs($tip,false));
-		if(!isset($ev['view_action']) || $ev['view_action']==true)
+
+		if(!isset($ev['view_action']) || $ev['view_action']===true)
 			$th->assign('view_href', Module::create_href(array('UCev_id'=>$ev['id'], 'UCaction'=>'view')));
-		if(!isset($ev['edit_action']) || $ev['edit_action']==true)
+		elseif ($ev['view_action']!==false)
+			$th->assign('view_href', $ev['view_action']);
+
+		if(!isset($ev['edit_action']) || $ev['edit_action']===true)
 			$th->assign('edit_href', Module::create_href(array('UCev_id'=>$ev['id'], 'UCaction'=>'edit')));
+		elseif ($ev['edit_action']!==false)
+			$th->assign('edit_href', $ev['edit_action']);
+
 		$link_text = Module::create_href_js(array('UCev_id'=>$ev['id'], 'UCaction'=>'move','UCdate'=>'__YEAR__-__MONTH__-__DAY__'));
-		if(!isset($ev['move_action']) || $ev['move_action']==true)
+		if(!isset($ev['move_action']) || $ev['move_action']===true)
 			$th->assign('move_href', Utils_PopupCalendarCommon::create_href('move_event'.$ev['id'], $link_text,false,null,null,'popup.clonePosition(\'utils_calendar_event:'.$ev['id'].'\',{setWidth:false,setHeight:false,offsetTop:$(\'utils_calendar_event:'.$ev['id'].'\').getHeight()})'));
-		if(!isset($ev['delete_action']) || $ev['delete_action']==true)
+
+		if(!isset($ev['delete_action']) || $ev['delete_action']===true)
 			$th->assign('delete_href', Module::create_confirm_href(Base_LangCommon::ts('Utils_Calendar','Delete this event?'),array('UCev_id'=>$ev['id'], 'UCaction'=>'delete')));
+		elseif ($ev['delete_action']!==false)
+			$th->assign('delete_href', $ev['delete_action']);
+
 		$th->assign('handle_class','handle');
 		$th->assign('custom_actions',$ev['actions']);
 		Base_ThemeCommon::display_smarty($th,'Utils_Calendar','event'.($mode?'_'.$mode:''));

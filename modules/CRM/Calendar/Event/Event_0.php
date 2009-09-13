@@ -797,6 +797,37 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		}
 	}
 
+	public function get_navigation_bar_additions() {
+		$custom_handlers = DB::GetAssoc('SELECT id, group_name FROM crm_calendar_custom_events_handlers');
+		if (empty($custom_handlers)) return '';
+		$form = $this->init_module('Libs/QuickForm');
+
+		$options = array(-1=>$this->t('Meetings'));
+		foreach ($custom_handlers as $k=>$v)
+			$options[$k] = $this->t($v);
+
+		$form->addElement('select', 'events_handlers', 'Events', $options, array('onchange'=>$form->get_submit_form_js()));
+
+		$selected = $this->get_module_variable('events_handlers', -1);
+		if ($form->validate()) {
+			$vals = $form->exportValues();
+			$selected = $vals['events_handlers'];
+			$this->set_module_variable('events_handlers', $selected);
+		}
+		CRM_Calendar_EventCommon::$events_handlers = $selected;
+
+		$form->setDefaults(array('events_handlers'=>$selected));
+
+		$theme = $this->init_module('Base/Theme');
+		$form->assign_theme('form', $theme);
+		ob_start();
+		$theme->display('custom_event_handlers_form');
+		$handlers_form = ob_get_clean();
+
+		return $handlers_form;
+	}
+
+	
 	public function clone_event($id) {
 		if(!$this->view_event('clone',$id))
 			$this->back_to_calendar();

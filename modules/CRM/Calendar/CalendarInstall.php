@@ -16,10 +16,16 @@ class CRM_CalendarInstall extends ModuleInstall {
 		$this->add_aco('manage others','Employee Manager');
 		$this->add_aco('access','Employee');
 		Utils_WatchdogCommon::register_category('crm_calendar', array('CRM_CalendarCommon','watchdog_label'));
+		DB::CreateTable('crm_calendar_custom_events_handlers',
+						'id I4 AUTO KEY,'.
+						'group_name C(64),'.
+						'get_callback C(64)',
+						array('constraints'=>''));
 		return true;
 	}
 
 	public function uninstall() {
+		DB::DropTable('crm_calendar_custom_events_handlers');
 		Base_ThemeCommon::uninstall_default_theme('CRM/Calendar');
 		Utils_WatchdogCommon::unregister_category('crm_calendar');
 		return true;
