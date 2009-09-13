@@ -37,7 +37,7 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 	}
 	
 	public function get_values($p) {
-		$p = explode('__', $p);
+		if (!is_array($p)) $p = explode('__', $p);
 		if (!isset($p[1])) $p[1] = 1;
 		return $p;
 	}

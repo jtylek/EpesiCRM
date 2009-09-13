@@ -677,6 +677,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		DB::StartTrans();
 		self::init($tab);
 		$record = self::get_record($tab, $id, false);
+		if (!is_array($record)) return false;
 		$dpm = DB::GetOne('SELECT data_process_method FROM recordbrowser_table_properties WHERE tab=%s', array($tab));
 		$method = '';
 		if ($dpm!=='') {
