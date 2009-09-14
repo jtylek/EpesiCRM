@@ -455,6 +455,13 @@ class Utils_Calendar extends Module {
 
 		$theme->assign('trash_id','UCtrash');
 
+		$navigation_bar_additions = '';
+		if (is_callable(array($this->event_module, 'get_navigation_bar_additions'))) {
+			$event_module_instance = $this->init_module($this->event_module);
+			$navigation_bar_additions = call_user_func(array($event_module_instance,'get_navigation_bar_additions'), '', '');
+		}
+		$theme->assign('navigation_bar_additions', $navigation_bar_additions);
+
 		$theme->display('day');
 
 		//data
@@ -785,6 +792,13 @@ class Utils_Calendar extends Module {
 		$theme->assign('year_link', $this->create_unique_href(array('time'=>$this->date, 'tab'=>'Year','action'=>'switch')));
 		$theme->assign('trash_id','UCtrash');
 
+		$navigation_bar_additions = '';
+		if (is_callable(array($this->event_module, 'get_navigation_bar_additions'))) {
+			$event_module_instance = $this->init_module($this->event_module);
+			$navigation_bar_additions = call_user_func(array($event_module_instance,'get_navigation_bar_additions'), '', '');
+		}
+		$theme->assign('navigation_bar_additions', $navigation_bar_additions);
+
 		$theme->display('month');
 
 
@@ -852,6 +866,9 @@ class Utils_Calendar extends Module {
 		}
 		$theme->assign('year', $year);
 		$theme->assign('day_headers', $day_headers);
+
+		$navigation_bar_additions = '';
+		$theme->assign('navigation_bar_additions', $navigation_bar_additions);
 
 		$theme->display('year');
 	}

@@ -27,11 +27,11 @@ add_events:function(css) {
 add_event:function(dest_id,ev_id,draggable,duration) {
 	var dest = $(dest_id);
 	var ev = $('utils_calendar_event:'+ev_id);
-	if(!dest) {
-		ev.hide();
+	if(!ev) {
 		return;
 	}
-	if(!ev) {
+	if(!dest) {
+		ev.hide();
 		return;
 	}
 

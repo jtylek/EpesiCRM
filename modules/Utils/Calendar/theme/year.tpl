@@ -10,6 +10,7 @@
 		<!-- <td style="width: 10px;"></td>
 		<td><a class="button" style="width: 80px;"><img border="0" width="20" height="20" src="{$theme_dir}/Utils/Calendar/4x3.png" style="vertical-align: middle; padding: 0px; margin-left: 10px; display: block; float: left; width: 20px; height: 20px;">4 x 3</a></td> -->
 		<td class="empty"></td>
+		<td>{$navigation_bar_additions}</td>
 	</tr></table>
 </div>
 

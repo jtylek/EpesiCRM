@@ -15,6 +15,7 @@
 		<td style="width: 10px;"></td>
 		<td>{$popup_calendar}</td>
 		<td class="empty"></td>
+		<td>{$navigation_bar_additions}</td>
 	</tr></table>
 </div>
 

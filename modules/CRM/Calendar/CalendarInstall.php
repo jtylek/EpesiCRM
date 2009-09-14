@@ -19,7 +19,9 @@ class CRM_CalendarInstall extends ModuleInstall {
 		DB::CreateTable('crm_calendar_custom_events_handlers',
 						'id I4 AUTO KEY,'.
 						'group_name C(64),'.
-						'get_callback C(64)',
+						'get_callback C(128),'.
+						'get_all_callback C(128),'.
+						'update_callback C(128)',
 						array('constraints'=>''));
 		return true;
 	}

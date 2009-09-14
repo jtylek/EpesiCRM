@@ -378,6 +378,14 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 	}
 
 	public static function get($id) {
+		$id = explode('#', $id);
+		if (!isset($id[1])) $id = $id[0];
+		else {
+			$callback = DB::GetOne('SELECT get_callback FROM crm_calendar_custom_events_handlers WHERE id=%d', $id[0]);
+			$ret = call_user_func($callback, $id[1]);
+			$ret['id'] = $id[0].'#'.$ret['id'];
+			return $ret;
+		}
 		$recurrence = strpos($id,'_');
 		if($recurrence!==false)
 			$id = substr($id,0,$recurrence);
@@ -489,7 +497,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			self::restore_event($_GET['restore']);
 		//trigger_error($start.' '.$end);
 
-		$custom_handlers = DB::GetAssoc('SELECT id, get_callback FROM crm_calendar_custom_events_handlers');
+		$custom_handlers = DB::GetAssoc('SELECT id, get_all_callback FROM crm_calendar_custom_events_handlers');
 		$result = array();
 		
 		if (self::$events_handlers==-1) {
@@ -565,8 +573,10 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			}
 		} else {
 			$result_ext = call_user_func($custom_handlers[self::$events_handlers], $start, $end);
-			foreach ($result_ext as $v)
+			foreach ($result_ext as $v) {
+				$v['id'] = self::$events_handlers.'#'.$v['id'];
 				$result[] = $v;
+			}
 		}
 		return $result;
 	}
@@ -607,6 +617,11 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 	}
 
 	public static function update(&$id,$start,$duration,$timeless) {
+		$check = explode('#', $id);
+		if (isset($check[1])) {
+			$callback = DB::GetOne('SELECT update_callback FROM crm_calendar_custom_events_handlers WHERE id=%d', $check[0]);
+			return call_user_func($callback, $check[1], $start, $duration, $timeless);
+		}
 		$recurrence = strpos($id,'_');
 		if($recurrence!==false) {
 			$id = substr($id,0,$recurrence);

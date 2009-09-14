@@ -111,7 +111,6 @@ class Utils_Planner extends Module {
 			print('Time grid not defined, aborting');
 			return;
 		}
-		Base_ThemeCommon::install_default_theme('Utils/Planner');
 		load_js('modules/Utils/Planner/planner.js');
 		eval_js('disableSelection($("Utils_Planner__grid"))');
 		eval_js('Event.observe(window,"mouseup",time_grid_mouse_up)');
