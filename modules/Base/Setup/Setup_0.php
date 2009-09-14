@@ -94,30 +94,25 @@ class Base_Setup extends Module {
 							foreach($module_info as $k=>$v)
 								$iii .= '<tr><td>'.$k.'</td><td>'.$v.'</td></tr>';
 							$iii .= '</table>';
-                            if(!$simple && isset($is_required[$entry])) {
-                                $iii .= '<h3>'.$this->t('Required by:').'</h3><ul>';
-                                foreach($is_required[$entry] as $mod_name) {
-                                    $iii .= '<li>'.$mod_name.'</li>';
-                                }
-                                $iii .= '</ul>';
-                            }
 							Libs_LeightboxCommon::display($entry,$iii,'Additional info');
 						}
 					}
-                    // if there is no info function but we should print requirements
-                    // TODO why just $entry cause 'loading' doesn't hide.
-                    if(!$simple && $info == '' && isset($is_required[$entry])) {
-    					$info = ' <a '.Libs_LeightboxCommon::get_open_href($entry.'1').'><img style="vertical-align: middle; cursor: pointer;" border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('Base_Setup', 'info.png').'></a>';
-						$iii = '<h1>'.str_replace('_','/',$entry).'</h1>';
-                        $iii .= '<h3>'.$this->t('Required by:').'</h3><ul>';
-                        foreach($is_required[$entry] as $mod_name) {
-                            $iii .= '<li>'.$mod_name.'</li>';
+
+                    $tooltip = null;
+                    if(isset($is_required[$entry])) {
+                        $tooltip = $this->t('This module cannot be removed.').'<br/>';
+                        if($simple) {
+                            $tooltip .= ($is_required[$entry]>1 ? $this->t('Required by %d modules.', array($is_required[$entry])) : $this->t('Required by %d module.', array($is_required[$entry])));
+                        } else {
+                            $tooltip .= $this->t('Required by:').'<ul>';
+                            foreach($is_required[$entry] as $mod_name) {
+                                $tooltip .= '<li>'.$mod_name.'</li>';
+                            }
+                            $tooltip .= '</ul>'.$this->t('Remove them first.');
                         }
-                        $iii .= '</ul>';
-                        Libs_LeightboxCommon::display($entry.'1',$iii,'Additional info');
                     }
 
-					$versions[-1]='not installed';
+					if(!isset($is_required[$entry])) $versions[-1]='not installed';
 					ksort($versions);
                     if(!$simple && $installed!=-1 && !isset($is_required[$entry])) $versions[-2] = 'reinstall';
 
@@ -131,16 +126,11 @@ class Base_Setup extends Module {
 						}
 						$c = & $c[$path[$i]]['sub'];
 					}
-                    // Allow to uninstall module only if it's orphaned and in advanced mode
-                    $ele = null;
-                    if(isset($is_required[$entry]) && $simple) {
-                        $ele = $form->createElement('static', 'installed['.$entry.']', $path[count($path)-1], '<span style="color:red; margin-left:30px">'. ($is_required[$entry]>1 ? $this->t('required by %d modules', array($is_required[$entry])) : $this->t('required by %d module', array($is_required[$entry]))) .'</span>'.' | v. '.$versions[$installed]);
-                    } else {
-    					$ele = $form->createElement('select', 'installed['.$entry.']', $path[count($path)-1], $versions, array('onChange'=>'javascript:showAlert(this)'));
-        				$ele->setValue($installed);
-                    }
+   					$ele = $form->createElement('select', 'installed['.$entry.']', $path[count($path)-1], $versions, array('onChange'=>'javascript:showAlert(this)', 'style'=>'width: 100px'));
+       				$ele->setValue($installed);
+
 					$c[$path[count($path)-1]] = array();
-					$c[$path[count($path)-1]]['name'] = '<table width=100%><tr><td width=100% align=left>' . $info . ' ' . $path[count($path)-1] . '</td><td align=right>' . $ele->toHtml() . '</td></tr></table>';
+					$c[$path[count($path)-1]]['name'] = '<table width=100%><tr><td width=100% align=left>' . $info . ' ' . $path[count($path)-1] . '</td><td align=right'.($tooltip?Utils_TooltipCommon::open_tag_attrs($tooltip,false):'').'>' . $ele->toHtml() . '</td></tr></table>';
 					$c[$path[count($path)-1]]['sub'] = array();
 					array_push($def, array('installed['.$entry.']'=>$installed));
 
