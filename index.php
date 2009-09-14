@@ -30,9 +30,9 @@ $cur_ver = Variable::get('version');
 if($cur_ver!==EPESI_VERSION) {
 	if(isset($_GET['up'])) {
 		require_once('update.php');
-		$ret = ob_get_clean();
-		if(trim($ret))
-			die($ret);
+		$retX = ob_get_clean();
+		if(trim($retX))
+			die($retX);
 		header('Location: index.php');
 		exit();
 	} else {
