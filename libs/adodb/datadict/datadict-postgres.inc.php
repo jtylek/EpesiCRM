@@ -1,7 +1,7 @@
 <?php
 
 /**
-  V5.05 25 Mar 2008   (c) 2000-2008 John Lim (jlim#natsoft.com). All rights reserved.
+  V5.09 25 June 2009   (c) 2000-2009 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -100,6 +100,7 @@ class ADODB2_postgres extends ADODB_DataDict {
 		case 'B': return 'BYTEA';
 			
 		case 'D': return 'DATE';
+		case 'TS':
 		case 'T': return 'TIMESTAMP';
 		
 		case 'L': return 'BOOLEAN';
@@ -319,14 +320,14 @@ class ADODB2_postgres extends ADODB_DataDict {
 	{
 		$sql = ADODB_DataDict::DropTableSQL($tabname);
 		
-//		$drop_seq = $this->_DropAutoIncrement($tabname);
-//		if ($drop_seq) $sql[] = $drop_seq;
+		$drop_seq = $this->_DropAutoIncrement($tabname);
+		if ($drop_seq) $sql[] = $drop_seq;
 		
 		return $sql;
 	}
 
 	// return string must begin with space
-	function _CreateSuffix($fname, &$ftype, $fnotnull,$fdefault,$fautoinc,$fconstraint)
+	function _CreateSuffix($fname, &$ftype, $fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned)
 	{
 		if ($fautoinc) {
 			$ftype = 'SERIAL';
