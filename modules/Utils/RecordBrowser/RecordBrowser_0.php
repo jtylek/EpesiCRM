@@ -1490,8 +1490,8 @@ class Utils_RecordBrowser extends Module {
 				$field = $data['field'];
 			$id = strtolower(str_replace(' ','_',$field));
 			$new_id = strtolower(str_replace(' ','_',$data['field']));
-			if (preg_match('/^[a-z0-9_]*$/',$id)===false) trigger_error('Invalid column name: '.$field);
-			if (preg_match('/^[a-z0-9_]*$/',$new_id)===false) trigger_error('Invalid new column name: '.$data['field']);
+			if (preg_match('/^[a-z0-9_]*$/',$id)==0) trigger_error('Invalid column name: '.$field);
+			if (preg_match('/^[a-z0-9_]*$/',$new_id)==0) trigger_error('Invalid new column name: '.$data['field']);
 			if ($action=='add') {
 				$id = $new_id;
 				if (in_array($data['select_data_type'], array('time','timestamp','currency','integer')))

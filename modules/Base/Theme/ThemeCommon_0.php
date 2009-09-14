@@ -134,8 +134,8 @@ class Base_ThemeCommon extends ModuleCommon {
 		$data_dir = DATA_DIR.'/Base_Theme/templates/default/';
 
 		$content = scandir($data_dir);
-		foreach ($content as $name){
-			if($name == '.' || $name == '..' || preg_match('/^'.addcslashes($mod_name,'/').'/',$name)===false) continue;
+		foreach ($content as $name) {
+			if($name == '.' || $name == '..' || preg_match('/^'.addcslashes($mod_name,'/').'/',$name)==0) continue;
 			$name = $data_dir.'/'.$name;
 			recursive_rmdir($name);
 //			if (!is_dir($name))
