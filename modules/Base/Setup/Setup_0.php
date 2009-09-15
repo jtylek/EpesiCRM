@@ -112,7 +112,7 @@ class Base_Setup extends Module {
                         }
                     }
 
-					if(!isset($is_required[$entry])) $versions[-1]='not installed';
+					if(!isset($is_required[$entry]) || !$simple) $versions[-1]='not installed';
 					ksort($versions);
                     if(!$simple && $installed!=-1 && !isset($is_required[$entry])) $versions[-2] = 'reinstall';
 
@@ -130,7 +130,7 @@ class Base_Setup extends Module {
        				$ele->setValue($installed);
 
 					$c[$path[count($path)-1]] = array();
-					$c[$path[count($path)-1]]['name'] = '<table width=100%><tr><td width=100% align=left>' . $info . ' ' . $path[count($path)-1] . '</td><td align=right'.($tooltip?Utils_TooltipCommon::open_tag_attrs($tooltip,false):'').'>' . $ele->toHtml() . '</td></tr></table>';
+					$c[$path[count($path)-1]]['name'] = '<table width=100%><tr><td width=100% align=left>' . $info . ' ' . $path[count($path)-1] . '</td><td align=right '.($tooltip?Utils_TooltipCommon::open_tag_attrs($tooltip,false):'').'>' . $ele->toHtml() . '</td></tr></table>';
 					$c[$path[count($path)-1]]['sub'] = array();
 					array_push($def, array('installed['.$entry.']'=>$installed));
 
