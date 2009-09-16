@@ -66,15 +66,42 @@ class Base_Setup extends Module {
 			$structure = array();
 			$def = array();
             $is_required = ModuleManager::required_modules($simple ? false : true);
-            // javascript to show warning only once
-            eval_js('var showed = false;');
-            eval_js_once('function showAlert(x) {
-                        if(showed) return;
-                        if(x.options[x.selectedIndex].value == -2) {
-                            showed=true;
-                            alert(\''.$this->t('Warning!\nAll data in reinstalled modules will be lost.').'\')
-                        }
-                    }');
+            if(!$simple) {
+            // transform is_required array to javascript
+                eval_js('var deps = new Array('.sizeof($is_required).');');
+                foreach($is_required as $k => $mod) {
+                    eval_js('deps["'.$k.'"] = new Array('.sizeof($mod).');');
+                    $i = 0;
+                    foreach($mod as $dep_mod) eval_js('deps["'.$k.'"]['.$i++.'] = "'.$dep_mod.'";');
+                }
+            // javascript to show warning only once and cascade uninstall
+                eval_js('var showed = false;');
+                eval_js_once('var original_select = new Array('.sizeof($is_required).');');
+                eval_js_once('function show_alert(x, mod) {
+                                if(x.options[x.selectedIndex].value == -2) {
+                                    if(!showed) alert(\''.$this->t('Warning!\nAll data in reinstalled modules will be lost.').'\');
+                                    showed=true;
+                                    return;
+                                }
+                                if(x.selectedIndex != 0) {
+                                    original_select[mod] = x.options[x.selectedIndex].value;
+                                    return;
+                                }
+                                var str = "\n";
+                                for(var i = 0; i < deps[mod].length; i++) {
+                                    str+=" - " + deps[mod][i] + "\n";
+                                }
+                                if(confirm("'.$this->t('Warning! These modules will be deleted:').'" + str + "\n'.$this->t('Continue?').'") == false) {
+                                    var ind = 0;
+                                    for(; ind < x.options.length; ind++) if(x.options[ind].value == original_select[mod]) break;
+                                    x.selectedIndex = ind;
+                                    return;
+                                }
+                                for(var i = 0; i < deps[mod].length; i++) {
+                                    document.getElementsByName("installed["+deps[mod][i]+"]")[0].selectedIndex=0;
+                                }
+                        }');
+            }
 			foreach($module_dirs as $entry=>$versions) {
 					$installed = ModuleManager::is_installed($entry);
 
@@ -98,6 +125,7 @@ class Base_Setup extends Module {
 						}
 					}
 
+                    // Show Tooltip if module is required
                     $tooltip = null;
                     if(isset($is_required[$entry])) {
                         $tooltip = $this->t('This module cannot be removed.').'<br/>';
@@ -126,8 +154,10 @@ class Base_Setup extends Module {
 						}
 						$c = & $c[$path[$i]]['sub'];
 					}
-   					$ele = $form->createElement('select', 'installed['.$entry.']', $path[count($path)-1], $versions, array('onChange'=>'javascript:showAlert(this)', 'style'=>'width: 100px'));
+                    $params_arr = $simple ? array('style'=>'width: 100px') : array('onChange'=>"show_alert(this,'$entry');", 'style'=>'width: 100px');
+   					$ele = $form->createElement('select', 'installed['.$entry.']', $path[count($path)-1], $versions, $params_arr);
        				$ele->setValue($installed);
+                    eval_js("original_select[\"$entry\"] = $installed");
 
 					$c[$path[count($path)-1]] = array();
 					$c[$path[count($path)-1]]['name'] = '<table width=100%><tr><td width=100% align=left>' . $info . ' ' . $path[count($path)-1] . '</td><td align=right '.($tooltip?Utils_TooltipCommon::open_tag_attrs($tooltip,false):'').'>' . $ele->toHtml() . '</td></tr></table>';
