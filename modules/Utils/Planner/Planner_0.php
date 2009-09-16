@@ -64,7 +64,10 @@ class Utils_Planner extends Module {
 	}
 	
 	public function add_resource($def, $prop=array()) {
-		list($type, $name, $label, $param1) = $def;
+		if (isset($def[0])) $type = $def[0];
+		if (isset($def[1])) $name = $def[1];
+		if (isset($def[2])) $label = $def[2];
+		if (isset($def[3])) $param1 = $def[3];
 		if (isset($def[4])) $param2 = $def[4];
 		if (isset($def[5])) $param3 = $def[5];
 		$_SESSION['client']['utils_planner']['resources'][$name]=array('type'=>$type,'in_use'=>array(),'value'=>false);
@@ -79,6 +82,10 @@ class Utils_Planner extends Module {
 		if ($type=='select'){
 			$on_change .= 'this.className=this.options[this.selectedIndex].className;';
 			$this->form->addElement($type, $name, $label, $param1, array('id'=>$name, 'onchange'=>$on_change));
+			return;
+		}
+		if ($type=='text'){
+			$this->form->addElement($type, $name, $label, array('id'=>$name));
 			return;
 		}
 	}

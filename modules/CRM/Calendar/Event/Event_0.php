@@ -802,23 +802,30 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		if (empty($custom_handlers)) return '';
 		$form = $this->init_module('Libs/QuickForm');
 
-		$options = array(-1=>$this->t('Meetings'));
-		foreach ($custom_handlers as $k=>$v)
-			$options[$k] = $this->t($v);
+		$form->addElement('checkbox', 'events_handlers__', $this->t('Events'), null, array('onchange'=>$form->get_submit_form_js()));
+		$elements_name = array(-1=>'events_handlers__');
+		$default = array(-1);
+		foreach ($custom_handlers as $k=>$v) {
+			$form->addElement('checkbox', 'events_handlers__'.$k, $this->t($v), null, array('onchange'=>$form->get_submit_form_js()));
+			$elements_name[$k] = 'events_handlers__'.$k;
+			$default[] = $k;
+		}
 
-		$form->addElement('select', 'events_handlers', 'Events', $options, array('onchange'=>$form->get_submit_form_js()));
-
-		$selected = $this->get_module_variable('events_handlers', -1);
+		$selected = $this->get_module_variable('events_handlers', $default);
 		if ($form->validate()) {
 			$vals = $form->exportValues();
-			$selected = $vals['events_handlers'];
+			$selected = array();
+			foreach ($elements_name as $k=>$e)
+				if (isset($vals[$e]) && $vals[$e]) $selected[] = $k;
 			$this->set_module_variable('events_handlers', $selected);
 		}
 		CRM_Calendar_EventCommon::$events_handlers = $selected;
 
-		$form->setDefaults(array('events_handlers'=>$selected));
+		foreach ($selected as $k=>$e)
+			$form->setDefaults(array($elements_name[$e]=>true));
 
 		$theme = $this->init_module('Base/Theme');
+		$theme->assign('elements_name', $elements_name);
 		$form->assign_theme('form', $theme);
 		ob_start();
 		$theme->display('custom_event_handlers_form');

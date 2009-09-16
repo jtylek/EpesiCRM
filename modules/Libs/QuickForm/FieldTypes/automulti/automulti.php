@@ -82,7 +82,7 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
     	if (!is_array($args)) $args = array();
     	array_unshift($args, $string);
     	$result = call_user_func_array($callback, $args);
-    	$ret = '<ul>';
+    	$ret = '<ul style="width:290px;">';
     	if (empty($result)) {
 			$ret .= '<li><span style="text-align:center;font-weight:bold;" class="informal">'.Base_LangCommon::ts('Libs/QuickForm','No records founds').'</span></li>';
     	}

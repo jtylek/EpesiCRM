@@ -21,6 +21,7 @@ class CRM_CalendarInstall extends ModuleInstall {
 						'group_name C(64),'.
 						'get_callback C(128),'.
 						'get_all_callback C(128),'.
+						'delete_callback C(128),'.
 						'update_callback C(128)',
 						array('constraints'=>''));
 		return true;
