@@ -186,8 +186,12 @@ class Utils_RecordBrowser extends Module {
 		$this->is_on_main_page = true;
 		if ($this->get_access('add')!==false && $this->add_button!==false) {
 			if (!$this->multiple_defaults) {
-				Base_ActionBarCommon::add('add','New', $this->create_callback_href(array($this,'navigate'),array('view_entry', 'add', null, $this->custom_defaults)));
-				Utils_ShortcutCommon::add(array('Ctrl','N'), 'function(){'.$this->create_callback_href_js(array($this,'navigate'),array('view_entry', 'add', null, $this->custom_defaults)).'}');
+				if ($this->add_button===null) {
+					Base_ActionBarCommon::add('add','New', $this->create_callback_href(array($this,'navigate'),array('view_entry', 'add', null, $this->custom_defaults)));
+					Utils_ShortcutCommon::add(array('Ctrl','N'), 'function(){'.$this->create_callback_href_js(array($this,'navigate'),array('view_entry', 'add', null, $this->custom_defaults)).'}');
+				} else {
+					Base_ActionBarCommon::add('add','New', $this->add_button);
+				}
 			} else {
 				eval_js_once('actionbar_rb_new_record_deactivate = function(){leightbox_deactivate(\'actionbar_rb_new_record\');}');
 				$th = $this->init_module('Base/Theme');
