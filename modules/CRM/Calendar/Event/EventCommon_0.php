@@ -261,7 +261,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
         $end_time = Base_RegionalSettingsCommon::time2reg($row['end'],2,false);
 
         $inf2 = array(
-            'Date:'=>'<b>'.$event_date.'</b>');
+            'Date'=>'<b>'.$event_date.'</b>');
 
         if ($row['timeless']==1) {
             $inf2 += array('Time'=>Base_LangCommon::ts('CRM_Calendar_Event','Timeless event'));
@@ -272,8 +272,8 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
                 );
             }
 
-		$inf2 += array(	'Event:' => '<b>'.$row['title'].'</b>',
-						'Description:' => $row['description'],
+		$inf2 += array(	'Event' => '<b>'.$row['title'].'</b>',
+						'Description' => $row['description'],
 						'Assigned to' => implode('<br>',$emps),
 						'Contacts' => implode('<br>',$cuss),
 						'Status' => $status[$row['status']],
