@@ -38,10 +38,19 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 	}
 
 	public function make_event_PDF($pdf, $id, $no_details = false,$type='Event'){
+		$custom_event = false;
 		if (!is_array($id)) {
-			$ev = DB::GetRow('SELECT *, starts AS start, ends AS end FROM crm_calendar_event WHERE id=%d', array($id));
-			$id = explode('_',$id);
-			$id = $id[0];
+			$check = explode('#', $id);
+			if (isset($check[1])) {
+				$callback = DB::GetOne('SELECT get_callback FROM crm_calendar_custom_events_handlers WHERE id=%d', $check[0]);
+				$ev = call_user_func($callback, $check[1]);
+				$no_details = true;
+				$custom_event = true;
+			} else {
+				$ev = DB::GetRow('SELECT *, starts AS start, ends AS end FROM crm_calendar_event WHERE id=%d', array($id));
+				$id = explode('_',$id);
+				$id = $id[0];
+			}
 		} else {
 			$ev = $id;
 			$id = $ev['id'];
@@ -51,6 +60,11 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			foreach ($ev_details as $k=>$v)
 				if (!isset($ev[$k])) $ev[$k] = $v;*/
 			$ev['title'] = strip_tags($ev['title']);
+			$check = explode('#', $id);
+			if (isset($check[1])) {
+				$no_details = true;
+				$custom_event = true;
+			}
 		}
 		$pdf_theme = $this->pack_module('Base/Theme');
 		$pdf_theme->assign('description', array('label'=>$this->t('Description'), 'value'=>str_replace("\n",'<br/>',htmlspecialchars($ev['description']))));
@@ -80,32 +94,38 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 			$pdf_theme->assign('printed_on', array(	'label'=>$this->t('Printed on'),
 													'value'=>Base_RegionalSettingsCommon::time2reg(time())));
 		}
-		$defec = CRM_Calendar_EventCommon::get_emp_and_cus($id);
-		$emps = array();
-		foreach ($defec['emp_id'] as $v) {
-			$c = CRM_ContactsCommon::get_contact($v);
-			$emps[] = array('name'=>$c['last_name'].' '.$c['first_name'],
-							'mphone'=>$c['mobile_phone'],
-							'wphone'=>$c['work_phone'],
-							'hphone'=>$c['home_phone']);
-		}
-		$cuss = array();
-		$cus_cmps = array();
-		foreach ($defec['cus_id'] as $v) {
-			$c = CRM_ContactsCommon::get_contact($v);
-			$company_name = array();
-			if (is_array($c['company_name']))
-				foreach ($c['company_name'] as $vv)
-					$company_name[] = Utils_RecordBrowserCommon::get_value('company', $vv, 'Company Name');
-			$cuss[] = array('name'=>$c['last_name'].' '.$c['first_name'],
-							'mphone'=>$c['mobile_phone'],
-							'wphone'=>$c['work_phone'],
-							'hphone'=>$c['home_phone'],
-							'company_name'=>$company_name);
-			if (is_array($c['company_name']))
-				foreach ($c['company_name'] as $v2)
-					if (!isset($cus_cmps[$v2]))
-						$cus_cmps[$v2] = CRM_ContactsCommon::get_company($v2);
+		if (!$custom_event) {
+			$defec = CRM_Calendar_EventCommon::get_emp_and_cus($id);
+			$emps = array();
+			foreach ($defec['emp_id'] as $v) {
+				$c = CRM_ContactsCommon::get_contact($v);
+				$emps[] = array('name'=>$c['last_name'].' '.$c['first_name'],
+								'mphone'=>$c['mobile_phone'],
+								'wphone'=>$c['work_phone'],
+								'hphone'=>$c['home_phone']);
+			}
+			$cuss = array();
+			$cus_cmps = array();
+			foreach ($defec['cus_id'] as $v) {
+				$c = CRM_ContactsCommon::get_contact($v);
+				$company_name = array();
+				if (is_array($c['company_name']))
+					foreach ($c['company_name'] as $vv)
+						$company_name[] = Utils_RecordBrowserCommon::get_value('company', $vv, 'Company Name');
+				$cuss[] = array('name'=>$c['last_name'].' '.$c['first_name'],
+								'mphone'=>$c['mobile_phone'],
+								'wphone'=>$c['work_phone'],
+								'hphone'=>$c['home_phone'],
+								'company_name'=>$company_name);
+				if (is_array($c['company_name']))
+					foreach ($c['company_name'] as $v2)
+						if (!isset($cus_cmps[$v2]))
+							$cus_cmps[$v2] = CRM_ContactsCommon::get_company($v2);
+			}
+		} else {
+			$emps = array();
+			$cuss = array();
+			$cus_cmps = '';
 		}
 		$pdf_theme->assign('employees', array(	'main_label'=>$this->t('Employees'),
 												'name_label'=>$this->t('Name'),

@@ -79,6 +79,7 @@
 		</tr>
 	</table>
 {/if}
+{if !empty($employees.data)}
 <table border="1">
 	<tr>
 		<td width="510">
@@ -93,7 +94,7 @@
 		</td>
 	</tr>
 </table>
-	
+{/if}	
 {if !empty($customers.data)}
 	{*<br>*}
 	<table border="1">

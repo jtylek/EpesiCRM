@@ -215,13 +215,13 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		Base_ActionBarCommon::add($icon,$label,$href);
 	}
 	public static function display_events($category_name, $changes, $id) {
+		if (!is_array($changes)) return '';
 		$category_id = self::get_category_id($category_name);
 		$method = DB::GetOne('SELECT callback FROM utils_watchdog_category WHERE id=%d', array($category_id));
-		if (!is_array($changes)) return '';
 		$data = call_user_func($method, $id, $changes);
 		if (!isset($data['events'])) return '';
 		return $data['events'];
-	} 
+	}
 	public static function get_change_subscription_icon($category_name, $id) {
 		$category_id = self::get_category_id($category_name);
 		if (!$category_id) return;
