@@ -135,7 +135,8 @@ class Base_ActionBar extends Module {
 					ob_start();
 					$th->display('launchpad');
 					$lp_out = ob_get_clean();
-					Libs_LeightboxCommon::display('actionbar_launchpad',$lp_out,$this->t('Launchpad'));
+					$big = count($launchpad)>10;
+					Libs_LeightboxCommon::display('actionbar_launchpad',$lp_out,$this->t('Launchpad'),$big);
 					$launcher[] = array('label'=>$this->ht('Launchpad'),'description'=>'Quick modules launcher','open'=>'<a '.Libs_LeightboxCommon::get_open_href('actionbar_launchpad').'>','close'=>'</a>','icon'=>$icon);
 				}
 			}
