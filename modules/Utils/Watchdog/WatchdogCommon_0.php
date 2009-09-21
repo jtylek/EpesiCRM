@@ -218,6 +218,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		if (!is_array($changes)) return '';
 		$category_id = self::get_category_id($category_name);
 		$method = DB::GetOne('SELECT callback FROM utils_watchdog_category WHERE id=%d', array($category_id));
+		$method = explode('::', $method);
 		$data = call_user_func($method, $id, $changes);
 		if (!isset($data['events'])) return '';
 		return $data['events'];
