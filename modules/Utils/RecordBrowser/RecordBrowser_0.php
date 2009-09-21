@@ -65,6 +65,7 @@ class Utils_RecordBrowser extends Module {
 	private $disabled = array('search'=>false, 'browse_mode'=>false, 'watchdog'=>false, 'quickjump'=>false, 'filters'=>false, 'headline'=>false, 'actions'=>false, 'fav'=>false);
 	private $force_order;
 	private $view_fields_permission;
+    private $clipboard_pattern = false;
 	
 	public function set_filter_crits($field, $crits) {
 		$this->filter_crits[$field] = $crits;
@@ -145,6 +146,7 @@ class Utils_RecordBrowser extends Module {
 		list($this->caption,$this->icon,$this->recent,$this->favorites,$this->full_history) = $params;
 		$this->favorites &= !$this->disabled['fav'];
 		$this->watchdog = Utils_WatchdogCommon::category_exists($this->tab) && !$this->disabled['watchdog'];
+        $this->clipboard_pattern = DB::GetOne('SELECT pattern FROM recordbrowser_clipboard_pattern WHERE tab=%s', array($this->tab));
 
 		//If Caption or icon not specified assign default values
 		if ($this->caption=='') $this->caption='Record Browser';
@@ -914,6 +916,23 @@ class Utils_RecordBrowser extends Module {
 				if ($info['edited_by']===null) $theme -> assign('history_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs($this->t('This record was never edited')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','history_inactive.png').'" /></a>');
 				else $theme -> assign('history_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs($this->t('Click to view edit history of currently displayed record')).' '.$this->create_callback_href(array($this,'navigate'), array('view_edit_history', $id)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','history.png').'" /></a>');
 			}
+            if ($this->clipboard_pattern) {
+                $theme -> assign('clipboard_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs($this->t('Click to export values to copy')).' '.Libs_LeightboxCommon::get_open_href('clipboard').'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','history.png').'" /></a>');
+                $text = $this->clipboard_pattern;
+                $record = Utils_RecordBrowserCommon::get_record($this->tab, $id);
+                foreach($record as $k=>$v) {
+                    if(is_array($v)) {
+                        $t = null;
+                        foreach($v as $x) {
+                            if($t) $t .= ', '.$x;
+                            else $t = $x;
+                        }
+                        $v = $t;
+                    }
+                    $text = str_replace('%'.$k, $v, $text);
+                }
+                Libs_LeightboxCommon::display('clipboard',$text,'Copy');
+            }
 		}
 
 		if ($mode=='view') $form->freeze();
@@ -1263,6 +1282,7 @@ class Utils_RecordBrowser extends Module {
 		$tb->set_tab($this->t('Manage Records'),array($this, 'show_data'), array(array(), array(), array(), true) );
 		$tb->set_tab($this->t('Manage Fields'),array($this, 'setup_loader') );
 		$tb->set_tab($this->t('Manage Addons'),array($this, 'manage_addons') );
+        $tb->set_tab($this->t('Clipboard Pattern'), array($this, 'setup_clipboard_pattern') );
 
 		$tb->body();
 		$tb->tag();
@@ -1353,6 +1373,37 @@ class Utils_RecordBrowser extends Module {
 		$form->display();
 		return true;
 	}
+    public function setup_clipboard_pattern() {
+        $form = $this->init_module('Libs/QuickForm');
+        $r = DB::GetAll('SELECT pattern,enabled FROM recordbrowser_clipboard_pattern WHERE tab=%s', array($this->tab));
+        if(sizeof($r)) $r = $r[0];
+        $form->addElement('select', 'enable', $this->t('Enable'), array($this->t('No'), $this->t('Yes')));
+        $info = '<b>'.$this->t('This is html pattern. All html tags are allowed.<br/>Use &lt;pre&gt; some text &lt;/pre&gt; to generate text identical as you typed it.<br/><br/>Keywords:').'</b>';
+        foreach($this->table_rows as $name=>$val) {
+            $info .= '<br/><b>%'.$val['id'].'</b> - '.$name.' ('.$val['type'].')';
+        }
+        $label = '<img src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser', 'info.png').'" '.Utils_TooltipCommon::open_tag_attrs($info, false).'/> '.$this->t('Pattern');
+        $textarea = $form->addElement('textarea', 'pattern', $label);
+        $textarea->setRows(12);
+        $textarea->setCols(80);
+        $form->addElement('submit', 'save', $this->t('Save'));
+        if($r) $form->setDefaults(array('enable'=>($r['enabled']?1:0), 'pattern'=>$r['pattern']));
+        else $form->setDefaults(array('enable'=>0));
+		$form->display();
+   		if ($form->validate()) {
+            $enable = $form->exportValue('enable');
+            $pattern = $form->exportValue('pattern');
+			if($enable == 0 && strlen($pattern) == 0 && $r) {
+                DB::Execute('DELETE FROM recordbrowser_clipboard_pattern WHERE tab = %s', array($this->tab));
+            } else {
+                if($r) {
+                    DB::Execute('UPDATE recordbrowser_clipboard_pattern SET pattern=%s,enabled=%d WHERE tab=%s',array($pattern,$enable,$this->tab));
+                } else {
+                    DB::Execute('INSERT INTO recordbrowser_clipboard_pattern values (%s,%s,1)',array($this->tab, $pattern));
+                }
+            }
+		}
+    }
 	public function setup_loader() {
 		$this->init(true);
 		$action = $this->get_module_variable_or_unique_href_variable('setup_action', 'show');
@@ -1752,12 +1803,13 @@ class Utils_RecordBrowser extends Module {
 			$opts[$row['tab']] = ucfirst(str_replace('_',' ',$row['tab']));  
 		}
 		$form->addElement('select', 'recordset', $this->t('Record Set'), $opts, array('onchange'=>$form->get_submit_form_js()));
-		$form->display();
 		if ($form->validate()) {
 			$tab = $form->exportValue('recordset');
 			$this->set_module_variable('admin_browse_recordset', $tab);
 		}
 		$tab = $this->get_module_variable('admin_browse_recordset', $first);
+        $form->setDefaults(array('recordset'=>$tab));
+		$form->display();
 		if ($tab) $this->record_management($tab);
 	}
 	public function record_management($table){
