@@ -38,8 +38,8 @@ class Apps_ForumInstall extends ModuleInstall {
 	
 	public function uninstall() {
 		$ret = true;
-		$ret &= DB::DropTable('apps_forum_board');
 		$ret &= DB::DropTable('apps_forum_thread');
+		$ret &= DB::DropTable('apps_forum_board');
 		Base_ThemeCommon::uninstall_default_theme('Apps/Forum');
 		return $ret;
 	}
