@@ -157,7 +157,7 @@ class Base_Setup extends Module {
                     $params_arr = $simple ? array('style'=>'width: 100px') : array('onChange'=>"show_alert(this,'$entry');", 'style'=>'width: 100px');
    					$ele = $form->createElement('select', 'installed['.$entry.']', $path[count($path)-1], $versions, $params_arr);
        				$ele->setValue($installed);
-                    eval_js("original_select[\"$entry\"] = $installed");
+                    if(!$simple) eval_js("original_select[\"$entry\"] = $installed");
 
 					$c[$path[count($path)-1]] = array();
 					$c[$path[count($path)-1]]['name'] = '<table width=100%><tr><td width=100% align=left>' . $info . ' ' . $path[count($path)-1] . '</td><td align=right '.($tooltip?Utils_TooltipCommon::open_tag_attrs($tooltip,false):'').'>' . $ele->toHtml() . '</td></tr></table>';
