@@ -691,6 +691,32 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return	Utils_TooltipCommon::format_info_tooltip($htmlinfo,'CRM_Contacts');
 	}
 	
+
+	public static function applet_caption() {
+		return "Contacts";
+	}
+
+	public static function applet_info() {
+		return "Displays recent/favourites contacts";
+	}
+
+	public static function applet_settings() {
+		return array_merge(Utils_RecordBrowserCommon::applet_settings(),array(
+				array('name'=>'conds','label'=>'Display','type'=>'select','default'=>'fav','rule'=>array(array('message'=>'Field required', 'type'=>'required')),'values'=>array('fav'=>Base_LangCommon::ts('CRM_Contacts','favourites'),'rec'=>Base_LangCommon::ts('CRM_Contacts','recent')))));
+	}
+	public static function applet_info_format($r){
+		$args=array(
+					'Work phone:'=>$r['work_phone'],
+					'Mobile phone:'=>$r['mobile_phone'],
+					'Home phone:'=>$r['home_phone'],
+					'Fax:'=>$r['fax'],
+					'E-mail:'=>$r['email']
+					);
+
+		$ret = array('notes'=>Utils_TooltipCommon::format_info_tooltip($args,'CRM_Contacts'));
+		return $ret;
+	}
+	
 	//////////////////////////
 	// mobile devices
 	public function mobile_menu() {

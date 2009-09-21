@@ -1455,8 +1455,10 @@ function update_from_1_0_1_to_1_0_2() {
 	}
 	
     //ok, done
+    ob_start();
     ModuleManager::create_common_cache();
     ModuleManager::load_modules();
+    ob_end_clean();
     themeup();
     langup();
     Base_ThemeCommon::create_cache();

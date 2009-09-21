@@ -15,9 +15,33 @@ defined("_VALID_ACCESS") || die();
 class CRM_Contacts extends Module {
 	private $rb = null;
 
+	public function applet($conf, $opts) { //available applet options: toggle,href,title,go,go_function,go_arguments,go_contruct_arguments
+		$opts['go'] = 1;
+		$mode = 'contact';
+		$rb = $this->init_module('Utils/RecordBrowser',$mode,$mode);
+		$conds = array(
+									array(	array('field'=>'last_name', 'width'=>10, 'cut'=>15),
+											array('field'=>'first_name', 'width'=>10, 'cut'=>15),
+											array('field'=>'company_name', 'width'=>10, 'cut'=>15)
+										),
+									$conf['conds']=='fav'?array(':Fav'=>1):array(':Recent'=>1),
+									array('last_name'=>'ASC','first_name'=>'ASC','company_name'=>'ASC'),
+									array('CRM_ContactsCommon','applet_info_format'),
+									15,
+									$conf,
+									& $opts
+				);
+		
+		$opts['actions'][] = Utils_RecordBrowserCommon::applet_new_record_button('contact',array(	'country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
+								'zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state'),
+								'permission'=>'0','home_country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
+								'home_zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state')));
+		$this->display_module($rb, $conds, 'mini_view');
+	}
+
 	public function body() {
 		if (isset($_REQUEST['mode']) && ($_REQUEST['mode']=='contact' || $_REQUEST['mode']=='company')) $this->set_module_variable('mode', $_REQUEST['mode']);
-		$mode = $this->get_module_variable('mode');
+		$mode = $this->get_module_variable('mode','contact');
 
 		$this->rb = $this->init_module('Utils/RecordBrowser',$mode,$mode);
 		$this->rb->set_defaults(array(	'country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
