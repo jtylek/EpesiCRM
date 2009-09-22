@@ -128,15 +128,15 @@ class Base_Setup extends Module {
                     // Show Tooltip if module is required
                     $tooltip = null;
                     if(isset($is_required[$entry])) {
-                        $tooltip = $this->t('This module cannot be removed.').'<br/>';
                         if($simple) {
+                            $tooltip = $this->t('This module cannot be removed.').'<br/>';
                             $tooltip .= ($is_required[$entry]>1 ? $this->t('Required by %d modules.', array($is_required[$entry])) : $this->t('Required by %d module.', array($is_required[$entry])));
                         } else {
-                            $tooltip .= $this->t('Required by:').'<ul>';
+                            $tooltip = $this->t('Required by:').'<ul>';
                             foreach($is_required[$entry] as $mod_name) {
                                 $tooltip .= '<li>'.$mod_name.'</li>';
                             }
-                            $tooltip .= '</ul>'.$this->t('Remove them first.');
+                            $tooltip .= '</ul>';
                         }
                     }
 

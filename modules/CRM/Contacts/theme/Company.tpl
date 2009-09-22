@@ -36,6 +36,9 @@
 				{if isset($info_tooltip)}
 					&nbsp;&nbsp;&nbsp;{$info_tooltip}
 				{/if}
+				{if isset($clipboard_tooltip)}
+					&nbsp;&nbsp;&nbsp;{$clipboard_tooltip}
+				{/if}
 				{if isset($history_tooltip)}
 					&nbsp;&nbsp;&nbsp;{$history_tooltip}
 				{/if}

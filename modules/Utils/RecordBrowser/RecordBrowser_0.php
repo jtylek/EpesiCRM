@@ -920,18 +920,12 @@ class Utils_RecordBrowser extends Module {
 			}
             if ($this->clipboard_pattern) {
                 $theme -> assign('clipboard_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs($this->t('Click to export values to copy')).' '.Libs_LeightboxCommon::get_open_href('clipboard').'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','history.png').'" /></a>');
-                $text = $this->clipboard_pattern;
+                $text = '<h3>'.$this->t('Select and copy:').'</h3>';
+                $text .= $this->clipboard_pattern;
                 $record = Utils_RecordBrowserCommon::get_record($this->tab, $id);
-                foreach($record as $k=>$v) {
-                    if(is_array($v)) {
-                        $t = null;
-                        foreach($v as $x) {
-                            if($t) $t .= ', '.$x;
-                            else $t = $x;
-                        }
-                        $v = $t;
-                    }
-                    $text = str_replace('%'.$k, $v, $text);
+                foreach($this->table_rows as $name=>$val) {
+                    if($val['type'] == 'select' || $val['type'] == 'multiselect' || $val['type'] == 'calculated' || $val['type'] == 'commondata' || $val['type'] == 'checkbox') continue;
+                    $text = str_replace('%'.$val['id'], $record[$val['id']], $text);
                 }
                 Libs_LeightboxCommon::display('clipboard',$text,'Copy');
             }
@@ -1382,7 +1376,8 @@ class Utils_RecordBrowser extends Module {
         $form->addElement('select', 'enable', $this->t('Enable'), array($this->t('No'), $this->t('Yes')));
         $info = '<b>'.$this->t('This is html pattern. All html tags are allowed.<br/>Use &lt;pre&gt; some text &lt;/pre&gt; to generate text identical as you typed it.<br/><br/>Keywords:').'</b>';
         foreach($this->table_rows as $name=>$val) {
-            $info .= '<br/><b>%'.$val['id'].'</b> - '.$name.' ('.$val['type'].')';
+            if($val['type'] == 'select' || $val['type'] == 'multiselect' || $val['type'] == 'calculated' || $val['type'] == 'commondata' || $val['type'] == 'checkbox') continue;
+            $info .= '<br/><b>%'.$val['id'].'</b> - '.$name;
         }
         $label = '<img src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser', 'info.png').'" '.Utils_TooltipCommon::open_tag_attrs($info, false).'/> '.$this->t('Pattern');
         $textarea = $form->addElement('textarea', 'pattern', $label);
