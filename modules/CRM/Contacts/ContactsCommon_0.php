@@ -117,16 +117,67 @@ class CRM_ContactsCommon extends ModuleCommon {
 	public static function admin_caption() {
 		return 'Main Company';
 	}
-	public static function check_for_duplicates($data, $js_function){
+	public static function compare_strings($a, $b) {
+		$let_a = array();
+		$sa = strlen($a);
+		for ($i=0; $i<$sa; $i++) {
+			$let = $a{$i};
+			if (!isset($let_a[$let])) $let_a[$let] = 0;
+			$let_a[$let]--;
+		}
+		$sb = strlen($b);
+		for ($i=0; $i<$sb; $i++) {
+			$let = $b{$i};
+			if (!isset($let_a[$let])) $let_a[$let] = 0;
+			$let_a[$let]++;
+		}
+		$score = 0;
+		foreach ($let_a as $v) $score += abs($v);
+		$len = max($sa, $sb);
+		if ($score>$len) return 0;
+		$score = $len-$score;
+		return $score/$len;
+	}
+	public static function check_for_duplicates($data, $js_function=null){
+		$submit_js = Utils_RecordBrowser::$rb_obj->form->get_submit_form_js();
+		if ($js_function===null) {
+			eval_js('contact_duplicate_fill = function (cont_id, comp_id) {'.
+						'if(comp_id==null){'.
+							'if($("company"))$("company").disabled=1;'.
+							'$("contact").disabled=1;'.
+						'}else{'.
+							'if($("company")){'.
+								'$("company").value=comp_id;'.
+								'$("company").fire("e_cs:load");'.
+								'$("company").fire("native:change");'.
+								'if(cont_id==null)$("contact").disabled=1;'.
+								'else{'.
+									'setTimeout(function(){$("contact").value=cont_id;'.$submit_js.'},1000);'. // TODO: poor solution
+								'}'.
+							'}else{'.
+								'$("contact").value=cont_id;'.$submit_js.';'.
+							'}'.
+						'}'.
+					'}');
+			$js_function = 'contact_duplicate_fill';
+		}
+		$submit_js = '';
 		$crits = array();
 		$op = '(';
 		$comp_ids = array();
-		if (isset($data['company_name']) && $data['company_name']) {
+		$is_company = false;
+		if (isset($data['company']) && $data['company'] && $data['company']!=-1) {
+			$comp_ids[] = $data['company'];
+			$crits[$op.'company_name'] = $comp_ids;
+			$op = '|';
+			$is_company = true;
+		} elseif (isset($data['company_name']) && $data['company_name']) {
 			$companies = Utils_RecordBrowserCommon::get_records('company', array('~"company_name'=>DB::Concat(DB::qstr('%'),DB::qstr($data['company_name']),DB::qstr('%'))));
 			foreach ($companies as $k=>$v)
 				$comp_ids[] = $v['id'];
 			$crits[$op.'company_name'] = $comp_ids;
 			$op = '|';
+			$is_company = true;
 		}
 		if ($data['first_name']) {
 			$crits[$op.'~"first_name'] = DB::Concat(DB::qstr('%'),DB::qstr($data['first_name']),DB::qstr('%'));
@@ -140,29 +191,31 @@ class CRM_ContactsCommon extends ModuleCommon {
 		if (empty($contacts))
 			return false;
 		$contacts_final = array();
-		$output = '';
-		$precission = 3;
-		while (!$output) { // Or precission!=0
-			foreach ($contacts as $k=>$v) {
-				$score = 0;
+		$output = array();
+		$precission = 1.4;
+		foreach ($contacts as $k=>$v) {
+			$score = 0;
+			if ($is_company)
 				foreach ($v['company_name'] as $l=>$e)
 					if (in_array($e, $comp_ids)) {
-						$score++;
+						$score+=0.5;
 						break;
 					}
-				if ($v['first_name']==$data['first_name']) $score++;
-				if ($v['last_name']==$data['last_name']) $score++;
-				if ($score<$precission) continue;
-				$first_comp = array_pop($v['company_name']);
-				if ($first_comp) array_push($v['company_name'],$first_comp);
-				$output .= '<a href="javascript:void(0);" onmouseup="'.$js_function.'('.$v['id'].','.($first_comp?$first_comp:'\'\'').');leightbox_deactivate(\'crm_contact_duplicates\');">[Use this]</a> '.self::contact_format_default($v,true).'<br>';
-				unset($contacts[$k]);
-			}
-			$precission--;
+			else
+				$score += 0.3;
+			$score += self::compare_strings($v['first_name'],$data['first_name']);
+			$score += self::compare_strings($v['last_name'],$data['last_name']);
+			if ($score<$precission) continue;
+			$first_comp = array_pop($v['company_name']);
+			if ($first_comp) array_push($v['company_name'],$first_comp);
+			$output[$score] = '<a href="javascript:void(0);" onmouseup="'.$js_function.'('.$v['id'].','.($first_comp?$first_comp:'\'\'').');leightbox_deactivate(\'crm_contact_duplicates\');'.$submit_js.'">[Use this]</a> '.self::contact_format_default($v,true).'<br>';
 		}
-		$output = '<a href="javascript:void(0);" onmouseup="'.$js_function.'(null,null);leightbox_deactivate(\'crm_contact_duplicates\');">[Add as new]</a><br>'.$output;
+		if (empty($output)) return false;
+		ksort($output);
+		$output = implode('', $output);
+		$output = '<a href="javascript:void(0);" onmouseup="'.$js_function.'(null,null);leightbox_deactivate(\'crm_contact_duplicates\');'.$submit_js.'">[Add as new]</a><br>'.$output;
 		Libs_LeightboxCommon::display('crm_contact_duplicates', $output, 'Contact duplicate found.');
-		print('<a '.Libs_LeightboxCommon::get_open_href('crm_contact_duplicates').' style="display:none;" />');
+		print('<a '.Libs_LeightboxCommon::get_open_href('crm_contact_duplicates').' style="display:none;">L</a>');
 		eval_js('leightbox_activate("crm_contact_duplicates");');
 		return true;
 	}

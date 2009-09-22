@@ -34,7 +34,8 @@ class Utils_RecordBrowser_ReportsInstall extends ModuleInstall {
 			array('name'=>'Utils/TabbedBrowser','version'=>0),
 			array('name'=>'Libs/QuickForm','version'=>0),
 			array('name'=>'Utils/RecordBrowser','version'=>0),
-			array('name'=>'Utils/GenericBrowser','version'=>0));
+			array('name'=>'Utils/GenericBrowser','version'=>0),
+			array('name'=>'Libs/OpenFlashChart','version'=>0));
 	}
 
 	public static function info() {

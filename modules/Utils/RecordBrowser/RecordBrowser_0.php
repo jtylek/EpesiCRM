@@ -66,6 +66,7 @@ class Utils_RecordBrowser extends Module {
 	private $force_order;
 	private $view_fields_permission;
     private $clipboard_pattern = false;
+	public $form = null;
 	
 	public function set_filter_crits($field, $crits) {
 		$this->filter_crits[$field] = $crits;
@@ -810,6 +811,7 @@ class Utils_RecordBrowser extends Module {
 		self::$tab_param = $tb->get_path();
 
 		$form = $this->init_module('Libs/QuickForm',null, $mode);
+		$this->form = $form;
 
 		if($mode!='add')
 			Utils_RecordBrowserCommon::add_recent_entry($this->tab, Acl::get_user(),$id);
@@ -867,7 +869,7 @@ class Utils_RecordBrowser extends Module {
 				return $this->back();
 			}
 			$time_from = date('Y-m-d H:i:s', $this->get_module_variable('edit_start_time'));
-			$ret = DB::Execute('SELECT * FROM '.$this->tab.'_edit_history WHERE edited_on>=%T AND '.$this->tab.'_id=%d',array($time_from, $id));
+			$ret = DB::Execute('SELECT * FROM '.$this->tab.'_edit_history WHERE edited_on>=%T AND edited_on<=%T AND '.$this->tab.'_id=%d',array($time_from, date('Y-m-d H:i:s'), $id));
 			if ($ret->EOF) {
 				$this->update_record($id,$values);
 				return $this->back();
