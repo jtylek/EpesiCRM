@@ -99,10 +99,9 @@ class Utils_PlannerCommon extends ModuleCommon {
 		$result = call_user_func($racc, $timeframes);
 		foreach ($result as $elem=>$values) {
 			$next = '';
+			$next = 'var conflicting = new Array();';
 			foreach ($values as $v)
 				if ($v!='') $next .= 'conflicting['.$v.']='.$v.';';
-			if (!$next) continue;
-			$next = 'var conflicting = new Array();'.$next;
 			$next .='i=0;'.
 					'e=$("'.$elem.'");'.
 					'while(i<e.options.length){'.
