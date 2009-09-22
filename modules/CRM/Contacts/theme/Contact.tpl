@@ -1,17 +1,31 @@
 {if isset($form_data.paste_company_info)}
-{$form_data.paste_company_info.html}
+	{$form_data.paste_company_info.html}
 {/if}
-{* Get total number of fields to display *}
+
+{assign var=count value=0}
+{php}
+	$this->_tpl_vars['multiselects'] = array();
+{/php}
 {foreach key=k item=f from=$fields name=fields}
-	{assign var=count value=$smarty.foreach.fields.total}
+	{if $f.type!="multiselect"}
+		{assign var=count value=$count+1}
+	{else}
+		{php}
+			$this->_tpl_vars['multiselects'][] = $this->_tpl_vars['f'];
+		{/php}
+	{/if}
 {/foreach}
-{if $count is not even}
-	{assign var=rows value=$count+1}
-	{assign var=rows value=$rows/2}
-{else}
-	{assign var=rows value=$count/2}
-{/if}
-{assign var=x value=0}
+{php}
+	$this->_tpl_vars['count'] = $this->_tpl_vars['count']+1;
+
+	$this->_tpl_vars['rows'] = ceil($this->_tpl_vars['count']/$this->_tpl_vars['cols']);
+	$this->_tpl_vars['mss_rows'] = ceil(count($this->_tpl_vars['multiselects'])/$this->_tpl_vars['cols']);
+	$this->_tpl_vars['no_empty'] = $this->_tpl_vars['count']-floor($this->_tpl_vars['count']/$this->_tpl_vars['cols'])*$this->_tpl_vars['cols'];
+	if ($this->_tpl_vars['no_empty']==0) $this->_tpl_vars['no_empty'] = $this->_tpl_vars['cols']+1;
+	$this->_tpl_vars['mss_no_empty'] = count($this->_tpl_vars['multiselects'])-floor(count($this->_tpl_vars['multiselects'])/$this->_tpl_vars['cols'])*$this->_tpl_vars['cols'];
+	if ($this->_tpl_vars['mss_no_empty']==0) $this->_tpl_vars['mss_no_empty'] = $this->_tpl_vars['cols']+1;
+	$this->_tpl_vars['cols_percent'] = 100 / $this->_tpl_vars['cols'];
+{/php}
 
 <table class="CRM_Contacts__table" border="0" cellpadding="0" cellspacing="0">
 	<tbody>
@@ -101,111 +115,79 @@
 							{/if}
 							<td class="data" {if !isset($form_data.create_new_user)}colspan="2" {/if}align="left">{if isset($form_data.login.error)}<span class="error">{$form_data.login.error}</span>{/if}{$form_data.login.html}{if isset($form_data.new_login)}{$form_data.new_login.html}{/if}</td>
 						</tr>
-						{* last name *}
-						<tr>
-							<td class="label" align="left">{$form_data.last_name.label}*</td>
-							<td class="data" colspan="2" align="left">{if isset($form_data.last_name.error)}<span class="error">{$form_data.last_name.error}</span>{/if}{$form_data.last_name.html}</td>
-						</tr>
-						{* first name *}
-						<tr>
-							<td class="label" align="left">{$form_data.first_name.label}*</td>
-							<td class="data" colspan="2" align="left">{if isset($form_data.first_name.error)}<span class="error">{$form_data.first_name.error}</span>{/if}{$form_data.first_name.html}</td>
-						</tr>
-						{* title *}
-						<tr>
-							<td class="label" align="left">{$form_data.title.label}</td>
-							<td class="data" colspan="2" align="left">{if isset($form_data.title.error)}<span class="error">{$form_data.title.error}</span>{/if}{$form_data.title.html}</td>
-						</tr>
-						{* work phone *}
-						<tr>
-							<td class="label" align="left">{$form_data.work_phone.label}</td>
-							<td class="data" colspan="2" align="left">{if isset($form_data.work_phone.error)}<span class="error">{$form_data.work_phone.error}</span>{/if}{$form_data.work_phone.html}</td>
-						</tr>
-						{* mobile phone *}
-						<tr>
-							<td class="label" align="left">{$form_data.mobile_phone.label}</td>
-							<td class="data" colspan="2" align="left">{if isset($form_data.mobile_phone.error)}<span class="error">{$form_data.mobile_phone.error}</span>{/if}{$form_data.mobile_phone.html}</td>
-						</tr>
-						{* fax *}
-						<tr>
-							<td class="label" align="left">{$form_data.fax.label}</td>
-							<td class="data" colspan="2" align="left">{if isset($form_data.fax.error)}<span class="error">{$form_data.fax.error}</span>{/if}{$form_data.fax.html}</td>
-						</tr>
-						{* empty *}
-						<tr>
-							<td class="label" align="left">&nbsp;</td>
-							<td class="data" colspan="2" align="left">&nbsp;</td>
-						</tr>
-						{if $action == 'view'}
-							{* empty *}
+						{assign var=x value=1}
+						{assign var=y value=3}
+						{foreach key=k item=f from=$fields name=fields}
+							{if $f.type!="multiselect" && $f.element!="login"}
+								{if !isset($focus) && $f.type=="text"}
+									{assign var=focus value=$f.element}
+								{/if}
+
+								{if $y==1}
+								<td class="column" style="width: {$cols_percent}%;">
+									<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+								{/if}
+										<tr>
+											<td class="label">{$f.label}{if $f.required}*{/if}</td>
+											<td colspan="2" class="data {$f.style}" id="_{$f.element}__data">{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
+										</tr>
+								{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
+									{if $x>$no_empty}
+										<tr>
+											<td class="label">&nbsp;</td>
+											<td colspan="2" class="data">&nbsp;</td>
+										</tr>
+									{/if}
+									{assign var=y value=1}
+									{assign var=x value=$x+1}
+									</table>
+								</td>
+								{else}
+									{assign var=y value=$y+1}
+								{/if}
+							{/if}
+						{/foreach}
+		</tr>
+		{if !empty($multiselects)}
+			<tr>
+				{assign var=x value=1}
+				{assign var=y value=1}
+				{foreach key=k item=f from=$multiselects name=fields}
+					{if $y==1}
+					<td class="column" style="width: {$cols_percent}%;">
+						<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
+					{/if}
 							<tr>
-								<td class="label" align="left">&nbsp;</td>
-								<td class="data" colspan="2" align="left">&nbsp;</td>
+								<td class="label">{$f.label}{if $f.required}*{/if}{$f.advanced}</td>
+								<td class="data {$f.style}">{if isset($f.error)}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
+							</tr>
+					{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
+						{if $x>$mss_no_empty}
+							<tr>
+								<td class="label">!&nbsp;</td>
+								<td class="data">&nbsp;</td>
 							</tr>
 						{/if}
-						{* company name - multiselect *}
-						<tr>
-							<td class="label" align="left">{$form_data.company_name.label}</td>
-							<td class="data" colspan="2" align="left" style="line-height: 16px;">{if isset($form_data.company_name.error)}<span class="error">{$form_data.company_name.error}</span>{/if}{$form_data.company_name.html}</td>
-						</tr>
-					</tbody>
-				</table>
-			</td>
-			<td class="right-column right-column-{if $action == 'view'}view{else}edit{/if}">
-				<table border="0" cellpadding="0" cellspacing="0" class="{if $action == 'view'}view{else}edit{/if}">
-					<tbody>
-						{* email *}
-						<tr>
-							<td class="label" align="left">{$form_data.email.label}</td>
-							<td class="data" align="left">{if isset($form_data.email.error)}<span class="error">{$form_data.email.error}</span>{/if}{$form_data.email.html}</td>
-						</tr>
-						{* web address *}
-						<tr>
-							<td class="label" align="left">{$form_data.web_address.label}</td>
-							<td class="data" align="left">{if isset($form_data.web_address.error)}<span class="error">{$form_data.web_address.error}</span>{/if}{$form_data.web_address.html}</td>
-						</tr>
-						{* address 1 *}
-						<tr>
-							<td class="label" align="left">{$form_data.address_1.label}</td>
-							<td class="data" align="left">{if isset($form_data.address_1.error)}<span class="error">{$form_data.address_1.error}</span>{/if}{$form_data.address_1.html}</td>
-						</tr>
-						{* address 2 *}
-						<tr>
-							<td class="label" align="left">{$form_data.address_2.label}</td>
-							<td class="data" align="left">{if isset($form_data.address_2.error)}<span class="error">{$form_data.address_2.error}</span>{/if}{$form_data.address_2.html}</td>
-						</tr>
-						{* city *}
-						<tr>
-							<td class="label" align="left">{$form_data.city.label}</td>
-							<td class="data" align="left">{if isset($form_data.city.error)}<span class="error">{$form_data.city.error}</span>{/if}{$form_data.city.html}</td>
-						</tr>
-						{* country *}
-						<tr>
-							<td class="label" align="left">{$form_data.country.label}*</td>
-							<td class="data" align="left">{if isset($form_data.country.error)}<span class="error">{$form_data.country.error}</span>{/if}{$form_data.country.html}</td>
-						</tr>
-						{* zone *}
-						<tr>
-							<td class="label" align="left">{$form_data.zone.label}</td>
-							<td class="data" align="left">{if isset($form_data.zone.error)}<span class="error">{$form_data.zone.error}</span>{/if}{$form_data.zone.html}</td>
-						</tr>
-						{* postal code *}
-						<tr>
-							<td class="label" align="left">{$form_data.postal_code.label}</td>
-							<td class="data" align="left">{if isset($form_data.postal_code.error)}<span class="error">{$form_data.postal_code.error}</span>{/if}{$form_data.postal_code.html}</td>
-						</tr>
-						{* permission *}
-						<tr>
-							<td class="label" align="left">{$form_data.permission.label}*</td>
-							<td class="data" align="left">{if isset($form_data.permission.error)}<span class="error">{$form_data.permission.error}</span>{/if}{$form_data.permission.html}</td>
-						</tr>
-						{* group - multiselect *}
-						<tr>
-							<td class="label" align="left">{$form_data.group.label}</td>
-							<td class="data" align="left" style="line-height: 16px;">{if isset($form_data.group.error)}<span class="error">{$form_data.group.error}</span>{/if}{$form_data.group.html}</td>
-						</tr>
-					</tbody>
-				</table>
+						{assign var=y value=1}
+						{assign var=x value=$x+1}
+						</table>
+					</td>
+					{else}
+						{assign var=y value=$y+1}
+					{/if}
+				{/foreach}
+			</tr>
+		{/if}
+		<tr>
+			<td colspan="2">
+			<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
+				{foreach key=k item=f from=$longfields name=fields}
+					<tr>
+						<td class="label long_label">{$f.label}{if $f.required}*{/if}</td>
+						<td class="data long_data {if $f.type == 'currency'}currency{/if}">{if $f.error}{$f.error}{/if}{$f.html}{if $action == 'view'}&nbsp;{/if}</td>
+					</tr>
+				{/foreach}
+			</table>
 			</td>
 		</tr>
 	</tbody>
