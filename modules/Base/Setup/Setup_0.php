@@ -299,7 +299,7 @@ class Base_Setup extends Module {
 					print('No modules installed');
 			}
 
-		//install
+        //install
 		foreach($install as $i=>$v) {
 			$post_install[$i] = $v;
 			if (!ModuleManager::install($i,$v))

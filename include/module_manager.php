@@ -538,8 +538,9 @@ class ModuleManager {
 		self::$not_loaded_modules[] = array('name'=>$module_to_install,'version'=>$version);
 
 		//$debug .= '<b>' . $module_to_install . '</b>' . ': deps ok, including common class<br>';
-		self :: include_common($module_to_install,$version);
-		self::create_common_cache();
+//		self :: include_common($module_to_install,$version);
+//		self::create_common_cache();
+        if(file_exists(DATA_DIR.'/cache/common.php')) unlink(DATA_DIR.'/cache/common.php');
 
 		//$debug .= '</div>';
 		self::$processed_modules['install'][$module_to_install] = $version;
@@ -750,7 +751,8 @@ class ModuleManager {
 		}
 
 		self::create_load_priority_array();
-		self::create_common_cache();
+//		self::create_common_cache();
+        if(file_exists(DATA_DIR.'/cache/common.php')) unlink(DATA_DIR.'/cache/common.php');
 
 		print ($module_to_uninstall . " module uninstalled! You can safely remove module directory.<br>");
 		self::$processed_modules['uninstall'][$module_to_uninstall] = -1;
@@ -806,7 +808,7 @@ class ModuleManager {
 				}
 			}
 			if (!$loaded)
-				throw new Exception('module not loaded');
+				throw new Exception('module '.$mod.' not loaded');
 		}
 		if(!class_exists($mod))
 			trigger_error('Class not exists: '.$mod,E_USER_ERROR);
