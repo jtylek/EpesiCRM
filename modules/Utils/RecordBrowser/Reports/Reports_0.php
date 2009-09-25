@@ -332,7 +332,7 @@ class Utils_RecordBrowser_Reports extends Module {
 
 	public function make_table() {
 		if ($this->row_summary!==false)
-			$this->gb_captions[] = array('name'=>$this->row_summary['label']);
+			$this->gb_captions[] = array('name'=>$this->row_summary['label'], 'wrapmode'=>'nowrap');
 		$this->new_table_page();
 
 		if ($this->pdf) {
