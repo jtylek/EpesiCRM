@@ -1,5 +1,5 @@
-var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_week) {
-		this.monthName = new Array('January','February','March','April','May','June','July','August','September','October','November','December');
+var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_week, month_names, day_names) {
+		this.monthName = month_names;
 		this.link_proto = link_proto;
 		this.selected = 0;
 		this.instance_id = instance_id;
@@ -34,7 +34,7 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 				this.selected.setMonth(month);
 				this.selected.setYear(year);
 			}
-			var days = new Array('Sun', 'Mon','Tue','Wed','Thu','Fri','Sat');
+			var days = day_names;
             var daysInMonth = null;
 			var daysInWeek = 7;
 
