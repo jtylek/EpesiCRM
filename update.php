@@ -135,7 +135,7 @@ function themeup(){
 	install_default_theme_common_files('modules/Base/Theme/','images');
 }
 
-$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1','0.9.9beta1','0.9.9beta2','1.0.0rc1','1.0.0rc2','1.0.0rc3','1.0.0rc4','1.0.0rc5','1.0.0rc6','1.0.0','1.0.1','1.0.2');
+$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1','0.9.9beta1','0.9.9beta2','1.0.0rc1','1.0.0rc2','1.0.0rc3','1.0.0rc4','1.0.0rc5','1.0.0rc6','1.0.0','1.0.1','1.0.2','1.0.3');
 
 /****************** 0.8.5 to 0.8.6 **********************/
 function update_from_0_9_9beta1_to_0_9_9beta2() {
@@ -1452,6 +1452,34 @@ function update_from_1_0_1_to_1_0_2() {
 		$format_callback = null;
 		$crits = null;
 		DB::Execute('INSERT INTO crm_mailclient_addons(tab,format_callback,crits) VALUES (%s,%s,%s)',array($tab,serialize($format_callback),serialize($crits)));
+	}
+	
+    //ok, done
+    ob_start();
+    ModuleManager::create_common_cache();
+    ModuleManager::load_modules();
+    ob_end_clean();
+    themeup();
+    langup();
+    Base_ThemeCommon::create_cache();
+}
+
+function update_from_1_0_2_to_1_0_3() {
+	ob_start();
+	ModuleManager::load_modules();
+	ob_end_clean();
+
+	// Check if module is installed
+	if (ModuleManager::is_installed('CRM_Calendar')>=0) {
+		@DB::DropTable('crm_calendar_custom_events_handlers');
+		DB::CreateTable('crm_calendar_custom_events_handlers',
+				'id I4 AUTO KEY,'.
+				'group_name C(64),'.
+				'get_callback C(128),'.
+				'get_all_callback C(128),'.
+				'delete_callback C(128),'.
+				'update_callback C(128)',
+				array('constraints'=>''));
 	}
 	
     //ok, done

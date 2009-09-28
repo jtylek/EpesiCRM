@@ -8,7 +8,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-define("EPESI_VERSION", '1.0.2');
+define("EPESI_VERSION", '1.0.3');
 
 require_once(DATA_DIR.'/config.php');
 if(!defined('DATABASE_HOST')) trigger_error('Missing defined DATABASE_HOST in '.DATA_DIR.'/config.php.',E_USER_ERROR);
