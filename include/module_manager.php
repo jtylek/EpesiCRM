@@ -451,7 +451,7 @@ class ModuleManager {
 	 * @param integer module version
 	 * @return bool true if installation success, false otherwise
 	 */
-	public static final function install($module_to_install, $version=null, $check=true) {
+	public static final function install($module_to_install, $version=null, $check=true, $include_common=true) {
 		$debug = '<div class="green" style="text-align: left;">';
 
 		//already installed?
@@ -538,8 +538,10 @@ class ModuleManager {
 		self::$not_loaded_modules[] = array('name'=>$module_to_install,'version'=>$version);
 
 		//$debug .= '<b>' . $module_to_install . '</b>' . ': deps ok, including common class<br>';
-//		self :: include_common($module_to_install,$version);
-//		self::create_common_cache();
+		if($include_common) {
+            self::include_common($module_to_install,$version);
+//    		self::create_common_cache();
+        }
         if(file_exists(DATA_DIR.'/cache/common.php')) unlink(DATA_DIR.'/cache/common.php');
 
 		//$debug .= '</div>';

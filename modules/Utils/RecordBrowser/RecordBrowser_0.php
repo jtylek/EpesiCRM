@@ -919,14 +919,14 @@ class Utils_RecordBrowser extends Module {
 				else $theme -> assign('history_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs($this->t('Click to view edit history of currently displayed record')).' '.$this->create_callback_href(array($this,'navigate'), array('view_edit_history', $id)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','history.png').'" /></a>');
 			}
             if ($this->clipboard_pattern) {
-                $theme -> assign('clipboard_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs($this->t('Click to export values to copy')).' '.Libs_LeightboxCommon::get_open_href('clipboard').'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','history.png').'" /></a>');
-                $text = '<h3>'.$this->t('Select and copy:').'</h3>';
-                $text .= $this->clipboard_pattern;
+                $theme -> assign('clipboard_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs($this->t('Click to export values to copy')).' '.Libs_LeightboxCommon::get_open_href('clipboard').'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','info.png').'" /></a>');
+                $text = $this->clipboard_pattern;
                 $record = Utils_RecordBrowserCommon::get_record($this->tab, $id);
                 foreach($this->table_rows as $name=>$val) {
                     if($val['type'] == 'select' || $val['type'] == 'multiselect' || $val['type'] == 'calculated' || $val['type'] == 'commondata' || $val['type'] == 'checkbox') continue;
                     $text = str_replace('%'.$val['id'], $record[$val['id']], $text);
                 }
+                $text = '<h3>'.$this->t('Select and copy:').'</h3>'.$text;
                 Libs_LeightboxCommon::display('clipboard',$text,'Copy');
             }
 		}

@@ -302,8 +302,13 @@ class Base_Setup extends Module {
         //install
 		foreach($install as $i=>$v) {
 			$post_install[$i] = $v;
-			if (!ModuleManager::install($i,$v))
-				return false;
+            if(isset($uninstall[$i])) {
+                if (!ModuleManager::install($i,$v,true,false))
+                    return false;
+            } else {
+                if (!ModuleManager::install($i,$v))
+                    return false;
+            }
 		}
 		$processed = ModuleManager::get_processed_modules();
 		$this->set_module_variable('post-install',$processed['install']);
