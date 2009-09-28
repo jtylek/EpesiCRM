@@ -822,7 +822,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		if (empty($custom_handlers)) return '';
 		$form = $this->init_module('Libs/QuickForm');
 
-		$form->addElement('checkbox', 'events_handlers__', $this->t('Events'), null, array('onchange'=>$form->get_submit_form_js()));
+		$form->addElement('checkbox', 'events_handlers__', $this->t('Meetings'), null, array('onchange'=>$form->get_submit_form_js()));
 		$elements_name = array(-1=>'events_handlers__');
 		$default = array(-1);
 		foreach ($custom_handlers as $k=>$v) {

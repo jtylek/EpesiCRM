@@ -88,8 +88,15 @@ class CRM_CalendarCommon extends ModuleCommon {
 	public static function applet_settings() {
 		$cols = CRM_Calendar_EventCommon::get_available_colors();
 		$cols[0] = 'All';
-		return array(	array('name'=>'days', 'label'=>'Look for events in', 'type'=>'select', 'default'=>'7', 'values'=>array('1'=>'1 day','2'=>'2 days','3'=>'3 days','5'=>'5 days','7'=>'1 week','14'=>'2 weeks', '30'=>'1 month', '61'=>'2 months')),
+		$ret = array(	array('name'=>'days', 'label'=>'Look for events in', 'type'=>'select', 'default'=>'7', 'values'=>array('1'=>'1 day','2'=>'2 days','3'=>'3 days','5'=>'5 days','7'=>'1 week','14'=>'2 weeks', '30'=>'1 month', '61'=>'2 months')),
 						array('name'=>'color', 'label'=>'Only events with selected color', 'type'=>'select', 'default'=>'0', 'values'=>$cols));
+		$custom_events = DB::GetAssoc('SELECT id, group_name FROM crm_calendar_custom_events_handlers ORDER BY group_name');
+		if (!empty($custom_events)) {
+			$ret[] = array('name'=>'events_handlers__', 'label'=>'Meetings', 'type'=>'checkbox', 'default'=>'1');
+			foreach ($custom_events as $id=>$l)
+				$ret[] = array('name'=>'events_handlers__'.$id, 'label'=>$l, 'type'=>'checkbox', 'default'=>'1');
+		}
+		return $ret;
 	}
 	
 	public static function search_format($id) {

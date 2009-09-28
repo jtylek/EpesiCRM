@@ -107,15 +107,45 @@ class CRM_Calendar extends Module {
 		$ret = CRM_Calendar_EventCommon::get_all($start,$end);
 		$data = array();
 		$colors = CRM_Calendar_EventCommon::get_available_colors();
+
+		$custom_events = DB::GetAssoc('SELECT id, get_all_callback FROM crm_calendar_custom_events_handlers ORDER BY group_name');
+		if (!empty($custom_events)) {
+			$c = 0;
+			$tmp = $ret;
+			$ret = array();
+			if ($conf['events_handlers__']) {
+				foreach ($tmp as $k=>$v) {
+					$v = Utils_CalendarCommon::process_event($v);
+					$ret[str_pad($v['start'], 16, '0', STR_PAD_LEFT).'__'.$c] = $v;
+					$c++;
+				}
+			}
+			foreach ($custom_events as $id=>$cb) {
+				if ($conf['events_handlers__'.$id]) {
+					$add = call_user_func(explode('::',$cb), $start, $end);
+					foreach ($add as $v) {
+						$ret[str_pad($v['start'], 16, '0', STR_PAD_LEFT).'__'.$c] = $v;
+						$c++;
+					}
+				}
+			}
+		}
+
 		foreach($ret as $row) {
-			if ($row['status']>=2) continue;
+			if (isset($row['status']) && $row['status']>=2) continue;
 			if ($conf['color']!=0 && $colors[$conf['color']]!=$row['color']) continue;
-			$ex = Utils_CalendarCommon::process_event($row);
-			$view_action = '<a '.$this->create_callback_href(array($this,'view_event'),$row['id']).'>';
-			
-			$ev_id = explode('_',$row['id'],2);
-			$ev_id = $ev_id[0];
-			
+			if (empty($custom_events)) {
+				$ex = Utils_CalendarCommon::process_event($row);
+				$view_action = '<a '.$this->create_callback_href(array($this,'view_event'),$row['id']).'>';
+				$ev_id = explode('_',$row['id'],2);
+				$ev_id = $ev_id[0];
+			} else {
+				$tmp = Utils_CalendarCommon::process_event($row);
+				$ex = $row;
+				$ex['start'] = $tmp['start'];
+				$view_action = '<a '.$row['view_action'].'>';
+			}
+
             ///////////////////
             // right column
             $title = Utils_TooltipCommon::create($row['title'],$row['description']);
