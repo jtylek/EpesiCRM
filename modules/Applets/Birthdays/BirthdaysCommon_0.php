@@ -34,6 +34,11 @@ class Applets_BirthdaysCommon extends ModuleCommon {
 				'rule'=>array(
 						array('message'=>'Field required', 'type'=>'required')
 							)
+			),
+			array(
+				'name'=>'cont_type',
+				'label'=>'Contact Type',
+				'type'=>'select','values'=>array('a'=>'All','f'=>'Favorites'),'default'=>'f'
 				)
 			);
 	} // Eof applet settings

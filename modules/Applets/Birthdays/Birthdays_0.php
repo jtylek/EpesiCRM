@@ -43,8 +43,12 @@ public function applet($conf,$opts) {
 		// TO DO - filter date - today through today+2 weeks
 		$dates = array();
 		for ($i=0;$i<$conf['no_of_days'];$i++)
-			$dates[] = DB::Concat(DB::qstr('%'),DB::qstr(date('-m-d',strtotime(Base_RegionalSettingsCommon::time2reg(strtotime('+'.$i.' days'),false))))); 
-		$crits=array(':Fav'=>true,'"~birth_date'=>$dates);
+			$dates[] = DB::Concat(DB::qstr('%'),DB::qstr(date('-m-d',strtotime(Base_RegionalSettingsCommon::time2reg(strtotime('+'.$i.' days'),false)))));
+		if ($conf['cont_type']=='f') {
+				$crits=array(':Fav'=>true,'"~birth_date'=>$dates);
+			} else {
+				$crits=array('"~birth_date'=>$dates);
+		}
 
 		// 3rd - sorting
 		$sorting = array('last_name'=>'ASC');
