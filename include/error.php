@@ -71,6 +71,8 @@ class ErrorHandler {
 			$bt = debug_backtrace();
 		   
 			for($i = 0; $i <= count($bt) - 1; $i++) {
+				if(isset($bt[$i]['file']) && ($bt[$i]['function']=='debug_backtrace' || $bt[$i]['function']=='handle_error') && preg_match('/error.php$/',$bt[$i]["file"]))
+					continue;
 				if(!isset($bt[$i]["file"]))
 					$backtrace .= "[PHP core called function]<br />";
 				else
