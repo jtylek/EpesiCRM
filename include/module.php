@@ -771,7 +771,7 @@ abstract class Module extends ModulePrimitive {
 					if(is_array($func)) {
 						if($func[0]===null)
 							$func[0] = & $m;
-						if(!method_exists($func[0],$func[1])) trigger_error('Invalid method passed as callback',E_USER_ERROR);
+						if(!method_exists($func[0],$func[1])) trigger_error('Invalid method passed as callback: '.(is_string($func[0])?$func[0]:$func[0]->get_type()).'::'.$func[1],E_USER_ERROR);
 					}
 					$r = call_user_func_array($func,$c['args']);
 					if($r) {
