@@ -75,10 +75,20 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 		return DB::GetOne('SELECT id FROM utils_currency WHERE code=%s', array($code));
 	}
 	
+	public static function get_code($id) {
+		return DB::GetOne('SELECT code FROM utils_currency WHERE id=%d', array($id));
+	}
+	
 	public static function get_precission($arg) {
 		static $cache = array();
 		if (!isset($cache[$arg])) $cache[$arg] = DB::GetOne('SELECT decimals FROM utils_currency WHERE id=%d', array($arg));
 		return $cache[$arg];
+	}
+	
+	public static function get_currencies() {
+		static $cache=null;
+		if ($cache===null) $cache = DB::GetAssoc('SELECT id, code FROM utils_currency WHERE active=1');
+		return $cache;
 	}
 	
 	public function admin_caption() {

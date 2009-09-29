@@ -22,7 +22,7 @@ class Variable {
 	public static function get($name) {
 		self::load();
 		if(!array_key_exists($name,self::$variables))
-			throw new NoSuchVariableException('No such variable in database: ' . $name);
+			trigger_error('No such variable in database: ' . $name, E_USER_ERROR);
 		return unserialize(self::$variables[$name]);
 	}
 
