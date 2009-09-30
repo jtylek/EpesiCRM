@@ -860,7 +860,7 @@ class Apps_MailClient extends Module {
 
 				array('name'=>'out_header','label'=>$this->t('Outgoing mail'),'type'=>'header'),
 				array('name'=>'smtp_server','label'=>$this->t('SMTP server address')),
-				array('name'=>'smtp_ssl','label'=>$this->t('Send with SSL')),
+				array('name'=>'smtp_ssl','label'=>$this->t('Secure connection'),'type'=>'select','values'=>array(0=>'Never', 1=>'SSL', 2=>'TLS'),'default'=>0),
 				array('name'=>'smtp_auth','label'=>$this->t('SMTP authorization required'),'param'=>array('id'=>'mailclient_smtp_auth')),
 				array('name'=>'smtp_login','label'=>$this->t('Login'),'param'=>((isset($defaults) && $defaults['smtp_auth']==0) || ($f->getSubmitValue('submited') && !$f->getSubmitValue('smtp_auth')))?array('disabled'=>1):array()),
 				array('name'=>'smtp_password','label'=>$this->t('Password'),'type'=>'password','param'=>((isset($defaults) && $defaults['smtp_auth']==0) || ($f->getSubmitValue('submited') && !$f->getSubmitValue('smtp_auth')))?array('disabled'=>1):array())

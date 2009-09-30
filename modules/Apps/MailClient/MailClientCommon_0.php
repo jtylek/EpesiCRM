@@ -1450,11 +1450,13 @@ class Apps_MailClientCommon extends ModuleCommon {
 		if(isset($h[1]))
 			$mailer->Port = $h[1];
 		else {
-			if($from['smtp_ssl'])
+			if($from['smtp_ssl']==1)
 				$mailer->Port = 465;
 		}
-		if($from['smtp_ssl'])
+		if($from['smtp_ssl']==1)
 			$mailer->SMTPSecure = "ssl";
+		elseif($from['smtp_ssl']==2)
+			$mailer->SMTPSecure = "tls";
 		return $mailer;
 	}
 	
