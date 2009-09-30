@@ -96,11 +96,15 @@ function langup(){
 			if (strtolower(substr($name,$dot+1))!='php') continue;
 			if(!isset($trans[$langcode])) {
 				$translations = array();
+				ob_start();
 				@include(DATA_DIR.'/Base_Lang/'.$langcode.'.php');
+				ob_get_clean();
 			} else {
 				$translations = $trans[$langcode];
 			}
+			ob_start();
 			include($directory.'/'.$name);
+			ob_get_clean();
 			$trans[$langcode] = $translations;
 		}
 	}	
