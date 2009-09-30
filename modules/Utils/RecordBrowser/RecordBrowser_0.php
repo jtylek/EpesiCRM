@@ -285,7 +285,7 @@ class Utils_RecordBrowser extends Module {
 					$param = explode(';',$this->table_rows[$filter]['param']);
 					$x = explode('::',$param[0]);
 					if (!isset($x[1])) continue;
-					list($tab, $col) = explode('::',$param[0]);
+					list($tab, $col) = $x;
 					if ($tab=='__COMMON__') {
 						$arr = array_merge($arr, $this->get_commondata_tree($col));
 					} else {
@@ -501,7 +501,7 @@ class Utils_RecordBrowser extends Module {
 		if ($this->browse_mode != 'recent')
 			$gb->set_default_order($clean_order, $this->changed_view);
 
-		if (!$special) {
+		if (!$special && $this->get_access('add')!==false) {
 			$custom_label = '';
 			if ($this->add_button!==null) $label = $this->add_button;
 			elseif (!$this->multiple_defaults) $label = $this->create_callback_href(array($this, 'navigate'), array('view_entry', 'add', null, $this->custom_defaults));
