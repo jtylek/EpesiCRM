@@ -848,7 +848,7 @@ class Apps_MailClient extends Module {
 				array('name'=>'password','label'=>$this->t('Password'),'type'=>'password'),
 
 				array('name'=>'in_header','label'=>$this->t('Incoming mail'),'type'=>'header'),
-				array('name'=>'incoming_protocol','label'=>$this->t('Incoming protocol'),'type'=>'select','values'=>array(0=>'POP3',1=>'IMAP'), 'default'=>0,'param'=>array('id'=>'mailclient_incoming_protocol')+($native_support?array():array('disabled'=>1))),
+				array('name'=>'incoming_protocol','label'=>$this->t('Incoming protocol'),'type'=>'select','values'=>array(0=>'POP3',1=>'IMAP'), 'default'=>0,'param'=>array('id'=>'mailclient_incoming_protocol')),
 				array('name'=>'incoming_server','label'=>$this->t('Incoming server address')),
 				array('name'=>'incoming_ssl','label'=>$this->t('Receive with SSL')));
 		if(!$native_support)
@@ -867,6 +867,9 @@ class Apps_MailClient extends Module {
 			));
 
 		$f->add_table('apps_mailclient_accounts',$cols);
+		if(!$native_support) {
+			$f->freeze('incoming_protocol');
+		}
 		$f->setDefaults($defaults);
 
 		if($action=='view') {

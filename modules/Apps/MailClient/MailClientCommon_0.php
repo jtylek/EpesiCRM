@@ -1457,6 +1457,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 			$mailer->SMTPSecure = "ssl";
 		elseif($from['smtp_ssl']==2)
 			$mailer->SMTPSecure = "tls";
+		Epesi::alert($mailer->Host.' '.$mailer->Port.' '.$mailer->SMTPSecure);
 		return $mailer;
 	}
 	
