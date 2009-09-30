@@ -78,28 +78,37 @@ function install_default_theme_common_files($dir,$f) {
 }
 
 function langup(){
+	global $translations;
 	$ret = DB::Execute('SELECT * FROM modules');
+	$trans_backup = $translations;
+	$trans = array();
 	while($row = $ret->FetchRow()) {
 		$mod_name = $row[0];
 		if ($mod_name=='Base') continue;
 		if ($mod_name=='Tests') continue;
-		global $translations;
 		$directory = 'modules/'.str_replace('_','/',$mod_name).'/lang';
 		if (!is_dir($directory)) continue;
 		$content = scandir($directory);
-		$trans_backup = $translations;
 		foreach ($content as $name){
 			if($name == '.' || $name == '..' || preg_match('/^[\.~]/',$name)) continue;
 			$dot = strpos($name,'.');
 			$langcode = substr($name,0,$dot);
 			if (strtolower(substr($name,$dot+1))!='php') continue;
-			$translations = array();
-			@include(DATA_DIR.'/Base_Lang/'.$langcode.'.php');
+			if(!isset($trans[$langcode])) {
+				$translations = array();
+				@include(DATA_DIR.'/Base_Lang/'.$langcode.'.php');
+			} else {
+				$translations = $trans[$langcode];
+			}
 			include($directory.'/'.$name);
-			Base_LangCommon::save($langcode);
+			$trans[$langcode] = $translations;
 		}
-		$translations = $trans_backup;
 	}	
+	foreach($trans as $langcode=>$ttt) {
+		$translations = $ttt;
+		Base_LangCommon::save($langcode);
+	}
+	$translations = $trans_backup;
 }
 
 function themeup(){
@@ -667,12 +676,6 @@ function update_from_1_0_0rc2_to_1_0_0rc3() {
 		@DB::DropTable('patch_rb');
 	
 	}
-
-
-	ModuleManager::create_common_cache();
-	themeup();
-	langup();
-	Base_ThemeCommon::create_cache();
 }
 
 function update_from_1_0_0rc3_to_1_0_0rc4() {
@@ -683,11 +686,6 @@ function update_from_1_0_0rc3_to_1_0_0rc4() {
 	if (ModuleManager::is_installed('Base/User/Login')>=0) {
 		PatchDBAddColumn('user_password','mobile_autologin_id','C(32)');
 	}
-
-	ModuleManager::create_common_cache();
-	themeup();
-	langup();
-	Base_ThemeCommon::create_cache();
 }
 
 function update_from_1_0_0rc4_to_1_0_0rc5() {
@@ -775,12 +773,6 @@ function update_from_1_0_0rc4_to_1_0_0rc5() {
 			DB::Execute('ALTER TABLE '.$t.' DROP '.$op.' '.$matches[1][$i]);
 	    }
 	}
-
-	//ok, done
-	ModuleManager::create_common_cache();
-	themeup();
-	langup();
-	Base_ThemeCommon::create_cache();
 }
 
 function update_from_1_0_0rc5_to_1_0_0rc6() {
@@ -917,12 +909,6 @@ function update_from_1_0_0rc5_to_1_0_0rc6() {
 	Utils_CommonDataCommon::remove('Permissions');
 	Utils_CommonDataCommon::remove('Ticket_Status');
 	Utils_CommonDataCommon::remove('Priorities');
-
-	//ok, done
-	ModuleManager::create_common_cache();
-	themeup();
-	langup();
-	Base_ThemeCommon::create_cache();
 }
 
 function update_from_1_0_0rc6_to_1_0_0() {
@@ -1068,13 +1054,6 @@ function update_from_1_0_0rc6_to_1_0_0() {
 			value C(128)',
 			array('constraints'=>', FOREIGN KEY (filter_id) REFERENCES apps_mailclient_filters(ID)'));
     }    
-
-    //ok, done
-    ModuleManager::create_common_cache();
-    ModuleManager::load_modules();
-    themeup();
-    langup();
-    Base_ThemeCommon::create_cache();
 }
 
 function update_from_1_0_0_to_1_0_1() {
@@ -1392,12 +1371,6 @@ function update_from_1_0_0_to_1_0_1() {
 		if (ModuleManager::is_installed('Base_HomePage')>=0)
 			DB::Execute('DELETE FROM home_page');
 	}
-    //ok, done
-    ModuleManager::create_common_cache();
-    ModuleManager::load_modules();
-    themeup();
-    langup();
-    Base_ThemeCommon::create_cache();
 }
 
 function update_from_1_0_1_to_1_0_2() {
@@ -1454,14 +1427,6 @@ function update_from_1_0_1_to_1_0_2() {
 		DB::Execute('INSERT INTO crm_mailclient_addons(tab,format_callback,crits) VALUES (%s,%s,%s)',array($tab,serialize($format_callback),serialize($crits)));
 	}
 	
-    //ok, done
-    ob_start();
-    ModuleManager::create_common_cache();
-    ModuleManager::load_modules();
-    ob_end_clean();
-    themeup();
-    langup();
-    Base_ThemeCommon::create_cache();
 }
 
 function update_from_1_0_2_to_1_0_3() {
@@ -1481,15 +1446,6 @@ function update_from_1_0_2_to_1_0_3() {
 				'update_callback C(128)',
 				array('constraints'=>''));
 	}
-	
-    //ok, done
-    ob_start();
-    ModuleManager::create_common_cache();
-    ModuleManager::load_modules();
-    ob_end_clean();
-    themeup();
-    langup();
-    Base_ThemeCommon::create_cache();
 }
 //=========================================================================
 
@@ -1516,5 +1472,10 @@ foreach($versions as $v) {
 	$last_ver = $x;
 }
 @unlink(DATA_DIR.'/cache/common.php');
+
+themeup();
+langup();
+Base_ThemeCommon::create_cache();
+
 Variable::set('version',EPESI_VERSION);
 ?>
