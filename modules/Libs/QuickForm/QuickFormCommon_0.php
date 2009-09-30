@@ -19,11 +19,10 @@ class Libs_QuickFormCommon extends ModuleCommon {
 		self::$on_submit[] = rtrim($action,';').';';
 	}
 	
-	public static function get_on_submit_actions($pre='') {
+	public static function get_on_submit_actions() {
 		$ret = '';
 		foreach(self::$on_submit as $t)
-//			Epesi::alert($t);
-			$ret .= str_replace('__PARENT__',$pre,$t);
+			$ret .= $t;
 		return $ret;
 	}
 }

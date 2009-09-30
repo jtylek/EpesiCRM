@@ -29,7 +29,7 @@ if($doc['error']==UPLOAD_ERR_INI_SIZE || $doc['error']==UPLOAD_ERR_FORM_SIZE) {
 	?>
 	<script type="text/javascript">
 	<!--
-	parent.$('upload_status_<?php print($form_name);?>').innerHTML='Specified file too big';
+	parent.Epesi.append_js('$(\'upload_status_<?php print($form_name);?>\').innerHTML=\'Specified file too big\';');
 	-->
 	</script>
 	<?php
@@ -37,7 +37,7 @@ if($doc['error']==UPLOAD_ERR_INI_SIZE || $doc['error']==UPLOAD_ERR_FORM_SIZE) {
 	?>
 	<script type="text/javascript">
 	<!--
-	parent.$('upload_status_<?php print($form_name);?>').innerHTML='Upload failed';
+	parent.Epesi.append_js('$(\'upload_status_<?php print($form_name);?>\').innerHTML=\'Upload failed\';');
 	-->
 	</script>
 	<?php
@@ -45,7 +45,7 @@ if($doc['error']==UPLOAD_ERR_INI_SIZE || $doc['error']==UPLOAD_ERR_FORM_SIZE) {
 	?>
 	<script type="text/javascript">
 	<!--
-	parent.$('upload_status_<?php print($form_name);?>').innerHTML='Invalid server setup: cannot write to temporary directory';
+	parent.Epesi.append_js('$(\'upload_status_<?php print($form_name);?>\').innerHTML=\'Invalid server setup: cannot write to temporary directory\';');
 	-->
 	</script>
 	<?php
@@ -54,7 +54,7 @@ if($doc['error']==UPLOAD_ERR_INI_SIZE || $doc['error']==UPLOAD_ERR_FORM_SIZE) {
 	?>
 	<script type="text/javascript">
 	<!--
-	parent.$('upload_status_<?php print($form_name);?>').innerHTML='Please specify file to upload';
+	parent.Epesi.append_js('$(\'upload_status_<?php print($form_name);?>\').innerHTML=\'Please specify file to upload\';');
 	-->
 	</script>
 	<?php
@@ -63,7 +63,7 @@ if($doc['error']==UPLOAD_ERR_INI_SIZE || $doc['error']==UPLOAD_ERR_FORM_SIZE) {
 	?>
 	<script type="text/javascript">
 	<!--
-	parent.$('upload_status_<?php print($form_name);?>').innerHTML='File not specified';
+	parent.Epesi.append_js('$(\'upload_status_<?php print($form_name);?>\').innerHTML=\'File not specified\';');
 	-->
 	</script>
 	<?php
@@ -74,9 +74,7 @@ if($doc['error']==UPLOAD_ERR_INI_SIZE || $doc['error']==UPLOAD_ERR_FORM_SIZE) {
 	?>
 	<script type="text/javascript">
 	<!--
-	parent.$('upload_status_<?php print($form_name);?>').innerHTML='uploaded <?php print($doc['name']); ?>';
-	parent.document.forms['<?php print($form_name); ?>'].uploaded_file.value='<?php print($dest_path); ?>';
-	parent.document.forms['<?php print($form_name); ?>'].original_file.value='<?php print($doc['name']); ?>';
+	parent.Epesi.append_js('$(\'upload_status_<?php print($form_name);?>\').innerHTML=\'uploaded <?php print(addcslashes($doc['name'],'\'\\')); ?>\';document.forms[\'<?php print($form_name); ?>\'].uploaded_file.value=\'<?php print(addcslashes($dest_path,'\'\\')); ?>\';document.forms[\'<?php print($form_name); ?>\'].original_file.value=\'<?php print(addcslashes($doc['name'],'\'\\')); ?>\';');
 	-->
 	</script>
 	<?php
@@ -85,16 +83,14 @@ if($doc['error']==UPLOAD_ERR_INI_SIZE || $doc['error']==UPLOAD_ERR_FORM_SIZE) {
 ?>
 <script type="text/javascript">
 	<!--
-	orig=parent.document.forms['<?php print($form_name); ?>'].file;
-	orig.disabled=false;
-	orig.value='';
-	//parent.document.forms['<?php print($form_name); ?>'].button.disabled=false;
+	parent.Epesi.append_js('orig=parent.document.forms[\'<?php print($form_name); ?>\'].file;orig.disabled=false;orig.value=\'\';');
 <?php
+//	print("parent.document.forms['".$form_name."'].button.disabled=false;");
 	if(isset($ok) && $ok) {
 		$sjs = stripslashes($_REQUEST['submit_js']);
 		if(get_magic_quotes_gpc())
 			$sjs = stripslashes($sjs);
-		print($sjs."\n");
+		print('parent.Epesi.append_js(\''.addcslashes($sjs,"\\'").'\');'."\n");
 	}
 ?>
 	-->
