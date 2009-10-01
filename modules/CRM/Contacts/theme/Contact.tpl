@@ -16,8 +16,8 @@
 	{/if}
 {/foreach}
 {php}
-	$this->_tpl_vars['count'] = $this->_tpl_vars['count']+1;
-
+	if ($this->_tpl_vars['action']!='view')
+		$this->_tpl_vars['count'] = $this->_tpl_vars['count']+1;
 	$this->_tpl_vars['rows'] = ceil($this->_tpl_vars['count']/$this->_tpl_vars['cols']);
 	$this->_tpl_vars['mss_rows'] = ceil(count($this->_tpl_vars['multiselects'])/$this->_tpl_vars['cols']);
 	$this->_tpl_vars['no_empty'] = $this->_tpl_vars['count']-floor($this->_tpl_vars['count']/$this->_tpl_vars['cols'])*$this->_tpl_vars['cols'];
@@ -119,7 +119,11 @@
 							<td class="data" {if !isset($form_data.create_new_user)}colspan="2" {/if}align="left">{if isset($form_data.login.error)}<span class="error">{$form_data.login.error}</span>{/if}{$form_data.login.html}{if isset($form_data.new_login)}{$form_data.new_login.html}{/if}</td>
 						</tr>
 						{assign var=x value=1}
-						{assign var=y value=3}
+						{if $action=='view'}
+							{assign var=y value=2}
+						{else}
+							{assign var=y value=3}
+						{/if}
 						{foreach key=k item=f from=$fields name=fields}
 							{if $f.type!="multiselect" && $f.element!="login"}
 								{if !isset($focus) && $f.type=="text"}
