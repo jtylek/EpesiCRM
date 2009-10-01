@@ -415,7 +415,7 @@ class Utils_RecordBrowser extends Module {
 			$gb->set_per_page(Base_User_SettingsCommon::get('Utils/RecordBrowser/RecordPicker','per_page'));
 		}
 		if (!$this->disabled['search']) {
-			$gb->set_module_variable('adv_search', $gb->get_module_variable('adv_search', $this->adv_search));
+			$gb->is_adv_search_on();
 			$is_searching = $gb->get_module_variable('search','');
 			if (!empty($is_searching)) {
 				$this->set_module_variable('browse_mode','all');
