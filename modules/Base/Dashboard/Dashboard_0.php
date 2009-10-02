@@ -275,7 +275,10 @@ class Base_Dashboard extends Module {
 					$icon = null;
 				}
 			}
-			$desc = strip_tags((!is_string($app_info[$name]) && isset($app_info[$name]['description']))?$app_info[$name]['description']:$info);
+			if (isset($app_info[$name]))
+				$desc = strip_tags((!is_string($app_info[$name]) && isset($app_info[$name]['description']))?$app_info[$name]['description']:$info);
+			else 
+				$desc = '';
 			$buttons[] = array('link'=>'<a '.$attrs.$this->create_callback_href(array($this,'add_applet'),array($name,$tab_id)).'>'.$cap.'</a>',
 						'icon'=>$icon,'desc'=>((strlen($desc)>100)?substr($desc,0,100).'...':$desc));
 		}
