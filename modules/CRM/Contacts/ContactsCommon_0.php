@@ -535,7 +535,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	}
 	
 	public static function create_map_href($r) {
-		return 'href="http://maps.google.com/?'.http_build_query(array('q'=>Utils_CommonDataCommon::get_value('Countries/'.$r['country']).', '.$r['city'].', '.$r['address_1'].' '.$r['address_2'])).'" target="_blank"';
+		return 'href="http://maps.google.com/maps?'.http_build_query(array('q'=>$r['address_1'].' '.$r['address_2'].', '.$r['city'].', '.$r['postal_code'].', '.Utils_CommonDataCommon::get_value('Countries/'.$r['country']))).'" target="_blank"';
 	}
 	
 	public static function maplink($r,$nolink,$desc) {
