@@ -77,7 +77,8 @@ class Base_Setup extends Module {
             // javascript to show warning only once and cascade uninstall
                 eval_js('var showed = false;');
                 eval_js_once('var original_select = new Array('.sizeof($is_required).');');
-                eval_js_once('var mentioned = null; function get_deps(mod) {
+                eval_js_once('var mentioned = null;
+                              function get_deps(mod) {
                                 var arr = new Array;
                                 if(mentioned[mod] == undefined) {
                                     arr.push(mod);
@@ -101,6 +102,7 @@ class Base_Setup extends Module {
                                 }
                                 mentioned = new Array;
                                 var arr = get_deps(mod);
+                                if(arr.length == 1) return;
                                 var str = arr.length < 11 ? " - "+arr.join("\n - ") : arr.join(", ");
                                 if(confirm("'.$this->t('Warning! These modules will be deleted:').'\n" + str + "\n\n'.$this->t('Continue?').'") == false) {
                                     var ind = 0;
