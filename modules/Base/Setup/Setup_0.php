@@ -77,7 +77,19 @@ class Base_Setup extends Module {
             // javascript to show warning only once and cascade uninstall
                 eval_js('var showed = false;');
                 eval_js_once('var original_select = new Array('.sizeof($is_required).');');
-                eval_js_once('function show_alert(x, mod) {
+                eval_js_once('var mentioned = null; function get_deps(mod) {
+                                var arr = new Array;
+                                if(mentioned[mod] == undefined) {
+                                    arr.push(mod);
+                                    mentioned[mod] = true;
+                                }
+                                if(deps[mod] == undefined) return arr;
+                                for(var i = 0; i < deps[mod].length; i++) {
+                                    arr = arr.concat(get_deps(deps[mod][i]));
+                                }
+                                return arr;
+                              };
+                             function show_alert(x, mod) {
                                 if(x.options[x.selectedIndex].value == -2) {
                                     if(!showed) alert(\''.$this->t('Warning!\nAll data in reinstalled modules will be lost.').'\');
                                     showed=true;
@@ -87,18 +99,18 @@ class Base_Setup extends Module {
                                     original_select[mod] = x.options[x.selectedIndex].value;
                                     return;
                                 }
-                                var str = "\n";
-                                for(var i = 0; i < deps[mod].length; i++) {
-                                    str+=" - " + deps[mod][i] + "\n";
-                                }
-                                if(confirm("'.$this->t('Warning! These modules will be deleted:').'" + str + "\n'.$this->t('Continue?').'") == false) {
+                                mentioned = new Array;
+                                var arr = get_deps(mod);
+                                var str = arr.length < 11 ? " - "+arr.join("\n - ") : arr.join(", ");
+                                if(confirm("'.$this->t('Warning! These modules will be deleted:').'\n" + str + "\n\n'.$this->t('Continue?').'") == false) {
                                     var ind = 0;
                                     for(; ind < x.options.length; ind++) if(x.options[ind].value == original_select[mod]) break;
                                     x.selectedIndex = ind;
                                     return;
                                 }
-                                for(var i = 0; i < deps[mod].length; i++) {
-                                    document.getElementsByName("installed["+deps[mod][i]+"]")[0].selectedIndex=0;
+                                for(var i = 0; i < arr.length; i++) {
+                                    var el = document.getElementsByName("installed["+arr[i]+"]")[0];
+                                    el.selectedIndex=0;
                                 }
                         }');
             }
