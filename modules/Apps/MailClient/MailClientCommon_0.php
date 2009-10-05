@@ -38,7 +38,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 	public static function filter_actions($v) {
 	    static $arr,$rev;
 	    if(!isset($arr)) {
-		$arr = array('move','copy','forward','read','delete','forward_delete');
+		$arr = array('move','copy','forward','read','delete','forward_delete','callback');
 		$rev = array_flip($arr);
 	    }
 	    if(is_numeric($v))
@@ -1461,15 +1461,28 @@ class Apps_MailClientCommon extends ModuleCommon {
 	}
 	
 	public static function new_callback_filter($account_id, $callback) {
-		$fid = DB::GetOne('SELECT id FROM apps_mailclient_filters WHERE match_method=%s AND account_id=%d', array('allmessages', $account_id));
+		$mm = self::filter_match_method('allmessages');
+		$fid = DB::GetOne('SELECT id FROM apps_mailclient_filters WHERE match_method=%d AND account_id=%d', array($mm, $account_id));
 		if (!$fid) {
-			DB::Execute('INSERT INTO apps_mailclient_filters (match_method, account_id) VALUES (%s, %d)', array('allmessages', $account_id));
+			DB::Execute('INSERT INTO apps_mailclient_filters (match_method, account_id) VALUES (%d, %d)', array($mm, $account_id));
 			$fid = DB::Insert_ID('apps_mailclient_filters', 'id');
 		}
 		if (is_array($callback)) $callback = implode('::', $callback);
-		$exists = DB::GetOne('SELECT action FROM apps_mailclient_filter_actions WHERE filter_id=%d AND action=%s AND value=%s',array($filter['id'], 'callback', $callback));
+		$act = self::filter_actions('callback');
+		$exists = DB::GetOne('SELECT action FROM apps_mailclient_filter_actions WHERE filter_id=%d AND action=%d AND value=%s',array($fid, $act, $callback));
 		if (!$exists)
-			DB::Execute('INSERT INTO apps_mailclient_filter_actions (filter_id, action, value) VALUES (%d,%s,%s)',array($filter['id'], 'callback', $callback));
+			DB::Execute('INSERT INTO apps_mailclient_filter_actions (filter_id, action, value) VALUES (%d,%d,%s)',array($fid, $act, $callback));
+	}
+
+	public static function delete_callback_filter($account_id, $callback) {
+		$mm = self::filter_match_method('allmessages');
+		$fid = DB::GetOne('SELECT id FROM apps_mailclient_filters WHERE match_method=%d AND account_id=%d', array($mm, $account_id));
+		if (!$fid) return;
+		if (is_array($callback)) $callback = implode('::', $callback);
+		$act = self::filter_actions('callback');
+		$exists = DB::GetOne('SELECT action FROM apps_mailclient_filter_actions WHERE filter_id=%d AND action=%d AND value=%s',array($fid, $act, $callback));
+		if ($exists)
+			DB::Execute('DELETE FROM apps_mailclient_filter_actions WHERE filter_id=%d AND action=%d AND value=%s',array($fid, $act, $callback));
 	}
 	
 	public static function apply_filters($box,$dir,$msg_id) {
@@ -1486,7 +1499,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 				$filter['actions'] = DB::GetAll('SELECT action,value FROM apps_mailclient_filter_actions WHERE filter_id=%d',array($filter['id']));
 			}
 		}
-
+	
 		foreach($filters[$box] as $filter) {
 			$match_method = self::filter_match_method($filter['match_method']);
 			$match = ($match_method=='allmessages');
@@ -1542,7 +1555,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 				$act = self::filter_actions($action['action']);
 				switch($act) {
 					case 'callback':
-						$msg = $call_user_func($action['value'], $msg);
+						$msg = call_user_func($action['value'], $msg);
 						break;
 					case 'copy':
 						$out_box = explode('/',$action['value'],2);

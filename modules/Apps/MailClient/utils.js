@@ -214,7 +214,6 @@ cache_mailboxes: function() {
 				Epesi.text(t.responseText,'error_box','p');
 			}
 		});
-	
 },
 refresh_ui: function() {
 	if($('mail_view_body'))

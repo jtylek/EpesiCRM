@@ -974,6 +974,7 @@ class Utils_RecordBrowser extends Module {
 				if (ModuleManager::is_installed($row['module'])==-1) continue;
 				if (is_callable(explode('::',$row['label']))) {
 					$result = call_user_func(explode('::',$row['label']), $this->record);
+					if (!isset($result['show'])) $result['show']=true;
 					if ($result['show']==false) continue;
 					$row['label'] = $result['label'];
 				}
