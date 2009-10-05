@@ -25,15 +25,15 @@ function RSS_Tags($item, $type)
 		$y = array();
 		$tnl = $item->getElementsByTagName("title");
 		$tnl = $tnl->item(0);
-		$title = $tnl->firstChild->data;
+		$title = $tnl->hasChildNodes() ? $tnl->firstChild->data : "Error: Title missing";
 
 		$tnl = $item->getElementsByTagName("link");
 		$tnl = $tnl->item(0);
-		$link = $tnl->firstChild->data;
+		$link = $tnl->hasChildNodes() ? $tnl->firstChild->data : "";
 
 		$tnl = $item->getElementsByTagName("description");
 		$tnl = $tnl->item(0);
-		$description = $tnl->firstChild->data;
+		$description = $tnl->hasChildNodes() ? $tnl->firstChild->data : "";
 
 		$y["title"] = $title;
 		$y["link"] = $link;
