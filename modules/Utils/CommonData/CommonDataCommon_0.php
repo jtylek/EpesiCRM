@@ -111,13 +111,14 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 	 */
 	public static function get_nodes($root, array $names){
 		static $cache;
-		if(isset($cache[$root][$names]))
-			return $cache[$root][$names];
+		$uid = md5(serialize($names));
+		if(isset($cache[$root][$uid]))
+			return $cache[$root][$uid];
 		$val = false;
 		$id = self::get_id($root);
 		if($id===false) return false;
 		$ret = DB::GetAssoc('SELECT id,value FROM utils_commondata_tree WHERE parent_id=%d AND (akey=\''.implode($names,'\' OR akey=\'').'\')',array($id));
-		$cache[$root][$names] = $ret;
+		$cache[$root][$uid] = $ret;
 		return $ret;
 	}
 
