@@ -111,6 +111,7 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 	 */
 	public static function get_nodes($root, array $names){
 		static $cache;
+		sort($names);
 		$uid = md5(serialize($names));
 		if(isset($cache[$root][$uid]))
 			return $cache[$root][$uid];
