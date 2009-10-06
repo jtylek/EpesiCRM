@@ -84,6 +84,7 @@ class CRM_TasksCommon extends ModuleCommon {
 			case 'view':	if (!$i->acl_check('view task')) return false;
 							$me = CRM_ContactsCommon::get_my_record();
 							return array('(!permission'=>2, '|employees'=>$me['id'], '|customers'=>$me['id']);
+			case 'clone':
 			case 'add':		return $i->acl_check('edit task');
 			case 'edit':	$me = CRM_ContactsCommon::get_my_record();
 							if ($param['permission']>=1 &&

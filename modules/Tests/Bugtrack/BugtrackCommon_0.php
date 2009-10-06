@@ -30,6 +30,7 @@ class Tests_BugtrackCommon extends ModuleCommon {
 									return true;		
 			case 'browse':	return true;
 			case 'view':	return true;
+			case 'clone':	return true;
 			case 'add':
 			case 'edit':	return $i->acl_check('edit bugtrack');
 			case 'delete':	return $i->acl_check('delete bugtrack');

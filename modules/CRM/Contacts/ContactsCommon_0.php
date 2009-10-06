@@ -73,6 +73,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 							$me = self::get_my_record();
 							if ($me && $param['id']==$me['company_name']) return true;
 							return false;
+			case 'clone':
 			case 'add':		return $i->acl_check('edit company');
 			case 'edit':	if ($param['permission']>=1 && $param['created_by']!=Acl::get_user()) return false;
 							$me = self::get_my_record();
@@ -92,6 +93,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 								return $param['login']==Acl::get_user();
 							}
 							return ($param['permission']!=2 || $param['login']==Acl::get_user() || $param['created_by']==Acl::get_user());
+			case 'clone':
 			case 'add':		return $i->acl_check('edit contact');
 			case 'edit':	if ($param['login']==Acl::get_user()) return true; //me
 							if ($param['permission']>=1 && $param['created_by']!=Acl::get_user()) return false;
