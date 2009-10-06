@@ -539,9 +539,18 @@ class CRM_ContactsCommon extends ModuleCommon {
 	public static function create_map_href($r) {
 		return 'href="http://maps.google.com/maps?'.http_build_query(array('q'=>$r['address_1'].' '.$r['address_2'].', '.$r['city'].', '.$r['postal_code'].', '.Utils_CommonDataCommon::get_value('Countries/'.$r['country']))).'" target="_blank"';
 	}
+
+	public static function create_home_map_href($r) {
+		return 'href="http://maps.google.com/maps?'.http_build_query(array('q'=>$r['home_address_1'].' '.$r['home_address_2'].', '.$r['home_city'].', '.$r['home_postal_code'].', '.Utils_CommonDataCommon::get_value('Countries/'.$r['home_country']))).'" target="_blank"';
+	}
 	
 	public static function maplink($r,$nolink,$desc) {
 		if (!$nolink) return Utils_TooltipCommon::create('<a '.self::create_map_href($r).'>'.$r[$desc['id']].'</a>',Base_LangCommon::ts('CRM_Contacts','Click here to search this location using google maps'));
+		return $r[$desc['id']];
+	}
+
+	public static function home_maplink($r,$nolink,$desc) {
+		if (!$nolink) return Utils_TooltipCommon::create('<a '.self::create_home_map_href($r).'>'.$r[$desc['id']].'</a>',Base_LangCommon::ts('CRM_Contacts','Click here to search this location using google maps'));
 		return $r[$desc['id']];
 	}
 
