@@ -341,7 +341,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		DB::CreateTable($tab.'_edit_history_data',
 					'edit_id I,'.
 					'field C(32),'.
-					'old_value C(255)',
+					'old_value X',
 					array('constraints'=>', FOREIGN KEY (edit_id) REFERENCES '.$tab.'_edit_history(id)'));
 		DB::CreateTable($tab.'_favorite',
 					$tab.'_id I,'.
