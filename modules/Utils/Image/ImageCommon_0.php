@@ -23,7 +23,8 @@ class Utils_ImageCommon extends ModuleCommon {
 	 * @param int max height. When specified, first parameter becomes responsible for max width.
 	 */
 	public static function create_thumb($img, $attr_x = null, $attr_y = null) {
-		ini_set('gd.jpeg_ignore_warning', 1);
+		ini_set("gd.jpeg_ignore_warning", 1);
+		
 		if(!is_file($img)) {
 			$img = Base_ThemeCommon::get_template_file('Utils/Image','error_image_not_found.gif');
 		} 
@@ -62,6 +63,7 @@ class Utils_ImageCommon extends ModuleCommon {
 			list($thumb_width, $thumb_height, $type, $attr) = getimagesize($thumb_real);
 		// 2) it does not
 		} else { // create thumb
+			$old_err = error_reporting(E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR);
 			//print "typ: ". $type;
 			//print ModuleManager::get_data_dir('Utils/Image').$thumb." does not exist<br>";
 			// if file is a jpeg graphic
@@ -121,6 +123,7 @@ class Utils_ImageCommon extends ModuleCommon {
 					imagedestroy($im);
 				}
 			}
+			error_reporting($old_err);
 		}
 		return array('thumb'=>$thumb_real,'width'=>$thumb_width, 'height'=>$thumb_height, 'type'=>$type, 'attrs'=>$attr);
 	}
