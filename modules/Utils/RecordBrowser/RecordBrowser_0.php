@@ -738,7 +738,7 @@ class Utils_RecordBrowser extends Module {
 			$id = $this->get_module_variable('id');
 			$this->unset_module_variable('id');
 		}
-		if ($mode=='view') {
+		if ($mode=='view' && false) {
 			if (self::$browsed_records!==null &&
 				isset(self::$browsed_records['tab']) &&
 				self::$browsed_records['tab']==$this->tab)
