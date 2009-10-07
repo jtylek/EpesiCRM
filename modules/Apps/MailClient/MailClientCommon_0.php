@@ -1555,7 +1555,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 				$act = self::filter_actions($action['action']);
 				switch($act) {
 					case 'callback':
-						$msg = call_user_func($action['value'], $msg);
+						$msg = call_user_func($action['value'], $msg, $msg_id, $box, $dir);
 						break;
 					case 'copy':
 						$out_box = explode('/',$action['value'],2);
