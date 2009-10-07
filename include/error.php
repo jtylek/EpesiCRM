@@ -44,10 +44,6 @@ class ErrorHandler {
 	public static function handle_error($type, $message,$errfile,$errline,$errcontext) {
 		if (error_reporting()) {
 
-			if ( ! self::notify_observers($type, $message,$errfile,$errline,$errcontext)) {
-				return false;
-			}
-
 			if(REPORT_ALL_ERRORS)
 				$breakLevel = E_ALL;
 			else
@@ -56,6 +52,10 @@ class ErrorHandler {
 			if (($type & $breakLevel) > 0) {
 				$backtrace = self::debug_backtrace();
 				
+				if ( ! self::notify_observers($type, $message,$errfile,$errline,$errcontext,$backtrace)) {
+					return false;
+				}
+
 				while(@ob_end_clean());
 				echo self::notify_client('Type: '.$type.'<br>Message: '.$message.'<br>File: '.$errfile.'<br>Line='.$errline.$backtrace.'<hr>');
 				exit();
@@ -67,7 +67,7 @@ class ErrorHandler {
 
 	public static function debug_backtrace() {
 		if(function_exists('debug_backtrace')) {
-			$backtrace = '';
+			$backtrace = '<br />error backtrace:<br />';
 			$bt = debug_backtrace();
 		   
 			for($i = 0; $i <= count($bt) - 1; $i++) {
@@ -83,7 +83,6 @@ class ErrorHandler {
 				$backtrace .= "&nbsp;&nbsp;&nbsp;&nbsp;function called: ".$bt[$i]["function"];
 				$backtrace .= "<br /><br />";
 			}
-			$backtrace = '<br>error backtrace:<br>'.$backtrace;
 		} else $backtrace = '';
 		return $backtrace;
 	}
@@ -105,7 +104,7 @@ class ErrorHandler {
 		return true;
 	}
 
-	private static function notify_observers($type, $message, $errfile, $errline, $errcontext)
+	private static function notify_observers($type, $message, $errfile, $errline, $errcontext, $backtrace)
 	{
 		if (empty(self::$observers)) {
 
@@ -116,7 +115,7 @@ class ErrorHandler {
 
 		foreach (self::$observers as $observer) {
 
-			$eventValue = $observer->update_observer($type, $message, $errfile, $errline, $errcontext);
+			$eventValue = $observer->update_observer($type, $message, $errfile, $errline, $errcontext, $backtrace);
 
 			if (is_bool($eventValue)) {
 
