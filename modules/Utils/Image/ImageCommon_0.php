@@ -63,7 +63,7 @@ class Utils_ImageCommon extends ModuleCommon {
 			list($thumb_width, $thumb_height, $type, $attr) = getimagesize($thumb_real);
 		// 2) it does not
 		} else { // create thumb
-			$old_err = error_reporting(E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR);
+			$old_err = error_reporting(0);
 			//print "typ: ". $type;
 			//print ModuleManager::get_data_dir('Utils/Image').$thumb." does not exist<br>";
 			// if file is a jpeg graphic
