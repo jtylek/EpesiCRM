@@ -68,7 +68,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 			$local = self::Instance()->get_data_dir().$group;
 			@mkdir($local,0777,true);
 			$dest_file = $local.'/'.$id.'_0';
-			copy($file,$dest_file);
+			rename($file,$dest_file);
 			if ($add_func) call_user_func($add_func,$id,0,$dest_file,$oryg,$add_args);
 		}
 		return $id;
