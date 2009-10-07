@@ -16,10 +16,13 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_AttachmentCommon extends ModuleCommon {
 
 	private static function get_where($group,$group_starts_with=true) {
+		$ret = '';
+		if(!Base_AclCommon::i_am_admin())
+			$ret .= '(ual.permission<2 OR ual.permission_by='.Acl::get_user().') AND ';
 		if($group_starts_with)
-			return 'ual.local LIKE \''.DB::addq($group).'%\'';
+			return $ret.'ual.local LIKE \''.DB::addq($group).'%\'';
 		else
-			return 'ual.local='.DB::qstr($group);
+			return $ret.'ual.local='.DB::qstr($group);
 	}
 	/**
 	 * Example usage:
@@ -75,9 +78,13 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		return DB::GetOne('SELECT count(ual.id) FROM utils_attachment_link ual WHERE ual.deleted=0 AND '.self::get_where($group,$group_starts_with));
 	}
 
+	public static function get($group=null,$group_starts_with=true) {
+		return DB::GetAll('SELECT ual.sticky,uaf.id as file_id,(SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id=ual.id) as downloads,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text,uaf.original,uaf.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE uaf.created_by=l2.id) as upload_by FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON ual.id=uaf.attach_id WHERE '.self::get_where($group,$group_starts_with).' AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id) AND ual.deleted=0');
+	}
+
 	public static function search_group($group,$word,$view_func=false) {
 		$ret = array();
-		$r = DB::Execute('SELECT ual.local,ual.id,ual.func,ual.args FROM utils_attachment_link ual WHERE (ual.permission<2 OR ual.permission_by='.Acl::get_user().') AND ual.deleted=0 AND '.
+		$r = DB::Execute('SELECT ual.local,ual.id,ual.func,ual.args FROM utils_attachment_link ual WHERE ual.deleted=0 AND '.
 				'(0!=(SELECT count(uan.id) FROM utils_attachment_note AS uan WHERE uan.attach_id=ual.id AND uan.text LIKE '.DB::Concat(DB::qstr('%'),'%s',DB::qstr('%')).' AND uan.revision=(SELECT MAX(xxx.revision) FROM utils_attachment_note xxx WHERE xxx.attach_id=ual.id)) OR '.
 				'0!=(SELECT count(uaf.id) FROM utils_attachment_file AS uaf WHERE uaf.attach_id=ual.id AND uaf.original LIKE '.DB::Concat(DB::qstr('%'),'%s',DB::qstr('%')).' AND uaf.revision=(SELECT MAX(xxx2.revision) FROM utils_attachment_file xxx2 WHERE xxx2.attach_id=ual.id))) '.
 				'AND '.self::get_where($group),array($word,$word));
