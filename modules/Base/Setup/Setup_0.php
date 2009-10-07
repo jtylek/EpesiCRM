@@ -100,7 +100,7 @@ class Base_Setup extends Module {
                                     original_select[mod] = x.options[x.selectedIndex].value;
                                     return;
                                 }
-                                mentioned = new Array;
+                                mentioned.clear();
                                 var arr = get_deps(mod);
                                 if(arr.length == 1) return;
                                 var str = arr.length < 11 ? " - "+arr.join("\n - ") : arr.join(", ");
