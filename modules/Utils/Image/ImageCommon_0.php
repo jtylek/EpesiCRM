@@ -23,6 +23,7 @@ class Utils_ImageCommon extends ModuleCommon {
 	 * @param int max height. When specified, first parameter becomes responsible for max width.
 	 */
 	public static function create_thumb($img, $attr_x = null, $attr_y = null) {
+		ini_set('gd.jpeg_ignore_warning', 1);
 		if(!is_file($img)) {
 			$img = Base_ThemeCommon::get_template_file('Utils/Image','error_image_not_found.gif');
 		} 
