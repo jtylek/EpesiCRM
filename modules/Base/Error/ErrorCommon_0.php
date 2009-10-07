@@ -15,7 +15,7 @@ class EpesiErrorObserver extends ErrorObserver {
 	public function update_observer($type, $message,$errfile,$errline,$errcontext, $backtrace) {
 		$mail = Variable::get('error_mail');
 		if($mail) {
-			$backtrace = str_replace('<br />',"\n",$backtrace);
+			$backtrace = str_replace(array('<br />','&nbsp;'),array("\n",' '),$backtrace);
 			$x = "who=".Acl::get_user()."\ntype=".$type."\nmessage=".$message."\nerror file=".$errfile."\nerror line=".$errline."\n".$backtrace;
 			$d = ModuleManager::get_data_dir('Base/Error').md5($x).'.txt';
 			file_put_contents($d,$x);
