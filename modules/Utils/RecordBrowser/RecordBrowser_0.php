@@ -1092,12 +1092,7 @@ class Utils_RecordBrowser extends Module {
 			$label = '<span id="_'.$args['id'].'__label">'.$this->t($args['name']).'</span>';
 			if (isset($this->QFfield_callback_table[$field])) {
 				$ff = $this->QFfield_callback_table[$field];
-				if(version_compare(phpversion(), '5.3.0')==-1)
-					call_user_func($ff, $form, $args['id'], $label, $mode, $mode=='add'?(isset($this->custom_defaults[$args['id']])?$this->custom_defaults[$args['id']]:''):$record[$args['id']], $args, $this, $this->display_callback_table);
-				else {
-					require_once('modules/Utils/RecordBrowser/qffield_call_func.php');
-					qffield_call_func($ff,$form, $args['id'], $label, $mode, $mode=='add'?(isset($this->custom_defaults[$args['id']])?$this->custom_defaults[$args['id']]:''):$record[$args['id']], $args, $this, $this->display_callback_table);
-				}	
+				call_user_func_array($ff, array(&$form, $args['id'], $label, $mode, $mode=='add'?(isset($this->custom_defaults[$args['id']])?$this->custom_defaults[$args['id']]:''):$record[$args['id']], $args, $this, $this->display_callback_table));
 			} else {
 				if ($mode!=='add' && $mode!=='edit') {
 					if ($args['type']!='checkbox' || isset($this->display_callback_table[$field])) {
