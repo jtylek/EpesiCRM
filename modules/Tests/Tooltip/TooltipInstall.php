@@ -17,11 +17,24 @@ class Tests_TooltipInstall extends ModuleInstall {
 	public function uninstall() {
 		return true;
 	}
+	
+	public function upgrade_1() {
+		return true;
+	}
+	
+	public function downgrade_1() {
+		return true;
+	}
+	
 	public function requires($v) {
 		return array(
 			array('name'=>'Utils/CatFile','version'=>0),
 			array('name'=>'Utils/Tooltip','version'=>0)
 		);
+	}
+	
+	public function version() {
+		return array('1.0','1.5');
 	}
 }
 
