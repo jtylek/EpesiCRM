@@ -77,7 +77,7 @@ class Base_Setup extends Module {
             // javascript to show warning only once and cascade uninstall
                 eval_js('var showed = false;');
                 eval_js_once('var original_select = new Array('.sizeof($is_required).');');
-                eval_js_once('var mentioned = null;
+                eval_js_once('var mentioned = new Array;
                               function get_deps(mod) {
                                 var arr = new Array;
                                 if(mentioned[mod] == undefined) {
