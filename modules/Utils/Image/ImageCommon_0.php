@@ -63,7 +63,7 @@ class Utils_ImageCommon extends ModuleCommon {
 			list($thumb_width, $thumb_height, $type, $attr) = getimagesize($thumb_real);
 		// 2) it does not
 		} else { // create thumb
-			$old_err = error_reporting(0);
+			//$old_err = error_reporting(0);
 			//print "typ: ". $type;
 			//print ModuleManager::get_data_dir('Utils/Image').$thumb." does not exist<br>";
 			// if file is a jpeg graphic
@@ -123,7 +123,7 @@ class Utils_ImageCommon extends ModuleCommon {
 					imagedestroy($im);
 				}
 			}
-			error_reporting($old_err);
+			//error_reporting($old_err);
 		}
 		return array('thumb'=>$thumb_real,'width'=>$thumb_width, 'height'=>$thumb_height, 'type'=>$type, 'attrs'=>$attr);
 	}
