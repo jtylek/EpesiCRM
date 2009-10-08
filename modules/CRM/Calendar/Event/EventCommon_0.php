@@ -623,7 +623,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		return true;
 	}
 
-	public static function update($id,$start,$duration,$timeless) {
+	public static function update(&$id,$start,$duration,$timeless) {
 		$check = explode('#', $id);
 		if (isset($check[1])) {
 			$callback = DB::GetOne('SELECT update_callback FROM crm_calendar_custom_events_handlers WHERE id=%d', $check[0]);
