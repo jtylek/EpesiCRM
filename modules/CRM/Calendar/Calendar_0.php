@@ -115,7 +115,6 @@ class CRM_Calendar extends Module {
 			$ret = array();
 			if ($conf['events_handlers__']) {
 				foreach ($tmp as $k=>$v) {
-					$v = Utils_CalendarCommon::process_event($v);
 					$ret[str_pad($v['start'], 16, '0', STR_PAD_LEFT).'__'.$c] = $v;
 					$c++;
 				}
@@ -130,11 +129,13 @@ class CRM_Calendar extends Module {
 				}
 			}
 		}
+		
+		ksort($ret);
 
 		foreach($ret as $row) {
 			if (isset($row['status']) && $row['status']>=2) continue;
 			if ($conf['color']!=0 && $colors[$conf['color']]!=$row['color']) continue;
-			if (empty($custom_events)) {
+			if (!isset($row['view_action'])) {
 				$ex = Utils_CalendarCommon::process_event($row);
 				$view_action = '<a '.$this->create_callback_href(array($this,'view_event'),$row['id']).'>';
 				$ev_id = explode('_',$row['id'],2);
