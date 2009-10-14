@@ -12,6 +12,7 @@ if(!isset($_POST['tooltip_id']) || !isset($_POST['cid']))
 
 define('JS_OUTPUT',1);
 define('CID',$_POST['cid']); 
+define('READ_ONLY_SESSION',1); 
 require_once('../../../include.php');
 ModuleManager::load_modules();
 
