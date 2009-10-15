@@ -202,62 +202,67 @@ class Utils_RecordBrowser_Reports extends Module {
 		}
 		$form->addElement('submit', 'submit', $this->t('Show'));
 
-		$failed = false;
+//		$failed = false;
 		$other = $vals = $form->exportValues();
 		$this->set_module_variable('vals',$vals);
-		if ($vals['submited'] && !$form->validate()) {
-			//$this->date_range = 'error';
-			//$failed = true;
-		}
+//		if ($vals['submited'] && !$form->validate()) {
+//			$this->date_range = 'error';
+//			$failed = true;
+//		}
 
-		$form->assign_theme('show_dates',$show_dates);
+		$theme->assign('show_dates',$show_dates);
 		$form->assign_theme('form',$theme);
 		$theme->display('date_picker');
-		$type = $vals['date_range_type'];
-		foreach(array('week','day','year','month') as $v)
-			if ($v!=$type) eval_js('document.getElementById(\''.$v.'_elements\').style.display=\'none\';');
+		if ($show_dates) {
+			$type = $vals['date_range_type'];
+			foreach(array('week','day','year','month') as $v)
+				if ($v!=$type) eval_js('document.getElementById(\''.$v.'_elements\').style.display=\'none\';');
 
-		if ($failed) {
-			return array('type'=>'day', 'dates'=>array());
-		}
 
-		$this->date_range = array();
-		foreach (array('date_range_type','from_'.$type,'to_'.$type) as $v)
-			$this->date_range[$v] = $vals[$v];
-		$header = array();
-		$start_p 	= $start 	= $this->get_date($type, $this->date_range['from_'.$type]);
-		$end_p 		= $end		= $this->get_date($type, $this->date_range['to_'.$type]);
-		$header[] = $start;
-		while (true) {
-			switch ($type) {
-				case 'day': 
-					$start = strtotime(date('Y-m-d 12:00:00', $start+86400));
-					$start_format = 'Y-m-d';
-					$end_format = 'Y-m-d'; 
-					break;
-				case 'week': 
-					$start = strtotime(date('Y-m-d 12:00:00', $start+604800)); 
-					$start_format = 'Y-m-d';
-					$end_format = 'Y-m-d';
-					$fdow = Utils_PopupCalendarCommon::get_first_day_of_week();
-					$start_p -= (4-$fdow)*24*60*60;
-					$end_p += (2+$fdow)*24*60*60;
-					break;
-				case 'month': 
-					$start = strtotime(date('Y-m-15 12:00:00', $start+2592000));
-					$start_format = 'Y-m-01';
-					$end_format = 'Y-m-t'; 
-					break;
-				case 'year': 
-					$start = strtotime(date('Y-06-15 12:00:00', $start+2592000*12));
-					$start_format = 'Y-01-01';
-					$end_format = 'Y-12-31';
-					break;
-			}
-			if ($start>$end) break;
+//		if ($failed) {
+//			return array('type'=>'day', 'dates'=>array());
+//		}
+
+			$this->date_range = array();
+			foreach (array('date_range_type','from_'.$type,'to_'.$type) as $v)
+				$this->date_range[$v] = $vals[$v];
+			$header = array();
+			$start_p 	= $start 	= $this->get_date($type, $this->date_range['from_'.$type]);
+			$end_p 		= $end		= $this->get_date($type, $this->date_range['to_'.$type]);
 			$header[] = $start;
+			while (true) {
+				switch ($type) {
+					case 'day': 
+						$start = strtotime(date('Y-m-d 12:00:00', $start+86400));
+						$start_format = 'Y-m-d';
+						$end_format = 'Y-m-d'; 
+						break;
+					case 'week': 
+						$start = strtotime(date('Y-m-d 12:00:00', $start+604800)); 
+						$start_format = 'Y-m-d';
+						$end_format = 'Y-m-d';
+						$fdow = Utils_PopupCalendarCommon::get_first_day_of_week();
+						$start_p -= (4-$fdow)*24*60*60;
+						$end_p += (2+$fdow)*24*60*60;
+						break;
+					case 'month': 
+						$start = strtotime(date('Y-m-15 12:00:00', $start+2592000));
+						$start_format = 'Y-m-01';
+						$end_format = 'Y-m-t'; 
+						break;
+					case 'year': 
+						$start = strtotime(date('Y-06-15 12:00:00', $start+2592000*12));
+						$start_format = 'Y-01-01';
+						$end_format = 'Y-12-31';
+						break;
+				}
+				if ($start>$end) break;
+				$header[] = $start;
+			}
+			return array('type'=>$type, 'dates'=>$header, 'start'=>date($start_format,$start_p), 'end'=>date($end_format,$end), 'other'=>$other);
+		} else {
+			return array('other'=>$other);
 		}
-		return array('type'=>$type, 'dates'=>$header, 'start'=>date($start_format,$start_p), 'end'=>date($end_format,$end), 'other'=>$other);
 	}
 
 	public function get_date($type, $arg) {

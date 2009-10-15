@@ -9,7 +9,7 @@
 	<tr>
 		{assign var=block value=0}
 		{foreach item=e key=k from=$form_data}
-			{if is_array($e) && isset($e.name) && $e.name=="date_range_type"}
+			{if is_array($e) && isset($e.name) && ($e.name=="date_range_type" || $e.name=="submit" )}
 				{assign var=block value=1}
 			{/if}
 			{if $block==0 && is_array($e) && isset($e.html)}
