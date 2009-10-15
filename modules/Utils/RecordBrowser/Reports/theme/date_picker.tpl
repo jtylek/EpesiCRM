@@ -21,6 +21,7 @@
 				</td>
 			{/if}
 		{/foreach}
+{if $show_dates}
 	</tr>
 </table>
 <table cellpadding="0" cellspacing="0" class="Utils_RecordBrowser_Reports__date_picker">
@@ -92,6 +93,7 @@
 				</table>
 			</div>
 		</td>
+{/if}
 		<td class="button">
 			{$form_data.submit.html}
 		</td>

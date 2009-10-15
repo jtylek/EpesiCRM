@@ -728,7 +728,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return Utils_RecordBrowserCommon::record_bbcode('company', array('company_name'), $text, $param, $opt);
 	}
 	
-	public static function get_html_record_info($created_by,$created_on,$edited_by=null,$edited_on=null) {
+	public static function get_html_record_info($created_by,$created_on,$edited_by=null,$edited_on=null, $id=null) {
 		if ($created_by!==null) {
 			$contact = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact_by_user_id($created_by),true);
 			if ($contact!='') $created_by = $contact;
@@ -742,6 +742,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		}
 			
 		$htmlinfo=array(
+			'Record ID:'=>$id,
 			'Created by:'=>$created_by,
 			'Created on:'=>Base_RegionalSettingsCommon::time2reg($created_on)
 			);

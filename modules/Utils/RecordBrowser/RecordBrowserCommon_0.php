@@ -1207,12 +1207,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		else $info = $id;
 		// If CRM Contacts module is installed get user contact
 		if (ModuleManager::is_installed('CRM_Contacts')>=0)
-			return CRM_ContactsCommon::get_html_record_info($info['created_by'],$info['created_on'],$info['edited_by'],$info['edited_on']);
+			return CRM_ContactsCommon::get_html_record_info($info['created_by'],$info['created_on'],$info['edited_by'],$info['edited_on'], $id);
 
 		// If CRM Module is not installed get user login only
 		$created_by = Base_UserCommon::get_user_login($info['created_by']);
 		$edited_by = Base_UserCommon::get_user_login($info['edited_by']);
 		$htmlinfo=array(
+					'Record ID:'=>$id,			
 					'Created by:'=>$created_by,			
 					'Created on:'=>Base_RegionalSettingsCommon::time2reg($info['created_on'])
 						);

@@ -171,19 +171,23 @@ class Utils_RecordBrowser_Reports extends Module {
 		return $st<=$nd;
 	}
 
-	public function display_date_picker($datepicker_defaults = array(), $form=null) {
+	public function display_date_picker($datepicker_defaults = array(), $form=null, $show_dates=true) {
 		if ($form===null) $form = $this->init_module('Libs/QuickForm');
 		$theme = $this->init_module('Base/Theme');
-		$display_stuff_js = 'document.getElementById(\'day_elements\').style.display=\'none\';document.getElementById(\'month_elements\').style.display=\'none\';document.getElementById(\'week_elements\').style.display=\'none\';document.getElementById(\'year_elements\').style.display=\'none\';document.getElementById(this.value+\'_elements\').style.display=\'block\';';
-		$form->addElement('select', 'date_range_type', $this->t('Display report'), array('day'=>$this->t('Days'), 'week'=>$this->t('Weeks'), 'month'=>$this->t('Months'), 'year'=>$this->t('Years')), array('onChange'=>$display_stuff_js, 'onKeyUp'=>$display_stuff_js));
-		$form->addElement('datepicker', 'from_day', $this->t('From date'));
-		$form->addElement('datepicker', 'to_day', $this->t('To date'));
-		$form->addElement('date', 'from_week', $this->t('From week'), array('format'=>'Y W','language'=>Base_LangCommon::get_lang_code()));
-		$form->addElement('date', 'to_week', $this->t('To week'), array('format'=>'Y W','language'=>Base_LangCommon::get_lang_code()));
-		$form->addElement('date', 'from_month', $this->t('From month'), array('format'=>'Y m','language'=>Base_LangCommon::get_lang_code()));
-		$form->addElement('date', 'to_month', $this->t('To month'), array('format'=>'Y m','language'=>Base_LangCommon::get_lang_code()));
-		$form->addElement('date', 'from_year', $this->t('From year'), array('format'=>'Y','language'=>Base_LangCommon::get_lang_code()));
-		$form->addElement('date', 'to_year', $this->t('To year'), array('format'=>'Y','language'=>Base_LangCommon::get_lang_code()));
+		if ($show_dates) {
+			$display_stuff_js = 'document.getElementById(\'day_elements\').style.display=\'none\';document.getElementById(\'month_elements\').style.display=\'none\';document.getElementById(\'week_elements\').style.display=\'none\';document.getElementById(\'year_elements\').style.display=\'none\';document.getElementById(this.value+\'_elements\').style.display=\'block\';';
+			$form->addElement('select', 'date_range_type', $this->t('Display report'), array('day'=>$this->t('Days'), 'week'=>$this->t('Weeks'), 'month'=>$this->t('Months'), 'year'=>$this->t('Years')), array('onChange'=>$display_stuff_js, 'onKeyUp'=>$display_stuff_js));
+			$form->addElement('datepicker', 'from_day', $this->t('From date'));
+			$form->addElement('datepicker', 'to_day', $this->t('To date'));
+			$form->addElement('date', 'from_week', $this->t('From week'), array('format'=>'Y W','language'=>Base_LangCommon::get_lang_code()));
+			$form->addElement('date', 'to_week', $this->t('To week'), array('format'=>'Y W','language'=>Base_LangCommon::get_lang_code()));
+			$form->addElement('date', 'from_month', $this->t('From month'), array('format'=>'Y m','language'=>Base_LangCommon::get_lang_code()));
+			$form->addElement('date', 'to_month', $this->t('To month'), array('format'=>'Y m','language'=>Base_LangCommon::get_lang_code()));
+			$form->addElement('date', 'from_year', $this->t('From year'), array('format'=>'Y','language'=>Base_LangCommon::get_lang_code()));
+			$form->addElement('date', 'to_year', $this->t('To year'), array('format'=>'Y','language'=>Base_LangCommon::get_lang_code()));
+			$form->registerRule('check_dates', 'callback', 'check_dates', $this);
+			$form->addRule(array('date_range_type','from_day','to_day','from_week','to_week','from_month','to_month','from_year','to_year'), $this->t('\'From\' date must be earlier than \'To\' date'), 'check_dates');
+		}
 		if ($this->isset_module_variable('vals')) {
 			$vals = $this->get_module_variable('vals');
 			unset($vals['submited']);
@@ -198,9 +202,6 @@ class Utils_RecordBrowser_Reports extends Module {
 		}
 		$form->addElement('submit', 'submit', $this->t('Show'));
 
-		$form->registerRule('check_dates', 'callback', 'check_dates', $this);
-		$form->addRule(array('date_range_type','from_day','to_day','from_week','to_week','from_month','to_month','from_year','to_year'), $this->t('\'From\' date must be earlier than \'To\' date'), 'check_dates');
-
 		$failed = false;
 		$other = $vals = $form->exportValues();
 		$this->set_module_variable('vals',$vals);
@@ -209,6 +210,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			//$failed = true;
 		}
 
+		$form->assign_theme('show_dates',$show_dates);
 		$form->assign_theme('form',$theme);
 		$theme->display('date_picker');
 		$type = $vals['date_range_type'];
