@@ -166,7 +166,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		return $ret;
 	}
 
-	private static function strftime($format,$timestamp) {
+	public static function strftime($format,$timestamp) {
 		$ret = strftime($format,$timestamp);
 		if ( strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' )
 		 	return iconv('','UTF-8',$ret);
@@ -217,10 +217,12 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	 *
 	 * @param string
 	 * @param boolean convert from local time to server time
+	 * @param string date format
 	 * @return int
 	 */
-	public static function reg2time($t,$tz=true) {
-		$datef = Base_User_SettingsCommon::get('Base_RegionalSettings','date');
+	public static function reg2time($t,$tz=true,$datef = null) {
+		if(!isset($datef))
+			$datef = Base_User_SettingsCommon::get('Base_RegionalSettings','date');
 
 		if(is_numeric($t)) $t = date('Y-m-d H:i:s',$t);
 
