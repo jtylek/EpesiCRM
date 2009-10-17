@@ -29,6 +29,9 @@ class Base_User_Settings extends Module {
 		$this->get_module_variable('admin_settings',($admin_settings && $this->acl_check('set defaults')));
 
 		if (!$branch) {
+			$x = ModuleManager::get_instance('/Base_Box|0');
+			if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+			$x->pop_main();
 			$this->main_page();
 			return;
 		}
