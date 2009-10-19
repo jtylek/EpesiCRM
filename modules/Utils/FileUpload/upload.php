@@ -21,7 +21,8 @@ if(!Acl::is_user())
 	exit();
 $form_name = $_REQUEST['form_name'];
 $doc = $_FILES['file'];
-$dest_filename  = 'tmp_'.microtime(true);
+$ext = strrchr($doc['name'],'.');
+$dest_filename  = 'tmp_'.microtime(true).$ext;
 $dest_path  = DATA_DIR.'/Utils_FileUpload/'.$dest_filename;
 $required = $_REQUEST['required'];
 
