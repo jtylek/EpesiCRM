@@ -544,13 +544,13 @@ class Utils_RecordBrowser_Reports extends Module {
 			$f2 = $this->init_module('Libs/OpenFlashChart');
 			$results = call_user_func($this->display_cell_callback, $r);
 
-			$title = new title( $ref_rec );
+			$title = new OFC_Elements_Title( $ref_rec );
 			$f->set_title( $title );
 			$f2->set_title( $title );
 			$labels = array();
 			foreach($gb_captions as $cap)
 				$labels[] = $cap['name'];
-			$x_ax = new x_axis();
+			$x_ax = new OFC_Elements_Axis_X();
 			$x_ax->set_labels_from_array($labels);
 			$f->set_x_axis($x_ax);
 			$f2->set_x_axis($x_ax);
@@ -558,10 +558,10 @@ class Utils_RecordBrowser_Reports extends Module {
 			$max2 = 5;
 			$curr = false;
 			$num = false;
-
+			
 			if (empty($this->categories)) {
 				$arr = array();
-				$bar = new line_hollow();
+				$bar = new OFC_Charts_Line();
 				$bar->set_colour(self::$colours[0]);
 				foreach ($results as & $res_ref) {
 					if (is_array($res_ref))
@@ -584,9 +584,9 @@ class Utils_RecordBrowser_Reports extends Module {
 				}
 			} else {
 				foreach ($this->categories as $q=>$c) {
-					$bar = new line_hollow();
+					$bar = new OFC_Charts_Line();
 					$bar->set_colour(self::$colours[$q%count(self::$colours)]);
-					$bar->set_key(strip_tags($c),3);
+					$bar->set_key(strip_tags($c),10);
 					$arr = array();
 					foreach ($results as $v) {
 						$val = (int)strip_tags($v[$c]);
@@ -609,7 +609,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			}
 
 			if($num) {
-				$y_ax = new y_axis();
+				$y_ax = new OFC_Elements_Axis_Y();
 				$y_ax->set_range(0,$max);
 				$y_ax->set_steps($max/10);
 				$f->set_y_axis($y_ax);
@@ -622,7 +622,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			}
 
 			if($curr) {
-				$y_ax = new y_axis();
+				$y_ax = new OFC_Elements_Axis_Y();
 				$y_ax->set_range(0,$max2);
 				$y_ax->set_steps($max2/10);
 				$f2->set_y_axis($y_ax);
@@ -642,7 +642,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			$fc = $this->init_module('Libs/OpenFlashChart'); //columns summary numeric
 			$fc2 = $this->init_module('Libs/OpenFlashChart'); //columns summary currency
 
-			$title = new title( "Summary by row" );
+			$title = new OFC_Elements_Title( "Summary by row" );
 			$f->set_title( $title );
 			$f2->set_title( $title );
 			if(!empty($this->categories)) {
@@ -655,21 +655,21 @@ class Utils_RecordBrowser_Reports extends Module {
 						$labels[] = strip_tags($c);
 					}
 				}
-				$x_ax = new x_axis();
+				$x_ax = new OFC_Elements_Axis_X();
 				$x_ax->set_labels_from_array($labels);
 				$f->set_x_axis($x_ax);
-				$x_ax = new x_axis();
+				$x_ax = new OFC_Elements_Axis_X();
 				$x_ax->set_labels_from_array($labels_c);
 				$f2->set_x_axis($x_ax);
 			}
 
-			$title = new title( "Summary by column" );
+			$title = new OFC_Elements_Title( "Summary by column" );
 			$fc->set_title( $title );
 			$fc2->set_title( $title );
 			$labels = array();
 			foreach($gb_captions as $cap)
 				$labels[] = $cap['name'];
-			$x_ax = new x_axis();
+			$x_ax = new OFC_Elements_Axis_X();
 			$x_ax->set_labels_from_array($labels);
 			$fc->set_x_axis($x_ax);
 			$fc2->set_x_axis($x_ax);
@@ -686,9 +686,9 @@ class Utils_RecordBrowser_Reports extends Module {
 
 				$ref_rec = call_user_func($this->ref_record_display_callback, $r);
 
-				$bar = new bar_glass();
+				$bar = new OFC_Charts_Bar_Glass();
 				$bar->set_colour(self::$colours[$k%count(self::$colours)]);
-				$bar->set_key(strip_tags($ref_rec),3);
+				$bar->set_key(strip_tags($ref_rec),10);
 
 				if(empty($this->categories)) {
 					$total = 0;
@@ -713,9 +713,9 @@ class Utils_RecordBrowser_Reports extends Module {
 						$num = true;
 					}
 				} else {
-					$bar_c = new bar_glass();
+					$bar_c = new OFC_Charts_Bar_Glass();
 					$bar_c->set_colour(self::$colours[$k%count(self::$colours)]);
-					$bar_c->set_key(strip_tags($ref_rec),3);
+					$bar_c->set_key(strip_tags($ref_rec),10);
 					$arr = array();
 					$arr_c = array();
 					foreach ($this->categories as $q=>$c) {
@@ -752,7 +752,7 @@ class Utils_RecordBrowser_Reports extends Module {
 
 
 			if($num) {
-				$y_ax = new y_axis();
+				$y_ax = new OFC_Elements_Axis_Y();
 				$y_ax->set_range(0,$max);
 				$y_ax->set_steps($max/10);
 				$f->set_y_axis($y_ax);
@@ -765,7 +765,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			}
 
 			if($curr) {
-				$y_ax = new y_axis();
+				$y_ax = new OFC_Elements_Axis_Y();
 				$y_ax->set_range(0,$max2);
 				$y_ax->set_steps($max2/10);
 				$f2->set_y_axis($y_ax);
@@ -778,9 +778,9 @@ class Utils_RecordBrowser_Reports extends Module {
 			}
 
 			if(empty($this->categories)) {
-				$bar = new bar_glass();
+				$bar = new OFC_Charts_Bar_Glass();
 				$bar->set_colour(self::$colours[0]);
-				$bar->set_key('Total',3);
+				$bar->set_key('Total',10);
 				$mm = 5;
 				foreach($this->cols_total as $val)
 					if($mm<$val) $mm=$val;
@@ -795,9 +795,9 @@ class Utils_RecordBrowser_Reports extends Module {
 			} else {
 				$i = 0;
 				foreach($this->cols_total as $k=>$arr) {
-					$bar = new bar_glass();
+					$bar = new OFC_Charts_Bar_Glass();
 					$bar->set_colour(self::$colours[$i%count(self::$colours)]);
-					$bar->set_key(strip_tags($k),3);
+					$bar->set_key(strip_tags($k),10);
 					$bar->set_values($arr);
 					$mm = 5;
 					foreach($arr as $val)
@@ -815,7 +815,7 @@ class Utils_RecordBrowser_Reports extends Module {
 
 
 			if($num) {
-				$y_ax = new y_axis();
+				$y_ax = new OFC_Elements_Axis_Y();
 				$y_ax->set_range(0,$maxc);
 				$y_ax->set_steps($maxc/10);
 				$fc->set_y_axis($y_ax);
@@ -828,7 +828,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			}
 
 			if($curr) {
-				$y_ax = new y_axis();
+				$y_ax = new OFC_Elements_Axis_X();
 				$y_ax->set_range(0,$maxc2);
 				$y_ax->set_steps($maxc2/10);
 				$fc2->set_y_axis($y_ax);
@@ -845,12 +845,12 @@ class Utils_RecordBrowser_Reports extends Module {
 	public function draw_category_chart($ref_rec,$gb_captions) {
 			$f = $this->init_module('Libs/OpenFlashChart');
 
-			$title = new title( $ref_rec );
+			$title = new OFC_Elements_Title( $ref_rec );
 			$f->set_title( $title );
 			$labels = array();
 			foreach($gb_captions as $cap)
 				$labels[] = $cap['name'];
-			$x_ax = new x_axis();
+			$x_ax = new OFC_Elements_Axis_X();
 			$x_ax->set_labels_from_array($labels);
 			$f->set_x_axis($x_ax);
 			$max = 5;
@@ -859,9 +859,9 @@ class Utils_RecordBrowser_Reports extends Module {
 				$results = call_user_func($this->display_cell_callback, $r);
 
 				$title2 = strip_tags(call_user_func($this->ref_record_display_callback, $r));
-				$bar = new line_hollow();
+				$bar = new OFC_Charts_Line();
 				$bar->set_colour(self::$colours[$q%count(self::$colours)]);
-				$bar->set_key($title2,3);
+				$bar->set_key($title2,10);
 				$arr = array();
 				foreach ($results as $v) {
 					if($ref_rec) {
@@ -880,7 +880,7 @@ class Utils_RecordBrowser_Reports extends Module {
 				$f->add_element( $bar );
 			}
 
-			$y_ax = new y_axis();
+			$y_ax = new OFC_Elements_Axis_Y();
 			$y_ax->set_range(0,$max);
 			$y_ax->set_steps($max/10);
 			$f->set_y_axis($y_ax);

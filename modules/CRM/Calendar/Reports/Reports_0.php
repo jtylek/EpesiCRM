@@ -72,21 +72,21 @@ class CRM_Calendar_Reports extends Module {
 
 
 		$f = $this->init_module('Libs/OpenFlashChart');
-		$title = new title( "Time by color" );
+		$title = new OFC_Elements_Title( "Time by color" );
 		$f->set_title( $title );
 
 		$av_colors = array('#339933','#339933','#999933', '#993333', '#336699', '#808080','#339999','#993399');
 		$max = 0;
 		while($row = $ret->FetchRow()) {
-			$bar = new bar_glass();
+			$bar = new OFC_Charts_Bar_Glass();
 			$bar->set_colour($av_colors[$row['color']]);
 			$duration = (float)$row['duration']/3600;
-			$bar->set_key(number_format($duration,2),3);
+			$bar->set_key(number_format($duration,2),10);
 			$bar->set_values( array($duration) );
 			if($max<$duration) $max = $duration;
 			$f->add_element( $bar );
 		}
-		$y_ax = new y_axis();
+		$y_ax = new OFC_Elements_Axis_Y();
 		$y_ax->set_range(0,$max);
 		$y_ax->set_steps($max/10);
 		$f->set_y_axis($y_ax);
@@ -94,7 +94,6 @@ class CRM_Calendar_Reports extends Module {
 		$f->set_width(950);
 		$f->set_height(400);
 		$this->display_module($f);
-
 	}
 
 }

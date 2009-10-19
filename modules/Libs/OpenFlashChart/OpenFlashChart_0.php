@@ -19,10 +19,17 @@ class Libs_OpenFlashChart extends Module {
 	private $ofc;
 	private $width="500px";
 	private $height="300px";
+	private static $included = false;
 	
 	public function construct() {
-		require_once($this->get_module_dir().'2-alpha-8/php-ofc-library/open-flash-chart.php');
-		$this->ofc = new open_flash_chart();
+		if(!self::$included) {
+			$dir = $this->get_module_dir();
+			ini_set('include_path',ini_get('include_path').PATH_SEPARATOR.$dir.'/2-lug');
+			require_once('OFC/OFC_Chart.php');
+			self::$included = true;
+		}
+
+		$this->ofc = new OFC_Chart();
 	}
 
 	public function & __call($func_name, $args) {
@@ -54,11 +61,11 @@ class Libs_OpenFlashChart extends Module {
 		print('<span style="display:none">'.md5($data).'</span>');
 		print('<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://fpdownload.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=8,0,0,0" width="'.$this->width.'" height="'.$this->height.'" id="ofc_'.$md.'" align="middle">'.
 		     '<param name="allowScriptAccess" value="sameDomain" />'.
-		     '<param name="movie" value="'.$this->get_module_dir().'2-alpha-8/open-flash-chart.swf" />'.
+		     '<param name="movie" value="'.$this->get_module_dir().'2-lug/open-flash-chart.swf" />'.
 			 '<param name="FlashVars" value="data-file='.$url.'" />'.
 			 '<param name="wmode" value="opaque">'.
 		     '<param name="quality" value="high" />'.
-			 '<embed src="'.$this->get_module_dir().'2-alpha-8/open-flash-chart.swf" wmode="opaque" FlashVars="data-file='.$url.'" quality="high" bgcolor="#FFFFFF" width="'.$this->width.'" height="'.$this->height.'" name="open-flash-chart" align="middle" allowScriptAccess="sameDomain" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" />'.
+			 '<embed src="'.$this->get_module_dir().'2-lug/open-flash-chart.swf" wmode="opaque" FlashVars="data-file='.$url.'" quality="high" bgcolor="#FFFFFF" width="'.$this->width.'" height="'.$this->height.'" name="open-flash-chart" align="middle" allowScriptAccess="sameDomain" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" />'.
 			'</object>');
 	}
 

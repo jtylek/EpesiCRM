@@ -15,10 +15,10 @@ class Tests_OpenFlashChart extends Module {
 	public function body() {
 		$f = $this->init_module('Libs/OpenFlashChart');
 
-		$title = new title( date("D M d Y") );
+		$title = new OFC_Elements_Title( date("D M d Y") );
 		$f->set_title( $title );
 
-		$bar = new bar();
+		$bar = new OFC_Charts_Bar();
 		$bar->set_values( array(9,8,7,6,5,4,3,2,1) );
 		$f->add_element( $bar );
 
@@ -26,17 +26,17 @@ class Tests_OpenFlashChart extends Module {
 
 		$f2 = $this->init_module('Libs/OpenFlashChart');
 
-		$title = new title( date("D M d Y") );
+		$title = new OFC_Elements_Title( date("D M d Y") );
 		$f2->set_title( $title );
 
-		$bar = new bar_glass();
+		$bar = new OFC_Charts_Bar_Glass();
 		$data = array();
 		for($i=1; $i<10; $i++)
 			$data[] = rand()%10;
 		$bar->set_values( $data );
 		$f2->add_element( $bar );
 
-		$bar = new line();
+		$bar = new OFC_Charts_Line();
 		$data = array();
 		for($i=1; $i<10; $i++)
 			$data[] = rand()%10;
