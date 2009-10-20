@@ -225,19 +225,46 @@ class Utils_RecordBrowser extends Module {
 			$this->crits[$this->filter_field] = $ff;
 		}
 		$this->crits = $this->crits+$crits;
+
+		$theme = $this->init_module('Base/Theme');
+		$theme->assign('filters', $filters);
+		$opts = array('all'=>$this->t('All'));
+		if ($this->recent>0) $opts['recent'] = $this->t('Recent');
+		if ($this->favorites) $opts['favorites'] = $this->t('Favorites');
+		if (count($opts)>1) {
+			if ($this->disabled['browse_mode'])
+				$this->browse_mode='all';
+			else {
+				$this->browse_mode = $this->get_module_variable('browse_mode', Base_User_SettingsCommon::get('Utils/RecordBrowser',$this->tab.'_default_view'));
+				if (!$this->browse_mode) $this->browse_mode='all';
+				if (($this->browse_mode=='recent' && $this->recent==0) || ($this->browse_mode=='favorites' && !$this->favorites)) $this->set_module_variable('browse_mode', $this->browse_mode='all');
+				$form = $this->init_module('Libs/QuickForm');
+				$form->addElement('select', 'browse_mode', '', $opts, array('onchange'=>$form->get_submit_form_js()));
+				$form->setDefaults(array('browse_mode'=>$this->browse_mode));
+				if ($form->validate()) {
+					$vals = $form->exportValues();
+					if (isset($opts[$vals['browse_mode']])) {
+						$this->switch_view($vals['browse_mode']);
+						location(array());
+						return;
+					}					
+				}
+				$form->assign_theme('form', $theme);
+			}
+		}
+
 		ob_start();
 		$this->show_data($this->crits, $cols, array_merge($def_order, $this->default_order));
 		$table = ob_get_contents();
 		ob_end_clean();
 
-		$theme = $this->init_module('Base/Theme');
-		$theme->assign('filters', $filters);
 		$theme->assign('table', $table);
-		if (!$this->disabled['headline']) $theme->assign('caption', $this->t($this->caption).(!$this->disabled['browse_mode']?' - '.$this->t(ucfirst($this->browse_mode)):'').($this->additional_caption?' - '.$this->additional_caption:''));
+		if (!$this->disabled['headline']) $theme->assign('caption', $this->t($this->caption).($this->additional_caption?' - '.$this->additional_caption:''));
 		$theme->assign('icon', $this->icon);
 		$theme->display('Browsing_records');
 	}
 	public function switch_view($mode){
+		Base_User_SettingsCommon::save('Utils/RecordBrowser',$this->tab.'_default_view',$mode);
 		$this->browse_mode = $mode;
 		$this->changed_view = true;
 		$this->set_module_variable('browse_mode', $mode);
@@ -420,18 +447,6 @@ class Utils_RecordBrowser extends Module {
 			if (!empty($is_searching)) {
 				$this->set_module_variable('browse_mode','all');
 				$gb->set_module_variable('quickjump_to',null);
-			}
-		}
-		if ($this->is_on_main_page) {
-			if ($this->disabled['browse_mode'])
-				$this->browse_mode='all';
-			else {
-				$this->browse_mode = $this->get_module_variable('browse_mode', Base_User_SettingsCommon::get('Utils/RecordBrowser',$this->tab.'_default_view'));
-				if (!$this->browse_mode) $this->browse_mode='all';
-				if (($this->browse_mode=='recent' && $this->recent==0) || ($this->browse_mode=='favorites' && !$this->favorites)) $this->set_module_variable('browse_mode', $this->browse_mode='all');
-				if ($this->browse_mode!=='recent' && $this->recent>0) Base_ActionBarCommon::add('history','Recent', $this->create_callback_href(array($this,'switch_view'),array('recent')));
-				if ($this->browse_mode!=='all') Base_ActionBarCommon::add('all','All', $this->create_callback_href(array($this,'switch_view'),array('all')));
-				if ($this->browse_mode!=='favorites' && $this->favorites) Base_ActionBarCommon::add('favorites','Favorites', $this->create_callback_href(array($this,'switch_view'),array('favorites')));
 			}
 		}
 
