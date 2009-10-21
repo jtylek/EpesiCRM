@@ -991,7 +991,7 @@ class Utils_RecordBrowser extends Module {
 					$result = call_user_func(explode('::',$row['label']), $this->record);
 					if (!isset($result['show'])) $result['show']=true;
 					if ($result['show']==false) continue;
-					if (!isset($result['label'])) trigger_error($row['label']);
+					if (!isset($result['label'])) $result['label']='';
 					$row['label'] = $result['label'];
 				}
 				$mod_id = md5(serialize($row));
