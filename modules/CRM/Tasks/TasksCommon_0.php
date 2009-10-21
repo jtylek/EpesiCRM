@@ -78,12 +78,12 @@ class CRM_TasksCommon extends ModuleCommon {
 		$i = self::Instance();
 		switch ($action) {
 			case 'browse_crits':	$me = CRM_ContactsCommon::get_my_record();
-									return array('(!permission'=>2, '|employees'=>$me['id'], '|customers'=>$me['id']);
+									return array('(!permission'=>2, '|employees'=>$me['id']);
 			case 'browse':	if (!$i->acl_check('browse tasks')) return false;
 							return true;
 			case 'view':	if (!$i->acl_check('view task')) return false;
 							$me = CRM_ContactsCommon::get_my_record();
-							return ($param['permission']!=2 || $param['employees']==$me['id'] || $param['customers']==$me['id']);
+							return ($param['permission']!=2 || isset($param['employees'][$me['id']]));
 			case 'clone':
 			case 'add':		return $i->acl_check('edit task');
 			case 'edit':	$me = CRM_ContactsCommon::get_my_record();
