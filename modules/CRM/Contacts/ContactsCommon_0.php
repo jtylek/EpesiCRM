@@ -79,7 +79,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 							$me = self::get_my_record();
 							if ($me && in_array($param['id'],$me['company_name']) && $i->acl_check('edit my company')) return true; //my company
 							return $i->acl_check('edit company');
-			case 'delete':	return $i->acl_check('delete company');
+			case 'delete':	if ($param['created_by']==Acl::get_user()) return true;
+							return $i->acl_check('delete company');
 		}
 		return false;
 	}
@@ -104,7 +105,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 									if(in_array($cid,$me['company_name'])) return true; //customer
 							}
 							return false;
-			case 'delete':	return $i->acl_check('delete contact');
+			case 'delete':	if ($param['created_by']==Acl::get_user()) return true;
+							return $i->acl_check('delete company');
 		}
 		return false;
 	}
