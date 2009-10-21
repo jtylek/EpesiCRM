@@ -809,12 +809,21 @@ class Utils_RecordBrowser extends Module {
 			$this->view_fields_permission = $access;
 
 		if ($mode!='add' && (!$access || $this->record==null)) {
-			print($this->t('You have no longer permission to view this record.'));
-			if ($show_actions) {
-				Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
-				Utils_ShortcutCommon::add(array('esc'), 'function(){'.$this->create_back_href_js().'}');
+			if (Base_AclCommon::i_am_admin()) {
+				Utils_RecordBrowserCommon::$admin_access = true;
+				$access = $this->get_access($mode, isset($this->record)?$this->record:$this->custom_defaults);
+				if ($mode=='edit' || $mode=='add')
+					$this->view_fields_permission = $this->get_access('view', isset($this->record)?$this->record:$this->custom_defaults);
+				else 
+					$this->view_fields_permission = $access;
+			} else {
+				print($this->t('You have no longer permission to view this record.'));
+				if ($show_actions) {
+					Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+					Utils_ShortcutCommon::add(array('esc'), 'function(){'.$this->create_back_href_js().'}');
+				}
+				return true;
 			}
-			return true;
 		}
 
 		if ($mode!='add' && !$this->record['active'] && !Base_AclCommon::i_am_admin()) return $this->back();

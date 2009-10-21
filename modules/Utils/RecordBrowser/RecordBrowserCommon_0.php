@@ -1200,11 +1200,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (!isset($edited['edited_by'])) $edited['edited_by'] = null;
 		if (!isset($created['created_on'])) trigger_error('There is no such record as '.$id.' in table '.$tab, E_USER_ERROR);
 		return array(	'created_on'=>$created['created_on'],'created_by'=>$created['created_by'],
-						'edited_on'=>$edited['edited_on'],'edited_by'=>$edited['edited_by']);
+						'edited_on'=>$edited['edited_on'],'edited_by'=>$edited['edited_by'],
+						'id'=>$id);
 	}
 	public static function get_html_record_info($tab, $id){
-		if (is_numeric($id))$info = Utils_RecordBrowserCommon::get_record_info($tab, $id);
+		if (is_numeric($id)) $info = Utils_RecordBrowserCommon::get_record_info($tab, $id);
 		else $info = $id;
+		if (isset($info['id'])) $id = $info['id'];
 		// If CRM Contacts module is installed get user contact
 		if (ModuleManager::is_installed('CRM_Contacts')>=0)
 			return CRM_ContactsCommon::get_html_record_info($info['created_by'],$info['created_on'],$info['edited_by'],$info['edited_on'], $id);
