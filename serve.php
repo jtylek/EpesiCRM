@@ -12,6 +12,9 @@
  * with the same logic and passed it to Minify::handleRequest().
  */
 
+defined("_VALID_ACCESS") || define("_VALID_ACCESS", true);
+include_once('include/config.php');
+
 /**
  * The Files controller only "knows" HTML, CSS, and JS files. Other files
  * would only be trim()ed and sent as plain/text.
@@ -47,11 +50,14 @@ if (isset($_GET['f'])) {
 			mkdir($cache_dir,0777,true);
 		Minify::setCache($cache_dir);
         
-		$opts = array('files' => $arr,
-					'setExpires' => time() + 86400 * 365,
-					'rewriteCssUris'=>false
+		$opts = array(	'files' => $arr,
+						'setExpires' => time() + 86400 * 365,
+						'rewriteCssUris'=>false
 				    );
-		if (!MINIFY_ENCODE) $opts['encodeOutput'] = false;
+		if (!MINIFY_ENCODE) {
+			$opts['encodeOutput'] = false;
+			$opts['encodeMethod'] = '';
+		}
 	    // The Files controller can serve an array of files, but here we just
 		// need one.
 		Minify::serve('Files', $opts);
