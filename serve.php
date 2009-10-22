@@ -12,12 +12,6 @@
  * with the same logic and passed it to Minify::handleRequest().
  */
 
-defined("_VALID_ACCESS") || define("_VALID_ACCESS", true);
-chdir(dirname(__FILE__));
-require_once('include/include_path.php'); 
-require_once('include/data_dir.php'); 
-require_once('include/config.php');
-
 /**
  * The Files controller only "knows" HTML, CSS, and JS files. Other files
  * would only be trim()ed and sent as plain/text.
@@ -47,6 +41,7 @@ if (isset($_GET['f'])) {
 		
 		define('_VALID_ACCESS',1);
 		require_once('include/data_dir.php');
+		require_once('include/config.php');
         
 		$cache_dir = DATA_DIR.'/cache/minify';
 		if(!file_exists($cache_dir))
