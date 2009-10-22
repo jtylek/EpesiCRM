@@ -21,7 +21,7 @@ class CRM_MailClient extends Module {
 		$cols[] = array('name'=>$this->t('From'), 'order'=>'from_contact_id','width'=>15);
 		$cols[] = array('name'=>$this->t('To'), 'order'=>'to_contact_id','width'=>15);
 		$cols[] = array('name'=>$this->t('Subject'), 'width'=>40);
-		$cols[] = array('name'=>$this->t('Attachments'), 'order'=>'uaf.original','width'=>25);
+		$cols[] = array('name'=>$this->t('Attachments'), 'width'=>25);
 		$gb->set_table_columns($cols);
 
 		$query = 'SELECT sticky,id,delivered_on,subject,from_contact_id,to_contact_id FROM crm_mailclient_mails WHERE ('.$where.') AND deleted=0';
