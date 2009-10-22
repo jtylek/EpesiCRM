@@ -25,7 +25,7 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 		return self::Instance()->acl_check('manage');
 	}
 
-	public static function get_id($name) {
+	public static function get_id($name, $clear_cache=false) {
 		static $cache;
 		$name = trim($name,'/');
 		$pcs = explode('/',$name);
@@ -44,6 +44,7 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 					return false;
 			}
 		}
+        if($clear_cache) $cache = array();
 		return $id;
 	}
 
@@ -180,7 +181,7 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 	 * @return true on success, false otherwise
 	 */
 	public static function remove($name){
-		$id = self::get_id($name);
+		$id = self::get_id($name, true);
 		if ($id===false) return false;
 		self::remove_by_id($id);
 	}
