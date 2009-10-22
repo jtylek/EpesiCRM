@@ -13,7 +13,10 @@
  */
 
 defined("_VALID_ACCESS") || define("_VALID_ACCESS", true);
-include_once('include/config.php');
+chdir(dirname(__FILE__));
+require_once('include/include_path.php'); 
+require_once('include/data_dir.php'); 
+require_once('include/config.php');
 
 /**
  * The Files controller only "knows" HTML, CSS, and JS files. Other files
