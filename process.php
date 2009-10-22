@@ -34,6 +34,7 @@ ob_end_clean();
 
 require_once('libs/minify/HTTP/Encoder.php');
 $he = new HTTP_Encoder(array('content' => $content));
-$he->encode();
+if (MINIFY_ENCODE)
+	$he->encode();
 $he->sendAll();
 ?>

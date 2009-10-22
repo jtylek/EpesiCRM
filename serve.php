@@ -47,12 +47,14 @@ if (isset($_GET['f'])) {
 			mkdir($cache_dir,0777,true);
 		Minify::setCache($cache_dir);
         
-	    // The Files controller can serve an array of files, but here we just
-		// need one.
-		Minify::serve('Files', array('files' => $arr,
+		$opts = array('files' => $arr,
 					'setExpires' => time() + 86400 * 365,
 					'rewriteCssUris'=>false
-				    ));
+				    );
+		if (!MINIFY_ENCODE) $opts['encodeOutput'] = false;
+	    // The Files controller can serve an array of files, but here we just
+		// need one.
+		Minify::serve('Files', $opts);
 
     	exit();
 	}

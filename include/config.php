@@ -25,6 +25,7 @@ if(!defined('REPORT_ALL_ERRORS')) define("REPORT_ALL_ERRORS",0);
 if(!defined('GZIP_HISTORY')) define("GZIP_HISTORY",0);
 if(!defined('REDUCING_TRANSFER')) define("REDUCING_TRANSFER",1);
 if(!defined('CACHE_COMMON_FILES')) define("CACHE_COMMON_FILES",1);
+if(!defined('MINIFY_ENCODE')) define('MINIFY_ENCODE',1);
 
 if(!defined('JS_OUTPUT')) define('JS_OUTPUT',0);
 if(!defined('SET_SESSION')) define('SET_SESSION',1);

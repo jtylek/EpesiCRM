@@ -294,6 +294,12 @@ define("REPORT_ALL_ERRORS",1);
  * Compress history
  */
 define("GZIP_HISTORY",1);
+
+/*
+ * Minify compression
+ */
+define("MINIFY_ENCODE",1);
+
 '.$epesi_dir.'
 ?>');
 	fclose($c);
