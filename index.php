@@ -66,7 +66,7 @@ if($cur_ver!==EPESI_VERSION) {
         <center>
         <span class="footer">Copyright &copy; 2008 &bull; <a href="http://www.telaxus.com">Telaxus LLC</a></span>
         <br>
-        <p><a href="http://www.epesi.org"><img src="images/epesi-powered.png" border="0"></a></p>
+        <p><a href="http://www.epesi.org"><img src="images/epesi-powered.png" alt="image" border="0"></a></p>
         </center>
 </body>
 </html>
@@ -185,13 +185,13 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 		<div id="epesiStatus">
 			<table cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
                 <tr>
-                    <td><img src="images/logo.gif" width="550" height="200" border="0"></td>
+                    <td><img src="images/logo.gif" alt="logo" width="550" height="200" border="0"></td>
                 </tr>
 				<tr>
-					<td style="text-align: center; vertical-align: center; height: 40px;"><span id="epesiStatusText">Starting epesi ...<span></td>
+					<td style="text-align: center; vertical-align: middle; height: 40px;"><span id="epesiStatusText">Starting epesi ...</span></td>
                 </tr>
                 <tr>
-					<td style="text-align: center; vertical-align: center; height: 30px;"><img src="images/loader.gif" width="256" height="10" border="0"></td>
+					<td style="text-align: center; vertical-align: middle; height: 30px;"><img src="images/loader.gif" alt="loader" width="256" height="10" border="0"></td>
 				</tr>
 			</table>
 		</div>
