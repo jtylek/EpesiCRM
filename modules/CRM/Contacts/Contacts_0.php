@@ -54,9 +54,10 @@ class CRM_Contacts extends Module {
 			$this->display_module($this->rb, array('view', $me, array(), array('back'=>false)), 'view_entry');
 			return;
 		}
-		if ($_REQUEST['mode']!='contact' && $_REQUEST['mode']!='company') trigger_errir('Unknown mode.');
+		if ($mode!='contact' && $mode!='company') trigger_error('Unknown mode.');
 
 		$this->rb = $this->init_module('Utils/RecordBrowser',$mode,$mode);
+		$this->rb->enable_quick_new_records();
 		$this->rb->set_defaults(array(	'country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
 										'zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state'),
 										'permission'=>'0'));
