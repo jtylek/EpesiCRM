@@ -7,10 +7,10 @@
 				<td class="name">
 					{if isset($form_data)}
 						{$form_open}
-							{$form_data.browse_mode.html}
 					{/if}
 					{$caption}
 					{if isset($form_data)}
+							{$form_data.browse_mode.html}
 						{$form_close}
 					{/if}
 				</td>

@@ -40,8 +40,21 @@ class CRM_Contacts extends Module {
 	}
 
 	public function body() {
-		if (isset($_REQUEST['mode']) && ($_REQUEST['mode']=='contact' || $_REQUEST['mode']=='company')) $this->set_module_variable('mode', $_REQUEST['mode']);
+		if (isset($_REQUEST['mode'])) $this->set_module_variable('mode', $_REQUEST['mode']);
 		$mode = $this->get_module_variable('mode','contact');
+		if ($mode=='my_contact') {
+			$this->rb = $this->init_module('Utils/RecordBrowser','contact','contact');
+			$me = CRM_ContactsCommon::get_my_record();
+			$this->display_module($this->rb, array('view', $me['id'], array(), array('back'=>false)), 'view_entry');
+			return;
+		}
+		if ($mode=='main_company') {
+			$this->rb = $this->init_module('Utils/RecordBrowser','company','company');
+			$me = CRM_ContactsCommon::get_main_company();
+			$this->display_module($this->rb, array('view', $me, array(), array('back'=>false)), 'view_entry');
+			return;
+		}
+		if ($_REQUEST['mode']!='contact' && $_REQUEST['mode']!='company') trigger_errir('Unknown mode.');
 
 		$this->rb = $this->init_module('Utils/RecordBrowser',$mode,$mode);
 		$this->rb->set_defaults(array(	'country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),

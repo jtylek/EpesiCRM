@@ -818,7 +818,7 @@ class Utils_RecordBrowser extends Module {
 					$this->view_fields_permission = $access;
 			} else {
 				print($this->t('You have no longer permission to view this record.'));
-				if ($show_actions) {
+				if ($show_actions===true || (is_array($show_actions) && (!isset($show_actions['back']) || $show_actions['back']))) {
 					Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
 					Utils_ShortcutCommon::add(array('esc'), 'function(){'.$this->create_back_href_js().'}');
 				}
@@ -900,14 +900,14 @@ class Utils_RecordBrowser extends Module {
 			}
 			$this->dirty_read_changes($id, $time_from);
 		}
-		if (($mode=='edit' || $mode=='add') && $show_actions) {
+		if (($mode=='edit' || $mode=='add') && $show_actions!==false) {
 			Utils_ShortcutCommon::add(array('Ctrl','S'), 'function(){'.$form->get_submit_form_js().'}');
 		}
 		if ($mode=='edit') {
 			$this->set_module_variable('edit_start_time',$time);
 		}
 
-		if ($show_actions) {
+		if ($show_actions!==false) {
 			if ($mode=='view') {
 				if ($this->get_access('edit',$this->record)) {
 					Base_ActionBarCommon::add('edit', 'Edit', $this->create_callback_href(array($this,'navigate'), array('view_entry','edit',$id)));
@@ -919,7 +919,8 @@ class Utils_RecordBrowser extends Module {
 				if ($this->get_access('clone',$this->record)) {
 					Base_ActionBarCommon::add('clone','Clone', $this->create_confirm_callback_href($this->ht('You are about to create a copy of this record. Do you want to continue?'),array($this,'clone_record'),array($id)));
 				}
-				Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
+				if ($show_actions===true || (is_array($show_actions) && (!isset($show_actions['back']) || $show_actions['back'])))
+					Base_ActionBarCommon::add('back', 'Back', $this->create_back_href());
 			} else {
 				Base_ActionBarCommon::add('save', 'Save', $form->get_submit_form_href());
 				Base_ActionBarCommon::add('delete', 'Cancel', $this->create_back_href());
