@@ -19,10 +19,13 @@ class Variable {
 		}
 	}
 
-	public static function get($name) {
+	public static function get($name, $throw_error=true) {
 		self::load();
-		if(!array_key_exists($name,self::$variables))
-			trigger_error('No such variable in database: ' . $name, E_USER_ERROR);
+		if(!array_key_exists($name,self::$variables)) {
+			if($throw_error)
+				trigger_error('No such variable in database: ' . $name, E_USER_ERROR);
+			return '';
+		}
 		return unserialize(self::$variables[$name]);
 	}
 
@@ -39,10 +42,11 @@ class Variable {
 		}
 	}
 
-	public static function delete($name) {
+	public static function delete($name,$throw_error=true) {
 		self::load();
 		if(!array_key_exists($name,self::$variables)) {
-			throw new NoSuchVariableException('No such variable in database: ' . $name);
+			if($throw_error)
+				trigger_error('No such variable in database: ' . $name, E_USER_ERROR);
 		} else {
 			unset(self::$variables[$name]);;
 			return DB::Execute("DELETE FROM variables WHERE name=%s", $name);
