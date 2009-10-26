@@ -571,8 +571,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		self::check_table_name($tab);
 		DB::Execute('UPDATE '.$tab.'_field SET filter=0 WHERE field=%s', array($col_name));
 	}
-	public static function set_processing_callback($tab, $method) {
-		DB::Execute('UPDATE recordbrowser_table_properties SET data_process_method=%s WHERE tab=%s', array($method[0].'::'.$method[1], $tab));
+	public static function set_processing_callback($tab, $callback) {
+		if (is_array($callback)) $callback = implode('::',$callback);
+		DB::Execute('UPDATE recordbrowser_table_properties SET data_process_method=%s WHERE tab=%s', array($callback, $tab));
 	}
 	public static function set_quickjump($tab, $col_name) {
 		DB::Execute('UPDATE recordbrowser_table_properties SET quickjump=%s WHERE tab=%s', array($col_name, $tab));
