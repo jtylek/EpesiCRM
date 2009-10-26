@@ -66,6 +66,7 @@ class Utils_RecordBrowser extends Module {
 	private $force_order;
 	private $view_fields_permission;
     private $clipboard_pattern = false;
+	private $show_add_in_table = false;
 	public $form = null;
 	
 	public function set_filter_crits($field, $crits) {
@@ -683,6 +684,7 @@ class Utils_RecordBrowser extends Module {
 				foreach ($this->custom_defaults as $k=>$v)
 					if (!isset($values[$k])) $values[$k] = $v;
 				$id = Utils_RecordBrowserCommon::new_record($this->tab, $values);
+				$this->set_module_variable('force_add_in_table_after_submit', true);
 				location(array());
 			}
 			$form->addElement('submit', 'submit', $this->t('Submit'));
@@ -696,6 +698,9 @@ class Utils_RecordBrowser extends Module {
 			if (!$admin && $this->favorites) {
 				$row_data= array('&nbsp;');
 			} else $row_data= array();
+			if (!$admin && $this->watchdog)
+				$row_data[] = '&nbsp;';
+			
 
 			foreach($visible_cols as $k => $v)
 				if (isset($data[$k])) $row_data[] = $data[$k]['error'].$data[$k]['html'];
@@ -706,6 +711,7 @@ class Utils_RecordBrowser extends Module {
 
 			$gb_row = $gb->get_new_row();
 			$gb_row->add_action('',$data['submit']['html'],'');
+			$gb_row->set_attrs('id="add_in_table_row" style="display:'.($this->show_add_in_table?'':'none').';"');
 			$gb_row->add_data_array($row_data);
 		}
 		if ($special) {
@@ -1836,8 +1842,15 @@ class Utils_RecordBrowser extends Module {
 		$this->display_module($rb, null, 'administrator_panel');
 	}
 
-	public function enable_quick_new_records() {
+	public function enable_quick_new_records($button = true, $force_show = null) {
 		$this->add_in_table = true;
+		if ($button) $this->add_button = 'href="javascript:void(0);" onclick="$(\'add_in_table_row\').style.display=($(\'add_in_table_row\').style.display==\'none\'?\'\':\'none\');"';
+		if ($force_show===null) $this->show_add_in_table = Base_User_SettingsCommon::get('Utils_RecordBrowser','add_in_table_shown');
+		else $this->show_add_in_table = $force_show;
+		if ($this->get_module_variable('force_add_in_table_after_submit', false)) {
+			$this->show_add_in_table = true;
+			$this->set_module_variable('force_add_in_table_after_submit', false);
+		}
 	}
 	public function set_custom_filter($arg, $spec){
 		$this->custom_filters[$arg] = $spec;

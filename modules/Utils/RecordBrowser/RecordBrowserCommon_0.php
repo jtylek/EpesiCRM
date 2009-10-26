@@ -194,6 +194,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			}
 		}
 		$final_settings = array();
+		$final_settings[] = array('name'=>'header_add_in_table','label'=>'Quick New Records','type'=>'header');
+		$final_settings[] = array('name'=>'add_in_table_shown','label'=>'Show by default','type'=>'checkbox','default'=>0);		
 		$final_settings[] = array('name'=>'header_default_view','label'=>'Default data view','type'=>'header');
 		$final_settings = array_merge($final_settings,$settings[0]);
 		$final_settings[] = array('name'=>'header_auto_fav','label'=>'Automatically add to favorites records created by me','type'=>'header');
