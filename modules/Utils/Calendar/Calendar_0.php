@@ -196,6 +196,7 @@ class Utils_Calendar extends Module {
 			$end = strtotime($this->settings['end_day']);
 			if($end===false || $start===false || $interval===false)
 				trigger_error('Invalid start/end_day or interval.',E_USER_ERROR);
+			$interval_shift = '+'.str_replace(':',' hours ',$this->settings['interval']).' mins';
 			$used = array();
 			if($end<$start) {
 				$curr = strtotime('0:00');
@@ -214,7 +215,7 @@ class Utils_Calendar extends Module {
 				$curr = $start;
 				$x = $curr;
 				while($x<$day_end) {
-					$x = $x+$interval;
+					$x = strtotime($interval_shift, $x);
 					$time = (strtotime($date.' '.date('H:i:s',$curr))-$zero_t);
 					if(isset($used[$time]))
 						$timeline[$used[$time]]['time'] = false;
@@ -228,7 +229,7 @@ class Utils_Calendar extends Module {
 					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg('0:00',2,false,false).' - '.Base_RegionalSettingsCommon::time2reg($start,2,false,false),'time'=>0,'join_rows'=>ceil(($start-strtotime('0:00'))/$interval));
 				$x = $start;
 				while($x<$end) {
-					$x = $x+$interval;
+					$x = strtotime($interval_shift, $x);
 					$time = (strtotime($date.' '.date('H:i:s',$start))-$zero_t);
 					if(isset($used[$time]))
 						$timeline[$used[$time]]['time'] = false;
@@ -240,7 +241,6 @@ class Utils_Calendar extends Module {
 					$timeline[] = array('label'=>Base_RegionalSettingsCommon::time2reg($start,2,false,false).' - '.Base_RegionalSettingsCommon::time2reg('23:59',2,false,false),'time'=>(strtotime($date.' '.date('H:i:s',$start))-$zero_t));
 			}
 		}
-		//print_r($timeline);
 		return $timeline;
 	}
 
