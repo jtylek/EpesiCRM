@@ -42,6 +42,20 @@ function PatchDBDropColumn($table_name,$table_column){
 		}
 	} //end of PatchDBDropColumn
 
+function PatchDBAlterColumn($table_name,$table_column_name,$table_column_def){
+	// First check if column exists
+	if (array_key_exists(strtoupper($table_column_name),DB::MetaColumnNames($table_name)))
+		{
+		$q = DB::dict()->AlterColumnSQL($table_name,$table_column_name.' '.$table_column_def);
+		foreach($q as $qq)
+		DB::Execute($qq);
+		return true;
+		}
+		else
+		{
+		return false;
+		}
+	} //end of DBAlterColumn
 
 function PatchDBRenameColumn($table_name,$old_table_column,$new_table_column,$table_column_def){
 	// First check if column exists
@@ -148,7 +162,7 @@ function themeup(){
 	install_default_theme_common_files('modules/Base/Theme/','images');
 }
 
-$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1','0.9.9beta1','0.9.9beta2','1.0.0rc1','1.0.0rc2','1.0.0rc3','1.0.0rc4','1.0.0rc5','1.0.0rc6','1.0.0','1.0.1','1.0.2','1.0.3');
+$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1','0.9.9beta1','0.9.9beta2','1.0.0rc1','1.0.0rc2','1.0.0rc3','1.0.0rc4','1.0.0rc5','1.0.0rc6','1.0.0','1.0.1','1.0.2','1.0.3','1.0.4');
 
 /****************** 0.8.5 to 0.8.6 **********************/
 function update_from_0_9_9beta1_to_0_9_9beta2() {
@@ -1449,6 +1463,33 @@ function update_from_1_0_2_to_1_0_3() {
 				'delete_callback C(128),'.
 				'update_callback C(128)',
 				array('constraints'=>''));
+	}
+}
+
+function update_from_1_0_3_to_1_0_4() {
+	ob_start();
+	ModuleManager::load_modules();
+	ob_end_clean();
+
+	// Check if module is installed
+	if (ModuleManager::is_installed('CRM_Contacts')>=0) {
+		DB::Execute("UPDATE company_field SET required=0 WHERE field='City'");
+		Utils_RecordBrowserCommon::set_display_callback('contact','Home Address 1',array('CRM_ContactsCommon','home_maplink'));
+		Utils_RecordBrowserCommon::set_display_callback('contact','Home Address 2',array('CRM_ContactsCommon','home_maplink'));
+		Utils_RecordBrowserCommon::set_display_callback('contact','Home City',array('CRM_ContactsCommon','home_maplink'));
+	}
+	
+	if (ModuleManager::is_installed('Utils_RecordBrowser')>=0) {
+		DB::Execute('ALTER TABLE recordbrowser_addon drop primary key');
+		DB::Execute('ALTER TABLE recordbrowser_addon add primary key (tab,module,func)');
+		
+		$tables = DB::MetaTables();
+		if(!in_array('recordbrowser_clipboard_pattern',$tables))
+			DB::CreateTable('recordbrowser_clipboard_pattern', 'tab C(64) KEY, pattern X, enabled I4');
+			
+		$tabs = DB::GetCol('SELECT tab FROM recordbrowser_table_properties');
+		foreach($tabs as $tab)
+			PatchDBAlterColumn($tab.'_edit_history_data','old_value','X');
 	}
 }
 //=========================================================================

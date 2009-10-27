@@ -8,6 +8,8 @@
  */
 ob_start();
 ini_set('arg_separator.output','&');
+@define('SYSTEM_TIMEZONE',date_default_timezone_get());
+date_default_timezone_set(SYSTEM_TIMEZONE);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
