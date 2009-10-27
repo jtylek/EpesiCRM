@@ -68,6 +68,7 @@ class Utils_RecordBrowser extends Module {
     private $clipboard_pattern = false;
 	private $show_add_in_table = false;
 	public $form = null;
+	public $tab;
 	
 	public function set_filter_crits($field, $crits) {
 		$this->filter_crits[$field] = $crits;
