@@ -447,8 +447,14 @@ class Utils_RecordBrowser extends Module {
 			$gb->is_adv_search_on();
 			$is_searching = $gb->get_module_variable('search','');
 			if (!empty($is_searching)) {
-				$this->set_module_variable('browse_mode','all');
-				$gb->set_module_variable('quickjump_to',null);
+				if ($this->get_module_variable('browse_mode')!='all' 
+//					|| $gb->get_module_variable('quickjump_to')!=null
+					) {
+					$this->set_module_variable('browse_mode','all');
+//					$gb->set_module_variable('quickjump_to',null);
+					location(array());
+					return;
+				}
 			}
 		}
 
