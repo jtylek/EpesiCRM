@@ -26,6 +26,7 @@ class Utils_FileUpload extends Module {
 		$this->form = & $this->init_module('Libs/QuickForm', array(Base_LangCommon::ts($this->get_type(),'Uploading file...'),'modules/Utils/FileUpload/upload.php','upload_iframe',''),'file_chooser');
 		$this->form->addElement('static',null,null,'<iframe frameborder="0" id="upload_iframe" name="upload_iframe" src="" style="display:none"></iframe>');
 		$this->form->addElement('hidden','required',$req?'1':'0');
+		$this->form->addElement('hidden','cid',CID);
 	}
 
 	/**
@@ -92,8 +93,6 @@ class Utils_FileUpload extends Module {
 		if($this->added_upload_elem) return;
 		$this->added_upload_elem = true;
 
-		$this->form->addElement('hidden','uploaded_file');
-		$this->form->addElement('hidden','original_file');
 		$form_name = $this->form->getAttribute('name');
 		$this->form->addElement('hidden','form_name',$form_name);
 
@@ -140,9 +139,15 @@ class Utils_FileUpload extends Module {
 	 * For internal use only.
 	 */
 	public function submit_parent($data) {
-		if(call_user_func_array($this->on_submit, array_merge(array($data['uploaded_file'], $data['original_file'], $data),$this->on_submit_args)))
+		if(call_user_func_array($this->on_submit, array_merge(array($_SESSION['client']['uploaded_file'], $_SESSION['client']['uploaded_original_file'], $data),$this->on_submit_args)))
 			location(array());
-		@unlink($data['uploaded_file']);
+		@unlink($_SESSION['client']['uploaded_file']);
+		unset($_SESSION['client']['uploaded_file']);
+		unset($_SESSION['client']['uploaded_original_file']);
+	}
+	
+	public function is_file() {
+		return isset($_SESSION['client']['uploaded_file']);
 	}
 }
 

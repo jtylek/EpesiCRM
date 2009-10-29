@@ -12,7 +12,7 @@
 header("Cache-Control: no-cache, must-revalidate");
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // date in the past
 
-if(!isset($_REQUEST['form_name']) || !isset($_REQUEST['required']) || !isset($_FILES['file'])) {
+if(!isset($_REQUEST['form_name']) || !isset($_FILES['file']) || !isset($_REQUEST['required'])) {
 	?>
 	<script type="text/javascript">
 	<!--
@@ -23,7 +23,11 @@ if(!isset($_REQUEST['form_name']) || !isset($_REQUEST['required']) || !isset($_F
 	<?php
 	exit();
 }
-define('CID',false);
+
+if(!isset($_REQUEST['cid']))
+	die('Client ID not defined');
+
+define('CID',$_REQUEST['cid']);
 require_once('../../../include.php');
 if(!Acl::is_user())
 	exit();
@@ -33,7 +37,6 @@ $ext = strrchr($doc['name'],'.');
 $dest_filename  = 'tmp_'.microtime(true).$ext;
 $dest_path  = DATA_DIR.'/Utils_FileUpload/'.$dest_filename;
 $required = $_REQUEST['required'];
-
 
 if($doc['error']==UPLOAD_ERR_INI_SIZE || $doc['error']==UPLOAD_ERR_FORM_SIZE) {
 	?>
@@ -69,25 +72,15 @@ if($doc['error']==UPLOAD_ERR_INI_SIZE || $doc['error']==UPLOAD_ERR_FORM_SIZE) {
 	</script>
 	<?php
 	} else {
-	$ok = true;
-	?>
-	<script type="text/javascript">
-	<!--
-	alert('File not specified');
-	-->
-	</script>
-	<?php
+		$ok = true;
+		$_SESSION['client']['uploaded_file'] = false;
+		$_SESSION['client']['uploaded_original_file'] = false;
 	}
 } else {
 	$ok = true;
 	move_uploaded_file($doc['tmp_name'], $dest_path);
-	?>
-	<script type="text/javascript">
-	<!--
-	parent.Epesi.append_js('document.forms[\'<?php print($form_name); ?>\'].uploaded_file.value=\'<?php print(addcslashes($dest_path,'\'\\')); ?>\';document.forms[\'<?php print($form_name); ?>\'].original_file.value=\'<?php print(addcslashes($doc['name'],'\'\\')); ?>\';');
-	-->
-	</script>
-	<?php
+	$_SESSION['client']['uploaded_file'] = $dest_path;
+	$_SESSION['client']['uploaded_original_file'] = $doc['name'];
 }
 
 ?>

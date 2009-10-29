@@ -524,7 +524,7 @@ class Utils_Attachment extends Module {
 			$fck->setFCKProps('800','300');
 			
 			$form->set_upload_button_caption('Save');
-			if($form->getSubmitValue('note')=='' && $form->getSubmitValue('uploaded_file')=='')
+			if($form->getSubmitValue('note')=='' && !$form->is_file())
 				$form->addRule('note',$this->t('Please enter note or choose file'),'required');
 
 			$form->addElement('select','permission',$this->t('Permission'),array($this->ht('Public'),$this->ht('Protected'),$this->ht('Private')));
