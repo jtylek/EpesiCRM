@@ -86,3 +86,26 @@
 #Browsing_records .filters_button:hover #filters_button_icon_down {
     background-image: url('images/roll-down-hover.png');
 }
+
+#Utils_GenericBrowser input,
+#Utils_GenericBrowser select {
+	background-color:#E6ECF2;
+	border: 0 none;
+	width: 100%;
+}
+
+#Utils_GenericBrowser input:focus,
+#Utils_GenericBrowser select:focus {
+	background-color:#FFFFA5;
+}
+
+#Utils_GenericBrowser input[type="submit"] {
+	background-image: url('images/button.gif');
+	color: white;
+	border: 0 none;
+	width: auto;
+}
+
+#Utils_GenericBrowser .utils_datepicket_element td {
+	border: 0 none;
+}

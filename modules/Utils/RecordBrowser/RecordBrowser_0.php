@@ -432,6 +432,7 @@ class Utils_RecordBrowser extends Module {
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
 	public function show_data($crits = array(), $cols = array(), $order = array(), $admin = false, $special = false) {
+		Base_ThemeCommon::install_default_theme($this->get_type());
 		if ($this->check_for_jump()) return;
 		Utils_RecordBrowserCommon::$cols_order = $this->col_order;
 		if ($this->get_access('browse')===false) {
@@ -534,7 +535,7 @@ class Utils_RecordBrowser extends Module {
 			if ($this->add_button!==null) $label = $this->add_button;
 			elseif (!$this->multiple_defaults) $label = $this->create_callback_href(array($this, 'navigate'), array('view_entry', 'add', null, $this->custom_defaults));
 			else $label = false;
-			if ($label!==false) $custom_label = '<a '.$label.'><img border="0" src="'.Base_ThemeCommon::get_template_file('Base/ActionBar','icons/add-small.png').'" /></a>';
+			if ($label!==false) $custom_label = '<a '.$label.' '.Utils_TooltipCommon::open_tag_attrs($this->t('Add new record')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Base/ActionBar','icons/add-small.png').'" /></a>';
 			if ($this->more_add_button_stuff) { 
 				if ($custom_label) $custom_label = '<table><tr><td>'.$custom_label.'</td><td>'.$this->more_add_button_stuff.'</td></tr></table>';
 				else $custom_label = $this->more_add_button_stuff;
@@ -714,9 +715,14 @@ class Utils_RecordBrowser extends Module {
 				$row_data[] = '&nbsp;';
 			
 
-			foreach($visible_cols as $k => $v)
-				if (isset($data[$k])) $row_data[] = $data[$k]['error'].$data[$k]['html'];
-				else $row_data[] = '&nbsp;';
+			$first = true;
+			foreach($visible_cols as $k => $v) {
+				if (isset($data[$k])) {
+					$row_data[] = $data[$k]['error'].$data[$k]['html'];
+					if ($first) eval_js('focus_on_field = "'.$k.'";');
+					$first = false;
+				} else $row_data[] = '&nbsp;';
+			}
 				
 			if ($this->browse_mode == 'recent')
 				$row_data[] = '&nbsp;';
@@ -1856,7 +1862,7 @@ class Utils_RecordBrowser extends Module {
 
 	public function enable_quick_new_records($button = true, $force_show = null) {
 		$this->add_in_table = true;
-		if ($button) $this->add_button = 'href="javascript:void(0);" onclick="$(\'add_in_table_row\').style.display=($(\'add_in_table_row\').style.display==\'none\'?\'\':\'none\');"';
+		if ($button) $this->add_button = 'href="javascript:void(0);" onclick="$(\'add_in_table_row\').style.display=($(\'add_in_table_row\').style.display==\'none\'?\'\':\'none\');if($(focus_on_field))focus_by_id(focus_on_field);"';
 		if ($force_show===null) $this->show_add_in_table = Base_User_SettingsCommon::get('Utils_RecordBrowser','add_in_table_shown');
 		else $this->show_add_in_table = $force_show;
 		if ($this->get_module_variable('force_add_in_table_after_submit', false)) {

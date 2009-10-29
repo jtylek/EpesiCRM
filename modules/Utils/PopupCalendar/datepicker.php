@@ -36,7 +36,7 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 			$ex_date = Base_RegionalSettingsCommon::time2reg(null,false,true,false);
 			$date_format = Base_RegionalSettingsCommon::date_format();
 			$this->setType('text');
-			$str .= $this->_getTabs() . '<table style="border:0;padding:0;" cellpadding="0" cellspacing="0"><tr>'.
+			$str .= $this->_getTabs() . '<table class="utils_datepicket_element" style="border:0;padding:0;" cellpadding="0" cellspacing="0"><tr>'.
 				'<td><input ' . $this->_getAttrString($this->_attributes) . ' '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('Utils/PopupCalendar','Example date: %s',array($ex_date)), false ).' /></td>'.
 				'<td>'.	Utils_PopupCalendarCommon::show(md5($id),
 					'new Ajax.Request(\'modules/Utils/PopupCalendar/up.php\','.
