@@ -106,7 +106,7 @@ class Utils_FileUpload extends Module {
 	public function get_submit_form_js() {
 		$this->submit_button=false;
 		$form_name = $this->form->getAttribute('name');
-		return "Epesi.updateIndicatorText('uploading...');Epesi.procOn++;Epesi.updateIndicator();document.forms['".$this->form->getAttribute('name')."'].submit();";
+		return "if(Epesi.procOn>0)return false;Epesi.updateIndicatorText('uploading...');Epesi.procOn++;Epesi.updateIndicator();document.forms['".$this->form->getAttribute('name')."'].submit();";
 	}
 
 	public function get_submit_form_href() {

@@ -84,7 +84,7 @@ if($doc['error']==UPLOAD_ERR_INI_SIZE || $doc['error']==UPLOAD_ERR_FORM_SIZE) {
 	?>
 	<script type="text/javascript">
 	<!--
-	parent.Epesi.append_js('Epesi.updateIndicatorText(\'uploaded <?php print(addcslashes($doc['name'],'\'\\')); ?>... processing\');document.forms[\'<?php print($form_name); ?>\'].uploaded_file.value=\'<?php print(addcslashes($dest_path,'\'\\')); ?>\';document.forms[\'<?php print($form_name); ?>\'].original_file.value=\'<?php print(addcslashes($doc['name'],'\'\\')); ?>\';');
+	parent.Epesi.append_js('document.forms[\'<?php print($form_name); ?>\'].uploaded_file.value=\'<?php print(addcslashes($dest_path,'\'\\')); ?>\';document.forms[\'<?php print($form_name); ?>\'].original_file.value=\'<?php print(addcslashes($doc['name'],'\'\\')); ?>\';');
 	-->
 	</script>
 	<?php
