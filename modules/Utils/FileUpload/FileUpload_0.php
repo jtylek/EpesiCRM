@@ -101,13 +101,12 @@ class Utils_FileUpload extends Module {
 
 		$this->form->addElement('hidden','submit_js',$s);
 		$this->form->addElement('file', 'file', Base_LangCommon::ts($this->get_type(),'Specify file'));
-		$this->form->addElement('static',null,Base_LangCommon::ts($this->get_type(),'Upload status',array(),false),'<div id="upload_status_'.$form_name.'"></div>');
 	}
 
 	public function get_submit_form_js() {
 		$this->submit_button=false;
 		$form_name = $this->form->getAttribute('name');
-		return "$('upload_status_".$form_name."').innerHTML='uploading...'; document.forms['".$this->form->getAttribute('name')."'].submit();";
+		return "Epesi.updateIndicatorText('uploading...');Epesi.procOn++;Epesi.updateIndicator();document.forms['".$this->form->getAttribute('name')."'].submit();";
 	}
 
 	public function get_submit_form_href() {
