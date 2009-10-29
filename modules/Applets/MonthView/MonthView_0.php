@@ -71,8 +71,12 @@ class Applets_MonthView extends Module {
 		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text,false,'month',null,null,''));
 
 		$day_headers = array();
-		for ($i=0; $i<7; $i++)
-			$day_headers[] = $this->t(date('D', strtotime('Sun')+86400*($i+Utils_PopupCalendarCommon::get_first_day_of_week())));
+		$day = strtotime('Sun');
+		$day = strtotime('+'.Utils_PopupCalendarCommon::get_first_day_of_week().' days', $day);
+		for ($i=0; $i<7; $i++) {
+			$day_headers[] = $this->t(date('D', $day));
+			$day = strtotime('+1 day', $day);
+		}
 
 		$year = array();
 		

@@ -771,16 +771,18 @@ class Utils_Calendar extends Module {
 		$month = $this->month_array($this->date);
 		$dnd = array();
 		foreach($month as & $week) {
-			foreach($week['days'] as & $day) {
-				$day['id'] = 'UCcell_'.$day['time'];
-				$dnd[] = $day['time'];
+			foreach($week['days'] as & $cday) {
+				$cday['id'] = 'UCcell_'.$cday['time'];
+				$dnd[] = $cday['time'];
 			}
 		}
 
 		$day_headers = array();
+		$day = strtotime('Sun');
+		$day = strtotime('+'.Utils_PopupCalendarCommon::get_first_day_of_week().' days', $day);
 		for ($i=0; $i<7; $i++) {
-			$time = strtotime('Sun')+86400*($i+$this->settings['first_day_of_week']);
-			$day_headers[] = array('class'=>(date('N',$time)>=6?'weekend_day_header':'day_header'), 'label'=>$this->t(date('D', $time)));
+			$day_headers[] = array('class'=>(date('N',$day)>=6?'weekend_day_header':'day_header'), 'label'=>$this->t(date('D', $day)));
+			$day = strtotime('+1 day', $day);
 		}
 
 		$theme->assign('month_view_label', $this->t('Month calendar'));
@@ -846,8 +848,12 @@ class Utils_Calendar extends Module {
 
 
 		$day_headers = array();
-		for ($i=0; $i<7; $i++)
-			$day_headers[] = $this->t(date('D', strtotime('Sun')+86400*($i+$this->settings['first_day_of_week'])));
+		$day = strtotime('Sun');
+		$day = strtotime('+'.Utils_PopupCalendarCommon::get_first_day_of_week().' days', $day);
+		for ($i=0; $i<7; $i++) {
+			$day_headers[] = $this->t(date('D', $day));
+			$day = strtotime('+1 day', $day);
+		}
 
 		$theme->assign('month_view_label', $this->t('Year calendar'));
 
