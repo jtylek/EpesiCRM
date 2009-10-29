@@ -648,7 +648,10 @@ class Utils_RecordBrowser extends Module {
 					$value = Utils_RecordBrowserCommon::cut_string($value,$this->cut[$args['id']]);
 				}
 				if ($args['style']=='currency' || $args['style']=='number') $value = array('style'=>'text-align:right;','value'=>$value);
-				$row_data[] = $value;
+				$row_data[] = array(
+					'value'=>$value.'<span id="grid_edit_'.$argsid.'_'.$row['id'].'" style="float:right;display:none;"><img src="'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'edit.png').'"></span>',
+					'attrs'=>'onmouseover="$(\'grid_edit_'.$argsid.'_'.$row['id'].'\').style.display=\'inline\'" onmouseout="$(\'grid_edit_'.$argsid.'_'.$row['id'].'\').style.display=\'none\'"'
+					);
 			}
 //			if ($this->browse_mode == 'recent')
 //				$row_data[] = $row['visited_on'];
