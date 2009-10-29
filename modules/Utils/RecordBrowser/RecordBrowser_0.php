@@ -224,7 +224,12 @@ class Utils_RecordBrowser extends Module {
 			CRM_FiltersCommon::add_action_bar_icon();
 			$ff = explode(',',trim(CRM_FiltersCommon::get(),'()'));
 			$ff[] = '';
-			$this->crits[$this->filter_field] = $ff;
+			$op = '(';
+			if (!is_array($this->filter_field)) $this->filter_field = array($this->filter_field);
+			foreach ($this->filter_field as $f) {
+				$this->crits[$op.$f] = $ff;
+				$op = '|';
+			}
 		}
 		$this->crits = $this->crits+$crits;
 
