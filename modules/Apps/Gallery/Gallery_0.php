@@ -173,8 +173,8 @@ class Apps_Gallery extends Module {
 	
 	public function submit_mk_folder($data) {
 		//print "Created folder: ".$data['target'] . $data['new'];
-		mkdir($this->root.$this->user.$data['target'] . $data['new']);
-		$this->set_module_variable('dir', $data['target'] . $data['new']);
+		mkdir($this->root.$this->user.$_REQUEST['target'] . $data['new']);
+		$this->set_module_variable('dir', $_REQUEST['target'] . $data['new']);
 		unset($data);
 		return true;
 	}

@@ -43,7 +43,7 @@ class Base_Theme extends Module {
 		$imgs = array();
 		if(Variable::get('preload_image_cache_selected') && file_exists($this->get_data_dir().'templates/'.self::$theme.'/__cache.images'))
 			$imgs = explode("\n",file_get_contents($this->get_data_dir().'templates/'.self::$theme.'/__cache.images'));
-		if(Variable::get('preload_image_cache_default') && file_exists($this->get_data_dir().'templates/'.'default/__cache.images'))
+		if(Variable::get('preload_image_cache_default') && self::$theme!='default' && file_exists($this->get_data_dir().'templates/'.'default/__cache.images'))
 			$imgs = array_merge($imgs,explode("\n",file_get_contents($this->get_data_dir().'templates/'.'default/__cache.images')));
 		if(!empty($imgs))
 			eval_js("var cache = document.createElement('div');".
@@ -61,7 +61,7 @@ class Base_Theme extends Module {
 				"if(images_list.length)".
 					"setTimeout('cache_images()',500);".
 			"};".
-			"cache_images();");
+			"cache_images();",false);
 	}
 
 	public function body() {
