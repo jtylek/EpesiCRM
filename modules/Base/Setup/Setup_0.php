@@ -253,6 +253,8 @@ class Base_Setup extends Module {
 	}
 
 	public function validate($data) {
+		@set_time_limit(0);
+		
 		$default_module = false;
 		$simple = 0;
 		$installed = array ();
