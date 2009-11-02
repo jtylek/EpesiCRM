@@ -13,12 +13,18 @@
 if(version_compare(phpversion(), '5.0.0')==-1)
 	die("You are running an old version of PHP, php5 required.");
 
+if(trim(ini_get("safe_mode")))
+	die('You cannot use epesi with PHP safe mode turned on - please disable it. Please notice this feature is deprecated since PHP 5.3 and will be removed in PHP 6.0.');
+
 define('_VALID_ACCESS',1);
 require_once('include/data_dir.php');
 if(!file_exists(DATA_DIR.'/config.php')) {
 	header('Location: setup.php');
 	exit();
 }
+
+if(!is_writable(DATA_DIR))
+	die('Cannot write into "'.DATA_DIR.'" directory. Please fix privileges.');
 
 // require_once('include/include_path.php');
 require_once('include/config.php');

@@ -43,6 +43,9 @@ if(file_exists('easyinstall.php')){
 }
 
 
+if(trim(ini_get("safe_mode")))
+	die('You cannot use epesi with PHP safe mode turned on - please disable it. Please notice this feature is deprecated since PHP 5.3 and will be removed in PHP 6.0.');
+
 if(file_exists(DATA_DIR.'/config.php'))
 	die('Cannot write into '.DATA_DIR.'/config.php file. Please delete this file.');
 

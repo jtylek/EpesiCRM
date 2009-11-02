@@ -48,7 +48,7 @@ $curr_t = $last_t = $t;
 DB::Execute('UPDATE utils_filedownload_files SET size=%d, time=%f, view_time=%f WHERE id=%d',array($size,$t,$t,$download_id));
 
 while(!feof($in)) {
-	if(!ini_get('safe_mode')) @set_time_limit(60);
+	@set_time_limit(60);
 	$cont = fread($in,8096);
 	fwrite($out, $cont, 8096); //block 8kB
 	$x+=strlen($cont);
