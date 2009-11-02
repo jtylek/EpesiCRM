@@ -544,22 +544,46 @@ class Utils_RecordBrowser extends Module {
 		}
 		$search = $gb->get_search_query(true);
 		$search_res = array();
-		foreach ($search as $k=>$v) {
-			$k = str_replace('__',':',$k);
-			$type = explode(':',$k);
-			if ($k[0]=='"') {
-				$search_res['~_'.$k] = $v;
-				continue;
+		if ($gb->is_adv_search_on()) {
+			foreach ($search as $k=>$v) {
+				$k = str_replace('__',':',$k);
+				$type = explode(':',$k);
+				if ($k[0]=='"') {
+					$search_res['~_'.$k] = $v;
+					continue;
+				}
+				if (isset($type[1]) && $type[1]=='RefCD') {
+					$search_res['~"'.$k] = $v;
+					continue;
+				}
+				if (is_array($v)) $v = $v[0];
+				$v = explode(' ', $v);
+
+	//			$r = array();
+	//			foreach ($v as $w)
+	//				$r[] = DB::Concat(DB::qstr('%'),DB::qstr($w),DB::qstr('%'));
+	//			$search_res['~"'.$k] = $r;
+				foreach ($v as $w)
+					$search_res = Utils_RecordBrowserCommon::merge_crits($search_res, array('~"'.$k =>DB::Concat(DB::qstr('%'),DB::qstr($w),DB::qstr('%'))));
 			}
-			if (isset($type[1]) && $type[1]=='RefCD') {
-				$search_res['~"'.$k] = $v;
-				continue;
+		} else {
+			$val = reset($search);
+			$val = explode(' ', $val[0]);
+			foreach ($val as $vv) {
+				foreach ($search as $k=>$v) {
+					$k = str_replace('__',':',$k);
+					$type = explode(':',$k);
+					if ($k[0]=='"') {
+						$search_res['~_'.$k] = $vv;
+						continue;
+					}
+					if (isset($type[1]) && $type[1]=='RefCD') {
+						$search_res['~"'.$k] = $vv;
+						continue;
+					}
+					$search_res = Utils_RecordBrowserCommon::merge_crits($search_res, array('~"'.$k =>DB::Concat(DB::qstr('%'),DB::qstr($vv),DB::qstr('%'))));
+				}
 			}
-			if (!is_array($v)) $v = array($v);
-			$r = array();
-			foreach ($v as $w)
-				$r[] = DB::Concat(DB::qstr('%'),DB::qstr($w),DB::qstr('%'));
-			$search_res['~"'.$k] = $r;
 		}
 
 		$order = $gb->get_order();
