@@ -64,9 +64,9 @@ class Utils_RecordBrowser extends Module {
 	private $filter_crits = array();
 	private $disabled = array('search'=>false, 'browse_mode'=>false, 'watchdog'=>false, 'quickjump'=>false, 'filters'=>false, 'headline'=>false, 'actions'=>false, 'fav'=>false);
 	private $force_order;
-	private $view_fields_permission;
     private $clipboard_pattern = false;
 	private $show_add_in_table = false;
+	public $view_fields_permission;
 	public $form = null;
 	public $tab;
 	
@@ -618,6 +618,8 @@ class Utils_RecordBrowser extends Module {
 		}
 		self::$access_override['tab'] = $this->tab;
 		if (isset($limit)) $i = $limit['offset'];
+		$grid_enabled = Base_User_SettingsCommon::get('Utils/RecordBrowser','grid');
+		if ($grid_enabled) load_js('modules/Utils/RecordBrowser/grid.js');
 		foreach ($records as $row) {
 			$row = Utils_RecordBrowserCommon::format_long_text($this->tab,$row);
 			if ($this->browse_mode!='recent' && isset($limit)) {
@@ -647,18 +649,24 @@ class Utils_RecordBrowser extends Module {
 				if (isset($this->cut[$args['id']])) {
 					$value = Utils_RecordBrowserCommon::cut_string($value,$this->cut[$args['id']]);
 				}
+				if (strip_tags($value)=='') $value .= '&nbsp;';
 				if ($args['style']=='currency' || $args['style']=='number') $value = array('style'=>'text-align:right;','value'=>$value);
-				$ed_icon = '<span id="grid_edit_'.$argsid.'_'.$row['id'].'" style="float:right;display:none;"><img src="'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'edit.png').'"></span>';
-				$ed_icon = '';
-				$attrs = 'onmouseover="$(\'grid_edit_'.$argsid.'_'.$row['id'].'\').style.display=\'inline\'" onmouseout="$(\'grid_edit_'.$argsid.'_'.$row['id'].'\').style.display=\'none\'"';
-				$attrs = '';
+				if ($grid_enabled && !in_array($args['type'], array('calculated','multiselect'))) {
+					$table = '<table class="Utils_RecordBrowser__grid_table" style="width:100%" cellpadding="0" cellspacing="0" border="0"><tr><td id="grid_form_field_'.$argsid.'_'.$row['id'].'" style="display:none;">Loading...</td><td id="grid_value_field_'.$argsid.'_'.$row['id'].'">';
+					$ed_icon = '</td><td style="min-width:18px;width:18px;padding:0px;margin:0px;"><span id="grid_edit_'.$argsid.'_'.$row['id'].'" style="float:right;display:none;"><a href="javascript:void(0);" onclick="grid_enable_field_edit(\''.$argsid.'\','.$row['id'].',\''.$this->tab.'\');"><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'edit.png').'"></a></span></td></tr></table>';
+					$attrs = 'onmouseover="$(\'grid_edit_'.$argsid.'_'.$row['id'].'\').style.display=\'inline\'" onmouseout="$(\'grid_edit_'.$argsid.'_'.$row['id'].'\').style.display=\'none\'"';				
+				} else {
+					$table = '';
+					$ed_icon = '';
+					$attrs = '';
+				}
 				if (is_array($value)) {
-					$value['value'] .= $ed_icon;
+					$value['value'] = $table.$value['value'].$ed_icon;
 					if (!isset($value['attrs'])) $value['attrs'] = '';
 					$value['attrs'] = $attrs;
 				} else {
 					$value = array(
-						'value'=>$value.$ed_icon,
+						'value'=>$table.$value.$ed_icon,
 						'attrs'=>$attrs
 					);
 				}

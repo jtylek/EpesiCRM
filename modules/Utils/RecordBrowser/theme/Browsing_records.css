@@ -109,3 +109,17 @@
 #Utils_GenericBrowser .utils_datepicket_element td {
 	border: 0 none;
 }
+
+table#Utils_GenericBrowser .Utils_RecordBrowser__grid_table td {
+    border-right: 0px none;
+    border-bottom: 0px none;
+    height: 0px;
+    padding: 0px;
+    margin: 0px;
+}
+
+table#Utils_GenericBrowser .Utils_RecordBrowser__grid_table tr {
+	background-color: transparent;
+    padding: 0px;
+    margin: 0px;
+}
