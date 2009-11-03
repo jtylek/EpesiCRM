@@ -122,7 +122,7 @@ class Utils_RecordBrowser extends Module {
 	public function disable_filters(){$this->disabled['filters'] = true;}
 	public function disable_quickjump(){$this->disabled['quickjump'] = true;}
 	public function disable_headline() {$this->disabled['headline'] = true;}
-	public function disable_actions() {$this->disabled['actions'] = true;}
+	public function disable_actions($arg=true) {$this->disabled['actions'] = $arg;}
 
 	public function set_button($arg, $arg2=''){
 		$this->add_button = $arg;
@@ -700,10 +700,12 @@ class Utils_RecordBrowser extends Module {
 //				$row_data[] = $row['visited_on'];
 
 			$gb_row->add_data_array($row_data);
-			if (!$this->disabled['actions']) {
+			if ($this->disabled['actions']!==true) {
+				if ($this->disabled['actions']===false) $da = array();
+				else $da = array_flip($this->disabled['actions']);
 				if (!$special) {
-					$gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'view', $row['id'])),'View');
-					if ($this->get_access('edit',$row)) $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'edit',$row['id'])),'Edit');
+					if (!isset($da['view'])) $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'view', $row['id'])),'View');
+					if (!isset($da['edit']) && $this->get_access('edit',$row)) $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'edit',$row['id'])),'Edit');
 					if ($admin) {
 						if (!$row['active']) $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],true)),'Activate', null, 'active-off');
 						else $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],false)),'Deactivate', null, 'active-on');
@@ -711,9 +713,9 @@ class Utils_RecordBrowser extends Module {
 						if ($info['edited_by']===null) $gb_row->add_action('','This record was never edited',null,'history_inactive');
 						else $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_edit_history', $row['id'])),'View edit history',null,'history');
 					} else
-					if ($this->get_access('delete',$row)) $gb_row->add_action($this->create_confirm_callback_href($this->t('Are you sure you want to delete this record?'),array('Utils_RecordBrowserCommon','delete_record'),array($this->tab, $row['id'])),'Delete');
+					if (!isset($da['delete']) && $this->get_access('delete',$row)) $gb_row->add_action($this->create_confirm_callback_href($this->t('Are you sure you want to delete this record?'),array('Utils_RecordBrowserCommon','delete_record'),array($this->tab, $row['id'])),'Delete');
 				}
-				$gb_row->add_info(($this->browse_mode=='recent'?'<b>'.$this->t('Visited on: %s', array($row['visited_on'])).'</b><br>':'').Utils_RecordBrowserCommon::get_html_record_info($this->tab, isset($info)?$info:$row['id']));
+				if (!isset($da['info'])) $gb_row->add_info(($this->browse_mode=='recent'?'<b>'.$this->t('Visited on: %s', array($row['visited_on'])).'</b><br>':'').Utils_RecordBrowserCommon::get_html_record_info($this->tab, isset($info)?$info:$row['id']));
 				if ($this->additional_actions_method!==null && is_callable($this->additional_actions_method))
 					call_user_func($this->additional_actions_method, $row, $gb_row);
 			}
