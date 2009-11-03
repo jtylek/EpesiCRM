@@ -38,7 +38,7 @@ class Libs_QuickForm extends Module {
 		Base_ThemeCommon::load_css('Libs_QuickForm');
 	}
 	
-	public function body($arg) {
+	public function body($arg=null) {
 		$this->qf->display($arg);
 	}
 	
