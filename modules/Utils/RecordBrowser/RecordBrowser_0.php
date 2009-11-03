@@ -66,6 +66,7 @@ class Utils_RecordBrowser extends Module {
 	private $force_order;
     private $clipboard_pattern = false;
 	private $show_add_in_table = false;
+	private $data_gb = null;
 	public $view_fields_permission;
 	public $form = null;
 	public $tab;
@@ -294,8 +295,14 @@ class Utils_RecordBrowser extends Module {
 			$this->crits = array();
 			return '';
 		}
-
 		$form = $this->init_module('Libs/QuickForm', null, $this->tab.'filters');
+		$this->data_gb = $this->init_module('Utils/GenericBrowser', null, $this->tab);
+		
+		$form_sub = $form->get_submit_form_js_by_name(array($form->get_name(), $this->data_gb->form_s->get_name()),true,null)."return false;";
+//		$form_sub = $form->get_submit_form_js_by_name($this->data_gb->form_s->get_name(),true,null)."return false;";
+		$this->data_gb->form_s->updateAttributes(array('onsubmit'=>$form_sub));
+		$form->updateAttributes(array('onsubmit'=>$form_sub));
+		
 		$filters = array();
 		$text_filters = array();
 		foreach ($filters_all as $filter) {
@@ -444,7 +451,8 @@ class Utils_RecordBrowser extends Module {
 		if (!Base_AclCommon::i_am_admin() && $admin) {
 			print($this->t('You don\'t have permission to access this data.'));
 		}
-		$gb = $this->init_module('Utils/GenericBrowser', null, $this->tab);
+		if ($this->data_gb!==null) $gb = $this->data_gb;
+		else $gb = $this->init_module('Utils/GenericBrowser', null, $this->tab);
 		if ($special) {
 			$gb_per_page = Base_User_SettingsCommon::get('Utils/GenericBrowser','per_page');
 			$gb->set_per_page(Base_User_SettingsCommon::get('Utils/RecordBrowser/RecordPicker','per_page'));

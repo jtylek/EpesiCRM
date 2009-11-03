@@ -126,8 +126,10 @@ class Utils_GenericBrowser extends Module {
 	private $table_prefix = '';
 	private $table_postfix = '';
 	private static $possible_vals_for_per_page=array(5=>5,10=>10,15=>15,20=>20,25=>25,30=>30,40=>40,50=>50);
+	public $form_s = null;
 
 	public function construct() {
+		$this->form_s = $this->init_module('Libs/QuickForm');
 		if (is_numeric($this->get_instance_id()))
 			trigger_error('GenericBrowser did not receive string name for instance in module '.$this->get_parent_type().'.<br>Use $this->init_module(\'Utils/GenericBrowser\',<construct args>, \'instance name here\');',E_USER_ERROR);
 	}
@@ -724,7 +726,6 @@ class Utils_GenericBrowser extends Module {
 		$search = $this->get_module_variable('search');
 
 		$renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
-		$form_s = $this->init_module('Libs/QuickForm');
 		$form_p = $this->init_module('Libs/QuickForm');
 		$pager_on = false;
 		if(isset($this->rows_qty) && $paging) {
@@ -751,8 +752,8 @@ class Utils_GenericBrowser extends Module {
 		if(!$this->is_adv_search_on()) {
 			foreach($this->columns as $k=>$v)
 				if (isset($v['search'])) {
-					$form_s->addElement('text','search',$this->ht('Keyword'), array('onfocus'=>'if (this.value=="'.$this->ht('search keyword...').'") this.value="";','onblur'=>'if (this.value=="") this.value="'.$this->ht('search keyword...').'";'));
-					$form_s->setDefaults(array('search'=>isset($search['__keyword__'])?$search['__keyword__']:$this->ht('search keyword...')));
+					$this->form_s->addElement('text','search',$this->ht('Keyword'), array('onfocus'=>'if (this.value=="'.$this->ht('search keyword...').'") this.value="";','onblur'=>'if (this.value=="") this.value="'.$this->ht('search keyword...').'";'));
+					$this->form_s->setDefaults(array('search'=>isset($search['__keyword__'])?$search['__keyword__']:$this->ht('search keyword...')));
 					$search_on=true;
 					break;
 				}
@@ -766,10 +767,10 @@ class Utils_GenericBrowser extends Module {
 					continue;
 				}
 				if (isset($v['search'])) {
-					$form_s->addElement('hidden','search__'.$v['search'],'');
+					$this->form_s->addElement('hidden','search__'.$v['search'],'');
 					$default = isset($search[$v['search']])?$search[$v['search']]:$this->ht('search keyword...');
-					$form_s->setDefaults(array('search__'.$v['search']=>$default));
-					$in = '<input value="'.$default.'" name="search__textbox_'.$v['search'].'" onfocus="if (this.value==\''.$this->ht('search keyword...').'\') this.value=\'\';" onblur="if (this.value==\'\') this.value=\''.$this->ht('search keyword...').'\'; document.forms[\''.$form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;" onkeydown="if (event.keyCode==13) {document.forms[\''.$form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;'.$form_s->get_submit_form_js().';}" />';
+					$this->form_s->setDefaults(array('search__'.$v['search']=>$default));
+					$in = '<input value="'.$default.'" name="search__textbox_'.$v['search'].'" onfocus="if (this.value==\''.$this->ht('search keyword...').'\') this.value=\'\';" onblur="if (this.value==\'\') this.value=\''.$this->ht('search keyword...').'\'; document.forms[\''.$this->form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;" onkeydown="if (event.keyCode==13) {document.forms[\''.$this->form_s->getAttribute('name').'\'].search__'.$v['search'].'.value = this.value;'.$this->form_s->get_submit_form_js().';}" />';
 					$search_fields[$k+$mov] = $in;
 					$search_on=true;
 				}
@@ -777,10 +778,10 @@ class Utils_GenericBrowser extends Module {
 			$theme->assign('search_fields', $search_fields);
 		}
 		if ($search_on) {
-			$form_s->addElement('submit','submit_search',$this->ht('Search'));
+			$this->form_s->addElement('submit','submit_search',$this->ht('Search'));
 			if (Base_User_SettingsCommon::get($this->get_type(), 'show_all_button')) {
-				$el = $form_s->addElement('hidden','show_all_pressed');
-				$form_s->addElement('button','show_all',$this->ht('Show all'), array('onclick'=>'document.forms["'.$form_s->getAttribute('name').'"].show_all_pressed.value="1";'.$form_s->get_submit_form_js()));
+				$el = $this->form_s->addElement('hidden','show_all_pressed');
+				$this->form_s->addElement('button','show_all',$this->ht('Show all'), array('onclick'=>'document.forms["'.$this->form_s->getAttribute('name').'"].show_all_pressed.value="1";'.$this->form_s->get_submit_form_js()));
 				$el->setValue('0');
 			}
 		}
@@ -805,14 +806,14 @@ class Utils_GenericBrowser extends Module {
 			}
 		}
 		if ($search_on) {
-			$form_s->accept($renderer);
+			$this->form_s->accept($renderer);
 			$form_array = $renderer->toArray();
 			$theme->assign('form_data_search', $form_array);
-			$theme->assign('form_name_search', $form_s->getAttribute('name'));
+			$theme->assign('form_name_search', $this->form_s->getAttribute('name'));
 
 			// form processing
-			if($form_s->validate()) {
-				$values = $form_s->exportValues();
+			if($this->form_s->validate()) {
+				$values = $this->form_s->exportValues();
 				if (isset($values['show_all_pressed']) && $values['show_all_pressed']) {
 					$this->set_module_variable('search',array());
 					location(array());

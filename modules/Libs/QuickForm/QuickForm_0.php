@@ -25,7 +25,7 @@ class Libs_QuickForm extends Module {
 	private $qf;
 	
 	public function construct($indicator = null, $action = '', $target = '', $on_submit = null) {
-		$form_name = 'libs_qf_'.md5($this->get_path());
+		$form_name = $this->get_name();
 		if($target=='' && $action!='')
 			$target = '_blank';
 		if(!isset($on_submit))
@@ -40,6 +40,10 @@ class Libs_QuickForm extends Module {
 	
 	public function body($arg=null) {
 		$this->qf->display($arg);
+	}
+	
+	public function get_name() {
+		return 'libs_qf_'.md5($this->get_path());
 	}
 	
 	public function validate_with_message($success='', $failure=''){
@@ -88,12 +92,21 @@ class Libs_QuickForm extends Module {
 		 return ' href="javascript:void(0)" onClick="'.$this->get_submit_form_js($submited,$indicator).'" ';
 	}
 
-	private function get_submit_form_js_by_name($form_name, $submited, $indicator) {
+	public function get_submit_form_js_by_name($form_name, $submited, $indicator) {
+		if (!is_array($form_name)) $form_name = array($form_name);
 		if(!isset($indicator)) $indicator='processing...';
 		$fast = "+'&".http_build_query(array('__action_module__'=>$this->get_parent_path()))."'"; 
-		$s = str_replace('this',"$('".addslashes($form_name)."')",Libs_QuickFormCommon::get_on_submit_actions()."_chj($('".addslashes($form_name)."').serialize()".$fast.",'".Epesi::escapeJS($indicator)."');");
-		if($submited)
-	 		$s = "$('".addslashes($form_name)."').submited.value=1;".$s."$('".addslashes($form_name)."').submited.value=0;";
+		$pre = '';
+		$chj = '';
+		$post = '';
+		foreach ($form_name as $f) {
+			$pre .= "$('".addslashes($f)."').submited.value=1;".
+					str_replace('this',"$('".addslashes($f)."')",Libs_QuickFormCommon::get_on_submit_actions());
+			if ($chj) $chj .= "+'&'+";
+			$chj .= "$('".addslashes($f)."').serialize()";
+			$post .= "$('".addslashes($f)."').submited.value=0;";
+		}
+		$s = $pre."_chj(".$chj.$fast.",'".Epesi::escapeJS($indicator)."');".$post;
 		return $s;
 	}
 
