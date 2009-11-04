@@ -14,11 +14,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_ContactsCommon extends ModuleCommon {
 	public static $paste_or_new = 'new';
 
-	public static function get_contacts($crits = array(), $cols = array(), $order = array()) {
-		return Utils_RecordBrowserCommon::get_records('contact', $crits, $cols, $order);
+	public static function get_contacts($crits = array(), $cols = array(), $order = array(), $limit = array()) {
+		return Utils_RecordBrowserCommon::get_records('contact', $crits, $cols, $order, $limit);
 	}
-	public static function get_companies($crits = array(), $cols = array(), $order = array()) {
-		return Utils_RecordBrowserCommon::get_records('company', $crits, $cols, $order);
+	public static function get_companies($crits = array(), $cols = array(), $order = array(), $limit = array()) {
+		return Utils_RecordBrowserCommon::get_records('company', $crits, $cols, $order, $limit);
 	}
 	public static function no_contact_message() {
 		print(Base_LangCommon::ts('CRM_Contacts','Your user doesn\'t have contact, please assign one'));
@@ -324,6 +324,20 @@ class CRM_ContactsCommon extends ModuleCommon {
 		}
 		return $ret;
 	}
+	public static function autoselect_contact_suggestbox($str, $crits, $format_callback) {
+		$str = explode(' ', trim($str));
+		foreach ($str as $k=>$v)
+			if ($v) {
+				$v = DB::Concat(DB::qstr('%'),DB::qstr($v),DB::qstr('%'));
+				$crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~"last_name'=>$v,'|~"first_name'=>$v));
+			}
+		$recs = Utils_RecordBrowserCommon::get_records('contact', $crits, array(), array('last_name'=>'ASC'), 10);
+		$ret = array();
+		foreach($recs as $v) {
+			$ret[$v['id']] = call_user_func($format_callback, $v, true);
+		}
+		return $ret;
+	}
 	public static function QFfield_contact(&$form, $field, $label, $mode, $default, $desc, $rb_obj = null) {
 		$cont = array();
 		$param = explode(';',$desc['param']);
@@ -339,9 +353,6 @@ class CRM_ContactsCommon extends ModuleCommon {
 					$adv_crits = call_user_func($crit_callback, true);
 					if ($adv_crits === $crits) $adv_crits = null;
 					if ($adv_crits !== null) {
-//						$rp = $rb_obj->init_module('Utils/RecordBrowser/RecordPicker');
-//						$rb_obj->display_module($rp, array('contact', $field, $callback, $adv_crits, array('work_phone'=>false, 'mobile_phone'=>false, 'zone'=>false), array('last_name'=>'ASC')));
-//						$form->addElement('static', $field.'_rpicker_advanced', null, $rp->create_open_link(Base_LangCommon::ts('CRM_Contacts','Advanced')));
 						$form->addElement('automulti', $field, $label, array('CRM_ContactsCommon','automulti_contact_suggestbox'), array($adv_crits), $callback);
 						$form->setDefaults(array($field=>$default));
 						return;
@@ -350,8 +361,16 @@ class CRM_ContactsCommon extends ModuleCommon {
 			} else $crits = array();
 			
 			if ($desc['type']!='multiselect' && (!isset($crit_callback) || $crit_callback[0]!='ChainedSelect')) $cont[''] = '---';
+			$limit = array();
 			if ($crits!==null) {
-				$contacts = self::get_contacts($crits);
+				if ($desc['type']=='select') {
+					$amount = Utils_RecordBrowserCommon::get_records_count('contact', $crits);
+					if ($amount>Utils_RecordBrowserCommon::$options_limit) {
+						$limit = Utils_RecordBrowserCommon::$options_limit;
+					}
+				}
+				
+				$contacts = self::get_contacts($crits, array(), array(), $limit);
 				if (!is_array($default)) {
 					if ($default!='') $default = array($default); else $default=array();
 				} 
@@ -367,7 +386,10 @@ class CRM_ContactsCommon extends ModuleCommon {
 				}
 				uasort($cont, array('CRM_ContactsCommon', 'compare_names'));
 			}
-			$form->addElement($desc['type'], $field, $label, $cont, array('id'=>$field));
+			if (is_numeric($limit))
+				$form->addElement('autoselect', $field, $label, $cont, array(array('CRM_ContactsCommon','autoselect_contact_suggestbox'), array($crits, $callback)), $callback, array('id'=>$field));
+			else 
+				$form->addElement($desc['type'], $field, $label, $cont, array('id'=>$field));
 			$form->setDefaults(array($field=>$default));
 			if ($param[2] != '::')
 				if ($crit_callback[0]=='ChainedSelect') {

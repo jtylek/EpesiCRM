@@ -14,19 +14,15 @@ class Tests_QuickForm extends Module{
 	public function body(){
 		$f = $this->init_module('Libs/QuickForm');
 
-		$f->addElement('automulti','justble','Bleing', array($this->get_type().'Common', 'automulti_search'), array('ble'), array($this->get_type().'Common', 'automulti_format'));
-		$f->setDefaults(array('justble'=>array(2,3)));
-		$f->addElement('multiselect','justble2','Bleing2', array());
+		$f->addElement('automulti','automul','Automulti test', array($this->get_type().'Common', 'automulti_search'), array('ble'), array($this->get_type().'Common', 'automulti_format'));
+		$f->setDefaults(array('automul'=>array(2,3)));
+		$f->addElement('autoselect','autosel','Autoselect test', array(1=>1, 3=>3, 8=>8), array($this->get_type().'Common', 'autoselect_search'));
 		$f->addElement('text','frozen','Frozen test');
 		$f->addRule('frozen','required','required');
 		$x = $f->addElement('timestamp','xxxyss','Date picker');
 		print('get(here is what was submited): '.$x->getValue().'<br>');
 		print('export: '.$f->exportValue('xxxyss').'<br>');
-		$f->applyFilter('xxxyss',array($this,'ble_filter'));
-		$f->registerRule('ble_rule', 'callback', 'ble_rule',$this);
-		$f->addRule('xxxyss','ble rule not passed','ble_rule');
 		$f->addRule('xxxyss','required rule not passed','required');
-		$f->addElement('text','ble','Test');
 		$f->addElement('autocomplete','auto_test','Autocomplete', array($this->get_type().'Common', 'autocomplete'));
 
 		$f->addElement('currency','cur','Currency');
@@ -88,15 +84,6 @@ class Tests_QuickForm extends Module{
 
 	}
 	
-	public function ble_filter($x) {
-		print('filter: '.print_r($x,true).'<br>');
-		return $x;
-	}
-	
-	public function ble_rule($x) {
-		print('rule: '.print_r($x,true).'<br>');
-		return true;
-	}
 }
 
 ?>

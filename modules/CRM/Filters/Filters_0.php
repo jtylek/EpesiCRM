@@ -44,9 +44,9 @@ class CRM_Filters extends Module {
 		$this->contacts_select = array(''=>'---');
 		foreach($contacts as $v)
 			$this->contacts_select[$v['id']] = $v['last_name'].' '.$v['first_name'];
-		$qf->addElement('select','contact',$this->t('Records of'),$this->contacts_select,array('onChange'=>'if(this.value!=\'\'){'.$qf->get_submit_form_js().'crm_filters_deactivate();}'));
+		$qf->addElement('select','crm_filter_contact',$this->t('Records of'),$this->contacts_select,array('onChange'=>'if(this.value!=\'\'){'.$qf->get_submit_form_js().'crm_filters_deactivate();}'));
 		if($qf->validate()) {
-			$c = $qf->exportValue('contact');
+			$c = $qf->exportValue('crm_filter_contact');
 			$this->set_profile('c'.$c);
 			location(array());
 		}

@@ -18,8 +18,14 @@ class Tests_QuickFormCommon extends ModuleCommon {
 		return array('Tests'=>array('__submenu__'=>1,'__weight__'=>-10, 'QuickForm page'=>array()));
 	}
 	
+	public static function autoselect_search($arg=null, $id=null) {
+		$arr = array(5=>'Foo 1', 8=>'Test 2', 1=>1, 2=>2, 3=>3);
+		if (isset($arr[$id])) return $arr[$id];
+		return $arr;
+	}
+
 	public static function automulti_search($arg) {
-		return array(5=>'Ble 1', 8=>'Test 2', 1=>1, 2=>2, 3=>3);
+		return array(5=>'Foo 1', 8=>'Test 2', 1=>1, 2=>2, 3=>3);
 	}
 
 	public static function automulti_format($id) {

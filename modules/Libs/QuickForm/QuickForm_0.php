@@ -16,6 +16,7 @@ $GLOBALS['_HTML_QuickForm_default_renderer'] = new HTML_QuickForm_Renderer_TCMSD
 $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['multiselect'] = array('modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php','HTML_QuickForm_multiselect');
 $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['autocomplete'] = array('modules/Libs/QuickForm/FieldTypes/autocomplete/autocomplete.php','HTML_QuickForm_autocomplete');
 $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['automulti'] = array('modules/Libs/QuickForm/FieldTypes/automulti/automulti.php','HTML_QuickForm_automulti');
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['autoselect'] = array('modules/Libs/QuickForm/FieldTypes/autoselect/autoselect.php','HTML_QuickForm_autoselect');
 $GLOBALS['_HTML_QuickForm_registered_rules']['comparestring'] = array('HTML_QuickForm_Rule_CompareString', 'Rule/CompareString.php');
 
 /**
