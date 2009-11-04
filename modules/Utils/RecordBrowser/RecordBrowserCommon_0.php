@@ -873,6 +873,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							if ($params[1]=='RefCD' || $tab2=='__COMMON__') {
 								$ret = Utils_CommonDataCommon::get_translated_array($cols2!==null?$cols2:$cols);
 								$allowed_cd = array();
+								if (!is_array($v)) $v = array($v);
 								foreach ($ret as $kkk=>$vvv)
 									foreach ($v as $w) if ($w!='') {
 										if (stripos($vvv,$w)!==false) {
