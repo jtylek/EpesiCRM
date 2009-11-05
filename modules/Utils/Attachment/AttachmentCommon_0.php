@@ -43,6 +43,9 @@ class Utils_AttachmentCommon extends ModuleCommon {
 			for($i=0; $i<$rev; $i++) {
 				@unlink($file_base.$i);
 			}
+			$ret2 = DB::Execute('SELECT id FROM utils_attachment_file WHERE attach_id=%d',array($id));
+			while($row2 = $ret2->FetchRow())
+				DB::Execute('DELETE FROM utils_attachment_download WHERE attach_file_id=%d',array($row2['id']));
 			DB::Execute('DELETE FROM utils_attachment_file WHERE attach_id=%d',array($id));
 			DB::Execute('DELETE FROM utils_attachment_link WHERE id=%d',array($id));
 		}
