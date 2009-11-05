@@ -34,7 +34,7 @@ foreach($accounts as $a) {
 			}
 		if($inbox) Apps_MailClientCommon::imap_get_new_messages($a['id'],$inbox.'/');
 	} else { //pop3
-		Apps_MailClientCommon::get_number_of_new_messages_in_inbox($id);
+		Apps_MailClientCommon::get_number_of_new_messages_in_inbox($a['id']);
 	}
 }
 
