@@ -35,20 +35,8 @@ class CRM_Assets extends Module {
                 'active'=>array('width'=>7),
                 'general_info'=>array('width'=>70)
             ));
-        $rb->set_button($this->create_callback_href(array($this,'assets_addon_new_asset'), array($arg['id'])));
+        $rb->set_defaults(array('company'=>$arg['id']));
         $this->display_module($rb, array(array('company'=>array($arg['id'])), array('company'=>false, 'active'=>true), array('asset_name'=>'ASC')), 'show_data');
-    }
-
-    public function assets_addon_new_asset($company) {
-        $x = ModuleManager::get_instance('/Base_Box|0');
-        if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-        $x->push_main('CRM/Assets', 'new_asset', $company, array());
-        return false;
-    }
-
-    public function new_asset($company) {
-        $rb = $this->init_module('Utils/RecordBrowser','crm_assets','crm_assets');
-        $rb->view_entry('add',null,array('company'=>$company));
     }
 
     public function assets_attachment_addon($arg) {
