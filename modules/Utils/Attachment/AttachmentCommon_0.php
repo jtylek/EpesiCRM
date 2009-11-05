@@ -28,8 +28,12 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	 * Example usage:
 	 * Utils_AttachmentCommon::persistent_mass_delete('CRM/Contact'); // deletes all entries located in CRM/Contact*** group
 	 */
-	public static function persistent_mass_delete($group,$group_starts_with=true) {
-		$ret = DB::Execute('SELECT ual.id,ual.local FROM utils_attachment_link ual WHERE '.self::get_where($group,$group_starts_with));
+	public static function persistent_mass_delete($group,$group_starts_with=true,array $selective=null) {
+		if(isset($selective) && !empty($selective)) {
+			$where = ' AND ual.id in ('.implode(',',$selective).')';
+		} else
+			$where = '';
+		$ret = DB::Execute('SELECT ual.id,ual.local FROM utils_attachment_link ual WHERE '.self::get_where($group,$group_starts_with).$where);
 		while($row = $ret->FetchRow()) {
 			$id = $row['id'];
 			$local = $row['local'];
