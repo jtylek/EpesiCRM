@@ -3,9 +3,6 @@ header("Content-type: text/javascript");
 header("Cache-Control: no-cache, must-revalidate");
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // date in the past
 
-if(!isset($_POST['cid']) || !is_numeric($_POST['cid']))
-	die('Client id not defined.');
-
 define('CID',false);
 define('READ_ONLY_SESSION',true);
 define('MAILCLIENT_CACHE',true);
