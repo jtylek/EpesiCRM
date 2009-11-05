@@ -1187,7 +1187,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		//save sync time and rate
 		if($ret) { //increase sync rate
 			if($rate>0)
-				file_put_contents($box_dir.'.imap_rate',(($rate>3)?($rate-3):0));
+				file_put_contents($box_dir.'.imap_rate',0);
 		} else { //decrease sync rate
 			if($rate<$max_sync_rate)
 				file_put_contents($box_dir.'.imap_rate',$rate+1);
