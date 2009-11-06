@@ -352,25 +352,28 @@ class CRM_ContactsCommon extends ModuleCommon {
 					$crits = call_user_func($crit_callback, false);
 					$adv_crits = call_user_func($crit_callback, true);
 					if ($adv_crits === $crits) $adv_crits = null;
-					if ($adv_crits !== null) {
-						$form->addElement('automulti', $field, $label, array('CRM_ContactsCommon','automulti_contact_suggestbox'), array($adv_crits), $callback);
-						$form->setDefaults(array($field=>$default));
-						return;
-					}
 				}
 			} else $crits = array();
 			
 			if ($desc['type']!='multiselect' && (!isset($crit_callback) || $crit_callback[0]!='ChainedSelect')) $cont[''] = '---';
 			$limit = array();
 			if ($crits!==null) {
-				if ($desc['type']=='select') {
-					$amount = Utils_RecordBrowserCommon::get_records_count('contact', $crits);
-					if ($amount>Utils_RecordBrowserCommon::$options_limit) {
-						$limit = Utils_RecordBrowserCommon::$options_limit;
+				$amount = Utils_RecordBrowserCommon::get_records_count('contact', $crits);
+				$base_crits = $crits;
+				if ($amount>Utils_RecordBrowserCommon::$options_limit) {
+					$limit = Utils_RecordBrowserCommon::$options_limit;
+					if ($desc['type']=='select') {
+						$present = false;
+						foreach ($crits as $k=>$v)
+							if (strstr($k, ':Recent')) {
+								$present = true;
+								break;
+							}
+						if (!$present) $base_crits = Utils_RecordBrowserCommon::merge_crits($base_crits, array(':Recent'=>true));
 					}
 				}
 				
-				$contacts = self::get_contacts($crits, array(), array(), $limit);
+				$contacts = self::get_contacts($base_crits, array(), array(), $limit);
 				if (!is_array($default)) {
 					if ($default!='') $default = array($default); else $default=array();
 				} 
@@ -386,10 +389,19 @@ class CRM_ContactsCommon extends ModuleCommon {
 				}
 				uasort($cont, array('CRM_ContactsCommon', 'compare_names'));
 			}
-			if (is_numeric($limit))
-				$form->addElement('autoselect', $field, $label, $cont, array(array('CRM_ContactsCommon','autoselect_contact_suggestbox'), array($crits, $callback)), $callback, array('id'=>$field));
-			else 
-				$form->addElement($desc['type'], $field, $label, $cont, array('id'=>$field));
+			if ($desc['type']=='select') {
+				if (is_numeric($limit)) {
+					unset($cont['']);
+					$form->addElement('autoselect', $field, $label, $cont, array(array('CRM_ContactsCommon','autoselect_contact_suggestbox'), array($crits, $callback)), $callback, array('id'=>$field));
+				} else 
+					$form->addElement($desc['type'], $field, $label, $cont, array('id'=>$field));
+			} else {
+				if ($adv_crits !== null || is_numeric($limit)) {
+					$form->addElement('automulti', $field, $label, array('CRM_ContactsCommon','automulti_contact_suggestbox'), array($adv_crits!==null?$adv_crits:$crits), $callback);
+				} else {
+					$form->addElement($desc['type'], $field, $label, $cont, array('id'=>$field));
+				}
+			}
 			$form->setDefaults(array($field=>$default));
 			if ($param[2] != '::')
 				if ($crit_callback[0]=='ChainedSelect') {

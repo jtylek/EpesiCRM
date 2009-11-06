@@ -14,6 +14,7 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
 	private $more_opts_callback = null;
 	private $more_opts_args = null;
 	private $more_opts_format = null;
+    private $on_hide_js_code = '';
 	
     /**
      * Class constructor
@@ -37,6 +38,10 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
 		$this->more_opts_args = $more_opts_callback[1];
 		$this->more_opts_format = $format;
     } //end constructor
+
+    function on_hide_js($js) {
+    	$this->on_hide_js_code = $js;
+    }
 
     public static function get_autocomplete_suggestbox($string, $callback, $args) {
 		if (!is_string($string)) $string = '';
@@ -83,6 +88,10 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
 			// TODO: minor bug - will duplicate entry if already present, plus need to strip of tags
 				
             $strValues = is_array($this->_values)? array_map('strval', $this->_values): array();
+			$strHtml .= '<option value="__SEARCH_TIP__">'.'Start typing to search...'.'</option>';
+			eval_js('set_style_for_search_tip = function(el){if($(el).value=="__SEARCH_TIP__")$(el).className="autoselect_search_tip";else $(el).className=""}');
+			eval_js('set_style_for_search_tip("'.$myName.'");');
+			eval_js('Event.observe("'.$myName.'", "change", function (){set_style_for_search_tip("'.$myName.'");});');
             foreach ($this->_options as $option) {
                 if (!empty($strValues) && in_array($option['attr']['value'], $strValues, true)) {
                     $option['attr']['selected'] = 'selected';
@@ -94,7 +103,7 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
 
 			$search = new HTML_QuickForm_autocomplete($myName.'__search','', array('HTML_QuickForm_autoselect','get_autocomplete_suggestbox'), array($this->more_opts_callback, $this->more_opts_args));
 			load_js('modules/Libs/QuickForm/FieldTypes/autoselect/autoselect.js');
-			$search->on_hide_js('autoselect_on_hide("'.$myName.'");');
+			$search->on_hide_js('autoselect_on_hide("'.$myName.'");'.$this->on_hide_js_code);
 
             return 	'<span id="__'.$myName.'_select_span">'.
 						$strHtml.

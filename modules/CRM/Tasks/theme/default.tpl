@@ -95,7 +95,7 @@
 								<td class="label" style="border-bottom: 1px solid white;">{$form_data.employees.label}{if $form_data.employees.required}*{/if}</td>
 							</tr>
 							<tr>
-								<td class="data arrows" style="vertical-align: top;"><span class="error">{$form_data.employees.error}</span>{$form_data.employees.html}</td>
+								<td class="data" style="vertical-align: top;"><span class="error">{$form_data.employees.error}</span>{$form_data.employees.html}</td>
 							</tr>
 						</tbody>
 					</table>

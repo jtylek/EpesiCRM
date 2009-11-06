@@ -80,8 +80,15 @@ class Utils_Planner extends Module {
 			return;
 		}
 		if ($type=='select'){
-			$on_change .= 'this.className=this.options[this.selectedIndex].className;';
-			$this->form->addElement($type, $name, $label, $param1, array('id'=>$name, 'onchange'=>$on_change));
+			eval_js('Event.observe("'.$name.'", "change" , function(){'.$on_change.'$("'.$name.'").className=$("'.$name.'").options[$("'.$name.'").selectedIndex].className;});');
+			$this->form->addElement($type, $name, $label, $param1, array('id'=>$name));
+			return;
+		}
+		if ($type=='autoselect'){
+			$on_change .= '$("'.$name.'").className=$("'.$name.'").options[$("'.$name.'").selectedIndex].className;';
+			eval_js('Event.observe("'.$name.'", "change" , function(){'.$on_change.'});');
+			$el = $this->form->addElement($type, $name, $label, $param1, $param2, $param3, array('id'=>$name));
+			$el->on_hide_js($on_change);
 			return;
 		}
 		if ($type=='text'){

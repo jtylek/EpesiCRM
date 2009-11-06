@@ -29,6 +29,7 @@ $value = null;
 switch ($_SESSION['client']['utils_planner']['resources'][$resource]['type']) {
 	case 'automulti': 	$value=json_decode($_POST['options']);
 						break;
+	case 'autoselect':
 	case 'select': 	$value=trim($_POST['value'],'"');
 					break;
 }

@@ -239,3 +239,11 @@ div.autocomplete ul li {
   height:14px;
   cursor:pointer;
 }
+
+select.autoselect_search_tip {
+	color: #999999;
+}
+
+.autoselect_search_tip option {
+	color: #000000;
+}
