@@ -108,8 +108,9 @@ class DB {
 	
 		$ret = '';
 		$j=0;
+		$arr_count = count($arr);
 		foreach($x as $y) {
-			if(!isset($arr[$j])) {
+			if($arr_count<=$j) {
 				$ret .= $y;
 				continue;
 			}
