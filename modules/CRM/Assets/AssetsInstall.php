@@ -13,6 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_AssetsInstall extends ModuleInstall {
 
     public function install() {
+	Base_LangCommon::install_translations($this->get_type());
         Utils_CommonDataCommon::new_array('crm_assets_category', array('Desktop', 'Server', 'Notebook', 'Monitor', 'Printer', 'Other'), true, true);
         Utils_CommonDataCommon::new_array('crm_assets_monitor_type', array('CRT', 'LCD', 'Other'));
         Utils_CommonDataCommon::new_array('crm_assets_printer_type', array('Ink', 'Laser', 'Other'));

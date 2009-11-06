@@ -1,0 +1,86 @@
+<?php
+/**
+ * Translation file
+ * @package epesi-translations
+ * @subpackage lt
+ */
+global $translations;
+$translations['Base_ActionBar']['Home']='Pradinis';
+$translations['Base_ActionBar']['']='';
+$translations['Base_ActionBar']['Back']='Atgal';
+$translations['Base_ActionBar']['New langpack']='Nauja klaba';
+$translations['Base_ActionBar']['Save']='Išsaugoti';
+$translations['Base_ActionBar']['Refresh languages']='Atnaujinti kalbą';
+$translations['Base_ActionBar'][' Calendar']='Kalendorius';
+$translations['Base_ActionBar'][' Contacts']='Kontaktai';
+$translations['Base_ActionBar'][' Companies']='Kompanijos';
+$translations['Base_ActionBar'][' Phone Calls']='Telefonų skambučiai';
+$translations['Base_ActionBar'][' Tasks']='Darbai';
+$translations['Base_ActionBar']['Launchpad']='Greitukas';
+$translations['Base_ActionBar']['Add applet']='Pridėti modulį';
+$translations['Base_ActionBar']['Recent']='Naujausi';
+$translations['Base_ActionBar']['New']='Naujas';
+$translations['Base_ActionBar']['Export']='Eksportuoti';
+$translations['Base_ActionBar']['Filters']='Filtrai';
+$translations['Base_ActionBar']['Subscribe']='užsiprenumeruoti';
+$translations['Base_ActionBar']['Add event']='Pridėti įvykį';
+$translations['Base_ActionBar']['Reply']='Atsakyti';
+$translations['Base_ActionBar']['Favorites']='Naudingas';
+$translations['Base_ActionBar']['Cancel']='Atšaukti';
+$translations['Base_ActionBar']['Trash']='Šiukšliudėžė';
+$translations['Base_ActionBar']['All']='Visi';
+$translations['Base_ActionBar']['Dashboard']='Darbalaukis';
+$translations['Base_ActionBar']['Restore defaults']='Atstatyti į pradžią';
+$translations['Base_ActionBar']['New board']='Nauja lenta';
+$translations['Base_ActionBar']['Upload']='Nusiųsti';
+$translations['Base_ActionBar']['Manage Folders']='Direktorijų valdymas';
+$translations['Base_ActionBar']['Back to Gallery']='Atgal į galeriją';
+$translations['Base_ActionBar']['Mark all as read']='Pažymėti visus kaip perskaitytus';
+$translations['Base_ActionBar']['New mail']='Naujas el.laiškas';
+$translations['Base_ActionBar']['Check']='Patikrinti';
+$translations['Base_ActionBar']['Send']='Siųsti';
+$translations['Base_ActionBar']['Purge old alerts']='Sunaikinti senus pranešimus';
+$translations['Base_ActionBar']['Delete logo']='Ištrinti logotipą';
+$translations['Base_ActionBar']['Restore Defaults']='Atstatyti į pradžią';
+$translations['Base_ActionBar']['Add array']='';
+$translations['Base_ActionBar']['Attach note']='Pridėti pastabą';
+$translations['Base_ActionBar']['Edit']='Koreguoti';
+$translations['Base_ActionBar']['Delete']='Ištrinti';
+$translations['Base_ActionBar']['Clone']='Dublikuoti';
+$translations['Base_ActionBar']['Add contact']='Pridėti kontaktą';
+$translations['Base_ActionBar']['(už)prenumeruoti']='Užsiprenumeruoti';
+$translations['Base_ActionBar']['Maintenance']='Palaikymas';
+$translations['Base_ActionBar']['Scan for new modules']='Tikrinti ar yra naujų modulių';
+$translations['Base_ActionBar']['New field']='Naujas laukas';
+$translations['Base_ActionBar']['New page']='Naujas puslapis';
+$translations['Base_ActionBar']['Show all users']='Rodyti visus vartotojus';
+$translations['Base_ActionBar']['Change main company']='Pakeisti pagrindinę kompaniją';
+$translations['Base_ActionBar']['Užsiprenumeruoti']='';
+$translations['Base_ActionBar']['New menu entry']='';
+$translations['Base_ActionBar']['Nusiųsti']='';
+$translations['Base_ActionBar']['Direktorijų tvarkymas']='Direktorijų tvarkymas';
+$translations['Base_ActionBar']['Atgal į galeriją']='Atgal į galeriją';
+$translations['Base_ActionBar']['Add group']='Pridėti grupę';
+$translations['Base_ActionBar']['Detailed selection']='Detalus pasirinkimas';
+$translations['Base_ActionBar']['Go back']='Atgal';
+$translations['Base_ActionBar']['Edit page']='Koreguoti puslapį';
+$translations['Base_ActionBar']['Delete page']='Ištrinti puslapį';
+$translations['Base_ActionBar']['Toggle hidden']='';
+$translations['Base_ActionBar']['New file']='Naujas failas';
+$translations['Base_ActionBar']['New folder']='Nauja direktorija';
+$translations['Base_ActionBar']['Create PDF']='Sukurti PDf';
+$translations['Base_ActionBar']['New user']='Naujas vartotojas';
+$translations['Base_ActionBar']['Unsubscribe']='';
+$translations['Base_ActionBar']['Pažymėti kaip visi perskaityti']='';
+$translations['Base_ActionBar']['Naujas laiškas']='';
+$translations['Base_ActionBar']['Tikrinti']='';
+$translations['Base_ActionBar']['Mail client']='';
+$translations['Base_ActionBar']['Purge Log File']='';
+$translations['Base_ActionBar']['Show main company contacts']='';
+$translations['Base_ActionBar']['Abandon ticket']='';
+$translations['Base_ActionBar']['New alert']='';
+$translations['Base_ActionBar']['Split']='';
+$translations['Base_ActionBar']['New account']='Nauja sąskaita';
+$translations['Base_ActionBar']['Claim ticket']='';
+$translations['Base_ActionBar']['Atsisakyti']='';
+?>

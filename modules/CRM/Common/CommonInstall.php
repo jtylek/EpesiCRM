@@ -13,6 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_CommonInstall extends ModuleInstall {
 
 	public function install() {
+		Base_LangCommon::install_translations($this->get_type());
 		Utils_CommonDataCommon::new_array('CRM',array(),true,true);
 		Utils_CommonDataCommon::new_array('CRM/Priority',array(0=>'Low',1=>'Medium',2=>'High'), true,true);
 		Utils_CommonDataCommon::new_array('CRM/Access',array(0=>'Public', 1=>'Public, Read-Only', 2=>'Private'), true,true);

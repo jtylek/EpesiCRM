@@ -12,6 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_MailClientInstall extends ModuleInstall {
 
 	public function install() {
+		Base_LangCommon::install_translations($this->get_type());
 		Utils_RecordBrowserCommon::new_addon('contact', 'CRM/MailClient', 'contact_addon', 'Mails');
 		$ret = true;
 		$ret &= DB::CreateTable('crm_mailclient_mails','

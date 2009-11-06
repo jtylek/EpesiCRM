@@ -11,6 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_CommentInstall extends ModuleInstall{
 	public function install(){
+		Base_LangCommon::install_translations($this->get_type());
 		$ret = DB::CreateTable('comment',"id I AUTO KEY, text X(4000) NOTNULL, user_login_id I NOTNULL, parent I DEFAULT -1 NOTNULL, topic C(255) NOTNULL, created_on T NOTNULL");
 		if($ret===false) {
 			print('Invalid SQL query - Comment module install: '.DB::error());
