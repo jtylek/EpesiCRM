@@ -833,6 +833,12 @@ class Utils_RecordBrowser extends Module {
 			$id = $this->get_module_variable('id');
 			$this->unset_module_variable('id');
 		}
+        if($mode == 'add' || $mode == 'edit') {
+            $theme -> assign('click2fill', '<div id="c2fBox"></div>');
+            load_js('modules/Utils/RecordBrowser/click2fill.js');
+            eval_js('initc2f()');
+            Base_ActionBarCommon::add('clone', 'Click 2 Fill', 'href="javascript:void(0)" onclick="c2f()"');
+        }
 		if ($mode=='view' && false) {
 			if (self::$browsed_records!==null &&
 				isset(self::$browsed_records['tab']) &&
@@ -1110,9 +1116,6 @@ class Utils_RecordBrowser extends Module {
 		}
 		if ($mode=='add' || $mode=='edit') {
             print("</form>\n");
-            load_js('modules/Utils/RecordBrowser/click2fill.js');
-            eval_js('initc2f()');
-            Base_ActionBarCommon::add('clone', 'Click 2 Fill', 'href="javascript:void(0)" onclick="c2f()"');
         }
 		$tb->tag();
 

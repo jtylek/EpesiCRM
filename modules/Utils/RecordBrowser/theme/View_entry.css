@@ -195,6 +195,11 @@
     padding-right: 20px;
 }
 
+#c2fs {
+    line-height: 40px;
+    display: none;
+}
+
 #c2fs div.bton {
     display: inline;
     padding: 5px;
@@ -202,4 +207,14 @@
     border: 1px solid gray;
     color: black;
     background-color: white;
+}
+
+#c2fBox {
+    margin: 15px;
+    width: 90%;
+}
+
+#c2ftxt {
+    display: block;
+    width: 100%;
 }

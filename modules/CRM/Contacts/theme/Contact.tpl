@@ -73,6 +73,10 @@
 	</tbody>
 </table>
 
+{if isset($click2fill)}
+    {$click2fill}
+{/if}
+
 
 <!-- SHADOW BEGIN -->
 	<div class="layer" style="padding: 9px; width: 98%;">

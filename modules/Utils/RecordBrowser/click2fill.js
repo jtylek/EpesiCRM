@@ -39,7 +39,11 @@ function manipulateArray(x) {
 }
 function c2f() {
     if(c2fstate == -3) {
-        document.getElementById("c2fBox").innerHTML = '<textarea id="c2ftxt" rows="10" cols="50" style="display: block">Paste your data here</textarea><div id="c2fs" style="line-height: 40px; display: none"></div><input type="button" class="button" onclick="c2fScan()" value="Scan/Edit"/>';
+        if(document.getElementById("c2fBox") == undefined) {
+            alert("This template is not compatible with Click 2 Fill function");
+            return;
+        }
+        document.getElementById("c2fBox").innerHTML = '<textarea id="c2ftxt" rows="10" cols="50">Paste your data here</textarea><div id="c2fs"></div><input type="button" class="button" onclick="c2fScan()" value="Scan/Edit"/>';
         c2fstate = -1;
         var el = document.getElementsByTagName("input");
         for(var i = 0; i < el.length; i++) {

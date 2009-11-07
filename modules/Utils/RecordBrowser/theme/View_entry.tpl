@@ -60,7 +60,10 @@
 	</tbody>
 </table>
 
-<div id="c2fBox"></div>
+{if isset($click2fill)}
+    {$click2fill}
+{/if}
+
 {/if}
 
 <!-- SHADOW BEGIN -->
