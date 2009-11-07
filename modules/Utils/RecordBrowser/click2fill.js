@@ -44,6 +44,8 @@ function c2f() {
         var el = document.getElementsByTagName("input");
         for(var i = 0; i < el.length; i++) {
             if(el[i].type == 'text') {
+                var functxt = String(el[i].onclick);
+                if(functxt.indexOf('c2fstate') != -1) continue;
                 el[i].oldonclick = (el[i].onclick)?el[i].onclick:function(){};
                 el[i].onclick = function () {
                     this.oldonclick(); if(c2fstate==2 && order.length>0) this.value = copyText();
@@ -80,7 +82,7 @@ function c2fScan() {
             var boxes = 0
             for(var j = 0; j < words.length; j++) {
                 if(words[j].length == 0) continue;
-                var id = i+'x'+j;
+                var id = i+'c2f'+j;
                 document.getElementById("c2fs").innerHTML += '<div id="'+id+'" class="bton" onclick="manipulateArray(\''+id+'\')">'+words[j]+'</div><span id="'+'o'+id+'"></span>';
                 boxes++;
                 objs[id] = false;
@@ -93,8 +95,11 @@ function c2fScan() {
         now = 0;
         order = new Array();
     } else {
+        var tmp = document.getElementById("c2ftxt");
+        tmp.style.display = 'block';
+        tmp.focus();
+        tmp.select();
         document.getElementById("c2fs").style.display = 'none';
-        document.getElementById("c2ftxt").style.display = 'block';
         c2fstate = 1;
     }
 }

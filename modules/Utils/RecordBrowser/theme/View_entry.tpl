@@ -59,9 +59,9 @@
 		</tr>
 	</tbody>
 </table>
-{/if}
 
 <div id="c2fBox"></div>
+{/if}
 
 <!-- SHADOW BEGIN -->
 	<div class="layer" style="padding: 9px; width: 98%;">
