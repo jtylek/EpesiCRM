@@ -172,7 +172,7 @@
 
 .Utils_RecordBrowser__table .icon img {
     position: absolute;
-    clip: rect(0px 32px 28px 0px);
+    clip: rect(0px, 32px, 28px, 0px);
 }
 
 .Utils_RecordBrowser__table .name {
@@ -193,4 +193,13 @@
     color: #777777;
     text-align: right;
     padding-right: 20px;
+}
+
+#c2fs div.bton {
+    display: inline;
+    padding: 5px;
+    margin: 5px;
+    border: 1px solid gray;
+    color: black;
+    background-color: white;
 }

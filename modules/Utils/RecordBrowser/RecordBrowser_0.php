@@ -1108,7 +1108,12 @@ class Utils_RecordBrowser extends Module {
 			$tb->switch_tab($this->switch_to_addon);
 			location(array());
 		}
-		if ($mode=='add' || $mode=='edit') print("</form>\n");
+		if ($mode=='add' || $mode=='edit') {
+            print("</form>\n");
+            load_js('modules/Utils/RecordBrowser/click2fill.js');
+            eval_js('initc2f()');
+            Base_ActionBarCommon::add('clone', 'Click 2 Fill', 'href="javascript:void(0)" onclick="c2f()"');
+        }
 		$tb->tag();
 
 		return true;
