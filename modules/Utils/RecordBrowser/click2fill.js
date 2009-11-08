@@ -43,7 +43,7 @@ function c2f() {
             alert("This template is not compatible with Click 2 Fill function");
             return;
         }
-        document.getElementById("c2fBox").innerHTML = '<textarea id="c2ftxt" rows="10" cols="50">Paste your data here</textarea><div id="c2fs"></div><input type="button" class="button" onclick="c2fScan()" value="Scan/Edit"/>';
+        document.getElementById("c2fBox").innerHTML = '<textarea id="c2ftxt" rows="3" cols="50">Paste your data here</textarea><div id="c2fs"></div><input type="button" class="button" onclick="c2fScan()" value="Scan/Edit"/>';
         c2fstate = -1;
         var el = document.getElementsByTagName("input");
         for(var i = 0; i < el.length; i++) {
@@ -79,19 +79,13 @@ function c2f() {
 }
 function c2fScan() {
     if(c2fstate == 1) {
-        var lines = document.getElementById("c2ftxt").value.split("\n");
+        var words = document.getElementById("c2ftxt").value.split(new RegExp("[, \n]"));
         document.getElementById("c2fs").innerHTML = '';
-        for(var i = 0; i < lines.length; i++) {
-            var words = lines[i].split(new RegExp("[, ]"));
-            var boxes = 0
-            for(var j = 0; j < words.length; j++) {
-                if(words[j].length == 0) continue;
-                var id = i+'c2f'+j;
-                document.getElementById("c2fs").innerHTML += '<div id="'+id+'" class="bton" onclick="manipulateArray(\''+id+'\')">'+words[j]+'</div><span id="'+'o'+id+'"></span>';
-                boxes++;
-                objs[id] = false;
-            }
-            if( boxes > 0) document.getElementById("c2fs").innerHTML += '<br/>';
+        for(var i = 0; i < words.length; i++) {
+            if(words[i].length == 0) continue;
+            var id = 'c2f'+i;
+            document.getElementById("c2fs").innerHTML += '<div id="'+id+'" onclick="manipulateArray(\''+id+'\')">'+words[i]+'</div><span id="'+'o'+id+'"></span>';
+            objs[id] = false;
         }
         document.getElementById("c2fs").style.display = 'block';
         document.getElementById("c2ftxt").style.display = 'none';
