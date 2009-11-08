@@ -201,6 +201,7 @@
 }
 
 #c2fs div {
+    display: -moz-inline-box;
     display: inline-block;
     padding: 5px;
     margin: 5px;
@@ -213,7 +214,7 @@
 #c2fBox {
     text-align: left;
     margin: 5px;
-    width: 90%;
+    width: 95%;
 }
 
 #c2ftxt {
