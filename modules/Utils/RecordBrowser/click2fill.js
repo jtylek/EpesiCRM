@@ -79,7 +79,7 @@ function c2f() {
 }
 function c2fScan() {
     if(c2fstate == 1) {
-        var words = document.getElementById("c2ftxt").value.split(new RegExp("[, \n]"));
+        var words = document.getElementById("c2ftxt").value.split(new RegExp("[, \n\t]"));
         document.getElementById("c2fs").innerHTML = '';
         for(var i = 0; i < words.length; i++) {
             if(words[i].length == 0) continue;
