@@ -1034,10 +1034,11 @@ class Utils_RecordBrowser extends Module {
                 $text = $this->clipboard_pattern;
                 $record = Utils_RecordBrowserCommon::get_record($this->tab, $id);
                 foreach($this->table_rows as $name=>$val) {
-                    if(in_array($val['type'], array('select', 'multiselect', 'calculated', 'commondata', 'checkbox'))) continue;
-                    $text = str_replace('%'.$val['id'], $record[$val['id']], $text);
+                    $fval = Utils_RecordBrowserCommon::get_val($this->tab, $val['id'], $record, true);
+                    $text = str_replace('%'.$val['id'], $fval, $text);
                 }
-                $text = '<h3>'.$this->t('Move mouse over box below to select text and hit Ctrl-c to copy it.').'</h3><textarea onmouseover="this.focus(); this.select();" id="ctarea" rows="7" cols="50" style="width:100%;" readonly="true">'.$text.'</textarea>';
+                load_js("modules/Utils/RecordBrowser/selecttext.js");
+                $text = '<h3>'.$this->t('Move mouse over box below to select text and hit Ctrl-c to copy it.').'</h3><div onmouseover="fnSelect(this)" style="border: 1px solid gray; margin: 15px; padding: 20px;">'.$text.'</div>';
                 Libs_LeightboxCommon::display('clipboard',$text,'Copy');
             }
 		}
@@ -1486,8 +1487,7 @@ class Utils_RecordBrowser extends Module {
         $form->addElement('select', 'enable', $this->t('Enable'), array($this->t('No'), $this->t('Yes')));
         $info = '<b>'.$this->t('This is html pattern. All html tags are allowed.<br/>Use &lt;pre&gt; some text &lt;/pre&gt; to generate text identical as you typed it.<br/><br/>Keywords:').'</b>';
         foreach($this->table_rows as $name=>$val) {
-            if($val['type'] == 'select' || $val['type'] == 'multiselect' || $val['type'] == 'calculated' || $val['type'] == 'commondata' || $val['type'] == 'checkbox') continue;
-            $info .= '<br/><b>%'.$val['id'].'</b> - '.$name;
+            $info .= '<br/><b>%'.$val['id'].'</b> - '.$name.' ('.$val['type'].')';
         }
         $label = '<img src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser', 'info.png').'" '.Utils_TooltipCommon::open_tag_attrs($info, false).'/> '.$this->t('Pattern');
         $textarea = $form->addElement('textarea', 'pattern', $label);
