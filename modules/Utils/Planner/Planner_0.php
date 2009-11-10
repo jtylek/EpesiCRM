@@ -79,9 +79,19 @@ class Utils_Planner extends Module {
 			$el->on_remove_js($on_change);
 			return;
 		}
+		if ($type=='checkbox'){
+//			eval_js('Event.observe("'.$name.'", "change" , function(){'.$on_change.'$("'.$name.'").className=$("'.$name.'").options[$("'.$name.'").selectedIndex].className;});');
+			$this->form->addElement($type, $name, $label, null, array('id'=>$name));
+			return;
+		}
 		if ($type=='select'){
 			eval_js('Event.observe("'.$name.'", "change" , function(){'.$on_change.'$("'.$name.'").className=$("'.$name.'").options[$("'.$name.'").selectedIndex].className;});');
 			$this->form->addElement($type, $name, $label, $param1, array('id'=>$name));
+			return;
+		}
+		if ($type=='commondata'){
+			eval_js('Event.observe("'.$name.'", "change" , function(){'.$on_change.'$("'.$name.'").className=$("'.$name.'").options[$("'.$name.'").selectedIndex].className;});');
+			$this->form->addElement($type, $name, $label, $param1, $param2, array('id'=>$name));
 			return;
 		}
 		if ($type=='autoselect'){

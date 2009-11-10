@@ -88,10 +88,10 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
 			// TODO: minor bug - will duplicate entry if already present, plus need to strip of tags
 				
             $strValues = is_array($this->_values)? array_map('strval', $this->_values): array();
-			$strHtml .= '<option value="__SEARCH_TIP__">'.'Start typing to search...'.'</option>';
-			eval_js('set_style_for_search_tip = function(el){if($(el).value=="__SEARCH_TIP__")$(el).className="autoselect_search_tip";else $(el).className=""}');
-			eval_js('set_style_for_search_tip("'.$myName.'");');
-			eval_js('Event.observe("'.$myName.'", "change", function (){set_style_for_search_tip("'.$myName.'");});');
+			$strHtml .= '<option value="">'.'Start typing to search...'.'</option>';
+//			eval_js('set_style_for_search_tip = function(el){if($(el).value=="__SEARCH_TIP__")$(el).className="autoselect_search_tip";else $(el).className=""}');
+//			eval_js('set_style_for_search_tip("'.$myName.'");');
+//			eval_js('Event.observe("'.$myName.'", "change", function (){set_style_for_search_tip("'.$myName.'");});');
             foreach ($this->_options as $option) {
                 if (!empty($strValues) && in_array($option['attr']['value'], $strValues, true)) {
                     $option['attr']['selected'] = 'selected';

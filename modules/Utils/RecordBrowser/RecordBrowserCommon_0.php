@@ -703,6 +703,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if ($args['type']=='long text')
 				$values[$args['id']] = Utils_BBCodeCommon::optimize($values[$args['id']]);
 			if ($args['type']=='multiselect') {
+				if (!is_array($values[$args['id']])) $values[$args['id']] = array($values[$args['id']]);
 				$array_diff = array_diff($record[$args['id']], $values[$args['id']]);
 				if (empty($array_diff)) {
 					$array_diff = array_diff($values[$args['id']], $record[$args['id']]);
