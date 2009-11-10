@@ -1038,8 +1038,10 @@ class Utils_RecordBrowser extends Module {
                     $fval = Utils_RecordBrowserCommon::get_val($this->tab, $val['id'], $record, true);
                     if(strlen($fval)) $data[$val['id']] = $fval;
                 }
+                $elem = 0;
                 $match = array();
-                while(preg_match('/\%\{(.*?(\{.+?\}.*?)+?)\}/', $text, $match)) {
+                $text = '%{'.$text.'}';
+                while(preg_match('/%\{(([^%\}\{]*?\{[^%\}\{]+?\}[^%\}\{]*?)+?)\}/', $text, $match)) {
                     $text_replace = $match[1];
                     $changed = false;
                     while(preg_match('/\{(.+?)\}/', $text_replace, $second_match)) {
@@ -1051,8 +1053,13 @@ class Utils_RecordBrowser extends Module {
                         $text_replace = str_replace($second_match[0], $replace_value, $text_replace);
                     }
                     if(! $changed ) $text_replace = '';
-                    $text = str_replace($match[0], $text_replace, $text);
+                    $data["int$elem"] = $text_replace;
+                    $text = str_replace($match[0], '{int'.$elem.'}', $text);
+                    $elem++;
                 }
+                $elem--;
+                $text = str_replace('{int'.$elem.'}', $data["int$elem"], $text);
+
                 load_js("modules/Utils/RecordBrowser/selecttext.js");
                 $text = '<h3>'.$this->t('Move mouse over box below to select text and hit Ctrl-c to copy it.').'</h3><div onmouseover="fnSelect(this)" style="border: 1px solid gray; margin: 15px; padding: 20px;">'.$text.'</div>';
                 Libs_LeightboxCommon::display('clipboard',$text,'Copy');
@@ -1500,11 +1507,11 @@ class Utils_RecordBrowser extends Module {
         $form = $this->init_module('Libs/QuickForm');
         $r = Utils_RecordBrowserCommon::get_clipboard_pattern($this->tab, true);
         $form->addElement('select', 'enable', $this->t('Enable'), array($this->t('No'), $this->t('Yes')));
-        $info = '<b>'.$this->t('This is html pattern. All html tags are allowed.<br/>Use &lt;pre&gt; some text &lt;/pre&gt; to generate text identical as you typed it.<br/><br/>Keywords:').'</b>';
+        $info = '<b>'.$this->t('This is html pattern. All html tags are allowed.<br/>Use &lt;pre&gt; some text &lt;/pre&gt; to generate text identical as you typed it.<br/><br/>Conditional use:<br/>%%{lorem {keyword} ipsum {keyword2}}<br/>lorem ipsum will be shown only when at least one of keywords has value. Nested conditions are allowed.<br/><br/>Normal use:<br/>%%{{keyword}}<br/><br/>Keywords:<br/>').'</b>';
         foreach($this->table_rows as $name=>$val) {
-            $info .= '<br/><b>%'.$val['id'].'</b> - '.$name.' ('.$val['type'].')';
+            $info .= '<b>'.$val['id'].'</b> - '.$name.', ';
         }
-        $label = '<img src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser', 'info.png').'" '.Utils_TooltipCommon::open_tag_attrs($info, false).'/> '.$this->t('Pattern');
+        $label = '<img src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser', 'info.png').'" '.Utils_TooltipCommon::open_tag_attrs($info).'/> '.$this->t('Pattern');
         $textarea = $form->addElement('textarea', 'pattern', $label);
         $textarea->setRows(12);
         $textarea->setCols(80);
