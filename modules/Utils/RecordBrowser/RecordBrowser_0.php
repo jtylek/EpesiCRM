@@ -150,7 +150,7 @@ class Utils_RecordBrowser extends Module {
 		list($this->caption,$this->icon,$this->recent,$this->favorites,$this->full_history) = $params;
 		$this->favorites &= !$this->disabled['fav'];
 		$this->watchdog = Utils_WatchdogCommon::category_exists($this->tab) && !$this->disabled['watchdog'];
-        $this->clipboard_pattern = DB::GetOne('SELECT pattern FROM recordbrowser_clipboard_pattern WHERE tab=%s', array($this->tab));
+        $this->clipboard_pattern = Utils_RecordBrowserCommon::get_clipboard_pattern($this->tab);
 
 		//If Caption or icon not specified assign default values
 		if ($this->caption=='') $this->caption='Record Browser';
@@ -1033,9 +1033,25 @@ class Utils_RecordBrowser extends Module {
                 $theme -> assign('clipboard_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs($this->t('Click to export values to copy')).' '.Libs_LeightboxCommon::get_open_href('clipboard').'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','clipboard.png').'" /></a>');
                 $text = $this->clipboard_pattern;
                 $record = Utils_RecordBrowserCommon::get_record($this->tab, $id);
-                foreach($this->table_rows as $name=>$val) {
+                $data = array();
+                foreach($this->table_rows as $val) {
                     $fval = Utils_RecordBrowserCommon::get_val($this->tab, $val['id'], $record, true);
-                    $text = str_replace('%'.$val['id'], $fval, $text);
+                    if(strlen($fval)) $data[$val['id']] = $fval;
+                }
+                $match = array();
+                while(preg_match('/\%\{(.*?(\{.+?\}.*?)+?)\}/', $text, $match)) {
+                    $text_replace = $match[1];
+                    $changed = false;
+                    while(preg_match('/\{(.+?)\}/', $text_replace, $second_match)) {
+                        $replace_value = '';
+                        if(key_exists($second_match[1], $data)) {
+                            $replace_value = $data[$second_match[1]];
+                            $changed = true;
+                        }
+                        $text_replace = str_replace($second_match[0], $replace_value, $text_replace);
+                    }
+                    if(! $changed ) $text_replace = '';
+                    $text = str_replace($match[0], $text_replace, $text);
                 }
                 load_js("modules/Utils/RecordBrowser/selecttext.js");
                 $text = '<h3>'.$this->t('Move mouse over box below to select text and hit Ctrl-c to copy it.').'</h3><div onmouseover="fnSelect(this)" style="border: 1px solid gray; margin: 15px; padding: 20px;">'.$text.'</div>';
@@ -1482,8 +1498,7 @@ class Utils_RecordBrowser extends Module {
 	}
     public function setup_clipboard_pattern() {
         $form = $this->init_module('Libs/QuickForm');
-        $r = DB::GetAll('SELECT pattern,enabled FROM recordbrowser_clipboard_pattern WHERE tab=%s', array($this->tab));
-        if(sizeof($r)) $r = $r[0];
+        $r = Utils_RecordBrowserCommon::get_clipboard_pattern($this->tab, true);
         $form->addElement('select', 'enable', $this->t('Enable'), array($this->t('No'), $this->t('Yes')));
         $info = '<b>'.$this->t('This is html pattern. All html tags are allowed.<br/>Use &lt;pre&gt; some text &lt;/pre&gt; to generate text identical as you typed it.<br/><br/>Keywords:').'</b>';
         foreach($this->table_rows as $name=>$val) {
@@ -1500,15 +1515,7 @@ class Utils_RecordBrowser extends Module {
    		if ($form->validate()) {
             $enable = $form->exportValue('enable');
             $pattern = $form->exportValue('pattern');
-			if($enable == 0 && strlen($pattern) == 0 && $r) {
-                DB::Execute('DELETE FROM recordbrowser_clipboard_pattern WHERE tab = %s', array($this->tab));
-            } else {
-                if($r) {
-                    DB::Execute('UPDATE recordbrowser_clipboard_pattern SET pattern=%s,enabled=%d WHERE tab=%s',array($pattern,$enable,$this->tab));
-                } else {
-                    DB::Execute('INSERT INTO recordbrowser_clipboard_pattern values (%s,%s,1)',array($this->tab, $pattern));
-                }
-            }
+            Utils_RecordBrowserCommon::set_clipboard_pattern($this->tab, $pattern, $enable, true);
 		}
     }
 	public function setup_loader() {

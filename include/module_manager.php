@@ -1020,7 +1020,7 @@ class ModuleManager {
     /**
      * Returns array containing required modules.
      *
-     * @param bool If true then function returns associative array containing names of modules that require specific module
+     * @param bool $verbose If true then function returns associative array containing names of modules that require specific module
      * @return array If module is required then arr['module_name'] is equal to number of modules that require specific module.
      */
     public static function required_modules($verbose = false) {

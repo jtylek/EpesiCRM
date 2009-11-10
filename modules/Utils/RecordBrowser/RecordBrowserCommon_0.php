@@ -1618,6 +1618,52 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		return $ret;
 	}
+
+/**
+ * Function to manipulate clipboard pattern
+ * @param string $tab recordbrowser table name
+ * @param string|null $pattern pattern, or when it's null the pattern stays the same, only enable state changes
+ * @param bool $enabled new enabled state of clipboard pattern
+ * @param bool $force make it true to allow any changes or overwrite when clipboard pattern exist
+ * @return bool true if any changes were made, false otherwise
+ */
+    public static function set_clipboard_pattern($tab, $pattern, $enabled = true, $force = false) {
+        $ret = null;
+        $enabled = $enabled ? 1 : 0;
+        $r = self::get_clipboard_pattern($tab, true);
+        /* when pattern exists and i can overwrite it... */
+        if($r && $force) {
+            /* just change enabled state, when pattern is null */
+            if($pattern === null) {
+                $ret = DB::Execute('UPDATE recordbrowser_clipboard_pattern SET enabled=%d WHERE tab=%s',array($enabled,$tab));
+            } else {
+                /* delete if it's not necessary to hold any value */
+                if($enabled == 0 && strlen($pattern) == 0) $ret = DB::Execute('DELETE FROM recordbrowser_clipboard_pattern WHERE tab = %s', array($tab));
+                /* or update values */
+                else $ret = DB::Execute('UPDATE recordbrowser_clipboard_pattern SET pattern=%s,enabled=%d WHERE tab=%s',array($pattern,$enabled,$tab));
+            }
+        }
+        /* there is no such pattern in database so create it*/
+        if(!$r) {
+            $ret = DB::Execute('INSERT INTO recordbrowser_clipboard_pattern values (%s,%s,%d)',array($tab, $pattern, $enabled));
+        }
+        if($ret) return true;
+        return false;
+    }
+
+/**
+ * Returns clipboard pattern string only if it is enabled. If 'with_state' is true return value is associative array with pattern and enabled keys.
+ * @param string $tab name of RecordBrowser table
+ * @param bool $with_state return also state of pattern
+ * @return string|array string by default, array when with_state=true
+ */
+    public static function get_clipboard_pattern($tab, $with_state = false) {
+        if($with_state) {
+            $ret = DB::GetArray('SELECT pattern,enabled FROM recordbrowser_clipboard_pattern WHERE tab=%s', array($tab));
+            if(sizeof($ret)) return $ret[0];
+        }
+        return DB::GetOne('SELECT pattern FROM recordbrowser_clipboard_pattern WHERE tab=%s AND enabled=1', array($tab));
+    }
 	///////////////////////////////////////////
 	// mobile devices
 	
