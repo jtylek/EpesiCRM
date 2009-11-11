@@ -29,12 +29,9 @@ grid_enable_field_edit = function(element_name, recid, tab) {
 	});
 }
 
-grid_submit_field = function(element_name, recid, tab) {
+grid_submit_field = function(element_name, recid, tab, form_name) {
 	elemf = $('grid_form_field_'+element_name+'_'+recid);
 	elemv = $('grid_value_field_'+element_name+'_'+recid);
-	elemf.style.display = 'none';
-	elemv.style.display = 'inline';
-	elemv.innerHTML = 'Processing...';
 
 	switched_elem = '';
 	switched_id = '';
@@ -42,7 +39,7 @@ grid_submit_field = function(element_name, recid, tab) {
 		method: 'post',
 		parameters:{
 			element:Object.toJSON(element_name),
-			value:Object.toJSON($(element_name).value),
+			value:Object.toJSON($(form_name).serialize()),
 			id:Object.toJSON(recid),
 			tab:Object.toJSON(tab),
 			mode:Object.toJSON('submit'),
@@ -52,4 +49,7 @@ grid_submit_field = function(element_name, recid, tab) {
 			eval(t.responseText);
 		}
 	});
+	elemf.style.display = 'none';
+	elemv.style.display = 'inline';
+	elemv.innerHTML = 'Processing...';
 }

@@ -407,6 +407,7 @@ class HTML_QuickForm_date extends HTML_QuickForm_group
                             $options = array($this->_options['emptyOptionValue'] => $this->_options['emptyOptionText']) + $options;
                         }
                     }
+					$this->updateAttributes(array('style'=>'width:auto;'));
                     $this->_elements[] = new HTML_QuickForm_select($sign, null, $options, $this->getAttributes());
                 }
             }
