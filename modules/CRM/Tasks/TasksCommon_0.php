@@ -12,7 +12,8 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_TasksCommon extends ModuleCommon {
 	public static function applet_caption() {
-		return "Tasks";
+		if(self::Instance()->acl_check('browse tasks'))
+			return "Tasks";
 	}
 
 	public static function applet_info() {
@@ -270,7 +271,7 @@ class CRM_TasksCommon extends ModuleCommon {
 	// mobile devices
 
 	public function mobile_menu() {
-		if(!Acl::is_user())
+		if(!self::Instance()->acl_check('browse tasks'))
 			return array();
 		return array('Tasks'=>array('func'=>'mobile_tasks','color'=>'blue'));
 	}

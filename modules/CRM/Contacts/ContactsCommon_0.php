@@ -113,17 +113,24 @@ class CRM_ContactsCommon extends ModuleCommon {
 
 	/*--------------------------------------------------------------------*/
 	public static function menu() {
-		return array(
+		$ret = array(
 			'CRM'=>array(
 				'__submenu__'=>1,
 				'Contacts'=>array('mode'=>'contact','__icon__'=>'contacts.png','__icon_small__'=>'contacts-small.png'),
 				'Companies'=>array('mode'=>'company','__icon__'=>'companies.png','__icon_small__'=>'companies-small.png')
-			),
-			'My settings'=>array(
-				'__submenu__'=>1,
-				'My Contact'=>array('mode'=>'my_contact','__icon__'=>'contacts.png','__icon_small__'=>'contacts-small.png'),
-				'Main Company'=>array('mode'=>'main_company','__icon__'=>'companies.png','__icon_small__'=>'companies-small.png')
 			));
+		$ret['My settings']=array('__submenu__'=>1);
+			
+		$me = self::get_my_record();
+		if($me['id']!=-1) {
+			$ret['My settings']['My Contact']=array('mode'=>'my_contact','__icon__'=>'contacts.png','__icon_small__'=>'contacts-small.png');
+		}		
+		if(self::Instance()->acl_check('view company')) {
+			$ret['My settings']['Main Company']=array('mode'=>'main_company','__icon__'=>'companies.png','__icon_small__'=>'companies-small.png');
+		}
+		if(count($ret['My settings'])==1)
+			unset($ret['My settings']);
+		return $ret;
 	}
 	public static function caption() {
 		return 'Companies & Contacts';

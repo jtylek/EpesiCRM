@@ -13,7 +13,8 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_PhoneCallCommon extends ModuleCommon {
 	public static function applet_caption() {
-		return 'Phone Calls';
+		if(self::Instance()->acl_check('browse phonecalls'))
+			return 'Phone Calls';
 	}
 	public static function applet_info() {
 		return 'List of phone calls to do';
@@ -94,7 +95,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		switch ($action) {
 			case 'browse_crits':	if ($i->acl_check('browse phonecalls')) return array('(!permission'=>2, '|:Created_by'=>Acl::get_user());
 									return false;
-			case 'browse':	return true;
+			case 'browse':	return $i->acl_check('browse phonecalls');
 			case 'view':	if ($param['permission']==2 && $param['created_by']!=Acl::get_user()) return false;
 							return $i->acl_check('view phonecall');
 			case 'clone':
@@ -127,7 +128,8 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		return array('_no_company_option'=>true);
 	}
 	public static function menu() {
-		return array('CRM'=>array('__submenu__'=>1,'Phone Calls'=>array()));
+		if(self::Instance()->acl_check('browse phonecalls'))
+			return array('CRM'=>array('__submenu__'=>1,'Phone Calls'=>array()));
 	}
 	public static function caption() {
 		return 'Phone Calls';
@@ -361,7 +363,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	//////////////////////////
 	// mobile devices
 	public function mobile_menu() {
-		if(!Acl::is_user())
+		if(!self::Instance()->acl_check('browse phonecalls'))
 			return array();
 		return array('Phone Calls'=>array('func'=>'mobile_phone_calls','color'=>'blue'));
 	}

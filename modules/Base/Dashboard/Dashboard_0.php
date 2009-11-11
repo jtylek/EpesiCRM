@@ -82,7 +82,8 @@ class Base_Dashboard extends Module {
 			print('<div id="dashboard_applets_'.$j.'" style="width:33%;min-height:200px;padding-bottom:10px;vertical-align:top;float:left">');
 
 			foreach($applets[$j] as $row) {
-				if(ModuleManager::is_installed($row['module_name'])==-1) {//if its invalid entry
+				$cap = call_user_func(array($row['module_name'].'Common', 'applet_caption'));
+				if(!$cap || ModuleManager::is_installed($row['module_name'])==-1) {//if its invalid entry
 					$this->delete_applets($row['module_name']);
 					continue;
 				}
@@ -90,7 +91,7 @@ class Base_Dashboard extends Module {
 				$m = $this->init_module($row['module_name'],null,$row['id']);
 
 				$opts = array();
-				$opts['title'] = $this->t(call_user_func(array($row['module_name'].'Common', 'applet_caption')));
+				$opts['title'] = $this->t($cap);
 				$opts['toggle'] = true;
 				$opts['href'] = null;
 				$opts['go'] = false;
@@ -251,6 +252,7 @@ class Base_Dashboard extends Module {
 		asort($app_cap);
 		$app_info = ModuleManager::call_common_methods('applet_info');
 		foreach($app_cap as $name=>$cap) {
+			if(!$cap) continue;
 			$attrs = '';
 			$info = '';
 			if(isset($app_info[$name])) {

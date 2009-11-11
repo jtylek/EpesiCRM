@@ -15,6 +15,8 @@ class CRM_FaxInstall extends ModuleInstall {
 	public function install() {
 		Base_LangCommon::install_translations($this->get_type());
 		Base_ThemeCommon::install_default_theme($this->get_type());
+		$this->add_aco('browse',array('Employee'));
+		$this->add_aco('send',array('Employee'));
 		$this->create_data_dir();
 		return true;
 	}
@@ -25,7 +27,7 @@ class CRM_FaxInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array("0.4");
+		return array("0.5");
 	}
 	
 	public function requires($v) {

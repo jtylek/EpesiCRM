@@ -101,13 +101,13 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_BBCodeCommon::new_bbcode('contact', 'CRM_ContactsCommon', 'contact_bbcode');
 		Utils_BBCodeCommon::new_bbcode('company', 'CRM_ContactsCommon', 'company_bbcode');
 
-		$this->add_aco('browse contacts',array('Employee','Customer'));
+		$this->add_aco('browse contacts',array('Employee'));
 		$this->add_aco('view contact',array('Employee'));
 		$this->add_aco('edit contact',array('Employee'));
 		$this->add_aco('edit my company contacts',array('Employee Administrator'));
 		$this->add_aco('delete contact',array('Employee Manager'));
 
-		$this->add_aco('browse companies',array('Employee','Customer'));
+		$this->add_aco('browse companies',array('Employee'));
 		$this->add_aco('view company',array('Employee'));
 		$this->add_aco('edit company',array('Employee'));
 		$this->add_aco('edit my company',array('Employee Administrator'));
