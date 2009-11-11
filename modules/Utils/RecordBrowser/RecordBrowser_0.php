@@ -731,7 +731,6 @@ class Utils_RecordBrowser extends Module {
 		$this->view_fields_permission = $this->get_access('add', $this->custom_defaults);
 		if (!$special && $this->add_in_table && $this->view_fields_permission) {
 			$form = $this->init_module('Libs/QuickForm',null, 'add_in_table__'.$this->tab);
-			$form->setDefaults($this->custom_defaults);
 
 			$visible_cols = array();
 			foreach($this->table_rows as $field => $args){
@@ -745,8 +744,10 @@ class Utils_RecordBrowser extends Module {
 				$method = explode('::',$dpm);
 				if (is_callable($method)) call_user_func($method, $this->custom_defaults, 'adding');
 			}
+			$this->record = $this->custom_defaults;
 
-			$this->prepare_view_entry_details(null, 'add', null, $form, $visible_cols);
+			$this->prepare_view_entry_details($this->custom_defaults, 'add', null, $form, $visible_cols);
+			$form->setDefaults($this->custom_defaults);
 
 			if ($form->validate()) {
 				$values = $form->exportValues();
