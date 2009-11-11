@@ -916,6 +916,14 @@ class Apps_MailClient extends Module {
 			return;
 		}
 		recursive_rmdir($box_dir);
+
+		$filters = DB::GetCol('SELECT id FROM apps_mailclient_filters WHERE account_id=%d',array($id));
+		if($filters) {
+			DB::Execute('DELETE FROM apps_mailclient_filter_rules WHERE filter_id IN ('.implode(',',$filters).')');
+			DB::Execute('DELETE FROM apps_mailclient_filter_actions WHERE filter_id IN ('.implode(',',$filters).')');
+			DB::Execute('DELETE FROM apps_mailclient_filters WHERE account_id=%d',array($id));
+		}
+
 		DB::Execute('DELETE FROM apps_mailclient_accounts WHERE id=%d',array($id));
 	}
 
