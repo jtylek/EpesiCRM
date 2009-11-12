@@ -731,7 +731,11 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$out = @fopen($mailbox.'.idx','a');
 		if($out==false) return false;
 
+		if(is_array($subject)) $subject = array_shift($subject);
 		if($subject=='') $subject = Base_LangCommon::ts('Apps/MailClient','no subject');
+		if(is_array($from)) $from = implode(',',$from);
+		if(is_array($to)) $to = implode(',',$to);
+		if(is_array($date)) $date = array_shift($date);
 
 		fputcsv($out,array($id, substr($subject,0,256), substr($from,0,256), substr($to,0,256), substr($date,0,64), substr($size,0,64),$read?'1':'0'));
 		fclose($out);
@@ -813,6 +817,10 @@ class Apps_MailClientCommon extends ModuleCommon {
 			$structure->headers['to'] = '';
 		if(!isset($structure->headers['date']))
 			$structure->headers['date'] = '';
+		if(is_array($structure->headers['subject'])) $structure->headers['subject'] = array_shift($structure->headers['subject']);
+		if(is_array($structure->headers['from'])) $structure->headers['from'] = implode(',',$structure->headers['from']);
+		if(is_array($structure->headers['to'])) $structure->headers['to'] = implode(',',$structure->headers['to']);
+		if(is_array($structure->headers['date'])) $structure->headers['date'] = array_shift($structure->headers['date']);
 		return $structure;
 	}
 
