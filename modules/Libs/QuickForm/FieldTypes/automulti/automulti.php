@@ -251,7 +251,7 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
 
 			$searchElement = '';
 			$search = new HTML_QuickForm_autocomplete($myName.'__search','', array('HTML_QuickForm_automulti','get_autocomplete_suggestbox'), array($this->_options_callback, $this->_options_callback_args, $this->_format_callback));
-			$search->on_hide_js('automulti_on_hide("'.$myName.'","'.$this->list_sep.'");'.$this->on_add_js_code);
+			$search->on_hide_js('if($("__autocomplete_id_'.$myName.'__search").value!=""){automulti_on_hide("'.$myName.'","'.$this->list_sep.'");'.$this->on_add_js_code.'}');
 			
 			$searchElement .= $tabs . $search->toHtml()."\n";
 			if (isset($this->_values[0]) && (preg_match('/'.addcslashes($this->list_sep,'/').'/i',$this->_values[0]) || $this->_values[0]=='')) {

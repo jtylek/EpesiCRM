@@ -6,6 +6,7 @@ grid_enable_field_edit = function(element_name, recid, tab) {
 		elemf = $('grid_form_field_'+switched_elem+'_'+switched_id);
 		elemv = $('grid_value_field_'+switched_elem+'_'+switched_id);
 		elemf.style.display = 'none';
+		elemf.innerHTML = '';
 		elemv.style.display = 'inline';
 	}
 	elemf = $('grid_form_field_'+element_name+'_'+recid);

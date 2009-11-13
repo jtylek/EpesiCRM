@@ -48,7 +48,6 @@ class Utils_PlannerCommon extends ModuleCommon {
 		$grid = 	$_SESSION['client']['utils_planner']['grid']['timetable'];
 		$new_in_use = array();
 		$busy_times = call_user_func($racc, $resource, $value);
-		error_log(print_r($busy_times,true),3,'data/log.txt');
 		foreach ($busy_times as $v) {
 			if (!is_numeric($v['day'])) $v['day'] = strtotime($v['day']);
 			foreach (array('start', 'end') as $w)

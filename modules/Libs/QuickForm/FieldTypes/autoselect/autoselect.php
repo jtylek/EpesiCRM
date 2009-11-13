@@ -15,6 +15,7 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
 	private $more_opts_args = null;
 	private $more_opts_format = null;
     private $on_hide_js_code = '';
+	private $__options = array();
 	
     /**
      * Class constructor
@@ -33,6 +34,7 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
         $this->_type = 'select';
         if (isset($options)) {
 			$this->load($options);
+			$this->__options = $options;
         }
 		$this->more_opts_callback = $more_opts_callback[0];
 		$this->more_opts_args = $more_opts_callback[1];
@@ -83,9 +85,8 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
             $strHtml .= $tabs . '<select' . $attrString . ">\n";
 
 			$val = $this->getValue();
-			if (isset($val[0]))
+			if (isset($val[0]) && !isset($this->__options[$val[0]]))
 				$this->addOption(strip_tags(call_user_func_array($this->more_opts_format, array($val[0]))), $val[0]);
-			// TODO: minor bug - will duplicate entry if already present, plus need to strip of tags
 				
             $strValues = is_array($this->_values)? array_map('strval', $this->_values): array();
 			$strHtml .= '<option value="">'.'Start typing to search...'.'</option>';
