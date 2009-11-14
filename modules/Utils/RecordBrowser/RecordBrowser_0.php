@@ -1065,11 +1065,13 @@ class Utils_RecordBrowser extends Module {
                     $elem++;
                 }
                 $elem--;
-                $text = str_replace('{int'.$elem.'}', $data["int$elem"], $text);
+				if ($elem>=0) {
+					$text = str_replace('{int'.$elem.'}', $data["int$elem"], $text);
 
-                load_js("modules/Utils/RecordBrowser/selecttext.js");
-                $text = '<h3>'.$this->t('Move mouse over box below to select text and hit Ctrl-c to copy it.').'</h3><div onmouseover="fnSelect(this)" style="border: 1px solid gray; margin: 15px; padding: 20px;">'.$text.'</div>';
-                Libs_LeightboxCommon::display('clipboard',$text,'Copy');
+					load_js("modules/Utils/RecordBrowser/selecttext.js");
+					$text = '<h3>'.$this->t('Move mouse over box below to select text and hit Ctrl-c to copy it.').'</h3><div onmouseover="fnSelect(this)" style="border: 1px solid gray; margin: 15px; padding: 20px;">'.$text.'</div>';
+					Libs_LeightboxCommon::display('clipboard',$text,'Copy');
+				}
             }
 		}
 
