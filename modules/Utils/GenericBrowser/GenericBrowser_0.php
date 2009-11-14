@@ -481,7 +481,7 @@ class Utils_GenericBrowser extends Module {
 						$where[$v['search']][] = $search[$v['search']];
 				}
 		}
- 		if (isset($quickjump) && $quickjump_to!='')
+ 		if (isset($quickjump) && $quickjump_to!='') {
  			if ($quickjump_to=='0') {
 	 			if (!$array) {
 					$where = ($where?'('.$where.') AND':'').' (false';
@@ -504,9 +504,10 @@ class Utils_GenericBrowser extends Module {
 								')';
 					if ($where) $where = ' ('.$where.')';
 	 			} else {
-					$where[$quickjump] = array(DB::qstr(sprintf('%s',$quickjump_to).'%'),DB::qstr(sprintf('%s',strtolower($quickjump_to).'%')));
+					$where[$quickjump] = array(DB::Concat(DB::qstr($quickjump_to),DB::qstr('%')),DB::Concat(DB::qstr(strtolower($quickjump_to)),DB::qstr('%')));
 	 			}
  			}
+		}
 		return $where;
 	}
 
@@ -947,6 +948,7 @@ class Utils_GenericBrowser extends Module {
 				$letter = chr(ord($letter)+1);
 			}
 			$theme->assign('letter_links', $letter_links);
+			$theme->assign('quickjump_to', $quickjump_to);
 		}
 
 		$theme->assign('data', $out_data);

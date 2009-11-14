@@ -498,7 +498,7 @@ class Utils_RecordBrowser extends Module {
 			$query_cols[] = $args['id'];
 			$arr = array('name'=>$args['name']);
 			if (!isset($this->force_order) && $this->browse_mode!='recent' && $args['type']!=='multiselect' && ($args['type']!=='calculated' || $args['param']!='') && $args['type']!=='hidden') $arr['order'] = $field;
-			if ($quickjump!=='' && $args['name']===$quickjump) $arr['quickjump'] = '"'.$args['name'];
+			if ($quickjump!=='' && $args['name']===$quickjump) $arr['quickjump'] = '"~'.$args['id'];
 			if ($args['type']=='checkbox' || (($args['type']=='date' || $args['type']=='timestamp' || $args['type']=='time') && !$this->add_in_table) || $args['type']=='commondata') {
 				$arr['wrapmode'] = 'nowrap';
 				$arr['width'] = 1;
@@ -577,8 +577,13 @@ class Utils_RecordBrowser extends Module {
 		} else {
 			$val = reset($search);
 			$val = explode(' ', $val[0]);
+			$leftovers = array();
 			foreach ($val as $vv) {
 				foreach ($search as $k=>$v) {
+					if ($v!=$val) {
+						$leftovers[$k] = $v;
+						continue;
+					}
 					$k = str_replace('__',':',$k);
 					$type = explode(':',$k);
 					if ($k[0]=='"') {
@@ -592,6 +597,7 @@ class Utils_RecordBrowser extends Module {
 					$search_res = Utils_RecordBrowserCommon::merge_crits($search_res, array('~"'.$k =>DB::Concat(DB::qstr('%'),DB::qstr($vv),DB::qstr('%'))));
 				}
 			}
+			$search_res = Utils_RecordBrowserCommon::merge_crits($search_res, $leftovers);
 		}
 
 		$order = $gb->get_order();
