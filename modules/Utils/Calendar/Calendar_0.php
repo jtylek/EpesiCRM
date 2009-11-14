@@ -507,7 +507,12 @@ class Utils_Calendar extends Module {
 			}
 			if(isset($dest_id)) {
 				$this->print_event($ev,'day');
-				$ev_out .= 'Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\',\''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).', '.ceil($ev['duration']/(strtotime($this->settings['interval'])-strtotime('0:00'))).');';
+				$dur = 0;
+				$diff = strtotime($this->settings['start_day']) - $ev_start;
+//				$ev['duration'];
+//				print_r($diff.' - ');
+				$dur += ceil($ev['duration']/(strtotime($this->settings['interval'])-strtotime('0:00')));
+				$ev_out .= 'Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\',\''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).', '.$dur.');';
 			}
 		}
 		$ev_out.='Utils_Calendar.flush_reload_event_tag();}';

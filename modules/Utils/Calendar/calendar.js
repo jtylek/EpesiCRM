@@ -125,7 +125,8 @@ add_event_tag:function(dest,ev) {
 		cell.setAttribute('events_children',ch.toJSON());
 
 		if(cell.hasAttribute('join_rows')) {
-			duration -= cell.getAttribute('join_rows');
+//			duration -= cell.getAttribute('join_rows');
+			duration -= 1;
 			cell = $(cell.getAttribute('next_row'));
 		} else
 			duration = 0;

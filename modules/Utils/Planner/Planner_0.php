@@ -206,6 +206,8 @@ class Utils_Planner extends Module {
 		foreach ($this->values as $k=>$v) {
 			$_SESSION['client']['utils_planner']['resources'][$k]['value'] = $v;
 			$_SESSION['client']['utils_planner']['resources'][$k]['in_use'] = array();
+		}
+		foreach ($this->values as $k=>$v) {
 			eval_js(Utils_PlannerCommon::resource_changed($k, $v));
 		}
 	}
