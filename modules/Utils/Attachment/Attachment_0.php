@@ -613,10 +613,12 @@ class Utils_Attachment extends Module {
 	public function delete($id) {
 		if($this->persistent_deletion) {
 			DB::Execute('DELETE FROM utils_attachment_note WHERE attach_id=%d',array($id));
-			$rev = DB::GetOne('SELECT count(*) FROM utils_attachment_file WHERE attach_id=%d',array($id));
+			$rev = DB::GetAssoc('SELECT id,revision FROM utils_attachment_file WHERE attach_id=%d',array($id));
 			$file_base = $this->get_data_dir().$this->group.'/'.$id.'_';
-			for($i=0; $i<$rev; $i++)
+			foreach($rev as $mid=>$i) {
 			    @unlink($file_base.$i);
+			    DB::Execute('DELETE FROM utils_attachment_download WHERE attach_file_id=%d',array($mid));
+			}
 			DB::Execute('DELETE FROM utils_attachment_file WHERE attach_id=%d',array($id));
 			DB::Execute('DELETE FROM utils_attachment_link WHERE id=%d',array($id));
 		} else {
