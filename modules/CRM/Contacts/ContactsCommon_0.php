@@ -243,10 +243,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	public static function crm_company_datatype($field = array()) {
 		if (!isset($field['QFfield_callback'])) $field['QFfield_callback'] = array('CRM_ContactsCommon', 'QFfield_company');
 		if (!isset($field['display_callback'])) $field['display_callback'] = array('CRM_ContactsCommon', 'display_company');
-		if($field['param']['field_type']=='automulti') 
-			$field['type'] = 'multiselect';
-		else
-			$field['type'] = $field['param']['field_type'];
+		$field['type'] = $field['param']['field_type'];
 		$param = 'company::Company Name';
 		if (isset($field['param']['crits'])) $param .= ';'.implode('::',$field['param']['crits']);
 		else $param .= ';::';
@@ -256,10 +253,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 	public static function crm_contact_datatype($field = array()) {
 		if (!isset($field['QFfield_callback'])) $field['QFfield_callback'] = array('CRM_ContactsCommon', 'QFfield_contact');
 		if (!isset($field['display_callback'])) $field['display_callback'] = array('CRM_ContactsCommon', 'display_contact');
-		if($field['param']['field_type']=='automulti') 
-			$field['type'] = 'multiselect';
-		else
-			$field['type'] = $field['param']['field_type'];
+		$field['type'] = $field['param']['field_type'];
 		$param = 'contact::Last Name|First Name';
 		if (isset($field['param']['format'])) $param .= ';'.implode('::',$field['param']['format']);
 		else $param .= ';::';
