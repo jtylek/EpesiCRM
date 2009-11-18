@@ -349,6 +349,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$cont = array();
 		$param = explode(';',$desc['param']);
 		if ($mode=='add' || $mode=='edit') {
+			$adv_crits = null;
 			if ($param[1] == '::') $callback = array('CRM_ContactsCommon', 'contact_format_default');
 			else $callback = explode('::', $param[1]);
 			if ($param[2] != '::') {
@@ -361,7 +362,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 					if ($adv_crits === $crits) $adv_crits = null;
 				}
 			} else $crits = array();
-			
+			if ($crits===true) $crits = $adv_crits;
 			if ($desc['type']!='multiselect' && (!isset($crit_callback) || $crit_callback[0]!='ChainedSelect')) $cont[''] = '---';
 			$limit = array();
 			if ($crits!==null) {
@@ -383,7 +384,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 				$contacts = self::get_contacts($base_crits, array(), array(), $limit);
 				if (!is_array($default)) {
 					if ($default!='') $default = array($default); else $default=array();
-				} 
+				}
 				$ext_rec = array_flip($default);
 				foreach ($contacts as $v) { 
 					$cont[$v['id']] = call_user_func($callback, $v, true);
