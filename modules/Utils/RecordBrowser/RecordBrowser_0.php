@@ -70,7 +70,12 @@ class Utils_RecordBrowser extends Module {
 	public $view_fields_permission;
 	public $form = null;
 	public $tab;
+	public $grid = null;
 	
+	public function enable_grid($arg) {
+		$this->grid = $arg;
+	}
+
 	public function set_filter_crits($field, $crits) {
 		$this->filter_crits[$field] = $crits;
 	}
@@ -656,7 +661,7 @@ class Utils_RecordBrowser extends Module {
 		}
 		self::$access_override['tab'] = $this->tab;
 		if (isset($limit)) $i = $limit['offset'];
-		$grid_enabled = Base_User_SettingsCommon::get('Utils/RecordBrowser','grid');
+		$grid_enabled = $this->grid===null?Base_User_SettingsCommon::get('Utils/RecordBrowser','grid'):$this->grid;
 		if ($grid_enabled) load_js('modules/Utils/RecordBrowser/grid.js');
 		foreach ($records as $row) {
 			$row = Utils_RecordBrowserCommon::format_long_text($this->tab,$row);
