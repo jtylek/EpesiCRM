@@ -580,11 +580,11 @@ class Utils_RecordBrowser extends Module {
 			$leftovers = array();
 			foreach ($val as $vv) {
 				foreach ($search as $k=>$v) {
+					$k = str_replace('__',':',$k);
 					if ($v!=$val) {
 						$leftovers[$k] = $v;
 						continue;
 					}
-					$k = str_replace('__',':',$k);
 					$type = explode(':',$k);
 					if ($k[0]=='"') {
 						$search_res['~_'.$k] = $vv;
