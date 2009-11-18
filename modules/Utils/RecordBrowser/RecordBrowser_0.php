@@ -576,9 +576,9 @@ class Utils_RecordBrowser extends Module {
 			}
 		} else {
 			$val = reset($search);
-			$val = explode(' ', $val[0]);
+			$val2 = explode(' ', $val[0]);
 			$leftovers = array();
-			foreach ($val as $vv) {
+			foreach ($val2 as $vv) {
 				foreach ($search as $k=>$v) {
 					$k = str_replace('__',':',$k);
 					if ($v!=$val) {
