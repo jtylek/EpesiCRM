@@ -65,7 +65,7 @@ class Utils_MessengerCommon extends ModuleCommon {
 		return array('Alerts'=>array(
 			array('name'=>'mail','label'=>'E-mail','type'=>'text','default'=>'',
 					'rule'=>array('type'=>'email',
-						'message'=>'Not valid e-mail address.'), 'param'=>true),
+						'message'=>'Not valid e-mail address.')),
 			array('name'=>'always_follow_me','label'=>'Always follow me','type'=>'bool','default'=>0,
 					'rule'=>array('type'=>'callback',
 						'func'=>array('Utils_MessengerCommon','check_follow'),

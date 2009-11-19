@@ -142,7 +142,7 @@ class Base_User_Login extends Module {
 		$form->addRule('username', $this->t('Field required'), 'required');
 		//require valid e-mail address
 		$form->addRule('mail', $this->t('Field required'), 'required');
-		$form->addRule('mail', $this->t('This isn\'t valid e-mail address'), 'email',true);
+		$form->addRule('mail', $this->t('This isn\'t valid e-mail address'), 'email');
 
 		if($form->validate()) {
 			if($form->process(array(&$this, 'submit_recover')))

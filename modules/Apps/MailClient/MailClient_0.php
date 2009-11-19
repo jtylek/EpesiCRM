@@ -843,7 +843,7 @@ class Apps_MailClient extends Module {
 
 		$cols = array(
 				array('name'=>'header','label'=>$this->t(ucwords($action).' account'),'type'=>'header'),
-				array('name'=>'mail','label'=>$this->t('Mail address'),'rule'=>array(array('type'=>'email','message'=>$this->t('This isn\'t valid e-mail address'), 'param'=>true))),
+				array('name'=>'mail','label'=>$this->t('Mail address'),'rule'=>array(array('type'=>'email','message'=>$this->t('This isn\'t valid e-mail address')))),
 				array('name'=>'login','label'=>$this->t('Login')),
 				array('name'=>'password','label'=>$this->t('Password'),'type'=>'password'),
 

@@ -21,7 +21,7 @@ class Base_Error extends Module implements Base_AdminInterface {
 		$form = & $this->init_module('Libs/QuickForm','Changing theme');
 		
 		$form->addElement('text', 'mail', $this->t('Send bugs to'));
-		$form->addRule('mail', $this->t('This is not valid e-mail address.'),'email',true);
+		$form->addRule('mail', $this->t('This is not valid e-mail address.'),'email');
 		$form->addElement('static', '', '',$this->t('Leave empty to don\'t report bugs.'));
 		
 		$ok_b = HTML_QuickForm::createElement('submit', 'submit_button', $this->ht('OK'));
