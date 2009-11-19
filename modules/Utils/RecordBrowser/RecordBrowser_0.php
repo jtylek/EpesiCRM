@@ -765,9 +765,9 @@ class Utils_RecordBrowser extends Module {
 				foreach ($this->custom_defaults as $k=>$v)
 					if (!isset($values[$k])) $values[$k] = $v;
 				$id = Utils_RecordBrowserCommon::new_record($this->tab, $values);
-				$this->set_module_variable('force_add_in_table_after_submit', true);
 				location(array());
 			}
+			$this->set_module_variable('force_add_in_table_after_submit', true);
 			$form->addElement('submit', 'submit', $this->t('Submit'));
 			$renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
 			$form->accept($renderer);
