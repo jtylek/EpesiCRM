@@ -25,8 +25,9 @@ $GLOBALS['_HTML_QuickForm_registered_rules']['comparestring'] = array('HTML_Quic
 class Libs_QuickForm extends Module {
 	private $qf;
 	
-	public function construct($indicator = null, $action = '', $target = '', $on_submit = null) {
-		$form_name = $this->get_name();
+	public function construct($indicator = null, $action = '', $target = '', $on_submit = null, $form_name=null) {
+		if (!$form_name)
+			$form_name = 'libs_qf_'.md5($this->get_path());
 		if($target=='' && $action!='')
 			$target = '_blank';
 		if(!isset($on_submit))
@@ -44,7 +45,8 @@ class Libs_QuickForm extends Module {
 	}
 	
 	public function get_name() {
-		return 'libs_qf_'.md5($this->get_path());
+		$attrs = $this->qf->getAttributes();
+		return $attrs['name'];
 	}
 	
 	public function validate_with_message($success='', $failure=''){

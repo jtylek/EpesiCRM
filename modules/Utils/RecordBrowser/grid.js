@@ -1,7 +1,7 @@
 var switched_elem = 0;
 var switched_id = 0;
 
-grid_enable_field_edit = function(element_name, recid, tab) {
+grid_enable_field_edit = function(element_name, recid, tab, form_name) {
 	if (switched_elem && switched_id) {
 		elemf = $('grid_form_field_'+switched_elem+'_'+switched_id);
 		elemv = $('grid_value_field_'+switched_elem+'_'+switched_id);
@@ -21,6 +21,7 @@ grid_enable_field_edit = function(element_name, recid, tab) {
 			element:Object.toJSON(element_name),
 			id:Object.toJSON(recid),
 			tab:Object.toJSON(tab),
+			form_name:Object.toJSON(form_name),
 			mode:Object.toJSON('edit'),
 			cid: Epesi.client_id
 		},
@@ -41,6 +42,7 @@ grid_submit_field = function(element_name, recid, tab, form_name) {
 		parameters:{
 			element:Object.toJSON(element_name),
 			value:Object.toJSON($(form_name).serialize()),
+			form_name:Object.toJSON(form_name),
 			id:Object.toJSON(recid),
 			tab:Object.toJSON(tab),
 			mode:Object.toJSON('submit'),

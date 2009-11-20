@@ -364,7 +364,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			} else $crits = array();
 			if ($crits===true) $crits = $adv_crits;
 			if ($desc['type']!='multiselect' && (!isset($crit_callback) || $crit_callback[0]!='ChainedSelect')) $cont[''] = '---';
-			$limit = array();
+			$limit = false;
 			if ($crits!==null) {
 				$amount = Utils_RecordBrowserCommon::get_records_count('contact', $crits);
 				$base_crits = $crits;
@@ -419,7 +419,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 		} else {
 			$callback = $rb_obj->get_display_method($desc['name']);
 			if (!is_callable($callback)) $callback = array('CRM_ContactsCommon','display_contact');
-			$def = call_user_func($callback, $rb_obj->record, false, $desc);
+//			$def = call_user_func($callback, $rb_obj->record, false, $desc);
+			$def = call_user_func($callback, $default, false, $desc);
 			$form->addElement('static', $field, $label, $def);
 		}
 	}

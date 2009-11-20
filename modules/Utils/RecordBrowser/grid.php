@@ -21,12 +21,15 @@ $id = json_decode($_POST['id']);
 $element = json_decode($_POST['element']);
 $tab = json_decode($_POST['tab']);
 $mode = json_decode($_POST['mode']);
+if (isset($_POST['form_name'])) $form_name = json_decode($_POST['form_name']);
+else $form_name = '';
 
 if (!is_numeric($id) || !is_string($element)) 
 	die('Invalid request');
 
 if ($mode=='submit') {
 	$form = ModuleManager::new_instance('Libs_QuickForm', null, 'grid_form');
+	$form->construct(null,'','',null,$form_name);
 	$value = json_decode($_POST['value']);
 	parse_str(urldecode($value), $output);
 	$output['_qf__'.$form->get_name()] = true;
@@ -35,20 +38,22 @@ if ($mode=='submit') {
 
 $form = ModuleManager::new_instance('Libs_QuickForm', null, 'grid_form');
 $rb = ModuleManager::new_instance('Utils_RecordBrowser', null, 'grid_rb');
-$form->construct();
+$form->construct(null,'','',null,$form_name);
 $rb->construct($tab);
 $rb->init();
 $record = Utils_RecordBrowserCommon::get_record($tab, $id);
+$rb->record = $record;
 
-//ob_start();
+ob_start();
 $rb->view_fields_permission = $rb->get_access('edit', $record);
-$rb->prepare_view_entry_details($record, 'edit', $id, $form, array($element=>true));
-//$more_html = ob_get_clean();
+$rb->prepare_view_entry_details($record, 'edit', $id, $form, array($element=>true), true);
+$more_html = ob_get_clean();
 
 if ($mode=='submit') {
 	$form->validate();
 	$vals = $form->exportValues();
-	$value = $vals[$element];
+	if (!isset($vals['__grid_'.$element])) trigger_error(print_r($vals,true));
+	$value = $vals['__grid_'.$element];
 	
 	Utils_RecordBrowserCommon::update_record($tab, $id, array($element=>$value));
 	$record[$element] = $value;
@@ -59,52 +64,50 @@ if ($mode=='submit') {
 	$rb->construct($tab);
 	$rb->init();
 	$record = Utils_RecordBrowserCommon::get_record($tab, $id);
+	$rb->record = $record;
 
 	$rb->view_fields_permission = $rb->get_access('view', $record);
-	$rb->prepare_view_entry_details($record, 'view', $id, $form, array($element=>true));
+	$rb->prepare_view_entry_details($record, 'view', $id, $form, array($element=>true), true);
 
 	$renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
 	$form->accept($renderer);
 	$data = $renderer->toArray();
-	$html = '<form '.$data['attributes'].'>'.$data[$element]['html'].'</form>';
+
+	$html = $data['__grid_'.$element]['html'];
+//	$html = print_r($data,true);
+	if ($form_name=='') {
+		$html = '<form '.$data['attributes'].'>'.$html.'</form>';
+	}
 
 	print('$("grid_value_field_'.$element.'_'.$id.'").innerHTML = \''.Epesi::escapeJS($html).'\';');
 	return;
 }
-//ob_start();
+ob_start();
 
 $form->updateAttributes(array('onsubmit'=>'return false;'));
 
 $renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
 $form->accept($renderer);
 $data = $renderer->toArray();
-$html = '<form '.$data['attributes'].'>'.$data[$element]['html'].'</form>';
-
-//$more_html .= ob_get_clean();
-
-/*$html = '<form '.$data['attributes'].'>';//.$data['hidden'];
-$html .= '<span style="display:none;">';
-foreach ($data as $k=>$v) {
-	if (is_array($v['html'])) {
-		if ($k!=$element)
-			$html .= $v['html'].'<br>';
-		else 
-			$more_html .= $v['html'].'<br>';
-		}
+$html = $data['__grid_'.$element]['html'];
+if ($form_name=='') {
+	$html = '<form '.$data['attributes'].'>'.$data['hidden'].$html.'</form>';
+	$form_name = $form->get_name();
 }
-$html .= '</span>';
-$html .= $data[$element]['html'];
 
-//$html .= $more_html;
-$html .= '</form>';
-*/
+$more_html .= ob_get_clean();
+
+$html .= $more_html;
+
 print('$("grid_form_field_'.$element.'_'.$id.'").innerHTML = \''.Epesi::escapeJS($html).'\';');
 preg_match_all('/name=\"([^\"]+)\"/', $html, $matches);
 foreach ($matches[1] as $v) {
 	print(
 		'el = document.getElementsByName("'.$v.'")[0];'.
-		'if(!el.id)el.id="grid_'.md5($v).'";'.
-		'Event.observe(el.id,"keydown", function(ev){if(ev.keyCode==13)grid_submit_field("'.$element.'",'.$id.',"'.$tab.'","'.$form->get_name().'");});'
+		'if(el){'.
+			'if(!el.id)el.id="grid_'.md5($v).'";'.
+			'Event.observe(el.id,"keydown", function(ev){if(ev.keyCode==13)grid_submit_field("'.$element.'",'.$id.',"'.$tab.'","'.$form_name.'");});'.
+		'}'
 	);
 }
 /*
@@ -114,6 +117,6 @@ $out_js = Epesi::get_jses();
 foreach($out_js as $js) {
 	print('Epesi.load_js(\''.Epesi::escapeJS($js,false).'\');');
 }
-
-print(Epesi::get_eval_jses());*/
+*/
+print(Epesi::get_eval_jses());
 ?>

@@ -661,8 +661,15 @@ class Utils_RecordBrowser extends Module {
 		}
 		self::$access_override['tab'] = $this->tab;
 		if (isset($limit)) $i = $limit['offset'];
+
 		$grid_enabled = $this->grid===null?Base_User_SettingsCommon::get('Utils/RecordBrowser','grid'):$this->grid;
 		if ($grid_enabled) load_js('modules/Utils/RecordBrowser/grid.js');
+
+		$this->view_fields_permission = $this->get_access('add', $this->custom_defaults);
+		if (!$special && $this->add_in_table && $this->view_fields_permission) {
+			$form = $this->init_module('Libs/QuickForm',null, 'add_in_table__'.$this->tab);
+			$form_name = $form->get_name();
+		} else $form_name = '';
 		foreach ($records as $row) {
 			$row = Utils_RecordBrowserCommon::format_long_text($this->tab,$row);
 			if ($this->browse_mode!='recent' && isset($limit)) {
@@ -696,7 +703,7 @@ class Utils_RecordBrowser extends Module {
 				if ($args['style']=='currency' || $args['style']=='number') $value = array('style'=>'text-align:right;','value'=>$value);
 				if ($grid_enabled && !in_array($args['type'], array('calculated','multiselect'))) {
 					$table = '<table class="Utils_RecordBrowser__grid_table" style="width:100%" cellpadding="0" cellspacing="0" border="0"><tr><td id="grid_form_field_'.$argsid.'_'.$row['id'].'" style="display:none;">Loading...</td><td id="grid_value_field_'.$argsid.'_'.$row['id'].'">';
-					$ed_icon = '</td><td style="min-width:18px;width:18px;padding:0px;margin:0px;"><span id="grid_edit_'.$argsid.'_'.$row['id'].'" style="float:right;display:none;"><a href="javascript:void(0);" onclick="grid_enable_field_edit(\''.$argsid.'\','.$row['id'].',\''.$this->tab.'\');"><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'edit.png').'"></a></span></td></tr></table>';
+					$ed_icon = '</td><td style="min-width:18px;width:18px;padding:0px;margin:0px;"><span id="grid_edit_'.$argsid.'_'.$row['id'].'" style="float:right;display:none;"><a href="javascript:void(0);" onclick="grid_enable_field_edit(\''.$argsid.'\','.$row['id'].',\''.$this->tab.'\',\''.$form_name.'\');"><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'edit.png').'"></a></span></td></tr></table>';
 					$attrs = 'onmouseover="$(\'grid_edit_'.$argsid.'_'.$row['id'].'\').style.display=\'inline\'" onmouseout="$(\'grid_edit_'.$argsid.'_'.$row['id'].'\').style.display=\'none\'"';				
 				} else {
 					$table = '';
@@ -739,9 +746,7 @@ class Utils_RecordBrowser extends Module {
 					call_user_func($this->additional_actions_method, $row, $gb_row);
 			}
 		}
-		$this->view_fields_permission = $this->get_access('add', $this->custom_defaults);
 		if (!$special && $this->add_in_table && $this->view_fields_permission) {
-			$form = $this->init_module('Libs/QuickForm',null, 'add_in_table__'.$this->tab);
 
 			$visible_cols = array();
 			foreach($this->table_rows as $field => $args){
@@ -760,12 +765,14 @@ class Utils_RecordBrowser extends Module {
 			$this->prepare_view_entry_details($this->custom_defaults, 'add', null, $form, $visible_cols);
 			$form->setDefaults($this->custom_defaults);
 
-			if ($form->validate()) {
-				$values = $form->exportValues();
-				foreach ($this->custom_defaults as $k=>$v)
-					if (!isset($values[$k])) $values[$k] = $v;
-				$id = Utils_RecordBrowserCommon::new_record($this->tab, $values);
-				location(array());
+			if ($form->isSubmitted()) {
+				if ($form->validate()) {
+					$values = $form->exportValues();
+					foreach ($this->custom_defaults as $k=>$v)
+						if (!isset($values[$k])) $values[$k] = $v;
+					$id = Utils_RecordBrowserCommon::new_record($this->tab, $values);
+					location(array());
+				}
 			}
 			$this->set_module_variable('force_add_in_table_after_submit', true);
 			$form->addElement('submit', 'submit', $this->t('Submit'));
@@ -1230,12 +1237,17 @@ class Utils_RecordBrowser extends Module {
 		return strlen(Utils_BBCodeCommon::strip($string))<400;
 	}
 
-	public function prepare_view_entry_details($record, $mode, $id, $form, $visible_cols = null){
+	public function prepare_view_entry_details($record, $mode, $id, $form, $visible_cols = null, $for_grid=false){
 		$init_js = '';
 		foreach($this->table_rows as $field => $args){
 			if (!$this->view_fields_permission[$args['id']]) continue;
 			if ($visible_cols!==null && !isset($visible_cols[$args['id']])) continue;
 			if (!isset($record[$args['id']])) $record[$args['id']] = '';
+			if ($for_grid) {
+				$nk = '__grid_'.$args['id'];
+				$record[$nk] = $record[$args['id']];
+				$args['id'] = $nk;
+			}
 			if ($args['type']=='hidden') {
 				$form->addElement('hidden', $args['id']);
 				$form->setDefaults(array($args['id']=>$record[$args['id']]));
