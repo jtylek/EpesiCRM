@@ -100,16 +100,23 @@ $more_html .= ob_get_clean();
 $html .= $more_html;
 
 print('$("grid_form_field_'.$element.'_'.$id.'").innerHTML = \''.Epesi::escapeJS($html).'\';');
-preg_match_all('/name=\"([^\"]+)\"/', $html, $matches);
-foreach ($matches[1] as $v) {
-	print(
+print('grid_edit_form_name = "'.$form_name.'";');
+
+preg_match_all('/name=\"([^\"]+)\"/', $data['__grid_'.$element]['html'], $matches);
+if (isset($matches[1][0])) {
+	$v = $matches[1][0];
+	$js = 
 		'el = document.getElementsByName("'.$v.'")[0];'.
 		'if(el){'.
-			'if(!el.id)el.id="grid_'.md5($v).'";'.
-			'Event.observe(el.id,"keydown", function(ev){if(ev.keyCode==13)grid_submit_field("'.$element.'",'.$id.',"'.$tab.'","'.$form_name.'");});'.
-		'}'
-	);
+			'if(!el.id)el.id="grid_'.md5($v).'";';
+	if (count($matches[1])==1)
+		$js .= 'Event.observe(el.id,"blur",function(){grid_disable_edit(\''.$element.'\',\''.$id.'\');});';
+	$js .=
+			'focus_by_id(el.id);'.
+		'}';
+	print($js);
 }
+
 /*
 $_SESSION['client']['__loaded_jses__'] = array();
 

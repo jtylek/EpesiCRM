@@ -703,8 +703,12 @@ class Utils_RecordBrowser extends Module {
 				if ($args['style']=='currency' || $args['style']=='number') $value = array('style'=>'text-align:right;','value'=>$value);
 				if ($grid_enabled && !in_array($args['type'], array('calculated','multiselect'))) {
 					$table = '<table class="Utils_RecordBrowser__grid_table" style="width:100%" cellpadding="0" cellspacing="0" border="0"><tr><td id="grid_form_field_'.$argsid.'_'.$row['id'].'" style="display:none;">Loading...</td><td id="grid_value_field_'.$argsid.'_'.$row['id'].'">';
-					$ed_icon = '</td><td style="min-width:18px;width:18px;padding:0px;margin:0px;"><span id="grid_edit_'.$argsid.'_'.$row['id'].'" style="float:right;display:none;"><a href="javascript:void(0);" onclick="grid_enable_field_edit(\''.$argsid.'\','.$row['id'].',\''.$this->tab.'\',\''.$form_name.'\');"><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'edit.png').'"></a></span></td></tr></table>';
-					$attrs = 'onmouseover="$(\'grid_edit_'.$argsid.'_'.$row['id'].'\').style.display=\'inline\'" onmouseout="$(\'grid_edit_'.$argsid.'_'.$row['id'].'\').style.display=\'none\'"';				
+					$ed_icon = '</td><td style="min-width:18px;width:18px;padding:0px;margin:0px;">'.
+								'<span id="grid_edit_'.$argsid.'_'.$row['id'].'" style="float:right;display:none;"><a href="javascript:void(0);" onclick="grid_enable_field_edit(\''.$argsid.'\','.$row['id'].',\''.$this->tab.'\',\''.$form_name.'\');"><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils/GenericBrowser', 'edit.png').'"></a></span>'.
+								'<span id="grid_save_'.$argsid.'_'.$row['id'].'" style="float:right;display:none;"><a href="javascript:void(0);" onclick="grid_submit_field(\''.$argsid.'\','.$row['id'].',\''.$this->tab.'\');"><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils/RecordBrowser', 'save_grid.png').'"></a></span>'.
+								'</td></tr></table>';
+					$attrs = 'onmouseover="if(typeof(mouse_over_grid)!=\'undefined\')mouse_over_grid(\''.$argsid.'\',\''.$row['id'].'\');" onmouseout="if(typeof(mouse_out_grid)!=\'undefined\')mouse_out_grid(\''.$argsid.'\',\''.$row['id'].'\');"';				
+//					$attrs = 'onmouseover="$(\'grid_edit_'.$argsid.'_'.$row['id'].'\').style.display=\'inline\'" onmouseout="$(\'grid_edit_'.$argsid.'_'.$row['id'].'\').style.display=\'none\'"';				
 				} else {
 					$table = '';
 					$ed_icon = '';
@@ -766,6 +770,7 @@ class Utils_RecordBrowser extends Module {
 			$form->setDefaults($this->custom_defaults);
 
 			if ($form->isSubmitted()) {
+				$this->set_module_variable('force_add_in_table_after_submit', true);
 				if ($form->validate()) {
 					$values = $form->exportValues();
 					foreach ($this->custom_defaults as $k=>$v)
@@ -774,7 +779,6 @@ class Utils_RecordBrowser extends Module {
 					location(array());
 				}
 			}
-			$this->set_module_variable('force_add_in_table_after_submit', true);
 			$form->addElement('submit', 'submit', $this->t('Submit'));
 			$renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
 			$form->accept($renderer);
@@ -799,8 +803,8 @@ class Utils_RecordBrowser extends Module {
 				} else $row_data[] = '&nbsp;';
 			}
 				
-			if ($this->browse_mode == 'recent')
-				$row_data[] = '&nbsp;';
+//			if ($this->browse_mode == 'recent')
+//				$row_data[] = '&nbsp;';
 
 			$gb_row = $gb->get_new_row();
 			$gb_row->add_action('',$data['submit']['html'],'');
