@@ -110,7 +110,7 @@ if (isset($matches[1][0])) {
 		'if(el){'.
 			'if(!el.id)el.id="grid_'.md5($v).'";';
 	if (count($matches[1])==1)
-		$js .= 'Event.observe(el.id,"blur",function(){grid_disable_edit(\''.$element.'\',\''.$id.'\');});';
+		$js .= 'Event.observe(el.id,"blur",function(){setTimeout("grid_disable_edit(\''.$element.'\',\''.$id.'\');", 1500);});';
 	$js .=
 			'focus_by_id(el.id);'.
 		'}';
