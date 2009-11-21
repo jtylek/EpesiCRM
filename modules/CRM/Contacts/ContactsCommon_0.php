@@ -420,7 +420,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$callback = $rb_obj->get_display_method($desc['name']);
 			if (!is_callable($callback)) $callback = array('CRM_ContactsCommon','display_contact');
 //			$def = call_user_func($callback, $rb_obj->record, false, $desc);
-			$def = call_user_func($callback, $default, false, $desc);
+			$def = call_user_func($callback, array($field=>$default), false, $desc);
 			$form->addElement('static', $field, $label, $def);
 		}
 	}
