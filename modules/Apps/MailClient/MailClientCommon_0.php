@@ -811,6 +811,8 @@ class Apps_MailClientCommon extends ModuleCommon {
 		require_once('Mail/mimeDecode.php');
 		$decode = new Mail_mimeDecode($msg, "\r\n");
 		$structure = $decode->decode($opts);
+		if(!isset($structure->headers['subject'])) 
+			$structure->headers['subject'] = '';
 		if(!isset($structure->headers['from']))
 			$structure->headers['from'] = '';
 		if(!isset($structure->headers['to']))
