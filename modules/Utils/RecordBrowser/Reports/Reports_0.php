@@ -121,12 +121,15 @@ class Utils_RecordBrowser_Reports extends Module {
 					$cols = count($this->gb_captions)-2;
 					if (!empty($this->categories)) $cols--;
 					$v = number_format($v/$cols,2);
+					$v = '--';
 				}
 				if ($type=='col_total' || $type=='total_all') {
 					$rows = count($this->ref_records);
 					$v = number_format($v/$rows,2);
+					$v = '--';
 				}
 				$next = $v.' %';
+//				$next = '--';
 				if ($v!=0) unset($format['fade_out_zero']);
 			}
 			$ret[] = $next;
