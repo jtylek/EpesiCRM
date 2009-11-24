@@ -138,7 +138,7 @@ table#Utils_GenericBrowser tr:hover {
 	background-color: #F0F0F0;
 }
 
-table#Utils_GenericBrowser td {
+.Utils_GenericBrowser__td {
     text-align: left;
     border-right: 1px solid #B3B3B3;
     border-bottom: 1px solid #B3B3B3;

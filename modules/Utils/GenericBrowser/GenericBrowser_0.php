@@ -911,6 +911,7 @@ class Utils_GenericBrowser extends Module {
 				else
 					$col[$k]['label'] = $v['value'];
 				$col[$k]['attrs'] .= isset($v['style'])? ' style="'.$v['style'].'"':'';
+				$col[$k]['attrs'] .= ' class="Utils_GenericBrowser__td"';
 				if (isset($quickjump_col) && $k==$quickjump_col) $col[$k]['attrs'] .= ' class="Utils_GenericBrowser__quickjump"';
 				if ((!isset($this->columns[$k]['wrapmode']) || $this->columns[$k]['wrapmode']!='cut') && isset($v['hint'])) $col[$k]['attrs'] .= ' title="'.$v['hint'].'"';
 				$col[$k]['attrs'] .= (isset($this->columns[$k]['wrapmode']) && $this->columns[$k]['wrapmode']=='nowrap')?' nowrap':'';
