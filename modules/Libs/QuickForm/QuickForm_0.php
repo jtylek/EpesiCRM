@@ -110,6 +110,10 @@ class Libs_QuickForm extends Module {
 			$post .= "$('".addslashes($f)."').submited.value=0;";
 		}
 		$s = $pre."_chj(".$chj.$fast.",'".Epesi::escapeJS($indicator)."');".$post;
+		if($submited) {
+			foreach ($form_name as $f)
+				$s = "$('".addslashes($f)."').submited.value=1;".$s."$('".addslashes($f)."').submited.value=0;";
+		}
 		return $s;
 	}
 
