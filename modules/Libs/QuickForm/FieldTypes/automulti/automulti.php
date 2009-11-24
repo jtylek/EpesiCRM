@@ -310,7 +310,8 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
         if (is_null($value)) {
             $value = $this->getValue();
         }
-        $cleanValue = explode('__SEP__',$value);
+        if (is_array($value)) $cleanValue = $value;
+		else $cleanValue = explode('__SEP__',$value);
         array_shift($cleanValue);
 		return $this->_prepareValue($cleanValue, $assoc);
     }

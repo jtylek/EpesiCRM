@@ -1,3 +1,16 @@
+{$form_open}
+{$form_data.prev_week.html}
+{$form_data.prev_day.html}
+{$form_data.today.html}
+{$form_data.next_day.html}
+{$form_data.next_week.html}<br>
+{php}
+unset($this->_tpl_vars['form_data']['prev_week']);
+unset($this->_tpl_vars['form_data']['prev_day']);
+unset($this->_tpl_vars['form_data']['today']);
+unset($this->_tpl_vars['form_data']['next_day']);
+unset($this->_tpl_vars['form_data']['next_week']);
+{/php}
 <table cellpadding="0" cellspacing="0" border="0">
 	<tr>
 		<td style="vertical-align:top;">
@@ -25,33 +38,32 @@
 			</table>
 		</td>
 		<td style="vertical-align:top;margin:5px;">
-			{$form_open}
-				<table id="Utils_Planner__resource_table" cellpadding="0" cellspacing="0" border="0">
-					{foreach item=e key=k from=$form_data}
-						{if is_array($e) && isset($e.label)}
-							{if ($e.type=='automulti')}
-								<tr>
-									<td colspan="2" class="label" nowrap="1">{$e.label}</td>
-								</tr>
-								<tr>
-									<td colspan="2" class="data">{$e.html}</td>
-								</tr>
-							{else}
-								<tr>
-									<td class="label" nowrap="1">{$e.label}</td>
-									<td class="data">{$e.html}</td>
-								</tr>
-							{/if}
+			<table id="Utils_Planner__resource_table" cellpadding="0" cellspacing="0" border="0">
+				{foreach item=e key=k from=$form_data}
+					{if is_array($e) && isset($e.label)}
+						{if ($e.type=='automulti')}
+							<tr>
+								<td colspan="2" class="label" nowrap="1">{$e.label}</td>
+							</tr>
+							<tr>
+								<td colspan="2" class="data">{$e.error}{$e.html}</td>
+							</tr>
+						{else}
+							<tr>
+								<td class="label" nowrap="1">{$e.label}</td>
+								<td class="data">{$e.error}{$e.html}</td>
+							</tr>
 						{/if}
-					{/foreach}
-					<tr>
-						<td colspan="2" class="label">{$time_frames.label}</td>
-					</tr>
-					<tr>
-						<td colspan="2" class="data">{$time_frames.html}</td>
-					</tr>
-				</table>
-			{$form_close}
+					{/if}
+				{/foreach}
+				<tr>
+					<td colspan="2" class="label">{$time_frames.label}</td>
+				</tr>
+				<tr>
+					<td colspan="2" class="data">{$time_frames.html}</td>
+				</tr>
+			</table>
 		</td>
 	</tr>
 </table>
+{$form_close}

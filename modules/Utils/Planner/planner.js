@@ -24,7 +24,7 @@ var switch_direction = '';
 function time_grid_mouse_down(from_time,day,switchd) {
 	elem = $(day+'__'+from_time);
 	if (!elem) {
-		alert(day+'__'+from_time+': element not found');
+//		alert(day+'__'+from_time+': element not found');
 		return;
 	}
 	if (has_class(elem,'unused'))

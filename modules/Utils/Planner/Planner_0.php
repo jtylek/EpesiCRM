@@ -23,6 +23,7 @@ class Utils_Planner extends Module {
 	}
 	
 	public function set_fixed_week($date) {
+		if (!is_numeric($date)) $date = strtotime($date);
 		$this->date = $this->get_module_variable('fixed_date', $date);
 	}
 	
@@ -151,12 +152,12 @@ class Utils_Planner extends Module {
 				if ($fdow>6) $fdow -= 7;
 			}
 		} else {
-			if (!is_numeric($this->date)) $this->date = strtotime($this->date);
-			while (date('w',$this->date)!=$fdow) $this->date = strtotime('-1 day', $this->date);
+//			while (date('w',$this->date)!=$fdow) $this->date = strtotime('-1 day', $this->date);
 			$_SESSION['client']['utils_planner']['date'] = $this->date;
+			$curr = $this->date;
 			while (count($headers)<7) {
-				$headers[$this->date] = Base_RegionalSettingsCommon::time2reg($this->date, false, true).' '.date('D',$this->date);
-				$this->date = strtotime('+1 day', $this->date);
+				$headers[$curr] = Base_RegionalSettingsCommon::time2reg($curr, false, true).' '.date('D',$curr);
+				$curr = strtotime('+1 day', $curr);
 			}
 		}
 		$theme->assign('headers',$headers);
@@ -180,16 +181,61 @@ class Utils_Planner extends Module {
 			'timetable'=>$this->grid,
 			'days'=>$headers,
 			);
+		$this->form->addElement('submit', 'next_day', $this->t('Next day'), array('onclick'=>'$("planner_navigation").value="next_day";'));
+		$this->form->addElement('submit', 'prev_day', $this->t('Previous day'), array('onclick'=>'$("planner_navigation").value="prev_day";'));
+		$this->form->addElement('submit', 'next_week', $this->t('Next week'), array('onclick'=>'$("planner_navigation").value="next_week";'));
+		$this->form->addElement('submit', 'prev_week', $this->t('Previous week'), array('onclick'=>'$("planner_navigation").value="prev_week";'));
+		$this->form->addElement('submit', 'today', $this->t('Today'), array('onclick'=>'$("planner_navigation").value="today";'));
+		$this->form->addElement('hidden', 'navigation', '', array('id'=>'planner_navigation'));
+		eval_js('$("planner_navigation").value="";');
+
+		$values = $this->get_module_variable('preserve_values', null);
+		if ($values===null)
+			$values = $this->form->exportValues();
+		else
+			$this->unset_module_variable('preserve_values');
+		$this->form->setDefaults($values);
 
 		$this->form->assign_theme('form', $theme);
 		$theme->display();
 		Base_ActionBarCommon::add('save','Save',$this->form->get_submit_form_href());
 		Base_ActionBarCommon::add('back','Back',$this->create_back_href());
+
+		foreach ($values as $k=>$v)
+			$this->values[$k] = $v;
+			
+		$time_frames = explode(';',$values['grid_selected_frames']);
+		if (!empty($time_frames) && $time_frames[0]) {
+			foreach ($time_frames as $k=>$v) {
+				$x = explode('::',$v);
+				if (!isset($x[2])) trigger_error(print_r($time_frames, true));
+				list($day, $s, $e) = explode('::',$v);
+				foreach ($this->grid as $v) {
+					if ($v>=$s && $v<$e) {
+						eval_js('time_grid_mouse_down('.$v.','.$day.',"used");');
+					}
+				}
+			}
+			eval_js('time_grid_mouse_up();');
+		}
+		if ($values['navigation']) {
+			switch ($values['navigation']) {
+				case 'next_day': $ch = strtotime('+1 day', $this->date); break;
+				case 'prev_day': $ch = strtotime('-1 day', $this->date); break;
+				case 'next_week': $ch = strtotime('+7 days', $this->date); break;
+				case 'prev_week': $ch = strtotime('-7 days', $this->date); break;
+				case 'today': $ch = strtotime(date('Y-m-d')); break;
+				default: $ch = '';
+			}
+			if ($ch) {
+				$values['navigation'] = '';
+				$this->set_module_variable('fixed_date', $ch);
+				$this->set_module_variable('preserve_values', $values);
+				location(array());
+				return;
+			}
+		}
 		if ($this->form->validate()) {
-			$values = $this->form->exportValues();
-			foreach ($values as $k=>$v)
-				$this->values[$k] = $v;
-			$time_frames = explode(';',$values['grid_selected_frames']);
 			unset($values['grid_selected_frames']);
 			foreach ($time_frames as $k=>$v) {
 				if (!$v) {
