@@ -103,17 +103,13 @@ class Libs_QuickForm extends Module {
 		$chj = '';
 		$post = '';
 		foreach ($form_name as $f) {
-			$pre .= "$('".addslashes($f)."').submited.value=".($submited?'1':'0').";".
-					str_replace('this',"$('".addslashes($f)."')",Libs_QuickFormCommon::get_on_submit_actions());
+			if ($submited) $pre .= "$('".addslashes($f)."').submited.value=1;";
+			$pre .= str_replace('this',"$('".addslashes($f)."')",Libs_QuickFormCommon::get_on_submit_actions());
 			if ($chj) $chj .= "+'&'+";
 			$chj .= "$('".addslashes($f)."').serialize()";
-			$post .= "$('".addslashes($f)."').submited.value=0;";
+			if ($submited) $post .= "$('".addslashes($f)."').submited.value=0;";
 		}
 		$s = $pre."_chj(".$chj.$fast.",'".Epesi::escapeJS($indicator)."');".$post;
-//		if($submited) {
-//			foreach ($form_name as $f)
-//				$s = "$('".addslashes($f)."').submited.value=1;".$s."$('".addslashes($f)."').submited.value=0;";
-//		}
 		return $s;
 	}
 
