@@ -503,7 +503,6 @@ class Utils_RecordBrowser extends Module {
 			$query_cols[] = $args['id'];
 			$arr = array('name'=>$args['name']);
 			if (!isset($this->force_order) && $this->browse_mode!='recent' && $args['type']!=='multiselect' && ($args['type']!=='calculated' || $args['param']!='') && $args['type']!=='hidden') $arr['order'] = $field;
-			if ($quickjump!=='' && $args['name']===$quickjump) $arr['quickjump'] = '"~'.$args['id'];
 			if ($args['type']=='checkbox' || (($args['type']=='date' || $args['type']=='timestamp' || $args['type']=='time') && !$this->add_in_table) || $args['type']=='commondata') {
 				$arr['wrapmode'] = 'nowrap';
 				$arr['width'] = 1;
@@ -518,6 +517,20 @@ class Utils_RecordBrowser extends Module {
 			else
 				$str = explode(';', $args['param']);
 			$ref = explode('::', $str[0]);
+			$each = array();
+			if ($quickjump!=='' && $args['name']===$quickjump) $each[] = 'quickjump';
+			if (!$this->disabled['search']) $each[] = 'search';
+			foreach ($each as $e) {
+				if ($args['type']=='text' || $args['type']=='currency' || ($args['type']=='calculated' && $args['param']!='')) $arr[$e] = $args['id'];
+				if ($ref[0]!='' && isset($ref[1])) $arr[$e] = '__Ref__'.$args['id'];
+				if ($args['type']=='commondata' || $ref[0]=='__COMMON__') {
+					if (!isset($ref[1]) || $ref[0]=='__COMMON__') $arr[$e] = '__RefCD__'.$args['id'];
+					else unset($arr[$e]);
+				}
+			}
+			if (isset($arr['quickjump'])) $arr['quickjump'] = '"~'.$arr['quickjump'];
+			/*
+			if ($quickjump!=='' && $args['name']===$quickjump) $arr['quickjump'] = '"~'.$args['id'];
 			if (!$this->disabled['search']) {
 				if ($args['type']=='text' || $args['type']=='currency' || ($args['type']=='calculated' && $args['param']!='')) $arr['search'] = $args['id'];//str_replace(' ','_',$field);
 				if ($ref[0]!='' && isset($ref[1])) $arr['search'] = '__Ref__'.$args['id'];//str_replace(' ','_',$field);
@@ -526,6 +539,7 @@ class Utils_RecordBrowser extends Module {
 					else unset($arr['search']);
 				}
 			}
+			*/
 			$table_columns[] = $arr;
 		}
 		$clean_order = array();
@@ -566,7 +580,7 @@ class Utils_RecordBrowser extends Module {
 					continue;
 				}
 				if (isset($type[1]) && $type[1]=='RefCD') {
-					$search_res['~"'.$k] = $v;
+					$search_res[$k] = $v;
 					continue;
 				}
 				if (is_array($v)) $v = $v[0];
@@ -581,6 +595,8 @@ class Utils_RecordBrowser extends Module {
 			}
 		} else {
 			$val = reset($search);
+			$isearch = $gb->get_module_variable('search');
+			if (empty($isearch)) $val = null;
 			$val2 = explode(' ', $val[0]);
 			$leftovers = array();
 			foreach ($val2 as $vv) {
@@ -596,7 +612,7 @@ class Utils_RecordBrowser extends Module {
 						continue;
 					}
 					if (isset($type[1]) && $type[1]=='RefCD') {
-						$search_res['~"'.$k] = $vv;
+						$search_res[$k] = $vv;
 						continue;
 					}
 					$search_res = Utils_RecordBrowserCommon::merge_crits($search_res, array('~"'.$k =>DB::Concat(DB::qstr('%'),DB::qstr($vv),DB::qstr('%'))));

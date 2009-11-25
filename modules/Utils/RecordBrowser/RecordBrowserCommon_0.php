@@ -865,6 +865,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								else
 									self::$table_rows[self::$hash[$ref]]['param'] = self::$table_rows[self::$hash[$ref]]['param'][1];
 							}
+							$is_multiselect = (self::$table_rows[self::$hash[$ref]]['type']=='multiselect');
 							$param = explode(';', self::$table_rows[self::$hash[$ref]]['param']);
 							$param = explode('::',$param[0]);
 							$cols2 = null;
@@ -875,11 +876,22 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							if ($params[1]=='RefCD' || $tab2=='__COMMON__') {
 								$ret = Utils_CommonDataCommon::get_translated_array($cols2!==null?$cols2:$cols);
 								$allowed_cd = array();
+//								print('<br>');
+//								print_r($v);
 								if (!is_array($v)) $v = array($v);
+//								print('<br>');
+								if ($noquotes && $operator=='LIKE') {
+									$pat = explode('###',DB::Concat(DB::qstr('###'),DB::qstr('%')));
+									foreach ($v as $g=>$w) if ($w!='') {
+										$v[$g] = '^'.str_replace($pat, '', $w);
+									}
+								}
+//								print_r($v);
+//								print('<br>');
 								foreach ($ret as $kkk=>$vvv)
 									foreach ($v as $w) if ($w!='') {
-										if (stripos($vvv,$w)!==false) {
-											$allowed_cd[] = DB::qstr($kkk);
+										if (preg_match('/'.$w.'/',$vvv)!==0) {
+											$allowed_cd[] = $kkk;
 											break;
 										}
 									}
@@ -888,8 +900,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 									break;
 								}
 								$having_cd = array();
-								foreach ($allowed_cd as $vvv)
-									$having_cd[] = 'r.f_'.$ref.' LIKE '.DB::Concat(DB::qstr('%'),$vvv,DB::qstr('%'));
+								foreach ($allowed_cd as $vvv) {
+									if ($is_multiselect)
+										$having_cd[] = 'r.f_'.$ref.' LIKE '.DB::Concat(DB::qstr('%'),DB::qstr('__'.$vvv.'__'),DB::qstr('%'));
+									else
+										$having_cd[] = 'r.f_'.$ref.'='.DB::qstr($vvv);
+								}
+//								print_r($having_cd);
 								$having .= '('.implode(' OR ',$having_cd).')';
 								break;
 							}

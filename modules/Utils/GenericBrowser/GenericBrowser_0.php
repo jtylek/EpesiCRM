@@ -823,7 +823,7 @@ class Utils_GenericBrowser extends Module {
 				$search = array();
 				foreach ($values as $k=>$v){
 					if ($k=='search') {
-						if ($v!=$this->ht('search keyword...'))
+						if ($v!=$this->ht('search keyword...') && $v!='')
 							$search['__keyword__'] = $v;
 						break;
 					}
