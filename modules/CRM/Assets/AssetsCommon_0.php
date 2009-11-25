@@ -71,7 +71,7 @@ class CRM_AssetsCommon extends ModuleCommon {
         Base_LangCommon::ts('CRM_Assets','Assets'),
         $rid,
         $events,
-        'name',
+        'asset_name',
         $details
         );
     }
