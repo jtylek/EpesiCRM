@@ -15,12 +15,17 @@ mouse_out_grid = function(element, rid) {
 grid_enable_field_edit = function(element_name, recid, tab, form_name) {
 	mouse_out_grid(element_name, recid);
 	if (switched_elem && switched_id) {
-		$('grid_save_'+switched_elem+'_'+switched_id).style.display='none';
-		elemf = $('grid_form_field_'+switched_elem+'_'+switched_id);
-		elemv = $('grid_value_field_'+switched_elem+'_'+switched_id);
-		elemf.style.display = 'none';
-		elemf.innerHTML = 'Loading...';
-		elemv.style.display = 'inline';
+		e=$('grid_save_'+switched_elem+'_'+switched_id);
+		if (e) {
+			e.style.display='none';
+			elemf = $('grid_form_field_'+switched_elem+'_'+switched_id);
+			elemv = $('grid_value_field_'+switched_elem+'_'+switched_id);
+			if (elemf) {
+				elemf.style.display = 'none';
+				elemf.innerHTML = 'Loading...';
+			}
+			if (elemv) elemv.style.display = 'inline';
+		}
 	}
 	elemf = $('grid_form_field_'+element_name+'_'+recid);
 	elemv = $('grid_value_field_'+element_name+'_'+recid);
