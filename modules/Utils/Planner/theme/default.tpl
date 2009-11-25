@@ -1,16 +1,18 @@
 {$form_open}
-{$form_data.prev_week.html}
-{$form_data.prev_day.html}
-{$form_data.today.html}
-{$form_data.next_day.html}
-{$form_data.next_week.html}<br>
-{php}
-unset($this->_tpl_vars['form_data']['prev_week']);
-unset($this->_tpl_vars['form_data']['prev_day']);
-unset($this->_tpl_vars['form_data']['today']);
-unset($this->_tpl_vars['form_data']['next_day']);
-unset($this->_tpl_vars['form_data']['next_week']);
-{/php}
+{if (isset($form_data.prev_week))}
+	{$form_data.prev_week.html}
+	{$form_data.prev_day.html}
+	{$form_data.today.html}
+	{$form_data.next_day.html}
+	{$form_data.next_week.html}<br>
+	{php}
+	unset($this->_tpl_vars['form_data']['prev_week']);
+	unset($this->_tpl_vars['form_data']['prev_day']);
+	unset($this->_tpl_vars['form_data']['today']);
+	unset($this->_tpl_vars['form_data']['next_day']);
+	unset($this->_tpl_vars['form_data']['next_week']);
+	{/php}
+{/if}
 <table cellpadding="0" cellspacing="0" border="0">
 	<tr>
 		<td style="vertical-align:top;">

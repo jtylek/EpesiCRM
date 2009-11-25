@@ -181,13 +181,15 @@ class Utils_Planner extends Module {
 			'timetable'=>$this->grid,
 			'days'=>$headers,
 			);
-		$this->form->addElement('submit', 'next_day', $this->t('Next day'), array('onclick'=>'$("planner_navigation").value="next_day";'));
-		$this->form->addElement('submit', 'prev_day', $this->t('Previous day'), array('onclick'=>'$("planner_navigation").value="prev_day";'));
-		$this->form->addElement('submit', 'next_week', $this->t('Next week'), array('onclick'=>'$("planner_navigation").value="next_week";'));
-		$this->form->addElement('submit', 'prev_week', $this->t('Previous week'), array('onclick'=>'$("planner_navigation").value="prev_week";'));
-		$this->form->addElement('submit', 'today', $this->t('Today'), array('onclick'=>'$("planner_navigation").value="today";'));
-		$this->form->addElement('hidden', 'navigation', '', array('id'=>'planner_navigation'));
-		eval_js('$("planner_navigation").value="";');
+		if ($this->date!==null) {
+			$this->form->addElement('submit', 'next_day', $this->t('Next day'), array('onclick'=>'$("planner_navigation").value="next_day";'));
+			$this->form->addElement('submit', 'prev_day', $this->t('Previous day'), array('onclick'=>'$("planner_navigation").value="prev_day";'));
+			$this->form->addElement('submit', 'next_week', $this->t('Next week'), array('onclick'=>'$("planner_navigation").value="next_week";'));
+			$this->form->addElement('submit', 'prev_week', $this->t('Previous week'), array('onclick'=>'$("planner_navigation").value="prev_week";'));
+			$this->form->addElement('submit', 'today', $this->t('Today'), array('onclick'=>'$("planner_navigation").value="today";'));
+			$this->form->addElement('hidden', 'navigation', '', array('id'=>'planner_navigation'));
+			eval_js('$("planner_navigation").value="";');
+		}
 
 		$values = $this->get_module_variable('preserve_values', null);
 		if ($values===null)
@@ -218,7 +220,7 @@ class Utils_Planner extends Module {
 			}
 			eval_js('time_grid_mouse_up();');
 		}
-		if ($values['navigation']) {
+		if (isset($values['navigation']) && $values['navigation']) {
 			switch ($values['navigation']) {
 				case 'next_day': $ch = strtotime('+1 day', $this->date); break;
 				case 'prev_day': $ch = strtotime('-1 day', $this->date); break;

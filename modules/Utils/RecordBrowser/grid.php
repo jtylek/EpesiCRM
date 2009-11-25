@@ -64,6 +64,7 @@ if ($mode=='submit') {
 	$rb->construct($tab);
 	$rb->init();
 	$record = Utils_RecordBrowserCommon::get_record($tab, $id);
+	$record['__grid_'.$element] = $value;
 	$rb->record = $record;
 
 	$rb->view_fields_permission = $rb->get_access('view', $record);
@@ -109,8 +110,8 @@ if (isset($matches[1][0])) {
 		'el = document.getElementsByName("'.$v.'")[0];'.
 		'if(el){'.
 			'if(!el.id)el.id="grid_'.md5($v).'";';
-	if (count($matches[1])==1)
-		$js .= 'Event.observe(el.id,"blur",function(){setTimeout("grid_disable_edit(\''.$element.'\',\''.$id.'\');", 1500);});';
+//	if (count($matches[1])==1)
+//		$js .= 'Event.observe(el.id,"blur",function(){setTimeout("grid_disable_edit(\''.$element.'\',\''.$id.'\');", 1500);});';
 	$js .=
 			'focus_by_id(el.id);'.
 		'}';

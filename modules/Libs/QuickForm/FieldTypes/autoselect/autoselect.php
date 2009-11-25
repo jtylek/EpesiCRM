@@ -2,6 +2,7 @@
 
 require_once 'HTML/QuickForm/select.php';
 require_once('modules/Libs/QuickForm/FieldTypes/autocomplete/autocomplete.php');
+load_js('modules/Libs/QuickForm/FieldTypes/autoselect/autoselect.js');
 
 /**
  * HTML class for an autoselect field
@@ -103,7 +104,6 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
 			$strHtml .= $tabs . '</select>';
 
 			$search = new HTML_QuickForm_autocomplete($myName.'__search','', array('HTML_QuickForm_autoselect','get_autocomplete_suggestbox'), array($this->more_opts_callback, $this->more_opts_args));
-			load_js('modules/Libs/QuickForm/FieldTypes/autoselect/autoselect.js');
 			$search->on_hide_js('autoselect_on_hide("'.$myName.'");'.$this->on_hide_js_code);
 
             return 	'<span id="__'.$myName.'_select_span">'.
