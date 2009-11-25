@@ -170,7 +170,7 @@ class Utils_Planner extends Module {
 			$grid_legend[$v] = Utils_PlannerCommon::format_time($v*60);
 			$grid_legend[$v] .= ' - '.Utils_PlannerCommon::format_time($this->grid[$k+1]*60);
 			$grid_attrs[$v] = array(); 
-			foreach ($headers as $k2=>$v2) $grid_attrs[$v][$k2] = 'class="noconflict unused" id="'.$k2.'__'.$v.'" onmousedown="time_grid_mouse_down('.$v.','.$k2.')" onmousemove="if(typeof(time_grid_mouse_move)!="undefined")time_grid_mouse_move('.$v.','.$k2.')"';
+			foreach ($headers as $k2=>$v2) $grid_attrs[$v][$k2] = 'class="noconflict unused" id="'.$k2.'__'.$v.'" onmousedown="time_grid_mouse_down('.$v.','.$k2.')" onmousemove="if(typeof(time_grid_mouse_move)!=\'undefined\')time_grid_mouse_move('.$v.','.$k2.')"';
 		}
 		/* GRID LEGEND END */
 		

@@ -49,12 +49,12 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
 		if (!is_string($string)) $string = '';
     	array_unshift($args, $string);
     	$result = call_user_func_array($callback, $args);
-    	$ret = '<ul style="width:290px;">';
+    	$ret = '<ul style="width:auto;">';
     	if (empty($result)) {
 			$ret .= '<li><span style="text-align:center;font-weight:bold;" class="informal">'.Base_LangCommon::ts('Libs/QuickForm','No records founds').'</span></li>';
     	}
     	foreach ($result as $k=>$v) {
-			$ret .= '<li><span style="display:none;">'.$k.'__'.$v.'</span><span class="informal">'.$v.'</span></li>';
+			$ret .= '<li><span style="display:none;">'.$k.'__'.$v.'</span><span class="informal">'.str_replace(' ','&nbsp;',$v).'</span></li>';
     	}
     	$ret .= '</ul>';
     	return $ret;
