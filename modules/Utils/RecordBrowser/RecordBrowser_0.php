@@ -1977,7 +1977,7 @@ class Utils_RecordBrowser extends Module {
 
 	public function enable_quick_new_records($button = true, $force_show = null) {
 		$this->add_in_table = true;
-		if ($button) $this->add_button = 'href="javascript:void(0);" onclick="$(\'add_in_table_row\').style.display=($(\'add_in_table_row\').style.display==\'none\'?\'\':\'none\');if($(focus_on_field))focus_by_id(focus_on_field);"';
+		if ($button) $this->add_button = 'href="javascript:void(0);" onclick="$(\'add_in_table_row\').style.display=($(\'add_in_table_row\').style.display==\'none\'?\'\':\'none\');if(focus_on_field)if($(focus_on_field))focus_by_id(focus_on_field);"';
 		if ($force_show===null) $this->show_add_in_table = Base_User_SettingsCommon::get('Utils_RecordBrowser','add_in_table_shown');
 		else $this->show_add_in_table = $force_show;
 		if ($this->get_module_variable('force_add_in_table_after_submit', false)) {

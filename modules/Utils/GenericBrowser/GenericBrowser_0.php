@@ -898,7 +898,7 @@ class Utils_GenericBrowser extends Module {
 					}
 					$col[$column_no]['label'] = $actions;
 				} else $col[$column_no]['label'] = '&nbsp;';
-				$col[$column_no]['attrs'] = 'nowrap="nowrap"';
+				$col[$column_no]['attrs'] = 'nowrap="nowrap"'.' class="Utils_GenericBrowser__td"';
 			}
 			foreach($r as $k=>$v) {
 				if (is_array($v) && isset($v['dummy'])) $v['style'] = 'display:none;';
