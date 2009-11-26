@@ -74,7 +74,7 @@ class Utils_PlannerCommon extends ModuleCommon {
 		foreach ($in_use as $k=>$v) {
 			if (!isset($new_in_use[$k])) {
 				$should_clear = true;
-				foreach($_SESSION['client']['utils_planner']['resources'] as $r) 
+				foreach($_SESSION['client']['utils_planner']['resources'] as $g=>$r) 
 					if (isset($r['in_use'][$k])) {
 						$should_clear = false;
 						break;

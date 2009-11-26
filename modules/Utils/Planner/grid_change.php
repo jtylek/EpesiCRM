@@ -16,6 +16,7 @@ if(!isset($_POST['frames']) || !isset($_POST['cid']))
 	die('alert(\'Invalid request\')');
 
 define('JS_OUTPUT',1);
+define('READ_ONLY_SESSION',1);
 define('CID',$_POST['cid']); 
 require_once('../../../include.php');
 ModuleManager::load_modules();

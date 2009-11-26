@@ -1120,7 +1120,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$cols = self::$table_rows;
 		while ($row = $ret->FetchRow()) {
 			$r = array(	'id'=>$row['id'],
-						'active'=>$row['active'],
+						':active'=>$row['active'],
 						'created_by'=>$row['created_by'],
 						'created_on'=>$row['created_on']);
 			foreach($cols as $v){
@@ -1259,8 +1259,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$row = DB::GetRow('SELECT * FROM '.$tab.'_data_1 WHERE id=%d', array($id));
 			$record = array('id'=>$id);
 			if (!isset($row['active'])) return null; 
-			foreach(array('active','created_by','created_on') as $v)
+			foreach(array('created_by','created_on') as $v)
 				$record[$v] = $row[$v];
+			$record[':active'] = $row['active'];
 			foreach(self::$table_rows as $field=>$args) {
 				if ($args['type']==='multiselect') {
 					if (!isset($row['f_'.$args['id']])) $r = array();

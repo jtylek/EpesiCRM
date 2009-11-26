@@ -760,7 +760,7 @@ class Utils_RecordBrowser extends Module {
 					if (!isset($da['view'])) $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'view', $row['id'])),'View');
 					if (!isset($da['edit']) && $this->get_access('edit',$row)) $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'edit',$row['id'])),'Edit');
 					if ($admin) {
-						if (!$row['active']) $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],true)),'Activate', null, 'active-off');
+						if (!$row[':active']) $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],true)),'Activate', null, 'active-off');
 						else $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],false)),'Deactivate', null, 'active-on');
 						$info = Utils_RecordBrowserCommon::get_record_info($this->tab, $row['id']);
 						if ($info['edited_by']===null) $gb_row->add_action('','This record was never edited',null,'history_inactive');
@@ -958,7 +958,7 @@ class Utils_RecordBrowser extends Module {
 			}
 		}
 
-		if ($mode!='add' && !$this->record['active'] && !Base_AclCommon::i_am_admin()) return $this->back();
+		if ($mode!='add' && !$this->record[':active'] && !Base_AclCommon::i_am_admin()) return $this->back();
 
 		if ($mode=='view')
 			$this->record = Utils_RecordBrowserCommon::format_long_text($this->tab,$this->record);
@@ -2099,7 +2099,7 @@ class Utils_RecordBrowser extends Module {
 			if (!is_numeric($id)) trigger_error('Invalid id',E_USER_ERROR);
 			$r = Utils_RecordBrowserCommon::get_record($this->tab,$id);
 			if (!$r || empty($r)) $message = $this->t('There is no such record').'<br>';
-			else if (!$r['active']) $message = $this->t('This record was deleted from the system').'<br>';
+			else if (!$r[':active']) $message = $this->t('This record was deleted from the system').'<br>';
 			else {
 				$x = ModuleManager::get_instance('/Base_Box|0');
 				if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);

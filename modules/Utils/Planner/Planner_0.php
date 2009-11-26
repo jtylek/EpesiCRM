@@ -253,6 +253,7 @@ class Utils_Planner extends Module {
 		}
 		foreach ($this->values as $k=>$v) {
 			$_SESSION['client']['utils_planner']['resources'][$k]['value'] = $v;
+		error_log("CLEARING!!!!\n-------------------------------------\n",3,'data/planner.txt');
 			$_SESSION['client']['utils_planner']['resources'][$k]['in_use'] = array();
 		}
 		foreach ($this->values as $k=>$v) {
