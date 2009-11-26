@@ -139,6 +139,7 @@ class CRM_TasksCommon extends ModuleCommon {
 			if (!$nolink) {
 				if ($contact['login']=='') $icon = $icon_none;
 				else {
+//					trigger_error(print_r($record,true));
 					$icon = Utils_WatchdogCommon::user_check_if_notified($contact['login'],'task',$record['id']);
 					if ($icon===null) $icon = $icon_none;
 					elseif ($icon===true) $icon = $icon_on;
