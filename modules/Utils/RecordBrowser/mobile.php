@@ -147,10 +147,10 @@ if($offset>0) print('<a '.(IPHONE?'class="button red" ':'').'href="mobile.php?'.
 if($offset<$cur_num_rows/$num_rows-1) print(' <a '.(IPHONE?'class="button green" ':'').'href="mobile.php?'.http_build_query(array_merge($_GET,array('rb_offset'=>($offset+1)))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','next').'</a>');
 if($cur_num_rows>$num_rows) {
 	$qf = new HTML_QuickForm('rb_page', 'get','mobile.php?'.http_build_query($_GET));
-	$qf->addElement('text', 'rb_offset', Base_LangCommon::ts('Base_User_Login','Page(0-%d)',array($cur_num_rows/$num_rows)));
-	$qf->addElement('submit', 'submit_button', Base_LangCommon::ts('Base_User_Login','OK'),IPHONE?'class="button white"':'');
-	$qf->addRule('rb_offset', Base_LangCommon::ts('Base_User_Login','Field required'), 'required');
-	$qf->addRule('rb_offset', Base_LangCommon::ts('Base_User_Login','Invalid page number'), 'numeric');
+	$qf->addElement('text', 'rb_offset', Base_LangCommon::ts('Utils_RecordBrowser','Page(0-%d)',array($cur_num_rows/$num_rows)));
+	$qf->addElement('submit', 'submit_button', Base_LangCommon::ts('Utils_RecordBrowser','OK'),IPHONE?'class="button white"':'');
+	$qf->addRule('rb_offset', Base_LangCommon::ts('Utils_RecordBrowser','Field required'), 'required');
+	$qf->addRule('rb_offset', Base_LangCommon::ts('Utils_RecordBrowser','Invalid page number'), 'numeric');
 	$renderer =& $qf->defaultRenderer();
 /*	if(IPHONE) {
 		$renderer->setFormTemplate("<form{attributes}>{hidden}<ul>{content}</ul></form>");
