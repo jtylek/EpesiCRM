@@ -354,7 +354,7 @@ function detect_mobile_device(){
     return false;
   }
   // check if the user agent gives away any tell tale signs it's a mobile browser
-  if(preg_match('/up.browser|up.link|windows ce|iemobile|mini|mmp|symbian|midp|wap|phone|pocket|mobile|pda|psp/i',$_SERVER['HTTP_USER_AGENT'])){
+  if(preg_match('/up.browser|up.link|windows ce|iemobile|mini|mmp|symbian|midp|wap|phone|pocket|mobile|pda|psp|ppc|symbian/i',$_SERVER['HTTP_USER_AGENT'])){
     return true;
   }
   // check the http accept header to see if wap.wml or wap.xhtml support is claimed
