@@ -44,6 +44,7 @@ class Utils_RecordBrowser_Reports extends Module {
 	public function enable_paging($amount) {
 		if (isset($_REQUEST['rb_reports_enable_pdf'])) return null;
 		$this->paging = true;
+		$this->gb->force_per_page(10);
 		return $this->gb->get_limit($amount);
 	}
 
