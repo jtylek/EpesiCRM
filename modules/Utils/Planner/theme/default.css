@@ -62,3 +62,23 @@
 #Utils_Planner__time_frames table {
 	width: 100%;
 }
+
+
+#Utils_Planner__navigation .nav_button input{
+	background-image:url(images/button.gif);
+	border:medium none;
+	color:#FFFFFF;
+	font-weight:normal;
+	height:20px;
+	line-height:20px;
+	text-align:center;
+	vertical-align:middle;
+	width:100px;
+	cursor:pointer;
+}
+
+#Utils_Planner__navigation .nav_button:hover input, .nav_button:focus input {
+	background-image:url(images/button-hover.gif);
+	color:white;
+}
+

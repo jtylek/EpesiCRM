@@ -188,6 +188,8 @@ class Utils_Planner extends Module {
 			$this->form->addElement('submit', 'prev_week', $this->t('Previous week'), array('onclick'=>'$("planner_navigation").value="prev_week";'));
 			$this->form->addElement('submit', 'today', $this->t('Today'), array('onclick'=>'$("planner_navigation").value="today";'));
 			$this->form->addElement('hidden', 'navigation', '', array('id'=>'planner_navigation'));
+			$link_text = '$(\'planner_navigation\').value=\'__YEAR__-__MONTH__-__DAY__\';'.$this->form->get_submit_form_js().';';
+			$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text,false,'day',$fdow,null,null,$this->date));
 			eval_js('$("planner_navigation").value="";');
 		}
 
@@ -227,7 +229,7 @@ class Utils_Planner extends Module {
 				case 'next_week': $ch = strtotime('+7 days', $this->date); break;
 				case 'prev_week': $ch = strtotime('-7 days', $this->date); break;
 				case 'today': $ch = strtotime(date('Y-m-d')); break;
-				default: $ch = '';
+				default: $ch = strtotime($values['navigation']);
 			}
 			if ($ch) {
 				$values['navigation'] = '';

@@ -1,10 +1,27 @@
 {$form_open}
 {if (isset($form_data.prev_week))}
-	{$form_data.prev_week.html}
-	{$form_data.prev_day.html}
-	{$form_data.today.html}
-	{$form_data.next_day.html}
-	{$form_data.next_week.html}<br>
+	<table id="Utils_Planner__navigation">
+		<tr>
+			<td class="nav_button">
+				{$form_data.prev_week.html}
+			</td>
+			<td class="nav_button">
+				{$form_data.prev_day.html}
+			</td>
+			<td class="nav_button">
+				{$form_data.today.html}
+			</td>
+			<td class="nav_button">
+				{$form_data.next_day.html}
+			</td>
+			<td class="nav_button">
+				{$form_data.next_week.html}
+			</td>
+			<td>
+				{$popup_calendar}
+			</td>
+		</tr>
+	</table>
 	{php}
 	unset($this->_tpl_vars['form_data']['prev_week']);
 	unset($this->_tpl_vars['form_data']['prev_day']);

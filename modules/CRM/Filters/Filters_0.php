@@ -93,7 +93,7 @@ class CRM_Filters extends Module {
 			$ret = CRM_FiltersCommon::get_my_profile();
 			$desc = $this->t('My records');
 		} else {//all and undefined
-			$contacts = Utils_RecordBrowserCommon::get_records('contact', array('company_name'=>CRM_ContactsCommon::get_main_company()));
+			$contacts = Utils_RecordBrowserCommon::get_records('contact', array('company_name'=>CRM_ContactsCommon::get_main_company()), array(), array('last_name'=>'ASC'));
 			$contacts_select = array();
 			foreach($contacts as $v)
 				$contacts_select[] = $v['id'];
@@ -199,10 +199,10 @@ class CRM_Filters extends Module {
 		$form->addRule('name',$this->t('Field required'),'required');
 		$form->registerRule('unique','callback','check_group_name_exists', 'CRM_Filters');
 		$form->addRule('name',$this->t('Group with this name already exists'),'unique',$id);
-		$contacts = CRM_ContactsCommon::get_contacts(array('company_name'=>CRM_ContactsCommon::get_main_company()));
+		$contacts = CRM_ContactsCommon::get_contacts(array('company_name'=>CRM_ContactsCommon::get_main_company()), array(), array('last_name'=>'ASC'));
 		$contacts_select = array();
 		foreach($contacts as $v)
-			$contacts_select[$v['id']] = $v['first_name'].' '.$v['last_name'];
+			$contacts_select[$v['id']] = $v['last_name'].' '.$v['first_name'];
 		$form->addElement('multiselect', 'contacts', $this->t('People'), $contacts_select);
 		if ($form->validate()) {
 			$v = $form->exportValues();
