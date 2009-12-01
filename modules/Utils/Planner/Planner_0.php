@@ -78,33 +78,33 @@ class Utils_Planner extends Module {
 			$el = $this->form->addElement($type, $name, $label, $param1, $param2, $param3);
 			$el->on_add_js($on_change.'update_grid();');
 			$el->on_remove_js($on_change);
-			return;
+			return $el;
 		}
 		if ($type=='checkbox'){
 //			eval_js('Event.observe("'.$name.'", "change" , function(){'.$on_change.'$("'.$name.'").className=$("'.$name.'").options[$("'.$name.'").selectedIndex].className;});');
-			$this->form->addElement($type, $name, $label, null, array('id'=>$name));
-			return;
+			$el = $this->form->addElement($type, $name, $label, null, array('id'=>$name));
+			return $el;
 		}
 		if ($type=='select'){
 			eval_js('Event.observe("'.$name.'", "change" , function(){'.$on_change.'$("'.$name.'").className=$("'.$name.'").options[$("'.$name.'").selectedIndex].className;});');
-			$this->form->addElement($type, $name, $label, $param1, array('id'=>$name));
-			return;
+			$el = $this->form->addElement($type, $name, $label, $param1, array('id'=>$name));
+			return $el;
 		}
 		if ($type=='commondata'){
 			eval_js('Event.observe("'.$name.'", "change" , function(){'.$on_change.'$("'.$name.'").className=$("'.$name.'").options[$("'.$name.'").selectedIndex].className;});');
-			$this->form->addElement($type, $name, $label, $param1, $param2, array('id'=>$name));
-			return;
+			$el = $this->form->addElement($type, $name, $label, $param1, $param2, array('id'=>$name));
+			return $el;
 		}
 		if ($type=='autoselect'){
 			$on_change .= '$("'.$name.'").className=$("'.$name.'").options[$("'.$name.'").selectedIndex].className;';
 			eval_js('Event.observe("'.$name.'", "change" , function(){'.$on_change.'});');
 			$el = $this->form->addElement($type, $name, $label, $param1, $param2, $param3, array('id'=>$name));
 			$el->on_hide_js($on_change);
-			return;
+			return $el;
 		}
 		if ($type=='text'){
-			$this->form->addElement($type, $name, $label, array('id'=>$name));
-			return;
+			$el = $this->form->addElement($type, $name, $label, array('id'=>$name));
+			return $el;
 		}
 	}
 	

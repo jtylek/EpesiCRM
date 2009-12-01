@@ -95,10 +95,10 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
     }
     
     public function on_add_js($js) {
-    	$this->on_add_js_code = $js;
+    	$this->on_add_js_code .= $js;
     }
     public function on_remove_js($js) {
-    	$this->on_remove_js_code = $js; // TODO: doesn't accept "
+    	$this->on_remove_js_code .= $js;
     }
 
     /**
