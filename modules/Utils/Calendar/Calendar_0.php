@@ -506,7 +506,8 @@ class Utils_Calendar extends Module {
 				$dest_id = $timeline[$i]['id'];
 			}
 			if(isset($dest_id)) {
-				if ($ev['timeless']) $dur = 1;
+				if(isset($ev['timeless']) && $ev['timeless'])
+					$dur = 1;
 				else {
 					$this->print_event($ev,'day');
 					$dur = 0;
