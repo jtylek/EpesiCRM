@@ -506,12 +506,15 @@ class Utils_Calendar extends Module {
 				$dest_id = $timeline[$i]['id'];
 			}
 			if(isset($dest_id)) {
-				$this->print_event($ev,'day');
-				$dur = 0;
-				$diff = strtotime($this->settings['start_day']) - $ev_start;
-//				$ev['duration'];
-//				print_r($diff.' - ');
-				$dur += ceil($ev['duration']/(strtotime($this->settings['interval'])-strtotime('0:00')));
+				if ($ev['timeless']) $dur = 1;
+				else {
+					$this->print_event($ev,'day');
+					$dur = 0;
+					$diff = strtotime($this->settings['start_day']) - $ev_start;
+	//				$ev['duration'];
+	//				print_r($diff.' - ');
+					$dur += ceil($ev['duration']/(strtotime($this->settings['interval'])-strtotime('0:00')));
+				}
 				$ev_out .= 'Utils_Calendar.add_event(\''.Epesi::escapeJS($dest_id,false).'\',\''.$ev['id'].'\', '.((!isset($ev['draggable']) || $ev['draggable']==true)?1:0).', '.$dur.');';
 			}
 		}
