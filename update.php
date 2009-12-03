@@ -172,7 +172,6 @@ function update_from_0_9_9beta1_to_0_9_9beta2() {
 function update_from_0_9_9beta2_to_1_0_0rc1() {
 	//attachment
 	ob_start();
-	ModuleManager::load_modules();
 	ModuleManager::install('Utils_Attachment_Administrator');
 	ob_end_clean();
 	//RB 1.01
@@ -216,9 +215,6 @@ function update_from_0_9_9beta2_to_1_0_0rc1() {
 }
 
 function update_from_1_0_0rc1_to_1_0_0rc2() {
-	ob_start();
-	ModuleManager::load_modules();
-	ob_end_clean();
 	DB::DropTable('history');
 	DB::DropTable('session_client');
 	DB::DropTable('session');
@@ -697,20 +693,12 @@ function update_from_1_0_0rc2_to_1_0_0rc3() {
 }
 
 function update_from_1_0_0rc3_to_1_0_0rc4() {
-	ob_start();
-	ModuleManager::load_modules();
-	ob_end_clean();
-
 	if (ModuleManager::is_installed('Base/User/Login')>=0) {
 		PatchDBAddColumn('user_password','mobile_autologin_id','C(32)');
 	}
 }
 
 function update_from_1_0_0rc4_to_1_0_0rc5() {
-	ob_start();
-	ModuleManager::load_modules();
-	ob_end_clean();
-
 	//addons management
 	if (ModuleManager::is_installed('Utils_RecordBrowser')>=0) {
 		PatchDBAddColumn('recordbrowser_addon','pos','I');
@@ -794,10 +782,6 @@ function update_from_1_0_0rc4_to_1_0_0rc5() {
 }
 
 function update_from_1_0_0rc5_to_1_0_0rc6() {
-	ob_start();
-	ModuleManager::load_modules();
-	ob_end_clean();
-
 	if (ModuleManager::is_installed('Utils_Attachment')>=0) {
 		PatchDBAddColumn('utils_attachment_link','func','C(255)');
 		PatchDBAddColumn('utils_attachment_link','args','C(255)');
@@ -930,10 +914,6 @@ function update_from_1_0_0rc5_to_1_0_0rc6() {
 }
 
 function update_from_1_0_0rc6_to_1_0_0() {
-	ob_start();
-	ModuleManager::load_modules();
-	ob_end_clean();
-
 	if (ModuleManager::is_installed('Utils_Watchdog')>=0) {
 		PatchDBAddColumn('utils_watchdog_event','event_time','T');
 		DB::CreateIndex('utils_watchdog_event__cat_int__idx', 'utils_watchdog_event', array('category_id','internal_id'));
@@ -1075,10 +1055,6 @@ function update_from_1_0_0rc6_to_1_0_0() {
 }
 
 function update_from_1_0_0_to_1_0_1() {
-	ob_start();
-	ModuleManager::load_modules();
-	ob_end_clean();
-
 	if (ModuleManager::is_installed('Utils/RecordBrowser')>=0) {
 		$tabs = DB::GetAssoc('SELECT tab, tab FROM recordbrowser_table_properties');
 		foreach ($tabs as $t) {
@@ -1392,10 +1368,6 @@ function update_from_1_0_0_to_1_0_1() {
 }
 
 function update_from_1_0_1_to_1_0_2() {
-	ob_start();
-	ModuleManager::load_modules();
-	ob_end_clean();
-
 	if (ModuleManager::is_installed('CRM_MailClient')>=0) {
 
 		$tables = DB::MetaTables();
@@ -1448,9 +1420,6 @@ function update_from_1_0_1_to_1_0_2() {
 }
 
 function update_from_1_0_2_to_1_0_3() {
-	ob_start();
-	ModuleManager::load_modules();
-	ob_end_clean();
 
 	// Check if module is installed
 	if (ModuleManager::is_installed('CRM_Calendar')>=0) {
@@ -1467,9 +1436,6 @@ function update_from_1_0_2_to_1_0_3() {
 }
 
 function update_from_1_0_3_to_1_0_4() {
-	ob_start();
-	ModuleManager::load_modules();
-	ob_end_clean();
 
 	// Check if module is installed
 	if (ModuleManager::is_installed('CRM_Contacts')>=0) {
@@ -1504,6 +1470,9 @@ $last_ver = '';
 define('CID',false);
 require_once('include.php');
 ModuleManager::create_common_cache();
+ob_start();
+ModuleManager::load_modules();
+ob_end_clean();
 foreach($versions as $v) {
 	$x = str_replace('.','_',$v);
 	if($go) {
@@ -1517,6 +1486,7 @@ foreach($versions as $v) {
 	$last_ver = $x;
 }
 @unlink(DATA_DIR.'/cache/common.php');
+recursive_rmdir(DATA_DIR.'/cache/minify');
 
 themeup();
 langup();
