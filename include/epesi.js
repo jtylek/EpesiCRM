@@ -107,7 +107,7 @@ var Epesi = {
 			Epesi.updateIndicatorText(indicator);
 			Epesi.request(url);
 		} else if(mode=='queue')
-			setTimeout('Epesi.href("'+href+'", "'+indicator+'", "'+mode+'")',500);
+			setTimeout('Epesi.href("'+url+'", "'+indicator+'", "'+mode+'")',500);
 	},
 	text: function(txt,idt,type) {
 		var t=$(idt);
@@ -116,7 +116,7 @@ var Epesi = {
 			t.innerHTML = txt;
 		else if(type=='p')//prepend
 			t.innerHTML = txt+t.innerHTML;
-		else if($type=='a')//append
+		else if(type=='a')//append
 			t.innerHTML += txt;
 	},
 	//js loader
