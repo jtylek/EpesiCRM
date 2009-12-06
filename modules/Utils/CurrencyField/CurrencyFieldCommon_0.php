@@ -72,11 +72,19 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 	}
 	
 	public static function get_id_by_code($code) {
-		return DB::GetOne('SELECT id FROM utils_currency WHERE code=%s', array($code));
+		static $cache;
+		if(!isset($cache)) $cache = array();
+		if(!isset($cache[$code]))
+			$cache[$code] = DB::GetOne('SELECT id FROM utils_currency WHERE code=%s', array($code));
+		return $cache[$code];
 	}
 	
 	public static function get_code($id) {
-		return DB::GetOne('SELECT code FROM utils_currency WHERE id=%d', array($id));
+		static $cache;
+		if(!isset($cache)) $cache = array();
+		if(!isset($cache[$id]))
+			$cache[$id] = DB::GetOne('SELECT code FROM utils_currency WHERE id=%d', array($id));
+		return $cache[$id];
 	}
 	
 	public static function get_precission($arg) {
