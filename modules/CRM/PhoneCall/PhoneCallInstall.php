@@ -106,10 +106,6 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 	public function version() {
 		return array('1.0');
 	}
-
-	public static function backup() {
-		return Utils_RecordBrowserCommon::get_tables('phonecall');		
-	}
 }
 
 ?>
