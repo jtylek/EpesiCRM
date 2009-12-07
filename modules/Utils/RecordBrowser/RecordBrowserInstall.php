@@ -42,6 +42,7 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 					'label C(128)',
 					array('constraints'=>', PRIMARY KEY(tab, module, func)'));
         DB::CreateTable('recordbrowser_clipboard_pattern', 'tab C(64) KEY, pattern X, enabled I4');
+        DB::CreateTable('recordbrowser_extended_search', 'tab C(64), icon C(32), label C(64), callback C(128)', array('constraints'=>', PRIMARY KEY(tab, label)'));
 		return true;
 	}
 	

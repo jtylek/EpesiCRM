@@ -1682,6 +1682,40 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
         return DB::GetOne('SELECT pattern FROM recordbrowser_clipboard_pattern WHERE tab=%s AND enabled=1', array($tab));
     }
+
+/**
+ * Sets extended search form module
+ * @param string $tab Name of recordset
+ * @param string $label Label to display in ActionBar
+ * @param string $icon Icon to display in ActionBar. First parameter in ActionBarCommon::add
+ * @param array $callback Callback to module's function
+ */
+    public static function set_extended_search($tab, $label, $icon, $callback) {
+        if(is_array($callback)) $callback = implode('::', $callback);
+        DB::Execute('INSERT INTO recordbrowser_extended_search VALUES (%s,%s,%s,%s)', array($tab, $icon, $label, $callback));
+    }
+
+/**
+ * Use this function to delete extended search from specific recordset
+ * @param string $tab Name of recordset
+ * @param string $label Label of button in Action Bar
+ */
+    public static function clear_extended_search($tab, $label) {
+        DB::Execute('DELETE FROM recordbrowser_extended_search WHERE tab=%s AND label=%s', array($tab, $label));
+    }
+
+/**
+ * For internal use. This function retrieves all extended search prefs for specific recordset.
+ * @param string $tab Name of recordset
+ * @return array Return array of arrays with crits
+ */
+    public static function get_extended_search($tab) {
+        $arr = DB::GetArray('SELECT * FROM recordbrowser_extended_search WHERE tab=%s', array($tab));
+        foreach($arr as & $v) {
+            $v['callback'] = explode('::', $v['callback']);
+        }
+        return $arr;
+    }
 	///////////////////////////////////////////
 	// mobile devices
 	

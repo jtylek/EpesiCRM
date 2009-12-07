@@ -266,6 +266,32 @@ class Utils_RecordBrowser extends Module {
 			}
 		}
 
+        /* Extended search BEGIN */
+        if(isset($_SESSION['client']['extended_search_crits'])) {
+            $exts = $_SESSION['client']['extended_search_crits'];
+            $ext_crits = $this->get_module_variable('extended_search_crits');
+            if(is_array($exts)) {
+                foreach($exts as $k => $v) {
+                    $ext_crits[$k] = $v;
+                }
+            }
+            $this->set_module_variable('extended_search_crits', $ext_crits);
+            unset($_SESSION['client']['extended_search_crits']);
+        }
+
+        $extSearch = Utils_RecordBrowserCommon::get_extended_search($this->tab);
+        foreach($extSearch as $k => $e) {
+            Base_ActionBarCommon::add($e['icon'], $this->t($e['label']), $this->create_callback_href(array($this, 'load_extended_search_module'), array($e['callback'], $k)));
+        }
+
+        if(($ext_crits = $this->get_module_variable('extended_search_crits'))) {
+            foreach($ext_crits as $k => $v) {
+                Base_ActionBarCommon::add('back', 'Clear '.$extSearch[$k]['label'], $this->create_callback_href(array($this, 'clear_extended_search_crits'), array($k)));
+                $this->crits = Utils_RecordBrowserCommon::merge_crits($this->crits, $v);
+            }
+        }
+        /* extended search END */
+
 		ob_start();
 		$this->show_data($this->crits, $cols, array_merge($def_order, $this->default_order));
 		$table = ob_get_contents();
@@ -276,6 +302,17 @@ class Utils_RecordBrowser extends Module {
 		$theme->assign('icon', $this->icon);
 		$theme->display('Browsing_records');
 	}
+
+    public function clear_extended_search_crits($id) {
+        $crits = $this->get_module_variable('extended_search_crits');
+        unset($crits[$id]);
+        $this->set_module_variable('extended_search_crits', $crits);
+    }
+    public function load_extended_search_module($callback, $id) {
+        $x = ModuleManager::get_instance('/Base_Box|0');
+        if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
+        $x->push_main($callback[0], isset($callback[1]) ? $callback[1] : 'body', $id);
+    }
 	public function switch_view($mode){
 		Base_User_SettingsCommon::save('Utils/RecordBrowser',$this->tab.'_default_view',$mode);
 		$this->browse_mode = $mode;
