@@ -2,6 +2,19 @@
 require_once('auth.php');
 print('<span style="font-family: courier; font-size: 11px;">');
 
+error_log('Langup started on '.date('Y-m-d H:i:s').' (admin site) by user with id '.Acl::get_user()."\n", 3, 'data/langup.log');
+
+$data_dir = DATA_DIR.'/Base_Lang/';
+$content = scandir($data_dir);
+foreach ($content as $name){
+	if ($name == '.' || $name == '..') continue;
+	$dot = strpos($name,'.');
+	if (strtolower(substr($name,$dot+1))!='php') continue;
+	$langcode = substr($name,0,$dot);
+	if (!$langcode) continue;
+	copy($data_dir.$name, $data_dir.$name.'.backup.'.date('Y_m_d__h_i_s'));
+}
+
 $ret = DB::Execute('SELECT * FROM modules');
 while($row = $ret->FetchRow()) {
 	$mod_name = $row[0];
