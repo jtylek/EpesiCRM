@@ -41,7 +41,6 @@ class BaseInstall extends ModuleInstall {
 		    array('name'=>'Base/About','version'=>0),
 		    array('name'=>'Base/ActionBar','version'=>0),
 		    array('name'=>'Base/Dashboard','version'=>0),
-		    array('name'=>'Base/Backup','version'=>0),
 		    array('name'=>'Base/Setup','version'=>0),
 		    array('name'=>'Base/Lang/Administrator','version'=>0),
 		    array('name'=>'Base/Mail/ContactUs','version'=>0),
