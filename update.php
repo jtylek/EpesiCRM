@@ -1486,7 +1486,7 @@ foreach($versions as $v) {
 	$last_ver = $x;
 }
 @unlink(DATA_DIR.'/cache/common.php');
-recursive_rmdir(DATA_DIR.'/cache/minify');
+@recursive_rmdir(DATA_DIR.'/cache/minify');
 
 themeup();
 langup();
