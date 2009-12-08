@@ -67,5 +67,4 @@ $translations['Base_MainModuleIndicator']['My settings: Calendar']='';
 $translations['Base_MainModuleIndicator']['Mail client']='';
 $translations['Base_MainModuleIndicator']['My settings: Default data view']='';
 $translations['Base_MainModuleIndicator']['My settings: Browsing Records']='';
-$translations['Base_MainModuleIndicator']['Administration: Backups']='';
 ?>

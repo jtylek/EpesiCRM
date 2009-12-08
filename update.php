@@ -162,7 +162,7 @@ function themeup(){
 	install_default_theme_common_files('modules/Base/Theme/','images');
 }
 
-$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1','0.9.9beta1','0.9.9beta2','1.0.0rc1','1.0.0rc2','1.0.0rc3','1.0.0rc4','1.0.0rc5','1.0.0rc6','1.0.0','1.0.1','1.0.2','1.0.3','1.0.4');
+$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1','0.9.9beta1','0.9.9beta2','1.0.0rc1','1.0.0rc2','1.0.0rc3','1.0.0rc4','1.0.0rc5','1.0.0rc6','1.0.0','1.0.1','1.0.2','1.0.3','1.0.4','1.0.5');
 
 /****************** 0.8.5 to 0.8.6 **********************/
 function update_from_0_9_9beta1_to_0_9_9beta2() {
@@ -1456,6 +1456,40 @@ function update_from_1_0_3_to_1_0_4() {
 		$tabs = DB::GetCol('SELECT tab FROM recordbrowser_table_properties');
 		foreach($tabs as $tab)
 			PatchDBAlterColumn($tab.'_edit_history_data','old_value','X');
+	}
+}
+
+function update_from_1_0_4_to_1_0_5() {
+	if (ModuleManager::is_installed('Base_Backup')>=0) {
+		DB::Execute('DELETE FROM modules WHERE name=%s',array('Base_Backup'));
+		@recursive_rmdir(DATA_DIR.'/Base_Backup');
+	}
+	@recursive_rmdir(DATA_DIR.'/backup');
+
+	if (ModuleManager::is_installed('CRM_Contacts')>=0) {
+		Utils_RecordBrowserCommon::set_clipboard_pattern('contact', "%{{first_name} {last_name}<BR>}\n%{{title}<BR>}\n%{{company_name}<BR>}\n%{{address_1}<BR>}\n%{{address_2}<BR>}\n%{%{{city} }%{{zone} }{postal_code}<BR>}\n%{{country}<BR>}\n%{tel. {work_phone}<BR>}\n%{{email}<BR>}");
+		Utils_RecordBrowserCommon::set_clipboard_pattern('company', "%{{company_name}<BR>}\n%{{address_1}<BR>}\n%{{address_2}<BR>}\n%{%{{city} }%{{zone} }{postal_code}<BR>}\n%{{country}<BR>}\n%{tel. {phone}<BR>}\n%{fax. {fax}<BR>}\n%{{web_address}<BR>}");
+	}
+	
+	ob_start();
+	if (ModuleManager::is_installed('CRM_Fax')>=0) {
+		Acl::add_aco('CRM_Fax','browse',array('Employee'));
+		Acl::add_aco('CRM_Fax','send',array('Employee'));
+	}
+
+	if (ModuleManager::is_installed('CRM_Contacts')>=0) {
+		Acl::del_aco('CRM_Contacts','browse contacts');
+		Acl::del_aco('CRM_Contacts','browse companies');
+		Acl::add_aco('CRM_Contacts','browse contacts',array('Employee'));
+		Acl::add_aco('CRM_Contacts','browse companies',array('Employee'));
+		Acl::add_aco('CRM_Contacts','"new" actions',array('Employee'));
+	}
+	ob_end_clean();
+
+	if (ModuleManager::is_installed('Utils_RecordBrowser')==-1) {
+		$tables = DB::MetaTables();
+		if(!in_array('recordbrowser_extended_search',$tables))
+			DB::CreateTable('recordbrowser_extended_search', 'tab C(64), icon C(32), label C(64), callback C(128)', array('constraints'=>', PRIMARY KEY(tab, label)'));
 	}
 }
 //=========================================================================

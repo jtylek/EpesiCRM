@@ -5,7 +5,6 @@
  * @subpackage lt
  */
 global $translations;
-$translations['Base_Admin']['Backups']='Atsarginės kopijos';
 $translations['Base_Admin']['Change theme']='Pakeisti temą';
 $translations['Base_Admin']['Common data']='Bendriniai laukai';
 $translations['Base_Admin']['Countries']='Šalys';

@@ -62,7 +62,6 @@ $translations['Base_MainModuleIndicator']['My settings: Dialing']='';
 $translations['Base_MainModuleIndicator']['Administration: Countries']='';
 $translations['Base_MainModuleIndicator']['Companies: Browsing']='Kompanijos: peržiūrėjimas';
 $translations['Base_MainModuleIndicator']['Edit note']='Koreguoti pastabą';
-$translations['Base_MainModuleIndicator']['Administration: Backups']='';
 $translations['Base_MainModuleIndicator']['Administration: Notes & Attachments']='';
 $translations['Base_MainModuleIndicator']['Bugtrack: Browse']='';
 $translations['Base_MainModuleIndicator']['Bugtrack: New record']='';

@@ -5,7 +5,6 @@
  * @subpackage admin
  */
 global $translations;
-$translations['Base_Admin']['Backups']='Archiwizacja';
 $translations['Base_Admin']['Change theme']='Zmień szablon';
 $translations['Base_Admin']['Common data']='Dane wspólne';
 $translations['Base_Admin']['Countries']='Kraje';
