@@ -147,6 +147,7 @@ DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',
 		<title>Epesi</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=8" />
+		<meta name="SKYPE_TOOLBAR" content="SKYPE_TOOLBAR_PARSER_COMPATIBLE" /> 
 <?php
 	ini_set('include_path','libs/minify'.PATH_SEPARATOR.'.'.PATH_SEPARATOR.'libs'.PATH_SEPARATOR.ini_get('include_path'));
 	require_once('Minify/Build.php');
