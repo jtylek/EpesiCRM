@@ -37,7 +37,5 @@ abstract class ModuleInstall extends ModulePrimitive{
 	 * @return array Array constructed as following: array(array('name'=>$ModuleName,'version'=>$ModuleVersion),...)  
 	 */
 	abstract public function requires($v);
-
-//	abstract public static function backup($v);
 }
 ?>

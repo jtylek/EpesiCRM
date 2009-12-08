@@ -9,7 +9,7 @@
  * @license MIT
  * @version 1.0
  * @package epesi-base
- * @subpackage backup
+ * @subpackage box
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
