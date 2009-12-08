@@ -1486,7 +1486,7 @@ function update_from_1_0_4_to_1_0_5() {
 	}
 	ob_end_clean();
 
-	if (ModuleManager::is_installed('Utils_RecordBrowser')==-1) {
+	if (ModuleManager::is_installed('Utils_RecordBrowser')>=0) {
 		$tables = DB::MetaTables();
 		if(!in_array('recordbrowser_extended_search',$tables))
 			DB::CreateTable('recordbrowser_extended_search', 'tab C(64), icon C(32), label C(64), callback C(128)', array('constraints'=>', PRIMARY KEY(tab, label)'));
