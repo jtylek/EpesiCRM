@@ -281,7 +281,7 @@ class Utils_RecordBrowser extends Module {
 
         $extSearch = Utils_RecordBrowserCommon::get_extended_search($this->tab);
         foreach($extSearch as $k => $e) {
-            Base_ActionBarCommon::add($e['icon'], $this->t($e['label']), $this->create_callback_href(array($this, 'load_extended_search_module'), array($e['callback'], $k)));
+            Base_ActionBarCommon::add($e['icon'], $this->ht($e['label']), $this->create_callback_href(array($this, 'load_extended_search_module'), array($e['callback'], $k)));
         }
 
         if(($ext_crits = $this->get_module_variable('extended_search_crits'))) {
