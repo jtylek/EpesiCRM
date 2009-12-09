@@ -1686,7 +1686,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 /**
  * Sets extended search form module
  * @param string $tab Name of recordset
- * @param string $label Label to display in ActionBar
+ * @param string $label Label to display in ActionBar. Must be unique per $tab.
  * @param string $icon Icon to display in ActionBar. First parameter in ActionBarCommon::add
  * @param array $callback Callback to module's function
  */
