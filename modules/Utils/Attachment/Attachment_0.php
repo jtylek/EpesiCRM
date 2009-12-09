@@ -27,6 +27,7 @@ class Utils_Attachment extends Module {
 
 	private $inline = false;
 	private $add_header = '';
+	private $max_file_size = null;
 
 	private $caption = '';
 	
@@ -39,7 +40,7 @@ class Utils_Attachment extends Module {
 	private $add_func = null;
 	private $add_args = array();
 
-	public function construct($group,$pd=null,$in=null,$priv_r=null,$priv_w=null,$prot_r=null,$prot_w=null,$pub_r=null,$pub_w=null,$header=null,$watchdog_cat=null,$watchdog_id=null,$func=null,$args=null,$add_func=null,$add_args=null) {
+	public function construct($group,$pd=null,$in=null,$priv_r=null,$priv_w=null,$prot_r=null,$prot_w=null,$pub_r=null,$pub_w=null,$header=null,$watchdog_cat=null,$watchdog_id=null,$func=null,$args=null,$add_func=null,$add_args=null,$max_fs=null) {
 		if(!isset($group)) trigger_error('Key not given to attachment module',E_USER_ERROR);
 		$this->group = $group;
 
@@ -58,6 +59,11 @@ class Utils_Attachment extends Module {
 		if(isset($args)) $this->args = $args;
 		if(isset($add_func)) $this->add_func = $add_func;
 		if(isset($add_args)) $this->add_args = $add_args;
+		if(isset($max_fs)) $this->max_file_size = $max_fs;
+	}
+	
+	public function set_max_file_size($s) {
+		$this->max_file_size = $s;
 	}
 
 	public function additional_header($x) {
@@ -259,7 +265,7 @@ class Utils_Attachment extends Module {
 	}
 
 	public function view_queue($id) {
-		$this->push_box0('view',array($id),array($this->group,$this->persistent_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id,$this->func,$this->args,$this->add_func,$this->add_args));
+		$this->push_box0('view',array($id),array($this->group,$this->persistent_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id,$this->func,$this->args,$this->add_func,$this->add_args,$this->max_file_size));
 	}
 
 	public function get_file($row, & $view_link = '') {
@@ -377,7 +383,7 @@ class Utils_Attachment extends Module {
 	}
 
 	public function edition_history_queue($id) {
-		$this->push_box0('edition_history',array($id),array($this->group,$this->persistent_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id,$this->func,$this->args,$this->add_func,$this->add_args));
+		$this->push_box0('edition_history',array($id),array($this->group,$this->persistent_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id,$this->func,$this->args,$this->add_func,$this->add_args,$this->max_file_size));
 	}
 
 	public function edition_history($id) {
@@ -510,7 +516,7 @@ class Utils_Attachment extends Module {
 	}
 
 	public function edit_note_queue($id=null) {
-		$this->push_box0('edit_note',array($id),array($this->group,$this->persistent_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id,$this->func,$this->args,$this->add_func,$this->add_args));
+		$this->push_box0('edit_note',array($id),array($this->group,$this->persistent_deletion,$this->inline,$this->private_read,$this->private_write,$this->protected_read,$this->protected_write,$this->public_read,$this->public_write,$this->add_header,$this->watchdog_category,$this->watchdog_id,$this->func,$this->args,$this->add_func,$this->add_args,$this->max_file_size));
 	}
 
 	public function edit_note($id=null) {
@@ -534,6 +540,9 @@ class Utils_Attachment extends Module {
 				$form->addElement('header',null,$this->t('Replace attachment with file'));
 
 			$form->add_upload_element();
+			
+			if($this->max_file_size)
+				$form->set_max_file_size($this->max_file_size);
 
 			if(isset($id)) {
 				$row = DB::GetRow('SELECT l.sticky,x.text,l.permission FROM utils_attachment_note x INNER JOIN utils_attachment_link l ON l.id=x.attach_id WHERE x.attach_id=%d AND x.revision=(SELECT max(z.revision) FROM utils_attachment_note z WHERE z.attach_id=%d)',array($id,$id));

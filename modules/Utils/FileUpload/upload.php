@@ -42,7 +42,7 @@ if($doc['error']==UPLOAD_ERR_INI_SIZE || $doc['error']==UPLOAD_ERR_FORM_SIZE) {
 	?>
 	<script type="text/javascript">
 	<!--
-	alert('Specified file too big');
+	alert('Specified file is too big');
 	-->
 	</script>
 	<?php

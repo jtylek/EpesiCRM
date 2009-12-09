@@ -88,6 +88,11 @@ class Utils_FileUpload extends Module {
 	public function set_upload_button_caption($x) {
 		$this->upload_button_caption = $x;
 	}
+	
+	public function set_max_file_size($s) {
+		if(!is_numeric($s)) trigger_error('Invalid file size limit: '.$s,E_USER_ERROR);
+		$this->form->addElement('hidden','MAX_FILE_SIZE',$s);
+	}
 
 	public function add_upload_element() {
 		if($this->added_upload_elem) return;
