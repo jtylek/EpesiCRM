@@ -1397,7 +1397,9 @@ class Apps_MailClientCommon extends ModuleCommon {
 				for($kk=1; $kk<count($tmp); $kk++)
 					$list[] = unserialize($tmp[$kk]);
 			} else {
-				list($num_msgs,$list) = self::get_number_of_new_pop3_messages($id);
+				$tmp = self::get_number_of_new_pop3_messages($id);
+				if(!$tmp) return false;
+				list($num_msgs,$list) = $tmp;
 				$list2 = array();
 				foreach($list as $ll)
 					$list2[] = serialize($ll);
