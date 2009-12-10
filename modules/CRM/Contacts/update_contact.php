@@ -21,7 +21,10 @@ $params = array();
 foreach($_POST['parameters'] as $k=>$v) {
 	$params[$k] = $v;
 }
-$contacts = CRM_ContactsCommon::get_contacts(array('company_name'=>array($ret)));
+//if ($ret==-1) 
+//	$contacts = array();
+//else
+	$contacts = CRM_ContactsCommon::get_contacts(array('company_name'=>array($ret)), array(), array('last_name'=>'ASC'));
 
 $res = array();
 $callback = explode('::', $params['format']);
@@ -37,7 +40,7 @@ foreach($ext_rec as $k=>$v) {
 	$c = CRM_ContactsCommon::get_contact($k);
 	$res[$k] = call_user_func($callback, $c, true);
 }
-natcasesort($res);
+
 if (!isset($params['required']) || !$params['required'])
 	$res = array(''=>'---')+$res;
 print(json_encode($res));

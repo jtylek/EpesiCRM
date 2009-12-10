@@ -839,7 +839,7 @@ class Utils_RecordBrowser extends Module {
 					location(array());
 				}
 			}
-			$form->addElement('submit', 'submit', $this->t('Submit'));
+			$form->addElement('submit', 'submit', $this->t('Submit'), array('style'=>'width:auto;'));
 			$renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
 			$form->accept($renderer);
 			$data = $renderer->toArray();
