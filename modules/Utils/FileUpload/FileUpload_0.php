@@ -144,6 +144,10 @@ class Utils_FileUpload extends Module {
 	 * For internal use only.
 	 */
 	public function submit_parent($data) {
+		if(!isset($_SESSION['client']['uploaded_file']) || !isset($_SESSION['client']['uploaded_original_file'])) {
+			E2::alert('Invalid upload - session expired?');
+			return;
+		}
 		if(call_user_func_array($this->on_submit, array_merge(array($_SESSION['client']['uploaded_file'], $_SESSION['client']['uploaded_original_file'], $data),$this->on_submit_args)))
 			location(array());
 		@unlink($_SESSION['client']['uploaded_file']);
