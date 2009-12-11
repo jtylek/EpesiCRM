@@ -306,6 +306,7 @@ class Utils_RecordBrowser extends Module {
     public function clear_extended_search_crits($id) {
         $crits = $this->get_module_variable('extended_search_crits');
         unset($crits[$id]);
+        unset($_SESSION['client']['extended_search_data'][$id]);
         $this->set_module_variable('extended_search_crits', $crits);
     }
     public function load_extended_search_module($callback, $id) {
