@@ -1124,11 +1124,12 @@ class Utils_RecordBrowser extends Module {
                 }
                 $elem = 0;
                 $match = array();
+                $original_text = $text;
                 $text = '%{'.$text.'}';
-                while(preg_match('/%\{(([^%\}\{]*?\{[^%\}\{]+?\}[^%\}\{]*?)+?)\}/', $text, $match)) {
+                while(preg_match('/%\{(([^%\}\{]*?\{[^%\}\{]+?\}[^%\}\{]*?)+?)\}/', $text, $match)) { // match for pattern %{...{..}...}
                     $text_replace = $match[1];
                     $changed = false;
-                    while(preg_match('/\{(.+?)\}/', $text_replace, $second_match)) {
+                    while(preg_match('/\{(.+?)\}/', $text_replace, $second_match)) { // match for keys in braces {key}
                         $replace_value = '';
                         if(key_exists($second_match[1], $data)) {
                             $replace_value = $data[$second_match[1]];
@@ -1144,11 +1145,12 @@ class Utils_RecordBrowser extends Module {
                 $elem--;
 				if ($elem>=0) {
 					$text = str_replace('{int'.$elem.'}', $data["int$elem"], $text);
-
-					load_js("modules/Utils/RecordBrowser/selecttext.js");
-					$text = '<h3>'.$this->t('Move mouse over box below to select text and hit Ctrl-c to copy it.').'</h3><div onmouseover="fnSelect(this)" style="border: 1px solid gray; margin: 15px; padding: 20px;">'.$text.'</div>';
-					Libs_LeightboxCommon::display('clipboard',$text,'Copy');
-				}
+                } else {
+                    $text = $original_text;
+                }
+                load_js("modules/Utils/RecordBrowser/selecttext.js");
+                $text = '<h3>'.$this->t('Move mouse over box below to select text and hit Ctrl-c to copy it.').'</h3><div onmouseover="fnSelect(this)" style="border: 1px solid gray; margin: 15px; padding: 20px;">'.$text.'</div>';
+                Libs_LeightboxCommon::display('clipboard',$text,'Copy');
             }
 		}
 
