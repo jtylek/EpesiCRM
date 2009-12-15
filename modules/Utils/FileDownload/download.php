@@ -18,7 +18,6 @@ define('CID',$id);
 require_once('../../../include.php');
 
 $download_id = Module::static_get_module_variable($path,'download_id',null);
-session_write_close();
 $file = DB::GetOne('SELECT path FROM utils_filedownload_files WHERE id=%d',array($download_id));
 
 $headers = array_change_key_case(get_headers($file, 1),CASE_LOWER);

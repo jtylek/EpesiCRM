@@ -13,6 +13,7 @@ if(!isset($_POST['feed']) || !isset($_POST['number']) || !isset($_POST['cid']))
 	die('Invalid request');
 
 define('CID', $_POST['cid']);
+define('READ_ONLY_SESSION',true);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 

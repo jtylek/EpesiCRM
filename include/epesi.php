@@ -277,12 +277,12 @@ class Epesi {
 					$xx = explode('/',$k);
 					$yy = explode('|',$xx[count($xx)-1]);
 					$mod = $yy[0];
-					if(!is_callable(array($mod.'Common','destroy')) || !call_user_func(array($mod.'Common','destroy'),$k,isset($_SESSION['client']['__module_vars__'][$k])?$_SESSION['client']['__module_vars__'][$k]:null)) {
-						if(DEBUG)
-							$debug .= 'Clearing mod vars & module content '.$k.'<br>';
-						unset($_SESSION['client']['__module_vars__'][$k]);
-						unset($_SESSION['client']['__module_content__'][$k]);
-					}
+					if(is_callable(array($mod.'Common','destroy')))
+						call_user_func(array($mod.'Common','destroy'),$k,isset($_SESSION['client']['__module_vars__'][$k])?$_SESSION['client']['__module_vars__'][$k]:null);
+					if(DEBUG)
+						$debug .= 'Clearing mod vars & module content '.$k.'<br>';
+					unset($_SESSION['client']['__module_vars__'][$k]);
+					unset($_SESSION['client']['__module_content__'][$k]);
 				}
 			}
 		}

@@ -13,6 +13,7 @@ if(!isset($_GET['key']) || !isset($_GET['cid'])  || !is_numeric($_GET['cid']))
 	die('<ul><li class="Informal">Error: Invalid request</li></ul>');
 	
 define('CID',$_GET['cid']); 
+define('READ_ONLY_SESSION',true);
 require_once('../../../../../include.php');
 ModuleManager::load_modules();
 

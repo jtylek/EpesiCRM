@@ -12,6 +12,7 @@ if(!isset($_POST['key']) || !isset($_POST['cid'])  || !is_numeric($_POST['cid'])
 	die('alert(\'Invalid request\')');
 
 define('CID',$_POST['cid']); 
+define('READ_ONLY_SESSION',true);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 

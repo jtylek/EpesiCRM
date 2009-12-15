@@ -27,14 +27,15 @@ class DBSession {
     }
 
     public static function read($name) {
-    	$ret = DB::GetOne('SELECT data FROM session WHERE name = %s AND expires > %d', array($name, time()-self::$lifetime));
+		if(!READ_ONLY_SESSION)
+	    		DB::StartTrans();
+
+	    	$ret = DB::GetOne('SELECT data FROM session WHERE name = %s AND expires > %d', array($name, time()-self::$lifetime));
 		if($ret) {
-//			$ret = DB::BlobDecode($ret);
-	    	$_SESSION = unserialize($ret);
+		    	$_SESSION = unserialize($ret);
 		}
-		if(CID!==false && ($ret = DB::GetOne('SELECT data FROM session_client WHERE session_name = %s AND client_id=%d', array($name,CID)))) {
-//			$ret = DB::BlobDecode($ret);
-			$_SESSION['client'] = unserialize($ret);
+		if(CID!==false && ($ret = DB::GetCol('SELECT data FROM session_client WHERE session_name = %s AND client_id=%d LIMIT 1 FOR UPDATE', array($name,CID)))) {
+			$_SESSION['client'] = unserialize($ret[0]);
 		}
 		return '';
     }
@@ -42,7 +43,6 @@ class DBSession {
     public static function write($name, $data) {
 		if(READ_ONLY_SESSION) return true;
 		$ret = 0;
-    		DB::StartTrans();
 		if(CID!==false && isset($_SESSION['client'])) {
 			$data = serialize($_SESSION['client']);
 			if(DATABASE_DRIVER=='postgres') $data = '\''.DB::BlobEncode($data).'\'';

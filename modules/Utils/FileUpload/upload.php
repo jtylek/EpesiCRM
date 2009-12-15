@@ -75,14 +75,15 @@ if($doc['error']==UPLOAD_ERR_INI_SIZE || $doc['error']==UPLOAD_ERR_FORM_SIZE) {
 		$ok = true;
 		$_SESSION['client']['uploaded_file'] = false;
 		$_SESSION['client']['uploaded_original_file'] = false;
+		session_commit();
 	}
 } else {
 	$ok = true;
 	move_uploaded_file($doc['tmp_name'], $dest_path);
 	$_SESSION['client']['uploaded_file'] = $dest_path;
 	$_SESSION['client']['uploaded_original_file'] = $doc['name'];
+	session_commit();
 }
-
 ?>
 <script type="text/javascript">
 	<!--

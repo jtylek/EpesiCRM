@@ -15,6 +15,7 @@ $t = microtime(true);
 
 define('JS_OUTPUT',1);
 define('CID',$_POST['cid']);
+define('READ_ONLY_SESSION',true);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 

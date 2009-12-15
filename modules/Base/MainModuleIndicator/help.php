@@ -3,10 +3,11 @@ if(!isset($_GET['cid']) || !is_numeric($_GET['cid'])) {
 	die('Invalid request');
 }
 define('CID',$_GET['cid']);
+define('READ_ONLY_SESSION',true);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 
-$h = & $_SESSION['client']['help'];
+$h = $_SESSION['client']['help'];
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>

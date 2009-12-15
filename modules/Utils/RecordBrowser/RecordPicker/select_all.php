@@ -12,6 +12,7 @@ if(!isset($_POST['select']) || !isset($_POST['tab']) || !isset($_POST['path']) |
 
 define('JS_OUTPUT',1);
 define('CID',$_POST['cid']); 
+define('READ_ONLY_SESSION',true);
 require_once('../../../../include.php');
 foreach ($_POST as $k=>$v)
 	$_POST[$k] = trim($v,'"');

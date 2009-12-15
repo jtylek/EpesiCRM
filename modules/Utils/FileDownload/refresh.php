@@ -10,10 +10,10 @@
 if(!isset($_POST['path']))
 	die('Invalid request');
 $path = $_POST['path'];
+define('READ_ONLY_SESSION',true);
 require_once('../../../include.php');
 if(!Module::static_isset_module_variable($path,'download_id')) return;
 $download_id = Module::static_get_module_variable($path,'download_id');
-session_write_close();
 $ret = DB::Execute('SELECT size,curr,time,rate FROM utils_filedownload_files WHERE id=%d',array($download_id));
 $row = $ret->FetchRow();
 

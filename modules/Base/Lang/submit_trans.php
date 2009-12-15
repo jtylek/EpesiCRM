@@ -28,6 +28,7 @@ $parent = $_POST['parent'];
 $trans = $_POST['trans'];
 $oryg = $_POST['oryg'];
 define('JS_OUTPUT',1);
+define('READ_ONLY_SESSION',true);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 

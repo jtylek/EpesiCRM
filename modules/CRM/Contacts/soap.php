@@ -11,6 +11,7 @@
  */
 define('_VALID_ACCESS',true);
 define('CID',false);
+define('READ_ONLY_SESSION');
 require_once('../../../include.php');
 ModuleManager::load_modules();
 
