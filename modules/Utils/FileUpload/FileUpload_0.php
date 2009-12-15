@@ -144,8 +144,10 @@ class Utils_FileUpload extends Module {
 	 * For internal use only.
 	 */
 	public function submit_parent($data) {
+		error_log(date('Y-m-d H:i:s')."\n",3,'data/file_upload_err.txt');
 		if(!isset($_SESSION['client']['uploaded_file']) || !isset($_SESSION['client']['uploaded_original_file'])) {
 			E2::alert('Invalid upload - session expired?');
+			error_log(date('Y-m-d H:i:s').' '.print_r($_SESSION['client'],true)."\n\n\n",3,'data/file_upload_err.txt');
 			return;
 		}
 		if(call_user_func_array($this->on_submit, array_merge(array($_SESSION['client']['uploaded_file'], $_SESSION['client']['uploaded_original_file'], $data),$this->on_submit_args)))
@@ -156,7 +158,7 @@ class Utils_FileUpload extends Module {
 	}
 	
 	public function is_file() {
-		return isset($_SESSION['client']['uploaded_file']);
+		return isset($_SESSION['client']['uploaded_file']) && $_SESSION['client']['uploaded_file'];
 	}
 }
 
