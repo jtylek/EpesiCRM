@@ -30,7 +30,14 @@ class DB {
 	 * Connect to database.
 	 */
 	public static function Connect() {
-		if(isset(self::$ado)) return;
+		if(isset(self::$ado)) { //return forced new adodb connection
+			$new = & NewADOConnection(DATABASE_DRIVER);
+			$new->autoRollback = true; // default is false 
+			if(!$new->NConnect(DATABASE_HOST, DATABASE_USER, DATABASE_PASSWORD, DATABASE_NAME))
+    				trigger_error("Connect to database failed",E_USER_ERROR);
+			$new->Execute('SET NAMES "utf8"');
+			return $new;
+		}
 		self::$ado = & NewADOConnection(DATABASE_DRIVER);
 		self::$ado->autoRollback = true; // default is false 
 //		$errh = DB::$ado->raiseErrorFn;
@@ -38,7 +45,7 @@ class DB {
 		if(!self::$ado->Connect(DATABASE_HOST, DATABASE_USER, DATABASE_PASSWORD, DATABASE_NAME))
     			trigger_error("Connect to database failed",E_USER_ERROR);
 //  		DB::$ado->raiseErrorFn = $errh;
-		DB::Execute('SET NAMES "utf8"');
+		self::$ado->Execute('SET NAMES "utf8"');
 	//        DB::Execute('SET CHARACTER SET utf8');
 	}
 

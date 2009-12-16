@@ -15,6 +15,7 @@ require_once('database.php');
 class DBSession {
     private static $lifetime;
     private static $name;
+    private static $ado; //doesn't work
 
     public static function open($path, $name) {
         self::$lifetime = ini_get("session.gc_maxlifetime");
@@ -27,15 +28,28 @@ class DBSession {
     }
 
     public static function read($name) {
-		if(!READ_ONLY_SESSION)
-	    		DB::BeginTrans();
-
 	    	$ret = DB::GetOne('SELECT data FROM session WHERE name = %s AND expires > %d', array($name, time()-self::$lifetime));
 		if($ret) {
 		    	$_SESSION = unserialize($ret);
 		}
-		if(CID!==false && ($ret = DB::GetCol('SELECT data FROM session_client WHERE session_name = %s AND client_id=%d LIMIT 1 FOR UPDATE', array($name,CID)))) {
-			$_SESSION['client'] = unserialize($ret[0]);
+
+		if(CID!==false) {
+//code below need testing on postgresql - concurrent epesi execution with session blocking
+			if(READ_ONLY_SESSION) {
+				self::$ado = DB::$ado;
+			} else {
+				self::$ado = DB::Connect();
+		  		self::$ado->BeginTrans();
+		  	}
+			if(is_numeric(CID) && $ret = self::$ado->GetCol('SELECT data FROM session_client WHERE session_name='.self::$ado->qstr($name).' AND client_id='.CID.' LIMIT 1 FOR UPDATE')) {
+				$_SESSION['client'] = unserialize($ret[0]);
+		  	}
+/* //mysql working alternative
+			if(!READ_ONLY_SESSION && !DB::GetOne('SELECT GET_LOCK(%s,%d)',array($name.'_'.CID,ini_get('max_execution_time'))))
+				trigger_error('Unable to get lock on session_client name='.$name.' cid='.CID,E_USER_ERROR);
+
+			if($ret = DB::GetCol('SELECT data FROM session_client WHERE session_name=%s AND client_id=%d FOR UPDATE', array($name,CID)))
+				$_SESSION['client'] = unserialize($ret[0]);*/
 		}
 		return '';
     }
@@ -45,38 +59,42 @@ class DBSession {
 		$ret = 0;
 		if(CID!==false && isset($_SESSION['client'])) {
 			$data = serialize($_SESSION['client']);
-			if(DATABASE_DRIVER=='postgres') $data = '\''.DB::BlobEncode($data).'\'';
+			if(DATABASE_DRIVER=='postgres') $data = '\''.self::$ado->BlobEncode($data).'\'';
+//code below need testing on postgresql - concurrent epesi execution with session blocking
+			else $data = self::$ado->qstr($data);
+			$ret &= self::$ado->Replace('session_client',array('data'=>$data,'session_name'=>self::$ado->qstr($name),'client_id'=>CID),array('session_name','client_id'));
+			self::$ado->CommitTrans();
+			self::$ado->Close();
+			unset(self::$ado);
+/* //mysql working alternative
 			else $data = DB::qstr($data);
 			$ret &= DB::Replace('session_client',array('data'=>$data,'session_name'=>DB::qstr($name),'client_id'=>CID),array('session_name','client_id'));
+			DB::Execute('RELEASE_LOCK(%s)',array($name.'_'.CID));
+			*/
 		}
 		if(isset($_SESSION['client'])) unset($_SESSION['client']);
 		$data = serialize($_SESSION);
 		if(DATABASE_DRIVER=='postgres') $data = '\''.DB::BlobEncode($data).'\'';
 		else $data = DB::qstr($data);
 		$ret &= DB::Replace('session',array('expires'=>time(),'data'=>$data,'name'=>DB::qstr($name)),'name');
-		DB::CommitTrans();
 		return ($ret>0)?true:false;
     }
 
     public static function destroy($name) {
-    	DB::StartTrans();
+    	DB::BeginTrans();
     	DB::Execute('DELETE FROM history WHERE session_name=%s',array($name));
     	DB::Execute('DELETE FROM session_client WHERE session_name=%s',array($name));
     	DB::Execute('DELETE FROM session WHERE name=%s',array($name));
-		DB::CompleteTrans();
+	DB::CommitTrans();
     	return true;
     }
 
     public static function gc($lifetime) {
     	$t = time()-$lifetime;
-		$ret = DB::Execute('SELECT name FROM session WHERE expires < %d',array($t));
-		while($row = $ret->FetchRow()) {
-	    	DB::StartTrans();
-			DB::Execute('DELETE FROM history WHERE session_name=%s',array($row['name']));
-			DB::Execute('DELETE FROM session_client WHERE session_name=%s',array($row['name']));
-			DB::Execute('DELETE FROM session WHERE name=%s',array($row['name']));
-			DB::CompleteTrans();
-		}
+	$ret = DB::Execute('SELECT name FROM session WHERE expires < %d',array($t));
+	while($row = $ret->FetchRow()) {
+		self::destroy($row['name']);
+	}
 /*		DB::Execute('DELETE FROM history WHERE session_name IN (SELECT name FROM session WHERE expires < %d)',array($t));
     	DB::Execute('DELETE FROM session_client WHERE session_name IN (SELECT name FROM session WHERE expires < %d)',array($t));
 	   	DB::Execute('DELETE FROM session WHERE expires < %d',array($t));*/
