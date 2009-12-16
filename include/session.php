@@ -71,7 +71,7 @@ class DBSession {
 			if(DATABASE_DRIVER=='postgres') $data = '\''.DB::BlobEncode($data).'\'';
 			else $data = DB::qstr($data);
 			$ret &= DB::Replace('session_client',array('data'=>$data,'session_name'=>DB::qstr($name),'client_id'=>CID),array('session_name','client_id'));
-			DB::Execute('RELEASE_LOCK(%s)',array($name.'_'.CID));
+			DB::Execute('SELECT RELEASE_LOCK(%s)',array($name.'_'.CID));
 			
 		}
 		if(isset($_SESSION['client'])) unset($_SESSION['client']);
