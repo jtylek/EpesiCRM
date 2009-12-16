@@ -138,6 +138,7 @@ $client_id_next = $client_id+1;
 if($client_id_next==5) $client_id_next=0;
 $_SESSION['num_of_clients'] = $client_id_next;
 DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',array(session_id(),$client_id));
+session_commit();
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">

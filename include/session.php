@@ -28,7 +28,7 @@ class DBSession {
 
     public static function read($name) {
 		if(!READ_ONLY_SESSION)
-	    		DB::StartTrans();
+	    		DB::BeginTrans();
 
 	    	$ret = DB::GetOne('SELECT data FROM session WHERE name = %s AND expires > %d', array($name, time()-self::$lifetime));
 		if($ret) {
@@ -54,7 +54,7 @@ class DBSession {
 		if(DATABASE_DRIVER=='postgres') $data = '\''.DB::BlobEncode($data).'\'';
 		else $data = DB::qstr($data);
 		$ret &= DB::Replace('session',array('expires'=>time(),'data'=>$data,'name'=>DB::qstr($name)),'name');
-		DB::CompleteTrans();
+		DB::CommitTrans();
 		return ($ret>0)?true:false;
     }
 
