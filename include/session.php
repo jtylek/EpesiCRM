@@ -35,7 +35,7 @@ class DBSession {
 
 		if(CID!==false) {
 //code below need testing on postgresql - concurrent epesi execution with session blocking
-			if(READ_ONLY_SESSION) {
+/*			if(READ_ONLY_SESSION) {
 				self::$ado = DB::$ado;
 			} else {
 				self::$ado = DB::Connect();
@@ -43,13 +43,13 @@ class DBSession {
 		  	}
 			if(is_numeric(CID) && $ret = self::$ado->GetCol('SELECT data FROM session_client WHERE session_name='.self::$ado->qstr($name).' AND client_id='.CID.' LIMIT 1 FOR UPDATE')) {
 				$_SESSION['client'] = unserialize($ret[0]);
-		  	}
-/* //mysql working alternative
+		  	}*/
+ //mysql working alternative
 			if(!READ_ONLY_SESSION && !DB::GetOne('SELECT GET_LOCK(%s,%d)',array($name.'_'.CID,ini_get('max_execution_time'))))
 				trigger_error('Unable to get lock on session_client name='.$name.' cid='.CID,E_USER_ERROR);
 
 			if($ret = DB::GetCol('SELECT data FROM session_client WHERE session_name=%s AND client_id=%d FOR UPDATE', array($name,CID)))
-				$_SESSION['client'] = unserialize($ret[0]);*/
+				$_SESSION['client'] = unserialize($ret[0]);
 		}
 		return '';
     }
@@ -59,18 +59,20 @@ class DBSession {
 		$ret = 0;
 		if(CID!==false && isset($_SESSION['client'])) {
 			$data = serialize($_SESSION['client']);
-			if(DATABASE_DRIVER=='postgres') $data = '\''.self::$ado->BlobEncode($data).'\'';
 //code below need testing on postgresql - concurrent epesi execution with session blocking
+/*
+			if(DATABASE_DRIVER=='postgres') $data = '\''.self::$ado->BlobEncode($data).'\'';
 			else $data = self::$ado->qstr($data);
 			$ret &= self::$ado->Replace('session_client',array('data'=>$data,'session_name'=>self::$ado->qstr($name),'client_id'=>CID),array('session_name','client_id'));
 			self::$ado->CommitTrans();
 			self::$ado->Close();
-			unset(self::$ado);
-/* //mysql working alternative
+			unset(self::$ado);*/
+ //mysql working alternative
+			if(DATABASE_DRIVER=='postgres') $data = '\''.DB::BlobEncode($data).'\'';
 			else $data = DB::qstr($data);
 			$ret &= DB::Replace('session_client',array('data'=>$data,'session_name'=>DB::qstr($name),'client_id'=>CID),array('session_name','client_id'));
 			DB::Execute('RELEASE_LOCK(%s)',array($name.'_'.CID));
-			*/
+			
 		}
 		if(isset($_SESSION['client'])) unset($_SESSION['client']);
 		$data = serialize($_SESSION);
