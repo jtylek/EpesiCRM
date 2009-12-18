@@ -63,6 +63,10 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 	}
 
 	public function submit_user_preferences($data) {
+		if(DEMO_MODE && Base_UserCommon::get_my_user_login()=='admin') {
+ 			print('You cannot change \'admin\' user password or e-mail in demo');
+ 			return false;
+ 		}
 		$new_pass = $data['new_pass'];
 		$mail = $data['mail'];
 
@@ -199,6 +203,12 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 	public function submit_edit_user_form($data) {
 		$mail = $data['mail'];
 		$username = $data['username'];
+		
+		if(DEMO_MODE && $username=='admin') {
+ 			print('You cannot change \'admin\' user password, group or e-mail in demo');
+ 			return false;
+ 		}
+		
 		$pass = $data['pass'];
 		$edit_id = $this->get_unique_href_variable('edit_user');
 

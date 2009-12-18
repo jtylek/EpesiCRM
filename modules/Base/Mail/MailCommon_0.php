@@ -27,7 +27,7 @@ class Base_MailCommon extends Base_AdminModuleCommon {
 	 * For internal use only.
 	 */
 	public static function admin_access() {
-		return Base_AclCommon::i_am_sa() && !TRIAL_MODE;
+		return Base_AclCommon::i_am_sa() && !TRIAL_MODE && !DEMO_MODE;
 	}
 
 	/**

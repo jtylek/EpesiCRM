@@ -109,6 +109,10 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 	}
 
 	public function submit_admin($data) {
+		if(DEMO_MODE && Variable::get('default_lang')!=$data['lang_code']) {
+			print('You cannot change default language in demo.');
+			return false;
+		}
 		return Variable::set('default_lang',$data['lang_code']) && Variable::set('allow_lang_change',(isset($data['allow_lang_change']) && $data['allow_lang_change'])?1:0);	
 	}
 	

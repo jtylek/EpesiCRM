@@ -33,7 +33,9 @@ if(!defined('READ_ONLY_SESSION')) define('READ_ONLY_SESSION',0);
 if(!defined('MOBILE_DEVICE')) define('MOBILE_DEVICE',0);
 
 if(!defined('FIRST_RUN')) define('FIRST_RUN','FirstRun');
+
 if(!defined('TRIAL_MODE')) define('TRIAL_MODE',0);
+if(!defined('DEMO_MODE')) define('DEMO_MODE',0);
 
 //other
 @define('SYSTEM_TIMEZONE',date_default_timezone_get());

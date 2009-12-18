@@ -61,6 +61,7 @@ class Base_User_Login extends Module {
 
 		//if logged
 		$theme->assign('is_logged_in', Acl::is_user());
+		$theme->assign('is_demo', DEMO_MODE);
 		if(Acl::is_user()) {
 			if($this->get_unique_href_variable('logout')) {
 				DB::Execute('UPDATE user_password SET autologin_id=\'\' WHERE user_login_id=%d',array(Acl::get_user()));
@@ -89,6 +90,9 @@ class Base_User_Login extends Module {
 		$form->addElement('header', 'login_header', $this->t('Login'));
 		$form->addElement('text', 'username', $this->t('Username'),array('id'=>'username'));
 		$form->addElement('password', 'password', $this->t('Password'));
+		
+		if(DEMO_MODE)
+	 		$form->setDefaults(array('username'=>'admin','password'=>'admin'));
 
 		// Display warning about storing a cookie
 		$warning=$this->t('Don\'t check this box if you are using public computer!');
@@ -159,6 +163,12 @@ class Base_User_Login extends Module {
 	public function submit_recover($data) {
 		$mail = $data['mail'];
 		$username = $data['username'];
+
+ 		if(DEMO_MODE && $username=='admin') {
+ 			print('In demo you cannot recover \'admin\' user password. If you want to login please type \'admin\' as password.'); 
+			return false;
+ 		}
+
 		$pass = generate_password();
 
 		$user_id = Base_UserCommon::get_user_id($username);

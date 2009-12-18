@@ -63,7 +63,8 @@ class CRM_LoginAudit extends Module {
 
 		$this->display_module($gb);
 
-        Base_ActionBarCommon::add('settings',$this->t('Maintenance'),$this->create_callback_href(array($this, 'purge_log')));
+	if(!DEMO_MODE)
+	        Base_ActionBarCommon::add('settings',$this->t('Maintenance'),$this->create_callback_href(array($this, 'purge_log')));
         return true;
 	}
 

@@ -253,6 +253,11 @@ class Base_Setup extends Module {
 	}
 
 	public function validate($data) {
+		if(DEMO_MODE) {
+			print('You cannot modify installed modules in demo');
+	    		return false;
+		}
+
 		@set_time_limit(0);
 		
 		$default_module = false;

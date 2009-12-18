@@ -28,6 +28,14 @@
                 <td class="gradient">
                     <table cellspacing="0" cellpadding="0" border="0">
                         <tbody>
+{if $is_demo}
+   			<tr>
+   				<td colspan="2" align="center" class="label"><strong>EPESI DEMO APPLICATION</strong></td>
+   			</tr>
+   			<tr>
+   			        <td colspan="2" align="center" class="label">Login as <strong>admin</strong> with password <strong>admin</strong></td>
+   			</tr>
+{/if}
                             <tr><td colspan="2" class="error"><span class="error">{$form_data.username.error}</span></td></tr>
                             <tr><td colspan="2" class="error"><span class="error">{$form_data.password.error}</span></td></tr>
                         <tr>
