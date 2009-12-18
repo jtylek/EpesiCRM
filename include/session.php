@@ -59,6 +59,8 @@ class DBSession {
 				if($ret = DB::GetCol('SELECT data FROM session_client WHERE session_name=%s AND client_id=%d', array($name,CID)))
 					$_SESSION['client'] = unserialize($ret[0]);
 			}
+			if(!isset($_SESSION['client']['__module_vars__']))
+				$_SESSION['client']['__module_vars__'] = array();
 		}
 		return '';
     }
