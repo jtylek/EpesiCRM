@@ -34,6 +34,9 @@ class DBSession {
 		}
 
 		if(CID!==false) {
+			if(!is_numeric(CID))
+				trigger_error('Invalid client id.',E_USER_ERROR);
+
 			if(DATABASE_DRIVER=='postgres') {
 				//code below need testing on postgresql - concurrent epesi execution with session blocking
 				if(READ_ONLY_SESSION) {
@@ -42,9 +45,12 @@ class DBSession {
 					self::$ado = DB::Connect();
 		  			self::$ado->BeginTrans();
 			  	}
-				if(is_numeric(CID) && $ret = self::$ado->GetCol('SELECT data FROM session_client WHERE session_name='.self::$ado->qstr($name).' AND client_id='.CID.' LIMIT 1 FOR UPDATE')) {
+				if($ret = self::$ado->GetCol('SELECT data FROM session_client WHERE session_name='.self::$ado->qstr($name).' AND client_id='.CID.' LIMIT 1 FOR UPDATE')) {
 					$_SESSION['client'] = unserialize($ret[0]);
-		  		}
+		  		} else {
+	  				self::$ado->RollbackTrans();
+		  			self::$ado->BeginTrans();	  		
+	  			}
 		  	} else {
 				 //mysql working alternative
 				if(!READ_ONLY_SESSION && !DB::GetOne('SELECT GET_LOCK(%s,%d)',array($name.'_'.CID,ini_get('max_execution_time'))))
@@ -95,7 +101,7 @@ class DBSession {
 
     public static function gc($lifetime) {
     	$t = time()-$lifetime;
-	$ret = DB::Execute('SELECT name FROM session WHERE expires < %d',array($t));
+	$ret = DB::Execute('SELECT name FROM session WHERE expires <= %d',array($t));
 	while($row = $ret->FetchRow()) {
 		self::destroy($row['name']);
 	}
