@@ -1728,29 +1728,118 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return $ret;
 	}
 */	
-	public static function mobile_rb($table,array $crits=array(),array $sort=array(),$info=array()) {
+	public static function mobile_rb($table,array $crits=array(),array $sort=array(),$info=array(),$defaults=array()) {
+		$_SESSION['rb_'.$table.'_defaults'] = $defaults;
 		require_once('modules/Utils/RecordBrowser/mobile.php');
 	}
 	
 	public static function mobile_rb_view($tab,$id) {
+		print('<a '.(IPHONE?'class="button blue" ':'').mobile_stack_href(array('Utils_RecordBrowserCommon','mobile_rb_edit'), array($tab,$id),Base_LangCommon::ts('Utils_RecordBrowser','Record edition')).'>'.Base_LangCommon::ts('Utils_RecordBrowser','Edit').'</a>');
 		self::add_recent_entry($tab, Acl::get_user() ,$id);
 		$rec = self::get_record($tab,$id);
 		$cols = Utils_RecordBrowserCommon::init($tab);
 		if(IPHONE) {
 			print('<ul class="field">');
 			foreach($cols as $k=>$col) {
-				$val = Utils_RecordBrowserCommon::get_val($tab,$col['name'],$rec,false,$col);
+				$val = Utils_RecordBrowserCommon::get_val($tab,$col['name'],$rec,true,$col);
 				if($val==='') continue;
-				print('<li>'.$col['name'].': '.$val.'</li>');
+				print('<li>'.Base_LangCommon::ts('Utils_RecordBrowser',$col['name']).': '.$val.'</li>');
 			}
 			print('</ul>');
 		} else {
 			foreach($cols as $k=>$col) {
-				$val = Utils_RecordBrowserCommon::get_val($tab,$col['name'],$rec,false,$col);
+				$val = Utils_RecordBrowserCommon::get_val($tab,$col['name'],$rec,true,$col);
 				if($val==='') continue;
-				print($col['name'].': '.$val.'<br>');
+				print(Base_LangCommon::ts('Utils_RecordBrowser',$col['name']).': '.$val.'<br>');
 			}
 		}
+	}
+	
+	public static function mobile_rb_edit($tab,$id) {
+		$rec = self::get_record($tab,$id);
+		$cols = Utils_RecordBrowserCommon::init($tab);
+
+		$QFfield_callback_table = array();
+		$ret = DB::Execute('SELECT * FROM '.$tab.'_callback WHERE freezed=0');
+		while ($row = $ret->FetchRow()) {
+			$QFfield_callback_table[$row['field']] = explode('::',$row['callback']);
+		}
+		$defaults = $_SESSION['rb_'.$tab.'_defaults'];
+	
+		$qf = new HTML_QuickForm('rb_edit', 'post', 'mobile.php?'.http_build_query($_GET));
+		foreach($cols as $field=>$args) {
+			//TODO: check field permissions
+			//....
+			
+			$label = Base_LangCommon::ts('Utils_RecordBrowser',$args['name']);
+			//ignore callback fields
+			if(isset($QFfield_callback_table[$field])) {
+				$val = Utils_RecordBrowserCommon::get_val($tab,$args['name'],$rec,true,$args);
+				if($val==='') continue;
+				$qf->addElement('static',$args['id'],$label);
+				$qf->setDefaults(array($args['id']=>$val));
+				continue;
+			}
+
+			switch ($args['type']) {
+				case 'calculated':	$qf->addElement('static', $args['id'], $label);
+							if (!is_array($rec))
+								$values = $defaults;
+							else {
+								$values = $rec;
+								if (is_array($defaults)) $values = $values+$defaults;
+							}
+							$val = @Utils_RecordBrowserCommon::get_val($tab,$args['name'],$values,true,$args);
+							if (!$val) $val = '['.Base_LangCommon::ts('Utils_RecordBrowser','formula').']';
+							$qf->setDefaults(array($args['id']=>$val));
+							break;
+				case 'integer':		
+				case 'float':		$qf->addElement('text', $args['id'], $label);
+							if ($args['type']=='integer')
+								$qf->addRule($args['id'], Base_LangCommon::ts('Utils_RecordBrowser','Only integer numbers are allowed.'), 'regex', '/^[0-9]*$/');
+							else
+								$qf->addRule($args['id'], Base_LangCommon::ts('Utils_RecordBrowser','Only numbers are allowed.'), 'numeric');
+							$qf->setDefaults(array($args['id']=>$rec[$args['id']]));
+							break;
+				case 'checkbox':	$qf->addElement('checkbox', $args['id'], $label, '');
+							$qf->setDefaults(array($args['id']=>$rec[$args['id']]));
+							break;
+				case 'currency':	$qf->addElement('currency', $args['id'], $label);
+							$qf->setDefaults(array($args['id']=>$rec[$args['id']]));
+							break;
+				case 'text':		$qf->addElement('text', $args['id'], $label, array('maxlength'=>$args['param']));
+							$qf->addRule($args['id'], Base_LangCommon::ts('Utils_RecordBrowser','Maximum length for this field is '.$args['param'].'.'), 'maxlength', $args['param']);
+							$qf->setDefaults(array($args['id']=>$rec[$args['id']]));
+							break;
+				case 'long text':	$qf->addElement('textarea', $args['id'], $label,array('maxlength'=>200));
+							$qf->addRule($args['id'], $this->t('Maximum length for this field in mobile edition is 200 chars.'), 'maxlengt',200);
+							$qf->setDefaults(array($args['id']=>$rec[$args['id']]));
+							break;
+				case 'commondata':	$param = explode('::',$args['param']['array_id']);
+							foreach ($param as $k=>$v) if ($k!=0) $param[$k] = strtolower(str_replace(' ','_',$v));
+							if(count($param)==1) {
+								$qf->addElement($args['type'], $args['id'], $label, $param, array('empty_option'=>true, 'id'=>$args['id'], 'order_by_key'=>$args['param']['order_by_key']));
+								$qf->setDefaults(array($args['id']=>$rec[$args['id']]));
+							}
+							break;
+				case 'date':
+				case 'timestamp':
+				case 'time':
+				case 'select':
+				case 'multiselect': //ignore
+							break;
+			}
+		}
+		
+		$qf->addElement('submit', 'submit_button', Base_LangCommon::ts('Utils_RecordBrowser','Save'),IPHONE?'class="button white"':'');
+		
+		if($qf->validate()) {
+			return false;
+		}
+		
+		$renderer =& $qf->defaultRenderer();
+		$qf->accept($renderer);
+		print($renderer->toHtml());
 	}
 }
 ?>

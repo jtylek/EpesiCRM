@@ -140,6 +140,7 @@ $captions = array();
 foreach($stack as $s)
 	if($s->caption) 
 		$captions[] = $s->caption;
+$back_id = 0;
 if(IPHONE) {
 	$title = end($captions);
 	$back_id = key($captions);
@@ -167,12 +168,14 @@ if(IPHONE) {
 	$caption = $back.$title.$action;
 } else {
 	$cap = array();
-	foreach($captions as $k=>$c)
+	foreach($captions as $k=>$c) {
 		$cap[] = '<a href="mobile.php?back='.($k+1).'">'.$c.'</a>';
+		$back_id = $k+1;
+	}
 	$caption = implode($cap,' > ');
 }
 if(isset($ret) && $ret===false) {
-	header('Location: mobile.php?back=1');
+	header('Location: mobile.php?back='.($back_id+1));
 	exit();
 }
 
