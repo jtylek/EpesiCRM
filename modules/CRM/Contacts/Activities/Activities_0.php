@@ -118,50 +118,69 @@ class CRM_Contacts_Activities extends Module {
 		if ($this->display['tasks']) $amount += count($tasks);
 		if ($this->display['phonecalls']) $amount += count($phonecalls);
 		$limit = $gb->get_limit($amount);
-		$counter = 0;
-		if ($this->display['events']) foreach($events as $v) {
-			$counter++;
-			if (!($counter>$limit['offset'] && $counter<=$limit['offset']+$limit['numrows'])) continue; 
-			$employees = DB::GetAssoc('SELECT contact, contact FROM crm_calendar_event_group_emp AS ccegp WHERE ccegp.id=%d', array($v['id']));
-			$customers = DB::GetAssoc('SELECT contact, contact FROM crm_calendar_event_group_cus AS ccegc WHERE ccegc.id=%d', array($v['id']));
-
-			$title = '<a '.$this->create_callback_href(array($this, 'view_event'), array($v['id'])).'>'.$v['title'].'</a>';
-			if (isset($v['description']) && $v['description']!='') $title = '<span '.Utils_TooltipCommon::open_tag_attrs($v['description'], false).'>'.$title.'</span>';
+		
+		for($i=0; $i<$limit['offset']+$limit['numrows'] && $i<$amount; $i++) {
+			if ($this->display['events'] && count($events)) {
+				$ev = current($events);
+			} else {
+				$ev = array('starts' => -1);
+			}
+			if ($this->display['tasks'] && count($tasks)) {
+				$t = current($tasks);
+				if(!$t['deadline']) $t['deadline'] = 0;
+			} else {
+				$t = array('deadline' => -1);
+			}
+			if ($this->display['phonecalls'] && count($phonecalls)) {
+				$ph = current($phonecalls);
+			} else {
+				$ph = array('date_and_time' => -1);
+			}
+			$maxt = max($ev['starts'],$t['deadline'],$ph['date_and_time']);
 			$gb_row = $gb->get_new_row();
-			$gb_row->add_data(	$this->t('Event'),
+			if($ev['starts'] == $maxt) {
+				$v = array_shift($events);
+				if($i>=$limit['offset']) {
+					$employees = DB::GetAssoc('SELECT contact, contact FROM crm_calendar_event_group_emp AS ccegp WHERE ccegp.id=%d', array($v['id']));
+					$customers = DB::GetAssoc('SELECT contact, contact FROM crm_calendar_event_group_cus AS ccegc WHERE ccegc.id=%d', array($v['id']));
+
+					$title = '<a '.$this->create_callback_href(array($this, 'view_event'), array($v['id'])).'>'.$v['title'].'</a>';
+					if (isset($v['description']) && $v['description']!='') $title = '<span '.Utils_TooltipCommon::open_tag_attrs($v['description'], false).'>'.$title.'</span>';
+					$gb_row->add_data(	$this->t('Event'),
 								$title, 
 								Base_RegionalSettingsCommon::time2reg($v['starts']), 
 								CRM_ContactsCommon::display_contact(array('employees'=>$employees), false, array('id'=>'employees', 'param'=>';CRM_ContactsCommon::contact_format_no_company')), 
 								CRM_ContactsCommon::display_contact(array('customers'=>$customers), false, array('id'=>'customers', 'param'=>';::')), 
 								Utils_AttachmentCommon::count('CRM/Calendar/Event/'.$v['id'])
 							);
-		}
-		if ($this->display['tasks']) foreach($tasks as $v) {
-			$counter++;
-			if (!($counter>$limit['offset'] && $counter<=$limit['offset']+$limit['numrows'])) continue; 
-			$gb_row = $gb->get_new_row();
-			$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info('task', isset($info)?$info:$v['id']));
-			$gb_row->add_data(	$this->t('Task'), 
+				}
+			} elseif($t['deadline'] == $maxt) {
+				$v = array_shift($tasks);
+				if($i>=$limit['offset']) {
+					$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info('task', isset($info)?$info:$v['id']));
+					$gb_row->add_data(	$this->t('Task'), 
 								CRM_TasksCommon::display_title($v, false), 
 								(!isset($v['deadline']) || !$v['deadline'])?$this->t('No deadline'):Base_RegionalSettingsCommon::time2reg($v['deadline']), 
 								CRM_ContactsCommon::display_contact($v, false, array('id'=>'employees', 'param'=>';CRM_ContactsCommon::contact_format_no_company')), 
 								CRM_ContactsCommon::display_contact($v, false, array('id'=>'customers', 'param'=>';::')), 
 								Utils_AttachmentCommon::count('CRM/Tasks/'.$v['id'])
 							);
-		}
-		if ($this->display['phonecalls']) foreach($phonecalls as $v) {
-			$counter++;
-			if (!($counter>$limit['offset'] && $counter<=$limit['offset']+$limit['numrows'])) continue; 
-			$gb_row = $gb->get_new_row();
-			$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info('phonecall', isset($info)?$info:$v['id']));
-			$gb_row->add_data(	$this->t('Phone Call'), 
+				}
+			} else {
+				$v = array_shift($phonecalls);
+				if($i>=$limit['offset']) {
+					$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info('phonecall', isset($info)?$info:$v['id']));
+					$gb_row->add_data(	$this->t('Phone Call'), 
 								CRM_PhoneCallCommon::display_subject($v), 
 								Base_RegionalSettingsCommon::time2reg($v['date_and_time']), 
 								CRM_ContactsCommon::display_contact($v, false, array('id'=>'employees', 'param'=>';CRM_ContactsCommon::contact_format_no_company')), 
 								CRM_PhoneCallCommon::display_contact_name($v, false), 
 								Utils_AttachmentCommon::count('CRM/PhoneCall/'.$v['id'])
 							);
+				}
+			}
 		}
+		
 		$this->display_module($gb);
 	}
 	
