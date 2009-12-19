@@ -174,7 +174,7 @@ class CRM_Contacts_Activities extends Module {
 					$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info('phonecall', isset($info)?$info:$v['id']));
 					$gb_row->add_data(	$this->t('Phone Call'), 
 								CRM_PhoneCallCommon::display_subject($v), 
-								Base_RegionalSettingsCommon::time2reg($v['date_and_time']), 
+								Base_RegionalSettingsCommon::time2reg($v['date_and_time'],2), 
 								CRM_ContactsCommon::display_contact($v, false, array('id'=>'employees', 'param'=>';CRM_ContactsCommon::contact_format_no_company')), 
 								CRM_PhoneCallCommon::display_contact_name($v, false), 
 								Utils_AttachmentCommon::count('CRM/PhoneCall/'.$v['id'])
