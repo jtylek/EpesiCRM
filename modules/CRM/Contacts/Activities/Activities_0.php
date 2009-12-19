@@ -128,6 +128,7 @@ class CRM_Contacts_Activities extends Module {
 			if ($this->display['tasks'] && count($tasks)) {
 				$t = current($tasks);
 				if(!$t['deadline']) $t['deadline'] = 0;
+				else $t['deadline'] = strtotime($t['deadline']);
 			} else {
 				$t = array('deadline' => -1);
 			}
