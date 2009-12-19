@@ -371,7 +371,7 @@ class Utils_RecordBrowser extends Module {
 					if (!isset($x[1])) continue;
 					list($tab, $col) = $x;
 					if ($tab=='__COMMON__') {
-						$arr = array_merge($arr, $this->get_commondata_tree($col));
+						$arr = array_merge($arr, Utils_CommonDataCommon::get_translated_tree($col));
 					} else {
 						$col = explode('|',$col);
 						Utils_RecordBrowserCommon::check_table_name($tab);
@@ -1286,20 +1286,6 @@ class Utils_RecordBrowser extends Module {
 		return $v['__datepicker']!=='' && Base_RegionalSettingsCommon::reg2time($v['__datepicker'],false)!==false;
 	}
 	
-	public function get_commondata_tree($col, $deep=0){
-		$data = Utils_CommonDataCommon::get_translated_array($col, true, false, true);
-		if (!$data) return array();
-		$output = array();
-		foreach ($data as $k=>$v) {
-			$output[$k] = $v;
-			$sub = $this->get_commondata_tree($col.'/'.$k, $deep+1);
-			if ($sub) foreach ($sub as $k2=>$v2) {
-				$output[$k.'/'.$k2] = '* '.$v2;
-			}
-		}
-		return $output;
-	}
-	
 	public function max_description($string){
 		return strlen(Utils_BBCodeCommon::strip($string))<400;
 	}
@@ -1405,7 +1391,7 @@ class Utils_RecordBrowser extends Module {
 										@(list($tab, $col) = explode('::',$ref));
 										if (!isset($col)) trigger_error($field);
 										if ($tab=='__COMMON__') {
-											$data = $this->get_commondata_tree($col);
+											$data = Utils_CommonDataCommon::get_translated_tree($col);
 											if (!is_array($data)) $data = array();
 											$comp = $comp+$data;
 										} else {

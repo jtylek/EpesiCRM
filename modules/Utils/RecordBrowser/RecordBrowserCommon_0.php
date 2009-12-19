@@ -1716,6 +1716,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
         return $arr;
     }
+    
 	///////////////////////////////////////////
 	// mobile devices
 	
@@ -1822,11 +1823,108 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								$qf->setDefaults(array($args['id']=>$rec[$args['id']]));
 							}
 							break;
-				case 'date':
-				case 'timestamp':
-				case 'time':
-				case 'select':
+				case 'select':		$comp = array();
+							$ref = explode(';',$args['param']);
+							if (isset($ref[1])) $crits_callback = $ref[1];
+								else $crits_callback = null;
+							if (isset($ref[2])) $multi_adv_params = call_user_func(explode('::',$ref[2]));
+								else $multi_adv_params = null;
+							if (!isset($multi_adv_params) || !is_array($multi_adv_params)) $multi_adv_params = array();
+							if (!isset($multi_adv_params['order'])) $multi_adv_params['order'] = array();
+							if (!isset($multi_adv_params['cols'])) $multi_adv_params['cols'] = array();
+							if (!isset($multi_adv_params['format_callback'])) $multi_adv_params['format_callback'] = array();
+							$ref = $ref[0];
+							@(list($tab, $col) = explode('::',$ref));
+							if (!isset($col)) trigger_error($field);
+							if ($tab=='__COMMON__') {
+								$data = Utils_CommonDataCommon::get_translated_tree($col);
+								if (!is_array($data)) $data = array();
+								$comp = $comp+$data;
+							} else {
+								if (isset($crits_callback)) {
+									$crit_callback = explode('::',$crits_callback);
+									if (is_callable($crit_callback)) {
+										$crits = call_user_func($crit_callback, false, $rec);
+										$adv_crits = call_user_func($crit_callback, true, $rec);
+									} else $crits = $adv_crits = array();
+									if ($adv_crits === $crits) $adv_crits = null;
+									if ($adv_crits !== null) {
+										continue; //skip record picker
+									}
+								} else $crits = array();
+								$col = explode('|',$col);
+								$col_id = array();
+								foreach ($col as $c) $col_id[] = strtolower(str_replace(' ','_',$c));
+								$records = Utils_RecordBrowserCommon::get_records($tab, $crits, empty($multi_adv_params['format_callback'])?$col_id:array(), !empty($multi_adv_params['order'])?$multi_adv_params['order']:array());
+								$ext_rec = array();
+								if (isset($rec[$args['id']])) {
+									if (!is_array($rec[$args['id']])) {
+										if ($rec[$args['id']]!='') $rec[$args['id']] = array($rec[$args['id']]=>$rec[$args['id']]); else $rec[$args['id']] = array();
+									}
+								}
+								if (isset($defaults[$args['id']])) {
+									if (!is_array($defaults[$args['id']]))  
+										$rec[$args['id']][$defaults[$args['id']]] = $defaults[$args['id']];
+									else {
+										foreach ($defaults[$args['id']] as $v) 
+											$rec[$args['id']][$v] = $v;
+									}
+								}
+								$single_column = (count($col_id)==1);
+								if (isset($rec[$args['id']])) {
+									$ext_rec = array_flip($rec[$args['id']]);
+									foreach($ext_rec as $k=>$v) {
+										$c = Utils_RecordBrowserCommon::get_record($tab, $k);
+										if (!empty($multi_adv_params['format_callback'])) $n = call_user_func($multi_adv_params['format_callback'], $c);
+										else {
+											if ($single_column) $n = $c[$col_id[0]];
+											else {
+												$n = array();
+												foreach ($col_id as $cid) $n[] = $c[$cid];
+												$n = implode(' ',$n);
+											}
+										}
+										$comp[$k] = $n;
+									}
+								}
+								if (!empty($multi_adv_params['order'])) natcasesort($comp);
+								foreach ($records as $k=>$v) {
+									if (!empty($multi_adv_params['format_callback'])) $n = call_user_func($multi_adv_params['format_callback'], $v);
+									else {
+//										$n = $v[$col_id];
+										if ($single_column) $n = $v[$col_id[0]];
+										else {
+											$n = array();
+											foreach ($col_id as $cid) $n[] = $v[$cid];
+											$n = implode(' ',$n);
+										}
+									}
+									$comp[$k] = $n;
+									unset($ext_rec[$v['id']]);
+								}
+								if (empty($multi_adv_params['order'])) natcasesort($comp);
+							}
+							if ($args['type']==='select') $comp = array(''=>'---')+$comp;
+							$form->addElement($args['type'], $args['id'], $label, $comp, array('id'=>$args['id']));
+							if ($mode!=='add') $form->setDefaults(array($args['id']=>$rec[$args['id']]));
+							break;
+				case 'date':		$qf->addElement('date',$args['id'],$label,array('format'=>'d M Y', 'minYear'=>date('Y')-95,'maxYear'=>date('Y')+5));
+							if(isset($rec[$args['id']]) && $rec[$args['id']])
+								$qf->setDefaults(array($args['id']=>$rec[$args['id']]));
+							break;
+				case 'timestamp':	$qf->addElement('date',$args['id'],$label,array('format'=>'d M Y H:i', 'minYear'=>date('Y')-95,'maxYear'=>date('Y')+5));
+							if(isset($rec[$args['id']]) && $rec[$args['id']])
+								$qf->setDefaults(array($args['id']=>$rec[$args['id']]));
+							break;
+				case 'time':		$qf->addElement('date',$args['id'],$label,array('format'=>'H:i'));
+							if(isset($rec[$args['id']]) && $rec[$args['id']])
+								$qf->setDefaults(array($args['id']=>$rec[$args['id']]));
+							break;
 				case 'multiselect': //ignore
+							$val = Utils_RecordBrowserCommon::get_val($tab,$args['name'],$rec,true,$args);
+							if($val==='') continue;
+							$qf->addElement('static',$args['id'],$label);
+							$qf->setDefaults(array($args['id']=>$val));
 							break;
 			}
 		}

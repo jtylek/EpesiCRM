@@ -258,6 +258,20 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 		DB::Execute('UPDATE utils_commondata_tree SET akey=%s WHERE id=%d',array($new,$id));
 		return true;
 	}
+	
+	public static function get_translated_tree($col, $deep=0) {
+		$data = Utils_CommonDataCommon::get_translated_array($col, true, false, true);
+		if (!$data) return array();
+		$output = array();
+		foreach ($data as $k=>$v) {
+			$output[$k] = $v;
+			$sub = self::get_translated_tree($col.'/'.$k, $deep+1);
+			if ($sub) foreach ($sub as $k2=>$v2) {
+				$output[$k.'/'.$k2] = '* '.$v2;
+			}
+		}
+		return $output;
+	}
 }
 
 $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['commondata'] = array('modules/Utils/CommonData/qf.php','HTML_QuickForm_commondata');
