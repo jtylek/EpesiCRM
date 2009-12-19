@@ -134,6 +134,7 @@ class CRM_Contacts_Activities extends Module {
 			}
 			if ($this->display['phonecalls'] && count($phonecalls)) {
 				$ph = current($phonecalls);
+				$ph['date_and_time'] = strtotime($ph['date_and_time']);
 			} else {
 				$ph = array('date_and_time' => -1);
 			}
@@ -161,7 +162,7 @@ class CRM_Contacts_Activities extends Module {
 					$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info('task', isset($info)?$info:$v['id']));
 					$gb_row->add_data(	$this->t('Task'), 
 								CRM_TasksCommon::display_title($v, false), 
-								(!isset($v['deadline']) || !$v['deadline'])?$this->t('No deadline'):Base_RegionalSettingsCommon::time2reg($v['deadline']), 
+								(!isset($v['deadline']) || !$v['deadline'])?$this->t('No deadline'):Base_RegionalSettingsCommon::time2reg($v['deadline'],false,true,false), 
 								CRM_ContactsCommon::display_contact($v, false, array('id'=>'employees', 'param'=>';CRM_ContactsCommon::contact_format_no_company')), 
 								CRM_ContactsCommon::display_contact($v, false, array('id'=>'customers', 'param'=>';::')), 
 								Utils_AttachmentCommon::count('CRM/Tasks/'.$v['id'])
