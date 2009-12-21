@@ -174,8 +174,11 @@ if(IPHONE) {
 	}
 	$caption = implode($cap,' > ');
 }
-if(isset($ret) && $ret===false) {
-	header('Location: mobile.php?back='.($back_id+1));
+if(isset($ret) && ($ret===false || is_numeric($ret))) {
+	if(is_numeric($ret))
+		header('Location: mobile.php?back='.($back_id+2-$ret));
+	else
+		header('Location: mobile.php?back='.($back_id+1));
 	exit();
 }
 
