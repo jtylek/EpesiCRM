@@ -74,6 +74,10 @@ if(isset($_GET['search']) && $_GET['search']!=="Search" && $_GET['search']!=="")
 	}
 	$crits = self::merge_crits($crits, $search_crits);
 }
+
+if(Utils_RecordBrowserCommon::get_access($table, 'add'))
+	print('<a '.(IPHONE?'class="button green" ':'').mobile_stack_href(array('Utils_RecordBrowserCommon','mobile_rb_edit'), array($table,false),Base_LangCommon::ts('Utils_RecordBrowser','Add record')).'>'.Base_LangCommon::ts('Utils_RecordBrowser','Add').'</a>');
+
 //$crits = array();
 //$sort = array();
 switch($type) {

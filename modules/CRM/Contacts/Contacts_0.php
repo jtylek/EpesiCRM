@@ -64,8 +64,7 @@ class CRM_Contacts extends Module {
 //		$this->rb->set_header_properties(array('company_name'=>array('name'=>'Company Name Replacement','width'=>1)));
 		if ($mode=='contact') {
 			$this->rb->set_defaults(array(	'home_country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
-											'home_zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state'),
-											'permission'=>'0'));
+											'home_zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state')));
 			$this->rb->set_default_order(array('last_name'=>'ASC', 'first_name'=>'ASC'));
 		} else {
 			$this->rb->set_default_order(array('company_name'=>'ASC'));

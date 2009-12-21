@@ -850,13 +850,21 @@ class CRM_ContactsCommon extends ModuleCommon {
 	public function mobile_contacts() {
 		$sort = array('last_name'=>'ASC', 'first_name'=>'ASC');
 		$info = array('company_name'=>0,'work_phone'=>1,'mobile_phone'=>1);
-		Utils_RecordBrowserCommon::mobile_rb('contact',array(),$sort,$info);
+		$defaults = array('country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
+						'zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state'),
+						'permission'=>'0',
+						'home_country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
+						'home_zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state'));
+		Utils_RecordBrowserCommon::mobile_rb('contact',array(),$sort,$info,$defaults);
 	}
 	
 	public function mobile_companies() {
 		$info = array('phone'=>1);
 		$sort = array('company_name'=>'ASC');
-		Utils_RecordBrowserCommon::mobile_rb('company',array(),$sort,$info);	
+		$defaults = array('country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
+						'zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state'),
+						'permission'=>'0');
+		Utils_RecordBrowserCommon::mobile_rb('company',array(),$sort,$info,$defaults);
 	}
 }
 ?>
