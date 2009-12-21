@@ -1315,16 +1315,20 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if (is_numeric(Utils_RecordBrowser::$clone_result)) $x->push_main('Utils/RecordBrowser','view_entry',array('view', Utils_RecordBrowser::$clone_result), array(Utils_RecordBrowser::$clone_tab));
 			Utils_RecordBrowser::$clone_result = null;
 		}
+		$def_md5 = md5(serialize($def));
 		if (isset($_REQUEST['__add_record_to_RB_table']) &&
 			isset($_REQUEST['__add_record_id']) &&
+			isset($_REQUEST['__add_record_def']) &&
 			($tab==$_REQUEST['__add_record_to_RB_table']) &&
+			($def_md5==$_REQUEST['__add_record_def']) &&
 			($id==$_REQUEST['__add_record_id'])) {
 			unset($_REQUEST['__add_record_to_RB_table']);
 			unset($_REQUEST['__add_record_id']);
+			unset($_REQUEST['__add_record_def']);
 			$x->push_main('Utils/RecordBrowser','view_entry',array('add', null, $def), array($tab));
 			return array();
 		}
-		return array('__add_record_to_RB_table'=>$tab, '__add_record_id'=>$id);
+		return array('__add_record_to_RB_table'=>$tab, '__add_record_id'=>$id, '__add_record_def'=>$def_md5);
 	}
 	public static function create_new_record_href($tab, $def, $id='none'){
 		return Module::create_href(self::get_new_record_href($tab,$def, $id));
