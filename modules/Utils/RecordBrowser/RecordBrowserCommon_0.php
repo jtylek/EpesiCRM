@@ -1735,9 +1735,24 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	}
 	
 	public static function mobile_rb_view($tab,$id) {
-		print('<a '.(IPHONE?'class="button blue" ':'').mobile_stack_href(array('Utils_RecordBrowserCommon','mobile_rb_edit'), array($tab,$id),Base_LangCommon::ts('Utils_RecordBrowser','Record edition')).'>'.Base_LangCommon::ts('Utils_RecordBrowser','Edit').'</a>');
+		if (Utils_RecordBrowserCommon::get_access($tab, 'browse')===false) {
+			print(Base_LangCommon::ts('Utils_RecordBrowser', 'You are not authorised to browse this data.'));
+			return;
+		}
 		self::add_recent_entry($tab, Acl::get_user() ,$id);
 		$rec = self::get_record($tab,$id);
+
+		$access = Utils_RecordBrowserCommon::get_access($tab, 'view',$rec);
+		if (is_array($access))
+			foreach ($access as $k=>$v)
+				if (!$v) unset($rec[$k]);
+
+		if(Utils_RecordBrowserCommon::get_access($tab, 'edit', $rec))
+			print('<a '.(IPHONE?'class="button blue" ':'').mobile_stack_href(array('Utils_RecordBrowserCommon','mobile_rb_edit'), array($tab,$id),Base_LangCommon::ts('Utils_RecordBrowser','Record edition')).'>'.Base_LangCommon::ts('Utils_RecordBrowser','Edit').'</a>');
+
+		if(Utils_RecordBrowserCommon::get_access($tab, 'delete', $rec))
+			print('<a '.(IPHONE?'class="button red" ':'').mobile_stack_href(array('Utils_RecordBrowserCommon','mobile_rb_delete'), array($tab,$id),Base_LangCommon::ts('Utils_RecordBrowser','Record deletion')).'>'.Base_LangCommon::ts('Utils_RecordBrowser','Delete').'</a>');
+
 		$cols = Utils_RecordBrowserCommon::init($tab);
 		if(IPHONE) {
 			print('<ul class="field">');
@@ -1760,6 +1775,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$rec = self::get_record($tab,$id);
 		$cols = Utils_RecordBrowserCommon::init($tab);
 
+		$access = $this->get_access('view',$record);
+		if (is_array($access))
+			foreach ($access as $k=>$v)
+				if (!$v) unset($record[$k]);
+
 		$QFfield_callback_table = array();
 		$ret = DB::Execute('SELECT * FROM '.$tab.'_callback WHERE freezed=0');
 		while ($row = $ret->FetchRow()) {
@@ -1769,8 +1789,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	
 		$qf = new HTML_QuickForm('rb_edit', 'post', 'mobile.php?'.http_build_query($_GET));
 		foreach($cols as $field=>$args) {
-			//TODO: check field permissions
-			//....
+			if(isset($access[$field['id']]) && !$access[$field['id']]) continue;
 			
 			$label = Base_LangCommon::ts('Utils_RecordBrowser',$args['name']);
 			//ignore callback fields
@@ -1908,15 +1927,15 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							$form->addElement($args['type'], $args['id'], $label, $comp, array('id'=>$args['id']));
 							if ($mode!=='add') $form->setDefaults(array($args['id']=>$rec[$args['id']]));
 							break;
-				case 'date':		$qf->addElement('date',$args['id'],$label,array('format'=>'d M Y', 'minYear'=>date('Y')-95,'maxYear'=>date('Y')+5));
+				case 'date':		$qf->addElement('date',$args['id'],$label,array('format'=>'d M Y', 'minYear'=>date('Y')-95,'maxYear'=>date('Y')+5, 'addEmptyOption'=>true, 'emptyOptionText'=>'--'));
 							if(isset($rec[$args['id']]) && $rec[$args['id']])
 								$qf->setDefaults(array($args['id']=>$rec[$args['id']]));
 							break;
-				case 'timestamp':	$qf->addElement('date',$args['id'],$label,array('format'=>'d M Y H:i', 'minYear'=>date('Y')-95,'maxYear'=>date('Y')+5));
+				case 'timestamp':	$qf->addElement('date',$args['id'],$label,array('format'=>'d M Y H:i', 'minYear'=>date('Y')-95,'maxYear'=>date('Y')+5, 'addEmptyOption'=>true, 'emptyOptionText'=>'--'));
 							if(isset($rec[$args['id']]) && $rec[$args['id']])
 								$qf->setDefaults(array($args['id']=>$rec[$args['id']]));
 							break;
-				case 'time':		$qf->addElement('date',$args['id'],$label,array('format'=>'H:i'));
+				case 'time':		$qf->addElement('date',$args['id'],$label,array('format'=>'H:i', 'addEmptyOption'=>true, 'emptyOptionText'=>'--'));
 							if(isset($rec[$args['id']]) && $rec[$args['id']])
 								$qf->setDefaults(array($args['id']=>$rec[$args['id']]));
 							break;
@@ -1929,15 +1948,58 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			}
 		}
 		
+		$qf->setDefaults($defaults);
+		
 		$qf->addElement('submit', 'submit_button', Base_LangCommon::ts('Utils_RecordBrowser','Save'),IPHONE?'class="button white"':'');
 		
 		if($qf->validate()) {
+			$values = $qf->exportValues();
+			foreach ($cols as $v) {
+				if ($v['type']=='checkbox' && !isset($values[$v['id']])) $values[$v['id']]=0;
+				elseif($v['type']=='date') {
+					if($values[$v['id']]['Y']!=='' && $values[$v['id']]['M']!=='' && $values[$v['id']]['d']!=='')
+						$values[$v['id']] = $values[$v['id']]['Y'].'-'.$values[$v['id']]['M'].'-'.$values[$v['id']]['d'];
+					else
+						$values[$v['id']] = '';
+				} elseif($v['type']=='timestamp') {
+					if($values[$v['id']]['Y']!=='' && $values[$v['id']]['M']!=='' && $values[$v['id']]['d']!=='' && $values[$v['id']]['H']!=='' && $values[$v['id']]['i']!=='')
+						$values[$v['id']] = $values[$v['id']]['Y'].'-'.$values[$v['id']]['M'].'-'.$values[$v['id']]['d'].' '.$values[$v['id']]['H'].':'.$values[$v['id']]['i'];
+					else
+						$values[$v['id']] = '';
+				} elseif($v['type']=='time') {
+					if($values[$v['id']]['H']!=='' && $values[$v['id']]['i']!=='')
+						$values[$v['id']] = $values[$v['id']]['H'].':'.$values[$v['id']]['i'];
+					else
+						$values[$v['id']] = '';
+				}
+			}
+			$values['id'] = $id;
+			foreach ($defaults as $k=>$v)
+				if (!isset($values[$k])) $values[$k] = $v;
+/*			if ($mode=='add') {
+				$id = Utils_RecordBrowserCommon::new_record($tab, $values);
+				return false;
+			}*/
+			Utils_RecordBrowserCommon::update_record($tab, $id, $values);
 			return false;
 		}
 		
 		$renderer =& $qf->defaultRenderer();
 		$qf->accept($renderer);
 		print($renderer->toHtml());
+	}
+	
+	public static function mobile_rb_delete($tab, $id) {
+		if(!isset($_GET['del_ok'])) {
+			print('<a '.(IPHONE?'class="button green" ':'').' href="mobile.php?'.http_build_query($_GET).'&del_ok=0">'.Base_LangCommon::ts('Utils_RecordBrowser','Cancel deletion').'</a>');
+			print('<a '.(IPHONE?'class="button red" ':'').' href="mobile.php?'.http_build_query($_GET).'&del_ok=1">'.Base_LangCommon::ts('Utils_RecordBrowser','Delete').'</a>');
+		} else {
+			if($_GET['del_ok'])
+				Utils_RecordBrowserCommon::delete_record($tab, $id);
+				return 2;
+			return false;
+		}
+		return true;
 	}
 }
 ?>

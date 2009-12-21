@@ -1291,7 +1291,7 @@ class Utils_RecordBrowser extends Module {
 	}
 
 	public function prepare_view_entry_details($record, $mode, $id, $form, $visible_cols = null, $for_grid=false){
-		$init_js = '';
+		//$init_js = '';
 		foreach($this->table_rows as $field => $args){
 			if (!$this->view_fields_permission[$args['id']]) continue;
 			if ($visible_cols!==null && !isset($visible_cols[$args['id']])) continue;
@@ -1471,7 +1471,7 @@ class Utils_RecordBrowser extends Module {
 			if ($args['required'])
 				$form->addRule($args['id'], $this->t('Field required'), 'required');
 		}
-		eval_js($init_js);
+		//eval_js($init_js);
 	}
 	public function add_to_favs($id) {
 		DB::Execute('INSERT INTO '.$this->tab.'_favorite (user_id, '.$this->tab.'_id) VALUES (%d, %d)', array(Acl::get_user(), $id));
