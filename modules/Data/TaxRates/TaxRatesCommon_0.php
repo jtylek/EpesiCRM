@@ -27,12 +27,14 @@ class Data_TaxRatesCommon extends Base_AdminModuleCommon {
 	public static function get_tax_name($id) {
 		if (!is_numeric($id)) return '';
 		$cache = self::get_tax_details();
+		if(!isset($cache[$id])) return '';
 		return $cache[$id]['name'];
 	}
 
 	public static function get_tax_rate($id) {
 		if (!is_numeric($id)) return 0;
 		$cache = self::get_tax_details();
+		if(!isset($cache[$id])) return 0;
 		return $cache[$id]['percentage'];
 	}
 
