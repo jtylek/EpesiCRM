@@ -23,7 +23,7 @@ class Variable {
 		self::load();
 		if(!array_key_exists($name,self::$variables)) {
 			if($throw_error)
-				trigger_error('No such variable in database: ' . $name, E_USER_ERROR);
+				throw new NoSuchVariableException('No such variable in database: ' . $name);
 			return '';
 		}
 		return unserialize(self::$variables[$name]);
@@ -46,7 +46,7 @@ class Variable {
 		self::load();
 		if(!array_key_exists($name,self::$variables)) {
 			if($throw_error)
-				trigger_error('No such variable in database: ' . $name, E_USER_ERROR);
+				throw new NoSuchVariableException('No such variable in database: ' . $name);
 		} else {
 			unset(self::$variables[$name]);;
 			return DB::Execute("DELETE FROM variables WHERE name=%s", $name);
