@@ -27,6 +27,7 @@ ModuleManager::load_modules();
 if (!Base_AclCommon::i_am_admin())
 	die('Invalid usage - access denied');
 
+set_time_limit(0);
 $tab_info = Utils_RecordBrowserCommon::init($tab);
 $records = Utils_RecordBrowserCommon::get_records($tab, $crits, array(), $order, array(), $admin);
 
@@ -81,6 +82,11 @@ foreach ($records as $r) {
 				$rec[] = '0';
 				$rec[] = '---';
 				continue;
+			}
+			if(is_numeric($val[1]) && !is_numeric($val[0])) {
+				$tmp = $val[1];
+				$val[1] = $val[0];
+				$val[0] = $tmp;
 			}
 			$rec[] = rb_csv_export_format_currency_value($val[0],$val[1]);
 			$rec[] = isset($currency_codes[$val[1]])?$currency_codes[$val[1]]:$val[1];
