@@ -83,10 +83,14 @@ foreach ($records as $r) {
 				$rec[] = '---';
 				continue;
 			}
-			if(is_numeric($val[1]) && !is_numeric($val[0])) {
+			if(isset($currency_codes[$val[0]])) {
 				$tmp = $val[1];
 				$val[1] = $val[0];
 				$val[0] = $tmp;
+			} elseif(!isset($currency_codes[$val[0]])) { //there is no currency code? skip parsing
+				$rec[] = $val[0];
+				$rec[] = $val[1];
+				continue;
 			}
 			$rec[] = rb_csv_export_format_currency_value($val[0],$val[1]);
 			$rec[] = isset($currency_codes[$val[1]])?$currency_codes[$val[1]]:$val[1];
