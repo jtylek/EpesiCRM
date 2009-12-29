@@ -42,10 +42,10 @@ class Utils_MessengerCommon extends ModuleCommon {
 		$id = DB::Insert_ID('utils_messenger_message','id');
 		if(is_array($users)) {
 			foreach($users as $k) {
-				if(Base_User_SettingsCommon::get('Utils_Messenger','allow_other',$k) || Acl::get_user()==$k)
+				if(is_numeric($k) && (Base_User_SettingsCommon::get('Utils_Messenger','allow_other',$k) || Acl::get_user()==$k))
 					DB::Execute('INSERT INTO utils_messenger_users(message_id,user_login_id) VALUES (%d,%d)',array($id,$k));
 			}
-		} else
+		} elseif(is_numeric($users))
 			DB::Execute('INSERT INTO utils_messenger_users(message_id,user_login_id) VALUES (%d,%d)',array($id,$users));
 	}
 

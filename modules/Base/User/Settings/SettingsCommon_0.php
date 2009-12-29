@@ -110,6 +110,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 	 */
 	public static function get($module,$name,$user=null){
 		if (!Acl::is_user()) return null;
+		if(!is_numeric($user) && $user!==null) return null;
 		if ($user===null) $user = Acl::get_user();
 		$module = str_replace('/','_',$module);
 		if (!isset(self::$user_variables[$user])) {
