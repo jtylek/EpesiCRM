@@ -222,6 +222,7 @@ div.autocomplete ul {
 	top: auto;
 	left: auto;
 	bottom:16px;
+	min-width: 300px;
 	background-color:#FFFFCC;
 	border:1px solid #888;
 	list-style-type:none;
