@@ -450,7 +450,7 @@ class Utils_GenericBrowser extends Module {
 	 *
 	 * @return string part of sql statement
 	 */
-	public function get_search_query( $array = false){
+	public function get_search_query( $array = false, $separate=false){
 		$search = $this->get_module_variable('search');
 
 		$this->get_module_variable_or_unique_href_variable('quickjump_to');
@@ -458,19 +458,32 @@ class Utils_GenericBrowser extends Module {
 		$quickjump_to = $this->get_module_variable('quickjump_to');
 		$this->set_module_variable('quickjump_to',$quickjump_to);
 
-		if (!$array)
+		if (!$array) {
 			$where = '';
-		else
+		} else {
 			$where = array();
-
+		}
+		
 		if(!$this->columns) trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
 		if(!$this->is_adv_search_on()) {
-			foreach($this->columns as $k=>$v){
-				if (isset($v['search']) && isset($search['__keyword__']))
-		 			if (!$array)
-						$where .= ($where?' OR':'').' '.$v['search'].' LIKE '.DB::Concat(DB::qstr('%'),sprintf('%s',DB::qstr($search['__keyword__'])),DB::qstr('%'));
+			if(isset($search['__keyword__'])) {
+				if(!$array) {
+					if($separate)
+						$search = explode(' ',$search['__keyword__']);
 					else
-						$where[(empty($where)?'(':'|').$v['search']][] = sprintf('%s',$search['__keyword__']);
+						$search = array($search['__keyword__']);
+				}
+				foreach($this->columns as $k=>$v){
+					if (isset($v['search']))
+		 				if (!$array) {
+		 					$t_where = '';
+		 					foreach($search as $s) {
+								$t_where .= ($t_where?' AND':'').' '.$v['search'].' LIKE '.DB::Concat(DB::qstr('%'),sprintf('%s',DB::qstr($s)),DB::qstr('%'));
+							}
+							$where .= ($where?' OR':'').' ('.$t_where.')';
+						} else
+							$where[(empty($where)?'(':'|').$v['search']][] = sprintf('%s',$search['__keyword__']);
+				}
 			}
 		} else {
 			foreach($this->columns as $k=>$v)
