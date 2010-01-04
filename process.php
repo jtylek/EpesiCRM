@@ -21,6 +21,7 @@ define('EPESI_PROCESS',1);
 require_once('include.php');
 
 if(!isset($_SESSION['num_of_clients'])) {
+	DB::Execute('SELECT RELEASE_LOCK(%s)',array(session_id().'_'.CID));
 	Epesi::alert('Session expired, restarting epesi');
 	Epesi::redirect();
 	Epesi::send_output();

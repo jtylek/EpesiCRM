@@ -136,6 +136,7 @@ if(!defined('CID')) {
 		trigger_error('Invalid request without client id');
 }
 
+session_name(ini_get('session.name'));
 session_set_cookie_params(0,EPESI_DIR);
 session_start();
 ?>
