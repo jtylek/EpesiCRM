@@ -30,7 +30,7 @@ class Utils_LeightboxPrompt extends Module {
 		$this->options[$key] = array('icon'=>$icon, 'form'=>$form, 'label'=>$label);
 	}
 	
-	public function body($header='', $params = array()) {
+	public function body($header='', $params = array(), $add_disp='') {
 		if (MOBILE_DEVICE) return;
 		if (isset($_REQUEST['__location']) && $this->last_location!=$_REQUEST['__location']) {
 			$this->last_location = $_REQUEST['__location'];
@@ -89,6 +89,7 @@ class Utils_LeightboxPrompt extends Module {
 			$theme->assign('open_buttons_section','<div id="'.$this->group.'_buttons_section">');
 			$theme->assign('buttons',$buttons);
 			$theme->assign('sections',$sections);
+			$theme->assign('additional_info',$add_disp);
 			$theme->assign('close_buttons_section','</div>');
 
 			ob_start();

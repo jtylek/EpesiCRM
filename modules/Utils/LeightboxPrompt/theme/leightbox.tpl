@@ -46,5 +46,5 @@
 {foreach item=b from=$sections}
 	{$b}
 {/foreach}
-
+{$additional_info}
 </center>
