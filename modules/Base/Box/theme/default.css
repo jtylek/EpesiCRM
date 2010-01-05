@@ -359,8 +359,16 @@ hr.line {
     background-image: url('images/button-filter.gif');
 }
 
+#top_bar #top_bar_2 .filter a.disabled {
+    background-image: url('images/button-filter-disabled.gif');
+}
+
 #top_bar #top_bar_2 .filter a:hover {
     background-image: url('images/button-filter-hover.gif');
+}
+
+#top_bar #top_bar_2 .filter a:hover.disabled {
+    background-image: url('images/button-filter-hover-disabled.gif');
 }
 
 /*	=layer
