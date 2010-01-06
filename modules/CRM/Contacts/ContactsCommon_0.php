@@ -262,7 +262,90 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$field['param'] = $param;
 		return $field;
 	}
+	public static function crm_company_contact_datatype($field = array()) {
+		if (!isset($field['QFfield_callback'])) $field['QFfield_callback'] = array('CRM_ContactsCommon', 'QFfield_company_contact');
+		if (!isset($field['display_callback'])) $field['display_callback'] = array('CRM_ContactsCommon', 'display_company_contact');
+		$field['type'] = $field['param']['field_type'];
+		$param = '';
+		if ($field['type']=='select') {
+			$field['type'] = 'text';
+			$param = 64;
+		}
+		$field['param'] = $param;
+		return $field;
+	}
 
+	public static function display_company_contact($record, $nolink, $desc) {
+		$v = $record[$desc['id']];
+		$def = '';
+		$first = true;
+		$param = explode(';',$desc['param']);
+		if ($param[1] == '::') $callback = array('CRM_ContactsCommon', 'contact_format_default');
+		else $callback = explode('::', $param[1]);
+		if (!is_array($v)) $v = array($v);
+		foreach($v as $k=>$w){
+			if ($w=='') break;
+			if ($first) $first = false;
+			else $def .= '<br>';
+			$def .= Utils_RecordBrowserCommon::no_wrap(call_user_func($callback, self::get_contact($w), $nolink));
+		}
+		if (!$def) 	$def = '---';
+		return $def;
+	}
+	public static function autoselect_company_contact_format($arg) {
+		list($rset, $id) = explode('_', $arg);
+		if ($rset=='contact') $val = self::contact_format_default($id, true);
+		else $val = Utils_RecordBrowserCommon::get_value('company', $id, 'company_name');
+		$val .= ' ['.$rset.']';
+		return $val;
+	}
+	public static function automulti_company_contact_suggestbox($str, $fcallback) {
+		$str = explode(' ', trim($str));
+		$ret = array();
+		foreach (array('contact', 'company') as $k=>$v) {
+			$crits = array();
+			foreach ($str as $v2) if ($v2) {
+				$v2 = DB::Concat(DB::qstr('%'),DB::qstr($v2),DB::qstr('%'));
+				switch ($k) {
+					case 'contact':
+						$crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~"last_name'=>$v2,'|~"first_name'=>$v2));
+						$order = array('last_name'=>'ASC', 'first_name'=>'ASC');
+						break;
+					case 'company':
+						$crits = Utils_RecordBrowserCommon::merge_crits($crits, array('~"company_name'=>$v2));
+						$order = array('company_name'=>'ASC');
+						break;
+				}
+			}
+			$recs = Utils_RecordBrowserCommon::get_records($k, $crits, array(), $order);
+			foreach($recs as $v2) {
+				$key = $k.'_'.$v2['id'];
+				$ret[$key] = self::suggestbox_format($key);
+			}
+		}
+		asort($ret);
+		$ret = array_slice($ret, 0, 10, true);
+		return $ret;
+	}
+	
+	public static function QFfield_company_contact(&$form, $field, $label, $mode, $default, $desc, $rb_obj = null) {
+		$cont = array();
+		if ($mode=='add' || $mode=='edit') {
+			$fcallback = array('CRM_ContactsCommon','autoselect_company_contact_format');
+			if ($desc['type']=='multiselect') {
+				$form->addElement('automulti', $field, $label, array('CRM_ContactsCommon','auto_company_contact_suggestbox'), array($fcallback), $fcallback);
+			} else {
+				$form->addElement('autoselect', $field, $label, $cont, array(array('CRM_ContactsCommon','auto_company_contact_suggestbox'), array($fcallback)), $fcallback, array('id'=>$field));
+			}
+			$form->setDefaults(array($field=>$default));
+		} else {
+			$callback = $rb_obj->get_display_method($desc['name']);
+			if (!is_callable($callback)) $callback = array('CRM_ContactsCommon','display_company_contact');
+			$def = call_user_func($callback, $rb_obj->record, false, $desc);
+//			$def = call_user_func($callback, array($field=>$default), false, $desc);
+			$form->addElement('static', $field, $label, $def);
+		}
+	}
 	public static function display_contact($record, $nolink, $desc) {
 		$v = $record[$desc['id']];
 		$def = '';
