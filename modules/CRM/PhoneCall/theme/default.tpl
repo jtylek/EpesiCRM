@@ -98,23 +98,22 @@
 				{* RIGHT column *}
 				<td style="width: 50%; vertical-align: top;">
 					<table cellpadding="0" cellspacing="0" border="0" class="form {if $action == 'view'}view{else}edit{/if}">
-						<tr>
-							<td class="label" style="width: 20%;">{$form_data.company_name.label}{if $form_data.company_name.required}*{/if}</td>
-							<td class="data" style="width: 80%;" colspan="2">
-								<span class="error">
-									{$form_data.company_name.error}
-								</span>
-								{$form_data.company_name.html}{if $action == 'view'}&nbsp;{/if}
+{*						<tr>
+							<td class="label" style="width: 20%;">
+								&nbsp;
 							</td>
-						</tr>
+							<td class="data" style="width: 80%;" colspan="2">
+								&nbsp;
+							</td>
+						</tr>*}
 						{if $action == 'view'}
 								<tr>
-									<td class="label">{$form_data.contact.label}</td>
-									<td class="data" colspan="2">
+									<td class="label" style="width: 20%;">{$form_data.customer.label}</td>
+									<td class="data" style="width: 80%;" colspan="2">
 										<span class="error">
-											{$form_data.contact.error}
+											{$form_data.customer.error}
 										</span>
-										{if $raw_data.other_contact}{$form_data.other_contact_name.html}{else}{$form_data.contact.html}{/if}&nbsp;
+										{if $raw_data.other_customer}{$form_data.other_customer_name.html}{else}{$form_data.customer.html}{/if}&nbsp;
 									</td>
 								</tr>
 								<tr>
@@ -128,24 +127,24 @@
 								</tr>
 						{else}
 								<tr>
-									<td class="label">{$form_data.contact.label}{if $form_data.contact.required}*{/if}</td>
-									<td class="data" colspan="2">
+									<td class="label" style="width: 20%;">{$form_data.customer.label}{if $form_data.customer.required}*{/if}</td>
+									<td class="data" style="width: 80%;" colspan="2">
 										<span class="error">
-											{$form_data.contact.error}
+											{$form_data.customer.error}
 										</span>
-										{$form_data.contact.html}{if $action == 'view'}&nbsp;{/if}
+										{$form_data.customer.html}{if $action == 'view'}&nbsp;{/if}
 									</td>
 								</tr>
 								<tr>
-									<td class="label">{$form_data.other_contact.label}{if $form_data.other_contact.required}*{/if}</td>
+									<td class="label">{$form_data.other_customer.label}{if $form_data.other_customer.required}*{/if}</td>
 									<td class="data" style="width:1px;">
-										{$form_data.other_contact.html}
+										{$form_data.other_customer.html}
 									</td>
 									<td class="data" style="width:99%;">
 										<span class="error">
-											{$form_data.other_contact_name.error}
+											{$form_data.other_customer_name.error}
 										</span>
-										{$form_data.other_contact_name.html}{if $action == 'view'}&nbsp;{/if}
+										{$form_data.other_customer_name.html}{if $action == 'view'}&nbsp;{/if}
 									</td>
 								</tr>
 								<tr>
@@ -212,9 +211,9 @@
 									$k!='status' &&
 									$k!='priority' &&
 									$k!='permission' &&
-									$k!='contact' &&
-									$k!='other_contact' &&
-									$k!='other_contact_name' &&
+									$k!='customer' &&
+									$k!='other_customer' &&
+									$k!='other_customer_name' &&
 									$k!='phone' &&
 									$k!='other_phone' &&
 									$k!='other_phone_number' &&

@@ -7,6 +7,9 @@ autoselect_on_hide = function (element) {
 	$('__'+element+'_select_span').style.display="";
 	focus_by_id(element);
 	$('__'+element+'_autocomplete_span').style.display="none";
+	var evt = document.createEvent('HTMLEvents');
+	evt.initEvent('change', true, true);
+	$(element).dispatchEvent(evt);
 }
 
 autoselect_add_value = function (element, value, label) {

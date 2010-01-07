@@ -278,31 +278,25 @@ class CRM_ContactsCommon extends ModuleCommon {
 	public static function display_company_contact($record, $nolink, $desc) {
 		$v = $record[$desc['id']];
 		$def = '';
-		$first = true;
-		$param = explode(';',$desc['param']);
-		if ($param[1] == '::') $callback = array('CRM_ContactsCommon', 'contact_format_default');
-		else $callback = explode('::', $param[1]);
 		if (!is_array($v)) $v = array($v);
 		foreach($v as $k=>$w){
-			if ($w=='') break;
-			if ($first) $first = false;
-			else $def .= '<br>';
-			$def .= Utils_RecordBrowserCommon::no_wrap(call_user_func($callback, self::get_contact($w), $nolink));
+			if ($def) $def .= '<br>';
+			$def .= Utils_RecordBrowserCommon::no_wrap(self::autoselect_company_contact_format($w));
 		}
 		if (!$def) 	$def = '---';
 		return $def;
 	}
-	public static function autoselect_company_contact_format($arg) {
-		list($rset, $id) = explode('_', $arg);
-		if ($rset=='contact') $val = self::contact_format_default($id, true);
-		else $val = Utils_RecordBrowserCommon::get_value('company', $id, 'company_name');
+	public static function autoselect_company_contact_format($arg, $nolink=false) {
+		list($rset, $id) = explode(':', $arg);
+		if ($rset=='P') $val = self::contact_format_default($id, $nolink);
+		else $val = Utils_RecordBrowserCommon::create_linked_label('company', 'company_name', $id, $nolink);
 		$val .= ' ['.$rset.']';
 		return $val;
 	}
-	public static function automulti_company_contact_suggestbox($str, $fcallback) {
+	public static function auto_company_contact_suggestbox($str, $fcallback) {
 		$str = explode(' ', trim($str));
 		$ret = array();
-		foreach (array('contact', 'company') as $k=>$v) {
+		foreach (array('contact'=>'P', 'company'=>'C') as $k=>$v) {
 			$crits = array();
 			foreach ($str as $v2) if ($v2) {
 				$v2 = DB::Concat(DB::qstr('%'),DB::qstr($v2),DB::qstr('%'));
@@ -319,8 +313,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 			}
 			$recs = Utils_RecordBrowserCommon::get_records($k, $crits, array(), $order);
 			foreach($recs as $v2) {
-				$key = $k.'_'.$v2['id'];
-				$ret[$key] = self::suggestbox_format($key);
+				$key = $v.':'.$v2['id'];
+				$ret[$key] = self::autoselect_company_contact_format($key,true);
 			}
 		}
 		asort($ret);

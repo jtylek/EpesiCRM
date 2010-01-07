@@ -22,10 +22,9 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 			array('name'=>'Contact Name', 		'type'=>'hidden', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_PhoneCallCommon','display_contact_name')),
 			array('name'=>'Phone Number', 		'type'=>'hidden', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_PhoneCallCommon','display_phone_number')),
 
-			array('name'=>'Company Name', 		'type'=>'crm_company', 'param'=>array('field_type'=>'select','crits'=>array('CRM_PhoneCallCommon','company_crits')), 'required'=>false, 'extra'=>false, 'visible'=>true),
-			array('name'=>'Contact', 			'type'=>'crm_contact', 'param'=>array('field_type'=>'select','crits'=>array('ChainedSelect','company_name'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'extra'=>false),
-			array('name'=>'Other Contact',		'type'=>'checkbox', 'extra'=>false, 'QFfield_callback'=>array('CRM_PhoneCallCommon','QFfield_other_contact')),
-			array('name'=>'Other Contact Name',	'type'=>'text', 'param'=>'64', 'extra'=>false),
+			array('name'=>'Customer', 			'type'=>'crm_company_contact', 'param'=>array('field_type'=>'select'), 'extra'=>false),
+			array('name'=>'Other Customer',		'type'=>'checkbox', 'extra'=>false, 'QFfield_callback'=>array('CRM_PhoneCallCommon','QFfield_other_contact')),
+			array('name'=>'Other Customer Name','type'=>'text', 'param'=>'64', 'extra'=>false),
 
 			array('name'=>'Permission', 		'type'=>'commondata', 'required'=>true, 'param'=>array('order_by_key'=>true,'CRM/Access'), 'extra'=>false),
 			array('name'=>'Employees', 			'type'=>'crm_contact', 'param'=>array('field_type'=>'multiselect', 'crits'=>array('CRM_PhoneCallCommon','employees_crits'), 'format'=>array('CRM_ContactsCommon','contact_format_no_company')), 'required'=>true, 'extra'=>false, 'visible'=>true),

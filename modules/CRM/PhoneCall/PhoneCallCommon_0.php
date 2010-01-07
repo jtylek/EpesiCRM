@@ -40,7 +40,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 				$phone = $l.': '.$c[$id];
 			} else $phone = $r['other_phone_number'];
 		} else {
-			$contact = $r['other_contact_name'];
+			$contact = $r['other_customer_name'];
 			$phone = $r['other_phone_number'];
 			$company = '---';
 		}
@@ -189,19 +189,19 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	}
 	public static function check_contact_not_empty($v) {
 		$ret = array();
-		if ((isset($v['other_phone']) && $v['other_phone']) || (isset($v['other_contact']) && $v['other_contact'])) {
+		if ((isset($v['other_phone']) && $v['other_phone']) || (isset($v['other_customer']) && $v['other_customer'])) {
 			if (!isset($v['other_phone_number']) || !$v['other_phone_number']) 
 				$ret['other_phone_number'] = Base_LangCommon::ts('CRM_PhoneCall','Field required');
 		} else {
 			if (!isset($v['phone']) || !$v['phone']) 
 				$ret['phone'] = Base_LangCommon::ts('CRM_PhoneCall','Field required');
 		}
-		if (!isset($v['other_contact']) || !$v['other_contact']) {
-			if (!isset($v['contact']) || !$v['contact']) 
-				$ret['contact'] = Base_LangCommon::ts('CRM_PhoneCall','Field required');
+		if (!isset($v['other_customer']) || !$v['other_customer']) {
+			if (!isset($v['customer']) || !$v['customer']) 
+				$ret['customer'] = Base_LangCommon::ts('CRM_PhoneCall','Field required');
 		} else {
-			if (!isset($v['other_contact_name']) || !$v['other_contact_name']) 
-				$ret['other_contact_name'] = Base_LangCommon::ts('CRM_PhoneCall','Field required');
+			if (!isset($v['other_customer_name']) || !$v['other_customer_name']) 
+				$ret['other_customer_name'] = Base_LangCommon::ts('CRM_PhoneCall','Field required');
 		}
 		return empty($ret)?true:$ret;
 	}
@@ -209,7 +209,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		if ($mode=='add' || $mode=='edit') {
 			$form->addElement('select', $field, $label, array(), array('id'=>$field));
 			if ($mode=='edit') $form->setDefaults(array($field=>$default));
-			Utils_ChainedSelectCommon::create($field, array('company_name','contact'),'modules/CRM/PhoneCall/update_phones.php',null,$form->exportValue($field));
+			Utils_ChainedSelectCommon::create($field, array('customer'),'modules/CRM/PhoneCall/update_phones.php',null,$form->exportValue($field));
 			$form->addFormRule(array('CRM_PhoneCallCommon','check_contact_not_empty'));
 		} else {
 			$form->addElement('static', $field, $label);
@@ -229,24 +229,29 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		} else return self::display_phone($record,false,array('id'=>'phone'));
 	}
 	public static function display_contact_name($record, $nolink) {
-		if ($record['other_contact']) return $record['other_contact_name'];
-		if ($record['contact']=='') return '---';
-		$ret = '';
-		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_open_tag('contact', $record['contact']);
-		$cont = CRM_ContactsCommon::get_contact($record['contact']);
+		if ($record['other_customer']) return $record['other_customer_name'];
+		if ($record['customer']=='') return '---';
+		$ret = CRM_ContactsCommon::autoselect_company_contact_format($record['customer']);
+/*		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_open_tag('contact', $record['customer']);
+		$cont = CRM_ContactsCommon::get_contact($record['customer']);
 		$ret .= $cont['last_name'].(($cont['first_name']!=='')?' '.$cont['first_name']:'');
-		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_close_tag();
+		if (!$nolink) $ret .= Utils_RecordBrowserCommon::record_link_close_tag();*/
 		return $ret;
 	}
 	public static function display_phone($record, $nolink, $desc) {
 		if ($record[$desc['id']]=='') return '';
 		$num = $record[$desc['id']];
-		$contact = CRM_ContactsCommon::get_contact($record['contact']);
+		list($r,$id) = explode(':',$record['customer']);
+		if ($r=='P')
+			$contact = CRM_ContactsCommon::get_contact($id);
+		else
+			$contact = CRM_ContactsCommon::get_company($id);
 		$nr = '';
 		switch ($num) {
 			case 1: $nr = 'Mobile Phone'; break;
 			case 2: $nr = 'Work Phone'; break;
 			case 3: $nr = 'Home Phone'; break;
+			case 4: $nr = 'Phone'; break;
 		}
 		if (!$nr) return '';
 		$id = strtolower(str_replace(' ','_',$nr));
@@ -257,7 +262,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			if($contact['country']) {
 				$calling_code = Utils_CommonDataCommon::get_value('Calling_Codes/'.$contact['country']);
 				if($calling_code)
-					$number = $calling_code.$number;
+					$number = $calling_code.' '.$number;
 			}
 		}
 
@@ -318,17 +323,17 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			$values['subject'] = Base_LangCommon::ts('CRM/PhoneCall','Follow up: ').$values['subject'];
 			$values['status'] = 0;
 			$ret = array();
-			if (ModuleManager::is_installed('CRM/Calendar')>=0) $ret['new_event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/PhoneCall','New Event')).' '.CRM_CalendarCommon::create_new_event_href(array('title'=>$values['subject'],'access'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'emp_id'=>$values['employees'],'cus_id'=>$values['contact'])).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'"></a>';
-			if (ModuleManager::is_installed('CRM/Tasks')>=0) $ret['new_task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/PhoneCall','New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('title'=>$values['subject'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),'employees'=>$values['employees'], 'customers'=>$values['contact'])).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
+			if (ModuleManager::is_installed('CRM/Calendar')>=0) $ret['new_event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/PhoneCall','New Event')).' '.CRM_CalendarCommon::create_new_event_href(array('title'=>$values['subject'],'access'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'emp_id'=>$values['employees'],'cus_id'=>$values['customer'])).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'"></a>';
+			if (ModuleManager::is_installed('CRM/Tasks')>=0) $ret['new_task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/PhoneCall','New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('title'=>$values['subject'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),'employees'=>$values['employees'], 'customers'=>$values['customer'])).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
 			$ret['new_phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/PhoneCall','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', $values).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
 			return $ret;
 		case 'edit':
 			$old_vals = Utils_RecordBrowserCommon::get_record('phonecall',$values['id']);
 			$old_related = $old_vals['employees'];
-			if (!isset($old_vals['other_contact'])) $old_related[] = $old_vals['contact'];
+			if (!isset($old_vals['other_customer'])) $old_related[] = $old_vals['customer'];
 		case 'added':
 			$related = $values['employees'];
-			if (!isset($values['other_contact'])) $related[] = $values['contact'];
+			if (!isset($values['other_customer'])) $related[] = $values['customer'];
 			foreach ($related as $v) {
 				if ($mode==='edit' && in_array($v, $old_related)) continue;
 				$subs = Utils_WatchdogCommon::get_subscribers('contact',$v);
@@ -337,11 +342,11 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			}
 			if ($mode=='added') break;
 		case 'add':
-			if (isset($values['other_contact']) && $values['other_contact']) {
+			if (isset($values['other_customer']) && $values['other_customer']) {
 				$values['other_phone']=1;
-				$values['contact']='';
+				$values['customer']='';
 			} else {
-				$values['other_contact_name']='';
+				$values['other_customer_name']='';
 			}
 			if (isset($values['other_phone']) && $values['other_phone']) $values['phone']='';
 			else $values['other_phone_number']='';
