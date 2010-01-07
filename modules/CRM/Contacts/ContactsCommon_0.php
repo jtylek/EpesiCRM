@@ -750,13 +750,17 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$me = CRM_ContactsCommon::get_my_record();
 			$emp = array($me['id']);
 			$cus = array();
+			$ccus = array();
 			if ($is_employee) $emp[] = $values['id'];
-			else $cus[] = $values['id'];
+			else {
+				$cus[] = 'P:'.$values['id'];
+				$ccus[] = $values['id'];
+			}
 			$ret = array();
 			if(self::Instance()->acl_check('"new" actions')) {
-				if (ModuleManager::is_installed('CRM/Calendar')!==-1) $ret['new_event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Event')).' '.CRM_CalendarCommon::create_new_event_href(array('emp_id'=>$emp,'cus_id'=>$cus)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'"></a>';
+				if (ModuleManager::is_installed('CRM/Calendar')!==-1) $ret['new_event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Event')).' '.CRM_CalendarCommon::create_new_event_href(array('emp_id'=>$emp,'cus_id'=>$ccus)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'"></a>';
 				if (ModuleManager::is_installed('CRM/Tasks')!==-1) $ret['new_task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
-				if (ModuleManager::is_installed('CRM/PhoneCall')!==-1) $ret['new_phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'contact'=>$values['id'],'employees'=>$me['id'],'status'=>0, 'permission'=>0, 'priority'=>1,'company_name'=>((!empty($values['company_name']))?array_pop($values['company_name']):''))).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
+				if (ModuleManager::is_installed('CRM/PhoneCall')!==-1) $ret['new_phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(Base_LangCommon::ts('CRM/Contacts','New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'customer'=>'P:'.$values['id'],'employees'=>$me['id'],'status'=>0, 'permission'=>0, 'priority'=>1),'none',false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
 			}
 			return $ret;
 		case 'add':

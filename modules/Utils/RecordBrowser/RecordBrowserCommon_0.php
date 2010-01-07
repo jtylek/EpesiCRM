@@ -1307,7 +1307,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		foreach($match[1] as $v) $content_no_wrap = str_replace($v, str_replace(' ','&nbsp;', $v), $content_no_wrap);
 		return $content_no_wrap;
 	}
-	public static function get_new_record_href($tab, $def, $id='none'){
+	public static function get_new_record_href($tab, $def, $id='none', $check_defaults=true){
 		self::check_table_name($tab);
 		$x = ModuleManager::get_instance('/Base_Box|0');
 		if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
@@ -1316,11 +1316,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			Utils_RecordBrowser::$clone_result = null;
 		}
 		$def_md5 = md5(serialize($def));
+//		print_r($_REQUEST);
+//		print('<br>'.$tab.' - '.$def_md5.' - '.$id.' - '.$check_defaults);
+//		print('<hr>');
 		if (isset($_REQUEST['__add_record_to_RB_table']) &&
 			isset($_REQUEST['__add_record_id']) &&
 			isset($_REQUEST['__add_record_def']) &&
 			($tab==$_REQUEST['__add_record_to_RB_table']) &&
-			($def_md5==$_REQUEST['__add_record_def']) &&
+			(!$check_defaults || $def_md5==$_REQUEST['__add_record_def']) &&
 			($id==$_REQUEST['__add_record_id'])) {
 			unset($_REQUEST['__add_record_to_RB_table']);
 			unset($_REQUEST['__add_record_id']);
@@ -1330,8 +1333,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		return array('__add_record_to_RB_table'=>$tab, '__add_record_id'=>$id, '__add_record_def'=>$def_md5);
 	}
-	public static function create_new_record_href($tab, $def, $id='none'){
-		return Module::create_href(self::get_new_record_href($tab,$def, $id));
+	public static function create_new_record_href($tab, $def, $id='none', $check_defaults=true){
+		return Module::create_href(self::get_new_record_href($tab,$def, $id, $check_defaults));
 	}
 	public static function get_record_href_array($tab, $id, $action='view'){
 		self::check_table_name($tab);
