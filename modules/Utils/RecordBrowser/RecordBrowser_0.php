@@ -1214,7 +1214,6 @@ class Utils_RecordBrowser extends Module {
 			$tab_counter=0;
 			while ($row = $ret->FetchRow()) {
 				if (ModuleManager::is_installed($row['module'])==-1) continue;
-				$mod = $this->init_module($row['module']);
 				if (is_callable(explode('::',$row['label']))) {
 					$result = call_user_func(explode('::',$row['label']), $this->record);
 					if ($result['show']==false) continue;
