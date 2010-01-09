@@ -51,7 +51,6 @@ class ErrorHandler {
 
 			if (($type & $breakLevel) > 0) {
 				$backtrace = self::debug_backtrace();
-				error_log("Type: ".$type."\nMessage: ".$message."\nFile: ".$errfile."\nLine=".$errline.$backtrace."\n\n\n",3,'/tmp/epesi.log');
 				
 				if ( ! self::notify_observers($type, $message,$errfile,$errline,$errcontext,$backtrace)) {
 					return false;
