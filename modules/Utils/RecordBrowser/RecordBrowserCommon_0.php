@@ -1236,15 +1236,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
 		// If CRM Module is not installed get user login only
 		$created_by = Base_UserCommon::get_user_login($info['created_by']);
-		$edited_by = Base_UserCommon::get_user_login($info['edited_by']);
 		$htmlinfo=array(
 					'Record ID:'=>$id,			
 					'Created by:'=>$created_by,			
 					'Created on:'=>Base_RegionalSettingsCommon::time2reg($info['created_on'])
 						);
-		if ($info['edited_by']!=null) {
+		if ($info['edited_on']!==null) {
 			$htmlinfo=$htmlinfo+array(
-					'Edited by:'=>$edited_by,		
+					'Edited by:'=>$info['edited_by']!==null?Base_UserCommon::get_user_login($info['edited_by']):'',
 					'Edited on:'=>Base_RegionalSettingsCommon::time2reg($info['edited_on'])
 						);
 		}
@@ -1485,7 +1484,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								$event_display = 'Error, Invalid event: '.$param;
 								if (!$edit_info) continue;
 
-								$event_display = Base_LangCommon::ts('Utils_RecordBrowser','<b>Record edited by</b> %s<b>, on</b> %s', array(Base_UserCommon::get_user_login($edit_info['edited_by']), Base_RegionalSettingsCommon::time2reg($edit_info['edited_on'])));
+								$event_display = Base_LangCommon::ts('Utils_RecordBrowser','<b>Record edited by</b> %s<b>, on</b> %s', array($edit_info['edited_by']!==null?Base_UserCommon::get_user_login($edit_info['edited_by']):'', Base_RegionalSettingsCommon::time2reg($edit_info['edited_on'])));
 								if (!$details) break;
 								$edit_details = DB::GetAssoc('SELECT field, old_value FROM '.$tab.'_edit_history_data WHERE edit_id=%d',array($param[1]));
 								$event_display .= '<table border="0"><tr><td><b>'.Base_LangCommon::ts('Utils_RecordBrowser','Field').'</b></td><td><b>'.Base_LangCommon::ts('Utils_RecordBrowser','Old value').'</b></td><td><b>'.Base_LangCommon::ts('Utils_RecordBrowser','New value').'</b></td></tr>';

@@ -801,7 +801,7 @@ class Utils_RecordBrowser extends Module {
 						if (!$row[':active']) $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],true)),'Activate', null, 'active-off');
 						else $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],false)),'Deactivate', null, 'active-on');
 						$info = Utils_RecordBrowserCommon::get_record_info($this->tab, $row['id']);
-						if ($info['edited_by']===null) $gb_row->add_action('','This record was never edited',null,'history_inactive');
+						if ($info['edited_on']===null) $gb_row->add_action('','This record was never edited',null,'history_inactive');
 						else $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_edit_history', $row['id'])),'View edit history',null,'history');
 					} else
 					if (!isset($da['delete']) && $this->get_access('delete',$row)) $gb_row->add_action($this->create_confirm_callback_href($this->t('Are you sure you want to delete this record?'),array('Utils_RecordBrowserCommon','delete_record'),array($this->tab, $row['id'])),'Delete');
@@ -1110,7 +1110,7 @@ class Utils_RecordBrowser extends Module {
 				$theme -> assign('subscription_tooltip', Utils_WatchdogCommon::get_change_subscription_icon($this->tab, $id));
 			if ($this->full_history) {
 				$info = Utils_RecordBrowserCommon::get_record_info($this->tab, $id);
-				if ($info['edited_by']===null) $theme -> assign('history_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs($this->t('This record was never edited')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','history_inactive.png').'" /></a>');
+				if ($info['edited_on']===null) $theme -> assign('history_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs($this->t('This record was never edited')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','history_inactive.png').'" /></a>');
 				else $theme -> assign('history_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs($this->t('Click to view edit history of currently displayed record')).' '.$this->create_callback_href(array($this,'navigate'), array('view_edit_history', $id)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','history.png').'" /></a>');
 			}
             if ($this->clipboard_pattern) {
@@ -1838,7 +1838,7 @@ class Utils_RecordBrowser extends Module {
 //				$gb_row->add_action('href="javascript:apply_changes_to_'.$k.'()"', 'Apply', null, 'apply');
 				$gb_row->add_data(
 					Base_RegionalSettingsCommon::time2reg($row['edited_on']), 
-					Base_UserCommon::get_user_login($row['edited_by']), 
+					$row['edited_by']!==null?Base_UserCommon::get_user_login($row['edited_by']):'', 
 					$field_hash[$k], 
 					$old, 
 					$new
@@ -1875,8 +1875,8 @@ class Utils_RecordBrowser extends Module {
 		$created['created_by_login'] = Base_UserCommon::get_user_login($created['created_by']);
 		$field_hash = array();
 		$edited = DB::GetRow('SELECT ul.login, c.edited_on FROM '.$this->tab.'_edit_history AS c LEFT JOIN user_login AS ul ON ul.id=c.edited_by WHERE c.'.$this->tab.'_id=%d ORDER BY edited_on DESC',array($id));
-		if (!isset($edited['login']))
-			return;
+//		if (!isset($edited['login']))
+//			return;
 		$gb_cur->add_row($this->t('Edited by'), $edited['login']);
 		$gb_cur->add_row($this->t('Edited on'), Base_RegionalSettingsCommon::time2reg($edited['edited_on']));
 		foreach($this->table_rows as $field => $args) {
@@ -1896,7 +1896,7 @@ class Utils_RecordBrowser extends Module {
 				$last_row = $row2;
 			}
 			foreach($changed as $k=>$v) {
-				if ($k=='id') $gb_cha->add_row($row['edited_on'], Base_UserCommon::get_user_login($row['edited_by']), '<b>'.$last_row['old_value'].'</b>', '', '');
+				if ($k=='id') $gb_cha->add_row($row['edited_on'], $row['edited_by']!==null?Base_UserCommon::get_user_login($row['edited_by']):'', '<b>'.$last_row['old_value'].'</b>', '', '');
 				else {
 					if (!isset($field_hash[$k])) continue;
 					$new = $this->get_val($field_hash[$k], $created, false, $this->table_rows[$field_hash[$k]]);
@@ -1905,7 +1905,7 @@ class Utils_RecordBrowser extends Module {
 					$old = $this->get_val($field_hash[$k], $created, false, $this->table_rows[$field_hash[$k]]);
 					$gb_cha->add_row(
 						Base_RegionalSettingsCommon::time2reg($row['edited_on']), 
-						Base_UserCommon::get_user_login($row['edited_by']), 
+						$row['edited_by']!==null?Base_UserCommon::get_user_login($row['edited_by']):'', 
 						$this->t($field_hash[$k]), 
 						$old, 
 						$new
@@ -2104,7 +2104,7 @@ class Utils_RecordBrowser extends Module {
 			if (isset($conf['actions_delete']) && $conf['actions_delete']) if ($this->get_access('delete',$v)) $gb_row->add_action($this->create_confirm_callback_href($this->t('Are you sure you want to delete this record?'),array('Utils_RecordBrowserCommon','delete_record'),array($this->tab, $v['id'])),'Delete');
 			if (isset($conf['actions_history']) && $conf['actions_history']) {
 				$r_info = Utils_RecordBrowserCommon::get_record_info($this->tab, $v['id']);
-				if ($r_info['edited_by']===null) $gb_row->add_action('','This record was never edited',null,'history_inactive');
+				if ($r_info['edited_on']===null) $gb_row->add_action('','This record was never edited',null,'history_inactive');
 				else $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_edit_history', $v['id'])),'View edit history',null,'history');
 			}
 		}
