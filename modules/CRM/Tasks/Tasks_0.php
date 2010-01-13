@@ -79,6 +79,19 @@ class CRM_Tasks extends Module {
 		$a->allow_public($this->acl_check('view public notes'),$this->acl_check('edit public notes'));
 		$this->display_module($a);
 	}
+	
+	public function messanger_addon($arg) {
+		$emp = array();
+		$ret = CRM_ContactsCommon::get_contacts(array('id'=>$arg['employees']), array(), array('last_name'=>'ASC', 'first_name'=>'ASC'));
+		foreach($ret as $c_id=>$data)
+			if(is_numeric($data['login'])) {
+				$emp[$data['login']] = CRM_ContactsCommon::contact_format_no_company($data);
+			}
+
+		$mes = $this->init_module('Utils/Messenger',array('CRM_Tasks:'.$arg['id'],array('CRM_TasksCommon','get_alarm'),array($arg['id']),$arg['deadline'],$emp));
+//		$mes->set_inline_display();
+		$this->display_module($mes);
+	}
 
 	public function caption(){
 		if (isset($this->rb)) return $this->rb->caption();

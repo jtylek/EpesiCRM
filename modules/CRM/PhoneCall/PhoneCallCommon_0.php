@@ -365,6 +365,16 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			);
 	}
 
+	public static function get_alarm($id) {
+		$a = Utils_RecordBrowserCommon::get_record('phonecall',$id);
+
+		if (!$a) return Base_LangCommon::ts('CRM_PhoneCall','Private record');
+
+		$date = Base_LangCommon::ts('CRM_PhoneCall',"Date: %s",array(Base_RegionalSettingsCommon::time2reg($a['date_and_time'],2)));
+		//TODO: add phone number
+		return $date."\n".Base_LangCommon::ts('CRM_PhoneCall',"Subject: %s",array($a['subject']));
+	}
+
 	//////////////////////////
 	// mobile devices
 	public function mobile_menu() {

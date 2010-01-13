@@ -65,5 +65,17 @@ class CRM_PhoneCall extends Module {
 		$this->display_module($rb, $conds, 'mini_view');
 	}
 
+	public function messanger_addon($arg) {
+		$emp = array();
+		$ret = CRM_ContactsCommon::get_contacts(array('id'=>$arg['employees']), array(), array('last_name'=>'ASC', 'first_name'=>'ASC'));
+		foreach($ret as $c_id=>$data)
+			if(is_numeric($data['login'])) {
+				$emp[$data['login']] = CRM_ContactsCommon::contact_format_no_company($data);
+			}
+
+		$mes = $this->init_module('Utils/Messenger',array('CRM_PhoneCall:'.$arg['id'],array('CRM_PhoneCallCommon','get_alarm'),array($arg['id']),$arg['date_and_time'],$emp));
+//		$mes->set_inline_display();
+		$this->display_module($mes);
+	}
 }
 ?>

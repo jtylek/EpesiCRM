@@ -284,6 +284,19 @@ class CRM_TasksCommon extends ModuleCommon {
 		return Utils_RecordBrowserCommon::record_link_open_tag('task', $row['id']).Base_LangCommon::ts('CRM_Tasks', 'Task (attachment) #%d, %s', array($row['id'], $row['title'])).Utils_RecordBrowserCommon::record_link_close_tag();
 	}
 
+	public static function get_alarm($id) {
+		$a = Utils_RecordBrowserCommon::get_record('task',$id);
+
+		if (!$a) return Base_LangCommon::ts('CRM_Tasks','Private record');
+
+		if($a['deadline'])
+			$date = Base_LangCommon::ts('CRM_Tasks',"Task Deadline: %s",array(Base_RegionalSettingsCommon::time2reg($a['deadline'],true,false)));
+		else
+			$date = Base_LangCommon::ts('CRM_Tasks',"Task without deadline");
+
+		return $date."\n".Base_LangCommon::ts('CRM_Tasks',"Title: %s",array($a['title']));
+	}
+
 	///////////////////////////////////
 	// mobile devices
 

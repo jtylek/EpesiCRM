@@ -55,6 +55,7 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 //		Utils_RecordBrowserCommon::new_addon('company', 'CRM/Contacts', 'company_attachment_addon', 'Notes');
 //		Utils_RecordBrowserCommon::new_addon('contact', 'CRM/Contacts', 'contact_attachment_addon', 'Notes');
 		Utils_RecordBrowserCommon::new_addon('phonecall', 'CRM/PhoneCall', 'phonecall_attachment_addon', 'Notes');
+		Utils_RecordBrowserCommon::new_addon('phonecall', 'CRM/PhoneCall', 'messanger_addon', 'Alerts');
 // ************ other ************** //
 		$this->add_aco('browse phonecalls',array('Employee'));
 		$this->add_aco('view phonecall',array('Employee'));
