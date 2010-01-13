@@ -287,7 +287,13 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return $def;
 	}
 	public static function autoselect_company_contact_format($arg, $nolink=false) {
-		list($rset, $id) = explode(':', $arg);
+		$x = explode(':', $arg);
+		if(count($x)==2) {
+			list($rset, $id) = $x;
+		} else {
+			$id = $x[0];
+			$rset = 'P';
+		}
 		if ($rset=='P') $val = self::contact_format_default($id, $nolink);
 		else $val = Utils_RecordBrowserCommon::create_linked_label('company', 'company_name', $id, $nolink);
 		$val .= ' ['.$rset.']';

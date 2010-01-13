@@ -27,12 +27,28 @@ class CRM_TasksCommon extends ModuleCommon {
 		$access = Utils_CommonDataCommon::get_translated_array('CRM/Access');
 		$priority = Utils_CommonDataCommon::get_translated_array('CRM/Priority');
 		$status = Utils_CommonDataCommon::get_translated_array('CRM/Status');
+		
+		$contacts = array();
+		$companies = array();
+		foreach($r['customers'] as $arg) {
+			$x = explode(':', $arg);
+			if(count($x)==2) {
+				list($rset, $id) = $x;
+			} else {
+				$id = $x[0];
+				$rset = 'P';
+			}
+			if($rset=='P') $contacts[] = $id;
+			else $companies[] = $id;
+		}
+		$contacts = CRM_ContactsCommon::display_contact(array('id'=>$contacts),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_default'));
+		$companies = CRM_ContactsCommon::display_company(array('id'=>$companies),true,array('id'=>'id'));
 
 		$args=array(
 					'Task:'=>'<b>'.$r['title'].'</b>',
 					'Description:'=>$r['description'],
 					'Assigned to:'=>CRM_ContactsCommon::display_contact(array('id'=>$r['employees']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_no_company')),
-					'Contacts:'=>CRM_ContactsCommon::display_contact(array('id'=>$r['customers']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_default')),
+					'Customers:'=> $companies.($contacts && $companies?'<br>':'').$contacts,
 					'Status:'=>$status[$r['status']],
 					'Deadline:'=>$r['deadline']!=''?Base_RegionalSettingsCommon::time2reg($r['deadline'],false):Base_LangCommon::ts('CRM_Tasks','Not set'),
 					'Longterm:'=>Base_LangCommon::ts('CRM_Tasks',$r['longterm']!=0?'Yes':'No'),
