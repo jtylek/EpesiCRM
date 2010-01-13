@@ -547,6 +547,9 @@ class Utils_Attachment extends Module {
 			if(isset($id)) {
 				$row = DB::GetRow('SELECT l.sticky,x.text,l.permission FROM utils_attachment_note x INNER JOIN utils_attachment_link l ON l.id=x.attach_id WHERE x.attach_id=%d AND x.revision=(SELECT max(z.revision) FROM utils_attachment_note z WHERE z.attach_id=%d)',array($id,$id));
 				$form->setDefaults(array('note'=>$row['text'],'permission'=>$row['permission'],'sticky'=>$row['sticky']));
+			} else {
+			
+				$form->setDefaults(array('permission'=>Base_User_SettingsCommon::get('Utils_Attachment','default_permission')));
 			}
 
 			if(!$this->inline) {

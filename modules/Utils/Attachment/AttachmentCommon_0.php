@@ -15,6 +15,17 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_AttachmentCommon extends ModuleCommon {
 
+	public static function user_settings() {
+		if(Acl::is_user()) {
+			return array(
+				'Misc'=>array(
+					array('name'=>'default_permission','label'=>'Default notes permission', 'type'=>'select', 'default'=>0, 'values'=>array(Base_LangCommon::ts('Utils_Attachment','Public'),Base_LangCommon::ts('Utils_Attachment','Protected'),Base_LangCommon::ts('Utils_Attachment','Private')))
+				)
+			);
+		}
+		return array();
+	}
+
 	private static function get_where($group,$group_starts_with=true) {
 		$ret = '';
 		if(!Base_AclCommon::i_am_admin())
