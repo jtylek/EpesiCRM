@@ -268,6 +268,8 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 
 		if(MOBILE_DEVICE && IPHONE)
 			return $l[0].': '.'<a href="tel:'.$number.'">'.$number.'</a>';
+		if($nolink)
+			return $l[0].': '.$number;
 		return $l[0].': '.CRM_CommonCommon::get_dial_code($number);
 	}
 	public static function display_status($record, $nolink, $desc) {
@@ -370,9 +372,22 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 
 		if (!$a) return Base_LangCommon::ts('CRM_PhoneCall','Private record');
 
-		$date = Base_LangCommon::ts('CRM_PhoneCall',"Date: %s",array(Base_RegionalSettingsCommon::time2reg($a['date_and_time'],2)));
-		//TODO: add phone number
-		return $date."\n".Base_LangCommon::ts('CRM_PhoneCall',"Subject: %s",array($a['subject']));
+		$ret = Base_LangCommon::ts('CRM_PhoneCall',"Date: %s",array(Base_RegionalSettingsCommon::time2reg($a['date_and_time'],2)))."\n";
+		if($a['other_customer'])
+			$contact = $a['other_customer_name'];
+		else {
+			list($r,$id) = explode(':',$a['customer']);
+			if ($r=='P')
+				$contact = CRM_ContactsCommon::contact_format_default($id,true);
+			else {
+				$contact = CRM_ContactsCommon::get_company($id);
+				$contact = $contact['company_name'];
+			}
+		}
+		$ret .= Base_LangCommon::ts('CRM_PhoneCall',"Contact: %s",array($contact))."\n";
+		$ret .= Base_LangCommon::ts('CRM_PhoneCall',"Phone: %s",array(self::display_phone($a,true,array('id'=>'phone'))))."\n";
+
+		return $ret.Base_LangCommon::ts('CRM_PhoneCall',"Subject: %s",array($a['subject']));
 	}
 
 	//////////////////////////

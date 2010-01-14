@@ -88,7 +88,7 @@ class CRM_Tasks extends Module {
 				$emp[$data['login']] = CRM_ContactsCommon::contact_format_no_company($data);
 			}
 
-		$mes = $this->init_module('Utils/Messenger',array('CRM_Tasks:'.$arg['id'],array('CRM_TasksCommon','get_alarm'),array($arg['id']),$arg['deadline'],$emp));
+		$mes = $this->init_module('Utils/Messenger',array('CRM_Tasks:'.$arg['id'],array('CRM_TasksCommon','get_alarm'),array($arg['id']),strtotime($arg['deadline']),$emp));
 //		$mes->set_inline_display();
 		$this->display_module($mes);
 	}
