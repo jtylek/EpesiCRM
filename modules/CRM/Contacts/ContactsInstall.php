@@ -183,7 +183,8 @@ class CRM_ContactsInstall extends ModuleInstall {
 			     array('type'=>'text','name'=>'postal','label'=>'Postal Code','default'=>'','param'=>array('maxlength'=>64)),
 			     array('type'=>'text','name'=>'phone','label'=>'Phone','default'=>'','param'=>array('maxlength'=>64)),
 			     array('type'=>'text','name'=>'fax','label'=>'Fax','default'=>'','param'=>array('maxlength'=>64)),
-			     array('type'=>'text','name'=>'web','label'=>'Web address','default'=>'','param'=>array('maxlength'=>64))
+			     array('type'=>'text','name'=>'web','label'=>'Web address','default'=>'','param'=>array('maxlength'=>64)),
+			     array('type'=>'checkbox','name'=>'registration','label'=>'Register EpesiBIM installation','default'=>1)
 			     ));
 	}
 
@@ -235,6 +236,23 @@ class CRM_ContactsInstall extends ModuleInstall {
 					'email'=>$mail,
 					'group'=>array('office','field')
 					));
+		}
+		if(isset($val['registration']) && $val['registration']) {
+			$ccc = Utils_RecordBrowserCommon::get_record('company',1);
+			foreach($ccc as $kk=>$vv) {
+				if(!is_string($vv) && !is_numeric($vv))
+					unset($ccc[$kk]);
+			}
+			unset($ccc[':active']);
+			unset($ccc['created_by']);
+			unset($ccc['id']);
+			ob_start();
+			$stdout = fopen('php://output','w');
+			fputcsv($stdout,array_keys($ccc)+array('first_name','last_name','email'));
+			fputcsv($stdout,array_values($ccc)+array(isset($val['fname'])?$val['fname']:'',isset($val['lname'])?$val['lname']:'',isset($mail)?$mail:''));
+			fclose($stdout);
+			$reg_mail_body = ob_get_clean();
+			Base_MailCommon::send('register@telaxus.com','EpesiBIM registration',$reg_mail_body);
 		}
 	}
 }
