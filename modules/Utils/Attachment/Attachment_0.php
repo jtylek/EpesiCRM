@@ -40,10 +40,9 @@ class Utils_Attachment extends Module {
 	private $add_func = null;
 	private $add_args = array();
 
-	public function construct($group,$pd=null,$in=null,$priv_r=null,$priv_w=null,$prot_r=null,$prot_w=null,$pub_r=null,$pub_w=null,$header=null,$watchdog_cat=null,$watchdog_id=null,$func=null,$args=null,$add_func=null,$add_args=null,$max_fs=null) {
-		if(!isset($group)) trigger_error('Key not given to attachment module',E_USER_ERROR);
-		$this->group = $group;
-
+	public function construct($group=null,$pd=null,$in=null,$priv_r=null,$priv_w=null,$prot_r=null,$prot_w=null,$pub_r=null,$pub_w=null,$header=null,$watchdog_cat=null,$watchdog_id=null,$func=null,$args=null,$add_func=null,$add_args=null,$max_fs=null) {
+		$this->group = & $this->get_module_variable('group',isset($group)?$group:null);
+		
 		if(isset($pd)) $this->persistent_deletion = $pd;
 		if(isset($in)) $this->inline = $in;
 		if(isset($priv_r)) $this->private_read = $priv_r;
@@ -52,7 +51,7 @@ class Utils_Attachment extends Module {
 		if(isset($prot_w)) $this->protected_write = $prot_w;
 		if(isset($pub_r)) $this->public_read = $pub_r;
 		if(isset($pub_w)) $this->public_write = $pub_w;
-		if(isset($header)) $this->add_header = $header;
+		$this->add_header = & $this->get_module_variable('header',isset($header)?$header:null);
 		if(isset($watchdog_cat)) $this->watchdog_category = $watchdog_cat;
 		if(isset($watchdog_id)) $this->watchdog_id = $watchdog_id;
 		if(isset($func)) $this->func = $func;
@@ -110,7 +109,13 @@ class Utils_Attachment extends Module {
 		$this->author = $x;
 	}
 
-	public function body() {
+	public function body($arg=null, $rb=null) {
+		if(isset($arg) && isset($rb)) {
+			$this->group = $rb->tab.'/'.$arg['id'];
+			$this->add_header = $rb->caption();
+		}
+		if(!isset($this->group)) trigger_error('Key not given to attachment module',E_USER_ERROR);
+	
 		$vd = null;
 		if(!$this->persistent_deletion)
 			$vd = isset($_SESSION['view_deleted_attachments']) && $_SESSION['view_deleted_attachments'];
