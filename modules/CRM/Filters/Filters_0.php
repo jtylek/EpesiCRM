@@ -40,14 +40,20 @@ class CRM_Filters extends Module {
 		$th->assign('filters',$filters);
 
 		$qf = $this->init_module('Libs/QuickForm');
-		$contacts = CRM_ContactsCommon::get_contacts(array('company_name'=>CRM_ContactsCommon::get_main_company()),array('first_name','last_name'),array('last_name'=>'ASC','first_name'=>'ASC'));
+/*		$contacts = CRM_ContactsCommon::get_contacts(array('company_name'=>CRM_ContactsCommon::get_main_company()),array('first_name','last_name'),array('last_name'=>'ASC','first_name'=>'ASC'));
 		$this->contacts_select = array(''=>'---');
 		foreach($contacts as $v)
 			$this->contacts_select[$v['id']] = $v['last_name'].' '.$v['first_name'];
-		$qf->addElement('select','crm_filter_contact',$this->t('Records of'),$this->contacts_select,array('onChange'=>'if(this.value!=\'\'){'.$qf->get_submit_form_js().'crm_filters_deactivate();}'));
+		$qf->addElement('select','crm_filter_contact',$this->t('Records of'),$this->contacts_select,array('onChange'=>'if(this.value!=\'\'){'.$qf->get_submit_form_js().'crm_filters_deactivate();}'));*/
+		$qf->addElement('automulti','crm_filter_contact',$this->t('Records of'),array('CRM_ContactsCommon','automulti_contact_suggestbox'), array(array('company_name'=>CRM_ContactsCommon::get_main_company())), array('CRM_ContactsCommon', 'contact_format_default'));
+		if(isset($_SESSION['client']['filter_'.Acl::get_user()])) {
+			$qf->setDefaults(array('crm_filter_contact'=>explode(',',$_SESSION['client']['filter_'.Acl::get_user()])));
+		}
+		$qf->addElement('submit',null,'Filter');
 		if($qf->validate()) {
 			$c = $qf->exportValue('crm_filter_contact');
-			$this->set_profile('c'.$c);
+			$this->set_profile('c'.implode(',',$c));
+			eval_js('crm_filters_deactivate()',false);
 			location(array());
 		}
 		$th->assign('saved_filters',$this->t('Saved Filters'));
@@ -72,9 +78,12 @@ class CRM_Filters extends Module {
 	}
 
 	public function set_profile($prof) {
-		if(preg_match('/^c([0-9]+)$/',$prof,$reqs)) {
+		if(preg_match('/^c([0-9,]+)$/',$prof,$reqs)) {
 			$ret = $reqs[1];
-			$desc = $this->contacts_select[$reqs[1]];
+			if(strpos($ret,',')===false)
+				$desc = CRM_ContactsCommon::contact_format_no_company($ret,true);
+			else
+				$desc = $this->t('Custom filter');
 		} elseif(is_numeric($prof)) {
 			$cids = DB::GetAssoc('SELECT contact_id, contact_id FROM crm_filters_contacts');
 			foreach ($cids as $v) {
@@ -199,11 +208,12 @@ class CRM_Filters extends Module {
 		$form->addRule('name',$this->t('Field required'),'required');
 		$form->registerRule('unique','callback','check_group_name_exists', 'CRM_Filters');
 		$form->addRule('name',$this->t('Group with this name already exists'),'unique',$id);
-		$contacts = CRM_ContactsCommon::get_contacts(array('company_name'=>CRM_ContactsCommon::get_main_company()), array(), array('last_name'=>'ASC'));
+/*		$contacts = CRM_ContactsCommon::get_contacts(array('company_name'=>CRM_ContactsCommon::get_main_company()), array(), array('last_name'=>'ASC'));
 		$contacts_select = array();
 		foreach($contacts as $v)
 			$contacts_select[$v['id']] = $v['last_name'].' '.$v['first_name'];
-		$form->addElement('multiselect', 'contacts', $this->t('People'), $contacts_select);
+		$form->addElement('multiselect', 'contacts', $this->t('People'), $contacts_select);*/
+		$form->addElement('automulti','contacts',$this->t('Records of'),array('CRM_ContactsCommon','automulti_contact_suggestbox'), array(array('company_name'=>CRM_ContactsCommon::get_main_company())), array('CRM_ContactsCommon', 'contact_format_default'));
 		if ($form->validate()) {
 			$v = $form->exportValues();
 			if(isset($id)) {
@@ -222,8 +232,8 @@ class CRM_Filters extends Module {
 			Base_ActionBarCommon::add('save','Save',$form->get_submit_form_href());
 			Base_ActionBarCommon::add('back','Cancel',$this->create_back_href());
 
-			$rb1 = $this->pack_module('Utils/RecordBrowser/RecordPicker', array('contact' ,'contacts',array('CRM_Filters','edit_group_sel'), array('company_name'=>CRM_ContactsCommon::get_main_company()), array(), array('last_name'=>'ASC')));
-			Base_ActionBarCommon::add('filter','Detailed selection',$rb1->create_open_href(false));
+//			$rb1 = $this->pack_module('Utils/RecordBrowser/RecordPicker', array('contact' ,'contacts',array('CRM_Filters','edit_group_sel'), array('company_name'=>CRM_ContactsCommon::get_main_company()), array(), array('last_name'=>'ASC')));
+//			Base_ActionBarCommon::add('filter','Detailed selection',$rb1->create_open_href(false));
 
 			$form->display();
 		}

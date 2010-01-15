@@ -47,7 +47,6 @@ class HTML_QuickForm_autocomplete extends HTML_QuickForm_text {
         		$id = '__autocomplete_id_'.$name;
         		$this->setAttribute('id', $id);
         	}
-			print('<div id="'.$id.'_suggestbox" class="autocomplete">&nbsp;</div>');
 			$key = md5(serialize($this->callback).$id);
 			$_SESSION['client']['quickform']['autocomplete'][$key] = array('callback'=>$this->callback, 'field'=>$name, 'args'=>$this->args);
 			eval_js('var epesi_autocompleter = new Ajax.Autocompleter(\''.$id.'\', \''.$id.'_suggestbox\', \'modules/Libs/QuickForm/FieldTypes/autocomplete/autocomplete_update.php?'.http_build_query(array('cid'=>CID, 'key'=>$key)).'\', \'\');');
@@ -64,7 +63,8 @@ class HTML_QuickForm_autocomplete extends HTML_QuickForm_text {
 					$this->on_hide_js_code.
 				'}');
 
-            return $this->_getTabs() . '<input' . $this->_getAttrString($this->_attributes) . ' />';
+            return $this->_getTabs() . '<input' . $this->_getAttrString($this->_attributes) . ' />'.
+            		'<div id="'.$id.'_suggestbox" class="autocomplete">&nbsp;</div>';
         }
     } //end func toHtml
 	        
