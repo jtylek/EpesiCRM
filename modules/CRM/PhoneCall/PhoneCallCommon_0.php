@@ -23,22 +23,22 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		return Utils_RecordBrowserCommon::applet_settings();		
 	}
 	public static function applet_info_format($r){
-
-		if (isset($r['contact']) && $r['contact']!='') {
-			$c = CRM_ContactsCommon::get_contact($r['contact']);
-			$contact = $c['last_name'].' '.$c['first_name'];
-			$company = CRM_ContactsCommon::display_company(array('id'=>$r['company_name']),true);
+		if (isset($r['customer']) && $r['customer']!='') {
+			$customer = CRM_ContactsCommon::autoselect_company_contact_format($r['customer']);
+			list($rset, $id) = explode(':',$r['customer']);
+			$cus = Utils_RecordBrowserCommon::get_record($rset=='P'?'contact':'company', $id);
 			if (isset($r['phone']) && $r['phone']!='') {
 				$num = $r['phone'];
 				switch ($num) {
 					case 1: $nr = 'Mobile Phone'; break;
 					case 2: $nr = 'Work Phone'; break;
 					case 3: $nr = 'Home Phone'; break;
+					case 4: $nr = 'Phone'; break;
 				}
 				$id = strtolower(str_replace(' ','_',$nr));
 				$l = Base_LangCommon::ts('CRM/PhoneCall',$nr);
-				$phone = $l.': '.$c[$id];
-			} else $phone = $r['other_phone_number'];
+				$phone = $l.': '.$cus[$id];
+			} else $phone = Base_LangCommon::ts('CRM/PhoneCall','Other').': '.$r['other_phone_number'];
 		} else {
 			$contact = $r['other_customer_name'];
 			$phone = $r['other_phone_number'];
@@ -53,8 +53,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 
 		$args=array(
 					'Call:'=>'<b>'.$phone.'</b>',
-					'Contact:'=>$contact,
-					'Company:'=>$company,
+					'Customer:'=>$customer,
 					'Subject:'=>'<b>'.$r['subject'].'</b>',
 					'Description:'=>$r['description'],
 					'Assigned to:'=>CRM_ContactsCommon::display_contact(array('id'=>$r['employees']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_no_company')),
@@ -224,8 +223,8 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	public static function display_phone_number($record, $nolink) {
 		if ($record['other_phone']) {
 			if(MOBILE_DEVICE && IPHONE && !$nolink && preg_match('/^([0-9\t\+-]+)/',$record['other_phone_number'],$args))
-				return '<a href="tel:'.$args[1].'">'.$record['other_phone_number'].'</a>';
-			return CRM_CommonCommon::get_dial_code($record['other_phone_number']);
+				return '<a href="tel:'.$args[1].'">'.Base_LangCommon::ts('CRM/PhoneCall','O').': '.$record['other_phone_number'].'</a>';
+			return Base_LangCommon::ts('CRM/PhoneCall','O').': '.CRM_CommonCommon::get_dial_code($record['other_phone_number']);
 		} else return self::display_phone($record,false,array('id'=>'phone'));
 	}
 	public static function display_contact_name($record, $nolink) {

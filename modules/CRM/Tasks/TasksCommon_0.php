@@ -30,25 +30,17 @@ class CRM_TasksCommon extends ModuleCommon {
 		
 		$contacts = array();
 		$companies = array();
+		$customers = '';
 		foreach($r['customers'] as $arg) {
-			$x = explode(':', $arg);
-			if(count($x)==2) {
-				list($rset, $id) = $x;
-			} else {
-				$id = $x[0];
-				$rset = 'P';
-			}
-			if($rset=='P') $contacts[] = $id;
-			else $companies[] = $id;
+			if ($customers) $customers .='<br>';
+			$customers .= CRM_ContactsCommon::autoselect_company_contact_format($arg);
 		}
-		$contacts = CRM_ContactsCommon::display_contact(array('id'=>$contacts),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_default'));
-		$companies = CRM_ContactsCommon::display_company(array('id'=>$companies),true,array('id'=>'id'));
 
 		$args=array(
 					'Task:'=>'<b>'.$r['title'].'</b>',
 					'Description:'=>$r['description'],
 					'Assigned to:'=>CRM_ContactsCommon::display_contact(array('id'=>$r['employees']),true,array('id'=>'id', 'param'=>'::;CRM_ContactsCommon::contact_format_no_company')),
-					'Customers:'=> $companies.($contacts && $companies?'<br>':'').$contacts,
+					'Customers:'=> $customers,
 					'Status:'=>$status[$r['status']],
 					'Deadline:'=>$r['deadline']!=''?Base_RegionalSettingsCommon::time2reg($r['deadline'],false):Base_LangCommon::ts('CRM_Tasks','Not set'),
 					'Longterm:'=>Base_LangCommon::ts('CRM_Tasks',$r['longterm']!=0?'Yes':'No'),
