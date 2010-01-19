@@ -266,32 +266,6 @@ class Utils_RecordBrowser extends Module {
 			}
 		}
 
-        /* Extended search BEGIN */
-        if(isset($_SESSION['client']['extended_search_crits'])) {
-            $exts = $_SESSION['client']['extended_search_crits'];
-            $ext_crits = $this->get_module_variable('extended_search_crits');
-            if(is_array($exts)) {
-                foreach($exts as $k => $v) {
-                    $ext_crits[$k] = $v;
-                }
-            }
-            $this->set_module_variable('extended_search_crits', $ext_crits);
-            unset($_SESSION['client']['extended_search_crits']);
-        }
-
-        $extSearch = Utils_RecordBrowserCommon::get_extended_search($this->tab);
-        foreach($extSearch as $k => $e) {
-            Base_ActionBarCommon::add($e['icon'], $this->ht($e['label']), $this->create_callback_href(array($this, 'load_extended_search_module'), array($e['callback'], $k)));
-        }
-
-        if(($ext_crits = $this->get_module_variable('extended_search_crits'))) {
-            foreach($ext_crits as $k => $v) {
-                Base_ActionBarCommon::add('back', 'Clear '.$extSearch[$k]['label'], $this->create_callback_href(array($this, 'clear_extended_search_crits'), array($k)));
-                $this->crits = Utils_RecordBrowserCommon::merge_crits($this->crits, $v);
-            }
-        }
-        /* extended search END */
-
 		ob_start();
 		$this->show_data($this->crits, $cols, array_merge($def_order, $this->default_order));
 		$table = ob_get_contents();
@@ -342,7 +316,6 @@ class Utils_RecordBrowser extends Module {
 		$this->data_gb = $this->init_module('Utils/GenericBrowser', null, $this->tab);
 		
 		$form_sub = $form->get_submit_form_js_by_name(array($form->get_name(), $this->data_gb->form_s->get_name()),true,null)."return false;";
-//		$form_sub = $form->get_submit_form_js_by_name($this->data_gb->form_s->get_name(),true,null)."return false;";
 		$this->data_gb->form_s->updateAttributes(array('onsubmit'=>$form_sub));
 		$form->updateAttributes(array('onsubmit'=>$form_sub));
 		
@@ -419,9 +392,19 @@ class Utils_RecordBrowser extends Module {
 		}
 		$form->addElement('submit', 'submit', 'Show');
 		$def_filt = $this->get_module_variable('def_filter', array());
-		$form->setDefaults($def_filt);
+
 		$this->crits = array();
+
+		$form->setDefaults($def_filt);
+
+		$ret = DB::Execute('SELECT * FROM recordbrowser_browse_mode_definitions WHERE tab=%s', array($this->tab));
+		while ($row = $ret->FetchRow()) {
+			$m = $this->init_module($row['module']);
+			$this->display_module($m, array(& $form, & $filters, & $vals, & $this->crits), $row['func']);
+		}
+
 		$vals = $form->exportValues();
+
 		foreach ($filters_all as $filter) {
 			$filter_id = strtolower(str_replace(' ','_',$filter));
 			if (isset($this->custom_filters[$filter_id])) {
@@ -451,6 +434,7 @@ class Utils_RecordBrowser extends Module {
 				}
 			}
 		}
+		
 		foreach ($vals as $k=>$v)
 			if (isset($this->custom_filters[$k]) && $this->custom_filters[$k]['type']=='checkbox' && $v==='__NULL__') unset($vals[$k]);
 		$this->set_module_variable('def_filter', $vals);

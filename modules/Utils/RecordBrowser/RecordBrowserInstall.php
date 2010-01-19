@@ -41,12 +41,18 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 					'enabled I1,'.
 					'label C(128)',
 					array('constraints'=>', PRIMARY KEY(tab, module, func)'));
+		DB::CreateTable('recordbrowser_browse_mode_definitions',
+					'tab C(64),'.
+					'module C(128),'.
+					'func C(128)',
+					array('constraints'=>', PRIMARY KEY(tab, module, func)'));
         DB::CreateTable('recordbrowser_clipboard_pattern', 'tab C(64) KEY, pattern X, enabled I4');
-        DB::CreateTable('recordbrowser_extended_search', 'tab C(64), icon C(32), label C(64), callback C(128)', array('constraints'=>', PRIMARY KEY(tab, label)'));
 		return true;
 	}
 	
 	public function uninstall() {
+        DB::DropTable('recordbrowser_clipboard_pattern');
+		DB::DropTable('recordbrowser_browse_mode_definitions');
 		DB::DropTable('recordbrowser_addon');
 		DB::DropTable('recordbrowser_table_properties');
 		DB::DropTable('recordbrowser_datatype');
