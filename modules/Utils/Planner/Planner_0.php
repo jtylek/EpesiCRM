@@ -102,7 +102,7 @@ class Utils_Planner extends Module {
 			$el->on_hide_js($on_change);
 			return $el;
 		}
-		if ($type=='text'){
+		if ($type=='text' || $type=='datepicker'){
 			$el = $this->form->addElement($type, $name, $label, array('id'=>$name));
 			return $el;
 		}

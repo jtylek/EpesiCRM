@@ -207,7 +207,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 //		$final_settings = array_merge($final_settings,$settings[3]);
 		return array('Browsing Records'=>$final_settings);
 	}
-	public static function check_table_name($tab, $flush=false){
+	public static function check_table_name($tab, $flush=false, $failure_on_missing=true){
 		static $tables = null;
 		if ($tables===null || $flush) {
 			$r = DB::GetAll('SELECT tab FROM recordbrowser_table_properties');
@@ -215,7 +215,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			foreach($r as $v)
 				$tables[$v['tab']] = true;
 		}
-		if (!isset($tables[$tab]) && !$flush) trigger_error('RecordBrowser critical failure, terminating. (Requested '.serialize($tab).', available '.print_r($tables, true).')', E_USER_ERROR);
+		if (!isset($tables[$tab]) && !$flush && $failure_on_missing) trigger_error('RecordBrowser critical failure, terminating. (Requested '.serialize($tab).', available '.print_r($tables, true).')', E_USER_ERROR);
 		return isset($tables[$tab]);
 	}
 	public static function get_value($tab, $id, $field) {
@@ -427,6 +427,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		@DB::Execute('ALTER TABLE '.$tab.'_data_1 DROP COLUMN f_'.self::$table_rows[$field]['id']);
 		self::init($tab, false, true);
 	}
+
 	public static function new_record_field($tab, $definition){
 		static $datatypes = null;
 		if ($datatypes===null) {
