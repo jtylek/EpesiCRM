@@ -848,6 +848,10 @@ class Apps_MailClientCommon extends ModuleCommon {
 			$parts = $structure->parts;
 			for($i=0; $i<count($parts); $i++) {
 				$part = $parts[$i];
+				if (!isset($part->ctype_primary)) {
+					$part->ctype_primary = 'text';
+					$part->ctype_secondary = 'plain';
+				}
 				if($part->ctype_primary=='multipart' && isset($part->parts))
 					$parts = array_merge($parts,$part->parts);
 				if($body===false && $part->ctype_primary=='text' && $part->ctype_secondary=='plain' && (!isset($part->disposition) || $part->disposition=='inline')) {
