@@ -10,6 +10,7 @@ autoselect_on_hide = function (element) {
 	var evt = document.createEvent('HTMLEvents');
 	evt.initEvent('change', true, true);
 	$(element).dispatchEvent(evt);
+	$("__autocomplete_id_"+element+"__search").value="";
 }
 
 autoselect_add_value = function (element, value, label) {
@@ -33,8 +34,7 @@ autoselect_add_value = function (element, value, label) {
 
 autoselect_start_searching = function (element, keyCode) {
 	if (keyCode<48 || keyCode>105) return;
-	$('__'+element+'_select_span').style.display="none";
 	$('__'+element+'_autocomplete_span').style.display="";
-	focus_by_id('__autocomplete_id_'+element+'__search');
-	$('__autocomplete_id_'+element+'__search').value = String.fromCharCode(keyCode);
+	$('__autocomplete_id_'+element+'__search').focus();
+	$('__'+element+'_select_span').style.display="none";
 }
