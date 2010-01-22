@@ -86,7 +86,7 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
             $strHtml .= $tabs . '<select' . $attrString . ">\n";
 
 			$val = $this->getValue();
-			if (isset($val[0]) && $val[0] && !isset($this->__options[$val[0]]))
+			if (isset($val[0]) && $val[0]!='' && !isset($this->__options[$val[0]]))
 				$this->addOption(strip_tags(call_user_func_array($this->more_opts_format, array($val[0]))), $val[0]);
 				
             $strValues = is_array($this->_values)? array_map('strval', $this->_values): array();

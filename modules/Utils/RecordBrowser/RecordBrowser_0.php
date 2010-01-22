@@ -311,7 +311,7 @@ class Utils_RecordBrowser extends Module {
 		if (empty($filters_all)) {
 			$this->crits = array();
 			return '';
-		}
+		} // TODO: move it
 		$form = $this->init_module('Libs/QuickForm', null, $this->tab.'filters');
 		$this->data_gb = $this->init_module('Utils/GenericBrowser', null, $this->tab);
 		
@@ -397,15 +397,24 @@ class Utils_RecordBrowser extends Module {
 
 		$form->setDefaults($def_filt);
 
+		$external_filters = array();
+
+		$dont_hide = $this->get_module_variable('dont_hide', false);
+		if (!$_REQUEST['__location']) $dont_hide = false;
+
 		$ret = DB::Execute('SELECT * FROM recordbrowser_browse_mode_definitions WHERE tab=%s', array($this->tab));
 		while ($row = $ret->FetchRow()) {
 			$m = $this->init_module($row['module']);
-			$this->display_module($m, array(& $form, & $filters, & $vals, & $this->crits), $row['func']);
+			$next_dont_hide = false;
+			$this->display_module($m, array(& $form, & $external_filters, & $vals, & $this->crits, & $next_dont_hide), $row['func']);
+			$dont_hide |= $next_dont_hide;
 		}
+		$this->set_module_variable('dont_hide', $dont_hide);
 
 		$vals = $form->exportValues();
 
 		foreach ($filters_all as $filter) {
+			if (in_array(strtolower($filter), $external_filters)) continue;
 			$filter_id = strtolower(str_replace(' ','_',$filter));
 			if (isset($this->custom_filters[$filter_id])) {
 				if (!isset($vals[$filter_id])) $vals[$filter_id]='__NULL__';
@@ -434,6 +443,8 @@ class Utils_RecordBrowser extends Module {
 				}
 			}
 		}
+
+		$filters = array_merge($filters, $external_filters);
 		
 		foreach ($vals as $k=>$v)
 			if (isset($this->custom_filters[$k]) && $this->custom_filters[$k]['type']=='checkbox' && $v==='__NULL__') unset($vals[$k]);
@@ -447,6 +458,7 @@ class Utils_RecordBrowser extends Module {
 		if (!$this->isset_module_variable('filters_defaults'))
 			$this->set_module_variable('filters_defaults', $this->crits);
 		elseif ($this->crits!==$this->get_module_variable('filters_defaults')) $theme->assign('dont_hide', true);
+		if ($dont_hide) $theme->assign('dont_hide', true);
 		return $this->get_html_of_module($theme, 'Filter', 'display');
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////
