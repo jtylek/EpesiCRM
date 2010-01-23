@@ -400,7 +400,7 @@ class Utils_RecordBrowser extends Module {
 		$external_filters = array();
 
 		$dont_hide = $this->get_module_variable('dont_hide', false);
-		if (!$_REQUEST['__location']) $dont_hide = false;
+		if (!isset($_REQUEST['__location']) || !$_REQUEST['__location']) $dont_hide = false;
 
 		$ret = DB::Execute('SELECT * FROM recordbrowser_browse_mode_definitions WHERE tab=%s', array($this->tab));
 		while ($row = $ret->FetchRow()) {
