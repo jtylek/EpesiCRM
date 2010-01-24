@@ -30,7 +30,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		return array();
 	}
 
-	private static function get_where($group,$group_starts_with=true) {
+	public static function get_where($group,$group_starts_with=true) {
 		$ret = '';
 		if(!Base_AclCommon::i_am_admin())
 			$ret .= '(ual.permission<2 OR ual.permission_by='.Acl::get_user().') AND ';

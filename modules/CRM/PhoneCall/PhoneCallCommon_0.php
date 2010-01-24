@@ -40,7 +40,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 				$phone = $l.': '.$cus[$id];
 			} else $phone = Base_LangCommon::ts('CRM/PhoneCall','Other').': '.$r['other_phone_number'];
 		} else {
-			$contact = $r['other_customer_name'];
+			$customer = $r['other_customer_name'];
 			$phone = $r['other_phone_number'];
 			$company = '---';
 		}
