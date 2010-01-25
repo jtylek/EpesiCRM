@@ -663,6 +663,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$values[$args['id']] = self::encode_multi($values[$args['id']]);
 			$fields_types .= ','.self::get_sql_type($args['type']);
 			$fields .= ',f_'.$args['id'];
+			if (is_bool($values[$args['id']])) $values[$args['id']] = $values[$args['id']]?1:0;
 			$vals[] = $values[$args['id']];
 		}
 		DB::Execute('INSERT INTO '.$tab.'_data_1 ('.$fields.') VALUES ('.$fields_types.')',$vals);
