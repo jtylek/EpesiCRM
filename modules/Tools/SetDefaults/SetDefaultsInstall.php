@@ -38,6 +38,19 @@ class Tools_SetDefaultsInstall extends ModuleInstall {
 		DB::Execute('INSERT INTO base_dashboard_default_settings (applet_id,name,value) VALUES (%d, %s, %s)',  array(6,'text','<p><strong>Congratulations!</strong><br />You just installed epesi BIM - Business Information Manager.</p><p>For more information, help and support please visit <a href="http://www.epesibim.com" target="_blank">www.epesibim.com</a></p><p><strong>New! Hotkeys support!</strong><br />Ctrl+H - back to home page<br /><br />In modules utilizing Record Browser:<br />Contacts, Comapnies, Tasks, PhoneCalls<br />as well as Calendar, you can use the following hotkeys:<br />Ctrl+S - save record<br />Ctrl+N - new record<br />Ctrl+E - edit record<br />Esc - back/cancel<br />'));
 		DB::Execute('INSERT INTO base_dashboard_default_settings (applet_id,name,value) VALUES (%d, %s, %s)', array(6,'title','Welcome'));
 
+		// default favorites and subscriptions
+		// use serialize('1') instead of 's:1:"1";'
+		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) values (%s, %s, %s)', array('Utils_RecordBrowser','company_auto_fav','s:1:"1";'));
+		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) values (%s, %s, %s)', array('Utils_RecordBrowser','company_auto_subs','s:1:"1";'));
+		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) values (%s, %s, %s)', array('Utils_RecordBrowser','contact_auto_fav',serialize('1')));
+		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) values (%s, %s, %s)', array('Utils_RecordBrowser','contact_auto_subs','s:1:"1";'));
+		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) values (%s, %s, %s)', array('Utils_RecordBrowser','phonecall_auto_subs','s:1:"1";'));
+		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) values (%s, %s, %s)', array('Utils_RecordBrowser','premium_projects_auto_fav','s:1:"1";'));
+		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) values (%s, %s, %s)', array('Utils_RecordBrowser','premium_projects_auto_subs','s:1:"1";'));
+		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) values (%s, %s, %s)', array('Utils_RecordBrowser','premium_tickets_auto_subs','s:1:"1";'));
+		DB::Execute('INSERT INTO base_user_settings_admin_defaults (module, variable, value) values (%s, %s, %s)', array('Utils_RecordBrowser','task_auto_subs','s:1:"1";'));
+
+
 		return true;
 	}
 	
