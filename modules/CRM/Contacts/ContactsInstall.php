@@ -252,7 +252,9 @@ class CRM_ContactsInstall extends ModuleInstall {
 			fputcsv($stdout,array_values($ccc)+array(isset($val['fname'])?$val['fname']:'',isset($val['lname'])?$val['lname']:'',isset($mail)?$mail:''));
 			fclose($stdout);
 			$reg_mail_body = ob_get_clean();
-			Base_MailCommon::send('register@telaxus.com','EpesiBIM registration',$reg_mail_body);
+			ob_start();
+			@Base_MailCommon::send('register@telaxus.com','EpesiBIM registration',$reg_mail_body);
+			ob_end_clean();
 		}
 	}
 }
