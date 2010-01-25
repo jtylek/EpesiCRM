@@ -234,7 +234,7 @@ class ModuleManager {
 	 * @return array array built as follows: array('Box'=>array(0,1)...)
 	 */
 	public static final function list_modules() {
-		$dirs = dir_tree('modules');
+		$dirs = dir_tree('modules',array('theme','lang','help'));
 		$ret = array();
 		foreach($dirs as $d) {
 			$module = str_replace('/','_',substr($d,8,-1));

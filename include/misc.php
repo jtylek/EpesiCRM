@@ -183,11 +183,24 @@ function dir_tree($path, $hidden=false, $maxdepth = -1, $d = 0) {
 	if (substr($path, strlen($path) - 1) != '/') {
 		$path .= '/';
 	}
+	$hiddens = @file_get_contents($path.'.hidden');
+	if($hiddens) {
+		$hiddens = explode(",",trim($hiddens));
+	}
+	if(is_array($hidden)) {
+		if(!is_array($hiddens))
+			$hiddens = array();
+		$hiddens = array_merge($hiddens,$hidden);
+		$show_hidden = false;
+	} elseif($hidden) {
+		$show_hidden = true;
+	} else
+		$show_hidden = false;
 	$dirlist = array ();
 	$dirlist[] = $path;
 	if ($handle = opendir($path)) {
 		while (false !== ($file = readdir($handle))) {
-			if ($file == '.' || $file == '..' || (!$hidden && preg_match('/^\./',$file))) 
+			if ($file == '.' || $file == '..' || (!$show_hidden && preg_match('/^\./',$file)) || ($hiddens && in_array($file,$hiddens))) 
 				continue;
 			$file = $path . $file;
 			if (is_dir($file) && $d >= 0 && ($d < $maxdepth || $maxdepth < 0)) {

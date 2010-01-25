@@ -91,8 +91,11 @@ class Base_User_SettingsCommon extends ModuleCommon {
 		if (!isset(self::$admin_variables)) {
 			self::$admin_variables = array();
 			$ret = DB::Execute('SELECT module,variable,value FROM base_user_settings_admin_defaults');
-			while($row = $ret->FetchRow())
-				self::$admin_variables[$row['module']][$row['variable']] = unserialize($row['value']);
+			while($row = $ret->FetchRow()) {
+				$val = @unserialize($row['value']);
+				if($val!==false || $val===serialize(false))
+					self::$admin_variables[$row['module']][$row['variable']] = $val;
+			}
 		}
 		if (isset(self::$admin_variables[$module][$name]))
 			return self::$admin_variables[$module][$name];
@@ -117,7 +120,9 @@ class Base_User_SettingsCommon extends ModuleCommon {
 			self::$user_variables[$user] = array();
 			$ret = DB::Execute('SELECT variable, value, module FROM base_user_settings WHERE user_login_id=%d',array($user));
 			while($row = $ret->FetchRow())
-				self::$user_variables[$user][$row['module']][$row['variable']] = unserialize($row['value']);
+				$val = @unserialize($row['value']);
+				if($val!==false || $val===serialize(false))
+					self::$user_variables[$user][$row['module']][$row['variable']] = $val;
 		}
 		if (isset(self::$user_variables[$user][$module][$name]))
 			return self::$user_variables[$user][$module][$name];
