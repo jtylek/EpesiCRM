@@ -43,7 +43,7 @@ class Base_MailCommon extends Base_AdminModuleCommon {
 	 * @param string sender's name
 	 * @return true on success, false otherwise
 	 */
-	public static function send($to,$subject,$body,$from_addr=null, $from_name=null) {
+	public static function send($to,$subject,$body,$from_addr=null, $from_name=null, $html=false) {
 		$mailer = self::new_mailer();
 		if(!isset($from_addr)) $from_addr = Variable::get('mail_from_addr');
 		if(!isset($from_name)) $from_name = Variable::get('mail_from_name');
@@ -58,7 +58,6 @@ class Base_MailCommon extends Base_AdminModuleCommon {
 			$mailer->Password = Variable::get('mail_password');
 			$mailer->SMTPAuth = Variable::get('mail_auth');
 		}
-		$mailer->WordWrap = 75;
 		
 		if(is_array($to))
 			foreach($to as $m)
@@ -66,7 +65,12 @@ class Base_MailCommon extends Base_AdminModuleCommon {
 		else
 			$mailer->AddAddress($to);
 		$mailer->Subject = $subject;
-		$mailer->Body = $body;
+		if($html)
+		  	$mailer->MsgHTML($body);
+		else {
+			$mailer->WordWrap = 75;
+			$mailer->Body = $body;
+		}
 		$mailer->CharSet = "utf-8";
 		$ret = $mailer->Send();
 		if(!$ret) print($mailer->ErrorInfo.'<br>');
