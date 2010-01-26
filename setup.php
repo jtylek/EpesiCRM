@@ -305,6 +305,10 @@ define("GZIP_HISTORY",1);
  */
 define("MINIFY_ENCODE",1);
 
+/*
+ * Disable some administrator preferences.
+ */
+define("DEMO_MODE",0);
 '.$epesi_dir.'
 ?>');
 	fclose($c);
