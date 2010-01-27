@@ -174,7 +174,7 @@ class ModuleManager {
 		return $ret;
 	}
 
-	private static function satisfy_dependencies($module_to_install,$version) {
+	private static function satisfy_dependencies($module_to_install,$version,$check) {
 		self::$processing[$module_to_install] = $version;
 		try {
 			$deps = self :: check_dependencies($module_to_install, $version, self::$modules);
@@ -188,7 +188,7 @@ class ModuleManager {
 
 				print('Inst/Up required module: ' . '<b>' . $m['name'] . '</b>' . ' version='.$m['version'].' by ' . '<b>' . $module_to_install . '</b>' . '<br>');
 				if(self :: is_installed($m['name'])<0){
-					if (!self :: install($m['name'], $m['version']))
+					if (!self :: install($m['name'], $m['version'],$check))
 						return false;
 				} else {
 					if (!self :: upgrade($m['name'], $m['version'])) return false;
@@ -483,7 +483,7 @@ class ModuleManager {
 			return false;
 
 		//check dependecies
-		if(!self::satisfy_dependencies($module_to_install,$version)) {
+		if(!self::satisfy_dependencies($module_to_install,$version,$check)) {
 			print($debug.'<b>' . $module_to_install . '</b>' . ': dependencies not satisfied.<br>');
 			return false;
 		}

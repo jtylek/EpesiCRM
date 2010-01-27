@@ -122,11 +122,17 @@ class FirstRun extends Module {
 	public function done($d) {
 		@set_time_limit(0);
 		$pkgs = isset($this->ini[$d[0]['setup_type']]['package'])?$this->ini[$d[0]['setup_type']]['package']:array();
-		if(!ModuleManager::install('Base')) {
+		
+		$t = microtime(true);
+		error_log(date('Y-m-d H:i:s').': installing "Base" ...'."\n",3,DATA_DIR.'/firstrun.log');
+		if(!ModuleManager::install('Base',null,false)) {
 			print('Unable to install Base module pack.');
 			return false;
 		}
+		error_log(date('Y-m-d H:i:s').': done ('.(microtime(true)-$t)."s).\n",3,DATA_DIR.'/firstrun.log');
 
+		$t = microtime(true);
+		error_log(date('Y-m-d H:i:s').': creating admin user ...'."\n",3,DATA_DIR.'/firstrun.log');
 		if(!Base_UserCommon::add_user($d['simple_user']['login'])) {
 		    	print('Unable to create user');
 		    	return false;
@@ -150,7 +156,10 @@ class FirstRun extends Module {
 
 		Acl::set_user($user_id);
 		Variable::set('anonymous_setup',false);
+		error_log(date('Y-m-d H:i:s').': done ('.(microtime(true)-$t)."s).\n",3,DATA_DIR.'/firstrun.log');
 
+		$t = microtime(true);
+		error_log(date('Y-m-d H:i:s').': setting mail server ...'."\n",3,DATA_DIR.'/firstrun.log');
 		$method = $d['simple_mail']['mail_method'];
 		Variable::set('mail_method', $method);
 		Variable::set('mail_from_addr', $d['simple_user']['mail']);
@@ -167,14 +176,31 @@ class FirstRun extends Module {
 				Variable::set('mail_password', $d['simple_mail_smtp']['mail_password']);
 			}
 		}
+		error_log(date('Y-m-d H:i:s').': done ('.(microtime(true)-$t)."s).\n",3,DATA_DIR.'/firstrun.log');
 
-		foreach($pkgs as $p)
-			if(!ModuleManager::install(str_replace('/','_',$p))) {
+		$t = microtime(true);
+		error_log(date('Y-m-d H:i:s').': Installing modules ...'."\n",3,DATA_DIR.'/firstrun.log');
+		foreach($pkgs as $p) {
+			$t2 = microtime(true);
+			error_log(' * '.date('Y-m-d H:i:s').' - '.$p.' (',3,DATA_DIR.'/firstrun.log');
+			if(!ModuleManager::install(str_replace('/','_',$p),null,false)) {
 				print('<b>Unable to install '.str_replace('_','/',$p).' module.</b>');
 			}
+			error_log((microtime(true)-$t2)."s)\n",3,DATA_DIR.'/firstrun.log');
+		}
+		error_log(date('Y-m-d H:i:s').': done ('.(microtime(true)-$t)."s).\n",3,DATA_DIR.'/firstrun.log');
 
+
+		$t = microtime(true);
+		error_log(date('Y-m-d H:i:s').': Refreshing cache of modules ...'."\n",3,DATA_DIR.'/firstrun.log');
+		ModuleManager::create_load_priority_array();
 		Base_SetupCommon::refresh_available_modules();
+		error_log(date('Y-m-d H:i:s').': done ('.(microtime(true)-$t)."s).\n",3,DATA_DIR.'/firstrun.log');
+
+		$t = microtime(true);
+		error_log(date('Y-m-d H:i:s').': Creating cache of template files ...'."\n",3,DATA_DIR.'/firstrun.log');
 		Base_ThemeCommon::create_cache();
+		error_log(date('Y-m-d H:i:s').': done ('.(microtime(true)-$t)."s).\n",3,DATA_DIR.'/firstrun.log');
 
 
 		$processed = ModuleManager::get_processed_modules();
