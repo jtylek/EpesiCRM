@@ -21,11 +21,12 @@ define('EPESI_PROCESS',1);
 require_once('include.php');
 
 if(!isset($_SESSION['num_of_clients'])) {
-	DB::Execute('SELECT RELEASE_LOCK(%s)',array(session_id().'_'.CID));
-	DBSession::destroy(session_id());
 	Epesi::alert('Session expired, restarting epesi');
 	Epesi::redirect();
 	Epesi::send_output();
+	define('SESSION_EXPIRED',1);
+	//session_commit();
+	//DBSession::destroy(session_id());
 } else {
 	ob_start(array('ErrorHandler','handle_fatal'));
 	Epesi::process($_POST['url'],isset($_POST['history'])?$_POST['history']:false);

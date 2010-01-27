@@ -66,7 +66,7 @@ class DBSession {
     }
 
     public static function write($name, $data) {
-		if(READ_ONLY_SESSION) return true;
+		if(READ_ONLY_SESSION || defined('SESSION_EXPIRED')) return true;
 		$ret = 0;
 		if(CID!==false && isset($_SESSION['client'])) {
 			$data = serialize($_SESSION['client']);
