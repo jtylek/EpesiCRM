@@ -20,7 +20,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		return 'List of phone calls to do';
 	}
 	public static function applet_settings() {
-		return Utils_RecordBrowserCommon::applet_settings();		
+		return Utils_RecordBrowserCommon::applet_settings();
 	}
 	public static function applet_info_format($r){
 		if (isset($r['customer']) && $r['customer']!='') {
@@ -67,8 +67,8 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		// and the name of the group for translation
 		$bg_color = '';
 		switch ($r['priority']) {
-			case 1: $bg_color = '#FFFFD5'; break; 
-			case 2: $bg_color = '#FFD5D5'; break; 
+			case 1: $bg_color = '#FFFFD5'; break;
+			case 2: $bg_color = '#FFD5D5'; break;
 		}
 		$ret = array('notes'=>Utils_TooltipCommon::format_info_tooltip($args,'CRM_PhoneCall'));
 		if ($bg_color) $ret['row_attrs'] = 'style="background:'.$bg_color.';"';
@@ -159,25 +159,25 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	public static function QFfield_other_contact(&$form, $field, $label, $mode, $default, $desc) {
 		if ($mode=='add' || $mode=='edit') {
 			$js =
-					'Event.observe(\'other_contact\',\'change\', onchange_other_contact);'.
-					'function enable_disable_contact(arg) {'.
-					'contact = document.forms[\''.$form->getAttribute('name').'\'].contact;'.
-					'o_contact = document.forms[\''.$form->getAttribute('name').'\'].other_contact_name;'.
+					'Event.observe(\'other_customer\',\'change\', onchange_other_customer);'.
+					'function enable_disable_customer(arg) {'.
+					'customer = document.forms[\''.$form->getAttribute('name').'\'].customer;'.
+					'o_customer = document.forms[\''.$form->getAttribute('name').'\'].other_customer_name;'.
 					'c_phone = document.forms[\''.$form->getAttribute('name').'\'].other_phone;'.
-					'if (arg) {c_phone.disable();contact.disable();o_contact.enable();} else {c_phone.enable();if(contact.length!=0)contact.enable();o_contact.disable();}'.
+					'if (arg) {c_phone.disable();customer.disable();o_customer.enable();} else {c_phone.enable();if(customer.length!=0)customer.enable();o_customer.disable();}'.
 					'c_phone.checked=arg;'.
 					'phone = document.forms[\''.$form->getAttribute('name').'\'].phone;'.
 					'o_phone = document.forms[\''.$form->getAttribute('name').'\'].other_phone_number;'.
 					'if (arg) {phone.disable();o_phone.enable();} else {if(phone.length!=0)phone.enable();o_phone.disable();}'.
 					'};'.
-					'function onchange_other_contact() {'.
-					'c_contact = document.forms[\''.$form->getAttribute('name').'\'].other_contact;'.
+					'function onchange_other_customer() {'.
+					'c_customer = document.forms[\''.$form->getAttribute('name').'\'].other_customer;'.
 					'c_phone = document.forms[\''.$form->getAttribute('name').'\'].other_phone;'.
-					'c_phone.checked = c_contact.checked;'.
-					'enable_disable_contact(c_contact.checked);'.
+					'c_phone.checked = c_customer.checked;'.
+					'enable_disable_customer(c_customer.checked);'.
 					'};'.
-					'c_contact = document.forms[\''.$form->getAttribute('name').'\'].other_contact;'.
-					'enable_disable_contact('.($default?'1':'0').' || c_contact.checked);';
+					'c_customer = document.forms[\''.$form->getAttribute('name').'\'].other_customer;'.
+					'enable_disable_customer('.($default?'1':'0').' || c_customer.checked);';
 			eval_js($js);
 			$form->addElement('checkbox', $field, $label, null, array('id'=>$field));
 			if ($mode=='edit') $form->setDefaults(array($field=>$default));
@@ -189,17 +189,17 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	public static function check_contact_not_empty($v) {
 		$ret = array();
 		if ((isset($v['other_phone']) && $v['other_phone']) || (isset($v['other_customer']) && $v['other_customer'])) {
-			if (!isset($v['other_phone_number']) || !$v['other_phone_number']) 
+			if (!isset($v['other_phone_number']) || !$v['other_phone_number'])
 				$ret['other_phone_number'] = Base_LangCommon::ts('CRM_PhoneCall','Field required');
 		} else {
-			if (!isset($v['phone']) || !$v['phone']) 
+			if (!isset($v['phone']) || !$v['phone'])
 				$ret['phone'] = Base_LangCommon::ts('CRM_PhoneCall','Field required');
 		}
 		if (!isset($v['other_customer']) || !$v['other_customer']) {
-			if (!isset($v['customer']) || !$v['customer']) 
+			if (!isset($v['customer']) || !$v['customer'])
 				$ret['customer'] = Base_LangCommon::ts('CRM_PhoneCall','Field required');
 		} else {
-			if (!isset($v['other_customer_name']) || !$v['other_customer_name']) 
+			if (!isset($v['other_customer_name']) || !$v['other_customer_name'])
 				$ret['other_customer_name'] = Base_LangCommon::ts('CRM_PhoneCall','Field required');
 		}
 		return empty($ret)?true:$ret;
@@ -255,7 +255,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		if (!$nr) return '';
 		$id = strtolower(str_replace(' ','_',$nr));
 		$l = Base_LangCommon::ts('CRM/PhoneCall',$nr);
-		
+
 		$number = $contact[$id];
 		if($number && strpos($number,'+')===false) {
 			if($contact['country']) {
@@ -301,7 +301,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			$values['title'] = Base_LangCommon::ts('CRM/PhoneCall','Follow up: ').$values['subject'];
 			$values['status'] = 0;
 
-			if ($action != 'none') {		
+			if ($action != 'none') {
 				$x = ModuleManager::get_instance('/Base_Box|0');
 				if ($action == 'new_task') $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, array('title'=>$values['subject'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),'employees'=>$values['employees'], 'customers'=>$values['contact'])), array('task'));
 				if ($action == 'new_phonecall') $x->push_main('Utils/RecordBrowser','view_entry',array('add', null, $values), array('phonecall'));
@@ -396,7 +396,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			return array();
 		return array('Phone Calls'=>array('func'=>'mobile_phone_calls','color'=>'blue'));
 	}
-	
+
 	public function mobile_phone_calls() {
 		$me = CRM_ContactsCommon::get_my_record();
 		$defaults = array('date_and_time'=>date('Y-m-d H:i:s'), 'employees'=>array($me['id']), 'permission'=>'0', 'status'=>'0', 'priority'=>'1');
