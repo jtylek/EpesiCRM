@@ -31,7 +31,6 @@ a.button {
     width: 100px;
     line-height: 20px;
     height: 20px;
-    display: block;
     background-image: url("images/header-blue.gif");
     border: 0px;
     text-align: center;
@@ -64,7 +63,7 @@ span.footer a:hover {
 
 #banner .back {
     background-image: url("images/banner-background.png");
-
+	width:100%;
 }
 
 /*** table main ***/
@@ -73,6 +72,8 @@ span.footer a:hover {
     border: 1px solid #B3B3B3;
     background-color: #F0F0F0;
     padding: 20px 20px 20px 20px;
+	width: 100%;
+	text-align: center;
 }
 
 div.license {

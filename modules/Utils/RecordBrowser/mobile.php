@@ -12,6 +12,8 @@
 
 //!!! $table,$crits and sort variables are passed globally
 defined("_VALID_ACCESS") || die();
+Base_ThemeCommon::install_default_theme('Utils_GenericBrowser');
+Base_ThemeCommon::install_default_theme('Utils_RecordBrowser');
 
 //init
 $ret = DB::GetRow('SELECT caption, recent, favorites FROM recordbrowser_table_properties WHERE tab=%s',array($table));
@@ -30,9 +32,9 @@ foreach($cols as $k=>$col) {
 	if($col['visible'] && (array_key_exists($col['id'],$sort) || array_key_exists($col['id'],$info))) {
 		if(count($cols_out)==$order_num) $order=$col['id'];
 		if($type!='recent')
-			$cols_out[] = array('name'=>$col['name'], 'order'=>$col['id'], 'width'=>1, 'record'=>$col);
+			$cols_out[] = array('name'=>$col['name'], 'order'=>$col['id'], 'record'=>$col);
 		else
-			$cols_out[] = array('name'=>$col['name'], 'width'=>1, 'record'=>$col);
+			$cols_out[] = array('name'=>$col['name'], 'record'=>$col);
 	}
 }
 
@@ -41,15 +43,27 @@ foreach($cols as $k=>$col) {
 if($ret['favorites'] && $type!='favorites') print('<a '.(IPHONE?'class="button green" ':'').'href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'favorites','rb_offset'=>0))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','Favorites').'</a>'.(IPHONE?'':'<br>'));
 if(($ret['recent'] || $ret['favorites']) && $type!='all') print('<a '.(IPHONE?'class="button white" ':'').'href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'all','rb_offset'=>0))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','All').'</a>'.(IPHONE?'':'<br>'));*/
 print('<form method="GET" action="mobile.php?'.http_build_query($_GET).'">');
+
+print('<table width="100%"><tr><td>');
+if(Utils_RecordBrowserCommon::get_access($table, 'add')) {
+	if (IPHONE)
+		print('<a '.'class="button green" '.mobile_stack_href(array('Utils_RecordBrowserCommon','mobile_rb_edit'), array($table,false),Base_LangCommon::ts('Utils_RecordBrowser','Add record')).'>'.Base_LangCommon::ts('Utils_RecordBrowser','Add').'</a>');
+	else
+		print('<a '.mobile_stack_href(array('Utils_RecordBrowserCommon','mobile_rb_edit'), array($table,false),Base_LangCommon::ts('Utils_RecordBrowser','Add record')).'><img src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','mobile_add.png').'" border="0"></a>');
+}
+print('</td><td align="right">');
+
 if(IPHONE)
 	print('<ul class="form">');
 print('<input type="hidden" name="rb_offset" value="0">');
-print((IPHONE?'<li>':'').'<select onchange="form.elements[\'search\'].value=\'Search\';form.submit()" name="type"><option value="all"'.($type=='all'?' selected=1':'').'>'.Base_LangCommon::ts('Utils_RecordBrowser','All').'</option><option value="recent"'.($type=='recent'?' selected=1':'').'>'.Base_LangCommon::ts('Utils_RecordBrowser','Recent').'</option><option value="favorites"'.($type=='favorites'?' selected=1':'').'>'.Base_LangCommon::ts('Utils_RecordBrowser','Favorites').'</option></select>'.(IPHONE?'</li>':'<br>'));
-print((IPHONE?'<li>':'').'<input type="text" name="search" value="'.(isset($_GET['search'])?$_GET['search']:'Search').'" onclick="clickclear(this, \'Search\')" onblur="clickrecall(this,\'Search\')" />'.(IPHONE?'</li>':'<br>'));
+print((IPHONE?'<li>':'').'<select onchange="form.elements[\'search\'].value=\'Search\';form.submit()" name="type"><option value="all"'.($type=='all'?' selected=1':'').'>'.Base_LangCommon::ts('Utils_RecordBrowser','All').'</option><option value="recent"'.($type=='recent'?' selected=1':'').'>'.Base_LangCommon::ts('Utils_RecordBrowser','Recent').'</option><option value="favorites"'.($type=='favorites'?' selected=1':'').'>'.Base_LangCommon::ts('Utils_RecordBrowser','Favorites').'</option></select>'.(IPHONE?'</li>':''));
+print((IPHONE?'<li>':'').'<input type="text" name="search" value="'.(isset($_GET['search'])?$_GET['search']:'Search').'" onclick="clickclear(this, \'Search\')" onblur="clickrecall(this,\'Search\')" />'.(IPHONE?'</li>':''));
 if(IPHONE)
 	print('</ul>');
 else
 	print('<input type="submit" value="OK"/>');
+
+print('</td></tr></table>');
 print('</form>');
 if(isset($_GET['search']) && $_GET['search']!=="Search" && $_GET['search']!=="") {
 	$search_crits = array();
@@ -74,9 +88,6 @@ if(isset($_GET['search']) && $_GET['search']!=="Search" && $_GET['search']!=="")
 	}
 	$crits = self::merge_crits($crits, $search_crits);
 }
-
-if(Utils_RecordBrowserCommon::get_access($table, 'add'))
-	print('<a '.(IPHONE?'class="button green" ':'').mobile_stack_href(array('Utils_RecordBrowserCommon','mobile_rb_edit'), array($table,false),Base_LangCommon::ts('Utils_RecordBrowser','Add record')).'>'.Base_LangCommon::ts('Utils_RecordBrowser','Add').'</a>');
 
 //$crits = array();
 //$sort = array();

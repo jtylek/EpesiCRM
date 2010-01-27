@@ -37,7 +37,7 @@ class Utils_GenericBrowserCommon extends ModuleCommon {
 		foreach($cols as $v) {
 			if (array_key_exists('display', $v) && $v['display']==false)
 				continue;
-			$all_width+=$v['width'];
+			if ($v['width']) $all_width+=$v['width'];
 		}
 		$headers = array();
 		foreach($cols as $i=>$v) {
@@ -54,7 +54,7 @@ class Utils_GenericBrowserCommon extends ModuleCommon {
 				$sort_direction = 'asc';
 			}
 			$headers[$i]['label'] = (isset($v['preppend'])?$v['preppend']:'').(isset($v['order'])?'<a href="mobile.php?'.http_build_query(array_merge($_GET,array('order'=>$i,'order_dir'=>$sort_direction))).'">' . '<span '.$sort.'>' . $v['name'] . '</span></a>':'<span>'.$v['name'].'</span>').(isset($v['append'])?$v['append']:'');
-			$headers[$i]['attrs'] = 'style="width: '.intval(100*$v['width']/$all_width).'%" ';
+			if ($all_width) $headers[$i]['attrs'] = 'style="width: '.intval(100*$v['width']/$all_width).'%" ';
 			$headers[$i]['attrs'] .= 'nowrap="1" ';
 		}
 		$th->assign('cols',array_values($headers));
