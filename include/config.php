@@ -9,6 +9,9 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 define("EPESI_VERSION", '1.0.6');
+$svnid = '$Rev$'; 
+$scid = substr($svnid, 6); 
+define("EPESI_REVISION", intval(substr($scid, 0, strlen($scid) - 2)));
 
 require_once(DATA_DIR.'/config.php');
 if(!defined('DATABASE_HOST')) trigger_error('Missing defined DATABASE_HOST in '.DATA_DIR.'/config.php.',E_USER_ERROR);
