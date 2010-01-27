@@ -168,17 +168,25 @@ if(IPHONE) {
 	$caption = $back.$title.$action;
 } else {
 	$cap = array();
+	$last_back_id = 0;
 	foreach($captions as $k=>$c) {
 		$cap[] = '<a href="mobile.php?back='.($k+1).'">'.$c.'</a>';
-		$back_id = $k+1;
+		$last_back_id = $back_id;
+		$back_id = $k;
 	}
+	$back_id = $last_back_id;
+//	array_pop($cap); //don't display current breadthumb
 	$caption = implode($cap,' > ');
 }
 if(isset($ret) && ($ret===false || is_numeric($ret))) {
 	if(is_numeric($ret))
-		header('Location: mobile.php?back='.($back_id+2-$ret));
+		$b = $back_id+2-$ret;
+//		header('Location: mobile.php?back='.($back_id+2-$ret));
 	else
-		header('Location: mobile.php?back='.($back_id+1));
+		$b = $back_id+1;
+//		header('Location: mobile.php?back='.($back_id+1));
+	$stack = array_slice($stack,0,$b);
+	header('Location: mobile.php');
 	exit();
 }
 
@@ -270,7 +278,7 @@ if(IPHONE) {
         </center>
         <br>
         <center>
-        <span class="footer">Copyright &copy; 2008 &bull; <a href="http://www.telaxus.com">Telaxus LLC</a></span>
+        <span class="footer">Copyright &copy; <?php print(date('Y')); ?> &bull; <a href="http://www.telaxus.com">Telaxus LLC</a></span>
 		<br>
 		<p><a href="http://www.epesi.org"><img src="images/epesi-powered.png" border="0"></a></p>
         </center>
