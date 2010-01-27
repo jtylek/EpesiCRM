@@ -162,7 +162,7 @@ class CRM_TasksCommon extends ModuleCommon {
 	}
     public static function display_title($record, $nolink) {
 		$ret = Utils_RecordBrowserCommon::create_linked_label_r('task', 'Title', $record, $nolink);
-		if (isset($record['description']) && $record['description']!='') $ret = '<span '.Utils_TooltipCommon::open_tag_attrs($record['description'], false).'>'.$ret.'</span>';
+		if (isset($record['description']) && $record['description']!='' && !MOBILE_DEVICE) $ret = '<span '.Utils_TooltipCommon::open_tag_attrs($record['description'], false).'>'.$ret.'</span>';
 		return $ret;
 	}
     public static function display_title_with_mark($record) {
@@ -301,7 +301,7 @@ class CRM_TasksCommon extends ModuleCommon {
 	public function mobile_tasks() {
 		$me = CRM_ContactsCommon::get_my_record();
 		$defaults = array('employees'=>array($me['id']),'status'=>0, 'permission'=>0, 'priority'=>1);
-		Utils_RecordBrowserCommon::mobile_rb('task',array('employees'=>array($me['id'])),array('deadline'=>'ASC', 'priority'=>'DESC', 'title'=>'ASC'),array('priority'=>1, 'deadline'=>1,'longterm'=>1),$defaults);
+		Utils_RecordBrowserCommon::mobile_rb('task',array('employees'=>array($me['id']),'status'=>array(0,1)),array('deadline'=>'ASC', 'priority'=>'DESC', 'title'=>'ASC'),array('priority'=>1, 'deadline'=>1,'longterm'=>1),$defaults);
 	}
 }
 
