@@ -13,7 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_About extends Module {
 	private function get_info() {
-		return str_replace('__VERSION__',EPESI_VERSION,@file_get_contents($this->get_module_dir().'/credits.html'));
+		return str_replace('__VERSION__',EPESI_VERSION.' rev'.EPESI_REVISION,@file_get_contents($this->get_module_dir().'/credits.html'));
 	}
 
 	public function info() {
