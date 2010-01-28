@@ -1762,8 +1762,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$cols = Utils_RecordBrowserCommon::init($tab);
 
 		if($id===false) {
+			$mode = 'add';
 			$access = array();
 		} else {
+			$mode = 'edit';
 			$access = Utils_RecordBrowserCommon::get_access($tab, 'view',$rec);
 			if (is_array($access))
 				foreach ($access as $k=>$v)
@@ -1784,12 +1786,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			$label = Base_LangCommon::ts('Utils_RecordBrowser',$args['name']);
 			//ignore callback fields
 			if(isset($QFfield_callback_table[$field])) {
-				if($id===false) continue;
-				$val = Utils_RecordBrowserCommon::get_val($tab,$args['name'],$rec,true,$args);
-				if($val==='') continue;
-				$qf->addElement('static',$args['id'],$label);
-				$qf->setDefaults(array($args['id']=>$val));
-				unset($defaults[$args['id']]);
+//				if($id===false) continue;
+//				$val = Utils_RecordBrowserCommon::get_val($tab,$args['name'],$rec,true,$args);
+//				if($val==='') continue;
+//				$qf->addElement('static',$args['id'],$label);
+//				$qf->setDefaults(array($args['id']=>$val));
+//				unset($defaults[$args['id']]);
+				$ff = $QFfield_callback_table[$field];
+				call_user_func_array($ff, array(&$qf, $args['id'], $label, $mode, '', $args, null, null));
 				continue;
 			}
 

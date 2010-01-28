@@ -29,13 +29,13 @@ $order = false;
 $cols = Utils_RecordBrowserCommon::init($table);
 $cols_out = array();
 foreach($cols as $k=>$col) {
-	if($col['visible'] && (array_key_exists($col['id'],$sort) || array_key_exists($col['id'],$info))) {
-		if(count($cols_out)==$order_num) $order=$col['id'];
-		if($type!='recent')
-			$cols_out[] = array('name'=>$col['name'], 'order'=>$col['id'], 'record'=>$col);
-		else
-			$cols_out[] = array('name'=>$col['name'], 'record'=>$col);
-	}
+	if (!$col['visible'] && (!isset($info[$col['id']]) || !$info[$col['id']])) continue;
+	if (isset($info[$col['id']]) && !$info[$col['id']]) continue;
+	if(count($cols_out)==$order_num) $order=$col['id'];
+	if($type!='recent')
+		$cols_out[] = array('name'=>$col['name'], 'order'=>$col['id'], 'record'=>$col);
+	else
+		$cols_out[] = array('name'=>$col['name'], 'record'=>$col);
 }
 
 //views
@@ -44,14 +44,14 @@ if($ret['favorites'] && $type!='favorites') print('<a '.(IPHONE?'class="button g
 if(($ret['recent'] || $ret['favorites']) && $type!='all') print('<a '.(IPHONE?'class="button white" ':'').'href="mobile.php?'.http_build_query(array_merge($_GET,array('type'=>'all','rb_offset'=>0))).'">'.Base_LangCommon::ts('Utils_RecordBrowser','All').'</a>'.(IPHONE?'':'<br>'));*/
 print('<form method="GET" action="mobile.php?'.http_build_query($_GET).'">');
 
-print('<table width="100%"><tr><td>');
+if (!IPHONE) print('<table width="100%"><tr><td>');
 if(Utils_RecordBrowserCommon::get_access($table, 'add')) {
 	if (IPHONE)
 		print('<a '.'class="button green" '.mobile_stack_href(array('Utils_RecordBrowserCommon','mobile_rb_edit'), array($table,false),Base_LangCommon::ts('Utils_RecordBrowser','Add record')).'>'.Base_LangCommon::ts('Utils_RecordBrowser','Add').'</a>');
 	else
 		print('<a '.mobile_stack_href(array('Utils_RecordBrowserCommon','mobile_rb_edit'), array($table,false),Base_LangCommon::ts('Utils_RecordBrowser','Add record')).'><img src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','mobile_add.png').'" border="0"></a>');
 }
-print('</td><td align="right">');
+if (!IPHONE) print('</td><td align="right">');
 
 if(IPHONE)
 	print('<ul class="form">');
@@ -63,7 +63,7 @@ if(IPHONE)
 else
 	print('<input type="submit" value="OK"/>');
 
-print('</td></tr></table>');
+if (!IPHONE) print('</td></tr></table>');
 print('</form>');
 if(isset($_GET['search']) && $_GET['search']!=="Search" && $_GET['search']!=="") {
 	$search_crits = array();
