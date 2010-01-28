@@ -181,10 +181,8 @@ if(IPHONE) {
 if(isset($ret) && ($ret===false || is_numeric($ret))) {
 	if(is_numeric($ret))
 		$b = $back_id+2-$ret;
-//		header('Location: mobile.php?back='.($back_id+2-$ret));
 	else
 		$b = $back_id+1;
-//		header('Location: mobile.php?back='.($back_id+1));
 	$stack = array_slice($stack,0,$b);
 	header('Location: mobile.php');
 	exit();

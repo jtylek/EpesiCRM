@@ -363,7 +363,7 @@ if ( !function_exists('json_encode') ){
 function detect_mobile_device(){
   
   // check if the user agent value claims to be windows but not windows mobile
-  if(stristr($_SERVER['HTTP_USER_AGENT'],'windows')&&!(stristr($_SERVER['HTTP_USER_AGENT'],'windows ce')||stristr($_SERVER['HTTP_USER_AGENT'],'palm'))){
+  if(stristr($_SERVER['HTTP_USER_AGENT'],'windows')&&!(stristr($_SERVER['HTTP_USER_AGENT'],'windows ce')||stristr($_SERVER['HTTP_USER_AGENT'],'windows mobile')||stristr($_SERVER['HTTP_USER_AGENT'],'palm'))){
     return false;
   }
   // check if the user agent gives away any tell tale signs it's a mobile browser
