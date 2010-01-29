@@ -162,7 +162,7 @@ function themeup(){
 	install_default_theme_common_files('modules/Base/Theme/','images');
 }
 
-$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1','0.9.9beta1','0.9.9beta2','1.0.0rc1','1.0.0rc2','1.0.0rc3','1.0.0rc4','1.0.0rc5','1.0.0rc6','1.0.0','1.0.1','1.0.2','1.0.3','1.0.4','1.0.5');
+$versions = array('0.8.5','0.8.6','0.8.7','0.8.8','0.8.9','0.8.10','0.8.11','0.9.0','0.9.1','0.9.9beta1','0.9.9beta2','1.0.0rc1','1.0.0rc2','1.0.0rc3','1.0.0rc4','1.0.0rc5','1.0.0rc6','1.0.0','1.0.1','1.0.2','1.0.3','1.0.4','1.0.5','1.0.6','1.0.7');
 
 /****************** 0.8.5 to 0.8.6 **********************/
 function update_from_0_9_9beta1_to_0_9_9beta2() {
@@ -1491,6 +1491,59 @@ function update_from_1_0_4_to_1_0_5() {
 		if(!in_array('recordbrowser_extended_search',$tables))
 			DB::CreateTable('recordbrowser_extended_search', 'tab C(64), icon C(32), label C(64), callback C(128)', array('constraints'=>', PRIMARY KEY(tab, label)'));
 	}
+}
+
+function update_from_1_0_6_to_1_0_7() {
+	if (ModuleManager::is_installed('Utils_RecordBrowser')!=-1) {
+		$tables = DB::MetaTables();
+		if(!in_array('recordbrowser_browse_mode_definitions',$tables))
+			DB::CreateTable('recordbrowser_browse_mode_definitions',
+				'tab C(64),'.
+				'module C(128),'.
+				'func C(128)',
+				array('constraints'=>', PRIMARY KEY(tab, module, func)'));
+	}
+
+	if (ModuleManager::is_installed('CRM_Contacts')!=-1) {
+		@Utils_RecordBrowserCommon::register_datatype('crm_company_contact', 'CRM_ContactsCommon', 'crm_company_contact_datatype');
+	}
+
+	if (ModuleManager::is_installed('CRM_PhoneCall')>=0) {
+		Utils_RecordBrowserCommon::new_addon('phonecall', 'CRM/PhoneCall', 'messanger_addon', 'Alerts');
+		
+		PatchDBRenameColumn('phonecall_data_1','f_other_contact','f_other_customer','I1');
+		DB::Execute('UPDATE phonecall_field SET field=%s WHERE field=%s', array('Other Customer','Other Contact'));
+		PatchDBRenameColumn('phonecall_data_1','f_other_contact_name','f_other_customer_name','C(64)');
+		DB::Execute('UPDATE phonecall_field SET field=%s WHERE field=%s', array('Other Customer Name','Other Contact Name'));
+		PatchDBRenameColumn('phonecall_data_1','f_contact','f_customer','C(64)');
+		DB::Execute('UPDATE phonecall_field SET field=%s, type=%s, param=%s WHERE field=%s', array('Customer','text',64,'Contact'));
+		Utils_RecordBrowserCommon::delete_record_field('phonecall','Company Name');
+		Utils_RecordBrowserCommon::set_QFfield_callback('phonecall', 'Customer', array('CRM_ContactsCommon', 'QFfield_company_contact'));
+		Utils_RecordBrowserCommon::set_display_callback('phonecall', 'Customer', array('CRM_ContactsCommon', 'display_company_contact'));
+		$ret = DB::Execute('SELECT * FROM phonecall_data_1');
+		While ($row=$ret->FetchRow()) {
+			if (!$row['f_customer']) continue;
+			if (isset($row['f_customer'][1]) && $row['f_customer'][1]==':') continue;
+			DB::Execute('UPDATE phonecall_data_1 SET f_customer=%s WHERE id=%d', array('P:'.$row['f_customer'], $row['id']));
+		}
+
+		DB::Execute('UPDATE phonecall_callback SET field=%s WHERE field=%s', array('Other Customer', 'Other Contact'));
+	}
+	
+	if (ModuleManager::is_installed('CRM_Tasks')!=-1) {
+		Utils_RecordBrowserCommon::set_QFfield_callback('task', 'Customers', array('CRM_ContactsCommon', 'QFfield_company_contact'));
+		Utils_RecordBrowserCommon::set_display_callback('task', 'Customers', array('CRM_ContactsCommon', 'display_company_contact'));
+		$ret = DB::Execute('SELECT * FROM task_data_1');
+		while ($row=$ret->FetchRow()) {
+			$conts = explode('__',trim($row['f_customers'],'_'));
+			if (isset($conts[0]{1}) && $conts[0]{1}==':') continue;
+			$conts = '__P:'.implode('__P:', $conts).'__';
+			DB::Execute('UPDATE task_data_1 SET f_customers=%s WHERE id=%d', array($conts, $row['id']));
+		}
+
+		Utils_RecordBrowserCommon::new_addon('task', 'CRM/Tasks', 'messanger_addon', 'Alerts');
+	}
+
 }
 //=========================================================================
 
