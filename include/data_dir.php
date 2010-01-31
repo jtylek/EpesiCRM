@@ -31,7 +31,7 @@ else {
 		if(!is_string($h)) die('Invalid map.php file: not string host address');
 		if($h==='') die('Invalid map.php file: empty host address');
 		if(strlen($h)<2 || $h[0]!=='/' || $h[strlen($h)-1]!=='/')
-			$h = '/'.addcslashes($h,'/').'/';
+			$h = '/'.addcslashes($h,'/').'/i';
 		if(preg_match($h,$req)) {
 		    if($dir===false) die('Forbidden');
 	    	define('DATA_DIR',$dir);

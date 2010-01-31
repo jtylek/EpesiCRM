@@ -246,15 +246,15 @@ class CRM_ContactsInstall extends ModuleInstall {
 			unset($ccc[':active']);
 			unset($ccc['created_by']);
 			unset($ccc['id']);
-			ob_start();
-			$stdout = fopen('php://output','w');
-			fputcsv($stdout,array_keys($ccc)+array('first_name','last_name','email'));
-			fputcsv($stdout,array_values($ccc)+array(isset($val['fname'])?$val['fname']:'',isset($val['lname'])?$val['lname']:'',isset($mail)?$mail:''));
-			fclose($stdout);
-			$reg_mail_body = ob_get_clean();
-			ob_start();
-			@Base_MailCommon::send('register@telaxus.com','EpesiBIM registration',$reg_mail_body);
-			ob_end_clean();
+			$ccc = array_merge($ccc,array('first_name'=>isset($val['fname'])?$val['fname']:'','last_name'=>isset($val['lname'])?$val['lname']:'','mail'=>isset($mail)?$mail:''));
+			$url = 'http://www.epesibim.com/register/index.php?'.http_build_query($ccc);
+			if(function_exists('curl_init')) {
+				$rss = curl_init();
+				curl_setopt($rss, CURLOPT_URL, $url);
+				curl_exec($rss);
+			} else {
+				@file_get_contents($url);
+			}
 		}
 	}
 }
