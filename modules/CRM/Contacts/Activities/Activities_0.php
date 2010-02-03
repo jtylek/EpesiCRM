@@ -36,7 +36,7 @@ class CRM_Contacts_Activities extends Module {
 		// TODO: recurring events
 		// TODO: check if statsu<2 if fine for closed
 		if ($this->display['events']) $events = DB::GetAll('SELECT * FROM crm_calendar_event AS cce WHERE cce.deleted=0 AND '.$date_filter.(!$this->display['closed']?' cce.status<2 AND':'').' (EXISTS (SELECT contact FROM crm_calendar_event_group_emp AS ccegp WHERE ccegp.id=cce.id AND (false'.$db_string.')) OR EXISTS (SELECT contact FROM crm_calendar_event_group_cus AS ccegc WHERE ccegc.id=cce.id AND (false'.$db_string.'))) ORDER BY starts DESC', array_merge($ids, $ids));
-		$crits = array('(employees'=>$ids, '|customers'=>$ids);
+		$crits = array('(employees'=>$ids, '|customers'=>'P:'.$ids);
 		if ($this->activities_date==0) {
 			$crits['(>=deadline'] = date('Y-m-d');
 			$crits['|deadline'] = '';
@@ -47,7 +47,7 @@ class CRM_Contacts_Activities extends Module {
 		}
 		if (!$this->display['closed']) $crits['!status'] = array(2,3);
 		if ($this->display['tasks']) $tasks = CRM_TasksCommon::get_tasks($crits, array(), array('deadline'=>'DESC'));
-		$crits = array('(employees'=>$ids, '|contact'=>$ids);
+		$crits = array('(employees'=>$ids, '|customer'=>'P:'.$ids);
 		if ($this->activities_date==0) $crits['>=date_and_time'] = date('Y-m-d H:i:s',Base_RegionalSettingsCommon::reg2time(date('Y-m-d 0:00:00')));
 		if ($this->activities_date==1) $crits['<date_and_time'] = date('Y-m-d H:i:s',Base_RegionalSettingsCommon::reg2time(date('Y-m-d 0:00:00')));
 		if (!$this->display['closed']) $crits['!status'] = array(2,3);
@@ -66,7 +66,7 @@ class CRM_Contacts_Activities extends Module {
 		if ($this->activities_date==0) $date_filter = ' cce.starts>'.Base_RegionalSettingsCommon::reg2time(date('Y-m-d 0:00:00')).' AND';
 		if ($this->activities_date==1) $date_filter = ' cce.ends<'.Base_RegionalSettingsCommon::reg2time(date('Y-m-d 0:00:00')).' AND';
 		if ($this->display['events']) $events = DB::GetAll('SELECT * FROM crm_calendar_event AS cce WHERE cce.deleted=0 AND'.$date_filter.(!$this->display['closed']?' cce.status<2 AND':'').' (EXISTS (SELECT contact FROM crm_calendar_event_group_emp AS ccegp WHERE ccegp.id=cce.id AND contact=%d) OR EXISTS (SELECT contact FROM crm_calendar_event_group_cus AS ccegc WHERE ccegc.id=cce.id AND contact=%d)) ORDER BY starts DESC', array($me['id'], $me['id']));
-		$crits = array('(employees'=>$me['id'], '|customers'=>$me['id']);
+		$crits = array('(employees'=>$me['id'], '|customers'=>'P:'.$me['id']);
 		if ($this->activities_date==0) {
 			$crits['(>=deadline'] = date('Y-m-d');
 			$crits['|deadline'] = '';
@@ -77,7 +77,7 @@ class CRM_Contacts_Activities extends Module {
 		}
 		if (!$this->display['closed']) $crits['!status'] = array(2,3);
 		if ($this->display['tasks']) $tasks = CRM_TasksCommon::get_tasks($crits, array(), array('deadline'=>'DESC'));
-		$crits = array('(employees'=>$me['id'], '|contact'=>$me['id']);
+		$crits = array('(employees'=>$me['id'], '|customer'=>'P:'.$me['id']);
 		if ($this->activities_date==0) $crits['>=date_and_time'] = date('Y-m-d H:i:s',Base_RegionalSettingsCommon::reg2time(date('Y-m-d 0:00:00')));
 		if ($this->activities_date==1) $crits['<date_and_time'] = date('Y-m-d H:i:s',Base_RegionalSettingsCommon::reg2time(date('Y-m-d 0:00:00')));
 		if (!$this->display['closed']) $crits['!status'] = array(2,3);
@@ -164,7 +164,7 @@ class CRM_Contacts_Activities extends Module {
 								CRM_TasksCommon::display_title($v, false), 
 								(!isset($v['deadline']) || !$v['deadline'])?$this->t('No deadline'):Base_RegionalSettingsCommon::time2reg($v['deadline'],false,true,false), 
 								CRM_ContactsCommon::display_contact($v, false, array('id'=>'employees', 'param'=>';CRM_ContactsCommon::contact_format_no_company')), 
-								CRM_ContactsCommon::display_contact($v, false, array('id'=>'customers', 'param'=>';::')), 
+								CRM_ContactsCommon::display_company_contact($v, false, array('id'=>'customers')), 
 								Utils_AttachmentCommon::count('CRM/Tasks/'.$v['id'])
 							);
 				}

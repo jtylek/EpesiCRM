@@ -294,6 +294,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$id = $x[0];
 			$rset = 'P';
 		}
+		if (!$id) return '---';
 		if ($rset=='P') $val = self::contact_format_default($id, $nolink);
 		else $val = Utils_RecordBrowserCommon::create_linked_label('company', 'company_name', $id, $nolink);
 		$val .= ' ['.$rset.']';
