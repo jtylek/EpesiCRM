@@ -175,13 +175,12 @@ class CRM_TasksCommon extends ModuleCommon {
 	}
 	public static function display_status($record, $nolink, $desc) {
 		$prefix = 'crm_tasks_leightbox';
-		CRM_FollowupCommon::drawLeightbox($prefix);
-
 		$v = $record[$desc['id']];
 		if (!$v) $v = 0;
 		$status = Utils_CommonDataCommon::get_translated_array('CRM/Status');
+		if ($v>=2 || $nolink) return $status[$v];
+		CRM_FollowupCommon::drawLeightbox($prefix);
 		if (!self::access_task('edit', $record) && !Base_AclCommon::i_am_admin()) return $status[$v];
-		if ($v>=2) return $status[$v];
 		if (isset($_REQUEST['form_name']) && $_REQUEST['form_name']==$prefix.'_follow_up_form' && $_REQUEST['id']==$record['id']) {
 			unset($_REQUEST['form_name']);
 			$v = $_REQUEST['closecancel'];

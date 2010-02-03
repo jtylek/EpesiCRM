@@ -273,12 +273,12 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	}
 	public static function display_status($record, $nolink, $desc) {
 		$prefix = 'crm_phonecall_leightbox';
-		CRM_FollowupCommon::drawLeightbox($prefix);
 		$v = $record[$desc['id']];
 		if (!$v) $v = 0;
 		$status = Utils_CommonDataCommon::get_translated_array('CRM/Status');
+		if ($v>=2 || $nolink) return $status[$v];
 		if (!self::access_phonecall('edit', $record) && !Base_AclCommon::i_am_admin()) return $status[$v];
-		if ($v>=2) return $status[$v];
+		CRM_FollowupCommon::drawLeightbox($prefix);
 		if (isset($_REQUEST['form_name']) && $_REQUEST['form_name']==$prefix.'_follow_up_form' && $_REQUEST['id']==$record['id']) {
 			unset($_REQUEST['form_name']);
 			$v = $_REQUEST['closecancel'];
