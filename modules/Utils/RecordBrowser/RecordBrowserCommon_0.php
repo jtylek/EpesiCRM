@@ -94,7 +94,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				} else {
 					$arr = explode('::',$args['param']['array_id']);
 					$path = array_shift($arr);
-					foreach($arr as $v) $path .= '/'.$record[strtolower(str_replace(' ','_',$v))];
+					foreach($arr as $v) $path .= '/'.$record[preg_replace('/[^a-z0-9]/','_',strtolower($v))];
 					$path .= '/'.$record[$args['id']];
 					$ret = Utils_CommonDataCommon::get_value($path,true);
 				}
@@ -283,7 +283,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 				$row['param'] = self::decode_commondata_param($row['param']);
 			self::$table_rows[$row['field']] =
 				array(	'name'=>$row['field'],
-						'id'=>strtolower(str_replace(' ','_',$row['field'])),
+						'id'=>preg_replace('/[^a-z0-9]/','_',strtolower($row['field'])),
 						'type'=>$row['type'],
 						'visible'=>$row['visible'],
 						'required'=>($row['type']=='calculated'?false:$row['required']),
@@ -508,7 +508,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			}
 		}
 		$f = self::actual_db_type($definition['type'], $param);
-		if ($f!=='') @DB::Execute('ALTER TABLE '.$tab.'_data_1 ADD COLUMN f_'.strtolower(str_replace(' ','_',$definition['name'])).' '.$f);
+		if ($f!=='') @DB::Execute('ALTER TABLE '.$tab.'_data_1 ADD COLUMN f_'.preg_replace('/[^a-z0-9]/','_',strtolower($definition['name'])).' '.$f);
 		DB::Execute('INSERT INTO '.$tab.'_field(field, type, visible, param, style, position, extra, required, filter) VALUES(%s, %s, %d, %s, %s, %d, %d, %d, %d)', array($definition['name'], $definition['type'], $definition['visible']?1:0, $param, $definition['style'], $definition['position'], $definition['extra']?1:0, $definition['required']?1:0, $definition['filter']?1:0));
 		self::init($tab, false, true);
 	}
@@ -1035,7 +1035,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 							$cols2 = explode('/', $cols2);
 							if (isset($cols2[1])) $data_col = self::$table_rows[$cols2[1]]['id']; else $data_col = self::$table_rows[$v['order']]['id'];
 							$cols2 = $cols2[0];
-							$val = '(SELECT rdt.f_'.strtolower(str_replace(' ','_',$cols2)).' FROM '.$tab.'_data_1 AS rd LEFT JOIN '.$tab2.'_data_1 AS rdt ON rdt.id=rd.f_'.$data_col.' WHERE r.id=rd.id)';
+							$val = '(SELECT rdt.f_'.preg_replace('/[^a-z0-9]/','_',strtolower($cols2)).' FROM '.$tab.'_data_1 AS rd LEFT JOIN '.$tab2.'_data_1 AS rdt ON rdt.id=rd.f_'.$data_col.' WHERE r.id=rd.id)';
 							$orderby[] = ' '.$val.' '.$v['direction'];
 							$iter++;
 							continue;
@@ -1502,13 +1502,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								$r2 = $r;
 								self::init($tab);
 								foreach ($edit_details as $k=>$v) {
-									$k = strtolower(str_replace(' ','_',$k)); // failsafe
+									$k = preg_replace('/[^a-z0-9]/','_',strtolower($k)); // failsafe
 									if (self::$table_rows[self::$hash[$k]]['type']=='multiselect') $v = $edit_details[$k] = self::decode_multi($v);
 									$r2[$k] = $v;
 								}
 								foreach ($edit_details as $k=>$v) {
 									$access = self::get_access($tab,'view',$r);
-									$k = strtolower(str_replace(' ','_',$k)); // failsafe
+									$k = preg_replace('/[^a-z0-9]/','_',strtolower($k)); // failsafe
 									if (!$access[$k]) continue;
 									self::init($tab);
 									$field = self::$hash[$k];
@@ -1837,7 +1837,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								$qf->setDefaults(array($args['id']=>$rec[$args['id']]));
 							break;
 				case 'commondata':	$param = explode('::',$args['param']['array_id']);
-							foreach ($param as $k=>$v) if ($k!=0) $param[$k] = strtolower(str_replace(' ','_',$v));
+							foreach ($param as $k=>$v) if ($k!=0) $param[$k] = preg_replace('/[^a-z0-9]/','_',strtolower($v));
 							if(count($param)==1) {
 								$qf->addElement($args['type'], $args['id'], $label, $param, array('empty_option'=>true, 'id'=>$args['id'], 'order_by_key'=>$args['param']['order_by_key']));
 								if($id!==false)
@@ -1875,7 +1875,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 								} else $crits = array();
 								$col = explode('|',$col);
 								$col_id = array();
-								foreach ($col as $c) $col_id[] = strtolower(str_replace(' ','_',$c));
+								foreach ($col as $c) $col_id[] = preg_replace('/[^a-z0-9]/','_',strtolower($c));
 								$records = Utils_RecordBrowserCommon::get_records($tab, $crits, empty($multi_adv_params['format_callback'])?$col_id:array(), !empty($multi_adv_params['order'])?$multi_adv_params['order']:array());
 								$ext_rec = array();
 								if (isset($rec[$args['id']])) {

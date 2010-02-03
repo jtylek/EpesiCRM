@@ -322,7 +322,7 @@ class Utils_RecordBrowser extends Module {
 		$filters = array();
 		$text_filters = array();
 		foreach ($filters_all as $filter) {
-			$filter_id = strtolower(str_replace(' ','_',$filter));
+			$filter_id = preg_replace('/[^a-z0-9]/','_',strtolower($filter));
 			if (isset($this->custom_filters[$filter_id])) {
 				$f = $this->custom_filters[$filter_id];
 				if (!isset($f['label'])) $f['label'] = $filter;
@@ -349,7 +349,7 @@ class Utils_RecordBrowser extends Module {
 						$col = explode('|',$col);
 						Utils_RecordBrowserCommon::check_table_name($tab);
 						foreach ($col as $k=>$v)
-							$col[$k] = strtolower(str_replace(' ','_',$v));
+							$col[$k] = preg_replace('/[^a-z0-9]/','_',strtolower($v));
 						$crits = array();
 						if (isset($this->filter_crits[$this->table_rows[$filter]['id']])) {
 							$crits = $this->filter_crits[$this->table_rows[$filter]['id']];
@@ -415,7 +415,7 @@ class Utils_RecordBrowser extends Module {
 
 		foreach ($filters_all as $filter) {
 			if (in_array(strtolower($filter), $external_filters)) continue;
-			$filter_id = strtolower(str_replace(' ','_',$filter));
+			$filter_id = preg_replace('/[^a-z0-9]/','_',strtolower($filter));
 			if (isset($this->custom_filters[$filter_id])) {
 				if (!isset($vals[$filter_id])) $vals[$filter_id]='__NULL__';
 				if (isset($this->custom_filters[$filter_id]['trans'][$vals[$filter_id]])) {
@@ -566,10 +566,10 @@ class Utils_RecordBrowser extends Module {
 			/*
 			if ($quickjump!=='' && $args['name']===$quickjump) $arr['quickjump'] = '"~'.$args['id'];
 			if (!$this->disabled['search']) {
-				if ($args['type']=='text' || $args['type']=='currency' || ($args['type']=='calculated' && $args['param']!='')) $arr['search'] = $args['id'];//str_replace(' ','_',$field);
-				if ($ref[0]!='' && isset($ref[1])) $arr['search'] = '__Ref__'.$args['id'];//str_replace(' ','_',$field);
+				if ($args['type']=='text' || $args['type']=='currency' || ($args['type']=='calculated' && $args['param']!='')) $arr['search'] = $args['id'];//preg_replace('/[^a-z0-9]/i','_',$field);
+				if ($ref[0]!='' && isset($ref[1])) $arr['search'] = '__Ref__'.$args['id'];//preg_replace('/[^a-z0-9]/i','_',$field);
 				if ($args['type']=='commondata' || $ref[0]=='__COMMON__') {
-					if (!isset($ref[1]) || $ref[0]=='__COMMON__') $arr['search'] = '__RefCD__'.$args['id'];//str_replace(' ','_',$field);
+					if (!isset($ref[1]) || $ref[0]=='__COMMON__') $arr['search'] = '__RefCD__'.$args['id'];//preg_replace('/[^a-z0-9]/i','_',$field);
 					else unset($arr['search']);
 				}
 			}
@@ -1367,7 +1367,7 @@ class Utils_RecordBrowser extends Module {
 										if ($mode!=='add' && $record[$args['id']]) $form->setDefaults(array($args['id']=>$record[$args['id']]));
 										break;
 					case 'commondata':	$param = explode('::',$args['param']['array_id']);
-										foreach ($param as $k=>$v) if ($k!=0) $param[$k] = strtolower(str_replace(' ','_',$v));
+										foreach ($param as $k=>$v) if ($k!=0) $param[$k] = preg_replace('/[^a-z0-9]/','_',strtolower($v));
 										$form->addElement($args['type'], $args['id'], $label, $param, array('empty_option'=>true, 'id'=>$args['id'], 'order_by_key'=>$args['param']['order_by_key']));
 										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 										break;
@@ -1406,7 +1406,7 @@ class Utils_RecordBrowser extends Module {
 											} else $crits = array();
 											$col = explode('|',$col);
 											$col_id = array();
-											foreach ($col as $c) $col_id[] = strtolower(str_replace(' ','_',$c));
+											foreach ($col as $c) $col_id[] = preg_replace('/[^a-z0-9]/','_',strtolower($c));
 											$records = Utils_RecordBrowserCommon::get_records($tab, $crits, empty($multi_adv_params['format_callback'])?$col_id:array(), !empty($multi_adv_params['order'])?$multi_adv_params['order']:array());
 //											$records = Utils_RecordBrowserCommon::get_records($tab, $crits, empty($multi_adv_params['format_callback'])?$col_id:array());
 											$ext_rec = array();
@@ -1742,8 +1742,8 @@ class Utils_RecordBrowser extends Module {
 			$data['field'] = trim($data['field']);
 			if ($action=='add')
 				$field = $data['field'];
-			$id = strtolower(str_replace(' ','_',$field));
-			$new_id = strtolower(str_replace(' ','_',$data['field']));
+			$id = preg_replace('/[^a-z0-9]/','_',strtolower($field));
+			$new_id = preg_replace('/[^a-z0-9]/','_',strtolower($data['field']));
 			if (preg_match('/^[a-z0-9_]*$/',$id)==0) trigger_error('Invalid column name: '.$field);
 			if (preg_match('/^[a-z0-9_]*$/',$new_id)==0) trigger_error('Invalid new column name: '.$data['field']);
 			if ($action=='add') {
@@ -1995,7 +1995,7 @@ class Utils_RecordBrowser extends Module {
 		$first = false;
 		while ($row=$ret->FetchRow()) {
 			if (!$first) $first = $row['tab'];
-			$opts[$row['tab']] = ucfirst(str_replace('_',' ',$row['tab']));  
+			$opts[$row['tab']] = ucfirst(preg_replace('/[^a-z0-9]/','_',$row['tab']));  
 		}
 		$form->addElement('select', 'recordset', $this->t('Record Set'), $opts, array('onchange'=>$form->get_submit_form_js()));
 		if ($form->validate()) {
