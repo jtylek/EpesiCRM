@@ -649,7 +649,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			eval_js('$("crm_contacts_select_user").style.display=$("crm_contacts_new_user").checked?"none":"inline";');
 			$form->addFormRule(array('CRM_ContactsCommon','check_new_username'));
 		}
-		if (($default!==Acl::get_user() && $default!=='' && !Base_AclCommon::i_am_admin()) || $mode=='view') {
+		if (($default!=='' && !Base_AclCommon::i_am_admin()) || $mode=='view') {
 			$form->addElement('select', $field, $label, array($default=>($default!=='')?Base_UserCommon::get_user_login($default):'---'));
 			$form->setDefaults(array($field=>$default));
 			$form->freeze($field);
