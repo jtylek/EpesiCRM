@@ -394,7 +394,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return strcasecmp(strip_tags($a),strip_tags($b));
 	}
 	
-	public static function automulti_contact_suggestbox($str, $crits=array(), $no_company=false) {
+/*	public static function automulti_contact_suggestbox($str, $crits=array(), $no_company=false) {
 		$str = explode(' ', trim($str));
 		foreach ($str as $k=>$v)
 			if ($v) {
@@ -414,15 +414,33 @@ class CRM_ContactsCommon extends ModuleCommon {
 				$ret[$v['id']] = self::contact_format_default($v, true);
 		}
 		return $ret;
-	}
+	}*/
 	public static function autoselect_contact_suggestbox($str, $crits, $format_callback) {
 		$str = explode(' ', trim($str));
 		foreach ($str as $k=>$v)
 			if ($v) {
 				$v = DB::Concat(DB::qstr('%'),DB::qstr($v),DB::qstr('%'));
-				$crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~"last_name'=>$v,'|~"first_name'=>$v));
+				$recs = Utils_RecordBrowserCommon::get_records('company', array('~"company_name'=>$v), array(), array('company_name'=>'ASC'));
+				$comp_ids = array();
+				foreach ($recs as $w) $comp_ids[$w['id']] = $w['id'];
+				$crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~"last_name'=>$v,'|~"first_name'=>$v, '|company_name'=>$comp_ids));
+//				$crits = Utils_RecordBrowserCommon::merge_crits($crits, array('(~"last_name'=>$v,'|~"first_name'=>$v));
 			}
 		$recs = Utils_RecordBrowserCommon::get_records('contact', $crits, array(), array('last_name'=>'ASC'), 10);
+		$ret = array();
+		foreach($recs as $v) {
+			$ret[$v['id']] = call_user_func($format_callback, $v, true);
+		}
+		return $ret;
+	}
+	public static function autoselect_company_suggestbox($str, $crits, $format_callback) {
+		$str = explode(' ', trim($str));
+		foreach ($str as $k=>$v)
+			if ($v) {
+				$v = DB::Concat(DB::qstr('%'),DB::qstr($v),DB::qstr('%'));
+				$crits = Utils_RecordBrowserCommon::merge_crits($crits, array('~"company_name'=>$v));
+			}
+		$recs = Utils_RecordBrowserCommon::get_records('company', $crits, array(), array('company_name'=>'ASC'), 10);
 		$ret = array();
 		foreach($recs as $v) {
 			$ret[$v['id']] = call_user_func($format_callback, $v, true);
@@ -489,7 +507,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 					$form->addElement($desc['type'], $field, $label, $cont, array('id'=>$field));
 			} else {
 				if ($adv_crits !== null || is_numeric($limit)) {
-					$form->addElement('automulti', $field, $label, array('CRM_ContactsCommon','automulti_contact_suggestbox'), array($adv_crits!==null?$adv_crits:$crits), $callback);
+					$form->addElement('automulti', $field, $label, array('CRM_ContactsCommon','autoselect_contact_suggestbox'), array($adv_crits!==null?$adv_crits:$crits, $callback), $callback);
 				} else {
 					$form->addElement($desc['type'], $field, $label, $cont, array('id'=>$field));
 				}
@@ -511,7 +529,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 
 	public static function display_company($record, $nolink=false, $desc=null) {
 		if ($desc!==null) $v = $record[$desc['id']];
-		else $v = $record['id'];
+		elseif(is_array($record)) $v = $record['id'];
+		else $v = $record;
 		if ((!is_numeric($v) && !is_array($v)) || $v==-1) return '---';
 		$def = '';
 		$first = true;
@@ -535,27 +554,39 @@ class CRM_ContactsCommon extends ModuleCommon {
 				$no_company_option = true;
 				unset($crits['_no_company_option']);
 			} else $no_company_option = false;
-			$companies = self::get_companies($crits);
-			if (!is_array($default)) {
-				if ($default!='') $default = array($default); else $default=array();
-			} 
-			$ext_rec = array_flip($default);
-			foreach ($companies as $v) {
-				$comp[$v['id']] = $v['company_name'];
-				unset($ext_rec[$v['id']]);
+			$count = Utils_RecordBrowserCommon::get_records_count('company', $crits);
+			if ($count>Utils_RecordBrowserCommon::$options_limit)
+				$companies = array();
+			else {
+				$companies = self::get_companies($crits);
+				if (!is_array($default)) {
+					if ($default!='') $default = array($default); else $default=array();
+				} 
+				$ext_rec = array_flip($default);
+				foreach ($companies as $v) {
+					$comp[$v['id']] = $v['company_name'];
+					unset($ext_rec[$v['id']]);
+				}
+				foreach($ext_rec as $k=>$v) {
+					$c = CRM_ContactsCommon::get_company($k);
+					$comp[$k] = $c['company_name'];
+				}
+				natcasesort($comp);
+				$key = '';
+				if ($no_company_option) {
+					$comp = array(''=>'['.Base_LangCommon::ts('CRM_Contacts','w/o company').']') + $comp;
+					$key = -1;
+				}
+				if ($desc['type']!=='multiselect') $comp = array($key => '---') + $comp;
 			}
-			foreach($ext_rec as $k=>$v) {
-				$c = CRM_ContactsCommon::get_company($k);
-				$comp[$k] = $c['company_name'];
-			}
-			natcasesort($comp);
-			$key = '';
-			if ($no_company_option) {
-				$comp = array(''=>'['.Base_LangCommon::ts('CRM_Contacts','w/o company').']') + $comp;
-				$key = -1;
-			}
-			if ($desc['type']!=='multiselect') $comp = array($key => '---') + $comp;
-			$form->addElement($desc['type'], $field, $label, $comp, array('id'=>$field));
+			if ($count>Utils_RecordBrowserCommon::$options_limit) {
+				$callback = array('CRM_ContactsCommon','display_company');
+				if ($desc['type']!=='multiselect') 
+					$form->addElement('autoselect', $field, $label, array(), array(array('CRM_ContactsCommon','autoselect_company_suggestbox'), array($crits, $callback)), $callback, array('id'=>$field));
+				else 
+					$form->addElement('automulti', $field, $label, array('CRM_ContactsCommon','autoselect_company_suggestbox'), array($crits, $callback), $callback);
+//					$form->addElement($desc['type'], $field, $label, $comp, array('id'=>$field));
+			} else $form->addElement($desc['type'], $field, $label, $comp, array('id'=>$field));
 			if ($mode!=='add') $form->setDefaults(array($field=>$default));
 		} else {
 			/*$def = '';
@@ -609,7 +640,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		}
 		if ($mode=='add' || $mode=='edit') {
 			if (self::$paste_or_new=='new') {
-				$form->addElement('checkbox', 'create_company', Base_LangCommon::ts('CRM/Contacts','Create new company'), null, array('onClick'=>'document.getElementsByName("company_namefrom[]")[0].disabled=document.getElementsByName("company_nameto[]")[0].disabled=this.checked;document.getElementsByName("create_company_name")[0].disabled=!this.checked;'));
+				$form->addElement('checkbox', 'create_company', Base_LangCommon::ts('CRM/Contacts','Create new company'), null, array('onClick'=>'document.getElementsByName("company_name")[0].disabled=this.checked;document.getElementsByName("create_company_name")[0].disabled=!this.checked;'));
 				$form->addElement('text', 'create_company_name', Base_LangCommon::ts('CRM/Contacts','New company name'), array('disabled'=>1));
 				$form->addFormRule(array('CRM_ContactsCommon', 'check_new_company_name'));
 				if (isset($rb) && isset($rb->record['last_name']) && isset($rb->record['first_name'])) $form->setDefaults(array('create_company_name'=>$rb->record['last_name'].' '.$rb->record['first_name']));
@@ -618,7 +649,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 						'function update_create_company_name_field() {'.
 							'document.forms[\''.$form->getAttribute('name').'\'].create_company_name.value = document.forms[\''.$form->getAttribute('name').'\'].last_name.value+" "+document.forms[\''.$form->getAttribute('name').'\'].first_name.value;'.
 						'}');
-				eval_js('document.getElementsByName("company_namefrom[]")[0].disabled=document.getElementsByName("company_nameto[]")[0].disabled=document.getElementsByName("create_company")[0].checked;document.getElementsByName("create_company_name")[0].disabled=!document.getElementsByName("create_company")[0].checked;');
+				eval_js('document.getElementsByName("company_name")[0].disabled=document.getElementsByName("create_company")[0].checked;document.getElementsByName("create_company_name")[0].disabled=!document.getElementsByName("create_company")[0].checked;');
 			} else {
 				$comp = self::get_company(self::$paste_or_new);
 				$paste_company_info =
