@@ -394,7 +394,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return strcasecmp(strip_tags($a),strip_tags($b));
 	}
 	
-/*	public static function automulti_contact_suggestbox($str, $crits=array(), $no_company=false) {
+	public static function automulti_contact_suggestbox($str, $crits=array(), $no_company=false) {
 		$str = explode(' ', trim($str));
 		foreach ($str as $k=>$v)
 			if ($v) {
@@ -414,7 +414,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 				$ret[$v['id']] = self::contact_format_default($v, true);
 		}
 		return $ret;
-	}*/
+	}
 	public static function autoselect_contact_suggestbox($str, $crits, $format_callback) {
 		$str = explode(' ', trim($str));
 		foreach ($str as $k=>$v)
