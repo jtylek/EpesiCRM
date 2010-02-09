@@ -893,12 +893,20 @@ class Apps_MailClient extends Module {
 				if($action=='new')
 					$id = DB::Insert_ID('apps_mailclient_accounts','id');
 				Apps_MailClientCommon::get_mailbox_data($id,$use_cache=false);
-				if($action=='new')
-					Apps_MailClientCommon::create_mailbox_dir($id);
-				if($values['incoming_protocol']==1) { //imap
-					eval_js('Apps_MailClient.cache_mailboxes_start()',false);//make sure cache is working
+				$ok = true;
+				if($action=='new') {
+					if(!Apps_MailClientCommon::create_mailbox_dir($id)) {
+						DB::Execute('DELETE FROM apps_mailclient_accounts WHERE id=%d',array($id));
+						Epesi::alert($this->t('Connection to mailbox failed or cannot create inbox directory.'));
+						$ok = false;
+					}
 				}
-				return false;
+				if($ok) {
+					if($values['incoming_protocol']==1) { //imap
+						eval_js('Apps_MailClient.cache_mailboxes_start()',false);//make sure cache is working
+					}
+					return false;
+				}
 			}
 			Base_ActionBarCommon::add('save','Save',' href="javascript:void(0)" onClick="'.addcslashes($f->get_submit_form_js(),'"').'"');
 		}

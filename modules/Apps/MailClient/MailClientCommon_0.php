@@ -125,7 +125,8 @@ class Apps_MailClientCommon extends ModuleCommon {
 		Apps_MailClientCommon::get_mailbox_dir($id,false);
 		$dirs = array('Inbox','Sent','Trash','Drafts');
 		foreach($dirs as $d) {
-			self::create_mailbox_subdir($id,$d.'/',$imap_create);
+			if(!self::create_mailbox_subdir($id,$d.'/',$imap_create))
+				return false;
 		}
 		return true;
 	}
@@ -1073,7 +1074,7 @@ class Apps_MailClientCommon extends ModuleCommon {
 		$imap = self::imap_open($id);
 		if(!$imap) return false;
 		$tdir = mb_convert_encoding( $imap['ref'].rtrim(self::imap_get_mailbox_name($id,$dir),'/'), "UTF7-IMAP", "UTF-8" );
-		imap_reopen($imap['connection'],$tdir);
+		if(!@imap_reopen($imap['connection'],$tdir)) return false;
 		$st = imap_status($imap['connection'],$tdir,SA_UIDNEXT);
 		if(self::imap_errors('Unable to get status of directory: '.$dir.'.'))
 			return false;
