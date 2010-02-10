@@ -124,6 +124,7 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
         }
 		$cleanValue = $value;
         if (is_array($cleanValue) && !$this->getMultiple()) {
+			if (!isset($cleanValue[0])) $cleanValue[0] = '';
             return $this->_prepareValue($cleanValue[0], $assoc);
         } else {
             return $this->_prepareValue($cleanValue, $assoc);
