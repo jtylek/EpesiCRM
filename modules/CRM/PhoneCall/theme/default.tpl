@@ -41,6 +41,11 @@
 	</tbody>
 </table>
 
+
+{if isset($click2fill)}
+    {$click2fill}
+{/if}
+
 <div id="CRM_PhoneCall">
 
 <!-- SHADIW BEGIN-->
