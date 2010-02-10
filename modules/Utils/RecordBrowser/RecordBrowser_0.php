@@ -581,6 +581,7 @@ class Utils_RecordBrowser extends Module {
 			if (isset($this->more_table_properties[$k]) && isset($this->more_table_properties[$k]['name'])) $key = $this->more_table_properties[$k]['name'];
 			elseif (isset($hash[$k])) $key = $hash[$k];
 			else $key = $k;
+			if ((!$this->table_rows[$hash[$k]]['visible'] && (!isset($cols[$k]) || $cols[$k] === false)) || !$access[$k]) continue;
 			$clean_order[$this->t($key)] = $v;
 		}
 //		if ($this->browse_mode == 'recent')
