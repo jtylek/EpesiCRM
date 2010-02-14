@@ -296,8 +296,12 @@ class Utils_Attachment extends Module {
 		$oryg = DB::GetRow('SELECT ual.sticky,uaf.id as file_id,(SELECT count(*) FROM utils_attachment_download uad INNER JOIN utils_attachment_file uaf ON uaf.id=uad.attach_file_id WHERE uaf.attach_id=ual.id) as downloads,(SELECT l.login FROM user_login l WHERE ual.permission_by=l.id) as permission_owner,ual.permission,ual.permission_by,ual.local,uac.revision as note_revision,uaf.revision as file_revision,ual.id,uac.created_on as note_on,(SELECT l.login FROM user_login l WHERE uac.created_by=l.id) as note_by,uac.text,uaf.original,uaf.created_on as upload_on,(SELECT l2.login FROM user_login l2 WHERE uaf.created_by=l2.id) as upload_by FROM (utils_attachment_link ual INNER JOIN utils_attachment_note uac ON uac.attach_id=ual.id) INNER JOIN utils_attachment_file uaf ON ual.id=uaf.attach_id WHERE '.Utils_AttachmentCommon::get_where($_SESSION['attachment_copy']['group'],false).' AND uac.revision=(SELECT max(x.revision) FROM utils_attachment_note x WHERE x.attach_id=uac.attach_id) AND uaf.revision=(SELECT max(x.revision) FROM utils_attachment_file x WHERE x.attach_id=uaf.attach_id) AND ual.id=%d',array($_SESSION['attachment_copy']['id']));
 		$local = $this->get_data_dir().$_SESSION['attachment_copy']['group'];
 		$file = $local.'/'.$_SESSION['attachment_copy']['id'].'_'.$oryg['file_revision'];
-		$file2 = $file.'_tmp';
-		copy($file,$file2);
+		if(file_exists($file)) {
+    		$file2 = $file.'_tmp';
+            copy($file,$file2);
+        } else {
+            $file2 = null;
+        }
 		$id = @Utils_AttachmentCommon::add($this->group,$oryg['permission'],Acl::get_user(),$oryg['text'],$oryg['original'],$file2,$this->func,$this->args,$this->add_func,$this->add_args);
 		@unlink($file2);
 		DB::Execute('UPDATE utils_attachment_link SET sticky=%b WHERE id=%d',array($oryg['sticky'],$id));
