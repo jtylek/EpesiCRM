@@ -2,7 +2,7 @@ rpicker_init = function(element, id){
 	checkbox = $('leightbox_rpicker_'+element+'_'+id);
 	tolist = document.getElementsByName(element+'to[]')[0];
 	k = 0;
-	checkbox.selected = false;
+	checkbox.checked = false;
 	while (k!=tolist.length) {
 		if (tolist.options[k].value == id) {
 			checkbox.checked = true;
