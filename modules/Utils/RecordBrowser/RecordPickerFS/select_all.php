@@ -31,5 +31,5 @@ foreach($records as $r) {
 }
 session_commit();
 
-print('Epesi.procOn--;Epesi.updateIndicator();');
+print('Epesi.procOn--;_chj('');');
 ?>
