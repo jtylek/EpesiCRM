@@ -26,8 +26,10 @@ if ($tab===null || $crits===null || $rp_path===null) die('alert(\'Invalid usage 
 $tab_info = Utils_RecordBrowserCommon::init($tab);
 $records = Utils_RecordBrowserCommon::get_records($tab, $crits, array('id'));
 $selected = array();
-foreach($records as $r) {
-	$selected[$r['id']] = 1;
+if($_POST['select']) {
+	foreach($records as $r) {
+		$selected[$r['id']] = 1;
+	}
 }
 session_commit();
 
