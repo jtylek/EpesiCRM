@@ -75,6 +75,7 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 		if (!isset($cur[1])) $ret = $cur[0]; else {
 			$this->dec_digits = DB::GetOne('SELECT decimals FROM utils_currency WHERE id=%d', array($currency));
 			$cur[1] = str_pad($cur[1], $this->dec_digits, '0');
+			$cur[1] = substr($cur[1], 0, $this->dec_digits);
 			$ret = $cur[0]+$cur[1]/pow(10,$this->dec_digits);
 		}
 		$ret .= '__'.$currency;
