@@ -2,7 +2,7 @@ var RecordPicker_select_all = function(select,path,message) {
 	Epesi.updateIndicatorText(message);
 	Epesi.procOn++;
 	Epesi.updateIndicator();
-	new Ajax.Request('modules/Utils/RecordBrowser/RecordPicker/select_all.php', {
+	new Ajax.Request('modules/Utils/RecordBrowser/RecordPickerFS/select_all.php', {
 		method: 'post',
 		parameters:{
 			select: Object.toJSON(select),

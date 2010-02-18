@@ -64,7 +64,6 @@ class CRM_FiltersInstall extends ModuleInstall {
 			array('name'=>'Base/Theme','version'=>0),
 			array('name'=>'Base/Lang','version'=>0),
 			array('name'=>'Base/User/Settings','version'=>0),
-			array('name'=>'Utils/RecordBrowser/RecordPicker','version'=>0),
 			array('name'=>'Utils/GenericBrowser','version'=>0),
 			array('name'=>'CRM/Contacts','version'=>0),
 			array('name'=>'Libs/QuickForm','version'=>0));

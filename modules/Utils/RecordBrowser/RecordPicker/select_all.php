@@ -7,7 +7,7 @@
  * @package epesi-utils
  * @subpackage RecordBrowser-RecordPicker
  */
-if(!isset($_POST['select']) || !isset($_POST['tab']) || !isset($_POST['path']) || !isset($_POST['cid']))
+if(!isset($_POST['select']) || !isset($_POST['path']) || !isset($_POST['cid']))
 	die('alert(\'Invalid request\')');
 
 define('JS_OUTPUT',1);
@@ -17,14 +17,14 @@ require_once('../../../../include.php');
 foreach ($_POST as $k=>$v)
 	$_POST[$k] = trim($v,'"');
 $path = $_POST['path'];
-$tab = $_POST['tab'];
 $crits = Module::static_get_module_variable($path, 'crits_stuff', null);
 $order = Module::static_get_module_variable($path, 'order_stuff', null);
+$tab = Module::static_get_module_variable($path, 'tab', null);
 $element = Module::static_get_module_variable($path, 'element', null);
 $func = Module::static_get_module_variable($path, 'format_func', null);
 $browsed_records = Module::static_get_module_variable($path, 'rpicker_ind', null);
 ModuleManager::load_modules();
-if ($browsed_records===null || $crits===null || $order===null || $element===null || $func===null) die('alert(\'Invalid usage - variables not set (path - '.$path.', module vars - '.epesi::escapeJS(print_r($_SESSION['client']['__module_vars__'][$path],true)).')\');');
+if ($tab===null || $browsed_records===null || $crits===null || $order===null || $element===null || $func===null) die('alert(\'Invalid usage - variables not set (path - '.$path.', module vars - '.epesi::escapeJS(print_r($_SESSION['client']['__module_vars__'][$path],true)).')\');');
 
 $tab_info = Utils_RecordBrowserCommon::init($tab);
 $records = Utils_RecordBrowserCommon::get_records($tab, $crits, array(), $order, array());

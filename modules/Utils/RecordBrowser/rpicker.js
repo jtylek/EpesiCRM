@@ -10,10 +10,14 @@ rpicker_init = function(element, id){
  		}
 		k++;
 	}
+	checkbox.observe('click', function(e){
+		rpicker_move(element,id,checkbox.getAttribute('formated_name'));
+	});
 }
 
-rpicker_move = function(element, id, cstring, where){
-	if ($('leightbox_rpicker_'+element+'_'+id)) $('leightbox_rpicker_'+element+'_'+id).checked=where;
+rpicker_move = function(element, id, cstring){
+	checkbox = $('leightbox_rpicker_'+element+'_'+id);
+	where = checkbox.checked;
 	tolist = document.getElementsByName(element+'to[]')[0];
 	fromlist = document.getElementsByName(element+'from[]')[0];
 	if (where) {

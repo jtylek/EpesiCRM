@@ -145,8 +145,8 @@ class Utils_RecordBrowser extends Module {
 
 	public function construct($tab = null) {
 		self::$rb_obj = $this;
-		$this->tab = $tab;
-		if ($tab!==null) Utils_RecordBrowserCommon::check_table_name($tab);
+		$this->tab = & $this->get_module_variable('tab', $tab);
+		if ($this->tab!==null) Utils_RecordBrowserCommon::check_table_name($this->tab);
 	}
 
 	public function init($admin=false, $force=false) {
@@ -735,10 +735,10 @@ class Utils_RecordBrowser extends Module {
 			if (!$admin && $this->watchdog)
 				$row_data[] = Utils_WatchdogCommon::get_change_subscription_icon($this->tab,$row['id']);
 			if ($special) {
-				$func = $this->get_module_variable('format_func');
 				$element = $this->get_module_variable('element');
+				$format = $this->get_module_variable('format_func');
 //				$row_data= array('<a href="javascript:rpicker_addto(\''.$element.'\','.$row['id'].',\''.Base_ThemeCommon::get_template_file('images/active_on.png').'\',\''.Base_ThemeCommon::get_template_file('images/active_off2.png').'\',\''.(is_callable($func)?strip_tags(call_user_func($func, $row, true)):'').'\');"><img border="0" name="leightbox_rpicker_'.$element.'_'.$row['id'].'" /></a>');
-				$row_data = array('<input type="checkbox" id="leightbox_rpicker_'.$element.'_'.$row['id'].'" onclick="rpicker_move(\''.$element.'\','.$row['id'].',\''.(is_callable($func)?strip_tags(call_user_func($func, $row, true)):'').'\',this.checked);" />');
+				$row_data = array('<input type="checkbox" id="leightbox_rpicker_'.$element.'_'.$row['id'].'" formated_name="'.(is_callable($format)?strip_tags(call_user_func($format, $row, true)):'').'" />');
 				$rpicker_ind[] = $row['id'];
 			}
 			foreach($query_cols as $argsid) {
@@ -1975,17 +1975,53 @@ class Utils_RecordBrowser extends Module {
 			$theme->assign('deselect_all', array('js'=>'', 'label'=>$this->t('Deselect all')));
 		} else {
 			load_js('modules/Utils/RecordBrowser/RecordPicker/select_all.js');
-			$theme->assign('select_all', array('js'=>'RecordPicker_select_all(1,\''.$this->get_path().'\',\''.$this->tab.'\',\''.Base_LangCommon::ts('Utils/RecordBrowser','processing...').'\');', 'label'=>$this->t('Select all')));
-			$theme->assign('deselect_all', array('js'=>'RecordPicker_select_all(0,\''.$this->get_path().'\',\''.$this->tab.'\',\''.Base_LangCommon::ts('Utils/RecordBrowser','processing...').'\');', 'label'=>$this->t('Deselect all')));
+			$theme->assign('select_all', array('js'=>'RecordPicker_select_all(1,\''.$this->get_path().'\',\''.Base_LangCommon::ts('Utils/RecordBrowser','processing...').'\');', 'label'=>$this->t('Select all')));
+			$theme->assign('deselect_all', array('js'=>'RecordPicker_select_all(0,\''.$this->get_path().'\',\''.Base_LangCommon::ts('Utils/RecordBrowser','processing...').'\');', 'label'=>$this->t('Deselect all')));
 		}
 		load_js('modules/Utils/RecordBrowser/rpicker.js');
 
+		$rpicker_ind = $this->get_module_variable('rpicker_ind');
+		foreach($rpicker_ind as $v) {
+			eval_js('rpicker_init(\''.$element.'\','.$v.')');
+		}
+		$theme->display('Record_picker');
+	}
+	public function recordpicker_fs($crits, $cols, $order, $filters, $path) {
+		$this->init();
+		$theme = $this->init_module('Base/Theme');
+		Base_ThemeCommon::load_css($this->get_type(),'Browsing_records');
+		$this->set_module_variable('rp_fs_path',$path);
+		$selected = Module::static_get_module_variable($path,'selected',array());
+		$theme->assign('filters', $this->show_filters($filters));
+		$theme->assign('disabled', '');
+		foreach	($crits as $k=>$v) {
+			if (!is_array($v)) $v = array($v);
+			if (isset($this->crits[$k]) && !empty($v)) {
+				foreach ($v as $w) if (!in_array($w, $this->crits[$k])) $this->crits[$k][] = $w;
+			} else $this->crits[$k] = $v;
+		}
+		$theme->assign('table', $this->show_data($this->crits, $cols, $order, false, true));
+		if ($this->amount_of_records>=250) {
+			$theme->assign('disabled', '_disabled');
+			$theme->assign('select_all', array('js'=>'', 'label'=>$this->t('Select all')));
+			$theme->assign('deselect_all', array('js'=>'', 'label'=>$this->t('Deselect all')));
+		} else {
+			load_js('modules/Utils/RecordBrowser/RecordPickerFS/select_all.js');
+			$theme->assign('select_all', array('js'=>'RecordPicker_select_all(1,\''.$this->get_path().'\',\''.Base_LangCommon::ts('Utils/RecordBrowser','processing...').'\');', 'label'=>$this->t('Select all')));
+			$theme->assign('deselect_all', array('js'=>'RecordPicker_select_all(0,\''.$this->get_path().'\',\''.Base_LangCommon::ts('Utils/RecordBrowser','processing...').'\');', 'label'=>$this->t('Deselect all')));
+		}
+		
+		load_js('modules/Utils/RecordBrowser/rpicker_fs.js');
+		foreach(self::$browsed_records['records'] as $id=>$i) {
+			eval_js('rpicker_fs_init('.$id.','.(isset($selected[$id]) && $selected[$id]?1:0).',\''.$this->get_path().'\')');
+		}
+/*
 		$rpicker_ind = $this->get_module_variable('rpicker_ind');
 		$init_func = 'init_all_rpicker_'.$element.' = function(id, cstring){';
 		foreach($rpicker_ind as $v)
 			$init_func .= 'rpicker_init(\''.$element.'\','.$v.');';
 		$init_func .= '}';
-		eval_js($init_func.';init_all_rpicker_'.$element.'();');
+		eval_js($init_func.';init_all_rpicker_'.$element.'();');*/
 		$theme->display('Record_picker');
 	}
 	public function admin() {
