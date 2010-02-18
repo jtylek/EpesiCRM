@@ -45,14 +45,21 @@ class CRM_Filters extends Module {
 		foreach($contacts as $v)
 			$this->contacts_select[$v['id']] = $v['last_name'].' '.$v['first_name'];
 		$qf->addElement('select','crm_filter_contact',$this->t('Records of'),$this->contacts_select,array('onChange'=>'if(this.value!=\'\'){'.$qf->get_submit_form_js().'crm_filters_deactivate();}'));*/
-		$qf->addElement('automulti','crm_filter_contact',$this->t('Records of'),array('CRM_ContactsCommon','automulti_contact_suggestbox'), array(array('company_name'=>CRM_ContactsCommon::get_main_company())), array('CRM_ContactsCommon', 'contact_format_default'));
+		$fcallback = array('CRM_ContactsCommon', 'contact_format_no_company');
+		$recent_crits = array('company_name'=>CRM_ContactsCommon::get_main_company(), ':Recent'=>true);
+		$contacts = CRM_ContactsCommon::get_contacts($recent_crits);
+		foreach ($contacts as $v) { 
+			$cont[$v['id']] = call_user_func($fcallback, $v, true);
+		}
+		asort($cont);
+		$qf->addElement('autoselect','crm_filter_contact',$this->t('Records of'),$cont,array(array('CRM_ContactsCommon','autoselect_contact_suggestbox'), array(array('company_name'=>CRM_ContactsCommon::get_main_company()), $fcallback)), $fcallback);
 		if(isset($_SESSION['client']['filter_'.Acl::get_user()])) {
 			$qf->setDefaults(array('crm_filter_contact'=>explode(',',$_SESSION['client']['filter_'.Acl::get_user()])));
 		}
-		$qf->addElement('submit',null,'Filter');
+		$qf->addElement('submit',null,'Filter', array('onclick'=>'leightbox_deactivate("crm_filters");'));
 		if($qf->validate()) {
 			$c = $qf->exportValue('crm_filter_contact');
-			$this->set_profile('c'.implode(',',$c));
+			$this->set_profile('c'.$c);
 			eval_js('crm_filters_deactivate()',false);
 			location(array());
 		}
