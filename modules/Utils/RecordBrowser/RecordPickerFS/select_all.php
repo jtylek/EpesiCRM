@@ -33,5 +33,5 @@ if($_POST['select']) {
 }
 session_commit();
 
-print('Epesi.procOn--;_chj('');');
+print('Epesi.procOn--;_chj(\'\');');
 ?>
