@@ -48,6 +48,7 @@ class CRM_Filters extends Module {
 		$fcallback = array('CRM_ContactsCommon', 'contact_format_no_company');
 		$recent_crits = array('company_name'=>CRM_ContactsCommon::get_main_company(), ':Recent'=>true);
 		$contacts = CRM_ContactsCommon::get_contacts($recent_crits);
+		$cont = array();
 		foreach ($contacts as $v) { 
 			$cont[$v['id']] = call_user_func($fcallback, $v, true);
 		}
