@@ -40,13 +40,8 @@ class CRM_Filters extends Module {
 		$th->assign('filters',$filters);
 
 		$qf = $this->init_module('Libs/QuickForm');
-/*		$contacts = CRM_ContactsCommon::get_contacts(array('company_name'=>CRM_ContactsCommon::get_main_company()),array('first_name','last_name'),array('last_name'=>'ASC','first_name'=>'ASC'));
-		$this->contacts_select = array(''=>'---');
-		foreach($contacts as $v)
-			$this->contacts_select[$v['id']] = $v['last_name'].' '.$v['first_name'];
-		$qf->addElement('select','crm_filter_contact',$this->t('Records of'),$this->contacts_select,array('onChange'=>'if(this.value!=\'\'){'.$qf->get_submit_form_js().'crm_filters_deactivate();}'));*/
 		$fcallback = array('CRM_ContactsCommon', 'contact_format_no_company');
-		$recent_crits = array('company_name'=>CRM_ContactsCommon::get_main_company(), ':Recent'=>true);
+		$recent_crits = array('company_name'=>CRM_ContactsCommon::get_main_company(), '(:Recent'=>true, '|:Fav'=>true);
 		$contacts = CRM_ContactsCommon::get_contacts($recent_crits);
 		$cont = array();
 		foreach ($contacts as $v) { 
@@ -57,11 +52,10 @@ class CRM_Filters extends Module {
 		if(isset($_SESSION['client']['filter_'.Acl::get_user()])) {
 			$qf->setDefaults(array('crm_filter_contact'=>explode(',',$_SESSION['client']['filter_'.Acl::get_user()])));
 		}
-		$qf->addElement('submit',null,'Filter', array('onclick'=>'leightbox_deactivate("crm_filters");'));
+		$qf->addElement('submit',null,'Filter', array('onclick'=>'crm_filters_deactivate()'));
 		if($qf->validate()) {
 			$c = $qf->exportValue('crm_filter_contact');
 			$this->set_profile('c'.$c);
-			eval_js('crm_filters_deactivate()',false);
 			location(array());
 		}
 		$th->assign('saved_filters',$this->t('Saved Filters'));
