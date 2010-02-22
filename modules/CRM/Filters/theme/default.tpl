@@ -6,7 +6,7 @@
         <td>
 
 <!-- SHADIW BEGIN -->
-	<div class="layer" style="padding: 8px; width: 80px;">
+	<div class="layer" style="padding: 8px; width: 120px;">
 		<div class="content_shadow">
 <!-- -->
 
@@ -47,7 +47,7 @@
         <td>
 
 <!-- SHADIW BEGIN -->
-	<div class="layer" style="padding: 8px; width: 80px;">
+	<div class="layer" style="padding: 8px; width: 120px;">
 		<div class="content_shadow">
 <!-- -->
 
@@ -87,7 +87,7 @@
         <!-- MANAGE FILTERS -->
         <td>
 <!-- SHADIW BEGIN -->
-	<div class="layer" style="padding: 8px; width: 80px;">
+	<div class="layer" style="padding: 8px; width: 120px;">
 		<div class="content_shadow">
 <!-- -->
 
@@ -127,7 +127,6 @@
 
         </td>
     </tr>
-    <tr>
         <td colspan="3" style="text-align: center;">{$contacts}</td>
     </tr>
 </table>
