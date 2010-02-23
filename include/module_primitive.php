@@ -57,7 +57,7 @@ abstract class ModulePrimitive extends ModuleAcl {
 	 * Removes default data directory of a module. Typical usage: in module uninstallation
 	 * 
 	 * @param string module name
-	 * @return bool true if directory was created or already exists, false otherwise
+	 * @return bool true if directory was removed or did not exist, false otherwise
 	 */
 	public final function remove_data_dir() {
 		return ModuleManager::remove_data_dir($this->type);
