@@ -923,7 +923,7 @@ class Apps_MailClient extends Module {
 			Epesi::alert($this->ht('Invalid mailbox'));
 			return;
 		}
-		recursive_rmdir($box_dir);
+		@recursive_rmdir($box_dir);
 
 		$filters = DB::GetCol('SELECT id FROM apps_mailclient_filters WHERE account_id=%d',array($id));
 		if($filters) {
