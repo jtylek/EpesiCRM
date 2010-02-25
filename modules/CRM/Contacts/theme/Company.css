@@ -113,7 +113,7 @@
 
 .CRM_Contacts__table .icon img {
     position: absolute;
-    clip: rect(0px 32px 28px 0px);
+    clip: rect(0px, 32px, 28px, 0px);
 }
 
 .CRM_Contacts__table .name {
