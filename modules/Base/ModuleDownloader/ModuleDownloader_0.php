@@ -52,7 +52,7 @@ class Base_ModuleDownloader extends Module {
             print($this->t("Please enable zip extension in server configuration!").'<br/>');
         }
         // remove file
-//        unlink($destfile);
+        unlink($destfile);
     }
 
     // *********** Function download_remote_file **************
