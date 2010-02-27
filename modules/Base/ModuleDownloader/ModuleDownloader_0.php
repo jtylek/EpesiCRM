@@ -43,7 +43,7 @@ class Base_ModuleDownloader extends Module {
         // extract file contents
         if(class_exists('ZipArchive')) {
             $zip = new ZipArchive();
-            if( $zip->open($destfile) != true || $zip->extractTo('./modules') == false ) {
+            if( filesize($destfile) == 0 || $zip->open($destfile) != true || $zip->extractTo('./modules') == false ) {
                 print($this->t("Archive error!").'<br/>');
             } else {
                 $zip->close();
@@ -52,7 +52,7 @@ class Base_ModuleDownloader extends Module {
             print($this->t("Please enable zip extension in server configuration!").'<br/>');
         }
         // remove file
-        unlink($destfile);
+//        unlink($destfile);
     }
 
     // *********** Function download_remote_file **************
