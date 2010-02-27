@@ -839,9 +839,11 @@ class Utils_RecordBrowser extends Module {
 						if (!isset($values[$k])) $values[$k] = $v;
 					$id = Utils_RecordBrowserCommon::new_record($this->tab, $values);
 					location(array());
+				} else {
+					$this->show_add_in_table = true;
 				}
 			}
-			$form->addElement('submit', 'submit', $this->t('Submit'), array('style'=>'width:auto;'));
+			$form->addElement('submit', 'submit_qanr', $this->t('Submit'), array('style'=>'width:auto;'));
 			$renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
 			$form->accept($renderer);
 			$data = $renderer->toArray();
@@ -869,7 +871,7 @@ class Utils_RecordBrowser extends Module {
 //				$row_data[] = '&nbsp;';
 
 			$gb_row = $gb->get_new_row();
-			$gb_row->add_action('',$data['submit']['html'],'');
+			$gb_row->add_action('',$data['submit_qanr']['html'],'');
 			$gb_row->set_attrs('id="add_in_table_row" style="display:'.($this->show_add_in_table?'':'none').';"');
 			$gb_row->add_data_array($row_data);
 		}
