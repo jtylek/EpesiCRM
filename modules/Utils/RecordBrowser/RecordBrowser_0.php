@@ -276,18 +276,6 @@ class Utils_RecordBrowser extends Module {
 		$theme->assign('icon', $this->icon);
 		$theme->display('Browsing_records');
 	}
-
-    public function clear_extended_search_crits($id) {
-        $crits = $this->get_module_variable('extended_search_crits');
-        unset($crits[$id]);
-        unset($_SESSION['client']['extended_search_data'][$id]);
-        $this->set_module_variable('extended_search_crits', $crits);
-    }
-    public function load_extended_search_module($callback, $id) {
-        $x = ModuleManager::get_instance('/Base_Box|0');
-        if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-        $x->push_main($callback[0], isset($callback[1]) ? $callback[1] : 'body', $id);
-    }
 	public function switch_view($mode){
 		Base_User_SettingsCommon::save('Utils/RecordBrowser',$this->tab.'_default_view',$mode);
 		$this->browse_mode = $mode;
