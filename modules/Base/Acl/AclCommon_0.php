@@ -158,7 +158,6 @@ class Base_AclCommon extends ModuleCommon {
 	public static function get_group_id($g) {
 		static $ret;
 		if(!isset($ret[$g])) {
-			
 			$ret[$g] = Acl::$gacl->get_group_id($g);
 		}
 		return $ret[$g];

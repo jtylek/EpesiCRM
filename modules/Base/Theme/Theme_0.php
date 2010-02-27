@@ -163,9 +163,9 @@ class Base_Theme extends Module {
 	 */
 	public static function list_themes() {
 		$themes = array();
-		$inc = dir('data/Base_Theme/templates/');
+		$inc = dir(DATA_DIR.'/Base_Theme/templates/');
 		while (false != ($entry = $inc->read())) {
-			if (is_dir('data/Base_Theme/templates/'.$entry) && $entry!='.' && $entry!='..')
+			if (is_dir(DATA_DIR.'/Base_Theme/templates/'.$entry) && $entry!='.' && $entry!='..')
 				$themes[$entry] = $entry;
 		}
 		asort($themes);
