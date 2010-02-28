@@ -33,11 +33,20 @@ class Base_ModuleDownloader extends Module {
         while(file_exists($destfile.'.zip')) $destfile .= '0';
         $destfile .= '.zip';
         // download file
-        $url = self::server . '?' . http_build_query(array('id'=>$mid));
+        $url = self::server . '?' . http_build_query(array('action'=>'file', 'id'=>$mid));
         if( $this->download_remote_file($url, $destfile) ) {
             print($this->t('File download succeded!').'<br/>');
         } else {
             print($this->t('Error downloading file!').'<br/>');
+            return;
+        }
+        // request md5 sum
+        $url = self::server . '?' . http_build_query(array('action'=>'md5', 'id'=>$mid));
+        $md5 = $this->download_remote_file($url);
+        if( $md5 == md5_file($destfile) ) {
+            print('MD5: '.$md5.'  OK');
+        } else {
+            print('MD5: '.$md5.'  Error');
             return;
         }
         // extract file contents
@@ -56,7 +65,7 @@ class Base_ModuleDownloader extends Module {
     }
 
     // *********** Function download_remote_file **************
-    private function download_remote_file($fileurl, $filename, $checkmd5= NULL) {
+    private function download_remote_file($fileurl, $filename = null) {
         $err_msg = '';
         $ch = curl_init($fileurl);
 
@@ -81,33 +90,10 @@ class Base_ModuleDownloader extends Module {
             return false;
         }
 
-        file_put_contents($filename,$output);
+        if($filename) file_put_contents($filename,$output);
+        else return $output;
 
         return true;
-// Optionally check integrity of downloaded file
-        print ('<br /><strong>Downloaded file:</strong> <strong class="blue">'.$filename.'</strong><br />');
-        if (!is_null($checkmd5)) {
-            if(file_exists($filename)) {
-                print ('<br />Checking integrity:');
-                print ('<br />md5  should  be: <b>' . $checkmd5 . '</b>');
-                print ('<br />md5 of the file: <b>' . md5_file($filename) . '</b>');
-                if(strcmp($checkmd5, md5_file($filename))) {
-                    echo '<br /><strong class="red">NO</strong><br />';
-                }
-                else {
-                    echo '<br /><strong class="green">OK</strong><br />';
-                }
-                if ($checkmd5==md5_file($filename)) {
-                    print ('<br />File <b>'.$filename.'</b> was downloaded successfully and integrity verified.');
-                } else {
-                    print ('<br /><b>'.$filename.'</b> was downloaded with errors.<br />');
-                    die('<br /><b>Setup can\'t continue. Proceed with manual installation.</b>');
-                }
-            } else {
-                die('<br />File '.$filename.' can not be downloaded. Proceed with manual installation.');
-            }
-        } // End of $checkmd5
-        print('<br />Average download speed: <b> '.$av_speed.' </b>bytes per second<br />');
     }
 // *********** End of Function download_remote_file **************
 	
