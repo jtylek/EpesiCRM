@@ -172,6 +172,7 @@ session_commit();
 				width: 560px;
 				text-align: center;
 				vertical-align: middle;
+				z-index: 10;
                 color: #336699;
 			}
 			#epesiStatus table {
