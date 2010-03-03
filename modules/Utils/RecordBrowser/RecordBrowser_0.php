@@ -1393,17 +1393,18 @@ class Utils_RecordBrowser extends Module {
 												} else $crits = $adv_crits = array();
 												if ($adv_crits === $crits) $adv_crits = null;
 												if ($adv_crits !== null) {
-//													trigger_error(print_r($crit_callback,true));
-													$rp = $this->init_module('Utils/RecordBrowser/RecordPicker');
-													$this->display_module($rp, array($tab, $args['id'], $multi_adv_params['format_callback'], $adv_crits, $multi_adv_params['cols'], $multi_adv_params['order']));
-													$this->advanced[$args['id']] = $rp->create_open_link($this->t('Advanced'));
+													$crits = $adv_crits;
 												}
 											} else $crits = array();
 											$col = explode('|',$col);
 											$col_id = array();
 											foreach ($col as $c) $col_id[] = preg_replace('/[^a-z0-9]/','_',strtolower($c));
-											$records = Utils_RecordBrowserCommon::get_records($tab, $crits, empty($multi_adv_params['format_callback'])?$col_id:array(), !empty($multi_adv_params['order'])?$multi_adv_params['order']:array());
-//											$records = Utils_RecordBrowserCommon::get_records($tab, $crits, empty($multi_adv_params['format_callback'])?$col_id:array());
+											$rec_count = Utils_RecordBrowserCommon::get_records_count($tab, $crits, empty($multi_adv_params['format_callback'])?$col_id:array(), !empty($multi_adv_params['order'])?$multi_adv_params['order']:array());
+											if ($rec_count<=50) {
+												$records = Utils_RecordBrowserCommon::get_records($tab, $crits, empty($multi_adv_params['format_callback'])?$col_id:array(), !empty($multi_adv_params['order'])?$multi_adv_params['order']:array());
+											} else {
+												$records = array();
+											}
 											$ext_rec = array();
 											if (isset($record[$args['id']])) {
 												if (!is_array($record[$args['id']])) {
@@ -1453,7 +1454,12 @@ class Utils_RecordBrowser extends Module {
 											if (empty($multi_adv_params['order'])) natcasesort($comp);
 										}
 										if ($args['type']==='select') $comp = array(''=>'---')+$comp;
-										$form->addElement($args['type'], $args['id'], $label, $comp, array('id'=>$args['id']));
+										if ($rec_count>50 && $args['type']=='multiselect') {
+											$f_callback = $multi_adv_params['format_callback'];
+											$form->addElement('automulti', $args['id'], $label, array('Utils_RecordBrowserCommon','automulti_suggestbox'), array($this->tab, $crits, $f_callback, $args['param']), $f_callback);
+										} else {
+											$form->addElement($args['type'], $args['id'], $label, $comp, array('id'=>$args['id']));
+										}
 										if ($mode!=='add') $form->setDefaults(array($args['id']=>$record[$args['id']]));
 										break;
 				}

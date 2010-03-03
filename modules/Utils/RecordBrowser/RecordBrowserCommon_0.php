@@ -1657,6 +1657,24 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		return $ret;
 	}
 
+	public static function automulti_suggestbox($str, $tab, $crits, $f_callback, $param) {
+		$param = explode(';', $param);
+		$ref = explode('::', $param[0]);
+		$fields = explode('|', $ref[1]);
+		$crits = array();
+		$str = DB::Concat(DB::qstr('%'),DB::qstr($str),DB::qstr('%'));
+		$op = '(';
+		foreach ($fields as $f) {
+			$crits[$op.'~"'.$f] = $str;
+			$op = '|';
+		}
+		$records = self::get_records($tab, $crits, array(), array(), 10);
+		$ret = array();
+		foreach ($records as $r)
+			$ret[$r['id']] = call_user_func($f_callback, $r);
+		return $ret;
+	}
+
 /**
  * Function to manipulate clipboard pattern
  * @param string $tab recordbrowser table name
