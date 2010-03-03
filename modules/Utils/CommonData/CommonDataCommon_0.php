@@ -259,13 +259,13 @@ class Utils_CommonDataCommon extends ModuleCommon implements Base_AdminModuleCom
 		return true;
 	}
 	
-	public static function get_translated_tree($col, $deep=0) {
-		$data = Utils_CommonDataCommon::get_translated_array($col, true, false, true);
+	public static function get_translated_tree($col, $order_by_key=false, $deep=0) {
+		$data = Utils_CommonDataCommon::get_translated_array($col, $order_by_key, false, true);
 		if (!$data) return array();
 		$output = array();
 		foreach ($data as $k=>$v) {
 			$output[$k] = $v;
-			$sub = self::get_translated_tree($col.'/'.$k, $deep+1);
+			$sub = self::get_translated_tree($col.'/'.$k, $order_by_key, $deep+1);
 			if ($sub) foreach ($sub as $k2=>$v2) {
 				$output[$k.'/'.$k2] = '* '.$v2;
 			}

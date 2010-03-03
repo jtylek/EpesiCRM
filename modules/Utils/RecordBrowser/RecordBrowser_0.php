@@ -324,7 +324,7 @@ class Utils_RecordBrowser extends Module {
 				$arr = array(''=>$this->ht('No'), 1=>$this->ht('Yes'));
 			} else {
 				if ($this->table_rows[$filter]['type'] == 'commondata') {
-					$arr = array_merge($arr, Utils_CommonDataCommon::get_translated_array($this->table_rows[$filter]['param']['array_id'], $this->table_rows[$filter]['param']['order_by_key']));
+					$arr = Utils_CommonDataCommon::get_translated_array($this->table_rows[$filter]['param']['array_id'], $this->table_rows[$filter]['param']['order_by_key']);
 					natcasesort($arr);
 				} else {
 					$param = explode(';',$this->table_rows[$filter]['param']);
@@ -332,7 +332,7 @@ class Utils_RecordBrowser extends Module {
 					if (!isset($x[1])) continue;
 					list($tab, $col) = $x;
 					if ($tab=='__COMMON__') {
-						$arr = array_merge($arr, Utils_CommonDataCommon::get_translated_tree($col));
+						$arr = Utils_CommonDataCommon::get_translated_tree($col);
 					} else {
 						$col = explode('|',$col);
 						Utils_RecordBrowserCommon::check_table_name($tab);

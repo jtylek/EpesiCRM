@@ -264,7 +264,7 @@ function recursive_rmdir($path) {
 		if ($name == '.' || $name == '..')
 			continue;
 		$name = $path . '/' . $name;
-		if (is_dir($name)) {
+		if (is_dir($name) && @readlink($name)===false) {
 			recursive_rmdir($name);
 		} else
 			unlink($name);
