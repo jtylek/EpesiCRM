@@ -1384,6 +1384,7 @@ class Utils_RecordBrowser extends Module {
 											$data = Utils_CommonDataCommon::get_translated_tree($col);
 											if (!is_array($data)) $data = array();
 											$comp = $comp+$data;
+											$rec_count = 0;
 										} else {
 											if (isset($crits_callback)) {
 												$crit_callback = explode('::',$crits_callback);
