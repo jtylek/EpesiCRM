@@ -34,10 +34,13 @@ class Base_ModuleDownloader extends Module {
         $destfile .= '.zip';
         // download file
         $url = self::server . '?' . http_build_query(array('action'=>'file', 'id'=>$mid));
-        if( $this->download_remote_file($url, $destfile) ) {
+        if( ($ret = $this->download_remote_file($url, $destfile)) === true ) {
             print($this->t('File download succeded!').'<br/>');
         } else {
             print($this->t('Error downloading file!').'<br/>');
+            if( $ret == '403' ) {
+                print($this->t('This code is no longer valid! Please request appropriate person for valid code!').'<br/>');
+            }
             return;
         }
         // request md5 sum
@@ -86,8 +89,8 @@ class Base_ModuleDownloader extends Module {
             print($filename.' download returned cURL error: '.$errno);
         }
 
-        if ($response_code == '404') {
-            return false;
+        if ($response_code == '404' || $response_code == '403') {
+            return $response_code;
         }
 
         if($filename) file_put_contents($filename,$output);
